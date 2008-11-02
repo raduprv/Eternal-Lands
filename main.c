@@ -233,7 +233,8 @@ int start_rendering()
 #endif
 
 #ifdef NEW_SOUND
-	destroy_sound();	// Cleans up and waits for the thread
+	destroy_sound();		// Cleans up physical elements of the sound system and the streams thread
+	clear_sound_data();		// Cleans up the config data
 #endif // NEW_SOUND
 	unload_questlog();
 #ifdef EMOTES
@@ -252,9 +253,6 @@ int start_rendering()
 	main_bbox_tree = NULL;
 	free_astro_buffer();
 	/* Destroy our GL context, etc. */
-#ifdef NEW_SOUND
-	destroy_sound();							// FIXME: This is done above, does it need to be done here?
-#endif // NEW_SOUND
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 	SDL_QuitSubSystem(SDL_INIT_TIMER);
 /*#ifdef WINDOWS

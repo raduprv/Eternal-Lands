@@ -888,12 +888,14 @@ void init_stuff()
 	draw_scene_timer= SDL_AddTimer (1000/(18*4), my_timer, NULL);
 	misc_timer= SDL_AddTimer (500, check_misc, NULL);
 
+	safe_snprintf(config_location, sizeof(config_location), datadir_location_str, datadir);
+	LOG_TO_CONSOLE(c_green4, config_location);
 	cfgdir = get_path_config();
-	if(cfgdir != NULL){
+	if (cfgdir != NULL) {
 		//Realistically, if this failed, then there's not much point in continuing, but oh well...
 		safe_snprintf(config_location, sizeof(config_location), config_location_str, cfgdir);
+		LOG_TO_CONSOLE(c_green4, config_location);
 	}
-	LOG_TO_CONSOLE(c_green4, config_location);
 
 	update_loading_win(prep_op_win_str, 7);
 	create_opening_root_window (window_width, window_height);

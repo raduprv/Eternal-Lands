@@ -37,116 +37,7 @@
 #endif
 #include "actor_init.h"
 
-// mainy of these lists are being phased out by using the id's in XML instead, here as defaults for now
-// NOTE: with the new XML standards being used, these are being phased out in preference to the numeric's in the XML
-const dict_elem actor_type_dict[] =
-	{ { "human female"          , human_female           },
-	  { "human male"            , human_male             },
-	  { "elf female"            , elf_female             },
-	  { "elf male"              , elf_male               },
-	  { "dwarf female"          , dwarf_female           },
-	  { "dwarf male"            , dwarf_male             },
-	  { "wraith"                , wraith                 },
-	  { "cyclops"               , cyclops                },
-	  { "beaver"                , beaver                 },
-	  { "rat"                   , rat                    },
-	  { "goblin male 2"         , goblin_male_2          },
-	  { "goblin female 1"       , goblin_female_1        },
-	  { "town folk 4"           , town_folk4             },
-	  { "town folk 5"           , town_folk5             },
-	  { "shop girl 3"           , shop_girl3             },
-	  { "deer"                  , deer                   },
-	  { "bear 1"                , bear                   },
-	  { "wolf"                  , wolf                   },
-	  { "white rabbit"          , white_rabbit           },
-	  { "brown rabbit"          , brown_rabbit           },
-	  { "boar"                  , boar                   },
-	  { "bear 2"                , bear2                  },
-	  { "snake 1"               , snake1                 },
-	  { "snake 2"               , snake2                 },
-	  { "snake 3"               , snake3                 },
-	  { "fox"                   , fox                    },
-	  { "puma"                  , puma                   },
-	  { "ogre male 1"           , ogre_male_1            },
-	  { "goblin male 1"         , goblin_male_1          },
-	  { "orc male 1"            , orc_male_1             },
-	  { "orc female 1"          , orc_female_1           },
-	  { "skeleton"              , skeleton               },
-	  { "gargoyle 1"            , gargoyle1              },
-	  { "gargoyle 2"            , gargoyle2              },
-	  { "gargoyle 3"            , gargoyle3              },
-	  { "troll"                 , troll                  },
-	  { "chimeran mountain wolf", chimeran_wolf_mountain },
-	  { "gnome female"          , gnome_female           },
-	  { "gnome male"			, gnome_male             },
-	  { "orchan female"			, orchan_female          },
-	  { "orchan male"			, orchan_male            },
-	  { "draegoni female"		, draegoni_female        },
-	  { "draegoni male"			, draegoni_male          },
-	  { "skunk 1"				, skunk_1	             },
-	  { "racoon 1"				, racoon_1	             },
-	  { "unicorn 1"				, unicorn_1	             },
-	  { "chimeran desert wolf"	, chimeran_wolf_desert   },
-	  { "chimeran forest wolf"	, chimeran_wolf_forest   },
-	  { "bear 3"			, bear_3		     },
-	  { "bear 4"			, bear_4		     },
-	  { "panther"			, panther		     },
-	  { "feran"				, feran		     },
-	  { "leopard 1"			, leopard_1		     },
-	  { "leopard 2"			, leopard_2		     },
-	  { "chimeran arctic wolf"	, chimeran_wolf_arctic   },
-	  { "tiger 1"				, tiger_1		     },
-	  { "tiger 2"				, tiger_2		     },
-	  { "armed female orc"		, armed_female_orc		},
-	  { "armed male orc"		, armed_male_orc		},
-	  { "armed skeleton"		, armed_skeleton		},
-	  { "phantom warrior"		, phantom_warrior		},
-	  { "imp"					, imp					},
-	  { "brownie"				, brownie				},
-	  { "leprechaun"			, leprechaun			},
-	  { "spider big 1"			, spider_l_1			},
-	  { "spider big 2"			, spider_l_2			},
-	  { "spider big 3"			, spider_l_3			},
-	  { "spider small 1"		, spider_s_1			},
-	  { "spider small 2"		, spider_s_2			},
-	  { "spider small 3"		, spider_s_3			},
-	  { "wood sprite"			, wood_sprite			},
-	  { "spider big 4"			, spider_l_4			},
-	  { "spider small 4"		, spider_s_4			},
-	  { "giant 1"				, giant_1               },
-	  { "hobgoblin"				, hobgoblin             },
-	  { "yeti"					, yeti                  },
-	  { "hobgoblin 1"			, hobgoblin             },
-	  { "yeti 1"				, yeti                  },
-
-	  { NULL                    , -1					}
-	};
-
-const dict_elem shirt_color_dict[] =
-	{ { "black"               , SHIRT_BLACK                },
-	  { "blue"                , SHIRT_BLUE                 },
-	  { "brown"               , SHIRT_BROWN                },
-	  { "grey"                , SHIRT_GREY                 },
-	  { "green"               , SHIRT_GREEN                },
-	  { "light brown"         , SHIRT_LIGHTBROWN           },
-	  { "orange"              , SHIRT_ORANGE               },
-	  { "pink"                , SHIRT_PINK                 },
-	  { "purple"              , SHIRT_PURPLE               },
-	  { "red"                 , SHIRT_RED                  },
-	  { "white"               , SHIRT_WHITE                },
-	  { "yellow"              , SHIRT_YELLOW               },
-	  { "leather armor"       , SHIRT_LEATHER_ARMOR        },
-	  { "chain armor"         , SHIRT_CHAIN_ARMOR          },
-	  { "steel chain armor"   , SHIRT_STEEL_CHAIN_ARMOR    },
-	  { "titanium chain armor", SHIRT_TITANIUM_CHAIN_ARMOR },
-	  { "iron plate armor"    , SHIRT_IRON_PLATE_ARMOR     },
-	  { "steel plate armor"   , SHIRT_STEEL_PLATE_ARMOR    },
-	  { "titanium plate armor", SHIRT_TITANIUM_PLATE_ARMOR },
-	  { "augmented leather"   , SHIRT_AUGMENTED_LEATHER_ARMOR },
-	  { "fur"                 , SHIRT_FUR                  },
-	  { NULL                  , -1                         }
-	};
-
+#ifndef EXT_ACTOR_DICT
 const dict_elem skin_color_dict[] =
 	{ { "brown"	, SKIN_BROWN	},
 	  { "normal", SKIN_NORMAL	},
@@ -158,171 +49,6 @@ const dict_elem skin_color_dict[] =
 	  { NULL	, -1			}
 	};
 
-const dict_elem hair_color_dict[] =
-	{ { "black"	, HAIR_BLACK  },
-	  { "blond" , HAIR_BLOND  },
-	  { "brown" , HAIR_BROWN  },
-	  { "grey"  , HAIR_GRAY   },
-	  { "red"   , HAIR_RED    },
-	  { "white" , HAIR_WHITE  },
-	  { "blue"  , HAIR_BLUE   },	// Draegoni only
-	  { "green" , HAIR_GREEN  },	// Draegoni only
-	  { "purple", HAIR_PURPLE },	// Draegoni only
-	  { "dark_brown",   HAIR_DARK_BROWN},
-	  { "strawberry",	HAIR_STRAWBERRY},
-	  { "light_blond",	HAIR_LIGHT_BLOND},
-	  { "dirty_blond",	HAIR_DIRTY_BLOND},
-	  { "brown_gray",	HAIR_BROWN_GRAY},
-	  { "dark_gray"	,	HAIR_DARK_GRAY},
-	  { "dark_red"	,	HAIR_DARK_RED},
-	  { NULL    , -1          }
-	};
-
-const dict_elem boots_color_dict[] =
-	{ { "black"       , BOOTS_BLACK       },
-	  { "brown"       , BOOTS_BROWN       },
-	  { "dark brown"  , BOOTS_DARKBROWN   },
-	  { "dull brown"  , BOOTS_DULLBROWN   },
-	  { "light brown" , BOOTS_LIGHTBROWN  },
-	  { "orange"      , BOOTS_ORANGE      },
-	  { "leather"     , BOOTS_LEATHER     },
-	  { "fur"         , BOOTS_FUR         },
-	  { "iron greaves", BOOTS_IRON_GREAVE },
-	  { "steel greaves", BOOTS_STEEL_GREAVE },
-	  { "titanium greaves", BOOTS_TITANIUM_GREAVE },
-	  { "bronze greaves", BOOTS_BRONZE_GREAVE },
-	  { "augmented leather", BOOTS_AUGMENTED_LEATHER_GREAVE },
-	  { NULL          , -1                }
-	};
-
-const dict_elem legs_color_dict[] =
-	{ { "black"       , PANTS_BLACK        },
-	  { "blue"        , PANTS_BLUE         },
-	  { "brown"       , PANTS_BROWN        },
-	  { "dark brown"  , PANTS_DARKBROWN    },
-	  { "grey"        , PANTS_GREY         },
-	  { "green"       , PANTS_GREEN        },
-	  { "light brown" , PANTS_LIGHTBROWN   },
-	  { "red"         , PANTS_RED          },
-	  { "white"       , PANTS_WHITE        },
-	  { "leather"     , PANTS_LEATHER      },
-	  { "iron cuisses", PANTS_IRON_CUISSES },
-	  { "steel cuisses"       , PANTS_STEEL_CUISSES        },
-	  { "titanium cuisses"     , PANTS_TITANIUM_CUISSES      },
-	  { "bronze cuisses", PANTS_BRONZE_CUISSES },
-	  { "augmented leather", PANTS_AUGMENTED_LEATHER_CUISSES },
-	  { "fur"         , PANTS_FUR          },
-	  { NULL          , -1                 }
-	};
-
-const dict_elem cape_color_dict[] =
-	{ { "black"     , CAPE_BLACK      },
-	  { "blue"      , CAPE_BLUE       },
-	  { "blue grey" , CAPE_BLUEGRAY   },
-	  { "brown"     , CAPE_BROWN      },
-	  { "brown grey", CAPE_BROWNGRAY  },
-	  { "grey"      , CAPE_GRAY       },
-	  { "green"     , CAPE_GREEN      },
-	  { "green grey", CAPE_GREENGRAY  },
-	  { "purple"    , CAPE_PURPLE     },
-	  { "white"     , CAPE_WHITE      },
-	  { "fur"       , CAPE_FUR        },
-	  { "gold"      , CAPE_GOLD       },
-	  { "red"       , CAPE_RED        },
-	  { "orange"    , CAPE_ORANGE     },
-	  { "mod"       , CAPE_MOD        },
-	  { "derin"     , CAPE_DERIN      },
-	  { "ravenod"   , CAPE_RAVENOD    },
-	  { "placid"    , CAPE_PLACID     },
-	  { "lordvermor",CAPE_LORD_VERMOR},
-	  { "aislinn"   , CAPE_AISLINN    },
-	  { "soldus"    , CAPE_SOLDUS     },
-	  { "lotharion" , CAPE_LOTHARION  },
-	  { "learner"   , CAPE_LEARNER    },
-//	  { "moonshadow", CAPE_MOONSHADOW },
-//	  { "rogue"     , CAPE_ROGUE      },
-//	  { "wytter"    , CAPE_WYTTER     },
-//	  { "quell"     , CAPE_QUELL      },
-	  { "none"      , CAPE_NONE       },
-	  { NULL        , -1              }
-	};
-
-const dict_elem shield_type_dict[] =
-	{ { "wood"         , SHIELD_WOOD          },
-	  { "wood enhanced", SHIELD_WOOD_ENHANCED },
-	  { "iron"         , SHIELD_IRON          },
-	  { "steel"        , SHIELD_STEEL         },
-	  { "titanium"     , SHIELD_TITANIUM      },
-	  { "bronze"       , SHIELD_BRONZE        },
-	  { "none"         , SHIELD_NONE          },
-	  { "quiver arrows", QUIVER_ARROWS        },
-	  { "quiver bolts" , QUIVER_BOLTS         },
-	  { NULL           , -1                   }
-	};
-
-const dict_elem weapon_type_dict[] =
-	{ { "none"                        , WEAPON_NONE              },
-	  { "sword 1"                     , SWORD_1                  },
-	  { "sword 2"                     , SWORD_2                  },
-	  { "sword 3"                     , SWORD_3                  },
-	  { "sword 4"                     , SWORD_4                  },
-	  { "sword 5"                     , SWORD_5                  },
-	  { "sword 6"                     , SWORD_6                  },
-	  { "sword 7"                     , SWORD_7                  },
-	  { "staff 1"                     , STAFF_1                  },
-	  { "staff 2"                     , STAFF_2                  },
-	  { "staff 3"                     , STAFF_3                  },
-	  { "staff 4"                     , STAFF_4                  },
-	  { "hammer 1"                    , HAMMER_1                 },
-	  { "hammer 2"                    , HAMMER_2                 },
-	  { "pickaxe"                     , PICKAX                   },
-	  { "sword 1 of fire"             , SWORD_1_FIRE             },
-	  { "sword 2 of fire"             , SWORD_2_FIRE             },
-	  { "sword 2 of ice"              , SWORD_2_COLD             },
-	  { "sword 3 of fire"             , SWORD_3_FIRE             },
-	  { "sword 3 of ice"              , SWORD_3_COLD             },
-	  { "sword 3 of magic"            , SWORD_3_MAGIC            },
-	  { "sword 4 of fire"             , SWORD_4_FIRE             },
-	  { "sword 4 of ice"              , SWORD_4_COLD             },
-	  { "sword 4 of magic"            , SWORD_4_MAGIC            },
-	  { "thermal sword 4"             , SWORD_4_THERMAL          },
-	  { "sword 5 of fire"             , SWORD_5_FIRE             },
-	  { "sword 5 of ice"              , SWORD_5_COLD             },
-	  { "sword 5 of magic"            , SWORD_5_MAGIC            },
-	  { "thermal sword 5"             , SWORD_5_THERMAL          },
-	  { "sword 6 of fire"             , SWORD_6_FIRE             },
-	  { "sword 6 of ice"              , SWORD_6_COLD             },
-	  { "sword 6 of magic"            , SWORD_6_MAGIC            },
-	  { "thermal sword 6"             , SWORD_6_THERMAL          },
-	  { "sword 7 of fire"             , SWORD_7_FIRE             },
-	  { "sword 7 of ice"              , SWORD_7_COLD             },
-	  { "sword 7 of magic"            , SWORD_7_MAGIC            },
-	  { "thermal sword 7"             , SWORD_7_THERMAL          },
-	  { "pickaxe of magic"            , PICKAX_MAGIC             },
-	  { "iron battle axe"             , BATTLEAXE_IRON           },
-	  { "steel battle axe"            , BATTLEAXE_STEEL          },
-	  { "titanium battle axe"         , BATTLEAXE_TITANIUM       },
-	  { "iron battle axe of fire"     , BATTLEAXE_IRON_FIRE      },
-	  { "steel battle axe of ice"     , BATTLEAXE_STEEL_COLD     },
-	  { "steel battle axe of fire"    , BATTLEAXE_STEEL_FIRE     },
-	  { "titanium battle axe of ice"  , BATTLEAXE_TITANIUM_COLD  },
-	  { "titanium battle axe of fire" , BATTLEAXE_TITANIUM_FIRE  },
-	  { "titanium battle axe of magic", BATTLEAXE_TITANIUM_MAGIC },
-	  { "fur gloves"                  , GLOVE_FUR                },
-	  { "leather gloves"              , GLOVE_LEATHER            },
-	  { "bone 1"              	      , BONE_1	                 },
-	  { "stick 1"              	      , STICK_1	                 },
-	  { "sword 8"                     , SWORD_EMERALD_CLAYMORE   },
-	  { "sword 9"                     , SWORD_CUTLASS            },
-	  { "sword 10"                    , SWORD_SUNBREAKER         },
-	  { "sword 11"                    , SWORD_ORC_SLAYER         },
-	  { "sword 12"                    , SWORD_EAGLE_WING         },
-	  { "sword 13"                    , SWORD_RAPIER             },
-	  { "sword 14"                    , SWORD_JAGGED_SABER       },
-	  { "bronze sword"                , SWORD_BRONZE             },
-	  { NULL                          , -1                       }
-	};
-
 const dict_elem glow_mode_dict[] =
 	{ { "none"   , GLOW_NONE    },
 	  { "fire"   , GLOW_FIRE    },
@@ -330,21 +56,6 @@ const dict_elem glow_mode_dict[] =
 	  { "thermal", GLOW_THERMAL },
 	  { "magic"  , GLOW_MAGIC   },
 	  { NULL     , -1           }
-	};
-
-const dict_elem helmet_type_dict[] =
-	{ { "iron"   , HELMET_IRON    },
-	  { "fur"    , HELMET_FUR     },
-	  { "leather", HELMET_LEATHER },
-	  { "racoon" , HELMET_RACOON  },
-	  { "skunk"  , HELMET_SKUNK   },
-	  { "crown_mana"  , HELMET_CROWN_OF_MANA   },
-	  { "crown_life"  , HELMET_CROWN_OF_LIFE   },
-	  { "steel"  , HELMET_STEEL   },
-	  { "titanium",HELMET_TITANIUM},
-	  { "bronze" , HELMET_BRONZE  },
-	  { "none"   , HELMET_NONE    },
-	  { NULL     , -1             }
 	};
 
 const dict_elem head_number_dict[] =
@@ -355,6 +66,18 @@ const dict_elem head_number_dict[] =
 	  { "5" ,  HEAD_5 },
 	  { NULL, -1      }
 	};
+#else // EXT_ACTOR_DICT
+#define MAX_SKIN_COLORS 7
+#define MAX_GLOW_MODES 5
+#define MAX_HEAD_NUMBERS 5
+dict_elem skin_color_dict[MAX_SKIN_COLORS];
+dict_elem head_number_dict[MAX_GLOW_MODES];
+dict_elem glow_mode_dict[MAX_HEAD_NUMBERS];
+int num_skin_colors = 0;
+int num_head_numbers = 0;
+int num_glow_modes = 0;
+actor_parts_enum actor_part_sizes[10];
+#endif // EXT_ACTOR_DICT
 
 //Forward declarations
 int cal_load_weapon_mesh (actor_types *act, const char *fn, const char *kind);
@@ -654,18 +377,18 @@ void move_to_next_frame()
 			else if(!actors_list[i]->IsOnIdle && actors_list[i]->stand_idle && actors_list[i]->anim_time>=5.0){
 				// lets see if we want to change the idle animation
 				// make sure we have at least two idles, and add a randomizer to continue
-				if(actors_defs[actors_list[i]->actor_type].cal_idle2_frame.anim_index != -1 && RAND(0,50) == 0){
+				if(actors_defs[actors_list[i]->actor_type].cal_frames[cal_actor_idle2_frame].anim_index != -1 && RAND(0,50) == 0){
 					// pick what we want the next idle to be
 					// 75% chance to do idle1
 					if(RAND(0, 3) == 0){
 						// and check to see if we are changing the animation or not
-						if(actors_list[i]->cur_anim.anim_index != actors_defs[actors_list[i]->actor_type].cal_idle2_frame.anim_index){
-							cal_actor_set_anim_delay(i, actors_defs[actors_list[i]->actor_type].cal_idle2_frame, 0.5f); // normal idle
+						if(actors_list[i]->cur_anim.anim_index != actors_defs[actors_list[i]->actor_type].cal_frames[cal_actor_idle2_frame].anim_index){
+							cal_actor_set_anim_delay(i, actors_defs[actors_list[i]->actor_type].cal_frames[cal_actor_idle2_frame], 0.5f); // normal idle
 						}
 					} else {
 						// and check to see if we are changing the animation or not
-						if(actors_list[i]->cur_anim.anim_index != actors_defs[actors_list[i]->actor_type].cal_idle1_frame.anim_index){
-							cal_actor_set_anim_delay(i, actors_defs[actors_list[i]->actor_type].cal_idle1_frame, 0.5f); // normal idle
+						if(actors_list[i]->cur_anim.anim_index != actors_defs[actors_list[i]->actor_type].cal_frames[cal_actor_idle1_frame].anim_index){
+							cal_actor_set_anim_delay(i, actors_defs[actors_list[i]->actor_type].cal_frames[cal_actor_idle1_frame], 0.5f); // normal idle
 						}
 					}
 				}
@@ -677,10 +400,10 @@ void move_to_next_frame()
 				if (!is_actor_held(actors_list[i]))
 				{
 					// 1% chance to do idle2
-					if (actors_defs[actors_list[i]->actor_type].cal_idle2_frame.anim_index != -1 && RAND(0, 99) == 0)
-						cal_actor_set_anim(i, actors_defs[actors_list[i]->actor_type].cal_idle2_frame); // normal idle
+					if (actors_defs[actors_list[i]->actor_type].cal_frames[cal_actor_idle2_frame].anim_index != -1 && RAND(0, 99) == 0)
+						cal_actor_set_anim(i, actors_defs[actors_list[i]->actor_type].cal_frames[cal_actor_idle2_frame]); // normal idle
 					else
-						cal_actor_set_anim(i, actors_defs[actors_list[i]->actor_type].cal_idle1_frame); // normal idle
+						cal_actor_set_anim(i, actors_defs[actors_list[i]->actor_type].cal_frames[cal_actor_idle1_frame]); // normal idle
 				}
 			}
 #endif // ATTACHED_ACTORS
@@ -720,10 +443,10 @@ void set_on_idle(int actor_idx)
         a->stop_animation=0;
         
         if(a->fighting){
-            cal_actor_set_anim(actor_idx,actors_defs[a->actor_type].cal_combat_idle_frame);
+            cal_actor_set_anim(actor_idx,actors_defs[a->actor_type].cal_frames[cal_actor_combat_idle_frame]);
         }
         else if (a->in_aim_mode == 1) {
-            cal_actor_set_anim(actor_idx,actors_defs[a->actor_type].weapon[a->cur_weapon].cal_range_idle_frame);
+            cal_actor_set_anim(actor_idx,actors_defs[a->actor_type].weapon[a->cur_weapon].cal_frames[cal_weapon_range_idle_frame]);
         }
         else if(!a->sitting) {
             // we are standing, see if we can activate a stand idle
@@ -733,14 +456,14 @@ void set_on_idle(int actor_idx)
 #ifdef ATTACHED_ACTORS
 					attachment_props *att_props = get_attachment_props_if_held(a);
 					if (att_props)
-						cal_actor_set_anim(actor_idx, att_props->cal_idle_frame);
+						cal_actor_set_anim(actor_idx, att_props->cal_frames[cal_attached_idle_frame]);
 					else
 #endif // ATTACHED_ACTORS
                     // 75% chance to do idle1
-                    if (actors_defs[a->actor_type].cal_idle2_frame.anim_index != -1 && RAND(0, 3) == 0){
-                        cal_actor_set_anim(actor_idx, actors_defs[a->actor_type].cal_idle2_frame); // normal idle
+                    if (actors_defs[a->actor_type].cal_frames[cal_actor_idle2_frame].anim_index != -1 && RAND(0, 3) == 0){
+                        cal_actor_set_anim(actor_idx, actors_defs[a->actor_type].cal_frames[cal_actor_idle2_frame]); // normal idle
                     } else {
-                        cal_actor_set_anim(actor_idx, actors_defs[a->actor_type].cal_idle1_frame); // normal idle
+                        cal_actor_set_anim(actor_idx, actors_defs[a->actor_type].cal_frames[cal_actor_idle1_frame]); // normal idle
                     }
                 }
                 else
@@ -754,7 +477,7 @@ void set_on_idle(int actor_idx)
         } else	{
             // we are sitting, see if we can activate the sit idle
             if(!a->sit_idle) {
-                cal_actor_set_anim(actor_idx,actors_defs[a->actor_type].cal_idle_sit_frame);
+                cal_actor_set_anim(actor_idx,actors_defs[a->actor_type].cal_frames[cal_actor_idle_sit_frame]);
                 a->sit_idle=1;
             }
         }
@@ -772,39 +495,39 @@ void handle_emote_command(int a, actor *act, emote_commands command)
 	{
 		case wave:
 			LOG_TO_CONSOLE(c_green2, "Wave emote command");
-			cal_actor_set_anim(a, actors_defs[act->actor_type].cal_emote_wave_frame);
+			cal_actor_set_anim(a, actors_defs[act->actor_type].cal_frames[cal_actor_emote_wave_frame]);
 			break;
 		case nod_head:
 			LOG_TO_CONSOLE(c_green2, "Nod head emote command");
-			cal_actor_set_anim(a, actors_defs[act->actor_type].cal_emote_nod_head_frame);
+			cal_actor_set_anim(a, actors_defs[act->actor_type].cal_frames[cal_actor_emote_nod_head_frame]);
 			break;
 		case shake_head:
 			LOG_TO_CONSOLE(c_green2, "Shake head emote command");
-			cal_actor_set_anim(a, actors_defs[act->actor_type].cal_emote_shake_head_frame);
+			cal_actor_set_anim(a, actors_defs[act->actor_type].cal_frames[cal_actor_emote_shake_head_frame]);
 			break;
 		case clap_hands:
 			LOG_TO_CONSOLE(c_green2, "Clap hands emote command");
-			cal_actor_set_anim(a, actors_defs[act->actor_type].cal_emote_clap_hands_frame);
+			cal_actor_set_anim(a, actors_defs[act->actor_type].cal_frames[cal_actor_emote_clap_hands_frame]);
 			break;
 		case shrug:
 			LOG_TO_CONSOLE(c_green2, "Shrug emote command");
-			cal_actor_set_anim(a, actors_defs[act->actor_type].cal_emote_shrug_frame);
+			cal_actor_set_anim(a, actors_defs[act->actor_type].cal_frames[cal_actor_emote_shrug_frame]);
 			break;
 		case scratch_head:
 			LOG_TO_CONSOLE(c_green2, "Scratch head emote command");
-			cal_actor_set_anim(a, actors_defs[act->actor_type].cal_emote_scratch_head_frame);
+			cal_actor_set_anim(a, actors_defs[act->actor_type].cal_frames[cal_actor_emote_scratch_head_frame]);
 			break;
 		case jump:
 			LOG_TO_CONSOLE(c_green2, "Jump emote command");
-			cal_actor_set_anim(a, actors_defs[act->actor_type].cal_emote_jump_frame);
+			cal_actor_set_anim(a, actors_defs[act->actor_type].cal_frames[cal_actor_emote_jump_frame]);
 			break;
 		case stretch:
 			LOG_TO_CONSOLE(c_green2, "Stretch emote command");
-			cal_actor_set_anim(a, actors_defs[act->actor_type].cal_emote_stretch_frame);
+			cal_actor_set_anim(a, actors_defs[act->actor_type].cal_frames[cal_actor_emote_stretch_frame]);
 			break;
 		case bow:
 			LOG_TO_CONSOLE(c_green2, "Bow emote command");
-			cal_actor_set_anim(a, actors_defs[act->actor_type].cal_emote_bow_frame);
+			cal_actor_set_anim(a, actors_defs[act->actor_type].cal_frames[cal_actor_emote_bow_frame]);
 			break;
 		default:
 			LOG_ERROR("Unknown emote command: %d", command);
@@ -824,7 +547,7 @@ void handle_emote_command(int a, actor *act, emote_commands command)
 //in case the actor is not busy, and has commands in it's que, execute them
 void next_command()
 {
-	int i;
+	int i, index;
 	int max_queue=0;
 
 	for(i=0;i<max_actors;i++){
@@ -862,12 +585,12 @@ void next_command()
 						actors_list[i]=0;*/ //Obsolete
 						break;
 					case die1:
-						cal_actor_set_anim(i,actors_defs[actor_type].cal_die1_frame);
+						cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[cal_actor_die1_frame]);
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->dead=1;
 						break;
 					case die2:
-						cal_actor_set_anim(i,actors_defs[actor_type].cal_die2_frame);
+						cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[cal_actor_die2_frame]);
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->dead=1;
 						break;
@@ -875,10 +598,10 @@ void next_command()
 #ifdef ATTACHED_ACTORS
 						attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
 						if (att_props)
-							cal_actor_set_anim(i, att_props->cal_pain_frame);
+							cal_actor_set_anim(i, att_props->cal_frames[cal_attached_pain_frame]);
 						else
 #endif // ATTACHED_ACTORS
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_pain1_frame);
+							cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[cal_actor_pain1_frame]);
 						actors_list[i]->stop_animation=1;
 						break;
 					}
@@ -886,36 +609,36 @@ void next_command()
 #ifdef ATTACHED_ACTORS
 						attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
 						if (att_props)
-							cal_actor_set_anim(i, att_props->cal_pain_frame);
+							cal_actor_set_anim(i, att_props->cal_frames[cal_attached_pain_frame]);
 						else
 #endif // ATTACHED_ACTORS
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_pain2_frame);
+							cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[cal_actor_pain2_frame]);
 						actors_list[i]->stop_animation=1;
 						break;
 					}
 					case pick:
-						cal_actor_set_anim(i,actors_defs[actor_type].cal_pick_frame);
+						cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[cal_actor_pick_frame]);
 						actors_list[i]->stop_animation=1;
 						break;
 					case drop:
-						cal_actor_set_anim(i,actors_defs[actor_type].cal_drop_frame);
+						cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[cal_actor_drop_frame]);
 						actors_list[i]->stop_animation=1;
 						break;
 					case harvest:
-						cal_actor_set_anim(i,actors_defs[actor_type].cal_harvest_frame);
+						cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[cal_actor_harvest_frame]);
 						actors_list[i]->stop_animation=1;
 						LOG_TO_CONSOLE(c_green2,"Harvesting!");
 						break;
 					case cast:
-						cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_cast_frame);
+						cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[cal_actor_attack_cast_frame]);
 						actors_list[i]->stop_animation=1;
 						break;
 					case ranged:
-						cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_ranged_frame);
+						cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[cal_actor_attack_ranged_frame]);
 						actors_list[i]->stop_animation=1;
 						break;
 					case sit_down:
-						cal_actor_set_anim(i,actors_defs[actor_type].cal_sit_down_frame);
+						cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[cal_actor_sit_down_frame]);
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->sitting=1;
 						if(actors_list[i]->actor_id==yourself)
@@ -923,294 +646,95 @@ void next_command()
 						break;
 					case stand_up:
 						//LOG_TO_CONSOLE(c_green2,"stand_up");
-						cal_actor_set_anim(i,actors_defs[actor_type].cal_stand_up_frame);
+						cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[cal_actor_stand_up_frame]);
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->sitting=0;
 						if(actors_list[i]->actor_id==yourself)
 							you_stand_up();
 						break;
 					case enter_combat:
-						cal_actor_set_anim(i,actors_defs[actor_type].cal_in_combat_frame);
+						cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[cal_actor_in_combat_frame]);
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->fighting=1;
 						//if (actors_list[i]->actor_id==yourself) LOG_TO_CONSOLE(c_green2,"Enter Combat");
 						break;
 					case leave_combat:
-						cal_actor_set_anim(i,actors_defs[actor_type].cal_out_combat_frame);
+						cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[cal_actor_out_combat_frame]);
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->fighting=0;
 						break;
 					case attack_up_1:
-						if(actors_list[i]->is_enhanced_model){
-							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_1_frame);
-						} else {
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_1_frame);
-						}
-						actors_list[i]->stop_animation=1;
-						actors_list[i]->fighting=1;
-
-#ifdef NEW_SOUND
-						// Maybe play a battlecry sound
-						add_battlecry_sound(actors_list[i]);
-#endif // NEW_SOUND
-						break;
 					case attack_up_2:
-						if(actors_list[i]->is_enhanced_model){
-							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_2_frame);
-						} else {
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_2_frame);
-						}
-						actors_list[i]->stop_animation=1;
-						actors_list[i]->fighting=1;
-
-#ifdef NEW_SOUND
-						// Maybe play a battlecry sound
-						add_battlecry_sound(actors_list[i]);
-#endif // NEW_SOUND
-						break;
 					case attack_up_3:
-						if(actors_list[i]->is_enhanced_model){
-							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_3_frame);
-						} else {
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_3_frame);
-						}
-						actors_list[i]->stop_animation=1;
-						actors_list[i]->fighting=1;
-
-#ifdef NEW_SOUND
-						// Maybe play a battlecry sound
-						add_battlecry_sound(actors_list[i]);
-#endif // NEW_SOUND
-						break;
 					case attack_up_4:
-						if(actors_list[i]->is_enhanced_model){
-							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_4_frame);
-						} else {
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_4_frame);
-						}
-						actors_list[i]->stop_animation=1;
-						actors_list[i]->fighting=1;
-
-#ifdef NEW_SOUND
-						// Maybe play a battlecry sound
-						add_battlecry_sound(actors_list[i]);
-#endif // NEW_SOUND
-						break;
 					case attack_up_5:
-						if(actors_list[i]->is_enhanced_model){
-							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_5_frame);
-						} else {
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_5_frame);
-						}
-						actors_list[i]->stop_animation=1;
-						actors_list[i]->fighting=1;
-
-#ifdef NEW_SOUND
-						// Maybe play a battlecry sound
-						add_battlecry_sound(actors_list[i]);
-#endif // NEW_SOUND
-						break;
 					case attack_up_6:
-						if(actors_list[i]->is_enhanced_model){
-							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_6_frame);
-						} else {
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_6_frame);
-						}
-						actors_list[i]->stop_animation=1;
-						actors_list[i]->fighting=1;
-
-#ifdef NEW_SOUND
-						// Maybe play a battlecry sound
-						add_battlecry_sound(actors_list[i]);
-#endif // NEW_SOUND
-						break;
 					case attack_up_7:
-						if(actors_list[i]->is_enhanced_model){
-							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_7_frame);
-						} else {
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_7_frame);
-						}
-						actors_list[i]->stop_animation=1;
-						actors_list[i]->fighting=1;
-
-#ifdef NEW_SOUND
-						// Maybe play a battlecry sound
-						add_battlecry_sound(actors_list[i]);
-#endif // NEW_SOUND
-						break;
 					case attack_up_8:
-						if(actors_list[i]->is_enhanced_model){
-							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_8_frame);
-						} else {
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_8_frame);
-						}
-						actors_list[i]->stop_animation=1;
-						actors_list[i]->fighting=1;
-
-#ifdef NEW_SOUND
-						// Maybe play a battlecry sound
-						add_battlecry_sound(actors_list[i]);
-#endif // NEW_SOUND
-						break;
 					case attack_up_9:
-						if(actors_list[i]->is_enhanced_model){
-							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_9_frame);
-						} else {
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_9_frame);
-						}
-						actors_list[i]->stop_animation=1;
-						actors_list[i]->fighting=1;
-
-#ifdef NEW_SOUND
-						// Maybe play a battlecry sound
-						add_battlecry_sound(actors_list[i]);
-#endif // NEW_SOUND
-						break;
 					case attack_up_10:
-						if(actors_list[i]->is_enhanced_model){
-							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_10_frame);
-						} else {
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_10_frame);
-						}
-						actors_list[i]->stop_animation=1;
-						actors_list[i]->fighting=1;
-
-#ifdef NEW_SOUND
-						// Maybe play a battlecry sound
-						add_battlecry_sound(actors_list[i]);
-#endif // NEW_SOUND
-						break;
 					case attack_down_1:
-						if(actors_list[i]->is_enhanced_model) {
-							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_down_1_frame);
-						} else {
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_down_1_frame);
-						}
-						actors_list[i]->stop_animation=1;
-						actors_list[i]->fighting=1;
-
-#ifdef NEW_SOUND
-						// Maybe play a battlecry sound
-						add_battlecry_sound(actors_list[i]);
-#endif // NEW_SOUND
-						break;
 					case attack_down_2:
-						if(actors_list[i]->is_enhanced_model) {
-							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_down_2_frame);
-						} else {
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_down_2_frame);
-						}
-						actors_list[i]->stop_animation=1;
-						actors_list[i]->fighting=1;
-
-#ifdef NEW_SOUND
-						// Maybe play a battlecry sound
-						add_battlecry_sound(actors_list[i]);
-#endif // NEW_SOUND
-						break;
 					case attack_down_3:
-						if(actors_list[i]->is_enhanced_model) {
-							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_down_3_frame);
-						} else {
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_down_3_frame);
-						}
-						actors_list[i]->stop_animation=1;
-						actors_list[i]->fighting=1;
-
-#ifdef NEW_SOUND
-						// Maybe play a battlecry sound
-						add_battlecry_sound(actors_list[i]);
-#endif // NEW_SOUND
-						break;
 					case attack_down_4:
-						if(actors_list[i]->is_enhanced_model) {
-							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_down_4_frame);
-						} else {
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_down_4_frame);
-						}
-						actors_list[i]->stop_animation=1;
-						actors_list[i]->fighting=1;
-
-#ifdef NEW_SOUND
-						// Maybe play a battlecry sound
-						add_battlecry_sound(actors_list[i]);
-#endif // NEW_SOUND
-						break;
 					case attack_down_5:
-						if(actors_list[i]->is_enhanced_model) {
-							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_down_5_frame);
-						} else {
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_down_5_frame);
-						}
-						actors_list[i]->stop_animation=1;
-						actors_list[i]->fighting=1;
-
-#ifdef NEW_SOUND
-						// Maybe play a battlecry sound
-						add_battlecry_sound(actors_list[i]);
-#endif // NEW_SOUND
-						break;
 					case attack_down_6:
-						if(actors_list[i]->is_enhanced_model) {
-							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_down_6_frame);
-						} else {
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_down_6_frame);
-						}
-						actors_list[i]->stop_animation=1;
-						actors_list[i]->fighting=1;
-
-#ifdef NEW_SOUND
-						// Maybe play a battlecry sound
-						add_battlecry_sound(actors_list[i]);
-#endif // NEW_SOUND
-						break;
 					case attack_down_7:
-						if(actors_list[i]->is_enhanced_model) {
-							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_down_7_frame);
-						} else {
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_down_7_frame);
-						}
-						actors_list[i]->stop_animation=1;
-						actors_list[i]->fighting=1;
-
-#ifdef NEW_SOUND
-						// Maybe play a battlecry sound
-						add_battlecry_sound(actors_list[i]);
-#endif // NEW_SOUND
-						break;
 					case attack_down_8:
-						if(actors_list[i]->is_enhanced_model) {
-							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_down_8_frame);
-						} else {
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_down_8_frame);
-						}
-						actors_list[i]->stop_animation=1;
-						actors_list[i]->fighting=1;
-
-#ifdef NEW_SOUND
-						// Maybe play a battlecry sound
-						add_battlecry_sound(actors_list[i]);
-#endif // NEW_SOUND
-						break;
 					case attack_down_9:
-						if(actors_list[i]->is_enhanced_model) {
-							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_down_9_frame);
-						} else {
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_down_9_frame);
-						}
-						actors_list[i]->stop_animation=1;
-						actors_list[i]->fighting=1;
-
-#ifdef NEW_SOUND
-						// Maybe play a battlecry sound
-						add_battlecry_sound(actors_list[i]);
-#endif // NEW_SOUND
-						break;
 					case attack_down_10:
-						if(actors_list[i]->is_enhanced_model) {
-							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_down_10_frame);
+						index = -1;
+						switch (actors_list[i]->que[0])
+						{
+							case attack_down_10:
+								index++;
+							case attack_down_9:
+								index++;
+							case attack_down_8:
+								index++;
+							case attack_down_7:
+								index++;
+							case attack_down_6:
+								index++;
+							case attack_down_5:
+								index++;
+							case attack_down_4:
+								index++;
+							case attack_down_3:
+								index++;
+							case attack_down_2:
+								index++;
+							case attack_down_1:
+								index++;
+							case attack_up_10:
+								index++;
+							case attack_up_9:
+								index++;
+							case attack_up_8:
+								index++;
+							case attack_up_7:
+								index++;
+							case attack_up_6:
+								index++;
+							case attack_up_5:
+								index++;
+							case attack_up_4:
+								index++;
+							case attack_up_3:
+								index++;
+							case attack_up_2:
+								index++;
+							case attack_up_1:
+								index++;
+								break;
+							default:
+								break;
+						}
+						if (actors_list[i]->is_enhanced_model) {
+							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_frames[index]);
 						} else {
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_down_10_frame);
+							index += 18;
+							cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[index]);
 						}
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->fighting=1;
@@ -1237,10 +761,10 @@ void next_command()
 #ifdef ATTACHED_ACTORS
 							attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
 							if (att_props)
-								cal_actor_set_anim(i, att_props->cal_walk_frame);
+								cal_actor_set_anim(i, att_props->cal_frames[cal_attached_walk_frame]);
 							else
 #endif // ATTACHED_ACTORS
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_walk_frame);
+							cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[cal_actor_walk_frame]);
 						}
 						actors_list[i]->stop_animation=0;
 						break;
@@ -1261,10 +785,10 @@ void next_command()
 #ifdef ATTACHED_ACTORS
 							attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
 							if (att_props)
-								cal_actor_set_anim(i, att_props->cal_walk_frame);
+								cal_actor_set_anim(i, att_props->cal_frames[cal_attached_walk_frame]);
 							else
 #endif // ATTACHED_ACTORS
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_walk_frame);
+							cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[cal_actor_walk_frame]);
 						}
 						actors_list[i]->stop_animation=0;
 						break;
@@ -1276,7 +800,7 @@ void next_command()
 
 					if (actors_list[i]->in_aim_mode == 0) {
 						missiles_log_message("%s (%d): enter in aim mode", actors_list[i]->actor_name, actors_list[i]->actor_id);
-						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_in_frame);
+						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_frames[cal_weapon_range_in_frame]);
 
 						actors_list[i]->cal_h_rot_start = 0.0;
 						actors_list[i]->cal_v_rot_start = 0.0;
@@ -1290,7 +814,7 @@ void next_command()
 						range_action *action = &actors_list[i]->range_actions[0];
 
 						missiles_log_message("%s (%d): aiming again (time=%d)", actors_list[i]->actor_name, actors_list[i]->actor_id, cur_time);
-						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_idle_frame);
+						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_frames[cal_weapon_range_idle_frame]);
 						actors_list[i]->cal_h_rot_start = (actors_list[i]->cal_h_rot_start *
 														   (1.0 - actors_list[i]->cal_rotation_blend) +
 														   actors_list[i]->cal_h_rot_end *
@@ -1347,7 +871,7 @@ void next_command()
 					}
 
 					missiles_log_message("%s (%d): leaving aim mode", actors_list[i]->actor_name, actors_list[i]->actor_id);
-					cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_out_frame);
+					cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_frames[cal_weapon_range_out_frame]);
 					actors_list[i]->cal_h_rot_start = (actors_list[i]->cal_h_rot_start *
 													   (1.0 - actors_list[i]->cal_rotation_blend) +
 													   actors_list[i]->cal_h_rot_end *
@@ -1389,13 +913,13 @@ void next_command()
 						if (action->reload) {
 							missiles_log_message("%s (%d): fire and reload", actors_list[i]->actor_name, actors_list[i]->actor_id);
 							// launch fire and reload animation
-							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_fire_frame);
+							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_frames[cal_weapon_range_fire_frame]);
 							actors_list[i]->in_aim_mode = 1;
 						}
 						else {
 							missiles_log_message("%s (%d): fire and leave aim mode", actors_list[i]->actor_name, actors_list[i]->actor_id);
 							// launch fire and leave aim mode animation
-							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_fire_out_frame);
+							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_frames[cal_weapon_range_fire_out_frame]);
 							actors_list[i]->in_aim_mode = 2;
 						}
 					
@@ -1508,10 +1032,10 @@ void next_command()
 #ifdef ATTACHED_ACTORS
 							attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
 							if (att_props)
-								walk_anim = &att_props->cal_walk_frame;
+								walk_anim = &att_props->cal_frames[cal_attached_walk_frame];
 							else
 #endif // ATTACHED_ACTORS
-							walk_anim = &actors_defs[actor_type].cal_walk_frame;
+							walk_anim = &actors_defs[actor_type].cal_frames[cal_actor_walk_frame];
 
 							actors_list[i]->moving=1;
 							actors_list[i]->fighting=0;
@@ -2054,9 +1578,9 @@ void add_emote_command_to_actor(actor * act, unsigned char command)
 #endif
 
 	if (!act) {
-		LOG_ERROR("%s (Emote) %d - ?", cant_add_command, command);
+		LOG_ERROR("%s (Emote) %d - NULL actor passed", cant_add_command, command);
 	} else {
-
+		
 		for (k = 0; k < MAX_EMOTE_QUEUE; k++) {
 			if (act->emote_que[k] == emote_nothing) {
 				if (k <= MAX_EMOTE_QUEUE - 2) {
@@ -2441,18 +1965,19 @@ int parse_actor_shirt (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	if(cfg == NULL || cfg->children == NULL) return 0;
 
 	col_idx= get_int_property(cfg, "id");
-	if(col_idx < 0){
+/*	if(col_idx < 0){
 		col_idx= get_property(cfg, "color", "shirt color", shirt_color_dict);
 	}
-	if(col_idx < 0 || col_idx >= ACTOR_SHIRT_SIZE){
+*/
+	if(col_idx < 0 || col_idx >= actor_part_sizes[ACTOR_SHIRT_SIZE]){
 		LOG_ERROR("Unable to find id/property node %s\n", cfg->name);
 		return 0;
 	}
 
 	if (act->shirt == NULL) {
 		int i;
-		act->shirt = (shirt_part*)calloc(ACTOR_SHIRT_SIZE, sizeof(shirt_part));
-		for (i = ACTOR_SHIRT_SIZE; i--;) act->shirt[i].mesh_index= -1;
+		act->shirt = (shirt_part*)calloc(actor_part_sizes[ACTOR_SHIRT_SIZE], sizeof(shirt_part));
+		for (i = actor_part_sizes[ACTOR_SHIRT_SIZE]; i--;) act->shirt[i].mesh_index= -1;
 	}
 
 	shirt= &(act->shirt[col_idx]);
@@ -2517,15 +2042,16 @@ int parse_actor_skin (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	if(col_idx < 0){
 		col_idx= get_property(cfg, "color", "skin color", skin_color_dict);
 	}
-	if(col_idx < 0 || col_idx >= ACTOR_SKIN_SIZE){
+
+	if(col_idx < 0 || col_idx >= actor_part_sizes[ACTOR_SKIN_SIZE]){
 		LOG_ERROR("Unable to find id/property node %s\n", cfg->name);
 		return 0;
 	}
 
 	if (act->skin == NULL) {
 		int i;
-		act->skin = (skin_part*)calloc(ACTOR_SKIN_SIZE, sizeof(skin_part));
-		for (i = ACTOR_SKIN_SIZE; i--;) act->skin[i].mesh_index= -1;
+		act->skin = (skin_part*)calloc(actor_part_sizes[ACTOR_SKIN_SIZE], sizeof(skin_part));
+		for (i = actor_part_sizes[ACTOR_SKIN_SIZE]; i--;) act->skin[i].mesh_index= -1;
 	}
 
 	skin = &(act->skin[col_idx]);
@@ -2583,18 +2109,19 @@ int parse_actor_legs (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	if (cfg == NULL || cfg->children == NULL) return 0;
 
 	col_idx= get_int_property(cfg, "id");
-	if(col_idx < 0){
+/*	if(col_idx < 0){
 		col_idx= get_property(cfg, "color", "legs color", legs_color_dict);
 	}
-	if(col_idx < 0 || col_idx >= ACTOR_LEGS_SIZE){
+*/
+	if(col_idx < 0 || col_idx >= actor_part_sizes[ACTOR_LEGS_SIZE]){
 		LOG_ERROR("Unable to find id/property node %s\n", cfg->name);
 		return 0;
 	}
 
 	if (act->legs == NULL) {
 		int i;
-		act->legs = (legs_part*)calloc(ACTOR_LEGS_SIZE, sizeof(legs_part));
-		for (i = ACTOR_LEGS_SIZE; i--;) act->legs[i].mesh_index= -1;
+		act->legs = (legs_part*)calloc(actor_part_sizes[ACTOR_LEGS_SIZE], sizeof(legs_part));
+		for (i = actor_part_sizes[ACTOR_LEGS_SIZE]; i--;) act->legs[i].mesh_index= -1;
 	}
 
 	legs = &(act->legs[col_idx]);
@@ -2649,7 +2176,7 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
 {
 	xmlNode *item;
 	char str[255];
-	int ok;
+	int ok, index;
 
 	if (cfg == NULL || cfg->children == NULL) return 0;
 
@@ -2663,306 +2190,141 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
 				get_string_value (weapon->skin_name, sizeof (weapon->skin_name), item);
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"skinmask") == 0) {
 				get_string_value (weapon->skin_mask, sizeof (weapon->skin_mask), item);
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up1") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			weapon->cal_attack_up_1_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up2") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			weapon->cal_attack_up_2_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up3") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			weapon->cal_attack_up_3_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up4") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			weapon->cal_attack_up_4_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up5") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			weapon->cal_attack_up_5_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up6") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			weapon->cal_attack_up_6_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up7") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			weapon->cal_attack_up_7_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up8") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			weapon->cal_attack_up_8_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up9") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			weapon->cal_attack_up_9_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up10") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			weapon->cal_attack_up_10_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down1") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			weapon->cal_attack_down_1_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down2") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			weapon->cal_attack_down_2_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down3") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			weapon->cal_attack_down_3_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down4") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			weapon->cal_attack_down_4_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down5") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			weapon->cal_attack_down_5_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down6") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			weapon->cal_attack_down_6_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down7") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			weapon->cal_attack_down_7_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down8") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			weapon->cal_attack_down_8_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down9") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			weapon->cal_attack_down_9_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down10") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			weapon->cal_attack_down_10_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
-			}
-			else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_range_fire") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			weapon->cal_range_fire_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
-			}
-			else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_range_fire_out") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			weapon->cal_range_fire_out_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
-			}
-			else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_range_idle") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			weapon->cal_range_idle_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
-			}
-			else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_range_in") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			weapon->cal_range_in_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
-			}
-			else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_range_out") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			weapon->cal_range_out_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
-			}
-			else if (xmlStrcasecmp (item->name, (xmlChar*)"glow") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"glow") == 0) {
 				int mode = find_description_index (glow_mode_dict, (char*)item->children->content, "glow mode");
 				if (mode < 0) mode = GLOW_NONE;
 				weapon->glow = mode;
 #ifdef NEW_SOUND
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up1") == 0) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_attack_up_1_frame, str, get_string_property(item, "sound_scale"));
+     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_1_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up2") == 0) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_attack_up_2_frame, str, get_string_property(item, "sound_scale"));
+     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_2_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up3") == 0) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_attack_up_3_frame, str, get_string_property(item, "sound_scale"));
+     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_3_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up4") == 0) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_attack_up_4_frame, str, get_string_property(item, "sound_scale"));
+     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_4_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up5") == 0) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_attack_up_5_frame, str, get_string_property(item, "sound_scale"));
+     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_5_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up6") == 0) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_attack_up_6_frame, str, get_string_property(item, "sound_scale"));
+     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_6_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up7") == 0) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_attack_up_7_frame, str, get_string_property(item, "sound_scale"));
+     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_7_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up8") == 0) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_attack_up_8_frame, str, get_string_property(item, "sound_scale"));
+     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_8_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up9") == 0) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_attack_up_9_frame, str, get_string_property(item, "sound_scale"));
+     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_9_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up10") == 0) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_attack_up_10_frame, str, get_string_property(item, "sound_scale"));
+     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_10_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down1") == 0) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_attack_down_1_frame, str, get_string_property(item, "sound_scale"));
+     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_1_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down2") == 0) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_attack_down_2_frame, str, get_string_property(item, "sound_scale"));
+     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_2_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down3") == 0) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_attack_down_3_frame, str, get_string_property(item, "sound_scale"));
+     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_3_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down4") == 0) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_attack_down_4_frame, str, get_string_property(item, "sound_scale"));
+     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_4_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down5") == 0) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_attack_down_5_frame, str, get_string_property(item, "sound_scale"));
+     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_5_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down6") == 0) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_attack_down_6_frame, str, get_string_property(item, "sound_scale"));
+     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_6_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down7") == 0) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_attack_down_7_frame, str, get_string_property(item, "sound_scale"));
+     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_7_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down8") == 0) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_attack_down_8_frame, str, get_string_property(item, "sound_scale"));
+     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_8_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down9") == 0) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_attack_down_9_frame, str, get_string_property(item, "sound_scale"));
+     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_9_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down10") == 0) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_attack_down_10_frame, str, get_string_property(item, "sound_scale"));
+     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_10_frame], str, get_string_property(item, "sound_scale"));
 #endif	//NEW_SOUND
 			} else {
-				LOG_ERROR("unknown weapon property \"%s\"", item->name);
-				ok = 0;
+				index = -1;
+				if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up1") == 0) {
+					index = cal_weapon_attack_up_1_frame;
+				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up2") == 0) {
+					index = cal_weapon_attack_up_2_frame;
+				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up3") == 0) {
+					index = cal_weapon_attack_up_3_frame;
+				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up4") == 0) {
+					index = cal_weapon_attack_up_4_frame;
+				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up5") == 0) {
+					index = cal_weapon_attack_up_5_frame;
+				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up6") == 0) {
+					index = cal_weapon_attack_up_6_frame;
+				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up7") == 0) {
+					index = cal_weapon_attack_up_7_frame;
+				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up8") == 0) {
+					index = cal_weapon_attack_up_8_frame;
+				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up9") == 0) {
+					index = cal_weapon_attack_up_9_frame;
+				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up10") == 0) {
+					index = cal_weapon_attack_up_10_frame;
+				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down1") == 0) {
+					index = cal_weapon_attack_down_1_frame;
+				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down2") == 0) {
+					index = cal_weapon_attack_down_2_frame;
+				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down3") == 0) {
+					index = cal_weapon_attack_down_3_frame;
+				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down4") == 0) {
+					index = cal_weapon_attack_down_4_frame;
+				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down5") == 0) {
+					index = cal_weapon_attack_down_5_frame;
+				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down6") == 0) {
+					index = cal_weapon_attack_down_6_frame;
+				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down7") == 0) {
+					index = cal_weapon_attack_down_7_frame;
+				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down8") == 0) {
+					index = cal_weapon_attack_down_8_frame;
+				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down9") == 0) {
+					index = cal_weapon_attack_down_9_frame;
+				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down10") == 0) {
+					index = cal_weapon_attack_down_10_frame;
+				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_range_fire") == 0) {
+					index = cal_weapon_range_fire_frame;
+				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_range_fire_out") == 0) {
+					index = cal_weapon_range_fire_out_frame;
+				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_range_idle") == 0) {
+					index = cal_weapon_range_idle_frame;
+				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_range_in") == 0) {
+					index = cal_weapon_range_in_frame;
+				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_range_out") == 0) {
+					index = cal_weapon_range_out_frame;
+				}
+				if (index > -1)
+				{
+					get_string_value (str,sizeof(str),item);
+					weapon->cal_frames[index] = cal_load_anim(act, str
+#ifdef NEW_SOUND
+						, get_string_property(item, "sound")
+						, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+						, get_int_property(item, "duration")
+						);
+				}
+				else
+				{
+					LOG_ERROR("unknown weapon property \"%s\"", item->name);
+					ok = 0;
+				}
 			}
 		} else if (item->type == XML_ENTITY_REF_NODE) {
 			ok &= parse_actor_weapon_detail (act, weapon, item->children, defaults);
@@ -2981,72 +2343,25 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	if (cfg == NULL || cfg->children == NULL) return 0;
 
 	type_idx= get_int_property(cfg, "id");
-	if(type_idx < 0){
+/*	if(type_idx < 0){
 		type_idx= get_property(cfg, "type", "weapon type", weapon_type_dict);
 	}
-	if(type_idx < 0 || type_idx >= ACTOR_WEAPON_SIZE){
+*/
+	if(type_idx < 0 || type_idx >= actor_part_sizes[ACTOR_WEAPON_SIZE]){
 		LOG_ERROR("Unable to find id/property node %s\n", cfg->name);
 		return 0;
 	}
 
 	if (act->weapon == NULL) {
-		int i;
-		act->weapon = (weapon_part*)calloc(ACTOR_WEAPON_SIZE, sizeof(weapon_part));
-		for (i = ACTOR_WEAPON_SIZE; i--;) {
-			act->weapon[i].cal_range_in_frame.anim_index=-1;
-			act->weapon[i].cal_range_out_frame.anim_index=-1;
-			act->weapon[i].cal_range_idle_frame.anim_index=-1;
-			act->weapon[i].cal_range_fire_frame.anim_index=-1;
-			act->weapon[i].cal_range_fire_out_frame.anim_index=-1;
-			act->weapon[i].cal_attack_up_1_frame.anim_index=-1;
-			act->weapon[i].cal_attack_up_2_frame.anim_index=-1;
-			act->weapon[i].cal_attack_up_3_frame.anim_index=-1;
-			act->weapon[i].cal_attack_up_4_frame.anim_index=-1;
-			act->weapon[i].cal_attack_up_5_frame.anim_index=-1;
-			act->weapon[i].cal_attack_up_6_frame.anim_index=-1;
-			act->weapon[i].cal_attack_up_7_frame.anim_index=-1;
-			act->weapon[i].cal_attack_up_8_frame.anim_index=-1;
-			act->weapon[i].cal_attack_up_9_frame.anim_index=-1;
-			act->weapon[i].cal_attack_up_10_frame.anim_index=-1;
-			act->weapon[i].cal_attack_down_1_frame.anim_index=-1;
-			act->weapon[i].cal_attack_down_2_frame.anim_index=-1;
-			act->weapon[i].cal_attack_down_3_frame.anim_index=-1;
-			act->weapon[i].cal_attack_down_4_frame.anim_index=-1;
-			act->weapon[i].cal_attack_down_5_frame.anim_index=-1;
-			act->weapon[i].cal_attack_down_6_frame.anim_index=-1;
-			act->weapon[i].cal_attack_down_7_frame.anim_index=-1;
-			act->weapon[i].cal_attack_down_8_frame.anim_index=-1;
-			act->weapon[i].cal_attack_down_9_frame.anim_index=-1;
-			act->weapon[i].cal_attack_down_10_frame.anim_index=-1;
-			act->weapon[i].mesh_index = -1;
-
+		int i, j;
+		act->weapon = (weapon_part*)calloc(actor_part_sizes[ACTOR_WEAPON_SIZE], sizeof(weapon_part));
+		for (i = actor_part_sizes[ACTOR_WEAPON_SIZE]; i--;) {
+			for (j = 0; j < NUM_WEAPON_FRAMES; j++) {
+				act->weapon[i].cal_frames[j].anim_index = -1;
 #ifdef NEW_SOUND
-			act->weapon[i].cal_range_in_frame.sound=-1;
-			act->weapon[i].cal_range_out_frame.sound=-1;
-			act->weapon[i].cal_range_idle_frame.sound=-1;
-			act->weapon[i].cal_range_fire_frame.sound=-1;
-			act->weapon[i].cal_range_fire_out_frame.sound=-1;
-			act->weapon[i].cal_attack_up_1_frame.sound=-1;
-			act->weapon[i].cal_attack_up_2_frame.sound=-1;
-			act->weapon[i].cal_attack_up_3_frame.sound=-1;
-			act->weapon[i].cal_attack_up_4_frame.sound=-1;
-			act->weapon[i].cal_attack_up_5_frame.sound=-1;
-			act->weapon[i].cal_attack_up_6_frame.sound=-1;
-			act->weapon[i].cal_attack_up_7_frame.sound=-1;
-			act->weapon[i].cal_attack_up_8_frame.sound=-1;
-			act->weapon[i].cal_attack_up_9_frame.sound=-1;
-			act->weapon[i].cal_attack_up_10_frame.sound=-1;
-			act->weapon[i].cal_attack_down_1_frame.sound=-1;
-			act->weapon[i].cal_attack_down_2_frame.sound=-1;
-			act->weapon[i].cal_attack_down_3_frame.sound=-1;
-			act->weapon[i].cal_attack_down_4_frame.sound=-1;
-			act->weapon[i].cal_attack_down_5_frame.sound=-1;
-			act->weapon[i].cal_attack_down_6_frame.sound=-1;
-			act->weapon[i].cal_attack_down_7_frame.sound=-1;
-			act->weapon[i].cal_attack_down_8_frame.sound=-1;
-			act->weapon[i].cal_attack_down_9_frame.sound=-1;
-			act->weapon[i].cal_attack_down_10_frame.sound=-1;
+				act->weapon[i].cal_frames[j].sound = -1;
 #endif // NEW_SOUND
+			}
 		}
 	}
 
@@ -3155,18 +2470,19 @@ int parse_actor_helmet (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	if(cfg == NULL || cfg->children == NULL) return 0;
 
 	type_idx= get_int_property(cfg, "id");
-	if(type_idx < 0){
+/*	if(type_idx < 0){
 		type_idx= get_property(cfg, "type", "helmet type", helmet_type_dict);
 	}
-	if(type_idx < 0 || type_idx >= ACTOR_HELMET_SIZE){
+*/
+	if(type_idx < 0 || type_idx >= actor_part_sizes[ACTOR_HELMET_SIZE]){
 		LOG_ERROR("Unable to find id/property node %s\n", cfg->name);
 		return 0;
 	}
 
 	if (act->helmet == NULL) {
 		int i;
-		act->helmet = (body_part*)calloc(ACTOR_HELMET_SIZE, sizeof(body_part));
-		for (i = ACTOR_HELMET_SIZE; i--;) act->helmet[i].mesh_index= -1;
+		act->helmet = (body_part*)calloc(actor_part_sizes[ACTOR_HELMET_SIZE], sizeof(body_part));
+		for (i = actor_part_sizes[ACTOR_HELMET_SIZE]; i--;) act->helmet[i].mesh_index= -1;
 	}
 
 	helmet= &(act->helmet[type_idx]);
@@ -3194,29 +2510,29 @@ int parse_actor_sounds (actor_types *act, xmlNode *cfg)
 		if (item->type == XML_ELEMENT_NODE) {
 			get_string_value (str,sizeof(str),item);
 			if (xmlStrcasecmp (item->name, (xmlChar*)"walk") == 0) {
-				cal_set_anim_sound(&act->cal_walk_frame, str, get_string_property(item, "sound_scale"));
+				cal_set_anim_sound(&act->cal_frames[cal_actor_walk_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"die1") == 0) {
-				cal_set_anim_sound(&act->cal_die1_frame, str, get_string_property(item, "sound_scale"));
+				cal_set_anim_sound(&act->cal_frames[cal_actor_die1_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"die2") == 0) {
-				cal_set_anim_sound(&act->cal_die2_frame, str, get_string_property(item, "sound_scale"));
+				cal_set_anim_sound(&act->cal_frames[cal_actor_die2_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"pain1") == 0) {
-				cal_set_anim_sound(&act->cal_pain1_frame, str, get_string_property(item, "sound_scale"));
+				cal_set_anim_sound(&act->cal_frames[cal_actor_pain1_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"pain2") == 0) {
-				cal_set_anim_sound(&act->cal_pain2_frame, str, get_string_property(item, "sound_scale"));
+				cal_set_anim_sound(&act->cal_frames[cal_actor_pain2_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"pick") == 0) {
-				cal_set_anim_sound(&act->cal_pick_frame, str, get_string_property(item, "sound_scale"));
+				cal_set_anim_sound(&act->cal_frames[cal_actor_pick_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"drop") == 0) {
-				cal_set_anim_sound(&act->cal_drop_frame, str, get_string_property(item, "sound_scale"));
+				cal_set_anim_sound(&act->cal_frames[cal_actor_drop_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"harvest") == 0) {
-				cal_set_anim_sound(&act->cal_harvest_frame, str, get_string_property(item, "sound_scale"));
+				cal_set_anim_sound(&act->cal_frames[cal_actor_harvest_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"attack_cast") == 0) {
-				cal_set_anim_sound(&act->cal_attack_cast_frame, str, get_string_property(item, "sound_scale"));
+				cal_set_anim_sound(&act->cal_frames[cal_actor_attack_cast_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"attack_ranged") == 0) {
-				cal_set_anim_sound(&act->cal_attack_ranged_frame, str, get_string_property(item, "sound_scale"));
+				cal_set_anim_sound(&act->cal_frames[cal_actor_attack_ranged_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"sit_down") == 0) {
-				cal_set_anim_sound(&act->cal_sit_down_frame, str, get_string_property(item, "sound_scale"));
+				cal_set_anim_sound(&act->cal_frames[cal_actor_sit_down_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"stand_up") == 0) {
-				cal_set_anim_sound(&act->cal_stand_up_frame, str, get_string_property(item, "sound_scale"));
+				cal_set_anim_sound(&act->cal_frames[cal_actor_stand_up_frame], str, get_string_property(item, "sound_scale"));
 			// These sounds are only found in the <sounds> block as they aren't tied to an animation
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"battlecry") == 0) {
 				i = get_index_for_sound_type_name(str);
@@ -3251,18 +2567,19 @@ int parse_actor_cape (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	if(cfg == NULL || cfg->children == NULL) return 0;
 
 	type_idx= get_int_property(cfg, "id");
-	if(type_idx < 0){
+/*	if(type_idx < 0){
 		type_idx= get_property(cfg, "color", "cape color", cape_color_dict);
 	}
-	if(type_idx < 0 || type_idx >= ACTOR_CAPE_SIZE){
+*/
+	if(type_idx < 0 || type_idx >= actor_part_sizes[ACTOR_CAPE_SIZE]){
 		LOG_ERROR("Unable to find id/property node %s\n", cfg->name);
 		return 0;
 	}
 
 	if (act->cape == NULL) {
 		int i;
-		act->cape = (body_part*)calloc(ACTOR_CAPE_SIZE, sizeof(body_part));
-		for (i = ACTOR_CAPE_SIZE; i--;) act->cape[i].mesh_index= -1;
+		act->cape = (body_part*)calloc(actor_part_sizes[ACTOR_CAPE_SIZE], sizeof(body_part));
+		for (i = actor_part_sizes[ACTOR_CAPE_SIZE]; i--;) act->cape[i].mesh_index= -1;
 	}
 
 	cape= &(act->cape[type_idx]);
@@ -3286,15 +2603,16 @@ int parse_actor_head (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	if(type_idx < 0){
 		type_idx= get_property(cfg, "number", "head number", head_number_dict);
 	}
-	if(type_idx < 0 || type_idx >= ACTOR_HEAD_SIZE){
+
+	if(type_idx < 0 || type_idx >= actor_part_sizes[ACTOR_HEAD_SIZE]){
 		LOG_ERROR("Unable to find id/property node %s\n", cfg->name);
 		return 0;
 	}
 
 	if (act->head == NULL) {
 		int i;
-		act->head = (body_part*)calloc(ACTOR_HEAD_SIZE, sizeof(body_part));
-		for (i = ACTOR_HEAD_SIZE; i--;) act->head[i].mesh_index= -1;
+		act->head = (body_part*)calloc(actor_part_sizes[ACTOR_HEAD_SIZE], sizeof(body_part));
+		for (i = actor_part_sizes[ACTOR_HEAD_SIZE]; i--;) act->head[i].mesh_index= -1;
 	}
 
 	head= &(act->head[type_idx]);
@@ -3364,18 +2682,19 @@ int parse_actor_shield (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	if(cfg == NULL || cfg->children == NULL) return 0;
 
 	type_idx= get_int_property(cfg, "id");
-	if(type_idx < 0){
+/*	if(type_idx < 0){
 		type_idx= get_property(cfg, "type", "shield type", shield_type_dict);
 	}
-	if(type_idx < 0 || type_idx >= ACTOR_SHIELD_SIZE){
+*/
+	if(type_idx < 0 || type_idx >= actor_part_sizes[ACTOR_SHIELD_SIZE]){
 		LOG_ERROR("Unable to find id/property node %s\n", cfg->name);
 		return 0;
 	}
 
 	if (act->shield == NULL) {
 		int i;
-		act->shield = (shield_part*)calloc(ACTOR_SHIELD_SIZE, sizeof(shield_part));
-		for (i = ACTOR_SHIELD_SIZE; i--;) {
+		act->shield = (shield_part*)calloc(actor_part_sizes[ACTOR_SHIELD_SIZE], sizeof(shield_part));
+		for (i = actor_part_sizes[ACTOR_SHIELD_SIZE]; i--;) {
 			act->shield[i].mesh_index = -1;
 			act->shield[i].missile_type = -1;
 		}
@@ -3399,18 +2718,19 @@ int parse_actor_hair (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	if(cfg == NULL || cfg->children == NULL) return 0;
 
 	col_idx= get_int_property(cfg, "id");
-	if(col_idx < 0){
+/*	if(col_idx < 0){
 		col_idx= get_property(cfg, "color", "hair color", hair_color_dict);
 	}
-	if(col_idx < 0 || col_idx >= ACTOR_HAIR_SIZE){
+*/
+	if(col_idx < 0 || col_idx >= actor_part_sizes[ACTOR_HAIR_SIZE]){
 		LOG_ERROR("Unable to find id/property node %s\n", cfg->name);
 		return 0;
 	}
 
 	if (act->hair == NULL) {
 		int i;
-		act->hair = (hair_part*)calloc(ACTOR_HAIR_SIZE, sizeof(hair_part));
-		for (i = ACTOR_HAIR_SIZE; i--;) act->hair[i].mesh_index= -1;
+		act->hair = (hair_part*)calloc(actor_part_sizes[ACTOR_HAIR_SIZE], sizeof(hair_part));
+		for (i = actor_part_sizes[ACTOR_HAIR_SIZE]; i--;) act->hair[i].mesh_index= -1;
 	}
 
 	buf= act->hair[col_idx].hair_name;
@@ -3500,448 +2820,135 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 {
 	xmlNode *item;
 	char str[255];
-	//char fname[255];
-	//char temp[255];
-	//int i;
+	int ok = 1, index;
 
-	int ok = 1;
 	if (cfg == NULL) return 0;
 
 	for (item = cfg; item; item = item->next) {
 		if (item->type == XML_ELEMENT_NODE) {
-
+			index = -1;
 			if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_IDLE_GROUP") == 0) {
 				get_string_value (str,sizeof(str),item);
      				//act->cal_walk_frame=cal_load_anim(act,str);
 				//LOG_TO_CONSOLE(c_green2,str);
 				parse_idle_group(act,str);
 				//Not functional!
+				index = -2;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_walk") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_walk_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_walk_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_run") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_run_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_run_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_die1") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_die1_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_die1_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_die2") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_die2_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_die2_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_pain1") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_pain1_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_pain1_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_pain2") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_pain2_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_pain2_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_pick") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_pick_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_pick_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_drop") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_drop_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_drop_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_idle") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_idle1_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_idle1_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_idle2") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_idle2_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_idle2_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_idle_sit") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_idle_sit_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_idle_sit_frame;
  			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_harvest") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_harvest_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_harvest_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_cast") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_attack_cast_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_attack_cast_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_sit_down") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_sit_down_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_sit_down_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_stand_up") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_stand_up_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_stand_up_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_in_combat") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_in_combat_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_in_combat_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_out_combat") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_out_combat_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_out_combat_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_combat_idle") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_combat_idle_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_combat_idle_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up_1") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_attack_up_1_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_attack_up_1_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up_2") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_attack_up_2_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_attack_up_2_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up_3") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_attack_up_3_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_attack_up_3_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up_4") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_attack_up_4_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_attack_up_4_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up_5") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_attack_up_5_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_attack_up_5_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up_6") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_attack_up_6_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_attack_up_6_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up_7") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_attack_up_7_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_attack_up_7_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up_8") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_attack_up_8_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_attack_up_8_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up_9") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_attack_up_9_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_attack_up_9_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up_10") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_attack_up_10_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_attack_up_10_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down_1") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_attack_down_1_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_attack_down_1_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down_2") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_attack_down_2_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_attack_down_2_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down_3") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_attack_down_3_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_attack_down_3_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down_4") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_attack_down_4_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_attack_down_4_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down_5") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_attack_down_5_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_attack_down_5_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down_6") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_attack_down_6_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_attack_down_6_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down_7") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_attack_down_7_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_attack_down_7_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down_8") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_attack_down_8_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_attack_down_8_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down_9") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_attack_down_9_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_attack_down_9_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down_10") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_attack_down_10_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_attack_down_10_frame;
 #ifdef EMOTES
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_emote_wave") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_emote_wave_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_emote_wave_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_emote_nod_head") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_emote_nod_head_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_emote_nod_head_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_emote_shake_head") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_emote_shake_head_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_emote_shake_head_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_emote_clap_hands") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_emote_clap_hands_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_emote_clap_hands_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_emote_shrug") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_emote_shrug_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_emote_shrug_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_emote_scratch_head") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_emote_scratch_head_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_emote_scratch_head_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_emote_jump") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_emote_jump_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_emote_jump_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_emote_stretch") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_emote_stretch_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
+				index = cal_actor_emote_stretch_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_emote_bow") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_emote_bow_frame=cal_load_anim(act, str
+				index = cal_actor_emote_bow_frame;
+#endif // EMOTES
+			}
+			
+			if (index >= 0)
+			{
+				get_string_value(str, sizeof(str), item);
+     			act->cal_frames[index] = cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
 					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 					, get_int_property(item, "duration")
 					);
-#endif // EMOTES
-			} else {
+
+
+
+
+			}
+			else if (index != -2)
+			{
 				LOG_ERROR("unknown frame property \"%s\"", item->name);
 				ok = 0;
 			}
@@ -4017,7 +3024,7 @@ int parse_actor_attachment (actor_types *act, xmlNode *cfg, int actor_type)
 					}
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_held_walk") == 0) {
 				get_string_value (str, sizeof(str), item);
-     			att->actor_type[actor_type].cal_walk_frame=cal_load_anim(held_act, str
+     			att->actor_type[actor_type].cal_frames[cal_attached_walk_frame] = cal_load_anim(held_act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
 					, get_string_property(item, "sound_scale")
@@ -4026,7 +3033,7 @@ int parse_actor_attachment (actor_types *act, xmlNode *cfg, int actor_type)
 					);
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_held_idle") == 0) {
 				get_string_value (str,sizeof(str),item);
-     			att->actor_type[actor_type].cal_idle_frame=cal_load_anim(held_act, str
+     			att->actor_type[actor_type].cal_frames[cal_attached_idle_frame] = cal_load_anim(held_act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
 					, get_string_property(item, "sound_scale")
@@ -4035,7 +3042,7 @@ int parse_actor_attachment (actor_types *act, xmlNode *cfg, int actor_type)
 					);
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_held_pain") == 0) {
 				get_string_value (str,sizeof(str),item);
-     			att->actor_type[actor_type].cal_pain_frame=cal_load_anim(held_act, str
+     			att->actor_type[actor_type].cal_frames[cal_attached_pain_frame] = cal_load_anim(held_act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
 					, get_string_property(item, "sound_scale")
@@ -4064,18 +3071,19 @@ int parse_actor_boots (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	if (cfg == NULL || cfg->children == NULL) return 0;
 
 	col_idx= get_int_property(cfg, "id");
-	if(col_idx < 0){
+/*	if(col_idx < 0){
 		col_idx = get_property (cfg, "color", "boots color", boots_color_dict);
 	}
-	if(col_idx < 0 || col_idx >= ACTOR_BOOTS_SIZE){
+*/
+	if(col_idx < 0 || col_idx >= actor_part_sizes[ACTOR_BOOTS_SIZE]){
 		LOG_ERROR("Unable to find id/property node %s\n", cfg->name);
 		return 0;
 	}
 
 	if (act->boots == NULL) {
 		int i;
-		act->boots = (boots_part*)calloc(ACTOR_BOOTS_SIZE, sizeof(boots_part));
-		for (i = ACTOR_BOOTS_SIZE; i--;) act->boots[i].mesh_index= -1;
+		act->boots = (boots_part*)calloc(actor_part_sizes[ACTOR_BOOTS_SIZE], sizeof(boots_part));
+		for (i = actor_part_sizes[ACTOR_BOOTS_SIZE]; i--;) act->boots[i].mesh_index= -1;
 	}
 
 	boots = &(act->boots[col_idx]);
@@ -4124,13 +3132,13 @@ int cal_search_mesh (actor_types *act, const char *fn, const char *kind)
 	}
 	else if (act->head && strcmp (kind, "head") == 0)
 	{
-		for (i = 0; i < ACTOR_HEAD_SIZE; i++)
+		for (i = 0; i < actor_part_sizes[ACTOR_HEAD_SIZE]; i++)
 			if (strcmp (fn, act->head[i].model_name) == 0 && act->head[i].mesh_index != -1)
 				return act->head[i].mesh_index;
 	}
 	else if (act->shirt && strcmp (kind, "shirt") == 0)
 	{
-		for (i = 0; i < ACTOR_SHIRT_SIZE; i++)
+		for (i = 0; i < actor_part_sizes[ACTOR_SHIRT_SIZE]; i++)
 		{
 			if (strcmp (fn, act->shirt[i].model_name) == 0 && act->shirt[i].mesh_index != -1)
 				return act->shirt[i].mesh_index;
@@ -4138,7 +3146,7 @@ int cal_search_mesh (actor_types *act, const char *fn, const char *kind)
 	}
 	else if (act->legs && strcmp (kind, "legs") == 0)
 	{
-		for (i = 0; i < ACTOR_LEGS_SIZE; i++)
+		for (i = 0; i < actor_part_sizes[ACTOR_LEGS_SIZE]; i++)
 		{
 			if (strcmp (fn, act->legs[i].model_name) == 0 && act->legs[i].mesh_index != -1)
 				return act->legs[i].mesh_index;
@@ -4146,7 +3154,7 @@ int cal_search_mesh (actor_types *act, const char *fn, const char *kind)
 	}
 	else if (act->cape && strcmp (kind, "cape") == 0)
 	{
-		for (i = 0; i < ACTOR_CAPE_SIZE; i++)
+		for (i = 0; i < actor_part_sizes[ACTOR_CAPE_SIZE]; i++)
 		{
 			if (strcmp (fn, act->cape[i].model_name) == 0 && act->cape[i].mesh_index != -1)
 				return act->cape[i].mesh_index;
@@ -4154,7 +3162,7 @@ int cal_search_mesh (actor_types *act, const char *fn, const char *kind)
 	}
 	else if (act->helmet && strcmp (kind, "helmet") == 0)
 	{
-		for (i = 0; i < ACTOR_HELMET_SIZE; i++)
+		for (i = 0; i < actor_part_sizes[ACTOR_HELMET_SIZE]; i++)
 		{
 			if (strcmp (fn, act->helmet[i].model_name) == 0 && act->helmet[i].mesh_index != -1)
 				return act->helmet[i].mesh_index;
@@ -4162,7 +3170,7 @@ int cal_search_mesh (actor_types *act, const char *fn, const char *kind)
 	}
 	else if (act->shield && strcmp (kind, "shield") == 0)
 	{
-		for (i = 0; i < ACTOR_SHIELD_SIZE; i++)
+		for (i = 0; i < actor_part_sizes[ACTOR_SHIELD_SIZE]; i++)
 		{
 			if (strcmp (fn, act->shield[i].model_name) == 0 && act->shield[i].mesh_index != -1)
 				return act->shield[i].mesh_index;
@@ -4170,7 +3178,7 @@ int cal_search_mesh (actor_types *act, const char *fn, const char *kind)
 	}
 	else if (act->weapon && strcmp (kind, "weapon") == 0)
 	{
-		for (i = 0; i < ACTOR_WEAPON_SIZE; i++)
+		for (i = 0; i < actor_part_sizes[ACTOR_WEAPON_SIZE]; i++)
 		{
 			if (strcmp (fn, act->weapon[i].model_name) == 0 && act->weapon[i].mesh_index != -1)
 				return act->weapon[i].mesh_index;
@@ -4183,10 +3191,6 @@ int cal_search_mesh (actor_types *act, const char *fn, const char *kind)
 //Loads a Cal3D mesh
 int cal_load_mesh (actor_types *act, const char *fn, const char *kind)
 {
-	//int i;
-	//int meshindex=-1;
-	//char fname[255];
-	//char temp[255];
 	int res;
 	struct CalCoreMesh *mesh;
 
@@ -4215,10 +3219,6 @@ int cal_load_mesh (actor_types *act, const char *fn, const char *kind)
 
 int cal_load_weapon_mesh (actor_types *act, const char *fn, const char *kind)
 {
-	//int i;
-	//int meshindex=-1;
-	//char fname[255];
-	//char temp[255];
 	int res;
 	struct CalCoreMesh *mesh;
 
@@ -4338,15 +3338,19 @@ int	parse_actor_nodes (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 int parse_actor_script (xmlNode *cfg)
 {
 	int ok, act_idx, i;
+#ifdef ATTACHED_ACTORS
+	int j;
+#endif // ATTACHED_ACTORS
 	actor_types *act;
 	struct CalCoreSkeleton *skel;
 
 	if(cfg == NULL || cfg->children == NULL) return 0;
 
 	act_idx= get_int_property(cfg, "id");
-	if(act_idx < 0){
+/*	if(act_idx < 0){
 		act_idx= get_property(cfg, "type", "actor type", actor_type_dict);
 	}
+*/
 	if(act_idx < 0 || act_idx >= MAX_ACTOR_DEFS){
 		char	str[256];
 		char    name[256];
@@ -4388,125 +3392,24 @@ int parse_actor_script (xmlNode *cfg)
 		act->idle_group[i].count= 0;
 	}
 
-	act->cal_walk_frame.anim_index= -1;
-	act->cal_run_frame.anim_index= -1;
-	act->cal_die1_frame.anim_index= -1;
-	act->cal_die2_frame.anim_index= -1;
-	act->cal_pain1_frame.anim_index= -1;
-	act->cal_pain2_frame.anim_index= -1;
-	act->cal_pick_frame.anim_index= -1;
-	act->cal_drop_frame.anim_index= -1;
-	act->cal_idle1_frame.anim_index= -1;
-	act->cal_idle2_frame.anim_index= -1;
-	act->cal_idle_sit_frame.anim_index= -1;
-	act->cal_harvest_frame.anim_index= -1;
-	act->cal_attack_cast_frame.anim_index= -1;
-	act->cal_attack_ranged_frame.anim_index= -1;
-	act->cal_sit_down_frame.anim_index= -1;
-	act->cal_stand_up_frame.anim_index= -1;
-	act->cal_in_combat_frame.anim_index= -1;
-	act->cal_out_combat_frame.anim_index= -1;
-	act->cal_combat_idle_frame.anim_index= -1;
-	act->cal_attack_up_1_frame.anim_index= -1;
-	act->cal_attack_up_2_frame.anim_index= -1;
-	act->cal_attack_up_3_frame.anim_index= -1;
-	act->cal_attack_up_4_frame.anim_index= -1;
-	act->cal_attack_up_5_frame.anim_index= -1;
-	act->cal_attack_up_6_frame.anim_index= -1;
-	act->cal_attack_up_7_frame.anim_index= -1;
-	act->cal_attack_up_8_frame.anim_index= -1;
-	act->cal_attack_up_9_frame.anim_index= -1;
-	act->cal_attack_up_10_frame.anim_index= -1;
-	act->cal_attack_down_1_frame.anim_index= -1;
-	act->cal_attack_down_2_frame.anim_index= -1;
-	act->cal_attack_down_3_frame.anim_index= -1;
-	act->cal_attack_down_4_frame.anim_index= -1;
-	act->cal_attack_down_5_frame.anim_index= -1;
-	act->cal_attack_down_6_frame.anim_index= -1;
-	act->cal_attack_down_7_frame.anim_index= -1;
-	act->cal_attack_down_8_frame.anim_index= -1;
-	act->cal_attack_down_9_frame.anim_index= -1;
-	act->cal_attack_down_10_frame.anim_index= -1;
-#ifdef EMOTES
-	act->cal_emote_wave_frame.anim_index = -1;
-	act->cal_emote_nod_head_frame.anim_index = -1;
-	act->cal_emote_shake_head_frame.anim_index = -1;
-	act->cal_emote_clap_hands_frame.anim_index = -1;
-	act->cal_emote_shrug_frame.anim_index = -1;
-	act->cal_emote_scratch_head_frame.anim_index = -1;
-	act->cal_emote_jump_frame.anim_index = -1;
-	act->cal_emote_stretch_frame.anim_index = -1;
-	act->cal_emote_bow_frame.anim_index = -1;
-#endif // EMOTES
+	for (i = 0; i < NUM_ACTOR_FRAMES; i++) {
+		act->cal_frames[i].anim_index= -1;
+#ifdef NEW_SOUND
+		act->cal_frames[i].sound= -1;
+#endif // NEW_SOUND
+	}
 	
 #ifdef ATTACHED_ACTORS
 	for (i = 0; i < MAX_ACTOR_DEFS; ++i)
 	{
-		attached_actors_defs[act_idx].actor_type[i].cal_idle_frame.anim_index = -1;
-		attached_actors_defs[act_idx].actor_type[i].cal_walk_frame.anim_index = -1;
-		attached_actors_defs[act_idx].actor_type[i].cal_pain_frame.anim_index = -1;
+		for (j = 0; j < NUM_ATTACHED_ACTOR_FRAMES; j++) {
+			attached_actors_defs[act_idx].actor_type[i].cal_frames[j].anim_index = -1;
 #ifdef NEW_SOUND
-		attached_actors_defs[act_idx].actor_type[i].cal_idle_frame.sound = -1;
-		attached_actors_defs[act_idx].actor_type[i].cal_walk_frame.sound = -1;
-		attached_actors_defs[act_idx].actor_type[i].cal_pain_frame.sound = -1;
+			attached_actors_defs[act_idx].actor_type[i].cal_frames[j].sound = -1;
 #endif // NEW_SOUND
+		}
 	}
 #endif // ATTACHED_ACTORS
-
-#ifdef NEW_SOUND
-	act->cal_walk_frame.sound= -1;
-	act->cal_run_frame.sound= -1;
-	act->cal_die1_frame.sound= -1;
-	act->cal_die2_frame.sound= -1;
-	act->cal_pain1_frame.sound= -1;
-	act->cal_pain2_frame.sound= -1;
-	act->cal_pick_frame.sound= -1;
-	act->cal_drop_frame.sound= -1;
-	act->cal_idle1_frame.sound= -1;
-	act->cal_idle2_frame.sound= -1;
-	act->cal_idle_sit_frame.sound= -1;
-	act->cal_harvest_frame.sound= -1;
-	act->cal_attack_cast_frame.sound= -1;
-	act->cal_attack_ranged_frame.sound= -1;
-	act->cal_sit_down_frame.sound= -1;
-	act->cal_stand_up_frame.sound= -1;
-	act->cal_in_combat_frame.sound= -1;
-	act->cal_out_combat_frame.sound= -1;
-	act->cal_combat_idle_frame.sound= -1;
-	act->cal_attack_up_1_frame.sound= -1;
-	act->cal_attack_up_2_frame.sound= -1;
-	act->cal_attack_up_3_frame.sound= -1;
-	act->cal_attack_up_4_frame.sound= -1;
-	act->cal_attack_up_5_frame.sound= -1;
-	act->cal_attack_up_6_frame.sound= -1;
-	act->cal_attack_up_7_frame.sound= -1;
-	act->cal_attack_up_8_frame.sound= -1;
-	act->cal_attack_up_9_frame.sound= -1;
-	act->cal_attack_up_10_frame.sound= -1;
-	act->cal_attack_down_1_frame.sound= -1;
-	act->cal_attack_down_2_frame.sound= -1;
-	act->cal_attack_down_3_frame.sound= -1;
-	act->cal_attack_down_4_frame.sound= -1;
-	act->cal_attack_down_5_frame.sound= -1;
-	act->cal_attack_down_6_frame.sound= -1;
-	act->cal_attack_down_7_frame.sound= -1;
-	act->cal_attack_down_8_frame.sound= -1;
-	act->cal_attack_down_9_frame.sound= -1;
-	act->cal_attack_down_10_frame.sound= -1;
-    act->battlecry.sound = -1;
-	act->battlecry.scale = 1.0f;
-#ifdef EMOTES
-	act->cal_emote_wave_frame.anim_index = -1;
-	act->cal_emote_nod_head_frame.anim_index = -1;
-	act->cal_emote_shake_head_frame.anim_index = -1;
-	act->cal_emote_clap_hands_frame.anim_index = -1;
-	act->cal_emote_shrug_frame.anim_index = -1;
-	act->cal_emote_scratch_head_frame.anim_index = -1;
-	act->cal_emote_jump_frame.anim_index = -1;
-	act->cal_emote_stretch_frame.anim_index = -1;
-	act->cal_emote_bow_frame.anim_index = -1;
-#endif // EMOTES
-#endif // NEW_SOUND
 
 #ifdef VARIABLE_SPEED
     act->step_duration = DEFAULT_STEP_DURATION; // default value
@@ -4527,7 +3430,7 @@ int parse_actor_script (xmlNode *cfg)
 		// If this not an enhanced actor, load the single mesh and exit
 		if(!act->head || strcmp (act->head[0].model_name, "") == 0)
 		{
-			act->shirt = (shirt_part*)calloc(ACTOR_SHIRT_SIZE, sizeof(shirt_part));
+			act->shirt = (shirt_part*)calloc(actor_part_sizes[ACTOR_SHIRT_SIZE], sizeof(shirt_part));
 #ifdef NEW_LIGHTING
 			strncpy(act->shirt[0].model_name, act->file_name, sizeof(act->shirt[0].model_name));
 #endif
@@ -4566,6 +3469,193 @@ int parse_actor_defs (xmlNode *node)
 	return ok;
 }
 
+#ifdef EXT_ACTOR_DICT
+int parse_skin_colours(xmlNode *node)
+{
+	xmlNode *data;
+	int ok = 1, i;
+
+	num_skin_colors = 0;
+	for (i = 0; i < MAX_SKIN_COLORS; i++) {
+		skin_color_dict[i].index = 0;
+		strcpy(skin_color_dict[i].desc, "");
+	}
+	for (data = node->children; data; data = data->next) {
+		if (data->type == XML_ELEMENT_NODE) {
+			if (xmlStrcasecmp(data->name, (xmlChar*)"skin") == 0) {
+				safe_strncpy(skin_color_dict[num_skin_colors].desc, get_string_property(data, "color"), sizeof(skin_color_dict[num_skin_colors].desc));
+				skin_color_dict[num_skin_colors].index = get_int_value(data);
+				num_skin_colors++;
+			} else {
+				LOG_ERROR("parse error: skin or include expected");
+				ok = 0;
+			}
+		} else if (data->type == XML_ENTITY_REF_NODE) {
+			ok &= parse_skin_colours(data->children);
+		}
+	}
+
+	return ok;
+}
+
+int parse_glow_modes(xmlNode *node)
+{
+	xmlNode *data;
+	int ok = 1, i;
+
+	num_glow_modes = 0;
+	for (i = 0; i < MAX_GLOW_MODES; i++) {
+		glow_mode_dict[i].index = 0;
+		strcpy(glow_mode_dict[i].desc, "");
+	}
+	for (data = node->children; data; data = data->next) {
+		if (data->type == XML_ELEMENT_NODE) {
+			if (xmlStrcasecmp(data->name, (xmlChar*)"glow") == 0) {
+				safe_strncpy(glow_mode_dict[num_glow_modes].desc, get_string_property(data, "mode"), sizeof(glow_mode_dict[num_glow_modes].desc));
+				glow_mode_dict[num_glow_modes].index = get_int_value(data);
+				num_glow_modes++;
+			} else {
+				LOG_ERROR("parse error: glow or include expected");
+				ok = 0;
+			}
+		} else if (data->type == XML_ENTITY_REF_NODE) {
+			ok &= parse_glow_modes(data->children);
+		}
+	}
+
+	return ok;
+}
+
+int parse_head_numbers(xmlNode *node)
+{
+	xmlNode *data;
+	int ok = 1, i;
+
+	num_head_numbers = 0;
+	for (i = 0; i < MAX_HEAD_NUMBERS; i++) {
+		head_number_dict[i].index = 0;
+		strcpy(head_number_dict[i].desc, "");
+	}
+	for (data = node->children; data; data = data->next) {
+		if (data->type == XML_ELEMENT_NODE) {
+			if (xmlStrcasecmp(data->name, (xmlChar*)"head") == 0) {
+				safe_strncpy(head_number_dict[num_head_numbers].desc, get_string_property(data, "number"), sizeof(head_number_dict[num_head_numbers].desc));
+				head_number_dict[num_head_numbers].index = get_int_value(data);
+				num_head_numbers++;
+			} else {
+				LOG_ERROR("parse error: head or include expected");
+				ok = 0;
+			}
+		} else if (data->type == XML_ENTITY_REF_NODE) {
+			ok &= parse_head_numbers(data->children);
+		}
+	}
+
+	return ok;
+}
+
+int parse_actor_dict(xmlNode *node)
+{
+	xmlNode *data;
+	int ok = 1;
+
+	for (data = node->children; data; data = data->next) {
+		if (data->type == XML_ELEMENT_NODE) {
+			if (xmlStrcasecmp(data->name, (xmlChar*)"skin_colors") == 0) {
+				ok &= parse_skin_colours(data);
+			} else if (xmlStrcasecmp(data->name, (xmlChar*)"glow_modes") == 0) {
+				ok &= parse_glow_modes(data);
+			} else if (xmlStrcasecmp(data->name, (xmlChar*)"head_numbers") == 0) {
+				ok &= parse_head_numbers(data);
+			} else {
+				LOG_ERROR("parse error: skin_colors, glow_modes, head_numbers or include expected");
+				ok = 0;
+			}
+		} else if (data->type == XML_ENTITY_REF_NODE) {
+			ok &= parse_actor_dict(data->children);
+		}
+	}
+
+	return ok;
+}
+
+int parse_actor_part_sizes(xmlNode *node)
+{
+	xmlNode *data;
+	int ok = 1;
+	char str[20];
+
+	for (data = node->children; data; data = data->next) {
+		if (data->type == XML_ELEMENT_NODE) {
+			if (xmlStrcasecmp(data->name, (xmlChar*)"size") == 0) {
+				safe_strncpy(str, get_string_property(data, "part"), sizeof(str));
+				if (!strcasecmp(str, "head")) {
+					actor_part_sizes[ACTOR_HEAD_SIZE] = get_int_value(data);
+				} else if (!strcasecmp(str, "shield")) {
+					actor_part_sizes[ACTOR_SHIELD_SIZE] = get_int_value(data);
+				} else if (!strcasecmp(str, "cape")) {
+					actor_part_sizes[ACTOR_CAPE_SIZE] = get_int_value(data);
+				} else if (!strcasecmp(str, "helmet")) {
+					actor_part_sizes[ACTOR_HELMET_SIZE] = get_int_value(data);
+				} else if (!strcasecmp(str, "weapon")) {
+					actor_part_sizes[ACTOR_WEAPON_SIZE] = get_int_value(data);
+				} else if (!strcasecmp(str, "shirt")) {
+					actor_part_sizes[ACTOR_SHIRT_SIZE] = get_int_value(data);
+				} else if (!strcasecmp(str, "skin")) {
+					actor_part_sizes[ACTOR_SKIN_SIZE] = get_int_value(data);
+				} else if (!strcasecmp(str, "hair")) {
+					actor_part_sizes[ACTOR_HAIR_SIZE] = get_int_value(data);
+				} else if (!strcasecmp(str, "boots")) {
+					actor_part_sizes[ACTOR_BOOTS_SIZE] = get_int_value(data);
+				} else if (!strcasecmp(str, "legs")) {
+					actor_part_sizes[ACTOR_LEGS_SIZE] = get_int_value(data);
+				}
+			} else {
+				LOG_ERROR("parse error: size or include expected");
+				ok = 0;
+			}
+		} else if (data->type == XML_ENTITY_REF_NODE) {
+			ok &= parse_actor_part_sizes(data->children);
+		}
+	}
+
+	return ok;
+}
+
+int parse_actor_data(xmlNode *node)
+{
+	xmlNode *data;
+	int ok = 1;
+	static int dict = 0, parts = 0;
+
+	for (data = node->children; data; data = data->next) {
+		if (data->type == XML_ELEMENT_NODE) {
+			if (xmlStrcasecmp(data->name, (xmlChar*)"actors") == 0) {
+				// Check we have parsed both the actor dict and part sizes already!!
+				if (parts && dict)
+					ok &= parse_actor_defs(data);
+				else
+				{
+					LOG_ERROR("parse error: actor_dict (%d) and actor_part_sizes (%d) *must* be parsed before actors", dict, parts);
+					ok = 0;
+				}
+			} else if (xmlStrcasecmp(data->name, (xmlChar*)"actor_dict") == 0) {
+				ok &= dict = parse_actor_dict(data);
+			} else if (xmlStrcasecmp(data->name, (xmlChar*)"actor_part_sizes") == 0) {
+				ok &= parts = parse_actor_part_sizes(data);
+			} else {
+				LOG_ERROR("parse error: actors, actor_dict, actor_part_sizes or include expected");
+				ok = 0;
+			}
+		} else if (data->type == XML_ENTITY_REF_NODE) {
+			ok &= parse_actor_data(data->children);
+		}
+	}
+
+	return ok;
+}
+#endif // EXT_ACTOR_DICT
+
 int read_actor_defs (const char *dir, const char *index)
 {
 	xmlNode *root;
@@ -4585,11 +3675,20 @@ int read_actor_defs (const char *dir, const char *index)
 	if (root == NULL) {
 		LOG_ERROR("Unable to parse actor definition file %s", fname);
 		ok = 0;
+#ifndef EXT_ACTOR_DICT
 	} else if (xmlStrcasecmp (root->name, (xmlChar*)"actors") != 0) {
 		LOG_ERROR("Unknown key \"%s\" (\"actors\" expected).", root->name);
+#else // EXT_ACTOR_DICT
+	} else if (xmlStrcasecmp (root->name, (xmlChar*)"actor_data") != 0) {
+		LOG_ERROR("Unknown key \"%s\" (\"actor_data\" expected).", root->name);
+#endif // EXT_ACTOR_DICT
 		ok = 0;
 	} else {
+#ifndef EXT_ACTOR_DICT
 		ok = parse_actor_defs (root);
+#else // EXT_ACTOR_DICT
+		ok = parse_actor_data (root);
+#endif // EXT_ACTOR_DICT
 	}
 
 	xmlFreeDoc (doc);

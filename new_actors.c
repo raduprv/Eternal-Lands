@@ -579,6 +579,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 
 		safe_snprintf(str, sizeof(str), "Illegal/missing enhanced actor definition %d", actor_type);
 		log_error(str);
+		return;		// We cannot load an actor without a def (seg fault) so bail here.
 	}
 
 	frame=*(in_data+22);
@@ -998,7 +999,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			actors_list[i]->last_anim_update= cur_time;
 
 			if(dead){
-				cal_actor_set_anim(i, actors_defs[actors_list[i]->actor_type].cal_die1_frame);
+				cal_actor_set_anim(i, actors_defs[actors_list[i]->actor_type].cal_frames[cal_actor_die1_frame]);
 				actors_list[i]->stop_animation=1;
 				CalModel_Update(actors_list[i]->calmodel,1000);
 			}

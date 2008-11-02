@@ -1,74 +1,3 @@
-/*************************************
- * NEW SOUND - EL's new sound system *
- *************************************
- *
- * Welcome to EL's new sound system. There are basically 5 parts to the code.
- * 1. Init/destroy, 2. Config, 3. Sources, 4. Streams, 5. Individual sounds
- *
- * This description of the code is currently in its first phase and therefore very
- * general. I intend on expanding on it over time.
- *
- * The base of this code was written by d000hg and has been extended by Torg
- * (torg@grug.redirectme.net).
- *
- *
- *
- * -- Part 1 - Init/destroy --
- * This part deals with initialisation and destruction of the physical aspects of
- * the sound system itself. These include setting up the sound device and sources,
- * and has been seperated from configuration so as to allow sounds to be added and
- * removed from the system without being played. This is so if sound is enabled
- * during the life of any sounds they can be started immediately providing a more
- * complete experience.
- *
- *
- *
- * -- Part 2 - Configuration --
- * This part is responsible for reading and parsing the configuration info.
- * Configuration is by default found in sound/sound_config.xml. Some base XML
- * blocks may be stored in additional files. Documentation on the configuration
- * format can be found in the example sound_config.xml file. This code is
- * straight-foward and very simple to adjust/expand where necessary.
- *
- *
- *
- * -- Part 3 - Sources --
- * This part handles allocating places to play sounds to the sounds that want to
- * be played. These "places" are OpenAL sources and are initialised in the code
- * in Part 1. They are shared between streams and individual sounds and this code
- * locates and available source and provides the calling function with a pointer
- * to the structure containing the details of this source. There is a mutex lock
- * used over this code to protect the sources array which is shuffled to keep the
- * sources sorted by priority.
- *
- *
- *
- * -- Part 4 - Streams --
- * This part handles the streamed sounds. The configuration for it is stable and
- * very flexible. The logic should be straight-forward and it is seperated into
- * many functions.
- *
- *
- *
- * -- Part 5s - Playing individual sounds --
- * This part is the code to handle and play individual sounds. This code is broken
- * into several functions. Sounds triggered in the code in Part 5b are added to
- * the list of sounds to be played. They are then loaded into buffers and linked
- * to a source to be played. There is an update function which is called on a
- * timer to parse this list of active and inactive sounds to update them. The
- * update function works directly on the source list and hence care needs to be
- * taken with mutex locks.
- *
- *
- *
- * -- Part 5b - Triggering individual sounds --
- * This final part handles actually triggering the sounds. This code is primarily
- * scattered throughout the client code calling the add/remove sound functions
- * where necessary. Specifying places in the code to start and stop sounds is
- * quite trivial in most cases and any bugs are generally very simple to trace
- * and find.
- *
- */
 #ifdef NEW_SOUND
 #include <ctype.h>
 #include <string.h>
@@ -140,6 +69,8 @@ int last_line = 0;
 
 #define MAX_PLAYLIST_ENTRIES 50
 
+#define MAX_SOUND_FILES (MAX_SOUNDS * MAX_SOUND_VARIANTS * num_STAGES)	// The total number of files if every part of every
+																		// variant of every sound had a different file
 #define MAX_BACKGROUND_DEFAULTS 8			// Maximum number of global default backgrounds
 #define MAX_MAP_BACKGROUND_DEFAULTS 4		// Maximum number of default backgrounds per map
 #define MAX_SOUND_MAP_NAME_LENGTH 60		// Maximum length of the name of the map
@@ -164,16 +95,22 @@ typedef enum
 	STAGE_UNUSED = -1, STAGE_INTRO, STAGE_MAIN, STAGE_OUTRO, num_STAGES, STAGE_STREAM
 } SOUND_STAGE;
 
-typedef struct
+typedef struct _source_list
 {
-	char file_path[MAX_FILENAME_LENGTH];	// Where to load the file from
-	int loaded_status;						// Is the sample loaded yet
-	int sample_num;							// Sample array ID (if loaded)
-} sound_parts;
+	ALuint source;					// The physical address of this source (not the array id of source_data as that changes)
+	struct _source_list *next;
+	struct _source_list *last;
+} source_list;
 
 typedef struct
 {
-	sound_parts part[num_STAGES];	// The indices of the samples used
+	char file_path[MAX_FILENAME_LENGTH];	// Where to load the file from
+	int sample_num;							// Sample array ID (if loaded)
+} sound_file;
+
+typedef struct
+{
+	sound_file *part[num_STAGES];	// Pointers to the files used for each stage
 	float gain;						// The gain of this sound (default 1.0)
 									// The same sample may be defined under 2 sound names, with different gains.
 } sound_variants;
@@ -204,6 +141,7 @@ typedef struct
 	ALint channels;							// Number of sound channels
 	ALint bits;								// Bits per channel per sample
 	int length;								// Duration in milliseconds
+	source_list *sources;					// List of sources using this sample
 } sound_sample;
 
 typedef struct
@@ -225,9 +163,10 @@ typedef struct
 	ALuint source;						// A handle for the source
 	int priority;						// Include this here for streams and to force a priority if needed
 	int play_duration;
-	int loaded_sound;					// Not used for streams
+	int loaded_sound;					// Sound ID loaded into this source (Not used for streams)
 	SOUND_STAGE current_stage;			// Set as STAGE_STREAMS for streams
 	unsigned int cookie;
+	int sample[num_STAGES];				// The samples currently in use by this source
 } source_data;
 
 typedef struct
@@ -368,6 +307,7 @@ int max_streams = MAX_STREAMS;				// Initialise our local maximum number of stre
 
 int num_types = 0;							// Number of distinct sound types
 int num_samples = 0;						// Number of actual sound files - a sound type can have > 1 sample
+int num_sound_files = 0;					// Number of individual sound files
 int num_sounds = 0;							// Number of sounds in the sounds_list
 int sound_num_background_defaults = 0;		// Number of default background sounds
 int sound_num_maps = 0;						// Number of maps we have sounds for
@@ -386,7 +326,8 @@ unsigned int next_cookie = 1;									// Each playing source is identified by a 
 sound_loaded sounds_list[MAX_BUFFERS * 2];						// The loaded sounds
 source_data sound_source_data[ABS_MAX_SOURCES];					// The active (playing) sources
 sound_type sound_type_data[MAX_SOUNDS];							// Configuration of the sound types
-sound_sample sound_sample_data[MAX_BUFFERS];					// Path & buffer data for each sample
+sound_sample sound_sample_data[MAX_BUFFERS];					// Buffer data for each sample
+sound_file sound_files[MAX_SOUND_FILES];						// File names for each individual sound file
 background_default sound_background_defaults[MAX_BACKGROUND_DEFAULTS];	// Default background sounds
 																		// (must have non-overlapping time of day flags)
 int crowd_default;												// Default sound for crowd effects
@@ -433,13 +374,18 @@ void play_song(int list_pos);
 void find_next_song(int tx, int ty, int day_time);
 
 /* Source functions */
+void add_source_to_lists(source_data *pSource);
+void remove_source_from_lists(source_data *pSource);
+void clear_source(source_data *pSource);
 source_data * get_available_source(int priority);
 source_data *insert_sound_source_at_index(unsigned int index);
+void release_source(source_data *pSource, int index);
 int stop_sound_source_at_index(int index);
 void set_sound_gain(source_data * pSource, int loaded_sound_num, float initial_gain);
 /* Sample functions */
 int ensure_sample_loaded(char * in_filename);
 int load_samples(sound_type * pType);
+void release_sample(int sample_num);
 void unload_sample(int sample_num);
 /* Individual sound functions */
 int play_sound(int loaded_sound_num, int x, int y, float initial_gain);
@@ -460,7 +406,6 @@ double calculate_bounds_angle(int x, int y, int point, map_sound_boundary_def * 
 void print_sound_boundary_coords(int map);
 #endif // DEBUG_MAP_SOUND
 /* Init functions */
-void clear_sound_data();
 void parse_snd_devices(ALCchar * in_array, char * sound_devs);
 
 
@@ -859,7 +804,7 @@ void play_stream(int sound, stream_data * stream, ALfloat gain)
 
 		// Choose a variant
 		stream->variant = rand() % sound_type_data[sound].num_variants;
-		file = sound_type_data[sound].variant[stream->variant].part[STAGE_MAIN].file_path;
+		file = sound_type_data[sound].variant[stream->variant].part[STAGE_MAIN]->file_path;
 		if (!have_sound || sound == -1 || !strcmp(file, "")) return;
 	}
 	
@@ -1737,17 +1682,104 @@ void find_next_song(int tx, int ty, int day_time)
 /*****************************
  * SOURCE HANDLING FUNCTIONS *
  *****************************/
+void add_source_to_lists(source_data *pSource)
+{
+	int i;
+	source_list *source_id;
+	source_list *new_source_id;
+	
+	new_source_id = calloc(1, sizeof(source_list));
+	new_source_id->source = pSource->source;
+	new_source_id->next = NULL;
+	new_source_id->last = NULL;
+	
+	for (i = 0; i < num_STAGES; i++)
+	{
+		if (pSource->sample[i] > -1)
+		{
+			// Get the current list of sources for this sample
+			source_id = sound_sample_data[pSource->sample[i]].sources;
+			if (source_id)
+			{
+				// Find the end of the list and add this source to it
+				while (source_id->next)
+					source_id = source_id->next;
+				source_id->next = new_source_id;
+				new_source_id->last = source_id;
+			}
+			else
+			{
+				// Create this source as the start of the list
+				source_id = new_source_id;
+			}
+		}
+	}
+}
+
+void remove_source_from_lists(source_data *pSource)
+{
+	int i;
+	source_list *source_id;
+	
+	for (i = 0; i < num_STAGES; i++)
+	{
+		if (pSource->sample[i] > -1)
+		{
+			source_id = sound_sample_data[pSource->sample[i]].sources;
+			while (source_id)
+			{
+				if (source_id->source == pSource->source)
+				{
+					// Check if there are sources before and after this one in the list
+					// and adjust their last and nexts to remove this one from the list
+					if (source_id->next && source_id->last)
+					{
+						source_id->next->last = source_id->last;
+						source_id->last->next = source_id->next;
+					}
+					else if (source_id->next) // This is the first source
+					{
+						source_id->next->last = NULL;
+					}
+					else if (source_id->last) // This is the last source
+					{
+						source_id->last->next = NULL;
+					}
+					else	// This is the only source, so free the buffer for this sample
+					{
+						release_sample(pSource->sample[i]);
+					}
+					free(source_id);
+					source_id = NULL;
+				}
+				else if (source_id && source_id->next)
+				{
+					source_id = source_id->next;
+				}
+			}
+		}
+	}
+}
+
 void clear_source(source_data *pSource)
 {
 	// Reset the source
-	alSourceStop(pSource->source);
-	alSourcei(pSource->source, AL_BUFFER, 0);
+	if (pSource->source > 0)
+	{
+		alSourceStop(pSource->source);
+		alSourcei(pSource->source, AL_BUFFER, 0);
+	}
+	// If this source is attached to samples, clear it from their list
+	remove_source_from_lists(pSource);
 	// Reset the details of this source
 	pSource->priority = 0;
 	pSource->play_duration = 0;
 	pSource->current_stage = STAGE_UNUSED;
 	pSource->loaded_sound = -1;
 	pSource->cookie = 0;
+	pSource->sample[STAGE_INTRO] = -1;
+	pSource->sample[STAGE_MAIN] = -1;
+	pSource->sample[STAGE_OUTRO] = -1;
 }
 
 source_data * get_available_source(int priority)
@@ -1811,7 +1843,6 @@ source_data *insert_sound_source_at_index(unsigned int index)
 	return &sound_source_data[index];
 }
 
-
 void release_source(source_data *pSource, int index)
 {
 	source_data sourceTemp;
@@ -1831,7 +1862,6 @@ void release_source(source_data *pSource, int index)
 	--used_sources;
 }
 
-
 // This stops the source for sound_source_data[index]. Because this array will change, the index
 // associated with a source will change, so this function should only be called if the index is
 // known for certain.
@@ -1848,7 +1878,7 @@ int stop_sound_source_at_index(int index)
 		return 0;
 	}
 	
-	// this should not happen but apparently did see EL forum showtopic=44474
+	// This should not happen
 	if (index >= max_sources)
 	{
 		LOG_ERROR("Trying to unload invalid source! Index: %d, Num Sources: %d, Max Sources: %d\n", index, used_sources, max_sources);
@@ -1998,21 +2028,14 @@ int ensure_sample_loaded(char * in_filename)
 	char filename[200];				// This is for the full path to the file
 
 	// Check if this sample is already loaded and if so, return the sample ID
-	for (i = 0; i < num_types; i++)
+	for (i = 0; i < MAX_SOUND_FILES; i++)
 	{
-		for (j = 0; j < sound_type_data[i].num_variants; j++)
+		if (!strcasecmp(sound_files[i].file_path, in_filename) && sound_files[i].sample_num > -1)
 		{
-			for (k = 0; k < num_STAGES; k++)
-			{
-				if (!strcasecmp(sound_type_data[i].variant[j].part[k].file_path, in_filename)
-					&& sound_type_data[i].variant[j].part[k].sample_num > -1)
-				{
 #ifdef _EXTRA_SOUND_DEBUG
-					printf("Found this sample already loaded: %s, sound %d, variant: %d, part %d\n", in_filename, i, j, k);
+			printf("Found this sample already loaded: %s, sound file: %d, sample num: %d\n", in_filename, i, sound_files[i].sample_num);
 #endif //_EXTRA_SOUND_DEBUG
-					return sound_type_data[i].variant[j].part[k].sample_num;
-				}
-			}
+			return sound_files[i].sample_num;
 		}
 	}
 	
@@ -2052,7 +2075,7 @@ int ensure_sample_loaded(char * in_filename)
 					for (l = STAGE_INTRO; l <= STAGE_OUTRO; l++)
 					{
 						// Check if this sample is loaded into a source atm
-						if (sound_type_data[sounds_list[sound_source_data[j].loaded_sound].sound].variant[k].part[l].sample_num == i)
+						if (sound_type_data[sounds_list[sound_source_data[j].loaded_sound].sound].variant[k].part[l]->sample_num == i)
 						{
 							found = 1;
 							break;
@@ -2164,13 +2187,13 @@ int load_samples(sound_type * pType)
 	// Check we can load all samples used by this type
 	for (i = 0; i < num_STAGES; ++i)
 	{
-		if (pType->variant[j].part[i].sample_num < 0 && strcasecmp(pType->variant[j].part[i].file_path, ""))
+		if (pType->variant[j].part[i] && pType->variant[j].part[i]->sample_num < 0 && strcasecmp(pType->variant[j].part[i]->file_path, ""))
 		{
-			pType->variant[j].part[i].sample_num = ensure_sample_loaded(pType->variant[j].part[i].file_path);
-			if (pType->variant[j].part[i].sample_num < 0)
+			pType->variant[j].part[i]->sample_num = ensure_sample_loaded(pType->variant[j].part[i]->file_path);
+			if (pType->variant[j].part[i]->sample_num < 0)
 			{
 #ifdef _EXTRA_SOUND_DEBUG
-				printf("Error: problem loading sample: %s\n", pType->variant[j].part[i].file_path);
+				printf("Error: problem loading sample: %s\n", pType->variant[j].part[i]->file_path);
 #endif //_EXTRA_SOUND_DEBUG
 				return -1;
 			}
@@ -2179,9 +2202,8 @@ int load_samples(sound_type * pType)
 	return j;		// Return the variant we chose
 }
 
-void unload_sample(int sample_num)
+void release_sample(int sample_num)
 {
-	int i, j, k;
 	sound_sample * pSample;
 
 	// Check we have a valid sample_num
@@ -2190,20 +2212,6 @@ void unload_sample(int sample_num)
 	
 	pSample = &sound_sample_data[sample_num];
 
-	// Find the places this sample is listed and reset them
-	for (i = 0; i < num_types; i++)
-	{
-		for (j = 0; j < sound_type_data[i].num_variants; j++)
-		{
-			for (k = 0; k < num_STAGES; k++)
-			{
-				if (sound_type_data[i].variant[j].part[k].sample_num == sample_num)
-				{
-					sound_type_data[i].variant[j].part[k].sample_num = -1;
-				}
-			}
-		}
-	}
 	// Release the buffer used by this sample
 	if (alIsBuffer(pSample->buffer))
 		alDeleteBuffers(1, &pSample->buffer);
@@ -2215,6 +2223,32 @@ void unload_sample(int sample_num)
 	pSample->channels = 0;
 	pSample->bits = 0;
 	pSample->length = 0;
+}
+
+void unload_sample(int sample_num)
+{
+	int i, j, k;
+
+	// Check we have a valid sample_num
+	if (sample_num < 0 || sample_num >= MAX_BUFFERS)
+		return;
+	
+	// Find the places this sample is listed and reset them
+	for (i = 0; i < num_types; i++)
+	{
+		for (j = 0; j < sound_type_data[i].num_variants; j++)
+		{
+			for (k = 0; k < num_STAGES; k++)
+			{
+				if (sound_type_data[i].variant[j].part[k] && sound_type_data[i].variant[j].part[k]->sample_num == sample_num)
+				{
+					sound_type_data[i].variant[j].part[k]->sample_num = -1;
+				}
+			}
+		}
+	}
+	// Release the buffer used by this sample and reset the array element
+	release_sample(sample_num);
 }
 
 
@@ -2302,7 +2336,7 @@ unsigned int add_death_sound(actor * act)
 	// actors are triggered though the cal animation)
 	if (!act)
 		return 0;
-	snd = actors_defs[act->actor_type].cal_die1_frame.sound;
+	snd = actors_defs[act->actor_type].cal_frames[cal_actor_die1_frame].sound;
 	if (snd > -1)
 	{
 		return add_sound_object_gain(snd, act->x_pos, act->y_pos, act == your_actor ? 1 : 0, 1.0f);
@@ -2518,7 +2552,7 @@ int play_sound(int sound_num, int x, int y, float initial_gain)
 	}
 
 	// Check if we have an intro. We already quit if the sound doesn't have a main.
-	stage = pVariant->part[STAGE_INTRO].sample_num < 0 ? STAGE_MAIN : STAGE_INTRO;
+	stage = !pVariant->part[STAGE_INTRO] || pVariant->part[STAGE_INTRO]->sample_num < 0 ? STAGE_MAIN : STAGE_INTRO;
 
 	// Initialise the source data to the first sample to be played for this sound
 	pSource->play_duration = 0;
@@ -2570,9 +2604,10 @@ int play_sound(int sound_num, int x, int y, float initial_gain)
 	for (; stage < num_STAGES; ++stage)
 	{
 		// Get the buffer to be queued.
-		if (pVariant->part[stage].sample_num < 0)
-			break;
-		buffer = sound_sample_data[pVariant->part[stage].sample_num].buffer;
+		if (!pVariant->part[stage] || pVariant->part[stage]->sample_num < 0)
+			continue;
+		buffer = sound_sample_data[pVariant->part[stage]->sample_num].buffer;
+		pSource->sample[stage] = pVariant->part[stage]->sample_num;
 #ifdef _EXTRA_SOUND_DEBUG
 		printf("Stage: %d, Buffer address: %d\n", stage, buffer);
 #endif //_EXTRA_SOUND_DEBUG
@@ -2620,6 +2655,7 @@ int play_sound(int sound_num, int x, int y, float initial_gain)
 #endif //_EXTRA_SOUND_DEBUG
 		}
 	}
+	add_source_to_lists(pSource);
 #ifdef _EXTRA_SOUND_DEBUG
 	if (err != 0)
 	{
@@ -2642,7 +2678,7 @@ int play_sound(int sound_num, int x, int y, float initial_gain)
 		alSourcef(pSource->source, AL_REFERENCE_DISTANCE , 10.0f);
 		alSourcef(pSource->source, AL_ROLLOFF_FACTOR , 4.0f);
 	}
-	if (pVariant->part[STAGE_INTRO].sample_num < 0 && pNewType->loops == 0)
+	if (pVariant->part[STAGE_INTRO] && pVariant->part[STAGE_INTRO]->sample_num < 0 && pNewType->loops == 0)
 		// 0 is infinite looping
 		alSourcei(pSource->source,AL_LOOPING,AL_TRUE);
 	else
@@ -3020,14 +3056,14 @@ void update_sound(int ms)
 		
 		pSoundType = &sound_type_data[sounds_list[pSource->loaded_sound].sound];
 		pVariant = &pSoundType->variant[sounds_list[pSource->loaded_sound].variant];
-		pSample = &sound_sample_data[pVariant->part[pSource->current_stage].sample_num];
+		pSample = &sound_sample_data[pVariant->part[pSource->current_stage]->sample_num];
 
 		// Is this source still playing?
 		alGetSourcei(pSource->source, AL_SOURCE_STATE, &state);
 		if (state == AL_STOPPED)
 		{
 #ifdef _EXTRA_SOUND_DEBUG
-//			printf("'%s' has stopped after sample '%s'\n", pSoundType->name, pVariant->part[pSource->current_stage].file_path);
+//			printf("'%s' has stopped after sample '%s'\n", pSoundType->name, pVariant->part[pSource->current_stage]->file_path);
 #endif //_EXTRA_SOUND_DEBUG
 			// Flag the sound as finished
 			pSource->current_stage = num_STAGES;
@@ -3040,7 +3076,7 @@ void update_sound(int ms)
 			{
 				// The source has moved on to the next queued sample
 #ifdef _EXTRA_SOUND_DEBUG
-				printf("Cookie: %d, Loaded sound: %d, sound: %d, '%s' - sample '%s' has ended...", pSource->cookie, pSource->loaded_sound, sounds_list[pSource->loaded_sound].sound, pSoundType->name, pVariant->part[pSource->current_stage].file_path);
+				printf("Cookie: %d, Loaded sound: %d, sound: %d, '%s' - sample '%s' has ended...", pSource->cookie, pSource->loaded_sound, sounds_list[pSource->loaded_sound].sound, pSoundType->name, pVariant->part[pSource->current_stage]->file_path);
 				k = 0;
 #endif //_EXTRA_SOUND_DEBUG
 				while (++pSource->current_stage <= num_STAGES)
@@ -3055,7 +3091,7 @@ void update_sound(int ms)
 						break;
 					}
 #endif // _EXTRA_SOUND_DEBUG
-					if (pVariant->part[pSource->current_stage].sample_num < 0)
+					if (!pVariant->part[pSource->current_stage] || pVariant->part[pSource->current_stage]->sample_num < 0)
 					{
 						// No more samples to play
 #ifdef _EXTRA_SOUND_DEBUG
@@ -3064,13 +3100,13 @@ void update_sound(int ms)
 						pSource->current_stage = num_STAGES;
 						break;
 					}
-					pSample = &sound_sample_data[pVariant->part[pSource->current_stage].sample_num];
+					pSample = &sound_sample_data[pVariant->part[pSource->current_stage]->sample_num];
 					// Found the currently-playing buffer
 
 					if (pSample->buffer == buffer)
 					{
 #ifdef _EXTRA_SOUND_DEBUG
-						printf("next sample is '%s'\n", pVariant->part[pSource->current_stage].file_path);
+						printf("next sample is '%s'\n", pVariant->part[pSource->current_stage]->file_path);
 #endif //_EXTRA_SOUND_DEBUG
 						if (pSource->current_stage == STAGE_MAIN && pSoundType->loops == 0)
 						{
@@ -3115,7 +3151,8 @@ void update_sound(int ms)
 					// Check if something odd happened and this source wasn't stopped when the sample finished (lifetime > sum of sample lengths)
 					int lifetime = 0;
 					for (l = 0; l <= pSource->current_stage; l++)
-						lifetime += sound_sample_data[pVariant->part[l].sample_num].length;
+						if (pVariant->part[l])
+							lifetime += sound_sample_data[pVariant->part[l]->sample_num].length;
 					if (sounds_list[pSource->loaded_sound].lifetime > lifetime)
 					{
 #ifdef _EXTRA_SOUND_DEBUG
@@ -3765,9 +3802,7 @@ void clear_variant(sound_variants *pVariant)
 	int i;
 	for (i = 0; i < num_STAGES; i++)
 	{
-		pVariant->part[i].file_path[0] = '\0';
-		pVariant->part[i].loaded_status = 0;
-		pVariant->part[i].sample_num = -1;
+		pVariant->part[i] = NULL;
 	}
 	pVariant->gain = 1.0f;
 }
@@ -3923,6 +3958,11 @@ void clear_sound_data()
 		warnings_list[i].sound = -1;
 		warnings_list[i].string[0] = '\0';
 	}
+	for (i = 0; i < MAX_SOUND_FILES; i++)
+	{
+		sound_files[i].file_path[0] = '\0';
+		sound_files[i].sample_num = -1;
+	}
 
 	num_types = 0;
 	num_samples = 0;
@@ -4062,11 +4102,7 @@ void init_sound()
 	// Init source data
 	for (i = 0; i < max_sources; i++)
 	{
-		sound_source_data[i].source = 0;
-		sound_source_data[i].loaded_sound = -1;
-		sound_source_data[i].play_duration = 0;
-		sound_source_data[i].current_stage = STAGE_UNUSED;
-		sound_source_data[i].cookie = 0;
+		clear_source(&sound_source_data[i]);
 	}
 	
 	// Generate our sources
@@ -4383,10 +4419,65 @@ void parse_server_sounds()
 	}
 }
 
+sound_file * init_sound_file(const char * content)
+{
+	int i;
+	
+	// Check if this file is already in our list of sound files
+	for (i = 0; i < num_sound_files; i++)
+	{
+		if (!strcasecmp(sound_files[i].file_path, content)) {
+			return &sound_files[i];
+		}
+	}
+	// Not found so check we have space to add it to the list
+	if (num_sound_files >= MAX_SOUND_FILES)
+	{
+		// Big problem! No more room to load sound files
+		return NULL;
+	}
+	// Everything is ok so load it
+	safe_strncpy(sound_files[i].file_path, content, sizeof(sound_files[i].file_path));
+	num_sound_files++;
+	return &sound_files[i];
+}
+
+sound_file * load_sound_part(sound_file *pPart, SOUND_STAGE stage, const char * content)
+{
+	char filename[200];
+	char stage_name[6];
+	
+	safe_strncpy(stage_name, (stage == STAGE_INTRO ? "Intro" : (stage == STAGE_MAIN ? "Main" : "Outro")), sizeof(stage_name));
+
+	if (!pPart || !strcasecmp(pPart->file_path, ""))
+	{
+		strcpy(filename, datadir);
+		strcat(filename, content);
+		if (file_exists(filename))
+		{
+			pPart = init_sound_file(content);
+			if (pPart)
+			{
+				return pPart;
+			}
+			LOG_ERROR("%s: Too many sound files loaded!", snd_config_error);
+		}
+		else
+		{
+			LOG_ERROR("%s: %s stage file does not exist! %s", snd_config_error, stage_name, content);
+		}
+	}
+	else
+	{
+		LOG_ERROR("%s: %s stage file already set!", snd_config_error, stage_name);
+		return pPart;
+	}
+	return NULL;
+}
+
 void parse_sound_variant(xmlNode *inNode, sound_type *inType)
 {
 	char content[50];
-	char filename[200];
 	float fVal = 0.0f;
 	sound_variants * pData;
 	xmlNode * attributeNode;
@@ -4406,66 +4497,23 @@ void parse_sound_variant(xmlNode *inNode, sound_type *inType)
 			get_string_value(content, sizeof(content), attributeNode);
 			if (!xmlStrcmp (attributeNode->name, (xmlChar*)"intro_sound"))
 			{
-				if (!strcasecmp(pData->part[STAGE_INTRO].file_path, ""))
-				{
-					strcpy(filename, datadir);
-					strcat(filename, content);
-					if (file_exists(filename))
-					{
-						safe_strncpy(pData->part[STAGE_INTRO].file_path, (char *)content, sizeof(pData->part[STAGE_INTRO].file_path));
-					}
-					else
-					{
-						LOG_ERROR("%s: Intro stage file does not exist! %s", snd_config_error, content);
-					}
-				}
-				else
-				{
-					LOG_ERROR("%s: Intro stage file already set!", snd_config_error);
-				}
+				pData->part[STAGE_INTRO] = load_sound_part(pData->part[STAGE_INTRO], STAGE_INTRO, content);
 			}
 			else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"main_sound"))
 			{
-				if (!strcasecmp(pData->part[STAGE_MAIN].file_path, ""))
+				pData->part[STAGE_MAIN] = load_sound_part(pData->part[STAGE_MAIN], STAGE_MAIN, content);
+				if (!pData->part[STAGE_MAIN])
 				{
-					strcpy(filename, datadir);
-					strcat(filename, content);
-					if (file_exists(filename))
-					{
-						safe_strncpy(pData->part[STAGE_MAIN].file_path, (char *)content, sizeof(pData->part[STAGE_MAIN].file_path));
-					}
-					else
-					{
-						LOG_ERROR("%s: Main stage file does not exist! %s. This variant for sound type '%s' is disabled", snd_config_error, content, inType->name);
-						clear_variant(pData);
-						inType->num_variants--;
-						return;
-					}
-				}
-				else
-				{
-					LOG_ERROR("%s: Main stage file already set!", snd_config_error);
+					// We don't have a main stage file, therefore this variant is invalid!
+					LOG_ERROR("%s: We do not have a main stage file so this variant for sound type '%s' is disabled", snd_config_error, inType->name);
+					clear_variant(pData);
+					inType->num_variants--;
+					return;
 				}
 			}
 			else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"outro_sound"))
 			{
-				if (!strcasecmp(pData->part[STAGE_OUTRO].file_path, ""))
-				{
-					strcpy(filename, datadir);
-					strcat(filename, content);
-					if (file_exists(filename))
-					{
-						safe_strncpy(pData->part[STAGE_OUTRO].file_path, (char *)content, sizeof(pData->part[STAGE_OUTRO].file_path));
-					}
-					else
-					{
-						LOG_ERROR("%s: Outro stage file does not exist! %s", snd_config_error, content);
-					}
-				}
-				else
-				{
-					LOG_ERROR("%s: Outro stage file already set!", snd_config_error);
-				}
+				pData->part[STAGE_OUTRO] = load_sound_part(pData->part[STAGE_OUTRO], STAGE_OUTRO, content);
 			}
 			else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"gain"))
 			{
@@ -4485,7 +4533,7 @@ void parse_sound_variant(xmlNode *inNode, sound_type *inType)
 		attributeNode = attributeNode->next;
 	}
 	// Check this variant has the required Main stage
-	if (!strcasecmp(pData->part[STAGE_MAIN].file_path, ""))
+	if (!pData->part[STAGE_MAIN])
 	{
 		LOG_ERROR("%s: Main stage not defined! A sound variant for this type is disabled: %s", snd_config_error, inType->name);
 		clear_variant(pData);
@@ -5566,9 +5614,9 @@ void print_sound_types()
 		for (j = 0; j < pData->num_variants; ++j)
 		{
 			printf("\tVariant %d/%d:\n"				, j, pData->num_variants);
-			printf("\t\tIntro sample = '%s'\n"		, pData->variant[j].part[STAGE_INTRO].file_path);
-			printf("\t\tMain sample = '%s'\n"		, pData->variant[j].part[STAGE_MAIN].file_path);
-			printf("\t\tOutro sample = '%s'\n"		, pData->variant[j].part[STAGE_OUTRO].file_path);
+			printf("\t\tIntro sample = '%s'\n"		, (pData->variant[j].part[STAGE_INTRO] ? pData->variant[j].part[STAGE_INTRO]->file_path : "(none)"));
+			printf("\t\tMain sample = '%s'\n"		, (pData->variant[j].part[STAGE_MAIN] ? pData->variant[j].part[STAGE_MAIN]->file_path : "(none)"));
+			printf("\t\tOutro sample = '%s'\n"		, (pData->variant[j].part[STAGE_OUTRO] ? pData->variant[j].part[STAGE_OUTRO]->file_path : "(none)"));
 			printf("\t\tGain = %f\n"				, pData->variant[j].gain);
 		}
 		printf("\tStereo = %d\n"				, pData->stereo);

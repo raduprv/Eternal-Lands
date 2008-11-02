@@ -517,7 +517,7 @@ void get_string_digest(const Uint8 * string, Uint8 digest[16])
 
 int find_description_index (const dict_elem dict[], const char *elem, const char *desc) {
 	int idx = 0;
-	char *key;
+	const char *key;
 
 	while ((key = dict[idx].desc) != NULL) {
 		if (strcasecmp (key, elem) == 0)

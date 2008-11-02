@@ -296,6 +296,7 @@ void sound_source_set_gain(unsigned long int cookie, float gain);
  */
 void load_sound_config_data (const char *path);
 
+void clear_sound_data();
 
 void handle_walking_sound(actor *pActor, int def_snd);
 int check_sound_loops(unsigned int cookie);

@@ -60,16 +60,16 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
         att_props = get_attachment_props_if_held(pActor);
 		if (att_props)
 		{
-			anim.anim_index = att_props->cal_idle_frame.anim_index;
-			anim.duration = att_props->cal_idle_frame.duration;
-			anim.duration_scale = att_props->cal_idle_frame.duration_scale;
+			anim.anim_index = att_props->cal_frames[cal_attached_idle_frame].anim_index;
+			anim.duration = att_props->cal_frames[cal_attached_idle_frame].duration;
+			anim.duration_scale = att_props->cal_frames[cal_attached_idle_frame].duration_scale;
 		}
 		else
 		{
 #endif // ATTACHED_ACTORS
-			anim.anim_index = actors_defs[pActor->actor_type].cal_idle1_frame.anim_index;
-			anim.duration = actors_defs[pActor->actor_type].cal_idle1_frame.duration;
-			anim.duration_scale = actors_defs[pActor->actor_type].cal_idle1_frame.duration_scale;
+			anim.anim_index = actors_defs[pActor->actor_type].cal_frames[cal_actor_idle1_frame].anim_index;
+			anim.duration = actors_defs[pActor->actor_type].cal_frames[cal_actor_idle1_frame].duration;
+			anim.duration_scale = actors_defs[pActor->actor_type].cal_frames[cal_actor_idle1_frame].duration_scale;
 #ifdef ATTACHED_ACTORS
 		}
 #endif // ATTACHED_ACTORS

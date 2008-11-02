@@ -243,6 +243,7 @@ extern char
 		time_warn_sunset_str[100],
 		time_warn_day_str[75],
 		config_location_str[75],
+		datadir_location_str[75],
 		cmd_ignores[20],
 		cmd_ignore[20],
 		cmd_unignore[20],

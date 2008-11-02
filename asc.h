@@ -335,7 +335,11 @@ void get_string_digest(const char*, Uint8[16]);
 
 // Element type and dictionaries for actor definitions
 typedef struct {
+#ifndef EXT_ACTOR_DICT
 	char *desc;
+#else
+	char desc[100];
+#endif
 	int index;
 } dict_elem;
 

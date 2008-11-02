@@ -1255,12 +1255,6 @@ void add_actor_from_server (const char *in_data, int len)
 	short max_health;
 	short cur_health;
 	short actor_type;
-	//char remapable;
-	//char skin;
-	//char hair;
-	//char shirt;
-	//char pants;
-	//char boots;
 	char frame;
 	int i;
 	int dead=0;
@@ -1434,7 +1428,7 @@ void add_actor_from_server (const char *in_data, int len)
 		if(actors_list[i]->calmodel){
 			model_attach_mesh(actors_list[i], actors_defs[actor_type].shirt[0].mesh_index);
 			if(dead){
-				cal_actor_set_anim(i, actors_defs[actors_list[i]->actor_type].cal_die1_frame);
+				cal_actor_set_anim(i, actors_defs[actors_list[i]->actor_type].cal_frames[cal_actor_die1_frame]);
 				actors_list[i]->stop_animation=1;
 				CalModel_Update(actors_list[i]->calmodel,1000);
 			}

@@ -162,7 +162,7 @@ typedef struct
 	int glow;
 	int mesh_index;
 #ifdef NEW_LIGHTING
-        GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
+	GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
 	GLfloat   diffuse[4];	/*!< The lighting for when the object is lit, but not reflecting */
 	GLfloat   specular[4];	/*!< The lighting for when the object is reflecting */
 	GLfloat   emission[4];	/*!< The lighting for if the object glows */
@@ -183,7 +183,7 @@ typedef struct
 	int missile_type; /*!< The type of equipped missiles (>=0 if a quiver is equipped, -1 if a regular shield is equipped) */
 
 #ifdef NEW_LIGHTING
-        GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
+	GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
 	GLfloat   diffuse[4];	/*!< The lighting for when the object is lit, but not reflecting */
 	GLfloat   specular[4];	/*!< The lighting for when the object is reflecting */
 	GLfloat   emission[4];	/*!< The lighting for if the object glows */
@@ -201,35 +201,10 @@ typedef struct
 	int glow;
 	int mesh_index;
 
-	struct cal_anim cal_range_in_frame;
-	struct cal_anim cal_range_out_frame;
-	struct cal_anim cal_range_idle_frame;
-	struct cal_anim cal_range_fire_frame;
-	struct cal_anim cal_range_fire_out_frame;
-
-	struct cal_anim cal_attack_up_1_frame;
-	struct cal_anim cal_attack_up_2_frame;
-	struct cal_anim cal_attack_up_3_frame;
-	struct cal_anim cal_attack_up_4_frame;
-	struct cal_anim cal_attack_up_5_frame;
-	struct cal_anim cal_attack_up_6_frame;
-	struct cal_anim cal_attack_up_7_frame;
-	struct cal_anim cal_attack_up_8_frame;
-	struct cal_anim cal_attack_up_9_frame;
-	struct cal_anim cal_attack_up_10_frame;
-	struct cal_anim cal_attack_down_1_frame;
-	struct cal_anim cal_attack_down_2_frame;
-	struct cal_anim cal_attack_down_3_frame;
-	struct cal_anim cal_attack_down_4_frame;
-	struct cal_anim cal_attack_down_5_frame;
-	struct cal_anim cal_attack_down_6_frame;
-	struct cal_anim cal_attack_down_7_frame;
-	struct cal_anim cal_attack_down_8_frame;
-	struct cal_anim cal_attack_down_9_frame;
-	struct cal_anim cal_attack_down_10_frame;
+	struct cal_anim cal_frames[NUM_WEAPON_FRAMES];
 
 #ifdef NEW_LIGHTING
-        GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
+	GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
 	GLfloat   diffuse[4];	/*!< The lighting for when the object is lit, but not reflecting */
 	GLfloat   specular[4];	/*!< The lighting for when the object is reflecting */
 	GLfloat   emission[4];	/*!< The lighting for if the object glows */
@@ -249,7 +224,7 @@ typedef struct
 	int mesh_index;
 
 #ifdef NEW_LIGHTING
-        GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
+	GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
 	GLfloat   diffuse[4];	/*!< The lighting for when the object is lit, but not reflecting */
 	GLfloat   specular[4];	/*!< The lighting for when the object is reflecting */
 	GLfloat   emission[4];	/*!< The lighting for if the object glows */
@@ -270,7 +245,7 @@ typedef struct
 	int mesh_index;
 
 #ifdef NEW_LIGHTING
-        GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
+	GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
 	GLfloat   diffuse[4];	/*!< The lighting for when the object is lit, but not reflecting */
 	GLfloat   specular[4];	/*!< The lighting for when the object is reflecting */
 	GLfloat   emission[4];	/*!< The lighting for if the object glows */
@@ -286,7 +261,7 @@ typedef struct
 	int mesh_index;
 
 #ifdef NEW_LIGHTING
-        GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
+	GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
 	GLfloat   diffuse[4];	/*!< The lighting for when the object is lit, but not reflecting */
 	GLfloat   specular[4];	/*!< The lighting for when the object is reflecting */
 	GLfloat   emission[4];	/*!< The lighting for if the object glows */
@@ -304,7 +279,7 @@ typedef struct
 	int mesh_index;
 
 #ifdef NEW_LIGHTING
-        GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
+	GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
 	GLfloat   diffuse[4];	/*!< The lighting for when the object is lit, but not reflecting */
 	GLfloat   specular[4];	/*!< The lighting for when the object is reflecting */
 	GLfloat   emission[4];	/*!< The lighting for if the object glows */
@@ -323,7 +298,7 @@ typedef struct
 	int mesh_index;
 
 #ifdef NEW_LIGHTING
-        GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
+	GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
 	GLfloat   diffuse[4];	/*!< The lighting for when the object is lit, but not reflecting */
 	GLfloat   specular[4];	/*!< The lighting for when the object is reflecting */
 	GLfloat   emission[4];	/*!< The lighting for if the object glows */
@@ -357,9 +332,7 @@ typedef struct
 	int parent_bone_id; /*!< The bone to use on the actor to which it is attached */
 	int local_bone_id;  /*!< The bone to use on the actor that is attached */
 	float shift[3];     /*!< The shift to apply to the actor that is held */
-	struct cal_anim cal_walk_frame; /*!< walk animation to use for the held actor */
-	struct cal_anim cal_idle_frame; /*!< idle animation to use for the held actor */
-	struct cal_anim cal_pain_frame; /*!< pain animation to use for the held actor */
+	struct cal_anim cal_frames[NUM_ATTACHED_ACTOR_FRAMES];
 } attachment_props;
 
 /*!
@@ -371,7 +344,20 @@ typedef struct
 } attached_actors_types;
 #endif // ATTACHED_ACTORS
 
-// TODO: would be nice to make these dynamic
+#ifdef EXT_ACTOR_DICT
+typedef enum {
+	ACTOR_HEAD_SIZE = 0,
+	ACTOR_SHIELD_SIZE,
+	ACTOR_CAPE_SIZE,
+	ACTOR_HELMET_SIZE,
+	ACTOR_WEAPON_SIZE,
+	ACTOR_SHIRT_SIZE,
+	ACTOR_SKIN_SIZE,
+	ACTOR_HAIR_SIZE,
+	ACTOR_BOOTS_SIZE,
+	ACTOR_LEGS_SIZE,
+} actor_parts_enum;
+#else // EXT_ACTOR_DICT
 #define ACTOR_HEAD_SIZE   10
 #define ACTOR_SHIELD_SIZE 40
 #define ACTOR_CAPE_SIZE   50
@@ -382,6 +368,7 @@ typedef struct
 #define ACTOR_HAIR_SIZE   20
 #define ACTOR_BOOTS_SIZE  40
 #define ACTOR_LEGS_SIZE   60
+#endif // EXT_ACTOR_DICT
 
 typedef struct
 {
@@ -408,58 +395,8 @@ typedef struct
 	struct cal_anim_group idle_group[16];//16 animation groups
 	int group_count;
 
-	struct cal_anim cal_walk_frame;
-	struct cal_anim cal_run_frame;
-	struct cal_anim cal_die1_frame;
-	struct cal_anim cal_die2_frame;
-	struct cal_anim cal_pain1_frame;
-	struct cal_anim cal_pain2_frame;
-	struct cal_anim cal_pick_frame;
-	struct cal_anim cal_drop_frame;
-	struct cal_anim cal_idle1_frame;
-	struct cal_anim cal_idle2_frame;
-	struct cal_anim cal_idle_sit_frame;
-	struct cal_anim cal_harvest_frame;
-	struct cal_anim cal_attack_cast_frame;
-	struct cal_anim cal_attack_ranged_frame;
-	struct cal_anim cal_sit_down_frame;
-	struct cal_anim cal_stand_up_frame;
-	struct cal_anim cal_in_combat_frame;
-	struct cal_anim cal_out_combat_frame;
-	struct cal_anim cal_combat_idle_frame;
-	struct cal_anim cal_attack_up_1_frame;
-	struct cal_anim cal_attack_up_2_frame;
-	struct cal_anim cal_attack_up_3_frame;
-	struct cal_anim cal_attack_up_4_frame;
-	struct cal_anim cal_attack_up_5_frame;
-	struct cal_anim cal_attack_up_6_frame;
-	struct cal_anim cal_attack_up_7_frame;
-	struct cal_anim cal_attack_up_8_frame;
-	struct cal_anim cal_attack_up_9_frame;
-	struct cal_anim cal_attack_up_10_frame;
-	struct cal_anim cal_attack_down_1_frame;
-	struct cal_anim cal_attack_down_2_frame;
-	struct cal_anim cal_attack_down_3_frame;
-	struct cal_anim cal_attack_down_4_frame;
-	struct cal_anim cal_attack_down_5_frame;
-	struct cal_anim cal_attack_down_6_frame;
-	struct cal_anim cal_attack_down_7_frame;
-	struct cal_anim cal_attack_down_8_frame;
-	struct cal_anim cal_attack_down_9_frame;
-	struct cal_anim cal_attack_down_10_frame;
-	
-#ifdef EMOTES
-	struct cal_anim cal_emote_wave_frame;
-	struct cal_anim cal_emote_nod_head_frame;
-	struct cal_anim cal_emote_shake_head_frame;
-	struct cal_anim cal_emote_clap_hands_frame;
-	struct cal_anim cal_emote_shrug_frame;
-	struct cal_anim cal_emote_scratch_head_frame;
-	struct cal_anim cal_emote_jump_frame;
-	struct cal_anim cal_emote_stretch_frame;
-	struct cal_anim cal_emote_bow_frame;
-#endif // EMOTES
-	
+	struct cal_anim cal_frames[NUM_ACTOR_FRAMES];
+
 	int skeleton_type;
 
 #ifdef NEW_SOUND
@@ -911,8 +848,8 @@ void draw_actor_without_banner(actor * actor_id, Uint32 use_lightning, Uint32 us
 #ifdef ATTACHED_ACTORS
 static __inline__ int is_actor_held(actor *act)
 {
-    return (act->attached_actor >= 0 &&
-            ((act->actor_id < 0 && // the actor is the attachment
+    return ((act->attached_actor >= 0) &&
+		((act->actor_id < 0 && // the actor is the attachment
               !attached_actors_defs[act->actor_type].actor_type[actors_list[act->attached_actor]->actor_type].is_holder) ||
              (act->actor_id >= 0 && // the actor is the parent of the attachment
               attached_actors_defs[actors_list[act->attached_actor]->actor_type].actor_type[act->actor_type].is_holder)));
