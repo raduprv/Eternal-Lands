@@ -242,6 +242,19 @@ void get_items_cooldown (const Uint8 *data, int len);
  */
 void update_cooldown ();
 
+/*!
+ * \ingroup item
+ * \brief   Sets the displayed string for the items, manufacture and trade windows.
+ *
+ *      The items, manufacture and trade windows all display the same string, 
+ * 		normally set in multiplayer.c.  This function can also set the string.
+ *		Each window independantly wraps the string to fit it's window.
+ *
+ * \param  colour_code the colour code for the string
+ * \param  the_text the null terminated string to display
+ */
+void set_shown_string(char colour_code, const char *the_text);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

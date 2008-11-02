@@ -43,7 +43,16 @@ void build_manufacture_list();
  */
 void display_manufacture_menu();
 
-//int check_manufacture_interface();
+/*!
+ * \ingroup manufacture_window
+ * \brief Manufacture items.
+ *
+ *      Sends the MANUFACTURE_THIS message to the server.
+ *
+ * \param quantity	the number of items to manufacture, max 255
+ * \param mixbut_empty_str message for user if no items to mix
+ */
+int mix_handler(Uint8 quantity, const char* mixbut_empty_str);
 
 #ifdef __cplusplus
 } // extern "C"

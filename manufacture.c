@@ -281,12 +281,27 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 	return 0;
 }
 
-int mix_handler(Uint8 quantity)
+int mix_handler(Uint8 quantity, const char* empty_error_str)
 {
 	Uint8 str[32];
 	int items_no=0;
 	int i;
+	int cannot_manu = 0;
 
+	if(manufacture_win < 0)
+		cannot_manu = 1;
+	else {
+		cannot_manu = 1;
+		for(i=36;i<36+6;i++)
+			if(manufacture_list[i].quantity > 0)
+				cannot_manu = 0;
+	}
+	
+	if (cannot_manu) {
+		set_shown_string(c_red2, empty_error_str);
+		return 1;
+	}
+	
 	str[0]=MANUFACTURE_THIS;
 	for(i=36;i<36+6;i++){
 		if(manufacture_list[i].quantity > 0){
@@ -322,13 +337,13 @@ int clear_handler()
 /* ">" button clicked - manufacture just one item */
 int mixone_handler()
 {
-  return mix_handler(1);
+  return mix_handler(1, mix_empty_str);
 }
 
 /* ">>" button clicked - manufacture the maxiumum nuber of items */
 int mixall_handler()
 {
-  return mix_handler(255);
+  return mix_handler(255, mix_empty_str);
 }
 
 /* mouse over slots - show tool tips */

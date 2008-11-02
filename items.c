@@ -72,17 +72,41 @@ int quantity_y_offset=185;
 int use_small_items_window = 0;
 int manual_size_items_window = 0;
 
+#define NUMBUT 4
+#define XLENBUT 27
+#define YLENBUT 33
+static int but_y_off[NUMBUT] = { 0, YLENBUT, YLENBUT*2, YLENBUT*3 };
+enum { BUT_STORE, BUT_GET, BUT_DROP, BUT_MIX };
+static int mix_but_all = 0;
+static int mouse_over_but = -1;
+#ifdef CONTEXT_MENUS
+static size_t cm_mix_but = CM_INIT_VALUE;
+#endif
+
+static void drop_all_handler();
+
 __inline__ GLuint get_items_texture(int no)
 {
 	return items_text[no];
 }
 
-static void set_shown_string(char colour_code, const char *the_text)
+void set_shown_string(char colour_code, const char *the_text)
 {
 	inventory_item_string[0] = to_color_char(colour_code);
 	safe_strncpy2(inventory_item_string+1, the_text, sizeof(inventory_item_string)-2, strlen(the_text));
 	inventory_item_string[sizeof(inventory_item_string)-1] = 0;
 	inventory_item_string_id++;
+}
+
+
+/* return index of button or -1 if mouse not over a button */
+static int over_button(window_info *win, int mx, int my)
+{
+	if (mx>(win->len_x-(XLENBUT+3)) && mx<win->len_x-3 && my>wear_items_y_offset
+		&& my<wear_items_y_offset+but_y_off[NUMBUT-1]+YLENBUT) {
+		return (my -  wear_items_y_offset) / YLENBUT;
+	}
+	return -1;
 }
 
 
@@ -370,6 +394,7 @@ int display_items_handler(window_info *win)
 	int x,y,i;
 	int item_is_weared=0;
 	Uint32 _cur_time = SDL_GetTicks(); /* grab a snapshot of current time */
+	char *but_labels[NUMBUT] = { sto_all_str, get_all_str, drp_all_str, NULL };
 
 	glEnable(GL_TEXTURE_2D);
 
@@ -380,15 +405,13 @@ int display_items_handler(window_info *win)
 	*My next step will be to code an #ifdef STORE_ALL section to save the 0-35 loop in the click handler for future proofing
 	*  ready for server side implementation
 	*/
-	// write "get all" in the "get all" box :)
-	strap_word(get_all_str,my_str);
-	glColor3f(0.77f,0.57f,0.39f);
-	draw_string_small(win->len_x-24, wear_items_y_offset, (unsigned char*)my_str, 2);
-	
-	// write "Store all" in the "store all" box :)
-	strap_word("Sto All",my_str);
-	glColor3f(0.77f,0.57f,0.39f);
-	draw_string_small(win->len_x-24, wear_items_y_offset+32, (unsigned char*)my_str, 2);
+	// draw the button labels
+	but_labels[BUT_MIX] = (mix_but_all) ?mix_all_str :mix_one_str;
+	for (i=0; i<NUMBUT; i++) {
+		strap_word(but_labels[i],my_str);
+		glColor3f(0.77f,0.57f,0.39f);
+		draw_string_small(win->len_x-XLENBUT, wear_items_y_offset+but_y_off[i]+1, (unsigned char*)my_str, 2);
+	}
     
    	x=quantity_x_offset+quantity_width/2;
 	y=quantity_y_offset+3;
@@ -549,29 +572,43 @@ int display_items_handler(window_info *win)
 	glColor3f(0.57f,0.67f,0.49f);
 	rendergrid(2, 4, wear_items_x_offset, wear_items_y_offset, 33, 33);
 	
-	glBegin(GL_LINE_LOOP);
+	// draw the button boxes
+	glColor3f(0.77f,0.57f,0.39f);
+	for (i=0; i<NUMBUT; i++) {
+		glBegin(GL_LINE_LOOP);
+			glVertex3i(win->len_x-3, wear_items_y_offset+but_y_off[i],0);
+			glVertex3i(win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[i],0);
+			glVertex3i(win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[i]+YLENBUT,0);
+			glVertex3i(win->len_x-3, wear_items_y_offset+but_y_off[i]+YLENBUT,0);
+		glEnd();
+	}
 	
-		// draw the "get all" box
-		glVertex3i(win->len_x, wear_items_y_offset,0);
-		glVertex3i(win->len_x-27, wear_items_y_offset,0);
-		glVertex3i(win->len_x-27, wear_items_y_offset+32,0);
-		glVertex3i(win->len_x, wear_items_y_offset+32,0);
-
-	glEnd();
-	glBegin(GL_LINE_LOOP);
-	
-		// draw the "get all" box
-		glVertex3i(win->len_x, wear_items_y_offset+32,0);
-		glVertex3i(win->len_x-27, wear_items_y_offset+32,0);
-		glVertex3i(win->len_x-27, wear_items_y_offset+64,0);
-		glVertex3i(win->len_x, wear_items_y_offset+64,0);
-
-	glEnd();
+	// highlight a button with the mouse over
+	if (mouse_over_but != -1)
+	{
+		glColor3f(0.99f,0.77f,0.55f);
+		glBegin(GL_LINE_LOOP);
+			glVertex3i(win->len_x-2, wear_items_y_offset+but_y_off[mouse_over_but]-1,0);
+			glVertex3i(win->len_x-(XLENBUT+4), wear_items_y_offset+but_y_off[mouse_over_but]-1,0);
+			glVertex3i(win->len_x-(XLENBUT+4), wear_items_y_offset+but_y_off[mouse_over_but]+YLENBUT+1,0);
+			glVertex3i(win->len_x-2, wear_items_y_offset+but_y_off[mouse_over_but]+YLENBUT+1,0);
+		glEnd();
+	}
 
     //now, draw the quantity boxes
 	glColor3f(0.3f,0.5f,1.0f);
 	rendergrid(6, 1, quantity_x_offset, quantity_y_offset, quantity_width, 20);
+	
 	glEnable(GL_TEXTURE_2D);
+	
+	// display help text for button if mouse over one
+	if ((mouse_over_but != -1) && show_help_text) {
+		char *helpstr[NUMBUT] = { stoall_help_str, getall_help_str, drpall_help_str, mixoneall_help_str };
+		show_help(helpstr[mouse_over_but], 0, quantity_y_offset+30);
+	}
+	
+	mouse_over_but = -1;
+	
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -612,7 +649,7 @@ static int move_item(int item_pos_to_mov, int destination_pos)
 				drop_on_stack = 1;
 			}
 			else
-				set_shown_string(c_red2, "Client can't choose between multiple stacks, make a free slot and let the server do it!");
+				set_shown_string(c_red2, items_stack_str);
 			/*  This still leaves one possibility for the dreaded server accusation.
 				If we have no free inventory slots, one or more stackable items 
 				unequipped, and a single, different equipped item with the same id as
@@ -656,8 +693,8 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	int pos,x,y;
 	actor *me;
     	
-	// only handle mouse button clicks, not scroll wheels moves
-	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+	// only handle mouse button clicks, not scroll wheels moves (unless its the mix button)
+	if (((flags & ELW_MOUSE_BUTTON) == 0) && (over_button(win, mx, my) != BUT_MIX)) return 0;
 
 	if(right_click) {
 		if(item_dragged!=-1 || use_item!=-1 || storage_item_dragged!=-1){
@@ -825,8 +862,9 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			}
 		}
 	} 
-   	// see if we clicked on the "Get All" box
-	else if(mx>(win->len_x-27) && mx<win->len_x && my>wear_items_y_offset && my<wear_items_y_offset+32){
+
+   	// Get All button
+	else if(over_button(win, mx, my)==BUT_GET){
      	me = get_our_actor ();
       	if(!me)return(1);//Wtf!?
        	x=me->x_tile_pos;
@@ -849,9 +887,9 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
             }
         }
     }
-   	// see if we clicked on the "Sto All" box
-	else if(mx>(win->len_x-27) && mx<win->len_x && my>wear_items_y_offset+32 && my<wear_items_y_offset+64
-	&& storage_win >= 0 && view_only_storage == 0 && windows_list.window[storage_win].displayed == 1 /*thanks alberich*/){
+
+   	// Sto All button
+	else if(over_button(win, mx, my)==BUT_STORE && storage_win >= 0 && view_only_storage == 0 && get_show_window(storage_win) /*thanks alberich*/){
 #ifdef STORE_ALL
 	/*
 	* Future code to save server load by having one byte to represent the 36 slot inventory loop. Will need server support.
@@ -871,6 +909,19 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
           }
 #endif
      }
+
+	// Drop All button
+	else if(over_button(win, mx, my)==BUT_DROP){
+		drop_all_handler();
+	}
+
+	// Mix One/All button
+	else if(over_button(win, mx, my)==BUT_MIX){
+		if (mix_but_all)
+			mix_handler(255, mixbut_empty_str);
+		else
+			mix_handler(1, mixbut_empty_str);
+	}
 
 	//see if we clicked on any item in the wear category
 	else if(mx>wear_items_x_offset && mx<wear_items_x_offset+2*33 &&
@@ -917,6 +968,10 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 
 int mouseover_items_handler(window_info *win, int mx, int my) {
 	int pos;
+	
+	// check and record if mouse if over a button
+	if ((mouse_over_but = over_button(win, mx, my)) != -1)
+		return 0; // keep standard cursor
 	
 	if(mx>0&&mx<6*items_grid_size&&my>0&&my<6*items_grid_size){
 		pos=get_mouse_pos_in_grid(mx, my, 6, 6, 0, 0, items_grid_size, items_grid_size);
@@ -1002,17 +1057,17 @@ int keypress_items_handler(window_info * win, int x, int y, Uint32 key, Uint32 k
 	return 0;
 }
 
-int drop_all_handler (widget_list *w, int mx, int my, Uint32 flags)
+static void drop_all_handler ()
 {
 	Uint8 str[6] = {0};
 	int i;
 #ifdef NEW_SOUND
 	int dropped_something = 0;
 #endif // NEW_SOUND
+	static Uint32 last_click = 0;
 
-	//only drop items if it was a left click.
-	//There were complaints about mouse-scrolling setting this off
-	if ( ! ( flags & ~ELW_LEFT_MOUSE ) )
+	// only do drop if button clicked tweice within a second
+	if ((SDL_GetTicks() - last_click) < 500)
 	{
 		for(i = 0; i < ITEM_NUM_ITEMS; i++)
 		{
@@ -1031,18 +1086,12 @@ int drop_all_handler (widget_list *w, int mx, int my, Uint32 flags)
 		if (dropped_something)
 			add_sound_object(get_index_for_sound_type_name("Drop Item"), 0, 0, 1);
 #endif // NEW_SOUND
-		return 1;
-	} else {
-		return 0;
 	}
+	last_click = SDL_GetTicks();
 }
-
-int drop_button_id = 0;
 
 int show_items_handler(window_info * win)
 {
-	widget_list *w;
-
 	if (!manual_size_items_window)
 		use_small_items_window = video_mode <= 4;
 
@@ -1053,7 +1102,7 @@ int show_items_handler(window_info * win)
 		quantity_width=69;
 	} else {
 		items_grid_size=33;
-		wear_items_y_offset=19;
+		wear_items_y_offset=33;
 		win->len_y=6*items_grid_size+110;
 		quantity_width=51;
 	}
@@ -1064,11 +1113,10 @@ int show_items_handler(window_info * win)
 	wear_items_x_offset=6*items_grid_size+8;
 	item_quantity=quantities.quantity[quantities.selected].val;
 
-	w=widget_find(items_win, drop_button_id);
-	if(w){
-		w->pos_y = (use_small_items_window ?5.5 :4.5) * items_grid_size - w->len_y/2;
-		w->pos_x = 6*items_grid_size + (win->len_x - 6*items_grid_size - w->len_x)/2;
-	}
+#ifdef CONTEXT_MENUS
+	cm_remove_regions(cm_mix_but);
+	cm_add_region(cm_mix_but, items_win, win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[3], XLENBUT, YLENBUT);
+#endif
 
 	/* make sure we redraw any string */
 	last_items_string_id = 0;
@@ -1109,18 +1157,19 @@ void display_items_menu()
 		set_window_handler(items_win, ELW_HANDLER_KEYPRESS, &keypress_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_SHOW, &show_items_handler );
 		
-		drop_button_id = button_add_extended (items_win, drop_button_id,  NULL, 0, 0, 0, 0, 0, 0.8f, 0.77f, 0.57f, 0.39f, drop_all_str);
-		widget_set_OnClick (items_win, drop_button_id, drop_all_handler);
-		
-		show_items_handler(&windows_list.window[items_win]);
-		
 #ifdef CONTEXT_MENUS
 		cm_add(windows_list.window[items_win].cm_id, cm_items_menu_str, context_items_handler);
 		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+1, &use_small_items_window, NULL);
 		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+2, &manual_size_items_window, NULL);
 		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+3, &item_window_on_drop, "item_window_on_drop");
 		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+4, &allow_equip_swap, NULL);
+		
+		cm_mix_but = cm_create(mix_all_str, NULL);
+		cm_bool_line(cm_mix_but, 0, &mix_but_all, NULL);		
 #endif
+
+		show_items_handler(&windows_list.window[items_win]);
+
 	} else {
 		show_window(items_win);
 		select_window(items_win);

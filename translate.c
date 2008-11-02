@@ -158,10 +158,21 @@ char
 	login_password_str[20],
 	login_rules_str[120],
 	/*items.c*/
+	sto_all_str[8],
 	get_all_str[8],
+	drp_all_str[8],
+	mix_one_str[8],
+	mix_all_str[8],
 	quantity_edit_str[100],
 	equip_here_str[100],
 	equip_str[20],
+	stoall_help_str[50],
+	getall_help_str[50],
+	drpall_help_str[50],
+	mixoneall_help_str[50],
+	items_stack_str[100],
+	mixbut_empty_str[80],
+	mix_empty_str[50],
 	/*knowledge.c*/
 	completed_research[12],
 	researching_str[30],
@@ -170,7 +181,6 @@ char
 	unknown_book_short_str[50],
 	unknown_book_long_str[150],
 	/*manufacture.c*/
-	drop_all_str[11],
 	mix_str[5],
 	mixall_str[10],
 	clear_str[6],
@@ -1088,7 +1098,11 @@ void init_help()
 	add_xml_identifier(misc,"user",login_username_str,"Username:",sizeof(login_username_str));
 	add_xml_identifier(misc,"pass",login_password_str,"Password:",sizeof(login_password_str));
 	add_xml_identifier(misc,"login_rules",login_rules_str,"If you log into this game, you accept the rules of Eternal Lands. Press F5 to read them in game.",sizeof(login_rules_str));
+	add_xml_identifier(misc,"stoall",sto_all_str,"Sto All",sizeof(sto_all_str));
 	add_xml_identifier(misc,"getall",get_all_str,"Get All",sizeof(get_all_str));
+	add_xml_identifier(misc,"drpall",drp_all_str,"Drp All",sizeof(drp_all_str));
+	add_xml_identifier(misc,"mixone",mix_one_str,"Mix One",sizeof(mix_one_str));
+	add_xml_identifier(misc,"mixall",mix_all_str,"Mix All",sizeof(mix_all_str));
 	add_xml_identifier(misc,"completed",completed_research,"COMPLETED",sizeof(completed_research));
 	add_xml_identifier(misc,"research",researching_str,"Researching",sizeof(researching_str));
 	add_xml_identifier(misc,"nothing",not_researching_anything,"Nothing",sizeof(not_researching_anything));
@@ -1097,7 +1111,6 @@ void init_help()
 	add_xml_identifier(misc,"unknown_book_l",unknown_book_long_str,"Researching book not yet known to the client.  Don't worry, reading it will count!",sizeof(unknown_book_long_str));
 	add_xml_identifier(misc,"mix",mix_str,"Mix",sizeof(mix_str));
 	add_xml_identifier(misc,"mix_all",mixall_str,"Mix all",sizeof(mixall_str));
-	add_xml_identifier(misc,"dropall",drop_all_str,"Drop All",sizeof(drop_all_str));
 	add_xml_identifier(misc,"clear",clear_str,"Clear",sizeof(clear_str));
 	add_xml_identifier(misc,"manu_add",manu_add_str,"Left-click or scrollwheel to add 1; or 10 with CTRL",sizeof(manu_add_str));
 	add_xml_identifier(misc,"manu_remove",manu_remove_str,"Left-click or scrollwheel to remove 1; or 10 with CTRL",sizeof(manu_remove_str));
@@ -1116,6 +1129,13 @@ void init_help()
 	add_xml_identifier(misc,"edit_quantity",quantity_edit_str,"Rightclick on the quantity you wish to edit",sizeof(quantity_edit_str));
 	add_xml_identifier(misc,"equip_here",equip_here_str,"Place an item in these boxes to equip it",sizeof(equip_here_str));
 	add_xml_identifier(misc,"equipment",equip_str,"Equipment",sizeof(equip_str));
+	add_xml_identifier(misc,"stoall_help",stoall_help_str,"Move all items into opened storage",sizeof(stoall_help_str));
+	add_xml_identifier(misc,"getall_help",getall_help_str,"Get all items from ground bag",sizeof(getall_help_str));
+	add_xml_identifier(misc,"drpall_help",drpall_help_str,"Double-click to drop all items",sizeof(drpall_help_str));
+	add_xml_identifier(misc,"mixoneall_help",mixoneall_help_str,"Mix one/all, right-click to choose",sizeof(mixoneall_help_str));
+	add_xml_identifier(misc,"items_stack",items_stack_str,"Client can't choose between multiple stacks, make a free slot and let the server do it!",sizeof(items_stack_str));
+	add_xml_identifier(misc,"mixbut_empty",mixbut_empty_str,"Nothing to mix, add some items using the manufacture window.",sizeof(mixbut_empty_str));
+	add_xml_identifier(misc,"mix_empty_str",mix_empty_str,"Nothing to mix, add some items.",sizeof(mix_empty_str));
 	add_xml_identifier(misc,"you",you_str,"You",sizeof(you_str));
 	add_xml_identifier(misc,"accept",accept_str,"Accept",sizeof(accept_str));
 	add_xml_identifier(misc,"cmd_markpos",help_cmd_markpos_str,"Usage: #markpos <x-coord>,<y-coord> <name>",sizeof(help_cmd_markpos_str));
