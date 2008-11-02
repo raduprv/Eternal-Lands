@@ -3587,7 +3587,7 @@ int parse_actor_part_sizes(xmlNode *node)
 
 	for (data = node->children; data; data = data->next) {
 		if (data->type == XML_ELEMENT_NODE) {
-			if (xmlStrcasecmp(data->name, (xmlChar*)"size") == 0) {
+			if (xmlStrcasecmp(data->name, (xmlChar*)"max") == 0) {
 				safe_strncpy(str, get_string_property(data, "part"), sizeof(str));
 				if (!strcasecmp(str, "head")) {
 					actor_part_sizes[ACTOR_HEAD_SIZE] = get_int_value(data);
@@ -3611,7 +3611,7 @@ int parse_actor_part_sizes(xmlNode *node)
 					actor_part_sizes[ACTOR_LEGS_SIZE] = get_int_value(data);
 				}
 			} else {
-				LOG_ERROR("parse error: size or include expected");
+				LOG_ERROR("parse error: max or include expected");
 				ok = 0;
 			}
 		} else if (data->type == XML_ENTITY_REF_NODE) {
@@ -3636,15 +3636,15 @@ int parse_actor_data(xmlNode *node)
 					ok &= parse_actor_defs(data);
 				else
 				{
-					LOG_ERROR("parse error: actor_dict (%d) and actor_part_sizes (%d) *must* be parsed before actors", dict, parts);
+					LOG_ERROR("parse error: actor_dict (%d) and actor_part_maximums (%d) *must* be parsed before actors", dict, parts);
 					ok = 0;
 				}
 			} else if (xmlStrcasecmp(data->name, (xmlChar*)"actor_dict") == 0) {
 				ok &= dict = parse_actor_dict(data);
-			} else if (xmlStrcasecmp(data->name, (xmlChar*)"actor_part_sizes") == 0) {
+			} else if (xmlStrcasecmp(data->name, (xmlChar*)"actor_part_maximums") == 0) {
 				ok &= parts = parse_actor_part_sizes(data);
 			} else {
-				LOG_ERROR("parse error: actors, actor_dict, actor_part_sizes or include expected");
+				LOG_ERROR("parse error: actors, actor_dict, actor_part_maximums or include expected");
 				ok = 0;
 			}
 		} else if (data->type == XML_ENTITY_REF_NODE) {
