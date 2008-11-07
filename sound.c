@@ -3018,9 +3018,9 @@ void update_sound(int ms)
 	j = 0;
 #endif // _EXTRA_SOUND_DEBUG
 	
-	pSource = sound_source_data;
 	while (i < used_sources)
 	{
+		pSource = &sound_source_data[i];
 #ifdef _EXTRA_SOUND_DEBUG
 		j++;
 		if (j > max_sources)
@@ -3046,7 +3046,8 @@ void update_sound(int ms)
 #ifdef _EXTRA_SOUND_DEBUG
 			printf("Removing dud sound %d. Cookie: %d, Source Num: %d, Source: %d. Current stage: %d\n", pSource->loaded_sound, pSource->cookie, i, pSource->source, pSource->current_stage);
 #endif //_EXTRA_SOUND_DEBUG
-			unload_sound(pSource->loaded_sound);
+			if (pSource->loaded_sound >= 0)
+				unload_sound(pSource->loaded_sound);
 			stop_sound_source_at_index(i);
 			continue;
 		}
