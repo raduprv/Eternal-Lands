@@ -2357,6 +2357,7 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 		int i, j;
 		act->weapon = (weapon_part*)calloc(actor_part_sizes[ACTOR_WEAPON_SIZE], sizeof(weapon_part));
 		for (i = actor_part_sizes[ACTOR_WEAPON_SIZE]; i--;) {
+			act->weapon[i].mesh_index = -1;
 			for (j = 0; j < NUM_WEAPON_FRAMES; j++) {
 				act->weapon[i].cal_frames[j].anim_index = -1;
 #ifdef NEW_SOUND
