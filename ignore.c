@@ -123,157 +123,136 @@ int name_is_valid(const char *name)
 	}
 	return 1;
 }
-//returns 1 if ignored, 0 if not ignored
+
+
+// Searches for terminating characters based on type, from "input_text", adding them to "name"
+void get_name_from_text(const char * input_text, int len, int type, int offset, char * name)
+{
+	int i, do_break;
+	Uint8 ch;
+	
+	for (i = 0; i < MAX_USERNAME_LENGTH - 1 && (i + offset) < len; i++)
+	{
+		ch = input_text[i+offset];	//skip over the prefix
+		do_break = 0;
+		switch (type)
+		{
+			case 0:
+				if (ch == ':' || ch == ' ')
+					do_break = 1;
+				break;
+			case 1:
+				if (ch == ':' || ch == ' ' || is_color (ch))
+					do_break = 1;
+				break;
+			case 2:
+				if (isspace(ch))
+					do_break = 1;
+				break;
+			case 3:
+				if (ch == ':' || ch == ' ' || ch == ']')
+					do_break = 1;
+				break;
+			case 4:
+				if (ch == ':' || ch == '-' || ch == ' ')
+					do_break = 1;
+				break;
+		}
+		if (do_break == 1)
+			break;
+		name[i] = ch;
+	}
+	name[i] = '\0';
+	return;
+}
+
+// Returns 1 if ignored, 0 if not ignored
 int pre_check_if_ignored (const char *input_text, int len, Uint8 channel)
 {
 	int i, offset;
-	char name[MAX_USERNAME_LENGTH + 1] = {0};
-	Uint8 ch;
+	char name[MAX_USERNAME_LENGTH] = {0};
 
+	if (channel == CHAT_MODPM)
+	{
+		return 0;		// Don't ever ignore MOD PM's
+	}
+	
 	switch(channel)
 	{
 		case CHAT_PERSONAL:
-		case CHAT_MODPM:
-			offset = (channel == CHAT_MODPM ? strlen(mod_pm_from_str) : strlen(pm_from_str))+2;
-			for (i = 0; i <= MAX_USERNAME_LENGTH && ((i+offset) < len); i++)
-			{
-				ch = input_text[i+offset];	//skip over the prefix
-				if (ch == ':' || ch == ' ')
-				{
-					break;
-				}
-				name[i] = ch;
-			}
-			name[i] = '\0';
-			if(channel == CHAT_MODPM)
-			{
-				return 0;
-			}
-			else
-			{
-				break;
-			}
+			offset = strlen(pm_from_str) + 2;
+			get_name_from_text(input_text, len, 0, offset, name);		// Type 0 = ":" or " "
+			break;
 		case CHAT_LOCAL:
 			offset = 0;
-			/*
-			if (from_color_char (input_text[offset]) != c_grey1)
-			{
-				//it's not a chat message, so show it
-				return 0;
-			}
-			*/
 			while (is_color (input_text[offset]))
 			{
 				offset++;
 			}
-			for (i = 0; i <= MAX_USERNAME_LENGTH && i+offset < len; i++)
+			get_name_from_text(input_text, len, 1, offset, name);		// Type 1 = ":", " " or is_color
+			if (!name_is_valid(name))
 			{
-				ch = input_text[i+offset];
-				if (ch == ':' || ch == ' ' || is_color (ch))
-				{
-					break;
-				}
-				name[i] = ch;
-			}
-			name[i] = '\0';
-			if(!name_is_valid(name)) {
 				//This can be a lot. Let's separate them based on the color for now.
 				switch (from_color_char (*input_text))
 				{
 					case c_grey1:
 						//Check for summoning messages
 						//(*) NAME summoned a %s
-						if(strcmp(name, "(*)") == 0) {
+						if (strcmp(name, "(*)") == 0)
+						{
 							offset += i;
-							while(offset < len && isspace(input_text[offset])) {
+							while (offset < len && isspace(input_text[offset]))
+							{
 								offset++;
 							}
-							for (i = 0; i <= MAX_USERNAME_LENGTH && i+offset < len; i++)
-							{
-								ch = input_text[i+offset];
-								if (isspace(ch))
-								{
-									break;
-								}
-								name[i] = ch;
-							}
-							name[i] = '\0';
+							get_name_from_text(input_text, len, 2, offset, name);		// Type 2 = isspace
 						}
 						break;
 				}
 			}
-		break;
+			break;
 		case CHAT_CHANNEL1:
 		case CHAT_CHANNEL2:
 		case CHAT_CHANNEL3:
-			for(offset = 0; is_color (input_text[offset]); offset++) /* nothing */ ;
+			for (offset = 0; is_color (input_text[offset]); offset++);		// Ignore colours
 			if (input_text[offset] == '[')
 			{
 				offset++;
 			}
-			for (i = 0; i <= MAX_USERNAME_LENGTH && i+offset < len; i++)
-			{
-				ch = input_text[i+offset];
-				if (ch == ':' || ch == ' ' || ch == ']')
-				{
-					break;
-				}
-				name[i] = ch;
-			}
-			name[i] = '\0';
-		break;
+			get_name_from_text(input_text, len, 3, offset, name);		// Type 3 = ":", " " or "]"
+			break;
 		case CHAT_GM:
-			for(offset = 0; is_color (input_text[offset]); offset++) /* nothing */ ;
+			for (offset = 0; is_color (input_text[offset]); offset++);		// Ignore colours
 			if(strncasecmp(input_text+offset, gm_from_str, strlen(gm_from_str)) == 0)
 			{
-				offset = strlen(gm_from_str)+2;
-				for (i = 0; i <= MAX_USERNAME_LENGTH && i+offset < len; i++)
-				{
-					ch = input_text[i+offset];	//skip the prefix
-					if (ch == ':' || ch == ' ')
-					{
-						break;
-					}
-					name[i] = ch;
-				}
-				name[i] = '\0';
+				get_name_from_text(input_text, len, 0, offset, name);		// Type 0 = ":" or " "
 			}
 			else if(strncasecmp(input_text+offset, ig_from_str, strlen(ig_from_str)) == 0)
 			{
-				offset = strlen(ig_from_str)+2;
-				for (i = 0; i <= MAX_USERNAME_LENGTH && i+offset < len; i++)
-				{
-					ch = input_text[i+offset];	//skip the prefix
-					if (ch == ':' || ch == '-' || ch == ' ')
-					{
-						break;
-					}
-					name[i] = ch;
-				}
-				name[i] = '\0';
+				get_name_from_text(input_text, len, 4, offset, name);		// Type 4 = ":", "-" or " "
+			}
 			break;
-			}
 	}
-	if(*name && name_is_valid(name)) {
+	if (*name && name_is_valid(name))
+	{
 		add_name_to_tablist(name);
-	} else {
-		for(offset = 0; is_color (input_text[offset]); offset++) /* nothing */;
-		for (i = 0; i <= MAX_USERNAME_LENGTH && i+offset < len; i++) {
-			ch = input_text[i+offset];
-			if (ch == ' ' || ch == ':' || is_color (ch)) {
-				break;
-			}
-			name[i] = ch;
-		}
-		name[i] = '\0';
 	}
-	if(!check_if_ignored (name)){
-		if(channel == CHAT_PERSONAL || channel == CHAT_MODPM){
+	else
+	{
+		for (offset = 0; is_color (input_text[offset]); offset++);		// Ignore colours
+		get_name_from_text(input_text, len, 1, offset, name);	// Type 1 = ":", " " or is_color
+	}
+	if (!check_if_ignored (name))
+	{
+		if (channel == CHAT_PERSONAL || channel == CHAT_MODPM)
+		{
 			//memorise the name
 			my_strcp (last_pm_from, name);
 		}
 		return 0;
-	}else{
+	}
+	else
+	{
 		return 1;
 	}
 }

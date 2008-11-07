@@ -611,7 +611,7 @@ int command_ver(char *text, int len)
 
 int command_ignore(char *text, int len)
 {
-	char name[16];
+	char name[MAX_USERNAME_LENGTH];
 	int i;
 	Uint8 ch='\0';
 	int result;
@@ -619,7 +619,7 @@ int command_ignore(char *text, int len)
 	while (isspace(*text))
 		text++;
 
-	for (i = 0; i <= MAX_USERNAME_LENGTH; i++)
+	for (i = 0; i < MAX_USERNAME_LENGTH - 1; i++)
 	{
 		ch = text[i];
 		if (ch == ' ' || ch == '\0')
@@ -631,8 +631,7 @@ int command_ignore(char *text, int len)
 	}
 	name[i] = '\0';
 
-	//ttlanhil: Is this even used? The previous for() loop should never make i larger than MAX_USERNAME_LENGTH
-	if (i > MAX_USERNAME_LENGTH + 1 && ch != '\0')
+	if (i >= MAX_USERNAME_LENGTH - 1 && text[i] != '\0') // This is the max chrs of name but isn't a null terminator
 	{
 		char str[100];
 		safe_snprintf (str, sizeof(str), "%s %s", name_too_long, not_added_to_ignores);
@@ -721,7 +720,7 @@ int command_filter(char *text, int len)
 
 int command_unignore(char *text, int len)
 {
-	char name[16];
+	char name[MAX_USERNAME_LENGTH];
 	char str[200];
 	int i;
 	Uint8 ch = '\0';
@@ -730,20 +729,18 @@ int command_unignore(char *text, int len)
 	while (isspace(*text))
 		text++;
 
-	for (i = 0; i <= MAX_USERNAME_LENGTH; i++)
+	for (i = 0; i < MAX_USERNAME_LENGTH - 1; i++)
 	{
 		ch = text[i];
 		if (ch == ' ' || ch == '\0')
 		{
-			ch = '\0';
 			break;
 		}
 		name[i] = ch;
 	}
 	name[i] = '\0';
 
-	//ttlanhil: Is this even used? The previous for() loop should never make i larger than MAX_USERNAME_LENGTH
-	if (i > MAX_USERNAME_LENGTH + 1 && ch != '\0')
+	if (i >= MAX_USERNAME_LENGTH - 1 && text[i] != '\0') // This is the max chrs of name but isn't a null terminator
 	{
 		safe_snprintf (str, sizeof (str), "%s %s", name_too_long, not_removed_from_ignores);
 		LOG_TO_CONSOLE (c_red1, str);

@@ -725,7 +725,7 @@ int keypress_namepass_handler (window_info *win, int mx, int my, Uint32 key, Uin
 		{
 			add_text_to_buffer (c_red1, error_max_digits, 6000);
 		}
-		else if (t->pos >= MAX_USERNAME_LENGTH)
+		else if (t->pos + 1 > MAX_USERNAME_LENGTH - 1)		// MAX_USERNAME_LENGTH includes the null terminator and t->pos counts from 0
 		{
 			add_text_to_buffer (c_red2, error_length, 6000);
 		}
