@@ -330,10 +330,10 @@ void match_emote(const char *command, const char *name)
 int test_for_emote(const char *text, int len)
 {
 	int start, end;
-	start = get_string_occurance("[", text, len, 1);
+	start = get_string_occurance("*", text, len, 1);
 	if (start > -1)
 	{
-		end = get_string_occurance("]", text, len, 1);
+		end = get_string_occurance("*", text+start+1, len, 1) + start + 1;
 		if (end > -1 && end - start > 1)
 		{
 			return 1;
@@ -374,7 +374,7 @@ void parse_text_for_emote_commands(const char *text, int len)
 			}
 			else if (stage == 1)		// Find the start of the emote
 			{
-				if (text[i] == '[')
+				if (text[i] == '*')
 				{
 					j = 0;
 					stage++;
@@ -382,7 +382,7 @@ void parse_text_for_emote_commands(const char *text, int len)
 			}
 			else if (stage == 2)		// Find the contents of the emote
 			{
-				if (text[i] == ']')
+				if (text[i] == '*')
 				{
 					// Found something valid so check if it matches
 					emote_text[j] = '\0';
