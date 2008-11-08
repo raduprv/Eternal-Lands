@@ -291,7 +291,7 @@ void send_input_text_line (char *line, int line_len)
 }
 
 #ifdef EMOTES
-void match_emote(const char *command, const char *name)
+int match_emote(const char *command, const char *name)
 {
 	int i;
 	actor *act = NULL;
@@ -311,7 +311,7 @@ void match_emote(const char *command, const char *name)
 	{
 		UNLOCK_ACTORS_LISTS();
 		LOG_ERROR("Unable to find actor who just said local text?? name: %s", name);
-		return;		// Eek! We don't have an actor match... o.O
+		return 0;		// Eek! We don't have an actor match... o.O
 	}
 	
 	// Try to match the input against an emote command and actor type
@@ -321,10 +321,11 @@ void match_emote(const char *command, const char *name)
 		{
 			add_emote_command_to_actor(act, this_emote->id);
 			UNLOCK_ACTORS_LISTS();
-			return;
+			return 1;
 		}
 	}
 	UNLOCK_ACTORS_LISTS();
+	return 0;
 }
 
 int test_for_emote(const char *text, int len)
@@ -334,7 +335,7 @@ int test_for_emote(const char *text, int len)
 	if (start > -1)
 	{
 		end = get_string_occurance("*", text+start+1, len, 1) + start + 1;
-		if (end > -1 && end - start > 1)
+		if (end > -1 && end - start >= 1)
 		{
 			return 1;
 		}
@@ -386,7 +387,16 @@ void parse_text_for_emote_commands(const char *text, int len)
 				{
 					// Found something valid so check if it matches
 					emote_text[j] = '\0';
-					match_emote(emote_text, username);
+					if (match_emote(emote_text, username))
+					{
+						// Check the remainder of the string for another emote (starting *after* this *)
+						if (test_for_emote(text+i+1, len - i - 1))
+						{
+							j = 0;
+							stage = 1;
+							continue;	// This looks like another emote so keep going through the loop
+						}
+					}
 				}
 				else if (text[i] != ' ' && j < MAX_EMOTE_LEN)
 				{
@@ -394,9 +404,10 @@ void parse_text_for_emote_commands(const char *text, int len)
 					j++;
 					continue;		// Loop so we don't get to the check for another emote
 				}
-				// Either we just found an emote, or an invalid char so check the remainder of the string for an emote
-				if (test_for_emote(text+i+1, len - i - 1))
+				// We didn't find an emote so check the remainder of the string (using this "end" * as the start)
+				if (test_for_emote(text+i, len - i - 1))
 				{
+					i--;		// i will be incremented at the start of the next loop which would miss this *
 					j = 0;
 					stage = 1;
 					continue;	// This looks like another emote so keep going through the loop
