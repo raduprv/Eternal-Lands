@@ -1690,10 +1690,28 @@ int draw_tab_x (widget_list *W)
 {
 	int x = W->pos_x + W->len_x - 6;
 	int y = W->pos_y+5;
+	int itab;
 
 	glColor3f(0.77f,0.57f,0.39f);
 
 	glDisable(GL_TEXTURE_2D);
+	
+	/* check for an active "#jc" channel */
+	for (itab = 0; itab < tabs_in_use; itab++)
+		if ((tabs[itab].button == W->id) && (tabs[itab].channel == CHAT_CHANNEL1 + current_channel))
+		{
+			/* draw the "+" for the active channel */
+			int x = W->pos_x+2;
+			int y = W->pos_y+1;
+			glBegin(GL_LINES);
+				glVertex2i(x,y+4);
+				glVertex2i(x+7,y+4);
+				glVertex2i(x+3,y);
+				glVertex2i(x+3,y+7);
+			glEnd();
+			break;
+		}
+	
 	glBegin(GL_LINES);
 		glVertex2i(x-4,y-4);
 		glVertex2i(x+3,y+3);
