@@ -207,7 +207,6 @@ void draw_buffs(int actor_id, float x, float y,float z)
 			v_start=1.0f-(0.125f*(cur_tex/8));
 			v_end=v_start-0.125f;
 			x_off = (int)(-1.0 * ((float)num_buffs * buff_icon_size) / 2.0f + (buff_icon_size * i));
-			printf("num %i i% x %i\n", num_buffs, i, x_off);
 			// draw the spell icon
 			glBegin(GL_QUADS);
 			glTexCoord2f(u_start,v_start);
