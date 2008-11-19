@@ -29,7 +29,7 @@
 #include "tiles.h"
 #include "timers.h"
 #include "translate.h"
- #include "eye_candy_wrapper.h"
+#include "eye_candy_wrapper.h"
 #include "minimap.h"
 #include "io/elfilewrapper.h"
 #ifdef NEW_LIGHTING
@@ -442,7 +442,7 @@ void set_on_idle(int actor_idx)
     actor *a = actors_list[actor_idx];
     if(!a->dead) {
         a->stop_animation=0;
-        
+
         if(a->fighting){
             cal_actor_set_anim(actor_idx,actors_defs[a->actor_type].cal_frames[cal_actor_combat_idle_frame]);
         }
@@ -472,7 +472,7 @@ void set_on_idle(int actor_idx)
                     cal_actor_set_random_idle(actor_idx);
                     a->IsOnIdle=1;
                 }
-                
+
                 a->stand_idle=1;
             }
         } else	{
@@ -490,7 +490,7 @@ void handle_emote_command(int a, actor *act, emote_commands command)
 {
 	int k;
 	int max_queue = 0;
-	
+
 	// Set the anim
 	switch (command)
 	{
@@ -843,7 +843,7 @@ void next_command()
 						actors_list[i]->are_bones_rotating = 1;
 						actors_list[i]->stop_animation = 1;
 						if (action->state == 0) action->state = 1;
-						
+
 						if (range_rotation != 0.0) {
 							missiles_log_message("%s (%d): not facing its target => client side rotation needed",
                                                  actors_list[i]->actor_name, actors_list[i]->actor_id);
@@ -923,7 +923,7 @@ void next_command()
 							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_frames[cal_weapon_range_fire_out_frame]);
 							actors_list[i]->in_aim_mode = 2;
 						}
-					
+
 						actors_list[i]->cal_h_rot_start = (actors_list[i]->cal_h_rot_start *
 														   (1.0 - actors_list[i]->cal_rotation_blend) +
 														   actors_list[i]->cal_h_rot_end *
@@ -957,7 +957,7 @@ void next_command()
 								cal_get_actor_bone_absolute_position(fire_actor, get_actor_bone_id(fire_actor, body_top_bone), NULL, action->fire_position);
 							}
 						}
-						
+
 #if 0 //def DEBUG
 						{
 							float aim_angle = atan2f(action->aim_position[1] - actors_list[i]->y_pos,
@@ -1082,7 +1082,7 @@ void next_command()
 							// if we have a diagonal motion, we slow down the animation a bit
 							if (dx != 0 && dy != 0)
 								actors_list[i]->movement_time_left = (int)(actors_list[i]->movement_time_left*1.2+0.5);
-							
+
                             // we compute the moving speeds in x, y and z directions
 							actors_list[i]->move_x_speed = 0.5*(dx+actors_list[i]->x_tile_pos)-actors_list[i]->x_pos;
 							actors_list[i]->move_y_speed = 0.5*(dy+actors_list[i]->y_tile_pos)-actors_list[i]->y_pos;
@@ -1139,7 +1139,7 @@ void next_command()
 					}
 					actors_list[i]->que[k]=nothing;
 				}
-			}                                                   
+			}
 		}
 }
 
@@ -1240,10 +1240,6 @@ void destroy_all_actors()
 	actor_under_mouse = NULL;
 	my_timer_adjust= 0;
 	harvesting_effect_reference = NULL;
-	ongoing_shield_effect_reference = NULL; 
-	ongoing_magic_protection_effect_reference = NULL; 
-	ongoing_magic_immunity_effect_reference = NULL; 
-	ongoing_poison_effect_reference = NULL; 
 	UNLOCK_ACTORS_LISTS();	//unlock it since we are done
 #ifndef MINIMAP2
 	minimap_touch();
@@ -1286,16 +1282,16 @@ int push_command_in_actor_queue(unsigned char command, actor *act)
 					//backup one entry
 					k--;
 				}
-				
+
 				// is the end a sit/stand spam?
 				else if((command==stand_up||command==sit_down)
 						&& (act->que[k-1]==stand_up||act->que[k-1]==sit_down)) {
 					act->que[k-1]=command;
 					break;
 				}
-				
+
 			}
-			
+
 			act->que[k]=command;
 			break;
 		}
@@ -1444,7 +1440,7 @@ void add_command_to_actor(int actor_id, unsigned char command)
 			if (me!=NULL)
 				isme = act->actor_id == me->actor_id;
 		}
-		
+
 		switch(command) {
 		case enter_combat:
 			act->async_fighting= 1;
@@ -1581,7 +1577,7 @@ void add_emote_command_to_actor(actor * act, unsigned char command)
 	if (!act) {
 		LOG_ERROR("%s (Emote) %d - NULL actor passed", cant_add_command, command);
 	} else {
-		
+
 		for (k = 0; k < MAX_EMOTE_QUEUE; k++) {
 			if (act->emote_que[k] == emote_nothing) {
 				if (k <= MAX_EMOTE_QUEUE - 2) {
@@ -1618,10 +1614,10 @@ void get_actor_damage(int actor_id, int damage)
 	//int i=0;
 	actor * act;
 	float blood_level;
-        float bone_list[1024][3];
-        int total_bones;
-        int bone;
-        float bone_x, bone_y, bone_z;
+	float bone_list[1024][3];
+	int total_bones;
+	int bone;
+	float bone_x, bone_y, bone_z;
 
 #ifdef EXTRA_DEBUG
 	ERR();
@@ -1708,31 +1704,6 @@ void get_actor_health(int actor_id, int quantity)
 		act->max_health=quantity;
 	}
 	//if we got here, it means we don't have this actor, so get it from the server...
-}
-
-void update_actor_buffs(int actor_id, Uint32 in_buffs)
-{
-	actor *act;
-#ifdef EXTRA_DEBUG
-	ERR();
-#endif
-	act = get_actor_ptr_from_id(actor_id);
-
-	if(!act){
-		//if we got here, it means we don't have this actor, so get it from the server...
-	} else {
-#ifdef VARIABLE_SPEED
-		if (in_buffs & BUFF_DOUBLE_SPEED)
-			act->step_duration = actors_defs[act->actor_type].step_duration / 2;
-		else
-			act->step_duration = actors_defs[act->actor_type].step_duration;
-#ifdef ATTACHED_ACTORS
-		if (act->attached_actor >= 0)
-			actors_list[act->attached_actor]->step_duration = act->step_duration;
-#endif // ATTACHED_ACTORS
-#endif // VARIABLE_SPEED
-		act->buffs = in_buffs;
-	}
 }
 
 void move_self_forward()
@@ -1913,7 +1884,7 @@ void free_emotes()
 {
 	emote_types *emote = NULL;
 	emote_types *next = NULL;
-	
+
 	next = emote = emotes;
 	while (next)
 	{
@@ -1928,21 +1899,21 @@ xmlNode *get_default_node(xmlNode *cfg, xmlNode *defaults)
 {
 	xmlNode *item;
 	char *group;
-	
+
 	// first, check for errors
 	if(defaults == NULL || cfg == NULL){
         return NULL;
 	}
-	
+
 	//lets find out what group to look for
 	group = get_string_property(cfg, "group");
-	
+
 	// look for defaul entries with the same name
 	for(item=defaults->children; item; item=item->next){
 		if(item->type == XML_ELEMENT_NODE) {
 			if(xmlStrcasecmp(item->name, cfg->name) == 0){
 				char *item_group;
-			
+
 				item_group = get_string_property(item, "group");
 				// either both have no group, or both groups match
 				if(xmlStrcasecmp((xmlChar*)item_group, (xmlChar*)group) == 0){
@@ -1952,7 +1923,7 @@ xmlNode *get_default_node(xmlNode *cfg, xmlNode *defaults)
 			}
 		}
 	}
-	
+
 	// if we got here, there is no default node that matches
 	return NULL;
 }
@@ -2006,7 +1977,7 @@ int parse_actor_shirt (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	// check for default entries, if found, use them to fill in missing data
 	if(defaults){
 		xmlNode *default_node= get_default_node(cfg, defaults);
-		
+
 		if(default_node){
 			if(shirt->arms_name==NULL || *shirt->arms_name=='\0')
 				get_item_string_value(shirt->arms_name, sizeof(shirt->arms_name), default_node, (xmlChar*)"arms");
@@ -2018,7 +1989,7 @@ int parse_actor_shirt (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 				get_item_string_value(shirt->torso_name, sizeof(shirt->torso_name), default_node, (xmlChar*)"torso");
 		}
 	}
-	
+
 	// check the critical information
 	actor_check_string(act, "shirt", "arms", shirt->arms_name);
 	actor_check_string(act, "shirt", "model", shirt->model_name);
@@ -2081,7 +2052,7 @@ int parse_actor_skin (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	// check for default entries, if found, use them to fill in missing data
 	if(defaults){
 		xmlNode *default_node= get_default_node(cfg, defaults);
-		
+
 		if(default_node){
 			if(skin->hands_name==NULL || *skin->hands_name=='\0')
 				get_item_string_value(skin->hands_name, sizeof(skin->hands_name), default_node, (xmlChar*)"hands");
@@ -2089,7 +2060,7 @@ int parse_actor_skin (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 				get_item_string_value(skin->head_name, sizeof(skin->head_name), default_node, (xmlChar*)"head");
 		}
 	}
-	
+
 	// check the critical information
 	actor_check_string(act, "skin", "hands", skin->hands_name);
 	actor_check_string(act, "skin", "head", skin->head_name);
@@ -2150,7 +2121,7 @@ int parse_actor_legs (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	// check for default entries, if found, use them to fill in missing data
 	if(defaults){
 		xmlNode *default_node= get_default_node(cfg, defaults);
-		
+
 		if(default_node){
 			if(legs->legs_name==NULL || *legs->legs_name=='\0')
 				get_item_string_value(legs->legs_name, sizeof(legs->legs_name), default_node, (xmlChar*)"skin");
@@ -2373,7 +2344,7 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	// check for default entries, if found, use them to fill in missing data
 	if(defaults){
 		xmlNode *default_node= get_default_node(cfg, defaults);
-		
+
 		if(default_node){
 			if(weapon->skin_name==NULL || *weapon->skin_name=='\0')
 				get_item_string_value(weapon->skin_name, sizeof(weapon->skin_name), default_node, (xmlChar*)"skin");
@@ -2933,7 +2904,7 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 				index = cal_actor_emote_bow_frame;
 #endif // EMOTES
 			}
-			
+
 			if (index >= 0)
 			{
 				get_string_value(str, sizeof(str), item);
@@ -3110,13 +3081,13 @@ int parse_actor_boots (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	// check for default entries, if found, use them to fill in missing data
 	if(defaults){
 		xmlNode *default_node= get_default_node(cfg, defaults);
-		
+
 		if(default_node){
 			if(boots->boots_name==NULL || *boots->boots_name=='\0')
 				get_item_string_value(boots->boots_name, sizeof(boots->boots_name), default_node, (xmlChar*)"skin");
 		}
 	}
-	
+
 	// check the critical information
 	actor_check_string(act, "boots", "boots", boots->boots_name);
 
@@ -3215,7 +3186,7 @@ int cal_load_mesh (actor_types *act, const char *fn, const char *kind)
 	} else {
 		log_error("Cal3d error: %s: %s\n", fn, CalError_GetLastErrorDescription());
 	}
-	
+
 	return res;
 }
 
@@ -3252,7 +3223,7 @@ int	parse_actor_nodes (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 {
 	xmlNode	*item;
 	int	ok= 1;
-	
+
 	for(item=cfg->children; item; item=item->next) {
 		if(item->type == XML_ELEMENT_NODE) {
 			if(xmlStrcasecmp(item->name, (xmlChar*)"ghost") == 0) {
@@ -3400,7 +3371,7 @@ int parse_actor_script (xmlNode *cfg)
 		act->cal_frames[i].sound= -1;
 #endif // NEW_SOUND
 	}
-	
+
 #ifdef ATTACHED_ACTORS
 	for (i = 0; i < MAX_ACTOR_DEFS; ++i)
 	{
@@ -3418,7 +3389,7 @@ int parse_actor_script (xmlNode *cfg)
 #endif // VARIABLE_SPEED
 
 	ok= parse_actor_nodes(act, cfg, NULL);
-		
+
 	// TODO: add error checking for missing actor information
 
 	//Actor def parsed, now setup the coremodel

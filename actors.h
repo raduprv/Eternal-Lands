@@ -12,11 +12,15 @@
 #include <SDL.h>
 #endif
 #include <SDL_mutex.h>
+#include "bbox_tree.h"
 #include "cal_types.h"
 #include "client_serv.h"
 #include "platform.h"
 #include "tiles.h"
-#include "bbox_tree.h"
+#ifdef BUFFS
+#include "buffs.h"
+#include "eye_candy_types.h"
+#endif // BUFFS
 
 #ifdef __cplusplus
 extern "C" {
@@ -139,7 +143,7 @@ typedef struct
 	char cape_tex[MAX_FILE_PATH];
 	char hands_tex_save[MAX_FILE_PATH];
 	char has_alpha;//is there alpha masking?
-		
+
 	/*! \} */
 
 	/*! \name Specifies the glow of each worn item*/
@@ -391,7 +395,7 @@ typedef struct
 	// Extra sounds
 	act_extra_sound battlecry;
 #endif // NEW_SOUND
-	
+
 	/*! \name The different body parts (different head shapes, different armour/weapon shapes etc.)*/
 	/*! \{ */
 	body_part *head;
@@ -529,7 +533,7 @@ typedef struct
 	float y_rot;		/*!< Sets the current y rotation*/
 	float z_rot;		/*!< Sets the current z rotation*/
 	/*! \} */
-	
+
 	float max_z;
 
 	/*! \name Actors worn item IDs*/
@@ -611,7 +615,7 @@ typedef struct
 	char current_displayed_text[MAX_CURRENT_DISPLAYED_TEXT_LEN]; /*!< If the text is displayed in a bubble over the actor, this holds the text*/
 	int current_displayed_text_time_left;	/*!< Defines the remaining time the overhead text should be displayed*/
 	/*! \} */
-	
+
 	/*! \name Unused variables*/
 	/*! \{ */
 	double x_speed;		/*!< Unused?*/
@@ -636,6 +640,10 @@ typedef struct
 
 #ifdef CLUSTER_INSIDES
 	short cluster;
+#endif
+
+#ifdef BUFFS
+	ec_reference ec_buff_reference[NUM_BUFFS];
 #endif
 }actor;
 
@@ -671,7 +679,7 @@ void draw_actor_banner(actor * actor_id, float offset_z);
 /*!
  * \ingroup	display_actors
  * \brief	The main actor loop - draws all actors within range
- * 
+ *
  * 		The function draws the actor if it's within a range of 12*12
  *
  * \callgraph
@@ -776,14 +784,14 @@ int on_the_move (const actor *act);
  * \return A pointer to your character, or NULL if that is not available.
  */
 static __inline__ actor *get_our_actor ()
-{	
+{
 	return your_actor;
 }
 
 /*!
  * \ingroup	display_actors
  * \brief	Set the pointer to your own character
- * 
+ *
  *	Set the pointer to your own character to \a act.
  *
  * \param act New pointer to your character.

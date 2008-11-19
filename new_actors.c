@@ -28,6 +28,9 @@
 #endif
 #include "io/elfilewrapper.h"
 #include "actor_init.h"
+#ifdef BUFFS
+#include "buffs.h"
+#endif // BUFFS
 
 float sitting=1.0f;
 glow_color glow_colors[10];
@@ -109,7 +112,7 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	our_actor->x_rot=0;
 	our_actor->y_rot=0;
 	our_actor->z_rot=z_rot;
-	
+
 	our_actor->last_range_attacker_id = -1;
 
 	//reset the script related things
@@ -124,7 +127,7 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	our_actor->rotating=0;
 	our_actor->busy=0;
 	our_actor->last_command=nothing;
-	
+
 	//clear the que
 	for(k=0; k<MAX_CMD_QUEUE; k++)	our_actor->que[k]=nothing;
 
@@ -161,12 +164,12 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	}
 
 	actors_list[i]=our_actor;
-	
+
 	if(i >= max_actors) max_actors = i+1;
-	
+
 	no_bounding_box=0;
 	//Actors list will be unlocked later
-	
+
 	return i;
 }
 
@@ -199,7 +202,7 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 									my_strcp(actors_list[i]->body_parts->hands_tex, actors_list[i]->body_parts->hands_tex_save);
 									glDeleteTextures(1,&actors_list[i]->texture_id);
 									actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
-																	
+
 								}
 								model_detach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].weapon[actors_list[i]->cur_weapon].mesh_index);
 								actors_list[i]->body_parts->weapon_tex[0]=0;
@@ -245,7 +248,7 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 								actors_list[i]->body_parts->helmet_meshindex = -1;
 								return;
 							}
-							
+
 						return;
 					}
 		}
@@ -539,7 +542,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 #ifdef ATTACHED_ACTORS
 	int attachment_type = -1;
 #endif // ATTACHED_ACTORS
-	
+
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
@@ -569,7 +572,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	cape=*(in_data+20);
 	helmet=*(in_data+21);
 
-	
+
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
@@ -725,7 +728,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			onlyname[j]=name[j];
 		}
 #endif //CUSTOM_LOOK
-		
+
 		/* search for string end or color mark */
 		this_actor->guild_tag_color = 0;
 		for (guild = name; *guild && is_printable (*guild); guild++);
@@ -741,7 +744,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 #ifdef CUSTOM_LOOK
 		my_tolower(onlyname);
 #endif //CUSTOM_LOOK
-		
+
 		//perfect hashing of guildtag
  		switch(strlen(guild))
  		{
@@ -876,12 +879,12 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 		}
 
 	i=add_enhanced_actor(this_actor,f_x_pos,f_y_pos,0.0,f_z_rot,scale,actor_id);
-	
+
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif //EXTRA_DEBUG
 	//The actors list is already locked here
-	
+
 	actors_list[i]->async_fighting = 0;
 	actors_list[i]->async_x_tile_pos = x_pos;
 	actors_list[i]->async_y_tile_pos = y_pos;
@@ -933,7 +936,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	{
 		log_error("%s (%d): %s/%d\n", bad_actor_name_length, actors_list[i]->actor_type,&in_data[28], (int)strlen(&in_data[28]));
 	}
-	else 
+	else
 	{
 		/* Extract the name for use in the tab completion list. */
 		const unsigned char *name = (unsigned char*) in_data+28;
@@ -1083,6 +1086,9 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
     if (actor_id == yourself) {
         reset_camera_at_next_update = 1;
     }
+#ifdef BUFFS
+	update_actor_buffs(actor_id, buffs);
+#endif // BUFFS
 
 	UNLOCK_ACTORS_LISTS();  //unlock it
 #ifdef EXTRA_DEBUG
@@ -1095,7 +1101,7 @@ actor * add_actor_interface(float x, float y, float z_rot, float scale, int acto
 {
 	enhanced_actor * this_actor=calloc(1,sizeof(enhanced_actor));
 	actor * a;
-	
+
 	//get the torso
 	my_strncp(this_actor->arms_tex,actors_defs[actor_type].shirt[shirt].arms_name,sizeof(this_actor->arms_tex));
 	my_strncp(this_actor->arms_mask,actors_defs[actor_type].shirt[shirt].arms_mask,sizeof(this_actor->arms_mask));
@@ -1120,9 +1126,9 @@ actor * add_actor_interface(float x, float y, float z_rot, float scale, int acto
 
 	a->stop_animation=1;//helps when the actor is dead...
 	a->kind_of_actor=HUMAN;
-	
+
 	safe_snprintf(a->actor_name, sizeof(a->actor_name), "Player");
-	
+
 	if (actors_defs[actor_type].coremodel!=NULL) {
 		a->calmodel=model_new(actors_defs[actor_type].coremodel);
 
@@ -1133,7 +1139,7 @@ actor * add_actor_interface(float x, float y, float z_rot, float scale, int acto
 			model_attach_mesh(a, actors_defs[actor_type].head[head].mesh_index);
 			model_attach_mesh(a, actors_defs[actor_type].shirt[shirt].mesh_index);
 			model_attach_mesh(a, actors_defs[actor_type].legs[pants].mesh_index);
-			
+
 			a->body_parts->torso_meshindex=actors_defs[actor_type].shirt[shirt].mesh_index;
 			a->body_parts->legs_meshindex=actors_defs[actor_type].legs[pants].mesh_index;
 			a->body_parts->head_meshindex=actors_defs[actor_type].head[head].mesh_index;
@@ -1153,7 +1159,7 @@ actor * add_actor_interface(float x, float y, float z_rot, float scale, int acto
 			}
 		}
 	} else a->calmodel=NULL;
-	
+
 	UNLOCK_ACTORS_LISTS();  //unlock it
 
 	return a;

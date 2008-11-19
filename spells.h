@@ -56,16 +56,13 @@ extern int quickspell_y;
 extern int sigil_menu_x;
 extern int sigil_menu_y;
 
+extern int sigils_text;
+
 extern Uint8 spell_text[256]; /*!< buffer for the spell text */
 
 extern int have_error_message; /*!< flag that indicates whether we got an error message */
 
 extern int spell_result;
-
-extern ec_reference ongoing_shield_effect_reference; 
-extern ec_reference ongoing_magic_protection_effect_reference; 
-extern ec_reference ongoing_magic_immunity_effect_reference; 
-extern ec_reference ongoing_poison_effect_reference; 
 
 /*!
  * \ingroup spells_window
@@ -149,7 +146,7 @@ void get_sigils_we_have(Uint32 sigils_we_have, Uint32 sigils2);
 /*!
  * \ingroup spells_window
  * \brief Processes a message from the server about the last spell
- * 	
+ *
  * 	Processes a message from the server about the outcome of the last spell, or gets the name of a given spell.
  *
  * \param data The network data

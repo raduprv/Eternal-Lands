@@ -12,6 +12,8 @@
 #ifndef EYE_CANDY_WRAPPER_H
 #define EYE_CANDY_WRAPPER_H
 
+#include "eye_candy_types.h"
+
 #include "platform.h"
 #include "actors.h"
 #include "e3d.h"
@@ -76,10 +78,6 @@ extern int max_idle_cycles_per_second;
 ////////////////////////////////////////////////////////////////////////////////
 // "C" wrapper functions declaration                                          //
 ////////////////////////////////////////////////////////////////////////////////
-
-typedef void* ec_reference;
-typedef void* ec_bounds;
-typedef void* ec_effects;
 
 #ifdef __cplusplus
 extern "C"

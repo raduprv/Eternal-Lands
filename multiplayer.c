@@ -49,6 +49,10 @@
 #include "popup.h"
 #include "missiles.h"
 
+#ifdef BUFFS
+#include "buffs.h"
+#endif // BUFFS
+
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
  *
@@ -94,7 +98,7 @@ int last_turn_around = 0;
 void move_to (short int x, short int y, int try_pathfinder)
 {
 	Uint8 str[5];
-				
+
 	if (try_pathfinder && always_pathfinding)
 	{
 		actor *me = get_our_actor();
@@ -136,7 +140,7 @@ int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len)
 		// wouldn't fit, send what we have
 		my_tcp_flush(my_socket);
 	}
-	
+
 	// LabRat's anti-bagspam code
 	// Grum: Adapted. Converting every movement to a path caused too much
 	// trouble. Instead we now check the current actor animation for
@@ -240,7 +244,7 @@ int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len)
 int my_tcp_flush (TCPsocket my_socket)
 {
 	int ret;
-	
+
 	if(disconnected || tcp_out_loc == 0) {
 		return 0;
 	}
@@ -376,7 +380,7 @@ void connect_to_server()
 	if(!previously_logged_in)
 		{
 			Uint8 str[1];
-			
+
 			str[0]= SEND_OPENING_SCREEN;
 			my_tcp_send(my_socket, str, 1);
 		}
@@ -395,7 +399,7 @@ void connect_to_server()
 #ifdef NEW_SOUND
 	add_sound_object(get_index_for_sound_type_name("Connected"), 0, 0, 1);
 #endif // NEW_SOUND
-		
+
 	//BUDDY-FIXME: once server-side offline buddies are supported, the next 4 lines can go
 	//For the buddy notifications
 	if(time(NULL) > c_time) {
@@ -470,7 +474,7 @@ void send_new_char(char * user_str, char * pass_str, char skin, char hair, char 
 
 // TEMP LOGAND [5/25/2004]
 #ifndef NPC_SAY_OVERTEXT
- #define NPC_SAY_OVERTEXT 58 
+#define NPC_SAY_OVERTEXT 58
 #endif
 //---
 
@@ -483,7 +487,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 		log_error("CAUTION: Possibly forged packet received.\n");
 		return;
 	}
-	
+
 	//see what kind of data we got
 	switch (in_data[PROTOCOL])
 		{
@@ -492,7 +496,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				int len= data_length - 4;
 
 				// extract the channel number
-				if (data_length > 4) 
+				if (data_length > 4)
 				{
 					if (len > sizeof(text_buf) - 2)
 					{
@@ -500,7 +504,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					}
 					memcpy(text_buf, &in_data[4], len);
 					text_buf[len] = '\0';
-					
+
 					// do filtering and ignoring
 					len= filter_or_ignore_text((char*)text_buf, len, sizeof (text_buf), in_data[3]);
 					if (len > 0)
@@ -632,7 +636,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #endif // NEW_SOUND
 
 				load_quickspells();
-				
+
 				load_counters();
 				send_video_info();
 				previously_logged_in=1;
@@ -1272,8 +1276,8 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 		case NPC_OPTIONS_LIST:
 			{
 				// NOTE: an empty response list (data_length == 3) is valid,
-				// and simply means that the response list should be cleared. 
-				// Just take care not to try to use the data argument in 
+				// and simply means that the response list should be cleared.
+				// Just take care not to try to use the data argument in
 				// build_response_entries ().
 				build_response_entries (in_data+3, SDL_SwapLE16 (*((Uint16 *)(in_data+1))));
 			}
@@ -1506,7 +1510,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #endif	//OLC
 			}
 			break;
-			
+
 		case BUDDY_EVENT:
 			{
 				if (data_length <= 5)
@@ -1529,8 +1533,8 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  break;
 				}
 				switch(in_data[3]){
-					case RULE_WIN: 
-					case RULE_INTERFACE: 
+					case RULE_WIN:
+					case RULE_INTERFACE:
 						highlight_rule(in_data[3],in_data+4,data_length-4);
 						break;
 					case NEW_CHAR_INTERFACE:
@@ -1651,7 +1655,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 		case GET_3D_OBJ:
 			get_3d_objects_from_server (1, &in_data[3], data_length - 3);
 			break;
-		
+
 		case REMOVE_3D_OBJ:
 			if (data_length <= 4)
 			{
@@ -1677,7 +1681,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					break;
 			}
 			break;
-			
+
 		// for future expansion
 		case MAP_STATE_OBJECTS:
 			if (data_length <= 8)
@@ -1695,7 +1699,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			}
 			break;
 
-		case MAP_FLAGS: 
+		case MAP_FLAGS:
 			if (data_length <= 6)
 			{
 			  log_error("CAUTION: Possibly forged MAP_FLAGS packet received.\n");
@@ -1704,7 +1708,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			map_flags=SDL_SwapLE32(*((Uint32 *)(in_data+3)));
 			break;
 
-		case GET_ITEMS_COOLDOWN: 
+		case GET_ITEMS_COOLDOWN:
 				// make sure we interpret the incoming octets as unsigned
 				// in case the function signature changes
 			if (data_length <= 3)
@@ -1724,9 +1728,14 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			  log_error("CAUTION: Possibly forged SEND_BUFFS packet received.\n");
 			  break;
 			}
+#ifdef BUFF_DEBUG
+			printf("SEND_BUFFS received\n");
+#endif // BUFF_DEBUG
+#ifdef BUFFS
 			update_actor_buffs(SDL_SwapLE16(*((short *)(in_data+3))), SDL_SwapLE32(*((Uint32 *)(in_data+5))));
+#endif // BUFFS
 			break;
-			
+
 		case SEND_SPECIAL_EFFECT:
 			if (data_length <= 5)
 			{
@@ -1868,13 +1877,13 @@ static void process_data_from_server(queue_t *queue)
 	if (3 <= in_data_used) {
 		Uint8   *pData  = tcp_in_data;
 		Uint16   size;
-		
+
 		do { /* while (3 <= in_data_used) (enough data present for the length field) */
 			size = SDL_SwapLE16(*((short*)(pData+1)));
 			size += 2; /* add length field size */
-			
+
 			if (sizeof (tcp_in_data) - 3 >= size) { /* buffer big enough ? */
-				
+
 				if (size <= in_data_used) { /* do we have a complete message ? */
 					message_t *message = malloc(sizeof *message);
 					message->data = malloc(size*sizeof(unsigned char));
@@ -1885,7 +1894,7 @@ static void process_data_from_server(queue_t *queue)
 					if (log_conn_data){
 						log_conn(pData, size);
 					}
-		
+
 					/* advance to next message */
 					pData         += size;
 					in_data_used  -= size;
@@ -1895,7 +1904,7 @@ static void process_data_from_server(queue_t *queue)
 			}
 			else { /* sizeof (tcp_in_data) - 3 < size */
 				LOG_TO_CONSOLE(c_red2, packet_overrun);
-	    
+
 				LOG_TO_CONSOLE(c_red2, disconnected_from_server);
 				LOG_TO_CONSOLE(c_red2, alt_x_quit);
 				LOG_ERROR ("Packet overrun, protocol = %d, size = %u\n", pData[0], size);

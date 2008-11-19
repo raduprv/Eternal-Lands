@@ -7,7 +7,7 @@
 #include "context_menu.h"
 #endif
 #include "elwindows.h"
-#include "gamewin.h"	
+#include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
 #include "init.h"
@@ -44,7 +44,7 @@ int sigil_menu_y=20;
 int sigil_menu_x_len=NUM_SIGILS_LINE*33+20;
 int sigil_menu_y_len=(3+NUM_SIGILS_ROW)*33;
 
-static int sigils_text;
+int sigils_text;
 Uint8 spell_text[256];
 int sigils_we_have;
 int have_error_message=0;
@@ -77,15 +77,11 @@ int quickspell_y_len=6*30;
 int quickspell_x=60;
 int quickspell_y=64;
 int quickspells_loaded = 0;
+
 #ifdef CONTEXT_MENUS
 size_t cm_quickspells_id = CM_INIT_VALUE;
 void cm_update_quickspells(void);
 #endif
-
-ec_reference ongoing_shield_effect_reference = NULL; 
-ec_reference ongoing_magic_protection_effect_reference = NULL; 
-ec_reference ongoing_magic_immunity_effect_reference = NULL; 
-ec_reference ongoing_poison_effect_reference = NULL; 
 
 void repeat_spell()
 {
@@ -341,10 +337,6 @@ int we_are_poisoned()
 void display_spells_we_have()
 {
 	int i;
-	int destroy_shield = 1;
-	int destroy_magic_protection = 1;
-	int destroy_magic_immunity = 1;
-	int destroy_poison = 1;
 
 #ifdef OPENGL_TRACE
 	CHECK_GL_ERRORS();
@@ -389,91 +381,12 @@ void display_spells_we_have()
 			glBegin(GL_QUADS);
 			draw_2d_thing (u_start, v_start, u_end, v_end, x_start, y_start, x_end, y_end);
 			glEnd();
-			
-			// check ongoing Eye Candy effect
-			if (cur_spell == 32) {
-				// shield
-				destroy_shield = 0;
-				if (ongoing_shield_effect_reference == NULL)
-				{
-					if (get_actor_ptr_from_id(yourself))
-					{
-						ongoing_shield_effect_reference = ec_create_ongoing_shield2(get_actor_ptr_from_id(yourself), 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
-					}
-				}
-			}
-			else if (cur_spell == 33) {
-				// magic protection
-				destroy_magic_protection = 0;
-				if (ongoing_magic_protection_effect_reference == NULL)
-				{
-					if (get_actor_ptr_from_id(yourself))
-					{
-						ongoing_magic_protection_effect_reference = ec_create_ongoing_magic_protection2(get_actor_ptr_from_id(yourself), 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
-					}
-				}
-			}
-			else if (cur_spell == 34) {
-				// poison
-				destroy_poison = 0;
-				if (ongoing_poison_effect_reference == NULL)
-				{
-					if (get_actor_ptr_from_id(yourself))
-					{
-						ongoing_poison_effect_reference = ec_create_ongoing_poison2(get_actor_ptr_from_id(yourself), 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
-					}
-				}
-			}
-			else if (cur_spell == 35) {
-				// magic immunity
-				destroy_magic_immunity = 0;
-				if (ongoing_magic_immunity_effect_reference == NULL)
-				{
-					if (get_actor_ptr_from_id(yourself))
-					{
-						ongoing_magic_immunity_effect_reference = ec_create_ongoing_magic_immunity2(get_actor_ptr_from_id(yourself), 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
-					}
-				}
-			}
 		}
 	}
 	glDisable(GL_BLEND);
 #ifdef OPENGL_TRACE
 	CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
-	
-	if (destroy_shield)
-	{
-		if (ongoing_shield_effect_reference != NULL)
-		{
-			ec_recall_effect(ongoing_shield_effect_reference);
-			ongoing_shield_effect_reference = NULL;
-		}
-	}
-	if (destroy_magic_protection)
-	{
-		if (ongoing_magic_protection_effect_reference != NULL)
-		{
-			ec_recall_effect(ongoing_magic_protection_effect_reference);
-			ongoing_magic_protection_effect_reference = NULL;
-		}
-	}
-	if (destroy_poison)
-	{
-		if (ongoing_poison_effect_reference != NULL)
-		{
-			ec_recall_effect(ongoing_poison_effect_reference);
-			ongoing_poison_effect_reference = NULL;
-		}
-	}
-	if (destroy_magic_immunity)
-	{
-		if (ongoing_magic_immunity_effect_reference != NULL)
-		{
-			ec_recall_effect(ongoing_magic_immunity_effect_reference);
-			ongoing_magic_immunity_effect_reference = NULL;
-		}
-	}
 }
 
 int show_last_spell_help=0;
@@ -487,12 +400,12 @@ int display_sigils_handler(window_info *win)
 	glColor3f(1.0f,1.0f,1.0f);
 	//let's add the new spell icon if we have one
 	get_and_set_texture_id(sigils_text);
-	
+
 	if(mqb_data[0] && mqb_data[0]->spell_id!=-1)
 	{
 		int x_start,y_start,x_end,y_end;
 		float u_start,v_start,u_end,v_end;
-		
+
 		x_start=350;
 		x_end=x_start+31;
 		y_start=112;
@@ -500,10 +413,10 @@ int display_sigils_handler(window_info *win)
 		//location in window ready, now for the bitmap..
 		u_start=0.125f*(mqb_data[0]->spell_image%8);//0 to 7 across
 		v_start=1.0f-((float)32/256*(mqb_data[0]->spell_image/8));
-		
+
 		u_end=u_start+0.125f-(1.0f/256.0f);//32 pixels(1/8th of 256, -1/256th)
 		v_end=v_start-0.125f-(1.0f/256.0f);//32 pixels(1/8th of 256, -1/256th)
-		
+
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GREATER, 0.05f);
 		glBegin(GL_QUADS);
@@ -511,7 +424,7 @@ int display_sigils_handler(window_info *win)
 		glEnd();
 		glDisable(GL_ALPHA_TEST);
 	}
-	
+
 	glBegin(GL_QUADS);
 	//ok, now let's draw the objects...
 	for(i=0;i<SIGILS_NO;i++)
@@ -550,7 +463,7 @@ int display_sigils_handler(window_info *win)
 			float u_start,v_start,u_end,v_end;
 			int cur_item,cur_pos;
 			int x_start,x_end,y_start,y_end;
-		
+
 			//get the UV coordinates.
 			cur_item=on_cast[i];
 			u_start=0.125f*(cur_item%8);
@@ -578,16 +491,16 @@ int display_sigils_handler(window_info *win)
 	draw_string_small(4,win->len_y-90,spell_text,4);
 
 	// Render the grid *after* the images. It seems impossible to code
-	// it such that images are rendered exactly within the boxes on all 
+	// it such that images are rendered exactly within the boxes on all
 	// cards
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(0.77f,0.57f,0.39f);
-	
+
 	rendergrid (NUM_SIGILS_LINE, NUM_SIGILS_ROW, 0, 0, 33, 33);
 	rendergrid (6, 1, 5, win->len_y-37, 33, 33);
-	
+
 	glEnable(GL_TEXTURE_2D);
-	
+
 	if(show_last_spell_help && mqb_data[0] && mqb_data[0]->spell_id!=-1)show_help(mqb_data[0]->spell_name,350-8*strlen(mqb_data[0]->spell_name),120);
 	show_last_spell_help=0;
 #ifdef OPENGL_TRACE
@@ -648,11 +561,11 @@ int mouseover_sigils_handler(window_info *win, int mx, int my)
 	if(mx>=350 && mx<=381 && my>=112 && my<=143&&mqb_data[0] &&mqb_data[0]->spell_name[0]) {
 		show_last_spell_help = 1;
 	}
-	
+
 	//see if we clicked on any sigil in the main category
 	if(mx>0 && mx<NUM_SIGILS_LINE*33 && my>0 && my<NUM_SIGILS_ROW*33) {
 		int pos=get_mouse_pos_in_grid(mx,my, NUM_SIGILS_LINE, NUM_SIGILS_ROW, 0, 0, 33, 33);
-		
+
 		if (pos >= 0 && sigils_list[pos].have_sigil)
 		{
 			my_strcp((char*)spell_text,sigils_list[pos].name);
@@ -664,14 +577,14 @@ int mouseover_sigils_handler(window_info *win, int mx, int my)
 	//see if we clicked on any sigil from "on cast"
 	if(mx>5 && mx<6*33+5 && my>win->len_y-37 && my<win->len_y-5) {
 		int pos=get_mouse_pos_in_grid(mx, my, 6, 1, 5, win->len_y-37, 33, 33);
-		
+
 		if (pos >= 0 && on_cast[pos]!=-1){
 			my_strcp((char*)spell_text,sigils_list[on_cast[pos]].name);
 			have_error_message=0;
 		}
 		return 0;
 	}
-	
+
 	if(mx>=350 && mx<=381 && my>=112 && my<=143 && mqb_data[0] && mqb_data[0]->spell_id != -1) {
 		safe_snprintf((char*)spell_text, sizeof(spell_text), "Click to add the spell to the quickbar");
 		return 0;
@@ -716,7 +629,7 @@ int have_spell_name(int spell_id)
 			return 1;
 		}
 	}
-	
+
 	return 0;
 }
 
@@ -726,13 +639,13 @@ void add_spell_to_quickbar()
 
 	if(!mqb_data[0])
 		return;
-	
+
 	for(i=1;i<7;i++) {
 		if(mqb_data[i] && mqb_data[0]->spell_id==mqb_data[i]->spell_id) {
 			return;
 		}
 	}
-	
+
 	for (i = 1; i < 7; i++)
 	{
 		if (mqb_data[i] == NULL)
@@ -746,7 +659,7 @@ void add_spell_to_quickbar()
 	if (i >= 7)
 		// No free slot, overwrite the last entry
 		i = 6;
-	
+
 	memcpy (mqb_data[i], mqb_data[0], sizeof (mqbdata));
 	save_quickspells();
 #ifdef CONTEXT_MENUS
@@ -761,10 +674,10 @@ void remove_spell_from_quickbar (int pos)
 	if (pos < 1 || pos > 6 || mqb_data[pos] == NULL) {
 		return;
 	}
-	
+
 	// remove the spell
 	free (mqb_data[pos]);
-	
+
 	// move the other spells one up
 	for (i = pos; i < 6; i++) {
 		mqb_data[i] = mqb_data[i+1];
@@ -805,7 +718,7 @@ void set_spell_name (int id, const char *data, int len)
 	if (len >= 60) return;
 
 	counters_set_spell_name(id, (char *)data, len);
-	
+
 	for (i = 0; i < 7; i++)
 	{
 		if (mqb_data[i] != NULL && mqb_data[i]->spell_id==id)
@@ -832,7 +745,7 @@ void process_network_spell (const char *data, int len)
 			action_mode=ACTION_WAND;
 			break;
 		case S_SELECT_TELE_LOCATION://spell_result==2
-			// we're about to teleport, don't let the pathfinder 
+			// we're about to teleport, don't let the pathfinder
 			// interfere with our destination
 			if (pf_follow_path) pf_destroy_path ();
 			spell_result=2;
@@ -847,21 +760,21 @@ void process_network_spell (const char *data, int len)
 			action_mode=ACTION_WALK;
 			return;
 	}
-	
+
 	if(!mqb_data[0]){
 		mqb_data[0]=(mqbdata*)calloc(1,sizeof(mqbdata));
 		mqb_data[0]->spell_id=-1;
 	}
-	
+
 	if(mqb_data[0]->spell_id!=data[1]){
 		if(!have_spell_name(data[1])){
 			Uint8 str[2];
-			
+
 			str[0]=SPELL_NAME;
 			str[1]=data[1];
 			my_tcp_send(my_socket, str, 2);
-		} 
-					
+		}
+
 		mqb_data[0]->spell_id=data[1];
 		mqb_data[0]->spell_image=data[2];
 	}
@@ -875,11 +788,11 @@ void load_quickspells ()
 	Uint8 i;
 
 	// Grum: move this over here instead of at the end of the function,
-	// so that quickspells are always saved when the player logs in. 
-	// (We're only interested in if this function is called, not if it 
+	// so that quickspells are always saved when the player logs in.
+	// (We're only interested in if this function is called, not if it
 	// succeeds)
 	quickspells_loaded = 1;
-	
+
 	//write to the data file, to ensure data integrity, we will write all the information
 	safe_snprintf(fname, sizeof(fname), "spells_%s.dat",username_str);
 	my_tolower(fname);
@@ -897,8 +810,8 @@ void load_quickspells ()
 	{
 		mqb_data[i] = (mqbdata*) calloc (1, sizeof(mqbdata));
 		memcpy (mqb_data[i], data+1+(i-1)*sizeof(mqbdata), sizeof(mqbdata));
-	}	
-	
+	}
+
 #ifdef CONTEXT_MENUS
 	cm_update_quickspells();
 #endif
@@ -913,7 +826,7 @@ void save_quickspells()
 
 	if (!quickspells_loaded)
 		return;
-	
+
 	//write to the data file, to ensure data integrity, we will write all the information
 	safe_snprintf(fname, sizeof(fname), "spells_%s.dat",username_str);
 	my_tolower(fname);
@@ -935,7 +848,7 @@ void save_quickspells()
 	data[0] = i;
 
 	fwrite(data, sizeof(*data), sizeof(data), fp);
-	
+
 	fclose(fp);
 }
 
@@ -944,17 +857,17 @@ void save_quickspells()
 int quickspell_over=-1;
 
 
-/*	returns the y coord position of the active base 
+/*	returns the y coord position of the active base
 	of the quickspell window.  If spell slots are unused
 	the base is higher */
 int get_quickspell_y_base()
 {
 	int active_len = quickspell_y + quickspell_y_len;
 	int i;
-	
+
 	if (!quickspells_loaded)
 		return quickspell_y;
-		
+
 	for (i = 6; i > 0; i--)
 	{
 		if (mqb_data[i] == NULL)
@@ -970,7 +883,7 @@ int display_quickspell_handler(window_info *win)
 {
 	int x,y,width,height,i;
 	float u_start,v_start,u_end,v_end;
-	
+
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -981,7 +894,7 @@ CHECK_GL_ERRORS();
 	glBlendFunc(GL_SRC_ALPHA,GL_DST_ALPHA);
 
 	get_and_set_texture_id(sigils_text);
-	
+
 	glBegin(GL_QUADS);
 	for(i=1;i<7;i++) {
 		if(mqb_data[i] && mqb_data[i]->spell_name[0]){
@@ -1011,7 +924,7 @@ CHECK_GL_ERRORS();
 	glColor4f(1.0f,1.0f,1.0f,1.0f);
 	glDisable(GL_BLEND);	// Turn Blending Off
 	glDisable(GL_ALPHA_TEST);
-	
+
 	if(quickspell_over!=-1 && mqb_data[quickspell_over])
 		show_help(mqb_data[quickspell_over]->spell_name,-10-strlen(mqb_data[quickspell_over]->spell_name)*8,(quickspell_over-1)*30+10);
 	quickspell_over=-1;
@@ -1025,21 +938,21 @@ CHECK_GL_ERRORS();
 int mouseover_quickspell_handler(window_info *win, int mx, int my)
 {
 	int pos;
-	
+
 	pos=my/30+1;
 	if(pos<7 && pos>=1 && mqb_data[pos] && mqb_data[pos]->spell_name[0]) {
 		quickspell_over=pos;
 		elwin_mouse=CURSOR_WAND;
 		return 1;
 	}
-	
+
 	return 0;
 }
 
 int click_quickspell_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int pos;
-	
+
 	pos=my/30+1;
 
 	if(pos<7 && pos>=1 && mqb_data[pos])
@@ -1146,7 +1059,7 @@ int cast_handler()
 		have_error_message=1;
 		return 1;
 	}
-	
+
 	str[0]=CAST_SPELL;
 	for(i=0;i<6;i++) {
 		if(on_cast[i]!=-1){
@@ -1157,14 +1070,14 @@ int cast_handler()
 
 	str[1]=sigils_no;
 	last_spell_len=sigils_no+2;
-	
+
 	if(!mqb_data[0]) {
 		mqb_data[0]=(mqbdata*)calloc(1,sizeof(mqbdata));
 		mqb_data[0]->spell_id=-1;
 	}
-	
+
 	memcpy(mqb_data[0]->spell_str, str, last_spell_len);//Copy the last spell send to the server
-	
+
 	//ok, send it to the server...
 	my_tcp_send(my_socket, str, sigils_no+2);
 	memcpy(last_spell_str, str, last_spell_len);
@@ -1191,10 +1104,10 @@ void display_sigils_menu()
 		set_window_handler(sigil_win, ELW_HANDLER_DISPLAY, &display_sigils_handler );
 		set_window_handler(sigil_win, ELW_HANDLER_CLICK, &click_sigils_handler );
 		set_window_handler(sigil_win, ELW_HANDLER_MOUSEOVER, &mouseover_sigils_handler );
-		
+
 		cast_button_id=button_add_extended(sigil_win, cast_button_id, NULL, 0, 0, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, cast_str);
 		widget_set_OnClick(sigil_win, cast_button_id, cast_handler);
-		
+
 		clear_button_id=button_add_extended(sigil_win, clear_button_id, NULL, 0, 0, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, clear_str);
 		widget_set_OnClick(sigil_win, clear_button_id, spell_clear_handler);
 
@@ -1203,9 +1116,10 @@ void display_sigils_menu()
 		but_space = (sigil_menu_x_len - (33*6+5) - w_cast->len_x - w_clear->len_x)/3;
 		widget_move(sigil_win, cast_button_id, 33*6+5 + but_space, sigil_menu_y_len - w_cast->len_y - 4);
 		widget_move(sigil_win, clear_button_id, w_cast->pos_x + w_cast->len_x + but_space, sigil_menu_y_len - w_clear->len_y - 4);
-		
+
 	} else {
 		show_window(sigil_win);
 		select_window(sigil_win);
 	}
 }
+

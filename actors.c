@@ -6,6 +6,9 @@
 #include "actor_scripts.h"
 #include "asc.h"
 #include "bbox_tree.h"
+#ifdef BUFFS
+#include "buffs.h"
+#endif // BUFFS
 #include "cal.h"
 #include "cursors.h"
 #include "draw_scene.h"
@@ -174,6 +177,13 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	our_actor->attachment_shift[0] = our_actor->attachment_shift[1] = our_actor->attachment_shift[2] = 0.0;
 #endif // ATTACHED_ACTORS
 
+#ifdef BUFFS
+	for (i = 0; i < NUM_BUFFS; i++)
+	{
+		our_actor->ec_buff_reference[i] = NULL;
+	}
+#endif // BUFFS
+
 #ifdef CLUSTER_INSIDES
 	x = (int) (our_actor->x_pos / 0.5f);
 	y = (int) (our_actor->y_pos / 0.5f);
@@ -232,7 +242,7 @@ void add_actor_attachment(int actor_id, int attachment_type)
 		actors_list[id]->async_x_tile_pos = parent->async_x_tile_pos;
 		actors_list[id]->async_y_tile_pos = parent->async_y_tile_pos;
 		actors_list[id]->async_z_rot = parent->async_z_rot;
-		
+
 		actors_list[id]->x_tile_pos=parent->x_tile_pos;
 		actors_list[id]->y_tile_pos=parent->y_tile_pos;
 		actors_list[id]->buffs=parent->buffs;
@@ -270,7 +280,7 @@ void add_actor_attachment(int actor_id, int attachment_type)
 			if(actors_list[id]->calmodel) {
 				model_attach_mesh(actors_list[id], actors_defs[attachment_type].shirt[0].mesh_index);
 				set_on_idle(id);
-            
+
 				build_actor_bounding_box(actors_list[id]);
 				if (use_animation_program)
 					set_transformation_buffers(actors_list[id]);
@@ -349,7 +359,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 #ifdef SKY_FPV
 	//if first person, dont draw banner
 	actor *me = get_our_actor();
-	if (me&&me->actor_id==actor_id->actor_id&&first_person) return;	
+	if (me&&me->actor_id==actor_id->actor_id&&first_person) return;
 #endif // SKY_FPV
 	//Figure out where the point just above the actor's head is in the viewport
 	//See if Projection and viewport can be saved elsewhere to prevent doing this so often
@@ -365,7 +375,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
-	//Don't forget that the viewport is expressed in X+W,Y+H, or point-displacement, 
+	//Don't forget that the viewport is expressed in X+W,Y+H, or point-displacement,
 	//versus the Ortho projection which expects x1,x2,y1,y2, or absolute coordinates
 	glOrtho(view[0],view[2]+view[0],view[1],view[3]+view[1],0.0f,-1.0f);
 
@@ -385,7 +395,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-				
+
 			//Make damage numbers bounce on the actor's head. Owie!
 			a*=2000;
 			a_bounce=0;
@@ -408,15 +418,15 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				x = window_width/2.0 -(((float)get_string_width(str) * (font_scale*0.17*name_zoom)))*0.5f;
 				y = a_bounce + window_height/2.0-40.0;
 				draw_ortho_ingame_string(x, y, 0, str, 1, font_scale*.14, font_scale*.21);
-			} 
+			}
 			else
 #endif // SKY_FPV
 			{
 				float font_scale2 = font_scale*powf(1.0f+((float)abs(actor_id->damage)/2.0f)/1000.0f, 4.0);
 				draw_ortho_ingame_string(hx-(((float)get_string_width(str) * (font_scale2*0.17*name_zoom)))*0.5f, a_bounce+hy+10.0f, 0, str, 1, font_scale2*.14, font_scale2*.21);
 			}			glDisable(GL_BLEND);
-		} 
-		else 
+		}
+		else
 		{	//No floating messages
 			sprintf((char*)str,"%i",actor_id->damage);
 			glColor3f (1.0f, 0.3f, 0.3f);
@@ -454,7 +464,12 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				banner_width = ((float)get_string_width((unsigned char*)actor_id->actor_name)*(font_size_x*name_zoom))/2.0;
 				draw_ortho_ingame_string(hx-banner_width, hy+healthbar_y_len/2.0f, hz, temp, 1, font_size_x, font_size_y);
 			}
-
+#ifdef BUFFS
+			if (view_buffs)
+			{
+				draw_buffs(actor_id->actor_id, hx, hy + buff_icon_size, hz);
+			}
+#endif // BUFFS
 			if((view_hp || view_health_bar) && actor_id->cur_health > 0 && actor_id->max_health > 0 && (!actor_id->dead) && (actor_id->kind_of_actor != NPC)){
 				unsigned char hp[200];
 
@@ -512,7 +527,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		if (healthbar_x_len / 2.0f > banner_width) {
 			banner_width = healthbar_x_len / 2.0f;
 		}
-		
+
 		hx-=off;
 
 		//choose tint color
@@ -583,11 +598,11 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
-	
+
 	if ((actor_id->current_displayed_text_time_left>0)&&(actor_id->current_displayed_text[0] != 0)){
 		draw_actor_overtext( actor_id );
 	}
-	
+
 	if(floatingmessages_enabled)drawactor_floatingmessages(actor_id->actor_id, healthbar_z);
 
 #ifdef CONTEXT_MENUS
@@ -606,7 +621,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			cm_mouse_over_banner = 0;
 	}
 #endif
-					
+
 	glColor3f(1,1,1);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -788,7 +803,7 @@ static __inline__ void draw_actor_banner_new(actor * actor_id)
 {
 	float x_pos, y_pos, z_pos;
 	float healthbar_z;
-	
+
 	healthbar_z = actor_id->max_z + 0.2;
 
 	glPushMatrix();//we don't want to affect the rest of the scene
@@ -930,7 +945,7 @@ void get_actors_in_range()
 			if (pos[Z] == 0.0f)
 			{
 				//actor is walking, as opposed to flying, get the height underneath
-				pos[Z] = -2.2f + height_map[actors_list[i]->y_tile_pos * 
+				pos[Z] = -2.2f + height_map[actors_list[i]->y_tile_pos *
 					tile_map_size_x * 6 + actors_list[i]->x_tile_pos] * 0.2f;
 			}
 
@@ -1450,7 +1465,9 @@ void add_actor_from_server (const char *in_data, int len)
 			/* actors_list[i]->IsOnIdle=0; */
 		}
 	} else actors_list[i]->calmodel=NULL;
-
+#ifdef BUFFS
+	update_actor_buffs(actor_id, buffs);
+#endif // BUFFS
 	UNLOCK_ACTORS_LISTS();	//unlock it
 #ifdef EXTRA_DEBUG
 	ERR();

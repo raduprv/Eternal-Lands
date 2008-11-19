@@ -261,7 +261,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 {
 	float displayed_font_x_size = DEFAULT_FONT_X_LEN * text_zoom;
 	float displayed_font_y_size = DEFAULT_FONT_Y_LEN * text_zoom;
-	
+
 	float selection_red = 255 / 255.0f;
 	float selection_green = 162 / 255.0f;
 	float selection_blue = 0;
@@ -295,7 +295,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 			{
 				ichar = 0;
 				if (++imsg >= msgs_size) imsg = 0;
-				if (msgs[imsg].data == NULL || imsg == msg_start || msgs[imsg].deleted) 
+				if (msgs[imsg].data == NULL || imsg == msg_start || msgs[imsg].deleted)
 					// nothing to draw
 					return;
 			}
@@ -350,12 +350,12 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 				cursor_x = x;
 				cursor_y = cur_y + displayed_font_y_size;
 			}
-				
+
 		}
 
 		cur_char = msgs[imsg].data[ichar];
 		// watch for special characters
-		if (cur_char == '\0') 
+		if (cur_char == '\0')
 		{
 			// end of message
 			if (++imsg >= msgs_size) {
@@ -377,13 +377,13 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 			ichar = 0;
 			last_color_char = 0;
 		}
-	
+
 		if (select != NULL && select->lines && select->lines[cur_line].msg == -1)
 		{
 			select->lines[cur_line].msg = imsg;
 			select->lines[cur_line].chr = ichar;
 		}
-	
+
 		if (cur_char == '\n' || cur_char == '\r' || cur_char == '\0')
 		{
 			// newline
@@ -419,7 +419,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 				in_select = 0;
 			}
 		}
-		
+
 		if (is_color (cur_char))
 		{
 			last_color_char = cur_char;
@@ -431,10 +431,10 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 				continue;
 			}
 		}
-		
+
 		cur_x += draw_char_scaled (cur_char, cur_x, cur_y, displayed_font_x_size, displayed_font_y_size);
 		cur_col++;
-	
+
 		ichar++;
 		i++;
 		if (cur_x - x > width - displayed_font_x_size)
@@ -458,7 +458,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 	{
 		draw_char_scaled ('_', cursor_x, cursor_y, displayed_font_x_size, displayed_font_y_size);
 	}
-	
+
 	glEnd();
 	glDisable(GL_ALPHA_TEST);
 #ifdef OPENGL_TRACE
@@ -584,7 +584,7 @@ void draw_string_zoomed_clipped (int x, int y, const unsigned char* our_string, 
 	int i;
 	int cur_x, cur_y;
 	int cursor_x = x-1, cursor_y = y-1;
-		
+
 	if (width < displayed_font_x_size || height < displayed_font_y_size)
 		// no point in trying
 		return;
@@ -608,12 +608,12 @@ void draw_string_zoomed_clipped (int x, int y, const unsigned char* our_string, 
 				cursor_x = x;
 				cursor_y = cur_y + displayed_font_y_size;
 			}
-				
+
 		}
 
 		cur_char = our_string[i];
 		// watch for special characters
-		if (!cur_char) 
+		if (!cur_char)
 		{
 			// end of string
 			break;
@@ -630,7 +630,7 @@ void draw_string_zoomed_clipped (int x, int y, const unsigned char* our_string, 
 
 //		cur_x += draw_font_char_scaled (0, cur_char, cur_x, cur_y, text_zoom);
 		cur_x += draw_char_scaled (cur_char, cur_x, cur_y, displayed_font_x_size, displayed_font_y_size);
-		
+
 		i++;
 		if (cur_x - x > width - displayed_font_x_size)
 		{
@@ -643,9 +643,9 @@ void draw_string_zoomed_clipped (int x, int y, const unsigned char* our_string, 
 	{
 		draw_char_scaled ('_', cursor_x, cursor_y, displayed_font_x_size, displayed_font_y_size);
 	}
-	
+
 	glEnd();
-	glDisable(GL_ALPHA_TEST);	
+	glDisable(GL_ALPHA_TEST);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -655,7 +655,7 @@ CHECK_GL_ERRORS();
 void print_string_escaped (const char *str)
 {
 	int i;
-	
+
 	for (i=0; str[i]; i++)
 	{
 		if (str[i]=='\r')
@@ -692,7 +692,7 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 	if (str == NULL || width <= 0 || size <= 0) {
 		return 0;
 	}
-	
+
 	/* strip existing soft breaks before we start,
 		to avoid complicated code later */
 	for (isrc=0, idst=0; isrc<len; isrc++)
@@ -709,7 +709,7 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 	len = idst;
 	str[len] = 0;
 
-	/* allocate the working buffer so it can hold the maximum 
+	/* allocate the working buffer so it can hold the maximum
 	   the source string can take.  Previously, the fixed length
 	   buffer was sometimes not big enough.  The code looked
 	   to attempt to cope but was floored.  When ever the wrap
@@ -747,7 +747,7 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 					}
 				}
 				if (ibuf-nchar-1 <= lastline)
-					// no space found, introduce a break in 
+					// no space found, introduce a break in
 					// the middle of the word
 					nchar = 0;
 
@@ -812,7 +812,7 @@ void draw_string_small_shadowed(int x, int y,const unsigned char * our_string,in
   	             draw_string_small(x+px, y+py, our_string, max_lines);
  	 //set foreground colour
 	 glColor4f(fr, fg, fb, 1.0f);
-     draw_string_small(x, y, our_string, max_lines); 	 
+     draw_string_small(x, y, our_string, max_lines);
 }
 
 void draw_string_small(int x, int y,const unsigned char * our_string,int max_lines)
@@ -957,7 +957,7 @@ void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * ou
 
 					glTexCoord2f(u_start,v_start);
 					glVertex3f(cur_x,cur_y+displayed_font_y_size,z);
-		
+
 					glTexCoord2f(u_start,v_end);
 					glVertex3f(cur_x,cur_y,z);
 
@@ -966,7 +966,7 @@ void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * ou
 
 					glTexCoord2f(u_end,v_start);
 					glVertex3f(cur_x+displayed_font_x_width,cur_y+displayed_font_y_size,z);
-					
+
 
 					//cur_x+=displayed_font_x_size;
 					cur_x+=displayed_font_x_width;
@@ -1036,6 +1036,7 @@ void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * ou
 	glEnd();
 	glDisable(GL_ALPHA_TEST);
 }
+
 void draw_ingame_string(float x, float y,const unsigned char * our_string,
 						int max_lines, float font_x_scale, float font_y_scale)
 {
@@ -1133,7 +1134,7 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 
 					glTexCoord2f(u_start,v_start);
 					glVertex3f(cur_x,0,cur_y+displayed_font_y_size);
-		
+
 					glTexCoord2f(u_start,v_end);
 					glVertex3f(cur_x,0,cur_y);
 
@@ -1251,7 +1252,7 @@ int get_string_width(const unsigned char *str)
 int get_nstring_width(const unsigned char *str, int len)
 {
 	int	i, wdt=0;
-	
+
 	for(i=0; i<len; i++) {
 		wdt+= get_char_width(str[i]);
 	}
@@ -1332,7 +1333,7 @@ int load_font_textures ()
 #endif //WINDOWS
 	char file[60] = "";
 	char str[60] = "";
-	
+
 	if (fonts[0] == NULL || fonts[1] == NULL || fonts[2] == NULL || fonts[3]==NULL )
 	{
 		for (i = 0; i < FONTS_ARRAY_SIZE; i++) {
@@ -1342,10 +1343,10 @@ int load_font_textures ()
 		}
 		if ( !init_fonts () ) return 0;
 	}
-	
+
 	poor_man=0;
 	use_mipmaps=0;
-	
+
 	fonts[0]->texture_id = load_texture_cache("./textures/font.bmp", 0);
 	i = 1;
 	// Force the selection of the base font.
@@ -1361,7 +1362,7 @@ int load_font_textures ()
 	}
 	do {
 		int	len;
-		
+
 		safe_strncpy(file, c_file.name, sizeof(file));
 #else //!WINDOWS
 	ret = glob(glob_pattern, 0, NULL, &glob_res);
@@ -1373,11 +1374,11 @@ int load_font_textures ()
 	j = 0;
 	while (j < glob_res.gl_pathc && i < FONTS_ARRAY_SIZE) {
 		int	len;
-		
+
 		safe_strncpy(file, glob_res.gl_pathv[j]+sizeof(texture_dir)-1+strlen(datadir), sizeof(file));
 #endif //WINDOWS
 		len= strlen(file);
-		if (len+sizeof(texture_dir)-1 < sizeof(str) && !strncasecmp(file, "font", 4) 
+		if (len+sizeof(texture_dir)-1 < sizeof(str) && !strncasecmp(file, "font", 4)
 				&& (has_suffix(file, len, ".bmp", 4) || has_suffix(file, len, ".bmp.gz", 7))
 				&& (!has_suffix(file, len, "_alpha.bmp", 10)) && (!has_suffix(file, len, "_alpha.bmp.gz", 13))) {
 			// Get the filename, remove the .bmp and add _alpha.bmp to a copy, then replace the .bmp
@@ -1404,14 +1405,14 @@ int load_font_textures ()
 	globfree(&glob_res);
 #endif //WINDOWS
 	free(glob_pattern);
-	
+
 	poor_man=poor_man_save;
 	use_mipmaps=use_mipmaps_save;
 
 	//set the default font
 	cur_font_num = 0;
 	font_text = fonts[0]->texture_id;
-	
+
 	return 1;
 }
 
@@ -1471,7 +1472,7 @@ int set_font_parameters (int num)
 			10, 10, 10, 10, 10, 10, 10,  8,  8,  8,  8,  8,  8,  8,
 			10,  8,  8,  8,  8,  8,  8, 10,  8,  8,  8,  8,  8,  8,
 			 8,  8,  8, 10,  8,  8,  8, 10,  8, 10, 10,  8, 10,  8,
-			 8,  8, 10, 10, 10,  8, 10, 10,  8,  8,  8, 12, 12, 12, 
+			 8,  8, 10, 10, 10,  8, 10, 10,  8,  8,  8, 12, 12, 12,
 			10, 10, 12, 10, 12, 12, 12,
 		};
 		memcpy(fonts[num]->widths, widths, sizeof(widths));

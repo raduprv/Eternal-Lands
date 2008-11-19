@@ -455,7 +455,7 @@ extern "C" void ec_idle()
 		ec_heartbeat();
 
 #if 0
-	// Put debugging effects here.    
+	// Put debugging effects here.
 	if (ec_last_time % 100000 >= ec_cur_time % 100000)
 	{
 		float test_x = 31.0 + ec::randfloat(6.0);
@@ -563,7 +563,7 @@ extern "C" void ec_draw()
 #ifdef CLUSTER_INSIDES
 				&& (*iter)->effect->belongsToCluster (cluster)
 #endif
-			) 
+			)
 			{
 				(*iter)->effect->active = (!(is_day || dungeon
 #ifdef NEW_WEATHER
@@ -926,7 +926,7 @@ extern "C" void ec_remove_weapon(actor* _actor)
 		}
 
 		i++;
-		if (((*iter)->caster == _actor) && 
+		if (((*iter)->caster == _actor) &&
 			(((*iter)->effect->get_type() == ec::EC_SWORD)
 			|| (*iter)->effect->get_type() == ec::EC_STAFF))
 		{
@@ -1007,6 +1007,7 @@ extern "C" ec_reference ec_create_generic()
 	((ec_internal_reference*)(ec_reference)(references[references.size() - 1]))->casterbone = -1;
 	((ec_internal_reference*)(ec_reference)(references[references.size() - 1]))->targetbone = -1;
 	((ec_internal_reference*)(ec_reference)(references[references.size() - 1]))->caster = NULL;
+	((ec_internal_reference*)(ec_reference)(references[references.size() - 1]))->target = NULL;
 	return (ec_reference)(references[references.size() - 1]);
 }
 
@@ -3408,7 +3409,7 @@ extern "C" void ec_launch_targetmagic_smite_summoned(ec_reference reference, flo
 
 extern "C" ec_reference ec_create_targetmagic_drain_mana(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD)
 {
-	//std::cout << "Start X: " << start_x << "Start Y: " << start_y << "Start Z: " << start_z << "End X: " << end_x << "End Y: " << end_y << "End Z: " << end_z << std::endl; 
+	//std::cout << "Start X: " << start_x << "Start Y: " << start_y << "Start Z: " << start_z << "End X: " << end_x << "End Y: " << end_y << "End Z: " << end_z << std::endl;
 	if (!ec_in_range(start_x, start_y, start_z, ec::TargetMagicEffect::get_max_end_time()))
 		return NULL;
 	ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
@@ -3422,8 +3423,8 @@ extern "C" ec_reference ec_create_targetmagic_drain_mana(float start_x, float st
 #ifndef MAP_EDITOR
 extern "C" ec_reference ec_create_targetmagic_drain_mana2(actor* caster, actor* target, int LOD)
 {
-	//std::cout << "Caster: ID: " << caster->actor_id << " Name: " << caster->actor_name << " X: " << caster->x_pos << " Y: " << caster->y_pos << std::endl; 
-	//std::cout << "Target: ID: " << target->actor_id << " Name: " << target->actor_name << " X: " << target->x_pos << " Y: " << target->y_pos << std::endl; 
+	//std::cout << "Caster: ID: " << caster->actor_id << " Name: " << caster->actor_name << " X: " << caster->x_pos << " Y: " << caster->y_pos << std::endl;
+	//std::cout << "Target: ID: " << target->actor_id << " Name: " << target->actor_name << " X: " << target->x_pos << " Y: " << target->y_pos << std::endl;
 	if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::TargetMagicEffect::get_max_end_time()))
 		return NULL;
 	ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();

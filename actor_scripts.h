@@ -43,7 +43,7 @@ void move_to_next_frame();
  * \ingroup	move_actors
  * \brief	This function is called from the display/network loop to animate actors.
  *
- * 		This function is called from the display/network loop, when the timer thread calls SDL_PushEvent EVENT_ANIMATE_ACTORS. 
+ * 		This function is called from the display/network loop, when the timer thread calls SDL_PushEvent EVENT_ANIMATE_ACTORS.
  * 		It's purpose is to animate the actors - that is, to change their x,y,z positions according to their current movement frames
  *
  */
@@ -147,21 +147,10 @@ void get_actor_health(int actor_id, int damage);
 void get_actor_heal(int actor_id, int quantity);
 
 /*!
- * \ingroup	network_actors
- * \brief	Updates the buffs with the actor_id.
- *
- * 		Finds the player with the given actor_id and update's their buffs.
- *
- * \param	actor_id The server-side actor ID
- * \param	quantity The buffs.
- */
-void update_actor_buffs(int actor_id, Uint32 in_buffs);
-
-/*!
  * \ingroup	events_actors
  * \brief	Moves the actor 1 step forward.
  *
- * 		First it finds yourself in the actors_list, then moves you a step forward 
+ * 		First it finds yourself in the actors_list, then moves you a step forward
  *
  * \callgraph
  */
