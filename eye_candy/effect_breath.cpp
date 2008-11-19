@@ -43,10 +43,10 @@ namespace ec
 
 		switch (type)
 		{
-			case BreathEffect::FIRE: // Fall through; these cases are all very similar in terms of behavior.
 			case BreathEffect::ICE:
 			case BreathEffect::POISON:
 			case BreathEffect::MAGIC:
+			case BreathEffect::FIRE:
 			{
 				if (state == 0)
 				{
@@ -60,14 +60,14 @@ namespace ec
 					if (alpha < 0.02)
 						return false;
 
-					if ((state == 1) && (alpha < 0.04))
+					if ((state == 1) && (alpha < 0.05))
 					{
 						state = 2;
-						if ((rand() & 0x03) == 0x03)
+						if (type == BreathEffect::FIRE)
 						{
 							Vec3 velocity_offset;
 							velocity_offset.randomize(0.2);
-							base->push_back_particle(new BreathSmokeParticle(effect, mover, pos, velocity + velocity_offset, size * 2.5, 0.06, texture, LOD, type));
+							base->push_back_particle(new BreathSmokeParticle(effect, mover, pos, velocity + velocity_offset, size * 1.25, 0.06, texture, LOD, type));
 						}
 					}
 
@@ -77,9 +77,9 @@ namespace ec
 
 					const coord_t size_scalar =
 						math_cache.powf_05_close((float)delta_t / 1500000);
-					size = size / size_scalar * 0.25 + size * 0.75;
-					if (size >= 5.0)
-						size = 5.0;
+					size = size / size_scalar * 0.125 + size * 0.5;
+					if (size >= 3.0)
+						size = 3.0;
 				}
 				break;
 			}
@@ -103,7 +103,7 @@ namespace ec
 						{
 							Vec3 velocity_offset;
 							velocity_offset.randomize(1.0);
-							base->push_back_particle(new BreathSmokeParticle(effect, mover, pos, velocity + velocity_offset, size * 10.0, 1.0, texture, LOD, type));
+							base->push_back_particle(new BreathSmokeParticle(effect, mover, pos, velocity + velocity_offset, size * 5.0, 1.0, texture, LOD, type));
 						}
 					}
 
@@ -113,9 +113,9 @@ namespace ec
 
 					const coord_t size_scalar =
 						math_cache.powf_05_close((float)delta_t / 1500000);
-					size = size / size_scalar * 0.25 + size * 0.75;
-					if (size >= 5.0)
-						size = 5.0;
+					size = size / size_scalar * 0.125 + size * 0.5;
+					if (size >= 3.0)
+						size = 3.0;
 				}
 				break;
 			}
@@ -200,9 +200,9 @@ namespace ec
 
 					const coord_t size_scalar =
 						math_cache.powf_05_close((float)delta_t / 1500000);
-					size = size / size_scalar * 0.25 + size * 0.75;
-					if (size >= 5.0)
-						size = 5.0;
+					size = size / size_scalar * 0.125 + size * 0.5;
+					if (size >= 2.0)
+						size = 2.0;
 				}
 				break;
 			}
@@ -311,16 +311,16 @@ namespace ec
 		{
 			const alpha_t alpha_scalar = 1.0
 				- math_cache.powf_05_close((float)delta_t / 1000000);
-			alpha -= alpha_scalar;
+			alpha -= alpha_scalar * 0.25;
 
 			if (alpha < 0.005)
 				return false;
 
 			const coord_t size_scalar = math_cache.powf_05_close((float)delta_t
 				/ 1500000);
-			size = size / size_scalar * 0.25 + size * 0.75;
-			if (size >= 5)
-				size = 5;
+			size = size / size_scalar * 0.125 + size * 0.5;
+			if (size >= 3)
+				size = 3;
 		}
 
 		return true;
@@ -355,7 +355,7 @@ namespace ec
 
 		spawner = new FilledSphereSpawner(scale / 3.0);
 		mover = new SmokeMover(this, 10.0);
-		while ((int)particles.size() < LOD * 250)
+		while ((int)particles.size() < LOD * 64)
 		{
 			const Vec3 coords = spawner->get_new_coords() + *pos;
 			Vec3 velocity;
@@ -367,7 +367,7 @@ namespace ec
 				{
 					Particle
 						* p =
-							new BreathParticle(this, mover, coords, velocity, 1.5 * size_scalar, 0.6, 0.8 + randcolor(0.2), 0.4 + randcolor(0.4), randcolor(0.4), &(base->TexFlare), LOD, type);
+							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.6, 0.8 + randcolor(0.2), 0.4 + randcolor(0.4), randcolor(0.4), &(base->TexFlare), LOD, type);
 					if (!base->push_back_particle(p))
 						return;
 					break;
@@ -376,7 +376,7 @@ namespace ec
 				{
 					Particle
 						* p =
-							new BreathParticle(this, mover, coords, velocity, 2.0 * size_scalar, 0.6, randcolor(0.4), 0.4 + randcolor(0.4), 0.8 + randcolor(0.2), &(base->TexCrystal), LOD, type);
+							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.6, randcolor(0.4), 0.4 + randcolor(0.4), 0.8 + randcolor(0.2), &(base->TexCrystal), LOD, type);
 					if (!base->push_back_particle(p))
 						return;
 					break;
@@ -385,7 +385,7 @@ namespace ec
 				{
 					Particle
 						* p =
-							new BreathParticle(this, mover, coords, velocity, 1.5 * size_scalar, 0.1, randcolor(0.3), 0.8 + randcolor(0.2), randcolor(0.3), &(base->TexWater), LOD, type);
+							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.1, randcolor(0.3), 0.8 + randcolor(0.2), randcolor(0.3), &(base->TexWater), LOD, type);
 					if (!base->push_back_particle(p))
 						return;
 					break;
@@ -394,7 +394,7 @@ namespace ec
 				{
 					Particle
 						* p =
-							new BreathParticle(this, mover, coords, velocity, 1.5 * size_scalar, 0.6, randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexTwinflare), LOD, type);
+							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.6, randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexTwinflare), LOD, type);
 					if (!base->push_back_particle(p))
 						return;
 					break;
@@ -403,7 +403,7 @@ namespace ec
 				{
 					Particle
 						* p =
-							new BreathParticle(this, mover, coords, velocity, 0.75 * size_scalar, 0.6, 0.9 + randcolor(0.1), 0.85 + randcolor(0.15), 0.8 + randcolor(0.2), &(base->TexFlare), LOD, type);
+							new BreathParticle(this, mover, coords, velocity, 0.25 * size_scalar, 0.6, 0.9 + randcolor(0.1), 0.85 + randcolor(0.15), 0.8 + randcolor(0.2), &(base->TexFlare), LOD, type);
 					if (!base->push_back_particle(p))
 						return;
 					break;
@@ -412,7 +412,7 @@ namespace ec
 				{
 					Particle
 						* p =
-							new BreathParticle(this, mover, coords, velocity, 1.1 * size_scalar, 0.6, 0.8 + randcolor(0.2), 0.8 + randcolor(0.2), 0.8 + randcolor(0.2), &(base->TexFlare), LOD, type);
+							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.6, 0.8 + randcolor(0.2), 0.8 + randcolor(0.2), 0.8 + randcolor(0.2), &(base->TexFlare), LOD, type);
 					if (!base->push_back_particle(p))
 						return;
 					break;
@@ -449,7 +449,7 @@ namespace ec
 
 		while (count > 0)
 		{
-			count -= count_scalar;
+			count -= count_scalar * (14 - LOD);
 
 			Vec3 coords;
 			Vec3 velocity;
@@ -472,7 +472,7 @@ namespace ec
 				{
 					Particle
 						* p =
-							new BreathParticle(this, mover, coords, velocity, 1.5 * size_scalar, 0.6, 0.8 + randcolor(0.2), 0.4 + randcolor(0.4), randcolor(0.4), &(base->TexFlare), LOD, type);
+							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.6, 0.8 + randcolor(0.2), 0.4 + randcolor(0.4), randcolor(0.4), &(base->TexFlare), LOD, type);
 					if (!base->push_back_particle(p))
 						return true;
 					break;
@@ -481,7 +481,7 @@ namespace ec
 				{
 					Particle
 						* p =
-							new BreathParticle(this, mover, coords, velocity, 2.0 * size_scalar, 0.6, randcolor(0.4), 0.4 + randcolor(0.4), 0.8 + randcolor(0.2), &(base->TexCrystal), LOD, type);
+							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.6, randcolor(0.4), 0.4 + randcolor(0.4), 0.8 + randcolor(0.2), &(base->TexCrystal), LOD, type);
 					if (!base->push_back_particle(p))
 						return true;
 					break;
@@ -490,7 +490,7 @@ namespace ec
 				{
 					Particle
 						* p =
-							new BreathParticle(this, mover, coords, velocity, 1.5 * size_scalar, 0.1, 0.9 + randcolor(0.1), 0.8 + randcolor(0.2), 0.6 + randcolor(0.2), &(base->TexFlare), LOD, type);
+							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.1, 0.9 + randcolor(0.1), 0.8 + randcolor(0.2), 0.6 + randcolor(0.2), &(base->TexFlare), LOD, type);
 					if (!base->push_back_particle(p))
 						return true;
 					break;
@@ -499,7 +499,7 @@ namespace ec
 				{
 					Particle
 						* p =
-							new BreathParticle(this, mover, coords, velocity, 1.5 * size_scalar, 0.6, randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexTwinflare), LOD, type);
+							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.6, randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexTwinflare), LOD, type);
 					if (!base->push_back_particle(p))
 						return true;
 					break;
@@ -508,7 +508,7 @@ namespace ec
 				{
 					Particle
 						* p =
-							new BreathParticle(this, mover, coords, velocity, 1.1 * size_scalar, 0.6, 0.9 + randcolor(0.1), 0.85 + randcolor(0.15), 0.8 + randcolor(0.2), &(base->TexFlare), LOD, type);
+							new BreathParticle(this, mover, coords, velocity, 0.25 * size_scalar, 0.6, 0.9 + randcolor(0.1), 0.85 + randcolor(0.15), 0.8 + randcolor(0.2), &(base->TexFlare), LOD, type);
 					if (!base->push_back_particle(p))
 						return true;
 					break;
@@ -517,7 +517,7 @@ namespace ec
 				{
 					Particle
 						* p =
-							new BreathParticle(this, mover, coords, velocity, 1.1 * size_scalar, 0.1, 0.8 + randcolor(0.2), 0.8 + randcolor(0.2), 0.8 + randcolor(0.2), &(base->TexFlare), LOD, type);
+							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.1, 0.8 + randcolor(0.2), 0.8 + randcolor(0.2), 0.8 + randcolor(0.2), &(base->TexFlare), LOD, type);
 					if (!base->push_back_particle(p))
 						return true;
 					break;
