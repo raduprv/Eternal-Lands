@@ -187,6 +187,18 @@ void draw_buffs(int actor_id, float x, float y,float z)
 			texture_ids[num_buffs] = 33;
 			num_buffs++;
 		}
+		if (act->buffs & BUFF_COLD_SHIELD) {
+			texture_ids[num_buffs] = 55;
+			num_buffs++;
+		}
+		if (act->buffs & BUFF_HEAT_SHIELD) {
+			texture_ids[num_buffs] = 56;
+			num_buffs++;
+		}
+		if (act->buffs & BUFF_RADIATION_SHIELD) {
+			texture_ids[num_buffs] = 57;
+			num_buffs++;
+		}
 /*
  * not yet implemented
 		if (act->buffs & BUFF_POISONED) {
