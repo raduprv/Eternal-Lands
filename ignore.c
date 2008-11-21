@@ -126,7 +126,7 @@ int name_is_valid(const char *name)
 
 
 // Searches for terminating characters based on type, from "input_text", adding them to "name"
-void get_name_from_text(const char * input_text, int len, int type, int offset, char * name)
+int get_name_from_text(const char * input_text, int len, int type, int offset, char * name)
 {
 	int i, do_break;
 	Uint8 ch;
@@ -163,13 +163,13 @@ void get_name_from_text(const char * input_text, int len, int type, int offset, 
 		name[i] = ch;
 	}
 	name[i] = '\0';
-	return;
+	return i;
 }
 
 // Returns 1 if ignored, 0 if not ignored
 int pre_check_if_ignored (const char *input_text, int len, Uint8 channel)
 {
-	int i, offset;
+	int offset;
 	char name[MAX_USERNAME_LENGTH] = {0};
 
 	if (channel == CHAT_MODPM)
@@ -189,7 +189,7 @@ int pre_check_if_ignored (const char *input_text, int len, Uint8 channel)
 			{
 				offset++;
 			}
-			get_name_from_text(input_text, len, 1, offset, name);		// Type 1 = ":", " " or is_color
+			offset += get_name_from_text(input_text, len, 1, offset, name);		// Type 1 = ":", " " or is_color
 			if (!name_is_valid(name))
 			{
 				//This can be a lot. Let's separate them based on the color for now.
@@ -200,7 +200,6 @@ int pre_check_if_ignored (const char *input_text, int len, Uint8 channel)
 						//(*) NAME summoned a %s
 						if (strcmp(name, "(*)") == 0)
 						{
-							offset += i;
 							while (offset < len && isspace(input_text[offset]))
 							{
 								offset++;
