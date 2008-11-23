@@ -715,6 +715,23 @@ int checkbox_set_checked(int window_id, Uint32 widget_id, int checked);
 
 //Button
 
+/* Config option: disables double click protection. */
+extern int disable_double_click;
+
+/*!
+ * \ingroup	buttons
+ * \brief 	Check for safety protected button press.
+ *
+ * 		Some buttons are protected from mis-click by requiring you to
+ * 		double-click them.  This protection can be disabled by setting
+ *		the disable_double_click config option to true.  This function
+ *		tests that option and impliments the double click test if needed.
+ *
+ * \param last_click	The SDL_GetTicks() value from the last click
+ * \retval int			Returns 1 if the button press should be actioned, else 0. 
+ */
+int safe_button_click(Uint32 *last_click);
+
 /*!
  * \ingroup	buttons
  * \brief 	Creates an extended button widget

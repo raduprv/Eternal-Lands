@@ -302,6 +302,7 @@ extern char
 		equip_str[20],
 		stoall_help_str[50],
 		getall_help_str[50],
+		dcdrpall_help_str[50],
 		drpall_help_str[50],
 		mixoneall_help_str[50],
 		items_stack_str[100],
@@ -382,6 +383,8 @@ extern char
 		gm_from_str[10],
 		ig_from_str[10],
 		mod_pm_from_str[15],
+		/* session.c */
+		session_reset_help[60],
 		/*trade.c*/
 		quantity_str[30],
 		abort_str[10],

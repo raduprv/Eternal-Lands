@@ -28,6 +28,7 @@
 #include "textures.h"
 #include "translate.h"
 #include "counters.h"
+#include "widgets.h"
 
 item item_list[ITEM_NUM_ITEMS];
 
@@ -603,7 +604,7 @@ int display_items_handler(window_info *win)
 	
 	// display help text for button if mouse over one
 	if ((mouse_over_but != -1) && show_help_text) {
-		char *helpstr[NUMBUT] = { stoall_help_str, getall_help_str, drpall_help_str, mixoneall_help_str };
+		char *helpstr[NUMBUT] = { stoall_help_str, getall_help_str, ((disable_double_click) ?drpall_help_str :dcdrpall_help_str), mixoneall_help_str };
 		show_help(helpstr[mouse_over_but], 0, quantity_y_offset+30);
 	}
 	
@@ -1066,8 +1067,8 @@ static void drop_all_handler ()
 #endif // NEW_SOUND
 	static Uint32 last_click = 0;
 
-	// only do drop if button clicked tweice within a second
-	if ((SDL_GetTicks() - last_click) < 500)
+	/* provide some protection for inadvertent pressing (double click that can be disabled) */
+	if (safe_button_click(&last_click))
 	{
 		for(i = 0; i < ITEM_NUM_ITEMS; i++)
 		{
@@ -1087,7 +1088,6 @@ static void drop_all_handler ()
 			add_sound_object(get_index_for_sound_type_name("Drop Item"), 0, 0, 1);
 #endif // NEW_SOUND
 	}
-	last_click = SDL_GetTicks();
 }
 
 int show_items_handler(window_info * win)

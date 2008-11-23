@@ -4,7 +4,9 @@
 #include "session.h"
 #include "asc.h"
 #include "elwindows.h"
+#include "init.h"
 #include "global.h"
+#include "hud.h"
 #include "multiplayer.h"
 #include "platform.h"
 #include "stats.h"
@@ -13,17 +15,25 @@
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
+#include "widgets.h"
 
 int session_win = -1;
 static int reconnecting = 0;
 static int last_port = -1;
 static unsigned char last_server_address[60];
-
+static int show_reset_help = 0;
 
 player_attribs session_stats;
 Uint32 session_start_time;
 
 int display_session_handler(window_info *win);
+
+static int mouseover_session_reset_handler(void)
+{
+	if (!disable_double_click && show_help_text)
+		show_reset_help = 1;
+	return 0;
+}
 
 void fill_session_win(void)
 {
@@ -32,6 +42,7 @@ void fill_session_win(void)
 
 	reset_button_id=button_add_extended(session_win, reset_button_id, NULL, 450, 3, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, reset_str);
 	widget_set_OnClick(session_win, reset_button_id, session_reset_handler);
+	widget_set_OnMouseover(session_win, reset_button_id, mouseover_session_reset_handler);
 	
 }
 
@@ -132,6 +143,13 @@ int display_session_handler(window_info *win)
 	timediff = cur_time - session_start_time;
 	safe_snprintf(buffer, sizeof(buffer), "%02d:%02d:%02d", timediff/3600000, (timediff/60000)%60, (timediff/1000)%60);
 	draw_string_small(x + 200, y, (unsigned char*)buffer, 1);
+	
+	if (show_reset_help)
+	{
+		show_help(session_reset_help, 0, win->len_y+10);
+		show_reset_help = 0;
+	}
+	
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -177,9 +195,14 @@ void init_session(void)
 
 int session_reset_handler(void)
 {
-	init_session();
-	session_stats = your_info;
-	session_start_time = cur_time;
-	reset_session_counters();
+	static Uint32 last_click = 0;
+	/* provide some protection for inadvertent pressing (double click that can be disabled) */
+	if (safe_button_click(&last_click))
+	{
+		init_session();
+		session_stats = your_info;
+		session_start_time = cur_time;
+		reset_session_counters();
+	}
 	return 0;
 }

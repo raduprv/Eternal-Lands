@@ -2,6 +2,7 @@
 #include <math.h>
 #include <string.h>
 #include <ctype.h>
+#include <SDL.h>
 #include <SDL_keysym.h>
 #include "widgets.h"
 #include "asc.h"
@@ -88,6 +89,7 @@ int ParseWindow (xmlNode *node);
 int ParseWidget (xmlNode *node, int winid);
 int ParseTab (xmlNode *node, int winid, int colid);
 int GetWidgetType (const char *w);
+int disable_double_click = 0;
 
 // <--- Common widget functions ---
 widget_list * widget_find(int window_id, Uint32 widget_id)
@@ -783,6 +785,15 @@ int checkbox_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, 
 // Button
 const struct WIDGET_TYPE round_button_type = { NULL, button_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info };
 const struct WIDGET_TYPE square_button_type = { NULL, square_button_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info };
+
+int safe_button_click(Uint32 *last_click)
+{
+	int retvalue = 0;
+	if (disable_double_click || ((SDL_GetTicks() - *last_click) < 500))
+		retvalue = 1;
+	*last_click = SDL_GetTicks();
+	return retvalue;
+}
 
 int button_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, const char *text)
 {

@@ -168,6 +168,7 @@ char
 	equip_str[20],
 	stoall_help_str[50],
 	getall_help_str[50],
+	dcdrpall_help_str[50],
 	drpall_help_str[50],
 	mixoneall_help_str[50],
 	items_stack_str[100],
@@ -243,6 +244,8 @@ char
 	afk_names[15],
 	afk_messages[25],
 	afk_print_help[150],
+	/* session.c */
+	session_reset_help[60],
 	/*trade.c*/
 	quantity_str[30],
 	abort_str[10],
@@ -1120,6 +1123,7 @@ void init_help()
 	add_xml_identifier(misc,"reconnect",reconnect_str,"Press any key to try again.",sizeof(reconnect_str));
 	add_xml_identifier (misc, "x_quit", alt_x_quit, "Press Alt-x to close the game", sizeof (alt_x_quit));
 	add_xml_identifier(misc,"license",license_check,"Entropy says: U R 2 g00d 2 r34d +h3 license.txt?\nBTW, that license.txt file is actually there for a reason.",sizeof(license_check));
+	add_xml_identifier(misc,"session_reset_help",session_reset_help,"Double-click to reset session information",sizeof(session_reset_help));
 	add_xml_identifier(misc,"quantity",quantity_str,"Quantity",sizeof(quantity_str));
 	add_xml_identifier(misc,"abort",abort_str,"Abort",sizeof(abort_str));
 	add_xml_identifier(misc,"sigils",sig_too_few_sigs,"This spell requires at least 2 sigils",sizeof(sig_too_few_sigs));
@@ -1131,7 +1135,8 @@ void init_help()
 	add_xml_identifier(misc,"equipment",equip_str,"Equipment",sizeof(equip_str));
 	add_xml_identifier(misc,"stoall_help",stoall_help_str,"Move all items into opened storage",sizeof(stoall_help_str));
 	add_xml_identifier(misc,"getall_help",getall_help_str,"Get all items from ground bag",sizeof(getall_help_str));
-	add_xml_identifier(misc,"drpall_help",drpall_help_str,"Double-click to drop all items",sizeof(drpall_help_str));
+	add_xml_identifier(misc,"dcdrpall_help",dcdrpall_help_str,"Double-click to drop all items",sizeof(dcdrpall_help_str));
+	add_xml_identifier(misc,"drpall_help",drpall_help_str,"Drop all items",sizeof(drpall_help_str));
 	add_xml_identifier(misc,"mixoneall_help",mixoneall_help_str,"Mix one/all, right-click to choose",sizeof(mixoneall_help_str));
 	add_xml_identifier(misc,"items_stack",items_stack_str,"Client can't choose between multiple stacks, make a free slot and let the server do it!",sizeof(items_stack_str));
 	add_xml_identifier(misc,"mixbut_empty",mixbut_empty_str,"Nothing to mix, add some items using the manufacture window.",sizeof(mixbut_empty_str));
