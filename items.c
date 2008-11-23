@@ -78,7 +78,7 @@ int manual_size_items_window = 0;
 #define YLENBUT 33
 static int but_y_off[NUMBUT] = { 0, YLENBUT, YLENBUT*2, YLENBUT*3 };
 enum { BUT_STORE, BUT_GET, BUT_DROP, BUT_MIX };
-static int mix_but_all = 0;
+int items_mix_but_all = 0;
 static int mouse_over_but = -1;
 #ifdef CONTEXT_MENUS
 static size_t cm_mix_but = CM_INIT_VALUE;
@@ -407,7 +407,7 @@ int display_items_handler(window_info *win)
 	*  ready for server side implementation
 	*/
 	// draw the button labels
-	but_labels[BUT_MIX] = (mix_but_all) ?mix_all_str :mix_one_str;
+	but_labels[BUT_MIX] = (items_mix_but_all) ?mix_all_str :mix_one_str;
 	for (i=0; i<NUMBUT; i++) {
 		strap_word(but_labels[i],my_str);
 		glColor3f(0.77f,0.57f,0.39f);
@@ -918,7 +918,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	// Mix One/All button
 	else if(over_button(win, mx, my)==BUT_MIX){
-		if (mix_but_all)
+		if (items_mix_but_all)
 			mix_handler(255, mixbut_empty_str);
 		else
 			mix_handler(1, mixbut_empty_str);
@@ -1165,7 +1165,7 @@ void display_items_menu()
 		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+4, &allow_equip_swap, NULL);
 		
 		cm_mix_but = cm_create(mix_all_str, NULL);
-		cm_bool_line(cm_mix_but, 0, &mix_but_all, NULL);		
+		cm_bool_line(cm_mix_but, 0, &items_mix_but_all, NULL);		
 #endif
 
 		show_items_handler(&windows_list.window[items_win]);

@@ -354,6 +354,7 @@ void read_bin_cfg()
 	use_small_items_window = cfg_mem.items_window_options & 1;
 	manual_size_items_window = (cfg_mem.items_window_options >> 1) & 1;
 	allow_equip_swap = (cfg_mem.items_window_options >> 2) & 1;
+	items_mix_but_all = (cfg_mem.items_window_options >> 3) & 1;
 }
 
 void save_bin_cfg()
@@ -570,6 +571,7 @@ void save_bin_cfg()
 	cfg_mem.items_window_options |= use_small_items_window;
 	cfg_mem.items_window_options |= manual_size_items_window << 1;
 	cfg_mem.items_window_options |= allow_equip_swap << 2;
+	cfg_mem.items_window_options |= items_mix_but_all << 3;
 
 	fwrite(&cfg_mem,sizeof(cfg_mem),1,f);
 	fclose(f);
