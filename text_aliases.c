@@ -394,6 +394,24 @@ static int handle_text_alias (int index, char *text, int len)
 {
 	char msg[80];
 	dbuffer_t *newmsg;
+	static int we_are_nested = 0;
+	static int previously_expanded[100];
+
+	/* check if we are already expanding an alias */
+	if (we_are_nested)
+	{
+		/* if the current alias has already been expanded, we have infinite recursion, stop now! */
+		if (previously_expanded[index])
+		{
+			we_are_nested = 0;
+			LOG_TO_CONSOLE (c_red2, "Error, you have infinitely recursive aliases");
+			return 0;
+		}
+	}
+	else
+		memset(previously_expanded, 0, sizeof(int)*100);
+	
+	previously_expanded[index] = we_are_nested = 1;
 
 	if (NULL != numeric_aliases[index])
 	{
@@ -409,6 +427,10 @@ static int handle_text_alias (int index, char *text, int len)
 		sprintf (msg, "Invalid alias #%d", index);
 		LOG_TO_CONSOLE (c_orange1, msg);
 	}
+	
+	/* any recursion is over so clear the flag */
+	we_are_nested = 0;
+	
 	return 0;
 }
 
