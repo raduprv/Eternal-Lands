@@ -697,6 +697,11 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	// only handle mouse button clicks, not scroll wheels moves (unless its the mix button)
 	if (((flags & ELW_MOUSE_BUTTON) == 0) && (over_button(win, mx, my) != BUT_MIX)) return 0;
 
+#ifdef NEW_SOUND
+	if (over_button(win, mx, my) != -1)
+		add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+#endif // NEW_SOUND
+
 	if(right_click) {
 		if(item_dragged!=-1 || use_item!=-1 || storage_item_dragged!=-1){
 			use_item=-1;
