@@ -618,7 +618,10 @@ void file_check_datadir(void)
 #endif // WINDOWS
 	if (stat(datadir, &fstat) != 0)
 	{
-		log_error("Warning: Didn't find your data_dir, using the current directory instead. Please correct this in your el.ini . Given data_dir was: \"%s\"\n", datadir);
+		char pwd[MAX_PATH];
+		if (getcwd(pwd, MAX_PATH) == NULL)
+			pwd[0] = '\0';
+		log_error("Warning: Didn't find your data_dir, using the current directory instead. Please correct this in your el.ini . Given data_dir was: \"%s\". Using \"%s\".\n", datadir, pwd);
 		strcpy(datadir, "./");
 	}
 #ifdef WINDOWS
