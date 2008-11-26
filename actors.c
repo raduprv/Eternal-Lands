@@ -1526,27 +1526,28 @@ void get_actor_rotation_matrix(actor *in_act, float *out_rot)
 void transform_actor_local_position_to_absolute(actor *in_act, float *in_local_pos, float *in_act_rot, float *out_pos)
 {
 	float scale = get_actor_scale(in_act);
-	float local_pos[3] = {in_local_pos[0], in_local_pos[1], in_local_pos[2]};
+	float rot[9];
 
-#ifdef ATTACHED_ACTORS
-	if (in_act->attached_actor >= 0)
+	if (!in_act_rot)
 	{
-		local_pos[0] += in_act->attachment_shift[0];
-		local_pos[1] += in_act->attachment_shift[1];
-		local_pos[2] -= in_act->attachment_shift[2];
-	}
-#endif // ATTACHED_ACTORS
-
-	if (in_act_rot) {
-		MAT3_VECT3_MULT(out_pos, in_act_rot, local_pos);
-	}
-	else {
-		float rot[9];
 		get_actor_rotation_matrix(in_act, rot);
-		MAT3_VECT3_MULT(out_pos, rot, local_pos);
+		in_act_rot = rot;
 	}
+
+	MAT3_VECT3_MULT(out_pos, in_act_rot, in_local_pos);
 
 	out_pos[0] = out_pos[0] * scale + in_act->x_pos + 0.25;
 	out_pos[1] = out_pos[1] * scale + in_act->y_pos + 0.25;
 	out_pos[2] = out_pos[2] * scale + get_actor_z(in_act);
+
+#ifdef ATTACHED_ACTORS
+	if (in_act->attached_actor >= 0)
+	{
+		float shift[3];
+		MAT3_VECT3_MULT(shift, in_act_rot, in_act->attachment_shift);
+		out_pos[0] += shift[0];
+		out_pos[1] += shift[1];
+		out_pos[2] += shift[2];
+	}
+#endif // ATTACHED_ACTORS
 }
