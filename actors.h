@@ -864,7 +864,22 @@ static __inline__ attachment_props* get_attachment_props_if_held(actor *act)
 	else
 		return NULL;
 }
+
+static __inline__ int get_held_actor_motion_frame(actor *act)
+{
+	if (act->attached_actor < 0)
+		return cal_attached_walk_frame;
+	else if (actors_list[act->attached_actor]->buffs & BUFF_DOUBLE_SPEED)
+		return cal_attached_run_frame;
+	else
+		return cal_attached_walk_frame;
+}
 #endif // ATTACHED_ACTORS
+
+static __inline__ int get_actor_motion_frame(actor *act)
+{
+	return act->buffs & BUFF_DOUBLE_SPEED ? cal_actor_run_frame : cal_actor_walk_frame;
+}
 
 #ifdef __cplusplus
 } // extern "C"

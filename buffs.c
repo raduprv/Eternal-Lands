@@ -37,7 +37,10 @@ void update_actor_buffs(int actor_id, Uint32 in_buffs)
 			act->step_duration = actors_defs[act->actor_type].step_duration;
 #ifdef ATTACHED_ACTORS
 		if (act->attached_actor >= 0)
+		{
+			actors_list[act->attached_actor]->buffs = in_buffs & BUFF_DOUBLE_SPEED;
 			actors_list[act->attached_actor]->step_duration = act->step_duration;
+		}
 #endif // ATTACHED_ACTORS
 #endif // VARIABLE_SPEED
 		act->buffs = in_buffs;

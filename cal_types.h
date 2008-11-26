@@ -110,9 +110,10 @@ enum {
 #ifdef ATTACHED_ACTORS
 enum {
 	cal_attached_walk_frame = 0, /*!< walk animation to use for the held actor */
-	cal_attached_idle_frame = 1, /*!< idle animation to use for the held actor */
-	cal_attached_pain_frame = 2, /*!< pain animation to use for the held actor */
-	NUM_ATTACHED_ACTOR_FRAMES = 3
+	cal_attached_run_frame = 1, /*!< run animation to use for the held actor */
+	cal_attached_idle_frame = 2, /*!< idle animation to use for the held actor */
+	cal_attached_pain_frame = 3, /*!< pain animation to use for the held actor */
+	NUM_ATTACHED_ACTOR_FRAMES = 4
 };
 #endif // ATTACHED_ACTORS
 

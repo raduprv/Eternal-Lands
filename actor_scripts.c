@@ -762,10 +762,10 @@ void next_command()
 #ifdef ATTACHED_ACTORS
 							attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
 							if (att_props)
-								cal_actor_set_anim(i, att_props->cal_frames[cal_attached_walk_frame]);
+								cal_actor_set_anim(i, att_props->cal_frames[get_held_actor_motion_frame(actors_list[i])]);
 							else
 #endif // ATTACHED_ACTORS
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[cal_actor_walk_frame]);
+							cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[get_actor_motion_frame(actors_list[i])]);
 						}
 						actors_list[i]->stop_animation=0;
 						break;
@@ -786,10 +786,10 @@ void next_command()
 #ifdef ATTACHED_ACTORS
 							attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
 							if (att_props)
-								cal_actor_set_anim(i, att_props->cal_frames[cal_attached_walk_frame]);
+								cal_actor_set_anim(i, att_props->cal_frames[get_held_actor_motion_frame(actors_list[i])]);
 							else
 #endif // ATTACHED_ACTORS
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[cal_actor_walk_frame]);
+							cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[get_actor_motion_frame(actors_list[i])]);
 						}
 						actors_list[i]->stop_animation=0;
 						break;
@@ -1033,10 +1033,10 @@ void next_command()
 #ifdef ATTACHED_ACTORS
 							attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
 							if (att_props)
-								walk_anim = &att_props->cal_frames[cal_attached_walk_frame];
+								walk_anim = &att_props->cal_frames[get_held_actor_motion_frame(actors_list[i])];
 							else
 #endif // ATTACHED_ACTORS
-							walk_anim = &actors_defs[actor_type].cal_frames[cal_actor_walk_frame];
+							walk_anim = &actors_defs[actor_type].cal_frames[get_actor_motion_frame(actors_list[i])];
 
 							actors_list[i]->moving=1;
 							actors_list[i]->fighting=0;
@@ -2484,6 +2484,8 @@ int parse_actor_sounds (actor_types *act, xmlNode *cfg)
 			get_string_value (str,sizeof(str),item);
 			if (xmlStrcasecmp (item->name, (xmlChar*)"walk") == 0) {
 				cal_set_anim_sound(&act->cal_frames[cal_actor_walk_frame], str, get_string_property(item, "sound_scale"));
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"run") == 0) {
+				cal_set_anim_sound(&act->cal_frames[cal_actor_run_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"die1") == 0) {
 				cal_set_anim_sound(&act->cal_frames[cal_actor_die1_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"die2") == 0) {
@@ -2998,6 +3000,15 @@ int parse_actor_attachment (actor_types *act, xmlNode *cfg, int actor_type)
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_held_walk") == 0) {
 				get_string_value (str, sizeof(str), item);
      			att->actor_type[actor_type].cal_frames[cal_attached_walk_frame] = cal_load_anim(held_act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+					, get_int_property(item, "duration")
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_held_run") == 0) {
+				get_string_value (str, sizeof(str), item);
+     			att->actor_type[actor_type].cal_frames[cal_attached_run_frame] = cal_load_anim(held_act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
 					, get_string_property(item, "sound_scale")

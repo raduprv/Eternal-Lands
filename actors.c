@@ -245,7 +245,7 @@ void add_actor_attachment(int actor_id, int attachment_type)
 
 		actors_list[id]->x_tile_pos=parent->x_tile_pos;
 		actors_list[id]->y_tile_pos=parent->y_tile_pos;
-		actors_list[id]->buffs=parent->buffs;
+		actors_list[id]->buffs=parent->buffs & BUFF_DOUBLE_SPEED; // the attachment can only have this buff
 		actors_list[id]->actor_type=attachment_type;
 		actors_list[id]->damage=0;
 		actors_list[id]->damage_ms=0;
