@@ -3436,7 +3436,7 @@ int get_sound_index_for_particle_file_name(const char *name)
 	int i;
 	safe_strncpy(my_name, name+12, sizeof(my_name));
 	my_name[strlen(my_name) - 5] = '\0';
-	for(i = 0; i < num_types; ++i)
+	for(i = 0; i < sound_num_particles; ++i)
 	{
 		if (strcasecmp(sound_particle_data[i].file, my_name) == 0)
 			return sound_particle_data[i].sound;
@@ -3448,7 +3448,7 @@ int get_sound_index_for_particle_file_name(const char *name)
 int get_sound_index_for_sfx(int sfx)
 {
 	int i;
-	for(i = 0; i < num_types; ++i)
+	for(i = 0; i < sound_num_effects; ++i)
 	{
 		if (sound_effect_data[i].id == sfx)
 			return sound_effect_data[i].sound;
