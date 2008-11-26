@@ -698,7 +698,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	if (((flags & ELW_MOUSE_BUTTON) == 0) && (over_button(win, mx, my) != BUT_MIX)) return 0;
 
 #ifdef NEW_SOUND
-	if (over_button(win, mx, my) != -1)
+	if (!right_click && over_button(win, mx, my) != -1)
 		add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
 #endif // NEW_SOUND
 
