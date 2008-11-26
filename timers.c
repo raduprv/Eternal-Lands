@@ -42,6 +42,7 @@ Uint32 my_timer(Uint32 interval, void * data)
 {
 	int	new_time;
 	SDL_Event e;
+	static int normal_animation_loop_count = 2;
 	
 #ifdef NEW_SOUND
 	update_sound(interval);
@@ -70,7 +71,7 @@ Uint32 my_timer(Uint32 interval, void * data)
 	if(is_raining)update_rain();
 #endif
 
-	if(normal_animation_timer>2 && have_a_map)
+	if(normal_animation_timer>normal_animation_loop_count && have_a_map)
 	{
 		if(my_timer_adjust > 0)
 		{
@@ -101,6 +102,33 @@ Uint32 my_timer(Uint32 interval, void * data)
 	if(new_time<10) {
 		new_time=10;	//put an absoute minimume in
 	}
+	
+	
+	/* Temporary code to test a fix for a client freeze due to too many particles:
+	   http://www.eternal-lands.com/forum/index.php?showtopic=47006
+	   in_main_event_loop is set true while the main loop is handling SDL events
+	   normal_animation_loop_count will be increased when we check and that is the
+	   case.  Increasing the count causes EVENT_UPDATE_PARTICLES to be trigger
+	   less often an gives the system a chance to catch up.  When in_main_event_loop
+	   is seen to be zero, normal_animation_loop_count is decrement down to standard
+	   value.  This is very crude but stops the client freeze on my system.
+	*/
+	{
+		extern volatile int in_main_event_loop;
+		
+		if (in_main_event_loop)
+		{
+			normal_animation_loop_count++;
+			//printf("increase new_time=%i loop_count=%i\n", new_time, normal_animation_loop_count);
+		}
+		else if (normal_animation_loop_count > 2)
+		{
+		   	normal_animation_loop_count--;
+			//printf("decrease new_time=%i loop_count=%i\n", new_time, normal_animation_loop_count);
+		}
+	}
+	
+	
 	return new_time;
 }
 

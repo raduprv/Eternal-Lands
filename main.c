@@ -121,6 +121,9 @@ void cleanup_mem(void)
 	}
 }
 
+/* temp code to allow my_timer to dynamically adjust partical update rate */
+volatile int in_main_event_loop = 0;
+
 int start_rendering()
 {
 	static int done = 0;
@@ -144,10 +147,12 @@ int start_rendering()
 			SDL_Event event;
 
 			// handle SDL events
+			in_main_event_loop = 1;
 			while( SDL_PollEvent( &event ) )
 				{
 					done = HandleEvent(&event);
 				}
+			in_main_event_loop = 0;
 
 			//advance the clock
 			cur_time = SDL_GetTicks();
