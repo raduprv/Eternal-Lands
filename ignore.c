@@ -224,10 +224,12 @@ int pre_check_if_ignored (const char *input_text, int len, Uint8 channel)
 			for (offset = 0; is_color (input_text[offset]); offset++);		// Ignore colours
 			if(strncasecmp(input_text+offset, gm_from_str, strlen(gm_from_str)) == 0)
 			{
+				offset = strlen(gm_from_str)+2;
 				get_name_from_text(input_text, len, 0, offset, name);		// Type 0 = ":" or " "
 			}
 			else if(strncasecmp(input_text+offset, ig_from_str, strlen(ig_from_str)) == 0)
 			{
+				offset = strlen(ig_from_str)+2;
 				get_name_from_text(input_text, len, 4, offset, name);		// Type 4 = ":", "-" or " "
 			}
 			break;
