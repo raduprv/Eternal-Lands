@@ -2078,7 +2078,8 @@ int ensure_sample_loaded(char * in_filename)
 					for (l = STAGE_INTRO; l <= STAGE_OUTRO; l++)
 					{
 						// Check if this sample is loaded into a source atm
-						if (sound_type_data[sounds_list[sound_source_data[j].loaded_sound].sound].variant[k].part[l]->sample_num == i)
+						if (sound_type_data[sounds_list[sound_source_data[j].loaded_sound].sound].variant[k].part[l] &&
+							sound_type_data[sounds_list[sound_source_data[j].loaded_sound].sound].variant[k].part[l]->sample_num == i)
 						{
 							found = 1;
 							break;
