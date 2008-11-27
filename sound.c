@@ -1787,6 +1787,9 @@ source_data * get_available_source(int priority)
 	source_data * pSource;
 	int i;
 	
+	if (used_sources == max_sources)
+		return NULL;
+	
 	// Search for an available source. The sources are ordered by decreasing play priority
 	for (pSource = sound_source_data, i = 0; i < max_sources - 1; ++i, ++pSource)
 	{
