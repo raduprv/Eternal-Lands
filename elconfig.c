@@ -1650,7 +1650,7 @@ void init_vars()
 	add_var(OPT_BOOL,"use_cursor_on_animal", "useanimal", &include_use_cursor_on_animals, change_var, 0, "For animals, right click includes use cursor", "Toggles inclusion of the use cursor when right clicking on animals, useful for your summoned creatures.  Even when this option is off, you can still click the use icon.", CONTROLS);
 #endif
 	add_var(OPT_BOOL,"always_pathfinding", "alwayspathfinding", &always_pathfinding, change_var, 0, "Extend the range of the walk cursor", "Extends the range of the walk cursor to as far as you can see.  Using this option, movement may be slightly less responsive on larger maps.", CONTROLS);
-	add_var(OPT_BOOL,"disable_double_click", "disabledoubleclick", &disable_double_click, change_var, 0, "Disable double-click button safety", "Some buttons are protected from mis-click by requiring you to double-click them.  This options disables that protection.", CONTROLS);
+	add_var(OPT_BOOL,"disable_double_click", "disabledoubleclick", &disable_double_click, change_var, 0, "Disable double-click button safety", "Some buttons are protected from mis-click by requiring you to double-click them.  This option disables that protection.", CONTROLS);
 #ifdef MINIMAP2
 	add_var(OPT_BOOL,"rotate_minimap","rotateminimap",&rotate_minimap,change_var,1,"Rotate Minimap","Toggle whether the minimap should rotate.",CONTROLS);
 	add_var(OPT_BOOL,"pin_minimap","pinminimap",&pin_minimap,change_var,0,"Pin Minimap","Toggle whether the minimap ignores windows-on-top.",CONTROLS);
