@@ -16,7 +16,7 @@
 #include "textures.h"
 
 int view_buffs = 1;
-int buff_icon_size = 25;
+int buff_icon_size = 32;
 
 void update_actor_buffs(int actor_id, Uint32 in_buffs)
 {
@@ -215,7 +215,7 @@ void draw_buffs(int actor_id, float x, float y,float z)
 		for (i = 0; i < num_buffs; i++)
 		{
 			cur_tex = texture_ids[i];
-			//now get the texture coordinates
+			//now get the texture coordinates, copied from spells.c
 			u_start=0.125f*(cur_tex%8);
 			u_end=u_start+0.125f;
 			v_start=1.0f-(0.125f*(cur_tex/8));
@@ -223,6 +223,8 @@ void draw_buffs(int actor_id, float x, float y,float z)
 			x_off = (int)(-1.0 * ((float)num_buffs * buff_icon_size) / 2.0f + (buff_icon_size * i));
 			// draw the spell icon
 			glBegin(GL_QUADS);
+			// FIXME find out how high the health bar and actor name are instead of +32
+			y = y + 32;
 			glTexCoord2f(u_start,v_start);
 			glVertex3f(x + x_off, y + buff_icon_size, z);
 

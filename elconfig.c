@@ -321,7 +321,7 @@ void change_use_animation_program(int * var)
 		}
 		else
 		{
-			if (have_extension(arb_vertex_buffer_object) && 
+			if (have_extension(arb_vertex_buffer_object) &&
 				have_extension(arb_vertex_program))
 			{
 				*var = load_vertex_programs();
@@ -529,7 +529,7 @@ void change_point_particles(int *value)
 	{
 		LOG_TO_CONSOLE(c_green2, disabled_point_particles);
 	}
-	
+
 	ec_set_draw_method();
 }
 
@@ -590,7 +590,7 @@ int switch_video(int mode, int full_screen)
 	int index = mode - 1;
 
 	int flags = SDL_OPENGL;
-	if (full_screen) 
+	if (full_screen)
 		flags |= SDL_FULLSCREEN;
 
 	if(mode == 0 && !full_screen) {
@@ -811,6 +811,14 @@ void set_afk_time(int *pointer, int time)
 	}
 }
 
+void set_buff_icon_size(int *pointer, int value)
+{
+	if(value > 4 && value < 48) {
+		*pointer = value;
+		buff_icon_size = value;
+	}
+}
+
 void change_windowed_chat (int *wc, int val)
 {
 	int old_wc= *wc;
@@ -986,7 +994,7 @@ void change_gamma(float *pointer, float *value)
 #ifndef MAP_EDITOR2
 void change_windows_on_top(int *var)
 {
-	int winid_list[] = { storage_win, manufacture_win, items_win, buddy_win, ground_items_win, 
+	int winid_list[] = { storage_win, manufacture_win, items_win, buddy_win, ground_items_win,
 						 sigil_win, elconfig_win, tab_stats_win, server_popup_win, url_win
 						 , minimap_win
 						 , notepad_win
@@ -1552,12 +1560,12 @@ void init_vars()
 #endif // NEW_CURSOR
 	add_var(OPT_BOOL,"full_screen","fs",&full_screen,toggle_full_screen_mode,0,"Full Screen","Changes between full screen and windowed mode",VIDEO);
 #ifndef MAP_EDITOR2
-  #ifdef DEBUG 
- 	add_var(OPT_BOOL,"render_skeleton","rskel",&render_skeleton,change_var,0,"Render Skeleton", "Render the Cal3d skeletons.", ADVVID); 
- 	add_var(OPT_BOOL,"render_mesh","rmesh",&render_mesh,change_var,1,"Render Mesh", "Render the meshes", ADVVID); 
- 	add_var(OPT_BOOL,"render_bones_id","rbid",&render_bones_id,change_var,0,"Render bones ID", "Render the bones ID", ADVVID); 
- 	add_var(OPT_BOOL,"render_bones_orientation","rbor",&render_bones_orientation,change_var,0,"Render bones orientation", "Render the bones orientation", ADVVID); 
-  #endif//DEBUG 
+  #ifdef DEBUG
+ 	add_var(OPT_BOOL,"render_skeleton","rskel",&render_skeleton,change_var,0,"Render Skeleton", "Render the Cal3d skeletons.", ADVVID);
+ 	add_var(OPT_BOOL,"render_mesh","rmesh",&render_mesh,change_var,1,"Render Mesh", "Render the meshes", ADVVID);
+ 	add_var(OPT_BOOL,"render_bones_id","rbid",&render_bones_id,change_var,0,"Render bones ID", "Render the bones ID", ADVVID);
+ 	add_var(OPT_BOOL,"render_bones_orientation","rbor",&render_bones_orientation,change_var,0,"Render bones orientation", "Render the bones orientation", ADVVID);
+  #endif//DEBUG
 #endif //MAP_EDITOR2
 	add_var(OPT_BOOL,"shadows_on","shad",&shadows_on,change_shadows,0,"Shadows","Toggles the shadows", LODTAB);
 	add_var(OPT_BOOL,"use_shadow_mapping", "sm", &use_shadow_mapping, change_shadow_mapping, 0, "Shadow Mapping", "If you want to use some better quality shadows, enable this. It will use more resources, but look prettier.", ADVVID);
@@ -1578,6 +1586,7 @@ void init_vars()
 #ifndef MAP_EDITOR
 	add_var(OPT_BOOL,"use_vertex_buffers","vbo",&use_vertex_buffers,change_vertex_buffers,0,"Vertex Buffer Objects","Toggle the use of the vertex buffer objects, restart required to activate it",ADVVID);
 	add_var(OPT_BOOL,"use_draw_range_elements","dre",&use_draw_range_elements,change_var,1,"DrawRangeElements","Disable this if objects appear partially stretched.",ADVVID);
+	add_var(OPT_SPECINT, "buff_icon_size","bufficonsize", &buff_icon_size, set_buff_icon_size, 32, "Buff Icon Size","The size of the icons of the active buffs.",LODTAB,4,64);
 
 	add_var(OPT_INT,"mouse_limit","lmouse",&mouse_limit,change_int,15,"Mouse Limit","You can increase the mouse sensitivity and cursor changing by adjusting this number to lower numbers, but usually the FPS will drop as well!",CONTROLS,1,INT_MAX);
 	add_var(OPT_BOOL,"use_point_particles","upp",&use_point_particles,change_point_particles,1,"Point Particles","Some systems will not support the new point based particles in EL. Disable this if your client complains about not having the point based particles extension.",ADVVID);
@@ -1673,7 +1682,7 @@ void init_vars()
 	add_var(OPT_BOOL,"use_alpha_banner", "abanner", &use_alpha_banner, change_var, 0,"Alpha Behind Name/Health Text","Toggle the use of an alpha background to name/health banners",HUD);
 #ifdef CONTEXT_MENUS
 	add_var(OPT_BOOL,"cm_banner_disabled", "cmbanner", &cm_banner_disabled, change_var, 0,"Disable Name/Health Text Context Menu","Disable the context menu on your players name/health banner.",HUD);
-#endif	 
+#endif
 	add_var(OPT_BOOL,"opaque_window_backgrounds", "opaquewin", &opaque_window_backgrounds, change_var, 0,"Use Opaque Window Backgrounds","Toggle the current state of all windows between transparent and opaque background. Use CTRL+D to toggle the current state of an individual window.",HUD);
 
 #ifndef MAP_EDITOR2
@@ -1832,7 +1841,7 @@ void init_vars()
 	add_var(OPT_BOOL, "use_animation_program", "uap", &use_animation_program, change_use_animation_program, 1, "Use animation program", "Use GL_ARB_vertex_program for actor animation", VIDEO);
 	// add_var(OPT_BOOL_INI_RO, "use_animation_program", "uap", &use_animation_program, change_use_animation_program, 1, "Use animation program", "Use GL_ARB_vertex_program for actor animation", MISC);
 #endif //MAP_EDITOR
-	
+
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
 	add_var(OPT_BOOL, "use_display_actors", "uda", &use_display_actors, change_var, 1, "Use display actors", "Use the display_actors function", DEBUGTAB);
 	add_var(OPT_BOOL, "use_actor_bbox_check", "uabc", &use_actor_bbox_check, change_var, 1, "Use actor bbox check", "Use the actor bbox check", DEBUGTAB);
@@ -1882,7 +1891,7 @@ void write_var (FILE *fout, int ivar)
 			break;
 		}
 		/* Was not included when OPT_BOOL_INI_RO added elsewhere but
-			causes a compiler warning.  Adding this case fixes the 
+			causes a compiler warning.  Adding this case fixes the
 			warning and does the same as if left out - please fix if
 			this is not the intention. */
 		case OPT_BOOL_INI_RO:
@@ -2010,16 +2019,16 @@ int write_el_ini ()
 int display_elconfig_handler(window_info *win)
 {
 	int i;
-	
+
 	for(i= 0; i < our_vars.no; i++)
 	{
 		// Update the widgets in case an option changed
-		// Actually that's ony the OPT_MULTI type widgets, the others are 
+		// Actually that's ony the OPT_MULTI type widgets, the others are
 		// taken care of by their widget handlers
 		if (our_vars.var[i]->type == OPT_MULTI)
 			multiselect_set_selected (elconfig_tabs[our_vars.var[i]->widgets.tab_id].tab, our_vars.var[i]->widgets.widget_id, *(int *)our_vars.var[i]->var);
 	}
-	
+
 	// Draw the long description of an option
 	draw_string_small(TAB_MARGIN, elconfig_menu_y_len-LONG_DESC_SPACE, elconf_description_buffer, MAX_LONG_DESC_LINES);
 	return 1;

@@ -462,7 +462,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			}
 			if (view_buffs)
 			{
-				draw_buffs(actor_id->actor_id, hx, hy + buff_icon_size, hz);
+				draw_buffs(actor_id->actor_id, hx, hy, hz);
 			}
 			if((view_hp || view_health_bar) && actor_id->cur_health > 0 && actor_id->max_health > 0 && (!actor_id->dead) && (actor_id->kind_of_actor != NPC)){
 				unsigned char hp[200];
