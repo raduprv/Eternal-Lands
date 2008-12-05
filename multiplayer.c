@@ -1726,7 +1726,16 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			  break;
 			}
 #ifdef BUFF_DEBUG
-			printf("SEND_BUFFS received\n");
+			{
+				int actor_id = SDL_SwapLE16(*((short *)(in_data+3)));
+				actor *act = get_actor_ptr_from_id(actor_id);
+				if(act){
+					printf("SEND_BUFFS received for actor %s\n", act->actor_name);
+				}
+				else {
+					printf("SEND_BUFFS received for actor ID %i\n", actor_id);
+				}
+			}
 #endif // BUFF_DEBUG
 			update_actor_buffs(SDL_SwapLE16(*((short *)(in_data+3))), SDL_SwapLE32(*((Uint32 *)(in_data+5))));
 			break;
