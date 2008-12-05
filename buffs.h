@@ -8,8 +8,6 @@
 #ifndef BUFFS_H_
 #define BUFFS_H_
 
-#ifdef BUFFS
-
 #include "platform.h"
 
 // keep in sync with client_serv.h !!!
@@ -32,7 +30,5 @@ void update_actor_buffs(int actor_id, Uint32 in_buffs);
 void draw_buffs(int, float x, float y,float z);
 
 void update_buff_eye_candy(int actor_id);
-
-#endif // BUFFS
 
 #endif /* BUFFS_H_ */

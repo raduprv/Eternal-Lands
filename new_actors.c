@@ -6,6 +6,7 @@
 #include "actor_scripts.h"
 #include "asc.h"
 #include "bbox_tree.h"
+#include "buffs.h"
 #include "cal.h"
 #include "console.h"
 #include "dialogues.h"
@@ -28,9 +29,6 @@
 #endif
 #include "io/elfilewrapper.h"
 #include "actor_init.h"
-#ifdef BUFFS
-#include "buffs.h"
-#endif // BUFFS
 
 float sitting=1.0f;
 glow_color glow_colors[10];
@@ -1086,10 +1084,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
     if (actor_id == yourself) {
         reset_camera_at_next_update = 1;
     }
-#ifdef BUFFS
 	update_actor_buffs(actor_id, buffs);
-#endif // BUFFS
-
 	UNLOCK_ACTORS_LISTS();  //unlock it
 #ifdef EXTRA_DEBUG
 	ERR();

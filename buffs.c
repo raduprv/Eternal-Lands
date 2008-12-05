@@ -5,7 +5,6 @@
  *      Author: superfloh
  */
 
-#ifdef BUFFS
 #include "buffs.h"
 
 #include "client_serv.h"
@@ -17,7 +16,7 @@
 #include "textures.h"
 
 int view_buffs = 1;
-int buff_icon_size = 32;
+int buff_icon_size = 25;
 
 void update_actor_buffs(int actor_id, Uint32 in_buffs)
 {
@@ -244,5 +243,3 @@ void draw_buffs(int actor_id, float x, float y,float z)
 	#endif //OPENGL_TRACE
 	}
 }
-
-#endif // BUFFS

@@ -21,7 +21,6 @@ ENCYCLOPEDIA_COBJ = books/fontdef.o books/parser.o books/symbol.o books/typesett
 MEMORY_DEBUG_COBJ = elmemory.o
 TEXT_ALIASES_COBJ = text_aliases.o
 SKY_FPV_COBJ = sky.o
-BUFFS_COBJ = buffs.o
 USE_SHADER_COBJ = shader/noise.o shader/shader.o
 PAWN_COBJ = pawn/amx.o pawn/amxaux.o pawn/amxcons.o pawn/amxel.o \
 	pawn/amxfloat.o pawn/amxstring.o pawn/elpawn.o
@@ -29,7 +28,7 @@ NEW_SELECTION_CXXOBJ = select.o
 CONTEXT_MENUS_CXXOBJ = context_menu.o	
 COBJS=2d_objects.o 3d_objects.o \
 	actor_scripts.o actors.o alphamap.o asc.o astrology.o \
-	bbox_tree.o books.o buddy.o bags.o \
+	bbox_tree.o books.o buddy.o buffs.o bags.o \
 	cache.o cal.o calc.o chat.o cluster.o colors.o console.o consolewin.o \
 	counters.o cursors.o dialogues.o draw_scene.o eye_candy_debugwin.o \
 	elconfig.o elwindows.o encyclopedia.o errors.o events.o	\

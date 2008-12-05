@@ -6,9 +6,7 @@
 #include "actor_scripts.h"
 #include "asc.h"
 #include "bbox_tree.h"
-#ifdef BUFFS
 #include "buffs.h"
-#endif // BUFFS
 #include "cal.h"
 #include "cursors.h"
 #include "draw_scene.h"
@@ -177,12 +175,10 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	our_actor->attachment_shift[0] = our_actor->attachment_shift[1] = our_actor->attachment_shift[2] = 0.0;
 #endif // ATTACHED_ACTORS
 
-#ifdef BUFFS
 	for (i = 0; i < NUM_BUFFS; i++)
 	{
 		our_actor->ec_buff_reference[i] = NULL;
 	}
-#endif // BUFFS
 
 #ifdef CLUSTER_INSIDES
 	x = (int) (our_actor->x_pos / 0.5f);
@@ -464,12 +460,10 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				banner_width = ((float)get_string_width((unsigned char*)actor_id->actor_name)*(font_size_x*name_zoom))/2.0;
 				draw_ortho_ingame_string(hx-banner_width, hy+healthbar_y_len/2.0f, hz, temp, 1, font_size_x, font_size_y);
 			}
-#ifdef BUFFS
 			if (view_buffs)
 			{
 				draw_buffs(actor_id->actor_id, hx, hy + buff_icon_size, hz);
 			}
-#endif // BUFFS
 			if((view_hp || view_health_bar) && actor_id->cur_health > 0 && actor_id->max_health > 0 && (!actor_id->dead) && (actor_id->kind_of_actor != NPC)){
 				unsigned char hp[200];
 
@@ -1464,10 +1458,12 @@ void add_actor_from_server (const char *in_data, int len)
 			/* actors_list[i]->cur_anim_sound_cookie=0; */
 			/* actors_list[i]->IsOnIdle=0; */
 		}
-	} else actors_list[i]->calmodel=NULL;
-#ifdef BUFFS
+	}
+	else
+	{
+		actors_list[i]->calmodel=NULL;
+	}
 	update_actor_buffs(actor_id, buffs);
-#endif // BUFFS
 	UNLOCK_ACTORS_LISTS();	//unlock it
 #ifdef EXTRA_DEBUG
 	ERR();

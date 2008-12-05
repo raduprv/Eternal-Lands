@@ -17,10 +17,8 @@
 #include "client_serv.h"
 #include "platform.h"
 #include "tiles.h"
-#ifdef BUFFS
 #include "buffs.h"
 #include "eye_candy_types.h"
-#endif // BUFFS
 
 #ifdef __cplusplus
 extern "C" {
@@ -641,10 +639,7 @@ typedef struct
 #ifdef CLUSTER_INSIDES
 	short cluster;
 #endif
-
-#ifdef BUFFS
 	ec_reference ec_buff_reference[NUM_BUFFS];
-#endif
 }actor;
 
 #define	DEFAULT_RENDER_PASS	0

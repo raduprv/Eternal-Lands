@@ -8,6 +8,7 @@
 #include "actor_scripts.h"
 #include "books.h"
 #include "buddy.h"
+#include "buffs.h"
 #include "chat.h"
 #include "console.h"
 #include "dialogues.h"
@@ -48,10 +49,6 @@
 #include "servers.h"
 #include "popup.h"
 #include "missiles.h"
-
-#ifdef BUFFS
-#include "buffs.h"
-#endif // BUFFS
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -1731,9 +1728,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #ifdef BUFF_DEBUG
 			printf("SEND_BUFFS received\n");
 #endif // BUFF_DEBUG
-#ifdef BUFFS
 			update_actor_buffs(SDL_SwapLE16(*((short *)(in_data+3))), SDL_SwapLE32(*((Uint32 *)(in_data+5))));
-#endif // BUFFS
 			break;
 
 		case SEND_SPECIAL_EFFECT:
