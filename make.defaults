@@ -27,7 +27,6 @@ FEATURES += ZLIB                            # Enables being able to read gzip co
 ### Testing options (these options are possible for the next release and should be tested) ###
 #FEATURES += ANTI_ALIAS                      # allows to enable/disable anti-aliasing in el.ini
 #FEATURES += ATTACHED_ACTORS                 # allows to have 2 actors that are attached together, one of the actor will exist only on client side (needs server support)
-#FEATURES += BUFFS                           # show buff icons over player names and add eye candy effects
 #FEATURES += DYNAMIC_ANIMATIONS              # Synchronizes animation to FPS instead of a fixed timer
 #FEATURES += EMOTES                          # Support for additional animations parsed from local text with a seperate anim que
 #FEATURES += EXT_ACTOR_DICT                  # Removes remaining hard-coded actor def dictionaries - requires updated actor defs files (http://el.grug.redirectme.net/actor_defs.zip)
