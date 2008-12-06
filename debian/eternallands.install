@@ -1,0 +1,3 @@
+el.x86.linux.bin pkgfiles/eternallands usr/games
+pkgfiles/eternallands.png pkgfiles/eternallands.xpm usr/share/pixmaps/
+pkgfiles/eternallands.desktop usr/share/applications/

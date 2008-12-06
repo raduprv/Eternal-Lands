@@ -18,23 +18,36 @@ https://help.ubuntu.com/community/GnuPrivacyGuardHowto
 
 Now we're ready:
 
-Checkout a clean version of the client:
+Checkout a clean version of the client:eternallands-1.7.0.tar.gz
 
 	cvs -d:pserver:anonymous@cvs.elc.berlios.de:/cvsroot/elc login 
 
 	cvs -z3 -d:pserver:anonymous@cvs.elc.berlios.de:/cvsroot/elc co elc
-
-Rename the elc directory to reflect the client version, e.g.:
-
-	mv elc eternallands-1.7.0
-
-Make the original source archive:
 	
-	tar cfz eternallands_1.7.0.orig.tar.gz eternallands-1.7.0
+Make an original source tar ball:
 
-Move into packge directory:
+	cd elc
+	bash pkgfiles/maketarball 1.7.0
+	cd ..
+	
+Setup a temp directory for the build:
+	
+	tmpdir=$( mktemp -d)
+	mv eternallands-1.7.0.tar.gz $tmpdir
+	cd $tmpdir
+
+Unpack the tarball then rename it as the original:
+	
+	tar xfz eternallands-1.7.0.tar.gz
+	mv eternallands-1.7.0.tar.gz eternallands_1.7.0.orig.tar.gz
+	
+Move into package directory:
 
 	cd eternallands-1.7.0/
+	
+Append the licence file to the copyright file:
+
+	cat eternal_lands_license.txt >> debian/copyright
 
 Make any modifications required then update the changelog:
 

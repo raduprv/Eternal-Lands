@@ -1,0 +1,22 @@
+This package was debianized by Paul Broadhead <pjbroad@twinmoons.clara.co.uk>
+on Sun, 06 Jun 2008 23:32:09 +0100.
+
+It was downloaded from: <http://developer.berlios.de/projects/elc/>.
+
+Upstream Author:
+		Radu Privantu
+
+Copyright:
+		Copyright (C) 2003, Radu Privantu and Maura Privantu.
+
+Packaging:
+		Copyright (C) 2008, Paul Broadhead <pjbroad@twinmoons.clara.co.uk>
+		released under the GPL, see `/usr/share/common-licenses/GPL'.
+
+This package is not part of the Debian GNU/Linux or Ubuntu Linux distributions
+but may become so in the future.  Debian in particular has issues with the
+current licence. See <http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=486422>
+
+	
+Licence:
+
