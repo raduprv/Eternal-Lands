@@ -1,3 +1,65 @@
+2008-JUL-16: Release 1.7.0
+
+1. Sky/better 3rd person view.
+2. Better minimap (alt+m).
+3. Improved weather effects.
+4. Context menu for many GUI elements (right click on windows, bars, etc.)
+5. Many other smaller improvements and bug fixes.
+6. New weapon and armor (not available in the game yet).
+7. New eye candy effects.
+8. Map bug fixes & a few new additions
+
+
+2008-MAR-29: Release 1.6.0
+
+1. Many bug fixes.
+2. Archery (bows and crossbows). The new archery items will be buyable from the NPC next week, and they will be makable in a few weeks.
+3. Better water reflections, if supported by your hardware.
+4. The player and monster models are now rendered by the GPU, if supported by the hardware.
+5. Many speed improvements, smoother camera and actor animations.
+6. Various GUI improvements (some of them need to be manually activated, unless if you are using the el.ini provided with the download).
+
+
+2007-NOV-26: Release 1.5.0
+
+1. A brand new sound engine, which makes a big difference to the gameplay. The sound pack needs to be downloaded in order to enjoy the sound, but if you like the game, we strongly encourage you to do so.
+2. A new skill, tailoring.
+3. Landmines and caltrops are now working.
+4. Many new books and items.
+5. 300 storage slots (rather than 200)
+6. A brand new file system, which allows for more flexibility and speed.
+7. Many bug fixes, GUI improvements, and so on.
+8. A new server menu system which will allow for better interaction with the environment, once we finish the server side implementation.
+9. Some new NPCs.
+10. Minimap (not fully functional yet). Alt+m
+
+
+2007-JUN-03: Release 1.4.0
+
+1. One new skill (engineering). The new formulas will be posted soon.
+2. Eye candy special effects.
+3. A new 3d file format, should improve the game performance.
+4. Many misc improvements.
+5. Bug fixes.
+6. A new storage category (hazardous items). There are two special storagers that can deal with those items, one in each continent.
+7. New animals and monsters.
+8. A few new maps, and map fixes.
+
+
+2006-AUG-29: Release 1.3.2
+
+1. A new map in the gold cave (Made by Ravenod)
+2. 2 new armors (the augmented leather torso and pants)
+3. Quite a few new items (all the 'new' armors and swords now have a rare version, and the new summoning books)
+4. 3 new summonable monsters (Arctic Chimeran, Yeti and Giant).
+5. The interguild command now requires a guildrank of 6, to prevent abuse.
+6. Fixed a very rare bug where you could die twice if you were poisoned during the last hit. That bug has been there for almost 3 years now, and I just found out about it today.
+7. Some client bugfixes.
+
+
+....
+
+
 09-02-04
 Reduced CPU usage when game is not being dsiplayed (minimized, etc)
 Added additional network polling into draw_scene() and display_actors() to reduce resyncs
