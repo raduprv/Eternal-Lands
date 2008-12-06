@@ -393,7 +393,7 @@ void change_float(float * var, float * value)
 	//if(*value >= 0) {
 	*var= *value;
 	//} else {
-	//*var= 0;
+	// *var= 0;
 	//}
 }
 
@@ -813,10 +813,12 @@ void set_afk_time(int *pointer, int time)
 
 void set_buff_icon_size(int *pointer, int value)
 {
-	if(value > 4 && value < 48) {
-		*pointer = value;
-		buff_icon_size = value;
-	}
+	/* The value is actually set in the widget code so attempting so controlling the 
+		range here does not work.  Instead, use the built in max/min code of the widget.
+		We still need to set the value here for the initial read from the config file. */
+	*pointer = value;
+	/* Turn off icons when the size is zero (or at least low). */
+	view_buffs = (value < 5) ?0: 1;
 }
 
 void change_windowed_chat (int *wc, int val)
@@ -1586,7 +1588,7 @@ void init_vars()
 #ifndef MAP_EDITOR
 	add_var(OPT_BOOL,"use_vertex_buffers","vbo",&use_vertex_buffers,change_vertex_buffers,0,"Vertex Buffer Objects","Toggle the use of the vertex buffer objects, restart required to activate it",ADVVID);
 	add_var(OPT_BOOL,"use_draw_range_elements","dre",&use_draw_range_elements,change_var,1,"DrawRangeElements","Disable this if objects appear partially stretched.",ADVVID);
-	add_var(OPT_SPECINT, "buff_icon_size","bufficonsize", &buff_icon_size, set_buff_icon_size, 32, "Buff Icon Size","The size of the icons of the active buffs.",LODTAB,4,64);
+	add_var(OPT_SPECINT, "buff_icon_size","bufficonsize", &buff_icon_size, set_buff_icon_size, 32, "Buff Icon Size","The size of the icons of the active buffs.  Icons are not displayed when size set to zero.",LODTAB,0,48);
 
 	add_var(OPT_INT,"mouse_limit","lmouse",&mouse_limit,change_int,15,"Mouse Limit","You can increase the mouse sensitivity and cursor changing by adjusting this number to lower numbers, but usually the FPS will drop as well!",CONTROLS,1,INT_MAX);
 	add_var(OPT_BOOL,"use_point_particles","upp",&use_point_particles,change_point_particles,1,"Point Particles","Some systems will not support the new point based particles in EL. Disable this if your client complains about not having the point based particles extension.",ADVVID);
