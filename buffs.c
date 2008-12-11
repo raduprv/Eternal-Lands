@@ -214,6 +214,9 @@ void draw_buffs(int actor_id, float x, float y,float z)
 			texture_ids[num_buffs] = 35;
 			num_buffs++;
 		}
+		// move icons up by actor name and actor health bar
+		y = y + 1.0f/ALT_INGAME_FONT_X_LEN*SMALL_INGAME_FONT_Y_LEN*name_zoom*12.0*view_names // displayed_font_y_size from font.c
+		      + ALT_INGAME_FONT_Y_LEN*12.0*name_zoom*1.0f/ALT_INGAME_FONT_X_LEN; // healthbar_y_len from actors.c
 		for (i = 0; i < num_buffs; i++)
 		{
 			cur_tex = texture_ids[i];
@@ -225,9 +228,6 @@ void draw_buffs(int actor_id, float x, float y,float z)
 			x_off = (int)(-1.0 * ((float)num_buffs * buff_icon_size) / 2.0f + (buff_icon_size * i));
 			// draw the spell icon
 			glBegin(GL_QUADS);
-			// move icons up by actor name and actor health bar
-			y = y + 1.0f/ALT_INGAME_FONT_X_LEN*SMALL_INGAME_FONT_Y_LEN*name_zoom*12.0*view_names // displayed_font_y_size from font.c
-			      + ALT_INGAME_FONT_Y_LEN*12.0*name_zoom*1.0f/ALT_INGAME_FONT_X_LEN; // healthbar_y_len from actors.c
 			glTexCoord2f(u_start,v_start);
 			glVertex3f(x + x_off, y + buff_icon_size, z);
 
