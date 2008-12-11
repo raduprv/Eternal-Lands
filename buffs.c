@@ -162,7 +162,7 @@ void draw_buffs(int actor_id, float x, float y,float z)
 {
 	actor *act;
 	act = get_actor_ptr_from_id(actor_id);
-	if (act) {
+	if (act && act->buffs) {
 		// texture coords
 		float u_start,v_start,u_end,v_end;
 		// current texture
