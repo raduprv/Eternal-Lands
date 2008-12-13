@@ -568,7 +568,8 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 						cm_bool_line(cm_id, 2, &view_hp, NULL);
 						cm_bool_line(cm_id, 3, &view_chat_text_as_overtext, NULL);
 						cm_bool_line(cm_id, 4, &use_alpha_banner, "use_alpha_banner");
-						cm_bool_line(cm_id, 5, &cm_banner_disabled, "cm_banner_disabled");
+						cm_bool_line(cm_id, 5, &sit_lock, "sit_lock");
+						cm_bool_line(cm_id, 6, &cm_banner_disabled, "cm_banner_disabled");
 					}
 					cm_show_direct(cm_id, -1, -1);
 					reset_cursor_time = SDL_GetTicks();
