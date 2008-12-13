@@ -470,6 +470,8 @@ namespace cm
 	{
 		if (handler)
 			this->handler = handler;
+		if (menu_list == NULL)
+			menu_list = "";
 		std::string menu_string(menu_list);
 		for (size_t pos = 0; pos != std::string::npos;)
 		{
