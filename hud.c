@@ -834,6 +834,14 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
+#ifdef CONTEXT_MENUS
+static int cm_statsbar_handler(window_info *win, int widget_id, int mx, int my, int option)
+{
+	watch_this_stat = option+1;
+	return 1;
+}
+#endif
+
 // the stats display
 void init_stats_display()
 {
@@ -863,6 +871,22 @@ void init_stats_display()
 
 	exp_bar_start_x=load_bar_start_x+100+70;
 	exp_bar_start_y=mana_bar_start_y;
+	
+#ifdef CONTEXT_MENUS
+	{
+		static size_t cm_id = CM_INIT_VALUE;
+		if (!cm_valid(cm_id))
+		{
+			int thestat;
+			cm_id = cm_create(NULL, cm_statsbar_handler);
+			for (thestat=0; thestat<NUM_WATCH_STAT-1; thestat++)
+				cm_add(cm_id, statsinfo[thestat].skillnames->name, NULL);
+		}
+		cm_remove_regions(stats_bar_win);
+		if((window_width-24)>(640))
+			cm_add_region(cm_id, stats_bar_win, exp_bar_start_x, exp_bar_start_y, 100, 12);
+	}
+#endif
 }
 
 void draw_stats_bar(int x, int y, int val, int len, float r, float g, float b, float r2, float g2, float b2)
