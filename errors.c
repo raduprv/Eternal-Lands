@@ -108,7 +108,7 @@ void log_error_detailed(const char *message, const char *file, const char *func,
 	if(message[strlen(message)-1] != '\n') {
 		strcat(logmsg, "\n");
 	}
-	fprintf(err_file, logmsg);
+	fputs(logmsg, err_file);
   	fflush (err_file);
 }
 
@@ -179,7 +179,7 @@ void log_info(const char* message, ...)
 	{
 		strcat(logmsg, "\n");
 	}
-	fprintf(infos_file, logmsg);
+	fputs(logmsg, infos_file);
   	fflush(infos_file);
 }
 
