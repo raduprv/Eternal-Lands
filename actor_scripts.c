@@ -3382,6 +3382,9 @@ int parse_actor_script (xmlNode *cfg)
 		act->cal_frames[i].sound= -1;
 #endif // NEW_SOUND
 	}
+#ifdef NEW_SOUND
+	act->battlecry.sound = -1;
+#endif // NEW_SOUND
 
 #ifdef ATTACHED_ACTORS
 	for (i = 0; i < MAX_ACTOR_DEFS; ++i)
