@@ -111,6 +111,8 @@ extern int allow_equip_swap;
 
 extern int items_mix_but_all;
 
+extern int items_stoall_nolastrow;
+
 #ifdef NEW_SOUND
 void update_item_sound(int interval);
 #endif // NEW_SOUND
