@@ -145,9 +145,10 @@ void update_buff_eye_candy(int actor_id) {
 			act->ec_buff_reference[((Uint32)(log(BUFF_POISONED)/log(2)))] = ec_create_ongoing_poison2(act, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
 		}
 */
-		if (act->buffs & BUFF_MAGIC_IMMUNITY && act->ec_buff_reference[((Uint32)(log(BUFF_MAGIC_IMMUNITY)/log(2)))] == NULL) {
-			act->ec_buff_reference[((Uint32)(log(BUFF_MAGIC_IMMUNITY)/log(2)))] = ec_create_ongoing_magic_immunity2(act, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
-		}
+// removed by Roja's request
+//		if (act->buffs & BUFF_MAGIC_IMMUNITY && act->ec_buff_reference[((Uint32)(log(BUFF_MAGIC_IMMUNITY)/log(2)))] == NULL) {
+//			act->ec_buff_reference[((Uint32)(log(BUFF_MAGIC_IMMUNITY)/log(2)))] = ec_create_ongoing_magic_immunity2(act, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
+//		}
 		// turn off effects
 		for (i = 0; i < NUM_BUFFS; i++) {
 			if (act->ec_buff_reference[i] != NULL && !(act->buffs & ((Uint32)pow(2, i)))) {
