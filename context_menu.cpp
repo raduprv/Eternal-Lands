@@ -955,7 +955,7 @@ extern "C" int cm_test_window(char *text, int len)
 		printf("Replacing window menu cm_set()=%d\n", cm_set(cm_test_win_menu, "Window 1\nWindow 2\n--\nGrey me...\nGrey above\n", cm_test_menu_handler));
 		printf("Set win menu cm_bool_line()=%d\n", cm_bool_line(cm_test_win_menu, 0, &cm_bool_var, NULL));
 		printf("Set win menu cm_bool_line()=%d\n", cm_bool_line(cm_test_win_menu, 1, &cm_bool_var, NULL));
-		printf("Set win menu cm_grey_line()=%d\n", cm_grey_line(cm_test_win_menu, 3, cm_grey_var, NULL));
+		printf("Set win menu cm_grey_line()=%d\n", cm_grey_line(cm_test_win_menu, 3, cm_grey_var));
 		printf("Set win menu cm_bool_line()=%d\n", cm_bool_line(cm_test_win_menu, 4, &cm_grey_var, NULL));
 		printf("Set widget menu cm_grey_line()=%d\n", cm_grey_line(cm_test_wid_menu, 3, 1));
 		printf("Calling cm_set_pre_show_handler()=%d\n", cm_set_pre_show_handler(cm_test_win_menu, cm_test_menu_pre_show_handler) );
