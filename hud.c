@@ -1960,7 +1960,7 @@ void reset_quickbar()
 void build_levels_table()
 {
   int i;
-  int exp=100;
+  Uint32 exp=100;
 
   exp_lev[0]=0;
   for(i=1;i<180;i++)
