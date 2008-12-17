@@ -136,7 +136,7 @@ int elconfig_menu_x_len= 660;
 #else // SKY_FPV
 int elconfig_menu_x_len= 720;
 #endif // SKY_FPV
-int elconfig_menu_y_len= 463;
+int elconfig_menu_y_len= 470;
 
 int windows_on_top= 0;
 int options_set= 0;
