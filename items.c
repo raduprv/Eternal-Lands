@@ -1121,10 +1121,8 @@ int show_items_handler(window_info * win)
 	item_quantity=quantities.quantity[quantities.selected].val;
 
 #ifdef CONTEXT_MENUS
-	cm_remove_regions(cm_stoall_but);
+	cm_remove_regions(items_win);
 	cm_add_region(cm_stoall_but, items_win, win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[0], XLENBUT, YLENBUT);
-	
-	cm_remove_regions(cm_mix_but);
 	cm_add_region(cm_mix_but, items_win, win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[3], XLENBUT, YLENBUT);
 #endif
 
