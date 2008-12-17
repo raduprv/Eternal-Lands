@@ -42,7 +42,7 @@ FEATURES += ZLIB                            # Enables being able to read gzip co
 
 
 ### Debug options ###
-#FEATURES += CONTEXT_MENUS_TEST              # Enable "#cmwin" command to help test/demo the context menu code
+#FEATURES += CONTEXT_MENUS_TEST              # Enable "#cmtest" command to help test/demo the context menu code
 #FEATURES += DEBUG                           # (undocumented)
 #FEATURES += DEBUG_XML                       # Enables missing (optional) XML string property messages
 #FEATURES += DEBUG_POINT_PARTICLES           # (undocumented)
@@ -55,6 +55,7 @@ FEATURES += ZLIB                            # Enables being able to read gzip co
 #FEATURES += MUTEX_DEBUG                     # (undocumented)
 #FEATURES += OPENGL_TRACE                    # make far more frequent checks for OpenGL errors (requires -DDEBUG to be of any use). Will make error_log.txt a lot larger.
 #FEATURES += TIMER_CHECK                     # (undocumented)
+#FEATURES += _EXTRA_SOUND_DEBUG				 # Enable debug for sound effects
 
 
 ### Other options (Experimental, unfinished, defunct or otherwise unknown) ###
