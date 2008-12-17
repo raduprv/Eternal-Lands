@@ -880,7 +880,7 @@ void init_stats_display()
 			int thestat;
 			cm_id = cm_create(NULL, cm_statsbar_handler);
 			for (thestat=0; thestat<NUM_WATCH_STAT-1; thestat++)
-				cm_add(cm_id, statsinfo[thestat].skillnames->name, NULL);
+				cm_add(cm_id, (char *)statsinfo[thestat].skillnames->name, NULL);
 		}
 		cm_remove_regions(stats_bar_win);
 		if((window_width-24)>(640))
