@@ -1960,7 +1960,7 @@ void reset_quickbar()
 void build_levels_table()
 {
   int i;
-  Uint32 exp=100;
+  Uint64 exp=100;
 
   exp_lev[0]=0;
   for(i=1;i<180;i++)
@@ -1976,8 +1976,8 @@ void build_levels_table()
 	if(i<=90)exp+=exp*7/100;
 	else exp+=exp*5/100;
 
-        exp_lev[i]=exp;
-//LOG_ERROR("exp %d: %d", i, exp);
+        exp_lev[i]=(Uint32)exp;
+//LOG_ERROR("exp %d: %d", i, exp_lev[i]);
     }
 }
 
