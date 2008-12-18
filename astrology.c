@@ -312,7 +312,7 @@ void display_astrology_window(const char * raw_text)
 	}
 	adjust_astrology_window();
 	capping_already_reported = 0;
-	if (last_astro_message_len < strlen(raw_text))
+	if (last_astro_message_len <= strlen(raw_text))
 	{
 		last_astro_message_len = strlen(raw_text) + 1;
 		if ((last_astro_message = (char *)realloc(last_astro_message, last_astro_message_len)) == NULL)
