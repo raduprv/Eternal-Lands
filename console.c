@@ -1037,33 +1037,76 @@ int command_accept_buddy(char *text, int len)
 }
 
 
-/* display the md5sum of the current map or the specified file */
+/* display or test the md5sum of the current map or the specified file */
 int command_ckdata(char *text, int len)
 {
 	const int DIGEST_LEN = 16;
 	Uint8 digest[DIGEST_LEN];
 	char digest_str[DIGEST_LEN*2+1];
+	char expected_digest_str[DIGEST_LEN*2+1];
 	char result_str[256];
-	char *filename = continent_maps[cur_map].name;
-	
+	char filename[256];
+
+	/* paramters are optional, first is expected checksum value, second is filename */
+	/* if only a filename is specfied, we display checksum rather than do match */
+	filename[0] = digest_str[0] = expected_digest_str[0] = '\0';
 	text = getparams(text);
 	if (*text)
-		filename = text;
+	{
+		/* if we have at least one space and the first string is of digest length, assume we matching */
+		char *tempstr = safe_strcasestr(text, strlen(text), " ", 1);
+		if ((tempstr != NULL) && (strlen(text) - strlen(tempstr) == DIGEST_LEN*2))
+		{
+			safe_strncpy2(expected_digest_str, text, DIGEST_LEN*2+1, DIGEST_LEN*2 );
+			/* trim leading space from filename */
+			while (*tempstr == ' ')
+				tempstr++;
+			if (*tempstr)
+				safe_strncpy(filename, tempstr, 256);
+		}
+		/* else we only have a filename */
+		else
+			safe_strncpy(filename, text, 256 );
+	}
+	/* if no parameters default to current map elm file */
+	else
+		safe_strncpy(filename, continent_maps[cur_map].name, 256 );
 
-	if (el_file_exists(filename) && get_file_digest(filename, digest))
+	/* calculate, display checksum if we're not matching */
+	if (*filename && el_file_exists(filename) && get_file_digest(filename, digest))
 	{
 		int i;	
 		for(i=0; i<DIGEST_LEN; i++)
 			sprintf(&digest_str[2*i], "%02x", (int)digest[i]);
 		digest_str[DIGEST_LEN*2] = 0;
-		safe_snprintf(result_str, sizeof(result_str), "client: %s %s", digest_str, filename );
-		LOG_TO_CONSOLE(c_grey1,result_str);
+		if (! *expected_digest_str)
+		{
+			safe_snprintf(result_str, sizeof(result_str), "#ckdata %s %s", digest_str, filename );
+			LOG_TO_CONSOLE(c_grey1,result_str);
+		}
 	}
+	/* show help if something fails */
 	else
-		LOG_TO_CONSOLE(c_red2, "ckdata: invalid file or filename.");
+	{
+		LOG_TO_CONSOLE(c_red2, "ckdata: invalid file or command syntax.");
+		LOG_TO_CONSOLE(c_red1, "Show current map (elm): #ckdata");
+		LOG_TO_CONSOLE(c_red1, "Show specified file:    #ckdata file_name");
+		LOG_TO_CONSOLE(c_red1, "Check specified file:   #ckdata expected_checksum file_name");
+		return 1;
+	}
+
+	/* if we have an expected value, compare then display an appropriate message */
+	if (*expected_digest_str)
+	{
+		if (my_strcompare(digest_str, expected_digest_str))
+			LOG_TO_CONSOLE(c_green2,"ckdata: File matches expected checksum");
+		else
+			LOG_TO_CONSOLE(c_red2,"ckdata: File does not match expected checksum");
+	}
 	
 	return 1;
-}
+	
+} /* end command_ckdata() */
 
 
 int save_local_data(char * text, int len){
