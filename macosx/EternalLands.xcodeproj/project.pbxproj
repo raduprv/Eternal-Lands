@@ -192,6 +192,7 @@
 		1FF1FAA10D1AE4940002D512 /* SDL_net.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1FF1FA9A0D1AE4940002D512 /* SDL_net.framework */; };
 		1FF1FAA20D1AE4940002D512 /* vorbis.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1FF1FA9B0D1AE4940002D512 /* vorbis.framework */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+		E18287A10EFFFC320046818E /* buffs.c in Sources */ = {isa = PBXBuildFile; fileRef = E182879E0EFFFC320046818E /* buffs.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -933,6 +934,9 @@
 		32CA4F630368D1EE00C91783 /* EternalLands_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EternalLands_Prefix.pch; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* EternalLands.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EternalLands.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E182879E0EFFFC320046818E /* buffs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = buffs.c; path = ../buffs.c; sourceTree = SOURCE_ROOT; };
+		E182879F0EFFFC320046818E /* buffs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = buffs.h; path = ../buffs.h; sourceTree = SOURCE_ROOT; };
+		E18287A00EFFFC320046818E /* eye_candy_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = eye_candy_types.h; path = ../eye_candy_types.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1004,6 +1008,9 @@
 		1F8128D90D033520008792A7 /* elc */ = {
 			isa = PBXGroup;
 			children = (
+				E182879E0EFFFC320046818E /* buffs.c */,
+				E182879F0EFFFC320046818E /* buffs.h */,
+				E18287A00EFFFC320046818E /* eye_candy_types.h */,
 				1F3DDB130E92F8450036BD6A /* elglext.h */,
 				1F22CC3A0DBAD57400411752 /* context_menu.cpp */,
 				1F22CC3B0DBAD57400411752 /* context_menu.h */,
@@ -2271,6 +2278,7 @@
 				1F22CC420DBAD57400411752 /* makeargv.c in Sources */,
 				1F22CC430DBAD57400411752 /* text_aliases.c in Sources */,
 				1FD61F5F0E2CCB560085FD81 /* effect_staff.cpp in Sources */,
+				E18287A10EFFFC320046818E /* buffs.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2409,10 +2417,8 @@
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					i386,
-					ppc,
-				);
+				ARCHS = "$(ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1 = "ppc i386";
 				CURRENT_PROJECT_VERSION = 1.5.0;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(HOME)/Library/Frameworks",
@@ -2470,11 +2476,10 @@
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					i386,
-					ppc,
-				);
-				CURRENT_PROJECT_VERSION = 1.5.0;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1 = "ppc i386";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1.8.0;
 				DEPLOYMENT_LOCATION = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(EL_FRAMEWORKS_DIR)",
@@ -2482,14 +2487,18 @@
 					/Library/Frameworks,
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
+				GCC_MODEL_TUNING = "";
+				GCC_OPTIMIZATION_LEVEL = 2;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					CLUSTER_INSIDES,
+					CONTEXT_MENUS,
 					CUSTOM_LOOK,
 					CUSTOM_UPDATE,
 					ELC,
 					FUZZY_PATHS,
 					GL_EXTENSION_CHECK,
 					MINIMAP2,
+					NEW_CAMERA_MOTION,
 					NEW_SELECTION,
 					NEW_SOUND,
 					NEW_TEX,
@@ -2527,6 +2536,7 @@
 				);
 				PREBINDING = NO;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = Release;
 		};
