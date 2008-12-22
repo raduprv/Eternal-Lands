@@ -563,6 +563,7 @@ char	reg_error_str[15],
 	exceed_note_buffer[100],
 	user_no_more_notes[100],
 	user_no_more_note_tabs[100],
+	dc_note_remove[50],
 	/* text.c */
 	warn_currently_ignoring[50];
 #else
@@ -1160,6 +1161,7 @@ void init_help()
 	add_xml_identifier(misc,"reset",reset_str,"Reset",sizeof(reset_str));
 	add_xml_identifier(misc,"channel_help",channel_help_str,"Click a Channel to join. You can be in up to 3 channels at a time.\n\nTo talk in a channel, type @ before your message. You do not have to type @ to talk in Local.",sizeof(channel_help_str));
 	add_xml_identifier(misc,"stats_scroll_help",stats_scroll_help_str,"Scroll Up/Down using CTRL+left/CTRL+right click or scrollwheel.",sizeof(stats_scroll_help_str));
+	add_xml_identifier(misc,"dc_note_rm",dc_note_remove,"Double-click to remove this category",sizeof(dc_note_remove));
 
 	//New characters
 	add_xml_identifier(new,"skin",skin_str,"Skin",sizeof(skin_str));

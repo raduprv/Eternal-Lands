@@ -15,6 +15,7 @@
 #include "errors.h"
 #include "gamewin.h"
 #include "init.h"
+#include "hud.h"
 #include "notepad.h"
 #include "text.h"
 #include "translate.h"
@@ -40,6 +41,7 @@ int popup_label = -1;
 int popup_ok = -1;
 int popup_no = -1;
 text_message popup_text;
+static int show_remove_help = 0;
 
 // Coordinates
 int popup_x_len = 200;
@@ -446,10 +448,14 @@ int notepad_save_file (widget_list *w, int mx, int my, Uint32 flags)
 
 int notepad_remove_category (widget_list *w, int mx, int my, Uint32 flags)
 {
+	static Uint32 last_click = 0;
 	int i, id = -1, cur_tab, t;
 
 	// only handle mouse button clicks, not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+
+	if (!safe_button_click(&last_click))
+		return 1;
 
 	t = tab_collection_get_tab_id (notepad_win, note_tabcollection_id);
 	cur_tab = tab_collection_get_tab (notepad_win, note_tabcollection_id);
@@ -499,6 +505,13 @@ int note_tab_destroy (window_info *w)
 	return 0;
 }
 
+static int mouseover_remove_handler(void)
+{
+	if (!disable_double_click && show_help_text)
+		show_remove_help = 1;
+	return 1;
+}
+
 void open_note_tab_continued (int id)
 {
 	int tf_x = 20;
@@ -517,6 +530,7 @@ void open_note_tab_continued (int id)
 	note_list[id].button = button_add (note_list[id].window, NULL, button_remove_category, 20, 8);
 	widget_set_OnClick (note_list[id].window, note_list[id].button, notepad_remove_category);
 	widget_set_color (note_list[id].window, note_list[id].button, 0.77f, 0.57f, 0.39f);
+	widget_set_OnMouseover(note_list[id].window, note_list[id].button, mouseover_remove_handler);
     
 	set_window_handler (note_list[id].window, ELW_HANDLER_DESTROY, note_tab_destroy);
 
@@ -597,6 +611,16 @@ int notepad_add_category (widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
+static int display_notepad_handler(window_info *win)
+{
+	if (show_remove_help)
+	{
+		show_help(dc_note_remove, 0, win->len_y+10);
+		show_remove_help = 0;
+	}
+	return 1;
+}
+
 void display_notepad()
 {
 	int i;
@@ -612,6 +636,7 @@ void display_notepad()
 		note_button_width = (note_tabs_width - note_button_scroll_width - note_button_x_space - 15) / 2;
 
 		notepad_win = create_window (win_notepad, windows_on_top ? -1 : game_root_win, 0, notepad_win_x, notepad_win_y, notepad_win_x_len, notepad_win_y_len, ELW_WIN_DEFAULT|ELW_TITLE_NAME);
+		set_window_handler(notepad_win, ELW_HANDLER_DISPLAY, &display_notepad_handler);
 		
 		note_tabcollection_id = tab_collection_add (notepad_win, NULL, 5, 25, note_tabs_width, note_tabs_height, 20);
 		widget_set_size (notepad_win, note_tabcollection_id, 0.7);

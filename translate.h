@@ -663,7 +663,8 @@ extern char	reg_error_str[15],
 		exceed_note_buffer[100],
 		user_no_more_notes[100],
 		user_no_more_note_tabs[100],
-		warn_currently_ignoring[50];
+		warn_currently_ignoring[50],
+		dc_note_remove[50];
 #else
 		;
 #endif  // ELC
