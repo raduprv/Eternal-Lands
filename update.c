@@ -542,7 +542,7 @@ int http_get_file(char *server, char *path, FILE *fp)
 	
 	// send the GET request, try to avoid ISP caching	
 	
-	safe_snprintf(message, sizeof(message), "GET %s HTTP/1.1\r\nHost: %s\r\nCACHE-CONTROL:NO-CACHE\r\nREFERER:%s\r\nUSER-AGENT:AUTOUPDATE %s\r\n\r\n", path, server, "autoupdate", FILE_VERSION);
+	safe_snprintf(message, sizeof(message), "GET %s HTTP/1.1\r\nHost: %s\r\nCONNECTION:CLOSE\r\nCACHE-CONTROL:NO-CACHE\r\nREFERER:%s\r\nUSER-AGENT:AUTOUPDATE %s\r\n\r\n", path, server, "autoupdate", FILE_VERSION);
 	//printf("%s",message);
 	len= strlen(message);
 	if(SDLNet_TCP_Send(http_sock,message,len) < len){
