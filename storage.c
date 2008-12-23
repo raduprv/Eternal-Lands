@@ -326,18 +326,13 @@ int display_storage_handler(window_info * win)
 			if(storage_items[i].pos == active_storage_item) {
 				if (storage_items[i].quantity) {
 					char str[20];
-					int x = (i%6)*32+161+16;
-					int len;
+					int x = (i%6)*32+161;
 
 					safe_snprintf(str, sizeof(str), "%d", storage_items[i].quantity);
-					len = 0; //strlen(str) * 8;
-					if(x - len > 161) {
-						x -= len;
-					} else if(x + len > 161+6*32) {
-						x = 161+5*32+16;
+					if(x > 353) {
+						x = 321;
 					}
-					x -= 16;
-					show_help(str, x, ((i-pos)/6)*32+10+8);
+					show_help(str, x, ((i-pos)/6)*32+18);
 				}
 				break;
 			}
