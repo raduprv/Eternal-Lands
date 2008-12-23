@@ -249,8 +249,6 @@ int display_storage_handler(window_info * win)
 		draw_string_small(18, 220, (unsigned char*)wrapped_storage_text, 2);
 	}
 
-	glColor3f(1.0f,1.0f,1.0f);
-	
 	for(i=pos=6*vscrollbar_get_pos(storage_win, STORAGE_SCROLLBAR_ITEMS); i<pos+36 && i<no_storage;i++){
 		GLfloat u_start, v_start, u_end, v_end;
 		int x_start, x_end, y_start, y_end;
@@ -276,28 +274,6 @@ int display_storage_handler(window_info * win)
 		glBegin(GL_QUADS);
 		draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 		glEnd();
-	}
-	if(active_storage_item >= 0) {
-		/* Draw the active item's quantity on top of everything else. */
-		for(i = pos = 6*vscrollbar_get_pos(storage_win, STORAGE_SCROLLBAR_ITEMS); i < pos+36 && i < no_storage; i++) {
-			if(storage_items[i].pos == active_storage_item) {
-				if (storage_items[i].quantity) {
-					char str[20];
-					int x = (i%6)*32+161+16;
-					int len;
-
-					safe_snprintf(str, sizeof(str), "%d", storage_items[i].quantity);
-					len = strlen(str) * 8;
-					if(x - len > 161) {
-						x -= len;
-					} else if(x + len > 161+6*32) {
-						x = 161+5*32+16;
-					}
-					show_help(str, x, ((i-pos)/6)*32+10+8);
-				}
-				break;
-			}
-		}
 	}
 
 	if(cur_item_over!=-1 && mouse_in_window(win->window_id, mouse_x, mouse_y) == 1 && active_storage_item!=storage_items[cur_item_over].pos){
@@ -342,6 +318,31 @@ int display_storage_handler(window_info * win)
 
 	rendergrid(6, 6, 160, 10, 32, 32);
 	glEnable(GL_TEXTURE_2D);
+
+	glColor3f(1.0f,1.0f,1.0f);
+	if(active_storage_item >= 0) {
+		/* Draw the active item's quantity on top of everything else. */
+		for(i = pos = 6*vscrollbar_get_pos(storage_win, STORAGE_SCROLLBAR_ITEMS); i < pos+36 && i < no_storage; i++) {
+			if(storage_items[i].pos == active_storage_item) {
+				if (storage_items[i].quantity) {
+					char str[20];
+					int x = (i%6)*32+161+16;
+					int len;
+
+					safe_snprintf(str, sizeof(str), "%d", storage_items[i].quantity);
+					len = 0; //strlen(str) * 8;
+					if(x - len > 161) {
+						x -= len;
+					} else if(x + len > 161+6*32) {
+						x = 161+5*32+16;
+					}
+					x -= 16;
+					show_help(str, x, ((i-pos)/6)*32+10+8);
+				}
+				break;
+			}
+		}
+	}
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
