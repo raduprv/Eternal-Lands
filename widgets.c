@@ -891,17 +891,6 @@ int progressbar_draw(widget_list *W)
 	int pixels = (b->progress/100) * W->len_x;
 
 	glDisable(GL_TEXTURE_2D);
-	if(W->r != -1.0)
-		glColor3f(W->r,W->g,W->b);
-	else
-		glColor3f(0.77f,0.57f,0.39f);
-
-	glBegin(GL_LINE_LOOP);
-	glVertex3i(W->pos_x,W->pos_y,0);
-	glVertex3i(W->pos_x + W->len_x,W->pos_y,0);
-	glVertex3i(W->pos_x + W->len_x,W->pos_y + W->len_y,0);
-	glVertex3i(W->pos_x,W->pos_y + W->len_y,0);
-	glEnd();
 
 	if (pixels > 0) {
 		const char have_bar_colors = (b->colors[0] > -0.5f);
@@ -919,16 +908,28 @@ int progressbar_draw(widget_list *W)
 
 		glBegin(GL_QUADS);
 			if (have_bar_colors) glColor3fv(&b->colors[0]);
-			glVertex3i(W->pos_x + 1, W->pos_y + 0, 0);
+			glVertex3i(W->pos_x, W->pos_y + 0, 0);//LabRat: fix unfilled pixels in progress bar
 			if (have_bar_colors) glColor3fv(&right_colors[0]);
 			glVertex3i(W->pos_x + pixels,W->pos_y + 0,0);
 			if (have_bar_colors) glColor3fv(&right_colors[3]);
-			glVertex3i(W->pos_x + pixels, W->pos_y + W->len_y - 1, 0);
+			glVertex3i(W->pos_x + pixels, W->pos_y + W->len_y, 0);
 			if (have_bar_colors) glColor3fv(&b->colors[9]);
-			glVertex3i(W->pos_x + 1, W->pos_y + W->len_y - 1, 0);
+			glVertex3i(W->pos_x, W->pos_y + W->len_y, 0);//LabRat: fix unfilled pixels in progress bar
 			glColor3f(0.77f,0.57f,0.39f);
 		glEnd();
 	}
+	if(W->r != -1.0)
+		glColor3f(W->r,W->g,W->b);
+	else
+		glColor3f(0.77f,0.57f,0.39f);
+
+	//LabRat: Draw bounding box after progress bar
+	glBegin(GL_LINE_LOOP);
+	glVertex3i(W->pos_x,W->pos_y,0);
+	glVertex3i(W->pos_x + W->len_x,W->pos_y,0);
+	glVertex3i(W->pos_x + W->len_x,W->pos_y + W->len_y,0);
+	glVertex3i(W->pos_x,W->pos_y + W->len_y,0);
+	glEnd();
 	
 	glEnable(GL_TEXTURE_2D);
 #ifdef OPENGL_TRACE
