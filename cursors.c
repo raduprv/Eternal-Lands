@@ -38,10 +38,16 @@ void load_cursors()
 
 	if (file == NULL)
 	{
+		LOG_ERROR("%s: %s [%s]\n", reg_error_str, cursors_file_str, "textures/cursors.bmp");
 		return;
 	}
 
-	cursors_mem_bmp = el_get_pointer(file);
+	if ((cursors_mem_bmp = el_get_pointer(file)) == NULL)
+	{
+		el_close(file);
+		LOG_ERROR("%s: %s (read) [%s]\n", reg_error_str, cursors_file_str, "textures/cursors.bmp");
+		return;
+	}
 
 	cursors_mem_bmp += 18;		//x length is at offset+18
 	cursors_x_length = SDL_SwapLE32(*((int *) cursors_mem_bmp));

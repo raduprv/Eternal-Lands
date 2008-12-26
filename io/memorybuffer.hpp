@@ -1,7 +1,7 @@
 #ifndef	_MEMORYBUFFER_HPP_
 #define	_MEMORYBUFFER_HPP_
 
-
+#include <stdexcept>
 #include "allio.hpp"
 #ifndef	USE_TR1
 #include "../templates/el_shared_ptr.hpp"
@@ -57,7 +57,8 @@ namespace eternal_lands
 			template <typename T>
 			inline T get_memory(const Uint32 index = 0) const
 			{
-				assert(index < size);
+				if (size <= index)
+					throw std::runtime_error("memory_buffer::get_memory size <= index");
 				return reinterpret_cast<T>(&memory[index]);
 			}
 

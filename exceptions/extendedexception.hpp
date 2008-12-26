@@ -291,13 +291,13 @@ namespace eternal_lands
 #define	CATCH_AND_LOG_EXCEPTIONS	\
 catch (std::exception &e)	\
 {	\
-	log_error(e.what());	\
+	log_error("%s(): %s", __func__, e.what());	\
 }
 
 #define	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(return_value)	\
 catch (std::exception &e)	\
 {	\
-	log_error(e.what());	\
+	log_error("%s(): %s", __func__, e.what());	\
 	return return_value;	\
 }
 

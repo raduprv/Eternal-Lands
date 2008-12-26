@@ -221,6 +221,13 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 	}
 
 	obj_file_mem = el_get_pointer(file);
+	
+	if(obj_file_mem == NULL){
+		LOG_ERROR("%s: %s (read)\"%s\"\n", reg_error_str, cant_open_file, file_name);
+		el_close(file);
+		free(cur_object);
+		return NULL;
+	}
 
 	f_size = el_get_size(file);
 
