@@ -1119,7 +1119,7 @@ int save_local_data(char * text, int len){
 	if (notepad_loaded) notepad_save_file (NULL, 0, 0, 0);
 	save_exploration_map();
 	flush_counters();
-	LOG_TO_CONSOLE(c_red1, "Local files saved, asking server to save too...");
+	LOG_TO_CONSOLE(c_green1, "Local files saved, asking server to save too...");
 	return 0;
 }
 
