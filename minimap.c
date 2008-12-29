@@ -1171,6 +1171,10 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 		if (actors_list[i])
 		{
 			a = actors_list[i];
+#ifdef ATTACHED_ACTORS
+			if (a->attached_actor != -1 && a->actor_id == -1)
+				continue;
+#endif // ATTACHED_ACTORS
 			x = a->x_tile_pos * size_x;
 			y = float_minimap_size - (a->y_tile_pos * size_y);
 
