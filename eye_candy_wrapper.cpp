@@ -380,7 +380,7 @@ extern "C" void ec_idle()
 				}
 			}
 #endif //!MAP_EDITOR
-			if (((*iter)->effect->get_type() == ec::EC_LAMP) && (!(*iter)->effect->recall))
+			if ((*iter)->effect && ((*iter)->effect->get_type() == ec::EC_LAMP) && (!(*iter)->effect->recall))
 			{
 				ec::LampEffect* eff = (ec::LampEffect*)((*iter)->effect);
 				if (eff->halo != use_lamp_halo)
@@ -390,20 +390,20 @@ extern "C" void ec_idle()
 					force_idle = true;
 				}
 			}
-			if ((*iter)->effect->get_type() == ec::EC_FOUNTAIN)
+			if ((*iter)->effect && (*iter)->effect->get_type() == ec::EC_FOUNTAIN)
 			{
 				ec::FountainEffect* eff = (ec::FountainEffect*)((*iter)->effect);
 				eff->LOD = (poor_man ? 6 : 10);
 			}
-			if ((*iter)->effect->get_type() == ec::EC_SMOKE)
+			if ((*iter)->effect && (*iter)->effect->get_type() == ec::EC_SMOKE)
 			{
 				ec::SmokeEffect* eff = (ec::SmokeEffect*)((*iter)->effect);
 				eff->LOD = (poor_man ? 6 : 10);
 			}
 
-			if (((*iter)->effect->get_type() == ec::EC_CLOUD)
+			if ((*iter)->effect && (((*iter)->effect->get_type() == ec::EC_CLOUD)
 				|| ((*iter)->effect->get_type() == ec::EC_FIREFLY)
-				|| ((*iter)->effect->get_type() == ec::EC_WIND))
+				|| ((*iter)->effect->get_type() == ec::EC_WIND)))
 			{
 #ifndef MAP_EDITOR
 				// doesn't work, moves effects to -2.2 under the ground
@@ -414,7 +414,7 @@ extern "C" void ec_idle()
 #endif //!MAP_EDITOR
 			}
 #ifndef MAP_EDITOR
-			if ((*iter)->effect->get_type() == ec::EC_MISSILE)
+			if ((*iter)->effect && (*iter)->effect->get_type() == ec::EC_MISSILE)
 			{
 				missile *mis = get_missile_ptr_from_id((*iter)->missile_id);
 				if (mis &&
@@ -559,7 +559,7 @@ extern "C" void ec_draw()
 			//      if ((*iter)->effect->get_type() == ec::EC_FIREFLY)
 			//        (*iter)->effect->active = (!day_shadows_on);
 #else
-			if ((*iter)->effect->get_type() == ec::EC_FIREFLY
+			if ((*iter)->effect && (*iter)->effect->get_type() == ec::EC_FIREFLY
 #ifdef CLUSTER_INSIDES
 				&& (*iter)->effect->belongsToCluster (cluster)
 #endif
@@ -657,7 +657,8 @@ extern "C" void ec_delete_all_effects()
 			continue;
 		}
 
-		(*iter)->effect->recall = true;
+		if ((*iter)->effect)
+			(*iter)->effect->recall = true;
 		i++;
 	}
 }
