@@ -1147,7 +1147,7 @@ int	draw_window_border(window_info *win)
 				glVertex3i(0, 0, 0);
 				glVertex3i(win->len_x, 0, 0);
 				glVertex3i(win->len_x, win->len_y, 0);
-				glVertex3i(0, win->len_y, 0);
+				glVertex3i(-1, win->len_y, 0);
 			glEnd();
 		}
 	}
