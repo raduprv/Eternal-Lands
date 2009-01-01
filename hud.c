@@ -900,9 +900,9 @@ void draw_stats_bar(int x, int y, int val, int len, float r, float g, float b, f
  		glColor3f(r2, g2, b2);
 		glVertex3i(x, y+8, 0);
 		glColor3f(r, g, b);
-		glVertex3i(x, y+1, 0);
+		glVertex3i(x, y, 0);
 		glColor3f(r, g, b);
-		glVertex3i(x+len, y+1, 0);
+		glVertex3i(x+len, y, 0);
 		glColor3f(r2, g2, b2);
 		glVertex3i(x+len, y+8, 0);
 		glEnd();
