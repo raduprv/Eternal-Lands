@@ -108,10 +108,10 @@ int	display_manufacture_handler(window_info *win)
 			//get the x and y
 			cur_pos=i;
 
-			x_start=33*(cur_pos%12);
-			x_end=x_start+33;
+			x_start=33*(cur_pos%12)+1;
+			x_end=x_start+32;
 			y_start=33*(cur_pos/12);
-			y_end=y_start+33;
+			y_end=y_start+32;
 
 			//get the texture this item belongs to
 			this_texture=get_items_texture(manufacture_list[i].image_id/25);
@@ -148,7 +148,7 @@ int	display_manufacture_handler(window_info *win)
 			x_start=33*(cur_pos%6)+5;
 			x_end=x_start+32;
 			y_start=win->len_y-37;
-			y_end=y_start+33;
+			y_end=y_start+32;
 
 			//get the texture this item belongs to
 			this_texture=get_items_texture(manufacture_list[i].image_id/25);

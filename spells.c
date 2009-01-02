@@ -375,7 +375,7 @@ void display_spells_we_have()
 			x_start=33*cur_pos;
 			x_end=x_start+32;
 			y_start=window_height-hud_y-64;
-			y_end=y_start+33;
+			y_end=y_start+32;
 
 			get_and_set_texture_id(sigils_text);
 			glBegin(GL_QUADS);
@@ -448,7 +448,7 @@ int display_sigils_handler(window_info *win)
 			x_start=33*(cur_pos%NUM_SIGILS_LINE)+1;
 			x_end=x_start+32;
 			y_start=33*(cur_pos/NUM_SIGILS_LINE);
-			y_end=y_start+33;
+			y_end=y_start+32;
 
 			draw_2d_thing (u_start, v_start, u_end, v_end, x_start, y_start, x_end, y_end);
 		}
@@ -477,7 +477,7 @@ int display_sigils_handler(window_info *win)
 			x_start=33*(cur_pos%6)+5;
 			x_end=x_start+32;
 			y_start=win->len_y-37;
-			y_end=y_start+33;
+			y_end=y_start+32;
 
 			//get the texture this item belongs to
 			get_and_set_texture_id(sigils_text);

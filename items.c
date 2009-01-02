@@ -1,5 +1,5 @@
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include "items.h"
 #include "asc.h"
@@ -122,14 +122,14 @@ void rendergrid(int columns, int rows, int left, int top, int width, int height)
 
 	for(y=0; y<=rows; y++){
 		temp = top + y * height;
-		glVertex2i(left, temp);
+		glVertex2i(left,         temp);
 		glVertex2i(left + width*columns, temp);
 	}
 
 	for(x=0; x<columns+1; x++){
 		temp = left + x * width;
 		glVertex2i(temp, top);
-		glVertex2i(temp, top + height*rows+1);
+		glVertex2i(temp, top + height*rows);
 	}
 
 	glEnd();
@@ -452,16 +452,16 @@ int display_items_handler(window_info *win)
 			if(cur_pos>=ITEM_WEAR_START){//the items we 'wear' are smaller
 				cur_pos-=ITEM_WEAR_START;
 				item_is_weared=1;
-				x_start=wear_items_x_offset+33*(cur_pos%2);
-				x_end=x_start+32;
-				y_start=wear_items_y_offset+33*(float)(cur_pos/2);
-				y_end=y_start+33;
+				x_start=wear_items_x_offset+33*(cur_pos%2)+1;
+				x_end=x_start+32-1;
+				y_start=wear_items_y_offset+33*(cur_pos/2);
+				y_end=y_start+32-1;
 			} else {
 				item_is_weared=0;
 				x_start=items_grid_size*(cur_pos%6)+1;
 				x_end=x_start+items_grid_size-1;
-				y_start=items_grid_size*(float)(cur_pos/6);
-				y_end=y_start+items_grid_size;
+				y_start=items_grid_size*(cur_pos/6);
+				y_end=y_start+items_grid_size-1;
 			}
 
 			//get the texture this item belongs to
@@ -577,7 +577,14 @@ int display_items_handler(window_info *win)
 	
 	// draw the button boxes
 	glColor3f(0.77f,0.57f,0.39f);
-	rendergrid(1,NUMBUT,win->len_x-(XLENBUT+3),wear_items_y_offset,XLENBUT,YLENBUT);
+	for (i=0; i<NUMBUT; i++) {
+		glBegin(GL_LINE_LOOP);
+			glVertex3i(win->len_x-3, wear_items_y_offset+but_y_off[i],0);
+			glVertex3i(win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[i],0);
+			glVertex3i(win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[i]+YLENBUT,0);
+			glVertex3i(win->len_x-3, wear_items_y_offset+but_y_off[i]+YLENBUT,0);
+		glEnd();
+	}
 	
 	// highlight a button with the mouse over
 	if (mouse_over_but != -1)
