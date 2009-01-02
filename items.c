@@ -850,8 +850,6 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 					str[1]=item_list[use_item].pos;
 					str[2]=item_list[pos].pos;
 					my_tcp_send(my_socket,str,3);
-					if (!shift_on)
-						use_item=-1;
 #ifdef NEW_SOUND
 					item_list[use_item].action = ITEM_ON_ITEM;
 					item_list[pos].action = ITEM_ON_ITEM;
@@ -859,6 +857,8 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 //					printf("Using item: %d on item: %d, Image ID: %d\n", pos, use_item, item_list[pos].image_id);
 #endif // _EXTRA_SOUND_DEBUG
 #endif // NEW_SOUND
+					if (!shift_on)
+						use_item=-1;
 				} else {
 					use_item=pos;
 				}
