@@ -18,7 +18,11 @@ https://help.ubuntu.com/community/GnuPrivacyGuardHowto
 
 Now we're ready:
 
-Checkout a clean version of the client:eternallands-1.7.0.tar.gz
+Set the version number
+	
+	elver="1.8.0"
+
+Checkout a clean version of the client
 
 	cvs -d:pserver:anonymous@cvs.elc.berlios.de:/cvsroot/elc login 
 
@@ -27,23 +31,23 @@ Checkout a clean version of the client:eternallands-1.7.0.tar.gz
 Make an original source tar ball:
 
 	cd elc
-	bash pkgfiles/maketarball 1.7.0
+	bash pkgfiles/maketarball ${elver}
 	cd ..
 	
 Setup a temp directory for the build:
 	
 	tmpdir=$( mktemp -d)
-	mv eternallands-1.7.0.tar.gz $tmpdir
+	mv eternallands-${elver}.tar.gz $tmpdir
 	cd $tmpdir
 
 Unpack the tarball then rename it as the original:
 	
-	tar xfz eternallands-1.7.0.tar.gz
-	mv eternallands-1.7.0.tar.gz eternallands_1.7.0.orig.tar.gz
+	tar xfz eternallands-${elver}.tar.gz
+	mv eternallands-${elver}.tar.gz eternallands_${elver}.orig.tar.gz
 	
 Move into package directory:
 
-	cd eternallands-1.7.0/
+	cd eternallands-${elver}/
 	
 Append the licence file to the copyright file:
 

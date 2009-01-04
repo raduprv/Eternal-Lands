@@ -8,7 +8,7 @@ Homepage: http://www.eternal-lands.com
 
 Package: eternallands
 Architecture: any
-Depends: ${shlibs:Depends}, eternallands-data (>=1.7.0), zenity
+Depends: ${shlibs:Depends}, eternallands-data (>=1.8.0), zenity
 Conflicts: eternallands-rc, eternallands-rc-data
 Recommends: eternallands-sound (>=1.6.0)
 Suggests: eternallands-music (>=1.6.0)
