@@ -187,6 +187,7 @@ typedef struct
 extern int auto_update; /*!<this flags signals whether or not autoupdates are performed at startup, or not. It requires a restart to have an effect. */
 #ifdef  CUSTOM_UPDATE
 extern int custom_update; /*!<this flags signals whether or not autoupdates of custom looks is permitted. */
+extern int custom_clothing; /*!<this flags signals whether or not custom is displayed. */
 #endif  //CUSTOM_UPDATE
 
 extern int poor_man; /*!< this flag, if set to true, indicates we are running on a really poor machine */

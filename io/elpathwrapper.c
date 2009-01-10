@@ -482,6 +482,36 @@ int mkdir_config(const char *path){
 	return MKDIR(locbuffer);
 }
 
+int file_copy(const char* from_file, char* to_file)
+{
+	FILE *in, *out;
+	char ch;
+	int fe = 0;
+
+	in = fopen(from_file,"rb");
+	out = fopen(to_file,"wb");
+	while(!feof(in))
+	{
+		ch = getc(in);
+		if(fe = ferror(in)) {
+			log_error("unable to copy %s to %s, read error",from_file, to_file);			
+			clearerr(in);			
+			break;
+		} else {
+			if(!feof(in))
+				putc(ch, out);
+			if(fe = ferror(out)) {
+				log_error("unable to copy %s to %s, write error",from_file, to_file);
+				clearerr(out);
+				break;
+			}
+		}		
+	}
+	fclose (in);
+	fclose(out);
+
+	return fe;
+}
 
 int move_file_to_updates(const char* from_file, char* to_file, int custom)
 {
@@ -490,6 +520,7 @@ int move_file_to_updates(const char* from_file, char* to_file, int custom)
 	char locbufupd[MAX_PATH];
 	const char * cfgdir = get_path_config();
 	const char * updatesdir = custom ? get_path_custom() : get_path_updates();
+	int retval = 0;
 
 	if (custom) to_file = check_custom_dir(to_file);
 	if ((strlen(cfgdir) + strlen(from_file) + 1 > MAX_PATH) ||
@@ -511,7 +542,16 @@ int move_file_to_updates(const char* from_file, char* to_file, int custom)
 	// Remove the file if it exists first (important under Windows)
 	remove(locbufupd);
 	
-	return rename(locbuftmp, locbufupd);
+	retval = rename(locbuftmp, locbufupd);
+	if(retval == 18) {
+		// special case - moving a file between drives or partitions is not allowed
+		retval = file_copy(locbuftmp, locbufupd);
+		if (retval)
+			return retval;
+		else		
+			return remove(locbuftmp);
+	}
+	return retval;
 }
 
 void file_update_clear_old(void){	//TODO.

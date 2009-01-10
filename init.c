@@ -87,7 +87,8 @@ int ini_file_size=0;
 int disconnected= 1;
 int auto_update= 1;
 #ifdef  CUSTOM_UPDATE
-int custom_update= 0;
+int custom_update= 1;
+int custom_clothing= 1;
 #endif  //CUSTOM_UPDATE
 
 int exit_now=0;

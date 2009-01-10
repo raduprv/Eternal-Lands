@@ -149,7 +149,7 @@ void    handle_update_download(struct http_get_struct *get)
 			if(!sts){
 				do_updates();
 			} else {
-				log_error("Unable to finish %d processing (%d)", files_lst, errno);
+				log_error("Unable to finish %s processing (%d)", files_lst, errno);
 			}
 			
 			// and go back to normal processing
@@ -385,7 +385,7 @@ void    handle_file_download(struct http_get_struct *get)
 	if(get->status == 0){
 		// replace the current file (creates all required directories)
 		sts = move_file_to_updates(download_temp_file, download_cur_file, doing_custom);
-
+ 		log_error("Moved \"%s\" to \"%s\"", download_temp_file, download_cur_file);
 		// check for errors
 		if(!sts){
 			// TODO: make the restart more intelligent

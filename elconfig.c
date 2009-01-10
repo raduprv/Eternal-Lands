@@ -1718,6 +1718,7 @@ void init_vars()
 	add_var(OPT_BOOL,"autoupdate","aup",&auto_update,change_var,1,"Automatic Updates","Toggles whether updates are automatically downloaded.",SERVER);
   #ifdef CUSTOM_UPDATE
 	add_var(OPT_BOOL,"customupdate","cup",&custom_update,change_var,1,"Custom Looks Updates","Toggles whether custom look updates are automatically downloaded.",SERVER);
+	add_var(OPT_BOOL,"showcustomclothing","scc",&custom_clothing,change_var,1,"Show Custom clothing","Toggles whether custom clothing is shown.",SERVER);
   #endif    //CUSTOM_UPDATE
  	add_var(OPT_STRING,"language","lang",lang,change_string,8,"Language","Wah?",MISC);
  	add_var(OPT_STRING,"browser","b",browser_name,change_string,70,"Browser","Location of your web browser (Windows users leave blank to use default browser)",MISC);
