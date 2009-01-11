@@ -115,7 +115,7 @@ release:
 	@$(MAKE) -f Makefile.linux 'CFLAGS=$(_CFLAGS)' 'CXXFLAGS=$(_CXXFLAGS)'
 
 static:
-	@$(MAKE) -f Makefile.linux 'CFLAGS=$(_CFLAGS)' 'CXXFLAGS=$(_CXXFLAGS)' 'LDFLAGS=$(_LDFLAGS)' 'OBJS=$(OBJS) $(STATICLIBS) -lstdc++ -lGL -lGLU'
+	@$(MAKE) -f Makefile.linux 'CFLAGS=$(_CFLAGS)' 'CXXFLAGS=$(_CXXFLAGS)' 'LDFLAGS=$(_LDFLAGS) -lstdc++ -lGL -lGLU' 'OBJS=$(OBJS) $(STATICLIBS)'
 
 clean:
 	rm -f $(OBJS) $(EXE) 
