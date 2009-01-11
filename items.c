@@ -693,7 +693,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	int right_click = flags & ELW_RIGHT_MOUSE;
 	int ctrl_on = flags & ELW_CTRL;
 	int shift_on = flags & ELW_SHIFT;
-	int pos,x,y;
+	int pos,itempos,x,y;
 	actor *me;
     	
 	// only handle mouse button clicks, not scroll wheels moves (unless its the mix button)
@@ -883,11 +883,11 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
             {
 	    		if(bag_list[pos].x==x && bag_list[pos].y==y){
                     open_bag(bag_list[pos].obj_3d_id);
-                    for(pos = 0; pos < ITEMS_PER_BAG; pos++){
-	            	    if(ground_item_list[pos].quantity){
+                    for(itempos = 0; itempos < ITEMS_PER_BAG; itempos++){
+	            	    if(ground_item_list[itempos].quantity){
     	    		        str[0]=PICK_UP_ITEM;
-	       			        str[1]=pos;
-       	    			    *((Uint32 *)(str+2))=SDL_SwapLE32(ground_item_list[pos].quantity);
+	       			        str[1]=itempos;
+       	    			    *((Uint32 *)(str+2))=SDL_SwapLE32(ground_item_list[itempos].quantity);
 	   	        		    my_tcp_send(my_socket,str,6);
         	            }
                     }
