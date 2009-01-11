@@ -493,14 +493,14 @@ int file_copy(const char* from_file, char* to_file)
 	while(!feof(in))
 	{
 		ch = getc(in);
-		if(fe = ferror(in)) {
+		if((fe = ferror(in))) {
 			log_error("unable to copy %s to %s, read error",from_file, to_file);			
 			clearerr(in);			
 			break;
 		} else {
 			if(!feof(in))
 				putc(ch, out);
-			if(fe = ferror(out)) {
+			if((fe = ferror(out))) {
 				log_error("unable to copy %s to %s, write error",from_file, to_file);
 				clearerr(out);
 				break;
