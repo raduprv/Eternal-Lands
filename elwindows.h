@@ -38,6 +38,7 @@ typedef	struct	{
 	int	min_len_x, min_len_y;	/*!< for resizable windows, the minimum width and height */
 	int	cur_x, cur_y;	/*!< current location on screen */
 	int scroll_id;		/*!< id of the scroll widget, if window is scrollable */
+	int scroll_yoffset;	/*!< scroll bar will be placed below any close box, this is any additional y offset */
 
 	Uint32	flags; /*!< window flags */
 
@@ -58,7 +59,7 @@ typedef	struct	{
 	char	owner_drawn_title_bar; /*the title bar is drawn by the window itself*/
 #endif //MINIMAP2
 #ifdef CONTEXT_MENUS
-	size_t	cm_id; 				/*!< optional context menu activated my left-clicking title */
+	size_t	cm_id; 				/*!< optional context menu activated by right-clicking title */
 #endif
 
     /*!
@@ -673,6 +674,55 @@ int		click_in_window(int win_id, int x, int y, Uint32 flags);	// click in  a coo
  * \param bar_len   The amount of pixels you want the bar to scroll.
  */
 void set_window_scroll_len(int win_id, int bar_len);
+
+/*!
+ * \ingroup elwindows
+ * \brief   Sets the scrollbar additional y offset
+ *
+ *      Normally the scrollbar is drawn from the top of the window or
+ * 	just under the close bar (if one is in use).  Use this function
+ * 	to move down further and have the size adjusted as required.
+ *
+ * \param win_id    The id of the scrollable window
+ * \param yoffset   The number of pixels you want the bar moved down.
+ */
+void set_window_scroll_yoffset(int win_id, int yoffset);
+
+/*!
+ * \ingroup elwindows
+ * \brief   Sets the scrollbar increment size
+ *
+ *      Set the number of pixels the window is moved up/down when the
+ * 	scrollbar is moved one position.
+ *
+ * \param win_id    The id of the scrollable window
+ * \param inc   The number of pixels moved when scrolling.
+ */
+void set_window_scroll_inc(int win_id, int inc);
+
+/*!
+ * \ingroup elwindows
+ * \brief   Sets the scrollbar position
+ *
+ *      Sets the scrollbar position, i.e. the number of pixels
+ * 	the window is scrolled down.
+ *
+ * \param win_id    The id of the scrollable window
+ * \param pos   The new position for the scrollbar.
+ */
+void set_window_scroll_pos(int win_id, int pos);
+
+/*!
+ * \ingroup elwindows
+ * \brief   Get the scrollbar position
+ *
+ *      Get the scrollbar position, i.e. the number of pixels
+ * 	the window is currently scrolled down.
+ *
+ * \param win_id    The id of the scrollable window
+ * \retval int   The number of the pixels the window is currently offset.
+ */
+int get_window_scroll_pos(int win_id);
 
 #ifdef CONTEXT_MENUS
 /*!

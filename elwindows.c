@@ -893,17 +893,22 @@ int	init_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, in
 
 	if(windows_list.window[win_id].flags&ELW_SCROLLABLE) {
 		/* Add the scroll widget */
-		Uint16 x = size_x-20,
+		Uint16 x = size_x-ELW_BOX_SIZE,
 				y = size_y,
-				width = 20,
+				width = ELW_BOX_SIZE,
 				height = size_y;
 		
 		if(windows_list.window[win_id].flags&ELW_CLOSE_BOX) {
 			/* Don't put the scrollbar behind the close box. */
-			y += 20;
-			height -= 20;
+			y += ELW_BOX_SIZE;
+			height -= ELW_BOX_SIZE;
+		}
+		if(windows_list.window[win_id].flags&ELW_RESIZEABLE) {
+			/* Don't put the scrollbar behind the resize box. */
+			height -= ELW_BOX_SIZE;
 		}
 		windows_list.window[win_id].scroll_id = vscrollbar_add(win_id, NULL, x, y, width, height);
+		windows_list.window[win_id].scroll_yoffset = 0;
 		widget_set_color(win_id, windows_list.window[win_id].scroll_id,
 						windows_list.window[win_id].border_color[0],
 						windows_list.window[win_id].border_color[1],
@@ -1248,12 +1253,12 @@ CHECK_GL_ERRORS();
 
 	if(win->flags&ELW_SCROLLABLE) {
 		int pos = vscrollbar_get_pos(win->window_id, win->scroll_id);
-		int offset = (win->flags&ELW_CLOSE_BOX ? 20 : 0);
+		int offset = win->scroll_yoffset + ((win->flags&ELW_CLOSE_BOX) ? ELW_BOX_SIZE : 0);
 
-		widget_move(win->window_id, win->scroll_id, win->len_x-20, pos+offset);
+		widget_move(win->window_id, win->scroll_id, win->len_x-ELW_BOX_SIZE, pos+offset);
 		/* Cut away what we've scrolled past, */
 		glEnable(GL_SCISSOR_TEST);
-		glScissor(win->cur_x, window_height-win->cur_y-win->len_y, win->len_x, win->len_y);
+		glScissor(win->cur_x, window_height-win->cur_y-win->len_y, win->len_x+1, win->len_y+1);
 		glTranslatef(0, -pos, 0);
 	}
 	if(win->display_handler)
@@ -1377,6 +1382,17 @@ void	toggle_window(int win_id)
 		show_window (win_id);
 }
 
+static void resize_scrollbar(window_info *win)
+{
+	int sblen = win->len_y - win->scroll_yoffset;
+	if (win->flags&ELW_CLOSE_BOX)
+		sblen -= ELW_BOX_SIZE;
+	if (win->flags&ELW_RESIZEABLE)
+		sblen -= ELW_BOX_SIZE;
+	widget_resize(win->window_id, win->scroll_id,
+		widget_get_width(win->window_id, win->scroll_id), sblen);
+}
+
 void resize_window (int win_id, int new_width, int new_height)
 {
 	window_info *win;
@@ -1391,6 +1407,9 @@ void resize_window (int win_id, int new_width, int new_height)
 	
 	win->len_x = new_width;
 	win->len_y = new_height;
+	
+	if (win->flags&ELW_SCROLLABLE)
+		resize_scrollbar(win);
 	
 	if (win->resize_handler != NULL)
 	{
@@ -1475,7 +1494,7 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 		//check the X for close - but hide it
 		if(win->flags&ELW_CLOSE_BOX)
 		{
-        		if(my>0 && my<=20 && mx>(win->len_x-20) && mx<=win->len_x)
+        		if(my>0 && my<=ELW_BOX_SIZE && mx>(win->len_x-ELW_BOX_SIZE) && mx<=win->len_x)
 			{
 				// the X was hit, hide this window
 				// but don't close storage if trade is open
@@ -1929,6 +1948,35 @@ void set_window_scroll_len(int win_id, int bar_len)
 	if(windows_list.window[win_id].flags&ELW_SCROLLABLE) {
 		vscrollbar_set_bar_len (win_id, windows_list.window[win_id].scroll_id, bar_len);
 	}
+}
+
+void set_window_scroll_yoffset(int win_id, int yoffset)
+{
+	if(windows_list.window[win_id].flags&ELW_SCROLLABLE)
+	{
+		windows_list.window[win_id].scroll_yoffset = yoffset;
+		resize_scrollbar(&windows_list.window[win_id]);
+	}
+}
+
+void set_window_scroll_inc(int win_id, int inc)
+{
+	if(windows_list.window[win_id].flags&ELW_SCROLLABLE)
+		vscrollbar_set_pos_inc(win_id, windows_list.window[win_id].scroll_id, inc);
+}
+
+void set_window_scroll_pos(int win_id, int pos)
+{
+	if(windows_list.window[win_id].flags&ELW_SCROLLABLE)
+		vscrollbar_set_pos(win_id, windows_list.window[win_id].scroll_id, pos);
+}
+
+int get_window_scroll_pos(int win_id)
+{
+	if(windows_list.window[win_id].flags&ELW_SCROLLABLE)
+		return vscrollbar_get_pos(win_id, windows_list.window[win_id].scroll_id);
+	else
+		return 0;
 }
 
 /* currently UNUSED

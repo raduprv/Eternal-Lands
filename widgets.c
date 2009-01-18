@@ -1089,7 +1089,18 @@ int vscrollbar_set_bar_len (int window_id, Uint32 widget_id, int bar_len)
 
 int vscrollbar_drag(widget_list *W, int x, int y, Uint32 flags, int dx, int dy)
 {
+	window_info *win = (W==NULL) ? NULL : &windows_list.window[W->window_id];
 	vscrollbar_click(W, x, y, flags);
+	
+	/* the drag event can happen multiple times for each redraw as its done in the event loop
+	 * so update the scroll bar position each time to avoid positions glitches */
+	if(win!=NULL && win->flags&ELW_SCROLLABLE && win->scroll_id==W->id)
+	{
+		int pos = vscrollbar_get_pos(win->window_id, win->scroll_id);
+		int offset = win->scroll_yoffset + ((win->flags&ELW_CLOSE_BOX) ? ELW_BOX_SIZE : 0);
+		widget_move(win->window_id, win->scroll_id, win->len_x-ELW_BOX_SIZE, pos+offset);
+	}
+	
 	return 1;
 }
 
@@ -2713,7 +2724,7 @@ int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 
 	T->next_blink = TF_BLINK_DELAY;
 	if (Flags & TEXT_FIELD_SCROLLBAR)
 	{
-		T->scrollbar_width = 20;
+		T->scrollbar_width = ELW_BOX_SIZE;
 		T->scroll_id = vscrollbar_add_extended (window_id, widget_id++, NULL, x + lx-T->scrollbar_width, y, T->scrollbar_width, ly, 0, size, r, g, b, 0, 1, 1);		
 	}
 	else
@@ -3252,13 +3263,13 @@ int multiselect_button_add_extended(int window_id, Uint32 multiselect_id, Uint16
 		int i;
 
 		/* Add scrollbar */
-		M->scrollbar = vscrollbar_add_extended(window_id, widget_id++, NULL, widget->pos_x+widget->len_x-20, widget->pos_y, 20, M->max_height, 0, 1.0, widget->r, widget->g, widget->b, 0, 1, M->max_height);
-		widget->len_x -= 20;
+		M->scrollbar = vscrollbar_add_extended(window_id, widget_id++, NULL, widget->pos_x+widget->len_x-ELW_BOX_SIZE, widget->pos_y, ELW_BOX_SIZE, M->max_height, 0, 1.0, widget->r, widget->g, widget->b, 0, 1, M->max_height);
+		widget->len_x -= ELW_BOX_SIZE;
 		widget->len_y = M->max_height;
 		/* We don't want things to look ugly. */
 		for(i = 0; i < M->nr_buttons; i++) {
 			if(M->buttons[i].width > widget->len_x) {
-				M->buttons[i].width -= 20;
+				M->buttons[i].width -= ELW_BOX_SIZE;
 			}
 		}
 	}
