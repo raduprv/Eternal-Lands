@@ -637,7 +637,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				load_counters();
 				send_video_info();
 				previously_logged_in=1;
-			}
 
 			// Print the game date cos its pretty (its also needed for SKY_FPV to set moons for signs, wonders, times and seasons)
 			command_date("", 0);
@@ -645,7 +644,10 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			// print the game time in order to get the seconds for the SKY_FPV feature
 			command_time("", 0);
 #endif // SKY_FPV
+			safe_snprintf(str, sizeof(str), "%c#il", RAW_TEXT);
+		        my_tcp_send(my_socket, (Uint8*)str, strlen(str+1)+1);
 			break;
+			}
 
 		case HERE_YOUR_STATS:
 			{
