@@ -87,6 +87,8 @@ ifndef LINK
 LINK=gcc
 endif
 
+all: $(EXE)
+
 # the compile targets
 $(EXE): $(OBJS)
 	@echo "  LINK $(EXE)"
