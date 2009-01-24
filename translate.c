@@ -471,6 +471,10 @@ char	reg_error_str[15],
 	/* mines.c */
 	mines_config_open_err_str[50],
 	mines_config_error[50],
+	/* misc.c */
+#ifdef PNG_SCREENSHOT
+	max_screenshots_warning_str[200],
+#endif //PNG_SCREENSHOT
 	/*multiplayer.c*/
 	failed_resolve[150],
 	failed_connect[100], 
@@ -992,6 +996,11 @@ void init_errors()
 	// Mines errors
 	add_xml_identifier (misc, "mines_config_open", mines_config_open_err_str, "Error opening mines configuration file", sizeof(mines_config_open_err_str));
 	add_xml_identifier (misc, "mines_config", mines_config_error, "Error loading mines configuration", sizeof(mines_config_error));
+	
+	// Misc
+#ifdef PNG_SCREENSHOT
+	add_xml_identifier (misc, "max_screenshots_warning", max_screenshots_warning_str, "You have reached the maximum capacity for screenshots. Please move them all to another folder, otherwise this image will be overwritten next time.", sizeof(max_screenshots_warning_str));
+#endif //PNG_SCREENSHOT
 
 #endif
 

@@ -575,6 +575,10 @@ extern char	reg_error_str[15],
 		/* mines.c */
 		mines_config_open_err_str[50],
 		mines_config_error[50],
+		/* misc.c */
+#ifdef PNG_SCREENSHOT
+		max_screenshots_warning_str[200],
+#endif //PNG_SCREENSHOT
 		/*multiplayer.c*/
 		failed_resolve[150], 
 		failed_connect[100], 

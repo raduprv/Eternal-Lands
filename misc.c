@@ -435,8 +435,10 @@ void makeScreenShot ()
 	/* if all numbered file names have been taken, use the default */
 	if (ishot >= 1000)
 	{
+		LOG_TO_CONSOLE(c_red2, max_screenshots_warning_str);
 		safe_snprintf (fname+dlen, sizeof(fname)-dlen, "/elscreen.png");
 	}
+	LOG_TO_CONSOLE(c_green1, fname);
 
 	/* read the pixels from the GL scene */
 	glGetIntegerv(GL_PACK_ALIGNMENT, &align);
