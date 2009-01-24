@@ -16,9 +16,7 @@
 #include "tiles.h"
 #include "translate.h"
 #include "eye_candy_wrapper.h"
-#ifdef OPENGL_TRACE
 #include "gl_init.h"
-#endif
 #ifdef NEW_SOUND
 #include "actors.h"
 #include "sound.h"
@@ -27,11 +25,18 @@
 ground_item ground_item_list[ITEMS_PER_BAG];
 bag bag_list[NUM_BAGS];
 
+#define GRIDSIZE 33
+
 int ground_items_win= -1;
 int ground_items_menu_x=6*51+100+20;
 int ground_items_menu_y=20;
-int ground_items_menu_x_len=6*33;
-int ground_items_menu_y_len=10*33;
+int ground_items_menu_x_len=6*GRIDSIZE;
+int ground_items_menu_y_len=10*GRIDSIZE;
+
+static int ground_items_grid_rows = 10;
+static int ground_items_grid_cols = 5;
+static const int min_grid_rows = 4;
+static const int min_grid_cols = 2;
 
 int view_ground_items=0;
 
@@ -264,13 +269,29 @@ int display_ground_items_handler(window_info *win)
 	char str[80];
 	char my_str[10];
 	int i;
+	static Uint8 resizing = 0;
+	int yoffset = get_window_scroll_pos(win->window_id);
+
+	/* if resizing wait until we stop */	
+	if (win->resized)
+		resizing = 1;
+	/* once we stop, snap the window to the new grid size */
+	else if (resizing)
+	{
+		int new_width = (ground_items_grid_cols+1)*GRIDSIZE;
+		int new_rows = (win->len_y+GRIDSIZE/2)/GRIDSIZE;
+		int max_rows = (ITEMS_PER_BAG + ground_items_grid_cols - 1) / ground_items_grid_cols;
+		resizing = 0;
+		resize_window (win->window_id, new_width, ((new_rows > max_rows) ?max_rows :new_rows)*GRIDSIZE);
+		yoffset = get_window_scroll_pos(win->window_id);
+	}
 
 	glEnable(GL_TEXTURE_2D);
 
 	// write "get all" in the "get all" box :)
 	strap_word(get_all_str,my_str);
 	glColor3f(0.77f,0.57f,0.39f);
-	draw_string_small(win->len_x-28, 23, (unsigned char*)my_str, 2);
+	draw_string_small(win->len_x-(GRIDSIZE-5), ELW_BOX_SIZE+3+yoffset, (unsigned char*)my_str, 2);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
@@ -289,9 +310,9 @@ int display_ground_items_handler(window_info *win)
 
 			//get the x and y
 			cur_pos=i;
-			x_start=33*(cur_pos%5)+1;
+			x_start=GRIDSIZE*(cur_pos%ground_items_grid_cols)+1;
 			x_end=x_start+32;
-			y_start=33*(cur_pos/5);
+			y_start=GRIDSIZE*(cur_pos/ground_items_grid_cols);
 			y_end=y_start+32;
 
 			//get the texture this item belongs to
@@ -314,15 +335,24 @@ int display_ground_items_handler(window_info *win)
 	glDisable(GL_TEXTURE_2D);
 
 	glColor3f(0.77f,0.57f,0.39f);
-	rendergrid(5,10,0,0,33,33);
+	/* if a full grid render in one go */
+	if (ground_items_grid_cols*ground_items_grid_rows == ITEMS_PER_BAG)
+		rendergrid(ground_items_grid_cols,ground_items_grid_rows,0,0,GRIDSIZE,GRIDSIZE);
+	/* otherwise don't render the extra slots */
+	else
+	{
+		int remainder = ITEMS_PER_BAG - (ground_items_grid_cols*(ground_items_grid_rows-1));
+		rendergrid(ground_items_grid_cols,ground_items_grid_rows-1,0,0,GRIDSIZE,GRIDSIZE);
+		rendergrid(remainder, 1, 0, GRIDSIZE*(ground_items_grid_rows-1), GRIDSIZE, GRIDSIZE);
+	}
 	
 	glBegin(GL_LINE_LOOP);
 	
 		// draw the "get all" box
-		glVertex3i(win->len_x, 20,0);
-		glVertex3i(win->len_x-33, 20,0);
-		glVertex3i(win->len_x-33, 53,0);
-		glVertex3i(win->len_x, 53,0);
+		glVertex2i(win->len_x, ELW_BOX_SIZE+yoffset);
+		glVertex2i(win->len_x-GRIDSIZE, ELW_BOX_SIZE+yoffset);
+		glVertex2i(win->len_x-GRIDSIZE, ELW_BOX_SIZE+GRIDSIZE+yoffset);
+		glVertex2i(win->len_x, ELW_BOX_SIZE+GRIDSIZE+yoffset);
 
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
@@ -339,6 +369,7 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	Uint8 str[10];
 	int right_click = flags & ELW_RIGHT_MOUSE;
 	int ctrl_on = flags & ELW_CTRL;
+	int yoffset = get_window_scroll_pos(win->window_id);
 	
 	// only handle mouse button clicks, not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) {
@@ -357,7 +388,7 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	}
 
 	// see if we clicked on the "Get All" box
-	if(mx>(win->len_x-33) && mx<win->len_x && my>20 && my<53){
+	if(mx>(win->len_x-GRIDSIZE) && mx<win->len_x && my>ELW_BOX_SIZE && my<GRIDSIZE+ELW_BOX_SIZE){
 		for(pos = 0; pos < ITEMS_PER_BAG; pos++){
 			if(ground_item_list[pos].quantity){
 				str[0]=PICK_UP_ITEM;
@@ -372,9 +403,9 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 		return 1;
 	}
 
-	pos=get_mouse_pos_in_grid(mx,my,5,10,0,0,33,33);
+	pos = (my<0) ?-1 :get_mouse_pos_in_grid(mx,my+yoffset+1,ground_items_grid_cols,ground_items_grid_rows,0,0,GRIDSIZE,GRIDSIZE);
 
-	if(pos==-1){
+	if(pos==-1 || pos>=ITEMS_PER_BAG){
 	} else
 	if(!ground_item_list[pos].quantity) {
 		if (item_dragged != -1){
@@ -409,9 +440,10 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 
 
 int mouseover_ground_items_handler(window_info *win, int mx, int my) {
-	int pos=get_mouse_pos_in_grid(mx, my, 5, 10, 0, 0, 33, 33);
+	int yoffset = get_window_scroll_pos(win->window_id);
+	int pos = (yoffset>my) ?-1 :get_mouse_pos_in_grid(mx, my+1, ground_items_grid_cols, ground_items_grid_rows, 0, 0, GRIDSIZE, GRIDSIZE);
 	
-	if(pos!=-1 && ground_item_list[pos].quantity) {
+	if(pos!=-1 && pos<ITEMS_PER_BAG && ground_item_list[pos].quantity) {
 		if(item_action_mode==ACTION_LOOK) {
 			elwin_mouse=CURSOR_EYE;
 		} else {
@@ -423,6 +455,27 @@ int mouseover_ground_items_handler(window_info *win, int mx, int my) {
 	return 0;
 }
 
+/* dynamically adjust the grid and the scroll bar when the window resizes */
+static int resize_ground_items_handler(window_info *win)
+{
+		/* let the width lead */
+		ground_items_grid_cols = (win->len_x / GRIDSIZE) - 1;
+		if (ground_items_grid_cols < min_grid_cols)
+			ground_items_grid_cols = min_grid_cols;
+			
+		/* but maintain a minimum height */
+		ground_items_grid_rows = (ITEMS_PER_BAG + ground_items_grid_cols - 1) / ground_items_grid_cols;
+		if (ground_items_grid_rows <= min_grid_rows)
+		{
+			ground_items_grid_rows = min_grid_rows;
+			ground_items_grid_cols = min_grid_cols;
+			while (ground_items_grid_cols*ground_items_grid_rows < ITEMS_PER_BAG)
+				ground_items_grid_cols++;
+		}
+
+		set_window_scroll_len(win->window_id, ground_items_grid_rows*GRIDSIZE-win->len_y);
+		return 0;
+}
 
 void draw_pick_up_menu()
 {
@@ -431,13 +484,26 @@ void draw_pick_up_menu()
 		if (!windows_on_top) {
 			our_root_win = game_root_win;
 		}
-		ground_items_win= create_window(win_bag, our_root_win, 0, ground_items_menu_x, ground_items_menu_y, ground_items_menu_x_len, ground_items_menu_y_len, ELW_WIN_DEFAULT);
+		if (ground_items_menu_x_len < (min_grid_cols+1)*GRIDSIZE || ground_items_menu_x_len >= window_width ||
+			ground_items_menu_y_len < min_grid_rows*GRIDSIZE || ground_items_menu_y_len >= window_height)
+		{
+			ground_items_menu_x_len=6*GRIDSIZE;
+			ground_items_menu_y_len=10*GRIDSIZE;
+		}
+		ground_items_win= create_window(win_bag, our_root_win, 0, ground_items_menu_x, ground_items_menu_y,
+			ground_items_menu_x_len, ground_items_menu_y_len, ELW_SCROLLABLE|ELW_RESIZEABLE|ELW_WIN_DEFAULT);
 
 		set_window_handler(ground_items_win, ELW_HANDLER_DISPLAY, &display_ground_items_handler );
 		set_window_handler(ground_items_win, ELW_HANDLER_CLICK, &click_ground_items_handler );
 		set_window_handler(ground_items_win, ELW_HANDLER_MOUSEOVER, &mouseover_ground_items_handler );
+		set_window_handler(ground_items_win, ELW_HANDLER_RESIZE, &resize_ground_items_handler );
+		set_window_min_size(ground_items_win, (min_grid_cols+1)*GRIDSIZE, min_grid_rows*GRIDSIZE);
+		set_window_scroll_inc(ground_items_win, GRIDSIZE/3);
+		set_window_scroll_yoffset(ground_items_win, GRIDSIZE);
+		resize_ground_items_handler(&windows_list.window[ground_items_win]);
 	} else {
 		show_window(ground_items_win);
 		select_window(ground_items_win);
 	}
+	set_window_scroll_pos(ground_items_win, 0);
 }

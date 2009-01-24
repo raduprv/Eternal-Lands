@@ -268,8 +268,10 @@ void read_bin_cfg()
 	items_menu_x=cfg_mem.items_menu_x;
 	items_menu_y=cfg_mem.items_menu_y;
 
-	ground_items_menu_x=cfg_mem.ground_items_menu_x;
-	ground_items_menu_y=cfg_mem.ground_items_menu_y;
+	ground_items_menu_x=cfg_mem.ground_items_menu_x & 0xFFFF;
+	ground_items_menu_y=cfg_mem.ground_items_menu_y & 0xFFFF;
+	ground_items_menu_x_len=cfg_mem.ground_items_menu_x >> 16;
+	ground_items_menu_y_len=cfg_mem.ground_items_menu_y >> 16;
 
 	trade_menu_x=cfg_mem.trade_menu_x;
 	trade_menu_y=cfg_mem.trade_menu_y;
@@ -429,9 +431,13 @@ void save_bin_cfg()
 	if(ground_items_win >= 0) {
 		cfg_mem.ground_items_menu_x=windows_list.window[ground_items_win].cur_x;
 		cfg_mem.ground_items_menu_y=windows_list.window[ground_items_win].cur_y;
+		cfg_mem.ground_items_menu_x |= windows_list.window[ground_items_win].len_x << 16;
+		cfg_mem.ground_items_menu_y |= windows_list.window[ground_items_win].len_y << 16;
 	} else {
 		cfg_mem.ground_items_menu_x=ground_items_menu_x;
 		cfg_mem.ground_items_menu_y=ground_items_menu_y;
+		cfg_mem.ground_items_menu_x |= ground_items_menu_x_len << 16;
+		cfg_mem.ground_items_menu_y |= ground_items_menu_y_len << 16;
 	}
 
 	if(trade_win >= 0) {

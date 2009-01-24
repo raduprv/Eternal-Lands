@@ -28,6 +28,8 @@ extern int view_ground_items; /*!< flag that indicates whether we should display
 
 extern int ground_items_menu_x;
 extern int ground_items_menu_y;
+extern int ground_items_menu_x_len;
+extern int ground_items_menu_y_len;
 
 /*!
  * \name windows handlers
