@@ -297,7 +297,7 @@ extern char
 		drp_all_str[8],
 		mix_one_str[8],
 		mix_all_str[8],
-		stoall_lastrow_str[20],
+		inv_lastrow_str[20],
 		quantity_edit_str[100],
 		equip_here_str[100],
 		equip_str[20],

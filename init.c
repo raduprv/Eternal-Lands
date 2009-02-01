@@ -359,6 +359,7 @@ void read_bin_cfg()
 	allow_equip_swap = (cfg_mem.items_window_options >> 2) & 1;
 	items_mix_but_all = (cfg_mem.items_window_options >> 3) & 1;
 	items_stoall_nolastrow = (cfg_mem.items_window_options >> 4) & 1;
+	items_dropall_nolastrow = (cfg_mem.items_window_options >> 5) & 1;
 }
 
 void save_bin_cfg()
@@ -581,6 +582,7 @@ void save_bin_cfg()
 	cfg_mem.items_window_options |= allow_equip_swap << 2;
 	cfg_mem.items_window_options |= items_mix_but_all << 3;
 	cfg_mem.items_window_options |= items_stoall_nolastrow << 4;
+	cfg_mem.items_window_options |= items_dropall_nolastrow << 5;
 
 	fwrite(&cfg_mem,sizeof(cfg_mem),1,f);
 	fclose(f);

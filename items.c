@@ -80,9 +80,11 @@ static int but_y_off[NUMBUT] = { 0, YLENBUT, YLENBUT*2, YLENBUT*3 };
 enum { BUT_STORE, BUT_GET, BUT_DROP, BUT_MIX };
 int items_mix_but_all = 0;
 int items_stoall_nolastrow = 0;
+int items_dropall_nolastrow = 0;
 static int mouse_over_but = -1;
 #ifdef CONTEXT_MENUS
 static size_t cm_stoall_but = CM_INIT_VALUE;
+static size_t cm_dropall_but = CM_INIT_VALUE;
 static size_t cm_mix_but = CM_INIT_VALUE;
 #endif
 
@@ -1079,7 +1081,7 @@ static void drop_all_handler ()
 	{
 		for(i = 0; i < ITEM_NUM_ITEMS; i++)
 		{
-			if (item_list[i].quantity != 0 && item_list[i].pos < ITEM_WEAR_START) // only drop stuff that we're not wearing
+			if (item_list[i].quantity != 0 && item_list[i].pos < ((items_dropall_nolastrow)?30:ITEM_WEAR_START)) // only drop stuff that we're not wearing
 			{
 				str[0] = DROP_ITEM;
 				str[1] = item_list[i].pos;
@@ -1123,6 +1125,7 @@ int show_items_handler(window_info * win)
 #ifdef CONTEXT_MENUS
 	cm_remove_regions(items_win);
 	cm_add_region(cm_stoall_but, items_win, win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[0], XLENBUT, YLENBUT);
+	cm_add_region(cm_dropall_but, items_win, win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[2], XLENBUT, YLENBUT);
 	cm_add_region(cm_mix_but, items_win, win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[3], XLENBUT, YLENBUT);
 #endif
 
@@ -1172,8 +1175,11 @@ void display_items_menu()
 		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+3, &item_window_on_drop, "item_window_on_drop");
 		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+4, &allow_equip_swap, NULL);
 				
-		cm_stoall_but = cm_create(stoall_lastrow_str, NULL);
+		cm_stoall_but = cm_create(inv_lastrow_str, NULL);
 		cm_bool_line(cm_stoall_but, 0, &items_stoall_nolastrow, NULL);		
+		
+		cm_dropall_but = cm_create(inv_lastrow_str, NULL);
+		cm_bool_line(cm_dropall_but, 0, &items_dropall_nolastrow, NULL);		
 		
 		cm_mix_but = cm_create(mix_all_str, NULL);
 		cm_bool_line(cm_mix_but, 0, &items_mix_but_all, NULL);		
