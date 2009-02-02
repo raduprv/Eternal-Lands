@@ -794,17 +794,30 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 #endif // NEW_SOUND
 		if(pos==-1) {
 		} else if(item_dragged!=-1){
-			if (move_item(item_dragged, pos)){
+			if(item_dragged == pos){ //let's try auto equip
+                             int i;
+                             for(i = ITEM_WEAR_START; i<ITEM_WEAR_START+8;i++)
+                             {
+                                  if(item_list[i].quantity<1)
+                                  {
+                                         move_item(pos,i);
+                                         break;
+                                   }
+                              }
+			} else {
+			   if (move_item(item_dragged, pos)){
 #ifdef NEW_SOUND
 				add_sound_object(get_index_for_sound_type_name("Drop Item"), 0, 0, 1);
 #endif // NEW_SOUND
-			}
-			else {
+			    }
+			    else {
 #ifdef NEW_SOUND
 				add_sound_object(get_index_for_sound_type_name("alert1"), 0, 0, 1);
 #endif // NEW_SOUND
+			    }
+			    item_dragged=-1;
 			}
-			item_dragged=-1;
+		   
 		}
 		else if(storage_item_dragged!=-1){
 			str[0]=WITHDRAW_ITEM;
@@ -865,18 +878,8 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 					use_item=pos;
 				}
 			} else {
-				item_dragged=pos;
-                                if(item_dragged == pos){ //let's try auto equip
-                                   int i;
-                                   for(i = ITEM_WEAR_START; i<ITEM_WEAR_START+8;i++)
-                                   {
-                                          if(item_list[i].quantity<1)
-                                          {
-                                                 move_item(pos,i);
-                                                 break;
-                                           }
-                                   }
-                                }
+			        item_dragged=pos;
+                                
 #ifdef NEW_SOUND
 				add_sound_object(get_index_for_sound_type_name("Drag Item"), 0, 0, 1);
 #endif // NEW_SOUND
