@@ -623,7 +623,7 @@ CHECK_GL_ERRORS();
 
 
 /* return 1 if sent the move command */
-static int move_item(int item_pos_to_mov, int destination_pos)
+int move_item(int item_pos_to_mov, int destination_pos)
 {
 	int drop_on_stack = 0;
 	/* if the dragged item is equipped and the destintion is occupied, try to find another slot */
@@ -866,6 +866,17 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 				}
 			} else {
 				item_dragged=pos;
+                                if(item_dragged == pos){ //let's try auto equip
+                                   int i;
+                                   for(i = ITEM_WEAR_START; i<ITEM_WEAR_START+8;i++)
+                                   {
+                                          if(item_list[i].quantity<1)
+                                          {
+                                                 move_item(pos,i);
+                                                 break;
+                                           }
+                                   }
+                                }
 #ifdef NEW_SOUND
 				add_sound_object(get_index_for_sound_type_name("Drag Item"), 0, 0, 1);
 #endif // NEW_SOUND

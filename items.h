@@ -118,6 +118,8 @@ extern int items_dropall_nolastrow;
 void update_item_sound(int interval);
 #endif // NEW_SOUND
 
+int move_item(int item_pos_to_mov, int destination_pos);
+
 /*!
  * \ingroup display_utils
  * \brief   Renders the storage grid

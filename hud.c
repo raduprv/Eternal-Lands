@@ -1784,7 +1784,24 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 					if(item_dragged!=-1)//we have to drop this item
 						{
 							int any_item=0;
-							for(i=0;i<6;i++)
+						        if(item_dragged == y) 
+						        {		        
+							
+								 //let's try auto equip
+								 int i;
+								 for(i = ITEM_WEAR_START; i<ITEM_WEAR_START+8;i++)
+								 {
+								       if(item_list[i].quantity<1)
+								       {
+								              move_item(y,i);
+								              break;
+								       }								     
+								  }								
+							     
+						                  item_dragged = -1;
+						                  return 1;
+						        }
+						   	for(i=0;i<6;i++)
 								{
 									if(item_list[i].quantity && item_list[i].pos==y)
 										{
