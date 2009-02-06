@@ -297,10 +297,19 @@ void cleanup_counters()
 	counters_initialized = 0;
 }
 
+static void increment_product_counter(int counter_id, const char *name, int quantity, int extra)
+{
+	increment_counter(counter_id, name, quantity, extra);
+	/* make sure the name/quanity is not used again */
+	counters_set_product_info("",0);
+}
+
 void increment_counter(int counter_id, const char *name, int quantity, int extra)
 {
 	int i, j;
 	int new_entry = 1;
+
+	//printf("%s: counter_id=%d name=[%s] quantity=%d extra=%d\n", __FUNCTION__, counter_id, name, quantity, extra);
 
 	if(name == 0 || strlen(name)<1 || strlen(name)>100){
 		//doesn't seem to have a real name, so no point saving it
@@ -332,9 +341,6 @@ void increment_counter(int counter_id, const char *name, int quantity, int extra
 	}
 
 	sort_counter(counter_id);
-	
-	/* make sure any produce name/quanity is not used again */
-	counters_set_product_info("",0);
 }
 
 void decrement_counter(int counter_id, char *name, int quantity, int extra)
@@ -753,32 +759,32 @@ void counters_set_product_info(char *name, int count)
 
 void increment_alchemy_counter()
 {
-	increment_counter(ALCHEMY, product_name, product_count, 0);
+	increment_product_counter(ALCHEMY, product_name, product_count, 0);
 }
 
 void increment_crafting_counter()
 {
-	increment_counter(CRAFTING, product_name, product_count, 0);
+	increment_product_counter(CRAFTING, product_name, product_count, 0);
 }
 
 void increment_engineering_counter()
 {
-	increment_counter(ENGINEERING, product_name, product_count, 0);
+	increment_product_counter(ENGINEERING, product_name, product_count, 0);
 }
 
 void increment_tailoring_counter()
 {
-	increment_counter(TAILORING, product_name, product_count, 0);
+	increment_product_counter(TAILORING, product_name, product_count, 0);
 }
 
 void increment_potions_counter()
 {
-	increment_counter(POTIONS, product_name, product_count, 0);
+	increment_product_counter(POTIONS, product_name, product_count, 0);
 }
 
 void increment_manufacturing_counter()
 {
-	increment_counter(MANUFACTURING, product_name, product_count, 0);
+	increment_product_counter(MANUFACTURING, product_name, product_count, 0);
 }
 
 void increment_harvest_counter(int quantity)
@@ -834,7 +840,7 @@ void increment_spell_counter(int spell_id)
 
 void increment_summon_manu_counter()
 {
-	increment_counter(SUMMONS, product_name, product_count, 0);
+	increment_product_counter(SUMMONS, product_name, product_count, 0);
 }
 
 void increment_summon_counter(char *string)
@@ -869,6 +875,8 @@ void reset_session_counters()
 void catch_counters_text(const char* text)
 {
 	size_t text_len = strlen(text);
+	
+	//printf("%s: [%s]\n", __FUNCTION__, text);
 	
 	if (!counters_initialized)
 		return;
