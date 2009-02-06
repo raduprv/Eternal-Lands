@@ -3679,11 +3679,9 @@ double calculate_bounds_angle(int x, int y, int point, map_sound_boundary_def * 
 //
 // It is a known bug that this _does not_ scale to the map selected. The scale will stay the same as your currently loaded map!
 //
-// FIXME: This only apprears to display _some_ of the defined map areas
-// If an OpenGL guru can figure out what's wrong it would be helpful!
 void print_sound_boundaries(int map)
 {
-	int i, i_max, j, id = -1, scale = 6;
+	int i, i_max, j, id = -1, scale = 6, num_def = 0;
 	char buf[100];
 	map_sound_boundary_def *bounds;
 	bound_point p[4];
@@ -3697,11 +3695,16 @@ void print_sound_boundaries(int map)
 	}
 	if (id == -1) return;	// Didn't find the map in our array so bail
 	
+	// count default boundary sounds - they do not have points
+	for (i=0; i<sound_map_data[id].num_boundaries; i++)
+		if (sound_map_data[id].boundaries[i].is_default)
+			num_def++;
+	
 	glEnable (GL_TEXTURE_2D);
 	glColor3f (1.0f, 1.0f, 1.0f);
-	safe_snprintf(buf, sizeof(buf), "Map Num: %d, Array ID: %d, Map Name: %s, Num Bound: %d, Num Walk: %d", map, id, sound_map_data[id].name, 
-				  sound_map_data[id].num_boundaries, sound_map_data[id].num_walk_boundaries);
-	draw_string_zoomed(25, 180, (unsigned char*)buf, 1, 0.2);
+	safe_snprintf(buf, sizeof(buf), "Map Num: %d, Array ID: %d, Map Name: %s\nNum Bound: %d (%d def), Num Walk: %d", map, id, sound_map_data[id].name, 
+				  sound_map_data[id].num_boundaries, num_def, sound_map_data[id].num_walk_boundaries);
+	draw_string_zoomed(25, 180, (unsigned char*)buf, 2, 0.4);
 	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_LINES);
 	// Draw boundaries for this map
@@ -3717,6 +3720,8 @@ void print_sound_boundaries(int map)
 				glColor3f (0.0f, 0.0f, 1.0f);
 			} else {
 				bounds = &sound_map_data[id].boundaries[i];
+				if (bounds->is_default)
+					continue;
 				glColor3f (1.0f, 0.0f, 0.0f);
 			}
 			if (bounds->p[2].x == -1 || bounds->p[2].y == -1 || bounds->p[3].x == -1 || bounds->p[3].y == -1)
@@ -3736,10 +3741,10 @@ void print_sound_boundaries(int map)
 				p[1].x = 51 + 200 * bounds->p[1].x / (tile_map_size_x * scale);
 				p[2].x = 51 + 200 * bounds->p[2].x / (tile_map_size_x * scale);
 				p[3].x = 51 + 200 * bounds->p[3].x / (tile_map_size_x * scale);
-				p[0].y = 201 + 200 * bounds->p[0].y / (tile_map_size_x * scale);
-				p[1].y = 201 + 200 * bounds->p[1].y / (tile_map_size_x * scale);
-				p[2].y = 201 + 200 * bounds->p[2].y / (tile_map_size_x * scale);
-				p[3].y = 201 + 200 * bounds->p[3].y / (tile_map_size_x * scale);
+				p[0].y = 201 - 200 * bounds->p[0].y / (tile_map_size_x * scale);
+				p[1].y = 201 - 200 * bounds->p[1].y / (tile_map_size_x * scale);
+				p[2].y = 201 - 200 * bounds->p[2].y / (tile_map_size_x * scale);
+				p[3].y = 201 - 200 * bounds->p[3].y / (tile_map_size_x * scale);
 			}
 
 			glVertex2i(p[0].x, p[0].y);
@@ -4770,7 +4775,7 @@ int validate_boundary(map_sound_boundary_def * bounds, char * map_name)
 	if (bounds->is_default)
 	{
 		// Check if we have any points
-		if (bounds->p[2].x != -1 || bounds->p[2].y != -1 || bounds->p[3].x != -1 || bounds->p[3].y != -1
+		if (bounds->p[0].x != -1 || bounds->p[0].y != -1 || bounds->p[1].x != -1 || bounds->p[1].y != -1
 			|| bounds->p[2].x != -1 || bounds->p[2].y != -1 || bounds->p[3].x != -1 || bounds->p[3].y != -1)
 		{
 			LOG_ERROR("Warning: Points defined for default boundary. Points will be ignored.\n");
