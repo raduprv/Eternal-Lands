@@ -813,7 +813,7 @@ void set_afk_time(int *pointer, int time)
 
 void set_buff_icon_size(int *pointer, int value)
 {
-	/* The value is actually set in the widget code so attempting so controlling the 
+	/* The value is actually set in the widget code so attempting so controlling the
 		range here does not work.  Instead, use the built in max/min code of the widget.
 		We still need to set the value here for the initial read from the config file. */
 	*pointer = value;
@@ -1823,7 +1823,7 @@ void init_vars()
 	add_var(OPT_BOOL, "continent_map_boundaries", "cmb", &show_continent_map_boundaries, change_var, 1, "Map Boundaries On Continent Map", "Show map boundaries on the continent map", MISC);
 	add_var(OPT_FLOAT_F,"anisotropic_filter","af",&anisotropic_filter,change_anisotropic_filter,1,"Anisotropic Filter","Anisotropic filter is a texture effect that increase the texture quality but cost speed.",VIDEO, float_one_func, get_max_anisotropic_filter, 1.0f);
 #ifdef	USE_SHADER
-	add_var(OPT_INT_F,"water_shader_quality","water_shader_quality",&water_shader_quality,change_water_shader_quality,1,"water shader quality","Defines what shader is used for water rendering. Higher values are slower but look better.",VIDEO, int_zero_func, int_max_water_shader_quality);
+	add_var(OPT_INT_F,"water_shader_quality","water_shader_quality",&water_shader_quality,change_water_shader_quality,1,"water shader quality","Defines what shader is used for water rendering. Higher values are slower but look better. Needs \"toggle frame buffer support\" to be turned on.",VIDEO, int_zero_func, int_max_water_shader_quality);
 #endif	// USE_SHADER
 #endif //ELC
 #ifdef MAP_EDITOR
