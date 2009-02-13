@@ -21,6 +21,7 @@
 #define CALCTOK_END 8
 #define CALCTOK_XOP 9
 #define CALCTOK_LOP 10
+#define CALCTOK_MOD 11
 
 /*Implementation of #calc command
 
@@ -182,6 +183,18 @@ int reduce_stack(CalcStack* cs){
 		free(cs2);free(cs3);free(cs4);
 		return 1;
 	}
+	//modulo
+	if(t1==CALCTOK_NUM&&t2==CALCTOK_MOD&&t3==CALCTOK_NUM){
+		calcpop(cs);calcpop(cs);calcpop(cs);
+		nt=(CalcTok*)malloc(sizeof(CalcTok));
+		if(cs1->value!=0){
+			nt->type=CALCTOK_NUM;
+			nt->value=fmod(cs3->value, cs1->value);
+		} else calc_error=CALCERR_DIVIDE;
+		calcpush(cs,nt);
+		free(cs1);free(cs2);free(cs3);
+		return 1;
+	}
 	//pars
 	if(t1==CALCTOK_CPAR&&t2==CALCTOK_NUM&&t3==CALCTOK_OPAR){
 		calcpop(cs);calcpop(cs);calcpop(cs);
@@ -231,6 +244,9 @@ CalcTok* next_calctoken(char *str, int *spos){
 		break;
 		case '/':
 		ct->type=CALCTOK_DIV;pos++;
+		break;
+		case '%':
+		ct->type=CALCTOK_MOD;pos++;
 		break;
 		case '0':
 		case '1':
