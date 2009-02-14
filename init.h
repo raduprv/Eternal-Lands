@@ -174,10 +174,10 @@ typedef struct
     /*! @} */
     
     /*!
-     * \name Items window option control
+     * \name Misc bool options
      */
     /*! @{ */
-	int items_window_options;
+	int misc_bool_options;
     /*! @} */
 
 	//!!!!!!!If you add any new FLOAT option, decrement the reserved thingy accordingly!!!!!!
