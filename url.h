@@ -73,5 +73,5 @@ extern char browser_name[120];	/*!< a buffer that contains the name of the brows
 extern int url_win_x; 			/*!< the current x coordinate value of the url window */
 extern int url_win_y; 			/*!< the current y coordinate value of the url window */
 extern int url_win; 			/*!< the id of the url window */
-
+extern char LOGO_URL_LINK[128];		/*!< the link clicking the EL logo sends you to */
 #endif

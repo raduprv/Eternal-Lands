@@ -36,7 +36,7 @@ extern int cursors_tex;
 #ifdef CONTEXT_MENUS
 extern int cm_banner_disabled;
 #endif
-
+extern int logo_click_to_url;
 void draw_special_cursors();
 
 /*!

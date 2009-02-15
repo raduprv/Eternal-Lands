@@ -77,6 +77,8 @@ int gamewin_in_id = 4442;
 int use_old_clicker=0;
 float fps_average = 100.0;
 int include_use_cursor_on_animals = 0;
+int logo_click_to_url = 1;
+char LOGO_URL_LINK[128] = "http://www.eternal-lands.com";
 #ifdef SKY_FPV
 int have_mouse = 0;
 int just_released_mouse = 0;
@@ -539,6 +541,13 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		else
 			camera_zoom_duration = 100;
 		camera_zoom_dir = 1;
+		return 1;
+	}
+	
+	if (mx > win->len_x - 64 && my < 54 ) // 10 pixels dead space to try to prevent accidental misclicks
+	{
+		if(logo_click_to_url)
+			open_web_link(LOGO_URL_LINK);
 		return 1;
 	}
 	
