@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+
 #include "bags.h"
 #include "3d_objects.h"
 #include "asc.h"
@@ -40,8 +42,13 @@ static const int min_grid_cols = 2;
 
 int view_ground_items=0;
 
-void draw_pick_up_menu();//Forward declaration
-	
+// forward declarations
+void draw_pick_up_menu();
+float get_bag_offset_x(float pos_x, float pos_y, int bag_id, int map_x, int map_y);
+float get_bag_offset_y(float pos_x, float pos_y, int bag_id, int map_x, int map_y);
+float get_bag_rotation(float pos_x, float pos_y, int bag_id, int map_x, int map_y);
+float get_bag_tilt(float pos_x, float pos_y, int bag_id, int map_x, int map_y);
+
 void strap_word(char * in, char * out)
 {
 	int i = 3;
@@ -51,6 +58,40 @@ void strap_word(char * in, char * out)
 	i=3;
 	while(i--) *out++=*in++;
 	*out=0;
+}
+
+float get_bag_offset_x(float pos_x, float pos_y, int bag_id, int map_x, int map_y)
+{
+	// the sum of 5 sin/cos operations can be between -5 and +5
+	// normalize them to -1 ... +1
+	// then divide by 4 to normalize the return value to -0.25 ... + 0.25
+	// (a tile is 0.5 wide, so the offset should move the bag near the border)
+	return (sinf(powf(pos_x, 2.0f)) + sinf(powf(pos_y, 2.0f)) + sinf(sqrtf(abs((float)bag_id))) + cosf((float)map_x) + sinf((float)map_y)) / 20.0f * ((((int)abs(pos_x)) % 3 == 0) ? 1.0f : -1.0f);
+}
+
+float get_bag_offset_y(float pos_x, float pos_y, int bag_id, int map_x, int map_y)
+{
+	// the sum of 5 sin/cos operations can be between -5 and +5
+	// normalize them to -1 ... +1
+	// then divide by 4 to normalize the return value to -0.25 ... + 0.25
+	// (a tile is 0.5 wide, so the offset should move the bag near the border)
+	return (cosf(powf(pos_x, 2.0f)) + cosf(powf(pos_y, 2.0f)) + cosf(sqrtf(abs((float)bag_id))) + sinf((float)map_x) + cosf((float)map_y)) / 20.0f * ((((int)abs(pos_y)) % 3 == 0) ? 1.0f : -1.0f);
+}
+
+float get_bag_rotation(float pos_x, float pos_y, int bag_id, int map_x, int map_y)
+{
+	// the sum of 5 sin operations can be between -5 and +5
+	// normalize them to -0.5 ... +0.5
+	// multiply with 360 (-180.0 ... +180.0 degrees)
+	return ((sinf(pos_x) + sinf(pos_y) + sinf(bag_id) + sinf(map_x) + sinf(map_y)) / 10.0f) * 360;
+}
+
+float get_bag_tilt(float pos_x, float pos_y, int bag_id, int map_x, int map_y)
+{
+	// the sum of 5 cos operations can be between -5 and +5
+	// normalize them to -1.0 ... +1.0
+	// multiply with 30 (-30.0 ... +30.0 degrees)
+	return ((cosf(pos_x) + cosf(pos_y) + cosf(bag_id) + cosf(map_x) + cosf(map_y)) / 5.0f) * 60;
 }
 
 void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
@@ -67,17 +108,28 @@ void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
 		log_error("A bag was placed OUTSIDE the map!\n");
 		return;
 	}
-	
+
 	z=-2.2f+height_map[bag_y*tile_map_size_x*6+bag_x]*0.2f;
 	//convert from height values to meters
 	x=(float)bag_x/2;
 	y=(float)bag_y/2;
-	//center the object
-	x=x+0.25f;
-	y=y+0.25f;
+	//center the object (slightly randomized)
+	x = x + 0.25f + get_bag_offset_x(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y);
+	y = y + 0.25f + get_bag_offset_y(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y);
 
-        //Launch the animation
-	if (use_eye_candy) ec_create_bag_drop(x, y, z, (poor_man ? 6 : 10));
+	// DEBUG
+	// printf("bag <%i> (%f,%f) rot %f tilt %f\n", bag_id, x, y,
+	//	get_bag_rotation(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y),
+	//	get_bag_tilt(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y));
+
+	//Launch the animation
+	if (use_eye_candy) {
+		ec_create_bag_drop(x, y, z, (poor_man ? 6 : 10));
+#ifdef ONGOING_BAG_EFFECT
+		// start an ongoing effect until the ongoing bag effect is coded
+		bag_list[bag_id].ongoing_bag_effect_reference = ec_create_lamp(x, y, z, 0.0, 1.0, 0.75, (poor_man ? 6 : 10));
+#endif // ONGOING_BAG_EFFECT
+	}
 #ifdef NEW_SOUND
 	if (your_actor && bag_x == your_actor->x_pos * 2 && bag_y == your_actor->y_pos * 2)
 	{
@@ -89,8 +141,11 @@ void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
 	}
 #endif // NEW_SOUND
 
-	obj_3d_id=add_e3d("./3dobjects/misc_objects/bag1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f, 1);
-	
+	obj_3d_id=add_e3d("./3dobjects/misc_objects/bag1.e3d", x, y, z,
+		get_bag_tilt(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y), 0,
+		get_bag_rotation(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y),
+		1 ,0 ,1.0f ,1.0f, 1.0f, 1);
+
 	//now, find a place into the bags list, so we can destroy the bag properly
 	bag_list[bag_id].x=bag_x;
 	bag_list[bag_id].y=bag_y;
@@ -110,7 +165,7 @@ void add_bags_from_list (const Uint8 *data)
 	if(bags_no > NUM_BAGS) {
 		return;//something nasty happened
 	}
-	
+
 	for(i=0;i<bags_no;i++) {
 		my_offset=i*5+1;
 		bag_x=SDL_SwapLE16(*((Uint16 *)(data+my_offset)));
@@ -125,26 +180,40 @@ void add_bags_from_list (const Uint8 *data)
 			log_error("A bag was located OUTSIDE the map!\n");
 			continue;
 		}
-		
+
 		z=-2.2f+height_map[bag_y*tile_map_size_x*6+bag_x]*0.2f;
 		//convert from height values to meters
 		x=(float)bag_x/2;
 		y=(float)bag_y/2;
-		//center the object
-		x=x+0.25f;
-		y=y+0.25f;
-	
+		//center the object (slightly randomized)
+		x = x + 0.25f + get_bag_offset_x(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y);
+		y = y + 0.25f + get_bag_offset_y(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y);
+
+		// DEBUG
+		// printf("bag <%i> (%f,%f) rot %f tilt %f\n", bag_id, x, y,
+		//	get_bag_rotation(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y),
+		//	get_bag_tilt(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y));
+
+		if (use_eye_candy) {
+	#ifdef ONGOING_BAG_EFFECT
+			// start an ongoing effect until the ongoing bag effect is coded
+			bag_list[bag_id].ongoing_bag_effect_reference = ec_create_lamp(x, y, z, 0.0, 1.0, 0.75, (poor_man ? 6 : 10));
+	#endif // ONGOING_BAG_EFFECT
+		}
+
 		// Now, find a place into the bags list, so we can destroy the bag properly
 		if (bag_list[bag_id].obj_3d_id != -1) {
-			char	buf[256];
-
+			char buf[256];
 			// oops, slot already taken!
 			safe_snprintf(buf, sizeof(buf), "Oops, trying to add an existing bag! id=%d\n", bag_id);
 			LOG_ERROR(buf);
 			return;
 		}
 
-		obj_3d_id = add_e3d("./3dobjects/misc_objects/bag1.e3d", x, y, z, 0, 0, 0, 1, 0, 1.0f, 1.0f, 1.0f, 1);
+		obj_3d_id = add_e3d("./3dobjects/misc_objects/bag1.e3d", x, y, z,
+			get_bag_tilt(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y), 0,
+			get_bag_rotation(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y),
+			1, 0, 1.0f, 1.0f, 1.0f, 1);
 		bag_list[bag_id].x=bag_x;
 		bag_list[bag_id].y=bag_y;
 		bag_list[bag_id].obj_3d_id=obj_3d_id;
@@ -156,44 +225,42 @@ void remove_item_from_ground(Uint8 pos)
 	ground_item_list[pos].quantity= 0;
 }
 
-void remove_bag(int which_bag)
+void remove_bag(int bag_id)
 {
-	float x, y, z;
 #ifdef NEW_SOUND
 	int snd;
 #endif // NEW_SOUND
-	
-	if (which_bag >= NUM_BAGS) return;
 
-	if (bag_list[which_bag].obj_3d_id == -1) {
+	if (bag_id >= NUM_BAGS) return;
+
+	if (bag_list[bag_id].obj_3d_id == -1) {
 		// oops, no bag in that slot!
 		LOG_ERROR("Oops, double-removal of bag!\n");
 		return;
 	}
 
-	x = bag_list[which_bag].x;
-	y = bag_list[which_bag].y;
-	z = -2.2f+height_map[bag_list[which_bag].y*tile_map_size_x*6+bag_list[which_bag].x]*0.2f;
-	//convert from height values to meters
-	x /= 2;
-	y /= 2;
-	//center the object
-	x = x + 0.25f;
-	y = y + 0.25f;
-	if (use_eye_candy) ec_create_bag_pickup(x, y, z, (poor_man ? 6 : 10));
+	if (use_eye_candy) {
+		ec_create_bag_pickup(objects_list[bag_list[bag_id].obj_3d_id]->x_pos, objects_list[bag_list[bag_id].obj_3d_id]->y_pos, objects_list[bag_list[bag_id].obj_3d_id]->z_pos, (poor_man ? 6 : 10));
+#ifdef ONGOING_BAG_EFFECT
+		if (bag_list[bag_id].ongoing_bag_effect_reference != NULL) {
+			ec_recall_effect(bag_list[bag_id].ongoing_bag_effect_reference);
+			bag_list[bag_id].ongoing_bag_effect_reference = NULL;
+		}
+#endif // ONGOING_BAG_EFFECT
+	}
 #ifdef NEW_SOUND
-	if (your_actor && bag_list[which_bag].x == your_actor->x_pos * 2 && bag_list[which_bag].y == your_actor->y_pos * 2)
+	if (your_actor && bag_list[bag_id].x == your_actor->x_pos * 2 && bag_list[bag_id].y == your_actor->y_pos * 2)
 	{
 		snd = get_sound_index_for_particle_file_name("./particles/bag_out.part");
 		if (snd >= 0)
 		{
-			add_sound_object (snd, bag_list[which_bag].x, bag_list[which_bag].y, 0);
+			add_sound_object (snd, bag_list[bag_id].x, bag_list[bag_id].y, 0);
 		}
 	}
 #endif // NEW_SOUND
 
-	destroy_3d_object(bag_list[which_bag].obj_3d_id);
-	bag_list[which_bag].obj_3d_id=-1;
+	destroy_3d_object(bag_list[bag_id].obj_3d_id);
+	bag_list[bag_id].obj_3d_id=-1;
 }
 
 void remove_all_bags(){
@@ -249,7 +316,7 @@ void get_bags_items_list (const Uint8 *data)
 	if(items_no > ITEMS_PER_BAG) {
 		return;
 	}
-	
+
 	for(i=0;i<items_no;i++) {
 		my_offset= i*7+1;
 		pos= data[my_offset+6];
@@ -257,7 +324,7 @@ void get_bags_items_list (const Uint8 *data)
 		ground_item_list[pos].quantity= SDL_SwapLE32(*((Uint32 *)(data+my_offset+2)));
 		ground_item_list[pos].pos= pos;
 	}
-	
+
 	draw_pick_up_menu();
 	if(item_window_on_drop) {
 		display_items_menu();
@@ -272,7 +339,7 @@ int display_ground_items_handler(window_info *win)
 	static Uint8 resizing = 0;
 	int yoffset = get_window_scroll_pos(win->window_id);
 
-	/* if resizing wait until we stop */	
+	/* if resizing wait until we stop */
 	if (win->resized)
 		resizing = 1;
 	/* once we stop, snap the window to the new grid size */
@@ -319,18 +386,18 @@ int display_ground_items_handler(window_info *win)
 			this_texture=get_items_texture(ground_item_list[i].image_id/25);
 
 			get_and_set_texture_id(this_texture);
-					
+
 			glBegin(GL_QUADS);
 				draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 			glEnd();
-					
+
 			safe_snprintf(str,sizeof(str),"%i",ground_item_list[i].quantity);
 			draw_string_small_shadowed(x_start,y_end-(i&1?22:12),(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
 		}
 	}
-	
+
 	// Render the grid *after* the images. It seems impossible to code
-	// it such that images are rendered exactly within the boxes on all 
+	// it such that images are rendered exactly within the boxes on all
 	// cards
 	glDisable(GL_TEXTURE_2D);
 
@@ -345,9 +412,9 @@ int display_ground_items_handler(window_info *win)
 		rendergrid(ground_items_grid_cols,ground_items_grid_rows-1,0,0,GRIDSIZE,GRIDSIZE);
 		rendergrid(remainder, 1, 0, GRIDSIZE*(ground_items_grid_rows-1), GRIDSIZE, GRIDSIZE);
 	}
-	
+
 	glBegin(GL_LINE_LOOP);
-	
+
 		// draw the "get all" box
 		glVertex2i(win->len_x, ELW_BOX_SIZE+yoffset);
 		glVertex2i(win->len_x-GRIDSIZE, ELW_BOX_SIZE+yoffset);
@@ -370,7 +437,7 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	int right_click = flags & ELW_RIGHT_MOUSE;
 	int ctrl_on = flags & ELW_CTRL;
 	int yoffset = get_window_scroll_pos(win->window_id);
-	
+
 	// only handle mouse button clicks, not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) {
 		return 0;
@@ -434,7 +501,7 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 		add_sound_object(get_index_for_sound_type_name("Get Item"), 0, 0, 1);
 #endif // NEW_SOUND
 	}
-		
+
 	return 1;
 }
 
@@ -442,7 +509,7 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 int mouseover_ground_items_handler(window_info *win, int mx, int my) {
 	int yoffset = get_window_scroll_pos(win->window_id);
 	int pos = (yoffset>my) ?-1 :get_mouse_pos_in_grid(mx, my+1, ground_items_grid_cols, ground_items_grid_rows, 0, 0, GRIDSIZE, GRIDSIZE);
-	
+
 	if(pos!=-1 && pos<ITEMS_PER_BAG && ground_item_list[pos].quantity) {
 		if(item_action_mode==ACTION_LOOK) {
 			elwin_mouse=CURSOR_EYE;
@@ -451,7 +518,7 @@ int mouseover_ground_items_handler(window_info *win, int mx, int my) {
 		}
 		return 1;
 	}
-	
+
 	return 0;
 }
 
@@ -462,7 +529,7 @@ static int resize_ground_items_handler(window_info *win)
 		ground_items_grid_cols = (win->len_x / GRIDSIZE) - 1;
 		if (ground_items_grid_cols < min_grid_cols)
 			ground_items_grid_cols = min_grid_cols;
-			
+
 		/* but maintain a minimum height */
 		ground_items_grid_rows = (ITEMS_PER_BAG + ground_items_grid_cols - 1) / ground_items_grid_cols;
 		if (ground_items_grid_rows <= min_grid_rows)

@@ -2,6 +2,10 @@
 #define __BAGS_H__
 
 #include <SDL_types.h>
+#ifdef ONGOING_BAG_EFFECT
+#include "eye_candy_types.h"
+#endif // ONGOING_BAG_EFFECT
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,6 +19,9 @@ typedef struct
 	int x;
 	int y;
 	int obj_3d_id;
+#ifdef ONGOING_BAG_EFFECT
+	ec_reference ongoing_bag_effect_reference;
+#endif // ONGOING_BAG_EFFECT
 } bag;
 
 typedef struct
