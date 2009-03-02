@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
 #include "bags.h"
 #include "3d_objects.h"
@@ -12,6 +11,7 @@
 #include "init.h"
 #include "interface.h"
 #include "items.h"
+#include "md5.h"
 #include "multiplayer.h"
 #include "particles.h"
 #include "textures.h"
@@ -62,36 +62,64 @@ void strap_word(char * in, char * out)
 
 float get_bag_offset_x(float pos_x, float pos_y, int bag_id, int map_x, int map_y)
 {
-	// the sum of 5 sin/cos operations can be between -5 and +5
-	// normalize them to -1 ... +1
-	// then divide by 4 to normalize the return value to -0.25 ... + 0.25
-	// (a tile is 0.5 wide, so the offset should move the bag near the border)
-	return (sinf(powf(pos_x, 2.0f)) + sinf(powf(pos_y, 2.0f)) + sinf(sqrtf(abs((float)bag_id))) + cosf((float)map_x) + sinf((float)map_y)) / 20.0f * ((((int)abs(pos_x)) % 3 == 0) ? 1.0f : -1.0f);
+	char str[64];
+	MD5 md5;
+	Uint8 digest[16];
+	memset(digest, 0, 16);
+	safe_snprintf(str, 40, "%f%f%f%f%f", pos_x, pos_y, (float) bag_id,
+		(float) map_x, (float) map_y);
+	MD5Open(&md5);
+	MD5Digest(&md5, str, strlen(str));
+	MD5Close(&md5, digest);
+	return (sinf(powf(digest[0], 2.0f)) + sinf(powf(digest[1], 2.0f)) + sinf(
+		sqrtf(abs((float) digest[2]))) + cosf((float) digest[3]) + sinf(
+		(float) digest[4])) / 20.0f * ((((int) abs(digest[5])) % 3 == 0) ? 1.0f : -1.0f);
 }
 
 float get_bag_offset_y(float pos_x, float pos_y, int bag_id, int map_x, int map_y)
 {
-	// the sum of 5 sin/cos operations can be between -5 and +5
-	// normalize them to -1 ... +1
-	// then divide by 4 to normalize the return value to -0.25 ... + 0.25
-	// (a tile is 0.5 wide, so the offset should move the bag near the border)
-	return (cosf(powf(pos_x, 2.0f)) + cosf(powf(pos_y, 2.0f)) + cosf(sqrtf(abs((float)bag_id))) + sinf((float)map_x) + cosf((float)map_y)) / 20.0f * ((((int)abs(pos_y)) % 3 == 0) ? 1.0f : -1.0f);
+	char str[64];
+	MD5 md5;
+	Uint8 digest[16];
+	memset(digest, 0, 16);
+	safe_snprintf(str, 40, "%f%f%f%f%f", pos_x, pos_y, (float) bag_id,
+		(float) map_x, (float) map_y);
+	MD5Open(&md5);
+	MD5Digest(&md5, str, strlen(str));
+	MD5Close(&md5, digest);
+	return (cosf(powf(digest[1], 2.0f)) + cosf(powf(digest[2], 2.0f)) + cosf(
+		sqrtf(abs((float) digest[3]))) + sinf((float) digest[4]) + cosf(
+		(float) digest[5])) / 20.0f * ((((int) abs(digest[6])) % 3 == 0) ? 1.0f : -1.0f);
 }
 
 float get_bag_rotation(float pos_x, float pos_y, int bag_id, int map_x, int map_y)
 {
-	// the sum of 5 sin operations can be between -5 and +5
-	// normalize them to -0.5 ... +0.5
-	// multiply with 360 (-180.0 ... +180.0 degrees)
-	return ((sinf(pos_x) + sinf(pos_y) + sinf(bag_id) + sinf(map_x) + sinf(map_y)) / 10.0f) * 360;
+	char str[64];
+	MD5 md5;
+	Uint8 digest[16];
+	memset(digest, 0, 16);
+	safe_snprintf(str, 40, "%f%f%f%f%f", pos_x, pos_y, (float) bag_id,
+		(float) map_x, (float) map_y);
+	MD5Open(&md5);
+	MD5Digest(&md5, str, strlen(str));
+	MD5Close(&md5, digest);
+	return ((sinf(digest[2]) + sinf(digest[3]) + sinf(digest[4]) + sinf(
+		digest[5]) + sinf(digest[6])) / 10.0f) * 360;
 }
 
 float get_bag_tilt(float pos_x, float pos_y, int bag_id, int map_x, int map_y)
 {
-	// the sum of 5 cos operations can be between -5 and +5
-	// normalize them to -1.0 ... +1.0
-	// multiply with 30 (-30.0 ... +30.0 degrees)
-	return ((cosf(pos_x) + cosf(pos_y) + cosf(bag_id) + cosf(map_x) + cosf(map_y)) / 5.0f) * 60;
+	char str[64];
+	MD5 md5;
+	Uint8 digest[16];
+	memset(digest, 0, 16);
+	safe_snprintf(str, 40, "%f%f%f%f%f", pos_x, pos_y, (float) bag_id,
+		(float) map_x, (float) map_y);
+	MD5Open(&md5);
+	MD5Digest(&md5, str, strlen(str));
+	MD5Close(&md5, digest);
+	return ((cosf(digest[3]) + cosf(digest[4]) + cosf(digest[5]) + cosf(
+		digest[6]) + cosf(digest[7])) / 5.0f) * 60;
 }
 
 void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
