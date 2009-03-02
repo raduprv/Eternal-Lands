@@ -71,6 +71,10 @@ float get_bag_offset_x(float pos_x, float pos_y, int bag_id, int map_x, int map_
 	MD5Open(&md5);
 	MD5Digest(&md5, str, strlen(str));
 	MD5Close(&md5, digest);
+	// the sum of 5 sin/cos operations can be between -5 and +5
+	// normalize them to -1 ... +1
+	// then divide by 4 to normalize the return value to -0.25 ... + 0.25
+	// (a tile is 0.5 wide, so the offset should move the bag near the border)
 	return (sinf(powf(digest[0], 2.0f)) + sinf(powf(digest[1], 2.0f)) + sinf(
 		sqrtf(abs((float) digest[2]))) + cosf((float) digest[3]) + sinf(
 		(float) digest[4])) / 20.0f * ((((int) abs(digest[5])) % 3 == 0) ? 1.0f : -1.0f);
@@ -87,6 +91,10 @@ float get_bag_offset_y(float pos_x, float pos_y, int bag_id, int map_x, int map_
 	MD5Open(&md5);
 	MD5Digest(&md5, str, strlen(str));
 	MD5Close(&md5, digest);
+	// the sum of 5 sin/cos operations can be between -5 and +5
+	// normalize them to -1 ... +1
+	// then divide by 4 to normalize the return value to -0.25 ... + 0.25
+	// (a tile is 0.5 wide, so the offset should move the bag near the border)
 	return (cosf(powf(digest[1], 2.0f)) + cosf(powf(digest[2], 2.0f)) + cosf(
 		sqrtf(abs((float) digest[3]))) + sinf((float) digest[4]) + cosf(
 		(float) digest[5])) / 20.0f * ((((int) abs(digest[6])) % 3 == 0) ? 1.0f : -1.0f);
@@ -103,6 +111,9 @@ float get_bag_rotation(float pos_x, float pos_y, int bag_id, int map_x, int map_
 	MD5Open(&md5);
 	MD5Digest(&md5, str, strlen(str));
 	MD5Close(&md5, digest);
+	// the sum of 5 sin operations can be between -5 and +5
+	// normalize them to -0.5 ... +0.5
+	// multiply with 360 (-180.0 ... +180.0 degrees)
 	return ((sinf(digest[2]) + sinf(digest[3]) + sinf(digest[4]) + sinf(
 		digest[5]) + sinf(digest[6])) / 10.0f) * 360;
 }
@@ -118,6 +129,9 @@ float get_bag_tilt(float pos_x, float pos_y, int bag_id, int map_x, int map_y)
 	MD5Open(&md5);
 	MD5Digest(&md5, str, strlen(str));
 	MD5Close(&md5, digest);
+	// the sum of 5 cos operations can be between -5 and +5
+	// normalize them to -1.0 ... +1.0
+	// multiply with 30 (-30.0 ... +30.0 degrees)
 	return ((cosf(digest[3]) + cosf(digest[4]) + cosf(digest[5]) + cosf(
 		digest[6]) + cosf(digest[7])) / 5.0f) * 60;
 }
