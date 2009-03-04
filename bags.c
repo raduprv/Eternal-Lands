@@ -73,11 +73,11 @@ float get_bag_offset_x(float pos_x, float pos_y, int bag_id, int map_x, int map_
 	MD5Close(&md5, digest);
 	// the sum of 5 sin/cos operations can be between -5 and +5
 	// normalize them to -1 ... +1
-	// then divide by 4 to normalize the return value to -0.25 ... + 0.25
-	// (a tile is 0.5 wide, so the offset should move the bag near the border)
+	// then divide by 16 to normalize the return value to -0.0625 ... + 0.0625
+	// (a tile is 0.5 wide)
 	return (sinf(powf(digest[0], 2.0f)) + sinf(powf(digest[1], 2.0f)) + sinf(
 		sqrtf(abs((float) digest[2]))) + cosf((float) digest[3]) + sinf(
-		(float) digest[4])) / 20.0f * ((((int) abs(digest[5])) % 3 == 0) ? 1.0f : -1.0f);
+		(float) digest[4])) / 80.0f * ((((int) abs(digest[5])) % 3 == 0) ? 1.0f : -1.0f);
 }
 
 float get_bag_offset_y(float pos_x, float pos_y, int bag_id, int map_x, int map_y)
@@ -93,11 +93,11 @@ float get_bag_offset_y(float pos_x, float pos_y, int bag_id, int map_x, int map_
 	MD5Close(&md5, digest);
 	// the sum of 5 sin/cos operations can be between -5 and +5
 	// normalize them to -1 ... +1
-	// then divide by 4 to normalize the return value to -0.25 ... + 0.25
-	// (a tile is 0.5 wide, so the offset should move the bag near the border)
+	// then divide by 16 to normalize the return value to -0.0625 ... + 0.0625
+	// (a tile is 0.5 wide)
 	return (cosf(powf(digest[1], 2.0f)) + cosf(powf(digest[2], 2.0f)) + cosf(
 		sqrtf(abs((float) digest[3]))) + sinf((float) digest[4]) + cosf(
-		(float) digest[5])) / 20.0f * ((((int) abs(digest[6])) % 3 == 0) ? 1.0f : -1.0f);
+		(float) digest[5])) / 80.0f * ((((int) abs(digest[6])) % 3 == 0) ? 1.0f : -1.0f);
 }
 
 float get_bag_rotation(float pos_x, float pos_y, int bag_id, int map_x, int map_y)
@@ -131,9 +131,9 @@ float get_bag_tilt(float pos_x, float pos_y, int bag_id, int map_x, int map_y)
 	MD5Close(&md5, digest);
 	// the sum of 5 cos operations can be between -5 and +5
 	// normalize them to -1.0 ... +1.0
-	// multiply with 30 (-30.0 ... +30.0 degrees)
+	// multiply with 15 (-15.0 ... +15.0 degrees)
 	return ((cosf(digest[3]) + cosf(digest[4]) + cosf(digest[5]) + cosf(
-		digest[6]) + cosf(digest[7])) / 5.0f) * 60;
+		digest[6]) + cosf(digest[7])) / 5.0f) * 30;
 }
 
 void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
