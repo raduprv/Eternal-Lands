@@ -892,9 +892,15 @@ void init_stats_display()
 void draw_stats_bar(int x, int y, int val, int len, float r, float g, float b, float r2, float g2, float b2)
 {
 	char buf[32];
-
+	int i; // i deals with massive bars by trimming at 110%
+	
+	if(len>110)
+		i=110;
+	else
+		i=len;
 	glDisable(GL_TEXTURE_2D);
-	if(len >= 0){
+	
+	if(i >= 0){
 		glBegin(GL_QUADS);
 		//draw the colored section
  		glColor3f(r2, g2, b2);
@@ -902,9 +908,9 @@ void draw_stats_bar(int x, int y, int val, int len, float r, float g, float b, f
 		glColor3f(r, g, b);
 		glVertex3i(x, y, 0);
 		glColor3f(r, g, b);
-		glVertex3i(x+len, y, 0);
+		glVertex3i(x+i, y, 0);
 		glColor3f(r2, g2, b2);
-		glVertex3i(x+len, y+8, 0);
+		glVertex3i(x+i, y+8, 0);
 		glEnd();
 	}
 	// draw the bar frame

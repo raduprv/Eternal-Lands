@@ -496,7 +496,9 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	if(view_health_bar && actor_id->cur_health>=0 && actor_id->max_health>0 && (!actor_id->dead)){
 		float percentage = (float)actor_id->cur_health/(float)actor_id->max_health;
 		float off;
-
+		
+		if(percentage>110.0f) //deal with massive bars by trimming at 110%
+			percentage = 110.0f;
 		if (view_hp){
 			off = healthbar_x_len + 5.0f;
 		} else {
