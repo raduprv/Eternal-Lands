@@ -1,0 +1,3 @@
+version=3
+
+https://launchpad.net/eternallands/+download http://launchpad.net/eternallands/.*/eternallands-(.+)tar.gz
