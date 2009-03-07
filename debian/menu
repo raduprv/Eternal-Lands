@@ -2,6 +2,6 @@
   needs="X11" \
   section="Games/Adventure" \
   title="Eternal Lands" \
-  longtitle="A free, massively multiplayer online role playing game (MMORPG)" \
+  longtitle="Play the massively-multi-player online role-playing game" \
   command="/usr/games/eternallands" \
   icon="/usr/share/pixmaps/eternallands.xpm"
