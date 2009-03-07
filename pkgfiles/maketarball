@@ -30,9 +30,26 @@ find . -type d -name CVS -exec rm -rf {} \; &> /dev/null
 find . -type d -name CVS -exec rm -rf {} \;
 chmod -R -x *.{c,cpp,h}
 
+# make the Debian tar ball, then delete the Debian files
+echo "Making Debian tarball"
+tar cfz ../elc-debian-${version}.tar.gz debian
+rm -rf debian
+
 # make the final tar ball
-echo "Making tarball"
+echo "Making client source tarball"
 cd ..
 tar cfz eternallands-${version}.tar.gz eternallands-${version}
 rm -rf eternallands-${version}
-ls -l eternallands-${version}.tar.gz
+
+
+# optionall create digital signatures
+read -p "Create digital signatures? (y/n) [y] : " opt
+if [ "$opt" != "N" -a "$opt" != "n" ]
+then
+	gpg --armor --sign --detach-sig eternallands-${version}.tar.gz
+	gpg --armor --sign --detach-sig elc-debian-${version}.tar.gz
+fi
+
+ls -l eternallands-${version}.tar.gz* elc-debian-${version}.tar.gz*
+
+
