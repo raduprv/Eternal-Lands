@@ -13,10 +13,7 @@ Conflicts: eternallands-rc, eternallands-rc-data
 Recommends: eternallands-sound (>=1.6.0)
 Suggests: eternallands-music (>=1.6.0)
 Description: the client package for Eternal Lands, a free MMORPG 
- Eternal Lands is a FREE MMORPG (massively multiplayer online role playing
- game). From the website: The game is now in Beta stage, but that doesn't mean
- it's incomplete. It's currently fully playable and we are constantly working on
- adding more things to do, more items to make, monsters to fight, and also
- improving the current systems. If you want to help us in any way, take a look
- in our forums and there you can post your ideas/suggestions, or perhaps even
- get involved with programming or mapmaking which we can always use help with!
+ Eternal Lands is a free to play, graphical MMORPG (massively-multi-player
+ online role-playing game).  Different from other role-playing games, there are
+ no fixed classes so you can improve any of the many skills.  There is a choice
+ of several character races but all are equal.
