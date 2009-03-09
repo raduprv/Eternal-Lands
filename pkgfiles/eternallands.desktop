@@ -1,7 +1,7 @@
 [Desktop Entry]
 Encoding=UTF-8
 Name=Eternal Lands
-Comment=A free, massively multiplayer online role playing game (MMORPG)
+Comment=Play the massively-multi-player online role-playing game
 Exec=eternallands
 Icon=eternallands.png
 StartupNotify=true
