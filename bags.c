@@ -44,8 +44,8 @@ int view_ground_items=0;
 
 // forward declarations
 void draw_pick_up_menu();
-float get_bag_offset_x(float pos_x, float pos_y, int bag_id, int map_x, int map_y);
-float get_bag_offset_y(float pos_x, float pos_y, int bag_id, int map_x, int map_y);
+// float get_bag_offset_x(float pos_x, float pos_y, int bag_id, int map_x, int map_y);
+// float get_bag_offset_y(float pos_x, float pos_y, int bag_id, int map_x, int map_y);
 float get_bag_rotation(float pos_x, float pos_y, int bag_id, int map_x, int map_y);
 float get_bag_tilt(float pos_x, float pos_y, int bag_id, int map_x, int map_y);
 
@@ -60,7 +60,7 @@ void strap_word(char * in, char * out)
 	*out=0;
 }
 
-float get_bag_offset_x(float pos_x, float pos_y, int bag_id, int map_x, int map_y)
+/*float get_bag_offset_x(float pos_x, float pos_y, int bag_id, int map_x, int map_y)
 {
 	char str[64];
 	MD5 md5;
@@ -78,9 +78,9 @@ float get_bag_offset_x(float pos_x, float pos_y, int bag_id, int map_x, int map_
 	return (sinf(powf(digest[0], 2.0f)) + sinf(powf(digest[1], 2.0f)) + sinf(
 		sqrtf(abs((float) digest[2]))) + cosf((float) digest[3]) + sinf(
 		(float) digest[4])) / 80.0f * ((((int) abs(digest[5])) % 3 == 0) ? 1.0f : -1.0f);
-}
+}*/
 
-float get_bag_offset_y(float pos_x, float pos_y, int bag_id, int map_x, int map_y)
+/*float get_bag_offset_y(float pos_x, float pos_y, int bag_id, int map_x, int map_y)
 {
 	char str[64];
 	MD5 md5;
@@ -98,7 +98,7 @@ float get_bag_offset_y(float pos_x, float pos_y, int bag_id, int map_x, int map_
 	return (cosf(powf(digest[1], 2.0f)) + cosf(powf(digest[2], 2.0f)) + cosf(
 		sqrtf(abs((float) digest[3]))) + sinf((float) digest[4]) + cosf(
 		(float) digest[5])) / 80.0f * ((((int) abs(digest[6])) % 3 == 0) ? 1.0f : -1.0f);
-}
+}*/
 
 float get_bag_rotation(float pos_x, float pos_y, int bag_id, int map_x, int map_y)
 {
@@ -156,8 +156,8 @@ void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
 	x=(float)bag_x/2;
 	y=(float)bag_y/2;
 	//center the object (slightly randomized)
-	x = x + 0.25f + get_bag_offset_x(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y);
-	y = y + 0.25f + get_bag_offset_y(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y);
+	x = x + 0.25f; // + get_bag_offset_x(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y);
+	y = y + 0.25f; // + get_bag_offset_y(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y);
 
 	// DEBUG
 	// printf("bag <%i> (%f,%f) rot %f tilt %f\n", bag_id, x, y,
@@ -228,8 +228,8 @@ void add_bags_from_list (const Uint8 *data)
 		x=(float)bag_x/2;
 		y=(float)bag_y/2;
 		//center the object (slightly randomized)
-		x = x + 0.25f + get_bag_offset_x(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y);
-		y = y + 0.25f + get_bag_offset_y(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y);
+		x = x + 0.25f; // + get_bag_offset_x(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y);
+		y = y + 0.25f; // + get_bag_offset_y(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y);
 
 		// DEBUG
 		// printf("bag <%i> (%f,%f) rot %f tilt %f\n", bag_id, x, y,
