@@ -38,6 +38,19 @@ getconfig()
 		--text "Select Server/Configuration"
 }
 
+# check the minimum packages are installed OK
+if [ -x /usr/bin/dpkg ]
+then
+	installedOK=true
+	[ -z "$(dpkg --list eternallands | grep ^ii)" ] && installedOK=false
+	[ -z "$(dpkg --list eternallands-data | grep ^ii)" ] && installedOK=false
+	if ! $installedOK
+	then
+		zenity --error --text "Eternal Lands is not completely installed. As root or using sudo, please run \"dpkg --configure -a\" to complete the install."
+		exit
+	fi
+fi
+
 # make sure the user config tree exists
 mkdir -p ~/.elc/main
 
