@@ -272,6 +272,13 @@ int cm_remove_widget(int window_id, int widget_id);
 void cm_showinfo(void);
 
 
+/*!
+ * \ingroup context_menu
+ * \brief Return the value of get_show_window() for the context window.
+ */
+int cm_window_shown(void);
+
+
 #ifdef __cplusplus
 }
 #endif

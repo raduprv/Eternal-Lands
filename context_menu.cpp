@@ -118,6 +118,7 @@ namespace cm
 			int get_active_window_id(void) const { return active_window_id; }
 			int get_active_widget_id(void) const { return active_widget_id; }
 			bool valid(size_t cm_id) const { return cm_id<menus.size() && menus[cm_id]; }
+			int window_shown(void) const { return get_show_window(cm_window_id); }
 			void showinfo(void);
 
 		private:
@@ -798,6 +799,7 @@ extern "C" int cm_remove_regions(int window_id) { return cm::container.remove_re
 extern "C" int cm_remove_widget(int window_id, int widget_id) { return cm::container.remove_widget(window_id, widget_id); }
 extern "C" void cm_showinfo(void) { cm::container.showinfo(); }
 extern "C" int cm_valid(size_t cm_id) { if (cm::container.valid(cm_id)) return 1; else return 0; }
+extern "C" int cm_window_shown(void) { return cm::container.window_shown(); }
 
 
 
