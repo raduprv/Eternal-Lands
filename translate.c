@@ -269,7 +269,7 @@ char
 	cm_items_menu_str[150],
 	cm_storage_menu_str[50],
 	cm_astro_menu_str[50],
-	cm_dialog_menu_str[50],
+	cm_dialog_menu_str[100],
 #ifdef MINIMAP2
 	cm_minimap_menu_str[50],
 #endif
@@ -383,6 +383,7 @@ char	reg_error_str[15],
 	cursors_file_str[30],
 	/*dialogues.c*/
 	close_str[20],
+	open_storage_str[20],
 #endif
 	xml_bad_node[80],
 	xml_bad_root_node[50],
@@ -1106,6 +1107,7 @@ void init_help()
 	//Miscellaneous
 	add_xml_identifier(misc,"values",values_str,"values",sizeof(values_str));
 	add_xml_identifier(misc,"close",close_str,"[close]",sizeof(close_str));
+	add_xml_identifier(misc,"open_storage",open_storage_str,"Open storage",sizeof(open_storage_str));
 	add_xml_identifier(misc,"low",low_framerate_str,"Low framerate detected, shadows and eye candy disabled!",sizeof(low_framerate_str));
 	add_xml_identifier(misc,"size",window_size_adjusted_str,"Window size adjusted to %s",sizeof(window_size_adjusted_str));
 	add_xml_identifier(misc,"trade",no_open_on_trade,"You can't open this window while on trade.",sizeof(no_open_on_trade));
@@ -1284,7 +1286,7 @@ void init_help()
 	add_xml_identifier(misc, "cm_items_menu", cm_items_menu_str, "--\nUse Small Window\nManual Window Size\nItem Window On Drop\nAllow Equipment Swap\n--\nOpen Storage (View Only)", sizeof(cm_items_menu_str));
 	add_xml_identifier(misc, "cm_storage_menu", cm_storage_menu_str, "--\nPrint Items To Console\n", sizeof(cm_storage_menu_str));
 	add_xml_identifier(misc, "cm_astro_menu", cm_astro_menu_str, "--\nPrint Details To Console", sizeof(cm_astro_menu_str));
-	add_xml_identifier(misc, "cm_dialog_menu", cm_dialog_menu_str, "--\nEnable Keypresses\nKeypresses Anywhere", sizeof(cm_dialog_menu_str));
+	add_xml_identifier(misc, "cm_dialog_menu", cm_dialog_menu_str, "--\nEnable Keypresses\nKeypresses Anywhere\nAuto close storage dialogue", sizeof(cm_dialog_menu_str));
 #ifdef MINIMAP2
 	add_xml_identifier(misc, "cm_minimap_menu", cm_minimap_menu_str, "--\nRotate Minimap\nPin Minimap", sizeof(cm_minimap_menu_str));
 #endif

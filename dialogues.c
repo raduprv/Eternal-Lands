@@ -33,6 +33,7 @@ int dialogue_menu_y_len=190;
 
 int no_bounding_box=0;
 int show_keypress_letters=0;
+int autoclose_storage_dialogue=0;
 
 void build_response_entries (const Uint8 *data, int total_length)
 {
@@ -259,6 +260,8 @@ void send_response(window_info *win, int response_index)
 	*((Uint16 *)(str+1))=SDL_SwapLE16((short)dialogue_responces[response_index].to_actor);
 	*((Uint16 *)(str+3))=SDL_SwapLE16((short)dialogue_responces[response_index].response_id);
 	my_tcp_send(my_socket,str,5);
+	if (autoclose_storage_dialogue && strcmp(dialogue_responces[response_index].text, open_storage_str) == 0)
+ 		hide_window(win->window_id);
 }
 
 
@@ -351,6 +354,7 @@ void display_dialogue()
 		cm_add(windows_list.window[dialogue_win].cm_id, cm_dialog_menu_str, NULL);
 		cm_bool_line(windows_list.window[dialogue_win].cm_id, ELW_CM_MENU_LEN+1, &use_keypress_dialogue_boxes, "use_keypress_dialog_boxes");
 		cm_bool_line(windows_list.window[dialogue_win].cm_id, ELW_CM_MENU_LEN+2, &use_full_dialogue_window, "use_full_dialogue_window");
+		cm_bool_line(windows_list.window[dialogue_win].cm_id, ELW_CM_MENU_LEN+3, &autoclose_storage_dialogue, NULL);
 #endif
 	} else {
 		show_window(dialogue_win);

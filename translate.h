@@ -408,7 +408,7 @@ extern char
 		cm_items_menu_str[150],
 		cm_storage_menu_str[50],
 		cm_astro_menu_str[50],
-		cm_dialog_menu_str[50],
+		cm_dialog_menu_str[100],
 #ifdef MINIMAP2
 		cm_minimap_menu_str[50],
 #endif
@@ -485,6 +485,7 @@ extern char	reg_error_str[15],
 		cursors_file_str[30],
 		/*dialogues.c*/
 		close_str[20],
+		open_storage_str[20],
 #endif
 		/*XML and channel list errors from chat.c*/
 		xml_bad_node[80],

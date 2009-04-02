@@ -360,6 +360,7 @@ void read_bin_cfg()
 	items_mix_but_all = (cfg_mem.misc_bool_options >> 3) & 1;
 	items_stoall_nolastrow = (cfg_mem.misc_bool_options >> 4) & 1;
 	items_dropall_nolastrow = (cfg_mem.misc_bool_options >> 5) & 1;
+ 	autoclose_storage_dialogue = (cfg_mem.misc_bool_options >> 6) & 1;
 }
 
 void save_bin_cfg()
@@ -583,6 +584,7 @@ void save_bin_cfg()
 	cfg_mem.misc_bool_options |= items_mix_but_all << 3;
 	cfg_mem.misc_bool_options |= items_stoall_nolastrow << 4;
 	cfg_mem.misc_bool_options |= items_dropall_nolastrow << 5;
+ 	cfg_mem.misc_bool_options |= autoclose_storage_dialogue << 6;
 
 	fwrite(&cfg_mem,sizeof(cfg_mem),1,f);
 	fclose(f);

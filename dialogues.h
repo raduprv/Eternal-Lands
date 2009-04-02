@@ -69,6 +69,7 @@ extern int dialogue_menu_y_len;
 //extern int dialogue_menu_dragged;
 
 extern int no_bounding_box;
+extern int autoclose_storage_dialogue;
 
 /*!
  * \ingroup other
