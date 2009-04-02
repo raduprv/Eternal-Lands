@@ -252,10 +252,19 @@ int mouseover_dialogue_handler(window_info *win, int mx, int my)
 	return 0;
 }
 
+void send_response(window_info *win, int response_index)
+{
+	Uint8 str[16];
+	str[0]=RESPOND_TO_NPC;
+	*((Uint16 *)(str+1))=SDL_SwapLE16((short)dialogue_responces[response_index].to_actor);
+	*((Uint16 *)(str+3))=SDL_SwapLE16((short)dialogue_responces[response_index].response_id);
+	my_tcp_send(my_socket,str,5);
+}
+
+
 int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int i;
-	Uint8 str[16];
 
 	// only handle mouse button clicks, not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
@@ -264,10 +273,7 @@ int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags)
 		{
 			if(dialogue_responces[i].in_use && dialogue_responces[i].mouse_over)
 				{
-					str[0]=RESPOND_TO_NPC;
-					*((Uint16 *)(str+1))=SDL_SwapLE16((short)dialogue_responces[i].to_actor);
-					*((Uint16 *)(str+3))=SDL_SwapLE16((short)dialogue_responces[i].response_id);
-					my_tcp_send(my_socket,str,5);
+					send_response(win, i);
 					return 1;
 				}
 		}
@@ -282,7 +288,7 @@ int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags)
 
 int keypress_dialogue_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
-	Uint8 str[16], ch;
+	Uint8 ch;
 	if(!use_keypress_dialogue_boxes)
 	{
 		return 0;
@@ -325,10 +331,7 @@ int keypress_dialogue_handler (window_info *win, int mx, int my, Uint32 key, Uin
 	}
 	if(dialogue_responces[ch].in_use)
 	{
-		str[0]=RESPOND_TO_NPC;
-		*((Uint16 *)(str+1))=SDL_SwapLE16((short)dialogue_responces[ch].to_actor);
-		*((Uint16 *)(str+3))=SDL_SwapLE16((short)dialogue_responces[ch].response_id);
-		my_tcp_send(my_socket,str,5);
+		send_response(win, ch);
 		return 1;
 	}
 	return 0;
