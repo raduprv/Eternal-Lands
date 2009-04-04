@@ -270,6 +270,7 @@ char
 	cm_storage_menu_str[50],
 	cm_astro_menu_str[50],
 	cm_dialog_menu_str[100],
+	cm_url_menu_str[150],
 #ifdef MINIMAP2
 	cm_minimap_menu_str[50],
 #endif
@@ -1167,7 +1168,7 @@ void init_help()
 	add_xml_identifier(misc,"invalid_url",urlcmd_invalid_str,"Invalid URL number",sizeof(urlcmd_invalid_str));
 	add_xml_identifier(misc,"afk_url",urlcmd_afk_str,"URL seen while AFK:",sizeof(urlcmd_afk_str));
 	add_xml_identifier(misc,"clear_url",urlcmd_clear_str,"clear",sizeof(urlcmd_clear_str));
-	add_xml_identifier(misc,"open_urlwin",urlwin_open_str,"Click to open; CTRL+click to delete",sizeof(urlwin_open_str));
+	add_xml_identifier(misc,"open_urlwin",urlwin_open_str,"Click to open; right+click for options",sizeof(urlwin_open_str));
 	add_xml_identifier(misc,"clear_urlwin",urlwin_clear_str,"Clear the URL list",sizeof(urlwin_clear_str));
 	add_xml_identifier(misc,"reset",reset_str,"Reset",sizeof(reset_str));
 	add_xml_identifier(misc,"channel_help",channel_help_str,"Click a Channel to join. You can be in up to 3 channels at a time.\n\nTo talk in a channel, type @ before your message. You do not have to type @ to talk in Local.",sizeof(channel_help_str));
@@ -1287,6 +1288,7 @@ void init_help()
 	add_xml_identifier(misc, "cm_storage_menu", cm_storage_menu_str, "--\nPrint Items To Console\n", sizeof(cm_storage_menu_str));
 	add_xml_identifier(misc, "cm_astro_menu", cm_astro_menu_str, "--\nPrint Details To Console", sizeof(cm_astro_menu_str));
 	add_xml_identifier(misc, "cm_dialog_menu", cm_dialog_menu_str, "--\nEnable Keypresses\nKeypresses Anywhere\nAuto close storage dialogue", sizeof(cm_dialog_menu_str));
+	add_xml_identifier(misc, "cm_url_menu", cm_url_menu_str, "Open\nFind In Console\nMark Visited\nMark Unvisited\n--\nDelete\n--\nDelete All", sizeof(cm_url_menu_str));	
 #ifdef MINIMAP2
 	add_xml_identifier(misc, "cm_minimap_menu", cm_minimap_menu_str, "--\nRotate Minimap\nPin Minimap", sizeof(cm_minimap_menu_str));
 #endif

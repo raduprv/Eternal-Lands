@@ -409,6 +409,7 @@ extern char
 		cm_storage_menu_str[50],
 		cm_astro_menu_str[50],
 		cm_dialog_menu_str[100],
+		cm_url_menu_str[150],
 #ifdef MINIMAP2
 		cm_minimap_menu_str[50],
 #endif

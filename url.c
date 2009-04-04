@@ -19,6 +19,10 @@
 #include <SDL_thread.h>
 #include "asc.h"
 #include "client_serv.h"
+#include "consolewin.h"
+#ifdef CONTEXT_MENUS
+#include "context_menu.h"
+#endif
 #include "elwindows.h"
 #include "font.h"
 #include "gamewin.h"
@@ -66,6 +70,9 @@ static int saved_url_count = 0;
 
 static list_node_t *newest_url = NULL;
 static list_node_t *active_url = NULL;
+#ifdef CONTEXT_MENUS
+static list_node_t *cm_url = NULL;
+#endif
 
 
 /* define the structure stored for each URL */
@@ -447,6 +454,7 @@ CHECK_GL_ERRORS();
 			char *thetext = ((URLDATA *)local_head->data)->text;
 			int dsp_string_len = 0;
 			float string_width = 0;
+			int highlight_url = 0;
 			
 			/* stop now if the url line will not fit into the window */
 			if (((currenty - url_win_text_start_y) + url_win_line_step) > url_win_text_len_y)
@@ -488,11 +496,32 @@ CHECK_GL_ERRORS();
 			/* step down a line, do it now as the maths for mouse over below is easier */
 			currenty += url_win_line_step;
 			
-			/* if the mouse is over the current line.... */
+			/* if the mouse is over the current line, hightlight it */
 			if ((mouse_y >= win->cur_y + currenty - url_win_line_step) &&
 				(mouse_y < win->cur_y + currenty) &&
 				(mouse_x >= win->cur_x + (int)url_win_sep) &&
 				(mouse_x - (int)url_win_sep <= win->cur_x + url_win_max_string_width))
+			{
+				/* remember which url we're over in case it's clicked */
+				url_win_hover_url = local_head;				
+				highlight_url = 1;
+			}
+				
+#ifdef CONTEXT_MENUS
+			/* if a context menu is open, only hightlight the last URL hovered over before the context opened */
+			if (cm_window_shown())
+			{
+				if (cm_url == local_head)
+					highlight_url = 1;
+				else
+					highlight_url = 0;
+			}
+			else
+				cm_url = NULL;
+#endif
+			
+			/* if mouse over or context activated, highlight the current URL */
+			if (highlight_url)
 			{
 				char *help_substring = NULL;
 				size_t help_substring_len = 0;
@@ -501,25 +530,7 @@ CHECK_GL_ERRORS();
 				Uint32 currenttime = SDL_GetTicks();
 				size_t full_help_len = strlen(((URLDATA *)local_head->data)->text) + 30;
 				char *full_help_text = (char *)malloc(sizeof(char) * full_help_len);
-			
-				/* make the area for the current url opaque */
-				/* ttlanhil: disabled, as it looks unusual and can be annoying if you mouse in-and-out a lot
-				glColor4f(0.0f,0.0f,0.0f,1.0f);
-				glDisable(GL_TEXTURE_2D);
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				glEnable(GL_BLEND);
-				glBegin(GL_QUADS);
-				glVertex3i(0, url_win_y_len, 0);
-				glVertex3i(0, url_win_url_y_start, 0);
-				glVertex3i(url_win_x_len, url_win_url_y_start, 0);
-				glVertex3i(url_win_x_len, url_win_y_len, 0);
-				glEnd();
-				glDisable(GL_BLEND);
-				glEnable(GL_TEXTURE_2D);*/
 	
-				/* remember which url we're over in case it's clicked */
-				url_win_hover_url = local_head;
-				
 				/* display the mouse over help next time round */
 				url_win_status = URLW_OVER;
 			
@@ -602,9 +613,79 @@ CHECK_GL_ERRORS();
 } /* end display_url_handler() */
 
 
+/* common function to delete specified url record */
+static void delete_current_url(list_node_t *chosen_url)
+{
+	if (have_url_count && chosen_url != NULL)
+	{
+		list_node_t *prev = chosen_url->prev;
+		list_node_t *next = chosen_url->next;
+		if (prev != NULL)
+			prev->next = next;
+		if (next != NULL)
+			next->prev = prev;
+		if (chosen_url == newest_url)
+			newest_url = next;
+		if (chosen_url == active_url)
+			active_url = prev;
+		if (active_url == NULL)
+			active_url = next;
+		free(((URLDATA *)chosen_url->data)->text);
+		free(chosen_url->data);
+		free(chosen_url);
+		url_win_hover_url = NULL;
+		have_url_count--;
+	}
+}
+
+/* common function to open link of the specified url record */
+static void open_current_url(list_node_t *chosen_url)
+{
+	if (have_url_count && chosen_url != NULL)
+	{
+		url_win_clicktime = SDL_GetTicks();
+		url_win_clicked_url = chosen_url;
+		open_web_link(((URLDATA *)chosen_url->data)->text);
+		((URLDATA *)chosen_url->data)->visited = 1;
+	}
+}
+
+#ifdef CONTEXT_MENUS
+/* called when a context menu option is selected */
+static int context_url_handler(window_info *win, int widget_id, int mx, int my, int option)
+{
+	if (cm_url)
+	{
+		switch (option)
+		{
+			case 0: open_current_url(cm_url); break;
+			case 1: 
+				{
+					char *theurl = ((URLDATA *)cm_url->data)->text;
+					char *skiptext = "http://";
+					if (theurl && strlen(theurl) > strlen(skiptext))
+						history_grep(theurl+strlen(skiptext), strlen(theurl)-strlen(skiptext));
+				}
+				break;
+			case 2: ((URLDATA *)cm_url->data)->visited = 1; break;
+			case 3: ((URLDATA *)cm_url->data)->visited = 0; break;
+			case 5: delete_current_url(cm_url); break;
+			case 7: destroy_url_list(); break;
+		}
+		cm_url = NULL;
+	}
+	url_win_clicktime = SDL_GetTicks();
+	return 1;
+}
+#endif
+
 /* act on scroll wheel in the main window or clicking a URL */
 static int click_url_handler(window_info *win, int mx, int my, Uint32 flags)
 {
+#ifdef CONTEXT_MENUS
+	static size_t cm_id = CM_INIT_VALUE;
+#endif
+
 	if (flags & ELW_WHEEL_UP)
 		vscrollbar_scroll_up(url_win, url_scroll_id);
 	else if (flags & ELW_WHEEL_DOWN)
@@ -613,28 +694,21 @@ static int click_url_handler(window_info *win, int mx, int my, Uint32 flags)
 	{
 		if (flags & ELW_CTRL)
 		{
-			/* delete the node for url_win_hover_url */
-			list_node_t *prev = url_win_hover_url->prev;
-			list_node_t *next = url_win_hover_url->next;
-			if (prev != NULL)
-				prev->next = next;
-			if (next != NULL)
-				next->prev = prev;
-			if (url_win_hover_url == newest_url)
-				newest_url = next;
-			if (url_win_hover_url == active_url)
-				active_url = prev;
-			if (active_url == NULL)
-				active_url = next;
-			free(((URLDATA *)url_win_hover_url->data)->text);
-			free(url_win_hover_url->data);
-			free(url_win_hover_url);
-			url_win_hover_url = NULL;
-			have_url_count--;
+			delete_current_url(url_win_hover_url);
 #ifdef NEW_SOUND
 			add_sound_object(get_index_for_sound_type_name("Window Close"), 0, 0, 1);
 #endif // NEW_SOUND
 		}
+#ifdef CONTEXT_MENUS
+		else if (flags & ELW_RIGHT_MOUSE)
+		{
+			cm_url = url_win_hover_url;
+			/* create first time needed */
+			if (!cm_valid(cm_id))
+				cm_id = cm_create(cm_url_menu_str, context_url_handler);
+			cm_show_direct(cm_id, -1, -1);
+		}
+#endif	
 		else
 		{
 			/* open the URL but block double clicks */
@@ -646,10 +720,7 @@ static int click_url_handler(window_info *win, int mx, int my, Uint32 flags)
 #ifdef NEW_SOUND
 				add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
 #endif // NEW_SOUND
-				url_win_clicktime = SDL_GetTicks();
-				url_win_clicked_url = url_win_hover_url;
-				open_web_link(((URLDATA *)url_win_hover_url->data)->text);
-				((URLDATA *)url_win_hover_url->data)->visited = 1;
+				open_current_url(url_win_hover_url);
 			}
 		}
 	}
