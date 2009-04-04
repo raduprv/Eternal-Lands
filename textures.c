@@ -14,6 +14,7 @@
 #include "load_gl_extensions.h"
 #include "map.h"
 #include "io/elfilewrapper.h"
+#include "ddsimage.h"
 
 #ifdef NEW_LIGHTING
 extern GLfloat day_ambient[4];
@@ -1032,7 +1033,7 @@ void set_legs_metadata(legs_part * part)
 
 #endif	
 
-texture_struct *load_texture(const char * file_name, texture_struct *tex, Uint8 alpha)
+static texture_struct *load_texture_SDL(el_file_ptr file, const char * file_name, texture_struct *tex, Uint8 alpha)
 {
 	SDL_Surface *texture_surface;
 	GLubyte* data;
@@ -1040,23 +1041,17 @@ texture_struct *load_texture(const char * file_name, texture_struct *tex, Uint8 
 	int pixel, temp, r, g, b, a;
 	int bpp, i, j, index, x_padding;
 
-	el_file_ptr file;
-
-	file = el_open_custom(file_name);
-
-	if (file == NULL)
+	if (file == 0)
 	{
-		return NULL;
+		return 0;
 	}
 
 	texture_surface = IMG_Load_RW(SDL_RWFromMem(el_get_pointer(file), el_get_size(file)), 1);
 
-	el_close(file);
-
 	if (texture_surface == 0)
 	{
 		LOG_ERROR("load_texture() error: [%s] [%s]", file_name, IMG_GetError());
-		return NULL;
+		return 0;
 	}
 
 	// at this point, theTextureSurface contains some type of pixel data.
@@ -1080,7 +1075,7 @@ texture_struct *load_texture(const char * file_name, texture_struct *tex, Uint8 
 		x_padding = 0;
 	}
 
-	tex->texture = (GLubyte*) malloc(texture_width * texture_height * 4 * sizeof(GLubyte));
+	tex->texture = (GLubyte*)malloc(texture_width * texture_height * 4 * sizeof(GLubyte));
 	data = tex->texture;
 
 	idx = 0;
@@ -1144,6 +1139,54 @@ texture_struct *load_texture(const char * file_name, texture_struct *tex, Uint8 
 
 	SDL_UnlockSurface(texture_surface);
 	SDL_FreeSurface(texture_surface);
+
+	return tex;
+}
+
+texture_struct *load_texture(const char * file_name, texture_struct *tex, Uint8 alpha)
+{
+	el_file_ptr file;
+	
+	Uint32 dds;
+
+	file = el_open_custom(file_name);
+
+	if (file == 0)
+	{
+		return 0;
+	}
+
+	dds = 0;
+
+	if (el_get_size(file) >= 4)
+	{
+		if (check_dds(el_get_pointer(file)))
+		{
+			dds = 1;
+		}
+	}
+
+	if (dds == 1)
+	{
+		tex->has_alpha = 0;
+		tex->texture = load_dds(file, file_name, &tex->x_size, &tex->y_size);
+	}
+	else
+	{
+		tex = load_texture_SDL(file, file_name, tex, alpha);
+	}
+
+	el_close(file);
+
+	if (tex->texture == 0)
+	{
+		return 0;
+	}
+
+	if (tex == 0)
+	{
+		return 0;
+	}
 
 #if defined NEW_LIGHTING || defined NIGHT_TEXTURES
 	do_night_shift_texture(file_name, data, tex->x_size, tex->y_size);
