@@ -33,7 +33,7 @@ COBJS=2d_objects.o 3d_objects.o \
 	actor_scripts.o actors.o alphamap.o asc.o astrology.o \
 	bbox_tree.o books.o buddy.o buffs.o bags.o \
 	cache.o cal.o calc.o chat.o cluster.o colors.o console.o consolewin.o \
-	counters.o cursors.o dialogues.o draw_scene.o eye_candy_debugwin.o \
+	counters.o cursors.o dds.o ddsimage.o dialogues.o draw_scene.o eye_candy_debugwin.o \
 	elconfig.o elwindows.o encyclopedia.o errors.o events.o	\
 	filter.o font.o framebuffer.o frustum.o	\
 	gamewin.o gl_init.o hud.o help.o highlight.o	\
