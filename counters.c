@@ -80,7 +80,9 @@ static const char *temp_event_string[] =
 		"%s just hit a teleport nexus, ",
 		"While harvesting, %s upset a radon pouch, ",
 		"%s found Joker and got ",
-		"%s found Joker and failed to get" };
+		"%s found Joker and failed to get",
+		"You gained ",
+		"You found "};
 static const char *count_str[] =
 	{	"dummy",
 		"Blessed by the Queen of Nature",
@@ -90,7 +92,9 @@ static const char *count_str[] =
 		"Hit a teleport nexus",
 		"Upset a radon pouch",
 		"Gift from Joker",
-		"Gift from Joker (lost)" };
+		"Gift from Joker (lost)",
+		"Extra harvesting experience",
+		"Bag of gold"};
 static const int num_search_str = sizeof(count_str)/sizeof(char *);
 static char **search_str = NULL;
 static size_t *search_len = NULL;
@@ -960,6 +964,16 @@ void catch_counters_text(const char* text)
 				{
 					int quanity = atoi(&text[search_len[i]]);
 					increment_counter(MISC_EVENTS, "Exp from Queen of Nature blessing", quanity, 0);
+				}
+				if (i==9)
+				{
+					int quanity = atoi(&text[11]);
+					increment_counter(MISC_EVENTS, "Exp from harvesting event", quanity, 0);
+				}
+				if (i==10)
+				{
+					int quanity = atoi(&text[10]);
+					increment_counter(MISC_EVENTS, "Total gold coin from bags", quanity, 0);
 				}
 				/* record the event time so can check associate with a subsequent cause of death */
 				misc_event_time = SDL_GetTicks();
