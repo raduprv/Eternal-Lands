@@ -81,8 +81,7 @@ static const char *temp_event_string[] =
 		"While harvesting, %s upset a radon pouch, ",
 		"%s found Joker and got ",
 		"%s found Joker and failed to get",
-		"You gained ",
-		"You found "};
+		"While harvesting, %s lit up a match to check the dung level, " };
 static const char *count_str[] =
 	{	"dummy",
 		"Blessed by the Queen of Nature",
@@ -93,8 +92,7 @@ static const char *count_str[] =
 		"Upset a radon pouch",
 		"Gift from Joker",
 		"Gift from Joker (lost)",
-		"Extra harvesting experience",
-		"Bag of gold"};
+		"Explosion while harvesting dung" };
 static const int num_search_str = sizeof(count_str)/sizeof(char *);
 static char **search_str = NULL;
 static size_t *search_len = NULL;
@@ -952,6 +950,22 @@ void catch_counters_text(const char* text)
 		}
 	}
 	
+	/* loose coin find */
+	else if (my_strncompare(text, "You found ", 10) && strstr(text, " coins."))
+	{
+		int quanity = atoi(&text[10]);
+		increment_counter(MISC_EVENTS, "Total loose gold coin", quanity, 0);
+		increment_counter(MISC_EVENTS, "Loose gold coin", 1, 0);
+	}
+	
+	/* extra harvest exp */
+	else if (my_strncompare(text, "You gained ", 11) && strstr(text, " extra harvesting exp."))
+	{
+		int quanity = atoi(&text[11]);
+		increment_counter(MISC_EVENTS, "Total extra harvesting exp", quanity, 0);
+		increment_counter(MISC_EVENTS, "Extra harvesting exp", 1, 0);
+	}
+	
 	/* misc events, just translate the event text to a counted text string */
 	else
 	{
@@ -964,16 +978,6 @@ void catch_counters_text(const char* text)
 				{
 					int quanity = atoi(&text[search_len[i]]);
 					increment_counter(MISC_EVENTS, "Exp from Queen of Nature blessing", quanity, 0);
-				}
-				if (i==9)
-				{
-					int quanity = atoi(&text[11]);
-					increment_counter(MISC_EVENTS, "Exp from harvesting event", quanity, 0);
-				}
-				if (i==10)
-				{
-					int quanity = atoi(&text[10]);
-					increment_counter(MISC_EVENTS, "Total gold coin from bags", quanity, 0);
 				}
 				/* record the event time so can check associate with a subsequent cause of death */
 				misc_event_time = SDL_GetTicks();
