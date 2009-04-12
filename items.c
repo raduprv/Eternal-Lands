@@ -74,7 +74,7 @@ int use_small_items_window = 0;
 int manual_size_items_window = 0;
 
 #define NUMBUT 4
-#define XLENBUT 27
+#define XLENBUT 29
 #define YLENBUT 33
 static int but_y_off[NUMBUT] = { 0, YLENBUT, YLENBUT*2, YLENBUT*3 };
 enum { BUT_STORE, BUT_GET, BUT_DROP, BUT_MIX };
@@ -1133,7 +1133,7 @@ int show_items_handler(window_info * win)
 	win->len_x=6*items_grid_size+110;
 	quantity_y_offset=win->len_y-21;
 	quantity_x_offset=1;
-	wear_items_x_offset=6*items_grid_size+8;
+	wear_items_x_offset=6*items_grid_size+6;
 	item_quantity=quantities.quantity[quantities.selected].val;
 
 #ifdef CONTEXT_MENUS
