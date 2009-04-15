@@ -801,6 +801,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
                                   if(item_list[i].quantity<1)
                                   {
                                          move_item(pos,i);
+                                         item_dragged=-1;
                                          break;
                                    }
                               }
