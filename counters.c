@@ -81,7 +81,8 @@ static const char *temp_event_string[] =
 		"While harvesting, %s upset a radon pouch, ",
 		"%s found Joker and got ",
 		"%s found Joker and failed to get",
-		"While harvesting, %s lit up a match to check the dung level, " };
+		"While harvesting, %s lit up a match to check the dung level, ",
+		"While trying to harvest, the outhouse lid fell on %s, " };
 static const char *count_str[] =
 	{	"dummy",
 		"Blessed by the Queen of Nature",
@@ -92,7 +93,8 @@ static const char *count_str[] =
 		"Upset a radon pouch",
 		"Gift from Joker",
 		"Gift from Joker (lost)",
-		"Explosion while harvesting dung" };
+		"Explosion while harvesting dung",
+		"Outhouse lid accident" };
 static const int num_search_str = sizeof(count_str)/sizeof(char *);
 static char **search_str = NULL;
 static size_t *search_len = NULL;
