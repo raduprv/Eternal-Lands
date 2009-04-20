@@ -1245,12 +1245,12 @@ static __inline__ void check_option_var(char* name)
 		case OPT_INT:
 		case OPT_MULTI:
 		case OPT_INT_F:
+		case OPT_INT_INI:
 			value_i= *((int*)our_vars.var[i]->var);
 			our_vars.var[i]->func (our_vars.var[i]->var, value_i);
 			break;
 		case OPT_BOOL:
 		case OPT_BOOL_INI:
-		case OPT_BOOL_INI_RO:
 			value_i= *((int*)our_vars.var[i]->var);
 			if (value_i == 0) *((int*)our_vars.var[i]->var)= 1;
 			else *((int*)our_vars.var[i]->var)= 0;
@@ -1352,7 +1352,7 @@ int check_var (char *str, var_name_type type)
 			our_vars.var[i]->func ( our_vars.var[i]->var, atoi (ptr) );
 			return 1;
 		case OPT_BOOL_INI:
-		case OPT_BOOL_INI_RO:
+		case OPT_INT_INI:
 			// Needed, because var is never changed through widget
 			our_vars.var[i]->saved= 0;
 		case OPT_BOOL:
@@ -1427,6 +1427,7 @@ void add_var(option_type type, char * name, char * shortname, void * var, void *
 			*integer= (int)def;
 		break;
 		case OPT_INT:
+		case OPT_INT_INI:
 			queue_initialise(&our_vars.var[no]->queue);
 			va_start(ap, tab_id);
 			//Min
@@ -1442,7 +1443,6 @@ void add_var(option_type type, char * name, char * shortname, void * var, void *
 		break;
 		case OPT_BOOL:
 		case OPT_BOOL_INI:
-		case OPT_BOOL_INI_RO:
 			*integer=(int)def;
 			break;
 		case OPT_STRING:
@@ -1824,6 +1824,7 @@ void init_vars()
 	add_var(OPT_FLOAT,"gamma","g",&gamma_var,change_gamma,1,"Gamma","How bright your display should be.",ADVVID,0.10,3.00,0.05);
 	add_var(OPT_BOOL, "continent_map_boundaries", "cmb", &show_continent_map_boundaries, change_var, 1, "Map Boundaries On Continent Map", "Show map boundaries on the continent map", MISC);
 	add_var(OPT_FLOAT_F,"anisotropic_filter","af",&anisotropic_filter,change_anisotropic_filter,1,"Anisotropic Filter","Anisotropic filter is a texture effect that increase the texture quality but cost speed.",VIDEO, float_one_func, get_max_anisotropic_filter, 1.0f);
+	add_var(OPT_INT, "anti_aliasing", "fsaa", &fsaa, change_int, 0, "Anti-Aliasing", "Full Scene Anti-Aliasing", VIDEO, 0, 16);
 #ifdef	USE_SHADER
 	add_var(OPT_INT_F,"water_shader_quality","water_shader_quality",&water_shader_quality,change_water_shader_quality,1,"water shader quality","Defines what shader is used for water rendering. Higher values are slower but look better. Needs \"toggle frame buffer support\" to be turned on.",VIDEO, int_zero_func, int_max_water_shader_quality);
 #endif	// USE_SHADER
@@ -1843,8 +1844,7 @@ void init_vars()
 
 	add_var(OPT_BOOL_INI, "video_info_sent", "svi", &video_info_sent, change_var, 0, "Video info sent", "Video information are sent to the server (like OpenGL version and OpenGL extentions)", MISC);
 #ifndef MAP_EDITOR
-	add_var(OPT_BOOL, "use_animation_program", "uap", &use_animation_program, change_use_animation_program, 1, "Use animation program", "Use GL_ARB_vertex_program for actor animation", VIDEO);
-	// add_var(OPT_BOOL_INI_RO, "use_animation_program", "uap", &use_animation_program, change_use_animation_program, 1, "Use animation program", "Use GL_ARB_vertex_program for actor animation", MISC);
+	add_var(OPT_BOOL, "use_animation_program", "uap", &use_animation_program, change_use_animation_program, 1, "Use animation program", "Use GL_ARB_vertex_program for actor animation", ADVVID);
 #endif //MAP_EDITOR
 
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
@@ -1870,6 +1870,7 @@ void write_var (FILE *fout, int ivar)
 		case OPT_BOOL:
 		case OPT_INT_F:
 		case OPT_BOOL_INI:
+		case OPT_INT_INI:
 		{
 			int *p= our_vars.var[ivar]->var;
 			fprintf (fout, "#%s= %d\n", our_vars.var[ivar]->name, *p);
@@ -1895,12 +1896,6 @@ void write_var (FILE *fout, int ivar)
 			fprintf (fout, "#%s= %g\n", our_vars.var[ivar]->name, *g);
 			break;
 		}
-		/* Was not included when OPT_BOOL_INI_RO added elsewhere but
-			causes a compiler warning.  Adding this case fixes the
-			warning and does the same as if left out - please fix if
-			this is not the intention. */
-		case OPT_BOOL_INI_RO:
-			break;
 	}
 	our_vars.var[ivar]->saved= 1;	// keep only one copy of this setting
 }
@@ -2223,7 +2218,7 @@ void elconfig_populate_tabs(void)
 		tab_id= our_vars.var[i]->widgets.tab_id;
 		switch(our_vars.var[i]->type) {
 			case OPT_BOOL_INI:
-			case OPT_BOOL_INI_RO:
+			case OPT_INT_INI:
 				// This variable should not be settable
 				// through the window, so don't try to add it,
 				// and more importantly, don't try to compute

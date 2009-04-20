@@ -44,7 +44,7 @@ typedef struct
 	int material_offset;	/*!< the offset of the materials in the file */
 	
 	char vertex_options;	/*!< flag determining whether this is a ground object, has tangents or extra uv's */
-	char reserved_1;
+	char vertex_format;	/*!< flag determining whether haf floats are used for position, uv and/or extra uv's and if normals and tangents are compressed */
 	char reserved_2;
 	char reserved_3;
 

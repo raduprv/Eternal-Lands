@@ -15,7 +15,7 @@ extern "C" {
 #endif
 
 Uint32 check_dds(const Uint8 *ID);
-void* load_dds(el_file_ptr file, char* file_name, Uint32 *width, Uint32 *height);
+void* load_dds(el_file_ptr file, const char* file_name, int *width, int *height);
 
 #ifdef __cplusplus
 } // extern "C"

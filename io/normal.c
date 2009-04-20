@@ -6,6 +6,7 @@
  ****************************************************************************/
 
 #include "normal.h"
+#include <math.h>
 
 // upper 3 bits
 #define SIGN_MASK  0xe000
@@ -22,6 +23,8 @@
 Uint16 compress_normal(const float *normal)
 {
 	float tmp[3];
+	float w;
+	Uint32 xbits, ybits;
 	Uint16 result;
 
 	result = 0;
@@ -52,9 +55,9 @@ Uint16 compress_normal(const float *normal)
 
 	// a little slower... old pack was 4 multiplies and 2 adds. 
 	// This is 2 multiplies, 2 adds, and a divide....
-	float w = 126.0f / (tmp[0] + tmp[1] + tmp[2]);
-	long xbits = (long)(tmp[0] * w);
-	long ybits = (long)(tmp[1] * w);
+	w = 126.0f / (tmp[0] + tmp[1] + tmp[2]);
+	xbits = (Uint32)(tmp[0] * w);
+	ybits = (Uint32)(tmp[1] * w);
 
 	// Now we can be sure that 0<=xp<=126, 0<=yp<=126, 0<=xp+yp<=126
 
@@ -91,7 +94,7 @@ void uncompress_normal(const Uint16 value, float *normal)
 	 * get the x and y bits
 	 */
 
-	x = (valvalueue & TOP_MASK) >> 7;
+	x = (value & TOP_MASK) >> 7;
 	y = value & BOTTOM_MASK;
 
 	// map the numbers back to the triangle (0,0)-(0,126)-(126,0)

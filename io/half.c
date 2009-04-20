@@ -16456,7 +16456,7 @@ Uint16 float_to_half(const float value)
 				{
 					// this maps to a denorm
 					exponent = 0;
-					exponent_value = static_cast<unsigned int>(-14 - new_exponent);  // 2^-exp_val
+					exponent_value = (unsigned int)(-14 - new_exponent);  // 2^-exp_val
 
 					switch (exponent_value)
 					{

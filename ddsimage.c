@@ -436,7 +436,7 @@ static void* uncompress(el_file_ptr file, DdsHeader *header, const char* file_na
 	return dst;
 }
 
-void* load_dds(el_file_ptr file, const char* file_name, Uint32 *width, Uint32 *height)
+void* load_dds(el_file_ptr file, const char* file_name, int *width, int *height)
 {
 	DdsHeader header;
 
