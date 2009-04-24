@@ -234,13 +234,13 @@ int display_edit_window_handler(window_info *win)
 			snprintf(temp,99,"Y Rot: %03.2f",objects_list[ew_selected_object]->y_rot);
 			draw_string(10,100,(const unsigned char*) temp,1);
 			draw_string(160,100,(const unsigned char*) "+ -",1);
-			snprintf(temp,99,"Red: %01.3f",objects_list[ew_selected_object]->r);
+			snprintf(temp,99,"Red: %01.3f",objects_list[ew_selected_object]->color[0]);
 			draw_string(220,10,(const unsigned char*) temp,1);
 			draw_string(380,10,(const unsigned char*) "+ -",1);
-			snprintf(temp,99,"Green: %01.3f",objects_list[ew_selected_object]->g);
+			snprintf(temp,99,"Green: %01.3f",objects_list[ew_selected_object]->color[1]);
 			draw_string(220,30,(const unsigned char*) temp,1);
 			draw_string(380,30,(const unsigned char*) "+ -",1);
-			snprintf(temp,99,"Blue: %01.3f",objects_list[ew_selected_object]->b);
+			snprintf(temp,99,"Blue: %01.3f",objects_list[ew_selected_object]->color[2]);
 			draw_string(220,50,(const unsigned char*) temp,1);
 			draw_string(380,50,(const unsigned char*) "+ -",1);
 			snprintf(temp,99,"Blended: %s",objects_list[ew_selected_object]->blended?"Yes":"No");
@@ -353,12 +353,12 @@ int check_edit_window_interface(window_info *win, int _x, int _y)
 			objects_list[ew_selected_object]->z_rot-=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
 	}
 
-	if (_x > g13_x1 && _x <= g13_x2 && _y > g13_y1 && _y <= g13_y2 && !ew_object_type)objects_list[ew_selected_object]->r+=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
-	if (_x > g14_x1 && _x <= g14_x2 && _y > g14_y1 && _y <= g14_y2 && !ew_object_type)objects_list[ew_selected_object]->r-=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
-	if (_x > g15_x1 && _x <= g15_x2 && _y > g15_y1 && _y <= g15_y2 && !ew_object_type)objects_list[ew_selected_object]->g+=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
-	if (_x > g16_x1 && _x <= g16_x2 && _y > g16_y1 && _y <= g16_y2 && !ew_object_type)objects_list[ew_selected_object]->g-=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
-	if (_x > g17_x1 && _x <= g17_x2 && _y > g17_y1 && _y <= g17_y2 && !ew_object_type)objects_list[ew_selected_object]->b+=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
-	if (_x > g18_x1 && _x <= g18_x2 && _y > g18_y1 && _y <= g18_y2 && !ew_object_type)objects_list[ew_selected_object]->b-=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
+	if (_x > g13_x1 && _x <= g13_x2 && _y > g13_y1 && _y <= g13_y2 && !ew_object_type)objects_list[ew_selected_object]->color[0]+=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
+	if (_x > g14_x1 && _x <= g14_x2 && _y > g14_y1 && _y <= g14_y2 && !ew_object_type)objects_list[ew_selected_object]->color[0]-=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
+	if (_x > g15_x1 && _x <= g15_x2 && _y > g15_y1 && _y <= g15_y2 && !ew_object_type)objects_list[ew_selected_object]->color[1]+=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
+	if (_x > g16_x1 && _x <= g16_x2 && _y > g16_y1 && _y <= g16_y2 && !ew_object_type)objects_list[ew_selected_object]->color[1]-=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
+	if (_x > g17_x1 && _x <= g17_x2 && _y > g17_y1 && _y <= g17_y2 && !ew_object_type)objects_list[ew_selected_object]->color[2]+=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
+	if (_x > g18_x1 && _x <= g18_x2 && _y > g18_y1 && _y <= g18_y2 && !ew_object_type)objects_list[ew_selected_object]->color[2]-=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
 
 	if (_x > g19_x1 && _x <= g19_x2 && _y > g19_y1 && _y <= g19_y2 && !ew_object_type)objects_list[ew_selected_object]->blended=!objects_list[ew_selected_object]->blended;
 	if (_x > g20_x1 && _x <= g20_x2 && _y > g20_y1 && _y <= g20_y2 && !ew_object_type)objects_list[ew_selected_object]->self_lit=!objects_list[ew_selected_object]->self_lit;

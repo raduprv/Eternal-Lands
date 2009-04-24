@@ -144,7 +144,7 @@ typedef struct
 
    char self_lit;
    char blended;
-   float r,g,b;
+   float color[4];
 #ifndef	NEW_E3D_FORMAT
    e3d_array_uv_detail *clouds_uv;
 #endif	// NEW_E3D_FORMAT
@@ -168,6 +168,10 @@ extern object3d *objects_list[MAX_OBJ_3D];
 
 //proto
 e3d_object * load_e3d(char *file_name);
+
+void e3d_enable_vertex_arrays(e3d_object *e3d_data, Uint32 use_lightning, Uint32 use_textures);
+void e3d_disable_vertex_arrays();
+void set_emission(object3d * object_id);
 
 #endif
 

@@ -230,9 +230,9 @@ int save_map (const char* file_name)
 				cur_3d_obj_io.self_lit = objects_list[i]->self_lit;
 				cur_3d_obj_io.blended  = objects_list[i]->blended;
 
-				cur_3d_obj_io.r = objects_list[i]->r;
-				cur_3d_obj_io.g = objects_list[i]->g;
-				cur_3d_obj_io.b = objects_list[i]->b;
+				cur_3d_obj_io.r = objects_list[i]->color[0];
+				cur_3d_obj_io.g = objects_list[i]->color[1];
+				cur_3d_obj_io.b = objects_list[i]->color[2];
 
 #ifdef	ZLIBW
 				gzwrite (f, cur_3do_pointer, sizeof(object3d_io));

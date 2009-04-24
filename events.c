@@ -64,7 +64,7 @@ int HandleEvent(SDL_Event *event)
                             switch (undo_type) {
                                 case mode_3d: {
                                         object3d *o = (object3d *)undo_object;
-                                        add_e3d(o->file_name, o->x_pos, o->y_pos, o->z_pos, o->x_rot, o->y_rot, o->z_rot, o->self_lit, o->blended, o->r, o->g, o->b);
+                                        add_e3d(o->file_name, o->x_pos, o->y_pos, o->z_pos, o->x_rot, o->y_rot, o->z_rot, o->self_lit, o->blended, o->color[0], o->color[1], o->color[2]);
                                         free(undo_object);
                                         undo_object = NULL;
                                     }
@@ -300,28 +300,28 @@ int HandleEvent(SDL_Event *event)
             
             //do the lightening stuff
             if(ch=='1' && selected_3d_object!=-1 && cur_mode==mode_3d && !alt_on)
-                if(objects_list[selected_3d_object]->r<1.0f)
-                    objects_list[selected_3d_object]->r+=0.05f;
+                if(objects_list[selected_3d_object]->color[0]<1.0f)
+                    objects_list[selected_3d_object]->color[0]+=0.05f;
             
             if(ch=='1' && selected_3d_object!=-1 && cur_mode==mode_3d && alt_on)
-                if(objects_list[selected_3d_object]->r>0.0f)
-                    objects_list[selected_3d_object]->r-=0.05f;
+                if(objects_list[selected_3d_object]->color[0]>0.0f)
+                    objects_list[selected_3d_object]->color[0]-=0.05f;
             
             if(ch=='2' && selected_3d_object!=-1 && cur_mode==mode_3d && !alt_on)
-                if(objects_list[selected_3d_object]->g<1.0f)
-                    objects_list[selected_3d_object]->g+=0.05f;
+                if(objects_list[selected_3d_object]->color[1]<1.0f)
+                    objects_list[selected_3d_object]->color[1]+=0.05f;
             
             if(ch=='2' && selected_3d_object!=-1 && cur_mode==mode_3d && alt_on)
-                if(objects_list[selected_3d_object]->g>0.0f)
-                    objects_list[selected_3d_object]->g-=0.05f;
+                if(objects_list[selected_3d_object]->color[1]>0.0f)
+                    objects_list[selected_3d_object]->color[1]-=0.05f;
             
             if(ch=='3' && selected_3d_object!=-1 && cur_mode==mode_3d && !alt_on)
-                if(objects_list[selected_3d_object]->b<1.0f)
-                    objects_list[selected_3d_object]->b+=0.05f;
+                if(objects_list[selected_3d_object]->color[2]<1.0f)
+                    objects_list[selected_3d_object]->color[2]+=0.05f;
             
             if(ch=='3' && selected_3d_object!=-1 && cur_mode==mode_3d && alt_on)
-                if(objects_list[selected_3d_object]->b>0.0f)
-                    objects_list[selected_3d_object]->b-=0.05f;
+                if(objects_list[selected_3d_object]->color[2]>0.0f)
+                    objects_list[selected_3d_object]->color[2]-=0.05f;
             
             //for lights now
             if(ch=='1' && selected_light!=-1 && cur_mode==mode_light && !alt_on && !lights_list[selected_light]->locked)

@@ -35,9 +35,10 @@ int setobject(int n, char *fn,float xrot, float yrot, float zrot)
 	our_object->y_rot=yrot;
 	our_object->z_rot=zrot;
 
-	our_object->r=0;
-	our_object->g=0;
-	our_object->b=0;
+	our_object->color[0] = 0.0f;
+	our_object->color[1] = 0.0f;
+	our_object->color[2] = 0.0f;
+	our_object->color[3] = 0.0f;
 #ifndef	NEW_E3D_FORMAT
 	our_object->clouds_uv=NULL;
 #endif	//NEW_E3D_FORMAT

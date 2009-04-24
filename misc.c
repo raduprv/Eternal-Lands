@@ -223,9 +223,9 @@ void clone_3d_object(int object_id)
 	z_rot=objects_list[object_id]->z_rot;
 	self_lit=objects_list[object_id]->self_lit;
 	blended=objects_list[object_id]->blended;
-	r=objects_list[object_id]->r;
-	g=objects_list[object_id]->g;
-	b=objects_list[object_id]->b;
+	r=objects_list[object_id]->color[0];
+	g=objects_list[object_id]->color[1];
+	b=objects_list[object_id]->color[2];
 
 	z_pos=(z_pos == 0.01f)?0.02f:(z_pos == 0.02f?0.01f:z_pos);
 

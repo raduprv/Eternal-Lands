@@ -261,11 +261,11 @@ int check_replace_window_interface(window_info *win, int _x, int _y)
 
 			strcpy (cNid, objects_list[selected_3d_object]->file_name);
 
-			new_object_red = objects_list[selected_3d_object]->r;
+			new_object_red = objects_list[selected_3d_object]->color[0];
 
-			new_object_green = objects_list[selected_3d_object]->g;
+			new_object_green = objects_list[selected_3d_object]->color[1];
 
-			new_object_blue = objects_list[selected_3d_object]->b;
+			new_object_blue = objects_list[selected_3d_object]->color[2];
 
 		}
 
@@ -361,11 +361,11 @@ int check_replace_window_interface(window_info *win, int _x, int _y)
 
 						strcpy (objects_list[i]->file_name, cNid);
 
-						objects_list[i]->r = new_object_red;
+						objects_list[i]->color[0] = new_object_red;
 
-						objects_list[i]->g = new_object_green;
+						objects_list[i]->color[1] = new_object_green;
 
-						objects_list[i]->b = new_object_blue;
+						objects_list[i]->color[2] = new_object_blue;
 
 					}
 

@@ -350,15 +350,15 @@ void draw_3d_obj_info()
 	x_menu+=12*12;
 	y_menu-=17*2;
 
-	sprintf((char *)str, "Red  : %03.2f",objects_list[selected_3d_object]->r);
+	sprintf((char *)str, "Red  : %03.2f",objects_list[selected_3d_object]->color[0]);
 	draw_string(x_menu,y_menu,str,1);
 
 	y_menu+=17;
-	sprintf((char *)str, "Green: %03.2f",objects_list[selected_3d_object]->g);
+	sprintf((char *)str, "Green: %03.2f",objects_list[selected_3d_object]->color[1]);
 	draw_string(x_menu,y_menu,str,1);
 
 	y_menu+=17;
-	sprintf((char *)str, "Blue : %03.2f",objects_list[selected_3d_object]->b);
+	sprintf((char *)str, "Blue : %03.2f",objects_list[selected_3d_object]->color[2]);
 	draw_string(x_menu,y_menu,str,1);
 ///////////////////////////////////////////////////////////////////////
 	x_menu+=12*12;

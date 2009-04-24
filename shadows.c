@@ -46,8 +46,6 @@ void draw_3d_object_shadow(object3d * object_id)
 	int texture_id, i;
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
-	void* data_ptr;
-	int vertex_size;
 
 	//also, update the last time this object was used
 	object_id->last_acessed_time=cur_time;
@@ -58,12 +56,7 @@ void draw_3d_object_shadow(object3d * object_id)
 		glBlendFunc(GL_ONE,GL_ONE);
 	}
 
-	if(object_id->self_lit && (night_shadows_on || dungeon))
-	{
-		glDisable(GL_LIGHTING);
-		//set_material(object_id->r,object_id->g,object_id->b);
-		glColor3f(object_id->r,object_id->g,object_id->b);
-	}
+	set_emission(object_id);
 
 	CHECK_GL_ERRORS();
 
@@ -82,38 +75,21 @@ void draw_3d_object_shadow(object3d * object_id)
 
 	CHECK_GL_ERRORS();
 
-	if (have_vertex_buffers)
-	{
-		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vertex_vbo);
-		data_ptr = 0;
-	}
-	else
-	{
-		data_ptr = object_id->e3d_data->vertex_data;
-	}
-	vertex_size = get_vertex_size(object_id->e3d_data->vertex_options);
-	glTexCoordPointer(TEXTURE_FLOAT_COUNT, GL_FLOAT, vertex_size,
-		data_ptr + get_texture_offset(object_id->e3d_data->vertex_options));
-	glVertexPointer(VERTEX_FLOAT_COUNT, GL_FLOAT, vertex_size,
-		data_ptr + get_vertex_offset(object_id->e3d_data->vertex_options));
-	if (have_vertex_buffers)
-	{
-		ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, object_id->e3d_data->indicies_vbo);
-	}
+	e3d_enable_vertex_arrays(object_id->e3d_data, 0, 1);
 		
 	CHECK_GL_ERRORS();
 
 	for (i = 0; i < object_id->e3d_data->material_no; i++)
 	{
-		if (material_is_transparent(object_id->e3d_data->materials[i].options))
+		if (object_id->e3d_data->materials[i].options)
 		{
 			//enable alpha filtering, so we have some alpha key
 			glEnable(GL_ALPHA_TEST);
-			if (is_ground(object_id->e3d_data->vertex_options)) glAlphaFunc(GL_GREATER, 0.23f);
+			if (object_id->e3d_data->vertex_layout->normal_count == 0) glAlphaFunc(GL_GREATER, 0.23f);
 			else glAlphaFunc(GL_GREATER, 0.06f);
 			glDisable(GL_CULL_FACE);
 			glEnable(GL_TEXTURE_2D);
-			texture_id = get_texture_id(object_id->e3d_data->materials[i].diffuse_map);
+			texture_id = get_texture_id(object_id->e3d_data->materials[i].texture);
 			if (last_texture != texture_id)
 			{
 				glBindTexture(GL_TEXTURE_2D, texture_id);
@@ -138,7 +114,9 @@ void draw_3d_object_shadow(object3d * object_id)
 	glPopMatrix();//restore the scene
 	CHECK_GL_ERRORS();
 
-	if (material_is_transparent(object_id->e3d_data->materials[object_id->e3d_data->material_no-1].options))
+	e3d_disable_vertex_arrays();
+
+	if (object_id->e3d_data->materials[object_id->e3d_data->material_no-1].options)
 	{
 		glDisable(GL_ALPHA_TEST);
 		glEnable(GL_CULL_FACE);
@@ -249,7 +227,7 @@ void display_shadows()
 #ifndef	NEW_E3D_FORMAT
 				if(!objects_list[i]->e3d_data->is_ground && objects_list[i]->z_pos>-0.20f)
 #else	//NEW_E3D_FORMAT
-				if (!is_ground(objects_list[i]->e3d_data->vertex_options)
+				if ((objects_list[i]->e3d_data->vertex_layout->normal_count > 0)
 					&& objects_list[i]->z_pos>-0.20f)
 #endif	//NEW_E3D_FORMAT
 					{
@@ -290,7 +268,7 @@ void display_night_shadows(int phase)
 #ifndef	NEW_E3D_FORMAT
 				if(!objects_list[i]->e3d_data->is_ground && objects_list[i]->z_pos>-0.20f)
 #else	//NEW_E3D_FORMAT
-				if (!is_ground(objects_list[i]->e3d_data->vertex_options)
+				if ((objects_list[i]->e3d_data->vertex_layout->normal_count > 0)
 					&& objects_list[i]->z_pos>-0.20f)
 #endif	//NEW_E3D_FORMAT
 					{
@@ -390,7 +368,7 @@ void display_3d_ground_objects()
 #ifndef	NEW_E3D_FORMAT
 					 if(objects_list[i]->e3d_data->is_ground)
 #else	//NEW_E3D_FORMAT
-					if (!is_ground(objects_list[i]->e3d_data->vertex_options))
+					if (objects_list[i]->e3d_data->vertex_layout->normal_count > 0)
 #endif	//NEW_E3D_FORMAT
 						{
 					 		int dist1;
@@ -461,7 +439,7 @@ void display_3d_non_ground_objects()
 #ifndef	NEW_E3D_FORMAT
 					 if(!objects_list[i]->e3d_data->is_ground)
 #else	//NEW_E3D_FORMAT
-					if (!is_ground(objects_list[i]->e3d_data->vertex_options))
+					if (objects_list[i]->e3d_data->vertex_layout->normal_count > 0)
 #endif	//NEW_E3D_FORMAT
 						{
 							int dist1;
