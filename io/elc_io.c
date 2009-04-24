@@ -10,29 +10,9 @@
 #include "elc_io.h"
 #include "../errors.h"
 
-/*
- * -2	File to old, download newer file.
- * -1	Client to old, download newer client.
- *  0	Every thing is good.
- *  1	Old client, you should update the client to use the new features.
- *  2	Old file, you can update, but it's not nessecary.
- */
-static __inline__ int check_version(const elc_file_header header, const VERSION_NUMBER version)
-{
-	if (header.version[0] < version[0]) return -2;
-	if (header.version[0] > version[0]) return -1;
-	if (header.version[1] < version[1]) return -2;
-	if (header.version[1] > version[1]) return -1;
-	if (header.version[2] > version[2]) return 1;
-	if (header.version[2] < version[2]) return 2;
-	if (header.version[3] > version[3]) return 0;
-	if (header.version[3] < version[3]) return 0;
-	return 0;
-}
-
 #define	BLOCK_SIZE	1024*1024
 
-int read_and_check_elc_header(el_file_ptr file, const MAGIC_NUMBER magic, const VERSION_NUMBER version, const char* filename)
+int read_and_check_elc_header(el_file_ptr file, const magic_number magic, version_number *version, const char* filename)
 {
 	elc_file_header header;
 	int size, header_offset;
@@ -47,7 +27,7 @@ int read_and_check_elc_header(el_file_ptr file, const MAGIC_NUMBER magic, const 
 		return -1;
 	}
 
-	if (memcmp(header.magic, magic, sizeof(MAGIC_NUMBER)) != 0)
+	if (memcmp(header.magic, magic, sizeof(magic_number)) != 0)
 	{
 		char m_str[5], hm_str[5];
 
@@ -61,26 +41,7 @@ int read_and_check_elc_header(el_file_ptr file, const MAGIC_NUMBER magic, const 
 		return -1;
 	}
 
-	switch (check_version(header, version))
-	{
-		case -2: 	
-			LOG_ERROR("File '%s' too old! Download newer file.", filename);
-			return -1;
-		case -1:
-			LOG_ERROR("Client too old for file '%s'! Download newer client.", filename);
-			return -1;
-		case 0:
-			break;
-		case 1:
-			log_info("Old client, you should update the client to use the new features of file '%s'.", filename);
-			break;
-		case 2:
-			log_info("File '%s' is old, you shoud update the file.", filename);
-			break;
-		default:
-			LOG_ERROR("This is a client Error!", filename);
-			return -1;
-	}
+	memcpy(version, header.version, sizeof(version_number));
 
 	header_offset = SDL_SwapLE32(header.header_offset);
 

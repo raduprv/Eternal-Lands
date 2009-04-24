@@ -21,12 +21,13 @@ extern "C" {
 /*!
  * the magic number for an e3d file.
  */
-static const MAGIC_NUMBER EL3D_FILE_MAGIC_NUMBER = {'e', '3', 'd', 'x'};
+static const magic_number EL3D_FILE_MAGIC_NUMBER = {'e', '3', 'd', 'x'};
 
 /*!
  * the current version number for an e3d file.
  */
-static const VERSION_NUMBER EL3D_FILE_VERSION_NUMBER = {1, 0, 0, 0};
+static const version_number EL3D_FILE_VERSION_NUMBER_1_0 = {1, 0, 0, 0};
+static const version_number EL3D_FILE_VERSION_NUMBER_1_1 = {1, 1, 0, 0};
 
 /*!
  * the header structure for an e3d file.
@@ -83,18 +84,6 @@ typedef struct
 {
 	char material_name[128];	/*!< name of the material */
 } e3d_extra_texture;
-
-__inline__ static int get_material_size(int vertex_options)
-{
-	if (has_extra_texture(vertex_options))
-	{
-		return sizeof(e3d_material) + sizeof(e3d_extra_texture);
-	}
-	else
-	{
-		return sizeof(e3d_material);
-	}
-}
 
 e3d_object* load_e3d_detail(e3d_object* cur_object);
 

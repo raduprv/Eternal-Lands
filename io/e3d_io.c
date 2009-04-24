@@ -11,6 +11,272 @@
 #endif
 #include "../errors.h"
 #include "elfilewrapper.h"
+#include "normal.h"
+#include "half.h"
+
+static Uint32 has_normal(const Uint32 options)
+{
+	return (options & 0x01) != 0;
+}
+
+static Uint32 has_tangent(const Uint32 options)
+{
+	return (options & 0x02) != 0;
+}
+
+static Uint32 has_secondary_texture_coordinate(const Uint32 options)
+{
+	return (options & 0x04) != 0;
+}
+
+static Uint32 has_color(const Uint32 options)
+{
+	return (options & 0x08) != 0;
+}
+
+static Uint32 half_position(const Uint32 format)
+{
+	return (format & 0x01) != 0;
+}
+
+static Uint32 half_uv(const Uint32 format)
+{
+	return (format & 0x02) != 0;
+}
+
+static Uint32 half_extra_uv(const Uint32 format)
+{
+	return (format & 0x04) != 0;
+}
+
+static Uint32 compressed_normal(const Uint32 format)
+{
+	return (format & 0x08) != 0;
+}
+
+static Uint32 short_index(const Uint32 format)
+{
+	return (format & 0x10) != 0;
+}
+
+static Uint32 check_vertex_size(const Uint32 size, const Uint32 options, const Uint32 format)
+{
+	Uint32 tmp;
+
+	tmp = 0;
+
+	if (half_position(format))
+	{
+		tmp += 3 * sizeof(Uint16);
+	}
+	else
+	{
+		tmp += 3 * sizeof(float);
+	}
+	if (half_uv(format))
+	{
+		tmp += 2 * sizeof(Uint16);
+	}
+	else
+	{
+		tmp += 2 * sizeof(float);
+	}
+
+	if (has_normal(options))
+	{
+		if (compressed_normal(format))
+		{
+			tmp += sizeof(Uint16);
+		}
+		else
+		{
+			tmp += 3 * sizeof(float);
+		}
+	}
+
+	if (has_tangent(options))
+	{
+		if (compressed_normal(format))
+		{
+			tmp += sizeof(Uint16);
+		}
+		else
+		{
+			tmp += 3 * sizeof(float);
+		}
+	}
+
+	if (has_secondary_texture_coordinate(options))
+	{
+		if (half_extra_uv(format))
+		{
+			tmp += 2 * sizeof(Uint16);
+		}
+		else
+		{
+			tmp += 2 * sizeof(float);
+		}
+	}
+
+	if (has_color(options))
+	{
+		tmp += 4 * sizeof(Uint8);
+	}
+
+	return tmp == size;
+}
+
+static Uint32 get_material_size(const Uint32 options)
+{
+	if (has_secondary_texture_coordinate(options))
+	{
+		return sizeof(e3d_material) + sizeof(e3d_extra_texture);
+	}
+	else
+	{
+		return sizeof(e3d_material);
+	}
+}
+
+e3d_vertex_data vertex_layout_array[] =
+{
+	{
+		sizeof(float) * 2, 0, 0, 0,
+		sizeof(float) * 5, 3, 2, 0, 0,
+		GL_FLOAT, GL_FLOAT, GL_FLOAT, GL_UNSIGNED_BYTE
+	},
+	{
+		sizeof(float) * 5, 0, sizeof(float) * 2, 0,
+		sizeof(float) * 8, 3, 2, 3, 0,
+		GL_FLOAT, GL_FLOAT, GL_FLOAT, GL_UNSIGNED_BYTE
+	},
+	{
+		sizeof(float) * 2, 0, 0, sizeof(float) * 5,
+		sizeof(float) * 5 + sizeof(Uint8) * 4, 3, 2, 0, 4,
+		GL_FLOAT, GL_FLOAT, GL_FLOAT, GL_UNSIGNED_BYTE
+	},
+	{
+		sizeof(float) * 5, 0, sizeof(float) * 2, sizeof(float) * 8,
+		sizeof(float) * 8 + sizeof(Uint8) * 4, 3, 2, 3, 4,
+		GL_FLOAT, GL_FLOAT, GL_FLOAT, GL_UNSIGNED_BYTE
+	}
+};
+
+static void read_vertex_buffer(el_file_ptr file, float* buffer, const Uint32 vertex_count,
+	const Uint32 vertex_size, const Uint32 options, const Uint32 format)
+{
+	float temp[3];
+	Uint16 tmp[3];
+	Uint32 i, idx, offset;
+	Uint8 color[4];
+
+	idx = 0;
+
+	offset = el_tell(file);
+
+	for (i = 0; i < vertex_count; i++)
+	{
+		el_seek(file, offset + i * vertex_size, SEEK_SET);
+
+		if (half_uv(format))
+		{
+			el_read(file, 2 * sizeof(Uint16), tmp);
+
+			temp[0] = half_to_float(SDL_SwapLE16(tmp[0]));
+			temp[1] = half_to_float(SDL_SwapLE16(tmp[1]));
+		}
+		else
+		{
+			el_read(file, 2 * sizeof(float), temp);
+
+			temp[0] = SwapLEFloat(temp[0]);
+			temp[1] = SwapLEFloat(temp[1]);
+		}
+
+		buffer[idx + 0] = temp[0];
+		buffer[idx + 1] = temp[1];
+
+		idx += 2;
+
+		if (has_secondary_texture_coordinate(options))
+		{
+			if (half_extra_uv(format))
+			{
+				el_seek(file, 2 * sizeof(Uint16), SEEK_CUR);
+			}
+			else
+			{
+				el_seek(file, 2 * sizeof(float), SEEK_CUR);
+			}
+		}
+
+		if (has_normal(options))
+		{
+			if (compressed_normal(format))
+			{
+				el_read(file, sizeof(Uint16), tmp);
+
+				uncompress_normal(SDL_SwapLE16(tmp[0]), temp);
+			}
+			else
+			{
+				el_read(file, 3 * sizeof(float), temp);
+
+				temp[0] = SwapLEFloat(temp[0]);
+				temp[1] = SwapLEFloat(temp[1]);
+				temp[2] = SwapLEFloat(temp[2]);
+			}
+
+			buffer[idx + 0] = temp[0];
+			buffer[idx + 1] = temp[1];
+			buffer[idx + 2] = temp[2];
+
+			idx += 3;
+		}
+
+		if (has_tangent(options))
+		{
+			if (compressed_normal(format))
+			{
+				el_seek(file, sizeof(Uint16), SEEK_CUR);
+			}
+			else
+			{
+				el_seek(file, 3 * sizeof(float), SEEK_CUR);
+			}
+		}
+
+		if (half_position(format))
+		{
+			el_read(file, 3 * sizeof(Uint16), tmp);
+
+			temp[0] = half_to_float(SDL_SwapLE16(tmp[0]));
+			temp[1] = half_to_float(SDL_SwapLE16(tmp[1]));
+			temp[2] = half_to_float(SDL_SwapLE16(tmp[2]));
+		}
+		else
+		{
+			el_read(file, 3 * sizeof(float), temp);
+
+			temp[0] = SwapLEFloat(temp[0]);
+			temp[1] = SwapLEFloat(temp[1]);
+			temp[2] = SwapLEFloat(temp[2]);
+		}
+
+		buffer[idx + 0] = temp[0];
+		buffer[idx + 1] = temp[1];
+		buffer[idx + 2] = temp[2];
+
+		idx += 3;
+
+		if (has_color(options))
+		{
+			el_read(file, 4 * sizeof(Uint8), color);
+			memcpy(&buffer[idx], color, 4 * sizeof(Uint8));
+			idx += 1;
+		}
+	}
+}
 
 static void free_e3d_pointer(e3d_object* cur_object)
 {
@@ -52,42 +318,19 @@ static int check_pointer(void* ptr, e3d_object* cur_object, const char* str, el_
 
 #define CHECK_POINTER(ptr, str) check_pointer((ptr), cur_object, (str), file)
 
-static int check_size(int read_size, int size, e3d_object* cur_object, const char* filename, const char* str, el_file_ptr file)
-{
-	if (read_size < size)
-	{
-		LOG_ERROR("File \"%s\" has too small %s size!", filename, str);
-		free_e3d_pointer(cur_object);
-		el_close(file);
-		return 0;
-	}
-	else
-	{
-		return 1;
-	}
-}
-
-#define CHECK_SIZE(rsize, size, str) check_size((rsize), (size), cur_object, cur_object->file_name, (str), file)
-
 e3d_object* load_e3d_detail(e3d_object* cur_object)
 {
 	e3d_header header;
 	e3d_material material;
-#ifdef USE_EXTRA_TEXTURE
-	e3d_extra_texture extra_texture;
-#endif //USE_EXTRA_TEXTURE
 	char cur_dir[1024];
-	int i, j, l, idx, mem_size, vertex_size, material_size;
-	int file_pos, indicies_size, float_count, index_size, v_size, m_size;
+	int i, idx, l, mem_size, vertex_size, material_size;
+	int file_pos, indicies_size, index_size;
 	char text_file_name[1024];
-	unsigned int* index_buffer;
-	unsigned short* short_list;
-	unsigned int* int_list;
-	float* float_buffer;
-	char* tmp_buffer;
+	Uint32 tmp;
+	Uint16 tmp_16;
 	Uint8* index_pointer;
-	float* float_pointer;
 	el_file_ptr file;
+	version_number version;
 	
 	if (cur_object == NULL) return NULL;
 
@@ -121,7 +364,7 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 		return NULL;
 	}
 
-	if (read_and_check_elc_header(file, EL3D_FILE_MAGIC_NUMBER, EL3D_FILE_VERSION_NUMBER, cur_object->file_name) != 0)
+	if (read_and_check_elc_header(file, EL3D_FILE_MAGIC_NUMBER, &version, cur_object->file_name) != 0)
 	{
 		LOG_ERROR("File \"%s\" has wrong header!", cur_object->file_name);
 		free_e3d_pointer(cur_object);
@@ -134,65 +377,113 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	cur_object->vertex_no = SDL_SwapLE32(header.vertex_no);
 	cur_object->index_no = SDL_SwapLE32(header.index_no);
 	cur_object->material_no = SDL_SwapLE32(header.material_no);
-	cur_object->vertex_options = header.vertex_options;
 	vertex_size = SDL_SwapLE32(header.vertex_size);
 	material_size = SDL_SwapLE32(header.material_size);
 	index_size = SDL_SwapLE32(header.index_size);
 
-	v_size = get_vertex_size(cur_object->vertex_options);
-	m_size = get_material_size(cur_object->vertex_options);
-	float_count = get_vertex_float_count(cur_object->vertex_options);
+	if ((version[0] == 1) && (version[1] == 1))
+	{
+		if ((header.vertex_options & 0xF0) != 0)
+		{
+			LOG_ERROR("Unknow options (%d) for file %s.",
+				header.vertex_options, cur_object->file_name);
+		}
+
+		header.vertex_options &= 0x0F;
+
+		if ((header.vertex_format & 0xE0) != 0)
+		{
+			LOG_ERROR("Unknow format (%d) for file %s.",
+				header.vertex_format, cur_object->file_name);
+		}
+
+		header.vertex_format &= 0x1F;
+	}
+	else
+	{
+		if ((version[0] == 1) && (version[1] == 0))
+		{
+			header.vertex_format = 0;
+			header.vertex_options ^= 0x01;
+			header.vertex_options &= 0x07;
+		}
+		else
+		{
+			LOG_ERROR("File \"%s\" has wrong version number!", cur_object->file_name);
+			free_e3d_pointer(cur_object);
+			el_close(file);
+			return NULL;
+		}
+	}
+
+	idx = 0;
+
+	if (has_normal(header.vertex_options))
+	{
+		idx += 1;
+	}
+
+	if (has_color(header.vertex_options))
+	{
+		idx += 2;
+	}
+
+	cur_object->vertex_layout = &(vertex_layout_array[idx]);
 
 	// They have at least the size we expected
-	if (!CHECK_SIZE(vertex_size, v_size, "vertex")) return NULL;
-	if (!CHECK_SIZE(material_size, m_size, "material")) return NULL;
-	if (index_size != sizeof(unsigned int))
+
+	if (check_vertex_size(vertex_size, header.vertex_options, header.vertex_format) == 0)
 	{
-		LOG_ERROR("File \"%s\" has wrong index size!", cur_object->file_name);
+		LOG_ERROR("File \"%s\" has wrong vertex size!", cur_object->file_name);
 		free_e3d_pointer(cur_object);
 		el_close(file);
 		return NULL;
+	}
+
+	if (material_size != get_material_size(header.vertex_options))
+	{
+		LOG_ERROR("File \"%s\" has wrong material size! Expected size %d, found size %d.",
+			cur_object->file_name, get_material_size(header.vertex_options), material_size);
+		free_e3d_pointer(cur_object);
+		el_close(file);
+		return NULL;
+	}
+
+	if (short_index(header.vertex_format))
+	{
+		if (index_size != sizeof(Uint16))
+		{
+			LOG_ERROR("File \"%s\" has wrong index size! Expected size %d, found size %d.",
+				cur_object->file_name, sizeof(Uint16), index_size);
+			free_e3d_pointer(cur_object);
+			el_close(file);
+			return NULL;
+		}
+	}
+	else
+	{
+		if (index_size != sizeof(Uint32))
+		{
+			LOG_ERROR("File \"%s\" has wrong index size! Expected size %d, found size %d.",
+				cur_object->file_name, sizeof(Uint32), index_size);
+			free_e3d_pointer(cur_object);
+			el_close(file);
+			return NULL;
+		}
 	}
 	
 	// Now reading the vertices
 	el_seek(file, SDL_SwapLE32(header.vertex_offset), SEEK_SET);
 
-	cur_object->vertex_data = malloc(cur_object->vertex_no * v_size);
-	mem_size = cur_object->vertex_no * v_size;
+	cur_object->vertex_data = malloc(cur_object->vertex_no * cur_object->vertex_layout->size);
+	mem_size = cur_object->vertex_no * cur_object->vertex_layout->size;
 	if (!CHECK_POINTER(cur_object->vertex_data, "vertex data")) return NULL;
 
-	float_buffer = (float*) malloc(v_size);
-	if (!CHECK_POINTER(float_buffer, "float buffer")) return NULL;
-	tmp_buffer = (char*) malloc(cur_object->vertex_no * vertex_size);
-	if (!CHECK_POINTER(tmp_buffer, "tmp buffer"))
-	{
-		free(float_buffer);
-		return NULL;
-	}
-
-	el_read(file, cur_object->vertex_no * vertex_size, tmp_buffer);
-
-	idx = 0;
-	float_pointer = cur_object->vertex_data;
-	for (i = 0; i < cur_object->vertex_no; i++)
-	{
-		memcpy(float_buffer, &tmp_buffer[idx], v_size);
-		idx += vertex_size;
-		for (j = 0; j < float_count; j++)
-		{
-			float_pointer[i * float_count + j] = SwapLEFloat(float_buffer[j]);
-		}
-	}
-
-	free(float_buffer);
-	free(tmp_buffer);
+	read_vertex_buffer(file, (float*)(cur_object->vertex_data), cur_object->vertex_no,
+		vertex_size, header.vertex_options, header.vertex_format);
 
 	// Now reading the indicies
 	el_seek(file, SDL_SwapLE32(header.index_offset), SEEK_SET);
-
-	index_buffer = (unsigned int*)malloc(cur_object->index_no * sizeof(unsigned int));
-	if (!CHECK_POINTER(index_buffer, "index buffer")) return NULL;
-	el_read(file, cur_object->index_no * sizeof(unsigned int), index_buffer);
 
 	if (cur_object->index_no < 65536)
 	{
@@ -206,40 +497,32 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	}
 
 	cur_object->indicies = malloc(cur_object->index_no * indicies_size);
-	mem_size += cur_object->index_no * indicies_size;
-	if (!CHECK_POINTER(cur_object->indicies, "indicies"))
-	{
-		free(index_buffer);
-		return NULL;
-	}
 
 	if (use_vertex_buffers) index_pointer = 0;
 	else index_pointer = cur_object->indicies;
-	
-	// Optimize the storage format for better use with the OpenGL glDrawElements function
-	if (indicies_size == 2)
+
+	for (i = 0; i < cur_object->index_no; i++)
 	{
-		short_list = (unsigned short*)cur_object->indicies;
-		for (i = 0; i < cur_object->index_no; i++)
-			short_list[i] = SDL_SwapLE32(index_buffer[i]);
-	}
-	else
-	{
-		if (indicies_size == 4)
+		if (index_size == 2)
 		{
-			int_list = (unsigned int*)cur_object->indicies;
-			for (i = 0; i < cur_object->index_no; i++)
-				int_list[i] = SDL_SwapLE32(index_buffer[i]);
+			el_read(file, sizeof(Uint16), &tmp_16);
+			tmp = SDL_SwapLE16(tmp_16);
 		}
 		else
 		{
-			LOG_ERROR("This should never happen!");
-			free_e3d_pointer(cur_object);
-			el_close(file);
-			return NULL;
+			el_read(file, sizeof(Uint32), &tmp);
+			tmp = SDL_SwapLE32(tmp);
+		}
+
+		if (indicies_size == 2)
+		{
+			((Uint16*)(cur_object->indicies))[i] = tmp;
+		}
+		else
+		{
+			((Uint32*)(cur_object->indicies))[i] = tmp;
 		}
 	}
-	free(index_buffer);
 
 	// only allocate the materials structure if it doesn't exist (on initial load)
 	if (cur_object->materials == NULL)
@@ -270,21 +553,21 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 
 		cur_object->materials[i].options = SDL_SwapLE32(material.options);
 #ifdef	MAP_EDITOR
-		cur_object->materials[i].diffuse_map = load_texture_cache(text_file_name,0);
+		cur_object->materials[i].texture = load_texture_cache(text_file_name,0);
 #else	//MAP_EDITOR
 #ifdef	NEW_ALPHA
 		// prepare to load the textures depending on if it is transparent or not (diff alpha handling)
 		if (material_is_transparent(cur_object->materials[i].options))
 		{	// is this object transparent?
-			cur_object->materials[i].diffuse_map= load_texture_cache_deferred(text_file_name, -1);
+			cur_object->materials[i].texture= load_texture_cache_deferred(text_file_name, -1);
 		}
 		else
 		{
-			cur_object->materials[i].diffuse_map= load_texture_cache_deferred(text_file_name, -1);	//255);
+			cur_object->materials[i].texture= load_texture_cache_deferred(text_file_name, -1);	//255);
 		}
 #else	//NEW_ALPHA
-//		cur_object->materials[i].diffuse_map = load_texture_cache_deferred(text_file_name, 255);
-		cur_object->materials[i].diffuse_map = load_texture_cache_deferred(text_file_name, 0);
+//		cur_object->materials[i].texture = load_texture_cache_deferred(text_file_name, 255);
+		cur_object->materials[i].texture = load_texture_cache_deferred(text_file_name, 0);
 #endif	//NEW_ALPHA
 #endif	//MAP_EDITOR
 
@@ -310,23 +593,6 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 		cur_object->materials[i].triangles_indicies_min = SDL_SwapLE32(material.triangles_min_index);
 		cur_object->materials[i].triangles_indicies_max = SDL_SwapLE32(material.triangles_max_index);
 
-#ifdef	USE_EXTRA_TEXTURE
-		if (has_extra_texture(cur_object->vertex_options))		
-		{
-			el_read(file, sizeof(e3d_extra_texture), &extra_texture);
-			safe_snprintf(text_file_name, sizeof(text_file_name), "%s%s", cur_dir, extra_texture.material_name);
-#ifdef	MAP_EDITOR
-			cur_object->materials[i].extra_diffuse_map = load_texture_cache(text_file_name,0);
-#else	//MAP_EDITOR
-#ifdef	NEW_ALPHA
-			cur_object->materials[i].extra_diffuse_map = load_texture_cache_deferred(text_file_name, -1);
-#else	//NEW_ALPHA
-			cur_object->materials[i].extra_diffuse_map = load_texture_cache_deferred(text_file_name, 0);
-#endif	//NEW_ALPHA
-#endif	//MAP_EDITOR
-
-		}
-#endif	//USE_EXTRA_TEXTURE
 		file_pos += SDL_SwapLE32(material_size);
 
 		el_seek(file, file_pos, SEEK_SET);
@@ -342,7 +608,7 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
 			cur_object->vertex_vbo);
 		ELglBufferDataARB(GL_ARRAY_BUFFER_ARB,
-			cur_object->vertex_no * v_size,
+			cur_object->vertex_no * cur_object->vertex_layout->size,
 			cur_object->vertex_data, GL_STATIC_DRAW_ARB);
 #ifndef	MAP_EDITOR
 		free(cur_object->vertex_data);

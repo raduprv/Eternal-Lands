@@ -290,7 +290,7 @@ extern "C" void reset_under_the_mouse()
 					glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colorf);
 					for (j = 0; j < objects_list[selections[i].id]->e3d_data->material_no; j++)
 					{
-						if (material_is_transparent(objects_list[selections[i].id]->e3d_data->materials[j].options))
+						if (objects_list[selections[i].id]->e3d_data->materials[j].options)
 						{
 							glEnable(GL_ALPHA_TEST);
 						  	glEnable(GL_TEXTURE_2D);

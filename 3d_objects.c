@@ -30,7 +30,7 @@ Uint32 highest_obj_3d= 0;
 int objects_list_placeholders = 0;
 object3d *objects_list[MAX_OBJ_3D];
 
- #include "eye_candy_wrapper.h"
+#include "eye_candy_wrapper.h"
 
 e3d_object *load_e3d (const char *file_name);
 void compute_clouds_map(object3d * object_id);
@@ -39,6 +39,8 @@ e3d_object *cur_e3d;
 int cur_e3d_count;
 int e3d_count, e3d_total;
 #endif  //DEBUG
+
+float zero[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
 void clear_objects_list_placeholders()
 {
@@ -85,8 +87,8 @@ void disable_buffer_arrays()
 void draw_3d_object_detail(object3d * object_id, Uint32 material_index, Uint32 use_lightning,
 	Uint32 use_textures, Uint32 use_extra_textures)
 {
+	e3d_vertex_data* vertex_layout;
 	Uint8 * data_ptr;
-	int vertex_size;
 
 	// check for having to load the arrays
 	load_e3d_detail_if_needed(object_id->e3d_data);
@@ -106,14 +108,21 @@ void draw_3d_object_detail(object3d * object_id, Uint32 material_index, Uint32 u
 	if (object_id->self_lit && (!is_day || dungeon) && use_lightning) 
 #endif
 	{
-		glColor3f(object_id->r,object_id->g,object_id->b);
+		glMaterialfv(GL_FRONT, GL_EMISSION, object_id->color);
 	}
+	else
+	{
+		glMaterialfv(GL_FRONT, GL_EMISSION, zero);
+	}
+
+	glEnable(GL_COLOR_MATERIAL);
+
 	CHECK_GL_ERRORS();
 
 	glPushMatrix();//we don't want to affect the rest of the scene
 
 	glMultMatrixf(object_id->matrix);
-	
+
 	CHECK_GL_ERRORS();
 
 	if (!dungeon && (clouds_shadows || use_shadow_mapping) && use_extra_textures)
@@ -137,7 +146,7 @@ void draw_3d_object_detail(object3d * object_id, Uint32 material_index, Uint32 u
 		{
 			ELglUnlockArraysEXT();
 		}
-		
+
 		if (use_vertex_buffers)
 		{
 			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
@@ -148,39 +157,50 @@ void draw_3d_object_detail(object3d * object_id, Uint32 material_index, Uint32 u
 		{
 			data_ptr = object_id->e3d_data->vertex_data;
 		}
-		vertex_size = get_vertex_size(object_id->e3d_data->vertex_options);
 
-		if (has_normal(object_id->e3d_data->vertex_options) && use_lightning)
+		vertex_layout = object_id->e3d_data->vertex_layout;
+
+		if ((vertex_layout->normal_count > 0) && use_lightning)
 		{
 			glEnableClientState(GL_NORMAL_ARRAY);
-			glNormalPointer(GL_FLOAT, vertex_size,
-				data_ptr + get_normal_offset(object_id->e3d_data->vertex_options));
+			glNormalPointer(vertex_layout->normal_type, vertex_layout->size,
+				data_ptr + vertex_layout->normal_offset);
 		}
 		else
 		{
 			glDisableClientState(GL_NORMAL_ARRAY);
 		}
 
+		if (vertex_layout->color_count > 0)
+		{
+			glEnableClientState(GL_COLOR_ARRAY);
+			glColorPointer(vertex_layout->color_count, vertex_layout->color_type,
+				vertex_layout->size, data_ptr + vertex_layout->color_offset);
+		}
+		else
+		{
+			glDisableClientState(GL_COLOR_ARRAY);
+		}
+
 		if (use_textures)
 		{
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			glTexCoordPointer(TEXTURE_FLOAT_COUNT, GL_FLOAT, vertex_size,
-				data_ptr + get_texture_offset(object_id->e3d_data->vertex_options));
+			glTexCoordPointer(vertex_layout->texture_count, vertex_layout->texture_type,
+				vertex_layout->size, data_ptr + vertex_layout->texture_offset);
 		}
 		else
 		{
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		}
 
-		glVertexPointer(VERTEX_FLOAT_COUNT, GL_FLOAT, vertex_size,
-			data_ptr + get_vertex_offset(object_id->e3d_data->vertex_options));
+		glVertexPointer(vertex_layout->position_count, vertex_layout->position_type,
+			vertex_layout->size, data_ptr + vertex_layout->position_offset);
+
 		if (use_vertex_buffers)
 		{
 			ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
 				object_id->e3d_data->indicies_vbo);
 		}
-
-		CHECK_GL_ERRORS();
 
 		// lock this new one
 		if (use_compiled_vertex_array)
@@ -222,7 +242,7 @@ void draw_3d_object_detail(object3d * object_id, Uint32 material_index, Uint32 u
 	if (use_textures)
 	{
 		glEnable(GL_TEXTURE_2D);
-		get_and_set_texture_id(object_id->e3d_data->materials[material_index].diffuse_map);
+		get_and_set_texture_id(object_id->e3d_data->materials[material_index].texture);
 	}
 	else
 	{
@@ -239,7 +259,6 @@ void draw_3d_object_detail(object3d * object_id, Uint32 material_index, Uint32 u
 		glMaterialf(GL_FRONT, GL_SHININESS, object_id->shininess);
 	}
 #endif
-
 
 	if (use_draw_range_elements && ELglDrawRangeElementsEXT)
 		ELglDrawRangeElementsEXT(GL_TRIANGLES,
@@ -527,9 +546,10 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	our_object->y_rot = y_rot;
 	our_object->z_rot = z_rot;
 
-	our_object->r = r;
-	our_object->g = g;
-	our_object->b = b;
+	our_object->color[0] = r;
+	our_object->color[1] = g;
+	our_object->color[2] = b;
+	our_object->color[3] = 0.0f;
 
 	our_object->self_lit = self_lit;
 	our_object->blended = blended;
@@ -584,7 +604,7 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	// watch for needing to load the detailed information
 	//load_e3d_detail_if_needed(returned_e3d);
 
-	ground = !has_normal(returned_e3d->vertex_options);
+	ground = returned_e3d->vertex_layout->normal_count > 0;
 
 	for (i = 0; i < returned_e3d->material_no; i++)
 	{	
@@ -596,8 +616,8 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 		bbox.bbmax[Z] = returned_e3d->materials[i].max_z;
 
 		matrix_mul_aabb(&bbox, our_object->matrix);
-		texture_id = returned_e3d->materials[i].diffuse_map;
-		is_transparent = material_is_transparent(returned_e3d->materials[i].options);
+		texture_id = returned_e3d->materials[i].texture;
+		is_transparent = returned_e3d->materials[i].options != 0;
 		if ((main_bbox_tree_items != NULL) && (dynamic == 0))  add_3dobject_to_list(main_bbox_tree_items, get_3dobject_id(id, i), bbox, blended, ground, is_transparent, self_lit, texture_id);
 		else add_3dobject_to_abt(main_bbox_tree, get_3dobject_id(id, i), bbox, blended, ground, is_transparent, self_lit, texture_id, dynamic);
 	}
