@@ -1,7 +1,6 @@
 #include "../elc/asc.h"
 #include "global.h"
 
-#ifdef NEW_E3D_FORMAT
 int use_vertex_buffers=0;
 int have_vertex_buffers=0;
 int have_texture_non_power_of_two = 0;
@@ -82,7 +81,6 @@ void init_gl_extensions()
 	CHECK_GL_ERRORS();
 	gl_extensions_loaded = 1;
 }
-#endif
 
 void init_gl()
 {

@@ -147,22 +147,7 @@ void init_stuff()
 	ec_init();
 #endif	//EYE_CANDY
 
-#ifdef NEW_E3D_FORMAT
 	init_gl_extensions();
-#else
-
-   //now load the multitexturing extension
-#ifndef LINUX
-	glActiveTextureARB		= (PFNGLACTIVETEXTUREARBPROC)		SDL_GL_GetProcAddress("glActiveTextureARB");
-	glMultiTexCoord2fARB	= (PFNGLMULTITEXCOORD2FARBPROC)		SDL_GL_GetProcAddress("glMultiTexCoord2fARB");
-	glMultiTexCoord2fvARB	= (PFNGLMULTITEXCOORD2FVARBPROC)	SDL_GL_GetProcAddress("glMultiTexCoord2fvARB");
-	glClientActiveTextureARB= (PFNGLCLIENTACTIVETEXTUREARBPROC)	SDL_GL_GetProcAddress("glClientActiveTextureARB");
-	if(!glActiveTextureARB || !glMultiTexCoord2fARB)have_multitexture=0;
-	else have_multitexture=1;
-#else
-	have_multitexture=0;
-#endif
-#endif
 
 	if(have_multitexture)
 		ground_detail_text = load_texture_cache ("./textures/ground_detail.bmp",255);

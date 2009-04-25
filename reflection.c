@@ -6,7 +6,6 @@ float mrandom(float max)
   return ((float) max * (rand () % 8 ));
 }
 
-#ifdef NEW_E3D_FORMAT
 #include "../elc/e3d_object.h"
 
 void draw_3d_reflection(object3d * object_id)
@@ -82,6 +81,7 @@ void draw_3d_reflection(object3d * object_id)
 	}
 
 	e3d_disable_vertex_arrays();
+	glDisable(GL_COLOR_MATERIAL);
 
 	if (object_id->self_lit && (night_shadows_on || dungeon)) glEnable(GL_LIGHTING);
 	if (object_id->e3d_data->materials[object_id->e3d_data->material_no-1].options)
@@ -92,93 +92,6 @@ void draw_3d_reflection(object3d * object_id)
 	CHECK_GL_ERRORS();
 }
 
-#else	//NEW_E3D_FORMAT
-
-void draw_3d_reflection(object3d * object_id)
-{
-	float x_pos,y_pos,z_pos;
-	float x_rot,y_rot,z_rot;
-
-	int materials_no,texture_id;
-	int i;
-
-	e3d_array_vertex *array_vertex;
-	e3d_array_normal *array_normal;
-	e3d_array_uv_main *array_uv_main;
-	e3d_array_order *array_order;
-
-	int is_transparent;
-
-	CHECK_GL_ERRORS();
-	is_transparent=object_id->e3d_data->is_transparent;
-	materials_no=object_id->e3d_data->materials_no;
-
-	array_vertex=object_id->e3d_data->array_vertex;
-	array_normal=object_id->e3d_data->array_normal;
-	array_uv_main=object_id->e3d_data->array_uv_main;
-	array_order=object_id->e3d_data->array_order;
-
-	if(object_id->self_lit && (night_shadows_on || dungeon))
-		{
-			glDisable(GL_LIGHTING);
-			glColor3f(object_id->r,object_id->g,object_id->b);
-		}
-
-	if(is_transparent)
-		{
-			glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
-			glAlphaFunc(GL_GREATER,0.05f);
-
-		}
-
-
-	CHECK_GL_ERRORS();
-	glPushMatrix();//we don't want to affect the rest of the scene
-	x_pos=object_id->x_pos;
-	y_pos=object_id->y_pos;
-	z_pos=object_id->z_pos;
-	if(z_pos<0)z_pos+=-water_deepth_offset*2;
-
-	glTranslatef (x_pos, y_pos,z_pos);
-	x_rot=object_id->x_rot;
-	y_rot=object_id->y_rot;
-	z_rot=object_id->z_rot;
-	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
-	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
-	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
-
-	CHECK_GL_ERRORS();
-	glVertexPointer(3,GL_FLOAT,0,array_vertex);
-	glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);
-	glNormalPointer(GL_FLOAT,0,array_normal);
-	for(i=0;i<materials_no;i++)
-		{
-			texture_id=get_texture_id(array_order[i].texture_id);
-			if(last_texture!=texture_id)
-				{
-					last_texture=texture_id;
-					glBindTexture(GL_TEXTURE_2D, texture_id);
-				}
-			CHECK_GL_ERRORS();
-			//if(have_compiled_vertex_array)ELglLockArraysEXT(array_order[i].start, array_order[i].count);
-			glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
-			//if(have_compiled_vertex_array)ELglUnlockArraysEXT();
-		}
-
-	CHECK_GL_ERRORS();
-	glPopMatrix();//restore the scene
-	CHECK_GL_ERRORS();
-
-
-	if(object_id->self_lit && (night_shadows_on || dungeon))glEnable(GL_LIGHTING);
-	if(is_transparent)
-		{
-			glDisable(GL_ALPHA_TEST);
-		}
-
-	CHECK_GL_ERRORS();
-}
-#endif	//NEW_E3D_FORMAT
 
 //if there is any reflecting tile, returns 1, otherwise 0
 int find_reflection()
@@ -278,11 +191,7 @@ void display_3d_reflection()
 		{
 			if(objects_list[i] && objects_list[i]->blended!=20)
 			     {
-#ifndef	NEW_E3D_FORMAT
-					 if(!objects_list[i]->e3d_data->is_ground)
-#else	//NEW_E3D_FORMAT
 					if (objects_list[i]->e3d_data->vertex_layout->normal_count > 0)
-#endif	//NEW_E3D_FORMAT
 					 	{
 			         		int dist1;
 			         		int dist2;
@@ -291,26 +200,7 @@ void display_3d_reflection()
 			         		dist2=y-(int)objects_list[i]->y_pos;
 			         		if(dist1*dist1+dist2*dist2<=21*21)
 			         			{
-#ifdef	NEW_E3D_FORMAT
                      						draw_3d_reflection(objects_list[i]);
-#else	//NEW_E3D_FORMAT
-									float x_len, y_len, z_len;
-									float radius;
-
-									z_len=objects_list[i]->e3d_data->max_z-objects_list[i]->e3d_data->min_z;
-									x_len=objects_list[i]->e3d_data->max_x-objects_list[i]->e3d_data->min_x;
-									y_len=objects_list[i]->e3d_data->max_y-objects_list[i]->e3d_data->min_y;
-									//do some checks, to see if we really have to display this object
-									if(x_len<5 && y_len<5 && z_len<4 && !find_local_reflection((int)objects_list[i]->x_pos,(int)objects_list[i]->y_pos,1))continue;
-
-									radius=x_len/2;
-									if(radius<y_len/2)radius=y_len/2;
-									if(radius<z_len)radius=z_len;
-									//not in the middle of the air
-									if(SphereInFrustum(objects_list[i]->x_pos,objects_list[i]->y_pos,
-										objects_list[i]->z_pos,radius))
-                     						draw_3d_reflection(objects_list[i]);
-#endif	//NEW_E3D_FORMAT
 								}
 						}
                  }

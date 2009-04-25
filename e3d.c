@@ -84,7 +84,6 @@ void e3d_disable_vertex_arrays()
 void set_emission(object3d * object_id)
 {
 	if(object_id->self_lit && (night_shadows_on || dungeon))
-#ifdef	AMBIENT_OCCLUSION
 	{
 		glDisable(GL_LIGHTING);
 		glMaterialfv(GL_FRONT, GL_EMISSION, object_id->color);
@@ -95,10 +94,4 @@ void set_emission(object3d * object_id)
 	}
 
 	glEnable(GL_COLOR_MATERIAL);
-#else
-	{
-		glDisable(GL_LIGHTING);
-		glColor3fv(object_id->color);
-	}
-#endif
 }

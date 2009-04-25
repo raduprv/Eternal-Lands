@@ -6,7 +6,6 @@
 void init_gl(void);
 void handle_window_resize(void);
 
-#ifdef NEW_E3D_FORMAT
 /*! \name OpenGL extensions variables 
  * @{ */
 extern int use_vertex_buffers; /*!< specifies if we use vertex buffer objects or not */
@@ -39,6 +38,5 @@ extern void (APIENTRY * ELglDrawRangeElementsEXT) (GLenum mode, GLuint start, GL
  * \callgraph
  */
 void init_gl_extensions();
-#endif
 
 #endif

@@ -25,11 +25,7 @@ int setobject(int n, char *fn,float xrot, float yrot, float zrot)
 	if(our_object->e3d_data==NULL)return 0;
 	our_object->x_pos=0;
 	our_object->y_pos=0;
-#ifdef	NEW_E3D_FORMAT
 	our_object->z_pos=0;
-#else	//NEW_E3D_FORMAT
-	our_object->z_pos=-(our_object->e3d_data->max_z-our_object->e3d_data->min_z)/2;
-#endif	//NEW_E3D_FORMAT
 	
 	our_object->x_rot=xrot;
 	our_object->y_rot=yrot;
@@ -39,9 +35,6 @@ int setobject(int n, char *fn,float xrot, float yrot, float zrot)
 	our_object->color[1] = 0.0f;
 	our_object->color[2] = 0.0f;
 	our_object->color[3] = 0.0f;
-#ifndef	NEW_E3D_FORMAT
-	our_object->clouds_uv=NULL;
-#endif	//NEW_E3D_FORMAT
 	our_object->self_lit=0;
 	our_object->blended=0;
 	return 1;
