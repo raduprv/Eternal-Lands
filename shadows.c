@@ -115,6 +115,7 @@ void draw_3d_object_shadow(object3d * object_id)
 
 	e3d_disable_vertex_arrays();
 	glDisable(GL_COLOR_MATERIAL);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 	if (object_id->e3d_data->materials[object_id->e3d_data->material_no-1].options)
 	{

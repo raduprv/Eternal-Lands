@@ -129,6 +129,7 @@ void draw_3d_object(object3d * object_id)
 
 	e3d_disable_vertex_arrays();
 	glDisable(GL_COLOR_MATERIAL);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 	if (object_id->blended) glDisable(GL_BLEND);
 	if (object_id->self_lit && (night_shadows_on || dungeon)) glEnable(GL_LIGHTING);
