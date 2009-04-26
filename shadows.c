@@ -244,11 +244,6 @@ void draw_3d_object_shadows(unsigned int object_type)
 		}
 //	else glDisable(GL_TEXTURE_2D);//we don't need textures for non transparent objects
 
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_NORMAL_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-// Always supplies a texture pointer
-//	glEnableClientState(GL_COLOR_ARRAY);	//No color pointer supplied!
 	glEnable(GL_TEXTURE_2D);
 	// now loop through each object
 	for (i=start; i<stop; i++)
@@ -279,7 +274,6 @@ void draw_3d_object_shadows(unsigned int object_type)
 	if(is_transparent)
 	{
 		glDisable(GL_ALPHA_TEST);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 	else glEnable(GL_TEXTURE_2D);
 
@@ -301,6 +295,7 @@ void display_shadows()
 	glPolygonOffset(1.05f, 2.0f);
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
+	glDisable(GL_COLOR_MATERIAL);
 
 	draw_3d_object_shadows(TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT);
 	draw_3d_object_shadows(TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
@@ -316,6 +311,10 @@ void display_shadows()
 	}
 
 	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	glDisable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
 
@@ -335,7 +334,8 @@ void display_3d_ground_objects()
 {
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisable(GL_COLOR_MATERIAL);
+
 	if (!dungeon && clouds_shadows)
 	{
 		//bind the detail texture
@@ -345,8 +345,6 @@ void display_3d_ground_objects()
 		ELglActiveTextureARB(base_unit);
 		glEnable(GL_TEXTURE_2D);
 	}
-
-   	glNormal3f(0,0,1);
 
 	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT);
 	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
@@ -360,8 +358,11 @@ void display_3d_ground_objects()
 		glDisable(GL_TEXTURE_2D);
 		ELglActiveTextureARB(base_unit);
 	}
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
 	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisable(GL_CULL_FACE);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -374,9 +375,9 @@ void display_3d_non_ground_objects()
 	anything_under_the_mouse(0,UNDER_MOUSE_NO_CHANGE);
 
 	glEnable(GL_CULL_FACE);
+	glEnable(GL_COLOR_MATERIAL);
 	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 	if (!dungeon && clouds_shadows)
 	{
@@ -400,9 +401,12 @@ void display_3d_non_ground_objects()
 		glDisable(GL_TEXTURE_2D);
 		ELglActiveTextureARB(base_unit);
 	}
-	glDisableClientState(GL_NORMAL_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisable(GL_COLOR_MATERIAL);
 	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	glDisable(GL_CULL_FACE);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();

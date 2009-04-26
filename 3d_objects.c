@@ -673,6 +673,7 @@ void display_objects()
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_COLOR_MATERIAL);
 	glEnableClientState(GL_VERTEX_ARRAY);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 			
 	if (!dungeon && clouds_shadows)
 	{
@@ -698,6 +699,7 @@ void display_objects()
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	if (!dungeon && clouds_shadows)
 	{
 		//disable the second texture unit
@@ -714,6 +716,7 @@ void display_ground_objects()
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_COLOR_MATERIAL);
 	glEnableClientState(GL_VERTEX_ARRAY);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 	if (!dungeon && clouds_shadows)
 	{
@@ -737,6 +740,7 @@ void display_ground_objects()
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	if (!dungeon && clouds_shadows)
 	{
 		//disable the second texture unit
@@ -752,6 +756,7 @@ void display_alpha_objects()
 	CHECK_GL_ERRORS();
 	glEnable(GL_COLOR_MATERIAL);
 	glEnableClientState(GL_VERTEX_ARRAY);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 			
 	if (!dungeon && clouds_shadows)
 	{
@@ -774,6 +779,7 @@ void display_alpha_objects()
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	if (!dungeon && clouds_shadows)
 	{
 		//disable the second texture unit
@@ -792,6 +798,7 @@ void display_blended_objects()
 	glBlendFunc(GL_ONE,GL_ONE);
 	glEnable(GL_COLOR_MATERIAL);
 	glEnableClientState(GL_VERTEX_ARRAY);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 			
 	if (!dungeon && clouds_shadows)
 	{
@@ -822,6 +829,7 @@ void display_blended_objects()
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	glDisable(GL_BLEND);
 	if (!dungeon && clouds_shadows)
 	{
