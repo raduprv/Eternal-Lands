@@ -2,7 +2,7 @@
 #define	__ERRORS_H
 
 void clear_error_log();
-void log_error(char * message, ...);
+void log_error(const char * message, ...);
 
 #ifdef DEBUG
  #ifdef _MSC_VER

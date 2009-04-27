@@ -9,7 +9,7 @@ void clear_error_log()
 	fclose (f);
 }
 
-void log_error(char * message, ...)
+void log_error(const char * message, ...)
 {
 	va_list ap;
 	FILE *f = NULL;
