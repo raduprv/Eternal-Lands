@@ -955,16 +955,16 @@ void catch_counters_text(const char* text)
 	/* loose coin find */
 	else if (my_strncompare(text, "You found ", 10) && strstr(text, " coins."))
 	{
-		int quanity = atoi(&text[10]);
-		increment_counter(MISC_EVENTS, "Total loose gold coin", quanity, 0);
+		int quantity = atoi(&text[10]);
+		increment_counter(MISC_EVENTS, "Total loose gold coin", quantity, 0);
 		increment_counter(MISC_EVENTS, "Loose gold coin", 1, 0);
 	}
 	
 	/* extra harvest exp */
 	else if (my_strncompare(text, "You gained ", 11) && strstr(text, " extra harvesting exp."))
 	{
-		int quanity = atoi(&text[11]);
-		increment_counter(MISC_EVENTS, "Total extra harvesting exp", quanity, 0);
+		int quantity = atoi(&text[11]);
+		increment_counter(MISC_EVENTS, "Total extra harvesting exp", quantity, 0);
 		increment_counter(MISC_EVENTS, "Extra harvesting exp", 1, 0);
 	}
 	
