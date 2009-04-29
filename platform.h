@@ -17,7 +17,7 @@
 
 // only ever use WINDOWS anywhere else, in case we need to add another 'catch' to 
 // enable WINDOWS
-#if defined (_WIN32) || defined (_WIN64)
+#if defined (_WIN32) || defined (_WIN64) || defined (WIN32)
  #ifndef WINDOWS
   #define WINDOWS
  #endif  // !WINDOWS
