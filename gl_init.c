@@ -30,7 +30,7 @@ void init_gl_extensions()
 	/*	GL_EXT_draw_range_elements		*/
 	if (!have_extension(ext_draw_range_elements))
 	{
-		ELglDrawRangeElementsEXT = &Emul_glDrawRangeElements;
+		ELglDrawRangeElementsEXT = (PFNGLDRAWRANGEELEMENTSEXTPROC)&Emul_glDrawRangeElements;
 	}
 	/*	GL_EXT_draw_range_elements		*/
 
