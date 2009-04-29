@@ -753,19 +753,19 @@ void	*set_window_handler(int win_id, int handler_id, int (*handler)() )
 	switch(handler_id){
 		case	ELW_HANDLER_INIT:
 			old_handler= (void *)windows_list.window[win_id].init_handler;
-			windows_list.window[win_id].init_handler=(void*)handler;
+			windows_list.window[win_id].init_handler=(int (*)(void*))handler;
 			break;
 		case	ELW_HANDLER_DISPLAY:
 			old_handler= (void *)windows_list.window[win_id].display_handler;
-			windows_list.window[win_id].display_handler=(void*)handler;
+			windows_list.window[win_id].display_handler=(int (*)(void*))handler;
 			break;
 		case	ELW_HANDLER_CLICK:
 			old_handler= (void *)windows_list.window[win_id].click_handler;
-			windows_list.window[win_id].click_handler=(void*)handler;
+			windows_list.window[win_id].click_handler=(int (*)(void*, int, int, Uint32))handler;
 			break;
 		case	ELW_HANDLER_MOUSEOVER:
 			old_handler= (void *)windows_list.window[win_id].mouseover_handler;
-			windows_list.window[win_id].mouseover_handler=(void*)handler;
+			windows_list.window[win_id].mouseover_handler=(int (*)(void*, int, int))handler;
 			break;
 		default:
 			old_handler=NULL;
