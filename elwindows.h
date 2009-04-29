@@ -8,7 +8,8 @@
  *
  */
 
-typedef	struct	{
+typedef	struct window_info
+{
 	int	window_id;	// the unique window id
 	int	order;		// the order the windows are to be displayed (layering)
 	int	pos_id;		// id of item position is compared to	//NOT SUPPORTED YET
@@ -30,10 +31,10 @@ typedef	struct	{
 	char	dragged;	// are we dragging the window?
 
 	// the handlers
-	int (*init_handler)();		// init, scaling, etc
-	int (*display_handler)();	// display the window
-	int (*click_handler)();		// handle mouse clicks
-	int (*mouseover_handler)();		// handle mouseovers
+	int (*init_handler)(void*);		// init, scaling, etc
+	int (*display_handler)(void*);	// display the window
+	int (*click_handler)(void*, int, int, Uint32);		// handle mouse clicks
+	int (*mouseover_handler)(void*, int, int);		// handle mouseovers
 
 	/*
 	// and optional list/data storage - future explansion??
