@@ -592,7 +592,7 @@ void init_gl_extensions()
 	/*	GL_ARB_multitexture			*/
 
 	/*	GL_ARB_texture_env_combine		*/
-	if (have_extension(arb_multitexture))
+	if (have_extension(arb_texture_env_combine))
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_texture_env_combine");
 		LOG_TO_CONSOLE(c_green2, str);
