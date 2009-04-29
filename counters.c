@@ -967,7 +967,13 @@ void catch_counters_text(const char* text)
 		increment_counter(MISC_EVENTS, "Total extra harvesting exp", quantity, 0);
 		increment_counter(MISC_EVENTS, "Extra harvesting exp", 1, 0);
 	}
-	
+
+	/* you hurt yourself */
+        else if (my_strncompare(text, "You hurt yourself, and lost ", 28) && strstr(text, " HPs."))
+	{
+		increment_counter(MISC_EVENTS, "You hurt yourself", 1, 0);
+	}
+
 	/* misc events, just translate the event text to a counted text string */
 	else
 	{
