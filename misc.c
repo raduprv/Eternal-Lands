@@ -541,6 +541,29 @@ void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, 
 	if(r>=0.0f)
 		glColor3f(r, g, b);
 	
+#ifdef OSX
+	if (square_buttons) {
+		glBegin(GL_LINE_LOOP);
+		glVertex3i(x,y,0);
+		glVertex3i(x + w + radius*2,y,0);
+		glVertex3i(x + w + radius*2,y + radius*2,0);
+		glVertex3i(x,y + radius*2,0);
+		glEnd();
+		
+		if(highlight) {
+			if(hr>=0.0f)
+				glColor4f(hr,hg,hb,ha);
+			glBegin(GL_POLYGON);
+			glVertex3i(x+1,y+1,0);
+			glVertex3i(x + w + radius*2 -1,y+1,0);
+			glVertex3i(x + w + radius*2 -1,y + radius*2 -1,0);
+			glVertex3i(x+1,y + radius*2 -1,0);
+			glEnd();
+		}
+		
+		glEnable(GL_TEXTURE_2D);
+	} else {
+#endif
 	glBegin(GL_LINE_LOOP);
 		draw_circle_ext(x, y, radius, 10, 90, 270);
 		draw_circle_ext(x+w, y, radius, 10, -90, 90);
@@ -554,6 +577,10 @@ void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, 
 		glEnd();
 	}
 	glEnable(GL_TEXTURE_2D);
+
+#ifdef OSX
+	}	// to close off square_buttons conditional
+#endif
 
 	if(highlight) {
 		glColor3f(r, g, b);

@@ -199,6 +199,9 @@ extern int special_effects; /*!< flag indicating whether pretty spell effects sh
 extern int isometric; /*!< use isometric instead of perspective view */
 extern int mouse_limit;
 extern int show_fps; /*!< flag that indicates whether to display FPS or not */
+#ifdef OSX	
+extern int square_buttons; /* flag to overcome intel opengl issues on early MacBooks*/
+#endif
 #ifdef DEBUG
 extern int render_skeleton;
 extern int render_mesh;

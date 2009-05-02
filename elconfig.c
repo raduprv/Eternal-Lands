@@ -162,6 +162,9 @@ int show_game_seconds = 0;
 int skybox_update_delay = 10;
 int skybox_local_weather = 0;
 #endif // SKY_FPV
+#ifdef OSX	// for probelem with rounded buttons on Intel graphics
+int square_buttons = 0;
+#endif
 
 int video_info_sent = 0;
 
@@ -1857,6 +1860,9 @@ void init_vars()
 	add_var(OPT_BOOL, "use_render_attached_meshs", "uram", &use_render_attached_meshs, change_var, 1, "Use render_attached_meshs", "Use the render attached meshs", DEBUGTAB);
 	add_var(OPT_BOOL, "use_ext_gpu_program_parameters", "uegpp", &use_ext_gpu_program_parameters, change_var, 0, "Use GL_EXT_gpu_program_parameters", "Use GL_EXT_gpu_program_parameters extention", DEBUGTAB);
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
+#ifdef OSX
+	add_var(OPT_BOOL, "square_buttons", "sqbutt",&square_buttons,change_var,1,"Square Buttons","Use square buttons rather than rounded",HUD);
+#endif
 }
 
 void write_var (FILE *fout, int ivar)
