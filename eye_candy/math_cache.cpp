@@ -2122,12 +2122,25 @@ namespace ec
 
 	float MathCache::powf_0_1_rough_close(const float base, const float power) const
 	{
+		static const int as[2] =
+			{ sizeof(powf_map)/sizeof(powf_map[0]), sizeof(powf_map[0])/sizeof(powf_map[0][0]) };
 		const int index1 = (int)(base * 10000);
 		float percent2;
 		int index2;
 		get_lower_index_and_percent(power, index2, percent2);
-		return (powf_map[index1][index2] * (1.0 - percent2))
-			+ (powf_map[index1][index2 + 1] * percent2);
+		// what we really need to do here is check if std::isnan(base) but
+		// that function is not standard C++ as yet
+		if(index1>=0 && index1<as[0] && index2>=0 && index2<as[1])
+		{
+			return (powf_map[index1][index2] * (1.0 - percent2))
+				+ (powf_map[index1][index2 + 1] * percent2);
+		}
+		else
+		{
+			std::cerr << __FUNCTION__ << ": Caught array bounds error base=" << 
+				base << " power=" << power << std::endl;
+			return 0;
+		}
 	}
 
 	float MathCache::powf_0_1_close_rough(const float base, const float power) const
