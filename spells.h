@@ -64,6 +64,9 @@ extern int have_error_message; /*!< flag that indicates whether we got an error 
 
 extern int spell_result;
 
+extern Uint8 last_spell_str[20];
+extern int last_spell_len;
+
 /*!
  * \ingroup spells_window
  * \brief Repeats the last used spell.
@@ -153,6 +156,17 @@ void get_sigils_we_have(Uint32 sigils_we_have, Uint32 sigils2);
  * \param len The data length
  */
 void process_network_spell (const char * data, int len);
+
+/*!
+ * \ingroup other
+ * \brief Send a spell message to the server
+ *
+ * 	The preprepared spell message is sent to the server and stored, as last_spell_str and last_spell_len.
+ *
+ * \param str the spell message
+ * \param len the length of the spell message
+ */
+void send_spell(Uint8 *str, int len);
 
 void load_quickspells();
 void save_quickspells();

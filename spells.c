@@ -969,7 +969,7 @@ int click_quickspell_handler(window_info *win, int mx, int my, Uint32 flags)
 		}
 		else if (flags & ELW_LEFT_MOUSE && mqb_data[pos]->spell_str[0])
 		{
-			my_tcp_send(my_socket, mqb_data[pos]->spell_str, 12);
+			send_spell(mqb_data[pos]->spell_str, mqb_data[pos]->spell_str[1]+2);
 			return 1;
 		}
 		else if ((flags & ELW_RIGHT_MOUSE)&&(flags & ELW_CTRL))
@@ -1040,6 +1040,13 @@ int spell_clear_handler()
 	return 1;
 }
 
+void send_spell(Uint8 *str, int len)
+{
+	my_tcp_send(my_socket, str, len);
+	memcpy(last_spell_str, str, len);
+	last_spell_len = len;
+}
+
 int cast_handler()
 {
 	//Cast?
@@ -1069,18 +1076,16 @@ int cast_handler()
 	}
 
 	str[1]=sigils_no;
-	last_spell_len=sigils_no+2;
 
 	if(!mqb_data[0]) {
 		mqb_data[0]=(mqbdata*)calloc(1,sizeof(mqbdata));
 		mqb_data[0]->spell_id=-1;
 	}
 
-	memcpy(mqb_data[0]->spell_str, str, last_spell_len);//Copy the last spell send to the server
+	memcpy(mqb_data[0]->spell_str, str, sigils_no+2);//Copy the last spell send to the server
 
 	//ok, send it to the server...
-	my_tcp_send(my_socket, str, sigils_no+2);
-	memcpy(last_spell_str, str, last_spell_len);
+	send_spell(str, sigils_no+2);
 	return 1;
 }
 

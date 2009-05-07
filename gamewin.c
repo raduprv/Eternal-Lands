@@ -2362,7 +2362,7 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	}
 	else if (key == K_REPEATSPELL)	// REPEAT spell command
 	{
-		if ( get_show_window (sigil_win) && !get_show_window (trade_win) )
+		if ( !get_show_window (trade_win) )
 		{
 			repeat_spell();
 		}
