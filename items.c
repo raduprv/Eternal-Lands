@@ -415,7 +415,7 @@ int display_items_handler(window_info *win)
 	for (i=0; i<NUMBUT; i++) {
 		strap_word(but_labels[i],my_str);
 		glColor3f(0.77f,0.57f,0.39f);
-		draw_string_small(win->len_x-XLENBUT, wear_items_y_offset+but_y_off[i]+1, (unsigned char*)my_str, 2);
+		draw_string_small(win->len_x+gx_adjust-XLENBUT, wear_items_y_offset+but_y_off[i]+2+gy_adjust, (unsigned char*)my_str, 2);
 	}
     
    	x=quantity_x_offset+quantity_width/2;

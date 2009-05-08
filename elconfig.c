@@ -142,6 +142,10 @@ int windows_on_top= 0;
 int options_set= 0;
 int shadow_map_size_multi= 0;
 
+/* temporary variables for fine graphic positions asjustmeet */
+int gx_adjust = 0;
+int gy_adjust = 0;
+
 int you_sit= 0;
 int sit_lock= 0;
 int use_keypress_dialogue_boxes = 0, use_full_dialogue_window = 0;
@@ -1789,6 +1793,9 @@ void init_vars()
 	add_var(OPT_BOOL,"anti_alias", "aa", &anti_alias, change_aa, 0, "Toggle Anti-Aliasing", "Anti-aliasing makes edges look smoother", LODTAB);
  #endif //ANTI_ALIAS
 	add_var(OPT_BOOL,"special_effects", "sfx", &special_effects, change_var, 1, "Toggle Special Effects", "Special spell effects", LODTAB);
+	/* temporary variables for fine graphic positions asjustmeet */
+	add_var(OPT_SPECINT, "gx_adjust","gxa", &gx_adjust, change_int, 0, "Adjust graphics X","Fine adjustment for placing certain graphics - X direction.",LODTAB, -3,3);
+	add_var(OPT_SPECINT, "gy_adjust","gxa", &gy_adjust, change_int, 0, "Adjust graphics Y","Fine adjustment for placing certain graphics - Y direction.",LODTAB, -3,3);
 #ifndef MAP_EDITOR2
 	add_var(OPT_BOOL,"buddy_log_notice", "buddy_log_notice", &buddy_log_notice, change_var, 1, "Log Buddy Sign On/Off", "Toggle whether to display notices when people on your buddy list log on or off", MISC);
 #endif

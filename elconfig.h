@@ -100,6 +100,9 @@ extern int elconfig_win;
 
 extern int options_set;
 
+extern int gx_adjust;
+extern int gy_adjust;
+
 void display_elconfig_win(void);
 
 void change_language(const char *new_lang);
