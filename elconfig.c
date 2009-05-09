@@ -386,6 +386,11 @@ void change_int(int * var, int value)
 	if(value>=0) *var= value;
 }
 
+void change_signed_int(int * var, int value)
+{
+	*var= value;
+}
+
 void change_float(float * var, float * value)
 {
 #ifdef	ELC
@@ -1794,8 +1799,8 @@ void init_vars()
  #endif //ANTI_ALIAS
 	add_var(OPT_BOOL,"special_effects", "sfx", &special_effects, change_var, 1, "Toggle Special Effects", "Special spell effects", LODTAB);
 	/* temporary variables for fine graphic positions asjustmeet */
-	add_var(OPT_SPECINT, "gx_adjust","gxa", &gx_adjust, change_int, 0, "Adjust graphics X","Fine adjustment for placing certain graphics - X direction.",LODTAB, -3,3);
-	add_var(OPT_SPECINT, "gy_adjust","gxa", &gy_adjust, change_int, 0, "Adjust graphics Y","Fine adjustment for placing certain graphics - Y direction.",LODTAB, -3,3);
+	add_var(OPT_INT, "gx_adjust","gxa", &gx_adjust, change_signed_int, 0, "Adjust graphics X","Fine adjustment for placing certain graphics - X direction.",LODTAB, -3,3);
+	add_var(OPT_INT, "gy_adjust","gxa", &gy_adjust, change_signed_int, 0, "Adjust graphics Y","Fine adjustment for placing certain graphics - Y direction.",LODTAB, -3,3);
 #ifndef MAP_EDITOR2
 	add_var(OPT_BOOL,"buddy_log_notice", "buddy_log_notice", &buddy_log_notice, change_var, 1, "Log Buddy Sign On/Off", "Toggle whether to display notices when people on your buddy list log on or off", MISC);
 #endif
