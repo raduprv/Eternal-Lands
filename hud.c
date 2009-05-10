@@ -1073,7 +1073,7 @@ static int context_quickbar_handler(window_info *win, int widget_id, int mx, int
 	return 1;
 }
 
-static void context_hud_pre_show_handler(window_info *win, int widget_id, int mx, int my)
+static void context_hud_pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win)
 {
 #ifdef NEW_SOUND
 	cm_sound_enabled = sound_on;

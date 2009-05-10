@@ -509,7 +509,7 @@ CHECK_GL_ERRORS();
 				
 #ifdef CONTEXT_MENUS
 			/* if a context menu is open, only hightlight the last URL hovered over before the context opened */
-			if (cm_window_shown())
+			if (cm_window_shown() != CM_INIT_VALUE)
 			{
 				if (cm_url == local_head)
 					highlight_url = 1;

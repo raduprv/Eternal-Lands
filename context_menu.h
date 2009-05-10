@@ -122,7 +122,7 @@ int cm_add(size_t cm_id, const char *menu_list, int (*handler)(window_info *, in
  * \param handler		function to call on just before the menu is shown
  * \retval int 			1 for success, 0 for failure (invalid id)
  */
-int cm_set_pre_show_handler(size_t cm_id, void (*handler)(window_info *, int, int, int));
+int cm_set_pre_show_handler(size_t cm_id, void (*handler)(window_info *, int, int, int, window_info *));
 
 
 /*!
@@ -274,9 +274,9 @@ void cm_showinfo(void);
 
 /*!
  * \ingroup context_menu
- * \brief Return the value of get_show_window() for the context window.
+ * \brief Return the id the currently open context menu or CM_INIT_VALUE if none open.
  */
-int cm_window_shown(void);
+size_t cm_window_shown(void);
 
 
 #ifdef __cplusplus

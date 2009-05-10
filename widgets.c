@@ -2318,7 +2318,7 @@ static int context_edit_handler(window_info *win, int widget_id, int mx, int my,
 }
 
 /* the edit context menu pre show callback */
-static void context_edit_pre_show_handler(window_info *win, int widget_id, int mx, int my)
+static void context_edit_pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win)
 {
 	widget_list* w = NULL;
 	text_field *tf;
