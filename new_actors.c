@@ -725,6 +725,8 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 		for(j=0; name[j] && name[j]>32;j++){
 			onlyname[j]=name[j];
 		}
+#else
+		name = buffer;
 #endif //CUSTOM_LOOK
 
 		/* search for string end or color mark */
