@@ -102,6 +102,19 @@ extern int chat_tabcollection_id;
 void clear_chat_wins (void);
 
 /*!
+ * \ingroup chat_window
+ * \brief   Parse text as console input
+ *
+ *      A common routine to parse input.  Input can be local chat, 
+ * 	#commands, %options channel or personal chat.
+ *
+ * \param data       the input text
+ * \param len		 the length of the input text
+ * \callgraph
+ */
+void parse_input(char *data, int len);
+
+/*!
  * \brief   Highlights a channel in the channel selection tab
  *
  *	Highlights a channel's tab in red. Used when a message with player's name arrives.

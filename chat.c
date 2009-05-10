@@ -784,6 +784,28 @@ void update_chat_win_buffers(void)
 	text_changed = 1;
 }
 
+void parse_input(char *data, int len)
+{
+	if (data[0] == '%' && len > 1) 
+	{
+		if ( (check_var ((char*)&(data[1]), IN_GAME_VAR) ) < 0)
+		{
+			send_input_text_line ((char*)data, len);
+		}
+	}
+	else if ( data[0] == '#' || data[0] == char_cmd_str[0] )
+	{
+		test_for_console_command ((char*)data, len);
+	}
+	else
+	{
+		if(data[0] == char_at_str[0])
+			data[0] = '@';
+		send_input_text_line ((char*)data, len);
+	}
+}
+
+
 int root_key_to_input_field (Uint32 key, Uint32 unikey)
 {
 	Uint16 keysym = key & 0xffff;
@@ -807,23 +829,7 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 	}
 	else if (ch == SDLK_RETURN && msg->len > 0)
 	{
-		if (msg->data[0] == '%' && msg->len > 1) 
-		{
-			if ( (check_var ((char*)&(msg->data[1]), IN_GAME_VAR) ) < 0)
-			{
-				send_input_text_line ((char*)msg->data, msg->len);
-			}
-		}
-		else if ( msg->data[0] == '#' || msg->data[0] == char_cmd_str[0] )
-		{
-			test_for_console_command ((char*)msg->data, msg->len);
-		}
-		else
-		{
-			if(msg->data[0] == char_at_str[0])
-				msg->data[0] = '@';
-			send_input_text_line ((char*)msg->data, msg->len);
-		}
+		parse_input(msg->data, msg->len);
 		add_line_to_history((char*)msg->data, msg->len);
 		clear_input_line();
 	}
