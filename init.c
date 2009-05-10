@@ -79,6 +79,9 @@
 #ifdef TEXT_ALIASES
 #include "text_aliases.h"
 #endif /* TEXT_ALIASES */
+#if defined(CONTEXT_MENUS) && defined(USER_MENUS)
+#include "user_menus.h"
+#endif
 
 #define	CFG_VERSION 7	// change this when critical changes to el.cfg are made that will break it
 
@@ -361,6 +364,10 @@ void read_bin_cfg()
 	items_stoall_nolastrow = (cfg_mem.misc_bool_options >> 4) & 1;
 	items_dropall_nolastrow = (cfg_mem.misc_bool_options >> 5) & 1;
  	autoclose_storage_dialogue = (cfg_mem.misc_bool_options >> 6) & 1;
+ 	
+#if defined(CONTEXT_MENUS) && defined(USER_MENUS)
+	set_options_user_menus(cfg_mem.user_menu_win_x, cfg_mem.user_menu_win_y, cfg_mem.user_menu_options);
+#endif
 }
 
 void save_bin_cfg()
@@ -585,6 +592,10 @@ void save_bin_cfg()
 	cfg_mem.misc_bool_options |= items_stoall_nolastrow << 4;
 	cfg_mem.misc_bool_options |= items_dropall_nolastrow << 5;
  	cfg_mem.misc_bool_options |= autoclose_storage_dialogue << 6;
+
+#if defined(CONTEXT_MENUS) && defined(USER_MENUS)
+	get_options_user_menus(&cfg_mem.user_menu_win_x, &cfg_mem.user_menu_win_y, &cfg_mem.user_menu_options);
+#endif
 
 	fwrite(&cfg_mem,sizeof(cfg_mem),1,f);
 	fclose(f);

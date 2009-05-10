@@ -180,8 +180,22 @@ typedef struct
 	int misc_bool_options;
     /*! @} */
 
+#if defined(CONTEXT_MENUS) && defined(USER_MENUS)
+    /*!
+     * \name User menu options
+     */    /*! @{ */
+	int user_menu_options;
+	int user_menu_win_x;
+	int user_menu_win_y;
+    /*! @} */
+    
+	//!!!!!!!If you add any new FLOAT option, decrement the reserved thingy accordingly!!!!!!
+	float freserved[12];
+#else   
 	//!!!!!!!If you add any new FLOAT option, decrement the reserved thingy accordingly!!!!!!
 	float freserved[15];
+#endif // CONTEXT_MENUS && USER_MENUS
+
 }bin_cfg;
 
 extern int auto_update; /*!<this flags signals whether or not autoupdates are performed at startup, or not. It requires a restart to have an effect. */

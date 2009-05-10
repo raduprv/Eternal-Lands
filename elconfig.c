@@ -11,6 +11,9 @@
 #ifndef _MSC_VER
 	#include <unistd.h>
 #endif //_MSC_VER
+#if defined(CONTEXT_MENUS) && defined(USER_MENUS)
+#include "user_menus.h"
+#endif
 
 #ifdef MAP_EDITOR
  #include "../map_editor/global.h"
@@ -1700,6 +1703,10 @@ void init_vars()
 	add_var(OPT_BOOL,"cm_banner_disabled", "cmbanner", &cm_banner_disabled, change_var, 0,"Disable Name/Health Text Context Menu","Disable the context menu on your players name/health banner.",HUD);
 #endif
 	add_var(OPT_BOOL,"opaque_window_backgrounds", "opaquewin", &opaque_window_backgrounds, change_var, 0,"Use Opaque Window Backgrounds","Toggle the current state of all windows between transparent and opaque background. Use CTRL+D to toggle the current state of an individual window.",HUD);
+#if defined(CONTEXT_MENUS) && defined(USER_MENUS)
+	add_var(OPT_BOOL,"enable_user_menus", "user_menus", &enable_user_menus, toggle_user_menus, 1, "Enable User Menus","Create .menu files in your config directory.  First line is the menu name. After that, then each is a command using the format of \"Menus Text||command\".",HUD);
+#endif
+
 
 #ifndef MAP_EDITOR2
 	add_var(OPT_SPECINT,"auto_afk_time","afkt",&afk_time_conf,set_afk_time,5,"AFK Time","The idle time in minutes before the AFK auto message",MISC,0,INT_MAX);

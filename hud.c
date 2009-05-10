@@ -37,6 +37,9 @@
 #ifdef ECDEBUGWIN
 #include "eye_candy_debugwin.h"
 #endif
+#if defined(CONTEXT_MENUS) && defined(USER_MENUS)
+#include "user_menus.h"
+#endif
 #include "url.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
@@ -185,6 +188,10 @@ void init_hud_interface (hud_interface type)
 		init_stats_display ();
 		init_quickbar ();
 		init_quickspell ();
+#if defined(CONTEXT_MENUS) && defined(USER_MENUS)
+		if (enable_user_menus)
+			display_user_menus();
+#endif
 	}
 
 	last_interface = type;
