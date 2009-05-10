@@ -12,6 +12,7 @@ extern int harvesting;
 extern char harvest_name[32];
 extern int counters_win;
 extern Uint32 disconnect_time;
+extern char last_spell_name[60];
 
 void load_counters();
 void flush_counters();

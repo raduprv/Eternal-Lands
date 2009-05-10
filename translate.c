@@ -331,6 +331,8 @@ char	name_too_long[75],
 	time_warn_day_str[75],
 	config_location_str[75],
 	datadir_location_str[75],
+	no_spell_to_show_str[40],
+	invalid_spell_string_str[40],
 	cmd_ignores[20],
 	cmd_ignore[20],
 	cmd_unignore[20],
@@ -348,7 +350,10 @@ char	name_too_long[75],
 	cmd_date[10],
 	cmd_exit[10],
 	cmd_msg[10],
-	cmd_afk[5];
+	cmd_afk[5],
+	cmd_open_url[20],
+	cmd_show_spell[20],
+	cmd_cast_spell[20];
 #endif
 
 /*! \name Errors */
@@ -869,6 +874,8 @@ void init_console()
 	add_xml_identifier(loading_msg,"init_done",init_done_str,"Done",sizeof(init_done_str));
 	add_xml_identifier(loading_msg,"config_location",config_location_str,"Your personal settings and logs will be saved in %s",sizeof(config_location_str));
 	add_xml_identifier(loading_msg,"datadir_location",datadir_location_str,"The location of the data files in use is %s",sizeof(datadir_location_str));
+	add_xml_identifier(loading_msg,"no_spell_to_show",no_spell_to_show_str,"No spell to show",sizeof(no_spell_to_show_str));
+	add_xml_identifier(loading_msg,"invalid_spell_string",invalid_spell_string_str,"Invalid spell string",sizeof(invalid_spell_string_str));
 
 	add_xml_identifier(cmd_grp,"help_rq",help_request_str,"#help request",sizeof(help_request_str));
 	add_xml_identifier(cmd_grp,"help_cmd",help_cmd_str,"help",sizeof(help_cmd_str));
@@ -897,6 +904,9 @@ void init_console()
 	add_xml_identifier(cmd_grp,"glinfo",cmd_glinfo,"glinfo",sizeof(cmd_glinfo));
 	add_xml_identifier(cmd_grp,"knowledge",cmd_knowledge,"knowledge",sizeof(cmd_knowledge));
 	add_xml_identifier(cmd_grp,"knowledge_short",cmd_knowledge_short,"know",sizeof(cmd_knowledge_short));
+	add_xml_identifier(cmd_grp,"open_url",cmd_open_url,"open_url",sizeof(cmd_open_url));
+	add_xml_identifier(cmd_grp,"show_spell",cmd_show_spell,"show_spell",sizeof(cmd_show_spell));
+	add_xml_identifier(cmd_grp,"cast_spell",cmd_cast_spell,"cast_spell",sizeof(cmd_cast_spell));
 }
 #endif
 

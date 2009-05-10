@@ -1037,6 +1037,92 @@ int command_accept_buddy(char *text, int len)
 }
 
 
+/* open the specified url in the configured browser */
+static int command_open_url(char *text, int len)
+{
+	text = getparams(text);
+	if (*text)
+		open_web_link(text);
+	return 1;
+}
+
+
+/* parse the command parameters for a spell message, then cast it */
+static int command_cast_spell(char *text, int len)
+{
+	int index = 0;
+	int valid_looking_message = 1;
+	Uint8 str[30];
+	
+	/* valid messages start with the CAST_SPELL message of 39 or 0x27 */
+	text = getparams(text);
+	if (!*text || strstr(text, "27")==NULL)
+		valid_looking_message = 0;
+	/* skip past everything until the CAST_SPELL message type */
+	else
+		text = strstr(text, "27");
+	
+	/* while we have hex digit pairs to process */
+	while (valid_looking_message && strlen(text)>1 && index<30)
+	{
+		int i;
+		Uint8 d[2];
+		for (i=0; i<2; i++)
+		{
+			d[i] = *text++;
+			if (d[i] >= '0' && d[i] <= '9')
+				d[i] -= '0';
+			else if (d[i] >= 'a' && d[i] <= 'f')
+				d[i] -= 'a'-10;
+			else if (d[i] >= 'A' && d[i] <= 'F')
+				d[i] -= 'F'-10;
+			else
+			{
+				valid_looking_message = 0;
+				break;
+			}
+		}
+		/* store the spell message byte */
+		if (valid_looking_message)
+			str[index++] = d[1] + 16*d[0];
+	}
+	
+	/* if we're now at the end of the text, we have some message bytes and it looks valid */
+	if (!*text && index && valid_looking_message)
+		send_spell(str, index);
+	else
+		LOG_TO_CONSOLE(c_red2, invalid_spell_string_str);
+	
+	return 1;
+}
+
+
+/* show the last spell name and message bytes */
+static int command_show_spell(char *text, int len)
+{
+	int i;
+	char out_str[128];
+	char mess_str[64];
+	
+	/* trap if we have no last spell or other invalid strings */
+	if (!*last_spell_name || strlen(last_spell_name)>59 || last_spell_len>30 || last_spell_len<=0)
+	{
+		LOG_TO_CONSOLE(c_green2, no_spell_to_show_str);
+		return 1;
+	}
+	
+	/* create the message body string, each byte in hex */
+	for(i=0; i<last_spell_len; i++)
+		sprintf(&mess_str[2*i], "%02x", last_spell_str[i]);	
+	mess_str[last_spell_len*2] = 0;
+
+	safe_snprintf(out_str, sizeof(out_str), "%s %s", last_spell_name, mess_str );
+	LOG_TO_CONSOLE(c_green2, out_str);
+	
+	return 1;
+}
+
+
 /* display or test the md5sum of the current map or the specified file */
 int command_ckdata(char *text, int len)
 {
@@ -1209,6 +1295,9 @@ void init_commands(const char *filename)
 	add_command("aliases", &aliases_command);
 #endif
 	add_command("ckdata", &command_ckdata);
+	add_command(cmd_open_url, &command_open_url);
+	add_command(cmd_show_spell, &command_show_spell);
+	add_command(cmd_cast_spell, &command_cast_spell);
 	command_buffer_offset = NULL;
 }
 

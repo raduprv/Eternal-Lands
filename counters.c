@@ -102,8 +102,9 @@ static Uint32 misc_event_time = 0;
 
 int harvesting = 0;
 Uint32 disconnect_time;
-char harvest_name[32];
+char harvest_name[32] = {0};
 int killed_by_player = 0;
+char last_spell_name[60] = {0};
 
 int counters_win = -1;
 int counters_scroll_id = 16;
@@ -820,6 +821,7 @@ void counters_set_spell_name(int spell_id, char *name, int len)
 		// the name lookup must have been previously requested in increment_spell_counter()
 		if (requested_spell_id == spell_id)
 		{
+			safe_strncpy2(last_spell_name, spell_names[spell_id+1], 60, strlen(spell_names[spell_id+1]));
 			increment_counter(SPELLS, spell_names[spell_id+1], 1, spell_id);
 			requested_spell_id = -1;
 		}
@@ -839,7 +841,10 @@ void increment_spell_counter(int spell_id)
 	}
 	// delay the increment until we have the name
 	else
+	{
+		safe_strncpy2(last_spell_name, spell_names[spell_id+1], 60, strlen(spell_names[spell_id+1]));
 		increment_counter(SPELLS, spell_names[spell_id+1], 1, spell_id);
+	}
 }
 
 void increment_summon_manu_counter()
