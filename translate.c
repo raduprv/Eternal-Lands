@@ -333,6 +333,7 @@ char	name_too_long[75],
 	datadir_location_str[75],
 	no_spell_to_show_str[40],
 	invalid_spell_string_str[40],
+	command_too_long_str[40],
 	cmd_ignores[20],
 	cmd_ignore[20],
 	cmd_unignore[20],
@@ -839,6 +840,9 @@ void init_console()
 	add_xml_identifier(misc,"time_warn_sunrise",time_warn_sunrise_str,"This is your %d minute warning for the coming sunrise.",sizeof(time_warn_sunrise_str));
 	add_xml_identifier(misc,"time_warn_sunset",time_warn_sunset_str,"This is your %d minute warning for the coming sunset.",sizeof(time_warn_sunset_str));
 	add_xml_identifier(misc,"time_warn_day",time_warn_day_str,"This is your %d minute warning for the coming day.",sizeof(time_warn_day_str));
+	add_xml_identifier(misc,"no_spell_to_show",no_spell_to_show_str,"No spell to show",sizeof(no_spell_to_show_str));
+	add_xml_identifier(misc,"invalid_spell_string",invalid_spell_string_str,"Invalid spell string",sizeof(invalid_spell_string_str));
+	add_xml_identifier(misc,"command_string_too_long",command_too_long_str,"Command string too long",sizeof(command_too_long_str));
 
 	add_xml_identifier(loading_msg,"init_opengl",init_opengl_str,"Initializing OpenGL extensions",sizeof(init_opengl_str));
 	add_xml_identifier(loading_msg,"init_random",init_random_str,"Generating random seed",sizeof(init_random_str));
@@ -874,8 +878,6 @@ void init_console()
 	add_xml_identifier(loading_msg,"init_done",init_done_str,"Done",sizeof(init_done_str));
 	add_xml_identifier(loading_msg,"config_location",config_location_str,"Your personal settings and logs will be saved in %s",sizeof(config_location_str));
 	add_xml_identifier(loading_msg,"datadir_location",datadir_location_str,"The location of the data files in use is %s",sizeof(datadir_location_str));
-	add_xml_identifier(loading_msg,"no_spell_to_show",no_spell_to_show_str,"No spell to show",sizeof(no_spell_to_show_str));
-	add_xml_identifier(loading_msg,"invalid_spell_string",invalid_spell_string_str,"Invalid spell string",sizeof(invalid_spell_string_str));
 
 	add_xml_identifier(cmd_grp,"help_rq",help_request_str,"#help request",sizeof(help_request_str));
 	add_xml_identifier(cmd_grp,"help_cmd",help_cmd_str,"help",sizeof(help_cmd_str));

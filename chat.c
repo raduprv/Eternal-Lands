@@ -786,6 +786,12 @@ void update_chat_win_buffers(void)
 
 void parse_input(char *data, int len)
 {
+	if (len > MAX_TEXT_MESSAGE_LENGTH)
+	{
+		LOG_TO_CONSOLE(c_red2, command_too_long_str);
+		return;
+	}
+	
 	if (data[0] == '%' && len > 1) 
 	{
 		if ( (check_var ((char*)&(data[1]), IN_GAME_VAR) ) < 0)

@@ -246,6 +246,7 @@ extern char
 		datadir_location_str[75],
 		no_spell_to_show_str[40],
 		invalid_spell_string_str[40],
+		command_too_long_str[40],
 		cmd_ignores[20],
 		cmd_ignore[20],
 		cmd_unignore[20],
