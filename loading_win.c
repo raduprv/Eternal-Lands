@@ -96,7 +96,14 @@ void take_snapshot (int width, int height)
 	while (bg_height < height)
 		bg_height *= 2;
 	
-	glReadBuffer (GL_FRONT);
+	/* In GL version 1.1 or greater, pixels may be a null pointer. In this case
+	 texture memory is allocated to accommodate a texture of width width and
+	 height height.	You can then download subtextures to initialize this texture
+	 memory. */	
+	glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, bg_width, bg_height, 0, GL_RGBA, GL_BYTE, NULL);
+	/* Reading from FRONT buffer is buggy atm, at least under DRI2+composited
+	environment */
+	glReadBuffer (GL_BACK);
 	glCopyTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, bg_width, bg_height, 0);
 	
 	frac_x = ((float) width) / bg_width;
