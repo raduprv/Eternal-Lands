@@ -126,7 +126,7 @@ then
 fi
 
 # run the client, display error log if it crashes
-if ! /usr/games/el.x86.linux.bin $config $*
+if ! /usr/games/el.x86.linux.bin $config $* &> ~/.elc/terminal_log.txt
 then
 	cat | zenity --text-info --width=500 --height=300 --title "Eternal Lands Crashed, this is the Error log." << EOT
 Oh my, Eternal Lands Crashed - Don't Panic!
@@ -140,6 +140,11 @@ If you continue to have problems check the Eternal Lands forums, especially the 
 The following is your error log contents.  Note it is overwritten each time you run the game.
 
 $(cat ~/.elc/error_log.txt)
+
+This was the program output:  Note it is overwritten each time you run the game.
+
+$(cat ~/.elc/terminal_log.txt)
+
 EOT
 fi
 
