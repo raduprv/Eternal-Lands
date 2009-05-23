@@ -797,6 +797,7 @@ typedef enum
  */
 /*! @{ */
 #define RAW_TEXT 0
+#define PROXY 254	// reserved for advanced PROXY support
 #define BYE 255
 /*! @} */
 
