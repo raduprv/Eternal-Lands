@@ -813,12 +813,12 @@ namespace UserMenus
 		
 		std::vector<std::string> search_paths;
 		if (include_datadir)
-			search_paths.push_back(std::string(datadir) + "*.menu");
-		search_paths.push_back(std::string(get_path_config()) + "*.menu");
+			search_paths.push_back(std::string(datadir));
+		search_paths.push_back(std::string(get_path_config()));
 
 		for (size_t i=0; i<search_paths.size(); i++)
 		{
-			std::string glob_path = search_paths[i];
+			std::string glob_path = search_paths[i] + "*.menu";
 
 			// find all the menu files and build a list of path+filenames for later
 #ifdef WINDOWS
@@ -827,7 +827,7 @@ namespace UserMenus
 			if ((hFile = _findfirst(glob_path.c_str(), &c_file)) != -1L)
 			{
 				do
-					filelist.push_back(std::string(get_path_config()) + std::string(c_file.name));
+					filelist.push_back(search_paths[i] + std::string(c_file.name));
 				while (_findnext(hFile, &c_file) == 0);	
 				_findclose(hFile);
 			}
