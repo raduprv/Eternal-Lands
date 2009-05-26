@@ -1189,7 +1189,7 @@ texture_struct *load_texture(const char * file_name, texture_struct *tex, Uint8 
 	}
 
 #if defined NEW_LIGHTING || defined NIGHT_TEXTURES
-	do_night_shift_texture(file_name, data, tex->x_size, tex->y_size);
+	do_night_shift_texture(file_name, tex->texture, tex->x_size, tex->y_size);
 #endif
 
 #ifdef NEW_LIGHTING
