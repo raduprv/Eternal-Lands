@@ -22,45 +22,71 @@
 #include "widgets.h"
 
 
-void notepad_add_continued (const char *name);
-
-int notepad_loaded = 0;
-float note_zoom = 0.8f;
-
 /******************************************
  *             Popup Section              *
  ******************************************/
- 
-// Macro Definitions
-#define MAX_POPUP_BUFFER 156
- 
-// Widgets and Windows
-int popup_win = -1;
-int popup_field = -1;
-int popup_label = -1;
-int popup_ok = -1;
-int popup_no = -1;
-text_message popup_text;
-static int show_remove_help = 0;
 
-// Coordinates
-int popup_x_len = 200;
-int popup_y_len = 100;
-
-// widget id
-int note_widget_id = 0;
-
-void clear_popup_window ()
+void init_ipu (INPUT_POPUP *ipu, int parent, int x_len, int y_len, int maxlen, int rows, void cancel(void), void input(const char *))
 {
-	text_field_clear (popup_win, popup_field);
+	ipu->text_flags = TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS;
+	ipu->text_flags |= (rows>1) ?TEXT_FIELD_SCROLLBAR :0;
 
-	hide_window (popup_win);
+	ipu->popup_win = ipu->popup_field = ipu->popup_label = ipu->popup_ok =
+		ipu->popup_no = ipu->x = ipu->y = -1;
+	
+	ipu->popup_x_len = x_len;
+	ipu->popup_y_len = y_len + ((rows>1) ?(rows-1)*28 :0);
+
+	ipu->popup_cancel = cancel;
+	ipu->popup_input = input;
+
+	ipu->parent = parent;
+	ipu->maxlen = maxlen;
+	ipu->rows = rows;
 }
 
-void accept_popup_window ()
+void close_ipu (INPUT_POPUP *ipu)
 {
-	int istart, iend, len = popup_text.len;
-	char *data = popup_text.data;
+	if (ipu->popup_win > 0)
+	{
+		destroy_window(ipu->popup_win);
+		clear_text_message_data (&ipu->popup_text);
+		free_text_message_data (&ipu->popup_text);
+		init_ipu(ipu, -1, 200, 100, 10, 1, NULL, NULL);
+	}
+}
+
+static INPUT_POPUP *ipu_from_widget (widget_list *w)
+{
+	if ((w == NULL) || (w->window_id < 0) || (windows_list.num_windows < w->window_id)
+		|| (windows_list.window[w->window_id].data == NULL))
+	{
+		fprintf(stderr, "%s: NULL pointer error\n", __FUNCTION__);
+		return NULL;
+	}
+	return (INPUT_POPUP *)windows_list.window[w->window_id].data;
+}
+
+static INPUT_POPUP *ipu_from_window (window_info *win)
+{
+	if ((win == NULL) || (win->data == NULL))
+	{
+		fprintf(stderr, "%s: NULL pointer error\n", __FUNCTION__);
+		return NULL;
+	}
+	return (INPUT_POPUP *)win->data;
+}
+
+static void clear_popup_window (INPUT_POPUP *ipu)
+{
+	text_field_clear (ipu->popup_win, ipu->popup_field);
+	hide_window (ipu->popup_win);
+}
+
+static void accept_popup_window (INPUT_POPUP *ipu)
+{
+	int istart, iend, itmp, len = ipu->popup_text.len;
+	char *data = ipu->popup_text.data;
 
 	// skip leading spaces
 	istart = 0;
@@ -70,6 +96,16 @@ void accept_popup_window ()
 		// empty string
 		return;
 		
+	// remove soft breaks
+	iend = itmp = istart;
+	while ( iend < len )
+	{
+		if (data[iend] != '\r')
+			data[itmp++] = data[iend];
+		iend++;
+	}
+	len = itmp;
+
 	// stop at first non-printable character
 	iend = istart;
 	while ( iend < len && is_printable (data[iend]) )
@@ -77,48 +113,62 @@ void accept_popup_window ()
 	if (iend == istart)
 		// empty string
 		return;
-	
+
+	// send the entered text to the window owner then clear up
 	data[iend] = '\0';
-	notepad_add_continued (&data[istart]);
-	clear_popup_window ();
+	if (ipu->popup_input != NULL)
+		(*ipu->popup_input) (&data[istart]);
+	clear_popup_window (ipu);
 }
 
-int popup_cancel_button_handler (widget_list *w, int mx, int my, Uint32 flags)
+static int popup_cancel_button_handler (widget_list *w, int mx, int my, Uint32 flags)
 {
+	INPUT_POPUP *ipu = ipu_from_widget(w);
+	if (ipu == NULL) return 0;
+
 	// only handle mouse button clicks, not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
 
-	clear_popup_window ();
+	// call the canel function of the window owner then clear up	
+	if (ipu->popup_cancel != NULL)
+		(*ipu->popup_cancel) ();
+	clear_popup_window (ipu);
 
 	return 1;
 }
 
-int popup_ok_button_handler (widget_list *w, int mx, int my, Uint32 flags)
+static int popup_ok_button_handler (widget_list *w, int mx, int my, Uint32 flags)
 {
+	INPUT_POPUP *ipu = ipu_from_widget(w);
+	if (ipu == NULL) return 0;
+
 	// only handle mouse button clicks, not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
 
-	accept_popup_window ();
+	accept_popup_window (ipu);
 	
 	return 1;
 }
 
-int popup_keypress_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+static int popup_keypress_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
+	INPUT_POPUP *ipu = ipu_from_window(win);
+	if (ipu == NULL) return 0;
+
 	if (key == SDLK_RETURN)
 	{
-		accept_popup_window ();
+		accept_popup_window (ipu);
 		return 1;
 	}
 	else if (key == SDLK_ESCAPE)
 	{
-		clear_popup_window ();
+		clear_popup_window (ipu);
 		return 1;
 	}
 	else
 	{
 		// send other key presses to the text field
-		widget_list *tfw = widget_find (win->window_id, popup_field);
+		widget_list *tfw = widget_find (win->window_id, ipu->popup_field);
 		if (tfw != NULL)
 		{
 			// FIXME? This is a bit hackish, we don't allow the
@@ -139,51 +189,55 @@ int popup_keypress_handler (window_info *win, int mx, int my, Uint32 key, Uint32
 	return 0;
 }
 
-void display_popup_win (int parent, int x, int y, char* label, int maxlen)
+void display_popup_win (INPUT_POPUP *ipu, const char* label)
 {
 	widget_list *wok;
 	widget_list *wno;
 
-	if(popup_win < 0)
+	if(ipu->popup_win < 0)
 	{		  
-		popup_win = create_window (win_prompt, parent, 0, x, y, popup_x_len, popup_y_len, ELW_WIN_DEFAULT);
+		Uint32 flags = ELW_WIN_DEFAULT & ~ELW_CLOSE_BOX;
+		ipu->popup_win = create_window (win_prompt, ipu->parent, 0, ipu->x, ipu->y, ipu->popup_x_len, ipu->popup_y_len, flags);
 
 		// clear the buffer
-		init_text_message (&popup_text, maxlen);
-		set_text_message_color (&popup_text, 0.77f, 0.57f, 0.39f);
+		init_text_message (&ipu->popup_text, ipu->maxlen);
+		set_text_message_color (&ipu->popup_text, 0.77f, 0.57f, 0.39f);
 
 		// Label
-		popup_label = label_add (popup_win, NULL, label, 5, 5);
-		widget_set_color (popup_win, popup_label, 0.77f, 0.57f, 0.39f);
+		ipu->popup_label = label_add (ipu->popup_win, NULL, label, 5, 5);
+		widget_set_color (ipu->popup_win, ipu->popup_label, 0.77f, 0.57f, 0.39f);
 		
 		// Input
-		popup_field = text_field_add_extended (popup_win, note_widget_id++, NULL, 5, 28, popup_x_len - 20, 28, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS, 1.0f, 0.77f, 0.57f, 0.39f, &popup_text, 1, FILTER_ALL, 5, 5);
-		widget_set_color (popup_win, popup_field, 0.77f, 0.57f, 0.39f);
+		ipu->popup_field = text_field_add_extended (ipu->popup_win, 101, NULL, 5, 28, ipu->popup_x_len - 10, 28*ipu->rows, ipu->text_flags, 1.0f, 0.77f, 0.57f, 0.39f, &ipu->popup_text, 1, FILTER_ALL, 5, 5);
+		widget_set_color (ipu->popup_win, ipu->popup_field, 0.77f, 0.57f, 0.39f);
 
 		// Accept
-		popup_ok = button_add (popup_win, NULL, button_okay, 0, 0);
-		widget_set_OnClick (popup_win, popup_ok, popup_ok_button_handler);
-		widget_set_color (popup_win, popup_ok, 0.77f, 0.57f, 0.39f);
+		ipu->popup_ok = button_add (ipu->popup_win, NULL, button_okay, 0, 0);
+		widget_set_OnClick (ipu->popup_win, ipu->popup_ok, popup_ok_button_handler);
+		widget_set_color (ipu->popup_win, ipu->popup_ok, 0.77f, 0.57f, 0.39f);
 
 		// Reject
-		popup_no = button_add (popup_win, NULL, button_cancel, 0, 0);
-		widget_set_OnClick (popup_win, popup_no, popup_cancel_button_handler);
-		widget_set_color (popup_win, popup_no, 0.77f, 0.57f, 0.39f);
+		ipu->popup_no = button_add (ipu->popup_win, NULL, button_cancel, 0, 0);
+		widget_set_OnClick (ipu->popup_win, ipu->popup_no, popup_cancel_button_handler);
+		widget_set_color (ipu->popup_win, ipu->popup_no, 0.77f, 0.57f, 0.39f);
 		
 		// align the buttons
-		wok = widget_find(popup_win, popup_ok);
-		wno = widget_find(popup_win, popup_no);
-		widget_move(popup_win, popup_ok, (popup_x_len - wok->len_x - wno->len_x)/3, popup_y_len - (wok->len_y + 5));
-		widget_move(popup_win, popup_no, wok->len_x + 2*(popup_x_len - wok->len_x - wno->len_x)/3, popup_y_len - (wno->len_y + 5));
+		wok = widget_find(ipu->popup_win, ipu->popup_ok);
+		wno = widget_find(ipu->popup_win, ipu->popup_no);
+		widget_move(ipu->popup_win, ipu->popup_ok, (ipu->popup_x_len - wok->len_x - wno->len_x)/3, ipu->popup_y_len - (wok->len_y + 5));
+		widget_move(ipu->popup_win, ipu->popup_no, wok->len_x + 2*(ipu->popup_x_len - wok->len_x - wno->len_x)/3, ipu->popup_y_len - (wno->len_y + 5));
 
-		set_window_handler (popup_win, ELW_HANDLER_KEYPRESS, popup_keypress_handler);
+		set_window_handler (ipu->popup_win, ELW_HANDLER_KEYPRESS, popup_keypress_handler);
+
+		if ((ipu->popup_win > -1) && (ipu->popup_win < windows_list.num_windows));
+			windows_list.window[ipu->popup_win].data = ipu;
 	}
 	else
 	{
-		clear_text_message_data (&popup_text);
-		label_set_text (popup_win, popup_label, label);
-		show_window (popup_win);
-		select_window (popup_win);
+		clear_text_message_data (&ipu->popup_text);
+		label_set_text (ipu->popup_win, ipu->popup_label, label);
+		show_window (ipu->popup_win);
+		select_window (ipu->popup_win);
 	}
 }
 
@@ -218,6 +272,12 @@ int note_tabcollection_id = -1;
 int main_note_tab_id = -1;
 int buttons[2];
 int note_button_scroll_id = -1;
+
+int notepad_loaded = 0;
+float note_zoom = 0.8f;
+static int show_remove_help = 0;
+int note_widget_id = 0;
+INPUT_POPUP popup_str;
 
 // Misc.
 unsigned short nr_notes = 0;
@@ -594,9 +654,6 @@ void notepad_add_continued (const char *name)
 
 int notepad_add_category (widget_list *w, int mx, int my, Uint32 flags)
 {
-	int x = (notepad_win_x_len - popup_x_len) / 2;
-	int y = (notepad_win_y_len - popup_y_len) / 2;
-	
 	// only handle mouse button clicks, not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
 
@@ -607,7 +664,7 @@ int notepad_add_category (widget_list *w, int mx, int my, Uint32 flags)
 		note_list_size = new_size;
 	}
     
-	display_popup_win (main_note_tab_id, x, y, label_note_name, 16);
+	display_popup_win (&popup_str, label_note_name);
 	return 1;
 }
 
@@ -661,6 +718,10 @@ void display_notepad()
 		widget_move(main_note_tab_id, buttons[1], wnew->len_x + 2*(notepad_win_x_len - 10 - wnew->len_x - wsave->len_x)/3, 10);
 		
 		notepad_load_file ();
+
+		init_ipu (&popup_str, main_note_tab_id, 200, 100, 16, 1, NULL, notepad_add_continued);
+		popup_str.x = (notepad_win_x_len - popup_str.popup_x_len) / 2;
+		popup_str.y = (notepad_win_y_len - popup_str.popup_y_len) / 2;	
 
 		note_button_scroll_id = vscrollbar_add (main_note_tab_id, NULL, note_tabs_width - note_button_scroll_width - 5, 50, note_button_scroll_width, note_button_scroll_height);
 		widget_set_OnClick (main_note_tab_id, note_button_scroll_id, note_button_scroll_handler);

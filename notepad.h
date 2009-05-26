@@ -11,10 +11,52 @@ extern "C" {
 #endif
 
 extern int notepad_win;    /*!< ID of the notepad window */
+extern int popup_win;      /*!< ID of the popup window */
 extern int notepad_loaded; /*!< boolean flag, indicating whether the notepad was loaded before. */
 extern int notepad_win_x;  /*!< x-coordinate of the notepad position */
 extern int notepad_win_y;  /*!< y-coordinate of the notepad position */
 extern float note_zoom;    /*!< Size of the text in the note pad */
+
+/* state structure for an input popup window */
+typedef struct
+{
+	int popup_win, popup_field, popup_label, popup_ok, popup_no;
+	int popup_x_len, popup_y_len, parent, x, y;
+	int maxlen, rows;
+	void (*popup_cancel)(void);
+	void (*popup_input)(const char *);
+	Uint32 text_flags;
+	text_message popup_text;
+} INPUT_POPUP;
+
+/*!
+ * \ingroup notepad_window
+ * \brief   Initialise an input popup state structure
+ *
+ *      Initialise an input popup state structure using the given values.
+ *
+ * \param ipu    	pointer to the input popup window state structure
+ * \param parent    id of the parent window
+ * \param x_len     width of the window in pixels
+ * \param y_len     base height of the window if rows is 1
+ * \param maxlen    the maximum length of the popup window text.
+ * \param rows      number of rows for the text widget
+ * \param cancel	callback function if the window is cancelled (or NULL)
+ * \param input		callback function to pass entered text (or (unusefully) NULL)
+ * \callgraph
+ */
+void init_ipu (INPUT_POPUP *ipu, int parent, int x_len, int y_len, int maxlen, int rows, void cancel(void), void input(const char *));
+
+/*!
+ * \ingroup notepad_window
+ * \brief   Closes any open window.
+ *
+ *      Closes any open input popup window and frees the text buffer.
+ *
+ * \param ipu    	pointer to the input popup window state structure
+ * \callgraph
+ */
+void close_ipu (INPUT_POPUP *ipu);
 
 /*!
  * \ingroup notepad_window
@@ -22,14 +64,11 @@ extern float note_zoom;    /*!< Size of the text in the note pad */
  *
  *      Displays a popup window using the given \a label.
  *
- * \param parent    id of the parent window
- * \param x         x coordinate of the position where the popup window will be shown
- * \param y         y coordinate of the position where the popup window will be shown
+ * \param ipu    	pointer to the input popup window state structure
  * \param label     the label of the popup window
- * \param maxlen    the maximum length of the popup window text.
  * \callgraph
  */
-void display_popup_win(int parent, int x, int y, char* label, int maxlen);
+void display_popup_win (INPUT_POPUP *ipu, const char* label);
 
 /*!
  * \ingroup notepad_window
