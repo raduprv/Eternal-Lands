@@ -625,7 +625,7 @@ int label_draw(widget_list *W)
 	return 1;
 }
 
-int label_set_text(int window_id, Uint32 widget_id, char *text)
+int label_set_text(int window_id, Uint32 widget_id, const char *text)
 {
 	widget_list *w = widget_find(window_id, widget_id);
 	if(w){

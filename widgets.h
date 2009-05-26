@@ -519,7 +519,7 @@ int label_draw(widget_list *W);
  *
  * \sa widget_find
  */
-int label_set_text(int window_id, Uint32 widget_id, char *text);
+int label_set_text(int window_id, Uint32 widget_id, const char *text);
 
 
 
