@@ -23,6 +23,11 @@ Each menu line in a .menu file has two or more fields, the field separator is
 "||". The first field is the text for the menu line, the remaining field or
 fields are the associated commands.
 
+Commands can prompt for user input. If the command contains text inside "<>",
+e.g. "some text <more text> some other text" then the text inside the "<>" will
+be used as a prompt and the "<...>" replaced by the text entered by the user.
+You can include as many input prompts as you wish.
+
 
 Author bluap/pjbroad May 2009
 */
@@ -40,27 +45,26 @@ Stats Off||%show_stats_in_hud=0
 Channel Hi||@hi
 ||
 Open Readonly Storage||#sto
+Guild Info...||#guild_info <Guild Name>
 ||
+Player Info...||#open_url http://game.eternal-lands.com/view_user.php?user=<Player Name>
 BBC News||#open_url http://news.bbc.co.uk/
 */
 
 
 /* To Do:
-	- Add input prompt, e.g. "....||#knowledge <filter>" would prompt
-		for "filter" then substitude in the executed command
-	- Add option for key presses (from keys.ini file)
-	- Add a "pause for no output" #command ?
-	- build in delay between command to avoid spamming (Ent req)
-	- block use of #suicide #reset #killme #change_pass - may be store in file
-	- make the menu prettier
 	- tidy up how the container window creates its context menu
-	- restore context help text??
-	- move litteral strings to translation module
+	- restore context help text
+	- split Container class, possibly into window/container classes
+	- move literal strings to translation module
+	- Add option for key presses (from keys.ini file) do as #key command ?
+	- Add a "pause for no output" #wait ?
+	- block use of #suicide #reset #killme #change_pass - may be store in file
 	- virtical/horizontal option
 	- option auto hide down to icon
 	- option hide/show from clicking an icon
-	- split Container class, possibly into window/container classes
-	- option for global menus (in data_dir)
+	- make the menu prettier
+	- use a subtle text fade once the mouse is no longer over
 */
 
 #if defined(CONTEXT_MENUS)
@@ -69,6 +73,8 @@ BBC News||#open_url http://news.bbc.co.uk/
 #include <fstream>
 #include <string>
 #include <vector>
+#include <queue>
+#include <sstream> 
 #ifdef WINDOWS
 #include "io.h"
 #else
@@ -83,11 +89,53 @@ BBC News||#open_url http://news.bbc.co.uk/
 #include "errors.h"
 #include "font.h"
 #include "gl_init.h"
+#include "init.h"
 #include "io/elpathwrapper.h"
+#include "notepad.h"
 #include "user_menus.h"
 
 namespace UserMenus
 {
+	//
+	//	A single command created from one of the command fields in
+	//	a user menu line.
+	//
+	class Command
+	{
+		public:
+			Command(const std::string &command_text);
+			void action(const std::vector<std::string> &params) const;
+			void echo(void) const;
+			const std::vector<std::string>  & get_prompts(void) const { return param_prompts; }
+		private:
+			bool invalid_command;
+			std::vector<std::string> text_segments;
+			std::vector<std::string> param_prompts;
+	};
+
+	
+	//
+	//	Manages a queue of commands to be executed, provides input when
+	//	required and introduces a delay between commands to avoid spamming.
+	//
+	class Command_Queue
+	{
+		public:
+			Command_Queue(void);
+			~Command_Queue(void) { close_ipu(&ipu); }
+			void process(bool just_echo);
+			void add(const Command &new_command) { commands.push(new_command); }
+			void input(const char* input_text) { params.push_back(input_text); }
+			void cancel(void);
+			void clear(void);
+		private:
+			std::queue<Command> commands;
+			std::vector<std::string> params;
+			Uint32 last_time;
+			INPUT_POPUP ipu;
+	};
+
+
 	//
 	//	A single menu line, menu name and assiociated commands extracted 
 	//	from the string passed the to the constructor.
@@ -95,12 +143,12 @@ namespace UserMenus
 	class Line
 	{
 		public:
-			Line(std::string line_text);
-			const std::string & get_text() const { return text; }
-			const std::vector<std::string> & get_commands() const { return commands; }
+			Line(const std::string &line_text);
+			const std::string & get_text(void) const { return text; }
+			void action(Command_Queue &cq) const;
 		private:
 			std::string text;
-			std::vector<std::string> commands;
+			std::vector<Command> command_list;
 	};
 
 
@@ -111,12 +159,12 @@ namespace UserMenus
 	class Menu
 	{
 		public:
-			Menu(const std::string file_name);
-			~Menu();
-			const std::string & get_name() const { return menu_name; }
-			int get_name_width() const { return menu_name_width; }
-			size_t get_cm_id() const { return cm_menu_id; }
-			int action_commands(int option);
+			Menu(const std::string &file_name);
+			~Menu(void);
+			const std::string & get_name(void) const { return menu_name; }
+			int get_name_width(void) const { return menu_name_width; }
+			size_t get_cm_id(void) const { return cm_menu_id; }
+			void action(int option, Command_Queue &cq) const { lines[option]->action(cq); };
 		private:
 			size_t cm_menu_id;
 			int menu_name_width;
@@ -133,13 +181,17 @@ namespace UserMenus
 	{
 		public:
 			~Container(void);
-			void open_window();
-			void close_window() { if (win_id >= 0) hide_window(win_id); }
+			void open_window(void);
+			void close_window(void) { command_queue.clear(); if (win_id >= 0) hide_window(win_id); }
 			void set_options(int win_x, int win_y, int options);
 			void get_options(int *win_x, int *win_y, int *options);
-			static Container * get_instance();
-			static int do_option_handler(window_info *win, int widget_id, int mx, int my, int option) { return get_instance()->do_option(widget_id, option); }
+			void command_input(const char* input_text) { command_queue.input(input_text); }
+			void command_cancel(void) { command_queue.cancel(); }
+			static Container * get_instance(void);
+			static int action_handler(window_info *win, int widget_id, int mx, int my, int option) { return get_instance()->action(widget_id, option); }
 			static void pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win) { get_instance()->pre_show(win, widget_id, mx, my, cm_win); }
+			static void command_input_handler(const char *input_text) { get_instance()->command_input(input_text); };
+			static void command_cancel_handler(void) { get_instance()->command_cancel(); };
 
 		protected:
 			Container(void);
@@ -148,31 +200,36 @@ namespace UserMenus
 			int win_id;
 			int win_width;
 			size_t current_mouseover_menu;
-			bool queue_reload;
+			bool mouse_over_window;
+			bool reload_menus;
 			size_t context_id;
 			bool window_used;
 			int title_on;
 			int border_on;
 			int use_small_font;
+			int include_datadir;
+			int just_echo;
 			int win_x_pos;
 			int win_y_pos;
 			std::vector<Menu *> menus;
+			Command_Queue command_queue;
 			static const int name_sep;
 			static const int window_pad;
 			static const char *no_menus;
 
-			void reload();
-			void recalc_win_width();
+			void reload(void);
+			void recalc_win_width(void);
 			int display(window_info *win);
-			int do_option(size_t active_menu, int option);
+			int action(size_t active_menu, int option);
 			void pre_show(window_info *win, int widget_id, int mx, int my, window_info *cm_win);
 			int click(window_info *win, int mx, Uint32 flags);
 			size_t get_mouse_over_menu(int mx);
 			void delete_menus(void);
 			int context(window_info *win, int widget_id, int mx, int my, int option);
 			void set_win_flag(Uint32 *flags, Uint32 flag, int state);
-			void mouseover(int mx) { current_mouseover_menu = get_mouse_over_menu(mx); }
+			void mouseover(int mx) { mouse_over_window = true; current_mouseover_menu = get_mouse_over_menu(mx); }
 			int get_height(void) const { return static_cast<int>(((use_small_font)?SMALL_FONT_Y_LEN:DEFAULT_FONT_Y_LEN)+2*window_pad +0.5); }
+			int calc_actual_width(int width) const { return static_cast<int>(0.5 + ((use_small_font)?DEFAULT_SMALL_RATIO:1) * width); }
 
 			static int display_handler(window_info *win) { return get_instance()->display(win); }
 			static int mouseover_handler(window_info *win, int mx, int my) { get_instance()->mouseover(mx); return 0; }
@@ -181,54 +238,237 @@ namespace UserMenus
 	};
 
 
+	//
+	//	Construct a command object from a command string.  Parsing for
+	//	input fields and splitting into text/input sections.
+	//
+	Command::Command(const std::string &command_text)
+	{
+		std::string::size_type from_index = 0;
+		std::string::size_type to_index = 0;
+		std::string::size_type len = 0;
+		std::string start_str = "<";
+		std::string end_str = ">";
+		invalid_command = false;
+
+		// loop extracting command and parameter sections
+		// format is "text <parameter name> text <parameter name> text" e.t.c
+		while ((to_index = command_text.find(start_str, from_index)) != std::string::npos)
+		{
+			if ((len = to_index-from_index) > 0)
+				text_segments.push_back(command_text.substr(from_index, len));
+			from_index = to_index + start_str.size();
+
+			if ((to_index = command_text.find(end_str, from_index)) != std::string::npos)
+			{
+				if ((len = to_index-from_index) > 0)
+					param_prompts.push_back(command_text.substr(from_index, len));
+				from_index = to_index + end_str.size();
+			}
+			else
+			{
+				text_segments.clear();
+				param_prompts.clear();
+				text_segments.push_back(command_text);
+				invalid_command = true;
+				return;
+			}
+		}
+		if ((len = command_text.size()-from_index) > 0)
+			text_segments.push_back(command_text.substr(from_index, len));
+
+		if (text_segments.empty() && param_prompts.empty())
+			invalid_command = true;
+			
+	} // end Command::Command()
+
+
+	//
+	//	Given the paramters, contruct the command to issue from
+	//	the text sections and parameter values.
+	//
+	void Command::action(const std::vector<std::string> &params) const
+	{
+		// log to the user an invalid command, formatting error
+		if (invalid_command)
+		{
+			LOG_TO_CONSOLE(c_red1, "Invalid command text");
+			return;
+		}
+
+		// append command text + parameter + text + paramter e.t.c.
+		std::ostringstream command_text;
+		for (size_t i=0; i<text_segments.size(); i++)
+		{
+			command_text << text_segments[i];
+			if (params.size() > i)
+				command_text << params[i];
+		}
+		for (size_t i=text_segments.size(); i<params.size(); i++)
+			command_text << params[i];
+
+		// issue the command
+		size_t command_len = command_text.str().size() + 1;
+		char temp[command_len];
+		safe_strncpy(temp, command_text.str().c_str(), command_len);
+		parse_input(temp, strlen(temp));				
+	}
+
+
+	//
+	//	Echo the command to the console, a menu window option
+	//
+	void Command::echo(void) const
+	{
+		// append command text + parameter + text + paramter e.t.c.
+		std::ostringstream command_text;
+		for (size_t i=0; i<text_segments.size(); i++)
+		{
+			command_text << text_segments[i];
+			if (param_prompts.size() > i)
+				command_text << "<" << param_prompts[i] << ">";
+		}
+		for (size_t i=text_segments.size(); i<param_prompts.size(); i++)
+			command_text << "<" << param_prompts[i] << ">";
+		LOG_TO_CONSOLE(c_grey1, command_text.str().c_str());
+		
+		// log to the user an invalid command, formatting error
+		if (invalid_command)
+			LOG_TO_CONSOLE(c_red1, "Invalid command text");
+	}
+
+
+	//
+	//	Initialise the command queue
+	//
+	Command_Queue::Command_Queue(void) : last_time(0)
+	{
+		init_ipu(&ipu, -1, 300, 100, MAX_TEXT_MESSAGE_LENGTH, 3, Container::command_cancel_handler, Container::command_input_handler);
+		ipu.x = (window_width - ipu.popup_x_len) / 2;
+		ipu.y = (window_height - ipu.popup_y_len) / 2;
+	}
+
+
+	//
+	//	If the command queue is not empty, process the next command.
+	//
+	void Command_Queue::process(bool just_echo)
+	{
+		// if required, print all the commands to the console emptying the queue 
+		while (just_echo && !commands.empty())
+		{
+			commands.front().echo();
+			commands.pop();
+		}
+
+		if (commands.empty())
+			return;
+
+		// delay consecutive commands by a small amount to avoid spamming
+		Uint32 curr_time = SDL_GetTicks();
+		if ((curr_time >= last_time) && ((curr_time - 500) < last_time))
+			return;
+
+		// if the command needs parameter(s) prompt and wait for input
+		if (params.size() < commands.front().get_prompts().size())
+		{
+			// if the input window is already open, continue waiting for input
+			if (get_show_window(ipu.popup_win))
+				return;
+			// open the input window and continue waiting for input
+			display_popup_win(&ipu, commands.front().get_prompts()[params.size()].c_str());
+			return;
+		}
+
+		// we have any needed parameters so action the command and remove it form the queue
+		commands.front().action(params);
+		commands.pop();
+		params.clear();
+		last_time = curr_time;
+	}
+
+	//
+	//	The input popup window cancel callback
+	//
+	void Command_Queue::cancel(void)
+	{
+		if (commands.empty())
+			return;
+		commands.pop();
+		params.clear();
+	}
+
+
+	//
+	//	If the user menu window is closed, clear the queue
+	//
+	void Command_Queue::clear(void)
+	{
+		cancel();
+		while (!commands.empty())
+			commands.pop();
+		hide_window(ipu.popup_win);
+	}
 
 
 	//
 	// construct a menu line from a text string
 	//
-	Line::Line(std::string line_text)
+	Line::Line(const std::string &line_text)
 	{
 		std::string::size_type from_index = 0;
 		std::string::size_type to_index = 0;
 		std::string delim = "||";
 		std::string::size_type len = 0;
+		std::vector<std::string> fields;
 
 		// parse the line extracting the fields separated by the delimitor
 		while ((to_index = line_text.find(delim, from_index)) != std::string::npos)
 		{
 			if ((len = to_index-from_index) > 0)
-				commands.push_back(line_text.substr(from_index, len));
+				fields.push_back(line_text.substr(from_index, len));
 			from_index = to_index + delim.size();
 		}
 		if ((len = line_text.size()-from_index) > 0)
-			commands.push_back(line_text.substr(from_index, len));
+			fields.push_back(line_text.substr(from_index, len));
 
-		// line with no fields are treated as context menu separators
-		if (commands.empty())
+		// a line with no fields is treated as context menu separator
+		if (fields.empty())
 		{
 			text = "--";
 			return;
 		}
 
 		// a line must always have at least two fields, the text and a command
-		if (commands.size() == 1)
+		if (fields.size() == 1)
 		{
 			text = "<Error: invalid line>";
-			commands.clear();
+			fields.clear();
 			return;
 		}
 
-		// the first field is the menu text, remaining feilds are the assiociated commands
-		text = commands[0];
-		commands.erase(commands.begin());
+		// the first field is the menu text, remaining fields are the assiociated commands
+		text = fields[0];
+		for (size_t i=1; i<fields.size(); i++)
+			command_list.push_back(Command(fields[i]));
 
 	} // end Line::Line()
 
 
 	//
+	//	action the selected menu options 
+	//
+	void Line::action(Command_Queue &cq) const
+	{
+		for (size_t i=0; i<command_list.size(); i++)
+			cq.add(command_list[i]);
+	}
+
+
+	//
 	//	Construct the Menu given a filepath and name.
 	//
-	Menu::Menu(const std::string file_name)
+	Menu::Menu(const std::string &file_name)
 		: cm_menu_id(CM_INIT_VALUE), menu_name_width(0)
 	{
 		std::ifstream in(file_name.c_str());
@@ -238,7 +478,7 @@ namespace UserMenus
 			return;
 		}
 
-		// th first line is the menu name, a menu without a name is not a menu
+		// the first line is the menu name, a menu without a name is not a menu
 		getline(in, menu_name);
 		if (menu_name.empty())
 		{
@@ -265,43 +505,22 @@ namespace UserMenus
 		std::string menu_text;
 		for (size_t i=0; i<lines.size(); i++)
 			menu_text += lines[i]->get_text() + "\n";
-		cm_menu_id = cm_create(menu_text.c_str(), Container::do_option_handler);
+		cm_menu_id = cm_create(menu_text.c_str(), Container::action_handler);
 		cm_set_pre_show_handler(cm_menu_id, Container::pre_show_handler);
 
 	} // end Menu()
 
 
 	//
-	//	action the selection menu option 
-	//
-	int Menu::action_commands(int option)
-	{
-		if (lines[option]->get_commands().empty())
-			return 1;
-
-		for (size_t i=0; i<lines[option]->get_commands().size(); i++)
-		{
-			size_t command_len = lines[option]->get_commands()[i].size();
-			char temp[command_len+1];
-			safe_strncpy(temp, lines[option]->get_commands()[i].c_str(), command_len+1);
-			parse_input(temp, strlen(temp));
-		}
-		return 1;
-	}
-
-	//
 	// destruct a Menu, insuring the lines are deleted
 	//
-	Menu::~Menu()
+	Menu::~Menu(void)
 	{
 		if (cm_valid(cm_menu_id))
 			cm_destroy(cm_menu_id);
 		for (size_t i=0; i<lines.size(); i++)
 			delete lines[i];
-		lines.clear();
 	}
-
-
 
 
 	//	pixels between menu text
@@ -317,9 +536,9 @@ namespace UserMenus
 	//
 	//	constructor for Container, just initialises attributes
 	//
-	Container::Container(void) : win_id(-1), win_width(0), current_mouseover_menu(0), 
-		queue_reload(false), context_id(CM_INIT_VALUE), window_used(false), title_on(1),
-		border_on(1), use_small_font(0), win_x_pos(100), win_y_pos(100)
+	Container::Container(void) : win_id(-1), win_width(0), current_mouseover_menu(0), mouse_over_window(false), 
+		reload_menus(false), context_id(CM_INIT_VALUE), window_used(false), title_on(1),
+		border_on(1), use_small_font(0), include_datadir(1), just_echo(0), win_x_pos(100), win_y_pos(100)
 	{
 	}
 
@@ -339,7 +558,7 @@ namespace UserMenus
 	//
 	//	create the window for the user menus, or display it if already created
 	//
-	void Container::open_window()
+	void Container::open_window(void)
 	{
 		if (win_id >= 0)
 		{
@@ -348,7 +567,7 @@ namespace UserMenus
 			return;
 		}
 
-		Uint32 win_flags = ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE;
+		Uint32 win_flags = ELW_SHOW_LAST|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE;
 		
 		set_win_flag(&win_flags, ELW_TITLE_BAR, title_on);
 		set_win_flag(&win_flags, ELW_USE_BORDER, border_on);
@@ -374,12 +593,14 @@ namespace UserMenus
 		context_id = cm_create(cm_title_menu_str, NULL);
 		cm_bool_line(context_id, 1, &windows_list.window[win_id].opaque, NULL);
 		cm_bool_line(context_id, 2, &windows_on_top, "windows_on_top");
-		cm_add(context_id, "--\nShow Title\nDraw Border\nSmall Font\n--\nReload Menus", context_handler);
+		cm_add(context_id, "--\nShow Title\nDraw Border\nSmall Font\nStandard Menus\n--\nShow Commands\n--\nReload Menus", context_handler);
 		cm_add_window(context_id, win_id);
 
 		cm_bool_line(context_id, ELW_CM_MENU_LEN+1, &title_on, NULL);
 		cm_bool_line(context_id, ELW_CM_MENU_LEN+2, &border_on, NULL);
 		cm_bool_line(context_id, ELW_CM_MENU_LEN+3, &use_small_font, NULL);
+		cm_bool_line(context_id, ELW_CM_MENU_LEN+4, &include_datadir, NULL);
+		cm_bool_line(context_id, ELW_CM_MENU_LEN+6, &just_echo, NULL);
 
 	} // Container::open_window()
 
@@ -403,6 +624,7 @@ namespace UserMenus
 		*options |= title_on << 1;
 		*options |= border_on << 2;
 		*options |= use_small_font << 3;
+		*options |= include_datadir << 4;
 	}
 
 
@@ -416,6 +638,7 @@ namespace UserMenus
 			title_on = (options >> 1) & 1;
 			border_on = (options >> 2) & 1;
 			use_small_font = (options >> 3) & 1;
+			include_datadir = (options >> 4) & 1;
 			win_x_pos = win_x;
 			win_y_pos = win_y;
 		}
@@ -427,8 +650,12 @@ namespace UserMenus
 	//
 	int Container::display(window_info *win)
 	{
-		if (queue_reload)
+		// if the menus need reloading, try it now
+		if (reload_menus)
 			reload();
+
+		// update the command queue
+		command_queue.process(just_echo);
 
 		// a reload may have changed the window size
 		if ((win_width != win->len_x) || (get_height() != win->len_y))
@@ -446,7 +673,10 @@ namespace UserMenus
 		// if there are no menus, fill the window with a suitable message
 		if (menus.empty())
 		{
-			glColor3f(0.40f,0.30f,0.20f);
+			if (mouse_over_window)
+				glColor3f(0.77f,0.57f,0.39f);
+			else
+				glColor3f(0.40f,0.30f,0.20f);
 			if (use_small_font)
 				draw_string_small(curr_x, window_pad, (const unsigned char *)no_menus, 1 );
 			else
@@ -454,6 +684,7 @@ namespace UserMenus
 			return 1;
 		}
 
+		// find the menu index of an already open menu window
 		size_t open_menu = menus.size();
 		size_t open_cm = cm_window_shown();
 		if (open_cm != CM_INIT_VALUE)
@@ -463,12 +694,12 @@ namespace UserMenus
 					open_menu = i;
 		}
 
-		// draw the menu name text, hightlighting ne if the mouse is over it
+		// draw the menu name text, hightlighting if it is open or if the mouse is over it
 		for (size_t i=0; i<menus.size(); i++)
 		{
-			if (open_menu == i)
+			if ((current_mouseover_menu == i) || (open_menu == i))
 				glColor3f(1.0f,1.0f,1.0f);
-			else if (current_mouseover_menu == i)
+			else if (mouse_over_window)
 				glColor3f(0.77f,0.57f,0.39f);
 			else
 				glColor3f(0.40f,0.30f,0.20f);
@@ -476,11 +707,12 @@ namespace UserMenus
 				draw_string_small(curr_x, window_pad, (const unsigned char *)menus[i]->get_name().c_str(), 1);
 			else
 				draw_string(curr_x, window_pad, (const unsigned char *)menus[i]->get_name().c_str(), 1);
-			curr_x += ((use_small_font)?DEFAULT_SMALL_RATIO:1) * menus[i]->get_name_width() + name_sep;
+			curr_x += calc_actual_width(menus[i]->get_name_width()) + name_sep;
 		}
 
 		// make sure next time we will not highlight a menu name if the mouse is not in the window
 		current_mouseover_menu = menus.size();
+		mouse_over_window = false;
 
 		return 1;
 
@@ -505,10 +737,10 @@ namespace UserMenus
 	//
 	// common callback fuction for context menu, line selection
 	//
-	int Container::do_option(size_t active_menu, int option)
+	int Container::action(size_t active_menu, int option)
 	{
 		if (active_menu < menus.size())
-			return menus[active_menu]->action_commands(option);
+			menus[active_menu]->action(option, command_queue);
 		return 1;
 	}
 
@@ -529,9 +761,9 @@ namespace UserMenus
 		// get the menu name x offset in the menu window
 		int x_offset = window_pad;				
 		for (size_t i=0; i<curr_menu && i<menus.size(); i++)
-			x_offset += ((use_small_font)?DEFAULT_SMALL_RATIO:1) * menus[i]->get_name_width() + name_sep;
+			x_offset += calc_actual_width(menus[i]->get_name_width()) + name_sep;
 		
-		// see what fits x: position under the menu window, or hard at the right or hard at the left
+		// see what fits x: position under the menu name, or hard at the right or hard at the left
 		int new_x_pos = win->cur_x + x_offset;
 		if (new_x_pos + cm_win->len_x > window_width)
 			new_x_pos = window_width - cm_win->len_x;
@@ -552,9 +784,12 @@ namespace UserMenus
 	//
 	// the "evil" singleton mechanism
 	//
-	Container * Container::get_instance()
+	Container * Container::get_instance(void)
 	{
 		static Container um;
+		static Uint32 creation_thread = SDL_ThreadID();
+		if (SDL_ThreadID() != creation_thread)
+			std::cerr << __FUNCTION__ << ": Danger W.R.! User menus call by non-creator thread." << std::endl;
 		return &um;
 	}
 
@@ -562,40 +797,50 @@ namespace UserMenus
 	//
 	// load, or reload, the menu files
 	//
-	void Container::reload()
+	void Container::reload(void)
 	{
 		// if a context menu is currently showing, do not reload yet
 		if (cm_window_shown() != CM_INIT_VALUE)
 		{
-			queue_reload = true;
+			reload_menus = true;
 			return;
 		}
-		queue_reload = false;
+		reload_menus = false;
 		
 		delete_menus();
-		std::string glob_path = std::string(get_path_config()) + "*.menu";
-		std::vector<std::string> filelist;
 
-		// find all the menu files and build a list of path+filenames for later
+		std::vector<std::string> filelist;
+		
+		std::vector<std::string> search_paths;
+		if (include_datadir)
+			search_paths.push_back(std::string(datadir) + "*.menu");
+		search_paths.push_back(std::string(get_path_config()) + "*.menu");
+
+		for (size_t i=0; i<search_paths.size(); i++)
+		{
+			std::string glob_path = search_paths[i];
+
+			// find all the menu files and build a list of path+filenames for later
 #ifdef WINDOWS
-		struct _finddata_t c_file;
-		long hFile;
-		if ((hFile = _findfirst(glob_path.c_str(), &c_file)) != -1L)
-		{
-			do
-				filelist.push_back(std::string(get_path_config()) + std::string(c_file.name));
-			while (_findnext(hFile, &c_file) == 0);	
-			_findclose(hFile);
-		}
-#else 	// phew! it's a real operating system
-		glob_t glob_res;
-		if (glob(glob_path.c_str(), 0, NULL, &glob_res)==0)
-		{
-			for (size_t i=0; i<glob_res.gl_pathc; i++)
-				filelist.push_back(std::string(glob_res.gl_pathv[i]));
-			globfree(&glob_res);
-		}
+			struct _finddata_t c_file;
+			long hFile;
+			if ((hFile = _findfirst(glob_path.c_str(), &c_file)) != -1L)
+			{
+				do
+					filelist.push_back(std::string(get_path_config()) + std::string(c_file.name));
+				while (_findnext(hFile, &c_file) == 0);	
+				_findclose(hFile);
+			}
+#else 		// phew! it's a real operating system
+			glob_t glob_res;
+			if (glob(glob_path.c_str(), 0, NULL, &glob_res)==0)
+			{
+				for (size_t i=0; i<glob_res.gl_pathc; i++)
+					filelist.push_back(std::string(glob_res.gl_pathv[i]));
+				globfree(&glob_res);
+			}
 #endif
+		}
 
 		// process all the menu files, creating menu objects for each valid file
 		for (size_t i=0; i<filelist.size(); i++)
@@ -621,14 +866,14 @@ namespace UserMenus
 		// if there are no menus, use the size of the message for the window width
 		if (menus.empty())
 		{
-			win_width = 2 * window_pad + ((use_small_font)?DEFAULT_SMALL_RATIO:1) * get_string_width((const unsigned char*)no_menus);
+			win_width = 2 * window_pad + calc_actual_width(get_string_width((const unsigned char*)no_menus));
 			return;
 		}
 
 		// otherwise, calculate the width from the widths of all the menus names
 		win_width = 2 * window_pad + name_sep * (menus.size() - 1);
 		for (size_t i=0; i<menus.size(); i++)		
-			win_width += ((use_small_font)?DEFAULT_SMALL_RATIO:1) * menus[i]->get_name_width();
+			win_width += calc_actual_width(menus[i]->get_name_width());
 	}
 
 
@@ -644,11 +889,11 @@ namespace UserMenus
 	{
 		// if the mouse is over a menu name, get the menus[] index 
 		size_t mouse_over = menus.size();
-		int win_width = window_pad;
+		int name_end_x = window_pad;
 		for (size_t i=0; i<menus.size(); i++)
 		{
-			win_width += ((use_small_font)?DEFAULT_SMALL_RATIO:1) * menus[i]->get_name_width() + name_sep;
-			if (mx < win_width-name_sep/2)
+			name_end_x += calc_actual_width(menus[i]->get_name_width()) + name_sep;
+			if (mx < name_end_x-name_sep/2)
 			{
 				mouse_over = i;
 				break;
@@ -664,8 +909,8 @@ namespace UserMenus
 		if (open_cm == CM_INIT_VALUE)
 			return mouse_over;
 	
-		// a context menu is open, if it is one of our menus and the mouse is open another
-		// close the current menu and open the one user the mouse
+		// a context menu is open, if it is one of our menus and the mouse is over another
+		// close the current menu and open the one the mouse is over
 		for (size_t i=0; i<menus.size(); i++)
 			if (menus[i]->get_cm_id() == open_cm)
 			{
@@ -725,7 +970,7 @@ namespace UserMenus
 			}
 			case ELW_CM_MENU_LEN+2: set_win_flag(&win->flags, ELW_USE_BORDER, border_on); break;
 			case ELW_CM_MENU_LEN+3: recalc_win_width(); break;
-			case ELW_CM_MENU_LEN+5: reload(); break;
+			case ELW_CM_MENU_LEN+4: case ELW_CM_MENU_LEN+8: reload(); break;
 		}
 
 		return 1;
@@ -739,7 +984,8 @@ namespace UserMenus
 //
 extern "C"
 {
-	int enable_user_menus = 1;
+	int enable_user_menus = 0;
+	int ready_for_user_menus = 0; 
 
 	void set_options_user_menus(int win_x, int win_y, int options)
 	{
@@ -754,6 +1000,8 @@ extern "C"
 	void toggle_user_menus(int *enable)
 	{
 		*enable = !*enable;
+		if (!ready_for_user_menus)
+			return;
 		if (*enable)
 			UserMenus::Container::get_instance()->open_window();
 		else
@@ -762,7 +1010,8 @@ extern "C"
 
 	void display_user_menus(void)
 	{
-		UserMenus::Container::get_instance()->open_window();
+		if (ready_for_user_menus)
+			UserMenus::Container::get_instance()->open_window();
 	}
 }
 

@@ -10,6 +10,7 @@ extern "C"
 
 /* config option variable */
 extern int enable_user_menus;
+extern int ready_for_user_menus; 
 
 /*!
  * \ingroup user_menus

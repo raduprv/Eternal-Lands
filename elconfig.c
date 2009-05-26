@@ -1704,7 +1704,7 @@ void init_vars()
 #endif
 	add_var(OPT_BOOL,"opaque_window_backgrounds", "opaquewin", &opaque_window_backgrounds, change_var, 0,"Use Opaque Window Backgrounds","Toggle the current state of all windows between transparent and opaque background. Use CTRL+D to toggle the current state of an individual window.",HUD);
 #if defined(CONTEXT_MENUS) && defined(USER_MENUS)
-	add_var(OPT_BOOL,"enable_user_menus", "user_menus", &enable_user_menus, toggle_user_menus, 1, "Enable User Menus","Create .menu files in your config directory.  First line is the menu name. After that, then each is a command using the format of \"Menus Text||command\".",HUD);
+	add_var(OPT_BOOL,"enable_user_menus", "user_menus", &enable_user_menus, toggle_user_menus, 0, "Enable User Menus","Create .menu files in your config directory.  First line is the menu name. After that, each line is a command using the format \"Menus Text||command\".  Prompt for input using \"command text <prompt text>\". A line can include multiple commands.",HUD);
 #endif
 
 

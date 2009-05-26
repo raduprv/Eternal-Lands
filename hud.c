@@ -189,6 +189,7 @@ void init_hud_interface (hud_interface type)
 		init_quickbar ();
 		init_quickspell ();
 #if defined(CONTEXT_MENUS) && defined(USER_MENUS)
+		ready_for_user_menus = 1;
 		if (enable_user_menus)
 			display_user_menus();
 #endif
