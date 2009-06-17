@@ -478,13 +478,18 @@ int notepad_save_file (widget_list *w, int mx, int my, Uint32 flags)
 	xmlDocSetRootElement (doc, root_node);
 	for (i = 0; i < nr_notes; i++)
 	{
+		xmlChar* data;
+		char * subst_string = NULL;
+		
 		// libxml2 expects all data in UTF-8 encoding.
 		xmlChar* name = toUTF8 (note_list[i].name, strlen (note_list[i].name));
-		xmlChar* data = toUTF8 (note_list[i].text.data, note_list[i].text.len);
+		substitute_char_with_string (note_list[i].text.data, &subst_string, '&', "&amp;");		
+		data = toUTF8 (subst_string, strlen(subst_string));
 
 		node = xmlNewChild (root_node, NULL, BAD_CAST "NOTE", data);
 		xmlNewProp (node, BAD_CAST "NAME", name);
 
+		free (subst_string);
 		free (data);
 		free (name);
 	}
