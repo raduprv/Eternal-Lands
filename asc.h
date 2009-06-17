@@ -403,6 +403,23 @@ xmlChar* toUTF8 (const char* str, int len);
  */
 char* fromUTF8 (const xmlChar* str, int len);
 
+/*!
+ * \brief Replace all occurances of a character with a string
+ *
+ *	The src string is copied to the output string but with all occurances
+ * of the to_sub character replaced with the with_sub string.  The user
+ * can allocate the memory for out_str, or pass in NULL.  Either way the
+ * caller must free the memory.  If a non-null block is passed, it may be
+ * reallocated anyway.
+ *
+ * \param str The source string.
+ * \param out_str Address of the pointer for the output buffer (may be NULL).
+ * \param to_sub The charater to replace
+ * \param with_sub the string to substitute
+ * \return a pointer to the output string
+ */
+char *substitute_char_with_string(const char *str, char **out_str, char to_sub, const char* with_sub);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

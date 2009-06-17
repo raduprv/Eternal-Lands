@@ -674,3 +674,35 @@ char* fromUTF8 (const xmlChar* str, int len)
 
 	return out;
 }
+
+
+/* whether you pass in a NULL pointer or your own allocated memory for
+ * out_str, you need to free the memory yourself */
+char *substitute_char_with_string(const char *str, char **out_str, char to_sub, const char* with_sub)
+{
+	int amp_count = 0;
+	const char *start_ptr;
+	char *end_ptr;
+	int out_len = 0;
+	size_t alloc_len = 0;
+
+	for (start_ptr = str; (start_ptr = strchr(start_ptr, to_sub)) != NULL; start_ptr++)
+		amp_count++;
+
+	alloc_len = strlen(str) + amp_count*(strlen(with_sub)-1) + 1;
+	*out_str = (char *)realloc(*out_str, alloc_len);
+	**out_str = '\0';
+	
+	for (start_ptr = str; (end_ptr = strchr(start_ptr, to_sub)) != NULL; )
+	{
+		while (start_ptr < end_ptr)
+			(*out_str)[out_len++] = *start_ptr++;
+		(*out_str)[out_len] = '\0';
+
+		safe_strcat(*out_str, with_sub, alloc_len);
+		out_len = strlen(*out_str);
+		start_ptr++;
+	}
+	safe_strcat(*out_str, start_ptr, alloc_len);
+	return *out_str;
+}
