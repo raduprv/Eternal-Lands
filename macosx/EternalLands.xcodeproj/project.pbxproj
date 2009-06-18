@@ -187,6 +187,7 @@
 		1F8B123B0D1B0DE1009669B3 /* SDL_net.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FF1FA9A0D1AE4940002D512 /* SDL_net.framework */; };
 		1F8B123C0D1B0DE1009669B3 /* vorbis.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FF1FA9B0D1AE4940002D512 /* vorbis.framework */; };
 		1F94C1AC0CFE5B4D00E88CB7 /* SDLmain.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F94C1AB0CFE5B4D00E88CB7 /* SDLmain.m */; };
+		1FC155580FE906160046D7FE /* user_menus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FC155560FE906160046D7FE /* user_menus.cpp */; };
 		1FD61F5F0E2CCB560085FD81 /* effect_staff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FD61F5D0E2CCB560085FD81 /* effect_staff.cpp */; };
 		1FF1FA9C0D1AE4940002D512 /* cal3d.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1FF1FA950D1AE4940002D512 /* cal3d.framework */; };
 		1FF1FA9D0D1AE4940002D512 /* ogg.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1FF1FA960D1AE4940002D512 /* ogg.framework */; };
@@ -932,6 +933,8 @@
 		1F812DF90D035D97008792A7 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = SDKs/MacOSX10.4u.sdk/System/Library/Frameworks/AudioToolbox.framework; sourceTree = SYSTEM_DEVELOPER_DIR; };
 		1F94C1AA0CFE5B4D00E88CB7 /* SDLmain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDLmain.h; sourceTree = SOURCE_ROOT; };
 		1F94C1AB0CFE5B4D00E88CB7 /* SDLmain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDLmain.m; sourceTree = SOURCE_ROOT; };
+		1FC155560FE906160046D7FE /* user_menus.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = user_menus.cpp; path = ../user_menus.cpp; sourceTree = SOURCE_ROOT; };
+		1FC155570FE906160046D7FE /* user_menus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = user_menus.h; path = ../user_menus.h; sourceTree = SOURCE_ROOT; };
 		1FD61F5D0E2CCB560085FD81 /* effect_staff.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = effect_staff.cpp; sourceTree = "<group>"; };
 		1FD61F5E0E2CCB560085FD81 /* effect_staff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = effect_staff.h; sourceTree = "<group>"; };
 		1FF1FA950D1AE4940002D512 /* cal3d.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = cal3d.framework; sourceTree = EL_FRAMEWORKS_DIR; };
@@ -1020,6 +1023,8 @@
 		1F8128D90D033520008792A7 /* elc */ = {
 			isa = PBXGroup;
 			children = (
+				1FC155560FE906160046D7FE /* user_menus.cpp */,
+				1FC155570FE906160046D7FE /* user_menus.h */,
 				1F608B5F0FA5CAD100FFD55C /* dds.c */,
 				1F608B600FA5CAD100FFD55C /* dds.h */,
 				1F608B610FA5CAD100FFD55C /* ddsimage.c */,
@@ -2303,6 +2308,7 @@
 				1F608B640FA5CAD100FFD55C /* ddsimage.c in Sources */,
 				1F608B690FA5CAF200FFD55C /* half.c in Sources */,
 				1F608B6A0FA5CAF200FFD55C /* normal.c in Sources */,
+				1FC155580FE906160046D7FE /* user_menus.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2406,6 +2412,7 @@
 					TEXT_ALIASES,
 					USE_INLINE,
 					USE_SHADER,
+					USER_MENUS,
 					ZLIB,
 				);
 				HEADER_SEARCH_PATHS = (
@@ -2521,6 +2528,7 @@
 					TEXT_ALIASES,
 					USE_INLINE,
 					USE_SHADER,
+					USER_MENUS,
 					ZLIB,
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
