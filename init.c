@@ -632,6 +632,9 @@ void init_stuff()
 
 	chdir(datadir);
 
+	// initialize the text buffers - needed early for logging
+	init_text_buffers ();
+
 	load_server_list("servers.lst");
 	set_server_details();
 
@@ -654,8 +657,6 @@ void init_stuff()
 #ifdef WRITE_XML
 	load_translatables();//Write to the current working directory - hopefully we'll have write rights here...
 #endif
-	// initialize the text buffers
-	init_text_buffers ();
 	// XXX FIXME (Grum): actually this should only be done when windowed
 	// chat is not used (which we don't know yet at this point), but let's
 	// leave it here until we're certain that the chat channel buffers are
