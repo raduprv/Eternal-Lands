@@ -153,7 +153,7 @@ int HandleEvent (SDL_Event *event)
 				break;
 			}
 		
-			if (afk_time) 
+			if (afk_time && event->type == SDL_MOUSEBUTTONDOWN)
 				last_action_time = cur_time;	// Set the latest events - don't make mousemotion set the afk_time... (if you prefer that mouse motion sets/resets the afk_time, then move this one step below...
 		case SDL_MOUSEMOTION:
 #ifndef SKY_FPV
