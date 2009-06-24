@@ -307,10 +307,6 @@ int HandleEvent (SDL_Event *event)
 				}
 				if (drag_in_windows (mouse_x, mouse_y, flags, mouse_delta_x, mouse_delta_y) >= 0)
 				{
-#ifdef CONTEXT_MENUS
-					/* clicking title forces any context menu to close */
-					cm_post_show_check(1);
-#endif
 					return done;
 				}
 			}
