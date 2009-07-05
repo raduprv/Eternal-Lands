@@ -1178,12 +1178,7 @@ texture_struct *load_texture(const char * file_name, texture_struct *tex, Uint8 
 
 	el_close(file);
 
-	if (tex->texture == 0)
-	{
-		return 0;
-	}
-
-	if (tex == 0)
+	if (tex == 0 || tex->texture == 0)
 	{
 		return 0;
 	}
