@@ -62,9 +62,12 @@ BBC News||#open_url http://news.bbc.co.uk/
 	- block use of #suicide #reset #killme #change_pass - may be store in file
 	- virtical/horizontal option
 	- option auto hide down to icon
-	- option hide/show from clicking an icon
+	- option hide/show from clicking an icon - handles at ends
 	- make the menu prettier
 	- use a subtle text fade once the mouse is no longer over
+	- optionally put commands into previous command buffer
+	- parameters should be separate (static ?) class or vars so do not create container usless needed
+	- tear off windows - sounds a lot of work.....
 */
 
 #if defined(CONTEXT_MENUS)
@@ -681,6 +684,7 @@ namespace UserMenus
 				draw_string_small(curr_x, window_pad, (const unsigned char *)no_menus, 1 );
 			else
 				draw_string(curr_x, window_pad, (const unsigned char *)no_menus, 1 );
+			mouse_over_window = false;
 			return 1;
 		}
 
