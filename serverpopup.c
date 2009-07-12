@@ -54,7 +54,6 @@ static const int scroll_width = 20;
 static int min_width;
 static int min_height;
 static text_message widget_text;
-static char *message_body;
 static int textId;
 static int buttonId;
 static int scroll_id;
@@ -144,7 +143,6 @@ static void initialise()
 	server_popup_win = -1;
 	min_width = 0;
 	min_height = 0;
-	message_body = NULL;
 	textId = 101;
 	buttonId = 102;
 	scroll_id = 103;
@@ -164,10 +162,7 @@ static int close_handler(widget_list *widget, int mx, int my, Uint32 flags)
 	widget_destroy(server_popup_win, scroll_id);
 	widget_destroy(server_popup_win, buttonId);
 	widget_destroy(server_popup_win, textId);
-	if (message_body != NULL){
-		free(message_body);
-		message_body = NULL;
-	}
+	free_text_message_data(&widget_text);
 	destroy_window(server_popup_win);
 	initialise();
 	return 1;
@@ -271,6 +266,9 @@ static int resize_handler(window_info *win, int width, int height)
 		widget_set_OnDrag(server_popup_win, scroll_id, scroll_drag);
 		widget_set_OnClick(server_popup_win, scroll_id, scroll_click);
 		set_text_line();
+
+		/* if we have a scroll bar, enable the title and resize properties */
+		win->flags |= ELW_RESIZEABLE | ELW_TITLE_BAR;
 	}
 	/* if no scroll bar, make sure the text is at the start of the buffer */
 	else
@@ -295,21 +293,10 @@ void display_server_popup_win(const char * const message)
 	int max_line_len = 0;
 	int last_line_len = 0;
 	widget_list *button_widget = NULL;
-	char win_title[ELW_TITLE_SIZE];
 	int our_root_win = -1;
-	int message_body_size = 0;
-	int body_index;
-	int i, j;
+	int i;
 	Uint32 win_property_flags;
 	
-	/* if the window already exists, destroy it first, freeing all the memory
-		 always initialising vars */
-	if (server_popup_win > 0){
-		close_handler(NULL, 0, 0, 0);
-	} else {
-		initialise();
-	}
-
 	/* exit now if message empty */
 	if (!strlen(message)){
 		return;
@@ -317,37 +304,33 @@ void display_server_popup_win(const char * const message)
 	
 	/* write the message to the log file */
 	write_to_log (CHAT_SERVER, (unsigned char*)message, strlen(message));
+	
+	/* if the window already exists, copy new message to end */
+	if (server_popup_win > 0){
 		
-	/* copy the first line of text into the title buffer */
-	for (i=0, j=0; (i<strlen(message)) && (j<ELW_TITLE_SIZE-1); ++i)
-	{
-		if (message[i] == '\n'){
-			break;
-		}
-		/* could remove colour codes
-			if (is_printable (message[i])) */
-		win_title[j++] = message[i];
+		window_info *win = &windows_list.window[server_popup_win];
+		char *sep_str = "\n\n";
+
+		/* resize to hold new message text + separator */
+		resize_text_message_data (&widget_text, widget_text.size + 2*(strlen(message)+strlen(sep_str)));
+
+		/* copy the message text into the text buffer */
+		safe_strcat (widget_text.data, sep_str, widget_text.size);
+		safe_strcat (widget_text.data, message, widget_text.size);
+		widget_text.len = strlen(widget_text.data);
+
+		/* this will re-wrap the text and add a scrollbar, title and resize widget as required */
+		resize_handler(win, win->len_x, win->len_y);
+
+		return;
+		
+	} else {
+		initialise();
 	}
-	win_title[j] = '\0';
-	
-	/* find the start of the message body, after the first '\n', allow for no body */
-	for (body_index=0; body_index<strlen(message); ++body_index)
-	{
-		if (message[body_index] == '\n'){
-			body_index++;
-			break;
-		}
-	}
-	
-	/* make a copy of the message body so we can modify it and so the caller can free the memory
-		 make the copy bigger than we need so it can be text rewrapped */
-	message_body_size = 2*strlen(message);
-	message_body = calloc (message_body_size, 1);
-	safe_strncpy (message_body, &message[body_index], message_body_size);	
-	
+
 	/* initialise the window text widget text buffer */
-	init_text_message (&widget_text, message_body_size);
-	set_text_message_data (&widget_text, &message[body_index]);
+	init_text_message (&widget_text, 2*strlen(message));
+	set_text_message_data (&widget_text, message);
 
 	/* make sure the text font is set so width calculations work properly */
 	set_font(chat_font);
@@ -359,9 +342,9 @@ void display_server_popup_win(const char * const message)
 	}
 	
 	/* find the longest line */
-	for (i=0; i<strlen(message_body); ++i)
+	for (i=0; i<strlen(widget_text.data); ++i)
 	{
-		if ((message_body[i] == '\n') || (message_body[i] == '\r'))
+		if ((widget_text.data[i] == '\n') || (widget_text.data[i] == '\r'))
 		{
 			if (last_line_len > max_line_len){
 				 max_line_len = last_line_len;
@@ -381,11 +364,8 @@ void display_server_popup_win(const char * const message)
 	}
 		
 	/* create the window with initial size and location */
-	win_property_flags = ELW_TITLE_BAR|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER;
-	if (!text_message_is_empty (&widget_text)) {
-		win_property_flags |= ELW_RESIZEABLE;
-	}
-	server_popup_win = create_window( win_title, our_root_win, 0,
+	win_property_flags = ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE;
+	server_popup_win = create_window( "", our_root_win, 0,
 		server_popup_win_x, server_popup_win_y, winWidth, winHeight, win_property_flags);
 	set_window_handler( server_popup_win, ELW_HANDLER_RESIZE, &resize_handler);
 	set_window_handler( server_popup_win, ELW_HANDLER_CLICK, &click_handler);
@@ -442,11 +422,6 @@ void display_server_popup_win(const char * const message)
 		min_width = 2*sep + button_widget->len_x;
 	}
 	
-	/* use the title width to set the minimum width, numbers from draw_window_title() would help */
-	if (min_width < (50 + ((get_string_width((unsigned char*)win_title)*8)/12))){
-		min_width = 50 + ((get_string_width((unsigned char*)win_title)*8)/12);
-	}
-		
 	/* insure a minimum width */
 	if (winWidth < min_width){
 		winWidth = min_width;
@@ -460,7 +435,7 @@ void display_server_popup_win(const char * const message)
 	/* create the text widget */
 	if (!text_message_is_empty (&widget_text)) {
 		textId = text_field_add_extended( server_popup_win, textId, NULL, sep, sep,
-			text_widget_width, text_widget_height, TEXT_FIELD_BORDER|TEXT_FIELD_NO_KEYPRESS,
+			text_widget_width, text_widget_height, TEXT_FIELD_NO_KEYPRESS,
 			chat_zoom, 0.77f, 0.57f, 0.39f, &widget_text, 1, FILTER_NONE, sep, sep);
 	}
 
