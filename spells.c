@@ -731,6 +731,7 @@ void set_spell_name (int id, const char *data, int len)
 
 void process_network_spell (const char *data, int len)
 {
+	last_spell_name[0] = '\0';
 	switch (data[0])
 	{
 		case S_INVALID:
