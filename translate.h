@@ -227,6 +227,7 @@ extern char
 		buddy_wants_to_add_str[150],
 		buddy_add_to_list_str[180],
 		buddy_logon_str[30],
+		buddy_online_str[30],
 		buddy_logoff_str[30],
 		buddy_white_str[10],
 		buddy_red_str[10],

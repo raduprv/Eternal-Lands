@@ -397,12 +397,6 @@ void connect_to_server()
 	add_sound_object(get_index_for_sound_type_name("Connected"), 0, 0, 1);
 #endif // NEW_SOUND
 
-	//BUDDY-FIXME: once server-side offline buddies are supported, the next 4 lines can go
-	//For the buddy notifications
-	if(time(NULL) > c_time) {
-		time(&c_time);//note the current time
-	}
-
 	my_tcp_flush(my_socket);    // make sure tcp output buffer is empty
 }
 

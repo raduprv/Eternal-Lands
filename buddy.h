@@ -94,9 +94,6 @@ int is_in_buddylist(const char *name);
 
 extern queue_t *buddy_request_queue;
 
-//BUDDY-FIXME: once server-side offline buddies are supported, the next line can go
-extern time_t c_time;
-
 extern _buddy buddy_list[];
 
 #ifdef __cplusplus

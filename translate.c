@@ -124,6 +124,7 @@ char
 	buddy_wants_to_add_str[150],
 	buddy_add_to_list_str[180],
 	buddy_logon_str[30],
+	buddy_online_str[30],
 	buddy_logoff_str[30],
 	buddy_white_str[10],
 	buddy_red_str[10],
@@ -1277,6 +1278,7 @@ void init_help()
 	add_xml_identifier(buddy, "request_dialog", buddy_wants_to_add_str, "%s wants to add you to his/her buddy list. Do you wish to allow it?", sizeof(buddy_wants_to_add_str));
 	add_xml_identifier(buddy, "add_to_list", buddy_add_to_list_str, "Add to my buddy list", sizeof(buddy_add_to_list_str));
 	add_xml_identifier(buddy, "logon", buddy_logon_str, "%.*s has logged on.", sizeof(buddy_logon_str));
+	add_xml_identifier(buddy, "online", buddy_online_str, "%.*s is online.", sizeof(buddy_online_str));
 	add_xml_identifier(buddy, "logoff", buddy_logoff_str, "%.*s has logged off.", sizeof(buddy_logoff_str));
 	add_xml_identifier(buddy, "white", buddy_white_str, "White", sizeof(buddy_white_str));
 	add_xml_identifier(buddy, "red", buddy_red_str, "Red", sizeof(buddy_red_str));

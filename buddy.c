@@ -43,8 +43,6 @@ int buddy_type_input_id = -1;
 int buddy_change_button_id = -1;
 int buddy_delete = 0; //For the checkbox
 char *buddy_to_change = NULL;
-//BUDDY-FIXME: once server-side offline buddies are supported, this variable will be unneeded
-time_t c_time;//used to prevent buddylist flood when changing colours, etc
 
 
 struct accept_window {
@@ -187,9 +185,6 @@ void init_buddy()
 		memset(accept_windows[i].name, 0, sizeof(accept_windows[i].name));
 	}
 	queue_initialise(&buddy_request_queue);
-	//BUDDY-FIXME: once server-side offline buddies are supported, the next 2 lines can go
-	time(&c_time);//note the current time
-	c_time += 10;
 }
 
 /*
@@ -232,8 +227,6 @@ int click_change_buddy_handler(widget_list *w, int mx, int my, Uint32 flags)
 		safe_snprintf(string, sizeof(string), "%c#change_buddy %s %i", RAW_TEXT, buddy_to_change, multiselect_get_selected(buddy_change_win, buddy_type_input_id));
 	}
 	my_tcp_send(my_socket, (Uint8*)string, strlen(string+1)+1);
-	//BUDDY-FIXME: once server-side offline buddies are supported, the next line can go
-	time(&c_time);
 	destroy_window(buddy_change_win);
 	buddy_change_win = -1;
 	buddy_to_change = NULL;
@@ -585,20 +578,10 @@ void add_buddy (const char *name, int type, int len)
 				// found then add buddy
 				buddy_list[i].type = type;
 				safe_snprintf (buddy_list[i].name, sizeof(buddy_list[i].name), "%.*s", len, name);
-				//BUDDY-FIXME: once server-side offline buddies are supported, this if-block will be removed (as del_buddy will only happen when the buddy really is deleted)
-				if (buddy_log_notice == 1)
+				// write optional online message
+				if ((buddy_log_notice == 1) && (type != 0xFE))
 				{
-					// if less than 5sec since the timer was 
-					// updated, then we don't notify. in cases of 
-					// bad lag, this won't help. if someone logs 
-					// on/off during that time, we miss the 
-					// notification
-					time_t n_time;
-					
-					time (&n_time);
-					if (difftime (c_time, n_time) > -5.0f) break;
-					
-					safe_snprintf (message, sizeof(message), buddy_logon_str, len, name);
+					safe_snprintf (message, sizeof(message), buddy_online_str, len, name);
 					LOG_TO_CONSOLE (c_green1, message);
 				}
 				break;
@@ -610,7 +593,6 @@ void add_buddy (const char *name, int type, int len)
 void del_buddy (const char *name, int len)
 {
 	int i;
-	char message[36];
 
 	// find buddy
 	for (i = 0; i < MAX_BUDDY; i++)
@@ -619,22 +601,6 @@ void del_buddy (const char *name, int len)
 		{
 			buddy_list[i].type = 0xff;
 			memset (buddy_list[i].name, 0, sizeof (buddy_list[i].name));
-			//BUDDY-FIXME: once server-side offline buddies are supported, this if-block will be removed (as del_buddy will only happen when the buddy really is deleted)
-			if (buddy_log_notice == 1)
-			{
-				// if less than 5sec since the timer was 
-				// updated, then we don't notify. in cases of 
-				// bad lag, this won't help. if someone logs 
-				// on/off during that time, we miss the 
-				// notification
-				time_t n_time;
-				
-				time (&n_time);
-				if (difftime (c_time, n_time) > -5.0f) break;
-				
-				safe_snprintf (message, sizeof(message), buddy_logoff_str, len, name);
-				LOG_TO_CONSOLE (c_green1, message);
-			}
 			break;
 		}
 	}
