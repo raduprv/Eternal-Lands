@@ -143,8 +143,8 @@ int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 	// clicked on a buddy's name
 	y /= 10;
 	y += vscrollbar_get_pos(buddy_win,buddy_scroll_id);
-	if((strlen(buddy_list[y].name) == 0)||(buddy_list[y].type >= 0xFE)) {
-		//There's no name, or buddy is offline. Fall through.
+	if((strlen(buddy_list[y].name) == 0)||(buddy_list[y].type > 0xFE)) {
+		//There's no name. Fall through.
 		return 0;
 	}
 	if(flags&ELW_RIGHT_MOUSE) {
@@ -156,7 +156,7 @@ int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 			//Right click, open edit window
 			create_buddy_interface_win(buddy_change_str, &buddy_list[y]);
 		}
-	} else {
+	} else if (buddy_list[y].type < 0xFE) {
 		//start a pm to them
 		// clear the buffer
 		clear_input_line();
@@ -219,14 +219,19 @@ int click_add_buddy_handler(widget_list *w, int mx, int my, Uint32 flags)
 int click_change_buddy_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
 	char string[255];
+	int send_message = 1;
 
 	if(buddy_delete) {
 		safe_snprintf(string, sizeof(string), "%c#del_buddy %s", RAW_TEXT, buddy_to_change);
 		buddy_delete = 0;
-	} else {
+	} else if (buddy_type_input_id != -1) {
 		safe_snprintf(string, sizeof(string), "%c#change_buddy %s %i", RAW_TEXT, buddy_to_change, multiselect_get_selected(buddy_change_win, buddy_type_input_id));
+	} else {
+		send_message = 0;
 	}
-	my_tcp_send(my_socket, (Uint8*)string, strlen(string+1)+1);
+	if (send_message) {
+		my_tcp_send(my_socket, (Uint8*)string, strlen(string+1)+1);
+	}
 	destroy_window(buddy_change_win);
 	buddy_change_win = -1;
 	buddy_to_change = NULL;
@@ -404,7 +409,7 @@ int create_buddy_interface_win(const char *title, void *argument)
 			buddy_delete = 0;
 		}
 		/* Create the window */
-		buddy_change_win = create_window(title, buddy_win, 0, buddy_menu_x_len/2, buddy_menu_y_len/4, buddy_change_x_len, buddy_change_y_len, ELW_WIN_DEFAULT);
+		buddy_change_win = create_window(title, buddy_win, 0, buddy_menu_x_len/2, buddy_menu_y_len/4, buddy_change_x_len, buddy_change_y_len - ((buddy->type==0xFE)?127:0), ELW_WIN_DEFAULT);
 		set_window_handler(buddy_change_win, ELW_HANDLER_DISPLAY, &display_add_buddy_handler);
 		/* Add name label and name */
 		label_id = label_add_extended(buddy_change_win, label_id, NULL, x, y, 0, 0.9f, 0.77f, 0.57f, 0.39f, buddy_name_str);
@@ -414,23 +419,28 @@ int create_buddy_interface_win(const char *title, void *argument)
 		widget_set_OnMouseover(buddy_change_win, label_id, name_onmouseover_handler);
 		label_id++;
 		x = 5;
-		/* Add type label and input widget */
 		y += 25;
-		x += string_width = get_string_width((unsigned char*)buddy_type_str)*0.9f;
-		label_id = label_add_extended(buddy_change_win, label_id, NULL, 5, y, 0, 0.9f, 0.77f, 0.57f, 0.39f, buddy_type_str);
 
-		buddy_type_input_id = multiselect_add(buddy_change_win, NULL, x, y, buddy_add_x_len-string_width*2);
-		multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 0, buddy_white_str, 1);
-		multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 25, buddy_red_str, 0);
-		multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 50,  buddy_green_str, 0);
-		multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 75, buddy_blue_str, 0);
-		multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 100, buddy_yellow_str, 0);
-		multiselect_set_selected(buddy_change_win, buddy_type_input_id, buddy->type);
+		buddy_type_input_id = -1;
+		if (buddy->type < 0xFE) {
+			/* Add type label and input widget */
+			x += string_width = get_string_width((unsigned char*)buddy_type_str)*0.9f;
+			label_id = label_add_extended(buddy_change_win, label_id, NULL, 5, y, 0, 0.9f, 0.77f, 0.57f, 0.39f, buddy_type_str);
 
-		widget_set_OnMouseover(buddy_change_win, label_id, type_onmouseover_handler);
-		widget_set_OnMouseover(buddy_change_win, buddy_type_input_id, type_onmouseover_handler);
-		label_id++;
-		y += 5+multiselect_get_height(buddy_change_win, buddy_type_input_id);
+			buddy_type_input_id = multiselect_add(buddy_change_win, NULL, x, y, buddy_add_x_len-string_width*2);
+			multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 0, buddy_white_str, 1);
+			multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 25, buddy_red_str, 0);
+			multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 50,  buddy_green_str, 0);
+			multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 75, buddy_blue_str, 0);
+			multiselect_button_add(buddy_change_win, buddy_type_input_id, 0, 100, buddy_yellow_str, 0);
+			multiselect_set_selected(buddy_change_win, buddy_type_input_id, buddy->type);
+
+			widget_set_OnMouseover(buddy_change_win, label_id, type_onmouseover_handler);
+			widget_set_OnMouseover(buddy_change_win, buddy_type_input_id, type_onmouseover_handler);
+			label_id++;
+			y += 5+multiselect_get_height(buddy_change_win, buddy_type_input_id);
+		}
+	
 		/* Delete buddy checkbox and label */
 		//Center the checkbox+label
 		extra_space = 2+ceilf((buddy_change_x_len-string_width*2 - (20 + get_string_width((unsigned char*)buddy_delete_str)*0.9f))/2.0);
