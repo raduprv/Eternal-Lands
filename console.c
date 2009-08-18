@@ -1075,7 +1075,7 @@ static int command_cast_spell(char *text, int len)
 			else if (d[i] >= 'a' && d[i] <= 'f')
 				d[i] -= 'a'-10;
 			else if (d[i] >= 'A' && d[i] <= 'F')
-				d[i] -= 'F'-10;
+				d[i] -= 'A'-10;
 			else
 			{
 				valid_looking_message = 0;
