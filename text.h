@@ -73,6 +73,7 @@ extern int log_chat; /*!< flag stating whether to log server messages or not */
 
 extern int current_text_width; /*!< Current wrapping width for text buffers */
 
+extern int harvesting_effect_restart_count;
 extern ec_reference harvesting_effect_reference;
 
 /*!

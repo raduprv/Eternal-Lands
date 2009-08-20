@@ -337,16 +337,19 @@ void get_partial_stat(Uint8 name,Sint32 value)
                 case MAN_EXP_NEXT:
                         your_info.manufacturing_exp_next_lev=value;break;
                 case HARV_EXP:
-                        floatingmessages_compare_stat(yourself, your_info.harvesting_exp, value, attributes.harvesting_skill.shortname);
+						floatingmessages_compare_stat(yourself, your_info.harvesting_exp, value, attributes.harvesting_skill.shortname);
 						{
-							static int restart_count = 1; /* avoid restarting when we stop due to a mini event, wait for at least 2 exp updates. */
-                        	actor *_actor = get_actor_ptr_from_id(yourself);
-                        	if (harvesting_effect_reference == NULL && _actor != NULL && use_eye_candy && use_harvesting_eye_candy) {
-								if (restart_count-- <= 0)
-	                        		harvesting_effect_reference = ec_create_ongoing_harvesting2(_actor, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
-                        	}
+							actor *_actor = get_actor_ptr_from_id(yourself);
+							if (harvesting_effect_reference == NULL && _actor != NULL && use_eye_candy && use_harvesting_eye_candy)
+							{
+								if (harvesting_effect_restart_count-- <= 0)
+								{
+									harvesting_effect_reference = ec_create_ongoing_harvesting2(_actor, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
+									harvesting_effect_restart_count = 1;
+								}
+							}
 							else
-								restart_count = 1;
+								harvesting_effect_restart_count = 1;
 						}
                         your_info.harvesting_exp=value;
                         break;

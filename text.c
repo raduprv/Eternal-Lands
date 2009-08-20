@@ -58,6 +58,7 @@ float	chat_zoom=1.0;
 FILE	*chat_log=NULL;
 FILE	*srv_log=NULL;
 
+int harvesting_effect_restart_count = 1;
 ec_reference harvesting_effect_reference = NULL;
 
 /* forward declaration */
@@ -563,6 +564,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			{
 				ec_recall_effect(harvesting_effect_reference);
 				harvesting_effect_reference = NULL;
+				harvesting_effect_restart_count = 1;
 			}
 		}
 		else if (is_death_message(text_to_add+1)) {
