@@ -261,7 +261,11 @@ void custom_path(char * path, char * custom1, char * custom2) {
 	char buffer[256];
 
 	// check to see if ANY processing needs to be done
+#ifdef CUSTOM_UPDATE
 	if(!path || !*path || !custom_clothing)	return;
+#else
+	if(!path || !*path ) return;
+#endif
 
 	/* Check if custom1 has path readable */
 	safe_snprintf(buffer, sizeof(buffer), "%s%s", custom1, path);
