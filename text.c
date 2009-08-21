@@ -560,11 +560,11 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			((my_strncompare(text_to_add+1, "You need to have a ", 19) && strstr(text_to_add, "order to harvest") != NULL)))
 		{
 			harvesting = 0;
+			harvesting_effect_restart_count = 1;
 			if (harvesting_effect_reference != NULL)
 			{
 				ec_recall_effect(harvesting_effect_reference);
 				harvesting_effect_reference = NULL;
-				harvesting_effect_restart_count = 1;
 			}
 		}
 		else if (is_death_message(text_to_add+1)) {
