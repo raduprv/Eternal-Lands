@@ -635,7 +635,7 @@ int is_in_buddylist(const char *name)
 		++name;
 	}
 	for(i = 0; i < MAX_BUDDY; i++) {
-		if(buddy_list[i].type < 0xff && strncmp(buddy_list[i].name, name, strlen(buddy_list[i].name)) == 0) {
+		if(buddy_list[i].type < 0xff && strncasecmp(buddy_list[i].name, name, strlen(buddy_list[i].name)) == 0) {
 			return 1;
 		}
 	}
