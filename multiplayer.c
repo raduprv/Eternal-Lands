@@ -1423,12 +1423,22 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
+#ifdef BANDWIDTH_SAVINGS
+				// allow for multiple packets in a row
+				while (data_length >= 7)
+				{
+					get_actor_damage(SDL_SwapLE16(*((Uint16 *)(in_data+3))),SDL_SwapLE16(*((Uint16*)(in_data+5))));
+					data_length -= 4;
+					in_data += 4;
+				}
+#else
 				if (data_length <= 6)
 				{
 				  log_error("CAUTION: Possibly forged GET_ACTOR_DAMAGE packet received.\n");
 				  break;
 				}
 				get_actor_damage(SDL_SwapLE16(*((Uint16 *)(in_data+3))),SDL_SwapLE16(*((Uint16*)(in_data+5))));
+#endif
 			}
 			break;
 
@@ -1437,12 +1447,22 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
+#ifdef BANDWIDTH_SAVINGS
+				// allow for multiple packets in a row
+				while (data_length >= 7)
+				{
+					get_actor_heal(SDL_SwapLE16(*((Uint16 *)(in_data+3))),SDL_SwapLE16(*((Uint16*)(in_data+5))));
+					data_length -= 4;
+					in_data += 4;
+				}
+#else
 				if (data_length <= 6)
 				{
 				  log_error("CAUTION: Possibly forged GET_ACTOR_HEAL packet received.\n");
 				  break;
 				}
 				get_actor_heal(SDL_SwapLE16(*((Uint16 *)(in_data+3))),SDL_SwapLE16(*((Uint16*)(in_data+5))));
+#endif
 			}
 			break;
 

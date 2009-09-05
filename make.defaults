@@ -34,7 +34,7 @@ FEATURES += ZLIB                            # Enables being able to read gzip co
 #FEATURES += NEW_ALPHA                       # (undocumented)
 #FEATURES += NIGHT_TEXTURES                  # enable night textures. changes textures at night to cooler colors
 FEATURES += USER_MENUS                      # enable user command menus, requires CONTEXT_MENUS
-
+FEATURES += BANDWIDTH_SAVINGS				# enable bandwidth saving changes for message protocol
 
 ### Machine specific options (fixes or performance enhancements) ###
 #FEATURES += EL_BIG_ENDIAN                   # Enable big-endian code (automatically detected for OSX)
