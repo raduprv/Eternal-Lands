@@ -162,7 +162,10 @@ int get_mouse_pos_in_grid(int mx, int my, int columns, int rows, int left, int t
  * \param no        id of the item
  * \retval GLuint   the texture id associated with \a no.
  */
-__inline__ GLuint get_items_texture(int no);
+static __inline__ GLuint get_items_texture(int no)
+{
+	return items_text[no];
+}
 
 /*!
  * \ingroup items_window

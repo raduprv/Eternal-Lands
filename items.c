@@ -90,11 +90,6 @@ static size_t cm_mix_but = CM_INIT_VALUE;
 
 static void drop_all_handler();
 
-__inline__ GLuint get_items_texture(int no)
-{
-	return items_text[no];
-}
-
 void set_shown_string(char colour_code, const char *the_text)
 {
 	inventory_item_string[0] = to_color_char(colour_code);
