@@ -29,6 +29,7 @@
 #include "translate.h"
 #include "counters.h"
 #include "widgets.h"
+#include "spells.h"
 
 item item_list[ITEM_NUM_ITEMS];
 
@@ -107,6 +108,25 @@ static int over_button(window_info *win, int mx, int my)
 		return (my -  wear_items_y_offset) / YLENBUT;
 	}
 	return -1;
+}
+
+
+void gray_out(int x_start, int y_start, int gridsize){
+
+	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+	//glBlendFunc(GL_DST_COLOR, GL_ONE); //this brightens up
+	glBlendFunc(GL_ZERO, GL_SRC_COLOR); //this brightens down
+	glColor3f(0.4f, 0.2f, 0.2f);
+	glBegin(GL_QUADS);
+		glVertex3i(x_start,y_start,0);
+		glVertex3i(x_start+gridsize,y_start,0);
+		glVertex3i(x_start+gridsize,y_start+gridsize,0);
+		glVertex3i(x_start,y_start+gridsize,0);				
+	glEnd();
+	glDisable(GL_BLEND);	
+	glEnable(GL_TEXTURE_2D);
+	glColor3f(1.0f, 1.0f, 1.0f);
 }
 
 
@@ -281,6 +301,7 @@ void get_your_items (const Uint8 *data)
 	}
 
 	build_manufacture_list();
+	check_castability();
 }
 
 #ifdef NEW_SOUND
@@ -348,6 +369,7 @@ void remove_item_from_inventory(int pos)
 #endif // NEW_SOUND
 	
 	build_manufacture_list();
+	check_castability();
 }
 
 void get_new_inventory_item (const Uint8 *data)
@@ -385,12 +407,37 @@ void get_new_inventory_item (const Uint8 *data)
 #endif // NEW_SOUND
 	
 	build_manufacture_list();
+	check_castability();
 }
+
+
+
+void draw_item(int id, int x_start, int y_start, int gridsize){
+	float u_start,v_start,u_end,v_end;
+	int cur_item;
+	int this_texture;
+
+	//get the UV coordinates.
+	cur_item=id%25;
+	u_start=0.2f*(cur_item%5);
+	u_end=u_start+(float)50/256;
+	v_start=(1.0f+((float)50/256)/256.0f)-((float)50/256*(cur_item/5));
+	v_end=v_start-(float)50/256;
+
+	//get the texture this item belongs to
+	this_texture=get_items_texture(id/25);
+		
+	get_and_set_texture_id(this_texture);
+	glBegin(GL_QUADS);
+		draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_start+gridsize-1,y_start+gridsize-1);
+	glEnd();
+}
+
 
 int display_items_handler(window_info *win)
 {
 	char str[80];
-    char my_str[10];
+	char my_str[10];
 	int x,y,i;
 	int item_is_weared=0;
 	Uint32 _cur_time = SDL_GetTicks(); /* grab a snapshot of current time */
@@ -433,16 +480,8 @@ int display_items_handler(window_info *win)
 	//ok, now let's draw the objects...
 	for(i=ITEM_NUM_ITEMS-1;i>=0;i--){
 		if(item_list[i].quantity){
-			float u_start,v_start,u_end,v_end;
-			int this_texture,cur_item,cur_pos;
+			int cur_pos;
 			int x_start,x_end,y_start,y_end;
-
-			//get the UV coordinates.
-			cur_item=item_list[i].image_id%25;
-			u_start=0.2f*(cur_item%5);
-			u_end=u_start+(float)50/256;
-			v_start=(1.0f+((float)50/256)/256.0f)-((float)50/256*(cur_item/5));
-			v_end=v_start-(float)50/256;
 
 			//get the x and y
 			cur_pos=i;
@@ -453,21 +492,16 @@ int display_items_handler(window_info *win)
 				x_end=x_start+32-1;
 				y_start=wear_items_y_offset+33*(cur_pos/2);
 				y_end=y_start+32-1;
+				draw_item(item_list[i].image_id,x_start,y_start,32);
 			} else {
 				item_is_weared=0;
 				x_start=items_grid_size*(cur_pos%6)+1;
 				x_end=x_start+items_grid_size-1;
 				y_start=items_grid_size*(cur_pos/6);
 				y_end=y_start+items_grid_size-1;
+				draw_item(item_list[i].image_id,x_start,y_start,items_grid_size);
 			}
 
-			//get the texture this item belongs to
-			this_texture=get_items_texture(item_list[i].image_id/25);
-			
-			get_and_set_texture_id(this_texture);
-			glBegin(GL_QUADS);
-				draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
-			glEnd();
 
 			if (item_list[i].cooldown_time > _cur_time)
 			{

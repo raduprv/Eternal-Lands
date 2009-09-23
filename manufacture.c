@@ -9,14 +9,21 @@
 #include "multiplayer.h"
 #include "textures.h"
 #include "translate.h"
+#include "sound.h"
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
 
-item manu_recipe[6];
-item manufacture_list[ITEM_NUM_ITEMS];
-int	manufacture_win= -1;
+#define MAX_RECIPE 10
 
+int recipe_status[MAX_RECIPE];
+item recipes[MAX_RECIPE][6];
+item *manu_recipe=recipes[0];
+int cur_recipe=0;
+item manufacture_list[ITEM_NUM_ITEMS];
+int manufacture_win= -1;
+int recipe_win= -1;
+int recipes_shown=0;
 int manufacture_menu_x=10;
 int manufacture_menu_y=20;
 int manufacture_menu_x_len=12*33+20;
@@ -25,10 +32,14 @@ int manufacture_menu_y_len=6*33;
 static char items_string[350]={0};
 static size_t last_items_string_id = 0;
 
+
+
 void build_manufacture_list()
 {
-	int i,j,l;
+	int i,j,l,k;
 
+
+	
 	for(i=0;i<36+6;i++)manufacture_list[i].quantity=0;
 
 	//ok, now see which items are resources
@@ -41,27 +52,33 @@ void build_manufacture_list()
 			j++;
 		}
 	}
-	//now check for all items in the current recipe
-	l=1;
-	for(i=0; l>0 && i<6; i++) {
-		if(manu_recipe[i].quantity > 0) {
-			for(j=0; l>0 && j<36; j++) {
-				if(manufacture_list[j].quantity>0 && manu_recipe[i].image_id == manufacture_list[j].image_id) {
-					if(manu_recipe[i].quantity > manufacture_list[j].quantity) {
-						l=0;	// can't make
+	//now check for all items in all recipes
+	for(k=0;k<MAX_RECIPE;k++){
+		manu_recipe=recipes[k];
+		l=1;
+		for(i=0; l>0 && i<6; i++) {
+			if(manu_recipe[i].quantity > 0) {
+				for(j=0; l>0 && j<36; j++) {
+					if(manufacture_list[j].quantity>0 && manu_recipe[i].image_id == manufacture_list[j].image_id) {
+						if(manu_recipe[i].quantity > manufacture_list[j].quantity) {
+							l=0;	// can't make
+						}
+						break;
 					}
-					break;
+				}
+				
+				// watch for the item missing
+				if(j >= 36) {
+					l=0;
 				}
 			}
-			
-			// watch for the item missing
-			if(j >= 36) {
-				l=0;
-			}
 		}
+		//updates recipe_status
+		recipe_status[k]=l;
 	}
-	
-	//all there? good, put them in
+	//all there? good, put them in from current recipe
+	manu_recipe=recipes[cur_recipe];
+	l=recipe_status[cur_recipe];
 	if(l>0) {
 		for(i=0; i<6; i++) {
 			if(manu_recipe[i].quantity > 0)	{
@@ -80,12 +97,96 @@ void build_manufacture_list()
 			}
 		}
 	}
+
+}
+
+//DRAWING FUNCTIONS
+
+void draw_recipe_controls(){
+	int wpx=33*6+2;
+	int wpy=manufacture_menu_y_len-37;
+	int lpx=18;
+	int lpy=33;
+
+	if (recipes_shown){
+	/* Up arrow */	
+		glBegin(GL_QUADS);	
+			glVertex3i(wpx+lpx/2, wpy+lpy-10, 0); //top
+			glVertex3i(wpx+5, wpy+lpy, 0); //left
+			glVertex3i(wpx+lpx-5, wpy+lpy, 0); //right
+			glVertex3i(wpx+lpx/2, wpy+lpy-10, 0); //top
+		glEnd();
+	} else {
+		/* Dn arrow */	
+		glBegin(GL_QUADS);
+			glVertex3i(wpx+lpx/2, wpy+lpy, 0); //top
+			glVertex3i(wpx+5, wpy+lpy-10, 0); //left
+			glVertex3i(wpx+lpx-5, wpy+lpy-10, 0); //right
+			glVertex3i(wpx+lpx/2, wpy+lpy, 0); //top
+		glEnd();
+	}	
+
+	/* Add btn */	
+	glEnable(GL_TEXTURE_2D);
+	draw_string_zoomed(wpx+3, wpy-2, (unsigned char *)"+", 1, 1);
+}
+
+//draws a 6x1 grid of items+grid
+int draw_production_pipe(int x, int y, int recipe_num){
+	int i,ofs,valid;
+	Uint8 str[80];
+	item *the_list;
+
+	//if recipe_num is negative we draw the current manufacture_list, else a recipe	
+	if (recipe_num<0) {
+		the_list=manufacture_list;
+		ofs=36;
+		valid=1;
+	} else {
+		the_list=recipes[recipe_num];
+		ofs=0;
+		valid=recipe_status[recipe_num];
+	}
+
+	glEnable(GL_TEXTURE_2D);
+	//ok, now let's draw the mixed objects
+	for(i=ofs;i<6+ofs;i++) {
+		glColor3f(1.0f,1.0f,1.0f);
+		if(the_list[i].quantity > 0){
+			int x_start,y_start;
+
+			//get the x and y
+			x_start=x+33*(i%6)+1;
+			y_start=y;
+
+			draw_item(the_list[i].image_id,x_start,y_start,33);
+			safe_snprintf((char *)str, sizeof(str), "%i", the_list[i].quantity);
+			draw_string_small_shadowed(x_start,y_start+17,str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
+
+			if (!valid)
+				gray_out(x_start,y_start,33);
+		}
+	}
+	glDisable(GL_TEXTURE_2D);
+	
+	//draw the grid, in red if selected
+	if (recipe_num==cur_recipe) glColor3f(1.0f,0.0f,0.0f);
+	else glColor3f(0.77f,0.57f,0.39f);
+	rendergrid(6,1,x, y, 33, 33);
+
+	glEnable(GL_TEXTURE_2D);
+	return 1;
 }
 
 int	display_manufacture_handler(window_info *win)
 {
 	Uint8 str[80];
 	int i;
+
+	//dirty hack for opacity
+	//if manufacture_win is opaque then recipe_win should be and viceversa
+	if (recipes_shown) win->opaque=windows_list.window[recipe_win].opaque;
+	else windows_list.window[recipe_win].opaque=win->opaque;	
 
 	glColor3f(0.77f,0.57f,0.39f);
 	glEnable(GL_TEXTURE_2D);
@@ -94,82 +195,29 @@ int	display_manufacture_handler(window_info *win)
 	//ok, now let's draw the objects...
 	for(i=35;i>=0;i--){
 		if(manufacture_list[i].quantity > 0) {
-			float u_start,v_start,u_end,v_end;
-			int this_texture,cur_item,cur_pos;
-			int x_start,x_end,y_start,y_end;
-
-			//get the UV coordinates.
-			cur_item=manufacture_list[i].image_id%25;
-			u_start=0.2f*(cur_item%5);
-			u_end=u_start+(float)50/256;
-			v_start=(1.0f+((float)50/256)/256.0f)-((float)50/256*(cur_item/5));
-			v_end=v_start-(float)50/256;
+			int x_start,y_start;
 
 			//get the x and y
-			cur_pos=i;
+			x_start=33*(i%12)+1;
+			y_start=33*(i/12);
 
-			x_start=33*(cur_pos%12)+1;
-			x_end=x_start+32;
-			y_start=33*(cur_pos/12);
-			y_end=y_start+32;
-
-			//get the texture this item belongs to
-			this_texture=get_items_texture(manufacture_list[i].image_id/25);
-			get_and_set_texture_id(this_texture);
+			draw_item(manufacture_list[i].image_id,x_start,y_start,33);
 			
-			glBegin(GL_QUADS);
-				draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
-			glEnd();
-
 			safe_snprintf((char *)str, sizeof(str), "%i",manufacture_list[i].quantity);
-			draw_string_small_shadowed(x_start, (i&1)?(y_end-15):(y_end-25), (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);
-			//draw_string_small_shadowed(x_start,y_end-15,str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
+			draw_string_small_shadowed(x_start, (i&1)?(y_start+17):(y_start+7), (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);
 		}
 	}
 
 	//ok, now let's draw the mixed objects
-	for(i=36;i<36+6;i++) {
-		if(manufacture_list[i].quantity > 0){
-			float u_start,v_start,u_end,v_end;
-			int this_texture,cur_item,cur_pos;
-			int x_start,x_end,y_start,y_end;
+	draw_production_pipe(2,manufacture_menu_y_len-37, -1);
 
-			//get the UV coordinates.
-			cur_item=manufacture_list[i].image_id%25;
-			u_start=0.2f*(cur_item%5);
-			u_end=u_start+(float)50/256;
-			v_start=(1.0f+((float)50/256)/256.0f)-((float)50/256*(cur_item/5));
-			v_end=v_start-(float)50/256;
-
-
-			//get the x and y
-			cur_pos=i;
-
-			x_start=33*(cur_pos%6)+5;
-			x_end=x_start+32;
-			y_start=win->len_y-37;
-			y_end=y_start+32;
-
-			//get the texture this item belongs to
-			this_texture=get_items_texture(manufacture_list[i].image_id/25);
-			get_and_set_texture_id(this_texture);
-			
-			glBegin(GL_QUADS);
-				draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
-			glEnd();
-
-			safe_snprintf((char *)str, sizeof(str), "%i", manufacture_list[i].quantity);
-			draw_string_small_shadowed(x_start,y_end-15,str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
-		}
-	}
-	
 	//now, draw the inventory text, if any.
 	if (last_items_string_id != inventory_item_string_id)
 	{		
 		put_small_text_in_box((unsigned char*)inventory_item_string, strlen(inventory_item_string), win->len_x-8, items_string);
 		last_items_string_id = inventory_item_string_id;
 	}
-	draw_string_small(4,win->len_y-85,(unsigned char *)items_string,4);
+	draw_string_small(4,manufacture_menu_y_len-85,(unsigned char *)items_string,4);
 
 	// Render the grid *after* the images. It seems impossible to code
 	// it such that images are rendered exactly within the boxes on all 
@@ -180,22 +228,104 @@ int	display_manufacture_handler(window_info *win)
 	//draw the grid
 	rendergrid(12,3,0,0,33,33);
 	
-	//Draw the bottom grid
-	rendergrid(6,1,5, win->len_y-37, 33, 33);
+	//Draw the bottom grid - NOT NEEDED, DONE IN draw_production_pipe
+	//rendergrid(6,1,0, manufacture_menu_y_len-37, 33, 33);
 
+	//Draw recipe control buttons
+	draw_recipe_controls();
 	glEnable(GL_TEXTURE_2D);
+
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 	return 1;
 }
 
+
+
+int recipe_dropdown_draw(window_info *win){
+	int i;
+
+	for (i=0;i<MAX_RECIPE;i++){
+		draw_production_pipe(0,33*i,i);
+	}
+	draw_production_pipe(0,33*cur_recipe,cur_recipe);
+	return 1;
+}
+
+
+
+
+//CLICK HANDLERS
+int recipe_dropdown_click_handler(window_info *win, int mx, int my, Uint32 flags){
+
+	static int last_clicked=0;
+	static int last_recipe=0;
+
+	if (flags & ELW_WHEEL_UP) {
+		cur_recipe=(cur_recipe-1+MAX_RECIPE)%MAX_RECIPE;			
+	} else
+	if (flags & ELW_WHEEL_DOWN) {
+		cur_recipe=(cur_recipe+1)%MAX_RECIPE;			
+	} else {
+		//normal click
+		cur_recipe=my/(33+1);	
+		if ( ((SDL_GetTicks() - last_clicked) < 400)&& last_recipe==cur_recipe){
+			//double click on the same recipe to select it and close the dropdown
+			recipes_shown=0;
+			hide_window(recipe_win);
+		}	
+		last_clicked = SDL_GetTicks();
+	}
+	manu_recipe=recipes[cur_recipe];
+	build_manufacture_list();
+	last_recipe = cur_recipe;
+	do_click_sound();
+	return 1;
+}
+
+int recipe_controls_click_handler(int mx, int my, Uint32 flags){
+
+	int i;
+	int wpx=33*6+2;
+	int wpy=manufacture_menu_y_len-37;
+	int lpx=18;
+	int lpy=33;	
+
+	if (mx>wpx&&mx<wpx+lpx&&my>wpy+lpy-10&&my<wpy+lpy){
+		//arrow
+		if (flags & ELW_WHEEL_UP) {
+			cur_recipe=(cur_recipe-1+MAX_RECIPE)%MAX_RECIPE;			
+		} else
+		if (flags & ELW_WHEEL_DOWN) {
+			cur_recipe=(cur_recipe+1)%MAX_RECIPE;			
+		} else {
+			//normal click	
+			recipes_shown=!recipes_shown;
+		}
+		
+		build_manufacture_list();
+		if (recipes_shown) show_window(recipe_win);
+		else hide_window(recipe_win);
+		do_click_sound();
+	} else
+	if (mx>wpx+3&&mx<wpx+lpx-3&&my>wpy&&my<wpy+15){
+		//+ button
+		//copy the recipe
+		for(i=36;i<36+6;i++) manu_recipe[i-36]=manufacture_list[i];		
+		do_click_sound();
+	}
+	return 0;
+}
+
 int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int pos;
+	static int last_slot=-1;
 	Uint8 str[100];
 
-	int quantitytomove = 1;
+	int quantitytomove=1;
+ 
 	if ((flags & ELW_CTRL) || (flags & ELW_SHIFT) || (flags & ELW_ALT))
 		quantitytomove = 10;
 
@@ -211,10 +341,17 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 			return 1;
 		} else	{
 			int j;
+
+			last_slot=-1;
 			
 			for(j=36;j<36+6;j++)
 				if(manufacture_list[j].pos==manufacture_list[pos].pos && manufacture_list[j].quantity > 0){
 					//found an empty space in the "production pipe"
+					if (flags & ELW_WHEEL_UP) {
+						if (manufacture_list[j].quantity < quantitytomove)
+							quantitytomove = -manufacture_list[j].quantity;
+						else quantitytomove*=-1;
+					} else
 					if (manufacture_list[pos].quantity < quantitytomove)
 						quantitytomove = manufacture_list[pos].quantity;
 					manufacture_list[j].quantity += quantitytomove;
@@ -228,6 +365,7 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 			for(j=36;j<36+6;j++)
 				if(!manufacture_list[j].quantity > 0){
 					//found an empty space in the "production pipe"
+					if (flags & ELW_WHEEL_UP) return 1; //quantity already 0 in production pipeline
 					if (manufacture_list[pos].quantity < quantitytomove)
 						quantitytomove = manufacture_list[pos].quantity;
 					manufacture_list[j].quantity += quantitytomove;
@@ -237,11 +375,12 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 					return 1;
 				}
 		}
-	}
+	} else 
+	if (pos>=0) last_slot=-1;
 
-	pos=get_mouse_pos_in_grid(mx, my, 6, 1, 5, win->len_y-37, 33, 33);
-	
 	//see if we clicked on any item from the "production pipe"
+	pos=get_mouse_pos_in_grid(mx, my, 6, 1, 5, manufacture_menu_y_len-37, 33, 33);
+
 	if (pos >= 0 && manufacture_list[36+pos].quantity > 0)
 	{
 		if(action_mode==ACTION_LOOK || (flags&ELW_RIGHT_MOUSE)){
@@ -251,9 +390,16 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 			return 1;
 		} else {
 			int j;
+
+			last_slot=pos;
 			for(j=0;j<36;j++)
 				if(manufacture_list[j].quantity && manufacture_list[j].pos==manufacture_list[36+pos].pos){
 					//found item in ingredients slot, move from "production pipe" back to this slot
+					if (flags & ELW_WHEEL_DOWN) {
+						if (manufacture_list[36+pos].quantity < quantitytomove)
+							quantitytomove = -manufacture_list[36+pos].quantity;
+						else quantitytomove*=-1;
+					} else
 					if (manufacture_list[36+pos].quantity < quantitytomove)
 						quantitytomove = manufacture_list[36+pos].quantity;
 					manufacture_list[j].quantity += quantitytomove;
@@ -269,6 +415,8 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 					//found item in ingredients slot, move from "production pipe" back to this slot
 					if (manufacture_list[36+pos].quantity < quantitytomove)
 						quantitytomove = manufacture_list[36+pos].quantity;
+					//handles mouse wheel
+					if (flags & ELW_WHEEL_DOWN) return 1; //No more items to put in production pipe
 					manufacture_list[j].quantity += quantitytomove;
 					manufacture_list[j].pos=manufacture_list[36+pos].pos;
 					manufacture_list[j].image_id=manufacture_list[36+pos].image_id;
@@ -276,10 +424,23 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 					return 1;
 				}
 		}
-	}
-
+	} else
+	if (pos>=0) {
+		//click on an empty slot
+		//handle the mouse wheel
+		if (pos!=last_slot && ((flags&ELW_WHEEL_UP)||(flags&ELW_WHEEL_DOWN))) {
+			//simulate a click on the dropdown
+			last_slot=-1;
+			recipe_dropdown_click_handler(win,0,0,flags);
+			return 0;
+		} 
+	} else last_slot=-1;
+	//see if we clicked on the recipe handler
+	recipe_controls_click_handler(mx,my,flags);
 	return 0;
 }
+
+
 
 int mix_handler(Uint8 quantity, const char* empty_error_str)
 {
@@ -346,6 +507,26 @@ int mixall_handler()
   return mix_handler(255, mix_empty_str);
 }
 
+
+//MOUSEOVER HANDLERS
+int recipe_controls_mouseover_handler(int mx, int my){
+
+	int wpx=33*6+2;
+	int wpy=manufacture_menu_y_len-37;
+	int lpx=18;
+	int lpy=33;	
+
+	if (mx>wpx&&mx<wpx+lpx&&my>wpy+lpy-10&&my<wpy+lpy){
+		//on arrow
+		show_help("Click to show/hide saved recipes. Wheel to scroll", 0, manufacture_menu_y_len+10);
+	} else
+	if (mx>wpx+3&&mx<wpx+lpx-3&&my>wpy&&my<wpy+15){
+		//on + button
+		show_help("Click to save current recipe.", 0, manufacture_menu_y_len+10);
+	}
+	return 0;
+}
+
 /* mouse over slots - show tool tips */
 int mouseover_manufacture_slot_handler(window_info *win, int mx, int my)
 {
@@ -360,10 +541,13 @@ int mouseover_manufacture_slot_handler(window_info *win, int mx, int my)
 	}
 
 	/* see if we clicked on any item from the "production pipe" */
-	pos=get_mouse_pos_in_grid(mx, my, 6, 1, 5, win->len_y-37, 33, 33);
+	pos=get_mouse_pos_in_grid(mx, my, 6, 1, 5, manufacture_menu_y_len-37, 33, 33);
 	if (pos >= 0 && manufacture_list[36+pos].quantity > 0){
 		show_help(manu_remove_str, 0, manufacture_menu_y_len+10);
 	}
+
+	/*check recipe controls*/
+	recipe_controls_mouseover_handler(mx,my);
 	return 0;
 }
 
@@ -383,37 +567,47 @@ int mouseover_mixall_handler(window_info *win, int mx, int my)
 	return 0;
 }
 
+
 void display_manufacture_menu()
 {
 	if(manufacture_win < 0){
 		static int clear_button_id=100;
 		static int mixone_button_id=101;
 		static int mixall_button_id=102;
-		int our_root_win = -1;
 
+		int our_root_win = -1;
+			
 		if (!windows_on_top) {
 			our_root_win = game_root_win;
 		}
 		manufacture_win= create_window(win_manufacture, our_root_win, 0, manufacture_menu_x, manufacture_menu_y, manufacture_menu_x_len, manufacture_menu_y_len, ELW_WIN_DEFAULT);
-
 		set_window_handler(manufacture_win, ELW_HANDLER_DISPLAY, &display_manufacture_handler );
 		set_window_handler(manufacture_win, ELW_HANDLER_CLICK, &click_manufacture_handler );
 		set_window_handler(manufacture_win, ELW_HANDLER_MOUSEOVER, &mouseover_manufacture_slot_handler );
 
 		mixone_button_id=button_add_extended(manufacture_win, mixone_button_id,
-			NULL, 33*6+15, manufacture_menu_y_len-36, 43, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, ">");
+			NULL, 33*6+15+10, manufacture_menu_y_len-36, 43, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, ">");
 		widget_set_OnClick(manufacture_win, mixone_button_id, mixone_handler);
 		widget_set_OnMouseover(manufacture_win, mixone_button_id, mouseover_mixone_handler);
 		
 		mixall_button_id=button_add_extended(manufacture_win, mixall_button_id,
-			NULL, 33*8, manufacture_menu_y_len-36, 43, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, ">>");
+			NULL, 33*8+10, manufacture_menu_y_len-36, 43, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, ">>");
 		widget_set_OnClick(manufacture_win, mixall_button_id, mixall_handler);
 		widget_set_OnMouseover(manufacture_win, mixall_button_id, mouseover_mixall_handler);
 		
-		clear_button_id=button_add_extended(manufacture_win, clear_button_id, NULL, 33*9+18, manufacture_menu_y_len-36, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, clear_str);
+		clear_button_id=button_add_extended(manufacture_win, clear_button_id, NULL, 33*9+18+10, manufacture_menu_y_len-36, 70, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, clear_str);
 		widget_set_OnClick(manufacture_win, clear_button_id, clear_handler);
+
+		//Create a child window to show recipes in a dropdown panel
+		recipe_win= create_window("w_recipe", manufacture_win, 0, 2, manufacture_menu_y_len-2, 33*6, MAX_RECIPE*33, 
+			ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE|ELW_USE_BORDER);
+		set_window_handler(recipe_win, ELW_HANDLER_DISPLAY, &recipe_dropdown_draw);
+		set_window_handler(recipe_win, ELW_HANDLER_CLICK, &recipe_dropdown_click_handler );
+		hide_window(recipe_win); //start hidden
 	} else {
 		show_window(manufacture_win);
+		if (!recipes_shown) hide_window(recipe_win);
+		else show_window(recipe_win);
 		select_window(manufacture_win);
 	}
 }

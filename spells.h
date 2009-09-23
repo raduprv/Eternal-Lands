@@ -67,6 +67,16 @@ extern int spell_result;
 extern Uint8 last_spell_str[20];
 extern int last_spell_len;
 
+
+
+/*!
+ * \ingroup spells_window
+ * \brief Checks spells to determine if theyìre castable
+ *
+ *      Checks castability checking reagents, sigils, mana and levels
+ *
+ */
+void check_castability();
 /*!
  * \ingroup spells_window
  * \brief Repeats the last used spell.
@@ -83,7 +93,7 @@ void repeat_spell();
  *      Initializes and sets up the sigils list and other variables used in spell casting.
  *
  */
-void init_spells ();
+int init_spells ();
 
 /*!
  * \ingroup spells_window

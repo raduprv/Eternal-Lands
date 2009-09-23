@@ -13,6 +13,7 @@
 #include "tabs.h"
 #include "counters.h"
 #include "eye_candy_wrapper.h"
+#include "spells.h"
 
 int     stats_win= -1;
 player_attribs your_info;
@@ -155,6 +156,7 @@ void get_the_stats(Sint16 *stats)
         check_book_known();
 
         init_session();
+        check_castability();
 }
 
 void get_partial_stat(Uint8 name,Sint32 value)
@@ -498,6 +500,11 @@ void get_partial_stat(Uint8 name,Sint32 value)
                 default:
                         log_error("Server sent invalid stat number\n");
                 }
+                //update spells
+                //this must be here, atm spells depend on mana, magic level and alchemy (bones to gold)
+                //but in the future they could involve other attributes/skills
+                check_castability();
+
 }
 
 Sint16 get_base_might() { return (your_info.phy.base+your_info.coo.base)/2;}

@@ -305,6 +305,11 @@ void check_sound_alerts(char * text, Uint8 channel);
 void print_sound_boundaries(int map);
 #endif // DEBUG_MAP_SOUND
 
+static __inline__ void do_click_sound(){
+#ifdef NEW_SOUND
+	add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+#endif // NEW_SOUND
+}
 
 
 

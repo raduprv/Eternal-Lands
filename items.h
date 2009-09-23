@@ -120,6 +120,11 @@ void update_item_sound(int interval);
 
 int move_item(int item_pos_to_mov, int destination_pos);
 
+
+void draw_item(int id, int x_start, int y_start, int gridsize);
+void gray_out(int x_start, int y_start, int gridsize);
+
+
 /*!
  * \ingroup display_utils
  * \brief   Renders the storage grid
