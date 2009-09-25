@@ -1966,13 +1966,17 @@ int get_message_from_server(void *thread_args)
 			process_data_from_server(queue);
 		}
 		else { /* 0 >= received (EOF or some error) */
-			if (received) {
-				char str[256];
-				safe_snprintf(str, sizeof(str), "%s: [%s]", disconnected_from_server, SDLNet_GetError());
-				LOG_TO_CONSOLE(c_red2, str);
-			}
+			char str[256];
+#ifndef SKY_FPV
+			short tgm = game_minute;
+#else // SKY_FPV
+			short tgm = real_game_minute;
+#endif // SKY_FPV
+			if (received)
+				safe_snprintf(str, sizeof(str), "<%1d:%02d>: %s: [%s]", tgm/60, tgm%60, disconnected_from_server, SDLNet_GetError());
 		 	else
-				LOG_TO_CONSOLE(c_red2, disconnected_from_server);
+				safe_snprintf(str, sizeof(str), "<%1d:%02d>: %s", tgm/60, tgm%60, disconnected_from_server);
+			LOG_TO_CONSOLE(c_red2, str);
 			LOG_TO_CONSOLE(c_red2, alt_x_quit);
 			in_data_used = 0;
 			disconnected = 1;
