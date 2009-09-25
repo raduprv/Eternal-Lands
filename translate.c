@@ -313,6 +313,7 @@ char	name_too_long[75],
 	pm_from_str[10],
 	gm_from_str[10],
 	ig_from_str[10],
+	mc_from_str[20],
 	mod_pm_from_str[15],
 	help_request_str[20],
 	help_cmd_str[10],
@@ -834,7 +835,8 @@ void init_console()
 	add_xml_identifier(misc,"pm_from",pm_from_str,"[PM from",sizeof(pm_from_str));
 	add_xml_identifier(misc,"mod_pm_from",mod_pm_from_str,"[Mod PM from",sizeof(mod_pm_from_str));
 	add_xml_identifier(misc,"gm_from",gm_from_str,"#GM from",sizeof(gm_from_str));
-	add_xml_identifier(misc,"ig_from",gm_from_str,"#Ig [",sizeof(ig_from_str));
+	add_xml_identifier(misc,"ig_from",ig_from_str,"#Ig [",sizeof(ig_from_str));
+	add_xml_identifier(misc,"mc_from",mc_from_str,"#Mod Chat from",sizeof(mc_from_str));
 	add_xml_identifier(misc,"date_format",date_format,"Today is the %s day in the month of %s, the year %04d, Age of the Eternals",sizeof(date_format));
 	add_xml_identifier(misc,"book_count",book_count_str,"You have read %d of %d books shown",sizeof(book_count_str));
 	add_xml_identifier(misc,"time_warn_hour",time_warn_hour_str,"This is your %d minute warning for the coming hour.",sizeof(time_warn_hour_str));

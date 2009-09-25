@@ -229,8 +229,16 @@ int pre_check_if_ignored (const char *input_text, int len, Uint8 channel)
 			}
 			else if(strncasecmp(input_text+offset, ig_from_str, strlen(ig_from_str)) == 0)
 			{
-				offset = strlen(ig_from_str)+2;
+				offset = strlen(ig_from_str)+1;
 				get_name_from_text(input_text, len, 4, offset, name);		// Type 4 = ":", "-" or " "
+			}
+			break;
+		case CHAT_MOD:
+			for (offset = 0; is_color (input_text[offset]); offset++);		// Ignore colours
+			if(strncasecmp(input_text+offset, mc_from_str, strlen(mc_from_str)) == 0)
+			{
+				offset = strlen(mc_from_str)+2;
+				get_name_from_text(input_text, len, 0, offset, name);		// Type 0 = ":" or " "
 			}
 			break;
 	}

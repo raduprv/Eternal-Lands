@@ -390,6 +390,7 @@ extern char
 		pm_from_str[10],
 		gm_from_str[10],
 		ig_from_str[10],
+		mc_from_str[20],
 		mod_pm_from_str[15],
 		/* session.c */
 		session_reset_help[60],
