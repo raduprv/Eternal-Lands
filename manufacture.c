@@ -269,6 +269,7 @@ int recipe_dropdown_click_handler(window_info *win, int mx, int my, Uint32 flags
 		cur_recipe=(cur_recipe+1)%MAX_RECIPE;			
 	} else {
 		//normal click
+		select_window(recipe_win);
 		cur_recipe=my/(33+1);	
 		if ( ((SDL_GetTicks() - last_clicked) < 400)&& last_recipe==cur_recipe){
 			//double click on the same recipe to select it and close the dropdown
