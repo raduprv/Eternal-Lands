@@ -601,7 +601,7 @@ void draw_spell_icon(int id,int x_start, int y_start, int gridsize, int alpha, i
 		glEnd();
 	}
 
-	if(grayed) gray_out(x_start,y_start+1,gridsize);
+	if(grayed) gray_out(x_start,y_start,gridsize);
 	
 }
 
@@ -801,9 +801,9 @@ int display_spells_mini_handler(window_info *win){
 	//draw spell help
 	if(on_spell==-2) {
 		//mouse over the bottom-left selected spell icon, show uncastability
-		int l=(int)(get_string_width((unsigned char*)GET_UNCASTABLE_STR(spells_list[i].uncastable))*(float)DEFAULT_SMALL_RATIO);
+		int l=(int)(get_string_width((unsigned char*)GET_UNCASTABLE_STR(spells_list[we_have_spell].uncastable))*(float)DEFAULT_SMALL_RATIO);
 		SET_COLOR(c_red2);
-		draw_string_small(20+(33*SPELLS_ALIGN_X-l)/2,spell_mini_y_len-37-35,(unsigned char*)GET_UNCASTABLE_STR(spells_list[i].uncastable),1);		
+		draw_string_small(20+(33*SPELLS_ALIGN_X-l)/2,spell_mini_y_len-37-35,(unsigned char*)GET_UNCASTABLE_STR(spells_list[we_have_spell].uncastable),1);		
 	} else {
 		i=(on_spell>=0) ? (on_spell):(we_have_spell);
 		if(i>=0){
@@ -975,7 +975,7 @@ int click_spells_mini_handler(window_info *win, int mx, int my, Uint32 flags){
 				the_pos--;
 				if (the_pos==-1) { the_spell=cs; the_group=cg;}
 				else if(the_pos<-1) break;
-				if (cs==groups_list[cg].spells) {cs=0; cg++; the_pos-=(SPELLS_ALIGN_X-j-1); break;}
+				if (cs==groups_list[cg].spells-1) {cs=0; cg++; the_pos-=(SPELLS_ALIGN_X-j-1); break;}
 				else cs++;
 			}
 		}
@@ -1119,7 +1119,7 @@ int mouseover_spells_mini_handler(window_info *win, int mx, int my){
 				the_pos--;
 				if (the_pos==-1) { the_spell=cs; the_group=cg;}
 				else if(the_pos<-1) break;
-				if (cs==groups_list[cg].spells) {cs=0; cg++; the_pos-=(SPELLS_ALIGN_X-j-1); break;}
+				if (cs==groups_list[cg].spells-1) {cs=0; cg++; the_pos-=(SPELLS_ALIGN_X-j-1); break;}
 				else cs++;
 			}
 		}
