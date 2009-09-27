@@ -391,7 +391,7 @@ void check_castability(){
 		for(j=0;j<4&&spells_list[i].reagents_id[j]>=0;j++){
 			l=0;
 			for(k=0;k<ITEM_WEAR_START;k++) {
-				if(item_list[k].image_id==spells_list[i].reagents_id[j]){
+				if(item_list[k].image_id==spells_list[i].reagents_id[j]&&item_list[k].quantity>0){
 					l=1;
 					if(item_list[k].quantity<spells_list[i].reagents_qt[j]) {
 						spells_list[i].uncastable|=UNCASTABLE_REAGENTS;
