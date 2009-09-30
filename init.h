@@ -190,12 +190,21 @@ typedef struct
     /*! @} */
     
 	//!!!!!!!If you add any new FLOAT option, decrement the reserved thingy accordingly!!!!!!
-	float freserved[12];
+#define NUM_RESERVED 11
 #else   
 	//!!!!!!!If you add any new FLOAT option, decrement the reserved thingy accordingly!!!!!!
-	float freserved[15];
+#define NUM_RESERVED 14
 #endif // CONTEXT_MENUS && USER_MENUS
 
+
+	/*!
+	 * \name do spells start minimized?
+	 */
+	/*! @{ */
+	int start_mini_spells;
+	/*! @} */
+
+	float freserved[NUM_RESERVED];
 }bin_cfg;
 
 extern int auto_update; /*!<this flags signals whether or not autoupdates are performed at startup, or not. It requires a restart to have an effect. */

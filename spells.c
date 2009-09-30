@@ -117,6 +117,7 @@ int sigils_win=-1;
 int spell_win=-1;
 int spell_mini_win=-1;
 int last_win=-1;
+int start_mini_spells=0; //do we start minimized?
 int init_ok=0;
 int sigil_menu_x=10;
 int sigil_menu_y=20;
@@ -853,6 +854,7 @@ int switch_handler(int new_win){
 	show_window(this_win);
 	select_window(this_win);			
 	sigil_win=this_win;
+	start_mini_spells=(sigil_win==spell_mini_win)? 1:0;
 
 	return 1;
 }
@@ -1741,7 +1743,7 @@ void display_sigils_menu()
 		widget_move(spell_win, cast2_button_id, spell_x_len-20-10-w_cast->len_x , spell_y_len_ext - w_cast->len_y - 4);
 
 		hide_window(spell_win);
-		sigil_win=spell_win;
+		if(!start_mini_spells) sigil_win=spell_win;
 	} 
 
 	if(spell_mini_win < 0){
@@ -1758,9 +1760,10 @@ void display_sigils_menu()
 		set_window_handler(spell_mini_win, ELW_HANDLER_MOUSEOVER, &mouseover_spells_mini_handler );
 
 		hide_window(spell_mini_win);	
+		if(start_mini_spells) sigil_win=spell_mini_win;
 	} 
 	check_castability();
-	switch_handler((init_ok) ? (spell_win):(sigils_win));
+	switch_handler((init_ok) ? (sigil_win):(sigils_win));
 }
 
 

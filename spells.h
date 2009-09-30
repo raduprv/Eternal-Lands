@@ -47,6 +47,7 @@ extern int spell_temp,spell_dragged;
  */
 /*! @{ */
 extern int sigil_win; /*!< handle for the sigil (spell) window */
+extern int start_mini_spells; /*!< do we start minimized? */
 extern int quickspell_win; /*!< quickbar windows handler */
 /*! @} */
 

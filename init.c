@@ -281,6 +281,7 @@ void read_bin_cfg()
 
 	sigil_menu_x=cfg_mem.sigil_menu_x;
 	sigil_menu_y=cfg_mem.sigil_menu_y;
+	start_mini_spells=cfg_mem.start_mini_spells;
 
 	dialogue_menu_x=cfg_mem.dialogue_menu_x;
 	dialogue_menu_y=cfg_mem.dialogue_menu_y;
@@ -457,6 +458,7 @@ void save_bin_cfg()
 		cfg_mem.trade_menu_y=trade_menu_y;
 	}
 
+	cfg_mem.start_mini_spells=start_mini_spells;
 	if(sigil_win >= 0) {
 		cfg_mem.sigil_menu_x=windows_list.window[sigil_win].cur_x;
 		cfg_mem.sigil_menu_y=windows_list.window[sigil_win].cur_y;
