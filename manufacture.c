@@ -10,6 +10,8 @@
 #include "textures.h"
 #include "translate.h"
 #include "sound.h"
+#include "io/elpathwrapper.h"
+#include "errors.h"
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
@@ -32,7 +34,40 @@ int manufacture_menu_y_len=6*33;
 static char items_string[350]={0};
 static size_t last_items_string_id = 0;
 
+void load_recipes (){
+	char fname[128];
+	FILE *fp;
+	
+	memset (recipes, 0, sizeof (recipes));
 
+	safe_snprintf(fname, sizeof(fname), "recipes_%s.dat",username_str);
+	my_tolower(fname);
+	fp = open_file_config(fname,"rb");
+	if(fp == NULL){
+		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, fname);
+		return;
+	}
+
+	fread (recipes,sizeof(recipes),1, fp);
+	fclose (fp);
+}
+
+void save_recipes(){
+	char fname[128];
+	FILE *fp;
+
+	safe_snprintf(fname, sizeof(fname), "recipes_%s.dat",username_str);
+	my_tolower(fname);
+	fp=open_file_config(fname,"wb");
+	if(fp == NULL){
+		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, fname);
+		return;
+	}
+
+	fwrite(recipes, sizeof(recipes), 1, fp);
+
+	fclose(fp);
+}
 
 void build_manufacture_list()
 {

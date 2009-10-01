@@ -54,6 +54,22 @@ void display_manufacture_menu();
  */
 int mix_handler(Uint8 quantity, const char* mixbut_empty_str);
 
+/*!
+ * \ingroup manufacture_window
+ * \brief Load manufacture recipes.
+ *
+ * \callgraph
+ */
+void load_recipes();
+
+/*!
+ * \ingroup manufacture_window
+ * \brief Load manufacture recipes.
+ *
+ * \callgraph
+ */
+void save_recipes();
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

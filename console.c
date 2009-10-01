@@ -19,6 +19,7 @@
 #include "lights.h"
 #include "list.h"
 #include "mapwin.h"
+#include "manufacture.h"
 #include "misc.h"
 #include "multiplayer.h"
 #include "notepad.h"
@@ -1199,6 +1200,8 @@ int save_local_data(char * text, int len){
 	save_bin_cfg();
 	//Save the quickbar spells
 	save_quickspells();
+	//Save recipes
+	save_recipes();
 	// save el.ini if asked
 	if (write_ini_on_exit) write_el_ini ();
 	// save notepad contents if the file was loaded

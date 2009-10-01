@@ -859,6 +859,7 @@ void init_stuff()
 	CHECK_GL_ERRORS();
 	init_login_screen ();
 	init_spells ();
+	load_recipes();
 
 #ifdef PAWN
 	update_loading_win (init_pawn_str, 0);
