@@ -1336,7 +1336,7 @@ void move_spell_on_quickbar (int pos, int direction)
 
 void load_quickspells ()
 {
-	char fname[256];
+	char fname[128];
 	char data[MAX_DATA_FILE_SIZE];
 	FILE *fp;
 	Uint8 i;
