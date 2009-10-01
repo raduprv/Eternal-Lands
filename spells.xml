@@ -154,7 +154,7 @@
 		<name>Poison</name>
 		<desc>Poisons the target</desc>
 		<id>4</id>
-		 <group>2</group>
+		<group>2</group>
 		<icon>44</icon>
 		<mana>14</mana>
 		<lvl skill="mag">12</lvl>
@@ -237,7 +237,7 @@
 		<name>Shield</name>
 		<desc>Increases your armor</desc>
 		<id>3</id>
-		 <group>3</group>
+		<group>3</group>
 		<icon>32</icon>
 		<mana>11</mana>
 		<lvl skill="mag">9</lvl>
@@ -250,7 +250,7 @@
 		<name>Magic Immunity</name>
 		<desc>Makes you immune to negative spells</desc>
 		<id>11</id>
-		 <group>3</group>
+		<group>3</group>
 		<icon>51</icon>
 		<mana>30</mana>
 		<lvl skill="mag">30</lvl>
@@ -265,7 +265,7 @@
 		<name>Heat Shield</name>
 		<desc>Protects you from heat damage</desc>
 		<id>17</id>
-		 <group>3</group>
+		<group>3</group>
 		<icon>56</icon>
 		<mana>25</mana>
 		<lvl skill="mag">37</lvl>
@@ -280,7 +280,7 @@
 		<name>Cold Shield</name>
 		<desc>Protects you from cold damage</desc>
 		<id>18</id>
-		 <group>3</group>
+		<group>3</group>
 		<icon>55</icon>
 		<mana>27</mana>
 		<lvl skill="mag">38</lvl>
@@ -295,7 +295,7 @@
 		<name>Radiation Shield</name>
 		<desc>Protects you from radiation damage</desc>
 		<id>19</id>
-		 <group>3</group>
+		<group>3</group>
 		<icon>57</icon>
 		<mana>30</mana>
 		<lvl skill="mag">39</lvl>
