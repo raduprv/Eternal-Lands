@@ -627,6 +627,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #endif // NEW_SOUND
 
 				load_quickspells();
+				load_recipes();
 
 				load_counters();
 				send_video_info();
