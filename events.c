@@ -427,7 +427,7 @@ int HandleEvent(SDL_Event *event)
 					// why was this here? whats broken by removing it?
 					//mouse_x= event->button.x;
 					//mouse_y= event->button.y;
-					//mouse_delta_x= mouse_delta_y= 0;
+					mouse_delta_x= mouse_delta_y= 0;
 				}
 
 
@@ -526,6 +526,21 @@ int HandleEvent(SDL_Event *event)
 				return(done);
 			}
 			
+			if(left_click && shift_on && cur_mode==mode_tile && cur_tool==tool_kill && scene_mouse_y>0 && scene_mouse_x>0 && scene_mouse_y<tile_map_size_y*3 && scene_mouse_x<tile_map_size_x*3)
+			{
+				tile_map[(int)scene_mouse_y/3*tile_map_size_x+(int)scene_mouse_x/3]=255;
+				if(selected_tile == 0 || selected_tile == 20 || selected_tile == 21)
+					kill_height_map_at_texture_tile((int)scene_mouse_y/3*tile_map_size_x+(int)scene_mouse_x/3);
+				return(done);
+			}
+			if(left_click && shift_on && cur_mode==mode_height && cur_tool==tool_kill && scene_mouse_y>0 && scene_mouse_x>0 && scene_mouse_y<tile_map_size_y*3*6 && scene_mouse_x<tile_map_size_x*3*6)
+			{
+				//tile_map[(int)scene_mouse_y/3*tile_map_size_x+(int)scene_mouse_x/3]=255;
+				//if(selected_tile == 0 || selected_tile == 20 || selected_tile == 21)
+					//kill_height_map_at_texture_tile((int)scene_mouse_y/3*tile_map_size_x+(int)scene_mouse_x/3);
+				height_map[(int)(scene_mouse_y*2.0f)*tile_map_size_x*6+(int)(scene_mouse_x*2.0f)]=11;
+				return(done);
+			}
 			if(left_click > 1 && cur_mode==mode_height && cur_tool==tool_select && selected_height!=-1  && scene_mouse_y>0 && scene_mouse_x>0 && scene_mouse_y<tile_map_size_y*3*6 && scene_mouse_x<tile_map_size_x*3*6)
 			{
 				if(alt_on && ctrl_on)
@@ -765,7 +780,7 @@ int HandleEvent(SDL_Event *event)
 										undo_tile = (int)scene_mouse_y/3*tile_map_size_x+(int)scene_mouse_x/3;
 										undo_tile_value = tile_map[(int)scene_mouse_y/3*tile_map_size_x+(int)scene_mouse_x/3];
 										tile_map[(int)scene_mouse_y/3*tile_map_size_x+(int)scene_mouse_x/3]=255;
-										kill_height_map_at_texture_tile((int)scene_mouse_y/3*tile_map_size_x+(int)scene_mouse_x/3);
+										//kill_height_map_at_texture_tile((int)scene_mouse_y/3*tile_map_size_x+(int)scene_mouse_x/3);
 										return(done);
 									}
 
@@ -854,7 +869,7 @@ int HandleEvent(SDL_Event *event)
 
 
 		   
-			if((left_click>=1))
+			if((left_click>1))
 				if(drag_windows(mouse_x, mouse_y, mouse_delta_x, mouse_delta_y) > 0)
 					return done;
 			
