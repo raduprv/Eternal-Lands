@@ -1,0 +1,54 @@
+<emotes>
+<!-- 
+	-emotes are contained in <emote id="n"> tags.
+	 optionally a barehanded="L/R/B" can be specified (upper case). The emote will be played only if:
+		* "L" -> shield not equipped
+		* "R" -> weapon not equipped
+		* "B" -> weapon and shield not equipped
+	 if barehanded is not specified, equipped items are ignored.
+	-For each emote you can define multiple commands (<command> tag) of 20 chars max.
+	-The <sitting><walking><standing><running> tags are used to specify which frame to use
+	 while sitting,waliking...
+	 3 properties can be specified:
+		* sex: M/F
+		* race: human,elf,dwarf,orchan,gnome,draegoni
+		* held: 0/false=single actor, 1/true=with attached actor
+		if sex is not specified the frame is used for both sexes
+		if race is not specified the frame is used for all races
+		if held is not specified the frame is used for held & not held actors
+	- Inside <sitting><walking>...there goes an integer representing the index of the CAL_emote frame
+	  defined in player_frames.xml / -1 to disable
+	- the <face> tag is used fo facial expressions and can be omitted. It works as <sitting><walking>...
+	  but no held property is specified.
+	- if a tag is not given, the corresponding action won't be performed
+-->
+	<emote id="0" barehanded="L">
+		<command>*wave*</command>
+		<command>\o</command>
+		<command>o/</command>
+		<sitting>1</sitting>
+		<walking>2</walking>
+		<walking held="true">-1</walking>
+		<standing>0</standing>
+		<running>5</running>
+	</emote>
+	<emote id="1">
+		<command>*nod*</command>
+		<sitting>6</sitting>
+		<walking>6</walking>
+		<standing>6</standing>
+		<running>6</running>
+	</emote>
+	<emote id="2">
+		<command>\o/</command>
+		<sitting>1</sitting>
+		<walking>2</walking>
+		<standing>0</standing>
+		<running>5</running>
+		<face>7</face>
+	</emote>
+	<emote id="3">
+		<command>-_-</command>
+		<face>7</face>
+	</emote>
+</emotes>
