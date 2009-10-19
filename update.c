@@ -163,7 +163,7 @@ void    handle_update_download(struct http_get_struct *get)
 	}
 
 	// we need to download the update file if we get here
-	if(++update_attempt_count < 3){
+	if(update_attempt_count++ < 3){
 		char	filename[1024];
 		FILE    *fp;
 		
@@ -187,7 +187,7 @@ void    handle_update_download(struct http_get_struct *get)
 			}
 			safe_strncpy(update_server, update_servers[num], sizeof(update_server));
 			update_server[127]= '\0';
-			log_error("downloading from mirror %d of %d %s", num, num_update_servers, update_server);
+			log_error("downloading from mirror %d of %d %s", num+1, num_update_servers, update_server);
 		} else {
 			safe_strncpy(update_server, update_servers[0], sizeof(update_server));
 		}
