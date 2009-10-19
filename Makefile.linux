@@ -94,7 +94,7 @@ all: $(EXE)
 # the compile targets
 $(EXE): $(OBJS)
 	@echo "  LINK $(EXE)"
-	@$(LINK) $(CFLAGS) $(LDFLAGS) -o $(EXE) $(OBJS)
+	@$(LINK) $(CFLAGS) -o $(EXE) $(OBJS) $(LDFLAGS)
 
 #recompile on Makefile or conf change
 #.depend $(OBJS): Makefile.linux make.conf
