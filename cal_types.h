@@ -62,20 +62,7 @@ enum {
 	cal_actor_attack_down_8_frame = 36,
 	cal_actor_attack_down_9_frame = 37,
 	cal_actor_attack_down_10_frame = 38,
-#ifndef EMOTES
 	NUM_ACTOR_FRAMES = 39
-#else // EMOTES
-	cal_actor_emote_wave_frame = 39,
-	cal_actor_emote_nod_head_frame = 40,
-	cal_actor_emote_shake_head_frame = 41,
-	cal_actor_emote_clap_hands_frame = 42,
-	cal_actor_emote_shrug_frame = 43,
-	cal_actor_emote_scratch_head_frame = 44,
-	cal_actor_emote_jump_frame = 45,
-	cal_actor_emote_stretch_frame = 46,
-	cal_actor_emote_bow_frame = 47,
-	NUM_ACTOR_FRAMES = 48
-#endif // EMOTES
 };
 
 enum {
@@ -106,6 +93,11 @@ enum {
 	cal_weapon_range_fire_out_frame = 24,
 	NUM_WEAPON_FRAMES = 25
 };
+
+#ifdef EMOTES
+#define EMOTES_FRAMES 100
+#endif
+
 
 #ifdef ATTACHED_ACTORS
 enum {

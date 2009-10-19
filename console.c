@@ -435,6 +435,20 @@ static char *getparams(char *text)
 	return text;
 }
 
+#ifdef EMOTES
+int print_emotes(char *text, int len){
+
+	int i;
+	LOG_TO_CONSOLE(c_orange1,"EMOTES");
+	LOG_TO_CONSOLE(c_orange1,"--------------------");
+	for(i=0;i<num_emote_cmds;i++){
+		LOG_TO_CONSOLE(c_orange1,emote_cmds[i]->command);
+	}
+	return 1;
+}
+
+#endif
+
 int command_cls(char *text, int len)
 {
 	clear_display_text_buffer ();
@@ -1247,6 +1261,9 @@ void init_commands(const char *filename)
 		}
 		fclose(fp);
 	}
+#ifdef EMOTES
+	add_command("emotes", &print_emotes);
+#endif
 	add_command("calc", &command_calc);
 	add_command("cls", &command_cls);
 	add_command(cmd_markpos, &command_markpos);

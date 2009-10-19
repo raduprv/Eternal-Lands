@@ -386,6 +386,9 @@ typedef struct
 	int group_count;
 
 	struct cal_anim cal_frames[NUM_ACTOR_FRAMES];
+#ifdef EMOTES
+	struct cal_anim emote_frames[EMOTES_FRAMES];
+#endif
 
 	int skeleton_type;
 
@@ -438,42 +441,72 @@ typedef struct
 
 #ifdef EMOTES
 #define MAX_EMOTE_LEN 20
-/*!
- * \name Actor emote commands
- */
-/*! @{ */
-typedef enum emote_commands
-{
-	emote_nothing = 0,
-	wave = 1,
-	nod_head = 2,
-	shake_head = 3,
-	clap_hands = 4,
-	shrug = 5,
-	scratch_head = 6,
-	jump = 7,
-	stretch = 8,
-	bow = 9
-} emote_commands;
 
-/*! @} */
+#define EMOTE_SITTING 0
+#define EMOTE_WALKING 1
+#define EMOTE_RUNNING 2
+#define EMOTE_STANDING 3
+
+#define EMOTE_ACTOR_TYPES 12
+#define EMOTE_TIMEOUT 2000
+
+#define EMOTE_BARE_L 2
+#define EMOTE_BARE_R 4
+
+//ugliest mapping functions ever :/
+static int __inline__ emote_actor_type(int actor_type){
+	switch(actor_type){
+		case human_female: return 0;
+		case human_male: return 1;
+		case elf_female: return 2;
+		case elf_male: return 3;
+		case dwarf_female: return 4;
+		case dwarf_male: return 5;
+		case orchan_female: return 6;
+		case orchan_male: return 7;
+		case gnome_female: return 8;
+		case gnome_male: return 9;
+		case draegoni_female: return 10;
+		case draegoni_male: return 11;
+		default: return -1;
+	}
+}
+
 
 typedef struct _emote_type
 {
-	int id;							// The id of this emote command
-	char command[MAX_EMOTE_LEN];	// The command to trigger this emote
-	int actor_type;					// The actor type to match this command (-1 for any)
-	struct _emote_type *next;		// The next emote command in the list
+	int id;
+	char has_anim;
+	char has_face;
+	char barehanded;
+	int anims[EMOTE_ACTOR_TYPES][4][2];// Id of anim to start based on actor type (-1 = not allowed)
+	int faces[EMOTE_ACTOR_TYPES]; // Id of face anim to start based on actor type. -1 nothing
 } emote_types;
 
-extern emote_types *emotes;
+typedef struct _emote_dict {
+	char command[MAX_EMOTE_LEN+1];	// The command to trigger the emote
+	emote_types *emote;
+} emote_dict;
+
+extern emote_dict **emote_cmds;  //used to search through emotes commands
+extern int num_emote_cmds;
+
+typedef struct _emote_anim {
+	struct cal_anim anim;
+	Uint32 start_time;
+} emote_anim;
+
+typedef struct _emote_command {
+	Uint32 create_time;
+	emote_types *emote;
+} emote_command;
+
+
+#define	MAX_EMOTE_QUEUE	20
 #endif // EMOTES
 
 /*! The main actor structure.*/
 #define	MAX_CMD_QUEUE	20
-#ifdef EMOTES
-#define	MAX_EMOTE_QUEUE	20
-#endif // EMOTES
 #define MAX_RANGE_ACTION_QUEUE 10
 #define MAX_ITEM_CHANGES_QUEUE 10
 typedef struct
@@ -486,6 +519,11 @@ typedef struct
 
 	struct CalModel *calmodel;
 	struct cal_anim cur_anim;
+#ifdef EMOTES
+	emote_anim cur_emote;	//current performed emote (anim_index=-1 mean no emote)
+	emote_anim cur_face;
+	emote_command emote_que[MAX_EMOTE_QUEUE+1];	/*!< Holds the queued emotes*/
+#endif
 	unsigned int cur_anim_sound_cookie;		/*!< The currently played animation sound*/
 	struct cal_anim cur_idle_anims[16];
 	int IsOnIdle;
@@ -501,7 +539,7 @@ typedef struct
 	float cal_v_rot_end;      /*!< The ending vertical rotation */
 	float cal_rotation_blend; /*!< The blend to applay between the starting and the ending rotations */
 	float cal_rotation_speed; /*!< The speed of the rotation */
-    int cal_last_rotation_time; /*!< The last time when the rotation has been updated */
+	int cal_last_rotation_time; /*!< The last time when the rotation has been updated */
 	char are_bones_rotating;  /*!< To tell if the char is rotating */
 	char in_aim_mode;         /*!< To tell if the char is already aiming something (0: not in aim mode; 1: in aim mode; 2: leaving aim mode) */
 	range_action range_actions[MAX_RANGE_ACTION_QUEUE]; /*!< Stores the actions to be done */
@@ -570,9 +608,6 @@ typedef struct
 	char busy;			/*!< if the actor is busy executing the current command*/
 	char sitting;		/*!< Specifies if the actor is currently sitting*/
 	char fighting;		/*!< Specifies if the actor is currently fighting*/
-#ifdef EMOTES
-	emote_commands emote_que[MAX_EMOTE_QUEUE+1];	/*!< Holds the current emote queue*/
-#endif // EMOTES
 	/*! \} */
 
 	/*!

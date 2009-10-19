@@ -43,9 +43,6 @@ SDL_mutex *actors_lists_mutex = NULL;	//used for locking between the timer and m
 actor *your_actor = NULL;
 
 actor_types actors_defs[MAX_ACTOR_DEFS];
-#ifdef EMOTES
-emote_types *emotes = NULL;
-#endif // EMOTE
 
 #ifdef ATTACHED_ACTORS
 attached_actors_types attached_actors_defs[MAX_ACTOR_DEFS];
@@ -160,6 +157,13 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 
 	//clear the que
 	for(k=0;k<MAX_CMD_QUEUE;k++)	our_actor->que[k]=nothing;
+#ifdef EMOTES
+	//clear emotes
+	for(k=0;k<MAX_EMOTE_QUEUE;k++)	our_actor->emote_que[k].emote=NULL;
+	our_actor->cur_face.anim.anim_index=-1;
+	our_actor->cur_emote.anim.anim_index=-1;
+
+#endif
 
 	our_actor->texture_id=texture_id;
 	our_actor->skin=skin_color;

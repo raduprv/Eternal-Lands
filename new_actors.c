@@ -128,6 +128,12 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 
 	//clear the que
 	for(k=0; k<MAX_CMD_QUEUE; k++)	our_actor->que[k]=nothing;
+#ifdef EMOTES
+	for(k=0;k<MAX_EMOTE_QUEUE;k++)	our_actor->emote_que[k].emote=NULL;
+	our_actor->cur_face.anim.anim_index=-1;
+	our_actor->cur_emote.anim.anim_index=-1;
+
+#endif
 
 //	our_actor->model_data=0;
 	our_actor->stand_idle=0;

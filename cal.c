@@ -26,6 +26,64 @@
 #include "lights.h"
 #endif
 
+
+#ifdef EMOTES
+
+void cal_actor_set_emote_anim(int id, int emote_anim_index, int emote_face_index){
+	actor *pActor = actors_list[id];
+	struct CalMixer *mixer;
+	struct cal_anim *frames;
+	int actor_type;
+		
+	if (pActor==NULL)
+		return;
+
+	if (pActor->calmodel==NULL)
+		return;
+	
+	frames=actors_defs[pActor->actor_type].emote_frames;
+	actor_type=emote_actor_type(pActor->actor_type);
+	mixer=CalModel_GetMixer(pActor->calmodel);	
+	if (emote_anim_index>=0) {
+		CalMixer_ExecuteAction_Stop(mixer,frames[emote_anim_index].anim_index,0,0);
+		pActor->cur_emote.anim=frames[emote_anim_index];
+		pActor->cur_emote.start_time=cur_time;
+		//printf("adding emote %i at time %i, duration %f\n", pActor->cur_emote.anim.anim_index,cur_time,pActor->cur_emote.anim.duration);
+
+	}
+	if (emote_face_index>=0) {
+		CalMixer_ExecuteAction_Stop(mixer,frames[emote_face_index].anim_index,0,0);
+		pActor->cur_face.anim=frames[emote_face_index];
+		pActor->cur_face.start_time=cur_time;
+		//printf("adding face %i at time %i, duration %f\n", pActor->cur_face.anim.anim_index,cur_time,pActor->cur_face.anim.duration);
+	}
+}
+
+void cur_emote_remove(actor *pActor){
+	struct CalMixer *mixer;
+
+	if (pActor==NULL)
+		return;
+
+	if (pActor->calmodel==NULL)
+		return;
+
+	if(pActor->cur_emote.start_time+pActor->cur_emote.anim.duration*1000<cur_time && pActor->cur_emote.anim.anim_index!=-1) {
+		printf("removing emote %i at time %i, duration %.3f, started at %i (%i)\n", pActor->cur_emote.anim.anim_index,cur_time,pActor->cur_emote.anim.duration, pActor->cur_emote.start_time,(int)(pActor->cur_emote.anim.duration*1000+pActor->cur_emote.start_time));
+		mixer=CalModel_GetMixer(pActor->calmodel);
+		CalMixer_RemoveAction(mixer,pActor->cur_emote.anim.anim_index);
+		pActor->cur_emote.anim.anim_index=-1;
+	}
+	if(pActor->cur_face.start_time+pActor->cur_face.anim.duration*1000<cur_time && pActor->cur_face.anim.anim_index!=-1) {
+		printf("removing face %i at time %i, duration %.3f, started at %i (%i)\n", pActor->cur_face.anim.anim_index,cur_time,pActor->cur_face.anim.duration, pActor->cur_face.start_time,(int)(pActor->cur_face.anim.duration*1000+pActor->cur_face.start_time));
+		mixer=CalModel_GetMixer(pActor->calmodel);
+		CalMixer_RemoveAction(mixer,pActor->cur_face.anim.anim_index);
+		pActor->cur_face.anim.anim_index=-1;
+	}
+}
+
+#endif // EMOTES
+
 void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 {
 	actor *pActor = actors_list[id];
@@ -114,6 +172,19 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 		CalMixer_SetAnimationTime(mixer, 0.0f);	//always start at the beginning of a cycling animation
 	} else {
 		CalMixer_ExecuteAction_Stop(mixer,anim.anim_index,delay,0.0);
+#ifdef EMOTES
+		//if an emote is playing, stop it
+		if(pActor->cur_emote.anim.anim_index!=-1) {
+				printf("stopping emote %i\n", pActor->cur_emote.anim.anim_index);
+				CalMixer_RemoveAction(mixer,pActor->cur_emote.anim.anim_index);
+				pActor->cur_emote.anim.anim_index=-1;
+		}
+		if(pActor->cur_face.anim.anim_index!=-1) {
+				printf("stopping face %i\n", pActor->cur_face.anim.anim_index);
+				CalMixer_RemoveAction(mixer,pActor->cur_face.anim.anim_index);
+				pActor->cur_face.anim.anim_index=-1;
+		}
+#endif // EMOTES
 	}
 
 	pActor->cur_anim=anim;

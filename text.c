@@ -292,132 +292,92 @@ void send_input_text_line (char *line, int line_len)
 }
 
 #ifdef EMOTES
-int match_emote(const char *command, const char *name)
+static int emote_dict_cmp(const void *a, const void*b)//comparison function used by bsearch & qsort
 {
-	int i;
-	actor *act = NULL;
-	emote_types *this_emote = emotes;
-	
+	return strcmp((*(emote_dict**)a)->command,(*(emote_dict**)b)->command);
+}
+
+int match_emote(emote_dict *command, char *name)
+{
+	int j;
+	emote_dict **match=NULL;
+	actor *act;
+
 	// Get the actor_type for the input player
 	LOCK_ACTORS_LISTS();
-	for (i = 0; i < max_actors; i++)
-	{
-		if (!strncasecmp(actors_list[i]->actor_name, name, strlen(name)) && (actors_list[i]->actor_name[strlen(name)] == ' ' || actors_list[i]->actor_name[strlen(name)] == '\0'))
-		{
-			act = actors_list[i];
+	for (j = 0; j < max_actors; j++){
+		if (!strncasecmp(actors_list[j]->actor_name, name, strlen(name)) && 
+	  	   (actors_list[j]->actor_name[strlen(name)] == ' ' ||
+	    	   actors_list[j]->actor_name[strlen(name)] == '\0')){
+			act = actors_list[j];
+			//printf("actor found: %i\n",j);
 			break;
 		}
 	}
-	if (!act)
-	{
+	if (!act){
 		UNLOCK_ACTORS_LISTS();
 		LOG_ERROR("Unable to find actor who just said local text?? name: %s", name);
 		return 0;		// Eek! We don't have an actor match... o.O
 	}
+
+	// Try to match the input against an emote command and actor type	
+	match=bsearch(&command,emote_cmds,num_emote_cmds,sizeof(emote_dict*),emote_dict_cmp);
 	
-	// Try to match the input against an emote command and actor type
-	for (; this_emote; this_emote = this_emote->next)
-	{
-		if ((this_emote->actor_type == -1 || this_emote->actor_type == act->actor_type) && !strcasecmp(command, this_emote->command))
-		{
-			add_emote_command_to_actor(act, this_emote->id);
-			UNLOCK_ACTORS_LISTS();
-			return 1;
-		}
+	if(match){
+		//printf("Emote <%s> added (%p)\n",(*match)->command,(*match)->emote);
+		add_emote_command_to_actor(act,(*match)->emote);
+		UNLOCK_ACTORS_LISTS();
+		return 1;
 	}
 	UNLOCK_ACTORS_LISTS();
 	return 0;
 }
 
-int test_for_emote(const char *text, int len)
-{
-	int start, end;
-	start = get_string_occurance("*", text, len, 1);
-	if (start > -1)
-	{
-		end = get_string_occurance("*", text+start+1, len, 1) + start + 1;
-		if (end > -1 && end - start >= 1)
-		{
-			return 1;
-		}
-	}
-	return 0;
-}
 
 void parse_text_for_emote_commands(const char *text, int len)
 {
-	int i, j = 0, stage = 0;
-	char username[20];	// Yeah, this should be done correctly
-	char emote_text[MAX_EMOTE_LEN];
+	int i=0, j = 0, stage = 0;
+	char name[20];	// Yeah, this should be done correctly
+	emote_dict emote_text;
 
-	if (test_for_emote(text, len))
-	{
-		// It is worthwile us wasting some time looping through this text looking for an emote to match
-		i = -1;		// Start at -1 because of preincrementing i
-		while (text[i+1] != '\0')
-		{
-			i++;
-			if (is_color(text[i]))
-				continue;		// Ignore colour chars
-			if (stage == 0)		// Firstly, find the name of the player
-			{
-				if (j >= 20)
-					break;		// Give up as this isn't a valid username
-				if (text[i] == ':')
-				{
-					username[j] = '\0';
-					stage++;
-				}
-				else
-				{
-					username[j] = text[i];
-					j++;
-				}
-			}
-			else if (stage == 1)		// Find the start of the emote
-			{
-				if (text[i] == '*')
-				{
-					j = 0;
-					stage++;
-				}
-			}
-			else if (stage == 2)		// Find the contents of the emote
-			{
-				if (text[i] == '*')
-				{
-					// Found something valid so check if it matches
-					emote_text[j] = '\0';
-					if (match_emote(emote_text, username))
-					{
-						// Check the remainder of the string for another emote (starting *after* this *)
-						if (test_for_emote(text+i+1, len - i - 1))
-						{
-							j = 0;
-							stage = 1;
-							continue;	// This looks like another emote so keep going through the loop
-						}
-					}
-				}
-				else if (text[i] != ' ' && j < MAX_EMOTE_LEN)
-				{
-					emote_text[j] = text[i];
-					j++;
-					continue;		// Loop so we don't get to the check for another emote
-				}
-				// We didn't find an emote so check the remainder of the string (using this "end" * as the start)
-				if (test_for_emote(text+i, len - i - 1))
-				{
-					i--;		// i will be incremented at the start of the next loop which would miss this *
-					j = 0;
-					stage = 1;
-					continue;	// This looks like another emote so keep going through the loop
-				}
-				else
-					break;
-			}
-		}
+	
+	//printf("parsing local for emotes\n");
+	//extract name
+	while(text[i]&&i<20){
+		if (is_color(text[i])) {i++; continue;}
+		name[j]=text[i];
+		if(text[i]==' ' || text[i]==':') {
+			name[j]=0;
+			if(text[i]==':') i++;
+			break;
+		} 
+		i++;j++;
 	}
+	if(j>=20||name[j]) {
+		//out of bound or not terminated
+		//printf("no name found (wtf?)\n");
+		return;
+	}
+
+	//printf("Actor name: %s\n",name);
+	j=0;
+	stage=i;
+	do {
+		if (is_color(text[i])) continue;
+		if (stage && (text[i]==' ' || text[i]==0)) {
+			if (j&&j<=MAX_EMOTE_LEN) {
+				emote_text.command[j]=0;
+				match_emote(&emote_text,name);
+			}
+			stage=1;
+			j=0;
+		} else {
+			if (j<MAX_EMOTE_LEN)
+				emote_text.command[j]=text[i];
+			j++;
+		}
+	} while(text[i++]);	
+
 }
 #endif // EMOTES
 
