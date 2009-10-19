@@ -667,7 +667,7 @@ void load_all_tiles()
 	char str[80];
 	for(i=0;i<255;i++)
 	{
-		sprintf(str,"./tiles/tile%i.bmp",i);
+		sprintf(str,"./3dobjects/tile%i.dds",i);
 		if(is_water_tile(i) && is_reflecting(i)) cur_text=load_texture_cache(str,70);
 		else cur_text=load_texture_cache(str,255);
 		if(cur_text==-1)return;
@@ -1401,7 +1401,7 @@ void open_particles_obj_continued()
     }
 }
 
-#ifdef LINUX
+//#ifdef LINUX
 void open_eye_candy_obj()
 {
 #ifdef GTK2
@@ -1412,7 +1412,7 @@ void open_eye_candy_obj()
 	gtk_widget_show(file_selector);
 #endif
 }
-#endif
+//#endif
 void open_eye_candy_obj_continued()
 {
   if (selected_file)

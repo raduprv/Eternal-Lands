@@ -33,7 +33,6 @@ void draw_tile_map()
 	if(y_end>=tile_map_size_y)y_end=tile_map_size_y-1;
 	if(!have_multitexture || poor_man)
 		{
-			glBegin(GL_QUADS);
 			for(y=y_start;y<=y_end;y++)
 				{
 					y_scaled=y*3.0f;
@@ -41,16 +40,31 @@ void draw_tile_map()
 						{
 							x_scaled=x*3.0f;
 							if(is_water_tile(tile_map[y*tile_map_size_x+x]))continue;//lake, skip
-							if(tile_map[y*tile_map_size_x+x]==255)continue;//null, skip
+							if(tile_map[y*tile_map_size_x+x]==255){
+								/*glDisable(GL_TEXTURE_2D);
+								glDisable(GL_LIGHTING);
+								glBegin(GL_QUADS);
+								glColor3f(0.2,0.2,0.2);
+				 				glVertex3f(x_scaled,y_scaled+3, -3.0f);
+								glVertex3f(x_scaled,y_scaled, -3.0f);
+								glVertex3f(x_scaled+3, y_scaled,-3.0f);
+								glVertex3f(x_scaled+3, y_scaled+3,-3.0f);
+								glColor3f(1.0,1.0,1.0);
+				 				glEnd();
+								glEnable(GL_LIGHTING);
+								glEnable(GL_TEXTURE_2D);*/
+								continue;
+							}//null, skip
 							cur_texture=get_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
 							if(last_texture!=cur_texture)
 								{
-									glEnd();
+									//glEnd();
 									glBindTexture(GL_TEXTURE_2D, cur_texture);
-									glBegin(GL_QUADS);
+									//glBegin(GL_QUADS);
 									last_texture=cur_texture;
 								}
 
+							glBegin(GL_QUADS);
  							glTexCoord2f(0, 1.0f);
 			 				glVertex3f(x_scaled,y_scaled+3, 0.0f);
 							glTexCoord2f(0, 0);
@@ -59,9 +73,9 @@ void draw_tile_map()
 							glVertex3f(x_scaled+3, y_scaled,0.0f);
 							glTexCoord2f(1.0f, 1.0f);
 							glVertex3f(x_scaled+3, y_scaled+3,0.0f);
+							glEnd();
 						}
 				}
-			glEnd();
 		}
 	else//we draw the ground details
 		{
@@ -72,7 +86,6 @@ void draw_tile_map()
 			glActiveTextureARB(GL_TEXTURE0_ARB);
 			glEnable(GL_TEXTURE_2D);
 
-			glBegin(GL_QUADS);
 			for(y=y_start;y<=y_end;y++)
 				{
 					y_scaled=y*3.0f;
@@ -80,16 +93,31 @@ void draw_tile_map()
 						{
 							x_scaled=x*3.0f;
 							if(is_water_tile(tile_map[y*tile_map_size_x+x]))continue;//lake, skip
-							if(tile_map[y*tile_map_size_x+x]==255)continue;//null, skip
+							if(tile_map[y*tile_map_size_x+x]==255){
+								/*glDisable(GL_TEXTURE_2D);
+								glDisable(GL_LIGHTING);
+								glBegin(GL_QUADS);
+								glColor3f(0.2,0.2,0.2);
+				 				glVertex3f(x_scaled,y_scaled+3, -3.0f);
+								glVertex3f(x_scaled,y_scaled, -3.0f);
+								glVertex3f(x_scaled+3, y_scaled,-3.0f);
+								glVertex3f(x_scaled+3, y_scaled+3,-3.0f);
+								glColor3f(1.0,1.0,1.0);
+				 				glEnd();
+								glEnable(GL_LIGHTING);
+								glEnable(GL_TEXTURE_2D);*/
+								continue;
+							}//null, skip
 							cur_texture=get_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
 							if(last_texture!=cur_texture)
 								{
-									glEnd();
+									//glEnd();
 									glBindTexture(GL_TEXTURE_2D, cur_texture);
-									glBegin(GL_QUADS);
+									//glBegin(GL_QUADS);
 									last_texture=cur_texture;
 								}
 							//draw our normal tile
+							glBegin(GL_QUADS);
  							glMultiTexCoord2fARB(GL_TEXTURE0_ARB,0, 1.0f);
  							glMultiTexCoord2fARB(GL_TEXTURE1_ARB,x_scaled/texture_scale+clouds_movement_u, (y_scaled+3.0)/texture_scale+clouds_movement_v);
 			 				glVertex3f(x_scaled,y_scaled+3, 0.0f);
@@ -105,9 +133,9 @@ void draw_tile_map()
 							glMultiTexCoord2fARB(GL_TEXTURE0_ARB,1.0f, 1.0f);
 							glMultiTexCoord2fARB(GL_TEXTURE1_ARB,(x_scaled+3.0)/texture_scale+clouds_movement_u, (y_scaled+3.0)/texture_scale+clouds_movement_v);
 							glVertex3f(x_scaled+3, y_scaled+3,0.0f);
+							glEnd();
 						}
 				}
-			glEnd();
 			//disable the second texture unit
 			glActiveTextureARB(GL_TEXTURE1_ARB);
 			glDisable(GL_TEXTURE_2D);
@@ -131,7 +159,7 @@ void load_map_tiles()
 			{
 				//tile not loaded, so load it
 				if(!cur_tile && dungeon) cur_tile=231;
-				sprintf(str,"./tiles/tile%i.bmp",cur_tile);
+				sprintf(str,"./3dobjects/tile%i.dds",cur_tile);
 				if(is_water_tile(cur_tile) && is_reflecting(cur_tile))
 					tile_list[cur_tile]=load_texture_cache(str,70);
 				else

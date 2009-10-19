@@ -63,9 +63,9 @@ int display_edit_window_handler(window_info *win)
 	char temp[100];
 	glColor3f(0.77f,0.57f,0.39f);
 #ifdef X86_64
-	if(ew_selected_object!=-1 && !ew_object_type?(long int)objects_list[ew_selected_object]:(long int)obj_2d_list[ew_selected_object]){
+	if(ew_selected_object!=-1 && ((!ew_object_type)?(long int)objects_list[ew_selected_object]:(long int)obj_2d_list[ew_selected_object])){
 #else
-	if(ew_selected_object!=-1 && !ew_object_type?(int)objects_list[ew_selected_object]:(int)obj_2d_list[ew_selected_object]){
+	if(ew_selected_object!=-1 && ((!ew_object_type)?(int)objects_list[ew_selected_object]:(int)obj_2d_list[ew_selected_object])){
 #endif
 
 		glEnable(GL_BLEND);

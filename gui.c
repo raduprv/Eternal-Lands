@@ -55,6 +55,7 @@ void init_filters()
 	
 	map_filter=gtk_file_filter_new();
 	gtk_file_filter_set_name(map_filter, "Map file");
+	gtk_file_filter_add_pattern(map_filter, "*.gz");
 	gtk_file_filter_add_pattern(map_filter, "*.elm");
 	gtk_file_filter_add_pattern(map_filter, "*.elm.gz");
 	

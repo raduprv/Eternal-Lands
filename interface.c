@@ -61,7 +61,9 @@ int check_interface_buttons()
 					if(cur_mode==mode_eye_candy)
 						{
 							SDL_Event event;
+//#ifdef LINUX
 							open_eye_candy_obj();
+//#endif
 							while (SDL_PollEvent (&event));	//clears all the events
 							left_click=2;
 						}

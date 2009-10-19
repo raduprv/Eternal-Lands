@@ -476,7 +476,7 @@ int HandleEvent(SDL_Event *event)
 				if(click_in_windows(mouse_x, mouse_y, 1)>0)
 					return (done);
 
-			if(shift_on && left_click==1 && cur_mode != mode_height){
+			if(shift_on && ctrl_on && left_click==1 && cur_mode != mode_height){
 				get_world_x_y();
 				mx=scene_mouse_x;
 				my=scene_mouse_y;

@@ -61,6 +61,7 @@ void draw_scene()
     int fps;
     int any_reflection=0;
 
+    glClearColor( 0.1, 0.1, 0.1, 0.0 );
 
     if(!shadows_on)
         glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);

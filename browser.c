@@ -242,7 +242,12 @@ int display_browser_handler(window_info *win)
 		glViewport(win->pos_x,window_height-win->pos_y-150,200,150);
 		glClearStencil(0);
 		glClear (GL_DEPTH_BUFFER_BIT);
+#ifdef LINUX
 		strcpy(fn,exec_path);
+#else
+		//Fedora: don't ask me why, if you use exec_path, e3d files are not found
+		strcpy(fn,"."/*exec_path*/);
+#endif
 		strcat(fn,Dir[cd].Files[i]);
 		valid_object=setobject(0,fn,Dir[cd].xrot[i],Dir[cd].yrot[i],Dir[cd].zrot[i]);
 		if(valid_object){
@@ -257,7 +262,12 @@ int display_browser_handler(window_info *win)
 			glViewport(win->pos_x+200,window_height-win->pos_y-150,200,150);	
 			glClearStencil(0);
 			glClear (GL_DEPTH_BUFFER_BIT);
+#ifdef LINUX
 			strcpy(fn,exec_path);
+#else
+			//Fedora: don't ask me why, if you use exec_path, e3d files are not found
+			strcpy(fn,"."/*exec_path*/);
+#endif
 			strcat(fn,Dir[cd].Files[i+1]);
 			valid_object=setobject(1,fn,Dir[cd].xrot[i+1],Dir[cd].yrot[i+1],Dir[cd].zrot[i+1]);
 			if(valid_object){
@@ -272,7 +282,12 @@ int display_browser_handler(window_info *win)
 			glViewport(win->pos_x,window_height-win->pos_y-350,200,150);	
 			glClearStencil(0);
 			glClear (GL_DEPTH_BUFFER_BIT);
+#ifdef LINUX
 			strcpy(fn,exec_path);
+#else
+			//Fedora: don't ask me why, if you use exec_path, e3d files are not found
+			strcpy(fn,"."/*exec_path*/);
+#endif
 			strcat(fn,Dir[cd].Files[i+2]);
 			valid_object=setobject(2,fn,Dir[cd].xrot[i+2],Dir[cd].yrot[i+2],Dir[cd].zrot[i+2]);
 			if(valid_object){
@@ -287,7 +302,12 @@ int display_browser_handler(window_info *win)
 			glViewport(win->pos_x+200,window_height-win->pos_y-350,200,150);	
 			glClearStencil(0);
 			glClear (GL_DEPTH_BUFFER_BIT);
+#ifdef LINUX
 			strcpy(fn,exec_path);
+#else
+			//Fedora: don't ask me why, if you use exec_path, e3d files are not found
+			strcpy(fn,"."/*exec_path*/);
+#endif
 			strcat(fn,Dir[cd].Files[i+3]);
 			valid_object=setobject(3,fn,Dir[cd].xrot[i+3],Dir[cd].yrot[i+3],Dir[cd].zrot[i+3]);
 			if(valid_object){
