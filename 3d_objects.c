@@ -507,12 +507,6 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	AABBOX bbox;
 	unsigned int texture_id;
 	unsigned int is_transparent, ground;
-/*
-        if (!strncmp(file_name, "./3dobjects/trees/treeleaves4", 29))
-        {
-          return 0;
-        }
-*/
 
 	if(id < 0 || id >= MAX_OBJ_3D)
 	{
@@ -535,7 +529,11 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	{
 		LOG_ERROR (nasty_error_str, fname);
 		//replace it with the null object, to avoid object IDs corruption
+#ifdef OLD_MISC_OBJ_DIR
 		returned_e3d= load_e3d_cache ("./3dobjects/misc_objects/badobject.e3d");
+#else
+		returned_e3d= load_e3d_cache ("./3dobjects/badobject.e3d");
+#endif
 		if(returned_e3d == NULL){
 			return 0; // umm, not even found the place holder, this is teh SUCK!!!
 		}
