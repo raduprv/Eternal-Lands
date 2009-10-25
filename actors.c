@@ -497,7 +497,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	//draw the health bar
 	glDisable(GL_TEXTURE_2D);
 
-	if(view_health_bar && actor_id->cur_health>=0 && actor_id->max_health>0 && (!actor_id->dead)){
+	if(view_health_bar && actor_id->cur_health>=0 && actor_id->max_health>0 && (!actor_id->dead) && (actor_id->kind_of_actor != NPC)){
 		float percentage = (float)actor_id->cur_health/(float)actor_id->max_health;
 		float off;
 		
@@ -577,7 +577,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 
 	// draw the alpha background (if ness)
 	if (use_alpha_banner && banner_width > 0) {
-		int num_lines = (view_names && (view_health_bar || view_hp) && actor_id->cur_health>0) ?2: 1;
+		int num_lines = (view_names && (view_health_bar || view_hp) && actor_id->cur_health>0 && (actor_id->kind_of_actor != NPC)) ?2: 1;
 		float start_y = hy + ((num_lines==1 && view_names) ?healthbar_y_len-6.0 :-5.0);
 		banner_width += 3;
 		glEnable(GL_BLEND);
