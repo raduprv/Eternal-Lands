@@ -473,7 +473,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 
 				// make the heath bar the same length as the the health text so they are balanced
 				// use the same length health bar, even if not displaying the health text
-				sprintf((char*)hp,"%d/%d", actor_id->cur_health, actor_id->max_health);
+				sprintf((char*)hp,"%u/%u", actor_id->cur_health, actor_id->max_health);
 				healthbar_x_len = (float)get_string_width(hp)*(ALT_INGAME_FONT_X_LEN*name_zoom*font_scale);
 
 				if (view_hp) {

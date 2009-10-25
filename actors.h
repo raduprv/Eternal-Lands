@@ -440,6 +440,7 @@ typedef struct
 } range_action;
 
 #ifdef EMOTES
+#define NUM_SPELL_ACTIONS 32
 #define MAX_EMOTE_LEN 20
 
 #define EMOTE_SITTING 0
@@ -472,6 +473,11 @@ static int __inline__ emote_actor_type(int actor_type){
 	}
 }
 
+static int __inline__ cmd_to_action_index(char cmd){
+	if(cmd==cast_summon) return NUM_SPELL_ACTIONS;
+	else return (cmd-cast_spell);
+}
+
 
 typedef struct _emote_type
 {
@@ -490,6 +496,7 @@ typedef struct _emote_dict {
 
 extern emote_dict **emote_cmds;  //used to search through emotes commands
 extern int num_emote_cmds;
+extern emote_types *spell_actions[NUM_SPELL_ACTIONS+1];  //used to store actions for spell/summon (last one is summon action)
 
 typedef struct _emote_anim {
 	struct cal_anim anim;
@@ -635,8 +642,8 @@ typedef struct
 	int damage;		/*!< Sets the damage the actor has been given*/
 	int damage_ms;		/*!< Defines the remaining time in which the actor damage will be shown*/
 	int last_health_loss;	/*!< Defines the time of damage*/
-	int cur_health;		/*!< Sets the current health of the actor*/
-	int max_health;		/*!< Sets the maximum health of the actor*/
+	Uint32 cur_health;	/*!< Sets the current health of the actor*/
+	Uint32 max_health;	/*!< Sets the maximum health of the actor*/
 	char ghost;		/*!< Sets the actor type to ghost (Disable lightning, enable blending (GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA))*/
 	char has_alpha;		/*!< is alpha blending needed for this actor? */
 	int kind_of_actor;	/*!< Defines the kind_of_actor (NPC, HUMAN, COMPUTER_CONTROLLED_HUMAN, PKABLE, PKABLE_COMPUTER_CONTROLLED)*/
@@ -692,6 +699,16 @@ extern actor_types actors_defs[MAX_ACTOR_DEFS];	/*!< The actor definitions*/
 #ifdef ATTACHED_ACTORS
 extern attached_actors_types attached_actors_defs[MAX_ACTOR_DEFS]; /*!< The definitions for the attached actors */
 #endif // ATTACHED_ACTORS
+
+
+#ifdef EMOTES
+static int __inline__ is_actor_barehanded(actor *act, int hand){
+	if(hand==EMOTE_BARE_L)
+		return (act->cur_shield==SHIELD_NONE||act->cur_shield==QUIVER_ARROWS||act->cur_shield==QUIVER_BOLTS);
+	else 
+		return (act->cur_weapon==WEAPON_NONE||act->cur_weapon==GLOVE_FUR||act->cur_weapon==GLOVE_LEATHER);
+}
+#endif
 
 /*!
  * \ingroup	display_actors

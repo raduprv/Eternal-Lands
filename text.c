@@ -34,6 +34,10 @@
 #include "actor_scripts.h"
 #endif // EMOTES
 
+#ifdef EMOTES
+int emote_filter=0;
+#endif
+
 text_message display_text_buffer[DISPLAY_TEXT_BUFFER_SIZE];
 int last_message = -1;
 int buffer_full = 0;
@@ -310,7 +314,7 @@ int match_emote(emote_dict *command, char *name)
 	  	   (actors_list[j]->actor_name[strlen(name)] == ' ' ||
 	    	   actors_list[j]->actor_name[strlen(name)] == '\0')){
 			act = actors_list[j];
-			//printf("actor found: %i\n",j);
+			//printf("actor found: %i, %s\n",j,name);
 			break;
 		}
 	}
@@ -334,9 +338,9 @@ int match_emote(emote_dict *command, char *name)
 }
 
 
-void parse_text_for_emote_commands(const char *text, int len)
+int parse_text_for_emote_commands(const char *text, int len)
 {
-	int i=0, j = 0, stage = 0;
+	int i=0, j = 0, wf=0,ef=0;
 	char name[20];	// Yeah, this should be done correctly
 	emote_dict emote_text;
 
@@ -353,23 +357,18 @@ void parse_text_for_emote_commands(const char *text, int len)
 		} 
 		i++;j++;
 	}
-	if(j>=20||name[j]) {
-		//out of bound or not terminated
-		//printf("no name found (wtf?)\n");
-		return;
-	}
 
-	//printf("Actor name: %s\n",name);
+	if(j>=20||name[j]) return 1; 		//out of bound or not terminated
+
 	j=0;
-	stage=i;
 	do {
 		if (is_color(text[i])) continue;
-		if (stage && (text[i]==' ' || text[i]==0)) {
+		if ((text[i]==' ' || text[i]==0)) {
 			if (j&&j<=MAX_EMOTE_LEN) {
+				wf++;
 				emote_text.command[j]=0;
-				match_emote(&emote_text,name);
-			}
-			stage=1;
+				ef+=match_emote(&emote_text,name);
+			} else wf+= (j) ? 1:0;
 			j=0;
 		} else {
 			if (j<MAX_EMOTE_LEN)
@@ -377,6 +376,8 @@ void parse_text_for_emote_commands(const char *text, int len)
 			j++;
 		}
 	} while(text[i++]);	
+	//printf("ef=%i, wf=%i, filter=>%i\n",ef,wf,emote_filter);
+	return (ef==wf) ? (emote_filter):(0);
 
 }
 #endif // EMOTES
@@ -488,7 +489,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 	// Check for local messages to be translated into actor movements (contains [somthing])
 	if (channel == CHAT_LOCAL)
 	{
-		parse_text_for_emote_commands(text_to_add, len);
+		if(parse_text_for_emote_commands(text_to_add, len)) return 0;
 	}
 #endif // EMOTES
 

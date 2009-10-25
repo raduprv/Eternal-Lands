@@ -1772,6 +1772,9 @@ void init_vars()
 	add_var (OPT_BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_var, 0, "Separate Moderator Chat", "Should moderator chat be separated from the rest?", CHAT);
  #endif
 	add_var(OPT_BOOL,"highlight_tab_on_nick", "highlight", &highlight_tab_on_nick, change_var, 1, "Highlight Tabs On Name", "Should tabs be highlighted when someone mentions your name?", CHAT);
+#ifdef EMOTES
+	add_var(OPT_BOOL,"emote_filter", "emote_filter", &emote_filter, change_var, 1, "Emotes filter", "Do not display lines of text in local chat containing emotes only", CHAT);
+#endif //EMOTES
 #endif
 #ifdef NEW_SELECTION
 	add_var(OPT_BOOL,"use_new_selection", "uns", &use_new_selection, change_new_selection, 1, "New selection", "Using new selection", VIDEO);

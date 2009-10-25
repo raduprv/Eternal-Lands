@@ -7,6 +7,10 @@
 		* "B" -> weapon and shield not equipped
 	 if barehanded is not specified, equipped items are ignored.
 	-For each emote you can define multiple commands (<command> tag) of 20 chars max.
+	-For each emote you can define multiple spell actions (<spell> tag). <spell>n</spell> means that
+	 the emote is played when the spell with id=n is cast. If n is negative the emote is played
+	 after a successful summon. For spells, n can go from 0 to 31 included (32 spell slots).
+	 Do not mix <command> and <spell> in the same emote or we get error at logout while freeing memory.
 	-The <sitting><walking><standing><running> tags are used to specify which frame to use
 	 while sitting,waliking...
 	 3 properties can be specified:
@@ -50,5 +54,51 @@
 	<emote id="3">
 		<command>-_-</command>
 		<face>7</face>
+	</emote>
+<!--
+	SPELL ACTIONS
+-->
+	<emote id="20">
+		<command>cast1</command> <!-- Don't do this, only for testing while waiting for new server cmds --> 
+		<spell>0</spell>
+		<spell>1</spell>
+		<spell>2</spell>
+		<spell>3</spell>
+		<spell>4</spell>
+		<spell>5</spell>
+		<spell>6</spell>
+		<sitting>10</sitting>
+		<walking>10</walking>
+		<standing>10</standing>
+		<running>10</running>	
+	</emote>
+	<emote id="21">
+		<command>cast2</command>
+		<spell>7</spell>
+		<spell>8</spell>
+		<spell>9</spell>
+		<spell>10</spell>
+		<spell>11</spell>
+		<spell>12</spell>
+		<spell>13</spell>
+		<sitting>11</sitting>
+		<walking>11</walking>
+		<standing>11</standing>
+		<running>11</running>	
+	</emote>
+	<emote id="22">
+		<command>cast3</command>
+		<spell>14</spell>
+		<spell>15</spell>
+		<spell>16</spell>
+		<spell>17</spell>
+		<spell>18</spell>
+		<spell>19</spell>
+		<spell>20</spell>
+		<spell>-1</spell>  <!-- notice this, -1 for summon animation -->
+		<sitting>12</sitting>
+		<walking>12</walking>
+		<standing>12</standing>
+		<running>12</running>	
 	</emote>
 </emotes>

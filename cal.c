@@ -27,8 +27,32 @@
 #endif
 
 
-#ifdef EMOTES
+#ifdef NEW_SOUND
+void cal_play_anim_sound(actor *pActor, struct cal_anim anim){
 
+	// Check if we need a walking sound
+	if (pActor->moving && !pActor->fighting){
+		handle_walking_sound(pActor, anim.sound);
+	} else {
+		if (check_sound_loops(pActor->cur_anim_sound_cookie))
+				stop_sound(pActor->cur_anim_sound_cookie);
+		pActor->cur_anim_sound_cookie = 0;
+		
+		if (anim.sound > -1 && !pActor->dead){
+			// We are going to try letting sounds continue until finished, except looping sounds of course
+			// Found a sound, so add it
+			pActor->cur_anim_sound_cookie = add_sound_object_gain(anim.sound,
+									 2*pActor->x_pos,
+									 2*pActor->y_pos,
+									 pActor->actor_id == yourself ? 1 : 0,
+									 anim.sound_scale);
+		}
+	}
+
+}
+#endif
+
+#ifdef EMOTES
 void cal_actor_set_emote_anim(int id, int emote_anim_index, int emote_face_index){
 	actor *pActor = actors_list[id];
 	struct CalMixer *mixer;
@@ -48,6 +72,9 @@ void cal_actor_set_emote_anim(int id, int emote_anim_index, int emote_face_index
 		CalMixer_ExecuteAction_Stop(mixer,frames[emote_anim_index].anim_index,0,0);
 		pActor->cur_emote.anim=frames[emote_anim_index];
 		pActor->cur_emote.start_time=cur_time;
+#ifdef NEW_SOUND
+		if (pActor->cur_emote.anim.sound>-1) cal_play_anim_sound(pActor, pActor->cur_emote.anim);
+#endif
 		//printf("adding emote %i at time %i, duration %f\n", pActor->cur_emote.anim.anim_index,cur_time,pActor->cur_emote.anim.duration);
 
 	}
@@ -55,6 +82,9 @@ void cal_actor_set_emote_anim(int id, int emote_anim_index, int emote_face_index
 		CalMixer_ExecuteAction_Stop(mixer,frames[emote_face_index].anim_index,0,0);
 		pActor->cur_face.anim=frames[emote_face_index];
 		pActor->cur_face.start_time=cur_time;
+#ifdef NEW_SOUND
+		if (pActor->cur_face.anim.sound>-1) cal_play_anim_sound(pActor, pActor->cur_face.anim);
+#endif
 		//printf("adding face %i at time %i, duration %f\n", pActor->cur_face.anim.anim_index,cur_time,pActor->cur_face.anim.duration);
 	}
 }
@@ -83,6 +113,9 @@ void cur_emote_remove(actor *pActor){
 }
 
 #endif // EMOTES
+
+
+
 
 void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 {
@@ -205,32 +238,10 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 	if (pActor->cur_anim.anim_index==-1)
 		pActor->busy=0;
 	pActor->IsOnIdle=0;
-
 #ifdef NEW_SOUND
-	// Check if we need a walking sound
-	if (pActor->moving && !pActor->fighting)
-	{
-		handle_walking_sound(pActor, anim.sound);
-	}
-	else
-	{
-		// We are going to try letting sounds continue until finished, except looping sounds of course
-		if (check_sound_loops(pActor->cur_anim_sound_cookie))
-			stop_sound(pActor->cur_anim_sound_cookie);
-		pActor->cur_anim_sound_cookie = 0;
-		
-		if (anim.sound > -1 && !pActor->dead)
-		{
-			// Found a sound, so add it
-			pActor->cur_anim_sound_cookie = add_sound_object_gain(	anim.sound,
-																	2*pActor->x_pos,
-																	2*pActor->y_pos,
-																	pActor->actor_id == yourself ? 1 : 0,
-																	anim.sound_scale
-																);
-		}
-	}
+	cal_play_anim_sound(pActor, pActor->cur_anim);
 #endif
+
 }
 
 void cal_actor_set_anim(int id,struct cal_anim anim)

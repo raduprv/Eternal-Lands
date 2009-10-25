@@ -90,6 +90,7 @@ int parse_actor_sounds (actor_types *act, xmlNode *cfg);
 #ifdef EMOTES
 emote_dict **emote_cmds = NULL;
 int num_emote_cmds=0;
+emote_types *spell_actions[NUM_SPELL_ACTIONS+1];
 #endif // EMOTE
 
 
@@ -526,11 +527,11 @@ int handle_emote_command(int a, actor *act, emote_command *command)
 		struct cal_anim *defs;
 
 		//barehanded?
-		if((command->emote->barehanded&EMOTE_BARE_R)&&act->cur_weapon!=WEAPON_NONE){
+		if((command->emote->barehanded&EMOTE_BARE_R)&&!is_actor_barehanded(act,EMOTE_BARE_R)){
 			printf("Remove weapon to play, waiting...\n");
 			return 0;
 		}
-		if((command->emote->barehanded&EMOTE_BARE_L)&&act->cur_shield!=SHIELD_NONE){
+		if((command->emote->barehanded&EMOTE_BARE_L)&&!is_actor_barehanded(act,EMOTE_BARE_L)){
 			printf("Remove shield to play, waiting...\n");
 			return 0;
 		}
@@ -550,7 +551,8 @@ int handle_emote_command(int a, actor *act, emote_command *command)
 			if(defs[cal_actor_idle_sit_frame].anim_index==act->cur_anim.anim_index) idle=EMOTE_SITTING;
 			else {
 				printf("No suitable state for !held\n");
-				return 0;
+				unqueue_emote(act);
+				return 1;
 			}
 		} else {
 			attachment_props *att_props = get_attachment_props_if_held(act);
@@ -562,7 +564,8 @@ int handle_emote_command(int a, actor *act, emote_command *command)
 			if(defs[cal_attached_run_frame].anim_index==act->cur_anim.anim_index) idle=EMOTE_RUNNING;
 			else {
 				printf("No suitable state for held\n");
-				return 0;
+				unqueue_emote(act);
+				return 1;
 			}
 		}
 
@@ -646,7 +649,15 @@ void next_command()
 				actors_list[i]->stand_idle=0;
 
 				actor_type=actors_list[i]->actor_type;
-
+#ifdef EMOTES
+				//spell actions
+				if(actors_list[i]->que[0]>=cast_spell&&
+				   actors_list[i]->que[0]<=cast_summon){
+ 					//adding spell emote on cmd
+					printf("adding spell action: %i to actor %s\n",actors_list[i]->que[0],actors_list[i]->actor_name);
+					add_emote_command_to_actor(actors_list[i], spell_actions[cmd_to_action_index(actors_list[i]->que[0])]);
+				} else
+#endif
 				switch(actors_list[i]->que[0]) {
 					case kill_me:
 /*						if(actors_list[i]->remapped_colors)
@@ -1859,6 +1870,14 @@ void actor_check_int(actor_types *act, const char *section, const char *type, in
 
 #ifdef EMOTES
 
+void add_emote_to_spells(xmlNode *node, emote_types *emote){
+	int i=get_int_value(node);
+
+	if(i<0) spell_actions[NUM_SPELL_ACTIONS]=emote;
+	else spell_actions[i]=emote;
+	printf("Adding Spell Action: [%i], emote %p\n",i,emote);
+}
+
 void add_emote_to_dict(xmlNode *node, emote_types *emote){
 	static int dict_size=0;
 	emote_dict *entry=NULL;
@@ -2003,6 +2022,8 @@ int parse_emote_def(emote_types *emote, xmlNode *node)
 		if (item->type == XML_ELEMENT_NODE) {
 			if (xmlStrcasecmp (item->name, (xmlChar*)"command") == 0) {
 				add_emote_to_dict(item,emote);
+			} if (xmlStrcasecmp (item->name, (xmlChar*)"spell") == 0) {
+				add_emote_to_spells(item,emote);
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"sitting") == 0) {
 				get_emote_props(item,&s,&r,&h);
 				set_emote_anim(emote,get_int_value(item),s,r,h,EMOTE_SITTING);
@@ -2038,7 +2059,9 @@ int parse_emotes_defs(xmlNode *node)
 {
 	xmlNode *def;
 	emote_types *emote = NULL;
-	int ok = 1;
+	int ok = 1,i;
+
+	for(i=0;i<=NUM_SPELL_ACTIONS;i++) spell_actions[i]=NULL;
 
 	for (def = node->children; def; def = def->next) {
 		if (def->type == XML_ELEMENT_NODE)
@@ -2056,7 +2079,7 @@ int parse_emotes_defs(xmlNode *node)
 
 	//sort emote_cmds for binary search during emote match
 	//printf("sorting emotes %i\n",num_emote_cmds);
-	qsort(emote_cmds,num_emote_cmds,sizeof(emote_dict*),emote_dict_cmp);
+	if (num_emote_cmds) qsort(emote_cmds,num_emote_cmds,sizeof(emote_dict*),emote_dict_cmp);
 	return ok;
 }
 
@@ -2106,6 +2129,19 @@ void free_emotes()
 	//now free the commands
 	for(i=0;i<num_emote_cmds;i++) free(emote_cmds[i]);
 	free(emote_cmds);
+
+	//free spells actions
+	//set emote id to 0
+	for(i=0;i<=NUM_SPELL_ACTIONS;i++) if(spell_actions[i]) spell_actions[i]->id=0;
+	//+1 for each spell
+	for(i=0;i<=NUM_SPELL_ACTIONS;i++) if(spell_actions[i]) spell_actions[i]->id++;
+	//now free spells :P
+	for(i=0;i<=NUM_SPELL_ACTIONS;i++) 
+		if(spell_actions[i]){
+			spell_actions[i]->id--;
+			if(!spell_actions[i]->id) free(spell_actions[i]);
+		}
+
 }
 #endif // EMOTES
 
@@ -3102,8 +3138,10 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 #ifdef EMOTES
 			} else {
 				int j;
-				char *tag="CAL_emote";
-				if(!strncasecmp(tag,(const char*) item->name,9)) {
+				char *etag="CAL_emote";
+				char *stag="CAL_spell";
+				if(!strncasecmp(etag,(const char*) item->name,9)||
+				   !strncasecmp(stag,(const char*) item->name,9)) {
 					//load emote frame
 					j=get_int_property(item,"index");	
 					get_string_value(str, sizeof(str), item);

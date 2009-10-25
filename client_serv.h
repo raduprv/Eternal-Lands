@@ -590,7 +590,12 @@ typedef enum actor_commands
   attack_up_7 = 70,
   attack_up_8 = 71,
   attack_up_9 = 72,
-  attack_up_10 = 73
+  attack_up_10 = 73,
+
+  cast_spell = 80,
+  //32 commands reserved for spells. Server sends cast_spell+spell_id or cast_summon
+  cast_summon = 112
+
 } actor_commands;
 
 /*! @} */
