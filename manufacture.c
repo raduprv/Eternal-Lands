@@ -26,6 +26,7 @@ item manufacture_list[ITEM_NUM_ITEMS];
 int manufacture_win= -1;
 int recipe_win= -1;
 int recipes_shown=0;
+static int recipes_loaded=0;
 int manufacture_menu_x=10;
 int manufacture_menu_y=20;
 int manufacture_menu_x_len=12*33+20;
@@ -38,6 +39,15 @@ void load_recipes (){
 	char fname[128];
 	FILE *fp;
 	
+	if (recipes_loaded) {
+		/*
+		 * save existing recipes instead of loading them if we are already logged in
+		 * this will take place when relogging after disconnection
+		 */
+		save_recipes();
+		return;
+	}
+
 	memset (recipes, 0, sizeof (recipes));
 
 	safe_snprintf(fname, sizeof(fname), "recipes_%s.dat",username_str);
@@ -50,6 +60,7 @@ void load_recipes (){
 
 	fread (recipes,sizeof(recipes),1, fp);
 	fclose (fp);
+	recipes_loaded=1;
 }
 
 void save_recipes(){
@@ -350,6 +361,8 @@ int recipe_controls_click_handler(int mx, int my, Uint32 flags){
 		//copy the recipe
 		for(i=36;i<36+6;i++) manu_recipe[i-36]=manufacture_list[i];		
 		do_click_sound();
+		// save recipes to disk to avoid loss on disconnects/crashes
+		save_recipes();
 	}
 	return 0;
 }
