@@ -71,6 +71,9 @@
 #include "eye_candy_debugwin.h"
 #endif
 #include "actor_init.h"
+#ifdef EMOTES
+#include "emotes.h"
+#endif
 
 int game_root_win = -1;
 int gamewin_in_id = 4442;
@@ -2000,6 +2003,12 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		view_window (&sigil_win, -1);
 	}
+#ifdef EMOTES
+	else if (key == K_EMOTES)
+	{
+		view_window (&emotes_win, -1);
+	}
+#endif
 	else if (key == K_MANUFACTURE)
 	{
 		view_window (&manufacture_win, -1);

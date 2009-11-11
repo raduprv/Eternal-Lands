@@ -190,10 +190,21 @@ typedef struct
     /*! @} */
     
 	//!!!!!!!If you add any new FLOAT option, decrement the reserved thingy accordingly!!!!!!
+#ifdef EMOTES
+#define NUM_RESERVED 9
+#else
 #define NUM_RESERVED 11
+#endif
+
 #else   
 	//!!!!!!!If you add any new FLOAT option, decrement the reserved thingy accordingly!!!!!!
+
+#ifdef EMOTES
+#define NUM_RESERVED 12
+#else
 #define NUM_RESERVED 14
+#endif
+
 #endif // CONTEXT_MENUS && USER_MENUS
 
 
@@ -203,6 +214,11 @@ typedef struct
 	/*! @{ */
 	int start_mini_spells;
 	/*! @} */
+#ifdef EMOTES
+	int emotes_menu_x;
+	int emotes_menu_y;
+#endif
+
 
 	float freserved[NUM_RESERVED];
 }bin_cfg;

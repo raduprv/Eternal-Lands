@@ -41,6 +41,9 @@
 #include "user_menus.h"
 #endif
 #include "url.h"
+#ifdef EMOTES
+#include "emotes.h"
+#endif
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -290,6 +293,16 @@ float use_with_item_icon_v_start=1.0f-(float)160/256;
 float colored_use_with_item_icon_u_start=(float)192/256;
 float colored_use_with_item_icon_v_start=1.0f-(float)160/256;
 
+#ifdef EMOTES
+
+float emotes_icon_u_start=(float)160/256;
+float emotes_icon_v_start=1.0f-(float)160/256;
+
+float colored_emotes_icon_u_start=(float)128/256;
+float colored_emotes_icon_v_start=1.0f-(float)160/256;
+
+#endif
+
 float trade_icon_u_start=(float)128/256;
 float trade_icon_v_start=1.0f-(float)0/256;
 
@@ -519,6 +532,11 @@ void init_peace_icons()
 	add_icon(urlwin_icon_u_start, urlwin_icon_v_start, colored_urlwin_icon_u_start, colored_urlwin_icon_v_start, tt_urlwin, view_window, &url_win, DATA_WINDOW);
 	
 	add_icon(options_icon_u_start, options_icon_v_start, colored_options_icon_u_start, colored_options_icon_v_start, tt_options, view_window, &elconfig_win, DATA_WINDOW);
+
+#ifdef EMOTES
+	add_icon(emotes_icon_u_start, emotes_icon_v_start, colored_emotes_icon_u_start, colored_emotes_icon_v_start, tt_emotewin, view_window, &emotes_win, DATA_WINDOW);
+
+#endif
 }
 
 void	add_icon(float u_start, float v_start, float colored_u_start, float colored_v_start, char * help_message, void * func, void * data, char data_type)
@@ -740,6 +758,9 @@ void view_window(int * window, int id)
 			if(window==&items_win)display_items_menu();
 			else if(window==&sigil_win) display_sigils_menu();
 			else if(window==&manufacture_win) display_manufacture_menu();
+#ifdef EMOTES
+			else if(window==&emotes_win) display_emotes_menu();
+#endif
 			else if(window==&elconfig_win) display_elconfig_win();
 			else if(window==&buddy_win) display_buddy();
 			else if(window==&trade_win) display_trade_menu();

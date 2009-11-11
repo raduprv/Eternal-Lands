@@ -19,6 +19,9 @@
 #include "tiles.h"
 #include "buffs.h"
 #include "eye_candy_types.h"
+#ifdef EMOTES
+#include "hash.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -387,7 +390,7 @@ typedef struct
 
 	struct cal_anim cal_frames[NUM_ACTOR_FRAMES];
 #ifdef EMOTES
-	struct cal_anim emote_frames[EMOTES_FRAMES];
+	hash_table *emote_frames;
 #endif
 
 	int skeleton_type;
@@ -440,16 +443,18 @@ typedef struct
 } range_action;
 
 #ifdef EMOTES
-#define NUM_SPELL_ACTIONS 32
 #define MAX_EMOTE_LEN 20
+#define MAX_EMOTE_FRAME 8
 
 #define EMOTE_SITTING 0
 #define EMOTE_WALKING 1
 #define EMOTE_RUNNING 2
 #define EMOTE_STANDING 3
 
-#define EMOTE_ACTOR_TYPES 12
+#define EMOTE_ACTOR_TYPES 13
 #define EMOTE_TIMEOUT 2000
+#define EMOTE_CMDS_HASH 100
+
 
 #define EMOTE_BARE_L 2
 #define EMOTE_BARE_R 4
@@ -469,47 +474,60 @@ static int __inline__ emote_actor_type(int actor_type){
 		case gnome_male: return 9;
 		case draegoni_female: return 10;
 		case draegoni_male: return 11;
-		default: return -1;
+		default: return 12; //all other mobs
 	}
 }
 
-static int __inline__ cmd_to_action_index(char cmd){
-	if(cmd==cast_summon) return NUM_SPELL_ACTIONS;
-	else return (cmd-cast_spell);
-}
 
+typedef struct _emote_frame {
+	int nframes;
+	int ids[MAX_EMOTE_FRAME];
+	struct _emote_frame *next;
+} emote_frame;
 
 typedef struct _emote_type
 {
 	int id;
-	char has_anim;
-	char has_face;
 	char barehanded;
-	int anims[EMOTE_ACTOR_TYPES][4][2];// Id of anim to start based on actor type (-1 = not allowed)
-	int faces[EMOTE_ACTOR_TYPES]; // Id of face anim to start based on actor type. -1 nothing
-} emote_types;
+	unsigned char pose;
+	int timeout; //default 2 sec
+	emote_frame *anims[EMOTE_ACTOR_TYPES][4][2];
+	char name[20];
+	char desc[80];
+} emote_data;
+
+
+typedef struct _emote_anim {
+	Uint32 start_time;
+	Uint32 max_duration;
+	int nframes;
+	char active;
+	struct cal_anim frames[MAX_EMOTE_FRAME];
+	struct cal_anim idle;
+	emote_frame *flow;
+} emote_anim;
 
 typedef struct _emote_dict {
 	char command[MAX_EMOTE_LEN+1];	// The command to trigger the emote
-	emote_types *emote;
+	emote_data *emote;
 } emote_dict;
 
-extern emote_dict **emote_cmds;  //used to search through emotes commands
-extern int num_emote_cmds;
-extern emote_types *spell_actions[NUM_SPELL_ACTIONS+1];  //used to store actions for spell/summon (last one is summon action)
+extern hash_table *emote_cmds;  //used to search through emotes commands
+extern hash_table *emotes; //used to store emotes
 
-typedef struct _emote_anim {
-	struct cal_anim anim;
-	Uint32 start_time;
-} emote_anim;
 
+#define NO_EMOTE 0
+#define SERVER_EMOTE 1
+#define CLIENT_EMOTE 2
 typedef struct _emote_command {
 	Uint32 create_time;
-	emote_types *emote;
+	emote_data *emote;
+	char origin;
 } emote_command;
 
 
 #define	MAX_EMOTE_QUEUE	20
+#define EMOTE_MOTION(act) ((act->buffs & BUFF_DOUBLE_SPEED) ? (EMOTE_RUNNING):(EMOTE_WALKING))
 #endif // EMOTES
 
 /*! The main actor structure.*/
@@ -527,9 +545,11 @@ typedef struct
 	struct CalModel *calmodel;
 	struct cal_anim cur_anim;
 #ifdef EMOTES
-	emote_anim cur_emote;	//current performed emote (anim_index=-1 mean no emote)
-	emote_anim cur_face;
+	emote_anim cur_emote;	//current performed emote
+	emote_data *poses[4];	//current emote ids for idle states (standing, walking...)
 	emote_command emote_que[MAX_EMOTE_QUEUE+1];	/*!< Holds the queued emotes*/
+	unsigned int cur_emote_sound_cookie;		/*!< The currently played emote sound*/
+
 #endif
 	unsigned int cur_anim_sound_cookie;		/*!< The currently played animation sound*/
 	struct cal_anim cur_idle_anims[16];
@@ -708,6 +728,7 @@ static int __inline__ is_actor_barehanded(actor *act, int hand){
 	else 
 		return (act->cur_weapon==WEAPON_NONE||act->cur_weapon==GLOVE_FUR||act->cur_weapon==GLOVE_LEATHER);
 }
+
 #endif
 
 /*!

@@ -97,6 +97,9 @@ Uint32 K_PASTE_ALT=SHIFT|SDLK_INSERT;
 #ifdef ECDEBUGWIN
 Uint32 K_ECDEBUGWIN=ALT|CTRL|'c';
 #endif
+#ifdef EMOTES
+Uint32 K_EMOTES=CTRL|'j';
+#endif
 
 void add_key (Uint32 *key, Uint32 n)
 {

@@ -32,6 +32,7 @@
 #endif // NEW_SOUND
 #ifdef EMOTES
 #include "actor_scripts.h"
+#include "emotes.h"
 #endif // EMOTES
 
 #ifdef EMOTES
@@ -296,44 +297,20 @@ void send_input_text_line (char *line, int line_len)
 }
 
 #ifdef EMOTES
-static int emote_dict_cmp(const void *a, const void*b)//comparison function used by bsearch & qsort
+int match_emote(emote_dict *command, actor *act)
 {
-	return strcmp((*(emote_dict**)a)->command,(*(emote_dict**)b)->command);
-}
-
-int match_emote(emote_dict *command, char *name)
-{
-	int j;
-	emote_dict **match=NULL;
-	actor *act;
-
-	// Get the actor_type for the input player
-	LOCK_ACTORS_LISTS();
-	for (j = 0; j < max_actors; j++){
-		if (!strncasecmp(actors_list[j]->actor_name, name, strlen(name)) && 
-	  	   (actors_list[j]->actor_name[strlen(name)] == ' ' ||
-	    	   actors_list[j]->actor_name[strlen(name)] == '\0')){
-			act = actors_list[j];
-			//printf("actor found: %i, %s\n",j,name);
-			break;
-		}
-	}
-	if (!act){
-		UNLOCK_ACTORS_LISTS();
-		LOG_ERROR("Unable to find actor who just said local text?? name: %s", name);
-		return 0;		// Eek! We don't have an actor match... o.O
-	}
+	hash_entry *match;
 
 	// Try to match the input against an emote command and actor type	
-	match=bsearch(&command,emote_cmds,num_emote_cmds,sizeof(emote_dict*),emote_dict_cmp);
+	match=hash_get(emote_cmds,(void*)command->command);
 	
 	if(match){
-		//printf("Emote <%s> added (%p)\n",(*match)->command,(*match)->emote);
-		add_emote_command_to_actor(act,(*match)->emote);
-		UNLOCK_ACTORS_LISTS();
+		printf("Emote <%s> sent (%p)\n",((emote_dict*)match->item)->command,((emote_dict*)match->item)->emote);
+		//SEND emote to server
+		send_emote(((emote_dict*)match->item)->emote->id);
+
 		return 1;
 	}
-	UNLOCK_ACTORS_LISTS();
 	return 0;
 }
 
@@ -343,6 +320,7 @@ int parse_text_for_emote_commands(const char *text, int len)
 	int i=0, j = 0, wf=0,ef=0;
 	char name[20];	// Yeah, this should be done correctly
 	emote_dict emote_text;
+	actor *act;
 
 	
 	//printf("parsing local for emotes\n");
@@ -360,6 +338,24 @@ int parse_text_for_emote_commands(const char *text, int len)
 
 	if(j>=20||name[j]) return 1; 		//out of bound or not terminated
 
+	//check if we are saying text
+	LOCK_ACTORS_LISTS();
+
+	act = get_actor_ptr_from_id(yourself);
+	if (!act){
+		UNLOCK_ACTORS_LISTS();
+		LOG_ERROR("Unable to find actor who just said local text?? name: %s", name);
+		return 1;		// Eek! We don't have an actor match... o.O
+	}
+
+	if (!(!strncasecmp(act->actor_name, name, strlen(name)) && 
+			(act->actor_name[strlen(name)] == ' ' ||
+			act->actor_name[strlen(name)] == '\0'))){
+		//we are not saying this text, return
+		UNLOCK_ACTORS_LISTS();			
+		return 1;			
+	}
+
 	j=0;
 	do {
 		if (is_color(text[i])) continue;
@@ -367,7 +363,7 @@ int parse_text_for_emote_commands(const char *text, int len)
 			if (j&&j<=MAX_EMOTE_LEN) {
 				wf++;
 				emote_text.command[j]=0;
-				ef+=match_emote(&emote_text,name);
+				ef+=match_emote(&emote_text,act);
 			} else wf+= (j) ? 1:0;
 			j=0;
 		} else {
@@ -377,6 +373,8 @@ int parse_text_for_emote_commands(const char *text, int len)
 		}
 	} while(text[i++]);	
 	//printf("ef=%i, wf=%i, filter=>%i\n",ef,wf,emote_filter);
+	UNLOCK_ACTORS_LISTS();			
+
 	return (ef==wf) ? (emote_filter):(0);
 
 }

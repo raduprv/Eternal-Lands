@@ -552,7 +552,21 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				}
 			}
 			break;
-
+#ifdef EMOTES
+		case ADD_ACTOR_ANIMATION:
+			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
+				// allow for multiple packets in a row
+				while(data_length >= 7){
+					add_emote_to_actor(SDL_SwapLE16(*((short *)(in_data+3))),SDL_SwapLE16(*((short *)(in_data+5))));
+					in_data+= 4;
+					data_length-= 4;
+				}
+			}
+			break;
+#endif
 		case REMOVE_ACTOR:
 			{
 #ifdef EXTRA_DEBUG

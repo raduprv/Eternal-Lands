@@ -159,9 +159,18 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	for(k=0;k<MAX_CMD_QUEUE;k++)	our_actor->que[k]=nothing;
 #ifdef EMOTES
 	//clear emotes
-	for(k=0;k<MAX_EMOTE_QUEUE;k++)	our_actor->emote_que[k].emote=NULL;
-	our_actor->cur_face.anim.anim_index=-1;
-	our_actor->cur_emote.anim.anim_index=-1;
+	for(k=0;k<MAX_EMOTE_QUEUE;k++)	{
+		our_actor->emote_que[k].emote=NULL;
+		our_actor->emote_que[k].origin=NO_EMOTE;
+		our_actor->emote_que[k].create_time=0;
+		}
+	memset(&our_actor->cur_emote,0,sizeof(emote_anim));
+	memset(&our_actor->poses,0,sizeof(emote_data*)*4);
+	for(k=0;k<MAX_EMOTE_FRAME;k++) our_actor->cur_emote.frames[k].anim_index=-1;
+	our_actor->cur_emote.idle.anim_index=-1;
+	our_actor->cur_emote_sound_cookie=0;
+	
+
 
 #endif
 

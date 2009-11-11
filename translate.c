@@ -43,6 +43,10 @@ char	tt_walk[30],
 	tt_name[60];
 char	tt_notepad[30];
 char	tt_urlwin[30];
+#ifdef EMOTES
+char	tt_emotewin[30];
+#endif
+
 #endif // ELC
 
 /*! \} */
@@ -1264,6 +1268,9 @@ void init_help()
 	add_xml_identifier(tooltips,"name_pass",tt_name,"Choose name and password",sizeof(tt_name));
 	add_xml_identifier (tooltips, "notepad", tt_notepad, "Open your notepad", sizeof (tt_notepad));
 	add_xml_identifier (tooltips, "urlwin", tt_urlwin, "View URL window", sizeof (tt_urlwin));
+#ifdef EMOTES
+	add_xml_identifier (tooltips, "emotewin", tt_emotewin, "View Emote window", sizeof (tt_emotewin));
+#endif
 	
 	//Buddy list
 	add_xml_identifier(buddy, "name", buddy_name_str, "Name:", sizeof(buddy_name_str));

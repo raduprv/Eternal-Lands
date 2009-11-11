@@ -20,8 +20,9 @@ void cal_set_anim_sound(struct cal_anim *my_cal_anim, const char *sound, const c
 #endif // NEW_SOUND
 
 #ifdef EMOTES
-void cal_actor_set_emote_anim(int id, int emote_anim_index, int emote_face_index);
-void cur_emote_remove(actor *pActor);
+void cal_actor_set_emote_anim(actor *pActor, emote_frame *anims);
+void handle_cur_emote(actor *pActor);
+void cal_reset_emote_anims(actor *pActor, int cycles_too);
 #endif
 /*!
  * \brief	Draw a specific actor

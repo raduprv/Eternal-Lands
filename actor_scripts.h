@@ -110,7 +110,8 @@ void destroy_all_actors();
 void add_command_to_actor(int actor_id, unsigned char command);
 
 #ifdef EMOTES
-void add_emote_command_to_actor(actor * act, emote_types *emote);
+void add_emote_command_to_actor(actor * act, emote_data *emote);
+void add_emote_to_actor(int actor_id, int emote_id);
 #endif // EMOTES
 
 /*!

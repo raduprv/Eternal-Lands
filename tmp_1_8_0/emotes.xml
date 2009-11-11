@@ -1,104 +1,206 @@
 <emotes>
 <!-- 
-	-emotes are contained in <emote id="n"> tags.
-	 optionally a barehanded="L/R/B" can be specified (upper case). The emote will be played only if:
+	-emotes are contained in <emote id="n"> tags. id is the one sent with the server with
+	 ADD_ACTOR_ANIMATION or ADD_ACTOR_COMMAND. ID MUST BE >=1, 0 is reserved. Ids between 1 and 99 are
+	 player selectable poses, between 100 and 255 are player selectable actions (waving, etc...),
+         between 256 and 65535 are non player emotes and can be poses or actions.
+	 Optionally a barehanded="L/R/B" can be specified (upper case). The emote will be played only if:
 		* "L" -> shield not equipped
 		* "R" -> weapon not equipped
 		* "B" -> weapon and shield not equipped
 	 if barehanded is not specified, equipped items are ignored.
+	 Optionally a pose="sitting/standing/running/walking" can be specified. In a pose animations must
+	 be defined using <default><anim>n</anim></default> and <default held="true"><anim>m</anim></defaul>.
+	 n and m will be single cycling frames that will be played during the corresponding idle. 
+	 If the pose is to be triggered by players, the emote id must be between 1 and 99, included.
+	-For each emote a <name> and a <desc> can be specified. They appear in the emote window.
 	-For each emote you can define multiple commands (<command> tag) of 20 chars max.
-	-For each emote you can define multiple spell actions (<spell> tag). <spell>n</spell> means that
-	 the emote is played when the spell with id=n is cast. If n is negative the emote is played
-	 after a successful summon. For spells, n can go from 0 to 31 included (32 spell slots).
-	 Do not mix <command> and <spell> in the same emote or we get error at logout while freeing memory.
 	-The <sitting><walking><standing><running> tags are used to specify which frame to use
 	 while sitting,waliking...
 	 3 properties can be specified:
 		* sex: M/F
-		* race: human,elf,dwarf,orchan,gnome,draegoni
+		* race: human,elf,dwarf,orchan,gnome,draegoni,monster
 		* held: 0/false=single actor, 1/true=with attached actor
 		if sex is not specified the frame is used for both sexes
 		if race is not specified the frame is used for all races
 		if held is not specified the frame is used for held & not held actors
-	- Inside <sitting><walking>...there goes an integer representing the index of the CAL_emote frame
-	  defined in player_frames.xml / -1 to disable
-	- the <face> tag is used fo facial expressions and can be omitted. It works as <sitting><walking>...
-	  but no held property is specified.
+	- Inside <sitting><walking>...there goes a list of <anim> tags
+	- <anim>a|b|c|d|e</anim> specifies that frames a,b,c,d,e are played at the same time
+	  and, after they finish, they are substituted with the ones in the next <anim> tag until
+	  no more <anim> tags are found. Max of 8 frames inside a single <anim>
+	- the <default></default> tag sets all emote frames to <anim>a|b|...</anim> listed inside.
+	- the <timeout>millisec</timeout> tag sets the emote timeoout. Deafult is 2 secs (2000)
 	- if a tag is not given, the corresponding action won't be performed
 -->
-	<emote id="0" barehanded="L">
+	<emote id="120" barehanded="L">
+		<name>Waving</name>
 		<command>*wave*</command>
 		<command>\o</command>
 		<command>o/</command>
-		<sitting>1</sitting>
-		<walking>2</walking>
-		<walking held="true">-1</walking>
-		<standing>0</standing>
-		<running>5</running>
+			<sitting>
+				<anim>1</anim>
+			</sitting>
+			<walking>
+				<anim>2</anim>
+			</walking>
+			<standing>
+				<anim>0</anim>
+			</standing>
+			<running>
+				<anim>5</anim>
+			</running>
 	</emote>
-	<emote id="1">
+	<emote id="121">
+		<name>Nodding</name>
 		<command>*nod*</command>
-		<sitting>6</sitting>
-		<walking>6</walking>
-		<standing>6</standing>
-		<running>6</running>
+		<default>
+			<anim>6</anim>
+		</default>
 	</emote>
-	<emote id="2">
+	<emote id="122">
+		<name>Yay!</name>
 		<command>\o/</command>
-		<sitting>1</sitting>
-		<walking>2</walking>
-		<standing>0</standing>
-		<running>5</running>
-		<face>7</face>
+		<sitting>
+			<anim>1|7</anim>
+		</sitting>
+		<walking>
+			<anim>2|7</anim>
+			<anim>10|7</anim>
+			<anim>5</anim>
+		</walking>
+		<standing>
+			<anim>10|7</anim>
+		</standing>
+		<running>
+			<anim>5</anim>
+		</running>
 	</emote>
-	<emote id="3">
+	<emote id="123">
+		<name>Nuuu!</name>
 		<command>-_-</command>
-		<face>7</face>
+		<default>
+			<anim>7</anim>
+		</default>
 	</emote>
 <!--
 	SPELL ACTIONS
 -->
-	<emote id="20">
-		<command>cast1</command> <!-- Don't do this, only for testing while waiting for new server cmds --> 
-		<spell>0</spell>
-		<spell>1</spell>
-		<spell>2</spell>
-		<spell>3</spell>
-		<spell>4</spell>
-		<spell>5</spell>
-		<spell>6</spell>
-		<sitting>10</sitting>
-		<walking>10</walking>
-		<standing>10</standing>
-		<running>10</running>	
+	<emote id="220">
+		<name>Cast 1</name>
+		<command>cast1</command> <!-- only for testing while waiting for new server cmds --> 
+		<default>
+			<anim>10</anim>
+		</default>
 	</emote>
-	<emote id="21">
+	<emote id="221">
+		<name>Cast 2</name>
 		<command>cast2</command>
-		<spell>7</spell>
-		<spell>8</spell>
-		<spell>9</spell>
-		<spell>10</spell>
-		<spell>11</spell>
-		<spell>12</spell>
-		<spell>13</spell>
-		<sitting>11</sitting>
-		<walking>11</walking>
-		<standing>11</standing>
-		<running>11</running>	
+		<default>
+			<anim>11</anim>
+		</default>
 	</emote>
-	<emote id="22">
+	<emote id="222">
+		<name>Cast 3</name>
 		<command>cast3</command>
-		<spell>14</spell>
-		<spell>15</spell>
-		<spell>16</spell>
-		<spell>17</spell>
-		<spell>18</spell>
-		<spell>19</spell>
-		<spell>20</spell>
-		<spell>-1</spell>  <!-- notice this, -1 for summon animation -->
-		<sitting>12</sitting>
-		<walking>12</walking>
-		<standing>12</standing>
-		<running>12</running>	
+		<default>
+			<anim>12</anim>
+		</default>
 	</emote>
+	<emote id="223">
+		<name>I pwn Chuck Norris</name>
+		<desc>Ultimate Mass Destruction Weapon</desc>
+		<command>cast0</command>
+		<default>
+			<anim>11</anim>
+			<anim>12</anim>
+			<anim>10|7</anim>
+			<anim>6|7</anim>
+		</default>
+	</emote>
+
+
+<!--
+
+	POSES
+-->
+	<emote id="1" pose="sitting">
+		<name>Standard Sitting</name>
+		<desc>Usual boring sitting</desc>
+		<default>
+			<anim>40</anim>
+		</default>
+	</emote>
+	<emote id="2" pose="walking">
+		<name>Standard Walking</name>
+		<desc>Usual boring walking</desc>
+		<default>
+			<anim>42</anim>
+		</default>
+	</emote>
+	<emote id="3" pose="standing">
+		<name>Standard Standing</name>
+		<desc>Usual boring standing</desc>
+		<default>
+			<anim>41</anim>
+		</default>
+	</emote>
+	<emote id="4" pose="running">
+		<name>Standard Running</name>
+		<desc>Usual boring running</desc>
+		<default>
+			<anim>43</anim>
+		</default>
+	</emote>
+	<emote id="5" pose="sitting">
+		<name>Fitness</name>
+		<desc>Sitting is bad for your heart</desc>
+		<default>
+			<anim>43</anim>
+		</default>
+	</emote>
+	<emote id="6" pose="walking">
+		<name>Levitate</name>
+		<desc>Gimme a magic carpet</desc>
+		<default>
+			<anim>40</anim>
+		</default>
+	</emote>
+	<emote id="7" pose="standing">
+		<name>Moonwalking</name>
+		<desc>Beat it</desc>
+		<default>
+			<anim>42</anim>
+		</default>
+	</emote>
+	<emote id="8" pose="running">
+		<name>Exorcist running</name>
+		<desc>Scaring :o</desc>
+		<default>
+			<anim>41</anim>
+		</default>
+	</emote>
+
+
+<!-- FRAMES -->
+<!-- <frames> tag can have an actor_type="n" property. If not defined, caf files are loaded for each race and sex, otherwise only for "n". Actor types are in client_serv.h -->
+	<frames>
+	<!--index is mandatory, and must be used as a reference in the <anim> tags of emote.xml-->
+	<!--for an emote to be loaded the frame tag must start with CAL_emote -->
+	<!--a sound can be specified for a frame, it will be played with the emote -->
+	<CAL_emote_wave_stand index="0" duration="560">./animations/emotes/player_wave_stand.caf 1</CAL_emote_wave_stand>
+	<CAL_emote_wave_sit index="1" duration="560">./animations/emotes/player_wave_sit.caf 1</CAL_emote_wave_sit>
+	<CAL_emote_wave_walk index="2" duration="500">./animations/emotes/player_wave_walk.caf 1</CAL_emote_wave_walk>
+	<CAL_emote_wave_held index="4" duration="560">./animations/emotes/player_wave_held.caf 1</CAL_emote_wave_held>
+	<CAL_emote_wave_run index="5" duration="560">./animations/emotes/player_wave_run.caf 1</CAL_emote_wave_run>
+	<CAL_emote_nod index="6" duration="400">./animations/emotes/player_nod.caf 1</CAL_emote_nod>
+	<CAL_emote_shake index="7" duration="400">./animations/emotes/player_shake.caf 1</CAL_emote_shake>
+		
+	<CAL_emote_spell_1 index="10" sound="Punch">./animations/player_spell1.caf 1</CAL_emote_spell_1>
+	<CAL_emote_spell_2 index="11" sound="Kick">./animations/player_spell2.caf 1</CAL_emote_spell_2>
+	<CAL_emote_spell_3 index="12" sound="alert4">./animations/player_spell3.caf 1</CAL_emote_spell_3>
+	<CAL_emote_sit index="40">./animations/player_sit_idle.caf 0</CAL_emote_sit>
+	<CAL_emote_sit index="41">./animations/player_idle1.caf 0</CAL_emote_sit>
+	<CAL_emote_sit index="42">./animations/player_walk.caf 0</CAL_emote_sit>
+	<CAL_emote_sit index="43">./animations/player_run.caf 0</CAL_emote_sit>
+	</frames>
 </emotes>

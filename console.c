@@ -39,6 +39,11 @@
 #ifdef TEXT_ALIASES
 #include "text_aliases.h"
 #endif
+#ifdef EMOTES
+//only for debugging command #add_emote <actor name> <emote id>, can be removed later
+#include "actor_scripts.h"
+#include "emotes.h"
+#endif
 
 typedef char name_t[32];
 
@@ -438,12 +443,78 @@ static char *getparams(char *text)
 #ifdef EMOTES
 int print_emotes(char *text, int len){
 
-	int i;
+	hash_entry *he;;
 	LOG_TO_CONSOLE(c_orange1,"EMOTES");
 	LOG_TO_CONSOLE(c_orange1,"--------------------");
-	for(i=0;i<num_emote_cmds;i++){
-		LOG_TO_CONSOLE(c_orange1,emote_cmds[i]->command);
+	hash_start_iterator(emote_cmds);
+	while((he=hash_get_next(emote_cmds)))
+		LOG_TO_CONSOLE(c_orange1,((emote_dict *)he->item)->command);
+	return 1;
+}
+
+
+int add_emote(char *text, int len){
+
+	int j;
+	char *id;
+	actor *act=NULL;
+
+	for(j=1;j<len;j++) if(text[j]==' ') {text[j]=0; break;}
+	id=&text[j+1];
+	text++;
+	printf("Actor [%s] [%s]\n",text,id);
+	LOCK_ACTORS_LISTS();
+	for (j = 0; j < max_actors; j++){
+		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) && 
+	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
+	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
+			act = actors_list[j];
+			LOG_TO_CONSOLE(c_orange1, "actor found, adding emote");
+			printf("actor found\n");
+			add_emote_to_actor(act->actor_id,atoi(id));
+			printf("message added %s\n",id);
+		}
 	}
+	if (!act){
+		UNLOCK_ACTORS_LISTS();
+		LOG_TO_CONSOLE(c_orange1, "actor not found");
+		return 1;
+	}
+	UNLOCK_ACTORS_LISTS();
+	*(id-1)=' ';
+	return 1;
+
+}
+
+int send_cmd(char *text, int len){
+
+	int j;
+	char *id;
+	actor *act=NULL;
+
+	for(j=1;j<len;j++) if(text[j]==' ') {text[j]=0; break;}
+	id=&text[j+1];
+	text++;
+	printf("Actor [%s] [%s]\n",text,id);
+	LOCK_ACTORS_LISTS();
+	for (j = 0; j < max_actors; j++){
+		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) && 
+	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
+	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
+			act = actors_list[j];
+			LOG_TO_CONSOLE(c_orange1, "actor found, adding command");
+			printf("actor found\n");
+			add_command_to_actor(act->actor_id,atoi(id));
+			printf("command added %s\n",id);
+		}
+	}
+	if (!act){
+		UNLOCK_ACTORS_LISTS();
+		LOG_TO_CONSOLE(c_orange1, "actor not found");
+		return 1;
+	}
+	UNLOCK_ACTORS_LISTS();
+	*(id-1)=' ';
 	return 1;
 }
 
@@ -1263,6 +1334,8 @@ void init_commands(const char *filename)
 	}
 #ifdef EMOTES
 	add_command("emotes", &print_emotes);
+	add_command("add_emote", &add_emote);
+	add_command("send_cmd", &send_cmd);
 #endif
 	add_command("calc", &command_calc);
 	add_command("cls", &command_cls);

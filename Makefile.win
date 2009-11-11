@@ -51,7 +51,7 @@ COBJS=2d_objects.o 3d_objects.o \
 	skeletons.o skills.o serverpopup.o servers.o session.o shadows.o sound.o	\
 	spells.o stats.o storage.o special_effects.o	\
 	tabs.o text.o textures.o tile_map.o timers.o translate.o trade.o	\
-	update.o url.o weather.o widgets.o makeargv.o popup.o \
+	update.o url.o weather.o widgets.o makeargv.o popup.o hash.o emotes.o \
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_COBJ))
 	
 CXXOBJS=cal3d_wrapper.o actor_init.o optimizer.o sendvideoinfo.o	\

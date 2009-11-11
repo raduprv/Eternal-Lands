@@ -203,6 +203,11 @@ extern char 	tt_walk[30],
 		tt_name[60];
 extern char	tt_notepad[30];
 extern char	tt_urlwin[30];
+#ifdef EMOTES
+extern char	tt_emotewin[30];
+#endif
+
+
 #endif  //DOXYGEN_SKIP_THIS
 #endif  //ELC
 

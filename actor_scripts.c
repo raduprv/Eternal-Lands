@@ -88,9 +88,9 @@ int parse_actor_sounds (actor_types *act, xmlNode *cfg);
 #endif	//NEW_SOUND
 
 #ifdef EMOTES
-emote_dict **emote_cmds = NULL;
-int num_emote_cmds=0;
-emote_types *spell_actions[NUM_SPELL_ACTIONS+1];
+hash_table *emote_cmds = NULL;
+hash_table *emotes = NULL;
+int  parse_actor_frames(actor_types *act, xmlNode *cfg, xmlNode *defaults);
 #endif // EMOTE
 
 
@@ -312,7 +312,7 @@ void animate_actors()
 			if (actors_list[i]->calmodel!=NULL){
 #ifdef EMOTES
 				//check if emote animation is ended, then remove it
-				cur_emote_remove(actors_list[i]);			
+				handle_cur_emote(actors_list[i]);			
 #endif
 				CalModel_Update(actors_list[i]->calmodel, (((cur_time-last_update)*actors_list[i]->cur_anim.duration_scale)/1000.0));
 				build_actor_bounding_box(actors_list[i]);
@@ -412,11 +412,15 @@ void move_to_next_frame()
 			{
 				if (!is_actor_held(actors_list[i]))
 				{
+#ifdef EMOTES
+					set_on_idle(i);
+#else
 					// 1% chance to do idle2
 					if (actors_defs[actors_list[i]->actor_type].cal_frames[cal_actor_idle2_frame].anim_index != -1 && RAND(0, 99) == 0)
 						cal_actor_set_anim(i, actors_defs[actors_list[i]->actor_type].cal_frames[cal_actor_idle2_frame]); // normal idle
 					else
 						cal_actor_set_anim(i, actors_defs[actors_list[i]->actor_type].cal_frames[cal_actor_idle1_frame]); // normal idle
+#endif
 				}
 			}
 #endif // ATTACHED_ACTORS
@@ -449,6 +453,108 @@ void move_to_next_frame()
 	UNLOCK_ACTORS_LISTS();
 }
 
+
+#ifdef EMOTES
+
+struct cal_anim *get_pose_frame(int actor_type, actor *a, int pose_type, int held){
+
+	hash_entry *he;
+	int a_type=emote_actor_type(actor_type);
+
+	//find the pose. Pose is the first anim of the first frame
+	if (a->poses[pose_type]) {
+		//printf("getting pose for %s\n",a->actor_name);
+		he=hash_get(actors_defs[actor_type].emote_frames, (NULL+a->poses[pose_type]->anims[a_type][0][held]->ids[0]));
+		if (he) return (struct cal_anim*) he->item;
+	}
+	//no pose or no emote..set defaults
+	if (!a->poses[pose_type]) {
+		//printf("no pose for %s\n",a->actor_name);
+		switch(pose_type){
+			case EMOTE_SITTING:
+				return &actors_defs[a->actor_type].cal_frames[cal_actor_idle_sit_frame];
+			case EMOTE_STANDING:
+			    if(held) {
+#ifdef ATTACHED_ACTORS
+				attachment_props *att_props = get_attachment_props_if_held(a);
+				if (att_props)
+					return &att_props->cal_frames[cal_attached_idle_frame];
+#endif // ATTACHED_ACTORS
+			    } else
+	                	// 75% chance to do idle1
+	                    if (actors_defs[a->actor_type].cal_frames[cal_actor_idle2_frame].anim_index != -1 
+				&& RAND(0, 3) == 0){
+				return &actors_defs[a->actor_type].cal_frames[cal_actor_idle2_frame]; //idle2
+	                    } else {
+        	                return &actors_defs[a->actor_type].cal_frames[cal_actor_idle1_frame]; //idle1
+			    }
+			case EMOTE_RUNNING:
+			case EMOTE_WALKING:
+			    if(held) {
+#ifdef ATTACHED_ACTORS
+				attachment_props *att_props = get_attachment_props_if_held(a);
+				if (att_props)
+					return &att_props->cal_frames[get_held_actor_motion_frame(a)];
+#endif // ATTACHED_ACTORS
+			    } else
+				return &actors_defs[actor_type].cal_frames[get_actor_motion_frame(a)];
+			default:
+				return NULL;
+			break;
+		}
+	}
+	return NULL;
+}
+
+void set_on_idle(int actor_idx)
+{
+    actor *a = actors_list[actor_idx];
+    if(!a->dead) {
+        a->stop_animation=0;
+	//we have an emote idle, ignore the rest
+	if(a->cur_emote.idle.anim_index>=0) 
+		return;
+
+        if(a->fighting){
+            cal_actor_set_anim(actor_idx,actors_defs[a->actor_type].cal_frames[cal_actor_combat_idle_frame]);
+        }
+        else if (a->in_aim_mode == 1) {
+            cal_actor_set_anim(actor_idx,actors_defs[a->actor_type].weapon[a->cur_weapon].cal_frames[cal_weapon_range_idle_frame]);
+        }
+        else if(!a->sitting) {
+            // we are standing, see if we can activate a stand idle
+            if(!a->stand_idle||a->cur_anim.anim_index<0){
+                if (actors_defs[a->actor_type].group_count == 0){
+#ifdef ATTACHED_ACTORS
+			attachment_props *att_props = get_attachment_props_if_held(a);
+			if (att_props)
+			cal_actor_set_anim(actor_idx, *get_pose_frame(a->actor_type,a,EMOTE_STANDING,1));
+			else
+#endif // ATTACHED_ACTORS
+			cal_actor_set_anim(actor_idx, *get_pose_frame(a->actor_type,a,EMOTE_STANDING,0));
+			//printf("setting standing pose\n");
+                }
+                else
+                {
+                    cal_actor_set_random_idle(actor_idx);
+                    a->IsOnIdle=1;
+                }
+
+                a->stand_idle=1;
+            }
+        } else	{
+            // we are sitting, see if we can activate the sit idle
+            if(!a->sit_idle||a->cur_anim.anim_index<0) {
+		cal_actor_set_anim(actor_idx, *get_pose_frame(a->actor_type,a,EMOTE_SITTING,0));
+		//printf("setting sitting pose\n");
+                a->sit_idle=1;
+            }
+        }
+    }
+}
+
+
+#else
 void set_on_idle(int actor_idx)
 {
     actor *a = actors_list[actor_idx];
@@ -497,6 +603,14 @@ void set_on_idle(int actor_idx)
     }
 }
 
+
+#endif
+
+
+
+
+
+
 #ifdef EMOTES
 
 void unqueue_emote(actor *act){
@@ -504,27 +618,38 @@ void unqueue_emote(actor *act){
 	int k,max_queue = 0;
 	// Move queue down one command
 	for (k = 0; k < MAX_EMOTE_QUEUE - 1; k++) {
-		if (k > max_queue && act->emote_que[k].emote != NULL)
+		if (k > max_queue && act->emote_que[k].origin != NO_EMOTE)
 			max_queue = k;
-		act->emote_que[k].emote = act->emote_que[k+1].emote;
+		act->emote_que[k] = act->emote_que[k+1];
 	}
-	act->emote_que[k].emote = NULL;
+	act->emote_que[k].origin = NO_EMOTE;
 }
 
-int handle_emote_command(int a, actor *act, emote_command *command)
+int handle_emote_command(int act_id, emote_command *command)
 {
+	actor *act=actors_list[act_id];
+	struct cal_anim *pose[4];
+
+	//check if emote is null. If so, reset emote anims
+	if(!command->emote){
+		printf("reset emotes of actor %i\n",act->actor_id);
+		cal_reset_emote_anims(act,1);
+		unqueue_emote(act);
+		return 1;
+	}		
 	//check if emote is timed out
 	printf("Handle emote %i created at %i\n",command->emote->id,command->create_time);
-	if(command->create_time+EMOTE_TIMEOUT<cur_time){
+	if(command->create_time+command->emote->timeout<cur_time){
 		//timed out
 		printf("Emote %i timed out\n",command->emote->id);
 		unqueue_emote(act);
 		return 1;
-	} else if(act->cur_emote.anim.anim_index==-1&&act->cur_face.anim.anim_index==-1){
+	} else if(!act->cur_emote.active){
 		//there is still time to do it, and no emote going on:
 		//check current frame, actor_type and emote flags
-		int id_emote,id_face,idle=0,actor_type,held;
-		struct cal_anim *defs;
+		int idle=0,actor_type,held;
+		//struct cal_anim *defs;
+		emote_frame *frames;
 
 		//barehanded?
 		if((command->emote->barehanded&EMOTE_BARE_R)&&!is_actor_barehanded(act,EMOTE_BARE_R)){
@@ -538,9 +663,33 @@ int handle_emote_command(int a, actor *act, emote_command *command)
 
 
 		held = (is_actor_held(act))?1:0;
+		pose[EMOTE_STANDING] = get_pose_frame(act->actor_type,act,EMOTE_STANDING,held);
+		pose[EMOTE_WALKING] = get_pose_frame(act->actor_type,act,EMOTE_WALKING,held);
+		pose[EMOTE_SITTING] = get_pose_frame(act->actor_type,act,EMOTE_SITTING,held);
+		pose[EMOTE_RUNNING] = get_pose_frame(act->actor_type,act,EMOTE_RUNNING,held);
+
+		if(pose[EMOTE_STANDING]&&pose[EMOTE_STANDING]->anim_index==act->cur_anim.anim_index) idle=EMOTE_STANDING;
+		else
+		if(pose[EMOTE_WALKING]&&pose[EMOTE_WALKING]->anim_index==act->cur_anim.anim_index) idle=EMOTE_WALKING;
+		else
+		if(pose[EMOTE_RUNNING]&&pose[EMOTE_RUNNING]->anim_index==act->cur_anim.anim_index) idle=EMOTE_RUNNING;
+		else
+		if(pose[EMOTE_SITTING]&&pose[EMOTE_SITTING]->anim_index==act->cur_anim.anim_index) idle=EMOTE_SITTING;
+		else if(act->cur_anim.anim_index<0) {
+			//we have an emote idle. Remove it and try again
+			cal_reset_emote_anims(act,1);
+			set_on_idle(act_id);
+			return 0;
+		} else {
+			printf("No suitable state for !held\n");
+			unqueue_emote(act);
+			return 1;
+		}
+		actor_type=emote_actor_type(act->actor_type);
+		frames=command->emote->anims[actor_type][idle][held];
 
 		//printf("cur anim %i\n",act->cur_anim.anim_index);
-		if(!held){
+/*		if(!held){
 			defs = actors_defs[act->actor_type].cal_frames; 
 			if(defs[cal_actor_idle1_frame].anim_index==act->cur_anim.anim_index) idle=EMOTE_STANDING;
 			else
@@ -549,7 +698,12 @@ int handle_emote_command(int a, actor *act, emote_command *command)
 			if(defs[cal_actor_run_frame].anim_index==act->cur_anim.anim_index) idle=EMOTE_RUNNING;
 			else
 			if(defs[cal_actor_idle_sit_frame].anim_index==act->cur_anim.anim_index) idle=EMOTE_SITTING;
-			else {
+			else if(act->cur_anim.anim_index<0) {
+				//we have an emote idle. Remove it and try again
+				cal_reset_emote_anims(act,1);
+				set_on_idle(act_id);
+				return 0;
+			} else {
 				printf("No suitable state for !held\n");
 				unqueue_emote(act);
 				return 1;
@@ -562,58 +716,35 @@ int handle_emote_command(int a, actor *act, emote_command *command)
 			if(defs[cal_attached_walk_frame].anim_index==act->cur_anim.anim_index) idle=EMOTE_WALKING;
 			else
 			if(defs[cal_attached_run_frame].anim_index==act->cur_anim.anim_index) idle=EMOTE_RUNNING;
-			else {
+			else if(act->cur_anim.anim_index<0) {
+				//we have an emote idle. Remove it and try again
+				cal_reset_emote_anims(act,1);
+				set_on_idle(act_id);
+				return 0;
+			} else {
 				printf("No suitable state for held\n");
 				unqueue_emote(act);
 				return 1;
 			}
 		}
+*/
 
-		//printf("current pose SIT0/WAL1/RUN2/STA3: %i\n",idle);
-		actor_type=emote_actor_type(act->actor_type);
-		if(actor_type<0){
-			printf("can't apply emote to this actor (%i)\n",act->actor_type);
+		//we have a emote and not already playing one
+		printf("we have anim...");
+		if (!frames) {
+			//not ready yet, try later
+			printf("but not ready yet\n");
+			return 0;
+		} else {
+			//ready! set emote and unqueue
+			printf("ready!!\n");
+			cal_actor_set_emote_anim(act, frames);
 			//printf("unqueue\n");
 			unqueue_emote(act);
-			return 1;
+			LOG_TO_CONSOLE(c_green2, "Emote command");
+			return 0;
 		}
-		//printf("current actor_type: %i\n",actor_type);
-		id_emote=command->emote->anims[actor_type][idle][held];
-		//printf("current anim index: %i\n",id_emote);
-		id_face=command->emote->faces[actor_type];
-		//printf("current face index: %i\n",id_face);
-		if(command->emote->has_anim) {
-			//we have a emote and not already playing one
-			printf("we have anim\n");
-			if (id_emote<0) {
-				//not ready yet, try later
-				printf("but not ready yet\n");
-				return 0;
-			} else {
-				//ready! set emote, set face and unqueue
-				//printf("ready!!\n");
-				cal_actor_set_emote_anim(a, id_emote, id_face);
-				//printf("unqueue\n");handle
-				unqueue_emote(act);
-				LOG_TO_CONSOLE(c_green2, "Emote command");
-				return 0;
-			}
 
-		} else if (command->emote->has_face) {
-			//we have a facial expression
-			printf("we have face\n");			
-			if (id_face<0) {
-				//not ready yet, try later
-				printf("but not ready yet\n");
-				return 0;
-			} else {
-				cal_actor_set_emote_anim(a, -1, id_face);
-				//printf("unqueue\n");
-				unqueue_emote(act);
-				LOG_TO_CONSOLE(c_green2, "Face command");
-				return 0;
-			}
-		}
 	}
 	return 0;
 }
@@ -627,11 +758,24 @@ void next_command()
 
 	for(i=0;i<max_actors;i++){
 		if(!actors_list[i])continue;//actor exists?
+#ifdef EMOTES
+		if(actors_list[i]->que[0]>=emote_cmd){
+			int k;
+			add_emote_to_actor(actors_list[i]->actor_id,actors_list[i]->que[0]);
+			//actors_list[i]->stop_animation=1;
+			//move que down with one command
+			for(k=0;k<MAX_CMD_QUEUE-1;k++) {
+				if(k>max_queue && actors_list[i]->que[k]!=nothing)max_queue=k;
+				actors_list[i]->que[k]=actors_list[i]->que[k+1];
+			}
+			actors_list[i]->que[k]=nothing;
+		}
+#endif
 		if(!actors_list[i]->busy){//Are we busy?
 #ifdef EMOTES
 			// If the que is empty, check for an emote to display
-			while (actors_list[i]->emote_que[0].emote != NULL)
-				if(!handle_emote_command(i, actors_list[i], &actors_list[i]->emote_que[0])) break;
+			while (actors_list[i]->emote_que[0].origin != NO_EMOTE)
+				if(!handle_emote_command(i, &actors_list[i]->emote_que[0])) break;
 #endif // EMOTES
 			if(actors_list[i]->que[0]==nothing){//Is the queue empty?
 				//if que is empty, set on idle
@@ -649,15 +793,6 @@ void next_command()
 				actors_list[i]->stand_idle=0;
 
 				actor_type=actors_list[i]->actor_type;
-#ifdef EMOTES
-				//spell actions
-				if(actors_list[i]->que[0]>=cast_spell&&
-				   actors_list[i]->que[0]<=cast_summon){
- 					//adding spell emote on cmd
-					printf("adding spell action: %i to actor %s\n",actors_list[i]->que[0],actors_list[i]->actor_name);
-					add_emote_command_to_actor(actors_list[i], spell_actions[cmd_to_action_index(actors_list[i]->que[0])]);
-				} else
-#endif
 				switch(actors_list[i]->que[0]) {
 					case kill_me:
 /*						if(actors_list[i]->remapped_colors)
@@ -840,6 +975,7 @@ void next_command()
 						actors_list[i]->moving=1;
 						//test
 						if(!actors_list[i]->fighting){
+#ifndef EMOTES
 #ifdef ATTACHED_ACTORS
 							attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
 							if (att_props)
@@ -847,6 +983,15 @@ void next_command()
 							else
 #endif // ATTACHED_ACTORS
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[get_actor_motion_frame(actors_list[i])]);
+#else
+#ifdef ATTACHED_ACTORS
+							attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
+							if (att_props)
+								cal_actor_set_anim(i, *get_pose_frame(actors_list[i]->actor_type,actors_list[i],EMOTE_MOTION(actors_list[i]),1));
+							else
+#endif // ATTACHED_ACTORS
+							cal_actor_set_anim(i, *get_pose_frame(actors_list[i]->actor_type,actors_list[i],EMOTE_MOTION(actors_list[i]),0));
+#endif
 						}
 						actors_list[i]->stop_animation=0;
 						break;
@@ -864,6 +1009,7 @@ void next_command()
 						actors_list[i]->moving=1;
 						//test
 						if(!actors_list[i]->fighting){
+#ifndef EMOTES
 #ifdef ATTACHED_ACTORS
 							attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
 							if (att_props)
@@ -871,6 +1017,15 @@ void next_command()
 							else
 #endif // ATTACHED_ACTORS
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[get_actor_motion_frame(actors_list[i])]);
+#else
+#ifdef ATTACHED_ACTORS
+							attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
+							if (att_props)
+								cal_actor_set_anim(i, *get_pose_frame(actors_list[i]->actor_type,actors_list[i],EMOTE_MOTION(actors_list[i]),1));
+							else
+#endif // ATTACHED_ACTORS
+							cal_actor_set_anim(i, *get_pose_frame(actors_list[i]->actor_type,actors_list[i],EMOTE_MOTION(actors_list[i]),0));
+#endif
 						}
 						actors_list[i]->stop_animation=0;
 						break;
@@ -1111,6 +1266,8 @@ void next_command()
 							int step_duration = DEFAULT_STEP_DURATION;
 #endif // VARIABLE_SPEED
 							struct cal_anim *walk_anim;
+
+#ifndef EMOTES
 #ifdef ATTACHED_ACTORS
 							attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
 							if (att_props)
@@ -1118,6 +1275,17 @@ void next_command()
 							else
 #endif // ATTACHED_ACTORS
 							walk_anim = &actors_defs[actor_type].cal_frames[get_actor_motion_frame(actors_list[i])];
+#else
+#ifdef ATTACHED_ACTORS
+							attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
+							if (att_props)
+								walk_anim = get_pose_frame(actors_list[i]->actor_type,actors_list[i],EMOTE_MOTION(actors_list[i]),1);
+							else
+#endif // ATTACHED_ACTORS
+							walk_anim = get_pose_frame(actors_list[i]->actor_type,actors_list[i],EMOTE_MOTION(actors_list[i]),0);
+
+#endif
+
 
 							actors_list[i]->moving=1;
 							actors_list[i]->fighting=0;
@@ -1648,7 +1816,7 @@ void add_command_to_actor(int actor_id, unsigned char command)
 }
 
 #ifdef EMOTES
-void add_emote_command_to_actor(actor * act, emote_types *emote)
+/*void add_emote_command_to_actor(actor * act, emote_data *emote)
 {
 	int k = 0;
 #ifdef EXTRA_DEBUG
@@ -1660,11 +1828,13 @@ void add_emote_command_to_actor(actor * act, emote_types *emote)
 	} else {
 
 		for (k = 0; k < MAX_EMOTE_QUEUE; k++) {
-			if (act->emote_que[k].emote == NULL) {
+			if (act->emote_que[k].origin==NO_EMOTE) {
 				if (k <= MAX_EMOTE_QUEUE - 2) {
 					if(k&&(act->emote_que[k-1].emote==emote)) break; //anti-spam
 					act->emote_que[k].emote = emote;
+					act->emote_que[k].origin = CLIENT_EMOTE;
 					act->emote_que[k].create_time = cur_time;
+					printf("in queue CLIENT: %p at %i in %i\n",emote,cur_time,k);
 				}
 				break;
 			}
@@ -1673,18 +1843,71 @@ void add_emote_command_to_actor(actor * act, emote_types *emote)
 		if (k > MAX_EMOTE_QUEUE - 2)
 			LOG_ERROR("Too many commands in the emote queue for actor %d (%s)", act->actor_id, act->actor_name);
 	}
+}*/
+
+void queue_emote(actor *act, emote_data *emote){
+	int j,k;
+	
+	for (k = 0; k < MAX_EMOTE_QUEUE; k++) {
+		if (act->emote_que[k].origin!=SERVER_EMOTE) {
+			if (k <= MAX_EMOTE_QUEUE - 2) {
+				for(j=MAX_EMOTE_QUEUE-1;j>k;j--) //throw away last client_emote if necessary
+					act->emote_que[j]=act->emote_que[j-1];
+				act->emote_que[k].emote = emote;
+				act->emote_que[k].origin = SERVER_EMOTE;
+				act->emote_que[k].create_time = cur_time;
+				printf("in queue SERVER: %p at %i in %i\n\n",emote,cur_time,k);
+			}
+			break;
+		}
+	}
+	if (k > MAX_EMOTE_QUEUE - 2)
+		LOG_ERROR("Too many commands in the emote queue for actor %d (%s)", act->actor_id, act->actor_name);
+
+
 }
 
-// TODO: Link this function in somewhere to clear an actors emote que if it won't play
-// (due to the actor not being idle any time soon)
-void clear_emote_que(actor * act)
-{
-	int k;
-	// Move que down one command
-	for (k = 0; k < MAX_EMOTE_QUEUE; k++) {
-		act->emote_que[k].emote = NULL;
+void add_emote_to_actor(int actor_id, int emote_id){
+
+	actor *act;
+	emote_data *emote;
+	hash_entry *he;
+
+	LOCK_ACTORS_LISTS();
+	act=get_actor_ptr_from_id(actor_id);
+	
+	printf("SERVER MSG\nwe have actor %i %p\n",actor_id,act);
+	if(emote_id!=0) {
+		//dirty, but avoids warnings :P
+		he=hash_get(emotes,(void*)(NULL+emote_id));
+		if(!he) {
+			LOG_ERROR("%s (Emote) %i- NULL emote passed", cant_add_command,emote_id);
+			UNLOCK_ACTORS_LISTS();
+			return;
+		}
+		emote = he->item;
+		if(emote->pose<=EMOTE_STANDING){
+			//we have a pose, set it and return
+			printf("setting pose %i (%i) for actor %s\n",emote->id,emote->pose,act->actor_name);
+			act->poses[emote->pose]=emote;
+			//force set_idle
+			if(emote->pose==EMOTE_SITTING) act->sit_idle=0;
+			if(emote->pose==EMOTE_STANDING) act->stand_idle=0;
+			UNLOCK_ACTORS_LISTS();
+			return;
+		}
+	} else emote=NULL;
+	
+	printf("emote message to be added %p\n",emote);
+	if (!act) {
+		LOG_ERROR("%s (Emote) %d - NULL actor passed", cant_add_command, emote);
+	} else {
+		queue_emote(act,emote);
 	}
+	UNLOCK_ACTORS_LISTS();
+
 }
+
 #endif // EMOTES
 
 
@@ -1870,42 +2093,37 @@ void actor_check_int(actor_types *act, const char *section, const char *type, in
 
 #ifdef EMOTES
 
-void add_emote_to_spells(xmlNode *node, emote_types *emote){
-	int i=get_int_value(node);
 
-	if(i<0) spell_actions[NUM_SPELL_ACTIONS]=emote;
-	else spell_actions[i]=emote;
-	printf("Adding Spell Action: [%i], emote %p\n",i,emote);
-}
-
-void add_emote_to_dict(xmlNode *node, emote_types *emote){
-	static int dict_size=0;
+void add_emote_to_dict(xmlNode *node, emote_data *emote){
 	emote_dict *entry=NULL;
-	if(emote_cmds==NULL || num_emote_cmds>=dict_size) emote_cmds=realloc(emote_cmds,sizeof(emote_dict*)*(dict_size+=10));
+	if(!emote_cmds) 
+		emote_cmds= create_hash_table(EMOTE_CMDS_HASH,hash_fn_str,cmp_fn_str,free);
 
 	entry = (emote_dict*) malloc(sizeof(emote_dict));
 	get_string_value (entry->command, sizeof(entry->command), node);
 	entry->emote = emote;
-	emote_cmds[num_emote_cmds++]=entry;
+	hash_add(emote_cmds,(void*)entry->command,(void*)entry);
 	printf("Adding Emote Command: [%s], emote %p\n",entry->command,entry->emote);
 
 }
 
-void init_emote(emote_types *emote){
+void init_emote(emote_data *emote){
 	int i;
 
-	emote->has_anim=emote->has_face=0;
+	emote->timeout=EMOTE_TIMEOUT;
+	emote->barehanded=0;
 	for(i=0;i<EMOTE_ACTOR_TYPES;i++){
-		emote->anims[i][EMOTE_SITTING][0]=emote->anims[i][EMOTE_SITTING][1]=-1;
-		emote->anims[i][EMOTE_WALKING][0]=emote->anims[i][EMOTE_WALKING][1]=-1;
-		emote->anims[i][EMOTE_RUNNING][0]=emote->anims[i][EMOTE_RUNNING][1]=-1;
-		emote->anims[i][EMOTE_STANDING][0]=emote->anims[i][EMOTE_STANDING][1]=-1;
-		emote->faces[i]=-1;
-	}	
+		emote->anims[i][EMOTE_SITTING][0]=emote->anims[i][EMOTE_SITTING][1]=NULL;
+		emote->anims[i][EMOTE_WALKING][0]=emote->anims[i][EMOTE_WALKING][1]=NULL;
+		emote->anims[i][EMOTE_RUNNING][0]=emote->anims[i][EMOTE_RUNNING][1]=NULL;
+		emote->anims[i][EMOTE_STANDING][0]=emote->anims[i][EMOTE_STANDING][1]=NULL;
+	}
+	emote->name[0]=0;
+	emote->desc[0]=0;
 }
 
 
-//sex 0=f 1=m <0=any, race 0=human, 1=elf, 2=dwarf, 3=orchan, 4=gnome, 5=draegoni
+// 0=f 1=m <0=any, race 0=human, 1=elf, 2=dwarf, 3=orchan, 4=gnome, 5=draegoni, 6=monster
 void calc_actor_types(int sex, int race, int *buf, int *len){
 
 	buf[0]=emote_actor_type(human_female);
@@ -1920,25 +2138,28 @@ void calc_actor_types(int sex, int race, int *buf, int *len){
 	buf[9]=emote_actor_type(gnome_male);
 	buf[10]=emote_actor_type(draegoni_female);
 	buf[11]=emote_actor_type(draegoni_male);
-	*len=0;
+	buf[12]=emote_actor_type(-1); //all other mobs
+	buf[13]=emote_actor_type(-1); //all other mobs
+	
+
 	if(sex<0&&race<0){
-		*len=12;	
+		*len=14;	
 	} else if (sex<0) {
 		*len=2;
 		buf[0]=buf[race*2];
 		buf[1]=buf[race*2+1];		
 	} else if(race<0) {
 		int i;
-		*len=6;
-		for(i=sex;i<12;i+=2) buf[i/2]=buf[i];
+		*len=7;
+		for(i=sex;i<14;i+=2) buf[i/2]=buf[i];
 	} else {
 		*len=1;
 		buf[0]=buf[race*2+sex];
 	}	
 }
 
-void set_emote_anim(emote_types *emote, int anim, int sex, int race, int held, int idle){
-	int buf[12];
+void set_emote_anim(emote_data *emote, emote_frame *frames, int sex, int race, int held, int idle){
+	int buf[14];
 	int len;
 	int i,h;
 	
@@ -1946,31 +2167,53 @@ void set_emote_anim(emote_types *emote, int anim, int sex, int race, int held, i
 	calc_actor_types(sex,race,buf,&len);
 	for(i=0;i<len;i++) {
 		if(held<=0)
-		 	emote->anims[buf[i]][idle][1-h]=anim;
-	 	emote->anims[buf[i]][idle][h]=anim;
+		 	emote->anims[buf[i]][idle][1-h]=frames;
+	 	emote->anims[buf[i]][idle][h]=frames;
 	}
-	emote->has_anim=1;
-	//printf("emote frame %i, sex %i, race %i\n",idle,sex,race);
-}
-
-void set_emote_face(emote_types *emote, int anim, int sex, int race){
-	int buf[12];
-	int len;
-	int i;
-	
-	calc_actor_types(sex,race,buf,&len);
-	for(i=0;i<len;i++)
-		emote->faces[buf[i]]=anim;
-	emote->has_face=1;
-	//printf("face, sex %i, race %i\n",sex,race);
 }
 
 
-emote_types *new_emote(){
-	emote_types *emote;
-	emote=(emote_types*)malloc(sizeof(emote_types));
+void flag_emote_frames(emote_data *emote,emote_frame *frame){
+	int i,j,k;
+	for(i=0;i<EMOTE_ACTOR_TYPES;i++)
+		for(j=0;j<4;j++)
+			for(k=0;k<2;k++)
+				if(emote->anims[i][j][k]==frame)
+					emote->anims[i][j][k]=NULL;
+			
+}
+void free_emote_data(void *data){
+	emote_data *emote=data;
+	emote_frame *head,*frame,*tf;
+	int i,j,k;
+	if (!emote) return;
+	for(i=0;i<EMOTE_ACTOR_TYPES;i++)
+		for(j=0;j<4;j++)
+			for(k=0;k<2;k++) {
+				head=emote->anims[i][j][k];
+				if(!head) continue;
+				frame=head;
+				while(frame){
+					tf=frame->next;
+					free(frame);
+					frame=tf;	
+				}
+				flag_emote_frames(emote,head);
+			}
+	free(emote);
+		
+}
+
+emote_data *new_emote(int id){
+
+	emote_data *emote;
+
+	if(!emotes)
+		emotes= create_hash_table(2*EMOTE_CMDS_HASH,hash_fn_int,cmp_fn_int,free_emote_data);
+	emote=(emote_data*)calloc(1,sizeof(emote_data));
 	init_emote(emote);
-	//printf("new emote %i\n",num_emotes);
+	emote->id=id;
+	hash_add(emotes,(void*)(NULL+id),(void*)emote);
 	return emote;
 }
 
@@ -1994,51 +2237,103 @@ void get_emote_props(xmlNode *item, int *sex, int *race, int *held){
 	if(!strcasecmp(s_race,"orchan")) *race=3;
 	if(!strcasecmp(s_race,"gnome")) *race=4;
 	if(!strcasecmp(s_race,"draegoni")) *race=5;
+	if(!strcasecmp(s_race,"monster")) *race=6;
 
 	if(!strcasecmp(s_held,"true")||!strcasecmp(s_held,"1")) *held=1;	
 	if(!strcasecmp(s_held,"false")||!strcasecmp(s_held,"0")) *held=0;	
 }
 
-int parse_emote_def(emote_types *emote, xmlNode *node)
+
+emote_frame *get_emote_frames(xmlNode *node){
+
+	xmlNode *item;
+	emote_frame *frames=NULL,*head=NULL;
+	char tmp[100];
+
+	for (item = node->children; item; item = item->next) {
+		if (item->type == XML_ELEMENT_NODE) {
+			if (xmlStrcasecmp (item->name, (xmlChar*)"anim") == 0) {
+				int i,j,k;
+				char c;
+				i=j=k=0;
+				if(!head){
+					head=calloc(1,sizeof(emote_frame));
+					frames=head;
+				} else {
+					frames->next=calloc(1,sizeof(emote_frame));
+					frames=frames->next;
+				}
+				get_string_value(tmp, sizeof(tmp), item);
+				do {
+					j=i;
+					while(tmp[i]!='|'&&tmp[i]) i++;
+					c=tmp[i];
+					tmp[i]=0;
+					frames->ids[k++]=atoi(&tmp[j]);
+					tmp[i]=c;
+					if(c)i++;
+				} while(tmp[i]&&k<MAX_EMOTE_FRAME);
+				frames->nframes=k;
+			} else {
+				LOG_ERROR("unknown emote property \"%s\"", item->name);
+			}
+		}
+	}
+	return head;
+
+}
+
+int parse_emote_def(emote_data *emote, xmlNode *node)
 {
 	xmlNode *item;
 	int ok,s,r,h;
-	char *bare;
+	char *bare,*pose;
 
 	if (node == NULL || node->children == NULL) return 0;
 
-	emote->id = get_int_property(node, "id");
-	if (emote->id < 0) {
-		LOG_ERROR("Unable to find id property %s\n", node->name);
-		return 0;
-	}
 
 	bare = get_string_property(node,"barehanded"); //returns "" if not specified
 	emote->barehanded = (bare[0]=='L' || bare[0]=='B') ? EMOTE_BARE_L:0;
 	emote->barehanded |= (bare[0]=='R' || bare[0]=='B') ? EMOTE_BARE_R:0;
-	
+
+	pose = get_string_property(node,"pose"); //returns "" if not specified
+	emote->pose=EMOTE_STANDING+1;
+	if(!strcasecmp(pose,"sitting")) emote->pose = EMOTE_SITTING;
+	else if(!strcasecmp(pose,"walking")) emote->pose = EMOTE_WALKING;
+	else if(!strcasecmp(pose,"standing")) emote->pose = EMOTE_STANDING;
+	else if(!strcasecmp(pose,"running")) emote->pose = EMOTE_RUNNING;
+
+
 	ok = 1;
 	for (item = node->children; item; item = item->next) {
 		if (item->type == XML_ELEMENT_NODE) {
 			if (xmlStrcasecmp (item->name, (xmlChar*)"command") == 0) {
 				add_emote_to_dict(item,emote);
-			} if (xmlStrcasecmp (item->name, (xmlChar*)"spell") == 0) {
-				add_emote_to_spells(item,emote);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"timeout") == 0) {
+				emote->timeout=get_int_value(item);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"name") == 0) {
+				get_string_value(emote->name, sizeof(emote->name), item);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"desc") == 0) {
+				get_string_value(emote->desc, sizeof(emote->desc), item);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"default") == 0) {
+				emote_frame *frames=get_emote_frames(item);
+				get_emote_props(item,&s,&r,&h);
+				set_emote_anim(emote,frames,s,r,h,EMOTE_SITTING);
+				set_emote_anim(emote,frames,s,r,h,EMOTE_WALKING);
+				set_emote_anim(emote,frames,s,r,h,EMOTE_STANDING);
+				set_emote_anim(emote,frames,s,r,h,EMOTE_RUNNING);
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"sitting") == 0) {
 				get_emote_props(item,&s,&r,&h);
-				set_emote_anim(emote,get_int_value(item),s,r,h,EMOTE_SITTING);
+				set_emote_anim(emote,get_emote_frames(item),s,r,h,EMOTE_SITTING);
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"walking") == 0) {
 				get_emote_props(item,&s,&r,&h);
-				set_emote_anim(emote,get_int_value(item),s,r,h,EMOTE_WALKING);
+				set_emote_anim(emote,get_emote_frames(item),s,r,h,EMOTE_WALKING);
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"standing") == 0) {
 				get_emote_props(item,&s,&r,&h);
-				set_emote_anim(emote,get_int_value(item),s,r,h,EMOTE_STANDING);
+				set_emote_anim(emote,get_emote_frames(item),s,r,h,EMOTE_STANDING);
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"running") == 0) {
 				get_emote_props(item,&s,&r,&h);
-				set_emote_anim(emote,get_int_value(item),s,r,h,EMOTE_RUNNING);
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"face") == 0) {
-				get_emote_props(item,&s,&r,&h);
-				set_emote_face(emote,get_int_value(item),s,r);
+				set_emote_anim(emote,get_emote_frames(item),s,r,h,EMOTE_RUNNING);
 			} else {
 				LOG_ERROR("unknown emote property \"%s\"", item->name);
 				ok = 0;
@@ -2050,25 +2345,40 @@ int parse_emote_def(emote_types *emote, xmlNode *node)
 }
 
 
-static int emote_dict_cmp(const void *a, const void*b) //comparison function used by bsearch & qsort
-{
-	return strcmp((*(emote_dict**)a)->command,(*(emote_dict**)b)->command);
-}
-
 int parse_emotes_defs(xmlNode *node)
 {
 	xmlNode *def;
-	emote_types *emote = NULL;
-	int ok = 1,i;
-
-	for(i=0;i<=NUM_SPELL_ACTIONS;i++) spell_actions[i]=NULL;
+	emote_data *emote = NULL;
+	int ok = 1;
 
 	for (def = node->children; def; def = def->next) {
 		if (def->type == XML_ELEMENT_NODE)
 			if (xmlStrcasecmp(def->name, (xmlChar*)"emote") == 0) {
-				emote=new_emote();
-				ok &= parse_emote_def(emote, def);
-			} else {
+				int id = get_int_property(def, "id");
+				if (id < 0) {
+					LOG_ERROR("Unable to find id property %s\n", def->name);
+					ok=0;
+				} else {
+					emote=new_emote(id);
+					ok &= parse_emote_def(emote, def);
+				}
+			} else if (xmlStrcasecmp(def->name, (xmlChar*)"frames") == 0) {
+				int act_type = get_int_property(def, "actor_type");
+				if (act_type < 0) {
+					ok&=parse_actor_frames(&actors_defs[human_female], def->children, NULL);
+					ok&=parse_actor_frames(&actors_defs[human_male], def->children, NULL);
+					ok&=parse_actor_frames(&actors_defs[elf_female], def->children, NULL);
+					ok&=parse_actor_frames(&actors_defs[elf_male], def->children, NULL);
+					ok&=parse_actor_frames(&actors_defs[dwarf_female], def->children, NULL);
+					ok&=parse_actor_frames(&actors_defs[dwarf_male], def->children, NULL);
+					ok&=parse_actor_frames(&actors_defs[orchan_female], def->children, NULL);
+					ok&=parse_actor_frames(&actors_defs[orchan_male], def->children, NULL);
+					ok&=parse_actor_frames(&actors_defs[gnome_female], def->children, NULL);
+					ok&=parse_actor_frames(&actors_defs[gnome_male], def->children, NULL);
+					ok&=parse_actor_frames(&actors_defs[draegoni_female], def->children, NULL);
+					ok&=parse_actor_frames(&actors_defs[draegoni_male], def->children, NULL);
+				} else ok &= parse_actor_frames(&actors_defs[act_type], def->children, NULL);
+			} else{
 				LOG_ERROR("parse error: emote or include expected");
 				ok = 0;
 			}
@@ -2077,9 +2387,6 @@ int parse_emotes_defs(xmlNode *node)
 		}
 	}
 
-	//sort emote_cmds for binary search during emote match
-	//printf("sorting emotes %i\n",num_emote_cmds);
-	if (num_emote_cmds) qsort(emote_cmds,num_emote_cmds,sizeof(emote_dict*),emote_dict_cmp);
 	return ok;
 }
 
@@ -2113,35 +2420,15 @@ int read_emotes_defs(const char *dir, const char *index)
 	return ok;
 }
 
+
+
 void free_emotes()
 {
 	int i;
-
-	//set emote id to 0
-	for(i=0;i<num_emote_cmds;i++) emote_cmds[i]->emote->id=0;
-	//+1 for each command
-	for(i=0;i<num_emote_cmds;i++) emote_cmds[i]->emote->id++;
-	//now free emotes :P
-	for(i=0;i<num_emote_cmds;i++) {
-		emote_cmds[i]->emote->id--;
-		if(!emote_cmds[i]->emote->id) free(emote_cmds[i]->emote);
-	}
-	//now free the commands
-	for(i=0;i<num_emote_cmds;i++) free(emote_cmds[i]);
-	free(emote_cmds);
-
-	//free spells actions
-	//set emote id to 0
-	for(i=0;i<=NUM_SPELL_ACTIONS;i++) if(spell_actions[i]) spell_actions[i]->id=0;
-	//+1 for each spell
-	for(i=0;i<=NUM_SPELL_ACTIONS;i++) if(spell_actions[i]) spell_actions[i]->id++;
-	//now free spells :P
-	for(i=0;i<=NUM_SPELL_ACTIONS;i++) 
-		if(spell_actions[i]){
-			spell_actions[i]->id--;
-			if(!spell_actions[i]->id) free(spell_actions[i]);
-		}
-
+	for(i=0;i<MAX_ACTOR_DEFS;i++)
+		destroy_hash_table(actors_defs[i].emote_frames);
+	destroy_hash_table(emote_cmds);
+	destroy_hash_table(emotes);
 }
 #endif // EMOTES
 
@@ -3139,19 +3426,22 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else {
 				int j;
 				char *etag="CAL_emote";
-				char *stag="CAL_spell";
-				if(!strncasecmp(etag,(const char*) item->name,9)||
-				   !strncasecmp(stag,(const char*) item->name,9)) {
+				struct cal_anim *anim;
+				if(!strncasecmp(etag,(const char*) item->name,9)) {
 					//load emote frame
 					j=get_int_property(item,"index");	
 					get_string_value(str, sizeof(str), item);
-		     			act->emote_frames[j] = cal_load_anim(act, str
+					if(!act->emote_frames)
+						act->emote_frames=create_hash_table(EMOTES_FRAMES,hash_fn_int,cmp_fn_int,free);
+					anim=calloc(1,sizeof(struct cal_anim));
+		     			*anim = cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
 					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 					, get_int_property(item, "duration")
 					);
+					hash_add(act->emote_frames, (void*)(NULL+j), (void*)anim);					
 				}
 				continue;
 #endif // EMOTES

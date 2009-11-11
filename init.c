@@ -82,6 +82,9 @@
 #if defined(CONTEXT_MENUS) && defined(USER_MENUS)
 #include "user_menus.h"
 #endif
+#ifdef EMOTES
+#include "emotes.h"
+#endif
 
 #define	CFG_VERSION 7	// change this when critical changes to el.cfg are made that will break it
 
@@ -282,7 +285,11 @@ void read_bin_cfg()
 	sigil_menu_x=cfg_mem.sigil_menu_x;
 	sigil_menu_y=cfg_mem.sigil_menu_y;
 	start_mini_spells=cfg_mem.start_mini_spells;
+#ifdef EMOTES
+	emotes_menu_x=cfg_mem.emotes_menu_x;
+	emotes_menu_y=cfg_mem.emotes_menu_y;
 
+#endif
 	dialogue_menu_x=cfg_mem.dialogue_menu_x;
 	dialogue_menu_y=cfg_mem.dialogue_menu_y;
 
@@ -466,7 +473,15 @@ void save_bin_cfg()
 		cfg_mem.sigil_menu_x=sigil_menu_x;
 		cfg_mem.sigil_menu_y=sigil_menu_y;
 	}
-
+#ifdef EMOTES
+	if(emotes_win >= 0) {
+		cfg_mem.emotes_menu_x=windows_list.window[emotes_win].cur_x;
+		cfg_mem.emotes_menu_y=windows_list.window[emotes_win].cur_y;
+	} else {
+		cfg_mem.emotes_menu_x=emotes_menu_x;
+		cfg_mem.emotes_menu_y=emotes_menu_y;
+	}
+#endif
 	if(dialogue_win >= 0) {
 		cfg_mem.dialogue_menu_x=windows_list.window[dialogue_win].cur_x;
 		cfg_mem.dialogue_menu_y=windows_list.window[dialogue_win].cur_y;

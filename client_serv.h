@@ -592,9 +592,9 @@ typedef enum actor_commands
   attack_up_9 = 72,
   attack_up_10 = 73,
 
-  cast_spell = 80,
-  //32 commands reserved for spells. Server sends cast_spell+spell_id or cast_summon
-  cast_summon = 112
+  emote_cmd = 100,
+
+  //from 100 to 255, commands are reserved for emotes
 
 } actor_commands;
 
@@ -678,6 +678,8 @@ typedef enum
 
 #define PING_RESPONSE 60
 #define SET_ACTIVE_CHANNEL 61
+
+#define DO_EMOTE 70
 
 #define LOG_IN 140
 #define CREATE_CHAR 141
@@ -779,7 +781,7 @@ typedef enum
 #define MISSILE_FIRE_A_TO_B 86
 #define MISSILE_FIRE_A_TO_XYZ 87
 #define MISSILE_FIRE_XYZ_TO_B 88
-
+#define ADD_ACTOR_ANIMATION 89
 
 #define SEND_WEATHER 100
 
