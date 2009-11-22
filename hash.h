@@ -15,14 +15,14 @@ typedef struct _hash_table{
 	hash_entry *cur;
 	unsigned int where;
 	
-	long int (*hash_fun)(void *);
+	unsigned long int (*hash_fun)(void *);
 	int (*key_cmp)(void *, void *);
 	void (*free_fun)(void *);
 } hash_table;
 
 
 hash_table *create_hash_table(int size, 
-			     long int (*hashfn)(void *), 
+			     unsigned long int (*hashfn)(void *), 
 			     int (*keyfn)(void *, void*),
 			     void (*freefn)(void *)
 );
@@ -37,9 +37,9 @@ hash_entry *hash_get_next(hash_table *table);
 
 
 //HASH & KEY_CMP
-long int __inline__ hash_fn_int(void *key);
+unsigned long int __inline__ hash_fn_int(void *key);
 int __inline__ cmp_fn_int(void *key1, void *key2);
 
-long int __inline__ hash_fn_str(void *key);
+unsigned long int __inline__ hash_fn_str(void *key);
 int __inline__ cmp_fn_str(void *key1, void *key2);
 #endif

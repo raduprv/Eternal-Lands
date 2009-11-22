@@ -336,7 +336,7 @@ int parse_text_for_emote_commands(const char *text, int len)
 		i++;j++;
 	}
 
-	if(j>=20||name[j]) return 1; 		//out of bound or not terminated
+	if(j>=20||name[j]) return 0; 		//out of bound or not terminated
 
 	//check if we are saying text
 	LOCK_ACTORS_LISTS();
@@ -353,7 +353,7 @@ int parse_text_for_emote_commands(const char *text, int len)
 			act->actor_name[strlen(name)] == '\0'))){
 		//we are not saying this text, return
 		UNLOCK_ACTORS_LISTS();			
-		return 1;			
+		return 0;			
 	}
 
 	j=0;

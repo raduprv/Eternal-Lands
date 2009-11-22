@@ -5,11 +5,11 @@
 
 
 hash_table *create_hash_table(int size, 
-			     long int (*hashfn)(void *), 
+			     unsigned long int (*hashfn)(void *), 
 			     int (*keyfn)(void *, void*),
 			     void (*freefn)(void *)){
 	hash_table *new_table;
-
+	
 	new_table=(hash_table*)calloc(1,sizeof(hash_table));
 	if(!new_table) return NULL;
 
@@ -50,12 +50,12 @@ int destroy_hash_table(hash_table *table){
 }
 
 hash_entry *hash_get(hash_table *table, void* key){
-	int pos;
+	unsigned int pos;
 	hash_entry *he=NULL;
 
 	if(!table||!table->hash_fun||!table->key_cmp) return NULL;
 	
-	pos=table->hash_fun(key)%table->size;
+	pos=(table->hash_fun(key))%table->size;
 
 	he=table->store[pos];
 	while(he){
@@ -66,13 +66,13 @@ hash_entry *hash_get(hash_table *table, void* key){
 }
 
 int hash_add(hash_table *table, void* key, void *item){
-	int pos;
+	unsigned int pos;
 	hash_entry *he=NULL;
 
 	if(!table||!table->hash_fun) return 0;
 	
 	pos=table->hash_fun(key)%table->size;
-
+	
 	he=(hash_entry*)calloc(1,sizeof(hash_entry));
 	if(!he) return 0;
 	he->key=key;
@@ -137,22 +137,23 @@ hash_entry *hash_get_next(hash_table *table){
 
 
 //HASH AND COMPARE FNs
-long int __inline__ hash_fn_int(void *key){
-	return (long int) key;
+unsigned long int __inline__ hash_fn_int(void *key){
+	return (unsigned long int) key;
 }
 int __inline__ cmp_fn_int(void *key1, void *key2){
 	return key1==key2;
 }
 
-long int __inline hash_fn_str(void *key){
-    	long int hash = 5381;
-	int c;
+unsigned long int __inline hash_fn_str(void *key){
+   	unsigned long int hash = 5381;
+	char c;
 	char *k=(char*)key;
 
         while ((c=*k++))
             hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
 
-        return hash;
+		hash=hash-1;
+	    return hash;
 }
 
 int __inline__ cmp_fn_str(void *key1, void *key2){
