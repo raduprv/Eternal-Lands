@@ -1088,6 +1088,10 @@ int chat_to_counters_command(const char *text, int len)
 int is_death_message (const char * RawText)
 {
 	if (!strncmp(RawText, "You killed ", 11)) {
+		int i = 11;
+		for (; i<strlen(RawText); i++)
+			if (*(RawText+i) == ' ')
+				return 0; // kills should just have the name, don't use invalid messages.
 		increment_counter(KILLS, RawText+11, 1, 1);
 		return 1;
 	}
