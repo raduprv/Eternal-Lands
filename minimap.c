@@ -1763,6 +1763,15 @@ int mouseover_minimap_handler(window_info * win, int mx, int my, Uint32 flags)
 		return 0;
 }
 
+#ifdef CONTEXT_MENUS
+static int cm_minimap_title_handler(window_info *win, int widget_id, int mx, int my, int option)
+{
+	if (cm_title_handler(win, widget_id, mx, my, option))
+		return 1;
+	return 1;
+}
+#endif
+
 void display_minimap()
 {
 	window_info *win;
@@ -1791,7 +1800,7 @@ void display_minimap()
 #ifdef CONTEXT_MENUS
 		if (!cm_valid(win->cm_id))
 		{
-			win->cm_id = cm_create(cm_title_menu_str, cm_title_handler);
+			win->cm_id = cm_create(cm_title_menu_str, cm_minimap_title_handler);
 			cm_grey_line(win->cm_id, 1, 1);
 			cm_bool_line(win->cm_id, 2, &windows_on_top, "windows_on_top");
 		}

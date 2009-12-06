@@ -161,7 +161,14 @@ namespace cm
 	extern "C" int click_context_handler(window_info *win, int mx, int my, Uint32 flags)
 	{
 		Menu *thismenu = (Menu *)win->data;
-		return thismenu->click(win, mx, my, flags);
+		int return_value = thismenu->click(win, mx, my, flags);
+#ifdef NEW_SOUND
+		if (return_value)
+			add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+		else
+			add_sound_object(get_index_for_sound_type_name("alert1"), 0, 0, 1);
+#endif
+		return return_value;
 	}
 
 
@@ -711,10 +718,6 @@ namespace cm
 	{
 		if (selection < 0)
 			return 0;
-
-#ifdef NEW_SOUND
-		add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
-#endif
 
 		// if a bool line, toggle the control variable
 		if (menu_lines[selection].control_var)
