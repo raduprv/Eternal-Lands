@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include "counters.h"
+#ifdef CONTEXT_MENUS
+#include "context_menu.h"
+#endif
 #include "asc.h"
 #include "elwindows.h"
 #include "hud.h"
@@ -14,6 +17,7 @@
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
+#include "translate.h"
 
 #define NUM_COUNTERS 13
 #define NUM_LINES 18
@@ -114,6 +118,13 @@ void increment_counter(int counter_id, const char *name, int quantity, int extra
 int display_counters_handler(window_info *win);
 int click_counters_handler(window_info *win, int mx, int my, Uint32 extra);
 int mouseover_counters_handler(window_info *win, int mx, int my);
+
+#ifdef CONTEXT_MENUS
+static size_t cm_counters = CM_INIT_VALUE;
+static int cm_selected_entry = -1;
+static int cm_selected_id = -1;
+static int cm_entry_count = -1;
+#endif
 
 int sort_counter_func(const void *a, const void *b)
 {
@@ -366,6 +377,70 @@ void decrement_counter(int counter_id, char *name, int quantity, int extra)
 	}
 }
 
+#ifdef CONTEXT_MENUS
+static void cm_counters_pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win)
+{
+	// get the counter id and entry indices
+	cm_selected_id = multiselect_get_selected(counters_win, multiselect_id);
+	cm_entry_count = entries[cm_selected_id];
+	cm_selected_entry = (my - 30) / 16;
+	if (counters_scroll_id != -1)
+		cm_selected_entry += vscrollbar_get_pos(counters_win, counters_scroll_id);
+
+	// if a valid entry, the menu options are not greyed out
+	if ((cm_selected_entry >= 0) && (cm_selected_entry < entries[cm_selected_id]))
+	{
+		cm_grey_line(cm_counters, 0, 0);
+		cm_grey_line(cm_counters, 2, 0);
+	}
+	else
+	{
+		cm_grey_line(cm_counters, 0, 1);
+		cm_grey_line(cm_counters, 2, 1);
+	}
+}
+
+static int cm_counters_handler(window_info *win, int widget_id, int mx, int my, int option)
+{
+	// if the number of entries has changed, we could be about to use the wrong entry, don't use it
+	// if a entry index is invalid, don't use it
+	if ((cm_entry_count == entries[cm_selected_id]) &&
+		(cm_selected_entry >= 0) && (cm_selected_entry < entries[cm_selected_id]))
+	{
+		int i;
+		struct Counter *the_entry = &counters[cm_selected_id][cm_selected_entry];
+
+		switch (option)
+		{
+			// delete entry
+			case 0:
+				if (the_entry->name != NULL)
+					free(the_entry->name);	
+				// move the entries up, replacing the deleted one
+				for (i=cm_selected_entry+1; i<entries[cm_selected_id]; i++)
+				{
+					the_entry->name = (the_entry+1)->name;
+					the_entry->n_session = (the_entry+1)->n_session;
+					the_entry->n_total = (the_entry+1)->n_total;
+					the_entry->extra = (the_entry+1)->extra;
+					the_entry++;
+				}
+				entries[cm_selected_id]--;
+				break;
+
+			// reset session total for entry
+			case 2:
+				the_entry->n_session = 0;
+				break;
+		}
+		
+		return 1;
+	}
+
+	return 0;
+}
+#endif
+
 void fill_counters_win()
 {
 	int idx = selected_counter_id > 0 ? selected_counter_id-1 : 0;
@@ -395,6 +470,15 @@ void fill_counters_win()
 			STATS_TAB_HEIGHT - 50, 0,
 			1.0f, 0.77f, 0.57f, 0.39f,
 			0, 1, MAX(0, entries[idx] - NUM_LINES));
+
+#ifdef CONTEXT_MENUS
+	if (cm_counters == CM_INIT_VALUE)
+	{
+		cm_counters = cm_create(cm_counters_menu_str, cm_counters_handler);
+		cm_add_region(cm_counters, counters_win, 120, 30, STATS_TAB_WIDTH-140, NUM_LINES*16);
+		cm_set_pre_show_handler(cm_counters, cm_counters_pre_show_handler);
+	}
+#endif
 }
 
 int display_counters_handler(window_info *win)
@@ -403,6 +487,7 @@ int display_counters_handler(window_info *win)
 	int scroll;
 	int total, session_total;
 	char buffer[32];
+	float colour_scale = 1.0;
 
 	i = multiselect_get_selected(counters_win, multiselect_id);
 	selected_counter_id = i + 1;
@@ -451,16 +536,28 @@ int display_counters_handler(window_info *win)
 	} else {
 		scroll = 0;
 	}
+
+#ifdef CONTEXT_MENUS
+	if (cm_window_shown() != cm_counters)
+		cm_selected_entry = -1;
+#endif
 	
 	for (j = scroll, n = 0, y = 30; j < entries[i]; j++, n++) {
 		if (n == NUM_LINES) {
 			break;
 		}
 
+#ifdef CONTEXT_MENUS
+		if (cm_selected_entry == j)
+			colour_scale = 0.5;
+		else
+			colour_scale = 1.0;
+#endif
+
 		if ((selected_counter_id == KILLS || selected_counter_id == DEATHS) && counters[i][j].extra) {
-			glColor3f(0.8f, 0.2f, 0.2f);
+			glColor3f(0.8f*colour_scale, 0.2f*colour_scale, 0.2f*colour_scale);
 		} else {
-			glColor3f(1.0f, 1.0f, 1.0f);
+			glColor3f(1.0f*colour_scale, 1.0f*colour_scale, 1.0f*colour_scale);
 		}
 		
 		/* draw first so left padding does not overwrite name */
