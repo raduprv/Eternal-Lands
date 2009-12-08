@@ -926,7 +926,7 @@ void set_3d_object (Uint8 display, const void *ptr, int len)
 		
 		while (len >= sizeof (*id_ptr))
 		{
-			Uint32 obj_id = id_ptr[idx];
+			Uint32 obj_id = SDL_SwapLE32(id_ptr[idx]);
 		
 			if (obj_id <= highest_obj_3d && objects_list[obj_id])
 			{
@@ -957,7 +957,7 @@ void state_3d_object (Uint8 state, const void *ptr, int len)
 	
 		while (len >= sizeof(*id_ptr))
 		{
-			Uint32	obj_id = id_ptr[idx];
+			Uint32	obj_id = SDL_SwapLE32(id_ptr[idx]);
 		
 			if (obj_id <= highest_obj_3d && objects_list[obj_id])
 			{
