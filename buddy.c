@@ -628,14 +628,21 @@ void clear_buddy()
 int is_in_buddylist(const char *name)
 {
 	int i;
+	char onlyname[32];
 	if(!name || !*name) {
 		return 0;
 	}
 	while(name[0] != '\0' && is_color ((unsigned char)name[0])){
 		++name;
 	}
+	// strip GuildTag if existing
+	for(i = 0; name[i]>32; i++){
+		onlyname[i] = name[i];
+	}
+	onlyname[i] = '\0';
+
 	for(i = 0; i < MAX_BUDDY; i++) {
-		if(buddy_list[i].type < 0xff && strcasecmp(buddy_list[i].name, name) == 0) {
+		if(buddy_list[i].type < 0xff && strcasecmp(buddy_list[i].name, onlyname) == 0) {
 			return 1;
 		}
 	}
