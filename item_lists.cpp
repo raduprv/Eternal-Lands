@@ -39,6 +39,9 @@
 #include "io/elpathwrapper.h"
 #include "items.h"
 #include "item_lists.h"
+#ifdef NEW_SOUND
+#include "sound.h"
+#endif
 
 namespace ItemLists
 {
@@ -317,6 +320,9 @@ static int click_preview_handler(window_info *win, int mx, int my, Uint32 flags)
 	{
 		saved_item_lists[previewed_list].fetch();
 		hide_window(preview_win);
+#ifdef NEW_SOUND
+		add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+#endif
 	}
 
 	return 1;
@@ -373,7 +379,7 @@ static int list_window_handler(window_info *win, int widget_id, int mx, int my, 
 	else
 		saved_item_lists[option].fetch();
 		
-	return 0;
+	return 1;
 }
 
 
