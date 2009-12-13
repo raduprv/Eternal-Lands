@@ -833,7 +833,7 @@ int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-void show_help(char *help_message, int x, int y)
+void show_help(const char *help_message, int x, int y)
 {
 	char str[125];
 	int len=strlen(help_message)*8+1;

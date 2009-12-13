@@ -246,7 +246,7 @@ void view_map_win(int *win, int id);
  *
  * \callgraph
  */
-void show_help(char *message, int x, int y);
+void show_help(const char *message, int x, int y);
 
 //stats/health section
 
