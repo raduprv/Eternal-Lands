@@ -36,6 +36,7 @@ FEATURES += ZLIB                            # Enables being able to read gzip co
 FEATURES += USER_MENUS                      # enable user command menus, requires CONTEXT_MENUS
 FEATURES += BANDWIDTH_SAVINGS				# enable bandwidth saving changes for message protocol
 FEATURES += OLD_MISC_OBJ_DIR                # if not defined, ./3dobjects/misc_objects/ paths becomes ./3dobjects/
+#FEATURES += MORE_ATTACHED_ACTORS			# Enable more activities on horses
 
 ### Machine specific options (fixes or performance enhancements) ###
 #FEATURES += EL_BIG_ENDIAN                   # Enable big-endian code (automatically detected for OSX)

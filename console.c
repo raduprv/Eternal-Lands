@@ -488,12 +488,13 @@ int add_emote(char *text, int len){
 
 int send_cmd(char *text, int len){
 
-	int j;
+	int j,x;
 	char *id;
 	actor *act=NULL;
 
 	for(j=1;j<len;j++) if(text[j]==' ') {text[j]=0; break;}
 	id=&text[j+1];
+	x=j;
 	text++;
 	printf("Actor [%s] [%s]\n",text,id);
 	LOCK_ACTORS_LISTS();
@@ -504,7 +505,11 @@ int send_cmd(char *text, int len){
 			act = actors_list[j];
 			LOG_TO_CONSOLE(c_orange1, "actor found, adding command");
 			printf("actor found\n");
+			while(*id){
 			add_command_to_actor(act->actor_id,atoi(id));
+			id++;
+				while(*id!=' '&&*id!=0) id++;
+			}
 			printf("command added %s\n",id);
 		}
 	}
@@ -514,10 +519,41 @@ int send_cmd(char *text, int len){
 		return 1;
 	}
 	UNLOCK_ACTORS_LISTS();
-	*(id-1)=' ';
+	text[x-1]=' ';
 	return 1;
 }
 
+#endif
+
+#ifdef MORE_ATTACHED_ACTORS
+int horse_cmd(char* text, int len){
+	actor *act;
+
+	LOCK_ACTORS_LISTS();
+	act = get_actor_ptr_from_id(yourself);
+	if (!act){
+		UNLOCK_ACTORS_LISTS();
+		LOG_TO_CONSOLE(c_orange1,"You don't exist");
+		return 1;		// Eek! We don't have an actor match... o.O
+	}
+
+	act->sit_idle=act->stand_idle=0;
+
+	if(act->attached_actor>=0){
+		//remove horse
+		remove_actor_attachment(act->actor_id);
+		LOG_TO_CONSOLE(c_orange1,"De-horsified");
+
+	} else {
+		//add horse
+		add_actor_attachment(act->actor_id, 200);
+		LOG_TO_CONSOLE(c_orange1,"Horsified");
+	}
+	UNLOCK_ACTORS_LISTS();
+
+	return 1;
+	
+}
 #endif
 
 int command_cls(char *text, int len)
@@ -1332,6 +1368,11 @@ void init_commands(const char *filename)
 		}
 		fclose(fp);
 	}
+
+#ifdef MORE_ATTACHED_ACTORS
+add_command("horse", &horse_cmd);
+#endif
+	
 #ifdef EMOTES
 	add_command("emotes", &print_emotes);
 	add_command("add_emote", &add_emote);

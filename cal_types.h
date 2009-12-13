@@ -62,7 +62,34 @@ enum {
 	cal_actor_attack_down_8_frame = 36,
 	cal_actor_attack_down_9_frame = 37,
 	cal_actor_attack_down_10_frame = 38,
+#ifdef MORE_ATTACHED_ACTORS
+	cal_actor_in_combat_held_frame = 39,
+	cal_actor_out_combat_held_frame = 40,
+	cal_actor_combat_idle_held_frame = 41,
+	cal_actor_attack_up_1_held_frame = 42,
+	cal_actor_attack_up_2_held_frame = 43,
+	cal_actor_attack_up_3_held_frame = 44,
+	cal_actor_attack_up_4_held_frame = 45,
+	cal_actor_attack_up_5_held_frame = 46,
+	cal_actor_attack_up_6_held_frame = 47,
+	cal_actor_attack_up_7_held_frame = 48,
+	cal_actor_attack_up_8_held_frame = 49,
+	cal_actor_attack_up_9_held_frame = 50,
+	cal_actor_attack_up_10_held_frame = 51,
+	cal_actor_attack_down_1_held_frame = 52,
+	cal_actor_attack_down_2_held_frame = 53,
+	cal_actor_attack_down_3_held_frame = 54,
+	cal_actor_attack_down_4_held_frame = 55,
+	cal_actor_attack_down_5_held_frame = 56,
+	cal_actor_attack_down_6_held_frame = 57,
+	cal_actor_attack_down_7_held_frame = 58,
+	cal_actor_attack_down_8_held_frame = 59,
+	cal_actor_attack_down_9_held_frame = 60,
+	cal_actor_attack_down_10_held_frame = 61,
+	NUM_ACTOR_FRAMES = 62
+#else
 	NUM_ACTOR_FRAMES = 39
+#endif
 };
 
 enum {
@@ -91,7 +118,37 @@ enum {
 	cal_weapon_range_idle_frame = 22,
 	cal_weapon_range_fire_frame = 23,
 	cal_weapon_range_fire_out_frame = 24,
+#ifdef MORE_ATTACHED_ACTORS
+	//frames for held actors
+	cal_weapon_range_in_held_frame = 25,
+	cal_weapon_range_out_held_frame = 26,
+	cal_weapon_range_idle_held_frame = 27,
+	cal_weapon_range_fire_held_frame = 28,
+	cal_weapon_range_fire_out_held_frame = 29,
+	cal_weapon_attack_up_1_held_frame = 30,
+	cal_weapon_attack_up_2_held_frame = 31,
+	cal_weapon_attack_up_3_held_frame = 32,
+	cal_weapon_attack_up_4_held_frame = 33,
+	cal_weapon_attack_up_5_held_frame = 34,
+	cal_weapon_attack_up_6_held_frame = 35,
+	cal_weapon_attack_up_7_held_frame = 36,
+	cal_weapon_attack_up_8_held_frame = 37,
+	cal_weapon_attack_up_9_held_frame = 38,
+	cal_weapon_attack_up_10_held_frame = 39,
+	cal_weapon_attack_down_1_held_frame = 40,
+	cal_weapon_attack_down_2_held_frame = 41,
+	cal_weapon_attack_down_3_held_frame = 42,
+	cal_weapon_attack_down_4_held_frame = 43,
+	cal_weapon_attack_down_5_held_frame = 44,
+	cal_weapon_attack_down_6_held_frame = 45,
+	cal_weapon_attack_down_7_held_frame = 46,
+	cal_weapon_attack_down_8_held_frame = 47,
+	cal_weapon_attack_down_9_held_frame = 48,
+	cal_weapon_attack_down_10_held_frame = 49,
+	NUM_WEAPON_FRAMES = 50
+#else
 	NUM_WEAPON_FRAMES = 25
+#endif
 };
 
 #ifdef EMOTES
