@@ -70,7 +70,7 @@ FEATURES += OLD_MISC_OBJ_DIR                # if not defined, ./3dobjects/misc_o
 #FEATURES += USE_TR1                         # Needs tr1 version of c++ stl, used for NEW_FILE_IO
 #FEATURES += WRITE_XML                       # dangerous to use, will wipe out some XML files that are part of the main game download
 #FEATURES += ZLIBW                           # Enables being able to write gzip compressed files, requires -lzlib/-lz needed for map_editor
-
+FEATURES += ITEM_LISTS						# Adds the creation and use of item lists to the inventory window
 
 
 

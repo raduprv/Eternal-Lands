@@ -307,6 +307,9 @@ extern char
 		sto_all_str[8],
 		get_all_str[8],
 		drp_all_str[8],
+#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+		itm_lst_str[8],
+#endif
 		mix_one_str[8],
 		mix_all_str[8],
 		inv_lastrow_str[20],
@@ -318,6 +321,9 @@ extern char
 		dcdrpall_help_str[50],
 		drpall_help_str[50],
 		mixoneall_help_str[50],
+#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+		itmlst_help_str[50],
+#endif
 		items_stack_str[100],
 		mixbut_empty_str[80],
 		mix_empty_str[50],

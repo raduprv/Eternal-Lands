@@ -166,6 +166,9 @@ char
 	sto_all_str[8],
 	get_all_str[8],
 	drp_all_str[8],
+#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+	itm_lst_str[8],
+#endif
 	mix_one_str[8],
 	mix_all_str[8],
 	inv_lastrow_str[20],
@@ -176,6 +179,9 @@ char
 	getall_help_str[50],
 	dcdrpall_help_str[50],
 	drpall_help_str[50],
+#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+	itmlst_help_str[50],
+#endif
 	mixoneall_help_str[50],
 	items_stack_str[100],
 	mixbut_empty_str[80],
@@ -1138,6 +1144,9 @@ void init_help()
 	add_xml_identifier(misc,"stoall",sto_all_str,"Sto All",sizeof(sto_all_str));
 	add_xml_identifier(misc,"getall",get_all_str,"Get All",sizeof(get_all_str));
 	add_xml_identifier(misc,"drpall",drp_all_str,"Drp All",sizeof(drp_all_str));
+#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+	add_xml_identifier(misc,"itmlst",itm_lst_str,"Itm Lst",sizeof(itm_lst_str));
+#endif
 	add_xml_identifier(misc,"mixone",mix_one_str,"Mix One",sizeof(mix_one_str));
 	add_xml_identifier(misc,"mixall",mix_all_str,"Mix All",sizeof(mix_all_str));
 	add_xml_identifier(misc,"inv_lastrow",inv_lastrow_str,"Keep Last Row",sizeof(inv_lastrow_str));
@@ -1173,6 +1182,9 @@ void init_help()
 	add_xml_identifier(misc,"dcdrpall_help",dcdrpall_help_str,"Double-click to drop all items",sizeof(dcdrpall_help_str));
 	add_xml_identifier(misc,"drpall_help",drpall_help_str,"Drop all items",sizeof(drpall_help_str));
 	add_xml_identifier(misc,"mixoneall_help",mixoneall_help_str,"Mix one/all, right-click to choose",sizeof(mixoneall_help_str));
+#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+	add_xml_identifier(misc,"itmlst_help",itmlst_help_str,"Show items list, right-click for new/delete",sizeof(itmlst_help_str));
+#endif
 	add_xml_identifier(misc,"items_stack",items_stack_str,"Client can't choose between multiple stacks, make a free slot and let the server do it!",sizeof(items_stack_str));
 	add_xml_identifier(misc,"mixbut_empty",mixbut_empty_str,"Nothing to mix, add some items using the manufacture window.",sizeof(mixbut_empty_str));
 	add_xml_identifier(misc,"mix_empty_str",mix_empty_str,"Nothing to mix, add some items.",sizeof(mix_empty_str));
