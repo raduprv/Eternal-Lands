@@ -1,0 +1,31 @@
+<CAL_attack_up1 duration="500">./animations/player_weap1.caf 1</CAL_attack_up1>
+<CAL_attack_up2 duration="500">./animations/player_weap2.caf 1</CAL_attack_up2>
+<CAL_attack_up3 duration="500">./animations/player_weap3.caf 1</CAL_attack_up3>
+<CAL_attack_up4 duration="500">./animations/player_weap4.caf 1</CAL_attack_up4>
+<CAL_attack_up5 duration="500">./animations/player_weap5.caf 1</CAL_attack_up5>
+<CAL_attack_up6 duration="500">./animations/player_weap6.caf 1</CAL_attack_up6>
+<CAL_attack_up7 duration="500">./animations/player_weap1.caf 1</CAL_attack_up7>
+<CAL_attack_up8 duration="500">./animations/player_weap2.caf 1</CAL_attack_up8>
+<CAL_attack_up9 duration="500">./animations/player_weap3.caf 1</CAL_attack_up9>
+<CAL_attack_up10 duration="500">./animations/player_weap4.caf 1</CAL_attack_up10>
+<CAL_attack_down1 duration="500">./animations/player_weap1.caf 1</CAL_attack_down1>
+<CAL_attack_down2 duration="500">./animations/player_weap2.caf 1</CAL_attack_down2>
+<CAL_attack_down3 duration="500">./animations/player_weap4.caf 1</CAL_attack_down3>
+<CAL_attack_down4 duration="500">./animations/player_kick1.caf 1</CAL_attack_down4>
+<CAL_attack_down5 duration="500">./animations/player_kick2.caf 1</CAL_attack_down5>
+<CAL_attack_down6 duration="500">./animations/player_kick3.caf 1</CAL_attack_down6>
+<CAL_attack_down7 duration="500">./animations/player_kick4.caf 1</CAL_attack_down7>
+<CAL_attack_down8 duration="500">./animations/player_kick5.caf 1</CAL_attack_down8>
+<CAL_attack_down9 duration="500">./animations/player_kick7.caf 1</CAL_attack_down9>
+<CAL_attack_down10 duration="500">./animations/player_kick10.caf 1</CAL_attack_down10>
+<CAL_range_in duration="1000" sound="Bow In">./animations/player_bow_in.caf 1</CAL_range_in>
+<CAL_range_out duration="1000">./animations/player_bow_out.caf 1</CAL_range_out>
+<CAL_range_idle duration="500">./animations/player_bow_idle.caf 1</CAL_range_idle>
+<CAL_range_fire duration="1000" sound="Bow Fire">./animations/player_bow_fire.caf 1</CAL_range_fire>
+<CAL_range_fire_out duration="1000" sound="Bow Fire Out">./animations/player_bow_fire_out.caf 1</CAL_range_fire_out>
+
+<CAL_range_in_held duration="1000" sound="Bow In">./animations/player_bow_in.caf 1</CAL_range_in_held>
+<CAL_range_out_held duration="1000">./animations/player_bow_out.caf 1</CAL_range_out_held>
+<CAL_range_idle_held duration="500">./animations/player_bow_idle.caf 1</CAL_range_idle_held>
+<CAL_range_fire_held duration="1000" sound="Bow Fire">./animations/player_bow_fire.caf 1</CAL_range_fire_held>
+<CAL_range_fire_out_held duration="1000" sound="Bow Fire Out">./animations/player_bow_fire_out.caf 1</CAL_range_fire_out_held>

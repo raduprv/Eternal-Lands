@@ -27,4 +27,8 @@
 	<CAL_spell_1 index="10" sound="Punch">./animations/player_spell1.caf 1</CAL_spell_1>
 	<CAL_spell_2 index="11" sound="Kick">./animations/player_spell2.caf 1</CAL_spell_2>
 	<CAL_spell_3 index="12" sound="alert4">./animations/player_spell3.caf 1</CAL_spell_3>
+
+	<CAL_in_combat_held duration="500">./animations/player_fight_in.caf 1</CAL_in_combat_held>
+	<CAL_out_combat_held duration="500">./animations/player_fight_out.caf 1</CAL_out_combat_held>
+	<CAL_combat_idle_held duration="500">./animations/player_fight_idle.caf 0</CAL_combat_idle_held>
 </frames>
