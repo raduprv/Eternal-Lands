@@ -45,6 +45,7 @@ struct quantities quantities = {
 		{20, 2, "20"},
 		{50, 2, "50"},
 		{100, 3, "100"},
+		{1, 1, "1"}, // item list preview quantity - not editable or displayed with others
 	}
 };
 int edit_quantity=-1;
@@ -480,7 +481,7 @@ int display_items_handler(window_info *win)
    	x=quantity_x_offset+quantity_width/2;
 	y=quantity_y_offset+3;
 	glColor3f(0.3f,0.5f,1.0f);
-	for(i=0;i<6;x+=quantity_width,++i){
+	for(i=0;i<ITEM_EDIT_QUANT;x+=quantity_width,++i){
 		if(i==edit_quantity){
 			glColor3f(1.0f, 0.0f, 0.3f);
 			draw_string_small(x-strlen(quantities.quantity[i].str)*4, y, (unsigned char*)quantities.quantity[i].str, 1);
@@ -648,7 +649,7 @@ int display_items_handler(window_info *win)
 
     //now, draw the quantity boxes
 	glColor3f(0.3f,0.5f,1.0f);
-	rendergrid(6, 1, quantity_x_offset, quantity_y_offset, quantity_width, 20);
+	rendergrid(ITEM_EDIT_QUANT, 1, quantity_x_offset, quantity_y_offset, quantity_width, 20);
 	
 	glEnable(GL_TEXTURE_2D);
 	
@@ -775,7 +776,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 					item_action_mode=ACTION_WALK;
 			}
 			return 1;
-		} else if(mx>=quantity_x_offset && mx<quantity_x_offset+6*quantity_width && my>=quantity_y_offset && my<quantity_y_offset+20){
+		} else if(mx>=quantity_x_offset && mx<quantity_x_offset+ITEM_EDIT_QUANT*quantity_width && my>=quantity_y_offset && my<quantity_y_offset+20){
 			//fall through...
 		} else {
 			switch(item_action_mode) {
@@ -802,9 +803,9 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	if(item_action_mode==ACTION_USE)	action_mode=ACTION_USE;
 
 	//see if we changed the quantity
-	if(mx>=quantity_x_offset && mx<quantity_x_offset+6*quantity_width
+	if(mx>=quantity_x_offset && mx<quantity_x_offset+ITEM_EDIT_QUANT*quantity_width
 			&& my>=quantity_y_offset && my<quantity_y_offset+20) {
-		int pos=get_mouse_pos_in_grid(mx, my, 6, 1, quantity_x_offset, quantity_y_offset, quantity_width, 20);
+		int pos=get_mouse_pos_in_grid(mx, my, ITEM_EDIT_QUANT, 1, quantity_x_offset, quantity_y_offset, quantity_width, 20);
 
 		if(pos==-1){
 		} else if(flags & ELW_LEFT_MOUSE){
@@ -1091,7 +1092,7 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 
 			return 1;
 		}
-	} else if(show_help_text && mx>quantity_x_offset && mx<quantity_x_offset+6*quantity_width &&
+	} else if(show_help_text && mx>quantity_x_offset && mx<quantity_x_offset+ITEM_EDIT_QUANT*quantity_width &&
 			my>quantity_y_offset && my<quantity_y_offset+6*20){
 		show_help(quantity_edit_str, 0, quantity_y_offset+30);
 	} 

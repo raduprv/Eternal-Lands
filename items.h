@@ -50,18 +50,6 @@ typedef enum {
 /*! @} */
 
 /*!
- * \name The quantities are located within this struct 
-*/
-struct quantities {
-	int selected;
-	struct tmp {
-		int val;
-		int len;
-		char str[10];
-	} quantity[6];
-};
-
-/*!
  * \name Item constants
  */
 /*! @{ */
@@ -70,8 +58,21 @@ struct quantities {
 #define	ITEM_NUM_ITEMS	(ITEM_WEAR_START+ITEM_NUM_WEAR)
 #ifdef NEW_SOUND
 #define ITEM_NO_ACTION -1
+#define ITEM_EDIT_QUANT 6
 #endif // NEW_SOUND
 /*! @} */
+
+/*!
+ * \name The quantities are located within this struct 
+*/
+struct quantities {
+	int selected;
+	struct tmp {
+		int val;
+		int len;
+		char str[10];
+	} quantity[ITEM_EDIT_QUANT+1];
+};
 
 extern item item_list[ITEM_NUM_ITEMS]; /*!< global list of items */
 

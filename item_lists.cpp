@@ -166,7 +166,12 @@ static INPUT_POPUP ipu_item_list_name;
 static int delete_item_list = 0;
 static int preview_win = -1;
 static size_t previewed_list = 0;
-static int show_preview_help = 0;
+static const char * preview_help_str = NULL;
+static const char * preview_fetch_help_str = "Left-click to fetch all items";
+static const char * preview_quantity_help_str = "Right-click to use item quantity";
+static int last_quantity_selected = 0;
+static const int preview_grid_size = 33;
+static size_t selected_item_number = static_cast<size_t>(1);
 
 static const int OPTION_SAVE = 0;
 static const int OPTION_PREVIEW = 1;
@@ -257,7 +262,6 @@ static void load_item_lists(void)
 static int display_preview_handler(window_info *win)
 {
 	size_t i;
-	int grid_size = 33;
 	char str[80];
 
 	if (previewed_list >= saved_item_lists.size())
@@ -270,30 +274,42 @@ static int display_preview_handler(window_info *win)
 	for(i=0; i<saved_item_lists[previewed_list].get_object_ids().size(); i++)
 	{
 		int x_start, x_end, y_start, y_end;
-		x_start = grid_size * (i%6) + 1;
-		x_end = x_start + grid_size - 1;
-		y_start = grid_size * (i/6);
-		y_end = y_start + grid_size - 1;
-		draw_item(saved_item_lists[previewed_list].get_object_ids()[i], x_start, y_start, grid_size);
+		x_start = preview_grid_size * (i%6) + 1;
+		x_end = x_start + preview_grid_size - 1;
+		y_start = preview_grid_size * (i/6);
+		y_end = y_start + preview_grid_size - 1;
+		draw_item(saved_item_lists[previewed_list].get_object_ids()[i], x_start, y_start, preview_grid_size);
 
 		safe_snprintf(str, sizeof(str), "%i", saved_item_lists[previewed_list].get_quantities()[i]);
 		draw_string_small_shadowed(x_start, (i&1)?(y_end-15):(y_end-25), (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);
 	}
 
 	// draw the list name
-	draw_string_small(4, grid_size*6 + 4, (unsigned char*)saved_item_lists[previewed_list].get_name().c_str(), 1);
+	draw_string_small(4, preview_grid_size*6 + 4, (unsigned char*)saved_item_lists[previewed_list].get_name().c_str(), 1);
 
 	// draw mouse over window help text
-	if (show_help_text && show_preview_help)
+	if (show_help_text && (preview_help_str != NULL))
 	{
-		show_help(static_cast<const char *>("Click to fetch items"), 0, win->len_y + 10);
-		show_preview_help = 0;
+		show_help(preview_help_str, 0, win->len_y + 10);
+		preview_help_str = NULL;
 	}
 
-	// draw the item grid
 	glDisable(GL_TEXTURE_2D);
+
+	// draw the item grid
 	glColor3f(0.77f,0.57f,0.39f);
-	rendergrid(6, 6, 0, 0, grid_size, grid_size);
+	rendergrid(6, 6, 0, 0, preview_grid_size, preview_grid_size);
+
+	// if an object is selected, draw a green grid around it
+	if ((quantities.selected == ITEM_EDIT_QUANT) && (selected_item_number < saved_item_lists[previewed_list].get_quantities().size()))
+	{
+		int x_start = selected_item_number%6 * preview_grid_size;
+		int y_start = static_cast<int>(selected_item_number/6) * preview_grid_size;
+		glColor3f(0.0f, 1.0f, 0.3f);
+		rendergrid(1, 1, x_start, y_start, preview_grid_size, preview_grid_size);
+		rendergrid(1, 1, x_start-1, y_start-1, preview_grid_size+2, preview_grid_size+2);
+	}
+	
 	glEnable(GL_TEXTURE_2D);
 	
 #ifdef OPENGL_TRACE
@@ -304,6 +320,33 @@ CHECK_GL_ERRORS();
 }
 
 
+//
+//
+static void restore_inventory_quantity(void)
+{
+	if (quantities.selected == ITEM_EDIT_QUANT)
+	{
+		quantities.selected = last_quantity_selected;
+		item_quantity=quantities.quantity[quantities.selected].val;
+	}
+	selected_item_number = static_cast<size_t>(-1);
+}
+
+
+//	Get the item number of the object under the mouse
+//
+static size_t get_preview_item_number(int mx, int my)
+{
+	size_t num_items = saved_item_lists[previewed_list].get_quantities().size();
+	if ((my >= preview_grid_size*6) && (mx >= preview_grid_size*6))
+		return num_items;
+	size_t list_index = 6 * static_cast<int>(my/preview_grid_size) + mx/preview_grid_size;
+	if (list_index < num_items)
+		return list_index;
+	return num_items;
+}
+
+
 //	Handle mouse clicks in the preview window
 //
 static int click_preview_handler(window_info *win, int mx, int my, Uint32 flags)
@@ -311,18 +354,33 @@ static int click_preview_handler(window_info *win, int mx, int my, Uint32 flags)
 	if (my < 0) // don't respond here to title bar being clicked
 		return 0;
 
+	// always reset the quanitity selection on mouse click
+	restore_inventory_quantity();
+
 	// wheel mouse up/down scrolls though lists - other clicks use the list
 	if ((flags & ELW_WHEEL_UP ) && previewed_list > 0)
 		previewed_list--;
 	else if ((flags & ELW_WHEEL_DOWN ) && previewed_list+1 < saved_item_lists.size())
 		previewed_list++;
-	else if (flags & ELW_MOUSE_BUTTON)
+	// left-click - fetch the items
+	else if (flags & ELW_LEFT_MOUSE)
 	{
 		saved_item_lists[previewed_list].fetch();
 		hide_window(preview_win);
 #ifdef NEW_SOUND
 		add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
 #endif
+	}
+	// right-click see if we can use the item quantity
+	else if (flags & ELW_RIGHT_MOUSE)
+	{
+		selected_item_number = get_preview_item_number(mx, my);
+		if (selected_item_number < saved_item_lists[previewed_list].get_quantities().size())
+		{
+			last_quantity_selected = quantities.selected;
+			quantities.selected = ITEM_EDIT_QUANT;
+			item_quantity = quantities.quantity[ITEM_EDIT_QUANT].val = saved_item_lists[previewed_list].get_quantities()[selected_item_number];
+		}		 
 	}
 
 	return 1;
@@ -335,7 +393,20 @@ static int mouseover_preview_handler(window_info *win, int mx, int my)
 {
 	if (my < 0)
 		return 0;
-	show_preview_help = 1;
+	size_t item_number = get_preview_item_number(mx, my);
+	if ((item_number > 0) && (item_number < saved_item_lists[previewed_list].get_quantities().size()))
+		preview_help_str = preview_quantity_help_str;
+	else
+		preview_help_str = preview_fetch_help_str;
+	return 0;
+}
+
+
+//  Called when the preview window is hiden, can any quantity setting
+//
+static int hide_preview_handler(window_info *win)
+{
+	restore_inventory_quantity();
 	return 1;
 }
 
@@ -346,10 +417,11 @@ static void show_preview(window_info *win)
 {
 	if (preview_win <= 0 )
 	{
-		preview_win = create_window("List Preview", win->window_id, 0, win->len_x + 5, 0, 33*6 + ELW_BOX_SIZE + 2, 33*6 + ELW_BOX_SIZE, ELW_WIN_DEFAULT);
+		preview_win = create_window("List Preview", win->window_id, 0, win->len_x + 5, 0, preview_grid_size*6 + ELW_BOX_SIZE + 3, preview_grid_size*6 + ELW_BOX_SIZE, ELW_WIN_DEFAULT);
 		set_window_handler(preview_win, ELW_HANDLER_DISPLAY, (int (*)())&display_preview_handler );
 		set_window_handler(preview_win, ELW_HANDLER_CLICK, (int (*)())&click_preview_handler );
 		set_window_handler(preview_win, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_preview_handler );
+		set_window_handler(preview_win, ELW_HANDLER_HIDE, (int (*)())&hide_preview_handler );
 	}
 	else
 		show_window(preview_win);

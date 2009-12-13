@@ -354,7 +354,7 @@ void read_bin_cfg()
 	view_hp=cfg_mem.view_hp;
 	quantities.selected=cfg_mem.quantity_selected;
 
-	for(i=0;i<6;i++){
+	for(i=0;i<ITEM_EDIT_QUANT;i++){
 		if(cfg_mem.quantity[i]){
 			quantities.quantity[i].val=cfg_mem.quantity[i];
 			safe_snprintf(quantities.quantity[i].str, sizeof(quantities.quantity[i].str),"%d", cfg_mem.quantity[i]);
@@ -575,7 +575,7 @@ void save_bin_cfg()
 	cfg_mem.view_health_bar=view_health_bar;
 	cfg_mem.view_names=view_names;
 	cfg_mem.view_hp=view_hp;
-	cfg_mem.quantity_selected=quantities.selected;
+	cfg_mem.quantity_selected=(quantities.selected<ITEM_EDIT_QUANT)?quantities.selected :0;
 
 	if(quickbar_relocatable>0)
 		{
@@ -599,7 +599,7 @@ void save_bin_cfg()
 	cfg_mem.camera_z=rz;
 	cfg_mem.zoom_level=zoom_level;
 
-	for(i=0;i<6;i++){
+	for(i=0;i<ITEM_EDIT_QUANT;i++){
 		cfg_mem.quantity[i]=quantities.quantity[i].val;
 	}
 	
