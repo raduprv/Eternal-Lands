@@ -162,6 +162,8 @@ static int popup_keypress_handler (window_info *win, int mx, int my, Uint32 key,
 	}
 	else if (key == SDLK_ESCAPE)
 	{
+		if (ipu->popup_cancel != NULL)
+			(*ipu->popup_cancel) ();
 		clear_popup_window (ipu);
 		return 1;
 	}
