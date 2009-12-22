@@ -286,6 +286,16 @@ char
 #ifdef MINIMAP2
 	cm_minimap_menu_str[50],
 #endif
+#ifdef USER_MENUS
+	cm_user_menu_str[150],
+#endif
+#endif
+#if defined(CONTEXT_MENUS) && defined(USER_MENUS)
+	/* user_menus.cpp */
+	um_invalid_command_str[50],
+	um_invalid_line_str[50],
+	um_no_menus_str[50],
+	um_window_title_str[50],
 #endif
 	/* new_character.c */
 	use_appropriate_name[500];
@@ -1333,8 +1343,18 @@ void init_help()
 #ifdef MINIMAP2
 	add_xml_identifier(misc, "cm_minimap_menu", cm_minimap_menu_str, "--\nRotate Minimap\nPin Minimap", sizeof(cm_minimap_menu_str));
 #endif
+#ifdef USER_MENUS
+	add_xml_identifier(misc, "cm_user_menu", cm_user_menu_str, "--\nShow Title\nDraw Border\nSmall Font\nStandard Menus\n--\nShow Commands\n--\nReload Menus\nDisable Menus", sizeof(cm_user_menu_str));
+#endif
 #endif
 	
+#if defined(CONTEXT_MENUS) && defined(USER_MENUS)
+	/* user_menus.cpp */
+	add_xml_identifier(misc, "um_invalid_command", um_invalid_command_str, "Invalid command text", sizeof(um_invalid_command_str));
+	add_xml_identifier(misc, "um_invalid_line", um_invalid_line_str, "<Error: invalid line>", sizeof(um_invalid_line_str));
+	add_xml_identifier(misc, "um_no_menus", um_no_menus_str, "No User Menus", sizeof(um_no_menus_str));
+	add_xml_identifier(misc, "um_window_title", um_window_title_str, "User Menus", sizeof(um_window_title_str));
+#endif
 }
 #endif
 

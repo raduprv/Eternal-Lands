@@ -56,7 +56,6 @@ BBC News||#open_url http://news.bbc.co.uk/
 	- tidy up how the container window creates its context menu
 	- restore context help text
 	- split Container class, possibly into window/container classes
-	- move literal strings to translation module
 	- Add option for key presses (from keys.ini file) do as #key command ?
 	- Add a "pause for no output" #wait ?
 	- block use of #suicide #reset #killme #change_pass - may be store in file
@@ -68,6 +67,8 @@ BBC News||#open_url http://news.bbc.co.uk/
 	- optionally put commands into previous command buffer
 	- parameters should be separate (static ?) class or vars so do not create container usless needed
 	- tear off windows - sounds a lot of work.....
+	- propagate menu list widow opaquity to pop-up menu window
+	- reuse entered text for a menu line if prompt repeated - vinoveritas suggestion
 */
 
 #if defined(CONTEXT_MENUS)
@@ -218,7 +219,6 @@ namespace UserMenus
 			Command_Queue command_queue;
 			static const int name_sep;
 			static const int window_pad;
-			static const char *no_menus;
 
 			void reload(void);
 			void recalc_win_width(void);
@@ -295,7 +295,7 @@ namespace UserMenus
 		// log to the user an invalid command, formatting error
 		if (invalid_command)
 		{
-			LOG_TO_CONSOLE(c_red1, "Invalid command text");
+			LOG_TO_CONSOLE(c_red1, um_invalid_command_str);
 			return;
 		}
 
@@ -337,7 +337,7 @@ namespace UserMenus
 		
 		// log to the user an invalid command, formatting error
 		if (invalid_command)
-			LOG_TO_CONSOLE(c_red1, "Invalid command text");
+			LOG_TO_CONSOLE(c_red1, um_invalid_command_str);
 	}
 
 
@@ -445,7 +445,7 @@ namespace UserMenus
 		// a line must always have at least two fields, the text and a command
 		if (fields.size() == 1)
 		{
-			text = "<Error: invalid line>";
+			text = um_invalid_line_str;
 			fields.clear();
 			return;
 		}
@@ -532,9 +532,6 @@ namespace UserMenus
 	// 	pixels around the window edge
 	const int Container::window_pad = 4;
 
-	//	displayed if no user menus are found
-	const char *Container::no_menus = "No User Menus";
-
 
 	//
 	//	constructor for Container, just initialises attributes
@@ -578,7 +575,7 @@ namespace UserMenus
 
 		reload();
 
-		win_id = create_window("User Menus", -1, 0, win_x_pos, win_y_pos,
+		win_id = create_window(um_window_title_str, -1, 0, win_x_pos, win_y_pos,
 			win_width, get_height(), win_flags);
 			
 		set_window_handler(win_id, ELW_HANDLER_DISPLAY, (int (*)())&display_handler );
@@ -596,7 +593,7 @@ namespace UserMenus
 		context_id = cm_create(cm_title_menu_str, NULL);
 		cm_bool_line(context_id, 1, &windows_list.window[win_id].opaque, NULL);
 		cm_bool_line(context_id, 2, &windows_on_top, "windows_on_top");
-		cm_add(context_id, "--\nShow Title\nDraw Border\nSmall Font\nStandard Menus\n--\nShow Commands\n--\nReload Menus", context_handler);
+		cm_add(context_id, cm_user_menu_str, context_handler);
 		cm_add_window(context_id, win_id);
 
 		cm_bool_line(context_id, ELW_CM_MENU_LEN+1, &title_on, NULL);
@@ -681,9 +678,9 @@ namespace UserMenus
 			else
 				glColor3f(0.40f,0.30f,0.20f);
 			if (use_small_font)
-				draw_string_small(curr_x, window_pad, (const unsigned char *)no_menus, 1 );
+				draw_string_small(curr_x, window_pad, (const unsigned char *)um_no_menus_str, 1 );
 			else
-				draw_string(curr_x, window_pad, (const unsigned char *)no_menus, 1 );
+				draw_string(curr_x, window_pad, (const unsigned char *)um_no_menus_str, 1 );
 			mouse_over_window = false;
 			return 1;
 		}
@@ -870,7 +867,7 @@ namespace UserMenus
 		// if there are no menus, use the size of the message for the window width
 		if (menus.empty())
 		{
-			win_width = 2 * window_pad + calc_actual_width(get_string_width((const unsigned char*)no_menus));
+			win_width = 2 * window_pad + calc_actual_width(get_string_width((const unsigned char*)um_no_menus_str));
 			return;
 		}
 
@@ -975,6 +972,7 @@ namespace UserMenus
 			case ELW_CM_MENU_LEN+2: set_win_flag(&win->flags, ELW_USE_BORDER, border_on); break;
 			case ELW_CM_MENU_LEN+3: recalc_win_width(); break;
 			case ELW_CM_MENU_LEN+4: case ELW_CM_MENU_LEN+8: reload(); break;
+			case ELW_CM_MENU_LEN+9: toggle_user_menus(&enable_user_menus); break;
 		}
 
 		return 1;

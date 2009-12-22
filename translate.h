@@ -433,6 +433,16 @@ extern char
 #ifdef MINIMAP2
 		cm_minimap_menu_str[50],
 #endif
+#ifdef USER_MENUS
+		cm_user_menu_str[150],
+#endif
+#endif
+#if defined(CONTEXT_MENUS) && defined(USER_MENUS)
+		/* user_menus.cpp */
+		um_invalid_command_str[50],
+		um_invalid_line_str[50],
+		um_no_menus_str[50],
+		um_window_title_str[50],
 #endif
 		/* new_character.c */
 		use_appropriate_name[500];
