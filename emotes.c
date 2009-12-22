@@ -42,8 +42,13 @@ char *emote_cats[EMOTES_CATEGORIES]= {
 int emotes_win= -1;
 int emotes_menu_x=10;
 int emotes_menu_y=20;
-int emotes_menu_x_len=12*33+20;
-int emotes_menu_y_len=6*33;
+int emotes_menu_x_len=6*33+15;
+int emotes_menu_y_len=290;
+int emotes_rect_x=170;
+int emotes_rect_y=80;
+int emotes_rect_x2=150;
+int emotes_rect_y2=120;
+
 
 int cur_cat=0;
 emote_data* emote_sel[EMOTES_CATEGORIES]={NULL,NULL,NULL,NULL,NULL};
@@ -101,13 +106,12 @@ void update_selectables(){
 		emote_dict *emd;
 
 		emote_str1[0]=127+c_orange2;
-		safe_strcat((char*)emote_str1,(char*)emote_sel[cur_cat]->desc,sizeof(emote_str1));
+		safe_strcat((char*)emote_str1,(char*)emote_sel[cur_cat]->desc,/*sizeof(emote_str1)*/23);
 		hash_start_iterator(emote_cmds);
 		while((he=hash_get_next(emote_cmds))){
 			emd = (emote_dict*)he->item;
 			if (emd->emote==emote_sel[cur_cat]){
 				int ll;
-				printf("--->%s\n",emd->command);
 				//draw command
 				if(!emote_str2[0]) {
 					emote_str2[0]=127+c_grey1;
@@ -117,11 +121,12 @@ void update_selectables(){
 				emote_str2[ll]=127+c_green3;
 				emote_str2[ll+1]=emote_str2[ll+2]=' ';
 				emote_str2[ll+3]=0;
-				safe_strcat((char*)emote_str2,emd->command,sizeof(emote_str2));
+				safe_strcat((char*)emote_str2,emd->command,/*sizeof(emote_str2)*/23);
+				break; //just one command
 			}
 		}
 	}
-
+	
 }
 
 int display_emotes_handler(window_info *win){
@@ -143,13 +148,13 @@ int display_emotes_handler(window_info *win){
 	glEnable(GL_TEXTURE_2D);
 	
 	SET_COLOR(c_orange1);
-	draw_string_small(20, 10, (unsigned char*)"Categories",1);
-	draw_string_small(emotes_menu_x_len-30-250, 10, (unsigned char*)"Emotes",1);
+	draw_string_small(20, 15, (unsigned char*)"Categories",1);
+	draw_string_small(20, emotes_rect_y+30+5, (unsigned char*)"Emotes",1);
 
 	for(i=0;i<EMOTES_CATEGORIES;i++){
 		if(cur_cat==i) SET_COLOR(c_red3);
 		else glColor3f(0.77f, 0.57f, 0.39f);
-		draw_string_small(22, 31+13*i, (unsigned char*)emote_cats[i],1);
+		draw_string_small(23, 32+13*i, (unsigned char*)emote_cats[i],1);
 	}
 
 	for(i=0;i<EMOTES_SHOWN;i++){
@@ -157,20 +162,20 @@ int display_emotes_handler(window_info *win){
 		else glColor3f(0.77f, 0.57f, 0.39f);
 		if(cur_cat&&act&&selectables[i]==act->poses[cur_cat-1]) SET_COLOR(c_blue1);
 		if(selectables[i])
-			draw_string_small(emotes_menu_x_len-30-250+3, 31+13*i, (unsigned char*)selectables[i]->name,1);
+			draw_string_small(23, 30+emotes_rect_y+20+1+13*i, (unsigned char*)selectables[i]->name,1);
 	}
 	glColor3f(0.77f, 0.57f, 0.39f);
 	//do grids
 	glDisable(GL_TEXTURE_2D);
 		
-	rendergrid(1, 1, 20, 30, 110, 122);
-	rendergrid(1, 1, emotes_menu_x_len-30-250, 30,250, 122);
+	rendergrid(1, 1, 20, 30, emotes_rect_x, emotes_rect_y);
+	rendergrid(1, 1, 20, 30+emotes_rect_y+20, emotes_rect_x2, emotes_rect_y2);
 	glEnable(GL_TEXTURE_2D);
 
 
 	//draw description
 	if(emote_sel[cur_cat]){
-		draw_string_small(20, emotes_menu_y_len-36, emote_str1,1);
+		draw_string_small(20, emotes_menu_y_len-36, emote_str1,2);
 		draw_string_small(20, emotes_menu_y_len-36+16, emote_str2,1);
 	}
 
@@ -187,13 +192,13 @@ int click_emotes_handler(window_info *win, int mx, int my, Uint32 flags){
 
 	//scroll if wheel on selectables
 	if(flags&ELW_WHEEL_UP) {
-		if(mx>emotes_menu_x_len-30-250&&mx<emotes_menu_x_len-30&&my>30&&my<30+122)
+		if(mx>20&&mx<20+emotes_rect_x2&&my>30+emotes_rect_y+20&&my<30+emotes_rect_y+20+emotes_rect_y2)
 			vscrollbar_scroll_up(emotes_win, EMOTES_SCROLLBAR_ITEMS);
 		update_selectables();
 		last_pos=-1;
 		return 0;
 	} else if(flags&ELW_WHEEL_DOWN) {
-		if(mx>emotes_menu_x_len-30-250&&mx<emotes_menu_x_len-30&&my>30&&my<30+122)
+		if(mx>20&&mx<20+emotes_rect_x2&&my>30+emotes_rect_y+20&&my<30+emotes_rect_y+20+emotes_rect_y2)
 			vscrollbar_scroll_down(emotes_win, EMOTES_SCROLLBAR_ITEMS);
 		update_selectables();
 		last_pos=-1;
@@ -204,15 +209,15 @@ int click_emotes_handler(window_info *win, int mx, int my, Uint32 flags){
 	}
 
 
-	if(mx>20&&mx<110&&my>30&&my<30+122){
+	if(mx>20&&mx<20+emotes_rect_x&&my>30&&my<30+emotes_rect_y){
 		//click on a cat
 		cur_cat=(my-30)/13;
 		if(cur_cat>EMOTE_STANDING) cur_cat=EMOTE_STANDING+1;
 		update_selectables();
 		last_pos=-1;
-	} else if(mx>emotes_menu_x_len-30-250&&mx<emotes_menu_x_len-30&&my>30&&my<30+122) {
+	} else if(mx>20&&mx<20+emotes_rect_x2&&my>30+20+emotes_rect_y&&my<30+emotes_rect_y+20+emotes_rect_y2) {
 		//click on selectables
-		int w=(my-30)/13;
+		int w=(my-30-emotes_rect_y-20)/13;
 		emote_sel[cur_cat]=selectables[(w>=EMOTES_SHOWN)?(EMOTES_SHOWN-1):(w)];
 		update_selectables();
 		if ( ((SDL_GetTicks() - last_clicked) < 300)&&last_pos==w) do_handler();
@@ -229,7 +234,7 @@ int click_emotes_handler(window_info *win, int mx, int my, Uint32 flags){
 void display_emotes_menu()
 {
 	if(emotes_win < 0){
-		static int do_button_id=100;
+		//static int do_button_id=100;
 		int our_root_win = -1;
 			
 		if (!windows_on_top) {
@@ -238,11 +243,10 @@ void display_emotes_menu()
 		emotes_win= create_window("Emotes", our_root_win, 0, emotes_menu_x, emotes_menu_y, emotes_menu_x_len, emotes_menu_y_len, ELW_WIN_DEFAULT);
 		set_window_handler(emotes_win, ELW_HANDLER_DISPLAY, &display_emotes_handler );
 		set_window_handler(emotes_win, ELW_HANDLER_CLICK, &click_emotes_handler );
-		vscrollbar_add_extended(emotes_win, EMOTES_SCROLLBAR_ITEMS, NULL, emotes_menu_x_len-30-20, 30, 20, 122, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 20);
+		vscrollbar_add_extended(emotes_win, EMOTES_SCROLLBAR_ITEMS, NULL, emotes_rect_x2+20, 30+emotes_rect_y+20, 20, emotes_rect_y2, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 20);
 
-		
-		do_button_id=button_add_extended(emotes_win, do_button_id, NULL, 33*9+18+10, emotes_menu_y_len-36, 70, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Do!");
-		widget_set_OnClick(emotes_win, do_button_id, do_handler);
+		//do_button_id=button_add_extended(emotes_win, do_button_id, NULL, 33*9+18+10, emotes_menu_y_len-36, 70, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Do!");
+		//widget_set_OnClick(emotes_win, do_button_id, do_handler);
 		update_selectables();
 
 	} else {
