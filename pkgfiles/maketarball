@@ -24,7 +24,7 @@ rm ../temp.${version}.tar.gz
 
 # remove stuff that's not required
 echo "Removing unwanted files from copy"
-rm -rf actor_defs books generic languages map_editor pawn pawn_scripts shader/data shaders skybox temlates eye_candy/textures
+rm -rf actor_defs books generic languages map_editor pawn pawn_scripts shader/data shaders skybox temlates eye_candy/textures tmp_1_8_0
 rm -f e3dlist.txt extentions.xml key.ini material_metadata.xml
 find . -type d -name CVS -exec rm -rf {} \; &> /dev/null
 find . -type d -name CVS -exec rm -rf {} \;
