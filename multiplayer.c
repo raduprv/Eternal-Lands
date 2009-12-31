@@ -713,13 +713,21 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 		case HERE_YOUR_INVENTORY:
 			{
 				int items;
+				int plen;
+#ifdef	ITEM_UID
+				if (item_uid_enabled)
+					plen=10;
+				else
+#endif
+					plen=8;
+		
 				if (data_length <= 3)
 				{
 				  log_error("CAUTION: Possibly forged HERE_YOUR_INVENTORY packet received.\n");
 				  break;
 				}
 				items = in_data[3];
-				if (data_length <= items * 8)
+				if (data_length <= items * plen)
 				{
 				  log_error("CAUTION(2): Possibly forged HERE_YOUR_INVENTORY packet received.\n");
 				  break;
@@ -732,11 +740,19 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 		case GET_NEW_INVENTORY_ITEM:
 			{
+				int plen;
+#ifdef	ITEM_UID
+				if (item_uid_enabled)
+					plen=10;
+				else
+#endif			
+					plen=8;
+				
 				// allow for multiple packets in a row
-				while(data_length >= 11){
+				while(data_length >= 3+plen){
 					get_new_inventory_item(in_data+3);
-					in_data+= 8;
-					data_length-= 8;
+					in_data+= plen;
+					data_length-= plen;
 				}
 			}
 			break;
@@ -1327,13 +1343,21 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 		case GET_YOUR_TRADEOBJECTS:
 			{
 				int items;
+				int plen;
+#ifdef	ITEM_UID
+				if (item_uid_enabled)
+					plen=10;
+				else
+#endif			
+					plen=8;
+
 				if (data_length <= 3)
 				{
 				  log_error("CAUTION: Possibly forged GET_YOUR_TRADEOBJECTS packet received.\n");
 				  break;
 				}
 				items = in_data[3];
-				if (data_length <= items * 8 + 3)
+				if (data_length <= items * plen + 3)
 				{
 				  log_error("CAUTION(2): Possibly forged GET_YOUR_TRADEOBJECTS packet received.\n");
 				  break;
@@ -1344,7 +1368,15 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 		case GET_TRADE_OBJECT:
 			{
-				if (data_length <= 11)
+				int plen;
+#ifdef	ITEM_UID
+				if (item_uid_enabled)
+					plen=10;
+				else
+#endif			
+					plen=8;		
+			
+				if (data_length <= 3+plen)
 				{
 				  log_error("CAUTION: Possibly forged GET_TRADE_OBJECT packet received.\n");
 				  break;

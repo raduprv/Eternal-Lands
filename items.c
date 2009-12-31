@@ -78,6 +78,11 @@ int quantity_y_offset=185;
 int use_small_items_window = 0;
 int manual_size_items_window = 0;
 
+#ifdef ITEM_UID			
+int item_uid_enabled = 0;
+const Uint16 unset_item_uid = (Uint16)-1;
+#endif
+
 #define NUMBUT 4
 #define XLENBUT 29
 #define YLENBUT 33
@@ -278,37 +283,56 @@ void drag_item(int item, int storage, int mini)
 
 void get_your_items (const Uint8 *data)
 {
-	int i,total_items,pos;
+	int i,total_items,pos,len;
 	Uint8 flags;
 
-	total_items=data[0];
+#ifdef ITEM_UID
+	if (item_uid_enabled)
+		len=10;
+	else
+#endif
+		len=8;
 
+	//data[0] -> num_items
+	//data[1] -> image_id
+	//data[3] -> quantity
+	//data[7] -> pos
+	//data[8] -> flags
+	//data[9] -> id
+	
+	
+	total_items=data[0];
+	
 	//clear the items first
 	for(i=0;i<ITEM_NUM_ITEMS;i++){
 		item_list[i].quantity=0;
 	}
 	
 	for(i=0;i<total_items;i++){
-		pos=data[i*8+1+6];
+		pos=data[i*len+1+6];
 		// try not to wipe out cooldown information if no real change
-		if(item_list[pos].image_id != SDL_SwapLE16(*((Uint16 *)(data+i*8+1))) ){
+		if(item_list[pos].image_id != SDL_SwapLE16(*((Uint16 *)(data+i*len+1))) ){
 			item_list[pos].cooldown_time = 0;
 			item_list[pos].cooldown_rate = 1;
 		}
-		item_list[pos].image_id=SDL_SwapLE16(*((Uint16 *)(data+i*8+1)));
-		item_list[pos].quantity=SDL_SwapLE32(*((Uint32 *)(data+i*8+1+2)));
+		item_list[pos].image_id=SDL_SwapLE16(*((Uint16 *)(data+i*len+1)));
+		item_list[pos].quantity=SDL_SwapLE32(*((Uint32 *)(data+i*len+1+2)));
 		item_list[pos].pos=pos;
 #ifdef NEW_SOUND
 		item_list[pos].action = ITEM_NO_ACTION;
 		item_list[pos].action_time = 0;
 #endif // NEW_SOUND
-		flags=data[i*8+1+7];
-
+		flags=data[i*len+1+7];
+#ifdef ITEM_UID
+		if (item_uid_enabled)
+			item_list[pos].id=SDL_SwapLE16(*((Uint16 *)(data+i*len+1+8)));
+		else
+			item_list[pos].id=unset_item_uid;
+#endif
 		item_list[pos].is_resource=((flags&ITEM_RESOURCE)>0);
 		item_list[pos].is_reagent=((flags&ITEM_REAGENT)>0);
 		item_list[pos].use_with_inventory=((flags&ITEM_INVENTORY_USABLE)>0);
 		item_list[pos].is_stackable=((flags&ITEM_STACKABLE)>0);
-
 	}
 
 	build_manufacture_list();
@@ -389,6 +413,14 @@ void get_new_inventory_item (const Uint8 *data)
 	Uint8 flags;
 	int quantity;
 	int image_id;
+#ifdef ITEM_UID			
+	Uint16 id;
+
+	if (item_uid_enabled)
+		id=SDL_SwapLE16(*((Uint16 *)(data+8)));
+	else
+		id=unset_item_uid;
+#endif
 
 	pos= data[6];
 	flags= data[7];
@@ -407,7 +439,9 @@ void get_new_inventory_item (const Uint8 *data)
 	item_list[pos].quantity=quantity;
 	item_list[pos].image_id=image_id;
 	item_list[pos].pos=pos;
-
+#ifdef ITEM_UID			
+	item_list[pos].id=id;
+#endif
 	item_list[pos].is_resource=((flags&ITEM_RESOURCE)>0);
 	item_list[pos].is_reagent=((flags&ITEM_REAGENT)>0);
 	item_list[pos].use_with_inventory=((flags&ITEM_INVENTORY_USABLE)>0);

@@ -154,6 +154,14 @@ void get_storage_items (const Uint8 *in_data, int len)
 	int i;
 	int cat, pos;
 	int idx;
+	int plen;
+
+#ifdef ITEM_UID
+	if (item_uid_enabled)
+		plen=10;
+	else
+#endif			
+		plen=8;
 
 	if (in_data[0] == 255)
 	{
@@ -167,6 +175,12 @@ void get_storage_items (const Uint8 *in_data, int len)
 			{
 				storage_items[i].image_id = SDL_SwapLE16(*((Uint16*)(&in_data[idx])));
 				storage_items[i].quantity = SDL_SwapLE32(*((Uint32*)(&in_data[idx+2])));
+#ifdef ITEM_UID			
+				if (item_uid_enabled)
+					storage_items[i].id = SDL_SwapLE16(*((Uint16*)(&in_data[idx+8])));
+				else
+					storage_items[i].id = unset_item_uid;
+#endif
 				return;
 			}
 		}
@@ -175,6 +189,12 @@ void get_storage_items (const Uint8 *in_data, int len)
 		{
 			if (storage_items[i].quantity == 0)
 			{
+#ifdef ITEM_UID
+				if (item_uid_enabled)
+					storage_items[i].id = SDL_SwapLE16(*((Uint16*)(&in_data[idx+8])));
+				else
+					storage_items[i].id = unset_item_uid;
+#endif
 				storage_items[i].pos = SDL_SwapLE16(*((Uint16*)(&in_data[idx+6])));
 				storage_items[i].image_id = SDL_SwapLE16(*((Uint16*)(&in_data[idx])));
 				storage_items[i].quantity = SDL_SwapLE32(*((Uint32*)(&in_data[idx+2])));
@@ -184,7 +204,7 @@ void get_storage_items (const Uint8 *in_data, int len)
 		}
 	}
 
-	no_storage = (len - 2) / 8;
+	no_storage = (len - 2) / plen;
 
 	cat = find_category(in_data[1]);
 	if (cat >= 0)
@@ -197,11 +217,17 @@ void get_storage_items (const Uint8 *in_data, int len)
 	}
 
 	idx = 2;
-	for (i = 0; i < no_storage && i < STORAGE_ITEMS_SIZE; i++, idx += 8)
+	for (i = 0; i < no_storage && i < STORAGE_ITEMS_SIZE; i++, idx += plen)
 	{
 		storage_items[i].image_id = SDL_SwapLE16(*((Uint16*)(&in_data[idx])));
 		storage_items[i].quantity = SDL_SwapLE32(*((Uint32*)(&in_data[idx+2])));
 		storage_items[i].pos = SDL_SwapLE16(*((Uint16*)(&in_data[idx+6])));
+#ifdef ITEM_UID
+		if (item_uid_enabled)
+			storage_items[i].id = SDL_SwapLE16(*((Uint16*)(&in_data[idx+8])));
+		else
+			storage_items[i].id = unset_item_uid;
+#endif
 	}
 	
 	for ( ; i < STORAGE_ITEMS_SIZE; i++)

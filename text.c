@@ -532,6 +532,15 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		else if (my_strncompare(text_to_add+1, "You found ", 10) && strstr(text_to_add+1, " coins.")) {
 			decrement_harvest_counter(atoi(text_to_add+11));
 		} 
+#ifdef ITEM_UID
+		else if (my_strncompare(text_to_add+1, "Send Item UIDs ", 15)) {
+			if (text_to_add[1+15] == '0')
+				item_uid_enabled = 0;
+			else if (text_to_add[1+15] == '1')
+				item_uid_enabled = 1;
+			printf("item_uid_enabled=%d\n", item_uid_enabled);
+		}
+#endif
 	} else if (channel == CHAT_LOCAL) {
 		if (harvesting && my_strncompare(text_to_add+1, username_str, strlen(username_str))) {
 			char *ptr = text_to_add+1+strlen(username_str);
