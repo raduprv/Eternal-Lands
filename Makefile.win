@@ -6,7 +6,7 @@
 -include make.conf
 
 # basic compiling and linking - rarely changed
-OPTIONS = -mwindows -DWINDOWS -DELC -DWINVER=0x500 $(foreach FEATURE, $(FEATURES), -D$(FEATURE))
+OPTIONS = -DWINDOWS -DELC -DWINVER=0x500 -mwindows $(foreach FEATURE, $(FEATURES), -D$(FEATURE))
 CFLAGS=$(PLATFORM) $(CWARN) -O0 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
 _CFLAGS=$(PLATFORM) -O2 -fomit-frame-pointer -ffast-math -pipe -fno-strict-aliasing $(EXTRA_INCLUDES)
 CXXFLAGS=$(PLATFORM) $(CXXWARN) -O0 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
@@ -129,7 +129,9 @@ $(TMP_LIB): $(OBJS)
 	ranlib $@
 
 $(EXE): main.o $(TMP_LIB)
-	$(LINK) $(CFLAGS) $< -L. -lelc $(LDFLAGS) -o $(EXE)
+	windres elc_private.rc elc_private.o
+	$(LINK) $(CFLAGS) $< -L. -lelc $(LDFLAGS) elc_private.o -o $(EXE)
+	strip -s $(EXE)
 
 #recompile on Makefile or conf change
 .depend $(OBJS): Makefile.win make.conf
