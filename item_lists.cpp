@@ -12,8 +12,6 @@
  * 		Make list array a singleton object?
  * 		Preview Window
  * 			Add buttons Fetch/Delete/Rename etc
- * 			Add quantity feature, to set quantities extracted from inventory from items in preview
- *
  */
 
 #ifdef CONTEXT_MENUS
@@ -34,6 +32,7 @@
 #include "context_menu.h"
 #include "errors.h"
 #include "font.h"
+#include "gl_init.h"
 #include "hud.h"
 #include "init.h"
 #include "io/elpathwrapper.h"
@@ -56,11 +55,12 @@ namespace ItemLists
 			const std::vector<int> & get_object_ids(void) const { return object_ids; }
 			const std::vector<int> & get_quantities(void) const { return quantities; }
 			void write(std::ostream & out) const;
-			bool read(std::istream & in);
+			bool read(std::istream & in, bool temp_version);
 		private:
 			std::string name;
 			std::vector<int> object_ids;
 			std::vector<int> quantities;
+			std::vector<Uint16> item_uid;
 	};
 	
 	
@@ -74,8 +74,8 @@ namespace ItemLists
 	
 	
 	// Set the name, object_ids and quantities for a new list.
-	// If there is nothing in the inventory, the return
-	// value is false, the called should delete the object.
+	// If there is nothing in the inventory, then return
+	// value is false, the caller should delete the object.
 	//
 	bool List::set(std::string save_name)
 	{
@@ -83,8 +83,27 @@ namespace ItemLists
 		for (size_t i=0; i<ITEM_NUM_ITEMS-ITEM_NUM_WEAR; i++)
 			if (item_list[i].quantity > 0)
 			{
+#ifdef ITEM_UID
+				bool stacked_item = false;
+				if (item_list[i].id != unset_item_uid)
+					for (size_t j=0; j<item_uid.size(); j++)
+						if (item_list[i].id == item_uid[j])
+						{
+							quantities[j]++;
+							stacked_item = true;
+							break;
+						}
+				if (!stacked_item)
+				{
+					object_ids.push_back(item_list[i].image_id);
+					quantities.push_back(item_list[i].quantity);
+					item_uid.push_back(item_list[i].id);
+				}
+#else
 				object_ids.push_back(item_list[i].image_id);
 				quantities.push_back(item_list[i].quantity);
+				item_uid.push_back(unset_item_uid);
+#endif
 			}
 		if (quantities.empty())
 			return false;
@@ -104,6 +123,9 @@ namespace ItemLists
 		for (size_t i=0; out && i<quantities.size(); i++)
 			out << quantities[i] << " ";
 		out << std::endl;
+		for (size_t i=0; out && i<item_uid.size(); i++)
+			out << item_uid[i] << " ";
+		out << std::endl;
 	}
 	
 	
@@ -111,21 +133,26 @@ namespace ItemLists
 	//	If an error occurs the function will return false;
 	// 	the caller should delete the object.
 	//
-	bool List::read(std::istream & in)
+	bool List::read(std::istream & in, bool temp_version)
 	{
-		std::string name_line, id_line, cnt_lines;
+		std::string name_line, id_line, cnt_line, item_uid_line;
 
 		// each part is on a separate line, but allow empty lines
 		while (getline(in, name_line) && name_line.empty());
 		while (getline(in, id_line) && id_line.empty());
-		while (getline(in, cnt_lines) && cnt_lines.empty());
+		while (getline(in, cnt_line) && cnt_line.empty());
+		// temporary code just to maintain first file format...
+		if (temp_version)
+			item_uid_line = "XXX";
+		else
+			while (getline(in, item_uid_line) && item_uid_line.empty());
 
 		// mop up extra lines at the end of the file silently
 		if (name_line.empty())
 			return false;
 
 		// a name without data is not a list!
-		if (id_line.empty() || cnt_lines.empty())
+		if (id_line.empty() || cnt_line.empty() || item_uid_line.empty())
 		{
 			LOG_ERROR("%s: Failed reading item list name=[%s]\n", __FILE__, name_line.c_str() );
 			return false;
@@ -139,15 +166,29 @@ namespace ItemLists
 
 		// read each quantity value
 		ss.clear();
-		ss.str(cnt_lines);
+		ss.str(cnt_line);
 		value = 0;
 		while (ss >> value)
 			quantities.push_back(value);
 
-		// don't use a list with unequal or empty data sets
-		if ((quantities.size() != object_ids.size()) || quantities.empty())
+		// temporary code just to maintain first file format...
+		if (temp_version)
+			item_uid.resize(quantities.size(), unset_item_uid);
+		// just do this next in the next version
+		else
 		{
-			LOG_ERROR("%s: Failed reading item list name=[%s] #id=%d #cnts=%d\n", __FILE__, name_line.c_str(), object_ids.size(), quantities.size() );
+			// read each item uid value
+			ss.clear();
+			ss.str(item_uid_line);
+			Uint16 ui_value = 0;
+			while (ss >> ui_value)
+				item_uid.push_back(ui_value);
+		}
+
+		// don't use a list with unequal or empty data sets
+		if ((quantities.size() != object_ids.size()) || (quantities.size() != item_uid.size()) || quantities.empty())
+		{
+			LOG_ERROR("%s: Failed reading item list name=[%s] #id=%d #cnts=%d #uid=%d\n", __FILE__, name_line.c_str(), object_ids.size(), quantities.size(), item_uid.size() );
 			return false;
 		}
 
@@ -161,7 +202,7 @@ namespace ItemLists
 
 
 static std::vector<ItemLists::List> saved_item_lists;
-static float FILE_REVISION = 0.1;
+static float FILE_REVISION = 2;
 static INPUT_POPUP ipu_item_list_name;
 static int delete_item_list = 0;
 static int preview_win = -1;
@@ -236,7 +277,7 @@ static void load_item_lists(void)
 
 	float revision;
 	in >> revision;
-	if (revision != FILE_REVISION)
+	if ((revision != FILE_REVISION) && (revision != static_cast<float>(0.1)))
 	{
 		LOG_ERROR("%s: Item lists file is not compatible with client version [%s]\n", __FILE__, fullpath.c_str() );
 		return;
@@ -246,7 +287,7 @@ static void load_item_lists(void)
 	while (!in.eof())
 	{
 		saved_item_lists.push_back(ItemLists::List());
-		if (!saved_item_lists.back().read(in))
+		if (!saved_item_lists.back().read(in, (revision == static_cast<float>(0.1))))
 			saved_item_lists.pop_back();
 	}
 	update_list_window();
@@ -366,7 +407,7 @@ static int click_preview_handler(window_info *win, int mx, int my, Uint32 flags)
 	else if (flags & ELW_LEFT_MOUSE)
 	{
 		saved_item_lists[previewed_list].fetch();
-		hide_window(preview_win);
+		// for now don't hide.... hide_window(preview_win);
 #ifdef NEW_SOUND
 		add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
 #endif
@@ -394,7 +435,7 @@ static int mouseover_preview_handler(window_info *win, int mx, int my)
 	if (my < 0)
 		return 0;
 	size_t item_number = get_preview_item_number(mx, my);
-	if ((item_number > 0) && (item_number < saved_item_lists[previewed_list].get_quantities().size()))
+	if ((item_number >= 0) && (item_number < saved_item_lists[previewed_list].get_quantities().size()))
 		preview_help_str = preview_quantity_help_str;
 	else
 		preview_help_str = preview_fetch_help_str;
@@ -402,7 +443,7 @@ static int mouseover_preview_handler(window_info *win, int mx, int my)
 }
 
 
-//  Called when the preview window is hiden, can any quantity setting
+//  Called when the preview window is hidden, undo any quantity setting
 //
 static int hide_preview_handler(window_info *win)
 {
@@ -561,7 +602,13 @@ extern "C"
 		{ return list_window_handler(win, widget_id, mx, my, option); }
 
 	void cm_item_list_pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win)
-		{ move_window(cm_win->window_id, -1, 0, win->cur_x + win->len_x + 2, win->cur_y); }
+	{
+		int offset = 5 + int( 0.5 + 0.8 * DEFAULT_FONT_Y_LEN + 3);
+		int new_y_pos = win->cur_y + offset * (SDL_GetTicks() & 1);
+		if (new_y_pos + cm_win->len_y > window_height)
+			new_y_pos = window_height - cm_win->len_y - offset * (SDL_GetTicks() & 1);
+		move_window(cm_win->window_id, -1, 0, win->cur_x + win->len_x + 2, new_y_pos);
+	}
 
 	void show_items_list_window(int is_delete)
 		{ show_window((is_delete == 1) ?true :false); }
