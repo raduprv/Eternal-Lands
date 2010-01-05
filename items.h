@@ -120,8 +120,8 @@ extern int items_dropall_nolastrow;
 
 #ifdef ITEM_UID			
 extern int item_uid_enabled;
-extern const Uint16 unset_item_uid;
 #endif
+extern const Uint16 unset_item_uid;
 
 #ifdef NEW_SOUND
 void update_item_sound(int interval);

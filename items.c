@@ -80,8 +80,8 @@ int manual_size_items_window = 0;
 
 #ifdef ITEM_UID			
 int item_uid_enabled = 0;
-const Uint16 unset_item_uid = (Uint16)-1;
 #endif
+const Uint16 unset_item_uid = (Uint16)-1;
 
 #define NUMBUT 4
 #define XLENBUT 29
