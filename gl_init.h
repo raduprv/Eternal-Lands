@@ -25,6 +25,7 @@ extern int video_user_height; /*!< userdefined window height */
 extern int disable_window_adjustment; /*<! Switch off window size adjustment for window borders, task bar and the like */
 extern int full_screen; /*!< flag that inidicates whether we are in fullscreen or windowed mode */
 extern int fsaa; /*!< flag that inidicates what level of fsaa to use */
+extern int disable_gamma_adjust;
 extern float gamma_var; /*!< The current gamma value */
 extern float perspective; /*!< The perspective "angle". Higher values mean higher distortion. Default is 0.15f */
 #ifdef SKY_FPV

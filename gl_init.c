@@ -51,6 +51,7 @@ int use_mipmaps = 0;
 int use_draw_range_elements = 1;
 int fsaa = 0;
 float anisotropic_filter = 1.0f;
+int disable_gamma_adjust = 0;
 float gamma_var = 1.00f;
 float perspective = 0.15f;
 #ifndef SKY_FPV
@@ -1148,7 +1149,8 @@ void toggle_full_screen()
 	full_screen=!full_screen;
 	switch_video(video_mode, full_screen);
 	build_video_mode_array();
-	SDL_SetGamma(gamma_var, gamma_var, gamma_var);
+	if (!disable_gamma_adjust)
+		SDL_SetGamma(gamma_var, gamma_var, gamma_var);
 	SDL_SetModState(KMOD_NONE); // force ALL keys up
 }
 

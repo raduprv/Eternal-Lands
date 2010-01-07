@@ -934,7 +934,8 @@ void init_stuff()
 	init_books();
 
 	update_loading_win(init_display_str, 5);
-	SDL_SetGamma(gamma_var, gamma_var, gamma_var);
+	if (!disable_gamma_adjust)
+		SDL_SetGamma(gamma_var, gamma_var, gamma_var);
 
 	draw_scene_timer= SDL_AddTimer (1000/(18*4), my_timer, NULL);
 	misc_timer= SDL_AddTimer (500, check_misc, NULL);
