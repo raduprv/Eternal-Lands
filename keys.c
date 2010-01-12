@@ -65,6 +65,7 @@ Uint32 K_SCREENSHOT=CTRL|'p';
 Uint32 K_VIEWTEXTASOVERTEXT=ALT|'o';
 Uint32 K_AFK=CTRL|ALT|'a';
 Uint32 K_SIT=ALT|'s';
+Uint32 K_RANGINGLOCK=ALT|'r';
 Uint32 K_BUDDY=CTRL|'b';
 Uint32 K_NEXT_CHAT_TAB=CTRL|SDLK_PAGEDOWN;
 Uint32 K_PREV_CHAT_TAB=CTRL|SDLK_PAGEUP;
@@ -465,6 +466,8 @@ void read_key_config()
 		K_AFK = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_SIT",file_mem,key_file_size,0))!=-1)
 		K_SIT = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_RANGINGLOCK",file_mem,key_file_size,0))!=-1)
+		K_RANGINGLOCK = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_BUDDY",file_mem,key_file_size,0))!=-1)
 		K_BUDDY = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_NEXT_CHAT_TAB",file_mem,key_file_size,0))!=-1)

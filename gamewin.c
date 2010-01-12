@@ -96,6 +96,7 @@ extern int e3d_count, e3d_total;    // LRNR:stats testing only
 #ifdef CONTEXT_MENUS
 int cm_banner_disabled = 0;
 #endif
+static int ranging_lock = 0;
 
 void draw_special_cursors()
 {
@@ -461,7 +462,7 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 		{
 			elwin_mouse = CURSOR_TRADE;
 		}
-		else if(alt_on || action_mode==ACTION_ATTACK)
+		else if(alt_on || action_mode==ACTION_ATTACK || ranging_lock)
 		{
 			elwin_mouse = CURSOR_ATTACK;
 		}
@@ -493,7 +494,7 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 		{
 			elwin_mouse = CURSOR_WAND;
 		}
-		else if(alt_on || action_mode==ACTION_ATTACK || (actor_under_mouse && !actor_under_mouse->dead))
+		else if(alt_on || action_mode==ACTION_ATTACK || ranging_lock || (actor_under_mouse && !actor_under_mouse->dead))
 		{
 			elwin_mouse = CURSOR_ATTACK;
 		}
@@ -581,7 +582,8 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 						cm_bool_line(cm_id, 3, &view_chat_text_as_overtext, NULL);
 						cm_bool_line(cm_id, 4, &use_alpha_banner, "use_alpha_banner");
 						cm_bool_line(cm_id, 5, &sit_lock, "sit_lock");
-						cm_bool_line(cm_id, 6, &cm_banner_disabled, "cm_banner_disabled");
+						cm_bool_line(cm_id, 6, &ranging_lock, NULL);
+						cm_bool_line(cm_id, 8, &cm_banner_disabled, "cm_banner_disabled");
 					}
 					cm_show_direct(cm_id, -1, -1);
 					reset_cursor_time = SDL_GetTicks();
@@ -810,7 +812,8 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			if (object_under_mouse == -1)
 				return 1;
 			if (you_sit && sit_lock && !flag_ctrl){
-				LOG_TO_CONSOLE(c_green1, no_walk_with_sitlock);
+				if(your_actor != NULL)
+					add_highlight(your_actor->x_tile_pos,your_actor->y_tile_pos, HIGHLIGHT_TYPE_LOCK);
 				return 1;
 			}
 			if (thing_under_the_mouse == UNDER_MOUSE_PLAYER || thing_under_the_mouse == UNDER_MOUSE_NPC || thing_under_the_mouse == UNDER_MOUSE_ANIMAL)
@@ -918,8 +921,14 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 
 			if (flag_alt && range_weapon_equipped)
 				return 1;
+			if (ranging_lock && range_weapon_equipped){
+				if(your_actor != NULL)
+					add_highlight(your_actor->x_tile_pos,your_actor->y_tile_pos, HIGHLIGHT_TYPE_LOCK);
+				return 1;
+			}
 			if (you_sit && sit_lock && !flag_ctrl){
-				LOG_TO_CONSOLE(c_green1, no_walk_with_sitlock);
+				if(your_actor != NULL)
+					add_highlight(your_actor->x_tile_pos,your_actor->y_tile_pos, HIGHLIGHT_TYPE_LOCK);
 				return 1;
 			}
 
@@ -1955,6 +1964,14 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	else if (key == K_SHADOWS)
 	{
 		clouds_shadows = !clouds_shadows;
+	}
+	else if (key == K_RANGINGLOCK)
+	{
+		ranging_lock = !ranging_lock;
+		if (ranging_lock)
+			LOG_TO_CONSOLE(c_green1, ranginglock_enabled_str);
+		else
+			LOG_TO_CONSOLE(c_green1, ranginglock_disabled_str);
 	}
 	// open or close windows
 	else if (key == K_STATS)

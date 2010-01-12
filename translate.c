@@ -153,6 +153,9 @@ char
 	urlwin_clear_str[30],
 	/*draw_scene.c*/
 	low_framerate_str[100],
+	/*gamewin.c*/
+	ranginglock_enabled_str[50],
+	ranginglock_disabled_str[50],
 	/*gl_init.c*/
 	window_size_adjusted_str[50],
 	/*hud.c*/
@@ -274,7 +277,7 @@ char
 	cm_textedit_menu_str[50],
 	cm_quickbar_menu_str[150],
 	cm_hud_menu_str[250],
-	cm_banner_menu_str[150],
+	cm_banner_menu_str[175],
 	cm_title_menu_str[150],
 	cm_title_help_str[50],
 	cm_items_menu_str[150],
@@ -425,6 +428,7 @@ char	reg_error_str[15],
 #ifdef ELC
 	/*gamewin.c*/
 	no_walk_with_sitlock[100],
+	no_walk_with_ranginglock[100],
 	/*init.c*/
 	no_stencil_str[150],
 	safemode_str[150],
@@ -988,6 +992,7 @@ void init_errors()
 
 	//Miscellaneous errors
 	add_xml_identifier(misc,"no_walk_sitlock",no_walk_with_sitlock,"Sitlock is enabled. Disable it or stand before walking.",sizeof(no_walk_with_sitlock));
+	add_xml_identifier(misc,"no_walk_ranginglock",no_walk_with_ranginglock,"Ranging-Lock is enabled. Disable it or unequip ranging weapon before walking.",sizeof(no_walk_with_ranginglock));
 	add_xml_identifier(misc,"error",reg_error_str,"Error",sizeof(reg_error_str));
 	add_xml_identifier(misc,"objerr",object_error_str,"Object error",sizeof(object_error_str));
 	add_xml_identifier(misc,"nasty",nasty_error_str,"Something nasty happened while trying to process: %s",sizeof(nasty_error_str));
@@ -1220,6 +1225,8 @@ void init_help()
 	add_xml_identifier(misc,"channel_help",channel_help_str,"Click a Channel to join. You can be in up to 3 channels at a time.\n\nTo talk in a channel, type @ before your message. You do not have to type @ to talk in Local.",sizeof(channel_help_str));
 	add_xml_identifier(misc,"stats_scroll_help",stats_scroll_help_str,"Scroll Up/Down using CTRL+left/CTRL+right click or scrollwheel.",sizeof(stats_scroll_help_str));
 	add_xml_identifier(misc,"dc_note_rm",dc_note_remove,"Double-click to remove this category",sizeof(dc_note_remove));
+	add_xml_identifier(misc,"ranginglock_enabled",ranginglock_enabled_str,"Ranging-Lock is now enabled.",sizeof(ranginglock_enabled_str));
+	add_xml_identifier(misc,"ranginglock_disabled",ranginglock_disabled_str,"Ranging-Lock is now disabled.",sizeof(ranginglock_disabled_str));
 
 	//New characters
 	add_xml_identifier(new,"skin",skin_str,"Skin",sizeof(skin_str));
@@ -1331,7 +1338,7 @@ void init_help()
 	add_xml_identifier(misc, "cm_textedit_menu", cm_textedit_menu_str, "Cut\nCopy\nPaste\n", sizeof(cm_textedit_menu_str));
 	add_xml_identifier(misc, "cm_quickbar_menu", cm_quickbar_menu_str, "Quickbar Relocatable\nQuickbar Draggable\nReset Quickbar Position\nFlip Quickbar\nEnable Quickbar Menu\n", sizeof(cm_quickbar_menu_str));
 	add_xml_identifier(misc, "cm_hud_menu", cm_hud_menu_str, "Show Stats\nShow Stats Bars\nShow Digital Clock\nShow Analogue Clock\nShow Seconds\nShow FPS\nShow Minimap\nEnable Quickbar Menu\n--\nEnable Sound Effects\nEnable Music\n", sizeof(cm_hud_menu_str));
-	add_xml_identifier(misc, "cm_banner_menu", cm_banner_menu_str, "Show Names\nShow Health Bars\nShow Health Numbers\nShow Speech Bubbles\nEnable Banner Background\nSit Lock\nDisable This Menu\n", sizeof(cm_banner_menu_str));
+	add_xml_identifier(misc, "cm_banner_menu", cm_banner_menu_str, "Show Names\nShow Health Bars\nShow Health Numbers\nShow Speech Bubbles\nEnable Banner Background\nSit Lock\nRanging Lock\n--\nDisable This Menu\n", sizeof(cm_banner_menu_str));
 	add_xml_identifier(misc, "cm_title_menu", cm_title_menu_str, "Hide Windows\nOpaque Background\nWindows On Top\n", sizeof(cm_title_menu_str));
 	add_xml_identifier(misc, "cm_title_help", cm_title_help_str, "Right-click for window menu", sizeof(cm_title_help_str));
 	add_xml_identifier(misc, "cm_items_menu", cm_items_menu_str, "--\nUse Small Window\nManual Window Size\nItem Window On Drop\nAllow Equipment Swap\n--\nOpen Storage (View Only)", sizeof(cm_items_menu_str));

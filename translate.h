@@ -291,6 +291,9 @@ extern char
 		/*filter.c*/
 		no_filters_str[50],
 		filters_str[50],
+		/*gamewin.c*/
+		ranginglock_enabled_str[50],
+		ranginglock_disabled_str[50],
 		/*gl_init.c*/
 		window_size_adjusted_str[50],
 		/*hud.c*/
@@ -421,7 +424,7 @@ extern char
 		cm_textedit_menu_str[50],
 		cm_quickbar_menu_str[150],
 		cm_hud_menu_str[250],
-		cm_banner_menu_str[150],
+		cm_banner_menu_str[175],
 		cm_title_menu_str[150],
 		cm_title_help_str[50],
 		cm_items_menu_str[150],
@@ -529,6 +532,7 @@ extern char	reg_error_str[15],
 #ifdef ELC
 		/*gamewin.c*/
 		no_walk_with_sitlock[100],
+		no_walk_with_ranginglock[100],
 		/*gl_init.c*/
 		no_stencil_str[150],
 		safemode_str[150], 
