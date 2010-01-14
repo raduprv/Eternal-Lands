@@ -77,6 +77,8 @@ int display_knowledge_handler(window_info *win)
 	int scroll = vscrollbar_get_pos (knowledge_win, knowledge_scroll_id);
 	char points_string[16];
 	char *research_string;
+	int rx = win->len_x - 15;
+	int lx = win->len_x - 15 - (455-330);
 	
 	if(your_info.research_total && 
 	   (your_info.research_completed==your_info.research_total))
@@ -107,23 +109,23 @@ int display_knowledge_handler(window_info *win)
 	glVertex3i(0,300,0);
 	glVertex3i(win->len_x,300,0);
 	//progress bar
-	glVertex3i(330,315,0);
-	glVertex3i(455,315,0);
-	glVertex3i(330,335,0);
-	glVertex3i(455,335,0);
-	glVertex3i(330,315,0);
-	glVertex3i(330,335,0);
-	glVertex3i(455,315,0);
-	glVertex3i(455,335,0);
+	glVertex3i(lx,315,0);
+	glVertex3i(rx,315,0);
+	glVertex3i(lx,335,0);
+	glVertex3i(rx,335,0);
+	glVertex3i(lx,315,0);
+	glVertex3i(lx,335,0);
+	glVertex3i(rx,315,0);
+	glVertex3i(rx,335,0);
 	glEnd();
 	glBegin(GL_QUADS);
 	//progress bar
 	glColor3f(0.40f,0.40f,1.00f);
-	glVertex3i(331,316,0);
-	glVertex3i(330+progress,316,0);
+	glVertex3i(lx+1,316,0);
+	glVertex3i(lx+progress,316,0);
 	glColor3f(0.10f,0.10f,0.80f);
-	glVertex3i(330+progress,334,0);
-	glVertex3i(331,334,0);
+	glVertex3i(lx+progress,334,0);
+	glVertex3i(lx+1,334,0);
 	glColor3f(0.77f,0.57f,0.39f);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
@@ -132,7 +134,7 @@ int display_knowledge_handler(window_info *win)
 	glColor3f(1.0f,1.0f,1.0f);
 	draw_string_small(10,320,(unsigned char*)researching_str,1);
 	draw_string_small(120,320,(unsigned char*)research_string,1);
-	draw_string_small(355,320,(unsigned char*)points_string,1);
+	draw_string_small(lx+25,320,(unsigned char*)points_string,1);
 	// Draw knowledges
 	for(i = 2*scroll; i < 2 * (scroll + 19); i++)
 	{
