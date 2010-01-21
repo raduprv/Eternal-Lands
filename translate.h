@@ -292,7 +292,7 @@ extern char
 		no_filters_str[50],
 		filters_str[50],
 		/*gamewin.c*/
-		ranginglock_enabled_str[50],
+		ranginglock_enabled_str[100],
 		ranginglock_disabled_str[50],
 		/*gl_init.c*/
 		window_size_adjusted_str[50],
@@ -532,7 +532,6 @@ extern char	reg_error_str[15],
 #ifdef ELC
 		/*gamewin.c*/
 		no_walk_with_sitlock[100],
-		no_walk_with_ranginglock[100],
 		/*gl_init.c*/
 		no_stencil_str[150],
 		safemode_str[150], 

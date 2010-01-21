@@ -154,7 +154,7 @@ char
 	/*draw_scene.c*/
 	low_framerate_str[100],
 	/*gamewin.c*/
-	ranginglock_enabled_str[50],
+	ranginglock_enabled_str[100],
 	ranginglock_disabled_str[50],
 	/*gl_init.c*/
 	window_size_adjusted_str[50],
@@ -428,7 +428,6 @@ char	reg_error_str[15],
 #ifdef ELC
 	/*gamewin.c*/
 	no_walk_with_sitlock[100],
-	no_walk_with_ranginglock[100],
 	/*init.c*/
 	no_stencil_str[150],
 	safemode_str[150],
@@ -992,7 +991,6 @@ void init_errors()
 
 	//Miscellaneous errors
 	add_xml_identifier(misc,"no_walk_sitlock",no_walk_with_sitlock,"Sitlock is enabled. Disable it or stand before walking.",sizeof(no_walk_with_sitlock));
-	add_xml_identifier(misc,"no_walk_ranginglock",no_walk_with_ranginglock,"Ranging-Lock is enabled. Disable it or unequip ranging weapon before walking.",sizeof(no_walk_with_ranginglock));
 	add_xml_identifier(misc,"error",reg_error_str,"Error",sizeof(reg_error_str));
 	add_xml_identifier(misc,"objerr",object_error_str,"Object error",sizeof(object_error_str));
 	add_xml_identifier(misc,"nasty",nasty_error_str,"Something nasty happened while trying to process: %s",sizeof(nasty_error_str));
@@ -1225,7 +1223,7 @@ void init_help()
 	add_xml_identifier(misc,"channel_help",channel_help_str,"Click a Channel to join. You can be in up to 3 channels at a time.\n\nTo talk in a channel, type @ before your message. You do not have to type @ to talk in Local.",sizeof(channel_help_str));
 	add_xml_identifier(misc,"stats_scroll_help",stats_scroll_help_str,"Scroll Up/Down using CTRL+left/CTRL+right click or scrollwheel.",sizeof(stats_scroll_help_str));
 	add_xml_identifier(misc,"dc_note_rm",dc_note_remove,"Double-click to remove this category",sizeof(dc_note_remove));
-	add_xml_identifier(misc,"ranginglock_enabled",ranginglock_enabled_str,"Ranging-Lock is now enabled.",sizeof(ranginglock_enabled_str));
+	add_xml_identifier(misc,"ranginglock_enabled",ranginglock_enabled_str,"Ranging-Lock is now enabled. Disable it or unequip ranging weapon before walking.",sizeof(ranginglock_enabled_str));
 	add_xml_identifier(misc,"ranginglock_disabled",ranginglock_disabled_str,"Ranging-Lock is now disabled.",sizeof(ranginglock_disabled_str));
 
 	//New characters
