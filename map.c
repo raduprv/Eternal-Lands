@@ -472,7 +472,7 @@ void load_server_markings(){
 	server_mark sm;
 	int rf;
 
-	if (!server_marks) init_server_markers();
+	init_server_markers();
 	
 	//open server markings file
 	safe_snprintf(fname, sizeof(fname), "servermarks_%s.dat",username_str);
