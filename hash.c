@@ -113,15 +113,23 @@ int hash_delete(hash_table *table, void *key){
 void hash_start_iterator(hash_table *table){ 
 	if(!table) return;
 	table->cur=table->store[0];
-	table->where=0;
+	table->where=-1;
 }
 
 hash_entry *hash_get_next(hash_table *table){
 
-	if(!table||table->where>=table->size) return NULL;
+	if(!table||table->where>=table->size) {
+		return NULL;
+	}
 
-	if(table->cur&&table->cur->next)
+	if(table->where==-1&&table->cur&&table->cur==table->store[0]) {
+		table->where++;
+		return table->store[0];
+	}
+
+	if(table->cur&&table->cur->next){
 			return (table->cur = table->cur->next);
+			}
 
 	table->cur=NULL;
 	table->where++;

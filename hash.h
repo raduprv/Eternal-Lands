@@ -8,12 +8,12 @@ typedef struct _hash_entry{
 } hash_entry;
 
 typedef struct _hash_table{
-	unsigned int size;
-	unsigned int items;
+	int size;
+	int items;
 	hash_entry **store;
 
 	hash_entry *cur;
-	unsigned int where;
+	int where;
 	
 	unsigned long int (*hash_fun)(void *);
 	int (*key_cmp)(void *, void *);
