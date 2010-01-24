@@ -1205,7 +1205,7 @@ int display_game_handler (window_info *win)
 				glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 1);
 #endif
 			display_objects();
-			display_ground_objects();
+			display_ground_objects();	
 			display_actors(1, DEFAULT_RENDER_PASS);
 			display_alpha_objects();
 			display_blended_objects();
@@ -1421,7 +1421,10 @@ int display_game_handler (window_info *win)
 		display_special_effects(1);
 	}
 	display_highlight_markers();
-	
+	animate_map_markers();
+	display_map_markers();
+	display_map_marks();
+
 	glEnable (GL_LIGHTING);
 
 	// Return to 2D mode to draw the other windows

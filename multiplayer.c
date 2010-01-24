@@ -642,6 +642,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 				load_quickspells();
 				load_recipes();
+				load_server_markings();
 
 				load_counters();
 				send_video_info();
@@ -1924,6 +1925,51 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				missiles_fire_xyz_to_b(source,SDL_SwapLE16(*((short *)(in_data+3))));
 			}
 			break;
+		case SEND_MAP_MARKER:
+			{
+			//in_data[3]=id
+			//in_data[5]=x;
+			//in_data[7]=y;
+			//map_name\0text\0
+			int i,fl=0,k=0;
+			server_mark *sm;
+
+			if (data_length <= 10)
+				{
+				  log_error("CAUTION: Possibly forged SEND_MAP_MARKER packet received.\n");
+				  break;
+				}
+			sm = calloc(1,sizeof(server_mark));//memory is set to zero
+			sm->x=SDL_SwapLE16(*((short *)(in_data+5)));
+			sm->y=SDL_SwapLE16(*((short *)(in_data+7)));
+			sm->id=SDL_SwapLE16(*((short *)(in_data+3)));
+			for(i=9;i<data_length;i++){
+				if(in_data[i]==0) {fl=1; k=0; continue;}
+				if(!fl) sm->map_name[k++]=in_data[i]; //reading map name
+				else sm->text[k++]=in_data[i];//reading mark text
+			}
+			//printf("ADD MARKER: %i %i %i %s %s\n",sm->id,sm->x,sm->y,sm->map_name,sm->text);
+			if(!server_marks) init_server_markers();
+			hash_delete(server_marks,(NULL+sm->id)); //remove old marker if present
+			hash_add(server_marks,(NULL+sm->id),(void*)sm);
+			save_server_markings();
+			add_server_markers(); //load again, so the new marker is added correctly.
+			break;
+			}
+		case REMOVE_MAP_MARKER:
+			{
+			int id;
+			if (data_length <= 4)
+				{
+				  log_error("CAUTION: Possibly forged REMOVE_MAP_MARKER packet received.\n");
+				  break;
+				}
+			id=SDL_SwapLE16(*((short *)(in_data+3)));
+			hash_delete(server_marks,(NULL+id)); //remove marker if present
+			save_server_markings();			
+			add_server_markers(); //load again, so the new marker is removed correctly.
+			break;
+			}
 		default:
 			{
 				// Unknown packet type??

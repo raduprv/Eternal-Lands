@@ -33,7 +33,7 @@
 int adding_mark = 0;
 int mark_x , mark_y;
 int max_mark = 0;
-marking marks[200];
+marking marks[MAX_MARKINGS];
 
 int mod_key_status;
 //Uint32 last_turn_around=0;

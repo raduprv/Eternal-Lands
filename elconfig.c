@@ -81,6 +81,8 @@
 #include "actor_init.h"
 #include "io/elpathwrapper.h"
 
+#include "map.h"
+
 typedef	float (*float_min_max_func)();
 typedef	int (*int_min_max_func)();
 
@@ -1706,6 +1708,7 @@ void init_vars()
 #if defined(CONTEXT_MENUS) && defined(USER_MENUS)
 	add_var(OPT_BOOL,"enable_user_menus", "user_menus", &enable_user_menus, toggle_user_menus, 0, "Enable User Menus","Create .menu files in your config directory.  First line is the menu name. After that, each line is a command using the format \"Menus Text||command\".  Prompt for input using \"command text <prompt text>\". A line can include multiple commands.",HUD);
 #endif
+	add_var(OPT_BOOL,"3d_map_markers","3dmarks",&marks_3d,change_3d_marks,1,"Enable 3D Map Markers","Shows user map markers in the game window",HUD);
 
 
 #ifndef MAP_EDITOR2

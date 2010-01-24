@@ -44,9 +44,13 @@
 #ifdef NEW_LIGHTING
  #include "textures.h"
 #endif
+#include "highlight.h"
 
 int map_type=1;
 Uint32 map_flags=0;
+
+hash_table *server_marks=NULL;
+
 
 void destroy_map()
 {
@@ -262,6 +266,8 @@ void change_map (const char *mapname)
 	} else {
 		locked_to_console = 0;
 	}
+	load_map_marks();
+	
 #ifndef NEW_WEATHER
 	rain_sound=0;//kill local sounds also kills the rain sound
 #endif
@@ -283,7 +289,6 @@ void change_map (const char *mapname)
 		switch_from_game_map ();
 		show_window(game_root_win);
 	}
-	load_map_marks();//Load the map marks
 #else // !MAP_EDITOR2
 	destroy_all_particles();
 #ifdef NEW_SOUND
@@ -297,6 +302,7 @@ void change_map (const char *mapname)
 		LOG_ERROR(cant_change_map, mapname);
 		load_empty_map();
 	}
+
 #ifdef NEW_SOUND
 	get_map_playlist();
 	setup_map_sounds(get_cur_map(mapname));
@@ -347,12 +353,54 @@ int load_empty_map()
 	return 1;
 }
 
+
+void init_server_markers(){
+	//init hash table
+	destroy_hash_table(server_marks);
+	server_marks= create_hash_table(50,hash_fn_int,cmp_fn_int,free);
+}
+
+void add_server_markers(){
+
+	hash_entry *he;
+	server_mark *sm;
+	int i,l;
+	char *mapname = map_file_name;
+
+	//find the slot to add server marks
+	for(i=0;i<max_mark;i++)
+		if(marks[i].server_side) break;
+	l=i;
+	
+	if(!server_marks) init_server_markers();
+	if(server_marks) {
+		hash_start_iterator(server_marks);
+		while((he=hash_get_next(server_marks))){
+			sm = (server_mark *) he->item;
+			//is it in this map?
+			if(strcmp(mapname,sm->map_name)) continue;
+			//find the next slot. If not there, add 1
+			for(i=l;i<MAX_MARKINGS;i++) 
+				if(marks[i].server_side||i>=max_mark) {l=i; if(l>=max_mark) max_mark=l+1; break;}
+			//add the marker
+			marks[l].x=sm->x;
+			marks[l].y=sm->y;
+			marks[l].server_side=1;
+			safe_strncpy(marks[l].text, sm->text, sizeof(marks[l].text));
+		}
+		//remove server side markings if necessary
+		for(i=l+1;i<max_mark;i++)
+			if(marks[i].server_side) {marks[i].server_side=0;marks[i].x=marks[i].y=-1;}
+	}
+}
+
+
 void load_map_marks()
 { 
 	FILE * fp = NULL;
 	char marks_file[256] = {0}, text[600] = {0};
 	char *mapname = strrchr (map_file_name,'/');
-
+	
 	if(mapname == NULL) {
 		//Oops
 		return;
@@ -367,24 +415,117 @@ void load_map_marks()
 	max_mark = 0;
 	
 	if (fp == NULL) return;
+
 	
+	//load user markers
 	while ( fgets(text, 600,fp) ) {
 		if (strlen (text) > 1) {
 			sscanf (text, "%d %d", &marks[max_mark].x, &marks[max_mark].y);
+			marks[max_mark].server_side=0;
 			text[strlen(text)-1] = '\0'; //remove the newline
 			if ((strstr(text, " ") == NULL) || (strstr(strstr(text, " ")+1, " ") == NULL)) {
  				LOG_ERROR("Bad map mark file=[%s] text=[%s]", marks_file, text);
 			}
 			else {
 				safe_strncpy(marks[max_mark].text, strstr(strstr(text, " ")+1, " ") + 1, sizeof(marks[max_mark].text));
+
 				max_mark++;
-				if ( max_mark > 200 ) break;
+				if ( max_mark > MAX_USER_MARKS ) break;
 			}
 		}
 	}
 	
 	fclose(fp);
+
+	//load server markers on this map
+	add_server_markers();
+
 }
+
+void save_markings()
+{
+      FILE * fp;
+      char marks_file[256];
+      int i;
+
+	safe_snprintf (marks_file, sizeof (marks_file), "maps/%s.txt", strrchr (map_file_name,'/') + 1);
+
+	fp = open_file_config(marks_file,"w");
+	if ( fp == NULL ){
+		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, marks_file);
+	} else {
+		for ( i = 0 ; i < max_mark ; i ++){
+			if ( marks[i].x > 0 && !marks[i].server_side){
+				fprintf(fp,"%d %d %s\n",marks[i].x,marks[i].y,marks[i].text);
+			}
+		}
+		fclose(fp);
+	}
+}
+
+
+
+
+void load_server_markings(){
+	char fname[128];
+	FILE *fp;
+	server_mark sm;
+	int rf;
+
+	if (!server_marks) init_server_markers();
+	
+	//open server markings file
+	safe_snprintf(fname, sizeof(fname), "servermarks_%s.dat",username_str);
+	my_tolower(fname);
+	fp = open_file_config(fname,"r");
+	if(fp == NULL){
+		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, fname);
+		return;
+	}
+
+	while((rf=fscanf(fp,"%d %d %d %s %[^\n]s\n",&sm.id,&sm.x,&sm.y,sm.map_name,sm.text))==5){		
+		server_mark *nm = calloc(1,sizeof(server_mark));
+		memcpy(nm,&sm,sizeof(server_mark));
+		hash_add(server_marks,(NULL+sm.id),(void*) nm);
+	}
+	
+	fclose (fp);
+	add_server_markers();
+}
+
+
+void save_server_markings(){
+	char fname[128];
+	FILE *fp;
+	server_mark *sm;
+	hash_entry *he;
+	
+	if(!server_marks) return;
+
+	//open server markings file
+	safe_snprintf(fname, sizeof(fname), "servermarks_%s.dat",username_str);
+	my_tolower(fname);
+	fp = open_file_config(fname,"w");
+	if(fp == NULL){
+		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, fname);
+		return;
+	}
+
+	hash_start_iterator(server_marks);
+	
+	while((he=hash_get_next(server_marks))){		
+		sm = (server_mark *) he->item;
+		fprintf(fp,"%d %d %d %s %s\n",sm->id, sm->x, sm->y, sm->map_name, sm->text);
+	}
+	
+	fclose (fp);	
+}
+
+//called in elconfig.c when turning markers on/off
+void change_3d_marks(int *rel){
+	*rel= !*rel;
+}
+
 
 void init_buffers()
 {
@@ -508,3 +649,179 @@ void remove_3d_object_from_server (int id)
 
 	destroy_3d_object (id);
 }
+
+
+//3D MAP MARKERS
+
+#define ABS(a) ( ((a)<0)?(-(a)):(a)  )
+#define DST(xa,ya,xb,yb) ( ABS(xa-xb)+ABS(ya-yb)  )
+int marks_3d=1;
+float mark_z_rot=0;
+
+void animate_map_markers(){
+
+	int dt;
+	static int last_rot=0;
+	//object3d* obj;
+
+	dt=cur_time-last_rot;
+	last_rot+=dt;
+	mark_z_rot+=0.1*dt;
+	if(mark_z_rot>360) mark_z_rot-=360;
+
+	/*for(i=0;i<max_mark;i++){
+		if(marks[i].x<0) continue;
+		obj= objects_list[marks[i].obj_id];
+		calc_rotation_and_translation_matrix(obj->matrix, obj->x_pos, obj->y_pos, obj->z_pos, obj->x_rot, obj->y_rot, mark_z_rot);;
+	}*/
+}
+
+/*int get_3d_mark_id(int px, int py, char ss){
+	float z,x,y;
+	int id;
+
+			x = px/2.0 + (TILESIZE_X / 2);
+			y = py/2.0 + (TILESIZE_Y / 2);
+			z = get_tile_display_height(x, y)+2.0;
+			if(ss) id=add_e3d("./3dobjects/misc_objects/gemstone3.e3d",x,y,z,0,0,mark_z_rot,0,0,1,1,1,0);
+			else id=add_e3d("./3dobjects/misc_objects/gemstone1.e3d",x,y,z,0,0,mark_z_rot,0,0,1,1,1,0);
+			objects_list[id]->flags&=(~OBJ_3D_HARVESTABLE);
+			objects_list[id]->display= (ss) ? (1):(marks_3d);
+			
+			
+	return id;
+}
+*/
+
+void display_map_marks(){
+	actor *me;
+	float x,y,z;
+	int i,ax,ay;
+	float dx = (TILESIZE_X / 6);
+	float dy = (TILESIZE_Y / 6);
+	float fr = (mark_z_rot>180) ? ((360-mark_z_rot)/360):(mark_z_rot/360); //0...0.5..0
+	float center_offset_x = (TILESIZE_X / 2)*(fr);
+	float center_offset_y = (TILESIZE_X / 2)*(fr);
+
+	me = get_our_actor();
+	if(!me) return;
+	ax = me->x_pos;
+	ay = me->y_pos;
+	
+	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_LIGHTING);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	glEnable(GL_ALPHA_TEST);	
+
+	for(i=0;i<max_mark;i++){
+		x=marks[i].x/2.0;
+		y=marks[i].y/2.0;
+		x += (TILESIZE_X / 2);
+		y += (TILESIZE_Y / 2);
+		if(DST(ax,ay,x,y)>MARK_DIST
+		   || ((!marks[i].server_side)&&(marks[i].x<0||!marks_3d))
+		  ) continue;
+		z = get_tile_display_height(marks[i].x, marks[i].y)+0.02f;
+		glPushMatrix();
+		if(marks[i].server_side) glColor4f(1.0f, 0.0f, 0.0f, 0.7f-fr);
+		else glColor4f(0.0f, 1.0f, 0.0f, 0.7f-fr);
+		glBegin(GL_POLYGON);
+		glVertex3f(x - 2*dx - center_offset_x, y - 2*dy - center_offset_y, z);
+		glVertex3f(x - 1*dx - center_offset_x, y - 2*dy - center_offset_y, z);
+		glVertex3f(x - 0*dx - center_offset_x, y - 0*dy - center_offset_y, z);
+		glVertex3f(x - 2*dx - center_offset_x, y - 1*dy - center_offset_y, z);
+		glVertex3f(x - 2*dx - center_offset_x, y - 2*dy - center_offset_y, z);
+		glEnd();
+		glBegin(GL_POLYGON);
+		glVertex3f(x + 2*dx + center_offset_x, y - 2*dy - center_offset_y, z);
+		glVertex3f(x + 1*dx + center_offset_x, y - 2*dy - center_offset_y, z);
+		glVertex3f(x + 0*dx + center_offset_x, y - 0*dy - center_offset_y, z);
+		glVertex3f(x + 2*dx + center_offset_x, y - 1*dy - center_offset_y, z);
+		glVertex3f(x + 2*dx + center_offset_x, y - 2*dy - center_offset_y, z);
+		glEnd();
+		glBegin(GL_POLYGON);
+		glVertex3f(x + 2*dx + center_offset_x, y + 2*dy + center_offset_y, z);
+		glVertex3f(x + 1*dx + center_offset_x, y + 2*dy + center_offset_y, z);
+		glVertex3f(x + 0*dx + center_offset_x, y + 0*dy + center_offset_y, z);
+		glVertex3f(x + 2*dx + center_offset_x, y + 1*dy + center_offset_y, z);
+		glVertex3f(x + 2*dx + center_offset_x, y + 2*dy + center_offset_y, z);
+		glEnd();
+		glBegin(GL_POLYGON);
+		glVertex3f(x - 2*dx - center_offset_x, y + 2*dy + center_offset_y, z);
+		glVertex3f(x - 1*dx - center_offset_x, y + 2*dy + center_offset_y, z);
+		glVertex3f(x - 0*dx - center_offset_x, y + 0*dy + center_offset_y, z);
+		glVertex3f(x - 2*dx - center_offset_x, y + 1*dy + center_offset_y, z);
+		glVertex3f(x - 2*dx - center_offset_x, y + 2*dy + center_offset_y, z);
+		glEnd();
+		glPopMatrix();
+		
+	}
+	
+	glDisable(GL_ALPHA_TEST);
+	glEnable(GL_LIGHTING);
+	glDisable(GL_BLEND);	
+}
+
+void display_map_markers(int ax, int ay) {
+	float z,x,y;
+	int i;
+	GLdouble model[16],proj[16];
+	GLint view[4];
+	GLdouble hx,hy,hz;
+	float banner_width;
+	float font_scale = 1.0f/ALT_INGAME_FONT_X_LEN;
+	float font_size_x=font_scale*SMALL_INGAME_FONT_X_LEN;
+	float font_size_y=font_scale*SMALL_INGAME_FONT_Y_LEN;
+	char tmpb[4];
+	actor *me;
+
+	me = get_our_actor();
+	if(!me) return;
+	ax = me->x_pos;
+	ay = me->y_pos;
+	
+	glGetDoublev(GL_MODELVIEW_MATRIX, model);
+	glGetDoublev(GL_PROJECTION_MATRIX, proj);
+	glGetIntegerv(GL_VIEWPORT, view);
+	glPushMatrix();
+	glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(view[0],view[2]+view[0],view[1],view[3]+view[1],0.0f,-1.0f);
+	glDepthFunc(GL_LESS);
+	glEnable(GL_TEXTURE_2D);
+	glColor4f(1.0,1.0,1.0,1.0);
+	glDisable(GL_LIGHTING);
+	
+	for(i=0;i<max_mark;i++){
+		x=marks[i].x/2.0;
+		y=marks[i].y/2.0;
+		x += (TILESIZE_X / 2);
+		y += (TILESIZE_Y / 2);
+		if(DST(ax,ay,x,y)>MARK_DIST
+		   || ((!marks[i].server_side)&&(marks[i].x<0||!marks_3d))
+		  ) continue;
+		z = get_tile_display_height(marks[i].x, marks[i].y)+2.3;
+		gluProject(x, y, z, model, proj, view, &hx, &hy, &hz);
+		//shorten text
+		memcpy(tmpb,marks[i].text+MARK_CLIP_POS,4);
+		marks[i].text[MARK_CLIP_POS]=marks[i].text[MARK_CLIP_POS+1]=marks[i].text[MARK_CLIP_POS+2]='.';
+		marks[i].text[MARK_CLIP_POS+3]=0;
+		banner_width = ((float)get_string_width((unsigned char*)marks[i].text)*(font_size_x*name_zoom))/2.0;
+		draw_ortho_ingame_string(hx-banner_width, hy, hz, (unsigned char*)marks[i].text, 4, font_size_x, font_size_y);
+		//restore text
+		memcpy(marks[i].text+MARK_CLIP_POS,tmpb,4);
+	}
+	glDisable(GL_TEXTURE_2D);
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+	glEnable(GL_LIGHTING);
+	
+}
+
+
+

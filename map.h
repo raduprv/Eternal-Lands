@@ -9,6 +9,8 @@
 #include <SDL_types.h>
 #include "io/map_io.h"
 
+#include "hash.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -103,6 +105,34 @@ void init_terrain_buffers(int terrain_buffer_size);
  * @callgraph
  */
 void init_buffers();
+
+
+typedef struct _s_mark{
+
+	int id;
+	int x,y;
+	char map_name[50];
+	char text[100];
+
+} server_mark;
+
+
+void init_server_markers();
+void load_server_markings();
+void save_server_markings();
+void animate_map_markers();
+void add_server_markers();
+void display_map_markers(); //draw text
+void display_map_marks(); //draw cross
+void change_3d_marks(int *rel);
+extern hash_table *server_marks;
+extern float mark_z_rot;
+extern int marks_3d;
+#define MARK_CLIP_POS 20
+#define MARK_DIST 30
+
+
+
 
 #ifdef __cplusplus
 } // extern "C"

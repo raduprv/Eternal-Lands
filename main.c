@@ -61,6 +61,7 @@
 #ifdef PAWN
 #include "pawn/elpawn.h"
 #endif
+#include "map.h"
 
 Uint32 cur_time=0, last_time=0;//for FPS
 
@@ -114,6 +115,9 @@ void cleanup_mem(void)
 	    free(continent_maps[i].name);
 	}
 	free (continent_maps);
+
+	destroy_hash_table(server_marks);
+	
 	for (i = 0; i < video_modes_count; i++)
 	{
 		if (video_modes[i].name)

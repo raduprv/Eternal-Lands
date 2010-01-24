@@ -23,6 +23,7 @@
 #include "eye_candy_wrapper.h"
 #include "special_effects.h"
 
+
 int map_root_win = -1;
 int showing_continent = 0;
 #ifdef DEBUG_MAP_SOUND
@@ -188,6 +189,7 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 						    
 		marks[max_mark].x = mark_x;
 		marks[max_mark].y = mark_y;
+		marks[max_mark].server_side = 0;
 		memset ( marks[max_mark].text, 0, sizeof (marks[max_mark].text) );
 						  
 		my_strncp ( marks[max_mark].text, input_text_line.data, sizeof (marks[max_mark].text) );
@@ -296,3 +298,6 @@ void create_map_root_window (int width, int height)
 		set_window_handler (map_root_win, ELW_HANDLER_HIDE, &hide_map_handler);
 	}
 }
+
+
+

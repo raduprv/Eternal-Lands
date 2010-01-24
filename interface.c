@@ -34,6 +34,7 @@
  #include "errors.h"
  #include "io/elpathwrapper.h"
  #include "io/elfilewrapper.h"
+#include "3d_objects.h"
 
 #define DEFAULT_CONTMAPS_SIZE 20
 
@@ -797,7 +798,8 @@ void draw_game_map (int map, int mouse_mini)
 					screen_x=(51+200*x/(tile_map_size_x*6));
 					screen_y=201-200*y/(tile_map_size_y*6);
 	
-					glColor3f(0.4f,1.0f,0.0f);
+					if(!marks[i].server_side) glColor3f(0.4f,1.0f,0.0f);
+					else glColor3f(1.0f,0.2f,0.0f);
 					glDisable(GL_TEXTURE_2D);
 					glBegin(GL_LINES);
 						glVertex2i(screen_x-3,screen_y-3);
@@ -807,7 +809,8 @@ void draw_game_map (int map, int mouse_mini)
 						glVertex2i(screen_x-3,screen_y+2);
 					glEnd();
 						glEnable(GL_TEXTURE_2D);
-						glColor3f(0.2f,1.0f,0.0f);
+						if(!marks[i].server_side) glColor3f(0.2f,1.0f,0.0f);
+						else glColor3f(1.0f,0.0f,0.0f);
 					draw_string_zoomed(screen_x, screen_y, (unsigned char*)marks[i].text, 1, 0.3);
 				}
 			}
@@ -1020,7 +1023,8 @@ int put_mark_on_position(int map_x, int map_y, char * name)
 		if (map_x < 0
 		|| map_x >= tile_map_size_x*6
 		|| map_y < 0
-		|| map_y >= tile_map_size_y*6) {
+		|| map_y >= tile_map_size_y*6
+		|| max_mark>=MAX_USER_MARKS) {
 						return 0;
 		}
 		marks[max_mark].x = map_x;
@@ -1029,6 +1033,9 @@ int put_mark_on_position(int map_x, int map_y, char * name)
 		
 		my_strncp(marks[max_mark].text,name,500);
 		marks[max_mark].text[strlen(marks[max_mark].text)]=0;
+
+		marks[max_mark].server_side=0;
+		
 		max_mark++;
 		save_markings();
 		return 1;
@@ -1137,26 +1144,6 @@ void delete_mark_on_map_on_mouse_position()
 	save_markings();
 }
 
-void save_markings()
-{
-      FILE * fp;
-      char marks_file[256];
-      int i;
-
-	safe_snprintf (marks_file, sizeof (marks_file), "maps/%s.txt", strrchr (map_file_name,'/') + 1);
-
-	fp = open_file_config(marks_file,"w");
-	if ( fp == NULL ){
-		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, marks_file);
-	} else {
-		for ( i = 0 ; i < max_mark ; i ++){
-			if ( marks[i].x > 0 ){
-				fprintf(fp,"%d %d %s\n",marks[i].x,marks[i].y,marks[i].text);
-			}
-		}
-		fclose(fp);
-	}
-}
 
 void hide_all_root_windows ()
 {

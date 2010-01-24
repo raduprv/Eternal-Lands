@@ -27,12 +27,15 @@ typedef struct
     int y;
     /*! @} */
     char text[512]; /*!< text of the marking */
+    char server_side;
 }marking;
 
+#define MAX_MARKINGS 300
+#define MAX_USER_MARKS 250
 extern int adding_mark; /*!< flag that indicates we are currently adding a mark to a map */
 extern int mark_x, mark_y; /*!< map coordinates of the position of the mark */
 extern int max_mark; /*!< max. number of marks we can handle */
-extern marking marks[200]; /*!< a global array of marks */
+extern marking marks[MAX_MARKINGS]; /*!< a global array of marks */
 
 extern int reload_tab_map; /*!< flag that indicates the tabmap needs to be reloaded */
 
@@ -51,6 +54,7 @@ void create_map_root_window (int width, int height);
 /* controls TAB map mark filtering */
 extern int mark_filter_active;    /* true when filter active */
 extern char mark_filter_text[];   /* the text of the current filter */
+
 
 #ifdef __cplusplus
 } // extern "C"
