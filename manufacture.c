@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include "manufacture.h"
 #include "asc.h"
+#include "cursors.h"
 #include "elwindows.h"
 #include "gamewin.h"
 #include "hud.h"
@@ -378,6 +379,10 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 	if ((flags & ELW_CTRL) || (flags & ELW_SHIFT) || (flags & ELW_ALT))
 		quantitytomove = 10;
 
+	/* if the eye cursor is active and we right click, change to standard walk */
+	if(action_mode==ACTION_LOOK && (flags&ELW_RIGHT_MOUSE))
+		action_mode = ACTION_WALK;
+
 	//see if we clicked on any item in the main category
 	pos=get_mouse_pos_in_grid(mx, my, 12, 3, 0, 0, 33, 33);
 
@@ -580,23 +585,36 @@ int recipe_controls_mouseover_handler(int mx, int my){
 int mouseover_manufacture_slot_handler(window_info *win, int mx, int my)
 {
 	int pos;
-	if (!show_help_text)
-		return 0;
+	int check_for_eye = 0;
 
 	/* see if we clicked on any item in the main category */
 	pos=get_mouse_pos_in_grid(mx, my, 12, 3, 0, 0, 33, 33);
 	if (pos >= 0 && manufacture_list[pos].quantity > 0){
-		show_help(manu_add_str, 0, manufacture_menu_y_len+10);
+		if (show_help_text)
+			show_help(manu_add_str, 0, manufacture_menu_y_len+10);
+		check_for_eye = 1;
 	}
 
 	/* see if we clicked on any item from the "production pipe" */
 	pos=get_mouse_pos_in_grid(mx, my, 6, 1, 5, manufacture_menu_y_len-37, 33, 33);
 	if (pos >= 0 && manufacture_list[36+pos].quantity > 0){
-		show_help(manu_remove_str, 0, manufacture_menu_y_len+10);
+		if (show_help_text)
+			show_help(manu_remove_str, 0, manufacture_menu_y_len+10);
+		check_for_eye = 1;	
 	}
 
 	/*check recipe controls*/
-	recipe_controls_mouseover_handler(mx,my);
+	if (show_help_text)
+		recipe_controls_mouseover_handler(mx,my);
+
+	/* if we're over an occupied slot and the eye cursor function is active, show the eye cursor */
+	if (check_for_eye){
+		if (action_mode == ACTION_LOOK){
+			elwin_mouse = CURSOR_EYE;
+			return 1;
+		}
+	}
+
 	return 0;
 }
 
