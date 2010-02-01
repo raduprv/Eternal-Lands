@@ -330,6 +330,8 @@ void draw_3d_objects(unsigned int object_type)
 		glDisable(GL_LIGHTING);
 	}
 
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
 	if(is_transparent) {
 #ifdef	NEW_ALPHA
 		if(use_3d_alpha_blend){
