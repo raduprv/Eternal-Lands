@@ -110,10 +110,6 @@ void draw_3d_object_detail(object3d * object_id, Uint32 material_index, Uint32 u
 	{
 		glColor4fv(object_id->color);
 	}
-	else
-	{
-		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-	}
 
 	CHECK_GL_ERRORS();
 
