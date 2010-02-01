@@ -108,19 +108,11 @@ void draw_3d_object_detail(object3d * object_id, Uint32 material_index, Uint32 u
 	if (object_id->self_lit && (!is_day || dungeon) && use_lightning) 
 #endif
 	{
-//		glMaterialfv(GL_FRONT, GL_EMISSION, object_id->color);
-// With the above in place, items like cave quartz no longer
-// shine with self lighting.  In addition, the ground randomly
-// changes red/green/blue.  Replacing the above with the line
-// below prevents the r/g/b ground issue but does not fix the self
-// lighting.  This is just a temporary work-around....
-// see http://www.eternal-lands.com/forum/index.php?showtopic=35028&view=findpost&p=511618
-// and posts above that. bluap
-		glMaterialfv(GL_FRONT, GL_EMISSION, zero);
+		glColor4fv(object_id->color);
 	}
 	else
 	{
-		glMaterialfv(GL_FRONT, GL_EMISSION, zero);
+		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
 	CHECK_GL_ERRORS();
@@ -176,17 +168,6 @@ void draw_3d_object_detail(object3d * object_id, Uint32 material_index, Uint32 u
 		{
 			glDisableClientState(GL_NORMAL_ARRAY);
 			glNormal3f(0.0f, 0.0f, 1.0f);
-		}
-
-		if ((vertex_layout->color_count > 0) && use_lightning)
-		{
-			glEnableClientState(GL_COLOR_ARRAY);
-			glColorPointer(vertex_layout->color_count, vertex_layout->color_type,
-				vertex_layout->size, data_ptr + vertex_layout->color_offset);
-		}
-		else
-		{
-			glDisableClientState(GL_COLOR_ARRAY);
 		}
 
 		if (use_textures)
