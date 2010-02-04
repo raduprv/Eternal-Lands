@@ -736,6 +736,7 @@ void display_3d_reflection()
 #else
 	reset_material();
 #endif // SKY_FPV
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -810,6 +811,7 @@ void blend_reflection_fog()
 	glDepthMask(GL_TRUE);
 
 	glPopMatrix();
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -1130,6 +1132,7 @@ void draw_lake_tiles()
 	glPopMatrix();
 
 	disable_water_texgen();
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 #ifdef OPENGL_TRACE
 	CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -1257,6 +1260,7 @@ void draw_sky_background()
 		CHECK_FBO_ERRORS();
 	}
 	glEnable(GL_TEXTURE_2D);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -1357,6 +1361,7 @@ void draw_dungeon_sky_background()
 		CHECK_FBO_ERRORS();
 	}
 	glEnable(GL_TEXTURE_2D);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -1449,6 +1454,7 @@ void draw_water_background()
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_LIGHTING);
 	glEnable(GL_DEPTH_TEST);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
