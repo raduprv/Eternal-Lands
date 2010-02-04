@@ -108,7 +108,12 @@ void draw_3d_object_detail(object3d * object_id, Uint32 material_index, Uint32 u
 	if (object_id->self_lit && (!is_day || dungeon) && use_lightning) 
 #endif
 	{
-		glColor4fv(object_id->color);
+		glDisable(GL_LIGHTING);
+		glColor3fv(object_id->color);
+	}
+	else
+	{
+		glEnable(GL_LIGHTING);
 	}
 
 	CHECK_GL_ERRORS();
