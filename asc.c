@@ -706,3 +706,32 @@ char *substitute_char_with_string(const char *str, char **out_str, char to_sub, 
 	safe_strcat(*out_str, start_ptr, alloc_len);
 	return *out_str;
 }
+
+
+/* Return a copy of source truncated to be no longer than max_len_x including the append_str on the end. */
+char *truncated_string(char *dest, const char *source, size_t dest_max_len, const char *append_str, float max_len_x, float font_ratio)
+{
+	float string_width = 0;
+	size_t dest_len = 0;
+	float append_len_x = get_string_width((unsigned char*)append_str) * font_ratio;
+	char *dest_p = dest;
+	
+	while ((*source != '\0') && (dest_len < dest_max_len-1))
+	{
+		float char_width = get_char_width(*source) * font_ratio;
+		if ((string_width + char_width) > (max_len_x - append_len_x))
+			break;
+		*dest_p++ = *source++;
+		dest_len++;
+		string_width += char_width;
+	}
+	
+	while ((*append_str != '\0') && (dest_len < dest_max_len-1))
+	{
+		*dest_p++ = *append_str++;
+		dest_len++;
+	}
+
+	*dest_p = '\0';
+	return dest;
+}

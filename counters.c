@@ -573,22 +573,11 @@ int display_counters_handler(window_info *win)
 			max_name_x = 425.0 - (130.0 + get_string_width((unsigned char*)buffer) * font_ratio);
 			/* if the name would overlap the session total, truncate it */
 			if ((get_string_width((unsigned char*)counters[i][j].name) * font_ratio) > max_name_x) {
-				float len_dots = get_string_width((unsigned char*)"... ") * font_ratio;
-				char *np = counters[i][j].name;
-				float string_width = 0;
-				char *used_name = (char *)malloc(strlen(counters[i][j].name)+1);
-				char *unp = used_name;
-				/* make a truncated copy of the name */
-				while (*np != '\0') {
-					float char_width = get_char_width(*np) * font_ratio;
-					if ((string_width+char_width) > (max_name_x-len_dots))
-						break;
-					*unp++ = *np++;
-					string_width += char_width;
-				}
-				*unp = '\0';				
+				const char *append_str = "... ";
+				size_t dest_max_len = strlen(counters[i][j].name) + strlen(append_str) + 1;
+				char *used_name = (char *)malloc(dest_max_len);
+				truncated_string(used_name, counters[i][j].name, dest_max_len, append_str, max_name_x, font_ratio);
 				draw_string_small(x, y, (unsigned char*)used_name, 1);
-				draw_string_small(x+string_width, y, (unsigned char*)"...", 1);
 				/* if the mouse is over this line and its truncated, tooltip to full name */
 				if (mouseover_entry_y > y && mouseover_entry_y < y+16)
 					show_help(counters[i][j].name, 0, win->len_y+5);

@@ -5,6 +5,7 @@
 #include "books.h"
 #include "elwindows.h"
 #include "gamewin.h"
+#include "hud.h"
 #include "multiplayer.h"
 #include "stats.h"
 #include "tabs.h"
@@ -79,12 +80,15 @@ int display_knowledge_handler(window_info *win)
 	char *research_string;
 	int rx = win->len_x - 15;
 	int lx = win->len_x - 15 - (455-330);
+	int points_pos;
+	float font_ratio = 0.7;
+	float max_name_x = (win->len_x-4)/2;
 	
 	if(your_info.research_total && 
 	   (your_info.research_completed==your_info.research_total))
 		safe_snprintf(points_string, sizeof(points_string), "%s", completed_research);
 	else
-		safe_snprintf(points_string, sizeof(points_string), "%4i/%-4i",your_info.research_completed,your_info.research_total);
+		safe_snprintf(points_string, sizeof(points_string), "%i/%i",your_info.research_completed,your_info.research_total);
 	if(your_info.researching < knowledge_count)
 	{
 		research_string = knowledge_list[your_info.researching].name;
@@ -99,6 +103,7 @@ int display_knowledge_handler(window_info *win)
 		points_string[0] = '\0';
 		progress = 1;
 	}
+	points_pos = (rx - lx - strlen(points_string)*8) / 2;
 
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(0.77f,0.57f,0.39f);
@@ -134,7 +139,7 @@ int display_knowledge_handler(window_info *win)
 	glColor3f(1.0f,1.0f,1.0f);
 	draw_string_small(10,320,(unsigned char*)researching_str,1);
 	draw_string_small(120,320,(unsigned char*)research_string,1);
-	draw_string_small(lx+25,320,(unsigned char*)points_string,1);
+	draw_string_small(lx+points_pos,320,(unsigned char*)points_string,1);
 	// Draw knowledges
 	for(i = 2*scroll; i < 2 * (scroll + 19); i++)
 	{
@@ -151,7 +156,21 @@ int display_knowledge_handler(window_info *win)
 			glColor3f (0.5f, 0.5f, 0.5f);
 		}
 
-		draw_string_zoomed(x,y,(unsigned char*)knowledge_list[i].name,1,0.7);
+		/* truncate the string if it is too long */
+		if ((get_string_width((unsigned char*)knowledge_list[i].name) * font_ratio) > max_name_x)
+		{
+			const char *append_str = "... ";
+			size_t dest_max_len = strlen(knowledge_list[i].name)+strlen(append_str)+1;
+			char *used_name = (char *)malloc(dest_max_len);
+			truncated_string(used_name, knowledge_list[i].name, dest_max_len, append_str, max_name_x, font_ratio);			
+			draw_string_zoomed(x, y, (unsigned char*)used_name,1,font_ratio);
+			/* if the mouse is over this line and its truncated, tooltip to full name */
+			if (knowledge_list[i].mouse_over)
+				show_help(knowledge_list[i].name, 0, win->len_y+5);
+			free(used_name);
+		}
+		else
+			draw_string_zoomed(x,y,(unsigned char*)knowledge_list[i].name,1,font_ratio);
 
 		x += (win->len_x-20)/2;
 		if (i % 2 == 1)

@@ -420,6 +420,28 @@ char* fromUTF8 (const xmlChar* str, int len);
  */
 char *substitute_char_with_string(const char *str, char **out_str, char to_sub, const char* with_sub);
 
+
+
+
+
+/*!
+ * \brief Get a copy of a string truncated to be no wider than specified.
+ *
+ *	Where there is a limited space for a string to be drawn, get a
+ *  truncated copy (including the append text). The destination string
+ *  must have space for the terminating null and the appended string,
+ *  otherwise it will be stop at the maximum length.
+ *
+ * \param dest The destination string
+ * \param source The source string
+ * \param dest_max_len The maximum length of the destination string including the terminating '\0'
+ * \param append_str The string to place on the end of the truncated copy, normally "... "
+ * \param max_len_x The maximum x length in pixels of the truncated string including the appended string
+ * \param font_ratio The font zoom size of the text
+ * \return a pointer to the destination string
+ */
+char *truncated_string(char *dest, const char *source, size_t dest_max_len, const char *append_str, float max_len_x, float font_ratio);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
