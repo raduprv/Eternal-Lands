@@ -519,6 +519,7 @@ extern char	reg_error_str[15],
 		cursors_file_str[30],
 		/*dialogues.c*/
 		close_str[20],
+		dialogue_copy_str[20],
 		open_storage_str[20],
 #endif
 		/*XML and channel list errors from chat.c*/

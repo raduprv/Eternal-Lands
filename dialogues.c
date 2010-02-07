@@ -11,6 +11,7 @@
 #include "gamewin.h"
 #include "interface.h"
 #include "multiplayer.h"
+#include "paste.h"
 #include "textures.h"
 #include "translate.h"
 #ifdef OPENGL_TRACE
@@ -34,6 +35,13 @@ int dialogue_menu_y_len=190;
 int no_bounding_box=0;
 int show_keypress_letters=0;
 int autoclose_storage_dialogue=0;
+static Uint32 copy_end_highlight_time = 0;
+static int close_str_width = -1;
+static int copy_str_width = -1;
+static int highlight_close = 0;
+static int highlight_copy = 0;
+static const int str_edge = 5;
+
 
 void build_response_entries (const Uint8 *data, int total_length)
 {
@@ -192,7 +200,22 @@ int	display_dialogue_handler(window_info *win)
 	//now, draw the character name
 	glColor3f(1.0f,1.0f,1.0f);
 	draw_string_small(npc_name_x_start,win->len_y-16,npc_name,1);
-	draw_string_small(win->len_x-60,win->len_y-16,(unsigned char*)close_str,1);
+
+	if (highlight_close)
+		glColor3f(1.0f,0.5f,0.0f);
+	else
+		glColor3f(1.0f,1.0f,1.0f);
+	draw_string_small(win->len_x-(str_edge+close_str_width),win->len_y-16,(unsigned char*)close_str,1);
+
+	if (copy_end_highlight_time > SDL_GetTicks())
+		glColor3f(1.0f,0.25f,0.0f);
+	else if (highlight_copy)
+		glColor3f(1.0f,0.5f,0.0f);
+	else
+		glColor3f(1.0f,1.0f,1.0f);
+	draw_string_small(str_edge,win->len_y-16,(unsigned char*)dialogue_copy_str,1);
+
+	highlight_close = highlight_copy = 0;
 
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -221,6 +244,11 @@ int mouseover_dialogue_handler(window_info *win, int mx, int my)
 			show_keypress_letters=1;
 	    }	    
     }
+
+	if(mx>=win->len_x-(str_edge+close_str_width) && mx<win->len_x-str_edge && my>=win->len_y-16)
+		highlight_close = 1;
+	if(mx>str_edge && mx<str_edge+copy_str_width && my>=win->len_y-16)
+		highlight_copy = 1;
 
 	//first, clear the mouse overs
 	for(i=0;i<MAX_RESPONSES;i++)dialogue_responces[i].mouse_over=0;
@@ -265,6 +293,51 @@ void send_response(window_info *win, int response_index)
 }
 
 
+static void copy_dialogue_text(void)
+{
+	size_t to_str_max = 2048 + 1024;
+	char *to_str = (char *)malloc(to_str_max);
+	size_t response_str_len = 128;
+	char *response_str = (char *)malloc(response_str_len);
+	size_t from_str_len = strlen((char *)dialogue_string);
+	int response_num = 1;
+	int from_index = 0;
+	int to_index = 0;
+	int i;
+
+	// copy the body of text stripped of and colour soft wrapping characters
+	while(from_index<from_str_len && to_index<to_str_max-1)
+	{
+		if (!is_color (dialogue_string[from_index]) && dialogue_string[from_index] != '\r')
+			to_str[to_index++] = dialogue_string[from_index];
+		from_index++;
+	}
+	to_str[to_index] = '\0';
+
+	// if there are responses, add some new lines between the text.
+	for(i=0;i<MAX_RESPONSES;i++)
+		if(dialogue_responces[i].in_use)
+		{
+			safe_strcat(to_str, "\n\n", to_str_max);
+			break;
+		}
+
+	// add the numbered response strings, one per line
+	for(i=0;i<MAX_RESPONSES;i++)
+	{
+		if(dialogue_responces[i].in_use)
+		{
+			safe_snprintf(response_str, response_str_len, "%d) %s\n", response_num++, dialogue_responces[i].text);
+			safe_strcat(to_str, response_str, to_str_max);
+		}
+	}
+
+	copy_to_clipboard(to_str);
+	free(response_str);
+	free(to_str);
+}
+
+
 int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int i;
@@ -280,9 +353,15 @@ int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags)
 					return 1;
 				}
 		}
-	if(mx>=win->len_x-60 && my>=win->len_y-16)
+	if(mx>=win->len_x-(str_edge+close_str_width) && mx<win->len_x-str_edge && my>=win->len_y-16)
 		{
 			hide_window(win->window_id);
+			return 1;
+		}
+	if(mx>str_edge && mx<str_edge+copy_str_width && my>=win->len_y-16)
+		{
+			copy_end_highlight_time = SDL_GetTicks() + 500;
+			copy_dialogue_text();
 			return 1;
 		}
 
@@ -356,6 +435,9 @@ void display_dialogue()
 		cm_bool_line(windows_list.window[dialogue_win].cm_id, ELW_CM_MENU_LEN+2, &use_full_dialogue_window, "use_full_dialogue_window");
 		cm_bool_line(windows_list.window[dialogue_win].cm_id, ELW_CM_MENU_LEN+3, &autoclose_storage_dialogue, NULL);
 #endif
+
+		copy_str_width = get_string_width((unsigned char*)dialogue_copy_str) * SMALL_FONT_X_LEN / 12.0;
+		close_str_width = get_string_width((unsigned char*)close_str) * SMALL_FONT_X_LEN / 12.0;
 	} else {
 		show_window(dialogue_win);
 		select_window(dialogue_win);

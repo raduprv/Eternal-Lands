@@ -416,6 +416,7 @@ char	reg_error_str[15],
 	cursors_file_str[30],
 	/*dialogues.c*/
 	close_str[20],
+	dialogue_copy_str[20],
 	open_storage_str[20],
 #endif
 	xml_bad_node[80],
@@ -1147,6 +1148,7 @@ void init_help()
 	//Miscellaneous
 	add_xml_identifier(misc,"values",values_str,"values",sizeof(values_str));
 	add_xml_identifier(misc,"close",close_str,"[close]",sizeof(close_str));
+	add_xml_identifier(misc,"dialog_copy",dialogue_copy_str,"[copy]",sizeof(dialogue_copy_str));
 	add_xml_identifier(misc,"open_storage",open_storage_str,"Open storage",sizeof(open_storage_str));
 	add_xml_identifier(misc,"low",low_framerate_str,"Low framerate detected, shadows and eye candy disabled!",sizeof(low_framerate_str));
 	add_xml_identifier(misc,"size",window_size_adjusted_str,"Window size adjusted to %s",sizeof(window_size_adjusted_str));
