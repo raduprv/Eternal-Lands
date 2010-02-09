@@ -1095,8 +1095,15 @@ void next_command()
 #endif // NEW_SOUND
 						break;
 					case turn_left:
+					case turn_right: 
+					{
+						int mul= (actors_list[i]->que[0]==turn_left) ? (1):(-1);
+#ifdef EMOTES
+						int turnframe=(actors_list[i]->que[0]==turn_left) ? (cal_actor_turn_left_frame):(cal_actor_turn_right_frame);
+#endif
+
 						//LOG_TO_CONSOLE(c_green2,"turn left");
-						actors_list[i]->rotate_z_speed=45.0/540.0;
+						actors_list[i]->rotate_z_speed=mul*45.0/540.0;
 						actors_list[i]->rotate_time_left=540;
 						actors_list[i]->rotating=1;
 						//generate a fake movement, so we will know when to make the actor
@@ -1123,12 +1130,13 @@ void next_command()
 								cal_actor_set_anim(i, *get_pose_frame(actors_list[i]->actor_type,actors_list[i],EMOTE_MOTION(actors_list[i]),1));
 							else
 #endif // ATTACHED_ACTORS
-							cal_actor_set_anim(i, *get_pose_frame(actors_list[i]->actor_type,actors_list[i],EMOTE_MOTION(actors_list[i]),0));
+							cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[turnframe]);
 #endif
 						}
 						actors_list[i]->stop_animation=0;
 						break;
-					case turn_right:
+					}
+/*					case turn_right:
 					//LOG_TO_CONSOLE(c_green2,"turn right");
 						actors_list[i]->rotate_z_speed=-45.0/540.0;
 						actors_list[i]->rotate_time_left=540;
@@ -1162,7 +1170,7 @@ void next_command()
 						}
 						actors_list[i]->stop_animation=0;
 						break;
-
+*/
 				case enter_aim_mode:
 					missiles_log_message("%s (%d): cleaning the queue from enter_aim_mode command",
 										 actors_list[i]->actor_name, actors_list[i]->actor_id);
@@ -3609,6 +3617,10 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 				index = cal_actor_walk_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_run") == 0) {
 				index = cal_actor_run_frame;
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_turn_left") == 0) {
+				index = cal_actor_turn_left_frame;
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_turn_right") == 0) {
+				index = cal_actor_turn_right_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_die1") == 0) {
 				index = cal_actor_die1_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_die2") == 0) {

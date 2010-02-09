@@ -407,7 +407,12 @@ extern "C" {
 #define frame_attack_up_7 34 
 #define frame_attack_up_8 35 
 #define frame_attack_up_9 36 
-#define frame_attack_up_10 37 
+#define frame_attack_up_10 37
+#ifdef EMOTES
+//frame values for poses (40 different poses)
+#define frame_poses_start 100
+#define frame_poses_end 140
+#endif
 /*! @} */
 
 /*!

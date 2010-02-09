@@ -554,7 +554,9 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	Uint32 guild_id;
 	double f_x_pos,f_y_pos,f_z_rot;
 	float   scale=1.0f;
-
+#ifdef EMOTES
+	emote_data *pose=NULL;
+#endif
 #ifdef ATTACHED_ACTORS
 	int attachment_type = -1;
 #endif // ATTACHED_ACTORS
@@ -674,6 +676,16 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	case frame_combat_idle:
 		break;
 	default:
+#ifdef EMOTES
+		if(frame>=frame_poses_start&&frame<=frame_poses_end) {
+			//we have a pose, get it! (frame is the emote_id)
+			hash_entry *he;
+			he=hash_get(emotes,(void*)(NULL+frame));
+			if(!he) LOG_ERROR("unknown pose %d", frame);
+			else pose = he->item;
+			break;
+		}
+#endif
 #ifdef UID
 		log_error("%s %d - %s\n", unknown_frame, frame, &in_data[32]);
 #else
@@ -927,7 +939,33 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 #endif // VARIABLE_SPEED
 
     actors_list[i]->z_pos = get_actor_z(actors_list[i]);
-
+#ifdef EMOTES
+	if(frame==frame_sit_idle||(pose!=NULL&&pose->pose==EMOTE_SITTING)){ //sitting pose sent by the server
+			actors_list[i]->poses[EMOTE_SITTING]=pose;
+			if(actors_list[i]->actor_id==yourself)you_sit_down();
+			actors_list[i]->sitting=1;
+		}
+	else if(frame==frame_stand||(pose!=NULL&&pose->pose==EMOTE_STANDING)){//standing pose sent by server
+			actors_list[i]->poses[EMOTE_STANDING]=pose;
+			if(actors_list[i]->actor_id==yourself)you_stand_up();
+		}
+	else if(frame==frame_walk||(pose!=NULL&&pose->pose==EMOTE_WALKING)){//walking pose sent by server
+			actors_list[i]->poses[EMOTE_WALKING]=pose;
+			if(actors_list[i]->actor_id==yourself)you_stand_up();
+		}
+	else if(frame==frame_run||(pose!=NULL&&pose->pose==EMOTE_RUNNING)){//running pose sent by server
+			actors_list[i]->poses[EMOTE_RUNNING]=pose;
+			if(actors_list[i]->actor_id==yourself)you_stand_up();
+		}
+	else
+		{
+			if(actors_list[i]->actor_id==yourself)you_stand_up();
+			if(frame==frame_combat_idle)
+				actors_list[i]->fighting=1;
+			else if (frame == frame_ranged)
+				actors_list[i]->in_aim_mode = 1;
+		}
+#else
 	if(frame==frame_sit_idle)
 		{
 			if(actors_list[i]->actor_id==yourself)you_sit_down();
@@ -941,7 +979,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			else if (frame == frame_ranged)
 				actors_list[i]->in_aim_mode = 1;
 		}
-
+#endif
 	//ghost or not?
 	actors_list[i]->ghost=actors_defs[actor_type].ghost;
 
@@ -1011,7 +1049,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			actors_list[i]->body_parts->cape_meshindex=actors_defs[actor_type].cape[cape].mesh_index;
 			actors_list[i]->body_parts->shield_meshindex=actors_defs[actor_type].shield[shield].mesh_index;
 
-			actors_list[i]->cur_anim.anim_index= -1;
+			actors_list[i]->cur_anim.anim_index=-1;
 #ifdef NEW_SOUND
 			stop_sound(actors_list[i]->cur_anim_sound_cookie);
 #endif // NEW_SOUND

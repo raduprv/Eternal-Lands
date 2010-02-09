@@ -86,10 +86,15 @@ enum {
 	cal_actor_attack_down_8_held_frame = 59,
 	cal_actor_attack_down_9_held_frame = 60,
 	cal_actor_attack_down_10_held_frame = 61,
-	NUM_ACTOR_FRAMES = 62
+	cal_actor_turn_left_frame=62,
+	cal_actor_turn_right_frame=63,
+	NUM_ACTOR_FRAMES = 64
 #else
-	NUM_ACTOR_FRAMES = 39
+	cal_actor_turn_left_frame=39,
+	cal_actor_turn_right_frame=40,
+	NUM_ACTOR_FRAMES = 41,
 #endif
+	
 };
 
 enum {
