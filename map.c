@@ -722,9 +722,9 @@ void display_map_marks(){
 		if(DST(ax,ay,x,y)>MARK_DIST
 		   || ((!marks[i].server_side)&&(marks[i].x<0||!marks_3d))
 		  ) continue;
-		z = get_tile_display_height(marks[i].x, marks[i].y)+0.02f;
+		z = get_tile_display_height(marks[i].x, marks[i].y)+0.02f+fr/5;
 		glPushMatrix();
-		if(marks[i].server_side) glColor4f(1.0f, 0.0f, 0.0f, 0.7f-fr);
+		if(marks[i].server_side) glColor4f(0.0f, 0.0f, 1.0f, 0.9f-fr);
 		else glColor4f(0.0f, 1.0f, 0.0f, 0.7f-fr);
 		glBegin(GL_POLYGON);
 		glVertex3f(x - 2*dx - center_offset_x, y - 2*dy - center_offset_y, z);

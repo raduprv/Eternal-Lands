@@ -1255,7 +1255,7 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 
 		if (x != px || y != py)
 		{
-			float diff = 4.0f*zoom_multip;
+			float diff = 6.0f*zoom_multip;
 
 			if(is_within_radius(x,y,px,py,zoom_multip*(minimap_size/2-8)))
 			{
@@ -1276,7 +1276,7 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 
 	//draw map markings
 	for(i=0;i<max_mark;i++){
-		if(!marks[i].server_side&&!marks_3d) continue;
+		if(!marks[i].server_side) continue;
 		x= marks[i].x*size_x;
 		y= float_minimap_size-(marks[i].y*size_y);
 		if (x != px || y != py)
@@ -1289,7 +1289,7 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 				glDisable(GL_TEXTURE_2D);
 				rotate_actor_points(zoom_multip,px,py);
 				glBegin(GL_LINES);
-				if(marks[i].server_side) glColor3f(1.0f,0.0f,0.0f); //red
+				if(marks[i].server_side) glColor3f(0.0f,0.0f,1.0f); //blue
 				else glColor3f(0.0f,1.0f,0.0f);// green
 				glVertex2f(x-diff, y-diff);
 				glVertex2f(x+diff, y+diff);

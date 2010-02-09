@@ -799,7 +799,7 @@ void draw_game_map (int map, int mouse_mini)
 					screen_y=201-200*y/(tile_map_size_y*6);
 	
 					if(!marks[i].server_side) glColor3f(0.4f,1.0f,0.0f);
-					else glColor3f(1.0f,0.2f,0.0f);
+					else glColor3f(0.0f,0.2f,1.0f);
 					glDisable(GL_TEXTURE_2D);
 					glBegin(GL_LINES);
 						glVertex2i(screen_x-3,screen_y-3);
@@ -810,7 +810,7 @@ void draw_game_map (int map, int mouse_mini)
 					glEnd();
 						glEnable(GL_TEXTURE_2D);
 						if(!marks[i].server_side) glColor3f(0.2f,1.0f,0.0f);
-						else glColor3f(1.0f,0.0f,0.0f);
+						else glColor3f(0.0f,0.0f,1.0f);
 					draw_string_zoomed(screen_x, screen_y, (unsigned char*)marks[i].text, 1, 0.3);
 				}
 			}
