@@ -1289,8 +1289,7 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 				glDisable(GL_TEXTURE_2D);
 				rotate_actor_points(zoom_multip,px,py);
 				glBegin(GL_LINES);
-				if(marks[i].server_side) glColor3f(0.0f,0.0f,1.0f); //blue
-				else glColor3f(0.0f,1.0f,0.0f);// green
+				glColor3f(0.33f,0.6f,1.0f); //light blue
 				glVertex2f(x-diff, y-diff);
 				glVertex2f(x+diff, y+diff);
 				glVertex2f(x-diff, y+diff);

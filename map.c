@@ -414,7 +414,7 @@ void load_map_marks()
 	}
 	max_mark = 0;
 	
-	if (fp == NULL) return;
+	if (fp == NULL) { add_server_markers(); return;}
 
 	
 	//load user markers
@@ -699,9 +699,10 @@ void display_map_marks(){
 	int i,ax,ay;
 	float dx = (TILESIZE_X / 6);
 	float dy = (TILESIZE_Y / 6);
-	float fr = (mark_z_rot>180) ? ((360-mark_z_rot)/360):(mark_z_rot/360); //0...0.5..0
-	float center_offset_x = (TILESIZE_X / 2)*(fr);
-	float center_offset_y = (TILESIZE_X / 2)*(fr);
+	float fr = mark_z_rot/360; //(mark_z_rot>180) ? ((360-mark_z_rot)/360):(mark_z_rot/360); //0...0.5..0
+	//float center_offset_x = (TILESIZE_X / 2)*(fr);
+	//float center_offset_y = (TILESIZE_X / 2)*(fr);
+	float j,ff=0;
 
 	me = get_our_actor();
 	if(!me) return;
@@ -722,11 +723,19 @@ void display_map_marks(){
 		if(DST(ax,ay,x,y)>MARK_DIST
 		   || ((!marks[i].server_side)&&(marks[i].x<0||!marks_3d))
 		  ) continue;
-		z = get_tile_display_height(marks[i].x, marks[i].y)+0.02f+fr/5;
+		z = get_tile_display_height(marks[i].x, marks[i].y);
 		glPushMatrix();
-		if(marks[i].server_side) glColor4f(0.0f, 0.0f, 1.0f, 0.9f-fr);
-		else glColor4f(0.0f, 1.0f, 0.0f, 0.7f-fr);
-		glBegin(GL_POLYGON);
+		for(j=z-fr/5,ff=1;j<z+2;j+=0.1,ff=(2-(j-z))/2) {
+			if(marks[i].server_side) glColor4f(0.0f, 0.0f, 1.0f, 0.9f-(j-z)/3);
+			else glColor4f(0.0f, 1.0f, 0.0f, 0.7f-(j-z)/3);
+			glBegin(GL_QUADS);
+				glVertex3f(x-dx*ff,y-dy*ff,j);
+				glVertex3f(x-dx*ff,y+dy*ff,j);
+				glVertex3f(x+dx*ff,y+dy*ff,j);
+				glVertex3f(x+dx*ff,y-dy*ff,j);
+			glEnd();
+		}
+		/*glBegin(GL_POLYGON);
 		glVertex3f(x - 2*dx - center_offset_x, y - 2*dy - center_offset_y, z);
 		glVertex3f(x - 1*dx - center_offset_x, y - 2*dy - center_offset_y, z);
 		glVertex3f(x - 0*dx - center_offset_x, y - 0*dy - center_offset_y, z);
@@ -754,6 +763,7 @@ void display_map_marks(){
 		glVertex3f(x - 2*dx - center_offset_x, y + 1*dy + center_offset_y, z);
 		glVertex3f(x - 2*dx - center_offset_x, y + 2*dy + center_offset_y, z);
 		glEnd();
+		* */
 		glPopMatrix();
 		
 	}
