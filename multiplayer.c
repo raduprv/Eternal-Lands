@@ -1953,7 +1953,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			hash_delete(server_marks,(NULL+sm->id)); //remove old marker if present
 			hash_add(server_marks,(NULL+sm->id),(void*)sm);
 			save_server_markings();
-			add_server_markers(); //load again, so the new marker is added correctly.
+			load_map_marks();//load again, so the new marker is added correctly.
 			break;
 			}
 		case REMOVE_MAP_MARKER:
@@ -1967,7 +1967,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			id=SDL_SwapLE16(*((short *)(in_data+3)));
 			hash_delete(server_marks,(NULL+id)); //remove marker if present
 			save_server_markings();			
-			add_server_markers(); //load again, so the new marker is removed correctly.
+			load_map_marks();//load again, so the new marker is removed correctly.
 			break;
 			}
 		default:
