@@ -29,7 +29,7 @@ int dialogue_win= -1;
 int dialogue_menu_x=1;
 int dialogue_menu_y=1;
 int dialogue_menu_x_len=638;
-int dialogue_menu_y_len=190;
+int dialogue_menu_y_len=220;
 //int dialogue_menu_dragged=0;
 
 int no_bounding_box=0;
@@ -41,6 +41,7 @@ static int copy_str_width = -1;
 static int highlight_close = 0;
 static int highlight_copy = 0;
 static const int str_edge = 5;
+static const int response_y_offset = 8*SMALL_FONT_Y_LEN;
 
 
 void build_response_entries (const Uint8 *data, int total_length)
@@ -77,18 +78,18 @@ void build_response_entries (const Uint8 *data, int total_length)
 		dialogue_responces[i].to_actor=SDL_SwapLE16(*((Uint16 *)(data+last_index+2+2+len)));
 		last_index+=len+2+2+2;//why not len+6?
 		dialogue_responces[i].orig_x_len=orig_len*8;
-		dialogue_responces[i].orig_y_len=14;
+		dialogue_responces[i].orig_y_len=SMALL_FONT_Y_LEN;
 		if(i<36) // [1-0, a-z] [']'] [space] eg 1] Physique 2] Coordination 3] Will
 		{
 		    len+=3;
 		}
 		dialogue_responces[i].x_len=len*8;
-		dialogue_responces[i].y_len=14;
+		dialogue_responces[i].y_len=SMALL_FONT_Y_LEN;
 
 		if(orig_x_start+orig_len*8>dialogue_menu_x_len)
 		{
 			orig_x_start=0;
-			orig_y_start+=14;
+			orig_y_start+=SMALL_FONT_Y_LEN;
 		}
 		dialogue_responces[i].orig_x_start=orig_x_start;
 		dialogue_responces[i].orig_y_start=orig_y_start;
@@ -96,7 +97,7 @@ void build_response_entries (const Uint8 *data, int total_length)
 		if(x_start+len*8>dialogue_menu_x_len)
 		{
 			x_start=0;
-			y_start+=14;
+			y_start+=SMALL_FONT_Y_LEN;
 		}
 		dialogue_responces[i].x_start=x_start;
 		dialogue_responces[i].y_start=y_start;
@@ -179,14 +180,14 @@ int	display_dialogue_handler(window_info *win)
 					safe_snprintf((char*)str,sizeof(str),"%c] %s",55+i, (unsigned char*)dialogue_responces[i].text);
 				else // too many dialogue options, you have to click these
 					 safe_snprintf((char*)str,sizeof(str),"%s",(unsigned char*)dialogue_responces[i].text);
-				draw_string_small(dialogue_responces[i].x_start+5,dialogue_responces[i].y_start+7*14,str,1);
-				y_start=(dialogue_responces[i].y_start+7*14)+32;
+				draw_string_small(dialogue_responces[i].x_start+5,dialogue_responces[i].y_start+response_y_offset,str,1);
+				y_start=(dialogue_responces[i].y_start+response_y_offset)+SMALL_FONT_Y_LEN*2+1;
 			}
 			else
 			{
 				safe_snprintf((char*)str,sizeof(str),"%s",(unsigned char*)dialogue_responces[i].text);
-				draw_string_small(dialogue_responces[i].orig_x_start+5,dialogue_responces[i].orig_y_start+7*14,str,1);
-				y_start=(dialogue_responces[i].orig_y_start+7*14)+32;
+				draw_string_small(dialogue_responces[i].orig_x_start+5,dialogue_responces[i].orig_y_start+response_y_offset,str,1);
+				y_start=(dialogue_responces[i].orig_y_start+response_y_offset)+SMALL_FONT_Y_LEN*2+1;
 			}
 		}
 	}
@@ -199,13 +200,13 @@ int	display_dialogue_handler(window_info *win)
         
 	//now, draw the character name
 	glColor3f(1.0f,1.0f,1.0f);
-	draw_string_small(npc_name_x_start,win->len_y-16,npc_name,1);
+	draw_string_small(npc_name_x_start,win->len_y-(SMALL_FONT_Y_LEN+1),npc_name,1);
 
 	if (highlight_close)
 		glColor3f(1.0f,0.5f,0.0f);
 	else
 		glColor3f(1.0f,1.0f,1.0f);
-	draw_string_small(win->len_x-(str_edge+close_str_width),win->len_y-16,(unsigned char*)close_str,1);
+	draw_string_small(win->len_x-(str_edge+close_str_width),win->len_y-(SMALL_FONT_Y_LEN+1),(unsigned char*)close_str,1);
 
 	if (copy_end_highlight_time > SDL_GetTicks())
 		glColor3f(1.0f,0.25f,0.0f);
@@ -213,7 +214,7 @@ int	display_dialogue_handler(window_info *win)
 		glColor3f(1.0f,0.5f,0.0f);
 	else
 		glColor3f(1.0f,1.0f,1.0f);
-	draw_string_small(str_edge,win->len_y-16,(unsigned char*)dialogue_copy_str,1);
+	draw_string_small(str_edge,win->len_y-(SMALL_FONT_Y_LEN+1),(unsigned char*)dialogue_copy_str,1);
 
 	highlight_close = highlight_copy = 0;
 
@@ -245,9 +246,9 @@ int mouseover_dialogue_handler(window_info *win, int mx, int my)
 	    }	    
     }
 
-	if(mx>=win->len_x-(str_edge+close_str_width) && mx<win->len_x-str_edge && my>=win->len_y-16)
+	if(mx>=win->len_x-(str_edge+close_str_width) && mx<win->len_x-str_edge && my>=win->len_y-(SMALL_FONT_Y_LEN+1))
 		highlight_close = 1;
-	if(mx>str_edge && mx<str_edge+copy_str_width && my>=win->len_y-16)
+	if(mx>str_edge && mx<str_edge+copy_str_width && my>=win->len_y-(SMALL_FONT_Y_LEN+1))
 		highlight_copy = 1;
 
 	//first, clear the mouse overs
@@ -260,7 +261,7 @@ int mouseover_dialogue_handler(window_info *win, int mx, int my)
 			if(show_keypress_letters)
 			{
 				if(mx>=dialogue_responces[i].x_start+5 && mx<=dialogue_responces[i].x_start+5+dialogue_responces[i].x_len &&
-				   my>=dialogue_responces[i].y_start+7*14 && my<=dialogue_responces[i].y_start+7*14+dialogue_responces[i].y_len)
+				   my>=dialogue_responces[i].y_start+response_y_offset && my<=dialogue_responces[i].y_start+response_y_offset+dialogue_responces[i].y_len)
 				{
 					dialogue_responces[i].mouse_over=1;
 					return 0;
@@ -269,7 +270,7 @@ int mouseover_dialogue_handler(window_info *win, int mx, int my)
 			else
 			{
 				if(mx>=dialogue_responces[i].orig_x_start+5 && mx<=dialogue_responces[i].orig_x_start+5+dialogue_responces[i].orig_x_len &&
-				   my>=dialogue_responces[i].orig_y_start+7*14 && my<=dialogue_responces[i].orig_y_start+7*14+dialogue_responces[i].orig_y_len)
+				   my>=dialogue_responces[i].orig_y_start+response_y_offset && my<=dialogue_responces[i].orig_y_start+response_y_offset+dialogue_responces[i].orig_y_len)
 				{
 					dialogue_responces[i].mouse_over=1;
 					return 0;
@@ -353,12 +354,12 @@ int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags)
 					return 1;
 				}
 		}
-	if(mx>=win->len_x-(str_edge+close_str_width) && mx<win->len_x-str_edge && my>=win->len_y-16)
+	if(mx>=win->len_x-(str_edge+close_str_width) && mx<win->len_x-str_edge && my>=win->len_y-(SMALL_FONT_Y_LEN+1))
 		{
 			hide_window(win->window_id);
 			return 1;
 		}
-	if(mx>str_edge && mx<str_edge+copy_str_width && my>=win->len_y-16)
+	if(mx>str_edge && mx<str_edge+copy_str_width && my>=win->len_y-(SMALL_FONT_Y_LEN+1))
 		{
 			copy_end_highlight_time = SDL_GetTicks() + 500;
 			copy_dialogue_text();
