@@ -905,7 +905,6 @@ void init_stuff()
 	safe_snprintf(file_name, sizeof(file_name), "languages/%s/Encyclopedia/index.xml", lang);
 	ReadXML(file_name);
 	read_key_config();
-	load_questlog();
 	init_buddy();
 	init_channel_names();
 #ifdef	OLC

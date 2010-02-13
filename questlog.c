@@ -6,6 +6,7 @@
 #include "elwindows.h"
 #include "gamewin.h"
 #include "init.h"
+#include "interface.h"
 #include "tabs.h"
 #include "errors.h"
 #include "translate.h"
@@ -27,6 +28,7 @@ int	logdata_length=0;
 int quest_scroll_id = 14;
 int nr_screen_lines = 0;
 FILE *qlf = NULL;
+static char filename[256] = {'\0'};
 
 int questlog_y;
 
@@ -35,22 +37,43 @@ void add_questlog_line(char *t, int len, const char *npcprefix);   /* forward de
 void load_questlog()
 {
 	FILE *f = NULL;
-	char temp[1000];
-
-	f = open_file_config("quest.log","rb");
+	FILE *f2 = NULL;
+	char username[16], temp[1000];
+	int i;
+	
+	safe_strncpy(username, username_str, sizeof(username));
+	for (i = 0; username[i]; i++) {
+		username[i] = tolower(username[i]);
+	}
+	
+	safe_snprintf(filename, sizeof(filename), "quest_%s.log", username);
+	f = open_file_config(filename,"rb");
 	if(f == NULL){
-		LOG_ERROR("%s: %s \"quest.log\"\n", reg_error_str, cant_open_file);
-		return;
+		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, filename);
+		//try the old filename: quest.log
+		f = open_file_config("quest.log","rb");
+		if(f == NULL){
+			LOG_ERROR("%s: %s \"quest.log\"\n", reg_error_str, cant_open_file);
+			return;
+		}
+		f2 = open_file_config(filename,"ab");//try to create a new quest log
+		if(f2 == NULL){
+			LOG_ERROR("%s: Can't create file \"%s\"\n", reg_error_str, filename);
+		}
 	}
 
 	while(!feof(f)){//loads and adds to a list all the quest log messages
 		temp[0]= 0;
 		fgets(temp,999,f);
 		if(temp[0] == 0)break;
+		if(f2)
+			fputs(temp,f2);//puts the quest messages into the new quest log
 		add_questlog_line(temp, strlen(temp), "");
 	}
 	current=logdata.Next;
 	fclose(f);
+	if (f2)
+		fclose(f2);
 }
 
 
@@ -104,9 +127,9 @@ void add_questlog (char *t, int len)
 
 	//write on file
 	if(qlf == NULL){
-		qlf = open_file_config("quest.log", "ab");
+		qlf = open_file_config(filename, "ab");
 		if(qlf == NULL){
-			LOG_ERROR("%s: %s \"quest.log\"\n", reg_error_str, cant_open_file);
+			LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, filename);
 			return;
 		}
 		fseek(qlf,SEEK_END,0);

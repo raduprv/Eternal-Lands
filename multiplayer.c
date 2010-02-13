@@ -643,7 +643,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				load_quickspells();
 				load_recipes();
 				load_server_markings();
-
+				load_questlog();
 				load_counters();
 				send_video_info();
 				previously_logged_in=1;
