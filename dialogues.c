@@ -41,7 +41,8 @@ static int copy_str_width = -1;
 static int highlight_close = 0;
 static int highlight_copy = 0;
 static const int str_edge = 5;
-static const int response_y_offset = 8*SMALL_FONT_Y_LEN;
+#define MAX_MESS_LINES 8
+static const int response_y_offset = MAX_MESS_LINES*SMALL_FONT_Y_LEN;
 
 
 void build_response_entries (const Uint8 *data, int total_length)
@@ -77,16 +78,16 @@ void build_response_entries (const Uint8 *data, int total_length)
 		dialogue_responces[i].response_id=SDL_SwapLE16(*((Uint16 *)(data+last_index+2+len)));
 		dialogue_responces[i].to_actor=SDL_SwapLE16(*((Uint16 *)(data+last_index+2+2+len)));
 		last_index+=len+2+2+2;//why not len+6?
-		dialogue_responces[i].orig_x_len=orig_len*8;
+		dialogue_responces[i].orig_x_len=orig_len*SMALL_FONT_X_LEN;
 		dialogue_responces[i].orig_y_len=SMALL_FONT_Y_LEN;
 		if(i<36) // [1-0, a-z] [']'] [space] eg 1] Physique 2] Coordination 3] Will
 		{
 		    len+=3;
 		}
-		dialogue_responces[i].x_len=len*8;
+		dialogue_responces[i].x_len=len*SMALL_FONT_X_LEN;
 		dialogue_responces[i].y_len=SMALL_FONT_Y_LEN;
 
-		if(orig_x_start+orig_len*8>dialogue_menu_x_len)
+		if(orig_x_start+orig_len*SMALL_FONT_X_LEN>dialogue_menu_x_len)
 		{
 			orig_x_start=0;
 			orig_y_start+=SMALL_FONT_Y_LEN;
@@ -94,15 +95,15 @@ void build_response_entries (const Uint8 *data, int total_length)
 		dialogue_responces[i].orig_x_start=orig_x_start;
 		dialogue_responces[i].orig_y_start=orig_y_start;
 
-		if(x_start+len*8>dialogue_menu_x_len)
+		if(x_start+len*SMALL_FONT_X_LEN>dialogue_menu_x_len)
 		{
 			x_start=0;
 			y_start+=SMALL_FONT_Y_LEN;
 		}
 		dialogue_responces[i].x_start=x_start;
 		dialogue_responces[i].y_start=y_start;
-		x_start+=(len+2)*8;
-		orig_x_start+=(orig_len+2)*8;
+		x_start+=(len+2)*SMALL_FONT_X_LEN;
+		orig_x_start+=(orig_len+2)*SMALL_FONT_X_LEN;
 	}
 }
 
@@ -117,7 +118,7 @@ int	display_dialogue_handler(window_info *win)
 
 	//calculate the npc_name_x_start (to have it centered on the screen)
 	len= strlen((char*)npc_name);
-	npc_name_x_start= win->len_x/2-(len*8)/2;
+	npc_name_x_start= win->len_x/2-(len*SMALL_FONT_X_LEN)/2;
 
 	glDisable(GL_TEXTURE_2D);
 	//draw the character frame
@@ -157,7 +158,7 @@ int	display_dialogue_handler(window_info *win)
 	}
 	y_start=0;
 	//draw the main text
-	draw_string_small(70,2,dialogue_string,8);
+	draw_string_small(70,2,dialogue_string,MAX_MESS_LINES);
 
 	//ok, now draw the responses
 	for(i=0;i<MAX_RESPONSES;i++)
