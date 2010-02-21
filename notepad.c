@@ -34,8 +34,16 @@ void init_ipu (INPUT_POPUP *ipu, int parent, int x_len, int y_len, int maxlen, i
 	ipu->popup_win = ipu->popup_field = ipu->popup_label = ipu->popup_ok =
 		ipu->popup_no = ipu->x = ipu->y = -1;
 	
-	ipu->popup_x_len = x_len;
-	ipu->popup_y_len = y_len + ((rows>1) ?(rows-1)*28 :0);
+	if (x_len == -1)
+		ipu->popup_x_len = DEFAULT_FONT_X_LEN * maxlen + 20;
+	else
+		ipu->popup_x_len = x_len;
+
+	if (y_len == -1)
+		ipu->popup_y_len = 100;
+	else
+		ipu->popup_y_len = y_len;
+	ipu->popup_y_len += ((rows>1) ?(rows-1)*28 :0);
 
 	ipu->popup_cancel = cancel;
 	ipu->popup_input = input;
@@ -43,6 +51,7 @@ void init_ipu (INPUT_POPUP *ipu, int parent, int x_len, int y_len, int maxlen, i
 	ipu->parent = parent;
 	ipu->maxlen = maxlen;
 	ipu->rows = rows;
+	ipu->accept_do_not_close = ipu->allow_nonprint_chars = 0;
 }
 
 void close_ipu (INPUT_POPUP *ipu)
@@ -106,9 +115,9 @@ static void accept_popup_window (INPUT_POPUP *ipu)
 	}
 	len = itmp;
 
-	// stop at first non-printable character
+	// stop at first non-printable character if allow_nonprint_chars not set
 	iend = istart;
-	while ( iend < len && is_printable (data[iend]) )
+	while ( iend < len && (ipu->allow_nonprint_chars || is_printable (data[iend]) ))
 		iend++;
 	if (iend == istart)
 		// empty string
@@ -118,7 +127,8 @@ static void accept_popup_window (INPUT_POPUP *ipu)
 	data[iend] = '\0';
 	if (ipu->popup_input != NULL)
 		(*ipu->popup_input) (&data[istart]);
-	clear_popup_window (ipu);
+	if (!ipu->accept_do_not_close)
+		clear_popup_window (ipu);
 }
 
 static int popup_cancel_button_handler (widget_list *w, int mx, int my, Uint32 flags)

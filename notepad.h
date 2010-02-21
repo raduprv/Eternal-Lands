@@ -22,7 +22,7 @@ typedef struct
 {
 	int popup_win, popup_field, popup_label, popup_ok, popup_no;
 	int popup_x_len, popup_y_len, parent, x, y;
-	int maxlen, rows;
+	int maxlen, rows, accept_do_not_close, allow_nonprint_chars;
 	void (*popup_cancel)(void);
 	void (*popup_input)(const char *);
 	Uint32 text_flags;
