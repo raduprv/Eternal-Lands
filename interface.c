@@ -798,7 +798,7 @@ void draw_game_map (int map, int mouse_mini)
 					screen_x=(51+200*x/(tile_map_size_x*6));
 					screen_y=201-200*y/(tile_map_size_y*6);
 	
-					if(!marks[i].server_side) glColor3f(0.4f,1.0f,0.0f);
+					if(!marks[i].server_side) glColor3f((float)marks[i].r/255,(float)marks[i].g/255,(float)marks[i].b/255);//glColor3f(0.4f,1.0f,0.0f);
 					else glColor3f(0.33f,0.6f,1.0f);
 					glDisable(GL_TEXTURE_2D);
 					glBegin(GL_LINES);
@@ -809,7 +809,7 @@ void draw_game_map (int map, int mouse_mini)
 						glVertex2i(screen_x-3,screen_y+2);
 					glEnd();
 						glEnable(GL_TEXTURE_2D);
-						if(!marks[i].server_side) glColor3f(0.2f,1.0f,0.0f);
+						if(!marks[i].server_side) glColor3f((float)marks[i].r/255,(float)marks[i].g/255,(float)marks[i].b/255);//glColor3f(0.2f,1.0f,0.0f);
 						else glColor3f(0.33f,0.6f,1.0f);
 					draw_string_zoomed(screen_x, screen_y, (unsigned char*)marks[i].text, 1, 0.3);
 				}
@@ -1035,6 +1035,10 @@ int put_mark_on_position(int map_x, int map_y, char * name)
 		marks[max_mark].text[strlen(marks[max_mark].text)]=0;
 
 		marks[max_mark].server_side=0;
+
+		marks[max_mark].r=curmark_r;
+		marks[max_mark].g=curmark_g;
+		marks[max_mark].b=curmark_b;
 		
 		max_mark++;
 		save_markings();
@@ -1121,7 +1125,7 @@ void delete_mark_on_map_on_mouse_position()
 		marking * const mark = &marks[i]; 
 
 		// skip masked marks
-		if (mark->x < 0) continue;
+		if (mark->x < 0 || mark->server_side) continue;
 		// get mark to cursor distance (squared)
 		dx = mark->x - mx;
 		dy = mark->y - my;

@@ -28,6 +28,7 @@ typedef struct
     /*! @} */
     char text[512]; /*!< text of the marking */
     char server_side;
+    int r,g,b; //color of the marker
 }marking;
 
 #define MAX_MARKINGS 300
@@ -36,6 +37,7 @@ extern int adding_mark; /*!< flag that indicates we are currently adding a mark 
 extern int mark_x, mark_y; /*!< map coordinates of the position of the mark */
 extern int max_mark; /*!< max. number of marks we can handle */
 extern marking marks[MAX_MARKINGS]; /*!< a global array of marks */
+extern int curmark_r,curmark_g,curmark_b; //current mark color
 
 extern int reload_tab_map; /*!< flag that indicates the tabmap needs to be reloaded */
 

@@ -38,6 +38,8 @@ int reload_tab_map = 0;
 int mark_filter_active = 0;
 char mark_filter_text[MARK_FILTER_MAX_LEN] = "";
 
+int curmark_r=0,curmark_g=255,curmark_b=0;
+
 int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 {
 	Uint32 ctrl_on = flags & ELW_CTRL;

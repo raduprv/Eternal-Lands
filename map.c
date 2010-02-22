@@ -420,7 +420,13 @@ void load_map_marks()
 	//load user markers
 	while ( fgets(text, 600,fp) ) {
 		if (strlen (text) > 1) {
+			int r,g,b;			
 			sscanf (text, "%d %d", &marks[max_mark].x, &marks[max_mark].y);
+			//scanning mark color. It can be optional -> default=green
+			if(sscanf(text,"%*d %*d|%d,%d,%d|",&r,&g,&b)<3) { //NO SPACES in RGB format string!
+				r=b=0;
+				g=255;
+			}
 			marks[max_mark].server_side=0;
 			text[strlen(text)-1] = '\0'; //remove the newline
 			if ((strstr(text, " ") == NULL) || (strstr(strstr(text, " ")+1, " ") == NULL)) {
@@ -428,7 +434,9 @@ void load_map_marks()
 			}
 			else {
 				safe_strncpy(marks[max_mark].text, strstr(strstr(text, " ")+1, " ") + 1, sizeof(marks[max_mark].text));
-
+				marks[max_mark].r=r;
+				marks[max_mark].g=g;
+				marks[max_mark].b=b;
 				max_mark++;
 				if ( max_mark > MAX_USER_MARKS ) break;
 			}
@@ -456,7 +464,7 @@ void save_markings()
 	} else {
 		for ( i = 0 ; i < max_mark ; i ++){
 			if ( marks[i].x > 0 && !marks[i].server_side){
-				fprintf(fp,"%d %d %s\n",marks[i].x,marks[i].y,marks[i].text);
+				fprintf(fp,"%d %d|%d,%d,%d| %s\n",marks[i].x,marks[i].y,marks[i].r,marks[i].g,marks[i].b,marks[i].text);
 			}
 		}
 		fclose(fp);
@@ -724,10 +732,10 @@ void display_map_marks(){
 		   || ((!marks[i].server_side)&&(marks[i].x<0||!marks_3d))
 		  ) continue;
 		z = get_tile_display_height(marks[i].x, marks[i].y);
-		glPushMatrix();
+		//glPushMatrix();
 		for(j=z-fr/5,ff=1;j<z+2;j+=0.1,ff=(2-(j-z))/2) {
 			if(marks[i].server_side) glColor4f(0.0f, 0.0f, 1.0f, 0.9f-(j-z)/3);
-			else glColor4f(0.0f, 1.0f, 0.0f, 0.7f-(j-z)/3);
+			else glColor4f((float)marks[i].r/255, (float)marks[i].g/255, (float)marks[i].b/255, 0.7f-(j-z)/3);
 			glBegin(GL_QUADS);
 				glVertex3f(x-dx*ff,y-dy*ff,j);
 				glVertex3f(x-dx*ff,y+dy*ff,j);
@@ -764,7 +772,7 @@ void display_map_marks(){
 		glVertex3f(x - 2*dx - center_offset_x, y + 2*dy + center_offset_y, z);
 		glEnd();
 		* */
-		glPopMatrix();
+		//glPopMatrix();
 		
 	}
 	

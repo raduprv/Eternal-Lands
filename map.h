@@ -129,7 +129,7 @@ extern hash_table *server_marks;
 extern float mark_z_rot;
 extern int marks_3d;
 #define MARK_CLIP_POS 20
-#define MARK_DIST 30
+#define MARK_DIST 20
 
 
 

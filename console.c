@@ -657,7 +657,7 @@ int command_unmark(char *text, int len)
 	if(*text) {
 		for (i = 0; i < max_mark; i ++)
 		{
-			if (my_strcompare(marks[i].text, text) && (marks[i].x != -1))
+			if (my_strcompare(marks[i].text, text) && (marks[i].x != -1) && !marks[i].server_side)
 			{
 				char str[512];
 				marks[i].x = marks[i].y = -1;
@@ -670,6 +670,40 @@ int command_unmark(char *text, int len)
 	}
 	return 1;
 }
+
+int command_mark_color(char *text, int len)
+{
+	char str[512];
+
+	while (isspace(*text))
+		text++;
+
+	if(*text) {
+		int r=-1,g,b;
+		
+		if(sscanf(text,"%d %d %d",&r,&g,&b)==3) {
+			if(!(r>=0&&r<=255&&g>=0&&g<=255&&b>=0&&b<=255)) r=-1; //don't set color
+		} else {
+			if(strcasecmp(text,"red")==0) {r=255;g=0;b=0;}
+			else if(strcasecmp(text,"blue")==0) {r=0;g=0;b=255;}
+			else if(strcasecmp(text,"green")==0) {r=0;g=255;b=0;}
+			else if(strcasecmp(text,"yellow")==0) {r=255;g=255;b=0;}
+			else if(strcasecmp(text,"cyan")==0) {r=0;g=255;b=255;}
+			else if(strcasecmp(text,"magenta")==0) {r=255;g=0;b=255;}
+			else if(strcasecmp(text,"white")==0) {r=255;g=255;b=255;}
+		}
+		if(r>-1) {
+			//set color
+				curmark_r=r;
+				curmark_g=g;
+				curmark_b=b;			
+		}
+	}
+	safe_snprintf (str, sizeof(str), "Current marker color is (RGB): %d %d %d", curmark_r,curmark_g,curmark_b);
+	LOG_TO_CONSOLE(c_orange1,str);
+	return 1;
+}
+
 
 int command_stats(char *text, int len)
 {
@@ -1378,6 +1412,7 @@ add_command("horse", &horse_cmd);
 	add_command("add_emote", &add_emote);
 	add_command("send_cmd", &send_cmd);
 #endif
+	add_command("marker_color", &command_mark_color);
 	add_command("calc", &command_calc);
 	add_command("cls", &command_cls);
 	add_command(cmd_markpos, &command_markpos);
