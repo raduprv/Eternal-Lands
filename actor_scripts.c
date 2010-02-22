@@ -746,6 +746,7 @@ int handle_emote_command(int act_id, emote_command *command)
 
 
 		held = (is_actor_held(act))?1:0;
+		printf("actor %i is held: %i\n",act_id,held);
 		pose[EMOTE_STANDING] = get_pose_frame(act->actor_type,act,EMOTE_STANDING,held);
 		pose[EMOTE_WALKING] = get_pose_frame(act->actor_type,act,EMOTE_WALKING,held);
 		pose[EMOTE_SITTING] = get_pose_frame(act->actor_type,act,EMOTE_SITTING,held);
@@ -860,7 +861,7 @@ void next_command()
 				if(k>max_queue && actors_list[i]->que[k]!=nothing)max_queue=k;
 				actors_list[i]->que[k]=actors_list[i]->que[k+1];
 			}
-			actors_list[i]->que[k]=nothing;
+			actors_list[i]->que[max_queue]=nothing;
 		}
 #endif
 		if(!actors_list[i]->busy){//Are we busy?
@@ -2019,6 +2020,30 @@ void add_command_to_actor(int actor_id, unsigned char command)
 #endif // ATTACHED_ACTORS
 		if(k>MAX_CMD_QUEUE-2){
 			int i;
+#ifdef EMOTES
+			int k;
+			LOG_ERROR("Too much commands in the queue for actor %d (%s) => skip emotes!",
+					  act->actor_id, act->actor_name);
+			for(i=MAX_CMD_QUEUE-1;i>=0;i--) {
+				if(act->que[i]>=emote_cmd&&act->que[i]<wait_cmd) {
+					//skip this emote
+					for(k=i;k<MAX_CMD_QUEUE-1;k++) {
+						act->que[k]=act->que[k+1];
+#ifdef MORE_ATTACHED_ACTORS
+						if(act->attached_actor>=0)
+						actors_list[act->attached_actor]->que[k]=actors_list[act->attached_actor]->que[k+1];
+#endif
+					}
+					act->que[k]=nothing;
+#ifdef MORE_ATTACHED_ACTORS
+					actors_list[act->attached_actor]->que[k]=nothing;
+#endif
+					add_command_to_actor(actor_id,command); //RECURSIVE!!!! should be done only one time
+					return;
+				}
+			}
+			//if we are here no emotes have been skipped
+#endif
 			LOG_ERROR("Too much commands in the queue for actor %d (%s) => resync!",
 					  act->actor_id, act->actor_name);
 			for (i = 0; i < MAX_CMD_QUEUE; ++i)

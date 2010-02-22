@@ -29,6 +29,8 @@
 #define EMOTES_CATEGORIES 5
 #define EMOTES_SHOWN 9
 
+#define EMOTE_SPAM_TIME 1000
+
 #define SET_COLOR(x) glColor4f((float) colors_list[x].r1 / 255.0f,(float) colors_list[x].g1 / 255.0f,(float) colors_list[x].b1 / 255.0f,1.0f)
 
 char *emote_cats[EMOTES_CATEGORIES]= {
@@ -59,11 +61,17 @@ unsigned char emote_str2[100];
 
 
 void send_emote(int emote_id){
+	static int last_emote_time=0;
 	Uint8 str[4];
-	//Send message to server...	
-	str[0]=DO_EMOTE;
-	str[1]=emote_id;
-	my_tcp_send(my_socket,str,2);
+
+	if(cur_time-last_emote_time>EMOTE_SPAM_TIME) {
+		//Send message to server...	
+		str[0]=DO_EMOTE;
+		str[1]=emote_id;
+		my_tcp_send(my_socket,str,2);
+		last_emote_time=cur_time;
+		printf("Emote %i sent at time %i\n",emote_id,last_emote_time);
+	}
 
 }
 
