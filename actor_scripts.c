@@ -825,7 +825,7 @@ int handle_emote_command(int act_id, emote_command *command)
 			cal_actor_set_emote_anim(act, frames);
 			//printf("unqueue\n");
 			unqueue_emote(act);
-			LOG_TO_CONSOLE(c_green2, "Emote command");
+			//LOG_TO_CONSOLE(c_green2, "Emote command");
 			return 0;
 		}
 

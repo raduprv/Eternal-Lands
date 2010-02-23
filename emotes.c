@@ -23,10 +23,13 @@
 #include "gl_init.h"
 #endif
 
+//TO ENABLE POSES, CHECK COMMENTS at lines 31,40,59
+
 
 #define EMOTES_SCROLLBAR_CATEGORIES 1000
 #define EMOTES_SCROLLBAR_ITEMS 1001
-#define EMOTES_CATEGORIES 5
+//Set EMOTE_CATEGORIES to 5 for poses
+#define EMOTES_CATEGORIES 1
 #define EMOTES_SHOWN 9
 
 #define EMOTE_SPAM_TIME 1000
@@ -34,11 +37,11 @@
 #define SET_COLOR(x) glColor4f((float) colors_list[x].r1 / 255.0f,(float) colors_list[x].g1 / 255.0f,(float) colors_list[x].b1 / 255.0f,1.0f)
 
 char *emote_cats[EMOTES_CATEGORIES]= {
-	"Actions",
+	"Actions"/*,
 	"Sit poses",
 	"Walk poses",
 	"Run poses",
-	"Stand poses"
+	"Stand poses"*/ //remove this comment and change EMOTE_CATEGORIES to 5 to enable poses
 };
 
 int emotes_win= -1;
@@ -53,7 +56,7 @@ int emotes_rect_y2=120;
 
 
 int cur_cat=0;
-emote_data* emote_sel[EMOTES_CATEGORIES]={NULL,NULL,NULL,NULL,NULL};
+emote_data* emote_sel[EMOTES_CATEGORIES]={NULL/*,NULL,NULL,NULL,NULL*/}; //remove the comment for poses
 emote_data *selectables[EMOTES_SHOWN];
 
 unsigned char emote_str1[100];
@@ -70,7 +73,7 @@ void send_emote(int emote_id){
 		str[1]=emote_id;
 		my_tcp_send(my_socket,str,2);
 		last_emote_time=cur_time;
-		printf("Emote %i sent at time %i\n",emote_id,last_emote_time);
+		//printf("Emote %i sent at time %i\n",emote_id,last_emote_time);
 	}
 
 }
@@ -220,6 +223,7 @@ int click_emotes_handler(window_info *win, int mx, int my, Uint32 flags){
 	if(mx>20&&mx<20+emotes_rect_x&&my>30&&my<30+emotes_rect_y){
 		//click on a cat
 		cur_cat=(my-30)/13;
+		if(cur_cat>=EMOTES_CATEGORIES) cur_cat=0;
 		if(cur_cat>EMOTE_STANDING) cur_cat=EMOTE_STANDING+1;
 		update_selectables();
 		last_pos=-1;
