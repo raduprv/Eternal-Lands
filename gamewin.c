@@ -462,7 +462,7 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 		{
 			elwin_mouse = CURSOR_TRADE;
 		}
-		else if(alt_on || action_mode==ACTION_ATTACK || ranging_lock)
+		else if(alt_on || action_mode==ACTION_ATTACK)
 		{
 			elwin_mouse = CURSOR_ATTACK;
 		}
@@ -494,7 +494,7 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 		{
 			elwin_mouse = CURSOR_WAND;
 		}
-		else if(alt_on || action_mode==ACTION_ATTACK || ranging_lock || (actor_under_mouse && !actor_under_mouse->dead))
+		else if(alt_on || action_mode==ACTION_ATTACK || (actor_under_mouse && !actor_under_mouse->dead))
 		{
 			elwin_mouse = CURSOR_ATTACK;
 		}
