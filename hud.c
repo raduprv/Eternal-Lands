@@ -1129,7 +1129,11 @@ void init_misc_display(hud_interface type)
 			cm_bool_line(cm_hud_id, CMH_STATBARS, &show_statbars_in_hud, "show_statbars_in_hud");
 			cm_bool_line(cm_hud_id, CMH_DIGCLOCK, &view_digital_clock, "view_digital_clock");
 			cm_bool_line(cm_hud_id, CMH_ANACLOCK, &view_analog_clock, "view_analog_clock");
+#ifdef SKY_FPV
 			cm_bool_line(cm_hud_id, CMH_SECONDS, &show_game_seconds, "show_game_seconds");
+#else
+			cm_grey_line(cm_hud_id, CMH_SECONDS, 1);
+#endif
 			cm_bool_line(cm_hud_id, CMH_FPS, &show_fps, "show_fps");
 			cm_bool_line(cm_hud_id, CMH_MINIMAP, &cm_minimap_shown, NULL);
 			cm_bool_line(cm_hud_id, CMH_QUICKBM, &cm_quickbar_enabled, NULL);
