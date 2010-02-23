@@ -21,9 +21,9 @@
 #ifdef CLUSTER_INSIDES_OLD
 #include "cluster.h"
 #endif
+#include "shadows.h"
 #ifdef	USE_SHADER
 #include "global.h"
-#include "shadows.h"
 #include "shader/shader.h"
 #endif	// USE_SHADER
 #ifdef SKY_FPV
