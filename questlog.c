@@ -1,3 +1,5 @@
+#ifndef NEW_QUESTLOG
+
 #include <stdlib.h>
 #include <string.h>
 #include "dialogues.h"
@@ -311,3 +313,5 @@ void display_questlog()
 		select_window(questlog_win);
 	}
 }
+
+#endif // #ifndef NEW_QUESTLOG

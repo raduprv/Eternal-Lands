@@ -447,6 +447,16 @@ extern char
 		um_no_menus_str[50],
 		um_window_title_str[50],
 #endif
+#ifdef NEW_QUESTLOG
+		/* quest_log.cpp */
+#ifdef CONTEXT_MENUS
+		cm_questlog_menu_str[100],
+		questlog_find_prompt_str[30],
+		questlog_add_npc_prompt_str[20],
+		questlog_add_text_prompt_str[20],
+#endif
+		questlog_deleted_str[20],
+#endif
 		/* new_character.c */
 		use_appropriate_name[500];
 #endif  //DOXYGEN_SKIP_THIS
@@ -455,6 +465,7 @@ extern char
 #ifndef DOXYGEN_SKIP_THIS
 //Errors
 extern char	reg_error_str[15],
+		file_write_error_str[20],
 		/*3d_objects.c*/
 		cant_load_2d_object[30],
 		cant_open_file[30], //2d_objects.c

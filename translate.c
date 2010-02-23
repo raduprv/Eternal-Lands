@@ -300,6 +300,16 @@ char
 	um_no_menus_str[50],
 	um_window_title_str[50],
 #endif
+#ifdef NEW_QUESTLOG
+	/* quest_log.cpp */
+#ifdef CONTEXT_MENUS
+	cm_questlog_menu_str[100],
+	questlog_find_prompt_str[30],
+	questlog_add_npc_prompt_str[20],
+	questlog_add_text_prompt_str[20],
+#endif
+	questlog_deleted_str[20],
+#endif
 	/* new_character.c */
 	use_appropriate_name[500];
 #endif
@@ -386,6 +396,7 @@ char	name_too_long[75],
 /*! \name Errors */
 /*! \{ */
 char	reg_error_str[15],
+	file_write_error_str[20],
 	/*2d_objects.c*/
 	cant_load_2d_object[30],
 	cant_open_file[30],
@@ -993,6 +1004,7 @@ void init_errors()
 	//Miscellaneous errors
 	add_xml_identifier(misc,"no_walk_sitlock",no_walk_with_sitlock,"Sitlock is enabled. Disable it or stand before walking.",sizeof(no_walk_with_sitlock));
 	add_xml_identifier(misc,"error",reg_error_str,"Error",sizeof(reg_error_str));
+	add_xml_identifier(load,"file_write_error",file_write_error_str,"Can't write to file",sizeof(file_write_error_str));
 	add_xml_identifier(misc,"objerr",object_error_str,"Object error",sizeof(object_error_str));
 	add_xml_identifier(misc,"nasty",nasty_error_str,"Something nasty happened while trying to process: %s",sizeof(nasty_error_str));
 	add_xml_identifier(misc,"corrupt",corrupted_object,"Object seems to be corrupted. Skipping the object. Warning: This might cause further problems.",sizeof(corrupted_object));
@@ -1361,6 +1373,17 @@ void init_help()
 	add_xml_identifier(misc, "um_invalid_line", um_invalid_line_str, "<Error: invalid line>", sizeof(um_invalid_line_str));
 	add_xml_identifier(misc, "um_no_menus", um_no_menus_str, "No User Menus", sizeof(um_no_menus_str));
 	add_xml_identifier(misc, "um_window_title", um_window_title_str, "User Menus", sizeof(um_window_title_str));
+#endif
+
+	/* quest_log.cpp */
+#ifdef NEW_QUESTLOG
+#ifdef CONTEXT_MENUS
+	add_xml_identifier(misc, "cm_questlog_menu", cm_questlog_menu_str, "Filter...\nCopy\nFind...\nAdd...\n--\nDelete\nUndelete\n--\nSave", sizeof(cm_questlog_menu_str));
+	add_xml_identifier(misc, "questlog_find_prompt", questlog_find_prompt_str, "Text to Find", sizeof(questlog_find_prompt_str));
+	add_xml_identifier(misc, "questlog_add_npc_prompt", questlog_add_npc_prompt_str, "NPC name", sizeof(questlog_add_npc_prompt_str));	
+	add_xml_identifier(misc, "questlog_add_text_prompt", questlog_add_text_prompt_str, "Entry text", sizeof(questlog_add_text_prompt_str));	
+#endif
+	add_xml_identifier(misc, "questlog_deleted", questlog_deleted_str, "(Deleted)", sizeof(questlog_deleted_str));	
 #endif
 }
 #endif
