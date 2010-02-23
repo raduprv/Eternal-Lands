@@ -1587,6 +1587,14 @@ void hide_all_windows(){
 		} else {
 			were_open &= ~(1<<11);
 		}
+#ifdef EMOTES
+		if (get_window_showable(emotes_win) > 0){
+			hide_window (emotes_win);
+			were_open |= 1<<12;
+		} else {
+			were_open &= ~(1<<12);
+		}
+#endif
 	} else {	//None were open, restore the ones that were open last time the key was pressed
 		if (were_open & 1<<0){
 			show_window (items_win);
@@ -1624,6 +1632,11 @@ void hide_all_windows(){
 		if (view_only_storage && (were_open & 1<<11)){
 			show_window (storage_win );
 		}
+#ifdef EMOTES
+		if (were_open & 1<<12){
+			show_window (emotes_win);
+		}
+#endif
 	}
 }
 
