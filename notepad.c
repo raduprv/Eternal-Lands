@@ -643,9 +643,9 @@ int open_note_tab (widget_list *w, int mx, int my, Uint32 flags)
 	return 0;
 }
 
-void note_button_add (int nr)
+void note_button_add (int nr, int next_id)
 {
-	note_list[nr].button_id = button_add_extended (main_note_tab_id, nr, NULL, 0, 0, note_button_width, note_button_height, 0, 0.8, 0.77f, 0.57f, 0.39f, note_list[nr].name);
+	note_list[nr].button_id = button_add_extended (main_note_tab_id, next_id, NULL, 0, 0, note_button_width, note_button_height, 0, 0.8, 0.77f, 0.57f, 0.39f, note_list[nr].name);
 	widget_set_OnClick (main_note_tab_id, note_list[nr].button_id, open_note_tab);
 	note_button_set_pos (nr);
 	update_note_button_scrollbar (nr);
@@ -654,6 +654,7 @@ void note_button_add (int nr)
 void notepad_add_continued (const char *name)
 {
 	int i = nr_notes++;
+	int potential_id, next_id = 0;
 
 	if (i >= note_list_size)
 	{
@@ -662,8 +663,28 @@ void notepad_add_continued (const char *name)
 		note_list_size = new_size;
 	}
 
+	for (potential_id=0; potential_id<nr_notes; potential_id++)
+	{
+		int test_id;
+		int found_id = 0;
+		for (test_id=0; test_id<nr_notes; test_id++)
+		{
+			widget_list * w = widget_find(main_note_tab_id, note_list[test_id].button_id);
+			if (w && w->id == potential_id)
+			{
+				found_id = 1;
+				break;
+			}
+		}
+		if (!found_id)
+		{
+			next_id = potential_id;
+			break;
+		}
+	}
+
 	init_note (i, name, NULL);
-	note_button_add (i);
+	note_button_add (i, next_id);
 	
 	open_note_tab_continued (i);
 }
@@ -746,7 +767,7 @@ void display_notepad()
 
 		// Add the note selection buttons and their scroll bar
 		for(i = 0; i < nr_notes; i++)
-			note_button_add (i);
+			note_button_add (i, i);
 
 		update_note_button_scrollbar (0);
 	}
