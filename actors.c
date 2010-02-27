@@ -1279,7 +1279,7 @@ void add_actor_from_server (const char *in_data, int len)
 	short max_health;
 	short cur_health;
 	short actor_type;
-	char frame;
+	Uint8 frame;
 	int i;
 	int dead=0;
 	int kind_of_actor;
