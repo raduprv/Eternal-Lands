@@ -93,7 +93,7 @@ void init_peace_icons();
 void add_icon(float u_start, float v_start, float colored_u_start, float colored_v_start, char * help_message, void * func, void * data, char data_type);
 void switch_action_mode(int * mode, int id);
 void init_stats_display();
-void draw_exp_display();
+void draw_exp_display(int window_width);
 void draw_stats();
 void init_misc_display(hud_interface type);
 void init_quickbar();
@@ -867,7 +867,7 @@ CHECK_GL_ERRORS();
 #ifdef CONTEXT_MENUS
 static int cm_statsbar_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
-	watch_this_stat = option+1;
+	watch_this_stat ^= 1<<option;
 	return 1;
 }
 #endif
@@ -899,7 +899,7 @@ void init_stats_display()
 	load_bar_start_x=health_bar_start_x+100+40;
 	load_bar_start_y=mana_bar_start_y;
 
-	exp_bar_start_x=load_bar_start_x+100+70;
+	exp_bar_start_x=load_bar_start_x+100+80;
 	exp_bar_start_y=mana_bar_start_y;
 	
 #ifdef CONTEXT_MENUS
@@ -914,7 +914,7 @@ void init_stats_display()
 		}
 		cm_remove_regions(stats_bar_win);
 		if((window_width-24)>(640))
-			cm_add_region(cm_id, stats_bar_win, exp_bar_start_x, exp_bar_start_y, 100, 12);
+			cm_add_region(cm_id, stats_bar_win, exp_bar_start_x, exp_bar_start_y, window_width-exp_bar_start_x-90, 12);
 	}
 #endif
 }
@@ -1031,7 +1031,7 @@ int	display_stats_bar_handler(window_info *win)
 	draw_stats_bar(food_bar_start_x, food_bar_start_y, your_info.food_level, food_adjusted_x_len, 1.0f, 1.0f, 0.2f, 0.5f, 0.5f, 0.2f);
 	draw_stats_bar(mana_bar_start_x, mana_bar_start_y, your_info.ethereal_points.cur, mana_adjusted_x_len, 0.2f, 0.2f, 1.0f, 0.2f, 0.2f, 0.5f);
 	draw_stats_bar(load_bar_start_x, load_bar_start_y, your_info.carry_capacity.base-your_info.carry_capacity.cur, load_adjusted_x_len, 0.6f, 0.4f, 0.4f, 0.4f, 0.2f, 0.2f);
-	if(win->len_x>640-64) draw_exp_display();
+	if(win->len_x>640-64) draw_exp_display(win->len_x);
 	
 	if(show_help_text)
 		{
@@ -1377,10 +1377,10 @@ CHECK_GL_ERRORS();
 			safe_snprintf(str,sizeof(str),"%-3s %3i",
 				statsinfo[thestat].skillnames->shortname,
 				statsinfo[thestat].skillattr->base );
-			if (thestat == watch_this_stat-1)
-			    draw_string_small_shadowed(x, y, (unsigned char*)str, 1,0.77f, 0.57f, 0.39f,0.0f,0.0f,0.0f);
+			if ((watch_this_stat & 1<<thestat) == 1<<thestat)
+			    draw_string_small_shadowed(x+gx_adjust, y+gy_adjust, (unsigned char*)str, 1,0.77f, 0.57f, 0.39f,0.0f,0.0f,0.0f);
 			else
-   			    draw_string_small_shadowed(x, y, (unsigned char*)str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
+   			    draw_string_small_shadowed(x+gx_adjust, y+gy_adjust, (unsigned char*)str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
 			
 			if((thestat!=NUM_WATCH_STAT-2) && floatingmessages_enabled &&
 				(skill_modifier = statsinfo[thestat].skillattr->cur -
@@ -1489,7 +1489,7 @@ int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 	//check to see if we clicked on the stats
 	if (in_stats_bar)
 	{
-		watch_this_stat = first_disp_stat + ((my - statbar_start_y ) / 15) + 1;
+		watch_this_stat ^= 1<<(first_disp_stat + ((my - statbar_start_y ) / 15));
 #ifdef NEW_SOUND
 		add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
 #endif // NEW_SOUND
@@ -2038,43 +2038,55 @@ void build_levels_table()
     }
 }
 
-void draw_exp_display()
+void draw_exp_display(int window_width)
 {
 	int exp_adjusted_x_len;
 	int nl_exp, baselev, cur_exp;
 	int delta_exp;
 	unsigned char * name;
 	float prev_exp;
-	int towatch = watch_this_stat-1;
+	int i;
+	int towatch = 0;
+	int max_towatch = (window_width-exp_bar_start_x+64)/180;
+	int my_exp_bar_start_x = exp_bar_start_x;
 	
-	/* default to overall if not a valid skill */
-	if ((towatch < 0) || (towatch > (NUM_WATCH_STAT-2)))
-		towatch = NUM_WATCH_STAT-2;
-	
-	cur_exp = *statsinfo[towatch].exp;
-	nl_exp = *statsinfo[towatch].next_lev;
-	baselev = statsinfo[towatch].skillattr->base;
-	name = statsinfo[towatch].skillnames->name;
+	for (i=0; i<NUM_WATCH_STAT-1; i++)
+	{	
+		/* default to overall if no valid skill is selected */
+		if ((i == NUM_WATCH_STAT-2) && (towatch == 0))
+			watch_this_stat=4096;
+		
+		if ((watch_this_stat & 1<<i) == 1<<i)
+		{
+			towatch++;
+			if (towatch > max_towatch) break;
+			cur_exp = *statsinfo[i].exp;
+			nl_exp = *statsinfo[i].next_lev;
+			baselev = statsinfo[i].skillattr->base;
+			name = statsinfo[i].skillnames->name;
 
-	if(!baselev)
-		prev_exp= 0;
-	else
-		prev_exp= exp_lev[baselev];
+			if(!baselev)
+				prev_exp= 0;
+			else
+				prev_exp= exp_lev[baselev];
 
-	//nl_exp= exp_lev[baselev+1];
-	delta_exp= nl_exp-prev_exp;
+			//nl_exp= exp_lev[baselev+1];
+			delta_exp= nl_exp-prev_exp;
 
-	if(!cur_exp || !nl_exp || delta_exp <=0)
-		exp_adjusted_x_len= 0;
-	else
-		//exp_bar_length= (int)( (((float)cur_exp - prev_exp) / ((float)nl_exp - prev_exp)) * 100.0);
-		exp_adjusted_x_len= 100-100.0f/(float)((float)delta_exp/(float)(nl_exp-cur_exp));
+			if(!cur_exp || !nl_exp || delta_exp <=0)
+				exp_adjusted_x_len= 0;
+			else
+				//exp_bar_length= (int)( (((float)cur_exp - prev_exp) / ((float)nl_exp - prev_exp)) * 100.0);
+				exp_adjusted_x_len= 100-100.0f/(float)((float)delta_exp/(float)(nl_exp-cur_exp));
 
-	// only display if you are below the exp needed, don't allow negative bars
-	//if(exp_adjusted_x_len >= 0){
-		draw_stats_bar(exp_bar_start_x, exp_bar_start_y, nl_exp - cur_exp, exp_adjusted_x_len, 0.1f, 0.8f, 0.1f, 0.1f, 0.4f, 0.1f);
-		draw_string_small_shadowed(exp_bar_start_x, exp_bar_start_y+10, name, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
-	//}
+			// only display if you are below the exp needed, don't allow negative bars
+			//if(exp_adjusted_x_len >= 0){
+				draw_stats_bar(my_exp_bar_start_x, exp_bar_start_y, nl_exp - cur_exp, exp_adjusted_x_len, 0.1f, 0.8f, 0.1f, 0.1f, 0.4f, 0.1f);
+				draw_string_small_shadowed(my_exp_bar_start_x, exp_bar_start_y+10, name, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
+			//}
+			my_exp_bar_start_x += 180;
+		}
+	}
 }
 
 /*Change flags*/

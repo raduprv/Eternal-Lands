@@ -25,7 +25,7 @@ int attrib_menu_x_len=STATS_TAB_WIDTH;
 int attrib_menu_y_len=STATS_TAB_HEIGHT;
 //int attrib_menu_dragged=0;
 
-int watch_this_stat=NUM_WATCH_STAT -1;  // default to watching overall
+int watch_this_stat=4096;  // default to watching overall
 int check_grid_y_top=0;
 int check_grid_x_left=0;
 
@@ -707,55 +707,55 @@ int display_stats_handler(window_info *win)
         check_grid_x_left=x;
         check_grid_y_top=y;
 
-        watch_this_stat==1?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
+        (watch_this_stat & 1)==1?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
         draw_skill(46,x,y,&(cur_stats.attack_skill),&(attributes.attack_skill),cur_stats.attack_exp,cur_stats.attack_exp_next_lev);
 
         y+=14;
-        watch_this_stat==2?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
+        (watch_this_stat & 2)==2?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
         draw_skill(46,x,y,&(cur_stats.defense_skill),&(attributes.defense_skill),cur_stats.defense_exp,cur_stats.defense_exp_next_lev);
 
         y+=14;
-        watch_this_stat==3?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
+        (watch_this_stat & 4)==4?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
         draw_skill(46,x,y,&(cur_stats.harvesting_skill),&(attributes.harvesting_skill),cur_stats.harvesting_exp,cur_stats.harvesting_exp_next_lev);
 
         y+=14;
-        watch_this_stat==4?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
+        (watch_this_stat & 8)==8?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
         draw_skill(46,x,y,&(cur_stats.alchemy_skill),&(attributes.alchemy_skill),cur_stats.alchemy_exp,cur_stats.alchemy_exp_next_lev);
 
         y+=14;
-        watch_this_stat==5?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
+        (watch_this_stat & 16)==16?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
         draw_skill(46,x,y,&(cur_stats.magic_skill),&(attributes.magic_skill),cur_stats.magic_exp,cur_stats.magic_exp_next_lev);
 
         y+=14;
-        watch_this_stat==6?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
+        (watch_this_stat & 32)==32?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
         draw_skill(46,x,y,&(cur_stats.potion_skill),&(attributes.potion_skill),cur_stats.potion_exp,cur_stats.potion_exp_next_lev);
 
         y+=14;
-        watch_this_stat==7?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
+        (watch_this_stat & 64)==64?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
         draw_skill(46,x,y,&(cur_stats.summoning_skill),&(attributes.summoning_skill),cur_stats.summoning_exp,cur_stats.summoning_exp_next_lev);
 
         y+=14;
-        watch_this_stat==8?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
+        (watch_this_stat & 128)==128?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
         draw_skill(46,x,y,&(cur_stats.manufacturing_skill),&(attributes.manufacturing_skill),cur_stats.manufacturing_exp,cur_stats.manufacturing_exp_next_lev);
 
         y+=14;
-        watch_this_stat==9?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
+        (watch_this_stat & 256)==256?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
         draw_skill(46,x,y,&(cur_stats.crafting_skill),&(attributes.crafting_skill),cur_stats.crafting_exp,cur_stats.crafting_exp_next_lev);
 
         y+=14;
-        watch_this_stat==10?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
+        (watch_this_stat & 512)==512?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
         draw_skill(46,x,y,&(cur_stats.engineering_skill),&(attributes.engineering_skill),cur_stats.engineering_exp,cur_stats.engineering_exp_next_lev);
 
         y+=14;
-        watch_this_stat==11?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
+        (watch_this_stat & 1024)==1024?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
         draw_skill(46,x,y,&(cur_stats.tailoring_skill),&(attributes.tailoring_skill),cur_stats.tailoring_exp,cur_stats.tailoring_exp_next_lev);
 
         y+=14;
-        watch_this_stat==12?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
+        (watch_this_stat & 2048)==2048?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
         draw_skill(46,x,y,&(cur_stats.ranging_skill),&(attributes.ranging_skill),cur_stats.ranging_exp,cur_stats.ranging_exp_next_lev);
 
         y+=14;
-        watch_this_stat==13?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
+        (watch_this_stat & 4096)==4096?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
         draw_skill(46,x,y,&(cur_stats.overall_skill),&(attributes.overall_skill),cur_stats.overall_exp,cur_stats.overall_exp_next_lev);
 
         return 1;
@@ -770,10 +770,10 @@ int click_stats_handler(window_info *win, int mx, int my, Uint32 flags)
         {
                 // we don't care which click did the select
                 // Grum: as long as it's not a wheel move
-                i = 1+(my - check_grid_y_top)/14;
+                i = (my - check_grid_y_top)/14;
                 if (i < NUM_WATCH_STAT)
                 {
-                        watch_this_stat = i;
+                        watch_this_stat ^= 1<<i;
                 }
                 return 1;
         }

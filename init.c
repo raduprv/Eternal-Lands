@@ -339,8 +339,8 @@ void read_bin_cfg()
 		}
 
 	watch_this_stat=cfg_mem.watch_this_stat;
-	if(watch_this_stat<0 || watch_this_stat>=NUM_WATCH_STAT)
-		watch_this_stat=0;
+	if(watch_this_stat<0 || watch_this_stat>=8192)
+		watch_this_stat=4096;
 
 	has_accepted=cfg_mem.has_accepted_rules;
 
