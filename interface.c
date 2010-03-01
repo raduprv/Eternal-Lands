@@ -1031,9 +1031,9 @@ int put_mark_on_position(int map_x, int map_y, char * name)
 		}
 		marks[max_mark].x = map_x;
 		marks[max_mark].y = map_y;
-		memset(marks[max_mark].text,0,500);
+		memset(marks[max_mark].text,0,sizeof(marks[max_mark].text));
 		
-		my_strncp(marks[max_mark].text,name,500);
+		my_strncp(marks[max_mark].text,name,sizeof(marks[max_mark].text));
 		marks[max_mark].text[strlen(marks[max_mark].text)]=0;
 
 		marks[max_mark].server_side=0;

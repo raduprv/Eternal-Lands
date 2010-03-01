@@ -188,15 +188,8 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 				break;
 			}
 		}
-						    
-		marks[max_mark].x = mark_x;
-		marks[max_mark].y = mark_y;
-		marks[max_mark].server_side = 0;
-		memset ( marks[max_mark].text, 0, sizeof (marks[max_mark].text) );
-						  
-		my_strncp ( marks[max_mark].text, input_text_line.data, sizeof (marks[max_mark].text) );
-		max_mark++;
-		save_markings ();
+
+		put_mark_on_position(mark_x, mark_y, input_text_line.data);
 		adding_mark = 0;
 		clear_input_line ();
 	}
