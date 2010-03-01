@@ -78,6 +78,8 @@ GLint viewport[4];
 // Grum: attempt to work around bug in Ati linux drivers.
 int ati_click_workaround = 0;
 
+float mapmark_zoom=0.3f;
+
 void save_scene_matrix ()
 {
 	glGetDoublev (GL_MODELVIEW_MATRIX, model_mat);
@@ -752,15 +754,15 @@ void draw_game_map (int map, int mouse_mini)
 			glColor3f(1.0f,1.0f,0.0f);
 			glDisable(GL_TEXTURE_2D);
 			glBegin(GL_LINES);
-				glVertex2i(screen_x-3,screen_y-3);
-				glVertex2i(screen_x+2,screen_y+2);
+				glVertex2i(screen_x-9*mapmark_zoom,screen_y-9*mapmark_zoom);
+				glVertex2i(screen_x+6*mapmark_zoom,screen_y+6*mapmark_zoom);
 
-				glVertex2i(screen_x+2,screen_y-3);
-				glVertex2i(screen_x-3,screen_y+2);
+				glVertex2i(screen_x+6*mapmark_zoom,screen_y-9*mapmark_zoom);
+				glVertex2i(screen_x-9*mapmark_zoom,screen_y+6*mapmark_zoom);
 			glEnd();
 		        glEnable(GL_TEXTURE_2D);
 		        glColor3f(1.0f,1.0f,0.0f);
-			draw_string_zoomed (screen_x, screen_y, (unsigned char*)input_text_line.data, 1, 0.3);
+			draw_string_zoomed (screen_x, screen_y, (unsigned char*)input_text_line.data, 1, mapmark_zoom);
 		}
 
 		if(inspect_map_text == 0) {
@@ -802,16 +804,16 @@ void draw_game_map (int map, int mouse_mini)
 					else glColor3f(0.33f,0.6f,1.0f);
 					glDisable(GL_TEXTURE_2D);
 					glBegin(GL_LINES);
-						glVertex2i(screen_x-3,screen_y-3);
-						glVertex2i(screen_x+2,screen_y+2);
+						glVertex2i(screen_x-9*mapmark_zoom,screen_y-9*mapmark_zoom);
+						glVertex2i(screen_x+6*mapmark_zoom,screen_y+6*mapmark_zoom);
 					
-						glVertex2i(screen_x+2,screen_y-3);
-						glVertex2i(screen_x-3,screen_y+2);
+						glVertex2i(screen_x+6*mapmark_zoom,screen_y-9*mapmark_zoom);
+						glVertex2i(screen_x-9*mapmark_zoom,screen_y+6*mapmark_zoom);
 					glEnd();
 						glEnable(GL_TEXTURE_2D);
 						if(!marks[i].server_side) glColor3f((float)marks[i].r/255,(float)marks[i].g/255,(float)marks[i].b/255);//glColor3f(0.2f,1.0f,0.0f);
 						else glColor3f(0.33f,0.6f,1.0f);
-					draw_string_zoomed(screen_x, screen_y, (unsigned char*)marks[i].text, 1, 0.3);
+					draw_string_zoomed(screen_x, screen_y, (unsigned char*)marks[i].text, 1, mapmark_zoom);
 				}
 			}
 
@@ -860,11 +862,11 @@ void draw_game_map (int map, int mouse_mini)
 		glDisable(GL_TEXTURE_2D);
 		glBegin(GL_LINES);
 
-		glVertex2i(screen_x-3,screen_y-3);
-		glVertex2i(screen_x+2,screen_y+2);
+		glVertex2i(screen_x-9*mapmark_zoom,screen_y-9*mapmark_zoom);
+		glVertex2i(screen_x+6*mapmark_zoom,screen_y+6*mapmark_zoom);
 
-		glVertex2i(screen_x+2,screen_y-3);
-		glVertex2i(screen_x-3,screen_y+2);
+		glVertex2i(screen_x+6*mapmark_zoom,screen_y-9*mapmark_zoom);
+		glVertex2i(screen_x-9*mapmark_zoom,screen_y+6*mapmark_zoom);
 
 		glEnd();
 	}
@@ -906,11 +908,11 @@ void draw_game_map (int map, int mouse_mini)
 		glDisable (GL_TEXTURE_2D);
 		glBegin (GL_LINES);
 
-		glVertex2i (screen_x-3, screen_y-3);
-		glVertex2i (screen_x+2, screen_y+2);
+		glVertex2i(screen_x-9*mapmark_zoom,screen_y-9*mapmark_zoom);
+		glVertex2i(screen_x+6*mapmark_zoom,screen_y+6*mapmark_zoom);
 
-		glVertex2i (screen_x+2, screen_y-3);
-		glVertex2i (screen_x-3, screen_y+2);
+		glVertex2i(screen_x+6*mapmark_zoom,screen_y-9*mapmark_zoom);
+		glVertex2i(screen_x-9*mapmark_zoom,screen_y+6*mapmark_zoom);
 
 		glEnd();
 	}
