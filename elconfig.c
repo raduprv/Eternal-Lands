@@ -37,6 +37,7 @@
  #include "interface.h"
  #include "items.h"
  #include "manufacture.h"
+ #include "map.h"
  #include "mapwin.h"
  #include "multiplayer.h"
  #include "new_character.h"
@@ -81,7 +82,6 @@
 #include "actor_init.h"
 #include "io/elpathwrapper.h"
 
-#include "map.h"
 
 typedef	float (*float_min_max_func)();
 typedef	int (*int_min_max_func)();
@@ -1536,7 +1536,9 @@ void add_multi_option(char * name, char * str) {
 
 void init_vars()
 {
+#ifdef ELC
 	int i;
+#endif
 
 	//ELC specific variables
 #ifdef ELC
