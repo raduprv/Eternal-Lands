@@ -600,9 +600,9 @@ typedef enum actor_commands
   emote_cmd = 100,
 
   //from 100 to 255, commands are reserved for emotes
-#ifdef MORE_ATTACHED_ACTORS
+//#ifdef MORE_ATTACHED_ACTORS
   wait_cmd=256, //to synch actor/horse (not sent by server)
-#endif
+//#endif
 } actor_commands;
 
 /*! @} */

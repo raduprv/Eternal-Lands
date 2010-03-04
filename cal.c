@@ -84,7 +84,7 @@ void cal_reset_emote_anims(actor *pActor, int cycles_too){
 
 	//remove emote idle
 	if(cur_emote->idle.anim_index>=0&&cycles_too) {
-		printf("CAL_reset cycle %i\n",cur_emote->idle.anim_index);
+		//printf("CAL_reset cycle %i\n",cur_emote->idle.anim_index);
 		CalMixer_ClearCycle(mixer,cur_emote->idle.anim_index, cal_cycle_blending_delay);
 		cur_emote->idle.anim_index=-1;
 	}
@@ -93,7 +93,7 @@ void cal_reset_emote_anims(actor *pActor, int cycles_too){
 		//remove actions
 		for(i=0;i<cur_emote->nframes;i++){
 			if(cur_emote->frames[i].anim_index>=0&&cur_emote->frames[i].kind==action){
-				printf("CAL_reset action %i\n",cur_emote->frames[i].anim_index);
+				//printf("CAL_reset action %i\n",cur_emote->frames[i].anim_index);
 				CalMixer_RemoveAction(mixer,cur_emote->frames[i].anim_index);
 				cur_emote->frames[i].anim_index=-1;
 			}
@@ -172,11 +172,11 @@ void handle_cur_emote(actor *pActor){
 
 	if(cur_emote->active&&cur_emote->start_time+cur_emote->max_duration<cur_time){
 		//all anims are finished, see if more frames are linked
-		printf("reset current frame\n");
+		//printf("reset current frame\n");
 		cal_reset_emote_anims(pActor,0);
 		if(cur_emote->flow) {
 			cur_emote->flow=cur_emote->flow->next;
-			printf("starting next emote frame %p\n",cur_emote->flow);
+			//printf("starting next emote frame %p\n",cur_emote->flow);
 			cal_actor_set_emote_anim(pActor, cur_emote->flow);
 		}
 	}
@@ -276,7 +276,7 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 #ifdef EMOTES
 		//if an emote is cycling, stop it
 		if(pActor->cur_emote.idle.anim_index!=-1) {
-				printf("stopping idle emote %i\n", pActor->cur_emote.idle.anim_index);
+				//printf("stopping idle emote %i\n", pActor->cur_emote.idle.anim_index);
 				CalMixer_ClearCycle(mixer,pActor->cur_emote.idle.anim_index,0);
 				pActor->cur_emote.idle.anim_index=-1;
 		}
