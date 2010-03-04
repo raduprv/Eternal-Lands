@@ -297,6 +297,9 @@ static void cm_ql_filter_pre_show_handler(window_info *win, int widget_id, int m
 		int new_y_pos = win->cur_y + (win->len_y - cm_win->len_y) / 2;
 		int new_x_pos = win->cur_x + win->len_x + 10;
 		move_window(cm_win->window_id, -1, 0, new_x_pos, new_y_pos);
+		// propagate opacity from parent tab window
+		if (tab_stats_win >-1 && tab_stats_win<windows_list.num_windows)
+			cm_win->opaque = windows_list.window[tab_stats_win].opaque;
 }
 
 
