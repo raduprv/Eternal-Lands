@@ -197,7 +197,7 @@ namespace cm
 		assert(instance_count++==0);
 		menus.resize(20,0);
 		if ((cm_window_id = create_window("Context Menu", -1, 0, 0, 0, 0, 0,
-				ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_ALPHA_BORDER)) == -1)
+				ELW_SWITCHABLE_OPAQUE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_ALPHA_BORDER)) == -1)
 			return;
 		set_window_handler(cm_window_id, ELW_HANDLER_DISPLAY, (int (*)())&display_context_handler );
 		set_window_handler(cm_window_id, ELW_HANDLER_CLICK, (int (*)())&click_context_handler );
@@ -608,11 +608,20 @@ namespace cm
 		windows_list.window[cm_window_id].data = this;
 		resize_window(cm_window_id, width, height);
 
+		// parent_win will be NULL if we don't have one
+		window_info *parent_win = window_info_from_id(container.get_active_window_id());
+		
+		// copy any parent window opacity to the context menu
+		if (parent_win != NULL && (parent_win->flags & ELW_SWITCHABLE_OPAQUE))
+			windows_list.window[cm_window_id].opaque = parent_win->opaque;
+		else
+			// otherwise use the default setting
+			windows_list.window[cm_window_id].opaque = opaque_window_backgrounds;
+
 		/* call any registered pre_show handler */
 		if (pre_show_handler)
 		{
 			// if we have a parent window, the mouse position is the original position that opened the menu
-			window_info *parent_win = window_info_from_id(container.get_active_window_id());
 			if (parent_win != NULL)
 			{
 				int parent_win_x = opened_mouse_x - parent_win->cur_x;
