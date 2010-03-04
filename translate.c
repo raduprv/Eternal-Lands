@@ -304,6 +304,7 @@ char
 	/* quest_log.cpp */
 #ifdef CONTEXT_MENUS
 	cm_questlog_menu_str[100],
+	cm_questlog_filter_str[50],
 	questlog_find_prompt_str[30],
 	questlog_add_npc_prompt_str[20],
 	questlog_add_text_prompt_str[20],
@@ -1378,7 +1379,9 @@ void init_help()
 	/* quest_log.cpp */
 #ifdef NEW_QUESTLOG
 #ifdef CONTEXT_MENUS
-	add_xml_identifier(misc, "cm_questlog_menu", cm_questlog_menu_str, "Filter...\nCopy\nFind...\nAdd...\n--\nDelete\nUndelete\n--\nSave", sizeof(cm_questlog_menu_str));
+	add_xml_identifier(misc, "cm_questlog_menu", cm_questlog_menu_str, "Filter...\nCopy\nCopy All\nFind...\nAdd...\n--\nDelete\nUndelete\n--\nSave", sizeof(cm_questlog_menu_str));
+	add_xml_identifier(misc, "cm_questlog_filter", cm_questlog_filter_str, "--\nShow All\nShow None\n", sizeof(cm_questlog_filter_str));
+
 	add_xml_identifier(misc, "questlog_find_prompt", questlog_find_prompt_str, "Text to Find", sizeof(questlog_find_prompt_str));
 	add_xml_identifier(misc, "questlog_add_npc_prompt", questlog_add_npc_prompt_str, "NPC name", sizeof(questlog_add_npc_prompt_str));	
 	add_xml_identifier(misc, "questlog_add_text_prompt", questlog_add_text_prompt_str, "Entry text", sizeof(questlog_add_text_prompt_str));	

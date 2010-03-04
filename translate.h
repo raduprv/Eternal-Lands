@@ -451,6 +451,7 @@ extern char
 		/* quest_log.cpp */
 #ifdef CONTEXT_MENUS
 		cm_questlog_menu_str[100],
+		cm_questlog_filter_str[50],
 		questlog_find_prompt_str[30],
 		questlog_add_npc_prompt_str[20],
 		questlog_add_text_prompt_str[20],
