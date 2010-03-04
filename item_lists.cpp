@@ -68,8 +68,9 @@ namespace ItemLists
 	//
 	void List::fetch(void) const
 	{
-		std::string message = "Fetch \"" + name + "\": Not yet supported:(";
-		LOG_TO_CONSOLE(c_green1, message.c_str());
+		// do nothing for now
+		// std::string message = "Fetch \"" + name + "\": Not yet supported:(";
+		// LOG_TO_CONSOLE(c_green1, message.c_str());
 	}
 	
 	
@@ -208,7 +209,7 @@ static int delete_item_list = 0;
 static int preview_win = -1;
 static size_t previewed_list = 0;
 static const char * preview_help_str = NULL;
-static const char * preview_fetch_help_str = "Left-click to fetch all items";
+//static const char * preview_fetch_help_str = "Left-click to fetch all items";
 static const char * preview_quantity_help_str = "Right-click to use item quantity";
 static int last_quantity_selected = 0;
 static const int preview_grid_size = 33;
@@ -437,8 +438,8 @@ static int mouseover_preview_handler(window_info *win, int mx, int my)
 	size_t item_number = get_preview_item_number(mx, my);
 	if ((item_number >= 0) && (item_number < saved_item_lists[previewed_list].get_quantities().size()))
 		preview_help_str = preview_quantity_help_str;
-	else
-		preview_help_str = preview_fetch_help_str;
+/*	else
+		preview_help_str = preview_fetch_help_str;*/
 	return 0;
 }
 
@@ -624,6 +625,7 @@ extern "C"
 		
 		cm_item_list_options_but = cm_create("Save a new list\nDisable list preview\n--\nDelete a list\n--\nReload item lists file", cm_item_list_options_handler);
 		cm_bool_line(cm_item_list_options_but, OPTION_PREVIEW, &disable_item_list_preview, NULL);
+		cm_grey_line(cm_item_list_options_but, OPTION_PREVIEW, 1); /* always use preview for now */
 		
 		load_item_lists();
 	}
