@@ -501,6 +501,9 @@ static void cm_questlog_pre_show_handler(window_info *win, int widget_id, int mx
 	cm_grey_line(cm_questlog_id, CMQL_DELETE, (is_over_entry && !is_deleted) ?0 :1);
 	cm_grey_line(cm_questlog_id, CMQL_UNDEL, (is_over_entry && is_deleted) ?0 :1);
 	cm_grey_line(cm_questlog_id, CMQL_SAVE, (need_to_save) ?0 :1);
+	// propagate opacity from parent tab window
+	if (tab_stats_win >-1 && tab_stats_win<windows_list.num_windows)
+		cm_win->opaque = windows_list.window[tab_stats_win].opaque;
 }
 
 
