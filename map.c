@@ -660,9 +660,9 @@ void remove_3d_object_from_server (int id)
 
 
 //3D MAP MARKERS
-
+#define MAX(a,b) ( ((a)>(b)) ? (a):(b) )
 #define ABS(a) ( ((a)<0)?(-(a)):(a)  )
-#define DST(xa,ya,xb,yb) ( ABS(xa-xb)+ABS(ya-yb)  )
+#define DST(xa,ya,xb,yb) ( MAX(ABS(xa-xb),ABS(ya-yb))  )
 int marks_3d=1;
 float mark_z_rot=0;
 
@@ -670,36 +670,13 @@ void animate_map_markers(){
 
 	int dt;
 	static int last_rot=0;
-	//object3d* obj;
 
 	dt=cur_time-last_rot;
 	last_rot+=dt;
 	mark_z_rot+=0.1*dt;
 	if(mark_z_rot>360) mark_z_rot-=360;
 
-	/*for(i=0;i<max_mark;i++){
-		if(marks[i].x<0) continue;
-		obj= objects_list[marks[i].obj_id];
-		calc_rotation_and_translation_matrix(obj->matrix, obj->x_pos, obj->y_pos, obj->z_pos, obj->x_rot, obj->y_rot, mark_z_rot);;
-	}*/
 }
-
-/*int get_3d_mark_id(int px, int py, char ss){
-	float z,x,y;
-	int id;
-
-			x = px/2.0 + (TILESIZE_X / 2);
-			y = py/2.0 + (TILESIZE_Y / 2);
-			z = get_tile_display_height(x, y)+2.0;
-			if(ss) id=add_e3d("./3dobjects/misc_objects/gemstone3.e3d",x,y,z,0,0,mark_z_rot,0,0,1,1,1,0);
-			else id=add_e3d("./3dobjects/misc_objects/gemstone1.e3d",x,y,z,0,0,mark_z_rot,0,0,1,1,1,0);
-			objects_list[id]->flags&=(~OBJ_3D_HARVESTABLE);
-			objects_list[id]->display= (ss) ? (1):(marks_3d);
-			
-			
-	return id;
-}
-*/
 
 void display_map_marks(){
 	actor *me;
@@ -707,9 +684,7 @@ void display_map_marks(){
 	int i,ax,ay;
 	float dx = (TILESIZE_X / 6);
 	float dy = (TILESIZE_Y / 6);
-	float fr = mark_z_rot/360; //(mark_z_rot>180) ? ((360-mark_z_rot)/360):(mark_z_rot/360); //0...0.5..0
-	//float center_offset_x = (TILESIZE_X / 2)*(fr);
-	//float center_offset_y = (TILESIZE_X / 2)*(fr);
+	float fr = mark_z_rot/360;
 	float j,ff=0;
 
 	me = get_our_actor();
@@ -728,11 +703,8 @@ void display_map_marks(){
 		y=marks[i].y/2.0;
 		x += (TILESIZE_X / 2);
 		y += (TILESIZE_Y / 2);
-		if(DST(ax,ay,x,y)>MARK_DIST
-		   || ((!marks[i].server_side)&&(marks[i].x<0||!marks_3d))
-		  ) continue;
+		if(DST(ax,ay,x,y)>MARK_DIST||marks[i].x<0||!marks_3d) continue;
 		z = get_tile_display_height(marks[i].x, marks[i].y);
-		//glPushMatrix();
 		for(j=z-fr/5,ff=1;j<z+2;j+=0.1,ff=(2-(j-z))/2) {
 			if(marks[i].server_side) glColor4f(0.0f, 0.0f, 1.0f, 0.9f-(j-z)/3);
 			else glColor4f((float)marks[i].r/255, (float)marks[i].g/255, (float)marks[i].b/255, 0.7f-(j-z)/3);
@@ -743,36 +715,6 @@ void display_map_marks(){
 				glVertex3f(x+dx*ff,y-dy*ff,j);
 			glEnd();
 		}
-		/*glBegin(GL_POLYGON);
-		glVertex3f(x - 2*dx - center_offset_x, y - 2*dy - center_offset_y, z);
-		glVertex3f(x - 1*dx - center_offset_x, y - 2*dy - center_offset_y, z);
-		glVertex3f(x - 0*dx - center_offset_x, y - 0*dy - center_offset_y, z);
-		glVertex3f(x - 2*dx - center_offset_x, y - 1*dy - center_offset_y, z);
-		glVertex3f(x - 2*dx - center_offset_x, y - 2*dy - center_offset_y, z);
-		glEnd();
-		glBegin(GL_POLYGON);
-		glVertex3f(x + 2*dx + center_offset_x, y - 2*dy - center_offset_y, z);
-		glVertex3f(x + 1*dx + center_offset_x, y - 2*dy - center_offset_y, z);
-		glVertex3f(x + 0*dx + center_offset_x, y - 0*dy - center_offset_y, z);
-		glVertex3f(x + 2*dx + center_offset_x, y - 1*dy - center_offset_y, z);
-		glVertex3f(x + 2*dx + center_offset_x, y - 2*dy - center_offset_y, z);
-		glEnd();
-		glBegin(GL_POLYGON);
-		glVertex3f(x + 2*dx + center_offset_x, y + 2*dy + center_offset_y, z);
-		glVertex3f(x + 1*dx + center_offset_x, y + 2*dy + center_offset_y, z);
-		glVertex3f(x + 0*dx + center_offset_x, y + 0*dy + center_offset_y, z);
-		glVertex3f(x + 2*dx + center_offset_x, y + 1*dy + center_offset_y, z);
-		glVertex3f(x + 2*dx + center_offset_x, y + 2*dy + center_offset_y, z);
-		glEnd();
-		glBegin(GL_POLYGON);
-		glVertex3f(x - 2*dx - center_offset_x, y + 2*dy + center_offset_y, z);
-		glVertex3f(x - 1*dx - center_offset_x, y + 2*dy + center_offset_y, z);
-		glVertex3f(x - 0*dx - center_offset_x, y + 0*dy + center_offset_y, z);
-		glVertex3f(x - 2*dx - center_offset_x, y + 1*dy + center_offset_y, z);
-		glVertex3f(x - 2*dx - center_offset_x, y + 2*dy + center_offset_y, z);
-		glEnd();
-		* */
-		//glPopMatrix();
 		
 	}
 	
@@ -818,9 +760,7 @@ void display_map_markers(int ax, int ay) {
 		y=marks[i].y/2.0;
 		x += (TILESIZE_X / 2);
 		y += (TILESIZE_Y / 2);
-		if(DST(ax,ay,x,y)>MARK_DIST
-		   || ((!marks[i].server_side)&&(marks[i].x<0||!marks_3d))
-		  ) continue;
+		if(DST(ax,ay,x,y)>MARK_DIST||marks[i].x<0||!marks_3d) continue;
 		z = get_tile_display_height(marks[i].x, marks[i].y)+2.3;
 		gluProject(x, y, z, model, proj, view, &hx, &hy, &hz);
 		//shorten text
