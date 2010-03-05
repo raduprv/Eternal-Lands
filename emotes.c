@@ -163,15 +163,15 @@ int display_emotes_handler(window_info *win){
 	draw_string_small(20, emotes_rect_y+30+5, (unsigned char*)"Emotes",1);
 
 	for(i=0;i<EMOTES_CATEGORIES;i++){
-		if(cur_cat==i) SET_COLOR(c_red3);
-		else glColor3f(0.77f, 0.57f, 0.39f);
+		if(cur_cat==i) SET_COLOR(c_blue2);
+		else glColor3f(1.0f, 1.0f, 1.0f);
 		draw_string_small(23, 32+13*i, (unsigned char*)emote_cats[i],1);
 	}
 
 	for(i=0;i<EMOTES_SHOWN;i++){
-		if(emote_sel[cur_cat]==selectables[i]) SET_COLOR(c_red3);
-		else glColor3f(0.77f, 0.57f, 0.39f);
-		if(cur_cat&&act&&selectables[i]==act->poses[cur_cat-1]) SET_COLOR(c_blue1);
+		if(emote_sel[cur_cat]==selectables[i]) SET_COLOR(c_blue2);
+		else glColor3f(1.0f, 1.0f, 1.0f);
+		if(cur_cat&&act&&selectables[i]==act->poses[cur_cat-1]) SET_COLOR(c_green1);
 		if(selectables[i])
 			draw_string_small(23, 30+emotes_rect_y+20+1+13*i, (unsigned char*)selectables[i]->name,1);
 	}
