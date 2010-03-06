@@ -7,6 +7,7 @@
 #include "console.h"
 #include "draw_scene.h"
 #include "elwindows.h"
+#include "errors.h"
 #include "font.h"
 #include "gl_init.h"
 #include "interface.h"
@@ -96,20 +97,28 @@ void take_snapshot (int width, int height)
 	while (bg_height < height)
 		bg_height *= 2;
 	
-	/* In GL version 1.1 or greater, pixels may be a null pointer. In this case
-	 texture memory is allocated to accommodate a texture of width width and
-	 height height.	You can then download subtextures to initialize this texture
-	 memory. */	
-	glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, bg_width, bg_height, 0, GL_RGBA, GL_BYTE, NULL);
-	/* Reading from FRONT buffer is buggy atm, at least under DRI2+composited
-	environment */
-	glReadBuffer (GL_BACK);
-	glCopyTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, bg_width, bg_height, 0);
+	// Copy the current screen to the texture
+	glReadBuffer(GL_BACK);
+	if (glGetError() != GL_NO_ERROR)
+	{
+		LOG_ERROR("%s: %d glReadBuffer(GL_BACK) problem.\n", __FUNCTION__, __LINE__);
+		glReadBuffer(GL_FRONT);
+	}
+	
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bg_width, bg_height, 0, GL_RGBA, GL_BYTE, &loading_texture);
+	if (glIsTexture(loading_texture) == GL_FALSE)
+		LOG_ERROR("%s: %d texture problem.\n", __FUNCTION__, __LINE__);
+	else
+		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, bg_width, bg_height);		
 	
 	frac_x = ((float) width) / bg_width;
 	frac_y = ((float) height) / bg_height;
 	
 	delete_texture = 1;
+	
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 int create_loading_win (int width, int height, int snapshot)
