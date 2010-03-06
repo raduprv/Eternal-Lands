@@ -143,7 +143,17 @@ int display_session_handler(window_info *win)
 	timediff = cur_time - session_start_time;
 	safe_snprintf(buffer, sizeof(buffer), "%02d:%02d:%02d", timediff/3600000, (timediff/60000)%60, (timediff/1000)%60);
 	draw_string_small(x + 200, y, (unsigned char*)buffer, 1);
+
+	y += 16;
+
+	draw_string_small(x, y, (unsigned char*)"Exp/Min", 1);
 	
+	if(timediff<=0){
+		timediff=1;
+	}
+	safe_snprintf(buffer, sizeof(buffer), "%2.2f", (float)(cur_stats.overall_exp - session_stats.overall_exp)/((float)timediff/60000.0f));
+	draw_string_small(x + 200, y, (unsigned char*)buffer, 1);
+
 	if (show_reset_help)
 	{
 		show_help(session_reset_help, 0, win->len_y+10);
