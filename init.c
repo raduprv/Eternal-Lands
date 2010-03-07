@@ -338,9 +338,11 @@ void read_bin_cfg()
 			if((quickbar_draggable=(cfg_mem.quickbar_flags&0xFF00)>>8)!=1)quickbar_draggable=0;
 		}
 
-	watch_this_stat=cfg_mem.watch_this_stat;
-	if(watch_this_stat<0 || watch_this_stat>=8192)
-		watch_this_stat=4096;
+	for(i=0;i<MAX_WATCH_STATS;i++){
+		watch_this_stats[i]=cfg_mem.watch_this_stats[i];
+	}
+	if(watch_this_stats[0]<1 || watch_this_stats[0]>=NUM_WATCH_STAT)
+		watch_this_stats[0]=NUM_WATCH_STAT-1;
 
 	has_accepted=cfg_mem.has_accepted_rules;
 
@@ -590,7 +592,9 @@ void save_bin_cfg()
 			}
 		}
 
-	cfg_mem.watch_this_stat=watch_this_stat;
+	for(i=0;i<MAX_WATCH_STATS;i++){
+		cfg_mem.watch_this_stats[i]=watch_this_stats[i];
+	}
 
 	cfg_mem.has_accepted_rules=has_accepted;
 

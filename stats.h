@@ -204,12 +204,30 @@ typedef struct
 	Uint16 research_total; /*!< if a player is currently researching anything, this value show the total amount of pages to read, until the book is completely read. */
 } player_attribs;
 
-#define	NUM_WATCH_STAT	14	/*!< allow watching stats 0-13 */
+/*	Array for skills info required by stats bar.  Stored in an array
+	to allow processing in a loop and avoiding duplicating the code.
+	Possible TBD: Really, the skills should be stored in an array
+	at source so more duplicate code can be removed and new skills
+	added more simply. */
+struct stats_struct
+{
+	Uint32 *exp;
+	Uint32 *next_lev;
+	attrib_16 *skillattr;
+	names *skillnames;
+	int is_selected;
+};
 
+extern struct stats_struct statsinfo[];
+
+#define	NUM_WATCH_STAT	14	/*!< allow watching stats 0-13 */
+#define MAX_WATCH_STATS	5	/*!< max number of stats watchable in hud */
+	
 extern int attrib_menu_x;
 extern int attrib_menu_y;
 
-extern int watch_this_stat; /*!< indicator to select the stat that get's displayed in the hud */
+extern int watch_this_stats[];	/*!< used for displaying more than 1 stat in the hud */
+extern int max_disp_stats;	/*!< max number of stats displayable in hud, depending on screen resolution */
 
 extern int have_stats; /*!< indicator for whether or not the stats have been send to us yet*/
 
@@ -260,6 +278,12 @@ void fill_stats_win ();
 extern int floatingmessages_enabled;
 void drawactor_floatingmessages(int actor_id, float healthbar_z);
 void add_floating_message(int actor_id, char * str, int direction, float r, float g, float b, int active_time);
+
+/*
+ * decide if/where to display the given stat in the hud
+ * uses the flags of the calling window to check for ALT- or SHIFT-key
+ */
+extern void handle_stats_selection(int stat, Uint32 flags);
 
 #ifdef __cplusplus
 } // extern "C"
