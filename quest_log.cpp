@@ -89,8 +89,6 @@ static std::string filename;
 static size_t current_line = 0;
 static bool need_to_save = false;
 static bool mouse_over_questlog = false;
-static bool show_filter_window = false;
-static int current_action = -1;
 #ifdef CONTEXT_MENUS
 static size_t cm_questlog_id = CM_INIT_VALUE;
 static size_t cm_ql_filter_id = CM_INIT_VALUE;
@@ -99,6 +97,8 @@ static std::string adding_npc;
 static size_t adding_insert_pos = 0;
 static bool prompt_for_add_text = false;
 static INPUT_POPUP ipu_questlog;
+static bool show_filter_window = false;
+static int current_action = -1;
 #endif
 
 
@@ -549,13 +549,13 @@ static int display_questlog_handler(window_info *win)
 	// If we need to show the filter window
 	if (show_filter_window && !cm_valid(cm_window_shown()))
 		open_filter_window();
-#endif
 
 	if (show_help_text && mouse_over_questlog && (current_action == -1))
 	{
 		show_help(cm_title_help_str, 0, win->len_y + 10);
 		mouse_over_questlog = false;
 	}
+#endif
 
 	int questlog_y = 0, start_y = 0;
 	shown_entries.clear();
