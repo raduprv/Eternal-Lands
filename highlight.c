@@ -6,6 +6,7 @@
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
+#include <math.h>
 
 #define HIGHLIGHT_MARKER_LIFESPAN	(500)
 #define NUMBER_OF_HIGHLIGHT_MARKERS	(10)
@@ -51,16 +52,19 @@ void add_highlight(short x, short y, int type) {
 }
 
 float get_tile_height(short x, short y) {
+	float z;
 	if (x < 0 || x >= tile_map_size_x * 6) return 0;
 	if (y < 0 || y >= tile_map_size_x * 6) return 0;
-	return height_map[y * tile_map_size_x * 6 + x];
+	z=height_map[y * tile_map_size_x * 6 + x];
+	if (isnan(z)) return 0;
+	else return z;
 }
 
 float get_tile_display_height(short x, short y) {
 	int i = 0;
 	float f = get_tile_height(x, y);
 	float f2;
-	if (f == 0) {
+	if (f == 0 ) {
 		//if the tile is non-walkable, we get the average height from the
 		// surrounding tiles.
 		f += f2 = get_tile_height(x - 1, y - 1);
@@ -80,7 +84,7 @@ float get_tile_display_height(short x, short y) {
 		f += f2 = get_tile_height(x - 1, y + 1);
 		if (f2 != 0) i++;
 		
-		f /= i;
+		f = (i==0) ? (0):(f/i);
 	}
 	return -2.2f+f*0.2f;
 }
