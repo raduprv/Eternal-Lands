@@ -67,8 +67,10 @@ BBC News||#open_url http://news.bbc.co.uk/
 	- optionally put commands into previous command buffer
 	- parameters should be separate (static ?) class or vars so do not create container usless needed
 	- tear off windows - sounds a lot of work.....
-	- propagate menu list widow opaquity to pop-up menu window
 	- reuse entered text for a menu line if prompt repeated - vinoveritas suggestion
+	- Need menu <rule> <...>
+		repeats 0-n times until "." entered.
+		Can also use for [<number>]
 */
 
 #if defined(CONTEXT_MENUS)
