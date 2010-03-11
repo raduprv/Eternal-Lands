@@ -297,7 +297,7 @@ void send_input_text_line (char *line, int line_len)
 }
 
 #ifdef EMOTES
-int match_emote(emote_dict *command, actor *act)
+int match_emote(emote_dict *command, actor *act, int send)
 {
 	hash_entry *match;
 
@@ -307,7 +307,7 @@ int match_emote(emote_dict *command, actor *act)
 	if(match){
 		//printf("Emote <%s> sent (%p)\n",((emote_dict*)match->item)->command,((emote_dict*)match->item)->emote);
 		//SEND emote to server
-		send_emote(((emote_dict*)match->item)->emote->id);
+		if (send) send_emote(((emote_dict*)match->item)->emote->id);
 
 		return 1;
 	}
@@ -317,7 +317,7 @@ int match_emote(emote_dict *command, actor *act)
 
 int parse_text_for_emote_commands(const char *text, int len)
 {
-	int i=0, j = 0, wf=0,ef=0;
+	int i=0, j = 0, wf=0,ef=0, itsme=0;
 	char name[20];	// Yeah, this should be done correctly
 	emote_dict emote_text;
 	actor *act;
@@ -352,9 +352,10 @@ int parse_text_for_emote_commands(const char *text, int len)
 			(act->actor_name[strlen(name)] == ' ' ||
 			act->actor_name[strlen(name)] == '\0'))){
 		//we are not saying this text, return
-		UNLOCK_ACTORS_LISTS();			
-		return 0;			
-	}
+		//UNLOCK_ACTORS_LISTS();			
+		//return 0;
+			itsme=0;
+	} else itsme=1;
 
 	j=0;
 	do {
@@ -363,7 +364,7 @@ int parse_text_for_emote_commands(const char *text, int len)
 			if (j&&j<=MAX_EMOTE_LEN) {
 				wf++;
 				emote_text.command[j]=0;
-				ef+=match_emote(&emote_text,act);
+				ef+=match_emote(&emote_text,act,itsme);
 			} else wf+= (j) ? 1:0;
 			j=0;
 		} else {
@@ -375,7 +376,7 @@ int parse_text_for_emote_commands(const char *text, int len)
 	//printf("ef=%i, wf=%i, filter=>%i\n",ef,wf,emote_filter);
 	UNLOCK_ACTORS_LISTS();			
 
-	return (ef==wf) ? (emote_filter):(0);
+	return  ((ef==wf) ? (emote_filter):(0));
 
 }
 #endif // EMOTES
