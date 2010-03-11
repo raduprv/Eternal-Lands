@@ -1497,6 +1497,9 @@ void hide_all_windows(){
 #endif
 		|| get_show_window(notepad_win) > 0
 		|| get_show_window(url_win) > 0
+#ifdef EMOTES
+		|| get_show_window(emotes_win) > 0
+#endif
 	){	//Okay, hide the open ones.
 		if (get_window_showable(ground_items_win) > 0){
 			unsigned char protocol_name;
