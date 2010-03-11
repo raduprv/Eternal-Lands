@@ -556,15 +556,23 @@ struct cal_anim *get_pose_frame(int actor_type, actor *a, int pose_type, int hel
         	                return &actors_defs[a->actor_type].cal_frames[cal_actor_idle1_frame]; //idle1
 			    }
 			case EMOTE_RUNNING:
+			    if(held) {
+#ifdef ATTACHED_ACTORS
+				attachment_props *att_props = get_attachment_props_if_held(a);
+				if (att_props)
+					return &att_props->cal_frames[cal_attached_run_frame/*get_held_actor_motion_frame(a)*/];
+#endif // ATTACHED_ACTORS
+			    } else
+				return &actors_defs[actor_type].cal_frames[cal_actor_run_frame/*get_actor_motion_frame(a)*/];
 			case EMOTE_WALKING:
 			    if(held) {
 #ifdef ATTACHED_ACTORS
 				attachment_props *att_props = get_attachment_props_if_held(a);
 				if (att_props)
-					return &att_props->cal_frames[get_held_actor_motion_frame(a)];
+					return &att_props->cal_frames[cal_attached_walk_frame/*get_held_actor_motion_frame(a)*/];
 #endif // ATTACHED_ACTORS
 			    } else
-				return &actors_defs[actor_type].cal_frames[get_actor_motion_frame(a)];
+				return &actors_defs[actor_type].cal_frames[cal_actor_walk_frame/*get_actor_motion_frame(a)*/];
 			default:
 				return NULL;
 			break;
@@ -773,7 +781,7 @@ int handle_emote_command(int act_id, emote_command *command)
 		frames=command->emote->anims[actor_type][idle][held];
 		
 		//we have a emote and not already playing one
-		//printf("we have anim...");
+		//printf("we have anim...held: %i, frames: %p, idle: %i\n",held,frames,idle);
 		if (!frames) {
 			//not ready yet, try later
 			//printf("but not ready yet\n");

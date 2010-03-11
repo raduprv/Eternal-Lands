@@ -305,7 +305,7 @@ int match_emote(emote_dict *command, actor *act)
 	match=hash_get(emote_cmds,(void*)command->command);
 	
 	if(match){
-		printf("Emote <%s> sent (%p)\n",((emote_dict*)match->item)->command,((emote_dict*)match->item)->emote);
+		//printf("Emote <%s> sent (%p)\n",((emote_dict*)match->item)->command,((emote_dict*)match->item)->emote);
 		//SEND emote to server
 		send_emote(((emote_dict*)match->item)->emote->id);
 
