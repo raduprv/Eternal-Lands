@@ -455,6 +455,7 @@ extern char
 		questlog_find_prompt_str[30],
 		questlog_add_npc_prompt_str[20],
 		questlog_add_text_prompt_str[20],
+		questlog_cm_help_str[50],
 #endif
 		questlog_deleted_str[20],
 #endif

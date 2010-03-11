@@ -552,7 +552,7 @@ static int display_questlog_handler(window_info *win)
 
 	if (show_help_text && mouse_over_questlog && (current_action == -1))
 	{
-		show_help(cm_title_help_str, 0, win->len_y + 10);
+		show_help(questlog_cm_help_str, 0, win->len_y + 10);
 		mouse_over_questlog = false;
 	}
 #endif

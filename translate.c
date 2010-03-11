@@ -308,6 +308,7 @@ char
 	questlog_find_prompt_str[30],
 	questlog_add_npc_prompt_str[20],
 	questlog_add_text_prompt_str[20],
+	questlog_cm_help_str[50],
 #endif
 	questlog_deleted_str[20],
 #endif
@@ -1385,6 +1386,7 @@ void init_help()
 	add_xml_identifier(misc, "questlog_find_prompt", questlog_find_prompt_str, "Text to Find", sizeof(questlog_find_prompt_str));
 	add_xml_identifier(misc, "questlog_add_npc_prompt", questlog_add_npc_prompt_str, "NPC name", sizeof(questlog_add_npc_prompt_str));	
 	add_xml_identifier(misc, "questlog_add_text_prompt", questlog_add_text_prompt_str, "Entry text", sizeof(questlog_add_text_prompt_str));	
+	add_xml_identifier(misc, "questlog_cm_help", questlog_cm_help_str, "Right-click for quest log menu", sizeof(questlog_cm_help_str));
 #endif
 	add_xml_identifier(misc, "questlog_deleted", questlog_deleted_str, "(Deleted)", sizeof(questlog_deleted_str));	
 #endif
