@@ -1073,6 +1073,7 @@ int	display_stats_bar_handler(window_info *win)
 		food_adjusted_x_len=0;//we don't want a div by 0
 	else
 		food_adjusted_x_len=100/(45.0f/(float)your_info.food_level);
+	if(food_adjusted_x_len>100) food_adjusted_x_len=100;
 
 	if(!your_info.ethereal_points.cur || !your_info.ethereal_points.base)
 		mana_adjusted_x_len=0;//we don't want a div by 0
@@ -1085,7 +1086,11 @@ int	display_stats_bar_handler(window_info *win)
 		load_adjusted_x_len=100/((float)your_info.carry_capacity.base/(float)your_info.carry_capacity.cur);
 
 	draw_stats_bar(health_bar_start_x, health_bar_start_y, your_info.material_points.cur, health_adjusted_x_len, 1.0f, 0.2f, 0.2f, 0.5f, 0.2f, 0.2f);
-	draw_stats_bar(food_bar_start_x, food_bar_start_y, your_info.food_level, food_adjusted_x_len, 1.0f, 1.0f, 0.2f, 0.5f, 0.5f, 0.2f);
+
+	if (your_info.food_level<=45) //yellow
+		draw_stats_bar(food_bar_start_x, food_bar_start_y, your_info.food_level, food_adjusted_x_len, 1.0f, 1.0f, 0.2f, 0.5f, 0.5f, 0.2f);
+	else draw_stats_bar(food_bar_start_x, food_bar_start_y, your_info.food_level, food_adjusted_x_len, 0.9f, 0.5f, 0.1f, 1.0f, 0.4f, 0.0f); //orange
+
 	draw_stats_bar(mana_bar_start_x, mana_bar_start_y, your_info.ethereal_points.cur, mana_adjusted_x_len, 0.2f, 0.2f, 1.0f, 0.2f, 0.2f, 0.5f);
 	draw_stats_bar(load_bar_start_x, load_bar_start_y, your_info.carry_capacity.base-your_info.carry_capacity.cur, load_adjusted_x_len, 0.6f, 0.4f, 0.4f, 0.4f, 0.2f, 0.2f);
 	if(win->len_x>640-64) draw_exp_display();
