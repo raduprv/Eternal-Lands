@@ -727,9 +727,15 @@ int handle_emote_command(int act_id, emote_command *command)
 		cal_reset_emote_anims(act,1);
 		unqueue_emote(act);
 		return 1;
-	}		
+	}
+	//is actor a horse?
+	if(act->actor_id<0) {
+		unqueue_emote(act);
+		return 1;		
+	}
+			
 	//check if emote is timed out
-	//printf("Handle emote %i created at %i\n",command->emote->id,command->create_time);
+	//printf("Handle emote %i created at %i for actor %i\n",command->emote->id,command->create_time,act->actor_id);
 	if(command->create_time+command->emote->timeout<cur_time){
 		//timed out
 		//printf("Emote %i timed out\n",command->emote->id);
@@ -760,6 +766,11 @@ int handle_emote_command(int act_id, emote_command *command)
 		pose[EMOTE_SITTING] = get_pose_frame(act->actor_type,act,EMOTE_SITTING,held);
 		pose[EMOTE_RUNNING] = get_pose_frame(act->actor_type,act,EMOTE_RUNNING,held);
 
+		/*printf("STANDING --> a: %i, c: %i\n",pose[EMOTE_STANDING]->anim_index, act->cur_anim.anim_index);
+		printf("WALKING --> a: %i, c: %i\n",pose[EMOTE_WALKING]->anim_index, act->cur_anim.anim_index);
+		printf("SITTING --> a: %i, c: %i\n",pose[EMOTE_SITTING]->anim_index, act->cur_anim.anim_index);
+		printf("RUNNING --> a: %i, c: %i\n",pose[EMOTE_RUNNING]->anim_index, act->cur_anim.anim_index);
+		*/
 		if(pose[EMOTE_STANDING]&&pose[EMOTE_STANDING]->anim_index==act->cur_anim.anim_index) idle=EMOTE_STANDING;
 		else
 		if(pose[EMOTE_WALKING]&&pose[EMOTE_WALKING]->anim_index==act->cur_anim.anim_index) idle=EMOTE_WALKING;
@@ -781,7 +792,7 @@ int handle_emote_command(int act_id, emote_command *command)
 		frames=command->emote->anims[actor_type][idle][held];
 		
 		//we have a emote and not already playing one
-		//printf("we have anim...held: %i, frames: %p, idle: %i\n",held,frames,idle);
+		//printf("we have anim...actor: %i, held: %i, frames: %p, idle: %i\n",act->actor_id, held,frames,idle);
 		if (!frames) {
 			//not ready yet, try later
 			//printf("but not ready yet\n");
@@ -2343,7 +2354,7 @@ void set_emote_anim(emote_data *emote, emote_frame *frames, int sex, int race, i
 	h=(held<=0) ? 0:1;
 	calc_actor_types(sex,race,buf,&len);
 	for(i=0;i<len;i++) {
-		if(held<=0)
+		if(held<0)
 		 	emote->anims[buf[i]][idle][1-h]=frames;
 	 	emote->anims[buf[i]][idle][h]=frames;
 	}
