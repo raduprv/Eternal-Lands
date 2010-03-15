@@ -714,6 +714,7 @@ float weather_get_lightning_intensity(float x, float y)
 		return 1.0 - dist / (LIGHTNING_LIGHT_RADIUS*LIGHTNING_LIGHT_RADIUS);
 }
 
+#ifdef NEW_SOUND
 void weather_sound_control()
 {
 	static Uint32 last_sound_update = 0;
@@ -785,6 +786,7 @@ void weather_sound_control()
 		else ++i;
 	}
 }
+#endif	//NEW_SOUND
 
 #ifdef NEW_SOUND
 float weather_adjust_gain(float in_gain, int in_cookie)

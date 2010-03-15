@@ -194,7 +194,7 @@ int start_rendering()
 			}
 #endif // SKY_FPV
 
-#ifdef NEW_WEATHER
+#if defined(NEW_WEATHER) && defined(NEW_SOUND)
 			weather_sound_control();
 #endif // NEW_WEATHER
 

@@ -388,5 +388,7 @@ void toggle_music(int * var);
 } // extern "C"
 #endif
 
+#else
+static __inline__ void do_click_sound(){}
 #endif // NEW_SOUND
 #endif // __SOUND_H__

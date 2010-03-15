@@ -59,10 +59,8 @@ typedef enum {
 #define	ITEM_WEAR_START	36
 #define	ITEM_NUM_WEAR	8
 #define	ITEM_NUM_ITEMS	(ITEM_WEAR_START+ITEM_NUM_WEAR)
-#ifdef NEW_SOUND
 #define ITEM_NO_ACTION -1
 #define ITEM_EDIT_QUANT 6
-#endif // NEW_SOUND
 /*! @} */
 
 /*!

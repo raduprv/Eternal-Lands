@@ -22,9 +22,7 @@
 #include "counters.h"
 #include "errors.h"
 #include "io/elpathwrapper.h"
-#ifdef NEW_SOUND
 #include "sound.h"
-#endif // NEW_SOUND
 
 #define SIGILS_NO 64
 #define	NUM_SIGILS_LINE	12	// how many sigils per line displayed
