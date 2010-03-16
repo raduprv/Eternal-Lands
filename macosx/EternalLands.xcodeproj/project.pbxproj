@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1F125FF60D91A4F0009099BE /* effect_glow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1F125FF40D91A4EF009099BE /* effect_glow.cpp */; };
+		1F1CE869114F0B8200F30873 /* item_lists.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1F1CE867114F0B8200F30873 /* item_lists.cpp */; };
 		1F22CC410DBAD57400411752 /* context_menu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1F22CC3A0DBAD57400411752 /* context_menu.cpp */; };
 		1F22CC420DBAD57400411752 /* makeargv.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F22CC3D0DBAD57400411752 /* makeargv.c */; };
 		1F22CC430DBAD57400411752 /* text_aliases.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F22CC3F0DBAD57400411752 /* text_aliases.c */; };
@@ -237,6 +238,9 @@
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		1F125FF40D91A4EF009099BE /* effect_glow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = effect_glow.cpp; sourceTree = "<group>"; };
 		1F125FF50D91A4EF009099BE /* effect_glow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = effect_glow.h; sourceTree = "<group>"; };
+		1F1CE867114F0B8200F30873 /* item_lists.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = item_lists.cpp; path = ../item_lists.cpp; sourceTree = SOURCE_ROOT; };
+		1F1CE868114F0B8200F30873 /* item_lists.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = item_lists.h; path = ../item_lists.h; sourceTree = SOURCE_ROOT; };
+		1F1CE86A114F0BA300F30873 /* quest_log.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = quest_log.cpp; path = ../quest_log.cpp; sourceTree = SOURCE_ROOT; };
 		1F22CC3A0DBAD57400411752 /* context_menu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = context_menu.cpp; path = ../context_menu.cpp; sourceTree = SOURCE_ROOT; };
 		1F22CC3B0DBAD57400411752 /* context_menu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = context_menu.h; path = ../context_menu.h; sourceTree = SOURCE_ROOT; };
 		1F22CC3C0DBAD57400411752 /* dbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = dbuffer.h; path = ../dbuffer.h; sourceTree = SOURCE_ROOT; };
@@ -792,7 +796,6 @@
 		1F812AFF0D033551008792A7 /* loginwin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = loginwin.c; path = ../loginwin.c; sourceTree = SOURCE_ROOT; };
 		1F812B000D033551008792A7 /* loginwin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = loginwin.h; path = ../loginwin.h; sourceTree = SOURCE_ROOT; };
 		1F812B010D033551008792A7 /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = main.c; path = ../main.c; sourceTree = SOURCE_ROOT; };
-		1F812B020D033551008792A7 /* make.defaults */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = make.defaults; path = ../make.defaults; sourceTree = SOURCE_ROOT; };
 		1F812B030D033551008792A7 /* Makefile.bsd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Makefile.bsd; path = ../Makefile.bsd; sourceTree = SOURCE_ROOT; };
 		1F812B040D033551008792A7 /* Makefile.bsdg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Makefile.bsdg; path = ../Makefile.bsdg; sourceTree = SOURCE_ROOT; };
 		1F812B050D033551008792A7 /* Makefile.linux */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Makefile.linux; path = ../Makefile.linux; sourceTree = SOURCE_ROOT; };
@@ -1029,6 +1032,9 @@
 		1F8128D90D033520008792A7 /* elc */ = {
 			isa = PBXGroup;
 			children = (
+				1F1CE86A114F0BA300F30873 /* quest_log.cpp */,
+				1F1CE867114F0B8200F30873 /* item_lists.cpp */,
+				1F1CE868114F0B8200F30873 /* item_lists.h */,
 				1F8F612710CDC8CD007B270D /* emotes.c */,
 				1F8F612810CDC8CD007B270D /* emotes.h */,
 				1F8F612910CDC8CD007B270D /* hash.c */,
@@ -1198,7 +1204,6 @@
 				1F812AFF0D033551008792A7 /* loginwin.c */,
 				1F812B000D033551008792A7 /* loginwin.h */,
 				1F812B010D033551008792A7 /* main.c */,
-				1F812B020D033551008792A7 /* make.defaults */,
 				1F812B030D033551008792A7 /* Makefile.bsd */,
 				1F812B040D033551008792A7 /* Makefile.bsdg */,
 				1F812B050D033551008792A7 /* Makefile.linux */,
@@ -2130,6 +2135,9 @@
 /* Begin PBXProject section */
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				ORGANIZATIONNAME = 0ctane.net;
+			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "EternalLands" */;
 			compatibilityVersion = "Xcode 2.4";
 			hasScannedForEncodings = 1;
@@ -2321,6 +2329,7 @@
 				1F8F612E10CDC8CD007B270D /* hash.c in Sources */,
 				1F8F612F10CDC8CD007B270D /* multiplayer.c in Sources */,
 				1F8F613010CDC8CD007B270D /* text.c in Sources */,
+				1F1CE869114F0B8200F30873 /* item_lists.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2405,6 +2414,7 @@
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					ATTACHED_ACTORS,
 					CLUSTER_INSIDES,
 					CONTEXT_MENUS,
 					CUSTOM_LOOK,
@@ -2412,6 +2422,7 @@
 					ELC,
 					FUZZY_PATHS,
 					GL_EXTENSION_CHECK,
+					ITEM_LISTS,
 					MINIMAP2,
 					NEW_CAMERA_MOTION,
 					NEW_SELECTION,
@@ -2425,6 +2436,7 @@
 					USE_INLINE,
 					USE_SHADER,
 					USER_MENUS,
+					VARIABLE_SPEED,
 					ZLIB,
 				);
 				HEADER_SEARCH_PATHS = (
@@ -2458,13 +2470,16 @@
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					ATTACHED_ACTORS,
 					CLUSTER_INSIDES,
+					CONTEXT_MENUS,
 					CUSTOM_LOOK,
 					CUSTOM_UPDATE,
 					ELC,
 					FUZZY_PATHS,
 					GL_EXTENSION_CHECK,
 					MINIMAP2,
+					NEW_CAMERA_MOTION,
 					NEW_SELECTION,
 					NEW_SOUND,
 					NEW_TEX,
@@ -2475,8 +2490,11 @@
 					TEXT_ALIASES,
 					USE_INLINE,
 					USE_SHADER,
+					USER_MENUS,
+					VARIABLE_SPEED,
 					ZLIB,
 				);
+				GCC_VERSION = 4.0;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
@@ -2521,6 +2539,7 @@
 				GCC_MODEL_TUNING = "";
 				GCC_OPTIMIZATION_LEVEL = 2;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					ATTACHED_ACTORS,
 					CLUSTER_INSIDES,
 					CONTEXT_MENUS,
 					CUSTOM_LOOK,
@@ -2541,8 +2560,10 @@
 					USE_INLINE,
 					USE_SHADER,
 					USER_MENUS,
+					VARIABLE_SPEED,
 					ZLIB,
 				);
+				GCC_VERSION = 4.0;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (

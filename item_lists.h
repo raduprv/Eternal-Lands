@@ -20,10 +20,11 @@ int cm_item_list_options_handler(window_info *win, int widget_id, int mx, int my
 void show_items_list_window(int is_delete);
 void setup_item_list_menus(void);
 
-#endif // ITEM_LISTS
-
 #ifdef __cplusplus
 }
 #endif
+
+
+#endif // ITEM_LISTS
 
 #endif
