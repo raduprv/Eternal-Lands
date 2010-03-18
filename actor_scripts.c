@@ -95,9 +95,6 @@ int  parse_actor_frames(actor_types *act, xmlNode *cfg, xmlNode *defaults);
 #endif // EMOTE
 
 #ifdef MORE_ATTACHED_ACTORS
-#define MY_HORSE(a) (actors_list[actors_list[a]->attached_actor])
-#define MY_HORSE_ID(a) (actors_list[a]->attached_actor)
-#define HAS_HORSE(a) ((MY_HORSE_ID(a)>=0)&&(MY_HORSE(a)->actor_id<0))
 static int thecount=0;
 #endif
 
@@ -729,10 +726,10 @@ int handle_emote_command(int act_id, emote_command *command)
 		return 1;
 	}
 	//is actor a horse?
-	if(act->actor_id<0) {
+	/*if(act->actor_id<0) {
 		unqueue_emote(act);
 		return 1;		
-	}
+	}*/
 			
 	//check if emote is timed out
 	//printf("Handle emote %i created at %i for actor %i\n",command->emote->id,command->create_time,act->actor_id);
@@ -801,6 +798,12 @@ int handle_emote_command(int act_id, emote_command *command)
 			//ready! set emote and unqueue
 			//printf("ready!!\n");
 			cal_actor_set_emote_anim(act, frames);
+#ifdef ATTACHED_ACTORS
+			if(HAS_HORSE(act_id)) {
+				MY_HORSE(act_id)->cur_emote.active=1; //synch with horse!!
+				//cal_actor_set_emote_anim(MY_HORSE(act_id), frames);
+			}
+#endif
 			//printf("unqueue\n");
 			unqueue_emote(act);
 			//LOG_TO_CONSOLE(c_green2, "Emote command");
@@ -844,6 +847,14 @@ void next_command()
 #endif
 		if(!actors_list[i]->busy){//Are we busy?
 #ifdef EMOTES
+			//are we playing an emote?
+			if(actors_list[i]->cur_emote.active
+			&&!(actors_list[i]->que[0]>=move_n&&actors_list[i]->que[0]<=move_nw&&actors_list[i]->last_command>=move_n&&actors_list[i]->last_command<=move_nw)
+#ifdef ATTACHED_ACTORS
+			&&!HAS_HORSE(i)
+#endif
+			) { continue;}
+			
 			// If the que is empty, check for an emote to display
 			while (actors_list[i]->emote_que[0].origin != NO_EMOTE)
 				if(!handle_emote_command(i, &actors_list[i]->emote_que[0])) break;

@@ -100,6 +100,7 @@ void cal_reset_emote_anims(actor *pActor, int cycles_too){
 		}
 	}
 	cur_emote->active=0;
+
 #ifdef NEW_SOUND
 	if(pActor->cur_emote_sound_cookie)
 		stop_sound(pActor->cur_emote_sound_cookie);
@@ -113,7 +114,8 @@ void cal_actor_set_emote_anim(actor *pActor, emote_frame *anims){
 	struct cal_anim *action;
 	hash_entry *he;
 	emote_anim *cur_emote;
-	int i,md=0;		
+	int i;
+	float md=0;		
 		
 	if (pActor==NULL||!anims)
 		return;
@@ -132,6 +134,7 @@ void cal_actor_set_emote_anim(actor *pActor, emote_frame *anims){
 		he=hash_get(actors_defs[pActor->actor_type].emote_frames,(void*)(NULL+anims->ids[i]));
 		if(!he) continue;
 		action = (struct cal_anim*) he->item;
+		//printf("duration scale %f\n",action->duration_scale);
 		cur_emote->frames[i]=*action;
 		if (action->kind==cycle){
 			//handle cycles:
@@ -148,13 +151,15 @@ void cal_actor_set_emote_anim(actor *pActor, emote_frame *anims){
 			cur_emote->idle=*action;
 		} else {
 			CalMixer_ExecuteAction_Stop(mixer,action->anim_index,0,0);
-			md=(action->duration>md) ? (action->duration*1000):(md);
+			md=(action->duration/action->duration_scale>md) ? (action->duration*1000.0/action->duration_scale):(md);
 #ifdef NEW_SOUND
 			if (action->sound>-1) cal_play_anim_sound(pActor, *action,1);
 #endif
 		}
 	}
-	cur_emote->max_duration=md;
+	cur_emote->max_duration=(int)md;
+	//printf("EMOTE: start: %i, end: %i, dur: %i\n", cur_emote->start_time, cur_emote->start_time+cur_emote->max_duration,cur_emote->max_duration);
+
 }
 
 void handle_cur_emote(actor *pActor){
@@ -174,6 +179,7 @@ void handle_cur_emote(actor *pActor){
 		//all anims are finished, see if more frames are linked
 		//printf("reset current frame\n");
 		cal_reset_emote_anims(pActor,0);
+		//printf("Remove EMOTE: %i\n",cur_time);
 		if(cur_emote->flow) {
 			cur_emote->flow=cur_emote->flow->next;
 			//printf("starting next emote frame %p\n",cur_emote->flow);

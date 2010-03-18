@@ -442,6 +442,12 @@ typedef struct
 	char state; /*!< The state of the action (0: aim needed, 1: aim done, 2: fire needed, 3: fire done) */
 } range_action;
 
+#ifdef ATTACHED_ACTORS
+#define MY_HORSE(a) (actors_list[actors_list[a]->attached_actor])
+#define MY_HORSE_ID(a) (actors_list[a]->attached_actor)
+#define HAS_HORSE(a) ((MY_HORSE_ID(a)>=0)&&(MY_HORSE(a)->actor_id<0))
+#endif
+
 #ifdef EMOTES
 #define MAX_EMOTE_LEN 20
 #define MAX_EMOTE_FRAME 8
