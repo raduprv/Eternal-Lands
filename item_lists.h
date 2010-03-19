@@ -24,7 +24,6 @@ void setup_item_list_menus(void);
 }
 #endif
 
-
 #endif // ITEM_LISTS
 
 #endif

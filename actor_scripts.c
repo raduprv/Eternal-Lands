@@ -3085,7 +3085,7 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
 				else
 				{
 #ifndef MORE_ATTACHED_ACTORS
-					if(strstr(item->name,"held")!=NULL) {
+					if(strstr((const char *)(item->name),"held")!=NULL) {
 						//do not log this error, it's due to def files with more_attached_actors frames
 					} else 
 #endif
