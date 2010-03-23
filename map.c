@@ -750,10 +750,12 @@ void display_map_markers(int ax, int ay) {
 	glPushMatrix();
 	glLoadIdentity();
 	glOrtho(view[0],view[2]+view[0],view[1],view[3]+view[1],0.0f,-1.0f);
-	glDepthFunc(GL_LESS);
+	glDepthFunc(GL_ALWAYS);
 	glEnable(GL_TEXTURE_2D);
 	glColor4f(1.0,1.0,1.0,1.0);
 	glDisable(GL_LIGHTING);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	
 	for(i=0;i<max_mark;i++){
 		x=marks[i].x/2.0;
@@ -772,12 +774,15 @@ void display_map_markers(int ax, int ay) {
 		//restore text
 		memcpy(marks[i].text+MARK_CLIP_POS,tmpb,4);
 	}
+	glDisable(GL_BLEND);
 	glDisable(GL_TEXTURE_2D);
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 	glEnable(GL_LIGHTING);
+	glDepthFunc(GL_LESS);
+	
 	
 }
 
