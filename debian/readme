@@ -20,7 +20,8 @@ Now we're ready:
 
 Set the version number
 	
-	elver="1.8.0"
+	elver="1.9.0"
+	packagename="eternallands"
 
 Checkout a clean version of the client
 
@@ -31,28 +32,29 @@ Checkout a clean version of the client
 Make an original source tar ball:
 
 	cd elc
-	bash pkgfiles/maketarball ${elver}
+	bash pkgfiles/maketarball ${packagename} ${elver}
 	cd ..
 	
 Setup a temp directory for the build:
 	
 	tmpdir=$( mktemp -d)
-	mv eternallands-${elver}.tar.gz $tmpdir
+	mv ${packagename}-${elver}.tar.gz $tmpdir
+	mv ${packagename}-debian-${elver}.tar.gz $tmpdir
 	cd $tmpdir
 
 Unpack the tarball then rename it as the original:
 	
-	tar xfz eternallands-${elver}.tar.gz
-	mv eternallands-${elver}.tar.gz eternallands_${elver}.orig.tar.gz
+	tar xfz ${packagename}-${elver}.tar.gz
+	mv ${packagename}-${elver}.tar.gz ${packagename}_${elver}.orig.tar.gz
 	
 Move into package directory:
 
-	cd eternallands-${elver}/
+	cd ${packagename}-${elver}/
+
+Unpack the debian files
+	tar xfz ../${packagename}-debian-${elver}.tar.gz
+	mv debian/eternallands.install debian/${packagename}.install
 	
-Append the licence file to the copyright file:
-
-	cat eternal_lands_license.txt >> debian/copyright
-
 Make any modifications required then update the changelog:
 
 	dch -i
