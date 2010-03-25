@@ -28,7 +28,7 @@
 
 void init_ipu (INPUT_POPUP *ipu, int parent, int x_len, int y_len, int maxlen, int rows, void cancel(void), void input(const char *))
 {
-	ipu->text_flags = TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS;
+	ipu->text_flags = TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS|TEXT_FIELD_MOUSE_EDITABLE;
 	ipu->text_flags |= (rows>1) ?TEXT_FIELD_SCROLLBAR :0;
 
 	ipu->popup_win = ipu->popup_field = ipu->popup_label = ipu->popup_ok =

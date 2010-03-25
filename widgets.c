@@ -2301,6 +2301,7 @@ int text_field_resize (widget_list *w, int width, int height)
 static int context_edit_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
 	widget_list* w = NULL;
+	Uint32 saved_flags;
 
 	if (win == NULL)
 		return 0;
@@ -2308,12 +2309,16 @@ static int context_edit_handler(window_info *win, int widget_id, int mx, int my,
 	if (w == NULL)
 		return 0;
 
+	saved_flags = w->Flags;
+	if (w->Flags & TEXT_FIELD_MOUSE_EDITABLE)
+		w->Flags &= ~TEXT_FIELD_NO_KEYPRESS;
 	switch (option)
 	{
 		case 0: text_field_keypress(w, 0, 0, K_CUT, 24); break;
 		case 1: text_field_keypress(w, 0, 0, K_COPY, 3); break;
 		case 2: if (!text_field_keypress(w, 0, 0, K_PASTE, 22)) start_paste_to_text_field(NULL); break;
 	}
+	w->Flags = saved_flags;
 	return 1;
 }
 
@@ -2333,8 +2338,9 @@ static void context_edit_pre_show_handler(window_info *win, int widget_id, int m
 	tf = w->widget_info;
 	is_grey = TEXT_FIELD_SELECTION_EMPTY(&tf->select);
 	cm_grey_line(cm_edit_id, 1, is_grey);
-	
-	is_grey = is_grey || !(w->Flags & TEXT_FIELD_EDITABLE) || (w->Flags & TEXT_FIELD_NO_KEYPRESS);
+
+	is_grey = is_grey || !(w->Flags & TEXT_FIELD_EDITABLE)
+		|| ((w->Flags & TEXT_FIELD_NO_KEYPRESS) && !(w->Flags & TEXT_FIELD_MOUSE_EDITABLE));
 	cm_grey_line(cm_edit_id, 0, is_grey);
 }
 #endif

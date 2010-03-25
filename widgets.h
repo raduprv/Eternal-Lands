@@ -119,6 +119,7 @@ typedef struct wl{
 #define TEXT_FIELD_CAN_GROW	0x08
 #define TEXT_FIELD_SCROLLBAR	0x10
 #define TEXT_FIELD_IGNORE_RETURN 0x20
+#define TEXT_FIELD_MOUSE_EDITABLE 0x200
 /*! \} */
 
 #define TF_BLINK_DELAY 500
