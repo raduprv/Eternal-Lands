@@ -8,48 +8,58 @@ fi
 
 if [ -z "$1" ]
 then
+	echo "Specify package name string"
+	exit
+fi
+packagename="$1"
+if [ -z "$2" ]
+then
 	echo "Specify version string"
 	exit
 fi
-version="$1"
+version="$2"
 
 # make a temporary copy
 echo "Making temp copy..."
 tar cfz ../temp.${version}.tar.gz .
 cd ..
-mkdir eternallands-${version}
-cd eternallands-${version}
+mkdir ${packagename}-${version}
+cd ${packagename}-${version}
 tar xfz ../temp.${version}.tar.gz
 rm ../temp.${version}.tar.gz
 
 # remove stuff that's not required
 echo "Removing unwanted files from copy"
-rm -rf actor_defs books generic languages map_editor pawn pawn_scripts shader/data shaders skybox temlates eye_candy/textures tmp_1_8_0
-rm -f e3dlist.txt extentions.xml key.ini material_metadata.xml
+make -f Makefile.linux clean
+rm -rf animations actor_defs books generic languages map_editor \
+		pawn pawn_scripts shader/data shaders skybox temlates \
+		eye_candy/textures tmp_1_8_0 .deps macosx
+rm -f e3dlist.txt *.xml *.ini *.lst *.pl *.res *.dsp *.dsw
+rm -f Makefile.bsd* Makefile.osx Makefile.win
 find . -type d -name CVS -exec rm -rf {} \; &> /dev/null
 find . -type d -name CVS -exec rm -rf {} \;
 chmod -R -x *.{c,cpp,h}
 
 # make the Debian tar ball, then delete the Debian files
 echo "Making Debian tarball"
-tar cfz ../elc-debian-${version}.tar.gz debian
+tar cfz ../${packagename}-debian-${version}.tar.gz debian
 rm -rf debian
 
 # make the final tar ball
 echo "Making client source tarball"
 cd ..
-tar cfz eternallands-${version}.tar.gz eternallands-${version}
-rm -rf eternallands-${version}
+tar cfz ${packagename}-${version}.tar.gz ${packagename}-${version}
+rm -rf ${packagename}-${version}
 
 
 # optionall create digital signatures
 read -p "Create digital signatures? (y/n) [y] : " opt
 if [ "$opt" != "N" -a "$opt" != "n" ]
 then
-	gpg --armor --sign --detach-sig eternallands-${version}.tar.gz
-	gpg --armor --sign --detach-sig elc-debian-${version}.tar.gz
+	gpg --armor --sign --detach-sig ${packagename}-${version}.tar.gz
+	gpg --armor --sign --detach-sig ${packagename}-debian-${version}.tar.gz
 fi
 
-ls -l eternallands-${version}.tar.gz* elc-debian-${version}.tar.gz*
+ls -l ${packagename}-${version}.tar.gz* ${packagename}-debian-${version}.tar.gz*
 
 
