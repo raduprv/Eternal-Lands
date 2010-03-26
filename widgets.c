@@ -2301,7 +2301,7 @@ int text_field_resize (widget_list *w, int width, int height)
 static int context_edit_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
 	widget_list* w = NULL;
-	Uint32 saved_flags;
+	Uint32 saved_flag;
 
 	if (win == NULL)
 		return 0;
@@ -2309,7 +2309,7 @@ static int context_edit_handler(window_info *win, int widget_id, int mx, int my,
 	if (w == NULL)
 		return 0;
 
-	saved_flags = w->Flags;
+	saved_flag = w->Flags & TEXT_FIELD_NO_KEYPRESS;
 	if (w->Flags & TEXT_FIELD_MOUSE_EDITABLE)
 		w->Flags &= ~TEXT_FIELD_NO_KEYPRESS;
 	switch (option)
@@ -2318,7 +2318,7 @@ static int context_edit_handler(window_info *win, int widget_id, int mx, int my,
 		case 1: text_field_keypress(w, 0, 0, K_COPY, 3); break;
 		case 2: if (!text_field_keypress(w, 0, 0, K_PASTE, 22)) start_paste_to_text_field(NULL); break;
 	}
-	w->Flags = saved_flags;
+	w->Flags |= saved_flag;
 	return 1;
 }
 
