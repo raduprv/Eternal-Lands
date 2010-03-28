@@ -13,8 +13,13 @@ ZLIB_LIBS = -lz
 PNG_SCREENSHOT_LIBS = -lpng
 LDFLAGS=$(shell sdl-config --libs) $(shell xml2-config --libs) -lSDL_net -lSDL_image -lopenal $(XDIR) -lGL -lGLU -lcal3d -lm $(EXTRA_LIBS) -lz -lpng -lvorbis -lvorbisfile \
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_LIBS))
-_LDFLAGS=$(XDIR) -lGL -lpthread -lz
-STATICLIBS=libs/libSDL_net.a libs/libSDL.a libs/libSDL_image.a libs/libopenal.a libs/libvorbisfile.a libs/libvorbis.a libs/libogg.a libs/libxml2.a libs/libcal3d.a libs/libpng.a libs/libasound.a $(EXTRA_STATICLIBS)
+_LDFLAGS=$(XDIR) -lGL -lpthread -lstdc++
+
+# This works on Ubuntu 8.04 (LTS) at least
+# Install these packages in addition to those required for a standard build
+# libasound2-dev libaudio-dev libartsc0-dev libesd0-dev libpulse-dev libaa1-dev libgpmg1-dev libdirectfb-dev
+LIBD=/usr/lib
+STATICLIBS=$(LIBD)/libSDL_net.a $(LIBD)/libSDL.a $(LIBD)/libSDL_image.a $(LIBD)/libopenal.a $(LIBD)/libvorbisfile.a $(LIBD)/libvorbis.a $(LIBD)/libogg.a $(LIBD)/libxml2.a $(LIBD)/libcal3d.a $(LIBD)/libpng.a $(LIBD)/libasound.a $(LIBD)/libaudio.a $(LIBD)/libartsc.a $(LIBD)/libesd.a $(LIBD)/libpulse-simple.a $(LIBD)/libpulse.a $(LIBD)/libaa.a $(LIBD)/libgpm.a $(LIBD)/libcurses.a $(LIBD)/libslang.a $(LIBD)/libdirectfb.a $(LIBD)/libdirect.a $(LIBD)/libfusion.a $(LIBD)/librt.a $(LIBD)/libtiff.a $(LIBD)/libjpeg.a $(LIBD)/libGLU.a $(LIBD)/libz.a
 
 # the objects we need
 ENCYCLOPEDIA_COBJ = books/fontdef.o books/parser.o books/symbol.o books/typesetter.o sort.o symbol_table.o
@@ -121,7 +126,7 @@ release:
 	@$(MAKE) -f Makefile.linux 'CFLAGS=$(_CFLAGS)' 'CXXFLAGS=$(_CXXFLAGS)'
 
 static:
-	@$(MAKE) -f Makefile.linux 'CFLAGS=$(_CFLAGS)' 'CXXFLAGS=$(_CXXFLAGS)' 'LDFLAGS=$(_LDFLAGS) -lstdc++ -lGL -lGLU' 'OBJS=$(OBJS) $(STATICLIBS)'
+	@$(MAKE) -f Makefile.linux 'CFLAGS=$(_CFLAGS)' 'CXXFLAGS=$(_CXXFLAGS)' 'LDFLAGS=$(_LDFLAGS)' 'OBJS=$(OBJS) $(STATICLIBS)'
 
 clean:
 	rm -f $(OBJS) $(EXE) 
