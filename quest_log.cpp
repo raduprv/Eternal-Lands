@@ -250,7 +250,7 @@ static void save_questlog(void)
 {
 	if (!need_to_save)
 		return;
-	std::ofstream out(filename.c_str(), std::ios_base::binary);
+	std::ofstream out(filename.c_str(), std::ios_base::out | std::ios_base::binary | std::ios_base::trunc);
 	if (!out)
 	{
 		std::string error_str = std::string(file_write_error_str) + ' ' + filename;
@@ -654,7 +654,7 @@ extern "C" void add_questlog (char *t, int len)
 	add_questlog_line(t, (const char*)npc_name);
 	rebuild_active_entries(quest_entries.size()-1);
 
-	std::ofstream out(filename.c_str(), std::ios_base::binary | std::ios_base::app);
+	std::ofstream out(filename.c_str(), std::ios_base::out | std::ios_base::binary | std::ios_base::app);
 	if (!out)
 	{
 		std::string error_str = std::string(file_write_error_str) + ' ' + filename;
@@ -662,7 +662,6 @@ extern "C" void add_questlog (char *t, int len)
 		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, file_write_error_str, filename.c_str());
 		return;
 	}
-    out.seekp( 0, std::ios::end );
     quest_entries.back().save(out);
 }
 
@@ -677,15 +676,15 @@ extern "C" void load_questlog()
 	std::transform(username.begin(), username.end(), username.begin(), tolower);
 	filename = std::string(get_path_config()) + "quest_" + username + ".log";
 
-	std::ifstream in(filename.c_str(), std::ios_base::binary);
+	std::ifstream in(filename.c_str(), std::ios_base::in | std::ios_base::binary);
 	std::ofstream out;
 	if (!in)
 	{
 		in.clear();
-		in.open((std::string(get_path_config()) + "quest.log").c_str(), std::ios_base::binary);
+		in.open((std::string(get_path_config()) + "quest.log").c_str(), std::ios_base::in | std::ios_base::binary);
 		if (!in)
 			return;
-		out.open(filename.c_str(), std::ios_base::binary);
+		out.open(filename.c_str(), std::ios_base::out | std::ios_base::binary | std::ios_base::trunc);
 	}
 
 	std::string line;
