@@ -73,7 +73,6 @@ extern int log_chat; /*!< flag stating whether to log server messages or not */
 
 extern int current_text_width; /*!< Current wrapping width for text buffers */
 
-extern int harvesting_effect_restart_count;
 extern ec_reference harvesting_effect_reference;
 
 #ifdef EMOTES
@@ -454,6 +453,20 @@ void clear_display_text_buffer ();
 int rewrap_message(text_message * buf, float zoom, int width, int * cursor);
 
 void cleanup_text_buffers(void);
+
+
+
+/*!
+ * \ingroup text_font
+ * \brief Start or stop the harvesting effect
+ *
+ *       Start or stop the harvesting eye candy effect dependent on the
+ * 	state of the \sa harvesting flag
+ *
+ * \callgraph
+ */
+void check_harvesting_effect(void);
+
 
 #define LOG_TO_CONSOLE(color,buffer)	put_colored_text_in_buffer(color,CHAT_SERVER,(const Uint8*)buffer,-1) /*!< logs the text in buffer with the specified color to the console. */
 

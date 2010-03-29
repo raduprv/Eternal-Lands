@@ -63,7 +63,6 @@ float	chat_zoom=1.0;
 FILE	*chat_log=NULL;
 FILE	*srv_log=NULL;
 
-int harvesting_effect_restart_count = 1;
 ec_reference harvesting_effect_reference = NULL;
 
 /* forward declaration */
@@ -381,6 +380,29 @@ int parse_text_for_emote_commands(const char *text, int len)
 }
 #endif // EMOTES
 
+
+/* stop or restart the harvesting eye candy effect depending on the harvesting state */
+void check_harvesting_effect(void)
+{
+	/* if the harvesting effect is on but we're not harvesting, stop it */
+	if ((!harvesting || !use_harvesting_eye_candy) && (harvesting_effect_reference != NULL))
+	{
+		ec_recall_effect(harvesting_effect_reference);
+		harvesting_effect_reference = NULL;
+	}
+	/* but if we are harvesting but there is no effect, start it if wanted */
+	else if (harvesting && use_eye_candy && use_harvesting_eye_candy && (harvesting_effect_reference == NULL))
+	{
+		actor *act;
+		LOCK_ACTORS_LISTS();
+		act = get_actor_ptr_from_id(yourself);
+		if (act != NULL)
+			harvesting_effect_reference = ec_create_ongoing_harvesting2(act, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
+		UNLOCK_ACTORS_LISTS();
+	}
+}	
+
+
 int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 {
 	int l, idx;
@@ -497,20 +519,6 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			strncpy(harvest_name, text_to_add+1+23, len-1-23-1);
 			harvest_name[len-1-23-1] = '\0';
 			harvesting = 1;
-			if (use_eye_candy == 1 && use_harvesting_eye_candy == 1)
-			{
-				if (harvesting_effect_reference == NULL)
-				{
-					actor *act;
-					LOCK_ACTORS_LISTS();
-					act = get_actor_ptr_from_id(yourself);
-					if (act != NULL)
-					{
-						harvesting_effect_reference = ec_create_ongoing_harvesting2(act, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
-					}
-					UNLOCK_ACTORS_LISTS();
-				}
-			}
 		}
 		else if ((my_strncompare(text_to_add+1, "You stopped harvesting.", 23)) ||
 			(my_strncompare(text_to_add+1, "You can't harvest while fighting (duh)!", 39)) ||
@@ -520,12 +528,6 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			((my_strncompare(text_to_add+1, "You need to have a ", 19) && strstr(text_to_add, "order to harvest") != NULL)))
 		{
 			harvesting = 0;
-			harvesting_effect_restart_count = 1;
-			if (harvesting_effect_reference != NULL)
-			{
-				ec_recall_effect(harvesting_effect_reference);
-				harvesting_effect_reference = NULL;
-			}
 		}
 		else if (is_death_message(text_to_add+1)) {
 			// nothing to be done here cause all is done in the test function

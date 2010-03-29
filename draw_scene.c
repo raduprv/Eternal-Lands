@@ -23,6 +23,7 @@
 #endif // SKY_FPV
 #include "sound.h"
 #include "storage.h"
+#include "text.h"
 #include "tiles.h"
 #include "weather.h"
 
@@ -166,6 +167,9 @@ void draw_scene()
 	
 	SDL_GL_SwapBuffers();
 	CHECK_GL_ERRORS();
+	
+	/* start or stop the harvesting effect depending on harvesting state */
+	check_harvesting_effect();
 	
 	if (draw_delay > 0)
 	{
