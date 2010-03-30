@@ -24,21 +24,23 @@ FEATURES += USE_INLINE                      # enable some optimizations to use i
 FEATURES += USE_SHADER                      # Using shaders for water rendering. Needs NEW_FILE_IO
 FEATURES += VARIABLE_SPEED                  # allow to change the moving speed of actors (needs server support)
 FEATURES += ZLIB                            # Enables being able to read gzip compressed files, requires -lzlib/-lz
+# new for 1.9.0 release
+FEATURES += BANDWIDTH_SAVINGS				# enable bandwidth saving changes for message protocol
+FEATURES += EMOTES                          # Support for additional animations parsed from local text with a seperate anim que
+FEATURES += ITEM_LISTS						# Adds the creation and use of item lists to the inventory window
+FEATURES += ITEM_UID						# Enable unique image id values from server
+FEATURES += NEW_QUESTLOG					# Enable the new questlog, rewritten with new features
+FEATURES += USER_MENUS                      # enable user command menus, requires CONTEXT_MENUS
 
 
 ### Testing options (these options are possible for the next release and should be tested) ###
 #FEATURES += ANTI_ALIAS                      # allows to enable/disable anti-aliasing in el.ini
 #FEATURES += DYNAMIC_ANIMATIONS              # Synchronizes animation to FPS instead of a fixed timer
-#FEATURES += EMOTES                          # Support for additional animations parsed from local text with a seperate anim que
 #FEATURES += EXT_ACTOR_DICT                  # Removes remaining hard-coded actor def dictionaries - requires updated actor defs files (http://el.grug.redirectme.net/actor_defs.zip)
 #FEATURES += NEW_ALPHA                       # (undocumented)
 #FEATURES += NIGHT_TEXTURES                  # enable night textures. changes textures at night to cooler colors
-FEATURES += USER_MENUS                      # enable user command menus, requires CONTEXT_MENUS
-FEATURES += BANDWIDTH_SAVINGS				# enable bandwidth saving changes for message protocol
-FEATURES += OLD_MISC_OBJ_DIR                # if not defined, ./3dobjects/misc_objects/ paths becomes ./3dobjects/
 #FEATURES += MORE_ATTACHED_ACTORS			# Enable more activities on horses
-FEATURES += ITEM_UID						# Enable unique image id values from server
-FEATURES += NEW_QUESTLOG					# Enable the new questlog, rewritten with new features
+
 
 ### Machine specific options (fixes or performance enhancements) ###
 #FEATURES += EL_BIG_ENDIAN                   # Enable big-endian code (automatically detected for OSX)
@@ -73,7 +75,7 @@ FEATURES += NEW_QUESTLOG					# Enable the new questlog, rewritten with new featu
 #FEATURES += USE_TR1                         # Needs tr1 version of c++ stl, used for NEW_FILE_IO
 #FEATURES += WRITE_XML                       # dangerous to use, will wipe out some XML files that are part of the main game download
 #FEATURES += ZLIBW                           # Enables being able to write gzip compressed files, requires -lzlib/-lz needed for map_editor
-FEATURES += ITEM_LISTS						# Adds the creation and use of item lists to the inventory window
+#FEATURES += OLD_MISC_OBJ_DIR                # if not defined, ./3dobjects/misc_objects/ paths becomes ./3dobjects/
 
 
 
