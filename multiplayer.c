@@ -390,6 +390,7 @@ void connect_to_server()
 		}
 
 	//clear out info
+	harvesting = 0;
 	last_heart_beat= time(NULL);
 	send_heart_beat();	// prime the hearbeat to prevent some stray issues when there is lots of lag
 	hide_window(trade_win);
