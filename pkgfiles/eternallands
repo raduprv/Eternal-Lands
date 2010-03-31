@@ -131,9 +131,12 @@ then
 	cat | zenity --text-info --width=500 --height=300 --title "Eternal Lands Crashed, this is the Error log." << EOT
 Oh my, Eternal Lands Crashed - Don't Panic!
 
-A couple of things you can try:
+A few of things you can try:
 1) Make sure your system is up to date, especially your video drivers.
-2) If you crash repeatedly during the login process, try setting the "poor man" option from the settings window: At the login screen, click "Settings" select the "Details" tab and set the "Poor Man" option.
+2) If the client crashes repeatedly, try changing some settings.  Either by directly modifying the configuration file (e.g. gedit ~/.elc/main/el.ini). Or clicking the settings button window at the login screen.
+	i) Enable the "Poor Man" option in the "Details" tab of the setting window.  Or edit the configuration file and set "#poor_man=1".
+	ii) Disable the "Use animation program" option in the "Adv Video" tab of the setting window.  Or edit the configuration file and set "#use_animation_program=0".
+	iii) Disable the "Custom Looks Updates" option in the "Server" tab of the setting windows.  Or edit the configuration file and set "#customupdate=0".
 
 If you continue to have problems check the Eternal Lands forums, especially the "Help Me" and "Bug Report" sections.  If you post a message make sure you include information about your system; i.e video driver and version, operating system and version.  Make sure you check your error log for clues too and include the contents in any forum report.
 
