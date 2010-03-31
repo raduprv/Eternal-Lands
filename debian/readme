@@ -53,7 +53,7 @@ Move into package directory:
 
 Unpack the debian files
 	tar xfz ../${packagename}-debian-${elver}.tar.gz
-	mv debian/eternallands.install debian/${packagename}.install
+	[ "$packagename" != "eternallands" ] && mv debian/eternallands.install debian/${packagename}.install
 	
 Make any modifications required then update the changelog:
 
