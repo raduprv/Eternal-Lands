@@ -750,7 +750,7 @@ void display_map_markers(int ax, int ay) {
 	glPushMatrix();
 	glLoadIdentity();
 	glOrtho(view[0],view[2]+view[0],view[1],view[3]+view[1],0.0f,-1.0f);
-	glDepthFunc(GL_ALWAYS);
+	glDepthFunc(GL_LESS);
 	glEnable(GL_TEXTURE_2D);
 	glColor4f(1.0,1.0,1.0,1.0);
 	glDisable(GL_LIGHTING);
