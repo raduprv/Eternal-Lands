@@ -231,7 +231,7 @@ int add_e3d_at_id (int id, char * file_name, float x_pos, float y_pos, float z_p
 		LOG_ERROR(str);
 
     		//replace it with the null object, to avoid object IDs corruption
-    		returned_e3d = load_e3d_cache ("./3dobjects/misc_objects/badobject.e3d");
+    		returned_e3d = load_e3d_cache ("./3dobjects/badobject.e3d");
     		if (returned_e3d == NULL)
 			return 0; // umm, not even found the place holder, this is teh SUKC!!!
 	}

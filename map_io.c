@@ -163,7 +163,7 @@ int save_map (const char* file_name)
 	{
 		char	gzfile_name[1024];
 		strcpy(gzfile_name, file_name);
-		strcat(gzfile_name, ".gz");
+		//strcat(gzfile_name, ".gz");
 		f= gzopen(gzfile_name, "wb");
 	}
 #else	//ZLIBW
