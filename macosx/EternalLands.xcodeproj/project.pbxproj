@@ -12,6 +12,7 @@
 		1F22CC410DBAD57400411752 /* context_menu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1F22CC3A0DBAD57400411752 /* context_menu.cpp */; };
 		1F22CC420DBAD57400411752 /* makeargv.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F22CC3D0DBAD57400411752 /* makeargv.c */; };
 		1F22CC430DBAD57400411752 /* text_aliases.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F22CC3F0DBAD57400411752 /* text_aliases.c */; };
+		1F29E84B1164D2C700320F7E /* quest_log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1F1CE86A114F0BA300F30873 /* quest_log.cpp */; };
 		1F52AA230D6BCC0900CA2E5F /* actor_init.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1F52AA150D6BCC0800CA2E5F /* actor_init.cpp */; };
 		1F52AA240D6BCC0900CA2E5F /* calc.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F52AA170D6BCC0800CA2E5F /* calc.c */; };
 		1F52AA250D6BCC0900CA2E5F /* eye_candy_debugwin.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F52AA190D6BCC0800CA2E5F /* eye_candy_debugwin.c */; };
@@ -2330,6 +2331,7 @@
 				1F8F612F10CDC8CD007B270D /* multiplayer.c in Sources */,
 				1F8F613010CDC8CD007B270D /* text.c in Sources */,
 				1F1CE869114F0B8200F30873 /* item_lists.cpp in Sources */,
+				1F29E84B1164D2C700320F7E /* quest_log.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2415,16 +2417,20 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ATTACHED_ACTORS,
+					BANDWIDTH_SAVINGS,
 					CLUSTER_INSIDES,
 					CONTEXT_MENUS,
 					CUSTOM_LOOK,
 					CUSTOM_UPDATE,
 					ELC,
+					EMOTES,
 					FUZZY_PATHS,
 					GL_EXTENSION_CHECK,
 					ITEM_LISTS,
+					ITEM_UID,
 					MINIMAP2,
 					NEW_CAMERA_MOTION,
+					NEW_QUESTLOG,
 					NEW_SELECTION,
 					NEW_SOUND,
 					NEW_TEX,
@@ -2528,7 +2534,7 @@
 				ARCHS = "$(ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1)";
 				ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1 = "ppc i386";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1.8.0;
+				CURRENT_PROJECT_VERSION = 1.9.0;
 				DEPLOYMENT_LOCATION = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(EL_FRAMEWORKS_DIR)",
