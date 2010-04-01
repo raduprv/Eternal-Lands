@@ -8,8 +8,8 @@ CC=gcc
 CXX=g++
 LINK=g++
 
-#FEATURES  = EYE_CANDY
-FEATURES = CLUSTER_INSIDES
+FEATURES  = EYE_CANDY
+FEATURES += CLUSTER_INSIDES
 FEATURES += NEW_LIGHT_FORMAT
 FEATURES += ZLIB
 FEATURES += ZLIBW
@@ -61,7 +61,8 @@ COBJS=2d_objects.o 3d_objects.o	\
 	main.o map_io.o misc.o o3dow.o reflection.o	\
 	shadows.o tile_map.o \
 	replace_window.o edit_window.o particles_window.o	
-
+
+
 CLUSTER_INSIDES_ELC_COBJS = cluster.o
 ELC_COBJS = asc.o colors.o elconfig.o errors.o load_gl_extensions.o md5.o \
 	dds.o ddsimage.o particles.o queue.o textures.o translate.o \
