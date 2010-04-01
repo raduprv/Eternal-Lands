@@ -719,8 +719,10 @@ void display_map_marks(){
 	}
 	
 	glDisable(GL_ALPHA_TEST);
-	glEnable(GL_LIGHTING);
-	glDisable(GL_BLEND);	
+	//glEnable(GL_LIGHTING);
+	glDisable(GL_BLEND);
+	glEnable(GL_TEXTURE_2D);
+	
 }
 
 void display_map_markers(int ax, int ay) {
@@ -750,7 +752,7 @@ void display_map_markers(int ax, int ay) {
 	glPushMatrix();
 	glLoadIdentity();
 	glOrtho(view[0],view[2]+view[0],view[1],view[3]+view[1],0.0f,-1.0f);
-	glDepthFunc(GL_LESS);
+	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_TEXTURE_2D);
 	glColor4f(1.0,1.0,1.0,1.0);
 	glDisable(GL_LIGHTING);
@@ -773,6 +775,7 @@ void display_map_markers(int ax, int ay) {
 		draw_ortho_ingame_string(hx-banner_width, hy, hz, (unsigned char*)marks[i].text, 4, font_size_x, font_size_y);
 		//restore text
 		memcpy(marks[i].text+MARK_CLIP_POS,tmpb,4);
+			
 	}
 	glDisable(GL_BLEND);
 	glDisable(GL_TEXTURE_2D);
@@ -780,7 +783,7 @@ void display_map_markers(int ax, int ay) {
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
-	glEnable(GL_LIGHTING);
+	//glEnable(GL_LIGHTING);
 	glDepthFunc(GL_LESS);
 	
 	

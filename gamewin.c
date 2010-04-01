@@ -1287,6 +1287,10 @@ int display_game_handler (window_info *win)
 
 	CHECK_GL_ERRORS ();
 
+	animate_map_markers();
+	display_map_markers();
+	display_map_marks();
+
 	Enter2DMode ();
 	//get the FPS, etc
 
@@ -1421,9 +1425,6 @@ int display_game_handler (window_info *win)
 		display_special_effects(1);
 	}
 	display_highlight_markers();
-	animate_map_markers();
-	display_map_markers();
-	display_map_marks();
 
 	glEnable (GL_LIGHTING);
 
