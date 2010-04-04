@@ -1,3 +1,42 @@
+2010-APR-02: Release 1.9.0
+
+1. New artwork, most of the objects, animations and textures were improved.
+2. Emotes!
+3. Support for server sent markers, and now the user defined markers will show in the normal view too.
+4. All kind of GUI improvements.
+	* New spell windows
+	* Dropdown manu window with saved recipes
+	* Resizeable ground bag with scroll bar.
+	* User definable menus.
+	* Saved inventory item lists (more to come hopefully).
+	* Rewrite of quest log with new context menu features.
+	* Storage dialogue auto-close and copy of dialogue text to clipboard.
+	* Ranging Lock
+	* Multiple statbars in HUD
+	* Resizable mapmark font
+	* Double click to equip an item.
+	* Make logo link to a URL.
+	* Limit massive healthbars to 110% of normal size.
+	* Variable bag positioning.
+	* Additions to counters.
+	* Show exp per min.
+5. Engine
+	* Increased support for vertex formats.
+	* Added dds image support.
+	* Added support for compressed normals.
+	* Support for new e3d file format.
+	* Support for vertex colors.
+5. Other
+	* New commands: #open_url #show_spell #cast_spell.
+	* Buddy list client-side changes.
+	* Fixes for buddies, knowledge window, notepad, spells, counters, harvest effects, input box mouse copy/paste, name completion.
+	* Announce invasion monsters at login.
+	* Modulo operator for #calc.
+	* OS X Fix for Intel integrated graphics crash relating to rounded buttons.
+	* Tag quest log with player name.
+	* Encyclopedia updates.
+
+
 2009-JAN-10: Release 1.8.0
 
 Here are some of the changes:
