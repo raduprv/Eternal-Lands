@@ -390,8 +390,8 @@ void open_web_link(const char * url)
 		SDL_Thread *go_to_url_thread;
 		// make a copy of the url string as it may be freed by the caller
 		// will be freed as the only_call_from_open_web_link__go_to_url() exits
-        char *cp_url = malloc(strlen(url)+1);
-        safe_strncpy(cp_url, url, strlen(url)+1);
+		char *cp_url = malloc(strlen(url)+1);
+		safe_strncpy(cp_url, url, strlen(url)+1);
 
 		// windows needs to spawn it in its own thread
 		go_to_url_thread= SDL_CreateThread(only_call_from_open_web_link__go_to_url, cp_url);
