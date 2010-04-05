@@ -30,6 +30,17 @@ extern GLfloat night_specular[4];
 xmlDocPtr metadata_xml_doc;
 #endif
 
+#ifdef LARGE_TEXTURES
+#define TEXTURE_SIZE_X 512
+#define TEXTURE_SIZE_Y 512
+#define TEXTURE_RATIO 2
+#else
+#define TEXTURE_SIZE_X 256
+#define TEXTURE_SIZE_Y 256
+#define TEXTURE_RATIO 1
+#endif
+
+
 #ifdef NEW_CURSOR
 
 //Some textures just can't be compressed (written for custom cursors)
@@ -1997,14 +2008,17 @@ void copy_bmp8_to_coordinates (texture_struct *tex, Uint8 *texture_space, int x_
 	int x, y, x_size, y_size;
 	Uint8 *texture_mem;
 
+	
 	x_size= tex->x_size;
 	y_size= tex->y_size;
 	texture_mem= tex->texture;
 
+
 	for (y= 0; y<y_size; y++)
 	{
 		int	y_offset= y*x_size;
-		int texture_y= (255 - ((y_size-y-1) + y_pos))*256+x_pos;
+		int texture_y= (TEXTURE_SIZE_Y-1 - ((y_size-y-1) + y_pos))*TEXTURE_SIZE_X+x_pos;
+		//int texture_y= (255 - ((y_size-y) + y_pos))*256+x_pos;
 
 		for (x = 0; x < x_size; x++)
 		{
@@ -2123,48 +2137,48 @@ int load_bmp8_enhanced_actor(enhanced_actor *this_actor, Uint8 a)
 	Uint8 * texture_mem;
 	int	has_alpha= 0;
 
-	texture_mem=(Uint8*)calloc(1,256*256*4);
+	texture_mem=(Uint8*)calloc(1,TEXTURE_SIZE_X*TEXTURE_SIZE_Y*4);
 	if(this_actor->pants_tex[0]){
-		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->pants_tex,this_actor->legs_base,this_actor->pants_mask,texture_mem,78,175,a);
+		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->pants_tex,this_actor->legs_base,this_actor->pants_mask,texture_mem,78*TEXTURE_RATIO,175*TEXTURE_RATIO,a);
 	}
 	if(this_actor->boots_tex[0]){
-		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->boots_tex,this_actor->boots_base,this_actor->boots_mask,texture_mem,0,175,a);
+		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->boots_tex,this_actor->boots_base,this_actor->boots_mask,texture_mem,0,175*TEXTURE_RATIO,a);
 	}
 #ifdef NEW_TEX
 	if(this_actor->torso_tex[0]){
-		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->torso_tex,this_actor->body_base, this_actor->torso_mask, texture_mem,158,149,a);
+		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->torso_tex,this_actor->body_base, this_actor->torso_mask, texture_mem,158*TEXTURE_RATIO,149*TEXTURE_RATIO,a);
 	}
 #else
 	if(this_actor->torso_tex[0]){
-		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->torso_tex,this_actor->torso_base, this_actor->torso_mask, texture_mem,158,156,a);
+		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->torso_tex,this_actor->torso_base, this_actor->torso_mask, texture_mem,158*TEXTURE_RATIO,156*TEXTURE_RATIO,a);
 	}
 #endif
 	if(this_actor->arms_tex[0]){
-		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->arms_tex,this_actor->arms_base,this_actor->arms_mask,texture_mem,0,96,a);
+		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->arms_tex,this_actor->arms_base,this_actor->arms_mask,texture_mem,0,96*TEXTURE_RATIO,a);
 	}
 	if(this_actor->hands_tex[0]){
-		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->hands_tex,this_actor->hands_tex_save,this_actor->hands_mask,texture_mem,67,64,a);
+		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->hands_tex,this_actor->hands_tex_save,this_actor->hands_mask,texture_mem,67*TEXTURE_RATIO,64*TEXTURE_RATIO,a);
 	}
 	if(this_actor->head_tex[0]){
-		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->head_tex,this_actor->head_base,this_actor->head_mask,texture_mem,67,0,a);
+		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->head_tex,this_actor->head_base,this_actor->head_mask,texture_mem,67*TEXTURE_RATIO,0,a);
 	}
 	if(this_actor->hair_tex[0])
 		has_alpha+= load_bmp8_to_coordinates(this_actor->hair_tex,texture_mem,0,0,a);
 #ifdef NEW_TEX
 	if(this_actor->weapon_tex[0])
-		has_alpha+= load_bmp8_to_coordinates(this_actor->weapon_tex,texture_mem,178,77,a);
+		has_alpha+= load_bmp8_to_coordinates(this_actor->weapon_tex,texture_mem,178*TEXTURE_RATIO,77*TEXTURE_RATIO,a);
 	if(this_actor->shield_tex[0])
-		has_alpha+= load_bmp8_to_coordinates(this_actor->shield_tex,texture_mem,100,77,a);
+		has_alpha+= load_bmp8_to_coordinates(this_actor->shield_tex,texture_mem,100*TEXTURE_RATIO,77*TEXTURE_RATIO,a);
 #else
 	if(this_actor->weapon_tex[0])
-		has_alpha+= load_bmp8_to_coordinates(this_actor->weapon_tex,texture_mem,158,77,a);
+		has_alpha+= load_bmp8_to_coordinates(this_actor->weapon_tex,texture_mem,158*TEXTURE_RATIO,77*TEXTURE_RATIO,a);
 	if(this_actor->shield_tex[0])
-		has_alpha+= load_bmp8_to_coordinates(this_actor->shield_tex,texture_mem,80,96,a);
+		has_alpha+= load_bmp8_to_coordinates(this_actor->shield_tex,texture_mem,80*TEXTURE_RATIO,96*TEXTURE_RATIO,a);
 #endif
 	if(this_actor->helmet_tex[0])
-		has_alpha+= load_bmp8_to_coordinates(this_actor->helmet_tex,texture_mem,80,149,a);
+		has_alpha+= load_bmp8_to_coordinates(this_actor->helmet_tex,texture_mem,80*TEXTURE_RATIO,149*TEXTURE_RATIO,a);
 	if(this_actor->cape_tex[0])
-		has_alpha+= load_bmp8_to_coordinates(this_actor->cape_tex,texture_mem,131,0,a);
+		has_alpha+= load_bmp8_to_coordinates(this_actor->cape_tex,texture_mem,131*TEXTURE_RATIO,0,a);
 
 	this_actor->has_alpha= has_alpha;
 
@@ -2184,16 +2198,16 @@ int load_bmp8_enhanced_actor(enhanced_actor *this_actor, Uint8 a)
 	{
 		if (have_extension(ext_texture_compression_s3tc))
 		{
-			glTexImage2D(GL_TEXTURE_2D,0,GL_COMPRESSED_RGBA_S3TC_DXT5_EXT,256, 256,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+			glTexImage2D(GL_TEXTURE_2D,0,GL_COMPRESSED_RGBA_S3TC_DXT5_EXT,TEXTURE_SIZE_X, TEXTURE_SIZE_Y,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
 		}
 		else
 		{
-			glTexImage2D(GL_TEXTURE_2D,0,GL_COMPRESSED_RGBA_ARB,256, 256,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+			glTexImage2D(GL_TEXTURE_2D,0,GL_COMPRESSED_RGBA_ARB,TEXTURE_SIZE_X, TEXTURE_SIZE_Y,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
 		}
 	}
 	else
 	{
-		glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,256, 256,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+		glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,TEXTURE_SIZE_X, TEXTURE_SIZE_Y,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
 	}
 
 	CHECK_GL_ERRORS();
