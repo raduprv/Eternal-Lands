@@ -342,17 +342,16 @@ void find_all_url(const char *source_string, const int len)
 
 
 #ifdef  WINDOWS
-static int go_to_url(void * url)
+static int only_call_from_open_web_link__go_to_url(void * url)
 {
 	char browser_command[400];
-
-	if(!have_url_count || !*browser_name){
-		return 0;
-	}
 
 	// build the command line and execute it
 	safe_snprintf (browser_command, sizeof (browser_command), "%s \"%s\"", browser_name, url),
 	system(browser_command);	// Do not use this command on UNIX.
+
+	// free the memory allocated in open_web_link()
+	free(url);
 
 	return 0;
 }
@@ -389,9 +388,13 @@ void open_web_link(const char * url)
 		}
 #else
 		SDL_Thread *go_to_url_thread;
+		// make a copy of the url string as it may be freed by the caller
+		// will be freed as the only_call_from_open_web_link__go_to_url() exits
+        char *cp_url = malloc(strlen(url)+1);
+        safe_strncpy(cp_url, url, strlen(url)+1);
 
 		// windows needs to spawn it in its own thread
-		go_to_url_thread= SDL_CreateThread(go_to_url, (char *)url);
+		go_to_url_thread= SDL_CreateThread(only_call_from_open_web_link__go_to_url, cp_url);
 	} else {
 		ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWNOACTIVATE); //this returns an int we could check for errors, but that's mainly when you use shellexecute for local files
 #endif  //_WIN32
