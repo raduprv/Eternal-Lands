@@ -25,6 +25,9 @@
 #include "notepad.h"
 #include "pm_log.h"
 #include "platform.h"
+#ifdef NEW_QUESTLOG
+#include "questlog.h"
+#endif
 #include "sound.h"
 #include "spells.h"
 #include "tabs.h"
@@ -1363,6 +1366,11 @@ int save_local_data(char * text, int len){
 	if (notepad_loaded) notepad_save_file (NULL, 0, 0, 0);
 	save_exploration_map();
 	flush_counters();
+#ifdef NEW_QUESTLOG
+	// for the new questlog, this actually just saves any pending changes
+	// should be renamed when NEW_QUESTLOG #def is removed
+	unload_questlog();
+#endif	
 	LOG_TO_CONSOLE(c_green1, "Local files saved, asking server to save too...");
 	return 0;
 }
