@@ -352,26 +352,46 @@ void unqueue_cmd(int i){
 }
 
 
-#ifdef MORE_ATTACHED_ACTORS
-void prn_que(int i){
+void print_queue(actor *act) {
 	int k;
 
-	printf("[");
-	for(k=0;k<MAX_CMD_QUEUE-1;k++) printf("%i-",actors_list[i]->que[k]);
-	printf("]");
+	printf("   Actor %s queue:",act->actor_name);
+	printf(" -->");
+	for(k=0; k<MAX_CMD_QUEUE; k++){
+			if(act->que[k]==enter_combat) printf("IC");
+			if(act->que[k]==leave_combat) printf("LC");
+			if(act->que[k]>=move_n&&act->que[k]<=move_nw) printf("M");
+			if(act->que[k]>=turn_n&&act->que[k]<=turn_nw) printf("R");
+			printf("%2i|",act->que[k]);
+	}
+	printf("\n");
+
+
+#ifdef ATTACHED_ACTORS
+	if (act->attached_actor >= 0) {
+		printf("   Horse %s queue:",act->actor_name);
+		printf(" -->");
+		for(k=0; k<MAX_CMD_QUEUE; k++){
+			printf("%i|",actors_list[act->attached_actor]->que[k]);
+		}
+		printf("\n");
+	}
+#endif
+
 }
 
+#ifdef MORE_ATTACHED_ACTORS
 void attached_info(int i, int c){
 					if(actors_list[i]->actor_id==yourself&&actors_list[i]->que[0]!=nothing) {
 						printf("%i---------> DOING: %i -----------",c,actors_list[i]->que[0]);
-						prn_que(i);
+						print_queue(actors_list[i]);
 						printf("\n                                   ");
-						if(actors_list[i]->attached_actor>=0) prn_que(MY_HORSE_ID(i));
+						if(actors_list[i]->attached_actor>=0) print_queue(actors_list[MY_HORSE_ID(i)]);
 						printf("\n");
 					}
 					if(actors_list[i]->actor_id<0&&actors_list[i]->que[0]!=wait_cmd&&actors_list[i]->que[0]!=nothing){
 						printf("%i---------> DOING (horse): %i ---",c,actors_list[i]->que[0]);
-						prn_que(i);
+						print_queue(actors_list[i]);
 						printf("\n");
 					}
 
@@ -1732,6 +1752,16 @@ int push_command_in_actor_queue(unsigned int command, actor *act)
 }
 #endif // ATTACHED_ACTORS
 
+
+void sanitize_cmd_queue(actor *act){
+	int k,j;
+	for(k=0,j=0;k<MAX_CMD_QUEUE-1-j;k++){
+		if(act->que[k]==nothing) j++;
+		act->que[k]=act->que[k+j];
+	}
+	for(k=MAX_CMD_QUEUE-1;k>0&&j>0;k--,j--) act->que[k]=nothing;
+}
+
 void add_command_to_actor(int actor_id, unsigned char command)
 {
 	//int i=0;
@@ -1785,6 +1815,7 @@ void add_command_to_actor(int actor_id, unsigned char command)
 			UNLOCK_ACTORS_LISTS();
 			return;
 		}
+
 
 		if(command==leave_combat||command==enter_combat||command==die1||command==die2)
 		{
@@ -1861,9 +1892,7 @@ void add_command_to_actor(int actor_id, unsigned char command)
 		}
 #else // ATTACHED_ACTORS
 		k = push_command_in_actor_queue(command, act);
-#ifdef MORE_ATTACHED_ACTORS
-		if(act->actor_id==yourself) printf("CMD: %i at %i...\n",command,k);
-#endif
+
 		if (act->attached_actor >= 0){
 #ifdef MORE_ATTACHED_ACTORS
 			//if in aim mode, ignore turning and ranging related commands. We do it manually in next_command()
@@ -1892,6 +1921,50 @@ void add_command_to_actor(int actor_id, unsigned char command)
 			if (me!=NULL)
 				isme = act->actor_id == me->actor_id;
 		}
+
+
+		//if(act->actor_id==yourself) printf("COMMAND: %i at pos %i (and %i)\n",command,k,k2);
+		//if(act->actor_id==yourself) print_queue(act);
+		//Reduce resync in invasions
+		if(command==enter_combat) {
+			// we received an enter_combat, look back in the queue
+			// if a leave_combat is found and all the commands in between
+			// are turning commands, just ignore the leave and the enter combat commands
+			
+			int j=k-1;
+#ifdef MORE_ATTACHED_ACTORS
+			int j2=k2-1;
+#endif
+			while(act->que[j]>=turn_n&&act->que[j]<=turn_nw&&j>=0) j--; //skip rotations
+#ifdef MORE_ATTACHED_ACTORS
+			if (act->attached_actor >= 0)
+				while(actors_list[act->attached_actor]->que[j2]>=turn_n
+					&&actors_list[act->attached_actor]->que[j2]<=turn_nw
+					&&j2>=0) j2--; //skip rotations for horse
+#endif
+			if(j>=0&&act->que[j]==leave_combat) {
+				//remove leave_combat and enter_combat
+				act->que[j]=nothing;
+				act->que[k]=nothing;
+				sanitize_cmd_queue(act);
+				//if(act->actor_id==yourself) printf("   actor %s: skipped %i and %i\n",act->actor_name,j,k);
+			}
+			
+#ifdef MORE_ATTACHED_ACTORS
+			if(act->attached_actor >=0&&j2>=0&&actors_list[act->attached_actor]->que[j2]==leave_combat) {
+				//remove leave_combat and enter_combat for horse
+				actors_list[act->attached_actor]->que[j2]=nothing;
+				actors_list[act->attached_actor]->que[k2]=nothing;
+				sanitize_cmd_queue(actors_list[act->attached_actor]);
+				//if(act->actor_id==yourself) printf("   horse %s: skipped %i and %i\n",act->actor_name,j2,k2);
+			}
+#endif
+			//if(act->actor_id==yourself) printf("   ***Skip Done***\n");
+			//if(act->actor_id==yourself) print_queue(act);
+		}
+
+
+
 
 		switch(command) {
 		case enter_combat:
@@ -2033,10 +2106,10 @@ void add_command_to_actor(int actor_id, unsigned char command)
 			}
 			//if we are here no emotes have been skipped
 #endif
-			LOG_ERROR("Too much commands in the queue for actor %d (%s) => resync!",
+			printf("Too much commands in the queue for actor %d (%s) => resync!\n",
 					  act->actor_id, act->actor_name);
 			for (i = 0; i < MAX_CMD_QUEUE; ++i)
-				LOG_ERROR("%dth command in the queue: %d", i, (int)act->que[i]);
+				printf("%dth command in the queue: %d\n", i, (int)act->que[i]);
 			update_all_actors();
 		}
 	}

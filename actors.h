@@ -537,7 +537,7 @@ typedef struct _emote_command {
 #endif // EMOTES
 
 /*! The main actor structure.*/
-#define	MAX_CMD_QUEUE	20
+#define	MAX_CMD_QUEUE	15
 #define MAX_RANGE_ACTION_QUEUE 10
 #define MAX_ITEM_CHANGES_QUEUE 10
 typedef struct
