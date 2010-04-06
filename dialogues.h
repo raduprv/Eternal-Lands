@@ -70,6 +70,7 @@ extern int dialogue_menu_y_len;
 
 extern int no_bounding_box;
 extern int autoclose_storage_dialogue;
+extern int dialogue_copy_excludes_responses;
 
 /*!
  * \ingroup other

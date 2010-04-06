@@ -286,6 +286,9 @@ char
 	cm_dialog_menu_str[100],
 	cm_url_menu_str[150],
 	cm_counters_menu_str[50],
+	cm_help_options_str[50],
+	cm_npcname_menu_str[50],
+	cm_dialog_copy_menu_str[50],	
 #ifdef MINIMAP2
 	cm_minimap_menu_str[50],
 #endif
@@ -1361,6 +1364,9 @@ void init_help()
 	add_xml_identifier(misc, "cm_dialog_menu", cm_dialog_menu_str, "--\nEnable Keypresses\nKeypresses Anywhere\nAuto close storage dialogue", sizeof(cm_dialog_menu_str));
 	add_xml_identifier(misc, "cm_url_menu", cm_url_menu_str, "Open\nFind In Console\nMark Visited\nMark Unvisited\n--\nDelete\n--\nDelete All", sizeof(cm_url_menu_str));	
 	add_xml_identifier(misc, "cm_counters_menu", cm_counters_menu_str, "Delete entry\n--\nReset Session Total", sizeof(cm_counters_menu_str));	
+	add_xml_identifier(misc, "cm_help_options", cm_help_options_str, "Right-click for options", sizeof(cm_help_options_str));
+	add_xml_identifier(misc, "cm_npcname_menu", cm_npcname_menu_str, "Copy NPC Name", sizeof(cm_npcname_menu_str));
+	add_xml_identifier(misc, "cm_dialog_copy_menu", cm_dialog_copy_menu_str, "Exclude Responses", sizeof(cm_dialog_copy_menu_str));
 #ifdef MINIMAP2
 	add_xml_identifier(misc, "cm_minimap_menu", cm_minimap_menu_str, "--\nRotate Minimap\nPin Minimap", sizeof(cm_minimap_menu_str));
 #endif

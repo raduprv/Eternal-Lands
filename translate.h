@@ -433,6 +433,9 @@ extern char
 		cm_dialog_menu_str[100],
 		cm_url_menu_str[150],
 		cm_counters_menu_str[50],
+		cm_help_options_str[50],
+		cm_npcname_menu_str[50],
+		cm_dialog_copy_menu_str[50],
 #ifdef MINIMAP2
 		cm_minimap_menu_str[50],
 #endif

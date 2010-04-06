@@ -9,6 +9,8 @@
 #include "asc.h"
 #include "elwindows.h"
 #include "gamewin.h"
+#include "init.h"
+#include "hud.h"
 #include "interface.h"
 #include "multiplayer.h"
 #include "paste.h"
@@ -35,14 +37,22 @@ int dialogue_menu_y_len=220;
 int no_bounding_box=0;
 int show_keypress_letters=0;
 int autoclose_storage_dialogue=0;
+int dialogue_copy_excludes_responses=0;
 static Uint32 copy_end_highlight_time = 0;
 static int close_str_width = -1;
 static int copy_str_width = -1;
 static int highlight_close = 0;
 static int highlight_copy = 0;
+static int mouse_over_name = 0;
 static const int str_edge = 5;
 #define MAX_MESS_LINES 8
 static const int response_y_offset = MAX_MESS_LINES*SMALL_FONT_Y_LEN;
+#ifdef CONTEXT_MENUS
+static size_t cm_npcname_id = CM_INIT_VALUE;
+static size_t cm_dialog_copy_id = CM_INIT_VALUE;
+#endif
+static int new_dialogue = 1;
+static int npc_name_x_start,npc_name_len;
 
 
 void build_response_entries (const Uint8 *data, int total_length)
@@ -113,12 +123,11 @@ int	display_dialogue_handler(window_info *win)
 	float u_start,v_start,u_end,v_end;
 	int this_texture; //,cur_item,cur_pos; unused?
 	int x_start,x_end,y_start,y_end;
-	int npc_name_x_start,len;
 	unsigned char str[128]; 
 
 	//calculate the npc_name_x_start (to have it centered on the screen)
-	len= strlen((char*)npc_name);
-	npc_name_x_start= win->len_x/2-(len*SMALL_FONT_X_LEN)/2;
+	npc_name_len= strlen((char*)npc_name);
+	npc_name_x_start= win->len_x/2-(npc_name_len*SMALL_FONT_X_LEN)/2;
 
 	glDisable(GL_TEXTURE_2D);
 	//draw the character frame
@@ -217,7 +226,26 @@ int	display_dialogue_handler(window_info *win)
 		glColor3f(1.0f,1.0f,1.0f);
 	draw_string_small(str_edge,win->len_y-(SMALL_FONT_Y_LEN+1),(unsigned char*)dialogue_copy_str,1);
 
-	highlight_close = highlight_copy = 0;
+	// display help text if appropriate
+#ifdef CONTEXT_MENUS
+	if ((show_help_text) && (highlight_copy || mouse_over_name))
+			show_help(cm_help_options_str, 0, win->len_y+10);
+#endif
+
+	highlight_close = highlight_copy = mouse_over_name = 0;
+
+	// if this is the first time we displayed this dialogue, do first time stuff
+	if (new_dialogue)
+	{
+		new_dialogue = 0;
+#ifdef CONTEXT_MENUS
+		cm_remove_regions(win->window_id);
+		cm_add_region(cm_npcname_id, win->window_id, npc_name_x_start,
+			win->len_y-(SMALL_FONT_Y_LEN+1), npc_name_len*SMALL_FONT_X_LEN, SMALL_FONT_Y_LEN);
+		cm_add_region(cm_dialog_copy_id, win->window_id, str_edge,
+			win->len_y-(SMALL_FONT_Y_LEN+1), copy_str_width, SMALL_FONT_Y_LEN);
+#endif
+	}
 
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -251,6 +279,8 @@ int mouseover_dialogue_handler(window_info *win, int mx, int my)
 		highlight_close = 1;
 	if(mx>str_edge && mx<str_edge+copy_str_width && my>=win->len_y-(SMALL_FONT_Y_LEN+1))
 		highlight_copy = 1;
+	if (mx>npc_name_x_start && mx<npc_name_x_start+npc_name_len*SMALL_FONT_X_LEN && my>=win->len_y-(SMALL_FONT_Y_LEN+1))
+		mouse_over_name = 1;
 
 	//first, clear the mouse overs
 	for(i=0;i<MAX_RESPONSES;i++)dialogue_responces[i].mouse_over=0;
@@ -307,7 +337,7 @@ static void copy_dialogue_text(void)
 	int to_index = 0;
 	int i;
 
-	// copy the body of text stripped of and colour soft wrapping characters
+	// copy the body of text stripped of any colour and soft wrapping characters
 	while(from_index<from_str_len && to_index<to_str_max-1)
 	{
 		if (!is_color (dialogue_string[from_index]) && dialogue_string[from_index] != '\r')
@@ -316,21 +346,24 @@ static void copy_dialogue_text(void)
 	}
 	to_str[to_index] = '\0';
 
-	// if there are responses, add some new lines between the text.
-	for(i=0;i<MAX_RESPONSES;i++)
-		if(dialogue_responces[i].in_use)
-		{
-			safe_strcat(to_str, "\n\n", to_str_max);
-			break;
-		}
-
-	// add the numbered response strings, one per line
-	for(i=0;i<MAX_RESPONSES;i++)
+	if (!dialogue_copy_excludes_responses)
 	{
-		if(dialogue_responces[i].in_use)
+		// if there are responses, add some new lines between the text.
+		for(i=0;i<MAX_RESPONSES;i++)
+			if(dialogue_responces[i].in_use)
+			{
+				safe_strcat(to_str, "\n\n", to_str_max);
+				break;
+			}
+	
+		// add the numbered response strings, one per line
+		for(i=0;i<MAX_RESPONSES;i++)
 		{
-			safe_snprintf(response_str, response_str_len, "%d) %s\n", response_num++, dialogue_responces[i].text);
-			safe_strcat(to_str, response_str, to_str_max);
+			if(dialogue_responces[i].in_use)
+			{
+				safe_snprintf(response_str, response_str_len, "%d) %s\n", response_num++, dialogue_responces[i].text);
+				safe_strcat(to_str, response_str, to_str_max);
+			}
 		}
 	}
 
@@ -360,7 +393,7 @@ int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags)
 			hide_window(win->window_id);
 			return 1;
 		}
-	if(mx>str_edge && mx<str_edge+copy_str_width && my>=win->len_y-(SMALL_FONT_Y_LEN+1))
+	if((flags & ELW_LEFT_MOUSE) && mx>str_edge && mx<str_edge+copy_str_width && my>=win->len_y-(SMALL_FONT_Y_LEN+1))
 		{
 			copy_end_highlight_time = SDL_GetTicks() + 500;
 			copy_dialogue_text();
@@ -399,7 +432,7 @@ int keypress_dialogue_handler (window_info *win, int mx, int my, Uint32 key, Uin
    }
 	if(ch>='a' && ch<='z')
 		ch-=87; //a-z->10-35
-   else if(ch>='A' && ch<='Z')
+	else if(ch>='A' && ch<='Z')
 		ch-=55; //A-Z->10-35
 	else if(ch>='1' && ch<='9')
 		ch-=49; //1-9->0-8
@@ -421,6 +454,19 @@ int keypress_dialogue_handler (window_info *win, int mx, int my, Uint32 key, Uin
 	return 0;
 }
 
+#ifdef CONTEXT_MENUS
+static int cm_npcname_handler(window_info *win, int widget_id, int mx, int my, int option)
+{
+	if (option == 0)
+	{
+		copy_to_clipboard((const char *)npc_name);
+		return 1;
+	}
+	else
+		return 0;
+}
+#endif
+
 void display_dialogue()
 {
 	if(dialogue_win < 0){
@@ -436,6 +482,10 @@ void display_dialogue()
 		cm_bool_line(windows_list.window[dialogue_win].cm_id, ELW_CM_MENU_LEN+1, &use_keypress_dialogue_boxes, "use_keypress_dialog_boxes");
 		cm_bool_line(windows_list.window[dialogue_win].cm_id, ELW_CM_MENU_LEN+2, &use_full_dialogue_window, "use_full_dialogue_window");
 		cm_bool_line(windows_list.window[dialogue_win].cm_id, ELW_CM_MENU_LEN+3, &autoclose_storage_dialogue, NULL);
+
+		cm_npcname_id = cm_create(cm_npcname_menu_str, cm_npcname_handler);
+		cm_dialog_copy_id = cm_create(cm_dialog_copy_menu_str, NULL);
+		cm_bool_line(cm_dialog_copy_id, 0, &dialogue_copy_excludes_responses, NULL);
 #endif
 
 		copy_str_width = get_string_width((unsigned char*)dialogue_copy_str) * SMALL_FONT_X_LEN / 12.0;
@@ -444,5 +494,6 @@ void display_dialogue()
 		show_window(dialogue_win);
 		select_window(dialogue_win);
 	}
+	new_dialogue = 1;
 }
 
