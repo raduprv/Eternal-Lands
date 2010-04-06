@@ -137,15 +137,28 @@ void Quest_Entry::set_lines(const std::string & the_text)
 	int col = 0;
 	std::string::size_type last_space = 0;
 	std::string::size_type start = 0;
-	std::string text = the_text;
+	std::string text;
+	char last_char = ' ';
 
+	// make a copy of the string, replacing \n with spaces unless preceeded by a space
+	text.reserve(the_text.size());
+	for (std::string::size_type i=0; i<the_text.size(); i++)
+	{
+		if (the_text[i] == '\n')
+		{
+			if (last_char != ' ')
+				text += last_char = ' ';
+		}
+		else
+			text += last_char = the_text[i];
+	}
+
+	// divide text into lines that fit within the window width
 	for (std::string::size_type i=0; i<text.size(); i++)
 	{
 		if (is_color(text[i]))
 			continue;			
-		if (text[i] == '\n')
-			text[i] = ' ';
-		else if (text[i] == ' ')
+		if (text[i] == ' ')
 			last_space = i;
 		if (col >= chars_per_line)
 		{
