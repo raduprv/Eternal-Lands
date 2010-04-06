@@ -114,7 +114,7 @@ static int cm_sound_enabled = 0;
 static int cm_music_enabled = 0;
 static int cm_minimap_shown = 0;
 enum {	CMH_STATS=0, CMH_STATBARS, CMH_DIGCLOCK, CMH_ANACLOCK, CMH_SECONDS, CMH_FPS,
-		CMH_MINIMAP, CMH_QUICKBM, CMH_SEP1, CMH_SOUND, CMH_MUSIC };
+		CMH_MINIMAP, CMH_QUICKBM, CMH_SEP1, CMH_SOUND, CMH_MUSIC, CMH_SEP2, CMH_LOCATION };
 enum {	CMQB_RELOC=0, CMQB_DRAG, CMQB_RESET, CMQB_FLIP, CMQB_ENABLE };
 #endif
 
@@ -123,6 +123,7 @@ int hud_y= 48;
 int hud_text;
 int view_analog_clock= 1;
 int view_digital_clock= 0;
+int copy_next_LOCATE_ME = 0;
 int	icons_win= -1;
 int	stats_bar_win= -1;
 int	misc_win= -1;
@@ -1144,6 +1145,7 @@ float clock_needle_v_end=1.0f-(float)223/256;
 #ifdef CONTEXT_MENUS
 static int context_hud_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
+	unsigned char protocol_name;
 	switch (option)
 	{
 		case CMH_MINIMAP: view_window(&minimap_win, 0); break;
@@ -1151,6 +1153,11 @@ static int context_hud_handler(window_info *win, int widget_id, int mx, int my, 
 		case CMH_SOUND: toggle_sounds(&sound_on); set_var_unsaved("enable_sounds", OPT_BOOL); break;
 		case CMH_MUSIC: toggle_music(&music_on); set_var_unsaved("enable_music", OPT_BOOL); break;
 #endif // NEW_SOUND
+		case CMH_LOCATION:
+			copy_next_LOCATE_ME = 1;
+			protocol_name= LOCATE_ME;
+			my_tcp_send(my_socket,&protocol_name,1);
+			break;
 	}
 	return 1;
 }

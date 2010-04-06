@@ -88,6 +88,8 @@ extern int quickbar_y;
 extern int quickbar_dir;
 extern int quickbar_draggable;
 
+extern int copy_next_LOCATE_ME;
+
 // the main hud handling
 
 /*!

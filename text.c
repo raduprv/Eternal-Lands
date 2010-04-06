@@ -18,6 +18,7 @@
 #include "lights.h"
 #include "misc.h"
 #include "multiplayer.h"
+#include "paste.h"
 #include "pm_log.h"
 #include "translate.h"
 #include "astrology.h"
@@ -544,6 +545,11 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			printf("item_uid_enabled=%d\n", item_uid_enabled);
 		}
 #endif
+		else if (copy_next_LOCATE_ME && my_strncompare(text_to_add+1, "You are in ", 11)) {
+			copy_to_clipboard(text_to_add+1);
+			copy_next_LOCATE_ME = 0;
+			return 0;
+		}
 	} else if (channel == CHAT_LOCAL) {
 		if (harvesting && my_strncompare(text_to_add+1, username_str, strlen(username_str))) {
 			char *ptr = text_to_add+1+strlen(username_str);
