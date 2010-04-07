@@ -336,8 +336,8 @@ void clamp_camera(void)
 	if(new_zoom_level > 4.0f){
 		new_zoom_level = 4.0f;
 		camera_zoom_duration = 0;
-	} else if(new_zoom_level < 1.0f) {
-		new_zoom_level = 1.0f;
+	} else if(new_zoom_level < 0.5f) {
+		new_zoom_level = 0.5f;
 		camera_zoom_duration = 0;
 	}
 }
