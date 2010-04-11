@@ -2,14 +2,14 @@
 #
 # Wrapper script for Eternal Lands client.
 # - Copies required files to ~/.elc if not already there
-# - Checks all ~/.elc/ tree el.ini files have correct and optionall fixes them
+# - Checks all ~/.elc/ tree el.ini files have correct and optionally fixes them
 # - optionally displays a server/configuration selection GUI
+# - optioanlly runs a user specified client executable
 #
 # Author Paul Broadhead pjbroad@twinmoons.clara.co.uk
 #
-# This program (script), and only this script from the eternallands
-# package is released as Public Domain software.  You are free to use
-# it as you wish.
+# This program (script) is released as Public Domain software.  You are free to
+# use it as you wish.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -19,7 +19,7 @@
 # get users choice from the $serverfile
 getconfig()
 {
-	grep -v ^# $serverfile | sort | tr -d '\015' | \
+	sort -u $serverfile | tr -d '\015' | grep -v -e ^$ -e ^# | \
 	while read name dir server port description
 	do
 		echo $name
@@ -28,7 +28,7 @@ getconfig()
 		echo $port
 		echo $dir
 	done | \
-	zenity --title="Eternal Lands Launcher" --width=450 --height=280 \
+	zenity --title="Eternal Lands Launcher${non_standard}" --width=450 --height=280 \
 		--list \
 		--column "Name" \
 		--column "Description" \
@@ -96,6 +96,18 @@ then
 	fi
 fi
 
+# see if we intend to use non-standard build
+el_client=/usr/games/el.x86.linux.bin
+if [ -r ~/.elc/el_client ]
+then
+	tmp_el_client="$(cat ~/.elc/el_client)"
+	if [ -x "$tmp_el_client" ]
+	then
+		non_standard=" (non-standard)"
+		el_client="$tmp_el_client"
+	fi	
+fi
+
 config=""
 
 # if no command line options specified, see if we want to use the config selection window
@@ -121,12 +133,12 @@ then
 		else
 			echo "no" > $showsel
 		fi
-		zenity --info --text="To change this option, edit or remove the file ~/.elc/showconfigsel"
+		zenity --info --text="To change this option, edit or remove the file $showsel"
 	fi
 fi
 
 # run the client, display error log if it crashes
-if ! /usr/games/el.x86.linux.bin $config $* &> ~/.elc/terminal_log.txt
+if ! $el_client $config $* &> ~/.elc/terminal_log.txt
 then
 	cat | zenity --text-info --width=500 --height=300 --title "Eternal Lands Crashed, this is the Error log." << EOT
 Oh my, Eternal Lands Crashed - Don't Panic!
