@@ -14,6 +14,9 @@
 #include "hud.h"
 #include "ignore.h"
 #include "init.h"
+#ifdef ITEM_LISTS
+#include "item_lists.h"
+#endif
 #include "interface.h"
 #include "knowledge.h"
 #include "lights.h"
@@ -1371,6 +1374,9 @@ int save_local_data(char * text, int len){
 	// should be renamed when NEW_QUESTLOG #def is removed
 	unload_questlog();
 #endif	
+#ifdef ITEM_LISTS
+	save_category_maps();
+#endif
 	LOG_TO_CONSOLE(c_green1, "Local files saved, asking server to save too...");
 	return 0;
 }

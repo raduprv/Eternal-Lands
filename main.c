@@ -36,6 +36,9 @@
 #include "gl_init.h"
 #include "hud.h"
 #include "init.h"
+#ifdef ITEM_LISTS
+#include "item_lists.h"
+#endif
 #include "interface.h"
 #include "lights.h"
 #include "multiplayer.h"
@@ -246,6 +249,9 @@ int start_rendering()
 	clear_sound_data();		// Cleans up the config data
 #endif // NEW_SOUND
 	unload_questlog();
+#ifdef ITEM_LISTS
+	save_category_maps();
+#endif
 #ifdef EMOTES
 	free_emotes();
 #endif // EMOTES

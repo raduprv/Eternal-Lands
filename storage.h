@@ -82,6 +82,22 @@ void close_storagewin();
  */
 void display_storage_menu();
 
+#ifdef ITEM_LISTS
+/*!
+ * \ingroup storage_window
+ * \brief Pick-up the specified item.
+ *
+ *      Move the the specified category and pick-up the specified item if it is present.
+ *
+ * \param  image_id		the image id of the requested object
+ * \param  item_id		the unique id of the object, or unset_item_uid is not available
+ * \param  cat_id		the storage category id in which the find the object
+ * 
+ * \callgraph
+ */
+void pickup_storage_item(int image_id, Uint16 item_id, int cat_id);
+#endif
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

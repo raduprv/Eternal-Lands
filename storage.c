@@ -12,6 +12,9 @@
 #include "hud.h"
 #include "init.h"
 #include "items.h"
+#ifdef ITEM_LISTS
+#include "item_lists.h"
+#endif
 #include "misc.h"
 #include "multiplayer.h"
 #ifdef NEW_SOUND
@@ -54,6 +57,119 @@ static int print_quanities[STORAGE_ITEMS_SIZE];
 static int number_to_print = 0;
 static int next_item_to_print = 0;
 static int printing_category = -1;
+
+#ifdef ITEM_LISTS
+
+//	Look though the category for the selected item, pick it up if found.
+//
+static void select_item(int image_id, Uint16 item_id)
+{
+	int i;
+	int found_at = -1;
+	
+	for (i=0; i<no_storage; i++)
+	{
+#ifdef ITEM_UID
+		if ((item_id != unset_item_uid) && (storage_items[i].id != unset_item_uid) && (storage_items[i].quantity > 0))
+		{
+			if (storage_items[i].id == item_id)
+			{
+				found_at = i;
+				break;
+			}
+		}
+		else
+#endif
+		if ((storage_items[i].image_id == image_id) && (storage_items[i].quantity > 0))
+		{
+			found_at = i;
+			break;
+		}
+	}
+
+	if (found_at < 0)
+	{
+#ifdef NEW_SOUND
+		add_sound_object(get_index_for_sound_type_name("alert1"), 0, 0, 1);
+#endif // NEW_SOUND
+		il_pickup_fail_time = SDL_GetTicks();
+	}
+	else
+	{
+		active_storage_item=storage_items[found_at].pos;
+		if (!view_only_storage)
+		{
+			storage_item_dragged=found_at;
+#ifdef NEW_SOUND
+			add_sound_object(get_index_for_sound_type_name("Drag Item"), 0, 0, 1);
+#endif // NEW_SOUND
+		}
+		else
+		{
+#ifdef NEW_SOUND
+			add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+#endif // NEW_SOUND
+		}
+	}
+}
+
+
+static int wanted_category = -1;
+static Uint16 wanted_item_id = -1;
+static int wanted_image_id = -1;
+static void move_to_category(int cat);
+static int find_category(int id);
+
+
+//	Called when the category is changed.
+//	- Update the store of items/category.
+//	- If in the process of picking up an item go for it if this is the category.
+//
+static void category_updated(void)
+{
+	int i;
+	for (i=0; i<no_storage; i++)
+#ifdef ITEM_UID
+		update_category_maps(storage_items[i].image_id, storage_items[i].id, storage_categories[selected_category].id);
+#else
+		update_category_maps(storage_items[i].image_id, unset_item_uid, storage_categories[selected_category].id);
+#endif
+	if (selected_category == wanted_category)
+	{
+		select_item(wanted_image_id, wanted_item_id);
+		wanted_category = -1;
+	}
+}
+
+
+//	Start the process of picking up the specified item from a specified category.
+//	If the category is already selected, try picking up the item now, otherwise
+//	set the requird category, the pick will continue when the category is availble.
+//
+void pickup_storage_item(int image_id, Uint16 item_id, int cat_id)
+{
+	if (storage_win<0)
+	{
+#ifdef NEW_SOUND
+		add_sound_object(get_index_for_sound_type_name("alert1"), 0, 0, 1);
+#endif // NEW_SOUND
+		il_pickup_fail_time = SDL_GetTicks();
+		return;
+	}
+	wanted_category = find_category(cat_id);
+	wanted_image_id = image_id;
+	wanted_item_id = item_id;	
+	if (selected_category == wanted_category)
+	{
+		select_item(wanted_image_id, wanted_item_id);
+		wanted_category = -1;
+	}
+	else
+		move_to_category(wanted_category);
+}
+
+#endif // ITEM_LISTS
+
 
 void get_storage_text (const Uint8 *in_data, int len)
 {
@@ -242,6 +358,11 @@ void get_storage_items (const Uint8 *in_data, int len)
 	} else	if (cat >= pos + STORAGE_CATEGORIES_DISPLAY) {
 		vscrollbar_set_pos(storage_win, STORAGE_SCROLLBAR_CATEGORIES, cat - STORAGE_CATEGORIES_DISPLAY + 1);
 	}
+
+#ifdef ITEM_LISTS
+	if (selected_category != -1)
+		category_updated();
+#endif 
 }
 
 int storage_win=-1;

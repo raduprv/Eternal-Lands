@@ -12,6 +12,10 @@
  * 		Make list array a singleton object?
  * 		Preview Window
  * 			Add buttons Fetch/Delete/Rename etc
+ * 			Could add edit option
+ * 				Set quanity, delete (or zero)
+ * 		Strings to translate
+
  */
 
 #ifdef CONTEXT_MENUS
@@ -41,6 +45,21 @@
 #ifdef NEW_SOUND
 #include "sound.h"
 #endif
+#include "storage.h"
+
+// move to translate module
+const char *item_list_format_error = "Format error while reading item list.";
+const char *item_list_save_error_str = "Failed to save the item category file.";
+const char *item_list_learn_cat_str = "Note: storage categories need to be learnt by selecting each category.";
+const char *item_list_cat_format_error_str = "Format error reading item categories.";
+const char *preview_quantity_help_str = "Right-click set quantity, left-click pick-up";
+const char *item_list_version_error_str = "Item lists file is not compatible with client version.";
+const char *item_list_empty_list_str = "No point saving an empty list.";
+const char *cm_item_list_menu_str = "Save a new list\nDisable list preview\n--\nDelete a list\n--\nReload item lists file";
+const char *cm_item_list_empty_str = "Empty";
+const char *item_list_name_str = "Enter List Name";
+const char *item_list_preview_title = "List preview";
+
 
 namespace ItemLists
 {
@@ -52,15 +71,17 @@ namespace ItemLists
 			bool set(std::string save_name);
 			void fetch(void) const;
 			const std::string & get_name(void) const { return name; }
-			const std::vector<int> & get_object_ids(void) const { return object_ids; }
+			size_t get_num_items(void) const { return image_ids.size(); }
+			int get_image_id(size_t i) const { assert(i<image_ids.size()); return image_ids[i]; }
+			Uint16 get_item_id(Uint16 i) const { assert(i<item_ids.size()); return item_ids[i]; }
 			const std::vector<int> & get_quantities(void) const { return quantities; }
 			void write(std::ostream & out) const;
-			bool read(std::istream & in, bool temp_version);
+			bool read(std::istream & in);
 		private:
 			std::string name;
-			std::vector<int> object_ids;
+			std::vector<int> image_ids;
 			std::vector<int> quantities;
-			std::vector<Uint16> item_uid;
+			std::vector<Uint16> item_ids;
 	};
 	
 	
@@ -74,7 +95,7 @@ namespace ItemLists
 	}
 	
 	
-	// Set the name, object_ids and quantities for a new list.
+	// Set the name, ids and quantities for a new list.
 	// If there is nothing in the inventory, then return
 	// value is false, the caller should delete the object.
 	//
@@ -87,8 +108,8 @@ namespace ItemLists
 #ifdef ITEM_UID
 				bool stacked_item = false;
 				if (item_list[i].id != unset_item_uid)
-					for (size_t j=0; j<item_uid.size(); j++)
-						if (item_list[i].id == item_uid[j])
+					for (size_t j=0; j<item_ids.size(); j++)
+						if (item_list[i].id == item_ids[j])
 						{
 							quantities[j]++;
 							stacked_item = true;
@@ -96,14 +117,14 @@ namespace ItemLists
 						}
 				if (!stacked_item)
 				{
-					object_ids.push_back(item_list[i].image_id);
+					image_ids.push_back(item_list[i].image_id);
+					item_ids.push_back(item_list[i].id);
 					quantities.push_back(item_list[i].quantity);
-					item_uid.push_back(item_list[i].id);
 				}
 #else
-				object_ids.push_back(item_list[i].image_id);
+				image_ids.push_back(item_list[i].image_id);
+				item_ids.push_back(unset_item_uid);
 				quantities.push_back(item_list[i].quantity);
-				item_uid.push_back(unset_item_uid);
 #endif
 			}
 		if (quantities.empty())
@@ -113,19 +134,19 @@ namespace ItemLists
 	
 	
 	//	Write the list to the specified stream.
-	//  The name, object_ids and quantities are on separate lines.
+	//  The name, ids and quantities are on separate lines.
 	//
 	void List::write(std::ostream & out) const
 	{
 		out << name << std::endl;
-		for (size_t i=0; out && i<object_ids.size(); i++)
-			out << object_ids[i] << " ";
+		for (size_t i=0; out && i<image_ids.size(); i++)
+			out << image_ids[i] << " ";
 		out << std::endl;
 		for (size_t i=0; out && i<quantities.size(); i++)
 			out << quantities[i] << " ";
 		out << std::endl;
-		for (size_t i=0; out && i<item_uid.size(); i++)
-			out << item_uid[i] << " ";
+		for (size_t i=0; out && i<item_ids.size(); i++)
+			out << item_ids[i] << " ";
 		out << std::endl;
 	}
 	
@@ -134,36 +155,32 @@ namespace ItemLists
 	//	If an error occurs the function will return false;
 	// 	the caller should delete the object.
 	//
-	bool List::read(std::istream & in, bool temp_version)
+	bool List::read(std::istream & in)
 	{
-		std::string name_line, id_line, cnt_line, item_uid_line;
+		std::string name_line, image_id_line, cnt_line, item_uid_line;
 
 		// each part is on a separate line, but allow empty lines
 		while (getline(in, name_line) && name_line.empty());
-		while (getline(in, id_line) && id_line.empty());
+		while (getline(in, image_id_line) && image_id_line.empty());
 		while (getline(in, cnt_line) && cnt_line.empty());
-		// temporary code just to maintain first file format...
-		if (temp_version)
-			item_uid_line = "XXX";
-		else
-			while (getline(in, item_uid_line) && item_uid_line.empty());
+		while (getline(in, item_uid_line) && item_uid_line.empty());
 
 		// mop up extra lines at the end of the file silently
 		if (name_line.empty())
 			return false;
 
 		// a name without data is not a list!
-		if (id_line.empty() || cnt_line.empty() || item_uid_line.empty())
+		if (image_id_line.empty() || cnt_line.empty() || item_uid_line.empty())
 		{
-			LOG_ERROR("%s: Failed reading item list name=[%s]\n", __FILE__, name_line.c_str() );
+			LOG_ERROR("%s: %s [%s]\n", __FILE__, item_list_format_error, name_line.c_str() );
 			return false;
 		}
 
-		// read each id value
-		std::istringstream ss(id_line);
+		// read each image id value
+		std::istringstream ss(image_id_line);
 		int value = 0;
 		while (ss >> value)
-			object_ids.push_back(value);
+			image_ids.push_back(value);
 
 		// read each quantity value
 		ss.clear();
@@ -172,24 +189,17 @@ namespace ItemLists
 		while (ss >> value)
 			quantities.push_back(value);
 
-		// temporary code just to maintain first file format...
-		if (temp_version)
-			item_uid.resize(quantities.size(), unset_item_uid);
-		// just do this next in the next version
-		else
-		{
-			// read each item uid value
-			ss.clear();
-			ss.str(item_uid_line);
-			Uint16 ui_value = 0;
-			while (ss >> ui_value)
-				item_uid.push_back(ui_value);
-		}
+		// read each item uid value
+		ss.clear();
+		ss.str(item_uid_line);
+		Uint16 ui_value = 0;
+		while (ss >> ui_value)
+			item_ids.push_back(ui_value);
 
 		// don't use a list with unequal or empty data sets
-		if ((quantities.size() != object_ids.size()) || (quantities.size() != item_uid.size()) || quantities.empty())
+		if ((quantities.size() != image_ids.size()) || (quantities.size() != item_ids.size()) || quantities.empty())
 		{
-			LOG_ERROR("%s: Failed reading item list name=[%s] #id=%d #cnts=%d #uid=%d\n", __FILE__, name_line.c_str(), object_ids.size(), quantities.size(), item_uid.size() );
+			LOG_ERROR("%s: %s name=[%s] #id=%d #cnts=%d #uid=%d\n", __FILE__, item_list_format_error, name_line.c_str(), image_ids.size(), quantities.size(), item_ids.size() );
 			return false;
 		}
 
@@ -197,33 +207,204 @@ namespace ItemLists
 		name = name_line;
 		return true;
 	}
+
+	
+	//	Store and lookup categories for objects.
+	//
+	class Category_Maps
+	{
+		public:
+			Category_Maps(void) : must_save(false) {}
+			void update(int image_id, Uint16 item_id, int cat_id);
+			bool have_image_id(int image_id) const
+				{ return cat_by_image_id.find(image_id) != cat_by_image_id.end(); }
+			bool have_item_id(Uint16 item_id) const
+				{ return cat_by_item_id.find(item_id) != cat_by_item_id.end(); }
+			int get_cat(int image_id, Uint16 item_id);
+			void save(void);
+			void load(void);
+		private:
+			std::map<int, int> cat_by_image_id;
+			std::map<Uint16, int> cat_by_item_id;
+			bool must_save;
+			struct IDS { public: std::vector<int> images; std::vector<Uint16> items; };
+	};
+
+
+	//	If we don't already have the objects category, store it now.
+	//
+	void Category_Maps::update(int image_id, Uint16 item_id, int cat_id)
+	{
+		if ((item_id != unset_item_uid) && !have_item_id(item_id))
+		{
+			//std::cout << "Storing item id " << item_id << " cat " << cat_id << std::endl;
+			cat_by_item_id[item_id] = cat_id;
+			must_save = true;
+		}
+		if (!have_image_id(image_id))
+		{
+			//std::cout << "Storing image id " << image_id << " cat " << cat_id << std::endl;
+			cat_by_image_id[image_id] = cat_id;
+			must_save = true;
+		}
+	}
+
+
+	//	Return the category for an item/image id, or -1 for not found.
+	//
+	int Category_Maps::get_cat(int image_id, Uint16 item_id)
+	{
+		if ((item_id != unset_item_uid) && have_item_id(item_id))
+		{
+			//std::cout << "Retrieving by item id " << item_id << std::endl;
+			return cat_by_item_id[item_id];
+		}
+		else if (have_image_id(image_id))
+		{
+			//std::cout << "Retrieving by image id " << image_id << std::endl;
+			return cat_by_image_id[image_id];
+		}
+		else
+			return -1;
+	}
+
+
+	//	Save the object/category mappings.
+	//	Grouped for each category to save space and allow easy image/item id mixing
+	//
+	void Category_Maps::save(void)
+	{
+		if (!must_save)
+			return;
+
+		std::string fullpath = get_path_config() + std::string("item_categories.txt");
+		std::ofstream out(fullpath.c_str());
+		if (!out)
+		{
+			LOG_ERROR("%s: %s [%s]\n", __FILE__, item_list_save_error_str, fullpath.c_str() );
+			LOG_TO_CONSOLE(c_red2, item_list_save_error_str);
+			return;
+		}
+
+		// store the ids grouped by category
+		std::map<int,IDS> ids_in_cat;
+		for (std::map<int,int>::const_iterator i=cat_by_image_id.begin(); i!=cat_by_image_id.end(); ++i)
+			ids_in_cat[i->second].images.push_back(i->first);
+		for (std::map<Uint16,int>::const_iterator i=cat_by_item_id.begin(); i!=cat_by_item_id.end(); ++i)
+			ids_in_cat[i->second].items.push_back(i->first);
+
+		// step though each category, writing ids
+		for (std::map<int,IDS>::const_iterator i=ids_in_cat.begin(); i!=ids_in_cat.end(); ++i)
+		{
+			// write category id
+			out << i->first << std::endl;
+			// write the number of image ids, then the values
+			out << i->second.images.size() << " ";
+			for (std::vector<int>::const_iterator j=i->second.images.begin(); j!=i->second.images.end(); ++j)
+				out << *j << " ";
+			out << std::endl;
+			// write the number of item ids, then the values
+			out << i->second.items.size() << " ";
+			for (std::vector<Uint16>::const_iterator j=i->second.items.begin(); j!=i->second.items.end(); ++j)
+				out << *j << " ";
+			out << std::endl << std::endl;
+		}
+		
+		must_save = false;
+	}
+
+
+	//	Load the object/category mappings.
+	//
+	void Category_Maps::load(void)
+	{
+		cat_by_image_id.clear();
+		cat_by_item_id.clear();
+
+		std::string fullpath = get_path_config() + std::string("item_categories.txt");
+		std::ifstream in(fullpath.c_str());
+		if (!in)
+			return;
+
+		while (!in.eof())
+		{
+			// read the info, image_id and item_id lines
+			std::string info_line, image_id_line, item_id_line;
+			while (getline(in, info_line) && info_line.empty());
+			getline(in, image_id_line);
+			getline(in, item_id_line);
+			if (info_line.empty())
+				break;
+
+			// read the category 
+			std::istringstream ss(info_line);
+			int category = -1;
+			ss >> category;			
+
+			// read and count the image id values and store in the map
+			ss.clear();
+			ss.str(image_id_line);
+			int value = 0;
+			int actual_num_image_ids = 0;
+			int expected_num_image_ids = 0;
+			ss >> expected_num_image_ids;
+			while (ss >> value)
+			{
+				cat_by_image_id[value] = category;
+				actual_num_image_ids++;
+			}
+
+			// read and count the item id values and store in the map
+			ss.clear();
+			ss.str(item_id_line);
+			Uint16 ui_value = 0;
+			int actual_num_item_ids = 0;
+			int expected_num_item_ids = 0;
+			ss >> expected_num_item_ids;
+			while (ss >> ui_value)
+			{
+				cat_by_item_id[ui_value] = category;
+				actual_num_item_ids++;
+			}
+
+			// check for format errors and end now if something detected
+			if ((category<0) || (actual_num_image_ids != expected_num_image_ids) || (actual_num_item_ids != expected_num_item_ids))
+			{
+				LOG_TO_CONSOLE(c_red2, item_list_cat_format_error_str);
+				LOG_ERROR("%s: %s cat=%d expected/actual image=%d/%d item %d/%d\n",
+					__FILE__, item_list_cat_format_error_str, category,
+					expected_num_image_ids, actual_num_image_ids,
+					expected_num_item_ids, actual_num_item_ids );
+				break;
+			}
+		}
+		
+		must_save = false;
+	}
+
 	
 } // end ItemLists namespace
 
 
 
 static std::vector<ItemLists::List> saved_item_lists;
-static float FILE_REVISION = 2;
+static int FILE_REVISION = 2;
 static INPUT_POPUP ipu_item_list_name;
 static int delete_item_list = 0;
 static int preview_win = -1;
 static size_t previewed_list = 0;
 static const char * preview_help_str = NULL;
-//static const char * preview_fetch_help_str = "Left-click to fetch all items";
-static const char * preview_quantity_help_str = "Right-click to use item quantity";
 static int last_quantity_selected = 0;
 static const int preview_grid_size = 33;
 static size_t selected_item_number = static_cast<size_t>(1);
-
-static const int OPTION_SAVE = 0;
-static const int OPTION_PREVIEW = 1;
-// seperator value 2
-static const int OPTION_DELETE = 3;
-// seperator value 4
-static const int OPTION_RELOAD = 5;
+static const enum { OPTION_SAVE = 0, OPTION_PREVIEW, OPT_SEP01,
+	OPTION_DELETE, OPT_SEP02, OPTION_RELOAD } cm_opts = OPTION_SAVE;
+static ItemLists::Category_Maps cat_maps;
+static bool first_fail = true;
+Uint32 il_pickup_fail_time = 0;
 
 
-//  When lists are added/remove, update the list in the menu.
+//  When lists are added/removed, update the list in the menu.
 //
 static void update_list_window()
 {
@@ -233,7 +414,7 @@ static void update_list_window()
 
 	if (menu_string.empty())
 	{
-		cm_set(cm_item_list_but, "Empty", cm_item_list_handler);
+		cm_set(cm_item_list_but, cm_item_list_empty_str, cm_item_list_handler);
 		cm_grey_line(cm_item_list_but, 0, 1);
 	}
 	else
@@ -249,8 +430,8 @@ static void save_item_lists(void)
 	std::ofstream out(fullpath.c_str());
 	if (!out)
 	{
-		LOG_ERROR("%s: Failed to open item lists file for write [%s]\n", __FILE__, fullpath.c_str() );
-		LOG_TO_CONSOLE(c_red1, "Failed to save the item lists file.");
+		LOG_ERROR("%s: %s [%s]\n", __FILE__, item_list_save_error_str, fullpath.c_str() );
+		LOG_TO_CONSOLE(c_red2, item_list_save_error_str);
 		return;
 	}
 
@@ -271,16 +452,13 @@ static void load_item_lists(void)
 	std::string fullpath = get_path_config() + std::string("item_lists.txt");
 	std::ifstream in(fullpath.c_str());
 	if (!in)
-	{
-		LOG_ERROR("%s: Failed to open item lists file for read [%s]\n", __FILE__, fullpath.c_str() );
 		return;
-	}
 
-	float revision;
+	int revision;
 	in >> revision;
-	if ((revision != FILE_REVISION) && (revision != static_cast<float>(0.1)))
+	if (revision != FILE_REVISION)
 	{
-		LOG_ERROR("%s: Item lists file is not compatible with client version [%s]\n", __FILE__, fullpath.c_str() );
+		LOG_ERROR("%s: %s [%s]\n", __FILE__, item_list_version_error_str, fullpath.c_str() );
 		return;
 	}
 	
@@ -288,7 +466,7 @@ static void load_item_lists(void)
 	while (!in.eof())
 	{
 		saved_item_lists.push_back(ItemLists::List());
-		if (!saved_item_lists.back().read(in, (revision == static_cast<float>(0.1))))
+		if (!saved_item_lists.back().read(in))
 			saved_item_lists.pop_back();
 	}
 	update_list_window();
@@ -313,14 +491,14 @@ static int display_preview_handler(window_info *win)
 
 	// draw the images and the quantities
 	glColor3f(1.0f,1.0f,1.0f);
-	for(i=0; i<saved_item_lists[previewed_list].get_object_ids().size(); i++)
+	for(i=0; i<saved_item_lists[previewed_list].get_num_items(); i++)
 	{
 		int x_start, x_end, y_start, y_end;
 		x_start = preview_grid_size * (i%6) + 1;
 		x_end = x_start + preview_grid_size - 1;
 		y_start = preview_grid_size * (i/6);
 		y_end = y_start + preview_grid_size - 1;
-		draw_item(saved_item_lists[previewed_list].get_object_ids()[i], x_start, y_start, preview_grid_size);
+		draw_item(saved_item_lists[previewed_list].get_image_id(i), x_start, y_start, preview_grid_size);
 
 		safe_snprintf(str, sizeof(str), "%i", saved_item_lists[previewed_list].get_quantities()[i]);
 		draw_string_small_shadowed(x_start, (i&1)?(y_end-15):(y_end-25), (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);
@@ -347,7 +525,10 @@ static int display_preview_handler(window_info *win)
 	{
 		int x_start = selected_item_number%6 * preview_grid_size;
 		int y_start = static_cast<int>(selected_item_number/6) * preview_grid_size;
-		glColor3f(0.0f, 1.0f, 0.3f);
+		if ((SDL_GetTicks() - il_pickup_fail_time) < 250)
+			glColor3f(0.8f,0.2f,0.2f);
+		else
+			glColor3f(0.0f, 1.0f, 0.3f);
 		rendergrid(1, 1, x_start, y_start, preview_grid_size, preview_grid_size);
 		rendergrid(1, 1, x_start-1, y_start-1, preview_grid_size+2, preview_grid_size+2);
 	}
@@ -362,7 +543,7 @@ CHECK_GL_ERRORS();
 }
 
 
-//
+//	Switch back to a previous item quantity on the main window.
 //
 static void restore_inventory_quantity(void)
 {
@@ -404,25 +585,46 @@ static int click_preview_handler(window_info *win, int mx, int my, Uint32 flags)
 		previewed_list--;
 	else if ((flags & ELW_WHEEL_DOWN ) && previewed_list+1 < saved_item_lists.size())
 		previewed_list++;
-	// left-click - fetch the items
-	else if (flags & ELW_LEFT_MOUSE)
+
+	// click see if we can use the item quantity or take items from storage
+	else if ((flags & ELW_RIGHT_MOUSE) || (flags & ELW_LEFT_MOUSE))
 	{
-		saved_item_lists[previewed_list].fetch();
-		// for now don't hide.... hide_window(preview_win);
-#ifdef NEW_SOUND
-		add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
-#endif
-	}
-	// right-click see if we can use the item quantity
-	else if (flags & ELW_RIGHT_MOUSE)
-	{
+		bool was_dragging = ((storage_item_dragged != -1) || (item_dragged != -1));
+		storage_item_dragged = item_dragged = -1;
 		selected_item_number = get_preview_item_number(mx, my);
 		if (selected_item_number < saved_item_lists[previewed_list].get_quantities().size())
 		{
-			last_quantity_selected = quantities.selected;
-			quantities.selected = ITEM_EDIT_QUANT;
-			item_quantity = quantities.quantity[ITEM_EDIT_QUANT].val = saved_item_lists[previewed_list].get_quantities()[selected_item_number];
-		}		 
+			if (!was_dragging || (flags & ELW_LEFT_MOUSE))
+			{
+				last_quantity_selected = quantities.selected;
+				quantities.selected = ITEM_EDIT_QUANT;
+				item_quantity = quantities.quantity[ITEM_EDIT_QUANT].val = saved_item_lists[previewed_list].get_quantities()[selected_item_number];
+#ifdef NEW_SOUND
+				if (flags & ELW_RIGHT_MOUSE)
+					add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+#endif // NEW_SOUND
+			}
+			if (flags & ELW_LEFT_MOUSE)
+			{
+				int image_id = saved_item_lists[previewed_list].get_image_id(selected_item_number);
+				Uint16 item_id = saved_item_lists[previewed_list].get_item_id(selected_item_number);
+				int cat_id = cat_maps.get_cat(image_id, item_id);
+				if (cat_id != -1)
+					pickup_storage_item(image_id, item_id, cat_id);
+				else
+				{
+#ifdef NEW_SOUND
+					add_sound_object(get_index_for_sound_type_name("alert1"), 0, 0, 1);
+#endif // NEW_SOUND
+					il_pickup_fail_time = SDL_GetTicks();
+					if (first_fail)
+					{
+						first_fail = false;
+						LOG_TO_CONSOLE(c_red1, item_list_learn_cat_str);
+					}
+				}
+			}
+		}
 	}
 
 	return 1;
@@ -438,8 +640,6 @@ static int mouseover_preview_handler(window_info *win, int mx, int my)
 	size_t item_number = get_preview_item_number(mx, my);
 	if ((item_number >= 0) && (item_number < saved_item_lists[previewed_list].get_quantities().size()))
 		preview_help_str = preview_quantity_help_str;
-/*	else
-		preview_help_str = preview_fetch_help_str;*/
 	return 0;
 }
 
@@ -459,7 +659,7 @@ static void show_preview(window_info *win)
 {
 	if (preview_win <= 0 )
 	{
-		preview_win = create_window("List Preview", win->window_id, 0, win->len_x + 5, 0, preview_grid_size*6 + ELW_BOX_SIZE + 3, preview_grid_size*6 + ELW_BOX_SIZE, ELW_WIN_DEFAULT);
+		preview_win = create_window(item_list_preview_title, win->window_id, 0, win->len_x + 5, 0, preview_grid_size*6 + ELW_BOX_SIZE + 3, preview_grid_size*6 + ELW_BOX_SIZE, ELW_WIN_DEFAULT);
 		set_window_handler(preview_win, ELW_HANDLER_DISPLAY, (int (*)())&display_preview_handler );
 		set_window_handler(preview_win, ELW_HANDLER_CLICK, (int (*)())&click_preview_handler );
 		set_window_handler(preview_win, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_preview_handler );
@@ -512,7 +712,7 @@ static void name_input_handler(const char *input_text)
 	// else delete the entry - could be because no items
 	else
 	{
-		LOG_TO_CONSOLE(c_red1, "No point saving an empty list");
+		LOG_TO_CONSOLE(c_red1, item_list_empty_list_str);
 		saved_item_lists.pop_back();
 	}
 
@@ -546,7 +746,7 @@ static int options_handler(window_info *win, int widget_id, int mx, int my, int 
 		init_ipu(&ipu_item_list_name, items_win, 310, 100, 26, 1, name_cancel_handler, name_input_handler);
 		ipu_item_list_name.x = win->len_x + 10;
 		ipu_item_list_name.y = (win->len_y - ipu_item_list_name.popup_y_len) / 2;
-		display_popup_win(&ipu_item_list_name, "Enter List Name");
+		display_popup_win(&ipu_item_list_name, item_list_name_str );
 		return 1;
 	}
 	else if (option == OPTION_DELETE)
@@ -619,16 +819,23 @@ extern "C"
 
 	void setup_item_list_menus(void)
 	{
-		cm_item_list_but = cm_create("Empty", cm_item_list_handler);
+		cm_item_list_but = cm_create(cm_item_list_empty_str, cm_item_list_handler);
 		cm_set_pre_show_handler(cm_item_list_but, cm_item_list_pre_show_handler);
 		cm_grey_line(cm_item_list_but, 0, 1);
 		
-		cm_item_list_options_but = cm_create("Save a new list\nDisable list preview\n--\nDelete a list\n--\nReload item lists file", cm_item_list_options_handler);
+		cm_item_list_options_but = cm_create(cm_item_list_menu_str, cm_item_list_options_handler);
 		cm_bool_line(cm_item_list_options_but, OPTION_PREVIEW, &disable_item_list_preview, NULL);
 		cm_grey_line(cm_item_list_options_but, OPTION_PREVIEW, 1); /* always use preview for now */
 		
 		load_item_lists();
+		cat_maps.load();
 	}
+
+	void update_category_maps(int image_id, Uint16 item_id, int cat_id)
+		{ cat_maps.update(image_id, item_id, cat_id); }
+
+	void save_category_maps(void)
+		{ cat_maps.save(); }
 }
 
 #endif
