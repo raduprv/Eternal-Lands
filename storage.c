@@ -148,7 +148,7 @@ static void category_updated(void)
 //
 void pickup_storage_item(int image_id, Uint16 item_id, int cat_id)
 {
-	if (storage_win<0)
+	if ((storage_win<0) || (find_category(cat_id) == -1))
 	{
 #ifdef NEW_SOUND
 		add_sound_object(get_index_for_sound_type_name("alert1"), 0, 0, 1);
