@@ -668,8 +668,8 @@ typedef struct
 	int damage;		/*!< Sets the damage the actor has been given*/
 	int damage_ms;		/*!< Defines the remaining time in which the actor damage will be shown*/
 	int last_health_loss;	/*!< Defines the time of damage*/
-	Uint32 cur_health;	/*!< Sets the current health of the actor*/
-	Uint32 max_health;	/*!< Sets the maximum health of the actor*/
+	Uint16 cur_health;	/*!< Sets the current health of the actor*/
+	Uint16 max_health;	/*!< Sets the maximum health of the actor*/
 	char ghost;		/*!< Sets the actor type to ghost (Disable lightning, enable blending (GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA))*/
 	char has_alpha;		/*!< is alpha blending needed for this actor? */
 	int kind_of_actor;	/*!< Defines the kind_of_actor (NPC, HUMAN, COMPUTER_CONTROLLED_HUMAN, PKABLE, PKABLE_COMPUTER_CONTROLLED)*/
