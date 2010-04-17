@@ -148,10 +148,8 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	our_actor->sit_idle=0;
 	our_actor->body_parts=this_actor;
 
-#ifdef ATTACHED_ACTORS
 	our_actor->attached_actor = -1;
 	our_actor->attachment_shift[0] = our_actor->attachment_shift[1] = our_actor->attachment_shift[2] = 0.0;
-#endif // ATTACHED_ACTORS
 
 #ifdef CLUSTER_INSIDES
 	x = (int) (our_actor->x_pos / 0.5f);
@@ -557,9 +555,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 #ifdef EMOTES
 	emote_data *pose=NULL;
 #endif
-#ifdef ATTACHED_ACTORS
 	int attachment_type = -1;
-#endif // ATTACHED_ACTORS
 
 #ifdef EXTRA_DEBUG
 	ERR();
@@ -611,18 +607,14 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	uniq_id = SDL_SwapLE32(*((Uint32*)(in_data+28)));
 	if(len > 32+(int)strlen(in_data+32)+2){
 		scale=((float)SDL_SwapLE16(*((short *)(in_data+32+strlen(in_data+32)+1)))/((float)ACTOR_SCALE_BASE));
-#ifdef ATTACHED_ACTORS
 		if(len > 32+(int)strlen(in_data+32)+3)
 			attachment_type = in_data[32+strlen(in_data+32)+3];
-#endif // ATTACHED_ACTORS
 	}
 #else
 	if(len > 28+(int)strlen(in_data+28)+2){
 		scale=((float)SDL_SwapLE16(*((short *)(in_data+28+strlen(in_data+28)+1)))/((float)ACTOR_SCALE_BASE));
-#ifdef ATTACHED_ACTORS
 		if(len > 28+(int)strlen(in_data+28)+3)
 			attachment_type = (unsigned char)in_data[28+strlen(in_data+28)+3];
-#endif // ATTACHED_ACTORS
 	}
 #endif
 
@@ -1021,10 +1013,8 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	actors_list[i]->legs = pants;
 #endif
 
-#ifdef ATTACHED_ACTORS
 	if (attachment_type >= 0)
 		add_actor_attachment(actor_id, attachment_type);
-#endif // ATTACHED_ACTORS
 
 	if (actors_defs[actor_type].coremodel!=NULL) {
 		actors_list[i]->calmodel=model_new(actors_defs[actor_type].coremodel);

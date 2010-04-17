@@ -330,7 +330,6 @@ typedef struct
 } act_extra_sound;
 #endif // NEW_SOUND
 
-#ifdef ATTACHED_ACTORS
 typedef struct
 {
 	int is_holder;      /*!< Specifies if this type of actor hold the actor to which it is attached or if he is held */
@@ -347,7 +346,6 @@ typedef struct
 {
 	attachment_props actor_type[MAX_ACTOR_DEFS]; /*!< Attachment properties for each kind of actor */
 } attached_actors_types;
-#endif // ATTACHED_ACTORS
 
 typedef enum {
 	ACTOR_HEAD_SIZE = 0,
@@ -442,11 +440,9 @@ typedef struct
 	char state; /*!< The state of the action (0: aim needed, 1: aim done, 2: fire needed, 3: fire done) */
 } range_action;
 
-#ifdef ATTACHED_ACTORS
 #define MY_HORSE(a) (actors_list[actors_list[a]->attached_actor])
 #define MY_HORSE_ID(a) (actors_list[a]->attached_actor)
 #define HAS_HORSE(a) ((MY_HORSE_ID(a)>=0)&&(MY_HORSE(a)->actor_id<0))
-#endif
 
 #ifdef EMOTES
 #define MAX_EMOTE_LEN 20
@@ -699,10 +695,8 @@ typedef struct
 	int step_duration;
 #endif // VARIABLE_SPEED
 
-#ifdef ATTACHED_ACTORS
 	int attached_actor;
 	float attachment_shift[3];
-#endif // ATTACHED_ACTORS
 
 #ifdef CLUSTER_INSIDES
 	short cluster;
@@ -722,9 +716,7 @@ extern actor *your_actor; /*!< A pointer to your own character, if available. Sh
 extern int	max_actors;		/*!< The current number of actors in the actors_list + 1*/
 extern actor_types actors_defs[MAX_ACTOR_DEFS];	/*!< The actor definitions*/
 
-#ifdef ATTACHED_ACTORS
 extern attached_actors_types attached_actors_defs[MAX_ACTOR_DEFS]; /*!< The definitions for the attached actors */
-#endif // ATTACHED_ACTORS
 
 
 #ifdef EMOTES
@@ -760,11 +752,9 @@ void draw_actor_banner(actor * actor_id, float offset_z);
  */
 void display_actors(int banner, int render_pass);
 
-#ifdef ATTACHED_ACTORS
 void add_actor_attachment (int actor_id, int attachment_type);
 
 void remove_actor_attachment (int actor_id);
-#endif // ATTACHED_ACTORS
 
 /*!
  * \ingroup	network_actors
@@ -915,7 +905,6 @@ void transform_actor_local_position_to_absolute(actor *in_act, float *in_local_p
 
 void draw_actor_without_banner(actor * actor_id, Uint32 use_lightning, Uint32 use_textures, Uint32 use_glow);
 
-#ifdef ATTACHED_ACTORS
 static __inline__ int is_actor_held(actor *act)
 {
     return ((act->attached_actor >= 0) &&
@@ -948,7 +937,6 @@ static __inline__ int get_held_actor_motion_frame(actor *act)
 	else
 		return cal_attached_walk_frame;
 }
-#endif // ATTACHED_ACTORS
 
 static __inline__ int get_actor_motion_frame(actor *act)
 {

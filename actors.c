@@ -44,9 +44,7 @@ actor *your_actor = NULL;
 
 actor_types actors_defs[MAX_ACTOR_DEFS];
 
-#ifdef ATTACHED_ACTORS
 attached_actors_types attached_actors_defs[MAX_ACTOR_DEFS];
-#endif // ATTACHED_ACTORS
 
 void draw_actor_overtext( actor* actor_ptr ); /* forward declaration */
 
@@ -183,10 +181,8 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	our_actor->stand_idle=0;
 	our_actor->sit_idle=0;
 
-#ifdef ATTACHED_ACTORS
 	our_actor->attached_actor = -1;
 	our_actor->attachment_shift[0] = our_actor->attachment_shift[1] = our_actor->attachment_shift[2] = 0.0;
-#endif // ATTACHED_ACTORS
 
 	for (i = 0; i < NUM_BUFFS; i++)
 	{
@@ -222,7 +218,6 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	return i;
 }
 
-#ifdef ATTACHED_ACTORS
 void add_actor_attachment(int actor_id, int attachment_type)
 {
 	int i;
@@ -331,7 +326,6 @@ void remove_actor_attachment(int actor_id)
 
 	UNLOCK_ACTORS_LISTS();
 }
-#endif // ATTACHED_ACTORS
 
 void set_health_color(float percent, float multiplier, float a)
 {
@@ -786,10 +780,8 @@ void draw_actor_without_banner(actor * actor_id, Uint32 use_lightning, Uint32 us
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
-#ifdef ATTACHED_ACTORS
 	if (actor_id->attached_actor >= 0)
 		glTranslatef(actor_id->attachment_shift[0], actor_id->attachment_shift[1], actor_id->attachment_shift[2]);
-#endif // ATTACHED_ACTORS
 
 	if (use_animation_program)
 	{
@@ -830,14 +822,12 @@ static __inline__ void draw_actor_banner_new(actor * actor_id)
 
 	glTranslatef(x_pos + 0.25f, y_pos + 0.25f, z_pos);
 
-#ifdef ATTACHED_ACTORS
 	if (actor_id->attached_actor >= 0)
 	{
 		glRotatef(180 - actor_id->z_rot, 0.0f, 0.0f, 1.0f);
 		glTranslatef(actor_id->attachment_shift[0], actor_id->attachment_shift[1], actor_id->attachment_shift[2]);
 		glRotatef(180 - actor_id->z_rot, 0.0f, 0.0f, -1.0f);
 	}
-#endif // ATTACHED_ACTORS
 
 	glRotatef(-rz, 0.0f, 0.0f, 1.0f);
 
@@ -908,7 +898,6 @@ void get_actors_in_range()
 #endif
 		)
 		{
-#ifdef ATTACHED_ACTORS
 			// if we have an attached actor, we maybe have to modify the position of the current actor
 			if (actors_list[i]->attached_actor >= 0)
 			{
@@ -946,11 +935,7 @@ void get_actors_in_range()
 			pos[X] = actors_list[i]->x_pos + actors_list[i]->attachment_shift[X];
 			pos[Y] = actors_list[i]->y_pos + actors_list[i]->attachment_shift[Y];
 			pos[Z] = actors_list[i]->z_pos + actors_list[i]->attachment_shift[Z];
-#else // ATTACHED_ACTORS
-			pos[X] = actors_list[i]->x_pos;
-			pos[Y] = actors_list[i]->y_pos;
-			pos[Z] = actors_list[i]->z_pos;
-#endif // ATTACHED_ACTORS
+
 			if (pos[Z] == 0.0f)
 			{
 				//actor is walking, as opposed to flying, get the height underneath
@@ -1245,9 +1230,7 @@ void display_actors(int banner, int render_pass)
 		{
 			actor *cur_actor = actors_list[near_actors[i].actor];
 			if (cur_actor
-#ifdef ATTACHED_ACTORS
 				&& cur_actor->actor_id >= 0
-#endif // ATTACHED_ACTORS
 				)
 			{
 				draw_actor_banner_new(cur_actor);
@@ -1289,9 +1272,7 @@ void add_actor_from_server (const char *in_data, int len)
 #ifdef EMOTES
 	emote_data *pose=NULL;
 #endif
-#ifdef ATTACHED_ACTORS
 	int attachment_type = -1;
-#endif // ATTACHED_ACTORS
 
 	actor_id=SDL_SwapLE16(*((short *)(in_data)));
 #ifndef EL_BIG_ENDIAN
@@ -1314,10 +1295,8 @@ void add_actor_from_server (const char *in_data, int len)
 	if(len > 17+(int)strlen(in_data+17)+2){
 		scale=((float)SDL_SwapLE16(*((short *)(in_data+17+strlen(in_data+17)+1)))/((float)ACTOR_SCALE_BASE));
 
-#ifdef ATTACHED_ACTORS
 		if(len > 17+(int)strlen(in_data+17)+3)
 			attachment_type = (unsigned char)in_data[17+strlen(in_data+17)+3];
-#endif // ATTACHED_ACTORS
 	}
 
 	if(actor_type < 0 || actor_type >= MAX_ACTOR_DEFS || (actor_type > 0 && actors_defs[actor_type].actor_type != actor_type) ){
@@ -1475,10 +1454,8 @@ void add_actor_from_server (const char *in_data, int len)
 		}
 	else my_strncp(actors_list[i]->actor_name,&in_data[17],30);
 
-#ifdef ATTACHED_ACTORS
 	if (attachment_type >= 0)
 		add_actor_attachment(actor_id, attachment_type);
-#endif // ATTACHED_ACTORS
 
 	if (actors_defs[actor_type].coremodel!=NULL) {
 		//Setup cal3d model
@@ -1586,7 +1563,6 @@ void transform_actor_local_position_to_absolute(actor *in_act, float *in_local_p
 	out_pos[1] = out_pos[1] * scale + in_act->y_pos + 0.25;
 	out_pos[2] = out_pos[2] * scale + get_actor_z(in_act);
 
-#ifdef ATTACHED_ACTORS
 	if (in_act->attached_actor >= 0)
 	{
 		float shift[3];
@@ -1595,5 +1571,4 @@ void transform_actor_local_position_to_absolute(actor *in_act, float *in_local_p
 		out_pos[1] += shift[1];
 		out_pos[2] += shift[2];
 	}
-#endif // ATTACHED_ACTORS
 }

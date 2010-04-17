@@ -1867,7 +1867,6 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		get_our_actor()->scale /= 1.05;
 	}
-#ifdef ATTACHED_ACTORS
 	else if((keysym == SDLK_h) && shift_on && ctrl_on && !alt_on)
 	{
         if (get_our_actor())
@@ -1878,7 +1877,6 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
                 remove_actor_attachment(get_our_actor()->actor_id);
         }
 	}
-#endif // ATTACHED_ACTORS
 #endif // DEBUG
 	// use quickbar items
 	else if (key == K_ITEM1)

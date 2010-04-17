@@ -533,13 +533,30 @@ int send_cmd(char *text, int len){
 
 #ifdef MORE_ATTACHED_ACTORS
 int horse_cmd(char* text, int len){
-	actor *act;
 
+	int j,x;
+	char *id;
+	actor *act=NULL;
+
+	for(j=1;j<len;j++) if(text[j]==' ') {text[j]=0; break;}
+	id=&text[j+1];
+	x=j;
+	text++;
+	printf("Actor [%s] [%s]\n",text,id);
 	LOCK_ACTORS_LISTS();
-	act = get_actor_ptr_from_id(yourself);
+	for (j = 0; j < max_actors; j++){
+		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) && 
+	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
+	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
+			act = actors_list[j];
+			LOG_TO_CONSOLE(c_orange1, "actor found, adding horse");
+		}
+	}
+	text[x-1]=' ';
+
 	if (!act){
 		UNLOCK_ACTORS_LISTS();
-		LOG_TO_CONSOLE(c_orange1,"You don't exist");
+		LOG_TO_CONSOLE(c_orange1,"Actor doesn't exist");
 		return 1;		// Eek! We don't have an actor match... o.O
 	}
 
@@ -552,7 +569,9 @@ int horse_cmd(char* text, int len){
 
 	} else {
 		//add horse
-		add_actor_attachment(act->actor_id, 200);
+		int hh=atoi(id);
+		if (hh<=0) hh=200;
+		add_actor_attachment(act->actor_id, atoi(id));
 		LOG_TO_CONSOLE(c_orange1,"Horsified");
 	}
 	UNLOCK_ACTORS_LISTS();

@@ -367,7 +367,6 @@ void print_queue(actor *act) {
 	printf("\n");
 
 
-#ifdef ATTACHED_ACTORS
 	if (act->attached_actor >= 0) {
 		printf("   Horse %s queue:",act->actor_name);
 		printf(" -->");
@@ -376,7 +375,6 @@ void print_queue(actor *act) {
 		}
 		printf("\n");
 	}
-#endif
 
 }
 
@@ -450,31 +448,6 @@ void move_to_next_frame()
 				}
 			}
 
-#ifndef ATTACHED_ACTORS
-			// Schmurk: all the following code is not used actually!
-			if ((actors_list[i]->IsOnIdle)&&(actors_list[i]->anim_time>=5.0)&&(actors_list[i]->stop_animation!=1)) {
-				cal_actor_set_random_idle(i);
-			}
-			else if(!actors_list[i]->IsOnIdle && actors_list[i]->stand_idle && actors_list[i]->anim_time>=5.0){
-				// lets see if we want to change the idle animation
-				// make sure we have at least two idles, and add a randomizer to continue
-				if(actors_defs[actors_list[i]->actor_type].cal_frames[cal_actor_idle2_frame].anim_index != -1 && RAND(0,50) == 0){
-					// pick what we want the next idle to be
-					// 75% chance to do idle1
-					if(RAND(0, 3) == 0){
-						// and check to see if we are changing the animation or not
-						if(actors_list[i]->cur_anim.anim_index != actors_defs[actors_list[i]->actor_type].cal_frames[cal_actor_idle2_frame].anim_index){
-							cal_actor_set_anim_delay(i, actors_defs[actors_list[i]->actor_type].cal_frames[cal_actor_idle2_frame], 0.5f); // normal idle
-						}
-					} else {
-						// and check to see if we are changing the animation or not
-						if(actors_list[i]->cur_anim.anim_index != actors_defs[actors_list[i]->actor_type].cal_frames[cal_actor_idle1_frame].anim_index){
-							cal_actor_set_anim_delay(i, actors_defs[actors_list[i]->actor_type].cal_frames[cal_actor_idle1_frame], 0.5f); // normal idle
-						}
-					}
-				}
-			}
-#else // ATTACHED_ACTORS
 			// we change the idle animation only when the previous one is finished
 			if (actors_list[i]->stand_idle && actors_list[i]->anim_time >= actors_list[i]->cur_anim.duration - 0.2)
 			{
@@ -491,7 +464,6 @@ void move_to_next_frame()
 #endif
 				}
 			}
-#endif // ATTACHED_ACTORS
 
 			if (actors_list[i]->cur_anim.anim_index==-1) actors_list[i]->busy=0;
 
@@ -559,11 +531,9 @@ struct cal_anim *get_pose_frame(int actor_type, actor *a, int pose_type, int hel
 				return &actors_defs[a->actor_type].cal_frames[cal_actor_idle_sit_frame];
 			case EMOTE_STANDING:
 			    if(held) {
-#ifdef ATTACHED_ACTORS
 				attachment_props *att_props = get_attachment_props_if_held(a);
 				if (att_props)
 					return &att_props->cal_frames[cal_attached_idle_frame];
-#endif // ATTACHED_ACTORS
 			    } else
 	                	// 75% chance to do idle1
 	                    if (actors_defs[a->actor_type].cal_frames[cal_actor_idle2_frame].anim_index != -1 
@@ -574,20 +544,16 @@ struct cal_anim *get_pose_frame(int actor_type, actor *a, int pose_type, int hel
 			    }
 			case EMOTE_RUNNING:
 			    if(held) {
-#ifdef ATTACHED_ACTORS
 				attachment_props *att_props = get_attachment_props_if_held(a);
 				if (att_props)
 					return &att_props->cal_frames[cal_attached_run_frame/*get_held_actor_motion_frame(a)*/];
-#endif // ATTACHED_ACTORS
 			    } else
 				return &actors_defs[actor_type].cal_frames[cal_actor_run_frame/*get_actor_motion_frame(a)*/];
 			case EMOTE_WALKING:
 			    if(held) {
-#ifdef ATTACHED_ACTORS
 				attachment_props *att_props = get_attachment_props_if_held(a);
 				if (att_props)
 					return &att_props->cal_frames[cal_attached_walk_frame/*get_held_actor_motion_frame(a)*/];
-#endif // ATTACHED_ACTORS
 			    } else
 				return &actors_defs[actor_type].cal_frames[cal_actor_walk_frame/*get_actor_motion_frame(a)*/];
 			default:
@@ -633,12 +599,10 @@ void set_on_idle(int actor_idx)
             // we are standing, see if we can activate a stand idle
             if(!a->stand_idle||a->cur_anim.anim_index<0){
                 if (actors_defs[a->actor_type].group_count == 0){
-#ifdef ATTACHED_ACTORS
 			attachment_props *att_props = get_attachment_props_if_held(a);
 			if (att_props)
 			cal_actor_set_anim(actor_idx, *get_pose_frame(a->actor_type,a,EMOTE_STANDING,1));
 			else
-#endif // ATTACHED_ACTORS
 			cal_actor_set_anim(actor_idx, *get_pose_frame(a->actor_type,a,EMOTE_STANDING,0));
 			//printf("setting standing pose\n");
                 }
@@ -680,12 +644,10 @@ void set_on_idle(int actor_idx)
             if(!a->stand_idle){
                 if (actors_defs[a->actor_type].group_count == 0)
                 {
-#ifdef ATTACHED_ACTORS
 					attachment_props *att_props = get_attachment_props_if_held(a);
 					if (att_props)
 						cal_actor_set_anim(actor_idx, att_props->cal_frames[cal_attached_idle_frame]);
 					else
-#endif // ATTACHED_ACTORS
                     // 75% chance to do idle1
                     if (actors_defs[a->actor_type].cal_frames[cal_actor_idle2_frame].anim_index != -1 && RAND(0, 3) == 0){
                         cal_actor_set_anim(actor_idx, actors_defs[a->actor_type].cal_frames[cal_actor_idle2_frame]); // normal idle
@@ -818,12 +780,10 @@ int handle_emote_command(int act_id, emote_command *command)
 			//ready! set emote and unqueue
 			//printf("ready!!\n");
 			cal_actor_set_emote_anim(act, frames);
-#ifdef ATTACHED_ACTORS
 			if(HAS_HORSE(act_id)) {
 				MY_HORSE(act_id)->cur_emote.active=1; //synch with horse!!
 				//cal_actor_set_emote_anim(MY_HORSE(act_id), frames);
 			}
-#endif
 			//printf("unqueue\n");
 			unqueue_emote(act);
 			//LOG_TO_CONSOLE(c_green2, "Emote command");
@@ -870,9 +830,7 @@ void next_command()
 			//are we playing an emote?
 			if(actors_list[i]->cur_emote.active
 			&&!(actors_list[i]->que[0]>=move_n&&actors_list[i]->que[0]<=move_nw&&actors_list[i]->last_command>=move_n&&actors_list[i]->last_command<=move_nw)
-#ifdef ATTACHED_ACTORS
 			&&!HAS_HORSE(i)
-#endif
 			) { continue;}
 			
 			// If the que is empty, check for an emote to display
@@ -918,23 +876,19 @@ void next_command()
 						actors_list[i]->dead=1;
 						break;
 					case pain1: {
-#ifdef ATTACHED_ACTORS
 						attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
 						if (att_props)
 							cal_actor_set_anim(i, att_props->cal_frames[cal_attached_pain_frame]);
 						else
-#endif // ATTACHED_ACTORS
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[cal_actor_pain1_frame]);
 						actors_list[i]->stop_animation=1;
 						break;
 					}
 					case pain2: {
-#ifdef ATTACHED_ACTORS
 						attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
 						if (att_props)
 							cal_actor_set_anim(i, att_props->cal_frames[cal_attached_pain_frame]);
 						else
-#endif // ATTACHED_ACTORS
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[cal_actor_pain2_frame]);
 						actors_list[i]->stop_animation=1;
 						break;
@@ -1126,61 +1080,22 @@ void next_command()
 						//test
 						if(!actors_list[i]->fighting){
 #ifndef EMOTES
-#ifdef ATTACHED_ACTORS
 							attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
 							if (att_props)
 								cal_actor_set_anim(i, att_props->cal_frames[get_held_actor_motion_frame(actors_list[i])]);
 							else
-#endif // ATTACHED_ACTORS
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[get_actor_motion_frame(actors_list[i])]);
 #else
-#ifdef ATTACHED_ACTORS
 							attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
 							if (att_props)
 								cal_actor_set_anim(i, *get_pose_frame(actors_list[i]->actor_type,actors_list[i],EMOTE_MOTION(actors_list[i]),1));
 							else
-#endif // ATTACHED_ACTORS
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[turnframe]);
 #endif
 						}
 						actors_list[i]->stop_animation=0;
 						break;
 					}
-/*					case turn_right:
-					//LOG_TO_CONSOLE(c_green2,"turn right");
-						actors_list[i]->rotate_z_speed=-45.0/540.0;
-						actors_list[i]->rotate_time_left=540;
-						actors_list[i]->rotating=1;
-						//generate a fake movement, so we will know when to make the actor
-						//not busy
-						actors_list[i]->move_x_speed=0;
-						actors_list[i]->move_y_speed=0;
-						actors_list[i]->move_z_speed=0;
-						actors_list[i]->movement_time_left=540;
-						actors_list[i]->moving=1;
-						//test
-						if(!actors_list[i]->fighting){
-#ifndef EMOTES
-#ifdef ATTACHED_ACTORS
-							attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
-							if (att_props)
-								cal_actor_set_anim(i, att_props->cal_frames[get_held_actor_motion_frame(actors_list[i])]);
-							else
-#endif // ATTACHED_ACTORS
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[get_actor_motion_frame(actors_list[i])]);
-#else
-#ifdef ATTACHED_ACTORS
-							attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
-							if (att_props)
-								cal_actor_set_anim(i, *get_pose_frame(actors_list[i]->actor_type,actors_list[i],EMOTE_MOTION(actors_list[i]),1));
-							else
-#endif // ATTACHED_ACTORS
-							cal_actor_set_anim(i, *get_pose_frame(actors_list[i]->actor_type,actors_list[i],EMOTE_MOTION(actors_list[i]),0));
-#endif
-						}
-						actors_list[i]->stop_animation=0;
-						break;
-*/
 				case enter_aim_mode:
 					missiles_log_message("%s (%d): cleaning the queue from enter_aim_mode command",
 										 actors_list[i]->actor_name, actors_list[i]->actor_id);
@@ -1462,20 +1377,16 @@ void next_command()
 							struct cal_anim *walk_anim;
 
 #ifndef EMOTES
-#ifdef ATTACHED_ACTORS
 							attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
 							if (att_props)
 								walk_anim = &att_props->cal_frames[get_held_actor_motion_frame(actors_list[i])];
 							else
-#endif // ATTACHED_ACTORS
 							walk_anim = &actors_defs[actor_type].cal_frames[get_actor_motion_frame(actors_list[i])];
 #else
-#ifdef ATTACHED_ACTORS
 							attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
 							if (att_props)
 								walk_anim = get_pose_frame(actors_list[i]->actor_type,actors_list[i],EMOTE_MOTION(actors_list[i]),1);
 							else
-#endif // ATTACHED_ACTORS
 							walk_anim = get_pose_frame(actors_list[i]->actor_type,actors_list[i],EMOTE_MOTION(actors_list[i]),0);
 
 #endif
@@ -1615,9 +1526,7 @@ void free_actor_data(int actor_index)
 void destroy_actor(int actor_id)
 {
 	int i;
-#ifdef ATTACHED_ACTORS
     int attached_actor = -1;
-#endif // ATTACHED_ACTORS
 
 #ifdef EXTRA_DEBUG
 	ERR();
@@ -1626,9 +1535,7 @@ void destroy_actor(int actor_id)
 		if(actors_list[i])//The timer thread doesn't free memory
 			if(actors_list[i]->actor_id==actor_id){
 				LOCK_ACTORS_LISTS();
-#ifdef ATTACHED_ACTORS
                 attached_actor = actors_list[i]->attached_actor;
-#endif // ATTACHED_ACTORS
 
 				if (actor_id == yourself)
 					set_our_actor (NULL);
@@ -1641,14 +1548,11 @@ void destroy_actor(int actor_id)
 					max_actors--;
 					actors_list[i]=actors_list[max_actors];
 					actors_list[max_actors]=NULL;
-#ifdef ATTACHED_ACTORS
                     if (attached_actor == max_actors) attached_actor = i;
 					if (actors_list[i] && actors_list[i]->attached_actor >= 0)
 						actors_list[actors_list[i]->attached_actor]->attached_actor = i;
-#endif // ATTACHED_ACTORS
 				}
 
-#ifdef ATTACHED_ACTORS
                 if (attached_actor >= 0)
                 {
                     free_actor_data(attached_actor);
@@ -1664,7 +1568,6 @@ void destroy_actor(int actor_id)
 							actors_list[actors_list[attached_actor]->attached_actor]->attached_actor = attached_actor;
                     }
                 }
-#endif // ATTACHED_ACTORS
 
 				actor_under_mouse = NULL;
 				UNLOCK_ACTORS_LISTS();
@@ -1713,7 +1616,6 @@ void update_all_actors()
 	my_tcp_send(my_socket,str,1);
 }
 
-#ifdef ATTACHED_ACTORS
 int push_command_in_actor_queue(unsigned int command, actor *act)
 {
 	int k;
@@ -1750,7 +1652,6 @@ int push_command_in_actor_queue(unsigned int command, actor *act)
 	}
 	return k;
 }
-#endif // ATTACHED_ACTORS
 
 
 void sanitize_cmd_queue(actor *act){
@@ -1766,9 +1667,7 @@ void add_command_to_actor(int actor_id, unsigned char command)
 {
 	//int i=0;
 	int k=0;
-#ifdef ATTACHED_ACTORS
 	int k2 = 0;
-#endif // ATTACHED_ACTORS
 	//int have_actor=0;
 //if ((actor_id==yourself)&&(command==enter_combat)) LOG_TO_CONSOLE(c_green2,"FIGHT!");
 	actor * act;
@@ -1858,39 +1757,6 @@ void add_command_to_actor(int actor_id, unsigned char command)
 			}
 		}
 
-#ifndef ATTACHED_ACTORS
-		for(k=0;k<MAX_CMD_QUEUE;k++){
-			if(act->que[k]==nothing){
-				//if we are SEVERLY behind, just update all the actors in range
-				if(k>MAX_CMD_QUEUE-2) break;
-				else if(k>MAX_CMD_QUEUE-8){
-					// is the front a sit/stand spam?
-					if((act->que[0]==stand_up||act->que[0]==sit_down)
-  					 &&(act->que[1]==stand_up||act->que[1]==sit_down)){
-						int j;
-						//move que down with one command
-						for(j=0;j<=k;j++){
-							act->que[j]=act->que[j+1];
-						}
-						act->que[j]=nothing;
-						//backup one entry
-						k--;
-					}
-
-					// is the end a sit/stand spam?
-					else if((command==stand_up||command==sit_down)
-					     && (act->que[k-1]==stand_up||act->que[k-1]==sit_down)) {
-						act->que[k-1]=command;
-						break;
-					}
-
-				}
-
-				act->que[k]=command;
-				break;
-			}
-		}
-#else // ATTACHED_ACTORS
 		k = push_command_in_actor_queue(command, act);
 
 		if (act->attached_actor >= 0){
@@ -1914,8 +1780,6 @@ void add_command_to_actor(int actor_id, unsigned char command)
 		}
 		else
 			k2 = k;
-#endif // ATTACHED_ACTORS
-
 		{
 			actor * me = get_our_actor();
 			if (me!=NULL)
@@ -2070,7 +1934,6 @@ void add_command_to_actor(int actor_id, unsigned char command)
 		}
 		UNLOCK_ACTORS_LISTS();
 
-#ifdef ATTACHED_ACTORS
 		if (k != k2) {
 			LOG_ERROR("Inconsistency between queues of attached actors %s (%d) and %s (%d)!",
 					  act->actor_name,
@@ -2079,7 +1942,6 @@ void add_command_to_actor(int actor_id, unsigned char command)
 					  actors_list[act->attached_actor]->actor_id);
 		}
 		else
-#endif // ATTACHED_ACTORS
 		if(k>MAX_CMD_QUEUE-2){
 			int i;
 #ifdef EMOTES
@@ -3856,7 +3718,6 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	return ok;
 }
 
-#ifdef ATTACHED_ACTORS
 int parse_actor_attachment (actor_types *act, xmlNode *cfg, int actor_type)
 {
 	xmlNode *item;
@@ -3967,7 +3828,6 @@ int parse_actor_attachment (actor_types *act, xmlNode *cfg, int actor_type)
 
 	return ok;
 }
-#endif // ATTACHED_ACTORS
 
 int parse_actor_boots (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 {
@@ -4221,7 +4081,6 @@ int	parse_actor_nodes (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else if(xmlStrcasecmp(item->name, (xmlChar*)"sounds") == 0) {
 				ok &= parse_actor_sounds(act, item->children);
 #endif	//NEW_SOUND
-#ifdef ATTACHED_ACTORS
 			} else if(xmlStrcasecmp(item->name, (xmlChar*)"actor_attachment") == 0) {
 				int id = get_int_property(item, "id");
 				if (id < 0 || id >= MAX_ACTOR_DEFS) {
@@ -4230,7 +4089,6 @@ int	parse_actor_nodes (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 				}
 				else
 					ok &= parse_actor_attachment(act, item, id);
-#endif // ATTACHED_ACTORS
 			} else {
 				LOG_ERROR("Unknown actor attribute \"%s\"", item->name);
 				ok= 0;
@@ -4245,9 +4103,7 @@ int	parse_actor_nodes (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 int parse_actor_script (xmlNode *cfg)
 {
 	int ok, act_idx, i;
-#ifdef ATTACHED_ACTORS
 	int j;
-#endif // ATTACHED_ACTORS
 	actor_types *act;
 	struct CalCoreSkeleton *skel;
 
@@ -4309,7 +4165,6 @@ int parse_actor_script (xmlNode *cfg)
 	act->battlecry.sound = -1;
 #endif // NEW_SOUND
 
-#ifdef ATTACHED_ACTORS
 	for (i = 0; i < MAX_ACTOR_DEFS; ++i)
 	{
 		for (j = 0; j < NUM_ATTACHED_ACTOR_FRAMES; j++) {
@@ -4319,7 +4174,6 @@ int parse_actor_script (xmlNode *cfg)
 #endif // NEW_SOUND
 		}
 	}
-#endif // ATTACHED_ACTORS
 
 #ifdef VARIABLE_SPEED
     act->step_duration = DEFAULT_STEP_DURATION; // default value
@@ -4610,9 +4464,7 @@ void init_actor_defs()
 
 	// initialize the whole thing to zero
 	memset (actors_defs, 0, sizeof (actors_defs));
-#ifdef ATTACHED_ACTORS
 	memset (attached_actors_defs, 0, sizeof (attached_actors_defs));
-#endif // ATTACHED_ACTORS
 
 	read_actor_defs ("actor_defs", "actor_defs.xml");
 }
