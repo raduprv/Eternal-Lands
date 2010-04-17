@@ -78,7 +78,7 @@ FEATURES += USER_MENUS                      # enable user command menus, require
 
 
 
-PLATFORM=-march=core2
+PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
 CWARN=-Wall -Wdeclaration-after-statement
 # -Wno-pointer-sign -Wno-sign-compare -Werror
