@@ -685,6 +685,14 @@ extern "C" void add_questlog (char *t, int len)
 //
 extern "C" void load_questlog()
 {
+	// If the quest log is already loaded, just make sure we're saved.
+	// This will take place when relogging after disconnection.
+	if (!quest_entries.empty())
+	{
+		save_questlog();
+		return;
+	}
+	
 	std::string username = std::string(username_str);
 	std::transform(username.begin(), username.end(), username.begin(), tolower);
 	filename = std::string(get_path_config()) + "quest_" + username + ".log";
