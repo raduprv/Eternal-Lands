@@ -399,6 +399,8 @@ void read_key_config()
 		K_VIEWHP = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_STATS",file_mem,key_file_size,0))!=-1)
 		K_STATS = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_SESSION",file_mem,key_file_size,0))!=-1)
+		K_SESSION = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_WALK",file_mem,key_file_size,0))!=-1)
 		K_WALK = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_LOOK",file_mem,key_file_size,0))!=-1)
@@ -497,6 +499,18 @@ void read_key_config()
 		K_MARKFILTER = parse_key_string(&file_mem[t]);
 	if((t = get_string_occurance("#K_OPAQUEWIN",file_mem,key_file_size,0)) != -1)
 		K_OPAQUEWIN = parse_key_string(&file_mem[t]);
+#ifdef SKY_FPV
+	if((t=get_string_occurance("#K_GRAB_MOUSE",file_mem,key_file_size,0))!=-1)
+		K_GRAB_MOUSE = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_FIRST_PERSON",file_mem,key_file_size,0))!=-1)
+		K_FIRST_PERSON = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_EXTEND_CAM",file_mem,key_file_size,0))!=-1)
+		K_EXTEND_CAM = parse_key_string(&file_mem[t]);
+#endif // SKY_FPV
+#ifdef EMOTES
+	if((t=get_string_occurance("#K_EMOTES",file_mem,key_file_size,0))!=-1)
+		K_EMOTES = parse_key_string(&file_mem[t]);
+#endif // EMOTES
 
 	free(file_mem);
 }
