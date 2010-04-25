@@ -26,7 +26,7 @@
  *             Popup Section              *
  ******************************************/
 
-void init_ipu (INPUT_POPUP *ipu, int parent, int x_len, int y_len, int maxlen, int rows, void cancel(void), void input(const char *))
+void init_ipu (INPUT_POPUP *ipu, int parent, int x_len, int y_len, int maxlen, int rows, void cancel(void *), void input(const char *, void *))
 {
 	ipu->text_flags = TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS|TEXT_FIELD_MOUSE_EDITABLE;
 	ipu->text_flags |= (rows>1) ?TEXT_FIELD_SCROLLBAR :0;
@@ -47,11 +47,18 @@ void init_ipu (INPUT_POPUP *ipu, int parent, int x_len, int y_len, int maxlen, i
 
 	ipu->popup_cancel = cancel;
 	ipu->popup_input = input;
+	ipu->data = NULL;
 
 	ipu->parent = parent;
 	ipu->maxlen = maxlen;
 	ipu->rows = rows;
 	ipu->accept_do_not_close = ipu->allow_nonprint_chars = 0;
+}
+
+void clear_popup_window (INPUT_POPUP *ipu)
+{
+	text_field_clear (ipu->popup_win, ipu->popup_field);
+	hide_window (ipu->popup_win);
 }
 
 void close_ipu (INPUT_POPUP *ipu)
@@ -84,12 +91,6 @@ static INPUT_POPUP *ipu_from_window (window_info *win)
 		return NULL;
 	}
 	return (INPUT_POPUP *)win->data;
-}
-
-static void clear_popup_window (INPUT_POPUP *ipu)
-{
-	text_field_clear (ipu->popup_win, ipu->popup_field);
-	hide_window (ipu->popup_win);
 }
 
 static void accept_popup_window (INPUT_POPUP *ipu)
@@ -126,7 +127,7 @@ static void accept_popup_window (INPUT_POPUP *ipu)
 	// send the entered text to the window owner then clear up
 	data[iend] = '\0';
 	if (ipu->popup_input != NULL)
-		(*ipu->popup_input) (&data[istart]);
+		(*ipu->popup_input) (&data[istart], ipu->data);
 	if (!ipu->accept_do_not_close)
 		clear_popup_window (ipu);
 }
@@ -141,7 +142,7 @@ static int popup_cancel_button_handler (widget_list *w, int mx, int my, Uint32 f
 
 	// call the canel function of the window owner then clear up	
 	if (ipu->popup_cancel != NULL)
-		(*ipu->popup_cancel) ();
+		(*ipu->popup_cancel) (ipu->data);
 	clear_popup_window (ipu);
 
 	return 1;
@@ -173,7 +174,7 @@ static int popup_keypress_handler (window_info *win, int mx, int my, Uint32 key,
 	else if (key == SDLK_ESCAPE)
 	{
 		if (ipu->popup_cancel != NULL)
-			(*ipu->popup_cancel) ();
+			(*ipu->popup_cancel) (ipu->data);
 		clear_popup_window (ipu);
 		return 1;
 	}
@@ -246,6 +247,11 @@ void display_popup_win (INPUT_POPUP *ipu, const char* label)
 	}
 	else
 	{
+		if ((ipu->parent > -1) && (ipu->parent < windows_list.num_windows))
+		{
+			window_info *win = &windows_list.window[ipu->parent];
+			move_window(ipu->popup_win, ipu->parent, 0, win->pos_x+ipu->x, win->pos_y+ipu->y);
+		}
 		clear_text_message_data (&ipu->popup_text);
 		label_set_text (ipu->popup_win, ipu->popup_label, label);
 		show_window (ipu->popup_win);
@@ -651,7 +657,7 @@ void note_button_add (int nr, int next_id)
 	update_note_button_scrollbar (nr);
 }
 
-void notepad_add_continued (const char *name)
+void notepad_add_continued (const char *name, void *data)
 {
 	int i = nr_notes++;
 	int potential_id, next_id = 0;

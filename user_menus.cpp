@@ -191,13 +191,13 @@ namespace UserMenus
 			void close_window(void) { command_queue.clear(); if (win_id >= 0) hide_window(win_id); }
 			void set_options(int win_x, int win_y, int options);
 			void get_options(int *win_x, int *win_y, int *options);
-			void command_input(const char* input_text) { command_queue.input(input_text); }
+			void command_input(const char* input_text, void *data) { command_queue.input(input_text); }
 			void command_cancel(void) { command_queue.cancel(); }
 			static Container * get_instance(void);
 			static int action_handler(window_info *win, int widget_id, int mx, int my, int option) { return get_instance()->action(widget_id, option); }
 			static void pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win) { get_instance()->pre_show(win, widget_id, mx, my, cm_win); }
-			static void command_input_handler(const char *input_text) { get_instance()->command_input(input_text); };
-			static void command_cancel_handler(void) { get_instance()->command_cancel(); };
+			static void command_input_handler(const char *input_text, void *data) { get_instance()->command_input(input_text, data); };
+			static void command_cancel_handler(void *data) { get_instance()->command_cancel(); };
 
 		protected:
 			Container(void);

@@ -23,10 +23,11 @@ typedef struct
 	int popup_win, popup_field, popup_label, popup_ok, popup_no;
 	int popup_x_len, popup_y_len, parent, x, y;
 	int maxlen, rows, accept_do_not_close, allow_nonprint_chars;
-	void (*popup_cancel)(void);
-	void (*popup_input)(const char *);
+	void (*popup_cancel)(void *);
+	void (*popup_input)(const char *, void *);
 	Uint32 text_flags;
 	text_message popup_text;
+	void *data;
 } INPUT_POPUP;
 
 /*!
@@ -45,7 +46,18 @@ typedef struct
  * \param input		callback function to pass entered text (or (unusefully) NULL)
  * \callgraph
  */
-void init_ipu (INPUT_POPUP *ipu, int parent, int x_len, int y_len, int maxlen, int rows, void cancel(void), void input(const char *));
+void init_ipu (INPUT_POPUP *ipu, int parent, int x_len, int y_len, int maxlen, int rows, void cancel(void *), void input(const char *, void *));
+
+/*!
+ * \ingroup notepad_window
+ * \brief   Hides and clears an open pop up window.
+ *
+ *      Hides and clears an open pop up window.
+ *
+ * \param ipu    	pointer to the input popup window state structure
+ * \callgraph
+ */
+void clear_popup_window (INPUT_POPUP *ipu);
 
 /*!
  * \ingroup notepad_window

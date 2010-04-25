@@ -699,7 +699,7 @@ static int list_window_handler(window_info *win, int widget_id, int mx, int my, 
 
 //	Enter name input callback - when OK selected
 //
-static void name_input_handler(const char *input_text)
+static void name_input_handler(const char *input_text, void *data)
 {
 	saved_item_lists.push_back(ItemLists::List());
 
@@ -723,7 +723,7 @@ static void name_input_handler(const char *input_text)
 
 //	Enter name input callback - when cancel selected
 //
-static void name_cancel_handler(void)
+static void name_cancel_handler(void *data)
 {
 	// The new list option will have been disabled so re-enable it
 	cm_grey_line(cm_item_list_options_but, OPTION_SAVE, 0);

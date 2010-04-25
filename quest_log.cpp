@@ -383,7 +383,7 @@ static void copy_entry(size_t entry)
 
 //	The input operation was cancalled, clear the busy flag.
 //
-static void questlog_input_cancel_handler(void)
+static void questlog_input_cancel_handler(void *data)
 {
 	current_action = -1;
 }
@@ -391,9 +391,9 @@ static void questlog_input_cancel_handler(void)
 
 //  Prototypes for inputting a new entry - so we can order in sequence.
 static void add_entry(window_info *win, size_t entry);
-static void questlog_add_npc_input_handler(const char *input_text);
+static void questlog_add_npc_input_handler(const char *input_text, void *data);
 static void questlog_add_text_input(window_info *win);
-static void questlog_add_text_input_handler(const char *input_text);
+static void questlog_add_text_input_handler(const char *input_text, void *data);
 
 //	Start inputting a new entry, part 1 prompt for npc name.
 //
@@ -413,7 +413,7 @@ static void add_entry(window_info *win, size_t entry)
 //	for the body.  Can't call directly as reusing ipu_questlog and it
 //	would get cleared on return from this function!
 //
-static void questlog_add_npc_input_handler(const char *input_text)
+static void questlog_add_npc_input_handler(const char *input_text, void *data)
 {
 	adding_npc = std::string(input_text);
 	prompt_for_add_text = true;
@@ -433,7 +433,7 @@ static void questlog_add_text_input(window_info *win)
 
 //	Continue inputting a new entry, part 4 insert the entry.
 //
-static void questlog_add_text_input_handler(const char *input_text)
+static void questlog_add_text_input_handler(const char *input_text, void *data)
 {
 	current_action = -1;
 	Quest_Entry ne;
@@ -447,7 +447,7 @@ static void questlog_add_text_input_handler(const char *input_text)
 //	Find, searching from next entry to end then back to current.  Done
 //	like this so we find multiple entries each time we hit ok.
 //
-static void questlog_find_input_handler(const char *input_text)
+static void questlog_find_input_handler(const char *input_text, void *data)
 {
 	for (std::vector<Quest_Entry>::size_type entry = current_line+1; entry<active_entries.size(); entry++)
 		if (quest_entries[active_entries[entry]].contains_string(input_text))
