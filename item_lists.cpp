@@ -7,15 +7,12 @@
  * bars at a mine.
  *
  * Author bluap/pjbroad December 2009
+ * 
+ * TODO Preview Window features
+ * 		Add buttons Fetch/Delete/Rename etc
+ *		Allow drag/drop into a list
+ * 			Probably need to allow empty lists 0 quanitity in file
  *
- * To Do:
- * 		Make list array a singleton object?
- * 		Preview Window
- * 			Add buttons Fetch/Delete/Rename etc
- * 			Could add edit option
- * 				Set quanity, delete (or zero)
- * 		Strings to translate
-
  */
 
 #ifdef CONTEXT_MENUS
@@ -47,19 +44,27 @@
 #endif
 #include "storage.h"
 
-// move to translate module
+// TODO Move these strings to translate module
 const char *item_list_format_error = "Format error while reading item list.";
 const char *item_list_save_error_str = "Failed to save the item category file.";
 const char *item_list_learn_cat_str = "Note: storage categories need to be learnt by selecting each category.";
 const char *item_list_cat_format_error_str = "Format error reading item categories.";
-const char *preview_quantity_help_str = "Right-click set quantity, left-click pick-up";
 const char *item_list_version_error_str = "Item lists file is not compatible with client version.";
 const char *item_list_empty_list_str = "No point saving an empty list.";
 const char *cm_item_list_menu_str = "Save a new list\nDisable list preview\n--\nDelete a list\n--\nReload item lists file";
 const char *cm_item_list_empty_str = "Empty";
-const char *item_list_name_str = "Enter List Name";
+const char *cm_item_list_selected_str = "Edit quantity\n--\nDelete";
+const char *item_list_name_str = "Enter list name";
 const char *item_list_preview_title = "List preview";
+const char *item_list_use_help_str = "Use quantity - right-click";
+const char *item_list_pickup_help_str = "Pick up - left-click";
+const char *item_list_edit_help_str = "Edit menu - right-click";
+const char *item_list_quantity_str = "Quantity";
+const char *item_list_magic_str = "Magical interference caused the list preview to close O.O";
 
+
+// proto types
+static void quantity_input_handler(const char *input_text, void *);
 
 namespace ItemLists
 {
@@ -73,10 +78,12 @@ namespace ItemLists
 			const std::string & get_name(void) const { return name; }
 			size_t get_num_items(void) const { return image_ids.size(); }
 			int get_image_id(size_t i) const { assert(i<image_ids.size()); return image_ids[i]; }
-			Uint16 get_item_id(Uint16 i) const { assert(i<item_ids.size()); return item_ids[i]; }
-			const std::vector<int> & get_quantities(void) const { return quantities; }
+			Uint16 get_item_id(size_t i) const { assert(i<item_ids.size()); return item_ids[i]; }
+			int get_quantity(size_t i) const  { assert(i<quantities.size()); return quantities[i]; }
+			void set_quantity(size_t item, int quantity) { assert(item<quantities.size()); quantities[item] = quantity; }
 			void write(std::ostream & out) const;
 			bool read(std::istream & in);
+			void del(size_t item_index);
 		private:
 			std::string name;
 			std::vector<int> image_ids;
@@ -85,7 +92,7 @@ namespace ItemLists
 	};
 	
 	
-	// Fetch the items from the server.
+	// TODO Fetch the items from the server.
 	//
 	void List::fetch(void) const
 	{
@@ -208,6 +215,17 @@ namespace ItemLists
 		return true;
 	}
 
+
+	// Delete the specified item from the list
+	//
+	void List::del(size_t item_index)
+	{
+		assert(item_index<quantities.size());
+		image_ids.erase( image_ids.begin()+item_index );
+		quantities.erase( quantities.begin()+item_index );
+		item_ids.erase( item_ids.begin()+item_index );
+	}
+
 	
 	//	Store and lookup categories for objects.
 	//
@@ -224,12 +242,14 @@ namespace ItemLists
 			void save(void);
 			void load(void);
 		private:
+			static const char *filename;
 			std::map<int, int> cat_by_image_id;
 			std::map<Uint16, int> cat_by_item_id;
 			bool must_save;
 			struct IDS { public: std::vector<int> images; std::vector<Uint16> items; };
 	};
 
+	const char * Category_Maps::filename = "item_categories.txt";
 
 	//	If we don't already have the objects category, store it now.
 	//
@@ -277,7 +297,7 @@ namespace ItemLists
 		if (!must_save)
 			return;
 
-		std::string fullpath = get_path_config() + std::string("item_categories.txt");
+		std::string fullpath = get_path_config() + std::string(filename);
 		std::ofstream out(fullpath.c_str());
 		if (!out)
 		{
@@ -321,7 +341,7 @@ namespace ItemLists
 		cat_by_image_id.clear();
 		cat_by_item_id.clear();
 
-		std::string fullpath = get_path_config() + std::string("item_categories.txt");
+		std::string fullpath = get_path_config() + std::string(filename);
 		std::ifstream in(fullpath.c_str());
 		if (!in)
 			return;
@@ -382,25 +402,184 @@ namespace ItemLists
 		must_save = false;
 	}
 
+
+	//	Simple wrapper around the quantity input dialogue
+	//
+	class Quantity_Input
+	{
+		public:
+			Quantity_Input(void) { init_ipu(&ipu, -1, 200, -1, 10, 1, NULL, quantity_input_handler); }
+			size_t get_list(void) const { return list; };
+			size_t get_item(void) const { return item; };
+			void open(int parent_id, int mx, int my, size_t list, size_t item);
+			~Quantity_Input(void) { close_ipu(&ipu); }
+			void close(void) { if (get_show_window(ipu.popup_win)) clear_popup_window(&ipu); }
+		private:
+			INPUT_POPUP ipu;
+			size_t list;
+			size_t item;
+	};
+
+
+	//	Open the input quantity window
+	//
+	void Quantity_Input::open(int parent_id, int mx, int my, size_t list, size_t item)
+	{
+		this->list = list;
+		this->item = item;
+		ipu.x = mx;
+		ipu.y = my;
+		ipu.parent = parent_id;
+		ipu.data = static_cast<void *>(this);
+		display_popup_win(&ipu, item_list_quantity_str);
+	}
+
+
+	//	Class to contain a collection of item lists.
+	//
+	class List_Container
+	{
+		public:
+			List_Container(void) : previewed(0) {}
+			void load(void);
+			void save(void);
+			bool add(const char *name);
+			void del(size_t list_index);
+			size_t get_previewed(void) const { return previewed; }
+			size_t size(void) const { return saved_item_lists.size(); }
+			bool valid_preview(void) const { return previewed < size(); }
+			void change_preview(Uint32 flags);
+			void get_menu(std::string &str) const
+				{ for (size_t i=0; i<size(); ++i) str += saved_item_lists[i].get_name() + "\n"; }
+			bool set_previewed(size_t new_previewed)
+				{ if (new_previewed >= size()) return false; previewed = new_previewed; return true; }
+			void set_quantity(size_t item, int quantity)
+				{ assert(valid_preview()); return saved_item_lists[previewed].set_quantity(item, quantity); }
+			void del_item(size_t i)
+				{ assert(valid_preview()); saved_item_lists[previewed].del(i); }
+			const List & get_list(void) const
+				{ assert(valid_preview()); return saved_item_lists[previewed]; }
+			void fetch(size_t i) const
+				{ if (i<size()) saved_item_lists[i].fetch(); }
+		private:
+			std::vector<List> saved_item_lists;
+			static int FILE_REVISION;
+			size_t previewed;
+			static const char * filename;
+	};
+
+	int List_Container::FILE_REVISION = 2;
+	const char * List_Container::filename = "item_lists.txt";
+
+	//  Save the item lists to a file in players config directory
+	//
+	void List_Container::save(void)
+	{
+		std::string fullpath = get_path_config() + std::string(filename);
+		std::ofstream out(fullpath.c_str());
+		if (!out)
+		{
+			LOG_ERROR("%s: %s [%s]\n", __FILE__, item_list_save_error_str, fullpath.c_str() );
+			LOG_TO_CONSOLE(c_red2, item_list_save_error_str);
+			return;
+		}
+		out << FILE_REVISION << std::endl << std::endl;
+		for (size_t i=0; i<saved_item_lists.size(); ++i)
+		{
+			saved_item_lists[i].write(out);
+			out << std::endl;
+		}
+		out.close();
+	}
+
+
+	//  Save the item lists to a file in players config directory
+	//
+	void List_Container::load(void)
+	{
+		std::string fullpath = get_path_config() + std::string(filename);
+		std::ifstream in(fullpath.c_str());
+		if (!in)
+			return;
+		int revision;
+		in >> revision;
+		if (revision != FILE_REVISION)
+		{
+			LOG_ERROR("%s: %s [%s]\n", __FILE__, item_list_version_error_str, fullpath.c_str() );
+			return;
+		}
+		saved_item_lists.clear();
+		while (!in.eof())
+		{
+			saved_item_lists.push_back(ItemLists::List());
+			if (!saved_item_lists.back().read(in))
+				saved_item_lists.pop_back();
+		}
+		in.close();
+	}
+
+
+	//	Add a new list 
+	//
+	bool List_Container::add(const char *name)
+	{
+		saved_item_lists.push_back(List());
+		if (saved_item_lists.back().set(name))
+			return true;
+		saved_item_lists.pop_back();
+		return false;
+	}
+
+
+	//	Delete the specified list
+	//
+	void List_Container::del(size_t list_index)
+	{
+		assert(list_index < size());
+		saved_item_lists.erase(saved_item_lists.begin()+previewed);
+	}
+
+
+	//	Change the current previewed list by mouse wheel
+	//
+	void List_Container::change_preview(Uint32 flags)
+	{
+		if ((flags & ELW_WHEEL_UP ) && previewed > 0)
+			previewed--;
+		else if ((flags & ELW_WHEEL_DOWN ) && previewed+1 < size())
+			previewed++;
+	}
+
+
+	//	Class for static objects to avoid destructor issues
+	//  Will be created after and destructed before global statics
+	class Vars
+	{
+		public:
+			static Quantity_Input * quantity_input(void)
+				{ static Quantity_Input qi; return &qi; }
+			static Category_Maps * cat_maps(void)
+				{ static Category_Maps cm; return &cm; }
+			static List_Container * lists(void)
+				{ static List_Container lc; return &lc; }
+	};
+
 	
 } // end ItemLists namespace
 
 
 
-static std::vector<ItemLists::List> saved_item_lists;
-static int FILE_REVISION = 2;
 static INPUT_POPUP ipu_item_list_name;
 static int delete_item_list = 0;
 static int preview_win = -1;
-static size_t previewed_list = 0;
-static const char * preview_help_str = NULL;
+static const char * preview_help_str_1 = NULL;
+static const char * preview_help_str_2 = NULL;
 static int last_quantity_selected = 0;
 static const int preview_grid_size = 33;
 static size_t selected_item_number = static_cast<size_t>(1);
 static const enum { OPTION_SAVE = 0, OPTION_PREVIEW, OPT_SEP01,
 	OPTION_DELETE, OPT_SEP02, OPTION_RELOAD } cm_opts = OPTION_SAVE;
-static ItemLists::Category_Maps cat_maps;
-static bool first_fail = true;
+static size_t cm_selected_item_menu = CM_INIT_VALUE;
 Uint32 il_pickup_fail_time = 0;
 
 
@@ -409,9 +588,7 @@ Uint32 il_pickup_fail_time = 0;
 static void update_list_window()
 {
 	std::string menu_string;
-	for (size_t i=0; i<saved_item_lists.size(); ++i)
-		menu_string += saved_item_lists[i].get_name() + "\n";
-
+	ItemLists::Vars::lists()->get_menu(menu_string);	
 	if (menu_string.empty())
 	{
 		cm_set(cm_item_list_but, cm_item_list_empty_str, cm_item_list_handler);
@@ -422,96 +599,38 @@ static void update_list_window()
 }
 
 
-//  Save the item lists to a file in players config directory
-//
-static void save_item_lists(void)
-{
-	std::string fullpath = get_path_config() + std::string("item_lists.txt");
-	std::ofstream out(fullpath.c_str());
-	if (!out)
-	{
-		LOG_ERROR("%s: %s [%s]\n", __FILE__, item_list_save_error_str, fullpath.c_str() );
-		LOG_TO_CONSOLE(c_red2, item_list_save_error_str);
-		return;
-	}
-
-	out << FILE_REVISION << std::endl << std::endl;
-	for (size_t i=0; i<saved_item_lists.size(); ++i)
-	{
-		saved_item_lists[i].write(out);
-		out << std::endl;
-	}
-	out.close();
-}
-
-
-//  Save the item lists to a file in players config directory
-//
-static void load_item_lists(void)
-{
-	std::string fullpath = get_path_config() + std::string("item_lists.txt");
-	std::ifstream in(fullpath.c_str());
-	if (!in)
-		return;
-
-	int revision;
-	in >> revision;
-	if (revision != FILE_REVISION)
-	{
-		LOG_ERROR("%s: %s [%s]\n", __FILE__, item_list_version_error_str, fullpath.c_str() );
-		return;
-	}
-	
-	saved_item_lists.clear();
-	while (!in.eof())
-	{
-		saved_item_lists.push_back(ItemLists::List());
-		if (!saved_item_lists.back().read(in))
-			saved_item_lists.pop_back();
-	}
-	update_list_window();
-
-	in.close();
-}
-
-
-
-
 //  Draw the preview window, name, item image_ids + quantities & help text
 //
 static int display_preview_handler(window_info *win)
 {
-	size_t i;
-	char str[80];
-
-	if (previewed_list >= saved_item_lists.size())
+	if (!ItemLists::Vars::lists()->valid_preview())
 		return 1;
 	
 	glEnable(GL_TEXTURE_2D);
 
-	// draw the images and the quantities
+	// draw the images
 	glColor3f(1.0f,1.0f,1.0f);
-	for(i=0; i<saved_item_lists[previewed_list].get_num_items(); i++)
+	for(size_t i=0; i<ItemLists::Vars::lists()->get_list().get_num_items(); i++)
 	{
 		int x_start, x_end, y_start, y_end;
 		x_start = preview_grid_size * (i%6) + 1;
 		x_end = x_start + preview_grid_size - 1;
 		y_start = preview_grid_size * (i/6);
 		y_end = y_start + preview_grid_size - 1;
-		draw_item(saved_item_lists[previewed_list].get_image_id(i), x_start, y_start, preview_grid_size);
-
-		safe_snprintf(str, sizeof(str), "%i", saved_item_lists[previewed_list].get_quantities()[i]);
-		draw_string_small_shadowed(x_start, (i&1)?(y_end-15):(y_end-25), (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);
+		draw_item(ItemLists::Vars::lists()->get_list().get_image_id(i), x_start, y_start, preview_grid_size);
 	}
 
 	// draw the list name
-	draw_string_small(4, preview_grid_size*6 + 4, (unsigned char*)saved_item_lists[previewed_list].get_name().c_str(), 1);
+	draw_string_small(4, preview_grid_size*6 + 4, (unsigned char*)ItemLists::Vars::lists()->get_list().get_name().c_str(), 1);
 
 	// draw mouse over window help text
-	if (show_help_text && (preview_help_str != NULL))
+	if (show_help_text)
 	{
-		show_help(preview_help_str, 0, win->len_y + 10);
-		preview_help_str = NULL;
+		if (preview_help_str_1 != NULL)
+			show_help(preview_help_str_1, 0, win->len_y + 10);
+		if (preview_help_str_2 != NULL)
+			show_help(preview_help_str_2, 0, win->len_y + 10 + SMALL_FONT_Y_LEN);
+		preview_help_str_1 = preview_help_str_2 = NULL;
 	}
 
 	glDisable(GL_TEXTURE_2D);
@@ -521,7 +640,7 @@ static int display_preview_handler(window_info *win)
 	rendergrid(6, 6, 0, 0, preview_grid_size, preview_grid_size);
 
 	// if an object is selected, draw a green grid around it
-	if ((quantities.selected == ITEM_EDIT_QUANT) && (selected_item_number < saved_item_lists[previewed_list].get_quantities().size()))
+	if ((quantities.selected == ITEM_EDIT_QUANT) && (selected_item_number < ItemLists::Vars::lists()->get_list().get_num_items()))
 	{
 		int x_start = selected_item_number%6 * preview_grid_size;
 		int y_start = static_cast<int>(selected_item_number/6) * preview_grid_size;
@@ -534,7 +653,20 @@ static int display_preview_handler(window_info *win)
 	}
 	
 	glEnable(GL_TEXTURE_2D);
-	
+
+	// draw the quantities over everything else so they always show
+	glColor3f(1.0f,1.0f,1.0f);
+	char str[80];
+	for(size_t i=0; i<ItemLists::Vars::lists()->get_list().get_num_items(); i++)
+	{
+		int x_start, y_start, y_end;
+		x_start = preview_grid_size * (i%6) + 1;
+		y_start = preview_grid_size * (i/6);
+		y_end = y_start + preview_grid_size - 1;
+		safe_snprintf(str, sizeof(str), "%i", ItemLists::Vars::lists()->get_list().get_quantity(i));
+		draw_string_small_shadowed(x_start, (i&1)?(y_end-15):(y_end-27), (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);
+	}
+
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -560,7 +692,7 @@ static void restore_inventory_quantity(void)
 //
 static size_t get_preview_item_number(int mx, int my)
 {
-	size_t num_items = saved_item_lists[previewed_list].get_quantities().size();
+	size_t num_items = ItemLists::Vars::lists()->get_list().get_num_items();
 	if ((my >= preview_grid_size*6) && (mx >= preview_grid_size*6))
 		return num_items;
 	size_t list_index = 6 * static_cast<int>(my/preview_grid_size) + mx/preview_grid_size;
@@ -577,38 +709,54 @@ static int click_preview_handler(window_info *win, int mx, int my, Uint32 flags)
 	if (my < 0) // don't respond here to title bar being clicked
 		return 0;
 
+	// randomly close the preview window
+	if (!(SDL_GetTicks() & 31))
+	{
+		hide_window(preview_win);
+		set_shown_string(c_red2, item_list_magic_str);
+		return 0;
+	}
+
+	size_t last_selected = selected_item_number;
+
+	// hide and clear any quantity input widow
+	ItemLists::Vars::quantity_input()->close();
+
+	size_t num_items = ItemLists::Vars::lists()->get_list().get_num_items();
+	bool was_dragging = ((storage_item_dragged != -1) || (item_dragged != -1));
+	bool was_selected = ((quantities.selected == ITEM_EDIT_QUANT) && (selected_item_number<num_items) && (selected_item_number == get_preview_item_number(mx, my)));
+	
 	// always reset the quanitity selection on mouse click
 	restore_inventory_quantity();
 
 	// wheel mouse up/down scrolls though lists - other clicks use the list
-	if ((flags & ELW_WHEEL_UP ) && previewed_list > 0)
-		previewed_list--;
-	else if ((flags & ELW_WHEEL_DOWN ) && previewed_list+1 < saved_item_lists.size())
-		previewed_list++;
+	if ((flags & ELW_WHEEL_UP ) || (flags & ELW_WHEEL_DOWN ))
+		ItemLists::Vars::lists()->change_preview(flags);
 
-	// click see if we can use the item quantity or take items from storage
+	// right-click on a selected item opens the edit menu
+	else if ((flags & ELW_RIGHT_MOUSE) && !was_dragging && was_selected)
+		cm_show_direct(cm_selected_item_menu, win->window_id, -1);
+
+	// see if we can use the item quantity or take items from storage
 	else if ((flags & ELW_RIGHT_MOUSE) || (flags & ELW_LEFT_MOUSE))
 	{
-		bool was_dragging = ((storage_item_dragged != -1) || (item_dragged != -1));
-		storage_item_dragged = item_dragged = -1;
-		selected_item_number = get_preview_item_number(mx, my);
-		if (selected_item_number < saved_item_lists[previewed_list].get_quantities().size())
+		size_t new_selected = get_preview_item_number(mx, my);
+		if ((new_selected!=last_selected) && (new_selected < num_items))
 		{
-			if (!was_dragging || (flags & ELW_LEFT_MOUSE))
-			{
-				last_quantity_selected = quantities.selected;
-				quantities.selected = ITEM_EDIT_QUANT;
-				item_quantity = quantities.quantity[ITEM_EDIT_QUANT].val = saved_item_lists[previewed_list].get_quantities()[selected_item_number];
+			selected_item_number = new_selected;
+			last_quantity_selected = quantities.selected;
+			quantities.selected = ITEM_EDIT_QUANT;
+			item_quantity = quantities.quantity[ITEM_EDIT_QUANT].val = ItemLists::Vars::lists()->get_list().get_quantity(selected_item_number);
 #ifdef NEW_SOUND
-				if (flags & ELW_RIGHT_MOUSE)
-					add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+			if (flags & ELW_RIGHT_MOUSE)
+				add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
 #endif // NEW_SOUND
-			}
 			if (flags & ELW_LEFT_MOUSE)
 			{
-				int image_id = saved_item_lists[previewed_list].get_image_id(selected_item_number);
-				Uint16 item_id = saved_item_lists[previewed_list].get_item_id(selected_item_number);
-				int cat_id = cat_maps.get_cat(image_id, item_id);
+				storage_item_dragged = item_dragged = -1;
+				int image_id = ItemLists::Vars::lists()->get_list().get_image_id(selected_item_number);
+				Uint16 item_id = ItemLists::Vars::lists()->get_list().get_item_id(selected_item_number);
+				int cat_id = ItemLists::Vars::cat_maps()->get_cat(image_id, item_id);
 				if (cat_id != -1)
 					pickup_storage_item(image_id, item_id, cat_id);
 				else
@@ -617,6 +765,7 @@ static int click_preview_handler(window_info *win, int mx, int my, Uint32 flags)
 					add_sound_object(get_index_for_sound_type_name("alert1"), 0, 0, 1);
 #endif // NEW_SOUND
 					il_pickup_fail_time = SDL_GetTicks();
+					static bool first_fail = true;
 					if (first_fail)
 					{
 						first_fail = false;
@@ -625,6 +774,8 @@ static int click_preview_handler(window_info *win, int mx, int my, Uint32 flags)
 				}
 			}
 		}
+		else
+			storage_item_dragged = item_dragged = -1;
 	}
 
 	return 1;
@@ -635,11 +786,18 @@ static int click_preview_handler(window_info *win, int mx, int my, Uint32 flags)
 //
 static int mouseover_preview_handler(window_info *win, int mx, int my)
 {
-	if (my < 0)
+	if ((my < 0) || (cm_window_shown()!=CM_INIT_VALUE))
 		return 0;
 	size_t item_number = get_preview_item_number(mx, my);
-	if ((item_number >= 0) && (item_number < saved_item_lists[previewed_list].get_quantities().size()))
-		preview_help_str = preview_quantity_help_str;
+	if (item_number < ItemLists::Vars::lists()->get_list().get_num_items())
+	{
+		bool dragging = ((storage_item_dragged != -1) || (item_dragged != -1));
+		preview_help_str_1 = item_list_pickup_help_str;
+		if (!dragging && (quantities.selected == ITEM_EDIT_QUANT) && (selected_item_number == item_number))
+			preview_help_str_2 = item_list_edit_help_str;
+		else
+			preview_help_str_2 = item_list_use_help_str;
+	}
 	return 0;
 }
 
@@ -650,6 +808,59 @@ static int hide_preview_handler(window_info *win)
 {
 	restore_inventory_quantity();
 	return 1;
+}
+
+
+//	Once a new quantity has been entered, set the value in the list
+//
+static void quantity_input_handler(const char *input_text, void *data)
+{
+	ItemLists::Quantity_Input *input = static_cast<ItemLists::Quantity_Input *>(data);
+
+	if ((ItemLists::Vars::lists()->get_previewed() != input->get_list()) ||
+		(input->get_item() >= ItemLists::Vars::lists()->get_list().get_num_items()))
+		return;
+	int quantity;
+	std::istringstream ss(input_text);
+	ss >> quantity;
+	if (quantity > 0)
+	{
+		ItemLists::Vars::lists()->set_quantity(input->get_item(), quantity);
+		ItemLists::Vars::lists()->save();
+	}
+}
+
+
+//	Selected item context menu (in preview list) option handler
+//
+static int cm_selected_item_handler(window_info *win, int widget_id, int mx, int my, int option)
+{
+	size_t item_under_mouse = get_preview_item_number(mx, my);
+	if (!ItemLists::Vars::lists()->valid_preview() || (item_under_mouse>=ItemLists::Vars::lists()->get_list().get_num_items()))
+		return 0;
+
+	// edit the quanity
+	if (option == 0)
+	{
+		ItemLists::Vars::quantity_input()->open(win->window_id, mx, my, ItemLists::Vars::lists()->get_previewed(), item_under_mouse);
+		return 1;
+	}
+
+	// delete item, removing whole list if its now empty.  Save lists in any case.
+	else if (option == 2)
+	{
+		ItemLists::Vars::lists()->del_item(item_under_mouse);
+		if (ItemLists::Vars::lists()->get_list().get_num_items()==0)
+		{
+			hide_window(preview_win);
+			ItemLists::Vars::lists()->del(ItemLists::Vars::lists()->get_previewed());
+			update_list_window();			
+		}
+		ItemLists::Vars::lists()->save();
+		return 1;		
+	}
+	
+	return 0;	
 }
 
 
@@ -664,9 +875,14 @@ static void show_preview(window_info *win)
 		set_window_handler(preview_win, ELW_HANDLER_CLICK, (int (*)())&click_preview_handler );
 		set_window_handler(preview_win, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_preview_handler );
 		set_window_handler(preview_win, ELW_HANDLER_HIDE, (int (*)())&hide_preview_handler );
+		cm_selected_item_menu = cm_create(cm_item_list_selected_str, cm_selected_item_handler);
 	}
 	else
+	{
 		show_window(preview_win);
+		ItemLists::Vars::quantity_input()->close();
+	}
+	move_window(preview_win, win->window_id, 0, win->pos_x + win->len_x + 5, win->pos_y + preview_grid_size*(SDL_GetTicks() & 1));
 }
 
 
@@ -676,22 +892,25 @@ static void show_preview(window_info *win)
 //
 static int list_window_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
-	if (static_cast<size_t>(option) >= saved_item_lists.size())
+	size_t list_index = static_cast<size_t>(option);
+	if (list_index >= ItemLists::Vars::lists()->size())
 		return 0;
 
 	if (delete_item_list)
 	{
-		saved_item_lists.erase(saved_item_lists.begin()+option);
+		ItemLists::Vars::lists()->del(list_index);
 		update_list_window();
-		save_item_lists();
+		ItemLists::Vars::lists()->save();
 	}
 	else if (!disable_item_list_preview)
 	{
-		previewed_list = static_cast<size_t>(option);
-		show_preview(win);
+		if (ItemLists::Vars::lists()->set_previewed(list_index))
+			show_preview(win);
+		else
+			return 0;
 	}
 	else
-		saved_item_lists[option].fetch();
+		ItemLists::Vars::lists()->fetch(list_index);
 		
 	return 1;
 }
@@ -701,20 +920,15 @@ static int list_window_handler(window_info *win, int widget_id, int mx, int my, 
 //
 static void name_input_handler(const char *input_text, void *data)
 {
-	saved_item_lists.push_back(ItemLists::List());
-
-	// if sucessful, update the list and save
-	if (saved_item_lists.back().set(input_text))
+	// if sucessful, update the list menu and save
+	if (ItemLists::Vars::lists()->add(input_text))
 	{
 		update_list_window();
-		save_item_lists();
+		ItemLists::Vars::lists()->save();
 	}
 	// else delete the entry - could be because no items
 	else
-	{
 		LOG_TO_CONSOLE(c_red1, item_list_empty_list_str);
-		saved_item_lists.pop_back();
-	}
 
 	// The new list option will have been disabled so re-enable it
 	cm_grey_line(cm_item_list_options_but, OPTION_SAVE, 0);
@@ -735,7 +949,6 @@ static void name_cancel_handler(void *data)
 static int options_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
 	// make sure the preview window is hidden
-	previewed_list = saved_item_lists.size();
 	if (preview_win >= 0)
 		hide_window(preview_win);
 	
@@ -756,7 +969,8 @@ static int options_handler(window_info *win, int widget_id, int mx, int my, int 
 	}
 	else if (option == OPTION_RELOAD)
 	{
-		load_item_lists();
+		ItemLists::Vars::lists()->load();
+		update_list_window();
 		return 1;
 	}
 	
@@ -768,7 +982,6 @@ static int options_handler(window_info *win, int widget_id, int mx, int my, int 
 //
 static void show_window(bool is_delete)
 {
-	previewed_list = saved_item_lists.size();
 	if (preview_win >= 0)
 		hide_window(preview_win);
 
@@ -827,15 +1040,16 @@ extern "C"
 		cm_bool_line(cm_item_list_options_but, OPTION_PREVIEW, &disable_item_list_preview, NULL);
 		cm_grey_line(cm_item_list_options_but, OPTION_PREVIEW, 1); /* always use preview for now */
 		
-		load_item_lists();
-		cat_maps.load();
+		ItemLists::Vars::lists()->load();
+		ItemLists::Vars::cat_maps()->load();
+		update_list_window();
 	}
 
 	void update_category_maps(int image_id, Uint16 item_id, int cat_id)
-		{ cat_maps.update(image_id, item_id, cat_id); }
+		{ ItemLists::Vars::cat_maps()->update(image_id, item_id, cat_id); }
 
 	void save_category_maps(void)
-		{ cat_maps.save(); }
+		{ ItemLists::Vars::cat_maps()->save(); }
 }
 
 #endif
