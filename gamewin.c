@@ -2456,6 +2456,10 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	{
 		toggle_have_mouse();
 	}
+	else if (key == K_EXTEND_CAM)
+	{
+		toggle_ext_cam(&ext_cam);
+	}
 #endif // SKY_FPV
 #ifdef PAWN
 	else if (keysym == SDLK_F8)

@@ -79,6 +79,7 @@ extern Uint32 K_OPAQUEWIN;          /*!< key used to toggle window opacity */
 #ifdef SKY_FPV
 extern Uint32 K_GRAB_MOUSE;         /*!< key used to toggle whether mouse is in HUD or camera control mode */
 extern Uint32 K_FIRST_PERSON;       /*!< key used to toggle first person/third person view mode*/
+extern Uint32 K_EXTEND_CAM;			/*!< key used to toggle extended camera mode*/
 #endif // SKY_FPV
 extern Uint32 K_CUT;                /*!< key used to cut text and copy it into a clipboard */ 
 extern Uint32 K_COPY;               /*!< key used to copy text into a clipboard */ 

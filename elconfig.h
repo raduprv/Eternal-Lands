@@ -208,6 +208,7 @@ int set_var_unsaved(const char *str, option_type type);
 
 #ifdef SKY_FPV
 void toggle_follow_cam(int * fc);
+void toggle_ext_cam(int * ec);
 #endif // SKY_FPV
 
 #ifdef __cplusplus
