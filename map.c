@@ -387,6 +387,7 @@ void add_server_markers(){
 			marks[l].y=sm->y;
 			marks[l].server_side=1;
 			safe_strncpy(marks[l].text, sm->text, sizeof(marks[l].text));
+			l++;
 		}
 		//remove server side markings if necessary
 		for(i=l+1;i<max_mark;i++)
@@ -725,7 +726,8 @@ void display_map_marks(){
 	
 }
 
-void display_map_markers(int ax, int ay) {
+void display_map_markers() {
+	int ax, ay;
 	float z,x,y;
 	int i;
 	GLdouble model[16],proj[16];

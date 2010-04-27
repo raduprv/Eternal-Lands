@@ -37,7 +37,7 @@ extern int map_type; /**< id of the type of map we are currently using */
  * @param name the filename of the map that failed to load.
  * @retval int  0 if nomap.elm failed to load, otherwise 1 is returned.
  */
-int load_empty_map();
+int load_empty_map(void);
 
 /**
  * @ingroup maps
@@ -56,7 +56,7 @@ void change_map (const char * mapname);
  * 	Loads the map marks for the given map
  *
  */
-void load_map_marks();
+void load_map_marks(void);
 
 /**
  * @ingroup maps
@@ -104,7 +104,7 @@ void init_terrain_buffers(int terrain_buffer_size);
  *
  * @callgraph
  */
-void init_buffers();
+void init_buffers(void);
 
 
 typedef struct _s_mark{
@@ -117,13 +117,13 @@ typedef struct _s_mark{
 } server_mark;
 
 
-void init_server_markers();
-void load_server_markings();
-void save_server_markings();
-void animate_map_markers();
-void add_server_markers();
-void display_map_markers(); //draw text
-void display_map_marks(); //draw cross
+void init_server_markers(void);
+void load_server_markings(void);
+void save_server_markings(void);
+void animate_map_markers(void);
+void add_server_markers(void);
+void display_map_markers(void); //draw text
+void display_map_marks(void); //draw cross
 void change_3d_marks(int *rel);
 extern hash_table *server_marks;
 extern float mark_z_rot;
