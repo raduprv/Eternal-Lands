@@ -35,7 +35,7 @@ int mark_x , mark_y;
 int max_mark = 0;
 marking marks[MAX_MARKINGS];
 
-int mod_key_status;
+SDLMod  mod_key_status;
 //Uint32 last_turn_around=0;
 
 int shift_on;
@@ -141,7 +141,20 @@ int HandleEvent (SDL_Event *event)
 			break;
 
 		case SDL_ACTIVEEVENT:
-			SDL_SetModState(KMOD_NONE); // force ALL keys up, else you can 'catch' the alt/ctrl keys due to an SDL bug
+			{
+				// force ALL keys up, else you can 'catch' the alt/ctrl keys due to an SDL bug ...
+				// But, compiz on Linux generates these events with every mouse click causing
+				// ctrl/alt/shift states to be unreadable.  Adding loss/gain timer can exclude
+				// the mouse click events while still catching genuein focus changes.
+				static Uint32 last_loss = 0;
+				if (event->active.gain == 0)
+					last_loss = SDL_GetTicks();
+				else if (last_loss && (event->active.gain == 1) && ((SDL_GetTicks() - last_loss) > 250))
+				{
+					last_loss = 0;
+					SDL_SetModState(KMOD_NONE);
+				}
+			}
 			break;
 
 		case SDL_MOUSEBUTTONDOWN:
