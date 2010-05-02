@@ -20,6 +20,7 @@
 #include "elwindows.h"
 #include "errors.h"
 #include "gamewin.h"
+#include "gl_init.h"
 #include "hud.h"
 #include "init.h"
 #include "interface.h"
@@ -92,7 +93,7 @@ static bool mouse_over_questlog = false;
 #ifdef CONTEXT_MENUS
 static size_t cm_questlog_id = CM_INIT_VALUE;
 static size_t cm_ql_filter_id = CM_INIT_VALUE;
-enum {	CMQL_FILTER=0, CMQL_COPY, CMQL_COPYALL, CMQL_FIND, CMQL_ADD, CMQL_S1, CMQL_DELETE, CMQL_UNDEL, CMQL_S2, CMQL_SAVE };
+enum {	CMQL_FILTER=0, CMQL_SHOWALL, CMQL_SHOWNONE, CMQL_S1, CMQL_COPY, CMQL_COPYALL, CMQL_FIND, CMQL_ADD, CMQL_S2, CMQL_DELETE, CMQL_UNDEL, CMQL_S3, CMQL_SAVE };
 static std::string adding_npc;
 static size_t adding_insert_pos = 0;
 static bool prompt_for_add_text = false;
@@ -283,19 +284,7 @@ static void save_questlog(void)
 //
 static int cm_ql_filter_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
-	option -= filter_map.size() + 1;
-	switch (option)
-	{
-		case 0:
-			for (std::map<std::string,int>::iterator i = filter_map.begin(); i != filter_map.end(); ++i)
-				i->second = 1;
-			break;
-		case 1:
-			for (std::map<std::string,int>::iterator i = filter_map.begin(); i != filter_map.end(); ++i)
-				i->second = 0;
-			break;
-	}
-	// Alway reopen after selecting an option....
+	// Always reopen after selecting an option....
 	// OK, its naff and flicky but works as a temporary window.
 	show_filter_window = true;
 	rebuild_active_entries((current_line < active_entries.size()) ?active_entries[current_line] :0);
@@ -309,6 +298,10 @@ static void cm_ql_filter_pre_show_handler(window_info *win, int widget_id, int m
 {
 		int new_y_pos = win->cur_y + (win->len_y - cm_win->len_y) / 2;
 		int new_x_pos = win->cur_x + win->len_x + 10;
+		if (new_y_pos < 0)
+			new_y_pos = 0;
+		if ((new_y_pos+cm_win->len_y) > window_height)
+			new_y_pos = window_height - cm_win->len_y;		
 		move_window(cm_win->window_id, -1, 0, new_x_pos, new_y_pos);
 		// propagate opacity from parent tab window
 		if (tab_stats_win >-1 && tab_stats_win<windows_list.num_windows)
@@ -325,7 +318,6 @@ static void open_filter_window(void)
 
 	for (std::map<std::string,int>::const_iterator i = filter_map.begin(); i != filter_map.end(); ++i)
 		menu_str += i->first + '\n';
-	menu_str += std::string(cm_questlog_filter_str);
 	
 	if (!cm_valid(cm_ql_filter_id))
 	{
@@ -510,6 +502,9 @@ static void cm_questlog_pre_show_handler(window_info *win, int widget_id, int mx
 		}
 	bool is_over_entry = (over_entry < active_entries.size());
 	bool is_deleted = is_over_entry && quest_entries[active_entries[over_entry]].deleted;
+	cm_grey_line(cm_questlog_id, CMQL_FILTER, quest_entries.empty() ?1 :0);
+	cm_grey_line(cm_questlog_id, CMQL_SHOWALL, quest_entries.empty() ?1 :0);
+	cm_grey_line(cm_questlog_id, CMQL_SHOWNONE, quest_entries.empty() ?1 :0);
 	cm_grey_line(cm_questlog_id, CMQL_COPY, (is_over_entry && !is_deleted) ?0 :1);
 	cm_grey_line(cm_questlog_id, CMQL_COPYALL, active_entries.empty() ?1 :0);
 	cm_grey_line(cm_questlog_id, CMQL_FIND, (current_action == -1 && !active_entries.empty()) ?0 :1);
@@ -537,6 +532,17 @@ static int cm_quest_handler(window_info *win, int widget_id, int mx, int my, int
 	switch (option)
 	{
 		case CMQL_FILTER: show_filter_window = true; break;
+		case CMQL_SHOWALL:
+			for (std::map<std::string,int>::iterator i = filter_map.begin(); i != filter_map.end(); ++i)
+				i->second = 1;
+			rebuild_active_entries((current_line < active_entries.size()) ?active_entries[current_line] :0);
+			break;
+		case CMQL_SHOWNONE:
+			for (std::map<std::string,int>::iterator i = filter_map.begin(); i != filter_map.end(); ++i)
+				i->second = 0;
+			show_filter_window = true;
+			rebuild_active_entries((current_line < active_entries.size()) ?active_entries[current_line] :0);
+			break;		
 		case CMQL_COPY: if (over_entry < active_entries.size()) copy_entry(over_entry); break;
 		case CMQL_COPYALL: copy_all_entries(); break;
 		case CMQL_FIND: find_in_entry(win); break;
@@ -544,7 +550,7 @@ static int cm_quest_handler(window_info *win, int widget_id, int mx, int my, int
 		case CMQL_DELETE: if (over_entry < active_entries.size()) delete_entry(over_entry); break;
 		case CMQL_UNDEL: if (over_entry < active_entries.size()) undelete_entry(over_entry); break;
 		case CMQL_SAVE: save_questlog(); break;
-	 }
+	}
 	return 1;
 }
 #endif
