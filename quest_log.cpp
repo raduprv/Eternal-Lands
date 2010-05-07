@@ -28,22 +28,25 @@
 #include "notepad.h"
 #include "paste.h"
 #include "questlog.h"
+#ifdef NEW_SOUND
+#include "sound.h"
+#endif
 #include "tabs.h"
 #include "translate.h"
 
 /*
- * To Do:
- *
+ * TODO Possible changes...
  * 		Make file xml?
  * 		Remove save options - always save / timed save?
  * 		Replace entry containers with classes
+ * 		md5sum each entry for matching to quest strands
+ *		Add dedupe function
+ * 			use md5sum for speed, then strcmp
  * 		Implement quest strands:
  * 			tag entry with quest strand(s)
  * 			filter by quest strand
  * 			colour code in some way?
  * 		Keypress handling - I keep trying / & ctrl-f for search....
- * 		Replace filter window with something nicer - scrollable, non flicky
- * 		Add sounds for find, may be other things
  */
 
 //	A single entry for the questlog.
@@ -92,13 +95,11 @@ static bool need_to_save = false;
 static bool mouse_over_questlog = false;
 #ifdef CONTEXT_MENUS
 static size_t cm_questlog_id = CM_INIT_VALUE;
-static size_t cm_ql_filter_id = CM_INIT_VALUE;
 enum {	CMQL_FILTER=0, CMQL_SHOWALL, CMQL_SHOWNONE, CMQL_S1, CMQL_COPY, CMQL_COPYALL, CMQL_FIND, CMQL_ADD, CMQL_S2, CMQL_DELETE, CMQL_UNDEL, CMQL_S3, CMQL_SAVE };
 static std::string adding_npc;
 static size_t adding_insert_pos = 0;
 static bool prompt_for_add_text = false;
 static INPUT_POPUP ipu_questlog;
-static bool show_filter_window = false;
 static int current_action = -1;
 #endif
 
@@ -280,58 +281,206 @@ static void save_questlog(void)
 
 
 #ifdef CONTEXT_MENUS
-//	Handle the filter window options.  Most are automatic.
+// quest log filter window vars
+static const int npc_name_space = 3;
+static const int npc_name_border = 5;
+static const int npc_name_box_size = 12;
+static const float max_npc_name_x = npc_name_space*3+npc_name_box_size+(MAX_USERNAME_LENGTH) * SMALL_FONT_X_LEN;
+static const float max_npc_name_y = SMALL_FONT_Y_LEN + 2*npc_name_space;
+static const unsigned int min_npc_name_cols = 1;
+static const unsigned int min_npc_name_rows = 10;
+static unsigned int npc_name_cols = 0;
+static unsigned int npc_name_rows = 0;
+static size_t quest_filter_active_npc_name = static_cast<size_t>(-1);
+
+//	Make sure the window size is fits the rows/cols nicely.
 //
-static int cm_ql_filter_handler(window_info *win, int widget_id, int mx, int my, int option)
+static int resize_quest_filter_handler(window_info *win, int new_width, int new_height)
 {
-	// Always reopen after selecting an option....
-	// OK, its naff and flicky but works as a temporary window.
-	show_filter_window = true;
-	rebuild_active_entries((current_line < active_entries.size()) ?active_entries[current_line] :0);
+		// let the width lead
+		npc_name_cols = win->len_x / max_npc_name_x;
+		if (npc_name_cols < min_npc_name_cols)
+			npc_name_cols = min_npc_name_cols;
+		// but maintain a minimum height
+		npc_name_rows = (filter_map.size() + npc_name_cols - 1) / npc_name_cols;
+		if (npc_name_rows <= min_npc_name_rows)
+		{
+			npc_name_rows = min_npc_name_rows;
+			npc_name_cols = min_npc_name_cols;
+			while (npc_name_cols*npc_name_rows < filter_map.size())
+				npc_name_cols++;
+		}
+		set_window_scroll_len(win->window_id, npc_name_rows*max_npc_name_y-win->len_y);
+		return 0;
+}
+
+
+//	Display handler for the quest log filter.
+//
+static int display_quest_filter_handler(window_info *win)
+{
+	static Uint8 resizing = 0;
+	static size_t last_filter_size = static_cast<size_t>(-1);
+	
+	// if resizing wait until we stop
+	if (win->resized)
+		resizing = 1;
+
+	// once we stop, snap the window to the new grid size
+	else if (resizing)
+	{
+		int new_width = 2*npc_name_border + npc_name_cols * max_npc_name_x + ELW_BOX_SIZE;
+		int new_rows = (win->len_y+max_npc_name_y/2)/max_npc_name_y;
+		int max_rows = (filter_map.size() + npc_name_cols - 1) / npc_name_cols;
+		resizing = 0;
+		resize_window (win->window_id, new_width, ((new_rows > max_rows) ?max_rows :new_rows)*max_npc_name_y);
+	}
+	// spot new entries and make sure we resize
+	else if (last_filter_size != filter_map.size())
+		resize_quest_filter_handler(win, -1, -1);
+	last_filter_size = filter_map.size();
+
+	unsigned int row = 0;
+	unsigned int col = 0;
+	for (std::map<std::string,int>::const_iterator i = filter_map.begin(); i != filter_map.end(); ++i)
+	{
+		int posx = static_cast<int>(npc_name_border + col*max_npc_name_x + 0.5);
+		int posy = static_cast<int>(row*max_npc_name_y + 0.5);
+		
+		// draw highlight over active name
+		if ((col+row*npc_name_cols) == quest_filter_active_npc_name)
+		{
+			glDisable(GL_TEXTURE_2D);
+			glBegin(GL_QUADS);
+			glColor3f(0.11f, 0.11f, 0.11f);	
+			glVertex2i(posx, posy);
+			glColor3f(0.77f, 0.57f, 0.39f);
+			glVertex2i(posx, posy + max_npc_name_y);
+			glVertex2i(posx + max_npc_name_x, posy + max_npc_name_y);
+			glColor3f(0.11f, 0.11f, 0.11f);	
+			glVertex2i(posx + max_npc_name_x, posy);
+			glEnd();
+			glEnable(GL_TEXTURE_2D);
+		}
+
+		// set the colour and position for the box and text
+		glColor3f(1.0f, 1.0f, 1.0f);
+		posx += npc_name_space;
+		posy += static_cast<int>(0.5 + (max_npc_name_y-npc_name_box_size)/2);
+
+		// draw the on/off box
+		glDisable(GL_TEXTURE_2D);
+		glBegin( i->second ? GL_QUADS: GL_LINE_LOOP);
+		glVertex2i(posx, posy);
+		glVertex2i(posx + npc_name_box_size, posy);
+		glVertex2i(posx + npc_name_box_size, posy + npc_name_box_size);
+		glVertex2i(posx, posy + npc_name_box_size);
+		glEnd();
+		glEnable(GL_TEXTURE_2D);
+
+		// draw the string
+		draw_string_small(posx + npc_name_box_size + npc_name_space, posy, (unsigned char*)i->first.c_str(), 1);
+
+		// control row and col values
+		col++;
+		if (col >= npc_name_cols)
+		{
+			col = 0;
+			row++;
+		}
+	}
+
+	// make sure the mouse over detection is fresh next time
+	quest_filter_active_npc_name = static_cast<size_t>(-1);
+	
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	return 1;
 }
 
 
-//	Move the filter window to the right of the questlog window before it is shown.
+//	When a npc name is mouse clicked, toggle the filter value.
 //
-static void cm_ql_filter_pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win)
+static int click_quest_filter_handler(window_info *win, int mx, int my, Uint32 flags)
 {
-		int new_y_pos = win->cur_y + (win->len_y - cm_win->len_y) / 2;
-		int new_x_pos = win->cur_x + win->len_x + 10;
-		if (new_y_pos < 0)
-			new_y_pos = 0;
-		if ((new_y_pos+cm_win->len_y) > window_height)
-			new_y_pos = window_height - cm_win->len_y;		
-		move_window(cm_win->window_id, -1, 0, new_x_pos, new_y_pos);
-		// propagate opacity from parent tab window
-		if (tab_stats_win >-1 && tab_stats_win<windows_list.num_windows)
-			cm_win->opaque = windows_list.window[tab_stats_win].opaque;
+	if ((my < 0) || (flags & ELW_WHEEL))
+		return 0;
+	int yoffset = get_window_scroll_pos(win->window_id);
+	size_t index = static_cast<int>((my+yoffset) / max_npc_name_y) * npc_name_cols + static_cast<int>(mx / max_npc_name_x);
+	if (index >= filter_map.size())
+		return 0;
+	size_t j = 0;
+	for (std::map<std::string,int>::iterator i = filter_map.begin(); i != filter_map.end(); ++i, j++)
+		if (j == index)
+		{
+#ifdef NEW_SOUND
+			add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+#endif			
+			i->second ^= 1;
+			rebuild_active_entries((current_line < active_entries.size()) ?active_entries[current_line] :0);
+			break;
+		}
+	return 1;
 }
 
 
-//	Create/update the filter window from the current NPC list.
+//	Move the window scroll position to match the key pressed with the first character of the npc name.
+//
+static int keypress_quest_filter_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+{
+	char keychar = tolower(static_cast<char>(unikey));
+	if ((key & ELW_CTRL) || (key & ELW_ALT) || (keychar<'a') || (keychar>'z'))
+		return 0;
+	size_t line = 0;
+	for (std::map<std::string,int>::iterator i = filter_map.begin(); i != filter_map.end(); ++i, line++)
+	{
+		if (!i->first.empty() && (tolower(i->first[0]) == keychar))
+		{
+			set_window_scroll_pos(win->window_id, static_cast<int>(line/npc_name_cols)*max_npc_name_y);
+			return 1;
+		}
+	}	
+	return 1;
+}
+
+
+//	Record which name the mouse is over so it can be highlighted.
+//
+static int mouseover_quest_filter_handler(window_info *win, int mx, int my)
+{
+	mx -= npc_name_border;
+	if ((my >= 0) && (mx >= 0) && (mx < (npc_name_cols * max_npc_name_x)))
+		quest_filter_active_npc_name = static_cast<int>(my / max_npc_name_y) * npc_name_cols + static_cast<int>(mx / max_npc_name_x);
+	return 0; // make sure we get a arrow cursor
+}
+
+
+//	Open/Create the NPC list filter window.
 //
 static void open_filter_window(void)
 {
-	show_filter_window = false;
-	std::string menu_str;
-
-	for (std::map<std::string,int>::const_iterator i = filter_map.begin(); i != filter_map.end(); ++i)
-		menu_str += i->first + '\n';
-	
-	if (!cm_valid(cm_ql_filter_id))
+	static int quest_filter_win = -1;
+	if (quest_filter_win < 0)
 	{
-		cm_ql_filter_id = cm_create(menu_str.c_str(), cm_ql_filter_handler);
-		cm_set_pre_show_handler(cm_ql_filter_id, cm_ql_filter_pre_show_handler);
+		window_info *win = &windows_list.window[questlog_win];
+		int min_x = 2*npc_name_border + min_npc_name_cols * max_npc_name_x + ELW_BOX_SIZE;
+		int min_y = min_npc_name_rows * max_npc_name_y;
+		quest_filter_win = create_window(questlog_add_npc_filter_str, questlog_win, -1, win->len_x + 10, 0,
+			min_x, static_cast<int>(win->len_y/max_npc_name_y)*max_npc_name_y,
+			ELW_SCROLLABLE|ELW_RESIZEABLE|ELW_WIN_DEFAULT);
+		set_window_handler(quest_filter_win, ELW_HANDLER_DISPLAY, (int (*)())&display_quest_filter_handler );
+		set_window_handler(quest_filter_win, ELW_HANDLER_CLICK, (int (*)())&click_quest_filter_handler );
+		set_window_handler(quest_filter_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_quest_filter_handler );
+		set_window_handler(quest_filter_win, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_quest_filter_handler );
+		set_window_handler(quest_filter_win, ELW_HANDLER_RESIZE, (int (*)())&resize_quest_filter_handler );
+		set_window_min_size(quest_filter_win, min_x, min_y);
+		set_window_scroll_inc(quest_filter_win, max_npc_name_y);
+		resize_quest_filter_handler(&windows_list.window[quest_filter_win], -1, -1);
 	}
 	else
-		cm_set(cm_ql_filter_id, menu_str.c_str(), cm_ql_filter_handler);
-
-	size_t line = 0;
-	for (std::map<std::string,int>::iterator i = filter_map.begin(); i != filter_map.end(); ++i, line++)
-		cm_bool_line(cm_ql_filter_id, line, &(i->second), NULL);
-
-	cm_show_direct(cm_ql_filter_id, questlog_win, -1);
+		show_window(quest_filter_win);
+	set_window_scroll_pos(quest_filter_win, 0);
 }
 
 
@@ -453,6 +602,9 @@ static void questlog_find_input_handler(const char *input_text, void *data)
 			goto_questlog_entry(entry);
 			return;
 		}
+#ifdef NEW_SOUND
+		add_sound_object(get_index_for_sound_type_name("alert1"), 0, 0, 1);
+#endif
 }
 
 //	Prompt for text to find.  The dialogue will not close when "OK"
@@ -531,7 +683,7 @@ static int cm_quest_handler(window_info *win, int widget_id, int mx, int my, int
 		}
 	switch (option)
 	{
-		case CMQL_FILTER: show_filter_window = true; break;
+		case CMQL_FILTER: open_filter_window(); break;
 		case CMQL_SHOWALL:
 			for (std::map<std::string,int>::iterator i = filter_map.begin(); i != filter_map.end(); ++i)
 				i->second = 1;
@@ -540,8 +692,8 @@ static int cm_quest_handler(window_info *win, int widget_id, int mx, int my, int
 		case CMQL_SHOWNONE:
 			for (std::map<std::string,int>::iterator i = filter_map.begin(); i != filter_map.end(); ++i)
 				i->second = 0;
-			show_filter_window = true;
 			rebuild_active_entries((current_line < active_entries.size()) ?active_entries[current_line] :0);
+			open_filter_window();
 			break;		
 		case CMQL_COPY: if (over_entry < active_entries.size()) copy_entry(over_entry); break;
 		case CMQL_COPYALL: copy_all_entries(); break;
@@ -564,10 +716,6 @@ static int display_questlog_handler(window_info *win)
 	// If required, call the next stage of a entry input.
 	if (prompt_for_add_text)
 		questlog_add_text_input(win);
-
-	// If we need to show the filter window
-	if (show_filter_window && !cm_valid(cm_window_shown()))
-		open_filter_window();
 
 	if (show_help_text && mouse_over_questlog && (current_action == -1))
 	{
