@@ -466,7 +466,7 @@ static void open_filter_window(void)
 		window_info *win = &windows_list.window[questlog_win];
 		int min_x = 2*npc_name_border + min_npc_name_cols * max_npc_name_x + ELW_BOX_SIZE;
 		int min_y = min_npc_name_rows * max_npc_name_y;
-		quest_filter_win = create_window(questlog_add_npc_filter_str, questlog_win, -1, win->len_x + 10, 0,
+		quest_filter_win = create_window(questlog_npc_filter_title_str, questlog_win, -1, win->len_x + 10, 0,
 			min_x, static_cast<int>(win->len_y/max_npc_name_y)*max_npc_name_y,
 			ELW_SCROLLABLE|ELW_RESIZEABLE|ELW_WIN_DEFAULT);
 		set_window_handler(quest_filter_win, ELW_HANDLER_DISPLAY, (int (*)())&display_quest_filter_handler );
