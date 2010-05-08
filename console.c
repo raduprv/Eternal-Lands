@@ -1244,10 +1244,14 @@ static int command_cast_spell(char *text, int len)
 		text = strstr(text, "27");
 	
 	/* while we have hex digit pairs to process */
-	while (valid_looking_message && strlen(text)>1 && index<30)
+	while (valid_looking_message && strlen(text)>0 && index<30)
 	{
 		int i;
 		Uint8 d[2];
+		while (*text==' ')
+			text++;
+		if (strlen(text)<2)
+			break;
 		for (i=0; i<2; i++)
 		{
 			d[i] = *text++;
