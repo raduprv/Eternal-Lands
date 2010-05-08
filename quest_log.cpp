@@ -545,6 +545,7 @@ static void add_entry(window_info *win, size_t entry)
 		return;
 	current_action = CMQL_ADD;
 	adding_insert_pos = (entry < active_entries.size()) ?active_entries[entry] :quest_entries.size();
+	close_ipu(&ipu_questlog);
 	init_ipu(&ipu_questlog, questlog_win, -1, -1, MAX_USERNAME_LENGTH, 1, questlog_input_cancel_handler, questlog_add_npc_input_handler);
 	ipu_questlog.x = (win->len_x - ipu_questlog.popup_x_len) / 2;
 	ipu_questlog.y = (win->len_y - ipu_questlog.popup_y_len) / 2;
@@ -566,6 +567,7 @@ static void questlog_add_npc_input_handler(const char *input_text, void *data)
 static void questlog_add_text_input(window_info *win)
 {
 	prompt_for_add_text = false;
+	close_ipu(&ipu_questlog);
 	init_ipu(&ipu_questlog, questlog_win, 400, -1, 256, 5, questlog_input_cancel_handler, questlog_add_text_input_handler);
 	ipu_questlog.x = (win->len_x - ipu_questlog.popup_x_len) / 2;
 	ipu_questlog.y = (win->len_y - ipu_questlog.popup_y_len) / 2;
@@ -616,6 +618,7 @@ static void find_in_entry(window_info *win)
 	if (current_action != -1)
 		return;
 	current_action = CMQL_FILTER;
+	close_ipu(&ipu_questlog);
 	init_ipu(&ipu_questlog, questlog_win, -1, -1, 21, 1, questlog_input_cancel_handler, questlog_find_input_handler);
 	ipu_questlog.x = (win->len_x - ipu_questlog.popup_x_len) / 2;
 	ipu_questlog.y = win->len_y + 20;
@@ -909,6 +912,7 @@ extern "C" void fill_questlog_win ()
 		cm_questlog_id = cm_create(cm_questlog_menu_str, cm_quest_handler);
 		cm_add_window(cm_questlog_id, questlog_win);
 		cm_set_pre_show_handler(cm_questlog_id, cm_questlog_pre_show_handler);
+		init_ipu(&ipu_questlog, -1, -1, -1, 1, 1, NULL, NULL);
 	}
 #endif
 }
