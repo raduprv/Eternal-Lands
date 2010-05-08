@@ -450,7 +450,8 @@ static int keypress_quest_filter_handler(window_info *win, int mx, int my, Uint3
 static int mouseover_quest_filter_handler(window_info *win, int mx, int my)
 {
 	mx -= npc_name_border;
-	if ((my >= 0) && (mx >= 0) && (mx < (npc_name_cols * max_npc_name_x)))
+	int yoffset = get_window_scroll_pos(win->window_id);
+	if ((my >= yoffset) && (mx >= 0) && (mx < (npc_name_cols * max_npc_name_x)))
 		quest_filter_active_npc_name = static_cast<int>(my / max_npc_name_y) * npc_name_cols + static_cast<int>(mx / max_npc_name_x);
 	return 0; // make sure we get a arrow cursor
 }
