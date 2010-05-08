@@ -371,7 +371,11 @@ void print_queue(actor *act) {
 		printf("   Horse %s queue:",act->actor_name);
 		printf(" -->");
 		for(k=0; k<MAX_CMD_QUEUE; k++){
-			printf("%i|",actors_list[act->attached_actor]->que[k]);
+			if(actors_list[act->attached_actor]->que[k]==enter_combat) printf("IC");
+			if(actors_list[act->attached_actor]->que[k]==leave_combat) printf("LC");
+			if(actors_list[act->attached_actor]->que[k]>=move_n&&actors_list[act->attached_actor]->que[k]<=move_nw) printf("M");
+			if(actors_list[act->attached_actor]->que[k]>=turn_n&&actors_list[act->attached_actor]->que[k]<=turn_nw) printf("R");
+			printf("%2i|",actors_list[act->attached_actor]->que[k]);
 		}
 		printf("\n");
 	}
@@ -381,16 +385,12 @@ void print_queue(actor *act) {
 #ifdef MORE_ATTACHED_ACTORS
 void attached_info(int i, int c){
 					if(actors_list[i]->actor_id==yourself&&actors_list[i]->que[0]!=nothing) {
-						printf("%i---------> DOING: %i -----------",c,actors_list[i]->que[0]);
+						printf("%i---------> DOING: %i -----------\n",c,actors_list[i]->que[0]);
 						print_queue(actors_list[i]);
-						printf("\n                                   ");
-						if(actors_list[i]->attached_actor>=0) print_queue(actors_list[MY_HORSE_ID(i)]);
-						printf("\n");
 					}
 					if(actors_list[i]->actor_id<0&&actors_list[i]->que[0]!=wait_cmd&&actors_list[i]->que[0]!=nothing){
-						printf("%i---------> DOING (horse): %i ---",c,actors_list[i]->que[0]);
-						print_queue(actors_list[i]);
-						printf("\n");
+						printf("%i---------> DOING (horse): %i ---\n",c,actors_list[i]->que[0]);
+						print_queue(actors_list[actors_list[i]->attached_actor]);
 					}
 
 }
@@ -475,8 +475,8 @@ void move_to_next_frame()
 
 			//9 frames, not moving, and another command is queued farther on (based on how long we've done this action)
 			if(!actors_list[i]->moving && !actors_list[i]->rotating){
-				/*
-					actors_list[i]->stop_animation=1;	//force stopping, not looping
+				
+				/*	actors_list[i]->stop_animation=1;	//force stopping, not looping
 					actors_list[i]->busy=0;	//ok, take the next command
 					LOG_TO_CONSOLE(c_green2,"FREE");
 					//Idle here?
@@ -795,6 +795,27 @@ int handle_emote_command(int act_id, emote_command *command)
 }
 #endif // EMOTES
 
+#ifdef MORE_ATTACHED_ACTORS
+void add_rotation_to_actor(int id, int angle, int time){
+
+			printf("%i. ACTOR %i (rotating: %i): time left -> %i, z speed -> %f\n",thecount,id,actors_list[id]->rotating,actors_list[id]->rotate_time_left,actors_list[id]->rotate_z_speed);
+
+			if(!actors_list[id]->rotating){
+				actors_list[id]->rotate_z_speed=(float)angle/(float)time;
+				actors_list[id]->rotate_time_left=time;
+				actors_list[id]->rotating=1;
+				actors_list[id]->stop_animation=1;
+			} else {
+				//add correct rotation to an already rotating actor
+				actors_list[id]->rotate_z_speed=
+					(actors_list[id]->rotate_z_speed*(float)actors_list[id]->rotate_time_left+angle)/(float)actors_list[id]->rotate_time_left;
+			}
+
+			printf("%i. RESULT FOR ACTOR %i (rotating: %i): time left -> %i, z speed -> %f\n",thecount,id,actors_list[id]->rotating,actors_list[id]->rotate_time_left,actors_list[id]->rotate_z_speed);
+
+}
+#endif
+
 //in case the actor is not busy, and has commands in it's que, execute them
 void next_command()
 {
@@ -930,24 +951,38 @@ void next_command()
 							you_stand_up();
 						break;
 					case enter_combat:
+					case leave_combat:
+						{
+						int fight_k = (actors_list[i]->que[0]==enter_combat) ? (1):(0);
+						int combat_frame = (fight_k) ? (cal_actor_in_combat_frame):(cal_actor_out_combat_frame);
 #ifdef MORE_ATTACHED_ACTORS
+						int combat_held_frame = (fight_k) ? (cal_actor_in_combat_held_frame):(cal_actor_out_combat_held_frame);
+						int mul_angle = (fight_k) ? (-1):(1);
+
 						if(HAS_HORSE(i)){
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[cal_actor_in_combat_held_frame]);
+							cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[combat_held_frame]);
+							//rotate horse and actor
+							add_rotation_to_actor(i,mul_angle*HORSE_FIGHT_ROTATION,HORSE_FIGHT_TIME);
+							add_rotation_to_actor(MY_HORSE_ID(i),mul_angle*HORSE_FIGHT_ROTATION,HORSE_FIGHT_TIME);
 							//horse enter combat
-							MY_HORSE(i)->fighting=1;
+							MY_HORSE(i)->fighting=fight_k;
 							MY_HORSE(i)->stop_animation=1;
-							cal_actor_set_anim(MY_HORSE_ID(i),actors_defs[MY_HORSE(i)->actor_type].cal_frames[cal_actor_in_combat_held_frame]);
+							cal_actor_set_anim(MY_HORSE_ID(i),actors_defs[MY_HORSE(i)->actor_type].cal_frames[combat_frame]);
 						} else
 #endif
-						cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[cal_actor_in_combat_frame]);
+						cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[combat_frame]);
 						actors_list[i]->stop_animation=1;
-						actors_list[i]->fighting=1;
-						//if (actors_list[i]->actor_id==yourself) LOG_TO_CONSOLE(c_green2,"Enter Combat");
+						actors_list[i]->fighting=fight_k;
+						}
 						break;
-					case leave_combat:
+/*					case leave_combat:
 #ifdef MORE_ATTACHED_ACTORS
 						if(HAS_HORSE(i)){
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[cal_actor_out_combat_held_frame]);
+							//rotate counterclowwise horse and actor
+							add_rotation_to_actor(i,HORSE_FIGHT_ROTATION,HORSE_FIGHT_TIME);
+							rotate_actor(MY_HORSE_ID(i),HORSE_FIGHT_ROTATION,HORSE_FIGHT_TIME);
+							
 							cal_actor_set_anim(MY_HORSE_ID(i),actors_defs[MY_HORSE(i)->actor_type].cal_frames[cal_actor_out_combat_frame]);
 							MY_HORSE(i)->stop_animation=1;
 							MY_HORSE(i)->fighting=0;
@@ -957,6 +992,7 @@ void next_command()
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->fighting=0;
 						break;
+*/
 					case attack_up_1:
 					case attack_up_2:
 					case attack_up_3:
@@ -1028,9 +1064,9 @@ void next_command()
 #ifndef MORE_ATTACHED_ACTORS
 							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_frames[index]);
 #else
-							if(actors_list[i]->attached_actor>=0&&actors_list[i]->actor_id>=0) {
+							if(HAS_HORSE(i)/*actors_list[i]->attached_actor>=0&&actors_list[i]->actor_id>=0*/) {
 								//actor does combat anim
-								index+=30; //select held animations
+								index+=30; //select held weapon animations
 								cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_frames[index]);
 							} else {
 								//normal weapon animation
@@ -1038,17 +1074,18 @@ void next_command()
 							}
 #endif
 						} else {
-#ifdef MORE_ATTACHED_ACTORS
-							if(actors_list[i]->actor_id<0) {
+/*#ifdef MORE_ATTACHED_ACTORS
+						if(IS_HORSE(i)) {
 								//horse with knight
-								index+=42;
+								index+=19;
 								cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[index]);
 							} else
 #endif
-						 {
-							index += 18;
+						 {*/
+							//select normal actor att frames
+							index += 19;
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[index]);
-						 }
+						 //}
 						}
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->fighting=1;
@@ -1458,6 +1495,9 @@ void next_command()
 						} else if(actors_list[i]->que[0]>=turn_n && actors_list[i]->que[0]<=turn_nw) {
 							float rotation_angle;
 
+#ifdef MORE_ATTACHED_ACTORS
+							if(!IS_HORSE(i)) {
+#endif
 							targeted_z_rot=(actors_list[i]->que[0]-turn_n)*45.0f;
 							rotation_angle=get_rotation_vector(z_rot,targeted_z_rot);
 							actors_list[i]->rotate_z_speed=rotation_angle/360.0f;
@@ -1465,6 +1505,7 @@ void next_command()
 							actors_list[i]->rotating=1;
 							actors_list[i]->stop_animation=1;
 #ifdef MORE_ATTACHED_ACTORS
+							}
 							if(HAS_HORSE(i)){
 								targeted_z_rot=(actors_list[i]->que[0]-turn_n)*45.0f;
 								rotation_angle=get_rotation_vector(MY_HORSE(i)->z_rot,targeted_z_rot);
@@ -1472,8 +1513,10 @@ void next_command()
 								MY_HORSE(i)->rotate_time_left=360;
 								MY_HORSE(i)->rotating=1;
 								MY_HORSE(i)->stop_animation=1;
-								//maybe this could be played while the horse is sliding?
-					//cal_actor_set_anim(MY_HORSE_ID(i),*get_pose_frame(MY_HORSE(i)->actor_type,MY_HORSE(i),EMOTE_RUNNING,0));
+								if(actors_list[i]->fighting) {
+								add_rotation_to_actor(i,-HORSE_FIGHT_ROTATION,HORSE_FIGHT_TIME);
+								add_rotation_to_actor(MY_HORSE_ID(i),-HORSE_FIGHT_ROTATION,HORSE_FIGHT_TIME);
+								}
 							}
 #endif
 							missiles_log_message("%s (%d): rotation %d requested", actors_list[i]->actor_name, actors_list[i]->actor_id, actors_list[i]->que[0] - turn_n);
@@ -1684,6 +1727,9 @@ void add_command_to_actor(int actor_id, unsigned char command)
 	} else {
 		LOCK_ACTORS_LISTS();
 
+		if (get_our_actor()->actor_id==act->actor_id) printf("ADD COMMAND %i to %i\n",command,actor_id);
+
+
 		if (command == missile_miss) {
 			missiles_log_message("%s (%d): will miss his target", act->actor_name, actor_id);
 			if (act->range_actions_count <= MAX_RANGE_ACTION_QUEUE &&
@@ -1743,6 +1789,39 @@ void add_command_to_actor(int actor_id, unsigned char command)
 						break;
 				}
 			}
+
+#ifdef MORE_ATTACHED_ACTORS
+			if(act->attached_actor>=0) {
+				//strip horse queue too
+				int j=0;
+				actor *horse=actors_list[act->attached_actor];
+				
+			for(k=0; k<MAX_CMD_QUEUE; k++){
+				switch(horse->que[k]){
+					case pain1:
+					case pain2:
+					case attack_up_1:
+					case attack_up_2:
+					case attack_up_3:
+					case attack_up_4:
+					case attack_down_1:
+					case attack_down_2:
+						horse->que[k]= nothing;
+						break;
+
+					default:
+						horse->que[j]= horse->que[k];
+						j++;
+						if(j<=k){
+							horse->que[k]= nothing;
+						}
+						break;
+				}
+			}
+			}
+#endif
+				
+			
 
 			if(act->last_command == nothing)
 			{
@@ -1812,17 +1891,17 @@ void add_command_to_actor(int actor_id, unsigned char command)
 				act->que[k]=nothing;
 				sanitize_cmd_queue(act);
 				//if(act->actor_id==yourself) printf("   actor %s: skipped %i and %i\n",act->actor_name,j,k);
+#ifdef MORE_ATTACHED_ACTORS
+				if(act->attached_actor >=0&&j2>=0&&actors_list[act->attached_actor]->que[j2]==wait_cmd) {
+					//remove leave_combat and enter_combat for horse
+					actors_list[act->attached_actor]->que[j2]=nothing;
+					actors_list[act->attached_actor]->que[k2]=nothing;
+					sanitize_cmd_queue(actors_list[act->attached_actor]);
+					//if(act->actor_id==yourself) printf("   horse %s: skipped %i and %i\n",act->actor_name,j2,k2);
+				}
+#endif
 			}
 			
-#ifdef MORE_ATTACHED_ACTORS
-			if(act->attached_actor >=0&&j2>=0&&actors_list[act->attached_actor]->que[j2]==leave_combat) {
-				//remove leave_combat and enter_combat for horse
-				actors_list[act->attached_actor]->que[j2]=nothing;
-				actors_list[act->attached_actor]->que[k2]=nothing;
-				sanitize_cmd_queue(actors_list[act->attached_actor]);
-				//if(act->actor_id==yourself) printf("   horse %s: skipped %i and %i\n",act->actor_name,j2,k2);
-			}
-#endif
 			//if(act->actor_id==yourself) printf("   ***Skip Done***\n");
 			//if(act->actor_id==yourself) print_queue(act);
 		}

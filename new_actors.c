@@ -1016,6 +1016,16 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	if (attachment_type >= 0)
 		add_actor_attachment(actor_id, attachment_type);
 
+#ifdef MORE_ATTACHED_ACTORS
+	if(frame==frame_combat_idle) {
+		//if fighting turn the horse and the fighter
+			actors_list[i]->fighting=1;
+			MY_HORSE(i)->fighting=1;
+			add_rotation_to_actor(i,HORSE_FIGHT_ROTATION,HORSE_FIGHT_TIME);
+			add_rotation_to_actor(MY_HORSE_ID(i),HORSE_FIGHT_ROTATION,HORSE_FIGHT_TIME);
+	}
+#endif
+
 	if (actors_defs[actor_type].coremodel!=NULL) {
 		actors_list[i]->calmodel=model_new(actors_defs[actor_type].coremodel);
 

@@ -443,6 +443,16 @@ typedef struct
 #define MY_HORSE(a) (actors_list[actors_list[a]->attached_actor])
 #define MY_HORSE_ID(a) (actors_list[a]->attached_actor)
 #define HAS_HORSE(a) ((MY_HORSE_ID(a)>=0)&&(MY_HORSE(a)->actor_id<0))
+#define IS_HORSE(a) (actors_list[a]->attached_actor>=0&&actors_list[a]->actor_id<0)
+
+
+#ifdef MORE_ATTACHED_ACTORS
+#define HORSE_FIGHT_ROTATION 45
+#define HORSE_FIGHT_TIME 180
+void add_rotation_to_actor(int id, int angle, int time);
+#endif
+
+
 
 #ifdef EMOTES
 #define MAX_EMOTE_LEN 20
