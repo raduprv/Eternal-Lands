@@ -536,7 +536,7 @@ namespace ItemLists
 	void List_Container::del(size_t list_index)
 	{
 		assert(list_index < size());
-		saved_item_lists.erase(saved_item_lists.begin()+previewed);
+		saved_item_lists.erase(saved_item_lists.begin()+list_index);
 	}
 
 
@@ -956,6 +956,7 @@ static int options_handler(window_info *win, int widget_id, int mx, int my, int 
 	{
 		// create an input window for the name and let the callback save the list
 		cm_grey_line(cm_item_list_options_but, OPTION_SAVE, 1);
+		close_ipu(&ipu_item_list_name);
 		init_ipu(&ipu_item_list_name, items_win, 310, 100, 26, 1, name_cancel_handler, name_input_handler);
 		ipu_item_list_name.x = win->len_x + 10;
 		ipu_item_list_name.y = (win->len_y - ipu_item_list_name.popup_y_len) / 2;
@@ -1043,6 +1044,7 @@ extern "C"
 		ItemLists::Vars::lists()->load();
 		ItemLists::Vars::cat_maps()->load();
 		update_list_window();
+		init_ipu(&ipu_item_list_name, -1, -1, -1, 1, 1, NULL, NULL);
 	}
 
 	void update_category_maps(int image_id, Uint16 item_id, int cat_id)
