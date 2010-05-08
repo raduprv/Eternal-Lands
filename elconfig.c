@@ -1373,10 +1373,17 @@ int check_var (char *str, var_name_type type)
 			// Needed, because var is never changed through widget
 			our_vars.var[i]->saved= 0;
 		case OPT_BOOL:
+		{
+			int new_val;
 			p= our_vars.var[i]->var;
-			if ((atoi (ptr) > 0) != *p)
+			if (ptr && ptr[0]=='!')
+				new_val = !*p;
+			else
+				new_val = atoi (ptr);
+			if ((new_val>0) != *p)
 				our_vars.var[i]->func (our_vars.var[i]->var); //only call if value has changed
 			return 1;
+		}
 		case OPT_STRING:
 		case OPT_PASSWORD:
 			our_vars.var[i]->func (our_vars.var[i]->var, ptr, our_vars.var[i]->len);
