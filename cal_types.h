@@ -88,7 +88,10 @@ enum {
 	cal_actor_attack_down_10_held_frame = 61,
 	cal_actor_turn_left_frame=62,
 	cal_actor_turn_right_frame=63,
-	NUM_ACTOR_FRAMES = 64
+	cal_actor_in_combat_held_unarmed_frame = 64,
+	cal_actor_out_combat_held_unarmed_frame = 65,
+	cal_actor_combat_idle_held_unarmed_frame = 66,
+		NUM_ACTOR_FRAMES = 67
 #else
 	cal_actor_turn_left_frame=39,
 	cal_actor_turn_right_frame=40,

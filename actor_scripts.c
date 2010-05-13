@@ -577,7 +577,10 @@ void set_on_idle(int actor_idx)
 #ifdef MORE_ATTACHED_ACTORS
 			if(a->attached_actor>=0) {
 				//both for horses and actors
-				cal_actor_set_anim(actor_idx,actors_defs[a->actor_type].cal_frames[cal_actor_combat_idle_held_frame]);
+				if(IS_HORSE(actor_idx))
+					cal_actor_set_anim(actor_idx,actors_defs[a->actor_type].cal_frames[cal_actor_combat_idle_frame]);
+				else if (ACTOR_WEAPON(actor_idx)->turn_horse&&ACTOR(actor_idx)->horse_rotated) cal_actor_set_anim(actor_idx,actors_defs[a->actor_type].cal_frames[cal_actor_combat_idle_held_frame]);
+				else cal_actor_set_anim(actor_idx,actors_defs[a->actor_type].cal_frames[cal_actor_combat_idle_held_unarmed_frame]);
 			} else
 #endif
             cal_actor_set_anim(actor_idx,actors_defs[a->actor_type].cal_frames[cal_actor_combat_idle_frame]);
@@ -796,22 +799,28 @@ int handle_emote_command(int act_id, emote_command *command)
 #endif // EMOTES
 
 #ifdef MORE_ATTACHED_ACTORS
-void add_rotation_to_actor(int id, int angle, int time){
+int rotate_actor_and_horse(int id, int mul){
 
-			printf("%i. ACTOR %i (rotating: %i): time left -> %i, z speed -> %f\n",thecount,id,actors_list[id]->rotating,actors_list[id]->rotate_time_left,actors_list[id]->rotate_z_speed);
+			printf("%i. ACTOR %s (rotating: %i): time left -> %i, z speed -> %f\n",thecount,ACTOR(id)->actor_name,actors_list[id]->rotating,actors_list[id]->rotate_time_left,actors_list[id]->rotate_z_speed);
 
-			if(!actors_list[id]->rotating){
-				actors_list[id]->rotate_z_speed=(float)angle/(float)time;
-				actors_list[id]->rotate_time_left=time;
-				actors_list[id]->rotating=1;
-				actors_list[id]->stop_animation=1;
+			if(!ACTOR(id)->rotating){
+				ACTOR(id)->rotate_z_speed=(float)mul*HORSE_FIGHT_ROTATION/(float)HORSE_FIGHT_TIME;
+				ACTOR(id)->rotate_time_left=HORSE_FIGHT_TIME;
+				ACTOR(id)->rotating=1;
+				ACTOR(id)->stop_animation=1;
+				ACTOR(id)->horse_rotated=(mul<0) ? (1):(0); //<0 enter fight, >=0 leave fight
+				MY_HORSE(id)->rotate_z_speed=(float)mul*HORSE_FIGHT_ROTATION/(float)HORSE_FIGHT_TIME;
+				MY_HORSE(id)->rotate_time_left=HORSE_FIGHT_TIME;
+				MY_HORSE(id)->rotating=1;
+				MY_HORSE(id)->stop_animation=1;
 			} else {
 				//add correct rotation to an already rotating actor
-				actors_list[id]->rotate_z_speed=
-					(actors_list[id]->rotate_z_speed*(float)actors_list[id]->rotate_time_left+angle)/(float)actors_list[id]->rotate_time_left;
+				//actors_list[id]->rotate_z_speed=
+					//(actors_list[id]->rotate_z_speed*(float)actors_list[id]->rotate_time_left+angle)/(float)actors_list[id]->rotate_time_left;
+					printf("%i. no rotation\n",thecount);
 			}
 
-			printf("%i. RESULT FOR ACTOR %i (rotating: %i): time left -> %i, z speed -> %f\n",thecount,id,actors_list[id]->rotating,actors_list[id]->rotate_time_left,actors_list[id]->rotate_z_speed);
+			printf("%i. RESULT FOR ACTOR %s (rotating: %i): time left -> %i, z speed -> %f\n",thecount,ACTOR(id)->actor_name,actors_list[id]->rotating,actors_list[id]->rotate_time_left,actors_list[id]->rotate_z_speed);
 
 }
 #endif
@@ -876,7 +885,7 @@ void next_command()
 				actor_type=actors_list[i]->actor_type;
 #ifdef MORE_ATTACHED_ACTORS
 				//just for debugging
-				attached_info(i,thecount);
+				//attached_info(i,thecount);
 #endif
 				switch(actors_list[i]->que[0]) {
 					case kill_me:
@@ -957,13 +966,16 @@ void next_command()
 						int combat_frame = (fight_k) ? (cal_actor_in_combat_frame):(cal_actor_out_combat_frame);
 #ifdef MORE_ATTACHED_ACTORS
 						int combat_held_frame = (fight_k) ? (cal_actor_in_combat_held_frame):(cal_actor_out_combat_held_frame);
+						int combat_held_unarmed_frame = (fight_k) ? (cal_actor_in_combat_held_unarmed_frame):(cal_actor_out_combat_held_unarmed_frame);
 						int mul_angle = (fight_k) ? (-1):(1);
 
 						if(HAS_HORSE(i)){
+							//rotate horse and actor if needed
+							if(ACTOR_WEAPON(i)->turn_horse) {
+							if(fight_k||ACTOR(i)->horse_rotated) rotate_actor_and_horse(i,mul_angle);
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[combat_held_frame]);
-							//rotate horse and actor
-							add_rotation_to_actor(i,mul_angle*HORSE_FIGHT_ROTATION,HORSE_FIGHT_TIME);
-							add_rotation_to_actor(MY_HORSE_ID(i),mul_angle*HORSE_FIGHT_ROTATION,HORSE_FIGHT_TIME);
+							}
+							else cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[combat_held_unarmed_frame]);
 							//horse enter combat
 							MY_HORSE(i)->fighting=fight_k;
 							MY_HORSE(i)->stop_animation=1;
@@ -971,6 +983,7 @@ void next_command()
 						} else
 #endif
 						cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[combat_frame]);
+
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->fighting=fight_k;
 						}
@@ -1066,7 +1079,7 @@ void next_command()
 #else
 							if(HAS_HORSE(i)/*actors_list[i]->attached_actor>=0&&actors_list[i]->actor_id>=0*/) {
 								//actor does combat anim
-								index+=30; //select held weapon animations
+								index+=cal_weapon_attack_up_1_held_frame; //30; //select held weapon animations
 								cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_frames[index]);
 							} else {
 								//normal weapon animation
@@ -1074,18 +1087,19 @@ void next_command()
 							}
 #endif
 						} else {
-/*#ifdef MORE_ATTACHED_ACTORS
-						if(IS_HORSE(i)) {
-								//horse with knight
-								index+=19;
+							//non enhanced models
+#ifdef MORE_ATTACHED_ACTORS
+						if(HAS_HORSE(i)) {
+								//non enhanced model with a horse
+								index+=cal_actor_attack_up_1_held_frame;
 								cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[index]);
-							} else
+						} else
 #endif
-						 {*/
+						 {
 							//select normal actor att frames
-							index += 19;
+							index +=cal_actor_attack_up_1_frame;
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[index]);
-						 //}
+						 }
 						}
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->fighting=1;
@@ -1094,6 +1108,18 @@ void next_command()
 						// Maybe play a battlecry sound
 						add_battlecry_sound(actors_list[i]);
 #endif // NEW_SOUND
+#ifdef MORE_ATTACHED_ACTORS
+						//check if a horse rotation is needed
+						if(HAS_HORSE(i)&&!ACTOR(i)->horse_rotated&&ACTOR_WEAPON(i)->turn_horse) {
+							//horse, not rotated, to be rotated -> do rotation
+							rotate_actor_and_horse(i,-1);
+						} else if (HAS_HORSE(i)&&ACTOR(i)->horse_rotated&&!ACTOR_WEAPON(i)->turn_horse) {
+							//horse, rotated, not to be rotated -> undo rotation
+							ACTOR(i)->horse_rotated=0;							
+							rotate_actor_and_horse(i,1);
+
+						}							
+#endif
 						break;
 					case turn_left:
 					case turn_right: 
@@ -1496,7 +1522,32 @@ void next_command()
 							float rotation_angle;
 
 #ifdef MORE_ATTACHED_ACTORS
-							if(!IS_HORSE(i)) {
+							if(1){ //<---AWFUL, HERE FOR DEBUG ONLY, REMOVE IT!
+								//int horse_angle= (HAS_HORSE(i)&&ACTOR_WEAPON(i)->turn_horse) ? (HORSE_FIGHT_ROTATION):(0);
+								int horse_angle=0;
+								if(IS_HORSE(i)) horse_angle=(ACTOR(i)->fighting&&ACTOR_WEAPON(MY_HORSE_ID(i))->turn_horse) ? (HORSE_FIGHT_ROTATION):(0);
+								else if(HAS_HORSE(i)) horse_angle=(ACTOR(i)->fighting&&ACTOR_WEAPON(i)->turn_horse) ? (HORSE_FIGHT_ROTATION):(0);
+								targeted_z_rot=(ACTOR(i)->que[0]-turn_n)*45.0f-horse_angle;
+								rotation_angle=get_rotation_vector(ACTOR(i)->z_rot,targeted_z_rot);
+								ACTOR(i)->rotate_z_speed=rotation_angle/360.0f;
+								ACTOR(i)->rotate_time_left=360;
+								ACTOR(i)->rotating=1;
+								ACTOR(i)->stop_animation=1;
+								if(ACTOR(i)->fighting&&horse_angle!=0) ACTOR(i)->horse_rotated=1;
+								/*if(HAS_HORSE(i)){
+									rotation_angle=get_rotation_vector(MY_HORSE(i)->z_rot,targeted_z_rot);
+									MY_HORSE(i)->rotate_z_speed=rotation_angle/360.0f;
+									MY_HORSE(i)->rotate_time_left=360;
+									MY_HORSE(i)->rotating=1;
+									MY_HORSE(i)->stop_animation=1;
+									printf("%i. rotating ACTOR %i: time left -> %i, z speed -> %f\n",thecount,i,ACTOR(i)->rotate_time_left,ACTOR(i)->rotate_z_speed);
+									printf("%i. rotating ACTOR %i horse: time left -> %i, z speed -> %f\n",thecount,i,MY_HORSE(i)->rotate_time_left,MY_HORSE(i)->rotate_z_speed);*/
+								//}
+								/*if(ACTOR(i)->fighting&&ACTOR_WEAPON(i)->turn_horse) {
+								add_rotation_to_actor(i,-HORSE_FIGHT_ROTATION,HORSE_FIGHT_TIME);
+								add_rotation_to_actor(MY_HORSE_ID(i),-HORSE_FIGHT_ROTATION,HORSE_FIGHT_TIME);
+								}*/
+							} else {
 #endif
 							targeted_z_rot=(actors_list[i]->que[0]-turn_n)*45.0f;
 							rotation_angle=get_rotation_vector(z_rot,targeted_z_rot);
@@ -1505,18 +1556,6 @@ void next_command()
 							actors_list[i]->rotating=1;
 							actors_list[i]->stop_animation=1;
 #ifdef MORE_ATTACHED_ACTORS
-							}
-							if(HAS_HORSE(i)){
-								targeted_z_rot=(actors_list[i]->que[0]-turn_n)*45.0f;
-								rotation_angle=get_rotation_vector(MY_HORSE(i)->z_rot,targeted_z_rot);
-								MY_HORSE(i)->rotate_z_speed=rotation_angle/360.0f;
-								MY_HORSE(i)->rotate_time_left=360;
-								MY_HORSE(i)->rotating=1;
-								MY_HORSE(i)->stop_animation=1;
-								if(actors_list[i]->fighting) {
-								add_rotation_to_actor(i,-HORSE_FIGHT_ROTATION,HORSE_FIGHT_TIME);
-								add_rotation_to_actor(MY_HORSE_ID(i),-HORSE_FIGHT_ROTATION,HORSE_FIGHT_TIME);
-								}
 							}
 #endif
 							missiles_log_message("%s (%d): rotation %d requested", actors_list[i]->actor_name, actors_list[i]->actor_id, actors_list[i]->que[0] - turn_n);
@@ -3149,6 +3188,9 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 
 	weapon = &(act->weapon[type_idx]);
 	ok= parse_actor_weapon_detail(act, weapon, cfg, defaults);
+#ifdef MORE_ATTACHED_ACTORS
+	weapon->turn_horse=get_int_property(cfg, "turn_horse");	
+#endif
 
 	// check for default entries, if found, use them to fill in missing data
 	if(defaults){
@@ -3705,6 +3747,12 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 				index = cal_actor_out_combat_held_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_combat_idle_held") == 0) {
 				index = cal_actor_combat_idle_held_frame;
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_in_combat_held_unarmed") == 0) {
+				index = cal_actor_in_combat_held_unarmed_frame;
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_out_combat_held_unarmed") == 0) {
+				index = cal_actor_out_combat_held_unarmed_frame;
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_combat_idle_held_unarmed") == 0) {
+				index = cal_actor_combat_idle_held_unarmed_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up_1_held") == 0) {
 				index = cal_actor_attack_up_1_held_frame;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up_2_held") == 0) {

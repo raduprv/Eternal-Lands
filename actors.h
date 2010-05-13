@@ -205,6 +205,9 @@ typedef struct
 	char skin_mask[MAX_FILE_PATH];
 	int glow;
 	int mesh_index;
+#ifdef MORE_ATTACHED_ACTORS
+	int turn_horse;
+#endif
 
 	struct cal_anim cal_frames[NUM_WEAPON_FRAMES];
 
@@ -444,12 +447,13 @@ typedef struct
 #define MY_HORSE_ID(a) (actors_list[a]->attached_actor)
 #define HAS_HORSE(a) ((MY_HORSE_ID(a)>=0)&&(MY_HORSE(a)->actor_id<0))
 #define IS_HORSE(a) (actors_list[a]->attached_actor>=0&&actors_list[a]->actor_id<0)
-
+#define ACTOR(a) (actors_list[a])
+#define ACTOR_WEAPON(a) (&(actors_defs[ACTOR(a)->actor_type].weapon[ACTOR(a)->cur_weapon]))
 
 #ifdef MORE_ATTACHED_ACTORS
-#define HORSE_FIGHT_ROTATION 45
+#define HORSE_FIGHT_ROTATION 60
 #define HORSE_FIGHT_TIME 180
-void add_rotation_to_actor(int id, int angle, int time);
+int rotate_actor_and_horse(int id, int mul);
 #endif
 
 
@@ -665,6 +669,9 @@ typedef struct
 
 	/*! \name Misc. animations*/
 	/*! \{ */
+#ifdef MORE_ATTACHED_ACTORS
+	char horse_rotated;
+#endif
 	char moving;		/*!< Specifies if the actor is currently on the move*/
 	char rotating;		/*!< Specifies if the actor is currently rotating*/
 	char stop_animation;	/*!< Don't loop trough the current animation (like for die, jump, etc.)*/
