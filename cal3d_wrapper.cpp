@@ -55,6 +55,18 @@ extern "C" CAL3D_WRAPPER_API enum CalBoolean CalMixer_ExecuteAction_Stop(CalMixe
 	return self->executeAction(id, delayIn, delayOut, 1.0f,true) ? True : False;
 }
 
+#ifdef EMOTES
+extern "C" CAL3D_WRAPPER_API enum CalBoolean CalMixer_ExecuteActionExt(struct CalMixer *self, int id, float delayIn, float delayOut, float weight, int autoLock){
+
+	//Execute Action id
+	//starting after delayIn, ending before delayOut
+	//with a specified weight
+	//and removing the action at the end if autolock is false
+
+	return self->executeAction(id, delayIn, delayOut, weight,(bool) autoLock) ? True : False;
+}
+#endif
+
 extern "C" CAL3D_WRAPPER_API void CalMixer_SetAnimationTime(CalMixer *self, float animationTime)
 {
 	self->setAnimationTime(animationTime);

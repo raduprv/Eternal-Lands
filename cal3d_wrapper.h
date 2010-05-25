@@ -432,6 +432,9 @@ CAL3D_WRAPPER_API enum CalBoolean  CalCoreSubmesh_EnableTangents(struct CalCoreS
   CAL3D_WRAPPER_API enum CalBoolean CalMixer_ClearCycle(struct CalMixer *self, int id, float delay);
   CAL3D_WRAPPER_API void CalMixer_Delete(struct CalMixer *self);
   CAL3D_WRAPPER_API enum CalBoolean CalMixer_ExecuteAction(struct CalMixer *self, int id, float delayIn, float delayOut);
+ #ifdef EMOTES
+  CAL3D_WRAPPER_API enum CalBoolean CalMixer_ExecuteActionExt(struct CalMixer *self, int id, float delayIn, float delayOut, float weight, int autoLock);
+ #endif
   CAL3D_WRAPPER_API void CalMixer_RemoveAction(struct CalMixer *self,int id);
   CAL3D_WRAPPER_API struct CalMixer *CalMixer_New(struct CalModel *pModel);
   CAL3D_WRAPPER_API void CalMixer_UpdateAnimation(struct CalMixer *self, float deltaTime);
