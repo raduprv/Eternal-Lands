@@ -56,7 +56,7 @@ extern "C" CAL3D_WRAPPER_API enum CalBoolean CalMixer_ExecuteAction_Stop(CalMixe
 }
 
 #ifdef EMOTES
-extern "C" CAL3D_WRAPPER_API enum CalBoolean CalMixer_ExecuteActionExt(struct CalMixer *self, int id, float delayIn, float delayOut, float weight, int autoLock){
+extern "C" CAL3D_WRAPPER_API enum CalBoolean CalMixer_ExecuteActionExt(CalMixer *self, int id, float delayIn, float delayOut, float weight, int autoLock){
 
 	//Execute Action id
 	//starting after delayIn, ending before delayOut
