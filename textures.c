@@ -2177,6 +2177,10 @@ int load_bmp8_enhanced_actor(enhanced_actor *this_actor, Uint8 a)
 #endif
 	if(this_actor->helmet_tex[0])
 		has_alpha+= load_bmp8_to_coordinates(this_actor->helmet_tex,texture_mem,80*TEXTURE_RATIO,149*TEXTURE_RATIO,a);
+#ifdef NECK_ITEMS
+	if(this_actor->neck_tex[0])
+		has_alpha+= load_bmp8_to_coordinates(this_actor->neck_tex,texture_mem,80*TEXTURE_RATIO,96*TEXTURE_RATIO,a);
+#endif
 	if(this_actor->cape_tex[0])
 		has_alpha+= load_bmp8_to_coordinates(this_actor->cape_tex,texture_mem,131*TEXTURE_RATIO,0,a);
 

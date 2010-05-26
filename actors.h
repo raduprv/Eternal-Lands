@@ -111,6 +111,9 @@ typedef struct
 	int weapon_meshindex;
 	int shield_meshindex;
 	int helmet_meshindex;
+#ifdef NECK_ITEMS
+	int neck_meshindex;
+#endif
 	int cape_meshindex;
 
 	/*! \name The texture names*/
@@ -141,6 +144,9 @@ typedef struct
 	char weapon_tex[MAX_FILE_PATH];
 	char shield_tex[MAX_FILE_PATH];
 	char helmet_tex[MAX_FILE_PATH];
+#ifdef NECK_ITEMS
+	char neck_tex[MAX_FILE_PATH];
+#endif
 	char cape_tex[MAX_FILE_PATH];
 	char hands_tex_save[MAX_FILE_PATH];
 	char has_alpha;//is there alpha masking?
@@ -152,6 +158,9 @@ typedef struct
 	int weapon_glow;
 	int shield_glow;
 	int helmet_glow;
+#ifdef NECK_ITEMS
+	int neck_glow;
+#endif
 	int cape_glow;
 	int legs_glow;
 	/*! \} */
@@ -361,6 +370,9 @@ typedef enum {
 	ACTOR_HAIR_SIZE,
 	ACTOR_BOOTS_SIZE,
 	ACTOR_LEGS_SIZE,
+#ifdef NECK_ITEMS
+	ACTOR_NECK_SIZE,
+#endif
 	ACTOR_NUM_PARTS
 } actor_parts_enum;
 
@@ -407,6 +419,9 @@ typedef struct
 	shield_part *shield;
 	body_part *cape;
 	body_part *helmet;
+#ifdef NECK_ITEMS
+	body_part *neck;
+#endif
 	weapon_part *weapon;
 	/*! \} */
 

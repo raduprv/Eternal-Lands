@@ -258,6 +258,16 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 								actors_list[i]->body_parts->helmet_meshindex = -1;
 								return;
 							}
+#ifdef NECK_ITEMS
+						if(which_part==KIND_OF_NECK)
+							{
+					     		model_detach_mesh(actors_list[i], actors_list[i]->body_parts->neck_meshindex);
+								actors_list[i]->body_parts->neck_tex[0]=0;
+								actors_list[i]->body_parts->neck_meshindex = -1;
+								return;
+							}
+
+#endif
 
 						return;
 					}
@@ -454,7 +464,18 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								actors_list[i]->helmet=which_id;
 #endif
 							}
+#ifdef NECK_ITEMS
+						else if (which_part==KIND_OF_NECK)
+							{
+								my_strcp(actors_list[i]->body_parts->neck_tex,actors_defs[actors_list[i]->actor_type].neck[which_id].skin_name);
+#ifdef CUSTOM_LOOK
+								custom_path(actors_list[i]->body_parts->neck_tex, playerpath, guildpath);
+#endif
+								model_attach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].neck[which_id].mesh_index);
+								actors_list[i]->body_parts->neck_meshindex=actors_defs[actors_list[i]->actor_type].neck[which_id].mesh_index;
+							}
 
+#endif //NECK_ITEMS
 						else if (which_part==KIND_OF_BODY_ARMOR)
 							{
 								my_strcp(actors_list[i]->body_parts->arms_tex,actors_defs[actors_list[i]->actor_type].shirt[which_id].arms_name);
@@ -539,6 +560,9 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	Uint8 shield;
 	Uint8 weapon;
 	Uint8 helmet;
+#ifdef NECK_ITEMS
+	Uint8 neck;
+#endif
 	int i;
 	int dead=0;
 	int kind_of_actor;
@@ -585,7 +609,9 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	weapon=*(in_data+19);
 	cape=*(in_data+20);
 	helmet=*(in_data+21);
-
+#ifdef NECK_ITEMS
+	neck=*(in_data+22);
+#endif
 
 #ifdef EXTRA_DEBUG
 	ERR();
@@ -891,6 +917,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	if(helmet!=HELMET_NONE)
 		{
 			my_strncp(this_actor->helmet_tex,actors_defs[actor_type].helmet[helmet].skin_name,sizeof(this_actor->helmet_tex));
+
 #ifdef CUSTOM_LOOK
 			custom_path(this_actor->helmet_tex, playerpath, guildpath);
 #endif //CUSTOM_LOOK
@@ -899,6 +926,22 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 		{
 			my_strncp(this_actor->helmet_tex,"",sizeof(this_actor->helmet_tex));
 		}
+
+#ifdef NECK_ITEMS
+	//neck
+	if(neck!=NECK_NONE)
+		{
+			my_strncp(this_actor->neck_tex,actors_defs[actor_type].neck[neck].skin_name,sizeof(this_actor->neck_tex));
+#ifdef CUSTOM_LOOK
+			custom_path(this_actor->neck_tex, playerpath, guildpath);
+#endif //CUSTOM_LOOK
+		}
+	else
+		{
+			my_strncp(this_actor->neck_tex,"",sizeof(this_actor->neck_tex));
+		}
+
+#endif //NECK_ITEMS
 
 	i=add_enhanced_actor(this_actor,f_x_pos,f_y_pos,0.0,f_z_rot,scale,actor_id);
 
@@ -1034,7 +1077,10 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			if (helmet!=HELMET_NONE) model_attach_mesh(actors_list[i], actors_defs[actor_type].helmet[helmet].mesh_index);
 			if (weapon!=WEAPON_NONE) model_attach_mesh(actors_list[i], actors_defs[actor_type].weapon[weapon].mesh_index);
 			if (shield!=SHIELD_NONE) model_attach_mesh(actors_list[i], actors_defs[actor_type].shield[shield].mesh_index);
-
+#ifdef NECK_ITEMS
+			if (neck!=NECK_NONE) model_attach_mesh(actors_list[i], actors_defs[actor_type].neck[neck].mesh_index);
+			actors_list[i]->body_parts->neck_meshindex=actors_defs[actor_type].neck[neck].mesh_index;
+#endif
 			actors_list[i]->body_parts->helmet_meshindex=actors_defs[actor_type].helmet[helmet].mesh_index;
 			actors_list[i]->body_parts->cape_meshindex=actors_defs[actor_type].cape[cape].mesh_index;
 			actors_list[i]->body_parts->shield_meshindex=actors_defs[actor_type].shield[shield].mesh_index;
@@ -1197,6 +1243,9 @@ actor * add_actor_interface(float x, float y, float z_rot, float scale, int acto
 			a->body_parts->legs_meshindex=actors_defs[actor_type].legs[pants].mesh_index;
 			a->body_parts->head_meshindex=actors_defs[actor_type].head[head].mesh_index;
 
+#ifdef NECK_ITEMS
+			a->body_parts->neck_meshindex=actors_defs[actor_type].neck[NECK_NONE].mesh_index;
+#endif
 			a->body_parts->helmet_meshindex=actors_defs[actor_type].helmet[HELMET_NONE].mesh_index;
 			a->body_parts->cape_meshindex=actors_defs[actor_type].cape[CAPE_NONE].mesh_index;
 			a->body_parts->shield_meshindex=actors_defs[actor_type].shield[SHIELD_NONE].mesh_index;

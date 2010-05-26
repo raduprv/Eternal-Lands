@@ -66,7 +66,11 @@ const dict_elem head_number_dict[] =
 	  { "5" ,  HEAD_5 },
 	  { NULL, -1      }
 	};
+#ifndef NECK_ITEMS
 int actor_part_sizes[ACTOR_NUM_PARTS] = {10, 40, 50, 100, 100, 100, 10, 20, 40, 60};		// Elements according to actor_parts_enum
+#else
+int actor_part_sizes[ACTOR_NUM_PARTS] = {10, 40, 50, 100, 100, 100, 10, 20, 40, 60, 20};		// Elements according to actor_parts_enum
+#endif
 #else // EXT_ACTOR_DICT
 #define MAX_SKIN_COLORS 7
 #define MAX_GLOW_MODES 5
@@ -3318,6 +3322,34 @@ int parse_actor_helmet (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	return parse_actor_body_part(act,helmet, cfg->children, "helmet", default_node);
 }
 
+#ifdef NECK_ITEMS
+int parse_actor_neck (actor_types *act, xmlNode *cfg, xmlNode *defaults)
+{
+	xmlNode *default_node= get_default_node(cfg, defaults);
+	int type_idx;
+	body_part *neck;
+
+	if(cfg == NULL || cfg->children == NULL) return 0;
+
+	type_idx= get_int_property(cfg, "id");
+
+	if(type_idx < 0 || type_idx >= actor_part_sizes[ACTOR_NECK_SIZE]){
+		LOG_ERROR("Unable to find id/property node %s\n", cfg->name);
+		return 0;
+	}
+
+	if (act->neck == NULL) {
+		int i;
+		act->neck = (body_part*)calloc(actor_part_sizes[ACTOR_NECK_SIZE], sizeof(body_part));
+		for (i = actor_part_sizes[ACTOR_NECK_SIZE]; i--;) act->neck[i].mesh_index= -1;
+	}
+
+	neck= &(act->neck[type_idx]);
+
+	return parse_actor_body_part(act,neck, cfg->children, "neck", default_node);
+}
+#endif
+
 #ifdef NEW_SOUND
 int parse_actor_sounds (actor_types *act, xmlNode *cfg)
 {
@@ -4062,6 +4094,16 @@ int cal_search_mesh (actor_types *act, const char *fn, const char *kind)
 				return act->helmet[i].mesh_index;
 		}
 	}
+#ifdef NECK_ITEMS
+	else if (act->neck && strcmp (kind, "neck") == 0)
+	{
+		for (i = 0; i < actor_part_sizes[ACTOR_NECK_SIZE]; i++)
+		{
+			if (strcmp (fn, act->neck[i].model_name) == 0 && act->neck[i].mesh_index != -1)
+				return act->neck[i].mesh_index;
+		}
+	}
+#endif
 	else if (act->shield && strcmp (kind, "shield") == 0)
 	{
 		for (i = 0; i < actor_part_sizes[ACTOR_SHIELD_SIZE]; i++)
@@ -4204,6 +4246,10 @@ int	parse_actor_nodes (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 				ok &= parse_actor_weapon(act, item, defaults);
 			} else if(xmlStrcasecmp(item->name, (xmlChar*)"helmet") == 0) {
 				ok &= parse_actor_helmet(act, item, defaults);
+#ifdef NECK_ITEMS
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"neck") == 0) {
+				ok &= parse_actor_neck(act, item, defaults);
+#endif
 #ifdef NEW_SOUND
 			} else if(xmlStrcasecmp(item->name, (xmlChar*)"sounds") == 0) {
 				ok &= parse_actor_sounds(act, item->children);
@@ -4488,6 +4534,10 @@ int parse_actor_part_sizes(xmlNode *node)
 					actor_part_sizes[ACTOR_CAPE_SIZE] = get_int_value(data);
 				} else if (!strcasecmp(str, "helmet")) {
 					actor_part_sizes[ACTOR_HELMET_SIZE] = get_int_value(data);
+#ifdef NECK_ITEMS
+				} else if (!strcasecmp(str, "neck")) {
+					actor_part_sizes[ACTOR_NECK_SIZE] = get_int_value(data);
+#endif
 				} else if (!strcasecmp(str, "weapon")) {
 					actor_part_sizes[ACTOR_WEAPON_SIZE] = get_int_value(data);
 				} else if (!strcasecmp(str, "shirt")) {

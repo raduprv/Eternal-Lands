@@ -261,7 +261,17 @@ extern "C" {
 #define KIND_OF_LEG_ARMOR 4
 #define KIND_OF_BODY_ARMOR 5
 #define KIND_OF_BOOT_ARMOR 6
+#ifdef NECK_ITEMS
+#define KIND_OF_NECK 7
+
+//NECK ITEMS CODES
+#define NECK_NONE 0
+
+
+#endif
 /*! @} */
+
+
 
 /*!
  * \name Helmets
