@@ -152,6 +152,12 @@ A few of things you can try:
 
 If you continue to have problems check the Eternal Lands forums, especially the "Help Me" and "Bug Report" sections.  If you post a message make sure you include information about your system; i.e video driver and version, operating system and version.  Make sure you check your error log for clues too and include the contents in any forum report.
 
+This information about your graphic hardware and software may help.
+Output from "lspci | grep -i vga":
+$(lspci | grep -i vga)
+Output from "glxinfo | head -5":
+$(glxinfo | head -5)
+
 The following is your error log contents.  Note it is overwritten each time you run the game.
 
 $(cat ~/.elc/error_log.txt)
