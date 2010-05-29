@@ -124,7 +124,10 @@ static size_t cm_counters = CM_INIT_VALUE;
 static int cm_selected_entry = -1;
 static int cm_selected_id = -1;
 static int cm_entry_count = -1;
+static int cm_floating_flag = 0;
 #endif
+unsigned int floating_counter_flags = 0;		/* persisted in el.cfg file */
+int floating_session_counters = 0;				/* persisted in el.ini */
 
 int sort_counter_func(const void *a, const void *b)
 {
@@ -356,6 +359,13 @@ void increment_counter(int counter_id, const char *name, int quantity, int extra
 		counters[i][j].extra = extra;
 	}
 
+	if (floating_session_counters && (floating_counter_flags & (1 << i)))
+	{
+		char str[128];
+		safe_snprintf(str, sizeof(str), "%s: %d", name, counters[i][j].n_session);
+		add_floating_message(yourself, str, FLOATINGMESSAGE_NORTH, 0.3, 0.3, 1.0, 1500);
+	}
+
 	sort_counter(counter_id);
 }
 
@@ -398,6 +408,9 @@ static void cm_counters_pre_show_handler(window_info *win, int widget_id, int mx
 		cm_grey_line(cm_counters, 0, 1);
 		cm_grey_line(cm_counters, 2, 1);
 	}
+
+	// set the control var from floating flags
+	cm_floating_flag = floating_counter_flags & (1 << cm_selected_id);
 }
 
 static int cm_counters_handler(window_info *win, int widget_id, int mx, int my, int option)
@@ -431,6 +444,17 @@ static int cm_counters_handler(window_info *win, int widget_id, int mx, int my, 
 			// reset session total for entry
 			case 2:
 				the_entry->n_session = 0;
+				break;
+
+			// set the floating flag from the control var
+			case 4:
+				{
+					int flagbit = multiselect_get_selected(counters_win, multiselect_id);
+					if (cm_floating_flag)
+						floating_counter_flags |= 1 << flagbit;
+					else
+						floating_counter_flags &= ~(1 << flagbit);
+				}
 				break;
 		}
 		
@@ -477,6 +501,7 @@ void fill_counters_win()
 		cm_counters = cm_create(cm_counters_menu_str, cm_counters_handler);
 		cm_add_region(cm_counters, counters_win, 120, 30, STATS_TAB_WIDTH-140, NUM_LINES*16);
 		cm_set_pre_show_handler(cm_counters, cm_counters_pre_show_handler);
+		cm_bool_line(cm_counters, 4, &cm_floating_flag, NULL);
 	}
 #endif
 }

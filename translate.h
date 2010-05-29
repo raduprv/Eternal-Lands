@@ -432,7 +432,7 @@ extern char
 		cm_astro_menu_str[50],
 		cm_dialog_menu_str[100],
 		cm_url_menu_str[150],
-		cm_counters_menu_str[50],
+		cm_counters_menu_str[75],
 		cm_help_options_str[50],
 		cm_npcname_menu_str[50],
 		cm_dialog_copy_menu_str[50],

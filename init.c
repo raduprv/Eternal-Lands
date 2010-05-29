@@ -18,6 +18,7 @@
 #include "colors.h"
 #include "console.h"
 #include "consolewin.h"
+#include "counters.h"
 #include "cursors.h"
 #include "dialogues.h"
 #include "draw_scene.h"
@@ -385,6 +386,8 @@ void read_bin_cfg()
 #if defined(CONTEXT_MENUS) && defined(USER_MENUS)
 	set_options_user_menus(cfg_mem.user_menu_win_x, cfg_mem.user_menu_win_y, cfg_mem.user_menu_options);
 #endif
+
+	floating_counter_flags = cfg_mem.floating_counter_flags;
 }
 
 void save_bin_cfg()
@@ -628,6 +631,8 @@ void save_bin_cfg()
 #if defined(CONTEXT_MENUS) && defined(USER_MENUS)
 	get_options_user_menus(&cfg_mem.user_menu_win_x, &cfg_mem.user_menu_win_y, &cfg_mem.user_menu_options);
 #endif
+
+	cfg_mem.floating_counter_flags = floating_counter_flags;
 
 	fwrite(&cfg_mem,sizeof(cfg_mem),1,f);
 	fclose(f);

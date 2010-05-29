@@ -26,6 +26,7 @@
  #include "buddy.h"
  #include "chat.h"
  #include "console.h"
+ #include "counters.h"
  #include "draw_scene.h"
  #include "errors.h"
  #include "elwindows.h"
@@ -1683,6 +1684,7 @@ void init_vars()
 
 	add_var(OPT_BOOL,"item_window_on_drop","itemdrop",&item_window_on_drop,change_var,1,"Item Window On Drop","Toggle whether the item window shows when you drop items",CONTROLS);
 	add_var(OPT_BOOL,"use_floating_messages", "floating", &floatingmessages_enabled, change_var, 1, "Floating Messages", "Toggles the use of floating experience messages and other graphical enhancements", CONTROLS);
+	add_var(OPT_BOOL,"floating_session_counters", "floatingsessioncounters", &floating_session_counters, change_var, 0, "Floating Session Counters", "Toggles the display of floating session counters.  Configure each type using the context menu of the counter category.", CONTROLS);
 	add_var(OPT_BOOL,"use_keypress_dialog_boxes", "keypressdialogues", &use_keypress_dialogue_boxes, change_var, 0, "Keypresses in dialogue boxes", "Toggles the ability to press a key to select a menu option in dialogue boxes (eg The Wraith)", CONTROLS);
 	add_var(OPT_BOOL,"use_full_dialogue_window", "keypressdialoguesfullwindow", &use_full_dialogue_window, change_var, 0, "Keypresses allowed anywhere in dialogue boxes", "If set, the above will work anywhere in the Dialogue Window, if unset only on the NPC's face", CONTROLS);
 	add_var(OPT_BOOL,"use_cursor_on_animal", "useanimal", &include_use_cursor_on_animals, change_var, 0, "For animals, right click includes use cursor", "Toggles inclusion of the use cursor when right clicking on animals, useful for your summoned creatures.  Even when this option is off, you can still click the use icon.", CONTROLS);

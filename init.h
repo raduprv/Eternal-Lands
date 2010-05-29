@@ -191,18 +191,18 @@ typedef struct
     
 	//!!!!!!!If you add any new FLOAT option, decrement the reserved thingy accordingly!!!!!!
 #ifdef EMOTES
-#define NUM_RESERVED 4
+#define NUM_RESERVED 3
 #else
-#define NUM_RESERVED 6
+#define NUM_RESERVED 5
 #endif
 
 #else   
 	//!!!!!!!If you add any new FLOAT option, decrement the reserved thingy accordingly!!!!!!
 
 #ifdef EMOTES
-#define NUM_RESERVED 7
+#define NUM_RESERVED 6
 #else
-#define NUM_RESERVED 9
+#define NUM_RESERVED 8
 #endif
 
 #endif // CONTEXT_MENUS && USER_MENUS
@@ -219,6 +219,7 @@ typedef struct
 	int emotes_menu_y;
 #endif
 	int watch_this_stats[5];
+	unsigned int floating_counter_flags;
 
 	float freserved[NUM_RESERVED];
 }bin_cfg;

@@ -13,6 +13,8 @@ extern char harvest_name[32];
 extern int counters_win;
 extern Uint32 disconnect_time;
 extern char last_spell_name[60];
+extern unsigned int floating_counter_flags;
+extern int floating_session_counters;
 
 void load_counters();
 void flush_counters();
