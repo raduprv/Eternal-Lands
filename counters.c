@@ -410,11 +410,22 @@ static void cm_counters_pre_show_handler(window_info *win, int widget_id, int mx
 	}
 
 	// set the control var from floating flags
-	cm_floating_flag = floating_counter_flags & (1 << cm_selected_id);
+	cm_floating_flag = (floating_counter_flags & (1 << cm_selected_id)) ?1 :0;
 }
 
 static int cm_counters_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
+	// set the floating flag from the control var
+	if (option == 4)
+	{
+		int flagbit = multiselect_get_selected(counters_win, multiselect_id);
+		if (cm_floating_flag)
+			floating_counter_flags |= 1 << flagbit;
+		else
+			floating_counter_flags &= ~(1 << flagbit);
+		return 1;
+	}
+
 	// if the number of entries has changed, we could be about to use the wrong entry, don't use it
 	// if a entry index is invalid, don't use it
 	if ((cm_entry_count == entries[cm_selected_id]) &&
@@ -445,19 +456,7 @@ static int cm_counters_handler(window_info *win, int widget_id, int mx, int my, 
 			case 2:
 				the_entry->n_session = 0;
 				break;
-
-			// set the floating flag from the control var
-			case 4:
-				{
-					int flagbit = multiselect_get_selected(counters_win, multiselect_id);
-					if (cm_floating_flag)
-						floating_counter_flags |= 1 << flagbit;
-					else
-						floating_counter_flags &= ~(1 << flagbit);
-				}
-				break;
 		}
-		
 		return 1;
 	}
 
