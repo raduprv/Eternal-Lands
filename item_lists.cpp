@@ -1039,8 +1039,11 @@ extern "C"
 		
 		cm_item_list_options_but = cm_create(cm_item_list_menu_str, cm_item_list_options_handler);
 		cm_bool_line(cm_item_list_options_but, OPTION_PREVIEW, &disable_item_list_preview, NULL);
-		cm_grey_line(cm_item_list_options_but, OPTION_PREVIEW, 1); /* always use preview for now */
-		
+
+		/* always use preview for now */
+		disable_item_list_preview = 0;
+		cm_grey_line(cm_item_list_options_but, OPTION_PREVIEW, 1);
+
 		ItemLists::Vars::lists()->load();
 		ItemLists::Vars::cat_maps()->load();
 		update_list_window();
