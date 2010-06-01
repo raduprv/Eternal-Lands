@@ -371,12 +371,13 @@ void update_note_button_scrollbar (int nr)
 
 	if (nr_rows <= max_nr_rows)
 	{
-		widget_set_flags (main_note_tab_id, note_button_scroll_id, WIDGET_INVISIBLE);
+		widget_set_flags (main_note_tab_id, note_button_scroll_id, WIDGET_INVISIBLE|WIDGET_DISABLED);
 		vscrollbar_set_bar_len (main_note_tab_id, note_button_scroll_id, 0);
+		scroll_to_note_button (0);
 	}
 	else
 	{
-		widget_unset_flags (main_note_tab_id, note_button_scroll_id, WIDGET_INVISIBLE);
+		widget_unset_flags (main_note_tab_id, note_button_scroll_id, WIDGET_INVISIBLE|WIDGET_DISABLED);
 		vscrollbar_set_bar_len (main_note_tab_id, note_button_scroll_id, nr_rows - max_nr_rows);
 		scroll_to_note_button (nr);
 	}
@@ -568,7 +569,9 @@ int notepad_remove_category (widget_list *w, int mx, int my, Uint32 flags)
 			note_button_set_pos (id);
 	}
 	nr_notes--;
-     
+
+	update_note_button_scrollbar(0);
+
 	return 1;
 }
 
@@ -722,6 +725,24 @@ static int display_notepad_handler(window_info *win)
 	return 1;
 }
 
+static int click_buttonwin_handler(window_info *win, int mx, int my, Uint32 flags)
+{
+	widget_list *w = widget_find(main_note_tab_id, note_button_scroll_id);
+	if ((w == NULL) || (w->Flags & WIDGET_INVISIBLE))
+		return 0;
+	if (flags&ELW_WHEEL_UP)
+	{
+		vscrollbar_scroll_up(main_note_tab_id, note_button_scroll_id);
+		note_button_scroll_handler();
+	}
+	else if(flags&ELW_WHEEL_DOWN)
+	{
+		vscrollbar_scroll_down(main_note_tab_id, note_button_scroll_id);
+		note_button_scroll_handler();
+	}
+	return 1;
+}
+
 void display_notepad()
 {
 	int i;
@@ -738,12 +759,14 @@ void display_notepad()
 
 		notepad_win = create_window (win_notepad, windows_on_top ? -1 : game_root_win, 0, notepad_win_x, notepad_win_y, notepad_win_x_len, notepad_win_y_len, ELW_WIN_DEFAULT|ELW_TITLE_NAME);
 		set_window_handler(notepad_win, ELW_HANDLER_DISPLAY, &display_notepad_handler);
+		set_window_handler(notepad_win, ELW_HANDLER_CLICK, &click_buttonwin_handler);
 		
 		note_tabcollection_id = tab_collection_add (notepad_win, NULL, 5, 25, note_tabs_width, note_tabs_height, 20);
 		widget_set_size (notepad_win, note_tabcollection_id, 0.7);
 		widget_set_color (notepad_win, note_tabcollection_id, 0.77f, 0.57f, 0.39f);
 		main_note_tab_id = tab_add (notepad_win, note_tabcollection_id, tab_main, 0, 0, 0);
 		widget_set_color (notepad_win, main_note_tab_id, 0.77f, 0.57f, 0.39f);
+		set_window_handler(main_note_tab_id, ELW_HANDLER_CLICK, &click_buttonwin_handler);
 
 		// Add Category
 		buttons[0] = button_add (main_note_tab_id, NULL, button_new_category, 0, 0);
