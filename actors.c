@@ -500,7 +500,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	//draw the health bar
 	glDisable(GL_TEXTURE_2D);
 
-	if(view_health_bar && actor_id->cur_health>=0 && actor_id->max_health>0 && (!actor_id->dead) && (actor_id->kind_of_actor != NPC)){
+	if(view_health_bar && actor_id->cur_health>0 && actor_id->max_health>0 && (!actor_id->dead) && (actor_id->kind_of_actor != NPC)){
 		float percentage = (float)actor_id->cur_health/(float)actor_id->max_health;
 		float off;
 		
