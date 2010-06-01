@@ -298,7 +298,7 @@ static size_t quest_filter_active_npc_name = static_cast<size_t>(-1);
 static int resize_quest_filter_handler(window_info *win, int new_width, int new_height)
 {
 		// let the width lead
-		npc_name_cols = win->len_x / max_npc_name_x;
+		npc_name_cols = static_cast<int>(win->len_x / max_npc_name_x);
 		if (npc_name_cols < min_npc_name_cols)
 			npc_name_cols = min_npc_name_cols;
 		// but maintain a minimum height
@@ -310,7 +310,7 @@ static int resize_quest_filter_handler(window_info *win, int new_width, int new_
 			while (npc_name_cols*npc_name_rows < filter_map.size())
 				npc_name_cols++;
 		}
-		set_window_scroll_len(win->window_id, npc_name_rows*max_npc_name_y-win->len_y);
+		set_window_scroll_len(win->window_id, static_cast<int>(npc_name_rows*max_npc_name_y-win->len_y));
 		return 0;
 }
 
@@ -329,11 +329,11 @@ static int display_quest_filter_handler(window_info *win)
 	// once we stop, snap the window to the new grid size
 	else if (resizing)
 	{
-		int new_width = 2*npc_name_border + npc_name_cols * max_npc_name_x + ELW_BOX_SIZE;
-		int new_rows = (win->len_y+max_npc_name_y/2)/max_npc_name_y;
-		int max_rows = (filter_map.size() + npc_name_cols - 1) / npc_name_cols;
+		int new_width = static_cast<int>(2*npc_name_border + npc_name_cols * max_npc_name_x + ELW_BOX_SIZE);
+		int new_rows = static_cast<int>((win->len_y+max_npc_name_y/2)/max_npc_name_y);
+		int max_rows = static_cast<int>((filter_map.size() + npc_name_cols - 1) / npc_name_cols);
 		resizing = 0;
-		resize_window (win->window_id, new_width, ((new_rows > max_rows) ?max_rows :new_rows)*max_npc_name_y);
+		resize_window (win->window_id, new_width, static_cast<int>(((new_rows > max_rows) ?max_rows :new_rows)*max_npc_name_y));
 	}
 	// spot new entries and make sure we resize
 	else if (last_filter_size != filter_map.size())
@@ -352,13 +352,13 @@ static int display_quest_filter_handler(window_info *win)
 		{
 			glDisable(GL_TEXTURE_2D);
 			glBegin(GL_QUADS);
-			glColor3f(0.11f, 0.11f, 0.11f);	
+			glColor3f(0.11f, 0.11f, 0.11f);
 			glVertex2i(posx, posy);
 			glColor3f(0.77f, 0.57f, 0.39f);
-			glVertex2i(posx, posy + max_npc_name_y);
-			glVertex2i(posx + max_npc_name_x, posy + max_npc_name_y);
-			glColor3f(0.11f, 0.11f, 0.11f);	
-			glVertex2i(posx + max_npc_name_x, posy);
+			glVertex2i(posx, static_cast<int>(posy + max_npc_name_y));
+			glVertex2i(static_cast<int>(posx + max_npc_name_x), static_cast<int>(posy + max_npc_name_y));
+			glColor3f(0.11f, 0.11f, 0.11f);
+			glVertex2i(static_cast<int>(posx + max_npc_name_x), posy);
 			glEnd();
 			glEnable(GL_TEXTURE_2D);
 		}
@@ -437,7 +437,7 @@ static int keypress_quest_filter_handler(window_info *win, int mx, int my, Uint3
 	{
 		if (!i->first.empty() && (tolower(i->first[0]) == keychar))
 		{
-			set_window_scroll_pos(win->window_id, static_cast<int>(line/npc_name_cols)*max_npc_name_y);
+			set_window_scroll_pos(win->window_id, static_cast<int>(static_cast<int>(line/npc_name_cols)*max_npc_name_y));
 			return 1;
 		}
 	}	
@@ -465,10 +465,10 @@ static void open_filter_window(void)
 	if (quest_filter_win < 0)
 	{
 		window_info *win = &windows_list.window[questlog_win];
-		int min_x = 2*npc_name_border + min_npc_name_cols * max_npc_name_x + ELW_BOX_SIZE;
-		int min_y = min_npc_name_rows * max_npc_name_y;
-		quest_filter_win = create_window(questlog_npc_filter_title_str, questlog_win, -1, win->len_x + 10, 0,
-			min_x, static_cast<int>(win->len_y/max_npc_name_y)*max_npc_name_y,
+		int min_x = static_cast<int>(2*npc_name_border + min_npc_name_cols * max_npc_name_x + ELW_BOX_SIZE);
+		int min_y = static_cast<int>(min_npc_name_rows * max_npc_name_y);
+		quest_filter_win = create_window(questlog_npc_filter_title_str, questlog_win, 0, win->len_x + 10, 0,
+			min_x, static_cast<int>(static_cast<int>(win->len_y/max_npc_name_y)*max_npc_name_y),
 			ELW_SCROLLABLE|ELW_RESIZEABLE|ELW_WIN_DEFAULT);
 		set_window_handler(quest_filter_win, ELW_HANDLER_DISPLAY, (int (*)())&display_quest_filter_handler );
 		set_window_handler(quest_filter_win, ELW_HANDLER_CLICK, (int (*)())&click_quest_filter_handler );
@@ -476,7 +476,7 @@ static void open_filter_window(void)
 		set_window_handler(quest_filter_win, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_quest_filter_handler );
 		set_window_handler(quest_filter_win, ELW_HANDLER_RESIZE, (int (*)())&resize_quest_filter_handler );
 		set_window_min_size(quest_filter_win, min_x, min_y);
-		set_window_scroll_inc(quest_filter_win, max_npc_name_y);
+		set_window_scroll_inc(quest_filter_win, static_cast<int>(max_npc_name_y));
 		resize_quest_filter_handler(&windows_list.window[quest_filter_win], -1, -1);
 	}
 	else

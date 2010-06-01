@@ -629,7 +629,7 @@ static int display_preview_handler(window_info *win)
 		if (preview_help_str_1 != NULL)
 			show_help(preview_help_str_1, 0, win->len_y + 10);
 		if (preview_help_str_2 != NULL)
-			show_help(preview_help_str_2, 0, win->len_y + 10 + SMALL_FONT_Y_LEN);
+			show_help(preview_help_str_2, 0, static_cast<int>(win->len_y + 10 + SMALL_FONT_Y_LEN));
 		preview_help_str_1 = preview_help_str_2 = NULL;
 	}
 
