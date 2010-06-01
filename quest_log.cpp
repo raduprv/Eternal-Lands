@@ -46,7 +46,6 @@
  * 			tag entry with quest strand(s)
  * 			filter by quest strand
  * 			colour code in some way?
- * 		Keypress handling - I keep trying / & ctrl-f for search....
  */
 
 //	A single entry for the questlog.
@@ -782,6 +781,18 @@ static int questlog_click(window_info *win, int mx, int my, Uint32 flags)
 }
 
 
+static int keypress_questlog_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+{
+	char keychar = tolower(static_cast<char>(unikey));
+	if ((key == K_MARKFILTER) || (keychar=='/'))
+	{
+		find_in_entry(win);
+		return 1;
+	}
+	return 0;
+}
+	
+
 static int mouseover_questlog_handler(window_info *win, int mx, int my)
 {
 	mouse_over_questlog = true;
@@ -899,6 +910,7 @@ extern "C" void fill_questlog_win ()
 	set_window_handler(questlog_win, ELW_HANDLER_DISPLAY, (int (*)())display_questlog_handler);
 	set_window_handler(questlog_win, ELW_HANDLER_CLICK, (int (*)())questlog_click);
 	set_window_handler(questlog_win, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_questlog_handler );
+	set_window_handler(questlog_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_questlog_handler );
 
 	quest_scroll_id = vscrollbar_add_extended (questlog_win, quest_scroll_id, NULL, STATS_TAB_WIDTH - 20, boxlen, 20, STATS_TAB_HEIGHT - boxlen, 0, 1.0, 0.77f, 0.57f, 0.39f, last_entry, 1, last_entry);
 	goto_questlog_entry(last_entry);
