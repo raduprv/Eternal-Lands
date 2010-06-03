@@ -40,8 +40,6 @@
  * 		Remove save options - always save / timed save?
  * 		Replace entry containers with classes
  * 		md5sum each entry for matching to quest strands
- *		Add dedupe function
- * 			use md5sum for speed, then strcmp
  * 		Implement quest strands:
  * 			tag entry with quest strand(s)
  * 			filter by quest strand
@@ -59,11 +57,13 @@ class Quest_Entry
 		void save(std::ofstream & out) const;
 		bool contains_string(const char *text_to_find) const;
 		const std::string & get_npc(void) const { return npc; }
+		Uint16 get_charsum(void) const { return charsum; }
 		bool deleted;
 	private:
 		void set_lines(const std::string & the_text);
 		std::vector<std::string> lines;
 		std::string npc;
+		Uint16 charsum;
 };
 
 //	Holds and tests position information for a shown entry.
@@ -94,7 +94,9 @@ static bool need_to_save = false;
 static bool mouse_over_questlog = false;
 #ifdef CONTEXT_MENUS
 static size_t cm_questlog_id = CM_INIT_VALUE;
-enum {	CMQL_FILTER=0, CMQL_SHOWALL, CMQL_SHOWNONE, CMQL_S1, CMQL_COPY, CMQL_COPYALL, CMQL_FIND, CMQL_ADD, CMQL_S2, CMQL_DELETE, CMQL_UNDEL, CMQL_S3, CMQL_SAVE };
+enum {	CMQL_FILTER=0, CMQL_SHOWALL, CMQL_SHOWNONE, CMQL_S1, CMQL_COPY,
+		CMQL_COPYALL, CMQL_FIND, CMQL_ADD, CMQL_S2, CMQL_DELETE,
+		CMQL_UNDEL, CMQL_S3, CMQL_DEDUPE, CMQL_S4, CMQL_SAVE };
 static std::string adding_npc;
 static size_t adding_insert_pos = 0;
 static bool prompt_for_add_text = false;
@@ -154,11 +156,16 @@ void Quest_Entry::set_lines(const std::string & the_text)
 			text += last_char = the_text[i];
 	}
 
+	// for matching purposes calculate the sum of the characters, if it wraps, fine
+	charsum = 0;
+	for (std::string::size_type i=0; i<text.size(); i++)
+		charsum += text[i];
+
 	// divide text into lines that fit within the window width
 	for (std::string::size_type i=0; i<text.size(); i++)
 	{
 		if (is_color(text[i]))
-			continue;			
+			continue;
 		if (text[i] == ' ')
 			last_space = i;
 		if (col >= chars_per_line)
@@ -643,6 +650,52 @@ static void delete_entry(size_t entry)
 	need_to_save = true;
 }
 
+//	Look for matching entries and delete (mark as deleted) all but first
+//
+void delete_duplicates(void)
+{
+	int deleted_count = 0;
+	LOG_TO_CONSOLE(c_green1, questlog_deldupe_start_str);
+	std::multimap<Uint16,std::string> mm;
+
+	for (std::vector<Quest_Entry>::iterator entry=quest_entries.begin(); entry!=quest_entries.end(); ++entry)
+	{
+		if (!entry->deleted)
+		{
+			// get the full text for the entry
+			std::string the_text;
+			for (std::vector<std::string>::const_iterator line = entry->get_lines().begin(); line != entry->get_lines().end(); ++line)
+				the_text += *line;
+
+			// see if the charsum has already been seen
+			std::multimap<Uint16,std::string>::const_iterator iter = mm.find(entry->get_charsum());
+			if (iter != mm.end())
+			{
+				// we have a charsum match so check the text, there may be more than one with this charsum
+				std::multimap<Uint16,std::string>::const_iterator last = mm.upper_bound(entry->get_charsum());
+				for ( ; iter != last; ++iter)
+				{
+					// if the text and the charsum match, mark the entry as deleted
+					if (iter->second == the_text)
+					{
+						entry->deleted = need_to_save = true;
+						deleted_count++;
+						break;
+					}
+				}
+			}
+
+			// save - as either the charsum did not match a previous entry or the charsum did but the text didn't
+			if (!entry->deleted)
+    			mm.insert(std::pair<Uint16,std::string>(entry->get_charsum(), the_text));
+		}
+	}
+
+	char message[80];
+	safe_snprintf(message, sizeof(message), questlog_deldupe_end_str, mm.size(), deleted_count);
+	LOG_TO_CONSOLE(c_green1, message);
+}
+
 
 //	Enable/disable menu options as required....
 //
@@ -666,6 +719,7 @@ static void cm_questlog_pre_show_handler(window_info *win, int widget_id, int mx
 	cm_grey_line(cm_questlog_id, CMQL_ADD, (current_action == -1) ?0 :1);	
 	cm_grey_line(cm_questlog_id, CMQL_DELETE, (is_over_entry && !is_deleted) ?0 :1);
 	cm_grey_line(cm_questlog_id, CMQL_UNDEL, (is_over_entry && is_deleted) ?0 :1);
+	cm_grey_line(cm_questlog_id, CMQL_DEDUPE, quest_entries.empty() ?1 :0);
 	cm_grey_line(cm_questlog_id, CMQL_SAVE, (need_to_save) ?0 :1);
 	// propagate opacity from parent tab window
 	if (tab_stats_win >-1 && tab_stats_win<windows_list.num_windows)
@@ -704,6 +758,7 @@ static int cm_quest_handler(window_info *win, int widget_id, int mx, int my, int
 		case CMQL_ADD: add_entry(win, over_entry); break;
 		case CMQL_DELETE: if (over_entry < active_entries.size()) delete_entry(over_entry); break;
 		case CMQL_UNDEL: if (over_entry < active_entries.size()) undelete_entry(over_entry); break;
+		case CMQL_DEDUPE: delete_duplicates(); break;
 		case CMQL_SAVE: save_questlog(); break;
 	}
 	return 1;

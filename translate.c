@@ -312,6 +312,8 @@ char
 	questlog_add_text_prompt_str[20],
 	questlog_npc_filter_title_str[20],
 	questlog_cm_help_str[50],
+	questlog_deldupe_start_str[50],
+	questlog_deldupe_end_str[75],
 #endif
 	questlog_deleted_str[20],
 #endif
@@ -1386,12 +1388,14 @@ void init_help()
 	/* quest_log.cpp */
 #ifdef NEW_QUESTLOG
 #ifdef CONTEXT_MENUS
-	add_xml_identifier(misc, "cm_questlog_menu", cm_questlog_menu_str, "Filter...\nShow All\nShow None...\n--\nCopy\nCopy All\nFind...\nAdd...\n--\nDelete\nUndelete\n--\nSave", sizeof(cm_questlog_menu_str));
+	add_xml_identifier(misc, "cm_questlog_menu", cm_questlog_menu_str, "Filter...\nShow All\nShow None...\n--\nCopy\nCopy All\nFind...\nAdd...\n--\nDelete\nUndelete\n--\nDelete duplicates\n--\nSave", sizeof(cm_questlog_menu_str));
 	add_xml_identifier(misc, "questlog_find_prompt", questlog_find_prompt_str, "Text to Find", sizeof(questlog_find_prompt_str));
 	add_xml_identifier(misc, "questlog_add_npc_prompt", questlog_add_npc_prompt_str, "NPC name", sizeof(questlog_add_npc_prompt_str));	
 	add_xml_identifier(misc, "questlog_add_text_prompt", questlog_add_text_prompt_str, "Entry text", sizeof(questlog_add_text_prompt_str));	
 	add_xml_identifier(misc, "questlog_npc_filter_title", questlog_npc_filter_title_str, "NPC filter", sizeof(questlog_npc_filter_title_str));	
 	add_xml_identifier(misc, "questlog_cm_help", questlog_cm_help_str, "Right-click for quest log menu", sizeof(questlog_cm_help_str));
+	add_xml_identifier(misc, "questlog_deldupe_start", questlog_deldupe_start_str, "Deleting duplicate quest log entries...", sizeof(questlog_deldupe_start_str));
+	add_xml_identifier(misc, "questlog_deldupe_end", questlog_deldupe_end_str, "...unique entries: %d, deleted duplicates: %d.", sizeof(questlog_deldupe_end_str));
 #endif
 	add_xml_identifier(misc, "questlog_deleted", questlog_deleted_str, "(Deleted)", sizeof(questlog_deleted_str));	
 #endif

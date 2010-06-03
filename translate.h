@@ -459,6 +459,8 @@ extern char
 		questlog_add_text_prompt_str[20],
 		questlog_npc_filter_title_str[20],
 		questlog_cm_help_str[50],
+		questlog_deldupe_start_str[50],
+		questlog_deldupe_end_str[75],
 #endif
 		questlog_deleted_str[20],
 #endif
