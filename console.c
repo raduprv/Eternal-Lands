@@ -529,6 +529,102 @@ int send_cmd(char *text, int len){
 	return 1;
 }
 
+int set_idle(char *text, int len){
+
+	int j,x;
+	char *id;
+	actor *act=NULL;
+
+	for(j=1;j<len;j++) if(text[j]==' ') {text[j]=0; break;}
+	id=&text[j+1];
+	x=j;
+	text++;
+	printf("Actor [%s] [%s]\n",text,id);
+	LOCK_ACTORS_LISTS();
+	for (j = 0; j < max_actors; j++){
+		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) && 
+	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
+	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
+				struct CalMixer *mixer;
+			act = actors_list[j];
+				mixer=CalModel_GetMixer(act->calmodel);
+			LOG_TO_CONSOLE(c_orange1, "actor found, adding anims");
+			printf("actor found\n");
+			CalMixer_ClearCycle(mixer,act->cur_anim.anim_index, 0.0f);
+			while(*id){
+				int anim_id;
+				double anim_wg;
+				
+				anim_id=atoi(id);
+			id++;
+				while(*id!=' '&&*id!=0) id++;
+				anim_wg=atof(id);
+			id++;
+				while(*id!=' '&&*id!=0) id++;
+				printf("setting anim %i with weight %f\n",anim_id,anim_wg);
+				if(anim_wg<0) CalMixer_ClearCycle(mixer,actors_defs[act->actor_type].cal_frames[anim_id].anim_index, 0.0f);	
+				else CalMixer_BlendCycle(mixer,actors_defs[act->actor_type].cal_frames[anim_id].anim_index,anim_wg, 0.1f);
+			}
+			printf("command added %s\n",id);
+		}
+	}
+	if (!act){
+		UNLOCK_ACTORS_LISTS();
+		LOG_TO_CONSOLE(c_orange1, "actor not found");
+		return 1;
+	}
+	UNLOCK_ACTORS_LISTS();
+	text[x-1]=' ';
+	return 1;
+}
+
+int set_action(char *text, int len){
+
+	int j,x;
+	char *id;
+	actor *act=NULL;
+
+	for(j=1;j<len;j++) if(text[j]==' ') {text[j]=0; break;}
+	id=&text[j+1];
+	x=j;
+	text++;
+	printf("Actor [%s] [%s]\n",text,id);
+	LOCK_ACTORS_LISTS();
+	for (j = 0; j < max_actors; j++){
+		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) && 
+	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
+	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
+				struct CalMixer *mixer;
+			act = actors_list[j];
+				mixer=CalModel_GetMixer(act->calmodel);
+			LOG_TO_CONSOLE(c_orange1, "actor found, adding anims");
+			printf("actor found\n");
+			while(*id){
+				int anim_id;
+				double anim_wg;
+				
+				anim_id=atoi(id);
+			id++;
+				while(*id!=' '&&*id!=0) id++;
+				anim_wg=atof(id);
+			id++;
+				while(*id!=' '&&*id!=0) id++;
+				printf("setting action %i with weight %f\n",anim_id,anim_wg);
+				if(anim_wg<0) CalMixer_RemoveAction(mixer,actors_defs[act->actor_type].cal_frames[anim_id].anim_index);
+				else CalMixer_ExecuteActionExt(mixer,actors_defs[act->actor_type].cal_frames[anim_id].anim_index,0.0f,0.0f,anim_wg, 1);
+			}
+			printf("command added %s\n",id);
+		}
+	}
+	if (!act){
+		UNLOCK_ACTORS_LISTS();
+		LOG_TO_CONSOLE(c_orange1, "actor not found");
+		return 1;
+	}
+	UNLOCK_ACTORS_LISTS();
+	text[x-1]=' ';
+	return 1;
+}
 #endif
 
 #ifdef MORE_ATTACHED_ACTORS
@@ -580,6 +676,48 @@ int horse_cmd(char* text, int len){
 	
 }
 #endif
+
+#ifdef NECK_ITEMS
+int set_neck(char *text, int len){
+
+	int j;
+	char *id;
+	actor *act=NULL;
+
+	for(j=1;j<len;j++) if(text[j]==' ') {text[j]=0; break;}
+	id=&text[j+1];
+	text++;
+	printf("Actor [%s] [%s]\n",text,id);
+	LOCK_ACTORS_LISTS();
+	for (j = 0; j < max_actors; j++){
+		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) && 
+	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
+	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
+			act = actors_list[j];
+			LOG_TO_CONSOLE(c_orange1, "actor found, adding neck item");
+			printf("actor found\n");
+			if(atoi(id)) {
+				//wear
+				actor_wear_item(act->actor_id,KIND_OF_NECK, atoi(id));
+			} else {
+				//unwear
+				unwear_item_from_actor(act->actor_id,KIND_OF_NECK);
+
+			}
+		}
+	}
+	if (!act){
+		UNLOCK_ACTORS_LISTS();
+		LOG_TO_CONSOLE(c_orange1, "actor not found");
+		return 1;
+	}
+	UNLOCK_ACTORS_LISTS();
+	*(id-1)=' ';
+	return 1;
+
+}
+#endif
+
 
 int command_cls(char *text, int len)
 {
@@ -1443,11 +1581,17 @@ void init_commands(const char *filename)
 #ifdef MORE_ATTACHED_ACTORS
 add_command("horse", &horse_cmd);
 #endif
+
+#ifdef NECK_ITEMS
+	add_command("set_neck", &set_neck);
+#endif
 	
 #ifdef EMOTES
 	add_command("emotes", &print_emotes);
 	add_command("add_emote", &add_emote);
 	add_command("send_cmd", &send_cmd);
+	add_command("set_idle", &set_idle);
+	add_command("set_action", &set_action);
 #endif
 	add_command("marker_color", &command_mark_color);
 	add_command("calc", &command_calc);
