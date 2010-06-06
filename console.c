@@ -6,6 +6,9 @@
 #include "asc.h"
 #include "buddy.h"
 #include "cache.h"
+#ifdef EMOTES
+#include "cal.h"
+#endif
 #include "chat.h"
 #include "consolewin.h"
 #include "elconfig.h"
