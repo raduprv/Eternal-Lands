@@ -1770,7 +1770,7 @@ void add_command_to_actor(int actor_id, unsigned char command)
 	} else {
 		LOCK_ACTORS_LISTS();
 
-		if (get_our_actor()->actor_id==act->actor_id) printf("ADD COMMAND %i to %i\n",command,actor_id);
+		//if (get_our_actor()->actor_id==act->actor_id) printf("ADD COMMAND %i to %i\n",command,actor_id);
 
 
 		if (command == missile_miss) {
