@@ -1236,9 +1236,11 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 		{
 			x = m->x * size_x;
 			y = float_minimap_size - (m->y * size_y);
-
-			glColor3f(0.15f, 0.65f, 0.45f); 
-			glVertex2f(x, y);
+			if(is_within_radius(x,y,px,py,zoom_multip*(minimap_size/2-8)))
+			{
+				glColor3f(0.15f, 0.65f, 0.45f); 
+				glVertex2f(x, y);
+			}
 		}
 	}
 
