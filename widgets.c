@@ -1355,7 +1355,7 @@ int tab_collection_draw (widget_list *w)
 			glBegin(GL_LINE_STRIP);
 				glVertex3i(xstart, ytagbot, 0);
 				draw_circle_ext(xstart, ytagtop, DEFAULT_TAB_RADIUS, -10, 180, 90);
-				draw_circle_ext(xend-2*DEFAULT_TAB_RADIUS, ytagtop, DEFAULT_TAB_RADIUS, -10, 89, 0);
+				draw_circle_ext(xend-2*DEFAULT_TAB_RADIUS+1, ytagtop, DEFAULT_TAB_RADIUS, -10, 89, 0);
 				glVertex3i(xend, ytagbot, 0);
 			glEnd();
 		} else if(col->cur_tab>itab){
@@ -1367,7 +1367,7 @@ int tab_collection_draw (widget_list *w)
 		} else {
 			glBegin (GL_LINE_STRIP);
 				glVertex3i (xstart, ytagtop+1, 0);
-				draw_circle_ext(xend-2*DEFAULT_TAB_RADIUS, ytagtop, DEFAULT_TAB_RADIUS, -10, 89, 0);
+				draw_circle_ext(xend-2*DEFAULT_TAB_RADIUS+1, ytagtop, DEFAULT_TAB_RADIUS, -10, 89, 0);
 				glVertex3i (xend, ytagbot, 0);
 			glEnd ();
 		}

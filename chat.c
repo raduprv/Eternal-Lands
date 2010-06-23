@@ -1716,10 +1716,10 @@ int draw_tab_x (widget_list *W)
 			int x = W->pos_x+2;
 			int y = W->pos_y+1;
 			glBegin(GL_LINES);
-				glVertex2i(x,y+4);
-				glVertex2i(x+7,y+4);
-				glVertex2i(x+3,y);
-				glVertex2i(x+3,y+7);
+				glVertex2i(x+gx_adjust,y+4);
+				glVertex2i(x+7+gx_adjust,y+4);
+				glVertex2i(x+3,y+gy_adjust);
+				glVertex2i(x+3,y+7+gy_adjust);
 			glEnd();
 			break;
 		}
