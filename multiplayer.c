@@ -716,12 +716,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			{
 				int items;
 				int plen;
-#ifdef	ITEM_UID
-				if (item_uid_enabled)
-					plen=10;
-				else
-#endif
-					plen=8;
 		
 				if (data_length <= 3)
 				{
@@ -729,7 +723,22 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  break;
 				}
 				items = in_data[3];
-				if (data_length <= items * plen)
+#ifdef ITEM_UID
+				if (data_length - 4  == items * 8 )
+				{
+					item_uid_enabled = 0;
+					plen = 8;
+				}
+				else if (data_length - 4  == items * 10 )
+				{
+					item_uid_enabled = 1;
+					plen = 10;
+				}
+				else
+#endif
+				plen = 8;
+
+				if (data_length - 4 != items * plen)
 				{
 				  log_error("CAUTION(2): Possibly forged HERE_YOUR_INVENTORY packet received.\n");
 				  break;
