@@ -629,7 +629,7 @@ int open_note_tab (widget_list *w, int mx, int my, Uint32 flags)
 	int i = 0;
 
 	// only handle mouse button clicks, not scroll wheels moves
-	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return -1;
 
 	for(i = 0; i < nr_notes; i++)
 	{
