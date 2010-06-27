@@ -19,6 +19,7 @@
 #include "makeargv.h"
 #include "dbuffer.h"
 #include "asc.h"
+#include "chat.h"
 
 #undef DEBUG_ALIASES
 
@@ -418,7 +419,7 @@ static int handle_text_alias (int index, char *text, int len)
 		newmsg = expand_alias_parameters( text, numeric_aliases[index], numeric_alias_sizes[index] );
 
 		if (NULL!=newmsg) {
-			test_for_console_command ( (char*)newmsg->data, newmsg->current_size );
+			parse_input ( (char*)newmsg->data, newmsg->current_size );
             dbuffer_destroy(newmsg);
 		}
 	}
