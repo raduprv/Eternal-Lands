@@ -29,15 +29,19 @@ int read_and_check_elc_header(el_file_ptr file, const magic_number magic, versio
 
 	if (memcmp(header.magic, magic, sizeof(magic_number)) != 0)
 	{
-		char m_str[5], hm_str[5];
+		char *m_str = (char *)malloc(sizeof(magic_number)+1);
+		char *hm_str = (char *)malloc(sizeof(magic_number)+1);
 
-		memcpy(m_str, magic, sizeof(magic));
-		m_str[4] = 0;
+		memcpy(m_str, magic, sizeof(magic_number));
+		m_str[sizeof(magic_number)] = 0;
 
 		memcpy(hm_str, header.magic, sizeof(header.magic));
-		hm_str[4] = 0;
+		hm_str[sizeof(magic_number)] = 0;
 
 		LOG_ERROR("Wrong file '%s'! Magic number not correct! Should be \"%s\", but is \"%s\"!", filename, m_str, hm_str);
+
+		free(m_str);
+		free(hm_str);
 		return -1;
 	}
 
