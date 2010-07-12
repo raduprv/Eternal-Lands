@@ -8,6 +8,7 @@
 #include "asc.h"
 #include "chat.h"
 #include "cursors.h"
+#include "elconfig.h"
 #include "elwindows.h"
 #include "gamewin.h"
 #include "global.h"
@@ -846,7 +847,7 @@ int square_button_draw(widget_list *W)
 	glEnd();
 
 	glEnable(GL_TEXTURE_2D);
-	draw_string_zoomed(W->pos_x + 2 + extra_space, W->pos_y + 2, (unsigned char *)l->text, 1, W->size);
+	draw_string_zoomed(W->pos_x + 2 + extra_space + gx_adjust, W->pos_y + 2 + gy_adjust, (unsigned char *)l->text, 1, W->size);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -979,21 +980,21 @@ int vscrollbar_draw(widget_list *W)
 
 	// scrollbar arrows
 	glBegin (GL_LINES);
-	glVertex3i(W->pos_x + 5, W->pos_y + 10,0);
-	glVertex3i(W->pos_x + 10, W->pos_y + 5,0);
-	glVertex3i(W->pos_x + 10, W->pos_y + 5,0);
-	glVertex3i(W->pos_x + 15, W->pos_y + 10,0);
-	glVertex3i(W->pos_x + 5, W->pos_y + W->len_y - 10,0);
-	glVertex3i(W->pos_x + 10, W->pos_y + W->len_y - 5,0);
-	glVertex3i(W->pos_x + 10, W->pos_y + W->len_y - 5,0);
-	glVertex3i(W->pos_x + 15, W->pos_y + W->len_y - 10,0);
+	glVertex3i(W->pos_x + 5 + gx_adjust, W->pos_y + 10 + gy_adjust,0);
+	glVertex3i(W->pos_x + 10 + gx_adjust, W->pos_y + 5 + gy_adjust,0);
+	glVertex3i(W->pos_x + 10 + gx_adjust, W->pos_y + 5 + gy_adjust,0);
+	glVertex3i(W->pos_x + 15 + gx_adjust, W->pos_y + 10 + gy_adjust,0);
+	glVertex3i(W->pos_x + 5 + gx_adjust, W->pos_y + W->len_y - 10 + gy_adjust,0);
+	glVertex3i(W->pos_x + 10 + gx_adjust, W->pos_y + W->len_y - 5 + gy_adjust,0);
+	glVertex3i(W->pos_x + 10 + gx_adjust, W->pos_y + W->len_y - 5 + gy_adjust,0);
+	glVertex3i(W->pos_x + 15 + gx_adjust, W->pos_y + W->len_y - 10 + gy_adjust,0);
 	glEnd();
 
 	glBegin(GL_QUADS);
-	glVertex3i(W->pos_x + 7, W->pos_y + 15 + (c->pos*((float)(W->len_y-50)/c->bar_len)), 0);
-	glVertex3i(W->pos_x + W->len_x - 7, W->pos_y +  15 + (c->pos*((float)(W->len_y-50)/c->bar_len)), 0);
-	glVertex3i(W->pos_x + W->len_x - 7, W->pos_y + 35 + (c->pos*((float)(W->len_y-50)/c->bar_len)), 0);
-	glVertex3i(W->pos_x + 7, W->pos_y + 35 + (c->pos*((float)(W->len_y-50)/c->bar_len)), 0);
+	glVertex3i(W->pos_x + 7 + gx_adjust, W->pos_y + 15 + (c->pos*((float)(W->len_y-50)/c->bar_len)) + gy_adjust, 0);
+	glVertex3i(W->pos_x + W->len_x - 7 + gx_adjust, W->pos_y +  15 + (c->pos*((float)(W->len_y-50)/c->bar_len)) + gy_adjust, 0);
+	glVertex3i(W->pos_x + W->len_x - 7 + gx_adjust, W->pos_y + 35 + (c->pos*((float)(W->len_y-50)/c->bar_len)) + gy_adjust, 0);
+	glVertex3i(W->pos_x + 7 + gx_adjust, W->pos_y + 35 + (c->pos*((float)(W->len_y-50)/c->bar_len)) + gy_adjust, 0);
 	glEnd();
 
 	glEnable(GL_TEXTURE_2D);
@@ -1408,9 +1409,9 @@ int tab_collection_draw (widget_list *w)
 			glColor3f (col->tabs[itab].label_r, col->tabs[itab].label_g, col->tabs[itab].label_b); 
 			
 		if (col->tabs[itab].closable)
-			draw_string_zoomed (xstart+h, ytagbot-SMALL_FONT_Y_LEN-2, (unsigned char *)col->tabs[itab].label, 1, w->size);
+			draw_string_zoomed (xstart+h+gx_adjust, ytagbot-SMALL_FONT_Y_LEN-2+gy_adjust, (unsigned char *)col->tabs[itab].label, 1, w->size);
 		else
-			draw_string_zoomed (xstart+4, ytagbot-SMALL_FONT_Y_LEN-2, (unsigned char *)col->tabs[itab].label, 1, w->size);
+			draw_string_zoomed (xstart+4+gx_adjust, ytagbot-SMALL_FONT_Y_LEN-2+gy_adjust, (unsigned char *)col->tabs[itab].label, 1, w->size);
 		glDisable(GL_TEXTURE_2D);
 
 		xstart = xend;
@@ -3521,7 +3522,7 @@ int spinbutton_draw(widget_list *widget)
 	}
 	/* Numbers */
 	glColor3f(widget->r, widget->g, widget->b);
-	draw_string_zoomed(widget->pos_x + 2, widget->pos_y + 2, (unsigned char*)str, 1, widget->size);
+	draw_string_zoomed(widget->pos_x + 2 + gx_adjust, widget->pos_y + 2 + gy_adjust, (unsigned char*)str, 1, widget->size);
 	glDisable(GL_TEXTURE_2D);
 	/* Border */
 	glBegin(GL_LINE_LOOP);

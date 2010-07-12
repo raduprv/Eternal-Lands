@@ -17,6 +17,7 @@
 #include "context_menu.h"
 #endif
 #include "dialogues.h"
+#include "elconfig.h"
 #include "elwindows.h"
 #include "errors.h"
 #include "gamewin.h"
@@ -790,7 +791,7 @@ static int display_questlog_handler(window_info *win)
 		const std::vector<std::string> &lines = quest_entries[active_entries[entry]].get_lines();
 		for (std::vector<std::string>::const_iterator line = lines.begin(); line != lines.end(); ++line)
 		{
-			draw_string_small (2, questlog_y, reinterpret_cast<const unsigned char *>(line->c_str()), 1);
+			draw_string_small (2+gx_adjust, questlog_y+gy_adjust, reinterpret_cast<const unsigned char *>(line->c_str()), 1);
 			questlog_y += static_cast<int>(SMALL_FONT_Y_LEN);
 			if (questlog_y > STATS_TAB_HEIGHT - SMALL_FONT_Y_LEN)
 				break;

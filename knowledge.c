@@ -3,6 +3,7 @@
 #include "knowledge.h"
 #include "asc.h"
 #include "books.h"
+#include "elconfig.h"
 #include "elwindows.h"
 #include "gamewin.h"
 #include "hud.h"
@@ -126,11 +127,11 @@ int display_knowledge_handler(window_info *win)
 	glBegin(GL_QUADS);
 	//progress bar
 	glColor3f(0.40f,0.40f,1.00f);
-	glVertex3i(lx+1,316,0);
-	glVertex3i(lx+progress,316,0);
+	glVertex3i(lx+1+gx_adjust,316,0);
+	glVertex3i(lx+progress+gx_adjust,316,0);
 	glColor3f(0.10f,0.10f,0.80f);
-	glVertex3i(lx+progress,334,0);
-	glVertex3i(lx+1,334,0);
+	glVertex3i(lx+progress+gx_adjust,334+gy_adjust,0);
+	glVertex3i(lx+1+gx_adjust,334+gy_adjust,0);
 	glColor3f(0.77f,0.57f,0.39f);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);

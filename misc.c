@@ -590,7 +590,7 @@ void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, 
 	}
 
 	if(str) {
-		draw_string_zoomed(xstr, y+radius/2.0f, (unsigned char*)str, lines, size);
+		draw_string_zoomed(xstr + gx_adjust, y+radius/2.0f + gy_adjust, (unsigned char*)str, lines, size);
 	}
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();

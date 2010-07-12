@@ -518,13 +518,13 @@ int display_items_handler(window_info *win)
 	for(i=0;i<ITEM_EDIT_QUANT;x+=quantity_width,++i){
 		if(i==edit_quantity){
 			glColor3f(1.0f, 0.0f, 0.3f);
-			draw_string_small(x-strlen(quantities.quantity[i].str)*4, y, (unsigned char*)quantities.quantity[i].str, 1);
+			draw_string_small(1+gx_adjust+x-strlen(quantities.quantity[i].str)*4, y+gy_adjust, (unsigned char*)quantities.quantity[i].str, 1);
 			glColor3f(0.3f, 0.5f, 1.0f);
 		} else if(i==quantities.selected){
 			glColor3f(0.0f, 1.0f, 0.3f);
-			draw_string_small(x-strlen(quantities.quantity[i].str)*4, y, (unsigned char*)quantities.quantity[i].str, 1);
+			draw_string_small(1+gx_adjust+x-strlen(quantities.quantity[i].str)*4, y+gy_adjust, (unsigned char*)quantities.quantity[i].str, 1);
 			glColor3f(0.3f, 0.5f, 1.0f);
-		} else  draw_string_small(x-strlen(quantities.quantity[i].str)*4, y, (unsigned char*)quantities.quantity[i].str, 1);
+		} else  draw_string_small(1+gx_adjust+x-strlen(quantities.quantity[i].str)*4, y+gy_adjust, (unsigned char*)quantities.quantity[i].str, 1);
 	}
 	draw_string_small(win->len_x-strlen(quantity_str)*8-5, quantity_y_offset-19, (unsigned char*)quantity_str, 1);
 
