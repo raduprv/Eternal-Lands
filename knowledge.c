@@ -127,8 +127,8 @@ int display_knowledge_handler(window_info *win)
 	glBegin(GL_QUADS);
 	//progress bar
 	glColor3f(0.40f,0.40f,1.00f);
-	glVertex3i(lx+1+gx_adjust,316,0);
-	glVertex3i(lx+progress+gx_adjust,316,0);
+	glVertex3i(lx+1+gx_adjust,315+gy_adjust,0);
+	glVertex3i(lx+progress+gx_adjust,315+gy_adjust,0);
 	glColor3f(0.10f,0.10f,0.80f);
 	glVertex3i(lx+progress+gx_adjust,334+gy_adjust,0);
 	glVertex3i(lx+1+gx_adjust,334+gy_adjust,0);
