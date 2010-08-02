@@ -174,7 +174,7 @@ char
 #endif
 	mix_one_str[8],
 	mix_all_str[8],
-	inv_lastrow_str[20],
+	inv_keeprow_str[30],
 	quantity_edit_str[100],
 	equip_here_str[100],
 	equip_str[20],
@@ -1183,7 +1183,7 @@ void init_help()
 #endif
 	add_xml_identifier(misc,"mixone",mix_one_str,"Mix One",sizeof(mix_one_str));
 	add_xml_identifier(misc,"mixall",mix_all_str,"Mix All",sizeof(mix_all_str));
-	add_xml_identifier(misc,"inv_lastrow",inv_lastrow_str,"Keep Last Row",sizeof(inv_lastrow_str));
+	add_xml_identifier(misc,"inv_keeprow",inv_keeprow_str,"Keep First Row\nKeep Last Row",sizeof(inv_keeprow_str));
 	add_xml_identifier(misc,"completed",completed_research,"COMPLETED",sizeof(completed_research));
 	add_xml_identifier(misc,"research",researching_str,"Researching",sizeof(researching_str));
 	add_xml_identifier(misc,"nothing",not_researching_anything,"Nothing",sizeof(not_researching_anything));

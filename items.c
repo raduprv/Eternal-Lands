@@ -96,7 +96,9 @@ static int but_y_off[NUMBUT] = { 0, YLENBUT, YLENBUT*2, YLENBUT*3 };
 enum { BUT_STORE, BUT_GET, BUT_DROP, BUT_MIX };
 #endif //ITEM_LISTS
 int items_mix_but_all = 0;
+int items_stoall_nofirstrow = 0;
 int items_stoall_nolastrow = 0;
+int items_dropall_nofirstrow = 0;
 int items_dropall_nolastrow = 0;
 static int mouse_over_but = -1;
 #ifdef CONTEXT_MENUS
@@ -1001,22 +1003,21 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
    	// Sto All button
 	else if(over_button(win, mx, my)==BUT_STORE && storage_win >= 0 && view_only_storage == 0 && get_show_window(storage_win) /*thanks alberich*/){
 #ifdef STORE_ALL
-	/*
-	* Future code to save server load by having one byte to represent the 36 slot inventory loop. Will need server support.
-	*/
-	str[0]=DEPOSITE_ITEM;
-	str[1]=STORE_ALL;
-	my_tcp_send(my_socket, str, 2);
+		/*
+		* Future code to save server load by having one byte to represent the 36 slot inventory loop. Will need server support.
+		*/
+		str[0]=DEPOSITE_ITEM;
+		str[1]=STORE_ALL;
+		my_tcp_send(my_socket, str, 2);
 #else
-         for(pos=0;pos<((items_stoall_nolastrow)?30:36);pos++){
-              if(item_list[pos].quantity>0){                                            
-                   str[0]=DEPOSITE_ITEM;
-		           str[1]=pos;
-                   *((Uint32*)(str+2))=SDL_SwapLE32(item_list[pos].quantity);
-
-	     	      my_tcp_send(my_socket, str, 6);
-              }
-          }
+		for(pos=((items_stoall_nofirstrow)?6:0);pos<((items_stoall_nolastrow)?30:36);pos++){
+			if(item_list[pos].quantity>0){
+				str[0]=DEPOSITE_ITEM;
+				str[1]=item_list[pos].pos;
+				*((Uint32*)(str+2))=SDL_SwapLE32(item_list[pos].quantity);
+				my_tcp_send(my_socket, str, 6);
+			}
+		}
 #endif
      }
 
@@ -1187,11 +1188,13 @@ static void drop_all_handler ()
 	{
 		for(i = 0; i < ITEM_NUM_ITEMS; i++)
 		{
-			if (item_list[i].quantity != 0 && item_list[i].pos < ((items_dropall_nolastrow)?30:ITEM_WEAR_START)) // only drop stuff that we're not wearing
+			if (item_list[i].quantity != 0 &&  // only drop stuff that we're not wearing or not excluded
+				item_list[i].pos >= ((items_dropall_nofirstrow)?6:0) &&
+				item_list[i].pos < ((items_dropall_nolastrow)?30:ITEM_WEAR_START))
 			{
 				str[0] = DROP_ITEM;
 				str[1] = item_list[i].pos;
-				*((Uint32 *)(str+2)) = item_list[i].quantity;
+				*((Uint32 *)(str+2)) = SDL_SwapLE32(item_list[i].quantity);
 				my_tcp_send (my_socket, str, 6);
 #ifdef NEW_SOUND
 				dropped_something = 1;
@@ -1284,11 +1287,13 @@ void display_items_menu()
 		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+3, &item_window_on_drop, "item_window_on_drop");
 		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+4, &allow_equip_swap, NULL);
 				
-		cm_stoall_but = cm_create(inv_lastrow_str, NULL);
-		cm_bool_line(cm_stoall_but, 0, &items_stoall_nolastrow, NULL);		
+		cm_stoall_but = cm_create(inv_keeprow_str, NULL);
+		cm_bool_line(cm_stoall_but, 0, &items_stoall_nofirstrow, NULL);
+		cm_bool_line(cm_stoall_but, 1, &items_stoall_nolastrow, NULL);
 		
-		cm_dropall_but = cm_create(inv_lastrow_str, NULL);
-		cm_bool_line(cm_dropall_but, 0, &items_dropall_nolastrow, NULL);		
+		cm_dropall_but = cm_create(inv_keeprow_str, NULL);
+		cm_bool_line(cm_dropall_but, 0, &items_dropall_nofirstrow, NULL);
+		cm_bool_line(cm_dropall_but, 1, &items_dropall_nolastrow, NULL);
 		
 		cm_mix_but = cm_create(mix_all_str, NULL);
 		cm_bool_line(cm_mix_but, 0, &items_mix_but_all, NULL);		
