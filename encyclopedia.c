@@ -534,6 +534,55 @@ void ReadCategoryXML(xmlNode * a_node)
 				numimage++;
 			}
 
+			//<ddsImage>
+			if(!xmlStrcasecmp(cur_node->name,(xmlChar*)"ddsimage")){
+				_Image *I=(_Image*)malloc(sizeof(_Image));
+				_Image *i=&Page[numpage].I;
+				int picsperrow,xtile,ytile;
+				float ftsize;
+				xposupdate=1; yposupdate=1;
+				ParseSimage(cur_node->properties);
+				if(size==99)
+					size=99;
+
+				picsperrow=isize/tsize;
+				xtile=tid%picsperrow;
+				ytile=tid/picsperrow;
+				ftsize=(float)tsize/isize;
+				u=ftsize*xtile;
+				v=ftsize*ytile;
+				uend=u+ftsize;
+				vend=v+ftsize;
+				I->mouseover=mouseover;
+				mouseover=0;
+
+				while(i->Next!=NULL)i=i->Next;
+					I->id=id;
+				I->Next=NULL;
+				if(!I->mouseover){
+					I->x=x;
+					I->y=y;
+					I->xend=x+(tsize*((float)ssize/100));
+					I->yend=y+(tsize*((float)ssize/100));
+					if(xposupdate)
+						x+=(tsize*((float)ssize/100));
+					if(yposupdate)
+						y+=(tsize*((float)ssize/100))-((size)?18:15);
+				}else{
+					I->x=i->x;
+					I->y=i->y;
+					I->xend=i->xend;
+					I->yend=i->yend;
+				}
+				I->u=u;
+				I->v=v;
+				I->uend=uend;
+				I->vend=vend;
+				i->Next=I;
+
+				numimage++;
+			}
+
 			//<Pos>
 			if(!xmlStrcasecmp(cur_node->name,(xmlChar*)"pos")){
 				ParsePos(cur_node->properties);
