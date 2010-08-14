@@ -782,9 +782,9 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	int right_click = flags & ELW_RIGHT_MOUSE;
 	int ctrl_on = flags & ELW_CTRL;
 	int shift_on = flags & ELW_SHIFT;
-	int pos,itempos,x,y;
+	int pos;
 	actor *me;
-    	
+
 	// only handle mouse button clicks, not scroll wheels moves (unless its the mix button)
 	if (((flags & ELW_MOUSE_BUTTON) == 0) && (over_button(win, mx, my) != BUT_MIX)) return 0;
 
@@ -975,32 +975,37 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 		}
 	} 
 
-   	// Get All button
+	// Get All button
 	else if(over_button(win, mx, my)==BUT_GET){
-     	me = get_our_actor ();
-      	if(!me)return(1);//Wtf!?
-       	x=me->x_tile_pos;
-        y=me->y_tile_pos;
 
-	    for(pos=0;pos<NUM_BAGS;pos++){
-            if(bag_list[pos].x != 0 && bag_list[pos].y != 0)
-            {
-	    		if(bag_list[pos].x==x && bag_list[pos].y==y){
-                    open_bag(bag_list[pos].obj_3d_id);
-                    for(itempos = 0; itempos < ITEMS_PER_BAG; itempos++){
-	            	    if(ground_item_list[itempos].quantity){
-    	    		        str[0]=PICK_UP_ITEM;
-	       			        str[1]=itempos;
-       	    			    *((Uint32 *)(str+2))=SDL_SwapLE32(ground_item_list[itempos].quantity);
-	   	        		    my_tcp_send(my_socket,str,6);
-        	            }
-                    }
-                }
-            }
-        }
-    }
+		int itempos,x,y;
+		me = get_our_actor ();
+		if(!me)return(1);
+		x=me->x_tile_pos;
+		y=me->y_tile_pos;
 
-   	// Sto All button
+		for(pos=0;pos<NUM_BAGS;pos++){
+			if(bag_list[pos].x != 0 && bag_list[pos].y != 0 &&
+				bag_list[pos].x == x && bag_list[pos].y == y)
+			{
+				if(get_show_window(ground_items_win)){
+					for(itempos = 0; itempos < ITEMS_PER_BAG; itempos++){
+						if(ground_item_list[itempos].quantity){
+							str[0]=PICK_UP_ITEM;
+							str[1]=itempos;
+							*((Uint32 *)(str+2))=SDL_SwapLE32(ground_item_list[itempos].quantity);
+							my_tcp_send(my_socket,str,6);
+						}
+					}
+				}
+				else
+					open_bag(bag_list[pos].obj_3d_id);
+				break; //we should only stand on one bag
+			}
+		}
+	}
+
+	// Sto All button
 	else if(over_button(win, mx, my)==BUT_STORE && storage_win >= 0 && view_only_storage == 0 && get_show_window(storage_win) /*thanks alberich*/){
 #ifdef STORE_ALL
 		/*
