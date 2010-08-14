@@ -321,12 +321,24 @@ void remove_all_bags(){
 	}
 }
 
+
+int clear_groundlist(void)
+{
+	int i;
+	for(i = 0; i < ITEMS_PER_BAG; i++) {
+		ground_item_list[i].quantity = 0;
+	}
+	return 1;
+}
+
+
 void open_bag(int object_id)
 {
 	int i;
 	Uint8 str[4];
 	for(i=0;i<NUM_BAGS;i++){
 		if(bag_list[i].obj_3d_id==object_id){
+			clear_groundlist();
 			str[0]= INSPECT_BAG;
 			str[1]= i;
 			my_tcp_send(my_socket,str,2);
@@ -358,9 +370,7 @@ void get_bags_items_list (const Uint8 *data)
 
 	view_ground_items=1;
 	//clear the list
-	for(i = 0; i < ITEMS_PER_BAG; i++) {
-		ground_item_list[i].quantity = 0;
-	}
+	clear_groundlist();
 
 	items_no = data[0];
 	if(items_no > ITEMS_PER_BAG) {
