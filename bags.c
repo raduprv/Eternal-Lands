@@ -322,12 +322,13 @@ void remove_all_bags(){
 }
 
 
-void clear_groundlist(void)
+int clear_groundlist(void)
 {
 	int i;
 	for(i = 0; i < ITEMS_PER_BAG; i++) {
 		ground_item_list[i].quantity = 0;
 	}
+	return 1;
 }
 
 
@@ -337,7 +338,6 @@ void open_bag(int object_id)
 	Uint8 str[4];
 	for(i=0;i<NUM_BAGS;i++){
 		if(bag_list[i].obj_3d_id==object_id){
-			clear_groundlist();
 			str[0]= INSPECT_BAG;
 			str[1]= i;
 			my_tcp_send(my_socket,str,2);
@@ -623,6 +623,8 @@ void draw_pick_up_menu()
 		set_window_handler(ground_items_win, ELW_HANDLER_CLICK, &click_ground_items_handler );
 		set_window_handler(ground_items_win, ELW_HANDLER_MOUSEOVER, &mouseover_ground_items_handler );
 		set_window_handler(ground_items_win, ELW_HANDLER_RESIZE, &resize_ground_items_handler );
+		set_window_handler(ground_items_win, ELW_HANDLER_CLOSE, &clear_groundlist );
+		set_window_handler(ground_items_win, ELW_HANDLER_HIDE, &clear_groundlist );
 		set_window_min_size(ground_items_win, (min_grid_cols+1)*GRIDSIZE, min_grid_rows*GRIDSIZE);
 		set_window_scroll_inc(ground_items_win, GRIDSIZE/3);
 		set_window_scroll_yoffset(ground_items_win, GRIDSIZE);
