@@ -322,13 +322,12 @@ void remove_all_bags(){
 }
 
 
-int clear_groundlist(void)
+void clear_groundlist(void)
 {
 	int i;
 	for(i = 0; i < ITEMS_PER_BAG; i++) {
 		ground_item_list[i].quantity = 0;
 	}
-	return 1;
 }
 
 
