@@ -69,7 +69,7 @@ fi
 
 # make sure we have permissions on config files
 [ ! -r $serverfile -o ! -w $serverfile ] && chmod +wr $serverfile
-for i in $(find ~/.elc/ -name el.ini)
+for i in $(find ~/.elc/ -maxdepth 2 -name el.ini)
 do
 	[ ! -r $i -o ! -w $i ] && chmod +wr $i
 done
@@ -78,7 +78,7 @@ done
 if [ ! -r ~/.elc/no.el.ini.check ]
 then
 	show_suppression=false
-	for i in $(find ~/.elc/ -name el.ini)
+	for i in $(find ~/.elc/ -maxdepth 2 -name el.ini)
 	do
 		if [ "$(grep ^#data_dir $i | tail -1 | grep '^#data_dir = /usr/share/games/EternalLands$')" = "" ]
 		then
