@@ -4,7 +4,7 @@
 # - Copies required files to ~/.elc if not already there
 # - Checks all ~/.elc/ tree el.ini files have correct and optionally fixes them
 # - optionally displays a server/configuration selection GUI
-# - optioanlly runs a user specified client executable
+# - optionally runs a user specified client executable
 #
 # Author Paul Broadhead pjbroad@twinmoons.clara.co.uk
 #
