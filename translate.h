@@ -315,6 +315,7 @@ extern char
 #endif
 		mix_one_str[8],
 		mix_all_str[8],
+		auto_get_all_str[30],
 		inv_keeprow_str[30],
 		quantity_edit_str[100],
 		equip_here_str[100],

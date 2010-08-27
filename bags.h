@@ -40,6 +40,7 @@ extern int ground_items_menu_x;
 extern int ground_items_menu_y;
 extern int ground_items_menu_x_len;
 extern int ground_items_menu_y_len;
+extern int ground_items_empty_next_bag;
 
 /*!
  * \name windows handlers
@@ -153,6 +154,15 @@ void remove_all_bags();
  * \bug Uses a fixed upper limit to search \ref bag_list. We should use a defined constant instead.
  */
 void open_bag(int object_id);
+
+/*!
+ * \ingroup item
+ * \brief   Send messages to pick up all items in a ground bag.
+ *
+ *      Send messages to pick up all items in a ground bag
+ */
+void pick_up_all_items(void);
+
 
 #ifdef __cplusplus
 } // extern "C"

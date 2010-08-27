@@ -34,6 +34,7 @@ int ground_items_menu_x=6*51+100+20;
 int ground_items_menu_y=20;
 int ground_items_menu_x_len=6*GRIDSIZE;
 int ground_items_menu_y_len=10*GRIDSIZE;
+int ground_items_empty_next_bag=0;
 
 static int ground_items_grid_rows = 10;
 static int ground_items_grid_cols = 5;
@@ -359,6 +360,22 @@ void get_bag_item (const Uint8 *data)
 	ground_item_list[pos].pos= pos;
 }
 
+
+void pick_up_all_items(void)
+{
+	Uint8 str[20];
+	int itempos;
+	for(itempos = 0; itempos < ITEMS_PER_BAG; itempos++){
+		if(ground_item_list[itempos].quantity){
+			str[0]=PICK_UP_ITEM;
+			str[1]=itempos;
+			*((Uint32 *)(str+2))=SDL_SwapLE32(ground_item_list[itempos].quantity);
+			my_tcp_send(my_socket,str,6);
+		}
+	}
+}
+
+
 //put the flags later on
 void get_bags_items_list (const Uint8 *data)
 {
@@ -383,6 +400,14 @@ void get_bags_items_list (const Uint8 *data)
 		ground_item_list[pos].quantity= SDL_SwapLE32(*((Uint32 *)(data+my_offset+2)));
 		ground_item_list[pos].pos= pos;
 	}
+
+	if (ground_items_empty_next_bag) {
+		pick_up_all_items();
+		ground_items_empty_next_bag = 0;
+	}
+
+	// Open and display the bag even if we have sent the server messages to
+	// empty. Because if we can't carry the load the window needs to be shown.
 
 	draw_pick_up_menu();
 	if(item_window_on_drop) {
@@ -515,14 +540,7 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	// see if we clicked on the "Get All" box
 	if(mx>(win->len_x-GRIDSIZE) && mx<win->len_x && my>ELW_BOX_SIZE && my<GRIDSIZE+ELW_BOX_SIZE){
-		for(pos = 0; pos < ITEMS_PER_BAG; pos++){
-			if(ground_item_list[pos].quantity){
-				str[0]=PICK_UP_ITEM;
-				str[1]=pos;
-				*((Uint32 *)(str+2))=SDL_SwapLE32(ground_item_list[pos].quantity);
-				my_tcp_send(my_socket,str,6);
-			}
-		}
+		pick_up_all_items();
 #ifdef NEW_SOUND
 		add_sound_object(get_index_for_sound_type_name("Get Item"), 0, 0, 1);
 #endif // NEW_SOUND

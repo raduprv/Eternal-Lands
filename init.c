@@ -382,8 +382,9 @@ void read_bin_cfg()
 	disable_item_list_preview = (cfg_mem.misc_bool_options >> 7) & 1;
 #endif
 	dialogue_copy_excludes_responses = (cfg_mem.misc_bool_options >> 8) & 1;
- 	items_stoall_nofirstrow = (cfg_mem.misc_bool_options >> 9) & 1;
- 	items_dropall_nofirstrow = (cfg_mem.misc_bool_options >> 10) & 1;
+	items_stoall_nofirstrow = (cfg_mem.misc_bool_options >> 9) & 1;
+	items_dropall_nofirstrow = (cfg_mem.misc_bool_options >> 10) & 1;
+	items_auto_get_all = (cfg_mem.misc_bool_options >> 11) & 1;
 
 #if defined(CONTEXT_MENUS) && defined(USER_MENUS)
 	set_options_user_menus(cfg_mem.user_menu_win_x, cfg_mem.user_menu_win_y, cfg_mem.user_menu_options);
@@ -631,6 +632,7 @@ void save_bin_cfg()
 	cfg_mem.misc_bool_options |= dialogue_copy_excludes_responses << 8;
 	cfg_mem.misc_bool_options |= items_stoall_nofirstrow << 9;
 	cfg_mem.misc_bool_options |= items_dropall_nofirstrow << 10;
+	cfg_mem.misc_bool_options |= items_auto_get_all << 11;
 
 #if defined(CONTEXT_MENUS) && defined(USER_MENUS)
 	get_options_user_menus(&cfg_mem.user_menu_win_x, &cfg_mem.user_menu_win_y, &cfg_mem.user_menu_options);

@@ -118,6 +118,8 @@ extern int items_stoall_nolastrow;
 extern int items_dropall_nofirstrow;
 extern int items_dropall_nolastrow;
 
+extern int items_auto_get_all;
+
 #ifdef ITEM_UID			
 extern int item_uid_enabled;
 #endif

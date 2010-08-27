@@ -100,11 +100,13 @@ int items_stoall_nofirstrow = 0;
 int items_stoall_nolastrow = 0;
 int items_dropall_nofirstrow = 0;
 int items_dropall_nolastrow = 0;
+int items_auto_get_all = 0;
 static int mouse_over_but = -1;
 #ifdef CONTEXT_MENUS
 static size_t cm_stoall_but = CM_INIT_VALUE;
 static size_t cm_dropall_but = CM_INIT_VALUE;
 static size_t cm_mix_but = CM_INIT_VALUE;
+static size_t cm_getall_but = CM_INIT_VALUE;
 #endif
 
 static void drop_all_handler();
@@ -978,7 +980,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	// Get All button
 	else if(over_button(win, mx, my)==BUT_GET){
 
-		int itempos,x,y;
+		int x,y;
 		me = get_our_actor ();
 		if(!me)return(1);
 		x=me->x_tile_pos;
@@ -988,18 +990,12 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			if(bag_list[pos].x != 0 && bag_list[pos].y != 0 &&
 				bag_list[pos].x == x && bag_list[pos].y == y)
 			{
-				if(get_show_window(ground_items_win)){
-					for(itempos = 0; itempos < ITEMS_PER_BAG; itempos++){
-						if(ground_item_list[itempos].quantity){
-							str[0]=PICK_UP_ITEM;
-							str[1]=itempos;
-							*((Uint32 *)(str+2))=SDL_SwapLE32(ground_item_list[itempos].quantity);
-							my_tcp_send(my_socket,str,6);
-						}
-					}
-				}
-				else
+				if(get_show_window(ground_items_win))
+					pick_up_all_items();
+				else {
+					ground_items_empty_next_bag = items_auto_get_all;
 					open_bag(bag_list[pos].obj_3d_id);
+				}
 				break; //we should only stand on one bag
 			}
 		}
@@ -1239,6 +1235,7 @@ int show_items_handler(window_info * win)
 #ifdef CONTEXT_MENUS
 	cm_remove_regions(items_win);
 	cm_add_region(cm_stoall_but, items_win, win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[0], XLENBUT, YLENBUT);
+	cm_add_region(cm_getall_but, items_win, win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[1], XLENBUT, YLENBUT);
 	cm_add_region(cm_dropall_but, items_win, win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[2], XLENBUT, YLENBUT);
 	cm_add_region(cm_mix_but, items_win, win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[3], XLENBUT, YLENBUT);
 #ifdef ITEM_LISTS
@@ -1301,7 +1298,11 @@ void display_items_menu()
 		cm_bool_line(cm_dropall_but, 1, &items_dropall_nolastrow, NULL);
 		
 		cm_mix_but = cm_create(mix_all_str, NULL);
-		cm_bool_line(cm_mix_but, 0, &items_mix_but_all, NULL);		
+		cm_bool_line(cm_mix_but, 0, &items_mix_but_all, NULL);
+
+		cm_getall_but = cm_create(auto_get_all_str, NULL);
+		cm_bool_line(cm_getall_but, 0, &items_auto_get_all, NULL);
+
 
 #ifdef ITEM_LISTS
 		setup_item_list_menus();
