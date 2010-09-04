@@ -710,7 +710,7 @@ static int click_preview_handler(window_info *win, int mx, int my, Uint32 flags)
 		return 0;
 
 	// randomly close the preview window
-	if (!(SDL_GetTicks() & 31))
+	if (!(SDL_GetTicks() & 63))
 	{
 		hide_window(preview_win);
 		set_shown_string(c_red2, item_list_magic_str);
