@@ -10,6 +10,7 @@
 #include "context_menu.h"
 #endif
 #include "cursors.h"
+#include "elconfig.h"
 #include "elwindows.h"
 #include "errors.h"
 #include "framebuffer.h"
@@ -1460,18 +1461,17 @@ void draw_minimap_title_bar(window_info *win)
 	//draw the rectngle
 	glColor3f(win->line_color[0],win->line_color[1],win->line_color[2]);
 	glBegin(GL_LINE_STRIP);
-		glVertex2i(close_button_x + ELW_TITLE_HEIGHT-2, ELW_TITLE_HEIGHT-1);
-		glVertex2i(close_button_x + 1, ELW_TITLE_HEIGHT-1);
-		glVertex2i(close_button_x + 1, 2);
-		glVertex2i(close_button_x + ELW_TITLE_HEIGHT-2, 2);
-		glVertex2i(close_button_x + ELW_TITLE_HEIGHT-2, ELW_TITLE_HEIGHT-1);
+		glVertex2i(close_button_x + ELW_TITLE_HEIGHT-2 - gx_adjust, ELW_TITLE_HEIGHT-1 - gy_adjust);
+		glVertex2i(close_button_x + 1 - gx_adjust, ELW_TITLE_HEIGHT-1 - gy_adjust);
+		glVertex2i(close_button_x + 1 - gx_adjust, 2 - gy_adjust);
+		glVertex2i(close_button_x + ELW_TITLE_HEIGHT-2 - gx_adjust, 2 - gy_adjust);
+		glVertex2i(close_button_x + ELW_TITLE_HEIGHT-2 - gx_adjust, ELW_TITLE_HEIGHT-1 - gy_adjust);
 	glEnd();
 	//draw the X
 	glLineWidth(2.0f);
 	glBegin(GL_LINES);
 		glVertex2i(close_button_x + 3, 4);
 		glVertex2i(close_button_x + ELW_TITLE_HEIGHT-3, ELW_TITLE_HEIGHT-4);
-	
 		glVertex2i(close_button_x + ELW_TITLE_HEIGHT-3, 4);
 		glVertex2i(close_button_x + 3, ELW_TITLE_HEIGHT-4);
 	glEnd();
