@@ -124,6 +124,17 @@ extern Uint32 K_SPELL6;
  */
 void read_key_config();
 
+
+/*!
+ * \brief   Returns a string describing the specified keydef.
+ *
+ *      Returns (in the buffer provided) a string describing the specified keydef.
+ *
+ * \callgraph
+ */
+const char *get_key_string(Uint32 keydef, char *buf, size_t buflen);
+
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

@@ -515,4 +515,17 @@ void read_key_config()
 	free(file_mem);
 }
 
-
+// Returns (in the buffer provided) a string describing the specified keydef.
+const char *get_key_string(Uint32 keydef, char *buf, size_t buflen)
+{
+	char base = keydef & 0xFF;
+	char *mod = "";
+	if (keydef & CTRL)
+		mod = "ctrl-";
+	else if (keydef & ALT)
+		mod = "alt-";
+	else if (keydef & SHIFT)
+		mod = "shift-";
+	safe_snprintf(buf, buflen, "%s%c", mod, base);
+	return buf;
+}
