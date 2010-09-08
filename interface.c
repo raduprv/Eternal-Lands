@@ -766,6 +766,12 @@ void draw_game_map (int map, int mouse_mini)
 		}
 
 		if(inspect_map_text == 0) {
+			// display the Mark filter title
+			glColor3f(1.0f,1.0f,0.0f);
+			screen_x = 25 - 1.5*strlen(label_mark_filter);
+			screen_y = 150 + 25;
+			draw_string_zoomed(screen_x, screen_y, (unsigned char*)label_mark_filter, 1, 0.3);
+			
 			// if filtering marks, display the label and the current filter text
 			if (mark_filter_active) {
 				char * show_mark_filter_text;
@@ -776,13 +782,15 @@ void draw_game_map (int map, int mouse_mini)
 					show_mark_filter_text = "_";
 				else
 				  show_mark_filter_text = mark_filter_text;
-				glColor3f(1.0f,1.0f,0.0f);
-				screen_x = 25 - 1.5*strlen(label_mark_filter);
-				screen_y = 150 + 25;
-				draw_string_zoomed(screen_x, screen_y, (unsigned char*)label_mark_filter, 1, 0.3);
 				screen_x = 25 - 1.5*strlen(show_mark_filter_text);
 				screen_y = 150 + 32;
 				draw_string_zoomed(screen_x, screen_y, (unsigned char*)show_mark_filter_text, 1, 0.3);
+			}
+			// display which key to activate the filter
+			else
+			{
+				char buf[20];
+				draw_string_zoomed(25 - 1.5*strlen(buf), 150 + 32, (const unsigned char *)get_key_string(K_MARKFILTER, buf, 20), 1, 0.3);
 			}
 	
 			// crave the markings
