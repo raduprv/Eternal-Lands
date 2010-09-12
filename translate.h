@@ -331,6 +331,8 @@ extern char
 		items_stack_str[100],
 		mixbut_empty_str[80],
 		mix_empty_str[50],
+		click_clear_str[50],
+		double_click_clear_str[50],
 		/*knowledge.c*/
 		completed_research[12],
 		researching_str[30],

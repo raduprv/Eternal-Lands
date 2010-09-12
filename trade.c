@@ -333,6 +333,14 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 		return 1;
 	}
 
+	else if (my > button_y_bot+5) {
+		static Uint32 last_click = 0;
+		if (safe_button_click(&last_click)) {
+			set_shown_string(0,"");
+			return 1;
+		}
+	}
+
 	return 1;
 }
 
@@ -340,6 +348,10 @@ int mouseover_trade_handler(window_info *win, int mx, int my)
 {
 	if(mx>win->len_x-ELW_BOX_SIZE && my<ELW_BOX_SIZE) show_abort_help=1;
 	else show_abort_help=0;
+
+	if (show_help_text && *inventory_item_string && (my > button_y_bot+5)) {
+		show_help((disable_double_click)?click_clear_str :double_click_clear_str, 0, win->len_y+10);
+	}
 
 	return 0;
 }

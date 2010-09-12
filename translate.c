@@ -190,6 +190,8 @@ char
 	items_stack_str[100],
 	mixbut_empty_str[80],
 	mix_empty_str[50],
+	click_clear_str[50],
+	double_click_clear_str[50],
 	/*knowledge.c*/
 	completed_research[12],
 	researching_str[30],
@@ -1224,6 +1226,8 @@ void init_help()
 	add_xml_identifier(misc,"items_stack",items_stack_str,"Client can't choose between multiple stacks, make a free slot and let the server do it!",sizeof(items_stack_str));
 	add_xml_identifier(misc,"mixbut_empty",mixbut_empty_str,"Nothing to mix, add some items using the manufacture window.",sizeof(mixbut_empty_str));
 	add_xml_identifier(misc,"mix_empty_str",mix_empty_str,"Nothing to mix, add some items.",sizeof(mix_empty_str));
+	add_xml_identifier(misc,"click_clear",click_clear_str,"Click to clear message.",sizeof(click_clear_str));
+	add_xml_identifier(misc,"double_click_clear",double_click_clear_str,"Double-click to clear message.",sizeof(double_click_clear_str));
 	add_xml_identifier(misc,"you",you_str,"You",sizeof(you_str));
 	add_xml_identifier(misc,"accept",accept_str,"Accept",sizeof(accept_str));
 	add_xml_identifier(misc,"cmd_markpos",help_cmd_markpos_str,"Usage: #markpos <x-coord>,<y-coord> <name>",sizeof(help_cmd_markpos_str));

@@ -491,6 +491,16 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 	} else last_slot=-1;
 	//see if we clicked on the recipe handler
 	recipe_controls_click_handler(mx,my,flags);
+
+	// clear the message area if double-clicked
+	if ((my > manufacture_menu_y_len-85) && my < (manufacture_menu_y_len-37)) {
+		static Uint32 last_click = 0;
+		if (safe_button_click(&last_click)) {
+			set_shown_string(0,"");
+			return 1;
+		}
+	}
+
 	return 0;
 }
 
@@ -586,6 +596,11 @@ int mouseover_manufacture_slot_handler(window_info *win, int mx, int my)
 {
 	int pos;
 	int check_for_eye = 0;
+
+	/* See if we're over a message - and offer clear help if so */
+	if (show_help_text && *inventory_item_string && (my > manufacture_menu_y_len-85) && my < (manufacture_menu_y_len-37)) {
+		show_help((disable_double_click)?click_clear_str :double_click_clear_str, 0, win->len_y+10);
+	}
 
 	/* see if we clicked on any item in the main category */
 	pos=get_mouse_pos_in_grid(mx, my, 12, 3, 0, 0, 33, 33);

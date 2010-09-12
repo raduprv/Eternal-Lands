@@ -113,6 +113,12 @@ static void drop_all_handler();
 
 void set_shown_string(char colour_code, const char *the_text)
 {
+	if (strlen(the_text) == 0)
+	{
+		inventory_item_string[0] = '\0';
+		inventory_item_string_id++;
+		return;
+	}
 	inventory_item_string[0] = to_color_char(colour_code);
 	safe_strncpy2(inventory_item_string+1, the_text, sizeof(inventory_item_string)-2, strlen(the_text));
 	inventory_item_string[sizeof(inventory_item_string)-1] = 0;
@@ -1080,6 +1086,15 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 #endif // NEW_SOUND
 		}
 	}
+
+	// clear the message area if double-clicked
+	else if (my > (win->len_y - (use_small_items_window?105:85))) {
+		static Uint32 last_click = 0;
+		if (safe_button_click(&last_click)) {
+			set_shown_string(0,"");
+			return 1;
+		}
+	}
 	
 	return 1;
 }
@@ -1131,7 +1146,9 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 	} else if(show_help_text && mx>quantity_x_offset && mx<quantity_x_offset+ITEM_EDIT_QUANT*quantity_width &&
 			my>quantity_y_offset && my<quantity_y_offset+6*20){
 		show_help(quantity_edit_str, 0, quantity_y_offset+30);
-	} 
+	} else if (show_help_text && *inventory_item_string && (my > (win->len_y - (use_small_items_window?105:85)))) {
+		show_help((disable_double_click)?click_clear_str :double_click_clear_str, 0, win->len_y+10);
+	}
 	
 	return 0;
 }
