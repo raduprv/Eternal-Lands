@@ -292,8 +292,8 @@ void display_astrology_window(const char * raw_text)
 		if (!windows_on_top) {
 			our_root_win = game_root_win;
 		}
-		astrology_win= create_window(win_astrology, our_root_win, 0, astrology_win_x, astrology_win_y, astrology_win_x_len, astrology_win_y_len, 
-			ELW_TITLE_BAR|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER);
+		astrology_win= create_window(win_astrology, our_root_win, 0, astrology_win_x, astrology_win_y, astrology_win_x_len, astrology_win_y_len,
+			ELW_WIN_DEFAULT ^ ELW_CLOSE_BOX);
 
 		set_window_handler(astrology_win, ELW_HANDLER_DISPLAY, &display_astrology_handler );
 
