@@ -23,6 +23,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 //needed for notepad.h
 #include <SDL.h>
@@ -461,11 +462,14 @@ namespace ItemLists
 				{ assert(valid_preview()); return saved_item_lists[previewed]; }
 			void fetch(size_t i) const
 				{ if (i<size()) saved_item_lists[i].fetch(); }
+			void sort_list(void)
+				{ std::sort( saved_item_lists.begin(), saved_item_lists.end(), List_Container::sort_compare); };
 		private:
 			std::vector<List> saved_item_lists;
 			static int FILE_REVISION;
 			size_t previewed;
 			static const char * filename;
+			static bool sort_compare(const List &a, const List &b);
 	};
 
 	int List_Container::FILE_REVISION = 2;
@@ -493,10 +497,11 @@ namespace ItemLists
 	}
 
 
-	//  Save the item lists to a file in players config directory
+	//  Load the item lists from the file in players config directory
 	//
 	void List_Container::load(void)
 	{
+		saved_item_lists.clear();
 		std::string fullpath = get_path_config() + std::string(filename);
 		std::ifstream in(fullpath.c_str());
 		if (!in)
@@ -508,7 +513,6 @@ namespace ItemLists
 			LOG_ERROR("%s: %s [%s]\n", __FILE__, item_list_version_error_str, fullpath.c_str() );
 			return;
 		}
-		saved_item_lists.clear();
 		while (!in.eof())
 		{
 			saved_item_lists.push_back(ItemLists::List());
@@ -551,6 +555,18 @@ namespace ItemLists
 	}
 
 
+	// Used by the sort algorithm to alphabetically compare two list names, case insensitive
+	//
+	bool List_Container::sort_compare(const List &a, const List &b)
+	{
+		std::string alower(a.get_name());
+		std::transform(alower.begin(), alower.end(), alower.begin(), tolower);
+		std::string blower(b.get_name());
+		std::transform(blower.begin(), blower.end(), blower.begin(), tolower);
+		return alower < blower;
+	} 
+
+
 	//	Class for static objects to avoid destructor issues
 	//  Will be created after and destructed before global statics
 	class Vars
@@ -587,6 +603,7 @@ Uint32 il_pickup_fail_time = 0;
 //
 static void update_list_window()
 {
+	ItemLists::Vars::lists()->sort_list();
 	std::string menu_string;
 	ItemLists::Vars::lists()->get_menu(menu_string);	
 	if (menu_string.empty())
