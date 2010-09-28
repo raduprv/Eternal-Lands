@@ -1,17 +1,17 @@
 /*
- * User can store current inventory contents into a named list.  It is
- * hoped that the server will support fetching the listed items directly
- * from storage.  However, macroing concerns may prevent this.  IMHO,
- * the preview window provides a useful feature in itself, allow you to
- * recored inventory configurations for set tasks such as making steel
- * bars at a mine.
+ * User can store current inventory contents into a named list. When you
+ * are near an open storage, you can fetch the listed items out of
+ * storage driectly from the preview window.  The preview window also
+ * provides a way to recored inventory configurations for set tasks such
+ * as making steel bars at a mine. It was hoped that you would be able
+ * to fetch the complete list of items in one go just by selecting the
+ * list from the menu.  However, due to concerns with macroing, this may
+ * never be allowed.
  *
  * Author bluap/pjbroad December 2009
  * 
- * TODO Preview Window features
- * 		Add buttons Fetch/Delete/Rename etc
- *		Allow drag/drop into a list
- * 			Probably need to allow empty lists 0 quanitity in file
+ * TODO New features
+ * 		Option to rename a list?
  *
  */
 
@@ -59,7 +59,8 @@ const char *item_list_name_str = "Enter list name";
 const char *item_list_preview_title = "List preview";
 const char *item_list_use_help_str = "Use quantity - right-click";
 const char *item_list_pickup_help_str = "Pick up - left-click";
-const char *item_list_edit_help_str = "Edit menu - right-click";
+const char *item_list_edit_help_str = "Edit menu - ctrl+right-click";
+const char *item_list_add_help_str = "Add to list - ctrl+left-click";
 const char *item_list_quantity_str = "Quantity";
 const char *item_list_magic_str = "Magical interference caused the list preview to close O.O";
 
@@ -85,6 +86,7 @@ namespace ItemLists
 			void write(std::ostream & out) const;
 			bool read(std::istream & in);
 			void del(size_t item_index);
+			void add(int image_id, Uint16 id, int quantity);
 		private:
 			std::string name;
 			std::vector<int> image_ids;
@@ -227,7 +229,52 @@ namespace ItemLists
 		item_ids.erase( item_ids.begin()+item_index );
 	}
 
-	
+
+	//	Add a new item to a list or increase quantity if already in the list
+	void List::add(int image_id, Uint16 id, int quantity)
+	{
+#ifdef NEW_SOUND
+		add_sound_object(get_index_for_sound_type_name("Drop Item"), 0, 0, 1);
+#endif // NEW_SOUND
+
+		// Add to quanity if already in list
+
+		// if new item has proper ID, try to use it
+		if (id != unset_item_uid)
+		{
+			// match only against items with the same id
+			for (size_t i=0; i<quantities.size(); ++i)
+				if (item_ids[i] == id)
+				{
+					quantities[i] += quantity;
+					return;
+				}
+			// or with items that don't have a proper id but do match the image
+			for (size_t i=0; i<quantities.size(); ++i)
+				if ((item_ids[i] == unset_item_uid) && (image_ids[i] == image_id))
+				{
+					quantities[i] += quantity;
+					return;
+				}
+		}
+		// if the new items does not have a proper id, just look for a matching image id
+		else
+		{
+			for (size_t i=0; i<quantities.size(); ++i)
+				if (image_ids[i] == image_id)
+				{
+					quantities[i] += quantity;
+					return;
+				}
+		}
+
+		// otherwise add new item
+		image_ids.push_back(image_id);
+		item_ids.push_back(id);
+		quantities.push_back(quantity);
+	}
+
+
 	//	Store and lookup categories for objects.
 	//
 	class Category_Maps
@@ -458,6 +505,8 @@ namespace ItemLists
 				{ assert(valid_preview()); return saved_item_lists[previewed].set_quantity(item, quantity); }
 			void del_item(size_t i)
 				{ assert(valid_preview()); saved_item_lists[previewed].del(i); }
+			void add_item(int image_id, Uint16 id, int quantity)
+				{ assert(valid_preview()); saved_item_lists[previewed].add(image_id, id, quantity); }
 			const List & get_list(void) const
 				{ assert(valid_preview()); return saved_item_lists[previewed]; }
 			void fetch(size_t i) const
@@ -588,14 +637,14 @@ namespace ItemLists
 static INPUT_POPUP ipu_item_list_name;
 static int delete_item_list = 0;
 static int preview_win = -1;
-static const char * preview_help_str_1 = NULL;
-static const char * preview_help_str_2 = NULL;
+static std::vector<const char *>help_str;
 static int last_quantity_selected = 0;
 static const int preview_grid_size = 33;
 static size_t selected_item_number = static_cast<size_t>(1);
 static const enum { OPTION_SAVE = 0, OPTION_PREVIEW, OPT_SEP01,
 	OPTION_DELETE, OPT_SEP02, OPTION_RELOAD } cm_opts = OPTION_SAVE;
 static size_t cm_selected_item_menu = CM_INIT_VALUE;
+static Uint32 last_mod_time = 0;
 Uint32 il_pickup_fail_time = 0;
 
 
@@ -622,7 +671,13 @@ static int display_preview_handler(window_info *win)
 {
 	if (!ItemLists::Vars::lists()->valid_preview())
 		return 1;
-	
+
+	if (last_mod_time && abs(last_mod_time - SDL_GetTicks()) > 5000)
+	{
+		ItemLists::Vars::lists()->save();
+		last_mod_time = 0;
+	}
+
 	glEnable(GL_TEXTURE_2D);
 
 	// draw the images
@@ -643,11 +698,9 @@ static int display_preview_handler(window_info *win)
 	// draw mouse over window help text
 	if (show_help_text)
 	{
-		if (preview_help_str_1 != NULL)
-			show_help(preview_help_str_1, 0, win->len_y + 10);
-		if (preview_help_str_2 != NULL)
-			show_help(preview_help_str_2, 0, static_cast<int>(win->len_y + 10 + SMALL_FONT_Y_LEN));
-		preview_help_str_1 = preview_help_str_2 = NULL;
+		for (size_t i=0; i<help_str.size(); ++i)
+			show_help(help_str[i], 0, win->len_y + 10 + SMALL_FONT_Y_LEN * i);
+		help_str.clear();
 	}
 
 	glDisable(GL_TEXTURE_2D);
@@ -726,14 +779,6 @@ static int click_preview_handler(window_info *win, int mx, int my, Uint32 flags)
 	if (my < 0) // don't respond here to title bar being clicked
 		return 0;
 
-	// randomly close the preview window
-	if (!(SDL_GetTicks() & 63))
-	{
-		hide_window(preview_win);
-		set_shown_string(c_red2, item_list_magic_str);
-		return 0;
-	}
-
 	size_t last_selected = selected_item_number;
 
 	// hide and clear any quantity input widow
@@ -741,18 +786,39 @@ static int click_preview_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	size_t num_items = ItemLists::Vars::lists()->get_list().get_num_items();
 	bool was_dragging = ((storage_item_dragged != -1) || (item_dragged != -1));
-	bool was_selected = ((quantities.selected == ITEM_EDIT_QUANT) && (selected_item_number<num_items) && (selected_item_number == get_preview_item_number(mx, my)));
-	
-	// always reset the quanitity selection on mouse click
+
+	// If dragging item and ctrl+left-click on window, add item to list
+	if ((flags & ELW_LEFT_MOUSE) && (flags & ELW_CTRL) && was_dragging)
+	{
+#ifdef ITEM_UID
+		if (storage_item_dragged != -1)
+			ItemLists::Vars::lists()->add_item(storage_items[storage_item_dragged].image_id, storage_items[storage_item_dragged].id, item_quantity);
+		else if (item_dragged != -1)
+			ItemLists::Vars::lists()->add_item(item_list[item_dragged].image_id, item_list[item_dragged].id, item_quantity);
+#else
+		if (storage_item_dragged != -1)
+			ItemLists::Vars::lists()->add_item(storage_items[storage_item_dragged].image_id, unset_item_uid, item_quantity);
+		else if (item_dragged != -1)
+			ItemLists::Vars::lists()->add_item(item_list[item_dragged].image_id, unset_item_uid, item_quantity);
+#endif
+		last_mod_time = SDL_GetTicks();
+		return 1;
+	}
+
+	// ctrl+right-click on a selected item opens the edit menu
+	if ((flags & ELW_RIGHT_MOUSE) && (flags & ELW_CTRL) && (get_preview_item_number(mx, my)<num_items))
+	{
+		cm_show_direct(cm_selected_item_menu, win->window_id, -1);
+		storage_item_dragged = item_dragged = -1;
+		return 1;
+	}
+
+	// always reset the quanitity selection on other mouse click
 	restore_inventory_quantity();
 
 	// wheel mouse up/down scrolls though lists - other clicks use the list
 	if ((flags & ELW_WHEEL_UP ) || (flags & ELW_WHEEL_DOWN ))
 		ItemLists::Vars::lists()->change_preview(flags);
-
-	// right-click on a selected item opens the edit menu
-	else if ((flags & ELW_RIGHT_MOUSE) && !was_dragging && was_selected)
-		cm_show_direct(cm_selected_item_menu, win->window_id, -1);
 
 	// see if we can use the item quantity or take items from storage
 	else if ((flags & ELW_RIGHT_MOUSE) || (flags & ELW_LEFT_MOUSE))
@@ -770,6 +836,13 @@ static int click_preview_handler(window_info *win, int mx, int my, Uint32 flags)
 #endif // NEW_SOUND
 			if (flags & ELW_LEFT_MOUSE)
 			{
+				// randomly close the preview window
+				if (!(SDL_GetTicks() & 63))
+				{
+					hide_window(preview_win);
+					set_shown_string(c_red2, item_list_magic_str);
+					return 0;
+				}
 				storage_item_dragged = item_dragged = -1;
 				int image_id = ItemLists::Vars::lists()->get_list().get_image_id(selected_item_number);
 				Uint16 item_id = ItemLists::Vars::lists()->get_list().get_item_id(selected_item_number);
@@ -808,22 +881,27 @@ static int mouseover_preview_handler(window_info *win, int mx, int my)
 	size_t item_number = get_preview_item_number(mx, my);
 	if (item_number < ItemLists::Vars::lists()->get_list().get_num_items())
 	{
-		bool dragging = ((storage_item_dragged != -1) || (item_dragged != -1));
-		preview_help_str_1 = item_list_pickup_help_str;
-		if (!dragging && (quantities.selected == ITEM_EDIT_QUANT) && (selected_item_number == item_number))
-			preview_help_str_2 = item_list_edit_help_str;
-		else
-			preview_help_str_2 = item_list_use_help_str;
+		help_str.push_back(item_list_pickup_help_str);
+		help_str.push_back(item_list_use_help_str);
+		help_str.push_back(item_list_edit_help_str);
 	}
+	if ((storage_item_dragged != -1) || (item_dragged != -1))
+		help_str.push_back(item_list_add_help_str);
+
 	return 0;
 }
 
 
-//  Called when the preview window is hidden, undo any quantity setting
+//  Called when the preview window is hidden, undo any quantity setting, do pending save.
 //
 static int hide_preview_handler(window_info *win)
 {
 	restore_inventory_quantity();
+	if (last_mod_time)
+	{
+		ItemLists::Vars::lists()->save();
+		last_mod_time = 0;
+	}
 	return 1;
 }
 
