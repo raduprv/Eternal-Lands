@@ -979,9 +979,6 @@ int add_stream(int sound, int type, int boundary)
 {
 	stream_data * stream = NULL;
 	int priority = 0, i, default_found = -1, type_count = 0;
-#ifdef _EXTRA_SOUND_DEBUG
-	int our_stream;
-#endif // _EXTRA_SOUND_DEBUG
 	
 	if (sound == -1)
 		return 0;
@@ -1056,7 +1053,7 @@ int add_stream(int sound, int type, int boundary)
 		stream->is_default = 0;
 	}
 #ifdef _EXTRA_SOUND_DEBUG
-	printf("add_stream: Started stream %d. Type: %s, Sound: %d, Cookie: %u, Source: %d, Fade: %d, Default: %d\n", our_stream, get_stream_type(stream->type), stream->sound, stream->cookie, stream->source, stream->fade, stream->is_default);
+	printf("add_stream: Started stream. Type: %s, Sound: %d, Cookie: %u, Source: %d, Fade: %d, Default: %d\n", get_stream_type(stream->type), stream->sound, stream->cookie, stream->source, stream->fade, stream->is_default);
 #endif // _EXTRA_SOUND_DEBUG
 	// If this is the music stream, set the pointer
 	if (type == STREAM_TYPE_MUSIC)
@@ -2167,8 +2164,32 @@ int ensure_sample_loaded(char * in_filename)
 		return -1;
 	}
 
-	alGetBufferi(*pBuffer, AL_BITS, &pSample->bits);
-	alGetBufferi(*pBuffer, AL_CHANNELS, &pSample->channels);
+	// Fix sound truncation on newer versions of openAL.
+	// I have the feeling I've not got down to the bottom of this but..
+	// Previous use of alGetBufferi() returned the wrong number of bits
+	// i.e. 32 instead of 16, as we know the format used for loading
+	// use that to work out the channels and hard wire the bits.
+	// If the loader changes to include other formats, we'll catch it
+	// and exit with an error.
+	//alGetBufferi(*pBuffer, AL_BITS, &pSample->bits);
+	//alGetBufferi(*pBuffer, AL_CHANNELS, &pSample->channels);
+	pSample->bits = 16;
+	if (pSample->format == AL_FORMAT_MONO16)
+		pSample->channels = 1;
+	else if (pSample->format == AL_FORMAT_STEREO16)
+		pSample->channels = 2;
+	else
+	{
+		LOG_ERROR("Error loading buffer format: %x", pSample->format);
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("Error loading buffer format: %x\n", pSample->format);
+#endif //_EXTRA_SOUND_DEBUG
+		alDeleteBuffers(1, pBuffer);
+		// Get rid of the temporary data
+		free(data);
+		return -1;
+	}
+
 	pSample->length = (pSample->size * 1000) / ((pSample->bits >> 3) * pSample->channels * pSample->freq);
 
 	// Get rid of the temporary data
