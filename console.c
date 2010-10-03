@@ -641,7 +641,7 @@ int horse_cmd(char* text, int len){
 	id=&text[j+1];
 	x=j;
 	text++;
-	printf("Actor [%s] [%s]\n",text,id);
+	printf("Actor [%s] [%s] [%i]\n",text,id,atoi(id));
 	LOCK_ACTORS_LISTS();
 	for (j = 0; j < max_actors; j++){
 		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) && 
@@ -670,7 +670,7 @@ int horse_cmd(char* text, int len){
 		//add horse
 		int hh=atoi(id);
 		if (hh<=0) hh=200;
-		add_actor_attachment(act->actor_id, atoi(id));
+		add_actor_attachment(act->actor_id, hh);
 		LOG_TO_CONSOLE(c_orange1,"Horsified");
 	}
 	UNLOCK_ACTORS_LISTS();
@@ -701,6 +701,7 @@ int set_neck(char *text, int len){
 			printf("actor found\n");
 			if(atoi(id)) {
 				//wear
+				unwear_item_from_actor(act->actor_id,KIND_OF_NECK);
 				actor_wear_item(act->actor_id,KIND_OF_NECK, atoi(id));
 			} else {
 				//unwear
