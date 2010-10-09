@@ -216,6 +216,7 @@ typedef struct
 	int mesh_index;
 #ifdef MORE_ATTACHED_ACTORS
 	int turn_horse;
+	int unarmed;
 #endif
 
 	struct cal_anim cal_frames[NUM_WEAPON_FRAMES];
@@ -580,8 +581,15 @@ typedef struct
 	emote_data *poses[4];	//current emote ids for idle states (standing, walking...)
 	emote_command emote_que[MAX_EMOTE_QUEUE+1];	/*!< Holds the queued emotes*/
 	unsigned int cur_emote_sound_cookie;		/*!< The currently played emote sound*/
-
 #endif
+
+#ifdef MORE_EMOTES
+	int startIdle;
+	int endIdle;
+	int idleTime;
+	int idleDuration;
+#endif
+
 	unsigned int cur_anim_sound_cookie;		/*!< The currently played animation sound*/
 	struct cal_anim cur_idle_anims[16];
 	int IsOnIdle;

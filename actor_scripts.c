@@ -325,7 +325,16 @@ void animate_actors()
 			if (actors_list[i]->calmodel!=NULL){
 #ifdef EMOTES
 				//check if emote animation is ended, then remove it
-				handle_cur_emote(actors_list[i]);			
+				handle_cur_emote(actors_list[i]);
+#endif
+
+#ifdef MORE_EMOTES
+				if(ACTOR(i)->startIdle!=ACTOR(i)->endIdle){
+					if(do_transition(ACTOR(i))) {
+						ACTOR(i)->stand_idle=ACTOR(i)->sit_idle=0; //force set_on_idle
+						set_on_idle(i);
+					}
+				}
 #endif
 				CalModel_Update(actors_list[i]->calmodel, (((cur_time-last_update)*actors_list[i]->cur_anim.duration_scale)/1000.0));
 				build_actor_bounding_box(actors_list[i]);
@@ -515,6 +524,19 @@ void move_to_next_frame()
 
 
 #ifdef EMOTES
+
+struct cal_anim *get_pose(actor *a, int pose_id, int pose_type, int held) {
+	hash_entry *he,*eh;
+	int a_type=emote_actor_type(a->actor_type);
+	emote_data *pose;
+
+	eh=hash_get(emotes,(NULL+pose_id));
+	pose = eh->item;
+
+	he=hash_get(actors_defs[a->actor_type].emote_frames, (NULL+pose->anims[pose_type][0][held]->ids[0]));
+	if (he) return (struct cal_anim*) he->item;
+	else return NULL;
+}
 
 struct cal_anim *get_pose_frame(int actor_type, actor *a, int pose_type, int held){
 
@@ -714,12 +736,7 @@ int handle_emote_command(int act_id, emote_command *command)
 		unqueue_emote(act);
 		return 1;
 	}
-	//is actor a horse?
-	/*if(act->actor_id<0) {
-		unqueue_emote(act);
-		return 1;		
-	}*/
-			
+
 	//check if emote is timed out
 	//printf("Handle emote %i created at %i for actor %i\n",command->emote->id,command->create_time,act->actor_id);
 	if(command->create_time+command->emote->timeout<cur_time){
@@ -752,6 +769,19 @@ int handle_emote_command(int act_id, emote_command *command)
 		pose[EMOTE_SITTING] = get_pose_frame(act->actor_type,act,EMOTE_SITTING,held);
 		pose[EMOTE_RUNNING] = get_pose_frame(act->actor_type,act,EMOTE_RUNNING,held);
 
+#ifdef MORE_EMOTES
+
+		if(command->emote->pose<=EMOTE_STANDING) {
+			//we have a pose
+			hash_entry *he;
+			he=hash_get(actors_defs[actor_type].emote_frames, (NULL+command->emote->anims[act->actor_type][0][held]->ids[0]));
+			
+			start_transition(act,((struct cal_anim*) he->item)->anim_index,300);
+			act->poses[command->emote->pose]=command->emote;
+			unqueue_emote(act);
+			return 0;
+		}
+#endif
 		/*printf("STANDING --> a: %i, c: %i\n",pose[EMOTE_STANDING]->anim_index, act->cur_anim.anim_index);
 		printf("WALKING --> a: %i, c: %i\n",pose[EMOTE_WALKING]->anim_index, act->cur_anim.anim_index);
 		printf("SITTING --> a: %i, c: %i\n",pose[EMOTE_SITTING]->anim_index, act->cur_anim.anim_index);
@@ -909,16 +939,24 @@ void next_command()
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->dead=1;
 						break;
-					case pain1: {
+					case pain1:
+					case pain2: {
+						int painframe = (actors_list[i]->que[0]==pain1) ? (cal_actor_pain1_frame):(cal_actor_pain2_frame);
 						attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
-						if (att_props)
+						if (att_props) {
+#ifdef MORE_ATTACHED_ACTORS
+							if(HAS_HORSE(i)&&!ACTOR_WEAPON(i)->unarmed) {
+							cal_actor_set_anim(i, att_props->cal_frames[cal_attached_pain_armed_frame]);
+							} else
+#endif
 							cal_actor_set_anim(i, att_props->cal_frames[cal_attached_pain_frame]);
-						else
-							cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[cal_actor_pain1_frame]);
+						} else
+
+							cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[painframe]);
 						actors_list[i]->stop_animation=1;
 						break;
 					}
-					case pain2: {
+/*					case pain2: {
 						attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
 						if (att_props)
 							cal_actor_set_anim(i, att_props->cal_frames[cal_attached_pain_frame]);
@@ -927,7 +965,7 @@ void next_command()
 						actors_list[i]->stop_animation=1;
 						break;
 					}
-					case pick:
+*/					case pick:
 						cal_actor_set_anim(i,actors_defs[actor_type].cal_frames[cal_actor_pick_frame]);
 						actors_list[i]->stop_animation=1;
 						break;
@@ -2142,7 +2180,7 @@ void add_emote_to_actor(int actor_id, int emote_id){
 			return;
 		}
 		emote = he->item;
-		if(emote->pose<=EMOTE_STANDING){
+		/*if(emote->pose<=EMOTE_STANDING){
 			//we have a pose, set it and return
 			//printf("setting pose %i (%i) for actor %s\n",emote->id,emote->pose,act->actor_name);
 			act->poses[emote->pose]=emote;
@@ -2151,7 +2189,7 @@ void add_emote_to_actor(int actor_id, int emote_id){
 			if(emote->pose==EMOTE_STANDING) act->stand_idle=0;
 			UNLOCK_ACTORS_LISTS();
 			return;
-		}
+		}*/
 	} else emote=NULL;
 	
 	//printf("emote message to be added %p\n",emote);
@@ -3193,7 +3231,8 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	weapon = &(act->weapon[type_idx]);
 	ok= parse_actor_weapon_detail(act, weapon, cfg, defaults);
 #ifdef MORE_ATTACHED_ACTORS
-	weapon->turn_horse=get_int_property(cfg, "turn_horse");	
+	weapon->turn_horse=get_int_property(cfg, "turn_horse");
+	weapon->unarmed=(get_int_property(cfg, "unarmed")<=0) ? (0):(1);
 #endif
 
 	// check for default entries, if found, use them to fill in missing data
@@ -3976,6 +4015,17 @@ int parse_actor_attachment (actor_types *act, xmlNode *cfg, int actor_type)
 #endif	//NEW_SOUND
 					, get_int_property(item, "duration")
 					);
+#ifdef MORE_ATTACHED_ACTORS					
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_held_armed_pain") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			att->actor_type[actor_type].cal_frames[cal_attached_pain_armed_frame] = cal_load_anim(held_act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+					, get_int_property(item, "duration")
+					);
+#endif					
 			} else {
 				LOG_ERROR("unknown attachment property \"%s\"", item->name);
 				ok = 0;

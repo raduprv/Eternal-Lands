@@ -169,7 +169,12 @@ enum {
 	cal_attached_run_frame = 1, /*!< run animation to use for the held actor */
 	cal_attached_idle_frame = 2, /*!< idle animation to use for the held actor */
 	cal_attached_pain_frame = 3, /*!< pain animation to use for the held actor */
+#ifdef MORE_ATTACHED_ACTORS
+	cal_attached_pain_armed_frame = 4,
+	NUM_ATTACHED_ACTOR_FRAMES = 5
+#else
 	NUM_ATTACHED_ACTOR_FRAMES = 4
+#endif
 };
 
 #ifdef __cplusplus

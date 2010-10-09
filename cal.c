@@ -27,6 +27,48 @@
 #endif
 
 
+
+#ifdef MORE_EMOTES
+void start_transition(actor *act, int to, int msec){
+
+	if (act->startIdle==to) return;
+	act->startIdle=act->cur_anim.anim_index;
+	act->endIdle=to;
+	act->idleTime=cur_time;
+	act->idleDuration=msec;
+	act->busy=1;
+	printf("transition started from %i to %i starting at %i, lasting %i\n",act->startIdle,to,act->idleTime,msec);
+}
+
+int do_transition(actor *act){
+	struct CalMixer *mixer;
+	float k;
+
+	if (act==NULL) return 0;
+	if (act->calmodel==NULL) return 0;
+	if (act->startIdle==act->endIdle) return 0;
+
+	printf("doing transition from %i to %i at %i of %i\n",act->startIdle,act->endIdle,cur_time-act->idleTime,act->idleDuration);
+
+	mixer=CalModel_GetMixer(act->calmodel);	
+	k=(float)(cur_time-act->idleTime)/act->idleDuration;
+	if(k>1.0) k=1.0;
+	CalMixer_BlendCycle(mixer,act->startIdle,1.0-k, 0.0);
+	CalMixer_BlendCycle(mixer,act->endIdle,k, 0.0);
+
+	if(k>=1.0) {
+		printf("transition done\n");
+		CalMixer_ClearCycle(mixer,act->startIdle, 0.0);
+		act->startIdle=act->endIdle;
+		act->idleTime=0;
+		act->busy=0;
+		return 1;
+	}
+	return 0;
+}
+#endif
+
+
 #ifdef NEW_SOUND
 #ifdef EMOTES
 void cal_play_anim_sound(actor *pActor, struct cal_anim anim, int is_emote){
@@ -779,7 +821,7 @@ void cal_render_actor(actor *act, Uint32 use_lightning, Uint32 use_textures, Uin
 						glMaterialfv(GL_FRONT, GL_EMISSION, actors_defs[act->actor_type].helmet[act->helmet].emission);
 						glMaterialf(GL_FRONT, GL_SHININESS, actors_defs[act->actor_type].helmet[act->helmet].shininess);
 					}
-					else if (_coremesh == CalCoreModel_GetCoreMesh(actors_defs[act->actor_type].coremodel,actors_defs[act->actor_type].cape[act->cape].mesh_index))
+ 					else if (_coremesh == CalCoreModel_GetCoreMesh(actors_defs[act->actor_type].coremodel,actors_defs[act->actor_type].cape[act->cape].mesh_index))
 					{
 //						printf("11\n");					
 						glMaterialfv(GL_FRONT, GL_AMBIENT, actors_defs[act->actor_type].cape[act->cape].ambient);
