@@ -699,7 +699,7 @@ static int display_preview_handler(window_info *win)
 	if (show_help_text)
 	{
 		for (size_t i=0; i<help_str.size(); ++i)
-			show_help(help_str[i], 0, win->len_y + 10 + SMALL_FONT_Y_LEN * i);
+			show_help(help_str[i], 0, static_cast<int>(0.5 + win->len_y + 10 + SMALL_FONT_Y_LEN * i));
 		help_str.clear();
 	}
 
