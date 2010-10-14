@@ -986,6 +986,32 @@ extern "C" void fill_questlog_win ()
 }
 
 
+extern "C" void set_next_quest_entry_id(int id)
+{
+	char buf[80];
+	safe_snprintf(buf, 80, "Received NEXT_NPC_MESSAGE_IS_QUEST with id=%d", id);
+	LOG_TO_CONSOLE(c_green1, buf);
+}
+
+
+extern "C" void set_quest_title(int id, const char *data, int len)
+{
+	char buf[256];
+	safe_snprintf(buf, 256, "Received HERE_IS_QUEST_ID with id=%d", id);
+	LOG_TO_CONSOLE(c_green1, buf);
+	safe_strncpy2(buf, data, 255, len);
+	LOG_TO_CONSOLE(c_green1, buf);
+}
+
+
+extern "C" void set_quest_finished(int id)
+{
+	char buf[80];
+	safe_snprintf(buf, 80, "Received QUEST_FINISHED with id=%d", id);
+	LOG_TO_CONSOLE(c_green1, buf);
+}
+
+
 extern "C"
 {
 	int questlog_win=-1;

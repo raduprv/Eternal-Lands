@@ -82,6 +82,51 @@ void goto_questlog_entry(int ln);
  */
 void fill_questlog_win ();
 
+
+#ifdef NEW_QUESTLOG
+
+/*!
+ * \ingroup quest_window
+ * \brief Sets the quest id for the next quest log entry which will be sent.
+ *
+ *      Sets the quest id for the next quest log entry which will be sent.
+ * 
+ * \param id	the quest id
+ *
+ * \callgraph
+ */
+void set_next_quest_entry_id(int id);
+
+/*!
+ * \ingroup quest_window
+ * \brief Set the title for the specified quest.
+ *
+ *      Set the title for the specified quest.
+ *
+ * \param id	the quest id
+ * \param data	pointer to non null terminated string
+ * \param len	the length in bytes of the title
+ * 
+ * \callgraph
+ */
+void set_quest_title(int id, const char *data, int len);
+
+/*!
+ * \ingroup quest_window
+ * \brief Set the specified quest as completed
+ *
+ *      Set the specified quest as completed, the user interface
+ * shows completed and not completed quests differently.
+ *
+ * \param id	the quest id
+ * 
+ * \callgraph
+ */
+void set_quest_finished(int id);
+
+#endif // NEW_QUESTLOG
+
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

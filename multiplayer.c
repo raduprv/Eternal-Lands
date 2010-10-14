@@ -1980,6 +1980,39 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			load_map_marks();//load again, so the new marker is removed correctly.
 			break;
 			}
+#ifdef NEW_QUESTLOG
+		case NEXT_NPC_MESSAGE_IS_QUEST:
+			{
+				if (data_length <= 4)
+				{
+					log_error("CAUTION: Possibly forged NEXT_NPC_MESSAGE_IS_QUEST packet received.\n");
+					break;
+				}
+				set_next_quest_entry_id(SDL_SwapLE16(*((short *)(in_data+3))));
+				break;
+			}
+		case HERE_IS_QUEST_ID:
+			{
+				if (data_length <= 5)
+				{
+					log_error("CAUTION: Possibly forged HERE_IS_QUEST_ID packet received.\n");
+					break;
+				}
+				set_quest_title(SDL_SwapLE16(*((short *)(in_data+3))),
+					(const char *)&in_data[5], data_length - 5);
+				break;
+			}
+		case QUEST_FINISHED:
+			{
+				if (data_length <= 4)
+				{
+					log_error("CAUTION: Possibly forged QUEST_FINISHED packet received.\n");
+					break;
+				}
+				set_quest_finished(SDL_SwapLE16(*((short *)(in_data+3))));
+				break;
+			}
+#endif // NEW_QUESTLOG
 		default:
 			{
 				// Unknown packet type??
