@@ -585,7 +585,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	ERR();
 #endif
 	actor_id=SDL_SwapLE16(*((short *)(in_data)));
-	buffs=((SDL_SwapLE16(*((char*)(in_data+3)))>>3)&0x1F | (SDL_SwapLE16(((*((char*)(in_data+5)))>>3)&0x1F)<<5));	// Strip the last 5 bits of the X and Y coords for the buffs
+	buffs=(((SDL_SwapLE16(*((char*)(in_data+3)))>>3)&0x1F) | (SDL_SwapLE16(((*((char*)(in_data+5)))>>3)&0x1F)<<5));	// Strip the last 5 bits of the X and Y coords for the buffs
 	x_pos=SDL_SwapLE16(*((short *)(in_data+2))) & 0x7FF;
 	y_pos=SDL_SwapLE16(*((short *)(in_data+4))) & 0x7FF;
 	buffs |= (SDL_SwapLE16(*((short *)(in_data+6))) & 0xFF80) << 3; // we get the 9 MSB for the buffs and leave the 7 LSB for a further use

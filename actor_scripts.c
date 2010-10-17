@@ -527,7 +527,6 @@ void move_to_next_frame()
 
 struct cal_anim *get_pose(actor *a, int pose_id, int pose_type, int held) {
 	hash_entry *he,*eh;
-	int a_type=emote_actor_type(a->actor_type);
 	emote_data *pose;
 
 	eh=hash_get(emotes,(NULL+pose_id));
