@@ -402,17 +402,29 @@ void load_filters_list (const char *file_name, char local)
 	char *filter_list_mem;
 	int istart, iend;
 	char name[128];
+	size_t ret;
 
 	f = open_file_config (file_name, "rb");
 	if (f == NULL) return;
 	fseek (f, 0, SEEK_END);
 	f_size = ftell (f);
+	if (f_size <= 0)
+	{
+		fclose(f);
+		return;
+	}
 
 	//ok, allocate memory for it
 	filter_list_mem = (char *) calloc (f_size, 1);
 	fseek (f, 0, SEEK_SET);
-	fread (filter_list_mem, 1, f_size, f);
+	ret = fread (filter_list_mem, 1, f_size, f);
 	fclose (f);
+	if (ret != f_size)
+	{
+		free (filter_list_mem);
+		LOG_ERROR("%s read failed for file [%s]\n", __FUNCTION__, file_name);
+		return;
+	}
 
 	istart = 0;
 	while (istart < f_size)
