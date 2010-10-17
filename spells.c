@@ -1354,7 +1354,12 @@ void load_quickspells ()
 		return;
 	}
 
-	fread (data, sizeof(*data), sizeof(data), fp);
+	if (fread (data, sizeof(*data), sizeof(data), fp) != sizeof(data))
+	{
+		LOG_ERROR("%s() read failed for [%s] \n", __FUNCTION__, fname);
+		fclose (fp);
+		return;
+	}
 	fclose (fp);
 
 	memset (mqb_data, 0, sizeof (mqb_data));
