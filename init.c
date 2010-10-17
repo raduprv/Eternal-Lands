@@ -237,7 +237,10 @@ void read_config()
 	}
 
 #ifndef WINDOWS
-	chdir(datadir);
+	if (chdir(datadir) != 0)
+	{
+		LOG_ERROR("%s() chdir(\"%s\") failed\n", __FUNCTION__, datadir);
+	}
 #endif //!WINDOWS
 
 	if(password_str[0])//We have a password
@@ -260,13 +263,20 @@ void read_bin_cfg()
 	FILE *f = NULL;
 	bin_cfg cfg_mem;
 	int i;
+	const char *fname = "el.cfg";
+	size_t ret;
 
-	f=open_file_config_no_local("el.cfg","rb");
+	f=open_file_config_no_local(fname,"rb");
 	if(f == NULL)return;//no config file, use defaults
 	memset(&cfg_mem, 0, sizeof(cfg_mem));	// make sure its clean
 
-	fread(&cfg_mem,1,sizeof(cfg_mem),f);
+	ret = fread(&cfg_mem,1,sizeof(cfg_mem),f);
 	fclose(f);
+	if (ret != sizeof(cfg_mem))
+	{
+		LOG_ERROR("%s() failed to read %s\n", __FUNCTION__, fname);
+		return;
+	}
 
 	//verify the version number
 	if(cfg_mem.cfg_version_num != CFG_VERSION) return; //oops! ignore the file
@@ -673,7 +683,10 @@ void init_stuff()
 	char config_location[300];
 	const char * cfgdir;
 
-	chdir(datadir);
+	if (chdir(datadir) != 0)
+	{
+		LOG_ERROR("%s() chdir(\"%s\") failed\n", __FUNCTION__, datadir);
+	}
 
 	// initialize the text buffers - needed early for logging
 	init_text_buffers ();
