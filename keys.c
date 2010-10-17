@@ -3,6 +3,7 @@
 #include <sys/stat.h>
 #include <ctype.h>
 #include <SDL_keysym.h>
+#include "errors.h"
 #include "keys.h"
 #include "asc.h"
 #include "init.h"
@@ -340,6 +341,7 @@ void read_key_config()
 	char * file_mem_start;
 	struct stat key_file;
 	int key_file_size,t;
+	size_t ret;
 
 #ifndef WINDOWS
 	char key_ini[256];
@@ -369,9 +371,22 @@ void read_key_config()
 	}
 
 	key_file_size = key_file.st_size;
+	if (key_file_size <= 0)
+	{
+		fclose(f);
+		return;
+	}
+
 	file_mem = (char *) calloc(key_file_size+2, sizeof(Uint8));
 	file_mem_start=file_mem;
-	fread (file_mem, 1, key_file_size+1, f);
+	ret = fread (file_mem, 1, key_file_size+1, f);
+	fclose(f);
+	if (ret != key_file_size)
+	{
+		LOG_ERROR("%s() read failed %zu %d\n", __FUNCTION__, ret ,key_file_size+1);
+		free(file_mem);
+		return;
+	}
 
 	if ( (t = get_string_occurance ("#K_QUIT", file_mem, key_file_size, 0)) != -1)
 		K_QUIT = parse_key_string (&file_mem[t]);
