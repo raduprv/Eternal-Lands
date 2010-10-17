@@ -1678,7 +1678,11 @@ void load_exploration_map ()
 	fp = open_file_config (exploration_map_filename, "rb");
 	if(fp)
 	{
-		fread(exploration_map, sizeof(GLubyte), 256 * 256, fp);
+		if (fread(exploration_map, sizeof(GLubyte), 256 * 256, fp) != 256 * 256)
+		{
+			memset(exploration_map, 0, 256 * 256 * sizeof(GLubyte));
+			LOG_ERROR("%s() read failed for file [%s]\n", __FUNCTION__, exploration_map_filename);
+		}
 		fclose(fp);
 	}
 	else
