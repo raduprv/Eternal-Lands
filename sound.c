@@ -4382,7 +4382,7 @@ void load_sound_warnings_list(const char *filename)
 	fseek(f, 0, SEEK_SET);
 	if (fread(sound_warnings_list_mem, 1, f_size, f) != f_size)
 	{
-		LOG_ERROR("%s() failed read failed for file [%s]\n", __FUNCTION__, filename);
+		LOG_ERROR("%s() read failed for file [%s]\n", __FUNCTION__, filename);
 		free(sound_warnings_list_mem);
 		fclose(f);
 		return;
