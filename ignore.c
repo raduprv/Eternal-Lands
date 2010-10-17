@@ -275,17 +275,29 @@ void load_ignores_list(char * file_name)
 	int i,j;
 	char name[64];
 	Uint8 ch;
+	size_t ret;
 
 	f = open_file_config(file_name, "rb");
 	if(f == NULL){return;}
 	fseek(f,0,SEEK_END);
 	f_size = ftell(f);
+	if (f_size <= 0)
+	{
+		fclose(f);
+		return;
+	}
 
 	//ok, allocate memory for it
 	ignore_list_mem=(char *)calloc(f_size, 1);
 	fseek (f, 0, SEEK_SET);
-	fread (ignore_list_mem, 1, f_size, f);
+	ret = fread (ignore_list_mem, 1, f_size, f);
 	fclose (f);
+	if (ret != f_size)
+	{
+		free (ignore_list_mem);
+		LOG_ERROR("%s() read failed for file [%s]\n", __FUNCTION__, file_name);
+		return;
+	}
 
 	j=0;
 	i=0;
