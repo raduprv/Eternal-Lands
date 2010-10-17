@@ -59,7 +59,8 @@ void load_recipes (){
 		return;
 	}
 
-	fread (recipes,sizeof(recipes),1, fp);
+	if (fread (recipes,sizeof(recipes),1, fp) != 1)
+		LOG_ERROR("%s() read failed for file [%s]\n", __FUNCTION__, fname);
 	fclose (fp);
 	recipes_loaded=1;
 }
