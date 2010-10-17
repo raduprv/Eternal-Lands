@@ -4372,9 +4372,21 @@ void load_sound_warnings_list(const char *filename)
 	// Ok, allocate memory for it and read it in
 	fseek(f, 0, SEEK_END);
 	f_size = ftell(f);
+	if (f_size <= 0)
+	{
+		fclose(f);
+		return;
+	}
+	
 	sound_warnings_list_mem = (char *) calloc (f_size, 1);
 	fseek(f, 0, SEEK_SET);
-	fread(sound_warnings_list_mem, 1, f_size, f);
+	if (fread(sound_warnings_list_mem, 1, f_size, f) != f_size)
+	{
+		LOG_ERROR("%s() failed read failed for file [%s]\n", __FUNCTION__, filename);
+		free(sound_warnings_list_mem);
+		fclose(f);
+		return;
+	}
 	fclose(f);
 
 	istart = 0;
