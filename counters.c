@@ -7,6 +7,7 @@
 #endif
 #include "asc.h"
 #include "elwindows.h"
+#include "errors.h"
 #include "hud.h"
 #include "init.h"
 #include "interface.h"
@@ -191,6 +192,7 @@ void load_counters()
 	Uint32 io_extra;
 	Uint32 io_n_total;
 	char io_name[64];
+	int fread_ok;
 	
 	if (counters_initialized) {
 		/*
@@ -228,12 +230,18 @@ void load_counters()
 	}
 
 	while (fread(&io_counter_id, sizeof(io_counter_id), 1, f) > 0) {
-		fread(&io_name_len, sizeof(io_name_len), 1, f);
-		fread(io_name, io_name_len, 1, f);
+		fread_ok = 0;
+		if (fread(&io_name_len, sizeof(io_name_len), 1, f) != 1)
+			break;
+		if (fread(io_name, io_name_len, 1, f) != 1)
+			break;
 		io_name[io_name_len] = '\0';
 
-		fread(&io_extra, sizeof(io_extra), 1, f);
-		fread(&io_n_total, sizeof(io_n_total), 1, f);
+		if (fread(&io_extra, sizeof(io_extra), 1, f) != 1)
+			break;
+		if (fread(&io_n_total, sizeof(io_n_total), 1, f) != 1)
+			break;
+		fread_ok = 1;
 
 		if(strlen(io_name)<1 || strlen(io_name)>100){
 			//doesn't seem to have a real name, so we don't want it
@@ -248,6 +256,9 @@ void load_counters()
 		counters[i][j].n_total = io_n_total;
 		counters[i][j].extra = io_extra;
 	}
+
+	if (!fread_ok)
+		LOG_ERROR("%s error reading counters\n", __FUNCTION__);
 
 	fclose(f);
 	
