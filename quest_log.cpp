@@ -994,11 +994,10 @@ extern "C" void set_next_quest_entry_id(int id)
 }
 
 
-extern "C" void set_quest_title(int id, const char *data, int len)
+extern "C" void set_quest_title(const char *data, int len)
 {
 	char buf[256];
-	safe_snprintf(buf, 256, "Received HERE_IS_QUEST_ID with id=%d", id);
-	LOG_TO_CONSOLE(c_green1, buf);
+	LOG_TO_CONSOLE(c_green1, "Received HERE_IS_QUEST_ID");
 	safe_strncpy2(buf, data, 255, len);
 	LOG_TO_CONSOLE(c_green1, buf);
 }

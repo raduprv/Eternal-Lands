@@ -2014,13 +2014,12 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			}
 		case HERE_IS_QUEST_ID:
 			{
-				if (data_length <= 5)
+				if (data_length <= 3)
 				{
 					log_error("CAUTION: Possibly forged HERE_IS_QUEST_ID packet received.\n");
 					break;
 				}
-				set_quest_title(SDL_SwapLE16(*((short *)(in_data+3))),
-					(const char *)&in_data[5], data_length - 5);
+				set_quest_title((const char *)&in_data[3], data_length - 3);
 				break;
 			}
 		case QUEST_FINISHED:

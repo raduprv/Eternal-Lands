@@ -103,13 +103,12 @@ void set_next_quest_entry_id(int id);
  *
  *      Set the title for the specified quest.
  *
- * \param id	the quest id
  * \param data	pointer to non null terminated string
  * \param len	the length in bytes of the title
  * 
  * \callgraph
  */
-void set_quest_title(int id, const char *data, int len);
+void set_quest_title(const char *data, int len);
 
 /*!
  * \ingroup quest_window
