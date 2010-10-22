@@ -92,6 +92,26 @@ int yourself= -1;
 int last_sit= 0;
 int last_turn_around = 0;
 
+#ifdef DEBUG
+void print_packet(const char *in_data, int len){
+	unsigned char buf[200];
+	int i;
+
+	printf("PACKET (%i)\n",len);
+	//make it printable
+	for(i=0;i<len;i++)
+		if(in_data[i]>=' '&&in_data[i]<='~') buf[i]=in_data[i];
+		else buf[i]='.';
+
+	for(i=0;i<len;i++) {
+		printf("%3i) %c %2x %3i\n",i,buf[i],(unsigned int)in_data[i],(int)in_data[i]);
+
+	}
+	printf("\n\n");
+}
+#endif
+
+
 void move_to (short int x, short int y, int try_pathfinder)
 {
 	Uint8 str[5];
@@ -531,6 +551,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
+				//print_packet(in_data,data_length);
 				if (data_length <= 32)
 				{
 				  log_error("CAUTION: Possibly forged ADD_ENHANCED_ACTOR packet received.\n");

@@ -601,9 +601,6 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	weapon=*(in_data+19);
 	cape=*(in_data+20);
 	helmet=*(in_data+21);
-#ifdef NECK_ITEMS
-	neck=*(in_data+22);
-#endif
 
 #ifdef EXTRA_DEBUG
 	ERR();
@@ -622,6 +619,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	cur_health=SDL_SwapLE16(*((short *)(in_data+25)));
 	kind_of_actor=*(in_data+27);
 #if defined CUSTOM_LOOK && defined UID
+	//experimental code, not supported by the server
 	uniq_id = SDL_SwapLE32(*((Uint32*)(in_data+28)));
 	if(len > 32+(int)strlen(in_data+32)+2){
 		scale=((float)SDL_SwapLE16(*((short *)(in_data+32+strlen(in_data+32)+1)))/((float)ACTOR_SCALE_BASE));
@@ -634,6 +632,12 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 		if(len > 28+(int)strlen(in_data+28)+3)
 			attachment_type = (unsigned char)in_data[28+strlen(in_data+28)+3];
 	}
+#ifdef NECK_ITEMS
+	//the last byte of the packet even if scale+attachment is not sent
+	neck=*(in_data+len-1);
+#endif
+
+	
 #endif
 
 	//translate from tile to world

@@ -98,10 +98,11 @@ hash_table *emotes = NULL;
 int  parse_actor_frames(actor_types *act, xmlNode *cfg, xmlNode *defaults);
 #endif // EMOTE
 
+/*
 #ifdef MORE_ATTACHED_ACTORS
 static int thecount=0;
 #endif
-
+*/
 
 
 void cal_actor_set_random_idle(int id)
@@ -302,10 +303,12 @@ void animate_actors()
 				if (actors_list[i]->rotate_time_left <= 0) { //we rotated all the way
 					actors_list[i]->rotating= 0;//don't rotate next time, ok?
 					tmp_time_diff = time_diff + actors_list[i]->rotate_time_left;
+/*
 #ifdef MORE_ATTACHED_ACTORS					
 					if(actors_list[i]->actor_id==yourself) printf("%i, rot: %i\n",thecount,actors_list[i]->rotating);
 					if(actors_list[i]->actor_id<0) printf("%i, (horse) rot: %i\n",thecount,actors_list[i]->rotating);
 #endif
+*/
 				}
 				else {
 					tmp_time_diff = time_diff;
@@ -424,10 +427,12 @@ void move_to_next_frame()
 			if (actors_list[i]->calmodel!=NULL) {
 				if ((actors_list[i]->stop_animation==1)&&(actors_list[i]->anim_time>=actors_list[i]->cur_anim.duration)){
 					actors_list[i]->busy=0;
+/*
 #ifdef MORE_ATTACHED_ACTORS
 					if(actors_list[i]->actor_id==yourself) printf("%i, unbusy\n",thecount);
 					if(actors_list[i]->actor_id<0) printf("%i, (horse) unbusy\n",thecount);
 #endif
+*/
 					if (actors_list[i]->in_aim_mode == 2) {
 						int item;
 
@@ -512,7 +517,7 @@ void move_to_next_frame()
 						if(MY_HORSE(i)->que[0]==wait_cmd) {
 							unqueue_cmd(MY_HORSE_ID(i));
 							MY_HORSE(i)->busy=0;
-							printf("%i----unqueued horse to %i doing %i, just done %i\n", thecount,MY_HORSE(i)->que[0],actors_list[i]->que[0],actors_list[i]->last_command);
+							//printf("%i----unqueued horse to %i doing %i, just done %i\n", thecount,MY_HORSE(i)->que[0],actors_list[i]->que[0],actors_list[i]->last_command);
 							}
 				}
 			}
@@ -834,7 +839,7 @@ int handle_emote_command(int act_id, emote_command *command)
 #ifdef MORE_ATTACHED_ACTORS
 int rotate_actor_and_horse(int id, int mul){
 
-			printf("%i. ACTOR %s (rotating: %i): time left -> %i, z speed -> %f\n",thecount,ACTOR(id)->actor_name,actors_list[id]->rotating,actors_list[id]->rotate_time_left,actors_list[id]->rotate_z_speed);
+			//printf("%i. ACTOR %s (rotating: %i): time left -> %i, z speed -> %f\n",thecount,ACTOR(id)->actor_name,actors_list[id]->rotating,actors_list[id]->rotate_time_left,actors_list[id]->rotate_z_speed);
 
 			if(!ACTOR(id)->rotating){
 				ACTOR(id)->rotate_z_speed=(float)mul*HORSE_FIGHT_ROTATION/(float)HORSE_FIGHT_TIME;
@@ -850,10 +855,10 @@ int rotate_actor_and_horse(int id, int mul){
 				//add correct rotation to an already rotating actor
 				//actors_list[id]->rotate_z_speed=
 					//(actors_list[id]->rotate_z_speed*(float)actors_list[id]->rotate_time_left+angle)/(float)actors_list[id]->rotate_time_left;
-					printf("%i. no rotation\n",thecount);
+					//printf("%i. no rotation\n",thecount);
 			}
 
-			printf("%i. RESULT FOR ACTOR %s (rotating: %i): time left -> %i, z speed -> %f\n",thecount,ACTOR(id)->actor_name,actors_list[id]->rotating,actors_list[id]->rotate_time_left,actors_list[id]->rotate_z_speed);
+			//printf("%i. RESULT FOR ACTOR %s (rotating: %i): time left -> %i, z speed -> %f\n",thecount,ACTOR(id)->actor_name,actors_list[id]->rotating,actors_list[id]->rotate_time_left,actors_list[id]->rotate_z_speed);
 
 }
 #endif
@@ -866,9 +871,11 @@ void next_command()
 	int max_queue=0;
 #endif
 
+/*
 #ifdef MORE_ATTACHED_ACTORS
 	thecount++;
 #endif
+*/
 	for(i=0;i<max_actors;i++){
 		if(!actors_list[i])continue;//actor exists?
 #ifdef EMOTES
