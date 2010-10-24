@@ -21,7 +21,7 @@
 #endif
 
 unsigned char dialogue_string[2048];
-unsigned char npc_name[20];
+unsigned char npc_name[20] = "";
 int cur_portrait=8;
 int portraits_tex[MAX_PORTRAITS_TEXTURES];
 
