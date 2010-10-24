@@ -93,6 +93,7 @@ particle_sys_def *load_particle_def(const char *filename)
 {
 	int version=0,i;
 	char cleanpath[128];
+	int fscanf_error = 0;
 	FILE *f=NULL;
 	particle_sys_def *def=NULL;
 
@@ -124,7 +125,7 @@ particle_sys_def *load_particle_def(const char *filename)
 	// initialize defaults
 	def->sound_nr = -1;
 	
-	fscanf(f,"%i\n",&version);
+	if (fscanf(f,"%i\n",&version) != 1) fscanf_error = 1;
 
 	if(version!=PARTICLE_DEF_VERSION)
 		{
@@ -137,36 +138,44 @@ particle_sys_def *load_particle_def(const char *filename)
 #endif
 	// System info
 	safe_snprintf(def->file_name, sizeof(def->file_name), "%s", filename);
-	fscanf(f,"%i\n",&def->part_sys_type);
-	fscanf(f,"%x,%x\n",&def->sblend,&def->dblend);
-	fscanf(f,"%i\n",&def->total_particle_no);
+	if (!fscanf_error && fscanf(f,"%i\n",&def->part_sys_type) != 1) fscanf_error = 2;
+	if (!fscanf_error && fscanf(f,"%x,%x\n",&def->sblend,&def->dblend) != 2) fscanf_error = 3;
+	if (!fscanf_error && fscanf(f,"%i\n",&def->total_particle_no) != 1) fscanf_error = 4;
 	def->total_particle_no*=(float)particles_percentage/100.0;
-	fscanf(f,"%i\n",&def->ttl);
-	fscanf(f,"%i\n",&def->part_texture);
-	fscanf(f,"%f\n",&def->part_size);
-	fscanf(f,"%i\n",&def->random_func);
+	if (!fscanf_error && fscanf(f,"%i\n",&def->ttl) != 1) fscanf_error = 5;
+	if (!fscanf_error && fscanf(f,"%i\n",&def->part_texture) != 1) fscanf_error = 6;
+	if (!fscanf_error && fscanf(f,"%f\n",&def->part_size) != 1) fscanf_error = 7;
+	if (!fscanf_error && fscanf(f,"%i\n",&def->random_func) != 1) fscanf_error = 8;
 	// Particle creation info
-	fscanf(f,"%f,%f,%f\n",&def->minx,&def->miny,&def->minz);
-	fscanf(f,"%f,%f,%f\n",&def->maxx,&def->maxy,&def->maxz);
-	fscanf(f,"%f\n",&def->constrain_rad_sq);
-	fscanf(f,"%f,%f,%f\n",&def->vel_minx,&def->vel_miny,&def->vel_minz);
-	fscanf(f,"%f,%f,%f\n",&def->vel_maxx,&def->vel_maxy,&def->vel_maxz);
-	fscanf(f,"%f,%f,%f,%f\n",&def->minr,&def->ming,&def->minb,&def->mina);
-	fscanf(f,"%f,%f,%f,%f\n",&def->maxr,&def->maxg,&def->maxb,&def->maxa);
+	if (!fscanf_error && fscanf(f,"%f,%f,%f\n",&def->minx,&def->miny,&def->minz) != 3) fscanf_error = 9;
+	if (!fscanf_error && fscanf(f,"%f,%f,%f\n",&def->maxx,&def->maxy,&def->maxz) != 3) fscanf_error = 10;
+	if (!fscanf_error && fscanf(f,"%f\n",&def->constrain_rad_sq) != 1) fscanf_error = 11;
+	if (!fscanf_error && fscanf(f,"%f,%f,%f\n",&def->vel_minx,&def->vel_miny,&def->vel_minz) != 3) fscanf_error = 12;
+	if (!fscanf_error && fscanf(f,"%f,%f,%f\n",&def->vel_maxx,&def->vel_maxy,&def->vel_maxz) != 3) fscanf_error = 13;
+	if (!fscanf_error && fscanf(f,"%f,%f,%f,%f\n",&def->minr,&def->ming,&def->minb,&def->mina) != 4) fscanf_error = 14;
+	if (!fscanf_error && fscanf(f,"%f,%f,%f,%f\n",&def->maxr,&def->maxg,&def->maxb,&def->maxa) != 4) fscanf_error = 15;
 	// Particle update info
-	fscanf(f,"%f,%f,%f\n",&def->acc_minx,&def->acc_miny,&def->acc_minz);
-	fscanf(f,"%f,%f,%f\n",&def->acc_maxx,&def->acc_maxy,&def->acc_maxz);
-	fscanf(f,"%f,%f,%f,%f\n",
-	       &def->mindr,&def->mindg,&def->mindb,&def->minda);
-	fscanf(f,"%f,%f,%f,%f\n",
-	       &def->maxdr,&def->maxdg,&def->maxdb,&def->maxda);
-	fscanf(f,"%i\n",&def->use_light);
-	fscanf(f,"%f,%f,%f\n",&def->lightx,&def->lighty,&def->lightz);
-	fscanf(f,"%f,%f,%f\n",&def->lightr,&def->lightg,&def->lightb);
+	if (!fscanf_error && fscanf(f,"%f,%f,%f\n",&def->acc_minx,&def->acc_miny,&def->acc_minz) != 3) fscanf_error = 16;
+	if (!fscanf_error && fscanf(f,"%f,%f,%f\n",&def->acc_maxx,&def->acc_maxy,&def->acc_maxz) != 3) fscanf_error = 17;
+	if (!fscanf_error && fscanf(f,"%f,%f,%f,%f\n",
+	       &def->mindr,&def->mindg,&def->mindb,&def->minda) != 4) fscanf_error = 18;
+	if (!fscanf_error && fscanf(f,"%f,%f,%f,%f\n",
+	       &def->maxdr,&def->maxdg,&def->maxdb,&def->maxda) != 4) fscanf_error = 19;
+	if (!fscanf_error && fscanf(f,"%i\n",&def->use_light) != 1) fscanf_error = 20;
+	if (!fscanf_error && fscanf(f,"%f,%f,%f\n",&def->lightx,&def->lighty,&def->lightz) != 3) fscanf_error = 21;
+	if (!fscanf_error && fscanf(f,"%f,%f,%f\n",&def->lightr,&def->lightg,&def->lightb) != 3) fscanf_error = 22;
 #ifdef NEW_SOUND
-	fscanf (f, "%d\n", &def->sound_nr);
+	if (!fscanf_error && fscanf (f, "%d\n", &def->sound_nr) != 3) fscanf_error = 23;
 #endif	//NEW_SOUND
-	
+
+	// Most particale files lack the last few lines and so always fail the test - only report really bad ones.
+	if (fscanf_error != 0 && fscanf_error < 20)
+		LOG_ERROR("%s(): fscanf error file=[%s] line %d\n", __FUNCTION__, filename, fscanf_error);
+#if DEBUG
+	if (fscanf_error != 0)
+		printf("%s(): fscanf error file=[%s] line %d\n", __FUNCTION__, filename, fscanf_error);
+#endif
+
 	if(def->total_particle_no>MAX_PARTICLES)
 		{
 		  LOG_ERROR(particle_system_overrun,filename,def->total_particle_no,MAX_PARTICLES);
