@@ -505,29 +505,44 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 		{
 		case RAW_TEXT:
 			{
-				int len= data_length - 4;
-
-				// extract the channel number
-				if (data_length > 4)
+				int len;
+				
+				if (data_length <= 4)
 				{
-					if (len > sizeof(text_buf) - 2)
-					{
-						len= sizeof(text_buf) - 2;
-					}
-					memcpy(text_buf, &in_data[4], len);
-					text_buf[len] = '\0';
+				  log_error("CAUTION: Possibly forged RAW_TEXT packet received.\n");
+				  break;
+				}
 
-					// do filtering and ignoring
+				safe_strncpy2((char*)text_buf, (char*)&in_data[4], sizeof(text_buf), data_length - 4);
+				len = strlen((char*)text_buf);
+
+				// if from the server popup channel
+				if (in_data[3] == server_pop_chan)
+				{
+					if (use_server_pop_win)
+						display_server_popup_win((char*)text_buf);
+					else
+						put_text_in_buffer (in_data[3], text_buf, len);
+#ifdef NEW_QUESTLOG
+					// if we're expecting a quest entry, this will be it
+					if (waiting_for_questlog_entry())
+					{
+						char *cur_npc_name = (char *)malloc(sizeof(npc_name));
+						safe_strncpy2(cur_npc_name, (char *)npc_name, sizeof(npc_name), sizeof(npc_name));
+						safe_strncpy((char *)npc_name, "<None>", sizeof(npc_name));
+						add_questlog((char*)text_buf, len);
+						safe_strncpy2((char *)npc_name, cur_npc_name, sizeof(npc_name), sizeof(npc_name));
+						free(cur_npc_name);
+					}
+#endif
+				}
+
+				// for all other messages do filtering, ignoring and counters checking etc
+				else
+				{
 					len= filter_or_ignore_text((char*)text_buf, len, sizeof (text_buf), in_data[3]);
 					if (len > 0)
-					{
-						/* if from the server popup channel, and popup window usage enable */
-						if (use_server_pop_win && (in_data[3] == server_pop_chan))
-							display_server_popup_win((char*)text_buf);
-						/* else write to the chat window/console */
-						else
-							put_text_in_buffer (in_data[3], text_buf, len);
-					}
+						put_text_in_buffer (in_data[3], text_buf, len);
 				}
 			}
 			break;
@@ -1307,13 +1322,17 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				{
 					// double color code, this text
 					// should be added to the quest log
-					int len = data_length - 4;
-					if (len > sizeof (text_buf) - 1)
-						len = sizeof (text_buf) - 1;
-					memcpy (text_buf, &in_data[4], len);
-					text_buf[len] = '\0';
-					add_questlog ((char*)text_buf, len);
+					safe_strncpy2((char*)text_buf, (char*)&in_data[4], sizeof(text_buf), data_length - 4);
+					add_questlog ((char*)text_buf, strlen((char*)text_buf));
 				}
+#ifdef NEW_QUESTLOG
+				// if we're expecting a quest entry, this will be it
+				else if (waiting_for_questlog_entry())
+				{
+					safe_strncpy2((char*)text_buf, (char*)&in_data[3], sizeof(text_buf), data_length - 3);
+					add_questlog ((char*)text_buf, strlen((char*)text_buf));
+				}
+#endif
 			}
 			break;
 

@@ -47,11 +47,13 @@
  * 			colour code in some way?
  */
 
+static const Uint16 UNSET_QUEST_ID = static_cast<Uint16>(-1);
+
 //	A single entry for the questlog.
 class Quest_Entry
 {
 	public:
-		Quest_Entry(void) : deleted(false) {}
+		Quest_Entry(void) : deleted(false), quest_id(UNSET_QUEST_ID) {}
 		void set(const std::string & the_text);
 		void set(const std::string & the_text, const std::string & the_npc);
 		const std::vector<std::string> & get_lines(void) const;
@@ -59,11 +61,13 @@ class Quest_Entry
 		bool contains_string(const char *text_to_find) const;
 		const std::string & get_npc(void) const { return npc; }
 		Uint16 get_charsum(void) const { return charsum; }
+		void setid(Uint16 id) { quest_id = id; }
 		bool deleted;
 	private:
 		void set_lines(const std::string & the_text);
 		std::vector<std::string> lines;
 		std::string npc;
+		Uint16 quest_id;
 		Uint16 charsum;
 };
 
@@ -93,6 +97,7 @@ static std::string filename;
 static size_t current_line = 0;
 static bool need_to_save = false;
 static bool mouse_over_questlog = false;
+static Uint16 next_entry_quest_id = UNSET_QUEST_ID;
 #ifdef CONTEXT_MENUS
 static size_t cm_questlog_id = CM_INIT_VALUE;
 enum {	CMQL_FILTER=0, CMQL_SHOWALL, CMQL_SHOWNONE, CMQL_S1, CMQL_COPY,
@@ -118,10 +123,12 @@ const std::vector<std::string> & Quest_Entry::get_lines(void) const
 }
 
 
-//	Write all lines as a single line to the output stream.
+//	Write a quest entry as a single line to the output stream.
 //
 void Quest_Entry::save(std::ofstream & out) const
 {
+	if (quest_id != UNSET_QUEST_ID)
+		out << "<" << quest_id << ">";
 	for (std::vector<std::string>::size_type i=0; i<lines.size(); i++)
 	{
 		out.write(lines[i].c_str(), lines[i].size());
@@ -198,8 +205,25 @@ void Quest_Entry::set(const std::string & the_text, const std::string & the_npc)
 
 //	Set a new entry, finding the npc name from the text.
 //
-void Quest_Entry::set(const std::string & the_text)
+void Quest_Entry::set(const std::string & the_text_const)
 {
+	if (the_text_const.empty())
+		return;
+	std::string the_text = the_text_const;
+
+	// find any quest id
+	if (the_text[0] == '<')
+	{
+		std::string::size_type id_end = the_text.find_first_of('>', 1);
+		if (id_end != std::string::npos)
+		{
+			std::string id_str = the_text.substr(1,id_end-1);
+			quest_id = static_cast<Uint16>(atoi(id_str.c_str()));
+			the_text.erase(0, id_end+1);
+		}
+	}
+
+	// find and npc name
 	if (the_text[0] == (char)to_color_char(NPC_NAME_COLOUR))
 	{
 		std::string::size_type npc_end = the_text.find(npc_spacer, 1);
@@ -208,6 +232,7 @@ void Quest_Entry::set(const std::string & the_text)
 			is_color(the_text[npc_end + npc_spacer.size()]))
 			npc = the_text.substr(1,npc_end-1);
 	}
+	
 	if (npc.empty())
 	{
 		npc = std::string("----");
@@ -890,6 +915,13 @@ extern "C" void add_questlog (char *t, int len)
 {
 	t[len] = '\0';
 	add_questlog_line(t, (const char*)npc_name);
+
+	if (waiting_for_questlog_entry())
+	{
+		quest_entries.back().setid(next_entry_quest_id);
+		next_entry_quest_id = UNSET_QUEST_ID;
+	}
+
 	rebuild_active_entries(quest_entries.size()-1);
 
 	std::ofstream out(filename.c_str(), std::ios_base::out | std::ios_base::binary | std::ios_base::app);
@@ -986,11 +1018,27 @@ extern "C" void fill_questlog_win ()
 }
 
 
-extern "C" void set_next_quest_entry_id(int id)
+extern "C" void set_next_quest_entry_id(Uint16 id)
 {
 	char buf[80];
 	safe_snprintf(buf, 80, "Received NEXT_NPC_MESSAGE_IS_QUEST with id=%d", id);
 	LOG_TO_CONSOLE(c_green1, buf);
+
+	if (waiting_for_questlog_entry())
+		LOG_TO_CONSOLE(c_red2, "Previous NEXT_NPC_MESSAGE_IS_QUEST was unused");
+	next_entry_quest_id = id;
+}
+
+
+// Return true if a NEXT_NPC_MESSAGE_IS_QUEST message has been received
+// but has not yet been used.
+//
+extern "C" int waiting_for_questlog_entry(void)
+{
+	if (next_entry_quest_id != UNSET_QUEST_ID)
+		return 1;
+	else
+		return 0;
 }
 
 
@@ -1003,7 +1051,7 @@ extern "C" void set_quest_title(const char *data, int len)
 }
 
 
-extern "C" void set_quest_finished(int id)
+extern "C" void set_quest_finished(Uint16 id)
 {
 	char buf[80];
 	safe_snprintf(buf, 80, "Received QUEST_FINISHED with id=%d", id);

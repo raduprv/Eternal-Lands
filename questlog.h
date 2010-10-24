@@ -95,7 +95,7 @@ void fill_questlog_win ();
  *
  * \callgraph
  */
-void set_next_quest_entry_id(int id);
+void set_next_quest_entry_id(Uint16 id);
 
 /*!
  * \ingroup quest_window
@@ -121,7 +121,20 @@ void set_quest_title(const char *data, int len);
  * 
  * \callgraph
  */
-void set_quest_finished(int id);
+void set_quest_finished(Uint16 id);
+
+
+/*!
+ * \ingroup quest_window
+ * \brief Check if we have a quest id and waiting for an entry.
+ *
+ *      Check if we have a quest id and waiting for an entry.
+ *
+ * return true if if answer is yes.
+ * \callgraph
+ */
+int waiting_for_questlog_entry(void);
+
 
 #endif // NEW_QUESTLOG
 
