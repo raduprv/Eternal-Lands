@@ -192,7 +192,7 @@ void load_counters()
 	Uint32 io_extra;
 	Uint32 io_n_total;
 	char io_name[64];
-	int fread_ok;
+	int fread_ok = 1;
 	
 	if (counters_initialized) {
 		/*
