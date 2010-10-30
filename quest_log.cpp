@@ -429,16 +429,16 @@ const std::vector<std::string> & Quest_Entry::get_lines(void) const
 //
 void Quest_Entry::save(std::ofstream & out) const
 {
-	if (quest_id != Quest::UNSET_ID)
-		out << "<" << quest_id << ">";
 	for (std::vector<std::string>::size_type i=0; i<lines.size(); i++)
 	{
 		out.write(lines[i].c_str(), lines[i].size());
 		if (i<lines.size()-1)
 			out.put(' ');
-		else
+		else if (quest_id == Quest::UNSET_ID)
 			out.put('\n');
 	}
+	if (quest_id != Quest::UNSET_ID)
+		out << "<<" << quest_id << ">>" << std::endl;
 }
 
 
@@ -464,6 +464,22 @@ void Quest_Entry::set_lines(const std::string & the_text)
 		}
 		else
 			text += last_char = the_text[i];
+	}
+
+	// look for and <<number>> at the end of the text, its the quest id
+	std::string::size_type close = text.rfind(">>");
+	if (close == text.size()-2)
+	{
+		std::string::size_type open = text.rfind("<<");
+		if (open != std::string::npos)
+		{
+			std::string id_str = text.substr(open+2,close-open-2);
+			if ((id_str.size()>0) && (id_str.find_first_not_of("0123456789") == std::string::npos))
+			{
+				quest_id = static_cast<Uint16>(atoi(id_str.c_str()));
+				text.erase(open,close);
+			}
+		}
 	}
 
 	// for matching purposes calculate the sum of the characters, if it wraps, fine
@@ -513,7 +529,9 @@ void Quest_Entry::set(const std::string & the_text_const)
 		return;
 	std::string the_text = the_text_const;
 
-	// find any quest id
+	// find any quest id - a mistake!
+	// adding at the start was a mistake as it messes things up for the old client
+	// moved to end of the text but keep this check for now for the early adopters!
 	if (the_text[0] == '<')
 	{
 		std::string::size_type id_end = the_text.find_first_of('>', 1);
@@ -523,6 +541,8 @@ void Quest_Entry::set(const std::string & the_text_const)
 			quest_id = static_cast<Uint16>(atoi(id_str.c_str()));
 			the_text.erase(0, id_end+1);
 		}
+		// make sure we save to the new format
+		need_to_save = true;
 	}
 
 	// find and npc name
