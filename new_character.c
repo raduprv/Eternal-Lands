@@ -684,6 +684,10 @@ void login_from_new_char()
 	destroy_all_actors();
 	our_actor.our_model=NULL;
 
+	// close help and setting windows
+	if (tab_help_win >= 0) hide_window (tab_help_win);
+	if (elconfig_win >= 0) hide_window (elconfig_win);
+
 	//now send the log in info
 	send_login_info();
 }
