@@ -1560,7 +1560,7 @@ int save_local_data(char * text, int len){
 	// should be renamed when NEW_QUESTLOG #def is removed
 	unload_questlog();
 #endif	
-#ifdef ITEM_LISTS
+#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
 	save_category_maps();
 #endif
 	LOG_TO_CONSOLE(c_green1, "Local files saved, asking server to save too...");

@@ -249,7 +249,7 @@ int start_rendering()
 	clear_sound_data();		// Cleans up the config data
 #endif // NEW_SOUND
 	unload_questlog();
-#ifdef ITEM_LISTS
+#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
 	save_category_maps();
 #endif
 #ifdef EMOTES

@@ -58,7 +58,7 @@ static int number_to_print = 0;
 static int next_item_to_print = 0;
 static int printing_category = -1;
 
-#ifdef ITEM_LISTS
+#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
 
 //	Look though the category for the selected item, pick it up if found.
 //
@@ -359,7 +359,7 @@ void get_storage_items (const Uint8 *in_data, int len)
 		vscrollbar_set_pos(storage_win, STORAGE_SCROLLBAR_CATEGORIES, cat - STORAGE_CATEGORIES_DISPLAY + 1);
 	}
 
-#ifdef ITEM_LISTS
+#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
 	if (selected_category != -1)
 		category_updated();
 #endif 

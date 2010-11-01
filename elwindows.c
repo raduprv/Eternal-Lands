@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
+#include "elconfig.h"
 #ifdef CONTEXT_MENUS
 #include "context_menu.h"
-#include "elconfig.h"
 #include "hud.h"
 #include "init.h"
 #include "translate.h"

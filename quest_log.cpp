@@ -658,6 +658,7 @@ void show_all_entries(void)
 }
 
 
+#ifdef CONTEXT_MENUS
 //	Draw a context menu like hightlight using the supplied coords.
 //
 static void draw_highlight(int topleftx, int toplefty, int widthx, int widthy, size_t col = 0)
@@ -683,7 +684,6 @@ CHECK_GL_ERRORS();
 }
 
 
-#ifdef CONTEXT_MENUS
 // quest log filter window vars
 static const int npc_name_space = 3;
 static const int npc_name_border = 5;
@@ -1370,12 +1370,14 @@ static int questlog_click(window_info *win, int mx, int my, Uint32 flags)
 
 static int keypress_questlog_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
+#ifdef CONTEXT_MENUS
 	char keychar = tolower(static_cast<char>(unikey));
 	if ((key == K_MARKFILTER) || (keychar=='/'))
 	{
 		find_in_entry(win);
 		return 1;
 	}
+#endif
 	return 0;
 }
 	
