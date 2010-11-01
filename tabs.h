@@ -24,7 +24,7 @@ extern "C" {
 /*! \name tab positions for tabbed windows
  * @{ */
 extern int HELP_TAB_HELP, HELP_TAB_RULES, HELP_TAB_ENCYCLOPEDIA, HELP_TAB_SKILLS;
-extern int STATS_TAB_STATS, STATS_TAB_KNOWLEDGE, STATS_TAB_QUESTLOG, STATS_TAB_SESSION;
+extern int STATS_TAB_STATS, STATS_TAB_KNOWLEDGE, STATS_TAB_SESSION;
 /* @} */
 
 /*! \name windows handlers 

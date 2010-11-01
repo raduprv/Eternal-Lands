@@ -46,6 +46,8 @@ typedef struct
 
 	char data_type; /*!< data type indicator for \a data */
 	char free_data; /*!< inidicator whether to free the data after use or not */
+	Uint32 flashing;  /*!< if non-zero, the number times left to flash */
+	Uint32 last_flash_change; /*!< if flashing, the time the state last changed */
 } icon_struct;
 
 typedef enum
@@ -166,6 +168,20 @@ void draw_hud_frame();
  *      Frees the data used by \ref icon_list.
  */
 void free_icons();
+
+/*!
+ * \ingroup windows
+ * \brief Flash an icon.
+ *
+ *      Makes the specified icon flash between pressed/not press state.
+ * 
+ * \param	title	the help text of the icon (to find it in the list).
+ * \param	seconds	The number of seconds to flash.
+ *
+ * \callgraph
+ */
+void flash_icon(const char* name, Uint32 seconds);
+
 
 //Functions for the function pointers
 

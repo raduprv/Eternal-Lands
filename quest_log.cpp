@@ -35,7 +35,6 @@
 #ifdef NEW_SOUND
 #include "sound.h"
 #endif
-#include "tabs.h"
 #include "translate.h"
 
 /*
@@ -52,9 +51,6 @@
  * 				mark completed / not completed?
  * 				copy highlighted title to clipboard
  * 				delete highlighted
- * 		Add icon
- * 			Indicate when have new entry (flash?)
- * 			Move into "Information" window with notepad/urlwindow tabs?
  */
 
 
@@ -400,6 +396,9 @@ static bool mouse_over_questlog = false;
 static Uint16 next_entry_quest_id = Quest::UNSET_ID;
 static Quest_List questlist;
 static enum { QLFLT_NONE=0, QLFLT_QUEST, QLFLT_NPC } active_filter = QLFLT_NONE;
+static const int qlwinwidth = 580;
+static const int qlwinheight = 350;
+static const int qlborder = 5;
 #ifdef CONTEXT_MENUS
 static size_t cm_questlog_id = CM_INIT_VALUE;
 enum {	CMQL_SHOWALL=0, CMQL_QUESTFILTER, CMQL_NPCFILTER, CMQL_NPCSHOWNONE, 
@@ -446,7 +445,7 @@ void Quest_Entry::save(std::ofstream & out) const
 //
 void Quest_Entry::set_lines(const std::string & the_text)
 {
-	int chars_per_line = static_cast<int>((STATS_TAB_WIDTH - 25) / SMALL_FONT_X_LEN);
+	int chars_per_line = static_cast<int>((qlwinwidth - 2*qlborder - ELW_BOX_SIZE) / SMALL_FONT_X_LEN);
 	int col = 0;
 	std::string::size_type last_space = 0;
 	std::string::size_type start = 0;
@@ -1251,9 +1250,6 @@ static void cm_questlog_pre_show_handler(window_info *win, int widget_id, int mx
 	cm_grey_line(cm_questlog_id, CMQL_UNDEL, (is_over_entry && is_deleted) ?0 :1);
 	cm_grey_line(cm_questlog_id, CMQL_DEDUPE, quest_entries.empty() ?1 :0);
 	cm_grey_line(cm_questlog_id, CMQL_SAVE, (need_to_save) ?0 :1);
-	// propagate opacity from parent tab window
-	if (tab_stats_win >-1 && tab_stats_win<windows_list.num_windows)
-		cm_win->opaque = windows_list.window[tab_stats_win].opaque;
 }
 
 
@@ -1318,22 +1314,22 @@ static int display_questlog_handler(window_info *win)
 	}
 #endif
 
-	int questlog_y = 0, start_y = 0;
+	int questlog_y = qlborder;
 	shown_entries.clear();
 	for (std::vector<Quest_Entry>::size_type entry = current_line; entry<active_entries.size(); entry++)
 	{
-		start_y = questlog_y;
+		int start_y = questlog_y;
 		const std::vector<std::string> &lines = quest_entries[active_entries[entry]].get_lines();
 		for (std::vector<std::string>::const_iterator line = lines.begin(); line != lines.end(); ++line)
 		{
-			draw_string_small (2+gx_adjust, questlog_y+gy_adjust, reinterpret_cast<const unsigned char *>(line->c_str()), 1);
+			draw_string_small (qlborder+gx_adjust, questlog_y+gy_adjust, reinterpret_cast<const unsigned char *>(line->c_str()), 1);
 			questlog_y += static_cast<int>(SMALL_FONT_Y_LEN);
-			if (questlog_y > STATS_TAB_HEIGHT - SMALL_FONT_Y_LEN)
+			if (questlog_y+qlborder > qlwinheight - SMALL_FONT_Y_LEN)
 				break;
 		}
 		shown_entries.push_back(Shown_Entry(entry, start_y, questlog_y));
-		questlog_y += 5;
-		if (questlog_y > STATS_TAB_HEIGHT - SMALL_FONT_Y_LEN)
+		questlog_y += qlborder;
+		if (questlog_y+qlborder > qlwinheight - SMALL_FONT_Y_LEN)
 			return 1;
 	}
 	return 1;
@@ -1387,7 +1383,7 @@ static int keypress_questlog_handler(window_info *win, int mx, int my, Uint32 ke
 static int mouseover_questlog_handler(window_info *win, int mx, int my)
 {
 	mouse_over_questlog = true;
-	return 1;
+	return 0;
 }
 
 
@@ -1445,6 +1441,7 @@ extern "C" void add_questlog (char *t, int len)
 		return;
 	}
     quest_entries.back().save(out);
+    flash_icon(tt_questlog, 5);
 }
 
 
@@ -1504,19 +1501,17 @@ extern "C" void unload_questlog()
 }
 
 
-//	Create the questlog inside the tabbed window.
+//	Create the questlog (possibly) inside a tabbed window.
 //
 extern "C" void fill_questlog_win ()
 {
-	int boxlen = 0;
-	size_t last_entry = active_entries.size()-1;
-
 	set_window_handler(questlog_win, ELW_HANDLER_DISPLAY, (int (*)())display_questlog_handler);
 	set_window_handler(questlog_win, ELW_HANDLER_CLICK, (int (*)())questlog_click);
 	set_window_handler(questlog_win, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_questlog_handler );
 	set_window_handler(questlog_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_questlog_handler );
 
-	quest_scroll_id = vscrollbar_add_extended (questlog_win, quest_scroll_id, NULL, STATS_TAB_WIDTH - 20, boxlen, 20, STATS_TAB_HEIGHT - boxlen, 0, 1.0, 0.77f, 0.57f, 0.39f, last_entry, 1, last_entry);
+	size_t last_entry = active_entries.size()-1;
+	quest_scroll_id = vscrollbar_add_extended (questlog_win, quest_scroll_id, NULL, qlwinwidth - 20, ELW_BOX_SIZE, 20, qlwinheight - ELW_BOX_SIZE, 0, 1.0, 0.77f, 0.57f, 0.39f, last_entry, 1, last_entry);
 	goto_questlog_entry(last_entry);
 	
 	widget_set_OnClick (questlog_win, quest_scroll_id, (int (*)())questlog_scroll_click);
@@ -1531,6 +1526,24 @@ extern "C" void fill_questlog_win ()
 		init_ipu(&ipu_questlog, -1, -1, -1, 1, 1, NULL, NULL);
 	}
 #endif
+}
+
+
+//	Create (or show existing) a stand alone quest log window.
+//
+extern "C" void display_questlog()
+{
+	if (questlog_win < 0)
+	{
+		int our_root_win = -1;
+		if (!windows_on_top) {
+			our_root_win = game_root_win;
+		}
+		questlog_win = create_window(tab_questlog,our_root_win, 0, 150, 70, qlwinwidth, qlwinheight, ELW_WIN_DEFAULT);
+		fill_questlog_win ();
+	}
+	else
+		show_window(questlog_win);
 }
 
 

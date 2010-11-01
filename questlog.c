@@ -286,9 +286,10 @@ int questlog_click(window_info *win, int mx, int my, Uint32 flags)
 	}
 }
 
+static int boxlen = 0;
+
 void fill_questlog_win ()
 {
-	int boxlen = 0;
 
 	set_window_handler(questlog_win, ELW_HANDLER_DISPLAY, &display_questlog_handler);
 	set_window_handler(questlog_win, ELW_HANDLER_CLICK, &questlog_click);
@@ -304,7 +305,8 @@ void display_questlog()
 {
 	if(questlog_win < 0)
 	{
-		questlog_win= create_window("Quest", game_root_win, 0, questlog_menu_x, questlog_menu_y, questlog_menu_x_len, questlog_menu_y_len, ELW_WIN_DEFAULT);
+		questlog_win= create_window(tab_questlog, game_root_win, 0, questlog_menu_x, questlog_menu_y, questlog_menu_x_len, questlog_menu_y_len, ELW_WIN_DEFAULT);
+		boxlen = ELW_BOX_SIZE;
 		fill_questlog_win ();
 	}
 	else

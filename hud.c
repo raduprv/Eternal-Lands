@@ -25,6 +25,7 @@
 #include "multiplayer.h"
 #include "new_character.h"
 #include "platform.h"
+#include "questlog.h"
 #include "sound.h"
 #include "spells.h"
 #include "storage.h"
@@ -367,10 +368,10 @@ float colored_encyclopedia_icon_u_start=(float)32/256;
 float colored_encyclopedia_icon_v_start=1.0f-(float)64/256;
 
 float questlog_icon_u_start=(float)96/256;
-float questlog_icon_v_start=1.0f-(float)0/256;
+float questlog_icon_v_start=1.0f-(float)64/256;
 
-float colored_questlog_icon_u_start=(float)192/256;
-float colored_questlog_icon_v_start=1.0f-(float)0/256;
+float colored_questlog_icon_u_start=(float)160/256;
+float colored_questlog_icon_v_start=1.0f-(float)64/256;
 
 float map_icon_u_start=(float)128/256;
 float map_icon_v_start=1.0f-(float)128/256;
@@ -402,11 +403,13 @@ float notepad_icon_v_start=1.0f-(float)0/256;
 float colored_notepad_icon_u_start=(float)192/256;
 float colored_notepad_icon_v_start=1.0f-(float)0/256;
 
+/*
 float urlwin_icon_u_start=(float)96/256;
 float urlwin_icon_v_start=1.0f-(float)64/256;
 
 float colored_urlwin_icon_u_start=(float)160/256;
 float colored_urlwin_icon_v_start=1.0f-(float)64/256;
+*/
 
 // to help highlight the proper icon
 int	icon_cursor_x;
@@ -511,8 +514,8 @@ void init_peace_icons()
 	
 	add_icon(encyclopedia_icon_u_start, encyclopedia_icon_v_start, colored_encyclopedia_icon_u_start, colored_encyclopedia_icon_v_start, tt_encyclopedia, view_window, &encyclopedia_win, DATA_WINDOW);
 	
-	add_icon(questlog_icon_u_start, questlog_icon_v_start, colored_questlog_icon_u_start, colored_questlog_icon_v_start, tt_questlog, view_window, &questlog_win, DATA_WINDOW);
 	*/
+	add_icon(questlog_icon_u_start, questlog_icon_v_start, colored_questlog_icon_u_start, colored_questlog_icon_v_start, tt_questlog, view_window, &questlog_win, DATA_WINDOW);
 
 	add_icon(stats_icon_u_start, stats_icon_v_start, colored_stats_icon_u_start, colored_stats_icon_v_start, tt_stats, view_window, &tab_stats_win, DATA_WINDOW);
 	add_icon(help_icon_u_start, help_icon_v_start, colored_help_icon_u_start, colored_help_icon_v_start, tt_help, view_window, &tab_help_win, DATA_WINDOW);
@@ -525,7 +528,7 @@ void init_peace_icons()
 
 	add_icon(notepad_icon_u_start, notepad_icon_v_start, colored_notepad_icon_u_start, colored_notepad_icon_v_start, tt_notepad, view_window, &notepad_win, DATA_WINDOW);
 
-	add_icon(urlwin_icon_u_start, urlwin_icon_v_start, colored_urlwin_icon_u_start, colored_urlwin_icon_v_start, tt_urlwin, view_window, &url_win, DATA_WINDOW);
+//	add_icon(urlwin_icon_u_start, urlwin_icon_v_start, colored_urlwin_icon_u_start, colored_urlwin_icon_v_start, tt_urlwin, view_window, &url_win, DATA_WINDOW);
 	
 	add_icon(options_icon_u_start, options_icon_v_start, colored_options_icon_u_start, colored_options_icon_v_start, tt_options, view_window, &elconfig_win, DATA_WINDOW);
 
@@ -546,6 +549,7 @@ void	add_icon(float u_start, float v_start, float colored_u_start, float colored
 	icon_list[no]->func=func;
 	icon_list[no]->help_message=help_message;
 	icon_list[no]->free_data=0;
+	icon_list[no]->flashing=0;
 	switch(data_type)
 		{
 		case DATA_ACTIONMODE:
@@ -573,6 +577,17 @@ void free_icons()
 		free(icon_list[i]);
 	}
 	icons_no=0;
+}
+
+void flash_icon(const char* name, Uint32 seconds)
+{
+	int i;
+	for(i=0;i<icons_no;i++)
+		if (strcmp(name, icon_list[i]->help_message) == 0)
+		{
+			icon_list[i]->flashing = 4*seconds;
+			break;
+		}
 }
 
 int	mouseover_icons_handler(window_info *win, int mx, int my)
@@ -624,11 +639,21 @@ int	display_icons_handler(window_info *win)
 	
 	for(i=0;i<icons_no;i++)
 		{
+			size_t index = STATE(i);
+			if (icon_list[i]->flashing)
+			{
+				if (abs(SDL_GetTicks() - icon_list[i]->last_flash_change) > 250)
+				{
+					icon_list[i]->last_flash_change = SDL_GetTicks();
+					icon_list[i]->flashing--;
+				}
+				index = icon_list[i]->flashing & 1;
+			}
 			draw_2d_thing(
-				icon_list[i]->u[STATE(i)],
-				icon_list[i]->v[STATE(i)], 
-				icon_list[i]->u[STATE(i)]+(float)31/256,
-				icon_list[i]->v[STATE(i)]-(float)31/256,
+				icon_list[i]->u[index],
+				icon_list[i]->v[index], 
+				icon_list[i]->u[index]+(float)31/256,
+				icon_list[i]->v[index]-(float)31/256,
 				i*32,0,i*32+31,32
 				);
 			if(!(icon_list[i]->state>>31))icon_list[i]->state=0;//Else we pressed the button and it should still be pressed
@@ -767,6 +792,7 @@ void view_window(int * window, int id)
 			else if(window==&namepass_win) show_account_win();
 			else if(window==&color_race_win) show_color_race_win();
 			else if(window==&url_win) display_url_win();
+			else if(window==&questlog_win) display_questlog();
 		}
 	else toggle_window(*window);
 }
@@ -821,6 +847,8 @@ int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 #ifdef NEW_SOUND
 			add_sound_object(get_index_for_sound_type_name("Icon Click"), 0, 0, 1);
 #endif // NEW_SOUND
+			// cancel any flashing icon now user has responded
+			icon_list[id]->flashing = 0;
 		}
 	return 1;
 }
