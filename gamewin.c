@@ -40,6 +40,7 @@
 #include "paste.h"
 #include "pathfinder.h"
 #include "pm_log.h"
+#include "questlog.h"
 #include "reflection.h"
 #include "serverpopup.h"
 #include "shadows.h"
@@ -1490,7 +1491,7 @@ void hide_all_windows(){
 	if (get_show_window(ground_items_win) > 0 || get_show_window(items_win) > 0 || get_show_window(buddy_win) > 0 ||
 		get_show_window(manufacture_win) > 0 || get_show_window(elconfig_win) > 0 || get_show_window(sigil_win) > 0 ||
 		get_show_window(tab_stats_win) > 0 || get_show_window(tab_help_win) > 0 || get_show_window(storage_win) > 0 ||
-		get_show_window(dialogue_win) > 0 || get_show_window(server_popup_win) > 0 
+		get_show_window(dialogue_win) > 0 || get_show_window(server_popup_win) > 0 || get_show_window(questlog_win) > 0 
 #ifndef MINIMAP2
 		|| (get_show_window(minimap_win) > 0 && !minimap_get_pin())
 #else
@@ -1599,6 +1600,12 @@ void hide_all_windows(){
 			were_open &= ~(1<<12);
 		}
 #endif
+		if (get_window_showable(questlog_win) > 0){
+			hide_window (questlog_win);
+			were_open |= 1<<13;
+		} else {
+			were_open &= ~(1<<13);
+		}
 	} else {	//None were open, restore the ones that were open last time the key was pressed
 		if (were_open & 1<<0){
 			show_window (items_win);
@@ -1641,6 +1648,9 @@ void hide_all_windows(){
 			show_window (emotes_win);
 		}
 #endif
+		if (were_open & 1<<13){
+			show_window (questlog_win);
+		}
 	}
 }
 
@@ -1995,6 +2005,10 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	else if (key == K_STATS)
 	{
 		view_tab (&tab_stats_win, &tab_stats_collection_id, STATS_TAB_STATS);
+	}
+	else if (key == K_QUESTLOG)
+	{
+		view_window (&questlog_win, 0);
 	}
 	else if (key == K_SESSION)
 	{
