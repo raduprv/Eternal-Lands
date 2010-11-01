@@ -31,6 +31,7 @@ Uint32 K_HEALTHBAR=ALT|'h';
 Uint32 K_VIEWNAMES=ALT|'n';
 Uint32 K_VIEWHP=ALT|'b';
 Uint32 K_STATS=CTRL|'a';
+Uint32 K_QUESTLOG=CTRL|'g';
 Uint32 K_SESSION=CTRL|'z';
 Uint32 K_WALK=CTRL|'w';
 Uint32 K_LOOK=CTRL|'l';
@@ -414,6 +415,8 @@ void read_key_config()
 		K_VIEWHP = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_STATS",file_mem,key_file_size,0))!=-1)
 		K_STATS = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_QUESTLOG",file_mem,key_file_size,0))!=-1)
+		K_QUESTLOG = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_SESSION",file_mem,key_file_size,0))!=-1)
 		K_SESSION = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_WALK",file_mem,key_file_size,0))!=-1)

@@ -38,6 +38,7 @@ extern Uint32 K_HEALTHBAR;      /*!< key used to toggle display of the healthbar
 extern Uint32 K_VIEWNAMES;      /*!< key used to toggle display of names */
 extern Uint32 K_VIEWHP;         /*!< key used to toggle display of hitpoints (material points) */
 extern Uint32 K_STATS;          /*!< key to toggle display of \ref stats_window */
+extern Uint32 K_QUESTLOG;       /*!< key to toggle display of \ref questlog_window */
 extern Uint32 K_SESSION;        /*!< key to toggle display of session tab in stats_window */
 extern Uint32 K_WALK;           /*!< key used to switch to walk cursor */
 extern Uint32 K_LOOK;           /*!< key used to switch to look cursor */
