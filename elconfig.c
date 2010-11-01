@@ -45,6 +45,7 @@
  #include "openingwin.h"
  #include "particles.h"
  #include "pm_log.h"
+ #include "questlog.h"
  #include "reflection.h"
  #include "serverpopup.h"
  #include "shadows.h"
@@ -52,6 +53,7 @@
  #include "spells.h"
  #include "storage.h"
  #include "tabs.h"
+ #include "trade.h"
  #include "weather.h"
   #include "minimap.h"
  #ifdef NEW_ALPHA
@@ -1015,10 +1017,8 @@ void change_gamma(float *pointer, float *value)
 void change_windows_on_top(int *var)
 {
 	int winid_list[] = { storage_win, manufacture_win, items_win, buddy_win, ground_items_win,
-						 sigil_win, elconfig_win, tab_stats_win, server_popup_win, url_win
-						 , minimap_win
-						 , notepad_win
-						};
+						 sigil_win, elconfig_win, tab_stats_win, server_popup_win, url_win,
+						 minimap_win, notepad_win, questlog_win, trade_win };
 	int i;
 
 	*var=!*var;
