@@ -629,7 +629,7 @@ namespace cm
 				(*pre_show_handler)(parent_win, container.get_active_widget_id(), parent_win_x, parent_win_y, window_info_from_id(cm_window_id));
 			}
 			else
-				(*pre_show_handler)(NULL, 0, 0, 0, NULL);
+				(*pre_show_handler)(NULL, 0, 0, 0, window_info_from_id(cm_window_id));
 		}
 
 		show_window(cm_window_id);
