@@ -26,9 +26,6 @@ int tab_help_y = 70;
 Uint16 tab_help_len_x = HELP_TAB_WIDTH + 2*TAB_MARGIN;
 Uint16 tab_help_len_y = HELP_TAB_HEIGHT + TAB_TAG_HEIGHT + 2*TAB_MARGIN;
 
-int HELP_TAB_HELP = 0, HELP_TAB_SKILLS, HELP_TAB_ENCYCLOPEDIA, HELP_TAB_RULES;
-int STATS_TAB_STATS = 0, STATS_TAB_KNOWLEDGE, STATS_TAB_URL, STATS_TAB_COUNTERS, STATS_TAB_SESSION;
-
 int display_tab_stats_handler () 
 {
 	return 1;

@@ -23,8 +23,8 @@ extern "C" {
 
 /*! \name tab positions for tabbed windows
  * @{ */
-extern int HELP_TAB_HELP, HELP_TAB_RULES, HELP_TAB_ENCYCLOPEDIA, HELP_TAB_SKILLS;
-extern int STATS_TAB_STATS, STATS_TAB_KNOWLEDGE, STATS_TAB_SESSION;
+enum { HELP_TAB_HELP = 0, HELP_TAB_SKILLS, HELP_TAB_ENCYCLOPEDIA, HELP_TAB_RULES };
+enum { STATS_TAB_STATS = 0, STATS_TAB_KNOWLEDGE, STATS_TAB_COUNTERS, STATS_TAB_SESSION };
 /* @} */
 
 /*! \name windows handlers 
