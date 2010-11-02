@@ -17,6 +17,7 @@
 #include "init.h"
 #include "hud.h"
 #include "notepad.h"
+#include "tabs.h"
 #include "text.h"
 #include "translate.h"
 #include "widgets.h"
@@ -266,7 +267,7 @@ void display_popup_win (INPUT_POPUP *ipu, const char* label)
  
 //Macro Definitions                             
 #define NOTE_LIST_INIT_SIZE 5
-#define NOTE_NAME_LEN       16
+#define NOTE_NAME_LEN       25
 
 #define MIN_NOTE_SIZE	128
 
@@ -303,8 +304,8 @@ unsigned short nr_notes = 0;
 // Coordinates
 int notepad_win_x = 30; // near left corner by default
 int notepad_win_y = 10;
-int notepad_win_x_len = 380;
-int notepad_win_y_len = 420;
+int notepad_win_x_len = INFO_TAB_WIDTH;
+int notepad_win_y_len = INFO_TAB_HEIGHT;
 
 // note button scrollbar parameters
 int note_button_scroll_width = 20;
@@ -600,10 +601,10 @@ static int mouseover_remove_handler(void)
 
 void open_note_tab_continued (int id)
 {
-	int tf_x = 20;
+	int tf_x = 10;
 	int tf_y = 45;
-	int tf_width = notepad_win_x_len - 50;
-	int tf_height = notepad_win_y_len - 100;
+	int tf_width = notepad_win_x_len - 20;
+	int tf_height = notepad_win_y_len - 80;
 	int tab;
 
 	note_list[id].window = tab_add (notepad_win, note_tabcollection_id, note_list[id].name, 0, 1, 0);
@@ -743,69 +744,63 @@ static int click_buttonwin_handler(window_info *win, int mx, int my, Uint32 flag
 	return 1;
 }
 
-void display_notepad()
+
+void fill_notpad_window(void)
 {
-	int i;
+	int i, tmp;
 	widget_list *wnew;
 	widget_list *wsave;
-     
-	if (notepad_win < 0)
-	{
-		int note_tabs_width = notepad_win_x_len - 10;
-		int note_tabs_height = notepad_win_y_len - 30;
-		
-		note_button_scroll_height = note_tabs_height - 55 - 20; // -20 for the tab tags
-		note_button_width = (note_tabs_width - note_button_scroll_width - note_button_x_space - 15) / 2;
 
-		notepad_win = create_window (win_notepad, windows_on_top ? -1 : game_root_win, 0, notepad_win_x, notepad_win_y, notepad_win_x_len, notepad_win_y_len, ELW_WIN_DEFAULT|ELW_TITLE_NAME);
-		set_window_handler(notepad_win, ELW_HANDLER_DISPLAY, &display_notepad_handler);
-		set_window_handler(notepad_win, ELW_HANDLER_CLICK, &click_buttonwin_handler);
-		
-		note_tabcollection_id = tab_collection_add (notepad_win, NULL, 5, 25, note_tabs_width, note_tabs_height, 20);
-		widget_set_size (notepad_win, note_tabcollection_id, 0.7);
-		widget_set_color (notepad_win, note_tabcollection_id, 0.77f, 0.57f, 0.39f);
-		main_note_tab_id = tab_add (notepad_win, note_tabcollection_id, tab_main, 0, 0, 0);
-		widget_set_color (notepad_win, main_note_tab_id, 0.77f, 0.57f, 0.39f);
-		set_window_handler(main_note_tab_id, ELW_HANDLER_CLICK, &click_buttonwin_handler);
+	int note_tabs_width = notepad_win_x_len;
+	int note_tabs_height = notepad_win_y_len - 5;
+	
+	note_button_scroll_height = note_tabs_height - 55 - 20; // -20 for the tab tags
+	note_button_width = (note_tabs_width - note_button_scroll_width - note_button_x_space - 15) / 2;
 
-		// Add Category
-		buttons[0] = button_add (main_note_tab_id, NULL, button_new_category, 0, 0);
-		widget_set_OnClick (main_note_tab_id, buttons[0], notepad_add_category);
-		widget_set_color (main_note_tab_id, buttons[0], 0.77f, 0.57f, 0.39f);
+	set_window_handler(notepad_win, ELW_HANDLER_DISPLAY, &display_notepad_handler);
+	set_window_handler(notepad_win, ELW_HANDLER_CLICK, &click_buttonwin_handler);
+	
+	note_tabcollection_id = tab_collection_add (notepad_win, NULL, 0, 5, note_tabs_width, note_tabs_height, 20);
+	widget_set_size (notepad_win, note_tabcollection_id, 0.7);
+	widget_set_color (notepad_win, note_tabcollection_id, 0.77f, 0.57f, 0.39f);
+	main_note_tab_id = tab_add (notepad_win, note_tabcollection_id, tab_main, 0, 0, 0);
+	widget_set_color (notepad_win, main_note_tab_id, 0.77f, 0.57f, 0.39f);
+	set_window_handler(main_note_tab_id, ELW_HANDLER_CLICK, &click_buttonwin_handler);
 
-		// Save Notes
-		buttons[1] = button_add (main_note_tab_id, NULL, button_save_notes, 0, 0);
-		widget_set_OnClick(main_note_tab_id, buttons[1], notepad_save_file);
-		widget_set_color(main_note_tab_id, buttons[1], 0.77f, 0.57f, 0.39f);
-		
-		// align the buttons
-		wnew = widget_find(main_note_tab_id, buttons[0]);
-		wsave = widget_find(main_note_tab_id, buttons[1]);
-		widget_move(main_note_tab_id, buttons[0], (notepad_win_x_len - 10 - wnew->len_x - wsave->len_x)/3, 10);
-		widget_move(main_note_tab_id, buttons[1], wnew->len_x + 2*(notepad_win_x_len - 10 - wnew->len_x - wsave->len_x)/3, 10);
-		
-		notepad_load_file ();
+	// Add Category
+	buttons[0] = button_add (main_note_tab_id, NULL, button_new_category, 0, 0);
+	widget_set_OnClick (main_note_tab_id, buttons[0], notepad_add_category);
+	widget_set_color (main_note_tab_id, buttons[0], 0.77f, 0.57f, 0.39f);
 
-		init_ipu (&popup_str, main_note_tab_id, 200, 100, 16, 1, NULL, notepad_add_continued);
-		popup_str.x = (notepad_win_x_len - popup_str.popup_x_len) / 2;
-		popup_str.y = (notepad_win_y_len - popup_str.popup_y_len) / 2;	
+	// Save Notes
+	buttons[1] = button_add (main_note_tab_id, NULL, button_save_notes, 0, 0);
+	widget_set_OnClick(main_note_tab_id, buttons[1], notepad_save_file);
+	widget_set_color(main_note_tab_id, buttons[1], 0.77f, 0.57f, 0.39f);
+	
+	// align the buttons
+	wnew = widget_find(main_note_tab_id, buttons[0]);
+	wsave = widget_find(main_note_tab_id, buttons[1]);
+	tmp = (notepad_win_x_len - note_button_scroll_width)/2;
+	widget_move(main_note_tab_id, buttons[0], (tmp - wnew->len_x)/2, 10);
+	widget_move(main_note_tab_id, buttons[1], tmp + (tmp - wsave->len_x)/2, 10);
+	
+	notepad_load_file ();
 
-		note_button_scroll_id = vscrollbar_add (main_note_tab_id, NULL, note_tabs_width - note_button_scroll_width - 5, 50, note_button_scroll_width, note_button_scroll_height);
-		widget_set_OnClick (main_note_tab_id, note_button_scroll_id, note_button_scroll_handler);
-		widget_set_OnDrag (main_note_tab_id, note_button_scroll_id, note_button_scroll_handler);
+	init_ipu (&popup_str, main_note_tab_id, NOTE_NAME_LEN*DEFAULT_FONT_X_LEN, 100, NOTE_NAME_LEN, 1, NULL, notepad_add_continued);
+	popup_str.x = (notepad_win_x_len - popup_str.popup_x_len) / 2;
+	popup_str.y = (notepad_win_y_len - popup_str.popup_y_len) / 2;	
 
-		// Add the note selection buttons and their scroll bar
-		for(i = 0; i < nr_notes; i++)
-			note_button_add (i, i);
+	note_button_scroll_id = vscrollbar_add (main_note_tab_id, NULL, note_tabs_width - note_button_scroll_width - 5, 50, note_button_scroll_width, note_button_scroll_height);
+	widget_set_OnClick (main_note_tab_id, note_button_scroll_id, note_button_scroll_handler);
+	widget_set_OnDrag (main_note_tab_id, note_button_scroll_id, note_button_scroll_handler);
 
-		update_note_button_scrollbar (0);
-	}
-	else
-	{
-		show_window(notepad_win);
-		select_window(notepad_win);
-	}
+	// Add the note selection buttons and their scroll bar
+	for(i = 0; i < nr_notes; i++)
+		note_button_add (i, i);
+
+	update_note_button_scrollbar (0);
 }
+
 
 void notepad_win_update_zoom ()
 {

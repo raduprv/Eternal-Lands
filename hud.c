@@ -34,7 +34,6 @@
 #include "trade.h"
 #include "translate.h"
 #include "minimap.h"
-#include "notepad.h"
 #ifdef ECDEBUGWIN
 #include "eye_candy_debugwin.h"
 #endif
@@ -526,7 +525,7 @@ void init_peace_icons()
 	
 	add_icon(buddy_icon_u_start, buddy_icon_v_start, colored_buddy_icon_u_start, colored_buddy_icon_v_start, tt_buddy, view_window, &buddy_win, DATA_WINDOW);
 
-	add_icon(notepad_icon_u_start, notepad_icon_v_start, colored_notepad_icon_u_start, colored_notepad_icon_v_start, tt_notepad, view_window, &notepad_win, DATA_WINDOW);
+	add_icon(notepad_icon_u_start, notepad_icon_v_start, colored_notepad_icon_u_start, colored_notepad_icon_v_start, tt_info, view_window, &tab_info_win, DATA_WINDOW);
 
 //	add_icon(urlwin_icon_u_start, urlwin_icon_v_start, colored_urlwin_icon_u_start, colored_urlwin_icon_v_start, tt_urlwin, view_window, &url_win, DATA_WINDOW);
 	
@@ -781,7 +780,7 @@ void view_window(int * window, int id)
 			else if(window==&elconfig_win) display_elconfig_win();
 			else if(window==&buddy_win) display_buddy();
 			else if(window==&trade_win) display_trade_menu();
-			else if(window==&notepad_win) display_notepad();
+			else if(window==&tab_info_win) display_tab_info();
 			else if(window==&minimap_win) display_minimap();
 #ifdef ECDEBUGWIN
 			else if(window==&ecdebug_win) display_ecdebugwin();
@@ -791,7 +790,6 @@ void view_window(int * window, int id)
 			else if(window==&tab_help_win) display_tab_help();
 			else if(window==&namepass_win) show_account_win();
 			else if(window==&color_race_win) show_color_race_win();
-			else if(window==&url_win) display_url_win();
 			else if(window==&questlog_win) display_questlog();
 		}
 	else toggle_window(*window);

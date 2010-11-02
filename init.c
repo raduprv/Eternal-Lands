@@ -42,7 +42,6 @@
 #include "loginwin.h"
 #include "multiplayer.h"
 #include "manufacture.h"
-#include "notepad.h"
 #include "astrology.h"
 #include "mapwin.h"
 #include "missiles.h"
@@ -64,7 +63,6 @@
 #include "translate.h"
 #include "update.h"
 #include "weather.h"
-#include "url.h"
 #include "eye_candy_wrapper.h"
 #include "minimap.h"
 #include "io/elpathwrapper.h"
@@ -326,8 +324,8 @@ void read_bin_cfg()
 	buddy_menu_x=cfg_mem.buddy_menu_x;
 	buddy_menu_y=cfg_mem.buddy_menu_y;
 
-	url_win_x=cfg_mem.url_win_x;
-	url_win_y=cfg_mem.url_win_y;
+	questlog_menu_x=cfg_mem.questlog_win_x;
+	questlog_menu_y=cfg_mem.questlog_win_y;
 
 	minimap_win_x=cfg_mem.minimap_win_x;
 	minimap_win_y=cfg_mem.minimap_win_y;
@@ -338,8 +336,8 @@ void read_bin_cfg()
 	minimap_tiles_distance=cfg_mem.minimap_zoom;
 #endif //MINIMAP2
 
-	notepad_win_x=cfg_mem.notepad_win_x;
-	notepad_win_y=cfg_mem.notepad_win_y;
+	tab_info_x=cfg_mem.tab_info_x;
+	tab_info_y=cfg_mem.tab_info_y;
 
 	if(quickbar_relocatable>0)
 		{
@@ -563,12 +561,12 @@ void save_bin_cfg()
 		cfg_mem.buddy_menu_y=buddy_menu_y;
 	}
 
-	if(url_win >= 0) {
-		cfg_mem.url_win_x=windows_list.window[url_win].cur_x;
-		cfg_mem.url_win_y=windows_list.window[url_win].cur_y;
+	if(questlog_win >= 0) {
+		cfg_mem.questlog_win_x=windows_list.window[questlog_win].cur_x;
+		cfg_mem.questlog_win_y=windows_list.window[questlog_win].cur_y;
 	} else {
-		cfg_mem.url_win_x=url_win_x;
-		cfg_mem.url_win_y=url_win_y;
+		cfg_mem.questlog_win_x=questlog_menu_x;
+		cfg_mem.questlog_win_y=questlog_menu_y;
 	}
 
 	if(minimap_win >= 0) {
@@ -585,12 +583,12 @@ void save_bin_cfg()
 	cfg_mem.minimap_zoom=minimap_tiles_distance;
 #endif //MINIMAP2
 
-	if(notepad_win >= 0) {
-		cfg_mem.notepad_win_x=windows_list.window[notepad_win].cur_x;
-		cfg_mem.notepad_win_y=windows_list.window[notepad_win].cur_y;
+	if(tab_info_win >= 0) {
+		cfg_mem.tab_info_x=windows_list.window[tab_info_win].cur_x;
+		cfg_mem.tab_info_y=windows_list.window[tab_info_win].cur_y;
 	} else {
-		cfg_mem.notepad_win_x=notepad_win_x;
-		cfg_mem.notepad_win_y=notepad_win_y;
+		cfg_mem.tab_info_x=tab_info_x;
+		cfg_mem.tab_info_y=tab_info_y;
 	}
 
 	cfg_mem.view_health_bar=view_health_bar;

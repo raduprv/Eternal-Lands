@@ -119,11 +119,11 @@ typedef struct
 	int view_hp;
 
     /*!
-     * \name url window position
+     * \name quest log window position
      */
     /*! @{ */
-	int url_win_x;
-	int url_win_y;
+	int questlog_win_x;
+	int questlog_win_y;
     /*! @} */
 
     /*!
@@ -159,11 +159,11 @@ typedef struct
     /*! @} */
 
     /*!
-     * \name Notepad window position
+     * \name info tab window position
      */
     /*! @{ */
-	int notepad_win_x;
-	int notepad_win_y;
+	int tab_info_x;
+	int tab_info_y;
     /*! @} */
     
     /*!

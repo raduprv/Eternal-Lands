@@ -1017,8 +1017,8 @@ void change_gamma(float *pointer, float *value)
 void change_windows_on_top(int *var)
 {
 	int winid_list[] = { storage_win, manufacture_win, items_win, buddy_win, ground_items_win,
-						 sigil_win, elconfig_win, tab_stats_win, server_popup_win, url_win,
-						 minimap_win, notepad_win, questlog_win, trade_win };
+						 sigil_win, elconfig_win, tab_stats_win, server_popup_win, tab_info_win,
+						 minimap_win, questlog_win, trade_win };
 	int i;
 
 	*var=!*var;

@@ -60,7 +60,7 @@ void find_all_url(const char *source_string, const int len);
  * \brief   Displays the window of stored URLs.
  *
  */
-int display_url_win(void);
+void fill_url_window(void);
 
 /*!
  * \ingroup url

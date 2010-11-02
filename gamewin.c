@@ -60,7 +60,6 @@
 #include "special_effects.h"
 #include "eye_candy_wrapper.h"
 #include "minimap.h"
-#include "notepad.h"
 #ifdef PAWN
 #include "pawn/elpawn.h"
 #endif
@@ -1497,8 +1496,7 @@ void hide_all_windows(){
 #else
 		|| (get_show_window(minimap_win) > 0 && !pin_minimap)
 #endif
-		|| get_show_window(notepad_win) > 0
-		|| get_show_window(url_win) > 0
+		|| get_show_window(tab_info_win) > 0
 #ifdef EMOTES
 		|| get_show_window(emotes_win) > 0
 #endif
@@ -1571,40 +1569,34 @@ void hide_all_windows(){
 		} else {
 			were_open &= ~(1<<8);
 		}
-		if (get_window_showable(notepad_win) > 0){
-			hide_window (notepad_win);
+		if (get_window_showable(tab_info_win) > 0){
+			hide_window (tab_info_win);
 			were_open |= 1<<9;
 		} else {
 			were_open &= ~(1<<9);
 		}
-		if (get_show_window(url_win) > 0){
-			hide_window (url_win);
-			were_open |= 1<<10;
-		} else {
-			were_open &= ~(1<<10);
-		}
 		if (get_window_showable(storage_win) > 0){
 			hide_window (storage_win);
 			if (view_only_storage)
-				were_open |= 1<<11;
+				were_open |= 1<<10;
 			else
-				were_open &= ~(1<<11);
+				were_open &= ~(1<<10);
 		} else {
-			were_open &= ~(1<<11);
+			were_open &= ~(1<<10);
 		}
 #ifdef EMOTES
 		if (get_window_showable(emotes_win) > 0){
 			hide_window (emotes_win);
-			were_open |= 1<<12;
+			were_open |= 1<<11;
 		} else {
-			were_open &= ~(1<<12);
+			were_open &= ~(1<<11);
 		}
 #endif
 		if (get_window_showable(questlog_win) > 0){
 			hide_window (questlog_win);
-			were_open |= 1<<13;
+			were_open |= 1<<12;
 		} else {
-			were_open &= ~(1<<13);
+			were_open &= ~(1<<12);
 		}
 	} else {	//None were open, restore the ones that were open last time the key was pressed
 		if (were_open & 1<<0){
@@ -1635,20 +1627,17 @@ void hide_all_windows(){
 			show_window (minimap_win );
 		}
 		if (were_open & 1<<9){
-			show_window (notepad_win);
+			show_window (tab_info_win);
 		}
-		if (were_open & 1<<10){
-			show_window (url_win );
-		}
-		if (view_only_storage && (were_open & 1<<11)){
+		if (view_only_storage && (were_open & 1<<10)){
 			show_window (storage_win );
 		}
 #ifdef EMOTES
-		if (were_open & 1<<12){
+		if (were_open & 1<<11){
 			show_window (emotes_win);
 		}
 #endif
-		if (were_open & 1<<13){
+		if (were_open & 1<<12){
 			show_window (questlog_win);
 		}
 	}
@@ -2036,7 +2025,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	}
 	else if (key == K_NOTEPAD)
 	{
-		view_window (&notepad_win, 0);
+		view_tab(&tab_info_win, &tab_info_collection_id, INFO_TAB_NOTEPAD);
 	}
 	else if(key == K_MINIMAP)
 	{
@@ -2184,7 +2173,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	}
 	else if (key == K_BROWSERWIN)
 	{
-		display_url_win();
+		view_tab(&tab_info_win, &tab_info_collection_id, INFO_TAB_URLWIN);
 	}
 	else if (keysym == SDLK_ESCAPE)
 	{

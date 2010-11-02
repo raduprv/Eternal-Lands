@@ -5,12 +5,13 @@
 #include "gamewin.h"
 #include "help.h"
 #include "knowledge.h"
-#include "questlog.h"
 #include "rules.h"
 #include "session.h"
 #include "skills.h"
 #include "translate.h"
 #include "counters.h"
+#include "url.h"
+#include "notepad.h"
 
 int tab_stats_win = -1;
 int tab_stats_collection_id = 16;
@@ -25,6 +26,13 @@ int tab_help_x = 150;
 int tab_help_y = 70;
 Uint16 tab_help_len_x = HELP_TAB_WIDTH + 2*TAB_MARGIN;
 Uint16 tab_help_len_y = HELP_TAB_HEIGHT + TAB_TAG_HEIGHT + 2*TAB_MARGIN;
+
+int tab_info_win = -1;
+int tab_info_collection_id = 18;
+int tab_info_x = 150;
+int tab_info_y = 70;
+Uint16 tab_info_len_x = INFO_TAB_WIDTH + 2*TAB_MARGIN;
+Uint16 tab_info_len_y = INFO_TAB_HEIGHT + TAB_TAG_HEIGHT + 2*TAB_MARGIN;
 
 int display_tab_stats_handler () 
 {
@@ -99,5 +107,36 @@ void display_tab_help ()
 	{
 		show_window (tab_help_win);
 		select_window (tab_help_win);
+	}
+}
+
+
+int display_tab_info_handler () 
+{
+	return 1;
+}
+
+void display_tab_info ()
+{
+	if (tab_info_win < 0)
+	{
+		tab_info_win = create_window (tt_info, -1, 0, tab_info_x, tab_info_y, tab_info_len_x, tab_info_len_y, ELW_WIN_DEFAULT);
+
+		set_window_handler (tab_info_win, ELW_HANDLER_DISPLAY, &display_tab_info_handler);
+		
+		tab_info_collection_id = tab_collection_add_extended (tab_info_win, tab_info_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, INFO_TAB_WIDTH, INFO_TAB_HEIGHT+TAB_TAG_HEIGHT, 0, 0.7, 0.77f, 0.57f, 0.39f, 3, TAB_TAG_HEIGHT);
+
+		notepad_win = tab_add(tab_info_win, tab_info_collection_id, win_notepad, 0, 0, 0);
+		fill_notpad_window();
+
+		url_win = tab_add(tab_info_win, tab_info_collection_id, win_url_str, 0, 0, 0);
+		fill_url_window();
+
+		tab_collection_select_tab (tab_info_win, tab_info_collection_id, 0);
+	}
+	else
+	{
+		show_window (tab_info_win);
+		select_window (tab_info_win);
 	}
 }

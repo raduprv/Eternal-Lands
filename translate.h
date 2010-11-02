@@ -200,9 +200,8 @@ extern char 	tt_walk[30],
 		tt_options[30],
 		tt_help[30],
 		tt_customize[60],
-		tt_name[60];
-extern char	tt_notepad[30];
-extern char	tt_urlwin[30];
+		tt_name[60],
+		tt_info[30];
 #ifdef EMOTES
 extern char	tt_emotewin[30];
 #endif
@@ -281,6 +280,7 @@ extern char
 		unmarked_str[30],
 		urlcmd_none_str[30],
 		urlcmd_list_str[30],
+		win_url_str[30],
 		urlcmd_invalid_str[30],
 		urlcmd_afk_str[30],
 		urlcmd_clear_str[30],

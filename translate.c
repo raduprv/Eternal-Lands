@@ -40,9 +40,8 @@ char	tt_walk[30],
 	tt_options[30],
 	tt_help[30],
 	tt_customize[60],
-	tt_name[60];
-char	tt_notepad[30];
-char	tt_urlwin[30];
+	tt_name[60],
+	tt_info[30];
 #ifdef EMOTES
 char	tt_emotewin[30];
 #endif
@@ -146,6 +145,7 @@ char
 	unmarked_str[30],
 	urlcmd_none_str[30],
 	urlcmd_list_str[30],
+	win_url_str[30],
 	urlcmd_invalid_str[30],
 	urlcmd_afk_str[30],
 	urlcmd_clear_str[30],
@@ -1238,6 +1238,7 @@ void init_help()
 	add_xml_identifier(misc,"unmarked",unmarked_str,"%s unmarked",sizeof(unmarked_str));
 	add_xml_identifier(misc,"no_urls",urlcmd_none_str,"No URL seen",sizeof(urlcmd_none_str));
 	add_xml_identifier(misc,"url_list",urlcmd_list_str,"URL list:",sizeof(urlcmd_list_str));
+	add_xml_identifier(misc,"win_url",win_url_str,"URL list",sizeof(win_url_str));
 	add_xml_identifier(misc,"invalid_url",urlcmd_invalid_str,"Invalid URL number",sizeof(urlcmd_invalid_str));
 	add_xml_identifier(misc,"afk_url",urlcmd_afk_str,"URL seen while AFK:",sizeof(urlcmd_afk_str));
 	add_xml_identifier(misc,"clear_url",urlcmd_clear_str,"clear",sizeof(urlcmd_clear_str));
@@ -1322,8 +1323,7 @@ void init_help()
 	add_xml_identifier(tooltips,"help",tt_help,"View help",sizeof(tt_help));
 	add_xml_identifier(tooltips,"customize",tt_customize,"Customize your character",sizeof(tt_customize));
 	add_xml_identifier(tooltips,"name_pass",tt_name,"Choose name and password",sizeof(tt_name));
-	add_xml_identifier (tooltips, "notepad", tt_notepad, "Open your notepad", sizeof (tt_notepad));
-	add_xml_identifier (tooltips, "urlwin", tt_urlwin, "View URL window", sizeof (tt_urlwin));
+	add_xml_identifier (tooltips, "info", tt_info, "View notepad/URL window", sizeof (tt_info));
 #ifdef EMOTES
 	add_xml_identifier (tooltips, "emotewin", tt_emotewin, "View Emote window", sizeof (tt_emotewin));
 #endif

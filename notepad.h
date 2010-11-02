@@ -84,13 +84,13 @@ void display_popup_win (INPUT_POPUP *ipu, const char* label);
 
 /*!
  * \ingroup notepad_window
- * \brief   Displays the in-game notepad window.
+ * \brief   Displays the in-game notepad.
  *
- *      Displays the in-game notepad window. The window will be created if it was not used before.
+ *      Displays the in-game notepad within the tabbed window.
  *
  * \callgraph
  */
-void display_notepad();
+void fill_notpad_window(void);
 
 /*!
  * \ingroup notepad_window

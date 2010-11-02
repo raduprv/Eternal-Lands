@@ -16,6 +16,8 @@ extern "C" {
 #define STATS_TAB_HEIGHT 350 /*!< height of the statistics tab windows */
 #define HELP_TAB_WIDTH   500 /*!< width of the help tabbed windows */
 #define HELP_TAB_HEIGHT  350 /*!< height of the help tabbed windows */
+#define INFO_TAB_WIDTH   580 /*!< width of the info tabbed windows */
+#define INFO_TAB_HEIGHT  350 /*!< height of the info tabbed windows */
 #define TAB_TAG_HEIGHT   25  /*!< the height of the tab at the top of the window */
 #define TAB_MARGIN       5   /*!< margin used for the tabbed window */
 #define DEFAULT_TAB_RADIUS 8 /*!< the radius used for rounded tabs*/
@@ -25,6 +27,7 @@ extern "C" {
  * @{ */
 enum { HELP_TAB_HELP = 0, HELP_TAB_SKILLS, HELP_TAB_ENCYCLOPEDIA, HELP_TAB_RULES };
 enum { STATS_TAB_STATS = 0, STATS_TAB_KNOWLEDGE, STATS_TAB_COUNTERS, STATS_TAB_SESSION };
+enum { INFO_TAB_NOTEPAD, INFO_TAB_URLWIN };
 /* @} */
 
 /*! \name windows handlers 
@@ -47,6 +50,16 @@ extern int tab_help_y;
 
 extern int tab_help_collection_id; /*!< pointer to the \see tab_collection for help windows */
 
+/*! \name windows handlers 
+ * @{ */
+extern int tab_info_win; /*!< handler for the info tabbed window */
+/* @} */
+
+extern int tab_info_x;
+extern int tab_info_y;
+
+extern int tab_info_collection_id; /*!< pointer to the \see tab_collection for info windows */
+
 /*!
  * \ingroup tabs
  * \brief Displays the tabbed stats window.
@@ -66,6 +79,17 @@ void display_tab_stats ();
  * \callgraph
  */
 void display_tab_help ();
+
+
+/*!
+ * \ingroup tabs
+ * \brief Displays the tabbed info window.
+ *
+ *      Displays the tabbed info window.
+ *
+ * \callgraph
+ */
+void display_tab_info ();
 
 #ifdef __cplusplus
 } // extern "C"

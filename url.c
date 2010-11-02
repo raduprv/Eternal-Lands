@@ -30,6 +30,7 @@
 #include "interface.h"
 #include "list.h"
 #include "load_gl_extensions.h"
+#include "tabs.h"
 #include "text.h"
 #include "translate.h"
 #include "url.h"
@@ -46,7 +47,6 @@ int url_win_y = 50;
 int url_win = -1;
 
 static const Uint32 url_win_sep = 5;
-static const Uint32 url_win_max_string_width = 500;
 static const float url_win_text_zoom = 1.0;
 static const int max_url_count = 100;
 
@@ -54,6 +54,7 @@ static int url_scroll_id = 0;
 static int url_win_top_line = 0;
 static int url_win_x_len = 0;
 static int url_win_y_len = 0;
+static Uint32 url_win_max_string_width = 0;
 static int url_win_help_x = 0;
 static int url_win_text_len_y = 0;
 static int url_win_text_start_y = 0;
@@ -654,6 +655,14 @@ static void open_current_url(list_node_t *chosen_url)
 }
 
 #ifdef CONTEXT_MENUS
+/* called just before a context menu is displayed */
+static void context_url_pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win)
+{
+	// propagate opacity from parent tab window
+	if (cm_win!= NULL && tab_info_win >-1 && tab_info_win<windows_list.num_windows)
+		cm_win->opaque = windows_list.window[tab_info_win].opaque;
+}
+
 /* called when a context menu option is selected */
 static int context_url_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
@@ -708,7 +717,10 @@ static int click_url_handler(window_info *win, int mx, int my, Uint32 flags)
 			cm_url = url_win_hover_url;
 			/* create first time needed */
 			if (!cm_valid(cm_id))
+			{
 				cm_id = cm_create(cm_url_menu_str, context_url_handler);
+				cm_set_pre_show_handler(cm_id, context_url_pre_show_handler);
+			}
 			cm_show_direct(cm_id, -1, -1);
 		}
 #endif	
@@ -758,52 +770,44 @@ static int url_win_scroll_drag(widget_list *widget, int mx, int my, Uint32 flags
 	return url_win_scroll_click(widget, mx, my, flags);
 }
 
-/* create or close the url catcher window */
-int display_url_win()
+
+/* fill the URL window created as a tab. */
+void fill_url_window(void)
 {
-	if(url_win < 0)
-	{
-		const Uint32 scroll_width = 20;
-		const Uint32 cross_height = 20;
-		int clear_all_button = 101;
-		int our_root_win = (windows_on_top) ?-1 :game_root_win;
-		widget_list *widget;
+	const Uint32 scroll_width = 20;
+	const Uint32 cross_height = 20;
+	int clear_all_button = 101;
+	widget_list *widget;
 
-		/* create the main window */
-		url_win_x_len = url_win_max_string_width + 2*url_win_sep + scroll_width;
-		url_win_y_len = url_win_x_len/1.6;
-		url_win = create_window(urlcmd_list_str, our_root_win, 0, 
-			url_win_x, url_win_y, url_win_x_len, url_win_y_len, ELW_WIN_DEFAULT);
-		set_window_handler(url_win, ELW_HANDLER_DISPLAY, &display_url_handler );
-		set_window_handler(url_win, ELW_HANDLER_CLICK, &click_url_handler );
+	/* create the main window */
+	url_win_x_len = INFO_TAB_WIDTH;
+	url_win_y_len = INFO_TAB_HEIGHT;
+	url_win_max_string_width = url_win_x_len - (2*url_win_sep + scroll_width);
+	set_window_handler(url_win, ELW_HANDLER_DISPLAY, &display_url_handler );
+	set_window_handler(url_win, ELW_HANDLER_CLICK, &click_url_handler );
 
-		/* create the clear all button */
-		clear_all_button = button_add_extended (url_win, clear_all_button, NULL,
-			url_win_sep, url_win_sep, 0, 0, 0, 0.75, 0.77f, 0.57f, 0.39f, "CLEAR ALL ");
-		widget_set_OnClick(url_win, clear_all_button, url_win_click_clear_all);
-		widget = widget_find(url_win, clear_all_button);
-		widget_set_OnMouseover(url_win, clear_all_button, url_win_mouseover_clear_all);
-		
-		/* calc text and help postions from size of other stuff */
-		url_win_text_start_y = 2*url_win_sep + ((widget->len_y > cross_height) ?widget->len_y :cross_height);
-		url_win_line_step = (int)(3 + DEFAULT_FONT_Y_LEN * url_win_text_zoom);
-		url_win_text_len_y = 12 * url_win_line_step;
-		url_win_full_url_y_len = url_win_sep + 3 * SMALL_FONT_Y_LEN;
-		url_win_y_len = url_win_text_start_y + url_win_text_len_y + url_win_sep + url_win_full_url_y_len;
-		url_win_help_x = widget->len_x + 2 * url_win_sep;
-		url_win_url_y_start = url_win_y_len - url_win_full_url_y_len - url_win_sep/2;
-		resize_window (url_win, url_win_x_len, url_win_y_len);
-		
-		/* create the scroll bar */
-		url_scroll_id = vscrollbar_add_extended(url_win, url_scroll_id, NULL, 
-			url_win_x_len - scroll_width, url_win_text_start_y, scroll_width,
-			url_win_text_len_y, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, have_url_count);
-		widget_set_OnDrag(url_win, url_scroll_id, url_win_scroll_drag);
-		widget_set_OnClick(url_win, url_scroll_id, url_win_scroll_click);
-	}
-	else
-		toggle_window(url_win);
+	/* create the clear all button */
+	clear_all_button = button_add_extended (url_win, clear_all_button, NULL,
+		url_win_sep, url_win_sep, 0, 0, 0, 0.75, 0.77f, 0.57f, 0.39f, "CLEAR ALL ");
+	widget_set_OnClick(url_win, clear_all_button, url_win_click_clear_all);
+	widget = widget_find(url_win, clear_all_button);
+	widget_set_OnMouseover(url_win, clear_all_button, url_win_mouseover_clear_all);
 	
-	return 1;
+	/* calc text and help postions from size of other stuff */
+	url_win_text_start_y = 2*url_win_sep + ((widget->len_y > cross_height) ?widget->len_y :cross_height);
+	url_win_line_step = (int)(3 + DEFAULT_FONT_Y_LEN * url_win_text_zoom);
+	url_win_text_len_y = 12 * url_win_line_step;
+	url_win_full_url_y_len = url_win_sep + 3 * SMALL_FONT_Y_LEN;
+	url_win_y_len = url_win_text_start_y + url_win_text_len_y + url_win_sep + url_win_full_url_y_len;
+	url_win_help_x = widget->len_x + 2 * url_win_sep;
+	url_win_url_y_start = url_win_y_len - url_win_full_url_y_len - url_win_sep/2;
+	resize_window (url_win, url_win_x_len, url_win_y_len);
 	
-} /* end display_url_win() */
+	/* create the scroll bar */
+	url_scroll_id = vscrollbar_add_extended(url_win, url_scroll_id, NULL, 
+		url_win_x_len - scroll_width, url_win_text_start_y, scroll_width,
+		url_win_text_len_y, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, have_url_count);
+	widget_set_OnDrag(url_win, url_scroll_id, url_win_scroll_drag);
+	widget_set_OnClick(url_win, url_scroll_id, url_win_scroll_click);
+}
+
