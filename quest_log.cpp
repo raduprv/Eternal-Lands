@@ -1541,7 +1541,7 @@ extern "C" void display_questlog()
 		if (!windows_on_top) {
 			our_root_win = game_root_win;
 		}
-		questlog_win = create_window(tab_questlog,our_root_win, 0, 150, 70, qlwinwidth, qlwinheight, ELW_WIN_DEFAULT);
+		questlog_win = create_window(tab_questlog,our_root_win, 0, questlog_menu_x, questlog_menu_y, qlwinwidth, qlwinheight, ELW_WIN_DEFAULT);
 		fill_questlog_win ();
 	}
 	else
@@ -1597,7 +1597,6 @@ extern "C" void set_quest_finished(Uint16 id)
 extern "C"
 {
 	int questlog_win=-1;
-	// not used - remove (from init.c too) if we keep this code
-	int questlog_menu_x=-1;
-	int questlog_menu_y=-1;
+	int questlog_menu_x=150;
+	int questlog_menu_y=70;
 }
