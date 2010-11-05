@@ -49,6 +49,7 @@ void load_recipes (){
 		return;
 	}
 
+	recipes_loaded=1;
 	memset (recipes, 0, sizeof (recipes));
 
 	safe_snprintf(fname, sizeof(fname), "recipes_%s.dat",username_str);
@@ -62,12 +63,14 @@ void load_recipes (){
 	if (fread (recipes,sizeof(recipes),1, fp) != 1)
 		LOG_ERROR("%s() read failed for file [%s]\n", __FUNCTION__, fname);
 	fclose (fp);
-	recipes_loaded=1;
 }
 
 void save_recipes(){
 	char fname[128];
 	FILE *fp;
+
+	if (!recipes_loaded)
+		return;
 
 	safe_snprintf(fname, sizeof(fname), "recipes_%s.dat",username_str);
 	my_tolower(fname);
