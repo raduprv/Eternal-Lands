@@ -449,7 +449,7 @@ void calc_virt_win_len(rule_string * rules_ptr, int win_heigth, float text_size)
 		switch(rules_ptr[i].type)
 		{
 			case TITLE:
-				zoom=text_size*1.5f;
+				zoom=text_size;//*1.5f;
 				ydiff=30*zoom;
 				break;
 			case RULE:
