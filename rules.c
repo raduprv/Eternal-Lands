@@ -534,7 +534,7 @@ int draw_rules(rule_string * rules_ptr, int x_in, int y_in, int lenx, int leny, 
 				return i;
 			case TITLE:
 				glColor3f(rgb[0][0],rgb[0][1],rgb[0][2]);
-				zoom=text_size*1.5f;
+				zoom=text_size;//*1.5f;
 				ydiff=30*zoom;
 				xdiff=0;
 				x=x_in+((lenx-x_in)>>1)-(strlen(rules_ptr[i].short_str[0])>>1)*11*zoom;
