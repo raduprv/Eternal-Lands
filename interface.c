@@ -744,6 +744,16 @@ void draw_game_map (int map, int mouse_mini)
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
 		glLoadIdentity();
+
+		// Draw help for toggling the mini-map
+		{
+			char buf[80];
+			char keybuf[20];
+			glEnable(GL_TEXTURE_2D);
+			safe_snprintf(buf, sizeof(buf), "%s %s", win_minimap, get_key_string(K_MINIMAP, keybuf, sizeof(keybuf)));
+			glColor3f (1.0f, 1.0f, 0.0f);
+			draw_string_zoomed(25 - 1.5*strlen(buf), 150 + 43, (const unsigned char *)buf, 1, 0.3);
+		}
  
 		// draw a temporary mark until the text is entered
 		if (adding_mark) {
@@ -771,7 +781,7 @@ void draw_game_map (int map, int mouse_mini)
 			// display the Mark filter title
 			glColor3f(1.0f,1.0f,0.0f);
 			screen_x = 25 - 1.5*strlen(label_mark_filter);
-			screen_y = 150 + 25;
+			screen_y = 150 + 22;
 			draw_string_zoomed(screen_x, screen_y, (unsigned char*)label_mark_filter, 1, 0.3);
 			
 			// if filtering marks, display the label and the current filter text
@@ -785,14 +795,15 @@ void draw_game_map (int map, int mouse_mini)
 				else
 				  show_mark_filter_text = mark_filter_text;
 				screen_x = 25 - 1.5*strlen(show_mark_filter_text);
-				screen_y = 150 + 32;
+				screen_y = 150 + 29;
 				draw_string_zoomed(screen_x, screen_y, (unsigned char*)show_mark_filter_text, 1, 0.3);
 			}
 			// display which key to activate the filter
 			else
 			{
 				char buf[20];
-				draw_string_zoomed(25 - 1.5*strlen(buf), 150 + 32, (const unsigned char *)get_key_string(K_MARKFILTER, buf, 20), 1, 0.3);
+				get_key_string(K_MARKFILTER, buf, sizeof(buf));
+				draw_string_zoomed(25 - 1.5*strlen(buf), 150 + 29, (const unsigned char *)buf, 1, 0.3);
 			}
 	
 			// crave the markings
@@ -834,10 +845,10 @@ void draw_game_map (int map, int mouse_mini)
 				safe_snprintf(buf, sizeof(buf), "%d,%d", map_x, map_y);
 				glColor3f(1.0f,1.0f,0.0f);
 				screen_x = 25 - 1.5*strlen(buf);
-				screen_y = 150 + 11;
+				screen_y = 150 + 8;
 				draw_string_zoomed(screen_x, screen_y, (unsigned char*)buf, 1, 0.3);
 				screen_x = 25 - 1.5*strlen(label_cursor_coords);
-				screen_y = 150 + 4;
+				screen_y = 150 + 1;
 				draw_string_zoomed(screen_x, screen_y, (unsigned char*)label_cursor_coords, 1, 0.3);
 			}
 		}

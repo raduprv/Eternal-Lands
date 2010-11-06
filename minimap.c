@@ -781,9 +781,7 @@ int click_minimap_handler(window_info * win, int mx, int my, Uint32 flags){
 		}
 		return 1;
 	}
-	if(!flags & ELW_LEFT_MOUSE){
-		return 0;
-	} else if (my >= 0 && my < win->len_y && mx >= 0 && mx < win->len_x-ELW_BOX_SIZE) {
+	if (my >= 0 && my < win->len_y && mx >= 0 && mx < win->len_x-ELW_BOX_SIZE) {
 		return minimap_walkto(mx, win->len_y - my);
 	} else if(mx < win->len_x-ELW_BOX_SIZE || mx > win->len_x){
 		return 0;
@@ -1051,7 +1049,7 @@ void display_minimap()
 	if(minimap_win < 0)
 	{
 		//init minimap
-		minimap_win = create_window("Minimap", windows_on_top?-1:game_root_win, 0, minimap_win_x, minimap_win_y, 256+ELW_BOX_SIZE, 256+1, ELW_WIN_DEFAULT);
+		minimap_win = create_window(win_minimap, windows_on_top?-1:game_root_win, 0, minimap_win_x, minimap_win_y, 256+ELW_BOX_SIZE, 256+1, ELW_WIN_DEFAULT);
 		set_window_handler(minimap_win, ELW_HANDLER_DISPLAY, &display_minimap_handler);	
 		set_window_handler(minimap_win, ELW_HANDLER_CLICK, &click_minimap_handler);	
 		set_window_handler(minimap_win, ELW_HANDLER_MOUSEOVER, &mouseover_minimap_handler);	
@@ -1820,7 +1818,7 @@ void display_minimap()
 	if(minimap_win < 0)
 	{
 		//init minimap
-		minimap_win = create_window("Minimap", windows_on_top?-1:game_root_win, 0, minimap_win_x, minimap_win_y, 
+		minimap_win = create_window(win_minimap, windows_on_top?-1:game_root_win, 0, minimap_win_x, minimap_win_y, 
 			minimap_size, minimap_size+ELW_TITLE_HEIGHT, ELW_CLICK_TRANSPARENT|ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE|ELW_DRAGGABLE);
 		set_window_handler(minimap_win, ELW_HANDLER_DISPLAY, &display_minimap_handler);	
 		set_window_handler(minimap_win, ELW_HANDLER_CLICK, &click_minimap_handler);	
