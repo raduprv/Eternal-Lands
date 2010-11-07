@@ -18,6 +18,7 @@ extern "C" {
 /*! @{ */
 extern int namepass_win;/*! The name & password window*/
 extern int color_race_win;/*! The color and race window*/
+extern int newchar_advice_win;/*! The char creaion warning warning window*/
 extern int newchar_root_win; /*!< window handler for the character creation interface root window. */
 /*! @} */
 

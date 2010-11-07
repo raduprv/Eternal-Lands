@@ -664,6 +664,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					destroy_window (newchar_root_win);
 					hide_window( namepass_win );
 					hide_window( color_race_win );
+					hide_window( newchar_advice_win );
 				}
 				newchar_root_win = -1;
 				show_window (game_root_win);

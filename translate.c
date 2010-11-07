@@ -40,6 +40,10 @@ char	tt_walk[30],
 	tt_options[30],
 	tt_help[30],
 	tt_customize[60],
+	newchar_warning[50],
+	newchar_cust_help[100],
+	newchar_cred_help[100],
+	newchar_done_help[100],
 	tt_name[60],
 	tt_info[30];
 #ifdef EMOTES
@@ -1287,6 +1291,10 @@ void init_help()
 	add_xml_identifier(new,"p2p_race",p2p_race,"You have to pay to create a char with this race",sizeof(p2p_race));
 	add_xml_identifier(new,"char_help",char_help,"To customize your character and select name/password, press the buttons at the bottom.",sizeof(char_help));
 	add_xml_identifier(new,"confirmcreate",error_confirm_create_char,"Click done again to create a character with that name and appearance.",sizeof(error_confirm_create_char));
+	add_xml_identifier(new,"newcharwarning",newchar_warning,"Character creation screen",sizeof(newchar_warning));
+	add_xml_identifier(new,"newcharcusthelp",newchar_cust_help,"Click the eye icon below to customize your character.",sizeof(newchar_cust_help)); // it pains me to spell customize with a z:(
+	add_xml_identifier(new,"newcharcredhelp",newchar_cred_help,"Click the person icon below to choose your character name and password.",sizeof(newchar_cred_help));
+	add_xml_identifier(new,"newchardonehelp",newchar_done_help,"When ready, click \"Done\" to create your character and enter the game.",sizeof(newchar_done_help));
 	add_xml_identifier(new,"wrongpass",invalid_pass,"Invalid password!",sizeof(invalid_pass));
 	add_xml_identifier(new,"showpass",show_password,"Show password",sizeof(show_password));
 	add_xml_identifier(new,"hidepass",hide_password,"Hide password",sizeof(hide_password));

@@ -231,6 +231,71 @@ void change_actor ()
 int newchar_root_win = -1;
 int color_race_win = -1;
 int namepass_win = -1;
+int newchar_advice_win = -1;
+static int start_y = 50;
+
+//	Display the "Character creation screen" and creation step help window.
+//
+int display_advice_handler (window_info *win)
+{
+	static int lastw = -1, lasth = -1;
+	static Uint32 last_time = 0;
+	static int flash = 0;
+	static char *last_help = NULL;
+	static char *help_str = NULL;
+	int sep = 5;
+
+	// Resize and move the window on first use and if window size changed.
+	// Place centred, just down from the top of the screen.
+	if ((lastw!=window_width) || (lasth!=window_height))
+	{
+		int len_x = (int)(2*sep + strlen(newchar_warning) * DEFAULT_FONT_X_LEN);
+		int len_y = (int)(2*sep + DEFAULT_FONT_Y_LEN);
+		int pos_x = (int)((window_width - len_x - HUD_MARGIN_X) / 2);
+		resize_window(win->window_id, len_x, len_y);
+		move_window(win->window_id, win->pos_id, win->pos_loc, pos_x, sep);
+		start_y = sep*6 + len_y;
+		lastw = window_width;
+		lasth = window_height;
+	}
+
+	// Draw the waning text.
+	glEnable(GL_TEXTURE_2D);
+	glColor3f(1.0f,1.0f,1.0f);
+	draw_string(sep, sep, (const unsigned char *)newchar_warning, 1);
+
+	// Give eye icon help, then credentials icon help then "done" help.
+	if (color_race_win < 0)
+		help_str = newchar_cust_help;
+	else if (!get_show_window(namepass_win))
+		help_str = newchar_cred_help;
+	else
+		help_str = newchar_done_help;
+
+	// Remember the last help string so we can flash when it changes
+	if (help_str != last_help)
+	{
+		flash = 32;
+		last_help = help_str;
+	}
+
+	// Time flashing, flash for a few seconds then remain on.
+	if (flash && abs(SDL_GetTicks()-last_time) > 250)
+	{
+		flash--;
+		last_time = SDL_GetTicks();
+	}
+
+	// Either always on or 1 in 4 off.
+	if (!flash || (flash & 3))
+		show_help(help_str, (int)((win->len_x - strlen(help_str) * SMALL_FONT_X_LEN)/2), window_height - HUD_MARGIN_Y - sep - DEFAULT_FONT_Y_LEN);
+
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
+	return 1;
+}
+
 
 int display_newchar_handler (window_info *win)
 {
@@ -585,9 +650,13 @@ void create_newchar_root_window ()
 		set_window_handler (newchar_root_win, ELW_HANDLER_AFTER_SHOW, &update_have_display);
 		set_window_handler (newchar_root_win, ELW_HANDLER_HIDE, &update_have_display);
 
+		newchar_advice_win = create_window ("Advice", newchar_root_win, 0, 100, 10, 200, 100, ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_ALPHA_BORDER);
+		set_window_handler (newchar_advice_win, ELW_HANDLER_DISPLAY, &display_advice_handler);
+
 		LOG_TO_CONSOLE(c_green1, char_help);
 	} else {
 		show_window(newchar_root_win);
+		show_window(newchar_advice_win);
 	}
 }
 
@@ -710,9 +779,11 @@ int display_namepass_handler (window_info * win)
 	draw_smooth_button(char_done, DEFAULT_SMALL_RATIO, 20, 170+textboxy, 60, 1, 0.77f, 0.57f ,0.39f, are_you_sure, 0.32f, 0.23f, 0.15f, 0.5f);
 	draw_smooth_button(char_back, DEFAULT_SMALL_RATIO, 160, 170+textboxy, 60, 1, 0.77f, 0.57f ,0.39f, 0, 0.32f, 0.23f, 0.15f, 0.5f);
 
-	if(display_time>cur_time){
+	//why remove the massage after a time delay, I may have missed it
+	//debate and remove the code if really not wanted - pjbroad/bluap
+	//if(display_time>cur_time){
 		draw_string_small(30, 168, (unsigned char*)create_char_error_str, 8);
-	}
+	//}
 	
 	return 1;
 }
@@ -823,7 +894,7 @@ void show_account_win ()
 {
 	if (namepass_win < 0){
 	        // Create the window
-	        namepass_win = create_window (win_name_pass, newchar_root_win, 0, 10, 50, 270, 200+textboxy, ELW_WIN_DEFAULT);
+	        namepass_win = create_window (win_name_pass, newchar_root_win, 0, 10, start_y, 270, 200+textboxy, ELW_WIN_DEFAULT);
 	        set_window_handler (namepass_win, ELW_HANDLER_DISPLAY, &display_namepass_handler);
 	        set_window_handler (namepass_win, ELW_HANDLER_KEYPRESS, &keypress_namepass_handler);
 	        set_window_handler (namepass_win, ELW_HANDLER_CLICK, &click_namepass_handler);
@@ -1214,7 +1285,7 @@ int click_color_race_handler (window_info *win, int mx, int my, Uint32 flags)
 void show_color_race_win()
 {
 	if(color_race_win < 0){
-		color_race_win = create_window (win_design, newchar_root_win, 0, 300, 50, 420, 170, ELW_WIN_DEFAULT|ELW_CLICK_TRANSPARENT);
+		color_race_win = create_window (win_design, newchar_root_win, 0, 300, start_y, 420, 170, ELW_WIN_DEFAULT|ELW_CLICK_TRANSPARENT);
 		set_window_handler (color_race_win, ELW_HANDLER_DISPLAY, &display_color_race_handler);
 		set_window_handler (color_race_win, ELW_HANDLER_MOUSEOVER, &mouseover_color_race_handler);
 		set_window_handler (color_race_win, ELW_HANDLER_CLICK, &click_color_race_handler);

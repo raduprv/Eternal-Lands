@@ -200,6 +200,10 @@ extern char 	tt_walk[30],
 		tt_options[30],
 		tt_help[30],
 		tt_customize[60],
+		newchar_warning[50],
+		newchar_cust_help[100],
+		newchar_cred_help[100],
+		newchar_done_help[100],
 		tt_name[60],
 		tt_info[30];
 #ifdef EMOTES
