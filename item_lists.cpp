@@ -44,25 +44,7 @@
 #include "sound.h"
 #endif
 #include "storage.h"
-
-// TODO Move these strings to translate module
-const char *item_list_format_error = "Format error while reading item list.";
-const char *item_list_save_error_str = "Failed to save the item category file.";
-const char *item_list_learn_cat_str = "Note: storage categories need to be learnt by selecting each category.";
-const char *item_list_cat_format_error_str = "Format error reading item categories.";
-const char *item_list_version_error_str = "Item lists file is not compatible with client version.";
-const char *item_list_empty_list_str = "No point saving an empty list.";
-const char *cm_item_list_menu_str = "Save a new list\nDisable list preview\n--\nDelete a list\n--\nReload item lists file";
-const char *cm_item_list_empty_str = "Empty";
-const char *cm_item_list_selected_str = "Edit quantity\n--\nDelete";
-const char *item_list_name_str = "Enter list name";
-const char *item_list_preview_title = "List preview";
-const char *item_list_use_help_str = "Use quantity - right-click";
-const char *item_list_pickup_help_str = "Pick up - left-click";
-const char *item_list_edit_help_str = "Edit menu - ctrl+right-click";
-const char *item_list_add_help_str = "Add to list - ctrl+left-click";
-const char *item_list_quantity_str = "Quantity";
-const char *item_list_magic_str = "Magical interference caused the list preview to close O.O";
+#include "translate.h"
 
 
 // proto types

@@ -256,6 +256,9 @@ extern char
 		no_spell_to_show_str[40],
 		invalid_spell_string_str[40],
 		command_too_long_str[40],
+#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+		item_list_learn_cat_str[90],
+#endif
 		cmd_ignores[20],
 		cmd_ignore[20],
 		cmd_unignore[20],
@@ -472,6 +475,17 @@ extern char
 #endif
 		questlog_deleted_str[20],
 #endif
+#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+		/* item lists */
+		cm_item_list_menu_str[100],
+		cm_item_list_empty_str[15],
+		cm_item_list_selected_str[40],
+		item_list_use_help_str[40],
+		item_list_pickup_help_str[40],
+		item_list_edit_help_str[40],
+		item_list_add_help_str[40],
+		item_list_magic_str[80],
+#endif
 		/* new_character.c */
 		use_appropriate_name[500];
 #endif  //DOXYGEN_SKIP_THIS
@@ -663,6 +677,14 @@ extern char	reg_error_str[15],
 		error_helmet[15],
 		error_cape[15],
 		duplicate_npc_actor[50],
+#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+		/* item lists */
+		item_list_format_error[50],
+		item_list_save_error_str[50],
+		item_list_cat_format_error_str[50],
+		item_list_version_error_str[70],
+		item_list_empty_list_str[50],
+#endif
 #endif  // ELC
 		/*particles.c*/
 		particles_filever_wrong[100],
@@ -784,6 +806,11 @@ extern char	win_notepad[20],
 		tab_counters[20],
 		tab_session[20],
 		tab_main[20],
+#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+		item_list_name_str[30],
+		item_list_preview_title[30],
+		item_list_quantity_str[20],
+#endif
 		button_okay[10],
 		button_cancel[10],
 		button_new_category[30],
