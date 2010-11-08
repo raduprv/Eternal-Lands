@@ -935,8 +935,8 @@ static int display_questlist_handler(window_info *win)
 		// display the title, truncating if its too long for the window width
 		if (thequest->get_title().size() > disp_chars)
 		{
-			const char* title = thequest->get_title().substr(0,disp_chars).c_str();
-			draw_string_small(2*questlist.get_spacer(), posy, (const unsigned char*)title, 1);
+			std::string todisp = thequest->get_title().substr(0,disp_chars);
+			draw_string_small(2*questlist.get_spacer(), posy, (const unsigned char*)todisp.c_str(), 1);
 		}
 		else
 			draw_string_small(2*questlist.get_spacer(), posy, (const unsigned char*)thequest->get_title().c_str(), 1);
