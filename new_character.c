@@ -275,7 +275,7 @@ int display_advice_handler (window_info *win)
 	// Remember the last help string so we can flash when it changes
 	if (help_str != last_help)
 	{
-		flash = 32;
+		flash = 16;
 		last_help = help_str;
 	}
 
