@@ -51,6 +51,7 @@
  * 				mark completed / not completed?
  * 				copy highlighted title to clipboard
  * 				delete highlighted
+ * 				do not open with main window
  */
 
 
@@ -92,6 +93,22 @@ class Quest_Title_Request
 };
 
 
+//	Needed to sort quests with "Show all" first.
+//
+class QuestCompare {
+	public:
+		bool operator()(const Quest x, const Quest y)
+		{
+			if (x.get_id() == Quest::UNSET_ID)
+				return true;
+			else if (y.get_id() == Quest::UNSET_ID)
+				return false;
+			else
+				return x.get_id() < y.get_id();
+		}
+};
+
+
 //	A list of Quests
 //
 class Quest_List
@@ -127,11 +144,11 @@ class Quest_List
 		int get_linesep(void) const { return linesep; }
 		int get_font_x(void) const { return font_x; }
 	private:
-		std::map <Uint16,Quest> quests;
+		std::map <Uint16,Quest,QuestCompare> quests;
 		std::queue <Quest_Title_Request> title_requests;
 		bool save_needed;
 		std::string list_filename;
-		std::map <Uint16,Quest>::const_iterator iter;
+		std::map <Uint16,Quest,QuestCompare>::const_iterator iter;
 		bool iter_set;
 		size_t max_title;
 		Uint16 selected_id;
@@ -173,7 +190,7 @@ Quest::Quest(const std::string & line)
 //
 void Quest_List::add(Uint16 id)
 {
-	if ((quests.count(id) > 0) || (id == Quest::UNSET_ID))
+	if ((quests.find(id) != quests.end()) || (id == Quest::UNSET_ID))
 		return;
 	quests.insert( std::make_pair( id, Quest(id)) );
 	save_needed = true;
@@ -187,7 +204,7 @@ void Quest_List::add(Uint16 id)
 //
 void Quest_List::complete(Uint16 id)
 {
-	std::map<Uint16,Quest>::iterator i = quests.find(id);
+	std::map<Uint16,Quest,QuestCompare>::iterator i = quests.find(id);
 	if (i != quests.end())
 		i->second.set_completed();
 	else
@@ -210,7 +227,7 @@ void Quest_List::set_requested_title(const char* title)
 		std::cerr << "Received title [" << title << "] but not requested" << std::endl;
 		return;
 	}
-	std::map<Uint16,Quest>::iterator i = quests.find(title_requests.front().get_id());
+	std::map<Uint16,Quest,QuestCompare>::iterator i = quests.find(title_requests.front().get_id());
 	if (i != quests.end())
 	{
 		i->second.set_title(title);
@@ -234,6 +251,11 @@ void Quest_List::load(void)
 		return;
 	}
 
+	// Add the "show all" entry
+	Quest showall(Quest::UNSET_ID);
+	showall.set_title(questlist_showall_str);
+	quests.insert( std::make_pair( Quest::UNSET_ID, showall) );
+
 	std::string username = std::string(username_str);
 	std::transform(username.begin(), username.end(), username.begin(), tolower);
 	list_filename = std::string(get_path_config()) + "quest_" + username + ".list";
@@ -249,7 +271,7 @@ void Quest_List::load(void)
 		if (new_quest.get_id() != Quest::UNSET_ID)
 		{
 			quests.insert( std::make_pair( new_quest.get_id(), new_quest) );
-			std::map<Uint16,Quest>::iterator i = quests.find(new_quest.get_id());
+			std::map<Uint16,Quest,QuestCompare>::iterator i = quests.find(new_quest.get_id());
 			if ((i != quests.end()))
 			{
 				if (i->second.get_title().empty())
@@ -282,8 +304,9 @@ void Quest_List::save(void)
 		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, file_write_error_str, list_filename.c_str());
 		return;
 	}
-	for (std::map<Uint16,Quest>::const_iterator i=quests.begin(); i!=quests.end(); ++i)
-		i->second.write(out);
+	for (std::map<Uint16,Quest,QuestCompare>::const_iterator i=quests.begin(); i!=quests.end(); ++i)
+		if (i->first != Quest::UNSET_ID)
+			i->second.write(out);
 	save_needed = false;
 }
 
@@ -292,7 +315,7 @@ void Quest_List::save(void)
 //
 void Quest_List::showall(void)
 {
-	for (std::map<Uint16,Quest>::const_iterator i=quests.begin(); i!=quests.end(); ++i)
+	for (std::map<Uint16,Quest,QuestCompare>::const_iterator i=quests.begin(); i!=quests.end(); ++i)
 		i->second.write(std::cout);
 }
 
@@ -757,7 +780,10 @@ static int display_quest_filter_handler(window_info *win)
 			draw_highlight(posx, posy, static_cast<int>(0.5+max_npc_name_x), static_cast<int>(0.5+max_npc_name_y));
 
 		// set the colour and position for the box and text
-		glColor3f(1.0f, 1.0f, 1.0f);
+		if ((active_filter != QLFLT_NPC) && (active_filter != QLFLT_NONE))
+			glColor3f(0.7f, 0.7f, 0.7f);
+		else
+			glColor3f(1.0f, 1.0f, 1.0f);
 		posx += npc_name_space;
 		posy += static_cast<int>(0.5 + (max_npc_name_y-npc_name_box_size)/2);
 
@@ -811,6 +837,8 @@ static int click_quest_filter_handler(window_info *win, int mx, int my, Uint32 f
 			add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
 #endif			
 			i->second ^= 1;
+			active_filter = QLFLT_NPC;
+			questlist.set_selected(Quest::UNSET_ID);
 			rebuild_active_entries((current_line < active_entries.size()) ?active_entries[current_line] :0);
 			break;
 		}
@@ -854,9 +882,6 @@ static int mouseover_quest_filter_handler(window_info *win, int mx, int my)
 //
 static void open_filter_window(void)
 {
-	// always close an open questlist window
-	if (get_show_window(questlist.get_win_id()))
-		hide_window(questlist.get_win_id());
 	if (quest_filter_win < 0)
 	{
 		window_info *win = &windows_list.window[questlog_win];
@@ -919,13 +944,22 @@ static int display_questlist_handler(window_info *win)
 			// if clicked, update the filter
 			if (questlist.was_clicked())
 			{
-				questlist.set_selected(thequest->get_id());
-				rebuild_active_entries(quest_entries.size()-1);
+				if (thequest->get_id() == Quest::UNSET_ID)
+				{
+					show_all_entries();
+					active_filter = QLFLT_QUEST;
+				}
+				else
+				{
+					active_filter = QLFLT_QUEST;
+					questlist.set_selected(thequest->get_id());
+					rebuild_active_entries(quest_entries.size()-1);
+				}
 			}
 			questlist.clear_mouseover();
 		}
 		// is this the selected tite?
-		if (thequest->get_id() == questlist.get_selected())
+		if ((active_filter == QLFLT_QUEST) && (thequest->get_id() == questlist.get_selected()))
 			draw_highlight(questlist.get_spacer(), posy-questlist.get_spacer(), hl_x, questlist.get_linesep(), 1);
 		// display comleted quests less prominently
 		if (thequest->get_completed())
@@ -987,15 +1021,12 @@ static int resize_questlist_handler(window_info *win, int new_width, int new_hei
 //
 void Quest_List::open_window(void)
 {
-	// always close an open NPC filter window
-	if (get_show_window(quest_filter_win))
-		hide_window(quest_filter_win);
 	if (win_id < 0)
 	{
 		window_info *win = &windows_list.window[questlog_win];
 		const int size_x = font_x*40+ELW_BOX_SIZE+4*spacer;
 		const int size_y = 5*linesep;
-		win_id = create_window(questlist_filter_title_str, questlog_win, 0, (win->len_x-size_x)/2, win->len_y+20, size_x, size_y, ELW_WIN_DEFAULT|ELW_RESIZEABLE);
+		win_id = create_window(questlist_filter_title_str, questlog_win, 0, (win->len_x-size_x)/2, static_cast<int>(win->len_y+SMALL_FONT_Y_LEN+10+ELW_TITLE_HEIGHT), size_x, size_y, ELW_WIN_DEFAULT|ELW_RESIZEABLE);
 		set_window_handler(win_id, ELW_HANDLER_DISPLAY, (int (*)())&display_questlist_handler );
 		set_window_handler(win_id, ELW_HANDLER_CLICK, (int (*)())&click_questlist_handler );
 		set_window_handler(win_id, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_questlist_handler );
@@ -1007,12 +1038,6 @@ void Quest_List::open_window(void)
 	}
 	else
 		show_window(win_id);
-	// fall back to all entries if were not using this filter previously
-	if (active_filter != QLFLT_QUEST)
-	{
-		show_all_entries();
-		active_filter = QLFLT_QUEST;
-	}
 }
 
 
@@ -1268,16 +1293,9 @@ static int cm_quest_handler(window_info *win, int widget_id, int mx, int my, int
 	{
 		case CMQL_SHOWALL: show_all_entries(); break;
 		case CMQL_QUESTFILTER: questlist.open_window(); break;
-		case CMQL_NPCFILTER:
-			if (active_filter != QLFLT_NPC)
-			{
-				show_all_entries();
-				active_filter = QLFLT_NPC;
-			}
-			open_filter_window();
-			break;
+		case CMQL_NPCFILTER: open_filter_window(); break;
 		case CMQL_NPCSHOWNONE:
-			show_all_entries();
+			questlist.set_selected(Quest::UNSET_ID);
 			active_filter = QLFLT_NPC;
 			for (std::map<std::string,int>::iterator i = filter_map.begin(); i != filter_map.end(); ++i)
 				i->second = 0;
@@ -1384,7 +1402,16 @@ static int keypress_questlog_handler(window_info *win, int mx, int my, Uint32 ke
 
 static int mouseover_questlog_handler(window_info *win, int mx, int my)
 {
-	mouse_over_questlog = true;
+	if (my>=0)
+		mouse_over_questlog = true;
+	return 0;
+}
+
+
+static int show_questlog_handler(window_info *win)
+{
+	if (!get_show_window(questlist.get_win_id()))
+		questlist.open_window();
 	return 0;
 }
 
@@ -1511,6 +1538,7 @@ extern "C" void fill_questlog_win ()
 	set_window_handler(questlog_win, ELW_HANDLER_CLICK, (int (*)())questlog_click);
 	set_window_handler(questlog_win, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_questlog_handler );
 	set_window_handler(questlog_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_questlog_handler );
+	set_window_handler(questlog_win, ELW_HANDLER_SHOW, (int (*)())&show_questlog_handler );
 
 	size_t last_entry = active_entries.size()-1;
 	quest_scroll_id = vscrollbar_add_extended (questlog_win, quest_scroll_id, NULL, qlwinwidth - 20, ELW_BOX_SIZE, 20, qlwinheight - ELW_BOX_SIZE, 0, 1.0, 0.77f, 0.57f, 0.39f, last_entry, 1, last_entry);
@@ -1546,6 +1574,8 @@ extern "C" void display_questlog()
 	}
 	else
 		show_window(questlog_win);
+	if (!get_show_window(questlist.get_win_id()))
+		questlist.open_window();
 }
 
 

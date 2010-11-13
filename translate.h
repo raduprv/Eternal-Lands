@@ -463,12 +463,13 @@ extern char
 #ifdef NEW_QUESTLOG
 		/* quest_log.cpp */
 #ifdef CONTEXT_MENUS
-		cm_questlog_menu_str[200],
+		cm_questlog_menu_str[300],
 		questlog_find_prompt_str[30],
 		questlog_add_npc_prompt_str[20],
 		questlog_add_text_prompt_str[20],
 		questlog_npc_filter_title_str[20],
 		questlist_filter_title_str[20],
+		questlist_showall_str[20],
 		questlog_cm_help_str[50],
 		questlog_deldupe_start_str[50],
 		questlog_deldupe_end_str[75],
