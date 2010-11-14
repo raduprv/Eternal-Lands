@@ -312,7 +312,7 @@ void display_server_popup_win(const char * const message)
 		char *sep_str = "\n\n";
 
 		/* resize to hold new message text + separator */
-		resize_text_message_data (&widget_text, widget_text.size + 2*(strlen(message)+strlen(sep_str)));
+		resize_text_message_data (&widget_text, widget_text.len + 2*(strlen(message)+strlen(sep_str)));
 
 		/* copy the message text into the text buffer */
 		safe_strcat (widget_text.data, sep_str, widget_text.size);
