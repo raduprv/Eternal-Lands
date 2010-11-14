@@ -6,7 +6,7 @@
 #include "asc.h"
 #include "buddy.h"
 #include "colors.h"
-#if defined(CONTEXT_MENUS) && defined(MINIMAP2)
+#ifdef MINIMAP2
 #include "context_menu.h"
 #endif
 #include "cursors.h"
@@ -1794,14 +1794,12 @@ int mouseover_minimap_handler(window_info * win, int mx, int my, Uint32 flags)
 		return 0;
 }
 
-#ifdef CONTEXT_MENUS
 static int cm_minimap_title_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
 	if (cm_title_handler(win, widget_id, mx, my, option))
 		return 1;
 	return 1;
 }
-#endif
 
 void display_minimap()
 {
@@ -1828,7 +1826,6 @@ void display_minimap()
 		win->owner_drawn_title_bar = 1;
 		change_minimap();
 		
-#ifdef CONTEXT_MENUS
 		if (!cm_valid(win->cm_id))
 		{
 			win->cm_id = cm_create(cm_title_menu_str, cm_minimap_title_handler);
@@ -1839,7 +1836,6 @@ void display_minimap()
 		cm_add_region(win->cm_id, minimap_win, win->len_x/2-32, 0, 64, ELW_TITLE_HEIGHT );
 		cm_bool_line(win->cm_id, ELW_CM_MENU_LEN+1, &rotate_minimap, "rotate_minimap");
 		cm_bool_line(win->cm_id, ELW_CM_MENU_LEN+2, &pin_minimap, "pin_minimap");
-#endif		
 	} else {
 		show_window(minimap_win);
 		select_window(minimap_win);

@@ -2,9 +2,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include "counters.h"
-#ifdef CONTEXT_MENUS
 #include "context_menu.h"
-#endif
 #include "asc.h"
 #include "elwindows.h"
 #include "errors.h"
@@ -120,13 +118,11 @@ int display_counters_handler(window_info *win);
 int click_counters_handler(window_info *win, int mx, int my, Uint32 extra);
 int mouseover_counters_handler(window_info *win, int mx, int my);
 
-#ifdef CONTEXT_MENUS
 static size_t cm_counters = CM_INIT_VALUE;
 static int cm_selected_entry = -1;
 static int cm_selected_id = -1;
 static int cm_entry_count = -1;
 static int cm_floating_flag = 0;
-#endif
 unsigned int floating_counter_flags = 0;		/* persisted in el.cfg file */
 int floating_session_counters = 0;				/* persisted in el.ini */
 
@@ -398,7 +394,6 @@ void decrement_counter(int counter_id, char *name, int quantity, int extra)
 	}
 }
 
-#ifdef CONTEXT_MENUS
 static void cm_counters_pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win)
 {
 	// get the counter id and entry indices
@@ -473,7 +468,6 @@ static int cm_counters_handler(window_info *win, int widget_id, int mx, int my, 
 
 	return 0;
 }
-#endif
 
 void fill_counters_win()
 {
@@ -505,7 +499,6 @@ void fill_counters_win()
 			1.0f, 0.77f, 0.57f, 0.39f,
 			0, 1, MAX(0, entries[idx] - NUM_LINES));
 
-#ifdef CONTEXT_MENUS
 	if (cm_counters == CM_INIT_VALUE)
 	{
 		cm_counters = cm_create(cm_counters_menu_str, cm_counters_handler);
@@ -513,7 +506,6 @@ void fill_counters_win()
 		cm_set_pre_show_handler(cm_counters, cm_counters_pre_show_handler);
 		cm_bool_line(cm_counters, 4, &cm_floating_flag, NULL);
 	}
-#endif
 }
 
 int display_counters_handler(window_info *win)
@@ -572,22 +564,18 @@ int display_counters_handler(window_info *win)
 		scroll = 0;
 	}
 
-#ifdef CONTEXT_MENUS
 	if (cm_window_shown() != cm_counters)
 		cm_selected_entry = -1;
-#endif
 	
 	for (j = scroll, n = 0, y = 30; j < entries[i]; j++, n++) {
 		if (n == NUM_LINES) {
 			break;
 		}
 
-#ifdef CONTEXT_MENUS
 		if (cm_selected_entry == j)
 			colour_scale = 0.5;
 		else
 			colour_scale = 1.0;
-#endif
 
 		if ((selected_counter_id == KILLS || selected_counter_id == DEATHS) && counters[i][j].extra) {
 			glColor3f(0.8f*colour_scale, 0.2f*colour_scale, 0.2f*colour_scale);

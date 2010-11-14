@@ -1,12 +1,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include "elconfig.h"
-#ifdef CONTEXT_MENUS
 #include "context_menu.h"
 #include "hud.h"
 #include "init.h"
 #include "translate.h"
-#endif
 #include "elwindows.h"
 #include "alphamap.h"
 #include "asc.h"
@@ -152,10 +150,8 @@ int	click_in_windows(int mx, int my, Uint32 flags)
 	int	first_win= -1;
 	int i;
 	
-#ifdef CONTEXT_MENUS
 	/* only activate context menu on unmodified right click */
 	int cm_try_activate = cm_pre_show_check(flags);
-#endif
 
 	// check each window in the proper order
 	if(windows_list.display_level > 0)
@@ -172,17 +168,13 @@ int	click_in_windows(int mx, int my, Uint32 flags)
 					// at this level?
 					if(windows_list.window[i].order == id)
 					{
-#ifdef CONTEXT_MENUS
 						if (cm_try_activate && cm_show_if_active(i))
 							return 0;
-#endif
 						done= click_in_window(i, mx, my, flags);
 						if(done > 0)
 						{
 							if(windows_list.window[i].displayed > 0)	select_window(i);	// select this window to the front
-#ifdef CONTEXT_MENUS
 							cm_post_show_check(0);
-#endif
 							return i;
 						}
 						if(first_win < 0 && mouse_in_window(i, mx, my))	first_win= i;
@@ -214,17 +206,13 @@ int	click_in_windows(int mx, int my, Uint32 flags)
 				// at this level?
 				if(windows_list.window[i].order == id)
 				{
-#ifdef CONTEXT_MENUS
 					if (cm_try_activate && cm_show_if_active(i))
 						return 0;
-#endif
 					done= click_in_window(i, mx, my, flags);
 					if(done > 0)
 					{
 						//select_window(i);	// these never get selected
-#ifdef CONTEXT_MENUS
 						cm_post_show_check(0);
-#endif
 						return i;
 					}
 				} 
@@ -241,9 +229,7 @@ int	click_in_windows(int mx, int my, Uint32 flags)
 			id= next_id;
 	}
 	
-#ifdef CONTEXT_MENUS
 	cm_post_show_check(0);
-#endif
 
 	// nothing to click on, do a select instead
 	if(first_win >= 0)
@@ -664,7 +650,6 @@ int	select_window (int win_id)
 }
 
 
-#ifdef CONTEXT_MENUS
 int cm_title_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
 	extern void hide_all_windows();
@@ -682,7 +667,6 @@ int cm_title_handler(window_info *win, int widget_id, int mx, int my, int option
 	}
 	return 1;
 }
-#endif
 
 
 // specific windows functions
@@ -739,7 +723,6 @@ int	create_window(const char *name, int pos_id, Uint32 pos_loc, int pos_x, int p
 #ifdef MINIMAP2
 		win->owner_drawn_title_bar = 0;
 #endif // MINIMAP2
-#ifdef CONTEXT_MENUS
 		if (win->flags&ELW_TITLE_BAR)
 		{
 			win->cm_id = cm_create(cm_title_menu_str, cm_title_handler);
@@ -751,7 +734,6 @@ int	create_window(const char *name, int pos_id, Uint32 pos_loc, int pos_x, int p
 		}
 		else
 			win->cm_id = CM_INIT_VALUE;
-#endif
 		my_strncp(win->window_name, name, sizeof (win->window_name));
 		
 		if (pos_id >= 0 && !windows_list.window[pos_id].displayed)
@@ -839,13 +821,11 @@ void	destroy_window(int win_id)
 	
 	win = &(windows_list.window[win_id]);
 
-#ifdef CONTEXT_MENUS
 	if (cm_valid(win->cm_id))
 	{
 		cm_destroy(win->cm_id);
 		win->cm_id = CM_INIT_VALUE;
 	}
-#endif
 
 	// call destruction handler        
 	if (win->destroy_handler != NULL)
@@ -1005,13 +985,11 @@ int	draw_window_title(window_info *win)
 
 	if((win->flags&ELW_TITLE_BAR) == ELW_TITLE_NONE)	return 0;
 
-#ifdef CONTEXT_MENUS
 	/* draw the help text if the mouse is over the title bar */
 	if (show_help_text && cm_valid(win->cm_id) &&
 		mouse_x > win->cur_x && mouse_x < win->cur_x+win->len_x &&
 		mouse_y > win->cur_y-ELW_TITLE_HEIGHT && mouse_y < win->cur_y)
 		show_help(cm_title_help_str, 0, win->len_y+10);
-#endif
 	
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now draw that shit...

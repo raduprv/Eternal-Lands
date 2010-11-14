@@ -7,6 +7,7 @@
 #include "widgets.h"
 #include "asc.h"
 #include "chat.h"
+#include "context_menu.h"
 #include "cursors.h"
 #include "elconfig.h"
 #include "elwindows.h"
@@ -25,10 +26,7 @@
 #include "sound.h"
 #endif // NEW_SOUND
 
-#ifdef CONTEXT_MENUS
-#include "context_menu.h"
 static size_t cm_edit_id = CM_INIT_VALUE;
-#endif
 
 typedef struct {
 	char text[256];
@@ -309,11 +307,9 @@ Uint32 widget_move_win(int window_id, Uint32 widget_id, int new_win_id)
 			new_id++;
 		}
 		w->id = new_id;
-#ifdef CONTEXT_MENUS
 		/* if removing a (possibly none existant) context menu for the widget works, we need to replace it */
 		if (cm_remove_widget(window_id, widget_id))
 			cm_add_widget(cm_edit_id, new_win_id, new_id);
-#endif
 		return w->id;
 	} else {
 		return 0;
@@ -2297,7 +2293,6 @@ int text_field_resize (widget_list *w, int width, int height)
 	return 1;
 }
 
-#ifdef CONTEXT_MENUS
 /* the edit context menu callback */
 static int context_edit_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
@@ -2344,7 +2339,6 @@ static void context_edit_pre_show_handler(window_info *win, int widget_id, int m
 		|| ((w->Flags & TEXT_FIELD_NO_KEYPRESS) && !(w->Flags & TEXT_FIELD_MOUSE_EDITABLE));
 	cm_grey_line(cm_edit_id, 0, is_grey);
 }
-#endif
 
 int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unikey)
 {
@@ -2690,10 +2684,8 @@ int text_field_destroy (widget_list *w)
 	text_field *tf = w->widget_info;
 	if (tf != NULL)
 	{
-#ifdef CONTEXT_MENUS
 		/* remove the context menu */
 		cm_remove_widget(w->window_id, w->id);
-#endif
 		if (tf->scroll_id != -1)
 			widget_destroy (w->window_id, tf->scroll_id);
 		if (tf->select.lines != NULL) free(tf->select.lines);
@@ -2759,7 +2751,6 @@ int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 
 		}
 	}
 
-#ifdef CONTEXT_MENUS
 	/* on the first occurance create the editting context menu */
 	/* maintain a activation entry for each widget so they can be removed or modified */
 	if (!cm_valid(cm_edit_id))
@@ -2769,7 +2760,6 @@ int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 
 	}
 	/* assign to the new widget */
 	cm_add_widget(cm_edit_id, window_id, res);
-#endif	
 	
 	return res;
 }

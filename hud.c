@@ -5,9 +5,7 @@
 #include "asc.h"
 #include "buddy.h"
 #include "consolewin.h"
-#ifdef CONTEXT_MENUS
 #include "context_menu.h"
-#endif
 #include "cursors.h"
 #include "draw_scene.h"
 #include "elconfig.h"
@@ -37,7 +35,7 @@
 #ifdef ECDEBUGWIN
 #include "eye_candy_debugwin.h"
 #endif
-#if defined(CONTEXT_MENUS) && defined(USER_MENUS)
+#ifdef USER_MENUS
 #include "user_menus.h"
 #endif
 #include "url.h"
@@ -104,7 +102,6 @@ void change_flags(int win_id, Uint32 flags);
 Uint32 get_flags(int win_id);
 int get_quickbar_y_base();
 
-#ifdef CONTEXT_MENUS
 static int context_hud_handler(window_info *win, int widget_id, int mx, int my, int option);
 static size_t cm_hud_id = CM_INIT_VALUE;
 static size_t cm_quickbar_id = CM_INIT_VALUE;
@@ -116,7 +113,6 @@ static int cm_minimap_shown = 0;
 enum {	CMH_STATS=0, CMH_STATBARS, CMH_DIGCLOCK, CMH_ANACLOCK, CMH_SECONDS, CMH_FPS,
 		CMH_MINIMAP, CMH_QUICKBM, CMH_SEP1, CMH_SOUND, CMH_MUSIC, CMH_SEP2, CMH_LOCATION };
 enum {	CMQB_RELOC=0, CMQB_DRAG, CMQB_RESET, CMQB_FLIP, CMQB_ENABLE };
-#endif
 
 int hud_x= 64;
 int hud_y= 48;
@@ -182,7 +178,7 @@ void init_hud_interface (hud_interface type)
 		init_stats_display ();
 		init_quickbar ();
 		init_quickspell ();
-#if defined(CONTEXT_MENUS) && defined(USER_MENUS)
+#ifdef USER_MENUS
 		ready_for_user_menus = 1;
 		if (enable_user_menus)
 			display_user_menus();
@@ -881,7 +877,6 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-#ifdef CONTEXT_MENUS
 static int cm_statsbar_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
 	int i;
@@ -928,7 +923,6 @@ static void cm_statsbar_pre_show_handler(window_info *win, int widget_id, int mx
 		cm_grey_line(cm_id, watch_this_stats[i]-1, 1);
 	watch_this_stats[1]==0?cm_grey_line(cm_id, NUM_WATCH_STAT, 1):cm_grey_line(cm_id, NUM_WATCH_STAT, 0);
 }
-#endif
 
 // the stats display
 void init_stats_display()
@@ -978,7 +972,6 @@ void init_stats_display()
 		}
 	}
 	
-#ifdef CONTEXT_MENUS
 	{
 		if (!cm_valid(cm_id))
 		{
@@ -1000,7 +993,6 @@ void init_stats_display()
 			}
 		}
 	}
-#endif
 }
 
 void draw_stats_bar(int x, int y, int val, int len, float r, float g, float b, float r2, float g2, float b2)
@@ -1168,7 +1160,6 @@ float clock_needle_v_start=1.0f-(float)192/256;
 float clock_needle_u_end=(float)31/256;
 float clock_needle_v_end=1.0f-(float)223/256;
 
-#ifdef CONTEXT_MENUS
 static int context_hud_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
 	unsigned char protocol_name;
@@ -1207,7 +1198,6 @@ static void context_hud_pre_show_handler(window_info *win, int widget_id, int mx
 #endif // NEW_SOUND
 	cm_minimap_shown = get_show_window(minimap_win);
 }
-#endif
 
 void init_misc_display(hud_interface type)
 {
@@ -1220,7 +1210,6 @@ void init_misc_display(hud_interface type)
 			set_window_handler(misc_win, ELW_HANDLER_DISPLAY, &display_misc_handler);
 			set_window_handler(misc_win, ELW_HANDLER_CLICK, &click_misc_handler);
 			set_window_handler(misc_win, ELW_HANDLER_MOUSEOVER, &mouseover_misc_handler );
-#ifdef CONTEXT_MENUS
 			cm_hud_id = cm_create(cm_hud_menu_str, context_hud_handler);
 			cm_bool_line(cm_hud_id, CMH_STATS, &show_stats_in_hud, "show_stats_in_hud");
 			cm_bool_line(cm_hud_id, CMH_STATBARS, &show_statbars_in_hud, "show_statbars_in_hud");
@@ -1238,21 +1227,18 @@ void init_misc_display(hud_interface type)
 			cm_bool_line(cm_hud_id, CMH_MUSIC, &cm_music_enabled, NULL);
 			cm_add_window(cm_hud_id, misc_win);
 			cm_set_pre_show_handler(cm_hud_id, context_hud_pre_show_handler);
-#endif
 		}
 	else
 		{
 			move_window(misc_win, -1, 0, window_width-64, window_height-y_len);
 		}
 	
-#ifdef CONTEXT_MENUS
 	cm_grey_line(cm_hud_id, CMH_STATS, (type == HUD_INTERFACE_NEW_CHAR));
 	cm_grey_line(cm_hud_id, CMH_STATBARS, (type == HUD_INTERFACE_NEW_CHAR));
 	cm_grey_line(cm_hud_id, CMH_FPS, (type == HUD_INTERFACE_NEW_CHAR));
 	cm_grey_line(cm_hud_id, CMH_MINIMAP, (type == HUD_INTERFACE_NEW_CHAR));
 	cm_grey_line(cm_hud_id, CMH_QUICKBM, (type == HUD_INTERFACE_NEW_CHAR));
 	cm_grey_line(cm_hud_id, CMH_LOCATION, (type == HUD_INTERFACE_NEW_CHAR));
-#endif
 		
 	/* store references to the skills info in an easy to use array */
 	statsinfo[0].exp = &your_info.attack_exp;
@@ -1500,7 +1486,6 @@ CHECK_GL_ERRORS();
 		}
 	}
 
-#ifdef CONTEXT_MENUS	
 	{
 		static int last_window_width = -1;
 		static int last_window_height = -1;
@@ -1519,7 +1504,6 @@ CHECK_GL_ERRORS();
 			last_window_height = window_height;
 		}
 	}
-#endif
 	
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -1660,12 +1644,10 @@ void init_quickbar ()
 		set_window_handler(quickbar_win, ELW_HANDLER_CLICK, &click_quickbar_handler);
 		set_window_handler(quickbar_win, ELW_HANDLER_MOUSEOVER, &mouseover_quickbar_handler );
 
-#ifdef CONTEXT_MENUS		
 		cm_quickbar_id = cm_create(cm_quickbar_menu_str, context_quickbar_handler);
 		cm_bool_line(cm_quickbar_id, CMQB_RELOC, &quickbar_relocatable, "relocate_quickbar");
 		cm_bool_line(cm_quickbar_id, CMQB_DRAG, &quickbar_draggable, NULL);
 		cm_bool_line(cm_quickbar_id, CMQB_ENABLE, &cm_quickbar_enabled, NULL);
-#endif
 	}
 	else
 	{
@@ -1894,10 +1876,8 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 			use_item=-1;
 			qb_action_mode=ACTION_WALK;
 		}
-#ifdef CONTEXT_MENUS
 		if (cm_quickbar_enabled)
 			cm_show_direct(cm_quickbar_id, quickbar_win, -1);
-#endif
 		return 1;
 	}
 	
@@ -2247,14 +2227,12 @@ void handle_stats_selection(int stat, Uint32 flags)
 		statsinfo[watch_this_stats[0]-1].is_selected=1;
 	}
 	
-#ifdef CONTEXT_MENUS
 	cm_remove_regions(stats_bar_win);
 	for (i=0;i<max_disp_stats;i++)
 	{
 		if (watch_this_stats[i] > 0)
 			cm_add_region(cm_id, stats_bar_win, exp_bar_start_x+i*180, exp_bar_start_y, 100, 12);
 	}
-#endif
 #ifdef NEW_SOUND
 	add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
 #endif // NEW_SOUND

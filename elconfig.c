@@ -11,7 +11,7 @@
 #ifndef _MSC_VER
 	#include <unistd.h>
 #endif //_MSC_VER
-#if defined(CONTEXT_MENUS) && defined(USER_MENUS)
+#ifdef USER_MENUS
 #include "user_menus.h"
 #endif
 
@@ -1713,11 +1713,9 @@ void init_vars()
 #endif
 	add_var(OPT_BOOL,"use_alpha_border", "aborder", &use_alpha_border, change_var, 1,"Alpha Border","Toggle the use of alpha borders",HUD);	//ADVVID);
 	add_var(OPT_BOOL,"use_alpha_banner", "abanner", &use_alpha_banner, change_var, 0,"Alpha Behind Name/Health Text","Toggle the use of an alpha background to name/health banners",HUD);
-#ifdef CONTEXT_MENUS
 	add_var(OPT_BOOL,"cm_banner_disabled", "cmbanner", &cm_banner_disabled, change_var, 0,"Disable Name/Health Text Context Menu","Disable the context menu on your players name/health banner.",HUD);
-#endif
 	add_var(OPT_BOOL,"opaque_window_backgrounds", "opaquewin", &opaque_window_backgrounds, change_var, 0,"Use Opaque Window Backgrounds","Toggle the current state of all windows between transparent and opaque background. Use CTRL+D to toggle the current state of an individual window.",HUD);
-#if defined(CONTEXT_MENUS) && defined(USER_MENUS)
+#ifdef USER_MENUS
 	add_var(OPT_BOOL,"enable_user_menus", "user_menus", &enable_user_menus, toggle_user_menus, 0, "Enable User Menus","Create .menu files in your config directory.  First line is the menu name. After that, each line is a command using the format \"Menus Text||command\".  Prompt for input using \"command text <prompt text>\". A line can include multiple commands.",HUD);
 #endif
 	add_var(OPT_BOOL,"3d_map_markers","3dmarks",&marks_3d,change_3d_marks,1,"Enable 3D Map Markers","Shows user map markers in the game window",HUD);

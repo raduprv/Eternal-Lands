@@ -15,7 +15,6 @@
  *
  */
 
-#ifdef CONTEXT_MENUS
 
 #include <assert.h>
 #include <vector>
@@ -1133,5 +1132,3 @@ extern "C"
 	void save_category_maps(void)
 		{ ItemLists::Vars::cat_maps()->save(); }
 }
-
-#endif

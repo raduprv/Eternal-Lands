@@ -59,9 +59,7 @@ near_actor near_actors[MAX_ACTORS];
 Uint32 have_actors_lock = 0;
 #endif
 
-#ifdef CONTEXT_MENUS
 int cm_mouse_over_banner = 0;		/* use to trigger banner context menu */
-#endif
 
 //Threading support for actors_lists
 void init_actors_lists()
@@ -608,7 +606,6 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 
 	if(floatingmessages_enabled)drawactor_floatingmessages(actor_id->actor_id, healthbar_z);
 
-#ifdef CONTEXT_MENUS
 	/* set cm_mouse_over_banner true if the mouse is over your banner, or a box where it might be */
 	if (actor_id->actor_id == yourself)
 	{
@@ -623,7 +620,6 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		else
 			cm_mouse_over_banner = 0;
 	}
-#endif
 
 	glColor3f(1,1,1);
 #ifdef OPENGL_TRACE

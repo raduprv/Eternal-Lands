@@ -1,10 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <SDL_endian.h>
-#ifdef CONTEXT_MENUS
 #include "context_menu.h"
 #include "elconfig.h"
-#endif
 #include "dialogues.h"
 #include "asc.h"
 #include "elwindows.h"
@@ -47,10 +45,8 @@ static int mouse_over_name = 0;
 static const int str_edge = 5;
 #define MAX_MESS_LINES 8
 static const int response_y_offset = MAX_MESS_LINES*SMALL_FONT_Y_LEN;
-#ifdef CONTEXT_MENUS
 static size_t cm_npcname_id = CM_INIT_VALUE;
 static size_t cm_dialog_copy_id = CM_INIT_VALUE;
-#endif
 static int new_dialogue = 1;
 static int npc_name_x_start,npc_name_len;
 
@@ -227,10 +223,8 @@ int	display_dialogue_handler(window_info *win)
 	draw_string_small(str_edge,win->len_y-(SMALL_FONT_Y_LEN+1),(unsigned char*)dialogue_copy_str,1);
 
 	// display help text if appropriate
-#ifdef CONTEXT_MENUS
 	if ((show_help_text) && (highlight_copy || mouse_over_name))
 			show_help(cm_help_options_str, 0, win->len_y+10);
-#endif
 
 	highlight_close = highlight_copy = mouse_over_name = 0;
 
@@ -238,13 +232,11 @@ int	display_dialogue_handler(window_info *win)
 	if (new_dialogue)
 	{
 		new_dialogue = 0;
-#ifdef CONTEXT_MENUS
 		cm_remove_regions(win->window_id);
 		cm_add_region(cm_npcname_id, win->window_id, npc_name_x_start,
 			win->len_y-(SMALL_FONT_Y_LEN+1), npc_name_len*SMALL_FONT_X_LEN, SMALL_FONT_Y_LEN);
 		cm_add_region(cm_dialog_copy_id, win->window_id, str_edge,
 			win->len_y-(SMALL_FONT_Y_LEN+1), copy_str_width, SMALL_FONT_Y_LEN);
-#endif
 	}
 
 #ifdef OPENGL_TRACE
@@ -454,7 +446,6 @@ int keypress_dialogue_handler (window_info *win, int mx, int my, Uint32 key, Uin
 	return 0;
 }
 
-#ifdef CONTEXT_MENUS
 static int cm_npcname_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
 	if (option == 0)
@@ -465,7 +456,6 @@ static int cm_npcname_handler(window_info *win, int widget_id, int mx, int my, i
 	else
 		return 0;
 }
-#endif
 
 void display_dialogue()
 {
@@ -477,7 +467,6 @@ void display_dialogue()
 		set_window_handler(dialogue_win, ELW_HANDLER_KEYPRESS, &keypress_dialogue_handler );
 		set_window_handler(dialogue_win, ELW_HANDLER_CLICK, &click_dialogue_handler );
 		
-#ifdef CONTEXT_MENUS
 		cm_add(windows_list.window[dialogue_win].cm_id, cm_dialog_menu_str, NULL);
 		cm_bool_line(windows_list.window[dialogue_win].cm_id, ELW_CM_MENU_LEN+1, &use_keypress_dialogue_boxes, "use_keypress_dialog_boxes");
 		cm_bool_line(windows_list.window[dialogue_win].cm_id, ELW_CM_MENU_LEN+2, &use_full_dialogue_window, "use_full_dialogue_window");
@@ -486,7 +475,6 @@ void display_dialogue()
 		cm_npcname_id = cm_create(cm_npcname_menu_str, cm_npcname_handler);
 		cm_dialog_copy_id = cm_create(cm_dialog_copy_menu_str, NULL);
 		cm_bool_line(cm_dialog_copy_id, 0, &dialogue_copy_excludes_responses, NULL);
-#endif
 
 		copy_str_width = get_string_width((unsigned char*)dialogue_copy_str) * SMALL_FONT_X_LEN / 12.0;
 		close_str_width = get_string_width((unsigned char*)close_str) * SMALL_FONT_X_LEN / 12.0;

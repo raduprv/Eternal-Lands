@@ -1,4 +1,4 @@
-#if defined(CONTEXT_MENUS) && defined(USER_MENUS)
+#ifdef USER_MENUS
 
 #if !defined(USER_MENUS_H)
 #define USER_MENUS_H
@@ -57,4 +57,4 @@ void toggle_user_menus(int *enable);
 
 #endif
 
-#endif // defined(CONTEXT_MENUS) && defined(USER_MENUS)
+#endif // USER_MENUS

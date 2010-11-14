@@ -73,7 +73,6 @@ BBC News||#open_url http://news.bbc.co.uk/
 		Can also use for [<number>]
 */
 
-#if defined(CONTEXT_MENUS)
 
 #include <iostream>
 #include <fstream>
@@ -1018,5 +1017,3 @@ extern "C"
 			UserMenus::Container::get_instance()->open_window();
 	}
 }
-
-#endif // CONTEXT_MENUS

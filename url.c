@@ -20,9 +20,7 @@
 #include "asc.h"
 #include "client_serv.h"
 #include "consolewin.h"
-#ifdef CONTEXT_MENUS
 #include "context_menu.h"
-#endif
 #include "elwindows.h"
 #include "font.h"
 #include "gamewin.h"
@@ -71,9 +69,7 @@ static int saved_url_count = 0;
 
 static list_node_t *newest_url = NULL;
 static list_node_t *active_url = NULL;
-#ifdef CONTEXT_MENUS
 static list_node_t *cm_url = NULL;
-#endif
 
 
 /* define the structure stored for each URL */
@@ -511,7 +507,6 @@ CHECK_GL_ERRORS();
 				highlight_url = 1;
 			}
 				
-#ifdef CONTEXT_MENUS
 			/* if a context menu is open, only hightlight the last URL hovered over before the context opened */
 			if (cm_window_shown() != CM_INIT_VALUE)
 			{
@@ -522,7 +517,6 @@ CHECK_GL_ERRORS();
 			}
 			else
 				cm_url = NULL;
-#endif
 			
 			/* if mouse over or context activated, highlight the current URL */
 			if (highlight_url)
@@ -654,7 +648,6 @@ static void open_current_url(list_node_t *chosen_url)
 	}
 }
 
-#ifdef CONTEXT_MENUS
 /* called just before a context menu is displayed */
 static void context_url_pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win)
 {
@@ -689,14 +682,11 @@ static int context_url_handler(window_info *win, int widget_id, int mx, int my, 
 	url_win_clicktime = SDL_GetTicks();
 	return 1;
 }
-#endif
 
 /* act on scroll wheel in the main window or clicking a URL */
 static int click_url_handler(window_info *win, int mx, int my, Uint32 flags)
 {
-#ifdef CONTEXT_MENUS
 	static size_t cm_id = CM_INIT_VALUE;
-#endif
 
 	if (flags & ELW_WHEEL_UP)
 		vscrollbar_scroll_up(url_win, url_scroll_id);
@@ -711,7 +701,6 @@ static int click_url_handler(window_info *win, int mx, int my, Uint32 flags)
 			add_sound_object(get_index_for_sound_type_name("Window Close"), 0, 0, 1);
 #endif // NEW_SOUND
 		}
-#ifdef CONTEXT_MENUS
 		else if (flags & ELW_RIGHT_MOUSE)
 		{
 			cm_url = url_win_hover_url;
@@ -723,7 +712,6 @@ static int click_url_handler(window_info *win, int mx, int my, Uint32 flags)
 			}
 			cm_show_direct(cm_id, -1, -1);
 		}
-#endif	
 		else
 		{
 			/* open the URL but block double clicks */

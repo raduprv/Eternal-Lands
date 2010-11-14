@@ -14,9 +14,7 @@
 #endif // CLUSTER_INSIDES
 #include "console.h"
 #include "consolewin.h"
-#ifdef CONTEXT_MENUS
 #include "context_menu.h"
-#endif
 #include "cursors.h"
 #include "dialogues.h"
 #include "draw_scene.h"
@@ -93,9 +91,7 @@ int cursors_tex;
 #ifdef  DEBUG
 extern int e3d_count, e3d_total;    // LRNR:stats testing only
 #endif  //DEBUG
-#ifdef CONTEXT_MENUS
 int cm_banner_disabled = 0;
-#endif
 static int ranging_lock = 0;
 
 void draw_special_cursors()
@@ -559,7 +555,6 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 	{
 		if (flag_right) 
 		{
-#ifdef CONTEXT_MENUS
 			if (!cm_banner_disabled)
 			{
 				/* show the banner control menu if right-clicked and over your actors banner */
@@ -589,7 +584,6 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 					reset_cursor_time = SDL_GetTicks();
 				}
 			}
-#endif
 			if (item_dragged != -1 || use_item != -1 || object_under_mouse == -1 
 					|| storage_item_dragged != -1
 					)

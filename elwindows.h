@@ -58,9 +58,7 @@ typedef	struct	{
 #ifdef MINIMAP2
 	char	owner_drawn_title_bar; /*the title bar is drawn by the window itself*/
 #endif //MINIMAP2
-#ifdef CONTEXT_MENUS
 	size_t	cm_id; 				/*!< optional context menu activated by right-clicking title */
-#endif
 
     /*!
 	 * \name the handlers
@@ -724,7 +722,6 @@ void set_window_scroll_pos(int win_id, int pos);
  */
 int get_window_scroll_pos(int win_id);
 
-#ifdef CONTEXT_MENUS
 /*!
  * \ingroup elwindows
  * \brief   The callback for context menu clicks
@@ -741,7 +738,6 @@ int get_window_scroll_pos(int win_id);
  * \retval int      1 if action was taken otherwise 0
 */
 int cm_title_handler(window_info *win, int widget_id, int mx, int my, int option);
-#endif
 
 // low level functions
 //window_info	*get_window_info(int win_id);

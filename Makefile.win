@@ -28,7 +28,6 @@ USE_SHADER_COBJ = shader/noise.o shader/shader.o
 PAWN_COBJ = pawn/amx.o pawn/amxaux.o pawn/amxcons.o pawn/amxel.o \
 	pawn/amxfloat.o pawn/amxstring.o pawn/elpawn.o
 NEW_SELECTION_CXXOBJ = select.o
-CONTEXT_MENUS_CXXOBJ = context_menu.o	
 USER_MENUS_CXXOBJ = user_menus.o
 ITEM_LISTS_CXXOBJ = item_lists.o
 NEW_QUESTLOG_CXXOBJ = quest_log.o
@@ -56,7 +55,7 @@ COBJS=2d_objects.o 3d_objects.o \
 	update.o url.o weather.o widgets.o makeargv.o popup.o hash.o emotes.o \
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_COBJ))
 	
-CXXOBJS=cal3d_wrapper.o actor_init.o optimizer.o sendvideoinfo.o	\
+CXXOBJS=actor_init.o cal3d_wrapper.o context_menu.o optimizer.o sendvideoinfo.o	\
 	exceptions/extendedexception.o xml/xmlhelper.o	\
 	io/elfilewrapper.o io/elfile.o io/zipfilesystem.o \
 	eye_candy_wrapper.o \

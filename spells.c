@@ -3,9 +3,7 @@
 #include "spells.h"
 #include "asc.h"
 #include "cursors.h"
-#ifdef CONTEXT_MENUS
 #include "context_menu.h"
-#endif
 #include "elwindows.h"
 #include "gamewin.h"
 #include "gl_init.h"
@@ -153,10 +151,8 @@ void draw_spell_icon(int id,int x_start, int y_start, int gridsize, int alpha, i
 void set_spell_help_text(int spell);
 void init_sigils();
 
-#ifdef CONTEXT_MENUS
 size_t cm_quickspells_id = CM_INIT_VALUE;
 void cm_update_quickspells(void);
-#endif
 
 
 void repeat_spell(){
@@ -1281,9 +1277,7 @@ void add_spell_to_quickbar()
 
 	memcpy (mqb_data[i], mqb_data[0], sizeof (mqbdata));
 	save_quickspells();
-#ifdef CONTEXT_MENUS
 	cm_update_quickspells();
-#endif
 }
 
 void remove_spell_from_quickbar (int pos)
@@ -1303,9 +1297,7 @@ void remove_spell_from_quickbar (int pos)
 	}
 	mqb_data[6] = NULL;
 	save_quickspells();
-#ifdef CONTEXT_MENUS
 	cm_update_quickspells();
-#endif
 }
 
 
@@ -1369,9 +1361,7 @@ void load_quickspells ()
 		memcpy (mqb_data[i], data+1+(i-1)*sizeof(mqbdata), sizeof(mqbdata));
 	}
 
-#ifdef CONTEXT_MENUS
 	cm_update_quickspells();
-#endif
 }
 
 void save_quickspells()
@@ -1524,7 +1514,6 @@ int click_quickspell_handler(window_info *win, int mx, int my, Uint32 flags)
 	return 0;
 }
 
-#ifdef CONTEXT_MENUS
 static int context_quickspell_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
 	int pos=my/30+1;
@@ -1553,7 +1542,6 @@ void cm_update_quickspells(void)
 	cm_remove_regions(quickspell_win);
 	cm_add_region(cm_quickspells_id, quickspell_win, 0, 0, quickspell_x_len, active_y_len);
 }
-#endif
 
 void init_quickspell()
 {
@@ -1562,10 +1550,8 @@ void init_quickspell()
 		set_window_handler(quickspell_win, ELW_HANDLER_DISPLAY, &display_quickspell_handler);
 		set_window_handler(quickspell_win, ELW_HANDLER_CLICK, &click_quickspell_handler);
 		set_window_handler(quickspell_win, ELW_HANDLER_MOUSEOVER, &mouseover_quickspell_handler );
-#ifdef CONTEXT_MENUS
 		cm_quickspells_id = cm_create(cm_quickspell_menu_str, &context_quickspell_handler);
 		cm_update_quickspells();
-#endif
 	} else {
 		show_window (quickspell_win);
 		move_window (quickspell_win, -1, 0, window_width - quickspell_x, quickspell_y);

@@ -4,10 +4,8 @@
 #include "items.h"
 #include "asc.h"
 #include "cursors.h"
-#ifdef CONTEXT_MENUS
 #include "context_menu.h"
 #include "text.h"
-#endif
 #include "elconfig.h"
 #include "elwindows.h"
 #include "errors.h"
@@ -17,7 +15,7 @@
 #include "hud.h"
 #include "init.h"
 #include "interface.h"
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 #include "item_lists.h"
 #endif
 #include "manufacture.h"
@@ -86,7 +84,7 @@ const Uint16 unset_item_uid = (Uint16)-1;
 #define NUMBUT 4
 #define XLENBUT 29
 #define YLENBUT 33
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 #undef NUMBUT
 #define NUMBUT 5
 static int but_y_off[NUMBUT] = { 0, YLENBUT, YLENBUT*2, YLENBUT*3, YLENBUT*4 };
@@ -102,12 +100,10 @@ int items_dropall_nofirstrow = 0;
 int items_dropall_nolastrow = 0;
 int items_auto_get_all = 0;
 static int mouse_over_but = -1;
-#ifdef CONTEXT_MENUS
 static size_t cm_stoall_but = CM_INIT_VALUE;
 static size_t cm_dropall_but = CM_INIT_VALUE;
 static size_t cm_mix_but = CM_INIT_VALUE;
 static size_t cm_getall_but = CM_INIT_VALUE;
-#endif
 
 static void drop_all_handler();
 
@@ -496,7 +492,7 @@ int display_items_handler(window_info *win)
 	int x,y,i;
 	int item_is_weared=0;
 	Uint32 _cur_time = SDL_GetTicks(); /* grab a snapshot of current time */
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 	char *but_labels[NUMBUT] = { sto_all_str, get_all_str, drp_all_str, NULL, itm_lst_str };
 
 	if (show_item_list_menu && (cm_window_shown() == CM_INIT_VALUE))
@@ -699,7 +695,7 @@ int display_items_handler(window_info *win)
 	
 	// display help text for button if mouse over one
 	if ((mouse_over_but != -1) && show_help_text) {
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 		char *helpstr[NUMBUT] = { stoall_help_str, getall_help_str, ((disable_double_click) ?drpall_help_str :dcdrpall_help_str), mixoneall_help_str, itmlst_help_str };
 #else
 		char *helpstr[NUMBUT] = { stoall_help_str, getall_help_str, ((disable_double_click) ?drpall_help_str :dcdrpall_help_str), mixoneall_help_str };
@@ -1041,7 +1037,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			mix_handler(1, mixbut_empty_str);
 	}
 
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 	// Item List button
 	else if (over_button(win, mx, my)==BUT_ITEM_LIST)
 		show_items_list_window(0);
@@ -1249,7 +1245,6 @@ int show_items_handler(window_info * win)
 	wear_items_x_offset=6*items_grid_size+6;
 	item_quantity=quantities.quantity[quantities.selected].val;
 
-#ifdef CONTEXT_MENUS
 	cm_remove_regions(items_win);
 	cm_add_region(cm_stoall_but, items_win, win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[0], XLENBUT, YLENBUT);
 	cm_add_region(cm_getall_but, items_win, win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[1], XLENBUT, YLENBUT);
@@ -1258,7 +1253,6 @@ int show_items_handler(window_info * win)
 #ifdef ITEM_LISTS
 	cm_add_region(cm_item_list_options_but, items_win, win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[4], XLENBUT, YLENBUT);
 #endif //ITEM_LISTS
-#endif
 
 	/* make sure we redraw any string */
 	last_items_string_id = 0;
@@ -1266,7 +1260,6 @@ int show_items_handler(window_info * win)
 	return 1;
 }
 
-#ifdef CONTEXT_MENUS
 static int context_items_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
 	if (cm_title_handler(win, widget_id, mx, my, option))
@@ -1279,7 +1272,6 @@ static int context_items_handler(window_info *win, int widget_id, int mx, int my
 	}
 	return 1;
 }
-#endif
 
 void display_items_menu()
 {
@@ -1299,7 +1291,6 @@ void display_items_menu()
 		set_window_handler(items_win, ELW_HANDLER_KEYPRESS, &keypress_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_SHOW, &show_items_handler );
 		
-#ifdef CONTEXT_MENUS
 		cm_add(windows_list.window[items_win].cm_id, cm_items_menu_str, context_items_handler);
 		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+1, &use_small_items_window, NULL);
 		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+2, &manual_size_items_window, NULL);
@@ -1324,7 +1315,6 @@ void display_items_menu()
 #ifdef ITEM_LISTS
 		setup_item_list_menus();
 #endif //ITEM_LISTS
-#endif
 
 		show_items_handler(&windows_list.window[items_win]);
 

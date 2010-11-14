@@ -6,7 +6,6 @@ UPDATE_CONF=yes
 
 ### Current release default options ###
 FEATURES += CLUSTER_INSIDES                 # Group objects into separate clusters for clipping on inside maps
-FEATURES += CONTEXT_MENUS                   # Enable context menus
 FEATURES += CUSTOM_LOOK                     # allows you to customize your look.
 FEATURES += CUSTOM_UPDATE                   # allows autoupdating of custom look information
 FEATURES += FUZZY_PATHS                     # Makes Tab Map walking not always follow exaclty the same path
@@ -29,7 +28,7 @@ FEATURES += EMOTES                          # Support for additional animations 
 FEATURES += ITEM_LISTS						# Adds the creation and use of item lists to the inventory window
 FEATURES += ITEM_UID						# Enable unique image id values from server
 FEATURES += NEW_QUESTLOG					# Enable the new questlog, rewritten with new features
-FEATURES += USER_MENUS                      # enable user command menus, requires CONTEXT_MENUS
+FEATURES += USER_MENUS                      # enable user command menus
 
 
 ### Testing options (these options are possible for the next release and should be tested) ###

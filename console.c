@@ -1560,14 +1560,14 @@ int save_local_data(char * text, int len){
 	// should be renamed when NEW_QUESTLOG #def is removed
 	unload_questlog();
 #endif	
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 	save_category_maps();
 #endif
 	LOG_TO_CONSOLE(c_green1, "Local files saved, asking server to save too...");
 	return 0;
 }
 
-#if defined(CONTEXT_MENUS) && defined(CONTEXT_MENUS_TEST)
+#ifdef CONTEXT_MENUS_TEST
 int cm_test_window(char *text, int len);
 #endif
 
@@ -1661,7 +1661,7 @@ add_command("horse", &horse_cmd);
 	add_command("url", &url_command);
 	add_command("chat_to_counters", &chat_to_counters_command);
 	add_command("exp", &show_exp);
-#if defined(CONTEXT_MENUS) && defined(CONTEXT_MENUS_TEST)
+#ifdef CONTEXT_MENUS_TEST
 	add_command("cmtest", &cm_test_window);
 #endif
 #ifdef TEXT_ALIASES

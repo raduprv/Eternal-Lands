@@ -173,7 +173,7 @@ char
 	sto_all_str[8],
 	get_all_str[8],
 	drp_all_str[8],
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 	itm_lst_str[8],
 #endif
 	mix_one_str[8],
@@ -187,7 +187,7 @@ char
 	getall_help_str[50],
 	dcdrpall_help_str[50],
 	drpall_help_str[50],
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 	itmlst_help_str[50],
 #endif
 	mixoneall_help_str[50],
@@ -278,7 +278,6 @@ char
 	client_restart_countdown_str[40],
 	client_restarting_str[20],
 	restart_now_label[20],
-#ifdef CONTEXT_MENUS
 	/* context menu strings */
 	cm_quickspell_menu_str[50],
 	cm_textedit_menu_str[50],
@@ -307,8 +306,7 @@ char
 	cm_item_list_empty_str[15],
 	cm_item_list_selected_str[40],
 #endif
-#endif
-#if defined(CONTEXT_MENUS) && defined(USER_MENUS)
+#ifdef USER_MENUS
 	/* user_menus.cpp */
 	um_invalid_command_str[50],
 	um_invalid_line_str[50],
@@ -317,7 +315,6 @@ char
 #endif
 #ifdef NEW_QUESTLOG
 	/* quest_log.cpp */
-#ifdef CONTEXT_MENUS
 	cm_questlog_menu_str[300],
 	questlog_find_prompt_str[30],
 	questlog_add_npc_prompt_str[20],
@@ -328,13 +325,12 @@ char
 	questlog_cm_help_str[50],
 	questlog_deldupe_start_str[50],
 	questlog_deldupe_end_str[75],
-#endif
 	questlog_deleted_str[20],
 #endif
 	/* new_character.c */
 	use_appropriate_name[500],
 #endif
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 	item_list_use_help_str[40],
 	item_list_pickup_help_str[40],
 	item_list_edit_help_str[40],
@@ -398,7 +394,7 @@ char	name_too_long[75],
 	no_spell_to_show_str[40],
 	invalid_spell_string_str[40],
 	command_too_long_str[40],
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 	item_list_learn_cat_str[90],
 #endif
 	cmd_ignores[20],
@@ -576,7 +572,7 @@ char	reg_error_str[15],
 	duplicate_npc_actor[50],
 	duplicate_actors_str[50],
 	bad_actor_name_length[50],
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 	/* item lists */
 	item_list_format_error[50],
 	item_list_save_error_str[50],
@@ -707,7 +703,7 @@ char	win_notepad[20],
 	tab_counters[20],
 	tab_session[20],
 	tab_main[20],
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 	item_list_name_str[30],
 	item_list_preview_title[30],
 	item_list_quantity_str[20],
@@ -927,7 +923,7 @@ void init_console()
 	add_xml_identifier(misc,"no_spell_to_show",no_spell_to_show_str,"No spell to show",sizeof(no_spell_to_show_str));
 	add_xml_identifier(misc,"invalid_spell_string",invalid_spell_string_str,"Invalid spell string",sizeof(invalid_spell_string_str));
 	add_xml_identifier(misc,"command_string_too_long",command_too_long_str,"Command string too long",sizeof(command_too_long_str));
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 	add_xml_identifier(misc,"item_list_learn_cat",item_list_learn_cat_str,"Note: storage categories need to be learnt by selecting each category.",sizeof(item_list_learn_cat_str));
 #endif
 
@@ -1104,7 +1100,7 @@ void init_errors()
 	add_xml_identifier (misc, "max_screenshots_warning", max_screenshots_warning_str, "You have reached the maximum capacity for screenshots. Please move them all to another folder, otherwise this image will be overwritten next time.", sizeof(max_screenshots_warning_str));
 #endif //PNG_SCREENSHOT
 
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 	// item lists
 	add_xml_identifier (misc, "item_list_format_error", item_list_format_error, "Format error while reading item list.", sizeof(item_list_format_error));
 	add_xml_identifier (misc, "item_list_save_error", item_list_save_error_str, "Failed to save the item category file.", sizeof(item_list_save_error_str));
@@ -1228,7 +1224,7 @@ void init_help()
 	add_xml_identifier(misc,"stoall",sto_all_str,"Sto All",sizeof(sto_all_str));
 	add_xml_identifier(misc,"getall",get_all_str,"Get All",sizeof(get_all_str));
 	add_xml_identifier(misc,"drpall",drp_all_str,"Drp All",sizeof(drp_all_str));
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 	add_xml_identifier(misc,"itmlst",itm_lst_str,"Itm Lst",sizeof(itm_lst_str));
 #endif
 	add_xml_identifier(misc,"mixone",mix_one_str,"Mix One",sizeof(mix_one_str));
@@ -1267,7 +1263,7 @@ void init_help()
 	add_xml_identifier(misc,"dcdrpall_help",dcdrpall_help_str,"Double-click to drop all items",sizeof(dcdrpall_help_str));
 	add_xml_identifier(misc,"drpall_help",drpall_help_str,"Drop all items",sizeof(drpall_help_str));
 	add_xml_identifier(misc,"mixoneall_help",mixoneall_help_str,"Mix one/all, right-click to choose",sizeof(mixoneall_help_str));
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 	add_xml_identifier(misc,"itmlst_help",itmlst_help_str,"Show items list, right-click for new/delete",sizeof(itmlst_help_str));
 #endif
 	add_xml_identifier(misc,"items_stack",items_stack_str,"Client can't choose between multiple stacks, make a free slot and let the server do it!",sizeof(items_stack_str));
@@ -1288,11 +1284,7 @@ void init_help()
 	add_xml_identifier(misc,"invalid_url",urlcmd_invalid_str,"Invalid URL number",sizeof(urlcmd_invalid_str));
 	add_xml_identifier(misc,"afk_url",urlcmd_afk_str,"URL seen while AFK:",sizeof(urlcmd_afk_str));
 	add_xml_identifier(misc,"clear_url",urlcmd_clear_str,"clear",sizeof(urlcmd_clear_str));
-#ifdef CONTEXT_MENUS
 	add_xml_identifier(misc,"open_urlwin",urlwin_open_str,"Click to open; right+click for options",sizeof(urlwin_open_str));
-#else
-	add_xml_identifier(misc,"open_urlwin",urlwin_open_str,"Click to open; CTRL+click to delete",sizeof(urlwin_open_str));
-#endif	
 	add_xml_identifier(misc,"clear_urlwin",urlwin_clear_str,"Clear the URL list",sizeof(urlwin_clear_str));
 	add_xml_identifier(misc,"reset",reset_str,"Reset",sizeof(reset_str));
 	add_xml_identifier(misc,"channel_help",channel_help_str,"Click a Channel to join. You can be in up to 3 channels at a time.\n\nTo talk in a channel, type @ before your message. You do not have to type @ to talk in Local.",sizeof(channel_help_str));
@@ -1408,7 +1400,6 @@ void init_help()
 	add_xml_identifier(misc, "restarting", client_restarting_str, "Restarting...", sizeof(client_restarting_str));
 	add_xml_identifier(misc, "restart", restart_now_label, "Restart now", sizeof(restart_now_label));
 	
-#ifdef CONTEXT_MENUS
 	/* strings for context menus */
 	add_xml_identifier(misc, "cm_quickspell_menu", cm_quickspell_menu_str, "Move Up\nMove Down\nRemove\n", sizeof(cm_quickspell_menu_str));
 	add_xml_identifier(misc, "cm_textedit_menu", cm_textedit_menu_str, "Cut\nCopy\nPaste\n", sizeof(cm_textedit_menu_str));
@@ -1437,9 +1428,8 @@ void init_help()
 	add_xml_identifier(misc, "cm_item_list_empty", cm_item_list_empty_str, "Empty", sizeof(cm_item_list_empty_str));
 	add_xml_identifier(misc, "cm_item_list_selected", cm_item_list_selected_str, "Edit quantity\n--\nDelete", sizeof(cm_item_list_selected_str));
 #endif
-#endif
 	
-#if defined(CONTEXT_MENUS) && defined(USER_MENUS)
+#ifdef USER_MENUS
 	/* user_menus.cpp */
 	add_xml_identifier(misc, "um_invalid_command", um_invalid_command_str, "Invalid command text", sizeof(um_invalid_command_str));
 	add_xml_identifier(misc, "um_invalid_line", um_invalid_line_str, "<Error: invalid line>", sizeof(um_invalid_line_str));
@@ -1449,7 +1439,6 @@ void init_help()
 
 	/* quest_log.cpp */
 #ifdef NEW_QUESTLOG
-#ifdef CONTEXT_MENUS
 	add_xml_identifier(misc, "cm_questlog_menu", cm_questlog_menu_str, "Show all quests & entries\nSelect quest to show...\nSelect NPCs to show...\nSelect NPCs, starting with none...\n--\nCopy entry\nCopy all entries\nFind text...\nAdd entry...\n--\nDelete entry\nUndelete entry\n--\nDelete duplicates entries\n--\nSave changes", sizeof(cm_questlog_menu_str));
 	add_xml_identifier(misc, "questlog_find_prompt", questlog_find_prompt_str, "Text to Find", sizeof(questlog_find_prompt_str));
 	add_xml_identifier(misc, "questlog_add_npc_prompt", questlog_add_npc_prompt_str, "NPC name", sizeof(questlog_add_npc_prompt_str));	
@@ -1460,10 +1449,9 @@ void init_help()
 	add_xml_identifier(misc, "questlog_cm_help", questlog_cm_help_str, "Right-click for quest log command menu", sizeof(questlog_cm_help_str));
 	add_xml_identifier(misc, "questlog_deldupe_start", questlog_deldupe_start_str, "Deleting duplicate quest log entries...", sizeof(questlog_deldupe_start_str));
 	add_xml_identifier(misc, "questlog_deldupe_end", questlog_deldupe_end_str, "...unique entries: %d, deleted duplicates: %d.", sizeof(questlog_deldupe_end_str));
-#endif
 	add_xml_identifier(misc, "questlog_deleted", questlog_deleted_str, "(Deleted)", sizeof(questlog_deleted_str));	
 #endif
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 	add_xml_identifier(misc, "item_list_use_help", item_list_use_help_str, "Use quantity - right-click", sizeof(item_list_use_help_str));	
 	add_xml_identifier(misc, "item_list_pickup_help", item_list_pickup_help_str, "Pick up - left-click", sizeof(item_list_pickup_help_str));	
 	add_xml_identifier(misc, "item_list_edit_help", item_list_edit_help_str, "Edit menu - ctrl+right-click", sizeof(item_list_edit_help_str));	
@@ -1624,7 +1612,7 @@ void init_titles ()
 	add_xml_identifier (titles_str, "l_mark_filter", label_mark_filter, "Mark filter", sizeof(label_mark_filter));
 	add_xml_identifier (titles_str, "game_version", game_version_str, "Eternal Lands Version %d.%d.%d%s", sizeof(game_version_str));
 	add_xml_identifier (titles_str, "b_send", button_send, "Send", sizeof(button_send));
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 	add_xml_identifier (titles_str, "item_list_name", item_list_name_str, "Enter list name", sizeof(item_list_name_str));
 	add_xml_identifier (titles_str, "item_list_preview", item_list_preview_title, "List preview", sizeof(item_list_preview_title));
 	add_xml_identifier (titles_str, "item_list_quantity", item_list_quantity_str, "Quantity", sizeof(item_list_quantity_str));

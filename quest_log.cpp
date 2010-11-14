@@ -15,9 +15,7 @@
 #include <sstream>
 
 #include "asc.h"
-#ifdef CONTEXT_MENUS
 #include "context_menu.h"
-#endif
 #include "dialogues.h"
 #include "elconfig.h"
 #include "elwindows.h"
@@ -422,7 +420,6 @@ static enum { QLFLT_NONE=0, QLFLT_QUEST, QLFLT_NPC } active_filter = QLFLT_NONE;
 static const int qlwinwidth = 580;
 static const int qlwinheight = 350;
 static const int qlborder = 5;
-#ifdef CONTEXT_MENUS
 static size_t cm_questlog_id = CM_INIT_VALUE;
 enum {	CMQL_SHOWALL=0, CMQL_QUESTFILTER, CMQL_NPCFILTER, CMQL_NPCSHOWNONE, 
 		CMQL_S1, CMQL_COPY, CMQL_COPYALL, CMQL_FIND, CMQL_ADD, CMQL_S2, 
@@ -432,7 +429,6 @@ static size_t adding_insert_pos = 0;
 static bool prompt_for_add_text = false;
 static INPUT_POPUP ipu_questlog;
 static int current_action = -1;
-#endif
 
 
 //	Return the lines of an entry.
@@ -681,7 +677,6 @@ void show_all_entries(void)
 }
 
 
-#ifdef CONTEXT_MENUS
 //	Draw a context menu like hightlight using the supplied coords.
 //
 static void draw_highlight(int topleftx, int toplefty, int widthx, int widthy, size_t col = 0)
@@ -1313,14 +1308,12 @@ static int cm_quest_handler(window_info *win, int widget_id, int mx, int my, int
 	}
 	return 1;
 }
-#endif
 
 
 //	Draw the window contents.
 //
 static int display_questlog_handler(window_info *win)
 {
-#ifdef CONTEXT_MENUS
 	// If required, call the next stage of a entry input.
 	if (prompt_for_add_text)
 		questlog_add_text_input(win);
@@ -1330,7 +1323,6 @@ static int display_questlog_handler(window_info *win)
 		show_help(questlog_cm_help_str, 0, win->len_y + 10);
 		mouse_over_questlog = false;
 	}
-#endif
 
 	int questlog_y = qlborder;
 	shown_entries.clear();
@@ -1388,14 +1380,12 @@ static int questlog_click(window_info *win, int mx, int my, Uint32 flags)
 
 static int keypress_questlog_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
-#ifdef CONTEXT_MENUS
 	char keychar = tolower(static_cast<char>(unikey));
 	if ((key == K_MARKFILTER) || (keychar=='/'))
 	{
 		find_in_entry(win);
 		return 1;
 	}
-#endif
 	return 0;
 }
 	
@@ -1547,7 +1537,6 @@ extern "C" void fill_questlog_win ()
 	widget_set_OnClick (questlog_win, quest_scroll_id, (int (*)())questlog_scroll_click);
 	widget_set_OnDrag (questlog_win, quest_scroll_id, (int (*)())questlog_scroll_drag);
 
-#ifdef CONTEXT_MENUS
 	if (!cm_valid(cm_questlog_id))
 	{
 		cm_questlog_id = cm_create(cm_questlog_menu_str, cm_quest_handler);
@@ -1555,7 +1544,6 @@ extern "C" void fill_questlog_win ()
 		cm_set_pre_show_handler(cm_questlog_id, cm_questlog_pre_show_handler);
 		init_ipu(&ipu_questlog, -1, -1, -1, 1, 1, NULL, NULL);
 	}
-#endif
 }
 
 

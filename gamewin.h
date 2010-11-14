@@ -33,9 +33,7 @@ void toggle_have_mouse();
 #ifdef NEW_CURSOR
 extern int cursors_tex;
 #endif // NEW_CURSOR
-#ifdef CONTEXT_MENUS
 extern int cm_banner_disabled;
-#endif
 extern int logo_click_to_url;
 void draw_special_cursors();
 

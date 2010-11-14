@@ -1,7 +1,5 @@
 #include "astrology.h"
-#ifdef CONTEXT_MENUS
 #include "context_menu.h"
-#endif
 #include "elwindows.h"
 #include "errors.h"
 #include "gamewin.h"
@@ -269,7 +267,6 @@ void adjust_astrology_window()
 	}
 }
 
-#ifdef CONTEXT_MENUS
 static int cm_astro_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
 	if (cm_title_handler(win, widget_id, mx, my, option))
@@ -281,7 +278,6 @@ static int cm_astro_handler(window_info *win, int widget_id, int mx, int my, int
 	}
 	return 1;
 }
-#endif
 
 void display_astrology_window(const char * raw_text)
 {
@@ -301,9 +297,7 @@ void display_astrology_window(const char * raw_text)
 			NULL, (astrology_win_x_len >>1) - 40, astrology_win_y_len-36, 80, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Ok");
 		widget_set_OnClick(astrology_win, ok_button_id, ok_handler);
 
-#ifdef CONTEXT_MENUS
 		cm_add(windows_list.window[astrology_win].cm_id, cm_astro_menu_str, cm_astro_handler);
-#endif
 	} 
 	else 
 	{

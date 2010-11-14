@@ -1,7 +1,7 @@
 #ifndef ITEM_LIST_H
 #define ITEM_LIST_H
 
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 #include "context_menu.h"
 
 #ifdef __cplusplus

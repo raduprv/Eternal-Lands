@@ -180,7 +180,7 @@ typedef struct
 	int misc_bool_options;
     /*! @} */
 
-#if defined(CONTEXT_MENUS) && defined(USER_MENUS)
+#ifdef USER_MENUS
     /*!
      * \name User menu options
      */    /*! @{ */
@@ -196,7 +196,7 @@ typedef struct
 #define NUM_RESERVED 5
 #endif
 
-#else   
+#else    //USER_MENUS
 	//!!!!!!!If you add any new FLOAT option, decrement the reserved thingy accordingly!!!!!!
 
 #ifdef EMOTES
@@ -205,7 +205,7 @@ typedef struct
 #define NUM_RESERVED 8
 #endif
 
-#endif // CONTEXT_MENUS && USER_MENUS
+#endif //USER_MENUS
 
 
 	/*!

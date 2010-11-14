@@ -3,9 +3,7 @@
 #include <string.h>
 #include "storage.h"
 #include "asc.h"
-#ifdef CONTEXT_MENUS
 #include "context_menu.h"
-#endif
 #include "elwindows.h"
 #include "filter.h"
 #include "gamewin.h"
@@ -58,7 +56,7 @@ static int number_to_print = 0;
 static int next_item_to_print = 0;
 static int printing_category = -1;
 
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 
 //	Look though the category for the selected item, pick it up if found.
 //
@@ -359,7 +357,7 @@ void get_storage_items (const Uint8 *in_data, int len)
 		vscrollbar_set_pos(storage_win, STORAGE_SCROLLBAR_CATEGORIES, cat - STORAGE_CATEGORIES_DISPLAY + 1);
 	}
 
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 	if (selected_category != -1)
 		category_updated();
 #endif 
@@ -604,7 +602,6 @@ int mouseover_storage_handler(window_info *win, int mx, int my)
 	return 0;
 }
 
-#ifdef CONTEXT_MENUS
 void print_items(void)
 {
 	int i;
@@ -635,7 +632,6 @@ static int context_storage_handler(window_info *win, int widget_id, int mx, int 
 	}
 	return 1;
 }
-#endif
 
 void display_storage_menu()
 {
@@ -666,9 +662,7 @@ void display_storage_menu()
 				max2i(no_storage_categories - STORAGE_CATEGORIES_DISPLAY, 0));
 		vscrollbar_add_extended(storage_win, STORAGE_SCROLLBAR_ITEMS, NULL, 352, 10, 20, 192, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 28);
 		
-#ifdef CONTEXT_MENUS
 		cm_add(windows_list.window[storage_win].cm_id, cm_storage_menu_str, context_storage_handler);
-#endif
 	} else {
 		no_storage=0;
 		

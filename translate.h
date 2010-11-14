@@ -256,7 +256,7 @@ extern char
 		no_spell_to_show_str[40],
 		invalid_spell_string_str[40],
 		command_too_long_str[40],
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 		item_list_learn_cat_str[90],
 #endif
 		cmd_ignores[20],
@@ -317,7 +317,7 @@ extern char
 		sto_all_str[8],
 		get_all_str[8],
 		drp_all_str[8],
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 		itm_lst_str[8],
 #endif
 		mix_one_str[8],
@@ -332,7 +332,7 @@ extern char
 		dcdrpall_help_str[50],
 		drpall_help_str[50],
 		mixoneall_help_str[50],
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 		itmlst_help_str[50],
 #endif
 		items_stack_str[100],
@@ -428,7 +428,6 @@ extern char
 		client_restart_countdown_str[40],
 		client_restarting_str[20],
 		restart_now_label[20],
-#ifdef CONTEXT_MENUS
 		/* context menu strings */
 		cm_quickspell_menu_str[50],
 		cm_textedit_menu_str[50],
@@ -452,8 +451,7 @@ extern char
 #ifdef USER_MENUS
 		cm_user_menu_str[150],
 #endif
-#endif
-#if defined(CONTEXT_MENUS) && defined(USER_MENUS)
+#ifdef USER_MENUS
 		/* user_menus.cpp */
 		um_invalid_command_str[50],
 		um_invalid_line_str[50],
@@ -462,7 +460,6 @@ extern char
 #endif
 #ifdef NEW_QUESTLOG
 		/* quest_log.cpp */
-#ifdef CONTEXT_MENUS
 		cm_questlog_menu_str[300],
 		questlog_find_prompt_str[30],
 		questlog_add_npc_prompt_str[20],
@@ -473,10 +470,9 @@ extern char
 		questlog_cm_help_str[50],
 		questlog_deldupe_start_str[50],
 		questlog_deldupe_end_str[75],
-#endif
 		questlog_deleted_str[20],
 #endif
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 		/* item lists */
 		cm_item_list_menu_str[100],
 		cm_item_list_empty_str[15],
@@ -678,7 +674,7 @@ extern char	reg_error_str[15],
 		error_helmet[15],
 		error_cape[15],
 		duplicate_npc_actor[50],
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 		/* item lists */
 		item_list_format_error[50],
 		item_list_save_error_str[50],
@@ -807,7 +803,7 @@ extern char	win_notepad[20],
 		tab_counters[20],
 		tab_session[20],
 		tab_main[20],
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 		item_list_name_str[30],
 		item_list_preview_title[30],
 		item_list_quantity_str[20],

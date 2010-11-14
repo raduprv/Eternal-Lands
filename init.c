@@ -79,7 +79,7 @@
 #ifdef TEXT_ALIASES
 #include "text_aliases.h"
 #endif /* TEXT_ALIASES */
-#if defined(CONTEXT_MENUS) && defined(USER_MENUS)
+#ifdef USER_MENUS
 #include "user_menus.h"
 #endif
 #ifdef EMOTES
@@ -386,7 +386,7 @@ void read_bin_cfg()
 	items_stoall_nolastrow = (cfg_mem.misc_bool_options >> 4) & 1;
 	items_dropall_nolastrow = (cfg_mem.misc_bool_options >> 5) & 1;
  	autoclose_storage_dialogue = (cfg_mem.misc_bool_options >> 6) & 1;
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 	disable_item_list_preview = (cfg_mem.misc_bool_options >> 7) & 1;
 #endif
 	dialogue_copy_excludes_responses = (cfg_mem.misc_bool_options >> 8) & 1;
@@ -394,7 +394,7 @@ void read_bin_cfg()
 	items_dropall_nofirstrow = (cfg_mem.misc_bool_options >> 10) & 1;
 	items_auto_get_all = (cfg_mem.misc_bool_options >> 11) & 1;
 
-#if defined(CONTEXT_MENUS) && defined(USER_MENUS)
+#ifdef USER_MENUS
 	set_options_user_menus(cfg_mem.user_menu_win_x, cfg_mem.user_menu_win_y, cfg_mem.user_menu_options);
 #endif
 
@@ -634,7 +634,7 @@ void save_bin_cfg()
 	cfg_mem.misc_bool_options |= items_stoall_nolastrow << 4;
 	cfg_mem.misc_bool_options |= items_dropall_nolastrow << 5;
  	cfg_mem.misc_bool_options |= autoclose_storage_dialogue << 6;
-#if defined(CONTEXT_MENUS) && defined(ITEM_LISTS)
+#ifdef ITEM_LISTS
 	cfg_mem.misc_bool_options |= disable_item_list_preview << 7;
 #endif
 	cfg_mem.misc_bool_options |= dialogue_copy_excludes_responses << 8;
@@ -642,7 +642,7 @@ void save_bin_cfg()
 	cfg_mem.misc_bool_options |= items_dropall_nofirstrow << 10;
 	cfg_mem.misc_bool_options |= items_auto_get_all << 11;
 
-#if defined(CONTEXT_MENUS) && defined(USER_MENUS)
+#ifdef USER_MENUS
 	get_options_user_menus(&cfg_mem.user_menu_win_x, &cfg_mem.user_menu_win_y, &cfg_mem.user_menu_options);
 #endif
 
