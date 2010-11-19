@@ -1026,13 +1026,13 @@ void catch_counters_text(const char* text)
 		increment_counter(BREAKS, to_count_name, 1, 0);
 	}
 	
-	/* "<user name> found a/an " */
+	/* "<user name> found a/an/a[n] " */
 	else if (my_strncompare(text, search_str[0], search_len[0]))
 	{
 		size_t start_from = search_len[0];
 		size_t could_not_carry_index = get_string_occurance(". What a pity ", text, text_len, 1);
-		if ((text_len > start_from) && (text[start_from] != ' '))
-			start_from++; /* move past the n of an */
+		while ((text_len > start_from) && (text[start_from] != ' '))
+			start_from++; /* move past the a/an/a[n] */
 		start_from++; /* move past the space */
 		
 		/* some death messages match so crudely exclude them but catch bags of gold */
