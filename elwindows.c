@@ -986,7 +986,7 @@ int	draw_window_title(window_info *win)
 	if((win->flags&ELW_TITLE_BAR) == ELW_TITLE_NONE)	return 0;
 
 	/* draw the help text if the mouse is over the title bar */
-	if (show_help_text && cm_valid(win->cm_id) &&
+	if (show_help_text && cm_valid(win->cm_id) && (cm_window_shown() == CM_INIT_VALUE) &&
 		mouse_x > win->cur_x && mouse_x < win->cur_x+win->len_x &&
 		mouse_y > win->cur_y-ELW_TITLE_HEIGHT && mouse_y < win->cur_y)
 		show_help(cm_title_help_str, 0, win->len_y+10);
