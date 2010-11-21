@@ -399,6 +399,10 @@ void read_bin_cfg()
 #endif
 
 	floating_counter_flags = cfg_mem.floating_counter_flags;
+
+#ifdef NEW_QUESTLOG
+	set_options_questlog(cfg_mem.questlog_flags);
+#endif
 }
 
 void save_bin_cfg()
@@ -647,6 +651,10 @@ void save_bin_cfg()
 #endif
 
 	cfg_mem.floating_counter_flags = floating_counter_flags;
+
+#ifdef NEW_QUESTLOG
+	cfg_mem.questlog_flags = get_options_questlog();
+#endif
 
 	fwrite(&cfg_mem,sizeof(cfg_mem),1,f);
 	fclose(f);

@@ -460,7 +460,8 @@ extern char
 #endif
 #ifdef NEW_QUESTLOG
 		/* quest_log.cpp */
-		cm_questlog_menu_str[300],
+		cm_questlog_menu_str[400],
+		cm_questlist_menu_str[150],
 		questlog_find_prompt_str[30],
 		questlog_add_npc_prompt_str[20],
 		questlog_add_text_prompt_str[20],

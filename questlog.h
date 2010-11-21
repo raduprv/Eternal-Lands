@@ -135,6 +135,27 @@ void set_quest_finished(Uint16 id);
  */
 int waiting_for_questlog_entry(void);
 
+/*!
+ * \ingroup quest_window
+ * \brief Write the questlog options to the el.cfg structure.
+ *
+ *      Write the questlog options to the el.cfg structure.
+ *
+ * \callgraph
+ */
+unsigned int get_options_questlog(void);
+
+ 
+/*!
+ * \ingroup quest_window
+ * \brief  Read the questlog options from the el.cfg structure.
+ *
+ *      Read the questlog options from the el.cfg structure.
+ *
+ * return true if if answer is yes.
+ * \callgraph
+ */
+void set_options_questlog(unsigned int cfg_options);
 
 #endif // NEW_QUESTLOG
 

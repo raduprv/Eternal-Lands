@@ -315,7 +315,8 @@ char
 #endif
 #ifdef NEW_QUESTLOG
 	/* quest_log.cpp */
-	cm_questlog_menu_str[300],
+	cm_questlog_menu_str[400],
+	cm_questlist_menu_str[150],
 	questlog_find_prompt_str[30],
 	questlog_add_npc_prompt_str[20],
 	questlog_add_text_prompt_str[20],
@@ -1439,14 +1440,23 @@ void init_help()
 
 	/* quest_log.cpp */
 #ifdef NEW_QUESTLOG
-	add_xml_identifier(misc, "cm_questlog_menu", cm_questlog_menu_str, "Show all quests & entries\nSelect quest to show...\nSelect NPCs to show...\nSelect NPCs, starting with none...\n--\nCopy entry\nCopy all entries\nFind text...\nAdd entry...\n--\nDelete entry\nUndelete entry\n--\nDelete duplicates entries\n--\nSave changes", sizeof(cm_questlog_menu_str));
+	add_xml_identifier(misc, "cm_questlog_menu", cm_questlog_menu_str,
+		"Show all quests & entries\nSelect quest to show...\nSelect NPCs to show...\nSelect NPCs, starting with none...\n--\n"
+		"Copy entry\nCopy all entries\nFind text...\nAdd entry...\n--\n"
+		"Select entry\nUnselect entry\nSelect all entries\nUnselect all entires\nShow only selected entries\n--\n"
+		"Delete entry\nUndelete entry\n--\n"
+		"Delete duplicates entries\n--\n"
+		"Save changes", sizeof(cm_questlog_menu_str));
+	add_xml_identifier(misc, "cm_questlist_menu", cm_questlist_menu_str,
+		"Quest completed\nAdd selected entries to quest\n--\n"
+		"Hide completed quests\nDo not always open window\n", sizeof(cm_questlist_menu_str));
 	add_xml_identifier(misc, "questlog_find_prompt", questlog_find_prompt_str, "Text to Find", sizeof(questlog_find_prompt_str));
 	add_xml_identifier(misc, "questlog_add_npc_prompt", questlog_add_npc_prompt_str, "NPC name", sizeof(questlog_add_npc_prompt_str));	
 	add_xml_identifier(misc, "questlog_add_text_prompt", questlog_add_text_prompt_str, "Entry text", sizeof(questlog_add_text_prompt_str));	
 	add_xml_identifier(misc, "questlog_npc_filter_title", questlog_npc_filter_title_str, "NPC list", sizeof(questlog_npc_filter_title_str));	
 	add_xml_identifier(misc, "questlist_filter_title", questlist_filter_title_str, "Quest List", sizeof(questlist_filter_title_str));
 	add_xml_identifier(misc, "questlist_showall", questlist_showall_str, "Show all quests", sizeof(questlist_showall_str));
-	add_xml_identifier(misc, "questlog_cm_help", questlog_cm_help_str, "Right-click for quest log command menu", sizeof(questlog_cm_help_str));
+	add_xml_identifier(misc, "questlog_cm_help", questlog_cm_help_str, "Right-click for command menu", sizeof(questlog_cm_help_str));
 	add_xml_identifier(misc, "questlog_deldupe_start", questlog_deldupe_start_str, "Deleting duplicate quest log entries...", sizeof(questlog_deldupe_start_str));
 	add_xml_identifier(misc, "questlog_deldupe_end", questlog_deldupe_end_str, "...unique entries: %d, deleted duplicates: %d.", sizeof(questlog_deldupe_end_str));
 	add_xml_identifier(misc, "questlog_deleted", questlog_deleted_str, "(Deleted)", sizeof(questlog_deleted_str));	

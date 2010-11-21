@@ -8,6 +8,7 @@
 #include <vector>
 #include <map>
 #include <queue>
+#include <set>
 #include <cctype>
 #include <algorithm>
 #include <iostream>
@@ -45,11 +46,9 @@
  * 			Context menu
  * 				refresh list?
  * 				refresh highlighted title string?
- * 				add entry to quest.
- * 				mark completed / not completed?
  * 				copy highlighted title to clipboard
  * 				delete highlighted
- * 				do not open with main window
+ * 		Remove new protocol logging
  */
 
 
@@ -59,20 +58,20 @@
 class Quest
 {
 	public:
-		Quest(Uint16 id) : is_completed(false) { this->id = id; }
+		Quest(Uint16 id) : is_completed(false), title("?") { this->id = id; }
 		Quest(const std::string & line);
 		const std::string &get_title(void) const { return title; }
 		void set_title(const char* new_title) { title = new_title; }
 		bool get_completed(void) const { return is_completed; }
-		void set_completed(void) { is_completed = true; }
+		void set_completed(bool yes_complete) { is_completed = yes_complete; }
 		Uint16 get_id(void) const { return id; }
 		void write(std::ostream & out) const
 			{ out << id << " " << is_completed << " " << title << std::endl; }
-	static const Uint16 UNSET_ID;
+		static const Uint16 UNSET_ID;
 	private:
 		Uint16 id;
-		std::string title;
 		bool is_completed;
+		std::string title;
 };
 
 
@@ -95,7 +94,7 @@ class Quest_Title_Request
 //
 class QuestCompare {
 	public:
-		bool operator()(const Quest x, const Quest y)
+		bool operator()(const Quest x, const Quest y) const
 		{
 			if (x.get_id() == Quest::UNSET_ID)
 				return true;
@@ -113,17 +112,21 @@ class Quest_List
 {
 	public:
 		Quest_List(void) : save_needed(false), iter_set(false), max_title(0),
-			selected_id(Quest::UNSET_ID), win_id(-1), scroll_id(0),
+			selected_id(Quest::UNSET_ID), highlighted_id(Quest::UNSET_ID),
+			win_id(-1), scroll_id(0),
 			mouseover_y(-1), clicked(false), spacer(3),
 			linesep(static_cast<int>(SMALL_FONT_Y_LEN)+2*3),
-			font_x(static_cast<int>(SMALL_FONT_X_LEN)) {}
+			font_x(static_cast<int>(SMALL_FONT_X_LEN)), cm_id(CM_INIT_VALUE), 
+			no_auto_open(0), hide_completed(0), quest_completed(0), number_shown(0) {}
 		void add(Uint16 id);
 		void set_requested_title(const char* title);
 		void showall(void);
 		void load(void);
 		void save(void);
-		void complete(Uint16 id);
-		size_t size(void) const { return quests.size(); }
+		void set_completed(Uint16 id, bool is_complete);
+		bool get_completed(Uint16 id) const;
+		void toggle_completed(Uint16 id) { set_completed(id, !get_completed(id)); }
+		size_t num_shown(void) const { return number_shown; }
 		const Quest * get_first_quest(int offset);
 		const Quest * get_next_quest(void);
 		void set_selected(Uint16 id) { selected_id = id; }
@@ -141,6 +144,15 @@ class Quest_List
 		int get_spacer(void) const { return spacer; }
 		int get_linesep(void) const { return linesep; }
 		int get_font_x(void) const { return font_x; }
+		bool auto_open_window(void) const { return !no_auto_open; }
+		void recalc_num_shown(void);
+		unsigned int get_options(void) const;
+		void set_options(unsigned int options);
+		void set_highlighted(Uint16 id) { highlighted_id = id; }
+		Uint16 get_highlighted(void) const { return highlighted_id; }
+		void clear_highlighted(void) { set_highlighted(Quest::UNSET_ID); }
+		void cm_pre_show_handler(void);
+		bool cm_active(void) const { return ((cm_id != CM_INIT_VALUE) && (cm_window_shown() == cm_id)); }
 	private:
 		std::map <Uint16,Quest,QuestCompare> quests;
 		std::queue <Quest_Title_Request> title_requests;
@@ -150,6 +162,7 @@ class Quest_List
 		bool iter_set;
 		size_t max_title;
 		Uint16 selected_id;
+		Uint16 highlighted_id;
 		int win_id;
 		int scroll_id;
 		int mouseover_y;
@@ -157,6 +170,12 @@ class Quest_List
 		const int spacer;
 		const int linesep;
 		const int font_x;
+		size_t cm_id;
+		// use logical sense so zero/false value is off
+		int no_auto_open;
+		int hide_completed;
+		int quest_completed;
+		size_t number_shown;
 };
 
 
@@ -177,7 +196,7 @@ Quest::Quest(const std::string & line)
 	std::string::size_type start = title.find_first_not_of(' ');
 	std::string::size_type end = title.find_last_not_of(' ');
 	if (start == std::string::npos)
-		title.clear();
+		title = "?";
 	else
 		title = title.substr(start,end-start+1);
 }
@@ -193,6 +212,7 @@ void Quest_List::add(Uint16 id)
 	quests.insert( std::make_pair( id, Quest(id)) );
 	save_needed = true;
 	title_requests.push(id);
+	recalc_num_shown();
 	if (title_requests.size() == 1)
 		title_requests.front().request();
 }
@@ -200,19 +220,34 @@ void Quest_List::add(Uint16 id)
 
 //	Mark quest completed, making a quest object if unknown so far.
 //
-void Quest_List::complete(Uint16 id)
+void Quest_List::set_completed(Uint16 id, bool is_complete)
 {
+	if (id == Quest::UNSET_ID)
+		return;
 	std::map<Uint16,Quest,QuestCompare>::iterator i = quests.find(id);
 	if (i != quests.end())
-		i->second.set_completed();
+		i->second.set_completed(is_complete);
 	else
 	{
 		add(id);
 		i = quests.find(id);
 		if (i != quests.end())
-			i->second.set_completed();
+			i->second.set_completed(is_complete);
 	}
+	recalc_num_shown();
 	save_needed = true;
+}
+
+
+//	Return true if the specified quest is known and its marked complete
+bool Quest_List::get_completed(Uint16 id) const
+{
+	if (id == Quest::UNSET_ID)
+		return false;
+	std::map<Uint16,Quest,QuestCompare>::const_iterator i = quests.find(id);
+	if (i != quests.end())
+		return i->second.get_completed();
+	return false;
 }
 
 
@@ -257,6 +292,7 @@ void Quest_List::load(void)
 	std::string username = std::string(username_str);
 	std::transform(username.begin(), username.end(), username.begin(), tolower);
 	list_filename = std::string(get_path_config()) + "quest_" + username + ".list";
+	recalc_num_shown();
 
 	std::ifstream in(list_filename.c_str());
 	if (!in)
@@ -285,6 +321,7 @@ void Quest_List::load(void)
 	}
 	
 	save_needed = false;
+	recalc_num_shown();
 }
 
 
@@ -326,8 +363,14 @@ const Quest * Quest_List::get_first_quest(int offset)
 		return 0;
 	iter = quests.begin();
 	for (int i=0; i<offset; i++)
+	{
 		if (++iter == quests.end())
 			return 0;
+		if (hide_completed)
+			while (iter->second.get_completed())
+				if (++iter == quests.end())
+					return 0;
+	}
 	iter_set = true;
 	return &iter->second;
 }
@@ -339,10 +382,50 @@ const Quest * Quest_List::get_next_quest(void)
 {
 	if (!iter_set)
 		return get_first_quest(0);
-	if (++iter != quests.end())
+	++iter;
+	if (hide_completed)
+		while (iter != quests.end() && iter->second.get_completed())
+			++iter;
+	if (iter != quests.end())
 		return &iter->second;
 	iter_set = false;
 	return 0;
+}
+
+
+//	Recalulate the number of quests that can be shown, it varies if hiding is enabled.
+//
+void Quest_List::recalc_num_shown(void)
+{
+	if (hide_completed)
+	{
+		number_shown = 0;
+		for (std::map<Uint16,Quest,QuestCompare>::const_iterator i=quests.begin(); i!=quests.end(); ++i)
+			if (!i->second.get_completed())
+				number_shown++;
+	}
+	else
+		number_shown = quests.size();
+}
+
+
+//	Return all the options values as bits in the word.
+//
+unsigned int Quest_List::get_options(void) const
+{
+	unsigned int options = 0;
+	options |= (no_auto_open) ?1: 0;
+	options |= ((hide_completed) ?1: 0) << 1;
+	return options;
+}
+
+
+//	Get the options from the bits of the word.
+//
+void Quest_List::set_options(unsigned int options)
+{
+	no_auto_open = options & 1;
+	hide_completed = (options >> 1) & 1;
 }
 
 
@@ -379,11 +462,18 @@ class Quest_Entry
 		Uint16 get_charsum(void) const { return charsum; }
 		void set_id(Uint16 id) { quest_id = id; }
 		Uint16 get_id(void) const { return quest_id; }
-		bool deleted;
+		void set_deleted(bool is_deleted) { deleted = is_deleted; update_displayed_npc_name(); }
+		bool get_deleted(void) const { return deleted; }
+		const std::string & get_disp_npc(void) const { return disp_npc; };
 	private:
 		void set_lines(const std::string & the_text);
+		void update_displayed_npc_name(void);
+		bool deleted;
 		std::vector<std::string> lines;
+		static std::vector<std::string> deleted_line;
+		static const std::string npc_spacer;
 		std::string npc;
+		std::string disp_npc;
 		Uint16 quest_id;
 		Uint16 charsum;
 };
@@ -403,12 +493,11 @@ class Shown_Entry
 
 
 static const char NPC_NAME_COLOUR = c_blue2;
-static const std::string npc_spacer = ": ";
 static std::vector<Quest_Entry> quest_entries;
 static std::vector<size_t> active_entries;
+static std::set<size_t> selected_entries;
 static std::vector<Shown_Entry> shown_entries;
 static std::map<std::string, int> filter_map;
-static std::vector<std::string> deleted_entry;
 static int quest_scroll_id = 14;
 static std::string filename;
 static size_t current_line = 0;
@@ -416,19 +505,37 @@ static bool need_to_save = false;
 static bool mouse_over_questlog = false;
 static Uint16 next_entry_quest_id = Quest::UNSET_ID;
 static Quest_List questlist;
-static enum { QLFLT_NONE=0, QLFLT_QUEST, QLFLT_NPC } active_filter = QLFLT_NONE;
+static enum { QLFLT_NONE=0, QLFLT_QUEST, QLFLT_NPC, QLFLT_SEL } active_filter = QLFLT_NONE;
 static const int qlwinwidth = 580;
 static const int qlwinheight = 350;
 static const int qlborder = 5;
 static size_t cm_questlog_id = CM_INIT_VALUE;
-enum {	CMQL_SHOWALL=0, CMQL_QUESTFILTER, CMQL_NPCFILTER, CMQL_NPCSHOWNONE, 
-		CMQL_S1, CMQL_COPY, CMQL_COPYALL, CMQL_FIND, CMQL_ADD, CMQL_S2, 
-		CMQL_DELETE, CMQL_UNDEL, CMQL_S3, CMQL_DEDUPE, CMQL_S4, CMQL_SAVE };
+static size_t cm_questlog_over_entry = static_cast<size_t>(-1);
+enum {	CMQL_SHOWALL=0, CMQL_QUESTFILTER, CMQL_NPCFILTER, CMQL_NPCSHOWNONE, CMQL_S01,
+		CMQL_COPY, CMQL_COPYALL, CMQL_FIND, CMQL_ADD, CMQL_S02,
+		CMQL_SEL, CMQL_UNSEL, CMQL_SELALL, CMQL_UNSELALL, CMQL_SHOWSEL, CMQL_S03,
+		CMQL_DELETE, CMQL_UNDEL, CMQL_S04, CMQL_DEDUPE, CMQL_S05, CMQL_SAVE };
+enum {	CMQL_COMPLETED=0, CMQL_ADDSEL, CMQL_S11, CMQL_HIDECOMPLETED, CMQL_NOAUTOOPEN };
 static std::string adding_npc;
 static size_t adding_insert_pos = 0;
 static bool prompt_for_add_text = false;
 static INPUT_POPUP ipu_questlog;
 static int current_action = -1;
+
+std::vector<std::string> Quest_Entry::deleted_line;
+const std::string Quest_Entry::npc_spacer = ": ";
+
+//	Create a fixed vector to use if deleted and a raw npc name / deleted string.
+// 
+void Quest_Entry::update_displayed_npc_name(void)
+{
+	if (deleted_line.empty())
+		deleted_line.push_back(static_cast<char>(to_color_char(c_grey2)) + std::string(questlog_deleted_str));
+	if (deleted)
+		disp_npc = std::string(questlog_deleted_str);
+	else
+		disp_npc = std::string(npc + npc_spacer.substr(0, npc_spacer.size()-1));
+}
 
 
 //	Return the lines of an entry.
@@ -437,9 +544,7 @@ const std::vector<std::string> & Quest_Entry::get_lines(void) const
 {
 	if (!deleted)
 		return lines;
-	if (deleted_entry.empty())
-		deleted_entry.push_back(static_cast<char>(to_color_char(c_grey2)) + std::string(questlog_deleted_str));
-	return deleted_entry;
+	return deleted_line;
 }
 
 
@@ -495,6 +600,7 @@ void Quest_Entry::set_lines(const std::string & the_text)
 			if ((id_str.size()>0) && (id_str.find_first_not_of("0123456789") == std::string::npos))
 			{
 				quest_id = static_cast<Uint16>(atoi(id_str.c_str()));
+				questlist.add(quest_id);
 				text.erase(open,close);
 			}
 		}
@@ -524,6 +630,8 @@ void Quest_Entry::set_lines(const std::string & the_text)
 	// catch the last line
 	if (start < text.size())
 		lines.push_back(text.substr(start, text.size()-start));
+
+	update_displayed_npc_name();
 
 	// make sure latest entry is not filtered - shouldn't really use global !
 	filter_map[npc] = 1;
@@ -633,6 +741,10 @@ static void rebuild_active_entries(size_t desired_top_entry)
 					(questlist.get_selected() == quest_entries[entry].get_id()))
 					useit = true;
 				break;
+			case QLFLT_SEL:
+				if (selected_entries.find(entry) != selected_entries.end())
+					useit = true;
+				break;
 		}
 		if (useit)
 			active_entries.push_back(entry);
@@ -657,7 +769,7 @@ static void save_questlog(void)
 		return;
 	}
 	for (std::vector<Quest_Entry>::const_iterator entry=quest_entries.begin(); entry!=quest_entries.end(); ++entry)
-		if (!entry->deleted)
+		if (!entry->get_deleted())
 			entry->save(out);
 	need_to_save = false;
 }
@@ -674,6 +786,22 @@ void show_all_entries(void)
 	// clean a quest filter
 	questlist.set_selected(Quest::UNSET_ID);
 	rebuild_active_entries((current_line < active_entries.size()) ?active_entries[current_line] :0);
+}
+
+
+//	Draw a simple line
+//
+static void draw_underline(int startx, int starty, int endx, int endy)
+{
+	glDisable(GL_TEXTURE_2D);
+	glBegin(GL_LINES);
+	glVertex2i(startx, starty);
+	glVertex2i(endx, endy);
+	glEnd();
+	glEnable(GL_TEXTURE_2D);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 
@@ -915,7 +1043,7 @@ static int display_questlist_handler(window_info *win)
 	// once we stop, snap the window size to fix nicely
 	else if (resizing)
 	{
-		size_t to_show = (disp_lines>questlist.size()) ?questlist.size() :disp_lines;
+		size_t to_show = (disp_lines>questlist.num_shown()) ?questlist.num_shown() :disp_lines;
 		size_t newy = static_cast<size_t>(0.5 + to_show * questlist.get_linesep());
 		to_show = (disp_chars>questlist.get_max_title()) ?questlist.get_max_title() :disp_chars;
 		size_t newx = static_cast<size_t>(0.5+questlist.get_font_x()*to_show+used_x);
@@ -923,17 +1051,27 @@ static int display_questlist_handler(window_info *win)
 		resize_window (win->window_id, newx, newy);
 	}
 
+	// only show help and clear the highlighted quest if the context window is closed
+	if (cm_window_shown() == CM_INIT_VALUE)
+	{
+		questlist.clear_highlighted();
+		if (show_help_text && questlist.has_mouseover())
+			show_help(questlog_cm_help_str, 0, win->len_y + 10);
+	}
+
 	// get the top line and then loop drawing all quests we can display
-	vscrollbar_set_bar_len(win->window_id, questlist.get_scroll_id(), (questlist.size()>disp_lines) ?questlist.size()-disp_lines :0);
-	int offset = (questlist.size()>disp_lines) ?vscrollbar_get_pos(win->window_id, questlist.get_scroll_id()) :0;
+	vscrollbar_set_bar_len(win->window_id, questlist.get_scroll_id(), (questlist.num_shown()>disp_lines) ?questlist.num_shown()-disp_lines :0);
+	int offset = (questlist.num_shown()>disp_lines) ?vscrollbar_get_pos(win->window_id, questlist.get_scroll_id()) :0;
 	const Quest* thequest  = questlist.get_first_quest(offset);
 	int posy = questlist.get_spacer();
 	while ((thequest != 0) && (posy+questlist.get_linesep()-questlist.get_spacer() <= win->len_y))
 	{
 		const int hl_x = static_cast<int>(win->len_x - 2*questlist.get_spacer() - ELW_BOX_SIZE);
 		// is this the quest the mouse is over?
-		if (questlist.has_mouseover() && (posy+questlist.get_linesep()-questlist.get_spacer() > questlist.get_mouseover_y()))
+		if (questlist.has_mouseover() && (cm_window_shown() == CM_INIT_VALUE) &&
+			(posy+questlist.get_linesep()-questlist.get_spacer() > questlist.get_mouseover_y()))
 		{
+			questlist.set_highlighted(thequest->get_id());
 			// draw highlight over active name
 			draw_highlight(questlist.get_spacer(), posy-questlist.get_spacer(), hl_x, questlist.get_linesep());
 			// if clicked, update the filter
@@ -950,14 +1088,19 @@ static int display_questlist_handler(window_info *win)
 					questlist.set_selected(thequest->get_id());
 					rebuild_active_entries(quest_entries.size()-1);
 				}
+#ifdef NEW_SOUND
+				add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+#endif
 			}
 			questlist.clear_mouseover();
 		}
-		// is this the selected tite?
+		// is this the selected title?
 		if ((active_filter == QLFLT_QUEST) && (thequest->get_id() == questlist.get_selected()))
 			draw_highlight(questlist.get_spacer(), posy-questlist.get_spacer(), hl_x, questlist.get_linesep(), 1);
+		if (questlist.cm_active() && (questlist.get_highlighted() == thequest->get_id()))
+			glColor3f(0.77f, 0.57f, 0.39f);
 		// display comleted quests less prominently
-		if (thequest->get_completed())
+		else if (thequest->get_completed())
 			glColor3f(0.6f,0.6f,0.6f);
 		else
 			glColor3f(1.0f,1.0f,1.0f);
@@ -997,7 +1140,8 @@ static int click_questlist_handler(window_info *win, int mx, int my, Uint32 flag
 //
 static int mouseover_questlist_handler(window_info *win, int mx, int my)
 {
-	questlist.set_mouseover_y(my);
+	if (my>=0)
+		questlist.set_mouseover_y(my);
 	return 0;
 }
 
@@ -1009,6 +1153,43 @@ static int resize_questlist_handler(window_info *win, int new_width, int new_hei
 	widget_move(win->window_id, questlist.get_scroll_id(), win->len_x-ELW_BOX_SIZE, ELW_BOX_SIZE);
 	widget_resize(win->window_id, questlist.get_scroll_id(), ELW_BOX_SIZE, win->len_y-2*ELW_BOX_SIZE);
 	return 0;
+}
+
+
+//	Handle option selection for the quest list context menu 
+static int cm_questlist_handler(window_info *win, int widget_id, int mx, int my, int option)
+{
+	
+	switch (option)
+	{
+		case CMQL_COMPLETED: questlist.toggle_completed(questlist.get_highlighted()); break;
+		case CMQL_ADDSEL:
+			for (std::set<size_t>::const_iterator i=selected_entries.begin(); i!=selected_entries.end(); ++i)
+				quest_entries[*i].set_id(questlist.get_highlighted());
+			need_to_save = true;
+			rebuild_active_entries((current_line < active_entries.size()) ?active_entries[current_line] :0);
+			break;
+		case CMQL_HIDECOMPLETED: questlist.recalc_num_shown(); break;
+	}
+	return 1;
+}
+
+
+//	Adjust things just before the quest list context menu is opened
+//
+void Quest_List::cm_pre_show_handler(void)
+{
+	quest_completed = (get_completed(highlighted_id)) ?1 :0;
+	cm_grey_line(cm_id, CMQL_COMPLETED, (highlighted_id == Quest::UNSET_ID) ?1 :0);
+	cm_grey_line(cm_id, CMQL_ADDSEL, selected_entries.empty() ?1 :0);
+}
+
+
+//	Adjust things just before the quest list context menu is opened
+//
+static void cm_questlist_pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win)
+{
+	questlist.cm_pre_show_handler();
 }
 
 
@@ -1030,6 +1211,14 @@ void Quest_List::open_window(void)
 			size_x-ELW_BOX_SIZE, ELW_BOX_SIZE, ELW_BOX_SIZE, size_y-2*ELW_BOX_SIZE, 0,
 			1.0, 0.77f, 0.57f, 0.39f, 0, 1, quests.size()-1);
 		set_window_min_size(win_id, size_x, size_y);
+
+		cm_id = cm_create(cm_questlist_menu_str, cm_questlist_handler);
+		cm_set_pre_show_handler(cm_id, cm_questlist_pre_show_handler);
+		cm_add_window(cm_id, win_id);
+
+		cm_bool_line(cm_id, CMQL_COMPLETED, &quest_completed, NULL);
+		cm_bool_line(cm_id, CMQL_NOAUTOOPEN, &no_auto_open, NULL);
+		cm_bool_line(cm_id, CMQL_HIDECOMPLETED, &hide_completed, NULL);
 	}
 	else
 		show_window(win_id);
@@ -1183,7 +1372,7 @@ static void find_in_entry(window_info *win)
 //
 static void undelete_entry(size_t entry)
 {
-	quest_entries[active_entries[entry]].deleted = false;
+	quest_entries[active_entries[entry]].set_deleted(false);
 	need_to_save = true;
 }
 
@@ -1192,7 +1381,7 @@ static void undelete_entry(size_t entry)
 //
 static void delete_entry(size_t entry)
 {
-	quest_entries[active_entries[entry]].deleted = true;
+	quest_entries[active_entries[entry]].set_deleted(true);
 	need_to_save = true;
 }
 
@@ -1206,7 +1395,7 @@ void delete_duplicates(void)
 
 	for (std::vector<Quest_Entry>::iterator entry=quest_entries.begin(); entry!=quest_entries.end(); ++entry)
 	{
-		if (!entry->deleted)
+		if (!entry->get_deleted())
 		{
 			// get the full text for the entry
 			std::string the_text;
@@ -1224,7 +1413,8 @@ void delete_duplicates(void)
 					// if the text and the charsum match, mark the entry as deleted
 					if (iter->second == the_text)
 					{
-						entry->deleted = need_to_save = true;
+						entry->set_deleted(true);
+						need_to_save = true;
 						deleted_count++;
 						break;
 					}
@@ -1232,7 +1422,7 @@ void delete_duplicates(void)
 			}
 
 			// save - as either the charsum did not match a previous entry or the charsum did but the text didn't
-			if (!entry->deleted)
+			if (!entry->get_deleted())
     			mm.insert(std::pair<Uint16,std::string>(entry->get_charsum(), the_text));
 		}
 	}
@@ -1247,17 +1437,18 @@ void delete_duplicates(void)
 //
 static void cm_questlog_pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win)
 {
-	size_t over_entry = active_entries.size();
+	cm_questlog_over_entry = active_entries.size();
 	for (std::vector<Shown_Entry>::const_iterator i=shown_entries.begin(); i!=shown_entries.end(); ++i)
 		if (i->is_over(my))
 		{
-			over_entry = i->get_entry();
+			cm_questlog_over_entry = i->get_entry();
 			break;
 		}
-	bool is_over_entry = (over_entry < active_entries.size());
-	bool is_deleted = is_over_entry && quest_entries[active_entries[over_entry]].deleted;
+	bool is_over_entry = (cm_questlog_over_entry < active_entries.size());
+	bool is_deleted = is_over_entry && quest_entries[active_entries[cm_questlog_over_entry]].get_deleted();
 	bool qlw_open = get_show_window(questlist.get_win_id());
 	bool nfw_open = get_show_window(quest_filter_win);
+	bool is_selected = is_over_entry && (selected_entries.find(active_entries[cm_questlog_over_entry]) != selected_entries.end());
 	cm_grey_line(cm_questlog_id, CMQL_SHOWALL, quest_entries.empty() ?1 :0);
 	cm_grey_line(cm_questlog_id, CMQL_QUESTFILTER, (qlw_open || quest_entries.empty()) ?1 :0);
 	cm_grey_line(cm_questlog_id, CMQL_NPCFILTER, (nfw_open || quest_entries.empty()) ?1 :0);
@@ -1265,7 +1456,12 @@ static void cm_questlog_pre_show_handler(window_info *win, int widget_id, int mx
 	cm_grey_line(cm_questlog_id, CMQL_COPY, (is_over_entry && !is_deleted) ?0 :1);
 	cm_grey_line(cm_questlog_id, CMQL_COPYALL, active_entries.empty() ?1 :0);
 	cm_grey_line(cm_questlog_id, CMQL_FIND, (current_action == -1 && !active_entries.empty()) ?0 :1);
-	cm_grey_line(cm_questlog_id, CMQL_ADD, (current_action == -1) ?0 :1);	
+	cm_grey_line(cm_questlog_id, CMQL_ADD, (current_action == -1) ?0 :1);
+	cm_grey_line(cm_questlog_id, CMQL_SEL, (is_over_entry && !is_deleted && !is_selected) ?0 :1);
+	cm_grey_line(cm_questlog_id, CMQL_UNSEL, (is_over_entry && is_selected) ?0 :1);
+	cm_grey_line(cm_questlog_id, CMQL_SELALL, quest_entries.empty() ?1 :0);
+	cm_grey_line(cm_questlog_id, CMQL_UNSELALL, selected_entries.empty() ?1 :0);
+	cm_grey_line(cm_questlog_id, CMQL_SHOWSEL, selected_entries.empty() ?1 :0);
 	cm_grey_line(cm_questlog_id, CMQL_DELETE, (is_over_entry && !is_deleted) ?0 :1);
 	cm_grey_line(cm_questlog_id, CMQL_UNDEL, (is_over_entry && is_deleted) ?0 :1);
 	cm_grey_line(cm_questlog_id, CMQL_DEDUPE, quest_entries.empty() ?1 :0);
@@ -1301,6 +1497,21 @@ static int cm_quest_handler(window_info *win, int widget_id, int mx, int my, int
 		case CMQL_COPYALL: copy_all_entries(); break;
 		case CMQL_FIND: find_in_entry(win); break;
 		case CMQL_ADD: add_entry(win, over_entry); break;
+		case CMQL_SEL: if (over_entry < active_entries.size()) selected_entries.insert(active_entries[over_entry]); break;
+		case CMQL_UNSEL: if (over_entry < active_entries.size()) selected_entries.erase(active_entries[over_entry]); break;
+		case CMQL_SELALL:
+			for (std::vector<size_t>::const_iterator i=active_entries.begin(); i!=active_entries.end(); ++i)
+				selected_entries.insert(active_entries[*i]);
+			break;
+		case CMQL_UNSELALL:
+			if (active_filter == QLFLT_SEL)
+				show_all_entries();
+			selected_entries.clear();
+			break;
+		case CMQL_SHOWSEL:
+			active_filter = QLFLT_SEL;
+			rebuild_active_entries((current_line < active_entries.size()) ?active_entries[current_line] :0);
+			break;
 		case CMQL_DELETE: if (over_entry < active_entries.size()) delete_entry(over_entry); break;
 		case CMQL_UNDEL: if (over_entry < active_entries.size()) undelete_entry(over_entry); break;
 		case CMQL_DEDUPE: delete_duplicates(); break;
@@ -1318,10 +1529,14 @@ static int display_questlog_handler(window_info *win)
 	if (prompt_for_add_text)
 		questlog_add_text_input(win);
 
-	if (show_help_text && mouse_over_questlog && (current_action == -1))
+	if (cm_window_shown() == CM_INIT_VALUE)
 	{
-		show_help(questlog_cm_help_str, 0, win->len_y + 10);
-		mouse_over_questlog = false;
+		cm_questlog_over_entry = active_entries.size();
+		if (show_help_text && mouse_over_questlog && (current_action == -1))
+		{
+			show_help(questlog_cm_help_str, 0, win->len_y + 10);
+			mouse_over_questlog = false;
+		}
 	}
 
 	int questlog_y = qlborder;
@@ -1330,6 +1545,7 @@ static int display_questlog_handler(window_info *win)
 	{
 		int start_y = questlog_y;
 		const std::vector<std::string> &lines = quest_entries[active_entries[entry]].get_lines();
+		glColor3f(1.0f, 1.0f, 1.0f);
 		for (std::vector<std::string>::const_iterator line = lines.begin(); line != lines.end(); ++line)
 		{
 			draw_string_small (qlborder+gx_adjust, questlog_y+gy_adjust, reinterpret_cast<const unsigned char *>(line->c_str()), 1);
@@ -1337,6 +1553,17 @@ static int display_questlog_handler(window_info *win)
 			if (questlog_y+qlborder > qlwinheight - SMALL_FONT_Y_LEN)
 				break;
 		}
+		glColor3f(0.7f, 0.7f, 1.0f);
+		if ((cm_questlog_over_entry < active_entries.size()) && (entry == cm_questlog_over_entry))
+		{
+			glColor3f(0.77f, 0.57f, 0.39f);
+			draw_string_small(qlborder+gx_adjust, start_y+gy_adjust,
+				reinterpret_cast<const unsigned char *>(quest_entries[active_entries[entry]].get_disp_npc().c_str()), 1);
+		}
+		if (selected_entries.find(active_entries[entry]) != selected_entries.end())
+			draw_underline(qlborder, start_y+static_cast<int>(SMALL_FONT_Y_LEN),
+				qlborder+static_cast<int>(quest_entries[active_entries[entry]].get_disp_npc().size() * SMALL_FONT_X_LEN),
+				start_y+static_cast<int>(SMALL_FONT_Y_LEN));
 		shown_entries.push_back(Shown_Entry(entry, start_y, questlog_y));
 		questlog_y += qlborder;
 		if (questlog_y+qlborder > qlwinheight - SMALL_FONT_Y_LEN)
@@ -1400,7 +1627,7 @@ static int mouseover_questlog_handler(window_info *win, int mx, int my)
 
 static int show_questlog_handler(window_info *win)
 {
-	if (!get_show_window(questlist.get_win_id()))
+	if (questlist.auto_open_window() && !get_show_window(questlist.get_win_id()))
 		questlist.open_window();
 	return 0;
 }
@@ -1501,7 +1728,6 @@ extern "C" void load_questlog()
 		if (!line.empty())
 		{
 			add_questlog_line(line.c_str(), "");
-			questlist.add(quest_entries.back().get_id());
 			if (out)
 				quest_entries.back().save(out);
 		}
@@ -1562,7 +1788,7 @@ extern "C" void display_questlog()
 	}
 	else
 		show_window(questlog_win);
-	if (!get_show_window(questlist.get_win_id()))
+	if (questlist.auto_open_window() && !get_show_window(questlist.get_win_id()))
 		questlist.open_window();
 }
 
@@ -1608,7 +1834,19 @@ extern "C" void set_quest_finished(Uint16 id)
 	char buf[80];
 	safe_snprintf(buf, 80, "Received QUEST_FINISHED with id=%d", id);
 	LOG_TO_CONSOLE(c_green1, buf);
-	questlist.complete(id);
+	questlist.set_completed(id, true);
+}
+
+
+extern "C" unsigned int get_options_questlog(void)
+{
+	return questlist.get_options();
+}
+
+
+extern "C" void set_options_questlog(unsigned int cfg_options)
+{
+	questlist.set_options(cfg_options);
 }
 
 

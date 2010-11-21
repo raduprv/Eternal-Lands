@@ -191,18 +191,18 @@ typedef struct
     
 	//!!!!!!!If you add any new FLOAT option, decrement the reserved thingy accordingly!!!!!!
 #ifdef EMOTES
-#define NUM_RESERVED 3
+#define NUM_RESERVED 2
 #else
-#define NUM_RESERVED 5
+#define NUM_RESERVED 4
 #endif
 
 #else    //USER_MENUS
 	//!!!!!!!If you add any new FLOAT option, decrement the reserved thingy accordingly!!!!!!
 
 #ifdef EMOTES
-#define NUM_RESERVED 6
+#define NUM_RESERVED 5
 #else
-#define NUM_RESERVED 8
+#define NUM_RESERVED 7
 #endif
 
 #endif //USER_MENUS
@@ -220,6 +220,7 @@ typedef struct
 #endif
 	int watch_this_stats[5];
 	unsigned int floating_counter_flags;
+	unsigned int questlog_flags; // no need to complicate NUM_RESERVED by using #ifdef NEW_QUESTLOG
 
 	float freserved[NUM_RESERVED];
 }bin_cfg;
