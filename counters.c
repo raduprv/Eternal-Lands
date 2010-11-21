@@ -403,16 +403,11 @@ static void cm_counters_pre_show_handler(window_info *win, int widget_id, int mx
 	if (counters_scroll_id != -1)
 		cm_selected_entry += vscrollbar_get_pos(counters_win, counters_scroll_id);
 
-	// if a valid entry, the menu options are not greyed out
-	if ((cm_selected_entry >= 0) && (cm_selected_entry < entries[cm_selected_id]))
+	// if not a valid entry, the menu options are greyed out
 	{
-		cm_grey_line(cm_counters, 0, 0);
-		cm_grey_line(cm_counters, 2, 0);
-	}
-	else
-	{
-		cm_grey_line(cm_counters, 0, 1);
-		cm_grey_line(cm_counters, 2, 1);
+		int is_grey = ((cm_selected_entry <0) || (cm_selected_entry >= entries[cm_selected_id]));
+		cm_grey_line(cm_counters, 0, is_grey);
+		cm_grey_line(cm_counters, 2, is_grey);
 	}
 
 	// set the control var from floating flags
@@ -514,7 +509,6 @@ int display_counters_handler(window_info *win)
 	int scroll;
 	int total, session_total;
 	char buffer[32];
-	float colour_scale = 1.0;
 
 	i = multiselect_get_selected(counters_win, multiselect_id);
 	selected_counter_id = i + 1;
@@ -573,14 +567,11 @@ int display_counters_handler(window_info *win)
 		}
 
 		if (cm_selected_entry == j)
-			colour_scale = 0.5;
-		else
-			colour_scale = 1.0;
-
-		if ((selected_counter_id == KILLS || selected_counter_id == DEATHS) && counters[i][j].extra) {
-			glColor3f(0.8f*colour_scale, 0.2f*colour_scale, 0.2f*colour_scale);
+			glColor3f(0.77f, 0.57f, 0.39f);
+		else if ((selected_counter_id == KILLS || selected_counter_id == DEATHS) && counters[i][j].extra) {
+			glColor3f(0.8f, 0.2f, 0.2f);
 		} else {
-			glColor3f(1.0f*colour_scale, 1.0f*colour_scale, 1.0f*colour_scale);
+			glColor3f(1.0f, 1.0f, 1.0f);
 		}
 		
 		/* draw first so left padding does not overwrite name */
