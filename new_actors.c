@@ -1175,8 +1175,10 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	if(frame==frame_combat_idle) {
 		//if fighting turn the horse and the fighter
 			actors_list[i]->fighting=1;
-			MY_HORSE(i)->fighting=1;
-			if(ACTOR_WEAPON(i)->turn_horse) rotate_actor_and_horse(i,-1);
+			if(actors_list[i]->attached_actor>=0) {
+				MY_HORSE(i)->fighting=1;
+				if(ACTOR_WEAPON(i)->turn_horse) rotate_actor_and_horse(i,-1);
+			}
 	}
 #endif
 
