@@ -2,6 +2,9 @@
 #include <time.h>
 #include <string.h>
 #include <ctype.h>
+#ifdef NECK_ITEMS
+#include "new_actors.h"
+#endif
 #include "console.h"
 #include "asc.h"
 #ifdef AWARDS
