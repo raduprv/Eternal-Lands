@@ -837,7 +837,7 @@ int handle_emote_command(int act_id, emote_command *command)
 #endif // EMOTES
 
 #ifdef MORE_ATTACHED_ACTORS
-int rotate_actor_and_horse(int id, int mul){
+void rotate_actor_and_horse(int id, int mul){
 
 			//printf("%i. ACTOR %s (rotating: %i): time left -> %i, z speed -> %f\n",thecount,ACTOR(id)->actor_name,actors_list[id]->rotating,actors_list[id]->rotate_time_left,actors_list[id]->rotate_z_speed);
 
