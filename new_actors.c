@@ -187,6 +187,7 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 {
 	int i;
 
+
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -316,6 +317,7 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 	int j;
 #endif
 
+	
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -1052,7 +1054,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	actors_list[i]->legs = pants;
 #endif
 
-	if (attachment_type >= 0)
+	if (attachment_type >= 0 &&attachment_type < 255) //255 is not necessary, but it suppresses a warning in errorlog
 		add_actor_attachment(actor_id, attachment_type);
 
 	if (actors_defs[actor_type].coremodel!=NULL) {
@@ -1176,6 +1178,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 		//if fighting turn the horse and the fighter
 			actors_list[i]->fighting=1;
 			if(actors_list[i]->attached_actor>=0) {
+				//printf("A fighting horse! (%s)\n", actors_list[i]->actor_name);
 				MY_HORSE(i)->fighting=1;
 				if(ACTOR_WEAPON(i)->turn_horse) rotate_actor_and_horse(i,-1);
 			}
