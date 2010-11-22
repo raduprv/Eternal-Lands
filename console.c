@@ -4,6 +4,9 @@
 #include <ctype.h>
 #include "console.h"
 #include "asc.h"
+#ifdef AWARDS
+#include "awards.h"
+#endif
 #include "buddy.h"
 #include "cache.h"
 #ifdef EMOTES
@@ -1471,6 +1474,58 @@ int command_quest_title(char *text, int len)
 }
 #endif // NEW_QUESTLOG
 
+#ifdef AWARDS
+/* temporary command to display an awards window */
+int command_awards(char *text, int len)
+{
+	int index = 0;
+	int valid_looking_message = 1;
+	const size_t nibbles_needed = AWARD_32BIT_WORDS*sizeof(Uint32);
+	Uint8 str[nibbles_needed];
+
+	text = getparams(text);
+	if (*text)
+	{
+		while (valid_looking_message && strlen(text)>0 && index<nibbles_needed)
+		{
+			int i;
+			Uint8 d[2];
+			while (*text==' ')
+				text++;
+			if (strlen(text)<2)
+				break;
+			for (i=0; i<2; i++)
+			{
+				d[i] = *text++;
+				if (d[i] >= '0' && d[i] <= '9')
+					d[i] -= '0';
+				else if (d[i] >= 'a' && d[i] <= 'f')
+					d[i] -= 'a'-10;
+				else if (d[i] >= 'A' && d[i] <= 'F')
+					d[i] -= 'A'-10;
+				else
+				{
+					valid_looking_message = 0;
+					break;
+				}
+			}
+			/* store the spell message byte */
+			if (valid_looking_message)
+				str[index++] = d[0] + 16*d[1];
+		}
+	}
+	
+	/* if we're now at the end of the text, we have some message bytes and it looks valid */
+	if (!*text && (index==nibbles_needed) && valid_looking_message)
+		here_is_awards_data((Uint32 *)str);
+	else
+		LOG_TO_CONSOLE(c_red2, "Invalid awards string");
+
+	return 1;
+}
+#endif // AWARDS
+
+
 /* display or test the md5sum of the current map or the specified file */
 int command_ckdata(char *text, int len)
 {
@@ -1675,6 +1730,9 @@ add_command("horse", &horse_cmd);
 	add_command(cmd_cast_spell, &command_cast_spell);
 #ifdef NEW_QUESTLOG
 	add_command("qt", &command_quest_title);
+#endif
+#ifdef AWARDS
+	add_command("awards", command_awards);
 #endif
 	command_buffer_offset = NULL;
 }

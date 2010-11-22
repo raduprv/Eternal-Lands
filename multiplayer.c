@@ -6,6 +6,9 @@
 #include "asc.h"
 #include "actors.h"
 #include "actor_scripts.h"
+#ifdef AWARDS
+#include "awards.h"
+#endif
 #include "books.h"
 #include "buddy.h"
 #include "buffs.h"
@@ -2053,6 +2056,22 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				break;
 			}
 #endif // NEW_QUESTLOG
+#ifdef AWARDS
+		case SEND_AWARDS:
+			{
+				Uint32 award_data[AWARD_32BIT_WORDS];
+				size_t i;
+				if (data_length != (3+(sizeof(Uint32)*AWARD_32BIT_WORDS)))
+				{
+					log_error("CAUTION: Possibly forged SEND_AWARDS packet received.\n");
+					break;
+				}
+				for (i=0; i<AWARD_32BIT_WORDS; ++i)
+					award_data[i] = SDL_SwapLE32(*((Uint32 *)(in_data+3+i*sizeof(Uint32))));
+				here_is_awards_data(award_data);
+			}
+			break;
+#endif // AWARDS
 		default:
 			{
 				// Unknown packet type??

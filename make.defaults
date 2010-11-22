@@ -40,6 +40,7 @@ FEATURES += USER_MENUS                      # enable user command menus
 #FEATURES += MORE_ATTACHED_ACTORS	     # Enable more activities on horses
 #FEATURES += NECK_ITEMS			     # Enables medallions/scarves
 #FEATURES += LARGE_TEXTURES		     # Changes player character texture size block to 512x512.
+#FEATURES += AWARDS							# Display player awards window when use eye cursor on player
 
 ### Machine specific options (fixes or performance enhancements) ###
 #FEATURES += EL_BIG_ENDIAN                   # Enable big-endian code (automatically detected for OSX)

@@ -696,7 +696,7 @@ typedef enum
 #define PING_RESPONSE 60
 #define SET_ACTIVE_CHANNEL 61
 
-/* sent: 16 bit quest id, request the server to supply title the quest using HERE_IS_QUEST_ID */
+/* send: 16 bit quest id, request the server to supply quest title using HERE_IS_QUEST_ID */
 #define WHAT_QUEST_IS_THIS_ID 63
 
 #define DO_EMOTE 70
@@ -806,10 +806,12 @@ typedef enum
 #define REMOVE_MAP_MARKER 91
 /* sent: 16 bit quest id for the next npc message */
 #define NEXT_NPC_MESSAGE_IS_QUEST 92
-/* sent: 16 bit quest id followed by non null terminated string giving the title of the quest */
+/* sent: non null terminated string giving the title of the quest */
 #define HERE_IS_QUEST_ID 93
 /* sent: 16 bit quest id, this quest should be shown as finished */
 #define QUEST_FINISHED 94
+/* sent: 5 x 32 bit integers, each active bit is an award the last "You see: name" player has */
+#define SEND_AWARDS 95
 
 #define SEND_WEATHER 100
 
