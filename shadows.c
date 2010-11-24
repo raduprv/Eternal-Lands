@@ -318,11 +318,9 @@ void display_shadows()
 	glDisable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
 
-	glDisable(GL_TEXTURE_2D);
 #ifndef MAP_EDITOR2
 	display_actors(0, DEPTH_RENDER_PASS);
 #endif
-	glEnable(GL_TEXTURE_2D);
 	glCullFace(GL_BACK);
 	glDisable(GL_POLYGON_OFFSET_FILL);
 #ifdef OPENGL_TRACE

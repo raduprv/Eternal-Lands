@@ -1027,7 +1027,7 @@ void display_actors(int banner, int render_pass)
 			break;
 		case DEPTH_RENDER_PASS:
 			use_lightning = 0;
-			use_textures = 0;
+			use_textures = 1;
 			break;
 	}
 
