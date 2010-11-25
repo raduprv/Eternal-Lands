@@ -6,8 +6,8 @@
 #include "asc.h"
 #include "actors.h"
 #include "actor_scripts.h"
-#ifdef AWARDS
-#include "awards.h"
+#ifdef ACHIEVEMENTS
+#include "achievements.h"
 #endif
 #include "books.h"
 #include "buddy.h"
@@ -2056,22 +2056,22 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				break;
 			}
 #endif // NEW_QUESTLOG
-#ifdef AWARDS
-		case SEND_AWARDS:
+#ifdef ACHIEVEMENTS
+		case SEND_ACHIEVEMENTS:
 			{
-				Uint32 award_data[AWARD_32BIT_WORDS];
+				Uint32 achievement_data[ACHIEVEMENT_32BIT_WORDS];
 				size_t i;
-				if (data_length != (3+(sizeof(Uint32)*AWARD_32BIT_WORDS)))
+				if (data_length != (3+(sizeof(Uint32)*ACHIEVEMENT_32BIT_WORDS)))
 				{
-					log_error("CAUTION: Possibly forged SEND_AWARDS packet received.\n");
+					log_error("CAUTION: Possibly forged SEND_ACHIEVEMENTS packet received.\n");
 					break;
 				}
-				for (i=0; i<AWARD_32BIT_WORDS; ++i)
-					award_data[i] = SDL_SwapLE32(*((Uint32 *)(in_data+3+i*sizeof(Uint32))));
-				here_is_awards_data(award_data);
+				for (i=0; i<ACHIEVEMENT_32BIT_WORDS; ++i)
+					achievement_data[i] = SDL_SwapLE32(*((Uint32 *)(in_data+3+i*sizeof(Uint32))));
+				here_is_achievements_data(achievement_data);
 			}
 			break;
-#endif // AWARDS
+#endif // ACHIEVEMENTS
 		default:
 			{
 				// Unknown packet type??

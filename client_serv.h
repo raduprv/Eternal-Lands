@@ -810,8 +810,8 @@ typedef enum
 #define HERE_IS_QUEST_ID 93
 /* sent: 16 bit quest id, this quest should be shown as finished */
 #define QUEST_FINISHED 94
-/* sent: 5 x 32 bit integers, each active bit is an award the last "You see: name" player has */
-#define SEND_AWARDS 95
+/* sent: 5 x 32 bit integers, each active bit is an achievement the last "You see: name" player has */
+#define SEND_ACHIEVEMENTS 95
 
 #define SEND_WEATHER 100
 

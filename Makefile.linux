@@ -33,7 +33,7 @@ NEW_SELECTION_CXXOBJ = select.o
 USER_MENUS_CXXOBJ = user_menus.o
 ITEM_LISTS_CXXOBJ = item_lists.o
 NEW_QUESTLOG_CXXOBJ = quest_log.o
-AWARDS_CXXOBJ = awards.o
+ACHIEVEMENTS_CXXOBJ = achievements.o
 COBJS=2d_objects.o 3d_objects.o \
 	actor_scripts.o actors.o alphamap.o asc.o astrology.o \
 	bbox_tree.o books.o buddy.o buffs.o bags.o \

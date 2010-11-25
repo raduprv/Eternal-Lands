@@ -7,8 +7,8 @@
 #endif
 #include "console.h"
 #include "asc.h"
-#ifdef AWARDS
-#include "awards.h"
+#ifdef ACHIEVEMENTS
+#include "achievements.h"
 #endif
 #include "buddy.h"
 #include "cache.h"
@@ -1477,13 +1477,13 @@ int command_quest_title(char *text, int len)
 }
 #endif // NEW_QUESTLOG
 
-#ifdef AWARDS
-/* temporary command to display an awards window */
-int command_awards(char *text, int len)
+#ifdef ACHIEVEMENTS
+/* temporary command to display an achievements window */
+int command_achievements(char *text, int len)
 {
 	int index = 0;
 	int valid_looking_message = 1;
-	const size_t nibbles_needed = AWARD_32BIT_WORDS*sizeof(Uint32);
+	const size_t nibbles_needed = ACHIEVEMENT_32BIT_WORDS*sizeof(Uint32);
 	Uint8 str[nibbles_needed];
 
 	text = getparams(text);
@@ -1520,13 +1520,13 @@ int command_awards(char *text, int len)
 	
 	/* if we're now at the end of the text, we have some message bytes and it looks valid */
 	if (!*text && (index==nibbles_needed) && valid_looking_message)
-		here_is_awards_data((Uint32 *)str);
+		here_is_achievements_data((Uint32 *)str);
 	else
-		LOG_TO_CONSOLE(c_red2, "Invalid awards string");
+		LOG_TO_CONSOLE(c_red2, "Invalid achievements string");
 
 	return 1;
 }
-#endif // AWARDS
+#endif // ACHIEVEMENTS
 
 
 /* display or test the md5sum of the current map or the specified file */
@@ -1734,8 +1734,8 @@ add_command("horse", &horse_cmd);
 #ifdef NEW_QUESTLOG
 	add_command("qt", &command_quest_title);
 #endif
-#ifdef AWARDS
-	add_command("awards", command_awards);
+#ifdef ACHIEVEMENTS
+	add_command("achievements", command_achievements);
 #endif
 	command_buffer_offset = NULL;
 }
