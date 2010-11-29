@@ -563,8 +563,8 @@ int Achievements_Window::display_handler(window_info *win)
 			float v_start= (1.0f + (static_cast<float>(as->get_size())/256) / 256.0f) -
 				(static_cast<float>(as->get_size()) / 256 * (cur_item / icon_per));
 			float v_end = v_start - static_cast<float>(as->get_size()) / 256;
-			float start_x = as->get_border() + as->get_display() * (shown_num % as->get_per_row());
-			float start_y = as->get_border() + as->get_display() * (shown_num / as->get_per_row());
+			int start_x = as->get_border() + as->get_display() * (shown_num % as->get_per_row());
+			int start_y = as->get_border() + as->get_display() * (shown_num / as->get_per_row());
 
 			get_and_set_texture_id(texture);
 			glBegin(GL_QUADS);
