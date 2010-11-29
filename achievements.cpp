@@ -211,14 +211,18 @@ Achievements_System::Achievements_System(void)
 {
 	xmlDocPtr doc;
 	xmlNodePtr cur;
-	char const *error_prefix = "Reading achievements.xml: ";
+	char const *error_prefix = "Reading xml: ";
 
-	achievements.resize(NUM_ACHIEVEMENTS, 0);
-
-	if ((doc = xmlReadFile("achievements.xml", NULL, 0)) == NULL)
+	std::ostringstream langpath;
+	langpath << "languages/" << lang << "/achievements.xml";
+	if ((doc = xmlReadFile(langpath.str().c_str(), NULL, 0)) == NULL)
 	{
-		log_error("%sCan't open file\n", error_prefix );
-		return;
+		const char *path = "languages/en/achievements.xml";
+		if ((doc = xmlReadFile(path, NULL, 0)) == NULL)
+		{
+			log_error("%sCan't open file [%s]\n", error_prefix, path );
+			return;
+		}
 	}
 
 	if ((cur = xmlDocGetRootElement (doc)) == NULL)
@@ -234,6 +238,8 @@ Achievements_System::Achievements_System(void)
 		xmlFreeDoc(doc);
 		return;
 	}
+
+	achievements.resize(NUM_ACHIEVEMENTS, 0);
 
 	for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
 	{
