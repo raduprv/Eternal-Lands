@@ -452,7 +452,7 @@ void Achievements_System::get_int_props(const xmlNodePtr cur, int *props_p[], co
 //
 void Achievements_System::prepare_details(size_t index)
 {
-	if (index >= achievements.size())
+	if ((index >= achievements.size()) || !achievements[index])
 		return;
 	achievements[index]->prepare(get_child_win_x(), border);
 	if (achievements[index]->get_num_lines() > max_detail_lines)
