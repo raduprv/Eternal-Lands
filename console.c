@@ -1483,13 +1483,13 @@ int command_achievements(char *text, int len)
 {
 	int index = 0;
 	int valid_looking_message = 1;
-	const size_t nibbles_needed = ACHIEVEMENT_32BIT_WORDS*sizeof(Uint32);
-	Uint8 str[nibbles_needed];
+	const size_t max_nibbles = MAX_ACHIEVEMENTS/8;
+	Uint8 str[max_nibbles];
 
 	text = getparams(text);
 	if (*text)
 	{
-		while (valid_looking_message && strlen(text)>0 && index<nibbles_needed)
+		while (valid_looking_message && strlen(text)>0 && index<max_nibbles)
 		{
 			int i;
 			Uint8 d[2];
@@ -1519,8 +1519,11 @@ int command_achievements(char *text, int len)
 	}
 	
 	/* if we're now at the end of the text, we have some message bytes and it looks valid */
-	if (!*text && (index==nibbles_needed) && valid_looking_message)
-		here_is_achievements_data((Uint32 *)str);
+	if (!*text && (index%4==0) && valid_looking_message)
+	{
+		here_is_achievements_data((Uint32 *)str, index/4);
+		requested_achievements_for_player("", 0);
+	}
 	else
 		LOG_TO_CONSOLE(c_red2, "Invalid achievements string");
 

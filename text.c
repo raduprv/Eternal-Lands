@@ -3,6 +3,9 @@
 #include <ctype.h>
 #include <time.h>
 #include "text.h"
+#ifdef ACHIEVEMENTS
+#include "achievements.h"
+#endif
 #include "actors.h"
 #include "asc.h"
 #include "buddy.h"
@@ -550,6 +553,11 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			copy_next_LOCATE_ME = 0;
 			return 0;
 		}
+#ifdef ACHIEVEMENTS
+		else if (my_strncompare(text_to_add+1, "You see: ", 9)) {
+			requested_achievements_for_player(text_to_add+10, len-10);
+		}
+#endif
 	} else if (channel == CHAT_LOCAL) {
 		if (harvesting && my_strncompare(text_to_add+1, username_str, strlen(username_str))) {
 			char *ptr = text_to_add+1+strlen(username_str);

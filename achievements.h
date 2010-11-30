@@ -9,11 +9,10 @@
 extern "C" {
 #endif
 
-#define ACHIEVEMENT_32BIT_WORDS 5
-#define NUM_ACHIEVEMENTS 160
+#define MAX_ACHIEVEMENTS 1024
 
-void requested_achievements_for_player(actor *player);
-void here_is_achievements_data(Uint32 *data);
+void requested_achievements_for_player(const char *name, int len);
+void here_is_achievements_data(Uint32 *data, size_t word_count);
 
 #ifdef __cplusplus
 } // extern "C"

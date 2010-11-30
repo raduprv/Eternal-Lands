@@ -2059,18 +2059,19 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #ifdef ACHIEVEMENTS
 		case SEND_ACHIEVEMENTS:
 			{
-				Uint32 achievement_data[ACHIEVEMENT_32BIT_WORDS];
+				Uint32 *achievement_data = NULL;
 				size_t word_count = (data_length-3) / sizeof(Uint32);
 				size_t i;
-				if (word_count < 1)
+				if ((word_count < 1) && (word_count < MAX_ACHIEVEMENTS/32))
 				{
 					log_error("CAUTION: Possibly forged SEND_ACHIEVEMENTS packet received.\n");
 					break;
 				}
-				memset(achievement_data, 0, ACHIEVEMENT_32BIT_WORDS*sizeof(Uint32));
-				for (i=0; i<ACHIEVEMENT_32BIT_WORDS && i<word_count; ++i)
+				achievement_data = (Uint32 *)calloc(word_count, sizeof(Uint32));
+				for (i=0; i<word_count; ++i)
 					achievement_data[i] = SDL_SwapLE32(*((Uint32 *)(in_data+3+i*sizeof(Uint32))));
-				here_is_achievements_data(achievement_data);
+				here_is_achievements_data(achievement_data, word_count);
+				free(achievement_data);
 			}
 			break;
 #endif // ACHIEVEMENTS

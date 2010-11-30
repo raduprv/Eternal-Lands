@@ -5,9 +5,6 @@
 #include "3d_objects.h"
 #include "actor_scripts.h"
 #include "asc.h"
-#ifdef ACHIEVEMENTS
-#include "achievements.h"
-#endif
 #include "bags.h"
 #include "books.h"
 #include "buddy.h"
@@ -722,10 +719,6 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 				
 				safe_snprintf(log,sizeof(log),"Actor id: %d",object_under_mouse);
 				LOG_TO_CONSOLE(c_green1, log);
-#endif
-#ifdef ACHIEVEMENTS
-				if (thing_under_the_mouse == UNDER_MOUSE_PLAYER)
-					requested_achievements_for_player(get_actor_ptr_from_id(object_under_mouse));
 #endif
 				str[0] = GET_PLAYER_INFO;
 				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);

@@ -30,8 +30,6 @@
  * 		fully comment
  * 		strings to translate
  * 		do something about the mouse over icon causing the windows to pop up above others
- * 		pick up name from string and reorder window creation
- * 		allow and number of bit words
 */
 
 
@@ -133,7 +131,7 @@ class Achievements_Window
 		Achievements_Window(void) : mouse_x(-1), mouse_y(-1), clicked(false), ctrl_clicked(false), main_win_id(-1),
 			child_win_id(-1), logical_rows(0), physical_rows(0), first(0), last_over(Achievement::npos) {}
 		~Achievements_Window(void);
-		void set_achievements(const Uint32 *data);
+		void set_achievements(const std::vector<Uint32> & data);
 		void set_name(const std::string & name);
 		void open(void);
 		void open_child(void);
@@ -170,8 +168,8 @@ class Achievements_System
 		~Achievements_System(void);
 		const Achievement * achievement(size_t index) const;
 		void prepare_details(size_t index);
-		void new_data(const Uint32 *data);
-		void new_player(actor *player);
+		void new_data(const Uint32 *data, size_t word_count);
+		void new_name(const char *name, int len);
 		static Achievements_System * get_instance(void);
 		void show(void) const;
 		int texture(size_t index) const;
@@ -181,7 +179,8 @@ class Achievements_System
 		int get_per_row(void) const { return per_row; }
 		int get_max_rows(void) const { return max_rows; }
 		int get_border(void) const { return border; }
-		int get_child_win_x(void) const { return static_cast<int>(SMALL_FONT_X_LEN) * max_title_len + 2 * border; }
+		int main_win_x(void) const { return per_row * display + 3 * border; }
+		int get_child_win_x(void) const;
 		int get_child_win_y(void) const { return static_cast<int>(SMALL_FONT_Y_LEN) * (1 + max_detail_lines) + 2 * border; }
 		const std::string & get_prev(void) const { return prev; }
 		const std::string & get_next(void) const { return next; }
@@ -190,7 +189,7 @@ class Achievements_System
 		void get_int_props(const xmlNodePtr cur, int *props_p[], const char *props_s[], size_t num) const;
 		std::vector<Achievement *> achievements;
 		std::list<Achievements_Window *> windows;
-		std::string name;
+		std::vector<Uint32> last_data;
 		std::vector<int> textures;
 		int size, display;
 		int per_row, min_rows, max_rows, border;
@@ -239,8 +238,6 @@ Achievements_System::Achievements_System(void)
 		return;
 	}
 
-	achievements.resize(NUM_ACHIEVEMENTS, 0);
-
 	for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
 	{
 		if (!xmlStrcasecmp(cur->name, (const xmlChar *)"achievement"))
@@ -265,15 +262,19 @@ Achievements_System::Achievements_System(void)
 			MY_XMLSTRCPY(&proc_text, text);
 			xmlFree(title);
 
-			if ((achievement_id < 0) || (static_cast<size_t>(achievement_id) >= achievements.size()))
+			if ((achievement_id < 0) || (achievement_id >= MAX_ACHIEVEMENTS))
 				log_error("%sInvalid achievement id=%lu\n", error_prefix, achievement_id );
-			else if (achievements[achievement_id])
-				log_error("%sDuplicate achievement id=%lu\n", error_prefix, achievement_id );
 			else
 			{
-				achievements[achievement_id] = new Achievement(achievement_id, image_id, proc_title, proc_text);
-				if (achievements[achievement_id]->get_title().size() > max_title_len)
-					max_title_len = achievements[achievement_id]->get_title().size();
+				achievements.resize(achievement_id+1, 0);
+				if (achievements[achievement_id])
+					log_error("%sDuplicate achievement id=%lu\n", error_prefix, achievement_id );
+				else
+				{
+					achievements[achievement_id] = new Achievement(achievement_id, image_id, proc_title, proc_text);
+					if (achievements[achievement_id]->get_title().size() > max_title_len)
+						max_title_len = achievements[achievement_id]->get_title().size();
+				}
 			}
 
 			if (proc_title) free(proc_title);
@@ -351,9 +352,30 @@ int Achievements_System::texture(size_t index) const
 }
 
 
+//	Return the width of the popup window
+int Achievements_System::get_child_win_x(void) const
+{
+	int proposed = static_cast<int>(SMALL_FONT_X_LEN) * max_title_len + 2 * border;
+	if (proposed > main_win_x())
+		return proposed;
+	else
+		return main_win_x();
+}
+
+
+//	Save the data for the next window
+//
+void Achievements_System::new_data(const Uint32 *data, size_t word_count)
+{
+	last_data.resize(word_count);
+	for (size_t i=0; i<word_count; ++i)
+		last_data[i] = data[i];
+}
+
+
 //	Now we have the data and a name, create a new window.
 //
-void Achievements_System::new_data(const Uint32 *data)
+void Achievements_System::new_name(const char *player_name, int len)
 {
 	if (achievements.empty())
 	{
@@ -375,18 +397,27 @@ void Achievements_System::new_data(const Uint32 *data)
 		}
 	windows.remove(0);
 
+	if (last_data.empty())
+		return;
+
 	// limit the number of windows so that we don't run out for everyone else
 	if (windows.size() < max_windows)
 	{
 		windows.push_back(new Achievements_Window);
-		windows.back()->set_achievements(data);
-		windows.back()->set_name(name);
+		windows.back()->set_achievements(last_data);
+
+		char *tmp = new char[len+1];
+		if (player_name && (len > 0))
+			windows.back()->set_name(safe_strncpy2(tmp, player_name, len+1, len));
+		else
+			windows.back()->set_name("");
+
 		windows.back()->open();
 	}
 	else
 		LOG_TO_CONSOLE(c_red1, achivements_too_many_str);
 
-	name.clear();
+	last_data.clear();
 }
 
 
@@ -396,16 +427,6 @@ void Achievements_System::hide_all(void) const
 {
 	for (std::list<Achievements_Window *>::const_iterator i = windows.begin(); i!= windows.end(); ++i)
 		(*i)->hide();
-}
-
-
-//	Save the player name for the next window
-//
-void Achievements_System::new_player(actor *player)
-{
-	if (player == NULL)
-		return;
-	name = player->actor_name;
 }
 
 
@@ -490,13 +511,21 @@ static int achievements_child_display_handler(window_info *win)
 		int title_x = (win->len_x - achievement->get_title().size() * static_cast<int>(SMALL_FONT_X_LEN)) / 2;
 		
 		glColor3f(0.77f, 0.57f, 0.39f);
-		draw_string_small(title_x, as->get_border(),
+		draw_string_small(title_x + gx_adjust, as->get_border() + gy_adjust,
 			reinterpret_cast<const unsigned char *>(achievement->get_title().c_str()), 1);
 		
 		glColor3f(1.0f, 1.0f, 1.0f);
 		for (size_t i=0; i<achievement->get_text().size(); ++i)
-			draw_string_small(as->get_border(), (i + 1) * static_cast<int>(SMALL_FONT_Y_LEN),
+			draw_string_small(as->get_border() + gx_adjust, (i + 1) * static_cast<int>(SMALL_FONT_Y_LEN) + gy_adjust,
 				reinterpret_cast<const unsigned char *>(achievement->get_text()[i].c_str()), 1);
+	}
+	else
+	{
+		glColor3f(0.77f, 0.57f, 0.39f);
+		std::ostringstream buf;
+		buf << "Undefined " << index;
+		int title_x = (win->len_x - buf.str().size() * static_cast<int>(SMALL_FONT_X_LEN)) / 2;
+		draw_string_small(title_x + gx_adjust, as->get_border() + gy_adjust, reinterpret_cast<const unsigned char *>(buf.str().c_str()), 1);
 	}
 
 	return 1;
@@ -543,19 +572,24 @@ int Achievements_Window::display_handler(window_info *win)
 	
 	for (size_t i=first; i<their_achievements.size(); ++i)
 	{
+		bool missing = false;
+		size_t shown_num = i-first;
+
+		if ((static_cast<int>(shown_num)/as->get_per_row()) >= physical_rows)
+		{
+			another_page = true;
+			break;
+		}
+
 		const Achievement * achievement = as->achievement(their_achievements[i]);
 		if (achievement)
 		{
-			size_t shown_num = i-first;
-			if ((static_cast<int>(shown_num)/as->get_per_row()) >= physical_rows)
-			{
-				another_page = true;
-				break;
-			}
-
 			int texture = as->texture(achievement->get_id() / icon_per_texture);
 			if (texture < 0)
+			{
+				missing = true;
 				continue;
+			}
 
 			int cur_item = achievement->get_id() % icon_per_texture;
 			float u_start = 1.0f/static_cast<float>(icon_per) * (cur_item % icon_per);
@@ -571,6 +605,17 @@ int Achievements_Window::display_handler(window_info *win)
 			draw_2d_thing( u_start, v_start, u_end, v_end,
 				start_x, start_y, start_x+as->get_display(), start_y+as->get_display() );
 			glEnd();
+		}
+		else
+			missing = true;
+
+		if (missing)
+		{
+			int pos_x = as->get_border() + (shown_num % as->get_per_row()) * as->get_display()
+				+ (as->get_display() - static_cast<int>(DEFAULT_FONT_X_LEN)) / 2;
+			int pos_y = as->get_border() + (shown_num / as->get_per_row()) * as->get_display()
+				+ (as->get_display() - static_cast<int>(DEFAULT_FONT_Y_LEN)) / 2;
+			draw_string(pos_x+gx_adjust, pos_y+gy_adjust, (const unsigned char *)"?", 1);
 		}
 	}
 
@@ -597,8 +642,8 @@ int Achievements_Window::display_handler(window_info *win)
 			open_child();
 	}
 
-	int font_x = static_cast<int>(SMALL_FONT_X_LEN);
-	int font_y = static_cast<int>(SMALL_FONT_Y_LEN);
+	const int font_x = static_cast<int>(SMALL_FONT_X_LEN);
+	const int font_y = static_cast<int>(SMALL_FONT_Y_LEN);
 
 	int prev_start = gx_adjust + as->get_border();
 	int prev_end = prev_start + font_x * as->get_prev().size();
@@ -712,10 +757,10 @@ void Achievements_Window::set_name(const std::string & name)
 
 //	Process the achievement bits and save ids for later display.
 //
-void Achievements_Window::set_achievements(const Uint32 *data)
+void Achievements_Window::set_achievements(const std::vector<Uint32> & data)
 {
 	// bit position w1(lsb) ....w5(msb) map to achievement id 0...159
-	for (size_t i=0; i<ACHIEVEMENT_32BIT_WORDS; i++)
+	for (size_t i=0; i<data.size(); ++i)
 	{
 		Uint32 word = data[i];
 		for (size_t j=0; j<sizeof(Uint32)*8; ++j)
@@ -742,11 +787,11 @@ void Achievements_Window::open(void)
 
 	logical_rows = (their_achievements.size() + (as->get_per_row() - 1)) / as->get_per_row();
 	physical_rows = (logical_rows > as->get_max_rows()) ?as->get_max_rows() :logical_rows;
-	int win_x = as->get_per_row() * as->get_display() + 3 * as->get_border();
+	int win_x = as->main_win_x();
 	int win_y = physical_rows * as->get_display() + static_cast<int>(SMALL_FONT_Y_LEN) + 2 * as->get_border();
 	int pos_x = window_width - HUD_MARGIN_X - ((as->get_child_win_x() > win_x) ?as->get_child_win_x() :(win_x + 10));
 
-	main_win_id = create_window(their_name.c_str(), game_root_win, 0, pos_x, 50, win_x, win_y,
+	main_win_id = create_window(their_name.c_str(), -1, 0, pos_x, 50, win_x, win_y,
 		ELW_TITLE_BAR|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE);
 	set_window_handler(main_win_id, ELW_HANDLER_DISPLAY, (int (*)())&achievements_display_handler );
 	set_window_handler(main_win_id, ELW_HANDLER_CLICK, (int (*)())&click_achievements_handler );
@@ -760,15 +805,15 @@ void Achievements_Window::open(void)
 
 //	We have a new player name form the server.
 //
-extern "C" void requested_achievements_for_player(actor *player)
+extern "C" void requested_achievements_for_player(const char *name, int len)
 {
-	Achievements_System::get_instance()->new_player(player);
+	Achievements_System::get_instance()->new_name(name, len);
 }
 
 
 //	We have new achievement data from the server.
 //
-extern "C" void here_is_achievements_data(Uint32 *data)
+extern "C" void here_is_achievements_data(Uint32 *data, size_t word_count)
 {
-	Achievements_System::get_instance()->new_data(data);
+	Achievements_System::get_instance()->new_data(data, word_count);
 }
