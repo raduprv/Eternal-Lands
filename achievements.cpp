@@ -29,7 +29,9 @@
  *	TO DO
  * 		fully comment
  * 		strings to translate
- * 		do something about the mouse over icon causing the windows to pop up above others
+ * 		open window near player
+ * 		replace any existing window with player name
+ * 		fix issue with mouse over open causing other windows to flicker
 */
 
 
@@ -128,7 +130,7 @@ void Achievement::prepare(int win_x, int border)
 class Achievements_Window
 {
 	public:
-		Achievements_Window(void) : mouse_x(-1), mouse_y(-1), clicked(false), ctrl_clicked(false), main_win_id(-1),
+		Achievements_Window(void) : win_mouse_x(-1), win_mouse_y(-1), clicked(false), ctrl_clicked(false), main_win_id(-1),
 			child_win_id(-1), logical_rows(0), physical_rows(0), first(0), last_over(Achievement::npos) {}
 		~Achievements_Window(void);
 		void set_achievements(const std::vector<Uint32> & data);
@@ -138,14 +140,14 @@ class Achievements_Window
 		int display_handler(window_info *win);
 		bool shown(void) const { return get_show_window(main_win_id); }
 		void hide(void) const { hide_window(main_win_id); }
-		void set_mouse_over(int mx, int my) { mouse_x = mx; mouse_y = my; }
+		void set_mouse_over(int mx, int my) { win_mouse_x = mx; win_mouse_y = my; }
 		void window_clicked(void) { clicked = true; }
 		void window_ctrl_clicked(void)  { ctrl_clicked = true; }
 		int get_window_id(void) const { return main_win_id; }
 	private:
 		std::vector<size_t> their_achievements;
 		std::string their_name;
-		int mouse_x, mouse_y;
+		int win_mouse_x, win_mouse_y;
 		bool clicked;
 		bool ctrl_clicked;
 		int main_win_id, child_win_id;
@@ -199,6 +201,46 @@ class Achievements_System
 		size_t max_windows;
 };
 
+
+//	Work out if the specified point of the specified window is on top of the window stack.
+//	Method to traverse layers copied from elwindow.c this could probably be a general window function.
+//
+bool is_window_coord_top(int window_id, int coord_x, int coord_y)
+{
+	bool have_seen_window = false;
+	int id = 0;
+	int i;
+	while (1)
+	{
+		int next_id = 9999;
+		for (i = 0; i < windows_list.num_windows; i++)
+		{
+			// only look at displayed windows
+			if (windows_list.window[i].displayed > 0)
+			{
+				// at this level?
+				if (windows_list.window[i].order == id)
+				{
+					if (i == window_id)
+						have_seen_window = true;
+					else if (have_seen_window)
+					{
+						if (mouse_in_window(i, coord_x, coord_y))
+							return false;
+					}
+				}
+				// try to find the next level
+				else if (windows_list.window[i].order > id && windows_list.window[i].order < next_id)
+					next_id = windows_list.window[i].order;
+			}
+		}
+		if (next_id >= 9999)
+			break;
+		else
+			id = next_id;
+	}
+	return true;
+}
 
 
 //	Read the achievements xml file and create all the achievement objects,
@@ -621,10 +663,10 @@ int Achievements_Window::display_handler(window_info *win)
 
 	size_t now_over = Achievement::npos;
 
-	if ((cm_window_shown() == CM_INIT_VALUE) && (mouse_x > as->get_border()) && (mouse_y > as->get_border()))
+	if ((cm_window_shown() == CM_INIT_VALUE) && (win_mouse_x > as->get_border()) && (win_mouse_y > as->get_border()))
 	{
-		int row = (mouse_y - as->get_border()) / as->get_size();
-		int col = (mouse_x - as->get_border()) / as->get_size();
+		int row = (win_mouse_y - as->get_border()) / as->get_size();
+		int col = (win_mouse_x - as->get_border()) / as->get_size();
 		if ((row >= 0) && (row < physical_rows) && (col >= 0) && (col < as->get_per_row()))
 		{
 			size_t current_index = first + row * as->get_per_row() + col;
@@ -652,10 +694,10 @@ int Achievements_Window::display_handler(window_info *win)
 	int close_start = gx_adjust + win->len_x - (as->get_border() + font_x * as->get_close().size());
 	int close_end = gx_adjust + win->len_x - as->get_border();
 
-	bool over_controls = (mouse_y > (win->len_y - (font_y + as->get_border())));
-	bool over_close = (over_controls && (mouse_x > close_start) && (mouse_x < close_end));
-	bool over_prev = (over_controls && (mouse_x > prev_start) && (mouse_x < prev_end));
-	bool over_next = (over_controls && (mouse_x > next_start) && (mouse_x < next_end));
+	bool over_controls = (win_mouse_y > (win->len_y - (font_y + as->get_border())));
+	bool over_close = (over_controls && (win_mouse_x > close_start) && (win_mouse_x < close_end));
+	bool over_prev = (over_controls && (win_mouse_x > prev_start) && (win_mouse_x < prev_end));
+	bool over_next = (over_controls && (win_mouse_x > next_start) && (win_mouse_x < next_end));
 
 	float active_colour[3] = { 1.0f, 1.0f, 1.0f };
 	float inactive_colour[3] =  { 0.5f, 0.5f, 0.5f };
@@ -692,7 +734,7 @@ int Achievements_Window::display_handler(window_info *win)
 			show_help((another_page)?achivements_next_help_str :achivements_no_next_help_str, 0, win->len_y + 10);
 	}
 
-	mouse_x = mouse_y = -1;
+	win_mouse_x = win_mouse_y = -1;
 	ctrl_clicked = clicked = false;
 
 	return 1;
@@ -715,6 +757,8 @@ static int achievements_display_handler(window_info *win)
 static int mouseover_achievements_handler(window_info *win, int mx, int my)
 {
 	if (!win || !win->data)
+		return 0;
+	if (!is_window_coord_top(win->window_id, mouse_x, mouse_y))
 		return 0;
 	Achievements_Window *object = reinterpret_cast<Achievements_Window *>(win->data);
 	object->set_mouse_over(mx, my);
