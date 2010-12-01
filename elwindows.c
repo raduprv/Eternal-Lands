@@ -30,7 +30,7 @@
  * void* get_window_handler(int, int);
  */
 
-#define ELW_WIN_MAX 64
+#define ELW_WIN_MAX 128
 
 windows_info	windows_list;	// the master list of windows
 
