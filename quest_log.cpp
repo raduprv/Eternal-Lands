@@ -436,9 +436,9 @@ void Quest_Title_Request::request(void)
 	if (requested)
 		return;
 	Uint8 str[10];
-	char buf [80];
-	safe_snprintf(buf, 80, "Sending WHAT_QUEST_IS_THIS_ID with id=%d", id);
-	LOG_TO_CONSOLE(c_green2,buf);
+	//char buf [80];
+	//safe_snprintf(buf, 80, "Sending WHAT_QUEST_IS_THIS_ID with id=%d", id);
+	//LOG_TO_CONSOLE(c_green2,buf);
 	str[0]=WHAT_QUEST_IS_THIS_ID;
 	*((Uint16 *)(str+1)) = SDL_SwapLE16((Uint16)id);
 	my_tcp_send (my_socket, str, 3);
@@ -1795,14 +1795,13 @@ extern "C" void display_questlog()
 
 extern "C" void set_next_quest_entry_id(Uint16 id)
 {
-	char buf[80];
-	safe_snprintf(buf, 80, "Received NEXT_NPC_MESSAGE_IS_QUEST with id=%d", id);
-	LOG_TO_CONSOLE(c_green1, buf);
+	//char buf[80];
+	//safe_snprintf(buf, 80, "Received NEXT_NPC_MESSAGE_IS_QUEST with id=%d", id);
+	//LOG_TO_CONSOLE(c_green1, buf);
+	//if (waiting_for_questlog_entry())
+	//	LOG_TO_CONSOLE(c_red2, "Previous NEXT_NPC_MESSAGE_IS_QUEST was unused");
 
-	if (waiting_for_questlog_entry())
-		LOG_TO_CONSOLE(c_red2, "Previous NEXT_NPC_MESSAGE_IS_QUEST was unused");
 	next_entry_quest_id = id;
-
 	questlist.add(id);
 }
 
@@ -1822,18 +1821,18 @@ extern "C" int waiting_for_questlog_entry(void)
 extern "C" void set_quest_title(const char *data, int len)
 {
 	char buf[256];
-	LOG_TO_CONSOLE(c_green1, "Received HERE_IS_QUEST_ID");
+	//LOG_TO_CONSOLE(c_green1, "Received HERE_IS_QUEST_ID");
 	safe_strncpy2(buf, data, 255, len);
-	LOG_TO_CONSOLE(c_green1, buf);
+	//LOG_TO_CONSOLE(c_green1, buf);
 	questlist.set_requested_title(buf);
 }
 
 
 extern "C" void set_quest_finished(Uint16 id)
 {
-	char buf[80];
-	safe_snprintf(buf, 80, "Received QUEST_FINISHED with id=%d", id);
-	LOG_TO_CONSOLE(c_green1, buf);
+	//char buf[80];
+	//safe_snprintf(buf, 80, "Received QUEST_FINISHED with id=%d", id);
+	//LOG_TO_CONSOLE(c_green1, buf);
 	questlist.set_completed(id, true);
 }
 
