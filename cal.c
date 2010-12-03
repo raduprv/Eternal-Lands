@@ -947,15 +947,18 @@ void cal_render_actor(actor *act, Uint32 use_lightning, Uint32 use_textures, Uin
 	glColor3f(1,1,1);
 
 #ifdef DEBUG
-  	glDisable(GL_LIGHTING);
-  	glDisable(GL_DEPTH_TEST);
-  	glDisable(GL_TEXTURE_2D);
-
-  	if(render_skeleton) cal_render_bones(act);
-
-	glEnable(GL_LIGHTING);
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_TEXTURE_2D);
+	if(render_skeleton)
+	{
+		glDisable(GL_LIGHTING);
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_TEXTURE_2D);
+		
+		cal_render_bones(act);
+		
+		glEnable(GL_LIGHTING);
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_TEXTURE_2D);
+	}
 #endif
 	glPopMatrix();
 #ifdef OPENGL_TRACE

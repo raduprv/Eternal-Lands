@@ -1036,21 +1036,17 @@ void display_actors(int banner, int render_pass)
 
 	for (i = 0; i < no_near_actors; i++)
 	{
-		if (near_actors[i].ghost || (near_actors[i].buffs & BUFF_INVISIBILITY) ||
-			near_actors[i].alpha)
+		if (near_actors[i].ghost || (near_actors[i].buffs & BUFF_INVISIBILITY))
 		{
-			if (near_actors[i].alpha)
+			if ((render_pass == DEFAULT_RENDER_PASS) ||
+				(render_pass == SHADOW_RENDER_PASS))
 			{
-				has_alpha = 1;
+				has_ghosts = 1;
 			}
-			else
-			{
-				if ((render_pass == DEFAULT_RENDER_PASS) ||
-					(render_pass == SHADOW_RENDER_PASS))
-				{
-					has_ghosts = 1;
-				}
-			}
+		}
+		else if (near_actors[i].alpha)
+		{
+			has_alpha = 1;
 		}
 		else
 		{
@@ -1095,7 +1091,7 @@ void display_actors(int banner, int render_pass)
 		for (i = 0; i < no_near_actors; i++)
 		{
 
-			if (near_actors[i].alpha)
+			if (near_actors[i].alpha && !(near_actors[i].ghost || (near_actors[i].buffs & BUFF_INVISIBILITY)))
 			{
 
 				actor *cur_actor = actors_list[near_actors[i].actor];
