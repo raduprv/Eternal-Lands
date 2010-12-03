@@ -13,6 +13,7 @@ extern "C" {
 
 void requested_achievements_for_player(const char *name, int len);
 void here_is_achievements_data(Uint32 *data, size_t word_count);
+void achievements_mouse_pos(int mouse_pos_x, int mouse_pos_y);
 
 #ifdef __cplusplus
 } // extern "C"

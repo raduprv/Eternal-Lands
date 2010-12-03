@@ -29,9 +29,8 @@
  *	TO DO
  * 		fully comment
  * 		strings to translate
- * 		open window near player
- * 		replace any existing window with player name
  * 		fix issue with mouse over open causing other windows to flicker
+ * 		check create window status and warn if out of slots - fix handling elsewhere
 */
 
 
@@ -135,7 +134,8 @@ class Achievements_Window
 		~Achievements_Window(void);
 		void set_achievements(const std::vector<Uint32> & data);
 		void set_name(const std::string & name);
-		void open(void);
+		const std::string & get_name(void) const { return their_name; }
+		void open(int win_pos_x, int win_pos_y);
 		void open_child(void);
 		int display_handler(window_info *win);
 		bool shown(void) const { return get_show_window(main_win_id); }
@@ -172,6 +172,7 @@ class Achievements_System
 		void prepare_details(size_t index);
 		void new_data(const Uint32 *data, size_t word_count);
 		void new_name(const char *name, int len);
+		void new_win_pos(int mouse_pos_x, int mouse_pos_y) { win_pos_x = mouse_pos_x; win_pos_y = mouse_pos_y; }
 		static Achievements_System * get_instance(void);
 		void show(void) const;
 		int texture(size_t index) const;
@@ -199,6 +200,7 @@ class Achievements_System
 		size_t max_title_len;
 		size_t max_detail_lines;
 		size_t max_windows;
+		int win_pos_x, win_pos_y;
 };
 
 
@@ -248,7 +250,8 @@ bool is_window_coord_top(int window_id, int coord_x, int coord_y)
 //
 Achievements_System::Achievements_System(void)
  : size(32), display(32), per_row(5), min_rows(1), max_rows(12), border(2),
-	prev("[<]"), next("[>]"), close("[close]"), max_title_len(0), max_detail_lines(2), max_windows(15)
+	prev("[<]"), next("[>]"), close("[close]"), max_title_len(0),
+	max_detail_lines(2), max_windows(15), win_pos_x(100), win_pos_y(50)
 {
 	xmlDocPtr doc;
 	xmlNodePtr cur;
@@ -430,9 +433,26 @@ void Achievements_System::new_name(const char *player_name, int len)
 		return;
 	}
 
+	std::string name;
+	if (player_name && (len > 0))
+	{
+		char *tmp = new char[len+1];
+		safe_strncpy2(tmp, player_name, len+1, len);
+		name = tmp;
+
+		// check for already open window for player and delete it
+		for (std::list<Achievements_Window *>::iterator i = windows.begin(); i!= windows.end(); ++i)
+			if (*i && (*i)->get_name() == name)
+			{
+				delete *i;
+				*i = 0;
+				break;
+			}
+	}
+
 	// remove any closed windows
 	for (std::list<Achievements_Window *>::iterator i = windows.begin(); i!= windows.end(); ++i)
-		if (!(*i)->shown())
+		if (*i && !(*i)->shown())
 		{
 			delete *i;
 			*i = 0;
@@ -447,14 +467,8 @@ void Achievements_System::new_name(const char *player_name, int len)
 	{
 		windows.push_back(new Achievements_Window);
 		windows.back()->set_achievements(last_data);
-
-		char *tmp = new char[len+1];
-		if (player_name && (len > 0))
-			windows.back()->set_name(safe_strncpy2(tmp, player_name, len+1, len));
-		else
-			windows.back()->set_name("");
-
-		windows.back()->open();
+		windows.back()->set_name(name);
+		windows.back()->open(win_pos_x, win_pos_y);
 	}
 	else
 		LOG_TO_CONSOLE(c_red1, achivements_too_many_str);
@@ -819,7 +833,7 @@ void Achievements_Window::set_achievements(const std::vector<Uint32> & data)
 
 //	Create a new achievement window.
 //
-void Achievements_Window::open(void)
+void Achievements_Window::open(int win_pos_x, int win_pos_y)
 {
 	if (main_win_id >= 0)
 	{
@@ -833,9 +847,8 @@ void Achievements_Window::open(void)
 	physical_rows = (logical_rows > as->get_max_rows()) ?as->get_max_rows() :logical_rows;
 	int win_x = as->main_win_x();
 	int win_y = physical_rows * as->get_display() + static_cast<int>(SMALL_FONT_Y_LEN) + 2 * as->get_border();
-	int pos_x = window_width - HUD_MARGIN_X - ((as->get_child_win_x() > win_x) ?as->get_child_win_x() :(win_x + 10));
 
-	main_win_id = create_window(their_name.c_str(), -1, 0, pos_x, 50, win_x, win_y,
+	main_win_id = create_window(their_name.c_str(), -1, 0, win_pos_x, win_pos_y, win_x, win_y,
 		ELW_TITLE_BAR|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE);
 	set_window_handler(main_win_id, ELW_HANDLER_DISPLAY, (int (*)())&achievements_display_handler );
 	set_window_handler(main_win_id, ELW_HANDLER_CLICK, (int (*)())&click_achievements_handler );
@@ -860,4 +873,12 @@ extern "C" void requested_achievements_for_player(const char *name, int len)
 extern "C" void here_is_achievements_data(Uint32 *data, size_t word_count)
 {
 	Achievements_System::get_instance()->new_data(data, word_count);
+}
+
+
+//	We may be about to get some achievement data, remember the mouse position.
+//
+extern "C" void achievements_mouse_pos(int mouse_pos_x, int mouse_pos_y)
+{
+	Achievements_System::get_instance()->new_win_pos(mouse_pos_x, mouse_pos_y);
 }
