@@ -1138,7 +1138,7 @@ void serialize_eye_candy_effect(int index, particles_io* data)
     data_str += ' ' + (char)((((unsigned char)unformatted_data[i * 3 + 2] & 0xFC) >> 2));
   }
 
-  sprintf(data->file_name, data_str.c_str());
+  sprintf(data->file_name, "%s", data_str.c_str());
   data->x_pos = effects[index].position.x;
   data->y_pos = effects[index].position.y;
   data->z_pos = effects[index].position.z;
