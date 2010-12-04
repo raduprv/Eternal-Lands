@@ -2070,7 +2070,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				achievement_data = (Uint32 *)calloc(word_count, sizeof(Uint32));
 				for (i=0; i<word_count; ++i)
 					achievement_data[i] = SDL_SwapLE32(*((Uint32 *)(in_data+3+i*sizeof(Uint32))));
-				here_is_achievements_data(achievement_data, word_count);
+				achievements_data(achievement_data, word_count);
 				free(achievement_data);
 			}
 			break;

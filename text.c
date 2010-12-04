@@ -555,7 +555,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		}
 #ifdef ACHIEVEMENTS
 		else if (my_strncompare(text_to_add+1, "You see: ", 9)) {
-			requested_achievements_for_player(text_to_add+10, len-10);
+			achievements_player_name(text_to_add+10, len-10);
 		}
 #endif
 	} else if (channel == CHAT_LOCAL) {

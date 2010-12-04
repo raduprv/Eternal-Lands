@@ -1521,8 +1521,8 @@ int command_achievements(char *text, int len)
 	/* if we're now at the end of the text, we have some message bytes and it looks valid */
 	if (!*text && (index%4==0) && valid_looking_message)
 	{
-		here_is_achievements_data((Uint32 *)str, index/4);
-		requested_achievements_for_player("", 0);
+		achievements_data((Uint32 *)str, index/4);
+		achievements_player_name("", 0);
 	}
 	else
 		LOG_TO_CONSOLE(c_red2, "Invalid achievements string");

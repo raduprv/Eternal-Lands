@@ -34,14 +34,14 @@
 */
 
 
-const char * achivements_too_many_str = "Too many achievement windows open already";
-const char * achivements_xml_fail_str = "Failed to load achievement data";
-const char * achivements_texture_fail_str = "Failed to load achievement texture";
-const char * achivements_close_help_str = "Close or +ctrl close all";
-const char * achivements_no_next_help_str = "No more pages";
-const char * achivements_no_prev_help_str = "No previous page";
-const char * achivements_next_help_str = "Next page";
-const char * achivements_prev_help_str = "Previous page";
+const char * achievements_too_many_str = "Too many achievement windows open already";
+const char * achievements_xml_fail_str = "Failed to load achievement data";
+const char * achievements_texture_fail_str = "Failed to load achievement texture";
+const char * achievements_close_help_str = "Close or +ctrl close all";
+const char * achievements_no_next_help_str = "No more pages";
+const char * achievements_no_prev_help_str = "No previous page";
+const char * achievements_next_help_str = "Next page";
+const char * achievements_prev_help_str = "Previous page";
 
 
 //	A class to hold a single achievement object.
@@ -424,12 +424,12 @@ void Achievements_System::new_name(const char *player_name, int len)
 {
 	if (achievements.empty())
 	{
-		LOG_TO_CONSOLE(c_red1, achivements_xml_fail_str);
+		LOG_TO_CONSOLE(c_red1, achievements_xml_fail_str);
 		return;
 	}
 	if (textures.empty())
 	{
-		LOG_TO_CONSOLE(c_red1, achivements_texture_fail_str);
+		LOG_TO_CONSOLE(c_red1, achievements_texture_fail_str);
 		return;
 	}
 
@@ -471,7 +471,7 @@ void Achievements_System::new_name(const char *player_name, int len)
 		windows.back()->open(win_pos_x, win_pos_y);
 	}
 	else
-		LOG_TO_CONSOLE(c_red1, achivements_too_many_str);
+		LOG_TO_CONSOLE(c_red1, achievements_too_many_str);
 
 	last_data.clear();
 }
@@ -741,11 +741,11 @@ int Achievements_Window::display_handler(window_info *win)
 	if (over_controls && show_help_text)
 	{
 		if (over_close)
-			show_help(achivements_close_help_str, 0, win->len_y + 10);
+			show_help(achievements_close_help_str, 0, win->len_y + 10);
 		else if (over_prev)
-			show_help((first)?achivements_prev_help_str :achivements_no_prev_help_str, 0, win->len_y + 10);
+			show_help((first)?achievements_prev_help_str :achievements_no_prev_help_str, 0, win->len_y + 10);
 		else if (over_next)
-			show_help((another_page)?achivements_next_help_str :achivements_no_next_help_str, 0, win->len_y + 10);
+			show_help((another_page)?achievements_next_help_str :achievements_no_next_help_str, 0, win->len_y + 10);
 	}
 
 	win_mouse_x = win_mouse_y = -1;
@@ -768,7 +768,7 @@ static int achievements_display_handler(window_info *win)
 
 //	A common display handler callback for mouse over activity.
 //
-static int mouseover_achievements_handler(window_info *win, int mx, int my)
+static int achievements_mouseover_handler(window_info *win, int mx, int my)
 {
 	if (!win || !win->data)
 		return 0;
@@ -782,7 +782,7 @@ static int mouseover_achievements_handler(window_info *win, int mx, int my)
 
 //	A common display handler callback for mouse click activity.
 //
-static int click_achievements_handler(window_info *win, int mx, int my, Uint32 flags)
+static int achievements_click_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	if (!win || !win->data)
 		return 0;
@@ -851,8 +851,8 @@ void Achievements_Window::open(int win_pos_x, int win_pos_y)
 	main_win_id = create_window(their_name.c_str(), -1, 0, win_pos_x, win_pos_y, win_x, win_y,
 		ELW_TITLE_BAR|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE);
 	set_window_handler(main_win_id, ELW_HANDLER_DISPLAY, (int (*)())&achievements_display_handler );
-	set_window_handler(main_win_id, ELW_HANDLER_CLICK, (int (*)())&click_achievements_handler );
-	set_window_handler(main_win_id, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_achievements_handler );
+	set_window_handler(main_win_id, ELW_HANDLER_CLICK, (int (*)())&achievements_click_handler );
+	set_window_handler(main_win_id, ELW_HANDLER_MOUSEOVER, (int (*)())&achievements_mouseover_handler );
 
 	window_info *win = &windows_list.window[main_win_id];
 	win->data = reinterpret_cast<void *>(this);
@@ -862,7 +862,7 @@ void Achievements_Window::open(int win_pos_x, int win_pos_y)
 
 //	We have a new player name form the server.
 //
-extern "C" void requested_achievements_for_player(const char *name, int len)
+extern "C" void achievements_player_name(const char *name, int len)
 {
 	Achievements_System::get_instance()->new_name(name, len);
 }
@@ -870,7 +870,7 @@ extern "C" void requested_achievements_for_player(const char *name, int len)
 
 //	We have new achievement data from the server.
 //
-extern "C" void here_is_achievements_data(Uint32 *data, size_t word_count)
+extern "C" void achievements_data(Uint32 *data, size_t word_count)
 {
 	Achievements_System::get_instance()->new_data(data, word_count);
 }
