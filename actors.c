@@ -318,6 +318,8 @@ void remove_actor_attachment(int actor_id)
 				max_actors--;
 				actors_list[att]=actors_list[max_actors];
 				actors_list[max_actors]=NULL;
+				if (actors_list[att] && actors_list[att]->attached_actor >= 0)
+					actors_list[actors_list[att]->attached_actor]->attached_actor = att;
 			}
 			break;
 		}
