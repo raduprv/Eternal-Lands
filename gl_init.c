@@ -1145,6 +1145,11 @@ void set_new_video_mode(int fs,int mode)
 
 void toggle_full_screen()
 {
+#ifdef WINDOWS
+	full_screen=!full_screen;
+	set_var_unsaved("full_screen", OPT_BOOL);
+	LOG_TO_CONSOLE(c_green2, full_screen_restart_str);
+#else
 	reload_tab_map = 1;
 	full_screen=!full_screen;
 	switch_video(video_mode, full_screen);
@@ -1152,6 +1157,7 @@ void toggle_full_screen()
 	if (!disable_gamma_adjust)
 		SDL_SetGamma(gamma_var, gamma_var, gamma_var);
 	SDL_SetModState(KMOD_NONE); // force ALL keys up
+#endif
 }
 
 

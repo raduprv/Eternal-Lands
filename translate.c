@@ -275,6 +275,7 @@ char
 	accept_str[12],
 	/*update.c*/
 	update_complete_str[40],
+	full_screen_restart_str[80],
 	client_restart_countdown_str[40],
 	client_restarting_str[20],
 	restart_now_label[20],
@@ -1293,6 +1294,7 @@ void init_help()
 	add_xml_identifier(misc,"dc_note_rm",dc_note_remove,"Double-click to remove this category",sizeof(dc_note_remove));
 	add_xml_identifier(misc,"ranginglock_enabled",ranginglock_enabled_str,"Ranging-Lock is now enabled. Disable it or unequip ranging weapon before walking.",sizeof(ranginglock_enabled_str));
 	add_xml_identifier(misc,"ranginglock_disabled",ranginglock_disabled_str,"Ranging-Lock is now disabled.",sizeof(ranginglock_disabled_str));
+	add_xml_identifier(misc,"full_screen_restart", full_screen_restart_str, "Full-screen change will take effect at next restart.", sizeof(full_screen_restart_str));
 
 	//New characters
 	add_xml_identifier(new,"skin",skin_str,"Skin",sizeof(skin_str));
