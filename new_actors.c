@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
@@ -469,6 +470,7 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #ifdef NECK_ITEMS
 						else if (which_part==KIND_OF_NECK)
 							{
+								assert(!"Using old client data" || actors_defs[actors_list[i]->actor_type].neck != NULL);
 								my_strcp(actors_list[i]->body_parts->neck_tex,actors_defs[actors_list[i]->actor_type].neck[which_id].skin_name);
 #ifdef CUSTOM_LOOK
 								custom_path(actors_list[i]->body_parts->neck_tex, playerpath, guildpath);
@@ -929,6 +931,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	//neck
 	if(neck!=NECK_NONE)
 		{
+			assert(!"Using old client data" || actors_defs[actor_type].neck != NULL);
 			my_strncp(this_actor->neck_tex,actors_defs[actor_type].neck[neck].skin_name,sizeof(this_actor->neck_tex));
 #ifdef CUSTOM_LOOK
 			custom_path(this_actor->neck_tex, playerpath, guildpath);
@@ -1076,6 +1079,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			if (weapon!=WEAPON_NONE) model_attach_mesh(actors_list[i], actors_defs[actor_type].weapon[weapon].mesh_index);
 			if (shield!=SHIELD_NONE) model_attach_mesh(actors_list[i], actors_defs[actor_type].shield[shield].mesh_index);
 #ifdef NECK_ITEMS
+			assert(!"Using old client data" || actors_defs[actor_type].neck != NULL);
 			if (neck!=NECK_NONE) model_attach_mesh(actors_list[i], actors_defs[actor_type].neck[neck].mesh_index);
 			actors_list[i]->body_parts->neck_meshindex=actors_defs[actor_type].neck[neck].mesh_index;
 #endif
@@ -1245,6 +1249,7 @@ actor * add_actor_interface(float x, float y, float z_rot, float scale, int acto
 			a->body_parts->head_meshindex=actors_defs[actor_type].head[head].mesh_index;
 
 #ifdef NECK_ITEMS
+			assert(!"Using old client data" || actors_defs[actor_type].neck != NULL);
 			a->body_parts->neck_meshindex=actors_defs[actor_type].neck[NECK_NONE].mesh_index;
 #endif
 			a->body_parts->helmet_meshindex=actors_defs[actor_type].helmet[HELMET_NONE].mesh_index;
