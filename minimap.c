@@ -1745,7 +1745,7 @@ void change_minimap(){
 
 	if(minimap_win < 0)
 		return;
-	save_exploration_map();
+	//save_exploration_map();
 
 	//unload all textures
 	if(minimap_texture)
@@ -1774,7 +1774,7 @@ void change_minimap(){
 	bind_texture_id(exploration_texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	load_exploration_map();
+	//load_exploration_map();
 
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
