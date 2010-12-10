@@ -98,11 +98,11 @@ hash_table *emotes = NULL;
 int  parse_actor_frames(actor_types *act, xmlNode *cfg, xmlNode *defaults);
 #endif // EMOTE
 
-/*
+
 #ifdef MORE_ATTACHED_ACTORS
 static int thecount=0;
 #endif
-*/
+
 
 
 void cal_actor_set_random_idle(int id)
@@ -871,11 +871,11 @@ void next_command()
 	int max_queue=0;
 #endif
 
-/*
+
 #ifdef MORE_ATTACHED_ACTORS
 	thecount++;
 #endif
-*/
+
 	for(i=0;i<max_actors;i++){
 		if(!actors_list[i])continue;//actor exists?
 #ifdef EMOTES
@@ -925,7 +925,7 @@ void next_command()
 				actor_type=actors_list[i]->actor_type;
 #ifdef MORE_ATTACHED_ACTORS
 				//just for debugging
-				//attached_info(i,thecount);
+				attached_info(i,thecount);
 #endif
 				switch(actors_list[i]->que[0]) {
 					case kill_me:
