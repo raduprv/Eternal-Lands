@@ -31,20 +31,9 @@
 /*
  *	TO DO
  * 		fully comment
- * 		strings to translate
  * 		fix issue with mouse over open causing other windows to flicker
  * 		check create window status and warn if out of slots - fix handling elsewhere
 */
-
-
-const char * achievements_too_many_str = "Too many achievement windows open already";
-const char * achievements_xml_fail_str = "Failed to load achievement data";
-const char * achievements_texture_fail_str = "Failed to load achievement texture";
-const char * achievements_close_help_str = "Close or +ctrl close all";
-const char * achievements_no_next_help_str = "No more pages";
-const char * achievements_no_prev_help_str = "No previous page";
-const char * achievements_next_help_str = "Next page";
-const char * achievements_prev_help_str = "Previous page";
 
 
 //	A class to hold a single achievement object.
@@ -191,8 +180,14 @@ class Achievements_System
 		const std::string & get_prev(void) const { return prev; }
 		const std::string & get_next(void) const { return next; }
 		const std::string & get_close(void) const { return close; }
+		const char * get_close_help(void) const { return close_help.c_str(); }
+		const char * get_prev_help(void) const { return prev_help.c_str(); }
+		const char * get_no_prev_help(void) const { return no_prev_help.c_str(); }
+		const char * get_next_help(void) const { return next_help.c_str(); }
+		const char * get_no_next_help(void) const { return no_next_help.c_str(); }
 	private:
-		void get_int_props(const xmlNodePtr cur, int *props_p[], const char *props_s[], size_t num) const;
+		void get_int_props(const xmlNodePtr cur, int *props_p[], const char *props_s[], size_t num);
+		void get_string_props(const xmlNodePtr cur, std::string * strings_p[], const char* strings[], size_t count);
 		std::vector<Achievement *> achievements;
 		std::list<Achievements_Window *> windows;
 		std::vector<Uint32> last_data;
@@ -200,6 +195,8 @@ class Achievements_System
 		int size, display;
 		int per_row, min_rows, max_rows, border;
 		std::string prev, next, close;
+		std::string too_many, xml_fail, texture_fail;
+		std::string close_help, no_next_help, no_prev_help, next_help, prev_help;
 		size_t max_title_len;
 		size_t max_detail_lines;
 		size_t max_windows;
@@ -253,7 +250,16 @@ bool is_window_coord_top(int window_id, int coord_x, int coord_y)
 //
 Achievements_System::Achievements_System(void)
  : size(32), display(32), per_row(5), min_rows(1), max_rows(12), border(2),
-	prev("[<]"), next("[>]"), close("[close]"), max_title_len(0),
+	prev("[<]"), next("[>]"), close("[close]"),
+	too_many("Too many achievement windows open already"),
+	xml_fail("Failed to load achievement data"),
+	texture_fail("Failed to load achievement texture"),
+	close_help("Close or +ctrl close all"),
+	no_next_help("No more pages"),
+	no_prev_help("No previous page"),
+	next_help("Next page"),
+	prev_help("Previous page"),
+	max_title_len(0),
 	max_detail_lines(2), max_windows(15), win_pos_x(100), win_pos_y(50)
 {
 	xmlDocPtr doc;
@@ -341,20 +347,16 @@ Achievements_System::Achievements_System(void)
 			get_int_props(cur, props_p, props_s, 4);
 			std::string * ctrl_p[3] = { &prev, &next, &close };
 			const char* ctrl_s[3] = { "prev", "next", "close" };
-			for (size_t i=0; i<3; ++i)
-			{
-				char *ctrl = (char*)xmlGetProp(cur, (xmlChar *)ctrl_s[i]);
-				char *ctrl_proc = 0;
-				if (!ctrl)
-					continue;
-				MY_XMLSTRCPY(&ctrl_proc, ctrl);
-				if (ctrl_proc)
-				{
-					*(ctrl_p[i]) = ctrl_proc;
-					free(ctrl_proc);
-				}
-				xmlFree(ctrl);
-			}
+			get_string_props(cur, ctrl_p, ctrl_s, 3);
+		}
+		else if (!xmlStrcasecmp(cur->name, (const xmlChar *)"strings"))
+		{
+			const size_t count = 8;
+			std::string * strings_p[count] = { &too_many, &xml_fail, &texture_fail,
+				&close_help, &no_next_help, &no_prev_help, &next_help, &prev_help };
+			const char* strings_s[count] = { "too_many", "xml_fail", "texture_fail",
+				"close_help", "no_next_help", "no_prev_help", "next_help", "prev_help" };
+			get_string_props(cur, strings_p, strings_s, count);
 		}
 		else if (!xmlStrcasecmp(cur->name, (const xmlChar *)"texture"))
 		{
@@ -427,12 +429,12 @@ void Achievements_System::new_name(const char *player_name, int len)
 {
 	if (achievements.empty())
 	{
-		LOG_TO_CONSOLE(c_red1, achievements_xml_fail_str);
+		LOG_TO_CONSOLE(c_red1, xml_fail.c_str());
 		return;
 	}
 	if (textures.empty())
 	{
-		LOG_TO_CONSOLE(c_red1, achievements_texture_fail_str);
+		LOG_TO_CONSOLE(c_red1, texture_fail.c_str());
 		return;
 	}
 
@@ -474,7 +476,7 @@ void Achievements_System::new_name(const char *player_name, int len)
 		windows.back()->open(win_pos_x, win_pos_y);
 	}
 	else
-		LOG_TO_CONSOLE(c_red1, achievements_too_many_str);
+		LOG_TO_CONSOLE(c_red1, too_many.c_str());
 
 	last_data.clear();
 }
@@ -511,9 +513,9 @@ Achievements_System * Achievements_System::get_instance(void)
 }
 
 
-//	A helper function for reading the xml properties
+//	A helper function for reading xml integer properties
 //
-void Achievements_System::get_int_props(const xmlNodePtr cur, int *props_p[], const char *props_s[], size_t num) const
+void Achievements_System::get_int_props(const xmlNodePtr cur, int *props_p[], const char *props_s[], size_t num)
 {
 	for (size_t i=0; i<num; ++i)
 	{
@@ -524,6 +526,27 @@ void Achievements_System::get_int_props(const xmlNodePtr cur, int *props_p[], co
 		if (val>=0)
 			*props_p[i] = val;
 		xmlFree(prop);
+	}
+}
+
+
+//	A helper function for reading xml string properties
+//
+void Achievements_System::get_string_props(const xmlNodePtr cur, std::string * strings_p[], const char* strings[], size_t count)
+{
+	for (size_t i=0; i<count; ++i)
+	{
+		char *tmp = (char*)xmlGetProp(cur, (xmlChar *)strings[i]);
+		char *parsed = 0;
+		if (!tmp)
+			continue;
+		MY_XMLSTRCPY(&parsed, tmp);
+		if (parsed)
+		{
+			*(strings_p[i]) = parsed;
+			free(parsed);
+		}
+		xmlFree(tmp);
 	}
 }
 
@@ -751,11 +774,11 @@ int Achievements_Window::display_handler(window_info *win)
 	if (over_controls && show_help_text)
 	{
 		if (over_close)
-			show_help(achievements_close_help_str, 0, win->len_y + 10);
+			show_help(as->get_close_help(), 0, win->len_y + 10);
 		else if (over_prev)
-			show_help((first)?achievements_prev_help_str :achievements_no_prev_help_str, 0, win->len_y + 10);
+			show_help((first)?as->get_prev_help() :as->get_no_prev_help(), 0, win->len_y + 10);
 		else if (over_next)
-			show_help((another_page)?achievements_next_help_str :achievements_no_next_help_str, 0, win->len_y + 10);
+			show_help((another_page)?as->get_next_help() :as->get_no_next_help(), 0, win->len_y + 10);
 	}
 
 	win_mouse_x = win_mouse_y = -1;
