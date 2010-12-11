@@ -21,6 +21,9 @@
 #include "gl_init.h"
 #include "hud.h"
 #include "init.h"
+#ifdef NEW_SOUND
+#include "sound.h"
+#endif
 #include "text.h"
 #include "textures.h"
 #include "io/elfilewrapper.h"
@@ -737,6 +740,13 @@ int Achievements_Window::display_handler(window_info *win)
 		first -= physical_rows * as->get_per_row();
 	else if (over_next && another_page && clicked)
 		first += physical_rows * as->get_per_row();
+
+#ifdef NEW_SOUND
+	if (clicked && (over_prev || over_next))
+		add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+	if ((ctrl_clicked || clicked) && over_close)
+		add_sound_object(get_index_for_sound_type_name("Window Close"), 0, 0, 1);
+#endif
 
 	if (over_controls && show_help_text)
 	{
