@@ -209,7 +209,11 @@ void move_camera ()
         // the camera position corresponds to the head position
 		z = -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f;
 		// z += (head_pos[2]+0.1)*get_actor_scale(me);
-		z += (me->sitting ? 0.7 : 1.5) * get_actor_scale(me);
+		
+		//attachment_props *att_props = get_attachment_props_if_held(me);
+		//z += (me->sitting ? 0.7 : 1.5) * get_actor_scale(me);
+		if (me->attached_actor>=0) z+=me->z_pos + me->attachment_shift[Z]+2.0*get_actor_scale(me);
+		else z += (me->sitting ? 0.7 : 1.5) * get_actor_scale(me);
 	} else {
 		z = -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + sitting;
 	}

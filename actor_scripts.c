@@ -283,6 +283,9 @@ void animate_actors()
 						minimap_touch();
 #endif //MINIMAP2
 						actors_list[i]->busy = 0;
+						//if(actors_list[i]->actor_id==yourself) printf("%i, unbusy(moved)\n", thecount);
+						//if(actors_list[i]->actor_id<0) printf("%i, unbusy horse(moved)\n", thecount);
+
 						if (actors_list[i]->que[0] >= move_n &&
 							actors_list[i]->que[0] <= move_nw) {
 							next_command();
@@ -294,6 +297,9 @@ void animate_actors()
 						}
 					} else {
 						actors_list[i]->busy = 0;
+						//if(actors_list[i]->actor_id==yourself) printf("%i, unbusy(moved2)\n", thecount);
+						//if(actors_list[i]->actor_id<0) printf("%i, unbusy horse(moved2)\n", thecount);
+
 					}
 				}
 			} //moving
@@ -321,9 +327,20 @@ void animate_actors()
 				} else if (actors_list[i]->z_rot <= 0) {
 					actors_list[i]->z_rot += 360;
 				}
+				//if(actors_list[i]->actor_id==yourself) printf("%i, rotating: z_rot %f,  status %i-%i\n",thecount,actors_list[i]->z_rot,actors_list[i]->rotating,actors_list[i]->moving);
+				//if(actors_list[i]->actor_id<0) printf("%i, rotating (horse): z_rot %f,  status %i-%i\n",thecount,actors_list[i]->z_rot,actors_list[i]->rotating,actors_list[i]->moving);
 			}//rotating
 
 			actors_list[i]->anim_time += ((cur_time-last_update)*actors_list[i]->cur_anim.duration_scale)/1000.0;
+
+			/*if(ACTOR(i)->anim_time>=ACTOR(i)->cur_anim.duration) {
+				if (HAS_HORSE(i)||IS_HORSE(i)) {
+						if(MY_HORSE(i)->anim_time<MY_HORSE(i)->cur_anim.duration) {
+							MY_HORSE(i)->anim_time=MY_HORSE(i)->cur_anim.duration;
+							printf("%i, ANIMATION FORCED\n",thecount);
+						}
+				} 
+			}*/
 #ifndef	DYNAMIC_ANIMATIONS
 			if (actors_list[i]->calmodel!=NULL){
 #ifdef EMOTES
@@ -425,12 +442,31 @@ void move_to_next_frame()
 	for(i=0;i<max_actors;i++) {
 		if(actors_list[i]!=NULL) {
 			if (actors_list[i]->calmodel!=NULL) {
-				if ((actors_list[i]->stop_animation==1)&&(actors_list[i]->anim_time>=actors_list[i]->cur_anim.duration)){
-					actors_list[i]->busy=0;
-/*
 #ifdef MORE_ATTACHED_ACTORS
-					if(actors_list[i]->actor_id==yourself) printf("%i, unbusy\n",thecount);
-					if(actors_list[i]->actor_id<0) printf("%i, (horse) unbusy\n",thecount);
+				//rotations during idle animation like when server sends turn_n..turn_nw
+				//need to be synchronized on the minimum remaining animation time between
+				//the idle of the horse and the actor.
+				if(ACTOR(i)->stop_animation==1) {
+					if(HAS_HORSE(i)) {
+						if((ACTOR(i)->anim_time>=ACTOR(i)->cur_anim.duration)&&
+						  (MY_HORSE(i)->anim_time<MY_HORSE(i)->cur_anim.duration))
+								MY_HORSE(i)->anim_time=MY_HORSE(i)->cur_anim.duration;
+							//printf("%i, ANIMATION FORCED 1\n",thecount);
+					} else if(IS_HORSE(i)) {
+						if((ACTOR(i)->anim_time>=ACTOR(i)->cur_anim.duration)&&
+						(MY_HORSE(i)->anim_time<MY_HORSE(i)->cur_anim.duration))
+								MY_HORSE(i)->anim_time=MY_HORSE(i)->cur_anim.duration;
+							//printf("%i, ANIMATION FORCED 2\n",thecount);
+					}
+				}
+#endif			
+				if ((ACTOR(i)->stop_animation==1)&&(ACTOR(i)->anim_time>=ACTOR(i)->cur_anim.duration)){
+					actors_list[i]->busy=0;
+
+/*
+ * #ifdef MORE_ATTACHED_ACTORS
+					if(actors_list[i]->actor_id==yourself) printf("%i, unbusy: anim %i, anim_time %f, duration %f\n",thecount,actors_list[i]->cur_anim.anim_index,actors_list[i]->anim_time,actors_list[i]->cur_anim.duration);
+					if(actors_list[i]->actor_id<0) printf("%i, (horse) unbusy: anim %i, anim_time %f, duration %f\n",thecount,actors_list[i]->cur_anim.anim_index,actors_list[i]->anim_time,actors_list[i]->cur_anim.duration);
 #endif
 */
 					if (actors_list[i]->in_aim_mode == 2) {
@@ -483,7 +519,11 @@ void move_to_next_frame()
 				}
 			}
 
-			if (actors_list[i]->cur_anim.anim_index==-1) actors_list[i]->busy=0;
+			if (actors_list[i]->cur_anim.anim_index==-1) {
+				actors_list[i]->busy=0;
+				//if(actors_list[i]->actor_id==yourself) printf("%i, unbusy(-1)\n", thecount);
+				//if(actors_list[i]->actor_id<0) printf("%i, unbusy horse(-1)\n", thecount);
+			}
 
 			//first thing, decrease the damage time, so we will see the damage splash only for 2 seconds
 			if(actors_list[i]->damage_ms) {
@@ -633,10 +673,15 @@ void set_on_idle(int actor_idx)
             if(!a->stand_idle||a->cur_anim.anim_index<0){
                 if (actors_defs[a->actor_type].group_count == 0){
 			attachment_props *att_props = get_attachment_props_if_held(a);
-			if (att_props)
-			cal_actor_set_anim(actor_idx, *get_pose_frame(a->actor_type,a,EMOTE_STANDING,1));
-			else
-			cal_actor_set_anim(actor_idx, *get_pose_frame(a->actor_type,a,EMOTE_STANDING,0));
+			if (att_props) {
+				struct cal_anim *ca=get_pose_frame(a->actor_type,a,EMOTE_STANDING,1);
+				cal_actor_set_anim(actor_idx, *ca);
+				}
+			else {
+				struct cal_anim *ca=get_pose_frame(a->actor_type,a,EMOTE_STANDING,0);
+				cal_actor_set_anim(actor_idx, *ca);
+			}
+
 			//printf("setting standing pose\n");
                 }
                 else
@@ -1570,7 +1615,7 @@ void next_command()
 							float rotation_angle;
 
 #ifdef MORE_ATTACHED_ACTORS
-							if(1){ //<---AWFUL, HERE FOR DEBUG ONLY, REMOVE IT!
+							{
 								//int horse_angle= (HAS_HORSE(i)&&ACTOR_WEAPON(i)->turn_horse) ? (HORSE_FIGHT_ROTATION):(0);
 								int horse_angle=0;
 								if(IS_HORSE(i)) horse_angle=(ACTOR(i)->fighting&&ACTOR_WEAPON(MY_HORSE_ID(i))->turn_horse) ? (HORSE_FIGHT_ROTATION):(0);
@@ -1581,6 +1626,7 @@ void next_command()
 								ACTOR(i)->rotate_time_left=360;
 								ACTOR(i)->rotating=1;
 								ACTOR(i)->stop_animation=1;
+
 								if(ACTOR(i)->fighting&&horse_angle!=0) ACTOR(i)->horse_rotated=1;
 								/*if(HAS_HORSE(i)){
 									rotation_angle=get_rotation_vector(MY_HORSE(i)->z_rot,targeted_z_rot);
@@ -1595,17 +1641,16 @@ void next_command()
 								add_rotation_to_actor(i,-HORSE_FIGHT_ROTATION,HORSE_FIGHT_TIME);
 								add_rotation_to_actor(MY_HORSE_ID(i),-HORSE_FIGHT_ROTATION,HORSE_FIGHT_TIME);
 								}*/
-							} else {
+							}
 #endif
+/*
 							targeted_z_rot=(actors_list[i]->que[0]-turn_n)*45.0f;
 							rotation_angle=get_rotation_vector(z_rot,targeted_z_rot);
 							actors_list[i]->rotate_z_speed=rotation_angle/360.0f;
 							actors_list[i]->rotate_time_left=360;
 							actors_list[i]->rotating=1;
 							actors_list[i]->stop_animation=1;
-#ifdef MORE_ATTACHED_ACTORS
-							}
-#endif
+*/
 							missiles_log_message("%s (%d): rotation %d requested", actors_list[i]->actor_name, actors_list[i]->actor_id, actors_list[i]->que[0] - turn_n);
 						}
 					}
