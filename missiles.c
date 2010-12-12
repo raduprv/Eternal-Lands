@@ -7,6 +7,7 @@
 #include "errors.h"
 #include "eye_candy_wrapper.h"
 #include "gl_init.h"
+#include "global.h"
 #include "init.h"
 #include "missiles.h"
 #include "skeletons.h"
