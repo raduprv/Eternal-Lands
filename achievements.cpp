@@ -683,10 +683,13 @@ int Achievements_Window::display_handler(window_info *win)
 			int start_y = as->get_border() + as->get_display() * (shown_num / as->get_per_row());
 
 			get_and_set_texture_id(texture);
+			glEnable(GL_ALPHA_TEST);
+			glAlphaFunc(GL_GREATER, 0.05f);
 			glBegin(GL_QUADS);
 			draw_2d_thing( u_start, v_start, u_end, v_end,
 				start_x, start_y, start_x+as->get_display(), start_y+as->get_display() );
 			glEnd();
+			glDisable(GL_ALPHA_TEST);
 		}
 		else
 			missing = true;
