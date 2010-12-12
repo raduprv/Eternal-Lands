@@ -84,6 +84,7 @@ int display_knowledge_handler(window_info *win)
 	int points_pos;
 	float font_ratio = 0.7;
 	float max_name_x = (win->len_x-4)/2;
+	int is_researching = 1;
 	
 	if(your_info.research_total && 
 	   (your_info.research_completed==your_info.research_total))
@@ -103,6 +104,7 @@ int display_knowledge_handler(window_info *win)
 		research_string = not_researching_anything;
 		points_string[0] = '\0';
 		progress = 1;
+		is_researching = 0;
 	}
 	points_pos = (rx - lx - strlen(points_string)*8) / 2;
 
@@ -124,16 +126,19 @@ int display_knowledge_handler(window_info *win)
 	glVertex3i(rx,315,0);
 	glVertex3i(rx,335,0);
 	glEnd();
-	glBegin(GL_QUADS);
 	//progress bar
-	glColor3f(0.40f,0.40f,1.00f);
-	glVertex3i(lx+1+gx_adjust,315+gy_adjust,0);
-	glVertex3i(lx+progress+gx_adjust,315+gy_adjust,0);
-	glColor3f(0.10f,0.10f,0.80f);
-	glVertex3i(lx+progress+gx_adjust,334+gy_adjust,0);
-	glVertex3i(lx+1+gx_adjust,334+gy_adjust,0);
-	glColor3f(0.77f,0.57f,0.39f);
-	glEnd();
+	if (is_researching)
+	{
+		glBegin(GL_QUADS);
+		glColor3f(0.40f,0.40f,1.00f);
+		glVertex3i(lx+1+gx_adjust,315+gy_adjust,0);
+		glVertex3i(lx+1+progress+gx_adjust,315+gy_adjust,0);
+		glColor3f(0.10f,0.10f,0.80f);
+		glVertex3i(lx+1+progress+gx_adjust,334+gy_adjust,0);
+		glVertex3i(lx+1+gx_adjust,334+gy_adjust,0);
+		glColor3f(0.77f,0.57f,0.39f);
+		glEnd();
+	}
 	glEnable(GL_TEXTURE_2D);
 	//draw text
 	draw_string_small(4,210,(unsigned char*)knowledge_string,4);
