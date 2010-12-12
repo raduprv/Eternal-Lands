@@ -40,7 +40,7 @@ extern int ground_items_menu_x;
 extern int ground_items_menu_y;
 extern int ground_items_menu_x_len;
 extern int ground_items_menu_y_len;
-extern int ground_items_empty_next_bag;
+extern Uint32 ground_items_empty_next_bag;
 
 /*!
  * \name windows handlers

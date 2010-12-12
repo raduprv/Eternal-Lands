@@ -995,7 +995,11 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 				if(get_show_window(ground_items_win))
 					pick_up_all_items();
 				else {
-					ground_items_empty_next_bag = items_auto_get_all;
+					// if auto empty bags enable, set the open timer
+					if (items_auto_get_all)
+						ground_items_empty_next_bag = SDL_GetTicks();
+					else
+						ground_items_empty_next_bag = 0;
 					open_bag(bag_list[pos].obj_3d_id);
 				}
 				break; //we should only stand on one bag

@@ -34,7 +34,7 @@ int ground_items_menu_x=6*51+100+20;
 int ground_items_menu_y=20;
 int ground_items_menu_x_len=6*GRIDSIZE;
 int ground_items_menu_y_len=10*GRIDSIZE;
-int ground_items_empty_next_bag=0;
+Uint32 ground_items_empty_next_bag=0;
 
 static int ground_items_grid_rows = 10;
 static int ground_items_grid_cols = 5;
@@ -401,8 +401,10 @@ void get_bags_items_list (const Uint8 *data)
 		ground_item_list[pos].pos= pos;
 	}
 
+	//	If we have auto bag empting set, only do so within 1 second of pressing getall
 	if (ground_items_empty_next_bag) {
-		pick_up_all_items();
+		if (abs(ground_items_empty_next_bag - SDL_GetTicks()) < 1000)
+			pick_up_all_items();
 		ground_items_empty_next_bag = 0;
 	}
 
