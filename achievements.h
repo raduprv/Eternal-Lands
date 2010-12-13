@@ -11,9 +11,11 @@ extern "C" {
 
 #define MAX_ACHIEVEMENTS 1024
 
+extern int achievements_ctrl_click;
+
 void achievements_player_name(const char *name, int len);
 void achievements_data(Uint32 *data, size_t word_count);
-void achievements_mouse_pos(int mouse_pos_x, int mouse_pos_y);
+void achievements_requested(int mouse_pos_x, int mouse_pos_y, int control_used);
 
 #ifdef __cplusplus
 } // extern "C"

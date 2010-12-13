@@ -164,7 +164,7 @@ class Achievements_System
 		void prepare_details(size_t index);
 		void new_data(const Uint32 *data, size_t word_count);
 		void new_name(const char *name, int len);
-		void new_win_pos(int mouse_pos_x, int mouse_pos_y) { win_pos_x = mouse_pos_x; win_pos_y = mouse_pos_y; }
+		void requested(int mouse_pos_x, int mouse_pos_y, int control_used) { win_pos_x = mouse_pos_x; win_pos_y = mouse_pos_y; this->control_used = control_used; }
 		static Achievements_System * get_instance(void);
 		void show(void) const;
 		int texture(size_t index) const;
@@ -201,6 +201,7 @@ class Achievements_System
 		size_t max_detail_lines;
 		size_t max_windows;
 		int win_pos_x, win_pos_y;
+		bool control_used;
 };
 
 
@@ -260,7 +261,7 @@ Achievements_System::Achievements_System(void)
 	next_help("Next page"),
 	prev_help("Previous page"),
 	max_title_len(0),
-	max_detail_lines(2), max_windows(15), win_pos_x(100), win_pos_y(50)
+	max_detail_lines(2), max_windows(15), win_pos_x(100), win_pos_y(50), control_used(false)
 {
 	xmlDocPtr doc;
 	xmlNodePtr cur;
@@ -435,6 +436,12 @@ void Achievements_System::new_name(const char *player_name, int len)
 	if (textures.empty())
 	{
 		LOG_TO_CONSOLE(c_red1, texture_fail.c_str());
+		return;
+	}
+
+	if (achievements_ctrl_click && !control_used)
+	{
+		last_data.clear();
 		return;
 	}
 
@@ -894,7 +901,7 @@ void Achievements_Window::open(int win_pos_x, int win_pos_y)
 	win->data = reinterpret_cast<void *>(this);
 }
 
-
+int achievements_ctrl_click = 0;
 
 //	We have a new player name form the server.
 //
@@ -914,7 +921,7 @@ extern "C" void achievements_data(Uint32 *data, size_t word_count)
 
 //	We may be about to get some achievement data, remember the mouse position.
 //
-extern "C" void achievements_mouse_pos(int mouse_pos_x, int mouse_pos_y)
+extern "C" void achievements_requested(int mouse_pos_x, int mouse_pos_y, int control_used)
 {
-	Achievements_System::get_instance()->new_win_pos(mouse_pos_x, mouse_pos_y);
+	Achievements_System::get_instance()->requested(mouse_pos_x, mouse_pos_y, control_used);
 }

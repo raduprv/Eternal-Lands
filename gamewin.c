@@ -725,7 +725,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 #endif
 #ifdef ACHIEVEMENTS
 				if (thing_under_the_mouse == UNDER_MOUSE_PLAYER)
-					achievements_mouse_pos(mouse_x, mouse_y);
+					achievements_requested(mouse_x, mouse_y, flag_ctrl);
 #endif
 				str[0] = GET_PLAYER_INFO;
 				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
