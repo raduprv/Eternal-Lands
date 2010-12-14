@@ -429,6 +429,31 @@ void attached_info(int i, int c){
 }
 #endif
 
+void flush_delayed_item_changes(actor *a)
+{
+	int item;
+	for (item = 0; item < a->delayed_item_changes_count; ++item) {
+		if (a->delayed_item_changes[item] < 0) {
+			missiles_log_message("%s (%d): unwearing item type %d now\n",
+								 a->actor_name,
+								 a->actor_id,
+								 a->delayed_item_type_changes[item]);
+			unwear_item_from_actor(a->actor_id,
+								   a->delayed_item_type_changes[item]);
+		}
+		else {
+			missiles_log_message("%s (%d): wearing item type %d now\n",
+								 a->actor_name,
+								 a->actor_id,
+								 a->delayed_item_type_changes[item]);
+			actor_wear_item(a->actor_id,
+							a->delayed_item_type_changes[item],
+							a->delayed_item_changes[item]);
+		}
+	}
+	a->delayed_item_changes_count = 0;
+}
+
 int coun= 0;
 void move_to_next_frame()
 {
@@ -470,34 +495,13 @@ void move_to_next_frame()
 #endif
 */
 					if (actors_list[i]->in_aim_mode == 2) {
-						int item;
-
 						// we really leave the aim mode only when the animation is finished
 						actors_list[i]->in_aim_mode = 0;
 						missiles_log_message("%s (%d): leaving range mode finished!\n",
 											 actors_list[i]->actor_name, actors_list[i]->actor_id);
 
 						// then we do all the item changes that have been delayed
-						for (item = 0; item < actors_list[i]->delayed_item_changes_count; ++item) {
-							if (actors_list[i]->delayed_item_changes[item] < 0) {
-								missiles_log_message("%s (%d): unwearing item type %d now\n",
-													 actors_list[i]->actor_name,
-													 actors_list[i]->actor_id,
-													 actors_list[i]->delayed_item_type_changes[item]);
-								unwear_item_from_actor(actors_list[i]->actor_id,
-													   actors_list[i]->delayed_item_type_changes[item]);
-							}
-							else {
-								missiles_log_message("%s (%d): wearing item type %d now\n",
-													 actors_list[i]->actor_name,
-													 actors_list[i]->actor_id,
-													 actors_list[i]->delayed_item_type_changes[item]);
-								actor_wear_item(actors_list[i]->actor_id,
-												actors_list[i]->delayed_item_type_changes[item],
-												actors_list[i]->delayed_item_changes[item]);
-							}
-						}
-						actors_list[i]->delayed_item_changes_count = 0;
+						flush_delayed_item_changes(actors_list[i]);
 					}
 				}
 			}
@@ -966,6 +970,27 @@ void next_command()
 
 				actors_list[i]->sit_idle=0;
 				actors_list[i]->stand_idle=0;
+
+				if (actors_list[i]->is_enhanced_model && actors_list[i]->in_aim_mode == 1 &&
+					(actors_list[i]->que[0] < enter_aim_mode || actors_list[i]->que[0] > missile_critical) &&
+					(actors_list[i]->que[0] < turn_n || actors_list[i]->que[0] > turn_nw))
+				{
+					actor *a = actors_list[i];
+
+					LOG_ERROR("%s: %d: command incompatible with range mode detected: %d", __FUNCTION__, __LINE__, actors_list[i]->que[0]);
+					missiles_log_message("%s (%d): forcing aim mode exit", a->actor_name, a->actor_id);
+					a->cal_h_rot_start = 0.0;
+					a->cal_v_rot_start = 0.0;
+					a->cal_h_rot_end = 0.0;
+					a->cal_v_rot_end = 0.0;
+					a->cal_rotation_blend = 1.0;
+					a->cal_rotation_speed = 0.0;
+					a->cal_last_rotation_time = cur_time;
+					a->are_bones_rotating = 1;
+					a->in_aim_mode = 0;
+					flush_delayed_item_changes(a);
+				}
+
 
 				actor_type=actors_list[i]->actor_type;
 #ifdef MORE_ATTACHED_ACTORS
@@ -1891,6 +1916,16 @@ void add_command_to_actor(int actor_id, unsigned char command)
 				LOG_ERROR("%s (%d): unable to add a reload action, the queue is empty!", act->actor_name, actor_id);
 			UNLOCK_ACTORS_LISTS();
 			return;
+		}
+		else if (command == enter_aim_mode)
+		{
+			missiles_log_message("%s (%d): adding enter_aim_mode command",
+								 act->actor_name, act->actor_id);
+		}
+		else if (command == leave_aim_mode)
+		{
+			missiles_log_message("%s (%d): adding leave_aim_mode command",
+								 act->actor_name, act->actor_id);
 		}
 
 

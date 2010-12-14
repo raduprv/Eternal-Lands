@@ -70,7 +70,7 @@ void missiles_open_log()
 	fwrite (starttime, strlen(starttime), 1, missiles_log);
 }
 
-void missiles_log_message(const char *format, ...)
+void missiles_log_message_func(const char *format, ...)
 {
 	va_list ap;
 	struct tm *l_time; time_t c_time;
@@ -92,7 +92,7 @@ void missiles_log_message(const char *format, ...)
 	if(format[strlen(format)-1] != '\n') {
 		strcat(logmsg, "\n");
 	}
-	fprintf(missiles_log, logmsg);
+	fprintf(missiles_log, "%s", logmsg);
 	fflush (missiles_log);
 }
 #endif // MISSILES_DEBUG
