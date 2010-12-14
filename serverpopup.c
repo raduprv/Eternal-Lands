@@ -216,7 +216,7 @@ static int resize_handler(window_info *win, int width, int height)
 		return 1;
 	}
 	
-	/* set the text widget height */		
+	/* set the text widget height */
 	text_widget_height = height - (3*sep + button_widget->len_y);
 
 	/* remove any existing scroll bar */
@@ -248,7 +248,7 @@ static int resize_handler(window_info *win, int width, int height)
 		if (!text_message_is_empty (&widget_text))
 			num_text_lines = rewrap_message(&widget_text, chat_zoom, text_widget_width - 2*sep, NULL);
 	}
-	
+
 	/* if the text widget is really short, the scroll bar can extent beyond the height */
 	/* could be considered a bug in the scroll widget - prevent for normal font sizes anyway */
 	if (actual_scroll_width && (height < get_height(3)))
@@ -275,6 +275,10 @@ static int resize_handler(window_info *win, int width, int height)
 	{
 		scroll_line = 0;
 		text_field_set_buf_pos( server_popup_win, textId, 0, 0 );
+		if (win->flags & ELW_RESIZEABLE)
+			win->flags ^= ELW_RESIZEABLE;
+		if (win->flags & ELW_TITLE_BAR)
+			win->flags ^= ELW_TITLE_BAR;
 	}
 	
 	return 1;
@@ -290,11 +294,8 @@ void display_server_popup_win(const char * const message)
 	const int unusable_height = 75;
 	int winWidth = 0;
 	int winHeight = 0;
-	int max_line_len = 0;
-	int last_line_len = 0;
 	widget_list *button_widget = NULL;
 	int our_root_win = -1;
-	int i;
 	Uint32 win_property_flags;
 	
 	/* exit now if message empty */
@@ -306,7 +307,7 @@ void display_server_popup_win(const char * const message)
 	write_to_log (CHAT_SERVER, (unsigned char*)message, strlen(message));
 	
 	/* if the window already exists, copy new message to end */
-	if (server_popup_win > 0){
+	if (server_popup_win >= 0){
 		
 		window_info *win = &windows_list.window[server_popup_win];
 		char *sep_str = "\n\n";
@@ -322,15 +323,12 @@ void display_server_popup_win(const char * const message)
 		/* this will re-wrap the text and add a scrollbar, title and resize widget as required */
 		resize_handler(win, win->len_x, win->len_y);
 
-		return;
-		
 	} else {
+		/* restart from scratch and initialise the window text widget text buffer */
 		initialise();
+		init_text_message (&widget_text, 2*strlen(message));
+		set_text_message_data (&widget_text, message);
 	}
-
-	/* initialise the window text widget text buffer */
-	init_text_message (&widget_text, 2*strlen(message));
-	set_text_message_data (&widget_text, message);
 
 	/* make sure the text font is set so width calculations work properly */
 	set_font(chat_font);
@@ -340,42 +338,28 @@ void display_server_popup_win(const char * const message)
 	if (!text_message_is_empty (&widget_text)) {
 		num_text_lines = rewrap_message(&widget_text, chat_zoom, (window_width - unusable_width) - 4*sep, NULL);
 	}
-	
-	/* find the longest line */
-	for (i=0; i<strlen(widget_text.data); ++i)
-	{
-		if ((widget_text.data[i] == '\n') || (widget_text.data[i] == '\r'))
-		{
-			if (last_line_len > max_line_len){
-				 max_line_len = last_line_len;
-			}
-			last_line_len = 0;
-		} else {
-			last_line_len++;
-		}
-	}
-	if (last_line_len > max_line_len){
-		max_line_len = last_line_len;
-	}
-		
+
 	/* config and alt-w control if shown on top of console */
 	if (!windows_on_top){
 		 our_root_win = game_root_win;
 	}
-		
-	/* create the window with initial size and location */
-	win_property_flags = ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE;
-	server_popup_win = create_window( "", our_root_win, 0,
-		server_popup_win_x, server_popup_win_y, winWidth, winHeight, win_property_flags);
-	set_window_handler( server_popup_win, ELW_HANDLER_RESIZE, &resize_handler);
-	set_window_handler( server_popup_win, ELW_HANDLER_CLICK, &click_handler);
 
-	/* create the OK button, setup its click handler and get its structure */
-	buttonId = button_add_extended (server_popup_win, buttonId, NULL, 0,
-		 0, 0, 0, 0, chat_zoom, 0.77f, 0.57f, 0.39f, "OK");
-	widget_set_OnClick(server_popup_win, buttonId, close_handler);
+	if (server_popup_win < 0){
+		/* create the window with initial size and location */
+		win_property_flags = ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE;
+		server_popup_win = create_window( "", our_root_win, 0,
+			server_popup_win_x, server_popup_win_y, winWidth, winHeight, win_property_flags);
+		set_window_handler( server_popup_win, ELW_HANDLER_RESIZE, &resize_handler);
+		set_window_handler( server_popup_win, ELW_HANDLER_CLICK, &click_handler);
+	
+		/* create the OK button, setup its click handler and get its structure */
+		buttonId = button_add_extended (server_popup_win, buttonId, NULL, 0,
+			 0, 0, 0, 0, chat_zoom, 0.77f, 0.57f, 0.39f, "OK");
+		widget_set_OnClick(server_popup_win, buttonId, close_handler);
+	}
+
 	button_widget = widget_find(server_popup_win, buttonId);
- 
+
 	/* calc the text widget height from the number of lines */
 	winHeight = 2*sep + button_widget->len_y;
 	if (!text_message_is_empty (&widget_text))
@@ -408,7 +392,7 @@ void display_server_popup_win(const char * const message)
 	}
 
 	/* calc the require window width for the text size */
-	/* the fudge is that the width cal doe snot work 100% exactly for some fonts :( */
+	/* the fudge is that the width cal does not work 100% exactly for some fonts :( */
 	if (!text_message_is_empty (&widget_text)) {
 		text_widget_width = sep/*fudge*/ + 2*sep + widget_text.max_line_width;
 	} else {
@@ -433,7 +417,7 @@ void display_server_popup_win(const char * const message)
 	}
 	
 	/* create the text widget */
-	if (!text_message_is_empty (&widget_text)) {
+	if ((!text_message_is_empty (&widget_text)) && (widget_find(server_popup_win, textId) == NULL)) {
 		textId = text_field_add_extended( server_popup_win, textId, NULL, sep, sep,
 			text_widget_width, text_widget_height, TEXT_FIELD_NO_KEYPRESS,
 			chat_zoom, 0.77f, 0.57f, 0.39f, &widget_text, 1, FILTER_NONE, sep, sep);
