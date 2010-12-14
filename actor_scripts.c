@@ -971,6 +971,7 @@ void next_command()
 				actors_list[i]->sit_idle=0;
 				actors_list[i]->stand_idle=0;
 
+#ifndef DISABLE_RANGE_MODE_EXIT_BUGFIX
 				if (actors_list[i]->is_enhanced_model && actors_list[i]->in_aim_mode == 1 &&
 					(actors_list[i]->que[0] < enter_aim_mode || actors_list[i]->que[0] > missile_critical) &&
 					(actors_list[i]->que[0] < turn_n || actors_list[i]->que[0] > turn_nw))
@@ -990,7 +991,7 @@ void next_command()
 					a->in_aim_mode = 0;
 					flush_delayed_item_changes(a);
 				}
-
+#endif // DISABLE_RANGE_MODE_EXIT_BUGFIX
 
 				actor_type=actors_list[i]->actor_type;
 #ifdef MORE_ATTACHED_ACTORS
