@@ -467,33 +467,32 @@ void move_to_next_frame()
 	for(i=0;i<max_actors;i++) {
 		if(actors_list[i]!=NULL) {
 			if (actors_list[i]->calmodel!=NULL) {
+			if ((ACTOR(i)->stop_animation==1)&&(ACTOR(i)->anim_time>=ACTOR(i)->cur_anim.duration)){
+					actors_list[i]->busy=0;
+
+
 #ifdef MORE_ATTACHED_ACTORS
+					if(actors_list[i]->actor_id==yourself) printf("%i, unbusy: anim %i, anim_time %f, duration %f\n",thecount,actors_list[i]->cur_anim.anim_index,actors_list[i]->anim_time,actors_list[i]->cur_anim.duration);
+					if(actors_list[i]->actor_id<0) printf("%i, (horse) unbusy: anim %i, anim_time %f, duration %f\n",thecount,actors_list[i]->cur_anim.anim_index,actors_list[i]->anim_time,actors_list[i]->cur_anim.duration);
+
+					if(HAS_HORSE(i)) {
 				//rotations during idle animation like when server sends turn_n..turn_nw
 				//need to be synchronized on the minimum remaining animation time between
 				//the idle of the horse and the actor.
-				if(ACTOR(i)->stop_animation==1) {
-					if(HAS_HORSE(i)) {
-						if((ACTOR(i)->anim_time>=ACTOR(i)->cur_anim.duration)&&
-						  (MY_HORSE(i)->anim_time<MY_HORSE(i)->cur_anim.duration))
-								MY_HORSE(i)->anim_time=MY_HORSE(i)->cur_anim.duration;
-							//printf("%i, ANIMATION FORCED 1\n",thecount);
-					} else if(IS_HORSE(i)) {
-						if((ACTOR(i)->anim_time>=ACTOR(i)->cur_anim.duration)&&
-						(MY_HORSE(i)->anim_time<MY_HORSE(i)->cur_anim.duration))
-								MY_HORSE(i)->anim_time=MY_HORSE(i)->cur_anim.duration;
-							//printf("%i, ANIMATION FORCED 2\n",thecount);
-					}
-				}
-#endif			
-				if ((ACTOR(i)->stop_animation==1)&&(ACTOR(i)->anim_time>=ACTOR(i)->cur_anim.duration)){
-					actors_list[i]->busy=0;
+						if(
+						  (MY_HORSE(i)->anim_time<MY_HORSE(i)->cur_anim.duration)&&
+						  (MY_HORSE(i)->cur_anim.kind==cycle)){
+								//MY_HORSE(i)->anim_time=MY_HORSE(i)->cur_anim.duration;
+								MY_HORSE(i)->busy=0;
+								MY_HORSE(i)->in_aim_mode=0;
+								set_on_idle(MY_HORSE_ID(i));
+							printf("%i, ANIMATION FORCED 1\n",thecount);
+							}
+					} 
+					
 
-/*
- * #ifdef MORE_ATTACHED_ACTORS
-					if(actors_list[i]->actor_id==yourself) printf("%i, unbusy: anim %i, anim_time %f, duration %f\n",thecount,actors_list[i]->cur_anim.anim_index,actors_list[i]->anim_time,actors_list[i]->cur_anim.duration);
-					if(actors_list[i]->actor_id<0) printf("%i, (horse) unbusy: anim %i, anim_time %f, duration %f\n",thecount,actors_list[i]->cur_anim.anim_index,actors_list[i]->anim_time,actors_list[i]->cur_anim.duration);
 #endif
-*/
+
 					if (actors_list[i]->in_aim_mode == 2) {
 						// we really leave the aim mode only when the animation is finished
 						actors_list[i]->in_aim_mode = 0;
@@ -559,6 +558,8 @@ void move_to_next_frame()
 				)
 				) {
 						if(MY_HORSE(i)->que[0]==wait_cmd) {
+							printf("%i, horse out of wait\n",thecount);
+							//MY_HORSE(i)->anim_time=0;
 							unqueue_cmd(MY_HORSE_ID(i));
 							MY_HORSE(i)->busy=0;
 							//printf("%i----unqueued horse to %i doing %i, just done %i\n", thecount,MY_HORSE(i)->que[0],actors_list[i]->que[0],actors_list[i]->last_command);
