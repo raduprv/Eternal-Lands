@@ -425,7 +425,7 @@ extern char
 		accept_str[12],
 		/*update.c*/
 		update_complete_str[40],
-		full_screen_restart_str[80],
+		video_restart_str[80],
 		client_restart_countdown_str[40],
 		client_restarting_str[20],
 		restart_now_label[20],

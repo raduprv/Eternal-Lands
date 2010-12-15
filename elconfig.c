@@ -629,6 +629,13 @@ int switch_video(int mode, int full_screen)
 		win_bpp = video_modes[index].bpp;
 	}
 
+#ifdef WINDOWS
+	LOG_TO_CONSOLE(c_green2, video_restart_str);
+	video_mode=mode;
+	set_var_unsaved("switch_vidmode", OPT_MULTI);
+	return 1;
+#endif
+
 	destroy_fbos();
 
 	if (!SDL_VideoModeOK(win_width, win_height, win_bpp, flags)) {
