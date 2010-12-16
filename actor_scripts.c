@@ -271,6 +271,7 @@ void animate_actors()
 					//now, we need to update the x/y_tile_pos, and round off
 					//the x/y_pos according to x/y_tile_pos
 					last_command= actors_list[i]->last_command;
+					//if(HAS_HORSE(i)) {MY_HORSE(i)->busy=0; if(actors_list[i]->actor_id==yourself) printf("%i, %s wakes up Horse\n",thecount, ACTOR(i)->actor_name);}
 					if (get_motion_vector(last_command, &dx, &dy)) {
 						actors_list[i]->x_tile_pos += dx;
 						actors_list[i]->y_tile_pos += dy;
@@ -358,7 +359,17 @@ void animate_actors()
 #endif
 				CalModel_Update(actors_list[i]->calmodel, (((cur_time-last_update)*actors_list[i]->cur_anim.duration_scale)/1000.0));
 				build_actor_bounding_box(actors_list[i]);
+				{
+				int wasbusy = ACTOR(i)->busy;
 				missiles_rotate_actor_bones(actors_list[i]);
+#ifdef MORE_ATTACHED_ACTORS
+				if (ACTOR(i)->busy!=wasbusy&&HAS_HORSE(i)) {
+					if(actors_list[i]->actor_id==yourself) printf("%i, %s is no more busy due to missiles_rotate_actor_bones!! Setting the horse free...\n",thecount, ACTOR(i)->actor_name);
+					MY_HORSE(i)->busy=0;
+#endif
+				}
+
+				}
 				if (use_animation_program)
 				{
 					set_transformation_buffers(actors_list[i]);
