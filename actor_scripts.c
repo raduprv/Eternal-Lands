@@ -365,9 +365,15 @@ void animate_actors()
 #ifdef MORE_ATTACHED_ACTORS
 				if (ACTOR(i)->busy!=wasbusy&&HAS_HORSE(i)) {
 					if(actors_list[i]->actor_id==yourself) printf("%i, %s is no more busy due to missiles_rotate_actor_bones!! Setting the horse free...\n",thecount, ACTOR(i)->actor_name);
-					MY_HORSE(i)->busy=0;
-#endif
+							if(MY_HORSE(i)->que[0]==wait_cmd) {
+							printf("%i, horse out of wait in animate_actors\n",thecount);
+							//MY_HORSE(i)->anim_time=0;
+							unqueue_cmd(MY_HORSE_ID(i));
+							MY_HORSE(i)->busy=0;
+							set_on_idle(MY_HORSE_ID(i));
+							}
 				}
+#endif
 
 				}
 				if (use_animation_program)
@@ -1335,9 +1341,9 @@ void next_command()
 					else {
                         float range_rotation;
 						range_action *action = &actors_list[i]->range_actions[0];
-
+#ifdef MORE_ATTACHED_ACTORS
 						if(actors_list[i]->actor_id==yourself) printf("%i, enter aim %i\n",thecount,actors_list[i]->in_aim_mode);
-
+#endif
 						missiles_log_message("%s (%d): aiming again (time=%d)", actors_list[i]->actor_name, actors_list[i]->actor_id, cur_time);
 #ifdef MORE_ATTACHED_ACTORS
 						if(HAS_HORSE(i)) {
@@ -1461,9 +1467,9 @@ void next_command()
 						if (action->reload) {
 							missiles_log_message("%s (%d): fire and reload", actors_list[i]->actor_name, actors_list[i]->actor_id);
 							// launch fire and reload animation
-							if(actors_list[i]->actor_id==yourself) printf("%i, enter reload\n",thecount);
 					
 #ifdef MORE_ATTACHED_ACTORS						
+							if(actors_list[i]->actor_id==yourself) printf("%i, enter reload\n",thecount);
 							if(HAS_HORSE(i))
 							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_frames[cal_weapon_range_fire_held_frame]);
 							else
@@ -1474,9 +1480,9 @@ void next_command()
 						else {
 							missiles_log_message("%s (%d): fire and leave aim mode", actors_list[i]->actor_name, actors_list[i]->actor_id);
 							// launch fire and leave aim mode animation
-							if(actors_list[i]->actor_id==yourself) printf("%i, enter fire & leave\n",thecount);
 
 #ifdef MORE_ATTACHED_ACTORS
+							if(actors_list[i]->actor_id==yourself) printf("%i, enter fire & leave\n",thecount);
 							if(HAS_HORSE(i))
 							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_frames[cal_weapon_range_fire_out_held_frame]);
 							else
