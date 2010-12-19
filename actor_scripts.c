@@ -584,11 +584,11 @@ void move_to_next_frame()
 				//Should we go into idle here?
 			}
 #ifdef MORE_ATTACHED_ACTORS
-			if(!actors_list[i]->busy){
-				if(actors_list[i]->attached_actor>=0&&actors_list[i]->actor_id>=0&&
+			if(!ACTOR(i)->busy){
+				if(ACTOR(i)->attached_actor>=0&&ACTOR(i)->actor_id>=0&&
 				(
-				(actors_list[i]->last_command>=enter_aim_mode&&actors_list[i]->last_command<=aim_mode_fire)||
-				(actors_list[i]->last_command>=enter_combat&&actors_list[i]->last_command<=leave_combat)
+				(ACTOR(i)->last_command>=enter_aim_mode&&ACTOR(i)->last_command<=aim_mode_fire)||
+				(ACTOR(i)->last_command>=enter_combat&&ACTOR(i)->last_command<=leave_combat)
 				)
 				) {
 					unfreeze_horse(i);
@@ -920,30 +920,39 @@ int handle_emote_command(int act_id, emote_command *command)
 #endif // EMOTES
 
 #ifdef MORE_ATTACHED_ACTORS
-void rotate_actor_and_horse(int id, int mul){
+void rotate_actor_and_horse_by(int id, int mul, float angle){
 
 			//printf("%i. ACTOR %s (rotating: %i): time left -> %i, z speed -> %f\n",thecount,ACTOR(id)->actor_name,actors_list[id]->rotating,actors_list[id]->rotate_time_left,actors_list[id]->rotate_z_speed);
 
 			if(!ACTOR(id)->rotating){
-				ACTOR(id)->rotate_z_speed=(float)mul*HORSE_FIGHT_ROTATION/(float)HORSE_FIGHT_TIME;
+				ACTOR(id)->rotate_z_speed=(float)mul*angle/(float)HORSE_FIGHT_TIME;
 				ACTOR(id)->rotate_time_left=HORSE_FIGHT_TIME;
 				ACTOR(id)->rotating=1;
 				ACTOR(id)->stop_animation=1;
 				ACTOR(id)->horse_rotated=(mul<0) ? (1):(0); //<0 enter fight, >=0 leave fight
-				MY_HORSE(id)->rotate_z_speed=(float)mul*HORSE_FIGHT_ROTATION/(float)HORSE_FIGHT_TIME;
+				MY_HORSE(id)->rotate_z_speed=(float)mul*angle/(float)HORSE_FIGHT_TIME;
 				MY_HORSE(id)->rotate_time_left=HORSE_FIGHT_TIME;
 				MY_HORSE(id)->rotating=1;
 				MY_HORSE(id)->stop_animation=1;
-			} else {
+			}// else {
 				//add correct rotation to an already rotating actor
 				//actors_list[id]->rotate_z_speed=
 					//(actors_list[id]->rotate_z_speed*(float)actors_list[id]->rotate_time_left+angle)/(float)actors_list[id]->rotate_time_left;
 					//printf("%i. no rotation\n",thecount);
-			}
+			//}
 
-			printf("%i. RESULT FOR ACTOR %s (rotating: %i): time left -> %i, z speed -> %f\n",thecount,ACTOR(id)->actor_name,actors_list[id]->rotating,actors_list[id]->rotate_time_left,actors_list[id]->rotate_z_speed);
+			//printf("%i. RESULT FOR ACTOR %s (rotating: %i): time left -> %i, z speed -> %f\n",thecount,ACTOR(id)->actor_name,actors_list[id]->rotating,actors_list[id]->rotate_time_left,actors_list[id]->rotate_z_speed);
 
 }
+
+void rotate_actor_and_horse(int id, int mul){
+	rotate_actor_and_horse_by(id,mul,HORSE_FIGHT_ROTATION);
+}
+
+void rotate_actor_and_horse_range(int id, int mul){
+	rotate_actor_and_horse_by(id,mul,HORSE_RANGE_ROTATION);
+}
+
 #endif
 
 //in case the actor is not busy, and has commands in it's que, execute them
@@ -1322,7 +1331,7 @@ void next_command()
 #ifdef MORE_ATTACHED_ACTORS
 					if(actors_list[i]->actor_id==yourself) printf("%i, enter aim 0\n",thecount);
 					if(actors_list[i]->attached_actor>=0){
-						if (!ACTOR(i)->horse_rotated) {rotate_actor_and_horse(i,-1); ACTOR(i)->horse_rotated=1;}						//set the horse aim mode
+						if (!ACTOR(i)->horse_rotated) {rotate_actor_and_horse_range(i,-1); ACTOR(i)->horse_rotated=1;}						//set the horse aim mode
 						actors_list[actors_list[i]->attached_actor]->in_aim_mode=1;
 						//stop_attachment(i); //add a wait
 						//we could start a horse_ranged_in
@@ -1373,9 +1382,16 @@ void next_command()
 							}
 						}
 
+
+#ifdef MORE_ATTACHED_ACTORS
+						if(HAS_HORSE(i)) ACTOR(i)->z_rot+=HORSE_RANGE_ROTATION;
+#endif
 						range_rotation = missiles_compute_actor_rotation(&actors_list[i]->cal_h_rot_end,
 																		 &actors_list[i]->cal_v_rot_end,
 																		 actors_list[i], action->aim_position);
+#ifdef MORE_ATTACHED_ACTORS
+						if(HAS_HORSE(i)) ACTOR(i)->z_rot-=HORSE_RANGE_ROTATION;
+#endif
 						actors_list[i]->cal_rotation_blend = 0.0;
 						actors_list[i]->cal_rotation_speed = 1.0/360.0;
                         actors_list[i]->cal_last_rotation_time = cur_time;
@@ -1412,7 +1428,7 @@ void next_command()
 							log_error("next_command: trying to leave range mode while we are not in it => aborting safely...");
 							no_action = 1;
 #ifdef MORE_ATTACHED_ACTORS
-							if (ACTOR(i)->horse_rotated) {rotate_actor_and_horse(i,1); ACTOR(i)->horse_rotated=0;}
+							if (ACTOR(i)->horse_rotated) {rotate_actor_and_horse_range(i,1); ACTOR(i)->horse_rotated=0;}
 #endif							
 							break;
 						}
@@ -1425,7 +1441,7 @@ void next_command()
 #ifdef MORE_ATTACHED_ACTORS
 					if(HAS_HORSE(i)) {
 					cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_frames[cal_weapon_range_out_held_frame]);
-					if (ACTOR(i)->horse_rotated) {rotate_actor_and_horse(i,1); ACTOR(i)->horse_rotated=0;}
+					if (ACTOR(i)->horse_rotated) {rotate_actor_and_horse_range(i,1); ACTOR(i)->horse_rotated=0;}
 					}
 					else
 #endif
@@ -1690,38 +1706,25 @@ void next_command()
 							float rotation_angle;
 
 #ifdef MORE_ATTACHED_ACTORS
-							
-								//int horse_angle= (HAS_HORSE(i)&&ACTOR_WEAPON(i)->turn_horse) ? (HORSE_FIGHT_ROTATION):(0);
-								int horse_angle=0;
-								if(IS_HORSE(i)) horse_angle=(ACTOR(i)->fighting&&ACTOR_WEAPON(MY_HORSE_ID(i))->turn_horse) ? (HORSE_FIGHT_ROTATION):(0);
-								else if(HAS_HORSE(i)) horse_angle=(ACTOR(i)->fighting&&ACTOR_WEAPON(i)->turn_horse) ? (HORSE_FIGHT_ROTATION):(0);
-								if((HAS_HORSE(i)||IS_HORSE(i))&&(ACTOR(i)->in_aim_mode||MY_HORSE(i)->in_aim_mode)) {
-								horse_angle=HORSE_FIGHT_ROTATION;
+							int horse_angle=0;
+							if(IS_HORSE(i))
+								horse_angle=(ACTOR(i)->fighting&&ACTOR_WEAPON(MY_HORSE_ID(i))->turn_horse) ? (HORSE_FIGHT_ROTATION):(0);
+							else if(HAS_HORSE(i))
+								horse_angle=(ACTOR(i)->fighting&&ACTOR_WEAPON(i)->turn_horse) ? (HORSE_FIGHT_ROTATION):(0);
+
+							if((HAS_HORSE(i)||IS_HORSE(i))&&(ACTOR(i)->in_aim_mode||MY_HORSE(i)->in_aim_mode)) {
+								horse_angle=HORSE_RANGE_ROTATION;
 								if(actors_list[i]->actor_id==yourself) printf("%i, %s rotates\n",thecount, ACTOR(i)->actor_name);
 								if(MY_HORSE(i)->actor_id==yourself) printf("%i, Horse %s rotates\n",thecount, MY_HORSE(i)->actor_name);
-								}
-								targeted_z_rot=(ACTOR(i)->que[0]-turn_n)*45.0f-horse_angle;
-								rotation_angle=get_rotation_vector(ACTOR(i)->z_rot,targeted_z_rot);
-								ACTOR(i)->rotate_z_speed=rotation_angle/360.0f;
-								ACTOR(i)->rotate_time_left=360;
-								ACTOR(i)->rotating=1;
-								ACTOR(i)->stop_animation=1;
+							}
+							targeted_z_rot=(ACTOR(i)->que[0]-turn_n)*45.0f-horse_angle;
+							rotation_angle=get_rotation_vector(ACTOR(i)->z_rot,targeted_z_rot);
+							ACTOR(i)->rotate_z_speed=rotation_angle/360.0f;
+							ACTOR(i)->rotate_time_left=360;
+							ACTOR(i)->rotating=1;
+							ACTOR(i)->stop_animation=1;
 
-								if(ACTOR(i)->fighting&&horse_angle!=0) ACTOR(i)->horse_rotated=1;
-								/*if(HAS_HORSE(i)){
-									rotation_angle=get_rotation_vector(MY_HORSE(i)->z_rot,targeted_z_rot);
-									MY_HORSE(i)->rotate_z_speed=rotation_angle/360.0f;
-									MY_HORSE(i)->rotate_time_left=360;
-									MY_HORSE(i)->rotating=1;
-									MY_HORSE(i)->stop_animation=1;
-									printf("%i. rotating ACTOR %i: time left -> %i, z speed -> %f\n",thecount,i,ACTOR(i)->rotate_time_left,ACTOR(i)->rotate_z_speed);
-									printf("%i. rotating ACTOR %i horse: time left -> %i, z speed -> %f\n",thecount,i,MY_HORSE(i)->rotate_time_left,MY_HORSE(i)->rotate_z_speed);*/
-								//}
-								/*if(ACTOR(i)->fighting&&ACTOR_WEAPON(i)->turn_horse) {
-								add_rotation_to_actor(i,-HORSE_FIGHT_ROTATION,HORSE_FIGHT_TIME);
-								add_rotation_to_actor(MY_HORSE_ID(i),-HORSE_FIGHT_ROTATION,HORSE_FIGHT_TIME);
-								}*/
-							
+							if(ACTOR(i)->fighting&&horse_angle!=0) ACTOR(i)->horse_rotated=1;
 #else
 
 							targeted_z_rot=(actors_list[i]->que[0]-turn_n)*45.0f;
@@ -1756,16 +1759,9 @@ void next_command()
 						actors_list[i]->in_aim_mode = 1;
 #ifdef MORE_ATTACHED_ACTORS
 						actors_list[i]->last_command=missile_miss; //dirty hack to avoid processing enter_aim_mode twice :/
-						if(actors_list[i]->actor_id==yourself) printf("%i, hack!\n",thecount);
-
 #endif
 						continue;
 					}
-#ifdef MORE_ATTACHED_ACTORS					
-					if(actors_list[i]->actor_id==yourself)
-						printf("%i, %s last command: %i\n",thecount,ACTOR(i)->actor_name,ACTOR(i)->last_command);
-#endif
-
 					unqueue_cmd(i);
 				}
 			}

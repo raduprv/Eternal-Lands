@@ -423,10 +423,10 @@ float missiles_compute_actor_rotation(float *out_h_rot, float *out_v_rot,
 	missiles_log_message("%s (%d): vertical rotation: from=(%.2f,%.2f,%.2f), to=(%.2f,%.2f,%.2f), v_rot=%f",
 						 in_act->actor_name, in_act->actor_id,
 						 from[0], from[1], from[2], to[0], to[1], to[2], *out_v_rot);
-#ifdef MORE_ATTACHED_ACTORS
+/*#ifdef MORE_ATTACHED_ACTORS
 	//no horses can be processed here
 	if(in_act->attached_actor>=0) actor_rotation-=HORSE_FIGHT_ROTATION;
-#endif
+#endif*/
 	return actor_rotation;
 
 }

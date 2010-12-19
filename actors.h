@@ -468,6 +468,7 @@ typedef struct
 
 #ifdef MORE_ATTACHED_ACTORS
 #define HORSE_FIGHT_ROTATION 60
+#define HORSE_RANGE_ROTATION 45
 #define HORSE_FIGHT_TIME 180
 void rotate_actor_and_horse(int id, int mul);
 #endif
