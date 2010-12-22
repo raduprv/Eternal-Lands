@@ -466,8 +466,10 @@ int print_emotes(char *text, int len){
 		LOG_TO_CONSOLE(c_orange1,((emote_dict *)he->item)->command);
 	return 1;
 }
+#endif
 
 
+#ifdef EMOTES_DEBUG
 int add_emote(char *text, int len){
 
 	int j;
@@ -537,6 +539,7 @@ int send_cmd(char *text, int len){
 	text[x-1]=' ';
 	return 1;
 }
+
 
 int set_idle(char *text, int len){
 
@@ -636,7 +639,7 @@ int set_action(char *text, int len){
 }
 #endif
 
-#ifdef MORE_ATTACHED_ACTORS
+#ifdef MORE_ATTACHED_ACTORS_DEBUG
 int horse_cmd(char* text, int len){
 
 	int j,x;
@@ -686,7 +689,7 @@ int horse_cmd(char* text, int len){
 }
 #endif
 
-#ifdef NECK_ITEMS
+#ifdef NECK_ITEMS_DEBUG
 int set_neck(char *text, int len){
 
 	int j;
@@ -1664,16 +1667,18 @@ void init_commands(const char *filename)
 		fclose(fp);
 	}
 
-#ifdef MORE_ATTACHED_ACTORS
+#ifdef MORE_ATTACHED_ACTORS_DEBUG
 add_command("horse", &horse_cmd);
 #endif
 
-#ifdef NECK_ITEMS
+#ifdef NECK_ITEMS_DEBUG
 	add_command("set_neck", &set_neck);
 #endif
 	
 #ifdef EMOTES
 	add_command("emotes", &print_emotes);
+#endif
+#ifdef EMOTES_DEBUG
 	add_command("add_emote", &add_emote);
 	add_command("send_cmd", &send_cmd);
 	add_command("set_idle", &set_idle);
