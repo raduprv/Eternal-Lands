@@ -1458,27 +1458,6 @@ static int command_show_spell(char *text, int len)
 	return 1;
 }
 
-#ifdef NEW_QUESTLOG
-/* temporary command to request quest title string for specified id */
-int command_quest_title(char *text, int len)
-{
-	text = getparams(text);
-	if (*text)
-	{
-		Uint8 str[10];
-		char buf[80];
-		int id = atoi(text);
-		safe_snprintf(buf, 80, "Sending WHAT_QUEST_IS_THIS_ID with id=%d", id);
-		LOG_TO_CONSOLE(c_green2,buf);
-		str[0]=WHAT_QUEST_IS_THIS_ID;
-		*((Uint16 *)(str+1)) = SDL_SwapLE16((Uint16)id);
-		my_tcp_send (my_socket, str, 3);
-	}
-	else
-		LOG_TO_CONSOLE(c_red2,"Need quest id");
-	return 1;
-}
-#endif // NEW_QUESTLOG
 
 #ifdef ACHIEVEMENTS
 /* temporary command to display an achievements window */
@@ -1739,9 +1718,6 @@ add_command("horse", &horse_cmd);
 	add_command(cmd_open_url, &command_open_url);
 	add_command(cmd_show_spell, &command_show_spell);
 	add_command(cmd_cast_spell, &command_cast_spell);
-#ifdef NEW_QUESTLOG
-	add_command("qt", &command_quest_title);
-#endif
 #ifdef ACHIEVEMENTS
 	add_command("achievements", command_achievements);
 #endif
