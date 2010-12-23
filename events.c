@@ -121,9 +121,9 @@ int HandleEvent (SDL_Event *event)
 			if (afk_time) 
 				last_action_time = cur_time;	// Set the latest event... Don't let the modifiers ALT, CTRL and SHIFT change the state
 
-			keypress_in_windows (mouse_x, mouse_y, key, event->key.keysym.unicode);
 			/* any keypress forces any context menu to close */
 			cm_post_show_check(1);
+			keypress_in_windows (mouse_x, mouse_y, key, event->key.keysym.unicode);
 			break;
 
 		case SDL_VIDEORESIZE:
