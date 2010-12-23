@@ -7,9 +7,6 @@
 #endif
 #include "console.h"
 #include "asc.h"
-#ifdef ACHIEVEMENTS
-#include "achievements.h"
-#endif
 #include "buddy.h"
 #include "cache.h"
 #ifdef EMOTES
@@ -1459,61 +1456,6 @@ static int command_show_spell(char *text, int len)
 }
 
 
-#ifdef ACHIEVEMENTS
-/* temporary command to display an achievements window */
-int command_achievements(char *text, int len)
-{
-	int index = 0;
-	int valid_looking_message = 1;
-	const size_t max_nibbles = MAX_ACHIEVEMENTS/8;
-	Uint8 str[max_nibbles];
-
-	text = getparams(text);
-	if (*text)
-	{
-		while (valid_looking_message && strlen(text)>0 && index<max_nibbles)
-		{
-			int i;
-			Uint8 d[2];
-			while (*text==' ')
-				text++;
-			if (strlen(text)<2)
-				break;
-			for (i=0; i<2; i++)
-			{
-				d[i] = *text++;
-				if (d[i] >= '0' && d[i] <= '9')
-					d[i] -= '0';
-				else if (d[i] >= 'a' && d[i] <= 'f')
-					d[i] -= 'a'-10;
-				else if (d[i] >= 'A' && d[i] <= 'F')
-					d[i] -= 'A'-10;
-				else
-				{
-					valid_looking_message = 0;
-					break;
-				}
-			}
-			/* store the spell message byte */
-			if (valid_looking_message)
-				str[index++] = d[0] + 16*d[1];
-		}
-	}
-	
-	/* if we're now at the end of the text, we have some message bytes and it looks valid */
-	if (!*text && (index%4==0) && valid_looking_message)
-	{
-		achievements_data((Uint32 *)str, index/4);
-		achievements_player_name("", 0);
-	}
-	else
-		LOG_TO_CONSOLE(c_red2, "Invalid achievements string");
-
-	return 1;
-}
-#endif // ACHIEVEMENTS
-
-
 /* display or test the md5sum of the current map or the specified file */
 int command_ckdata(char *text, int len)
 {
@@ -1718,9 +1660,6 @@ add_command("horse", &horse_cmd);
 	add_command(cmd_open_url, &command_open_url);
 	add_command(cmd_show_spell, &command_show_spell);
 	add_command(cmd_cast_spell, &command_cast_spell);
-#ifdef ACHIEVEMENTS
-	add_command("achievements", command_achievements);
-#endif
 	command_buffer_offset = NULL;
 }
 
