@@ -48,7 +48,6 @@
  * 				refresh highlighted title string?
  * 				copy highlighted title to clipboard
  * 				delete highlighted
- * 		Remove new protocol logging
  */
 
 
@@ -58,7 +57,7 @@
 class Quest
 {
 	public:
-		Quest(Uint16 id) : is_completed(false), title("?") { this->id = id; }
+		Quest(Uint16 id) : is_completed(false), title("") { this->id = id; }
 		Quest(const std::string & line);
 		const std::string &get_title(void) const { return title; }
 		void set_title(const char* new_title) { title = new_title; }
@@ -83,6 +82,8 @@ class Quest_Title_Request
 		Quest_Title_Request(Uint16 req_id) : id(req_id), requested(false) {}
 		Uint16 get_id(void) const { return id; }
 		void request(void);
+		bool been_requested(void) const { return requested; }
+		bool is_too_old(void) const { return (abs(SDL_GetTicks() - request_time) > 5000); }
 	private:
 		Uint16 id;
 		Uint32 request_time;
@@ -153,6 +154,7 @@ class Quest_List
 		void clear_highlighted(void) { set_highlighted(Quest::UNSET_ID); }
 		void cm_pre_show_handler(void);
 		bool cm_active(void) const { return ((cm_id != CM_INIT_VALUE) && (cm_window_shown() == cm_id)); }
+		void check_title_requests(void);
 	private:
 		std::map <Uint16,Quest,QuestCompare> quests;
 		std::queue <Quest_Title_Request> title_requests;
@@ -196,7 +198,7 @@ Quest::Quest(const std::string & line)
 	std::string::size_type start = title.find_first_not_of(' ');
 	std::string::size_type end = title.find_last_not_of(' ');
 	if (start == std::string::npos)
-		title = "?";
+		title = "";
 	else
 		title = title.substr(start,end-start+1);
 }
@@ -426,6 +428,22 @@ void Quest_List::set_options(unsigned int options)
 {
 	no_auto_open = options & 1;
 	hide_completed = (options >> 1) & 1;
+}
+
+
+//	Check the title request queue, remove stalled requests, request new ones.
+//
+void Quest_List::check_title_requests(void)
+{
+	if (title_requests.empty())
+		return;
+	if (title_requests.front().been_requested())
+	{
+		if (title_requests.front().is_too_old())
+			title_requests.pop();
+	}
+	else
+		title_requests.front().request();
 }
 
 
@@ -1110,6 +1128,8 @@ static int display_questlist_handler(window_info *win)
 			std::string todisp = thequest->get_title().substr(0,disp_chars);
 			draw_string_small(2*questlist.get_spacer(), posy, (const unsigned char*)todisp.c_str(), 1);
 		}
+		else if (thequest->get_title().empty())
+			draw_string_small(2*questlist.get_spacer(), posy, (const unsigned char*)"???", 1);
 		else
 			draw_string_small(2*questlist.get_spacer(), posy, (const unsigned char*)thequest->get_title().c_str(), 1);
 		thequest = questlist.get_next_quest();
@@ -1529,6 +1549,8 @@ static int display_questlog_handler(window_info *win)
 	if (prompt_for_add_text)
 		questlog_add_text_input(win);
 
+	questlist.check_title_requests();
+
 	if (cm_window_shown() == CM_INIT_VALUE)
 	{
 		cm_questlog_over_entry = active_entries.size();
@@ -1800,7 +1822,6 @@ extern "C" void set_next_quest_entry_id(Uint16 id)
 	//LOG_TO_CONSOLE(c_green1, buf);
 	//if (waiting_for_questlog_entry())
 	//	LOG_TO_CONSOLE(c_red2, "Previous NEXT_NPC_MESSAGE_IS_QUEST was unused");
-
 	next_entry_quest_id = id;
 	questlist.add(id);
 }
