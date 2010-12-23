@@ -21,7 +21,9 @@
  #include "../map_editor/interface.h"
  #include "load_gl_extensions.h"
 #else
+#ifdef ACHIEVEMENTS
  #include "achievements.h"
+#endif //ACHIEVEMENTS
  #include "alphamap.h"
  #include "bags.h"
  #include "buddy.h"
