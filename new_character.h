@@ -100,8 +100,13 @@ void login_from_new_char();
  */
 void create_newchar_root_window ();
 
+
+#ifdef NEW_NEW_CHAR_WINDOW
+void resize_newchar_hud_window();
+#else
 void show_account_win ();
 void show_color_race_win();
+#endif
 
 #ifdef __cplusplus
 } // extern "C"

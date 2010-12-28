@@ -817,7 +817,11 @@ int button_draw(widget_list *W)
 		extra_space = 0;
 	}*/
 
+#ifdef NEW_NEW_CHAR_WINDOW
+	draw_smooth_button(l->text, W->size, W->pos_x, W->pos_y, W->len_x-2*BUTTONRADIUS*W->size, 1, W->r, W->g, W->b, W->Flags & BUTTON_ACTIVE, 0.32f, 0.23f, 0.15f, 0.0f);
+#else
 	draw_smooth_button(l->text, W->size, W->pos_x, W->pos_y, W->len_x-2*BUTTONRADIUS*W->size, 1, W->r, W->g, W->b, 0, 0.0f, 0.0f, 0.0f, 0.0f);
+#endif
 	
 	return 1;
 }

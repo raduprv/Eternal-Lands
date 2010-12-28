@@ -41,6 +41,7 @@ FEATURES += USER_MENUS                      # enable user command menus
 #FEATURES += NECK_ITEMS			     # Enables medallions/scarves
 #FEATURES += LARGE_TEXTURES		     # Changes player character texture size block to 512x512.
 #FEATURES += ACHIEVEMENTS					# Display player achievements window when use eye cursor on player
+#FEATURES += NEW_NEW_CHAR_WINDOW			# Use the new character creation window; controls always on-screen
 
 ### Machine specific options (fixes or performance enhancements) ###
 #FEATURES += EL_BIG_ENDIAN                   # Enable big-endian code (automatically detected for OSX)

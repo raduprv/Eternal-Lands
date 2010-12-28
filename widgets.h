@@ -109,6 +109,14 @@ typedef struct wl{
 #define WIDGET_CLICK_TRANSPARENT 0x100
 /*! \} */
 
+#ifdef NEW_NEW_CHAR_WINDOW
+/*!
+ * \name	Flags for the buttons
+ */
+/*! \{ */
+#define BUTTON_ACTIVE 0x400
+#endif
+
 /*!
  * \name	Flags for the text field
  */
@@ -183,6 +191,35 @@ typedef struct {
 /* SPLIT INTO ELWIDGETS.C and ELWIDGETS.H */
 
 // Common widget functions
+
+#ifdef NEW_NEW_CHAR_WINDOW
+/*!
+ * \ingroup	widgets
+ * \brief 	Creates a widget and adds it to the given window
+ *
+ * 		Creates a widget and adds it to the given window.
+ *
+ * \param  	window_id The location of the window in the windows_list.window[] array
+ * \param	wid The widget's unique ID
+ * \param   OnInit The function used for initiating the label
+ * \param   x The x location
+ * \param   y The y location
+ * \param   lx The width 
+ * \param   ly The height
+ * \param   Flags The flags
+ * \param   size The text size
+ * \param   r (0<=r<=1)
+ * \param   g (0<=g<=1)
+ * \param   b (0<=b<=1)
+ * \param   type The widget type
+ * \param   T Pointer to specific widget data
+ * \param   S Pointer to specific implementation info
+ * \retval int Returns the new widgets unique ID 
+ */
+Uint32 widget_add (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y,
+	Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b,
+	const struct WIDGET_TYPE *type, void *T, void *S);
+#endif
 
 /*!
  * \ingroup	widgets

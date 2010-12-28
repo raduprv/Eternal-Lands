@@ -73,6 +73,9 @@
 icon_struct * icon_list[30]={NULL};
 int icons_no=0;
 Uint32 exp_lev[200];
+#ifdef NEW_NEW_CHAR_WINDOW
+hud_interface last_interface = HUD_INTERFACE_NEW_CHAR; //Current interface (game or new character)
+#endif
 
 int	display_icons_handler(window_info *win);
 int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags);
@@ -158,21 +161,36 @@ int show_exp(char *text, int len)
 // initialize anything related to the hud
 void init_hud_interface (hud_interface type)
 {
+#ifndef NEW_NEW_CHAR_WINDOW
 	static hud_interface last_interface = HUD_INTERFACE_NEW_CHAR;
+#endif
 
 	if (type == HUD_INTERFACE_LAST)
 		type = last_interface;
 
 	init_hud_frame ();
+#ifndef NEW_NEW_CHAR_WINDOW
 	init_misc_display (type);
+#else
+	if(type == HUD_INTERFACE_GAME)
+		init_misc_display (type);
+#endif
 
 	if (type == HUD_INTERFACE_NEW_CHAR)
 	{
+#ifdef NEW_NEW_CHAR_WINDOW
+		hud_x=270;
+		resize_root_window();
+#endif
 		free_icons ();
 		init_newchar_icons ();
 	}
 	else
 	{
+#ifdef NEW_NEW_CHAR_WINDOW
+		hud_x=64;
+		resize_root_window();
+#endif
 		free_icons ();
 		init_peace_icons ();
 		init_stats_display ();
@@ -250,10 +268,22 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 	get_and_set_texture_id(hud_text);
 	glBegin(GL_QUADS);
+#ifndef NEW_NEW_CHAR_WINDOW
 	draw_2d_thing(vertical_bar_u_start, vertical_bar_v_start, vertical_bar_u_end, vertical_bar_v_end,window_width-hud_x, 0, window_width, window_height);
 	draw_2d_thing_r(horizontal_bar_u_start, horizontal_bar_v_start, horizontal_bar_u_end, horizontal_bar_v_end,0,window_height,window_width-hud_x , window_height-hud_y);
+#else
+	draw_2d_thing_r(horizontal_bar_u_start, horizontal_bar_v_start, horizontal_bar_u_end, horizontal_bar_v_end,0,window_height,window_width, window_height-hud_y);
+#endif
+#ifdef NEW_NEW_CHAR_WINDOW
+	if(last_interface == HUD_INTERFACE_GAME)
+	{
+		draw_2d_thing(vertical_bar_u_start, vertical_bar_v_start, vertical_bar_u_end, vertical_bar_v_end,window_width-hud_x, 0, window_width, window_height);
+#endif
 	//draw the logo
 	draw_2d_thing(logo_u_start, logo_v_start, logo_u_end, logo_v_end,window_width-hud_x, 0, window_width, 64);
+#ifdef NEW_NEW_CHAR_WINDOW
+	}
+#endif
 	glEnd();
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -443,11 +473,11 @@ void init_newchar_icons()
 		}
 
 	if(icons_no) return;
-	
+#ifndef NEW_NEW_CHAR_WINDOW
 	add_icon(stand_icon_u_start, stand_icon_v_start, colored_stand_icon_u_start, colored_stand_icon_v_start, tt_name, view_window, &namepass_win, DATA_WINDOW);
 	
 	add_icon(eye_icon_u_start, eye_icon_v_start, colored_eye_icon_u_start, colored_eye_icon_v_start, tt_customize, view_window, &color_race_win, DATA_WINDOW);
-	
+#endif
 	add_icon(help_icon_u_start, help_icon_v_start, colored_help_icon_u_start, colored_help_icon_v_start, tt_help, view_window, &tab_help_win, DATA_WINDOW);
 	
 	add_icon(options_icon_u_start, options_icon_v_start, colored_options_icon_u_start, colored_options_icon_v_start, tt_options, view_window, &elconfig_win, DATA_WINDOW);
@@ -784,8 +814,10 @@ void view_window(int * window, int id)
 			else if(window==&storage_win) display_storage_menu();
 			else if(window==&tab_stats_win) display_tab_stats();
 			else if(window==&tab_help_win) display_tab_help();
+#ifndef NEW_NEW_CHAR_WINDOW
 			else if(window==&namepass_win) show_account_win();
 			else if(window==&color_race_win) show_color_race_win();
+#endif
 			else if(window==&questlog_win) display_questlog();
 		}
 	else toggle_window(*window);
