@@ -649,6 +649,15 @@ void draw_game_map (int map, int mouse_mini)
 	float x_size=0,y_size=0;
 	GLuint map_small, map_large;
 	actor *me;
+	static int fallback_text = -1;
+
+	// if we don't have a continent texture (instance may be), fallback to blank paper
+	if (cont_text < 0)
+	{
+		if (fallback_text < 0)
+			fallback_text = load_texture_cache ("./textures/paper1.bmp", 0);
+		cont_text = fallback_text;
+	}
 	
 	if(map){
 		map_small=get_texture_id(cont_text);
@@ -938,7 +947,7 @@ void draw_game_map (int map, int mouse_mini)
 		glEnd();
 	}
 
-	if(!map && show_continent_map_boundaries) {
+	if(!map && show_continent_map_boundaries && cont_text!=fallback_text) {
 		int i;
 		/* Convert mouse coordinates to map coordinates (stolen from pf_get_mouse_position()) */
 		int min_mouse_x = (window_width-hud_x)/6;

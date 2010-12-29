@@ -1434,6 +1434,10 @@ int get_texture_id(int i)
 {
 	int new_texture_id;
 	int alpha;
+
+	// don't look up an out of range texture
+	if (i<0 || i>=TEXTURE_CACHE_MAX)
+		return 0;
 	
 	if(!texture_cache[i].texture_id && !texture_cache[i].load_err)
 	{
