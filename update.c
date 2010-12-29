@@ -500,6 +500,8 @@ int http_get_file_thread_handler(void *specs){
 		{
 			log_error("Download of %s does not match the MD5 sum in the update file!", spec->path);
 			spec->status= 404;
+			// remove the temp-file
+			file_remove_config(download_temp_file);
 			// and make sure we can't restart
 			allow_restart= 0;
 			restart_required= 0;
