@@ -11,6 +11,9 @@
 #include "console.h"
 #include "elwindows.h"
 #include "gamewin.h"
+#ifdef TOO_LATE_FOR_UPDATE
+#include "hud.h"
+#endif
 #include "init.h"
 #include "interface.h"
 #include "multiplayer.h"
@@ -568,9 +571,15 @@ void add_buddy (const char *name, int type, int len)
 					if(buddy_list[i].type == 0xFE){//logging on
 						safe_snprintf (message, sizeof(message), buddy_logon_str, len, name);
 						LOG_TO_CONSOLE (c_green1, message);
+#ifdef TOO_LATE_FOR_UPDATE
+						flash_icon(tt_buddy, 5);
+#endif
 					}else if(type == 0xFE){//logging off
 						safe_snprintf (message, sizeof(message), buddy_logoff_str, len, name);
 						LOG_TO_CONSOLE (c_green1, message);
+#ifdef TOO_LATE_FOR_UPDATE
+						flash_icon(tt_buddy, 5);
+#endif
 					}//else it's just a normal colour change
 				}
 				buddy_list[i].type=type;
@@ -593,6 +602,9 @@ void add_buddy (const char *name, int type, int len)
 				{
 					safe_snprintf (message, sizeof(message), buddy_online_str, len, name);
 					LOG_TO_CONSOLE (c_green1, message);
+#ifdef TOO_LATE_FOR_UPDATE
+					flash_icon(tt_buddy, 5);
+#endif
 				}
 				break;
 			}
