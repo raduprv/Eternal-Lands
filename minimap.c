@@ -1235,7 +1235,7 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 		{
 			x = m->x * size_x;
 			y = float_minimap_size - (m->y * size_y);
-			if(is_within_radius(x,y,px,py,zoom_multip*(minimap_size/2-8)))
+			if(is_within_radius(x,y,px,py,zoom_multip*(minimap_size/2-15)))
 			{
 				glColor3f(0.15f, 0.65f, 0.45f); 
 				glVertex2f(x, y);
@@ -1256,7 +1256,7 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 		{
 			float diff = 6.0f*zoom_multip;
 
-			if(is_within_radius(x,y,px,py,zoom_multip*(minimap_size/2-8)))
+			if(is_within_radius(x,y,px,py,zoom_multip*(minimap_size/2-15)))
 			{
 				glPushMatrix();
 				glDisable(GL_TEXTURE_2D);
@@ -1282,7 +1282,7 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 		{
 			float diff = 4.0f*zoom_multip;
 	
-			if(is_within_radius(x,y,px,py,zoom_multip*(minimap_size/2-8)))
+			if(is_within_radius(x,y,px,py,zoom_multip*(minimap_size/2-15)))
 			{
 				glPushMatrix();
 				glDisable(GL_TEXTURE_2D);
