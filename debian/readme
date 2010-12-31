@@ -9,7 +9,7 @@ https://wiki.ubuntu.com/PackagingGuide/Complete
 Set-up your ~/.bachrc so the package scripts known who you are:
 e.g. 
 export DEBFULLNAME='Paul Broadhead' 
-export DEBEMAIL='pjbroad@twinmoons.clara.co.uk'
+export DEBEMAIL='pjbroad@twinmoons.org.uk'
 
 
 If you're going to sign the package make sure you have keys set-up:
@@ -20,7 +20,7 @@ Now we're ready:
 
 Set the version number
 	
-	elver="1.9.0"
+	elver="1.9.1"
 	packagename="eternallands"
 
 Checkout a clean version of the client

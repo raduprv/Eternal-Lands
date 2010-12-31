@@ -1,52 +1,5 @@
-eternallands (1.9.0-0ubuntu1) unstable; urgency=low
+eternallands (1.9.1-0ubuntu0) hardy; urgency=low
 
-  * 1.9.0 Release
+  * 1.9.1 Release
 
- -- Paul Broadhead <pjbroad@twinmoons.clara.co.uk>  Tue, 30 Mar 2010 21:59:02 +0100
-
-eternallands (1.8.0-0) unstable; urgency=low
-
-  * 1.8.0 release
-
- -- Paul Broadhead <pjbroad@twinmoons.clara.co.uk>  Sun, 04 Jan 2009 15:59:49 +0000
-
-eternallands (1.7.0-0) unstable; urgency=low
-
-  * 1.7.0 Release.
-
- -- Paul Broadhead <pjbroad@twinmoons.clara.co.uk>  Sun, 13 Jul 2008 20:23:50 +0100
-
-eternallands (1.6.0-3) unstable; urgency=low
-
-  * Lastest CVS
-  * Fixed bug in wrapper script that left new users with readony config files.
-
- -- Paul Broadhead <pjbroad@twinmoons.clara.co.uk>  Sat, 12 Jul 2008 18:51:03 +0100
-
-eternallands (1.6.0-2) unstable; urgency=low
-
-  * moved icons, .desktopfile and run script into pkgfiles
-  * removed packaging Makefile and readme
-  * Makefile contents now in debian/rules
-  * Fixed most lintian warnings
-  * Can build from clean cvs with pkgfiles and debian direcotry added
-  * Latest CVS
-
- -- Paul Broadhead <pjbroad@twinmoons.clara.co.uk>  Sat, 31 May 2008 03:15:40 +0100
-
-eternallands (1.6.0-1.1) unstable; urgency=low
-
-  * Made zenity a dependency rather than recommended
-  * eternallands script
-  *	- removed non-zenity dialogues
-  *	- added crash dialogue
-  * fixed menu file, added menu icons and .desktop file
-
- -- Paul Broadhead <pjbroad@twinmoons.clara.co.uk>  Sun, 25 May 2008 16:30:24 +0100
-
-eternallands (1.6.0-1) unstable; urgency=low
-
-  * Based on CVS version at package time Fri May 16 20:45:00 BST 2008
-
- -- Paul Broadhead <pjbroad@twinmoons.clara.co.uk>  Fri, 16 May 2008 20:47:42 +0100
-
+ -- Paul Broadhead <pjbroad@twinmoons.org.uk>  Fri, 31 Dec 2010 13:50:03 +0000

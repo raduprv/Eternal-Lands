@@ -1,3 +1,16 @@
+2010-DEC-31: Release 1.9.1
+
+* Support for 512x512 actor textures
+* Item lists can now retrieve items from storage.  List are also editable.
+* More improvements to quest log, including support for server sent quest titles.
+* More activities on horses including fighting.
+* Neck items visible.
+* More emotes.
+* Graphics improvements.
+* Encyclopedia update.
+* Simple improvements for character creation.
+* Player achievements.
+
 2010-APR-02: Release 1.9.0
 
 1. New artwork, most of the objects, animations and textures were improved.

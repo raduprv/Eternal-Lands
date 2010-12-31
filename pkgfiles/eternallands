@@ -6,7 +6,7 @@
 # - optionally displays a server/configuration selection GUI
 # - optionally runs a user specified client executable
 #
-# Author Paul Broadhead pjbroad@twinmoons.clara.co.uk
+# Author Paul Broadhead pjbroad@twinmoons.org.uk
 #
 # This program (script) is released as Public Domain software.  You are free to
 # use it as you wish.
@@ -168,4 +168,3 @@ $(cat ~/.elc/terminal_log.txt)
 
 EOT
 fi
-
