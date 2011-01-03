@@ -25,6 +25,7 @@
 		1F608B690FA5CAF200FFD55C /* half.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F608B650FA5CAF200FFD55C /* half.c */; };
 		1F608B6A0FA5CAF200FFD55C /* normal.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F608B670FA5CAF200FFD55C /* normal.c */; };
 		1F744D970D19894900F655E9 /* missiles.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F744D950D19894900F655E9 /* missiles.c */; };
+		1F77DD2612C23AEA00D59013 /* achievements.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1F77DD2512C23AEA00D59013 /* achievements.cpp */; };
 		1F812B930D033551008792A7 /* 2d_objects.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F8128DA0D033551008792A7 /* 2d_objects.c */; };
 		1F812B940D033551008792A7 /* 3d_objects.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F8128DC0D033551008792A7 /* 3d_objects.c */; };
 		1F812BDE0D033551008792A7 /* actor_scripts.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F8129280D033551008792A7 /* actor_scripts.c */; };
@@ -277,6 +278,7 @@
 		1F608B680FA5CAF200FFD55C /* normal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = normal.h; sourceTree = "<group>"; };
 		1F744D950D19894900F655E9 /* missiles.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = missiles.c; path = ../missiles.c; sourceTree = SOURCE_ROOT; };
 		1F744D960D19894900F655E9 /* missiles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = missiles.h; path = ../missiles.h; sourceTree = SOURCE_ROOT; };
+		1F77DD2512C23AEA00D59013 /* achievements.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = achievements.cpp; path = ../achievements.cpp; sourceTree = SOURCE_ROOT; };
 		1F8128DA0D033551008792A7 /* 2d_objects.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = 2d_objects.c; path = ../2d_objects.c; sourceTree = SOURCE_ROOT; };
 		1F8128DB0D033551008792A7 /* 2d_objects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = 2d_objects.h; path = ../2d_objects.h; sourceTree = SOURCE_ROOT; };
 		1F8128DC0D033551008792A7 /* 3d_objects.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = 3d_objects.c; path = ../3d_objects.c; sourceTree = SOURCE_ROOT; };
@@ -1033,6 +1035,7 @@
 		1F8128D90D033520008792A7 /* elc */ = {
 			isa = PBXGroup;
 			children = (
+				1F77DD2512C23AEA00D59013 /* achievements.cpp */,
 				1F1CE86A114F0BA300F30873 /* quest_log.cpp */,
 				1F1CE867114F0B8200F30873 /* item_lists.cpp */,
 				1F1CE868114F0B8200F30873 /* item_lists.h */,
@@ -2141,7 +2144,14 @@
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "EternalLands" */;
 			compatibilityVersion = "Xcode 2.4";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* EternalLands */;
 			projectDirPath = "";
 			projectRoot = ..;
@@ -2332,6 +2342,7 @@
 				1F8F613010CDC8CD007B270D /* text.c in Sources */,
 				1F1CE869114F0B8200F30873 /* item_lists.cpp in Sources */,
 				1F29E84B1164D2C700320F7E /* quest_log.cpp in Sources */,
+				1F77DD2612C23AEA00D59013 /* achievements.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2415,8 +2426,8 @@
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					ACHIEVEMENTS,
 					ATTACHED_ACTORS,
-					BANDWIDTH_SAVINGS,
 					CLUSTER_INSIDES,
 					CUSTOM_LOOK,
 					CUSTOM_UPDATE,
@@ -2426,7 +2437,10 @@
 					GL_EXTENSION_CHECK,
 					ITEM_LISTS,
 					ITEM_UID,
+					LARGE_TEXTURES,
 					MINIMAP2,
+					MORE_ATTACHED_ACTORS,
+					NECK_ITEMS,
 					NEW_CAMERA_MOTION,
 					NEW_QUESTLOG,
 					NEW_SELECTION,
@@ -2531,7 +2545,7 @@
 				ARCHS = "$(ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1)";
 				ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1 = "ppc i386";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1.9.0;
+				CURRENT_PROJECT_VERSION = 1.9.1;
 				DEPLOYMENT_LOCATION = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(EL_FRAMEWORKS_DIR)",
@@ -2542,15 +2556,23 @@
 				GCC_MODEL_TUNING = "";
 				GCC_OPTIMIZATION_LEVEL = 2;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					ACHIEVEMENTS,
 					ATTACHED_ACTORS,
 					CLUSTER_INSIDES,
 					CUSTOM_LOOK,
 					CUSTOM_UPDATE,
 					ELC,
+					EMOTES,
 					FUZZY_PATHS,
 					GL_EXTENSION_CHECK,
+					ITEM_LISTS,
+					ITEM_UID,
+					LARGE_TEXTURES,
 					MINIMAP2,
+					MORE_ATTACHED_ACTORS,
+					NECK_ITEMS,
 					NEW_CAMERA_MOTION,
+					NEW_QUESTLOG,
 					NEW_SELECTION,
 					NEW_SOUND,
 					NEW_TEX,
