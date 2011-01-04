@@ -21,6 +21,7 @@ struct http_get_struct {
 	int    event;
 	int    status;
 	int    allow_restart;
+	size_t thread_index;
 };
 
 extern int update_root_win;			/* Handle for the update window */

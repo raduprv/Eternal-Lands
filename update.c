@@ -14,6 +14,7 @@
 #include <time.h>
 #include <SDL_net.h>
 #include <SDL_thread.h>
+#include <assert.h>
 #include "update.h"
 #include "asc.h"
 #include "draw_scene.h"
@@ -51,6 +52,10 @@ char    download_temp_file[1024];
 Uint8	*download_MD5s[MAX_UPDATE_QUEUE_SIZE];
 Uint8	*download_cur_md5;
 int doing_custom = 0;
+
+// keep a track of download threads so we can wait for there completion hence freeing resources
+#define MAX_THREADS 5
+SDL_Thread *thread_list[MAX_THREADS] = {NULL, NULL, NULL, NULL, NULL};
 
 // initialize the auto update system, start the downloading
 void    init_update()
@@ -155,6 +160,12 @@ void    handle_update_download(struct http_get_struct *get)
 			// and go back to normal processing
 			return;
 		}
+
+		// wait for the just completed thread so we free it's resources
+		assert(get->thread_index<MAX_THREADS);
+		SDL_WaitThread(thread_list[get->thread_index], NULL);
+		thread_list[get->thread_index] = NULL;
+		
 		//no, we need to free the memory and try again
 		if(get->fp){
 			fclose(get->fp);
@@ -403,6 +414,12 @@ void    handle_file_download(struct http_get_struct *get)
 		allow_restart= 0;
 		restart_required= 0;
 	}
+
+	// wait for the just completed thread so we free it's resources
+	assert(get->thread_index<MAX_THREADS);
+	SDL_WaitThread(thread_list[get->thread_index], NULL);
+	thread_list[get->thread_index] = NULL;
+
 	// release the filename
 	free(download_cur_file);
 	free(download_cur_md5);
@@ -474,11 +491,24 @@ void http_threaded_get_file(char *server, char *path, FILE *fp, Uint8 *md5, Uint
 	spec->fp= fp;
 	spec->event= event;
 	spec->status= -1;   // just so we don't start with 0
-	
+
+	// find a slot to store the thread handle so we can wait for it later
+	{
+		size_t i;
+		spec->thread_index = MAX_THREADS;
+		for (i=0; i<MAX_THREADS; i++)
+			if (thread_list[i] == NULL)
+			{
+				spec->thread_index = i;
+				break;
+			}
+		assert(spec->thread_index<MAX_THREADS);
+	}
+
 	// NOTE: it is up to the EVENT handler to close the handle & free the spec pointer in data1
 
 	// start the download in the background
-	SDL_CreateThread(&http_get_file_thread_handler, (void *) spec);
+	thread_list[spec->thread_index] = SDL_CreateThread(&http_get_file_thread_handler, (void *) spec);
 }
 
 
