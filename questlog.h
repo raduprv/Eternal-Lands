@@ -135,6 +135,18 @@ void set_quest_finished(Uint16 id);
  */
 int waiting_for_questlog_entry(void);
 
+
+/*!
+ * \ingroup quest_window
+ * \brief Clear the state that we are waiting for an entry.
+ *
+ *      Clear the state that we are waiting for an entry..
+ *
+ * \callgraph
+ */
+void clear_waiting_for_questlog_entry(void);
+
+
 /*!
  * \ingroup quest_window
  * \brief Write the questlog options to the el.cfg structure.

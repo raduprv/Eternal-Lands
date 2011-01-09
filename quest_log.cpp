@@ -1693,7 +1693,7 @@ extern "C" void add_questlog (char *t, int len)
 	if (waiting_for_questlog_entry())
 	{
 		quest_entries.back().set_id(next_entry_quest_id);
-		next_entry_quest_id = Quest::UNSET_ID;
+		clear_waiting_for_questlog_entry();
 	}
 
 	if ((active_filter == QLFLT_QUEST) && (questlist.get_selected() != Quest::UNSET_ID))
@@ -1836,6 +1836,14 @@ extern "C" int waiting_for_questlog_entry(void)
 		return 1;
 	else
 		return 0;
+}
+
+
+// Make sure we are not expecting a new questlog entry
+//
+extern "C" void clear_waiting_for_questlog_entry(void)
+{
+	next_entry_quest_id = Quest::UNSET_ID;
 }
 
 
