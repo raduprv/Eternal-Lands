@@ -43,7 +43,6 @@ FEATURES += ACHIEVEMENTS					# Display player achievements window when use eye c
 #FEATURES += NEW_ALPHA                       # (undocumented)
 #FEATURES += NIGHT_TEXTURES                  # enable night textures. changes textures at night to cooler colors
 #FEATURES += NEW_NEW_CHAR_WINDOW			# Use the new character creation window; controls always on-screen
-#FEATURES += TOO_LATE_FOR_UPDATE			# little things that were done too late for the last update
 
 ### Machine specific options (fixes or performance enhancements) ###
 #FEATURES += EL_BIG_ENDIAN                   # Enable big-endian code (automatically detected for OSX)

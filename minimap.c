@@ -1161,14 +1161,10 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 	glDisable(GL_TEXTURE_2D);
 
 	//display the actors
-#ifdef TOO_LATE_FOR_UPDATE
 	glEnable( GL_POINT_SMOOTH );
 	glEnable( GL_BLEND );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 	glPointSize(8);
-#else
-	glPointSize(6);
-#endif
 
 	rotate_actor_points(zoom_multip,px,py);
 
@@ -1184,10 +1180,8 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 			x = a->x_tile_pos * size_x;
 			y = float_minimap_size - (a->y_tile_pos * size_y);
 
-#ifdef TOO_LATE_FOR_UPDATE
 			glColor3f(0.0f,0.0f,0.0f);
 			glVertex2f(x+2*zoom_multip, y+2*zoom_multip);
-#endif
 
 			if (a->kind_of_actor == NPC)
 			{
@@ -1256,10 +1250,8 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 	}
 
 	glEnd();//GL_POINTS
-#ifdef TOO_LATE_FOR_UPDATE
 	glDisable(GL_BLEND);
 	glDisable(GL_POINT_SMOOTH);
-#endif
 
 	glPopMatrix();
 	
