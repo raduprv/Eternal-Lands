@@ -311,7 +311,7 @@ int IMG_SavePNG_RW (SDL_Surface *face, SDL_RWops *src)
 	}
 	
 	/* Set error handling. */
-	if (setjmp(png_ptr->jmpbuf))
+	if (setjmp(png_jmpbuf(png_ptr)))
 	{
 		/* If we get here, we had a problem reading the file */
 		IMG_SetError("Error writing the PNG file");
@@ -360,8 +360,9 @@ done:
 	if (row_pointers != NULL)
 		free (row_pointers);
 	
-	if (info_ptr != NULL && info_ptr->palette != NULL)
-		free (info_ptr->palette);
+
+	if (info_ptr != NULL)
+		png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
 	
 	png_destroy_write_struct (&png_ptr, (png_infopp)NULL);
 	
