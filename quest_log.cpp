@@ -1521,7 +1521,7 @@ static int cm_quest_handler(window_info *win, int widget_id, int mx, int my, int
 		case CMQL_UNSEL: if (over_entry < active_entries.size()) selected_entries.erase(active_entries[over_entry]); break;
 		case CMQL_SELALL:
 			for (std::vector<size_t>::const_iterator i=active_entries.begin(); i!=active_entries.end(); ++i)
-				selected_entries.insert(active_entries[*i]);
+				selected_entries.insert(*i);
 			break;
 		case CMQL_UNSELALL:
 			if (active_filter == QLFLT_SEL)
