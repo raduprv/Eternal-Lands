@@ -931,8 +931,7 @@ void put_string_in_input_field(const Uint8 *text)
 	int tmp_chan;
 
 	if(text != NULL) {
-		msg->len = msg->len = safe_snprintf((char*)msg->data, msg->size, "%s", text);
-		tf->cursor = tf->buffer->len;
+		tf->cursor = msg->len = safe_snprintf((char*)msg->data, msg->size, "%s", text);
 		// set invalid width to force rewrap
 		msg->wrap_width = 0;
 		//Set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines.

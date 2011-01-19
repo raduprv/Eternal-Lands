@@ -192,7 +192,7 @@ void pf_destroy_path()
 	}
 	pf_follow_path = 0;
 	for(i=0;i<20;i++)
-	    pf_visited_squares[i]=pf_visited_squares[i]=-1;
+		pf_visited_squares[i]=-1;
 }
 
 int checkvisitedlist(int x, int y)
