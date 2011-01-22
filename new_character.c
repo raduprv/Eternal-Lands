@@ -1562,7 +1562,7 @@ int init_namepass_handler(window_info * win)
 {
 	float r = 0.77f, g = 0.57f, b = 0.39f; //widget color
 	float very_small = DEFAULT_SMALL_RATIO; //font sizes
-	float small = 0.9f;
+	float bit_small = 0.9f;
 	float normal = 1.0f;
 	int free_widget_id = 8;
 	int widget_id;
@@ -1571,7 +1571,7 @@ int init_namepass_handler(window_info * win)
 	int sep = 6;
 
 	//Choose your name and password
-	label_add_extended(win->window_id, free_widget_id++, 0, (win->len_x - strlen((char*)win_name_pass)*DEFAULT_FONT_X_LEN*small)/2, y, 0, small, r, g, b, (char*)win_name_pass);
+	label_add_extended(win->window_id, free_widget_id++, 0, (win->len_x - strlen((char*)win_name_pass)*DEFAULT_FONT_X_LEN*bit_small)/2, y, 0, bit_small, r, g, b, (char*)win_name_pass);
 
 	y += 15 + 2*sep;
 	label_add_extended(win->window_id, free_widget_id++, 0, 15, y + center, 0, normal, r, g, b, (char*)login_username_str);
@@ -1584,8 +1584,8 @@ int init_namepass_handler(window_info * win)
 	widget_id = widget_add(win->window_id, free_widget_id++, 0, 115, y, 145, 20, 0, very_small, r, g, b, &password_type, inputs[2].str, (void*)&specs[2]);
 	y += 20 + 2*sep;
 	size = 15;
-	label_add_extended(win->window_id, free_widget_id++, 0, win->len_x - 20 - size - strlen((char*)show_password)*DEFAULT_FONT_X_LEN*small, y, 0, small, r, g, b, (char*)show_password);
-	widget_id = checkbox_add_extended(win->window_id, free_widget_id++, 0, win->len_x - 10 - size, y, size, size, 0, small, r, g, b, &hidden);
+	label_add_extended(win->window_id, free_widget_id++, 0, win->len_x - 20 - size - strlen((char*)show_password)*DEFAULT_FONT_X_LEN*bit_small, y, 0, bit_small, r, g, b, (char*)show_password);
+	widget_id = checkbox_add_extended(win->window_id, free_widget_id++, 0, win->len_x - 10 - size, y, size, size, 0, bit_small, r, g, b, &hidden);
 	y += 20 + sep;
 	widget_add(win->window_id, free_widget_id++, 0, 35, y, 200, win->len_y - y, 0, very_small, r, g, b, &errorbox_type, NULL, NULL);
 	//Done and Back buttons
@@ -1885,7 +1885,7 @@ int init_color_race_handler(window_info * win)
 	float r = 0.77f, g = 0.57f, b = 0.39f; //widget color
 	float rh = 0.32f, gh = 0.23f, bh = 0.15f; //highlighted color
 	float very_small = DEFAULT_SMALL_RATIO; //font sizes
-	float small = 0.9f;
+	float bit_small = 0.9f;
 	float normal = 1.0f;
 	int free_widget_id = 8; //next free widget id
 	int widget_id;
@@ -1897,10 +1897,10 @@ int init_color_race_handler(window_info * win)
 	int book_ids[6] = {book_human, book_elf, book_dwarf, book_gnome, book_orchan, book_draegoni};
 
 	//Design your character
-	label_add_extended(win->window_id, free_widget_id++, 0, (win->len_x - strlen((char*)win_design)*DEFAULT_FONT_X_LEN*small)/2, 0, 0, small, r, g, b, (char*)win_design);
+	label_add_extended(win->window_id, free_widget_id++, 0, (win->len_x - strlen((char*)win_design)*DEFAULT_FONT_X_LEN*bit_small)/2, 0, 0, bit_small, r, g, b, (char*)win_design);
 
 	//Gender selection
-	y = DEFAULT_FONT_Y_LEN*small + 8 + 2;
+	y = DEFAULT_FONT_Y_LEN*bit_small + 8 + 2;
 	widget_add(win->window_id, free_widget_id++, 0, 10, y, win->len_x - 20, 20 + 4*sep, 0, normal, r, g, b, &box_type, gender_str, NULL);
 	y += 2*sep;
 	widget_id = multiselect_add_extended(win->window_id, free_widget_id++, 0, 20 , y, win->len_x - 40, 25, normal, r, g, b, rh, gh, bh, 2);
@@ -1939,26 +1939,26 @@ int init_color_race_handler(window_info * win)
 	y++;
 
 	//Appereance
-	size = 2*DEFAULT_FONT_X_LEN*small;
+	size = 2*DEFAULT_FONT_X_LEN*bit_small;
 	y += 3*22 + 8 + 4*sep;
-	widget_add(win->window_id, free_widget_id++, 0, 10, y, win->len_x - 20, 3*DEFAULT_FONT_Y_LEN*small + 6*sep, 0, normal, r, g, b, &box_type, appearance_str, NULL);
+	widget_add(win->window_id, free_widget_id++, 0, 10, y, win->len_x - 20, 3*DEFAULT_FONT_Y_LEN*bit_small + 6*sep, 0, normal, r, g, b, &box_type, appearance_str, NULL);
 	y += 2*sep;
 	for(i = 0; i < 3; i++)//Head, Skin and Hair
 	{
-		widget_id = label_add_extended(win->window_id, free_widget_id++, 0, 20, y+(DEFAULT_FONT_Y_LEN*small+sep)*i, 0, small, r, g, b, "<<");
+		widget_id = label_add_extended(win->window_id, free_widget_id++, 0, 20, y+(DEFAULT_FONT_Y_LEN*bit_small+sep)*i, 0, bit_small, r, g, b, "<<");
 		widget_set_OnClick(win->window_id, widget_id, body_handlers_dec[i]);
-		x = 20 + size + (win->len_x/2 - 30 - 2*size - strlen((char*)body_part_strs[i])*DEFAULT_FONT_X_LEN*small)/2;
-		label_add_extended(win->window_id, free_widget_id++, 0, x, y+(DEFAULT_FONT_Y_LEN*small+sep)*i, 0, small, r, g, b, (char*)body_part_strs[i]);
-		widget_id = label_add_extended(win->window_id, free_widget_id++, 0, win->len_x/2-10-size, y+(DEFAULT_FONT_Y_LEN*small+sep)*i, 0, small, r, g, b, ">>");
+		x = 20 + size + (win->len_x/2 - 30 - 2*size - strlen((char*)body_part_strs[i])*DEFAULT_FONT_X_LEN*bit_small)/2;
+		label_add_extended(win->window_id, free_widget_id++, 0, x, y+(DEFAULT_FONT_Y_LEN*bit_small+sep)*i, 0, bit_small, r, g, b, (char*)body_part_strs[i]);
+		widget_id = label_add_extended(win->window_id, free_widget_id++, 0, win->len_x/2-10-size, y+(DEFAULT_FONT_Y_LEN*bit_small+sep)*i, 0, bit_small, r, g, b, ">>");
 		widget_set_OnClick(win->window_id, widget_id, body_handlers_inc[i]);
 	}
 	for(i = 3; i < 6; i++)//Shirt, Pants and Boots
 	{
-		widget_id = label_add_extended(win->window_id, free_widget_id++, 0, win->len_x/2+10, y+(DEFAULT_FONT_Y_LEN*small+sep)*(i-3), 0, small, r, g, b, "<<");
+		widget_id = label_add_extended(win->window_id, free_widget_id++, 0, win->len_x/2+10, y+(DEFAULT_FONT_Y_LEN*bit_small+sep)*(i-3), 0, bit_small, r, g, b, "<<");
 		widget_set_OnClick(win->window_id, widget_id, body_handlers_dec[i]);
-		x = win->len_x/2 + 10 + size + (win->len_x/2 - 30 - 2*size - strlen((char*)body_part_strs[i])*DEFAULT_FONT_X_LEN*small)/2;
-		label_add_extended(win->window_id, free_widget_id++, 0, x, y+(DEFAULT_FONT_Y_LEN*small+sep)*(i-3), 0, small, r, g, b, (char*)body_part_strs[i]);
-		widget_id = label_add_extended(win->window_id, free_widget_id++, 0, win->len_x-20-size, y+(DEFAULT_FONT_Y_LEN*small+sep)*(i-3), 0, small, r, g, b, ">>");
+		x = win->len_x/2 + 10 + size + (win->len_x/2 - 30 - 2*size - strlen((char*)body_part_strs[i])*DEFAULT_FONT_X_LEN*bit_small)/2;
+		label_add_extended(win->window_id, free_widget_id++, 0, x, y+(DEFAULT_FONT_Y_LEN*bit_small+sep)*(i-3), 0, bit_small, r, g, b, (char*)body_part_strs[i]);
+		widget_id = label_add_extended(win->window_id, free_widget_id++, 0, win->len_x-20-size, y+(DEFAULT_FONT_Y_LEN*bit_small+sep)*(i-3), 0, bit_small, r, g, b, ">>");
 		widget_set_OnClick(win->window_id, widget_id, body_handlers_inc[i]);
 	}
 	y = win->len_y -40;
