@@ -19,9 +19,7 @@
 #include "tiles.h"
 #include "buffs.h"
 #include "eye_candy_types.h"
-#ifdef EMOTES
 #include "hash.h"
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -111,9 +109,7 @@ typedef struct
 	int weapon_meshindex;
 	int shield_meshindex;
 	int helmet_meshindex;
-#ifdef NECK_ITEMS
 	int neck_meshindex;
-#endif
 	int cape_meshindex;
 
 	/*! \name The texture names*/
@@ -144,9 +140,7 @@ typedef struct
 	char weapon_tex[MAX_FILE_PATH];
 	char shield_tex[MAX_FILE_PATH];
 	char helmet_tex[MAX_FILE_PATH];
-#ifdef NECK_ITEMS
 	char neck_tex[MAX_FILE_PATH];
-#endif
 	char cape_tex[MAX_FILE_PATH];
 	char hands_tex_save[MAX_FILE_PATH];
 	char has_alpha;//is there alpha masking?
@@ -158,9 +152,7 @@ typedef struct
 	int weapon_glow;
 	int shield_glow;
 	int helmet_glow;
-#ifdef NECK_ITEMS
 	int neck_glow;
-#endif
 	int cape_glow;
 	int legs_glow;
 	/*! \} */
@@ -175,14 +167,6 @@ typedef struct
 	char skin_mask[MAX_FILE_PATH];
 	int glow;
 	int mesh_index;
-#ifdef NEW_LIGHTING
-	GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
-	GLfloat   diffuse[4];	/*!< The lighting for when the object is lit, but not reflecting */
-	GLfloat   specular[4];	/*!< The lighting for when the object is reflecting */
-	GLfloat   emission[4];	/*!< The lighting for if the object glows */
-	GLfloat   shininess;	/*!< The larger it is, the smaller and more pronounced the specular */
-	char      material_set;	/*!< If the material has been set. */
-#endif
 }body_part;
 
 /*! Sets the shield type*/
@@ -196,14 +180,6 @@ typedef struct
 
 	int missile_type; /*!< The type of equipped missiles (>=0 if a quiver is equipped, -1 if a regular shield is equipped) */
 
-#ifdef NEW_LIGHTING
-	GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
-	GLfloat   diffuse[4];	/*!< The lighting for when the object is lit, but not reflecting */
-	GLfloat   specular[4];	/*!< The lighting for when the object is reflecting */
-	GLfloat   emission[4];	/*!< The lighting for if the object glows */
-	GLfloat   shininess;	/*!< The larger it is, the smaller and more pronounced the specular */
-	char      material_set;	/*!< If the material has been set. */
-#endif
 }shield_part;
 
 /*! Sets the weapon type (including animation frame names)*/
@@ -214,21 +190,11 @@ typedef struct
 	char skin_mask[MAX_FILE_PATH];
 	int glow;
 	int mesh_index;
-#ifdef MORE_ATTACHED_ACTORS
 	int turn_horse;
 	int unarmed;
-#endif
 
 	struct cal_anim cal_frames[NUM_WEAPON_FRAMES];
 
-#ifdef NEW_LIGHTING
-	GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
-	GLfloat   diffuse[4];	/*!< The lighting for when the object is lit, but not reflecting */
-	GLfloat   specular[4];	/*!< The lighting for when the object is reflecting */
-	GLfloat   emission[4];	/*!< The lighting for if the object glows */
-	GLfloat   shininess;	/*!< The larger it is, the smaller and more pronounced the specular */
-	char      material_set;	/*!< If the material has been set. */
-#endif
 }weapon_part;
 
 /*! Defines the main models looks*/
@@ -241,14 +207,6 @@ typedef struct
 	char torso_mask[MAX_FILE_PATH];
 	int mesh_index;
 
-#ifdef NEW_LIGHTING
-	GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
-	GLfloat   diffuse[4];	/*!< The lighting for when the object is lit, but not reflecting */
-	GLfloat   specular[4];	/*!< The lighting for when the object is reflecting */
-	GLfloat   emission[4];	/*!< The lighting for if the object glows */
-	GLfloat   shininess;	/*!< The larger it is, the smaller and more pronounced the specular */
-	char      material_set;	/*!< If the material has been set. */
-#endif
 }shirt_part;
 
 /*! Sets the models hands and head*/
@@ -262,14 +220,6 @@ typedef struct
 	char feet_name[MAX_FILE_PATH];
 	int mesh_index;
 
-#ifdef NEW_LIGHTING
-	GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
-	GLfloat   diffuse[4];	/*!< The lighting for when the object is lit, but not reflecting */
-	GLfloat   specular[4];	/*!< The lighting for when the object is reflecting */
-	GLfloat   emission[4];	/*!< The lighting for if the object glows */
-	GLfloat   shininess;	/*!< The larger it is, the smaller and more pronounced the specular */
-	char      material_set;	/*!< If the material has been set. */
-#endif
 }skin_part;
 
 /*! Sets the models hair name*/
@@ -278,14 +228,6 @@ typedef struct
 	char hair_name[MAX_FILE_PATH];
 	int mesh_index;
 
-#ifdef NEW_LIGHTING
-	GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
-	GLfloat   diffuse[4];	/*!< The lighting for when the object is lit, but not reflecting */
-	GLfloat   specular[4];	/*!< The lighting for when the object is reflecting */
-	GLfloat   emission[4];	/*!< The lighting for if the object glows */
-	GLfloat   shininess;	/*!< The larger it is, the smaller and more pronounced the specular */
-	char      material_set;	/*!< If the material has been set. */
-#endif
 }hair_part;
 
 /*! Holds info about the boots */
@@ -296,14 +238,6 @@ typedef struct
 	int glow;
 	int mesh_index;
 
-#ifdef NEW_LIGHTING
-	GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
-	GLfloat   diffuse[4];	/*!< The lighting for when the object is lit, but not reflecting */
-	GLfloat   specular[4];	/*!< The lighting for when the object is reflecting */
-	GLfloat   emission[4];	/*!< The lighting for if the object glows */
-	GLfloat   shininess;	/*!< The larger it is, the smaller and more pronounced the specular */
-	char      material_set;	/*!< If the material has been set. */
-#endif
 }boots_part;
 
 /*! Holds info about the legs type*/
@@ -315,14 +249,6 @@ typedef struct
 	int glow;
 	int mesh_index;
 
-#ifdef NEW_LIGHTING
-	GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
-	GLfloat   diffuse[4];	/*!< The lighting for when the object is lit, but not reflecting */
-	GLfloat   specular[4];	/*!< The lighting for when the object is reflecting */
-	GLfloat   emission[4];	/*!< The lighting for if the object glows */
-	GLfloat   shininess;	/*!< The larger it is, the smaller and more pronounced the specular */
-	char      material_set;	/*!< If the material has been set. */
-#endif
 }legs_part;
 
 /*! A structure used when loading the actor definitions
@@ -371,9 +297,7 @@ typedef enum {
 	ACTOR_HAIR_SIZE,
 	ACTOR_BOOTS_SIZE,
 	ACTOR_LEGS_SIZE,
-#ifdef NECK_ITEMS
 	ACTOR_NECK_SIZE,
-#endif
 	ACTOR_NUM_PARTS
 } actor_parts_enum;
 
@@ -403,9 +327,7 @@ typedef struct
 	int group_count;
 
 	struct cal_anim cal_frames[NUM_ACTOR_FRAMES];
-#ifdef EMOTES
 	hash_table *emote_frames;
-#endif
 
 	int skeleton_type;
 
@@ -420,9 +342,7 @@ typedef struct
 	shield_part *shield;
 	body_part *cape;
 	body_part *helmet;
-#ifdef NECK_ITEMS
 	body_part *neck;
-#endif
 	weapon_part *weapon;
 	/*! \} */
 
@@ -466,16 +386,13 @@ typedef struct
 #define ACTOR(a) (actors_list[a])
 #define ACTOR_WEAPON(a) (&(actors_defs[ACTOR(a)->actor_type].weapon[ACTOR(a)->cur_weapon]))
 
-#ifdef MORE_ATTACHED_ACTORS
 #define HORSE_FIGHT_ROTATION 60
 #define HORSE_RANGE_ROTATION 45
 #define HORSE_FIGHT_TIME 180
 void rotate_actor_and_horse(int id, int mul);
-#endif
 
 
 
-#ifdef EMOTES
 #define MAX_EMOTE_LEN 20
 #define MAX_EMOTE_FRAME 8
 
@@ -561,7 +478,6 @@ typedef struct _emote_command {
 
 #define	MAX_EMOTE_QUEUE	20
 #define EMOTE_MOTION(act) ((act->buffs & BUFF_DOUBLE_SPEED) ? (EMOTE_RUNNING):(EMOTE_WALKING))
-#endif // EMOTES
 
 /*! The main actor structure.*/
 #define	MAX_CMD_QUEUE	15
@@ -577,12 +493,10 @@ typedef struct
 
 	struct CalModel *calmodel;
 	struct cal_anim cur_anim;
-#ifdef EMOTES
 	emote_anim cur_emote;	//current performed emote
 	emote_data *poses[4];	//current emote ids for idle states (standing, walking...)
 	emote_command emote_que[MAX_EMOTE_QUEUE+1];	/*!< Holds the queued emotes*/
 	unsigned int cur_emote_sound_cookie;		/*!< The currently played emote sound*/
-#endif
 
 #ifdef MORE_EMOTES
 	int startIdle;
@@ -648,12 +562,6 @@ typedef struct
 	int shirt;		/*!< Sets the shirt ID (loaded from the actor_defs array)*/
 	int cur_weapon;		/*!< Sets the current weapon of the actor*/
 	int cur_shield;		/*!< Sets the current shield of the actor*/
-#ifdef NEW_LIGHTING
-	int head;
-	int legs;
-	int helmet;
-	int cape;
-#endif
 	/*! \} */
 
 	/*! \{ */
@@ -693,9 +601,7 @@ typedef struct
 
 	/*! \name Misc. animations*/
 	/*! \{ */
-#ifdef MORE_ATTACHED_ACTORS
 	char horse_rotated;
-#endif
 	char moving;		/*!< Specifies if the actor is currently on the move*/
 	char rotating;		/*!< Specifies if the actor is currently rotating*/
 	char stop_animation;	/*!< Don't loop trough the current animation (like for die, jump, etc.)*/
@@ -760,7 +666,6 @@ extern actor_types actors_defs[MAX_ACTOR_DEFS];	/*!< The actor definitions*/
 extern attached_actors_types attached_actors_defs[MAX_ACTOR_DEFS]; /*!< The definitions for the attached actors */
 
 
-#ifdef EMOTES
 static int __inline__ is_actor_barehanded(actor *act, int hand){
 	if(hand==EMOTE_BARE_L)
 		return (act->cur_shield==SHIELD_NONE||act->cur_shield==QUIVER_ARROWS||act->cur_shield==QUIVER_BOLTS);
@@ -768,7 +673,6 @@ static int __inline__ is_actor_barehanded(actor *act, int hand){
 		return (act->cur_weapon==WEAPON_NONE||act->cur_weapon==GLOVE_FUR||act->cur_weapon==GLOVE_LEATHER);
 }
 
-#endif
 
 /*!
  * \ingroup	display_actors

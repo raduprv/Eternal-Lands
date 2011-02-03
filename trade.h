@@ -22,9 +22,7 @@ typedef struct {
 	int type;
 	int image_id;
 	int quantity;
-#ifdef ITEM_UID
 	Uint16 id;
-#endif
 } trade_item;
 
 /*!

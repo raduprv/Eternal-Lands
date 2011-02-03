@@ -2,16 +2,12 @@
 #include <time.h>
 #include <string.h>
 #include <ctype.h>
-#ifdef NECK_ITEMS
 #include "new_actors.h"
-#endif
 #include "console.h"
 #include "asc.h"
 #include "buddy.h"
 #include "cache.h"
-#ifdef EMOTES
 #include "cal.h"
-#endif
 #include "chat.h"
 #include "consolewin.h"
 #include "elconfig.h"
@@ -20,9 +16,7 @@
 #include "hud.h"
 #include "ignore.h"
 #include "init.h"
-#ifdef ITEM_LISTS
 #include "item_lists.h"
-#endif
 #include "interface.h"
 #include "knowledge.h"
 #include "lights.h"
@@ -34,9 +28,7 @@
 #include "notepad.h"
 #include "pm_log.h"
 #include "platform.h"
-#ifdef NEW_QUESTLOG
 #include "questlog.h"
-#endif
 #include "sound.h"
 #include "spells.h"
 #include "tabs.h"
@@ -51,11 +43,9 @@
 #ifdef TEXT_ALIASES
 #include "text_aliases.h"
 #endif
-#ifdef EMOTES
 //only for debugging command #add_emote <actor name> <emote id>, can be removed later
 #include "actor_scripts.h"
 #include "emotes.h"
-#endif
 
 typedef char name_t[32];
 
@@ -452,7 +442,6 @@ static char *getparams(char *text)
 	return text;
 }
 
-#ifdef EMOTES
 int print_emotes(char *text, int len){
 
 	hash_entry *he;;
@@ -463,7 +452,6 @@ int print_emotes(char *text, int len){
 		LOG_TO_CONSOLE(c_orange1,((emote_dict *)he->item)->command);
 	return 1;
 }
-#endif
 
 
 #ifdef EMOTES_DEBUG
@@ -1540,14 +1528,10 @@ int save_local_data(char * text, int len){
 	if (notepad_loaded) notepad_save_file (NULL, 0, 0, 0);
 	save_exploration_map();
 	flush_counters();
-#ifdef NEW_QUESTLOG
 	// for the new questlog, this actually just saves any pending changes
 	// should be renamed when NEW_QUESTLOG #def is removed
 	unload_questlog();
-#endif	
-#ifdef ITEM_LISTS
 	save_category_maps();
-#endif
 	LOG_TO_CONSOLE(c_green1, "Local files saved, asking server to save too...");
 	return 0;
 }
@@ -1596,9 +1580,7 @@ add_command("horse", &horse_cmd);
 	add_command("set_neck", &set_neck);
 #endif
 	
-#ifdef EMOTES
 	add_command("emotes", &print_emotes);
-#endif
 #ifdef EMOTES_DEBUG
 	add_command("add_emote", &add_emote);
 	add_command("send_cmd", &send_cmd);

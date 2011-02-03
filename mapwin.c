@@ -145,9 +145,6 @@ int display_map_handler (window_info * win)
 
 	ec_idle();
 
-#ifdef NEW_LIGHTING
-	light_idle();
-#endif // NEW_LIGHTING
 
 	missiles_update();
     update_camera();

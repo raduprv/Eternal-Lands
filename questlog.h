@@ -83,7 +83,6 @@ void goto_questlog_entry(int ln);
 void fill_questlog_win ();
 
 
-#ifdef NEW_QUESTLOG
 
 /*!
  * \ingroup quest_window
@@ -169,7 +168,6 @@ unsigned int get_options_questlog(void);
  */
 void set_options_questlog(unsigned int cfg_options);
 
-#endif // NEW_QUESTLOG
 
 
 #ifdef __cplusplus

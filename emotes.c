@@ -1,4 +1,3 @@
-#ifdef EMOTES
 #include <stdlib.h>
 #include "emotes.h"
 #include "client_serv.h"
@@ -269,5 +268,4 @@ void display_emotes_menu()
 }
 
 
-#endif
 

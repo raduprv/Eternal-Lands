@@ -35,13 +35,9 @@
 #ifdef ECDEBUGWIN
 #include "eye_candy_debugwin.h"
 #endif
-#ifdef USER_MENUS
 #include "user_menus.h"
-#endif
 #include "url.h"
-#ifdef EMOTES
 #include "emotes.h"
-#endif
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -196,11 +192,9 @@ void init_hud_interface (hud_interface type)
 		init_stats_display ();
 		init_quickbar ();
 		init_quickspell ();
-#ifdef USER_MENUS
 		ready_for_user_menus = 1;
 		if (enable_user_menus)
 			display_user_menus();
-#endif
 	}
 
 	last_interface = type;
@@ -310,7 +304,6 @@ float use_with_item_icon_v_start=1.0f-(float)160/256;
 float colored_use_with_item_icon_u_start=(float)192/256;
 float colored_use_with_item_icon_v_start=1.0f-(float)160/256;
 
-#ifdef EMOTES
 
 float emotes_icon_u_start=(float)160/256;
 float emotes_icon_v_start=1.0f-(float)160/256;
@@ -318,7 +311,6 @@ float emotes_icon_v_start=1.0f-(float)160/256;
 float colored_emotes_icon_u_start=(float)128/256;
 float colored_emotes_icon_v_start=1.0f-(float)160/256;
 
-#endif
 
 float trade_icon_u_start=(float)128/256;
 float trade_icon_v_start=1.0f-(float)0/256;
@@ -527,10 +519,8 @@ void init_peace_icons()
 	
 	add_icon(manufacture_icon_u_start, manufacture_icon_v_start, colored_manufacture_icon_u_start, colored_manufacture_icon_v_start, tt_manufacture, view_window, &manufacture_win, DATA_WINDOW);
 
-#ifdef EMOTES
 	add_icon(emotes_icon_u_start, emotes_icon_v_start, colored_emotes_icon_u_start, colored_emotes_icon_v_start, tt_emotewin, view_window, &emotes_win, DATA_WINDOW);
 
-#endif
 	
 	/*
 	add_icon(stats_icon_u_start, stats_icon_v_start, colored_stats_icon_u_start, colored_stats_icon_v_start, tt_stats, view_window, &stats_win, DATA_WINDOW);
@@ -800,9 +790,7 @@ void view_window(int * window, int id)
 			if(window==&items_win)display_items_menu();
 			else if(window==&sigil_win) display_sigils_menu();
 			else if(window==&manufacture_win) display_manufacture_menu();
-#ifdef EMOTES
 			else if(window==&emotes_win) display_emotes_menu();
-#endif
 			else if(window==&elconfig_win) display_elconfig_win();
 			else if(window==&buddy_win) display_buddy();
 			else if(window==&trade_win) display_trade_menu();

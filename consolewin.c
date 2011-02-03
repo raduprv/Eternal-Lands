@@ -21,9 +21,6 @@
 #include "text.h"
 #include "special_effects.h"
 #include "eye_candy_wrapper.h"
-#ifdef NEW_LIGHTING
-#include "lights.h"
-#endif
 
 int console_root_win = -1;
 
@@ -107,9 +104,6 @@ int display_console_handler (window_info *win)
 
 	ec_idle();
 
-#ifdef NEW_LIGHTING
-	light_idle();
-#endif // NEW_LIGHTING
 
 	missiles_update();
     update_camera();

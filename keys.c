@@ -101,9 +101,7 @@ Uint32 K_PASTE_ALT=SHIFT|SDLK_INSERT;
 #ifdef ECDEBUGWIN
 Uint32 K_ECDEBUGWIN=ALT|CTRL|'c';
 #endif
-#ifdef EMOTES
 Uint32 K_EMOTES=CTRL|'j';
-#endif
 
 void add_key (Uint32 *key, Uint32 n)
 {
@@ -525,10 +523,8 @@ void read_key_config()
 	if((t=get_string_occurance("#K_EXTEND_CAM",file_mem,key_file_size,0))!=-1)
 		K_EXTEND_CAM = parse_key_string(&file_mem[t]);
 #endif // SKY_FPV
-#ifdef EMOTES
 	if((t=get_string_occurance("#K_EMOTES",file_mem,key_file_size,0))!=-1)
 		K_EMOTES = parse_key_string(&file_mem[t]);
-#endif // EMOTES
 
 	free(file_mem);
 }

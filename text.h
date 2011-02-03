@@ -75,9 +75,7 @@ extern int current_text_width; /*!< Current wrapping width for text buffers */
 
 extern ec_reference harvesting_effect_reference;
 
-#ifdef EMOTES
 extern int emote_filter; //used to ignore text lines of emotes only
-#endif
 
 /*!
  * \brief Allocate the character buffer for a text_message

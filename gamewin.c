@@ -4,9 +4,7 @@
 #include "2d_objects.h"
 #include "3d_objects.h"
 #include "actor_scripts.h"
-#ifdef ACHIEVEMENTS
 #include "achievements.h"
-#endif
 #include "asc.h"
 #include "bags.h"
 #include "books.h"
@@ -72,9 +70,7 @@
 #include "eye_candy_debugwin.h"
 #endif
 #include "actor_init.h"
-#ifdef EMOTES
 #include "emotes.h"
-#endif
 
 int game_root_win = -1;
 int gamewin_in_id = 4442;
@@ -723,10 +719,8 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 				safe_snprintf(log,sizeof(log),"Actor id: %d",object_under_mouse);
 				LOG_TO_CONSOLE(c_green1, log);
 #endif
-#ifdef ACHIEVEMENTS
 				if (thing_under_the_mouse == UNDER_MOUSE_PLAYER)
 					achievements_requested(mouse_x, mouse_y, flag_ctrl);
-#endif
 				str[0] = GET_PLAYER_INFO;
 				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
 				my_tcp_send (my_socket, str, 5);
@@ -1114,32 +1108,18 @@ int display_game_handler (window_info *win)
 #endif // NEW_WEATHER
 
 		// only draw scene lights if inside or it is night
-#ifdef NEW_LIGHTING
-		if (
-		    ( (use_new_lighting) && (dungeon || !(game_minute >= 5 && game_minute < 235))) ||
-		    ((!use_new_lighting) && (dungeon || !is_day))
-		   )
-#else
 		if (dungeon || !is_day)
-#endif
 		{
 			update_scene_lights ();
 			draw_lights ();
 		}
 		CHECK_GL_ERRORS ();
 
-#ifdef NEW_LIGHTING
-		if (
-		    ( (use_new_lighting) && (!dungeon && shadows_on && (game_minute >= 0 && game_minute < 240))) ||
-		    ((!use_new_lighting) && (!dungeon && shadows_on && is_day))
-		   )
-#else
 #ifndef NEW_WEATHER
 		if (!dungeon && shadows_on && is_day)
 #else // NEW_WEATHER
 		if (!dungeon && shadows_on && (is_day || lightning_falling))
 #endif // NEW_WEATHER
-#endif
 		{
 			render_light_view();
 			CHECK_GL_ERRORS ();
@@ -1168,21 +1148,11 @@ int display_game_handler (window_info *win)
 			weather_init_lightning_light();
 #endif // NEW_WEATHER
 
-#ifdef NEW_LIGHTING
-		if (use_new_lighting)
-		 	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
-
-		if (
-		    ( (use_new_lighting) && (!dungeon && shadows_on && (game_minute >= 5 && game_minute < 235))) ||
-		    ((!use_new_lighting) && (!dungeon && shadows_on && is_day))
-		   )
-#else
 #ifndef NEW_WEATHER
 		if (!dungeon && shadows_on && is_day)
 #else // NEW_WEATHER
 		if (!dungeon && shadows_on && (is_day || lightning_falling))
 #endif // NEW_WEATHER
-#endif
 		{
 			glNormal3f(0.0f,0.0f,1.0f);
 			if (use_fog && any_reflection) blend_reflection_fog();
@@ -1201,19 +1171,11 @@ int display_game_handler (window_info *win)
 			display_2d_objects();
 			CHECK_GL_ERRORS();
 			anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
-#ifdef NEW_LIGHTING
-			if (use_new_lighting)
-				glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 1);
-#endif
 			display_objects();
 			display_ground_objects();	
 			display_actors(1, DEFAULT_RENDER_PASS);
 			display_alpha_objects();
 			display_blended_objects();
-#ifdef NEW_LIGHTING
-			if (use_new_lighting)
-				glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 0);
-#endif
 		}
 
 #ifdef NEW_WEATHER
@@ -1235,14 +1197,10 @@ int display_game_handler (window_info *win)
 	{
 		display_actors (1, DEFAULT_RENDER_PASS);	// we need to 'touch' all the actors even if not drawing to avoid problems
 	}
-#ifdef NEW_LIGHTING
-	if (use_new_lighting)
-	        glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SINGLE_COLOR);
-#endif
 	CHECK_GL_ERRORS ();
-#if defined(NEW_LIGHTING) || defined(DEBUG_TIME) || defined NIGHT_TEXTURES
+#ifdef DEBUG_TIME
 	light_idle();
-#endif // NEW_LIGHTING
+#endif // DEBUG_TIME
 
 	ec_idle();
 
@@ -1498,9 +1456,7 @@ void hide_all_windows(){
 		|| (get_show_window(minimap_win) > 0 && !pin_minimap)
 #endif
 		|| get_show_window(tab_info_win) > 0
-#ifdef EMOTES
 		|| get_show_window(emotes_win) > 0
-#endif
 	){	//Okay, hide the open ones.
 		if (get_window_showable(ground_items_win) > 0){
 			unsigned char protocol_name;
@@ -1585,14 +1541,12 @@ void hide_all_windows(){
 		} else {
 			were_open &= ~(1<<10);
 		}
-#ifdef EMOTES
 		if (get_window_showable(emotes_win) > 0){
 			hide_window (emotes_win);
 			were_open |= 1<<11;
 		} else {
 			were_open &= ~(1<<11);
 		}
-#endif
 		if (get_window_showable(questlog_win) > 0){
 			hide_window (questlog_win);
 			were_open |= 1<<12;
@@ -1633,11 +1587,9 @@ void hide_all_windows(){
 		if (view_only_storage && (were_open & 1<<10)){
 			show_window (storage_win );
 		}
-#ifdef EMOTES
 		if (were_open & 1<<11){
 			show_window (emotes_win);
 		}
-#endif
 		if (were_open & 1<<12){
 			show_window (questlog_win);
 		}
@@ -2042,12 +1994,10 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		view_window (&sigil_win, -1);
 	}
-#ifdef EMOTES
 	else if (key == K_EMOTES)
 	{
 		view_window (&emotes_win, -1);
 	}
-#endif
 	else if (key == K_MANUFACTURE)
 	{
 		view_window (&manufacture_win, -1);

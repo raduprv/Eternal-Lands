@@ -10,9 +10,7 @@
 #include "hud.h"
 #include "init.h"
 #include "items.h"
-#ifdef ITEM_LISTS
 #include "item_lists.h"
-#endif
 #include "misc.h"
 #include "multiplayer.h"
 #ifdef NEW_SOUND
@@ -56,7 +54,6 @@ static int number_to_print = 0;
 static int next_item_to_print = 0;
 static int printing_category = -1;
 
-#ifdef ITEM_LISTS
 
 //	Look though the category for the selected item, pick it up if found.
 //
@@ -67,7 +64,6 @@ static void select_item(int image_id, Uint16 item_id)
 	
 	for (i=0; i<no_storage; i++)
 	{
-#ifdef ITEM_UID
 		if ((item_id != unset_item_uid) && (storage_items[i].id != unset_item_uid) && (storage_items[i].quantity > 0))
 		{
 			if (storage_items[i].id == item_id)
@@ -77,7 +73,6 @@ static void select_item(int image_id, Uint16 item_id)
 			}
 		}
 		else
-#endif
 		if ((storage_items[i].image_id == image_id) && (storage_items[i].quantity > 0))
 		{
 			found_at = i;
@@ -127,11 +122,7 @@ static void category_updated(void)
 {
 	int i;
 	for (i=0; i<no_storage; i++)
-#ifdef ITEM_UID
 		update_category_maps(storage_items[i].image_id, storage_items[i].id, storage_categories[selected_category].id);
-#else
-		update_category_maps(storage_items[i].image_id, unset_item_uid, storage_categories[selected_category].id);
-#endif
 	if (selected_category == wanted_category)
 	{
 		select_item(wanted_image_id, wanted_item_id);
@@ -166,7 +157,6 @@ void pickup_storage_item(int image_id, Uint16 item_id, int cat_id)
 		move_to_category(wanted_category);
 }
 
-#endif // ITEM_LISTS
 
 
 void get_storage_text (const Uint8 *in_data, int len)
@@ -270,11 +260,9 @@ void get_storage_items (const Uint8 *in_data, int len)
 	int idx;
 	int plen;
 
-#ifdef ITEM_UID
 	if (item_uid_enabled)
 		plen=10;
 	else
-#endif			
 		plen=8;
 
 	if (in_data[0] == 255)
@@ -289,12 +277,10 @@ void get_storage_items (const Uint8 *in_data, int len)
 			{
 				storage_items[i].image_id = SDL_SwapLE16(*((Uint16*)(&in_data[idx])));
 				storage_items[i].quantity = SDL_SwapLE32(*((Uint32*)(&in_data[idx+2])));
-#ifdef ITEM_UID			
 				if (item_uid_enabled)
 					storage_items[i].id = SDL_SwapLE16(*((Uint16*)(&in_data[idx+8])));
 				else
 					storage_items[i].id = unset_item_uid;
-#endif
 				return;
 			}
 		}
@@ -303,12 +289,10 @@ void get_storage_items (const Uint8 *in_data, int len)
 		{
 			if (storage_items[i].quantity == 0)
 			{
-#ifdef ITEM_UID
 				if (item_uid_enabled)
 					storage_items[i].id = SDL_SwapLE16(*((Uint16*)(&in_data[idx+8])));
 				else
 					storage_items[i].id = unset_item_uid;
-#endif
 				storage_items[i].pos = SDL_SwapLE16(*((Uint16*)(&in_data[idx+6])));
 				storage_items[i].image_id = SDL_SwapLE16(*((Uint16*)(&in_data[idx])));
 				storage_items[i].quantity = SDL_SwapLE32(*((Uint32*)(&in_data[idx+2])));
@@ -336,12 +320,10 @@ void get_storage_items (const Uint8 *in_data, int len)
 		storage_items[i].image_id = SDL_SwapLE16(*((Uint16*)(&in_data[idx])));
 		storage_items[i].quantity = SDL_SwapLE32(*((Uint32*)(&in_data[idx+2])));
 		storage_items[i].pos = SDL_SwapLE16(*((Uint16*)(&in_data[idx+6])));
-#ifdef ITEM_UID
 		if (item_uid_enabled)
 			storage_items[i].id = SDL_SwapLE16(*((Uint16*)(&in_data[idx+8])));
 		else
 			storage_items[i].id = unset_item_uid;
-#endif
 	}
 	
 	for ( ; i < STORAGE_ITEMS_SIZE; i++)
@@ -357,10 +339,8 @@ void get_storage_items (const Uint8 *in_data, int len)
 		vscrollbar_set_pos(storage_win, STORAGE_SCROLLBAR_CATEGORIES, cat - STORAGE_CATEGORIES_DISPLAY + 1);
 	}
 
-#ifdef ITEM_LISTS
 	if (selected_category != -1)
 		category_updated();
-#endif 
 }
 
 int storage_win=-1;

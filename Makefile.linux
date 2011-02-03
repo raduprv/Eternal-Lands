@@ -30,10 +30,6 @@ USE_SHADER_COBJ = shader/noise.o shader/shader.o
 PAWN_COBJ = pawn/amx.o pawn/amxaux.o pawn/amxcons.o pawn/amxel.o \
 	pawn/amxfloat.o pawn/amxstring.o pawn/elpawn.o
 NEW_SELECTION_CXXOBJ = select.o
-USER_MENUS_CXXOBJ = user_menus.o
-ITEM_LISTS_CXXOBJ = item_lists.o
-NEW_QUESTLOG_CXXOBJ = quest_log.o
-ACHIEVEMENTS_CXXOBJ = achievements.o
 COBJS=2d_objects.o 3d_objects.o \
 	actor_scripts.o actors.o alphamap.o asc.o astrology.o \
 	bbox_tree.o books.o buddy.o buffs.o bags.o \
@@ -59,8 +55,9 @@ COBJS=2d_objects.o 3d_objects.o \
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_COBJ))
 	
 CXXOBJS=actor_init.o cal3d_wrapper.o context_menu.o optimizer.o sendvideoinfo.o	\
-	exceptions/extendedexception.o xml/xmlhelper.o	\
-	io/elfilewrapper.o io/elfile.o io/zipfilesystem.o \
+	exceptions/extendedexception.o xml/xmlhelper.o quest_log.o	\
+	io/elfilewrapper.o io/elfile.o io/zipfilesystem.o item_lists.o \
+	user_menus.o achievements.o \
 	eye_candy_wrapper.o \
 	eye_candy/eye_candy.o eye_candy/math_cache.o eye_candy/effect_lamp.o \
 	eye_candy/effect_candle.o \

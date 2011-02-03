@@ -79,12 +79,8 @@
 #ifdef TEXT_ALIASES
 #include "text_aliases.h"
 #endif /* TEXT_ALIASES */
-#ifdef USER_MENUS
 #include "user_menus.h"
-#endif
-#ifdef EMOTES
 #include "emotes.h"
-#endif
 
 #define	CFG_VERSION 7	// change this when critical changes to el.cfg are made that will break it
 
@@ -295,11 +291,9 @@ void read_bin_cfg()
 	sigil_menu_x=cfg_mem.sigil_menu_x;
 	sigil_menu_y=cfg_mem.sigil_menu_y;
 	start_mini_spells=cfg_mem.start_mini_spells;
-#ifdef EMOTES
 	emotes_menu_x=cfg_mem.emotes_menu_x;
 	emotes_menu_y=cfg_mem.emotes_menu_y;
 
-#endif
 	dialogue_menu_x=cfg_mem.dialogue_menu_x;
 	dialogue_menu_y=cfg_mem.dialogue_menu_y;
 
@@ -386,23 +380,17 @@ void read_bin_cfg()
 	items_stoall_nolastrow = (cfg_mem.misc_bool_options >> 4) & 1;
 	items_dropall_nolastrow = (cfg_mem.misc_bool_options >> 5) & 1;
  	autoclose_storage_dialogue = (cfg_mem.misc_bool_options >> 6) & 1;
-#ifdef ITEM_LISTS
 	disable_item_list_preview = (cfg_mem.misc_bool_options >> 7) & 1;
-#endif
 	dialogue_copy_excludes_responses = (cfg_mem.misc_bool_options >> 8) & 1;
 	items_stoall_nofirstrow = (cfg_mem.misc_bool_options >> 9) & 1;
 	items_dropall_nofirstrow = (cfg_mem.misc_bool_options >> 10) & 1;
 	items_auto_get_all = (cfg_mem.misc_bool_options >> 11) & 1;
 
-#ifdef USER_MENUS
 	set_options_user_menus(cfg_mem.user_menu_win_x, cfg_mem.user_menu_win_y, cfg_mem.user_menu_options);
-#endif
 
 	floating_counter_flags = cfg_mem.floating_counter_flags;
 
-#ifdef NEW_QUESTLOG
 	set_options_questlog(cfg_mem.questlog_flags);
-#endif
 }
 
 void save_bin_cfg()
@@ -500,7 +488,6 @@ void save_bin_cfg()
 		cfg_mem.sigil_menu_x=sigil_menu_x;
 		cfg_mem.sigil_menu_y=sigil_menu_y;
 	}
-#ifdef EMOTES
 	if(emotes_win >= 0) {
 		cfg_mem.emotes_menu_x=windows_list.window[emotes_win].cur_x;
 		cfg_mem.emotes_menu_y=windows_list.window[emotes_win].cur_y;
@@ -508,7 +495,6 @@ void save_bin_cfg()
 		cfg_mem.emotes_menu_x=emotes_menu_x;
 		cfg_mem.emotes_menu_y=emotes_menu_y;
 	}
-#endif
 	if(dialogue_win >= 0) {
 		cfg_mem.dialogue_menu_x=windows_list.window[dialogue_win].cur_x;
 		cfg_mem.dialogue_menu_y=windows_list.window[dialogue_win].cur_y;
@@ -638,23 +624,17 @@ void save_bin_cfg()
 	cfg_mem.misc_bool_options |= items_stoall_nolastrow << 4;
 	cfg_mem.misc_bool_options |= items_dropall_nolastrow << 5;
  	cfg_mem.misc_bool_options |= autoclose_storage_dialogue << 6;
-#ifdef ITEM_LISTS
 	cfg_mem.misc_bool_options |= disable_item_list_preview << 7;
-#endif
 	cfg_mem.misc_bool_options |= dialogue_copy_excludes_responses << 8;
 	cfg_mem.misc_bool_options |= items_stoall_nofirstrow << 9;
 	cfg_mem.misc_bool_options |= items_dropall_nofirstrow << 10;
 	cfg_mem.misc_bool_options |= items_auto_get_all << 11;
 
-#ifdef USER_MENUS
 	get_options_user_menus(&cfg_mem.user_menu_win_x, &cfg_mem.user_menu_win_y, &cfg_mem.user_menu_options);
-#endif
 
 	cfg_mem.floating_counter_flags = floating_counter_flags;
 
-#ifdef NEW_QUESTLOG
 	cfg_mem.questlog_flags = get_options_questlog();
-#endif
 
 	fwrite(&cfg_mem,sizeof(cfg_mem),1,f);
 	fclose(f);
@@ -813,10 +793,6 @@ void init_stuff()
 	update_loading_win(bld_glow_str, 3);
 	build_glow_color_table();
 
-#ifdef NEW_LIGHTING	//This must be before init_actor_defs().
-	load_material_metadata("material_metadata.xml");
-        glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
-#endif
 
 	update_loading_win(init_lists_str, 2);
 	init_actors_lists();
@@ -836,9 +812,7 @@ void init_stuff()
 	log_info("Init actor defs");
 	init_actor_defs();
 	log_info("Init actor defs done");
-#ifdef EMOTES
 	read_emotes_defs("", "emotes.xml");
-#endif // EMOTES
 
 	missiles_init_defs();
 

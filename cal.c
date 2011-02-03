@@ -22,9 +22,6 @@
 #include "gl_init.h"
 #endif /* OPENGL_TRADE */
 #include "io/elfilewrapper.h"
-#ifdef NEW_LIGHTING
-#include "lights.h"
-#endif
 
 
 
@@ -70,25 +67,13 @@ int do_transition(actor *act){
 
 
 #ifdef NEW_SOUND
-#ifdef EMOTES
 void cal_play_anim_sound(actor *pActor, struct cal_anim anim, int is_emote){
-#else
-void cal_play_anim_sound(actor *pActor, struct cal_anim anim){
-#endif
 
 	unsigned int *cookie;
 
-#ifdef EMOTES
 	cookie = (is_emote) ? (&pActor->cur_emote_sound_cookie):(&pActor->cur_anim_sound_cookie);
-#else
-	cookie = &pActor->cur_anim_sound_cookie;
-#endif
 	// Check if we need a walking sound
-#ifdef EMOTES
 	if (pActor->moving && !pActor->fighting &&!is_emote){
-#else
-	if (pActor->moving && !pActor->fighting){
-#endif
 		handle_walking_sound(pActor, anim.sound);
 	} else {
 		if (check_sound_loops(*cookie))
@@ -109,7 +94,6 @@ void cal_play_anim_sound(actor *pActor, struct cal_anim anim){
 }
 #endif
 
-#ifdef EMOTES
 void cal_reset_emote_anims(actor *pActor, int cycles_too){
 
 	struct CalMixer *mixer;
@@ -230,7 +214,6 @@ void handle_cur_emote(actor *pActor){
 	}
 }
 
-#endif // EMOTES
 
 
 
@@ -315,7 +298,6 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 	if (anim.kind==cycle){
 		CalMixer_BlendCycle(mixer,anim.anim_index,1.0f, delay);
 		CalMixer_SetAnimationTime(mixer, 0.0f);	//always start at the beginning of a cycling animation
-#ifdef EMOTES
 		//if an emote is cycling, stop it
 		if(pActor->cur_emote.idle.anim_index!=-1) {
 				//printf("stopping idle emote %i\n", pActor->cur_emote.idle.anim_index);
@@ -329,10 +311,8 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 				pActor->cur_emote.flow=NULL;
 		}
 */
-#endif // EMOTES
 	} else {
 		CalMixer_ExecuteAction_Stop(mixer,anim.anim_index,delay,0.0);
-#ifdef EMOTES
 		//if an emote is playing, stop it
 /*		if(pActor->cur_emote.active) {
 				printf("stopping emote of actor %i\n", pActor->actor_id);
@@ -340,7 +320,6 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 				pActor->cur_emote.flow=NULL;
 		}
 */
-#endif // EMOTES
 	}
 
 	pActor->cur_anim=anim;
@@ -362,11 +341,7 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 		pActor->busy=0;
 	pActor->IsOnIdle=0;
 #ifdef NEW_SOUND
-	#ifdef EMOTES
 		cal_play_anim_sound(pActor, pActor->cur_anim,0);
-	#else
-		cal_play_anim_sound(pActor, pActor->cur_anim);
-	#endif
 #endif
 
 }
@@ -726,116 +701,6 @@ void cal_render_actor(actor *act, Uint32 use_lightning, Uint32 use_textures, Uin
 				_mesh=CalModel_GetAttachedMesh(act->calmodel,meshId);//Get current rendered mesh
 				_coremesh=CalMesh_GetCoreMesh(_mesh);//Get the coremesh
 				
-#ifdef NEW_LIGHTING
-				if (use_new_lighting && use_lightning)
-				{
-					if (_coremesh == CalCoreModel_GetCoreMesh(actors_defs[act->actor_type].coremodel,actors_defs[act->actor_type].weapon[act->cur_weapon].mesh_index))
-					{
-//						printf("1\n");					
-						glMaterialfv(GL_FRONT, GL_AMBIENT, actors_defs[act->actor_type].weapon[act->cur_weapon].ambient);
-						glMaterialfv(GL_FRONT, GL_DIFFUSE, actors_defs[act->actor_type].weapon[act->cur_weapon].diffuse);
-						glMaterialfv(GL_FRONT, GL_SPECULAR, actors_defs[act->actor_type].weapon[act->cur_weapon].specular);
-						glMaterialfv(GL_FRONT, GL_EMISSION, actors_defs[act->actor_type].weapon[act->cur_weapon].emission);
-						glMaterialf(GL_FRONT, GL_SHININESS, actors_defs[act->actor_type].weapon[act->cur_weapon].shininess);
-					}
-					else if (_coremesh == CalCoreModel_GetCoreMesh(actors_defs[act->actor_type].coremodel,actors_defs[act->actor_type].shield[act->cur_shield].mesh_index))
-					{
-//						printf("2\n");					
-						glMaterialfv(GL_FRONT, GL_AMBIENT, actors_defs[act->actor_type].shield[act->cur_shield].ambient);
-						glMaterialfv(GL_FRONT, GL_DIFFUSE, actors_defs[act->actor_type].shield[act->cur_shield].diffuse);
-						glMaterialfv(GL_FRONT, GL_SPECULAR, actors_defs[act->actor_type].shield[act->cur_shield].specular);
-						glMaterialfv(GL_FRONT, GL_EMISSION, actors_defs[act->actor_type].shield[act->cur_shield].emission);
-						glMaterialf(GL_FRONT, GL_SHININESS, actors_defs[act->actor_type].shield[act->cur_shield].shininess);
-					}
-					else if (_coremesh == CalCoreModel_GetCoreMesh(actors_defs[act->actor_type].coremodel,actors_defs[act->actor_type].head[act->head].mesh_index))
-					{
-//						printf("3\n");					
-						glMaterialfv(GL_FRONT, GL_AMBIENT, actors_defs[act->actor_type].head[act->head].ambient);
-						glMaterialfv(GL_FRONT, GL_DIFFUSE, actors_defs[act->actor_type].head[act->head].diffuse);
-						glMaterialfv(GL_FRONT, GL_SPECULAR, actors_defs[act->actor_type].head[act->head].specular);
-						glMaterialfv(GL_FRONT, GL_EMISSION, actors_defs[act->actor_type].head[act->head].emission);
-						glMaterialf(GL_FRONT, GL_SHININESS, actors_defs[act->actor_type].head[act->head].shininess);
-					}
-/*
-					else if (_coremesh == CalCoreModel_GetCoreMesh(actors_defs[act->actor_type].coremodel,actors_defs[act->actor_type].legs[act->legs].mesh_index))
-					{
-						printf("4\n");					
-						glMaterialfv(GL_FRONT, GL_AMBIENT, actors_defs[act->actor_type].legs[act->legs].ambient);
-						glMaterialfv(GL_FRONT, GL_DIFFUSE, actors_defs[act->actor_type].legs[act->legs].diffuse);
-						glMaterialfv(GL_FRONT, GL_SPECULAR, actors_defs[act->actor_type].legs[act->legs].specular);
-						glMaterialfv(GL_FRONT, GL_EMISSION, actors_defs[act->actor_type].legs[act->legs].emission);
-						glMaterialf(GL_FRONT, GL_SHININESS, actors_defs[act->actor_type].legs[act->legs].shininess);
-					}
-*/
-					else if (_coremesh == CalCoreModel_GetCoreMesh(actors_defs[act->actor_type].coremodel,actors_defs[act->actor_type].shirt[act->shirt].mesh_index))
-					{
-//						printf("5: %s,%s\n  %d: %f,%f,%f / %f,%f,%f / %f,%f,%f\n", act->actor_name, act->skin_name, &(actors_defs[act->actor_type].shirt[act->shirt]), actors_defs[act->actor_type].shirt[act->shirt].ambient[0], actors_defs[act->actor_type].shirt[act->shirt].ambient[1], actors_defs[act->actor_type].shirt[act->shirt].ambient[2], actors_defs[act->actor_type].shirt[act->shirt].diffuse[0], actors_defs[act->actor_type].shirt[act->shirt].diffuse[1], actors_defs[act->actor_type].shirt[act->shirt].diffuse[2], actors_defs[act->actor_type].shirt[act->shirt].specular[0], actors_defs[act->actor_type].shirt[act->shirt].specular[1], actors_defs[act->actor_type].shirt[act->shirt].specular[2]);
-						glMaterialfv(GL_FRONT, GL_AMBIENT, actors_defs[act->actor_type].shirt[act->shirt].ambient);
-						glMaterialfv(GL_FRONT, GL_DIFFUSE, actors_defs[act->actor_type].shirt[act->shirt].diffuse);
-						glMaterialfv(GL_FRONT, GL_SPECULAR, actors_defs[act->actor_type].shirt[act->shirt].specular);
-						glMaterialfv(GL_FRONT, GL_EMISSION, actors_defs[act->actor_type].shirt[act->shirt].emission);
-						glMaterialf(GL_FRONT, GL_SHININESS, actors_defs[act->actor_type].shirt[act->shirt].shininess);
-					}
-					else if (_coremesh == CalCoreModel_GetCoreMesh(actors_defs[act->actor_type].coremodel,actors_defs[act->actor_type].legs[act->pants].mesh_index))
-					{
-//						printf("6\n");					
-						glMaterialfv(GL_FRONT, GL_AMBIENT, actors_defs[act->actor_type].legs[act->pants].ambient);
-						glMaterialfv(GL_FRONT, GL_DIFFUSE, actors_defs[act->actor_type].legs[act->pants].diffuse);
-						glMaterialfv(GL_FRONT, GL_SPECULAR, actors_defs[act->actor_type].legs[act->pants].specular);
-						glMaterialfv(GL_FRONT, GL_EMISSION, actors_defs[act->actor_type].legs[act->pants].emission);
-						glMaterialf(GL_FRONT, GL_SHININESS, actors_defs[act->actor_type].legs[act->pants].shininess);
-					}
-					else if (_coremesh == CalCoreModel_GetCoreMesh(actors_defs[act->actor_type].coremodel,actors_defs[act->actor_type].skin[act->skin].mesh_index))
-					{
-//						printf("7\n");					
-						glMaterialfv(GL_FRONT, GL_AMBIENT, actors_defs[act->actor_type].skin[act->skin].ambient);
-						glMaterialfv(GL_FRONT, GL_DIFFUSE, actors_defs[act->actor_type].skin[act->skin].diffuse);
-						glMaterialfv(GL_FRONT, GL_SPECULAR, actors_defs[act->actor_type].skin[act->skin].specular);
-						glMaterialfv(GL_FRONT, GL_EMISSION, actors_defs[act->actor_type].skin[act->skin].emission);
-						glMaterialf(GL_FRONT, GL_SHININESS, actors_defs[act->actor_type].skin[act->skin].shininess);
-					}
-					else if (_coremesh == CalCoreModel_GetCoreMesh(actors_defs[act->actor_type].coremodel,actors_defs[act->actor_type].hair[act->hair].mesh_index))
-					{
-//						printf("8\n");					
-						glMaterialfv(GL_FRONT, GL_AMBIENT, actors_defs[act->actor_type].hair[act->hair].ambient);
-						glMaterialfv(GL_FRONT, GL_DIFFUSE, actors_defs[act->actor_type].hair[act->hair].diffuse);
-						glMaterialfv(GL_FRONT, GL_SPECULAR, actors_defs[act->actor_type].hair[act->hair].specular);
-						glMaterialfv(GL_FRONT, GL_EMISSION, actors_defs[act->actor_type].hair[act->hair].emission);
-						glMaterialf(GL_FRONT, GL_SHININESS, actors_defs[act->actor_type].hair[act->hair].shininess);
-					}
-					else if (_coremesh == CalCoreModel_GetCoreMesh(actors_defs[act->actor_type].coremodel,actors_defs[act->actor_type].boots[act->boots].mesh_index))
-					{
-//						printf("9\n");					
-						glMaterialfv(GL_FRONT, GL_AMBIENT, actors_defs[act->actor_type].boots[act->boots].ambient);
-						glMaterialfv(GL_FRONT, GL_DIFFUSE, actors_defs[act->actor_type].boots[act->boots].diffuse);
-						glMaterialfv(GL_FRONT, GL_SPECULAR, actors_defs[act->actor_type].boots[act->boots].specular);
-						glMaterialfv(GL_FRONT, GL_EMISSION, actors_defs[act->actor_type].boots[act->boots].emission);
-						glMaterialf(GL_FRONT, GL_SHININESS, actors_defs[act->actor_type].boots[act->boots].shininess);
-					}
-					else if (_coremesh == CalCoreModel_GetCoreMesh(actors_defs[act->actor_type].coremodel,actors_defs[act->actor_type].helmet[act->helmet].mesh_index))
-					{
-//						printf("10\n");					
-						glMaterialfv(GL_FRONT, GL_AMBIENT, actors_defs[act->actor_type].helmet[act->helmet].ambient);
-						glMaterialfv(GL_FRONT, GL_DIFFUSE, actors_defs[act->actor_type].helmet[act->helmet].diffuse);
-						glMaterialfv(GL_FRONT, GL_SPECULAR, actors_defs[act->actor_type].helmet[act->helmet].specular);
-						glMaterialfv(GL_FRONT, GL_EMISSION, actors_defs[act->actor_type].helmet[act->helmet].emission);
-						glMaterialf(GL_FRONT, GL_SHININESS, actors_defs[act->actor_type].helmet[act->helmet].shininess);
-					}
- 					else if (_coremesh == CalCoreModel_GetCoreMesh(actors_defs[act->actor_type].coremodel,actors_defs[act->actor_type].cape[act->cape].mesh_index))
-					{
-//						printf("11\n");					
-						glMaterialfv(GL_FRONT, GL_AMBIENT, actors_defs[act->actor_type].cape[act->cape].ambient);
-						glMaterialfv(GL_FRONT, GL_DIFFUSE, actors_defs[act->actor_type].cape[act->cape].diffuse);
-						glMaterialfv(GL_FRONT, GL_SPECULAR, actors_defs[act->actor_type].cape[act->cape].specular);
-						glMaterialfv(GL_FRONT, GL_EMISSION, actors_defs[act->actor_type].cape[act->cape].emission);
-						glMaterialf(GL_FRONT, GL_SHININESS, actors_defs[act->actor_type].cape[act->cape].shininess);
-					}
-					else
-					{
-						set_material_defaults();
-					}
-				}
-#endif
 				if(act->is_enhanced_model && (_weaponmesh || _shieldmesh)) {
 					//Special treatment for weapons and shields only for enhanced models
 					int glow=-1;

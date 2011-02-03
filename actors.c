@@ -153,7 +153,6 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 
 	//clear the que
 	for(k=0;k<MAX_CMD_QUEUE;k++)	our_actor->que[k]=nothing;
-#ifdef EMOTES
 	//clear emotes
 	for(k=0;k<MAX_EMOTE_QUEUE;k++)	{
 		our_actor->emote_que[k].emote=NULL;
@@ -168,7 +167,6 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	
 
 
-#endif
 
 	our_actor->texture_id=texture_id;
 	our_actor->skin=skin_color;
@@ -1263,9 +1261,7 @@ void add_actor_from_server (const char *in_data, int len)
 
 	double f_x_pos,f_y_pos,f_z_rot;
 	float scale= 1.0f;
-#ifdef EMOTES
 	emote_data *pose=NULL;
-#endif
 	int attachment_type = -1;
 
 	actor_id=SDL_SwapLE16(*((short *)(in_data)));
@@ -1346,7 +1342,6 @@ void add_actor_from_server (const char *in_data, int len)
 		break;
 	default:
 		{
-#ifdef EMOTES
 		if(frame>=frame_poses_start&&frame<=frame_poses_end) {
 			//we have a pose, get it! (frame is the emote_id)
 			hash_entry *he;
@@ -1355,7 +1350,6 @@ void add_actor_from_server (const char *in_data, int len)
 			else pose = he->item;
 			break;
 		}
-#endif
 
 			log_error("%s %d - %s\n", unknown_frame, frame, &in_data[17]);
 		}
@@ -1409,7 +1403,6 @@ void add_actor_from_server (const char *in_data, int len)
 #endif // VARIABLE_SPEED
 
 	actors_list[i]->z_pos = get_actor_z(actors_list[i]);
-#ifdef EMOTES
 	if(frame==frame_sit_idle||(pose!=NULL&&pose->pose==EMOTE_SITTING)){ //sitting pose sent by the server
 			actors_list[i]->poses[EMOTE_SITTING]=pose;
 			actors_list[i]->sitting=1;
@@ -1431,11 +1424,6 @@ void add_actor_from_server (const char *in_data, int len)
 			else if (frame == frame_ranged)
 				actors_list[i]->in_aim_mode = 1;
 		}
-#else
-	if(frame==frame_sit_idle)actors_list[i]->sitting=1;
-	else
-		if(frame==frame_combat_idle)actors_list[i]->fighting=1;
-#endif
 	//ghost or not?
 	actors_list[i]->ghost=actors_defs[actor_type].ghost;
 

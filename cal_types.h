@@ -62,7 +62,6 @@ enum {
 	cal_actor_attack_down_8_frame = 36,
 	cal_actor_attack_down_9_frame = 37,
 	cal_actor_attack_down_10_frame = 38,
-#ifdef MORE_ATTACHED_ACTORS
 	cal_actor_in_combat_held_frame = 39,
 	cal_actor_out_combat_held_frame = 40,
 	cal_actor_combat_idle_held_frame = 41,
@@ -92,11 +91,6 @@ enum {
 	cal_actor_out_combat_held_unarmed_frame = 65,
 	cal_actor_combat_idle_held_unarmed_frame = 66,
 		NUM_ACTOR_FRAMES = 67
-#else
-	cal_actor_turn_left_frame=39,
-	cal_actor_turn_right_frame=40,
-	NUM_ACTOR_FRAMES = 41,
-#endif
 	
 };
 
@@ -126,7 +120,6 @@ enum {
 	cal_weapon_range_idle_frame = 22,
 	cal_weapon_range_fire_frame = 23,
 	cal_weapon_range_fire_out_frame = 24,
-#ifdef MORE_ATTACHED_ACTORS
 	//frames for held actors
 	cal_weapon_range_in_held_frame = 25,
 	cal_weapon_range_out_held_frame = 26,
@@ -154,14 +147,9 @@ enum {
 	cal_weapon_attack_down_9_held_frame = 48,
 	cal_weapon_attack_down_10_held_frame = 49,
 	NUM_WEAPON_FRAMES = 50
-#else
-	NUM_WEAPON_FRAMES = 25
-#endif
 };
 
-#ifdef EMOTES
 #define EMOTES_FRAMES 100
-#endif
 
 
 enum {
@@ -169,12 +157,8 @@ enum {
 	cal_attached_run_frame = 1, /*!< run animation to use for the held actor */
 	cal_attached_idle_frame = 2, /*!< idle animation to use for the held actor */
 	cal_attached_pain_frame = 3, /*!< pain animation to use for the held actor */
-#ifdef MORE_ATTACHED_ACTORS
 	cal_attached_pain_armed_frame = 4,
 	NUM_ATTACHED_ACTOR_FRAMES = 5
-#else
-	NUM_ATTACHED_ACTOR_FRAMES = 4
-#endif
 };
 
 #ifdef __cplusplus

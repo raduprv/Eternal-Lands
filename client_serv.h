@@ -261,14 +261,12 @@ extern "C" {
 #define KIND_OF_LEG_ARMOR 4
 #define KIND_OF_BODY_ARMOR 5
 #define KIND_OF_BOOT_ARMOR 6
-#ifdef NECK_ITEMS
 #define KIND_OF_NECK 7
 
 //NECK ITEMS CODES
 #define NECK_NONE 0
 
 
-#endif
 /*! @} */
 
 
@@ -418,11 +416,9 @@ extern "C" {
 #define frame_attack_up_8 35 
 #define frame_attack_up_9 36 
 #define frame_attack_up_10 37
-#ifdef EMOTES
 //frame values for poses (40 different poses)
 #define frame_poses_start 100
 #define frame_poses_end 140
-#endif
 /*! @} */
 
 /*!

@@ -96,7 +96,6 @@ namespace ItemLists
 		for (size_t i=0; i<ITEM_NUM_ITEMS-ITEM_NUM_WEAR; i++)
 			if (item_list[i].quantity > 0)
 			{
-#ifdef ITEM_UID
 				bool stacked_item = false;
 				if (item_list[i].id != unset_item_uid)
 					for (size_t j=0; j<item_ids.size(); j++)
@@ -112,11 +111,6 @@ namespace ItemLists
 					item_ids.push_back(item_list[i].id);
 					quantities.push_back(item_list[i].quantity);
 				}
-#else
-				image_ids.push_back(item_list[i].image_id);
-				item_ids.push_back(unset_item_uid);
-				quantities.push_back(item_list[i].quantity);
-#endif
 			}
 		if (quantities.empty())
 			return false;
@@ -771,17 +765,10 @@ static int click_preview_handler(window_info *win, int mx, int my, Uint32 flags)
 	// If dragging item and ctrl+left-click on window, add item to list
 	if ((flags & ELW_LEFT_MOUSE) && (flags & ELW_CTRL) && was_dragging)
 	{
-#ifdef ITEM_UID
 		if (storage_item_dragged != -1)
 			ItemLists::Vars::lists()->add_item(storage_items[storage_item_dragged].image_id, storage_items[storage_item_dragged].id, item_quantity);
 		else if (item_dragged != -1)
 			ItemLists::Vars::lists()->add_item(item_list[item_dragged].image_id, item_list[item_dragged].id, item_quantity);
-#else
-		if (storage_item_dragged != -1)
-			ItemLists::Vars::lists()->add_item(storage_items[storage_item_dragged].image_id, unset_item_uid, item_quantity);
-		else if (item_dragged != -1)
-			ItemLists::Vars::lists()->add_item(item_list[item_dragged].image_id, unset_item_uid, item_quantity);
-#endif
 		last_mod_time = SDL_GetTicks();
 		return 1;
 	}

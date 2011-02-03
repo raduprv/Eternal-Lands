@@ -15,9 +15,7 @@
 #include "hud.h"
 #include "init.h"
 #include "interface.h"
-#ifdef ITEM_LISTS
 #include "item_lists.h"
-#endif
 #include "manufacture.h"
 #include "misc.h"
 #include "multiplayer.h"
@@ -76,23 +74,16 @@ int quantity_y_offset=185;
 int use_small_items_window = 0;
 int manual_size_items_window = 0;
 
-#ifdef ITEM_UID			
 int item_uid_enabled = 0;
-#endif
 const Uint16 unset_item_uid = (Uint16)-1;
 
 #define NUMBUT 4
 #define XLENBUT 29
 #define YLENBUT 33
-#ifdef ITEM_LISTS
 #undef NUMBUT
 #define NUMBUT 5
 static int but_y_off[NUMBUT] = { 0, YLENBUT, YLENBUT*2, YLENBUT*3, YLENBUT*4 };
 enum { BUT_STORE, BUT_GET, BUT_DROP, BUT_MIX, BUT_ITEM_LIST };
-#else
-static int but_y_off[NUMBUT] = { 0, YLENBUT, YLENBUT*2, YLENBUT*3 };
-enum { BUT_STORE, BUT_GET, BUT_DROP, BUT_MIX };
-#endif //ITEM_LISTS
 int items_mix_but_all = 0;
 int items_stoall_nofirstrow = 0;
 int items_stoall_nolastrow = 0;
@@ -292,11 +283,9 @@ void get_your_items (const Uint8 *data)
 	int i,total_items,pos,len;
 	Uint8 flags;
 
-#ifdef ITEM_UID
 	if (item_uid_enabled)
 		len=10;
 	else
-#endif
 		len=8;
 
 	//data[0] -> num_items
@@ -329,12 +318,10 @@ void get_your_items (const Uint8 *data)
 		item_list[pos].action_time = 0;
 #endif // NEW_SOUND
 		flags=data[i*len+1+7];
-#ifdef ITEM_UID
 		if (item_uid_enabled)
 			item_list[pos].id=SDL_SwapLE16(*((Uint16 *)(data+i*len+1+8)));
 		else
 			item_list[pos].id=unset_item_uid;
-#endif
 		item_list[pos].is_resource=((flags&ITEM_RESOURCE)>0);
 		item_list[pos].is_reagent=((flags&ITEM_REAGENT)>0);
 		item_list[pos].use_with_inventory=((flags&ITEM_INVENTORY_USABLE)>0);
@@ -419,14 +406,12 @@ void get_new_inventory_item (const Uint8 *data)
 	Uint8 flags;
 	int quantity;
 	int image_id;
-#ifdef ITEM_UID			
 	Uint16 id;
 
 	if (item_uid_enabled)
 		id=SDL_SwapLE16(*((Uint16 *)(data+8)));
 	else
 		id=unset_item_uid;
-#endif
 
 	pos= data[6];
 	flags= data[7];
@@ -445,9 +430,7 @@ void get_new_inventory_item (const Uint8 *data)
 	item_list[pos].quantity=quantity;
 	item_list[pos].image_id=image_id;
 	item_list[pos].pos=pos;
-#ifdef ITEM_UID			
 	item_list[pos].id=id;
-#endif
 	item_list[pos].is_resource=((flags&ITEM_RESOURCE)>0);
 	item_list[pos].is_reagent=((flags&ITEM_REAGENT)>0);
 	item_list[pos].use_with_inventory=((flags&ITEM_INVENTORY_USABLE)>0);
@@ -492,14 +475,10 @@ int display_items_handler(window_info *win)
 	int x,y,i;
 	int item_is_weared=0;
 	Uint32 _cur_time = SDL_GetTicks(); /* grab a snapshot of current time */
-#ifdef ITEM_LISTS
 	char *but_labels[NUMBUT] = { sto_all_str, get_all_str, drp_all_str, NULL, itm_lst_str };
 
 	if (show_item_list_menu && (cm_window_shown() == CM_INIT_VALUE))
 		show_items_list_window(1);
-#else
-	char *but_labels[NUMBUT] = { sto_all_str, get_all_str, drp_all_str, NULL };	
-#endif //ITEM_LISTS
 
 	glEnable(GL_TEXTURE_2D);
 
@@ -695,11 +674,7 @@ int display_items_handler(window_info *win)
 	
 	// display help text for button if mouse over one
 	if ((mouse_over_but != -1) && show_help_text) {
-#ifdef ITEM_LISTS
 		char *helpstr[NUMBUT] = { stoall_help_str, getall_help_str, ((disable_double_click) ?drpall_help_str :dcdrpall_help_str), mixoneall_help_str, itmlst_help_str };
-#else
-		char *helpstr[NUMBUT] = { stoall_help_str, getall_help_str, ((disable_double_click) ?drpall_help_str :dcdrpall_help_str), mixoneall_help_str };
-#endif //ITEM_LISTS
 		show_help(helpstr[mouse_over_but], 0, quantity_y_offset+30);
 	}
 	
@@ -1041,11 +1016,9 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			mix_handler(1, mixbut_empty_str);
 	}
 
-#ifdef ITEM_LISTS
 	// Item List button
 	else if (over_button(win, mx, my)==BUT_ITEM_LIST)
 		show_items_list_window(0);
-#endif //ITEM_LISTS
 
 	//see if we clicked on any item in the wear category
 	else if(mx>wear_items_x_offset && mx<wear_items_x_offset+2*33 &&
@@ -1254,9 +1227,7 @@ int show_items_handler(window_info * win)
 	cm_add_region(cm_getall_but, items_win, win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[1], XLENBUT, YLENBUT);
 	cm_add_region(cm_dropall_but, items_win, win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[2], XLENBUT, YLENBUT);
 	cm_add_region(cm_mix_but, items_win, win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[3], XLENBUT, YLENBUT);
-#ifdef ITEM_LISTS
 	cm_add_region(cm_item_list_options_but, items_win, win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[4], XLENBUT, YLENBUT);
-#endif //ITEM_LISTS
 
 	/* make sure we redraw any string */
 	last_items_string_id = 0;
@@ -1316,9 +1287,7 @@ void display_items_menu()
 		cm_bool_line(cm_getall_but, 0, &items_auto_get_all, NULL);
 
 
-#ifdef ITEM_LISTS
 		setup_item_list_menus();
-#endif //ITEM_LISTS
 
 		show_items_handler(&windows_list.window[items_win]);
 

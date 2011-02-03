@@ -206,9 +206,7 @@ extern char 	tt_walk[30],
 		newchar_done_help[100],
 		tt_name[60],
 		tt_info[30];
-#ifdef EMOTES
 extern char	tt_emotewin[30];
-#endif
 
 
 #endif  //DOXYGEN_SKIP_THIS
@@ -256,9 +254,7 @@ extern char
 		no_spell_to_show_str[40],
 		invalid_spell_string_str[40],
 		command_too_long_str[40],
-#ifdef ITEM_LISTS
 		item_list_learn_cat_str[90],
-#endif
 		cmd_ignores[20],
 		cmd_ignore[20],
 		cmd_unignore[20],
@@ -317,9 +313,7 @@ extern char
 		sto_all_str[8],
 		get_all_str[8],
 		drp_all_str[8],
-#ifdef ITEM_LISTS
 		itm_lst_str[8],
-#endif
 		mix_one_str[8],
 		mix_all_str[8],
 		auto_get_all_str[30],
@@ -332,9 +326,7 @@ extern char
 		dcdrpall_help_str[50],
 		drpall_help_str[50],
 		mixoneall_help_str[50],
-#ifdef ITEM_LISTS
 		itmlst_help_str[50],
-#endif
 		items_stack_str[100],
 		mixbut_empty_str[80],
 		mix_empty_str[50],
@@ -449,17 +441,12 @@ extern char
 #ifdef MINIMAP2
 		cm_minimap_menu_str[50],
 #endif
-#ifdef USER_MENUS
 		cm_user_menu_str[150],
-#endif
-#ifdef USER_MENUS
 		/* user_menus.cpp */
 		um_invalid_command_str[50],
 		um_invalid_line_str[50],
 		um_no_menus_str[50],
 		um_window_title_str[50],
-#endif
-#ifdef NEW_QUESTLOG
 		/* quest_log.cpp */
 		cm_questlog_menu_str[400],
 		cm_questlist_menu_str[150],
@@ -473,8 +460,6 @@ extern char
 		questlog_deldupe_start_str[50],
 		questlog_deldupe_end_str[75],
 		questlog_deleted_str[20],
-#endif
-#ifdef ITEM_LISTS
 		/* item lists */
 		cm_item_list_menu_str[100],
 		cm_item_list_empty_str[15],
@@ -484,7 +469,6 @@ extern char
 		item_list_edit_help_str[40],
 		item_list_add_help_str[40],
 		item_list_magic_str[80],
-#endif
 		/* new_character.c */
 		use_appropriate_name[500];
 #endif  //DOXYGEN_SKIP_THIS
@@ -676,14 +660,12 @@ extern char	reg_error_str[15],
 		error_helmet[15],
 		error_cape[15],
 		duplicate_npc_actor[50],
-#ifdef ITEM_LISTS
 		/* item lists */
 		item_list_format_error[50],
 		item_list_save_error_str[50],
 		item_list_cat_format_error_str[50],
 		item_list_version_error_str[70],
 		item_list_empty_list_str[50],
-#endif
 #endif  // ELC
 		/*particles.c*/
 		particles_filever_wrong[100],
@@ -805,11 +787,9 @@ extern char	win_notepad[20],
 		tab_counters[20],
 		tab_session[20],
 		tab_main[20],
-#ifdef ITEM_LISTS
 		item_list_name_str[30],
 		item_list_preview_title[30],
 		item_list_quantity_str[20],
-#endif
 		button_okay[10],
 		button_cancel[10],
 		button_new_category[30],

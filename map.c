@@ -42,9 +42,6 @@
 #include "sky.h"
 #endif // SKY_FPV
 #include "mines.h"
-#ifdef NEW_LIGHTING
- #include "textures.h"
-#endif
 #include "highlight.h"
 
 int map_type=1;
@@ -205,9 +202,6 @@ static int el_load_map(const char * file_name)
 		// the map failed...
 		return ret;
 
-#if NEW_LIGHTING
-	set_scene_metadata(file_name);
-#endif
 
 #ifdef SKY_FPV
 	if (strstr(file_name, "underworld") != NULL)

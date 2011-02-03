@@ -24,16 +24,6 @@ FEATURES += VARIABLE_SPEED                  # allow to change the moving speed o
 FEATURES += ZLIB                            # Enables being able to read gzip compressed files, requires -lzlib/-lz
 # new for 1.9.0 release
 FEATURES += BANDWIDTH_SAVINGS				# enable bandwidth saving changes for message protocol
-FEATURES += EMOTES                          # Support for additional animations parsed from local text with a seperate anim que
-FEATURES += ITEM_LISTS						# Adds the creation and use of item lists to the inventory window
-FEATURES += ITEM_UID						# Enable unique image id values from server
-FEATURES += NEW_QUESTLOG					# Enable the new questlog, rewritten with new features
-FEATURES += USER_MENUS                      # enable user command menus
-# new for 1.9.1 release
-FEATURES += MORE_ATTACHED_ACTORS			# Enable more activities on horses
-FEATURES += NECK_ITEMS						# Enables medallions/scarves
-FEATURES += LARGE_TEXTURES					# Changes player character texture size block to 512x512.
-FEATURES += ACHIEVEMENTS					# Display player achievements window when use eye cursor on player
 
 
 ### Testing options (these options are possible for the next release and should be tested) ###
@@ -41,7 +31,6 @@ FEATURES += ACHIEVEMENTS					# Display player achievements window when use eye c
 #FEATURES += DYNAMIC_ANIMATIONS              # Synchronizes animation to FPS instead of a fixed timer
 #FEATURES += EXT_ACTOR_DICT                  # Removes remaining hard-coded actor def dictionaries - requires updated actor defs files (http://el.grug.redirectme.net/actor_defs.zip)
 #FEATURES += NEW_ALPHA                       # (undocumented)
-#FEATURES += NIGHT_TEXTURES                  # enable night textures. changes textures at night to cooler colors
 #FEATURES += NEW_NEW_CHAR_WINDOW			# Use the new character creation window; controls always on-screen
 
 ### Machine specific options (fixes or performance enhancements) ###
@@ -69,7 +58,6 @@ FEATURES += ACHIEVEMENTS					# Display player achievements window when use eye c
 
 ### Other options (Experimental, unfinished, defunct or otherwise unknown) ###
 #FEATURES += NEW_CURSOR                      # New coloured cursors made by Emajekral (Experimental) Extract http://users.on.net/~gingerman/sky_cursor-textures.zip into datadir/textures/
-#FEATURES += NEW_LIGHTING                    # (undocumented)
 #FEATURES += PAWN                            # Experimental, not for release, will need server support to function properly. This *will* eat your cat. You've been warned. Enables the Pawn abstract machine.
 #FEATURES += UID                             # use unique ID sent from server for custom looks. (INCOMPLETE)
 #FEATURES += USE_ACTORS_OPTIMIZER            # Enables actor optimizations

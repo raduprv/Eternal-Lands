@@ -401,24 +401,20 @@ void put_item_on_trade (const Uint8 *data)
 		your_trade_list[pos].image_id=SDL_SwapLE16(*((Uint16 *)(data)));
 		your_trade_list[pos].quantity+=SDL_SwapLE32(*((Uint32 *)(data+2)));
 		your_trade_list[pos].type=data[6];
-#ifdef ITEM_UID
 		if (item_uid_enabled)
 			your_trade_list[pos].id=SDL_SwapLE16(*((Uint16 *)(data+9)));
 		else
 			your_trade_list[pos].id=unset_item_uid;
-#endif
 	}
 	else
 	{
 		others_trade_list[pos].image_id=SDL_SwapLE16(*((Uint16 *)(data)));
 		others_trade_list[pos].quantity+=SDL_SwapLE32(*((Uint32 *)(data+2)));
 		others_trade_list[pos].type=data[6];
-#ifdef ITEM_UID		
 		if (item_uid_enabled)
 			others_trade_list[pos].id=SDL_SwapLE16(*((Uint16 *)(data+9)));
 		else
 			others_trade_list[pos].id=unset_item_uid;
-#endif
 	}
 }
 

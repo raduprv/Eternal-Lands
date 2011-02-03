@@ -3,9 +3,7 @@
 #include <ctype.h>
 #include <time.h>
 #include "text.h"
-#ifdef ACHIEVEMENTS
 #include "achievements.h"
-#endif
 #include "actors.h"
 #include "asc.h"
 #include "buddy.h"
@@ -34,14 +32,10 @@
 #ifdef NEW_SOUND
 #include "sound.h"
 #endif // NEW_SOUND
-#ifdef EMOTES
 #include "actor_scripts.h"
 #include "emotes.h"
-#endif // EMOTES
 
-#ifdef EMOTES
 int emote_filter=0;
-#endif
 
 text_message display_text_buffer[DISPLAY_TEXT_BUFFER_SIZE];
 int last_message = -1;
@@ -299,7 +293,6 @@ void send_input_text_line (char *line, int line_len)
 	return;
 }
 
-#ifdef EMOTES
 int match_emote(emote_dict *command, actor *act, int send)
 {
 	hash_entry *match;
@@ -382,7 +375,6 @@ int parse_text_for_emote_commands(const char *text, int len)
 	return  ((ef==wf) ? (emote_filter):(0));
 
 }
-#endif // EMOTES
 
 
 /* stop or restart the harvesting eye candy effect depending on the harvesting state */
@@ -510,13 +502,11 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 	}
 #endif // SKY_FPV
 
-#ifdef EMOTES
 	// Check for local messages to be translated into actor movements (contains [somthing])
 	if (channel == CHAT_LOCAL)
 	{
 		if(parse_text_for_emote_commands(text_to_add, len)) return 0;
 	}
-#endif // EMOTES
 
 	if (channel == CHAT_SERVER) {
 		if (my_strncompare(text_to_add+1, "You started to harvest ", 23)) {
@@ -540,7 +530,6 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		else if (my_strncompare(text_to_add+1, "You found ", 10) && strstr(text_to_add+1, " coins.")) {
 			decrement_harvest_counter(atoi(text_to_add+11));
 		} 
-#ifdef ITEM_UID
 		else if (my_strncompare(text_to_add+1, "Send Item UIDs ", 15)) {
 			if (text_to_add[1+15] == '0')
 				item_uid_enabled = 0;
@@ -548,17 +537,14 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 				item_uid_enabled = 1;
 			printf("item_uid_enabled=%d\n", item_uid_enabled);
 		}
-#endif
 		else if (copy_next_LOCATE_ME && my_strncompare(text_to_add+1, "You are in ", 11)) {
 			copy_to_clipboard(text_to_add+1);
 			copy_next_LOCATE_ME = 0;
 			return 0;
 		}
-#ifdef ACHIEVEMENTS
 		else if (my_strncompare(text_to_add+1, "You see: ", 9)) {
 			achievements_player_name(text_to_add+10, len-10);
 		}
-#endif
 	} else if (channel == CHAT_LOCAL) {
 		if (harvesting && my_strncompare(text_to_add+1, username_str, strlen(username_str))) {
 			char *ptr = text_to_add+1+strlen(username_str);

@@ -21,9 +21,6 @@
 #ifdef CLUSTER_INSIDES
 #include "cluster.h"
 #endif
-#ifdef NEW_LIGHTING
-#include "lights.h"
-#endif
 
 int use_3d_alpha_blend= 1;
 Uint32 highest_obj_3d= 0;
@@ -99,14 +96,7 @@ void draw_3d_object_detail(object3d * object_id, Uint32 material_index, Uint32 u
 
 	//debug
 
-#ifdef NEW_LIGHTING
-	if (
-	    (( (use_new_lighting) && (object_id->self_lit && (!(game_minute >= 5 && game_minute < 235) || dungeon))) ||
-	    (!(use_new_lighting) && (object_id->self_lit && (!is_day || dungeon)))) && use_lightning
-	   )
-#else
 	if (object_id->self_lit && (!is_day || dungeon) && use_lightning) 
-#endif
 	{
 		glColor3fv(object_id->color);
 	}
@@ -208,20 +198,6 @@ void draw_3d_object_detail(object3d * object_id, Uint32 material_index, Uint32 u
 #ifdef  DEBUG
 	cur_e3d_count++;
 #endif  //DEBUG
-#ifdef NEW_LIGHTING
-	if (use_new_lighting && (!object_id->material_set) && use_lightning)
-	{
-		glMaterialfv(GL_FRONT, GL_AMBIENT, object_id->ambient);
-		glMaterialfv(GL_FRONT, GL_DIFFUSE, object_id->diffuse);
-		glMaterialfv(GL_FRONT, GL_SPECULAR, object_id->specular);
-		glMaterialfv(GL_FRONT, GL_EMISSION, object_id->emission);
-		glMaterialf(GL_FRONT, GL_SHININESS, object_id->shininess);
-	}
-	else if (use_new_lighting && use_lightning)
-	{
-		set_material_defaults();
-	}
-#endif
 
 	if (use_textures)
 	{
@@ -233,16 +209,6 @@ void draw_3d_object_detail(object3d * object_id, Uint32 material_index, Uint32 u
 		glDisable(GL_TEXTURE_2D);		
 	}
 
-#ifdef NEW_LIGHTING
-	if (use_new_lighting && object_id->material_set && use_lightning)
-	{
-		glMaterialfv(GL_FRONT, GL_AMBIENT, object_id->ambient);
-		glMaterialfv(GL_FRONT, GL_DIFFUSE, object_id->diffuse);
-		glMaterialfv(GL_FRONT, GL_SPECULAR, object_id->specular);
-		glMaterialfv(GL_FRONT, GL_EMISSION, object_id->emission);
-		glMaterialf(GL_FRONT, GL_SHININESS, object_id->shininess);
-	}
-#endif
 
 	if (use_draw_range_elements && ELglDrawRangeElementsEXT)
 		ELglDrawRangeElementsEXT(GL_TRIANGLES,
@@ -318,14 +284,7 @@ void draw_3d_objects(unsigned int object_type)
 	is_transparent= is_alpha_3d_object(object_type);
 	is_ground= is_ground_3d_object(object_type);
 	// set the modes we need
-#ifdef NEW_LIGHTING
-	if (
-	    ( (use_new_lighting) && (is_selflit && (!(game_minute >= 5 && game_minute < 235) || dungeon))) ||
-	    (!(use_new_lighting) && (is_selflit && (!is_day || dungeon)))
-	   )
-#else
 	if (is_selflit && (!is_day || dungeon)) 
-#endif
 	{
 		glDisable(GL_LIGHTING);
 	}
@@ -406,14 +365,7 @@ void draw_3d_objects(unsigned int object_type)
 	disable_buffer_arrays();
 
 	// restore the settings
-#ifdef NEW_LIGHTING
-	if (
-	    ( (use_new_lighting) && (is_selflit && (!(game_minute >= 5 && game_minute < 235) || dungeon))) ||
-	    (!(use_new_lighting) && (is_selflit && (!is_day || dungeon)))
-	   )
-#else
 	if (is_selflit && (!is_day || dungeon)) 
-#endif
 	{
 		glEnable(GL_LIGHTING);
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -551,9 +503,6 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 
 	our_object->flags = 0;
 
-#ifdef NEW_LIGHTING
-	set_model_metadata(our_object);
-#endif
 
 	for(i = 0; i < sizeof(harvestable_objects)/sizeof(harvestable_objects[0]); i++) {
 		if(*harvestable_objects[i] && strstr(file_name, harvestable_objects[i]) != NULL) {

@@ -46,9 +46,7 @@ char	tt_walk[30],
 	newchar_done_help[100],
 	tt_name[60],
 	tt_info[30];
-#ifdef EMOTES
 char	tt_emotewin[30];
-#endif
 
 #endif // ELC
 
@@ -173,9 +171,7 @@ char
 	sto_all_str[8],
 	get_all_str[8],
 	drp_all_str[8],
-#ifdef ITEM_LISTS
 	itm_lst_str[8],
-#endif
 	mix_one_str[8],
 	mix_all_str[8],
 	auto_get_all_str[30],
@@ -187,9 +183,7 @@ char
 	getall_help_str[50],
 	dcdrpall_help_str[50],
 	drpall_help_str[50],
-#ifdef ITEM_LISTS
 	itmlst_help_str[50],
-#endif
 	mixoneall_help_str[50],
 	items_stack_str[100],
 	mixbut_empty_str[80],
@@ -299,22 +293,15 @@ char
 #ifdef MINIMAP2
 	cm_minimap_menu_str[50],
 #endif
-#ifdef USER_MENUS
 	cm_user_menu_str[150],
-#endif
-#ifdef ITEM_LISTS
 	cm_item_list_menu_str[100],
 	cm_item_list_empty_str[15],
 	cm_item_list_selected_str[40],
-#endif
-#ifdef USER_MENUS
 	/* user_menus.cpp */
 	um_invalid_command_str[50],
 	um_invalid_line_str[50],
 	um_no_menus_str[50],
 	um_window_title_str[50],
-#endif
-#ifdef NEW_QUESTLOG
 	/* quest_log.cpp */
 	cm_questlog_menu_str[400],
 	cm_questlist_menu_str[150],
@@ -328,17 +315,14 @@ char
 	questlog_deldupe_start_str[50],
 	questlog_deldupe_end_str[75],
 	questlog_deleted_str[20],
-#endif
 	/* new_character.c */
 	use_appropriate_name[500],
 #endif
-#ifdef ITEM_LISTS
 	item_list_use_help_str[40],
 	item_list_pickup_help_str[40],
 	item_list_edit_help_str[40],
 	item_list_add_help_str[40],
 	item_list_magic_str[80];
-#endif
 /*! \} */
 
 #ifdef ELC
@@ -396,9 +380,7 @@ char	name_too_long[75],
 	no_spell_to_show_str[40],
 	invalid_spell_string_str[40],
 	command_too_long_str[40],
-#ifdef ITEM_LISTS
 	item_list_learn_cat_str[90],
-#endif
 	cmd_ignores[20],
 	cmd_ignore[20],
 	cmd_unignore[20],
@@ -574,14 +556,12 @@ char	reg_error_str[15],
 	duplicate_npc_actor[50],
 	duplicate_actors_str[50],
 	bad_actor_name_length[50],
-#ifdef ITEM_LISTS
 	/* item lists */
 	item_list_format_error[50],
 	item_list_save_error_str[50],
 	item_list_cat_format_error_str[50],
 	item_list_version_error_str[70],
 	item_list_empty_list_str[50],
-#endif
 #endif
 	/*particles.c*/
 	particles_filever_wrong[100],
@@ -705,11 +685,9 @@ char	win_notepad[20],
 	tab_counters[20],
 	tab_session[20],
 	tab_main[20],
-#ifdef ITEM_LISTS
 	item_list_name_str[30],
 	item_list_preview_title[30],
 	item_list_quantity_str[20],
-#endif
 	button_okay[10],
 	button_send[10],
 	button_cancel[10],
@@ -925,9 +903,7 @@ void init_console()
 	add_xml_identifier(misc,"no_spell_to_show",no_spell_to_show_str,"No spell to show",sizeof(no_spell_to_show_str));
 	add_xml_identifier(misc,"invalid_spell_string",invalid_spell_string_str,"Invalid spell string",sizeof(invalid_spell_string_str));
 	add_xml_identifier(misc,"command_string_too_long",command_too_long_str,"Command string too long",sizeof(command_too_long_str));
-#ifdef ITEM_LISTS
 	add_xml_identifier(misc,"item_list_learn_cat",item_list_learn_cat_str,"Note: storage categories need to be learnt by selecting each category.",sizeof(item_list_learn_cat_str));
-#endif
 
 	add_xml_identifier(loading_msg,"init_opengl",init_opengl_str,"Initializing OpenGL extensions",sizeof(init_opengl_str));
 	add_xml_identifier(loading_msg,"init_random",init_random_str,"Generating random seed",sizeof(init_random_str));
@@ -1102,14 +1078,12 @@ void init_errors()
 	add_xml_identifier (misc, "max_screenshots_warning", max_screenshots_warning_str, "You have reached the maximum capacity for screenshots. Please move them all to another folder, otherwise this image will be overwritten next time.", sizeof(max_screenshots_warning_str));
 #endif //PNG_SCREENSHOT
 
-#ifdef ITEM_LISTS
 	// item lists
 	add_xml_identifier (misc, "item_list_format_error", item_list_format_error, "Format error while reading item list.", sizeof(item_list_format_error));
 	add_xml_identifier (misc, "item_list_save_error", item_list_save_error_str, "Failed to save the item category file.", sizeof(item_list_save_error_str));
 	add_xml_identifier (misc, "item_list_cat_format_error", item_list_cat_format_error_str, "Format error reading item categories.", sizeof(item_list_cat_format_error_str));
 	add_xml_identifier (misc, "item_list_version_error", item_list_version_error_str, "Item lists file is not compatible with client version.", sizeof(item_list_version_error_str));
 	add_xml_identifier (misc, "item_list_empty_list", item_list_empty_list_str, "No point saving an empty list.", sizeof(item_list_empty_list_str));
-#endif
 
 #endif
 
@@ -1226,9 +1200,7 @@ void init_help()
 	add_xml_identifier(misc,"stoall",sto_all_str,"Sto All",sizeof(sto_all_str));
 	add_xml_identifier(misc,"getall",get_all_str,"Get All",sizeof(get_all_str));
 	add_xml_identifier(misc,"drpall",drp_all_str,"Drp All",sizeof(drp_all_str));
-#ifdef ITEM_LISTS
 	add_xml_identifier(misc,"itmlst",itm_lst_str,"Itm Lst",sizeof(itm_lst_str));
-#endif
 	add_xml_identifier(misc,"mixone",mix_one_str,"Mix One",sizeof(mix_one_str));
 	add_xml_identifier(misc,"mixall",mix_all_str,"Mix All",sizeof(mix_all_str));
 	add_xml_identifier(misc,"autogetall",auto_get_all_str,"Empty Bag Automatically",sizeof(auto_get_all_str));
@@ -1265,9 +1237,7 @@ void init_help()
 	add_xml_identifier(misc,"dcdrpall_help",dcdrpall_help_str,"Double-click to drop all items",sizeof(dcdrpall_help_str));
 	add_xml_identifier(misc,"drpall_help",drpall_help_str,"Drop all items",sizeof(drpall_help_str));
 	add_xml_identifier(misc,"mixoneall_help",mixoneall_help_str,"Mix one/all, right-click to choose",sizeof(mixoneall_help_str));
-#ifdef ITEM_LISTS
 	add_xml_identifier(misc,"itmlst_help",itmlst_help_str,"Show items list, right-click for new/delete",sizeof(itmlst_help_str));
-#endif
 	add_xml_identifier(misc,"items_stack",items_stack_str,"Client can't choose between multiple stacks, make a free slot and let the server do it!",sizeof(items_stack_str));
 	add_xml_identifier(misc,"mixbut_empty",mixbut_empty_str,"Nothing to mix, add some items using the manufacture window.",sizeof(mixbut_empty_str));
 	add_xml_identifier(misc,"mix_empty_str",mix_empty_str,"Nothing to mix, add some items.",sizeof(mix_empty_str));
@@ -1373,9 +1343,7 @@ void init_help()
 	add_xml_identifier(tooltips,"customize",tt_customize,"Customize your character",sizeof(tt_customize));
 	add_xml_identifier(tooltips,"name_pass",tt_name,"Choose name and password",sizeof(tt_name));
 	add_xml_identifier (tooltips, "info", tt_info, "View notepad/URL window", sizeof (tt_info));
-#ifdef EMOTES
 	add_xml_identifier (tooltips, "emotewin", tt_emotewin, "View Emote window", sizeof (tt_emotewin));
-#endif
 	
 	//Buddy list
 	add_xml_identifier(buddy, "name", buddy_name_str, "Name:", sizeof(buddy_name_str));
@@ -1427,25 +1395,18 @@ void init_help()
 #ifdef MINIMAP2
 	add_xml_identifier(misc, "cm_minimap_menu", cm_minimap_menu_str, "--\nRotate Minimap\nPin Minimap", sizeof(cm_minimap_menu_str));
 #endif
-#ifdef USER_MENUS
 	add_xml_identifier(misc, "cm_user_menu", cm_user_menu_str, "--\nShow Title\nDraw Border\nSmall Font\nStandard Menus\n--\nShow Commands\n--\nReload Menus\nDisable Menus", sizeof(cm_user_menu_str));
-#endif
-#ifdef ITEM_LISTS
 	add_xml_identifier(misc, "cm_item_list_menu", cm_item_list_menu_str, "Save a new list\nDisable list preview\n--\nDelete a list\n--\nReload item lists file", sizeof(cm_item_list_menu_str));
 	add_xml_identifier(misc, "cm_item_list_empty", cm_item_list_empty_str, "Empty", sizeof(cm_item_list_empty_str));
 	add_xml_identifier(misc, "cm_item_list_selected", cm_item_list_selected_str, "Edit quantity\n--\nDelete", sizeof(cm_item_list_selected_str));
-#endif
 	
-#ifdef USER_MENUS
 	/* user_menus.cpp */
 	add_xml_identifier(misc, "um_invalid_command", um_invalid_command_str, "Invalid command text", sizeof(um_invalid_command_str));
 	add_xml_identifier(misc, "um_invalid_line", um_invalid_line_str, "<Error: invalid line>", sizeof(um_invalid_line_str));
 	add_xml_identifier(misc, "um_no_menus", um_no_menus_str, "No User Menus", sizeof(um_no_menus_str));
 	add_xml_identifier(misc, "um_window_title", um_window_title_str, "User Menus", sizeof(um_window_title_str));
-#endif
 
 	/* quest_log.cpp */
-#ifdef NEW_QUESTLOG
 	add_xml_identifier(misc, "cm_questlog_menu", cm_questlog_menu_str,
 		"Show all quests & entries\nSelect quest to show...\nSelect NPCs to show...\nSelect NPCs, starting with none...\n--\n"
 		"Copy entry\nCopy all entries\nFind text...\nAdd entry...\n--\n"
@@ -1466,14 +1427,11 @@ void init_help()
 	add_xml_identifier(misc, "questlog_deldupe_start", questlog_deldupe_start_str, "Deleting duplicate quest log entries...", sizeof(questlog_deldupe_start_str));
 	add_xml_identifier(misc, "questlog_deldupe_end", questlog_deldupe_end_str, "...unique entries: %d, deleted duplicates: %d.", sizeof(questlog_deldupe_end_str));
 	add_xml_identifier(misc, "questlog_deleted", questlog_deleted_str, "(Deleted)", sizeof(questlog_deleted_str));	
-#endif
-#ifdef ITEM_LISTS
 	add_xml_identifier(misc, "item_list_use_help", item_list_use_help_str, "Use quantity - right-click", sizeof(item_list_use_help_str));	
 	add_xml_identifier(misc, "item_list_pickup_help", item_list_pickup_help_str, "Pick up - left-click", sizeof(item_list_pickup_help_str));	
 	add_xml_identifier(misc, "item_list_edit_help", item_list_edit_help_str, "Edit menu - ctrl+right-click", sizeof(item_list_edit_help_str));	
 	add_xml_identifier(misc, "item_list_add_help", item_list_add_help_str, "Add to list - ctrl+left-click", sizeof(item_list_add_help_str));	
 	add_xml_identifier(misc, "item_list_magic", item_list_magic_str, "Magical interference caused the list preview to close O.O", sizeof(item_list_magic_str));	
-#endif
 }
 #endif
 
@@ -1628,11 +1586,9 @@ void init_titles ()
 	add_xml_identifier (titles_str, "l_mark_filter", label_mark_filter, "Mark filter", sizeof(label_mark_filter));
 	add_xml_identifier (titles_str, "game_version", game_version_str, "Eternal Lands Version %d.%d.%d%s", sizeof(game_version_str));
 	add_xml_identifier (titles_str, "b_send", button_send, "Send", sizeof(button_send));
-#ifdef ITEM_LISTS
 	add_xml_identifier (titles_str, "item_list_name", item_list_name_str, "Enter list name", sizeof(item_list_name_str));
 	add_xml_identifier (titles_str, "item_list_preview", item_list_preview_title, "List preview", sizeof(item_list_preview_title));
 	add_xml_identifier (titles_str, "item_list_quantity", item_list_quantity_str, "Quantity", sizeof(item_list_quantity_str));
-#endif
 }
 #endif // ELC
 

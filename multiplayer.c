@@ -6,9 +6,7 @@
 #include "asc.h"
 #include "actors.h"
 #include "actor_scripts.h"
-#ifdef ACHIEVEMENTS
 #include "achievements.h"
-#endif
 #include "books.h"
 #include "buddy.h"
 #include "buffs.h"
@@ -527,7 +525,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 						display_server_popup_win((char*)text_buf);
 					else
 						put_text_in_buffer (in_data[3], text_buf, len);
-#ifdef NEW_QUESTLOG
 					// if we're expecting a quest entry, this will be it
 					if (waiting_for_questlog_entry())
 					{
@@ -538,7 +535,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 						safe_strncpy2((char *)npc_name, cur_npc_name, sizeof(npc_name), sizeof(npc_name));
 						free(cur_npc_name);
 					}
-#endif
 				}
 
 				// for all other messages do filtering, ignoring and counters checking etc
@@ -593,7 +589,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				}
 			}
 			break;
-#ifdef EMOTES
 		case ADD_ACTOR_ANIMATION:
 			{
 #ifdef EXTRA_DEBUG
@@ -607,7 +602,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				}
 			}
 			break;
-#endif
 		case REMOVE_ACTOR:
 			{
 #ifdef EXTRA_DEBUG
@@ -764,7 +758,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  break;
 				}
 				items = in_data[3];
-#ifdef ITEM_UID
 				if (data_length - 4  == items * 8 )
 				{
 					item_uid_enabled = 0;
@@ -776,7 +769,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					plen = 10;
 				}
 				else
-#endif
 				plen = 8;
 
 				if (data_length - 4 != items * plen)
@@ -793,11 +785,9 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 		case GET_NEW_INVENTORY_ITEM:
 			{
 				int plen;
-#ifdef	ITEM_UID
 				if (item_uid_enabled)
 					plen=10;
 				else
-#endif			
 					plen=8;
 				
 				// allow for multiple packets in a row
@@ -1330,14 +1320,12 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					safe_strncpy2((char*)text_buf, (char*)&in_data[4], sizeof(text_buf), data_length - 4);
 					add_questlog ((char*)text_buf, strlen((char*)text_buf));
 				}
-#ifdef NEW_QUESTLOG
 				// if we're expecting a quest entry, this will be it
 				else if (waiting_for_questlog_entry())
 				{
 					safe_strncpy2((char*)text_buf, (char*)&in_data[3], sizeof(text_buf), data_length - 3);
 					add_questlog ((char*)text_buf, strlen((char*)text_buf));
 				}
-#endif
 			}
 			break;
 
@@ -1400,11 +1388,9 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			{
 				int items;
 				int plen;
-#ifdef	ITEM_UID
 				if (item_uid_enabled)
 					plen=10;
 				else
-#endif			
 					plen=8;
 
 				if (data_length <= 3)
@@ -1425,11 +1411,9 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 		case GET_TRADE_OBJECT:
 			{
 				int plen;
-#ifdef	ITEM_UID
 				if (item_uid_enabled)
 					plen=10;
 				else
-#endif			
 					plen=8;		
 			
 				if (data_length <= 3+plen)
@@ -2025,7 +2009,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			load_map_marks();//load again, so the new marker is removed correctly.
 			break;
 			}
-#ifdef NEW_QUESTLOG
 		case NEXT_NPC_MESSAGE_IS_QUEST:
 			{
 				if (data_length <= 4)
@@ -2056,8 +2039,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				set_quest_finished(SDL_SwapLE16(*((short *)(in_data+3))));
 				break;
 			}
-#endif // NEW_QUESTLOG
-#ifdef ACHIEVEMENTS
 		case SEND_ACHIEVEMENTS:
 			{
 				Uint32 *achievement_data = NULL;
@@ -2075,7 +2056,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				free(achievement_data);
 			}
 			break;
-#endif // ACHIEVEMENTS
 		default:
 			{
 				// Unknown packet type??

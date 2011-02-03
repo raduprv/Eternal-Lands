@@ -129,7 +129,6 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 
 	//clear the que
 	for(k=0; k<MAX_CMD_QUEUE; k++)	our_actor->que[k]=nothing;
-#ifdef EMOTES
 	for(k=0;k<MAX_EMOTE_QUEUE;k++)	{
 		our_actor->emote_que[k].emote=NULL;
 		our_actor->emote_que[k].origin=NO_EMOTE;
@@ -142,7 +141,6 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	our_actor->cur_emote_sound_cookie=0;
 
 
-#endif
 
 //	our_actor->model_data=0;
 	our_actor->stand_idle=0;
@@ -260,7 +258,6 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 								actors_list[i]->body_parts->helmet_meshindex = -1;
 								return;
 							}
-#ifdef NECK_ITEMS
 						if(which_part==KIND_OF_NECK)
 							{
 					     		model_detach_mesh(actors_list[i], actors_list[i]->body_parts->neck_meshindex);
@@ -269,7 +266,6 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 								return;
 							}
 
-#endif
 
 						return;
 					}
@@ -450,9 +446,6 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #endif
 								model_attach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].cape[which_id].mesh_index);
 								actors_list[i]->body_parts->cape_meshindex=actors_defs[actors_list[i]->actor_type].cape[which_id].mesh_index;
-#ifdef NEW_LIGHTING
-								actors_list[i]->cape=which_id;
-#endif
 							}
 
 						else if (which_part==KIND_OF_HELMET)
@@ -463,11 +456,7 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #endif
 								model_attach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].helmet[which_id].mesh_index);
 								actors_list[i]->body_parts->helmet_meshindex=actors_defs[actors_list[i]->actor_type].helmet[which_id].mesh_index;
-#ifdef NEW_LIGHTING
-								actors_list[i]->helmet=which_id;
-#endif
 							}
-#ifdef NECK_ITEMS
 						else if (which_part==KIND_OF_NECK)
 							{
 								assert(!"Using old client data" || actors_defs[actors_list[i]->actor_type].neck != NULL);
@@ -479,7 +468,6 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								actors_list[i]->body_parts->neck_meshindex=actors_defs[actors_list[i]->actor_type].neck[which_id].mesh_index;
 							}
 
-#endif //NECK_ITEMS
 						else if (which_part==KIND_OF_BODY_ARMOR)
 							{
 								my_strcp(actors_list[i]->body_parts->arms_tex,actors_defs[actors_list[i]->actor_type].shirt[which_id].arms_name);
@@ -497,9 +485,6 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 									model_detach_mesh(actors_list[i], actors_list[i]->body_parts->torso_meshindex);
 									model_attach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].shirt[which_id].mesh_index);
 									actors_list[i]->body_parts->torso_meshindex=actors_defs[actors_list[i]->actor_type].shirt[which_id].mesh_index;
-#ifdef NEW_LIGHTING
-									actors_list[i]->shirt=which_id;
-#endif
 								}
 							}
 						else if (which_part==KIND_OF_LEG_ARMOR)
@@ -515,9 +500,6 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 									model_detach_mesh(actors_list[i], actors_list[i]->body_parts->legs_meshindex);
 									model_attach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].legs[which_id].mesh_index);
 									actors_list[i]->body_parts->legs_meshindex=actors_defs[actors_list[i]->actor_type].legs[which_id].mesh_index;
-#ifdef NEW_LIGHTING
-									actors_list[i]->legs=which_id;
-#endif
 								}
 							}
 
@@ -528,9 +510,6 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #ifdef CUSTOM_LOOK
 								custom_path(actors_list[i]->body_parts->boots_tex, playerpath, guildpath);
 								custom_path(actors_list[i]->body_parts->boots_mask, playerpath, guildpath);
-#endif
-#ifdef NEW_LIGHTING
-								actors_list[i]->boots=which_id;
 #endif
 							}
 						else return;
@@ -564,9 +543,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	Uint8 shield;
 	Uint8 weapon;
 	Uint8 helmet;
-#ifdef NECK_ITEMS
 	Uint8 neck;
-#endif
 	int i;
 	int dead=0;
 	int kind_of_actor;
@@ -580,9 +557,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	Uint32 guild_id;
 	double f_x_pos,f_y_pos,f_z_rot;
 	float   scale=1.0f;
-#ifdef EMOTES
 	emote_data *pose=NULL;
-#endif
 	int attachment_type = -1;
 
 #ifdef EXTRA_DEBUG
@@ -636,10 +611,8 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 		if(len > 28+(int)strlen(in_data+28)+3)
 			attachment_type = (unsigned char)in_data[28+strlen(in_data+28)+3];
 	}
-#ifdef NECK_ITEMS
 	//the last byte of the packet even if scale+attachment is not sent
 	neck=*(in_data+len-1);
-#endif
 
 	
 #endif
@@ -694,7 +667,6 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	case frame_combat_idle:
 		break;
 	default:
-#ifdef EMOTES
 		if(frame>=frame_poses_start&&frame<=frame_poses_end) {
 			//we have a pose, get it! (frame is the emote_id)
 			hash_entry *he;
@@ -703,7 +675,6 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			else pose = he->item;
 			break;
 		}
-#endif
 #ifdef UID
 		log_error("%s %d - %s\n", unknown_frame, frame, &in_data[32]);
 #else
@@ -927,7 +898,6 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			my_strncp(this_actor->helmet_tex,"",sizeof(this_actor->helmet_tex));
 		}
 
-#ifdef NECK_ITEMS
 	//neck
 	if(neck!=NECK_NONE)
 		{
@@ -942,7 +912,6 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			my_strncp(this_actor->neck_tex,"",sizeof(this_actor->neck_tex));
 		}
 
-#endif //NECK_ITEMS
 
 	i=add_enhanced_actor(this_actor,f_x_pos,f_y_pos,0.0,f_z_rot,scale,actor_id);
 
@@ -975,7 +944,6 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 #endif // VARIABLE_SPEED
 
     actors_list[i]->z_pos = get_actor_z(actors_list[i]);
-#ifdef EMOTES
 	if(frame==frame_sit_idle||(pose!=NULL&&pose->pose==EMOTE_SITTING)){ //sitting pose sent by the server
 			actors_list[i]->poses[EMOTE_SITTING]=pose;
 			if(actors_list[i]->actor_id==yourself)you_sit_down();
@@ -1001,21 +969,6 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			else if (frame == frame_ranged)
 				actors_list[i]->in_aim_mode = 1;
 		}
-#else
-	if(frame==frame_sit_idle)
-		{
-			if(actors_list[i]->actor_id==yourself)you_sit_down();
-			actors_list[i]->sitting=1;
-		}
-	else
-		{
-			if(actors_list[i]->actor_id==yourself)you_stand_up();
-			if(frame==frame_combat_idle)
-				actors_list[i]->fighting=1;
-			else if (frame == frame_ranged)
-				actors_list[i]->in_aim_mode = 1;
-		}
-#endif
 	//ghost or not?
 	actors_list[i]->ghost=actors_defs[actor_type].ghost;
 
@@ -1050,12 +1003,6 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 		}
 	}
 
-#ifdef NEW_LIGHTING
-	actors_list[i]->head = head;
-	actors_list[i]->helmet = helmet;
-	actors_list[i]->cape = cape;
-	actors_list[i]->legs = pants;
-#endif
 
 	if (attachment_type >= 0 &&attachment_type < 255) //255 is not necessary, but it suppresses a warning in errorlog
 		add_actor_attachment(actor_id, attachment_type);
@@ -1078,11 +1025,9 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			if (helmet!=HELMET_NONE) model_attach_mesh(actors_list[i], actors_defs[actor_type].helmet[helmet].mesh_index);
 			if (weapon!=WEAPON_NONE) model_attach_mesh(actors_list[i], actors_defs[actor_type].weapon[weapon].mesh_index);
 			if (shield!=SHIELD_NONE) model_attach_mesh(actors_list[i], actors_defs[actor_type].shield[shield].mesh_index);
-#ifdef NECK_ITEMS
 			assert(!"Using old client data" || actors_defs[actor_type].neck != NULL);
 			if (neck!=NECK_NONE) model_attach_mesh(actors_list[i], actors_defs[actor_type].neck[neck].mesh_index);
 			actors_list[i]->body_parts->neck_meshindex=actors_defs[actor_type].neck[neck].mesh_index;
-#endif
 			actors_list[i]->body_parts->helmet_meshindex=actors_defs[actor_type].helmet[helmet].mesh_index;
 			actors_list[i]->body_parts->cape_meshindex=actors_defs[actor_type].cape[cape].mesh_index;
 			actors_list[i]->body_parts->shield_meshindex=actors_defs[actor_type].shield[shield].mesh_index;
@@ -1177,7 +1122,6 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 		//actor_wear_item(actors_list[i]->actor_id,KIND_OF_HELMET,HELMET_IRON);
 	}*/
 
-#ifdef MORE_ATTACHED_ACTORS
 	if(frame==frame_combat_idle) {
 		//if fighting turn the horse and the fighter
 			actors_list[i]->fighting=1;
@@ -1187,7 +1131,6 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 				if(ACTOR_WEAPON(i)->turn_horse) rotate_actor_and_horse(i,-1);
 			}
 	}
-#endif
 
 
     if (actor_id == yourself) {
@@ -1248,10 +1191,8 @@ actor * add_actor_interface(float x, float y, float z_rot, float scale, int acto
 			a->body_parts->legs_meshindex=actors_defs[actor_type].legs[pants].mesh_index;
 			a->body_parts->head_meshindex=actors_defs[actor_type].head[head].mesh_index;
 
-#ifdef NECK_ITEMS
 			assert(!"Using old client data" || actors_defs[actor_type].neck != NULL);
 			a->body_parts->neck_meshindex=actors_defs[actor_type].neck[NECK_NONE].mesh_index;
-#endif
 			a->body_parts->helmet_meshindex=actors_defs[actor_type].helmet[HELMET_NONE].mesh_index;
 			a->body_parts->cape_meshindex=actors_defs[actor_type].cape[CAPE_NONE].mesh_index;
 			a->body_parts->shield_meshindex=actors_defs[actor_type].shield[SHIELD_NONE].mesh_index;

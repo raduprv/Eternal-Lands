@@ -82,7 +82,6 @@ void close_storagewin();
  */
 void display_storage_menu();
 
-#ifdef ITEM_LISTS
 /*!
  * \ingroup storage_window
  * \brief Pick-up the specified item.
@@ -96,7 +95,6 @@ void display_storage_menu();
  * \callgraph
  */
 void pickup_storage_item(int image_id, Uint16 item_id, int cat_id);
-#endif
 
 #ifdef __cplusplus
 } // extern "C"

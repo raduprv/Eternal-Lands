@@ -1,7 +1,6 @@
 #ifndef ITEM_LIST_H
 #define ITEM_LIST_H
 
-#ifdef ITEM_LISTS
 #include "context_menu.h"
 
 #ifdef __cplusplus
@@ -27,6 +26,5 @@ void save_category_maps(void);
 }
 #endif
 
-#endif // ITEM_LISTS
 
 #endif

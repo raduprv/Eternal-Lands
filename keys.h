@@ -90,9 +90,7 @@ extern Uint32 K_PASTE_ALT;          /*!< alternative key used to copy text from 
 #ifdef ECDEBUGWIN
 extern Uint32 K_ECDEBUGWIN;         /*!< open Eye Candy debug window */
 #endif /* ECDEBUGWIN */
-#ifdef EMOTES
 extern Uint32 K_EMOTES;    /*!< key used to toggle display of \ref emotes_window */
-#endif
 /*! @} */
 
 /*! \name Quickbar access keys */

@@ -18,9 +18,7 @@ extern "C" {
  */
 typedef struct
 {
-#ifdef ITEM_UID			
 	Uint16 id; /*!< server id of this item */
-#endif
 	int image_id; /*!< id of the image for this item */
 	int pos;
 	int quantity;
@@ -120,9 +118,7 @@ extern int items_dropall_nolastrow;
 
 extern int items_auto_get_all;
 
-#ifdef ITEM_UID			
 extern int item_uid_enabled;
-#endif
 extern const Uint16 unset_item_uid;
 
 #ifdef NEW_SOUND

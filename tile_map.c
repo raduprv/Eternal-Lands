@@ -14,9 +14,6 @@
 #ifdef CLUSTER_INSIDES_OLD
 #include "cluster.h"
 #endif
-#ifdef NEW_LIGHTING
-#include "lights.h"
-#endif
 
 #ifdef MAP_EDITOR2
 img_struct map_tiles[256];
@@ -143,11 +140,7 @@ void draw_terrain_quad_tiles(unsigned int start, unsigned int stop)
 		if (cur_texture != last_texture)
 		{
 			glDrawArrays(GL_QUADS, idx * 4, size * 4);
-#ifdef NEW_LIGHTING
-			get_and_set_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
-#else
 			bind_texture_id(cur_texture);
-#endif
 			cur_texture = last_texture;
 			idx += size;
 			size = 0;

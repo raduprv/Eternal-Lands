@@ -636,10 +636,6 @@ CHECK_GL_ERRORS();
 
 void draw_sun_shadowed_scene(int any_reflection)
 {
-#ifdef NEW_LIGHTING
-	if (!use_new_lighting)
-	{
-#endif
 #ifndef SKY_FPV
 		if(ambient_light[0] <= 0.2f || ambient_light[1] <= 0.2f || ambient_light[2] <= 0.2f){
 			//If it's so dark that shadows would actually be lighter, then we shouldn't draw them
@@ -647,9 +643,6 @@ void draw_sun_shadowed_scene(int any_reflection)
 			return;
 		}
 #endif // SKY_FPV
-#ifdef NEW_LIGHTING
-	}
-#endif
 	if(use_shadow_mapping)
 		{
 #ifdef SKY_FPV
@@ -693,10 +686,6 @@ void draw_sun_shadowed_scene(int any_reflection)
 			CHECK_GL_ERRORS();
 			anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
 
-#ifdef NEW_LIGHTING
-			if (use_new_lighting)
-				glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 1);
-#endif
 			display_objects();
 			display_ground_objects();
 #ifndef MAP_EDITOR2
@@ -704,10 +693,6 @@ void draw_sun_shadowed_scene(int any_reflection)
 #endif
 			display_alpha_objects();
 			display_blended_objects();
-#ifdef NEW_LIGHTING
-			if (use_new_lighting)
-				glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 0);
-#endif
 
 #ifndef MAP_EDITOR2
 			if (use_fog) glDisable(GL_FOG);

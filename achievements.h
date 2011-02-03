@@ -1,7 +1,6 @@
 #ifndef __SHOW_ACHIEVEMENTS_H__
 #define __SHOW_ACHIEVEMENTS_H__
 
-#ifdef ACHIEVEMENTS
 
 #include "actors.h"
 
@@ -21,6 +20,5 @@ void achievements_requested(int mouse_pos_x, int mouse_pos_y, int control_used);
 } // extern "C"
 #endif
 
-#endif // ACHIEVEMENTS
 
 #endif // __SHOW_ACHIEVEMENTS_H__

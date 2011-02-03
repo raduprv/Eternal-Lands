@@ -14,13 +14,6 @@
 extern "C" {
 #endif
 
-#if defined NEW_LIGHTING || defined NIGHT_TEXTURES
-extern int night_shift_textures;
-#endif
-#ifdef NEW_LIGHTING
-extern int use_new_lighting;
-extern float lighting_contrast;
-#endif
 
 /*!
  * A light structure stores the position and color of a light
@@ -233,12 +226,6 @@ void new_second();
 
 void cleanup_lights(void);
 
-#if defined NEW_LIGHTING || defined NIGHT_TEXTURES
-void light_idle(void);
-#endif
-#ifdef NEW_LIGHTING
-void set_material_defaults();
-#endif
 
 #ifdef __cplusplus
 } // extern "C"

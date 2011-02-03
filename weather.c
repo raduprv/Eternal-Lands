@@ -1458,11 +1458,6 @@ void render_fog() {
 	rainStrength = get_rain_strength();
 	rainAlpha = 0.2f*rain_color[3]*rainStrength;
 
-#ifdef NEW_LIGHTING
-	if (use_new_lighting)
-		diffuseBias = 0.2f;
-	else
-#endif
 		// in dungeons and at night we use smaller light sources ==> less diffuse light
 		diffuseBias = (dungeon || !is_day)? 0.2f : 0.5f;
 

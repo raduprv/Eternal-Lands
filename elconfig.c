@@ -11,9 +11,7 @@
 #ifndef _MSC_VER
 	#include <unistd.h>
 #endif //_MSC_VER
-#ifdef USER_MENUS
 #include "user_menus.h"
-#endif
 
 #ifdef MAP_EDITOR
  #include "../map_editor/global.h"
@@ -21,9 +19,7 @@
  #include "../map_editor/interface.h"
  #include "load_gl_extensions.h"
 #else
-#ifdef ACHIEVEMENTS
  #include "achievements.h"
-#endif //ACHIEVEMENTS
  #include "alphamap.h"
  #include "bags.h"
  #include "buddy.h"
@@ -63,9 +59,6 @@
   #include "3d_objects.h"
  #endif
   #include "io/elpathwrapper.h"
- #if defined NEW_LIGHTING || defined NIGHT_TEXTURES
-  #include "lights.h"
- #endif
   #include "notepad.h"
  #ifdef SKY_FPV
   #include "sky.h"
@@ -312,13 +305,6 @@ void change_sky_var(int * var)
 }
 #endif // SKY_FPV
 
-#ifdef NEW_LIGHTING
-void change_new_lighting(int * var)
-{
-	*var= !*var;
-	build_global_light_table();
-}
-#endif
 #ifndef MAP_EDITOR
 void change_use_animation_program(int * var)
 {
@@ -1633,13 +1619,6 @@ void init_vars()
 	add_var(OPT_INT,"mouse_limit","lmouse",&mouse_limit,change_int,15,"Mouse Limit","You can increase the mouse sensitivity and cursor changing by adjusting this number to lower numbers, but usually the FPS will drop as well!",CONTROLS,1,INT_MAX);
 	add_var(OPT_BOOL,"use_point_particles","upp",&use_point_particles,change_point_particles,1,"Point Particles","Some systems will not support the new point based particles in EL. Disable this if your client complains about not having the point based particles extension.",ADVVID);
 	add_var(OPT_INT,"particles_percentage","pp",&particles_percentage,change_particles_percentage,100,"Particle Percentage","If you experience a significant slowdown when particles are nearby, you should consider lowering this number.",LODTAB,0,100);
-#ifdef NEW_LIGHTING
-	add_var(OPT_BOOL,"use_new_lighting","unl",&use_new_lighting,change_new_lighting,0,"Use New Lighting","Utilize a more physicality-based lighting model to reduce \"flatness\".",LODTAB);
-	add_var(OPT_FLOAT,"lighting_contrast","lc",&lighting_contrast,change_float,0.5,"Lighting contrast","The higher the contrast, the more stark the difference between areas in light and those in the dark.",LODTAB,0.0,1.0,0.05);
-#endif
-#if defined NEW_LIGHTING || defined NIGHT_TEXTURES
-	add_var(OPT_BOOL,"night_shift_textures","nst",&night_shift_textures,change_var,0,"Night Textures","Make the scene at night less colorful, as in the real world.  Will impose a small delay when changing to/from dungeon maps.",LODTAB);
- #endif
 #ifdef DEBUG
 	add_var(OPT_BOOL,"enable_client_aiming","eca",&enable_client_aiming,change_var,0,"Enable client aiming","Allow to aim at something by holding CTRL key. This aim is only done on client side and is used only for debugging purposes. Warning: enabling this code can produce server resyncs or locks when playing with missiles...",CONTROLS);
 #endif // DEBUG
@@ -1703,9 +1682,7 @@ void init_vars()
 #endif
 	add_var(OPT_BOOL,"always_pathfinding", "alwayspathfinding", &always_pathfinding, change_var, 0, "Extend the range of the walk cursor", "Extends the range of the walk cursor to as far as you can see.  Using this option, movement may be slightly less responsive on larger maps.", CONTROLS);
 	add_var(OPT_BOOL,"disable_double_click", "disabledoubleclick", &disable_double_click, change_var, 0, "Disable double-click button safety", "Some buttons are protected from mis-click by requiring you to double-click them.  This option disables that protection.", CONTROLS);
-#ifdef ACHIEVEMENTS
 	add_var(OPT_BOOL,"achievements_ctrl_click", "achievementsctrlclick", &achievements_ctrl_click, change_var, 0, "Control click required to view achievements", "To view a players achievements, you click on them with the eye cursor.  With this option enabled, you must use Ctrl+click.", CONTROLS);
-#endif
 #ifdef MINIMAP2
 	add_var(OPT_BOOL,"rotate_minimap","rotateminimap",&rotate_minimap,change_var,1,"Rotate Minimap","Toggle whether the minimap should rotate.",CONTROLS);
 	add_var(OPT_BOOL,"pin_minimap","pinminimap",&pin_minimap,change_var,0,"Pin Minimap","Toggle whether the minimap ignores close-all-windows.",CONTROLS);
@@ -1730,9 +1707,7 @@ void init_vars()
 	add_var(OPT_BOOL,"use_alpha_banner", "abanner", &use_alpha_banner, change_var, 0,"Alpha Behind Name/Health Text","Toggle the use of an alpha background to name/health banners",HUD);
 	add_var(OPT_BOOL,"cm_banner_disabled", "cmbanner", &cm_banner_disabled, change_var, 0,"Disable Name/Health Text Context Menu","Disable the context menu on your players name/health banner.",HUD);
 	add_var(OPT_BOOL,"opaque_window_backgrounds", "opaquewin", &opaque_window_backgrounds, change_var, 0,"Use Opaque Window Backgrounds","Toggle the current state of all windows between transparent and opaque background. Use CTRL+D to toggle the current state of an individual window.",HUD);
-#ifdef USER_MENUS
 	add_var(OPT_BOOL,"enable_user_menus", "user_menus", &enable_user_menus, toggle_user_menus, 0, "Enable User Menus","Create .menu files in your config directory.  First line is the menu name. After that, each line is a command using the format \"Menus Text||command\".  Prompt for input using \"command text <prompt text>\". A line can include multiple commands.",HUD);
-#endif
 	add_var(OPT_BOOL,"3d_map_markers","3dmarks",&marks_3d,change_3d_marks,1,"Enable 3D Map Markers","Shows user map markers in the game window",HUD);
 	add_var(OPT_BOOL,"item_window_on_drop","itemdrop",&item_window_on_drop,change_var,1,"Item Window On Drop","Toggle whether the item window shows when you drop items",HUD);
 
@@ -1801,9 +1776,7 @@ void init_vars()
 	add_var (OPT_BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_var, 0, "Separate Moderator Chat", "Should moderator chat be separated from the rest?", CHAT);
  #endif
 	add_var(OPT_BOOL,"highlight_tab_on_nick", "highlight", &highlight_tab_on_nick, change_var, 1, "Highlight Tabs On Name", "Should tabs be highlighted when someone mentions your name?", CHAT);
-#ifdef EMOTES
 	add_var(OPT_BOOL,"emote_filter", "emote_filter", &emote_filter, change_var, 1, "Emotes filter", "Do not display lines of text in local chat containing emotes only", CHAT);
-#endif //EMOTES
 #endif
 #ifdef NEW_SELECTION
 	add_var(OPT_BOOL,"use_new_selection", "uns", &use_new_selection, change_new_selection, 1, "New selection", "Using new selection", VIDEO);

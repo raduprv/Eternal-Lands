@@ -18,9 +18,6 @@
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
-#ifdef NEW_LIGHTING
-#include "lights.h"
-#endif
 #ifdef CLUSTER_INSIDES
 #include "cluster.h"
 #endif

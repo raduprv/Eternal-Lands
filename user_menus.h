@@ -1,4 +1,3 @@
-#ifdef USER_MENUS
 
 #if !defined(USER_MENUS_H)
 #define USER_MENUS_H
@@ -57,4 +56,3 @@ void toggle_user_menus(int *enable);
 
 #endif
 
-#endif // USER_MENUS

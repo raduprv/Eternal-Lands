@@ -18,16 +18,12 @@ void CalCoreMesh_Scale(struct CalCoreMesh *self,float factor);
 #ifdef NEW_SOUND
 void cal_set_anim_sound(struct cal_anim *my_cal_anim, const char *sound, const char *sound_scale);
 #endif // NEW_SOUND
-#ifdef EMOTES
 enum CalBoolean CalMixer_ExecuteActionExt(struct CalMixer *self, int id, float delayIn, float delayOut, float weight, int autoLock);
-#endif
  
 
-#ifdef EMOTES
 void cal_actor_set_emote_anim(actor *pActor, emote_frame *anims);
 void handle_cur_emote(actor *pActor);
 void cal_reset_emote_anims(actor *pActor, int cycles_too);
-#endif
 /*!
  * \brief	Draw a specific actor
  * 
