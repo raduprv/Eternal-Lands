@@ -166,5 +166,8 @@ This was the program output:  Note it is overwritten each time you run the game.
 
 $(cat ~/.elc/terminal_log.txt)
 
+A search through dmesg output:
+$(dmesg | grep $(basename $el_client))
+
 EOT
 fi
