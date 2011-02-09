@@ -823,6 +823,26 @@ static int achievements_mouseover_handler(window_info *win, int mx, int my)
 }
 
 
+//	A common display handler callback for keypress activity.
+//
+int achievements_keypress_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+{
+	if (!win)
+		return 0;
+	if ((key & 0xffff) == SDLK_ESCAPE) // close window if Escape pressed
+	{
+#ifdef NEW_SOUND
+		add_sound_object(get_index_for_sound_type_name("Window Close"), 0, 0, 1);
+#endif // NEW_SOUND
+		if (key & ELW_CTRL)
+			Achievements_System::get_instance()->hide_all();
+		else
+			hide_window(win->window_id);
+	}
+	return 1;
+}
+
+
 //	A common display handler callback for mouse click activity.
 //
 static int achievements_click_handler(window_info *win, int mx, int my, Uint32 flags)
@@ -896,6 +916,7 @@ void Achievements_Window::open(int win_pos_x, int win_pos_y)
 	set_window_handler(main_win_id, ELW_HANDLER_DISPLAY, (int (*)())&achievements_display_handler );
 	set_window_handler(main_win_id, ELW_HANDLER_CLICK, (int (*)())&achievements_click_handler );
 	set_window_handler(main_win_id, ELW_HANDLER_MOUSEOVER, (int (*)())&achievements_mouseover_handler );
+	set_window_handler(main_win_id, ELW_HANDLER_KEYPRESS, (int (*)())&achievements_keypress_handler );
 
 	window_info *win = &windows_list.window[main_win_id];
 	win->data = reinterpret_cast<void *>(this);
