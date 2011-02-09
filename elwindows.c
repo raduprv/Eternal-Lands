@@ -663,7 +663,6 @@ int cm_title_handler(window_info *win, int widget_id, int mx, int my, int option
 			change_windows_on_top(&windows_on_top);
 			break;
 #endif
-		default: return 0;
 	}
 	return 1;
 }
