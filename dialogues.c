@@ -12,6 +12,9 @@
 #include "interface.h"
 #include "multiplayer.h"
 #include "paste.h"
+#ifdef NEW_SOUND
+#include "sound.h"
+#endif // NEW_SOUND
 #include "textures.h"
 #include "translate.h"
 #ifdef OPENGL_TRACE
@@ -377,11 +380,17 @@ int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags)
 			if(dialogue_responces[i].in_use && dialogue_responces[i].mouse_over)
 				{
 					send_response(win, i);
+#ifdef NEW_SOUND
+					add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+#endif // NEW_SOUND
 					return 1;
 				}
 		}
 	if(mx>=win->len_x-(str_edge+close_str_width) && mx<win->len_x-str_edge && my>=win->len_y-(SMALL_FONT_Y_LEN+1))
 		{
+#ifdef NEW_SOUND
+			add_sound_object(get_index_for_sound_type_name("Window Close"), 0, 0, 1);
+#endif // NEW_SOUND
 			hide_window(win->window_id);
 			return 1;
 		}
@@ -389,6 +398,9 @@ int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags)
 		{
 			copy_end_highlight_time = SDL_GetTicks() + 500;
 			copy_dialogue_text();
+#ifdef NEW_SOUND
+			add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+#endif // NEW_SOUND
 			return 1;
 		}
 
@@ -411,6 +423,9 @@ int keypress_dialogue_handler (window_info *win, int mx, int my, Uint32 key, Uin
 	ch = key_to_char (unikey);
 	if ((key & 0xffff) == SDLK_ESCAPE) // close window if Escape pressed
 	{
+#ifdef NEW_SOUND
+		add_sound_object(get_index_for_sound_type_name("Window Close"), 0, 0, 1);
+#endif // NEW_SOUND
 		hide_window(win->window_id);
 		return 1;
    }
@@ -440,6 +455,9 @@ int keypress_dialogue_handler (window_info *win, int mx, int my, Uint32 key, Uin
 	}
 	if(dialogue_responces[ch].in_use)
 	{
+#ifdef NEW_SOUND
+		add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+#endif // NEW_SOUND
 		send_response(win, ch);
 		return 1;
 	}
