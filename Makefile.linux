@@ -30,6 +30,7 @@ USE_SHADER_COBJ = shader/noise.o shader/shader.o
 PAWN_COBJ = pawn/amx.o pawn/amxaux.o pawn/amxcons.o pawn/amxel.o \
 	pawn/amxfloat.o pawn/amxstring.o pawn/elpawn.o
 NEW_SELECTION_CXXOBJ = select.o
+NEW_TEXTURES_COBJ = image_loading.o
 COBJS=2d_objects.o 3d_objects.o \
 	actor_scripts.o actors.o alphamap.o asc.o astrology.o \
 	bbox_tree.o books.o buddy.o buffs.o bags.o \
@@ -45,7 +46,7 @@ COBJS=2d_objects.o 3d_objects.o \
 	main.o manufacture.o map.o mapwin.o	\
 	md5.o mines.o minimap.o misc.o missiles.o multiplayer.o	\
 	new_actors.o new_character.o notepad.o	\
-	openingwin.o image.o image_loading.o	\
+	openingwin.o image.o \
 	particles.o paste.o pathfinder.o pm_log.o	\
 	questlog.o queue.o reflection.o	rules.o	\
 	skeletons.o skills.o serverpopup.o servers.o session.o shadows.o sound.o	\

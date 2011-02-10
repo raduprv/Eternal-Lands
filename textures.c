@@ -178,6 +178,13 @@ static GLuint build_texture(image_struct* image, const Uint32 wrap_mode_repeat,
 			return 0;
 	}
 
+	if ((compressed != 0) && (have_extension(arb_texture_compression) == 0))
+	{
+		LOG_ERROR("Can't use compressed source formats because "
+			"GL_ARB_texture_compression is not supported.");
+		return 0;
+	}
+
 	if (compressed == 0)
 	{
 		switch (compression)
@@ -253,8 +260,9 @@ static GLuint build_texture(image_struct* image, const Uint32 wrap_mode_repeat,
 
 		if (compressed != 0)
 		{
-			glCompressedTexImage2D(GL_TEXTURE_2D, i, internal_format,
-				width, height, 0, image->sizes[i], ptr);
+			ELglCompressedTexImage2D(GL_TEXTURE_2D, i,
+				internal_format, width, height, 0,
+				image->sizes[i], ptr);
 		}
 		else
 		{
