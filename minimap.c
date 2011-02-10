@@ -1027,7 +1027,7 @@ void change_minimap(){
 		minimap_texture = 0;
 	}
 
-	circle_texture = load_texture_cached("./textures/circle", TT_IMAGE);
+	circle_texture = load_texture_cached("./textures/circle", TT_GUI);
 #else	/* NEW_TEXTURES */
 	//unload all textures
 	if(minimap_texture)
@@ -1817,7 +1817,7 @@ void change_minimap(){
 		minimap_texture = 0;
 	}
 
-	compass_tex = load_texture_cached("./textures/compass", TT_IMAGE);
+	compass_tex = load_texture_cached("./textures/compass", TT_GUI);
 #else	/* NEW_TEXTURES */
 	//unload all textures
 	if(minimap_texture)
