@@ -68,7 +68,7 @@ Uint32 check_image_name(const char* file_name, const Uint32 size, char* str)
 		safe_strncpy2(buffer, file_name, sizeof(buffer), len);
 		safe_strcat(buffer, image_extensions[i], sizeof(buffer));
 
-		if (el_file_exists(buffer) != 0)
+		if (el_custom_file_exists(buffer) != 0)
 		{
 			len = strlen(buffer);
 
