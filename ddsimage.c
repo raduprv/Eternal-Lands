@@ -11,7 +11,6 @@
 #include "image.h"
 #include "misc.h"
 #include <assert.h>
-#include <xmmintrin.h>
 
 #ifdef	NEW_TEXTURES
 static image_format detect_format(DdsHeader *header, Uint8* alpha, Uint32* unpack)

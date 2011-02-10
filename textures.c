@@ -783,7 +783,6 @@ static void copy_enhanced_actor_file_name(char* dest, const char* source)
 Uint32 load_enhanced_actor(enhanced_actor* actor)
 {
 	enhanced_actor_images files;
-	SDL_mutex* mutex;
 	Uint32 i, handle, hash, access_time;
 
 	memset(&files, 0, sizeof(files));
@@ -825,9 +824,7 @@ Uint32 load_enhanced_actor(enhanced_actor* actor)
 
 	for (i = 0; i < ACTOR_TEXTURE_CACHE_MAX; i++)
 	{
-		mutex = actor_texture_handles[i].mutex;
-
-		CHECK_AND_LOCK_MUTEX(mutex);
+		CHECK_AND_LOCK_MUTEX(actor_texture_handles[i].mutex);
 
 		if (hash == actor_texture_handles[i].hash)
 		{
@@ -839,7 +836,13 @@ Uint32 load_enhanced_actor(enhanced_actor* actor)
 				actor_texture_handles[handle].access_time = cur_time;
 
 				// already loaded, release lock
-				CHECK_AND_UNLOCK_MUTEX(mutex);
+				CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[i].mutex);
+
+				// release old lock!
+				if (handle != ACTOR_TEXTURE_CACHE_MAX)
+				{
+					CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[handle].mutex);
+				}
 
 				queue_push_signal(actor_texture_queue, &actor_texture_handles[i]);
 
@@ -862,21 +865,24 @@ Uint32 load_enhanced_actor(enhanced_actor* actor)
 				if ((access_time > actor_texture_handles[i].access_time)
 					&& (i < max_actor_texture_handles))
 				{
+					// release old lock!
+					CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[handle].mutex);
+
 					// Don't unlock mutex! We plan to use this slot!
-					mutex = actor_texture_handles[handle].mutex;
 					handle = i;
 					access_time = actor_texture_handles[i].access_time;
 				}
-
-				/* We unlock the current or the old mutex,
-				 * depending on which one we don't plan to use
-				 */
-				CHECK_AND_UNLOCK_MUTEX(mutex);
+				else
+				{
+					// release lock
+					CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[i].mutex);
+				}
 			}
 		}
 		else
 		{
-			CHECK_AND_UNLOCK_MUTEX(mutex);
+			// release lock
+			CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[i].mutex);
 		}
 	}
 
@@ -921,10 +927,13 @@ Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
 
 	CHECK_AND_LOCK_MUTEX(actor_texture_handles[handle].mutex);
 
+	assert(actor_texture_handles[handle].use_count > 0);
+
+	actor_texture_handles[handle].access_time = cur_time;
+
 	if (actor_texture_handles[handle].state == ts_texture_loaded)
 	{
 		bind_texture_id(actor_texture_handles[handle].id);
-		actor_texture_handles[handle].access_time = cur_time;
 
 		result = 1;
 	}
@@ -1035,38 +1044,49 @@ int load_enhanced_actor_thread(void* done)
 	{
 		actor = queue_pop_blocking(actor_texture_queue);
 
-		if (actor != 0)
+		if (actor == 0)
 		{
-			CHECK_AND_LOCK_MUTEX(actor->mutex);
+			continue;
+		}
 
-			if (actor->state == ts_unloaded)
-			{
-				memcpy(&files, &actor->files, sizeof(files));
-				hash = actor->hash;
-				actor->state = ts_image_loading;
+		CHECK_AND_LOCK_MUTEX(actor->mutex);
 
-				CHECK_AND_UNLOCK_MUTEX(actor->mutex);
-
-				load_enhanced_actor_threaded(&files, &image,
-					buffer);
-
-				CHECK_AND_LOCK_MUTEX(actor->mutex);
-
-				if (hash == actor->hash)
-				{
-					if (!memcmp(&actor->files, &files,
-						sizeof(files)))
-					{
-						memcpy(&actor->image, &image,
-							sizeof(image));
-
-						actor->state = ts_image_loaded;
-					}
-				}
-			}
+		while (actor->state == ts_unloaded)
+		{
+			memcpy(&files, &actor->files, sizeof(files));
+			hash = actor->hash;
+			actor->state = ts_image_loading;
 
 			CHECK_AND_UNLOCK_MUTEX(actor->mutex);
+
+			load_enhanced_actor_threaded(&files, &image, buffer);
+
+			CHECK_AND_LOCK_MUTEX(actor->mutex);
+
+			if ((actor->state == ts_image_loading) ||
+				(actor->state == ts_unloaded))
+			{
+				if ((hash == actor->hash) &&
+					(!memcmp(&actor->files, &files,	sizeof(files))))
+				{
+					memcpy(&actor->image, &image, sizeof(image));
+
+					actor->state = ts_image_loaded;
+				}
+				else
+				{
+					free(image.image);
+
+					actor->state = ts_unloaded;
+				}
+			}
+			else
+			{
+				free(image.image);
+			}
 		}
+
+		CHECK_AND_UNLOCK_MUTEX(actor->mutex);
 	}
 
 	free(buffer);
@@ -1110,6 +1130,8 @@ void free_texture_cache()
 	int result;
 
 	actor_texture_threads_done = 1;
+
+	while (queue_pop(actor_texture_queue) != 0);
 
 	for (i = 0; i < ACTOR_TEXTURE_THREAD_COUNT; i++)
 	{
@@ -1163,6 +1185,8 @@ void unload_texture_cache()
 
 	if (actor_texture_handles != 0)
 	{
+		while (queue_pop(actor_texture_queue) != 0);
+
 		for (i = 0; i < ACTOR_TEXTURE_CACHE_MAX; i++)
 		{
 			CHECK_AND_LOCK_MUTEX(actor_texture_handles[i].mutex);
@@ -1179,7 +1203,6 @@ void unload_texture_cache()
 		}
 	}
 }
-
 #else	// NEW_TEXTURES
 #ifdef NEW_CURSOR
 
