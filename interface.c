@@ -774,7 +774,7 @@ void draw_game_map (int map, int mouse_mini)
 	glEnable(GL_ALPHA_TEST);
 	
 #ifdef	NEW_TEXTURES
-	bind_texture(map_large);
+	bind_texture(map_small);
 #else	/* NEW_TEXTURES */
 	bind_texture_id(map_small);
 #endif	/* NEW_TEXTURES */
