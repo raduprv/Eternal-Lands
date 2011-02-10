@@ -50,7 +50,9 @@ int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 	if (left_click && mx > 0 && mx < 50*scale && my > 0 && my < 55*scale)
 	{
 		showing_continent = !showing_continent;
-#ifndef	NEW_TEXTURES
+#ifdef	NEW_TEXTURES
+		inspect_map_text = 0;
+#else	/* NEW_TEXTURES */
 		if(inspect_map_text != 0)
 		{
 			glDeleteTextures(1,&inspect_map_text);
