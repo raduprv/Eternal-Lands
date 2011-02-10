@@ -819,6 +819,7 @@ CHECK_GL_ERRORS();
 }
 #endif
 
+#ifndef	NEW_TEXTURES
 void draw_water_quad_tiles(unsigned int start, unsigned int stop, unsigned int idx, int water_id)
 {
 	unsigned int i, l, size;
@@ -863,6 +864,7 @@ void draw_water_quad_tiles(unsigned int start, unsigned int stop, unsigned int i
 	}
 	glDrawArrays(GL_QUADS, idx * 4, size * 4);
 }
+#endif	/* NEW_TEXTURES */
 
 void draw_lake_tiles()
 {
@@ -949,7 +951,11 @@ void draw_lake_tiles()
 	}
 
 	get_intersect_start_stop(main_bbox_tree, TYPE_NO_REFLECTIV_WATER, &start, &stop);
+#ifdef	NEW_TEXTURES
+	draw_quad_tiles(start, stop, 0, water_id);
+#else	/* NEW_TEXTURES */
 	draw_water_quad_tiles(start, stop, 0, water_id);
+#endif	/* NEW_TEXTURES */
 
 #ifdef	USE_SHADER
 	if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)
@@ -1064,7 +1070,11 @@ void draw_lake_tiles()
 	}
 
 	get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
+#ifdef	NEW_TEXTURES
+	draw_quad_tiles(start, stop, water_buffer_reflectiv_index, water_id);
+#else	/* NEW_TEXTURES */
 	draw_water_quad_tiles(start, stop, water_buffer_reflectiv_index, water_id);
+#endif	/* NEW_TEXTURES */
 
 #ifdef	USE_SHADER
 	if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)

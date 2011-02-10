@@ -333,7 +333,11 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 
  	glEnable (GL_ALPHA_TEST);	// enable alpha filtering, so we have some alpha key
 	glAlphaFunc (GL_GREATER, 0.1f);
-	get_and_set_texture_id (font_text);
+#ifdef	NEW_TEXTURES
+	bind_texture(font_text);
+#else	/* NEW_TEXTURES */
+	get_and_set_texture_id(font_text);
+#endif	/* NEW_TEXTURES */
 
 	i = 0;
 	cur_x = x;
@@ -527,7 +531,11 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER,0.1f);
+#ifdef	NEW_TEXTURES
+	bind_texture(font_text);
+#else	/* NEW_TEXTURES */
 	get_and_set_texture_id(font_text);
+#endif	/* NEW_TEXTURES */
 
 	i=0;
 	cur_x=x;
@@ -591,7 +599,11 @@ void draw_string_zoomed_clipped (int x, int y, const unsigned char* our_string, 
 
 	glEnable (GL_ALPHA_TEST);	// enable alpha filtering, so we have some alpha key
 	glAlphaFunc (GL_GREATER, 0.1f);
-	get_and_set_texture_id (font_text);
+#ifdef	NEW_TEXTURES
+	bind_texture(font_text);
+#else	/* NEW_TEXTURES */
+	get_and_set_texture_id(font_text);
+#endif	/* NEW_TEXTURES */
 
 	i = 0;
 	cur_x = x;
@@ -830,7 +842,11 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER,0.1f);
+#ifdef	NEW_TEXTURES
+	bind_texture(font_text);
+#else	/* NEW_TEXTURES */
 	get_and_set_texture_id(font_text);
+#endif	/* NEW_TEXTURES */
 
 	i=0;
 	cur_x=x;
@@ -909,7 +925,11 @@ void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * ou
 
 	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER,0.1f);
+#ifdef	NEW_TEXTURES
+	bind_texture(font_text);
+#else	/* NEW_TEXTURES */
 	get_and_set_texture_id(font_text);
+#endif	/* NEW_TEXTURES */
 
 	i=0;
 	cur_x=x;
@@ -1083,7 +1103,11 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 
 	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER,0.1f);
+#ifdef	NEW_TEXTURES
+	bind_texture(font_text);
+#else	/* NEW_TEXTURES */
 	get_and_set_texture_id(font_text);
+#endif	/* NEW_TEXTURES */
 
 	i=0;
 #ifndef SKY_FPV_OPTIONAL
@@ -1290,6 +1314,7 @@ void cleanup_fonts(void)
 	}
 }
 
+#ifndef	NEW_TEXTURES
 void reload_fonts()
 {
 	int i;
@@ -1315,12 +1340,15 @@ void reload_fonts()
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
+#endif	/* NEW_TEXTURES */
 
 static const char texture_dir[] = "textures/";
 int load_font_textures ()
 {
+#ifndef	NEW_TEXTURES
 	int poor_man_save=poor_man;
 	int use_mipmaps_save=use_mipmaps;
+#endif	/* NEW_TEXTURES */
 	size_t i = 0;
 	char *glob_pattern;
 #ifdef WINDOWS
@@ -1344,10 +1372,16 @@ int load_font_textures ()
 		if ( !init_fonts () ) return 0;
 	}
 
+#ifndef	NEW_TEXTURES
 	poor_man=0;
 	use_mipmaps=0;
+#endif	/* NEW_TEXTURES */
 
+#ifdef	NEW_TEXTURES
+	fonts[0]->texture_id = load_texture_cached("./textures/font", TT_FONT);
+#else	/* NEW_TEXTURES */
 	fonts[0]->texture_id = load_texture_cache("./textures/font.bmp", 0);
+#endif	/* NEW_TEXTURES */
 	i = 1;
 	// Force the selection of the base font.
 	add_multi_option("chat_font", "Type 1");
@@ -1388,7 +1422,11 @@ int load_font_textures ()
 			} else {
 				file[len - 4]= 0;
 			}
+#ifdef	NEW_TEXTURES
+			fonts[i]->texture_id = load_texture_cached(str, TT_FONT);
+#else	/* NEW_TEXTURES */
 			fonts[i]->texture_id = load_texture_cache_deferred(str, 0);
+#endif	/* NEW_TEXTURES */
 			safe_snprintf(font_names[i], sizeof(font_names[i]), "Type %i - %s", i + 1, file);
 			add_multi_option("chat_font", font_names[i]);
 			add_multi_option("name_font", font_names[i]);
@@ -1406,8 +1444,10 @@ int load_font_textures ()
 #endif //WINDOWS
 	free(glob_pattern);
 
+#ifndef	NEW_TEXTURES
 	poor_man=poor_man_save;
 	use_mipmaps=use_mipmaps_save;
+#endif	/* NEW_TEXTURES */
 
 	//set the default font
 	cur_font_num = 0;

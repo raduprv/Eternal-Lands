@@ -45,7 +45,7 @@ COBJS=2d_objects.o 3d_objects.o \
 	main.o manufacture.o map.o mapwin.o	\
 	md5.o mines.o minimap.o misc.o missiles.o multiplayer.o	\
 	new_actors.o new_character.o notepad.o	\
-	openingwin.o	\
+	openingwin.o image.o image_loading.o	\
 	particles.o paste.o pathfinder.o pm_log.o	\
 	questlog.o queue.o reflection.o	rules.o	\
 	skeletons.o skills.o serverpopup.o servers.o session.o shadows.o sound.o	\

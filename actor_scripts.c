@@ -33,6 +33,9 @@
 #include "minimap.h"
 #include "io/elfilewrapper.h"
 #include "actor_init.h"
+#ifdef	NEW_TEXTURES
+#include "textures.h"
+#endif	/* NEW_TEXTURES */
 
 #ifndef EXT_ACTOR_DICT
 const dict_elem skin_color_dict[] =
@@ -1611,11 +1614,27 @@ void free_actor_data(int actor_index)
 	actor *act = actors_list[actor_index];
     if(act->calmodel!=NULL)
         model_delete(act->calmodel);
+#ifdef	NEW_TEXTURES
+	if(act->remapped_colors)
+	{
+		free_actor_texture(act->texture_id);
+	}
+	if (act->is_enhanced_model)
+	{
+		free_actor_texture(act->texture_id);
+
+	        if (act->body_parts)
+		{
+			free(act->body_parts);
+		}
+	}
+#else	/* NEW_TEXTURES */
     if(act->remapped_colors) glDeleteTextures(1,&act->texture_id);
     if(act->is_enhanced_model){
         glDeleteTextures(1,&act->texture_id);
         if(act->body_parts)free(act->body_parts);
     }
+#endif	/* NEW_TEXTURES */
 #ifdef NEW_SOUND
     stop_sound(act->cur_anim_sound_cookie);
     act->cur_anim_sound_cookie = 0;

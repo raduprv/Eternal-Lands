@@ -250,6 +250,7 @@ int init_fonts();
  */
 int load_font_textures ();
 
+#ifndef	NEW_TEXTURES
 /*!
  * \ingroup other
  * \brief Reloads the font textures
@@ -259,6 +260,7 @@ int load_font_textures ();
  * \sa load_font_textures;
  */
 void reload_fonts();
+#endif	/* NEW_TEXTURES */
 
 void cleanup_fonts(void);
 

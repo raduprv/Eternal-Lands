@@ -1,9 +1,11 @@
 #include <stdlib.h>
 #include <string.h>
+#ifndef	NEW_TEXTURES
 #ifdef ZLIB
 #include <zlib.h>
 #endif
 #include <SDL_image.h>
+#endif	/* NEW_TEXTURES */
 #include "textures.h"
 #include "asc.h"
 #include "draw_scene.h"
@@ -13,15 +15,1172 @@
 #include "lights.h"
 #include "load_gl_extensions.h"
 #include "map.h"
+#ifdef	NEW_TEXTURES
+#include "image.h"
+#include "image_loading.h"
+#include "queue.h"
+#include "threads.h"
+#include <assert.h>
+#else	/* NEW_TEXTURES */
 #include "io/elfilewrapper.h"
+#endif	/* NEW_TEXTURES */
 #include "ddsimage.h"
-
 
 #define TEXTURE_SIZE_X 512
 #define TEXTURE_SIZE_Y 512
 #define TEXTURE_RATIO 2
 
+#ifdef	NEW_TEXTURES
 
+#define ACTOR_TEXTURE_CACHE_MAX 1024
+#define ACTOR_TEXTURE_THREAD_COUNT 4
+
+actor_texture_cache_struct* actor_texture_handles = 0;
+SDL_Thread* actor_texture_threads[ACTOR_TEXTURE_THREAD_COUNT];
+Uint32 max_actor_texture_handles = 64;
+queue_t* actor_texture_queue = 0;
+Uint32 actor_texture_threads_done = 0;
+
+#define TEXTURE_CACHE_MAX 4096
+
+texture_cache_struct* texture_handles = 0;
+cache_struct* texture_cache = 0;
+Uint32 texture_handles_max_index = 0;
+
+Uint32 string_hash(const void* str, const Uint32 len)
+{
+	Uint32 hash, i;
+
+	hash = 2166136261;
+
+	for (i = 0; i < len; i++)
+	{
+		hash = hash * 1607;
+		hash = hash ^ ((Uint8*)str)[i];
+	}
+
+	return hash;
+}
+
+Uint32 compact_texture(texture_cache_struct* texture)
+{
+	Uint32 size;
+
+	if (texture == 0)
+	{
+		return 0;
+	}
+
+	if (texture->id == 0)
+	{
+		return 0;
+	}
+
+	glDeleteTextures(1, &texture->id);
+
+	size = texture->size;
+
+	texture->id = 0;
+	texture->size = 0;
+
+	return size;
+}
+
+void bind_texture_id(const GLuint id)
+{
+	if (last_texture != id)
+	{
+		last_texture = id;
+		glBindTexture(GL_TEXTURE_2D, id);
+	}
+}
+
+static GLuint build_texture(image_struct* image, const Uint32 wrap_mode_repeat,
+	const GLenum min_filter, const Uint32 af, const Uint32 build_mipmaps,
+	const texture_compression compression)
+{
+	void* ptr;
+	GLuint id;
+	GLenum format, type, internal_format;
+	Uint32 compressed, width, height, i;
+
+	compressed = 0;
+
+	switch (image->format)
+	{
+		case IF_RGBA4:
+			format = GL_RGBA;
+			type = GL_UNSIGNED_SHORT_4_4_4_4;
+			internal_format = GL_RGBA4;
+			break;
+		case IF_RGB8:
+			format = GL_RGB;
+			type = GL_UNSIGNED_BYTE;
+			internal_format = GL_RGB8;
+			break;
+		case IF_R5G6B5:
+			format = GL_RGB;
+			type = GL_UNSIGNED_SHORT_5_6_5;
+			internal_format = GL_RGB5;
+			break;
+		case IF_RGBA8:
+			format = GL_RGBA;
+			type = GL_UNSIGNED_BYTE;
+			internal_format = GL_RGBA8;
+			break;
+		case IF_BGRA8:
+			format = GL_BGRA;
+			type = GL_UNSIGNED_BYTE;
+			internal_format = GL_RGBA8;
+			break;
+		case IF_RGB5_A1:
+			format = GL_RGBA;
+			type = GL_UNSIGNED_SHORT_5_5_5_1;
+			internal_format = GL_RGB5_A1;
+			break;
+		case IF_A8:
+			format = GL_ALPHA;
+			type = GL_UNSIGNED_BYTE;
+			internal_format = GL_ALPHA8;
+			break;
+		case IF_L8:
+			format = GL_LUMINANCE;
+			type = GL_UNSIGNED_BYTE;
+			internal_format = GL_LUMINANCE8;
+			break;
+		case IF_LA8:
+			format = GL_LUMINANCE_ALPHA;
+			type = GL_UNSIGNED_BYTE;
+			internal_format = GL_LUMINANCE8_ALPHA8;
+			break;
+		case IF_DXT1:
+			internal_format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+			compressed = 1;
+			break;
+		case IF_DXT3:
+			internal_format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+			compressed = 1;
+			break;
+		case IF_DXT5:
+			internal_format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+			compressed = 1;
+			break;
+		case IF_ATI1:
+			internal_format = GL_COMPRESSED_LUMINANCE_LATC1_EXT;
+			compressed = 1;
+			break;
+		case IF_ATI2:
+			internal_format = GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT;
+			compressed = 1;
+			break;
+		default:
+			LOG_ERROR("Unsupported image format (%i)", image->format);
+			return 0;
+	}
+
+	if (compressed == 0)
+	{
+		switch (compression)
+		{
+			case TC_FALSE:
+				break;
+			case TC_DXT1:
+				internal_format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+				break;
+			case TC_DXT3:
+				internal_format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+				break;
+			case TC_DXT5:
+				internal_format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+				break;
+			case TC_ATI1:
+				internal_format = GL_COMPRESSED_LUMINANCE_LATC1_EXT;
+				break;
+			case TC_ATI2:
+				internal_format = GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT;
+				break;
+			default:
+				LOG_ERROR("Unsupported texture compression (%i)",
+					compression);
+				return 0;
+		}
+	}
+
+	glGenTextures(1, &id);
+	glBindTexture(GL_TEXTURE_2D, id);	//failsafe
+	bind_texture_id(id);
+
+	if (wrap_mode_repeat != 0)
+	{
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	}
+	else
+	{
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	}
+
+	if ((build_mipmaps == 1) && (image->mipmaps == 1))
+	{
+		glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+	}
+	else
+	{
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL,
+			image->mipmaps);
+	}
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
+
+	if (af != 0)
+	{
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT,
+			anisotropic_filter);
+	}
+
+	width = image->width;
+	height = image->height;
+
+	CHECK_GL_ERRORS();
+
+	for (i = 0; i < image->mipmaps; i++)
+	{
+		assert(image->sizes[i] > 0);
+
+		ptr = image->image + image->offsets[i];
+
+		if (compressed != 0)
+		{
+			glCompressedTexImage2D(GL_TEXTURE_2D, i, internal_format,
+				width, height, 0, image->sizes[i], ptr);
+		}
+		else
+		{
+			glTexImage2D(GL_TEXTURE_2D, i, internal_format,
+				width, height, 0, format, type, ptr);
+		}
+
+		CHECK_GL_ERRORS();
+
+		if (width > 1)
+		{
+			width /= 2;
+		}
+
+		if (height > 1)
+		{
+			height /= 2;
+		}
+	}
+
+	return id;
+}
+
+Uint32 load_texture_cached(const char* file_name, const texture_type type)
+{
+	char buffer[128];
+	Uint32 i, handle, len, hash;
+
+	handle = texture_handles_max_index;
+
+	len = get_file_name_len(file_name);
+	hash = string_hash(file_name, len);
+
+	safe_strncpy2(buffer, file_name, sizeof(buffer), len);
+
+	for (i = 0; i < texture_handles_max_index; i++)
+	{
+		if (texture_handles[i].file_name[0] != 0)
+		{
+			if (hash == texture_handles[i].hash)
+			{
+				if (!strcasecmp(texture_handles[i].file_name,
+					buffer))
+				{
+					// already loaded, use existing texture
+					return i;
+				}
+			}
+		}
+		else
+		{
+			// remember the first open slot we have
+			if (handle == texture_handles_max_index)
+			{
+				handle = i;
+			}
+		}
+	}
+
+	if (handle < TEXTURE_CACHE_MAX)
+	{
+		//we found a place to store it
+		safe_strncpy2(texture_handles[handle].file_name, file_name,
+			sizeof(texture_handles[handle].file_name), len);
+
+		texture_handles[handle].hash = hash;
+		texture_handles[handle].type = type;
+		texture_handles[handle].id = 0;
+		texture_handles[handle].cache_ptr = cache_add_item(texture_cache,
+			texture_handles[handle].file_name, &texture_handles[handle], 0);
+
+		texture_handles_max_index++;
+
+		return handle;
+	}
+	else
+	{
+		LOG_ERROR("Error: out of texture space\n");
+
+		return TEXTURE_CACHE_MAX;	// ERROR!
+	}
+}
+
+static Uint32 load_texture(texture_cache_struct* texture_handle)
+{
+	image_struct image;
+	GLuint id;
+	Uint32 strip_mipmaps, base_level, wrap_mode_repeat, af, i, uncompress;
+	Uint32 build_mipmaps, compute_alpha;
+	GLenum min_filter;
+	texture_compression compression;
+
+	memset(&image, 0, sizeof(image_struct));
+
+	wrap_mode_repeat = 0;
+	strip_mipmaps = 0;
+	base_level = 0;
+	af = 0;
+	min_filter = GL_LINEAR;
+	build_mipmaps = 0;
+	compute_alpha = 0;
+	compression = TC_FALSE;
+
+	switch (texture_handle->type)
+	{
+		case TT_GUI:
+			wrap_mode_repeat = 1;
+			strip_mipmaps = 1;
+			compute_alpha = 1;
+			break;
+		case TT_IMAGE:
+			strip_mipmaps = 1;
+			compression = TC_DXT1;
+			break;
+		case TT_FONT:
+			build_mipmaps = 1;
+			compute_alpha = 1;
+			min_filter = GL_LINEAR_MIPMAP_LINEAR;
+
+			if (poor_man == 0)
+			{
+				af = 1;
+			}
+			break;
+		case TT_MESH:
+			build_mipmaps = 1;
+			wrap_mode_repeat = 1;
+			compute_alpha = 1;
+			if (poor_man != 0)
+			{
+				min_filter = GL_LINEAR_MIPMAP_NEAREST;
+				base_level = 1;
+			}
+			else
+			{
+				min_filter = GL_LINEAR_MIPMAP_LINEAR;
+				af = 1;
+			}
+			break;
+	}
+
+	if (have_extension(ext_texture_compression_s3tc) != 0)
+	{
+		uncompress = 0;
+	}
+	else
+	{
+		uncompress = 1;
+		compression = TC_FALSE;
+	}
+
+	if (load_image_data(texture_handle->file_name, uncompress, 0,
+		strip_mipmaps, base_level, compute_alpha, &image) == 0)
+	{
+		texture_handle->load_err = 1;
+
+		LOG_ERROR("Error loading image '%s'\n",
+			texture_handle->file_name);
+
+		return 0;
+	}
+
+	id = build_texture(&image, wrap_mode_repeat, min_filter, af,
+		build_mipmaps, compression);
+
+	texture_handle->id = id;
+	texture_handle->alpha = image.alpha;
+	texture_handle->size = 0;
+
+	for (i = 0; i < image.mipmaps; i++)
+	{
+		texture_handle->size += image.sizes[i];
+	}
+
+	free(image.image);
+	image.image = 0;
+
+	return 1;
+}
+
+static Uint32 load_texture_handle(const Uint32 handle)
+{
+	if (handle >= texture_handles_max_index)
+	{
+		LOG_ERROR("handle: %i, texture_handles_max_index: %i\n", handle,
+			texture_handles_max_index);
+
+		return 0;
+	}
+
+	if (texture_handles[handle].id != 0)
+	{
+		return 1;
+	}
+
+	if (texture_handles[handle].load_err != 0)
+	{
+		return 0;
+	}
+
+	if (load_texture(&texture_handles[handle]) != 0)
+	{
+		cache_adj_size(texture_cache,
+			texture_handles[handle].size,
+			&texture_handles[handle]);
+
+		return 1;
+	}
+
+	return 0;
+}
+
+static GLuint get_texture_id(const Uint32 handle)
+{
+	if (handle >= texture_handles_max_index)
+	{
+		LOG_ERROR("handle: %i, texture_handles_max_index: %i\n", handle,
+			texture_handles_max_index);
+
+		return 0;
+	}
+
+	if (load_texture_handle(handle) == 0)
+	{
+		return 0;
+	}
+
+	assert(texture_handles[handle].cache_ptr != 0);
+
+	cache_use(texture_cache, texture_handles[handle].cache_ptr);
+
+	return texture_handles[handle].id;
+}
+
+Uint32 get_texture_alpha(const Uint32 handle)
+{
+	if (handle >= texture_handles_max_index)
+	{
+		LOG_ERROR("handle: %i, texture_handles_max_index: %i\n", handle,
+			texture_handles_max_index);
+
+		return 0;
+	}
+
+	if (load_texture_handle(handle) == 0)
+	{
+		return 0;
+	}
+
+	return texture_handles[handle].alpha;
+}
+
+void bind_texture(const Uint32 handle)
+{
+	bind_texture_id(get_texture_id(handle));
+}
+
+void bind_texture_unbuffered(const Uint32 handle)
+{
+	glBindTexture(GL_TEXTURE_2D, get_texture_id(handle));
+}
+
+void free_actor_texture_resources(actor_texture_cache_struct* texture)
+{
+	if (texture != 0)
+	{
+		if (texture->id != 0)
+		{
+			glDeleteTextures(1, &texture->id);
+			texture->id = 0;
+		}
+
+		if (texture->image.image != 0)
+		{
+			free(texture->image.image);
+			texture->image.image = 0;
+		}
+
+		texture->state = ts_unloaded;
+	}
+}
+
+#ifdef	ELC
+Uint32 copy_to_coordinates(const image_struct* source, const Uint32 x,
+	const Uint32 y, image_struct* dest)
+{
+	Uint32 source_height, source_width, source_offset;
+	Uint32 dest_height, dest_width, dest_offset;
+	Uint32 i;
+	Uint8 *src, *dst;
+
+	source_width = source->width;
+	source_height = source->height;
+	dest_width = dest->width;
+	dest_height = dest->height;
+	src = source->image;
+	dst = dest->image;
+
+	for (i = 0; i < source_height; i++)
+	{
+		source_offset = i * source_width * 4;
+		dest_offset = ((dest_height - 1 - ((source_height - i - 1) + y)) * dest_width + x) * 4;
+
+		memcpy(dst + dest_offset, src + source_offset, source_width * 4);
+	}
+
+	return source->alpha;
+}
+
+Uint32 copy_to_coordinates_mask2(const image_struct* source0,
+	const image_struct* source1, const image_struct* mask,
+	const Uint32 x, const Uint32 y, image_struct* dest, Uint8* buffer)
+{
+	Uint32 source_height, source_width, source_offset;
+	Uint32 dest_height, dest_width, dest_offset;
+	Uint32 i, size;
+	Uint8 *src0, *src1, *msk, *dst;
+
+	source_width = source0->width;
+	source_height = source0->height;
+	dest_width = dest->width;
+	dest_height = dest->height;
+	src0 = source0->image;
+	src1 = source1->image;
+	msk = mask->image;
+	dst = dest->image;
+
+	size = source_width * source_height;
+
+	fast_mask2(msk, size, src0, src1, buffer);
+
+	for (i = 0; i < source_height; i++)
+	{
+		source_offset = i * source_width * 4;
+		dest_offset = ((dest_height - 1 - ((source_height - i - 1) + y)) * dest_width + x) * 4;
+
+		memcpy(dest + dest_offset, buffer + source_offset, source_width * 4);
+	}
+
+	if ((source0->alpha != 0) || (source1->alpha != 0))
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+Uint32 load_to_coordinates(const char* file_name, const Uint32 x,
+	const Uint32 y, image_struct *dst)
+{
+	image_struct image;
+
+	memset(&image, 0, sizeof(image));
+
+	if (load_image_data(file_name, 1, 1, 1, 0, 0, &image) == 0)
+	{
+		return 0;
+	}
+
+	return copy_to_coordinates(&image, x, y, dst);
+}
+
+Uint32 load_to_coordinates_mask2(const char* source0,
+	const char* source1, const char* mask,
+	const Uint32 x, const Uint32 y, image_struct *dest, Uint8* buffer)
+{
+	image_struct src0, src1, msk;
+
+	memset(&src0, 0, sizeof(src0));
+	memset(&src1, 0, sizeof(src1));
+	memset(&msk, 0, sizeof(msk));
+
+	if ((source1 == 0) || (mask == 0))
+	{
+		return load_to_coordinates(source0, x, y, dest);
+	}
+
+	if ((source1[0] == 0) || (mask[0] == 0))
+	{
+		return load_to_coordinates(source0, x, y, dest);
+	}
+
+	if (load_image_data(source0, 1, 1, 1, 0, 0, &src0) == 0)
+	{
+		return 0;
+	}
+
+	if (load_image_data(source1, 1, 1, 1, 0, 0, &src1) != 0)
+	{
+		return 0;
+	}
+
+	if (load_image_data(mask, 1, 1, 1, 0, 0, &msk) != 0)
+	{
+		return 0;
+	}
+
+	return copy_to_coordinates_mask2(&src0, &src1, &msk, x, y, dest,
+		buffer);
+}
+
+void load_enhanced_actor_threaded(const enhanced_actor_images* files,
+	image_struct* image, Uint8* buffer)
+{
+	Uint32 alpha;
+
+	memset(image, 0, sizeof(image_struct));
+
+	image->sizes[0] = TEXTURE_SIZE_X * TEXTURE_SIZE_Y * 4;
+	image->width = TEXTURE_SIZE_X;
+	image->height = TEXTURE_SIZE_Y;
+	image->mipmaps = 1;
+	image->format = IF_RGBA8;
+	image->image = malloc(TEXTURE_SIZE_X * TEXTURE_SIZE_Y * 4);
+
+	alpha = 0;
+
+	if (files->pants_tex[0])
+	{
+		alpha += load_to_coordinates_mask2(files->pants_tex,
+			files->legs_base, files->pants_mask,
+			78 * TEXTURE_RATIO, 175 * TEXTURE_RATIO, image,
+			buffer);
+	}
+	if (files->boots_tex[0])
+	{
+		alpha += load_to_coordinates_mask2(files->boots_tex,
+			files->boots_base, files->boots_mask,
+			0, 175 * TEXTURE_RATIO, image, buffer);
+	}
+#ifdef NEW_TEX
+	if (files->torso_tex[0])
+	{
+		alpha += load_to_coordinates_mask2(files->torso_tex,
+			files->body_base, files->torso_mask,
+			158 * TEXTURE_RATIO, 149 * TEXTURE_RATIO, image,
+			buffer);
+	}
+#else
+	if (files->torso_tex[0])
+	{
+		alpha += load_to_coordinates_mask2(files->torso_tex,
+			files->torso_base, files->torso_mask,
+			158 * TEXTURE_RATIO, 156 * TEXTURE_RATIO, image,
+			buffer);
+	}
+#endif
+	if (files->arms_tex[0])
+	{
+		alpha += load_to_coordinates_mask2(files->arms_tex,
+			files->arms_base, files->arms_mask,
+			0, 96 * TEXTURE_RATIO, image, buffer);
+	}
+	if (files->hands_tex[0])
+	{
+		alpha += load_to_coordinates_mask2(files->hands_tex,
+			files->hands_tex_save, files->hands_mask,
+			67 * TEXTURE_RATIO, 64 * TEXTURE_RATIO, image,
+			buffer);
+	}
+	if (files->head_tex[0])
+	{
+		alpha += load_to_coordinates_mask2(files->head_tex,
+			files->head_base, files->head_mask,
+			67 * TEXTURE_RATIO, 0, image, buffer);
+	}
+	if (files->hair_tex[0])
+	{
+		alpha += load_to_coordinates(files->hair_tex,
+			0, 0, image);
+	}
+#ifdef NEW_TEX
+	if (files->weapon_tex[0])
+	{
+		alpha += load_to_coordinates(files->weapon_tex,
+			178 * TEXTURE_RATIO, 77 * TEXTURE_RATIO, image);
+	}
+	if (files->shield_tex[0])
+	{
+		alpha += load_to_coordinates(files->shield_tex,
+			100 * TEXTURE_RATIO, 77 * TEXTURE_RATIO, image);
+	}
+#else
+	if (files->weapon_tex[0])
+	{
+		alpha += load_to_coordinates(files->weapon_tex,
+			158 * TEXTURE_RATIO, 77 * TEXTURE_RATIO, image);
+	}
+	if (files->shield_tex[0])
+	{
+		alpha += load_to_coordinates(files->shield_tex,
+			80 * TEXTURE_RATIO, 96 * TEXTURE_RATIO, image);
+	}
+#endif
+	if (files->helmet_tex[0])
+	{
+		alpha += load_to_coordinates(files->helmet_tex,
+			80 * TEXTURE_RATIO, 149 * TEXTURE_RATIO, image);
+	}
+	if (files->neck_tex[0])
+	{
+		alpha += load_to_coordinates(files->neck_tex,
+			80 * TEXTURE_RATIO, 96 * TEXTURE_RATIO, image);
+	}
+	if (files->cape_tex[0])
+	{
+		alpha += load_to_coordinates(files->cape_tex,
+			131 * TEXTURE_RATIO, 0, image);
+	}
+
+	if (alpha > 0)
+	{
+		alpha = 1;
+	}
+
+	image->alpha = alpha;
+}
+
+static void copy_enhanced_actor_file_name(char* dest, const char* source)
+{
+	safe_strncpy2(dest, source, MAX_FILE_PATH, get_file_name_len(source));
+}
+
+Uint32 load_enhanced_actor(enhanced_actor* actor)
+{
+	enhanced_actor_images files;
+	SDL_mutex* mutex;
+	Uint32 i, handle, hash, access_time;
+
+	memset(&files, 0, sizeof(files));
+
+	copy_enhanced_actor_file_name(files.pants_tex, actor->pants_tex);
+	copy_enhanced_actor_file_name(files.pants_mask, actor->pants_mask);
+
+	copy_enhanced_actor_file_name(files.boots_tex, actor->boots_tex);
+	copy_enhanced_actor_file_name(files.boots_mask, actor->boots_mask);
+
+	copy_enhanced_actor_file_name(files.torso_tex, actor->torso_tex);
+	copy_enhanced_actor_file_name(files.arms_tex, actor->arms_tex);
+	copy_enhanced_actor_file_name(files.torso_mask, actor->torso_mask);
+	copy_enhanced_actor_file_name(files.arms_mask, actor->arms_mask);
+
+	copy_enhanced_actor_file_name(files.hands_tex, actor->hands_tex);
+	copy_enhanced_actor_file_name(files.head_tex, actor->head_tex);
+	copy_enhanced_actor_file_name(files.hands_mask, actor->hands_mask);
+	copy_enhanced_actor_file_name(files.head_mask, actor->head_mask);
+
+	copy_enhanced_actor_file_name(files.head_base, actor->head_base);
+	copy_enhanced_actor_file_name(files.body_base, actor->body_base);
+	copy_enhanced_actor_file_name(files.arms_base, actor->arms_base);
+	copy_enhanced_actor_file_name(files.legs_base, actor->legs_base);
+	copy_enhanced_actor_file_name(files.boots_base, actor->boots_base);
+
+	copy_enhanced_actor_file_name(files.hair_tex, actor->hair_tex);
+	copy_enhanced_actor_file_name(files.weapon_tex, actor->weapon_tex);
+	copy_enhanced_actor_file_name(files.shield_tex, actor->shield_tex);
+	copy_enhanced_actor_file_name(files.helmet_tex, actor->helmet_tex);
+	copy_enhanced_actor_file_name(files.neck_tex, actor->neck_tex);
+	copy_enhanced_actor_file_name(files.cape_tex, actor->cape_tex);
+	copy_enhanced_actor_file_name(files.hands_tex_save, actor->hands_tex_save);
+
+	hash = string_hash(&files, sizeof(files));
+
+	assert(actor_texture_handles != 0);
+	handle = ACTOR_TEXTURE_CACHE_MAX;
+
+	for (i = 0; i < ACTOR_TEXTURE_CACHE_MAX; i++)
+	{
+		mutex = actor_texture_handles[i].mutex;
+
+		CHECK_AND_LOCK_MUTEX(mutex);
+
+		if (hash == actor_texture_handles[i].hash)
+		{
+			if (!memcmp(&actor_texture_handles[i].files,
+				&files, sizeof(files)))
+			{
+				// already loaded, use existing texture
+				actor_texture_handles[i].use_count++;
+				actor_texture_handles[handle].access_time = cur_time;
+
+				// already loaded, release lock
+				CHECK_AND_UNLOCK_MUTEX(mutex);
+
+				queue_push_signal(actor_texture_queue, &actor_texture_handles[i]);
+
+				return i;
+			}
+		}
+
+		if (actor_texture_handles[i].use_count == 0)
+		{
+			// remember the first open slot we have
+			if (handle == ACTOR_TEXTURE_CACHE_MAX)
+			{
+				handle = i;
+				access_time = actor_texture_handles[i].access_time;
+				// Don't unlock mutex! We plan to use this slot!
+			}
+			else
+			{
+				// Only use an older one if we don't use too many!
+				if ((access_time > actor_texture_handles[i].access_time)
+					&& (i < max_actor_texture_handles))
+				{
+					// Don't unlock mutex! We plan to use this slot!
+					mutex = actor_texture_handles[handle].mutex;
+					handle = i;
+					access_time = actor_texture_handles[i].access_time;
+				}
+
+				/* We unlock the current or the old mutex,
+				 * depending on which one we don't plan to use
+				 */
+				CHECK_AND_UNLOCK_MUTEX(mutex);
+			}
+		}
+		else
+		{
+			CHECK_AND_UNLOCK_MUTEX(mutex);
+		}
+	}
+
+	if (handle < ACTOR_TEXTURE_CACHE_MAX)
+	{
+		free_actor_texture_resources(&actor_texture_handles[handle]);
+
+		memcpy(&actor_texture_handles[handle].files, &files,
+			sizeof(files));
+
+		actor_texture_handles[handle].hash = hash;
+		actor_texture_handles[handle].use_count = 1;
+		actor_texture_handles[handle].access_time = cur_time;
+
+		CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[handle].mutex);
+
+		queue_push_signal(actor_texture_queue, &actor_texture_handles[handle]);
+
+		return handle;
+	}
+	else
+	{
+		LOG_ERROR("Error: out of texture space\n");
+
+		return ACTOR_TEXTURE_CACHE_MAX;	// ERROR!
+	}
+}
+
+Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
+{
+	Uint32 af, result;
+	GLenum min_filter;
+	texture_compression compression;
+
+	// don't look up an out of range texture
+	if (handle >= ACTOR_TEXTURE_CACHE_MAX)
+	{
+		LOG_ERROR("invalid actor texture handle: %i.", handle);
+
+		return 0;
+	}
+
+	CHECK_AND_LOCK_MUTEX(actor_texture_handles[handle].mutex);
+
+	if (actor_texture_handles[handle].state == ts_texture_loaded)
+	{
+		bind_texture_id(actor_texture_handles[handle].id);
+		actor_texture_handles[handle].access_time = cur_time;
+
+		result = 1;
+	}
+	else
+	{
+		result = 0;
+	}
+
+	if (actor_texture_handles[handle].state == ts_image_loaded)
+	{
+		if (poor_man != 0)
+		{
+			min_filter = GL_LINEAR_MIPMAP_NEAREST;
+		}
+		else
+		{
+			min_filter = GL_LINEAR_MIPMAP_LINEAR;
+			af = 1;
+		}
+
+		if (have_extension(ext_texture_compression_s3tc) != 0)
+		{
+			if (actor_texture_handles[handle].image.alpha == 0)
+			{
+				compression = TC_DXT1;
+			}
+			else
+			{
+				compression = TC_DXT5;
+			}
+		}
+		else
+		{
+			compression = TC_FALSE;
+		}
+
+		actor_texture_handles[handle].id =
+			build_texture(&actor_texture_handles[handle].image,
+			0, min_filter, af, 1, compression);
+
+		CHECK_GL_ERRORS();
+
+		free(actor_texture_handles[handle].image.image);
+
+		actor_texture_handles[handle].image.image = 0;
+
+		actor_texture_handles[handle].state = ts_texture_loaded;
+	}
+
+	if (alpha != 0)
+	{
+		*alpha = actor_texture_handles[handle].image.alpha;
+	}
+
+	CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[handle].mutex);
+
+	return result;
+}
+
+void free_actor_texture(const Uint32 handle)
+{
+	// don't look up an out of range texture
+	if (handle >= ACTOR_TEXTURE_CACHE_MAX)
+	{
+		LOG_ERROR("invalid actor texture handle: %i.", handle);
+
+		return;
+	}
+
+	CHECK_AND_LOCK_MUTEX(actor_texture_handles[handle].mutex);
+
+	if (actor_texture_handles[handle].use_count == 0)
+	{
+		LOG_ERROR("invalid actor texture handle: %i.", handle);
+
+		CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[handle].mutex);
+
+		return;
+	}
+
+	actor_texture_handles[handle].use_count--;
+
+	if ((actor_texture_handles[handle].use_count == 0) &&
+		(handle >= max_actor_texture_handles))
+	{
+		memset(&actor_texture_handles[handle].files, 0,
+			sizeof(enhanced_actor));
+
+		actor_texture_handles[handle].hash = 0;
+
+		free_actor_texture_resources(&actor_texture_handles[handle]);
+	}
+
+	CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[handle].mutex);
+}
+
+int load_enhanced_actor_thread(void* done)
+{
+	enhanced_actor_images files;
+	image_struct image;
+	actor_texture_cache_struct* actor;
+	Uint8* buffer;
+	Uint32 hash;
+
+	buffer = malloc(TEXTURE_SIZE_X * TEXTURE_SIZE_Y * 4);
+
+	while (*((Uint32*)done) == 0)
+	{
+		actor = queue_pop_blocking(actor_texture_queue);
+
+		if (actor != 0)
+		{
+			CHECK_AND_LOCK_MUTEX(actor->mutex);
+
+			if (actor->state == ts_unloaded)
+			{
+				memcpy(&files, &actor->files, sizeof(files));
+				hash = actor->hash;
+				actor->state = ts_image_loading;
+
+				CHECK_AND_UNLOCK_MUTEX(actor->mutex);
+
+				load_enhanced_actor_threaded(&files, &image,
+					buffer);
+
+				CHECK_AND_LOCK_MUTEX(actor->mutex);
+
+				if (hash == actor->hash)
+				{
+					if (!memcmp(&actor->files, &files,
+						sizeof(files)))
+					{
+						memcpy(&actor->image, &image,
+							sizeof(image));
+
+						actor->state = ts_image_loaded;
+					}
+				}
+			}
+
+			CHECK_AND_UNLOCK_MUTEX(actor->mutex);
+		}
+	}
+
+	free(buffer);
+
+	return 1;
+}
+
+#endif
+
+void init_texture_cache()
+{
+	Uint32 i;
+
+	texture_cache = cache_init(TEXTURE_CACHE_MAX, 0);
+	cache_set_compact(texture_cache, compact_texture);
+
+	texture_handles = malloc(TEXTURE_CACHE_MAX * sizeof(texture_cache_struct));
+	memset(texture_handles, 0, TEXTURE_CACHE_MAX * sizeof(texture_cache_struct));
+
+	actor_texture_handles = malloc(ACTOR_TEXTURE_CACHE_MAX * sizeof(actor_texture_cache_struct));
+	memset(actor_texture_handles, 0, ACTOR_TEXTURE_CACHE_MAX * sizeof(actor_texture_cache_struct));
+
+	queue_initialise(&actor_texture_queue);
+
+	for (i = 0; i < ACTOR_TEXTURE_CACHE_MAX; i++)
+	{
+		actor_texture_handles[i].mutex = SDL_CreateMutex();
+		actor_texture_handles[i].state = ts_unloaded;
+	}
+
+	for (i = 0; i < ACTOR_TEXTURE_THREAD_COUNT; i++)
+	{
+		actor_texture_threads[i] = SDL_CreateThread(
+			load_enhanced_actor_thread, &actor_texture_threads_done);
+	}
+}
+
+void free_texture_cache()
+{
+	Uint32 i;
+	int result;
+
+	actor_texture_threads_done = 1;
+
+	for (i = 0; i < ACTOR_TEXTURE_THREAD_COUNT; i++)
+	{
+		SDL_CondBroadcast(actor_texture_queue->condition);
+		SDL_WaitThread(actor_texture_threads[i], &result);
+	}
+
+	queue_destroy(actor_texture_queue);
+
+	for (i = 0; i < ACTOR_TEXTURE_CACHE_MAX; i++)
+	{
+		free_actor_texture_resources(&actor_texture_handles[i]);
+
+		if (actor_texture_handles[i].mutex != 0)
+		{
+			SDL_DestroyMutex(actor_texture_handles[i].mutex);
+		}
+	}
+
+	free(actor_texture_handles);
+
+	for (i = 0; i < texture_handles_max_index; i++)
+	{
+		if (texture_handles[i].id != 0)
+		{
+			glDeleteTextures(1, &texture_handles[i].id);
+		}
+	}
+
+	free(texture_handles);
+
+	cache_delete(texture_cache);
+}
+
+void unload_texture_cache()
+{
+	Uint32 i;
+
+	for (i = 0; i < texture_handles_max_index; i++)
+	{
+		if (texture_handles[i].id != 0)
+		{
+			glDeleteTextures(1, &texture_handles[i].id);
+
+			texture_handles[i].id = 0;
+
+			cache_adj_size(texture_cache, -texture_handles[i].size,
+				&texture_handles[i]);
+		}
+	}
+
+	if (actor_texture_handles != 0)
+	{
+		for (i = 0; i < ACTOR_TEXTURE_CACHE_MAX; i++)
+		{
+			CHECK_AND_LOCK_MUTEX(actor_texture_handles[i].mutex);
+
+			free_actor_texture_resources(&actor_texture_handles[i]);
+
+			CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[i].mutex);
+
+			if (actor_texture_handles[i].use_count > 0)
+			{
+				queue_push_signal(actor_texture_queue,
+					&actor_texture_handles[i]);
+			}
+		}
+	}
+}
+
+#else	// NEW_TEXTURES
 #ifdef NEW_CURSOR
 
 //Some textures just can't be compressed (written for custom cursors)
@@ -1308,3 +2467,4 @@ char * load_bmp8_color_key_no_texture_img(char * filename, img_struct * img)
 	return texture_mem;
 }
 #endif
+#endif	// NEW_TEXTURES

@@ -1,7 +1,7 @@
 /****************************************************************************
  *            dds.h
  *
- * Author: 2009  Daniel Jungmann <dsj@gmx.net>
+ * Author: 2011  Daniel Jungmann <dsj@gmx.net>
  * Copyright: See COPYING file that comes with this distribution
  ****************************************************************************/
 

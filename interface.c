@@ -35,6 +35,9 @@
  #include "io/elpathwrapper.h"
  #include "io/elfilewrapper.h"
 #include "3d_objects.h"
+#ifdef	NEW_TEXTURES
+#include "image_loading.h"
+#endif	/* NEW_TEXTURES */
 
 #define DEFAULT_CONTMAPS_SIZE 20
 
@@ -364,7 +367,11 @@ void build_video_mode_array()
 
 void draw_console_pic(int which_texture)
 {
+#ifdef	NEW_TEXTURES
+	bind_texture(which_texture);
+#else	/* NEW_TEXTURES */
 	get_and_set_texture_id(which_texture);
+#endif	/* NEW_TEXTURES */
 	glColor3f(1.0f,1.0f,1.0f);
 	glBegin(GL_QUADS);
 	//draw the texture
@@ -504,10 +511,18 @@ int cur_map;  //Is there a better way to do this?
 int cur_tab_map = -1;
 #endif // DEBUG_MAP_SOUND
 
+#ifdef	NEW_TEXTURES
+static const char* cont_map_file_names[] =
+{
+	"./maps/seridia",
+	"./maps/irilion"
+};
+#else	/* NEW_TEXTURES */
 static const char* cont_map_file_names[] = {
 	"./maps/seridia.bmp",
 	"./maps/irilion.bmp"
 };
+#endif	/* NEW_TEXTURES */
 static const int nr_continents = sizeof (cont_map_file_names) / sizeof (const char *);
 struct draw_map *continent_maps = NULL;
 
@@ -578,8 +593,12 @@ void read_mapinfo ()
 
 int switch_to_game_map()
 {
+#ifdef	NEW_TEXTURES
+	char buffer[1024];
+#else	/* NEW_TEXTURES */
 	int len;
 	texture_cache_struct tex;
+#endif	/* NEW_TEXTURES */
 	short int cur_cont;
 	static short int old_cont = -1;
 	
@@ -590,6 +609,16 @@ int switch_to_game_map()
 		return 0;
 	}
 	
+#ifdef	NEW_TEXTURES
+	if (check_image_name(map_file_name, sizeof(buffer), buffer) == 1)
+	{
+		map_text = load_texture_cached(buffer, TT_IMAGE);
+	}
+	else
+	{
+		map_text = 0;
+	}
+#else	/* NEW_TEXTURES */
 	my_strcp(tex.file_name,map_file_name);
 	len=strlen(tex.file_name);
 	tex.file_name[len-3]='b';
@@ -600,6 +629,7 @@ int switch_to_game_map()
 		map_text = 0;
 	else
 		map_text=load_bmp8_fixed_alpha(&tex, tex.alpha);
+#endif	/* NEW_TEXTURES */
 	if(!map_text)
 	{
 		LOG_TO_CONSOLE(c_yellow2,err_nomap_str);
@@ -616,7 +646,11 @@ int switch_to_game_map()
 	}
 	if (cur_cont != old_cont && cur_cont >= 0 && cur_cont < nr_continents)
 	{
+#ifdef	NEW_TEXTURES
+		cont_text = load_texture_cached (cont_map_file_names[cur_cont], TT_IMAGE);
+#else	/* NEW_TEXTURES */
 		cont_text = load_texture_cache (cont_map_file_names[cur_cont], 128);
+#endif	/* NEW_TEXTURES */
 		old_cont = cur_cont;
 	}
 #ifdef DEBUG_MAP_SOUND
@@ -632,10 +666,12 @@ int switch_to_game_map()
 
 void switch_from_game_map()
 {
+#ifndef	NEW_TEXTURES
 	glDeleteTextures(1,&map_text);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
+#endif	/* NEW_TEXTURES */
 }
 
 
@@ -655,12 +691,22 @@ void draw_game_map (int map, int mouse_mini)
 	if (cont_text < 0)
 	{
 		if (fallback_text < 0)
+#ifdef	NEW_TEXTURES
+		{
+			fallback_text = load_texture_cached("./textures/paper1", TT_GUI);
+		}
+#else	/* NEW_TEXTURES */
 			fallback_text = load_texture_cache ("./textures/paper1.bmp", 0);
+#endif	/* NEW_TEXTURES */
 		cont_text = fallback_text;
 	}
 	
 	if(map){
+#ifdef	NEW_TEXTURES
+		map_small = cont_text;
+#else	/* NEW_TEXTURES */
 		map_small=get_texture_id(cont_text);
+#endif	/* NEW_TEXTURES */
 		if(inspect_map_text == 0) {
 			map_large=map_text;
 		} else {
@@ -668,7 +714,11 @@ void draw_game_map (int map, int mouse_mini)
 		}
 	} else {
 		map_small=map_text;
+#ifdef	NEW_TEXTURES
+		map_large = cont_text;
+#else	/* NEW_TEXTURES */
 		map_large=get_texture_id(cont_text);
+#endif	/* NEW_TEXTURES */
 		if(cur_map!=-1){
 			x_size = ((float)(continent_maps[cur_map].x_end - continent_maps[cur_map].x_start)) / tile_map_size_x;
 			y_size = ((float)(continent_maps[cur_map].y_end - continent_maps[cur_map].y_start)) / tile_map_size_y;
@@ -703,7 +753,11 @@ void draw_game_map (int map, int mouse_mini)
 
 	glColor3f(1.0f,1.0f,1.0f);
     	
+#ifdef	NEW_TEXTURES
+	bind_texture(map_large);
+#else	/* NEW_TEXTURES */
 	bind_texture_id(map_large);
+#endif	/* NEW_TEXTURES */
     
 	glBegin(GL_QUADS);
 		glTexCoord2f(1.0f,0.0f); glVertex3i(50,0,0); 
@@ -719,7 +773,11 @@ void draw_game_map (int map, int mouse_mini)
     	
 	glEnable(GL_ALPHA_TEST);
 	
+#ifdef	NEW_TEXTURES
+	bind_texture(map_large);
+#else	/* NEW_TEXTURES */
 	bind_texture_id(map_small);
+#endif	/* NEW_TEXTURES */
     	
     	glBegin(GL_QUADS);
 		glTexCoord2f(1.0f,0.0f); glVertex3i(250,150,0);
@@ -732,7 +790,11 @@ void draw_game_map (int map, int mouse_mini)
 	
 	glColor3f(1.0f,1.0f,1.0f);
     	
+#ifdef	NEW_TEXTURES
+	bind_texture(legend_text);
+#else	/* NEW_TEXTURES */
 	get_and_set_texture_id(legend_text);
+#endif	/* NEW_TEXTURES */
     
     	glBegin(GL_QUADS);
 		glTexCoord2f(1.0f,0.0f); glVertex3i(250,50,0);

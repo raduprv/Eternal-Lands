@@ -26,6 +26,9 @@ typedef struct queue
 	node_t *front;	/* Front of the queue */
 	node_t *rear;	/* Back of the queue */
 	SDL_mutex *mutex; /* Mutex */
+#ifdef	NEW_TEXTURES
+	SDL_cond* condition;
+#endif	/* NEW_TEXTURES */
 	int nodes; /* Node counter */
 } queue_t;
 
@@ -36,6 +39,10 @@ void *queue_pop (queue_t *queue);
 void *queue_delete_node(queue_t *queue, node_t *node);
 int queue_isempty (const queue_t *queue);
 node_t *queue_front_node(const queue_t *queue);
+#ifdef	NEW_TEXTURES
+int queue_push_signal(queue_t *queue, void *item);
+void *queue_pop_blocking(queue_t *queue);
+#endif	/* NEW_TEXTURES */
 
 #ifdef __cplusplus
 } // extern "C"

@@ -76,10 +76,16 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 #endif
 
 	//get the skin
+#ifdef	NEW_TEXTURES
+	texture_id = load_enhanced_actor(this_actor);
+#else	/* NEW_TEXTURES */
 	texture_id= load_bmp8_enhanced_actor(this_actor, 255);
+#endif	/* NEW_TEXTURES */
 
 	our_actor = calloc(1, sizeof(actor));
+#ifndef	NEW_TEXTURES
 	our_actor->has_alpha= this_actor->has_alpha;
+#endif	/* NEW_TEXTURES */
 
 	memset(our_actor->current_displayed_text, 0, MAX_CURRENT_DISPLAYED_TEXT_LEN);
 	our_actor->current_displayed_text_time_left =  0;
@@ -210,8 +216,13 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 								}
 								if(actors_list[i]->cur_weapon == GLOVE_FUR || actors_list[i]->cur_weapon == GLOVE_LEATHER){
 									my_strcp(actors_list[i]->body_parts->hands_tex, actors_list[i]->body_parts->hands_tex_save);
+#ifdef	NEW_TEXTURES
+									free_actor_texture(actors_list[i]->texture_id);
+									actors_list[i]->texture_id = load_enhanced_actor(actors_list[i]->body_parts);
+#else	/* NEW_TEXTURES */
 									glDeleteTextures(1,&actors_list[i]->texture_id);
 									actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
+#endif	/* NEW_TEXTURES */
 
 								}
 								model_detach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].weapon[actors_list[i]->cur_weapon].mesh_index);
@@ -514,9 +525,14 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 							}
 						else return;
 
+#ifdef	NEW_TEXTURES
+						free_actor_texture(actors_list[i]->texture_id);
+						actors_list[i]->texture_id = load_enhanced_actor(actors_list[i]->body_parts);
+#else	/* NEW_TEXTURES */
 						glDeleteTextures(1,&actors_list[i]->texture_id);
 						actors_list[i]->texture_id = load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
 						actors_list[i]->has_alpha = actors_list[i]->body_parts->has_alpha;
+#endif	/* NEW_TEXTURES */
 						return;
 					}
 		}

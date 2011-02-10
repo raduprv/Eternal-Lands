@@ -38,9 +38,14 @@ const float load_bar_colors[12] = {
 Uint32 loading_win = -1;
 Uint32 loading_win_progress_bar = -1;
 static float total_progress = 0;
-GLuint loading_texture = -1;
+GLuint loading_texture = 0;
 float frac_x, frac_y;
+#ifdef	NEW_TEXTURES
+Uint32 loading_texture_handle;
+Uint32 use_snapshot = 0;
+#else	/* NEW_TEXTURES */
 int delete_texture = 0;
+#endif	/* NEW_TEXTURES */
 
 unsigned char text_buffer[255] = {0};
 
@@ -49,7 +54,18 @@ int version_width;
 
 int display_loading_win_handler(window_info *win)
 {
+#ifdef	NEW_TEXTURES
+	if (use_snapshot != 0)
+	{
+		bind_texture(loading_texture_handle);
+	}
+	else
+	{
+		glBindTexture (GL_TEXTURE_2D, loading_texture);
+	}
+#else	/* NEW_TEXTURES */
 	glBindTexture (GL_TEXTURE_2D, loading_texture);
+#endif	/* NEW_TEXTURES */
 	glEnable (GL_TEXTURE_2D);
 
 	glBegin(GL_QUADS);
@@ -114,7 +130,11 @@ void take_snapshot (int width, int height)
 	frac_x = ((float) width) / bg_width;
 	frac_y = ((float) height) / bg_height;
 	
+#ifdef	NEW_TEXTURES
+	use_snapshot = 1;
+#else	/* NEW_TEXTURES */
 	delete_texture = 1;
+#endif	/* NEW_TEXTURES */
 	
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -137,10 +157,16 @@ int create_loading_win (int width, int height, int snapshot)
 				PROGRESSBAR_LEN, PROGRESSBAR_HEIGHT, 0, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, load_bar_colors);
 		if (!snapshot)
 		{
+#ifdef	NEW_TEXTURES
+			loading_texture_handle = load_texture_cached("./textures/login_back", TT_IMAGE);
+			frac_x = frac_y = 1.0f;
+			use_snapshot = 1;
+#else	/* NEW_TEXTURES */
 			int idx = load_texture_cache ("./textures/login_back.bmp", 255);
 			loading_texture = get_texture_id (idx);
 			frac_x = frac_y = 1.0f;
 			delete_texture = 0;
+#endif	/* NEW_TEXTURES */
 
 			print_version_string (version_str, sizeof (version_str));
 			version_width = (get_string_width ((unsigned char*)version_str) * DEFAULT_FONT_X_LEN) / 12;		
@@ -178,8 +204,16 @@ void update_loading_win (char *text, float progress_increase)
 int destroy_loading_win(void)
 {
 	update_loading_win("", 0);
+#ifdef	NEW_TEXTURES
+	if (use_snapshot != 0)
+	{
+		glDeleteTextures (1, &loading_texture);
+		loading_texture = 0;
+	}
+#else	/* NEW_TEXTURES */
 	if (delete_texture)
 		glDeleteTextures (1, &loading_texture);
+#endif	/* NEW_TEXTURES */
 	destroy_window(loading_win);
 	loading_win = -1;
 	loading_texture = -1;

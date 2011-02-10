@@ -12,7 +12,11 @@ void draw_window_alphaborder(window_info *win) {
 	int w = win->len_x, h= win->len_y; // width, height
 
 	if (!alpha_border_tex) {
+#ifdef	NEW_TEXTURES
+		alpha_border_tex = load_texture_cached("textures/alphaborder", TT_GUI);
+#else	/* NEW_TEXTURES */
 		alpha_border_tex= load_texture_cache_deferred("textures/alphaborder.bmp", 0);
+#endif	/* NEW_TEXTURES */
 		if (!alpha_border_tex) return;
 	}
 	
@@ -30,7 +34,11 @@ void draw_window_alphaborder(window_info *win) {
 	glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
 	
 	glEnable(GL_TEXTURE_2D);
+#ifdef	NEW_TEXTURES
+	bind_texture(alpha_border_tex);
+#else	/* NEW_TEXTURES */
 	get_and_set_texture_id(alpha_border_tex);
+#endif	/* NEW_TEXTURES */
 
 	glBegin(GL_QUADS);
 

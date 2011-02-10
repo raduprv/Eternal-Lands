@@ -219,8 +219,13 @@ void change_actor ()
 		
 		my_strncp(our_actor.our_model->body_parts->boots_tex,actors_defs[our_actor.race].boots[our_actor.boots].boots_name,sizeof(our_actor.our_model->body_parts->boots_tex));
 
+#ifdef	NEW_TEXTURES
+		free_actor_texture(our_actor.our_model->texture_id);
+		our_actor.our_model->texture_id = load_enhanced_actor(our_actor.our_model->body_parts);	// Rebuild the actor's textures.
+#else	/* NEW_TEXTURES */
 		glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
 		our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the textures.
+#endif	/* NEW_TEXTURES */
 		
 		// Move the actor. Could be a little disorienting, though.
 		our_actor.our_model->x_tile_pos = our_actor.def->x;
@@ -1138,7 +1143,11 @@ int display_color_race_handler (window_info *win)
 	glColor3f(1.0f,1.0f,1.0f);
 	glEnable(GL_TEXTURE_2D);
 
+#ifdef	NEW_TEXTURES
+	bind_texture(icons_text);
+#else	/* NEW_TEXTURES */
 	get_and_set_texture_id(icons_text);
+#endif	/* NEW_TEXTURES */
 	glBegin(GL_QUADS);
 	if(book_opened==book_human||book_over==book_human)
 		draw_2d_thing((float)32/256,1.0f-(float)64/256,(float)63/256,1.0f-(float)95/256, 110, 75, 132, 97);
@@ -1269,16 +1278,26 @@ int click_color_race_handler (window_info *win, int mx, int my, Uint32 flags)
 			my_strncp(our_actor.our_model->body_parts->hands_tex,actors_defs[our_actor.race].skin[our_actor.skin].hands_name,sizeof(our_actor.our_model->body_parts->hands_tex));
 			my_strncp(our_actor.our_model->body_parts->head_tex,actors_defs[our_actor.race].skin[our_actor.skin].head_name,sizeof(our_actor.our_model->body_parts->head_tex));
 			
+#ifdef	NEW_TEXTURES
+			free_actor_texture(our_actor.our_model->texture_id);
+			our_actor.our_model->texture_id = load_enhanced_actor(our_actor.our_model->body_parts);	// Rebuild the actor's textures.
+#else	/* NEW_TEXTURES */
 			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
 			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
+#endif	/* NEW_TEXTURES */
 		} else if(my>71 && my<82){
 			our_actor.hair=dec(our_actor.def->hair, our_actor.hair, 1);
 			
 			// Copy the hair texture name.
 			my_strncp(our_actor.our_model->body_parts->hair_tex,actors_defs[our_actor.race].hair[our_actor.hair].hair_name,sizeof(our_actor.our_model->body_parts->hair_tex));
 			
+#ifdef	NEW_TEXTURES
+			free_actor_texture(our_actor.our_model->texture_id);
+			our_actor.our_model->texture_id = load_enhanced_actor(our_actor.our_model->body_parts);	// Rebuild the actor's textures.
+#else	/* NEW_TEXTURES */
 			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
 			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
+#endif	/* NEW_TEXTURES */
 		} else if(my>94 && my<105){
 			our_actor.shirt=dec(our_actor.def->shirts, our_actor.shirt, 1);
 			
@@ -1294,8 +1313,13 @@ int click_color_race_handler (window_info *win, int mx, int my, Uint32 flags)
 				our_actor.our_model->body_parts->torso_meshindex=actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index;
 			}
 			
+#ifdef	NEW_TEXTURES
+			free_actor_texture(our_actor.our_model->texture_id);
+			our_actor.our_model->texture_id = load_enhanced_actor(our_actor.our_model->body_parts);	// Rebuild the actor's textures.
+#else	/* NEW_TEXTURES */
 			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
 			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
+#endif	/* NEW_TEXTURES */
 		} else if(my>117 && my<128){
 			our_actor.pants=dec(our_actor.def->pants, our_actor.pants, 1);
 			
@@ -1310,16 +1334,26 @@ int click_color_race_handler (window_info *win, int mx, int my, Uint32 flags)
 				our_actor.our_model->body_parts->legs_meshindex=actors_defs[our_actor.race].legs[our_actor.pants].mesh_index;
 			}
 			
+#ifdef	NEW_TEXTURES
+			free_actor_texture(our_actor.our_model->texture_id);
+			our_actor.our_model->texture_id = load_enhanced_actor(our_actor.our_model->body_parts);	// Rebuild the actor's textures.
+#else	/* NEW_TEXTURES */
 			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
 			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
+#endif	/* NEW_TEXTURES */
 		} else if(my>140 && my<151){
 			our_actor.boots=dec(our_actor.def->boots, our_actor.boots, 1);
 			
 			// Copy the new boots texture name.
 			my_strncp(our_actor.our_model->body_parts->boots_tex,actors_defs[our_actor.race].boots[our_actor.boots].boots_name,sizeof(our_actor.our_model->body_parts->boots_tex));
 			
+#ifdef	NEW_TEXTURES
+			free_actor_texture(our_actor.our_model->texture_id);
+			our_actor.our_model->texture_id = load_enhanced_actor(our_actor.our_model->body_parts);	// Rebuild the actor's textures.
+#else	/* NEW_TEXTURES */
 			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
 			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
+#endif	/* NEW_TEXTURES */
 		}
 	} else if(mx>364 && mx<379){
 		if(my>25 && my<40){
@@ -1336,16 +1370,26 @@ int click_color_race_handler (window_info *win, int mx, int my, Uint32 flags)
 			my_strncp(our_actor.our_model->body_parts->hands_tex,actors_defs[our_actor.race].skin[our_actor.skin].hands_name,sizeof(our_actor.our_model->body_parts->hands_tex));
 			my_strncp(our_actor.our_model->body_parts->head_tex,actors_defs[our_actor.race].skin[our_actor.skin].head_name,sizeof(our_actor.our_model->body_parts->head_tex));
 			
+#ifdef	NEW_TEXTURES
+			free_actor_texture(our_actor.our_model->texture_id);
+			our_actor.our_model->texture_id = load_enhanced_actor(our_actor.our_model->body_parts);	// Rebuild the actor's textures.
+#else	/* NEW_TEXTURES */
 			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
 			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
+#endif	/* NEW_TEXTURES */
 		} else if(my>71 && my<86){
 			our_actor.hair=inc(our_actor.def->hair, our_actor.hair, 1);
 			
 			// Copy the hair texture name.
 			my_strncp(our_actor.our_model->body_parts->hair_tex,actors_defs[our_actor.race].hair[our_actor.hair].hair_name,sizeof(our_actor.our_model->body_parts->hair_tex));
 			
+#ifdef	NEW_TEXTURES
+			free_actor_texture(our_actor.our_model->texture_id);
+			our_actor.our_model->texture_id = load_enhanced_actor(our_actor.our_model->body_parts);	// Rebuild the actor's textures.
+#else	/* NEW_TEXTURES */
 			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
 			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
+#endif	/* NEW_TEXTURES */
 		} else if(my>94 && my<109){
 			our_actor.shirt=inc(our_actor.def->shirts, our_actor.shirt, 1);
 			
@@ -1361,8 +1405,13 @@ int click_color_race_handler (window_info *win, int mx, int my, Uint32 flags)
 				our_actor.our_model->body_parts->torso_meshindex=actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index;
 			}
 			
+#ifdef	NEW_TEXTURES
+			free_actor_texture(our_actor.our_model->texture_id);
+			our_actor.our_model->texture_id = load_enhanced_actor(our_actor.our_model->body_parts);	// Rebuild the actor's textures.
+#else	/* NEW_TEXTURES */
 			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
 			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
+#endif	/* NEW_TEXTURES */
 		} else if(my>117 && my<132){
 			our_actor.pants=inc(our_actor.def->pants, our_actor.pants, 1);
 			
@@ -1377,16 +1426,26 @@ int click_color_race_handler (window_info *win, int mx, int my, Uint32 flags)
 				our_actor.our_model->body_parts->legs_meshindex=actors_defs[our_actor.race].legs[our_actor.pants].mesh_index;
 			}
 			
+#ifdef	NEW_TEXTURES
+			free_actor_texture(our_actor.our_model->texture_id);
+			our_actor.our_model->texture_id = load_enhanced_actor(our_actor.our_model->body_parts);	// Rebuild the actor's textures.
+#else	/* NEW_TEXTURES */
 			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
 			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
+#endif	/* NEW_TEXTURES */
 		} else if(my>140 && my<155){
 			our_actor.boots=inc(our_actor.def->boots, our_actor.boots, 1);
 			
 			// Copy the new boots texture name.
 			my_strncp(our_actor.our_model->body_parts->boots_tex,actors_defs[our_actor.race].boots[our_actor.boots].boots_name,sizeof(our_actor.our_model->body_parts->boots_tex));
 			
+#ifdef	NEW_TEXTURES
+			free_actor_texture(our_actor.our_model->texture_id);
+			our_actor.our_model->texture_id = load_enhanced_actor(our_actor.our_model->body_parts);	// Rebuild the actor's textures.
+#else	/* NEW_TEXTURES */
 			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
 			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
+#endif	/* NEW_TEXTURES */
 		}
 	}
 	return 1;
@@ -1707,7 +1766,11 @@ int skin_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
 	my_strncp(our_actor.our_model->body_parts->hands_tex,actors_defs[our_actor.race].skin[our_actor.skin].hands_name,sizeof(our_actor.our_model->body_parts->hands_tex));
 	my_strncp(our_actor.our_model->body_parts->head_tex,actors_defs[our_actor.race].skin[our_actor.skin].head_name,sizeof(our_actor.our_model->body_parts->head_tex));
 
+#ifdef	NEW_TEXTURES
+	free_actor_texture(our_actor.our_model->texture_id);
+#else	/* NEW_TEXTURES */
 	glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
+#endif	/* NEW_TEXTURES */
 	our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
 	return 1;
 }
@@ -1719,7 +1782,11 @@ int skin_inc_handler(widget_list *w, int mx, int my, Uint32 flags)
 	my_strncp(our_actor.our_model->body_parts->hands_tex,actors_defs[our_actor.race].skin[our_actor.skin].hands_name,sizeof(our_actor.our_model->body_parts->hands_tex));
 	my_strncp(our_actor.our_model->body_parts->head_tex,actors_defs[our_actor.race].skin[our_actor.skin].head_name,sizeof(our_actor.our_model->body_parts->head_tex));
 
+#ifdef	NEW_TEXTURES
+	free_actor_texture(our_actor.our_model->texture_id);
+#else	/* NEW_TEXTURES */
 	glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
+#endif	/* NEW_TEXTURES */
 	our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
 	return 1;
 }
@@ -1731,7 +1798,11 @@ int hair_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
 	// Copy the hair texture name.
 	my_strncp(our_actor.our_model->body_parts->hair_tex,actors_defs[our_actor.race].hair[our_actor.hair].hair_name,sizeof(our_actor.our_model->body_parts->hair_tex));
 
+#ifdef	NEW_TEXTURES
+	free_actor_texture(our_actor.our_model->texture_id);
+#else	/* NEW_TEXTURES */
 	glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
+#endif	/* NEW_TEXTURES */
 	our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
 	return 1;
 }
@@ -1743,7 +1814,11 @@ int hair_inc_handler(widget_list *w, int mx, int my, Uint32 flags)
 	// Copy the hair texture name.
 	my_strncp(our_actor.our_model->body_parts->hair_tex,actors_defs[our_actor.race].hair[our_actor.hair].hair_name,sizeof(our_actor.our_model->body_parts->hair_tex));
 
+#ifdef	NEW_TEXTURES
+	free_actor_texture(our_actor.our_model->texture_id);
+#else	/* NEW_TEXTURES */
 	glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
+#endif	/* NEW_TEXTURES */
 	our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
 	return 1;
 }
@@ -1764,7 +1839,11 @@ int shirt_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
 		our_actor.our_model->body_parts->torso_meshindex=actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index;
 	}
 
+#ifdef	NEW_TEXTURES
+	free_actor_texture(our_actor.our_model->texture_id);
+#else	/* NEW_TEXTURES */
 	glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
+#endif	/* NEW_TEXTURES */
 	our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
 	return 1;
 }
@@ -1785,7 +1864,11 @@ int shirt_inc_handler(widget_list *w, int mx, int my, Uint32 flags)
 		our_actor.our_model->body_parts->torso_meshindex=actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index;
 	}
 
+#ifdef	NEW_TEXTURES
+	free_actor_texture(our_actor.our_model->texture_id);
+#else	/* NEW_TEXTURES */
 	glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
+#endif	/* NEW_TEXTURES */
 	our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
 	return 1;
 }
@@ -1805,7 +1888,11 @@ int pants_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
 		our_actor.our_model->body_parts->legs_meshindex=actors_defs[our_actor.race].legs[our_actor.pants].mesh_index;
 	}
 
+#ifdef	NEW_TEXTURES
+	free_actor_texture(our_actor.our_model->texture_id);
+#else	/* NEW_TEXTURES */
 	glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
+#endif	/* NEW_TEXTURES */
 	our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
 	return 1;
 }
@@ -1825,7 +1912,11 @@ int pants_inc_handler(widget_list *w, int mx, int my, Uint32 flags)
 		our_actor.our_model->body_parts->legs_meshindex=actors_defs[our_actor.race].legs[our_actor.pants].mesh_index;
 	}
 
+#ifdef	NEW_TEXTURES
+	free_actor_texture(our_actor.our_model->texture_id);
+#else	/* NEW_TEXTURES */
 	glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
+#endif	/* NEW_TEXTURES */
 	our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
 	return 1;
 }
@@ -1837,7 +1928,11 @@ int boots_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
 	// Copy the new boots texture name.
 	my_strncp(our_actor.our_model->body_parts->boots_tex,actors_defs[our_actor.race].boots[our_actor.boots].boots_name,sizeof(our_actor.our_model->body_parts->boots_tex));
 
+#ifdef	NEW_TEXTURES
+	free_actor_texture(our_actor.our_model->texture_id);
+#else	/* NEW_TEXTURES */
 	glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
+#endif	/* NEW_TEXTURES */
 	our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
 	return 1;
 }
@@ -1849,7 +1944,11 @@ int boots_inc_handler(widget_list *w, int mx, int my, Uint32 flags)
 	// Copy the new boots texture name.
 	my_strncp(our_actor.our_model->body_parts->boots_tex,actors_defs[our_actor.race].boots[our_actor.boots].boots_name,sizeof(our_actor.our_model->body_parts->boots_tex));
 
+#ifdef	NEW_TEXTURES
+	free_actor_texture(our_actor.our_model->texture_id);
+#else	/* NEW_TEXTURES */
 	glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
+#endif	/* NEW_TEXTURES */
 	our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
 	return 1;
 }

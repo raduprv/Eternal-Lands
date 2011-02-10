@@ -2463,6 +2463,9 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	}
 	else if (keysym == SDLK_F11)
 	{
+#ifdef	NEW_TEXTURES
+		unload_texture_cache();
+#else	/* NEW_TEXTURES */
 		int i;
 
 		for (i = 0; i < TEXTURE_CACHE_MAX; i++)
@@ -2487,6 +2490,7 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 					texture_cache[i].texture_id = load_bmp8_fixed_alpha (&(texture_cache[i]), alpha);
 			}
 		}
+#endif	/* NEW_TEXTURES */
 	}
 #endif //DEBUG
 	// END OF TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

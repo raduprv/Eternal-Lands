@@ -103,7 +103,14 @@ int display_trade_handler(window_info *win)
 		
 			this_texture=get_items_texture(your_trade_list[i].image_id/25);
 
+#ifdef	NEW_TEXTURES
+			if (this_texture != -1)
+			{
+				bind_texture(this_texture);
+			}
+#else	/* NEW_TEXTURES */
 			if(this_texture!=-1) get_and_set_texture_id(this_texture);
+#endif	/* NEW_TEXTURES */
 
 			x_start=(i%4)*33+10;
 			x_end=x_start+32;
@@ -141,7 +148,14 @@ int display_trade_handler(window_info *win)
 		
 			this_texture=get_items_texture(others_trade_list[i].image_id/25);
 
+#ifdef	NEW_TEXTURES
+			if (this_texture != -1)
+			{
+				bind_texture(this_texture);
+			}
+#else	/* NEW_TEXTURES */
 			if(this_texture!=-1) get_and_set_texture_id(this_texture);
+#endif	/* NEW_TEXTURES */
 
 			x_start=(i%4)*33+10+5*33;
 			x_end=x_start+32;

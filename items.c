@@ -264,7 +264,11 @@ void drag_item(int item, int storage, int mini)
 	//get the texture this item belongs to
 	this_texture=get_items_texture(cur_item/25);
 
+#ifdef	NEW_TEXTURES
+	bind_texture(this_texture);
+#else	/* NEW_TEXTURES */
 	get_and_set_texture_id(this_texture);
+#endif	/* NEW_TEXTURES */
 	glBegin(GL_QUADS);
 	if(mini)
 		draw_2d_thing(u_start,v_start,u_end,v_end,mouse_x-16,mouse_y-16,mouse_x+16,mouse_y+16);
@@ -461,7 +465,11 @@ void draw_item(int id, int x_start, int y_start, int gridsize){
 	//get the texture this item belongs to
 	this_texture=get_items_texture(id/25);
 		
+#ifdef	NEW_TEXTURES
+	bind_texture(this_texture);
+#else	/* NEW_TEXTURES */
 	get_and_set_texture_id(this_texture);
+#endif	/* NEW_TEXTURES */
 	glBegin(GL_QUADS);
 		draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_start+gridsize-1,y_start+gridsize-1);
 	glEnd();

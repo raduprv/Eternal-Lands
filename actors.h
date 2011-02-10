@@ -143,7 +143,9 @@ typedef struct
 	char neck_tex[MAX_FILE_PATH];
 	char cape_tex[MAX_FILE_PATH];
 	char hands_tex_save[MAX_FILE_PATH];
+#ifndef	NEW_TEXTURES
 	char has_alpha;//is there alpha masking?
+#endif	/* NEW_TEXTURES */
 
 	/*! \} */
 

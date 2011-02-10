@@ -80,6 +80,9 @@
 #include "sendvideoinfo.h"
 #include "actor_init.h"
 #include "io/elpathwrapper.h"
+#ifdef	NEW_TEXTURES
+#include "textures.h"
+#endif	/* NEW_TEXTURES */
 
 
 typedef	float (*float_min_max_func)();
@@ -444,6 +447,9 @@ void change_password(char * passwd)
 void change_poor_man(int *poor_man)
 {
 	*poor_man= !*poor_man;
+#ifdef	NEW_TEXTURES
+	unload_texture_cache();
+#endif	/* NEW_TEXTURES */
 	if(*poor_man) {
 		show_reflection= 0;
 		shadows_on= 0;

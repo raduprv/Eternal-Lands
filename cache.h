@@ -44,6 +44,7 @@ typedef struct
 	Uint32	(*compact_item)();	/*!< routine to call to reduce memory usage without freeing */
 }cache_struct;
 
+#ifndef	NEW_TEXTURES
 /*!
  * we use a separate cache structure to cache textures.
  */
@@ -55,9 +56,8 @@ typedef struct
 	int alpha;                    /*!< used for alpha blending the texture */
     int has_alpha;                /*!< specify if the texture has an alpha map */
 	char load_err;                /*!< if true, we tried to load this texture before and failed */
-
-
 }texture_cache_struct;
+#endif
 
 /*!
  * \name Cache constants

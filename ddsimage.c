@@ -1,22 +1,131 @@
 /****************************************************************************
  *            ddsimage.c
  *
- * Author: 2009  Daniel Jungmann <dsj@gmx.net>
+ * Author: 2009-2011  Daniel Jungmann <dsj@gmx.net>
  * Copyright: See COPYING file that comes with this distribution
  ****************************************************************************/
 
+#include "ddsimage.h"
 #include "dds.h"
 #include "errors.h"
-#include "io/elfilewrapper.h"
+#include "image.h"
+#include "misc.h"
+#include <assert.h>
+#include <xmmintrin.h>
 
-static Uint32 popcount(const Uint32 x)
+#ifdef	NEW_TEXTURES
+static image_format detect_format(DdsHeader *header, Uint8* alpha, Uint32* unpack)
 {
-	Uint32 r;
+	Uint32 red_mask, green_mask, blue_mask, alpha_mask, luminace_mask;
 
-	r = x - ((x >> 1) & 033333333333) - ((x >> 2) & 011111111111);
+	*unpack = 0;
 
-	return ((r + (r >> 3)) & 030707070707) % 63;
+	if ((header->m_pixel_format.m_flags & DDPF_FOURCC) == DDPF_FOURCC)
+	{
+		switch (header->m_pixel_format.m_fourcc)
+		{
+			case DDSFMT_DXT1:
+				*alpha = 1;
+				return IF_DXT1;
+			case DDSFMT_DXT3:
+				*alpha = 1;
+				return IF_DXT3;
+			case DDSFMT_DXT5:
+				*alpha = 1;
+				return IF_DXT5;
+			case DDSFMT_ATI1:
+				*alpha = 0;
+				return IF_ATI1;
+			case DDSFMT_ATI2:
+				*alpha = 1;
+				return IF_ATI2;
+		}
+	}
+	else
+	{
+		red_mask = header->m_pixel_format.m_red_mask;
+		green_mask = header->m_pixel_format.m_green_mask;
+		blue_mask = header->m_pixel_format.m_blue_mask;
+		alpha_mask = header->m_pixel_format.m_alpha_mask;
+		luminace_mask = red_mask | green_mask | blue_mask;
+
+		if (alpha_mask != 0)
+		{
+			*alpha = 1;
+		}
+		else
+		{
+			*alpha = 0;
+		}
+
+		if (((luminace_mask == red_mask) || (red_mask == 0xFF)) &&
+			((luminace_mask == green_mask) || (green_mask == 0xFF)) &&
+			((luminace_mask == blue_mask) || (blue_mask == 0xFF)))
+		{
+			if ((luminace_mask == 0x00) && (alpha_mask == 0xFF))
+			{
+				return IF_A8;
+			}
+
+			if ((luminace_mask == 0xFF) && (alpha_mask == 0x00))
+			{
+				return IF_L8;
+			}
+
+			if ((luminace_mask == 0xFF) && (alpha_mask == 0xFF00))
+			{
+				return IF_LA8;
+			}
+		}
+
+		if ((red_mask == 0x0F00) && (green_mask == 0x00F0) &&
+			(blue_mask == 0x000F) && (alpha_mask == 0xF000))
+		{
+			return IF_RGBA4;
+		}
+
+		if ((red_mask == 0xF800) && (green_mask == 0x07E0) &&
+			(blue_mask == 0x001F) && (alpha_mask == 0x0000))
+		{
+			return IF_R5G6B5;
+		}
+
+		if ((red_mask == 0x7C00) && (green_mask == 0x03E0) &&
+			(blue_mask == 0x001F) && (alpha_mask == 0x8000))
+		{
+			return IF_RGB5_A1;
+		}
+
+		if ((red_mask == 0x000000FF) && (green_mask == 0x0000FF00) &&
+			(blue_mask == 0x00FF0000) && (alpha_mask == 0x00000000))
+		{
+			return IF_RGB8;
+		}
+
+		if ((red_mask == 0x000000FF) && (green_mask == 0x0000FF00) &&
+			(blue_mask == 0x00FF0000) && (alpha_mask == 0xFF000000))
+		{
+			return IF_RGBA8;
+		}
+
+		if ((red_mask == 0x00FF0000) && (green_mask == 0x0000FF00) &&
+			(blue_mask == 0x000000FF) && (alpha_mask == 0xFF000000))
+		{
+			return IF_BGRA8;
+		}
+
+		if ((red_mask == 0x00FF0000) && (green_mask == 0x0000FF00) &&
+			(blue_mask == 0x000000FF) && (alpha_mask == 0x00000000))
+		{
+			return IF_BGRA8;
+		}
+	}
+
+	*unpack = 1;
+
+	return IF_RGBA8;
 }
+#endif	/* NEW_TEXTURES */
 
 Uint32 check_dds(const Uint8 *ID)
 {
@@ -37,25 +146,26 @@ static Uint32 validate_header(DdsHeader *header, const char* file_name)
 
 	if (header->m_pixel_format.m_size != DDS_PIXEL_FORMAT_SIZE)
 	{
-		LOG_ERROR("File '%s' is invalid. Size of pixe format header is %d bytes, but must"
-			" be %3% bytes for valid DDS files.", file_name,
-			header->m_pixel_format.m_size, DDS_PIXEL_FORMAT_SIZE);
+		LOG_ERROR("File '%s' is invalid. Size of pixe format header is"
+			" %d bytes, but must be %3% bytes for valid DDS files.",
+			file_name, header->m_pixel_format.m_size,
+			DDS_PIXEL_FORMAT_SIZE);
 		return 0;
 	}
 
 	if ((header->m_flags & DDSD_MIN_FLAGS) != DDSD_MIN_FLAGS)
 	{
 		LOG_ERROR("File '%s' is invalid. At least the "
-			"DDSD_CAPS, DDSD_PIXELFORMAT, DDSD_WIDTH and DDSD_HEIGHT flags"
-			" must be set for a valid DDS file.", file_name);
+			"DDSD_CAPS, DDSD_PIXELFORMAT, DDSD_WIDTH and "
+			"DDSD_HEIGHT flags must be set for a valid DDS file.",
+			file_name);
 		return 0;
 	}
 
 	if ((header->m_caps.m_caps1 & DDSCAPS_TEXTURE) != DDSCAPS_TEXTURE)
 	{
-		LOG_ERROR("File '%' is invalid. At least "
-			"DDSCAPS_TEXTURE cap must be set for a valid DDS file.",
-			file_name);
+		LOG_ERROR("File '%' is invalid. At least DDSCAPS_TEXTURE cap "
+			"must be set for a valid DDS file.", file_name);
 		return 0;
 	}
 
@@ -63,7 +173,8 @@ static Uint32 validate_header(DdsHeader *header, const char* file_name)
 		((header->m_caps.m_caps2 & DDSCAPS2_CUBEMAP_ALL_FACES) == 0))
 	{
 		LOG_ERROR("File '%s' is invalid. At least one cube"
-			" map face must be set for a valid cube map DDS file.", file_name);
+			" map face must be set for a valid cube map DDS file.",
+			file_name);
 		return 0;
 	}
 
@@ -78,8 +189,8 @@ static Uint32 validate_header(DdsHeader *header, const char* file_name)
 	if (((header->m_flags & DDSD_DEPTH) == DDSD_DEPTH) &&
 		((header->m_caps.m_caps2 & DDSCAPS2_VOLUME) != DDSCAPS2_VOLUME))
 	{
-		LOG_ERROR("File '%s' is invalid. Only volmue "
-			"textures can have a detph value in a valid DDS file.", file_name);
+		LOG_ERROR("File '%s' is invalid. Only volmue images can have"
+			" a detph value in a valid DDS file.", file_name);
 		return 0;
 	}
 
@@ -109,24 +220,18 @@ static Uint32 validate_header(DdsHeader *header, const char* file_name)
 		((header->m_caps.m_caps2 & DDSCAPS2_VOLUME) != DDSCAPS2_VOLUME)
 		&& ((header->m_caps.m_caps2 & DDSCAPS2_CUBEMAP) != DDSCAPS2_CUBEMAP))
 	{
-		LOG_ERROR("File '%s' is invalid. DDSCAPS_COMPLEX cap "
-			"should be set only if the DDS file is a cube map, a volume and/or"
-			" has mipmaps.", file_name);
+		LOG_ERROR("File '%s' is invalid. DDSCAPS_COMPLEX cap should "
+			"be set only if the DDS file is a cube map, a volume "
+			"and/or has mipmaps.", file_name);
 	}
 
 	if (((header->m_pixel_format.m_flags & DDPF_FOURCC) == DDPF_FOURCC) &&
 		((header->m_pixel_format.m_flags & DDPF_RGB) == DDPF_RGB))
 	{
-		LOG_ERROR("File '%s' is invalid. A valid DDS file "
-			"must set either DDPF_FORCC or DDPF_RGB as pixel format flags.",
+		LOG_ERROR("File '%s' is invalid. A valid DDS file must set "
+			"either DDPF_FORCC or DDPF_RGB as pixel format flags.",
 			file_name);
 		return 0;
-	}
-
-	if ((header->m_pixel_format.m_flags & DDPF_LUMINANCE) == DDPF_LUMINANCE)
-	{
-		LOG_ERROR("File '%s' is invalid. A valid DDS file must "
-			"not set DDPF_LUMINANCE as pixel format flags.", file_name);
 	}
 
 	if (((header->m_pixel_format.m_flags & DDPF_FOURCC) != DDPF_FOURCC) &&
@@ -134,14 +239,29 @@ static Uint32 validate_header(DdsHeader *header, const char* file_name)
 	{
 		if ((header->m_pixel_format.m_flags & DDPF_LUMINANCE) == DDPF_LUMINANCE)
 		{
-			header->m_pixel_format.m_green_mask = 0;
-			header->m_pixel_format.m_blue_mask = 0;
+			header->m_pixel_format.m_green_mask = header->m_pixel_format.m_red_mask;
+			header->m_pixel_format.m_blue_mask = header->m_pixel_format.m_red_mask;
 		}
 		else
 		{
-			LOG_ERROR("File '%s' is invalid. A valid "
-				"DDS file must set either DDPF_FORCC or DDPF_RGB as pixe"
+			LOG_ERROR("File '%s' is invalid. A valid DDS file must"
+				" set either DDPF_FORCC or DDPF_RGB as pixe"
 				" format flags.", file_name);
+			return 0;
+		}
+	}
+
+	if ((header->m_caps.m_caps1 & DDSCAPS_MIPMAP) != DDSCAPS_MIPMAP)
+	{
+		header->m_mipmap_count = 1;
+	}
+	else
+	{
+		if (header->m_mipmap_count == 0)
+		{
+			LOG_ERROR("File '%s' is invalid. Mipmaped images must"
+				" have a mipmap count greather than zero.",
+				file_name);
 			return 0;
 		}
 	}
@@ -154,35 +274,21 @@ static Uint32 validate_header(DdsHeader *header, const char* file_name)
 	{
 		if (header->m_depth == 0)
 		{
-			LOG_ERROR("File '%s' is invalid. Volmue "
-				"textures must have a depth greather than zero.", file_name);
+			LOG_ERROR("File '%s' is invalid. Volmue images must "
+				"have a depth greather than zero.", file_name);
 			return 0;
 		}
 	}
 
-	if ((header->m_pixel_format.m_flags & DDPF_ALPHAPIXELS) != DDPF_ALPHAPIXELS)
-	{
-		if (header->m_pixel_format.m_alpha_mask != 0)
-		{
-			LOG_ERROR("File '%s' is invalid. Non alpha pixe"
-				" formats must have a zero alpha mask to be a valid DDS "
-				"files", file_name);
-			header->m_pixel_format.m_alpha_mask = 0;
-		}
-	}
-
-	bit_count = popcount(header->m_pixel_format.m_red_mask |
+	bit_count = (popcount(header->m_pixel_format.m_red_mask |
 		header->m_pixel_format.m_blue_mask |
 		header->m_pixel_format.m_green_mask |
-		header->m_pixel_format.m_alpha_mask);
+		header->m_pixel_format.m_alpha_mask) + 7) & 0xF8;
 
-	if (((header->m_pixel_format.m_flags & DDPF_RGB) == DDPF_RGB) &&
-		(header->m_pixel_format.m_bit_count != bit_count))
+	if ((header->m_pixel_format.m_bit_count != bit_count) &&
+		((header->m_pixel_format.m_flags & DDPF_RGB) == DDPF_RGB))
 	{
-		header->m_pixel_format.m_alpha_mask = 0xFFFFFFFF;
-		header->m_pixel_format.m_alpha_mask ^= header->m_pixel_format.m_red_mask;
-		header->m_pixel_format.m_alpha_mask ^= header->m_pixel_format.m_blue_mask;
-		header->m_pixel_format.m_alpha_mask ^= header->m_pixel_format.m_green_mask;
+		header->m_pixel_format.m_bit_count = bit_count;
 	}
 
 	return 1;
@@ -321,11 +427,12 @@ static void read_and_uncompress_ati2_block(el_file_ptr file, Uint8 *values)
 	unpack_ati2(&first_block, &second_block, values);
 }
 
-static void uncompress_block(el_file_ptr file, Uint32 format, Uint32 x, Uint32 width,
-	Uint32 dst_pitch, Uint32 dst_pitch_minus_4, Uint32 *idx, Uint8 *dst)
+static void uncompress_block(el_file_ptr file, const Uint32 format,
+	const Uint32 x, const Uint32 y, const Uint32 width, const Uint32 height,
+	const Uint32 offset, Uint8 *dst)
 {
 	Uint8 values[64];
-	Uint32 i, j, index;
+	Uint32 i, j, index, count_x, count_y;
 
 	switch (format)
 	{
@@ -348,64 +455,151 @@ static void uncompress_block(el_file_ptr file, Uint32 format, Uint32 x, Uint32 w
 			break;
 	}
 
-	index = *idx;
+	count_x = min2u(width - x, 4);
+	count_y = min2u(height - y, 4);
 
 	// write 4x4 block to uncompressed version
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < count_y; i++)
 	{
-		for (j = 0; j < 4; j++)
+		for (j = 0; j < count_x; j++)
 		{
-			dst[index + 0] = values[(i * 4 + j) * 4 + 0];
-			dst[index + 1] = values[(i * 4 + j) * 4 + 1];
-			dst[index + 2] = values[(i * 4 + j) * 4 + 2];
-			dst[index + 3] = values[(i * 4 + j) * 4 + 3];
-			index += 4;
+			index = offset + (y + i) * width + x + j;
+			dst[index * 4 + 0] = values[(i * 4 + j) * 4 + 0];
+			dst[index * 4 + 1] = values[(i * 4 + j) * 4 + 1];
+			dst[index * 4 + 2] = values[(i * 4 + j) * 4 + 2];
+			dst[index * 4 + 3] = values[(i * 4 + j) * 4 + 3];
 		}
-		// advance to next row
-		index += dst_pitch_minus_4;
 	}
-	// next block. Our dest pointer is 4 lines down
-	// from where it started
-	if ((x + 1) == (width / 4))
+}
+
+static Uint32 get_level_size(const Uint32 format, const Uint32 bpp,
+	const Uint32 width, const Uint32 height, const Uint32 level,
+	const Uint32 uncompress)
+{
+	Uint32 w, h;
+
+	w = max2u(width >> level, 1);
+	h = max2u(height >> level, 1);
+
+	if ((format == DDSFMT_DXT1) || (format == DDSFMT_DXT2) ||
+		(format == DDSFMT_DXT3) || (format == DDSFMT_DXT4) ||
+		(format == DDSFMT_DXT5) || (format == DDSFMT_ATI2) ||
+		(format == DDSFMT_ATI1))
 	{
-		// Jump back to the start of the line
-		index -= dst_pitch_minus_4;
+		if (uncompress != 0)
+		{
+			return w * h * 4;
+		}
+		else
+		{
+			w = (w + 3) / 4;
+			h = (h + 3) / 4;
+
+			if ((format == DDSFMT_DXT1) || (format == DDSFMT_ATI1))
+			{
+				return w * h * 8;
+			}
+			else
+			{
+				return w * h * 16;
+			}
+		}
 	}
 	else
 	{
-		// Jump back up 4 rows and 4 pixels to the
-		// right to be at the next block to the right
-		index += (4 - dst_pitch) * 4;
+		return w * h * bpp;
 	}
-
-	*idx = index;
 }
 
-static void* uncompress(el_file_ptr file, DdsHeader *header, const char* file_name)
+static Uint32 get_dds_level_size(const DdsHeader *header, const Uint32 level,
+	const Uint32 uncompress, const Uint32 unpack)
 {
-	Uint32 width, height, size, format;
-	Uint32 x, y;
-	Uint32 dst_pitch, dst_pitch_minus_4, index;
-	Uint8 *dst;
+	Uint32 width, height, format, bpp;
+
+	width = header->m_width;
+	height = header->m_height;
+	format = header->m_pixel_format.m_fourcc;
+
+	if (unpack != 0)
+	{
+		bpp = 4;
+	}
+	else
+	{
+		bpp = header->m_pixel_format.m_bit_count / 8;
+	}
+
+	return get_level_size(format, bpp, width, height, level, uncompress);
+}
+
+static Uint32 get_dds_size(const DdsHeader *header, const Uint32 uncompress,
+	const Uint32 strip_mipmaps, const Uint32 base_level)
+{
+	Uint32 result, mipmap_count, i;
+
+	if (strip_mipmaps != 0)
+	{
+		return get_dds_level_size(header, base_level, uncompress, 0);
+	}
+	else
+	{
+		mipmap_count = header->m_mipmap_count;
+
+		result = 0;
+
+		for (i = base_level; i < mipmap_count; i++)
+		{
+			result += get_dds_level_size(header, i, uncompress, 0);
+		}
+
+		return result;
+	}
+}
+
+static Uint32 get_dds_offset(const DdsHeader *header, const Uint32 base_level)
+{
+	Uint32 result, i;
+
+	result = 0;
+
+	for (i = 0; i < base_level; i++)
+	{
+		result += get_dds_level_size(header, i, 0, 0);
+	}
+
+	return result;
+}
+
+static void* uncompress_dds(el_file_ptr file, DdsHeader *header,
+	const char* file_name, const Uint32 strip_mipmaps,
+	const Uint32 base_level)
+{
+	Uint32 width, height, size, format, mipmap_count;
+	Uint32 x, y, i, w, h;
+	Uint32 index;
+	Uint8 *dest;
 
 	if ((header->m_height % 4) != 0)
 	{
-		LOG_ERROR("Can`t uncompressed DDS file %s because height is %d and not a "
-			"multible of four.", file_name, header->m_height);
+		LOG_ERROR("Can`t uncompressed DDS file %s because height is"
+			" %d and not a multible of four.", file_name,
+			header->m_height);
 		return 0;
 	}
 
 	if ((header->m_width % 4) != 0)
 	{
-		LOG_ERROR("Can`t uncompressed DDS file %s because width is %d and not a "
-			"multible of four.", file_name, header->m_width);
+		LOG_ERROR("Can`t uncompressed DDS file %s because width is"
+			" %d and not a multible of four.", file_name,
+			header->m_width);
 		return 0;
 	}
 
 	format = header->m_pixel_format.m_fourcc;
 
-	if ((format != DDSFMT_DXT1) && (format != DDSFMT_DXT2) && (format != DDSFMT_DXT3) &&
-		(format != DDSFMT_DXT4) && (format != DDSFMT_DXT5) && (format != DDSFMT_ATI1) &&
+	if ((format != DDSFMT_DXT1) && (format != DDSFMT_DXT2) &&
+		(format != DDSFMT_DXT3) && (format != DDSFMT_DXT4) &&
+		(format != DDSFMT_DXT5) && (format != DDSFMT_ATI1) &&
 		(format != DDSFMT_ATI2))
 	{
 		return 0;
@@ -413,32 +607,230 @@ static void* uncompress(el_file_ptr file, DdsHeader *header, const char* file_na
 
 	index = 0;
 
-	width = header->m_width;
-	height = header->m_height;
+	size = get_dds_size(header, 1, strip_mipmaps, base_level);
+	width = max2u(header->m_width >> base_level, 1);
+	height = max2u(header->m_height >> base_level, 1);
+	mipmap_count = header->m_mipmap_count;
 
-	size = width * height * 4;
-
-	dst = malloc(size * sizeof(GLubyte));
-
-	dst_pitch = width * 4;
-	dst_pitch_minus_4 = dst_pitch - 4 * 4;
-
-	// 4x4 blocks in x/y
-	for (y = 0; y < (height / 4); y++)
+	if (strip_mipmaps != 0)
 	{
-		for (x = 0; x < (width / 4); x++)
+		if (mipmap_count > (base_level + 1))
 		{
-			uncompress_block(file, format, x, width, dst_pitch, dst_pitch_minus_4,
-				&index, dst);
+			mipmap_count = base_level + 1;
 		}
 	}
+
+	dest = malloc(size);
+
+	el_seek(file, get_dds_offset(header, base_level), SEEK_CUR);
+
+	for (i = base_level; i < mipmap_count; i++)
+	{
+		w = (width + 3) / 4;
+		h = (height + 3) / 4;
+
+		assert(index * 4 <= size);
+
+		// 4x4 blocks in x/y
+		for (y = 0; y < h; y++)
+		{
+			for (x = 0; x < w; x++)
+			{
+				uncompress_block(file, format, x * 4, y * 4,
+					width, height, index, dest);
+			}
+		}
+
+		index += width * height;
+
+		if (width > 1)
+		{
+			width /= 2;
+		}
+
+		if (height > 1)
+		{
+			height /= 2;
+		}
+	}
+
+	assert(index * 4 == size);
+
+	return dest;
+}
+
+static void* unpack_dds(el_file_ptr file, DdsHeader *header, const char* file_name,
+	const Uint32 strip_mipmaps, const Uint32 base_level)
+{
+	Uint8* dest;
+	Uint32 size, offset, bpp;
+
+	size = get_dds_size(header, 0, strip_mipmaps, base_level);
+	offset = get_dds_offset(header, base_level);
+	bpp = header->m_pixel_format.m_bit_count / 8;
+
+	dest = malloc(size);
+
+	fast_unpack(el_get_pointer(file) + sizeof(DdsHeader) + offset + 4, size / bpp,
+		header->m_pixel_format.m_red_mask,
+		header->m_pixel_format.m_green_mask,
+		header->m_pixel_format.m_blue_mask,
+		header->m_pixel_format.m_alpha_mask, dest);
+
+	return dest;
+}
+
+#ifdef	NEW_TEXTURES
+static void* read_dds(el_file_ptr file, DdsHeader *header, const char* file_name,
+	const Uint32 strip_mipmaps, const Uint32 base_level)
+{
+	Uint8* dst;
+	Uint32 size, offset;
+
+	size = get_dds_size(header, 0, strip_mipmaps, base_level);
+	offset = get_dds_offset(header, base_level);
+
+	dst = malloc(size);
+
+	memcpy(dst, el_get_pointer(file) + sizeof(DdsHeader) + offset + 4, size);
 
 	return dst;
 }
 
+static void get_dds_sizes_and_offsets(const DdsHeader *header,
+	const Uint32 uncompress, const Uint32 unpack,
+	const Uint32 strip_mipmaps, const Uint32 base_level,
+	image_struct* image)
+{
+	Uint32 offset, size, index, mipmap_count, i;
+
+	memset(image->sizes, 0, sizeof(image->sizes));
+	memset(image->offsets, 0, sizeof(image->offsets));
+
+	if (strip_mipmaps != 0)
+	{
+		size = get_dds_level_size(header, base_level, uncompress, unpack);
+
+		image->sizes[0] = size;
+	}
+	else
+	{
+		mipmap_count = header->m_mipmap_count;
+
+		index = 0;
+		offset = 0;
+
+		for (i = base_level; i < mipmap_count; i++)
+		{
+			size = get_dds_level_size(header, i, uncompress, unpack);
+
+			image->sizes[index] = size;
+			image->offsets[index] = offset;
+
+			index++;
+			offset += size;
+		}
+	}
+}
+
+Uint32 load_dds(el_file_ptr file, const char* file_name, const Uint32 uncompress,
+	const Uint32 unpack, const Uint32 strip_mipmaps, Uint32 base_level,
+	image_struct* image)
+{
+	DdsHeader header;
+	Uint32 format, format_unpack, mipmap_count, start_mipmap;
+
+	if (file == 0)
+	{
+		return 0;
+	}
+
+	if (init_dds_image(file, &header, file_name) != 0)
+	{
+		start_mipmap = min2u(base_level, header.m_mipmap_count - 1);
+
+		if (strip_mipmaps != 0)
+		{
+			mipmap_count = 1;
+		}
+		else
+		{
+			mipmap_count = header.m_mipmap_count - start_mipmap;
+		}
+
+		assert(mipmap_count > 0);
+		assert(start_mipmap < header.m_mipmap_count);
+		assert(mipmap_count <= header.m_mipmap_count);
+
+		image->width = max2u(header.m_width >> start_mipmap, 1);
+		image->height = max2u(header.m_height >> start_mipmap, 1);
+		image->mipmaps = mipmap_count;
+		image->format = detect_format(&header, &image->alpha,
+			&format_unpack);
+
+		format = header.m_pixel_format.m_fourcc;
+
+		if (((format == DDSFMT_DXT1) || (format == DDSFMT_DXT2) ||
+			(format == DDSFMT_DXT3) || (format == DDSFMT_DXT4) ||
+			(format == DDSFMT_DXT5) || (format == DDSFMT_ATI1) ||
+			(format == DDSFMT_ATI2)) && ((uncompress != 0) ||
+			(unpack != 0) || (format == DDSFMT_ATI1) ||
+			(format == DDSFMT_ATI2)))
+		{
+			image->image = uncompress_dds(file, &header,
+				file_name, strip_mipmaps, start_mipmap);
+			image->format = IF_RGBA8;
+
+			get_dds_sizes_and_offsets(&header, 1, 1,
+				strip_mipmaps, start_mipmap, image);
+		}
+		else
+		{
+			if ((unpack != 0) || (format_unpack != 0))
+			{
+				image->image = unpack_dds(file, &header,
+					file_name, strip_mipmaps, start_mipmap);
+				image->format = IF_RGBA8;
+
+				get_dds_sizes_and_offsets(&header, 0, 1,
+					strip_mipmaps, start_mipmap, image);
+			}
+			else
+			{
+				image->image = read_dds(file, &header,
+					file_name, strip_mipmaps, start_mipmap);
+
+				get_dds_sizes_and_offsets(&header, 0, 0,
+					strip_mipmaps, start_mipmap, image);
+			}
+		}
+
+		assert(image->width > 0);
+		assert(image->width > 0);
+		assert(image->sizes[0] > 0);
+		assert(image->width > 0);
+		assert(image->height > 0);
+		assert(image->mipmaps > 0);
+
+		if (image->image != 0)
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	else
+	{
+		return 0;
+	}
+}
+#else	/* NEW_TEXTURES */
 void* load_dds(el_file_ptr file, const char* file_name, int *width, int *height)
 {
 	DdsHeader header;
+	Uint32 format;
 
 	if (file == 0)
 	{
@@ -450,10 +842,23 @@ void* load_dds(el_file_ptr file, const char* file_name, int *width, int *height)
 		*width = header.m_width;
 		*height = header.m_height;
 
-		return uncompress(file, &header, file_name);
+		format = header.m_pixel_format.m_fourcc;
+
+		if ((format == DDSFMT_DXT1) || (format == DDSFMT_DXT2) || (format == DDSFMT_DXT3) ||
+			(format == DDSFMT_DXT4) || (format == DDSFMT_DXT5) || (format == DDSFMT_ATI1) ||
+			(format == DDSFMT_ATI2))
+		{
+			return uncompress_dds(file, &header, file_name, 1, 0);
+		}
+		else
+		{
+			return unpack_dds(file, &header, file_name, 1, 0);
+		}
 	}
 	else
 	{
 		return 0;
 	}
 }
+#endif	/* NEW_TEXTURES */
+

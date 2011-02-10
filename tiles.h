@@ -38,6 +38,19 @@ extern int ground_detail_text;      /*!< The texture for ground details (clouds 
  */
 void draw_tile_map();
 
+#ifdef	NEW_TEXTURES
+/*!
+ * \ingroup	tile
+ * \brief 	Draw quad tiles.
+ *
+ *      draw_quad_tiles
+ *
+ * \callgraph
+ */
+void draw_quad_tiles(unsigned int start, unsigned int stop, unsigned int idx,
+	unsigned int zero_id);
+#endif	/* NEW_TEXTURES */
+
 /*!
  * \ingroup 	maps
  * \brief 	Loads the map tiles

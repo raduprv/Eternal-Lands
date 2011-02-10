@@ -993,7 +993,11 @@ int	draw_window_title(window_info *win)
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now draw that shit...
 
+#ifdef	NEW_TEXTURES
+	bind_texture(icons_text);
+#else	/* NEW_TEXTURES */
 	get_and_set_texture_id(icons_text);
+#endif	/* NEW_TEXTURES */
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER,0.03f);
 	glBegin(GL_QUADS);

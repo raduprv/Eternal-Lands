@@ -1020,12 +1020,17 @@ void resize_root_window()
 void set_new_video_mode(int fs,int mode)
 {
 	int i;
+#ifndef	NEW_TEXTURES
 	int alpha;
+#endif	/* NEW_TEXTURES */
 	
 	full_screen=fs;
 	video_mode=mode;
 
 	//now, clear all the textures...
+#ifdef	NEW_TEXTURES
+	unload_texture_cache();
+#else	/* NEW_TEXTURES */
 	for(i = 0; i < TEXTURE_CACHE_MAX; i++)
 	{
 		if(texture_cache[i].file_name[0])
@@ -1051,6 +1056,7 @@ void set_new_video_mode(int fs,int mode)
 				}
 		}
 #endif
+#endif	/* NEW_TEXTURES */
 
 	if (use_vertex_buffers)
 	{
@@ -1089,6 +1095,7 @@ void set_new_video_mode(int fs,int mode)
 	ec_load_textures();
 
 	//now, reload the textures
+#ifndef	NEW_TEXTURES
 	for(i = 0; i < TEXTURE_CACHE_MAX; i++)
 	{
 		if (texture_cache[i].file_name[0] && !texture_cache[i].load_err)
@@ -1101,7 +1108,6 @@ void set_new_video_mode(int fs,int mode)
 				texture_cache[i].texture_id = load_bmp8_fixed_alpha (&(texture_cache[i]), alpha);
 		}
 	}
-
 	reload_fonts();
 
 #ifndef MAP_EDITOR2
@@ -1124,6 +1130,7 @@ void set_new_video_mode(int fs,int mode)
 				}
 		}
 #endif
+#endif	/* NEW_TEXTURES */
 	
 	//it is dependent on the window height...
 	init_hud_interface (HUD_INTERFACE_LAST);

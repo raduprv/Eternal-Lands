@@ -30,6 +30,9 @@
 #include "3d_objects.h"
 #include "lights.h"
 #endif
+#ifdef	NEW_TEXTURES
+#include "image_loading.h"
+#endif	/* NEW_TEXTURES */
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -497,6 +500,20 @@ void init_particles ()
 
 	for (i = 0; i < MAX_PARTICLE_TEXTURES; i++)
 	{
+#ifdef	NEW_TEXTURES
+		char buffer[256], filename[256];
+
+		safe_snprintf (filename, sizeof(filename), "./textures/particle%d", i);
+
+		if (check_image_name(filename, sizeof(buffer), buffer) == 1)
+		{
+			particle_textures[i] = load_texture_cached(buffer, TT_MESH);
+		}
+		else
+		{
+			particle_textures[i] = -1;
+		}
+#else	/* NEW_TEXTURES */
 		char buffer[256];
 
 		safe_snprintf (buffer, sizeof(buffer), "./textures/particle%d.bmp", i);
@@ -504,6 +521,7 @@ void init_particles ()
 			particle_textures[i] = load_texture_cache_deferred (buffer, 0);
 		else
 			particle_textures[i] = -1;
+#endif	/* NEW_TEXTURES */
         }
 
 	particles_list_mutex = SDL_CreateMutex();
@@ -991,7 +1009,11 @@ void draw_text_particle_sys(particle_sys *system_id)
 	z_pos=system_id->z_pos;
 
 	CHECK_GL_ERRORS();
+#ifdef	NEW_TEXTURES
+	bind_texture(particle_textures[system_id->def->part_texture]);
+#else	/* NEW_TEXTURES */
 	get_and_set_texture_id(particle_textures[system_id->def->part_texture]);
+#endif	/* NEW_TEXTURES */
 
 	for(i=0,p=&system_id->particles[0];i<system_id->def->total_particle_no;i=i+5,p=p+5)
 		{
@@ -1032,7 +1054,11 @@ void draw_point_particle_sys(particle_sys *system_id)
 	glEnable(GL_POINT_SPRITE_NV);
 	glTexEnvf(GL_POINT_SPRITE_NV,GL_COORD_REPLACE_NV,GL_TRUE);
 	glPointSize(system_id->def->part_size*(5.5f-zoom_level)*4.4f);
+#ifdef	NEW_TEXTURES
+	bind_texture(particle_textures[system_id->def->part_texture]);
+#else	/* NEW_TEXTURES */
 	get_and_set_texture_id(particle_textures[system_id->def->part_texture]);
+#endif	/* NEW_TEXTURES */
 #if 0
 	//#ifdef USE_VERTEX_ARRAYS
 	// This might be useful if we allow more particles per system.
@@ -1738,6 +1764,10 @@ void dump_part_sys_info()
 #ifdef MAP_EDITOR
 void get_and_set_particle_texture_id (int i)
 {
-	get_and_set_texture_id (particle_textures[i]);
+#ifdef	NEW_TEXTURES
+	bind_texture(particle_textures[i]);
+#else	/* NEW_TEXTURES */
+	get_and_set_texture_id(particle_textures[i]);
+#endif	/* NEW_TEXTURES */
 }
 #endif // MAP_EDITOR

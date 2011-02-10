@@ -180,7 +180,11 @@ void draw_buffs(int actor_id, float x, float y,float z)
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 		glColor3f(1.0f,1.0f,1.0f);
+#ifdef	NEW_TEXTURES
+		bind_texture(sigils_text);
+#else	/* NEW_TEXTURES */
 		get_and_set_texture_id(sigils_text);
+#endif	/* NEW_TEXTURES */
 		// keep in sync with client_serv.h !!!
 		if (act->buffs & BUFF_SHIELD) {
 			texture_ids[num_buffs] = 32;

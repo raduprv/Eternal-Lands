@@ -658,7 +658,11 @@ int image_add(int window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uint16
 int image_draw(widget_list *W)
 {
 	image *i = (image *)W->widget_info;
+#ifdef	NEW_TEXTURES
+	bind_texture(i->id);
+#else	/* NEW_TEXTURES */
 	get_and_set_texture_id(i->id);
+#endif	/* NEW_TEXTURES */
 	glColor3f(W->r, W->g, W->b);
 	if (i->alpha > -1) {
 		glEnable(GL_ALPHA_TEST);

@@ -31,6 +31,9 @@
 #include "io/elfilewrapper.h"
 #include "mapwin.h"
 #include "map.h"
+#ifdef	NEW_TEXTURES
+#include "image_loading.h"
+#endif	/* NEW_TEXTURES */
 
 #ifndef MINIMAP2
 
@@ -327,7 +330,11 @@ static __inline__ void draw_map(float zoom_multip, float px, float py)
 		glEnd();
 
 		//white circle around player
+#ifdef	NEW_TEXTURES
+		bind_texture(circle_texture);
+#else	/* NEW_TEXTURES */
 		bind_texture_id(circle_texture);
+#endif	/* NEW_TEXTURES */
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE, GL_ONE);
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -365,7 +372,11 @@ static __inline__ void draw_map(float zoom_multip, float px, float py)
 	}
 
 	//draw the minimap
+#ifdef	NEW_TEXTURES
+	bind_texture(minimap_texture);
+#else	/* NEW_TEXTURES */
 	bind_texture_id(minimap_texture);
+#endif	/* NEW_TEXTURES */
 	glColor4f(1.0f,1.0f,1.0f,1.0f);
 
 	glBegin(GL_QUADS);
@@ -991,12 +1002,33 @@ void change_minimap(){
 	char minimap_file_name[256];
 	int size;
 	int zoom_diff = max_zoom - minimap_zoom;
+#ifndef	NEW_TEXTURES
 	texture_cache_struct tex;
+#endif	/* NEW_TEXTURES */
 
 	if(minimap_win < 0)
 		return;
 	save_exploration_map();
 
+#ifdef	NEW_TEXTURES
+	//unload all textures
+	if(exploration_texture)
+		glDeleteTextures(1,&exploration_texture);
+	if(use_frame_buffer)
+		minimap_free_framebuffer();
+
+	//make filename
+	if (check_image_name(map_file_name, sizeof(minimap_file_name), minimap_file_name) == 1)
+	{
+		minimap_texture = load_texture_cached(buffer, TT_IMAGE);
+	}
+	else
+	{
+		minimap_texture = 0;
+	}
+
+	circle_texture = load_texture_cached("./textures/circle", TT_IMAGE);
+#else	/* NEW_TEXTURES */
 	//unload all textures
 	if(minimap_texture)
 		glDeleteTextures(1,&minimap_texture);
@@ -1020,6 +1052,7 @@ void change_minimap(){
 		minimap_texture = load_bmp8_fixed_alpha(&tex,128);
 	my_strcp(tex.file_name, "./textures/circle.bmp");
 	circle_texture = load_bmp8_fixed_alpha(&tex,0);
+#endif	/* NEW_TEXTURES */
 	glGenTextures(1, &exploration_texture);
 	bind_texture_id(exploration_texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -1325,7 +1358,11 @@ static __inline__ void draw_compass()
 	glEnable(GL_TEXTURE_2D); 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+#ifdef	NEW_TEXTURES
+	bind_texture(compass_tex);
+#else	/* NEW_TEXTURES */
 	bind_texture_id(compass_tex);
+#endif	/* NEW_TEXTURES */
 
 	glBegin(GL_QUADS); 
 		glTexCoord2f(0.0f, 0.0f);
@@ -1384,7 +1421,11 @@ static __inline__ void draw_map(window_info *win,float zoom_multip, float px, fl
 	glEnable(GL_TEXTURE_2D);
 
 	//draw the map
+#ifdef	NEW_TEXTURES
+	bind_texture(minimap_texture);
+#else	/* NEW_TEXTURES */
 	bind_texture_id(minimap_texture);
+#endif	/* NEW_TEXTURES */
 	glColor4f(1.0f,1.0f,1.0f,1.0f);
 
 	rotate_at_player(zoom_multip,px,py);
@@ -1427,7 +1468,11 @@ void draw_minimap_title_bar(window_info *win)
 
 	glColor3f(1.0f,1.0f,1.0f);
 	
+#ifdef	NEW_TEXTURES
+	bind_texture(icons_text);
+#else	/* NEW_TEXTURES */
 	get_and_set_texture_id(icons_text);
+#endif	/* NEW_TEXTURES */
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER,0.03f);
 	glEnable(GL_TEXTURE_2D);
@@ -1749,12 +1794,31 @@ void save_exploration_map()
 
 void change_minimap(){
 	char minimap_file_name[256];
+#ifndef	NEW_TEXTURES
 	texture_cache_struct tex;
+#endif	/* NEW_TEXTURES */
 
 	if(minimap_win < 0)
 		return;
 	//save_exploration_map();
 
+#ifdef	NEW_TEXTURES
+	//unload all textures
+	if(exploration_texture)
+		glDeleteTextures(1,&exploration_texture);
+
+	//make filename
+	if (check_image_name(map_file_name, sizeof(minimap_file_name), minimap_file_name) == 1)
+	{
+		minimap_texture = load_texture_cached(minimap_file_name, TT_IMAGE);
+	}
+	else
+	{
+		minimap_texture = 0;
+	}
+
+	compass_tex = load_texture_cached("./textures/compass", TT_IMAGE);
+#else	/* NEW_TEXTURES */
 	//unload all textures
 	if(minimap_texture)
 		glDeleteTextures(1,&minimap_texture);
@@ -1777,6 +1841,7 @@ void change_minimap(){
 	
 	my_strcp(tex.file_name, "./textures/compass.bmp");
 	compass_tex = load_bmp8_fixed_alpha_with_transparent_color(&tex,255,0,0,0);
+#endif	/* NEW_TEXTURES */
 
 	glGenTextures(1, &exploration_texture);
 	bind_texture_id(exploration_texture);

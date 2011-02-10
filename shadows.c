@@ -339,7 +339,11 @@ void display_3d_ground_objects()
 		//bind the detail texture
 		ELglActiveTextureARB(detail_unit);
 		glEnable(GL_TEXTURE_2D);
+#ifdef	NEW_TEXTURES
+		bind_texture_unbuffered(ground_detail_text);
+#else	/* NEW_TEXTURES */
 		glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
+#endif	/* NEW_TEXTURES */
 		ELglActiveTextureARB(base_unit);
 		glEnable(GL_TEXTURE_2D);
 	}
@@ -382,7 +386,11 @@ void display_3d_non_ground_objects()
 		//bind the detail texture
 		ELglActiveTextureARB(detail_unit);
 		glEnable(GL_TEXTURE_2D);
+#ifdef	NEW_TEXTURES
+		bind_texture_unbuffered(ground_detail_text);
+#else	/* NEW_TEXTURES */
 		glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
+#endif	/* NEW_TEXTURES */
 		ELglActiveTextureARB(base_unit);
 		glEnable(GL_TEXTURE_2D);
 	}

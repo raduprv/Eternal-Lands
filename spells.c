@@ -216,7 +216,11 @@ int init_spells ()
 	char *fname="./spells.xml";
 
 	//init textures and structs
+#ifdef	NEW_TEXTURES
+	sigils_text = load_texture_cached("./textures/sigils", TT_GUI);
+#else	/* NEW_TEXTURES */
 	sigils_text = load_texture_cache ("./textures/sigils.bmp", 0);
+#endif	/* NEW_TEXTURES */
 	for (i = 0; i < SIGILS_NO; i++)
 		sigils_list[i].have_sigil = 0;
 	for (i = 0; i < SPELLS_NO; i++){
@@ -582,7 +586,11 @@ void draw_spell_icon(int id,int x_start, int y_start, int gridsize, int alpha, i
 	u_end=u_start+0.125f;
 	v_end=v_start-0.125f;
 
+#ifdef	NEW_TEXTURES
+	bind_texture(sigils_text);
+#else	/* NEW_TEXTURES */
 	get_and_set_texture_id(sigils_text);
+#endif	/* NEW_TEXTURES */
 	if(alpha) {
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GREATER, 0.05f);

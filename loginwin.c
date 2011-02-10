@@ -66,9 +66,14 @@ char settings_button_selected = 0;
 void init_login_screen ()
 {
 	CHECK_GL_ERRORS();
+#ifdef	NEW_TEXTURES
+	login_screen_menus = load_texture_cached("./textures/login_menu", TT_IMAGE);
+	login_text = load_texture_cached("./textures/login_back", TT_IMAGE);
+#else	/* NEW_TEXTURES */
 	login_screen_menus = load_texture_cache ("./textures/login_menu.bmp",0);
 	CHECK_GL_ERRORS();
 	login_text = load_texture_cache ("./textures/login_back.bmp",255);
+#endif	/* NEW_TEXTURES */
 	CHECK_GL_ERRORS();
 }
 
@@ -196,7 +201,11 @@ int display_login_handler (window_info *win)
 	draw_string_zoomed(username_text_x, log_in_y + 60, (unsigned char*)login_rules_str, num_lines, 1);
 
 	// start drawing the actual interface pieces
-	get_and_set_texture_id (login_screen_menus);
+#ifdef	NEW_TEXTURES
+	bind_texture(login_screen_menus);
+#else	/* NEW_TEXTURES */
+	get_and_set_texture_id(login_screen_menus);
+#endif	/* NEW_TEXTURES */
 	glColor3f (1.0f,1.0f,1.0f);
 	glBegin (GL_QUADS);
 

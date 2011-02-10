@@ -555,6 +555,9 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 #ifdef	MAP_EDITOR
 		cur_object->materials[i].texture = load_texture_cache(text_file_name,0);
 #else	//MAP_EDITOR
+#ifdef	NEW_TEXTURES
+		cur_object->materials[i].texture = load_texture_cached(text_file_name, TT_MESH);
+#else	/* NEW_TEXTURES */
 #ifdef	NEW_ALPHA
 		// prepare to load the textures depending on if it is transparent or not (diff alpha handling)
 		if (material_is_transparent(cur_object->materials[i].options))
@@ -569,6 +572,7 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 //		cur_object->materials[i].texture = load_texture_cache_deferred(text_file_name, 255);
 		cur_object->materials[i].texture = load_texture_cache_deferred(text_file_name, 0);
 #endif	//NEW_ALPHA
+#endif	/* NEW_TEXTURES */
 #endif	//MAP_EDITOR
 
 		cur_object->materials[i].min_x = SwapLEFloat(material.min_x);

@@ -80,7 +80,11 @@ void draw_2d_object(obj_2d * object_id)
 		glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 	}
 
+#ifdef	NEW_TEXTURES
+	bind_texture(obj_def_pointer->texture_id);
+#else	/* NEW_TEXTURES */
 	get_and_set_texture_id(obj_def_pointer->texture_id);
+#endif	/* NEW_TEXTURES */
 
 	if (dungeon || (!clouds_shadows && !use_shadow_mapping))
 		{
@@ -284,7 +288,11 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 				}
 		}
 
+#ifdef	NEW_TEXTURES
+	cur_object->texture_id = load_texture_cached(texture_file_name, TT_MESH);
+#else	/* NEW_TEXTURES */
 	cur_object->texture_id=load_texture_cache_deferred(texture_file_name,0);
+#endif	/* NEW_TEXTURES */
 	//now get the object type
 	i=get_string_occurance("type:",obj_file_mem,f_size,0);
 	obj_file_mem+=i;
@@ -640,7 +648,11 @@ void display_2d_objects()
 			ELglActiveTextureARB(detail_unit);
 			glEnable(GL_TEXTURE_2D);
 			//glBindTexture(GL_TEXTURE_2D, texture_cache[ground_detail_text].texture_id);
+#ifdef	NEW_TEXTURES
+			bind_texture_unbuffered(ground_detail_text);
+#else	/* NEW_TEXTURES */
 			glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
+#endif	/* NEW_TEXTURES */
 		}
 		ELglActiveTextureARB(base_unit);
 		glEnable(GL_TEXTURE_2D);

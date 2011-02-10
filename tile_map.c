@@ -112,6 +112,78 @@ static __inline__ void build_terrain_buffer()
 	}
 }
 
+#ifdef	NEW_TEXTURES
+void draw_quad_tiles(unsigned int start, unsigned int stop, unsigned int idx,
+	unsigned int zero_id)
+{
+	Uint32 i, l, size;
+	Sint32 x, y;
+	Uint32 cur_id, last_id;
+#ifdef CLUSTER_INSIDES_OLD
+	short cluster = get_actor_cluster ();
+	short tile_cluster;
+#endif
+
+	idx = 0;
+	size = 0;
+
+	if (start < stop)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, start);
+		x = get_terrain_x(l);
+		y = get_terrain_y(l);
+
+		if (tile_map[y * tile_map_size_x + x] == 0)
+		{
+			cur_id = zero_id;
+		}
+		else
+		{
+			cur_id = tile_list[tile_map[y*tile_map_size_x+x]];
+		}
+
+		bind_texture(cur_id);
+		last_id = cur_id;
+	}
+	else
+	{
+		return;
+	}
+
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+		x = get_terrain_x(l);
+		y = get_terrain_y(l);
+
+#ifdef CLUSTER_INSIDES_OLD
+		tile_cluster = get_cluster (6*x, 6*y);
+		if (tile_cluster && tile_cluster != cluster)
+			continue;
+#endif
+
+		if (tile_map[y * tile_map_size_x + x] == 0)
+		{
+			cur_id = zero_id;
+		}
+		else
+		{
+			cur_id = tile_list[tile_map[y*tile_map_size_x+x]];
+		}
+
+		if (cur_id != last_id)
+		{
+			glDrawArrays(GL_QUADS, idx * 4, size * 4);
+			bind_texture(cur_id);
+			last_id = cur_id;
+			idx += size;
+			size = 0;
+		}
+		size++;
+	}
+	glDrawArrays(GL_QUADS, idx * 4, size * 4);
+}
+#else	/* NEW_TEXTURES */
 void draw_terrain_quad_tiles(unsigned int start, unsigned int stop)
 {
 	unsigned int i, l, size, idx;
@@ -149,6 +221,7 @@ void draw_terrain_quad_tiles(unsigned int start, unsigned int stop)
 	}
 	glDrawArrays(GL_QUADS, idx * 4, size * 4);
 }
+#endif	/* NEW_TEXTURES */
 
 static __inline__ void setup_terrain_clous_texgen()
 {
@@ -242,7 +315,11 @@ void draw_tile_map()
 		//bind the detail texture
 		ELglActiveTextureARB(detail_unit);
 		glEnable(GL_TEXTURE_2D);
+#ifdef	NEW_TEXTURES
+		bind_texture_unbuffered(ground_detail_text);
+#else	/* NEW_TEXTURES */
 		glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
+#endif	/* NEW_TEXTURES */
 		ELglActiveTextureARB(base_unit);
 		glEnable(GL_TEXTURE_2D);
 	}
@@ -267,7 +344,11 @@ void draw_tile_map()
 	}
 
 	get_intersect_start_stop(main_bbox_tree, TYPE_TERRAIN, &start, &stop);
+#ifdef	NEW_TEXTURES
+	draw_quad_tiles(start, stop, 0, tile_list[0]);
+#else	/* NEW_TEXTURES */
 	draw_terrain_quad_tiles(start, stop);
+#endif	/* NEW_TEXTURES */
 
 	glDisable(GL_CULL_FACE);
 
@@ -322,6 +403,15 @@ void load_map_tiles()
 			tile_list[i]=0;
 	}
 #else
+#ifdef	NEW_TEXTURES
+	char str[128];
+
+	for (i = 0; i < 255; i++)
+	{
+		safe_snprintf(str, sizeof(str), "./3dobjects/tile%i", i);
+		tile_list[i] = load_texture_cached(str, TT_MESH);
+	}
+#else	/* NEW_TEXTURES */
 	int cur_tile;
 	char str[80];
 	for(i=0;i<tile_map_size_x*tile_map_size_y;i++)
@@ -344,6 +434,7 @@ void load_map_tiles()
 			
 				}
 		}
+#endif	/* NEW_TEXTURES */
 #endif
 }
 

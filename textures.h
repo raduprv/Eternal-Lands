@@ -14,12 +14,240 @@
   #include "draw_scene.h"
  #endif
 #endif
-
+#ifdef	NEW_TEXTURES
+#include "image_loading.h"
+#endif	/* NEW_TEXTURES */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#ifdef	NEW_TEXTURES
+
+typedef enum
+{
+	TT_GUI = 0,
+	TT_FONT,
+	TT_IMAGE,
+	TT_MESH
+} texture_type;
+
+typedef enum
+{
+	TC_FALSE = 0,
+	TC_DXT1,
+	TC_DXT3,
+	TC_DXT5,
+	TC_ATI1,
+	TC_ATI2
+} texture_compression;
+
+/*!
+ * we use a separate cache structure to cache textures.
+ */
+typedef struct
+{
+	char file_name[128];		/*!< the filename of the texture */
+	cache_item_struct *cache_ptr;	/*!< a pointer to the cached item */
+	GLuint id;			/*!< the id of the texture */
+	Uint32 hash;			/*!< hash value of the name */
+	Uint32 size;			/*!< size of the texture */
+	texture_type type;		/*!< the texture type, needed for loading and unloading */
+	Uint8 load_err;			/*!< if true, we tried to load this texture before and failed */
+	Uint8 alpha;			/*!< the texture has an alpha channel */
+} texture_cache_struct;
+
+/*!
+ * we use a separate cache structure to cache textures.
+ */
+typedef struct
+{
+	char pants_tex[MAX_FILE_PATH];
+	char pants_mask[MAX_FILE_PATH];
+
+	char boots_tex[MAX_FILE_PATH];
+	char boots_mask[MAX_FILE_PATH];
+
+	char torso_tex[MAX_FILE_PATH];
+	char arms_tex[MAX_FILE_PATH];
+	char torso_mask[MAX_FILE_PATH];
+	char arms_mask[MAX_FILE_PATH];
+
+	char hands_tex[MAX_FILE_PATH];
+	char head_tex[MAX_FILE_PATH];
+	char hands_mask[MAX_FILE_PATH];
+	char head_mask[MAX_FILE_PATH];
+
+	char head_base[MAX_FILE_PATH];
+	char body_base[MAX_FILE_PATH];
+	char arms_base[MAX_FILE_PATH];
+	char legs_base[MAX_FILE_PATH];
+	char boots_base[MAX_FILE_PATH];
+
+	char hair_tex[MAX_FILE_PATH];
+	char weapon_tex[MAX_FILE_PATH];
+	char shield_tex[MAX_FILE_PATH];
+	char helmet_tex[MAX_FILE_PATH];
+	char neck_tex[MAX_FILE_PATH];
+	char cape_tex[MAX_FILE_PATH];
+	char hands_tex_save[MAX_FILE_PATH];
+} enhanced_actor_images;
+
+typedef enum
+{
+	ts_unloaded = 0,
+	ts_image_loading,
+	ts_image_loaded,
+	ts_texture_loaded
+} texture_state;
+
+/*!
+ * we use a separate cache structure to cache textures.
+ */
+typedef struct
+{
+	enhanced_actor_images files;	/*!< the files used for the texture */
+	SDL_mutex* mutex;		/*!< the mutex used for this structure */
+	image_struct image;		/*!< the image for the texture */
+	GLuint id;			/*!< the id of the texture */
+	Uint32 hash;			/*!< hash value */
+	Uint32 use_count;		/*!< use count of actor texture */
+	Uint32 access_time;		/*!< last time used */
+	texture_state state;		/*!< the texture states e.g. loading */
+} actor_texture_cache_struct;
+
+/*!
+ * \ingroup 	textures
+ * \brief 	Loads a texture for non-gui use.
+ *
+ * 		Loads a texture for gui use. Mipmaps and anisotropic filters are used,
+ *		size reduction can happens and the texture is compressed if supported.
+ *		Also the texture cache is used for it.
+ * \param   	file_name The file name of the texture to load.
+ * \retval GLuint  	The texture handle in the cache.
+ * \callgraph
+ */
+Uint32 load_texture_cached(const char* file_name, const texture_type type);
+
+/*!
+ * \ingroup 	textures
+ * \brief 	Reloads the texture cache
+ *
+ *      	Reloads all textures in the texture cache.
+ *
+ * \callgraph
+ */
+void init_texture_cache();
+
+/*!
+ * \ingroup 	textures
+ * \brief 	Reloads the texture cache
+ *
+ *      	Reloads all textures in the texture cache.
+ *
+ * \callgraph
+ */
+void unload_texture_cache();
+
+/*!
+ * \ingroup 	textures
+ * \brief 	Reloads the texture cache
+ *
+ *      	Reloads all textures in the texture cache.
+ *
+ * \callgraph
+ */
+void free_texture_cache();
+
+/*!
+ * \ingroup 	textures
+ * \brief 	Binds the texture
+ *
+ *      	Binds the texture using the given OpenGL id. 
+ *
+ * \param	id The OpenGL id
+ * \callgraph
+ */
+void bind_texture_id(const GLuint id);
+
+/*!
+ * \ingroup 	textures
+ * \brief 	Binds the texture
+ *
+ *      	Binds the texture using the given texture handle.
+ *
+ * \param	handle The texture handle
+ * \callgraph
+ */
+void bind_texture(const Uint32 handle);
+
+/*!
+ * \ingroup 	textures
+ * \brief 	Binds the texture
+ *
+ *      	Binds the texture using the given texture handle. Does not
+ *		check if the texture is already bound. Needed, because at the
+ *		moment we don't track the active texture unit.
+ *
+ * \param	handle The texture handle
+ * \callgraph
+ */
+void bind_texture_unbuffered(const Uint32 handle);
+
+/*!
+ * \ingroup 	textures
+ * \brief 	Gets the texture alpha
+ *
+ *      	Returns the texture alpha. Is one if the texture has a usefull
+ *		alpha value, else zero.
+ *
+ * \retval	Uint32 The texture alpha.
+ * \callgraph
+ */
+Uint32 get_texture_alpha(const Uint32 handle);
+
+#ifdef	ELC
+/*!
+ * \ingroup 	textures
+ * \brief 	Loads the actors texture
+ *
+ *      	Loads the actors texture from the information given in the
+ *		enhanced actor structure.
+ *
+ * \param   	actor A pointer to the enhanced_actor structure
+ * \retval	Uint32 The actor texture handle.
+ * \callgraph
+ */
+Uint32 load_enhanced_actor(enhanced_actor* actor);
+
+/*!
+ * \ingroup 	textures
+ * \brief 	Binds the actors texture
+ *
+ *      	Binds the actor texture. This is needed, because actors can
+ *		share textures and the loading is threaded.
+ *
+ * \param   	handle The handle of the texture.
+ * \param   	alpha The pointer for the alpha.
+ * \retval	Uint32 Returns one if the texture is loaded, zero else.
+ * \callgraph
+ */
+Uint32 bind_actor_texture(const Uint32 handle, char* alpha);
+
+/*!
+ * \ingroup 	textures
+ * \brief 	Frees the actors texture
+ *
+ *      	Reduce the reference count of the actor texture by one.
+ *
+ * \param   	handle The handle of the texture.
+ * \callgraph
+ */
+void free_actor_texture(const Uint32 handle);
+
+#endif	//ELC
+
+#else	// NEW_TEXTURES
 
 #define TEXTURE_CACHE_MAX 2000
 extern texture_cache_struct texture_cache[TEXTURE_CACHE_MAX]; /*!< global texture cache */
@@ -286,6 +514,7 @@ int		load_bmp8_enhanced_actor(enhanced_actor *this_actor, Uint8 a);
 
 #endif	//ELC
 #endif  //MAP_EDITOR2
+#endif	// NEW_TEXTURES
 
 #ifdef __cplusplus
 } // extern "C"

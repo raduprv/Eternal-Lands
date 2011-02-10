@@ -260,7 +260,11 @@ void draw_hud_frame()
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
+#ifdef	NEW_TEXTURES
+	bind_texture(hud_text);
+#else	/* NEW_TEXTURES */
 	get_and_set_texture_id(hud_text);
+#endif	/* NEW_TEXTURES */
 	glBegin(GL_QUADS);
 #ifndef NEW_NEW_CHAR_WINDOW
 	draw_2d_thing(vertical_bar_u_start, vertical_bar_v_start, vertical_bar_u_end, vertical_bar_v_end,window_width-hud_x, 0, window_width, window_height);
@@ -648,7 +652,11 @@ int	display_icons_handler(window_info *win)
 			else state=-1;
 		}
 	
+#ifdef	NEW_TEXTURES
+	bind_texture(icons_text);
+#else	/* NEW_TEXTURES */
 	get_and_set_texture_id(icons_text);
+#endif	/* NEW_TEXTURES */
 	glColor3f(1.0f,1.0f,1.0f);
 	glBegin(GL_QUADS);
 	
@@ -1382,7 +1390,11 @@ int display_misc_handler(window_info *win)
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
+#ifdef	NEW_TEXTURES
+	bind_texture(hud_text);
+#else	/* NEW_TEXTURES */
 	get_and_set_texture_id(hud_text);
+#endif	/* NEW_TEXTURES */
 
 	// allow for transparency
 	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
@@ -1728,7 +1740,11 @@ int	display_quickbar_handler(window_info *win)
 			//get the texture this item belongs to
 			this_texture=get_items_texture(item_list[i].image_id/25);
 
+#ifdef	NEW_TEXTURES
+			bind_texture(this_texture);
+#else	/* NEW_TEXTURES */
 			get_and_set_texture_id(this_texture);
+#endif	/* NEW_TEXTURES */
 			glBegin(GL_QUADS);
 				draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 			glEnd();
