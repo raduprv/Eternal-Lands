@@ -34,13 +34,21 @@ typedef enum
 
 typedef enum
 {
-	TC_FALSE = 0,
-	TC_DXT1,
-	TC_DXT3,
-	TC_DXT5,
-	TC_ATI1,
-	TC_ATI2
-} texture_compression;
+	TF_AUTO = 0,
+	TF_RGBA4,
+	TF_RGB8,
+	TF_R5G6B5,
+	TF_RGBA8,
+	TF_RGB5_A1,
+	TF_A8,
+	TF_L8,
+	TF_LA8,
+	TF_DXT1,
+	TF_DXT3,
+	TF_DXT5,
+	TF_ATI1,
+	TF_ATI2
+} texture_format;
 
 /*!
  * we use a separate cache structure to cache textures.

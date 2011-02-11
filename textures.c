@@ -97,11 +97,11 @@ void bind_texture_id(const GLuint id)
 
 static GLuint build_texture(image_struct* image, const Uint32 wrap_mode_repeat,
 	const GLenum min_filter, const Uint32 af, const Uint32 build_mipmaps,
-	const texture_compression compression)
+	const texture_format format)
 {
 	void* ptr;
 	GLuint id;
-	GLenum format, type, internal_format;
+	GLenum src_format, type, internal_format;
 	Uint32 compressed, width, height, i;
 
 	compressed = 0;
@@ -109,47 +109,47 @@ static GLuint build_texture(image_struct* image, const Uint32 wrap_mode_repeat,
 	switch (image->format)
 	{
 		case IF_RGBA4:
-			format = GL_RGBA;
+			src_format = GL_RGBA;
 			type = GL_UNSIGNED_SHORT_4_4_4_4;
 			internal_format = GL_RGBA4;
 			break;
 		case IF_RGB8:
-			format = GL_RGB;
+			src_format = GL_RGB;
 			type = GL_UNSIGNED_BYTE;
 			internal_format = GL_RGB8;
 			break;
 		case IF_R5G6B5:
-			format = GL_RGB;
+			src_format = GL_RGB;
 			type = GL_UNSIGNED_SHORT_5_6_5;
 			internal_format = GL_RGB5;
 			break;
 		case IF_RGBA8:
-			format = GL_RGBA;
+			src_format = GL_RGBA;
 			type = GL_UNSIGNED_BYTE;
 			internal_format = GL_RGBA8;
 			break;
 		case IF_BGRA8:
-			format = GL_BGRA;
+			src_format = GL_BGRA;
 			type = GL_UNSIGNED_BYTE;
 			internal_format = GL_RGBA8;
 			break;
 		case IF_RGB5_A1:
-			format = GL_RGBA;
+			src_format = GL_RGBA;
 			type = GL_UNSIGNED_SHORT_5_5_5_1;
 			internal_format = GL_RGB5_A1;
 			break;
 		case IF_A8:
-			format = GL_ALPHA;
+			src_format = GL_ALPHA;
 			type = GL_UNSIGNED_BYTE;
 			internal_format = GL_ALPHA8;
 			break;
 		case IF_L8:
-			format = GL_LUMINANCE;
+			src_format = GL_LUMINANCE;
 			type = GL_UNSIGNED_BYTE;
 			internal_format = GL_LUMINANCE8;
 			break;
 		case IF_LA8:
-			format = GL_LUMINANCE_ALPHA;
+			src_format = GL_LUMINANCE_ALPHA;
 			type = GL_UNSIGNED_BYTE;
 			internal_format = GL_LUMINANCE8_ALPHA8;
 			break;
@@ -187,28 +187,52 @@ static GLuint build_texture(image_struct* image, const Uint32 wrap_mode_repeat,
 
 	if (compressed == 0)
 	{
-		switch (compression)
+		switch (format)
 		{
-			case TC_FALSE:
+			case TF_AUTO:
 				break;
-			case TC_DXT1:
+			case TF_RGBA4:
+				internal_format = GL_RGBA4;
+				break;
+			case TF_RGB8:
+				internal_format = GL_RGB8;
+				break;
+			case TF_R5G6B5:
+				internal_format = GL_RGB5;
+				break;
+			case TF_RGBA8:
+				internal_format = GL_RGBA8;
+				break;
+			case TF_RGB5_A1:
+				internal_format = GL_RGB5_A1;
+				break;
+			case TF_A8:
+				internal_format = GL_ALPHA8;
+				break;
+			case TF_L8:
+				internal_format = GL_LUMINANCE8;
+				break;
+			case TF_LA8:
+				internal_format = GL_LUMINANCE8_ALPHA8;
+				break;
+			case TF_DXT1:
 				internal_format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
 				break;
-			case TC_DXT3:
+			case TF_DXT3:
 				internal_format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
 				break;
-			case TC_DXT5:
+			case TF_DXT5:
 				internal_format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
 				break;
-			case TC_ATI1:
+			case TF_ATI1:
 				internal_format = GL_COMPRESSED_LUMINANCE_LATC1_EXT;
 				break;
-			case TC_ATI2:
+			case TF_ATI2:
 				internal_format = GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT;
 				break;
 			default:
-				LOG_ERROR("Unsupported texture compression (%i)",
-					compression);
+				LOG_ERROR("Unsupported texture format (%i)",
+					format);
 				return 0;
 		}
 	}
@@ -267,7 +291,7 @@ static GLuint build_texture(image_struct* image, const Uint32 wrap_mode_repeat,
 		else
 		{
 			glTexImage2D(GL_TEXTURE_2D, i, internal_format,
-				width, height, 0, format, type, ptr);
+				width, height, 0, src_format, type, ptr);
 		}
 
 		CHECK_GL_ERRORS();
@@ -353,7 +377,7 @@ static Uint32 load_texture(texture_cache_struct* texture_handle)
 	Uint32 strip_mipmaps, base_level, wrap_mode_repeat, af, i, uncompress;
 	Uint32 build_mipmaps, compute_alpha;
 	GLenum min_filter;
-	texture_compression compression;
+	texture_format format;
 
 	memset(&image, 0, sizeof(image_struct));
 
@@ -364,7 +388,7 @@ static Uint32 load_texture(texture_cache_struct* texture_handle)
 	min_filter = GL_LINEAR;
 	build_mipmaps = 0;
 	compute_alpha = 0;
-	compression = TC_FALSE;
+	format = TF_AUTO;
 
 	switch (texture_handle->type)
 	{
@@ -375,7 +399,7 @@ static Uint32 load_texture(texture_cache_struct* texture_handle)
 			break;
 		case TT_IMAGE:
 			strip_mipmaps = 1;
-			compression = TC_DXT1;
+			format = TF_DXT1;
 			break;
 		case TT_FONT:
 			build_mipmaps = 1;
@@ -411,7 +435,7 @@ static Uint32 load_texture(texture_cache_struct* texture_handle)
 	else
 	{
 		uncompress = 1;
-		compression = TC_FALSE;
+		format = TF_AUTO;
 	}
 
 	if (load_image_data(texture_handle->file_name, uncompress, 0,
@@ -426,7 +450,7 @@ static Uint32 load_texture(texture_cache_struct* texture_handle)
 	}
 
 	id = build_texture(&image, wrap_mode_repeat, min_filter, af,
-		build_mipmaps, compression);
+		build_mipmaps, format);
 
 	texture_handle->id = id;
 	texture_handle->alpha = image.alpha;
@@ -923,7 +947,7 @@ Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
 {
 	Uint32 af, result;
 	GLenum min_filter;
-	texture_compression compression;
+	texture_format format;
 
 	// don't look up an out of range texture
 	if (handle >= ACTOR_TEXTURE_CACHE_MAX)
@@ -966,21 +990,28 @@ Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
 		{
 			if (actor_texture_handles[handle].image.alpha == 0)
 			{
-				compression = TC_DXT1;
+				format = TF_DXT1;
 			}
 			else
 			{
-				compression = TC_DXT5;
+				format = TF_DXT5;
 			}
 		}
 		else
 		{
-			compression = TC_FALSE;
+			if (actor_texture_handles[handle].image.alpha == 0)
+			{
+				format = TF_R5G6B5;
+			}
+			else
+			{
+				format = TF_RGB5_A1;
+			}
 		}
 
 		actor_texture_handles[handle].id =
 			build_texture(&actor_texture_handles[handle].image,
-			0, min_filter, af, 1, compression);
+			0, min_filter, af, 1, format);
 
 		CHECK_GL_ERRORS();
 

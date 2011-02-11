@@ -55,7 +55,7 @@ int version_width;
 int display_loading_win_handler(window_info *win)
 {
 #ifdef	NEW_TEXTURES
-	if (use_snapshot != 0)
+	if (use_snapshot == 0)
 	{
 		bind_texture(loading_texture_handle);
 	}
@@ -160,7 +160,7 @@ int create_loading_win (int width, int height, int snapshot)
 #ifdef	NEW_TEXTURES
 			loading_texture_handle = load_texture_cached("./textures/login_back", TT_IMAGE);
 			frac_x = frac_y = 1.0f;
-			use_snapshot = 1;
+			use_snapshot = 0;
 #else	/* NEW_TEXTURES */
 			int idx = load_texture_cache ("./textures/login_back.bmp", 255);
 			loading_texture = get_texture_id (idx);
