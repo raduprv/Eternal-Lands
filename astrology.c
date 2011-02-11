@@ -269,8 +269,8 @@ void adjust_astrology_window()
 
 static int cm_astro_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
-	if (cm_title_handler(win, widget_id, mx, my, option))
-		return 1;
+	if (option<ELW_CM_MENU_LEN)
+		return cm_title_handler(win, widget_id, mx, my, option);
 	if (last_astro_message_len && (option == ELW_CM_MENU_LEN+1) && last_astro_message!=NULL)
 	{
 		LOG_TO_CONSOLE(c_green2, stone_name);

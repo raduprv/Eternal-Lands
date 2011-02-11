@@ -956,8 +956,8 @@ namespace UserMenus
 	//
 	int Container::context(window_info *win, int widget_id, int mx, int my, int option)
 	{
-		if (cm_title_handler(win, widget_id, mx, my, option))
-			return 1;
+		if (option<ELW_CM_MENU_LEN)
+			return cm_title_handler(win, widget_id, mx, my, option);
 
 		switch (option)
 		{

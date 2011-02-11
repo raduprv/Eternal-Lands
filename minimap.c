@@ -1869,9 +1869,7 @@ int mouseover_minimap_handler(window_info * win, int mx, int my, Uint32 flags)
 
 static int cm_minimap_title_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
-	if (cm_title_handler(win, widget_id, mx, my, option))
-		return 1;
-	return 1;
+	return cm_title_handler(win, widget_id, mx, my, option);
 }
 
 void display_minimap()
