@@ -203,6 +203,8 @@
 		1FF1FAA20D1AE4940002D512 /* vorbis.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1FF1FA9B0D1AE4940002D512 /* vorbis.framework */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		E18287A10EFFFC320046818E /* buffs.c in Sources */ = {isa = PBXBuildFile; fileRef = E182879E0EFFFC320046818E /* buffs.c */; };
+		E1914A6A1305B1A8004CD9C1 /* image.c in Sources */ = {isa = PBXBuildFile; fileRef = E1914A661305B1A8004CD9C1 /* image.c */; };
+		E1914A6B1305B1A8004CD9C1 /* image_loading.c in Sources */ = {isa = PBXBuildFile; fileRef = E1914A681305B1A8004CD9C1 /* image_loading.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -964,6 +966,11 @@
 		E182879E0EFFFC320046818E /* buffs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = buffs.c; path = ../buffs.c; sourceTree = SOURCE_ROOT; };
 		E182879F0EFFFC320046818E /* buffs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = buffs.h; path = ../buffs.h; sourceTree = SOURCE_ROOT; };
 		E18287A00EFFFC320046818E /* eye_candy_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = eye_candy_types.h; path = ../eye_candy_types.h; sourceTree = SOURCE_ROOT; };
+		E1914A3E1305A1E5004CD9C1 /* achievements.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = achievements.h; path = ../achievements.h; sourceTree = SOURCE_ROOT; };
+		E1914A661305B1A8004CD9C1 /* image.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = image.c; path = ../image.c; sourceTree = SOURCE_ROOT; };
+		E1914A671305B1A8004CD9C1 /* image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = image.h; path = ../image.h; sourceTree = SOURCE_ROOT; };
+		E1914A681305B1A8004CD9C1 /* image_loading.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = image_loading.c; path = ../image_loading.c; sourceTree = SOURCE_ROOT; };
+		E1914A691305B1A8004CD9C1 /* image_loading.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = image_loading.h; path = ../image_loading.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1035,6 +1042,11 @@
 		1F8128D90D033520008792A7 /* elc */ = {
 			isa = PBXGroup;
 			children = (
+				E1914A661305B1A8004CD9C1 /* image.c */,
+				E1914A671305B1A8004CD9C1 /* image.h */,
+				E1914A681305B1A8004CD9C1 /* image_loading.c */,
+				E1914A691305B1A8004CD9C1 /* image_loading.h */,
+				E1914A3E1305A1E5004CD9C1 /* achievements.h */,
 				1F77DD2512C23AEA00D59013 /* achievements.cpp */,
 				1F1CE86A114F0BA300F30873 /* quest_log.cpp */,
 				1F1CE867114F0B8200F30873 /* item_lists.cpp */,
@@ -2144,7 +2156,6 @@
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "EternalLands" */;
 			compatibilityVersion = "Xcode 2.4";
-			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				English,
@@ -2343,6 +2354,8 @@
 				1F1CE869114F0B8200F30873 /* item_lists.cpp in Sources */,
 				1F29E84B1164D2C700320F7E /* quest_log.cpp in Sources */,
 				1F77DD2612C23AEA00D59013 /* achievements.cpp in Sources */,
+				E1914A6A1305B1A8004CD9C1 /* image.c in Sources */,
+				E1914A6B1305B1A8004CD9C1 /* image_loading.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2426,25 +2439,19 @@
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					ACHIEVEMENTS,
-					ATTACHED_ACTORS,
 					CLUSTER_INSIDES,
 					CUSTOM_LOOK,
 					CUSTOM_UPDATE,
 					ELC,
-					EMOTES,
 					FUZZY_PATHS,
 					GL_EXTENSION_CHECK,
-					ITEM_LISTS,
-					ITEM_UID,
-					LARGE_TEXTURES,
 					MINIMAP2,
 					MORE_ATTACHED_ACTORS,
-					NECK_ITEMS,
 					NEW_CAMERA_MOTION,
 					NEW_QUESTLOG,
 					NEW_SELECTION,
 					NEW_SOUND,
+					NEW_TEXTURES,
 					NEW_TEX,
 					NEW_WEATHER,
 					OSX,
