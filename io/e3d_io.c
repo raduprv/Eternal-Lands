@@ -556,7 +556,7 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 		cur_object->materials[i].texture = load_texture_cache(text_file_name,0);
 #else	//MAP_EDITOR
 #ifdef	NEW_TEXTURES
-		cur_object->materials[i].texture = load_texture_cached(text_file_name, TT_MESH);
+		cur_object->materials[i].texture = load_texture_cached(text_file_name, tt_mesh);
 #else	/* NEW_TEXTURES */
 #ifdef	NEW_ALPHA
 		// prepare to load the textures depending on if it is transparent or not (diff alpha handling)

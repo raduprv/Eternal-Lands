@@ -19,22 +19,22 @@ extern "C" {
  */
 typedef enum
 {
-	IF_RGBA4 = 0,
-	IF_RGB8,
-	IF_R5G6B5,
-	IF_RGBA8,
-	IF_BGR8,
-	IF_BGRA8,
-	IF_RGB5_A1,
-	IF_A8,
-	IF_L8,
-	IF_LA8,
-	IF_DXT1,
-	IF_DXT3,
-	IF_DXT5,
-	IF_ATI1,
-	IF_ATI2
-} image_format;
+	ift_rgba4 = 0,
+	ift_rgb8,
+	ift_r5g6b5,
+	ift_rgba8,
+	ift_bgr8,
+	ift_bgra8,
+	ift_rgb5_a1,
+	ift_a8,
+	ift_l8,
+	ift_la8,
+	ift_dxt1,
+	ift_dxt3,
+	ift_dxt5,
+	ift_ati1,
+	ift_ati2
+} image_format_type;
 
 #define MAX_IMAGE_MIPMAPS 16
 
@@ -49,7 +49,7 @@ typedef struct
 	Uint32 width;				/*!< the width of the image in pixels */
 	Uint32 height;				/*!< the height of the image in pixels */
 	Uint32 mipmaps;				/*!< the number of mipmaps of the image */
-	image_format format;			/*!< the format of the image */
+	image_format_type format;		/*!< the format of the image */
 	Uint8 alpha;				/*!< the image has an alpha channel */
 } image_struct;
 

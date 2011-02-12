@@ -188,10 +188,10 @@ void replace_alpha_rgba8_sse2(const Uint8 alpha, const Uint32 size, Uint8* sourc
 	}
 }
 
-void mask2_sse2(const Uint8* alpha, const Uint32 size, const Uint8* source0,
+void blend_sse2(const Uint8* alpha, const Uint32 size, const Uint8* source0,
 	const Uint8* source1, Uint8* dest)
 {
-	__m128i t0, t1, t2;
+	__m128i t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10;
 	Uint32 i;
 
 	for (i = 0; i < (size / 4); i++)
@@ -203,12 +203,33 @@ void mask2_sse2(const Uint8* alpha, const Uint32 size, const Uint8* source0,
 		t2 = _mm_unpacklo_epi8(t2, t2);
 		t2 = _mm_unpacklo_epi16(t2, t2);
 
-		t0 = _mm_and_si128(t0, t2);
-		t1 = _mm_andnot_si128(t2, t1);
+		t3 = _mm_unpacklo_epi8(t0, t0);
+		t4 = _mm_unpacklo_epi8(t1, t1);
 
-		t1 = _mm_or_si128(t0, t1);
+		t5 = _mm_unpacklo_epi32(t2, t2);
+		t6 = _mm_sub_epi16(_mm_set1_epi8(0xFF), t5);
 
-		_mm_stream_si128((__m128i*)&dest[i * 16], t1);
+		t7 = _mm_mulhi_epu16(t3, t5);
+		t8 = _mm_mulhi_epu16(t4, t6);
+
+		t9 = _mm_adds_epu16(t7, t8);
+		t9 = _mm_srli_epi16(t9, 8);
+
+		t3 = _mm_unpackhi_epi8(t0, t0);
+		t4 = _mm_unpackhi_epi8(t1, t1);
+
+		t5 = _mm_unpackhi_epi32(t2, t2);
+		t6 = _mm_sub_epi16(_mm_set1_epi8(0xFF), t5);
+
+		t7 = _mm_mulhi_epu16(t3, t5);
+		t8 = _mm_mulhi_epu16(t4, t6);
+
+		t10 = _mm_adds_epu16(t7, t8);
+		t10 = _mm_srli_epi16(t10, 8);
+
+		t10 = _mm_packus_epi16(t9, t10);
+
+		_mm_stream_si128((__m128i*)&dest[i * 16], t10);
 	}
 }
 
@@ -380,10 +401,10 @@ void fast_replace_alpha_rgba8(const Uint8 alpha, const Uint32 size, Uint8* sourc
 	}	
 }
 
-void fast_mask2(const Uint8* alpha, const Uint32 size, const Uint8* source0,
+void fast_blend(const Uint8* alpha, const Uint32 size, const Uint8* source0,
 	const Uint8* source1, Uint8* dest)
 {
-	Uint32 i;
+	Uint32 i, j, tmp;
 
 #ifdef	USE_SIMD
 	if (SDL_HasSSE2() && ((size & 0x03) == 0) &&
@@ -391,7 +412,7 @@ void fast_mask2(const Uint8* alpha, const Uint32 size, const Uint8* source0,
 		check_pointer_aligment(source1) &&
 		check_pointer_aligment(dest))
 	{
-		mask2_sse2(alpha, size, source0, source1, dest);
+		blend_sse2(alpha, size, source0, source1, dest);
 
 		return;
 	}
@@ -399,19 +420,12 @@ void fast_mask2(const Uint8* alpha, const Uint32 size, const Uint8* source0,
 
 	for (i = 0; i < size; i++)
 	{
-		if (alpha[i] == 0)
+		for (j = 0; j < 4; j++)
 		{
-			dest[i * 4 + 0] = source1[i * 4 + 0];
-			dest[i * 4 + 1] = source1[i * 4 + 1];
-			dest[i * 4 + 2] = source1[i * 4 + 2];
-			dest[i * 4 + 3] = source1[i * 4 + 3];
-		}
-		else
-		{
-			dest[i * 4 + 0] = source0[i * 4 + 0];
-			dest[i * 4 + 1] = source0[i * 4 + 1];
-			dest[i * 4 + 2] = source0[i * 4 + 2];
-			dest[i * 4 + 3] = source0[i * 4 + 3];
+			tmp = source0[i * 4 + j] * alpha[i];
+			tmp += source1[i * 4 + j] * (255 - alpha[i]);
+			dest[i * 4 + j] = tmp / 255;
 		}
 	}
 }
+

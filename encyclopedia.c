@@ -254,7 +254,7 @@ void ParseImage(xmlAttr *a_node)
 			//name=""
 			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"name")){
 #ifdef	NEW_TEXTURES
-				id = load_texture_cached((char*)cur_attr->children->content, TT_GUI);
+				id = load_texture_cached((char*)cur_attr->children->content, tt_gui);
 #else	/* NEW_TEXTURES */
 				id=load_texture_cache_deferred((char*)cur_attr->children->content,0);
 #endif	/* NEW_TEXTURES */
@@ -292,7 +292,7 @@ void ParseSimage(xmlAttr *a_node)
 			//name=""
 			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"name")){
 #ifdef	NEW_TEXTURES
-				id = load_texture_cached((char*)cur_attr->children->content, TT_GUI);
+				id = load_texture_cached((char*)cur_attr->children->content, tt_gui);
 #else	/* NEW_TEXTURES */
 				id=load_texture_cache_deferred((char*)cur_attr->children->content,0);
 #endif	/* NEW_TEXTURES */

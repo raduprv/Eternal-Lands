@@ -91,13 +91,13 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 #ifdef	NEW_TEXTURES
 	if (actors_defs[actor_type].ghost)
 	{
-		texture_id = load_texture_cached(skin_name, TT_MESH);
+		texture_id = load_texture_cached(skin_name, tt_mesh);
 	}
 	else
 	{
 		if (!remappable)
 		{
-			texture_id = load_texture_cached(skin_name, TT_MESH);
+			texture_id = load_texture_cached(skin_name, tt_mesh);
 		}
 		else
 		{

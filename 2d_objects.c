@@ -289,7 +289,7 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 		}
 
 #ifdef	NEW_TEXTURES
-	cur_object->texture_id = load_texture_cached(texture_file_name, TT_MESH);
+	cur_object->texture_id = load_texture_cached(texture_file_name, tt_mesh);
 #else	/* NEW_TEXTURES */
 	cur_object->texture_id=load_texture_cache_deferred(texture_file_name,0);
 #endif	/* NEW_TEXTURES */

@@ -1020,14 +1020,14 @@ void change_minimap(){
 	//make filename
 	if (check_image_name(map_file_name, sizeof(minimap_file_name), minimap_file_name) == 1)
 	{
-		minimap_texture = load_texture_cached(buffer, TT_IMAGE);
+		minimap_texture = load_texture_cached(buffer, tt_image);
 	}
 	else
 	{
 		minimap_texture = 0;
 	}
 
-	circle_texture = load_texture_cached("./textures/circle", TT_GUI);
+	circle_texture = load_texture_cached("./textures/circle", tt_gui);
 #else	/* NEW_TEXTURES */
 	//unload all textures
 	if(minimap_texture)
@@ -1810,14 +1810,14 @@ void change_minimap(){
 	//make filename
 	if (check_image_name(map_file_name, sizeof(minimap_file_name), minimap_file_name) == 1)
 	{
-		minimap_texture = load_texture_cached(minimap_file_name, TT_IMAGE);
+		minimap_texture = load_texture_cached(minimap_file_name, tt_image);
 	}
 	else
 	{
 		minimap_texture = 0;
 	}
 
-	compass_tex = load_texture_cached("./textures/compass", TT_GUI);
+	compass_tex = load_texture_cached("./textures/compass", tt_gui);
 #else	/* NEW_TEXTURES */
 	//unload all textures
 	if(minimap_texture)

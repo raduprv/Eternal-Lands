@@ -409,7 +409,7 @@ void load_map_tiles()
 	for (i = 0; i < 255; i++)
 	{
 		safe_snprintf(str, sizeof(str), "./3dobjects/tile%i", i);
-		tile_list[i] = load_texture_cached(str, TT_MESH);
+		tile_list[i] = load_texture_cached(str, tt_mesh);
 	}
 #else	/* NEW_TEXTURES */
 	int cur_tile;

@@ -155,7 +155,7 @@ static Uint32 load_image_SDL(el_file_ptr file, const char * file_name,
 	image->width = image_width;
 	image->height = image_height;
 	image->mipmaps = 1;
-	image->format = IF_RGBA8;
+	image->format = ift_rgba8;
 	image->sizes[0] = image_width * image_height * 4;
 
 	if ((image_surface->format->BitsPerPixel == 8) &&

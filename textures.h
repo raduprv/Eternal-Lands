@@ -26,29 +26,29 @@ extern "C" {
 
 typedef enum
 {
-	TT_GUI = 0,
-	TT_FONT,
-	TT_IMAGE,
-	TT_MESH
+	tt_gui = 0,
+	tt_font,
+	tt_image,
+	tt_mesh
 } texture_type;
 
 typedef enum
 {
-	TF_AUTO = 0,
-	TF_RGBA4,
-	TF_RGB8,
-	TF_R5G6B5,
-	TF_RGBA8,
-	TF_RGB5_A1,
-	TF_A8,
-	TF_L8,
-	TF_LA8,
-	TF_DXT1,
-	TF_DXT3,
-	TF_DXT5,
-	TF_ATI1,
-	TF_ATI2
-} texture_format;
+	tft_auto = 0,
+	tft_rgba4,
+	tft_rgb8,
+	tft_r5g6b5,
+	tft_rgba8,
+	tft_rgb5_a1,
+	tft_a8,
+	tft_l8,
+	tft_la8,
+	tft_dxt1,
+	tft_dxt3,
+	tft_dxt5,
+	tft_ati1,
+	tft_ati2
+} texture_format_type;
 
 /*!
  * we use a separate cache structure to cache textures.
@@ -103,12 +103,12 @@ typedef struct
 
 typedef enum
 {
-	ts_unloaded = 0,
-	ts_image_loading,
-	ts_image_loaded,
-	ts_texture_loading,
-	ts_texture_loaded
-} texture_state;
+	tst_unloaded = 0,
+	tst_image_loading,
+	tst_image_loaded,
+	tst_texture_loading,
+	tst_texture_loaded
+} texture_state_type;
 
 /*!
  * we use a separate cache structure to cache textures.
@@ -123,7 +123,7 @@ typedef struct
 	Uint32 hash;			/*!< hash value */
 	Uint32 used;			/*!< if this is used at the moment? */
 	Uint32 access_time;		/*!< last time used */
-	texture_state state;		/*!< the texture states e.g. loading */
+	texture_state_type state;	/*!< the texture states e.g. loading */
 } actor_texture_cache_struct;
 
 /*!

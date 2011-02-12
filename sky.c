@@ -2222,13 +2222,13 @@ int skybox_parse_properties(xmlNode *node)
 							skybox_no_clouds = !XML_BOOL(attr->children->content);
 						else if (xmlStrcasecmp (attr->name, (xmlChar*)"texture") == 0)
 #ifdef	NEW_TEXTURES
-							skybox_clouds_tex = load_texture_cached((char*)attr->children->content, TT_MESH);
+							skybox_clouds_tex = load_texture_cached((char*)attr->children->content, tt_mesh);
 #else	/* NEW_TEXTURES */
 							skybox_clouds_tex = load_texture_cache((char*)attr->children->content, 0);
 #endif	/* NEW_TEXTURES */
 						else if (xmlStrcasecmp (attr->name, (xmlChar*)"texture_detail") == 0)
 #ifdef	NEW_TEXTURES
-							skybox_clouds_detail_tex = load_texture_cached((char*)attr->children->content, TT_MESH);
+							skybox_clouds_detail_tex = load_texture_cached((char*)attr->children->content, tt_mesh);
 #else	/* NEW_TEXTURES */
 							skybox_clouds_detail_tex = load_texture_cache((char*)attr->children->content, 0);
 #endif	/* NEW_TEXTURES */
@@ -2603,10 +2603,10 @@ void skybox_init_gl()
     float strs[NUM_STARS][3];
 
 #ifdef	NEW_TEXTURES
-	thick_clouds_tex = load_texture_cached("./textures/thick_clouds", TT_MESH);
-	thick_clouds_detail_tex = load_texture_cached("./textures/thick_clouds_detail", TT_MESH);
-	moon_tex = load_texture_cached("./textures/moonmap", TT_MESH);
-	sun_tex = load_texture_cached("./textures/BrightSun", TT_MESH);
+	thick_clouds_tex = load_texture_cached("./textures/thick_clouds", tt_mesh);
+	thick_clouds_detail_tex = load_texture_cached("./textures/thick_clouds_detail", tt_mesh);
+	moon_tex = load_texture_cached("./textures/moonmap", tt_mesh);
+	sun_tex = load_texture_cached("./textures/BrightSun", tt_mesh);
 #else	/* NEW_TEXTURES */
 	thick_clouds_tex = load_texture_cache("./textures/thick_clouds.bmp", 0);
 	thick_clouds_detail_tex = load_texture_cache("./textures/thick_clouds_detail.bmp", 0);

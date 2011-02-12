@@ -158,7 +158,7 @@ int create_loading_win (int width, int height, int snapshot)
 		if (!snapshot)
 		{
 #ifdef	NEW_TEXTURES
-			loading_texture_handle = load_texture_cached("./textures/login_back", TT_IMAGE);
+			loading_texture_handle = load_texture_cached("./textures/login_back", tt_image);
 			frac_x = frac_y = 1.0f;
 			use_snapshot = 0;
 #else	/* NEW_TEXTURES */

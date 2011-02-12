@@ -882,7 +882,7 @@ int weather_parse_effect(xmlNode *node)
 			}
 			else if (xmlStrcasecmp(item->name, (xmlChar*)"texture") == 0) {
 #ifdef	NEW_TEXTURES
-				weather_defs[id].texture = load_texture_cached((char*)item->children->content, TT_MESH);
+				weather_defs[id].texture = load_texture_cached((char*)item->children->content, tt_mesh);
 #else	/* NEW_TEXTURES */
 				weather_defs[id].texture = load_texture_cache((char*)item->children->content, 0);
 #endif	/* NEW_TEXTURES */
@@ -918,7 +918,7 @@ int weather_parse_lightning(xmlNode *node)
 		{
 			if (!xmlStrcasecmp (attr->name, (xmlChar*)"texture"))
 #ifdef	NEW_TEXTURES
-				lightnings_defs[id].texture = load_texture_cached((char*)attr->children->content, TT_MESH);
+				lightnings_defs[id].texture = load_texture_cached((char*)attr->children->content, tt_mesh);
 #else	/* NEW_TEXTURES */
 				lightnings_defs[id].texture = load_texture_cache((char*)attr->children->content, 0);
 #endif	/* NEW_TEXTURES */

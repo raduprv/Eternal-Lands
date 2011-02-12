@@ -159,7 +159,7 @@ _image *create_image (const char* file, int x, int y, int w, int h, float u_star
 	img->v[1]=v_end;
 
 #ifdef	NEW_TEXTURES
-	img->texture = load_texture_cached(file, TT_IMAGE);
+	img->texture = load_texture_cached(file, tt_image);
 #else	/* NEW_TEXTURES */
 	img->texture=load_texture_cache(file,0);
 #endif	/* NEW_TEXTURES */
@@ -555,8 +555,8 @@ void read_knowledge_book_index()
 void init_books()
 {
 #ifdef	NEW_TEXTURES
-	paper1_text = load_texture_cached ("./textures/paper1", TT_IMAGE);
-	book1_text = load_texture_cached ("./textures/book1", TT_IMAGE);
+	paper1_text = load_texture_cached ("./textures/paper1", tt_image);
+	book1_text = load_texture_cached ("./textures/book1", tt_image);
 #else	/* NEW_TEXTURES */
 	paper1_text = load_texture_cache_deferred ("./textures/paper1.bmp", 0);
 	book1_text = load_texture_cache_deferred ("./textures/book1.bmp", 0);

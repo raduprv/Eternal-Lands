@@ -13,7 +13,8 @@
 #include <assert.h>
 
 #ifdef	NEW_TEXTURES
-static image_format detect_format(DdsHeader *header, Uint8* alpha, Uint32* unpack)
+static image_format_type detect_format(DdsHeader *header, Uint8* alpha,
+	Uint32* unpack)
 {
 	Uint32 red_mask, green_mask, blue_mask, alpha_mask, luminace_mask;
 
@@ -25,19 +26,19 @@ static image_format detect_format(DdsHeader *header, Uint8* alpha, Uint32* unpac
 		{
 			case DDSFMT_DXT1:
 				*alpha = 1;
-				return IF_DXT1;
+				return ift_dxt1;
 			case DDSFMT_DXT3:
 				*alpha = 1;
-				return IF_DXT3;
+				return ift_dxt3;
 			case DDSFMT_DXT5:
 				*alpha = 1;
-				return IF_DXT5;
+				return ift_dxt5;
 			case DDSFMT_ATI1:
 				*alpha = 0;
-				return IF_ATI1;
+				return ift_ati1;
 			case DDSFMT_ATI2:
 				*alpha = 1;
-				return IF_ATI2;
+				return ift_ati2;
 		}
 	}
 	else
@@ -63,66 +64,66 @@ static image_format detect_format(DdsHeader *header, Uint8* alpha, Uint32* unpac
 		{
 			if ((luminace_mask == 0x00) && (alpha_mask == 0xFF))
 			{
-				return IF_A8;
+				return ift_a8;
 			}
 
 			if ((luminace_mask == 0xFF) && (alpha_mask == 0x00))
 			{
-				return IF_L8;
+				return ift_l8;
 			}
 
 			if ((luminace_mask == 0xFF) && (alpha_mask == 0xFF00))
 			{
-				return IF_LA8;
+				return ift_la8;
 			}
 		}
 
 		if ((red_mask == 0x0F00) && (green_mask == 0x00F0) &&
 			(blue_mask == 0x000F) && (alpha_mask == 0xF000))
 		{
-			return IF_RGBA4;
+			return ift_rgba4;
 		}
 
 		if ((red_mask == 0xF800) && (green_mask == 0x07E0) &&
 			(blue_mask == 0x001F) && (alpha_mask == 0x0000))
 		{
-			return IF_R5G6B5;
+			return ift_r5g6b5;
 		}
 
 		if ((red_mask == 0x7C00) && (green_mask == 0x03E0) &&
 			(blue_mask == 0x001F) && (alpha_mask == 0x8000))
 		{
-			return IF_RGB5_A1;
+			return ift_rgb5_a1;
 		}
 
 		if ((red_mask == 0x000000FF) && (green_mask == 0x0000FF00) &&
 			(blue_mask == 0x00FF0000) && (alpha_mask == 0x00000000))
 		{
-			return IF_RGB8;
+			return ift_rgb8;
 		}
 
 		if ((red_mask == 0x000000FF) && (green_mask == 0x0000FF00) &&
 			(blue_mask == 0x00FF0000) && (alpha_mask == 0xFF000000))
 		{
-			return IF_RGBA8;
+			return ift_rgba8;
 		}
 
 		if ((red_mask == 0x00FF0000) && (green_mask == 0x0000FF00) &&
 			(blue_mask == 0x000000FF) && (alpha_mask == 0xFF000000))
 		{
-			return IF_BGRA8;
+			return ift_bgra8;
 		}
 
 		if ((red_mask == 0x00FF0000) && (green_mask == 0x0000FF00) &&
 			(blue_mask == 0x000000FF) && (alpha_mask == 0x00000000))
 		{
-			return IF_BGRA8;
+			return ift_bgr8;
 		}
 	}
 
 	*unpack = 1;
 
-	return IF_RGBA8;
+	return ift_rgba8;
 }
 #endif	/* NEW_TEXTURES */
 
@@ -243,10 +244,13 @@ static Uint32 validate_header(DdsHeader *header, const char* file_name)
 		}
 		else
 		{
-			LOG_ERROR("File '%s' is invalid. A valid DDS file must"
-				" set either DDPF_FORCC or DDPF_RGB as pixe"
-				" format flags.", file_name);
-			return 0;
+			if ((header->m_pixel_format.m_flags & DDPF_ALPHA) != DDPF_ALPHA)
+			{
+				LOG_ERROR("File '%s' is invalid. A valid DDS file must"
+					" set either DDPF_FORCC or DDPF_RGB as pixe"
+					" format flags.", file_name);
+				return 0;
+			}
 		}
 	}
 
@@ -778,7 +782,7 @@ Uint32 load_dds(el_file_ptr file, const char* file_name, const Uint32 uncompress
 		{
 			image->image = uncompress_dds(file, &header,
 				file_name, strip_mipmaps, start_mipmap);
-			image->format = IF_RGBA8;
+			image->format = ift_rgba8;
 
 			get_dds_sizes_and_offsets(&header, 1, 1,
 				strip_mipmaps, start_mipmap, image);
@@ -789,7 +793,7 @@ Uint32 load_dds(el_file_ptr file, const char* file_name, const Uint32 uncompress
 			{
 				image->image = unpack_dds(file, &header,
 					file_name, strip_mipmaps, start_mipmap);
-				image->format = IF_RGBA8;
+				image->format = ift_rgba8;
 
 				get_dds_sizes_and_offsets(&header, 0, 1,
 					strip_mipmaps, start_mipmap, image);

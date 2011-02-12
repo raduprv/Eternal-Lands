@@ -217,7 +217,7 @@ int init_spells ()
 
 	//init textures and structs
 #ifdef	NEW_TEXTURES
-	sigils_text = load_texture_cached("./textures/sigils", TT_GUI);
+	sigils_text = load_texture_cached("./textures/sigils", tt_gui);
 #else	/* NEW_TEXTURES */
 	sigils_text = load_texture_cache ("./textures/sigils.bmp", 0);
 #endif	/* NEW_TEXTURES */

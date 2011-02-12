@@ -13,7 +13,7 @@ void draw_window_alphaborder(window_info *win) {
 
 	if (!alpha_border_tex) {
 #ifdef	NEW_TEXTURES
-		alpha_border_tex = load_texture_cached("textures/alphaborder", TT_GUI);
+		alpha_border_tex = load_texture_cached("textures/alphaborder", tt_gui);
 #else	/* NEW_TEXTURES */
 		alpha_border_tex= load_texture_cache_deferred("textures/alphaborder.bmp", 0);
 #endif	/* NEW_TEXTURES */

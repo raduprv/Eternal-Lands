@@ -612,7 +612,7 @@ int switch_to_game_map()
 #ifdef	NEW_TEXTURES
 	if (check_image_name(map_file_name, sizeof(buffer), buffer) == 1)
 	{
-		map_text = load_texture_cached(buffer, TT_IMAGE);
+		map_text = load_texture_cached(buffer, tt_image);
 	}
 	else
 	{
@@ -647,7 +647,7 @@ int switch_to_game_map()
 	if (cur_cont != old_cont && cur_cont >= 0 && cur_cont < nr_continents)
 	{
 #ifdef	NEW_TEXTURES
-		cont_text = load_texture_cached (cont_map_file_names[cur_cont], TT_IMAGE);
+		cont_text = load_texture_cached (cont_map_file_names[cur_cont], tt_image);
 #else	/* NEW_TEXTURES */
 		cont_text = load_texture_cache (cont_map_file_names[cur_cont], 128);
 #endif	/* NEW_TEXTURES */
@@ -693,7 +693,7 @@ void draw_game_map (int map, int mouse_mini)
 		if (fallback_text < 0)
 #ifdef	NEW_TEXTURES
 		{
-			fallback_text = load_texture_cached("./textures/paper1", TT_GUI);
+			fallback_text = load_texture_cached("./textures/paper1", tt_gui);
 		}
 #else	/* NEW_TEXTURES */
 			fallback_text = load_texture_cache ("./textures/paper1.bmp", 0);

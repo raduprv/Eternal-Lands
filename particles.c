@@ -507,7 +507,7 @@ void init_particles ()
 
 		if (check_image_name(filename, sizeof(buffer), buffer) == 1)
 		{
-			particle_textures[i] = load_texture_cached(buffer, TT_MESH);
+			particle_textures[i] = load_texture_cached(buffer, tt_mesh);
 		}
 		else
 		{

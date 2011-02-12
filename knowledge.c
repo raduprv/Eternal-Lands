@@ -50,7 +50,7 @@ int add_knowledge_book_image() {
 	uend=u+ftsize;
 	vend=v-ftsize;
 #ifdef	NEW_TEXTURES
-	id = load_texture_cached("textures/items1", TT_GUI);
+	id = load_texture_cached("textures/items1", tt_gui);
 #else	/* NEW_TEXTURES */
 	id= load_texture_cache_deferred("textures/items1.bmp", 0);
 #endif	/* NEW_TEXTURES */

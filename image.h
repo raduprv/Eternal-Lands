@@ -75,20 +75,18 @@ void fast_replace_alpha_rgba8(const Uint8 alpha, const Uint32 size, Uint8* sourc
 
 /*!
  * \ingroup 	textures
- * \brief 	Alpha select the alpha values
+ * \brief 	Blend two images
  *
- *      	Replaces the alpha values of the image with the alpha value.
- *		If alpha is 0, the pixel of the second image is used.
- *		If alpha is 255, the pixel of the second image is used.
+ *      	Blends two images using the alpha values.
  *
- * \param   	alpha The alpha values. They must be 0 or 255.
+ * \param   	alpha The alpha values.
  * \param   	size The size of the image in pixels.
  * \param   	source0 The first source image to use. Format must be RGBA8.
  * \param   	source1 The second source image to use. Format must be RGBA8.
  * \param	dest The buffer for the blended image. Format must be RGBA8.
  * \callgraph
  */
-void fast_mask2(const Uint8* alpha, const Uint32 size, const Uint8* source0,
+void fast_blend(const Uint8* alpha, const Uint32 size, const Uint8* source0,
 	const Uint8* source1, Uint8* dest);
 
 #ifdef __cplusplus

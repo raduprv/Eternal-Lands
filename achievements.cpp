@@ -370,7 +370,7 @@ Achievements_System::Achievements_System(void)
 
 			if (check_image_name(path, sizeof(buffer), buffer) == 1)
 			{
-				textures.push_back(load_texture_cached(buffer, TT_GUI));
+				textures.push_back(load_texture_cached(buffer, tt_gui));
 			}
 #else	/* NEW_TEXTURES */
 			if(path && el_custom_file_exists(path))

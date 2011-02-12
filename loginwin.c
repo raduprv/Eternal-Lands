@@ -67,8 +67,8 @@ void init_login_screen ()
 {
 	CHECK_GL_ERRORS();
 #ifdef	NEW_TEXTURES
-	login_screen_menus = load_texture_cached("./textures/login_menu", TT_IMAGE);
-	login_text = load_texture_cached("./textures/login_back", TT_IMAGE);
+	login_screen_menus = load_texture_cached("./textures/login_menu", tt_image);
+	login_text = load_texture_cached("./textures/login_back", tt_image);
 #else	/* NEW_TEXTURES */
 	login_screen_menus = load_texture_cache ("./textures/login_menu.bmp",0);
 	CHECK_GL_ERRORS();

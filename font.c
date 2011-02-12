@@ -1378,7 +1378,7 @@ int load_font_textures ()
 #endif	/* NEW_TEXTURES */
 
 #ifdef	NEW_TEXTURES
-	fonts[0]->texture_id = load_texture_cached("./textures/font", TT_FONT);
+	fonts[0]->texture_id = load_texture_cached("./textures/font", tt_font);
 #else	/* NEW_TEXTURES */
 	fonts[0]->texture_id = load_texture_cache("./textures/font.bmp", 0);
 #endif	/* NEW_TEXTURES */
@@ -1423,7 +1423,7 @@ int load_font_textures ()
 				file[len - 4]= 0;
 			}
 #ifdef	NEW_TEXTURES
-			fonts[i]->texture_id = load_texture_cached(str, TT_FONT);
+			fonts[i]->texture_id = load_texture_cached(str, tt_font);
 #else	/* NEW_TEXTURES */
 			fonts[i]->texture_id = load_texture_cache_deferred(str, 0);
 #endif	/* NEW_TEXTURES */

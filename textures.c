@@ -33,7 +33,7 @@
 #ifdef	NEW_TEXTURES
 
 #define ACTOR_TEXTURE_CACHE_MAX 1024
-#define ACTOR_TEXTURE_THREAD_COUNT 4
+#define ACTOR_TEXTURE_THREAD_COUNT 1
 
 actor_texture_cache_struct* actor_texture_handles = 0;
 SDL_Thread* actor_texture_threads[ACTOR_TEXTURE_THREAD_COUNT];
@@ -97,7 +97,7 @@ void bind_texture_id(const GLuint id)
 
 static GLuint build_texture(image_struct* image, const Uint32 wrap_mode_repeat,
 	const GLenum min_filter, const Uint32 af, const Uint32 build_mipmaps,
-	const texture_format format)
+	const texture_format_type format)
 {
 	void* ptr;
 	GLuint id;
@@ -108,68 +108,73 @@ static GLuint build_texture(image_struct* image, const Uint32 wrap_mode_repeat,
 
 	switch (image->format)
 	{
-		case IF_RGBA4:
+		case ift_rgba4:
 			src_format = GL_RGBA;
 			type = GL_UNSIGNED_SHORT_4_4_4_4;
 			internal_format = GL_RGBA4;
 			break;
-		case IF_RGB8:
+		case ift_rgb8:
 			src_format = GL_RGB;
 			type = GL_UNSIGNED_BYTE;
 			internal_format = GL_RGB8;
 			break;
-		case IF_R5G6B5:
+		case ift_r5g6b5:
 			src_format = GL_RGB;
 			type = GL_UNSIGNED_SHORT_5_6_5;
 			internal_format = GL_RGB5;
 			break;
-		case IF_RGBA8:
+		case ift_rgba8:
 			src_format = GL_RGBA;
 			type = GL_UNSIGNED_BYTE;
 			internal_format = GL_RGBA8;
 			break;
-		case IF_BGRA8:
+		case ift_bgra8:
 			src_format = GL_BGRA;
 			type = GL_UNSIGNED_BYTE;
 			internal_format = GL_RGBA8;
 			break;
-		case IF_RGB5_A1:
+		case ift_bgr8:
+			src_format = GL_BGR;
+			type = GL_UNSIGNED_BYTE;
+			internal_format = GL_RGB8;
+			break;
+		case ift_rgb5_a1:
 			src_format = GL_RGBA;
 			type = GL_UNSIGNED_SHORT_5_5_5_1;
 			internal_format = GL_RGB5_A1;
 			break;
-		case IF_A8:
+		case ift_a8:
 			src_format = GL_ALPHA;
 			type = GL_UNSIGNED_BYTE;
 			internal_format = GL_ALPHA8;
 			break;
-		case IF_L8:
+		case ift_l8:
 			src_format = GL_LUMINANCE;
 			type = GL_UNSIGNED_BYTE;
 			internal_format = GL_LUMINANCE8;
 			break;
-		case IF_LA8:
+		case ift_la8:
 			src_format = GL_LUMINANCE_ALPHA;
 			type = GL_UNSIGNED_BYTE;
 			internal_format = GL_LUMINANCE8_ALPHA8;
 			break;
-		case IF_DXT1:
+		case ift_dxt1:
 			internal_format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
 			compressed = 1;
 			break;
-		case IF_DXT3:
+		case ift_dxt3:
 			internal_format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
 			compressed = 1;
 			break;
-		case IF_DXT5:
+		case ift_dxt5:
 			internal_format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
 			compressed = 1;
 			break;
-		case IF_ATI1:
+		case ift_ati1:
 			internal_format = GL_COMPRESSED_LUMINANCE_LATC1_EXT;
 			compressed = 1;
 			break;
-		case IF_ATI2:
+		case ift_ati2:
 			internal_format = GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT;
 			compressed = 1;
 			break;
@@ -189,45 +194,45 @@ static GLuint build_texture(image_struct* image, const Uint32 wrap_mode_repeat,
 	{
 		switch (format)
 		{
-			case TF_AUTO:
+			case tft_auto:
 				break;
-			case TF_RGBA4:
+			case tft_rgba4:
 				internal_format = GL_RGBA4;
 				break;
-			case TF_RGB8:
+			case tft_rgb8:
 				internal_format = GL_RGB8;
 				break;
-			case TF_R5G6B5:
+			case tft_r5g6b5:
 				internal_format = GL_RGB5;
 				break;
-			case TF_RGBA8:
+			case tft_rgba8:
 				internal_format = GL_RGBA8;
 				break;
-			case TF_RGB5_A1:
+			case tft_rgb5_a1:
 				internal_format = GL_RGB5_A1;
 				break;
-			case TF_A8:
+			case tft_a8:
 				internal_format = GL_ALPHA8;
 				break;
-			case TF_L8:
+			case tft_l8:
 				internal_format = GL_LUMINANCE8;
 				break;
-			case TF_LA8:
+			case tft_la8:
 				internal_format = GL_LUMINANCE8_ALPHA8;
 				break;
-			case TF_DXT1:
+			case tft_dxt1:
 				internal_format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
 				break;
-			case TF_DXT3:
+			case tft_dxt3:
 				internal_format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
 				break;
-			case TF_DXT5:
+			case tft_dxt5:
 				internal_format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
 				break;
-			case TF_ATI1:
+			case tft_ati1:
 				internal_format = GL_COMPRESSED_LUMINANCE_LATC1_EXT;
 				break;
-			case TF_ATI2:
+			case tft_ati2:
 				internal_format = GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT;
 				break;
 			default:
@@ -377,7 +382,7 @@ static Uint32 load_texture(texture_cache_struct* texture_handle)
 	Uint32 strip_mipmaps, base_level, wrap_mode_repeat, af, i, uncompress;
 	Uint32 build_mipmaps, compute_alpha;
 	GLenum min_filter;
-	texture_format format;
+	texture_format_type format;
 
 	memset(&image, 0, sizeof(image_struct));
 
@@ -388,20 +393,20 @@ static Uint32 load_texture(texture_cache_struct* texture_handle)
 	min_filter = GL_LINEAR;
 	build_mipmaps = 0;
 	compute_alpha = 0;
-	format = TF_AUTO;
+	format = tft_auto;
 
 	switch (texture_handle->type)
 	{
-		case TT_GUI:
+		case tt_gui:
 			wrap_mode_repeat = 1;
 			strip_mipmaps = 1;
 			compute_alpha = 1;
 			break;
-		case TT_IMAGE:
+		case tt_image:
 			strip_mipmaps = 1;
-			format = TF_DXT1;
+			format = tft_dxt1;
 			break;
-		case TT_FONT:
+		case tt_font:
 			build_mipmaps = 1;
 			compute_alpha = 1;
 			min_filter = GL_LINEAR_MIPMAP_LINEAR;
@@ -411,7 +416,7 @@ static Uint32 load_texture(texture_cache_struct* texture_handle)
 				af = 1;
 			}
 			break;
-		case TT_MESH:
+		case tt_mesh:
 			build_mipmaps = 1;
 			wrap_mode_repeat = 1;
 			compute_alpha = 1;
@@ -435,7 +440,7 @@ static Uint32 load_texture(texture_cache_struct* texture_handle)
 	else
 	{
 		uncompress = 1;
-		format = TF_AUTO;
+		format = tft_auto;
 	}
 
 	if (load_image_data(texture_handle->file_name, uncompress, 0,
@@ -571,7 +576,7 @@ void free_actor_texture_resources(actor_texture_cache_struct* texture)
 			texture->image.image = 0;
 		}
 
-		texture->state = ts_unloaded;
+		texture->state = tst_unloaded;
 	}
 }
 
@@ -622,14 +627,14 @@ Uint32 copy_to_coordinates_mask2(const image_struct* source0,
 
 	size = source_width * source_height;
 
-	fast_mask2(msk, size, src0, src1, buffer);
+	fast_blend(msk, size, src1, src0, buffer);
 
 	for (i = 0; i < source_height; i++)
 	{
 		source_offset = i * source_width * 4;
 		dest_offset = ((dest_height - 1 - ((source_height - i - 1) + y)) * dest_width + x) * 4;
 
-		memcpy(dest + dest_offset, buffer + source_offset, source_width * 4);
+		memcpy(dst + dest_offset, buffer + source_offset, source_width * 4);
 	}
 
 	if ((source0->alpha != 0) || (source1->alpha != 0))
@@ -658,12 +663,33 @@ Uint32 load_to_coordinates(const char* file_name, const Uint32 x,
 	return copy_to_coordinates(&image, x * scale, y * scale, dst);
 }
 
+void build_alpha_mask(const Uint8* source, const Uint32 size, Uint8* dest)
+{
+	Uint32 i, r, g;
+
+	for (i = 0; i < size; i++)
+	{
+		r = source[i * 4 + 0];
+		g = source[i * 4 + 1];
+
+		if (r >= g)
+		{
+			dest[i] = 0;
+		}
+		else
+		{
+			dest[i] = 255;
+		}
+	}
+}
+
 Uint32 load_to_coordinates_mask2(const char* source0, const char* source1,
 	const char* mask, const Uint32 x, const Uint32 y, const Uint32 width,
 	const Uint32 height, const Uint32 scale, image_struct *dest,
 	Uint8* buffer)
 {
 	image_struct src0, src1, msk;
+	Uint8* tmp;
 
 	memset(&src0, 0, sizeof(src0));
 	memset(&src1, 0, sizeof(src1));
@@ -686,14 +712,40 @@ Uint32 load_to_coordinates_mask2(const char* source0, const char* source1,
 		return 0;
 	}
 
-	if (load_image_data(source1, 1, 1, 1, 0, 0, &src1) != 0)
+	if (load_image_data(source1, 1, 1, 1, 0, 0, &src1) == 0)
 	{
 		return 0;
 	}
 
-	if (load_image_data(mask, 1, 1, 1, 0, 0, &msk) != 0)
+	if (load_image_data(mask, 1, 0, 1, 0, 0, &msk) == 0)
 	{
 		return 0;
+	}
+
+	if ((msk.format != ift_a8) && (msk.format != ift_l8))
+	{
+		if (msk.format != ift_rgba8)
+		{
+			LOG_ERROR("Can't convert image '%s' to alpha mask", mask);
+
+			return 0;
+		}
+
+		LOG_ERROR("converting image '%s' to alpha mask", mask);
+
+		tmp = malloc(msk.width * msk.height);
+
+		build_alpha_mask(msk.image, msk.width * msk.height, tmp);
+
+		free(msk.image);
+		memset(msk.sizes, 0, sizeof(msk.sizes));
+		memset(msk.offsets, 0, sizeof(msk.offsets));
+
+		msk.image = tmp;
+		msk.format = ift_a8;
+		msk.mipmaps = 1;
+		msk.alpha = 1;
+		msk.sizes[0] = msk.width * msk.height;
 	}
 
 	return copy_to_coordinates_mask2(&src0, &src1, &msk, x * scale,
@@ -711,7 +763,7 @@ void load_enhanced_actor_threaded(const enhanced_actor_images* files,
 	image->width = TEXTURE_SIZE_X;
 	image->height = TEXTURE_SIZE_Y;
 	image->mipmaps = 1;
-	image->format = IF_RGBA8;
+	image->format = ift_rgba8;
 	image->image = malloc(TEXTURE_SIZE_X * TEXTURE_SIZE_Y * 4);
 
 	scale = 2;
@@ -932,7 +984,7 @@ Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
 	Uint32 af, result;
 	GLuint id;
 	GLenum min_filter;
-	texture_format format;
+	texture_format_type format;
 
 	// don't look up an out of range texture
 	if (handle >= ACTOR_TEXTURE_CACHE_MAX)
@@ -955,7 +1007,7 @@ Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
 		*alpha = actor_texture_handles[handle].image.alpha;
 	}
 
-	if (actor_texture_handles[handle].state == ts_image_loaded)
+	if (actor_texture_handles[handle].state == tst_image_loaded)
 	{
 		if (poor_man != 0)
 		{
@@ -971,22 +1023,22 @@ Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
 		{
 			if (actor_texture_handles[handle].image.alpha == 0)
 			{
-				format = TF_DXT1;
+				format = tft_dxt1;
 			}
 			else
 			{
-				format = TF_DXT5;
+				format = tft_dxt5;
 			}
 		}
 		else
 		{
 			if (actor_texture_handles[handle].image.alpha == 0)
 			{
-				format = TF_R5G6B5;
+				format = tft_r5g6b5;
 			}
 			else
 			{
-				format = TF_RGB5_A1;
+				format = tft_rgb5_a1;
 			}
 		}
 
@@ -1006,7 +1058,7 @@ Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
 		else
 		{
 			actor_texture_handles[handle].new_id = id;
-			actor_texture_handles[handle].state = ts_texture_loading;
+			actor_texture_handles[handle].state = tst_texture_loading;
 		}
 	}
 
@@ -1075,7 +1127,7 @@ Uint32 get_actor_texture_ready(const Uint32 handle)
 	assert("actor texture used value is invalid." && (actor_texture_handles[handle].used != 0));
 #endif	/* DEBUG */
 
-	if (actor_texture_handles[handle].state == ts_texture_loading)
+	if (actor_texture_handles[handle].state == tst_texture_loading)
 	{
 		result = 1;
 	}
@@ -1103,10 +1155,10 @@ void use_ready_actor_texture(const Uint32 handle)
 
 #ifdef	DEBUG
 	assert("actor texture used value is invalid." && (actor_texture_handles[handle].used != 0));
-	assert("actor texture not uploaded." && (actor_texture_handles[handle].state == ts_texture_loading));
+	assert("actor texture not uploaded." && (actor_texture_handles[handle].state == tst_texture_loading));
 #endif	/* DEBUG */
 
-	actor_texture_handles[handle].state = ts_texture_loaded;
+	actor_texture_handles[handle].state = tst_texture_loaded;
 
 	if (actor_texture_handles[handle].id != 0)
 	{
@@ -1178,7 +1230,7 @@ void change_enhanced_actor(const Uint32 handle, enhanced_actor* actor)
 
 	actor_texture_handles[handle].hash = hash;
 	actor_texture_handles[handle].access_time = cur_time;
-	actor_texture_handles[handle].state = ts_unloaded;
+	actor_texture_handles[handle].state = tst_unloaded;
 
 	CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[handle].mutex);
 
@@ -1206,11 +1258,11 @@ int load_enhanced_actor_thread(void* done)
 
 		CHECK_AND_LOCK_MUTEX(actor->mutex);
 
-		while (actor->state == ts_unloaded)
+		while (actor->state == tst_unloaded)
 		{
 			memcpy(&files, &actor->files, sizeof(files));
 			hash = actor->hash;
-			actor->state = ts_image_loading;
+			actor->state = tst_image_loading;
 
 			CHECK_AND_UNLOCK_MUTEX(actor->mutex);
 
@@ -1218,21 +1270,21 @@ int load_enhanced_actor_thread(void* done)
 
 			CHECK_AND_LOCK_MUTEX(actor->mutex);
 
-			if ((actor->state == ts_image_loading) ||
-				(actor->state == ts_unloaded))
+			if ((actor->state == tst_image_loading) ||
+				(actor->state == tst_unloaded))
 			{
 				if ((hash == actor->hash) &&
 					(!memcmp(&actor->files, &files,	sizeof(files))))
 				{
 					memcpy(&actor->image, &image, sizeof(image));
 
-					actor->state = ts_image_loaded;
+					actor->state = tst_image_loaded;
 				}
 				else
 				{
 					free(image.image);
 
-					actor->state = ts_unloaded;
+					actor->state = tst_unloaded;
 				}
 			}
 			else
@@ -1257,6 +1309,8 @@ void init_texture_cache()
 
 	texture_cache = cache_init(TEXTURE_CACHE_MAX, 0);
 	cache_set_compact(texture_cache, compact_texture);
+	cache_set_time_limit(texture_cache, 5 * 60 * 1000);
+	cache_set_name(cache_system, "texture cache", texture_cache);
 
 	texture_handles = malloc(TEXTURE_CACHE_MAX * sizeof(texture_cache_struct));
 	memset(texture_handles, 0, TEXTURE_CACHE_MAX * sizeof(texture_cache_struct));
@@ -1269,7 +1323,7 @@ void init_texture_cache()
 	for (i = 0; i < ACTOR_TEXTURE_CACHE_MAX; i++)
 	{
 		actor_texture_handles[i].mutex = SDL_CreateMutex();
-		actor_texture_handles[i].state = ts_unloaded;
+		actor_texture_handles[i].state = tst_unloaded;
 	}
 
 	for (i = 0; i < ACTOR_TEXTURE_THREAD_COUNT; i++)
