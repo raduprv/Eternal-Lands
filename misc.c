@@ -8,9 +8,7 @@
 #endif //_MSC_VER
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifdef	ZLIB
 #include	<zlib.h>
-#endif
 #ifdef PNG_SCREENSHOT
 	#ifdef OSX
 		#include <png/png.h>
@@ -21,9 +19,7 @@
 #ifdef OSX
 #include <ApplicationServices/ApplicationServices.h>
 #endif
-#ifdef ZLIB
 #include <zlib.h>
-#endif // ZLIB
 #include <SDL.h>
 #include "misc.h"
 #include "asc.h"
@@ -49,9 +45,6 @@
 #define MKDIR(file) (mkdir(file, S_IRWXU | S_IRWXG))
 #endif //WINDOWS
 
-#ifndef	NEW_SELECTION
-Uint8 last_pixel_color[4];
-#endif	// NEW_SELECTION
 LINE click_line;
 
 void get_click_line(LINE* line)
@@ -128,50 +121,6 @@ void set_click_line()
 	if (read_mouse_now) get_click_line(&click_line);
 }
 
-#ifndef	NEW_SELECTION
-void reset_under_the_mouse()
-{
-	if(!read_mouse_now) {
-		return;
-	}
-	last_pixel_color[0] = 0;
-	last_pixel_color[1] = 0;
-	last_pixel_color[2] = 0;
-	object_under_mouse = -1;
-	thing_under_the_mouse = UNDER_MOUSE_NOTHING;
-}
-
-int anything_under_the_mouse(int object_id, int object_type)
-{
-	char pixels[16]={0};
-
-	if(!read_mouse_now)return 0;
-	glReadBuffer(GL_BACK);
-	glReadPixels(mouse_x, window_height-mouse_y, 1, 1, GL_RGB, GL_BYTE, &pixels);
-	if(pixels[0]!=last_pixel_color[0] || pixels[1]!=last_pixel_color[1] || pixels[2]!=last_pixel_color[2])
-		{
-			last_pixel_color[0]=pixels[0];
-			last_pixel_color[1]=pixels[1];
-			last_pixel_color[2]=pixels[2];
-
-			if(object_type==UNDER_MOUSE_NO_CHANGE)return 0;
-
-			if(object_type==UNDER_MOUSE_PLAYER || object_type==UNDER_MOUSE_NPC || object_type==UNDER_MOUSE_ANIMAL)
-				{
-					actor_under_mouse=actors_list[object_id];
-					object_id=actors_list[object_id]->actor_id;
-				} else {
-					actor_under_mouse=NULL;
-				}
-			object_under_mouse=object_id;
-
-			thing_under_the_mouse=object_type;
-			return 1;//there is something
-		}
-	return 0;//no collision, sorry
-
-}
-#endif	// NEW_SELECTION
 
 FILE *my_fopen (const char *fname, const char *mode)
 {
@@ -208,7 +157,6 @@ int file_exists(const char *fname)
 
 int gzfile_exists(const char *fname)
 {
-#ifdef	ZLIB
 	char	gzfname[1024];
 
 	safe_strncpy(gzfname, fname, sizeof(gzfname) - 4);
@@ -216,12 +164,10 @@ int gzfile_exists(const char *fname)
 	if(file_exists(gzfname)){
 		return 1;
 	}
-#endif
 
 	return(file_exists(fname));
 }
 
-#ifdef ZLIB
 gzFile * my_gzopen(const char * filename, const char * mode)
 {
 	char gzfilename[1024];
@@ -239,7 +185,6 @@ gzFile * my_gzopen(const char * filename, const char * mode)
 
 	return result;
 }
-#endif // ZLIB
 
 
 #ifdef PNG_SCREENSHOT

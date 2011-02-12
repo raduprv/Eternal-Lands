@@ -8,9 +8,7 @@
  #include <sys/types.h>
  #include <sys/stat.h>
 #endif	//WINDOWS
-#ifdef	ZLIB
  #include <zlib.h>
-#endif
 #include <time.h>
 #include <SDL_net.h>
 #include <SDL_thread.h>
@@ -249,33 +247,20 @@ int    do_threaded_update(void *ptr)
 	char    buffer[1024];
 	char	*buf;
 	int	num_files= 0;
-#ifdef	ZLIB
 	gzFile *fp= NULL;
 	char filename[1024];
-#else	//ZLIB
-	FILE *fp= NULL;
-#endif	//ZLIB
 
 	// open the update file
-#ifdef	ZLIB
 	safe_snprintf(filename, sizeof(filename), "%s%s", doing_custom ? get_path_custom() : get_path_updates(), files_lst);
 	fp = my_gzopen(filename, "rb");
-#else	//ZLIB
-	fp= my_fopen(files_lst, "r");
-#endif	//ZLIB
 	if(fp == NULL){
 		// error, we stop processing now
 		update_busy= 0;
 		return(0);
 	}
 
-#ifdef	ZLIB
 	buf= gzgets(fp, buffer, 1024);
 	while(buf && buf != Z_NULL){
-#else	//ZLIB
-	buf= fgets(buffer, 1024, fp);
-	while(buf && !ferror(fp)){
-#endif	//ZLIB
 		char	filename[1024];
 		char    asc_md5[256];
 		Uint8	md5[16];
@@ -313,19 +298,11 @@ int    do_threaded_update(void *ptr)
 		}
 			
 		// read the next line, if any
-#ifdef	ZLIB
 		buf= gzgets(fp, buffer, 1024);
-#else	//ZLIB
-		buf= fgets(buffer, 1024, fp);
-#endif	//ZLIB
 	}
 	// close the file, clear that we are busy
 	if(fp){
-#ifdef	ZLIB
 		gzclose(fp);
-#else	//ZLIB
-		fclose(fp);
-#endif	//ZLIB
 	}
 	update_busy= 0;
 

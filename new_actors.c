@@ -1010,11 +1010,9 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	actors_list[i]->max_health=max_health;
 	actors_list[i]->cur_health=cur_health;
 
-#ifdef VARIABLE_SPEED
     actors_list[i]->step_duration = actors_defs[actor_type].step_duration;
 	if (actors_list[i]->buffs & BUFF_DOUBLE_SPEED)
 		actors_list[i]->step_duration /= 2;
-#endif // VARIABLE_SPEED
 
     actors_list[i]->z_pos = get_actor_z(actors_list[i]);
 	if(frame==frame_sit_idle||(pose!=NULL&&pose->pose==EMOTE_SITTING)){ //sitting pose sent by the server

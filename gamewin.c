@@ -62,9 +62,7 @@
 #ifdef PAWN
 #include "pawn/elpawn.h"
 #endif
-#ifdef SKY_FPV
 #include "sky.h"
-#endif
 #include "missiles.h"
 #ifdef ECDEBUGWIN
 #include "eye_candy_debugwin.h"
@@ -79,11 +77,9 @@ float fps_average = 100.0;
 int include_use_cursor_on_animals = 0;
 int logo_click_to_url = 1;
 char LOGO_URL_LINK[128] = "http://www.eternal-lands.com";
-#ifdef SKY_FPV
 int have_mouse = 0;
 int just_released_mouse = 0;
 int keep_grabbing_mouse = 0;
-#endif // SKY_FPV
 #ifdef NEW_CURSOR
 int cursors_tex;
 #endif // NEW_CURSOR
@@ -95,27 +91,19 @@ static int ranging_lock = 0;
 
 void draw_special_cursors()
 {
-#ifdef SKY_FPV
 	const float RET_WID = 4.0f;
 	const float RET_LEN = 10.0f;
 	float ret_x = 0.0, ret_y = 0.0;
-#endif // SKY_FPV
 
 	float ret_spin,ret_zoom, ret_alpha=0.5f;
 	float ret_color[4];
 	float ret_out = 7.0;
 
-#ifdef SKY_FPV
 #ifdef NEW_CURSOR
 	if (!have_mouse && sdl_cursors) return;
 #else // NEW_CURSOR
 	if (!have_mouse) return;
 #endif // NEW_CURSOR
-#else // SKY_FPV
-#ifdef NEW_CURSOR
-	if (sdl_cursors) return;
-#endif // NEW_CURSOR
-#endif // SKY_FPV
 
 	if(!(SDL_GetAppState() & SDL_APPMOUSEFOCUS)) return;
 
@@ -160,7 +148,6 @@ void draw_special_cursors()
 
 	//printf("mouse_x=%d mouse_y=%d\n", mouse_x, mouse_y);
 
-#ifdef SKY_FPV
 	if(have_mouse)
 	{
 #ifdef NEW_CURSOR
@@ -272,7 +259,6 @@ void draw_special_cursors()
 #ifdef NEW_CURSOR
 	else
 #endif // NEW_CURSOR
-#endif // SKY_FPV
 #ifdef NEW_CURSOR
 	{
 		if (current_cursor != CURSOR_ARROW){
@@ -328,7 +314,6 @@ void draw_special_cursors()
 	reset_material();
 }
 
-#ifdef SKY_FPV
 void toggle_have_mouse()
 {
 	have_mouse = !have_mouse;
@@ -368,7 +353,6 @@ void toggle_first_person()
 	resize_root_window();
 	//set_all_intersect_update_needed(main_bbox_tree);
 }
-#endif // SKY_FPV
 
 // This is the main part of the old check_cursor_change ()
 int mouseover_game_handler (window_info *win, int mx, int my)
@@ -1036,12 +1020,10 @@ int display_game_handler (window_info *win)
 	if(mouse_rate > mouse_limit) {
 		mouse_rate = mouse_limit;
 	}
-#ifdef	NEW_SELECTION
 	if (mouse_rate < 5)
 	{
 		mouse_rate = 5;
 	}
-#endif	// NEW_SELECTION
 	if ((main_count % mouse_rate) == 0)
 	{
 		read_mouse_now = 1;
@@ -1078,10 +1060,6 @@ int display_game_handler (window_info *win)
 	// are we actively drawing things?
 	if (SDL_GetAppState() & SDL_APPACTIVE)
 	{
-#ifndef NEW_WEATHER
-		//now, determine the current weather light level
-		get_weather_light_level ();
-#endif // NEW_WEATHER
 
 		if (!dungeon){
 			draw_global_light ();
@@ -1089,7 +1067,6 @@ int display_game_handler (window_info *win)
 			draw_dungeon_light ();
 		}
 
-#ifdef SKY_FPV
 		if (skybox_update_delay < 1)
 			skybox_update_colors();
 		if (skybox_show_sky)
@@ -1100,12 +1077,9 @@ int display_game_handler (window_info *win)
 			skybox_display();
             glPopMatrix();
         }
-#endif // SKY_FPV
 	
-#ifdef NEW_WEATHER
 		if (use_fog)
 			weather_render_fog();
-#endif // NEW_WEATHER
 
 		// only draw scene lights if inside or it is night
 		if (dungeon || !is_day)
@@ -1115,11 +1089,7 @@ int display_game_handler (window_info *win)
 		}
 		CHECK_GL_ERRORS ();
 
-#ifndef NEW_WEATHER
-		if (!dungeon && shadows_on && is_day)
-#else // NEW_WEATHER
 		if (!dungeon && shadows_on && (is_day || lightning_falling))
-#endif // NEW_WEATHER
 		{
 			render_light_view();
 			CHECK_GL_ERRORS ();
@@ -1127,14 +1097,7 @@ int display_game_handler (window_info *win)
 
 		if (any_reflection > 1) // there are water tiles to display
 		{
-#ifndef SKY_FPV
-		  	if (!dungeon)
-				draw_sky_background ();
-		  	else 
-				draw_dungeon_sky_background ();
-#else // SKY_FPV
 			draw_water_background();
-#endif // SKY_FPV
 			CHECK_GL_ERRORS ();
 			if (show_reflection) display_3d_reflection ();
 		}
@@ -1143,16 +1106,10 @@ int display_game_handler (window_info *win)
 
 		missiles_update();
 	
-#ifdef NEW_WEATHER
 		if (!is_day)
 			weather_init_lightning_light();
-#endif // NEW_WEATHER
 
-#ifndef NEW_WEATHER
-		if (!dungeon && shadows_on && is_day)
-#else // NEW_WEATHER
 		if (!dungeon && shadows_on && (is_day || lightning_falling))
-#endif // NEW_WEATHER
 		{
 			glNormal3f(0.0f,0.0f,1.0f);
 			if (use_fog && any_reflection) blend_reflection_fog();
@@ -1178,7 +1135,6 @@ int display_game_handler (window_info *win)
 			display_blended_objects();
 		}
 
-#ifdef NEW_WEATHER
 		glMatrixMode(GL_PROJECTION);
 		glPushMatrix();
 		glLoadMatrixd(skybox_view);
@@ -1189,7 +1145,6 @@ int display_game_handler (window_info *win)
 		glMatrixMode(GL_PROJECTION);
 		glPopMatrix();
 		glMatrixMode(GL_MODELVIEW);
-#endif // NEW_WEATHER
 
 		CHECK_GL_ERRORS ();
 	}	// end of active display check
@@ -1218,11 +1173,7 @@ int display_game_handler (window_info *win)
 		return 1;
 	}
 
-#ifndef NEW_WEATHER
-	render_weather();	// draw weather effects
-#else // NEW_WEATHER
 	weather_render();
-#endif // NEW_WEATHER
 
 	CHECK_GL_ERRORS ();
 	//particles should be last, we have no Z writting
@@ -1237,10 +1188,6 @@ int display_game_handler (window_info *win)
 	missiles_draw();
 	CHECK_GL_ERRORS();
 
-#ifndef NEW_WEATHER
-	if (use_fog)
-		render_fog();
-#endif // NEW_WEATHER
 
 	last_texture = -1;
 
@@ -1324,12 +1271,6 @@ int display_game_handler (window_info *win)
 					  ambient_light[0], ambient_light[1], ambient_light[2], ambient_light[3],
 					  diffuse_light[0], diffuse_light[1], diffuse_light[2], diffuse_light[3]);
 		draw_string (0, win->len_y - hud_y - 65, str, 1);
-#ifndef NEW_WEATHER
-		safe_snprintf((char*)str, sizeof(str), "rain: %d start in: %d stop in: %d drops: %d strength: %1.2f alpha: %1.2f fog alpha: %1.2f", 
-				is_raining, seconds_till_rain_starts, seconds_till_rain_stops, num_rain_drops,
-				rain_strength_bias, rain_color[3], fogAlpha);
-		draw_string (0, win->len_y - hud_y - 40, str, 1);
-#else // NEW_WEATHER
 		safe_snprintf((char*)str, sizeof(str), "weather: drops=%d/%d/%d/%d/%d/%d, int=%f, dty=%f, fog=%f",
 					  weather_get_drops_count(1),
 					  weather_get_drops_count(2),
@@ -1341,7 +1282,6 @@ int display_game_handler (window_info *win)
 					  weather_get_density(),
 					  skybox_fog_density);
 		draw_string (0, win->len_y - hud_y - 40, str, 1);
-#endif // NEW_WEATHER
 #else	//DEBUG
 		glColor3f (1.0f, 1.0f, 1.0f);
 #endif	//DEBUG
@@ -1450,11 +1390,7 @@ void hide_all_windows(){
 		get_show_window(manufacture_win) > 0 || get_show_window(elconfig_win) > 0 || get_show_window(sigil_win) > 0 ||
 		get_show_window(tab_stats_win) > 0 || get_show_window(tab_help_win) > 0 || get_show_window(storage_win) > 0 ||
 		get_show_window(dialogue_win) > 0 || get_show_window(server_popup_win) > 0 || get_show_window(questlog_win) > 0 
-#ifndef MINIMAP2
-		|| (get_show_window(minimap_win) > 0 && !minimap_get_pin())
-#else
 		|| (get_show_window(minimap_win) > 0 && !pin_minimap)
-#endif
 		|| get_show_window(tab_info_win) > 0
 		|| get_show_window(emotes_win) > 0
 	){	//Okay, hide the open ones.
@@ -1516,11 +1452,7 @@ void hide_all_windows(){
 		} else {
 			were_open &= ~(1<<7);
 		}
-#ifndef MINIMAP2
-		if (get_window_showable(minimap_win) > 0 && !minimap_get_pin()){
-#else
 		if (get_window_showable(minimap_win) > 0 && !pin_minimap){
-#endif //MINIMAP2
 			hide_window (minimap_win);
 			were_open |= 1<<8;
 		} else {
@@ -1658,61 +1590,30 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 			item_list[i].cooldown_time += 1000;
 		}
 	}
-#ifndef NEW_WEATHER
-	else if((keysym == SDLK_UP) && shift_on && ctrl_on && !alt_on)
-	{
-		rain_color[3] += 0.01f;
-	}
-	else if((keysym == SDLK_DOWN) && shift_on && ctrl_on && !alt_on)
-	{
-		rain_color[3] -= 0.01f;
-	}
-#endif // NEW_WEATHER
 	else if((keysym == SDLK_t) && shift_on && ctrl_on && !alt_on)
 	{
-#ifndef NEW_WEATHER
-		add_thunder(rand()%5,1+rand()%5);
-#else // NEW_WEATHER
 		weather_add_lightning(rand()%5, -camera_x-100+rand()%200, -camera_y-100+rand()%200);
-#endif // NEW_WEATHER
 	}
 	else if((keysym == SDLK_w) && shift_on && ctrl_on && alt_on)
 	{
-#ifndef SKY_FPV
-		if(game_minute >= 355) game_minute -=355; else game_minute +=  5;
-#else // SKY_FPV
 		if(real_game_minute >= 355) real_game_minute -=355; else real_game_minute +=  5;
-#endif // SKY_FPV
 		new_minute();
 	}
 	else if((keysym == SDLK_q) && shift_on && ctrl_on && alt_on)
 	{
-#ifndef SKY_FPV
-		if(game_minute <  5) game_minute +=355; else game_minute -=  5;
-#else // SKY_FPV
 		if(real_game_minute < 5) real_game_minute +=355; else real_game_minute -=  5;
-#endif // SKY_FPV
 		new_minute();
 	}
 	else if((keysym == SDLK_w) && !shift_on && ctrl_on && alt_on)
 	{
-#ifndef SKY_FPV
-		if(game_minute >= 359) game_minute -=359; else game_minute +=  1;
-#else // SKY_FPV
 		if(real_game_minute >= 359) real_game_minute -=359; else real_game_minute +=  1;
-#endif // SKY_FPV
 		new_minute();
 	}
 	else if((keysym == SDLK_q) && !shift_on && ctrl_on && alt_on)
 	{
-#ifndef SKY_FPV
-		if(game_minute <  1) game_minute +=359; else game_minute -=  1;
-#else // SKY_FPV
 		if(real_game_minute < 1) real_game_minute +=359; else real_game_minute -=  1;
-#endif // SKY_FPV
 		new_minute();
 	}
-#ifdef SKY_FPV
 	else if((keysym == SDLK_s) && shift_on && ctrl_on && alt_on)
 	{
 		skybox_init_defs(NULL);
@@ -1729,44 +1630,13 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 			new_second();
 		}
 	}
-#endif // SKY_FPV
-#ifndef NEW_WEATHER
-	else if((keysym == SDLK_PAGEUP) && shift_on && ctrl_on && !alt_on)
-	{
-		rain_strength_bias += 0.1f;
-	}
-	else if((keysym == SDLK_PAGEDOWN) && shift_on && ctrl_on && !alt_on)
-	{
-		rain_strength_bias -= 0.1f;
-	}
-#endif // NEW_WEATHER
 	else if((keysym == SDLK_HOME) && shift_on && ctrl_on && !alt_on)
 	{
-#ifdef NEW_WEATHER
 		weather_set_area(0, -camera_x, -camera_y, 100.0, 1, 1.0, 10);
-#else // NEW_WEATHER
-		if(is_raining) {
-			seconds_till_rain_stops = 2;
-			seconds_till_rain_starts = -1;
-		} else {
-			seconds_till_rain_stops = -1;
-			seconds_till_rain_starts = 2;
-		}
-#endif // NEW_WEATHER
 	}
 	else if ((keysym == SDLK_END) && shift_on && ctrl_on && !alt_on)
 	{
-#ifdef NEW_WEATHER
 		weather_set_area(1, -camera_x, -camera_y, 100.0, 2, 1.0, 10);
-#else // NEW_WEATHER
-		if (is_raining) {
-			seconds_till_rain_stops = 60;
-			seconds_till_rain_starts = -1;
-		} else {
-			seconds_till_rain_stops = -1;
-			seconds_till_rain_starts = 60;
-		}
-#endif // NEW_WEATHER
 	}
 	else if((keysym == SDLK_z) && shift_on && ctrl_on && !alt_on)
 	{
@@ -2026,81 +1896,49 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	// Roja likes to rotate the camera while in console mode :)
 	else if (key == K_ROTATELEFT)
 	{
-#ifndef SKY_FPV
-		camera_rotation_speed = normal_camera_rotation_speed / 800.0;
-#else // SKY_FPV
 		camera_rotation_speed = (first_person?-1:1)*normal_camera_rotation_speed / 800.0;
-#endif // SKY_FPV
-#ifdef NEW_CAMERA_MOTION
 		camera_rotation_deceleration = normal_camera_deceleration*0.5E-3;
-#endif // NEW_CAMERA_MOTION
 		camera_rotation_duration = 800;
-#ifdef SKY_FPV
 		if (fol_cam && !fol_cam_behind)
 		{
 			hold_camera += camera_kludge - last_kludge;
 			last_kludge = camera_kludge;
 		}
-#endif // SKY_FPV
 	}
 	else if (key == K_FROTATELEFT)
 	{
-#ifndef SKY_FPV
-		camera_rotation_speed = fine_camera_rotation_speed / 200.0;
-#else // SKY_FPV
 		camera_rotation_speed = (first_person?-1:1)*fine_camera_rotation_speed / 200.0;
-#endif // SKY_FPV
-#ifdef NEW_CAMERA_MOTION
 		camera_rotation_speed /= 4.0;
 		camera_rotation_deceleration = normal_camera_deceleration*0.5E-3;
-#endif // NEW_CAMERA_MOTION
 		camera_rotation_duration = 200;
-#ifdef SKY_FPV
 		if (fol_cam && !fol_cam_behind)
 		{
 			hold_camera += camera_kludge - last_kludge;
 			last_kludge = camera_kludge;
 		}
-#endif // SKY_FPV
 	}
 	else if (key == K_ROTATERIGHT)
 	{
-#ifndef SKY_FPV
-		camera_rotation_speed = -normal_camera_rotation_speed / 800.0;
-#else // SKY_FPV
 		camera_rotation_speed = (first_person?1:-1)*normal_camera_rotation_speed / 800.0;
-#endif // SKY_FPV
-#ifdef NEW_CAMERA_MOTION
 		camera_rotation_deceleration = normal_camera_deceleration*0.5E-3;
-#endif // NEW_CAMERA_MOTION
 		camera_rotation_duration = 800;
-#ifdef SKY_FPV
 		if (fol_cam && !fol_cam_behind)
 		{
 			hold_camera += camera_kludge - last_kludge;
 			last_kludge = camera_kludge;
 		}
-#endif // SKY_FPV
 	}
 	else if (key == K_FROTATERIGHT)
 	{
-#ifndef SKY_FPV
-		camera_rotation_speed = -fine_camera_rotation_speed / 200.0;
-#else // SKY_FPV
 		camera_rotation_speed = (first_person?1:-1)*fine_camera_rotation_speed / 200.0;
-#endif // SKY_FPV
-#ifdef NEW_CAMERA_MOTION
 		camera_rotation_speed /= 4.0;
 		camera_rotation_deceleration = normal_camera_deceleration*0.5E-3;
-#endif // NEW_CAMERA_MOTION
 		camera_rotation_duration = 200;
-#ifdef SKY_FPV
 		if (fol_cam && !fol_cam_behind)
 		{
 			hold_camera += camera_kludge - last_kludge;
 			last_kludge = camera_kludge;
 		}
-#endif // SKY_FPV
 	}
 	else if (key == K_AFK)
 	{
@@ -2310,53 +2148,31 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	}
 	else if (key == K_CAMERAUP)
 	{
-#ifndef SKY_FPV
-		if (rx > -60) rx -= 1.0f;
-#else // SKY_FPV
 		camera_tilt_speed = -normal_camera_rotation_speed * 0.0005;
 		camera_tilt_duration += 100;
-#ifdef NEW_CAMERA_MOTION
 		camera_tilt_deceleration = normal_camera_deceleration*0.5E-3;
-#endif // NEW_CAMERA_MOTION
-#endif // SKY_FPV
 	}
 	else if (key == K_CAMERADOWN)
 	{
-#ifndef SKY_FPV
-		if (rx < -45) rx += 1.0f;
-#else // SKY_FPV
 		camera_tilt_speed = normal_camera_rotation_speed * 0.0005;
 		camera_tilt_duration += 100;
-#ifdef NEW_CAMERA_MOTION
 		camera_tilt_deceleration = normal_camera_deceleration*0.5E-3;
-#endif // NEW_CAMERA_MOTION
-#endif // SKY_FPV
 	}
 	else if (key == K_ZOOMIN)
 	{
-#ifndef SKY_FPV
-		new_zoom_level= new_zoom_level - 0.25;
-		if (new_zoom_level < 1.00f) new_zoom_level= 1.00f;
-#else // SKY_FPV
 		if (camera_zoom_dir == -1)
 			camera_zoom_duration += 100;
 		else
 			camera_zoom_duration = 100;
 		camera_zoom_dir = -1;
-#endif // SKY_FPV
 	}
 	else if (key == K_ZOOMOUT)
 	{
-#ifndef SKY_FPV
-		new_zoom_level= new_zoom_level + 0.25;
-		if (new_zoom_level > 3.75f) new_zoom_level= 3.75f;
-#else // SKY_FPV
 		if (camera_zoom_dir == 1)
 			camera_zoom_duration += 100;
 		else
 			camera_zoom_duration = 100;
 		camera_zoom_dir = 1;
-#endif // SKY_FPV
 	}
 	else if (key == K_REPEATSPELL)	// REPEAT spell command
 	{
@@ -2372,9 +2188,7 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 			mark_filter_active = 1;
 		if ( switch_to_game_map () )
 		{
-#ifdef SKY_FPV
 			if (have_mouse) {toggle_have_mouse(); keep_grabbing_mouse=1;}
-#endif // SKY_FPV
 			hide_window (game_root_win);
 			show_window (map_root_win);
 		}
@@ -2401,7 +2215,6 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 		}
 		resize_root_window ();
 	}
-#ifdef SKY_FPV
 	else if (key == K_FIRST_PERSON)
 	{
 		toggle_first_person();
@@ -2414,7 +2227,6 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	{
 		toggle_ext_cam(&ext_cam);
 	}
-#endif // SKY_FPV
 #ifdef PAWN
 	else if (keysym == SDLK_F8)
 	{
@@ -2501,9 +2313,7 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 		reset_tab_completer();
 		if (ch == '`' || key == K_CONSOLE)
 		{
-#ifdef SKY_FPV
 			if (have_mouse) {toggle_have_mouse(); keep_grabbing_mouse=1;}
-#endif // SKY_FPV
 			hide_window (game_root_win);
 			show_window (console_root_win);
 		}

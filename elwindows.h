@@ -55,9 +55,7 @@ typedef	struct	{
 	char	drag_in;	/*!< are we dragging inside the window? */
 	char	reinstate;	/*!< reinstate this window if the parent is shown again */
 	int		opaque;		/*!< if non-zero, window is drawn opaque */
-#ifdef MINIMAP2
 	char	owner_drawn_title_bar; /*the title bar is drawn by the window itself*/
-#endif //MINIMAP2
 	size_t	cm_id; 				/*!< optional context menu activated by right-clicking title */
 
     /*!

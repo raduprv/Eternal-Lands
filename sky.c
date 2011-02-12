@@ -1,4 +1,3 @@
-#ifdef SKY_FPV
 
 #include <stdlib.h>
 #include <math.h>
@@ -70,9 +69,7 @@ float skybox_moonlight1_bias = 0.92;
 float skybox_moonlight2_bias = 0.98;
 
 float skybox_sun_position[4] = {0.0, 0.0, 0.0, 0.0};
-#ifdef NEW_WEATHER
 float skybox_sun_projection[2] = {0.0, 0.0};
-#endif // NEW_WEATHER
 double skybox_time_d = 0.0;
 double skybox_view[16];
 
@@ -523,9 +520,7 @@ void skybox_update_positions()
 }
 
 void update_cloudy_sky_colors();
-#ifdef NEW_WEATHER
 void update_cloudy_sky_local_colors();
-#endif // NEW_WEATHER
 void update_underworld_sky_colors();
 
 void skybox_update_colors()
@@ -533,11 +528,9 @@ void skybox_update_colors()
 	switch(current_sky)
 	{
 	case SKYBOX_CLOUDY:
-#ifdef NEW_WEATHER
 		if (skybox_local_weather)
 			update_cloudy_sky_local_colors();
 		else
-#endif // NEW_WEATHER
 			update_cloudy_sky_colors();
 		break;
 
@@ -566,7 +559,6 @@ void update_cloudy_sky_positions()
 	float moon1_vect[3] = {0.0, 0.0, 1.0};
 	float moon2_vect[3] = {0.0, 0.0, 1.0};
 
-#ifdef NEW_WEATHER
 	if (is_day)
 	{
 		float dir[3] = {skybox_sun_position[0] * 480.0,
@@ -578,7 +570,6 @@ void update_cloudy_sky_positions()
 	{
 		skybox_sun_projection[0] = skybox_sun_projection[1] = 0.0;
 	}
-#endif // NEW_WEATHER
 
 	moon_spin = cur_time % (1296000*1000);
 	moon_spin *= 360.0/(1296000.0/*seconds in large month*/ * 1000.0/*millisecond bump*/);
@@ -653,9 +644,7 @@ void update_cloudy_sky_colors()
 	GLfloat color[4];
 	float abs_light;
 	float *normal, ml1, ml2;
-#ifdef NEW_WEATHER
 	float x, y, lg;
-#endif // NEW_WEATHER
 
 	abs_light = light_level;
 	if(light_level > 59)
@@ -664,11 +653,7 @@ void update_cloudy_sky_colors()
 	}
 	abs_light = 1.0f - abs_light/59.0f;
 
-#ifdef NEW_WEATHER
 	rain_coef = weather_get_density();
-#else // NEW_WATHER
-	rain_coef = weather_rain_intensity*rain_strength_bias;
-#endif // NEW_WEATHER
 
 	// alpha adjustment for objects that should fade in daylight
 	day_alpha = (1.0-abs_light)*(1.0-rain_coef);
@@ -696,7 +681,6 @@ void update_cloudy_sky_colors()
 
     // we compute the color and the density of the fog
 	skybox_blend_current_colors(skybox_fog_color, skybox_fog, skybox_fog_rainy, rain_coef);
-#ifdef NEW_WEATHER
 	if (rain_coef > 0.0)
 	{
 		float fog_density;
@@ -706,7 +690,6 @@ void update_cloudy_sky_colors()
 		skybox_fog_color[2] *= (1.0-rain_coef) + rain_coef*weather_color[2];
 		skybox_fog_color[3] = (1.0-rain_coef)*fog_density + rain_coef*skybox_fog_color[3];
 	}
-#endif // NEW_WEATHER
 	skybox_fog_density = skybox_fog_color[3];
 	skybox_fog_color[3] = 1.0;
 
@@ -720,7 +703,6 @@ void update_cloudy_sky_colors()
 
 		blend_colors(color, skybox_fog_color, color_sun, get_fog_sunlight(normal), 3);
 
-#ifdef NEW_WEATHER
 		color[0] *= (1.0 - rain_coef) + rain_coef*weather_color[0];
 		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
 		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
@@ -732,7 +714,6 @@ void update_cloudy_sky_colors()
 			color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
 			color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
 		}
-#endif // NEW_WEATHER
 
 		fog_colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		fog_colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
@@ -752,7 +733,6 @@ void update_cloudy_sky_colors()
 
 		blend_colors(color, color_sky, color_sun, get_clouds_sunlight(normal), 3);
 
-#ifdef NEW_WEATHER
 		color[0] *= (1.0 - rain_coef) + rain_coef*weather_color[0];
 		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
 		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
@@ -764,7 +744,6 @@ void update_cloudy_sky_colors()
 			color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
 			color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
 		}
-#endif // NEW_WEATHER
 
 		dome_clouds.colors[idx] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		dome_clouds_colors_bis[idx++] = color[0];
@@ -784,7 +763,6 @@ void update_cloudy_sky_colors()
 
 		blend_colors(color, color_sky, color_sun, get_clouds_sunlight(normal), 3);
 
-#ifdef NEW_WEATHER
 		color[0] *= (1.0 - rain_coef) + rain_coef*weather_color[0];
 		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
 		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
@@ -796,7 +774,6 @@ void update_cloudy_sky_colors()
 			color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
 			color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
 		}
-#endif // NEW_WEATHER
 
 		dome_clouds.colors[idx] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		dome_clouds_colors_bis[idx++] = color[0];
@@ -818,7 +795,6 @@ void update_cloudy_sky_colors()
     {
 		blend_colors(color, color_sky, color_sun, get_clouds_sunlight(&dome_clouds.normals[i*3]), 3);
 
-#ifdef NEW_WEATHER
 		color[0] *= (1.0 - rain_coef) + rain_coef*weather_color[0];
 		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
 		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
@@ -830,7 +806,6 @@ void update_cloudy_sky_colors()
 			color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
 			color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
 		}
-#endif // NEW_WEATHER
 
 		dome_clouds_detail_colors[idx] = color[0];
 		dome_clouds_detail_colors_bis[idx++] = color[0];
@@ -846,7 +821,6 @@ void update_cloudy_sky_colors()
     {
 		blend_colors(color, color_sky, color_sun, get_clouds_sunlight(&dome_clouds.normals[i*3]), 3);
 
-#ifdef NEW_WEATHER
 		color[0] *= (1.0 - rain_coef) + rain_coef*weather_color[0];
 		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
 		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
@@ -858,7 +832,6 @@ void update_cloudy_sky_colors()
 			color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
 			color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
 		}
-#endif // NEW_WEATHER
 
 		dome_clouds_detail_colors[idx] = color[0];
 		dome_clouds_detail_colors_bis[idx++] = color[0];
@@ -885,7 +858,6 @@ void update_cloudy_sky_colors()
 
 		blend_colors(color, color_sky, color_sun, get_sky_sunlight(normal), 3);
 
-#ifdef NEW_WEATHER
 		color[0] *= (1.0 - rain_coef) + rain_coef*weather_color[0];
 		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
 		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
@@ -897,7 +869,6 @@ void update_cloudy_sky_colors()
 			color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
 			color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
 		}
-#endif // NEW_WEATHER
 
 		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		dome_sky.colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
@@ -917,7 +888,6 @@ void update_cloudy_sky_colors()
 
 		blend_colors(color, color_sky, color_sun, get_sky_sunlight(normal), 3);
 
-#ifdef NEW_WEATHER
 		color[0] *= (1.0 - rain_coef) + rain_coef*weather_color[0];
 		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
 		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
@@ -929,7 +899,6 @@ void update_cloudy_sky_colors()
 			color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
 			color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
 		}
-#endif // NEW_WEATHER
 
 		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		dome_sky.colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
@@ -949,7 +918,6 @@ void update_cloudy_sky_colors()
 
 		blend_colors(color, color_sky, color_sun, get_sky_sunlight(normal), 3);
 
-#ifdef NEW_WEATHER
 		color[0] *= (1.0 - rain_coef) + rain_coef*weather_color[0];
 		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
 		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
@@ -961,7 +929,6 @@ void update_cloudy_sky_colors()
 			color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
 			color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
 		}
-#endif // NEW_WEATHER
 
 		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		dome_sky.colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
@@ -981,7 +948,6 @@ void update_cloudy_sky_colors()
 
 		blend_colors(color, color_sky, color_sun, get_sky_sunlight(normal), 3);
 
-#ifdef NEW_WEATHER
 		color[0] *= (1.0 - rain_coef) + rain_coef*weather_color[0];
 		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
 		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
@@ -993,7 +959,6 @@ void update_cloudy_sky_colors()
 			color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
 			color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
 		}
-#endif // NEW_WEATHER
 
 		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		dome_sky.colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
@@ -1012,7 +977,6 @@ void update_cloudy_sky_colors()
 
 		blend_colors(color, color_sky, color_sun, get_sky_sunlight(normal), 3);
 
-#ifdef NEW_WEATHER
 		color[0] *= (1.0 - rain_coef) + rain_coef*weather_color[0];
 		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
 		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
@@ -1024,7 +988,6 @@ void update_cloudy_sky_colors()
 			color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
 			color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
 		}
-#endif // NEW_WEATHER
 
 		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		dome_sky.colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
@@ -1044,7 +1007,6 @@ void update_cloudy_sky_colors()
 	moon2_color[2] *= (0.5 + 0.5*day_alpha)*(1.0-rain_coef);
 }
 
-#ifdef NEW_WEATHER
 void update_cloudy_sky_local_colors()
 {
     int i, idx, end;
@@ -1485,7 +1447,6 @@ void update_cloudy_sky_local_colors()
 	moon2_color[1] *= (0.5 + 0.5*day_alpha);
 	moon2_color[2] *= (0.5 + 0.5*day_alpha);
 }
-#endif // NEW_WEATHER
 
 void update_underworld_sky_colors()
 {
@@ -1815,9 +1776,6 @@ void cloudy_sky()
 		
 		glDrawElements(GL_TRIANGLES, dome_clouds.faces_count*3, GL_UNSIGNED_INT, dome_clouds.faces);
 		
-#ifndef NEW_WEATHER
-		if (rain_coef > 0.0)
-#endif // NEW_WEATHER
 		{
 			// we draw the second clouds layer
 #ifdef	NEW_TEXTURES
@@ -1906,9 +1864,6 @@ void cloudy_sky()
 		glDrawElements(GL_TRIANGLES, dome_clouds.faces_count*3, GL_UNSIGNED_INT, dome_clouds.faces);
 		glPopMatrix();
 		
-#ifndef NEW_WEATHER
-		if (rain_coef > 0.0)
-#endif // NEW_WEATHER
 		{
 #ifdef	NEW_TEXTURES
 			bind_texture(thick_clouds_detail_tex);
@@ -2702,4 +2657,3 @@ void skybox_init_gl()
     }
 }
 
-#endif // SKY_FPV

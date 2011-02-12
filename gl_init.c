@@ -20,12 +20,8 @@
 #include "io/e3d_io.h"
 #include "eye_candy_wrapper.h"
 #include "minimap.h"
-#ifdef SKY_FPV
 #include "sky.h"
-#endif // SKY_FPV
-#ifdef USE_SHADER
 #include "shader/shader.h"
-#endif
 #include "actor_init.h"
 
 Uint32 flags;
@@ -54,13 +50,9 @@ float anisotropic_filter = 1.0f;
 int disable_gamma_adjust = 0;
 float gamma_var = 1.00f;
 float perspective = 0.15f;
-#ifndef SKY_FPV
-float near_plane = 40.0f; // don't cut off anything
-#else // SKY_FPV
 float near_plane = 0.1f; // don't cut off anything
 float far_plane = 100.0;   // LOD helper. Cull distant objects. Lower value == higher framerates.
 float far_reflection_plane = 100.0;   // LOD helper. Cull distant reflected objects. Lower value == higher framerates.
-#endif // SKY_FPV
 int gl_extensions_loaded = 0;
 
 struct list {
@@ -926,9 +918,7 @@ void init_gl_extensions()
 		check_fbo_formats();
 	}
 #endif
-#ifdef	USE_SHADER
 	init_shaders();
-#endif	// USE_SHADER
 
 #ifdef	GL_EXTENSION_CHECK
 	evaluate_extension();
@@ -962,7 +952,6 @@ void resize_root_window()
 
 	//hud_y_adjust=(2.0/window_height)*hud_y;
 	//hud_x_adjust=(2.0/window_width)*hud_x;
-#ifdef SKY_FPV
 	//Setup matrix for the sky. If we don't do this the sky looks unhinged when perspective changes.
 	glLoadIdentity();
 	glFrustum(-perspective*window_ratio*near_plane,
@@ -972,26 +961,12 @@ void resize_root_window()
 			   near_plane, 1000.0);
 	glGetDoublev(GL_PROJECTION_MATRIX, skybox_view);
 	glLoadIdentity(); // Reset The Projection Matrix
-#endif // SKY_FPV
 
 	//new zoom
 	if (isometric)
 	{
 		glOrtho( -1.0*zoom_level*window_ratio, 1.0*zoom_level*window_ratio, -1.0*zoom_level, 1.0*zoom_level, -near_plane*zoom_level, 60.0 );
 	}
-#ifndef SKY_FPV
-	else
-	{
-		//gluPerspective(60, window_ratio, 0.1, 256.0);
-		// What we call first, OpenGL will apply last!
-		// Finally, apply the projection
-		glFrustum( -perspective*window_ratio, perspective*window_ratio, -perspective, perspective, 1.0, 60.0*near_plane);
-		// third, scale the scene so that the near plane gets the distance zoom_level*near_plane
-		glScalef(perspective*near_plane, perspective*near_plane, perspective*near_plane);
-		// second, move to the distance that reflects the zoom level
-		glTranslatef(0.0f, 0.0f, -zoom_level/perspective);
-	}
-#else // SKY_FPV
 	else
 	{
 		glFrustum(-perspective*window_ratio*near_plane,
@@ -1005,11 +980,6 @@ void resize_root_window()
 			glTranslatef(0.0, 0.0, -zoom_level/perspective);
 		}
 	}
-#endif // SKY_FPV
-#ifndef SKY_FPV
-	// first, move back to the actor
-	glTranslatef(0.0f, 0.0f, zoom_level*camera_distance);
-#endif // not SKY_FPV
 
 	glMatrixMode(GL_MODELVIEW);					// Select The Modelview Matrix
 	glLoadIdentity();							// Reset The Modelview Matrix
@@ -1137,9 +1107,7 @@ void set_new_video_mode(int fs,int mode)
 	new_minute();
 
 	set_all_intersect_update_needed(main_bbox_tree);
-#ifdef SKY_FPV
 	skybox_init_gl();
-#endif // SKY_FPV
 
 	// resize the EL root windows
 	resize_all_root_windows (window_width, window_height);

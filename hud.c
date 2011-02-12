@@ -1243,11 +1243,7 @@ void init_misc_display(hud_interface type)
 			cm_bool_line(cm_hud_id, CMH_STATBARS, &show_statbars_in_hud, "show_statbars_in_hud");
 			cm_bool_line(cm_hud_id, CMH_DIGCLOCK, &view_digital_clock, "view_digital_clock");
 			cm_bool_line(cm_hud_id, CMH_ANACLOCK, &view_analog_clock, "view_analog_clock");
-#ifdef SKY_FPV
 			cm_bool_line(cm_hud_id, CMH_SECONDS, &show_game_seconds, "show_game_seconds");
-#else
-			cm_grey_line(cm_hud_id, CMH_SECONDS, 1);
-#endif
 			cm_bool_line(cm_hud_id, CMH_FPS, &show_fps, "show_fps");
 			cm_bool_line(cm_hud_id, CMH_MINIMAP, &cm_minimap_shown, NULL);
 			cm_bool_line(cm_hud_id, CMH_QUICKBM, &cm_quickbar_enabled, NULL);
@@ -1426,11 +1422,7 @@ CHECK_GL_ERRORS();
 		glAlphaFunc(GL_GREATER, 0.05f);
 		glPushMatrix();
 		glTranslatef(32, win->len_y-96, 0);
-#ifndef SKY_FPV
-		glRotatef(game_minute, 0.0f, 0.0f, 1.0f);
-#else // SKY_FPV
 		glRotatef(real_game_minute, 0.0f, 0.0f, 1.0f);
-#endif // SKY_FPV
 		glBegin(GL_QUADS);
 		draw_2d_thing(clock_needle_u_start, clock_needle_v_start, clock_needle_u_end, clock_needle_v_end, -5, -24,5, 6);
 		glEnd();
@@ -1447,11 +1439,6 @@ CHECK_GL_ERRORS();
 		int x;
 
 		//glColor3f(0.77f, 0.57f, 0.39f); // useless
-#ifndef SKY_FPV
-		safe_snprintf(str, sizeof(str), "%1d:%02d", game_minute/60, game_minute%60);
-		x= 3+(win->len_x - (get_string_width((unsigned char*)str)*11)/12)/2;
-		draw_string_shadowed(x, 2 + base_y_start, (unsigned char*)str, 1,0.77f, 0.57f, 0.39f,0.0f,0.0f,0.0f);
-#else // SKY_FPV
 		if (show_game_seconds)
 		{
 			safe_snprintf(str, sizeof(str), "%1d:%02d:%02d", real_game_minute/60, real_game_minute%60, real_game_second);
@@ -1463,7 +1450,6 @@ CHECK_GL_ERRORS();
 			x= 3+(win->len_x - (get_string_width((unsigned char*)str)*11)/12)/2;
 			draw_string_shadowed(x, 2 + base_y_start, (unsigned char*)str, 1,0.77f, 0.57f, 0.39f,0.0f,0.0f,0.0f);
 		}
-#endif // SKY_FPV
 	}
 	
 	/*	Optionally display the stats bar.  If the current window size does not

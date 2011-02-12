@@ -22,13 +22,9 @@
 #include "cluster.h"
 #endif
 #include "shadows.h"
-#ifdef	USE_SHADER
 #include "global.h"
 #include "shader/shader.h"
-#endif	// USE_SHADER
-#ifdef SKY_FPV
 #include "sky.h"
-#endif // SKY_FPV
 
 typedef struct
 {
@@ -52,7 +48,6 @@ GLfloat* water_tile_buffer = 0;
 GLuint water_tile_buffer_object = 0;
 int water_buffer_usage = 0;
 int water_buffer_reflectiv_index = 0;
-#ifdef	USE_SHADER
 int water_shader_quality = 0;
 
 int get_max_supported_water_shader_quality()
@@ -130,7 +125,6 @@ int get_max_supported_water_shader_quality()
 
 	return 2;
 }
-#endif	// USE_SHADER
 
 void init_water_buffers(int water_buffer_size)
 {
@@ -199,7 +193,6 @@ static __inline__ void build_water_buffer()
 		water_tile_buffer[j * 8 + 6] = x_scaled;
 		water_tile_buffer[j * 8 + 7] = y_scaled + 3.0f;
 
-#ifdef SKY_FPV
 		if (x == 0)
 		{
 			water_tile_buffer[j * 8 + 0] -= water_tiles_extension;
@@ -220,7 +213,6 @@ static __inline__ void build_water_buffer()
 			water_tile_buffer[j * 8 + 5] += water_tiles_extension;
 			water_tile_buffer[j * 8 + 7] += water_tiles_extension;
 		}
-#endif // SKY_FPV
 
 		j++;
 	}
@@ -253,7 +245,6 @@ static __inline__ void build_water_buffer()
 		water_tile_buffer[j * 8 + 6] = x_scaled;
 		water_tile_buffer[j * 8 + 7] = y_scaled + 3.0f;
 
-#ifdef SKY_FPV
 		if (x == 0)
 		{
 			water_tile_buffer[j * 8 + 0] -= water_tiles_extension;
@@ -274,7 +265,6 @@ static __inline__ void build_water_buffer()
 			water_tile_buffer[j * 8 + 5] += water_tiles_extension;
 			water_tile_buffer[j * 8 + 7] += water_tiles_extension;
 		}
-#endif // SKY_FPV
 
 		j++;
 	}
@@ -556,9 +546,7 @@ void display_3d_reflection()
 {
 	GLint view_port[4];
 	unsigned int cur_intersect_type;
-#ifdef SKY_FPV
 	int clip_sky = 0;
-#endif // SKY_FPV
 
 	CalculateFrustum();
 
@@ -571,11 +559,7 @@ void display_3d_reflection()
 	init_depth();
 	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
 
-#ifdef	USE_SHADER
 	if (use_frame_buffer && water_shader_quality > 0)
-#else	// USE_SHADER
-	if (use_frame_buffer)
-#endif	// USE_SHADER
 	{
 		CHECK_GL_ERRORS();
 		CHECK_FBO_ERRORS();
@@ -594,7 +578,6 @@ void display_3d_reflection()
 		glPushMatrix();
 		glTranslatef(0.0f, 0.0f, water_depth_offset);
 
-#ifdef SKY_FPV
         if (have_stencil)
         {
             unsigned int start, stop;
@@ -635,7 +618,6 @@ void display_3d_reflection()
 		{
 			clip_sky = 1;
 		}
-#endif // SKY_FPV
 	}
 
 	glCullFace(GL_FRONT);
@@ -643,7 +625,6 @@ void display_3d_reflection()
 	glTranslatef(0.0f, 0.0f, -water_depth_offset);
 	glNormal3f(0.0f, 0.0f, 1.0f);
 
-#ifdef SKY_FPV
 	glLightfv(GL_LIGHT7, GL_POSITION, sun_position);
 	if (skybox_show_sky)
 	{
@@ -666,10 +647,7 @@ void display_3d_reflection()
 
 	if (far_reflection_plane > 0.0)
 	{
-#ifdef NEW_WEATHER
 		weather_init_lightning_light();
-#endif // NEW_WEATHER
-#endif // SKY_FPV
 
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
 	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_REFLECTION);
@@ -691,7 +669,6 @@ void display_3d_reflection()
 	CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 
-#ifdef NEW_WEATHER
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadMatrixd(skybox_view);
@@ -702,23 +679,16 @@ void display_3d_reflection()
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
-#endif // NEW_WEATHER
 
 	disable_reflection_clip_planes();
 
-#ifdef SKY_FPV
 	}
-#endif // SKY_FPV
 
 	glPopMatrix();
 	glCullFace(GL_BACK);
 	CHECK_GL_ERRORS();
 
-#ifdef	USE_SHADER
 	if (use_frame_buffer && water_shader_quality > 0)
-#else	// USE_SHADER
-	if (use_frame_buffer)
-#endif	// USE_SHADER
 	{
 		CHECK_GL_ERRORS();
 		CHECK_FBO_ERRORS();
@@ -727,15 +697,11 @@ void display_3d_reflection()
 		CHECK_GL_ERRORS();
 		CHECK_FBO_ERRORS();
 	}
-#ifdef SKY_FPV
     else if (have_stencil)
     {
 		glDisable(GL_STENCIL_TEST);
 	}
 	glLightfv(GL_LIGHT7, GL_POSITION, sun_position);
-#else
-	reset_material();
-#endif // SKY_FPV
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 #ifdef OPENGL_TRACE
@@ -747,11 +713,7 @@ CHECK_GL_ERRORS();
 void blend_reflection_fog()
 {
 	static GLfloat blendColor[4] = { 1.0f, 1.0f, 1.0f, 0.0f };
-#ifdef	USE_SHADER
 	if (use_frame_buffer && water_shader_quality > 0)
-#else	// USE_SHADER
-	if (use_frame_buffer)
-#endif	// USE_SHADER
 	{
 		return;
 	}
@@ -787,11 +749,7 @@ void blend_reflection_fog()
 	glDrawArrays(GL_QUADS, water_buffer_reflectiv_index * 4, (water_buffer_usage - water_buffer_reflectiv_index) * 4);
 
 	// now add the fog by additive blending
-#ifndef SKY_FPV
-	glFogfv(GL_FOG_COLOR, fogColor);
-#else // SKY_FPV
 	glFogfv(GL_FOG_COLOR, skybox_fog_color);
-#endif // SKY_FPV
 	glBlendFunc(GL_ONE, GL_ONE);
 	
 	glDrawArrays(GL_QUADS, water_buffer_reflectiv_index * 4, (water_buffer_usage - water_buffer_reflectiv_index) * 4);
@@ -870,13 +828,9 @@ void draw_lake_tiles()
 {
 	unsigned int start, stop;
 	int water_id;
-#ifndef	USE_SHADER
-	float blend_vec[4] = {0.75f, 0.75f, 0.75f, 0.75f};
-#else	// USE_SHADER
 	float noise_scale[4] = {0.125f, 0.125f, 0.0625f, 0.0625f};
 	GLint idx;
 	GLhandleARB cur_shader;
-#endif //USE_SHADER
 
 	build_water_buffer();
 	CHECK_GL_ERRORS();
@@ -888,14 +842,9 @@ void draw_lake_tiles()
 	if (dungeon) water_id = tile_list[231];
 	else water_id = tile_list[0];
 
-#ifdef	USE_SHADER
 	if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)
 	{
-#ifdef NEW_WEATHER
 		if (!dungeon && shadows_on && (is_day || lightning_falling))
-#else // NEW_WEATHER
-		if (!dungeon && shadows_on && is_day)
-#endif // NEW_WEATHER
 		{
 			cur_shader = get_shader(st_water, sst_shadow_receiver, use_fog, water_shader_quality - 1);
 		}
@@ -921,11 +870,7 @@ void draw_lake_tiles()
 			ELglUniform1fARB(ELglGetUniformLocationARB(cur_shader, "time"), cur_time / 23725.0f);
 			CHECK_GL_ERRORS();
 		}
-#ifdef NEW_WEATHER
 		if (!dungeon && shadows_on && (is_day || lightning_falling))
-#else // NEW_WEATHER
-		if (!dungeon && shadows_on && is_day)
-#endif // NEW_WEATHER
 		{
 			ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "shadow_texture"), shadow_unit - GL_TEXTURE0);
 		}
@@ -933,7 +878,6 @@ void draw_lake_tiles()
 		CHECK_GL_ERRORS();
 	}
 	CHECK_GL_ERRORS();
-#endif	// USE_SHADER
 
 	setup_water_texgen();
 
@@ -957,7 +901,6 @@ void draw_lake_tiles()
 	draw_water_quad_tiles(start, stop, 0, water_id);
 #endif	/* NEW_TEXTURES */
 
-#ifdef	USE_SHADER
 	if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)
 	{
 		setup_water_fbo_texgen();
@@ -968,11 +911,7 @@ void draw_lake_tiles()
 		ELglActiveTextureARB(base_unit);
 		CHECK_GL_ERRORS();
 
-#ifdef NEW_WEATHER
 		if (!dungeon && shadows_on && (is_day || lightning_falling))
-#else // NEW_WEATHER
-		if (!dungeon && shadows_on && is_day)
-#endif // NEW_WEATHER
 		{
 			cur_shader = get_shader(st_reflectiv_water, sst_shadow_receiver, use_fog, water_shader_quality - 1);
 		}
@@ -1022,11 +961,7 @@ void draw_lake_tiles()
 			ELglUniform1iARB(idx, 4);
 		}
 
-#ifdef NEW_WEATHER
 		if (!dungeon && shadows_on && (is_day || lightning_falling))
-#else // NEW_WEATHER
-		if (!dungeon && shadows_on && is_day)
-#endif // NEW_WEATHER
 		{
 			ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "shadow_texture"), shadow_unit - GL_TEXTURE0);
 		}
@@ -1035,34 +970,6 @@ void draw_lake_tiles()
 		ELglUniform1fARB(ELglGetUniformLocationARB(cur_shader, "blend"), 0.75f);
 		CHECK_GL_ERRORS();
 	}
-#else	// USE_SHADER
-	if (use_frame_buffer && show_reflection)
-	{
-		setup_water_fbo_texgen();
-
-		CHECK_GL_ERRORS();
-		ELglActiveTextureARB(base_unit);
-		glEnable(GL_TEXTURE_2D);
-		
-		ELglActiveTextureARB(detail_unit);
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, water_reflection_fbo_texture);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_INTERPOLATE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_TEXTURE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_PREVIOUS);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB, GL_CONSTANT);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_COLOR);
-		glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, blend_vec);
-		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
- 
-		ELglActiveTextureARB(base_unit);
-
-		CHECK_GL_ERRORS();
-	}
-#endif	// USE_SHADER
 	else /* if (show_reflection) */
 	{
 		glEnable(GL_BLEND);
@@ -1076,7 +983,6 @@ void draw_lake_tiles()
 	draw_water_quad_tiles(start, stop, water_buffer_reflectiv_index, water_id);
 #endif	/* NEW_TEXTURES */
 
-#ifdef	USE_SHADER
 	if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)
 	{
 		CHECK_GL_ERRORS();
@@ -1104,26 +1010,6 @@ void draw_lake_tiles()
 			ELglActiveTextureARB(base_unit);
 
 		}
-#else	// USE_SHADER
-	if (use_frame_buffer && show_reflection)
-	{
-		CHECK_GL_ERRORS();
-		if (show_reflection)
-		{
-			disable_water_fbo_texgen();
-		}
-
- 		ELglActiveTextureARB(detail_unit);
- 		glDisable(GL_TEXTURE_2D);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-		glBindTexture(GL_TEXTURE_2D, 0);
- 
- 		ELglClientActiveTextureARB(base_unit);
- 		ELglActiveTextureARB(base_unit);
- 		glEnable(GL_TEXTURE_2D);
-		last_texture = -1;
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-#endif	// USE_SHADER
  		CHECK_GL_ERRORS();
 	}
 	else /* if (show_reflection) */
@@ -1154,21 +1040,13 @@ void draw_sky_background()
 #ifdef MAP_EDITOR2
 	int i;
 #else // MAP_EDITOR2
-#ifdef NEW_WEATHER
 	int i;
 	float weather_bias = (1.0-weather_get_density());
-#else // NEW_WEATHER
-	int i, j;
-#endif // NEW_WEATHER
 #endif // MAP_EDITOR2
 	GLint view_port[4];
 
 	glDisable(GL_TEXTURE_2D);
-#ifdef	USE_SHADER
 	if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)
-#else	// USE_SHADER
-	if (use_frame_buffer && show_reflection)
-#endif	// USE_SHADER
 	{
 		CHECK_GL_ERRORS();
 		CHECK_FBO_ERRORS();
@@ -1192,7 +1070,6 @@ void draw_sky_background()
 		Enter2DMode();
 	}
 
-#ifdef NEW_WEATHER
 	for (i = 0; i < 3; i++) {
 		// get the sky color
 		lights_c[0][i] = sky_lights_c1[light_level][i]*weather_bias;
@@ -1200,36 +1077,12 @@ void draw_sky_background()
 		lights_c[2][i] = sky_lights_c3[light_level][i]*weather_bias;
 		lights_c[3][i] = sky_lights_c4[light_level][i]*weather_bias;
 	}
-#else // NEW_WEATHER
-	for (i=0; i<3; i++) {
-		// get the sky color
-		lights_c[0][i] = sky_lights_c1[light_level][i];
-		lights_c[1][i] = sky_lights_c2[light_level][i];
-		lights_c[2][i] = sky_lights_c3[light_level][i];
-		lights_c[3][i] = sky_lights_c4[light_level][i];
 
-#ifndef MAP_EDITOR2
-		for (j=0; j<4; j++) {
-			// make it darker according to weather
-			GLfloat tmp = lights_c[j][i] - (float)weather_light_offset/100.0f;
-			// blend it with fog color according to fog density
-			lights_c[j][i] = (1.0f - fogAlpha)*tmp + fogAlpha*fogColor[i];
-		}
-#endif
-	}
-#endif // NEW_WEATHER
-
-#ifdef SKY_FPV
 	if (!skybox_show_sky)
-#endif // SKY_FPV
 	{
 		glBegin(GL_QUADS);
 
-#ifdef	USE_SHADER
 		if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)
-#else	// USE_SHADER
-		if (use_frame_buffer && show_reflection)
-#endif	// USE_SHADER
 		{
 			glColor3fv(lights_c[0]);
 			glVertex3i(0, 0, 0);
@@ -1256,11 +1109,7 @@ void draw_sky_background()
 	}
 
 	Leave2DMode();
-#ifdef	USE_SHADER
 	if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)
-#else	// USE_SHADER
-	if (use_frame_buffer && show_reflection)
-#endif	// USE_SHADER
 	{
 		CHECK_GL_ERRORS();
 		CHECK_FBO_ERRORS();
@@ -1282,18 +1131,12 @@ void draw_dungeon_sky_background()
 #ifndef MAP_EDITOR2
 	static GLfloat color[3];
 	int i;
-#ifdef  NEW_WEATHER
 	float weather_density = weather_get_density();
-#endif // NEW_WEATHER
 #endif // MAP_EDITOR2
 	GLint view_port[4];
 
 	glDisable(GL_TEXTURE_2D);
-#ifdef	USE_SHADER
 	if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)
-#else	// USE_SHADER
-	if (use_frame_buffer && show_reflection)
-#endif	// USE_SHADER
 	{
 		CHECK_GL_ERRORS();
 		CHECK_FBO_ERRORS();
@@ -1322,11 +1165,7 @@ void draw_dungeon_sky_background()
 #else // MAP EDITOR 2
 
 	for (i=0; i<3; i++) {
-#ifdef  NEW_WEATHER
 		color[i] = baseColor[i] * ((1.0 - weather_density) + weather_color[i]*weather_density);
-#else //  NEW_WEATHER
-		color[i] = (1.0f - fogAlpha)*baseColor[i] + fogAlpha*fogColor[i];
-#endif //  NEW_WEATHER
 	}
 
 	glColor3fv(color);
@@ -1335,11 +1174,7 @@ void draw_dungeon_sky_background()
 	glBegin(GL_QUADS);
 	//draw the sky background
 
-#ifdef	USE_SHADER
 	if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)
-#else	// USE_SHADER
-	if (use_frame_buffer && show_reflection)
-#endif	// USE_SHADER
 	{
 		glVertex3i(0, 0, 0);
 		glVertex3i(0, reflection_texture_height, 0);
@@ -1357,11 +1192,7 @@ void draw_dungeon_sky_background()
 	glEnd();
 
 	Leave2DMode();
-#ifdef	USE_SHADER
 	if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)
-#else	// USE_SHADER
-	if (use_frame_buffer && show_reflection)
-#endif	// USE_SHADER
 	{
 		CHECK_GL_ERRORS();
 		CHECK_FBO_ERRORS();
@@ -1377,7 +1208,6 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-#ifdef SKY_FPV
 void draw_water_background()
 {
 	glDisable(GL_TEXTURE_2D);
@@ -1389,11 +1219,7 @@ void draw_water_background()
     else
         glColor3fv(skybox_sky_color);
 
-#ifdef	USE_SHADER
 	if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)
-#else	// USE_SHADER
-	if (use_frame_buffer && show_reflection)
-#endif	// USE_SHADER
 	{
 		GLint view_port[4];
 
@@ -1469,4 +1295,3 @@ void draw_water_background()
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
-#endif // SKY_FPV

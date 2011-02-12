@@ -26,9 +26,7 @@
 #include "url.h"
 #include "counters.h"
 #include "io/elpathwrapper.h"
-#ifdef SKY_FPV
 #include "sky.h"
-#endif // SKY_FPV
 #ifdef NEW_SOUND
 #include "sound.h"
 #endif // NEW_SOUND
@@ -479,7 +477,6 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		{
 			safe_snprintf(new_str, sizeof(new_str), date_format, day_names[day-1], month_names[month-1], year);
 			LOG_TO_CONSOLE(c_green1, new_str);
-#ifdef SKY_FPV
 
 			//Calculate fraction Big Lunar month (2 conjunction months) less game clock time
 			//Represented in Degrees.
@@ -488,19 +485,16 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			skybox_time_d = -skybox_time_d;
 			skybox_time_d += 360.0 * (((month%2)*30 + day-1)*360 + game_minute)/21600.0;
 			skybox_update_positions();
-#endif // SKY_FPV
 			return 0;
 		}
 	}
 
-#ifdef SKY_FPV
 	if (from_color_char (text_to_add[0]) == c_green1 && my_strncompare(text_to_add+1,"Game Time", 9))
 	{
 		real_game_second = atoi(&text_to_add[18]);
 		next_second_time = cur_time + 1000;
         new_second();
 	}
-#endif // SKY_FPV
 
 	// Check for local messages to be translated into actor movements (contains [somthing])
 	if (channel == CHAT_LOCAL)

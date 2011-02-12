@@ -60,12 +60,10 @@
  #endif
   #include "io/elpathwrapper.h"
   #include "notepad.h"
- #ifdef SKY_FPV
   #include "sky.h"
   #ifdef OSX
    #include "events.h"
   #endif // OSX
- #endif // SKY_FPV
 #endif
 
 #include "asc.h"
@@ -100,18 +98,9 @@ typedef	int (*int_min_max_func)();
 #define ADVVID	8
 #define LODTAB  9
 #define ECTAB  10
-#ifdef SKY_FPV
 #define EMAJEKRAL 	11
 
 #define MAX_TABS 12
-#else // SKY_FPV
-#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
-  #define DEBUGTAB 11 // VPAADTAB = Vertex Program Actor Animation Debug TAB
-  #define MAX_TABS 12
- #else	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
-  #define MAX_TABS 11
- #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
-#endif // SKY_FPV
 
 
 #define CHECKBOX_SIZE		15
@@ -138,11 +127,7 @@ struct {
 
 int elconfig_menu_x= 10;
 int elconfig_menu_y= 10;
-#ifndef SKY_FPV
-int elconfig_menu_x_len= 660;
-#else // SKY_FPV
 int elconfig_menu_x_len= 720;
-#endif // SKY_FPV
 int elconfig_menu_y_len= 480;
 
 int windows_on_top= 0;
@@ -167,12 +152,10 @@ int big_cursors = 0;
 int sdl_cursors = 0;
 float pointer_size = 1.0;
 #endif // NEW_CURSOR
-#ifdef SKY_FPV
 float water_tiles_extension = 200.0;
 int show_game_seconds = 0;
 int skybox_update_delay = 10;
 int skybox_local_weather = 0;
-#endif // SKY_FPV
 #ifdef OSX	// for probelem with rounded buttons on Intel graphics
 int square_buttons = 0;
 #endif
@@ -238,9 +221,6 @@ static __inline__ void destroy_fbos()
 #ifndef MAP_EDITOR
 			destroy_shadow_mapping();
 			free_reflection_framebuffer();
-#ifndef MINIMAP2
-			minimap_free_framebuffer();
-#endif //MINIMAP2
 #endif //MAP_EDITOR
 		}
 		CHECK_GL_ERRORS();
@@ -254,17 +234,10 @@ static __inline__ void build_fbos()
 #ifndef MAP_EDITOR
 		if (have_extension(ext_framebuffer_object) && use_frame_buffer)
 		{
- #ifdef	USE_SHADER
 			if ((water_shader_quality > 0) && show_reflection)
- #else	// USE_SHADER
-			if (show_reflection)
- #endif	// USE_SHADER
 			{
 				make_reflection_framebuffer(window_width, window_height);
 			}
-#ifndef MINIMAP2
-			minimap_make_framebuffer();
-#endif //MINIMAP2
 		}
 #endif // MAP_EDITOR
 		check_option_var("shadow_map_size");
@@ -282,7 +255,6 @@ void change_var(int * var)
 	*var= !*var;
 }
 
-#ifdef MINIMAP2
 void change_minimap_scale(float * var, float * value)
 {
 	int shown = 0;
@@ -298,15 +270,12 @@ void change_minimap_scale(float * var, float * value)
 	if (shown)
 		display_minimap();
 }
-#endif // MINIMAP2
 
-#ifdef SKY_FPV
 void change_sky_var(int * var)
 {
 	*var= !*var;
 	skybox_update_colors();
 }
-#endif // SKY_FPV
 
 #ifndef MAP_EDITOR
 void change_use_animation_program(int * var)
@@ -464,12 +433,10 @@ void change_poor_man(int *poor_man)
 		use_frame_buffer= 0;
 #endif
 		update_fbos();
-#ifdef SKY_FPV
 		skybox_show_clouds = 0;
 		skybox_show_sun = 0;
 		skybox_show_moons = 0;
 		skybox_show_stars = 0;
-#endif // SKY_FPV
 	}
 }
 
@@ -681,7 +648,6 @@ void change_sdl_cursor(int * fs)
 }
 #endif // NEW_CURSOR
 
-#ifdef SKY_FPV
 void toggle_follow_cam(int * fc)
 {
 	last_kludge=camera_kludge;
@@ -726,7 +692,6 @@ void change_tilt_float(float * var, float * value)
     if (rx > -min_tilt_angle) rx = -min_tilt_angle;
     else if (rx < -max_tilt_angle) rx = -max_tilt_angle;
 }
-#endif // SKY_FPV
 
 void change_shadow_map_size(int *pointer, int value)
 {
@@ -992,9 +957,7 @@ void change_projection_float(float * var, float * value) {
 	if (video_mode_set)
 	{
 		resize_root_window ();
-#ifdef SKY_FPV
 		set_all_intersect_update_needed (main_bbox_tree);
-#endif // SKY_FPV
 	}
 }
 
@@ -1003,10 +966,8 @@ void change_projection_bool(int *pointer) {
 	if (video_mode_set)
 	{
 		resize_root_window ();
-#ifdef SKY_FPV
 		if (pointer == &isometric && isometric) ext_cam = 0;
 		set_all_intersect_update_needed (main_bbox_tree);
-#endif // SKY_FPV
 	}
 }
 
@@ -1141,7 +1102,6 @@ void change_shadows(int *sh)
 	update_fbos();
 }
 
-#ifdef	USE_SHADER
 int int_max_water_shader_quality()
 {
 	if (gl_extensions_loaded)
@@ -1166,7 +1126,6 @@ void change_water_shader_quality(int *wsq, int value)
 	}
 	update_fbos();
 }
-#endif	// USE_SHADER
 
 #ifdef MAP_EDITOR
 
@@ -1302,9 +1261,7 @@ void check_options()
 	check_option_var("use_frame_buffer");
 	check_option_var("use_shadow_mapping");
 	check_option_var("shadow_map_size");
-#ifdef	USE_SHADER
 	check_option_var("water_shader_quality");
-#endif	// USE_SHADER
 	check_option_var("use_animation_program");
 }
 
@@ -1555,7 +1512,6 @@ void init_vars()
 
 	//ELC specific variables
 #ifdef ELC
-#ifdef SKY_FPV
 	add_var(OPT_BOOL,"skybox_show_sky","sky", &skybox_show_sky, change_sky_var,1,"Show Sky", "Enable the sky box.", EMAJEKRAL);
 /* 	add_var(OPT_BOOL,"reflect_sky","reflect_sky", &reflect_sky, change_var,1,"Reflect Sky", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL); */
 	add_var(OPT_BOOL,"skybox_show_clouds","sky_clouds", &skybox_show_clouds, change_sky_var,1,"Show Clouds", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
@@ -1586,7 +1542,6 @@ void init_vars()
 #ifdef OSX
 	add_var(OPT_BOOL,"osx_right_mouse_cam","osxrightmousecam", &osx_right_mouse_cam, change_var,0,"Rotate Camera with right mouse button", "Allows to rotate the camera by pressing the right mouse button and dragging the cursor", EMAJEKRAL);
 #endif // OSX
-#endif // SKY_FPV
 #ifdef NEW_CURSOR
 	add_var(OPT_BOOL,"sdl_cursors","sdl_cursors", &sdl_cursors, change_sdl_cursor,1,"Old Style Pointers", "Use default SDL cursor.", CONTROLS);
 	add_var(OPT_BOOL,"big_cursors","big_cursors", &big_cursors, change_var,0,"Big Pointers", "Use 32x32 graphics for pointer. Only works with SDL cursor turned off.", CONTROLS);
@@ -1642,9 +1597,7 @@ void init_vars()
 
 	add_var(OPT_FLOAT,"normal_camera_rotation_speed","nrot",&normal_camera_rotation_speed,change_float,15,"Camera Rotation Speed","Set the speed the camera rotates",CONTROLS,1.0,FLT_MAX,0.5);
 	add_var(OPT_FLOAT,"fine_camera_rotation_speed","frot",&fine_camera_rotation_speed,change_float,1,"Fine Rotation Speed","Set the fine camera rotation speed (when holding shift+arrow key)",CONTROLS,1.0,FLT_MAX,0.5);
-#ifdef NEW_CAMERA_MOTION
 	add_var(OPT_FLOAT,"normal_camera_deceleration","ncd",&normal_camera_deceleration,change_float,normal_camera_deceleration,"Camera Rotation Deceleration","Set the camera rotation deceleration",CONTROLS,0.01,1.0,0.01);
-#endif // NEW_CAMERA_MOTION
 #ifndef MAP_EDITOR2
 	add_var(OPT_FLOAT,"name_text_size","nsize",&name_zoom,change_float,1,"Name Text Size","Set the size of the players name text",FONT,0.0,2.0,0.01);
 #endif
@@ -1689,16 +1642,12 @@ void init_vars()
 	add_var(OPT_BOOL,"always_pathfinding", "alwayspathfinding", &always_pathfinding, change_var, 0, "Extend the range of the walk cursor", "Extends the range of the walk cursor to as far as you can see.  Using this option, movement may be slightly less responsive on larger maps.", CONTROLS);
 	add_var(OPT_BOOL,"disable_double_click", "disabledoubleclick", &disable_double_click, change_var, 0, "Disable double-click button safety", "Some buttons are protected from mis-click by requiring you to double-click them.  This option disables that protection.", CONTROLS);
 	add_var(OPT_BOOL,"achievements_ctrl_click", "achievementsctrlclick", &achievements_ctrl_click, change_var, 0, "Control click required to view achievements", "To view a players achievements, you click on them with the eye cursor.  With this option enabled, you must use Ctrl+click.", CONTROLS);
-#ifdef MINIMAP2
 	add_var(OPT_BOOL,"rotate_minimap","rotateminimap",&rotate_minimap,change_var,1,"Rotate Minimap","Toggle whether the minimap should rotate.",CONTROLS);
 	add_var(OPT_BOOL,"pin_minimap","pinminimap",&pin_minimap,change_var,0,"Pin Minimap","Toggle whether the minimap ignores close-all-windows.",CONTROLS);
 	add_var(OPT_FLOAT,"minimap_scale", "minimapscale", &minimap_size_coefficient, change_minimap_scale, 0.7, "Minimap Scale", "Adjust the overall size of the minimap", CONTROLS, 0.5, 1.5, 0.1);
-#endif //MINIMAP2
 	add_var(OPT_BOOL,"view_analog_clock","analog",&view_analog_clock,change_var,1,"Analog Clock","Toggle the analog clock",HUD);
 	add_var(OPT_BOOL,"view_digital_clock","digit",&view_digital_clock,change_var,1,"Digital Clock","Toggle the digital clock",HUD);
-#ifdef SKY_FPV
 	add_var(OPT_BOOL,"show_game_seconds","show_game_seconds",&show_game_seconds,change_var,0,"Show Game Seconds","Show seconds on the digital clock. Note: the seconds displayed are computed on client side and synchronized with the server at each new minute.",HUD);
-#endif // SKY_FPV
 #ifndef MAP_EDITOR2
 	add_var(OPT_BOOL,"show_stats_in_hud","sstats",&show_stats_in_hud,change_var,0,"Stats In HUD","Toggle showing stats in the HUD",HUD);
 	add_var(OPT_BOOL,"show_statbars_in_hud","sstatbars",&show_statbars_in_hud,change_var,0,"StatBars In HUD","Toggle showing statbars in the HUD. Needs Stats in HUD",HUD);
@@ -1784,33 +1733,23 @@ void init_vars()
 	add_var(OPT_BOOL,"highlight_tab_on_nick", "highlight", &highlight_tab_on_nick, change_var, 1, "Highlight Tabs On Name", "Should tabs be highlighted when someone mentions your name?", CHAT);
 	add_var(OPT_BOOL,"emote_filter", "emote_filter", &emote_filter, change_var, 1, "Emotes filter", "Do not display lines of text in local chat containing emotes only", CHAT);
 #endif
-#ifdef NEW_SELECTION
 	add_var(OPT_BOOL,"use_new_selection", "uns", &use_new_selection, change_new_selection, 1, "New selection", "Using new selection", VIDEO);
-#endif //NEW_SELECTION
 #ifndef OSX
 	add_var(OPT_BOOL,"isometric" ,"isometric", &isometric, change_projection_bool, 1, "Use Isometric View", "Toggle the use of isometric (instead of perspective) view", VIDEO);
 	add_var(OPT_FLOAT,"perspective", "perspective", &perspective, change_projection_float, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", ADVVID, 0.01, 0.80, 0.01);
-#ifndef SKY_FPV
-	add_var(OPT_FLOAT,"near_plane", "near_plane", &near_plane, change_projection_float, 40, "Near Plane Distance", "The distance of the near clipping plane to your actor", ADVVID, 1.0, 60.0, 0.5);
-#else // SKY_FPV
 #ifdef DEBUG
 	add_var(OPT_FLOAT,"near_plane", "near_plane", &near_plane, change_projection_float, 0.1, "Minimum Viewing Distance", "Adjusts how near you can see.", ADVVID, 0.1, 10.0, 0.1);
 #endif // DEBUG
 	add_var(OPT_FLOAT,"far_plane", "far_plane", &far_plane, change_projection_float, 100.0, "Maximum Viewing Distance", "Adjusts how far you can see.", ADVVID, 40.0, 200.0, 1.0);
 	add_var(OPT_FLOAT,"far_reflection_plane", "far_reflection_plane", &far_reflection_plane, change_projection_float, 100.0, "Maximum Reflection Distance", "Adjusts how far the reflections are displayed.", ADVVID, 0.0, 200.0, 1.0);
-#endif // SKY_FPV
 #else // OSX
     add_var(OPT_BOOL,"isometric" ,"isometric", &isometric, change_projection_bool_init, 1, "Use Isometric View, restart required", "Toggle the use of isometric (instead of perspective) view", VIDEO);
 	add_var(OPT_FLOAT,"perspective", "perspective", &perspective, change_projection_float_init, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", ADVVID, 0.01, 0.80, 0.01);
-#ifndef SKY_FPV
-	add_var (OPT_FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float_init, 40, "Near Plane Distance", "The distance of the near clipping plane to your actor", ADVVID, 1.0, 60.0, 0.5);
-#else // SKY_FPV
 #ifdef DEBUG
 	add_var(OPT_FLOAT,"near_plane", "near_plane", &near_plane, change_projection_float, 0.1, "Minimum Viewing Distance", "Adjusts how near you can see.", ADVVID, 0.1, 10.0, 0.1);
 #endif // DEBUG
 	add_var(OPT_FLOAT,"far_plane", "far_plane", &far_plane, change_projection_float, 100.0, "Maximum Viewing Distance", "Adjusts how far you can see.", ADVVID, 40.0, 200.0, 1.0);
 	add_var(OPT_FLOAT,"far_reflection_plane", "far_reflection_plane", &far_reflection_plane, change_projection_float, 100.0, "Maximum Reflection Distance", "Adjusts how far the reflections are displayed.", ADVVID, 0.0, 200.0, 1.0);
-#endif // SKY_FPV
 #endif // OSX
  #ifdef ANTI_ALIAS
 	add_var(OPT_BOOL,"anti_alias", "aa", &anti_alias, change_aa, 0, "Toggle Anti-Aliasing", "Anti-aliasing makes edges look smoother", LODTAB);
@@ -1859,9 +1798,7 @@ void init_vars()
 	add_var(OPT_BOOL, "continent_map_boundaries", "cmb", &show_continent_map_boundaries, change_var, 1, "Map Boundaries On Continent Map", "Show map boundaries on the continent map", MISC);
 	add_var(OPT_FLOAT_F,"anisotropic_filter","af",&anisotropic_filter,change_anisotropic_filter,1,"Anisotropic Filter","Anisotropic filter is a texture effect that increase the texture quality but cost speed.",VIDEO, float_one_func, get_max_anisotropic_filter, 1.0f);
 //	add_var(OPT_INT, "anti_aliasing", "fsaa", &fsaa, change_int, 0, "Anti-Aliasing", "Full Scene Anti-Aliasing", VIDEO, 0, 16);
-#ifdef	USE_SHADER
 	add_var(OPT_INT_F,"water_shader_quality","water_shader_quality",&water_shader_quality,change_water_shader_quality,1,"water shader quality","Defines what shader is used for water rendering. Higher values are slower but look better. Needs \"toggle frame buffer support\" to be turned on.",VIDEO, int_zero_func, int_max_water_shader_quality);
-#endif	// USE_SHADER
 #endif //ELC
 #ifdef MAP_EDITOR
 	add_var(OPT_BOOL,"close_browser_on_select","cbos",&close_browser_on_select, change_var, 0,"Close Browser","Close the browser on select",MISC);
@@ -2441,13 +2378,7 @@ void display_elconfig_win(void)
 		elconfig_tabs[LODTAB].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_lod, 0, 0, 0);
 		elconfig_tabs[ADVVID].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_advvideo, 0, 0, 0);
 		elconfig_tabs[ECTAB].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_ec, 0, 0, 0);
-#ifdef SKY_FPV
 		elconfig_tabs[EMAJEKRAL].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_emajekral,0, 0, 0);
-#else // SKY_FPV
- #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
-		elconfig_tabs[DEBUGTAB].tab= tab_add(elconfig_win, elconfig_tab_collection_id, "Debug",0, 0, 0);
- #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
-#endif // SKY_FPV
 
 		elconfig_populate_tabs();
 	}

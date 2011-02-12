@@ -400,11 +400,7 @@ int drag_windows (int mx, int my, int dx, int dy)
 						y = my - win->cur_y;
 						
 						// first check for being actively dragging or on the top bar
-#ifndef MINIMAP2
-						if (win->dragged || (dragable && mouse_in_window(i, mx, my) && y < 0) )
-#else
 						if (win->dragged || (dragable && mouse_in_window(i, mx, my) && ((y < 0) || (win->owner_drawn_title_bar && y < ELW_TITLE_HEIGHT))) )
-#endif // MINIMAP
 						{
 							drag_id = i;
 							win->dragged = 1;
@@ -719,9 +715,7 @@ int	create_window(const char *name, int pos_id, Uint32 pos_loc, int pos_x, int p
 		win->resized = 0;
 		win->drag_in = 0;
 		win->opaque = opaque_window_backgrounds;
-#ifdef MINIMAP2
 		win->owner_drawn_title_bar = 0;
-#endif // MINIMAP2
 		if (win->flags&ELW_TITLE_BAR)
 		{
 			win->cm_id = cm_create(cm_title_menu_str, cm_title_handler);
@@ -921,19 +915,13 @@ int	move_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y)
 	win->pos_id = pos_id;
 	win->pos_loc= pos_loc;	//NOT SUPPORTED YET
 	//TODO: calc win->cur_[xy] based on pos_id & pos_loc
-#ifndef MINIMAP2
-	if(win->flags&ELW_TITLE_BAR){
-#else
 	if(win->flags&ELW_TITLE_BAR || win->owner_drawn_title_bar){
-#endif //MINIMAP2
 		int xbound = (win->len_x < 50) ? win->len_x : 50;
 		int ybound = (win->len_y < 50) ? win->len_y : 50;
 		win->pos_x = win->cur_x = clampi(pos_x, xbound - win->len_x, window_width - xbound);
-#ifdef MINIMAP2
 		if(win->owner_drawn_title_bar)
 			win->pos_y = win->cur_y = clampi(pos_y, 0, window_height - ybound);
 		else
-#endif //MINIMAP2
 			win->pos_y = win->cur_y = clampi(pos_y, ELW_TITLE_HEIGHT, window_height - ybound);
 	} else {
 		win->pos_x = win->cur_x = pos_x;

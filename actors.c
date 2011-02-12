@@ -231,9 +231,6 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	//It's unlocked later
 
 	ec_add_actor_obstruction(our_actor, 3.0);
-#ifndef MINIMAP2
-	minimap_touch();
-#endif //MINIMAP2
 	return i;
 }
 
@@ -282,7 +279,6 @@ void add_actor_attachment(int actor_id, int attachment_type)
 		actors_list[id]->stop_animation=1;//helps when the actor is dead...
 		actors_list[id]->kind_of_actor=0;
 
-#ifdef VARIABLE_SPEED
 		if (attached_actors_defs[attachment_type].actor_type[parent->actor_type].is_holder)
 			actors_list[id]->step_duration = actors_defs[attachment_type].step_duration;
 		else
@@ -290,7 +286,6 @@ void add_actor_attachment(int actor_id, int attachment_type)
 
 		if (actors_list[id]->buffs & BUFF_DOUBLE_SPEED)
 			actors_list[id]->step_duration /= 2;
-#endif // VARIABLE_SPEED
 
 		actors_list[id]->z_pos = get_actor_z(actors_list[id]);
 
@@ -380,11 +375,9 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	double healthbar_x_loss_fade=1.0f;
 	double healthbar_y_len=ALT_INGAME_FONT_Y_LEN*12.0*name_zoom*font_scale;
 	float banner_width = 0.0f;
-#ifdef SKY_FPV
 	//if first person, dont draw banner
 	actor *me = get_our_actor();
 	if (me&&me->actor_id==actor_id->actor_id&&first_person) return;
-#endif // SKY_FPV
 	//Figure out where the point just above the actor's head is in the viewport
 	//See if Projection and viewport can be saved elsewhere to prevent doing this so often
 	//MODELVIEW is hopeless
@@ -434,7 +427,6 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			} else {
 				a_bounce = 0.0640*(a-1720.0) - .0002 * powf((a-1720.0), 2);
 			}
-#ifdef SKY_FPV
 			/* Schmurk: actually we never reach this code as long as there's
              * an exit condition at the beginning of the function */
 			if ((first_person)&&(actor_id->actor_id==yourself)){
@@ -444,7 +436,6 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				draw_ortho_ingame_string(x, y, 0, str, 1, font_scale*.14, font_scale*.21);
 			}
 			else
-#endif // SKY_FPV
 			{
 				float font_scale2 = font_scale*powf(1.0f+((float)abs(actor_id->damage)/2.0f)/1000.0f, 4.0);
 				draw_ortho_ingame_string(hx-(((float)get_string_width(str) * (font_scale2*0.17*name_zoom)))*0.5f, a_bounce+hy+10.0f, 0, str, 1, font_scale2*.14, font_scale2*.21);
@@ -459,10 +450,8 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	}
 
 	glDepthFunc(GL_LESS);
-#ifdef SKY_FPV
 	// Schmurk: same here, we actually never reach this code
 	if (!((first_person)&&(actor_id->actor_id==yourself)))
-#endif // SKY_FPV
 	{
 		if(actor_id->actor_name[0] && (view_names || view_health_bar || view_hp)){
 			set_font(name_font);	// to variable length
@@ -752,11 +741,9 @@ void draw_actor_without_banner(actor * actor_id, Uint32 use_lightning, Uint32 us
 {
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
-#ifdef SKY_FPV
 	//if first person, dont draw actor
 	actor *me = get_our_actor();
 	if (me&&me->actor_id==actor_id->actor_id&&first_person) return;
-#endif // SKY_FPV
 	if (use_textures)
 	{
 #ifdef	NEW_TEXTURES
@@ -1443,11 +1430,9 @@ void add_actor_from_server (const char *in_data, int len)
 	actors_list[i]->max_health=max_health;
 	actors_list[i]->cur_health=cur_health;
 
-#ifdef VARIABLE_SPEED
     actors_list[i]->step_duration = actors_defs[actor_type].step_duration;
 	if (actors_list[i]->buffs & BUFF_DOUBLE_SPEED)
 		actors_list[i]->step_duration /= 2;
-#endif // VARIABLE_SPEED
 
 	actors_list[i]->z_pos = get_actor_z(actors_list[i]);
 	if(frame==frame_sit_idle||(pose!=NULL&&pose->pose==EMOTE_SITTING)){ //sitting pose sent by the server

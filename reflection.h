@@ -95,7 +95,6 @@ void draw_sky_background();
  */
 void draw_dungeon_sky_background();
 
-#ifdef SKY_FPV
 /**
  * @ingroup reflections
  * @brief Draws the water background
@@ -105,7 +104,6 @@ void draw_dungeon_sky_background();
  * @callgraph
  */
 void draw_water_background();
-#endif // SKY_FPV
 
 /**
  * @ingroup reflections

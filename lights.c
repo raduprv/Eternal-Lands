@@ -15,13 +15,9 @@
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
-#ifdef SKY_FPV
 #include "elconfig.h"
 #include "sky.h"
-#ifdef NEW_WEATHER
 #include "draw_scene.h"
-#endif // NEW_WEATHER
-#endif // SKY_FPV
 
 
 #ifdef DEBUG_TIME
@@ -57,21 +53,15 @@ int	show_lights;
 int	num_lights;	// the highest light number loaded
 light *lights_list[MAX_LIGHTS];
 unsigned char light_level=58;
-#ifdef SKY_FPV
 sun sun_pos[360];
 sun sun_show[181];
-#else
-sun sun_pos[60*3];
-#endif
 
 short game_minute = 0;
-#ifdef SKY_FPV
 short game_second = 0;
 Uint32 next_second_time = 0;
 short real_game_minute = 0;
 short real_game_second = 0;
 unsigned char freeze_time = 0;
-#endif // SKY_FPV
 
 int test_point_visible(float x,float y,float z)
 {
@@ -348,36 +338,12 @@ void draw_global_light()
 {
 	int i;
 	GLfloat global_light_position[] = { 400.0, 400.0, 500.0, 0.0 };
-#ifndef SKY_FPV
-	i=light_level;
-	if(light_level>59)i=119-light_level;
-	//this is for weather things, when the light level is not the normal light lvel of the current time
-# ifndef MAP_EDITOR2
-	i+=weather_light_offset;
-# endif // MAP_EDITOR2
-	if(i<0)i=0;
-	if(i>59)i=59;
-#endif // SKY_FPV
 
 	//add the thunder light to the ambient/diffuse light
 #ifndef MAP_EDITOR2
-# ifdef NEW_WEATHER
 	memcpy(ambient_light, skybox_light_ambient_color, 3*sizeof(float));
 	memcpy(diffuse_light, skybox_light_diffuse_color, 3*sizeof(float));
 	// the thunder is handled elsewhere for the new weather
-# else // NEW_WEATHER
-#  ifndef SKY_FPV
-		diffuse_light[0]=global_diffuse_light[i][0]+(float)thunder_light_offset/90-0.15f;
-		diffuse_light[1]=global_diffuse_light[i][1]+(float)thunder_light_offset/60-0.15f;
-		diffuse_light[2]=global_diffuse_light[i][2]+(float)thunder_light_offset/15-0.15f;
-#  else // SKY_FPV
-		memcpy(ambient_light, skybox_light_ambient_color, 3*sizeof(float));
-		memcpy(diffuse_light, skybox_light_diffuse_color, 3*sizeof(float));
-		ambient_light[0] += (float)thunder_light_offset*0.03;
-		ambient_light[1] += (float)thunder_light_offset*0.05;
-		ambient_light[2] += (float)thunder_light_offset*0.06;
-#  endif // SKY_FPV
-# endif // NEW_WEATHER
 #else // MAP_EDITOR2
 	diffuse_light[0]=global_diffuse_light[i][0];
 	diffuse_light[1]=global_diffuse_light[i][1];
@@ -396,40 +362,10 @@ void draw_global_light()
 		}
 	}
 
-#ifndef SKY_FPV
-		if(map_type==2)
-		{
-			//the ambient light should be almost as the normal light, but a little bluer
-			ambient_light[0]=diffuse_light[0]+.01f;
-			ambient_light[1]=diffuse_light[1]+.01f;
-			ambient_light[2]=diffuse_light[2];
-		}
-		else
-		{
-			//the ambient light should be half of the diffuse light
-			ambient_light[0]=diffuse_light[0]/3.5f+0.15f;
-			ambient_light[1]=diffuse_light[1]/3.5f+0.15f;
-			ambient_light[2]=diffuse_light[2]/3.5f+0.15f;
-		}
-
-
-	ambient_light[3]=1.0f;
-
-		glLightfv(GL_LIGHT7,GL_AMBIENT,ambient_light);
-		//We add (0.2,0.2,0.2) because that's the global ambient color, and we need it for shadows
-
-		ambient_light[0]+=0.2f;
-		ambient_light[1]+=0.2f;
-		ambient_light[2]+=0.2f;
-
-		glLightfv(GL_LIGHT7, GL_DIFFUSE, diffuse_light);
-
-#else // SKY_FPV
 
 	glLightfv(GL_LIGHT7, GL_AMBIENT, ambient_light);
 	glLightfv(GL_LIGHT7, GL_DIFFUSE, diffuse_light);
 
-#endif // SKY_FPV
 
 	if (sun_use_static_position)
 	{
@@ -511,32 +447,6 @@ void make_gradient_light(int start,int steps,float *light_table, float r_start,
 //build the light table for smooth transition between night and day
 void build_global_light_table()
 {
-#ifndef SKY_FPV
-		//the sun light
-		make_gradient_light(0,30,(float *)global_diffuse_light,0.85f,0.85f,0.85f,0.32f,0.25f,0.25f);
-		make_gradient_light(30,30,(float *)global_diffuse_light,0.318f,0.248f,0.248f,0.06f,0.06f,0.08f);
-	
-		//lake light
-		make_gradient_light(0,30,(float *)sky_lights_c1,0.0f,0.3f,0.6f,0.6f,0.3f,0.0f);
-		make_gradient_light(30,30,(float *)sky_lights_c1,0.6f,0.3f,0.0f,0.0f,0.01f,0.1f);
-		make_gradient_light(60,30,(float *)sky_lights_c1,0.0f,0.1f,0.1f,0.6f,0.3f,0.3f);
-		make_gradient_light(90,30,(float *)sky_lights_c1,0.6f,0.3f,0.3f,0.1f,0.3f,0.6f);
-	
-		make_gradient_light(0,30,(float *)sky_lights_c2,0.0f,0.4f,0.6f,0.6f,0.4f,0.0f);
-		make_gradient_light(30,30,(float *)sky_lights_c2,0.6f,0.4f,0.0f,0.0f,0.1f,0.1f);
-		make_gradient_light(60,30,(float *)sky_lights_c2,0.0f,0.1f,0.1f,0.6f,0.2f,0.1f);
-		make_gradient_light(90,30,(float *)sky_lights_c2,0.6f,0.2f,0.1f,0.0f,0.4f,0.6f);
-	
-		make_gradient_light(0,30,(float *)sky_lights_c3,0.0f,0.7f,0.9f,0.9f,0.7f,0.0f);
-		make_gradient_light(30,30,(float *)sky_lights_c3,0.9f,0.9f,0.0f,0.0f,0.1f,0.1f);
-		make_gradient_light(60,30,(float *)sky_lights_c3,0.0f,0.1f,0.1f,0.5f,0.4f,0.4f);
-		make_gradient_light(90,30,(float *)sky_lights_c3,0.5f,0.4f,0.4f,0.0f,0.7f,0.9f);
-	
-		make_gradient_light(0,30,(float *)sky_lights_c4,0.2f,0.8f,1.0f,1.0f,0.8f,0.2f);
-		make_gradient_light(30,30,(float *)sky_lights_c4,1.0f,0.8f,0.2f,0.0f,0.1f,0.1f);
-		make_gradient_light(60,30,(float *)sky_lights_c4,0.0f,0.1f,0.1f,0.7f,0.4f,0.5f);
-		make_gradient_light(90,30,(float *)sky_lights_c4,0.7f,0.4f,0.5f,0.2f,0.8f,1.0f);
-#else // SKY_FPV
 	//the sun light
   	make_gradient_light(0,30,(float *)global_diffuse_light,0.85f,0.85f,0.85f,0.32f,0.25f,0.25f);
 	make_gradient_light(30,30,(float *)global_diffuse_light,0.318f,0.248f,0.248f,0.05f,0.05f,0.08f);
@@ -592,32 +502,13 @@ void build_global_light_table()
 	make_gradient_light(90,30,(float *)sky_lights_c4,
 						0.0f, 0.1f, 0.4f,
 						0.05f, 0.2f, 0.6f);
-#endif // SKY_FPV
 
 }
 
 void build_sun_pos_table()
 {
-#ifndef SKY_FPV
-	float d = 400;
-#endif // SKY_FPV
 	int i;
 		float x,y,z;
-#ifndef SKY_FPV
-		int start=60;
-		
-		x=0;
-		for(i=0;i<60*3;i++)
-		{
-			z = d*sin((float)(i+start)*0.6f*M_PI/180.0f);
-			y = d*cos((float)(i+start)*0.6f*M_PI/180.0f);
-			x+=0.5f;
-			sun_pos[i].x=x;
-			sun_pos[i].y=y;
-			sun_pos[i].z=z;
-			sun_pos[i].w=0.0f;
-		}
-#else // SKY_FPV
 		float start, step;
 
 		// position of the displayed sun
@@ -664,7 +555,6 @@ void build_sun_pos_table()
 			sun_pos[i].z=z;
 			sun_pos[i].w=0.0;
 		}
-#endif // SKY_FPV
 }
 
 void new_minute()
@@ -672,10 +562,8 @@ void new_minute()
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-#ifdef SKY_FPV
 	if (!freeze_time) game_minute = real_game_minute;
 	if (!freeze_time) game_second = real_game_second;
-#endif // SKY_FPV
 
 	//morning starts at 0
 	//game_minute=90;
@@ -689,17 +577,12 @@ void new_minute()
 	if(game_minute>=60*4)light_level=59;
 
 	//is it day?
-#ifdef SKY_FPV
 		if(game_minute >= 30 && game_minute < 210 && !dungeon)
 		{
 			skybox_sun_position[0] = sun_show[game_minute-30].x;
 			skybox_sun_position[1] = sun_show[game_minute-30].y;
 			skybox_sun_position[2] = sun_show[game_minute-30].z;
 			skybox_sun_position[3] = sun_show[game_minute-30].w;
-#else // SKY_FPV
-		if(game_minute>=30 && game_minute<60*3+30 && !dungeon)
-		{
-#endif // SKY_FPV
 			disable_local_lights();
 			is_day=1;
 			sun_position[0]=sun_pos[game_minute-30].x;
@@ -710,28 +593,21 @@ void new_minute()
 		}
 		else//it's too dark, or we are in a dungeon
 		{
-#ifndef SKY_FPV
-			sun_position[0]=sun_position[1]=sun_position[2]=sun_position[3]=0.0;
-#else // SKY_FPV
 			int shift_time = (game_minute+330)%360;
 			sun_position[0] = sun_pos[shift_time].x;
 			sun_position[1] = sun_pos[shift_time].y;
 			sun_position[2] = sun_pos[shift_time].z;
 			sun_position[3] = sun_pos[shift_time].w;
 			skybox_sun_position[0] = skybox_sun_position[1] = skybox_sun_position[2] = skybox_sun_position[3] = 0.0;
-#endif // SKY_FPV
 			is_day=0;
 			enable_local_lights();
 		}
 
-#ifdef SKY_FPV
 	skybox_update_positions();
 	if (skybox_update_delay > 0)
 		skybox_update_colors();
-#endif // SKY_FPV
 }
 
-#ifdef SKY_FPV
 void new_second()
 {
 	if (!freeze_time) game_second = real_game_second;
@@ -761,14 +637,11 @@ void new_second()
 		if (skybox_update_delay > 0)
 			skybox_update_colors();
 	}
-#ifdef NEW_WEATHER
 	else if (skybox_update_delay > 1 && weather_get_intensity() > 0.0)
 	{
 		skybox_update_colors();
 	}
-#endif // NEW_WEATHER
 }
-#endif // SKY_FPV
 
 #ifdef DEBUG_TIME
 

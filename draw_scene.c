@@ -18,9 +18,7 @@
 #include "new_character.h"
 #include "shadows.h"
 #include "skeletons.h"
-#ifdef SKY_FPV
 #include "sky.h"
-#endif // SKY_FPV
 #include "sound.h"
 #include "storage.h"
 #include "text.h"
@@ -38,14 +36,12 @@ float rz=45;
 float terrain_scale=2.0f;
 float zoom_level=3.0f;
 float name_zoom=1.0f;
-#ifdef SKY_FPV
 #define MAX(a,b) ( ((a)>(b)) ? (a):(b))
 //First Person Camera mode state
 int first_person = 0;
 float old_rx=-60;
 float old_rz=45;
 float old_zoom_level=3.0;
-#endif // SKY_FPV
 
 float fine_camera_rotation_speed;
 float normal_camera_rotation_speed;
@@ -56,11 +52,9 @@ int camera_rotation_duration;
 float camera_tilt_speed;
 int camera_tilt_duration;
 
-#ifdef NEW_CAMERA_MOTION
 float normal_camera_deceleration = 0.2;
 float camera_rotation_deceleration;
 float camera_tilt_deceleration;
-#endif // NEW_CAMERA_MOTION
 
 double camera_x_speed;
 int camera_x_duration;
@@ -79,7 +73,6 @@ float camera_distance = 2.5f;
 
 int reset_camera_at_next_update = 1;
 
-#ifdef SKY_FPV
 //Follow camera state stuff
 int fol_cam = 1;	       // follow camera state (on/off)
 int fol_cam_behind = 0;    // keep the camera behind the char
@@ -95,7 +88,6 @@ float min_tilt_angle = 30.0; // minimum tilt angle for the extended camera
 float max_tilt_angle = 90.0; // maximum tilt angle for the extended camera
 float hold_camera = 0.0;   // backup of the rz value before kludge is applied
 
-#endif // SKY_FPV
 int last_texture=-2;
 int cons_text;
 int icons_text;
@@ -115,16 +107,7 @@ void draw_scene()
 {
 	CHECK_GL_ERRORS();
 
-#ifndef SKY_FPV
-	if (dungeon || !use_fog)
-	{
-		glClearColor(0.0, 0.0, 0.0, 0.0);
-	} else {
-		glClearColor(fogColor[0], fogColor[1], fogColor[2], 0.0);
-	}
-#else // SKY_FPV
 	glClearColor(skybox_fog_color[0], skybox_fog_color[1], skybox_fog_color[2], 0.0);
-#endif // SKY_FPV
 
 	if(!shadows_on || !have_stencil)glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 	else glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
@@ -153,9 +136,7 @@ void draw_scene()
 		drag_item (use_item, 0, 1);
 	else if (storage_item_dragged != -1) 
 		drag_item (storage_item_dragged, 1, 0);
-#if defined(SKY_FPV) || defined(NEW_CURSOR)
 	draw_special_cursors();
-#endif // SKY_FPV || NEW_CURSOR
 
 	Leave2DMode ();
 
@@ -181,10 +162,8 @@ void draw_scene()
 void move_camera ()
 {
 	float x, y, z;
-#ifdef SKY_FPV
 	// float head_pos[3];
 	float follow_speed;
-#endif // SKY_FPV
 	actor *me = get_our_actor ();
 
     if(!me){
@@ -194,9 +173,6 @@ void move_camera ()
 	x = (float)me->x_pos+0.25f;
 	y = (float)me->y_pos+0.25f;
 
-#ifndef SKY_FPV
-	z=-2.2f+height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f+sitting;
-#else // SKY_FPV
     // cal_get_actor_bone_local_position(me, get_actor_bone_id(me, head_bone), NULL, head_pos);
 
     /* Schmurk: I've commented this out because I don't see why the position of
@@ -217,15 +193,12 @@ void move_camera ()
 	} else {
 		z = -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + sitting;
 	}
-#endif // SKY_FPV
 
-#ifdef SKY_FPV
 	if(first_person||ext_cam){
 		follow_speed = 150.0f;
 	} else {
 		follow_speed = 300.0f;
 	}
-#endif // SKY_FPV
 	if(reset_camera_at_next_update){
 		camera_x = -x;
 		camera_y = -y;
@@ -237,21 +210,6 @@ void move_camera ()
 		set_all_intersect_update_needed(main_bbox_tree);
 	} else {
 		//move near the actor, but smoothly
-#ifndef SKY_FPV
-		camera_x_speed=(x+camera_x)/300.0;
-		camera_x_duration=300;
-		camera_y_speed=(y+camera_y)/300.0;
-		camera_y_duration=300;
-		camera_z_speed=(z+camera_z)/300.0;
-		camera_z_duration=300;
-	}
-
-	glTranslatef(0.0f, 0.0f, -zoom_level*camera_distance);
-	glRotatef(rx, 1.0f, 0.0f, 0.0f);
-	glRotatef(rz, 0.0f, 0.0f, 1.0f);
-	glTranslatef(camera_x,camera_y, camera_z);
-
-#else // SKY_FPV
 		camera_x_speed=(x+camera_x)/follow_speed;
 		camera_x_duration=follow_speed;
 		camera_y_speed=(y+camera_y)/follow_speed;
@@ -270,68 +228,49 @@ void move_camera ()
 	glRotatef(rx, 1.0f, 0.0f, 0.0f);
 	glRotatef(rz, 0.0f, 0.0f, 1.0f);
 	glTranslatef(camera_x, camera_y, camera_z);
-#endif // SKY_FPV
 }
 
 
 
 void clamp_camera(void)
 {
-#ifdef SKY_FPV
 		if(first_person){
 			if(rx < -170){
 				rx = -170;
 				camera_tilt_duration=0;
-#ifdef NEW_CAMERA_MOTION
 				camera_tilt_speed = 0.0;
-#endif // NEW_CAMERA_MOTION
 			} else if(rx > -30){
 				rx = -30;
 				camera_tilt_duration=0;
-#ifdef NEW_CAMERA_MOTION
 				camera_tilt_speed = 0.0;
-#endif // NEW_CAMERA_MOTION
 			}
 		} else if(ext_cam){
 			if(rx < -max_tilt_angle){
 				rx = -max_tilt_angle;
 				camera_tilt_duration=0;
-#ifdef NEW_CAMERA_MOTION
 				camera_tilt_speed = 0.0;
-#endif // NEW_CAMERA_MOTION
 			} else if(rx > -min_tilt_angle){
 				rx = -min_tilt_angle;
 				camera_tilt_duration=0;
-#ifdef NEW_CAMERA_MOTION
 				camera_tilt_speed = 0.0;
-#endif // NEW_CAMERA_MOTION
 			}			
 	} else {
-#endif // SKY_FPV
 		if(rx < -60){
 			rx = -60;
 			camera_tilt_duration=0;
-#ifdef NEW_CAMERA_MOTION
 			camera_tilt_speed = 0.0;
-#endif // NEW_CAMERA_MOTION
 		} else if(rx > -45){
 			rx = -45;
 			camera_tilt_duration=0;
-#ifdef NEW_CAMERA_MOTION
 			camera_tilt_speed = 0.0;
-#endif // NEW_CAMERA_MOTION
 		}
-#ifdef SKY_FPV
 	}
 	if (have_mouse){
 		camera_rotation_duration = 0;
 		camera_tilt_duration=0;
-#ifdef NEW_CAMERA_MOTION
 		camera_rotation_speed = 0.0;
 		camera_tilt_speed = 0.0;
-#endif // NEW_CAMERA_MOTION
 	}
-#endif // SKY_FPV
 	if(rz > 360) {
 		rz -= 360;
 	} else if (rz < 0) {
@@ -348,9 +287,7 @@ void clamp_camera(void)
 
 
 
-#ifdef SKY_FPV
 int adjust_view;
-#endif // SKY_FPV
 
 void update_camera()
 {
@@ -362,9 +299,6 @@ void update_camera()
 	static float old_camera_x = 0;
 	static float old_camera_y = 0;
 	static float old_camera_z = 0;
-#ifndef SKY_FPV
-	int adjust_view= 0;
-#else // SKY_FPV
 	float adjust;
 	actor *me = get_our_actor();
 
@@ -378,16 +312,13 @@ void update_camera()
 		rz = hold_camera;
 	if (me)
 		camera_kludge = -me->z_rot;
-#endif // SKY_FPV
 
-#ifdef NEW_CAMERA_MOTION
 	/* This is a BIG hack to not polluate the code but if this feature
 	 * is accepted and the flag is removed, all the code that
 	 * follows will have to be changed in order to get rid of
 	 * camera_rotation_duration and camera_tilt_duration. */
 	camera_rotation_duration = camera_rotation_speed != 0.0 ? time_diff : 0.0;
 	camera_tilt_duration = camera_tilt_speed != 0.0 ? time_diff : 0.0;
-#endif // NEW_CAMERA_MOTION
 
 	if(camera_rotation_duration > 0){
 		if (time_diff <= camera_rotation_duration)
@@ -451,7 +382,6 @@ void update_camera()
 		adjust_view++;
 	}
 
-#ifdef NEW_CAMERA_MOTION
 	if (camera_rotation_speed > 0.0)
 	{
 		camera_rotation_speed -= time_diff * camera_rotation_deceleration;
@@ -476,11 +406,9 @@ void update_camera()
 		if (camera_tilt_speed > 0.0)
 			camera_tilt_speed = 0.0;
 	}
-#endif // NEW_CAMERA_MOTION
 
 	clamp_camera();
 
-#ifdef SKY_FPV
 	if (ext_cam && !first_person && me &&
 		rx <= -min_tilt_angle && rx >= -max_tilt_angle)
 	{
@@ -529,9 +457,7 @@ void update_camera()
 				{
 					new_zoom_level = 1.0;
 					camera_tilt_duration = camera_zoom_duration = 0;
-#ifdef NEW_CAMERA_MOTION
 					camera_tilt_speed = 0.0;
-#endif // NEW_CAMERA_MOTION
 					if (fabsf(tz + camera_z + 0.2) < fabsf(vect[2]) - 0.01)
 						rx = -90.0 + 180.0 * asinf((tz + camera_z + 0.2) / vect[2]) / M_PI;
 				}
@@ -539,24 +465,19 @@ void update_camera()
 				{
 					new_zoom_level = old_zoom_level;
 					camera_tilt_duration = camera_zoom_duration = 0;
-#ifdef NEW_CAMERA_MOTION
 					camera_tilt_speed = 0.0;
-#endif // NEW_CAMERA_MOTION
 				}
 			}
 			else // old freecam behaviour
 			{
 				new_zoom_level = old_zoom_level;
 				camera_tilt_duration = camera_zoom_duration = 0;
-#ifdef NEW_CAMERA_MOTION
 				camera_tilt_speed = 0.0;
-#endif // NEW_CAMERA_MOTION
 				if (fabsf(tz + camera_z + 0.2) < fabsf(vect[2]) - 0.01)
 					rx = -90.0 + 180.0 * asinf((tz + camera_z + 0.2) / vect[2]) / M_PI;
 			}
 		}
 	}
-#endif // SKY_FPV
 
 	if(adjust_view){
 		set_all_intersect_update_needed(main_bbox_tree);
@@ -565,17 +486,12 @@ void update_camera()
 		old_camera_z= camera_z;
 	}
 
-#ifdef SKY_FPV
 	
 	hold_camera = rz;
 	if (fol_cam) {
 		static int fol_cam_stop = 0;
 
-#ifndef NEW_CAMERA_MOTION
-        if ((SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(2)) || camera_rotation_duration > 0)
-#else // NEW_CAMERA_MOTION
 		if ((SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(2)) || camera_rotation_speed != 0)
-#endif // NEW_CAMERA_MOTION
 			fol_cam_stop = 1;
 		else if (me && me->moving && fol_cam_stop)
 			fol_cam_stop = 0;
@@ -632,7 +548,6 @@ void update_camera()
 		}
 	}
 	adjust_view = 0;
-#endif // SKY_FPV
 	last_update = cur_time;
 }
 

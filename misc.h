@@ -8,9 +8,7 @@
 
 #include <SDL_endian.h>
 #include "platform.h"
-#ifdef ZLIB
 #include <zlib.h>
-#endif // ZLIB
 
 #ifdef __cplusplus
 extern "C" {
@@ -175,7 +173,6 @@ void draw_box(char * name, int x, int y, int w, int h, int rad);
  */
 void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, float r, float g, float b, int highlight, float hr, float hg, float hb, float ha);
 
-#ifdef ZLIB
 /*!
  * \ingroup misc
  * \brief Append '.gz' to a filename and try to open it using gzopen
@@ -188,7 +185,6 @@ void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, 
  * \return a zlib file handle
  */
 gzFile * my_gzopen(const char * filename, const char * mode);
-#endif // ZLIB
 
 /*!
  * \ingroup misc

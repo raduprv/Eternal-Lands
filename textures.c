@@ -1,9 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #ifndef	NEW_TEXTURES
-#ifdef ZLIB
 #include <zlib.h>
-#endif
 #include <SDL_image.h>
 #endif	/* NEW_TEXTURES */
 #include "textures.h"
@@ -2122,7 +2120,6 @@ GLuint load_bmp8_fixed_alpha(texture_cache_struct * tex_cache_entry, Uint8 a)
 	return texture;
 }
 
-#ifdef MINIMAP2
 GLuint load_bmp8_fixed_alpha_with_transparent_color(texture_cache_struct * tex_cache_entry, Uint8 a,Uint8 tr,Uint8 tg,Uint8 tb)
 {
 	int x_size, y_size,i;
@@ -2185,7 +2182,6 @@ GLuint load_bmp8_fixed_alpha_with_transparent_color(texture_cache_struct * tex_c
 	free(tex->texture);
 	return texture;
 }
-#endif
 
 // reload a bmp texture, in respect to the color key
 GLuint reload_bmp8_color_key(texture_cache_struct * tex_cache_entry, int alpha, GLuint texture)
@@ -2495,15 +2491,9 @@ int load_bmp8_enhanced_actor(enhanced_actor *this_actor, Uint8 a)
 	if(this_actor->boots_tex[0]){
 		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->boots_tex,this_actor->boots_base,this_actor->boots_mask,texture_mem,0,175*TEXTURE_RATIO,a);
 	}
-#ifdef NEW_TEX
 	if(this_actor->torso_tex[0]){
 		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->torso_tex,this_actor->body_base, this_actor->torso_mask, texture_mem,158*TEXTURE_RATIO,149*TEXTURE_RATIO,a);
 	}
-#else
-	if(this_actor->torso_tex[0]){
-		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->torso_tex,this_actor->torso_base, this_actor->torso_mask, texture_mem,158*TEXTURE_RATIO,156*TEXTURE_RATIO,a);
-	}
-#endif
 	if(this_actor->arms_tex[0]){
 		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->arms_tex,this_actor->arms_base,this_actor->arms_mask,texture_mem,0,96*TEXTURE_RATIO,a);
 	}
@@ -2515,17 +2505,10 @@ int load_bmp8_enhanced_actor(enhanced_actor *this_actor, Uint8 a)
 	}
 	if(this_actor->hair_tex[0])
 		has_alpha+= load_bmp8_to_coordinates(this_actor->hair_tex,texture_mem,0,0,a);
-#ifdef NEW_TEX
 	if(this_actor->weapon_tex[0])
 		has_alpha+= load_bmp8_to_coordinates(this_actor->weapon_tex,texture_mem,178*TEXTURE_RATIO,77*TEXTURE_RATIO,a);
 	if(this_actor->shield_tex[0])
 		has_alpha+= load_bmp8_to_coordinates(this_actor->shield_tex,texture_mem,100*TEXTURE_RATIO,77*TEXTURE_RATIO,a);
-#else
-	if(this_actor->weapon_tex[0])
-		has_alpha+= load_bmp8_to_coordinates(this_actor->weapon_tex,texture_mem,158*TEXTURE_RATIO,77*TEXTURE_RATIO,a);
-	if(this_actor->shield_tex[0])
-		has_alpha+= load_bmp8_to_coordinates(this_actor->shield_tex,texture_mem,80*TEXTURE_RATIO,96*TEXTURE_RATIO,a);
-#endif
 	if(this_actor->helmet_tex[0])
 		has_alpha+= load_bmp8_to_coordinates(this_actor->helmet_tex,texture_mem,80*TEXTURE_RATIO,149*TEXTURE_RATIO,a);
 	if(this_actor->neck_tex[0])
@@ -2582,33 +2565,20 @@ char * load_bmp8_color_key_no_texture_img(char * filename, img_struct * img)
 	Uint8 * read_buffer;
 	Uint8 * color_pallete;
 	Uint8 *texture_mem;
-#ifdef	ZLIB
 	gzFile *f = NULL;
 	if(!gzfile_exists(filename))	return 0;	// no file at all
 	f= my_gzopen(filename, "rb");
-#else	//ZLIB
-	FILE *f = NULL;
-	f= fopen(filename, "rb");
-#endif	//ZLIB
   	if (!f)
 		return NULL;
   	file_mem = (Uint8 *) calloc ( 20000, sizeof(Uint8));
   	file_mem_start=file_mem;
-#ifdef	ZLIB
   	gzread(f, file_mem, 50);//header only
-#else	//ZLIB
-  	fread(file_mem, 1, 50, f);//header only
-#endif	//ZLIB
   	//now, check to see if our bmp file is indeed a bmp file, and if it is 8 bits, uncompressed
   	if(*((short *) file_mem)!=19778)//BM (the identifier)
 	{
 		free(file_mem_start);
 		fclose (f);
-#ifdef	ZLIB
 		gzclose(f);
-#else	//ZLIB
-		fclose(f);
-#endif	//ZLIB
 		return NULL;
 	}
 	file_mem+=18;
@@ -2619,11 +2589,7 @@ char * load_bmp8_color_key_no_texture_img(char * filename, img_struct * img)
 	if(*((short *)file_mem)!=8)//8 bit/pixel?
 	{
 		free(file_mem_start);
-#ifdef	ZLIB
 		gzclose(f);
-#else	//ZLIB
-		fclose(f);
-#endif	//ZLIB
 		return NULL;
 	}
 
@@ -2631,11 +2597,7 @@ char * load_bmp8_color_key_no_texture_img(char * filename, img_struct * img)
 	if(*((int *)file_mem)!=0)//any compression?
 	{
 		free(file_mem_start);
-#ifdef	ZLIB
 		gzclose(f);
-#else	//ZLIB
-		fclose(f);
-#endif	//ZLIB
 		return NULL;
 	}
 	file_mem+=16;
@@ -2645,11 +2607,7 @@ char * load_bmp8_color_key_no_texture_img(char * filename, img_struct * img)
 	file_mem+=8;//here comes the pallete
 
 	color_pallete=file_mem+4;
-#ifdef	ZLIB
 	gzread(f, file_mem, colors_no*4+4);//header only
-#else	//ZLIB
-	fread(file_mem, 1, colors_no*4+4, f);//header only
-#endif	//ZLIB
 	file_mem+=colors_no*4;
 
 	x_padding=x_size%4;
@@ -2662,11 +2620,7 @@ char * load_bmp8_color_key_no_texture_img(char * filename, img_struct * img)
 
 	for(y=0;y<y_size;y++)
 	{
-#ifdef	ZLIB
 		gzread(f, read_buffer, x_size-x_padding);
-#else	//ZLIB
-		fread(read_buffer, 1, x_size-x_padding, f);
-#endif	//ZLIB
 
 		for(x=0;x<x_size;x++)
 		{
@@ -2691,11 +2645,7 @@ char * load_bmp8_color_key_no_texture_img(char * filename, img_struct * img)
 	
 	free(file_mem_start);
 	free(read_buffer);
-#ifdef	ZLIB
 	gzclose(f);
-#else	//ZLIB
-	fclose(f);
-#endif	//ZLIB
 	return texture_mem;
 }
 #endif

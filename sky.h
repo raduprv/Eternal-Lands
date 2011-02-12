@@ -1,7 +1,6 @@
 #ifndef __SKY_H__
 #define __SKY_H__
 
-#ifdef SKY_FPV
 
 #include "lights.h"
 
@@ -93,6 +92,5 @@ static void __inline__ skybox_blend_current_colors(float result[4], float orig_t
 	blend_colors(result, color1, color2, t, 4);
 }
 
-#endif // SKY_FPV
 
 #endif // __SKY_H__

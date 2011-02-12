@@ -4183,10 +4183,6 @@ void init_sound()
 		load_sound_config_data(SOUND_CONFIG_PATH);
 	}
 
-#ifndef NEW_WEATHER
-	// Force the rain sound to be recreated
-	rain_sound = 0;
-#endif //NEW_WEATHER
 	inited = 1;
 
 	// Reset the error buffer

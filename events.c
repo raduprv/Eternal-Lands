@@ -165,9 +165,6 @@ int HandleEvent (SDL_Event *event)
 			if (afk_time && event->type == SDL_MOUSEBUTTONDOWN)
 				last_action_time = cur_time;	// Set the latest events - don't make mousemotion set the afk_time... (if you prefer that mouse motion sets/resets the afk_time, then move this one step below...
 		case SDL_MOUSEMOTION:
-#ifndef SKY_FPV
-			if(event->type==SDL_MOUSEMOTION)
-#else // SKY_FPV
 			if (have_mouse)
 			{
 				mouse_x = window_width/2;
@@ -177,7 +174,6 @@ int HandleEvent (SDL_Event *event)
 				mouse_delta_y= event->motion.yrel;
 			}
 			else if(event->type==SDL_MOUSEMOTION)
-#endif // SKY_FPV
 			{
 				mouse_x= event->motion.x;
 				mouse_y= event->motion.y;
@@ -251,13 +247,8 @@ int HandleEvent (SDL_Event *event)
 				}
 			}
 
-#ifndef SKY_FPV
-			if ( SDL_GetMouseState (NULL, NULL) & SDL_BUTTON(2) )
-#else // SKY_FPV
 			if (( SDL_GetMouseState (NULL, NULL) & SDL_BUTTON(2) )||(have_mouse))
-#endif // SKY_FPV
 			{
-#ifdef NEW_CAMERA_MOTION
 				camera_rotation_speed = camera_rotation_speed*0.5 + normal_camera_rotation_speed * mouse_delta_x*0.00025;
 				camera_tilt_speed = camera_tilt_speed*0.5 + normal_camera_rotation_speed * mouse_delta_y*0.00025;
                 camera_rotation_deceleration = normal_camera_deceleration*1E-3;
@@ -271,19 +262,11 @@ int HandleEvent (SDL_Event *event)
 				// the following variables have to be removed!
 				camera_rotation_duration = 0;
 				camera_tilt_duration = 0;
-#else // NEW_CAMERA_MOTION
-				camera_rotation_speed = normal_camera_rotation_speed * mouse_delta_x / 4000.0;
-				camera_rotation_duration = 800;
-				camera_tilt_speed = normal_camera_rotation_speed * mouse_delta_y / 4000.0;
-				camera_tilt_duration = 800;
-#endif // NEW_CAMERA_MOTION
-#ifdef SKY_FPV
 				if (fol_cam && !fol_cam_behind)
 				{
 					hold_camera += camera_kludge - last_kludge;
 					last_kludge = camera_kludge;
 				}
-#endif // SKY_FPV
 			}
 
 			if (shift_on) flags |= ELW_SHIFT;

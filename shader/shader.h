@@ -1,7 +1,6 @@
 #ifndef	_SHADER_H_
 #define	_SHADER_H_
 
-#ifdef USE_SHADER
 
 #include <SDL_types.h>
 #include "../platform.h"
@@ -35,6 +34,5 @@ GLhandleARB get_shader(shader_type type, shader_shadow_type shadow_type, shader_
 
 void free_shaders();
 
-#endif /* USE_SHADER */
 
 #endif	// _SHADER_H_

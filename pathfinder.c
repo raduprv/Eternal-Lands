@@ -160,11 +160,7 @@ int pf_find_path(int x, int y)
 			pf_follow_path = 1;
 
 			pf_movement_timer_callback(0, NULL);
-#ifdef VARIABLE_SPEED
             pf_movement_timer = SDL_AddTimer(me->step_duration * 10, pf_movement_timer_callback, NULL);
-#else // VARIABLE_SPEED
-			pf_movement_timer = SDL_AddTimer(2500, pf_movement_timer_callback, NULL);
-#endif // VARIABLE_SPEED
 			break;
 		}
 
@@ -330,11 +326,9 @@ Uint32 pf_movement_timer_callback(Uint32 interval, void *param)
 	e.user.code = EVENT_MOVEMENT_TIMER;
 	SDL_PushEvent(&e);
 
-#ifdef VARIABLE_SPEED
     if (get_our_actor())
         return get_our_actor()->step_duration * 10;
     else
-#endif // VARIABLE_SPEED
 	return interval;
 }
 

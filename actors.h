@@ -364,9 +364,7 @@ typedef struct
 	char ghost;
 	/*! \} */
 
-#ifdef VARIABLE_SPEED
 	int step_duration;
-#endif // VARIABLE_SPEED
 
 } actor_types;
 
@@ -641,9 +639,7 @@ typedef struct
 	int async_z_rot;
 	int last_range_attacker_id;
 
-#ifdef VARIABLE_SPEED
 	int step_duration;
-#endif // VARIABLE_SPEED
 
 	int attached_actor;
 	float attachment_shift[3];

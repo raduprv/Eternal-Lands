@@ -51,9 +51,7 @@
 #include "timers.h"
 #include "translate.h"
 #include "url.h"
-#ifdef NEW_WEATHER
 #include "weather.h"
-#endif // NEW_WEATHER
 #include "counters.h"
 #ifdef MEMORY_DEBUG
 #include "elmemory.h"
@@ -186,14 +184,12 @@ int start_rendering()
 				last_frame_and_command_update = cur_time;
 			}
 
-#ifdef SKY_FPV
 			while (cur_time > next_second_time && real_game_second < 59)
 			{
 				real_game_second += 1;
 				new_second();
 				next_second_time += 1000;
 			}
-#endif // SKY_FPV
 
 #if defined(NEW_WEATHER) && defined(NEW_SOUND)
 			weather_sound_control();
@@ -201,9 +197,7 @@ int start_rendering()
 
 			if(!limit_fps || (cur_time-last_time && 1000/(cur_time-last_time) <= limit_fps))
 			{
-#ifdef NEW_WEATHER
 				weather_update();
-#endif // NEW_WEATHER
 
                 animate_actors();
 				//draw everything

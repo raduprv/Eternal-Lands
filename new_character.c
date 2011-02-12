@@ -31,9 +31,7 @@
 #include "particles.h"
 #include "reflection.h"
 #include "shadows.h"
-#ifdef SKY_FPV
 #include "sky.h"
-#endif // SKY_FPV
 #include "tabs.h"
 #include "textures.h"
 #include "tiles.h"
@@ -417,14 +415,9 @@ int display_newchar_handler (window_info *win)
 
 	if (SDL_GetAppState() & SDL_APPACTIVE)
 	{
-#ifndef NEW_WEATHER
-		//now, determine the current weather light level
-		get_weather_light_level ();
-#endif
 
 		draw_global_light ();
 
-#ifdef SKY_FPV
 		if (skybox_show_sky)
         {
 			if (skybox_update_delay < 1)
@@ -435,7 +428,6 @@ int display_newchar_handler (window_info *win)
 			skybox_display();
             glPopMatrix();
         }
-#endif // SKY_FPV
 
 		update_scene_lights();
 		draw_lights();
@@ -447,11 +439,7 @@ int display_newchar_handler (window_info *win)
 		}
 
 		if (use_fog)
-#ifndef NEW_WEATHER
-			render_fog();
-#else // NEW_WEATHER
 			weather_render_fog();
-#endif // NEW_WEATHER
 		if (any_reflection > 1) {
 			draw_sky_background ();
 			CHECK_GL_ERRORS ();
@@ -573,45 +561,25 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 	} else if(disconnected && !alt_on && !ctrl_on){
 		connect_to_server();
 	} else if (key == K_CAMERAUP) {
-#ifndef SKY_FPV
-		if (rx > -60) rx -= 1.0f;
-#else // SKY_FPV
 		camera_tilt_speed = -normal_camera_rotation_speed * 0.0005;
 		camera_tilt_duration += 100;
-#ifdef NEW_CAMERA_MOTION
         camera_tilt_deceleration = normal_camera_deceleration*0.5E-3;
-#endif // NEW_CAMERA_MOTION
-#endif // SKY_FPV
 	} else if (key == K_CAMERADOWN) {
-#ifndef SKY_FPV
-		if (rx < -45) rx += 1.0f;
-#else // SKY_FPV
 		camera_tilt_speed = normal_camera_rotation_speed * 0.0005;
 		camera_tilt_duration += 100;
-#ifdef NEW_CAMERA_MOTION
         camera_tilt_deceleration = normal_camera_deceleration*0.5E-3;
-#endif // NEW_CAMERA_MOTION
-#endif // SKY_FPV
 	} else if (key == K_ZOOMIN) {
-#ifndef SKY_FPV
-		if (zoom_level >= 1.00f) new_zoom_level = zoom_level - 0.25;
-#else // SKY_FPV
 		if (camera_zoom_dir == -1)
 			camera_zoom_duration += 100;
 		else
 			camera_zoom_duration = 100;
 		camera_zoom_dir = -1;
-#endif // SKY_FPV
 	} else if (key == K_ZOOMOUT) {
-#ifndef SKY_FPV
-		if (zoom_level <= 3.50f) new_zoom_level = zoom_level + 0.25;
-#else // SKY_FPV
 		if (camera_zoom_dir == 1)
 			camera_zoom_duration += 100;
 		else
 			camera_zoom_duration = 100;
 		camera_zoom_dir = 1;
-#endif // SKY_FPV
 	} else if(key==K_OPTIONS){
 		view_window(&elconfig_win, 0);
 	} else if(key==K_ENCYCLOPEDIA){
@@ -623,57 +591,41 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 	} else if (key == K_ROTATELEFT) {
 		camera_rotation_speed = normal_camera_rotation_speed / 800.0;
 		camera_rotation_duration = 800;
-#ifdef NEW_CAMERA_MOTION
         camera_rotation_deceleration = normal_camera_deceleration*0.5E-3;
-#endif // NEW_CAMERA_MOTION
-#ifdef SKY_FPV
 		if (fol_cam && !fol_cam_behind)
 		{
 			hold_camera += camera_kludge - last_kludge;
 			last_kludge = camera_kludge;
 		}
-#endif // SKY_FPV
 	} else if (key == K_FROTATELEFT) {
 		camera_rotation_speed = fine_camera_rotation_speed / 200.0;
 		camera_rotation_duration = 200;
-#ifdef NEW_CAMERA_MOTION
 		camera_rotation_speed /= 4.0;
         camera_rotation_deceleration = normal_camera_deceleration*0.5E-3;
-#endif // NEW_CAMERA_MOTION
-#ifdef SKY_FPV
 		if (fol_cam && !fol_cam_behind)
 		{
 			hold_camera += camera_kludge - last_kludge;
 			last_kludge = camera_kludge;
 		}
-#endif // SKY_FPV
 	} else if (key == K_ROTATERIGHT) {
 		camera_rotation_speed = -normal_camera_rotation_speed / 800.0;
 		camera_rotation_duration = 800;
-#ifdef NEW_CAMERA_MOTION
         camera_rotation_deceleration = normal_camera_deceleration*0.5E-3;
-#endif // NEW_CAMERA_MOTION
-#ifdef SKY_FPV
 		if (fol_cam && !fol_cam_behind)
 		{
 			hold_camera += camera_kludge - last_kludge;
 			last_kludge = camera_kludge;
 		}
-#endif // SKY_FPV
 	} else if (key == K_FROTATERIGHT) {
 		camera_rotation_speed = -fine_camera_rotation_speed / 200.0;
 		camera_rotation_duration = 200;
-#ifdef NEW_CAMERA_MOTION
 		camera_rotation_speed /= 4.0;
         camera_rotation_deceleration = normal_camera_deceleration*0.5E-3;
-#endif // NEW_CAMERA_MOTION
-#ifdef SKY_FPV
 		if (fol_cam && !fol_cam_behind)
 		{
 			hold_camera += camera_kludge - last_kludge;
 			last_kludge = camera_kludge;
 		}
-#endif // SKY_FPV
 	} else if(key==K_TURNLEFT){
 		if(last_time+666<cur_time){
 			add_command_to_actor(0, turn_left);
@@ -716,9 +668,7 @@ void create_newchar_root_window ()
 		our_actor.male = our_actor.race<gnome_female?our_actor.race%2:!(our_actor.race%2);
 		
 		game_minute = 120;	//Midday. So that it's bright and sunny.
-#ifdef SKY_FPV
 		real_game_minute = game_minute;
-#endif // SKY_FPV
 
 		change_map ("./maps/newcharactermap.elm");
 

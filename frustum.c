@@ -16,11 +16,9 @@
 #include <string.h>
 #include "bbox_tree.h"
 #include "shadows.h"
-#ifdef SKY_FPV
 #include "elconfig.h"
 #include "gl_init.h"
 #include "tiles.h"
-#endif // SKY_FPV
 
 // We create an enum of the sides so we don't have to call each side 0 or 1.
 // This way it makes it more understandable and readable when dealing with frustum sides.
@@ -451,11 +449,9 @@ void calculate_reflection_frustum(float water_height)
 	reflection_frustum[6].plane[B] = 0.0;
 	reflection_frustum[6].plane[C] = 1.0;
 	reflection_frustum[6].plane[D] = -water_height;
-#ifdef SKY_FPV
 	reflection_frustum[BACK].plane[D] -= (reflection_frustum[BACK].plane[A]*reflection_frustum[BACK].plane[A]*(far_plane-far_reflection_plane) +
 										  reflection_frustum[BACK].plane[B]*reflection_frustum[BACK].plane[B]*(far_plane-far_reflection_plane) +
 										  reflection_frustum[BACK].plane[C]*reflection_frustum[BACK].plane[C]*(far_plane-far_reflection_plane));
-#endif // SKY_FPV
 	calc_plane_mask(&reflection_frustum[6]);
 	reflection_clip_planes[0][A] = reflection_frustum[6].plane[A];
 	reflection_clip_planes[0][B] = reflection_frustum[6].plane[B];
@@ -485,21 +481,16 @@ void calculate_reflection_frustum(float water_height)
 		y = y_scaled + 1.5f - pos[Y];
 		z = water_height - pos[Z];
 
-#ifndef SKY_FPV
-		if (sqrt(x * x + y * y + z * z) > 30) continue;
-#endif // SKY_FPV
 
 		x_min = x_scaled;
 		x_max = x_scaled + 3.0f;
 		y_min = y_scaled;
 		y_max = y_scaled + 3.0f;
 
-#ifdef SKY_FPV
 		if (tx == 0) x_min -= water_tiles_extension;
 		else if (tx == tile_map_size_x-1) x_max += water_tiles_extension;
 		if (ty == 0) y_min -= water_tiles_extension;
 		else if (ty == tile_map_size_y-1) y_max += water_tiles_extension;
-#endif // SKY_FPV
 
 		VMake(p1, x_min, y_max, water_height);
 		VMake(p2, x_max, y_max, water_height);

@@ -16,14 +16,10 @@ extern "C" {
 extern int elconfig_win;
 extern int elconfig_menu_x;
 extern int elconfig_menu_y;
-#ifdef SKY_FPV
 extern float water_tiles_extension;
 extern int show_game_seconds;
 extern int skybox_update_delay;
-#ifdef NEW_WEATHER
 extern int skybox_local_weather;
-#endif // NEW_WEATHER
-#endif // SKY_FPV
 #ifdef NEW_CURSOR
 extern int big_cursors;
 extern int sdl_cursors;
@@ -206,10 +202,8 @@ void change_windowed_chat (int *wc, int val);
  */
 int set_var_unsaved(const char *str, option_type type);
 
-#ifdef SKY_FPV
 void toggle_follow_cam(int * fc);
 void toggle_ext_cam(int * ec);
-#endif // SKY_FPV
 
 #ifdef __cplusplus
 } // extern "C"

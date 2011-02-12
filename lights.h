@@ -68,13 +68,11 @@ extern light *lights_list[MAX_LIGHTS]; /*!< global lights list */
 
 extern unsigned char light_level; /*!< the light level */
 extern short game_minute; /*!< the current game minute */
-#ifdef SKY_FPV
 extern short game_second; /*!< the current game second */
 extern Uint32 next_second_time; /*!< the time of the next second */
 extern short real_game_minute; /*!< the real game minute */
 extern short real_game_second; /*!< the real game second */
 extern unsigned char freeze_time; /*!< when this value is equal to 1, the game minute is freezed */
-#endif // SKY_FPV
 
 /*!
  * \ingroup lights
@@ -220,9 +218,7 @@ void build_sun_pos_table();
  */
 void new_minute();
 
-#ifdef SKY_FPV
 void new_second();
-#endif // SKY_FPV
 
 void cleanup_lights(void);
 

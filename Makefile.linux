@@ -9,7 +9,6 @@ _CFLAGS=$(PLATFORM) -O2 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(shel
 CXXFLAGS=$(PLATFORM) $(CXXWARN) -O0 -ggdb -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags) -fno-strict-aliasing $(EXTRA_INCLUDES)
 _CXXFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags) -fno-strict-aliasing $(EXTRA_INCLUDES)
 
-ZLIB_LIBS = -lz
 PNG_SCREENSHOT_LIBS = -lpng
 LDFLAGS=$(shell sdl-config --libs) $(shell xml2-config --libs) -lSDL_net -lSDL_image -lopenal $(XDIR) -lGL -lGLU -lcal3d -lm $(EXTRA_LIBS) -lz -lpng -lvorbis -lvorbisfile \
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_LIBS))
@@ -25,11 +24,8 @@ STATICLIBS=$(LIBD)/libSDL_net.a $(LIBD)/libSDL.a $(LIBD)/libSDL_image.a $(LIBD)/
 ENCYCLOPEDIA_COBJ = books/fontdef.o books/parser.o books/symbol.o books/typesetter.o sort.o symbol_table.o
 MEMORY_DEBUG_COBJ = elmemory.o
 TEXT_ALIASES_COBJ = text_aliases.o
-SKY_FPV_COBJ = sky.o
-USE_SHADER_COBJ = shader/noise.o shader/shader.o
 PAWN_COBJ = pawn/amx.o pawn/amxaux.o pawn/amxcons.o pawn/amxel.o \
 	pawn/amxfloat.o pawn/amxstring.o pawn/elpawn.o
-NEW_SELECTION_CXXOBJ = select.o
 NEW_TEXTURES_COBJ = image_loading.o
 COBJS=2d_objects.o 3d_objects.o \
 	actor_scripts.o actors.o alphamap.o asc.o astrology.o \
@@ -48,7 +44,7 @@ COBJS=2d_objects.o 3d_objects.o \
 	new_actors.o new_character.o notepad.o	\
 	openingwin.o image.o \
 	particles.o paste.o pathfinder.o pm_log.o	\
-	questlog.o queue.o reflection.o	rules.o	\
+	questlog.o queue.o reflection.o	rules.o	sky.o	\
 	skeletons.o skills.o serverpopup.o servers.o session.o shadows.o sound.o	\
 	spells.o stats.o storage.o special_effects.o	\
 	tabs.o text.o textures.o tile_map.o timers.o translate.o trade.o	\
@@ -58,7 +54,8 @@ COBJS=2d_objects.o 3d_objects.o \
 CXXOBJS=actor_init.o cal3d_wrapper.o context_menu.o optimizer.o sendvideoinfo.o	\
 	exceptions/extendedexception.o xml/xmlhelper.o quest_log.o	\
 	io/elfilewrapper.o io/elfile.o io/zipfilesystem.o item_lists.o \
-	user_menus.o achievements.o \
+	user_menus.o achievements.o select.o \
+	shader/noise.o shader/shader.o	\
 	eye_candy_wrapper.o \
 	eye_candy/eye_candy.o eye_candy/math_cache.o eye_candy/effect_lamp.o \
 	eye_candy/effect_candle.o \

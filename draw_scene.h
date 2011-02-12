@@ -21,13 +21,10 @@ extern float camera_tilt_speed;
 extern int camera_tilt_duration;
 extern int normal_animation_timer;
 
-#ifdef NEW_CAMERA_MOTION
 extern float normal_camera_deceleration;
 extern float camera_rotation_deceleration;
 extern float camera_tilt_deceleration;
-#endif // NEW_CAMERA_MOTION
 
-#ifdef SKY_FPV
 
 //New camera features. See draw_scene.c for details
 //Move comments here if desired.
@@ -46,7 +43,6 @@ extern float max_tilt_angle;
 extern float hold_camera;
 extern int first_person;
 extern int adjust_view;
-#endif // SKY_FPV
 
 extern float fine_camera_rotation_speed; /*!< configurable fine grained speed for rotating the camera */
 extern float normal_camera_rotation_speed; /*!< configurable normal speed for rotating the camera */

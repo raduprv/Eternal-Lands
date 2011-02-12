@@ -9,19 +9,10 @@ FEATURES += CLUSTER_INSIDES                 # Group objects into separate cluste
 FEATURES += CUSTOM_LOOK                     # allows you to customize your look.
 FEATURES += CUSTOM_UPDATE                   # allows autoupdating of custom look information
 FEATURES += FUZZY_PATHS                     # Makes Tab Map walking not always follow exaclty the same path
-FEATURES += MINIMAP2                        # Disables the rectangular minimap and enables the rotating minimap
-FEATURES += NEW_CAMERA_MOTION               # Changes the behaviour of the camera by replacing the rotation duration by a constant deceleration. This gives a better control on the positionning of the camera.
-FEATURES += NEW_SELECTION                   # Enables new selection system. Needs OpenGL 1.3 or GL_ARB_texture_env_combine
 FEATURES += NEW_SOUND                       # Enables extended sound effects system
-FEATURES += NEW_TEX                         # use new texture coordinates for enhanced actors
-FEATURES += NEW_WEATHER                     # new weather effects
 FEATURES += PNG_SCREENSHOT                  # make screenshots in W3C's PNG format in game, requires libpng
-FEATURES += SKY_FPV                         # Use skybox with clouds/stars/etc, enable first person view, and other misc changes from Emajekral
 FEATURES += TEXT_ALIASES                    # Text aliases
 FEATURES += USE_INLINE                      # enable some optimizations to use inline functions instead of pure function calls
-FEATURES += USE_SHADER                      # Using shaders for water rendering. Needs NEW_FILE_IO
-FEATURES += VARIABLE_SPEED                  # allow to change the moving speed of actors (needs server support)
-FEATURES += ZLIB                            # Enables being able to read gzip compressed files, requires -lzlib/-lz
 # new for 1.9.0 release
 FEATURES += BANDWIDTH_SAVINGS				# enable bandwidth saving changes for message protocol
 

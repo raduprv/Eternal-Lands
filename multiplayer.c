@@ -638,15 +638,10 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					log_error("CAUTION: Possibly forged NEW_MINUTE packet received.\n");
 					break;
 				}
-#ifndef SKY_FPV
-				game_minute= SDL_SwapLE16(*((short *)(in_data+3)));
-				game_minute %= 360;
-#else // SKY_FPV
 				real_game_minute= SDL_SwapLE16(*((short *)(in_data+3)));
 				real_game_minute %= 360;
 				real_game_second = 0;
 				next_second_time = cur_time+1000;
-#endif // SKY_FPV
 				new_minute();
 				new_minute_console();
 			}
@@ -686,10 +681,8 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 			// Print the game date cos its pretty (its also needed for SKY_FPV to set moons for signs, wonders, times and seasons)
 			command_date("", 0);
-#ifdef SKY_FPV
 			// print the game time in order to get the seconds for the SKY_FPV feature
 			command_time("", 0);
-#endif // SKY_FPV
 			safe_snprintf(str, sizeof(str), "%c#il", RAW_TEXT);
 		        my_tcp_send(my_socket, (Uint8*)str, strlen(str+1)+1);
 			break;
@@ -1047,11 +1040,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				} else {
 					severity= 1.0f;
 				}
-#ifndef NEW_WEATHER
-				start_weather (in_data[3], severity);
-#else // NEW_WEATHER
 				weather_set_area(0, tile_map_size_x*1.5, tile_map_size_y*1.5, 100000.0, 1, severity, in_data[3]);
-#endif // NEW_WEATHER
 			}
 			break;
 
@@ -1072,11 +1061,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				} else {
 					severity= 1.0f;
 				}
-#ifndef NEW_WEATHER
-				stop_weather (in_data[3], severity);
-#else // NEW_WEATHER
 				weather_set_area(0, tile_map_size_x*1.5, tile_map_size_y*1.5, 100000.0, 1, 0.0, in_data[3]);
-#endif // NEW_WEATHER
 			}
 			break;
 
@@ -1090,28 +1075,16 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					log_error("CAUTION: Possibly forged THUNDER packet received.\n");
 					break;
 				}
-#ifndef NEW_WEATHER
-				add_thunder (rand () % 5, in_data[3]);
-#else // NEW_WEATHER
 				weather_add_lightning(rand()%5,
                                       -camera_x + (50.0 + rand()%101)*(rand()%2 ? 1.0 : -1.0),
                                       -camera_y + (50.0 + rand()%101)*(rand()%2 ? 1.0 : -1.0));
-#endif // NEW_WEATHER
 			}
 			break;
 
 
 		case SEND_WEATHER:
 			{
-#ifndef NEW_WEATHER
-				while(data_length >= 8){
-					get_weather_from_server(in_data+3);
-					in_data+= 5;
-					data_length-= 5;
-				}
-#else // NEW_WEATHER
 				// nothing for the moment
-#endif // NEW_WEATHER
 			}
 			break;
 
@@ -2146,11 +2119,7 @@ int get_message_from_server(void *thread_args)
 		}
 		else { /* 0 >= received (EOF or some error) */
 			char str[256];
-#ifndef SKY_FPV
-			short tgm = game_minute;
-#else // SKY_FPV
 			short tgm = real_game_minute;
-#endif // SKY_FPV
 			if (received)
 				safe_snprintf(str, sizeof(str), "<%1d:%02d>: %s: [%s]", tgm/60, tgm%60, disconnected_from_server, SDLNet_GetError());
 		 	else

@@ -183,13 +183,11 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 		reset_tab_completer();
 		if ((ch == '`' || key == K_CONSOLE) && !locked_to_console)
 		{
-#ifdef SKY_FPV
 			if (keep_grabbing_mouse)
 			{
 				toggle_have_mouse();
 				keep_grabbing_mouse=0;
 			}
-#endif // SKY_FPV
 			hide_window (console_root_win);
 			show_window (game_root_win);
 			// Undo stupid quickbar hack

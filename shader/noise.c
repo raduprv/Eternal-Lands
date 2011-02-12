@@ -3,7 +3,6 @@
 // (copyright Ken Perlin)
 //
 
-#ifdef USE_SHADER
 
 #include "noise.h"
 #include "../errors.h"
@@ -267,4 +266,3 @@ GLuint build_3d_noise_texture(int size, int frequency, int dimensions)
 	return noise_texture;
 }
 
-#endif /* USE_SHADER */

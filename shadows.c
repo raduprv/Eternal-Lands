@@ -108,11 +108,9 @@ void calc_shadow_matrix()
 {
 	float light_pos[4];
 
-#ifdef NEW_WEATHER
 	if (!is_day && lightning_falling)
 		memcpy(light_pos, lightning_position, 4*sizeof(float));
 	else
-#endif // NEW_WEATHER
 		memcpy(light_pos, sun_position, 4*sizeof(float));
 
 	if(use_shadow_mapping)
@@ -564,37 +562,29 @@ CHECK_GL_ERRORS();
 
 void setup_shadow_mapping()
 {
-#ifdef SKY_FPV
     GLfloat shadow_color[] = {ambient_light[0]+0.2,
 							  ambient_light[1]+0.2,
 							  ambient_light[2]+0.2,
 							  1.0};
 
-#ifdef NEW_WEATHER
 	if (!is_day && lightning_falling)
 	{
 		if (lightning_ambient_color[0]+0.2 > shadow_color[0]) shadow_color[0] = lightning_ambient_color[0]+0.2;
 		if (lightning_ambient_color[1]+0.2 > shadow_color[1]) shadow_color[1] = lightning_ambient_color[1]+0.2;
 		if (lightning_ambient_color[2]+0.2 > shadow_color[2]) shadow_color[2] = lightning_ambient_color[2]+0.2;
 	}
-#endif // NEW_WEATHER
-#endif // SKY_FPV
 
 	glPushMatrix();
 	glLoadIdentity();
-#ifdef SKY_FPV
 	if (!first_person)
-#endif // SKY_FPV
 	glTranslatef(0.0f, 0.0f, -zoom_level*camera_distance);
 	glRotatef(rx, 1.0f, 0.0f, 0.0f);
-#ifdef SKY_FPV
 	if (first_person)
 	{
 		float head_pos[3];
         cal_get_actor_bone_local_position(get_our_actor(), get_actor_bone_id(get_our_actor(), head_bone), NULL, head_pos);
 		glTranslatef(head_pos[0], head_pos[1], 0.0);
 	}
-#endif // SKY_FPV
 	glRotatef(rz, 0.0f, 0.0f, 1.0f);
 	glTranslatef(camera_x-(int)camera_x,camera_y-(int)camera_y,camera_z-(int)camera_z);
 
@@ -607,11 +597,7 @@ void setup_shadow_mapping()
 	glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_RGB_ARB,GL_PREVIOUS_ARB);
 	glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_RGB_ARB,GL_SRC_COLOR);
 	glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE1_RGB_ARB,GL_CONSTANT_ARB);
-#ifndef SKY_FPV
-	glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR,ambient_light);
-#else // SKY_FPV
 	glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR,shadow_color);
-#endif // SKY_FPV
 	glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_RGB_ARB,GL_SRC_COLOR);
 	glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE2_RGB_ARB,GL_TEXTURE);
 	glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND2_RGB_ARB,GL_SRC_COLOR);
@@ -624,11 +610,7 @@ void setup_shadow_mapping()
 	glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_RGB_EXT,GL_PREVIOUS_EXT);
 	glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_RGB_EXT,GL_SRC_COLOR);
 	glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE1_RGB_EXT,GL_CONSTANT_EXT);
-#ifndef SKY_FPV
-	glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR,ambient_light);
-#else // SKY_FPV
 	glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR,shadow_color);
-#endif // SKY_FPV
 	glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_RGB_EXT,GL_SRC_COLOR);
 	glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE2_RGB_EXT,GL_TEXTURE);
 	glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND2_RGB_EXT,GL_SRC_COLOR);
@@ -644,18 +626,9 @@ CHECK_GL_ERRORS();
 
 void draw_sun_shadowed_scene(int any_reflection)
 {
-#ifndef SKY_FPV
-		if(ambient_light[0] <= 0.2f || ambient_light[1] <= 0.2f || ambient_light[2] <= 0.2f){
-			//If it's so dark that shadows would actually be lighter, then we shouldn't draw them
-			//The numbers may need a slight tuning, but seem accurate
-			return;
-		}
-#endif // SKY_FPV
 	if(use_shadow_mapping)
 		{
-#ifdef SKY_FPV
             reset_material();
-#endif // SKY_FPV
 
 			shadow_unit=GL_TEXTURE0_ARB;
 			base_unit=GL_TEXTURE1_ARB;
@@ -735,9 +708,6 @@ void draw_sun_shadowed_scene(int any_reflection)
 		}
 	else
 		{
-#ifndef NEW_WEATHER
-			int abs_light;
-#endif
 
 			glNormal3f(0.0f,0.0f,1.0f);
 			if(any_reflection)draw_lake_tiles();
@@ -786,20 +756,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			// need this function (or both flipped) for correctly working fog too
 			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
-#ifdef NEW_WEATHER
 			glColor4f(0.0f, 0.0f, 0.0f, 0.7f*((diffuse_light[0] + diffuse_light[1] + diffuse_light[2])/3.0 - 0.0f));
-#else
-			abs_light=light_level;
-			if(light_level>59)abs_light=119-light_level;
-
-#ifndef MAP_EDITOR2
-			abs_light+=weather_light_offset;
-#endif
-			if(abs_light<0)abs_light=0;
-			if(abs_light>59)abs_light=59;
-
-			glColor4f(0.0f,0.0f,0.0f,0.27f - (float)abs_light*0.008f);
-#endif
 
 			glBegin(GL_QUADS);
 				glVertex4f(-camera_x+20.0f,-camera_y+20.0f,0.0f,1.0f);

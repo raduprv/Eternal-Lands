@@ -280,13 +280,6 @@ void animate_actors()
 						actors_list[i]->x_tile_pos += dx;
 						actors_list[i]->y_tile_pos += dy;
 
-#ifndef MINIMAP2
-						// and update the minimap if we need to
-						if(actors_list[i]->actor_id == yourself){
-							update_exploration_map();
-						}
-						minimap_touch();
-#endif //MINIMAP2
 						actors_list[i]->busy = 0;
 						//if(actors_list[i]->actor_id==yourself) printf("%i, unbusy(moved)\n", thecount);
 						//if(actors_list[i]->actor_id<0) printf("%i, unbusy horse(moved)\n", thecount);
@@ -1494,11 +1487,7 @@ void next_command()
 						if(actors_list[i]->que[0]>=move_n && actors_list[i]->que[0]<=move_nw) {
 							float rotation_angle;
 							int dx, dy;
-#ifdef VARIABLE_SPEED
 							int step_duration = actors_list[i]->step_duration;
-#else // VARIABLE_SPEED
-							int step_duration = DEFAULT_STEP_DURATION;
-#endif // VARIABLE_SPEED
 							struct cal_anim *walk_anim;
 
 							attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
@@ -1708,9 +1697,6 @@ void destroy_actor(int actor_id)
 				break;
 			}
 	}
-#ifndef MINIMAP2
-	minimap_touch();
-#endif //MINIMAP2
 }
 
 void destroy_all_actors()
@@ -1730,9 +1716,6 @@ void destroy_all_actors()
 	my_timer_adjust= 0;
 	harvesting_effect_reference = NULL;
 	UNLOCK_ACTORS_LISTS();	//unlock it since we are done
-#ifndef MINIMAP2
-	minimap_touch();
-#endif //MINIMAP2
 }
 
 
@@ -4212,10 +4195,8 @@ int	parse_actor_nodes (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 				act->walk_speed= get_float_value(item);
 			} else if(xmlStrcasecmp(item->name, (xmlChar*)"run_speed") == 0) { // unused
 				act->run_speed= get_float_value(item);
-#ifdef VARIABLE_SPEED
 			} else if(xmlStrcasecmp(item->name, (xmlChar*)"step_duration") == 0) {
 				act->step_duration = get_int_value(item);
-#endif // VARIABLE_SPEED
 			} else if(xmlStrcasecmp(item->name, (xmlChar*)"defaults") == 0) {
 				defaults= item;
 			} else if(xmlStrcasecmp(item->name, (xmlChar*)"frames") == 0) {
@@ -4340,9 +4321,7 @@ int parse_actor_script (xmlNode *cfg)
 		}
 	}
 
-#ifdef VARIABLE_SPEED
     act->step_duration = DEFAULT_STEP_DURATION; // default value
-#endif // VARIABLE_SPEED
 
 	ok= parse_actor_nodes(act, cfg, NULL);
 

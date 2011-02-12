@@ -1,7 +1,6 @@
 #ifndef	_NOISE_H_
 #define	_NOISE_H_
 
-#ifdef USE_SHADER
 
 #include "../platform.h"
 
@@ -17,6 +16,5 @@
  */
 GLuint build_3d_noise_texture(int size, int frequency, int dimensions);
 
-#endif /* USE_SHADER */
 
 #endif	// _NOISE_H_

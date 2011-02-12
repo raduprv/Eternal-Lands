@@ -157,14 +157,12 @@ int load_map(const char *file_name, update_func *update_function)
 	ambient_g = cur_map_header.ambient_g;
 	ambient_b = cur_map_header.ambient_b;
 
-#ifdef SKY_FPV
 /* 	water_tiles_extension = (tile_map_size_x > tile_map_size_y ? */
 /* 							 tile_map_size_x : tile_map_size_y * 1.5); */
 /* 	if (water_tiles_extension < 500.0) */
 /* 		water_tiles_extension = 500.0 - water_tiles_extension; */
 /* 	else */
 /* 		water_tiles_extension = 0.0; */
-#endif // SKY_FPV
 
 	//load the tiles in this map, if not already loaded
 	load_map_tiles();
@@ -174,12 +172,10 @@ int load_map(const char *file_name, update_func *update_function)
 	{
 		bbox.bbmin[Y] = i*3.0f;
 		bbox.bbmax[Y] = (i+1)*3.0f;
-#ifdef SKY_FPV
 		if (i == 0)
 			bbox.bbmin[Y] -= water_tiles_extension;
 		else if (i == tile_map_size_y-1)
 			bbox.bbmax[Y] += water_tiles_extension;
-#endif // SKY_FPV
 		for(j = 0; j < tile_map_size_x; j++)
 		{
 			cur_tile = tile_map[i*tile_map_size_x+j];
@@ -187,12 +183,10 @@ int load_map(const char *file_name, update_func *update_function)
 			{
 				bbox.bbmin[X] = j*3.0f;
 				bbox.bbmax[X] = (j+1)*3.0f;
-#ifdef SKY_FPV
 				if (j == 0)
 					bbox.bbmin[X] -= water_tiles_extension;
 				else if (j == tile_map_size_x-1)
 					bbox.bbmax[X] += water_tiles_extension;
-#endif // SKY_FPV
 				if (IS_WATER_TILE(cur_tile)) 
 				{
 					bbox.bbmin[Z] = -0.25f;
@@ -346,12 +340,10 @@ int load_map(const char *file_name, update_func *update_function)
 	{
 		bbox.bbmin[Y] = i*3.0f;
 		bbox.bbmax[Y] = (i+1)*3.0f;
-#ifdef SKY_FPV
 		if (i == 0)
 			bbox.bbmin[Y] -= water_tiles_extension;
 		else if (i == tile_map_size_y-1)
 			bbox.bbmax[Y] += water_tiles_extension;
-#endif // SKY_FPV
 		for(j = 0; j < tile_map_size_x; j++)
 		{
             current_cluster = get_cluster(j*6, i*6);
@@ -360,12 +352,10 @@ int load_map(const char *file_name, update_func *update_function)
 			{
 				bbox.bbmin[X] = j*3.0f;
 				bbox.bbmax[X] = (j+1)*3.0f;
-#ifdef SKY_FPV
 				if (j == 0)
 					bbox.bbmin[X] -= water_tiles_extension;
 				else if (j == tile_map_size_x-1)
 					bbox.bbmax[X] += water_tiles_extension;
-#endif // SKY_FPV
 				if (IS_WATER_TILE(cur_tile)) 
 				{
 					bbox.bbmin[Z] = -0.25f;

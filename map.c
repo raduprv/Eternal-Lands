@@ -38,9 +38,7 @@
 #ifdef PAWN
 #include "pawn/elpawn.h"
 #endif
-#ifdef SKY_FPV
 #include "sky.h"
-#endif // SKY_FPV
 #include "mines.h"
 #include "highlight.h"
 
@@ -203,7 +201,6 @@ static int el_load_map(const char * file_name)
 		return ret;
 
 
-#ifdef SKY_FPV
 	if (strstr(file_name, "underworld") != NULL)
 	{
 		skybox_set_type(SKYBOX_UNDERWORLD);
@@ -219,7 +216,6 @@ static int el_load_map(const char * file_name)
 		skybox_set_type(SKYBOX_CLOUDY);
 		skybox_init_defs(file_name);
 	}
-#endif // SKY_FPV
 	build_path_map();
 	init_buffers();
 	
@@ -263,20 +259,13 @@ void change_map (const char *mapname)
 	}
 	load_map_marks();
 	
-#ifndef NEW_WEATHER
-	rain_sound=0;//kill local sounds also kills the rain sound
-#endif
 #ifdef NEW_SOUND
 	get_map_playlist();
 	setup_map_sounds(get_cur_map(mapname));
 #endif // NEW_SOUND
 	have_a_map=1;
 	//also, stop the rain
-#ifndef NEW_WEATHER
-	clear_weather();
-#else // NEW_WEATHER
 	weather_clear();
-#endif // NEW_WEATHER
 
 	if ( get_show_window (map_root_win) )
 	{

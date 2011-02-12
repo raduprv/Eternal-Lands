@@ -71,9 +71,7 @@
 #ifdef PAWN
 #include "pawn/elpawn.h"
 #endif // PAWN
-#ifdef SKY_FPV
 #include "sky.h"
-#endif // SKY_FPV
 #include "mines.h"
 #include "popup.h"
 #ifdef TEXT_ALIASES
@@ -326,12 +324,7 @@ void read_bin_cfg()
 
 	minimap_win_x=cfg_mem.minimap_win_x;
 	minimap_win_y=cfg_mem.minimap_win_y;
-#ifndef MINIMAP2
-	minimap_flags=cfg_mem.minimap_flags;
-	minimap_zoom=cfg_mem.minimap_zoom;
-#else
 	minimap_tiles_distance=cfg_mem.minimap_zoom;
-#endif //MINIMAP2
 
 	tab_info_x=cfg_mem.tab_info_x;
 	tab_info_y=cfg_mem.tab_info_y;
@@ -569,12 +562,7 @@ void save_bin_cfg()
 		cfg_mem.minimap_win_x=minimap_win_x;
 		cfg_mem.minimap_win_y=minimap_win_y;
 	}
-#ifndef MINIMAP2
-	cfg_mem.minimap_flags=minimap_flags;
-	cfg_mem.minimap_zoom=minimap_zoom;
-#else
 	cfg_mem.minimap_zoom=minimap_tiles_distance;
-#endif //MINIMAP2
 
 	if(tab_info_win >= 0) {
 		cfg_mem.tab_info_x=windows_list.window[tab_info_win].cur_x;
@@ -840,11 +828,7 @@ void init_stuff()
 	update_loading_win(read_config_str, 2);
 	read_bin_cfg();
  	update_loading_win(init_weather_str, 3);
-#ifndef NEW_WEATHER
- 	init_weather();	// initialize the weather system
-#else // NEW_WEATHER
 	weather_init();
-#endif // NEW_WEATHER
 	build_levels_table();//for some HUD stuff
 
 	update_loading_win(load_icons_str, 4);
@@ -1045,9 +1029,7 @@ void init_stuff()
 
 	if (use_frame_buffer) make_reflection_framebuffer(window_width, window_height);
 
-#ifdef SKY_FPV
 	skybox_init_gl();
-#endif // SKY_FPV
 	popup_init();
 
 log_info("Init done!");

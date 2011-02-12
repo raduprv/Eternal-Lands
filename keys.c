@@ -82,11 +82,9 @@ Uint32 K_TABCOMPLETE=CTRL|' ';
 Uint32 K_WINDOWS_ON_TOP=ALT|'w';
 Uint32 K_MARKFILTER=CTRL|'f';
 Uint32 K_OPAQUEWIN=CTRL|'d';
-#ifdef SKY_FPV
 Uint32 K_GRAB_MOUSE=ALT|'g';
 Uint32 K_FIRST_PERSON=ALT|'f';
 Uint32 K_EXTEND_CAM=ALT|'e';
-#endif // SKY_FPV
 #ifndef OSX
 Uint32 K_CUT=CTRL|'x';
 Uint32 K_COPY=CTRL|'c';
@@ -515,14 +513,12 @@ void read_key_config()
 		K_MARKFILTER = parse_key_string(&file_mem[t]);
 	if((t = get_string_occurance("#K_OPAQUEWIN",file_mem,key_file_size,0)) != -1)
 		K_OPAQUEWIN = parse_key_string(&file_mem[t]);
-#ifdef SKY_FPV
 	if((t=get_string_occurance("#K_GRAB_MOUSE",file_mem,key_file_size,0))!=-1)
 		K_GRAB_MOUSE = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_FIRST_PERSON",file_mem,key_file_size,0))!=-1)
 		K_FIRST_PERSON = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_EXTEND_CAM",file_mem,key_file_size,0))!=-1)
 		K_EXTEND_CAM = parse_key_string(&file_mem[t]);
-#endif // SKY_FPV
 	if((t=get_string_occurance("#K_EMOTES",file_mem,key_file_size,0))!=-1)
 		K_EMOTES = parse_key_string(&file_mem[t]);
 

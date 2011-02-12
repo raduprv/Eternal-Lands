@@ -438,9 +438,7 @@ extern char
 		cm_help_options_str[50],
 		cm_npcname_menu_str[50],
 		cm_dialog_copy_menu_str[50],
-#ifdef MINIMAP2
 		cm_minimap_menu_str[50],
-#endif
 		cm_user_menu_str[150],
 		/* user_menus.cpp */
 		um_invalid_command_str[50],
@@ -774,9 +772,7 @@ extern char	win_notepad[20],
 		ttab_advvideo[15],
 		ttab_ec[15],
 		ttab_font[10],
-#ifdef SKY_FPV
 		ttab_emajekral[10],
-#endif // SKY_FPV
 		tab_help[10],
 		tab_encyclopedia[20],
 		tab_skills[20],
