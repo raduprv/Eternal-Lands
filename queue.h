@@ -39,8 +39,10 @@ void *queue_pop (queue_t *queue);
 void *queue_delete_node(queue_t *queue, node_t *node);
 int queue_isempty (const queue_t *queue);
 node_t *queue_front_node(const queue_t *queue);
+
 #ifdef	NEW_TEXTURES
 int queue_push_signal(queue_t *queue, void *item);
+int queue_push_signal_delete_old(queue_t *queue, void *item);
 void *queue_pop_blocking(queue_t *queue);
 #endif	/* NEW_TEXTURES */
 

@@ -3,6 +3,7 @@
 #include "queue.h"
 #include "elmemory.h"
 #include "threads.h"
+#include "errors.h"
 
 int queue_initialise (queue_t **queue)
 {
@@ -165,56 +166,146 @@ void queue_destroy (queue_t *queue)
 #ifdef	NEW_TEXTURES
 int queue_push_signal(queue_t *queue, void *item)
 {
-	node_t *newnode;
+	node_t *node;
 
-	if(queue == NULL || (newnode = malloc(sizeof *newnode)) == NULL) {
-		fprintf(stderr, "%s:%i: Failed to allocate memory\n", __FILE__, __LINE__);
+	if (queue == 0)
+	{
 		return 0;
-	} else {
-		newnode->data = item;
-		newnode->next = NULL;
-		/* Add to the end of the queue */
-		CHECK_AND_LOCK_MUTEX(queue->mutex);
-		queue->rear->next = newnode;
-		queue->rear = newnode;
-		queue->nodes++;
-		CHECK_AND_UNLOCK_MUTEX(queue->mutex);
-		SDL_CondSignal(queue->condition);
-		return 1;
 	}
+
+	node = malloc(sizeof(node_t));
+
+	if (node == 0)
+	{
+		CHECK_AND_UNLOCK_MUTEX(queue->mutex);
+
+		LOG_ERROR("Failed to allocate memory for queue");
+
+		return 0;
+	}
+
+	node->data = item;
+	node->next = 0;
+
+	/* Add to the end of the queue */
+	CHECK_AND_LOCK_MUTEX(queue->mutex);
+
+	queue->rear->next = node;
+	queue->rear = node;
+	queue->nodes++;
+
+	CHECK_AND_UNLOCK_MUTEX(queue->mutex);
+
+	SDL_CondSignal(queue->condition);
+
+	return 1;
+}
+
+int queue_push_signal_delete_old(queue_t *queue, void *item)
+{
+	node_t *node;
+	node_t *search_node;
+
+	if (queue == 0)
+	{
+		return 0;
+	}
+
+	/* Add to the end of the queue */
+	CHECK_AND_LOCK_MUTEX(queue->mutex);
+
+	if (queue->front != queue->rear)
+	{
+		search_node = queue->front;
+
+		while (search_node != 0)
+		{
+			node = search_node->next;
+
+			if (node != 0)
+			{
+				/* Check if the next node is what we're looking for */
+				if (node->data == item)
+				{
+					if (node != queue->rear)
+					{
+						/* Point the  node before our node's  next pointer to the node after our node  */
+						search_node->next = node->next;
+
+						node->next = 0;
+						queue->rear->next = node;
+						queue->rear = node;
+					}
+
+					CHECK_AND_UNLOCK_MUTEX(queue->mutex);
+
+					return 1;
+				}
+			}
+
+			search_node = node;
+		}
+	}
+
+	node = malloc(sizeof(node_t));
+
+	if (node == 0)
+	{
+		CHECK_AND_UNLOCK_MUTEX(queue->mutex);
+
+		LOG_ERROR("Failed to allocate memory for queue");
+
+		return 0;
+	}
+
+	node->data = item;
+	node->next = 0;
+	/* Add to the end of the queue */
+	queue->rear->next = node;
+	queue->rear = node;
+	queue->nodes++;
+
+	CHECK_AND_UNLOCK_MUTEX(queue->mutex);
+
+	SDL_CondSignal(queue->condition);
+
+	return 1;
 }
 
 void *queue_pop_blocking(queue_t *queue)
 {
-	node_t *oldnode;
+	node_t *node;
 	void *item;
 
-	if (queue == NULL)
+	if (queue == 0)
 	{
-		return NULL;
+		return 0;
 	}
 
 	CHECK_AND_LOCK_MUTEX(queue->mutex);
 
-	while (queue_isempty(queue))
+	while (queue->front == queue->rear)
 	{
 		SDL_CondWait(queue->condition, queue->mutex);
 	}
 
+	node = queue->front->next;
+	item = node->data;
+	/* Check if removing the last node from the queue */
+	if (queue->front->next->next == 0)
 	{
-		oldnode = queue->front->next;
-		item = oldnode->data;
-		/* Check if removing the last node from the queue */
-		if (queue->front->next->next == NULL) {
-			queue->rear = queue->front;
-		} else {
-			queue->front->next = queue->front->next->next;
-		}
-		free(oldnode);
-		queue->nodes--;
-		CHECK_AND_UNLOCK_MUTEX(queue->mutex);
-		return item;
+		queue->rear = queue->front;
 	}
+	else
+	{
+		queue->front->next = queue->front->next->next;
+	}
+
+	free(node);
+	queue->nodes--;
+	CHECK_AND_UNLOCK_MUTEX(queue->mutex);
+
+	return item;
 }
 
 #endif	/* NEW_TEXTURES */

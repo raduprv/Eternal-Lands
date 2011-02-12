@@ -559,6 +559,12 @@ void free_actor_texture_resources(actor_texture_cache_struct* texture)
 			texture->id = 0;
 		}
 
+		if (texture->new_id != 0)
+		{
+			glDeleteTextures(1, &texture->new_id);
+			texture->new_id = 0;
+		}
+
 		if (texture->image.image != 0)
 		{
 			free(texture->image.image);
@@ -637,7 +643,8 @@ Uint32 copy_to_coordinates_mask2(const image_struct* source0,
 }
 
 Uint32 load_to_coordinates(const char* file_name, const Uint32 x,
-	const Uint32 y, image_struct *dst)
+	const Uint32 y, const Uint32 width, const Uint32 height,
+	const Uint32 scale, image_struct *dst)
 {
 	image_struct image;
 
@@ -648,12 +655,13 @@ Uint32 load_to_coordinates(const char* file_name, const Uint32 x,
 		return 0;
 	}
 
-	return copy_to_coordinates(&image, x, y, dst);
+	return copy_to_coordinates(&image, x * scale, y * scale, dst);
 }
 
-Uint32 load_to_coordinates_mask2(const char* source0,
-	const char* source1, const char* mask,
-	const Uint32 x, const Uint32 y, image_struct *dest, Uint8* buffer)
+Uint32 load_to_coordinates_mask2(const char* source0, const char* source1,
+	const char* mask, const Uint32 x, const Uint32 y, const Uint32 width,
+	const Uint32 height, const Uint32 scale, image_struct *dest,
+	Uint8* buffer)
 {
 	image_struct src0, src1, msk;
 
@@ -663,12 +671,14 @@ Uint32 load_to_coordinates_mask2(const char* source0,
 
 	if ((source1 == 0) || (mask == 0))
 	{
-		return load_to_coordinates(source0, x, y, dest);
+		return load_to_coordinates(source0, x, y, width, height, scale,
+			dest);
 	}
 
 	if ((source1[0] == 0) || (mask[0] == 0))
 	{
-		return load_to_coordinates(source0, x, y, dest);
+		return load_to_coordinates(source0, x, y, width, height, scale,
+			dest);
 	}
 
 	if (load_image_data(source0, 1, 1, 1, 0, 0, &src0) == 0)
@@ -686,14 +696,14 @@ Uint32 load_to_coordinates_mask2(const char* source0,
 		return 0;
 	}
 
-	return copy_to_coordinates_mask2(&src0, &src1, &msk, x, y, dest,
-		buffer);
+	return copy_to_coordinates_mask2(&src0, &src1, &msk, x * scale,
+		y * scale, dest, buffer);
 }
 
 void load_enhanced_actor_threaded(const enhanced_actor_images* files,
 	image_struct* image, Uint8* buffer)
 {
-	Uint32 alpha;
+	Uint32 alpha, scale;
 
 	memset(image, 0, sizeof(image_struct));
 
@@ -704,99 +714,74 @@ void load_enhanced_actor_threaded(const enhanced_actor_images* files,
 	image->format = IF_RGBA8;
 	image->image = malloc(TEXTURE_SIZE_X * TEXTURE_SIZE_Y * 4);
 
+	scale = 2;
 	alpha = 0;
 
 	if (files->pants_tex[0])
 	{
 		alpha += load_to_coordinates_mask2(files->pants_tex,
 			files->legs_base, files->pants_mask,
-			78 * TEXTURE_RATIO, 175 * TEXTURE_RATIO, image,
-			buffer);
+			78, 175, 80, 80, scale, image, buffer);
 	}
 	if (files->boots_tex[0])
 	{
 		alpha += load_to_coordinates_mask2(files->boots_tex,
 			files->boots_base, files->boots_mask,
-			0, 175 * TEXTURE_RATIO, image, buffer);
+			0, 175, 78, 80, scale, image, buffer);
 	}
-#ifdef NEW_TEX
 	if (files->torso_tex[0])
 	{
 		alpha += load_to_coordinates_mask2(files->torso_tex,
 			files->body_base, files->torso_mask,
-			158 * TEXTURE_RATIO, 149 * TEXTURE_RATIO, image,
-			buffer);
+			158, 149, 98, 107, scale, image, buffer);
 	}
-#else
-	if (files->torso_tex[0])
-	{
-		alpha += load_to_coordinates_mask2(files->torso_tex,
-			files->torso_base, files->torso_mask,
-			158 * TEXTURE_RATIO, 156 * TEXTURE_RATIO, image,
-			buffer);
-	}
-#endif
 	if (files->arms_tex[0])
 	{
 		alpha += load_to_coordinates_mask2(files->arms_tex,
 			files->arms_base, files->arms_mask,
-			0, 96 * TEXTURE_RATIO, image, buffer);
+			0, 96, 80, 80, scale, image, buffer);
 	}
 	if (files->hands_tex[0])
 	{
 		alpha += load_to_coordinates_mask2(files->hands_tex,
 			files->hands_tex_save, files->hands_mask,
-			67 * TEXTURE_RATIO, 64 * TEXTURE_RATIO, image,
-			buffer);
+			67, 64, 32, 32, scale, image, buffer);
 	}
 	if (files->head_tex[0])
 	{
 		alpha += load_to_coordinates_mask2(files->head_tex,
 			files->head_base, files->head_mask,
-			67 * TEXTURE_RATIO, 0, image, buffer);
+			67, 0, 64, 64, scale, image, buffer);
 	}
 	if (files->hair_tex[0])
 	{
 		alpha += load_to_coordinates(files->hair_tex,
-			0, 0, image);
+			0, 0, 67, 96, scale, image);
 	}
-#ifdef NEW_TEX
 	if (files->weapon_tex[0])
 	{
 		alpha += load_to_coordinates(files->weapon_tex,
-			178 * TEXTURE_RATIO, 77 * TEXTURE_RATIO, image);
+			178, 77, 156, 144, scale, image);
 	}
 	if (files->shield_tex[0])
 	{
 		alpha += load_to_coordinates(files->shield_tex,
-			100 * TEXTURE_RATIO, 77 * TEXTURE_RATIO, image);
+			100, 77, 78, 72, scale, image);
 	}
-#else
-	if (files->weapon_tex[0])
-	{
-		alpha += load_to_coordinates(files->weapon_tex,
-			158 * TEXTURE_RATIO, 77 * TEXTURE_RATIO, image);
-	}
-	if (files->shield_tex[0])
-	{
-		alpha += load_to_coordinates(files->shield_tex,
-			80 * TEXTURE_RATIO, 96 * TEXTURE_RATIO, image);
-	}
-#endif
 	if (files->helmet_tex[0])
 	{
 		alpha += load_to_coordinates(files->helmet_tex,
-			80 * TEXTURE_RATIO, 149 * TEXTURE_RATIO, image);
+			80, 149, 78, 27, scale, image);
 	}
 	if (files->neck_tex[0])
 	{
 		alpha += load_to_coordinates(files->neck_tex,
-			80 * TEXTURE_RATIO, 96 * TEXTURE_RATIO, image);
+			80, 96, 20, 53, scale, image);
 	}
 	if (files->cape_tex[0])
 	{
 		alpha += load_to_coordinates(files->cape_tex,
-			131 * TEXTURE_RATIO, 0, image);
+			131, 0, 125, 77, scale, image);
 	}
 
 	if (alpha > 0)
@@ -858,13 +843,20 @@ Uint32 load_enhanced_actor(enhanced_actor* actor)
 	{
 		CHECK_AND_LOCK_MUTEX(actor_texture_handles[i].mutex);
 
+		if (actor_texture_handles[i].used != 0)
+		{
+			CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[i].mutex);
+
+			continue;
+		}
+
 		if (hash == actor_texture_handles[i].hash)
 		{
 			if (!memcmp(&actor_texture_handles[i].files,
 				&files, sizeof(files)))
 			{
 				// already loaded, use existing texture
-				actor_texture_handles[i].use_count++;
+				actor_texture_handles[i].used = 1;
 				actor_texture_handles[handle].access_time = cur_time;
 
 				// already loaded, release lock
@@ -876,45 +868,37 @@ Uint32 load_enhanced_actor(enhanced_actor* actor)
 					CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[handle].mutex);
 				}
 
-				queue_push_signal(actor_texture_queue, &actor_texture_handles[i]);
+				queue_push_signal_delete_old(actor_texture_queue, &actor_texture_handles[i]);
 
 				return i;
 			}
 		}
 
-		if (actor_texture_handles[i].use_count == 0)
+		// remember the first open slot we have
+		if (handle == ACTOR_TEXTURE_CACHE_MAX)
 		{
-			// remember the first open slot we have
-			if (handle == ACTOR_TEXTURE_CACHE_MAX)
-			{
-				handle = i;
-				access_time = actor_texture_handles[i].access_time;
-				// Don't unlock mutex! We plan to use this slot!
-			}
-			else
-			{
-				// Only use an older one if we don't use too many!
-				if ((access_time > actor_texture_handles[i].access_time)
-					&& (i < max_actor_texture_handles))
-				{
-					// release old lock!
-					CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[handle].mutex);
-
-					// Don't unlock mutex! We plan to use this slot!
-					handle = i;
-					access_time = actor_texture_handles[i].access_time;
-				}
-				else
-				{
-					// release lock
-					CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[i].mutex);
-				}
-			}
+			handle = i;
+			access_time = actor_texture_handles[i].access_time;
+			// Don't unlock mutex! We plan to use this slot!
 		}
 		else
 		{
-			// release lock
-			CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[i].mutex);
+			// Only use an older one if we don't use too many!
+			if ((access_time > actor_texture_handles[i].access_time)
+				&& (i < max_actor_texture_handles))
+			{
+				// release old lock!
+				CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[handle].mutex);
+
+				// Don't unlock mutex! We plan to use this slot!
+				handle = i;
+				access_time = actor_texture_handles[i].access_time;
+			}
+			else
+			{
+				// release lock
+				CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[i].mutex);
+			}
 		}
 	}
 
@@ -926,12 +910,12 @@ Uint32 load_enhanced_actor(enhanced_actor* actor)
 			sizeof(files));
 
 		actor_texture_handles[handle].hash = hash;
-		actor_texture_handles[handle].use_count = 1;
+		actor_texture_handles[handle].used = 1;
 		actor_texture_handles[handle].access_time = cur_time;
 
 		CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[handle].mutex);
 
-		queue_push_signal(actor_texture_queue, &actor_texture_handles[handle]);
+		queue_push_signal_delete_old(actor_texture_queue, &actor_texture_handles[handle]);
 
 		return handle;
 	}
@@ -946,6 +930,7 @@ Uint32 load_enhanced_actor(enhanced_actor* actor)
 Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
 {
 	Uint32 af, result;
+	GLuint id;
 	GLenum min_filter;
 	texture_format format;
 
@@ -959,19 +944,15 @@ Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
 
 	CHECK_AND_LOCK_MUTEX(actor_texture_handles[handle].mutex);
 
-	assert(actor_texture_handles[handle].use_count > 0);
+#ifdef	DEBUG
+	assert("actor texture used value is invalid." && (actor_texture_handles[handle].used != 0));
+#endif	/* DEBUG */
 
 	actor_texture_handles[handle].access_time = cur_time;
 
-	if (actor_texture_handles[handle].state == ts_texture_loaded)
+	if (alpha != 0)
 	{
-		bind_texture_id(actor_texture_handles[handle].id);
-
-		result = 1;
-	}
-	else
-	{
-		result = 0;
+		*alpha = actor_texture_handles[handle].image.alpha;
 	}
 
 	if (actor_texture_handles[handle].state == ts_image_loaded)
@@ -1009,8 +990,7 @@ Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
 			}
 		}
 
-		actor_texture_handles[handle].id =
-			build_texture(&actor_texture_handles[handle].image,
+		id = build_texture(&actor_texture_handles[handle].image,
 			0, min_filter, af, 1, format);
 
 		CHECK_GL_ERRORS();
@@ -1019,12 +999,26 @@ Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
 
 		actor_texture_handles[handle].image.image = 0;
 
-		actor_texture_handles[handle].state = ts_texture_loaded;
+		if (actor_texture_handles[handle].id == 0)
+		{
+			actor_texture_handles[handle].id = id;
+		}
+		else
+		{
+			actor_texture_handles[handle].new_id = id;
+			actor_texture_handles[handle].state = ts_texture_loading;
+		}
 	}
 
-	if (alpha != 0)
+	if (actor_texture_handles[handle].id != 0)
 	{
-		*alpha = actor_texture_handles[handle].image.alpha;
+		bind_texture_id(actor_texture_handles[handle].id);
+
+		result = 1;
+	}
+	else
+	{
+		result = 0;
 	}
 
 	CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[handle].mutex);
@@ -1044,19 +1038,13 @@ void free_actor_texture(const Uint32 handle)
 
 	CHECK_AND_LOCK_MUTEX(actor_texture_handles[handle].mutex);
 
-	if (actor_texture_handles[handle].use_count == 0)
-	{
-		LOG_ERROR("invalid actor texture handle: %i.", handle);
+#ifdef	DEBUG
+	assert("actor texture used value is invalid." && (actor_texture_handles[handle].used != 0));
+#endif	/* DEBUG */
 
-		CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[handle].mutex);
+	actor_texture_handles[handle].used = 0;
 
-		return;
-	}
-
-	actor_texture_handles[handle].use_count--;
-
-	if ((actor_texture_handles[handle].use_count == 0) &&
-		(handle >= max_actor_texture_handles))
+	if (handle >= max_actor_texture_handles)
 	{
 		memset(&actor_texture_handles[handle].files, 0,
 			sizeof(enhanced_actor));
@@ -1067,6 +1055,134 @@ void free_actor_texture(const Uint32 handle)
 	}
 
 	CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[handle].mutex);
+}
+
+Uint32 get_actor_texture_ready(const Uint32 handle)
+{
+	Uint32 result;
+
+	// don't look up an out of range texture
+	if (handle >= ACTOR_TEXTURE_CACHE_MAX)
+	{
+		LOG_ERROR("invalid actor texture handle: %i.", handle);
+
+		return 0;
+	}
+
+	CHECK_AND_LOCK_MUTEX(actor_texture_handles[handle].mutex);
+
+#ifdef	DEBUG
+	assert("actor texture used value is invalid." && (actor_texture_handles[handle].used != 0));
+#endif	/* DEBUG */
+
+	if (actor_texture_handles[handle].state == ts_texture_loading)
+	{
+		result = 1;
+	}
+	else
+	{
+		result = 0;
+	}
+
+	CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[handle].mutex);
+
+	return result;
+}
+
+void use_ready_actor_texture(const Uint32 handle)
+{
+	// don't look up an out of range texture
+	if (handle >= ACTOR_TEXTURE_CACHE_MAX)
+	{
+		LOG_ERROR("invalid actor texture handle: %i.", handle);
+
+		return;
+	}
+
+	CHECK_AND_LOCK_MUTEX(actor_texture_handles[handle].mutex);
+
+#ifdef	DEBUG
+	assert("actor texture used value is invalid." && (actor_texture_handles[handle].used != 0));
+	assert("actor texture not uploaded." && (actor_texture_handles[handle].state == ts_texture_loading));
+#endif	/* DEBUG */
+
+	actor_texture_handles[handle].state = ts_texture_loaded;
+
+	if (actor_texture_handles[handle].id != 0)
+	{
+		glDeleteTextures(1, &actor_texture_handles[handle].id);
+	}
+
+	actor_texture_handles[handle].id =
+		actor_texture_handles[handle].new_id;
+
+	actor_texture_handles[handle].new_id = 0;
+
+	CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[handle].mutex);
+}
+
+void change_enhanced_actor(const Uint32 handle, enhanced_actor* actor)
+{
+	enhanced_actor_images files;
+	Uint32 hash;
+
+	// don't look up an out of range texture
+	if (handle >= ACTOR_TEXTURE_CACHE_MAX)
+	{
+		LOG_ERROR("invalid actor texture handle: %i.", handle);
+
+		return;
+	}
+
+	memset(&files, 0, sizeof(files));
+
+	copy_enhanced_actor_file_name(files.pants_tex, actor->pants_tex);
+	copy_enhanced_actor_file_name(files.pants_mask, actor->pants_mask);
+
+	copy_enhanced_actor_file_name(files.boots_tex, actor->boots_tex);
+	copy_enhanced_actor_file_name(files.boots_mask, actor->boots_mask);
+
+	copy_enhanced_actor_file_name(files.torso_tex, actor->torso_tex);
+	copy_enhanced_actor_file_name(files.arms_tex, actor->arms_tex);
+	copy_enhanced_actor_file_name(files.torso_mask, actor->torso_mask);
+	copy_enhanced_actor_file_name(files.arms_mask, actor->arms_mask);
+
+	copy_enhanced_actor_file_name(files.hands_tex, actor->hands_tex);
+	copy_enhanced_actor_file_name(files.head_tex, actor->head_tex);
+	copy_enhanced_actor_file_name(files.hands_mask, actor->hands_mask);
+	copy_enhanced_actor_file_name(files.head_mask, actor->head_mask);
+
+	copy_enhanced_actor_file_name(files.head_base, actor->head_base);
+	copy_enhanced_actor_file_name(files.body_base, actor->body_base);
+	copy_enhanced_actor_file_name(files.arms_base, actor->arms_base);
+	copy_enhanced_actor_file_name(files.legs_base, actor->legs_base);
+	copy_enhanced_actor_file_name(files.boots_base, actor->boots_base);
+
+	copy_enhanced_actor_file_name(files.hair_tex, actor->hair_tex);
+	copy_enhanced_actor_file_name(files.weapon_tex, actor->weapon_tex);
+	copy_enhanced_actor_file_name(files.shield_tex, actor->shield_tex);
+	copy_enhanced_actor_file_name(files.helmet_tex, actor->helmet_tex);
+	copy_enhanced_actor_file_name(files.neck_tex, actor->neck_tex);
+	copy_enhanced_actor_file_name(files.cape_tex, actor->cape_tex);
+	copy_enhanced_actor_file_name(files.hands_tex_save, actor->hands_tex_save);
+
+	hash = string_hash(&files, sizeof(files));
+
+	CHECK_AND_LOCK_MUTEX(actor_texture_handles[handle].mutex);
+
+#ifdef	DEBUG
+	assert("actor texture used value is invalid." && (actor_texture_handles[handle].used != 0));
+#endif	/* DEBUG */
+
+	memcpy(&actor_texture_handles[handle].files, &files, sizeof(files));
+
+	actor_texture_handles[handle].hash = hash;
+	actor_texture_handles[handle].access_time = cur_time;
+	actor_texture_handles[handle].state = ts_unloaded;
+
+	CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[handle].mutex);
+
+	queue_push_signal_delete_old(actor_texture_queue, &actor_texture_handles[handle]);
 }
 
 int load_enhanced_actor_thread(void* done)
@@ -1133,7 +1249,7 @@ int load_enhanced_actor_thread(void* done)
 	return 1;
 }
 
-#endif
+#endif	/* NEW_TEXTURES_DELAY_ITEM_CHANGE */
 
 void init_texture_cache()
 {
@@ -1234,9 +1350,9 @@ void unload_texture_cache()
 
 			CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[i].mutex);
 
-			if (actor_texture_handles[i].use_count > 0)
+			if (actor_texture_handles[i].used != 0)
 			{
-				queue_push_signal(actor_texture_queue,
+				queue_push_signal_delete_old(actor_texture_queue,
 					&actor_texture_handles[i]);
 			}
 		}

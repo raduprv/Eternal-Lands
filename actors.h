@@ -531,6 +531,7 @@ typedef struct
 	int delayed_item_changes[MAX_ITEM_CHANGES_QUEUE]; /*!< Used to delay a sword/shield equip while in range mode (-1: item removed; >= 0: item equipped) */
 	int delayed_item_type_changes[MAX_ITEM_CHANGES_QUEUE]; /*!< Used to delay a sword/shield equip while in range mode */
 	int delayed_item_changes_count; /*!< The number of delayed items */
+	char delay_texture_item_changes; /*!< To tell if the item changes should get delayed */
 	/*! \} */
 
 	/*! \name Actors positions

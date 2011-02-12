@@ -523,6 +523,21 @@ void move_to_next_frame()
 					}
 				}
 			}
+			if (actors_list[i]->delayed_item_changes_count > 0)
+			{
+				if (get_actor_texture_ready(actors_list[i]->texture_id))
+				{
+					// we really leave the aim mode only when the animation is finished
+					actors_list[i]->delay_texture_item_changes = 0;
+
+					// then we do all the item changes that have been delayed
+					flush_delayed_item_changes(actors_list[i]);
+
+					use_ready_actor_texture(actors_list[i]->texture_id);
+
+					actors_list[i]->delay_texture_item_changes = 1;
+				}
+			}
 
 			// we change the idle animation only when the previous one is finished
 			if (actors_list[i]->stand_idle && actors_list[i]->anim_time >= actors_list[i]->cur_anim.duration - 0.2)

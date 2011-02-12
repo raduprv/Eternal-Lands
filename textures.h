@@ -106,6 +106,7 @@ typedef enum
 	ts_unloaded = 0,
 	ts_image_loading,
 	ts_image_loaded,
+	ts_texture_loading,
 	ts_texture_loaded
 } texture_state;
 
@@ -118,8 +119,9 @@ typedef struct
 	SDL_mutex* mutex;		/*!< the mutex used for this structure */
 	image_struct image;		/*!< the image for the texture */
 	GLuint id;			/*!< the id of the texture */
+	GLuint new_id;			/*!< the id of the new texture */
 	Uint32 hash;			/*!< hash value */
-	Uint32 use_count;		/*!< use count of actor texture */
+	Uint32 used;			/*!< if this is used at the moment? */
 	Uint32 access_time;		/*!< last time used */
 	texture_state state;		/*!< the texture states e.g. loading */
 } actor_texture_cache_struct;
@@ -246,12 +248,48 @@ Uint32 bind_actor_texture(const Uint32 handle, char* alpha);
  * \ingroup 	textures
  * \brief 	Frees the actors texture
  *
- *      	Reduce the reference count of the actor texture by one.
+ *      	Marks the actor texture as unused.
  *
  * \param   	handle The handle of the texture.
  * \callgraph
  */
 void free_actor_texture(const Uint32 handle);
+
+/*!
+ * \ingroup 	textures
+ * \brief 	Returns if the actor texture is ready 
+ *
+ *      	Returns one if the actor texture is ready to use, zero else.
+ *
+ * \param   	handle The handle of the texture.
+ * \retval	Uint32 Returns one if the texture is ready for use, zero else.
+ * \callgraph
+ */
+Uint32 get_actor_texture_ready(const Uint32 handle);
+
+/*!
+ * \ingroup 	textures
+ * \brief 	Use the new actor texture
+ *
+ *      	Use the new actor texture that was loaded in background
+ *
+ * \param   	handle The handle of the texture.
+ * \callgraph
+ */
+void use_ready_actor_texture(const Uint32 handle);
+
+/*!
+ * \ingroup 	textures
+ * \brief 	Changes the actors texture
+ *
+ *      	Changes the actors texture from the information given in the
+ *		enhanced actor structure.
+ *
+ * \param   	handle Handle of the texture to change
+ * \param   	actor A pointer to the enhanced_actor structure
+ * \callgraph
+ */
+void change_enhanced_actor(const Uint32 handle, enhanced_actor* actor);
 
 #endif	//ELC
 
