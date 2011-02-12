@@ -414,17 +414,7 @@ int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags)
 int keypress_dialogue_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
 	Uint8 ch;
-	if(!use_keypress_dialogue_boxes)
-	{
-		return 0;
-	}
 
-	if ((use_full_dialogue_window == 0) && (mx<0 || mx>64 || my<0 || my>64))
-	{
-	    return 0;
-	}
-
-	ch = key_to_char (unikey);
 	if ((key & 0xffff) == SDLK_ESCAPE) // close window if Escape pressed
 	{
 #ifdef NEW_SOUND
@@ -432,15 +422,28 @@ int keypress_dialogue_handler (window_info *win, int mx, int my, Uint32 key, Uin
 #endif // NEW_SOUND
 		hide_window(win->window_id);
 		return 1;
-   }
-   if((key & ELW_ALT) || (key & ELW_CTRL)) //Do not process Ctrl or Alt keypresses
-   {		
+	}
+
+	if(!use_keypress_dialogue_boxes)
+	{
 		return 0;
-   }
-   if(ch<'0' || ch>'z') // do not send special keys
-   {
+	}
+
+	if ((use_full_dialogue_window == 0) && (mx<0 || mx>64 || my<0 || my>64))
+	{
 		return 0;
-   }
+	}
+
+	ch = key_to_char (unikey);
+
+	if((key & ELW_ALT) || (key & ELW_CTRL)) //Do not process Ctrl or Alt keypresses
+	{
+		return 0;
+	}
+	if(ch<'0' || ch>'z') // do not send special keys
+	{
+		return 0;
+	}
 	if(ch>='a' && ch<='z')
 		ch-=87; //a-z->10-35
 	else if(ch>='A' && ch<='Z')
@@ -452,7 +455,7 @@ int keypress_dialogue_handler (window_info *win, int mx, int my, Uint32 key, Uin
 	else //out of range
 	{
 		return 0;
-   }
+	}
 	if(MAX_RESPONSES-1<ch)//pressed a key that the client is not expecting, ignore it
 	{
 		return 1;
