@@ -47,8 +47,8 @@ void draw_tile_map();
  *
  * \callgraph
  */
-void draw_quad_tiles(unsigned int start, unsigned int stop, unsigned int idx,
-	unsigned int zero_id);
+void draw_quad_tiles(const unsigned int start, const unsigned int stop,
+	unsigned int idx, const unsigned int zero_id);
 #endif	/* NEW_TEXTURES */
 
 /*!

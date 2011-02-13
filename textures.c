@@ -43,7 +43,7 @@ Uint32 actor_texture_threads_done = 0;
 
 texture_cache_struct* texture_handles = 0;
 cache_struct* texture_cache = 0;
-Uint32 texture_handles_max_index = 0;
+Uint32 texture_handles_max_handle = 0;
 
 Uint32 string_hash(const void* str, const Uint32 len)
 {
@@ -318,14 +318,14 @@ Uint32 load_texture_cached(const char* file_name, const texture_type type)
 	char buffer[128];
 	Uint32 i, handle, len, hash;
 
-	handle = texture_handles_max_index;
+	handle = texture_handles_max_handle;
 
 	len = get_file_name_len(file_name);
 	hash = string_hash(file_name, len);
 
 	safe_strncpy2(buffer, file_name, sizeof(buffer), len);
 
-	for (i = 0; i < texture_handles_max_index; i++)
+	for (i = 0; i < texture_handles_max_handle; i++)
 	{
 		if (texture_handles[i].file_name[0] != 0)
 		{
@@ -342,7 +342,7 @@ Uint32 load_texture_cached(const char* file_name, const texture_type type)
 		else
 		{
 			// remember the first open slot we have
-			if (handle == texture_handles_max_index)
+			if (handle == texture_handles_max_handle)
 			{
 				handle = i;
 			}
@@ -359,9 +359,10 @@ Uint32 load_texture_cached(const char* file_name, const texture_type type)
 		texture_handles[handle].type = type;
 		texture_handles[handle].id = 0;
 		texture_handles[handle].cache_ptr = cache_add_item(texture_cache,
-			texture_handles[handle].file_name, &texture_handles[handle], 0);
+			texture_handles[handle].file_name,
+			&texture_handles[handle], 0);
 
-		texture_handles_max_index++;
+		texture_handles_max_handle++;
 
 		return handle;
 	}
@@ -472,10 +473,10 @@ static Uint32 load_texture(texture_cache_struct* texture_handle)
 
 static Uint32 load_texture_handle(const Uint32 handle)
 {
-	if (handle >= texture_handles_max_index)
+	if (handle >= texture_handles_max_handle)
 	{
-		LOG_ERROR("handle: %i, texture_handles_max_index: %i\n", handle,
-			texture_handles_max_index);
+		LOG_ERROR("handle: %i, max_handle: %i\n", handle,
+			texture_handles_max_handle);
 
 		return 0;
 	}
@@ -504,10 +505,10 @@ static Uint32 load_texture_handle(const Uint32 handle)
 
 static GLuint get_texture_id(const Uint32 handle)
 {
-	if (handle >= texture_handles_max_index)
+	if (handle >= texture_handles_max_handle)
 	{
-		LOG_ERROR("handle: %i, texture_handles_max_index: %i\n", handle,
-			texture_handles_max_index);
+		LOG_ERROR("handle: %i, max_handle: %i\n", handle,
+			texture_handles_max_handle);
 
 		return 0;
 	}
@@ -526,10 +527,10 @@ static GLuint get_texture_id(const Uint32 handle)
 
 Uint32 get_texture_alpha(const Uint32 handle)
 {
-	if (handle >= texture_handles_max_index)
+	if (handle >= texture_handles_max_handle)
 	{
-		LOG_ERROR("handle: %i, texture_handles_max_index: %i\n", handle,
-			texture_handles_max_index);
+		LOG_ERROR("handle: %i, max_handle: %i\n", handle,
+			texture_handles_max_handle);
 
 		return 0;
 	}
@@ -544,11 +545,27 @@ Uint32 get_texture_alpha(const Uint32 handle)
 
 void bind_texture(const Uint32 handle)
 {
+	if (handle >= texture_handles_max_handle)
+	{
+		LOG_ERROR("handle: %i, max_handle: %i\n", handle,
+			texture_handles_max_handle);
+
+		return;
+	}
+
 	bind_texture_id(get_texture_id(handle));
 }
 
 void bind_texture_unbuffered(const Uint32 handle)
 {
+	if (handle >= texture_handles_max_handle)
+	{
+		LOG_ERROR("handle: %i, max_handle: %i\n", handle,
+			texture_handles_max_handle);
+
+		return;
+	}
+
 	glBindTexture(GL_TEXTURE_2D, get_texture_id(handle));
 }
 
@@ -927,7 +944,7 @@ Uint32 load_enhanced_actor(enhanced_actor* actor)
 			{
 				// already loaded, use existing texture
 				actor_texture_handles[i].used = 1;
-				actor_texture_handles[handle].access_time = cur_time;
+				actor_texture_handles[i].access_time = cur_time;
 
 				// already loaded, release lock
 				CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[i].mutex);
@@ -1004,10 +1021,10 @@ Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
 	GLenum min_filter;
 	texture_format_type format;
 
-	// don't look up an out of range texture
 	if (handle >= ACTOR_TEXTURE_CACHE_MAX)
 	{
-		LOG_ERROR("invalid actor texture handle: %i.", handle);
+		LOG_ERROR("handle: %i, max_handle: %i\n", handle,
+			ACTOR_TEXTURE_CACHE_MAX);
 
 		return 0;
 	}
@@ -1096,7 +1113,8 @@ Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
 		{
 			if (actor_texture_handles[handle].new_id != 0)
 			{
-				LOG_ERROR("New texture id in use at texture handle: %i.", handle);
+				LOG_ERROR("New texture id in use at texture"
+					" handle: %i.", handle);
 
 				glDeleteTextures(1, &actor_texture_handles[handle].new_id);
 			}
@@ -1113,10 +1131,10 @@ Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
 
 void free_actor_texture(const Uint32 handle)
 {
-	// don't look up an out of range texture
 	if (handle >= ACTOR_TEXTURE_CACHE_MAX)
 	{
-		LOG_ERROR("invalid actor texture handle: %i.", handle);
+		LOG_ERROR("handle: %i, max_handle: %i\n", handle,
+			ACTOR_TEXTURE_CACHE_MAX);
 
 		return;
 	}
@@ -1153,10 +1171,10 @@ Uint32 get_actor_texture_ready(const Uint32 handle)
 {
 	Uint32 result;
 
-	// don't look up an out of range texture
 	if (handle >= ACTOR_TEXTURE_CACHE_MAX)
 	{
-		LOG_ERROR("invalid actor texture handle: %i.", handle);
+		LOG_ERROR("handle: %i, max_handle: %i\n", handle,
+			ACTOR_TEXTURE_CACHE_MAX);
 
 		return 0;
 	}
@@ -1190,10 +1208,10 @@ Uint32 get_actor_texture_ready(const Uint32 handle)
 
 void use_ready_actor_texture(const Uint32 handle)
 {
-	// don't look up an out of range texture
 	if (handle >= ACTOR_TEXTURE_CACHE_MAX)
 	{
-		LOG_ERROR("invalid actor texture handle: %i.", handle);
+		LOG_ERROR("handle: %i, max_handle: %i\n", handle,
+			texture_handles_max_handle);
 
 		return;
 	}
@@ -1251,10 +1269,10 @@ void change_enhanced_actor(const Uint32 handle, enhanced_actor* actor)
 	enhanced_actor_images files;
 	Uint32 hash;
 
-	// don't look up an out of range texture
 	if (handle >= ACTOR_TEXTURE_CACHE_MAX)
 	{
-		LOG_ERROR("invalid actor texture handle: %i.", handle);
+		LOG_ERROR("handle: %i, max_handle: %i\n", handle,
+			ACTOR_TEXTURE_CACHE_MAX);
 
 		return;
 	}
@@ -1383,7 +1401,7 @@ int load_enhanced_actor_thread(void* done)
 	return 1;
 }
 
-#endif	/* NEW_TEXTURES_DELAY_ITEM_CHANGE */
+#endif	/* ELC */
 
 void init_texture_cache()
 {
@@ -1444,7 +1462,7 @@ void free_texture_cache()
 
 	free(actor_texture_handles);
 
-	for (i = 0; i < texture_handles_max_index; i++)
+	for (i = 0; i < texture_handles_max_handle; i++)
 	{
 		if (texture_handles[i].id != 0)
 		{
@@ -1461,7 +1479,7 @@ void unload_texture_cache()
 {
 	Uint32 i, used;
 
-	for (i = 0; i < texture_handles_max_index; i++)
+	for (i = 0; i < texture_handles_max_handle; i++)
 	{
 		if (texture_handles[i].id != 0)
 		{
@@ -1508,8 +1526,8 @@ void dump_texture_cache()
 		{
 			CHECK_AND_LOCK_MUTEX(actor_texture_handles[i].mutex);
 
-			printf("%i: id %d, new_id %d, hash 0x%X, used %d, "
-				"access_time %d, state %d\n", i,
+			printf("%i: id %d, new_id %d, hash 0x%X, "
+				"used %d, access_time %d, state %d\n", i,
 				actor_texture_handles[i].id,
 				actor_texture_handles[i].new_id,
 				actor_texture_handles[i].hash,

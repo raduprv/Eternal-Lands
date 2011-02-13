@@ -113,8 +113,8 @@ static __inline__ void build_terrain_buffer()
 }
 
 #ifdef	NEW_TEXTURES
-void draw_quad_tiles(unsigned int start, unsigned int stop, unsigned int idx,
-	unsigned int zero_id)
+void draw_quad_tiles(const unsigned int start, const unsigned int stop,
+	unsigned int idx, const unsigned int zero_id)
 {
 	Uint32 i, l, size;
 	Sint32 x, y;
@@ -124,7 +124,6 @@ void draw_quad_tiles(unsigned int start, unsigned int stop, unsigned int idx,
 	short tile_cluster;
 #endif
 
-	idx = 0;
 	size = 0;
 
 	if (start < stop)
