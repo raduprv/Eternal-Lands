@@ -49,7 +49,7 @@ Uint32 string_hash(const void* str, const Uint32 len)
 {
 	Uint32 hash, i;
 
-	hash = 2166136261;
+	hash = 2166136261u;
 
 	for (i = 0; i < len; i++)
 	{
