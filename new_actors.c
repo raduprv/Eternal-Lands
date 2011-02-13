@@ -189,6 +189,7 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	return i;
 }
 
+#ifdef	NEW_TEXTURES
 Uint32 delay_texture_item_change(actor* a, const int which_part, const int which_id)
 {
 	if (a == 0)
@@ -212,6 +213,7 @@ Uint32 delay_texture_item_change(actor* a, const int which_part, const int which
 
 	return 0;
 }
+#endif	/* NEW_TEXTURES */
 
 void unwear_item_from_actor(int actor_id,Uint8 which_part)
 {
@@ -403,10 +405,12 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #ifdef CUSTOM_LOOK
 								custom_path(actors_list[i]->body_parts->weapon_tex, playerpath, guildpath);
 #endif
+#ifdef	NEW_TEXTURES
 								if (delay_texture_item_change(actors_list[i], which_part, which_id))
 								{
 									return;
 								}
+#endif	/* NEW_TEXTURES */
 								model_attach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].weapon[which_id].mesh_index);
 								actors_list[i]->cur_weapon=which_id;
 								actors_list[i]->body_parts->weapon_meshindex = actors_defs[actors_list[i]->actor_type].weapon[which_id].mesh_index;
@@ -474,12 +478,14 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #ifdef CUSTOM_LOOK
 								custom_path(actors_list[i]->body_parts->shield_tex, playerpath, guildpath);
 #endif
+#ifdef	NEW_TEXTURES
 								if (delay_texture_item_change(actors_list[i], which_part, which_id))
 								{
 									return;
 								}
+#endif	/* NEW_TEXTURES */
 								model_attach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].shield[which_id].mesh_index);
-                                actors_list[i]->body_parts->shield_meshindex=actors_defs[actors_list[i]->actor_type].shield[which_id].mesh_index;
+				                                actors_list[i]->body_parts->shield_meshindex=actors_defs[actors_list[i]->actor_type].shield[which_id].mesh_index;
 								actors_list[i]->cur_shield=which_id;
 								actors_list[i]->body_parts->shield_meshindex = actors_defs[actors_list[i]->actor_type].shield[which_id].mesh_index;
 							}
@@ -490,10 +496,12 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #ifdef CUSTOM_LOOK
 								custom_path(actors_list[i]->body_parts->cape_tex, playerpath, guildpath);
 #endif
+#ifdef	NEW_TEXTURES
 								if (delay_texture_item_change(actors_list[i], which_part, which_id))
 								{
 									return;
 								}
+#endif	/* NEW_TEXTURES */
 								model_attach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].cape[which_id].mesh_index);
 								actors_list[i]->body_parts->cape_meshindex=actors_defs[actors_list[i]->actor_type].cape[which_id].mesh_index;
 							}
@@ -504,10 +512,12 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #ifdef CUSTOM_LOOK
 								custom_path(actors_list[i]->body_parts->helmet_tex, playerpath, guildpath);
 #endif
+#ifdef	NEW_TEXTURES
 								if (delay_texture_item_change(actors_list[i], which_part, which_id))
 								{
 									return;
 								}
+#endif	/* NEW_TEXTURES */
 								model_attach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].helmet[which_id].mesh_index);
 								actors_list[i]->body_parts->helmet_meshindex=actors_defs[actors_list[i]->actor_type].helmet[which_id].mesh_index;
 							}
@@ -518,10 +528,12 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #ifdef CUSTOM_LOOK
 								custom_path(actors_list[i]->body_parts->neck_tex, playerpath, guildpath);
 #endif
+#ifdef	NEW_TEXTURES
 								if (delay_texture_item_change(actors_list[i], which_part, which_id))
 								{
 									return;
 								}
+#endif	/* NEW_TEXTURES */
 								model_attach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].neck[which_id].mesh_index);
 								actors_list[i]->body_parts->neck_meshindex=actors_defs[actors_list[i]->actor_type].neck[which_id].mesh_index;
 							}
@@ -538,10 +550,12 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								custom_path(actors_list[i]->body_parts->arms_mask, playerpath, guildpath);
 								custom_path(actors_list[i]->body_parts->torso_mask, playerpath, guildpath);
 #endif
+#ifdef	NEW_TEXTURES
 								if (delay_texture_item_change(actors_list[i], which_part, which_id))
 								{
 									return;
 								}
+#endif	/* NEW_TEXTURES */
 								if(actors_defs[actors_list[i]->actor_type].shirt[which_id].mesh_index != actors_list[i]->body_parts->torso_meshindex)
 								{
 									model_detach_mesh(actors_list[i], actors_list[i]->body_parts->torso_meshindex);
@@ -557,10 +571,12 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								custom_path(actors_list[i]->body_parts->pants_tex, playerpath, guildpath);
 								custom_path(actors_list[i]->body_parts->pants_mask, playerpath, guildpath);
 #endif
+#ifdef	NEW_TEXTURES
 								if (delay_texture_item_change(actors_list[i], which_part, which_id))
 								{
 									return;
 								}
+#endif	/* NEW_TEXTURES */
 								if(actors_defs[actors_list[i]->actor_type].legs[which_id].mesh_index != actors_list[i]->body_parts->legs_meshindex)
 								{
 									model_detach_mesh(actors_list[i], actors_list[i]->body_parts->legs_meshindex);
@@ -577,15 +593,16 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								custom_path(actors_list[i]->body_parts->boots_tex, playerpath, guildpath);
 								custom_path(actors_list[i]->body_parts->boots_mask, playerpath, guildpath);
 #endif
+#ifdef	NEW_TEXTURES
 								if (delay_texture_item_change(actors_list[i], which_part, which_id))
 								{
 									return;
 								}
+#endif	/* NEW_TEXTURES */
 							}
 						else return;
 
-#ifdef	NEW_TEXTURES
-#else	/* NEW_TEXTURES */
+#ifndef	NEW_TEXTURES
 						glDeleteTextures(1,&actors_list[i]->texture_id);
 						actors_list[i]->texture_id = load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
 						actors_list[i]->has_alpha = actors_list[i]->body_parts->has_alpha;

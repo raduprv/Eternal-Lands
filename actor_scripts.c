@@ -518,6 +518,7 @@ void move_to_next_frame()
 			}
 			if (actors_list[i]->delayed_item_changes_count > 0)
 			{
+#ifdef	NEW_TEXTURES
 				if (get_actor_texture_ready(actors_list[i]->texture_id))
 				{
 					// we really leave the aim mode only when the animation is finished
@@ -530,6 +531,7 @@ void move_to_next_frame()
 
 					actors_list[i]->delay_texture_item_changes = 1;
 				}
+#endif	/* NEW_TEXTURES */
 			}
 
 			// we change the idle animation only when the previous one is finished

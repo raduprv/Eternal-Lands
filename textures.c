@@ -1001,7 +1001,7 @@ Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
 
 		CHECK_AND_LOCK_MUTEX(actor_texture_handles[handle].mutex);
 
-		return;
+		return 0;
 	}
 #endif	/* DEBUG */
 
@@ -1022,7 +1022,7 @@ Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
 
 			CHECK_AND_LOCK_MUTEX(actor_texture_handles[handle].mutex);
 
-			return;
+			return 0;
 		}
 #endif	/* DEBUG */
 		bind_texture_id(actor_texture_handles[handle].id);
@@ -1161,7 +1161,7 @@ Uint32 get_actor_texture_ready(const Uint32 handle)
 
 		CHECK_AND_LOCK_MUTEX(actor_texture_handles[handle].mutex);
 
-		return;
+		return 0;
 	}
 #endif	/* DEBUG */
 
