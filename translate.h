@@ -579,7 +579,7 @@ extern char	reg_error_str[15],
 		fbo_draw_buffer_error[100],
 		fbo_read_buffer_error[100],
 		fbo_unsupported_fromat_error[100],
-		fbo_unknow_error[100],
+		fbo_unknown_error[100],
 		fbo_supported_format[100],
 		/*init.c*/
 		gl_ext_not_found_emul_it[100],

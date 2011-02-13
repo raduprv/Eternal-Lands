@@ -236,6 +236,8 @@ void print_fbo_errors(const char *file, const char *func, int line)
 {
 	GLuint error_no = ELglCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 
+	CHECK_GL_ERRORS();
+
 	switch (error_no)
 	{
 		case GL_FRAMEBUFFER_COMPLETE_EXT:
@@ -262,7 +264,7 @@ void print_fbo_errors(const char *file, const char *func, int line)
 			log_error_detailed(fbo_unsupported_fromat_error, file, func, line);
 			break;
 		default:
-			log_error_detailed(fbo_unknow_error, file, func, line);
+			log_error_detailed(fbo_unknown_error, file, func, line, error_no);
 			break;
 	}	
 }

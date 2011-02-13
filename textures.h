@@ -293,6 +293,10 @@ void change_enhanced_actor(const Uint32 handle, enhanced_actor* actor);
 
 #endif	//ELC
 
+#ifdef	DEBUG
+void dump_texture_cache();
+#endif	/* DEBUG */
+
 #else	// NEW_TEXTURES
 
 #define TEXTURE_CACHE_MAX 2000

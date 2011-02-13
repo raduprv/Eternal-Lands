@@ -552,6 +552,26 @@ void bind_texture_unbuffered(const Uint32 handle)
 	glBindTexture(GL_TEXTURE_2D, get_texture_id(handle));
 }
 
+void reload_actor_texture_resources(actor_texture_cache_struct* texture)
+{
+	if (texture != 0)
+	{
+		if (texture->new_id != 0)
+		{
+			glDeleteTextures(1, &texture->new_id);
+			texture->new_id = 0;
+		}
+
+		if (texture->image.image != 0)
+		{
+			free(texture->image.image);
+			texture->image.image = 0;
+		}
+
+		texture->state = tst_unloaded;
+	}
+}
+
 void free_actor_texture_resources(actor_texture_cache_struct* texture)
 {
 	if (texture != 0)
@@ -918,7 +938,7 @@ Uint32 load_enhanced_actor(enhanced_actor* actor)
 					CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[handle].mutex);
 				}
 
-				queue_push_signal_delete_old(actor_texture_queue, &actor_texture_handles[i]);
+				queue_push_signal(actor_texture_queue, &actor_texture_handles[i]);
 
 				return i;
 			}
@@ -965,7 +985,7 @@ Uint32 load_enhanced_actor(enhanced_actor* actor)
 
 		CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[handle].mutex);
 
-		queue_push_signal_delete_old(actor_texture_queue, &actor_texture_handles[handle]);
+		queue_push_signal(actor_texture_queue, &actor_texture_handles[handle]);
 
 		return handle;
 	}
@@ -1014,17 +1034,6 @@ Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
 
 	if (actor_texture_handles[handle].id != 0)
 	{
-#ifdef	DEBUG
-		if ((actor_texture_handles[handle].state != tst_texture_loading) &&
-			(actor_texture_handles[handle].state != tst_texture_loaded))
-		{
-			LOG_ERROR("no actor texture uploaded: %i.", handle);
-
-			CHECK_AND_LOCK_MUTEX(actor_texture_handles[handle].mutex);
-
-			return 0;
-		}
-#endif	/* DEBUG */
 		bind_texture_id(actor_texture_handles[handle].id);
 
 		result = 1;
@@ -1213,6 +1222,17 @@ void use_ready_actor_texture(const Uint32 handle)
 
 	actor_texture_handles[handle].state = tst_texture_loaded;
 
+#ifdef	DEBUG
+	if (actor_texture_handles[handle].id == 0)
+	{
+		LOG_ERROR("actor texture is invalid: %i.", handle);
+
+		CHECK_AND_LOCK_MUTEX(actor_texture_handles[handle].mutex);
+
+		return;
+	}
+#endif	/* DEBUG */
+
 	if (actor_texture_handles[handle].id != 0)
 	{
 		glDeleteTextures(1, &actor_texture_handles[handle].id);
@@ -1290,11 +1310,12 @@ void change_enhanced_actor(const Uint32 handle, enhanced_actor* actor)
 
 	actor_texture_handles[handle].hash = hash;
 	actor_texture_handles[handle].access_time = cur_time;
-	actor_texture_handles[handle].state = tst_unloaded;
+
+	reload_actor_texture_resources(&actor_texture_handles[handle]);
 
 	CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[handle].mutex);
 
-	queue_push_signal_delete_old(actor_texture_queue, &actor_texture_handles[handle]);
+	queue_push_signal(actor_texture_queue, &actor_texture_handles[handle]);
 }
 
 int load_enhanced_actor_thread(void* done)
@@ -1349,6 +1370,7 @@ int load_enhanced_actor_thread(void* done)
 			}
 			else
 			{
+				LOG_ERROR("Wrong actor state %d", actor->state); 
 				free(image.image);
 			}
 		}
@@ -1437,7 +1459,7 @@ void free_texture_cache()
 
 void unload_texture_cache()
 {
-	Uint32 i;
+	Uint32 i, used;
 
 	for (i = 0; i < texture_handles_max_index; i++)
 	{
@@ -1460,18 +1482,46 @@ void unload_texture_cache()
 		{
 			CHECK_AND_LOCK_MUTEX(actor_texture_handles[i].mutex);
 
+			used = actor_texture_handles[i].used;
+
 			free_actor_texture_resources(&actor_texture_handles[i]);
 
 			CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[i].mutex);
 
-			if (actor_texture_handles[i].used != 0)
+			if (used != 0)
 			{
-				queue_push_signal_delete_old(actor_texture_queue,
+				queue_push_signal(actor_texture_queue,
 					&actor_texture_handles[i]);
 			}
 		}
 	}
 }
+
+#ifdef	DEBUG
+void dump_texture_cache()
+{
+	Uint32 i;
+
+	if (actor_texture_handles != 0)
+	{
+		for (i = 0; i < max_actor_texture_handles; i++)
+		{
+			CHECK_AND_LOCK_MUTEX(actor_texture_handles[i].mutex);
+
+			printf("%i: id %d, new_id %d, hash 0x%X, used %d, "
+				"access_time %d, state %d\n", i,
+				actor_texture_handles[i].id,
+				actor_texture_handles[i].new_id,
+				actor_texture_handles[i].hash,
+				actor_texture_handles[i].used,
+				actor_texture_handles[i].access_time,
+				actor_texture_handles[i].state);
+
+			CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[i].mutex);
+		}
+	}
+}
+#endif	/* DEBUG */
 #else	// NEW_TEXTURES
 #ifdef NEW_CURSOR
 

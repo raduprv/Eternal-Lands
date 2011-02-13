@@ -474,7 +474,7 @@ char	reg_error_str[15],
 	fbo_draw_buffer_error[100],
 	fbo_read_buffer_error[100],
 	fbo_unsupported_fromat_error[100],
-	fbo_unknow_error[100],
+	fbo_unknown_error[100],
 	fbo_supported_format[100],
 	gl_ext_not_found_emul_it[100],
 	fatal_error_str[10],
@@ -1151,7 +1151,7 @@ void init_errors()
 	add_xml_identifier(video,"fbodrawbuffererror",fbo_draw_buffer_error,"Framebuffer: draw buffer error",sizeof(fbo_draw_buffer_error));
 	add_xml_identifier(video,"fboreadbuffererror",fbo_read_buffer_error,"Framebuffer: read buffer error",sizeof(fbo_read_buffer_error));
 	add_xml_identifier(video,"fbounsupportedfromaterror",fbo_unsupported_fromat_error,"Framebuffer: unsupported format error",sizeof(fbo_unsupported_fromat_error));
-	add_xml_identifier(video,"fbounknowerror",fbo_unknow_error,"Framebuffer: unkown error",sizeof(fbo_unknow_error));
+	add_xml_identifier(video,"fbounknownerror",fbo_unknown_error,"Framebuffer: unkown error %d",sizeof(fbo_unknown_error));
 	add_xml_identifier(video,"fbosupportedfromat",fbo_supported_format,"Frame buffer format: %s, depth bits: %d, stencil bits: %d is supported",sizeof(fbo_supported_format));
 	add_xml_identifier(video,"extnotfoundemulit",gl_ext_not_found_emul_it,"Couldn't find the %s extension, emulating it...",sizeof(gl_ext_not_found_emul_it));
 	add_xml_identifier(video,"invalid",invalid_video_mode,"Stop playing with the configuration file and select valid modes!",sizeof(invalid_video_mode));
