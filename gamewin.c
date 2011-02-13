@@ -1292,7 +1292,7 @@ int display_game_handler (window_info *win)
 #ifdef DEBUG
 		//LRNR: stats testing
 		safe_snprintf((char*)str, sizeof(str), "E3D:%3d TOT:%3d", e3d_count, e3d_total);
-		draw_string (win->len_x-hud_x-183, 34, str, 1);
+		draw_string (win->len_x-hud_x-183, 49, str, 1);
 		e3d_count= e3d_total= 0;
 #endif //DEBUG
 	}
