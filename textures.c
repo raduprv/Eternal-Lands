@@ -31,7 +31,7 @@
 #ifdef	NEW_TEXTURES
 
 #define ACTOR_TEXTURE_CACHE_MAX 1024
-#define ACTOR_TEXTURE_THREAD_COUNT 1
+#define ACTOR_TEXTURE_THREAD_COUNT 4
 
 actor_texture_cache_struct* actor_texture_handles = 0;
 SDL_Thread* actor_texture_threads[ACTOR_TEXTURE_THREAD_COUNT];
@@ -995,7 +995,14 @@ Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
 	CHECK_AND_LOCK_MUTEX(actor_texture_handles[handle].mutex);
 
 #ifdef	DEBUG
-	assert("actor texture used value is invalid." && (actor_texture_handles[handle].used != 0));
+	if (actor_texture_handles[handle].used == 0)
+	{
+		LOG_ERROR("actor texture used value is invalid: %i.", handle);
+
+		CHECK_AND_LOCK_MUTEX(actor_texture_handles[handle].mutex);
+
+		return;
+	}
 #endif	/* DEBUG */
 
 	actor_texture_handles[handle].access_time = cur_time;
@@ -1003,6 +1010,28 @@ Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
 	if (alpha != 0)
 	{
 		*alpha = actor_texture_handles[handle].image.alpha;
+	}
+
+	if (actor_texture_handles[handle].id != 0)
+	{
+#ifdef	DEBUG
+		if ((actor_texture_handles[handle].state != tst_texture_loading) &&
+			(actor_texture_handles[handle].state != tst_texture_loaded))
+		{
+			LOG_ERROR("no actor texture uploaded: %i.", handle);
+
+			CHECK_AND_LOCK_MUTEX(actor_texture_handles[handle].mutex);
+
+			return;
+		}
+#endif	/* DEBUG */
+		bind_texture_id(actor_texture_handles[handle].id);
+
+		result = 1;
+	}
+	else
+	{
+		result = 0;
 	}
 
 	if (actor_texture_handles[handle].state == tst_image_loaded)
@@ -1052,23 +1081,20 @@ Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
 		if (actor_texture_handles[handle].id == 0)
 		{
 			actor_texture_handles[handle].id = id;
+			actor_texture_handles[handle].state = tst_texture_loaded;
 		}
 		else
 		{
+			if (actor_texture_handles[handle].new_id != 0)
+			{
+				LOG_ERROR("New texture id in use at texture handle: %i.", handle);
+
+				glDeleteTextures(1, &actor_texture_handles[handle].new_id);
+			}
+
 			actor_texture_handles[handle].new_id = id;
 			actor_texture_handles[handle].state = tst_texture_loading;
 		}
-	}
-
-	if (actor_texture_handles[handle].id != 0)
-	{
-		bind_texture_id(actor_texture_handles[handle].id);
-
-		result = 1;
-	}
-	else
-	{
-		result = 0;
 	}
 
 	CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[handle].mutex);
@@ -1089,7 +1115,14 @@ void free_actor_texture(const Uint32 handle)
 	CHECK_AND_LOCK_MUTEX(actor_texture_handles[handle].mutex);
 
 #ifdef	DEBUG
-	assert("actor texture used value is invalid." && (actor_texture_handles[handle].used != 0));
+	if (actor_texture_handles[handle].used == 0)
+	{
+		LOG_ERROR("actor texture used value is invalid: %i.", handle);
+
+		CHECK_AND_LOCK_MUTEX(actor_texture_handles[handle].mutex);
+
+		return;
+	}
 #endif	/* DEBUG */
 
 	actor_texture_handles[handle].used = 0;
@@ -1122,7 +1155,14 @@ Uint32 get_actor_texture_ready(const Uint32 handle)
 	CHECK_AND_LOCK_MUTEX(actor_texture_handles[handle].mutex);
 
 #ifdef	DEBUG
-	assert("actor texture used value is invalid." && (actor_texture_handles[handle].used != 0));
+	if (actor_texture_handles[handle].used == 0)
+	{
+		LOG_ERROR("actor texture used value is invalid: %i.", handle);
+
+		CHECK_AND_LOCK_MUTEX(actor_texture_handles[handle].mutex);
+
+		return;
+	}
 #endif	/* DEBUG */
 
 	if (actor_texture_handles[handle].state == tst_texture_loading)
@@ -1152,8 +1192,23 @@ void use_ready_actor_texture(const Uint32 handle)
 	CHECK_AND_LOCK_MUTEX(actor_texture_handles[handle].mutex);
 
 #ifdef	DEBUG
-	assert("actor texture used value is invalid." && (actor_texture_handles[handle].used != 0));
-	assert("actor texture not uploaded." && (actor_texture_handles[handle].state == tst_texture_loading));
+	if (actor_texture_handles[handle].used == 0)
+	{
+		LOG_ERROR("actor texture used value is invalid: %i.", handle);
+
+		CHECK_AND_LOCK_MUTEX(actor_texture_handles[handle].mutex);
+
+		return;
+	}
+
+	if (actor_texture_handles[handle].state != tst_texture_loading)
+	{
+		LOG_ERROR("actor texture not uploaded: %i.", handle);
+
+		CHECK_AND_LOCK_MUTEX(actor_texture_handles[handle].mutex);
+
+		return;
+	}
 #endif	/* DEBUG */
 
 	actor_texture_handles[handle].state = tst_texture_loaded;
@@ -1221,7 +1276,14 @@ void change_enhanced_actor(const Uint32 handle, enhanced_actor* actor)
 	CHECK_AND_LOCK_MUTEX(actor_texture_handles[handle].mutex);
 
 #ifdef	DEBUG
-	assert("actor texture used value is invalid." && (actor_texture_handles[handle].used != 0));
+	if (actor_texture_handles[handle].used == 0)
+	{
+		LOG_ERROR("actor texture used value is invalid: %i.", handle);
+
+		CHECK_AND_LOCK_MUTEX(actor_texture_handles[handle].mutex);
+
+		return;
+	}
 #endif	/* DEBUG */
 
 	memcpy(&actor_texture_handles[handle].files, &files, sizeof(files));
