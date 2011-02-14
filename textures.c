@@ -38,6 +38,7 @@ SDL_Thread* actor_texture_threads[ACTOR_TEXTURE_THREAD_COUNT];
 Uint32 max_actor_texture_handles = 64;
 queue_t* actor_texture_queue = 0;
 Uint32 actor_texture_threads_done = 0;
+int use_actor_texture_compression = 0;
 
 #define TEXTURE_CACHE_MAX 4096
 
@@ -1072,7 +1073,7 @@ Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
 			af = 1;
 		}
 
-		if (have_extension(ext_texture_compression_s3tc) != 0)
+		if (use_actor_texture_compression != 0)
 		{
 			if (actor_texture_handles[handle].image.alpha == 0)
 			{
@@ -1091,7 +1092,7 @@ Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
 			}
 			else
 			{
-				format = tft_rgb5_a1;
+				format = tft_rgba4;
 			}
 		}
 

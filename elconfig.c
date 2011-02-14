@@ -482,6 +482,22 @@ void change_clouds_shadows(int *value)
 //	else LOG_TO_CONSOLE(c_green2,disabled_clouds_shadows);
 }
 
+#ifdef	NEW_TEXTURES
+void change_actor_texture_compression(int *value)
+{
+	if (*value) {
+		*value= 0;
+	}
+	else if (!gl_extensions_loaded || have_extension(ext_texture_compression_s3tc))
+	{
+		// don't check if we have hardware support when OpenGL
+		// extensions are not initialized yet.
+		*value= 1;
+	}
+
+	unload_texture_cache();
+}
+#else	/* NEW_TEXTURES */
 void change_mipmaps(int *value)
 {
 	if (*value) {
@@ -495,6 +511,7 @@ void change_mipmaps(int *value)
 	}
 //	else LOG_TO_CONSOLE(c_green2,disabled_mipmaps);
 }
+#endif	/* NEW_TEXTURES */
 
 void change_point_particles(int *value)
 {
@@ -1256,7 +1273,11 @@ void check_options()
 	check_option_var("use_compiled_vertex_array");
 	check_option_var("use_vertex_buffers");
 	check_option_var("use_clouds_shadows");
+#ifdef	NEW_TEXTURES
+	check_option_var("use_actor_texture_compression");
+#else	/* NEW_TEXTURES */
 	check_option_var("use_mipmaps");
+#endif	/* NEW_TEXTURES */
 	check_option_var("use_point_particles");
 	check_option_var("use_frame_buffer");
 	check_option_var("use_shadow_mapping");
@@ -1570,7 +1591,11 @@ void init_vars()
 	add_var(OPT_BOOL,"no_adjust_shadows","noadj",&no_adjust_shadows,change_var,0,"Don't Adjust Shadows","If enabled, tell the engine not to disable the shadows if the frame rate is too low.",LODTAB);
 	add_var(OPT_BOOL,"clouds_shadows","cshad",&clouds_shadows,change_clouds_shadows,1,"Cloud Shadows","The clouds shadows are projected on the ground, and the game looks nicer with them on.",LODTAB);
 	add_var(OPT_BOOL,"show_fps","fps",&show_fps,change_var,1,"Show FPS","Show the current frames per second in the corner of the window",HUD);
+#ifdef	NEW_TEXTURES
+	add_var(OPT_BOOL,"use_actor_texture_compression","actor_tc",&use_actor_texture_compression,change_actor_texture_compression,0,"Actor texture compression","Actor texture compression reduces the size of the actor textures, but increase the load times.",ADVVID);
+#else	/* NEW_TEXTURES */
 	add_var(OPT_BOOL,"use_mipmaps","mm",&use_mipmaps,change_mipmaps,0,"Mipmaps","Mipmaps is a texture effect that blurs the texture a bit - it may look smoother and better, or it may look worse depending on your graphics driver settings and the like.",ADVVID);
+#endif	/* NEW_TEXTURES */
 	add_var(OPT_BOOL,"use_compiled_vertex_array","cva",&use_compiled_vertex_array,change_compiled_vertex_array,1,"Compiled Vertex Array","Some systems will not support the new compiled vertex array in EL. Disable this if some 3D objects do not display correctly.",ADVVID);
 #ifndef MAP_EDITOR
 	add_var(OPT_BOOL,"use_vertex_buffers","vbo",&use_vertex_buffers,change_vertex_buffers,0,"Vertex Buffer Objects","Toggle the use of the vertex buffer objects, restart required to activate it",ADVVID);
