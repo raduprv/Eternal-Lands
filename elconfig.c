@@ -628,10 +628,6 @@ int switch_video(int mode, int full_screen)
 #endif
 	}
 	build_fbos();
-#ifdef NEW_NEW_CHAR_WINDOW
-	resize_newchar_hud_window(); //This window needs resizing
-#endif
-
 	return 1;
 }
 void switch_vidmode(int *pointer, int mode)
