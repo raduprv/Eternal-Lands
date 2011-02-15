@@ -511,15 +511,22 @@ void move_to_next_frame()
 						missiles_log_message("%s (%d): leaving range mode finished!\n",
 											 actors_list[i]->actor_name, actors_list[i]->actor_id);
 
+#ifndef	NEW_TEXTURES
 						// then we do all the item changes that have been delayed
 						flush_delayed_item_changes(actors_list[i]);
+#endif	/* NEW_TEXTURES */
 					}
 				}
 			}
-			if (actors_list[i]->delayed_item_changes_count > 0)
-			{
 #ifdef	NEW_TEXTURES
+			if (actors_list[i]->in_aim_mode == 0)
+			{
 				if (get_actor_texture_ready(actors_list[i]->texture_id))
+				{
+					use_ready_actor_texture(actors_list[i]->texture_id);
+				}
+
+				if (actors_list[i]->delayed_item_changes_count > 0)
 				{
 					// we really leave the aim mode only when the animation is finished
 					actors_list[i]->delay_texture_item_changes = 0;
@@ -527,12 +534,10 @@ void move_to_next_frame()
 					// then we do all the item changes that have been delayed
 					flush_delayed_item_changes(actors_list[i]);
 
-					use_ready_actor_texture(actors_list[i]->texture_id);
-
 					actors_list[i]->delay_texture_item_changes = 1;
 				}
-#endif	/* NEW_TEXTURES */
 			}
+#endif	/* NEW_TEXTURES */
 
 			// we change the idle animation only when the previous one is finished
 			if (actors_list[i]->stand_idle && actors_list[i]->anim_time >= actors_list[i]->cur_anim.duration - 0.2)

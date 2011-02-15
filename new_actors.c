@@ -228,6 +228,7 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 						if(which_part==KIND_OF_WEAPON)
 							{
 								ec_remove_weapon(actors_list[i]);
+#ifndef	NEW_TEXTURES
 								if (actors_list[i]->in_aim_mode > 0) {
 									if (actors_list[i]->delayed_item_changes_count < MAX_ITEM_CHANGES_QUEUE) {
 										missiles_log_message("%s (%d): unwear item type %d delayed",
@@ -241,19 +242,21 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 									}
 									return;
 								}
+#endif	/* NEW_TEXTURES */
 								if(actors_list[i]->cur_weapon == GLOVE_FUR || actors_list[i]->cur_weapon == GLOVE_LEATHER){
 									my_strcp(actors_list[i]->body_parts->hands_tex, actors_list[i]->body_parts->hands_tex_save);
-#ifdef	NEW_TEXTURES
-									if (delay_texture_item_change(actors_list[i], which_part, -1))
-									{
-										return;
-									}
-#else	/* NEW_TEXTURES */
+#ifndef	NEW_TEXTURES
 									glDeleteTextures(1,&actors_list[i]->texture_id);
 									actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
 #endif	/* NEW_TEXTURES */
 
 								}
+#ifdef	NEW_TEXTURES
+								if (delay_texture_item_change(actors_list[i], which_part, -1))
+								{
+									return;
+								}
+#endif	/* NEW_TEXTURES */
 								model_detach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].weapon[actors_list[i]->cur_weapon].mesh_index);
 								actors_list[i]->body_parts->weapon_tex[0]=0;
 								actors_list[i]->cur_weapon = WEAPON_NONE;
@@ -377,6 +380,7 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 						my_tolower(onlyname);
 						safe_snprintf(playerpath, sizeof(playerpath), "custom/player/%s/", onlyname);
 #endif
+#ifndef	NEW_TEXTURES
 						if (actors_list[i]->in_aim_mode > 0 &&
 							(which_part == KIND_OF_WEAPON || which_part == KIND_OF_SHIELD)) {
 							if (actors_list[i]->delayed_item_changes_count < MAX_ITEM_CHANGES_QUEUE) {
@@ -391,6 +395,7 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 							}
 							return;
 						}
+#endif	/* NEW_TEXTURES */
 						if (which_part==KIND_OF_WEAPON)
 							{
 								if(which_id == GLOVE_FUR || which_id == GLOVE_LEATHER){

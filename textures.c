@@ -1325,6 +1325,19 @@ void change_enhanced_actor(const Uint32 handle, enhanced_actor* actor)
 	}
 #endif	/* DEBUG */
 
+ 	if (hash == actor_texture_handles[handle].hash)
+ 	{
+ 		if (!memcmp(&actor_texture_handles[handle].files, &files,
+ 			sizeof(files)))
+ 		{
+ 			actor_texture_handles[handle].access_time = cur_time;
+ 
+ 			CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[handle].mutex);
+ 
+ 			return;
+ 		}
+ 	}
+
 	memcpy(&actor_texture_handles[handle].files, &files, sizeof(files));
 
 	actor_texture_handles[handle].hash = hash;
