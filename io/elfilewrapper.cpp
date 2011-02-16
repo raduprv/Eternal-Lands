@@ -26,7 +26,7 @@ extern "C" void add_paths()
 	CATCH_AND_LOG_EXCEPTIONS
 }
 
-extern "C" el_file* el_open(const char* file_name)
+extern "C" el_file_ptr el_open(const char* file_name)
 {
 	eternal_lands::el_file* file;
 
@@ -34,12 +34,12 @@ extern "C" el_file* el_open(const char* file_name)
 	{
 		file = new eternal_lands::el_file(file_name, true);
 
-		return (el_file*)file;
+		return (el_file_ptr)file;
 	}
 	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(0);
 }
 
-extern "C" el_file* el_open_custom(const char* file_name)
+extern "C" el_file_ptr el_open_custom(const char* file_name)
 {
 	eternal_lands::el_file* file;
 
@@ -47,12 +47,12 @@ extern "C" el_file* el_open_custom(const char* file_name)
 	{
 		file = new eternal_lands::el_file(file_name, true, get_path_config_base());		// The /custom/ is already on the front
 
-		return (el_file*)file;
+		return (el_file_ptr)file;
 	}
 	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(0);
 }
 
-extern "C" el_file* el_open_anywhere(const char* file_name)
+extern "C" el_file_ptr el_open_anywhere(const char* file_name)
 {
 	eternal_lands::el_file* file;
 
@@ -60,12 +60,12 @@ extern "C" el_file* el_open_anywhere(const char* file_name)
 	{
 		file = new eternal_lands::el_file (file_name, true, get_path_config());
 
-		return (el_file*)file;
+		return (el_file_ptr)file;
 	}
 	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(0);
 }
 
-extern "C" el_file* el_open_no_decompress(const char* file_name)
+extern "C" el_file_ptr el_open_no_decompress(const char* file_name)
 {
 	eternal_lands::el_file* file;
 
@@ -73,12 +73,12 @@ extern "C" el_file* el_open_no_decompress(const char* file_name)
 	{
 		file = new eternal_lands::el_file(file_name, false);
 
-		return (el_file*)file;
+		return (el_file_ptr)file;
 	}
 	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(0);
 }
 
-extern "C" int el_read(el_file* file, int size, void* buffer)
+extern "C" int el_read(el_file_ptr file, int size, void* buffer)
 {
 	if (file == 0)
 	{
@@ -91,7 +91,7 @@ extern "C" int el_read(el_file* file, int size, void* buffer)
 	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(-1);
 }
 
-extern "C" int el_seek(el_file* file, int offset, int seek_type)
+extern "C" int el_seek(el_file_ptr file, int offset, int seek_type)
 {
 	if (file == 0)
 	{
@@ -105,7 +105,7 @@ extern "C" int el_seek(el_file* file, int offset, int seek_type)
 	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(-1);
 }
 
-extern "C" int el_tell(el_file* file)
+extern "C" int el_tell(el_file_ptr file)
 {
 	if (file == 0)
 	{
@@ -119,7 +119,7 @@ extern "C" int el_tell(el_file* file)
 	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(-1);
 }
 
-extern "C" int el_get_size(el_file* file)
+extern "C" int el_get_size(el_file_ptr file)
 {
 	if (file == 0)
 	{
@@ -133,7 +133,7 @@ extern "C" int el_get_size(el_file* file)
 	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(-1);
 }
 
-extern "C" void el_close(el_file* file)
+extern "C" void el_close(el_file_ptr file)
 {
 	if (file == 0)
 	{
@@ -145,7 +145,7 @@ extern "C" void el_close(el_file* file)
 	file = 0;
 }
 
-extern "C" void* el_get_pointer(el_file* file)
+extern "C" void* el_get_pointer(el_file_ptr file)
 {
 	if (file == 0)
 	{
@@ -182,6 +182,20 @@ extern "C" int el_file_exists_anywhere(const char* file_name)
 	try
 	{
 		return eternal_lands::el_file::file_exists(file_name, get_path_config());
+	}
+	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(0);
+}
+
+extern "C" const char* el_file_name(el_file_ptr file)
+{
+	if (file == 0)
+	{
+		return 0;
+	}
+
+	try
+	{
+		return ((eternal_lands::el_file*)file)->get_file_name().c_str();
 	}
 	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(0);
 }

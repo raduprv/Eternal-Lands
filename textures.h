@@ -63,7 +63,7 @@ typedef struct
 	texture_type type;		/*!< the texture type, needed for loading and unloading */
 	Uint8 load_err;			/*!< if true, we tried to load this texture before and failed */
 	Uint8 alpha;			/*!< the texture has an alpha channel */
-} texture_cache_struct;
+} texture_cache_t;
 
 /*!
  * we use a separate cache structure to cache textures.
@@ -99,7 +99,7 @@ typedef struct
 	char neck_tex[MAX_FILE_PATH];
 	char cape_tex[MAX_FILE_PATH];
 	char hands_tex_save[MAX_FILE_PATH];
-} enhanced_actor_images;
+} enhanced_actor_images_t;
 
 typedef enum
 {
@@ -110,21 +110,24 @@ typedef enum
 	tst_texture_loaded
 } texture_state_type;
 
+#define MAX_ACTOR_NAME 24
+
 /*!
  * we use a separate cache structure to cache textures.
  */
 typedef struct
 {
-	enhanced_actor_images files;	/*!< the files used for the texture */
+	enhanced_actor_images_t files;	/*!< the files used for the texture */
+	char name[MAX_ACTOR_NAME];	/*!< used as an uid.... */
 	SDL_mutex* mutex;		/*!< the mutex used for this structure */
-	image_struct image;		/*!< the image for the texture */
+	image_t image;			/*!< the image for the texture */
 	GLuint id;			/*!< the id of the texture */
 	GLuint new_id;			/*!< the id of the new texture */
-	Uint32 hash;			/*!< hash value */
+	Uint32 hash;			/*!< hash value of the files */
 	Uint32 used;			/*!< if this is used at the moment? */
 	Uint32 access_time;		/*!< last time used */
 	texture_state_type state;	/*!< the texture states e.g. loading */
-} actor_texture_cache_struct;
+} actor_texture_cache_t;
 
 /*!
  * \ingroup 	textures
@@ -228,7 +231,7 @@ Uint32 get_texture_alpha(const Uint32 handle);
  * \retval	Uint32 The actor texture handle.
  * \callgraph
  */
-Uint32 load_enhanced_actor(enhanced_actor* actor);
+Uint32 load_enhanced_actor(const enhanced_actor* actor, const char* name);
 
 /*!
  * \ingroup 	textures

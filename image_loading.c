@@ -8,7 +8,6 @@
 #include "image_loading.h"
 #include "errors.h"
 #include "asc.h"
-#include "io/elfilewrapper.h"
 #include <SDL.h>
 #include <SDL_image.h>
 #include "ddsimage.h"
@@ -120,8 +119,8 @@ Uint32 check_alpha_image_name(const char* file_name, const Uint32 size, char* st
 	return 0;
 }
 
-static Uint32 load_image_SDL(el_file_ptr file, const char * file_name,
-	const Uint32 compute_alpha, image_struct *image)
+static Uint32 load_image_SDL(el_file_ptr file, const Uint32 compute_alpha,
+	image_t* image)
 {
 	SDL_Surface *image_surface;
 	GLubyte* data;
@@ -131,7 +130,7 @@ static Uint32 load_image_SDL(el_file_ptr file, const char * file_name,
 
 	if (file == 0)
 	{
-		LOG_ERROR("Can't load file '%s'!", file_name);
+		LOG_ERROR("Invalid file!");
 
 		return 0;
 	}
@@ -141,7 +140,8 @@ static Uint32 load_image_SDL(el_file_ptr file, const char * file_name,
 
 	if (image_surface == 0)
 	{
-		LOG_ERROR("load_image() error: [%s] [%s]", file_name, IMG_GetError());
+		LOG_ERROR("load_image() error: [%s] [%s]", el_file_name(file),
+			IMG_GetError());
 		return 0;
 	}
 
@@ -263,8 +263,7 @@ static Uint32 load_image_SDL(el_file_ptr file, const char * file_name,
 	return 1;
 }
 
-static Uint32 load_image_SDL_alpha(el_file_ptr file, const char * file_name,
-	image_struct *image)
+static Uint32 load_image_SDL_alpha(el_file_ptr file, image_t* image)
 {
 	SDL_Surface *image_surface;
 	GLubyte* data;
@@ -274,7 +273,7 @@ static Uint32 load_image_SDL_alpha(el_file_ptr file, const char * file_name,
 
 	if (file == 0)
 	{
-		LOG_ERROR("Can't load file '%s'!", file_name);
+		LOG_ERROR("Invalid file!");
 
 		return 0;
 	}
@@ -284,7 +283,7 @@ static Uint32 load_image_SDL_alpha(el_file_ptr file, const char * file_name,
 
 	if (image_surface == 0)
 	{
-		LOG_ERROR("load_image() error: [%s] [%s]", file_name,
+		LOG_ERROR("load_image() error: [%s] [%s]", el_file_name(file),
 			IMG_GetError());
 		return 0;
 	}
@@ -299,14 +298,18 @@ static Uint32 load_image_SDL_alpha(el_file_ptr file, const char * file_name,
 	if (image->width != image_width)
 	{
 		LOG_ERROR("Alpha map '%s' had wrong width %i, expected width"
-			" is %i.", file_name, image_width, image->width);
+			" is %i.", el_file_name(file), image_width,
+			image->width);
+
 		return 0;
 	}
 
 	if (image->height != image_height)
 	{
 		LOG_ERROR("Alpha map '%s' had wrong width %i, expected width"
-			" is %i.", file_name, image_height, image->height);
+			" is %i.", el_file_name(file), image_height,
+			image->height);
+
 		return 0;
 	}
 
@@ -367,10 +370,56 @@ static Uint32 load_image_SDL_alpha(el_file_ptr file, const char * file_name,
 	return 1;
 }
 
+Uint32 load_image_data_file(el_file_ptr file, const Uint32 uncompress,
+	const Uint32 unpack, const Uint32 strip_mipmaps,
+	const Uint32 base_level, const Uint32 compute_alpha,
+	image_t* image)
+{
+	Uint32 dds, result;
+
+	if (file == 0)
+	{
+		LOG_ERROR("Invalid file!");
+
+		return 0;
+	}
+
+	dds = 0;
+
+	if (el_get_size(file) >= 4)
+	{
+		if (check_dds(el_get_pointer(file)))
+		{
+			dds = 1;
+		}
+	}
+
+	if (dds == 1)
+	{
+		result = load_dds(file, uncompress, unpack,
+			strip_mipmaps, base_level, image);
+	}
+	else
+	{
+		result = load_image_SDL(file, compute_alpha, image);
+	}
+
+	el_close(file);
+
+	if ((result == 0) || (image->image == 0))
+	{
+		LOG_ERROR("Can't load file '%s'!", el_file_name(file));
+
+		return 0;
+	}
+
+	return 1;
+}
+
 Uint32 load_image_data(const char* file_name, const Uint32 uncompress,
 	const Uint32 unpack, const Uint32 strip_mipmaps,
 	const Uint32 base_level, const Uint32 compute_alpha,
-	image_struct* image)
+	image_t* image)
 {
 	char buffer[128];
 	el_file_ptr file;
@@ -403,12 +452,12 @@ Uint32 load_image_data(const char* file_name, const Uint32 uncompress,
 
 	if (dds == 1)
 	{
-		result = load_dds(file, buffer, uncompress, unpack,
+		result = load_dds(file, uncompress, unpack,
 			strip_mipmaps, base_level, image);
 	}
 	else
 	{
-		result = load_image_SDL(file, buffer, compute_alpha, image);
+		result = load_image_SDL(file, compute_alpha, image);
 	}
 
 	el_close(file);
@@ -431,7 +480,7 @@ Uint32 load_image_data(const char* file_name, const Uint32 uncompress,
 			return 0;
 		}
 
-		result = load_image_SDL_alpha(file, buffer, image);
+		result = load_image_SDL_alpha(file, image);
 
 		el_close(file);
 	}

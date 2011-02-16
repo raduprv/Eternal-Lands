@@ -59,8 +59,13 @@ void build_glow_color_table()
 }
 
 //return the ID (number in the actors_list[]) of the new allocated actor
+#ifdef	NEW_TEXTURES
+int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
+	float z_pos, float z_rot, float scale, int actor_id, const char* name)
+#else	// NEW_TEXTURES
 int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 					   float z_pos, float z_rot, float scale, int actor_id)
+#endif	// NEW_TEXTURES
 {
 	int texture_id;
 	int i;
@@ -77,7 +82,7 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 
 	//get the skin
 #ifdef	NEW_TEXTURES
-	texture_id = load_enhanced_actor(this_actor);
+	texture_id = load_enhanced_actor(this_actor, name);
 #else	/* NEW_TEXTURES */
 	texture_id= load_bmp8_enhanced_actor(this_actor, 255);
 #endif	/* NEW_TEXTURES */
@@ -643,7 +648,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	int dead=0;
 	int kind_of_actor;
 	enhanced_actor *this_actor;
-#ifdef CUSTOM_LOOK
+#if defined(CUSTOM_LOOK) || defined(NEW_TEXTURES)
 	char playerpath[256], guildpath[256];
 	char onlyname[32]={0};
 	Uint32 j;
@@ -832,7 +837,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 		uniq_id = 0;
 #endif
 
-#ifdef CUSTOM_LOOK
+#if defined(CUSTOM_LOOK) || defined(NEW_TEXTURES)
 		/* skip leading color codes */
 		for (name=buffer; *name && is_color (*name); name++) /* nothing */ ;
 		/* trim off any guild tag, leaving solely the name (onlyname)*/
@@ -855,7 +860,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 
 		/* perform case insensitive comparison/hashing */
 		my_tolower(name);
-#ifdef CUSTOM_LOOK
+#if defined(CUSTOM_LOOK) || defined(NEW_TEXTURES)
 		my_tolower(onlyname);
 #endif //CUSTOM_LOOK
 
@@ -1007,9 +1012,11 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			my_strncp(this_actor->neck_tex,"",sizeof(this_actor->neck_tex));
 		}
 
-
+#ifdef	NEW_TEXTURES
+	i=add_enhanced_actor(this_actor,f_x_pos,f_y_pos,0.0,f_z_rot,scale,actor_id, onlyname);
+#else	/* NEW_TEXTURES */
 	i=add_enhanced_actor(this_actor,f_x_pos,f_y_pos,0.0,f_z_rot,scale,actor_id);
-
+#endif	/* NEW_TEXTURES */
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif //EXTRA_DEBUG
@@ -1255,7 +1262,11 @@ actor * add_actor_interface(float x, float y, float z_rot, float scale, int acto
 	my_strncp(this_actor->pants_tex,actors_defs[actor_type].legs[pants].legs_name,sizeof(this_actor->pants_tex));
 	my_strncp(this_actor->pants_mask,actors_defs[actor_type].legs[pants].legs_mask,sizeof(this_actor->pants_mask));
 
+#ifdef	NEW_TEXTURES
+	a=actors_list[add_enhanced_actor(this_actor, x*0.5f, y*0.5f, 0.00000001f, z_rot, scale, 0, 0)];
+#else	/* NEW_TEXTURES */
 	a=actors_list[add_enhanced_actor(this_actor, x*0.5f, y*0.5f, 0.00000001f, z_rot, scale, 0)];
+#endif	/* NEW_TEXTURES */
 
 	a->x_tile_pos=x;
 	a->y_tile_pos=y;

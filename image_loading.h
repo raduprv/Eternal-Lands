@@ -9,6 +9,7 @@
 #define UUID_41de9803_25ba_428b_8344_727ced850c53
 
 #include "platform.h"
+#include "io/elfilewrapper.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,7 +52,7 @@ typedef struct
 	Uint32 mipmaps;				/*!< the number of mipmaps of the image */
 	image_format_type format;		/*!< the format of the image */
 	Uint8 alpha;				/*!< the image has an alpha channel */
-} image_struct;
+} image_t;
 
 /*!
  * \ingroup 	textures
@@ -83,10 +84,11 @@ Uint32 get_file_name_len(const char* file_name);
  * \ingroup 	textures
  * \brief 	Loads an image.
  *
- * 		Loads an image into the struct image. Can
- *		uncompress and unpack (converts the data to RGBA8) the pixels.
- *		Only if needed are the mipmaps loaded also the loading can
- *		start at a different base level (e.g. the first mipmap).
+ * 		Loads an image into the struct image. Can uncompress and unpack
+ *		(converts the data to RGBA8) the pixels. Only if needed are the
+ * 		mipmaps loaded. Also the loading can start at a different base
+ *		level (e.g. the first mipmap). Tries to find and load an alpha
+		map image.
  * \param   	file_name The file name to use.
  * \param   	uncompress Should the image get uncompressed if it is compressed?
  * \param   	unpack Should the image get converted to RGBA8?
@@ -100,7 +102,31 @@ Uint32 get_file_name_len(const char* file_name);
 Uint32 load_image_data(const char* file_name, const Uint32 uncompress,
 	const Uint32 unpack, const Uint32 strip_mipmaps,
 	const Uint32 base_level, const Uint32 compute_alpha,
-	image_struct* image);
+	image_t* image);
+
+/*!
+ * \ingroup 	textures
+ * \brief 	Loads an image.
+ *
+ * 		Loads an image into the struct image. Can uncompress and unpack
+ *		(converts the data to RGBA8) the pixels. Only if needed are the
+ * 		mipmaps loaded. Also the loading can start at a different base
+ *		level (e.g. the first mipmap). The file is closed befor the
+ *		function returns.
+ * \param   	file The file to use.
+ * \param   	uncompress Should the image get uncompressed if it is compressed?
+ * \param   	unpack Should the image get converted to RGBA8?
+ * \param   	strip_mipmaps Should we strip the mipmaps?
+ * \param   	base_level What base level should we use?
+ * \param   	compute_alpha Should the alpha value be computes (a = (r + g + b) / 3)?
+ * \param   	image The image struct where we store the loaded data.
+ * \retval Uint32	Returns one if everything is ok, zero else.
+ * \callgraph
+ */
+Uint32 load_image_data_file(el_file_ptr file, const Uint32 uncompress,
+	const Uint32 unpack, const Uint32 strip_mipmaps,
+	const Uint32 base_level, const Uint32 compute_alpha,
+	image_t* image);
 
 #ifdef __cplusplus
 } // extern "C"

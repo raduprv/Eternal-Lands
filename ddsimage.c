@@ -297,7 +297,7 @@ static Uint32 validate_header(DdsHeader *header, const char* file_name)
 	return 1;
 }
 
-static Uint32 init_dds_image(el_file_ptr file, DdsHeader *header, const char* file_name)
+static Uint32 init_dds_image(el_file_ptr file, DdsHeader *header)
 {
 	Uint8 magic[4];
 
@@ -305,7 +305,8 @@ static Uint32 init_dds_image(el_file_ptr file, DdsHeader *header, const char* fi
 
 	if (!check_dds(magic))
 	{
-		LOG_ERROR("File '%s' is invalid. Wrong magic number for a valid DDS.", file_name);
+		LOG_ERROR("File '%s' is invalid. Wrong magic number for a "
+			"valid DDS.", el_file_name(file));
 		return 0;
 	}
 
@@ -347,7 +348,7 @@ static Uint32 init_dds_image(el_file_ptr file, DdsHeader *header, const char* fi
 
 	header->m_reserved2 = SDL_SwapLE32(header->m_reserved2);
 
-	return validate_header(header, file_name);
+	return validate_header(header, el_file_name(file));
 }
 
 static void read_colors_block(el_file_ptr file, DXTColorBlock *colors)
@@ -574,8 +575,7 @@ static Uint32 get_dds_offset(const DdsHeader *header, const Uint32 base_level)
 }
 
 static void* uncompress_dds(el_file_ptr file, DdsHeader *header,
-	const char* file_name, const Uint32 strip_mipmaps,
-	const Uint32 base_level)
+	const Uint32 strip_mipmaps, const Uint32 base_level)
 {
 	Uint32 width, height, size, format, mipmap_count;
 	Uint32 x, y, i, w, h;
@@ -585,7 +585,7 @@ static void* uncompress_dds(el_file_ptr file, DdsHeader *header,
 	if ((header->m_height % 4) != 0)
 	{
 		LOG_ERROR("Can`t uncompressed DDS file %s because height is"
-			" %d and not a multible of four.", file_name,
+			" %d and not a multiple of four.", el_file_name(file),
 			header->m_height);
 		return 0;
 	}
@@ -593,7 +593,7 @@ static void* uncompress_dds(el_file_ptr file, DdsHeader *header,
 	if ((header->m_width % 4) != 0)
 	{
 		LOG_ERROR("Can`t uncompressed DDS file %s because width is"
-			" %d and not a multible of four.", file_name,
+			" %d and not a multiple of four.", el_file_name(file),
 			header->m_width);
 		return 0;
 	}
@@ -662,7 +662,7 @@ static void* uncompress_dds(el_file_ptr file, DdsHeader *header,
 	return dest;
 }
 
-static void* unpack_dds(el_file_ptr file, DdsHeader *header, const char* file_name,
+static void* unpack_dds(el_file_ptr file, DdsHeader *header,
 	const Uint32 strip_mipmaps, const Uint32 base_level)
 {
 	Uint8* dest;
@@ -684,7 +684,7 @@ static void* unpack_dds(el_file_ptr file, DdsHeader *header, const char* file_na
 }
 
 #ifdef	NEW_TEXTURES
-static void* read_dds(el_file_ptr file, DdsHeader *header, const char* file_name,
+static void* read_dds(el_file_ptr file, DdsHeader *header,
 	const Uint32 strip_mipmaps, const Uint32 base_level)
 {
 	Uint8* dst;
@@ -703,7 +703,7 @@ static void* read_dds(el_file_ptr file, DdsHeader *header, const char* file_name
 static void get_dds_sizes_and_offsets(const DdsHeader *header,
 	const Uint32 uncompress, const Uint32 unpack,
 	const Uint32 strip_mipmaps, const Uint32 base_level,
-	image_struct* image)
+	image_t* image)
 {
 	Uint32 offset, size, index, mipmap_count, i;
 
@@ -736,9 +736,9 @@ static void get_dds_sizes_and_offsets(const DdsHeader *header,
 	}
 }
 
-Uint32 load_dds(el_file_ptr file, const char* file_name, const Uint32 uncompress,
+Uint32 load_dds(el_file_ptr file, const Uint32 uncompress,
 	const Uint32 unpack, const Uint32 strip_mipmaps, Uint32 base_level,
-	image_struct* image)
+	image_t* image)
 {
 	DdsHeader header;
 	Uint32 format, format_unpack, mipmap_count, start_mipmap;
@@ -748,7 +748,7 @@ Uint32 load_dds(el_file_ptr file, const char* file_name, const Uint32 uncompress
 		return 0;
 	}
 
-	if (init_dds_image(file, &header, file_name) != 0)
+	if (init_dds_image(file, &header) != 0)
 	{
 		start_mipmap = min2u(base_level, header.m_mipmap_count - 1);
 
@@ -781,7 +781,7 @@ Uint32 load_dds(el_file_ptr file, const char* file_name, const Uint32 uncompress
 			(format == DDSFMT_ATI2)))
 		{
 			image->image = uncompress_dds(file, &header,
-				file_name, strip_mipmaps, start_mipmap);
+				strip_mipmaps, start_mipmap);
 			image->format = ift_rgba8;
 
 			get_dds_sizes_and_offsets(&header, 1, 1,
@@ -792,7 +792,7 @@ Uint32 load_dds(el_file_ptr file, const char* file_name, const Uint32 uncompress
 			if ((unpack != 0) || (format_unpack != 0))
 			{
 				image->image = unpack_dds(file, &header,
-					file_name, strip_mipmaps, start_mipmap);
+					strip_mipmaps, start_mipmap);
 				image->format = ift_rgba8;
 
 				get_dds_sizes_and_offsets(&header, 0, 1,
@@ -801,7 +801,7 @@ Uint32 load_dds(el_file_ptr file, const char* file_name, const Uint32 uncompress
 			else
 			{
 				image->image = read_dds(file, &header,
-					file_name, strip_mipmaps, start_mipmap);
+					strip_mipmaps, start_mipmap);
 
 				get_dds_sizes_and_offsets(&header, 0, 0,
 					strip_mipmaps, start_mipmap, image);
@@ -830,7 +830,7 @@ Uint32 load_dds(el_file_ptr file, const char* file_name, const Uint32 uncompress
 	}
 }
 #else	/* NEW_TEXTURES */
-void* load_dds(el_file_ptr file, const char* file_name, int *width, int *height)
+void* load_dds(el_file_ptr file, int *width, int *height)
 {
 	DdsHeader header;
 	Uint32 format;
@@ -840,7 +840,7 @@ void* load_dds(el_file_ptr file, const char* file_name, int *width, int *height)
 		return 0;
 	}
 
-	if (init_dds_image(file, &header, file_name) != 0)
+	if (init_dds_image(file, &header) != 0)
 	{
 		*width = header.m_width;
 		*height = header.m_height;
@@ -851,11 +851,11 @@ void* load_dds(el_file_ptr file, const char* file_name, int *width, int *height)
 			(format == DDSFMT_DXT4) || (format == DDSFMT_DXT5) || (format == DDSFMT_ATI1) ||
 			(format == DDSFMT_ATI2))
 		{
-			return uncompress_dds(file, &header, file_name, 1, 0);
+			return uncompress_dds(file, &header, 1, 0);
 		}
 		else
 		{
-			return unpack_dds(file, &header, file_name, 1, 0);
+			return unpack_dds(file, &header, 1, 0);
 		}
 	}
 	else

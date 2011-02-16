@@ -219,7 +219,7 @@ void change_actor ()
 
 #ifdef	NEW_TEXTURES
 		free_actor_texture(our_actor.our_model->texture_id);
-		our_actor.our_model->texture_id = load_enhanced_actor(our_actor.our_model->body_parts);	// Rebuild the actor's textures.
+		our_actor.our_model->texture_id = load_enhanced_actor(our_actor.our_model->body_parts, 0);	// Rebuild the actor's textures.
 #else	/* NEW_TEXTURES */
 		glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
 		our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the textures.

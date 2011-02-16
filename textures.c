@@ -30,19 +30,18 @@
 
 #ifdef	NEW_TEXTURES
 
-#define ACTOR_TEXTURE_CACHE_MAX 1024
+#define ACTOR_TEXTURE_CACHE_MAX 256
 #define ACTOR_TEXTURE_THREAD_COUNT 4
 
-actor_texture_cache_struct* actor_texture_handles = 0;
+actor_texture_cache_t* actor_texture_handles = 0;
 SDL_Thread* actor_texture_threads[ACTOR_TEXTURE_THREAD_COUNT];
-Uint32 max_actor_texture_handles = 64;
+Uint32 max_actor_texture_handles = 32;
 queue_t* actor_texture_queue = 0;
 Uint32 actor_texture_threads_done = 0;
-int use_actor_texture_compression = 0;
 
 #define TEXTURE_CACHE_MAX 4096
 
-texture_cache_struct* texture_handles = 0;
+texture_cache_t* texture_handles = 0;
 cache_struct* texture_cache = 0;
 Uint32 texture_handles_max_handle = 0;
 
@@ -61,7 +60,7 @@ Uint32 string_hash(const void* str, const Uint32 len)
 	return hash;
 }
 
-Uint32 compact_texture(texture_cache_struct* texture)
+Uint32 compact_texture(texture_cache_t* texture)
 {
 	Uint32 size;
 
@@ -94,7 +93,7 @@ void bind_texture_id(const GLuint id)
 	}
 }
 
-static GLuint build_texture(image_struct* image, const Uint32 wrap_mode_repeat,
+static GLuint build_texture(image_t* image, const Uint32 wrap_mode_repeat,
 	const GLenum min_filter, const Uint32 af, const Uint32 build_mipmaps,
 	const texture_format_type format)
 {
@@ -375,16 +374,16 @@ Uint32 load_texture_cached(const char* file_name, const texture_type type)
 	}
 }
 
-static Uint32 load_texture(texture_cache_struct* texture_handle)
+static Uint32 load_texture(texture_cache_t* texture_handle)
 {
-	image_struct image;
+	image_t image;
 	GLuint id;
 	Uint32 strip_mipmaps, base_level, wrap_mode_repeat, af, i, uncompress;
 	Uint32 build_mipmaps, compute_alpha;
 	GLenum min_filter;
 	texture_format_type format;
 
-	memset(&image, 0, sizeof(image_struct));
+	memset(&image, 0, sizeof(image_t));
 
 	wrap_mode_repeat = 0;
 	strip_mipmaps = 0;
@@ -570,7 +569,7 @@ void bind_texture_unbuffered(const Uint32 handle)
 	glBindTexture(GL_TEXTURE_2D, get_texture_id(handle));
 }
 
-void reload_actor_texture_resources(actor_texture_cache_struct* texture)
+void reload_actor_texture_resources(actor_texture_cache_t* texture)
 {
 	if (texture != 0)
 	{
@@ -590,7 +589,7 @@ void reload_actor_texture_resources(actor_texture_cache_struct* texture)
 	}
 }
 
-void free_actor_texture_resources(actor_texture_cache_struct* texture)
+void free_actor_texture_resources(actor_texture_cache_t* texture)
 {
 	if (texture != 0)
 	{
@@ -617,8 +616,8 @@ void free_actor_texture_resources(actor_texture_cache_struct* texture)
 }
 
 #ifdef	ELC
-Uint32 copy_to_coordinates(const image_struct* source, const Uint32 x,
-	const Uint32 y, image_struct* dest)
+Uint32 copy_to_coordinates(const image_t* source, const Uint32 x,
+	const Uint32 y, image_t* dest)
 {
 	Uint32 source_height, source_width, source_offset;
 	Uint32 dest_height, dest_width, dest_offset;
@@ -643,9 +642,9 @@ Uint32 copy_to_coordinates(const image_struct* source, const Uint32 x,
 	return source->alpha;
 }
 
-Uint32 copy_to_coordinates_mask2(const image_struct* source0,
-	const image_struct* source1, const image_struct* mask,
-	const Uint32 x, const Uint32 y, image_struct* dest, Uint8* buffer)
+Uint32 copy_to_coordinates_mask2(const image_t* source0,
+	const image_t* source1, const image_t* mask,
+	const Uint32 x, const Uint32 y, image_t* dest, Uint8* buffer)
 {
 	Uint32 source_height, source_width, source_offset;
 	Uint32 dest_height, dest_width, dest_offset;
@@ -685,9 +684,9 @@ Uint32 copy_to_coordinates_mask2(const image_struct* source0,
 
 Uint32 load_to_coordinates(const char* file_name, const Uint32 x,
 	const Uint32 y, const Uint32 width, const Uint32 height,
-	const Uint32 scale, image_struct *dst)
+	const Uint32 scale, image_t *dst)
 {
-	image_struct image;
+	image_t image;
 
 	memset(&image, 0, sizeof(image));
 
@@ -721,10 +720,10 @@ void build_alpha_mask(const Uint8* source, const Uint32 size, Uint8* dest)
 
 Uint32 load_to_coordinates_mask2(const char* source0, const char* source1,
 	const char* mask, const Uint32 x, const Uint32 y, const Uint32 width,
-	const Uint32 height, const Uint32 scale, image_struct *dest,
+	const Uint32 height, const Uint32 scale, image_t *dest,
 	Uint8* buffer)
 {
-	image_struct src0, src1, msk;
+	image_t src0, src1, msk;
 	Uint8* tmp;
 
 	memset(&src0, 0, sizeof(src0));
@@ -788,12 +787,12 @@ Uint32 load_to_coordinates_mask2(const char* source0, const char* source1,
 		y * scale, dest, buffer);
 }
 
-void load_enhanced_actor_threaded(const enhanced_actor_images* files,
-	image_struct* image, Uint8* buffer)
+void load_enhanced_actor_threaded(const enhanced_actor_images_t* files,
+	image_t* image, Uint8* buffer)
 {
 	Uint32 alpha, scale;
 
-	memset(image, 0, sizeof(image_struct));
+	memset(image, 0, sizeof(image_t));
 
 	image->sizes[0] = TEXTURE_SIZE_X * TEXTURE_SIZE_Y * 4;
 	image->width = TEXTURE_SIZE_X;
@@ -885,10 +884,18 @@ static void copy_enhanced_actor_file_name(char* dest, const char* source)
 	safe_strncpy2(dest, source, MAX_FILE_PATH, get_file_name_len(source));
 }
 
-Uint32 load_enhanced_actor(enhanced_actor* actor)
+Uint32 load_enhanced_actor(const enhanced_actor* actor, const char* name)
 {
-	enhanced_actor_images files;
+	enhanced_actor_images_t files;
+	char str[MAX_ACTOR_NAME];
 	Uint32 i, handle, hash, access_time;
+
+	memset(str, 0, sizeof(str));
+
+	if (name != 0)
+	{
+		safe_strncpy2(str, name, sizeof(str), strlen(name));
+	}
 
 	memset(&files, 0, sizeof(files));
 
@@ -929,6 +936,14 @@ Uint32 load_enhanced_actor(enhanced_actor* actor)
 
 	for (i = 0; i < ACTOR_TEXTURE_CACHE_MAX; i++)
 	{
+		if ((handle != ACTOR_TEXTURE_CACHE_MAX) &&
+			(i >= max_actor_texture_handles))
+		{
+			// We have one empty slot and won't find a better one,
+			// so leave
+			break;
+		}
+
 		CHECK_AND_LOCK_MUTEX(actor_texture_handles[i].mutex);
 
 		if (actor_texture_handles[i].used != 0)
@@ -940,8 +955,8 @@ Uint32 load_enhanced_actor(enhanced_actor* actor)
 
 		if (hash == actor_texture_handles[i].hash)
 		{
-			if (!memcmp(&actor_texture_handles[i].files,
-				&files, sizeof(files)))
+			if (memcmp(&actor_texture_handles[i].files,
+				&files, sizeof(files)) == 0)
 			{
 				// already loaded, use existing texture
 				actor_texture_handles[i].used = 1;
@@ -965,15 +980,36 @@ Uint32 load_enhanced_actor(enhanced_actor* actor)
 		// remember the first open slot we have
 		if (handle == ACTOR_TEXTURE_CACHE_MAX)
 		{
-			handle = i;
-			access_time = actor_texture_handles[i].access_time;
 			// Don't unlock mutex! We plan to use this slot!
+			handle = i;
+
+			// Use the same slot if we can
+			if (memcmp(str, actor_texture_handles[i].name,
+				sizeof(str)) == 0)
+			{
+				// Best fit, we can stopp searching
+				break;
+			}
+
+			access_time = actor_texture_handles[i].access_time;
 		}
 		else
 		{
+			// Use the same slot if we can
+			if (memcmp(str, actor_texture_handles[i].name,
+				sizeof(str)) == 0)
+			{
+				// release old lock!
+				CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[handle].mutex);
+
+				handle = i;
+
+				// Best fit, we can stopp searching
+				break;
+			}
+
 			// Only use an older one if we don't use too many!
-			if ((access_time > actor_texture_handles[i].access_time)
-				&& (i < max_actor_texture_handles))
+			if (access_time > actor_texture_handles[i].access_time)
 			{
 				// release old lock!
 				CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[handle].mutex);
@@ -998,6 +1034,9 @@ Uint32 load_enhanced_actor(enhanced_actor* actor)
 			sizeof(files));
 
 		actor_texture_handles[handle].hash = hash;
+		safe_strncpy2(actor_texture_handles[handle].name, str,
+			sizeof(actor_texture_handles[handle].name),
+			strlen(str));
 		actor_texture_handles[handle].used = 1;
 		actor_texture_handles[handle].access_time = cur_time;
 
@@ -1073,7 +1112,7 @@ Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
 			af = 1;
 		}
 
-		if (use_actor_texture_compression != 0)
+		if (have_extension(ext_texture_compression_s3tc))
 		{
 			if (actor_texture_handles[handle].image.alpha == 0)
 			{
@@ -1082,17 +1121,6 @@ Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
 			else
 			{
 				format = tft_dxt5;
-			}
-		}
-		else
-		{
-			if (actor_texture_handles[handle].image.alpha == 0)
-			{
-				format = tft_r5g6b5;
-			}
-			else
-			{
-				format = tft_rgba4;
 			}
 		}
 
@@ -1157,11 +1185,6 @@ void free_actor_texture(const Uint32 handle)
 
 	if (handle >= max_actor_texture_handles)
 	{
-		memset(&actor_texture_handles[handle].files, 0,
-			sizeof(enhanced_actor));
-
-		actor_texture_handles[handle].hash = 0;
-
 		free_actor_texture_resources(&actor_texture_handles[handle]);
 	}
 
@@ -1267,7 +1290,7 @@ void use_ready_actor_texture(const Uint32 handle)
 
 void change_enhanced_actor(const Uint32 handle, enhanced_actor* actor)
 {
-	enhanced_actor_images files;
+	enhanced_actor_images_t files;
 	Uint32 hash;
 
 	if (handle >= ACTOR_TEXTURE_CACHE_MAX)
@@ -1352,9 +1375,9 @@ void change_enhanced_actor(const Uint32 handle, enhanced_actor* actor)
 
 int load_enhanced_actor_thread(void* done)
 {
-	enhanced_actor_images files;
-	image_struct image;
-	actor_texture_cache_struct* actor;
+	enhanced_actor_images_t files;
+	image_t image;
+	actor_texture_cache_t* actor;
 	Uint8* buffer;
 	Uint32 hash;
 
@@ -1426,11 +1449,11 @@ void init_texture_cache()
 	cache_set_time_limit(texture_cache, 5 * 60 * 1000);
 	cache_set_name(cache_system, "texture cache", texture_cache);
 
-	texture_handles = malloc(TEXTURE_CACHE_MAX * sizeof(texture_cache_struct));
-	memset(texture_handles, 0, TEXTURE_CACHE_MAX * sizeof(texture_cache_struct));
+	texture_handles = malloc(TEXTURE_CACHE_MAX * sizeof(texture_cache_t));
+	memset(texture_handles, 0, TEXTURE_CACHE_MAX * sizeof(texture_cache_t));
 
-	actor_texture_handles = malloc(ACTOR_TEXTURE_CACHE_MAX * sizeof(actor_texture_cache_struct));
-	memset(actor_texture_handles, 0, ACTOR_TEXTURE_CACHE_MAX * sizeof(actor_texture_cache_struct));
+	actor_texture_handles = malloc(ACTOR_TEXTURE_CACHE_MAX * sizeof(actor_texture_cache_t));
+	memset(actor_texture_handles, 0, ACTOR_TEXTURE_CACHE_MAX * sizeof(actor_texture_cache_t));
 
 	queue_initialise(&actor_texture_queue);
 

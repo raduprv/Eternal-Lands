@@ -26,7 +26,7 @@ extern int sdl_cursors;
 extern float pointer_size;
 #endif // NEW_CURSOR
 #ifdef	NEW_TEXTURES
-extern int use_actor_texture_compression;
+extern Uint32 max_actor_texture_handles;
 #endif	/* NEW_TEXTURES */
 
 /*!

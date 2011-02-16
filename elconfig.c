@@ -159,6 +159,9 @@ int skybox_local_weather = 0;
 #ifdef OSX	// for probelem with rounded buttons on Intel graphics
 int square_buttons = 0;
 #endif
+#ifdef	NEW_TEXTURES
+int small_actor_texture_cache = 0;
+#endif	/* NEW_TEXTURES */
 
 int video_info_sent = 0;
 
@@ -413,11 +416,40 @@ void change_password(char * passwd)
 	}
 }
 
+#ifdef	NEW_TEXTURES
+void update_max_actor_texture_handles()
+{
+	if (poor_man == 1)
+	{
+		if (small_actor_texture_cache == 1)
+		{
+			max_actor_texture_handles = 1;
+		}
+		else
+		{
+			max_actor_texture_handles = 4;
+		}
+	}
+	else
+	{
+		if (small_actor_texture_cache == 1)
+		{
+			max_actor_texture_handles = 16;
+		}
+		else
+		{
+			max_actor_texture_handles = 32;
+		}
+	}
+}
+#endif	/* NEW_TEXTURES */
+
 void change_poor_man(int *poor_man)
 {
 	*poor_man= !*poor_man;
 #ifdef	NEW_TEXTURES
 	unload_texture_cache();
+	update_max_actor_texture_handles();
 #endif	/* NEW_TEXTURES */
 	if(*poor_man) {
 		show_reflection= 0;
@@ -483,19 +515,18 @@ void change_clouds_shadows(int *value)
 }
 
 #ifdef	NEW_TEXTURES
-void change_actor_texture_compression(int *value)
+void change_small_actor_texture_cache(int *value)
 {
-	if (*value) {
-		*value= 0;
-	}
-	else if (!gl_extensions_loaded || have_extension(ext_texture_compression_s3tc))
+	if (*value)
 	{
-		// don't check if we have hardware support when OpenGL
-		// extensions are not initialized yet.
-		*value= 1;
+		*value = 0;
+	}
+	else
+	{
+		*value = 1;
 	}
 
-	unload_texture_cache();
+	update_max_actor_texture_handles();
 }
 #else	/* NEW_TEXTURES */
 void change_mipmaps(int *value)
@@ -1270,7 +1301,7 @@ void check_options()
 	check_option_var("use_vertex_buffers");
 	check_option_var("use_clouds_shadows");
 #ifdef	NEW_TEXTURES
-	check_option_var("use_actor_texture_compression");
+	check_option_var("use_small_actor_texture_cache");
 #else	/* NEW_TEXTURES */
 	check_option_var("use_mipmaps");
 #endif	/* NEW_TEXTURES */
@@ -1588,7 +1619,7 @@ void init_vars()
 	add_var(OPT_BOOL,"clouds_shadows","cshad",&clouds_shadows,change_clouds_shadows,1,"Cloud Shadows","The clouds shadows are projected on the ground, and the game looks nicer with them on.",LODTAB);
 	add_var(OPT_BOOL,"show_fps","fps",&show_fps,change_var,1,"Show FPS","Show the current frames per second in the corner of the window",HUD);
 #ifdef	NEW_TEXTURES
-	add_var(OPT_BOOL,"use_actor_texture_compression","actor_tc",&use_actor_texture_compression,change_actor_texture_compression,0,"Actor texture compression","Actor texture compression reduces the size of the actor textures, but increase the load times.",ADVVID);
+	add_var(OPT_BOOL,"small_actor_texture_cache","small_actor_tc",&small_actor_texture_cache,change_small_actor_texture_cache,0,"Small actor texture cache","A small Actor texture cache uses less video memory, but actor loading can be slower in crouded places.",ADVVID);
 #else	/* NEW_TEXTURES */
 	add_var(OPT_BOOL,"use_mipmaps","mm",&use_mipmaps,change_mipmaps,0,"Mipmaps","Mipmaps is a texture effect that blurs the texture a bit - it may look smoother and better, or it may look worse depending on your graphics driver settings and the like.",ADVVID);
 #endif	/* NEW_TEXTURES */

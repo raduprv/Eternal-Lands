@@ -40,7 +40,6 @@ Uint32 check_dds(const Uint8 *ID);
  *		Only if needed are the mipmaps loaded also the loading can
  *		start at a different base level (e.g. the first mipmap).
  * \param   	file The file to load from.
- * \param   	file_name The file name, used for debug and error output.
  * \param   	uncompress Should the image get uncompressed if it is compressed?
  * \param   	unpack Should the image get converted to RGBA8?
  * \param   	strip_mipmaps Should we strip the mipmaps?
@@ -49,12 +48,11 @@ Uint32 check_dds(const Uint8 *ID);
  * \retval Uint32	Returns one if everything is ok, zero else.
  * \callgraph
  */
-Uint32 load_dds(el_file_ptr file, const char* file_name,
-	const Uint32 uncompress, const Uint32 unpack,
+Uint32 load_dds(el_file_ptr file, const Uint32 uncompress, const Uint32 unpack,
 	const Uint32 strip_mipmaps, const Uint32 base_level,
-	image_struct* image);
+	image_t* image);
 #else	/* NEW_TEXTURES */
-void* load_dds(el_file_ptr file, const char* file_name, int *width, int *height);
+void* load_dds(el_file_ptr file, int *width, int *height);
 #endif	/* NEW_TEXTURES */
 
 #ifdef __cplusplus

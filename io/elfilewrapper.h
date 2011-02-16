@@ -14,9 +14,9 @@ extern "C"
 {
 #endif
 
-struct el_file;
+struct el_file_t;
 
-typedef struct el_file* el_file_ptr;
+typedef struct el_file_t* el_file_ptr;
 
 /**
  * @brief Adds a zip file to the search list for files.
@@ -171,6 +171,16 @@ extern int el_custom_file_exists(const char* file_name);
  * @sa el_file_exists()
  */
 extern int el_file_exists_anywhere(const char* file_name);
+
+/**
+ * @brief Gets the file name.
+ *
+ * Gets the file name of the file previously opend with el_open.
+ * @param file The file pointer.
+ * @return Returns the file name.
+ * @see el_open
+ */
+extern const char* el_file_name(el_file_ptr file);
 
 extern struct CalCoreAnimation *CalLoader_ELLoadCoreAnimation(struct CalLoader *self, const char *strFilename);
 extern struct CalCoreMaterial *CalLoader_ELLoadCoreMaterial(struct CalLoader *self, const char *strFilename);
