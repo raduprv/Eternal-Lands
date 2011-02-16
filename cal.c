@@ -22,8 +22,7 @@
 #include "gl_init.h"
 #endif /* OPENGL_TRADE */
 #include "io/elfilewrapper.h"
-
-
+#include "io/cal3d_io_wrapper.h"
 
 #ifdef MORE_EMOTES
 void start_transition(actor *act, int to, int msec){

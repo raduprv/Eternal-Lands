@@ -1870,16 +1870,6 @@ void init_vars()
 	add_var(OPT_BOOL, "use_animation_program", "uap", &use_animation_program, change_use_animation_program, 1, "Use animation program", "Use GL_ARB_vertex_program for actor animation", ADVVID);
 #endif //MAP_EDITOR
 
-#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
-	add_var(OPT_BOOL, "use_display_actors", "uda", &use_display_actors, change_var, 1, "Use display actors", "Use the display_actors function", DEBUGTAB);
-	add_var(OPT_BOOL, "use_actor_bbox_check", "uabc", &use_actor_bbox_check, change_var, 1, "Use actor bbox check", "Use the actor bbox check", DEBUGTAB);
-	add_var(OPT_BOOL, "use_render_mesh_shader", "urms", &use_render_mesh_shader, change_var, 1, "Use render_mesh_shader", "Use the render_mesh_shader function", DEBUGTAB);
-	add_var(OPT_BOOL, "use_set_transformation_buffers", "ustb", &use_set_transformation_buffers, change_var, 1, "Use set_transformation_buffers", "Use the set_transformation_buffers function", DEBUGTAB);
-	add_var(OPT_BOOL, "use_build_actor_bounding_box", "ubabb", &use_build_actor_bounding_box, change_var, 1, "Use build_actor_bounding_box", "Use the build_actor_bounding_box function", DEBUGTAB);
-	add_var(OPT_BOOL, "use_model_attach_and_detach_mesh", "umaadm", &use_model_attach_and_detach_mesh, change_var, 1, "Use model_attach_and_detach_mesh", "Use the model_attach_and_detach_mesh function", DEBUGTAB);
-	add_var(OPT_BOOL, "use_render_attached_meshs", "uram", &use_render_attached_meshs, change_var, 1, "Use render_attached_meshs", "Use the render attached meshs", DEBUGTAB);
-	add_var(OPT_BOOL, "use_ext_gpu_program_parameters", "uegpp", &use_ext_gpu_program_parameters, change_var, 0, "Use GL_EXT_gpu_program_parameters", "Use GL_EXT_gpu_program_parameters extention", DEBUGTAB);
-#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 #ifdef OSX
 	add_var(OPT_BOOL, "square_buttons", "sqbutt",&square_buttons,change_var,1,"Square Buttons","Use square buttons rather than rounded",HUD);
 #endif

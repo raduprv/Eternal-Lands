@@ -32,6 +32,7 @@
 #include "eye_candy_wrapper.h"
 #include "minimap.h"
 #include "io/elfilewrapper.h"
+#include "io/cal3d_io_wrapper.h"
 #include "actor_init.h"
 #ifdef	NEW_TEXTURES
 #include "textures.h"

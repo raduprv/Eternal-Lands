@@ -683,10 +683,8 @@ void init_stuff()
 	// Check if our datadir is valid and if not failover to ./
 	file_check_datadir();
 
-	// Load the paths to check
-	add_paths();
 	// Here you can add zip files, like
-	// add_zip_archive("./data.zip", datadir, 0);
+	// add_zip_archive("/usr/share/el/data.zip");
 	xml_register_el_input_callbacks();
 
 #ifdef WRITE_XML

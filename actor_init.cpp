@@ -2,74 +2,46 @@
 #include "actor_init.h"
 #include "load_gl_extensions.h"
 #include <cal3d/cal3d.h>
-#ifdef	USE_BOOST
-#include <boost/shared_array.hpp>
-#include <boost/foreach.hpp>
-#endif	/* USE_BOOST */
 #include <map>
 #include "bbox_tree.h"
-#include "io/elfile.hpp"
-#include "exceptions/extendedexception.hpp"
+#include "io/elfilewrapper.h"
 #include "gl_init.h"
 #include "shadows.h"
 #include "map.h"
 #include "optimizer.hpp"
 #include "md5.h"
+#include "errors.h"
 
 Uint32 use_animation_program = 1;
-#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
-Uint32 use_display_actors = 1;
-Uint32 use_actor_bbox_check = 1;
-Uint32 use_render_mesh_shader = 1;
-Uint32 use_set_transformation_buffers = 1;
-Uint32 use_build_actor_bounding_box = 1;
-Uint32 use_model_attach_and_detach_mesh = 1;
-Uint32 use_render_attached_meshs = 1;
-Uint32 use_ext_gpu_program_parameters = 0;
-#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 Uint32 max_bones_per_mesh = 27;
-
-#define	LOG_PROGRAM_DATA(DATA)	\
-do	\
-{	\
-	GLint tmp_value;	\
-	\
-	ELglGetProgramivARB(GL_VERTEX_PROGRAM_ARB, DATA, &tmp_value);	\
-	log_info("%s: %d", #DATA, tmp_value);	\
-}	\
-while (0)
-
-#define	LOG_CURRENT_PROGRAM_DATA(DATA, PROG)	\
-do	\
-{	\
-	GLint tmp_value;	\
-	\
-	ELglGetProgramivARB(GL_VERTEX_PROGRAM_ARB, DATA, &tmp_value);	\
-	log_info("'%s' %s: %d", PROG, #DATA, tmp_value);	\
-}	\
-while (0)
 
 class HardwareMeshData
 {
 	private:
 		const Sint32 mesh_index;
 		const Uint32 size;
-		eternal_lands::memory_ptr buffer;
+		float* buffer;
+
 	public:
 		inline HardwareMeshData(const Sint32 mesh_index, const Uint32 size):
 			mesh_index(mesh_index), size(size)
 		{
-			buffer = eternal_lands::memory_ptr(new eternal_lands::memory_buffer(size * 4 * sizeof(float)));
+			buffer = new float[size * 4];
+		}
+
+		inline ~HardwareMeshData()
+		{
+			delete[] buffer;
 		}
 
 		inline void set_buffer_value(const Uint32 index, const float value)
 		{
-			*(buffer->get_memory<float*>(index * sizeof(float))) = value;
+			buffer[index] = value;
 		}
 
 		inline float* get_buffer(const Uint32 index = 0) const
 		{
-			return buffer->get_memory<float*>(index * sizeof(float));
+			return &buffer[index];
 		}
 
 		inline Uint32 get_size() const
@@ -93,14 +65,6 @@ struct ActorVertex
 //	float m_bone_count;
 };
 
-#ifdef	USE_BOOST
-typedef boost::shared_array<Uint16> Uint16Array;
-typedef boost::shared_array<Uint32> Uint32Array;
-typedef boost::shared_array<float> FloatArray;
-typedef boost::shared_array<CalIndex> CalIndexArray;
-typedef boost::shared_array<ActorVertex> ActorVertexArray;
-#endif
-
 typedef std::map<Sint32, HardwareMeshData> IntMap;
 
 int last_actor_type = -1;
@@ -112,41 +76,35 @@ static inline GLuint load_vertex_program(const std::string &name)
 {
 	GLuint id;
 	GLint support;
-	eternal_lands::el_file f(name, true);
+	el_file_ptr file;
 	std::string str;
 	std::stringstream s1;
 	std::stringstream s2;
 	size_t pos;
 
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	log_info("start load_vertex_program '%s'", name.c_str());
-	try
-	{
-		CHECK_GL_EXCEPTION();
-	}
-	CATCH_AND_LOG_EXCEPTIONS
-#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
-
 	ELglGenProgramsARB(1, &id);
 	ELglBindProgramARB(GL_VERTEX_PROGRAM_ARB, id);
 
-	str = std::string(reinterpret_cast<char*>(f.get_pointer()), f.get_size());
+	file = el_open(name.c_str());
+
+	str = std::string(reinterpret_cast<char*>(el_get_pointer(file)), el_get_size(file));
+
+	el_close(file);
+
 	s1 << (max_bones_per_mesh * 3);
 	pos = str.find("%d");
 	if (pos == str.npos)
 	{
-		log_info("File '%s' is invalid.", name.c_str());
-		EXTENDED_EXCEPTION(ExtendedException::ec_io_error, "File '" << name <<
-			"' is invalid.");
+		LOG_ERROR("File '%s' is invalid.", name.c_str());
+		return 0;
 	}
 	str.replace(pos, 2, s1.str());
 	s2 << (max_bones_per_mesh * 3 - 1);
 	pos = str.find("%d");
 	if (pos == str.npos)
 	{
-		log_info("File '%s' is invalid.", name.c_str());
-		EXTENDED_EXCEPTION(ExtendedException::ec_io_error, "File '" << name <<
-			"' is invalid.");
+		LOG_ERROR("File '%s' is invalid.", name.c_str());
+		return 0;
 	}
 	str.replace(pos, 2, s2.str());
 
@@ -155,65 +113,27 @@ static inline GLuint load_vertex_program(const std::string &name)
 
 	if (glGetError() != GL_NO_ERROR)
 	{
-		EXTENDED_EXCEPTION(ExtendedException::ec_opengl_error, "Error: '" <<
-			glGetString(GL_PROGRAM_ERROR_STRING_ARB) << "' in file '" << name << "'");
+		return 0;
 	}
 
-#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
-	LOG_CURRENT_PROGRAM_DATA(GL_PROGRAM_INSTRUCTIONS_ARB, name.c_str());
-	LOG_CURRENT_PROGRAM_DATA(GL_PROGRAM_NATIVE_INSTRUCTIONS_ARB, name.c_str());
-	LOG_CURRENT_PROGRAM_DATA(GL_PROGRAM_TEMPORARIES_ARB, name.c_str());
-	LOG_CURRENT_PROGRAM_DATA(GL_PROGRAM_NATIVE_TEMPORARIES_ARB, name.c_str());
-	LOG_CURRENT_PROGRAM_DATA(GL_PROGRAM_PARAMETERS_ARB, name.c_str());
-	LOG_CURRENT_PROGRAM_DATA(GL_PROGRAM_NATIVE_PARAMETERS_ARB, name.c_str());
-	LOG_CURRENT_PROGRAM_DATA(GL_PROGRAM_ATTRIBS_ARB, name.c_str());
-	LOG_CURRENT_PROGRAM_DATA(GL_PROGRAM_NATIVE_ATTRIBS_ARB, name.c_str());
-	LOG_CURRENT_PROGRAM_DATA(GL_PROGRAM_ADDRESS_REGISTERS_ARB, name.c_str());
-	LOG_CURRENT_PROGRAM_DATA(GL_PROGRAM_NATIVE_ADDRESS_REGISTERS_ARB, name.c_str());
-#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 
 	ELglGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_UNDER_NATIVE_LIMITS_ARB, &support);
 
 	if (support != GL_TRUE)
 	{
-		EXTENDED_EXCEPTION(ExtendedException::ec_opengl_error, "Error: vertex program'" <<
-			name << "' needs too much resources.");
+		return 0;
 	}
 
 	ELglBindProgramARB(GL_VERTEX_PROGRAM_ARB, 0);
-
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	try
-	{
-		CHECK_GL_EXCEPTION();
-	}
-	CATCH_AND_LOG_EXCEPTIONS
-	log_info("done load_vertex_program '%s'", name.c_str());
-#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 
 	return id;
 }
 
 extern "C" void unload_vertex_programs()
 {
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	log_info("start unload_vertex_programs");
-	try
-	{
-		CHECK_GL_EXCEPTION();
-	}
-	CATCH_AND_LOG_EXCEPTIONS
-#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 	ELglDeleteProgramsARB(5, vertex_program_ids);
+
 	memset(vertex_program_ids, 0, sizeof(vertex_program_ids));
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	try
-	{
-		CHECK_GL_EXCEPTION();
-	}
-	CATCH_AND_LOG_EXCEPTIONS
-	log_info("done unload_vertex_programs");
-#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 }
 
 static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, const HardwareMeshData &hmd, const bool use_glow)
@@ -222,15 +142,6 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 	Sint32 bone_id, glow;
 	float reverse_scale;
 	CalSkeleton *skel;
-
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	log_info("start render_mesh_shader");
-	try
-	{
-		CHECK_GL_EXCEPTION();
-	}
-	CATCH_AND_LOG_EXCEPTIONS
-#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 
 	if (index >= 0)
 	{
@@ -286,38 +197,13 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 
 		a->hardware_model->selectHardwareMesh(index);
 
-#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-		log_info("start setting parameter");
-#endif	/* (VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1) */
-		if (have_extension(ext_gpu_program_parameters) && use_ext_gpu_program_parameters)
+		count = a->hardware_model->getBoneCount() * 3;
+		for (i = 0; i < count; i++)
 		{
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-			log_info("Using GL_EXT_gpu_program_parameters");
-#endif	/* (VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1) */
-			ELglProgramLocalParameters4fvEXT(GL_VERTEX_PROGRAM_ARB, 0,
-				a->hardware_model->getBoneCount() * 3, hmd.get_buffer());
-		}
-		else
-#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
-		{
-			count = a->hardware_model->getBoneCount() * 3;
-			for (i = 0; i < count; i++)
-			{
-				ELglProgramLocalParameter4fvARB(GL_VERTEX_PROGRAM_ARB, i,
-					hmd.get_buffer(i * 4));
-			}
+			ELglProgramLocalParameter4fvARB(GL_VERTEX_PROGRAM_ARB, i,
+				hmd.get_buffer(i * 4));
 		}
 
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-		try
-		{
-			CHECK_GL_EXCEPTION();
-		}
-		CATCH_AND_LOG_EXCEPTIONS
-		log_info("done setting parameter");
-#endif	/* (VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1) */
-	
 		if (bone_id != -1)
 		{
 			glPushMatrix();
@@ -335,36 +221,14 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 
 		element_index = a->hardware_model->getStartIndex() * a->index_size;
 
-#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
-		if (use_render_mesh_shader)
-		{
-			glDrawElements(GL_TRIANGLES, a->hardware_model->getFaceCount() * 3,
-				a->index_type, reinterpret_cast<void*>(element_index));
-		}
-		try
-		{
-			CHECK_GL_EXCEPTION();
-		}
-		CATCH_AND_LOG_EXCEPTIONS
-#else	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 		glDrawElements(GL_TRIANGLES, a->hardware_model->getFaceCount() * 3, a->index_type,
 			reinterpret_cast<void*>(element_index));
-#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 
 		if (bone_id != -1)
 		{
 			glPopMatrix();
 		}
 	}
-
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	try
-	{
-		CHECK_GL_EXCEPTION();
-	}
-	CATCH_AND_LOG_EXCEPTIONS
-	log_info("done render_mesh_shader");
-#endif	/* (VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1) */
 }
 
 extern "C" void set_actor_animation_program(Uint32 pass, Uint32 ghost)
@@ -372,15 +236,6 @@ extern "C" void set_actor_animation_program(Uint32 pass, Uint32 ghost)
 	Uint32 index, i;
 	VECTOR4 zero;
 	VECTOR4 one;
-
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	log_info("start set_actor_animation_program: %d", pass);
-	try
-	{
-		CHECK_GL_EXCEPTION();
-	}
-	CATCH_AND_LOG_EXCEPTIONS
-#endif	/* (VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1) */
 
 	switch (pass)
 	{
@@ -451,14 +306,6 @@ extern "C" void set_actor_animation_program(Uint32 pass, Uint32 ghost)
 	one[2] = 1.0f;
 	one[3] = 1.0f;
 
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	try
-	{
-		CHECK_GL_EXCEPTION();
-	}
-	CATCH_AND_LOG_EXCEPTIONS
-#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
-
 	for (i = 0; i < 8; i++)
 	{
 		if (glIsEnabled(GL_LIGHT0 + i) == GL_FALSE)
@@ -479,28 +326,10 @@ extern "C" void set_actor_animation_program(Uint32 pass, Uint32 ghost)
 	ELglEnableVertexAttribArrayARB(3);
 
 	ELglBindProgramARB(GL_VERTEX_PROGRAM_ARB, vertex_program_ids[index]);
-
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	try
-	{
-		CHECK_GL_EXCEPTION();
-	}
-	CATCH_AND_LOG_EXCEPTIONS
-	log_info("end set_actor_animation_program: %d", pass);
-#endif	/* (VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1) */
 }
 
 extern "C" void disable_actor_animation_program()
 {
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	log_info("start disable_actor_animation_program");
-	try
-	{
-		CHECK_GL_EXCEPTION();
-	}
-	CATCH_AND_LOG_EXCEPTIONS
-#endif	/* (VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1) */
-
 	ELglBindProgramARB(GL_VERTEX_PROGRAM_ARB, 0);
 
 	ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
@@ -516,87 +345,33 @@ extern "C" void disable_actor_animation_program()
 
 	last_actor_type = -1;
 
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	try
-	{
-		CHECK_GL_EXCEPTION();
-	}
-	CATCH_AND_LOG_EXCEPTIONS
-	log_info("done disable_actor_animation_program");
-#endif	/* (VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1) */
 }
-
-#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
-static HardwareMeshData hmd(-1, 8196);
-#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 
 extern "C" int load_vertex_programs()
 {
 	GLint t0, t1, max_instructions;
-#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
-	int i;
-#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
-	log_info("Loading vertex programs");
-	try
-	{
-		CHECK_GL_EXCEPTION();
+
 #ifdef OSX
-		ELglGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_PARAMETERS_ARB, &t0);
+	ELglGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_NATIVE_PARAMETERS_ARB, &t0);
 #else
-		ELglGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_PARAMETERS_ARB, &t0);
+	ELglGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_PARAMETERS_ARB, &t0);
 #endif
-		ELglGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB, &t1);
+	ELglGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB, &t1);
 
-		ELglGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_INSTRUCTIONS_ARB,
-			&max_instructions);
-		max_bones_per_mesh = (std::min(t0 - 43, t1)) / 3;
-		log_info("Max bones per mesh: %d", max_bones_per_mesh);
-		if (max_bones_per_mesh < 17)
-		{
-			EXTENDED_EXCEPTION(ExtendedException::ec_opengl_error, "Not enought " << 
-				"parameters available.");			
-		}
-#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
-		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_INSTRUCTIONS_ARB);
-		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_NATIVE_INSTRUCTIONS_ARB);
-		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_TEMPORARIES_ARB);
-		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_NATIVE_TEMPORARIES_ARB);
-		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_PARAMETERS_ARB);
-		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_NATIVE_PARAMETERS_ARB);
-		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_ATTRIBS_ARB);
-		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_NATIVE_ATTRIBS_ARB);
-		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_ADDRESS_REGISTERS_ARB);
-		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_NATIVE_ADDRESS_REGISTERS_ARB);
-		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB);
-		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_ENV_PARAMETERS_ARB);
-#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
+	ELglGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_INSTRUCTIONS_ARB,
+		&max_instructions);
+	max_bones_per_mesh = (std::min(t0 - 43, t1)) / 3;
 
-		vertex_program_ids[0] = load_vertex_program("shaders/anim.vert");
-		vertex_program_ids[1] = load_vertex_program("shaders/anim_depth.vert");
-		vertex_program_ids[2] = load_vertex_program("shaders/anim_shadow.vert");
-		vertex_program_ids[3] = load_vertex_program("shaders/anim_ghost.vert");
-		vertex_program_ids[4] = load_vertex_program("shaders/anim_ghost_shadow.vert");
-#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
-		for (i = 0; i < 2049; i++)
-		{
-			hmd.set_buffer_value(i * 12 +  0, 1.0f);
-			hmd.set_buffer_value(i * 12 +  1, 0.0f);
-			hmd.set_buffer_value(i * 12 +  2, 0.0f);
-			hmd.set_buffer_value(i * 12 +  3, 0.0f);
-			hmd.set_buffer_value(i * 12 +  4, 0.0f);
-			hmd.set_buffer_value(i * 12 +  5, 1.0f);
-			hmd.set_buffer_value(i * 12 +  6, 0.0f);
-			hmd.set_buffer_value(i * 12 +  7, 0.0f);
-			hmd.set_buffer_value(i * 12 +  8, 0.0f);
-			hmd.set_buffer_value(i * 12 +  9, 0.0f);
-			hmd.set_buffer_value(i * 12 + 10, 1.0f);
-			hmd.set_buffer_value(i * 12 + 11, 0.0f);
-		}
-#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
+	if (max_bones_per_mesh < 17)
+	{
+		return 0;
 	}
-	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(0)
 
-	log_info("Loading vertex programs done");
+	vertex_program_ids[0] = load_vertex_program("shaders/anim.vert");
+	vertex_program_ids[1] = load_vertex_program("shaders/anim_depth.vert");
+	vertex_program_ids[2] = load_vertex_program("shaders/anim_shadow.vert");
+	vertex_program_ids[3] = load_vertex_program("shaders/anim_ghost.vert");
+	vertex_program_ids[4] = load_vertex_program("shaders/anim_ghost_shadow.vert");
 
 	return 1;
 }
@@ -606,18 +381,6 @@ extern "C" void cal_render_actor_shader(actor *act, Uint32 use_lightning, Uint32
 	actor_types* a;
 	IntMap* im;
 	float s;
-#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
-	int i;
-#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
-
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	log_info("start cal_render_actor_shader");
-	try
-	{
-		CHECK_GL_EXCEPTION();
-	}
-	CATCH_AND_LOG_EXCEPTIONS
-#endif	/* (VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1) */
 
 	assert(act->calmodel);
 
@@ -662,54 +425,15 @@ extern "C" void cal_render_actor_shader(actor *act, Uint32 use_lightning, Uint32
 		ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, a->index_buffer);
 		last_actor_type = act->actor_type;
 	}
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	try
-	{
-		CHECK_GL_EXCEPTION();
-	}
-	CATCH_AND_LOG_EXCEPTIONS
-#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 
 	im = reinterpret_cast<IntMap*>(act->calmodel->getUserData());
 
 	assert(im);
 
-#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
-	if (use_render_attached_meshs)
-	{
-		for (IntMap::iterator it = im->begin(); it != im->end(); it++)
-		{
-			render_mesh_shader(a, act, it->first, it->second, use_glow);
-		}
-	}
-	else
-	{
-		for (i = 0; i < a->hardware_model->getHardwareMeshCount(); i++)
-		{
-			render_mesh_shader(a, act, i, hmd, use_glow);
-		}
-	}
-#else	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
-#ifdef	USE_BOOST
-	BOOST_FOREACH(IntMap::value_type it, *im)
-	{
-		render_mesh_shader(a, act, it.first, it.second, use_glow);
-	}
-#else	/* USE_BOOST */
 	for (IntMap::iterator it = im->begin(); it != im->end(); it++)
 	{
 		render_mesh_shader(a, act, it->first, it->second, use_glow);
 	}
-#endif	/* USE_BOOST */
-#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	try
-	{
-		CHECK_GL_EXCEPTION();
-	}
-	CATCH_AND_LOG_EXCEPTIONS
-	log_info("done cal_render_actor_shader");
-#endif	/* (VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1) */
 }
 
 static inline void calculate_face_and_vertex_count(CalCoreModel* core_model, Uint32 &face_count,
@@ -722,15 +446,6 @@ static inline void calculate_face_and_vertex_count(CalCoreModel* core_model, Uin
 	face_count = 0;
 	vertex_count = 0;
 
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	log_info("start calculate_face_and_vertex_count");
-	try
-	{
-		CHECK_GL_EXCEPTION();
-	}
-	CATCH_AND_LOG_EXCEPTIONS
-#endif	/* (VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1) */
-
 	for (i = 0; i < core_model->getCoreMeshCount(); i++)
 	{
 		core_mesh = core_model->getCoreMesh(i);
@@ -742,22 +457,9 @@ static inline void calculate_face_and_vertex_count(CalCoreModel* core_model, Uin
 			vertex_count += core_sub_mesh->getVertexCount();
 		}
 	}
-
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	try
-	{
-		CHECK_GL_EXCEPTION();
-	}
-	CATCH_AND_LOG_EXCEPTIONS
-	log_info("done calculate_face_and_vertex_count");
-#endif	/* (VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1) */
 }
 
-#ifdef	USE_BOOST
-static inline void convert_indices(Uint32Array data, const CalIndexArray indices, const Uint32 count)
-#else	/* USE_BOOST */
 static inline void convert_indices(Uint32* data, const CalIndex* indices, const Uint32 count)
-#endif	/* USE_BOOST */
 {
 	Uint32 i;
 
@@ -767,11 +469,7 @@ static inline void convert_indices(Uint32* data, const CalIndex* indices, const 
 	}
 }
 
-#ifdef	USE_BOOST
-static inline void pack_indices(Uint16Array data, const Uint32Array indices, const Uint32 count)
-#else	/* USE_BOOST */
 static inline void pack_indices(Uint16* data, const Uint32* indices, const Uint32 count)
-#endif	/* USE_BOOST */
 {
 	Uint32 i;
 
@@ -783,16 +481,6 @@ static inline void pack_indices(Uint16* data, const Uint32* indices, const Uint3
 
 extern "C" void build_buffers(actor_types* a)
 {
-#ifdef	USE_BOOST
-	FloatArray vertex_buffer;
-	FloatArray normal_buffer;
-	FloatArray weight_buffer;
-	FloatArray matrix_index_buffer;
-	FloatArray texture_coordinate_buffer;
-	CalIndexArray indices;
-	ActorVertexArray buffer;
-	Uint32Array data32;
-#else	/* USE_BOOST */
 	float* vertex_buffer;
 	float* normal_buffer;
 	float* weight_buffer;
@@ -801,7 +489,6 @@ extern "C" void build_buffers(actor_types* a)
 	CalIndex* indices;
 	ActorVertex* buffer;
 	Uint32* data32;
-#endif	/* USE_BOOST */
 	Uint32 face_count, vertex_count, max_index;
 	Sint32 i, j;
 	Uint32 idx, offset, count;
@@ -816,39 +503,10 @@ extern "C" void build_buffers(actor_types* a)
 
 	log_info("Build vertex buffers for '%s'", a->actor_name);
 
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	try
-	{
-		CHECK_GL_EXCEPTION();
-	}
-	CATCH_AND_LOG_EXCEPTIONS
-#endif	/* (VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1) */
-
 	calculate_face_and_vertex_count(a->coremodel, face_count, vertex_count);
 
 	a->hardware_model = new CalHardwareModel(a->coremodel);
 
-#ifdef	USE_BOOST
-	vertex_buffer = FloatArray(new float[32768 * 3]);
-	normal_buffer = FloatArray(new float[32768 * 3]);
-	weight_buffer = FloatArray(new float[32768 * 4]);
-	matrix_index_buffer = FloatArray(new float[32768 * 4]);
-	texture_coordinate_buffer = FloatArray(new float[32768 * 2]);
-	indices = CalIndexArray(new CalIndex[65536 * 3]);
-
-	a->hardware_model->setVertexBuffer(reinterpret_cast<char*>(vertex_buffer.get()),
-		3 * sizeof(float));
-	a->hardware_model->setNormalBuffer(reinterpret_cast<char*>(normal_buffer.get()),
-		3 * sizeof(float));
-	a->hardware_model->setWeightBuffer(reinterpret_cast<char*>(weight_buffer.get()),
-		4 * sizeof(float));
-	a->hardware_model->setMatrixIndexBuffer(reinterpret_cast<char*>(matrix_index_buffer.get()),
-		4 * sizeof(float));
-	a->hardware_model->setTextureCoordNum(1);
-	a->hardware_model->setTextureCoordBuffer(0,
-		reinterpret_cast<char*>(texture_coordinate_buffer.get()), 2 * sizeof(float));
-	a->hardware_model->setIndexBuffer(indices.get());
-#else	/* USE_BOOST */
 	vertex_buffer = new float[32768 * 3];
 	normal_buffer = new float[32768 * 3];
 	weight_buffer = new float[32768 * 4];
@@ -868,15 +526,10 @@ extern "C" void build_buffers(actor_types* a)
 	a->hardware_model->setTextureCoordBuffer(0,
 		reinterpret_cast<char*>(texture_coordinate_buffer), 2 * sizeof(float));
 	a->hardware_model->setIndexBuffer(indices);
-#endif	/* USE_BOOST */
 
 	a->hardware_model->load(0, 0, max_bones_per_mesh);
 
-#ifdef	USE_BOOST
-	buffer = ActorVertexArray(new ActorVertex[a->hardware_model->getTotalVertexCount()]);
-#else	/* USE_BOOST */
 	buffer = new ActorVertex[a->hardware_model->getTotalVertexCount()];
-#endif	/* USE_BOOST */
 
 	idx = 0;
 
@@ -911,13 +564,10 @@ extern "C" void build_buffers(actor_types* a)
 
 	ELglGenBuffersARB(1, &a->vertex_buffer);
 	ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, a->vertex_buffer);
-#ifdef	USE_BOOST
-	ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, a->hardware_model->getTotalVertexCount() *
-		sizeof(ActorVertex), buffer.get(), GL_STATIC_DRAW_ARB);
-#else	/* USE_BOOST */
+
 	ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, a->hardware_model->getTotalVertexCount() *
 		sizeof(ActorVertex), buffer, GL_STATIC_DRAW_ARB);
-#endif	/* USE_BOOST */
+
 	ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
 	max_index = 0;
@@ -943,11 +593,8 @@ extern "C" void build_buffers(actor_types* a)
 	ELglGenBuffersARB(1, &a->index_buffer);
 	ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, a->index_buffer);
 
-#ifdef	USE_BOOST
-	data32 = Uint32Array(new Uint32[a->hardware_model->getTotalFaceCount() * 3]);
-#else	/* USE_BOOST */
 	data32 = new Uint32[a->hardware_model->getTotalFaceCount() * 3];
-#endif	/* USE_BOOST */
+
 	convert_indices(data32, indices, a->hardware_model->getTotalFaceCount());
 
 #ifdef	USE_ACTORS_OPTIMIZER
@@ -959,11 +606,9 @@ extern "C" void build_buffers(actor_types* a)
 		MD5 md5;
 
 		MD5Open(&md5);
-#ifdef	USE_BOOST
-		MD5Digest(&md5, data32.get(), size);
-#else	/* USE_BOOST */
+
 		MD5Digest(&md5, data32, size);
-#endif	/* USE_BOOST */
+
 		MD5Close(&md5, digest);
 	}
 
@@ -1001,11 +646,9 @@ extern "C" void build_buffers(actor_types* a)
 				EXTENDED_EXCEPTION(ExtendedException::ec_io_error, "File '" <<
 					file_name.str() << "' is for wrong number of bones.");
 			}
-#ifdef	USE_BOOST
-			file.read(size, data32.get());
-#else	/* USE_BOOST */
+
 			file.read(size, data32);
-#endif	/* USE_BOOST */
+
 			loaded = true;
 		}
 	}
@@ -1035,63 +678,39 @@ extern "C" void build_buffers(actor_types* a)
 		file.write(reinterpret_cast<char*>(digest), sizeof(MD5_DIGEST));
 		file.write(reinterpret_cast<char*>(&size), sizeof(Uint32));
 		file.write(reinterpret_cast<char*>(&max_bones_per_mesh), sizeof(Uint32));
-#ifdef	USE_BOOST
-		file.write(reinterpret_cast<char*>(data32.get()), size);
-#else	/* USE_BOOST */
+
 		file.write(reinterpret_cast<char*>(data32), size);
-#endif	/* USE_BOOST */
+
 		file.close();
 	}
 #endif	/* USE_ACTORS_OPTIMIZER */
 
 	if (max_index <= std::numeric_limits<Uint16>::max())
 	{
-#ifdef	USE_BOOST
-		Uint16Array data16;
-
-		data16 = Uint16Array(new Uint16[a->hardware_model->getTotalFaceCount() * 3]);
-#else	/* USE_BOOST */
 		Uint16* data16;
 
 		data16 = new Uint16[a->hardware_model->getTotalFaceCount() * 3];
-#endif	/* USE_BOOST */
+
 		pack_indices(data16, data32, a->hardware_model->getTotalFaceCount());
 		a->index_type = GL_UNSIGNED_SHORT;
 		a->index_size = sizeof(GLushort);
-#ifdef	USE_BOOST
-		ELglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
-			a->hardware_model->getTotalFaceCount() * 3 * sizeof(GLushort), data16.get(),
-			GL_STATIC_DRAW_ARB);
-#else	/* USE_BOOST */
+
 		ELglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
 			a->hardware_model->getTotalFaceCount() * 3 * sizeof(GLushort), data16,
 			GL_STATIC_DRAW_ARB);
-#endif	/* USE_BOOST */
 	}
 	else
 	{
 		a->index_type = GL_UNSIGNED_INT;
 		a->index_size = sizeof(GLuint);
-#ifdef	USE_BOOST
-		ELglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
-			a->hardware_model->getTotalFaceCount() * 3 * sizeof(GLuint), data32.get(),
-			GL_STATIC_DRAW_ARB);
-#else	/* USE_BOOST */
+
 		ELglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
 			a->hardware_model->getTotalFaceCount() * 3 * sizeof(GLuint), data32,
 			GL_STATIC_DRAW_ARB);
-#endif	/* USE_BOOST */
 	}
 
 	ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	try
-	{
-		CHECK_GL_EXCEPTION();
-	}
-	CATCH_AND_LOG_EXCEPTIONS
-#endif	/* (VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1) */
 	log_info("Build vertex buffers for '%s' done", a->actor_name);
 }
 
@@ -1131,15 +750,6 @@ extern "C" void set_transformation_buffers(actor* act)
 	IntMap::iterator it;
 	actor_types* a;
 
-#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
-	if (!use_set_transformation_buffers)
-	{
-		return;
-	}
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	log_info("start set_transformation_buffers");
-#endif	/* (VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1) */
-#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 	im = reinterpret_cast<IntMap*>(act->calmodel->getUserData());
 
 	a = &actors_defs[act->actor_type];
@@ -1150,9 +760,6 @@ extern "C" void set_transformation_buffers(actor* act)
 	{
 		set_transformation_buffer(a, act, it->first, it->second);
 	}
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	log_info("done set_transformation_buffers");
-#endif	/* (VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1) */
 }
 
 extern "C" void build_actor_bounding_box(actor* a)
@@ -1161,15 +768,6 @@ extern "C" void build_actor_bounding_box(actor* a)
 	Uint32 i;
 	float t;
 
-#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
-	if (!use_build_actor_bounding_box)
-	{
-		return;
-	}
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	log_info("start build_actor_bounding_box");
-#endif	/* (VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1) */
-#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 	if (a->calmodel)
 	{
 		cs = a->calmodel->getSkeleton();
@@ -1182,42 +780,28 @@ extern "C" void build_actor_bounding_box(actor* a)
 			a->bbox.bbmax[i] += std::max(t * 0.25f - 0.25f, 0.1f);
 		}
 	}
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	log_info("done build_actor_bounding_box");
-#endif	/* (VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1) */
 }
 
 extern "C" CalModel *model_new(CalCoreModel* pCoreModel)
 {
 	CalModel* tmp;
 
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	log_info("start model_new");
-#endif	/* (VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1) */
 	tmp = new CalModel(pCoreModel);
 
 	tmp->setUserData(new IntMap());
 
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	log_info("done model_new");
-#endif	/* (VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1) */
 	return tmp;
 }
 
 extern "C" void model_delete(CalModel *self)
 {
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	log_info("start model_delete");
-#endif	/* (VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1) */
 	if (self)
 	{
 		delete reinterpret_cast<IntMap*>(self->getUserData());
 		self->setUserData(0);
 	}
+
 	delete self;
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	log_info("done model_delete");
-#endif	/* (VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1) */
 }
 
 extern "C" void model_attach_mesh(actor *act, int mesh_id)
@@ -1226,15 +810,6 @@ extern "C" void model_attach_mesh(actor *act, int mesh_id)
 	actor_types* a;
 	int i, count;
 
-#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
-	if (!use_model_attach_and_detach_mesh)
-	{
-		return;
-	}
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	log_info("start model_attach_mesh");
-#endif	/* (VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1) */
-#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 	assert(act);
 
 	assert(act->calmodel);
@@ -1263,9 +838,6 @@ extern "C" void model_attach_mesh(actor *act, int mesh_id)
 			}
 		}
 	}
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	log_info("done model_attach_mesh");
-#endif	/* (VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1) */
 }
 
 extern "C" void model_detach_mesh(actor *act, int mesh_id)
@@ -1273,16 +845,6 @@ extern "C" void model_detach_mesh(actor *act, int mesh_id)
 	IntMap* im;
 	actor_types* a;
 	int i, count;
-
-#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
-	if (!use_model_attach_and_detach_mesh)
-	{
-		return;
-	}
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	log_info("start model_detach_mesh");
-#endif	/* (VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1) */
-#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 
 	assert(act);
 
@@ -1308,8 +870,5 @@ extern "C" void model_detach_mesh(actor *act, int mesh_id)
 			}
 		}
 	}
-#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	log_info("done model_detach_mesh");
-#endif	/* (VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1) */
 }
 
