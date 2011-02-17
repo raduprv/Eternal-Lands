@@ -136,7 +136,9 @@ el_file_ptr gz_file_open(const char* file_name)
 
 	size = 0;
 
+#if	(ZLIB_VERNUM >= 0x1235)
 	gzbuffer(file, 0x40000); // 256k
+#endif
 
 	do
 	{
