@@ -1619,7 +1619,7 @@ void init_vars()
 	add_var(OPT_BOOL,"clouds_shadows","cshad",&clouds_shadows,change_clouds_shadows,1,"Cloud Shadows","The clouds shadows are projected on the ground, and the game looks nicer with them on.",LODTAB);
 	add_var(OPT_BOOL,"show_fps","fps",&show_fps,change_var,1,"Show FPS","Show the current frames per second in the corner of the window",HUD);
 #ifdef	NEW_TEXTURES
-	add_var(OPT_BOOL,"small_actor_texture_cache","small_actor_tc",&small_actor_texture_cache,change_small_actor_texture_cache,0,"Small actor texture cache","A small Actor texture cache uses less video memory, but actor loading can be slower in crouded places.",ADVVID);
+	add_var(OPT_BOOL,"small_actor_texture_cache","small_actor_tc",&small_actor_texture_cache,change_small_actor_texture_cache,0,"Small actor texture cache","A small Actor texture cache uses less video memory, but actor loading can be slower.",ADVVID);
 #else	/* NEW_TEXTURES */
 	add_var(OPT_BOOL,"use_mipmaps","mm",&use_mipmaps,change_mipmaps,0,"Mipmaps","Mipmaps is a texture effect that blurs the texture a bit - it may look smoother and better, or it may look worse depending on your graphics driver settings and the like.",ADVVID);
 #endif	/* NEW_TEXTURES */
