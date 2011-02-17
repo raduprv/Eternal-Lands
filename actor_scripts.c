@@ -522,9 +522,12 @@ void move_to_next_frame()
 #ifdef	NEW_TEXTURES
 			if (actors_list[i]->in_aim_mode == 0)
 			{
-				if (get_actor_texture_ready(actors_list[i]->texture_id))
+				if (actors_list[i]->is_enhanced_model != 0)
 				{
-					use_ready_actor_texture(actors_list[i]->texture_id);
+					if (get_actor_texture_ready(actors_list[i]->texture_id))
+					{
+						use_ready_actor_texture(actors_list[i]->texture_id);
+					}
 				}
 
 				if (actors_list[i]->delayed_item_changes_count > 0)
