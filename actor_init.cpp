@@ -18,40 +18,51 @@ Uint32 max_bones_per_mesh = 27;
 class HardwareMeshData
 {
 	private:
-		const Sint32 mesh_index;
-		const Uint32 size;
-		float* buffer;
+		const Sint32 m_mesh_index;
+		const Uint32 m_size;
+		float* m_buffer;
+
+		const HardwareMeshData &operator=(const HardwareMeshData &hmd);
 
 	public:
-		inline HardwareMeshData(const Sint32 mesh_index, const Uint32 size):
-			mesh_index(mesh_index), size(size)
+		inline HardwareMeshData(const Sint32 mesh_index,
+			const Uint32 size): m_mesh_index(mesh_index),
+			m_size(size)
 		{
-			buffer = new float[size * 4];
+			m_buffer = new float[m_size * 4];
+		}
+
+		inline HardwareMeshData(const HardwareMeshData &hmd):
+			m_mesh_index(hmd.m_mesh_index), m_size(hmd.m_size)
+		{
+			m_buffer = new float[m_size * 4];
+			memcpy(m_buffer, hmd.m_buffer,
+				sizeof(float) * 4 * m_size);
 		}
 
 		inline ~HardwareMeshData()
 		{
-			delete[] buffer;
+			delete[] m_buffer;
 		}
 
 		inline void set_buffer_value(const Uint32 index, const float value)
 		{
-			buffer[index] = value;
+			m_buffer[index] = value;
 		}
 
 		inline float* get_buffer(const Uint32 index = 0) const
 		{
-			return &buffer[index];
+			return &m_buffer[index];
 		}
 
 		inline Uint32 get_size() const
 		{
-			return size;
+			return m_size;
 		}
 
 		inline Sint32 get_mesh_index() const
 		{
-			return mesh_index;
+			return m_mesh_index;
 		}
 };
 
