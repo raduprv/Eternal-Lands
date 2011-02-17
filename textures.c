@@ -645,7 +645,7 @@ static Uint32 copy_to_coordinates_block(const image_t* source, const Uint32 x,
 	const Uint32 y, image_t* dest)
 {
 	Uint32 source_height, source_width, source_offset;
-	Uint32 dest_height, dest_width, dest_offset;
+	Uint32 dest_height, dest_width, dest_offset, dest_start;
 	Uint32 i, j, dest_size, source_size;
 	Uint8 *src, *dst;
 
@@ -679,6 +679,14 @@ static Uint32 copy_to_coordinates_block(const image_t* source, const Uint32 x,
 		case ift_dxt3:
 		case ift_dxt5:
 			dest_size = 16;
+			if (source->format == ift_dxt1)
+			{
+				dest_start = 8;
+			}
+			else
+			{
+				dest_start = 0;
+			}
 			break;
 		default:
 			LOG_ERROR("Can use block copy only for DXT1, DXT3 or"
@@ -692,22 +700,33 @@ static Uint32 copy_to_coordinates_block(const image_t* source, const Uint32 x,
 		return 0;
 	}
 
+	source_offset = 0;
+
+	if ((x + source_width) > dest_width)
+	{
+		LOG_ERROR("Offset x %d + source widht %d must be smaller than"
+			" dest widht %d", x, source_width, dest_width);
+		return 0;
+	}
+
+	if ((y + source_height) > dest_height)
+	{
+		LOG_ERROR("Offset y %d + source height %d must be smaller than"
+			" dest height %d", y, source_height, dest_height);
+		return 0;
+	}
+
 	for (j = 0; j < source_height; j += 4)
 	{
 		dest_offset = (y + j) * dest_width / 16;
 		dest_offset += x / 4;
 		dest_offset *= dest_size;
-
-		/* Only valid case is source->format == dxt1,
-			dest->format == dxt3 or dxt5 */
-		if (dest_size > source_size)
-		{
-			dest_offset += 8;
-		}
+		dest_offset += dest_start;
 
 		for (i = 0; i < source_width; i += 4)
 		{
-			memcpy(dst + dest_offset, src + source_offset, source_size);
+			memcpy(dst + dest_offset, src + source_offset,
+				source_size);
 
 			dest_offset += dest_size;
 			source_offset += source_size;
@@ -744,7 +763,8 @@ static Uint32 copy_to_coordinates_mask2(const image_t* source0,
 		source_offset = i * source_width * 4;
 		dest_offset = ((y + i) * dest_width + x) * 4;
 
-		memcpy(dst + dest_offset, buffer + source_offset, source_width * 4);
+		memcpy(dst + dest_offset, buffer + source_offset,
+			source_width * 4);
 	}
 
 	if ((source0->alpha != 0) || (source1->alpha != 0))
@@ -800,6 +820,14 @@ static Uint32 load_to_coordinates(el_file_ptr file, const Uint32 x,
 			LOG_ERROR("File has wrong size <%d, %d> instead "
 				"of <%d, %d>.", image.width, image.height,
 				tw, th);
+			return 0;
+		}
+
+		if (((tw % 4) != 0) || ((th % 4) != 0) || ((tx % 4) != 0) ||
+			((ty % 4) != 0))
+		{
+			LOG_ERROR("Wrong sizes for compression <%d, %d>, "
+				"offset <%d, %d>.", tw, th, tx, ty);
 			return 0;
 		}
 
