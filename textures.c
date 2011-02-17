@@ -1804,7 +1804,7 @@ texture_struct *load_texture(const char * file_name, texture_struct *tex, Uint8 
 	if (dds == 1)
 	{
 		tex->has_alpha = 0;
-		tex->texture = load_dds(file, file_name, &tex->x_size, &tex->y_size);
+		tex->texture = load_dds(file, &tex->x_size, &tex->y_size);
 	}
 	else
 	{
