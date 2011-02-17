@@ -209,8 +209,8 @@ void blend_sse2(const Uint8* alpha, const Uint32 size, const Uint8* source0,
 		t5 = _mm_unpacklo_epi32(t2, t2);
 		t6 = _mm_sub_epi16(_mm_set1_epi8(0xFF), t5);
 
-		t7 = _mm_mulhi_epu16(t3, t5);
-		t8 = _mm_mulhi_epu16(t4, t6);
+		t7 = _mm_mulhi_epu16(t3, t6);
+		t8 = _mm_mulhi_epu16(t4, t5);
 
 		t9 = _mm_adds_epu16(t7, t8);
 		t9 = _mm_srli_epi16(t9, 8);
@@ -221,8 +221,8 @@ void blend_sse2(const Uint8* alpha, const Uint32 size, const Uint8* source0,
 		t5 = _mm_unpackhi_epi32(t2, t2);
 		t6 = _mm_sub_epi16(_mm_set1_epi8(0xFF), t5);
 
-		t7 = _mm_mulhi_epu16(t3, t5);
-		t8 = _mm_mulhi_epu16(t4, t6);
+		t7 = _mm_mulhi_epu16(t3, t6);
+		t8 = _mm_mulhi_epu16(t4, t5);
 
 		t10 = _mm_adds_epu16(t7, t8);
 		t10 = _mm_srli_epi16(t10, 8);
@@ -422,8 +422,8 @@ void fast_blend(const Uint8* alpha, const Uint32 size, const Uint8* source0,
 	{
 		for (j = 0; j < 4; j++)
 		{
-			tmp = source0[i * 4 + j] * alpha[i];
-			tmp += source1[i * 4 + j] * (255 - alpha[i]);
+			tmp = source1[i * 4 + j] * alpha[i];
+			tmp += source0[i * 4 + j] * (255 - alpha[i]);
 			dest[i * 4 + j] = tmp / 255;
 		}
 	}

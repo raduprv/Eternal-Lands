@@ -828,21 +828,11 @@ static Uint32 load_to_coordinates(el_file_ptr file, const Uint32 x,
 static void build_alpha_mask(const Uint8* source, const Uint32 size,
 	Uint8* dest)
 {
-	Uint32 i, r, g;
+	Uint32 i;
 
 	for (i = 0; i < size; i++)
 	{
-		r = source[i * 4 + 0];
-		g = source[i * 4 + 1];
-
-		if (r >= g)
-		{
-			dest[i] = 0;
-		}
-		else
-		{
-			dest[i] = 255;
-		}
+		dest[i] = source[i * 4 + 3];
 	}
 }
 
@@ -922,17 +912,14 @@ static Uint32 load_to_coordinates_mask2(el_file_ptr source0, el_file_ptr source1
 		return 0;
 	}
 
-	if ((msk.format != ift_a8) && (msk.format != ift_l8))
+	if (msk.format != ift_a8)
 	{
 		if (msk.format != ift_rgba8)
 		{
-			LOG_ERROR("Can't convert image '%s' to alpha mask",
-				el_file_name(mask));
+			LOG_ERROR("Can't convert image to alpha mask");
 
 			return 0;
 		}
-
-		LOG_ERROR("converting image '%s' to alpha mask", mask);
 
 		tmp = malloc(msk.width * msk.height);
 
@@ -1089,6 +1076,20 @@ static Uint32 open_for_coordinates_mask2(const char* source0,
 	{
 		el_close(*src1);
 		*src1 = 0;
+
+		return 0;
+	}
+
+	if ((image.format != ift_a8) && (image.alpha == 0))
+	{
+		LOG_ERROR("Mask image '%s' has no alpha channel!",
+			el_file_name(*msk));
+
+		el_close(*src1);
+		*src1 = 0;
+
+		el_close(*msk);
+		*msk = 0;
 
 		return 0;
 	}
