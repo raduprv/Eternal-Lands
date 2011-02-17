@@ -22,6 +22,7 @@ extern int CalCoreModel_ELLoadCoreAnimation(struct CalCoreModel *self, const cha
 extern int CalCoreModel_ELLoadCoreMaterial(struct CalCoreModel *self, const char *strFilename);
 extern int CalCoreModel_ELLoadCoreMesh(struct CalCoreModel *self, const char *strFilename);
 extern enum CalBoolean CalCoreModel_ELLoadCoreSkeleton(struct CalCoreModel *self, const char *strFilename);
+extern void set_invert_v_coord();
 
 #ifdef __cplusplus
 }

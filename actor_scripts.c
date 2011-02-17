@@ -4616,6 +4616,8 @@ void init_actor_defs()
 	// initialize the whole thing to zero
 	memset (actors_defs, 0, sizeof (actors_defs));
 	memset (attached_actors_defs, 0, sizeof (attached_actors_defs));
-
+#ifdef	NEW_TEXTURES
+	set_invert_v_coord();
+#endif	/* NEW_TEXTURES */
 	read_actor_defs ("actor_defs", "actor_defs.xml");
 }

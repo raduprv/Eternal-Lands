@@ -13,7 +13,7 @@
 #include <assert.h>
 
 #ifdef	NEW_TEXTURES
-static image_format_type detect_format(DdsHeader *header, Uint8* alpha,
+static image_format_type detect_dds_file_format(DdsHeader *header, Uint8* alpha,
 	Uint32* unpack)
 {
 	Uint32 red_mask, green_mask, blue_mask, alpha_mask, luminace_mask;
@@ -25,7 +25,7 @@ static image_format_type detect_format(DdsHeader *header, Uint8* alpha,
 		switch (header->m_pixel_format.m_fourcc)
 		{
 			case DDSFMT_DXT1:
-				*alpha = 1;
+				*alpha = 0;
 				return ift_dxt1;
 			case DDSFMT_DXT3:
 				*alpha = 1;
@@ -380,7 +380,7 @@ static void read_explicit_alphas_block(el_file_ptr file, DXTExplicitAlphaBlock *
 	}
 }
 
-static void read_and_uncompress_dxt1_block(el_file_ptr file, Uint8 *values)
+static void read_and_decompress_dxt1_block(el_file_ptr file, Uint8 *values)
 {
 	DXTColorBlock colors;
 
@@ -389,7 +389,7 @@ static void read_and_uncompress_dxt1_block(el_file_ptr file, Uint8 *values)
 	unpack_dxt1(&colors, values);
 }
 
-static void read_and_uncompress_dxt3_block(el_file_ptr file, Uint8 *values)
+static void read_and_decompress_dxt3_block(el_file_ptr file, Uint8 *values)
 {
 	DXTExplicitAlphaBlock alphas;
 	DXTColorBlock colors;
@@ -400,7 +400,7 @@ static void read_and_uncompress_dxt3_block(el_file_ptr file, Uint8 *values)
 	unpack_dxt3(&alphas, &colors, values);
 }
 
-static void read_and_uncompress_dxt5_block(el_file_ptr file, Uint8 *values)
+static void read_and_decompress_dxt5_block(el_file_ptr file, Uint8 *values)
 {
 	DXTInterpolatedAlphaBlock alphas;
 	DXTColorBlock colors;
@@ -411,7 +411,7 @@ static void read_and_uncompress_dxt5_block(el_file_ptr file, Uint8 *values)
 	unpack_dxt5(&alphas, &colors, values);
 }
 
-static void read_and_uncompress_ati1_block(el_file_ptr file, Uint8 *values)
+static void read_and_decompress_ati1_block(el_file_ptr file, Uint8 *values)
 {
 	DXTInterpolatedAlphaBlock alphas;
 
@@ -420,7 +420,7 @@ static void read_and_uncompress_ati1_block(el_file_ptr file, Uint8 *values)
 	unpack_ati1(&alphas, values);
 }
 
-static void read_and_uncompress_ati2_block(el_file_ptr file, Uint8 *values)
+static void read_and_decompress_ati2_block(el_file_ptr file, Uint8 *values)
 {
 	DXTInterpolatedAlphaBlock first_block;
 	DXTInterpolatedAlphaBlock second_block;
@@ -431,7 +431,7 @@ static void read_and_uncompress_ati2_block(el_file_ptr file, Uint8 *values)
 	unpack_ati2(&first_block, &second_block, values);
 }
 
-static void uncompress_block(el_file_ptr file, const Uint32 format,
+static void decompress_block(el_file_ptr file, const Uint32 format,
 	const Uint32 x, const Uint32 y, const Uint32 width, const Uint32 height,
 	const Uint32 offset, Uint8 *dst)
 {
@@ -441,28 +441,28 @@ static void uncompress_block(el_file_ptr file, const Uint32 format,
 	switch (format)
 	{
 		case DDSFMT_DXT1:
-			read_and_uncompress_dxt1_block(file, values);
+			read_and_decompress_dxt1_block(file, values);
 			break;
 		case DDSFMT_DXT2:
 		case DDSFMT_DXT3:
-			read_and_uncompress_dxt3_block(file, values);
+			read_and_decompress_dxt3_block(file, values);
 			break;
 		case DDSFMT_DXT4:
 		case DDSFMT_DXT5:
-			read_and_uncompress_dxt5_block(file, values);
+			read_and_decompress_dxt5_block(file, values);
 			break;
 		case DDSFMT_ATI1:
-			read_and_uncompress_ati1_block(file, values);
+			read_and_decompress_ati1_block(file, values);
 			break;
 		case DDSFMT_ATI2:
-			read_and_uncompress_ati2_block(file, values);
+			read_and_decompress_ati2_block(file, values);
 			break;
 	}
 
 	count_x = min2u(width - x, 4);
 	count_y = min2u(height - y, 4);
 
-	// write 4x4 block to uncompressed version
+	// write 4x4 block to decompressed version
 	for (i = 0; i < count_y; i++)
 	{
 		for (j = 0; j < count_x; j++)
@@ -478,7 +478,7 @@ static void uncompress_block(el_file_ptr file, const Uint32 format,
 
 static Uint32 get_level_size(const Uint32 format, const Uint32 bpp,
 	const Uint32 width, const Uint32 height, const Uint32 level,
-	const Uint32 uncompress)
+	const Uint32 decompress)
 {
 	Uint32 w, h;
 
@@ -490,7 +490,7 @@ static Uint32 get_level_size(const Uint32 format, const Uint32 bpp,
 		(format == DDSFMT_DXT5) || (format == DDSFMT_ATI2) ||
 		(format == DDSFMT_ATI1))
 	{
-		if (uncompress != 0)
+		if (decompress != 0)
 		{
 			return w * h * 4;
 		}
@@ -516,7 +516,7 @@ static Uint32 get_level_size(const Uint32 format, const Uint32 bpp,
 }
 
 static Uint32 get_dds_level_size(const DdsHeader *header, const Uint32 level,
-	const Uint32 uncompress, const Uint32 unpack)
+	const Uint32 decompress, const Uint32 unpack)
 {
 	Uint32 width, height, format, bpp;
 
@@ -533,17 +533,17 @@ static Uint32 get_dds_level_size(const DdsHeader *header, const Uint32 level,
 		bpp = header->m_pixel_format.m_bit_count / 8;
 	}
 
-	return get_level_size(format, bpp, width, height, level, uncompress);
+	return get_level_size(format, bpp, width, height, level, decompress);
 }
 
-static Uint32 get_dds_size(const DdsHeader *header, const Uint32 uncompress,
+static Uint32 get_dds_size(const DdsHeader *header, const Uint32 decompress,
 	const Uint32 strip_mipmaps, const Uint32 base_level)
 {
 	Uint32 result, mipmap_count, i;
 
 	if (strip_mipmaps != 0)
 	{
-		return get_dds_level_size(header, base_level, uncompress, 0);
+		return get_dds_level_size(header, base_level, decompress, 0);
 	}
 	else
 	{
@@ -553,7 +553,7 @@ static Uint32 get_dds_size(const DdsHeader *header, const Uint32 uncompress,
 
 		for (i = base_level; i < mipmap_count; i++)
 		{
-			result += get_dds_level_size(header, i, uncompress, 0);
+			result += get_dds_level_size(header, i, decompress, 0);
 		}
 
 		return result;
@@ -574,7 +574,7 @@ static Uint32 get_dds_offset(const DdsHeader *header, const Uint32 base_level)
 	return result;
 }
 
-static void* uncompress_dds(el_file_ptr file, DdsHeader *header,
+static void* decompress_dds(el_file_ptr file, DdsHeader *header,
 	const Uint32 strip_mipmaps, const Uint32 base_level)
 {
 	Uint32 width, height, size, format, mipmap_count;
@@ -584,7 +584,7 @@ static void* uncompress_dds(el_file_ptr file, DdsHeader *header,
 
 	if ((header->m_height % 4) != 0)
 	{
-		LOG_ERROR("Can`t uncompressed DDS file %s because height is"
+		LOG_ERROR("Can`t decompressed DDS file %s because height is"
 			" %d and not a multiple of four.", el_file_name(file),
 			header->m_height);
 		return 0;
@@ -592,7 +592,7 @@ static void* uncompress_dds(el_file_ptr file, DdsHeader *header,
 
 	if ((header->m_width % 4) != 0)
 	{
-		LOG_ERROR("Can`t uncompressed DDS file %s because width is"
+		LOG_ERROR("Can`t decompressed DDS file %s because width is"
 			" %d and not a multiple of four.", el_file_name(file),
 			header->m_width);
 		return 0;
@@ -639,7 +639,7 @@ static void* uncompress_dds(el_file_ptr file, DdsHeader *header,
 		{
 			for (x = 0; x < w; x++)
 			{
-				uncompress_block(file, format, x * 4, y * 4,
+				decompress_block(file, format, x * 4, y * 4,
 					width, height, index, dest);
 			}
 		}
@@ -701,7 +701,7 @@ static void* read_dds(el_file_ptr file, DdsHeader *header,
 }
 
 static void get_dds_sizes_and_offsets(const DdsHeader *header,
-	const Uint32 uncompress, const Uint32 unpack,
+	const Uint32 decompress, const Uint32 unpack,
 	const Uint32 strip_mipmaps, const Uint32 base_level,
 	image_t* image)
 {
@@ -712,7 +712,7 @@ static void get_dds_sizes_and_offsets(const DdsHeader *header,
 
 	if (strip_mipmaps != 0)
 	{
-		size = get_dds_level_size(header, base_level, uncompress, unpack);
+		size = get_dds_level_size(header, base_level, decompress, unpack);
 
 		image->sizes[0] = size;
 	}
@@ -725,7 +725,7 @@ static void get_dds_sizes_and_offsets(const DdsHeader *header,
 
 		for (i = base_level; i < mipmap_count; i++)
 		{
-			size = get_dds_level_size(header, i, uncompress, unpack);
+			size = get_dds_level_size(header, i, decompress, unpack);
 
 			image->sizes[index] = size;
 			image->offsets[index] = offset;
@@ -736,7 +736,7 @@ static void get_dds_sizes_and_offsets(const DdsHeader *header,
 	}
 }
 
-Uint32 load_dds(el_file_ptr file, const Uint32 uncompress,
+Uint32 load_dds(el_file_ptr file, const Uint32 decompress,
 	const Uint32 unpack, const Uint32 strip_mipmaps, Uint32 base_level,
 	image_t* image)
 {
@@ -768,7 +768,7 @@ Uint32 load_dds(el_file_ptr file, const Uint32 uncompress,
 		image->width = max2u(header.m_width >> start_mipmap, 1);
 		image->height = max2u(header.m_height >> start_mipmap, 1);
 		image->mipmaps = mipmap_count;
-		image->format = detect_format(&header, &image->alpha,
+		image->format = detect_dds_file_format(&header, &image->alpha,
 			&format_unpack);
 
 		format = header.m_pixel_format.m_fourcc;
@@ -776,11 +776,11 @@ Uint32 load_dds(el_file_ptr file, const Uint32 uncompress,
 		if (((format == DDSFMT_DXT1) || (format == DDSFMT_DXT2) ||
 			(format == DDSFMT_DXT3) || (format == DDSFMT_DXT4) ||
 			(format == DDSFMT_DXT5) || (format == DDSFMT_ATI1) ||
-			(format == DDSFMT_ATI2)) && ((uncompress != 0) ||
+			(format == DDSFMT_ATI2)) && ((decompress != 0) ||
 			(unpack != 0) || (format == DDSFMT_ATI1) ||
 			(format == DDSFMT_ATI2)))
 		{
-			image->image = uncompress_dds(file, &header,
+			image->image = decompress_dds(file, &header,
 				strip_mipmaps, start_mipmap);
 			image->format = ift_rgba8;
 
@@ -829,6 +829,34 @@ Uint32 load_dds(el_file_ptr file, const Uint32 uncompress,
 		return 0;
 	}
 }
+
+Uint32 get_dds_information(el_file_ptr file, image_t* image)
+{
+	DdsHeader header;
+	Uint32 format_unpack;
+
+	if (file == 0)
+	{
+		return 0;
+	}
+
+	if (init_dds_image(file, &header) != 0)
+	{
+		memset(image, 0, sizeof(image_t));
+
+		image->width = header.m_width;
+		image->height = header.m_height;
+		image->mipmaps = header.m_mipmap_count;
+		image->format = detect_dds_file_format(&header, &image->alpha,
+			&format_unpack);
+
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
 #else	/* NEW_TEXTURES */
 void* load_dds(el_file_ptr file, int *width, int *height)
 {
@@ -851,7 +879,7 @@ void* load_dds(el_file_ptr file, int *width, int *height)
 			(format == DDSFMT_DXT4) || (format == DDSFMT_DXT5) || (format == DDSFMT_ATI1) ||
 			(format == DDSFMT_ATI2))
 		{
-			return uncompress_dds(file, &header, 1, 0);
+			return decompress_dds(file, &header, 1, 0);
 		}
 		else
 		{
