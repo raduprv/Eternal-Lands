@@ -1025,7 +1025,7 @@ static Uint32 open_for_coordinates_checks(const char* file_name,
 
 static Uint32 open_for_coordinates(const char* file_name, el_file_ptr* file,
 	const Uint32 width, const Uint32 height, Uint32* mipmap,
-	Uint32* format_set, image_format_type* format)
+	image_format_type* format)
 {
 	image_t image;
 
@@ -1036,42 +1036,49 @@ static Uint32 open_for_coordinates(const char* file_name, el_file_ptr* file,
 		return 0;
 	}
 
-	if (*format_set == 0)
+	if (*format == image.format)
 	{
-		*format = image.format;
-		*format_set = 1;
-
 		return 1;
 	}
-	else
-	{
-		if (image.format != *format)
-		{
-			*format = ift_rgba8;
-		}
 
-		return 1;
+	switch (*format)
+	{
+		case ift_dxt1:
+			*format = image.format;
+			return 1;
+		case ift_dxt3:
+		case ift_dxt5:
+			if (image.format == ift_dxt1)
+			{
+				return 1;
+			}
+			*format = ift_rgba8;
+			return 1;
+		case ift_rgba8:
+			return 1;
+		default:
+			*format = ift_rgba8;
+			return 0;
 	}
 }
 
 static Uint32 open_for_coordinates_mask2(const char* source0,
 	const char* source1, const char* mask, el_file_ptr* src0,
 	el_file_ptr* src1, el_file_ptr* msk, const Uint32 width,
-	const Uint32 height, Uint32* mipmap, Uint32* format_set,
-	image_format_type* format)
+	const Uint32 height, Uint32* mipmap, image_format_type* format)
 {
 	image_t image;
 
 	if ((source1 == 0) || (mask == 0))
 	{
 		return open_for_coordinates(source0, src0, width, height,
-			mipmap, format_set, format);
+			mipmap, format);
 	}
 
 	if ((source1[0] == 0) || (mask[0] == 0))
 	{
 		return open_for_coordinates(source0, src0, width, height,
-			mipmap, format_set, format);
+			mipmap, format);
 	}
 
 	if (open_for_coordinates_checks(source0, src0, width, height, mipmap,
@@ -1109,7 +1116,6 @@ static Uint32 open_for_coordinates_mask2(const char* source0,
 		return 0;
 	}
 
-	*format_set = 1;
 	*format = ift_rgba8;
 
 	return 1;
@@ -1144,7 +1150,7 @@ static void load_enhanced_actor_threaded(const enhanced_actor_images_t* files,
 	el_file_ptr hands_tex_save;
 	image_format_type format;
 	Uint32 alpha, use_compressed_image, size;
-	Uint32 width, height, mipmap, format_set;
+	Uint32 width, height, mipmap;
 
 	pants_tex = 0;
 	pants_mask = 0;
@@ -1175,12 +1181,10 @@ static void load_enhanced_actor_threaded(const enhanced_actor_images_t* files,
 	if (have_extension(ext_texture_compression_s3tc))
 	{
 		format = ift_dxt1;
-		format_set = 0;
 	}
 	else
 	{
 		format = ift_rgba8;
-		format_set = 1;
 	}
 
 	if (poor_man != 0)
@@ -1198,27 +1202,27 @@ static void load_enhanced_actor_threaded(const enhanced_actor_images_t* files,
 		open_for_coordinates_mask2(files->pants_tex,
 			files->legs_base, files->pants_mask, &pants_tex,
 			&legs_base, &pants_mask, 160, 160, &mipmap,
-			&format_set, &format);
+			&format);
 	}
 	if (files->boots_tex[0])
 	{
 		open_for_coordinates_mask2(files->boots_tex,
 			files->boots_base, files->boots_mask, &boots_tex,
 			&boots_base, &boots_mask, 156, 160, &mipmap,
-			&format_set, &format);
+			&format);
 	}
 	if (files->torso_tex[0])
 	{
 		open_for_coordinates_mask2(files->torso_tex,
 			files->body_base, files->torso_mask, &torso_tex,
 			&body_base, &torso_mask, 196, 216, &mipmap,
-			&format_set, &format);
+			&format);
 	}
 	if (files->arms_tex[0])
 	{
 		open_for_coordinates_mask2(files->arms_tex,
 			files->arms_base, files->arms_mask, &arms_tex,
-			&arms_base, &arms_mask, 160, 160, &mipmap, &format_set,
+			&arms_base, &arms_mask, 160, 160, &mipmap, 
 			&format);
 	}
 	if (files->hands_tex[0])
@@ -1226,44 +1230,44 @@ static void load_enhanced_actor_threaded(const enhanced_actor_images_t* files,
 		open_for_coordinates_mask2(files->hands_tex,
 			files->hands_tex_save, files->hands_mask, &hands_tex,
 			&hands_tex_save, &hands_mask, 64, 64, &mipmap,
-			&format_set, &format);
+			&format);
 	}
 	if (files->head_tex[0])
 	{
 		open_for_coordinates_mask2(files->head_tex,
 			files->head_base, files->head_mask, &head_tex,
-			&head_base, &head_mask, 128, 128, &mipmap, &format_set,
+			&head_base, &head_mask, 128, 128, &mipmap, 
 			&format);
 	}
 	if (files->hair_tex[0])
 	{
 		open_for_coordinates(files->hair_tex, &hair_tex,
-			136, 192, &mipmap, &format_set, &format);
+			136, 192, &mipmap, &format);
 	}
 	if (files->weapon_tex[0])
 	{
 		open_for_coordinates(files->weapon_tex, &weapon_tex,
-			156, 144, &mipmap, &format_set, &format);
+			156, 144, &mipmap, &format);
 	}
 	if (files->shield_tex[0])
 	{
 		open_for_coordinates(files->shield_tex, &shield_tex,
-			156, 144, &mipmap, &format_set, &format);
+			156, 144, &mipmap, &format);
 	}
 	if (files->helmet_tex[0])
 	{
 		open_for_coordinates(files->helmet_tex, &helmet_tex,
-			156, 56, &mipmap, &format_set, &format);
+			156, 56, &mipmap, &format);
 	}
 	if (files->neck_tex[0])
 	{
 		open_for_coordinates(files->neck_tex, &neck_tex,
-			40, 104, &mipmap, &format_set, &format);
+			40, 104, &mipmap, &format);
 	}
 	if (files->cape_tex[0])
 	{
 		open_for_coordinates(files->cape_tex, &cape_tex,
-			248, 152, &mipmap, &format_set, &format);
+			248, 152, &mipmap, &format);
 	}
 
 	if (mipmap == 2)
