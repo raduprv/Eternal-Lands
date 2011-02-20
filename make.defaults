@@ -24,6 +24,7 @@ FEATURES += BANDWIDTH_SAVINGS				# enable bandwidth saving changes for message p
 FEATURES += NEW_NEW_CHAR_WINDOW              # Use the new character creation window; controls always on-screen
 #FEATURES += NEW_TEXTURES                    # Enables the new texture loading and caching system (http://www.eternal-lands.com/forum/index.php?showtopic=54756)
 #FEATURES += USE_SIMD                        # Enables usage of simd instructions
+FEATURES += ENCYCL_NAVIGATION                # Adds context menus to encyclopedia windows with search and bookmark functions
 
 ### Machine specific options (fixes or performance enhancements) ###
 #FEATURES += EL_BIG_ENDIAN                   # Enable big-endian code (automatically detected for OSX)
