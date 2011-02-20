@@ -30,7 +30,7 @@ void unpack_dxt_color(DXTColorBlock *block, Uint8 *values, Uint32 dxt1)
 	colors[1][1] *= 255.0f / 63.0f;
 	colors[1][2] *= 255.0f / 31.0f;
 
-	if (dxt1 && (block->m_colors[0] <= block->m_colors[1]))
+	if ((dxt1 == 1) && (block->m_colors[0] <= block->m_colors[1]))
 	{
 		// 1-bit alpha
 		// one intermediate colour, half way between the other two
@@ -133,7 +133,7 @@ void unpack_dxt_interpolated_alpha(DXTInterpolatedAlphaBlock *block, Uint8 *valu
 		}
 
 		alphas[6] = 0.0f;
-		alphas[7] = 1.0f;
+		alphas[7] = 255.0f;
 	}
 
 	for (i = 0; i < 16; i++)
