@@ -151,16 +151,14 @@ Uint32 custom_update_threaded(void* data)
 	snprintf(str, sizeof(str), "%s%s", get_path_config_base(),
 		"custom_files.zip");
 
-	printf("Unloading '%s'\n", str);
-
-	remove_zip_archive(str);
+	unload_zip_archive(str);
 
 	result = update(server, "custom_files.lst", "updates", str,
 		progress_function, data);
 
 	if (result == 0)
 	{
-		add_zip_archive(str);
+		load_zip_archive(str);
 	}
 
 	return result;

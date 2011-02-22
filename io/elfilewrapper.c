@@ -254,7 +254,7 @@ void init_zip_archives()
 	}
 }
 
-void add_zip_archive(const char* file_name)
+void load_zip_archive(const char* file_name)
 {
 	unzFile file;
 	unz_file_info64 info;
@@ -281,7 +281,7 @@ void add_zip_archive(const char* file_name)
 
 	if (unzGetGlobalInfo64(file, &global_info) != UNZ_OK)
 	{
-		LOG_ERROR("Can't add zip file %s", file_name);
+		LOG_ERROR("Can't load zip file %s", file_name);
 
 		unzClose(file);
 
@@ -292,7 +292,7 @@ void add_zip_archive(const char* file_name)
 
 	if (unzGoToFirstFile(file) != UNZ_OK)
 	{
-		LOG_ERROR("Can't add zip file %s", file_name);
+		LOG_ERROR("Can't load zip file %s", file_name);
 
 		unzClose(file);
 
@@ -355,10 +355,10 @@ void add_zip_archive(const char* file_name)
 
 	CHECK_AND_UNLOCK_MUTEX(zip_files[index].mutex);
 
-	LOG_ERROR("Added zip file '%s' with %d files", file_name, count);
+	LOG_ERROR("Loaded zip file '%s' with %d files", file_name, count);
 }
 
-void remove_zip_archive(const char* file_name)
+void unload_zip_archive(const char* file_name)
 {
 	Uint32 i, count;
 
@@ -387,7 +387,7 @@ void remove_zip_archive(const char* file_name)
 
 				CHECK_AND_UNLOCK_MUTEX(zip_files[i].mutex);
 
-				LOG_ERROR("Removed zip '%s'", file_name);
+				LOG_ERROR("Unloaded zip '%s'", file_name);
 
 				return;
 			}
@@ -395,8 +395,6 @@ void remove_zip_archive(const char* file_name)
 
 		CHECK_AND_UNLOCK_MUTEX(zip_files[i].mutex);
 	}
-
-	LOG_ERROR("Can't remove zip '%s'", file_name);
 }
 
 static Uint32 do_file_exists(const char* file_name, const char* path,

@@ -1018,7 +1018,6 @@ static Uint32 open_for_coordinates(const char* file_name, el_file_ptr* file,
 	if (open_for_coordinates_checks(file_name, file, width, height, mipmap,
 		&image) == 0)
 	{
-		LOG_ERROR("Unkown error!");
 		return 0;
 	}
 
