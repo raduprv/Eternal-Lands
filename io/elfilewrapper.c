@@ -329,7 +329,7 @@ static Uint32 file_exists_path(const char* file_name, const char* extra_path)
 {
 	char str[1024];
 	el_zip_file_entry_t key;
-	Sint32 i;
+	Sint32 i, count;
 
 	if (file_name == 0)
 	{
@@ -353,7 +353,11 @@ static Uint32 file_exists_path(const char* file_name, const char* extra_path)
 
 	CHECK_AND_LOCK_MUTEX(zip_mutex);
 
-	for (i = num_zip_files - 1; i >= 0; i--)
+	count = num_zip_files - 1;
+
+	CHECK_AND_UNLOCK_MUTEX(zip_mutex);
+
+	for (i = count; i >= 0; i--)
 	{
 		CHECK_AND_LOCK_MUTEX(zip_files[i].mutex);
 
@@ -361,15 +365,11 @@ static Uint32 file_exists_path(const char* file_name, const char* extra_path)
 		{
 			CHECK_AND_UNLOCK_MUTEX(zip_files[i].mutex);
 
-			CHECK_AND_UNLOCK_MUTEX(zip_mutex);
-
 			return 1;
 		}
 
 		CHECK_AND_UNLOCK_MUTEX(zip_files[i].mutex);
 	}
-
-	CHECK_AND_UNLOCK_MUTEX(zip_mutex);
 
 	if (do_file_exists(file_name, datadir, sizeof(str), str) == 1)
 	{
@@ -489,7 +489,7 @@ el_file_ptr file_open(const char* file_name, const char* extra_path)
 	char str[1024];
 	el_zip_file_entry_t key;
 	el_file_ptr result;
-	Sint32 i;
+	Sint32 i, count;
 
 	if (file_name == 0)
 	{
@@ -513,7 +513,11 @@ el_file_ptr file_open(const char* file_name, const char* extra_path)
 
 	CHECK_AND_LOCK_MUTEX(zip_mutex);
 
-	for (i = num_zip_files - 1; i >= 0; i--)
+	count = num_zip_files - 1;
+
+	CHECK_AND_UNLOCK_MUTEX(zip_mutex);
+
+	for (i = count; i >= 0; i--)
 	{
 		CHECK_AND_LOCK_MUTEX(zip_files[i].mutex);
 
@@ -523,15 +527,11 @@ el_file_ptr file_open(const char* file_name, const char* extra_path)
 
 			CHECK_AND_UNLOCK_MUTEX(zip_files[i].mutex);
 
-			CHECK_AND_UNLOCK_MUTEX(zip_mutex);
-
 			return result;
 		}
 
 		CHECK_AND_UNLOCK_MUTEX(zip_files[i].mutex);
 	}
-
-	CHECK_AND_UNLOCK_MUTEX(zip_mutex);
 
 	if (do_file_exists(file_name, datadir, sizeof(str), str) == 1)
 	{

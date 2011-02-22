@@ -44,7 +44,7 @@ Uint32 download_file(const char* file_name, FILE* file, const char* server,
 	
 	// send the GET request, try to avoid ISP caching	
 	
-	snprintf(buffer, size, "GET %s%s HTTP/2.1\r\nHost: %s\r\n"
+	snprintf(buffer, size, "GET %s%s HTTP/1.1\r\nHost: %s\r\n"
 		"CONNECTION:CLOSE\r\nCACHE-CONTROL:NO-CACHE\r\nREFERER:%s\r\n"
 		"USER-AGENT:AUTOUPDATE %s\r\n\r\n", path, file_name,
 		server, "autoupdate", FILE_VERSION);
@@ -130,7 +130,7 @@ Uint32 download_files(update_info_t* infos, const Uint32 count,
 	MD5_DIGEST digest;
 	FILE *file;
 	void* data;
-	Uint32 i, j, result, size, download;
+	Uint32 i, j, result, size, download, error;
 
 	file = tmpfile();
 
@@ -140,6 +140,7 @@ Uint32 download_files(update_info_t* infos, const Uint32 count,
 	}
 
 	data = 0;
+	error = 0;
 	result = 0;
 
 	for (i = 0; i < count; i++)
@@ -147,11 +148,9 @@ Uint32 download_files(update_info_t* infos, const Uint32 count,
 		if (update_progress_function("Updating", infos[i].file_name,
 			count, i, user_data) != 1)
 		{
-			free(data);
+			error = 2;
 
-			fclose(file);
-
-			return 2;
+			break;
 		}
 
 		download = 1;
@@ -197,6 +196,10 @@ Uint32 download_files(update_info_t* infos, const Uint32 count,
 						data, dest);
 				}
 			}
+			else
+			{
+				error = 3;
+			}
 		}
 	}
 
@@ -204,7 +207,7 @@ Uint32 download_files(update_info_t* infos, const Uint32 count,
 
 	fclose(file);
 
-	return 0;
+	return error;
 }
 
 Uint32 read_line(FILE* file, const Uint32 size, char* buffer)
@@ -472,7 +475,7 @@ Uint32 update(const char* server, const char* file, const char* dir,
 
 	if (result == 0)
 	{
-		update_progress_function("No update needed", "", 0, 0,
+		update_progress_function("Update complete", "", 0, 0,
 			user_data);
 
 		return 0;
@@ -538,8 +541,8 @@ Uint32 update(const char* server, const char* file, const char* dir,
 		}
 		else
 		{
-			update_progress_function("Failed updating", "", 0, 0,
-				user_data);
+			update_progress_function("Failed downlaoding updates",
+				"", 0, 0, user_data);
 		}
 	}
 
