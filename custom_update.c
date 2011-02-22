@@ -5,6 +5,8 @@
 #include "io/elpathwrapper.h"
 #include "io/elfilewrapper.h"
 #include <time.h>
+#include <SDL_thread.h>
+#include "asc.h"
 
 SDL_Thread* update_thread = 0;
 SDL_mutex* update_mutex = 0;
