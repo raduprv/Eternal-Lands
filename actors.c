@@ -1154,7 +1154,6 @@ void display_actors(int banner, int render_pass)
 			glDisable(GL_BLEND);
 		}
 	}
-	glDisable(GL_CULL_FACE);
 	if (has_ghosts)
 	{
 		glEnable(GL_BLEND);
