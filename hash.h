@@ -1,6 +1,8 @@
 #ifndef __HASH__
 #define __HASH__
 
+#include <SDL.h>
+
 typedef struct _hash_entry{
 	void *key;
 	void *item;
@@ -42,4 +44,7 @@ int __inline__ cmp_fn_int(void *key1, void *key2);
 
 unsigned long int __inline__ hash_fn_str(void *key);
 int __inline__ cmp_fn_str(void *key1, void *key2);
+
+Uint32 mem_hash(const void* str, const Uint32 len);
+
 #endif

@@ -28,6 +28,9 @@
 #include "translate.h"
 #include "io/elpathwrapper.h"
 #include "threads.h"
+#ifdef  CUSTOM_UPDATE
+#include "custom_update.h"
+#endif	/* CUSTOM_UPDATE */
 
 void create_update_root_window (int width, int height, int time);		// Pre-declare this
 
@@ -617,70 +620,12 @@ int http_get_file(char *server, char *path, FILE *fp)
 // initialize the custom looks auto update system, start the downloading
 void    init_custom_update()
 {
-	FILE    *fp;
-
-	if(update_busy){
-		return;
-	}
-	// initialize variables
-	update_busy++;
-	allow_restart= 0;			// FAILSAFE: dont accidentally trigger a restart
-	update_attempt_count= 0;	// no downloads have been attempted
-	temp_counter= 0;			//start with download name with 0
-
-	// create the mutex & init the download queue
-	if(!download_mutex){
-		download_mutex= SDL_CreateMutex();
-		download_queue_size= 0;
-		memset(download_queue, 0, sizeof(download_queue));
-		download_cur_file= NULL;
-		download_cur_md5= NULL;
-	}
-	
-	// load the server list
-	num_update_servers= 0;
-	update_server[0]= '\0';
-	fp= open_file_data("custom_mirrors.lst", "r");
-	if(fp == NULL){
-		LOG_ERROR("%s: %s \"custom_mirrors.lst\"\n", reg_error_str, cant_open_file);
-	} else {
-		char    buffer[1024];
-		char	*ptr;
-
-		ptr= fgets(buffer, sizeof(buffer), fp);
-		while(ptr && !ferror(fp) && num_update_servers < sizeof(update_servers)){
-			int len= strlen(buffer);
-
-			// is this line worth handling?
-			if(len > 6 && *buffer > ' ' && *buffer != '#'){
-				while(isspace(buffer[len-1])){
-					buffer[len-1]= '\0';
-					len--;
-				}
-				if(len > 6){
-					update_servers[num_update_servers++]= strdup(buffer);
-				}
-			}
-			// read the next line
-			ptr= fgets(buffer, sizeof(buffer), fp);
-		}
-		if(fp){
-			fclose(fp);
-		}
-	}
-	if(!num_update_servers) {
-		// oops, no mirror file, no downloading
-		update_servers[0]= "";
+	if (update_busy)
+	{
 		return;
 	}
 
-	// start the process
-	if(download_mutex){
-		strcpy(files_lst, "custom_files.lst");
-		is_this_files_lst= 0;
-		doing_custom = 1;
-		handle_update_download(NULL);
-	}
+	start_custom_update();
 }
 #endif  //CUSTOM_UPDATE
 

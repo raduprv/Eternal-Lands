@@ -22,6 +22,7 @@
 #endif	/* NEW_TEXTURES */
 #include "io/elfilewrapper.h"
 #include "ddsimage.h"
+#include "hash.h"
 
 #define TEXTURE_SIZE_X 512
 #define TEXTURE_SIZE_Y 512
@@ -43,21 +44,6 @@ Uint32 actor_texture_threads_done = 0;
 texture_cache_t* texture_handles = 0;
 cache_struct* texture_cache = 0;
 Uint32 texture_handles_max_handle = 0;
-
-Uint32 string_hash(const void* str, const Uint32 len)
-{
-	Uint32 hash, i;
-
-	hash = 2166136261u;
-
-	for (i = 0; i < len; i++)
-	{
-		hash = hash * 1607;
-		hash = hash ^ ((Uint8*)str)[i];
-	}
-
-	return hash;
-}
 
 Uint32 compact_texture(texture_cache_t* texture)
 {
@@ -320,7 +306,7 @@ Uint32 load_texture_cached(const char* file_name, const texture_type type)
 	handle = texture_handles_max_handle;
 
 	len = get_file_name_len(file_name);
-	hash = string_hash(file_name, len);
+	hash = mem_hash(file_name, len);
 
 	safe_strncpy2(buffer, file_name, sizeof(buffer), len);
 
@@ -1445,7 +1431,7 @@ Uint32 load_enhanced_actor(const enhanced_actor* actor, const char* name)
 	copy_enhanced_actor_file_name(files.cape_tex, actor->cape_tex);
 	copy_enhanced_actor_file_name(files.hands_tex_save, actor->hands_tex_save);
 
-	hash = string_hash(&files, sizeof(files));
+	hash = mem_hash(&files, sizeof(files));
 
 	assert(actor_texture_handles != 0);
 	handle = ACTOR_TEXTURE_CACHE_MAX;
@@ -1851,7 +1837,7 @@ void change_enhanced_actor(const Uint32 handle, enhanced_actor* actor)
 	copy_enhanced_actor_file_name(files.cape_tex, actor->cape_tex);
 	copy_enhanced_actor_file_name(files.hands_tex_save, actor->hands_tex_save);
 
-	hash = string_hash(&files, sizeof(files));
+	hash = mem_hash(&files, sizeof(files));
 
 	CHECK_AND_LOCK_MUTEX(actor_texture_handles[handle].mutex);
 

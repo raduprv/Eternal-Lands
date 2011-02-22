@@ -46,6 +46,9 @@
 //only for debugging command #add_emote <actor name> <emote id>, can be removed later
 #include "actor_scripts.h"
 #include "emotes.h"
+#ifdef	CUSTOM_UPDATE
+#include "custom_update.h"
+#endif	/* CUSTOM_UPDATE */
 
 typedef char name_t[32];
 
@@ -1595,6 +1598,9 @@ add_command("horse", &horse_cmd);
 	add_command(cmd_unmark, &command_unmark);
 	add_command(cmd_stats, &command_stats);
 	add_command("ping", &command_ping);
+#ifdef	CUSTOM_UPDATE
+	add_command("update", &command_update);
+#endif	/* CUSTOM_UPDATE */
 	add_command(cmd_time, &command_time);
 	add_command(cmd_date, &command_date);
 	add_command("quit", &command_quit);

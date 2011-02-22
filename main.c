@@ -61,6 +61,10 @@
 #include "pawn/elpawn.h"
 #endif
 #include "map.h"
+#include "io/elfilewrapper.h"
+#ifdef	CUSTOM_UPDATE
+#include "custom_update.h"
+#endif	/* CUSTOM_UPDATE */
 
 Uint32 cur_time=0, last_time=0;//for FPS
 
@@ -269,6 +273,10 @@ int start_rendering()
 #ifdef NEW_SOUND
 	final_sound_exit();
 #endif
+#ifdef	CUSTOM_UPDATE
+	stopp_custom_update();
+#endif	/* CUSTOM_UPDATE */
+	clear_zip_archives();
 printf("doing SDL_Quit\n"); fflush(stderr);
 	SDL_Quit( );
 printf("done SDL_Quit\n"); fflush(stderr);

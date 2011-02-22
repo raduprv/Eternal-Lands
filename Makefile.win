@@ -26,6 +26,7 @@ TEXT_ALIASES_COBJ = text_aliases.o
 PAWN_COBJ = pawn/amx.o pawn/amxaux.o pawn/amxcons.o pawn/amxel.o \
 	pawn/amxfloat.o pawn/amxstring.o pawn/elpawn.o
 NEW_TEXTURES_COBJ = image_loading.o
+CUSTOM_UPDATE_COBJ = custom_update.o new_update.o
 COBJS=2d_objects.o 3d_objects.o \
 	actor_scripts.o actors.o alphamap.o asc.o astrology.o \
 	bbox_tree.o books.o buddy.o buffs.o bags.o \
@@ -36,7 +37,7 @@ COBJS=2d_objects.o 3d_objects.o \
 	gamewin.o gl_init.o hud.o help.o highlight.o	\
 	ignore.o init.o interface.o items.o	\
 	io/e3d_io.o io/elc_io.o	io/map_io.o io/elpathwrapper.o io/xmlcallbacks.o \
-	io/half.o io/normal.o io/elfilewrapper.o io/unzip.o io/ioapi.o io/zip.o	\
+	io/half.o io/normal.o io/elfilewrapper.o io/unzip.o io/ioapi.o io/zip.o io/ziputil.o	\
 	keys.o knowledge.o langselwin.o lights.o list.o load_gl_extensions.o loginwin.o loading_win.o	\
 	main.o manufacture.o map.o mapwin.o	\
 	md5.o mines.o minimap.o misc.o missiles.o multiplayer.o	\

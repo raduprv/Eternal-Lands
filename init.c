@@ -667,6 +667,8 @@ void init_stuff()
 		LOG_ERROR("%s() chdir(\"%s\") failed\n", __FUNCTION__, datadir);
 	}
 
+	init_zip_archives();
+
 	// initialize the text buffers - needed early for logging
 	init_text_buffers ();
 
@@ -684,7 +686,7 @@ void init_stuff()
 	file_check_datadir();
 
 	// Here you can add zip files, like
-	// add_zip_archive("/usr/share/el/data.zip");
+	// add_zip_archive(datadir + "data.zip");
 	xml_register_el_input_callbacks();
 
 #ifdef WRITE_XML

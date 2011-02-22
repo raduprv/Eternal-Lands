@@ -168,4 +168,18 @@ int __inline__ cmp_fn_str(void *key1, void *key2){
 	return !strcmp((char*)key1,(char*)key2);
 }
 
+Uint32 mem_hash(const void* str, const Uint32 len)
+{
+	Uint32 hash, i;
+
+	hash = 2166136261u;
+
+	for (i = 0; i < len; i++)
+	{
+		hash = hash * 1607;
+		hash = hash ^ ((Uint8*)str)[i];
+	}
+
+	return hash;
+}
 

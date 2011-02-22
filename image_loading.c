@@ -80,16 +80,26 @@ Uint32 check_image_name(const char* file_name, const Uint32 size, char* str)
 	return 0;
 }
 
-Uint32 check_alpha_image_name(const char* file_name, const Uint32 size, char* str)
+Uint32 check_alpha_image_name(const char* file_name, const Uint32 size,
+	char* str)
 {
 	char buffer[128];
 	Uint32 len, i;
+
+	if (file_name == 0)
+	{
+		LOG_ERROR("Zero file name!");
+
+		return 0;
+	}
 
 	len = get_file_name_len(file_name);
 
 	if (str == 0)
 	{
 		LOG_ERROR("Buffer is zero!");
+
+		return 0;
 	}
 
 	if ((len + 11) >= sizeof(buffer))
@@ -475,8 +485,6 @@ Uint32 load_image_data_file(el_file_ptr file, const Uint32 decompress,
 		return 0;
 	}
 
-	el_close(file);
-
 	if (bmp)
 	{
 		if (check_alpha_image_name(el_file_name(file),
@@ -488,6 +496,8 @@ Uint32 load_image_data_file(el_file_ptr file, const Uint32 decompress,
 			{
 				LOG_ERROR("Can't load file '%s'!", buffer);
 
+				el_close(file);
+
 				return 0;
 			}
 
@@ -496,6 +506,8 @@ Uint32 load_image_data_file(el_file_ptr file, const Uint32 decompress,
 			el_close(alpha_file);
 		}
 	}
+
+	el_close(file);
 
 	return 1;
 }
