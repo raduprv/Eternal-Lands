@@ -56,7 +56,7 @@ int custom_update_thread(void* data)
 
 		error = 1;
 
-		update_progress_function(buffer, "", 0, 0, user_data);
+		progress_function(buffer, "", 0, 0, 0);
 
 		return 0;
 	}
@@ -85,7 +85,7 @@ int custom_update_thread(void* data)
 
 		error = 1;
 
-		update_progress_function(buffer, "", 0, 0, user_data);
+		progress_function(buffer, "", 0, 0, 0);
 
 		fclose(file);
 
@@ -141,7 +141,7 @@ int custom_update_thread(void* data)
 
 		error = 1;
 
-		update_progress_function(buffer, "", 0, 0, user_data);
+		progress_function(buffer, "", 0, 0, 0);
 
 		return 0;
 	}
@@ -168,6 +168,8 @@ void start_custom_update()
 	{
 		return;
 	}
+
+	snprintf(update_str, sizeof(update_str), "Custom updates started");
 
 	update_mutex = SDL_CreateMutex();
 
