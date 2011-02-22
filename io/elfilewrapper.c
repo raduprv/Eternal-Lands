@@ -28,6 +28,7 @@ typedef struct
 
 typedef struct
 {
+	char* file_name;
 	unzFile file;
 	SDL_mutex* mutex;
 	el_zip_file_entry_t* files;
@@ -91,11 +92,27 @@ static void clear_zip(el_zip_file_t* zip)
 		free(zip->files[i].file_name);
 	}
 
-	free(zip->files);
+	if (zip->files != 0)
+	{
+		free(zip->files);
+	}
+
+	if (zip->file_name != 0)
+	{
+		free(zip->file_name);
+	}
+
+	if (zip->file != 0)
+	{
+		unzClose(zip->file);
+	}
+
+	zip->file = 0;
+	zip->count = 0;
+	zip->files = 0;
+	zip->file_name = 0;
 
 	CHECK_AND_UNLOCK_MUTEX(zip->mutex);
-
-	SDL_DestroyMutex(zip->mutex);
 }
 
 static Uint32 find_in_zip(el_zip_file_t* zip, const el_zip_file_entry_t* key)
@@ -104,6 +121,11 @@ static Uint32 find_in_zip(el_zip_file_t* zip, const el_zip_file_entry_t* key)
 	{
 		LOG_ERROR("Invalid key or zip");
 
+		return 0;
+	}
+
+	if (zip->count == 0)
+	{
 		return 0;
 	}
 
@@ -126,6 +148,11 @@ static Uint32 locate_in_zip(el_zip_file_t* zip, const el_zip_file_entry_t* key)
 	{
 		LOG_ERROR("Invalid key or zip");
 
+		return 0;
+	}
+
+	if (zip->count == 0)
+	{
 		return 0;
 	}
 
@@ -199,9 +226,11 @@ void clear_zip_archives()
 
 	CHECK_AND_LOCK_MUTEX(zip_mutex);
 
-	for (i = 0; i < num_zip_files; i++)
+	for (i = 0; i < MAX_NUM_ZIP_FILES; i++)
 	{
 		clear_zip(&zip_files[i]);
+
+		SDL_DestroyMutex(zip_files[i].mutex);
 	}
 
 	num_zip_files = 0;
@@ -213,7 +242,16 @@ void clear_zip_archives()
 
 void init_zip_archives()
 {
+	Uint32 i;
+
 	zip_mutex = SDL_CreateMutex();
+
+	for (i = 0; i < MAX_NUM_ZIP_FILES; i++)
+	{
+		memset(&zip_files[i], 0, sizeof(el_zip_file_t));
+
+		zip_files[i].mutex = SDL_CreateMutex();
+	}
 }
 
 void add_zip_archive(const char* file_name)
@@ -222,7 +260,8 @@ void add_zip_archive(const char* file_name)
 	unz_file_info64 info;
 	unz_global_info64 global_info;
 	el_zip_file_entry_t* files;
-	Uint32 i, count, size;
+	char* name;
+	Uint32 i, count, size, index;
 
 	if (file_name == 0)
 	{
@@ -281,23 +320,83 @@ void add_zip_archive(const char* file_name)
 		unzGoToNextFile(file);
 	}
 
+	size = strlen(file_name);
+	name = malloc(size + 1);
+	memset(name, 0, size + 1);
+	memcpy(name, file_name, size);
+
 	qsort(files, count, sizeof(el_zip_file_entry_t),
 		compare_el_zip_file_entry);
 
 	CHECK_AND_LOCK_MUTEX(zip_mutex);
 
-	zip_files[num_zip_files].file = file;
-	zip_files[num_zip_files].files = files;
-	zip_files[num_zip_files].count = count;
-	zip_files[num_zip_files].mutex = SDL_CreateMutex();
+	index = num_zip_files;
 
-	num_zip_files++;
+	for (i = 0; i < num_zip_files; i++)
+	{
+		if (zip_files[index].file_name == 0)
+		{
+			index = i;
+
+			break;
+		}
+	}
+
+	num_zip_files = max2u(num_zip_files, index + 1);
+
+	CHECK_AND_LOCK_MUTEX(zip_files[index].mutex);
 
 	CHECK_AND_UNLOCK_MUTEX(zip_mutex);
 
-#ifdef	DEBUG
-	LOG_ERROR("Add zip file '%s' with %d files", file_name, count);
-#endif
+	zip_files[index].file_name = name;
+	zip_files[index].file = file;
+	zip_files[index].files = files;
+	zip_files[index].count = count;
+
+	CHECK_AND_UNLOCK_MUTEX(zip_files[index].mutex);
+
+	LOG_ERROR("Added zip file '%s' with %d files", file_name, count);
+}
+
+void remove_zip_archive(const char* file_name)
+{
+	Uint32 i, count;
+
+	if (file_name == 0)
+	{
+		LOG_ERROR("Invalid file name");
+
+		return;
+	}
+
+	CHECK_AND_LOCK_MUTEX(zip_mutex);
+
+	count = num_zip_files;
+
+	CHECK_AND_UNLOCK_MUTEX(zip_mutex);
+
+	for (i = 0; i < num_zip_files; i++)
+	{
+		CHECK_AND_LOCK_MUTEX(zip_files[i].mutex);
+
+		if (zip_files[i].file_name != 0)
+		{
+			if (strcmp(zip_files[i].file_name, file_name) == 0)
+			{
+				clear_zip(&zip_files[i]);
+
+				CHECK_AND_UNLOCK_MUTEX(zip_files[i].mutex);
+
+				LOG_ERROR("Removed zip '%s'", file_name);
+
+				return;
+			}
+		}
+
+		CHECK_AND_UNLOCK_MUTEX(zip_files[i].mutex);
+	}
+
+	LOG_ERROR("Can't remove zip '%s'", file_name);
 }
 
 static Uint32 do_file_exists(const char* file_name, const char* path,

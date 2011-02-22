@@ -35,6 +35,16 @@ void init_zip_archives();
 void clear_zip_archives();
 
 /*!
+ * \brief Removes the zip archive from the search list for files..
+ *
+ * Removes a zip file from the list where to search for a file that is opend
+ * with el_open. This function is thread save.
+ * \param file_name The file name of the zip file.
+ * \see el_open
+ */
+void remove_zip_archive(const char* file_name);
+
+/*!
  * \brief Adds a zip file to the search list for files.
  *
  * Adds a zip file to the list where to search for a file that is opend with

@@ -10,16 +10,17 @@
 
 SDL_Thread* update_thread = 0;
 SDL_mutex* update_mutex = 0;
+SDL_cond* update_condition = 0;
 Uint32 update_running = 0;
 char update_str[1024];
-Uint32 error = 0;
+Uint32 update_error = 0;
 
 Uint32 progress_function(const char* str, const char* extra, const Uint32 max,
 	const Uint32 current, void* user_data)
 {
-	CHECK_AND_LOCK_MUTEX(update_mutex);
-
 	memset(update_str, 0, sizeof(update_str));
+
+	CHECK_AND_LOCK_MUTEX(update_mutex);
 
 	if (max > 0)
 	{
@@ -31,18 +32,25 @@ Uint32 progress_function(const char* str, const char* extra, const Uint32 max,
 		snprintf(update_str, sizeof(update_str), "%s", str);
 	}
 
+	if (update_running == 0)
+	{
+		CHECK_AND_UNLOCK_MUTEX(update_mutex);
+
+		return 0;
+	}
+
 	CHECK_AND_UNLOCK_MUTEX(update_mutex);
 
-	return update_running;
+	return 1;
 }
 
-int custom_update_thread(void* data)
+Uint32 custom_update_threaded(void* data)
 {
 	char buffer[1024];
 	char str[256];
 	char* server;
 	FILE* file;
-	Uint32 count, index, idx, len;
+	Uint32 count, index, idx, len, result;
 
 	snprintf(str, sizeof(str), "%s%s", get_path_config_base(),
 		"custom_mirrors.lst");
@@ -54,11 +62,9 @@ int custom_update_thread(void* data)
 		snprintf(buffer, sizeof(buffer), "Can't server list file '%s'",
 			str);
 
-		error = 1;
-
 		progress_function(buffer, "", 0, 0, 0);
 
-		return 0;
+		return 1;
 	}
 
 	count = 0;
@@ -83,13 +89,11 @@ int custom_update_thread(void* data)
 		snprintf(buffer, sizeof(buffer), "No server in file '%s'",
 			str);
 
-		error = 1;
-
 		progress_function(buffer, "", 0, 0, 0);
 
 		fclose(file);
 
-		return 0;
+		return 1;
 	}
 
 	rewind(file);
@@ -139,24 +143,58 @@ int custom_update_thread(void* data)
 		snprintf(buffer, sizeof(buffer),
 			"Can't get server from file '%s'", str);
 
-		error = 1;
-
 		progress_function(buffer, "", 0, 0, 0);
 
-		return 0;
+		return 1;
 	}
 
 	snprintf(str, sizeof(str), "%s%s", get_path_config_base(),
 		"custom_files.zip");
 
-	if (update(server, "custom_files.lst", "updates", str,
-		progress_function, data) == 0)
+	printf("Unloading '%s'\n", str);
+
+	remove_zip_archive(str);
+
+	result = update(server, "custom_files.lst", "updates", str,
+		progress_function, data);
+
+	if (result == 0)
 	{
 		add_zip_archive(str);
 	}
-	else
+
+	return result;
+}
+
+int custom_update_thread(void* data)
+{
+	Uint32 result;
+
+	result = 0;
+
+	while (1)
 	{
-		error = 1;
+		CHECK_AND_LOCK_MUTEX(update_mutex);
+
+		update_error = result;
+
+		while (update_running == 1)
+		{
+			SDL_CondWait(update_condition, update_mutex);
+		}
+
+		if (update_running == 0)
+		{
+			CHECK_AND_UNLOCK_MUTEX(update_mutex);
+
+			return 1;
+		}
+
+		update_running = 1;
+
+		CHECK_AND_UNLOCK_MUTEX(update_mutex);
+
+		result = custom_update_threaded(data);
 	}
 
 	return 0;
@@ -164,17 +202,11 @@ int custom_update_thread(void* data)
 
 void start_custom_update()
 {
-	if (update_thread != 0)
-	{
-		return;
-	}
-
 	snprintf(update_str, sizeof(update_str), "Custom updates started");
 
+	update_condition = SDL_CreateCond();
 	update_mutex = SDL_CreateMutex();
-
-	update_running = 1;
-
+	update_running = 2;
 	update_thread = SDL_CreateThread(custom_update_thread, 0);
 }
 
@@ -182,19 +214,16 @@ void stopp_custom_update()
 {
 	int result;
 
-	if (update_thread == 0)
-	{
-		return;
-	}
-
 	CHECK_AND_LOCK_MUTEX(update_mutex);
 
 	update_running = 0;
 
 	CHECK_AND_UNLOCK_MUTEX(update_mutex);
 
+	SDL_CondSignal(update_condition);
 	SDL_WaitThread(update_thread, &result);
 
+	SDL_DestroyCond(update_condition);
 	SDL_DestroyMutex(update_mutex);
 
 	update_mutex = 0;
@@ -209,20 +238,31 @@ int command_update(char *text, int len)
 
 		return 1;
 	}
-		
+
 	CHECK_AND_LOCK_MUTEX(update_mutex);
 
-	if (error == 1)
+	switch (update_error)
 	{
-		LOG_TO_CONSOLE(c_red1, update_str);
+		case 0:
+			LOG_TO_CONSOLE(c_green1, update_str);
+			break;
+		case 1:
+			LOG_TO_CONSOLE(c_red1, update_str);
+			break;
+		case 2:
+			LOG_TO_CONSOLE(c_orange1, update_str);
+			break;
 	}
-	else
+
+	if (update_running == 1)
 	{
-		LOG_TO_CONSOLE(c_green1, update_str);
+		update_running = 2;
 	}
 
 	CHECK_AND_UNLOCK_MUTEX(update_mutex);
-	
+
+	SDL_CondSignal(update_condition);
+
 	return 1;
 }
 
