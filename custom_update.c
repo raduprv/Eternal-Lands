@@ -51,6 +51,13 @@ int custom_update_thread(void* data)
 
 	if (file == 0)
 	{
+		snprintf(buffer, sizeof(buffer), "Can't server list file '%s'",
+			str);
+
+		error = 1;
+
+		update_progress_function(buffer, "", 0, 0, user_data);
+
 		return 0;
 	}
 
@@ -73,6 +80,13 @@ int custom_update_thread(void* data)
 
 	if (count == 0)
 	{
+		snprintf(buffer, sizeof(buffer), "No server in file '%s'",
+			str);
+
+		error = 1;
+
+		update_progress_function(buffer, "", 0, 0, user_data);
+
 		fclose(file);
 
 		return 0;
@@ -122,6 +136,13 @@ int custom_update_thread(void* data)
 
 	if (server == 0)
 	{
+		snprintf(buffer, sizeof(buffer),
+			"Can't get server from file '%s'", str);
+
+		error = 1;
+
+		update_progress_function(buffer, "", 0, 0, user_data);
+
 		return 0;
 	}
 
