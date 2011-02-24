@@ -212,6 +212,9 @@ void stopp_custom_update()
 {
 	int result;
 
+	if (update_mutex == 0)
+		return;
+
 	CHECK_AND_LOCK_MUTEX(update_mutex);
 
 	update_running = 0;
