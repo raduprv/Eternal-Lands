@@ -840,7 +840,25 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					// if we don't get the product name, make sure we don't just count it as the last item.
 					else
 						counters_set_product_info("",0);
-				}  // End counters block
+				}  // End successs counters block
+				/* You failed to create a[n] ..., and lost the ingredients */
+				if (my_strncompare(inventory_item_string+1, "You failed to create a[n] ", 26))
+				{
+					size_t item_name_len = 0;
+					char item_name[128];
+					const char *item_string = &inventory_item_string[27];
+
+					/* look for the ending, if found use it to locate the item name */
+					char *located = strstr(item_string, ", and lost the ingredients");
+					if (located) item_name_len = (size_t)((located - item_string)/sizeof(char));
+
+					/* if there was no match then its not a crit fail string */
+					if (item_name_len)
+					{
+						safe_strncpy2(item_name, item_string, sizeof(item_name), item_name_len);
+						increment_critfail_counter(item_name);
+					}
+				}  // End critfail counters block
 			}
 			break;
 		case SPELL_ITEM_TEXT:
