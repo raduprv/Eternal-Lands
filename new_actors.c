@@ -411,10 +411,13 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 									custom_path(actors_list[i]->body_parts->hands_mask, playerpath, guildpath);
 #endif
 								}
-								my_strcp(actors_list[i]->body_parts->weapon_tex,actors_defs[actors_list[i]->actor_type].weapon[which_id].skin_name);
+								else
+								{
+									my_strcp(actors_list[i]->body_parts->weapon_tex,actors_defs[actors_list[i]->actor_type].weapon[which_id].skin_name);
 #ifdef CUSTOM_LOOK
-								custom_path(actors_list[i]->body_parts->weapon_tex, playerpath, guildpath);
+									custom_path(actors_list[i]->body_parts->weapon_tex, playerpath, guildpath);
 #endif
+								}
 #ifdef	NEW_TEXTURES
 								if (delay_texture_item_change(actors_list[i], which_part, which_id))
 								{

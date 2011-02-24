@@ -2558,10 +2558,10 @@ void skybox_init_gl()
     float strs[NUM_STARS][3];
 
 #ifdef	NEW_TEXTURES
-	thick_clouds_tex = load_texture_cached("./textures/thick_clouds", tt_mesh);
-	thick_clouds_detail_tex = load_texture_cached("./textures/thick_clouds_detail", tt_mesh);
-	moon_tex = load_texture_cached("./textures/moonmap", tt_mesh);
-	sun_tex = load_texture_cached("./textures/BrightSun", tt_mesh);
+	thick_clouds_tex = load_texture_cached("textures/thick_clouds", tt_mesh);
+	thick_clouds_detail_tex = load_texture_cached("textures/thick_clouds_detail", tt_mesh);
+	moon_tex = load_texture_cached("textures/moonmap", tt_mesh);
+	sun_tex = load_texture_cached("textures/BrightSun", tt_mesh);
 #else	/* NEW_TEXTURES */
 	thick_clouds_tex = load_texture_cache("./textures/thick_clouds.bmp", 0);
 	thick_clouds_detail_tex = load_texture_cache("./textures/thick_clouds_detail.bmp", 0);
