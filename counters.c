@@ -18,7 +18,7 @@
 #endif
 #include "translate.h"
 
-#define NUM_COUNTERS 13
+#define NUM_COUNTERS 14
 #define NUM_LINES 18
 #define MAX(a,b) (a > b ? a : b)
 
@@ -36,7 +36,8 @@ enum {
 	ENGINEERING,
 	BREAKS,
 	MISC_EVENTS,
-	TAILORING
+	TAILORING,
+	CRIT_FAILS
 };
 
 /* Columns IDs */
@@ -472,20 +473,21 @@ void fill_counters_win()
 	set_window_handler(counters_win, ELW_HANDLER_CLICK, &click_counters_handler);
 	set_window_handler(counters_win, ELW_HANDLER_MOUSEOVER, &mouseover_counters_handler);
 
-	multiselect_id = multiselect_add(counters_win, NULL, 8, 8, 104);
+	multiselect_id = multiselect_add(counters_win, NULL, 8, 2, 104);
 	multiselect_button_add(counters_win, multiselect_id, 0, 0, "Kills", 1);
 	multiselect_button_add(counters_win, multiselect_id, 0, 25, "Deaths", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 100, "Harvests", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 125, "Alchemy", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 150, "Crafting", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 175, "Manufac.", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 200, "Potions", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 225, "Spells", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 250, "Summons", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 275, "Engineering", 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 125, "Harvests", 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 150, "Alchemy", 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 175, "Crafting", 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 200, "Manufac.", 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 225, "Potions", 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 250, "Spells", 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 275, "Summons", 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 300, "Engineering", 0);
 	multiselect_button_add(counters_win, multiselect_id, 0, 50, "Breakages", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 75, "Events", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 300, "Tailoring", 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 100, "Events", 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 325, "Tailoring", 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 75, "Crit Fails", 0);
 
 	counters_scroll_id = vscrollbar_add_extended(counters_win,
 			counters_scroll_id, NULL,
@@ -890,6 +892,11 @@ void increment_potions_counter()
 void increment_manufacturing_counter()
 {
 	increment_product_counter(MANUFACTURING, product_name, product_count, 0);
+}
+
+void increment_critfail_counter(char *name)
+{
+	increment_counter(CRIT_FAILS, name, 1, 0);
 }
 
 void increment_harvest_counter(int quantity)
