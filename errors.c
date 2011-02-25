@@ -7,6 +7,21 @@
 #include "asc.h"
 #include "init.h"
 #include "io/elpathwrapper.h"
+#include "threads.h"
+
+SDL_mutex* error_mutex = 0;
+
+void create_error_mutex()
+{
+	error_mutex = SDL_CreateMutex();
+}
+
+void destroy_error_mutex()
+{
+	SDL_DestroyMutex(error_mutex);
+
+	error_mutex = 0;
+}
 
 FILE* open_log (const char *fname, const char *mode)
 {
@@ -29,10 +44,16 @@ FILE* open_log (const char *fname, const char *mode)
 FILE *err_file = NULL;
 void clear_error_log()
 {
-	if(!err_file) {
+	CHECK_AND_LOCK_MUTEX(error_mutex);
+
+	if (!err_file)
+	{
 		err_file = open_log ("error_log.txt", "w");
 	}
+
 	fflush (err_file);
+
+	CHECK_AND_UNLOCK_MUTEX(error_mutex);
 }
 
 char last_error[512];
@@ -48,10 +69,18 @@ void log_error (const char* message, ...)
         vsnprintf(errmsg, sizeof(errmsg), message, ap);
         errmsg[sizeof(errmsg) - 1] = '\0';
 	va_end(ap);
-	if(!strcmp(errmsg,last_error)){
+
+	CHECK_AND_LOCK_MUTEX(error_mutex);
+
+	if (!strcmp(errmsg, last_error))
+	{
 		++repeats;
+
+		CHECK_AND_UNLOCK_MUTEX(error_mutex);
+
 		return;
 	}
+
 	if(repeats) fprintf(err_file, "Last message repeated %d time%c\n", repeats,(repeats>1?'s':' '));
 	repeats=0;
 	safe_strncpy(last_error, errmsg, sizeof(last_error));
@@ -75,6 +104,8 @@ void log_error (const char* message, ...)
 	}
 	fputs(logmsg, err_file);
   	fflush (err_file);
+
+	CHECK_AND_UNLOCK_MUTEX(error_mutex);
 }
 
 void log_error_detailed(const char *message, const char *file, const char *func, unsigned line, ...)
@@ -88,10 +119,18 @@ void log_error_detailed(const char *message, const char *file, const char *func,
         logmsg[sizeof(logmsg) - 1] = '\0';
 	va_end(ap);
 	safe_snprintf(errmsg, sizeof(errmsg), "%s.%s:%u - %s", file, func, line, logmsg);
-	if(!strcmp(errmsg,last_error)){
+
+	CHECK_AND_LOCK_MUTEX(error_mutex);
+
+	if (!strcmp(errmsg,last_error))
+	{
 		++repeats;
+
+		CHECK_AND_UNLOCK_MUTEX(error_mutex);
+
 		return;
 	}
+
 	if(repeats) fprintf(err_file, "Last message repeated %d time%c\n", repeats,(repeats>1?'s':' '));
 	repeats=0;
 	safe_strncpy(last_error, errmsg, sizeof(last_error));
@@ -110,6 +149,8 @@ void log_error_detailed(const char *message, const char *file, const char *func,
 	}
 	fputs(logmsg, err_file);
   	fflush (err_file);
+
+	CHECK_AND_UNLOCK_MUTEX(error_mutex);
 }
 
 
@@ -125,6 +166,8 @@ void clear_func_log()
 
 void log_func_err(const char * file, const char * func, unsigned line)
 {
+	CHECK_AND_LOCK_MUTEX(error_mutex);
+
 	if(!func_file)
 		clear_func_log();
 	if(func_file)
@@ -132,6 +175,8 @@ void log_func_err(const char * file, const char * func, unsigned line)
 			fprintf(func_file,"%s.%s:%u\n",file,func,line);
 			fflush(func_file);
 		}
+
+	CHECK_AND_UNLOCK_MUTEX(error_mutex);
 }
 #endif
 
@@ -147,11 +192,15 @@ void clear_conn_log()
 
 void log_conn(const Uint8 *in_data, Uint16 data_length)
 {
+	CHECK_AND_LOCK_MUTEX(error_mutex);
+
   	if(!conn_file) {
 		conn_file = open_log ("connection_log.txt", "a");
 	}
   	fwrite (in_data, data_length, 1, conn_file);
   	fflush (conn_file);
+
+	CHECK_AND_UNLOCK_MUTEX(error_mutex);
 }
 
 FILE *infos_file = NULL;
@@ -164,6 +213,8 @@ void log_info(const char* message, ...)
         vsnprintf(logmsg, sizeof(logmsg), message, ap);
         logmsg[sizeof(logmsg) - 1] = '\0';
 	va_end(ap);
+
+	CHECK_AND_LOCK_MUTEX(error_mutex);
 
 	if (infos_file == NULL)
 	{
@@ -181,5 +232,7 @@ void log_info(const char* message, ...)
 	}
 	fputs(logmsg, infos_file);
   	fflush(infos_file);
+
+	CHECK_AND_UNLOCK_MUTEX(error_mutex);
 }
 

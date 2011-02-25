@@ -277,9 +277,15 @@ int start_rendering()
 	stopp_custom_update();
 #endif	/* CUSTOM_UPDATE */
 	clear_zip_archives();
-printf("doing SDL_Quit\n"); fflush(stderr);
+
+	destroy_error_mutex();
+	destroy_tcp_out_mutex();
+
+	printf("doing SDL_Quit\n");
+	fflush(stderr);
 	SDL_Quit( );
-printf("done SDL_Quit\n"); fflush(stderr);
+	printf("done SDL_Quit\n");
+	fflush(stderr);
 	cleanup_mem();
 	xmlCleanupParser();
 	FreeXML();
@@ -343,6 +349,8 @@ int main(int argc, char **argv)
 #ifdef	OLC
 	olc_init();
 #endif	//OLC
+	create_error_mutex();
+	create_tcp_out_mutex();
 	init_translatables();
 	init_vars();
 	init_stuff();

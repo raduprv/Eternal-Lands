@@ -355,7 +355,7 @@ void load_zip_archive(const char* file_name)
 
 	CHECK_AND_UNLOCK_MUTEX(zip_files[index].mutex);
 
-	LOG_ERROR("Loaded zip file '%s' with %d files", file_name, count);
+	log_info("Loaded zip file '%s' with %d files", file_name, count);
 }
 
 void unload_zip_archive(const char* file_name)
@@ -387,7 +387,7 @@ void unload_zip_archive(const char* file_name)
 
 				CHECK_AND_UNLOCK_MUTEX(zip_files[i].mutex);
 
-				LOG_ERROR("Unloaded zip '%s'", file_name);
+				log_info("Unloaded zip '%s'", file_name);
 
 				return;
 			}

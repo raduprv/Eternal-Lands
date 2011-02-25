@@ -39,6 +39,22 @@ extern int log_conn_data; /*!< indicates whether we should log connection data o
 extern char inventory_item_string[300]; /*!< the last inventory text string */
 extern size_t inventory_item_string_id; /*!< incremented each time we get a new string so users notice */
 
+/*!
+ * \ingroup network_actors
+ *
+ *      Creates the mutex for the tcp output buffer.
+ *
+ */
+void create_tcp_out_mutex();
+
+/*!
+ * \ingroup network_actors
+ *
+ *      Destroys the mutex for the tcp output buffer.
+ *
+ */
+void destroy_tcp_out_mutex();
+
 	/*!
  * \ingroup network_actors
  * \brief Move the actor to a new location

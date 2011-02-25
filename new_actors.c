@@ -403,7 +403,8 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #endif	/* NEW_TEXTURES */
 						if (which_part==KIND_OF_WEAPON)
 							{
-								if(which_id == GLOVE_FUR || which_id == GLOVE_LEATHER){
+								if (which_id == GLOVE_FUR || which_id == GLOVE_LEATHER)
+								{
 									my_strcp(actors_list[i]->body_parts->hands_tex, actors_defs[actors_list[i]->actor_type].weapon[which_id].skin_name);
 									my_strcp(actors_list[i]->body_parts->hands_mask, actors_defs[actors_list[i]->actor_type].weapon[which_id].skin_mask);
 #ifdef CUSTOM_LOOK
@@ -975,17 +976,22 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			my_strncp(this_actor->shield_tex,"",sizeof(this_actor->shield_tex));
 		}
 
-	my_strncp(this_actor->weapon_tex,actors_defs[actor_type].weapon[weapon].skin_name,sizeof(this_actor->weapon_tex));
-#ifdef CUSTOM_LOOK
-	custom_path(this_actor->weapon_tex, playerpath, guildpath);
-#endif //CUSTOM_LOOK
-	this_actor->weapon_glow=actors_defs[actor_type].weapon[weapon].glow;
-	if(weapon == GLOVE_FUR || weapon == GLOVE_LEATHER){
+	if (weapon == GLOVE_FUR || weapon == GLOVE_LEATHER)
+	{
 		my_strncp(this_actor->hands_tex, actors_defs[actor_type].weapon[weapon].skin_name,sizeof(this_actor->hands_tex));
 #ifdef CUSTOM_LOOK
 		custom_path(this_actor->hands_tex, playerpath, guildpath);
 #endif //CUSTOM_LOOK
 	}
+	else
+	{
+		my_strncp(this_actor->weapon_tex,actors_defs[actor_type].weapon[weapon].skin_name,sizeof(this_actor->weapon_tex));
+#ifdef CUSTOM_LOOK
+		custom_path(this_actor->weapon_tex, playerpath, guildpath);
+#endif //CUSTOM_LOOK
+	}
+
+	this_actor->weapon_glow=actors_defs[actor_type].weapon[weapon].glow;
 
 	//helmet
 	if(helmet!=HELMET_NONE)

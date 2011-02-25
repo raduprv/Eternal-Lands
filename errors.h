@@ -14,6 +14,22 @@ extern "C" {
 
 /*!
  * \ingroup misc_utils
+ *
+ *      Creates the mutex for the error logs.
+ *
+ */
+void create_error_mutex();
+
+/*!
+ * \ingroup misc_utils
+ *
+ *      Destroys the mutex for the error logs.
+ *
+ */
+void destroy_error_mutex();
+
+/*!
+ * \ingroup misc_utils
  * \brief   empties the error_log.txt file
  *
  *      Clears the error_log.txt file.

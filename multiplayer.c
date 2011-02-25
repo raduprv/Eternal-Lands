@@ -50,12 +50,14 @@
 #include "servers.h"
 #include "popup.h"
 #include "missiles.h"
+#include "threads.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
  *
  * void get_updates();
  */
+SDL_mutex* tcp_out_data_mutex = 0;
 
 const char * web_update_address= "http://www.eternal-lands.com/index.php?content=update";
 int icon_in_spellbar= -1;
@@ -66,6 +68,7 @@ SDLNet_SocketSet set= 0;
 #define MAX_TCP_BUFFER  8192
 Uint8 tcp_in_data[MAX_TCP_BUFFER];
 Uint8 tcp_out_data[MAX_TCP_BUFFER];
+int in_data_used=0;
 int tcp_out_loc= 0;
 int previously_logged_in= 0;
 time_t last_heart_beat;
@@ -92,6 +95,18 @@ int yourself= -1;
 
 int last_sit= 0;
 int last_turn_around = 0;
+
+void create_tcp_out_mutex()
+{
+	tcp_out_data_mutex = SDL_CreateMutex();
+}
+
+void destroy_tcp_out_mutex()
+{
+	SDL_DestroyMutex(tcp_out_data_mutex);
+
+	tcp_out_data_mutex = 0;
+}
 
 #ifdef DEBUG
 void print_packet(const char *in_data, int len){
@@ -147,17 +162,63 @@ void send_heart_beat()
 	my_tcp_send(my_socket, command, len);
 }
 
-
-int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len)
+/*!
+ * This function sends the tcp output buffer, but without locking
+ */
+static int my_locked_tcp_flush(TCPsocket my_socket)
 {
-	if(disconnected) {
+	int ret;
+
+	if (disconnected || tcp_out_loc == 0)
+	{
 		return 0;
 	}
 
-	if(tcp_out_loc > 0 && tcp_out_loc + len + 2 >= MAX_TCP_BUFFER){
-		// wouldn't fit, send what we have
-		my_tcp_flush(my_socket);
+	// if we are already sending data, lets see about sending a heartbeat a little bit early
+	if (last_heart_beat+20 <= time(NULL))
+	{
+		send_heart_beat();
 	}
+
+	// send all the data in the buffer
+#ifdef	OLC
+	ret= olc_tcp_send(my_socket, tcp_out_data, tcp_out_loc);
+	if (ret > 0)
+	{
+		ret= olc_tcp_flush();
+	}
+#else	//OLC
+	ret= SDLNet_TCP_Send(my_socket, tcp_out_data, tcp_out_loc);
+#endif	//OLC
+
+	// empty the buffer
+	tcp_out_loc= 0;
+
+	tcp_cache[0]=0;
+
+	return ret;
+}
+
+int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len)
+{
+	Uint8 new_str[1024];	//should be enough
+
+	CHECK_AND_LOCK_MUTEX(tcp_out_data_mutex);
+
+	if (disconnected)
+	{
+		CHECK_AND_UNLOCK_MUTEX(tcp_out_data_mutex);
+
+		return 0;
+	}
+
+	if (tcp_out_loc > 0 && tcp_out_loc + len + 2 >= MAX_TCP_BUFFER)
+	{
+		// wouldn't fit, send what we have
+		my_locked_tcp_flush(my_socket);
+	}
+
+	CHECK_AND_UNLOCK_MUTEX(tcp_out_data_mutex);
 
 	// LabRat's anti-bagspam code
 	// Grum: Adapted. Converting every movement to a path caused too much
@@ -225,68 +286,54 @@ int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len)
 			tcp_cache_time= cur_time;
 		}
 	}
+
+	CHECK_AND_LOCK_MUTEX(tcp_out_data_mutex);
+
 	//update the heartbeat timer
 	last_heart_beat= time(NULL);
 
 	// check to see if the data would fit in the buffer
-	if(len + 2 < MAX_TCP_BUFFER){
+	if (len + 2 < MAX_TCP_BUFFER)
+	{
 		// yes, buffer it for later processing
-		tcp_out_data[tcp_out_loc]= str[0];	//copy the protocol byte
-		*((short *)(tcp_out_data+tcp_out_loc+1))= SDL_SwapLE16((Uint16)len);//the data length
+		tcp_out_data[tcp_out_loc] = str[0];	//copy the protocol byte
+		*((short *)(tcp_out_data+tcp_out_loc+1)) = SDL_SwapLE16((Uint16)len);//the data length
 		// copy the rest of the data
 		memcpy(&tcp_out_data[tcp_out_loc+3], &str[1], len-1);
 		// adjust then buffer offset
-		tcp_out_loc+= len+2;
-		return(len+2);
-	} else {
-		// no, send it as is now
-		Uint8 new_str[1024];	//should be enough
+		tcp_out_loc += len + 2;
 
-		new_str[0]= str[0];	//copy the protocol byte
-		*((short *)(new_str+1))= SDL_SwapLE16((Uint16)len);//the data length
-		// copy the rest of the data
-		memcpy(&new_str[3], &str[1], len-1);
-		//for(i=1; i<len; i++) {
-		//	new_str[i+2]= str[i];
-		//}
-#ifdef	OLC
-		return olc_tcp_send(my_socket, new_str, len+2);
-#else	//OLC
-		return SDLNet_TCP_Send(my_socket, new_str, len+2);
-#endif	//OLC
+		CHECK_AND_UNLOCK_MUTEX(tcp_out_data_mutex);
+
+		return len + 2;
 	}
-	// error, should never reach here
-	return 0;
+
+	// no, send it as is now
+
+	CHECK_AND_UNLOCK_MUTEX(tcp_out_data_mutex);
+
+	new_str[0] = str[0];	//copy the protocol byte
+	*((short *)(new_str+1)) = SDL_SwapLE16((Uint16)len);//the data length
+	// copy the rest of the data
+	memcpy(&new_str[3], &str[1], len-1);
+#ifdef	OLC
+	return olc_tcp_send(my_socket, new_str, len+2);
+#else	//OLC
+	return SDLNet_TCP_Send(my_socket, new_str, len+2);
+#endif	//OLC
 }
 
-int my_tcp_flush (TCPsocket my_socket)
+int my_tcp_flush(TCPsocket my_socket)
 {
-	int ret;
+	int result;
 
-	if(disconnected || tcp_out_loc == 0) {
-		return 0;
-	}
+	CHECK_AND_LOCK_MUTEX(tcp_out_data_mutex);
 
-	// if we are already sending data, lets see about sending a heartbeat a little bit early
-	if(last_heart_beat+20 <= time(NULL)){
-		send_heart_beat();
-	}
+	result = my_locked_tcp_flush(my_socket);
 
-	// send all the data in the buffer
-#ifdef	OLC
-	ret= olc_tcp_send(my_socket, tcp_out_data, tcp_out_loc);
-	if(ret > 0){
-		ret= olc_tcp_flush();
-	}
-#else	//OLC
-	ret= SDLNet_TCP_Send(my_socket, tcp_out_data, tcp_out_loc);
-#endif	//OLC
+	CHECK_AND_UNLOCK_MUTEX(tcp_out_data_mutex);
 
-	// empty the buffer
-	tcp_out_loc= 0;
-
-	tcp_cache[0]=0;
-	return(ret);
+	return result;
 }
 
 
@@ -453,6 +500,7 @@ void send_login_info()
 		{
 			//we got a nasty error, log it
 		}
+
 	my_tcp_flush(my_socket);    // make sure tcp output buffer is empty
 }
 
@@ -483,6 +531,7 @@ void send_new_char(char * user_str, char * pass_str, char skin, char hair, char 
 	if(my_tcp_send(my_socket,str,len)<len) {
 		//we got a nasty error, log it
 	}
+
 	my_tcp_flush(my_socket);    // make sure tcp output buffer is empty
 }
 
@@ -2059,8 +2108,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 		}
 }
 
-
-int in_data_used=0;
 static void process_data_from_server(queue_t *queue)
 {
 	/* enough data present for the length field ? */
@@ -2131,6 +2178,7 @@ int get_message_from_server(void *thread_args)
 			//if no data, loop back and check again, the delay is in SDLNet_CheckSockets()
 			continue; //Continue to make the main loop check int done.
 		}
+
 		if ((received = SDLNet_TCP_Recv(my_socket, &tcp_in_data[in_data_used], sizeof (tcp_in_data) - in_data_used)) > 0) {
 			in_data_used += received;
 			process_data_from_server(queue);
@@ -2153,5 +2201,6 @@ int get_message_from_server(void *thread_args)
 			disconnect_time = SDL_GetTicks();
 		}
 	}
+
 	return 1;
 }
