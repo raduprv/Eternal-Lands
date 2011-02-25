@@ -657,6 +657,8 @@ static Uint32 copy_to_coordinates_block(const image_t* source, const Uint32 x,
 			return 0;
 	}
 
+	dest_start = 0;
+
 	switch (dest->format)
 	{
 		case ift_dxt1:
@@ -668,10 +670,6 @@ static Uint32 copy_to_coordinates_block(const image_t* source, const Uint32 x,
 			if (source->format == ift_dxt1)
 			{
 				dest_start = 8;
-			}
-			else
-			{
-				dest_start = 0;
 			}
 			break;
 		default:
@@ -1069,18 +1067,22 @@ static Uint32 open_for_coordinates_mask2(const char* source0,
 	if (open_for_coordinates_checks(source0, src0, width, height, mipmap,
 		&image) == 0)
 	{
+		LOG_ERROR("Can't open file '%s'.", source0);
 		return 0;
 	}
 
 	if (open_for_coordinates_checks(source1, src1, width, height, mipmap,
 		&image) == 0)
 	{
+		LOG_ERROR("Can't open file '%s'.", source1);
 		return 0;
 	}
 
 	if (open_for_coordinates_checks(mask, msk, width, height, mipmap,
 		&image) == 0)
 	{
+		LOG_ERROR("Can't open file '%s'.", mask);
+
 		el_close(*src1);
 		*src1 = 0;
 
