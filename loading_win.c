@@ -58,14 +58,46 @@ int display_loading_win_handler(window_info *win)
 	if (use_snapshot == 0)
 	{
 		bind_texture(loading_texture_handle);
+
+		glEnable (GL_TEXTURE_2D);
+
+		glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex3i(0, 0, 0);
+
+		glTexCoord2f(0.0f, frac_y);
+		glVertex3i(0, win->len_y, 0);
+
+	 	glTexCoord2f(frac_x, frac_y);
+		glVertex3i(win->len_x, win->len_y, 0);
+
+		glTexCoord2f(frac_x, 0.0f);
+		glVertex3i(win->len_x, 0, 0);
+		glEnd();
 	}
 	else
 	{
 		glBindTexture (GL_TEXTURE_2D, loading_texture);
+
+		glEnable (GL_TEXTURE_2D);
+
+		glBegin(GL_QUADS);
+		glTexCoord2f (0.0f, frac_y);
+		glVertex3i (0, 0, 0);
+
+		glTexCoord2f (0.0f, 0.0f);
+		glVertex3i (0, win->len_y, 0);
+
+		glTexCoord2f (frac_x, 0.0f);
+		glVertex3i (win->len_x, win->len_y, 0);
+
+	 	glTexCoord2f (frac_x, frac_y);
+		glVertex3i (win->len_x, 0, 0);
+		glEnd();
 	}
 #else	/* NEW_TEXTURES */
 	glBindTexture (GL_TEXTURE_2D, loading_texture);
-#endif	/* NEW_TEXTURES */
+
 	glEnable (GL_TEXTURE_2D);
 
 	glBegin(GL_QUADS);
@@ -81,6 +113,7 @@ int display_loading_win_handler(window_info *win)
  	glTexCoord2f (frac_x, frac_y);
 	glVertex3i (win->len_x, 0, 0);
 	glEnd();
+#endif	/* NEW_TEXTURES */
 	
 	// Since the background doesn't use the texture cache, invalidate
 	// the last texture, so that the font will be loaded

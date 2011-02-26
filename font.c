@@ -33,13 +33,13 @@
 #define FONT_CHARS_PER_LINE	14
 #define	FONT_X_SPACING	18
 #define	FONT_Y_SPACING	21
-#define FONTS_ARRAY_SIZE	10
+#define FONTS_ARRAY_SIZE	12
 
 typedef struct	{
 	int	spacing;
-	int texture_id;
-	int	widths[10*FONT_CHARS_PER_LINE];
-	char name[32];
+	int	texture_id;
+	int	widths[FONTS_ARRAY_SIZE * FONT_CHARS_PER_LINE];
+	char	name[32];
 } font_info;
 
 static int font_text = 0;
@@ -87,84 +87,18 @@ int get_font_char(unsigned char cur_char)
 				}
 			else
 				{
-					switch(cur_char) {
-					case 193:
-						cur_char=AACCENT;break;
-					case 196:
-						cur_char=AUMLAUT;break;
-					case 197:
-						cur_char=ARING;break;
-					case 198:
-						cur_char=AELIG;break;
-					case 201:
-						cur_char=EACCENT;break;
-					case 205:
-						cur_char=IACCENT;break;
-					case 209:
-						cur_char=ENYE;break;
-					case 211:
-						cur_char=OACCENT;break;
-					case 214:
-						cur_char=OUMLAUT;break;
-					case 216:
-						cur_char=OSLASH;break;
-					case 218:
-						cur_char=UACCENT;break;
-					case 220:
-						cur_char=UUMLAUT;break;
-					case 223:
-						cur_char=DOUBLES;break;
-					case 224:
-						cur_char=AGRAVE;break;
-					case 225:
-						cur_char=aACCENT;break;
-					case 226:
-						cur_char=ACIRC;break;
-					case 228:
-						cur_char=aUMLAUT;break;
-					case 229:
-						cur_char=aRING;break;
-					case 230:
-						cur_char=aELIG;break;
-					case 231:
-						cur_char=CCEDIL;break;
-					case 232:
-						cur_char=EGRAVE;break;
-					case 233:
-						cur_char=EACUTE;break;
-					case 234:
-						cur_char=ECIRC;break;
-					case 235:
-						cur_char=EUML;break;
-					case 236:
-					case 237:
-						cur_char=iACCENT;break;
-					case 239:
-						cur_char=IUML;break;
-					case 241:
-						cur_char=EnyE;break;
-					case 242:
-					case 243:
-						cur_char=oACCENT;break;
-					case 244:
-						cur_char=OCIRC;break;
-					case 246:
-						cur_char=oUMLAUT;break;
-					case 248:
-						cur_char=oSLASH;break;
-					case 249:
-						cur_char=uGRAVE;break;
-					case 250:
-						cur_char=uACCENT;break;
-					case 252:
-						cur_char=uUMLAUT;break;
-					default:
-						return -1;	//ignore it
-					}
 					if(cur_char>=SPECIALCHAR_LBOUND && cur_char<=SPECIALCHAR_UBOUND)
-					{
-						cur_char-=(SPECIALCHAR_LBOUND-127);
-					}
+						{
+							cur_char-=(SPECIALCHAR_LBOUND-127);
+						}
+					else if (cur_char>SPECIALCHAR_UBOUND && cur_char<=255)
+						{
+							 cur_char-=(SPECIALCHAR_LBOUND-127);
+						} 
+					else 
+						{ 
+							return -1;
+						}	
 				}
 		}
 
@@ -219,8 +153,8 @@ int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, float display
 	//now get the texture coordinates
 	u_start= (float)(row*FONT_X_SPACING+ignored_bits)/256.0f;
 	u_end= (float)(row*FONT_X_SPACING+FONT_X_SPACING-7-ignored_bits)/256.0f;
-	v_start= (float)1.0f-(1+col*FONT_Y_SPACING)/256.0f;
-	v_end= (float)1.0f-(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
+	v_start= (float)(1+col*FONT_Y_SPACING)/256.0f;
+	v_end= (float)(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
 
 	// and place the text from the graphics on the map
 	glTexCoord2f(u_start,v_start);
@@ -971,8 +905,8 @@ void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * ou
 					//now get the texture coordinates
 					u_start=(float)(row*font_x_size+ignored_bits)/256.0f;
 					u_end=(float)(row*font_x_size+font_x_size-7-ignored_bits)/256.0f;
-					v_start=(float)1.0f-(1+col*font_y_size)/256.0f;
-					v_end=(float)1.0f-(col*font_y_size+font_y_size-1)/256.0f;
+					v_start=(float)(1+col*font_y_size)/256.0f;
+					v_end=(float)(col*font_y_size+font_y_size-1)/256.0f;
 					//v_end=(float)1.0f-(col*font_y_size+font_y_size-2)/256.0f;
 
 					glTexCoord2f(u_start,v_start);
@@ -1027,8 +961,8 @@ void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * ou
 			//now get the texture coordinates
 			u_start=(float)(row*FONT_X_SPACING+ignored_bits)/256.0f;
 			u_end=(float)(row*FONT_X_SPACING+FONT_X_SPACING-7-ignored_bits)/256.0f;
-			v_start=(float)1.0f-(1+col*FONT_Y_SPACING)/256.0f;
-			v_end=(float)1.0f-(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
+			v_start=(float)(1+col*FONT_Y_SPACING)/256.0f;
+			v_end=(float)(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
 
 			glTexCoord2f(u_start,v_start);
 			glVertex3f(cur_x,cur_y+displayed_font_y_size,z);
@@ -1153,8 +1087,8 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 					//now get the texture coordinates
 					u_start=(float)(row*FONT_X_SPACING+ignored_bits)/256.0f;
 					u_end=(float)(row*FONT_X_SPACING+FONT_X_SPACING-7-ignored_bits)/256.0f;
-					v_start=(float)1.0f-(1+col*FONT_Y_SPACING)/256.0f;
-					v_end=(float)1.0f-(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
+					v_start=(float)(1+col*FONT_Y_SPACING)/256.0f;
+					v_end=(float)(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
 
 					glTexCoord2f(u_start,v_start);
 					glVertex3f(cur_x,0,cur_y+displayed_font_y_size);
@@ -1207,8 +1141,8 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 			//now get the texture coordinates
 			u_start=(float)(row*FONT_X_SPACING+ignored_bits)/256.0f;
 			u_end=(float)(row*FONT_X_SPACING+FONT_X_SPACING-7-ignored_bits)/256.0f;
-			v_start=(float)1.0f-(1+col*FONT_Y_SPACING)/256.0f;
-			v_end=(float)1.0f-(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
+			v_start=(float)(1+col*FONT_Y_SPACING)/256.0f;
+			v_end=(float)(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
 
 			glTexCoord2f(u_start,v_start);
 			glVertex3f(cur_x,cur_y+displayed_font_y_size,0);
@@ -1378,7 +1312,7 @@ int load_font_textures ()
 #endif	/* NEW_TEXTURES */
 
 #ifdef	NEW_TEXTURES
-	fonts[0]->texture_id = load_texture_cached("./textures/font", tt_font);
+	fonts[0]->texture_id = load_texture_cached("textures/font.dds", tt_font);
 #else	/* NEW_TEXTURES */
 	fonts[0]->texture_id = load_texture_cache("./textures/font.bmp", 0);
 #endif	/* NEW_TEXTURES */
@@ -1388,7 +1322,11 @@ int load_font_textures ()
 	add_multi_option("name_font", "Type 1");
 	// Find what font's exist and load them
 	glob_pattern = malloc(strlen(datadir)+sizeof(texture_dir)+10+1); //+10 = font*.bmp*
+#ifdef	NEW_TEXTURES
+	sprintf(glob_pattern, "%s%sfont*.dds", datadir, texture_dir);
+#else	/* NEW_TEXTURES */
 	sprintf(glob_pattern, "%s%sfont*.bmp*", datadir, texture_dir);
+#endif	/* NEW_TEXTURES */
 #ifdef WINDOWS
 	if( (hFile = _findfirst( glob_pattern, &c_file )) == -1L ){
 		free(glob_pattern);
@@ -1412,6 +1350,14 @@ int load_font_textures ()
 		safe_strncpy(file, glob_res.gl_pathv[j]+sizeof(texture_dir)-1+strlen(datadir), sizeof(file));
 #endif //WINDOWS
 		len= strlen(file);
+#ifdef	NEW_TEXTURES
+		if (((len + sizeof(texture_dir) - 1) < sizeof(str)) && !strncasecmp(file, "font", 4)
+			&& has_suffix(file, len, ".dds", 4))
+		{
+			safe_snprintf(str, sizeof(str), "./textures/%s", file); //Use a relative path here, load_texture_cache_deferred() is using the path wrappers.
+			file[len - 4] = 0;
+			fonts[i]->texture_id = load_texture_cached(str, tt_font);
+#else	/* NEW_TEXTURES */
 		if (len+sizeof(texture_dir)-1 < sizeof(str) && !strncasecmp(file, "font", 4)
 				&& (has_suffix(file, len, ".bmp", 4) || has_suffix(file, len, ".bmp.gz", 7))
 				&& (!has_suffix(file, len, "_alpha.bmp", 10)) && (!has_suffix(file, len, "_alpha.bmp.gz", 13))) {
@@ -1422,9 +1368,6 @@ int load_font_textures ()
 			} else {
 				file[len - 4]= 0;
 			}
-#ifdef	NEW_TEXTURES
-			fonts[i]->texture_id = load_texture_cached(str, tt_font);
-#else	/* NEW_TEXTURES */
 			fonts[i]->texture_id = load_texture_cache_deferred(str, 0);
 #endif	/* NEW_TEXTURES */
 			safe_snprintf(font_names[i], sizeof(font_names[i]), "Type %i - %s", i + 1, file);

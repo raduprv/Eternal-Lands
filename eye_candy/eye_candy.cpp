@@ -10,6 +10,7 @@
 #include "../cluster.h"
 #endif
 #include "../io/elfilewrapper.h"
+#include "../textures.h"
 
 namespace ec
 {
@@ -34,6 +35,24 @@ namespace ec
 		clear();
 	}
 
+#ifdef	NEW_TEXTURES
+	GLuint Texture::get_texture() const
+	{
+		return (GLuint)get_texture(randint(texture_ids.size()));
+	}
+
+	GLuint Texture::get_texture(const int frame) const
+	{
+		return texture_ids[frame];
+	}
+
+	GLuint Texture::get_texture(const Uint64 born,
+		const Uint64 changerate) const
+	{
+		return (GLuint)get_texture(((get_time() - born) / changerate) %
+			texture_ids.size());
+	}
+#else	/* NEW_TEXTURES */
 	GLuint Texture::get_texture(const Uint16 res_index) const
 	{
 		return (GLuint)get_texture(res_index, randint(texture_ids[res_index].size()));
@@ -50,9 +69,20 @@ namespace ec
 		return (GLuint)get_texture(res_index,
 			((get_time() - born) / changerate) % texture_ids[res_index].size());
 	}
+#endif	/* NEW_TEXTURES */
 
 	void Texture::clear()
 	{
+#ifdef	NEW_TEXTURES
+		for (std::vector<GLuint>::iterator iter = texture_ids.begin();
+			iter != texture_ids.end(); iter++)
+		{
+			const GLuint texture = *iter;
+			glDeleteTextures(1, &texture);
+		}
+
+		texture_ids.clear();
+#else	/* NEW_TEXTURES */
 		for (int i = 0; i < 4; i++)
 		{
 			for (std::vector<GLuint>::iterator iter = texture_ids[i].begin(); iter
@@ -63,10 +93,15 @@ namespace ec
 			}
 			texture_ids[i].clear();
 		}
+#endif	/* NEW_TEXTURES */
 	}
 
 	void Texture::push_texture(const std::string filename)
 	{
+#ifdef	NEW_TEXTURES
+		texture_ids.push_back(load_texture_cached(filename.c_str(),
+			tt_mesh));
+#else	/* NEW_TEXTURES */
 		SDL_Surface* tex;
 		GLuint texture_id;
 
@@ -125,6 +160,7 @@ namespace ec
 			texture_ids[3].push_back(texture_id);
 
 		SDL_FreeSurface(tex);
+#endif	/* NEW_TEXTURES */
 	}
 
 	Shape::~Shape()
@@ -1569,6 +1605,38 @@ namespace ec
 	void EyeCandy::load_textures()
 	{
 		// Load the textures.
+#ifdef	NEW_TEXTURES
+		TexSimple.push_texture("textures/eye_candy/simple.dds");
+		TexFlare.push_texture("textures/eye_candy/flare1.dds");
+		TexFlare.push_texture("textures/eye_candy/flare2.dds");
+		TexFlare.push_texture("textures/eye_candy/flare3.dds");
+		TexVoid.push_texture("textures/eye_candy/void1.dds");
+		TexVoid.push_texture("textures/eye_candy/void2.dds");
+		TexVoid.push_texture("textures/eye_candy/void3.dds");
+		TexTwinflare.push_texture("textures/eye_candy/twinflare1.dds");
+		TexTwinflare.push_texture("textures/eye_candy/twinflare2.dds");
+		TexTwinflare.push_texture("textures/eye_candy/twinflare3.dds");
+		TexTwinflare.push_texture("textures/eye_candy/twinflare4.dds");
+		TexTwinflare.push_texture("textures/eye_candy/twinflare5.dds");
+		TexInverse.push_texture("textures/eye_candy/inverse1.dds");
+		TexInverse.push_texture("textures/eye_candy/inverse2.dds");
+		TexInverse.push_texture("textures/eye_candy/inverse3.dds");
+		TexInverse.push_texture("textures/eye_candy/inverse4.dds");
+		TexShimmer.push_texture("textures/eye_candy/shimmer1.dds");
+		TexShimmer.push_texture("textures/eye_candy/shimmer2.dds");
+		TexShimmer.push_texture("textures/eye_candy/shimmer3.dds");
+		TexCrystal.push_texture("textures/eye_candy/crystal1.dds");
+		TexCrystal.push_texture("textures/eye_candy/crystal2.dds");
+		TexCrystal.push_texture("textures/eye_candy/crystal3.dds");
+		TexWater.push_texture("textures/eye_candy/water1.dds");
+		TexWater.push_texture("textures/eye_candy/water2.dds");
+		TexWater.push_texture("textures/eye_candy/water3.dds");
+		TexLeafMaple.push_texture("textures/eye_candy/leaf_maple.dds");
+		TexLeafOak.push_texture("textures/eye_candy/leaf_oak.dds");
+		TexLeafAsh.push_texture("textures/eye_candy/leaf_ash.dds");
+		TexPetal.push_texture("textures/eye_candy/petal.dds");
+		TexSnowflake.push_texture("textures/eye_candy/snowflake.dds");
+#else	/* NEW_TEXTURES */
 		TexSimple.push_texture("./textures/eye_candy/16x16/simple.png");
 		TexFlare.push_texture("./textures/eye_candy/16x16/flare1.png");
 		TexFlare.push_texture("./textures/eye_candy/16x16/flare2.png");
@@ -1689,6 +1757,7 @@ namespace ec
 		TexLeafAsh.push_texture("./textures/eye_candy/128x128/leaf_ash.png");
 		TexPetal.push_texture("./textures/eye_candy/128x128/petal.png");
 		TexSnowflake.push_texture("./textures/eye_candy/128x128/snowflake.png");
+#endif	/* NEW_TEXTURES */
 	}
 
 	void EyeCandy::push_back_effect(Effect* e)
@@ -2114,7 +2183,11 @@ namespace ec
 		{
 			//  std::cout << "A: " << size << ", " << texture << ", " << Vec3(r, g, b) << ", " << alpha << std::endl;
 			glPointSize(size);
+#ifdef	NEW_TEXTURES
+			bind_texture(texture);
+#else	/* NEW_TEXTURES */
 			glBindTexture(GL_TEXTURE_2D, texture);
+#endif	/* NEW_TEXTURES */
 			glBegin(GL_POINTS);
 			{
 				glColor4f(r, g, b, alpha);
@@ -2134,7 +2207,11 @@ namespace ec
 			//  std::cout << corner1 << ", " << corner2 << ", " << corner3 << ", " << corner4 << std::endl;
 			//  std::cout << size << ", " << texture << ", " << Vec3(r, g, b) << ", " << alpha << std::endl;
 
+#ifdef	NEW_TEXTURES
+			bind_texture(texture);
+#else	/* NEW_TEXTURES */
 			glBindTexture(GL_TEXTURE_2D, texture);
+#endif	/* NEW_TEXTURES */
 			glBegin(GL_QUADS);
 			{
 				glColor4f(r, g, b, alpha);
@@ -2178,7 +2255,11 @@ namespace ec
 			}
 
 			const float scaled_size = size * billboard_scalar;
+#ifdef	NEW_TEXTURES
+			bind_texture(texture);
+#else	/* NEW_TEXTURES */
 			glBindTexture(GL_TEXTURE_2D, texture);
+#endif	/* NEW_TEXTURES */
 			/*
 			 glBegin(GL_QUADS);
 			 {

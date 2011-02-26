@@ -256,10 +256,17 @@ void drag_item(int item, int storage, int mini)
 	}
 
 	cur_item_img=cur_item%25;
+#ifdef	NEW_TEXTURES
+	u_start = 0.2f * (cur_item % 5);
+	u_end = u_start + 0.2f;
+	v_start = 0.2f * (cur_item / 5);
+	v_end = v_start + 0.2f;
+#else	/* NEW_TEXTURES */
 	u_start=0.2f*(cur_item_img%5);
 	u_end=u_start+(float)50/256;
 	v_start=(1.0f+((float)50/256)/256.0f)-((float)50/256*(cur_item_img/5));
 	v_end=v_start-(float)50/256;
+#endif	/* NEW_TEXTURES */
 
 	//get the texture this item belongs to
 	this_texture=get_items_texture(cur_item/25);
@@ -457,10 +464,17 @@ void draw_item(int id, int x_start, int y_start, int gridsize){
 
 	//get the UV coordinates.
 	cur_item=id%25;
+#ifdef	NEW_TEXTURES
+	u_start = 0.2f * (cur_item % 5);
+	u_end = u_start + 0.2f;
+	v_start = 0.2f * (cur_item / 5);
+	v_end = v_start + 0.2f;
+#else	/* NEW_TEXTURES */
 	u_start=0.2f*(cur_item%5);
 	u_end=u_start+(float)50/256;
 	v_start=(1.0f+((float)50/256)/256.0f)-((float)50/256*(cur_item/5));
 	v_end=v_start-(float)50/256;
+#endif	/* NEW_TEXTURES */
 
 	//get the texture this item belongs to
 	this_texture=get_items_texture(id/25);

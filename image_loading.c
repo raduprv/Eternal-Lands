@@ -316,7 +316,7 @@ static Uint32 load_image_SDL(el_file_ptr file, const Uint32 compute_alpha,
 			}
 			idx += bpp;
 
-			index = (image_height - i - 1) * image_width + j;
+			index = i * image_width + j;
 			data[index * 4 + 0] = r;
 			data[index * 4 + 1] = g;
 			data[index * 4 + 2] = b;

@@ -723,12 +723,21 @@ namespace ec
 
 			void push_texture(const std::string filename);
 			void clear(void);
+#ifdef	NEW_TEXTURES
+			GLuint get_texture() const;
+			GLuint get_texture(const int frame) const;
+			GLuint get_texture(const Uint64 born,
+				const Uint64 changerate) const;
+
+			std::vector<Uint32> texture_ids;
+#else	/* NEW_TEXTURES */
 			GLuint get_texture(const Uint16 res_index) const;
 			GLuint get_texture(const Uint16 res_index, const int frame) const;
 			GLuint get_texture(const Uint16 res_index, const Uint64 born,
 				const Uint64 changerate) const;
 
 			std::vector<GLuint> texture_ids[4];
+#endif	/* NEW_TEXTURES */
 	};
 
 	/*!

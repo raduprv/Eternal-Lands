@@ -555,8 +555,8 @@ void read_knowledge_book_index()
 void init_books()
 {
 #ifdef	NEW_TEXTURES
-	paper1_text = load_texture_cached ("./textures/paper1", tt_image);
-	book1_text = load_texture_cached ("./textures/book1", tt_image);
+	paper1_text = load_texture_cached ("textures/paper1.dds", tt_image);
+	book1_text = load_texture_cached ("textures/book1.dds", tt_image);
 #else	/* NEW_TEXTURES */
 	paper1_text = load_texture_cache_deferred ("./textures/paper1.bmp", 0);
 	book1_text = load_texture_cache_deferred ("./textures/book1.bmp", 0);

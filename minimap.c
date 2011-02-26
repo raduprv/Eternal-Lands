@@ -298,9 +298,19 @@ static __inline__ void draw_compass()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 #ifdef	NEW_TEXTURES
 	bind_texture(compass_tex);
+
+	glBegin(GL_QUADS); 
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex2f(-float_minimap_size/2, float_minimap_size/2);
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex2f(float_minimap_size/2, float_minimap_size/2);
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex2f(float_minimap_size/2, -float_minimap_size/2);
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex2f(-float_minimap_size/2, -float_minimap_size/2);
+	glEnd();
 #else	/* NEW_TEXTURES */
 	bind_texture_id(compass_tex);
-#endif	/* NEW_TEXTURES */
 
 	glBegin(GL_QUADS); 
 		glTexCoord2f(0.0f, 0.0f);
@@ -312,6 +322,7 @@ static __inline__ void draw_compass()
 		glTexCoord2f(1.0f, 0.0f);
 		glVertex2f(-float_minimap_size/2, -float_minimap_size/2);
 	glEnd();
+#endif	/* NEW_TEXTURES */
 
 	glDisable(GL_ALPHA_TEST); 
 	glDisable( GL_BLEND );
@@ -368,6 +379,16 @@ static __inline__ void draw_map(window_info *win,float zoom_multip, float px, fl
 
 	rotate_at_player(zoom_multip,px,py);
 	glBegin(GL_QUADS);
+#ifdef	NEW_TEXTURES
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex2f(-float_minimap_size/2, float_minimap_size/2);
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex2f(float_minimap_size/2, float_minimap_size/2);
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex2f(float_minimap_size/2, -float_minimap_size/2);
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex2f(-float_minimap_size/2, -float_minimap_size/2);
+#else	/* NEW_TEXTURES */
 		glTexCoord2f(0.0f, 0.0f);
 		glVertex2f(-float_minimap_size/2, float_minimap_size/2);
 		glTexCoord2f(1.0f, 0.0f);
@@ -376,6 +397,7 @@ static __inline__ void draw_map(window_info *win,float zoom_multip, float px, fl
 		glVertex2f(float_minimap_size/2, -float_minimap_size/2);
 		glTexCoord2f(0.0f, 1.0f);
 		glVertex2f(-float_minimap_size/2, -float_minimap_size/2);
+#endif	/* NEW_TEXTURES */
 	glEnd();
 
 	glDisable(GL_STENCIL_TEST);

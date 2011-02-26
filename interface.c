@@ -369,9 +369,27 @@ void draw_console_pic(int which_texture)
 {
 #ifdef	NEW_TEXTURES
 	bind_texture(which_texture);
+
+	glColor3f(1.0f,1.0f,1.0f);
+	glBegin(GL_QUADS);
+	//draw the texture
+
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex3i(0,0,0);
+
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex3i(0,window_height,0);
+
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex3i(window_width,window_height,0);
+
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex3i(window_width,0,0);
+
+	glEnd();
 #else	/* NEW_TEXTURES */
 	get_and_set_texture_id(which_texture);
-#endif	/* NEW_TEXTURES */
+
 	glColor3f(1.0f,1.0f,1.0f);
 	glBegin(GL_QUADS);
 	//draw the texture
@@ -389,6 +407,7 @@ void draw_console_pic(int which_texture)
 	glVertex3i(window_width,0,0);
 
 	glEnd();
+#endif	/* NEW_TEXTURES */
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -755,16 +774,23 @@ void draw_game_map (int map, int mouse_mini)
     	
 #ifdef	NEW_TEXTURES
 	bind_texture(map_large);
+
+	glBegin(GL_QUADS);
+		glTexCoord2f(1.0f, 1.0f); glVertex3i(50,0,0); 
+		glTexCoord2f(1.0f, 0.0f); glVertex3i(50,200,0);
+		glTexCoord2f(0.0f, 0.0f); glVertex3i(250,200,0);
+		glTexCoord2f(0.0f, 1.0f); glVertex3i(250,0,0);
+	glEnd();
 #else	/* NEW_TEXTURES */
 	bind_texture_id(map_large);
-#endif	/* NEW_TEXTURES */
-    
+
 	glBegin(GL_QUADS);
 		glTexCoord2f(1.0f,0.0f); glVertex3i(50,0,0); 
 		glTexCoord2f(1.0f,1.0f); glVertex3i(50,200,0);
 		glTexCoord2f(0.0f,1.0f); glVertex3i(250,200,0);
 		glTexCoord2f(0.0f,0.0f); glVertex3i(250,0,0);
 	glEnd();
+#endif	/* NEW_TEXTURES */
 
 	if (mouse_mini)
 		glColor4f (1.0f, 1.0f, 1.0f, 1.0f);
@@ -775,16 +801,23 @@ void draw_game_map (int map, int mouse_mini)
 	
 #ifdef	NEW_TEXTURES
 	bind_texture(map_small);
+
+    	glBegin(GL_QUADS);
+		glTexCoord2f(1.0f, 1.0f); glVertex3i(250,150,0);
+		glTexCoord2f(1.0f, 0.0f); glVertex3i(250,200,0);
+		glTexCoord2f(0.0f, 0.0f); glVertex3i(300,200,0);
+		glTexCoord2f(0.0f, 1.0f); glVertex3i(300,150,0);
+	glEnd();
 #else	/* NEW_TEXTURES */
 	bind_texture_id(map_small);
-#endif	/* NEW_TEXTURES */
-    	
+
     	glBegin(GL_QUADS);
 		glTexCoord2f(1.0f,0.0f); glVertex3i(250,150,0);
 		glTexCoord2f(1.0f,1.0f); glVertex3i(250,200,0);
 		glTexCoord2f(0.0f,1.0f); glVertex3i(300,200,0);
 		glTexCoord2f(0.0f,0.0f); glVertex3i(300,150,0);
 	glEnd();
+#endif	/* NEW_TEXTURES */
 	
 	glDisable(GL_ALPHA_TEST);
 	
@@ -792,16 +825,23 @@ void draw_game_map (int map, int mouse_mini)
     	
 #ifdef	NEW_TEXTURES
 	bind_texture(legend_text);
+
+    	glBegin(GL_QUADS);
+		glTexCoord2f(1.0f, 1.0f); glVertex3i(250,50,0);
+		glTexCoord2f(1.0f, 0.0f); glVertex3i(250,150,0);
+		glTexCoord2f(0.0f, 0.0f); glVertex3i(300,150,0);
+		glTexCoord2f(0.0f, 1.0f); glVertex3i(300,50,0);
+	glEnd();
 #else	/* NEW_TEXTURES */
 	get_and_set_texture_id(legend_text);
-#endif	/* NEW_TEXTURES */
-    
+
     	glBegin(GL_QUADS);
 		glTexCoord2f(1.0f,0.0f); glVertex3i(250,50,0);
 		glTexCoord2f(1.0f,1.0f); glVertex3i(250,150,0);
 		glTexCoord2f(0.0f,1.0f); glVertex3i(300,150,0);
 		glTexCoord2f(0.0f,0.0f); glVertex3i(300,50,0);
 	glEnd();
+#endif	/* NEW_TEXTURES */
 
 // this is necessary for the text over map
 // need to execute this for any map now

@@ -67,6 +67,52 @@ void draw_window_alphaborder(window_info *win) {
 	 *        4455555555555555555555555555566 
 	 */
 
+#ifdef	NEW_TEXTURES
+	glTexCoord2f(1.0f, 1.0f); glVertex2i( - 8,    0);
+	glTexCoord2f(1.0f, 0.5f); glVertex2i(   0,    0);
+	glTexCoord2f(0.5f, 0.5f); glVertex2i(   0,   16);
+	glTexCoord2f(0.5f, 1.0f); glVertex2i( - 8,   16);
+
+	glTexCoord2f(0.5f, 1.0f); glVertex2i( - 8,   16);
+	glTexCoord2f(0.5f, 0.5f); glVertex2i(   0,   16);
+	glTexCoord2f(0.1f, 0.5f); glVertex2i(   0, h   );
+	glTexCoord2f(0.1f, 1.0f); glVertex2i( - 8, h   );
+
+	glTexCoord2f(0.5f, 1.0f); glVertex2i( - 8, h   );
+	glTexCoord2f(0.5f, 0.5f); glVertex2i(   0, h   );
+	glTexCoord2f(1.0f, 0.5f); glVertex2i(   0, h+16);
+	glTexCoord2f(1.0f, 1.0f); glVertex2i( - 8, h+16);
+
+	glTexCoord2f(0.5f, 0.5f); glVertex2i(   0, h   );
+	glTexCoord2f(0.5f, 0.0f); glVertex2i(   8, h   );
+	glTexCoord2f(1.0f, 0.0f); glVertex2i(   8, h+16);
+	glTexCoord2f(1.0f, 0.5f); glVertex2i(   0, h+16);
+
+	glTexCoord2f(0.1f, 0.0f); glVertex2i(   8, h   );
+	glTexCoord2f(0.5f, 0.0f); glVertex2i(w- 8, h   );
+	glTexCoord2f(0.5f, 1.0f); glVertex2i(w- 8, h+16);
+	glTexCoord2f(0.1f, 1.0f); glVertex2i(   8, h+16);
+
+	glTexCoord2f(0.5f, 0.0f); glVertex2i(w- 8, h   );
+	glTexCoord2f(0.5f, 0.5f); glVertex2i(w   , h   );
+	glTexCoord2f(1.0f, 0.5f); glVertex2i(w   , h+16);
+	glTexCoord2f(1.0f, 0.0f); glVertex2i(w- 8, h+16);
+
+	glTexCoord2f(0.5f, 0.5f); glVertex2i(w   , h   );
+	glTexCoord2f(0.5f, 0.0f); glVertex2i(w+ 8, h   );
+	glTexCoord2f(1.0f, 1.0f); glVertex2i(w+ 8, h+16);
+	glTexCoord2f(1.0f, 0.5f); glVertex2i(w   , h+16);
+
+	glTexCoord2f(0.1f, 0.5f); glVertex2i(w   ,   16);
+	glTexCoord2f(0.1f, 0.0f); glVertex2i(w+ 8,   16);
+	glTexCoord2f(0.5f, 1.0f); glVertex2i(w+ 8, h   );
+	glTexCoord2f(0.5f, 0.5f); glVertex2i(w   , h   );
+
+	glTexCoord2f(1.0f, 0.5f); glVertex2i(w   ,    0);
+	glTexCoord2f(1.0f, 1.0f); glVertex2i(w+ 8,    0);
+	glTexCoord2f(0.5f, 1.0f); glVertex2i(w+ 8,   16);
+	glTexCoord2f(0.5f, 0.5f); glVertex2i(w   ,   16);
+#else	/* NEW_TEXTURES */
 	glTexCoord2f(1.0f, 0.0f); glVertex2i( - 8,    0);
 	glTexCoord2f(1.0f, 0.5f); glVertex2i(   0,    0);
 	glTexCoord2f(0.5f, 0.5f); glVertex2i(   0,   16);
@@ -111,6 +157,7 @@ void draw_window_alphaborder(window_info *win) {
 	glTexCoord2f(1.0f, 0.0f); glVertex2i(w+ 8,    0);
 	glTexCoord2f(0.5f, 0.0f); glVertex2i(w+ 8,   16);
 	glTexCoord2f(0.5f, 0.5f); glVertex2i(w   ,   16);
+#endif	/* NEW_TEXTURES */
 
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
