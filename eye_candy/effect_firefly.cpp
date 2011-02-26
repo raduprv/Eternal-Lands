@@ -76,10 +76,17 @@ namespace ec
 		return true;
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 FireflyParticle::get_texture()
+	{
+		return base->TexVoid.get_texture();
+	}
+#else	/* NEW_TEXTURES */
 	GLuint FireflyParticle::get_texture(const Uint16 res_index)
 	{
 		return base->TexVoid.get_texture(res_index);
 	}
+#endif	/* NEW_TEXTURES */
 
 	FireflyEffect::FireflyEffect(EyeCandy* _base, bool* _dead, Vec3* _pos,
 		std::vector<ec::Obstruction*>* _obstructions, const color_t _hue_adjust,

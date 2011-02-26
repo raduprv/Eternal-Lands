@@ -224,10 +224,17 @@ namespace ec
 		return true;
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 GlowParticle::get_texture()
+	{
+		return texture->get_texture();
+	}
+#else	/* NEW_TEXTURES */
 	GLuint GlowParticle::get_texture(const Uint16 res_index)
 	{
 		return texture->get_texture(res_index);
 	}
+#endif	/* NEW_TEXTURES */
 
 	light_t GlowParticle::get_light_level()
 	{

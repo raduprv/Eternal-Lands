@@ -303,10 +303,17 @@ namespace ec
 		}
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 TargetMagicParticle::get_texture()
+	{
+		return texture->get_texture();
+	}
+#else	/* NEW_TEXTURES */
 	GLuint TargetMagicParticle::get_texture(const Uint16 res_index)
 	{
 		return texture->get_texture(res_index);
 	}
+#endif	/* NEW_TEXTURES */
 
 	TargetMagicEffect::TargetMagicEffect(EyeCandy* _base, bool* _dead,
 		Vec3* _pos, Vec3* _target, const TargetMagicType _type,

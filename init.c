@@ -834,8 +834,8 @@ void init_stuff()
 	update_loading_win(load_icons_str, 4);
 	//load the necesary textures
 #ifdef	NEW_TEXTURES
-	icons_text = load_texture_cached("./textures/gamebuttons", tt_gui);
-	hud_text = load_texture_cached("./textures/gamebuttons2", tt_gui);
+	icons_text = load_texture_cached("textures/gamebuttons.dds", tt_gui);
+	hud_text = load_texture_cached("textures/gamebuttons2.dds", tt_gui);
 #else	/* NEW_TEXTURES */
 #ifdef	NEW_ALPHA
 	icons_text= load_texture_cache("./textures/gamebuttons.bmp", -1);
@@ -847,7 +847,7 @@ void init_stuff()
 #endif	/* NEW_TEXTURES */
 	update_loading_win(load_textures_str, 4);
 #ifdef	NEW_TEXTURES
-	cons_text = load_texture_cached("./textures/console", tt_gui);
+	cons_text = load_texture_cached("textures/console.dds", tt_gui);
 #else	/* NEW_TEXTURES */
 	cons_text= load_texture_cache("./textures/console.bmp",255);
 #endif	/* NEW_TEXTURES */
@@ -859,7 +859,7 @@ void init_stuff()
 		char	buffer[256];
 
 #ifdef	NEW_TEXTURES
-		safe_snprintf(buffer, sizeof(buffer), "./textures/items%d", i+1);
+		safe_snprintf(buffer, sizeof(buffer), "textures/items%d.dds", i+1);
 
 		if (check_image_name(buffer, sizeof(buffer), buffer) != 0)
 		{
@@ -877,7 +877,7 @@ void init_stuff()
 		char	buffer[256];
 
 #ifdef	NEW_TEXTURES
-		safe_snprintf(buffer, sizeof(buffer), "./textures/portraits%d", i+1);
+		safe_snprintf(buffer, sizeof(buffer), "textures/portraits%d.dds", i+1);
 
 		if (check_image_name(buffer, sizeof(buffer), buffer) != 0)
 		{
@@ -893,7 +893,7 @@ void init_stuff()
 
 #ifdef NEW_CURSOR
 #ifdef	NEW_TEXTURES
-	cursors_tex = load_texture_cached("./textures/cursors2", tt_gui);
+	cursors_tex = load_texture_cached("textures/cursors2.dds", tt_gui);
 #else	/* NEW_TEXTURES */
 	disable_compression();
 	cursors_tex = load_texture_cache("./textures/cursors2.bmp",0);
@@ -906,13 +906,13 @@ void init_stuff()
 
 	//Load the map legend and continent map
 #ifdef	NEW_TEXTURES
-	legend_text = load_texture_cached("./maps/legend", tt_gui);
+	legend_text = load_texture_cached("maps/legend.dds", tt_gui);
 #else	/* NEW_TEXTURES */
 	legend_text= load_texture_cache("./maps/legend.bmp",0);
 #endif	/* NEW_TEXTURES */
 
 #ifdef	NEW_TEXTURES
-	ground_detail_text = load_texture_cached("./textures/ground_detail", tt_gui);
+	ground_detail_text = load_texture_cached("textures/ground_detail.dds", tt_gui);
 #else	/* NEW_TEXTURES */
 	ground_detail_text=load_texture_cache("./textures/ground_detail.bmp",255);
 #endif	/* NEW_TEXTURES */

@@ -166,10 +166,17 @@ namespace ec
 		}
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 MineParticle::get_texture()
+	{
+		return texture->get_texture();
+	}
+#else	/* NEW_TEXTURES */
 	GLuint MineParticle::get_texture(const Uint16 res_index)
 	{
 		return texture->get_texture(res_index);
 	}
+#endif	/* NEW_TEXTURES */
 
 	light_t MineParticle::get_light_level()
 	{
@@ -434,11 +441,17 @@ namespace ec
 		return true;
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 MineParticleFire::get_texture()
+	{
+		return texture->get_texture();
+	}
+#else	/* NEW_TEXTURES */
 	GLuint MineParticleFire::get_texture(const Uint16 res_index)
 	{
 		return texture->get_texture(res_index);
 	}
-
+#endif	/* NEW_TEXTURES */
 
 	MineParticleSmoke::MineParticleSmoke(Effect* _effect, ParticleMover* _mover,
 		const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
@@ -479,10 +492,17 @@ namespace ec
 		return true;
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 MineParticleSmoke::get_texture()
+	{
+		return texture->get_texture();
+	}
+#else	/* NEW_TEXTURES */
 	GLuint MineParticleSmoke::get_texture(const Uint16 res_index)
 	{
 		return texture->get_texture(res_index);
 	}
+#endif	/* NEW_TEXTURES */
 
 	void MineParticleSmoke::draw(const Uint64 usec)
 	{

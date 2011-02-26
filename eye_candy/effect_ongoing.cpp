@@ -172,10 +172,17 @@ namespace ec
 		}
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 OngoingParticle::get_texture()
+	{
+		return texture->get_texture();
+	}
+#else	/* NEW_TEXTURES */
 	GLuint OngoingParticle::get_texture(const Uint16 res_index)
 	{
 		return texture->get_texture(res_index);
 	}
+#endif	/* NEW_TEXTURES */
 
 	OngoingEffect::OngoingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos,
 		const color_t _hue_adjust, const color_t _saturation_adjust,

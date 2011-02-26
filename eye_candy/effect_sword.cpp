@@ -58,10 +58,17 @@ namespace ec
 		return true;
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 SwordParticle::get_texture()
+	{
+		return texture->get_texture();
+	}
+#else	/* NEW_TEXTURES */
 	GLuint SwordParticle::get_texture(const Uint16 res_index)
 	{
 		return texture->get_texture(res_index);
 	}
+#endif	/* NEW_TEXTURES */
 
 	SwordEffect::SwordEffect(EyeCandy* _base, bool* _dead, Vec3* _start,
 		Vec3* _end, const SwordType _type, const Uint16 _LOD)

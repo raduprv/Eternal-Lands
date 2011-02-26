@@ -53,10 +53,17 @@ namespace ec
 		return true;
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 CandleParticle::get_texture()
+	{
+		return base->TexFlare.get_texture();
+	}
+#else	/* NEW_TEXTURES */
 	GLuint CandleParticle::get_texture(const Uint16 res_index)
 	{
 		return base->TexFlare.get_texture(res_index);
 	}
+#endif	/* NEW_TEXTURES */
 
 	void CandleParticle::draw(const Uint64 usec)
 	{

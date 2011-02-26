@@ -73,16 +73,7 @@ namespace ec
 
 	void Texture::clear()
 	{
-#ifdef	NEW_TEXTURES
-		for (std::vector<GLuint>::iterator iter = texture_ids.begin();
-			iter != texture_ids.end(); iter++)
-		{
-			const GLuint texture = *iter;
-			glDeleteTextures(1, &texture);
-		}
-
-		texture_ids.clear();
-#else	/* NEW_TEXTURES */
+#ifndef	NEW_TEXTURES
 		for (int i = 0; i < 4; i++)
 		{
 			for (std::vector<GLuint>::iterator iter = texture_ids[i].begin(); iter
@@ -855,6 +846,9 @@ namespace ec
 						}
 					}
 
+#ifdef	NEW_TEXTURES
+					Uint32 texture = get_texture();
+#else	/* NEW_TEXTURES */
 					int res_index;
 					if (tempsize <= 16)
 						res_index = 0;
@@ -865,6 +859,7 @@ namespace ec
 					else
 						res_index = 3;
 					const GLuint texture = get_texture(res_index);
+#endif	/* NEW_TEXTURES */
 					base->draw_point_sprite_particle(tempsize, texture,
 						color[0], color[1], color[2], tempalpha, pos);
 					if (effect->motion_blur_points > 0)
@@ -913,7 +908,11 @@ namespace ec
 				coord_t tempsize = base->billboard_scalar * size;
 				tempsize *= flare();
 
+#ifdef	NEW_TEXTURES
+				Uint32 texture = get_texture(); // Always hires, since we're not checking distance.
+#else	/* NEW_TEXTURES */
 				const GLuint texture = get_texture(3); // Always hires, since we're not checking distance.
+#endif	/* NEW_TEXTURES */
 				//    std::cout << this << ": " << tempsize << ", " << size << ": " << pos << std::endl;
 				if (base->draw_method != EyeCandy::ACCURATE_BILLBOARDS)
 					base->draw_fast_billboard_particle(tempsize, texture,

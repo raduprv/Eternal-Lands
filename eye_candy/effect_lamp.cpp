@@ -57,10 +57,17 @@ namespace ec
 		return true;
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 LampParticle::get_texture()
+	{
+		return base->TexFlare.get_texture();
+	}
+#else	/* NEW_TEXTURES */
 	GLuint LampParticle::get_texture(const Uint16 res_index)
 	{
 		return base->TexFlare.get_texture(res_index);
 	}
+#endif	/* NEW_TEXTURES */
 
 	LampBigParticle::LampBigParticle(Effect* _effect, ParticleMover* _mover,
 		const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust,
@@ -105,10 +112,17 @@ namespace ec
 		return true;
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 LampBigParticle::get_texture()
+	{
+		return base->TexFlare.get_texture();
+	}
+#else	/* NEW_TEXTURES */
 	GLuint LampBigParticle::get_texture(const Uint16 res_index)
 	{
 		return base->TexFlare.get_texture(res_index);
 	}
+#endif	/* NEW_TEXTURES */
 
 	void LampBigParticle::draw(const Uint64 usec)
 	{
@@ -150,10 +164,17 @@ namespace ec
 		return true;
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 LampFlareParticle::get_texture()
+	{
+		return base->TexVoid.get_texture();
+	}
+#else	/* NEW_TEXTURES */
 	GLuint LampFlareParticle::get_texture(const Uint16 res_index)
 	{
 		return base->TexVoid.get_texture(res_index);
 	}
+#endif	/* NEW_TEXTURES */
 
 	LampEffect::LampEffect(EyeCandy* _base, bool* _dead, Vec3* _pos,
 		const color_t _hue_adjust, const color_t _saturation_adjust,

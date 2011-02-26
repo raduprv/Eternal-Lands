@@ -186,10 +186,17 @@ namespace ec
 		return true;
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 CloudParticle::get_texture()
+	{
+		return base->TexSimple.get_texture();
+	}
+#else	/* NEW_TEXTURES */
 	GLuint CloudParticle::get_texture(const Uint16 res_index)
 	{
 		return base->TexSimple.get_texture(res_index);
 	}
+#endif	/* NEW_TEXTURES */
 
 	void CloudParticle::draw(const Uint64 usec)
 	{

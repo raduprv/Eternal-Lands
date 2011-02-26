@@ -55,7 +55,11 @@ namespace ec
 			}
 
 			virtual bool idle(const Uint64 delta_t);
+#ifdef	NEW_TEXTURES
+			virtual Uint32 get_texture();
+#else	/* NEW_TEXTURES */
 			virtual GLuint get_texture(const Uint16 res_index);
+#endif	/* NEW_TEXTURES */
 			virtual light_t estimate_light_level() const
 			{
 				return 0.0;
@@ -84,7 +88,11 @@ namespace ec
 			;
 
 			virtual bool idle(const Uint64 delta_t);
+#ifdef	NEW_TEXTURES
+			virtual Uint32 get_texture();
+#else	/* NEW_TEXTURES */
 			virtual GLuint get_texture(const Uint16 res_index);
+#endif	/* NEW_TEXTURES */
 			virtual void draw(const Uint64 usec);
 			virtual light_t estimate_light_level() const
 			{
@@ -110,7 +118,11 @@ namespace ec
 			}
 
 			virtual bool idle(const Uint64 delta_t);
+#ifdef	NEW_TEXTURES
+			virtual Uint32 get_texture();
+#else	/* NEW_TEXTURES */
 			virtual GLuint get_texture(const Uint16 res_index);
+#endif	/* NEW_TEXTURES */
 			virtual light_t estimate_light_level() const
 			{
 				return 0.0;

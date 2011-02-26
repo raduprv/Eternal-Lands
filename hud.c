@@ -1883,10 +1883,10 @@ int	display_quickbar_handler(window_info *win)
 			//get the UV coordinates.
 			cur_item=item_list[i].image_id%25;
 #ifdef	NEW_TEXTURES
-			u_start = 0.2f * (cur_item % 5);
-			u_end = u_start + 0.2f;
-			v_start = 0.2f * (cur_item / 5);
-			v_end = v_start + 0.2f;
+			u_start = 0.1953125f * (cur_item % 5) + 0.001953125f;
+			u_end = u_start + 0.1953125f + 0.001953125f;
+			v_start = 0.1953125f * (cur_item / 5) + 0.001953125f;
+			v_end = v_start + 0.1953125f + 0.001953125f;
 #else	/* NEW_TEXTURES */
 			u_start=0.2f*(cur_item%5);
 			u_end=u_start+(float)50/256;

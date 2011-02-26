@@ -211,10 +211,17 @@ namespace ec
 		return true;
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 BreathParticle::get_texture()
+	{
+		return texture->get_texture();
+	}
+#else	/* NEW_TEXTURES */
 	GLuint BreathParticle::get_texture(const Uint16 res_index)
 	{
 		return texture->get_texture(res_index);
 	}
+#endif	/* NEW_TEXTURES */
 
 	BreathSmokeParticle::BreathSmokeParticle(Effect* _effect,
 		ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity,
@@ -326,10 +333,17 @@ namespace ec
 		return true;
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 BreathSmokeParticle::get_texture()
+	{
+		return texture->get_texture();
+	}
+#else	/* NEW_TEXTURES */
 	GLuint BreathSmokeParticle::get_texture(const Uint16 res_index)
 	{
 		return texture->get_texture(res_index);
 	}
+#endif	/* NEW_TEXTURES */
 
 	BreathEffect::BreathEffect(EyeCandy* _base, bool* _dead, Vec3* _pos,
 		Vec3* _target, std::vector<ec::Obstruction*>* _obstructions,

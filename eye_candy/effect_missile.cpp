@@ -73,10 +73,17 @@ namespace ec
 		return true;
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 MissileParticle::get_texture()
+	{
+		return texture->get_texture();
+	}
+#else	/* NEW_TEXTURES */
 	GLuint MissileParticle::get_texture(const Uint16 res_index)
 	{
 		return texture->get_texture(res_index);
 	}
+#endif	/* NEW_TEXTURES */
 
 	MissileEffect::MissileEffect(EyeCandy* _base, bool* _dead, Vec3* _pos,
 		const MissileType _type, const Uint16 _LOD, int _hitOrMiss)

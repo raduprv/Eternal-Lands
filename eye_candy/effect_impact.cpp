@@ -110,10 +110,17 @@ namespace ec
 		}
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 ImpactParticle::get_texture()
+	{
+		return texture->get_texture();
+	}
+#else	/* NEW_TEXTURES */
 	GLuint ImpactParticle::get_texture(const Uint16 res_index)
 	{
 		return texture->get_texture(res_index);
 	}
+#endif	/* NEW_TEXTURES */
 
 	ImpactEffect::ImpactEffect(EyeCandy* _base, bool* _dead, Vec3* _pos,
 		const Vec3 _angle, const ImpactType _type, const Uint16 _LOD,

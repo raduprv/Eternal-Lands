@@ -170,10 +170,17 @@ namespace ec
 		}
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 HarvestingParticle::get_texture()
+	{
+		return texture->get_texture();
+	}
+#else	/* NEW_TEXTURES */
 	GLuint HarvestingParticle::get_texture(const Uint16 res_index)
 	{
 		return texture->get_texture(res_index);
 	}
+#endif	/* NEW_TEXTURES */
 
 	light_t HarvestingParticle::get_light_level()
 	{

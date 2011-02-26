@@ -113,6 +113,15 @@ namespace ec
 		return true;
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 CampfireParticle::get_texture()
+	{
+		if (state == 0)
+			return base->TexFlare.get_texture();
+		else
+			return base->TexSimple.get_texture();
+	}
+#else	/* NEW_TEXTURES */
 	GLuint CampfireParticle::get_texture(const Uint16 res_index)
 	{
 		if (state == 0)
@@ -120,6 +129,7 @@ namespace ec
 		else
 			return base->TexSimple.get_texture(res_index);
 	}
+#endif	/* NEW_TEXTURES */
 
 	void CampfireParticle::draw(const Uint64 usec)
 	{
@@ -175,10 +185,17 @@ namespace ec
 		return true;
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 CampfireBigParticle::get_texture()
+	{
+		return base->TexFlare.get_texture();
+	}
+#else	/* NEW_TEXTURES */
 	GLuint CampfireBigParticle::get_texture(const Uint16 res_index)
 	{
 		return base->TexFlare.get_texture(res_index);
 	}
+#endif	/* NEW_TEXTURES */
 
 	CampfireEffect::CampfireEffect(EyeCandy* _base, bool* _dead, Vec3* _pos,
 		std::vector<ec::Obstruction*>* _obstructions, const color_t _hue_adjust,

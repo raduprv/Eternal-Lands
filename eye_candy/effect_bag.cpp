@@ -81,10 +81,17 @@ namespace ec
 		return true;
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 BagParticle::get_texture()
+	{
+		return base->TexFlare.get_texture();
+	}
+#else	/* NEW_TEXTURES */
 	GLuint BagParticle::get_texture(const Uint16 res_index)
 	{
 		return base->TexFlare.get_texture(res_index);
 	}
+#endif	/* NEW_TEXTURES */
 
 	BagEffect::BagEffect(EyeCandy* _base, bool* _dead, Vec3* _pos,
 		const bool _picked_up, const Uint16 _LOD)

@@ -52,10 +52,17 @@ namespace ec
 		return true;
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 TeleporterParticle::get_texture()
+	{
+		return base->TexShimmer.get_texture();
+	}
+#else	/* NEW_TEXTURES */
 	GLuint TeleporterParticle::get_texture(const Uint16 res_index)
 	{
 		return base->TexShimmer.get_texture(res_index);
 	}
+#endif	/* NEW_TEXTURES */
 
 	TeleporterEffect::TeleporterEffect(EyeCandy* _base, bool* _dead,
 		Vec3* _pos, const color_t _hue_adjust,

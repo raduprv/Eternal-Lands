@@ -46,10 +46,17 @@ namespace ec
 		return true;
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 OuterSummonParticle::get_texture()
+	{
+		return base->TexFlare.get_texture();
+	}
+#else	/* NEW_TEXTURES */
 	GLuint OuterSummonParticle::get_texture(const Uint16 res_index)
 	{
 		return base->TexFlare.get_texture(res_index);
 	}
+#endif	/* NEW_TEXTURES */
 
 	InnerSummonParticle::InnerSummonParticle(Effect* _effect,
 		ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity,
@@ -100,10 +107,17 @@ namespace ec
 		return true;
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 InnerSummonParticle::get_texture()
+	{
+		return texture->get_texture();
+	}
+#else	/* NEW_TEXTURES */
 	GLuint InnerSummonParticle::get_texture(const Uint16 res_index)
 	{
 		return texture->get_texture(res_index);
 	}
+#endif	/* NEW_TEXTURES */
 
 	SummonEffect::SummonEffect(EyeCandy* _base, bool* _dead, Vec3* _pos,
 		const SummonType _type, const Uint16 _LOD)

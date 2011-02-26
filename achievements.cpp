@@ -693,6 +693,17 @@ int Achievements_Window::display_handler(window_info *win)
 			}
 
 			int cur_item = achievement->get_id() % icon_per_texture;
+
+#ifdef	NEW_TEXTURES
+			float u_start = 1.0f/static_cast<float>(icon_per) * (cur_item % icon_per);
+			float u_end = u_start + static_cast<float>(as->get_size())/256;
+			float v_start = 1.0f/static_cast<float>(icon_per) * (cur_item / icon_per);
+			float v_end = v_start + static_cast<float>(as->get_size()) / 256;
+			int start_x = as->get_border() + as->get_display() * (shown_num % as->get_per_row());
+			int start_y = as->get_border() + as->get_display() * (shown_num / as->get_per_row());
+
+			bind_texture(texture);
+#else	/* NEW_TEXTURES */
 			float u_start = 1.0f/static_cast<float>(icon_per) * (cur_item % icon_per);
 			float u_end = u_start + static_cast<float>(as->get_size())/256;
 			float v_start= (1.0f + (static_cast<float>(as->get_size())/256) / 256.0f) -
@@ -701,9 +712,6 @@ int Achievements_Window::display_handler(window_info *win)
 			int start_x = as->get_border() + as->get_display() * (shown_num % as->get_per_row());
 			int start_y = as->get_border() + as->get_display() * (shown_num / as->get_per_row());
 
-#ifdef	NEW_TEXTURES
-			bind_texture(texture);
-#else	/* NEW_TEXTURES */
 			get_and_set_texture_id(texture);
 #endif	/* NEW_TEXTURES */
 			glEnable(GL_ALPHA_TEST);

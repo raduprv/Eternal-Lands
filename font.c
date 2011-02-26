@@ -33,7 +33,7 @@
 #define FONT_CHARS_PER_LINE	14
 #define	FONT_X_SPACING	18
 #define	FONT_Y_SPACING	21
-#define FONTS_ARRAY_SIZE	12
+#define FONTS_ARRAY_SIZE	10
 
 typedef struct	{
 	int	spacing;
@@ -87,18 +87,84 @@ int get_font_char(unsigned char cur_char)
 				}
 			else
 				{
+					switch(cur_char) {
+					case 193:
+						cur_char=AACCENT;break;
+					case 196:
+						cur_char=AUMLAUT;break;
+					case 197:
+						cur_char=ARING;break;
+					case 198:
+						cur_char=AELIG;break;
+					case 201:
+						cur_char=EACCENT;break;
+					case 205:
+						cur_char=IACCENT;break;
+					case 209:
+						cur_char=ENYE;break;
+					case 211:
+						cur_char=OACCENT;break;
+					case 214:
+						cur_char=OUMLAUT;break;
+					case 216:
+						cur_char=OSLASH;break;
+					case 218:
+						cur_char=UACCENT;break;
+					case 220:
+						cur_char=UUMLAUT;break;
+					case 223:
+						cur_char=DOUBLES;break;
+					case 224:
+						cur_char=AGRAVE;break;
+					case 225:
+						cur_char=aACCENT;break;
+					case 226:
+						cur_char=ACIRC;break;
+					case 228:
+						cur_char=aUMLAUT;break;
+					case 229:
+						cur_char=aRING;break;
+					case 230:
+						cur_char=aELIG;break;
+					case 231:
+						cur_char=CCEDIL;break;
+					case 232:
+						cur_char=EGRAVE;break;
+					case 233:
+						cur_char=EACUTE;break;
+					case 234:
+						cur_char=ECIRC;break;
+					case 235:
+						cur_char=EUML;break;
+					case 236:
+					case 237:
+						cur_char=iACCENT;break;
+					case 239:
+						cur_char=IUML;break;
+					case 241:
+						cur_char=EnyE;break;
+					case 242:
+					case 243:
+						cur_char=oACCENT;break;
+					case 244:
+						cur_char=OCIRC;break;
+					case 246:
+						cur_char=oUMLAUT;break;
+					case 248:
+						cur_char=oSLASH;break;
+					case 249:
+						cur_char=uGRAVE;break;
+					case 250:
+						cur_char=uACCENT;break;
+					case 252:
+						cur_char=uUMLAUT;break;
+					default:
+						return -1;	//ignore it
+					}
 					if(cur_char>=SPECIALCHAR_LBOUND && cur_char<=SPECIALCHAR_UBOUND)
-						{
-							cur_char-=(SPECIALCHAR_LBOUND-127);
-						}
-					else if (cur_char>SPECIALCHAR_UBOUND && cur_char<=255)
-						{
-							 cur_char-=(SPECIALCHAR_LBOUND-127);
-						} 
-					else 
-						{ 
-							return -1;
-						}	
+					{
+						cur_char-=(SPECIALCHAR_LBOUND-127);
+					}
 				}
 		}
 

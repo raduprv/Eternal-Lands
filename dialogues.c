@@ -144,10 +144,17 @@ int	display_dialogue_handler(window_info *win)
 	if(cur_portrait!=-1)
 	{
 		//get the UV coordinates.
+#ifdef	NEW_TEXTURES
+		u_start = 0.25f * (cur_portrait % 4);
+		u_end = u_start + 0.25f;
+		v_start = 0.25f * (cur_portrait / 4);
+		v_end = v_start + 0.25f;
+#else	/* NEW_TEXTURES */
 		u_start=0.25f*(cur_portrait%4);
 		u_end=u_start+0.25f;
 		v_start=1.0f-(0.25f*(cur_portrait/4));
 		v_end=v_start-0.25f;
+#endif	/* NEW_TEXTURES */
 
 		//get the x and y
 		x_start=1;

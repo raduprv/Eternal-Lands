@@ -33,7 +33,11 @@ namespace ec
 			void remove_neighbor(const CloudParticle*const p);
 			void add_incoming_neighbor(CloudParticle*const p);
 			void remove_incoming_neighbor(const CloudParticle*const p);
+#ifdef	NEW_TEXTURES
+			virtual Uint32 get_texture();
+#else	/* NEW_TEXTURES */
 			virtual GLuint get_texture(const Uint16 res_index);
+#endif	/* NEW_TEXTURES */
 			virtual light_t estimate_light_level() const
 			{
 				return 0.0;

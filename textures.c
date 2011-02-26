@@ -39,7 +39,7 @@ Uint32 max_actor_texture_handles = 32;
 queue_t* actor_texture_queue = 0;
 Uint32 actor_texture_threads_done = 0;
 
-#define TEXTURE_CACHE_MAX 4096
+#define TEXTURE_CACHE_MAX 8192
 
 texture_cache_t* texture_handles = 0;
 cache_struct* texture_cache = 0;

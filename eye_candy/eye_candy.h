@@ -958,7 +958,11 @@ namespace ec
 			virtual ~Particle();
 
 			virtual bool idle(const Uint64 delta_t) = 0;
+#ifdef	NEW_TEXTURES
+			virtual Uint32 get_texture() = 0;
+#else	/* NEW_TEXTURES */
 			virtual GLuint get_texture(const Uint16 res_index) = 0;
+#endif	/* NEW_TEXTURES */
 			virtual light_t estimate_light_level() const = 0;
 			virtual light_t get_light_level()
 			{

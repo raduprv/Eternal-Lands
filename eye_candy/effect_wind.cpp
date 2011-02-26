@@ -328,6 +328,21 @@ namespace ec
 		return true;
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 WindParticle::get_texture() // Shouldn't be needed.  But just in case...
+	{
+		switch (type)
+		{
+			case WindEffect::LEAVES:
+				return base->TexFlare.get_texture();
+			case WindEffect::FLOWER_PETALS:
+				return base->TexCrystal.get_texture();
+			case WindEffect::SNOW:
+				return base->TexSimple.get_texture();
+		}
+		return 0; // Control should never reach here.
+	}
+#else	/* NEW_TEXTURES */
 	GLuint WindParticle::get_texture(const Uint16 res_index) // Shouldn't be needed.  But just in case...
 	{
 		switch (type)
@@ -341,6 +356,7 @@ namespace ec
 		}
 		return 0; // Control should never reach here.
 	}
+#endif	/* NEW_TEXTURES */
 
 	void WindParticle::draw(const Uint64 usec)
 	{
@@ -368,17 +384,29 @@ namespace ec
 				{
 					case 0: // Maple
 					{
+#ifdef	NEW_TEXTURES
+						texture = base->TexLeafMaple.get_texture();
+#else	/* NEW_TEXTURES */
 						texture = base->TexLeafMaple.get_texture(2);
+#endif	/* NEW_TEXTURES */
 						break;
 					}
 					case 1: // Oak
 					{
+#ifdef	NEW_TEXTURES
+						texture = base->TexLeafOak.get_texture();
+#else	/* NEW_TEXTURES */
 						texture = base->TexLeafOak.get_texture(2);
+#endif	/* NEW_TEXTURES */
 						break;
 					}
 					case 2: // Ash
 					{
+#ifdef	NEW_TEXTURES
+						texture = base->TexLeafAsh.get_texture();
+#else	/* NEW_TEXTURES */
 						texture = base->TexLeafAsh.get_texture(2);
+#endif	/* NEW_TEXTURES */
 						break;
 					}
 					default: // Should never reach.
@@ -391,12 +419,20 @@ namespace ec
 			}
 			case WindEffect::FLOWER_PETALS:
 			{
+#ifdef	NEW_TEXTURES
+				texture = base->TexPetal.get_texture();
+#else	/* NEW_TEXTURES */
 				texture = base->TexPetal.get_texture(2);
+#endif	/* NEW_TEXTURES */
 				break;
 			}
 			case WindEffect::SNOW:
 			{
+#ifdef	NEW_TEXTURES
+				texture = base->TexSnowflake.get_texture();
+#else	/* NEW_TEXTURES */
 				texture = base->TexSnowflake.get_texture(2);
+#endif	/* NEW_TEXTURES */
 				break;
 			}
 			default: // Should never reach.

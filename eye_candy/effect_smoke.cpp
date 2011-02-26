@@ -82,10 +82,17 @@ namespace ec
 		return true;
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 SmokeParticle::get_texture()
+	{
+		return base->TexSimple.get_texture();
+	}
+#else	/* NEW_TEXTURES */
 	GLuint SmokeParticle::get_texture(const Uint16 res_index)
 	{
 		return base->TexSimple.get_texture(res_index);
 	}
+#endif	/* NEW_TEXTURES */
 
 	SmokeEffect::SmokeEffect(EyeCandy* _base, bool* _dead, Vec3* _pos,
 		const color_t _hue_adjust, const color_t _saturation_adjust,
