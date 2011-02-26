@@ -34,18 +34,18 @@ void load_cursors()
 	Uint8 cur_color;
 	el_file_ptr file;
 
-	file = el_open("textures/cursors.dds");
+	file = el_open("textures/cursors.bmp");
 
 	if (file == NULL)
 	{
-		LOG_ERROR("%s: %s [%s]\n", reg_error_str, cursors_file_str, "textures/cursors.dds");
+		LOG_ERROR("%s: %s [%s]\n", reg_error_str, cursors_file_str, "textures/cursors.bmp");
 		return;
 	}
 
 	if ((cursors_mem_bmp = el_get_pointer(file)) == NULL)
 	{
 		el_close(file);
-		LOG_ERROR("%s: %s (read) [%s]\n", reg_error_str, cursors_file_str, "textures/cursors.dds");
+		LOG_ERROR("%s: %s (read) [%s]\n", reg_error_str, cursors_file_str, "textures/cursors.bmp");
 		return;
 	}
 
