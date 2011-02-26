@@ -257,10 +257,10 @@ void drag_item(int item, int storage, int mini)
 
 	cur_item_img=cur_item%25;
 #ifdef	NEW_TEXTURES
-	u_start = 0.1953125f * (cur_item % 5) + 0.001953125f;
-	u_end = u_start + 0.1953125f + 0.001953125f;
-	v_start = 0.1953125f * (cur_item / 5) + 0.001953125f;
-	v_end = v_start + 0.1953125f + 0.001953125f;
+	u_start = 0.1953125f * (cur_item_img % 5) + 0.001953125f;
+	u_end = u_start + 0.1953125f;
+	v_start = 0.1953125f * (cur_item_img / 5) + 0.001953125f;
+	v_end = v_start + 0.1953125f;
 #else	/* NEW_TEXTURES */
 	u_start=0.2f*(cur_item_img%5);
 	u_end=u_start+(float)50/256;
@@ -466,9 +466,9 @@ void draw_item(int id, int x_start, int y_start, int gridsize){
 	cur_item=id%25;
 #ifdef	NEW_TEXTURES
 	u_start = 0.1953125f * (cur_item % 5) + 0.001953125f;
-	u_end = u_start + 0.1953125f + 0.001953125f;
+	u_end = u_start + 0.1953125f;
 	v_start = 0.1953125f * (cur_item / 5) + 0.001953125f;
-	v_end = v_start + 0.1953125f + 0.001953125f;
+	v_end = v_start + 0.1953125f;
 #else	/* NEW_TEXTURES */
 	u_start=0.2f*(cur_item%5);
 	u_end=u_start+(float)50/256;

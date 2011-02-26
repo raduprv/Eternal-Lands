@@ -385,9 +385,9 @@ int display_storage_handler(window_info * win)
 		cur_item=storage_items[i].image_id%25;
 #ifdef	NEW_TEXTURES
 		u_start = 0.1953125f * (cur_item % 5) + 0.001953125f;
-		u_end = u_start + 0.1953125f + 0.001953125f;
+		u_end = u_start + 0.1953125f;
 		v_start = 0.1953125f * (cur_item / 5) + 0.001953125f;
-		v_end = v_start + 0.1953125f + 0.001953125f;
+		v_end = v_start + 0.1953125f;
 #else	/* NEW_TEXTURES */
 		u_start=0.2f*(cur_item%5);
 		u_end=u_start+(float)50/255;
