@@ -1097,13 +1097,13 @@ void draw_game_map (int map, int mouse_mini)
 		}
 		/* Draw border for the map with the mouse over it */
 		if(mouse_over >= 0) {
-			float flash_effect_offset = sin((float)SDL_GetTicks()/100.0f);
+			float flash_effect_colour = 0.90f - sin((float)SDL_GetTicks()/100.0f) / 10.0f;
 			int x_start = 300-(50+200*continent_maps[mouse_over].x_start/512);
 			int x_end = 300-(50+200*continent_maps[mouse_over].x_end/512);
 			int y_start = 200*continent_maps[mouse_over].y_start / 512;
 			int y_end = 200*continent_maps[mouse_over].y_end / 512;
 
-			glColor3f(0.90f - flash_effect_offset / 10.0f, 0.0f, 0.0f);
+			glColor3f(flash_effect_colour, flash_effect_colour, flash_effect_colour);
 			glVertex2i(x_start, y_start);
 			glVertex2i(x_start, y_end);
 
