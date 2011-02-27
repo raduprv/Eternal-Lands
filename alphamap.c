@@ -13,7 +13,7 @@ void draw_window_alphaborder(window_info *win) {
 
 	if (!alpha_border_tex) {
 #ifdef	NEW_TEXTURES
-		alpha_border_tex = load_texture_cached("textures/alphaborder", tt_gui);
+		alpha_border_tex = load_texture_cached("textures/alphaborder.dds", tt_image);
 #else	/* NEW_TEXTURES */
 		alpha_border_tex= load_texture_cache_deferred("textures/alphaborder.bmp", 0);
 #endif	/* NEW_TEXTURES */
@@ -99,12 +99,12 @@ void draw_window_alphaborder(window_info *win) {
 	glTexCoord2f(1.0f, 0.0f); glVertex2i(w- 8, h+16);
 
 	glTexCoord2f(0.5f, 0.5f); glVertex2i(w   , h   );
-	glTexCoord2f(0.5f, 0.0f); glVertex2i(w+ 8, h   );
+	glTexCoord2f(0.5f, 1.0f); glVertex2i(w+ 8, h   );
 	glTexCoord2f(1.0f, 1.0f); glVertex2i(w+ 8, h+16);
 	glTexCoord2f(1.0f, 0.5f); glVertex2i(w   , h+16);
 
 	glTexCoord2f(0.1f, 0.5f); glVertex2i(w   ,   16);
-	glTexCoord2f(0.1f, 0.0f); glVertex2i(w+ 8,   16);
+	glTexCoord2f(0.1f, 1.0f); glVertex2i(w+ 8,   16);
 	glTexCoord2f(0.5f, 1.0f); glVertex2i(w+ 8, h   );
 	glTexCoord2f(0.5f, 0.5f); glVertex2i(w   , h   );
 
