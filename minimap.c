@@ -412,6 +412,17 @@ static __inline__ void draw_map(window_info *win,float zoom_multip, float px, fl
 
 void draw_minimap_title_bar(window_info *win)
 {
+#ifdef	NEW_TEXTURES
+	float u_first_start= (float)31/255;
+	float u_first_end = 0.0f;
+	float v_first_start = (float)160/255;
+	float v_first_end = (float)175/255;
+
+	float u_last_start = 0.0f;
+	float u_last_end = (float)31/255;
+	float v_last_start = (float)160/255;
+	float v_last_end = (float)175/255;
+#else	/* NEW_TEXTURES */
 	float u_first_start= (float)31/255;
 	float u_first_end= 0;
 	float v_first_start= 1.0f-(float)160/255;
@@ -421,6 +432,7 @@ void draw_minimap_title_bar(window_info *win)
 	float u_last_end= (float)31/255;
 	float v_last_start= 1.0f-(float)160/255;
 	float v_last_end= 1.0f-(float)175/255;
+#endif	/* NEW_TEXTURES */
 
 	int close_button_x = win->len_x/2 + 32 - 1;
 
