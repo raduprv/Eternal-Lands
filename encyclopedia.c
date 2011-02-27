@@ -536,17 +536,22 @@ void ReadCategoryXML(xmlNode * a_node)
 				float ftsize;
 				xposupdate=1; yposupdate=1;
 				ParseSimage(cur_node->properties);
-				if(size==99)
-					size=99;
 
 				picsperrow=isize/tsize;
 				xtile=tid%picsperrow;
 				ytile=tid/picsperrow;
 				ftsize=(float)tsize/isize;
+#ifdef	NEW_TEXTURES
+				u = ftsize * xtile;
+				v = ftsize * ytile;
+				uend = u + ftsize;
+				vend = v + ftsize;
+#else	/* NEW_TEXTURES */
 				u=ftsize*xtile;
 				v=-ftsize*ytile;
 				uend=u+ftsize;
 				vend=v-ftsize;
+#endif	/* NEW_TEXTURES */
 				I->mouseover=mouseover;
 				mouseover=0;
 				
