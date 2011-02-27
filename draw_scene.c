@@ -42,6 +42,7 @@ int first_person = 0;
 float old_rx=-60;
 float old_rz=45;
 float old_zoom_level=3.0;
+float max_zoom_level=4.0f;
 
 float fine_camera_rotation_speed;
 float normal_camera_rotation_speed;
@@ -276,8 +277,8 @@ void clamp_camera(void)
 	} else if (rz < 0) {
 		rz += 360;
 	}
-	if(new_zoom_level > 4.0f){
-		new_zoom_level = 4.0f;
+	if(new_zoom_level > max_zoom_level){
+		new_zoom_level = max_zoom_level;
 		camera_zoom_duration = 0;
 	} else if(new_zoom_level < 0.5f) {
 		new_zoom_level = 0.5f;

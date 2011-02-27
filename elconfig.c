@@ -128,7 +128,7 @@ struct {
 int elconfig_menu_x= 10;
 int elconfig_menu_y= 10;
 int elconfig_menu_x_len= 720;
-int elconfig_menu_y_len= 480;
+int elconfig_menu_y_len= 490;
 
 int windows_on_top= 0;
 int options_set= 0;
@@ -1650,6 +1650,7 @@ void init_vars()
 	add_var(OPT_FLOAT,"normal_camera_rotation_speed","nrot",&normal_camera_rotation_speed,change_float,15,"Camera Rotation Speed","Set the speed the camera rotates",CONTROLS,1.0,FLT_MAX,0.5);
 	add_var(OPT_FLOAT,"fine_camera_rotation_speed","frot",&fine_camera_rotation_speed,change_float,1,"Fine Rotation Speed","Set the fine camera rotation speed (when holding shift+arrow key)",CONTROLS,1.0,FLT_MAX,0.5);
 	add_var(OPT_FLOAT,"normal_camera_deceleration","ncd",&normal_camera_deceleration,change_float,normal_camera_deceleration,"Camera Rotation Deceleration","Set the camera rotation deceleration",CONTROLS,0.01,1.0,0.01);
+	add_var(OPT_FLOAT,"max_zoom_level","maxzoomlevel",&max_zoom_level,change_float,max_zoom_level,"Maximum Camera Zoom Out","Sets the maxiumum value that the camera can zoom out",CONTROLS,4.0,8.0,0.5);
 #ifndef MAP_EDITOR2
 	add_var(OPT_FLOAT,"name_text_size","nsize",&name_zoom,change_float,1,"Name Text Size","Set the size of the players name text",FONT,0.0,2.0,0.01);
 #endif
@@ -1694,9 +1695,9 @@ void init_vars()
 	add_var(OPT_BOOL,"always_pathfinding", "alwayspathfinding", &always_pathfinding, change_var, 0, "Extend the range of the walk cursor", "Extends the range of the walk cursor to as far as you can see.  Using this option, movement may be slightly less responsive on larger maps.", CONTROLS);
 	add_var(OPT_BOOL,"disable_double_click", "disabledoubleclick", &disable_double_click, change_var, 0, "Disable double-click button safety", "Some buttons are protected from mis-click by requiring you to double-click them.  This option disables that protection.", CONTROLS);
 	add_var(OPT_BOOL,"achievements_ctrl_click", "achievementsctrlclick", &achievements_ctrl_click, change_var, 0, "Control click required to view achievements", "To view a players achievements, you click on them with the eye cursor.  With this option enabled, you must use Ctrl+click.", CONTROLS);
+	add_var(OPT_FLOAT,"minimap_scale", "minimapscale", &minimap_size_coefficient, change_minimap_scale, 0.7, "Minimap Scale", "Adjust the overall size of the minimap", CONTROLS, 0.5, 1.5, 0.1);
 	add_var(OPT_BOOL,"rotate_minimap","rotateminimap",&rotate_minimap,change_var,1,"Rotate Minimap","Toggle whether the minimap should rotate.",CONTROLS);
 	add_var(OPT_BOOL,"pin_minimap","pinminimap",&pin_minimap,change_var,0,"Pin Minimap","Toggle whether the minimap ignores close-all-windows.",CONTROLS);
-	add_var(OPT_FLOAT,"minimap_scale", "minimapscale", &minimap_size_coefficient, change_minimap_scale, 0.7, "Minimap Scale", "Adjust the overall size of the minimap", CONTROLS, 0.5, 1.5, 0.1);
 	add_var(OPT_BOOL,"view_analog_clock","analog",&view_analog_clock,change_var,1,"Analog Clock","Toggle the analog clock",HUD);
 	add_var(OPT_BOOL,"view_digital_clock","digit",&view_digital_clock,change_var,1,"Digital Clock","Toggle the digital clock",HUD);
 	add_var(OPT_BOOL,"show_game_seconds","show_game_seconds",&show_game_seconds,change_var,0,"Show Game Seconds","Show seconds on the digital clock. Note: the seconds displayed are computed on client side and synchronized with the server at each new minute.",HUD);

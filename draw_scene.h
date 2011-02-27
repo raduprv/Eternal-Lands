@@ -51,6 +51,7 @@ extern int camera_zoom_dir; /*!< direction of where the zoomed camera points to 
 extern int camera_zoom_duration;
 extern float camera_distance; /*!< The camera is camera_distance*zoom_level (world coordinates) away from your actor. */
 extern float new_zoom_level;
+extern float max_zoom_level;
 
 extern int reset_camera_at_next_update;
 
