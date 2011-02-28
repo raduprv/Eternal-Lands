@@ -219,8 +219,13 @@ int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, float display
 	//now get the texture coordinates
 	u_start= (float)(row*FONT_X_SPACING+ignored_bits)/256.0f;
 	u_end= (float)(row*FONT_X_SPACING+FONT_X_SPACING-7-ignored_bits)/256.0f;
+#ifdef NEW_TEXTURES
 	v_start= (float)(1+col*FONT_Y_SPACING)/256.0f;
 	v_end= (float)(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
+#else
+	v_start= (float)1.0f-(1+col*FONT_Y_SPACING)/256.0f;
+	v_end= (float)1.0f-(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
+#endif //NEW_TEXTURES
 
 	// and place the text from the graphics on the map
 	glTexCoord2f(u_start,v_start);
@@ -971,8 +976,13 @@ void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * ou
 					//now get the texture coordinates
 					u_start=(float)(row*font_x_size+ignored_bits)/256.0f;
 					u_end=(float)(row*font_x_size+font_x_size-7-ignored_bits)/256.0f;
+#ifdef NEW_TEXTURES
 					v_start=(float)(1+col*font_y_size)/256.0f;
 					v_end=(float)(col*font_y_size+font_y_size-1)/256.0f;
+#else
+					v_start=(float)1.0f-(1+col*font_y_size)/256.0f;
+					v_end=(float)1.0f-(col*font_y_size+font_y_size-1)/256.0f;
+#endif //NEW_TEXTURES
 					//v_end=(float)1.0f-(col*font_y_size+font_y_size-2)/256.0f;
 
 					glTexCoord2f(u_start,v_start);
@@ -1027,8 +1037,13 @@ void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * ou
 			//now get the texture coordinates
 			u_start=(float)(row*FONT_X_SPACING+ignored_bits)/256.0f;
 			u_end=(float)(row*FONT_X_SPACING+FONT_X_SPACING-7-ignored_bits)/256.0f;
+#ifdef NEW_TEXTURES
 			v_start=(float)(1+col*FONT_Y_SPACING)/256.0f;
 			v_end=(float)(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
+#else
+			v_start=(float)1.0f-(1+col*FONT_Y_SPACING)/256.0f;
+			v_end=(float)1.0f-(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
+#endif //NEW_TEXTURES
 
 			glTexCoord2f(u_start,v_start);
 			glVertex3f(cur_x,cur_y+displayed_font_y_size,z);
@@ -1153,8 +1168,13 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 					//now get the texture coordinates
 					u_start=(float)(row*FONT_X_SPACING+ignored_bits)/256.0f;
 					u_end=(float)(row*FONT_X_SPACING+FONT_X_SPACING-7-ignored_bits)/256.0f;
+#ifdef NEW_TEXTURES
 					v_start=(float)(1+col*FONT_Y_SPACING)/256.0f;
 					v_end=(float)(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
+#else
+					v_start=(float)1.0f-(1+col*FONT_Y_SPACING)/256.0f;
+					v_end=(float)1.0f-(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
+#endif //NEW_TEXTURES
 
 					glTexCoord2f(u_start,v_start);
 					glVertex3f(cur_x,0,cur_y+displayed_font_y_size);
@@ -1207,8 +1227,13 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 			//now get the texture coordinates
 			u_start=(float)(row*FONT_X_SPACING+ignored_bits)/256.0f;
 			u_end=(float)(row*FONT_X_SPACING+FONT_X_SPACING-7-ignored_bits)/256.0f;
+#ifdef NEW_TEXTURES
 			v_start=(float)(1+col*FONT_Y_SPACING)/256.0f;
 			v_end=(float)(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
+#else
+			v_start=(float)1.0f-(1+col*FONT_Y_SPACING)/256.0f;
+			v_end=(float)1.0f-(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
+#endif // NEW_TEXTURES
 
 			glTexCoord2f(u_start,v_start);
 			glVertex3f(cur_x,cur_y+displayed_font_y_size,0);
