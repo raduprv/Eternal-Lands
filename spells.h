@@ -30,17 +30,6 @@ typedef enum {
 } spell_errors;
 /*! @} */
 
-typedef struct {
-	char spell_name[60];//The spell_name
-	Sint8 spell_image;//image_id
-	Sint8 spell_id;
-	Uint8 spell_str[30];
-	//to be difficult, we will store the entire string ready
-	//to be sent to the server, including CAST_SPELL and len bytes, len will be byte 2
-} mqbdata;
-
-extern mqbdata * mqb_data[7];/*mqb_data holds a spell name, the image and spell ID as well as the data that's being send to the server.*/
-extern int spell_temp,spell_dragged;
 
 /*!
  * \name windows handlers
@@ -178,6 +167,14 @@ void process_network_spell (const char * data, int len);
  * \param len the length of the spell message
  */
 void send_spell(Uint8 *str, int len);
+
+/*!
+ * \ingroup other
+ * \brief Check if a keypress is a quick spell
+ *
+ * 	returns 1 if it is a quickspell, otherwise 0.
+ *
+ */int action_spell_keys(Uint32 key);
 
 void load_quickspells();
 void save_quickspells();

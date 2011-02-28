@@ -25,7 +25,6 @@
 #define SIGILS_NO 64
 #define	NUM_SIGILS_LINE	12	// how many sigils per line displayed
 #define	NUM_SIGILS_ROW	3	// how many rows of sigils are there?
-#define MAX_DATA_FILE_SIZE 560
 #define SIGILS_NO 64
 #define SPELLS_NO 32
 #define GROUPS_NO 8
@@ -129,17 +128,21 @@ int spell_mini_x_len=0;
 int spell_mini_y_len=0;
 int spell_mini_rows=0;
 
+typedef struct {
+	char spell_name[60];//The spell_name
+	Sint8 spell_image;//image_id
+	Sint8 spell_id;
+	Uint8 spell_str[30];
+	//to be difficult, we will store the entire string ready
+	//to be sent to the server, including CAST_SPELL and len bytes, len will be byte 2
+} mqbdata;
 
 //QUICKSPELLS
 int clear_mouseover=0;
 int cast_mouseover=0;
-mqbdata * mqb_data[7]={NULL};//mqb_data will hold the magic quickbar name, image, pos.
-int quickspells=6;
+mqbdata * mqb_data[MAX_QUICKBAR_SLOTS+1]={NULL};//mqb_data will hold the magic quickbar name, image, pos.
 int quickspell_size=20;//size of displayed icons in pixels
-int quickspell_columns=1;
-int quickspell_rows=6;
 int quickspell_x_len=26;
-int quickspell_y_len=6*30;
 int quickspell_x=60;
 int quickspell_y=64;
 int quickspells_loaded = 0;
@@ -1173,7 +1176,7 @@ int have_spell_name(int spell_id)
 {
 	int i;
 
-	for(i=1;i<7;i++){
+	for(i=1;i<MAX_QUICKBAR_SLOTS+1;i++){
 		if(mqb_data[i] && mqb_data[i]->spell_id==spell_id && mqb_data[i]->spell_name[0]){
 			if(mqb_data[0])
 				safe_snprintf(mqb_data[0]->spell_name, sizeof(mqb_data[0]->spell_name), "%s", mqb_data[i]->spell_name);
@@ -1192,7 +1195,7 @@ void set_spell_name (int id, const char *data, int len)
 
 	counters_set_spell_name(id, (char *)data, len);
 
-	for (i = 0; i < 7; i++)
+	for (i = 0; i < MAX_QUICKBAR_SLOTS+1; i++)
 	{
 		if (mqb_data[i] != NULL && mqb_data[i]->spell_id==id)
 		{
@@ -1268,13 +1271,13 @@ void add_spell_to_quickbar()
 	if(!mqb_data[0])
 		return;
 
-	for(i=1;i<7;i++) {
+	for(i=1;i<num_quickbar_slots+1;i++) {
 		if(mqb_data[i] && mqb_data[0]->spell_id==mqb_data[i]->spell_id) {
 			return;
 		}
 	}
 
-	for (i = 1; i < 7; i++)
+	for (i = 1; i < num_quickbar_slots+1; i++)
 	{
 		if (mqb_data[i] == NULL)
 		{
@@ -1284,9 +1287,9 @@ void add_spell_to_quickbar()
 		}
 	}
 
-	if (i >= 7)
+	if (i >= num_quickbar_slots+1)
 		// No free slot, overwrite the last entry
-		i = 6;
+		i = num_quickbar_slots;
 
 	memcpy (mqb_data[i], mqb_data[0], sizeof (mqbdata));
 	save_quickspells();
@@ -1297,7 +1300,7 @@ void remove_spell_from_quickbar (int pos)
 {
 	int i;
 
-	if (pos < 1 || pos > 6 || mqb_data[pos] == NULL) {
+	if (pos < 1 || pos > num_quickbar_slots || mqb_data[pos] == NULL) {
 		return;
 	}
 
@@ -1305,10 +1308,10 @@ void remove_spell_from_quickbar (int pos)
 	free (mqb_data[pos]);
 
 	// move the other spells one up
-	for (i = pos; i < 6; i++) {
+	for (i = pos; i < MAX_QUICKBAR_SLOTS; i++) {
 		mqb_data[i] = mqb_data[i+1];
 	}
-	mqb_data[6] = NULL;
+	mqb_data[MAX_QUICKBAR_SLOTS] = NULL;
 	save_quickspells();
 	cm_update_quickspells();
 }
@@ -1318,8 +1321,8 @@ void move_spell_on_quickbar (int pos, int direction)
 {
 	int i=pos;
 	mqbdata * mqb_temp;
-	if (pos < 1 || pos > 6 || mqb_data[pos] == NULL) return;
-	if ((pos ==1 && direction==0)||(pos==6 && direction==1)) return;
+	if (pos < 1 || pos > num_quickbar_slots || mqb_data[pos] == NULL) return;
+	if ((pos ==1 && direction==0)||(pos==num_quickbar_slots && direction==1)) return;
 	if (direction==0){
 		mqb_temp=mqb_data[i-1];
 		mqb_data[i-1]=mqb_data[i]; //move it up
@@ -1340,7 +1343,7 @@ void move_spell_on_quickbar (int pos, int direction)
 void load_quickspells ()
 {
 	char fname[128];
-	char data[MAX_DATA_FILE_SIZE];
+	Uint8 num_spells;
 	FILE *fp;
 	Uint8 i;
 
@@ -1350,7 +1353,7 @@ void load_quickspells ()
 	// succeeds)
 	quickspells_loaded = 1;
 
-	//write to the data file, to ensure data integrity, we will write all the information
+	//open the data file
 	safe_snprintf(fname, sizeof(fname), "spells_%s.dat",username_str);
 	my_tolower(fname);
 	fp = open_file_config(fname,"rb");
@@ -1359,20 +1362,21 @@ void load_quickspells ()
 		return;
 	}
 
-	if (fread (data, sizeof(*data), sizeof(data), fp) != sizeof(data))
+	if (fread (&num_spells, sizeof(num_spells), 1, fp) != 1)
 	{
 		LOG_ERROR("%s() read failed for [%s] \n", __FUNCTION__, fname);
 		fclose (fp);
 		return;
 	}
-	fclose (fp);
 
 	memset (mqb_data, 0, sizeof (mqb_data));
-	for (i = 1; i < (int)data[0]; i++)
+	for (i = 1; i < num_spells; i++)
 	{
 		mqb_data[i] = (mqbdata*) calloc (1, sizeof(mqbdata));
-		memcpy (mqb_data[i], data+1+(i-1)*sizeof(mqbdata), sizeof(mqbdata));
+		if (fread (mqb_data[i], sizeof(mqbdata), 1, fp) != 1)
+			break;
 	}
+	fclose (fp);
 
 	cm_update_quickspells();
 }
@@ -1382,7 +1386,6 @@ void save_quickspells()
 	char fname[128];
 	FILE *fp;
 	Uint8 i;
-	char data[MAX_DATA_FILE_SIZE];
 
 	if (!quickspells_loaded)
 		return;
@@ -1396,18 +1399,20 @@ void save_quickspells()
 		return;
 	}
 
-	/* initialise buffer so we don't write uninitalised data to buffer */
-	memset(data, 0, sizeof(data));
-
-	for (i = 1; i < 7; i++)
+	for (i = 1; i < MAX_QUICKBAR_SLOTS+1; i++)
 	{
 		if (mqb_data[i] == NULL)
 			break;
-		memcpy (data+1+(i-1)*sizeof(mqbdata), mqb_data[i], sizeof(mqbdata));
 	}
-	data[0] = i;
+	// write the number of spells + 1
+	fwrite(&i, sizeof(i), 1, fp);
 
-	fwrite(data, sizeof(*data), sizeof(data), fp);
+	for (i = 1; i < MAX_QUICKBAR_SLOTS+1; i++)
+	{
+		if (mqb_data[i] == NULL)
+			break;
+		fwrite(mqb_data[i], sizeof(mqbdata), 1, fp);
+	}
 
 	fclose(fp);
 }
@@ -1416,19 +1421,24 @@ void save_quickspells()
 
 int quickspell_over=-1;
 
+// get the quickbar length - it depends on the numbe rof slots active
+int get_quickspell_y_len(void)
+{
+	return num_quickbar_slots*30;
+}
 
 /*	returns the y coord position of the active base
 	of the quickspell window.  If spell slots are unused
 	the base is higher */
 int get_quickspell_y_base()
 {
-	int active_len = quickspell_y + quickspell_y_len;
+	int active_len = quickspell_y + get_quickspell_y_len();
 	int i;
 
 	if (!quickspells_loaded)
 		return quickspell_y;
 
-	for (i = 6; i > 0; i--)
+	for (i = num_quickbar_slots; i > 0; i--)
 	{
 		if (mqb_data[i] == NULL)
 			active_len -= 30;
@@ -1442,6 +1452,17 @@ int get_quickspell_y_base()
 int display_quickspell_handler(window_info *win)
 {
 	int x,y,width,i;
+	static int last_num_quickbar_slots = -1;
+
+	// Check for a change of the number of quickbar slots
+	if (last_num_quickbar_slots == -1)
+		last_num_quickbar_slots = num_quickbar_slots;
+	else if (last_num_quickbar_slots != num_quickbar_slots)
+	{
+		last_num_quickbar_slots = num_quickbar_slots;
+		init_window(win->window_id, -1, 0, win->cur_x, win->cur_y, win->len_x, get_quickspell_y_len());
+		cm_update_quickspells();
+	}
 
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -1452,7 +1473,7 @@ CHECK_GL_ERRORS();
 	glEnable(GL_BLEND);	// Turn Blending On
 	glBlendFunc(GL_SRC_ALPHA,GL_DST_ALPHA);
 
-	for(i=1;i<7;i++) {
+	for(i=1;i<num_quickbar_slots+1;i++) {
 		if(mqb_data[i] && mqb_data[i]->spell_name[0]){
 			x=quickspell_size/2;
 			y=(i-1)*30+15;
@@ -1487,7 +1508,7 @@ int mouseover_quickspell_handler(window_info *win, int mx, int my)
 	int pos;
 
 	pos=my/30+1;
-	if(pos<7 && pos>=1 && mqb_data[pos] && mqb_data[pos]->spell_name[0]) {
+	if(pos<num_quickbar_slots+1 && pos>=1 && mqb_data[pos] && mqb_data[pos]->spell_name[0]) {
 		quickspell_over=pos;
 		elwin_mouse=CURSOR_WAND;
 		return 1;
@@ -1501,7 +1522,7 @@ int click_quickspell_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	pos=my/30+1;
 
-	if(pos<7 && pos>=1 && mqb_data[pos])
+	if(pos<num_quickbar_slots+1 && pos>=1 && mqb_data[pos])
 	{
 		if ((flags & ELW_LEFT_MOUSE)&&(flags & ELW_SHIFT))
 		{
@@ -1530,7 +1551,7 @@ int click_quickspell_handler(window_info *win, int mx, int my, Uint32 flags)
 static int context_quickspell_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
 	int pos=my/30+1;
-	if(pos<7 && pos>=1 && mqb_data[pos])
+	if(pos<num_quickbar_slots+1 && pos>=1 && mqb_data[pos])
 	{
 		switch (option)
 		{
@@ -1547,7 +1568,7 @@ void cm_update_quickspells(void)
 	int active_y_len = 0, i;
 	if (quickspell_win < 0)
 		return;
-	for (i = 6; i > 0; i--)
+	for (i = num_quickbar_slots; i > 0; i--)
 	{
 		if (mqb_data[i] != NULL)
 			active_y_len += 30;
@@ -1559,7 +1580,7 @@ void cm_update_quickspells(void)
 void init_quickspell()
 {
 	if (quickspell_win < 0){
-		quickspell_win = create_window ("Quickspell", -1, 0, window_width - quickspell_x, quickspell_y, quickspell_x_len, quickspell_y_len, ELW_CLICK_TRANSPARENT|ELW_TITLE_NONE|ELW_SHOW_LAST);
+		quickspell_win = create_window ("Quickspell", -1, 0, window_width - quickspell_x, quickspell_y, quickspell_x_len, get_quickspell_y_len(), ELW_CLICK_TRANSPARENT|ELW_TITLE_NONE|ELW_SHOW_LAST);
 		set_window_handler(quickspell_win, ELW_HANDLER_DISPLAY, &display_quickspell_handler);
 		set_window_handler(quickspell_win, ELW_HANDLER_CLICK, &click_quickspell_handler);
 		set_window_handler(quickspell_win, ELW_HANDLER_MOUSEOVER, &mouseover_quickspell_handler );
@@ -1595,6 +1616,20 @@ void send_spell(Uint8 *str, int len)
 	last_spell_len = len;
 }
 
+int action_spell_keys(Uint32 key)
+{
+	size_t i;
+	Uint32 keys[] = {K_SPELL1, K_SPELL2, K_SPELL3, K_SPELL4, K_SPELL5, K_SPELL6,
+					 K_SPELL7, K_SPELL8, K_SPELL9, K_SPELL10, K_SPELL11, K_SPELL12 };
+	for (i=0; i<sizeof(keys)/sizeof(Uint32); i++)
+		if(key == keys[i])
+		{
+			if(mqb_data[i+1] && mqb_data[i+1]->spell_str[0])
+				send_spell(mqb_data[i+1]->spell_str, mqb_data[i+1]->spell_str[1]+2);
+			return 1;
+		}
+	return 0;
+}
 
 int prepare_for_cast(){
 	Uint8 str[20];

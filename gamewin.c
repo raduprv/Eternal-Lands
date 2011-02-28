@@ -1700,66 +1700,12 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
         }
 	}
 #endif // DEBUG
-	// use quickbar items
-	else if (key == K_ITEM1)
+	// use quickbar items & spells
+	else if (action_item_keys(key))
 	{
-		quick_use (0);
 	}
-	else if (key == K_ITEM2)
+	else if (action_spell_keys(key))
 	{
-		quick_use (1);
-	}
-	else if (key == K_ITEM3)
-	{
-		quick_use (2);
-	}
-	else if (key == K_ITEM4)
-	{
-		quick_use (3);
-	}
-	else if (key == K_ITEM5)
-	{
-		quick_use (4);
-	}
-	else if (key == K_ITEM6)
-	{
-		quick_use(5);
-	}
-	else if (key == K_SPELL1)
-	{
-		if(mqb_data[1] && mqb_data[1]->spell_str[0]) {
-			my_tcp_send(my_socket, mqb_data[1]->spell_str, 13);
-		}
-	}
-	else if (key == K_SPELL2)
-	{
-		if(mqb_data[2] && mqb_data[2]->spell_str[0]) {
-			my_tcp_send(my_socket, mqb_data[2]->spell_str, 13);
-		}
-	}
-	else if (key == K_SPELL3)
-	{
-		if(mqb_data[3] && mqb_data[3]->spell_str[0]) {
-			my_tcp_send(my_socket, mqb_data[3]->spell_str, 13);
-		}
-	}
-	else if (key == K_SPELL4)
-	{
-		if(mqb_data[4] && mqb_data[4]->spell_str[0]) {
-			my_tcp_send(my_socket, mqb_data[4]->spell_str, 13);
-		}
-	}
-	else if (key == K_SPELL5)
-	{
-		if(mqb_data[5] && mqb_data[5]->spell_str[0]) {
-			my_tcp_send(my_socket, mqb_data[5]->spell_str, 13);
-		}
-	}
-	else if (key == K_SPELL6)
-	{
-		if(mqb_data[6] && mqb_data[6]->spell_str[0]) {
-			my_tcp_send(my_socket, mqb_data[6]->spell_str, 13);
-		}
 	}
 	// Okay, let's move, even when in console or map mode
 	else if (key == K_TURNLEFT)

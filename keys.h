@@ -99,6 +99,12 @@ extern Uint32 K_ITEM3;
 extern Uint32 K_ITEM4;
 extern Uint32 K_ITEM5;
 extern Uint32 K_ITEM6;
+extern Uint32 K_ITEM7;
+extern Uint32 K_ITEM8;
+extern Uint32 K_ITEM9;
+extern Uint32 K_ITEM10;
+extern Uint32 K_ITEM11;
+extern Uint32 K_ITEM12;
 /*! @} */
 
 /*! \name Magic quickbar access keys */
@@ -109,6 +115,12 @@ extern Uint32 K_SPELL3;
 extern Uint32 K_SPELL4;
 extern Uint32 K_SPELL5;
 extern Uint32 K_SPELL6;
+extern Uint32 K_SPELL7;
+extern Uint32 K_SPELL8;
+extern Uint32 K_SPELL9;
+extern Uint32 K_SPELL10;
+extern Uint32 K_SPELL11;
+extern Uint32 K_SPELL12;
 /*! @} */
 
 /*!

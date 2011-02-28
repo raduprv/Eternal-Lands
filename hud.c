@@ -10,6 +10,7 @@
 #include "draw_scene.h"
 #include "elconfig.h"
 #include "elwindows.h"
+#include "events.h"
 #include "gamewin.h"
 #include "gl_init.h"
 #include "global.h"
@@ -39,16 +40,6 @@
 #include "url.h"
 #include "emotes.h"
 
-/* NOTE: This file contains implementations of the following, currently unused, and commented functions:
- *          Look at the end of the file.
- *
- * int check_peace_icons();
- * int translate_win_id(int*);
- * int check_stats_display();
- * int check_misc_display();
- * void draw_quickbar();
- * void check_quickbar();
- */
 
 #define WALK 0
 #define SIT 1
@@ -1641,6 +1632,14 @@ CHECK_GL_ERRORS();
 		int y = calc_statbar_start_y(base_y_start, win->len_y);
 		int skill_modifier;
 
+		// trade the number of quickbar slots if there is not enough space
+		while ((num_disp_stat < 5) && (num_quickbar_slots > 1))
+		{
+			num_quickbar_slots--;
+			set_var_OPT_INT("num_quickbar_slots", num_quickbar_slots);
+			y = calc_statbar_start_y(base_y_start, win->len_y);
+		}
+
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -1655,7 +1654,7 @@ CHECK_GL_ERRORS();
 			if (thestat > (first_disp_stat+num_disp_stat-1))
 				break;
 		
-			if (show_statbars_in_hud)		//AWNAGE
+			if (show_statbars_in_hud)
 				draw_side_stats_bar( x-2, y+1, statsinfo[thestat].skillattr->base,
 					*statsinfo[thestat].exp, *statsinfo[thestat].next_lev);
 		
@@ -1790,28 +1789,49 @@ int mouseover_misc_handler(window_info *win, int mx, int my)
 
 /* #define as these numbers are used many times */
 #define DEF_QUICKBAR_X_LEN 30
-#define DEF_QUICKBAR_Y_LEN (6*30+1)
 #define DEF_QUICKBAR_X (DEF_QUICKBAR_X_LEN+4)
 #define DEF_QUICKBAR_Y 64
 
 int quickbar_x_len = DEF_QUICKBAR_X_LEN;
-int quickbar_y_len = DEF_QUICKBAR_Y_LEN;
 int quickbar_x = DEF_QUICKBAR_X;
 int quickbar_y = DEF_QUICKBAR_Y;
 int quickbar_draggable=0;
 int quickbar_dir=VERTICAL;
 int quickbar_relocatable=0;
+int num_quickbar_slots = 6;
+
+// return the window y len based on the number of slots
+int get_quickbar_y_len(void)
+{
+	return num_quickbar_slots * 30 + 1;
+}
+
+// check if key is one of the item keys and use it if so.
+int action_item_keys(Uint32 key)
+{
+	size_t i;
+	Uint32 keys[] = {K_ITEM1, K_ITEM2, K_ITEM3, K_ITEM4, K_ITEM5, K_ITEM6,
+					 K_ITEM7, K_ITEM8, K_ITEM9, K_ITEM10, K_ITEM11, K_ITEM12 };
+	for (i=0; i<sizeof(keys)/sizeof(Uint32); i++)
+		if(key == keys[i])
+		{
+			quick_use (i);
+			return 1;
+		}
+	return 0;
+}
+
 
 /* get the base y coord of the quick bar if its in 
    it's default place, otherwise return where the top would be */
 int get_quickbar_y_base()
 {
 	if ((quickbar_draggable) || (quickbar_dir!=VERTICAL) ||
-		(quickbar_x_len != DEF_QUICKBAR_X_LEN) || (quickbar_y_len != DEF_QUICKBAR_Y_LEN) ||
+		(quickbar_x_len != DEF_QUICKBAR_X_LEN) || 
 		(quickbar_x != DEF_QUICKBAR_X) || (quickbar_y != DEF_QUICKBAR_Y))
 		return DEF_QUICKBAR_Y;
 	else
-		return DEF_QUICKBAR_Y + DEF_QUICKBAR_Y_LEN;
+		return DEF_QUICKBAR_Y + get_quickbar_y_len();
 }
 
 //quickbar section
@@ -1820,7 +1840,6 @@ void init_quickbar ()
 	Uint32 flags = ELW_USE_BACKGROUND | ELW_USE_BORDER;
 	
 	quickbar_x_len = DEF_QUICKBAR_X_LEN;
-	quickbar_y_len = DEF_QUICKBAR_Y_LEN;
 	
 	if (!quickbar_relocatable)
 	{
@@ -1832,9 +1851,9 @@ void init_quickbar ()
 	if (quickbar_win < 0)
 	{
 		if (quickbar_dir == VERTICAL)
-			quickbar_win = create_window ("Quickbar", -1, 0, window_width - quickbar_x, quickbar_y, quickbar_x_len, quickbar_y_len, flags);
+			quickbar_win = create_window ("Quickbar", -1, 0, window_width - quickbar_x, quickbar_y, quickbar_x_len, get_quickbar_y_len(), flags);
 		else
-			quickbar_win = create_window ("Quickbar", -1, 0, window_width - quickbar_x, quickbar_y, quickbar_y_len, quickbar_x_len, flags);
+			quickbar_win = create_window ("Quickbar", -1, 0, window_width - quickbar_x, quickbar_y, get_quickbar_y_len(), quickbar_x_len, flags);
 		
 		set_window_handler(quickbar_win, ELW_HANDLER_DISPLAY, &display_quickbar_handler);
 		set_window_handler(quickbar_win, ELW_HANDLER_CLICK, &click_quickbar_handler);
@@ -1865,14 +1884,27 @@ void init_quickbar ()
 
 int	display_quickbar_handler(window_info *win)
 {
+	static int last_num_quickbar_slots = -1;
 	char str[80];
 	int y, i;
 	Uint32 _cur_time = SDL_GetTicks(); /* grab a snapshot of current time */
 
+	// check if the number of slots has changes and adjust if needed
+	if (last_num_quickbar_slots == -1)
+		last_num_quickbar_slots = num_quickbar_slots;
+	else if (last_num_quickbar_slots != num_quickbar_slots)
+	{
+		last_num_quickbar_slots = num_quickbar_slots;
+		if (quickbar_dir==VERTICAL) 
+			init_window(win->window_id, -1, 0, win->cur_x, win->cur_y, quickbar_x_len, get_quickbar_y_len());
+		else
+			init_window(win->window_id, -1, 0, win->cur_x, win->cur_y, get_quickbar_y_len(), quickbar_x_len);
+	}
+
 	glEnable(GL_TEXTURE_2D);
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
-	for(i=0;i<6;i++)
+	for(i=0;i<num_quickbar_slots;i++)
 	{
 		if(item_list[i].quantity > 0)
 		{
@@ -1899,7 +1931,7 @@ int	display_quickbar_handler(window_info *win)
 					
 			x_start= 2;
 			x_end= x_start+27;
-			y_start= 30*(cur_pos%6)+2;
+			y_start= 30*(cur_pos%num_quickbar_slots)+2;
 			y_end= y_start+27;
 
 			if(quickbar_dir != VERTICAL)
@@ -1988,7 +2020,7 @@ int	display_quickbar_handler(window_info *win)
 	//draw the grid
 	if(quickbar_dir==VERTICAL)
 		{
-			for(y=1;y<6;y++)
+			for(y=1;y<num_quickbar_slots;y++)
 				{
 					glVertex3i(0, y*30+1, 0);
 					glVertex3i(quickbar_x_len, y*30+1, 0);
@@ -1996,7 +2028,7 @@ int	display_quickbar_handler(window_info *win)
 		}
 	else
 		{
-			for(y=1;y<6;y++)
+			for(y=1;y<num_quickbar_slots;y++)
 				{
 					glVertex3i(y*30+1, 0, 0);
 					glVertex3i(y*30+1, quickbar_x_len, 0);
@@ -2016,7 +2048,7 @@ int last_type=0;
 int mouseover_quickbar_handler(window_info *win, int mx, int my) {
 	int y,i=0;
 	int x_screen,y_screen;
-	for(y=0;y<6;y++)
+	for(y=0;y<num_quickbar_slots;y++)
 		{
 			if(quickbar_dir==VERTICAL)
 				{
@@ -2093,7 +2125,7 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	// no in window check needed, already done
 	//see if we clicked on any item in the main category
-	for(y=0;y<6;y++)
+	for(y=0;y<num_quickbar_slots;y++)
 		{
 			if(quickbar_dir==VERTICAL)
 				{
@@ -2128,7 +2160,7 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 						                  item_dragged = -1;
 						                  return 1;
 						        }
-						   	for(i=0;i<6;i++)
+						   	for(i=0;i<num_quickbar_slots;i++)
 								{
 									if(item_list[i].quantity && item_list[i].pos==y)
 										{
@@ -2174,7 +2206,7 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 								}
 						}
 					//see if there is any item there
-					for(i=0;i<6;i++)
+					for(i=0;i<num_quickbar_slots;i++)
 						{
 							//should we get the info for it?
 							if(item_list[i].quantity && item_list[i].pos==y)
@@ -2273,12 +2305,12 @@ void flip_quickbar()
 	if (quickbar_dir==VERTICAL) 
 		{
 			quickbar_dir=HORIZONTAL;
-			init_window(quickbar_win, -1, 0, windows_list.window[quickbar_win].cur_x, windows_list.window[quickbar_win].cur_y, quickbar_y_len, quickbar_x_len);
+			init_window(quickbar_win, -1, 0, windows_list.window[quickbar_win].cur_x, windows_list.window[quickbar_win].cur_y, get_quickbar_y_len(), quickbar_x_len);
 		}      
 	else if (quickbar_dir==HORIZONTAL) 
 		{
 			quickbar_dir=VERTICAL;
-			init_window(quickbar_win, -1, 0, windows_list.window[quickbar_win].cur_x, windows_list.window[quickbar_win].cur_y, quickbar_x_len, quickbar_y_len);
+			init_window(quickbar_win, -1, 0, windows_list.window[quickbar_win].cur_x, windows_list.window[quickbar_win].cur_y, quickbar_x_len, get_quickbar_y_len());
 		}
 }
 
@@ -2288,13 +2320,12 @@ void reset_quickbar()
 {
 	//Necessary Variables
 	quickbar_x_len= DEF_QUICKBAR_X_LEN;
-	quickbar_y_len= DEF_QUICKBAR_Y_LEN;
 	quickbar_x= DEF_QUICKBAR_X;
 	quickbar_y= DEF_QUICKBAR_Y;
 	//Re-set to default orientation
 	quickbar_dir=VERTICAL;
 	quickbar_draggable=0;
-	init_window(quickbar_win, -1, 0, quickbar_x, quickbar_y, quickbar_x_len, quickbar_y_len);
+	init_window(quickbar_win, -1, 0, quickbar_x, quickbar_y, quickbar_x_len, get_quickbar_y_len());
 	//Re-set  Flags
 	change_flags(quickbar_win, ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST);   
 	//NEED x_offset
@@ -2460,50 +2491,3 @@ Uint32 get_flags(int win_id) {
 	return windows_list.window[win_id].flags;
 }
 
-/* currently UNUSED
-int check_peace_icons()
-{
-    return(click_in_window(icons_win, mouse_x, mouse_y, 0));
-}
-
-int translate_win_id(int * win_id)
-{
-	int i=0;
-	for(;i<icons_no;i++)
-		{
-			if(icon_list[i]->data_type==DATA_WINDOW)
-				{
-					if(icon_list[i]->data==win_id) return i;
-				}
-		}
-	return -1;
-}
-
-int check_stats_display()
-{
-	return 0;
-}
-
-int check_misc_display()
-{
-	return(click_in_window(misc_win, mouse_x, mouse_y, 0));
-}
-
-void draw_quickbar() {
-	// failsafe until better integrated
-	if(quickbar_dir==VERTICAL) {
-		init_window(quickbar_win, -1, 0, window_width-quickbar_x, quickbar_y, quickbar_x_len, quickbar_y_len);
-		if(quickbar_draggable) change_flags(quickbar_win, (ELW_TITLE_BAR|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST|ELW_DRAGGABLE));
-	}
-	else if(quickbar_dir==HORIZONTAL) {
-		init_window(quickbar_win, -1, 0, window_width-quickbar_x, quickbar_y, quickbar_y_len, quickbar_x_len);
-		if(quickbar_draggable) change_flags(quickbar_win, (ELW_TITLE_BAR|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST|ELW_DRAGGABLE));
-
-	} 
-	show_window(quickbar_win);
-}
-
-int check_quickbar() {
-	return(click_in_window(quickbar_win, mouse_x, mouse_y, 0));
-}
-*/

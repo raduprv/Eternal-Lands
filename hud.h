@@ -21,6 +21,13 @@ extern "C" {
 /*! @} */
 
 /*!
+ * \name Quickbar defines
+ */
+/*! @{ */
+#define MAX_QUICKBAR_SLOTS 12
+/*! @} */
+
+/*!
  * structure to store the data and event handlers for an icon
  */
 typedef struct
@@ -89,10 +96,19 @@ extern int quickbar_x;
 extern int quickbar_y;
 extern int quickbar_dir;
 extern int quickbar_draggable;
+extern int num_quickbar_slots;
 
 extern int copy_next_LOCATE_ME;
 
 // the main hud handling
+
+/*!
+ * \ingroup other
+ * \brief Checks if the keypress is an item use
+ *
+ *	returns 1 if the key is a item keypress, otherwise 0.
+ */
+int action_item_keys(Uint32 key);
 
 /*!
  * \ingroup other

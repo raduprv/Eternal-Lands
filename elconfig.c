@@ -1244,6 +1244,29 @@ int set_var_unsaved(const char *str, option_type type)
 }
 
 
+// Find an OPT_INT widget and set its's value
+// Other types might be useful but I just needed an OPT_INT this time.
+int set_var_OPT_INT(const char *str, int new_value)
+{
+	int var_index = find_var(str, OPT_INT);
+	if (var_index != -1)
+	{
+		int tab_win_id = elconfig_tabs[our_vars.var[var_index]->widgets.tab_id].tab;
+		int widget_id = our_vars.var[var_index]->widgets.widget_id;
+		// This bit belongs in the widgets module
+		widget_list *widget = widget_find(tab_win_id, widget_id);
+		if(widget != NULL && widget->widget_info != NULL)
+		{
+			spinbutton *button = widget->widget_info;
+			*(int *)button->data = new_value;
+			safe_snprintf(button->input_buffer, sizeof(button->input_buffer), "%i", *(int *)button->data);
+			return 1;
+		}
+	}
+	return 0;
+}
+
+
 void change_language(const char *new_lang)
 {
 	log_error("Language changed, was [%s] now [%s]\n",  lang, new_lang);
@@ -1721,6 +1744,7 @@ void init_vars()
 
 
 #ifndef MAP_EDITOR2
+	add_var(OPT_INT,"num_quickbar_slots","numqbslots",&num_quickbar_slots,change_int,6,"Number of quickbar slots","Set the number of quickbar slots displayed. May be automatically reduced for low resolutions",MISC,1,MAX_QUICKBAR_SLOTS);
 	add_var(OPT_SPECINT,"auto_afk_time","afkt",&afk_time_conf,set_afk_time,5,"AFK Time","The idle time in minutes before the AFK auto message",MISC,0,INT_MAX);
 	add_var(OPT_STRING,"afk_message","afkm",afk_message,change_string,127,"AFK Message","Set the AFK message",MISC);
 	add_var(OPT_BOOL, "afk_local", "afkl", &afk_local, change_var, 0, "Save Local Chat Messages When AFK", "When you go AFK, local chat messages are counted and saved as well as PMs", MISC);

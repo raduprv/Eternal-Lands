@@ -63,6 +63,12 @@ Uint32 K_ITEM3=CTRL|'3';
 Uint32 K_ITEM4=CTRL|'4';
 Uint32 K_ITEM5=CTRL|'5';
 Uint32 K_ITEM6=CTRL|'6';
+Uint32 K_ITEM7=CTRL|'7';
+Uint32 K_ITEM8=CTRL|'8';
+Uint32 K_ITEM9=CTRL|'9';
+Uint32 K_ITEM10=CTRL|'0';
+Uint32 K_ITEM11=CTRL|'-';
+Uint32 K_ITEM12=CTRL|'=';
 Uint32 K_SCREENSHOT=CTRL|'p';
 Uint32 K_VIEWTEXTASOVERTEXT=ALT|'o';
 Uint32 K_AFK=CTRL|ALT|'a';
@@ -78,6 +84,12 @@ Uint32 K_SPELL3=ALT|'3';
 Uint32 K_SPELL4=ALT|'4';
 Uint32 K_SPELL5=ALT|'5';
 Uint32 K_SPELL6=ALT|'6';
+Uint32 K_SPELL7=ALT|'7';
+Uint32 K_SPELL8=ALT|'8';
+Uint32 K_SPELL9=ALT|'9';
+Uint32 K_SPELL10=ALT|'0';
+Uint32 K_SPELL11=ALT|'-';
+Uint32 K_SPELL12=ALT|'=';
 Uint32 K_TABCOMPLETE=CTRL|' ';
 Uint32 K_WINDOWS_ON_TOP=ALT|'w';
 Uint32 K_MARKFILTER=CTRL|'f';
@@ -475,6 +487,18 @@ void read_key_config()
 		K_ITEM5 = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_ITEM6",file_mem,key_file_size,0))!=-1)
 		K_ITEM6 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ITEM7",file_mem,key_file_size,0))!=-1)
+		K_ITEM7 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ITEM8",file_mem,key_file_size,0))!=-1)
+		K_ITEM8 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ITEM9",file_mem,key_file_size,0))!=-1)
+		K_ITEM9 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ITEM10",file_mem,key_file_size,0))!=-1)
+		K_ITEM10 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ITEM11",file_mem,key_file_size,0))!=-1)
+		K_ITEM11 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ITEM12",file_mem,key_file_size,0))!=-1)
+		K_ITEM12 = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_SCREENSHOT",file_mem,key_file_size,0))!=-1)
 		K_SCREENSHOT = parse_key_string (&file_mem[t]);
 	if((t=get_string_occurance("#K_VIEWTEXTASOVERTEXT",file_mem,key_file_size,0))!=-1)
@@ -505,6 +529,18 @@ void read_key_config()
 		K_SPELL5 = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_SPELL6",file_mem,key_file_size,0))!=-1)
 		K_SPELL6 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_SPELL7",file_mem,key_file_size,0))!=-1)
+		K_SPELL7 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_SPELL8",file_mem,key_file_size,0))!=-1)
+		K_SPELL8 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_SPELL9",file_mem,key_file_size,0))!=-1)
+		K_SPELL9 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_SPELL10",file_mem,key_file_size,0))!=-1)
+		K_SPELL10 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_SPELL11",file_mem,key_file_size,0))!=-1)
+		K_SPELL11 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_SPELL12",file_mem,key_file_size,0))!=-1)
+		K_SPELL12 = parse_key_string(&file_mem[t]);
 	if((t = get_string_occurance("#K_TABCOMPLETE",file_mem,key_file_size,0)) != -1)
 		K_TABCOMPLETE = parse_key_string(&file_mem[t]);
 	if((t = get_string_occurance("#K_WINDOWS_ON_TOP",file_mem,key_file_size,0)) != -1)

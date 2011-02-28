@@ -201,9 +201,18 @@ void change_windowed_chat (int *wc, int val);
  * brief Sets the specfied variable (if valid) to unsaved.
  * \param str	the option name
  * \param type	the option type
- * \retval	1 if sucessfull, 0 is option does no exist
+ * \retval	1 if sucessfull, 0 if option does not exist
  */
 int set_var_unsaved(const char *str, option_type type);
+
+/*!
+ * \ingroup other
+ * brief Sets the specfied OPT_INT variable's value.
+ * \param str	the option name
+ * \param new_vale well, the new value
+ * \retval	1 if sucessfull, 0 if option not found
+ */
+int set_var_OPT_INT(const char *str, int new_value);
 
 void toggle_follow_cam(int * fc);
 void toggle_ext_cam(int * ec);
