@@ -2,6 +2,7 @@
 #include <time.h>
 #include <SDL_net.h>
 #include <SDL_thread.h>
+#include <string.h>
 #include "md5.h"
 #include "elc_private.h"
 #include "io/zip.h"
