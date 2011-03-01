@@ -518,7 +518,7 @@ Uint32 load_image_data(const char* file_name, const Uint32 decompress,
 	}
 
 	return load_image_data_file(file, decompress, unpack, strip_mipmaps,
-		base_level, compute_alpha, image);
+		base_level, image);
 }
 
 Uint32 get_image_information(el_file_ptr file, image_t* image)

@@ -789,7 +789,7 @@ static Uint32 load_to_coordinates(el_file_ptr file, const Uint32 x,
 
 	if (use_compressed_image == 1)
 	{
-		if (load_image_data_file(file, 0, 0, 1, mipmap, 0, &image) == 0)
+		if (load_image_data_file(file, 0, 0, 1, mipmap, &image) == 0)
 		{
 			LOG_ERROR("Can't load file");
 			return 0;
@@ -815,7 +815,7 @@ static Uint32 load_to_coordinates(el_file_ptr file, const Uint32 x,
 	}
 	else
 	{
-		if (load_image_data_file(file, 1, 1, 1, mipmap, 0, &image) == 0)
+		if (load_image_data_file(file, 1, 1, 1, mipmap, &image) == 0)
 		{
 			LOG_ERROR("Can't load file");
 			return 0;
@@ -878,7 +878,7 @@ static Uint32 load_to_coordinates_mask2(el_file_ptr source0, el_file_ptr source1
 			use_compressed_image, mipmap, dest);
 	}
 
-	if (load_image_data_file(source0, 1, 1, 1, mipmap, 0, &src0) == 0)
+	if (load_image_data_file(source0, 1, 1, 1, mipmap, &src0) == 0)
 	{
 		LOG_ERROR("Can't load file");
 		el_close(source1);
@@ -893,7 +893,7 @@ static Uint32 load_to_coordinates_mask2(el_file_ptr source0, el_file_ptr source1
 		return 0;
 	}
 
-	if (load_image_data_file(source1, 1, 1, 1, mipmap, 0, &src1) == 0)
+	if (load_image_data_file(source1, 1, 1, 1, mipmap, &src1) == 0)
 	{
 		LOG_ERROR("Can't load file");
 		el_close(mask);
@@ -907,7 +907,7 @@ static Uint32 load_to_coordinates_mask2(el_file_ptr source0, el_file_ptr source1
 		return 0;
 	}
 
-	if (load_image_data_file(mask, 1, 0, 1, mipmap, 0, &msk) == 0)
+	if (load_image_data_file(mask, 1, 0, 1, mipmap, &msk) == 0)
 	{
 		LOG_ERROR("Can't load file");
 		return 0;
