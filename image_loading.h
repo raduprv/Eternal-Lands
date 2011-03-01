@@ -94,15 +94,13 @@ Uint32 get_file_name_len(const char* file_name);
  * \param   	unpack Should the image get converted to RGBA8?
  * \param   	strip_mipmaps Should we strip the mipmaps?
  * \param   	base_level What base level should we use?
- * \param   	compute_alpha Should the alpha value be computes (a = (r + g + b) / 3)?
  * \param   	image The image struct where we store the loaded data.
  * \retval Uint32	Returns one if everything is ok, zero else.
  * \callgraph
  */
 Uint32 load_image_data(const char* file_name, const Uint32 decompress,
 	const Uint32 unpack, const Uint32 strip_mipmaps,
-	const Uint32 base_level, const Uint32 compute_alpha,
-	image_t* image);
+	const Uint32 base_level, image_t* image);
 
 /*!
  * \ingroup 	textures
@@ -118,15 +116,13 @@ Uint32 load_image_data(const char* file_name, const Uint32 decompress,
  * \param   	unpack Should the image get converted to RGBA8?
  * \param   	strip_mipmaps Should we strip the mipmaps?
  * \param   	base_level What base level should we use?
- * \param   	compute_alpha Should the alpha value be computes (a = (r + g + b) / 3)?
  * \param   	image The image struct where we store the loaded data.
  * \retval Uint32	Returns one if everything is ok, zero else.
  * \callgraph
  */
 Uint32 load_image_data_file(el_file_ptr file, const Uint32 decompress,
 	const Uint32 unpack, const Uint32 strip_mipmaps,
-	const Uint32 base_level, const Uint32 compute_alpha,
-	image_t* image);
+	const Uint32 base_level, image_t* image);
 
 /*!
  * \ingroup 	textures

@@ -183,8 +183,7 @@ static Uint32 get_sdl_image_information(el_file_ptr file, image_t* image)
 	return 1;
 }
 
-static Uint32 load_image_SDL(el_file_ptr file, const Uint32 compute_alpha,
-	Uint32* bmp, image_t* image)
+static Uint32 load_image_SDL(el_file_ptr file, image_t* image)
 {
 	SDL_Surface *image_surface;
 	SDL_RWops *buffer;
@@ -201,8 +200,6 @@ static Uint32 load_image_SDL(el_file_ptr file, const Uint32 compute_alpha,
 	}
 
 	buffer = SDL_RWFromMem(el_get_pointer(file), el_get_size(file));
-
-	*bmp = IMG_isBMP(buffer);
 
 	image_surface = IMG_Load_RW(buffer, 1);
 
@@ -272,15 +269,7 @@ static Uint32 load_image_SDL(el_file_ptr file, const Uint32 compute_alpha,
 				r = image_surface->format->palette->colors[index].r;
 				g = image_surface->format->palette->colors[index].g;
 				b = image_surface->format->palette->colors[index].b;
-
-				if (compute_alpha != 0)
-				{
-					a = (r + g + b) / 3;
-				}
-				else
-				{
-					a = 255;
-				}
+				a = 255;
 			}
 			else
 			{
@@ -440,12 +429,11 @@ static Uint32 load_image_SDL_alpha(el_file_ptr file, image_t* image)
 
 Uint32 load_image_data_file(el_file_ptr file, const Uint32 decompress,
 	const Uint32 unpack, const Uint32 strip_mipmaps,
-	const Uint32 base_level, const Uint32 compute_alpha,
-	image_t* image)
+	const Uint32 base_level, image_t* image)
 {
 	char buffer[128];
 	el_file_ptr alpha_file;
-	Uint32 dds, bmp, result;
+	Uint32 dds, result;
 
 	if (file == 0)
 	{
@@ -468,12 +456,10 @@ Uint32 load_image_data_file(el_file_ptr file, const Uint32 decompress,
 	{
 		result = load_dds(file, decompress, unpack,
 			strip_mipmaps, base_level, image);
-
-		bmp = 0;
 	}
 	else
 	{
-		result = load_image_SDL(file, compute_alpha, &bmp, image);
+		result = load_image_SDL(file, image);
 	}
 
 	if ((result == 0) || (image->image == 0))
@@ -485,26 +471,23 @@ Uint32 load_image_data_file(el_file_ptr file, const Uint32 decompress,
 		return 0;
 	}
 
-	if (bmp)
+	if (check_alpha_image_name(el_file_name(file), sizeof(buffer), buffer)
+		!= 0)
 	{
-		if (check_alpha_image_name(el_file_name(file),
-			sizeof(buffer), buffer) != 0)
+		alpha_file = el_open_custom(buffer);
+
+		if (alpha_file == 0)
 		{
-			alpha_file = el_open_custom(buffer);
+			LOG_ERROR("Can't load file '%s'!", buffer);
 
-			if (alpha_file == 0)
-			{
-				LOG_ERROR("Can't load file '%s'!", buffer);
+			el_close(file);
 
-				el_close(file);
-
-				return 0;
-			}
-
-			load_image_SDL_alpha(alpha_file, image);
-
-			el_close(alpha_file);
+			return 0;
 		}
+
+		load_image_SDL_alpha(alpha_file, image);
+
+		el_close(alpha_file);
 	}
 
 	el_close(file);
@@ -514,8 +497,7 @@ Uint32 load_image_data_file(el_file_ptr file, const Uint32 decompress,
 
 Uint32 load_image_data(const char* file_name, const Uint32 decompress,
 	const Uint32 unpack, const Uint32 strip_mipmaps,
-	const Uint32 base_level, const Uint32 compute_alpha,
-	image_t* image)
+	const Uint32 base_level, image_t* image)
 {
 	char buffer[128];
 	el_file_ptr file;

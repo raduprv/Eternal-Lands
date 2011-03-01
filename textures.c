@@ -364,7 +364,7 @@ static Uint32 load_texture(texture_cache_t* texture_handle)
 	image_t image;
 	GLuint id;
 	Uint32 strip_mipmaps, base_level, wrap_mode_repeat, af, i, decompress;
-	Uint32 build_mipmaps, compute_alpha;
+	Uint32 build_mipmaps;
 	GLenum min_filter;
 	texture_format_type format;
 
@@ -376,7 +376,6 @@ static Uint32 load_texture(texture_cache_t* texture_handle)
 	af = 0;
 	min_filter = GL_LINEAR;
 	build_mipmaps = 0;
-	compute_alpha = 0;
 	format = tft_auto;
 
 	switch (texture_handle->type)
@@ -384,7 +383,6 @@ static Uint32 load_texture(texture_cache_t* texture_handle)
 		case tt_gui:
 			wrap_mode_repeat = 1;
 			strip_mipmaps = 1;
-			compute_alpha = 1;
 			break;
 		case tt_image:
 			strip_mipmaps = 1;
@@ -392,7 +390,6 @@ static Uint32 load_texture(texture_cache_t* texture_handle)
 			break;
 		case tt_font:
 			build_mipmaps = 1;
-			compute_alpha = 1;
 			min_filter = GL_LINEAR_MIPMAP_LINEAR;
 
 			if (poor_man == 0)
@@ -403,7 +400,6 @@ static Uint32 load_texture(texture_cache_t* texture_handle)
 		case tt_mesh:
 			build_mipmaps = 1;
 			wrap_mode_repeat = 1;
-			compute_alpha = 1;
 			if (poor_man != 0)
 			{
 				min_filter = GL_LINEAR_MIPMAP_NEAREST;
@@ -428,7 +424,7 @@ static Uint32 load_texture(texture_cache_t* texture_handle)
 	}
 
 	if (load_image_data(texture_handle->file_name, decompress, 0,
-		strip_mipmaps, base_level, compute_alpha, &image) == 0)
+		strip_mipmaps, base_level, &image) == 0)
 	{
 		texture_handle->load_err = 1;
 
