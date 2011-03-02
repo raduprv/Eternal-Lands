@@ -344,7 +344,7 @@ void destroy_sphere(sky_sphere *sphere)
     if (sphere->faces     ) { free(sphere->faces     ); sphere->faces      = NULL; }
 }
 
-void __inline__ draw_sphere(sky_sphere *sphere)
+static __inline__ void draw_sphere(sky_sphere *sphere)
 {
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
@@ -385,7 +385,7 @@ float skybox_get_z_position()
 	return skybox_z;
 }
 
-void __inline__ skybox_vertex_to_ground_coords(sky_dome *dome, int i, float *gx, float *gy)
+static __inline__ void skybox_vertex_to_ground_coords(sky_dome *dome, int i, float *gx, float *gy)
 {
 	*gx = dome->tex_coords_conversion_factor * (dome->tex_coords[i*2  ] - dome->tex_coords[dome->vertices_count*2-2]);
 	*gy = dome->tex_coords_conversion_factor * (dome->tex_coords[i*2+1] - dome->tex_coords[dome->vertices_count*2-1]);
@@ -587,7 +587,7 @@ void update_cloudy_sky_positions()
 	MAT3_VECT3_MULT(moon2_direction, rot2, moon2_vect);
 }
 
-float __inline__ get_sky_sunlight(const GLfloat normal[3])
+static __inline__ float get_sky_sunlight(const GLfloat normal[3])
 {
 	GLfloat dot = normal[0]*sun_position[0]+normal[1]*sun_position[1]+normal[2]*sun_position[2];
     if (skybox_show_sun && !skybox_no_sun)
@@ -596,7 +596,7 @@ float __inline__ get_sky_sunlight(const GLfloat normal[3])
         return 0.0;
 }
 
-float __inline__ get_clouds_sunlight(const GLfloat normal[3])
+static __inline__ float get_clouds_sunlight(const GLfloat normal[3])
 {
 	GLfloat dot = normal[0]*sun_position[0]+normal[1]*sun_position[1]+normal[2]*sun_position[2];
     if (skybox_show_sun && !skybox_no_sun)
@@ -605,7 +605,7 @@ float __inline__ get_clouds_sunlight(const GLfloat normal[3])
         return 0.0;
 }
 
-float __inline__ get_fog_sunlight(const GLfloat normal[3])
+static __inline__ float get_fog_sunlight(const GLfloat normal[3])
 {
 	GLfloat dot = normal[0]*sun_position[0]+normal[1]*sun_position[1]+normal[2]*sun_position[2];
     if (skybox_show_sun && !skybox_no_sun)
@@ -614,7 +614,7 @@ float __inline__ get_fog_sunlight(const GLfloat normal[3])
         return 0.0;
 }
 
-float __inline__ get_moonlight1(const GLfloat normal[3])
+static __inline__ float get_moonlight1(const GLfloat normal[3])
 {
 	GLfloat dot1 = normal[0]*moon1_direction[0]+normal[1]*moon1_direction[1]+normal[2]*moon1_direction[2];
 	GLfloat dot2 = -(sun_position[0]*moon1_direction[0]+sun_position[1]*moon1_direction[1]+sun_position[2]*moon1_direction[2])*0.5+0.5;
@@ -625,7 +625,7 @@ float __inline__ get_moonlight1(const GLfloat normal[3])
         return 0.0;
 }
 
-float __inline__ get_moonlight2(const GLfloat normal[3])
+static __inline__ float get_moonlight2(const GLfloat normal[3])
 {
 	GLfloat dot1 = normal[0]*moon2_direction[0]+normal[1]*moon2_direction[1]+normal[2]*moon2_direction[2];
 	GLfloat dot2 = -(sun_position[0]*moon2_direction[0]+sun_position[1]*moon2_direction[1]+sun_position[2]*moon2_direction[2])*0.5+0.5;

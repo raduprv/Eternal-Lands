@@ -39,11 +39,11 @@ hash_entry *hash_get_next(hash_table *table);
 
 
 //HASH & KEY_CMP
-unsigned long int __inline__ hash_fn_int(void *key);
-int __inline__ cmp_fn_int(void *key1, void *key2);
+unsigned long int hash_fn_int(void *key);
+int cmp_fn_int(void *key1, void *key2);
 
-unsigned long int __inline__ hash_fn_str(void *key);
-int __inline__ cmp_fn_str(void *key1, void *key2);
+unsigned long int hash_fn_str(void *key);
+int cmp_fn_str(void *key1, void *key2);
 
 Uint32 mem_hash(const void* str, const Uint32 len);
 

@@ -68,7 +68,7 @@ typedef struct {
  \param dbuf The dbuffer to destroy
  \returns nothing
  */
-__inline__ void dbuffer_destroy( dbuffer_t *dbuf )
+static __inline__ void dbuffer_destroy( dbuffer_t *dbuf )
 {
     free(dbuf);
 }
@@ -87,7 +87,7 @@ __inline__ void dbuffer_destroy( dbuffer_t *dbuf )
  */
 
 
-__inline__ UNUSED_RESULT_DECL dbuffer_t *dbuffer_append_data( dbuffer_t *dbuf, const unsigned char *data, size_t datalen )
+static __inline__ UNUSED_RESULT_DECL dbuffer_t *dbuffer_append_data( dbuffer_t *dbuf, const unsigned char *data, size_t datalen )
 {
 	size_t next_alloc_size;
 
@@ -121,7 +121,7 @@ __inline__ UNUSED_RESULT_DECL dbuffer_t *dbuffer_append_data( dbuffer_t *dbuf, c
  \returns The newly created dbuffer.
  */
 
-__inline__ dbuffer_t *dbuffer_new()
+static __inline__ dbuffer_t *dbuffer_new()
 {
 	return dbuffer_append_data(NULL, NULL, 0); /* Will alloc a new buffer */
 }
@@ -132,7 +132,7 @@ __inline__ dbuffer_t *dbuffer_new()
  \param datalen The size to preallocate
  \returns The newly created dbuffer.
  */
-__inline__ dbuffer_t *dbuffer_sized(size_t datalen)
+static __inline__ dbuffer_t *dbuffer_sized(size_t datalen)
 {
 	return dbuffer_append_data(NULL, NULL, datalen); /* Will alloc a new buffer */
 }
@@ -145,7 +145,7 @@ __inline__ dbuffer_t *dbuffer_sized(size_t datalen)
  \returns The newly created dbuffer.
  */
 
-__inline__ dbuffer_t *dbuffer_new_with_data( const unsigned char *data, size_t datalen )
+static __inline__ dbuffer_t *dbuffer_new_with_data( const unsigned char *data, size_t datalen )
 {
 	return dbuffer_append_data(NULL, data, datalen); /* Will alloc a new buffer */
 }

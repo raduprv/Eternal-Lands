@@ -74,17 +74,17 @@ void skybox_init_defs(const char *map_name);
 void skybox_update_positions();
 void skybox_update_colors();
 
-static void __inline__ blend_colors(float result[], float orig[], float dest[], float t, int size)
+static __inline__ void blend_colors(float result[], float orig[], float dest[], float t, int size)
 {
     while (size--) result[size] = (1.0-t)*orig[size] + t*dest[size];
 }
 
-static void __inline__ skybox_get_current_color(float result[4], float table[360][4])
+static __inline__ void skybox_get_current_color(float result[4], float table[360][4])
 {
 	blend_colors(result, table[game_minute], table[(game_minute+1)%360], (float)game_second/60.0, 4);
 }
 
-static void __inline__ skybox_blend_current_colors(float result[4], float orig_table[360][4], float dest_table[360][4], float t)
+static __inline__ void skybox_blend_current_colors(float result[4], float orig_table[360][4], float dest_table[360][4], float t)
 {
 	float color1[4], color2[4];
 	skybox_get_current_color(color1, orig_table);

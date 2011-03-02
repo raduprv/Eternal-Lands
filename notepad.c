@@ -243,7 +243,7 @@ void display_popup_win (INPUT_POPUP *ipu, const char* label)
 
 		set_window_handler (ipu->popup_win, ELW_HANDLER_KEYPRESS, popup_keypress_handler);
 
-		if ((ipu->popup_win > -1) && (ipu->popup_win < windows_list.num_windows));
+		if ((ipu->popup_win > -1) && (ipu->popup_win < windows_list.num_windows))
 			windows_list.window[ipu->popup_win].data = ipu;
 	}
 	else

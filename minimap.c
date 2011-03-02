@@ -62,7 +62,7 @@ static __inline__ float minimap_get_zoom ()
 	return zoom;
 }
 
-__inline__ void rotate_actor_points(float zoom_multip, float px, float py)
+static __inline__ void rotate_actor_points(float zoom_multip, float px, float py)
 {
 	float x,y;
 	x = (px - (float_minimap_size/2) ) + float_minimap_size/2;
@@ -80,7 +80,7 @@ __inline__ void rotate_actor_points(float zoom_multip, float px, float py)
 	glTranslatef(-x,-y,0.0f);
 }
 
-__inline__ void rotate_at_player(float zoom_multip, float px, float py)
+static __inline__ void rotate_at_player(float zoom_multip, float px, float py)
 {
 	float x,y;
 	x = (px - (float_minimap_size/2) );
@@ -96,7 +96,7 @@ __inline__ void rotate_at_player(float zoom_multip, float px, float py)
 	glTranslatef(-x,-y,0.0f);
 }
 
-__inline__ void rotate_click_coords(float * x,float * y)
+static __inline__ void rotate_click_coords(float * x,float * y)
 {
 	if(rotate_minimap)
 	{
@@ -109,7 +109,7 @@ __inline__ void rotate_click_coords(float * x,float * y)
 	}
 }
 
-__inline__ int is_within_radius(float mx, float my,float px,float py,float radius)
+static __inline__ int is_within_radius(float mx, float my,float px,float py,float radius)
 {
 	float distance;
 

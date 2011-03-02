@@ -145,10 +145,10 @@ hash_entry *hash_get_next(hash_table *table){
 
 
 //HASH AND COMPARE FNs
-unsigned long int __inline__ hash_fn_int(void *key){
+unsigned long int hash_fn_int(void *key){
 	return (unsigned long int) key;
 }
-int __inline__ cmp_fn_int(void *key1, void *key2){
+int cmp_fn_int(void *key1, void *key2){
 	return key1==key2;
 }
 
@@ -164,7 +164,7 @@ unsigned long int __inline hash_fn_str(void *key){
 	    return hash;
 }
 
-int __inline__ cmp_fn_str(void *key1, void *key2){
+int cmp_fn_str(void *key1, void *key2){
 	return !strcmp((char*)key1,(char*)key2);
 }
 

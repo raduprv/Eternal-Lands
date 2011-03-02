@@ -123,7 +123,7 @@ float fog_alpha;
 // array used to build coordinates of quads to display particles
 float weather_particles_coords[MAX_RAIN_DROPS*20];
 
-__inline__ float next_random_number()
+static __inline__ float next_random_number()
 {
 	last_random_number = (last_random_number+1)%RANDOM_TABLE_SIZE;
 	return random_table[last_random_number];
@@ -298,7 +298,7 @@ void weather_get_color_from_ratios(float color[4], float ratios[MAX_WEATHER_TYPE
 	}
 }
 
-void __inline__ make_drop(int type, int i, float x, float y, float z)
+static __inline__ void make_drop(int type, int i, float x, float y, float z)
 {
 	weather_drops[type][i].pos1[0] = x + 16.0f * RAND_ONE - 8.0f;
 	weather_drops[type][i].pos1[1] = y + 16.0f * RAND_ONE - 8.0f;
