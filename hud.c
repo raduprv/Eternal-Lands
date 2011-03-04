@@ -1507,26 +1507,36 @@ void init_misc_display(hud_interface type)
 	}
 }
 
-/*	Calculate the start y coord for the statsbar.
-	Also calculates statbar_start_y, num_disp_stat and first_disp_stat
+
+/*	Get the longest of the active quickspells and the
+	quickbar (if its in default place)
 */
-int calc_statbar_start_y(int base_y_start, int win_y_len)
+static int get_max_quick_y(void)
 {
-	int winoverlap = 0;
 	int quickspell_base = get_quickspell_y_base();
 	int quickbar_base = get_quickbar_y_base();
 	int max_quick_y = window_height;
-
-	/* get the longest of the active quickspells and the quickbar (if its in default place) */
+	
 	if (quickspell_base > quickbar_base)
 		max_quick_y -= quickspell_base;
 	else
 		max_quick_y -= quickbar_base;
 
+	return max_quick_y;
+}
+
+
+/*	Calculate the start y coord for the statsbar.
+	Also calculates statbar_start_y, num_disp_stat and first_disp_stat
+*/
+static int calc_statbar_start_y(int base_y_start, int win_y_len)
+{
+	int winoverlap = 0;
+
 	statbar_start_y = base_y_start - 15*(NUM_WATCH_STAT-1);
 	
 	/* calculate the overlap between the longest of the quickspell/bar and the statsbar */
-	winoverlap = (win_y_len - statbar_start_y) - max_quick_y;
+	winoverlap = (win_y_len - statbar_start_y) - get_max_quick_y();
 
 	/* if they overlap, only display some skills and allow to scroll */
 	if (winoverlap > 0)
@@ -1620,7 +1630,14 @@ CHECK_GL_ERRORS();
 			draw_string_shadowed(x, 2 + base_y_start, (unsigned char*)str, 1,0.77f, 0.57f, 0.39f,0.0f,0.0f,0.0f);
 		}
 	}
-	
+
+	// Trade the number of quickbar slots if too much is displayed (not considering stats yet)
+	while (((win->len_y - base_y_start) - get_max_quick_y()) > 0)
+	{
+		num_quickbar_slots--;
+		set_var_OPT_INT("num_quickbar_slots", num_quickbar_slots);
+	}
+
 	/*	Optionally display the stats bar.  If the current window size does not
 		provide enough room, display only some skills and allow scrolling to view
 		the rest */
