@@ -33,11 +33,9 @@ echo "Removing unwanted files from copy"
 make -f Makefile.linux clean
 rm -rf animations actor_defs books generic languages map_editor \
 		pawn pawn_scripts shader/data shaders skybox temlates \
-		eye_candy/textures tmp_1_8_0 .deps macosx
-rm -f e3dlist.txt *.xml *.ini *.lst *.pl *.res *.dsp *.dsw
+		eye_candy/textures tmp_1_8_0 .deps macosx .git
+rm -f e3dlist.txt *.xml *.ini *.lst *.pl *.res *.dsp *.dsw .git*
 rm -f Makefile.bsd* Makefile.osx Makefile.win
-find . -type d -name CVS -exec rm -rf {} \; &> /dev/null
-find . -type d -name CVS -exec rm -rf {} \;
 chmod -R -x *.{c,cpp,h}
 
 # make the Debian tar ball, then delete the Debian files
