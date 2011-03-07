@@ -3,11 +3,13 @@
 #include "knowledge.h"
 #include "asc.h"
 #include "books.h"
+#include "context_menu.h"
 #include "elconfig.h"
 #include "elwindows.h"
 #include "gamewin.h"
 #include "hud.h"
 #include "multiplayer.h"
+#include "notepad.h"
 #include "stats.h"
 #include "tabs.h"
 #include "textures.h"
@@ -31,6 +33,11 @@ knowledge knowledge_list[KNOWLEDGE_LIST_SIZE];
 int knowledge_count= 0;
 
 char knowledge_string[400]="";
+
+static size_t cm_know_id = CM_INIT_VALUE;
+static INPUT_POPUP ipu_know;
+static char highlight_string[KNOWLEDGE_NAME_SIZE] = "";
+static int know_show_win_help = 0;
 
 int add_knowledge_book_image() {
 	// Book image
@@ -153,17 +160,28 @@ int display_knowledge_handler(window_info *win)
 	// Draw knowledges
 	for(i = 2*scroll; i < 2 * (scroll + 19); i++)
 	{
+		int highlight = 0;
+		if (*highlight_string && (strlen(knowledge_list[i].name) > 0) &&
+			(get_string_occurance(highlight_string, knowledge_list[i].name, strlen(knowledge_list[i].name), 1) != -1))
+			highlight = 1;
+
 		if (knowledge_list[i].mouse_over)
 		{
-			glColor3f (0.1f,0.1f,0.9f);
+			glColor3f (0.0f, 0.7f, 1.0f);
 		}
 		else if (knowledge_list[i].present)
 		{
-			glColor3f (0.9f, 0.9f, 0.9f);
+			if (highlight)
+				glColor3f (1.0f, 0.6f, 0.0f);
+			else
+				glColor3f (0.9f, 0.9f, 0.9f);
 		}
 		else
 		{
-			glColor3f (0.5f, 0.5f, 0.5f);
+			if (highlight)
+				glColor3f (0.7f, 0.4f, 0.0f);
+			else
+				glColor3f (0.5f, 0.5f, 0.5f);
 		}
 
 		/* truncate the string if it is too long */
@@ -176,7 +194,10 @@ int display_knowledge_handler(window_info *win)
 			draw_string_zoomed(x, y, (unsigned char*)used_name,1,font_ratio);
 			/* if the mouse is over this line and its truncated, tooltip to full name */
 			if (knowledge_list[i].mouse_over)
+			{
 				show_help(knowledge_list[i].name, 0, win->len_y+5);
+				know_show_win_help = 0;
+			}
 			free(used_name);
 		}
 		else
@@ -189,6 +210,11 @@ int display_knowledge_handler(window_info *win)
 			x = 2;
 		}
 	}
+	if (know_show_win_help)
+	{
+		show_help(cm_help_options_str, 0, win->len_y+5);
+		know_show_win_help = 0;
+	}
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -200,6 +226,8 @@ int mouseover_knowledge_handler(window_info *win, int mx, int my)
 	int	i;
 
 	for(i=0;i<knowledge_count;i++)knowledge_list[i].mouse_over=0;
+	if (my>0)
+		know_show_win_help = 1;
 	if(mx>win->len_x-20)
 		return 0;
 	if(my>192)
@@ -289,17 +317,48 @@ void get_new_knowledge(Uint16 idx)
 	}
 }
 
+static void set_hightligh_callback(const char *new_highlight_string, void *data)
+{
+	safe_strncpy(highlight_string, new_highlight_string, KNOWLEDGE_NAME_SIZE);
+}
+
+static int cm_knowledge_handler(window_info *win, int widget_id, int mx, int my, int option)
+{
+	switch (option)
+	{
+		case 0:
+			close_ipu(&ipu_know);
+			init_ipu(&ipu_know, knowledge_win, DEFAULT_FONT_X_LEN * 20, -1, 40, 1, NULL, set_hightligh_callback);
+			ipu_know.x = mx; ipu_know.y = my;
+			display_popup_win(&ipu_know, know_highlight_prompt_str);
+			if (ipu_know.popup_win >=0 && ipu_know.popup_win<windows_list.num_windows)
+				windows_list.window[ipu_know.popup_win].opaque = 1;
+			break;
+		case 1:
+			set_hightligh_callback("", NULL);
+			break;
+	}
+	return 1;
+}
+
 void fill_knowledge_win ()
 {
 	set_window_handler(knowledge_win, ELW_HANDLER_DISPLAY, &display_knowledge_handler );
 	set_window_handler(knowledge_win, ELW_HANDLER_CLICK, &click_knowledge_handler );
 	set_window_handler(knowledge_win, ELW_HANDLER_MOUSEOVER, &mouseover_knowledge_handler );
 	
-	knowledge_scroll_id = vscrollbar_add_extended (knowledge_win, knowledge_scroll_id, NULL, knowledge_menu_x_len - 20,  0, 20, 200, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 10, (knowledge_count+2)/2-19);
+	knowledge_scroll_id = vscrollbar_add_extended (knowledge_win, knowledge_scroll_id, NULL, knowledge_menu_x_len - 20,  0, 20, 200, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, (knowledge_count+2)/2-19);
 	knowledge_book_image_id = add_knowledge_book_image();
 	widget_set_OnClick(knowledge_win, knowledge_book_image_id, &handle_knowledge_book);
 	knowledge_book_label_id = label_add_extended(knowledge_win, knowledge_book_image_id + 1, NULL, 485, 265, WIDGET_DISABLED, 0.8, 1.0, 1.0, 1.0, knowledge_read_book);
 	widget_set_OnClick(knowledge_win, knowledge_book_label_id, &handle_knowledge_book);
+
+	if (cm_valid(!cm_know_id))
+	{
+		cm_know_id = cm_create(know_highlight_cm_str, cm_knowledge_handler);
+		cm_add_window(cm_know_id, knowledge_win);
+		init_ipu(&ipu_know, -1, -1, -1, 1, 1, NULL, NULL);
+	}
 }
 
 void display_knowledge()
