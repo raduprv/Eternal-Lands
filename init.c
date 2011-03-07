@@ -381,6 +381,7 @@ void read_bin_cfg()
 	items_stoall_nofirstrow = (cfg_mem.misc_bool_options >> 9) & 1;
 	items_dropall_nofirstrow = (cfg_mem.misc_bool_options >> 10) & 1;
 	items_auto_get_all = (cfg_mem.misc_bool_options >> 11) & 1;
+	dialogue_copy_excludes_newlines = (cfg_mem.misc_bool_options >> 12) & 1;
 
 	set_options_user_menus(cfg_mem.user_menu_win_x, cfg_mem.user_menu_win_y, cfg_mem.user_menu_options);
 
@@ -620,6 +621,7 @@ void save_bin_cfg()
 	cfg_mem.misc_bool_options |= items_stoall_nofirstrow << 9;
 	cfg_mem.misc_bool_options |= items_dropall_nofirstrow << 10;
 	cfg_mem.misc_bool_options |= items_auto_get_all << 11;
+	cfg_mem.misc_bool_options |= dialogue_copy_excludes_newlines << 12;
 
 	get_options_user_menus(&cfg_mem.user_menu_win_x, &cfg_mem.user_menu_win_y, &cfg_mem.user_menu_options);
 

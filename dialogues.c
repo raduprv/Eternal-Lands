@@ -39,6 +39,7 @@ int no_bounding_box=0;
 int show_keypress_letters=0;
 int autoclose_storage_dialogue=0;
 int dialogue_copy_excludes_responses=0;
+int dialogue_copy_excludes_newlines=0;
 static Uint32 copy_end_highlight_time = 0;
 static int close_str_width = -1;
 static int copy_str_width = -1;
@@ -343,10 +344,11 @@ static void copy_dialogue_text(void)
 	int to_index = 0;
 	int i;
 
-	// copy the body of text stripped of any colour and soft wrapping characters
+	// copy the body of text stripped of any colour, soft wrapping and optionally, newlines characters
 	while(from_index<from_str_len && to_index<to_str_max-1)
 	{
-		if (!is_color (dialogue_string[from_index]) && dialogue_string[from_index] != '\r')
+		if (!is_color (dialogue_string[from_index]) && dialogue_string[from_index] != '\r' &&
+			(!dialogue_copy_excludes_newlines || dialogue_string[from_index] != '\n'))
 			to_str[to_index++] = dialogue_string[from_index];
 		from_index++;
 	}
@@ -507,6 +509,7 @@ void display_dialogue()
 		cm_npcname_id = cm_create(cm_npcname_menu_str, cm_npcname_handler);
 		cm_dialog_copy_id = cm_create(cm_dialog_copy_menu_str, NULL);
 		cm_bool_line(cm_dialog_copy_id, 0, &dialogue_copy_excludes_responses, NULL);
+		cm_bool_line(cm_dialog_copy_id, 1, &dialogue_copy_excludes_newlines, NULL);
 
 		copy_str_width = get_string_width((unsigned char*)dialogue_copy_str) * SMALL_FONT_X_LEN / 12.0;
 		close_str_width = get_string_width((unsigned char*)close_str) * SMALL_FONT_X_LEN / 12.0;
