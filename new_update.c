@@ -184,7 +184,11 @@ Uint32 download_files(update_info_t* infos, const Uint32 count,
 
 				data = realloc(data, size);
 
-				fread(data, size, 1, file);
+				if (fread(data, size, 1, file) != 1)
+				{
+					error = 3;
+					break;
+				}
 
 				MD5Open(&md5);
 				MD5Digest(&md5, data, size);
@@ -336,7 +340,8 @@ Uint32 read_digest_file(FILE* file, MD5_DIGEST digest)
 
 	memset(buffer, 0, sizeof(buffer));
 
-	fread(buffer, 32, 1, file);
+	if (fread(buffer, 32, 1, file) != 1)
+		return 0;
 
 	return convert_string_to_md5_digest(buffer, digest);
 }
