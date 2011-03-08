@@ -292,7 +292,7 @@ char
 	cm_help_options_str[50],
 	cm_npcname_menu_str[50],
 	cm_dialog_copy_menu_str[50],
-	cm_minimap_menu_str[50],
+	cm_minimap_menu_str[60],
 	cm_user_menu_str[150],
 	cm_item_list_menu_str[100],
 	cm_item_list_empty_str[15],
@@ -1392,7 +1392,7 @@ void init_help()
 	add_xml_identifier(misc, "cm_help_options", cm_help_options_str, "Right-click for options", sizeof(cm_help_options_str));
 	add_xml_identifier(misc, "cm_npcname_menu", cm_npcname_menu_str, "Copy NPC Name", sizeof(cm_npcname_menu_str));
 	add_xml_identifier(misc, "cm_dialog_copy_menu", cm_dialog_copy_menu_str, "Exclude Responses\nRemove newlines", sizeof(cm_dialog_copy_menu_str));
-	add_xml_identifier(misc, "cm_minimap_menu", cm_minimap_menu_str, "--\nRotate Minimap\nPin Minimap", sizeof(cm_minimap_menu_str));
+	add_xml_identifier(misc, "cm_minimap_menu", cm_minimap_menu_str, "--\nRotate Minimap\nPin Minimap\nOpen On Start", sizeof(cm_minimap_menu_str));
 	add_xml_identifier(misc, "cm_user_menu", cm_user_menu_str, "--\nShow Title\nDraw Border\nSmall Font\nStandard Menus\n--\nShow Commands\n--\nReload Menus\nDisable Menus", sizeof(cm_user_menu_str));
 	add_xml_identifier(misc, "cm_item_list_menu", cm_item_list_menu_str, "Save a new list\nDisable list preview\n--\nDelete a list\n--\nReload item lists file", sizeof(cm_item_list_menu_str));
 	add_xml_identifier(misc, "cm_item_list_empty", cm_item_list_empty_str, "Empty", sizeof(cm_item_list_empty_str));

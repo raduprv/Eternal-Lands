@@ -14,6 +14,7 @@ extern int minimap_win_y;
 extern float minimap_tiles_distance;
 extern int rotate_minimap;
 extern int pin_minimap;
+extern int open_minimap_on_start;
 extern float minimap_size_coefficient;
 
 void display_minimap();

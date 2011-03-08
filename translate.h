@@ -440,7 +440,7 @@ extern char
 		cm_help_options_str[50],
 		cm_npcname_menu_str[50],
 		cm_dialog_copy_menu_str[50],
-		cm_minimap_menu_str[50],
+		cm_minimap_menu_str[60],
 		cm_user_menu_str[150],
 		/* user_menus.cpp */
 		um_invalid_command_str[50],

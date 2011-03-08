@@ -186,6 +186,8 @@ void init_hud_interface (hud_interface type)
 		ready_for_user_menus = 1;
 		if (enable_user_menus)
 			display_user_menus();
+		if (open_minimap_on_start)
+			view_window (&minimap_win, 0);
 	}
 
 	last_interface = type;
