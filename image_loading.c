@@ -494,7 +494,7 @@ Uint32 load_image_data_file(el_file_ptr file, const Uint32 decompress,
 	}
 
 	if ((dds != 1) && (check_alpha_image_name(el_file_name(file),
-		sizeof(buffer), buffer) != 0)
+		sizeof(buffer), buffer) != 0))
 	{
 		alpha_file = el_open_custom(buffer);
 
