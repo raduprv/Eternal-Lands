@@ -199,6 +199,13 @@ static Uint32 load_image_SDL(el_file_ptr file, image_t* image)
 		return 0;
 	}
 
+	if (image == 0)
+	{
+		LOG_ERROR("Invalid image for file '%s'!", el_file_name(file));
+
+		return 0;
+	}
+
 	buffer = SDL_RWFromMem(el_get_pointer(file), el_get_size(file));
 
 	image_surface = IMG_Load_RW(buffer, 1);
@@ -331,6 +338,21 @@ static Uint32 load_image_SDL_alpha(el_file_ptr file, image_t* image)
 	if (file == 0)
 	{
 		LOG_ERROR("Invalid file!");
+
+		return 0;
+	}
+
+	if (image == 0)
+	{
+		LOG_ERROR("Invalid image for file '%s'.", el_file_name(file));
+
+		return 0;
+	}
+
+	if (image->format != ift_rgba8)
+	{
+		LOG_ERROR("Alpha map '%s' can't be used for formats other than"
+			" RGBA8.", el_file_name(file));
 
 		return 0;
 	}
@@ -471,8 +493,8 @@ Uint32 load_image_data_file(el_file_ptr file, const Uint32 decompress,
 		return 0;
 	}
 
-	if (check_alpha_image_name(el_file_name(file), sizeof(buffer), buffer)
-		!= 0)
+	if ((dds != 1) && (check_alpha_image_name(el_file_name(file),
+		sizeof(buffer), buffer) != 0))
 	{
 		alpha_file = el_open_custom(buffer);
 
