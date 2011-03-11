@@ -5,6 +5,8 @@
  * Copyright: See COPYING file that comes with this distribution
  ****************************************************************************/
 
+#ifdef	NEW_TEXTURES
+
 #include "image_loading.h"
 #include "errors.h"
 #include "asc.h"
@@ -577,4 +579,6 @@ Uint32 get_image_information(el_file_ptr file, image_t* image)
 		return get_sdl_image_information(file, image);
 	}
 }
+
+#endif	/* NEW_TEXTURES */
 
