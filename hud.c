@@ -125,8 +125,9 @@ int show_statbars_in_hud=0;
 struct stats_struct statsinfo[NUM_WATCH_STAT-1];
 
 static int first_disp_stat = 0;					/* first skill that will be display */
-static int num_disp_stat = NUM_WATCH_STAT-1;			/* number of skills to be displayed */
+static int num_disp_stat = NUM_WATCH_STAT-1;	/* number of skills to be displayed */
 static int statbar_start_y = 0;					/* y coord in window of top if stats bar */
+static int stat_mouse_is_over = -1;				/* set to stat of the is mouse over that bar */
 
 
 /* #exp console command, display current exp information */
@@ -1665,6 +1666,8 @@ CHECK_GL_ERRORS();
 		
 		for (thestat=0; thestat<NUM_WATCH_STAT-1; thestat++)
 		{
+			int hover_offset = 0;
+			
 			/* skill skills until we have the skill displayed first */
 			if (thestat < first_disp_stat)
 				continue;
@@ -1681,21 +1684,30 @@ CHECK_GL_ERRORS();
 				statsinfo[thestat].skillnames->shortname,
 				statsinfo[thestat].skillattr->base );
 			if (statsinfo[thestat].is_selected == 1)
-			    draw_string_small_shadowed(x+gx_adjust, y+gy_adjust, (unsigned char*)str, 1,0.77f, 0.57f, 0.39f,0.0f,0.0f,0.0f);
+				draw_string_small_shadowed(x+gx_adjust, y+gy_adjust, (unsigned char*)str, 1,0.77f, 0.57f, 0.39f,0.0f,0.0f,0.0f);
 			else
-   			    draw_string_small_shadowed(x+gx_adjust, y+gy_adjust, (unsigned char*)str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
+				draw_string_small_shadowed(x+gx_adjust, y+gy_adjust, (unsigned char*)str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
 			
 			if((thestat!=NUM_WATCH_STAT-2) && floatingmessages_enabled &&
 				(skill_modifier = statsinfo[thestat].skillattr->cur -
 				 	statsinfo[thestat].skillattr->base) != 0){
 				safe_snprintf(str,sizeof(str),"%+3i",skill_modifier);
+				hover_offset = (int)(SMALL_FONT_X_LEN * strlen(str));
 				if(skill_modifier > 0){
 					draw_string_small_shadowed(x-33, y+gy_adjust, (unsigned char*)str, 1,0.3f, 1.0f, 0.3f,0.0f,0.0f,0.0f);
 				} else {
 					draw_string_small_shadowed(x-33, y+gy_adjust, (unsigned char*)str, 1,1.0f, 0.1f, 0.2f,0.0f,0.0f,0.0f);
 				}
 			}
-			
+
+			/* if the mouse is over the stat bar, draw the XP remaining */
+			if (stat_mouse_is_over == thestat)
+			{
+				safe_snprintf(str,sizeof(str),"%7li",(*statsinfo[thestat].next_lev - *statsinfo[thestat].exp));
+				draw_string_small_shadowed(-(hud_x+hover_offset), y+gy_adjust, (unsigned char*)str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
+				stat_mouse_is_over = -1;
+			}
+
 			y+=15;
 		}
 	}
@@ -1803,6 +1815,11 @@ int mouseover_misc_handler(window_info *win, int mx, int my)
 	if (show_help_text && show_stats_in_hud && (num_disp_stat < NUM_WATCH_STAT-1) &&
 		(my - statbar_start_y >= 0) && (my - statbar_start_y < num_disp_stat*15))
 		show_help(stats_scroll_help_str, -10-strlen(stats_scroll_help_str)*SMALL_FONT_X_LEN, win->len_y-70);
+
+	/* stat hover experience left */
+	if (show_stats_in_hud && have_stats && (my - statbar_start_y >= 0) && (my - statbar_start_y < num_disp_stat*15))
+		stat_mouse_is_over = first_disp_stat + ((my - statbar_start_y ) / 15);
+
 	return 0;
 }
 
