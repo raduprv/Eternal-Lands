@@ -1691,20 +1691,20 @@ CHECK_GL_ERRORS();
 			if((thestat!=NUM_WATCH_STAT-2) && floatingmessages_enabled &&
 				(skill_modifier = statsinfo[thestat].skillattr->cur -
 				 	statsinfo[thestat].skillattr->base) != 0){
-				safe_snprintf(str,sizeof(str),"%+3i",skill_modifier);
-				hover_offset = (int)(SMALL_FONT_X_LEN * strlen(str));
+				safe_snprintf(str,sizeof(str),"%+i",skill_modifier);
+				hover_offset = strlen(str)+1;
 				if(skill_modifier > 0){
-					draw_string_small_shadowed(x-33, y+gy_adjust, (unsigned char*)str, 1,0.3f, 1.0f, 0.3f,0.0f,0.0f,0.0f);
+					draw_string_small_shadowed(-(int)(SMALL_FONT_X_LEN*(strlen(str)+0.5)), y+gy_adjust, (unsigned char*)str, 1,0.3f, 1.0f, 0.3f,0.0f,0.0f,0.0f);
 				} else {
-					draw_string_small_shadowed(x-33, y+gy_adjust, (unsigned char*)str, 1,1.0f, 0.1f, 0.2f,0.0f,0.0f,0.0f);
+					draw_string_small_shadowed(-(int)(SMALL_FONT_X_LEN*(strlen(str)+0.5)), y+gy_adjust, (unsigned char*)str, 1,1.0f, 0.1f, 0.2f,0.0f,0.0f,0.0f);
 				}
 			}
 
 			/* if the mouse is over the stat bar, draw the XP remaining */
 			if (stat_mouse_is_over == thestat)
 			{
-				safe_snprintf(str,sizeof(str),"%7li",(*statsinfo[thestat].next_lev - *statsinfo[thestat].exp));
-				draw_string_small_shadowed(-(hud_x+hover_offset), y+gy_adjust, (unsigned char*)str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
+				safe_snprintf(str,sizeof(str),"%li",(*statsinfo[thestat].next_lev - *statsinfo[thestat].exp));
+				draw_string_small_shadowed(-(int)(SMALL_FONT_X_LEN*(strlen(str)+0.5+hover_offset)), y+gy_adjust, (unsigned char*)str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
 				stat_mouse_is_over = -1;
 			}
 
