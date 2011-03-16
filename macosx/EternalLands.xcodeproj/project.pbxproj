@@ -2384,19 +2384,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
-					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
-					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_3)",
-					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_4)",
-					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_5)",
-				);
-				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../../../../Library/Frameworks\"";
-				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "\"$(DEVELOPER_DIR)/SDKs/MacOSX10.4u.sdk/System/Library/Frameworks\"";
-				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_3 = "\"$(SRCROOT)/../../../../Library/Frameworks\"";
-				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_4 = "\"$(SRCROOT)/../../../../Library/Frameworks\"";
-				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_5 = "\"$(SRCROOT)/../../../../Library/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
@@ -2430,10 +2418,6 @@
 					"$(inherited)",
 					"$(EL_FRAMEWORKS_DIR)",
 				);
-				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(HOME)/Library/Frameworks\"";
-				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "\"$(DEVELOPER_DIR)/SDKs/MacOSX10.4u.sdk/System/Library/Frameworks\"";
-				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_3 = "\"$(SRCROOT)/../../../../Library/Frameworks\"";
-				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_4 = "\"$(SRCROOT)/../../../../Library/Frameworks\"";
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2473,8 +2457,9 @@
 				ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1 = "ppc i386";
 				CURRENT_PROJECT_VERSION = 1.9.1;
 				FRAMEWORK_SEARCH_PATHS = (
+					"$(EL_FRAMEWORKS_DIR)",
 					"$(HOME)/Library/Frameworks",
-					"$(SDKROOT)/System/Library/Frameworks",
+					/System/Library/Frameworks,
 					/Library/Frameworks,
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
@@ -2495,13 +2480,14 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					/usr/include/libxml2,
-					"$(SDKROOT)/System/Library/Frameworks/OpenGL.framework/Headers",
-					"$(HOME)/Library/Frameworks/SDL.framework/Headers",
-					"$(HOME)/Library/Frameworks/SDL_net.framework/Headers",
-					"$(HOME)/Library/Frameworks/SDL_image.framework/Headers",
-					"$(HOME)/Library/Frameworks/OpenAL.framework/Headers",
-					"$(HOME)/Library/Frameworks/Ogg.framework/Headers",
-					"$(HOME)/Library/Frameworks/Vorbis.framework/Headers",
+					/System/Library/Frameworks/OpenGL.framework/Headers,
+					/System/Library/Frameworks/OpenAL.framework/Headers,
+					"$(EL_FRAMEWORKS_DIR)/SDL.framework/Headers",
+					"$(EL_FRAMEWORKS_DIR)/SDL_net.framework/Headers",
+					"$(EL_FRAMEWORKS_DIR)/SDL_image.framework/Headers",
+					"$(EL_FRAMEWORKS_DIR)/Ogg.framework/Headers",
+					"$(EL_FRAMEWORKS_DIR)/Vorbis.framework/Headers",
+					"$(EL_FRAMEWORKS_DIR)/png.framework/Headers",
 				);
 				OTHER_LDFLAGS = (
 					"-lz",
@@ -2527,6 +2513,7 @@
 				DEPLOYMENT_LOCATION = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(EL_FRAMEWORKS_DIR)",
+					"$(HOME)/Library/Frameworks",
 					/System/Library/Frameworks,
 					/Library/Frameworks,
 					"$(FRAMEWORK_SEARCH_PATHS)",
