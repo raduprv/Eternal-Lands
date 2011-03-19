@@ -198,7 +198,7 @@ char
 	unknown_book_short_str[50],
 	unknown_book_long_str[150],
 	know_highlight_prompt_str[20],
-	know_highlight_cm_str[50],
+	know_highlight_cm_str[70],
 	/*manufacture.c*/
 	mix_str[5],
 	mixall_str[10],
@@ -1210,7 +1210,7 @@ void init_help()
 	add_xml_identifier(misc,"unknown_book_s",unknown_book_short_str,"(Not yet known to client)",sizeof(unknown_book_short_str));
 	add_xml_identifier(misc,"unknown_book_l",unknown_book_long_str,"Researching book not yet known to the client.  Don't worry, reading it will count!",sizeof(unknown_book_long_str));
 	add_xml_identifier(misc,"know_highlight_prompt",know_highlight_prompt_str,"Highlight Text",sizeof(know_highlight_prompt_str));
-	add_xml_identifier(misc,"know_highlight_cm",know_highlight_cm_str,"Set Highlight Text\nClear Highlight",sizeof(know_highlight_cm_str));
+	add_xml_identifier(misc,"know_highlight_cm",know_highlight_cm_str,"Set Highlight Text\nClear Highlight\nCopy Name",sizeof(know_highlight_cm_str));
 	add_xml_identifier(misc,"mix",mix_str,"Mix",sizeof(mix_str));
 	add_xml_identifier(misc,"mix_all",mixall_str,"Mix all",sizeof(mixall_str));
 	add_xml_identifier(misc,"clear",clear_str,"Clear",sizeof(clear_str));

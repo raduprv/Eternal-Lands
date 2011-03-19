@@ -340,7 +340,7 @@ extern char
 		unknown_book_short_str[50],
 		unknown_book_long_str[150],
 		know_highlight_prompt_str[20],
-		know_highlight_cm_str[50],
+		know_highlight_cm_str[70],
 		/*manufacture.c*/
 		mix_str[5],
 		mixall_str[10],
