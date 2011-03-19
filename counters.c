@@ -68,6 +68,7 @@ static int mouseover_name = 0;
 static int mouseover_session = 0;
 static int mouseover_total = 0;
 static int mouseover_entry_y = -1;
+static int counters_show_win_help = 0;
 
 static int product_count = 0;
 static char product_name[128];
@@ -596,13 +597,22 @@ int display_counters_handler(window_info *win)
 				draw_string_small(x, y, (unsigned char*)used_name, 1);
 				/* if the mouse is over this line and its truncated, tooltip to full name */
 				if (mouseover_entry_y > y && mouseover_entry_y < y+16)
-					show_help(counters[i][j].name, 0, win->len_y+5);
+				{
+					show_help(counters[i][j].name, -TAB_MARGIN, win->len_y+10+TAB_MARGIN);
+					counters_show_win_help = 0;
+				}
 				free(used_name);
 			}
 			else
 				draw_string_small(x, y, (unsigned char*)counters[i][j].name, 1);
 		}
 		y += 16;
+	}
+
+	if (counters_show_win_help)
+	{
+		show_help(cm_help_options_str, -TAB_MARGIN, win->len_y+10+TAB_MARGIN);
+		counters_show_win_help = 0;
 	}
 
 	glColor3f(1.0f, 1.0f, 1.0f);
@@ -669,7 +679,10 @@ int mouseover_counters_handler(window_info *win, int mx, int my)
 {
 	mouseover_name = mouseover_session = mouseover_total = 0;
 	mouseover_entry_y = -1;
-	
+
+	if ((mx > 120) && (mx < (STATS_TAB_WIDTH-20)) && (my > 30) && (my < (30+NUM_LINES*16)))
+		counters_show_win_help = 1;
+
 	if (my > 25){
 		if (my > 30 && my < (30+NUM_LINES*16) && mx >= 130 && mx <= 425) {
 			mouseover_entry_y = my;
