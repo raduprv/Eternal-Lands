@@ -41,6 +41,7 @@ int autoclose_storage_dialogue=0;
 int dialogue_copy_excludes_responses=0;
 int dialogue_copy_excludes_newlines=0;
 static Uint32 copy_end_highlight_time = 0;
+static Uint32 repeat_end_highlight_time = 0;
 static int close_str_width = -1;
 static int copy_str_width = -1;
 static int repeat_str_width = -1;
@@ -257,6 +258,8 @@ int	display_dialogue_handler(window_info *win)
 
 	if (!saved_response_init)
 		glColor3f(0.5f,0.5f,0.5f);
+	else if (repeat_end_highlight_time > SDL_GetTicks())
+		glColor3f(1.0f,0.25f,0.0f);
 	else if (highlight_repeat)
 		glColor3f(1.0f,0.5f,0.0f);
 	else
@@ -494,6 +497,7 @@ int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags)
 		}
 	if(saved_response_init && (flags & ELW_LEFT_MOUSE) && mx>4*str_edge+copy_str_width && mx<4*str_edge+copy_str_width+repeat_str_width && my>=win->len_y-(SMALL_FONT_Y_LEN+1))
 		{
+			repeat_end_highlight_time = SDL_GetTicks() + 500;
 			send_response(win, &saved_responses[saved_response_list_top]);
 #ifdef NEW_SOUND
 			add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
