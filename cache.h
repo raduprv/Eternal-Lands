@@ -93,6 +93,7 @@ void cache_system_init(Uint32 max_items);
  */
 void cache_system_maint();
 
+#ifdef	ELC
 /*!
  * \ingroup cache
  * \brief dumps the sizes of the given \a cache.
@@ -104,6 +105,7 @@ void cache_system_maint();
  * \callgraph
  */
 void cache_dump_sizes(cache_struct *cache);
+#endif	/* ELC */
 
 /*!
  * \ingroup cache

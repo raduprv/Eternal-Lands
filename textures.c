@@ -30,6 +30,7 @@
 
 #ifdef	NEW_TEXTURES
 
+#ifdef	ELC
 #define ACTOR_TEXTURE_CACHE_MAX 256
 #define ACTOR_TEXTURE_THREAD_COUNT 4
 
@@ -38,6 +39,7 @@ SDL_Thread* actor_texture_threads[ACTOR_TEXTURE_THREAD_COUNT];
 Uint32 max_actor_texture_handles = 32;
 queue_t* actor_texture_queue = 0;
 Uint32 actor_texture_threads_done = 0;
+#endif	/* ELC */
 
 #define TEXTURE_CACHE_MAX 8192
 
@@ -551,6 +553,7 @@ void bind_texture_unbuffered(const Uint32 handle)
 	glBindTexture(GL_TEXTURE_2D, get_texture_id(handle));
 }
 
+#ifdef	ELC
 void reload_actor_texture_resources(actor_texture_cache_t* texture)
 {
 	if (texture != 0)
@@ -597,7 +600,6 @@ void free_actor_texture_resources(actor_texture_cache_t* texture)
 	}
 }
 
-#ifdef	ELC
 static Uint32 copy_to_coordinates(const image_t* source, const Uint32 x,
 	const Uint32 y, image_t* dest)
 {
@@ -1944,7 +1946,9 @@ int load_enhanced_actor_thread(void* done)
 
 void init_texture_cache()
 {
+#ifdef	ELC
 	Uint32 i;
+#endif	/* ELC */
 
 	texture_cache = cache_init(TEXTURE_CACHE_MAX, 0);
 	cache_set_compact(texture_cache, compact_texture);
@@ -1954,6 +1958,7 @@ void init_texture_cache()
 	texture_handles = malloc(TEXTURE_CACHE_MAX * sizeof(texture_cache_t));
 	memset(texture_handles, 0, TEXTURE_CACHE_MAX * sizeof(texture_cache_t));
 
+#ifdef	ELC
 	actor_texture_handles = malloc(ACTOR_TEXTURE_CACHE_MAX * sizeof(actor_texture_cache_t));
 	memset(actor_texture_handles, 0, ACTOR_TEXTURE_CACHE_MAX * sizeof(actor_texture_cache_t));
 
@@ -1970,11 +1975,13 @@ void init_texture_cache()
 		actor_texture_threads[i] = SDL_CreateThread(
 			load_enhanced_actor_thread, &actor_texture_threads_done);
 	}
+#endif	/* ELC */
 }
 
 void free_texture_cache()
 {
 	Uint32 i;
+#ifdef	ELC
 	int result;
 
 	actor_texture_threads_done = 1;
@@ -2000,6 +2007,7 @@ void free_texture_cache()
 	}
 
 	free(actor_texture_handles);
+#endif	/* ELC */
 
 	for (i = 0; i < texture_handles_max_handle; i++)
 	{
@@ -2016,7 +2024,10 @@ void free_texture_cache()
 
 void unload_texture_cache()
 {
-	Uint32 i, used;
+#ifdef	ELC
+	Uint32 used;
+#endif	/* ELC */
+	Uint32 i;
 
 	for (i = 0; i < texture_handles_max_handle; i++)
 	{
@@ -2031,6 +2042,7 @@ void unload_texture_cache()
 		}
 	}
 
+#ifdef	ELC
 	if (actor_texture_handles != 0)
 	{
 		while (queue_pop(actor_texture_queue) != 0);
@@ -2052,6 +2064,7 @@ void unload_texture_cache()
 			}
 		}
 	}
+#endif	/* ELC */
 }
 
 #ifdef	DEBUG

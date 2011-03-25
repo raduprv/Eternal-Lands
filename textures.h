@@ -66,70 +66,6 @@ typedef struct
 } texture_cache_t;
 
 /*!
- * we use a separate cache structure to cache textures.
- */
-typedef struct
-{
-	char pants_tex[MAX_FILE_PATH];
-	char pants_mask[MAX_FILE_PATH];
-
-	char boots_tex[MAX_FILE_PATH];
-	char boots_mask[MAX_FILE_PATH];
-
-	char torso_tex[MAX_FILE_PATH];
-	char arms_tex[MAX_FILE_PATH];
-	char torso_mask[MAX_FILE_PATH];
-	char arms_mask[MAX_FILE_PATH];
-
-	char hands_tex[MAX_FILE_PATH];
-	char head_tex[MAX_FILE_PATH];
-	char hands_mask[MAX_FILE_PATH];
-	char head_mask[MAX_FILE_PATH];
-
-	char head_base[MAX_FILE_PATH];
-	char body_base[MAX_FILE_PATH];
-	char arms_base[MAX_FILE_PATH];
-	char legs_base[MAX_FILE_PATH];
-	char boots_base[MAX_FILE_PATH];
-
-	char hair_tex[MAX_FILE_PATH];
-	char weapon_tex[MAX_FILE_PATH];
-	char shield_tex[MAX_FILE_PATH];
-	char helmet_tex[MAX_FILE_PATH];
-	char neck_tex[MAX_FILE_PATH];
-	char cape_tex[MAX_FILE_PATH];
-	char hands_tex_save[MAX_FILE_PATH];
-} enhanced_actor_images_t;
-
-typedef enum
-{
-	tst_unloaded = 0,
-	tst_image_loading,
-	tst_image_loaded,
-	tst_texture_loading,
-	tst_texture_loaded
-} texture_state_type;
-
-#define MAX_ACTOR_NAME 24
-
-/*!
- * we use a separate cache structure to cache textures.
- */
-typedef struct
-{
-	enhanced_actor_images_t files;	/*!< the files used for the texture */
-	char name[MAX_ACTOR_NAME];	/*!< used as an uid.... */
-	SDL_mutex* mutex;		/*!< the mutex used for this structure */
-	image_t image;			/*!< the image for the texture */
-	GLuint id;			/*!< the id of the texture */
-	GLuint new_id;			/*!< the id of the new texture */
-	Uint32 hash;			/*!< hash value of the files */
-	Uint32 used;			/*!< if this is used at the moment? */
-	Uint32 access_time;		/*!< last time used */
-	texture_state_type state;	/*!< the texture states e.g. loading */
-} actor_texture_cache_t;
-
-/*!
  * \ingroup 	textures
  * \brief 	Loads a texture for non-gui use.
  *
@@ -220,6 +156,71 @@ void bind_texture_unbuffered(const Uint32 handle);
 Uint32 get_texture_alpha(const Uint32 handle);
 
 #ifdef	ELC
+
+/*!
+ * we use a separate cache structure to cache textures.
+ */
+typedef struct
+{
+	char pants_tex[MAX_FILE_PATH];
+	char pants_mask[MAX_FILE_PATH];
+
+	char boots_tex[MAX_FILE_PATH];
+	char boots_mask[MAX_FILE_PATH];
+
+	char torso_tex[MAX_FILE_PATH];
+	char arms_tex[MAX_FILE_PATH];
+	char torso_mask[MAX_FILE_PATH];
+	char arms_mask[MAX_FILE_PATH];
+
+	char hands_tex[MAX_FILE_PATH];
+	char head_tex[MAX_FILE_PATH];
+	char hands_mask[MAX_FILE_PATH];
+	char head_mask[MAX_FILE_PATH];
+
+	char head_base[MAX_FILE_PATH];
+	char body_base[MAX_FILE_PATH];
+	char arms_base[MAX_FILE_PATH];
+	char legs_base[MAX_FILE_PATH];
+	char boots_base[MAX_FILE_PATH];
+
+	char hair_tex[MAX_FILE_PATH];
+	char weapon_tex[MAX_FILE_PATH];
+	char shield_tex[MAX_FILE_PATH];
+	char helmet_tex[MAX_FILE_PATH];
+	char neck_tex[MAX_FILE_PATH];
+	char cape_tex[MAX_FILE_PATH];
+	char hands_tex_save[MAX_FILE_PATH];
+} enhanced_actor_images_t;
+
+typedef enum
+{
+	tst_unloaded = 0,
+	tst_image_loading,
+	tst_image_loaded,
+	tst_texture_loading,
+	tst_texture_loaded
+} texture_state_type;
+
+#define MAX_ACTOR_NAME 24
+
+/*!
+ * we use a separate cache structure to cache textures.
+ */
+typedef struct
+{
+	enhanced_actor_images_t files;	/*!< the files used for the texture */
+	char name[MAX_ACTOR_NAME];	/*!< used as an uid.... */
+	SDL_mutex* mutex;		/*!< the mutex used for this structure */
+	image_t image;			/*!< the image for the texture */
+	GLuint id;			/*!< the id of the texture */
+	GLuint new_id;			/*!< the id of the new texture */
+	Uint32 hash;			/*!< hash value of the files */
+	Uint32 used;			/*!< if this is used at the moment? */
+	Uint32 access_time;		/*!< last time used */
+	texture_state_type state;	/*!< the texture states e.g. loading */
+} actor_texture_cache_t;
+
 /*!
  * \ingroup 	textures
  * \brief 	Loads the actors texture

@@ -340,7 +340,7 @@ extern char
 		unknown_book_short_str[50],
 		unknown_book_long_str[150],
 		know_highlight_prompt_str[20],
-		know_highlight_cm_str[50],
+		know_highlight_cm_str[70],
 		/*manufacture.c*/
 		mix_str[5],
 		mixall_str[10],
@@ -543,6 +543,7 @@ extern char	reg_error_str[15],
 		/*dialogues.c*/
 		close_str[20],
 		dialogue_copy_str[20],
+		dialogue_repeat_str[20],
 		open_storage_str[20],
 #endif
 		/*XML and channel list errors from chat.c*/

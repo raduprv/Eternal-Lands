@@ -47,6 +47,7 @@ void cache_system_init(Uint32 max_items)
 	cache_set_time_limit(cache_system, 1*60*1000);	// once per minute check for processing
 }
 
+#ifdef	ELC
 void cache_dump_sizes(cache_struct *cache)
 {
 	Sint32 i;
@@ -78,6 +79,7 @@ void cache_dump_sizes(cache_struct *cache)
 		}
 	}
 }
+#endif	/* ELC */
 
 void	cache_system_maint()
 {
@@ -97,7 +99,9 @@ Uint32	cache_system_clean()
 
 	if(!cache_system || !cache_system->time_limit || !cache_system->cached_items) return 0;
 	// make sure we are in a safe place
+#ifdef	ELC
 	if ( !get_show_window (game_root_win) ) return 0;
+#endif	/* ELC */
 	for(i=0; i<cache_system->max_item; i++)
 		{
 			if(cache_system->cached_items[i] && cache_system->cached_items[i]->cache_item)

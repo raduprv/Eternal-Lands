@@ -258,6 +258,7 @@ void change_var(int * var)
 	*var= !*var;
 }
 
+#ifndef MAP_EDITOR
 void change_minimap_scale(float * var, float * value)
 {
 	int shown = 0;
@@ -280,7 +281,6 @@ void change_sky_var(int * var)
 	skybox_update_colors();
 }
 
-#ifndef MAP_EDITOR
 void change_use_animation_program(int * var)
 {
 	if (*var)
@@ -1146,6 +1146,7 @@ void change_shadows(int *sh)
 	update_fbos();
 }
 
+#ifndef MAP_EDITOR
 int int_max_water_shader_quality()
 {
 	if (gl_extensions_loaded)
@@ -1170,6 +1171,7 @@ void change_water_shader_quality(int *wsq, int value)
 	}
 	update_fbos();
 }
+#endif
 
 #ifdef MAP_EDITOR
 
@@ -1243,7 +1245,7 @@ int set_var_unsaved(const char *str, option_type type)
 	return 1;
 }
 
-
+#ifdef	ELC
 // Find an OPT_INT widget and set its's value
 // Other types might be useful but I just needed an OPT_INT this time.
 int set_var_OPT_INT(const char *str, int new_value)
@@ -1265,7 +1267,7 @@ int set_var_OPT_INT(const char *str, int new_value)
 	}
 	return 0;
 }
-
+#endif
 
 void change_language(const char *new_lang)
 {
@@ -1718,7 +1720,9 @@ void init_vars()
 	add_var(OPT_BOOL,"always_pathfinding", "alwayspathfinding", &always_pathfinding, change_var, 0, "Extend the range of the walk cursor", "Extends the range of the walk cursor to as far as you can see.  Using this option, movement may be slightly less responsive on larger maps.", CONTROLS);
 	add_var(OPT_BOOL,"disable_double_click", "disabledoubleclick", &disable_double_click, change_var, 0, "Disable double-click button safety", "Some buttons are protected from mis-click by requiring you to double-click them.  This option disables that protection.", CONTROLS);
 	add_var(OPT_BOOL,"achievements_ctrl_click", "achievementsctrlclick", &achievements_ctrl_click, change_var, 0, "Control click required to view achievements", "To view a players achievements, you click on them with the eye cursor.  With this option enabled, you must use Ctrl+click.", CONTROLS);
+#ifndef MAP_EDITOR
 	add_var(OPT_FLOAT,"minimap_scale", "minimapscale", &minimap_size_coefficient, change_minimap_scale, 0.7, "Minimap Scale", "Adjust the overall size of the minimap", CONTROLS, 0.5, 1.5, 0.1);
+#endif //MAP_EDITOR
 	add_var(OPT_BOOL,"rotate_minimap","rotateminimap",&rotate_minimap,change_var,1,"Rotate Minimap","Toggle whether the minimap should rotate.",CONTROLS);
 	add_var(OPT_BOOL,"pin_minimap","pinminimap",&pin_minimap,change_var,0,"Pin Minimap","Toggle whether the minimap ignores close-all-windows.",CONTROLS);
 	add_var(OPT_BOOL,"view_analog_clock","analog",&view_analog_clock,change_var,1,"Analog Clock","Toggle the analog clock",HUD);

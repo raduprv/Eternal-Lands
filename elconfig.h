@@ -205,6 +205,7 @@ void change_windowed_chat (int *wc, int val);
  */
 int set_var_unsaved(const char *str, option_type type);
 
+#ifdef	ELC
 /*!
  * \ingroup other
  * brief Sets the specfied OPT_INT variable's value.
@@ -213,6 +214,7 @@ int set_var_unsaved(const char *str, option_type type);
  * \retval	1 if sucessfull, 0 if option not found
  */
 int set_var_OPT_INT(const char *str, int new_value);
+#endif
 
 void toggle_follow_cam(int * fc);
 void toggle_ext_cam(int * ec);

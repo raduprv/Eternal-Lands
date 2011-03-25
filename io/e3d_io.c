@@ -553,7 +553,11 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 
 		cur_object->materials[i].options = SDL_SwapLE32(material.options);
 #ifdef	MAP_EDITOR
+#ifdef	NEW_TEXTURES
+		cur_object->materials[i].texture = load_texture_cached(text_file_name, tt_mesh);
+#else	/* NEW_TEXTURES */
 		cur_object->materials[i].texture = load_texture_cache(text_file_name,0);
+#endif	/* NEW_TEXTURES */
 #else	//MAP_EDITOR
 #ifdef	NEW_TEXTURES
 		cur_object->materials[i].texture = load_texture_cached(text_file_name, tt_mesh);
