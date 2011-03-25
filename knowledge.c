@@ -10,6 +10,7 @@
 #include "hud.h"
 #include "multiplayer.h"
 #include "notepad.h"
+#include "paste.h"
 #include "stats.h"
 #include "tabs.h"
 #include "textures.h"
@@ -225,6 +226,9 @@ int mouseover_knowledge_handler(window_info *win, int mx, int my)
 {
 	int	i;
 
+	if (cm_window_shown()!=CM_INIT_VALUE)
+		return 0;
+
 	for(i=0;i<knowledge_count;i++)knowledge_list[i].mouse_over=0;
 	if (my>0)
 		know_show_win_help = 1;
@@ -317,7 +321,7 @@ void get_new_knowledge(Uint16 idx)
 	}
 }
 
-static void set_hightligh_callback(const char *new_highlight_string, void *data)
+static void set_hightlight_callback(const char *new_highlight_string, void *data)
 {
 	safe_strncpy(highlight_string, new_highlight_string, KNOWLEDGE_NAME_SIZE);
 }
@@ -328,14 +332,25 @@ static int cm_knowledge_handler(window_info *win, int widget_id, int mx, int my,
 	{
 		case 0:
 			close_ipu(&ipu_know);
-			init_ipu(&ipu_know, knowledge_win, DEFAULT_FONT_X_LEN * 20, -1, 40, 1, NULL, set_hightligh_callback);
+			init_ipu(&ipu_know, knowledge_win, DEFAULT_FONT_X_LEN * 20, -1, 40, 1, NULL, set_hightlight_callback);
 			ipu_know.x = mx; ipu_know.y = my;
 			display_popup_win(&ipu_know, know_highlight_prompt_str);
 			if (ipu_know.popup_win >=0 && ipu_know.popup_win<windows_list.num_windows)
 				windows_list.window[ipu_know.popup_win].opaque = 1;
 			break;
 		case 1:
-			set_hightligh_callback("", NULL);
+			set_hightlight_callback("", NULL);
+			break;
+		case 2:
+			{
+				int i;
+				for(i=0; i<knowledge_count; i++)
+					if (knowledge_list[i].mouse_over)
+					{
+						copy_to_clipboard(knowledge_list[i].name);
+						break;
+					}
+			}
 			break;
 	}
 	return 1;

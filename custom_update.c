@@ -6,6 +6,7 @@
 #include "io/elfilewrapper.h"
 #include <time.h>
 #include <SDL_thread.h>
+#include <ctype.h>
 #include "asc.h"
 
 SDL_Thread* update_thread = 0;

@@ -41,19 +41,28 @@ int autoclose_storage_dialogue=0;
 int dialogue_copy_excludes_responses=0;
 int dialogue_copy_excludes_newlines=0;
 static Uint32 copy_end_highlight_time = 0;
+static Uint32 repeat_end_highlight_time = 0;
 static int close_str_width = -1;
 static int copy_str_width = -1;
+static int repeat_str_width = -1;
 static int highlight_close = 0;
 static int highlight_copy = 0;
+static int highlight_repeat = 0;
 static int mouse_over_name = 0;
 static const int str_edge = 5;
 #define MAX_MESS_LINES 8
 static const int response_y_offset = MAX_MESS_LINES*SMALL_FONT_Y_LEN;
 static size_t cm_npcname_id = CM_INIT_VALUE;
 static size_t cm_dialog_copy_id = CM_INIT_VALUE;
+static size_t cm_dialog_repeat_id = CM_INIT_VALUE;
 static int new_dialogue = 1;
 static int npc_name_x_start,npc_name_len;
-
+#define MAX_SAVED_RESPONSES 8
+static size_t saved_response_list_top = 0;
+static size_t saved_response_list_bot = 0;
+static size_t saved_response_init = 0;
+static response saved_responses[MAX_SAVED_RESPONSES];
+static int cm_dialogue_repeat_handler(window_info *win, int widget_id, int mx, int my, int option);
 
 void build_response_entries (const Uint8 *data, int total_length)
 {
@@ -115,6 +124,16 @@ void build_response_entries (const Uint8 *data, int total_length)
 		x_start+=(len+2)*SMALL_FONT_X_LEN;
 		orig_x_start+=(orig_len+2)*SMALL_FONT_X_LEN;
 	}
+
+	/* remove any previous saved responses */
+	if (saved_response_init)
+		for(i=0;i<MAX_RESPONSES;i++)
+			if (dialogue_responces[i].in_use && (dialogue_responces[i].to_actor != saved_responses[saved_response_list_top].to_actor))
+			{
+				saved_response_list_bot = saved_response_list_top = saved_response_init = 0;
+				cm_set(cm_dialog_repeat_id, "--\n", NULL);
+				break;
+			}
 }
 
 int	display_dialogue_handler(window_info *win)
@@ -237,11 +256,21 @@ int	display_dialogue_handler(window_info *win)
 		glColor3f(1.0f,1.0f,1.0f);
 	draw_string_small(str_edge,win->len_y-(SMALL_FONT_Y_LEN+1),(unsigned char*)dialogue_copy_str,1);
 
+	if (!saved_response_init)
+		glColor3f(0.5f,0.5f,0.5f);
+	else if (repeat_end_highlight_time > SDL_GetTicks())
+		glColor3f(1.0f,0.25f,0.0f);
+	else if (highlight_repeat)
+		glColor3f(1.0f,0.5f,0.0f);
+	else
+		glColor3f(1.0f,1.0f,1.0f);
+	draw_string_small(4*str_edge+copy_str_width,win->len_y-(SMALL_FONT_Y_LEN+1),(unsigned char*)dialogue_repeat_str,1);
+
 	// display help text if appropriate
-	if ((show_help_text) && (highlight_copy || mouse_over_name))
+	if ((show_help_text) && (highlight_repeat || highlight_copy || mouse_over_name))
 			show_help(cm_help_options_str, 0, win->len_y+10);
 
-	highlight_close = highlight_copy = mouse_over_name = 0;
+	highlight_close = highlight_copy = highlight_repeat = mouse_over_name = 0;
 
 	// if this is the first time we displayed this dialogue, do first time stuff
 	if (new_dialogue)
@@ -252,6 +281,8 @@ int	display_dialogue_handler(window_info *win)
 			win->len_y-(SMALL_FONT_Y_LEN+1), npc_name_len*SMALL_FONT_X_LEN, SMALL_FONT_Y_LEN);
 		cm_add_region(cm_dialog_copy_id, win->window_id, str_edge,
 			win->len_y-(SMALL_FONT_Y_LEN+1), copy_str_width, SMALL_FONT_Y_LEN);
+		cm_add_region(cm_dialog_repeat_id, win->window_id, 4*str_edge+copy_str_width,
+			win->len_y-(SMALL_FONT_Y_LEN+1), repeat_str_width, SMALL_FONT_Y_LEN);
 	}
 
 #ifdef OPENGL_TRACE
@@ -286,6 +317,8 @@ int mouseover_dialogue_handler(window_info *win, int mx, int my)
 		highlight_close = 1;
 	if(mx>str_edge && mx<str_edge+copy_str_width && my>=win->len_y-(SMALL_FONT_Y_LEN+1))
 		highlight_copy = 1;
+	if(mx>4*str_edge+copy_str_width && mx<4*str_edge+copy_str_width+repeat_str_width && my>=win->len_y-(SMALL_FONT_Y_LEN+1))
+		highlight_repeat = 1;
 	if (mx>npc_name_x_start && mx<npc_name_x_start+npc_name_len*SMALL_FONT_X_LEN && my>=win->len_y-(SMALL_FONT_Y_LEN+1))
 		mouse_over_name = 1;
 
@@ -320,15 +353,61 @@ int mouseover_dialogue_handler(window_info *win, int mx, int my)
 	return 0;
 }
 
-void send_response(window_info *win, int response_index)
+
+void save_response(const response *last_response)
+{
+	size_t i;
+
+	/* not the first time for this dialogue */
+	if (saved_response_init)
+	{
+		/* check for repeats */
+		for (i=saved_response_list_top; saved_response_list_bot<MAX_SAVED_RESPONSES; i--)
+		{
+			if (saved_responses[i].response_id == last_response->response_id)
+				return;
+			if (i == saved_response_list_bot)
+				break;
+			if (i == 0)
+				i = MAX_SAVED_RESPONSES;
+		}
+		/* move indexes */
+		if (++saved_response_list_top >= MAX_SAVED_RESPONSES)
+			saved_response_list_top = 0;
+		if (saved_response_list_top == saved_response_list_bot)
+			if (++saved_response_list_bot >= MAX_SAVED_RESPONSES)
+				saved_response_list_bot = 0;
+	}
+	/* first time for this dialogue */
+	else
+		saved_response_init = 1;
+
+	/* save the response - memcpy() ok as no pointers */
+	memcpy(&saved_responses[saved_response_list_top], last_response, sizeof(response));
+
+	/* rebuild the context menu from current saved responses, newest first */
+	cm_set(cm_dialog_repeat_id, "", cm_dialogue_repeat_handler);
+	for (i=saved_response_list_top; saved_response_list_bot<MAX_SAVED_RESPONSES; i--)
+	{
+		cm_add(cm_dialog_repeat_id, saved_responses[i].text, NULL);
+		if (i == saved_response_list_bot)
+			break;
+		if (i == 0)
+			i = MAX_SAVED_RESPONSES;
+	}
+}
+
+
+void send_response(window_info *win, const response *the_response)
 {
 	Uint8 str[16];
 	str[0]=RESPOND_TO_NPC;
-	*((Uint16 *)(str+1))=SDL_SwapLE16((short)dialogue_responces[response_index].to_actor);
-	*((Uint16 *)(str+3))=SDL_SwapLE16((short)dialogue_responces[response_index].response_id);
+	*((Uint16 *)(str+1))=SDL_SwapLE16((short)the_response->to_actor);
+	*((Uint16 *)(str+3))=SDL_SwapLE16((short)the_response->response_id);
 	my_tcp_send(my_socket,str,5);
-	if (autoclose_storage_dialogue && strcmp(dialogue_responces[response_index].text, open_storage_str) == 0)
+	if (autoclose_storage_dialogue && strcmp(the_response->text, open_storage_str) == 0)
  		hide_window(win->window_id);
+	save_response(the_response);
 }
 
 
@@ -392,7 +471,7 @@ int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags)
 		{
 			if(dialogue_responces[i].in_use && dialogue_responces[i].mouse_over)
 				{
-					send_response(win, i);
+					send_response(win, &dialogue_responces[i]);
 #ifdef NEW_SOUND
 					add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
 #endif // NEW_SOUND
@@ -411,6 +490,15 @@ int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags)
 		{
 			copy_end_highlight_time = SDL_GetTicks() + 500;
 			copy_dialogue_text();
+#ifdef NEW_SOUND
+			add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+#endif // NEW_SOUND
+			return 1;
+		}
+	if(saved_response_init && (flags & ELW_LEFT_MOUSE) && mx>4*str_edge+copy_str_width && mx<4*str_edge+copy_str_width+repeat_str_width && my>=win->len_y-(SMALL_FONT_Y_LEN+1))
+		{
+			repeat_end_highlight_time = SDL_GetTicks() + 500;
+			send_response(win, &saved_responses[saved_response_list_top]);
 #ifdef NEW_SOUND
 			add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
 #endif // NEW_SOUND
@@ -474,10 +562,25 @@ int keypress_dialogue_handler (window_info *win, int mx, int my, Uint32 key, Uin
 #ifdef NEW_SOUND
 		add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
 #endif // NEW_SOUND
-		send_response(win, ch);
+		send_response(win, &dialogue_responces[ch]);
 		return 1;
 	}
 	return 0;
+}
+
+static int cm_dialogue_repeat_handler(window_info *win, int widget_id, int mx, int my, int option)
+{
+	if (saved_response_init && (option < MAX_SAVED_RESPONSES))
+	{
+		size_t i = saved_response_list_top;
+		if (option > i)
+			i += MAX_SAVED_RESPONSES;
+		i -= option;
+		send_response(win, &saved_responses[i]);
+		return 1;
+	}
+	else
+		return 0;
 }
 
 static int cm_npcname_handler(window_info *win, int widget_id, int mx, int my, int option)
@@ -508,11 +611,13 @@ void display_dialogue()
 
 		cm_npcname_id = cm_create(cm_npcname_menu_str, cm_npcname_handler);
 		cm_dialog_copy_id = cm_create(cm_dialog_copy_menu_str, NULL);
+		cm_dialog_repeat_id = cm_create("--\n", cm_dialogue_repeat_handler);
 		cm_bool_line(cm_dialog_copy_id, 0, &dialogue_copy_excludes_responses, NULL);
 		cm_bool_line(cm_dialog_copy_id, 1, &dialogue_copy_excludes_newlines, NULL);
 
 		copy_str_width = get_string_width((unsigned char*)dialogue_copy_str) * SMALL_FONT_X_LEN / 12.0;
 		close_str_width = get_string_width((unsigned char*)close_str) * SMALL_FONT_X_LEN / 12.0;
+		repeat_str_width = get_string_width((unsigned char*)dialogue_repeat_str) * SMALL_FONT_X_LEN / 12.0;
 	} else {
 		show_window(dialogue_win);
 		select_window(dialogue_win);

@@ -1,5 +1,6 @@
 #include "ziputil.h"
 #include <time.h>
+#include <string.h>
 
 Uint32 convert_string_to_md5_digest(const char* str, MD5_DIGEST digest)
 {
