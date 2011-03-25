@@ -42,7 +42,7 @@ void SetShadowMatrix()
 
 void draw_3d_object_shadow(object3d * object_id)
 {
-	int texture_id, i;
+	int i;
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 
@@ -88,12 +88,11 @@ void draw_3d_object_shadow(object3d * object_id)
 			else glAlphaFunc(GL_GREATER, 0.06f);
 			glDisable(GL_CULL_FACE);
 			glEnable(GL_TEXTURE_2D);
-			texture_id = get_texture_id(object_id->e3d_data->materials[i].texture);
-			if (last_texture != texture_id)
-			{
-				glBindTexture(GL_TEXTURE_2D, texture_id);
-				last_texture = texture_id;
-			}
+#ifdef	NEW_TEXTURES
+			bind_texture(object_id->e3d_data->materials[i].texture);
+#else	/* NEW_TEXTURES */
+			get_and_set_texture_id(object_id->e3d_data->materials[i].texture);
+#endif	/* NEW_TEXTURES */
 		}
 		else
 		{
@@ -266,7 +265,11 @@ void display_3d_ground_objects()
 			//bind the detail texture
 			glActiveTextureARB(GL_TEXTURE1_ARB);
 			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, texture_cache[ground_detail_text].texture_id);
+#ifdef	NEW_TEXTURES
+			bind_texture_unbuffered(ground_detail_text);
+#else	/* NEW_TEXTURES */
+			glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
+#endif	/* NEW_TEXTURES */
 			glActiveTextureARB(GL_TEXTURE0_ARB);
 			glEnable(GL_TEXTURE_2D);
 
@@ -333,7 +336,11 @@ void display_3d_non_ground_objects()
 			//bind the detail texture
 			glActiveTextureARB(GL_TEXTURE1_ARB);
 			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, texture_cache[ground_detail_text].texture_id);
+#ifdef	NEW_TEXTURES
+			bind_texture_unbuffered(ground_detail_text);
+#else	/* NEW_TEXTURES */
+			glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
+#endif	/* NEW_TEXTURES */
 			glActiveTextureARB(GL_TEXTURE0_ARB);
 			glEnable(GL_TEXTURE_2D);
 

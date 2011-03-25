@@ -21,8 +21,6 @@ void draw_2d_object(obj_2d * object_id)
 	int object_type;
 	obj_2d_def *obj_def_pointer;
 
-	int texture_id;
-
 	x_pos=object_id->x_pos;
 	y_pos=object_id->y_pos;
 	z_pos=object_id->z_pos;
@@ -40,7 +38,6 @@ void draw_2d_object(obj_2d * object_id)
 	x_size=obj_def_pointer->x_size;
 	y_size=obj_def_pointer->y_size;
 	alpha_test=obj_def_pointer->alpha_test;
-	texture_id=get_texture_id(obj_def_pointer->texture_id);
 	render_x_start=-x_size/2.0f;
 	object_type=obj_def_pointer->object_type;
 	if (object_type == GROUND)
@@ -71,11 +68,11 @@ void draw_2d_object(obj_2d * object_id)
     else
     glAlphaFunc(GL_GREATER,0.18f);
 
-    		if(last_texture!=texture_id)
-   			 	{
-					glBindTexture(GL_TEXTURE_2D, texture_id);
-					last_texture=texture_id;
-				}
+#ifdef	NEW_TEXTURES
+	bind_texture(obj_def_pointer->texture_id);
+#else	/* NEW_TEXTURES */
+	get_and_set_texture_id(obj_def_pointer->texture_id);
+#endif	/* NEW_TEXTURES */
 
 	if(!have_multitexture || !clouds_shadows)
 		{
@@ -101,7 +98,11 @@ void draw_2d_object(obj_2d * object_id)
 			//bind the detail texture
 			glActiveTextureARB(GL_TEXTURE1_ARB);
 			glEnable(GL_TEXTURE_2D);
+#ifdef	NEW_TEXTURES
+			bind_texture_unbuffered(ground_detail_text);
+#else	/* NEW_TEXTURES */
 			glBindTexture(GL_TEXTURE_2D,  texture_cache[ground_detail_text].texture_id);
+#endif	/* NEW_TEXTURES */
 			glActiveTextureARB(GL_TEXTURE0_ARB);
 			glEnable(GL_TEXTURE_2D);
 
@@ -232,8 +233,13 @@ obj_2d_def * load_obj_2d_def(char *file_name)
   //get the proper u/v coordinates
   cur_object->u_start=(float)u_start/file_x_len;
   cur_object->u_end=(float)u_end/file_x_len;
+#ifdef	NEW_TEXTURES
+  cur_object->v_start = (float)v_start/file_y_len;
+  cur_object->v_end = (float)v_end/file_y_len;
+#else	/* NEW_TEXTURES */
   cur_object->v_start=1.0f-(float)v_start/file_y_len;
   cur_object->v_end=1.0f-(float)v_end/file_y_len;
+#endif	/* NEW_TEXTURES */
   cur_object->x_size=x_size;
   cur_object->y_size=y_size;
   cur_object->alpha_test=alpha_test;
@@ -274,7 +280,11 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 		}
 	}
 
+#ifdef	NEW_TEXTURES
+	cur_object->texture_id = load_texture_cached(texture_file_name, tt_mesh);
+#else	/* NEW_TEXTURES */
 	cur_object->texture_id= load_texture_cache(texture_file_name,0);
+#endif	/* NEW_TEXTURES */
 	//now get the object type
 	i=get_string_occurance("type:",obj_file_mem,f_size,0);
 	obj_file_mem+=i;

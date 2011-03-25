@@ -34,7 +34,7 @@ static __inline__ void get_texture_object_linear_plane(float obj_z_rot, float ob
 
 void draw_3d_object(object3d * object_id)
 {
-	int texture_id, i;
+	int i;
 	float s_plane[4], t_plane[4];
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
@@ -102,12 +102,11 @@ void draw_3d_object(object3d * object_id)
 			glEnable(GL_CULL_FACE);
 		}
 
-		texture_id = get_texture_id(object_id->e3d_data->materials[i].texture);
-		if (last_texture != texture_id)
-		{
-			glBindTexture(GL_TEXTURE_2D, texture_id);
-			last_texture = texture_id;
-		}
+#ifdef	NEW_TEXTURES
+		bind_texture(object_id->e3d_data->materials[i].texture);
+#else	/* NEW_TEXTURES */
+		get_and_set_texture_id(object_id->e3d_data->materials[i].texture);
+#endif	/* NEW_TEXTURES */
 
 		ELglDrawRangeElementsEXT(GL_TRIANGLES,
 			object_id->e3d_data->materials[i].triangles_indicies_min,
@@ -314,7 +313,11 @@ void display_objects()
 			//bind the detail texture
 			glActiveTextureARB(GL_TEXTURE1_ARB);
 			glEnable(GL_TEXTURE_2D);
+#ifdef	NEW_TEXTURES
+			bind_texture_unbuffered(ground_detail_text);
+#else	/* NEW_TEXTURES */
 			glBindTexture(GL_TEXTURE_2D,  texture_cache[ground_detail_text].texture_id);
+#endif	/* NEW_TEXTURES */
 			glActiveTextureARB(GL_TEXTURE0_ARB);
 			glEnable(GL_TEXTURE_2D);
 		}

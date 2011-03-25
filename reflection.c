@@ -10,7 +10,7 @@ float mrandom(float max)
 
 void draw_3d_reflection(object3d * object_id)
 {
-	int texture_id, i;
+	int i;
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 
@@ -55,12 +55,11 @@ void draw_3d_reflection(object3d * object_id)
 			glEnable(GL_CULL_FACE);
 		}
 
-		texture_id = get_texture_id(object_id->e3d_data->materials[i].texture);
-		if (last_texture != texture_id)
-		{
-			glBindTexture(GL_TEXTURE_2D, texture_id);
-			last_texture = texture_id;
-		}
+#ifdef	NEW_TEXTURES
+		bind_texture(object_id->e3d_data->materials[i].texture);
+#else	/* NEW_TEXTURES */
+		get_and_set_texture_id(object_id->e3d_data->materials[i].texture);
+#endif	/* NEW_TEXTURES */
 
 		ELglDrawRangeElementsEXT(GL_TRIANGLES,
 			object_id->e3d_data->materials[i].triangles_indicies_min,
@@ -273,7 +272,7 @@ void draw_lake_water_tile(float x_pos, float y_pos)
 void draw_lake_tiles()
 {
 	int x_start,x_end,y_start,y_end;
-	int x,y;
+	int x,y, index;
 	float x_scaled,y_scaled;
 
 	//glDisable(GL_DEPTH_TEST);
@@ -296,27 +295,38 @@ void draw_lake_tiles()
 	if(y_start<0)y_start=0;
 	if(y_end>=tile_map_size_y)y_end=tile_map_size_y-1;
 	for(y=y_start;y<=y_end;y++)
+	{
+		y_scaled=y*3.0f;
+		for(x=x_start;x<=x_end;x++)
 		{
-			y_scaled=y*3.0f;
-			for(x=x_start;x<=x_end;x++)
+			x_scaled=x*3.0f;
+			if(!check_tile_in_frustrum(x_scaled,y_scaled))continue;//outside of the frustrum
+			if(is_water_tile(tile_map[y*tile_map_size_x+x]))
+			{
+				if(!tile_map[y*tile_map_size_x+x])
 				{
-					x_scaled=x*3.0f;
-					if(!check_tile_in_frustrum(x_scaled,y_scaled))continue;//outside of the frustrum
-					if(is_water_tile(tile_map[y*tile_map_size_x+x]))
-						{
-							if(!tile_map[y*tile_map_size_x+x])
-								{
-									if(dungeon)
-										get_and_set_texture_id(tile_list[231]);
-									else
-										get_and_set_texture_id(tile_list[0]);
-								}
-							else
-								get_and_set_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
-							draw_lake_water_tile(x_scaled,y_scaled);
-						}
+					if (dungeon)
+					{
+						index = 231;
+					}
+					else
+					{
+						index = 0;
+					}
 				}
+				else
+				{
+					index = tile_map[y * tile_map_size_x + x];
+				}
+#ifdef	NEW_TEXTURES
+				bind_texture(tile_list[index]);
+#else	/* NEW_TEXTURES */
+				get_and_set_texture_id(tile_list[index]);
+#endif	/* NEW_TEXTURES */
+				draw_lake_water_tile(x_scaled,y_scaled);
+			}
 		}
+	}
 
 	glDisable(GL_BLEND);
 	glDisable(GL_CULL_FACE);

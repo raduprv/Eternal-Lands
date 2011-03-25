@@ -20,6 +20,7 @@ char configdir[256]={"./"};
 
 void init_colors();
 
+#ifndef	NEW_TEXTURES
 void init_texture_cache()
 {
 	int i;
@@ -30,6 +31,7 @@ void init_texture_cache()
 		texture_cache[i].load_err = 0;
 	}
 }
+#endif	// NEW_TEXTURES
 
 void init_e3d_cache()
 {
@@ -79,14 +81,17 @@ void init_stuff()
 #endif
 	init_translatables();
 
+	create_error_mutex();
+	init_zip_archives();
+	cache_system_init(MAX_CACHE_SYSTEM);
+	init_texture_cache();
+
 	init_vars();
 	
 	read_config();
 
 	file_check_datadir();
 
-	add_paths();
-	
 #ifdef LOAD_XML
 	//Well, the current version of the map editor doesn't support having a datadir - will add that later ;-)
 	load_translatables();
@@ -150,12 +155,21 @@ void init_stuff()
 	init_gl_extensions();
 
 	if(have_multitexture)
+#ifdef	NEW_TEXTURES
+		ground_detail_text = load_texture_cached("./textures/ground_detail.bmp", tt_mesh);
+#else	/* NEW_TEXTURES */
 		ground_detail_text = load_texture_cache ("./textures/ground_detail.bmp",255);
+#endif	/* NEW_TEXTURES */
 
 	//load the fonts texture
 	init_fonts();
+#ifdef	NEW_TEXTURES
+	icons_text=load_texture_cached("./textures/gamebuttons.bmp", tt_gui);
+	buttons_text=load_texture_cached("./textures/buttons.bmp", tt_gui);
+#else	/* NEW_TEXTURES */
 	icons_text=load_texture_cache("./textures/gamebuttons.bmp",0);
 	buttons_text=load_texture_cache("./textures/buttons.bmp",0);
+#endif	/* NEW_TEXTURES */
 	//get the application home dir
 
 	have_multitexture=0;//debug only

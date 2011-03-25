@@ -658,6 +658,24 @@ void clone_particles_object(int object_id) {
 
 ////////////////////////////////////////////////////////////////////////////
 ////////////tile things/////////////////////////////////////////////////////
+#ifdef	NEW_TEXTURES
+void load_all_tiles()
+{
+	int i;
+	char str[80];
+
+	memset(map_tiles, 0, sizeof(map_tiles));
+
+	for(i = 0; i < 255; i++)
+	{
+		sprintf(str, "./3dobjects/tile%i.dds", i);
+
+		tiles_no = i;
+
+		load_image_data(str, 1, 1, 1, 0, &map_tiles[i]);
+	}
+}
+#else	/* NEW_TEXTURES */
 texture_struct *load_texture(const char * file_name, texture_struct *tex, Uint8 alpha);
 
 void load_all_tiles()
@@ -682,7 +700,7 @@ void load_all_tiles()
 	}
 	map_tiles[255].texture=NULL;
 }
-
+#endif	/* NEW_TEXTURES */
 
 void move_tile()
 {
@@ -707,17 +725,20 @@ void move_tile()
 	}
 	else
 	{
-		glBindTexture(GL_TEXTURE_2D, get_texture_id(tile_list[selected_tile]));
-
+#ifdef	NEW_TEXTURES
+		bind_texture(tile_list[selected_tile]);
+#else	/* NEW_TEXTURES */
+		get_and_set_texture_id(tile_list[selected_tile]);
+#endif	/* NEW_TEXTURES */
 		glBegin(GL_QUADS);
 
- 		glTexCoord2f(0, 1.0f);
+ 		glTexCoord2f(0, 0.0f);
 		glVertex3f(x_start,y_start+3, 0.001f);
-		glTexCoord2f(0, 0);
+		glTexCoord2f(0, 1.0f);
 		glVertex3f(x_start,y_start, 0.001f);
-		glTexCoord2f(1.0f, 0);
-		glVertex3f(x_start+3, y_start,0.001f);
 		glTexCoord2f(1.0f, 1.0f);
+		glVertex3f(x_start+3, y_start,0.001f);
+		glTexCoord2f(1.0f, 0.0f);
 		glVertex3f(x_start+3, y_start+3,0.001f);
 		glEnd();
 	}

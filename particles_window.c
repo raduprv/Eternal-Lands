@@ -253,33 +253,37 @@ void display_particles_window_preview(window_info *win)
 	}
 	glDepthMask(GL_TRUE);
 	// Draw a few tiles as a background
+#ifdef	NEW_TEXTURES
+	bind_texture(tile_list[1]);
+#else	/* NEW_TEXTURES */
 	get_and_set_texture_id(tile_list[1]);
+#endif	/* NEW_TEXTURES */
 	glBegin(GL_TRIANGLE_STRIP);
-	glTexCoord2f(1.0f, 0);
+	glTexCoord2f(1.0f, 1.0f);
 	glVertex2f(-3.0,3.0);
-	glTexCoord2f(1.0f, 1.0f);
+	glTexCoord2f(1.0f, 0.0f);
 	glVertex2f(-3.0,0.0);
-	glTexCoord2f(0, 1.0f);
+	glTexCoord2f(0, 0.0f);
 	glVertex2f(0.0,3.0);
-	glTexCoord2f(0, 0);
+	glTexCoord2f(0, 1.0f);
 	glVertex2f(0.0,0.0);
-	glTexCoord2f(1.0f, 0);
-	glVertex2f(3.0,3.0);
 	glTexCoord2f(1.0f, 1.0f);
+	glVertex2f(3.0,3.0);
+	glTexCoord2f(1.0f, 0.0f);
 	glVertex2f(3.0,0.0);
 	glEnd();
 	glBegin(GL_TRIANGLE_STRIP);
-	glTexCoord2f(1.0f, 0);
+	glTexCoord2f(1.0f, 1.0f);
 	glVertex2f(-3.0,0.0);
-	glTexCoord2f(1.0f, 1.0f);
+	glTexCoord2f(1.0f, 0.0f);
 	glVertex2f(-3.0,-3.0);
-	glTexCoord2f(0, 1.0f);
+	glTexCoord2f(0, 0.0f);
 	glVertex2f(0.0,0.0);
-	glTexCoord2f(0, 0);
+	glTexCoord2f(0, 1.0f);
 	glVertex2f(0.0,-3.0);
-	glTexCoord2f(1.0f, 0);
-	glVertex2f(3.0,0.0);
 	glTexCoord2f(1.0f, 1.0f);
+	glVertex2f(3.0,0.0);
+	glTexCoord2f(1.0f, 0.0f);
 	glVertex2f(3.0,-3.0);
 	glEnd();
 	if(def.use_light)glDisable(GL_LIGHT0);
@@ -577,13 +581,13 @@ int display_particles_window_handler(window_info *win)
 			glBlendFunc(GL_SRC_ALPHA,GL_ZERO);
 			glBegin(GL_TRIANGLE_STRIP);
 				glColor3f(1.0,1.0,1.0);
-				glTexCoord2f(0.0,1.0);
-				glVertex2i(previewx+(previewx2-previewx-60)/2,sel_handle_bottom+21);
 				glTexCoord2f(0.0,0.0);
+				glVertex2i(previewx+(previewx2-previewx-60)/2,sel_handle_bottom+21);
+				glTexCoord2f(0.0,1.0);
 				glVertex2i(previewx+(previewx2-previewx-60)/2,sel_handle_bottom+81);
-				glTexCoord2f(1.0,1.0);
-				glVertex2i(previewx2-(previewx2-previewx-60)/2,sel_handle_bottom+21);
 				glTexCoord2f(1.0,0.0);
+				glVertex2i(previewx2-(previewx2-previewx-60)/2,sel_handle_bottom+21);
+				glTexCoord2f(1.0,1.0);
 				glVertex2i(previewx2-(previewx2-previewx-60)/2,sel_handle_bottom+81);
 			glEnd();
 			glDisable(GL_BLEND);
@@ -640,7 +644,11 @@ int display_particles_window_handler(window_info *win)
 	draw_string(10,450,(const unsigned char*) temp,1);
 	UNLOCK_PARTICLES_LIST();
 
+#ifdef	NEW_TEXTURES
+	bind_texture(buttons_text);
+#else	/* NEW_TEXTURES */
 	get_and_set_texture_id(buttons_text);
+#endif	/* NEW_TEXTURES */
 	glBegin(GL_QUADS);
        	draw_2d_thing((float)64/255,1.0f-(float)32/255,(float)96/255,1.0f-(float)64/255, 10,380,42,412);
 	glEnd();
