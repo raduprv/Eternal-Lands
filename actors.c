@@ -1107,11 +1107,6 @@ void display_actors(int banner, int render_pass)
 	{
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GREATER, 0.06f);
-		if (render_pass != DEPTH_RENDER_PASS)
-		{
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		}
 		for (i = 0; i < no_near_actors; i++)
 		{
 
@@ -1149,10 +1144,6 @@ void display_actors(int banner, int render_pass)
 			}
 		}
 		glDisable(GL_ALPHA_TEST);
-		if (render_pass != DEPTH_RENDER_PASS)
-		{
-			glDisable(GL_BLEND);
-		}
 	}
 	if (has_ghosts)
 	{
