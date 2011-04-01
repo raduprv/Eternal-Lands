@@ -13,7 +13,8 @@ PARAM matrix[%d] = { program.local[0..%d] };
 
 MOV result.texcoord[1].xy, texure_coord.xyxx;	
 
-MUL R2, index, constant.y;
+MUL R0, index, constant.y;
+FLR R2, R0;
 
 ARL A0.x, R2.x;
 DPH R0.x, position.xyzx, matrix[A0.x];

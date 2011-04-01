@@ -41,7 +41,8 @@ PARAM matrix[%d] = { program.local[0..%d] };
 
 MOV result.texcoord[0].xy, texure_coord.xyxx;	
 
-MUL R4, index, constant.y;	
+MUL R0, index, constant.y;
+FLR R4, R0;
 
 ARL A0.x, R4.x;
 DP3 R0.x, matrix[A0.x].xyzx, normal.xyzx;
