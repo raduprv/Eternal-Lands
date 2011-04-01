@@ -911,6 +911,24 @@ void init_gl_extensions()
 		LOG_ERROR("%s\n",str);
 	}
 	/*	GL_EXT_texture_compression_latc		*/
+
+	/*	GL_EXT_texture_filter_anisotropic	*/
+	if (have_extension(ext_texture_filter_anisotropic))
+	{
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &anisotropic_filter);
+		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_EXT_texture_compression_latc");
+		LOG_TO_CONSOLE(c_green2, str);
+		LOG_ERROR("%s\n",str);
+	}
+	else
+	{
+		anisotropic_filter = 1.0f;
+		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_EXT_texture_compression_latc");
+		LOG_TO_CONSOLE(c_red1, str);
+		LOG_ERROR("%s\n",str);
+	}
+	/*	GL_EXT_texture_filter_anisotropic	*/
+
 #if	0
 	// Disabled because of bad drivers
 	if (have_extension(ext_framebuffer_object))

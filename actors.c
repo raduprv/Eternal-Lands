@@ -1106,7 +1106,7 @@ void display_actors(int banner, int render_pass)
 	if (has_alpha)
 	{
 		glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GREATER, 0.06f);
+		glAlphaFunc(GL_GREATER, 0.4f);
 		for (i = 0; i < no_near_actors; i++)
 		{
 

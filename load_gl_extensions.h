@@ -527,7 +527,6 @@ extern PFNGLPROGRAMLOCALPARAMETERS4FVEXTPROC ELglProgramLocalParameters4fvEXT;
 extern void init_opengl_extensions();
 extern Uint32 have_extension(extension_enum extension);
 extern Uint32 get_texture_units();
-extern float get_max_anisotropic_filter();
 
 extern const char* get_gl_version_str();
 extern GLboolean supports_gl_version(Uint8 major, Uint8 minor);
