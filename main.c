@@ -65,6 +65,9 @@
 #ifdef	CUSTOM_UPDATE
 #include "custom_update.h"
 #endif	/* CUSTOM_UPDATE */
+#ifdef	FSAA
+#include "fsaa/fsaa.h"
+#endif	/* FSAA */
 
 Uint32 cur_time=0, last_time=0;//for FPS
 
@@ -352,6 +355,9 @@ int main(int argc, char **argv)
 	create_error_mutex();
 	create_tcp_out_mutex();
 	init_translatables();
+#ifdef	FSAA
+	init_fsaa_modes();
+#endif	/* FSAA */
 	init_vars();
 	init_stuff();
 

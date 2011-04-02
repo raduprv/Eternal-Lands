@@ -23,6 +23,9 @@
 #include "sky.h"
 #include "shader/shader.h"
 #include "actor_init.h"
+#ifdef	FSAA
+#include "fsaa/fsaa.h"
+#endif	/* FSAA */
 
 Uint32 flags;
 
@@ -45,7 +48,6 @@ int use_vertex_buffers = 0;
 int use_frame_buffer = 0;
 int use_mipmaps = 0;
 int use_draw_range_elements = 1;
-int fsaa = 0;
 float anisotropic_filter = 1.0f;
 int disable_gamma_adjust = 0;
 float gamma_var = 1.00f;
@@ -299,11 +301,13 @@ void init_video()
 	SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 24 );
 	SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 8 );
 	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
-	if (fsaa > 0)
+#ifdef	FSAA
+	if (fsaa > 1)
 	{
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, fsaa);
 	}
+#endif	/* FSAA */
 	check_gl_mode();
 
 	SDL_WM_SetIcon(SDL_LoadBMP("icon.bmp"), NULL);
@@ -424,10 +428,6 @@ void init_video()
 	glCullFace(GL_BACK);
 	glEnable(GL_NORMALIZE);
 	glClearStencil(0);
-	if (fsaa > 1)
-	{
-		glEnable(GL_MULTISAMPLE);
-	}
 
 #ifdef ANTI_ALIAS
 	if (anti_alias) {
@@ -1175,3 +1175,4 @@ int print_gl_errors(const char *file, const char *func, int line)
 	}
 	return anyErr;
 }
+

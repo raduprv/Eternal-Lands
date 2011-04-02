@@ -40,6 +40,7 @@ typedef enum
 	OPT_INT,           // Change int                        func(int*,int)
 	OPT_SPECINT = OPT_INT, // Multiple ints, non-default func   func(int*,int)
 	OPT_MULTI,         // INT with multiselect widget
+	OPT_MULTI_H,       // INT with multiselect widget, horizontal
 	OPT_PASSWORD,
 	OPT_FLOAT_F,       // Change float with functions that returns max and min values  func(float*,float*), max/min float func()
 	OPT_INT_F,         // Change int with functions that returns max and min values    func(int*,int), max/min int func()

@@ -707,7 +707,6 @@ void init_stuff()
 	// because the messages need the font widths.
 	init_fonts();
 
-
 	//OK, we have the video mode settings...
 	setup_video_mode(full_screen,video_mode);
 	//now you may set the video mode using the %<foo> in-game

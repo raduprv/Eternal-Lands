@@ -28,6 +28,7 @@ PAWN_COBJ = pawn/amx.o pawn/amxaux.o pawn/amxcons.o pawn/amxel.o \
 	pawn/amxfloat.o pawn/amxstring.o pawn/elpawn.o
 NEW_TEXTURES_COBJ = image_loading.o
 CUSTOM_UPDATE_COBJ = custom_update.o new_update.o
+FSAA_COBJ = fsaa/fsaa_glx.o fsaa/fsaa.o
 COBJS=2d_objects.o 3d_objects.o \
 	actor_scripts.o actors.o alphamap.o asc.o astrology.o \
 	bbox_tree.o books.o buddy.o buffs.o bags.o \
@@ -74,7 +75,7 @@ CXXOBJS=actor_init.o cal3d_wrapper.o context_menu.o optimizer.o sendvideoinfo.o	
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_CXXOBJ))
 
 OBJS=$(COBJS) $(CXXOBJS)
-HEADER_DIRS = . books eye_candy io pawn
+HEADER_DIRS = . books eye_candy io pawn fsaa
 
 
 DEP_FILES=$(foreach OBJ, $(COBJS), .deps/$(OBJ).P) $(foreach OBJ, $(CXXOBJS), .deps/$(OBJ).P)
@@ -102,7 +103,7 @@ $(EXE): $(OBJS)
 #recompile on Makefile or conf change
 #.depend $(OBJS): Makefile.linux make.conf
 
-DEPS_MAGIC := $(shell mkdir .deps .deps/io .deps/shader .deps/eye_candy .deps/exceptions .deps/xml  > /dev/null 2>&1 || :)
+DEPS_MAGIC := $(shell mkdir .deps .deps/io .deps/shader .deps/eye_candy .deps/exceptions .deps/xml .deps/fsaa  > /dev/null 2>&1 || :)
 
 $(COBJS): %.o: %.c Makefile.linux make.conf
 	@echo "  CC   $@"

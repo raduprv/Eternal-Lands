@@ -81,6 +81,9 @@
 #ifdef	NEW_TEXTURES
 #include "textures.h"
 #endif	/* NEW_TEXTURES */
+#ifdef	FSAA
+#include "fsaa/fsaa.h"
+#endif	/* FSAA */
 
 
 typedef	float (*float_min_max_func)();
@@ -133,6 +136,9 @@ int elconfig_menu_y_len= 490;
 int windows_on_top= 0;
 int options_set= 0;
 int shadow_map_size_multi= 0;
+#ifdef	FSAA
+int fsaa_index = 0;
+#endif	/* FSAA */
 
 /* temporary variables for fine graphic positions asjustmeet */
 int gx_adjust = 0;
@@ -821,6 +827,47 @@ void change_shadow_map_size(int *pointer, int value)
 	}
 }
 
+#ifdef	FSAA
+void change_fsaa(int *pointer, int value)
+{
+	unsigned int i, index, fsaa_value;
+
+	index = 0;
+	fsaa_value = 0;
+
+	if (value > 0)
+	{
+		for (i = 1; i < get_fsaa_mode_count(); i++)
+		{
+			if (get_fsaa_mode(i))
+			{
+				index++;
+				fsaa_value = i;
+			}
+			if (value == index)
+			{
+				break;
+			}
+		}
+	}
+
+	fsaa = fsaa_value;
+
+	if (pointer != 0)
+	{
+		if (*pointer != index)
+		{
+			*pointer = index;
+
+			if (video_mode_set)
+			{
+				LOG_TO_CONSOLE(c_green2, video_restart_str);
+			}
+		}
+	}
+}
+#endif	/* FSAA */
+
 #ifndef MAP_EDITOR2
 void set_afk_time(int *pointer, int time)
 {
@@ -1283,6 +1330,7 @@ static __inline__ void check_option_var(char* name)
 	{
 		case OPT_INT:
 		case OPT_MULTI:
+		case OPT_MULTI_H:
 		case OPT_INT_F:
 		case OPT_INT_INI:
 			value_i= *((int*)our_vars.var[i]->var);
@@ -1389,6 +1437,7 @@ int check_var (char *str, var_name_type type)
 	{
 		case OPT_INT:
 		case OPT_MULTI:
+		case OPT_MULTI_H:
 		case OPT_INT_F:
 			our_vars.var[i]->func ( our_vars.var[i]->var, atoi (ptr) );
 			return 1;
@@ -1434,6 +1483,7 @@ void free_vars()
 				queue_destroy(our_vars.var[i]->queue);
 				break;
 			case OPT_MULTI:
+			case OPT_MULTI_H:
 				if(our_vars.var[i]->queue != NULL) {
 					while(!queue_isempty(our_vars.var[i]->queue)) {
 						//We don't free() because it's not allocated.
@@ -1466,6 +1516,7 @@ void add_var(option_type type, char * name, char * shortname, void * var, void *
 	switch(our_vars.var[no]->type=type)
 	{
 		case OPT_MULTI:
+		case OPT_MULTI_H:
 			queue_initialise(&our_vars.var[no]->queue);
 			va_start(ap, tab_id);
 			while((pointer= va_arg(ap, char *)) != NULL) {
@@ -1563,6 +1614,11 @@ void add_var(option_type type, char * name, char * shortname, void * var, void *
 
 void add_multi_option(char * name, char * str) {
 	queue_push(our_vars.var[find_var (name, OPT_MULTI)]->queue, str);
+}
+
+void add_multi_h_option(char * name, const char * str)
+{
+	queue_push(our_vars.var[find_var (name, OPT_MULTI_H)]->queue, str);
 }
 
 void init_vars()
@@ -1865,7 +1921,16 @@ void init_vars()
 	add_var(OPT_FLOAT,"gamma","g",&gamma_var,change_gamma,1,"Gamma","How bright your display should be.",ADVVID,0.10,3.00,0.05);
 	add_var(OPT_BOOL,"disable_gamma_adjust","dga",&disable_gamma_adjust,change_var,0,"Disable Gamma Adjustment","Stop the client from adjusting the display gamma.",ADVVID);
 	add_var(OPT_BOOL, "continent_map_boundaries", "cmb", &show_continent_map_boundaries, change_var, 1, "Map Boundaries On Continent Map", "Show map boundaries on the continent map", MISC);
-//	add_var(OPT_INT, "anti_aliasing", "fsaa", &fsaa, change_int, 0, "Anti-Aliasing", "Full Scene Anti-Aliasing", VIDEO, 0, 16);
+#ifdef	FSAA
+	add_var(OPT_MULTI_H, "anti_aliasing", "fsaa", &fsaa_index, change_fsaa, 0, "Anti-Aliasing", "Full Scene Anti-Aliasing", VIDEO, get_fsaa_mode_str(0), 0);
+	for (i = 1; i < get_fsaa_mode_count(); i++)
+	{
+		if (get_fsaa_mode(i))
+		{
+			add_multi_h_option("anti_aliasing", get_fsaa_mode_str(i));
+		}
+	}
+#endif	/* FSAA */
 	add_var(OPT_INT_F,"water_shader_quality","water_shader_quality",&water_shader_quality,change_water_shader_quality,1,"water shader quality","Defines what shader is used for water rendering. Higher values are slower but look better. Needs \"toggle frame buffer support\" to be turned on.",VIDEO, int_zero_func, int_max_water_shader_quality);
 #endif //ELC
 #ifdef MAP_EDITOR
@@ -1899,6 +1964,7 @@ void write_var (FILE *fout, int ivar)
 	{
 		case OPT_INT:
 		case OPT_MULTI:
+		case OPT_MULTI_H:
 		case OPT_BOOL:
 		case OPT_INT_F:
 		case OPT_BOOL_INI:
@@ -2057,7 +2123,7 @@ int display_elconfig_handler(window_info *win)
 		// Update the widgets in case an option changed
 		// Actually that's ony the OPT_MULTI type widgets, the others are
 		// taken care of by their widget handlers
-		if (our_vars.var[i]->type == OPT_MULTI)
+		if ((our_vars.var[i]->type == OPT_MULTI) || (our_vars.var[i]->type == OPT_MULTI_H))
 			multiselect_set_selected (elconfig_tabs[our_vars.var[i]->widgets.tab_id].tab, our_vars.var[i]->widgets.widget_id, *(int *)our_vars.var[i]->var);
 	}
 
@@ -2233,6 +2299,7 @@ void elconfig_populate_tabs(void)
 	int widget_id=-1; //temporary storage for the widget id
 	int widget_height, label_height; //Used to calculate the y pos of the next option
 	int y; //Used for the position of multiselect buttons
+	int x; //Used for the position of multiselect buttons
 	void *min, *max; //For the spinbuttons
 	float *interval;
 	int_min_max_func *i_min_func;
@@ -2352,6 +2419,34 @@ void elconfig_populate_tabs(void)
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
 				free(i_min_func);
 				free(i_max_func);
+				queue_destroy(our_vars.var[i]->queue);
+				our_vars.var[i]->queue= NULL;
+			break;
+			case OPT_MULTI_H:
+
+				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
+				widget_id= multiselect_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x+SPACING+get_string_width(our_vars.var[i]->display.str), elconfig_tabs[tab_id].y, 250, 80, 1.0f, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
+				x = 0;
+				for(y= 0; !queue_isempty(our_vars.var[i]->queue); y++) {
+					char *label= queue_pop(our_vars.var[i]->queue);
+
+					int radius = BUTTONRADIUS;
+					float width_ratio = DEFAULT_FONT_X_LEN/12.0f;
+					int width=0;
+	
+					width = 2 * radius+(get_string_width((unsigned char*)label)*width_ratio);
+
+					multiselect_button_add_extended(elconfig_tabs[tab_id].tab, widget_id, x, 0, width, label, DEFAULT_SMALL_RATIO, y == *(int *)our_vars.var[i]->var);
+					if (strlen(label) == 0)
+					{
+						y--;
+					}
+					else
+					{
+						x += width + SPACING;
+					}
+				}
+				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, multiselect_click_handler);
 				queue_destroy(our_vars.var[i]->queue);
 				our_vars.var[i]->queue= NULL;
 			break;
