@@ -1616,7 +1616,7 @@ void add_multi_option(char * name, char * str) {
 	queue_push(our_vars.var[find_var (name, OPT_MULTI)]->queue, str);
 }
 
-void add_multi_h_option(char * name, const char * str)
+void add_multi_h_option(char * name, char * str)
 {
 	queue_push(our_vars.var[find_var (name, OPT_MULTI_H)]->queue, str);
 }

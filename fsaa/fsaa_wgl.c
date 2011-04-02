@@ -86,14 +86,14 @@ unsigned int get_fsaa_modes()
 
 		if (_wglGetExtensionsStringARB != 0)
 		{
-			const char* str wglexts = _wglGetExtensionsStringARB(hdc);
+			const char* str = _wglGetExtensionsStringARB(hdc);
 
-			if (strstr("WGL_ARB_pixel_format") != 0)
+			if (strstr(str, "WGL_ARB_pixel_format") != 0)
 			{
 				pixel_format = 1;
 			}
 
-			if (strstr("WGL_ARB_multisample") != 0)
+			if (strstr(str, "WGL_ARB_multisample") != 0)
 			{
 				multisample = 1;
 			}
