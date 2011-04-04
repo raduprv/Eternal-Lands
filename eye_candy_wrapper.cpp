@@ -70,10 +70,12 @@ void set_vec3_target_bone2(ec::Vec3& position, actor* _actor, int bone);
 void set_vec3_target_bone2(ec::Vec3& position, actor* _actor, int bone,
 	const ec::Vec3 shift);
 
+#ifndef	NEW_TEXTURES
 extern "C" void ec_clear_textures()
 {
 	eye_candy.clear_textures();
 }
+#endif	/* NEW_TEXTURES */
 
 extern "C" void ec_load_textures()
 {

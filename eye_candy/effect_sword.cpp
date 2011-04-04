@@ -13,7 +13,7 @@ namespace ec
 	SwordParticle::SwordParticle(Effect* _effect, ParticleMover* _mover,
 		const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
 		const alpha_t _alpha, const color_t red, const color_t green,
-		const color_t blue, Texture* _texture, const Uint16 _LOD) :
+		const color_t blue, TextureEnum _texture, const Uint16 _LOD) :
 		Particle(_effect, _mover, _pos, _velocity)
 	{
 		color[0] = red + randcolor(0.25) - 0.125;
@@ -61,7 +61,7 @@ namespace ec
 #ifdef	NEW_TEXTURES
 	Uint32 SwordParticle::get_texture()
 	{
-		return texture->get_texture();
+		return base->get_texture(texture);
 	}
 #else	/* NEW_TEXTURES */
 	GLuint SwordParticle::get_texture(const Uint16 res_index)
@@ -92,7 +92,7 @@ namespace ec
 				color[0] = 0.6;
 				color[1] = 0.8;
 				color[2] = 0.3;
-				texture = &(base->TexVoid);
+				texture = EC_VOID;
 				break;
 			}
 			case CUTLASS:
@@ -100,7 +100,7 @@ namespace ec
 				color[0] = 1.0;
 				color[1] = 1.0;
 				color[2] = 1.0;
-				texture = &(base->TexInverse);
+				texture = EC_INVERSE;
 				break;
 			}
 			case EMERALD_CLAYMORE:
@@ -108,7 +108,7 @@ namespace ec
 				color[0] = 0.3;
 				color[1] = 1.0;
 				color[2] = 0.3;
-				texture = &(base->TexCrystal);
+				texture = EC_CRYSTAL;
 				break;
 			}
 			case SUNBREAKER:
@@ -116,7 +116,7 @@ namespace ec
 				color[0] = 1.0;
 				color[1] = 0.8;
 				color[2] = 0.3;
-				texture = &(base->TexVoid);
+				texture = EC_VOID;
 				break;
 			}
 			case ORC_SLAYER:
@@ -124,7 +124,7 @@ namespace ec
 				color[0] = 1.0;
 				color[1] = 0.1;
 				color[2] = 0.1;
-				texture = &(base->TexWater);
+				texture = EC_WATER;
 				break;
 			}
 			case EAGLE_WING:
@@ -132,7 +132,7 @@ namespace ec
 				color[0] = 0.7;
 				color[1] = 1.0;
 				color[2] = 1.0;
-				texture = &(base->TexInverse);
+				texture = EC_INVERSE;
 				break;
 			}
 			case JAGGED_SABER:
@@ -140,7 +140,7 @@ namespace ec
 				color[0] = 1.0;
 				color[1] = 0.3;
 				color[2] = 1.0;
-				texture = &(base->TexTwinflare);
+				texture = EC_TWINFLARE;
 				break;
 			}
 			case SWORD_OF_FIRE:
@@ -148,7 +148,7 @@ namespace ec
 				color[0] = 1.0;
 				color[1] = 0.6;
 				color[2] = 0.3;
-				texture = &(base->TexFlare);
+				texture = EC_FLARE;
 				break;
 			}
 			case SWORD_OF_ICE:
@@ -156,7 +156,7 @@ namespace ec
 				color[0] = 0.4;
 				color[1] = 0.5;
 				color[2] = 1.0;
-				texture = &(base->TexCrystal);
+				texture = EC_CRYSTAL;
 				break;
 			}
 			case SWORD_OF_MAGIC:
@@ -164,7 +164,7 @@ namespace ec
 				color[0] = 0.7;
 				color[1] = 0.6;
 				color[2] = 0.4;
-				texture = &(base->TexShimmer);
+				texture = EC_SHIMMER;
 				break;
 			}
 		}
@@ -314,7 +314,7 @@ namespace ec
 			if (!base->push_back_particle(p))
 				break;
 			if (randfloat(2.0f) < 0.1f) {
-				p = new SwordParticle(this, mover, coords, velocity, 1.5, 1.0, 2.0, 2.0, 2.0, &(base->TexTwinflare), LOD);
+				p = new SwordParticle(this, mover, coords, velocity, 1.5, 1.0, 2.0, 2.0, 2.0, EC_TWINFLARE, LOD);
 				base->push_back_particle(p);
 			}
 		}

@@ -60,7 +60,7 @@ namespace ec
 #ifdef	NEW_TEXTURES
 	Uint32 LampParticle::get_texture()
 	{
-		return base->TexFlare.get_texture();
+		return base->get_texture(EC_FLARE);
 	}
 #else	/* NEW_TEXTURES */
 	GLuint LampParticle::get_texture(const Uint16 res_index)
@@ -115,7 +115,7 @@ namespace ec
 #ifdef	NEW_TEXTURES
 	Uint32 LampBigParticle::get_texture()
 	{
-		return base->TexFlare.get_texture();
+		return base->get_texture(EC_FLARE);
 	}
 #else	/* NEW_TEXTURES */
 	GLuint LampBigParticle::get_texture(const Uint16 res_index)
@@ -167,7 +167,7 @@ namespace ec
 #ifdef	NEW_TEXTURES
 	Uint32 LampFlareParticle::get_texture()
 	{
-		return base->TexVoid.get_texture();
+		return base->get_texture(EC_VOID);
 	}
 #else	/* NEW_TEXTURES */
 	GLuint LampFlareParticle::get_texture(const Uint16 res_index)

@@ -13,7 +13,7 @@ namespace ec
 	SelfMagicParticle::SelfMagicParticle(Effect* _effect,
 		ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity,
 		const coord_t _size, const alpha_t _alpha, const color_t red,
-		const color_t green, const color_t blue, Texture* _texture,
+		const color_t green, const color_t blue, TextureEnum _texture,
 		const Uint16 _LOD, const SelfMagicEffect::SelfMagicType _type) :
 		Particle(_effect, _mover, _pos, _velocity)
 	{
@@ -150,7 +150,7 @@ namespace ec
 							new_velocity += velocity;
 							Particle
 								* p =
-									new SelfMagicParticle(effect, mover, pos, new_velocity, 2.0, 1.0, 1.0, 1.0, 0.5, &(base->TexShimmer), LOD, type);
+									new SelfMagicParticle(effect, mover, pos, new_velocity, 2.0, 1.0, 1.0, 1.0, 0.5, EC_SHIMMER, LOD, type);
 							p->state = 1;
 							if (!base->push_back_particle(p))
 								break;
@@ -223,7 +223,7 @@ namespace ec
 #ifdef	NEW_TEXTURES
 	Uint32 SelfMagicParticle::get_texture()
 	{
-		return texture->get_texture();
+		return base->get_texture(texture);
 	}
 #else	/* NEW_TEXTURES */
 	GLuint SelfMagicParticle::get_texture(const Uint16 res_index)
@@ -267,7 +267,7 @@ namespace ec
 					coords += effect_center;
 					Particle
 						* p =
-							new SelfMagicParticle(this, mover, coords, velocity, 0.7, 0.5, 0.4, 0.7, 0.2, &(base->TexFlare), LOD, type);
+							new SelfMagicParticle(this, mover, coords, velocity, 0.7, 0.5, 0.4, 0.7, 0.2, EC_FLARE, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -284,7 +284,7 @@ namespace ec
 					velocity.randomize(0.4);
 					Particle
 						* p =
-							new SelfMagicParticle(this, mover, coords, velocity, 1.1, 1.0, 0.7, 0.2, 0.4, &(base->TexVoid), LOD, type);
+							new SelfMagicParticle(this, mover, coords, velocity, 1.1, 1.0, 0.7, 0.2, 0.4, EC_VOID, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -304,7 +304,7 @@ namespace ec
 					velocity.y += 0.7;
 					Particle
 						* p =
-							new SelfMagicParticle(this, mover, coords, velocity, 2.0, 1.0, 0.5, 0.5, 0.6, &(base->TexShimmer), LOD, type);
+							new SelfMagicParticle(this, mover, coords, velocity, 2.0, 1.0, 0.5, 0.5, 0.6, EC_SHIMMER, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -326,7 +326,7 @@ namespace ec
 					velocity.y += 0.7;
 					Particle
 						* p =
-							new SelfMagicParticle(this, mover, coords, velocity, 5.0, 0.9, 1.0, 0.55, 0.05, &(base->TexShimmer), LOD, type);
+							new SelfMagicParticle(this, mover, coords, velocity, 5.0, 0.9, 1.0, 0.55, 0.05, EC_SHIMMER, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -339,7 +339,7 @@ namespace ec
 					velocity.y += 0.7;
 					Particle
 						* p =
-							new SelfMagicParticle(this, mover2, coords, velocity, 2.0, 1.0, 1.0, 0.55, 0.05, &(base->TexShimmer), LOD, type);
+							new SelfMagicParticle(this, mover2, coords, velocity, 2.0, 1.0, 1.0, 0.55, 0.05, EC_SHIMMER, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -361,7 +361,7 @@ namespace ec
 					velocity.y -= 0.7;
 					Particle
 						* p =
-							new SelfMagicParticle(this, mover, coords, velocity, 8.0, 0.5, 0.05, 0.50, 0.95, &(base->TexShimmer), LOD, type);
+							new SelfMagicParticle(this, mover, coords, velocity, 8.0, 0.5, 0.05, 0.50, 0.95, EC_SHIMMER, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -374,7 +374,7 @@ namespace ec
 					velocity.y -= 0.7;
 					Particle
 						* p =
-							new SelfMagicParticle(this, mover2, coords, velocity, 2.0, 1.0, 0.05, 0.50, 0.95, &(base->TexShimmer), LOD, type);
+							new SelfMagicParticle(this, mover2, coords, velocity, 2.0, 1.0, 0.05, 0.50, 0.95, EC_SHIMMER, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -396,7 +396,7 @@ namespace ec
 					velocity.y += 0.3;
 					Particle
 						* p =
-							new SelfMagicParticle(this, mover, coords, velocity, 4.0, 0.9, 0.05, 1.0, 0.25, &(base->TexShimmer), LOD, type);
+							new SelfMagicParticle(this, mover, coords, velocity, 4.0, 0.9, 0.05, 1.0, 0.25, EC_SHIMMER, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -409,7 +409,7 @@ namespace ec
 					velocity.y += 0.3;
 					Particle
 						* p =
-							new SelfMagicParticle(this, mover2, coords, velocity, 2.0, 1.0, 0.05, 0.8, 0.25, &(base->TexShimmer), LOD, type);
+							new SelfMagicParticle(this, mover2, coords, velocity, 2.0, 1.0, 0.05, 0.8, 0.25, EC_SHIMMER, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -426,7 +426,7 @@ namespace ec
 					Vec3 coords = spawner->get_new_coords() * 3.5;
 					Vec3 velocity = -coords * 3;
 					coords += effect_center;
-					Particle * p = new SelfMagicParticle(this, mover, coords, velocity, 1.9 + randcoord(1.5), 0.85 + randalpha(0.15), 0.25 + randcolor(0.3), 0.7 + randcolor(0.2), 0.3, &(base->TexFlare), LOD, type);
+					Particle * p = new SelfMagicParticle(this, mover, coords, velocity, 1.9 + randcoord(1.5), 0.85 + randalpha(0.15), 0.25 + randcolor(0.3), 0.7 + randcolor(0.2), 0.3, EC_FLARE, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -437,7 +437,7 @@ namespace ec
 					velocity.randomize(0.3);
 					velocity.y *= 5;
 					velocity.y -= 0.7;
-					Particle * p = new SelfMagicParticle(this, mover2, coords, velocity, 1.0 + randcoord(1.5), 0.75 + randalpha(0.25), 0.6 + randcolor(0.3), 0.35 + randcolor(0.45), 0.3, &(base->TexShimmer), LOD, type);
+					Particle * p = new SelfMagicParticle(this, mover2, coords, velocity, 1.0 + randcoord(1.5), 0.75 + randalpha(0.25), 0.6 + randcolor(0.3), 0.35 + randcolor(0.45), 0.3, EC_SHIMMER, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -453,7 +453,7 @@ namespace ec
 				Vec3 velocity;
 				velocity.randomize(0.4);
 				velocity.y += 2.8;
-				Particle * p = new SelfMagicParticle(this, mover, coords, velocity, 2.0, 1.0, 0.6, 0.5, 0.5, &(base->TexInverse), LOD, type);
+				Particle * p = new SelfMagicParticle(this, mover, coords, velocity, 2.0, 1.0, 0.6, 0.5, 0.5, EC_INVERSE, LOD, type);
 				base->push_back_particle(p);
 				break;
 			}
@@ -471,7 +471,7 @@ namespace ec
 					velocity.randomize(0.25);
 					const coord_t size = size_scalar * (0.5 + 1.5 * randcoord());
 					velocity /= size;
-					Particle* p = new SelfMagicParticle(this, mover, coords, velocity, size, 1.0, randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexShimmer), LOD, type);
+					Particle* p = new SelfMagicParticle(this, mover, coords, velocity, size, 1.0, randcolor(1.0), randcolor(1.0), randcolor(1.0), EC_SHIMMER, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -495,7 +495,7 @@ namespace ec
 					Vec3 velocity;
 					velocity.randomize(2.0);
 					coords += effect_center;
-					Particle * p = new SelfMagicParticle(this, mover, coords, velocity, randcoord(7.0) + 0.3, 1.0, randcolor(), randcolor(), randcolor(), &(base->TexVoid), LOD, type);
+					Particle * p = new SelfMagicParticle(this, mover, coords, velocity, randcoord(7.0) + 0.3, 1.0, randcolor(), randcolor(), randcolor(), EC_VOID, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -513,7 +513,7 @@ namespace ec
 					coords += effect_center;
 					Particle
 						* p =
-							new SelfMagicParticle(this, mover, coords, velocity, 7.0, 0.12, 1.0, 1.0, 1.0, &(base->TexVoid), LOD, type);
+							new SelfMagicParticle(this, mover, coords, velocity, 7.0, 0.12, 1.0, 1.0, 1.0, EC_VOID, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -601,7 +601,7 @@ namespace ec
 						velocity.y += 2.8;
 						Particle
 							* p =
-								new SelfMagicParticle(this, mover, coords, velocity, 2.0, 1.0, 0.6, 0.5, 0.5, &(base->TexInverse), LOD, type);
+								new SelfMagicParticle(this, mover, coords, velocity, 2.0, 1.0, 0.6, 0.5, 0.5, EC_INVERSE, LOD, type);
 						if (!base->push_back_particle(p))
 						{
 							count = 0;

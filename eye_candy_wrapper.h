@@ -177,7 +177,9 @@ extern "C"
 	// EyeCandy wrapper functions declaration                                     //
 	////////////////////////////////////////////////////////////////////////////////
 
+#ifndef	NEW_TEXTURES
 	void ec_clear_textures();
+#endif	/* NEW_TEXTURES */
 	void ec_load_textures();
 	void ec_init();
 	void ec_add_light(GLenum light_id);

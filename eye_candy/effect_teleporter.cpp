@@ -55,7 +55,7 @@ namespace ec
 #ifdef	NEW_TEXTURES
 	Uint32 TeleporterParticle::get_texture()
 	{
-		return base->TexShimmer.get_texture();
+		return base->get_texture(EC_SHIMMER);
 	}
 #else	/* NEW_TEXTURES */
 	GLuint TeleporterParticle::get_texture(const Uint16 res_index)

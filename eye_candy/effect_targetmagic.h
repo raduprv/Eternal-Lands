@@ -113,7 +113,7 @@ namespace ec
 			TargetMagicParticle(Effect* _effect, ParticleMover* _mover,
 				const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
 				const alpha_t _alpha, const color_t red, const color_t green,
-				const color_t blue, Texture* _texture, const Uint16 _LOD,
+				const color_t blue, TextureEnum _texture, const Uint16 _LOD,
 				const TargetMagicEffect::TargetMagicType _type,
 				ParticleSpawner* _spawner2, ParticleMover* _mover2,
 				Vec3* _target, Uint16 _effect_id, Uint16 _state);
@@ -134,7 +134,7 @@ namespace ec
 			}
 			;
 
-			Texture* texture;
+			TextureEnum texture;
 			Uint16 LOD;
 			TargetMagicEffect::TargetMagicType type;
 			ParticleSpawner* spawner2;

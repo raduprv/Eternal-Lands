@@ -46,7 +46,7 @@ namespace ec
 			InnerSummonParticle(Effect* _effect, ParticleMover* _mover,
 				const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
 				const alpha_t _alpha, const color_t red, const color_t green,
-				const color_t blue, Texture* _texture, const Uint16 _LOD);
+				const color_t blue, TextureEnum _texture, const Uint16 _LOD);
 			~InnerSummonParticle()
 			{
 			}
@@ -78,7 +78,7 @@ namespace ec
 			}
 			;
 
-			Texture* texture;
+			TextureEnum texture;
 			Uint16 LOD;
 	};
 
@@ -149,7 +149,7 @@ namespace ec
 			alpha_t inner_alpha;
 			color_t outer_color[3];
 			color_t inner_color[3];
-			Texture* inner_texture;
+			TextureEnum inner_texture;
 			Sint64 count;
 			Uint32 count_scalar;
 			SummonType type;

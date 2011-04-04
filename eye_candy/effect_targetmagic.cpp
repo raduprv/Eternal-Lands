@@ -13,7 +13,7 @@ namespace ec
 	TargetMagicParticle::TargetMagicParticle(Effect* _effect,
 		ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity,
 		const coord_t _size, const alpha_t _alpha, const color_t red,
-		const color_t green, const color_t blue, Texture* _texture,
+		const color_t green, const color_t blue, TextureEnum _texture,
 		const Uint16 _LOD, const TargetMagicEffect::TargetMagicType _type,
 		ParticleSpawner* _spawner2, ParticleMover* _mover2, Vec3* _target,
 		Uint16 _effect_id, Uint16 _state) :
@@ -306,7 +306,7 @@ namespace ec
 #ifdef	NEW_TEXTURES
 	Uint32 TargetMagicParticle::get_texture()
 	{
-		return texture->get_texture();
+		return base->get_texture(texture);
 	}
 #else	/* NEW_TEXTURES */
 	GLuint TargetMagicParticle::get_texture(const Uint16 res_index)
@@ -379,7 +379,7 @@ namespace ec
 				velocity.y += 10.0;
 				Particle
 					* p =
-						new TargetMagicParticle(this, mover, coords, velocity, 7.5, 1.0, 0.3 + randcolor(0.3), 0.7, 0.2, &(base->TexFlare), LOD, type, spawner2, mover, targets[0], 0, 0);
+						new TargetMagicParticle(this, mover, coords, velocity, 7.5, 1.0, 0.3 + randcolor(0.3), 0.7, 0.2, EC_FLARE, LOD, type, spawner2, mover, targets[0], 0, 0);
 				base->push_back_particle(p);
 				particle_count = 1;
 				break;
@@ -399,7 +399,7 @@ namespace ec
 					velocity.randomize(0.5);
 					Particle
 						* p =
-							new TargetMagicParticle(this, mover, coords, velocity, 8.0, 1.0, randcolor(0.3), 0.5 + randcolor(0.3), randcolor(0.5), &(base->TexInverse), LOD, type, NULL, mover2, targets[0], 0, 0);
+							new TargetMagicParticle(this, mover, coords, velocity, 8.0, 1.0, randcolor(0.3), 0.5 + randcolor(0.3), randcolor(0.5), EC_INVERSE, LOD, type, NULL, mover2, targets[0], 0, 0);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -421,7 +421,7 @@ namespace ec
 					velocity.randomize(0.5);
 					Particle
 						* p =
-							new TargetMagicParticle(this, mover2, coords, velocity, 3.75, 0.8 + randcoord(0.2), 1.0, 1.0, 1.0, &(base->TexVoid), LOD, type, spawner, mover, targets[0], 0, 0);
+							new TargetMagicParticle(this, mover2, coords, velocity, 3.75, 0.8 + randcoord(0.2), 1.0, 1.0, 1.0, EC_VOID, LOD, type, spawner, mover, targets[0], 0, 0);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -438,7 +438,7 @@ namespace ec
 					velocity /= size;
 					Particle
 						* p =
-							new TargetMagicParticle(this, mover, coords, velocity, size, 1.0, 0.8 + randcolor(0.2), 0.8 + randcolor(0.2), 0.8 + randcolor(0.2), &(base->TexShimmer), LOD, type, spawner, mover, targets[0], 0, 0);
+							new TargetMagicParticle(this, mover, coords, velocity, size, 1.0, 0.8 + randcolor(0.2), 0.8 + randcolor(0.2), 0.8 + randcolor(0.2), EC_SHIMMER, LOD, type, spawner, mover, targets[0], 0, 0);
 					p->state = 1;
 					if (!base->push_back_particle(p))
 						break;
@@ -470,7 +470,7 @@ namespace ec
 					velocity.randomize(0.5);
 					Particle
 						* p =
-							new TargetMagicParticle(this, mover2, coords, velocity, 12.0, 1.0, 0.7 + randcolor(0.3), 0.2 + randcolor(0.3), 0.2, &(base->TexFlare), LOD, type, spawner, mover, targets[0], 0, 0);
+							new TargetMagicParticle(this, mover2, coords, velocity, 12.0, 1.0, 0.7 + randcolor(0.3), 0.2 + randcolor(0.3), 0.2, EC_FLARE, LOD, type, spawner, mover, targets[0], 0, 0);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -497,7 +497,7 @@ namespace ec
 					velocity.y += i;
 					Particle
 						* p =
-							new TargetMagicParticle(this, mover2, coords, velocity, 7.5, 1.0, 0.7 + randcolor(0.3), 0.25 + randcolor(0.25), 0.15 + randcolor(0.15), &(base->TexVoid), LOD, type, spawner, mover2, targets[0], 0, 2);
+							new TargetMagicParticle(this, mover2, coords, velocity, 7.5, 1.0, 0.7 + randcolor(0.3), 0.25 + randcolor(0.25), 0.15 + randcolor(0.15), EC_VOID, LOD, type, spawner, mover2, targets[0], 0, 2);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -511,7 +511,7 @@ namespace ec
 					velocity.y += i;
 					Particle
 						* p =
-							new TargetMagicParticle(this, mover, coords, velocity, 15.0, 1.0, 0.7 + randcolor(0.3), 0.15 + randcolor(0.15), 0.25 + randcolor(0.25), &(base->TexTwinflare), LOD, type, spawner, mover, targets[0], 0, 0);
+							new TargetMagicParticle(this, mover, coords, velocity, 15.0, 1.0, 0.7 + randcolor(0.3), 0.15 + randcolor(0.15), 0.25 + randcolor(0.25), EC_TWINFLARE, LOD, type, spawner, mover, targets[0], 0, 0);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -533,7 +533,7 @@ namespace ec
 					velocity.randomize(0.5);
 					Particle
 						* p =
-							new TargetMagicParticle(this, mover, coords, velocity, 8.25, 1.0, 0.25 + randcolor(0.4), 0.6 + randcolor(0.3), 0.15 + randcolor(0.1), &(base->TexTwinflare), LOD, type, spawner2, mover, targets[i / 4], i / 4, 0);
+							new TargetMagicParticle(this, mover, coords, velocity, 8.25, 1.0, 0.25 + randcolor(0.4), 0.6 + randcolor(0.3), 0.15 + randcolor(0.1), EC_TWINFLARE, LOD, type, spawner2, mover, targets[i / 4], i / 4, 0);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -556,7 +556,7 @@ namespace ec
 					velocity.randomize(0.5);
 					Particle
 						* p =
-							new TargetMagicParticle(this, mover2, coords, velocity, 14.25, 1.0, 0.7 + randcolor(0.3), 0.2 + randcolor(0.3), 0.2, &(base->TexTwinflare), LOD, type, spawner, mover, targets[i / 4], i / 4, 0);
+							new TargetMagicParticle(this, mover2, coords, velocity, 14.25, 1.0, 0.7 + randcolor(0.3), 0.2 + randcolor(0.3), 0.2, EC_TWINFLARE, LOD, type, spawner, mover, targets[i / 4], i / 4, 0);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -584,7 +584,7 @@ namespace ec
 					velocity.y += i;
 					Particle
 						* p =
-							new TargetMagicParticle(this, mover2, coords, velocity, 7.5, 1.0, 0.7 + randcolor(0.3), 0.15 + randcolor(0.15), 0.6 + randcolor(0.35), &(base->TexVoid), LOD, type, spawner2, mover2, targets[0], 0, 2);
+							new TargetMagicParticle(this, mover2, coords, velocity, 7.5, 1.0, 0.7 + randcolor(0.3), 0.15 + randcolor(0.15), 0.6 + randcolor(0.35), EC_VOID, LOD, type, spawner2, mover2, targets[0], 0, 2);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -598,7 +598,7 @@ namespace ec
 					velocity.y += i;
 					Particle
 						* p =
-							new TargetMagicParticle(this, mover, coords, velocity, 7.0, 1.0, 0.7 + randcolor(0.3), 0.15 + randcolor(0.15), 0.6 + randcolor(0.35), &(base->TexCrystal), LOD, type, spawner2, mover, targets[0], 0, 0);
+							new TargetMagicParticle(this, mover, coords, velocity, 7.0, 1.0, 0.7 + randcolor(0.3), 0.15 + randcolor(0.15), 0.6 + randcolor(0.35), EC_CRYSTAL, LOD, type, spawner2, mover, targets[0], 0, 0);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -672,7 +672,7 @@ namespace ec
 					velocity.y += particle_count * 10.0;
 					Particle
 						* p =
-							new TargetMagicParticle(this, mover, coords, velocity, 7.5, 1.0, 0.3 + randcolor(0.3), 0.7, 0.2, &(base->TexFlare), LOD, type, spawner2, mover, targets[0], 0, 0);
+							new TargetMagicParticle(this, mover, coords, velocity, 7.5, 1.0, 0.3 + randcolor(0.3), 0.7, 0.2, EC_FLARE, LOD, type, spawner2, mover, targets[0], 0, 0);
 					base->push_back_particle(p);
 				}
 				if ((particle_count == 2) && (age > 400000))
@@ -686,7 +686,7 @@ namespace ec
 					velocity.y += particle_count * 10.0;
 					Particle
 						* p =
-							new TargetMagicParticle(this, mover, coords, velocity, 7.5, 1.0, 0.3 + randcolor(0.3), 0.7, 0.2, &(base->TexFlare), LOD, type, spawner2, mover, targets[0], 0, 0);
+							new TargetMagicParticle(this, mover, coords, velocity, 7.5, 1.0, 0.3 + randcolor(0.3), 0.7, 0.2, EC_FLARE, LOD, type, spawner2, mover, targets[0], 0, 0);
 					base->push_back_particle(p);
 				}
 				if ((particle_count == 3) && (age > 600000))
@@ -700,7 +700,7 @@ namespace ec
 					velocity.y += particle_count * 10.0;
 					Particle
 						* p =
-							new TargetMagicParticle(this, mover, coords, velocity, 7.5, 1.0, 0.3 + randcolor(0.3), 0.7, 0.2, &(base->TexFlare), LOD, type, spawner2, mover, targets[0], 0, 0);
+							new TargetMagicParticle(this, mover, coords, velocity, 7.5, 1.0, 0.3 + randcolor(0.3), 0.7, 0.2, EC_FLARE, LOD, type, spawner2, mover, targets[0], 0, 0);
 					base->push_back_particle(p);
 				}
 			}
@@ -810,7 +810,7 @@ namespace ec
 					coords += center;
 					Particle
 						* p =
-							new TargetMagicParticle(this, mover, coords, velocity, 0.7, 1.0, 0.4 + randcolor(0.3), 0.7, 0.2, &(base->TexFlare), LOD, type, NULL, NULL, &center, effect_id, 1);
+							new TargetMagicParticle(this, mover, coords, velocity, 0.7, 1.0, 0.4 + randcolor(0.3), 0.7, 0.2, EC_FLARE, LOD, type, NULL, NULL, &center, effect_id, 1);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -826,10 +826,10 @@ namespace ec
 					Particle *p;
 					if (randfloat() < 0.4)
 						p
-							= new TargetMagicParticle(this, mover, center, velocity, 0.75, 1.0, 0.2 + randcolor(0.2), 0.5 + randcolor(0.3), 0.2, &(base->TexFlare), LOD, type, NULL, NULL, &center, effect_id, 1);
+							= new TargetMagicParticle(this, mover, center, velocity, 0.75, 1.0, 0.2 + randcolor(0.2), 0.5 + randcolor(0.3), 0.2, EC_FLARE, LOD, type, NULL, NULL, &center, effect_id, 1);
 					else
 						p
-							= new TargetMagicParticle(this, mover, center, velocity, 0.75, 1.0, randcolor(0.1), 0.2 + randcolor(0.1), 0.2, &(base->TexWater), LOD, type, NULL, NULL, &center, effect_id, 2);
+							= new TargetMagicParticle(this, mover, center, velocity, 0.75, 1.0, randcolor(0.1), 0.2 + randcolor(0.1), 0.2, EC_WATER, LOD, type, NULL, NULL, &center, effect_id, 2);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -850,7 +850,7 @@ namespace ec
 					velocity /= size;
 					Particle
 						* p =
-							new TargetMagicParticle(this, mover, coords, velocity, size, 1.0, 0.8 + randcolor(0.2), 0.8 + randcolor(0.2), 0.8 + randcolor(0.2), &(base->TexShimmer), LOD, type, spawner, mover, effect->targets[0], effect_id, 1);
+							new TargetMagicParticle(this, mover, coords, velocity, size, 1.0, 0.8 + randcolor(0.2), 0.8 + randcolor(0.2), 0.8 + randcolor(0.2), EC_SHIMMER, LOD, type, spawner, mover, effect->targets[0], effect_id, 1);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -882,10 +882,10 @@ namespace ec
 					Particle* p;
 					if (i & 1)
 						p
-							= new TargetMagicParticle(this, mover, coords, velocity, 2.0 + randcoord(6.0), 0.7 + randalpha(0.3), 1.0, 1.0, 1.0, &(base->TexShimmer), LOD, type, NULL, NULL, &center, effect_id, 1);
+							= new TargetMagicParticle(this, mover, coords, velocity, 2.0 + randcoord(6.0), 0.7 + randalpha(0.3), 1.0, 1.0, 1.0, EC_SHIMMER, LOD, type, NULL, NULL, &center, effect_id, 1);
 					else
 						p
-							= new TargetMagicParticle(this, mover, coords, velocity, 2.0 + randcoord(6.0), 1.0, 0.6 + randcolor(0.4), randcolor(0.5), randcolor(0.5), &(base->TexShimmer), LOD, type, NULL, NULL, &center, effect_id, 1);
+							= new TargetMagicParticle(this, mover, coords, velocity, 2.0 + randcoord(6.0), 1.0, 0.6 + randcolor(0.4), randcolor(0.5), randcolor(0.5), EC_SHIMMER, LOD, type, NULL, NULL, &center, effect_id, 1);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -902,7 +902,7 @@ namespace ec
 					coords += center;
 					Particle
 						* p =
-							new TargetMagicParticle(this, mover, coords, velocity, 0.6, 1.0, 0.4 + randcolor(0.3), 0.7, 0.2, &(base->TexFlare), LOD, type, NULL, NULL, &center, effect_id, 1);
+							new TargetMagicParticle(this, mover, coords, velocity, 0.6, 1.0, 0.4 + randcolor(0.3), 0.7, 0.2, EC_FLARE, LOD, type, NULL, NULL, &center, effect_id, 1);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -918,7 +918,7 @@ namespace ec
 					coords += center;
 					Particle
 						* p =
-							new TargetMagicParticle(this, mover, coords, velocity, 1.0, 1.0, 0.4 + randcolor(0.3), 0.7, 0.2, &(base->TexCrystal), LOD, type, NULL, NULL, &center, effect_id, 1);
+							new TargetMagicParticle(this, mover, coords, velocity, 1.0, 1.0, 0.4 + randcolor(0.3), 0.7, 0.2, EC_CRYSTAL, LOD, type, NULL, NULL, &center, effect_id, 1);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -938,10 +938,10 @@ namespace ec
 					Particle* p;
 					if (rand() & 1)
 						p
-							= new TargetMagicParticle(this, mover, coords, velocity, 3.5 + randcoord(7.0), 0.5 + randalpha(0.3), 1.0, 1.0, 1.0, &(base->TexShimmer), LOD, type, NULL, NULL, &center, effect_id, 1);
+							= new TargetMagicParticle(this, mover, coords, velocity, 3.5 + randcoord(7.0), 0.5 + randalpha(0.3), 1.0, 1.0, 1.0, EC_SHIMMER, LOD, type, NULL, NULL, &center, effect_id, 1);
 					else
 						p
-							= new TargetMagicParticle(this, mover, coords, velocity, 3.5 + randcoord(7.0), 1.0, 0.3 + randcolor(0.4), 0.3 + randcolor(0.5), randcolor(0.5), &(base->TexShimmer), LOD, type, NULL, NULL, &center, effect_id, 1);
+							= new TargetMagicParticle(this, mover, coords, velocity, 3.5 + randcoord(7.0), 1.0, 0.3 + randcolor(0.4), 0.3 + randcolor(0.5), randcolor(0.5), EC_SHIMMER, LOD, type, NULL, NULL, &center, effect_id, 1);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -957,7 +957,7 @@ namespace ec
 					coords += center;
 					Particle
 						* p =
-							new TargetMagicParticle(this, mover, coords, velocity, 1.6, 1.0, 0.4 + randcolor(0.3), 0.2, 0.7, &(base->TexCrystal), LOD, type, NULL, NULL, &center, effect_id, 1);
+							new TargetMagicParticle(this, mover, coords, velocity, 1.6, 1.0, 0.4 + randcolor(0.3), 0.2, 0.7, EC_CRYSTAL, LOD, type, NULL, NULL, &center, effect_id, 1);
 					if (!base->push_back_particle(p))
 						break;
 				}

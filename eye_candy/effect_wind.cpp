@@ -2,8 +2,8 @@
 
 #include "eye_candy.h"
 #include "math_cache.h"
-
 #include "effect_wind.h"
+#include "../textures.h"
 
 namespace ec
 {
@@ -334,11 +334,11 @@ namespace ec
 		switch (type)
 		{
 			case WindEffect::LEAVES:
-				return base->TexFlare.get_texture();
+				return base->get_texture(EC_FLARE);
 			case WindEffect::FLOWER_PETALS:
-				return base->TexCrystal.get_texture();
+				return base->get_texture(EC_CRYSTAL);
 			case WindEffect::SNOW:
-				return base->TexSimple.get_texture();
+				return base->get_texture(EC_SIMPLE);
 		}
 		return 0; // Control should never reach here.
 	}
@@ -375,7 +375,11 @@ namespace ec
 		float new_matrix[16];
 		glTranslatef(pos.x, pos.y, pos.z);
 		glMultMatrixf(quaternion.get_matrix(new_matrix));
+#ifdef	NEW_TEXTURES
+		Uint32 texture;
+#else	/* NEW_TEXTURES */
 		GLuint texture;
+#endif	/* NEW_TEXTURES */
 		switch (type)
 		{
 			case WindEffect::LEAVES:
@@ -385,7 +389,7 @@ namespace ec
 					case 0: // Maple
 					{
 #ifdef	NEW_TEXTURES
-						texture = base->TexLeafMaple.get_texture();
+						texture = base->get_texture(EC_LEAF_MAPLE);
 #else	/* NEW_TEXTURES */
 						texture = base->TexLeafMaple.get_texture(2);
 #endif	/* NEW_TEXTURES */
@@ -394,7 +398,7 @@ namespace ec
 					case 1: // Oak
 					{
 #ifdef	NEW_TEXTURES
-						texture = base->TexLeafOak.get_texture();
+						texture = base->get_texture(EC_LEAF_OAK);
 #else	/* NEW_TEXTURES */
 						texture = base->TexLeafOak.get_texture(2);
 #endif	/* NEW_TEXTURES */
@@ -403,7 +407,7 @@ namespace ec
 					case 2: // Ash
 					{
 #ifdef	NEW_TEXTURES
-						texture = base->TexLeafAsh.get_texture();
+						texture = base->get_texture(EC_LEAF_ASH);
 #else	/* NEW_TEXTURES */
 						texture = base->TexLeafAsh.get_texture(2);
 #endif	/* NEW_TEXTURES */
@@ -420,7 +424,7 @@ namespace ec
 			case WindEffect::FLOWER_PETALS:
 			{
 #ifdef	NEW_TEXTURES
-				texture = base->TexPetal.get_texture();
+				texture = base->get_texture(EC_PETAL);
 #else	/* NEW_TEXTURES */
 				texture = base->TexPetal.get_texture(2);
 #endif	/* NEW_TEXTURES */
@@ -429,7 +433,7 @@ namespace ec
 			case WindEffect::SNOW:
 			{
 #ifdef	NEW_TEXTURES
-				texture = base->TexSnowflake.get_texture();
+				texture = base->get_texture(EC_SNOWFLAKE);
 #else	/* NEW_TEXTURES */
 				texture = base->TexSnowflake.get_texture(2);
 #endif	/* NEW_TEXTURES */
@@ -442,7 +446,11 @@ namespace ec
 			}
 		}
 
+#ifdef	NEW_TEXTURES
+		bind_texture(texture);
+#else	/* NEW_TEXTURES */
 		glBindTexture(GL_TEXTURE_2D, texture);
+#endif	/* NEW_TEXTURES */
 		glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT);
 		glColor4f(color[0] * 3, color[1] * 3, color[2] * 3, alpha);
 		glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);

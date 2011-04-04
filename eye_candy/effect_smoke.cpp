@@ -85,7 +85,7 @@ namespace ec
 #ifdef	NEW_TEXTURES
 	Uint32 SmokeParticle::get_texture()
 	{
-		return base->TexSimple.get_texture();
+		return base->get_texture(EC_SIMPLE);
 	}
 #else	/* NEW_TEXTURES */
 	GLuint SmokeParticle::get_texture(const Uint16 res_index)

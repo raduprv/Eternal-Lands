@@ -13,7 +13,7 @@ namespace ec
 	StaffParticle::StaffParticle(Effect* _effect, ParticleMover* _mover,
 		const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
 		const alpha_t _alpha, const color_t red, const color_t green,
-		const color_t blue, Texture* _texture, const Uint16 _LOD) :
+		const color_t blue, TextureEnum _texture, const Uint16 _LOD) :
 		Particle(_effect, _mover, _pos, _velocity)
 	{
 		color[0] = red + randcolor(0.25) - 0.125;
@@ -61,7 +61,7 @@ namespace ec
 #ifdef	NEW_TEXTURES
 	Uint32 StaffParticle::get_texture()
 	{
-		return texture->get_texture();
+		return base->get_texture(texture);
 	}
 #else	/* NEW_TEXTURES */
 	GLuint StaffParticle::get_texture(const Uint16 res_index)
@@ -90,7 +90,7 @@ namespace ec
 				color[0] = 1.0;
 				color[1] = 0.0;
 				color[2] = 0.6;
-				texture = &(base->TexFlare);
+				texture = EC_FLARE;
 				break;
 			}
 			case STAFF_OF_PROTECTION:
@@ -98,7 +98,7 @@ namespace ec
 				color[0] = 0.0;
 				color[1] = 0.0;
 				color[2] = 1.0;
-				texture = &(base->TexTwinflare);
+				texture = EC_TWINFLARE;
 				break;
 			}
 		}
@@ -170,7 +170,7 @@ namespace ec
 			if (!base->push_back_particle(p))
 				break;
 			if (randfloat(2.0f) < 0.1f) {
-				p = new StaffParticle(this, mover, coords, velocity, 1.5, 1.0, 2.0, 2.0, 2.0, &(base->TexCrystal), LOD);
+				p = new StaffParticle(this, mover, coords, velocity, 1.5, 1.0, 2.0, 2.0, 2.0, EC_CRYSTAL, LOD);
 				base->push_back_particle(p);
 			}
 		}

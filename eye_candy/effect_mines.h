@@ -67,7 +67,7 @@ namespace ec
 			MineParticle(Effect* _effect, ParticleMover* _mover,
 				const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
 				const alpha_t _alpha, const color_t red, const color_t green,
-				const color_t blue, Texture* _texture, const Uint16 _LOD,
+				const color_t blue, TextureEnum _texture, const Uint16 _LOD,
 				const MineEffect::MineType _type);
 			~MineParticle()
 			{
@@ -87,7 +87,7 @@ namespace ec
 			;
 			virtual light_t get_light_level();
 
-			Texture* texture;
+			TextureEnum texture;
 			Uint16 LOD;
 			MineEffect::MineType type;
 	};
@@ -98,7 +98,7 @@ namespace ec
 			MineParticleFire(Effect* _effect, ParticleMover* _mover,
 				const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
 				const alpha_t _alpha, const color_t red, const color_t green,
-				const color_t blue, Texture* _texture, const Uint16 _LOD);
+				const color_t blue, TextureEnum _texture, const Uint16 _LOD);
 			~MineParticleFire()
 			{
 			}
@@ -114,7 +114,7 @@ namespace ec
 				return 0.0015;
 			}
 
-			Texture* texture;
+			TextureEnum texture;
 			Uint16 LOD;
 	};
 
@@ -124,7 +124,7 @@ namespace ec
 			MineParticleSmoke(Effect* _effect, ParticleMover* _mover,
 				const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
 				const alpha_t _alpha, const color_t red, const color_t green,
-				const color_t blue, Texture* _texture, const Uint16 _LOD);
+				const color_t blue, TextureEnum _texture, const Uint16 _LOD);
 			~MineParticleSmoke()
 			{
 			}
@@ -141,7 +141,7 @@ namespace ec
 				return 0.0015;
 			}
 
-			Texture* texture;
+			TextureEnum texture;
 			Uint16 LOD;
 	};
 
