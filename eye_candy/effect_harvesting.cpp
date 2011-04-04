@@ -13,7 +13,7 @@ namespace ec
 	HarvestingParticle::HarvestingParticle(Effect* _effect,
 		ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity,
 		const coord_t _size, const alpha_t _alpha, const color_t red,
-		const color_t green, const color_t blue, Texture* _texture,
+		const color_t green, const color_t blue, TextureEnum _texture,
 		const Uint16 _LOD, const HarvestingEffect::HarvestingType _type) :
 		Particle(_effect, _mover, _pos, _velocity)
 	{
@@ -173,7 +173,7 @@ namespace ec
 #ifdef	NEW_TEXTURES
 	Uint32 HarvestingParticle::get_texture()
 	{
-		return texture->get_texture();
+		return base->get_texture(texture);
 	}
 #else	/* NEW_TEXTURES */
 	GLuint HarvestingParticle::get_texture(const Uint16 res_index)
@@ -236,7 +236,7 @@ namespace ec
 					velocity.normalize(0.8);
 					Particle
 						* p =
-							new HarvestingParticle(this, mover, coords, velocity, 5.25, 0.5, 0.6, 0.7, 0.2, &(base->TexFlare), LOD, type);
+							new HarvestingParticle(this, mover, coords, velocity, 5.25, 0.5, 0.6, 0.7, 0.2, EC_FLARE, LOD, type);
 					p->state = 0;
 					if (!base->push_back_particle(p))
 						break;
@@ -248,7 +248,7 @@ namespace ec
 					Vec3 velocity;
 					velocity.randomize();
 					velocity.normalize(1.5);
-					Particle * p = new HarvestingParticle(this, mover, coords, velocity, 4.5, 0.5 + randalpha(0.4), 0.7, 0.6, 0.5, &(base->TexWater), LOD, type);
+					Particle * p = new HarvestingParticle(this, mover, coords, velocity, 4.5, 0.5 + randalpha(0.4), 0.7, 0.6, 0.5, EC_WATER, LOD, type);
 					p->state = 1;
 					if (!base->push_back_particle(p))
 						break;
@@ -271,7 +271,7 @@ namespace ec
 					velocity.y -= 9.0;
 					coords += effect_center;
 					const color_t scalar= randcolor(0.4);
-					Particle * p = new HarvestingParticle(this, mover, coords, velocity, 8.0 + randcoord(12.0), 1.0, scalar + randcolor(0.1), scalar + randcolor(0.1), scalar + randcolor(0.1), &(base->TexSimple), LOD, type);
+					Particle * p = new HarvestingParticle(this, mover, coords, velocity, 8.0 + randcoord(12.0), 1.0, scalar + randcolor(0.1), scalar + randcolor(0.1), scalar + randcolor(0.1), EC_SIMPLE, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -285,7 +285,7 @@ namespace ec
 					velocity.y *= 3.0;
 					velocity.y -= 9.0;
 					coords += effect_center;
-					Particle * p = new HarvestingParticle(this, mover, coords, velocity, 3.0 + randcoord(6.0), 0.4 + randalpha(0.4), 0.2 + randcolor(0.2), 0.2 + randcolor(0.2), 0.2 + randcolor(0.2), &(base->TexWater), LOD, type);
+					Particle * p = new HarvestingParticle(this, mover, coords, velocity, 3.0 + randcoord(6.0), 0.4 + randalpha(0.4), 0.2 + randcolor(0.2), 0.2 + randcolor(0.2), 0.2 + randcolor(0.2), EC_WATER, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -306,7 +306,7 @@ namespace ec
 					velocity.y += 1.4;
 					Particle
 						* p =
-							new HarvestingParticle(this, mover, coords, velocity, 3.0, 0.2, 1.0, 0.5 + randcolor(0.5), 0.5, &(base->TexTwinflare), LOD, type);
+							new HarvestingParticle(this, mover, coords, velocity, 3.0, 0.2, 1.0, 0.5 + randcolor(0.5), 0.5, EC_TWINFLARE, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -322,7 +322,7 @@ namespace ec
 					Vec3 coords = spawner->get_new_coords() + effect_center;
 					coords.y += (coord_t)(randfloat(2.0) * randfloat(2.0) * randfloat(2.0));
 					const Vec3 velocity(0.0, 0.0, 0.0);
-					Particle * p = new HarvestingParticle(this, mover, coords, velocity, 2.0 + randcoord(1.0), 1.0, randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexShimmer), LOD, type);
+					Particle * p = new HarvestingParticle(this, mover, coords, velocity, 2.0 + randcoord(1.0), 1.0, randcolor(1.0), randcolor(1.0), randcolor(1.0), EC_SHIMMER, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -343,7 +343,7 @@ namespace ec
 					velocity.normalize(0.75);
 					velocity.x += randfloat(direction.x);
 					velocity.z += randfloat(direction.z);
-					Particle * p = new HarvestingParticle(this, mover, coords, velocity, 0.5 + randfloat(0.25), 1.0, 0.9, 0.7, 0.3, &(base->TexTwinflare), LOD, type);
+					Particle * p = new HarvestingParticle(this, mover, coords, velocity, 0.5 + randfloat(0.25), 1.0, 0.9, 0.7, 0.3, EC_TWINFLARE, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -359,13 +359,13 @@ namespace ec
 					Vec3 coords = spawner->get_new_coords();
 					const Vec3 velocity = coords / 10.0;
 					coords += effect_center;
-					Particle* p = new HarvestingParticle(this, mover, coords, velocity, 1.05, 0.75, randcolor(0.3) + 0.7, randcolor(0.3) + 0.5, randcolor(0.3) + 0.3, &(base->TexFlare), LOD, type);
+					Particle* p = new HarvestingParticle(this, mover, coords, velocity, 1.05, 0.75, randcolor(0.3) + 0.7, randcolor(0.3) + 0.5, randcolor(0.3) + 0.3, EC_FLARE, LOD, type);
 					p->state = 1;
 					if (!base->push_back_particle(p))
 						break;
 				}
 
-				Particle* p = new HarvestingParticle(this, mover, effect_center, Vec3(0.0, 0.0, 0.0), 8.0, 1.0, 0.8, 0.7, 0.3, &(base->TexShimmer), LOD, type);
+				Particle* p = new HarvestingParticle(this, mover, effect_center, Vec3(0.0, 0.0, 0.0), 8.0, 1.0, 0.8, 0.7, 0.3, EC_SHIMMER, LOD, type);
 				base->push_back_particle(p);
 				break;
 			}
@@ -379,16 +379,16 @@ namespace ec
 					Vec3 coords = spawner->get_new_coords();
 					const Vec3 velocity = coords / 10.0;
 					coords += effect_center;
-					Particle* p = new HarvestingParticle(this, mover, coords, velocity, 0.75, 0.05, randcolor(0.3) + 0.7, randcolor(0.3) + 0.5, randcolor(0.3) + 0.3, &(base->TexFlare), LOD, type);
+					Particle* p = new HarvestingParticle(this, mover, coords, velocity, 0.75, 0.05, randcolor(0.3) + 0.7, randcolor(0.3) + 0.5, randcolor(0.3) + 0.3, EC_FLARE, LOD, type);
 					p->state = 1;
 					if (!base->push_back_particle(p))
 						break;
 				}
 
-				Particle* p = new HarvestingParticle(this, mover, effect_center, Vec3(0.0, 0.0, 0.0), 7.5, 1.0, 1.0, 1.0, 1.0, &(base->TexVoid), LOD, type);
+				Particle* p = new HarvestingParticle(this, mover, effect_center, Vec3(0.0, 0.0, 0.0), 7.5, 1.0, 1.0, 1.0, 1.0, EC_VOID, LOD, type);
 				if (!base->push_back_particle(p))
 					break;
-				p = new HarvestingParticle(this, mover, effect_center, Vec3(0.0, 0.01, 0.0), 7.5, 1.0, 1.0, 1.0, 1.0, &(base->TexVoid), LOD, type);
+				p = new HarvestingParticle(this, mover, effect_center, Vec3(0.0, 0.01, 0.0), 7.5, 1.0, 1.0, 1.0, 1.0, EC_VOID, LOD, type);
 				base->push_back_particle(p);
 				break;
 			}
@@ -432,7 +432,7 @@ namespace ec
 					velocity.y = 0.0;
 					Particle
 						* p =
-							new HarvestingParticle(this, mover, coords, velocity, 1.25, 1.0, 0.5, 0.5, 0.5, &(base->TexFlare), LOD, type);
+							new HarvestingParticle(this, mover, coords, velocity, 1.25, 1.0, 0.5, 0.5, 0.5, EC_FLARE, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}

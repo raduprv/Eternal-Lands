@@ -79,7 +79,7 @@ namespace ec
 #ifdef	NEW_TEXTURES
 	Uint32 FireflyParticle::get_texture()
 	{
-		return base->TexVoid.get_texture();
+		return base->get_texture(EC_VOID);
 	}
 #else	/* NEW_TEXTURES */
 	GLuint FireflyParticle::get_texture(const Uint16 res_index)

@@ -129,9 +129,13 @@ namespace ec
 	Uint32 FountainParticle::get_texture()
 	{
 		if (state == 1)
-			return base->TexWater.get_texture();
+		{
+			return base->get_texture(EC_WATER);
+		}
 		else
-			return base->TexFlare.get_texture();
+		{
+			return base->get_texture(EC_FLARE);
+		}
 	}
 #else	/* NEW_TEXTURES */
 	GLuint FountainParticle::get_texture(const Uint16 res_index)
