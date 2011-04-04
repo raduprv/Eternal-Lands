@@ -451,7 +451,7 @@ static Uint32 load_image_SDL_alpha(el_file_ptr file, image_t* image)
 	return 1;
 }
 
-Uint32 load_image_data_file(el_file_ptr file, const Uint32 decompress,
+Uint32 load_image_data_file(el_file_ptr file, const Uint32 compression,
 	const Uint32 unpack, const Uint32 strip_mipmaps,
 	const Uint32 base_level, image_t* image)
 {
@@ -478,7 +478,7 @@ Uint32 load_image_data_file(el_file_ptr file, const Uint32 decompress,
 
 	if (dds == 1)
 	{
-		result = load_dds(file, decompress, unpack,
+		result = load_dds(file, compression, unpack,
 			strip_mipmaps, base_level, image);
 	}
 	else
@@ -519,7 +519,7 @@ Uint32 load_image_data_file(el_file_ptr file, const Uint32 decompress,
 	return 1;
 }
 
-Uint32 load_image_data(const char* file_name, const Uint32 decompress,
+Uint32 load_image_data(const char* file_name, const Uint32 compression,
 	const Uint32 unpack, const Uint32 strip_mipmaps,
 	const Uint32 base_level, image_t* image)
 {
@@ -541,7 +541,7 @@ Uint32 load_image_data(const char* file_name, const Uint32 decompress,
 		return 0;
 	}
 
-	return load_image_data_file(file, decompress, unpack, strip_mipmaps,
+	return load_image_data_file(file, compression, unpack, strip_mipmaps,
 		base_level, image);
 }
 

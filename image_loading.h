@@ -37,6 +37,16 @@ typedef enum
 	ift_ati2
 } image_format_type;
 
+/*!
+ * supported texture compression formats.
+ */
+typedef enum
+{
+	tct_s3tc = 0x01,
+	tct_3dc = 0x02,
+	tct_latc = 0x04
+} texture_compression_type;
+
 #define MAX_IMAGE_MIPMAPS 16
 
 /*!
@@ -90,15 +100,16 @@ Uint32 get_file_name_len(const char* file_name);
  *		level (e.g. the first mipmap). Tries to find and load an alpha
 		map image.
  * \param   	file_name The file name to use.
- * \param   	decompress Should the image get decompressed if it is compressed?
+ * \param   	compression Set of texture compressions that can be used.
  * \param   	unpack Should the image get converted to RGBA8?
  * \param   	strip_mipmaps Should we strip the mipmaps?
  * \param   	base_level What base level should we use?
  * \param   	image The image struct where we store the loaded data.
  * \retval Uint32	Returns one if everything is ok, zero else.
+ * \see texture_compression_type
  * \callgraph
  */
-Uint32 load_image_data(const char* file_name, const Uint32 decompress,
+Uint32 load_image_data(const char* file_name, const Uint32 compression,
 	const Uint32 unpack, const Uint32 strip_mipmaps,
 	const Uint32 base_level, image_t* image);
 
@@ -112,15 +123,16 @@ Uint32 load_image_data(const char* file_name, const Uint32 decompress,
  *		level (e.g. the first mipmap). The file is closed befor the
  *		function returns.
  * \param   	file The file to use.
- * \param   	decompress Should the image get decompressed if it is compressed?
+ * \param   	compression Set of texture compressions that can be used.
  * \param   	unpack Should the image get converted to RGBA8?
  * \param   	strip_mipmaps Should we strip the mipmaps?
  * \param   	base_level What base level should we use?
  * \param   	image The image struct where we store the loaded data.
  * \retval Uint32	Returns one if everything is ok, zero else.
+ * \see texture_compression_type
  * \callgraph
  */
-Uint32 load_image_data_file(el_file_ptr file, const Uint32 decompress,
+Uint32 load_image_data_file(el_file_ptr file, const Uint32 compression,
 	const Uint32 unpack, const Uint32 strip_mipmaps,
 	const Uint32 base_level, image_t* image);
 
