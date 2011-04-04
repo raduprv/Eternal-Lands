@@ -13,7 +13,7 @@ namespace ec
 	BreathParticle::BreathParticle(Effect* _effect, ParticleMover* _mover,
 		const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
 		const alpha_t _alpha, const color_t red, const color_t green,
-		const color_t blue, Texture* _texture, const Uint16 _LOD,
+		const color_t blue, TextureEnum _texture, const Uint16 _LOD,
 		const BreathEffect::BreathType _type) :
 		Particle(_effect, _mover, _pos, _velocity)
 	{
@@ -142,51 +142,51 @@ namespace ec
 							velocity_offset.normalize();
 							Particle
 								* p =
-									new BreathParticle(effect, mover, pos, velocity_offset * 3.6, size / 2, 1.0, color[0], color[1], color[2], &(base->TexShimmer), LOD, type);
+									new BreathParticle(effect, mover, pos, velocity_offset * 3.6, size / 2, 1.0, color[0], color[1], color[2], EC_SHIMMER, LOD, type);
 							p->state = 2;
 							base->push_back_particle(p);
 							p
-								= new BreathParticle(effect, mover, pos, velocity_offset * 3.4, size / 2, 1.0, color[0], color[1], color[2], &(base->TexShimmer), LOD, type);
+								= new BreathParticle(effect, mover, pos, velocity_offset * 3.4, size / 2, 1.0, color[0], color[1], color[2], EC_SHIMMER, LOD, type);
 							p->state = 2;
 							base->push_back_particle(p);
 							p
-								= new BreathParticle(effect, mover, pos, velocity_offset * 3.2, size / 2, 1.0, color[0], color[1], color[2], &(base->TexShimmer), LOD, type);
+								= new BreathParticle(effect, mover, pos, velocity_offset * 3.2, size / 2, 1.0, color[0], color[1], color[2], EC_SHIMMER, LOD, type);
 							p->state = 2;
 							base->push_back_particle(p);
 							p
-								= new BreathParticle(effect, mover, pos, velocity_offset * 3.0, size / 2, 1.0, color[0], color[1], color[2], &(base->TexShimmer), LOD, type);
+								= new BreathParticle(effect, mover, pos, velocity_offset * 3.0, size / 2, 1.0, color[0], color[1], color[2], EC_SHIMMER, LOD, type);
 							p->state = 2;
 							base->push_back_particle(p);
 							p
-								= new BreathParticle(effect, mover, pos, velocity_offset * 2.8, size / 2, 1.0, color[0], color[1], color[2], &(base->TexShimmer), LOD, type);
+								= new BreathParticle(effect, mover, pos, velocity_offset * 2.8, size / 2, 1.0, color[0], color[1], color[2], EC_SHIMMER, LOD, type);
 							p->state = 2;
 							base->push_back_particle(p);
 							p
-								= new BreathParticle(effect, mover, pos, velocity_offset * 2.6, size / 2, 1.0, color[0], color[1], color[2], &(base->TexShimmer), LOD, type);
+								= new BreathParticle(effect, mover, pos, velocity_offset * 2.6, size / 2, 1.0, color[0], color[1], color[2], EC_SHIMMER, LOD, type);
 							p->state = 2;
 							base->push_back_particle(p);
 							p
-								= new BreathParticle(effect, mover, pos, velocity_offset * 2.4, size / 2, 1.0, color[0], color[1], color[2], &(base->TexShimmer), LOD, type);
+								= new BreathParticle(effect, mover, pos, velocity_offset * 2.4, size / 2, 1.0, color[0], color[1], color[2], EC_SHIMMER, LOD, type);
 							p->state = 2;
 							base->push_back_particle(p);
 							p
-								= new BreathParticle(effect, mover, pos, velocity_offset * 2.2, size / 2, 1.0, color[0], color[1], color[2], &(base->TexShimmer), LOD, type);
+								= new BreathParticle(effect, mover, pos, velocity_offset * 2.2, size / 2, 1.0, color[0], color[1], color[2], EC_SHIMMER, LOD, type);
 							p->state = 2;
 							base->push_back_particle(p);
 							p
-								= new BreathParticle(effect, mover, pos, velocity_offset * 2.0, size / 2, 1.0, color[0], color[1], color[2], &(base->TexShimmer), LOD, type);
+								= new BreathParticle(effect, mover, pos, velocity_offset * 2.0, size / 2, 1.0, color[0], color[1], color[2], EC_SHIMMER, LOD, type);
 							p->state = 2;
 							base->push_back_particle(p);
 							p
-								= new BreathParticle(effect, mover, pos, velocity_offset * 1.8, size / 2, 1.0, color[0], color[1], color[2], &(base->TexShimmer), LOD, type);
+								= new BreathParticle(effect, mover, pos, velocity_offset * 1.8, size / 2, 1.0, color[0], color[1], color[2], EC_SHIMMER, LOD, type);
 							p->state = 2;
 							base->push_back_particle(p);
 							p
-								= new BreathParticle(effect, mover, pos, velocity_offset * 1.6, size / 2, 1.0, color[0], color[1], color[2], &(base->TexShimmer), LOD, type);
+								= new BreathParticle(effect, mover, pos, velocity_offset * 1.6, size / 2, 1.0, color[0], color[1], color[2], EC_SHIMMER, LOD, type);
 							p->state = 2;
 							base->push_back_particle(p);
 							p
-								= new BreathParticle(effect, mover, pos, velocity_offset * 1.4, size / 2, 1.0, color[0], color[1], color[2], &(base->TexShimmer), LOD, type);
+								= new BreathParticle(effect, mover, pos, velocity_offset * 1.4, size / 2, 1.0, color[0], color[1], color[2], EC_SHIMMER, LOD, type);
 							p->state = 2;
 							base->push_back_particle(p);
 						}
@@ -214,7 +214,7 @@ namespace ec
 #ifdef	NEW_TEXTURES
 	Uint32 BreathParticle::get_texture()
 	{
-		return texture->get_texture();
+		return base->get_texture(texture);
 	}
 #else	/* NEW_TEXTURES */
 	GLuint BreathParticle::get_texture(const Uint16 res_index)
@@ -225,7 +225,7 @@ namespace ec
 
 	BreathSmokeParticle::BreathSmokeParticle(Effect* _effect,
 		ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity,
-		const coord_t _size, const alpha_t _alpha, Texture* _texture,
+		const coord_t _size, const alpha_t _alpha, TextureEnum _texture,
 		const Uint16 _LOD, const BreathEffect::BreathType _type) :
 		Particle(_effect, _mover, _pos, _velocity)
 	{
@@ -255,7 +255,7 @@ namespace ec
 				color[0] = randcolor(0.0) + color_scale;
 				color[1] = randcolor(0.0) + color_scale;
 				color[2] = randcolor(0.0) + color_scale;
-				texture = &(base->TexSimple);
+				texture = EC_SIMPLE;
 				break;
 			}
 			case BreathEffect::MAGIC:
@@ -336,7 +336,7 @@ namespace ec
 #ifdef	NEW_TEXTURES
 	Uint32 BreathSmokeParticle::get_texture()
 	{
-		return texture->get_texture();
+		return base->get_texture(texture);
 	}
 #else	/* NEW_TEXTURES */
 	GLuint BreathSmokeParticle::get_texture(const Uint16 res_index)
@@ -381,7 +381,7 @@ namespace ec
 				{
 					Particle
 						* p =
-							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.6, 0.8 + randcolor(0.2), 0.4 + randcolor(0.4), randcolor(0.4), &(base->TexFlare), LOD, type);
+							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.6, 0.8 + randcolor(0.2), 0.4 + randcolor(0.4), randcolor(0.4), EC_FLARE, LOD, type);
 					if (!base->push_back_particle(p))
 						return;
 					break;
@@ -390,7 +390,7 @@ namespace ec
 				{
 					Particle
 						* p =
-							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.6, randcolor(0.4), 0.4 + randcolor(0.4), 0.8 + randcolor(0.2), &(base->TexCrystal), LOD, type);
+							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.6, randcolor(0.4), 0.4 + randcolor(0.4), 0.8 + randcolor(0.2), EC_CRYSTAL, LOD, type);
 					if (!base->push_back_particle(p))
 						return;
 					break;
@@ -399,7 +399,7 @@ namespace ec
 				{
 					Particle
 						* p =
-							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.1, randcolor(0.3), 0.8 + randcolor(0.2), randcolor(0.3), &(base->TexWater), LOD, type);
+							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.1, randcolor(0.3), 0.8 + randcolor(0.2), randcolor(0.3), EC_WATER, LOD, type);
 					if (!base->push_back_particle(p))
 						return;
 					break;
@@ -408,7 +408,7 @@ namespace ec
 				{
 					Particle
 						* p =
-							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.6, randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexTwinflare), LOD, type);
+							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.6, randcolor(1.0), randcolor(1.0), randcolor(1.0), EC_TWINFLARE, LOD, type);
 					if (!base->push_back_particle(p))
 						return;
 					break;
@@ -417,7 +417,7 @@ namespace ec
 				{
 					Particle
 						* p =
-							new BreathParticle(this, mover, coords, velocity, 0.25 * size_scalar, 0.6, 0.9 + randcolor(0.1), 0.85 + randcolor(0.15), 0.8 + randcolor(0.2), &(base->TexFlare), LOD, type);
+							new BreathParticle(this, mover, coords, velocity, 0.25 * size_scalar, 0.6, 0.9 + randcolor(0.1), 0.85 + randcolor(0.15), 0.8 + randcolor(0.2), EC_FLARE, LOD, type);
 					if (!base->push_back_particle(p))
 						return;
 					break;
@@ -426,7 +426,7 @@ namespace ec
 				{
 					Particle
 						* p =
-							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.6, 0.8 + randcolor(0.2), 0.8 + randcolor(0.2), 0.8 + randcolor(0.2), &(base->TexFlare), LOD, type);
+							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.6, 0.8 + randcolor(0.2), 0.8 + randcolor(0.2), 0.8 + randcolor(0.2), EC_FLARE, LOD, type);
 					if (!base->push_back_particle(p))
 						return;
 					break;
@@ -486,7 +486,7 @@ namespace ec
 				{
 					Particle
 						* p =
-							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.6, 0.8 + randcolor(0.2), 0.4 + randcolor(0.4), randcolor(0.4), &(base->TexFlare), LOD, type);
+							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.6, 0.8 + randcolor(0.2), 0.4 + randcolor(0.4), randcolor(0.4), EC_FLARE, LOD, type);
 					if (!base->push_back_particle(p))
 						return true;
 					break;
@@ -495,7 +495,7 @@ namespace ec
 				{
 					Particle
 						* p =
-							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.6, randcolor(0.4), 0.4 + randcolor(0.4), 0.8 + randcolor(0.2), &(base->TexCrystal), LOD, type);
+							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.6, randcolor(0.4), 0.4 + randcolor(0.4), 0.8 + randcolor(0.2), EC_CRYSTAL, LOD, type);
 					if (!base->push_back_particle(p))
 						return true;
 					break;
@@ -504,7 +504,7 @@ namespace ec
 				{
 					Particle
 						* p =
-							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.1, 0.9 + randcolor(0.1), 0.8 + randcolor(0.2), 0.6 + randcolor(0.2), &(base->TexFlare), LOD, type);
+							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.1, 0.9 + randcolor(0.1), 0.8 + randcolor(0.2), 0.6 + randcolor(0.2), EC_FLARE, LOD, type);
 					if (!base->push_back_particle(p))
 						return true;
 					break;
@@ -513,7 +513,7 @@ namespace ec
 				{
 					Particle
 						* p =
-							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.6, randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexTwinflare), LOD, type);
+							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.6, randcolor(1.0), randcolor(1.0), randcolor(1.0), EC_TWINFLARE, LOD, type);
 					if (!base->push_back_particle(p))
 						return true;
 					break;
@@ -522,7 +522,7 @@ namespace ec
 				{
 					Particle
 						* p =
-							new BreathParticle(this, mover, coords, velocity, 0.25 * size_scalar, 0.6, 0.9 + randcolor(0.1), 0.85 + randcolor(0.15), 0.8 + randcolor(0.2), &(base->TexFlare), LOD, type);
+							new BreathParticle(this, mover, coords, velocity, 0.25 * size_scalar, 0.6, 0.9 + randcolor(0.1), 0.85 + randcolor(0.15), 0.8 + randcolor(0.2), EC_FLARE, LOD, type);
 					if (!base->push_back_particle(p))
 						return true;
 					break;
@@ -531,7 +531,7 @@ namespace ec
 				{
 					Particle
 						* p =
-							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.1, 0.8 + randcolor(0.2), 0.8 + randcolor(0.2), 0.8 + randcolor(0.2), &(base->TexFlare), LOD, type);
+							new BreathParticle(this, mover, coords, velocity, 0.5 * size_scalar, 0.1, 0.8 + randcolor(0.2), 0.8 + randcolor(0.2), 0.8 + randcolor(0.2), EC_FLARE, LOD, type);
 					if (!base->push_back_particle(p))
 						return true;
 					break;

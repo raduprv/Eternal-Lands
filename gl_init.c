@@ -1060,7 +1060,9 @@ void set_new_video_mode(int fs,int mode)
 		
 	}
 
+#ifndef	NEW_TEXTURES
 	ec_clear_textures();
+#endif	/* NEW_TEXTURES */
 
 	//destroy the current context
 

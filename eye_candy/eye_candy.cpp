@@ -15,6 +15,70 @@
 namespace ec
 {
 
+	namespace
+	{
+
+		const float scale_u = 1023.0f / (1024.0f * 1024.0f);
+		const float scale_v = 511.0f / (512.0f * 512.0f);
+		const float offset_u = 0.5f / 1024.0f;
+		const float offset_v = 0.5f / 512.0f;
+
+		#include "eye_candy.tat"
+
+		#define BUILD_TEXTURE_COORDINATES(u, v, u_size, v_size)	\
+			u, v, u + u_size, v, u + u_size, v + v_size, u, v + v_size, 
+
+		#define BUILD_EYE_CANDY_TEXTURE_COORDINATES(index, img, name, x, y, w, h)	\
+			BUILD_TEXTURE_COORDINATES(x * scale_u + offset_u, y * scale_v + offset_v, w * scale_u, h * scale_v)
+
+		const float texture_coordinates[] =
+		{
+			LIST_EYE_CANDY_ATLAS(BUILD_EYE_CANDY_TEXTURE_COORDINATES)
+			0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f
+		};
+
+		const float* get_texture_coordinates(const Uint32 texture, const Uint32 index)
+		{
+			printf("<%f, %f>\n", texture_coordinates[texture * 8 + index * 2 + 0], texture_coordinates[texture * 8 + index * 2 + 1]);
+			return &texture_coordinates[texture * 8 + index * 2];
+		}
+
+		Uint32 get_texture_index(const TextureEnum type)
+		{
+			switch (type)
+			{
+				case EC_CRYSTAL:
+					return randint(3);
+				case EC_FLARE:
+					return randint(3) + 3;
+				case EC_INVERSE:
+					return randint(4) + 6;
+				case EC_SHIMMER:
+					return randint(3) + 10;
+				case EC_SIMPLE:
+					return 13;
+				case EC_TWINFLARE:
+					return randint(5) + 14;
+				case EC_VOID:
+					return randint(3) + 19;
+				case EC_WATER:
+					return randint(4) + 22;
+				case EC_LEAF_ASH:
+					return 26;
+				case EC_LEAF_MAPLE:
+					return 27;
+				case EC_LEAF_OAK:
+					return 28;
+				case EC_PETAL:
+					return 29;
+				case EC_SNOWFLAKE:
+					return 30;
+			}
+
+			return 31;
+		}
+	}
+
 	const float MIN_SAFE_ALPHA = 0.02942f;
 
 	// G L O B A L S //////////////////////////////////////////////////////////////
@@ -26,6 +90,7 @@ namespace ec
 
 	// C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
+#ifndef	NEW_TEXTURES
 	Texture::Texture()
 	{
 	}
@@ -35,24 +100,6 @@ namespace ec
 		clear();
 	}
 
-#ifdef	NEW_TEXTURES
-	GLuint Texture::get_texture() const
-	{
-		return (GLuint)get_texture(randint(texture_ids.size()));
-	}
-
-	GLuint Texture::get_texture(const int frame) const
-	{
-		return texture_ids[frame];
-	}
-
-	GLuint Texture::get_texture(const Uint64 born,
-		const Uint64 changerate) const
-	{
-		return (GLuint)get_texture(((get_time() - born) / changerate) %
-			texture_ids.size());
-	}
-#else	/* NEW_TEXTURES */
 	GLuint Texture::get_texture(const Uint16 res_index) const
 	{
 		return (GLuint)get_texture(res_index, randint(texture_ids[res_index].size()));
@@ -69,11 +116,9 @@ namespace ec
 		return (GLuint)get_texture(res_index,
 			((get_time() - born) / changerate) % texture_ids[res_index].size());
 	}
-#endif	/* NEW_TEXTURES */
 
 	void Texture::clear()
 	{
-#ifndef	NEW_TEXTURES
 		for (int i = 0; i < 4; i++)
 		{
 			for (std::vector<GLuint>::iterator iter = texture_ids[i].begin(); iter
@@ -84,15 +129,10 @@ namespace ec
 			}
 			texture_ids[i].clear();
 		}
-#endif	/* NEW_TEXTURES */
 	}
 
 	void Texture::push_texture(const std::string filename)
 	{
-#ifdef	NEW_TEXTURES
-		texture_ids.push_back(load_texture_cached(filename.c_str(),
-			tt_mesh));
-#else	/* NEW_TEXTURES */
 		SDL_Surface* tex;
 		GLuint texture_id;
 
@@ -151,8 +191,8 @@ namespace ec
 			texture_ids[3].push_back(texture_id);
 
 		SDL_FreeSurface(tex);
-#endif	/* NEW_TEXTURES */
 	}
+#endif	/* NEW_TEXTURES */
 
 	Shape::~Shape()
 	{
@@ -168,25 +208,21 @@ namespace ec
 
 		glColor4f(color.x, color.y, color.z, alpha);
 
-#if 0
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_NORMAL_ARRAY);
-		glEnableClientState(GL_INDEX_ARRAY);
-#endif
-
 		glPushMatrix();
 		glTranslated(pos.x, pos.y, pos.z);
 		glDisable(GL_TEXTURE_2D);
 
-#if 0
-		glNormalPointer(GL_DOUBLE, 0, normals);
-		glVertexPointer(3, GL_DOUBLE, 0, vertices);
-		glIndexPointer(GL_INT, 0, facets);
-		glDrawArrays(GL_TRIANGLES, 0, facet_count);
+#if 1
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_NORMAL_ARRAY);
+
+		glNormalPointer(GL_FLOAT, 0, normals);
+		glVertexPointer(3, GL_FLOAT, 0, vertices);
+
+		glDrawElements(GL_TRIANGLES, facet_count * 3, GL_UNSIGNED_INT, facets);
 
 		glDisableClientState(GL_VERTEX_ARRAY);
 		glDisableClientState(GL_NORMAL_ARRAY);
-		glDisableClientState(GL_INDEX_ARRAY);
 #else
 
 		if (base->poor_transparency_resolution)
@@ -1553,7 +1589,6 @@ namespace ec
 		for (std::vector<GLenum>::iterator iter = lights.begin(); iter
 			!= lights.end(); iter++)
 			glDisable(*iter);
-
 	}
 
 	void EyeCandy::set_thresholds(const int _max_particles,
@@ -1583,6 +1618,12 @@ namespace ec
 		//  allowable_particles_to_add = max_particles;
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 EyeCandy::get_texture(const TextureEnum type) const
+	{
+		return get_texture_index(type);
+	}
+#else	/* NEW_TEXTURES */
 	void EyeCandy::clear_textures()
 	{
 		//clear any existing textures
@@ -1600,41 +1641,13 @@ namespace ec
 		TexVoid.clear();
 		TexWater.clear();
 	}
+#endif	/* NEW_TEXTURES */
 
 	void EyeCandy::load_textures()
 	{
 		// Load the textures.
 #ifdef	NEW_TEXTURES
-		TexSimple.push_texture("textures/eye_candy/simple.dds");
-		TexFlare.push_texture("textures/eye_candy/flare1.dds");
-		TexFlare.push_texture("textures/eye_candy/flare2.dds");
-		TexFlare.push_texture("textures/eye_candy/flare3.dds");
-		TexVoid.push_texture("textures/eye_candy/void1.dds");
-		TexVoid.push_texture("textures/eye_candy/void2.dds");
-		TexVoid.push_texture("textures/eye_candy/void3.dds");
-		TexTwinflare.push_texture("textures/eye_candy/twinflare1.dds");
-		TexTwinflare.push_texture("textures/eye_candy/twinflare2.dds");
-		TexTwinflare.push_texture("textures/eye_candy/twinflare3.dds");
-		TexTwinflare.push_texture("textures/eye_candy/twinflare4.dds");
-		TexTwinflare.push_texture("textures/eye_candy/twinflare5.dds");
-		TexInverse.push_texture("textures/eye_candy/inverse1.dds");
-		TexInverse.push_texture("textures/eye_candy/inverse2.dds");
-		TexInverse.push_texture("textures/eye_candy/inverse3.dds");
-		TexInverse.push_texture("textures/eye_candy/inverse4.dds");
-		TexShimmer.push_texture("textures/eye_candy/shimmer1.dds");
-		TexShimmer.push_texture("textures/eye_candy/shimmer2.dds");
-		TexShimmer.push_texture("textures/eye_candy/shimmer3.dds");
-		TexCrystal.push_texture("textures/eye_candy/crystal1.dds");
-		TexCrystal.push_texture("textures/eye_candy/crystal2.dds");
-		TexCrystal.push_texture("textures/eye_candy/crystal3.dds");
-		TexWater.push_texture("textures/eye_candy/water1.dds");
-		TexWater.push_texture("textures/eye_candy/water2.dds");
-		TexWater.push_texture("textures/eye_candy/water3.dds");
-		TexLeafMaple.push_texture("textures/eye_candy/leaf_maple.dds");
-		TexLeafOak.push_texture("textures/eye_candy/leaf_oak.dds");
-		TexLeafAsh.push_texture("textures/eye_candy/leaf_ash.dds");
-		TexPetal.push_texture("textures/eye_candy/petal.dds");
-		TexSnowflake.push_texture("textures/eye_candy/snowflake.dds");
+		texture_atlas = load_texture_cached("textures/eye_candy.dds", tt_mesh);
 #else	/* NEW_TEXTURES */
 		TexSimple.push_texture("./textures/eye_candy/16x16/simple.png");
 		TexFlare.push_texture("./textures/eye_candy/16x16/flare1.png");
@@ -1791,6 +1804,17 @@ namespace ec
 		glDepthMask(false);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
+#ifdef	NEW_TEXTURES
+		float modelview[16];
+		glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
+
+		const Vec3 right(modelview[0], modelview[4], modelview[8]);
+		const Vec3 up(modelview[1], modelview[5], modelview[9]);
+		corner_offset1 = (right + up) * billboard_scalar;
+		corner_offset2 = (right - up) * billboard_scalar;
+
+		bind_texture(texture_atlas);
+#else	/* NEW_TEXTURES */
 		if ((draw_method == FAST_BILLBOARDS) || (draw_method == POINT_SPRITES)) //We need to do this for point sprites as well because if the particle is too big, it falls through to fast billboards.
 		{
 			float modelview[16];
@@ -1815,14 +1839,17 @@ namespace ec
 			glTexEnvf(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE);
 			glGetFloatv(GL_POINT_SIZE_MAX_ARB, &max_allowable_point_size);
 		}
+#endif	/* NEW_TEXTURES */
 	}
 
 	void EyeCandy::end_draw()
 	{
+#ifndef	NEW_TEXTURES
 		if (draw_method == POINT_SPRITES)
 		{
 			glDisable(GL_POINT_SPRITE_ARB);
 		}
+#endif	/* NEW_TEXTURES */
 
 		glColor4f(1.0, 1.0, 1.0, 1.0);
 		glDisable(GL_BLEND);
@@ -2178,15 +2205,50 @@ namespace ec
 			glLightf(light_id, GL_LINEAR_ATTENUATION, 1.0);
 		}
 
+#ifdef	NEW_TEXTURES
+		void EyeCandy::draw_point_sprite_particle(coord_t size, const Uint32 texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos)
+		{
+			draw_point_sprite_particle(size, texture, r, g, b, alpha, pos);
+		}
+
+		void EyeCandy::draw_fast_billboard_particle(coord_t size, const Uint32 texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos)
+		{
+			//  std::cout << "B: " << size << ", " << texture << ", " << Vec3(r, g, b) << ", " << alpha << std::endl;
+			const Vec3 corner1(pos - corner_offset1 * size);
+			const Vec3 corner2(pos + corner_offset2 * size);
+			const Vec3 corner3(pos + corner_offset1 * size);
+			const Vec3 corner4(pos - corner_offset2 * size);
+
+			//  std::cout << corner1 << ", " << corner2 << ", " << corner3 << ", " << corner4 << std::endl;
+			//  std::cout << size << ", " << texture << ", " << Vec3(r, g, b) << ", " << alpha << std::endl;
+
+			glBegin(GL_QUADS);
+			{
+				glColor4f(r, g, b, alpha);
+				glTexCoord2fv(get_texture_coordinates(texture, 0));
+				glVertex3f(corner1.x, corner1.y, corner1.z);
+				glTexCoord2fv(get_texture_coordinates(texture, 1));
+				glVertex3f(corner2.x, corner2.y, corner2.z);
+				glTexCoord2fv(get_texture_coordinates(texture, 2));
+				glVertex3f(corner3.x, corner3.y, corner3.z);
+				glTexCoord2fv(get_texture_coordinates(texture, 3));
+				glVertex3f(corner4.x, corner4.y, corner4.z);
+			}
+			glEnd();
+		}
+
+		void EyeCandy::draw_accurate_billboard_particle(coord_t size, const Uint32 texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos)
+		{
+			draw_point_sprite_particle(size, texture, r, g, b, alpha, pos);
+		}
+#else	/* NEW_TEXTURES */
 		void EyeCandy::draw_point_sprite_particle(coord_t size, const GLuint texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos)
 		{
 			//  std::cout << "A: " << size << ", " << texture << ", " << Vec3(r, g, b) << ", " << alpha << std::endl;
 			glPointSize(size);
-#ifdef	NEW_TEXTURES
-			bind_texture(texture);
-#else	/* NEW_TEXTURES */
+
 			glBindTexture(GL_TEXTURE_2D, texture);
-#endif	/* NEW_TEXTURES */
+
 			glBegin(GL_POINTS);
 			{
 				glColor4f(r, g, b, alpha);
@@ -2206,11 +2268,8 @@ namespace ec
 			//  std::cout << corner1 << ", " << corner2 << ", " << corner3 << ", " << corner4 << std::endl;
 			//  std::cout << size << ", " << texture << ", " << Vec3(r, g, b) << ", " << alpha << std::endl;
 
-#ifdef	NEW_TEXTURES
-			bind_texture(texture);
-#else	/* NEW_TEXTURES */
 			glBindTexture(GL_TEXTURE_2D, texture);
-#endif	/* NEW_TEXTURES */
+
 			glBegin(GL_QUADS);
 			{
 				glColor4f(r, g, b, alpha);
@@ -2254,11 +2313,8 @@ namespace ec
 			}
 
 			const float scaled_size = size * billboard_scalar;
-#ifdef	NEW_TEXTURES
-			bind_texture(texture);
-#else	/* NEW_TEXTURES */
+
 			glBindTexture(GL_TEXTURE_2D, texture);
-#endif	/* NEW_TEXTURES */
 			/*
 			 glBegin(GL_QUADS);
 			 {
@@ -2289,6 +2345,7 @@ namespace ec
 			glEnd();
 			glPopMatrix();
 		}
+#endif	/* NEW_TEXTURES */
 
 		// F U N C T I O N S //////////////////////////////////////////////////////////
 

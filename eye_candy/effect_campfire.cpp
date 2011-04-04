@@ -117,9 +117,9 @@ namespace ec
 	Uint32 CampfireParticle::get_texture()
 	{
 		if (state == 0)
-			return base->TexFlare.get_texture();
+			return base->get_texture(EC_FLARE);
 		else
-			return base->TexSimple.get_texture();
+			return base->get_texture(EC_SIMPLE);
 	}
 #else	/* NEW_TEXTURES */
 	GLuint CampfireParticle::get_texture(const Uint16 res_index)
@@ -188,7 +188,7 @@ namespace ec
 #ifdef	NEW_TEXTURES
 	Uint32 CampfireBigParticle::get_texture()
 	{
-		return base->TexFlare.get_texture();
+		return base->get_texture(EC_FLARE);
 	}
 #else	/* NEW_TEXTURES */
 	GLuint CampfireBigParticle::get_texture(const Uint16 res_index)

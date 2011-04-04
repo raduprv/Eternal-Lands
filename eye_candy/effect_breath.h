@@ -79,7 +79,7 @@ namespace ec
 			BreathParticle(Effect* _effect, ParticleMover* _mover,
 				const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
 				const alpha_t _alpha, const color_t red, const color_t green,
-				const color_t blue, Texture* _texture, const Uint16 _LOD,
+				const color_t blue, TextureEnum _texture, const Uint16 _LOD,
 				const BreathEffect::BreathType _type);
 			~BreathParticle()
 			{
@@ -97,7 +97,7 @@ namespace ec
 			}
 			;
 
-			Texture* texture;
+			TextureEnum texture;
 			Uint16 LOD;
 			BreathEffect::BreathType type;
 	};
@@ -107,7 +107,7 @@ namespace ec
 		public:
 			BreathSmokeParticle(Effect* _effect, ParticleMover* _mover,
 				const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
-				const alpha_t _alpha, Texture* _texture, const Uint16 _LOD,
+				const alpha_t _alpha, TextureEnum _texture, const Uint16 _LOD,
 				const BreathEffect::BreathType _type);
 			~BreathSmokeParticle()
 			{
@@ -131,7 +131,7 @@ namespace ec
 			; // Same.
 			virtual void draw(const Uint64 usec);
 
-			Texture* texture;
+			TextureEnum texture;
 			BreathEffect::BreathType type;
 	};
 

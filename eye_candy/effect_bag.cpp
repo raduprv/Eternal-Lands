@@ -84,7 +84,7 @@ namespace ec
 #ifdef	NEW_TEXTURES
 	Uint32 BagParticle::get_texture()
 	{
-		return base->TexFlare.get_texture();
+		return base->get_texture(EC_FLARE);
 	}
 #else	/* NEW_TEXTURES */
 	GLuint BagParticle::get_texture(const Uint16 res_index)

@@ -256,6 +256,23 @@ namespace ec
 		EC_STAFF
 	};
 
+	enum TextureEnum
+	{
+		EC_CRYSTAL,
+		EC_FLARE,
+		EC_INVERSE,
+		EC_SHIMMER,
+		EC_SIMPLE,
+		EC_TWINFLARE,
+		EC_VOID,
+		EC_WATER,
+		EC_LEAF_ASH,
+		EC_LEAF_MAPLE,
+		EC_LEAF_OAK,
+		EC_PETAL,
+		EC_SNOWFLAKE
+	};
+
 	// C L A S S E S //////////////////////////////////////////////////////////////
 
 	/*!
@@ -705,40 +722,6 @@ namespace ec
 		return lhs << "[" << rhs.vec << ", " << rhs.scalar << "]";
 	}
 	;
-
-	/*!
-	 \brief A class for dealing with textures
-
-	 Uses SDL_image to load textures of any common format.  Designed to support
-	 four levels of detail for each texture: 16x16, 32x32, 64x64, and 128x128;
-	 this is the index into texture_ids.  Textures are designed to be animated,
-	 and the frame can be specified or chosen randomly via the get_texture
-	 memeber functions.
-	 */
-	class Texture
-	{
-		public:
-			Texture();
-			~Texture();
-
-			void push_texture(const std::string filename);
-			void clear(void);
-#ifdef	NEW_TEXTURES
-			GLuint get_texture() const;
-			GLuint get_texture(const int frame) const;
-			GLuint get_texture(const Uint64 born,
-				const Uint64 changerate) const;
-
-			std::vector<Uint32> texture_ids;
-#else	/* NEW_TEXTURES */
-			GLuint get_texture(const Uint16 res_index) const;
-			GLuint get_texture(const Uint16 res_index, const int frame) const;
-			GLuint get_texture(const Uint16 res_index, const Uint64 born,
-				const Uint64 changerate) const;
-
-			std::vector<GLuint> texture_ids[4];
-#endif	/* NEW_TEXTURES */
-	};
 
 	/*!
 	 \brief The base class for drawing untextured geometric primitives
@@ -2051,7 +2034,9 @@ namespace ec
 			~EyeCandy();
 
 			void set_thresholds(const int _max_particles, const float min_framerate, const float max_framerate);
+#ifndef	NEW_TEXTURES
 			void clear_textures();
+#endif	/* NEW_TEXTURES */
 			void load_textures();
 			void push_back_effect(Effect* e);
 			bool push_back_particle(Particle* p);
@@ -2068,9 +2053,18 @@ namespace ec
 			void add_light(GLenum light_id);
 			void start_draw();
 			void end_draw();
+#ifdef	NEW_TEXTURES
+			void draw_point_sprite_particle(const coord_t size, const Uint32 texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos);
+			void draw_fast_billboard_particle(const coord_t size, const Uint32 texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos);
+			void draw_accurate_billboard_particle(const coord_t size, const Uint32 texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos);
+			Uint32 get_texture(const TextureEnum type) const;
+
+			Uint32 texture_atlas;
+#else	/* NEW_TEXTURES */
 			void draw_point_sprite_particle(const coord_t size, const GLuint texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos);
 			void draw_fast_billboard_particle(const coord_t size, const GLuint texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos);
 			void draw_accurate_billboard_particle(const coord_t size, const GLuint texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos);
+
 			Texture TexSimple;
 			Texture TexFlare;
 			Texture TexVoid;
@@ -2085,6 +2079,7 @@ namespace ec
 			Texture TexLeafAsh;
 			Texture TexPetal;
 			Texture TexSnowflake;
+#endif	/* NEW_TEXTURES */
 			int max_particles;
 			Uint64 max_usec_per_particle_move;
 			coord_t max_point_size;
