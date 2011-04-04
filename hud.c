@@ -125,9 +125,10 @@ int show_statbars_in_hud=0;
 struct stats_struct statsinfo[NUM_WATCH_STAT-1];
 
 static int first_disp_stat = 0;					/* first skill that will be display */
-static int num_disp_stat = NUM_WATCH_STAT-1;	/* number of skills to be displayed */
+static int num_disp_stat = NUM_WATCH_STAT-1;			/* number of skills to be displayed */
 static int statbar_start_y = 0;					/* y coord in window of top if stats bar */
 static int stat_mouse_is_over = -1;				/* set to stat of the is mouse over that bar */
+static int mouse_over_clock = 0;				/* 1 if mouse is over digital, 2 if over analogue clock */
 
 
 /* #exp console command, display current exp information */
@@ -1565,6 +1566,7 @@ static int calc_statbar_start_y(int base_y_start, int win_y_len)
 int display_misc_handler(window_info *win)
 {
 	int base_y_start = win->len_y - (view_analog_clock?128:64) - (view_digital_clock?DEFAULT_FONT_Y_LEN:0);
+	char str[16];	// one extra incase the length of the day ever changes
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -1610,6 +1612,12 @@ CHECK_GL_ERRORS();
 		glEnd();
 		glPopMatrix();
 		glDisable(GL_ALPHA_TEST);
+		if (mouse_over_clock == 2)
+		{
+			safe_snprintf(str, sizeof(str), "%1d:%02d:%02d", real_game_minute/60, real_game_minute%60, real_game_second);
+			draw_string_small_shadowed(-(int)(SMALL_FONT_X_LEN*(strlen(str)+0.5)), win->len_y-96-SMALL_FONT_Y_LEN/2, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
+			mouse_over_clock = 0;
+		}
 	}
 
 #ifdef OPENGL_TRACE
@@ -1617,7 +1625,6 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 	//Digital Clock
 	if(view_digital_clock > 0){
-		char str[16];	// one extra incase the length of the day ever changes
 		int x;
 
 		//glColor3f(0.77f, 0.57f, 0.39f); // useless
@@ -1631,6 +1638,12 @@ CHECK_GL_ERRORS();
 			safe_snprintf(str, sizeof(str), "%1d:%02d", real_game_minute/60, real_game_minute%60);
 			x= 3+(win->len_x - (get_string_width((unsigned char*)str)*11)/12)/2;
 			draw_string_shadowed(x, 2 + base_y_start, (unsigned char*)str, 1,0.77f, 0.57f, 0.39f,0.0f,0.0f,0.0f);
+			if (mouse_over_clock == 1)
+			{
+				safe_snprintf(str, sizeof(str), "%1d:%02d:%02d", real_game_minute/60, real_game_minute%60, real_game_second);
+				draw_string_small_shadowed(-(int)(SMALL_FONT_X_LEN*(strlen(str)+0.5)), 3 + base_y_start, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
+				mouse_over_clock = 0;
+			}
 		}
 	}
 
@@ -1811,6 +1824,8 @@ int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 
 int mouseover_misc_handler(window_info *win, int mx, int my)
 {
+	int digital_clock_y_pos = 0;
+
 	/* Optionally display scrolling help if statsbar is active and restricted in size */
 	if (show_help_text && show_stats_in_hud && (num_disp_stat < NUM_WATCH_STAT-1) &&
 		(my - statbar_start_y >= 0) && (my - statbar_start_y < num_disp_stat*15))
@@ -1819,6 +1834,20 @@ int mouseover_misc_handler(window_info *win, int mx, int my)
 	/* stat hover experience left */
 	if (show_stats_in_hud && have_stats && (my - statbar_start_y >= 0) && (my - statbar_start_y < num_disp_stat*15))
 		stat_mouse_is_over = first_disp_stat + ((my - statbar_start_y ) / 15);
+
+	/* clock hover time with seconds if analogue clock and/or digital clock without seconds is shown */
+	if (view_digital_clock && !show_game_seconds)
+	{
+		digital_clock_y_pos = win->len_y-64;
+		if (view_analog_clock) digital_clock_y_pos-=64;
+		if (my>digital_clock_y_pos-16 && my<digital_clock_y_pos)
+			mouse_over_clock = 1;
+	}
+	if (view_analog_clock && !(view_digital_clock && show_game_seconds))
+	{
+		if (my>win->len_y-128 && my<win->len_y-64)
+			mouse_over_clock = 2;
+	}
 
 	return 0;
 }
