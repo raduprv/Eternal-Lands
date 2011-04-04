@@ -218,7 +218,14 @@ GLuint build_3d_noise_texture(int size, int frequency, int dimensions)
 	switch (dimensions)
 	{
 		case 1:
-			texture_format = GL_LUMINANCE;
+			if (have_extension(ext_texture_compression_latc))
+			{
+				texture_format = GL_COMPRESSED_LUMINANCE_LATC1_EXT;
+			}
+			else
+			{
+				texture_format = GL_LUMINANCE;
+			}
 			input_format = GL_LUMINANCE;
 			break;
 		case 2:

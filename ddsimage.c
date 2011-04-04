@@ -13,8 +13,73 @@
 #include <assert.h>
 
 #ifdef	NEW_TEXTURES
-static image_format_type detect_dds_file_format(DdsHeader *header, Uint8* alpha,
-	Uint32* unpack)
+static Uint32 decompression_needed(const DdsHeader *header,
+	const Uint32 compression, const Uint32 unpack)
+{
+	if ((header->m_pixel_format.m_flags & DDPF_FOURCC) == DDPF_FOURCC)
+	{
+		switch (header->m_pixel_format.m_fourcc)
+		{
+			case DDSFMT_DXT1:
+			case DDSFMT_DXT3:
+			case DDSFMT_DXT5:
+				if ((compression & tct_s3tc) == tct_s3tc)
+				{
+					if (unpack != 0)
+					{
+						return 1;
+					}
+					else
+					{
+						return 0;
+					}
+				}
+				return 1;
+			case DDSFMT_ATI1:
+				if ((compression & tct_latc) == tct_latc)
+				{
+					if (unpack != 0)
+					{
+						return 1;
+					}
+					else
+					{
+						return 0;
+					}
+				}
+				return 1;
+			case DDSFMT_ATI2:
+				if ((compression & tct_latc) == tct_latc)
+				{
+					if (unpack != 0)
+					{
+						return 1;
+					}
+					else
+					{
+						return 0;
+					}
+				}
+				if ((compression & tct_3dc) == tct_3dc)
+				{
+					if (unpack != 0)
+					{
+						return 1;
+					}
+					else
+					{
+						return 0;
+					}
+				}
+				return 1;
+		}
+	}
+
+	return 0;
+}
+
+static image_format_type detect_dds_file_format(const DdsHeader *header,
+	Uint8* alpha, Uint32* unpack)
 {
 	Uint32 red_mask, green_mask, blue_mask, alpha_mask, luminace_mask;
 
@@ -712,7 +777,8 @@ static void get_dds_sizes_and_offsets(const DdsHeader *header,
 
 	if (strip_mipmaps != 0)
 	{
-		size = get_dds_level_size(header, base_level, decompress, unpack);
+		size = get_dds_level_size(header, base_level, decompress,
+			unpack);
 
 		image->sizes[0] = size;
 	}
@@ -725,7 +791,8 @@ static void get_dds_sizes_and_offsets(const DdsHeader *header,
 
 		for (i = base_level; i < mipmap_count; i++)
 		{
-			size = get_dds_level_size(header, i, decompress, unpack);
+			size = get_dds_level_size(header, i, decompress,
+				unpack);
 
 			image->sizes[index] = size;
 			image->offsets[index] = offset;
@@ -736,12 +803,12 @@ static void get_dds_sizes_and_offsets(const DdsHeader *header,
 	}
 }
 
-Uint32 load_dds(el_file_ptr file, const Uint32 decompress,
+Uint32 load_dds(el_file_ptr file, const Uint32 compression,
 	const Uint32 unpack, const Uint32 strip_mipmaps, Uint32 base_level,
 	image_t* image)
 {
 	DdsHeader header;
-	Uint32 format, format_unpack, mipmap_count, start_mipmap;
+	Uint32 format_unpack, mipmap_count, start_mipmap;
 
 	if (file == 0)
 	{
@@ -771,14 +838,7 @@ Uint32 load_dds(el_file_ptr file, const Uint32 decompress,
 		image->format = detect_dds_file_format(&header, &image->alpha,
 			&format_unpack);
 
-		format = header.m_pixel_format.m_fourcc;
-
-		if (((format == DDSFMT_DXT1) || (format == DDSFMT_DXT2) ||
-			(format == DDSFMT_DXT3) || (format == DDSFMT_DXT4) ||
-			(format == DDSFMT_DXT5) || (format == DDSFMT_ATI1) ||
-			(format == DDSFMT_ATI2)) && ((decompress != 0) ||
-			(unpack != 0) || (format == DDSFMT_ATI1) ||
-			(format == DDSFMT_ATI2)))
+		if (decompression_needed(&header, compression, unpack) == 1)
 		{
 			image->image = decompress_dds(file, &header,
 				strip_mipmaps, start_mipmap);

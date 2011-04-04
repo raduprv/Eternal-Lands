@@ -87,9 +87,10 @@ static GLuint build_texture(image_t* image, const Uint32 wrap_mode_repeat,
 	void* ptr;
 	GLuint id;
 	GLenum src_format, type, internal_format;
-	Uint32 compressed, width, height, i;
+	Uint32 compressed, compression, width, height, i;
 
 	compressed = 0;
+	compression = 0;
 
 	switch (image->format)
 	{
@@ -145,33 +146,66 @@ static GLuint build_texture(image_t* image, const Uint32 wrap_mode_repeat,
 			break;
 		case ift_dxt1:
 			internal_format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-			compressed = 1;
+			compressed = tct_s3tc;
 			break;
 		case ift_dxt3:
 			internal_format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
-			compressed = 1;
+			compressed = tct_s3tc;
 			break;
 		case ift_dxt5:
 			internal_format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-			compressed = 1;
+			compressed = tct_s3tc;
 			break;
 		case ift_ati1:
 			internal_format = GL_COMPRESSED_LUMINANCE_LATC1_EXT;
-			compressed = 1;
+			compressed = tct_latc;
 			break;
 		case ift_ati2:
-			internal_format = GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT;
-			compressed = 1;
+			if ((!have_extension(ext_texture_compression_latc))
+				&& have_extension(ati_texture_compression_3dc))
+			{
+				internal_format = GL_COMPRESSED_LUMINANCE_ALPHA_3DC_ATI;
+				compressed = tct_3dc;
+			}
+			else
+			{
+				internal_format = GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT;
+				compressed = tct_latc;
+			}
 			break;
 		default:
 			LOG_ERROR("Unsupported image format (%i)", image->format);
 			return 0;
 	}
 
-	if ((compressed != 0) && (have_extension(arb_texture_compression) == 0))
+	if ((compressed != 0) && (!have_extension(arb_texture_compression)))
 	{
 		LOG_ERROR("Can't use compressed source formats because "
 			"GL_ARB_texture_compression is not supported.");
+		return 0;
+	}
+
+	if ((!have_extension(ext_texture_compression_s3tc)) &&
+		((compressed & tct_s3tc) == tct_s3tc))
+	{
+		LOG_ERROR("Can't use s3tc compressed source formats because "
+			"GL_EXT_texture_compression_s3tc is not supported.");
+		return 0;
+	}
+
+	if ((!have_extension(ext_texture_compression_latc)) &&
+		((compressed & tct_latc) == tct_latc))
+	{
+		LOG_ERROR("Can't use s3tc compressed source formats because "
+			"GL_EXT_texture_compression_latc is not supported.");
+		return 0;
+	}
+
+	if ((!have_extension(ati_texture_compression_3dc)) &&
+		((compressed & tct_3dc) == tct_3dc))
+	{
+		LOG_ERROR("Can't use s3tc compressed source formats because "
+			"GL_ATI_texture_compression_3dc is not supported.");
 		return 0;
 	}
 
@@ -207,18 +241,32 @@ static GLuint build_texture(image_t* image, const Uint32 wrap_mode_repeat,
 				break;
 			case tft_dxt1:
 				internal_format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+				compression = tct_s3tc;
 				break;
 			case tft_dxt3:
 				internal_format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+				compression = tct_s3tc;
 				break;
 			case tft_dxt5:
 				internal_format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+				compression = tct_s3tc;
 				break;
 			case tft_ati1:
 				internal_format = GL_COMPRESSED_LUMINANCE_LATC1_EXT;
+				compression = tct_latc;
 				break;
 			case tft_ati2:
-				internal_format = GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT;
+				if ((!have_extension(ext_texture_compression_latc))
+					&& have_extension(ati_texture_compression_3dc))
+				{
+					internal_format = GL_COMPRESSED_LUMINANCE_ALPHA_3DC_ATI;
+					compression = tct_3dc;
+				}
+				else
+				{
+					internal_format = GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT;
+					compression = tct_latc;
+				}
 				break;
 			default:
 				LOG_ERROR("Unsupported texture format (%i)",
@@ -227,9 +275,42 @@ static GLuint build_texture(image_t* image, const Uint32 wrap_mode_repeat,
 		}
 	}
 
+	if ((compression != 0) && (!have_extension(arb_texture_compression)))
+	{
+		LOG_ERROR("Can't use compressed texture format, because "
+			"GL_ARB_texture_compression is not supported.");
+		return 0;
+	}
+
+	if ((!have_extension(ext_texture_compression_s3tc)) &&
+		((compression & tct_s3tc) == tct_s3tc))
+	{
+		LOG_ERROR("Can't use s3tc compressed texture format, because "
+			"GL_EXT_texture_compression_s3tc is not supported.");
+		return 0;
+	}
+
+	if ((!have_extension(ext_texture_compression_latc)) &&
+		((compression & tct_latc) == tct_latc))
+	{
+		LOG_ERROR("Can't use s3tc compressed texture format, because "
+			"GL_EXT_texture_compression_latc is not supported.");
+		return 0;
+	}
+
+	if ((!have_extension(ati_texture_compression_3dc)) &&
+		((compression & tct_3dc) == tct_3dc))
+	{
+		LOG_ERROR("Can't use s3tc compressed texture format, because "
+			"GL_ATI_texture_compression_3dc is not supported.");
+		return 0;
+	}
+
 	glGenTextures(1, &id);
 	glBindTexture(GL_TEXTURE_2D, id);	//failsafe
 	bind_texture_id(id);
+
+	CHECK_GL_ERRORS();
 
 	if (wrap_mode_repeat != 0)
 	{
@@ -361,11 +442,40 @@ Uint32 load_texture_cached(const char* file_name, const texture_type type)
 	}
 }
 
+static Uint32 get_supported_compression_formats()
+{
+	Uint32 result;
+
+	result = 0;
+
+	if (!have_extension(arb_texture_compression))
+	{
+		return result;
+	}
+
+	if (have_extension(ext_texture_compression_s3tc))
+	{
+		result |= tct_s3tc;
+	}
+
+	if (have_extension(ati_texture_compression_3dc))
+	{
+		result |= tct_3dc;
+	}
+
+	if (have_extension(ext_texture_compression_latc))
+	{
+		result |= tct_latc;
+	}
+
+	return result;
+}
+
 static Uint32 load_texture(texture_cache_t* texture_handle)
 {
 	image_t image;
 	GLuint id;
-	Uint32 strip_mipmaps, base_level, wrap_mode_repeat, af, i, decompress;
+	Uint32 strip_mipmaps, base_level, wrap_mode_repeat, af, i, compression;
 	Uint32 build_mipmaps;
 	GLenum min_filter;
 	texture_format_type format;
@@ -415,17 +525,14 @@ static Uint32 load_texture(texture_cache_t* texture_handle)
 			break;
 	}
 
-	if (have_extension(ext_texture_compression_s3tc) != 0)
+	compression = get_supported_compression_formats();
+
+	if (compression == 0)
 	{
-		decompress = 0;
-	}
-	else
-	{
-		decompress = 1;
 		format = tft_auto;
 	}
 
-	if (load_image_data(texture_handle->file_name, decompress, 0,
+	if (load_image_data(texture_handle->file_name, compression, 0,
 		strip_mipmaps, base_level, &image) == 0)
 	{
 		texture_handle->load_err = 1;
@@ -438,6 +545,8 @@ static Uint32 load_texture(texture_cache_t* texture_handle)
 
 	id = build_texture(&image, wrap_mode_repeat, min_filter, af,
 		build_mipmaps, format);
+
+	assert(id != 0);
 
 	texture_handle->id = id;
 	texture_handle->alpha = image.alpha;
@@ -792,7 +901,8 @@ static Uint32 load_to_coordinates(el_file_ptr file, const Uint32 x,
 
 	if (use_compressed_image == 1)
 	{
-		if (load_image_data_file(file, 0, 0, 1, mipmap, &image) == 0)
+		if (load_image_data_file(file, tct_s3tc, 0, 1, mipmap,
+			&image) == 0)
 		{
 			LOG_ERROR("Can't load file");
 			return 0;
@@ -818,7 +928,7 @@ static Uint32 load_to_coordinates(el_file_ptr file, const Uint32 x,
 	}
 	else
 	{
-		if (load_image_data_file(file, 1, 1, 1, mipmap, &image) == 0)
+		if (load_image_data_file(file, 0, 1, 1, mipmap, &image) == 0)
 		{
 			LOG_ERROR("Can't load file");
 			return 0;
@@ -881,7 +991,7 @@ static Uint32 load_to_coordinates_mask2(el_file_ptr source0, el_file_ptr source1
 			use_compressed_image, mipmap, dest);
 	}
 
-	if (load_image_data_file(source0, 1, 1, 1, mipmap, &src0) == 0)
+	if (load_image_data_file(source0, 0, 1, 1, mipmap, &src0) == 0)
 	{
 		LOG_ERROR("Can't load file");
 		el_close(source1);
@@ -896,7 +1006,7 @@ static Uint32 load_to_coordinates_mask2(el_file_ptr source0, el_file_ptr source1
 		return 0;
 	}
 
-	if (load_image_data_file(source1, 1, 1, 1, mipmap, &src1) == 0)
+	if (load_image_data_file(source1, 0, 1, 1, mipmap, &src1) == 0)
 	{
 		LOG_ERROR("Can't load file");
 		el_close(mask);
@@ -910,7 +1020,7 @@ static Uint32 load_to_coordinates_mask2(el_file_ptr source0, el_file_ptr source1
 		return 0;
 	}
 
-	if (load_image_data_file(mask, 1, 0, 1, mipmap, &msk) == 0)
+	if (load_image_data_file(mask, 0, 0, 1, mipmap, &msk) == 0)
 	{
 		LOG_ERROR("Can't load file");
 		return 0;

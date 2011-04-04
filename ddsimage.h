@@ -40,15 +40,16 @@ Uint32 check_dds(const Uint8 *ID);
  *		Only if needed are the mipmaps loaded also the loading can
  *		start at a different base level (e.g. the first mipmap).
  * \param   	file The file to load from.
- * \param   	decompress Should the image get decompressed if it is compressed?
+ * \param   	compression Set of texture compressions that can be used.
  * \param   	unpack Should the image get converted to RGBA8?
  * \param   	strip_mipmaps Should we strip the mipmaps?
  * \param   	base_level What base level should we use?
  * \param   	image The image struct where we store the loaded data.
  * \retval Uint32	Returns one if everything is ok, zero else.
+ * \see texture_compression_type
  * \callgraph
  */
-Uint32 load_dds(el_file_ptr file, const Uint32 decompress, const Uint32 unpack,
+Uint32 load_dds(el_file_ptr file, const Uint32 compression, const Uint32 unpack,
 	const Uint32 strip_mipmaps, const Uint32 base_level,
 	image_t* image);
 
