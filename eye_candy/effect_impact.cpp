@@ -89,6 +89,29 @@ namespace ec
 		return true;
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 ImpactParticle::get_texture()
+	{
+		return base->get_texture(texture);
+	}
+
+	float ImpactParticle::get_burn() const
+	{
+		if (state != 1)
+		{
+			return 1.0f;
+		}
+		else
+		{
+			return 0.0f;
+		}
+	}
+#else	/* NEW_TEXTURES */
+	GLuint ImpactParticle::get_texture(const Uint16 res_index)
+	{
+		return texture->get_texture(res_index);
+	}
+
 	void ImpactParticle::draw(const Uint64 usec)
 	{
 		if (state == 1)
@@ -108,17 +131,6 @@ namespace ec
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 			glDisable(GL_LIGHTING);
 		}
-	}
-
-#ifdef	NEW_TEXTURES
-	Uint32 ImpactParticle::get_texture()
-	{
-		return base->get_texture(texture);
-	}
-#else	/* NEW_TEXTURES */
-	GLuint ImpactParticle::get_texture(const Uint16 res_index)
-	{
-		return texture->get_texture(res_index);
 	}
 #endif	/* NEW_TEXTURES */
 

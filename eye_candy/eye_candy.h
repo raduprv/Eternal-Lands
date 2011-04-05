@@ -958,7 +958,16 @@ namespace ec
 			}
 			;
 
+#ifdef	NEW_TEXTURES
+			virtual float get_burn() const
+			{
+				return 1.0f;
+			}
+
+			void draw(const Uint64 usec);
+#else	/* NEW_TEXTURES */
 			virtual void draw(const Uint64 usec);
+#endif	/* NEW_TEXTURES */
 			virtual coord_t flare() const;
 
 			ParticleMover* mover;
@@ -1919,13 +1928,26 @@ namespace ec
 				active = true;
 				obstructions = &null_obstructions;
 				bounds = NULL;
+#ifdef	NEW_TEXTURES
+				particle_buffer_size = 1024 * 16;
+				particle_buffer_index = 0;
+				particle_buffer = new float[10 * particle_buffer_size];
+#endif	/* NEW_TEXTURES */
 			}
 			;
 			virtual ~Effect()
 			{
+#ifdef	NEW_TEXTURES
+				delete[] particle_buffer;
+#endif	/* NEW_TEXTURES */
 				*dead = true;
 			}
 			;
+
+#ifdef	NEW_TEXTURES
+			void build_particle_buffer(const Uint64 time_diff);
+			void draw_particle_buffer();
+#endif	/* NEW_TEXTURES */
 
 			void register_particle(Particle* p)
 			{
@@ -1999,6 +2021,11 @@ namespace ec
 			bool recall;
 			Uint16 desired_LOD;
 			Uint16 LOD;
+#ifdef	NEW_TEXTURES
+			float* particle_buffer;
+			Uint32 particle_buffer_size;
+			Uint32 particle_buffer_index;
+#endif	/* NEW_TEXTURES */
 		};
 
 		/*!
@@ -2054,12 +2081,15 @@ namespace ec
 			void start_draw();
 			void end_draw();
 #ifdef	NEW_TEXTURES
-			void draw_point_sprite_particle(const coord_t size, const Uint32 texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos);
-			void draw_fast_billboard_particle(const coord_t size, const Uint32 texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos);
-			void draw_accurate_billboard_particle(const coord_t size, const Uint32 texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos);
+			void draw_particle(const coord_t size,
+				const Uint32 texture, const color_t r,
+				const color_t g, const color_t b,
+				const alpha_t alpha, const Vec3 pos,
+				const alpha_t burn, Effect* effect);
 			Uint32 get_texture(const TextureEnum type) const;
 
 			Uint32 texture_atlas;
+			Uint32 texture_burn;
 #else	/* NEW_TEXTURES */
 			void draw_point_sprite_particle(const coord_t size, const GLuint texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos);
 			void draw_fast_billboard_particle(const coord_t size, const GLuint texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos);

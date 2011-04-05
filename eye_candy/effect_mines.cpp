@@ -144,6 +144,35 @@ namespace ec
 		return true;
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 MineParticle::get_texture()
+	{
+		return base->get_texture(texture);
+	}
+
+	float MineParticle::get_burn() const
+	{
+		if ((type == MineEffect::DETONATE_CALTROP) ||
+			(type == MineEffect::DETONATE_CALTROP_POISON) ||
+			(type == MineEffect::DETONATE_TRAP) ||
+			(((type == MineEffect::DETONATE_TYPE1_SMALL) ||
+			(type == MineEffect::DETONATE_TYPE1_MEDIUM) ||
+			(type == MineEffect::DETONATE_TYPE1_LARGE)) &&
+			(state == 0)))
+		{
+			return 1.0f;
+		}
+		else
+		{
+			return 0.0f;
+		}
+	}
+#else	/* NEW_TEXTURES */
+	GLuint MineParticle::get_texture(const Uint16 res_index)
+	{
+		return texture->get_texture(res_index);
+	}
+
 	void MineParticle::draw(const Uint64 usec)
 	{
 		if ((type == MineEffect::DETONATE_CALTROP) || (type
@@ -164,17 +193,6 @@ namespace ec
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 			glDisable(GL_LIGHTING);
 		}
-	}
-
-#ifdef	NEW_TEXTURES
-	Uint32 MineParticle::get_texture()
-	{
-		return base->get_texture(texture);
-	}
-#else	/* NEW_TEXTURES */
-	GLuint MineParticle::get_texture(const Uint16 res_index)
-	{
-		return texture->get_texture(res_index);
 	}
 #endif	/* NEW_TEXTURES */
 
@@ -497,12 +515,16 @@ namespace ec
 	{
 		return base->get_texture(texture);
 	}
+
+	float MineParticleSmoke::get_burn() const
+	{
+		return 0.0f;
+	}
 #else	/* NEW_TEXTURES */
 	GLuint MineParticleSmoke::get_texture(const Uint16 res_index)
 	{
 		return texture->get_texture(res_index);
 	}
-#endif	/* NEW_TEXTURES */
 
 	void MineParticleSmoke::draw(const Uint64 usec)
 	{
@@ -515,6 +537,7 @@ namespace ec
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 		glDisable(GL_LIGHTING);
 	}
+#endif	/* NEW_TEXTURES */
 
 ///////////////////////////////////////////////////////////////////////////////
 

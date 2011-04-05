@@ -29,7 +29,8 @@ typedef enum
 	tt_gui = 0,
 	tt_font,
 	tt_image,
-	tt_mesh
+	tt_mesh,
+	tt_atlas
 } texture_type;
 
 typedef enum

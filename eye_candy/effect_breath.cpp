@@ -286,6 +286,12 @@ namespace ec
 		state = 0;
 	}
 
+#ifdef	NEW_TEXTURES
+	float BreathSmokeParticle::get_burn() const
+	{
+		return 0.0f;
+	}
+#else	/* NEW_TEXTURES */
 	void BreathSmokeParticle::draw(const Uint64 usec)
 	{
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -294,6 +300,7 @@ namespace ec
 
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	}
+#endif	/* NEW_TEXTURES */
 
 	bool BreathSmokeParticle::idle(const Uint64 delta_t)
 	{

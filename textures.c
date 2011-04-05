@@ -330,7 +330,7 @@ static GLuint build_texture(image_t* image, const Uint32 wrap_mode_repeat,
 	else
 	{
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL,
-			image->mipmaps);
+			image->mipmaps - 1);
 	}
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -522,6 +522,9 @@ static Uint32 load_texture(texture_cache_t* texture_handle)
 				min_filter = GL_LINEAR_MIPMAP_LINEAR;
 				af = 1;
 			}
+			break;
+		case tt_atlas:
+			wrap_mode_repeat = 0;
 			break;
 	}
 

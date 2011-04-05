@@ -152,6 +152,29 @@ namespace ec
 		return true;
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 OngoingParticle::get_texture()
+	{
+		return base->get_texture(texture);
+	}
+
+	float OngoingParticle::get_burn() const
+	{
+		if ((type == OngoingEffect::OG_POISON) && (state == 1))
+		{
+			return 0.0f;
+		}
+		else
+		{
+			return 1.0f;
+		}
+	}
+#else	/* NEW_TEXTURES */
+	GLuint OngoingParticle::get_texture(const Uint16 res_index)
+	{
+		return texture->get_texture(res_index);
+	}
+
 	void OngoingParticle::draw(const Uint64 usec)
 	{
 		if ((type == OngoingEffect::OG_POISON) && (state == 1))
@@ -170,17 +193,6 @@ namespace ec
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 			glDisable(GL_LIGHTING);
 		}
-	}
-
-#ifdef	NEW_TEXTURES
-	Uint32 OngoingParticle::get_texture()
-	{
-		return base->get_texture(texture);
-	}
-#else	/* NEW_TEXTURES */
-	GLuint OngoingParticle::get_texture(const Uint16 res_index)
-	{
-		return texture->get_texture(res_index);
 	}
 #endif	/* NEW_TEXTURES */
 

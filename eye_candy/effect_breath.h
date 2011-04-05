@@ -116,8 +116,10 @@ namespace ec
 			virtual bool idle(const Uint64 delta_t);
 #ifdef	NEW_TEXTURES
 			virtual Uint32 get_texture();
+			virtual float get_burn() const;
 #else	/* NEW_TEXTURES */
 			virtual GLuint get_texture(const Uint16 res_index);
+			virtual void draw(const Uint64 usec);
 #endif	/* NEW_TEXTURES */
 			virtual light_t estimate_light_level() const
 			{
@@ -129,7 +131,6 @@ namespace ec
 				return 0.0;
 			}
 			; // Same.
-			virtual void draw(const Uint64 usec);
 
 			TextureEnum texture;
 			BreathEffect::BreathType type;

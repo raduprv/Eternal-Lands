@@ -11,6 +11,10 @@
 #endif
 #include "../io/elfilewrapper.h"
 #include "../textures.h"
+#ifdef	NEW_TEXTURES
+#include "../load_gl_extensions.h"
+#include "../weather.h"
+#endif	/* NEW_TEXTURES */
 
 namespace ec
 {
@@ -39,7 +43,6 @@ namespace ec
 
 		const float* get_texture_coordinates(const Uint32 texture, const Uint32 index)
 		{
-			printf("<%f, %f>\n", texture_coordinates[texture * 8 + index * 2 + 0], texture_coordinates[texture * 8 + index * 2 + 1]);
 			return &texture_coordinates[texture * 8 + index * 2];
 		}
 
@@ -192,6 +195,73 @@ namespace ec
 
 		SDL_FreeSurface(tex);
 	}
+#else	/* NEW_TEXTURES */
+	void Effect::build_particle_buffer(const Uint64 time_diff)
+	{
+		std::map<Particle*, bool>::const_iterator iter;
+		const Vec3 center(base->center);
+
+		particle_buffer_index = 0;
+
+		if (bounds)
+		{
+			for (iter = particles.begin(); iter != particles.end(); iter++)
+			{
+				if (particle_buffer_index >= particle_buffer_size)
+				{
+					break;
+				}
+
+				Particle* p = iter->first;
+				const coord_t dist_squared = (p->pos - center).magnitude_squared();
+				if (dist_squared < MAX_DRAW_DISTANCE_SQUARED)
+					p->draw(time_diff);
+			}
+		}
+		else
+		{
+			for (iter = particles.begin(); iter != particles.end(); iter++)
+			{
+				if (particle_buffer_index >= particle_buffer_size)
+				{
+					break;
+				}
+
+				Particle* p = iter->first;
+				p->draw(time_diff);
+			}
+		}
+	}
+
+	void Effect::draw_particle_buffer()
+	{
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_COLOR_ARRAY);
+		ELglClientActiveTextureARB(GL_TEXTURE1);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		ELglClientActiveTextureARB(GL_TEXTURE0);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+		glColorPointer(4, GL_FLOAT, 10 * sizeof(float),
+			&particle_buffer[0]);
+		glVertexPointer(3, GL_FLOAT, 10 * sizeof(float),
+			&particle_buffer[4]);
+		ELglClientActiveTextureARB(GL_TEXTURE0);
+		glTexCoordPointer(2, GL_FLOAT, 10 * sizeof(float),
+			&particle_buffer[7]);
+		ELglClientActiveTextureARB(GL_TEXTURE1);
+		glTexCoordPointer(1, GL_FLOAT, 10 * sizeof(float),
+			&particle_buffer[9]);
+
+		glDrawArrays(GL_QUADS, 0, particle_buffer_index);
+
+		glDisableClientState(GL_VERTEX_ARRAY);
+		glDisableClientState(GL_COLOR_ARRAY);
+		ELglClientActiveTextureARB(GL_TEXTURE1);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		ELglClientActiveTextureARB(GL_TEXTURE0);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	}
 #endif	/* NEW_TEXTURES */
 
 	Shape::~Shape()
@@ -212,18 +282,19 @@ namespace ec
 		glTranslated(pos.x, pos.y, pos.z);
 		glDisable(GL_TEXTURE_2D);
 
-#if 1
+#if	NEW_TEXTURES
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_NORMAL_ARRAY);
 
 		glNormalPointer(GL_FLOAT, 0, normals);
 		glVertexPointer(3, GL_FLOAT, 0, vertices);
 
-		glDrawElements(GL_TRIANGLES, facet_count * 3, GL_UNSIGNED_INT, facets);
+		glDrawElements(GL_TRIANGLES, facet_count * 3, GL_UNSIGNED_INT,
+			facets);
 
 		glDisableClientState(GL_VERTEX_ARRAY);
 		glDisableClientState(GL_NORMAL_ARRAY);
-#else
+#else	/* NEW_TEXTURES */
 
 		if (base->poor_transparency_resolution)
 #ifdef X86_64
@@ -264,7 +335,7 @@ namespace ec
 			}
 		}
 		glEnd();
-#endif
+#endif	/* NEW_TEXTURES */
 		glPopMatrix();
 		glEnable(GL_TEXTURE_2D);
 	}
@@ -847,6 +918,58 @@ namespace ec
 	}
 	;
 
+#ifdef	NEW_TEXTURES
+	void Particle::draw(const Uint64 usec)
+	{
+		alpha_t burn = get_burn();
+		alpha_t tempalpha = alpha;
+
+		if (base->poor_transparency_resolution)
+		{
+			if (tempalpha < MIN_SAFE_ALPHA)
+			{
+				if (randfloat() < (tempalpha / MIN_SAFE_ALPHA))
+					tempalpha = MIN_SAFE_ALPHA;
+				else
+					return;
+			}
+		}
+
+		coord_t tempsize = base->billboard_scalar * size;
+		tempsize *= flare();
+
+		Uint32 texture = get_texture(); // Always hires, since we're not checking distance.
+
+		base->draw_particle(tempsize, texture, color[0], color[1],
+			color[2], tempalpha, pos, burn, effect);
+
+		if (effect->motion_blur_points > 0)
+		{
+			const alpha_t faderate = math_cache.powf_0_1_rough_close(
+				effect->motion_blur_fade_rate, (float)usec / 1000000);
+
+			for (int i = 0; i < effect->motion_blur_points; i++)
+				base->draw_particle(motion_blur[i].size,
+					motion_blur[i].texture,
+					motion_blur[i].color[0],
+					motion_blur[i].color[1],
+					motion_blur[i].color[2],
+					motion_blur[i].alpha,
+					motion_blur[i].pos, burn, effect);
+
+			motion_blur[cur_motion_blur_point] = ParticleHistory(
+				tempsize, texture, color[0], color[1], color[2],
+				alpha, pos);
+			cur_motion_blur_point++;
+
+			for (int i = 0; i < effect->motion_blur_points; i++)
+				motion_blur[i].alpha *= faderate;
+
+			if (cur_motion_blur_point == effect->motion_blur_points)
+				cur_motion_blur_point = 0;
+		}
+	}
+#else	/* NEW_TEXTURES */
 	void Particle::draw(const Uint64 usec)
 	{
 		switch (base->draw_method)
@@ -882,9 +1005,6 @@ namespace ec
 						}
 					}
 
-#ifdef	NEW_TEXTURES
-					Uint32 texture = get_texture();
-#else	/* NEW_TEXTURES */
 					int res_index;
 					if (tempsize <= 16)
 						res_index = 0;
@@ -895,7 +1015,6 @@ namespace ec
 					else
 						res_index = 3;
 					const GLuint texture = get_texture(res_index);
-#endif	/* NEW_TEXTURES */
 					base->draw_point_sprite_particle(tempsize, texture,
 						color[0], color[1], color[2], tempalpha, pos);
 					if (effect->motion_blur_points > 0)
@@ -944,11 +1063,7 @@ namespace ec
 				coord_t tempsize = base->billboard_scalar * size;
 				tempsize *= flare();
 
-#ifdef	NEW_TEXTURES
-				Uint32 texture = get_texture(); // Always hires, since we're not checking distance.
-#else	/* NEW_TEXTURES */
 				const GLuint texture = get_texture(3); // Always hires, since we're not checking distance.
-#endif	/* NEW_TEXTURES */
 				//    std::cout << this << ": " << tempsize << ", " << size << ": " << pos << std::endl;
 				if (base->draw_method != EyeCandy::ACCURATE_BILLBOARDS)
 					base->draw_fast_billboard_particle(tempsize, texture,
@@ -996,6 +1111,7 @@ namespace ec
 			}
 		}
 	}
+#endif	/* NEW_TEXTURES */
 
 	coord_t Particle::flare() const
 	{
@@ -1647,7 +1763,8 @@ namespace ec
 	{
 		// Load the textures.
 #ifdef	NEW_TEXTURES
-		texture_atlas = load_texture_cached("textures/eye_candy.dds", tt_mesh);
+		texture_atlas = load_texture_cached("./textures/eye_candy.dds", tt_atlas);
+		texture_burn = load_texture_cached("./textures/eye_candy_burn.dds", tt_atlas);
 #else	/* NEW_TEXTURES */
 		TexSimple.push_texture("./textures/eye_candy/16x16/simple.png");
 		TexFlare.push_texture("./textures/eye_candy/16x16/flare1.png");
@@ -1802,8 +1919,6 @@ namespace ec
 		glEnable(GL_COLOR_MATERIAL);
 		glEnable(GL_DEPTH_TEST);
 		glDepthMask(false);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-
 #ifdef	NEW_TEXTURES
 		float modelview[16];
 		glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
@@ -1813,8 +1928,61 @@ namespace ec
 		corner_offset1 = (right + up) * billboard_scalar;
 		corner_offset2 = (right - up) * billboard_scalar;
 
+		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+		ELglActiveTextureARB(GL_TEXTURE0);
+		glEnable(GL_TEXTURE_2D);
 		bind_texture(texture_atlas);
+
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PREVIOUS);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_TEXTURE0);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
+		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
+
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_MODULATE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_PREVIOUS);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA, GL_TEXTURE0);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA, GL_SRC_ALPHA);
+		glTexEnvi(GL_TEXTURE_ENV, GL_ALPHA_SCALE, 1);
+
+		ELglActiveTextureARB(GL_TEXTURE1);
+		glEnable(GL_TEXTURE_2D);
+
+		bind_texture_unbuffered(texture_burn);
+
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PREVIOUS);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_PREVIOUS);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_ALPHA);
+		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
+
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_MODULATE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_PREVIOUS);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA, GL_TEXTURE1);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA, GL_SRC_ALPHA);
+		glTexEnvi(GL_TEXTURE_ENV, GL_ALPHA_SCALE, 1);
+
+		ELglActiveTextureARB(GL_TEXTURE0);
+		glEnable(GL_TEXTURE_2D);
+
+		/* Fog hurts blending with 5 color blending
+		 * (red, green, blue, alpha and burn)
+		 */
+		if (use_fog)
+		{
+			glDisable(GL_FOG);
+		}
 #else	/* NEW_TEXTURES */
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
 		if ((draw_method == FAST_BILLBOARDS) || (draw_method == POINT_SPRITES)) //We need to do this for point sprites as well because if the particle is too big, it falls through to fast billboards.
 		{
 			float modelview[16];
@@ -1844,13 +2012,24 @@ namespace ec
 
 	void EyeCandy::end_draw()
 	{
-#ifndef	NEW_TEXTURES
+#ifdef	NEW_TEXTURES
+		ELglActiveTextureARB(GL_TEXTURE1);
+		glDisable(GL_TEXTURE_2D);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+		ELglActiveTextureARB(GL_TEXTURE0);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+		if (use_fog)
+		{
+			glEnable(GL_FOG);
+		}
+#else	/* NEW_TEXTURES */
 		if (draw_method == POINT_SPRITES)
 		{
 			glDisable(GL_POINT_SPRITE_ARB);
 		}
 #endif	/* NEW_TEXTURES */
-
 		glColor4f(1.0, 1.0, 1.0, 1.0);
 		glDisable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1866,6 +2045,23 @@ namespace ec
 
 		start_draw();
 
+#ifdef	NEW_TEXTURES
+		Uint32 i, count;
+
+		count = effects.size();
+
+		// Draw effects (any special drawing functionality) and their particles.
+		for (i = 0; i < count; i++)
+		{
+			Effect* e = effects[i];
+
+			if (e->active)
+			{
+				e->draw(time_diff);
+				e->draw_particle_buffer();
+			}
+		}
+#else	/* NEW_TEXTURES */
 		// Draw effects (any special drawing functionality) and their particles.
 		for (std::vector<Effect*>::const_iterator iter = effects.begin(); iter
 			!= effects.end(); iter++)
@@ -1896,6 +2092,7 @@ namespace ec
 				}
 			}
 		}
+#endif	/* NEW_TEXTURES */
 
 		end_draw();
 		// Draw lights.
@@ -2190,6 +2387,21 @@ namespace ec
 
 			//  allowable_particles_to_add = 1 + (int)(particles.size() * 0.00005 * time_diff / 1000000.0 * (max_particles - particles.size()) * change_LOD);
 			//  std::cout << "Current: " << particles.size() << "; Allowable new: " << allowable_particles_to_add << std::endl;
+#ifdef	NEW_TEXTURES
+			Uint32 i, count;
+
+			count = effects.size();
+
+			for (i = 0; i < count; i++)
+			{
+				Effect* e = effects[i];
+
+				if (e->active)
+				{
+					e->build_particle_buffer(time_diff);
+				}
+			}
+#endif	/* NEW_TEXTURES */
 		}
 
 		void EyeCandy::add_light(GLenum light_id)
@@ -2206,40 +2418,38 @@ namespace ec
 		}
 
 #ifdef	NEW_TEXTURES
-		void EyeCandy::draw_point_sprite_particle(coord_t size, const Uint32 texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos)
+		void EyeCandy::draw_particle(const coord_t size,
+			const Uint32 texture, const color_t r, const color_t g,
+			const color_t b, const alpha_t alpha, const Vec3 pos,
+			const alpha_t burn, Effect* effect)
 		{
-			draw_point_sprite_particle(size, texture, r, g, b, alpha, pos);
-		}
+			Vec3 corner[4];
+			Uint32 i, index;
 
-		void EyeCandy::draw_fast_billboard_particle(coord_t size, const Uint32 texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos)
-		{
-			//  std::cout << "B: " << size << ", " << texture << ", " << Vec3(r, g, b) << ", " << alpha << std::endl;
-			const Vec3 corner1(pos - corner_offset1 * size);
-			const Vec3 corner2(pos + corner_offset2 * size);
-			const Vec3 corner3(pos + corner_offset1 * size);
-			const Vec3 corner4(pos - corner_offset2 * size);
+			corner[0] = Vec3(pos - corner_offset1 * size);
+			corner[1] = Vec3(pos + corner_offset2 * size);
+			corner[2] = Vec3(pos + corner_offset1 * size);
+			corner[3] = Vec3(pos - corner_offset2 * size);
 
-			//  std::cout << corner1 << ", " << corner2 << ", " << corner3 << ", " << corner4 << std::endl;
-			//  std::cout << size << ", " << texture << ", " << Vec3(r, g, b) << ", " << alpha << std::endl;
-
-			glBegin(GL_QUADS);
+			for (i = 0; i < 4; i++)
 			{
-				glColor4f(r, g, b, alpha);
-				glTexCoord2fv(get_texture_coordinates(texture, 0));
-				glVertex3f(corner1.x, corner1.y, corner1.z);
-				glTexCoord2fv(get_texture_coordinates(texture, 1));
-				glVertex3f(corner2.x, corner2.y, corner2.z);
-				glTexCoord2fv(get_texture_coordinates(texture, 2));
-				glVertex3f(corner3.x, corner3.y, corner3.z);
-				glTexCoord2fv(get_texture_coordinates(texture, 3));
-				glVertex3f(corner4.x, corner4.y, corner4.z);
-			}
-			glEnd();
-		}
+				index = effect->particle_buffer_index;
+				effect->particle_buffer_index++;
 
-		void EyeCandy::draw_accurate_billboard_particle(coord_t size, const Uint32 texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos)
-		{
-			draw_point_sprite_particle(size, texture, r, g, b, alpha, pos);
+				effect->particle_buffer[index * 10 + 0] = r;
+				effect->particle_buffer[index * 10 + 1] = g;
+				effect->particle_buffer[index * 10 + 2] = b;
+				effect->particle_buffer[index * 10 + 3] = alpha;
+				effect->particle_buffer[index * 10 + 4] = corner[i].x;
+				effect->particle_buffer[index * 10 + 5] = corner[i].y;
+				effect->particle_buffer[index * 10 + 6] = corner[i].z;
+				effect->particle_buffer[index * 10 + 7] = 
+					get_texture_coordinates(texture, i)[0];
+				effect->particle_buffer[index * 10 + 8] = 
+					get_texture_coordinates(texture, i)[1];
+				effect->particle_buffer[index * 10 + 9] =
+					0.25f + burn * 0.5f;
+			}
 		}
 #else	/* NEW_TEXTURES */
 		void EyeCandy::draw_point_sprite_particle(coord_t size, const GLuint texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos)

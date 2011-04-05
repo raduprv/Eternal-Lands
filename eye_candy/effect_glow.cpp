@@ -824,11 +824,6 @@ namespace ec
 		return true;
 	}
 
-	void GlowParticle::draw(const Uint64 usec)
-	{
-		Particle::draw(usec);
-	}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 }

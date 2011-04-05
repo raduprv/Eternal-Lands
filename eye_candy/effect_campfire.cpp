@@ -117,9 +117,25 @@ namespace ec
 	Uint32 CampfireParticle::get_texture()
 	{
 		if (state == 0)
+		{
 			return base->get_texture(EC_FLARE);
+		}
 		else
+		{
 			return base->get_texture(EC_SIMPLE);
+		}
+	}
+
+	float CampfireParticle::get_burn() const
+	{
+		if (state == 0)
+		{
+			return 1.0f;
+		}
+		else
+		{
+			return 0.0f;
+		}
 	}
 #else	/* NEW_TEXTURES */
 	GLuint CampfireParticle::get_texture(const Uint16 res_index)
@@ -129,7 +145,6 @@ namespace ec
 		else
 			return base->TexSimple.get_texture(res_index);
 	}
-#endif	/* NEW_TEXTURES */
 
 	void CampfireParticle::draw(const Uint64 usec)
 	{
@@ -144,6 +159,7 @@ namespace ec
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 		}
 	}
+#endif	/* NEW_TEXTURES */
 
 	CampfireBigParticle::CampfireBigParticle(Effect* _effect,
 		ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity,

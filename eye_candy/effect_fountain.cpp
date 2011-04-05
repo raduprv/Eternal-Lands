@@ -47,6 +47,19 @@ namespace ec
 		state = 0;
 	}
 
+#ifdef	NEW_TEXTURES
+	float FountainParticle::get_burn() const
+	{
+		if (backlight)
+		{
+			return 1.0f;
+		}
+		else
+		{
+			return 0.0f;
+		}
+	}
+#else	/* NEW_TEXTURES */
 	void FountainParticle::draw(const Uint64 usec)
 	{
 		if (!backlight)
@@ -86,6 +99,7 @@ namespace ec
 			glDisable(GL_LIGHTING);
 		}
 	}
+#endif	/* NEW_TEXTURES */
 
 	bool FountainParticle::idle(const Uint64 delta_t)
 	{

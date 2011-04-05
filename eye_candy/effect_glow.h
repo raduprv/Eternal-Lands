@@ -90,7 +90,6 @@ namespace ec
 			}
 
 			virtual bool idle(const Uint64 delta_t);
-			void draw(const Uint64 usec);
 #ifdef	NEW_TEXTURES
 			virtual Uint32 get_texture();
 #else	/* NEW_TEXTURES */

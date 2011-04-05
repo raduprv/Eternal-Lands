@@ -58,12 +58,23 @@ namespace ec
 	{
 		return base->get_texture(EC_FLARE);
 	}
+
+	float CandleParticle::get_burn() const
+	{
+		if (state == 0)
+		{
+			return 1.0f;
+		}
+		else
+		{
+			return 0.0f;
+		}
+	}
 #else	/* NEW_TEXTURES */
 	GLuint CandleParticle::get_texture(const Uint16 res_index)
 	{
 		return base->TexFlare.get_texture(res_index);
 	}
-#endif	/* NEW_TEXTURES */
 
 	void CandleParticle::draw(const Uint64 usec)
 	{
@@ -78,6 +89,7 @@ namespace ec
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 		}
 	}
+#endif	/* NEW_TEXTURES */
 
 	CandleEffect::CandleEffect(EyeCandy* _base, bool* _dead, Vec3* _pos,
 		const color_t _hue_adjust, const color_t _saturation_adjust,

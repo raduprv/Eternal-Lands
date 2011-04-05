@@ -272,6 +272,33 @@ namespace ec
 		return true;
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 TargetMagicParticle::get_texture()
+	{
+		return base->get_texture(texture);
+	}
+
+	float TargetMagicParticle::get_burn() const
+	{
+		if (((type == TargetMagicEffect::POISON) &&
+			(state == 2)) ||
+			(((type == TargetMagicEffect::HARM) ||
+			(type == TargetMagicEffect::SMITE_SUMMONED)) &&
+			(state) && (rand() & 1)))
+		{
+			return 0.0f;
+		}
+		else
+		{
+			return 1.0f;
+		}
+	}
+#else	/* NEW_TEXTURES */
+	GLuint TargetMagicParticle::get_texture(const Uint16 res_index)
+	{
+		return texture->get_texture(res_index);
+	}
+
 	void TargetMagicParticle::draw(const Uint64 usec)
 	{
 		if ((type == TargetMagicEffect::POISON) && (state == 2))
@@ -301,17 +328,6 @@ namespace ec
 		{
 			Particle::draw(usec);
 		}
-	}
-
-#ifdef	NEW_TEXTURES
-	Uint32 TargetMagicParticle::get_texture()
-	{
-		return base->get_texture(texture);
-	}
-#else	/* NEW_TEXTURES */
-	GLuint TargetMagicParticle::get_texture(const Uint16 res_index)
-	{
-		return texture->get_texture(res_index);
 	}
 #endif	/* NEW_TEXTURES */
 

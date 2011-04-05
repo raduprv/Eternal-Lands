@@ -149,6 +149,33 @@ namespace ec
 		return true;
 	}
 
+#ifdef	NEW_TEXTURES
+	Uint32 HarvestingParticle::get_texture()
+	{
+		return base->get_texture(texture);
+	}
+
+	float HarvestingParticle::get_burn() const
+	{
+		if (((type == HarvestingEffect::RADON_POUCH) && (state == 0)) ||
+			(type == HarvestingEffect::MOTHER_NATURE) ||
+			(type == HarvestingEffect::QUEEN_OF_NATURE) ||
+			((type == HarvestingEffect::BAG_OF_GOLD) && (state == 0)) ||
+			(type == HarvestingEffect::RARE_STONE))
+		{
+			return 1.0f;
+		}
+		else
+		{
+			return 0.0f;
+		}
+	}
+#else	/* NEW_TEXTURES */
+	GLuint HarvestingParticle::get_texture(const Uint16 res_index)
+	{
+		return texture->get_texture(res_index);
+	}
+
 	void HarvestingParticle::draw(const Uint64 usec)
 	{
 		if (((type == HarvestingEffect::RADON_POUCH) && (state == 0)) || (type
@@ -168,17 +195,6 @@ namespace ec
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 			glDisable(GL_LIGHTING);
 		}
-	}
-
-#ifdef	NEW_TEXTURES
-	Uint32 HarvestingParticle::get_texture()
-	{
-		return base->get_texture(texture);
-	}
-#else	/* NEW_TEXTURES */
-	GLuint HarvestingParticle::get_texture(const Uint16 res_index)
-	{
-		return texture->get_texture(res_index);
 	}
 #endif	/* NEW_TEXTURES */
 

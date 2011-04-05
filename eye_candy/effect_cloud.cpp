@@ -191,12 +191,16 @@ namespace ec
 	{
 		return base->get_texture(EC_SIMPLE);
 	}
+
+	float CloudParticle::get_burn() const
+	{
+		return 0.0f;
+	}
 #else	/* NEW_TEXTURES */
 	GLuint CloudParticle::get_texture(const Uint16 res_index)
 	{
 		return base->TexSimple.get_texture(res_index);
 	}
-#endif	/* NEW_TEXTURES */
 
 	void CloudParticle::draw(const Uint64 usec)
 	{
@@ -210,6 +214,7 @@ namespace ec
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 		glDisable(GL_LIGHTING);
 	}
+#endif	/* NEW_TEXTURES */
 
 	void CloudParticle::remove_neighbor(const CloudParticle*const p)
 	{

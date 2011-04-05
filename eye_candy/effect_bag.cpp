@@ -25,6 +25,12 @@ namespace ec
 		state = 0;
 	}
 
+#ifdef	NEW_TEXTURES
+	float BagParticle::get_burn() const
+	{
+		return 0.0f;
+	}
+#else	/* NEW_TEXTURES */
 	void BagParticle::draw(const Uint64 usec)
 	{
 		glEnable(GL_LIGHTING);
@@ -60,6 +66,7 @@ namespace ec
 		glDisable(GL_LIGHTING);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	}
+#endif	/* NEW_TEXTURES */
 
 	bool BagParticle::idle(const Uint64 delta_t)
 	{
