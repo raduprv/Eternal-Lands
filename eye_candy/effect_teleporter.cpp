@@ -113,6 +113,8 @@ namespace ec
 			teleporter_color.y, teleporter_color.z);
 
 #ifdef	NEW_TEXTURES
+		capless_cylinders = 0;
+
 		std::vector<CaplessCylinders::CaplessCylinderItem> cylinders;
 #endif	/* NEW_TEXTURES */
 		for (int i = 0; i < LOD * 4; i++)
@@ -122,7 +124,10 @@ namespace ec
 			cylinders.push_back(CaplessCylinders::CaplessCylinderItem(*pos, *pos + Vec3(0.0, 10.0 / percent, 0.0), teleporter_color, (0.1 + (1.0 - percent) * 0.05) / (LOD + 2), radius * percent, (int)(25 * (percent + 0.2))));
 		}
 
-		capless_cylinders = new CaplessCylinders(base, cylinders);
+		if (cylinders.size() > 0)
+		{
+			capless_cylinders = new CaplessCylinders(base, cylinders);
+		}
 #else	/* NEW_TEXTURES */
 			capless_cylinders.push_back(new CaplessCylinder(base, *pos, *pos + Vec3(0.0, 10.0 / percent, 0.0), teleporter_color, (0.1 + (1.0 - percent) * 0.05) / (LOD + 2), radius * percent, (int)(25 * (percent + 0.2))));
 		}
@@ -218,6 +223,7 @@ namespace ec
 
 #ifdef	NEW_TEXTURES
 		delete capless_cylinders;
+		capless_cylinders = 0;
 
 		std::vector<CaplessCylinders::CaplessCylinderItem> cylinders;
 #else	/* NEW_TEXTURES */
@@ -233,7 +239,10 @@ namespace ec
 			cylinders.push_back(CaplessCylinders::CaplessCylinderItem(*pos, *pos + Vec3(0.0, 10.0 / percent, 0.0), teleporter_color, (0.1 + (1.0 - percent) * 0.05) / (LOD + 2), radius * percent, (int)(25 * (percent + 0.2))));
 		}
 
-		capless_cylinders = new CaplessCylinders(base, cylinders);
+		if (cylinders.size() > 0)
+		{
+			capless_cylinders = new CaplessCylinders(base, cylinders);
+		}
 #else	/* NEW_TEXTURES */
 			capless_cylinders.push_back(new CaplessCylinder(base, *pos, *pos + Vec3(0.0, 10.0 / percent, 0.0), teleporter_color, (0.1 + (1.0 - percent) * 0.05) / (LOD + 2), radius * percent, (int)(25 * (percent + 0.2))));
 		}

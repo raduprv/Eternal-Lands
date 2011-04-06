@@ -255,6 +255,7 @@ namespace ec
 
 #ifdef	NEW_TEXTURES
 		alpha_scale = 1.0f;
+		capless_cylinders = 0;
 #endif	/* NEW_TEXTURES */
 
 		switch (type)
@@ -490,7 +491,11 @@ namespace ec
 #ifdef	NEW_TEXTURES
 					cylinders.push_back(CaplessCylinders::CaplessCylinderItem(effect_center, effect_center + Vec3(0.0, 10.0 / percent, 0.0), Vec3(1.0, 1.0, 1.0), (0.1 + (1.0 - percent) * 0.05) / (LOD + 2), radius * percent, (int)(25 * (percent + 0.2))));
 				}
-				capless_cylinders = new CaplessCylinders(base, cylinders);
+
+				if (cylinders.size() > 0)
+				{
+					capless_cylinders = new CaplessCylinders(base, cylinders);
+				}
 #else	/* NEW_TEXTURES */
 					capless_cylinders.push_back(new CaplessCylinder(base, effect_center, effect_center + Vec3(0.0, 10.0 / percent, 0.0), Vec3(1.0, 1.0, 1.0), (0.1 + (1.0 - percent) * 0.05) / (LOD + 2), radius * percent, (int)(25 * (percent + 0.2))));
 				}
