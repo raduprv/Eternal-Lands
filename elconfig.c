@@ -861,7 +861,7 @@ void change_fsaa(int *pointer, int value)
 
 			if (video_mode_set)
 			{
-				LOG_TO_CONSOLE(c_green2, video_restart_str);
+				switch_video(video_mode, full_screen);
 			}
 		}
 	}

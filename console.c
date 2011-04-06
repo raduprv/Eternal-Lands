@@ -1600,6 +1600,7 @@ add_command("horse", &horse_cmd);
 	add_command("ping", &command_ping);
 #ifdef	CUSTOM_UPDATE
 	add_command("update", &command_update);
+	add_command("update_status", &command_update_status);
 #endif	/* CUSTOM_UPDATE */
 	add_command(cmd_time, &command_time);
 	add_command(cmd_date, &command_date);
