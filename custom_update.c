@@ -14,7 +14,7 @@ SDL_Thread* update_thread = 0;
 SDL_mutex* update_mutex = 0;
 SDL_cond* update_condition = 0;
 Uint32 update_running = 0;
-char update_str[1024];
+char update_str[4096];
 Uint32 update_error = 0;
 
 Uint32 progress_function(const char* str, const char* extra, const Uint32 max,
@@ -262,7 +262,7 @@ int command_update_status(char *text, int len)
 			LOG_TO_CONSOLE(c_red1, update_str);
 			break;
 		case 2:
-			LOG_TO_CONSOLE(c_orange1, update_str);
+			LOG_TO_CONSOLE(c_red1, update_str);
 			break;
 	}
 

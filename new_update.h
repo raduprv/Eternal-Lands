@@ -19,16 +19,14 @@ extern "C"
  *
  * 		Update progress function pointer
  * \param	str The string with the current activity.
- * \param	extra The string with extra information, like current download
- *		file.
  * \param	max Max value to reach. Can be zero to show that it is
  *		currently unknown.
  * \param	current Current progress.
  * \param	user_data The user data given to update.
  * \retval	Uint32 A return value of other than one cancels the update.
  */
-typedef Uint32 (*progress_fnc) (const char* str, const char* extra,
-	const Uint32 max, const Uint32 current, void* user_data);
+typedef Uint32 (*progress_fnc) (const char* str, const Uint32 max,
+	const Uint32 current, void* user_data);
 
 /*!
  * \ingroup	update

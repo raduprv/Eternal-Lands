@@ -127,6 +127,7 @@ Uint32 download_files(update_info_t* infos, const Uint32 count,
 	void* user_data)
 {
 	char buffer[4096];
+	char str[4096];
 	MD5 md5;
 	MD5_DIGEST digest;
 	FILE *file;
@@ -146,8 +147,10 @@ Uint32 download_files(update_info_t* infos, const Uint32 count,
 
 	for (i = 0; i < count; i++)
 	{
-		if (update_progress_function("Updating", infos[i].file_name,
-			count, i, user_data) != 1)
+		snprintf(str, sizeof(str), "Updating file '%s'",
+			infos[i].file_name);
+
+		if (update_progress_function(str, count, i, user_data) != 1)
 		{
 			error = 2;
 
@@ -389,7 +392,7 @@ Uint32 check_updates(const char* server, const char* file, const char* path,
 	char file_name[256];
 	MD5_DIGEST server_digest;
 
-	update_progress_function("Checking for updates", "", 0, 0, user_data);
+	update_progress_function("Checking for updates", 0, 0, user_data);
 
 	memset(file_name, 0, sizeof(file_name));
 	strcpy(file_name, file);
@@ -449,6 +452,7 @@ Uint32 build_update_list(const char* server, const char* file,
 Uint32 update(const char* server, const char* file, const char* dir,
 	const char* zip, progress_fnc update_progress_function, void* user_data)
 {
+	char error_str[4096];
 	char path[1024];
 	char tmp[MAX_OLD_UPDATE_FILES][1024];
 	char str[64];
@@ -481,16 +485,18 @@ Uint32 update(const char* server, const char* file, const char* dir,
 
 	if (result == 0)
 	{
-		update_progress_function("Update complete", "", 0, 0,
-			user_data);
+		update_progress_function("Update complete", 0, 0, user_data);
 
 		return 0;
 	}
 
 	if (result >= 2)
 	{
-		update_progress_function("Can't get update list", "", 0, 0,
-			user_data);
+		snprintf(error_str, sizeof(error_str), "Can't get update list"
+			" file '%s' from server '%s' using path '%s'.", file,
+			server, path);
+
+		update_progress_function(error_str, 0, 0, user_data);
 
 		return 1;
 	}
@@ -542,13 +548,13 @@ Uint32 update(const char* server, const char* file, const char* dir,
 	{
 		if (result == 2)
 		{
-			update_progress_function("Canceled updating", "", 0, 0,
+			update_progress_function("Canceled updating", 0, 0,
 				user_data);
 		}
 		else
 		{
 			update_progress_function("Failed downlaoding updates",
-				"", 0, 0, user_data);
+				0, 0, user_data);
 		}
 	}
 
@@ -568,7 +574,7 @@ Uint32 update(const char* server, const char* file, const char* dir,
 		remove(tmp[i]);
 	}
 
-	update_progress_function("Update complete", "", 0, 0, user_data);
+	update_progress_function("Update complete", 0, 0, user_data);
 
 	return 0;
 }
