@@ -80,6 +80,12 @@ namespace ec
 
 			return 31;
 		}
+
+		float get_texture_coordinate(const float burn)
+		{
+			return 0.25f + burn * 0.5f;
+		}
+
 	}
 
 	const float MIN_SAFE_ALPHA = 0.02942f;
@@ -222,7 +228,7 @@ namespace ec
 			buffer[index * 10 + 6] = corner[i].z;
 			buffer[index * 10 + 7] = get_texture_coordinates(texture, i)[0];
 			buffer[index * 10 + 8] = get_texture_coordinates(texture, i)[1];
-			buffer[index * 10 + 9] = 0.25f + burn * 0.5f;
+			buffer[index * 10 + 9] = get_texture_coordinate(burn);
 		}
 
 		particle_count++;
@@ -274,19 +280,19 @@ namespace ec
 
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
-		ELglClientActiveTextureARB(GL_TEXTURE1);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		ELglClientActiveTextureARB(GL_TEXTURE0);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 		glColorPointer(4, GL_FLOAT, 10 * sizeof(float),
 			static_cast<char*>(0) + 0 * sizeof(float));
 		glVertexPointer(3, GL_FLOAT, 10 * sizeof(float),
 			static_cast<char*>(0) + 4 * sizeof(float));
+
 		ELglClientActiveTextureARB(GL_TEXTURE0);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glTexCoordPointer(2, GL_FLOAT, 10 * sizeof(float),
 			static_cast<char*>(0) + 7 * sizeof(float));
+
 		ELglClientActiveTextureARB(GL_TEXTURE1);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glTexCoordPointer(1, GL_FLOAT, 10 * sizeof(float),
 			static_cast<char*>(0) + 9 * sizeof(float));
 
@@ -328,6 +334,7 @@ namespace ec
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_NORMAL_ARRAY);
 
+		glMultiTexCoord1f(GL_TEXTURE1, get_texture_coordinate(1.0f));
 		glNormalPointer(GL_FLOAT, 3 * sizeof(float),
 			static_cast<char*>(0) + vertex_count * 3 * sizeof(float));
 		glVertexPointer(3, GL_FLOAT, 3 * sizeof(float),
@@ -934,6 +941,7 @@ namespace ec
 		glEnableClientState(GL_NORMAL_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
 
+		glMultiTexCoord1f(GL_TEXTURE1, get_texture_coordinate(1.0f));
 		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(CaplessCylindersVertex),
 			static_cast<char*>(0) + 6 * sizeof(float));
 		glNormalPointer(GL_FLOAT, sizeof(CaplessCylindersVertex),
@@ -2040,6 +2048,7 @@ namespace ec
 		ELglActiveTextureARB(GL_TEXTURE1);
 
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+
 		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
 		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PREVIOUS);
 		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
@@ -2051,12 +2060,13 @@ namespace ec
 		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_PREVIOUS);
 		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
 		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA, GL_TEXTURE1);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA, GL_SRC_ALPHA);
 		glTexEnvi(GL_TEXTURE_ENV, GL_ALPHA_SCALE, 1);
 
 		ELglActiveTextureARB(GL_TEXTURE0);
 
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+
 		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
 		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PREVIOUS);
 		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
@@ -2081,17 +2091,21 @@ namespace ec
 		color[2] = alpha_scale;
 		color[3] = alpha_scale;
 
-		ELglClientActiveTextureARB(GL_TEXTURE1);
+		ELglActiveTextureARB(GL_TEXTURE1);
 
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
 		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PREVIOUS);
 		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_PREVIOUS);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_ALPHA);
 		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
 
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_MODULATE);
 		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_PREVIOUS);
 		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA, GL_TEXTURE1);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA, GL_SRC_ALPHA);
 		glTexEnvi(GL_TEXTURE_ENV, GL_ALPHA_SCALE, 1);
 
 		ELglActiveTextureARB(GL_TEXTURE0);
@@ -2102,6 +2116,7 @@ namespace ec
 		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
 		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PREVIOUS);
 		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
+
 		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
 
 		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_MODULATE);
@@ -2308,6 +2323,7 @@ namespace ec
 
 		ELglActiveTextureARB(GL_TEXTURE1);
 		glEnable(GL_TEXTURE_2D);
+		bind_texture(texture_burn);
 
 		set_particle_texture_combiner();
 
