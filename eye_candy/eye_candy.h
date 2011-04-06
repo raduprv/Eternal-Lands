@@ -126,6 +126,13 @@
 #ifdef CLUSTER_INSIDES
 #include "../cluster.h"
 #endif
+#ifdef	NEW_TEXTURES
+#include <memory>
+#include "../engine/hardwarebuffer.hpp"
+
+namespace el = eternal_lands;
+
+#endif	/* NEW_TEXTURES */
 
  #define GCC_VERSION (__GNUC__ * 10000 \
                       + __GNUC_MINOR__ * 100 \
@@ -740,9 +747,14 @@ namespace ec
 				base = _base;
 			}
 			;
+#ifdef	NEW_TEXTURES
+			~Shape();
+			void draw();
+#else	/* NEW_TEXTURES */
 			virtual ~Shape();
 
 			virtual void draw();
+#endif	/* NEW_TEXTURES */
 
 			Vec3 pos;
 			Vec3 color;
@@ -750,11 +762,18 @@ namespace ec
 			EyeCandy* base;
 
 		protected:
+#ifdef	NEW_TEXTURES
+			int vertex_count;
+			int facet_count;
+			el::HardwareBuffer vertex_buffer;
+			el::HardwareBuffer index_buffer;
+#else	/* NEW_TEXTURES */
 			int vertex_count;
 			coord_t* vertices;
 			coord_t* normals;
 			int facet_count;
 			GLuint* facets;
+#endif	/* NEW_TEXTURES */
 
 			class Facet
 			{
@@ -827,6 +846,59 @@ namespace ec
 
 			coord_t radius;
 	};
+
+
+#ifdef	NEW_TEXTURES
+	class CaplessCylinders
+	{
+		public:
+			class CaplessCylinderItem
+			{
+				public:
+					CaplessCylinderItem(const Vec3 _start,
+						const Vec3 _end,
+						const Vec3 _color,
+						const alpha_t _alpha,
+						const coord_t _radius,
+						const int _polys)
+					{
+						start = _start;
+						end = _end;
+						color = _color;
+						alpha = _alpha;
+						radius = _radius;
+						polys = _polys;
+					}
+
+					Vec3 start;
+					Vec3 end;
+					Vec3 color;
+					alpha_t alpha;
+					coord_t radius;
+					int polys;
+			};
+
+			CaplessCylinders(EyeCandy* _base,
+				const std::vector<CaplessCylinderItem> &items);
+
+			void draw(const float alpha_scale);
+
+		protected:
+			struct CaplessCylindersVertex
+			{
+				GLfloat x, y, z;
+				GLfloat nx, ny, nz;
+				GLubyte r, g, b, a;
+			};
+
+			EyeCandy* base;
+			int vertex_count;
+			int facet_count;
+			el::HardwareBuffer vertex_buffer;
+			el::HardwareBuffer index_buffer;
+
+	};
+#endif	/* NEW_TEXTURES */
 
 	/*!
 	 \brief The basic element of a geometric boundary comprised of sinous polar
@@ -1929,22 +2001,23 @@ namespace ec
 				obstructions = &null_obstructions;
 				bounds = NULL;
 #ifdef	NEW_TEXTURES
-				particle_buffer_size = 1024 * 16;
-				particle_buffer_index = 0;
-				particle_buffer = new float[10 * particle_buffer_size];
+				particle_max_count = 0;
+				particle_count = 0;
 #endif	/* NEW_TEXTURES */
 			}
 			;
 			virtual ~Effect()
 			{
-#ifdef	NEW_TEXTURES
-				delete[] particle_buffer;
-#endif	/* NEW_TEXTURES */
 				*dead = true;
 			}
 			;
 
 #ifdef	NEW_TEXTURES
+			void draw_particle(const coord_t size,
+				const Uint32 texture, const color_t r,
+				const color_t g, const color_t b,
+				const alpha_t alpha, const Vec3 pos,
+				const alpha_t burn);
 			void build_particle_buffer(const Uint64 time_diff);
 			void draw_particle_buffer();
 #endif	/* NEW_TEXTURES */
@@ -2022,9 +2095,11 @@ namespace ec
 			Uint16 desired_LOD;
 			Uint16 LOD;
 #ifdef	NEW_TEXTURES
-			float* particle_buffer;
-			Uint32 particle_buffer_size;
-			Uint32 particle_buffer_index;
+			protected:
+			el::HardwareBuffer particle_vertex_buffer;
+			Uint32 particle_max_count;
+			Uint32 particle_count;
+			float* buffer;
 #endif	/* NEW_TEXTURES */
 		};
 
@@ -2081,13 +2156,11 @@ namespace ec
 			void start_draw();
 			void end_draw();
 #ifdef	NEW_TEXTURES
-			void draw_particle(const coord_t size,
-				const Uint32 texture, const color_t r,
-				const color_t g, const color_t b,
-				const alpha_t alpha, const Vec3 pos,
-				const alpha_t burn, Effect* effect);
 			Uint32 get_texture(const TextureEnum type) const;
+			void set_particle_texture_combiner();
+			void set_shape_texture_combiner(const float alpha_scale);
 
+			std::auto_ptr<el::HardwareBuffer> index_buffer;
 			Uint32 texture_atlas;
 			Uint32 texture_burn;
 #else	/* NEW_TEXTURES */

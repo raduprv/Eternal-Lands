@@ -196,22 +196,60 @@ namespace ec
 		SDL_FreeSurface(tex);
 	}
 #else	/* NEW_TEXTURES */
+	void Effect::draw_particle(const coord_t size,
+		const Uint32 texture, const color_t r, const color_t g,
+		const color_t b, const alpha_t alpha, const Vec3 pos,
+		const alpha_t burn)
+	{
+		Vec3 corner[4];
+		Uint32 i, index;
+
+		corner[0] = Vec3(pos - base->corner_offset1 * size);
+		corner[1] = Vec3(pos + base->corner_offset2 * size);
+		corner[2] = Vec3(pos + base->corner_offset1 * size);
+		corner[3] = Vec3(pos - base->corner_offset2 * size);
+
+		for (i = 0; i < 4; i++)
+		{
+			index = particle_count * 4 + i;
+
+			buffer[index * 10 + 0] = r;
+			buffer[index * 10 + 1] = g;
+			buffer[index * 10 + 2] = b;
+			buffer[index * 10 + 3] = alpha;
+			buffer[index * 10 + 4] = corner[i].x;
+			buffer[index * 10 + 5] = corner[i].y;
+			buffer[index * 10 + 6] = corner[i].z;
+			buffer[index * 10 + 7] = get_texture_coordinates(texture, i)[0];
+			buffer[index * 10 + 8] = get_texture_coordinates(texture, i)[1];
+			buffer[index * 10 + 9] = 0.25f + burn * 0.5f;
+		}
+
+		particle_count++;
+	}
+
 	void Effect::build_particle_buffer(const Uint64 time_diff)
 	{
 		std::map<Particle*, bool>::const_iterator iter;
 		const Vec3 center(base->center);
 
-		particle_buffer_index = 0;
+		particle_count = 0;
+
+		particle_max_count = particles.size() * (1 + motion_blur_points);
+
+		particle_vertex_buffer.bind(el::hbt_vertex);
+
+		particle_vertex_buffer.set_size(el::hbt_vertex,
+			particle_max_count * 40 * sizeof(float),
+			el::hbut_dynamic_draw);
+
+		buffer = static_cast<float*>(particle_vertex_buffer.map(
+			el::hbt_vertex, el::hbat_write_only));
 
 		if (bounds)
 		{
 			for (iter = particles.begin(); iter != particles.end(); iter++)
 			{
-				if (particle_buffer_index >= particle_buffer_size)
-				{
-					break;
-				}
-
 				Particle* p = iter->first;
 				const coord_t dist_squared = (p->pos - center).magnitude_squared();
 				if (dist_squared < MAX_DRAW_DISTANCE_SQUARED)
@@ -222,19 +260,18 @@ namespace ec
 		{
 			for (iter = particles.begin(); iter != particles.end(); iter++)
 			{
-				if (particle_buffer_index >= particle_buffer_size)
-				{
-					break;
-				}
-
 				Particle* p = iter->first;
 				p->draw(time_diff);
 			}
 		}
+
+		particle_vertex_buffer.unmap(el::hbt_vertex);
 	}
 
 	void Effect::draw_particle_buffer()
 	{
+		particle_vertex_buffer.bind(el::hbt_vertex);
+
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
 		ELglClientActiveTextureARB(GL_TEXTURE1);
@@ -243,17 +280,17 @@ namespace ec
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 		glColorPointer(4, GL_FLOAT, 10 * sizeof(float),
-			&particle_buffer[0]);
+			static_cast<char*>(0) + 0 * sizeof(float));
 		glVertexPointer(3, GL_FLOAT, 10 * sizeof(float),
-			&particle_buffer[4]);
+			static_cast<char*>(0) + 4 * sizeof(float));
 		ELglClientActiveTextureARB(GL_TEXTURE0);
 		glTexCoordPointer(2, GL_FLOAT, 10 * sizeof(float),
-			&particle_buffer[7]);
+			static_cast<char*>(0) + 7 * sizeof(float));
 		ELglClientActiveTextureARB(GL_TEXTURE1);
 		glTexCoordPointer(1, GL_FLOAT, 10 * sizeof(float),
-			&particle_buffer[9]);
+			static_cast<char*>(0) + 9 * sizeof(float));
 
-		glDrawArrays(GL_QUADS, 0, particle_buffer_index);
+		glDrawArrays(GL_QUADS, 0, particle_count * 4);
 
 		glDisableClientState(GL_VERTEX_ARRAY);
 		glDisableClientState(GL_COLOR_ARRAY);
@@ -266,9 +303,11 @@ namespace ec
 
 	Shape::~Shape()
 	{
+#ifndef	NEW_TEXTURES
 		delete[] vertices;
 		delete[] facets;
 		delete[] normals;
+#endif	/* NEW_TEXTURES */
 	}
 
 	void Shape::draw()
@@ -280,21 +319,28 @@ namespace ec
 
 		glPushMatrix();
 		glTranslated(pos.x, pos.y, pos.z);
-		glDisable(GL_TEXTURE_2D);
+#ifdef	NEW_TEXTURES
+		base->set_shape_texture_combiner(1.0f);
 
-#if	NEW_TEXTURES
+		vertex_buffer.bind(el::hbt_vertex);
+		index_buffer.bind(el::hbt_index);
+
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_NORMAL_ARRAY);
 
-		glNormalPointer(GL_FLOAT, 0, normals);
-		glVertexPointer(3, GL_FLOAT, 0, vertices);
+		glNormalPointer(GL_FLOAT, 3 * sizeof(float),
+			static_cast<char*>(0) + vertex_count * 3 * sizeof(float));
+		glVertexPointer(3, GL_FLOAT, 3 * sizeof(float),
+			static_cast<char*>(0));
 
-		glDrawElements(GL_TRIANGLES, facet_count * 3, GL_UNSIGNED_INT,
-			facets);
+		glDrawElements(GL_TRIANGLES, facet_count * 3, GL_UNSIGNED_SHORT, 0);
 
 		glDisableClientState(GL_VERTEX_ARRAY);
 		glDisableClientState(GL_NORMAL_ARRAY);
+
+		base->set_particle_texture_combiner();
 #else	/* NEW_TEXTURES */
+		glDisable(GL_TEXTURE_2D);
 
 		if (base->poor_transparency_resolution)
 #ifdef X86_64
@@ -335,9 +381,9 @@ namespace ec
 			}
 		}
 		glEnd();
+		glEnable(GL_TEXTURE_2D);
 #endif	/* NEW_TEXTURES */
 		glPopMatrix();
-		glEnable(GL_TEXTURE_2D);
 	}
 
 	CaplessCylinder::CaplessCylinder(EyeCandy* _base, const Vec3 _start,
@@ -345,6 +391,11 @@ namespace ec
 		const coord_t _radius, const int polys) :
 		Shape(_base)
 	{
+#ifdef	NEW_TEXTURES
+		float* vertices;
+		float* normals;
+		GLushort* facets;
+#endif	/* NEW_TEXTURES */
 		radius = _radius;
 		start = _start;
 		end = _end;
@@ -361,8 +412,17 @@ namespace ec
 
 		const int subdivisions = ((polys - 1) / 2) + 1;
 		vertex_count = subdivisions * 2;
+#ifdef	NEW_TEXTURES
+		vertex_buffer.bind(el::hbt_vertex);
+		vertex_buffer.set_size(el::hbt_vertex,
+			6 * sizeof(float) * vertex_count, el::hbut_static_draw);
+		vertices = static_cast<float*>(vertex_buffer.map(el::hbt_vertex,
+			el::hbat_write_only));
+		normals = &vertices[vertex_count * 3];
+#else	/* NEW_TEXTURES */
 		vertices = new coord_t[vertex_count * 3];
 		normals = new coord_t[vertex_count * 3];
+#endif	/* NEW_TEXTURES */
 
 		// Get the coordinates.
 		const angle_t radian_increment = 2 * PI / subdivisions;
@@ -400,8 +460,21 @@ namespace ec
 				* normalized.x;
 		}
 
+#ifdef	NEW_TEXTURES
+		vertex_buffer.unmap(el::hbt_vertex);
+		vertex_buffer.unbind(el::hbt_vertex);
+#endif	/* NEW_TEXTURES */
+
 		facet_count = subdivisions * 2;
+#ifdef	NEW_TEXTURES
+		index_buffer.bind(el::hbt_index);
+		index_buffer.set_size(el::hbt_index,
+			3 * sizeof(GLushort) * facet_count, el::hbut_static_draw);
+		facets = static_cast<GLushort*>(index_buffer.map(el::hbt_index,
+			el::hbat_write_only));
+#else	/* NEW_TEXTURES */
 		facets = new GLuint[facet_count * 3];
+#endif	/* NEW_TEXTURES */
 
 		// Add in the sides.
 		for (int i = 0; i < subdivisions; i++)
@@ -418,6 +491,10 @@ namespace ec
 		facets[(subdivisions - 1) * 6 + 2] = subdivisions;
 		facets[(subdivisions - 1) * 6 + 3] = subdivisions;
 		facets[(subdivisions - 1) * 6 + 4] = 0;
+#ifdef	NEW_TEXTURES
+		index_buffer.unmap(el::hbt_index);
+		index_buffer.unbind(el::hbt_index);
+#endif	/* NEW_TEXTURES */
 	}
 
 	Cylinder::Cylinder(EyeCandy* _base, const Vec3 _start, const Vec3 _end,
@@ -425,6 +502,11 @@ namespace ec
 		const int polys) :
 		Shape(_base)
 	{
+#ifdef	NEW_TEXTURES
+		float* vertices;
+		float* normals;
+		GLushort* facets;
+#endif	/* NEW_TEXTURES */
 		radius = _radius;
 		start = _start;
 		end = _end;
@@ -441,8 +523,17 @@ namespace ec
 
 		const int subdivisions = ((polys - 1) / 4) + 1;
 		vertex_count = subdivisions * 4 + 2; //+2 is for the centerpoints of the caps.
+#ifdef	NEW_TEXTURES
+		vertex_buffer.bind(el::hbt_vertex);
+		vertex_buffer.set_size(el::hbt_vertex,
+			6 * sizeof(float) * vertex_count, el::hbut_static_draw);
+		vertices = static_cast<float*>(vertex_buffer.map(el::hbt_vertex,
+			el::hbat_write_only));
+		normals = &vertices[vertex_count * 3];
+#else	/* NEW_TEXTURES */
 		vertices = new coord_t[vertex_count * 3];
 		normals = new coord_t[vertex_count * 3];
+#endif	/* NEW_TEXTURES */
 
 		// Get the coordinates.
 		const angle_t radian_increment = 2 * PI / subdivisions;
@@ -510,8 +601,21 @@ namespace ec
 		normals[subdivisions * 12 + 4] = -normalized.y;
 		normals[subdivisions * 12 + 5] = -normalized.z;
 
+#ifdef	NEW_TEXTURES
+		vertex_buffer.unmap(el::hbt_vertex);
+		vertex_buffer.unbind(el::hbt_vertex);
+#endif	/* NEW_TEXTURES */
+
 		facet_count = subdivisions * 4;
+#ifdef	NEW_TEXTURES
+		index_buffer.bind(el::hbt_index);
+		index_buffer.set_size(el::hbt_index,
+			3 * sizeof(GLushort) * facet_count, el::hbut_static_draw);
+		facets = static_cast<GLushort*>(index_buffer.map(el::hbt_index,
+			el::hbat_write_only));
+#else	/* NEW_TEXTURES */
 		facets = new GLuint[facet_count * 3];
+#endif	/* NEW_TEXTURES */
 
 		// First, add in the caps.
 		for (int i = 0; i < subdivisions; i++)
@@ -542,12 +646,21 @@ namespace ec
 		facets[subdivisions * 3 * 2 + (subdivisions - 1) * 6 + 2] = subdivisions * 3;
 		facets[subdivisions * 3 * 2 + (subdivisions - 1) * 6 + 3] = subdivisions * 3;
 		facets[subdivisions * 3 * 2 + (subdivisions - 1) * 6 + 4] = subdivisions * 2;
+#ifdef	NEW_TEXTURES
+		index_buffer.unmap(el::hbt_index);
+		index_buffer.unbind(el::hbt_index);
+#endif	/* NEW_TEXTURES */
 	}
 
 	Sphere::Sphere(EyeCandy* _base, const Vec3 _pos, const Vec3 _color,
 		const alpha_t _alpha, const coord_t _radius, const int polys) :
 		Shape(_base)
 	{
+#ifdef	NEW_TEXTURES
+		float* vertices;
+		float* normals;
+		GLushort* facets;
+#endif	/* NEW_TEXTURES */
 		radius = _radius;
 		pos = _pos;
 		color = _color;
@@ -609,8 +722,17 @@ namespace ec
 
 		// Convert spherical to rectangular.
 		vertex_count = (int)spherical_vertices.size();
+#ifdef	NEW_TEXTURES
+		vertex_buffer.bind(el::hbt_vertex);
+		vertex_buffer.set_size(el::hbt_vertex,
+			6 * sizeof(float) * vertex_count, el::hbut_static_draw);
+		vertices = static_cast<float*>(vertex_buffer.map(el::hbt_vertex,
+			el::hbat_write_only));
+		normals = &vertices[vertex_count * 3];
+#else	/* NEW_TEXTURES */
 		vertices = new coord_t[vertex_count * 3];
 		normals = new coord_t[vertex_count * 3];
+#endif	/* NEW_TEXTURES */
 
 		for (int i = 0; i < vertex_count; i++)
 		{
@@ -623,16 +745,32 @@ namespace ec
 			vertices[i * 3 + 1] = normals[i * 3 + 1] * radius;
 			vertices[i * 3 + 2] = normals[i * 3 + 2] * radius;
 		}
+#ifdef	NEW_TEXTURES
+		vertex_buffer.unmap(el::hbt_vertex);
+		vertex_buffer.unbind(el::hbt_vertex);
+#endif	/* NEW_TEXTURES */
 
 		// Convert facets to OpenGL-suitable array.
 		facet_count = (int)spherical_facets.size();
+#ifdef	NEW_TEXTURES
+		index_buffer.bind(el::hbt_index);
+		index_buffer.set_size(el::hbt_index,
+			3 * sizeof(GLushort) * facet_count, el::hbut_static_draw);
+		facets = static_cast<GLushort*>(index_buffer.map(el::hbt_index,
+			el::hbat_write_only));
+#else	/* NEW_TEXTURES */
 		facets = new GLuint[facet_count * 3];
+#endif	/* NEW_TEXTURES */
 		for (int i = 0; i < facet_count; i++)
 		{
 			facets[i * 3] = spherical_facets[i].f[0];
 			facets[i * 3 + 1] = spherical_facets[i].f[1];
 			facets[i * 3 + 2] = spherical_facets[i].f[2];
 		}
+#ifdef	NEW_TEXTURES
+		index_buffer.unmap(el::hbt_index);
+		index_buffer.unbind(el::hbt_index);
+#endif	/* NEW_TEXTURES */
 	}
 
 	void Sphere::average_points(const coord_t p1_first, const coord_t p2_first,
@@ -653,6 +791,163 @@ namespace ec
 			p = (p1_first + p2_first) / 2;
 
 		q = (p1_second + p2_second) / 2;
+	}
+
+	CaplessCylinders::CaplessCylinders(EyeCandy* _base,
+		const std::vector<CaplessCylinderItem> &items)
+	{
+		CaplessCylindersVertex* vertices;
+		GLushort* facets;
+		Vec3 start, end, pos, color;
+		float radius, alpha;
+		Uint32 idx, count, face_index, vertex_index;
+
+		base = _base;
+
+		count = items.size();
+
+		vertex_count = 0;
+		facet_count = 0;
+
+		for (idx = 0; idx < count; idx++)
+		{
+			const int subdivisions = ((items[idx].polys - 1) / 2) + 1;
+			vertex_count += subdivisions * 2;
+			facet_count += subdivisions * 2;
+		}
+
+		vertex_buffer.bind(el::hbt_vertex);
+		vertex_buffer.set_size(el::hbt_vertex,
+			sizeof(CaplessCylindersVertex) * vertex_count, el::hbut_static_draw);
+		vertices = static_cast<CaplessCylindersVertex*>(vertex_buffer.map(el::hbt_vertex, el::hbat_write_only));
+
+		index_buffer.bind(el::hbt_index);
+		index_buffer.set_size(el::hbt_index,
+			3 * sizeof(GLushort) * facet_count, el::hbut_static_draw);
+		facets = static_cast<GLushort*>(index_buffer.map(el::hbt_index,
+			el::hbat_write_only));
+
+		face_index = 0;
+		vertex_index = 0;
+
+		for (idx = 0; idx < count; idx++)
+		{
+			radius = items[idx].radius;
+			start = items[idx].start;
+			end = items[idx].end;
+			pos = (start + end) / 2;
+			color = items[idx].color;
+			alpha = items[idx].alpha;
+
+			Vec3 normalized = start - pos;
+			normalized.normalize();
+
+			const int subdivisions = ((items[idx].polys - 1) / 2) + 1;
+			vertex_count = subdivisions * 2;
+
+			// Get the coordinates.
+			const angle_t radian_increment = 2 * PI / subdivisions;
+			int i = 0;
+			for (angle_t rad = 0; rad < 2 * PI - 0.0001;
+				rad += radian_increment, i++)
+			{
+				vertices[vertex_index + i].r = color.x * 255.0f + 0.5f;
+				vertices[vertex_index + i].g = color.y * 255.0f + 0.5f;
+				vertices[vertex_index + i].b = color.z * 255.0f + 0.5f;
+				vertices[vertex_index + i].a = alpha * 255.0f + 0.5f;
+
+				vertices[vertex_index + i].x = end.x + radius * (cos(rad) * normalized.z
+					+ sin(rad) * normalized.y);
+				vertices[vertex_index + i].y = end.y + radius * (cos(rad) * normalized.x
+					+ sin(rad) * normalized.z);
+				vertices[vertex_index + i].z = end.z + radius * (cos(rad) * normalized.y
+					+ sin(rad) * normalized.x);
+				vertices[vertex_index + i].nx = cos(rad) * normalized.z
+					+ sin(rad) * normalized.y;
+				vertices[vertex_index + i].ny = cos(rad) * normalized.x
+					+ sin(rad) * normalized.z;
+				vertices[vertex_index + i].nz = cos(rad) * normalized.y
+					+ sin(rad) * normalized.x;
+
+				vertices[vertex_index + i + subdivisions].r = color.x * 255.0f + 0.5f;
+				vertices[vertex_index + i + subdivisions].g = color.y * 255.0f + 0.5f;
+				vertices[vertex_index + i + subdivisions].b = color.z * 255.0f + 0.5f;
+				vertices[vertex_index + i + subdivisions].a = alpha * 255.0f + 0.5f;
+
+				vertices[vertex_index + i + subdivisions].x = start.x + radius * (cos(rad
+					- radian_increment / 2) * normalized.z + sin(rad
+					- radian_increment / 2) * normalized.y);
+				vertices[vertex_index + i + subdivisions].y = start.y + radius
+					* (cos(rad - radian_increment / 2) * normalized.x + sin(rad
+						- radian_increment / 2) * normalized.z);
+				vertices[vertex_index + i + subdivisions].z = start.z + radius
+					* (cos(rad - radian_increment / 2) * normalized.y + sin(rad
+						- radian_increment / 2) * normalized.x);
+				vertices[vertex_index + i + subdivisions].nx = cos(rad - radian_increment / 2)
+					* normalized.z + sin(rad - radian_increment / 2) * normalized.y;
+				vertices[vertex_index + i + subdivisions].ny = cos(rad - radian_increment
+					/ 2) * normalized.x + sin(rad - radian_increment / 2)
+					* normalized.z;
+				vertices[vertex_index + i + subdivisions].nz = cos(rad - radian_increment
+					/ 2) * normalized.y + sin(rad - radian_increment / 2)
+					* normalized.x;
+			}
+
+			// Add in the sides.
+			for (int i = 0; i < subdivisions; i++)
+			{
+				facets[(face_index + i) * 6] = vertex_index + i;
+				facets[(face_index + i) * 6 + 1] = vertex_index + i + subdivisions;
+				facets[(face_index + i) * 6 + 2] = vertex_index + i + subdivisions + 1;
+				facets[(face_index + i) * 6 + 3] = vertex_index + i + subdivisions + 1;
+				facets[(face_index + i) * 6 + 4] = vertex_index + i + 1;
+				facets[(face_index + i) * 6 + 5] = vertex_index + i;
+			}
+
+			// Wraparound.
+			facets[(face_index + (subdivisions - 1)) * 6 + 2] = vertex_index + subdivisions;
+			facets[(face_index + (subdivisions - 1)) * 6 + 3] = vertex_index + subdivisions;
+			facets[(face_index + (subdivisions - 1)) * 6 + 4] = vertex_index + 0;
+
+			vertex_index += subdivisions * 2;
+			face_index += subdivisions;
+		}
+
+		vertex_buffer.unmap(el::hbt_vertex);
+		vertex_buffer.unbind(el::hbt_vertex);
+
+		index_buffer.unmap(el::hbt_index);
+		index_buffer.unbind(el::hbt_index);
+	}
+
+	void CaplessCylinders::draw(const float alpha_scale)
+	{
+		if (!base->draw_shapes)
+			return;
+
+		base->set_shape_texture_combiner(alpha_scale);
+
+		vertex_buffer.bind(el::hbt_vertex);
+		index_buffer.bind(el::hbt_index);
+
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_NORMAL_ARRAY);
+		glEnableClientState(GL_COLOR_ARRAY);
+
+		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(CaplessCylindersVertex),
+			static_cast<char*>(0) + 6 * sizeof(float));
+		glNormalPointer(GL_FLOAT, sizeof(CaplessCylindersVertex),
+			static_cast<char*>(0) + 3 * sizeof(float));
+		glVertexPointer(3, GL_FLOAT, sizeof(CaplessCylindersVertex),
+			static_cast<char*>(0));
+
+		glDrawElements(GL_TRIANGLES, facet_count * 3, GL_UNSIGNED_SHORT, 0);
+
+		glDisableClientState(GL_VERTEX_ARRAY);
+		glDisableClientState(GL_NORMAL_ARRAY);
+		glDisableClientState(GL_COLOR_ARRAY);
+
+		base->set_particle_texture_combiner();
 	}
 
 	Obstruction::Obstruction(const coord_t _max_distance, const coord_t _force)
@@ -940,8 +1235,8 @@ namespace ec
 
 		Uint32 texture = get_texture(); // Always hires, since we're not checking distance.
 
-		base->draw_particle(tempsize, texture, color[0], color[1],
-			color[2], tempalpha, pos, burn, effect);
+		effect->draw_particle(tempsize, texture, color[0], color[1],
+			color[2], tempalpha, pos, burn);
 
 		if (effect->motion_blur_points > 0)
 		{
@@ -949,13 +1244,13 @@ namespace ec
 				effect->motion_blur_fade_rate, (float)usec / 1000000);
 
 			for (int i = 0; i < effect->motion_blur_points; i++)
-				base->draw_particle(motion_blur[i].size,
+				effect->draw_particle(motion_blur[i].size,
 					motion_blur[i].texture,
 					motion_blur[i].color[0],
 					motion_blur[i].color[1],
 					motion_blur[i].color[2],
 					motion_blur[i].alpha,
-					motion_blur[i].pos, burn, effect);
+					motion_blur[i].pos, burn);
 
 			motion_blur[cur_motion_blur_point] = ParticleHistory(
 				tempsize, texture, color[0], color[1], color[2],
@@ -1739,6 +2034,83 @@ namespace ec
 	{
 		return get_texture_index(type);
 	}
+
+	void EyeCandy::set_particle_texture_combiner()
+	{
+		ELglActiveTextureARB(GL_TEXTURE1);
+
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PREVIOUS);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_PREVIOUS);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_ALPHA);
+		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
+
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_MODULATE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_PREVIOUS);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA, GL_TEXTURE1);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glTexEnvi(GL_TEXTURE_ENV, GL_ALPHA_SCALE, 1);
+
+		ELglActiveTextureARB(GL_TEXTURE0);
+
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PREVIOUS);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_TEXTURE0);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
+		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
+
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_MODULATE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_PREVIOUS);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA, GL_TEXTURE0);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA, GL_SRC_ALPHA);
+		glTexEnvi(GL_TEXTURE_ENV, GL_ALPHA_SCALE, 1);
+	}
+
+	void EyeCandy::set_shape_texture_combiner(const float alpha_scale)
+	{
+		float color[4];
+
+		color[0] = alpha_scale;
+		color[1] = alpha_scale;
+		color[2] = alpha_scale;
+		color[3] = alpha_scale;
+
+		ELglClientActiveTextureARB(GL_TEXTURE1);
+
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PREVIOUS);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
+		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
+
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_PREVIOUS);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
+		glTexEnvi(GL_TEXTURE_ENV, GL_ALPHA_SCALE, 1);
+
+		ELglActiveTextureARB(GL_TEXTURE0);
+
+		glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR, color);
+
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PREVIOUS);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
+		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
+
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_MODULATE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_PREVIOUS);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA, GL_CONSTANT);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA, GL_SRC_ALPHA);
+		glTexEnvi(GL_TEXTURE_ENV, GL_ALPHA_SCALE, 1);
+	}
 #else	/* NEW_TEXTURES */
 	void EyeCandy::clear_textures()
 	{
@@ -1934,44 +2306,10 @@ namespace ec
 		glEnable(GL_TEXTURE_2D);
 		bind_texture(texture_atlas);
 
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PREVIOUS);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_TEXTURE0);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
-		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
-
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_MODULATE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_PREVIOUS);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA, GL_TEXTURE0);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA, GL_SRC_ALPHA);
-		glTexEnvi(GL_TEXTURE_ENV, GL_ALPHA_SCALE, 1);
-
 		ELglActiveTextureARB(GL_TEXTURE1);
 		glEnable(GL_TEXTURE_2D);
 
-		bind_texture_unbuffered(texture_burn);
-
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PREVIOUS);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_PREVIOUS);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_ALPHA);
-		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
-
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_MODULATE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_PREVIOUS);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA, GL_TEXTURE1);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA, GL_SRC_ALPHA);
-		glTexEnvi(GL_TEXTURE_ENV, GL_ALPHA_SCALE, 1);
-
-		ELglActiveTextureARB(GL_TEXTURE0);
-		glEnable(GL_TEXTURE_2D);
+		set_particle_texture_combiner();
 
 		/* Fog hurts blending with 5 color blending
 		 * (red, green, blue, alpha and burn)
@@ -2061,6 +2399,9 @@ namespace ec
 				e->draw_particle_buffer();
 			}
 		}
+
+		el::HardwareBuffer::unbind(el::hbt_index);
+		el::HardwareBuffer::unbind(el::hbt_vertex);
 #else	/* NEW_TEXTURES */
 		// Draw effects (any special drawing functionality) and their particles.
 		for (std::vector<Effect*>::const_iterator iter = effects.begin(); iter
@@ -2134,13 +2475,13 @@ namespace ec
 				}
 				for (int i = (int)light_particles.size(); i < (int)lights.size(); i++)
 				glDisable(lights[i]);
-			}
-			else
-			{
-				for (int i = 0; i < (int)lights.size(); i++)
-				glDisable(lights[i]); // Save the graphics card some work when rendering the rest of the scene, ne? :)
-			}
 		}
+		else
+		{
+			for (int i = 0; i < (int)lights.size(); i++)
+			glDisable(lights[i]); // Save the graphics card some work when rendering the rest of the scene, ne? :)
+		}
+	}
 
 		void EyeCandy::idle()
 		{
@@ -2401,6 +2742,9 @@ namespace ec
 					e->build_particle_buffer(time_diff);
 				}
 			}
+
+			el::HardwareBuffer::unbind(el::hbt_index);
+			el::HardwareBuffer::unbind(el::hbt_vertex);
 #endif	/* NEW_TEXTURES */
 		}
 
@@ -2417,41 +2761,7 @@ namespace ec
 			glLightf(light_id, GL_LINEAR_ATTENUATION, 1.0);
 		}
 
-#ifdef	NEW_TEXTURES
-		void EyeCandy::draw_particle(const coord_t size,
-			const Uint32 texture, const color_t r, const color_t g,
-			const color_t b, const alpha_t alpha, const Vec3 pos,
-			const alpha_t burn, Effect* effect)
-		{
-			Vec3 corner[4];
-			Uint32 i, index;
-
-			corner[0] = Vec3(pos - corner_offset1 * size);
-			corner[1] = Vec3(pos + corner_offset2 * size);
-			corner[2] = Vec3(pos + corner_offset1 * size);
-			corner[3] = Vec3(pos - corner_offset2 * size);
-
-			for (i = 0; i < 4; i++)
-			{
-				index = effect->particle_buffer_index;
-				effect->particle_buffer_index++;
-
-				effect->particle_buffer[index * 10 + 0] = r;
-				effect->particle_buffer[index * 10 + 1] = g;
-				effect->particle_buffer[index * 10 + 2] = b;
-				effect->particle_buffer[index * 10 + 3] = alpha;
-				effect->particle_buffer[index * 10 + 4] = corner[i].x;
-				effect->particle_buffer[index * 10 + 5] = corner[i].y;
-				effect->particle_buffer[index * 10 + 6] = corner[i].z;
-				effect->particle_buffer[index * 10 + 7] = 
-					get_texture_coordinates(texture, i)[0];
-				effect->particle_buffer[index * 10 + 8] = 
-					get_texture_coordinates(texture, i)[1];
-				effect->particle_buffer[index * 10 + 9] =
-					0.25f + burn * 0.5f;
-			}
-		}
-#else	/* NEW_TEXTURES */
+#ifndef	NEW_TEXTURES
 		void EyeCandy::draw_point_sprite_particle(coord_t size, const GLuint texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos)
 		{
 			//  std::cout << "A: " << size << ", " << texture << ", " << Vec3(r, g, b) << ", " << alpha << std::endl;

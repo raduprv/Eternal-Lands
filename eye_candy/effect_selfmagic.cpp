@@ -253,6 +253,10 @@ namespace ec
 		target_alpha = NULL;
 		shift = Vec3(0.0, 0.0, 0.0);
 
+#ifdef	NEW_TEXTURES
+		alpha_scale = 1.0f;
+#endif	/* NEW_TEXTURES */
+
 		switch (type)
 		{
 			case HEAL:
@@ -477,11 +481,20 @@ namespace ec
 				}
 
 				const float radius = 0.377628;
+#ifdef	NEW_TEXTURES
+				std::vector<CaplessCylinders::CaplessCylinderItem> cylinders;
+#endif	/* NEW_TEXTURES */
 				for (int i = 0; i < LOD * 4; i++)
 				{
 					const percent_t percent = ((percent_t)i + 1) / (LOD * 4);
+#ifdef	NEW_TEXTURES
+					cylinders.push_back(CaplessCylinders::CaplessCylinderItem(effect_center, effect_center + Vec3(0.0, 10.0 / percent, 0.0), Vec3(1.0, 1.0, 1.0), (0.1 + (1.0 - percent) * 0.05) / (LOD + 2), radius * percent, (int)(25 * (percent + 0.2))));
+				}
+				capless_cylinders = new CaplessCylinders(base, cylinders);
+#else	/* NEW_TEXTURES */
 					capless_cylinders.push_back(new CaplessCylinder(base, effect_center, effect_center + Vec3(0.0, 10.0 / percent, 0.0), Vec3(1.0, 1.0, 1.0), (0.1 + (1.0 - percent) * 0.05) / (LOD + 2), radius * percent, (int)(25 * (percent + 0.2))));
 				}
+#endif	/* NEW_TEXTURES */
 
 				break;
 			}
@@ -532,9 +545,13 @@ namespace ec
 			delete spawner2;
 		if (mover2)
 			delete mover2;
+#ifdef	NEW_TEXTURES
+		delete capless_cylinders;
+#else	/* NEW_TEXTURES */
 		for (size_t i = 0; i < capless_cylinders.size(); i++)
 			delete capless_cylinders[i];
 		capless_cylinders.clear();
+#endif	/* NEW_TEXTURES */
 		if (EC_DEBUG)
 			std::cout << "SelfMagicEffect (" << this << ") destroyed."
 				<< std::endl;
@@ -544,6 +561,19 @@ namespace ec
 	{
 		if (particles.size() == 0)
 		{
+#ifdef	NEW_TEXTURES
+			if (capless_cylinders != 0)
+			{
+				if (alpha_scale < 0.01f)
+				{
+					return false;
+				}
+			}
+			else
+			{
+				return false;
+			}
+#else	/* NEW_TEXTURES */
 			if (capless_cylinders.size())
 			{
 				if ((*capless_cylinders.rbegin())->alpha < 0.01)
@@ -551,6 +581,7 @@ namespace ec
 			}
 			else
 				return false;
+#endif	/* NEW_TEXTURES */
 		}
 		else if (recall)
 			return true;
@@ -616,6 +647,9 @@ namespace ec
 			{
 				if (age > 500000)
 				{
+#ifdef	NEW_TEXTURES
+					alpha_scale *= math_cache.powf_05_close((interval_t)usec / 200000.0);
+#else	/* NEW_TEXTURES */
 					const alpha_t scalar =
 						math_cache.powf_05_close((interval_t)usec / 200000.0);
 					for (int i = 0; i < (int)capless_cylinders.size(); i++)
@@ -634,6 +668,7 @@ namespace ec
 					 break;
 					 }
 					 */
+#endif	/* NEW_TEXTURES */
 				}
 
 				if (target_alpha)
@@ -669,9 +704,16 @@ namespace ec
 
 	void SelfMagicEffect::draw(const Uint64 usec)
 	{
+#ifdef	NEW_TEXTURES
+		if (capless_cylinders != 0)
+		{
+			capless_cylinders->draw(alpha_scale);
+		}
+#else	/* NEW_TEXTURES */
 		for (std::vector<Shape*>::iterator iter = capless_cylinders.begin(); iter
 			!= capless_cylinders.end(); iter++)
 			(*iter)->draw();
+#endif	/* NEW_TEXTURES */
 	}
 
 ///////////////////////////////////////////////////////////////////////////////

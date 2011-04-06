@@ -26,6 +26,7 @@ TEXT_ALIASES_COBJ = text_aliases.o
 PAWN_COBJ = pawn/amx.o pawn/amxaux.o pawn/amxcons.o pawn/amxel.o \
 	pawn/amxfloat.o pawn/amxstring.o pawn/elpawn.o
 NEW_TEXTURES_COBJ = image_loading.o
+NEW_TEXTURES_CXXOBJ = engine/hardwarebuffer.o
 CUSTOM_UPDATE_COBJ = custom_update.o new_update.o
 FSAA_COBJ = fsaa/fsaa_wgl.o fsaa/fsaa.o
 COBJS=2d_objects.o 3d_objects.o \

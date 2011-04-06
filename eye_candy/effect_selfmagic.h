@@ -63,7 +63,12 @@ namespace ec
 			Sint64 count;
 			Uint64 count_scalar;
 			SelfMagicType type;
+#ifdef	NEW_TEXTURES
+			CaplessCylinders* capless_cylinders;
+			float alpha_scale;
+#else	/* NEW_TEXTURES */
 			std::vector<Shape*> capless_cylinders;
+#endif	/* NEW_TEXTURES */
 			coord_t size_scalar;
 			float* target_alpha;
 	};
