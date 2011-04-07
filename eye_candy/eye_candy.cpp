@@ -334,7 +334,7 @@ namespace ec
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_NORMAL_ARRAY);
 
-		glMultiTexCoord1f(GL_TEXTURE1, get_texture_coordinate(1.0f));
+		ELglMultiTexCoord1f(GL_TEXTURE1, get_texture_coordinate(1.0f));
 		glNormalPointer(GL_FLOAT, 3 * sizeof(float),
 			static_cast<char*>(0) + vertex_count * 3 * sizeof(float));
 		glVertexPointer(3, GL_FLOAT, 3 * sizeof(float),
@@ -941,7 +941,7 @@ namespace ec
 		glEnableClientState(GL_NORMAL_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
 
-		glMultiTexCoord1f(GL_TEXTURE1, get_texture_coordinate(1.0f));
+		ELglMultiTexCoord1f(GL_TEXTURE1, get_texture_coordinate(1.0f));
 		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(CaplessCylindersVertex),
 			static_cast<char*>(0) + 6 * sizeof(float));
 		glNormalPointer(GL_FLOAT, sizeof(CaplessCylindersVertex),
