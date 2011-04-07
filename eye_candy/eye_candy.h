@@ -1082,7 +1082,7 @@ namespace ec
 				p.pos += p.velocity * (usec / 1000000.0);
 			}
 			;
-			virtual energy_t calculate_energy(const Particle& p)
+			virtual energy_t calculate_energy(const Particle& p) const
 			{
 				return 0;
 			}
@@ -1325,7 +1325,7 @@ namespace ec
 			energy_t calculate_velocity_energy(const Particle& p) const;
 			energy_t calculate_position_energy(const Particle& p) const;
 			coord_t gravity_dist(const Particle& p, const Vec3& center) const;
-			energy_t calculate_energy(const Particle& p) const;
+			virtual energy_t calculate_energy(const Particle& p) const;
 
 			Vec3 old_gravity_center;
 			Vec3* gravity_center_ptr;
