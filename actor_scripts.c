@@ -487,7 +487,7 @@ void move_to_next_frame()
 				//the idle of the horse and the actor.
 						if(
 						  /*(MY_HORSE(i)->anim_time<MY_HORSE(i)->cur_anim.duration)&&*/
-						  (MY_HORSE(i)->cur_anim.kind==cycle)){
+						  MY_HORSE(i)->cur_anim.kind==cycle){
 								//MY_HORSE(i)->anim_time=MY_HORSE(i)->cur_anim.duration;
 								MY_HORSE(i)->busy=0;
 								MY_HORSE(i)->in_aim_mode=0;

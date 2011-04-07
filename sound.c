@@ -679,7 +679,7 @@ int stream_ogg(ALuint buffer, OggVorbis_File * inStream, vorbis_info * info)
 			size += result;
 		else if (result == OV_HOLE)
 			// OV_HOLE is informational so ignore it
-			size = size;
+			continue;
 		else if(result < 0)
 			ogg_error(result);
 		else

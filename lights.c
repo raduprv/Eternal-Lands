@@ -138,7 +138,7 @@ void draw_lights()
 	{
 		l= get_intersect_item_ID(main_bbox_tree, i);
 		// and make sure it's a valid light
-		if (l < 0 || l >= MAX_LIGHTS || !lights_list[l]
+		if ((l >= MAX_LIGHTS) || !lights_list[l]
 #ifdef CLUSTER_INSIDES_OLD
 		   || (lights_list[l]->cluster && lights_list[l]->cluster != cluster)
 #endif
