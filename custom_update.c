@@ -17,7 +17,7 @@ Uint32 update_running = 0;
 char update_str[4096];
 Uint32 update_error = 0;
 
-Uint32 progress_function(const char* str, const char* extra, const Uint32 max,
+Uint32 progress_function(const char* str, const Uint32 max,
 	const Uint32 current, void* user_data)
 {
 	memset(update_str, 0, sizeof(update_str));
@@ -73,7 +73,7 @@ Uint32 custom_update_threaded(void* data)
 			"Can't find server list file '%s' at dir '%s' or '%s'.",
 			file_name, datadir, get_path_config_base());
 
-		progress_function(buffer, "", 0, 0, 0);
+		progress_function(buffer, 0, 0, 0);
 
 		return 1;
 	}
@@ -100,7 +100,7 @@ Uint32 custom_update_threaded(void* data)
 		snprintf(buffer, sizeof(buffer), "No server in file '%s'",
 			str);
 
-		progress_function(buffer, "", 0, 0, 0);
+		progress_function(buffer, 0, 0, 0);
 
 		fclose(file);
 
@@ -154,7 +154,7 @@ Uint32 custom_update_threaded(void* data)
 		snprintf(buffer, sizeof(buffer),
 			"Can't get server from file '%s'", str);
 
-		progress_function(buffer, "", 0, 0, 0);
+		progress_function(buffer, 0, 0, 0);
 
 		return 1;
 	}

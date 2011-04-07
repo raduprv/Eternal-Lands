@@ -287,7 +287,7 @@ int IMG_SavePNG_RW (SDL_Surface *face, SDL_RWops *src)
 	/* Create the array of pointers to image data */
 	row_pointers = (png_bytep*) malloc (sizeof(png_bytep)*face->h);
 	
-	if ( (row_pointers == NULL) ) 
+	if (row_pointers == NULL)
 	{
 		IMG_SetError("Couldn't allocate PNG row pointers");
 		goto done;

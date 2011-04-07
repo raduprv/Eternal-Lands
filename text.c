@@ -866,7 +866,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 		}
 	}
 
-	if (ibreak < 0 || ibreak >= len)
+	if (ibreak >= len)
 	{
 		// not a channel, or something's messed up
 		if(!is_color (text_to_add[0]))
