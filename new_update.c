@@ -9,6 +9,7 @@
 #include "io/unzip.h"
 #include "io/ziputil.h"
 #include "new_update.h"
+#include "errors.h"
 
 #define MAX_OLD_UPDATE_FILES	5
 
@@ -179,35 +180,42 @@ Uint32 download_files(update_info_t* infos, const Uint32 count,
 			result = download_file(infos[i].file_name, file,
 				server, path, sizeof(buffer), buffer);
 
-			if (result == 0)
-			{
-				size = ftell(file);
-
-				fseek(file, 0, SEEK_SET);
-
-				data = realloc(data, size);
-
-				if (fread(data, size, 1, file) != 1)
-				{
-					error = 3;
-					break;
-				}
-
-				MD5Open(&md5);
-				MD5Digest(&md5, data, size);
-				MD5Close(&md5, digest);
-
-				if (memcmp(digest, infos[i].digest,
-					sizeof(MD5_DIGEST)) == 0)
-				{
-					add_to_zip(infos[i].file_name, size,
-						data, dest);
-				}
-			}
-			else
+			if (result != 0)
 			{
 				error = 3;
+				continue;
 			}
+
+			size = ftell(file);
+
+			fseek(file, 0, SEEK_SET);
+
+			data = realloc(data, size);
+
+			if (fread(data, size, 1, file) == 1)
+			{
+				LOG_ERROR("Read error while updating file '%s'",
+					infos[i].file_name);
+
+				error = 3;
+				continue;
+			}
+
+			MD5Open(&md5);
+			MD5Digest(&md5, data, size);
+			MD5Close(&md5, digest);
+
+			if (memcmp(digest, infos[i].digest,
+				sizeof(MD5_DIGEST)) != 0)
+			{
+				LOG_ERROR("MD5 error while updating file '%s'",
+					infos[i].file_name);
+
+				error = 3;
+				continue;
+			}
+
+			add_to_zip(infos[i].file_name, size, data, dest);
 		}
 	}
 
@@ -389,6 +397,7 @@ Uint32 check_updates(const char* server, const char* file, const char* path,
 	MD5_DIGEST digest, progress_fnc update_progress_function,
 	void* user_data)
 {
+	char error_str[4096];
 	char file_name[256];
 	MD5_DIGEST server_digest;
 
@@ -400,6 +409,12 @@ Uint32 check_updates(const char* server, const char* file, const char* path,
 
 	if (get_server_md5(server, file_name, path, server_digest) != 0)
 	{
+		snprintf(error_str, sizeof(error_str), "Can't get update list"
+			" md5 file '%s' from server '%s' using path '%s'.",
+			file_name, server, path);
+
+		update_progress_function(error_str, 0, 0, user_data);
+
 		return 2;
 	}
 
@@ -417,6 +432,7 @@ Uint32 build_update_list(const char* server, const char* file,
 	const char* path, update_info_t** infos, Uint32* count,
 	progress_fnc update_progress_function, void* user_data)
 {
+	char error_str[4096];
 	char buffer[1024];
 	FILE* tmp_file;
 
@@ -432,6 +448,14 @@ Uint32 build_update_list(const char* server, const char* file,
 	{
 		fclose(tmp_file);
 
+		snprintf(error_str, sizeof(error_str), "Can't get update list"
+			" file '%s' from server '%s' using path '%s'.",
+			file, server, path);
+
+		LOG_ERROR(error_str);
+
+		update_progress_function(error_str, 0, 0, user_data);
+
 		return 4;
 	}
 
@@ -443,6 +467,14 @@ Uint32 build_update_list(const char* server, const char* file,
 	if (add_to_downloads(tmp_file, infos, count, update_progress_function,
 		user_data) != 1)
 	{
+		snprintf(error_str, sizeof(error_str), "Update list"
+			" file '%s' from server '%s' using path '%s' has wrong"
+			" magic number in first line.", file, server, path);
+
+		LOG_ERROR(error_str);
+
+		update_progress_function(error_str, 0, 0, user_data);
+
 		return 5;
 	}
 
@@ -452,9 +484,8 @@ Uint32 build_update_list(const char* server, const char* file,
 Uint32 update(const char* server, const char* file, const char* dir,
 	const char* zip, progress_fnc update_progress_function, void* user_data)
 {
-	char error_str[4096];
-	char path[1024];
 	char tmp[MAX_OLD_UPDATE_FILES][1024];
+	char path[1024];
 	char str[64];
 	MD5_DIGEST digest;
 	unzFile source_zips[MAX_OLD_UPDATE_FILES];
@@ -492,12 +523,6 @@ Uint32 update(const char* server, const char* file, const char* dir,
 
 	if (result >= 2)
 	{
-		snprintf(error_str, sizeof(error_str), "Can't get update list"
-			" file '%s' from server '%s' using path '%s'.", file,
-			server, path);
-
-		update_progress_function(error_str, 0, 0, user_data);
-
 		return 1;
 	}
 
