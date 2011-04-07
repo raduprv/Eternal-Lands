@@ -31,7 +31,9 @@ extern "C"
 	int use_lamp_halo = 0;
 	float min_ec_framerate = 13.0;
 	float max_ec_framerate = 37.0;
+#ifndef	NEW_TEXTURES
 	int transparency_resolution_fix = 0;
+#endif	/* NEW_TEXTURES */
 	int light_columns_threshold = 5;
 	int use_fancy_smoke = 1;
 	int max_idle_cycles_per_second = 40;
@@ -87,7 +89,9 @@ extern "C" void ec_init()
 	eye_candy.load_textures();
 	ec_last_time = 0;
 	ec_cur_time = 0;
+#ifndef	NEW_TEXTURES
 	ec_set_draw_method();
+#endif	/* NEW_TEXTURES */
 	//TODO: Free this when the program quits.  Not a big deal if it doesn't
 	//happen, but it'd be proper to do so.
 	self_actor.obstruction = new ec::CappedSimpleCylinderObstruction(&(self_actor.center), 0.45, 3.0, self_actor.center.y, self_actor.center.y + 0.9);
@@ -103,6 +107,7 @@ extern "C" void ec_add_light(GLenum light_id)
 	eye_candy.add_light(light_id);
 }
 
+#ifndef	NEW_TEXTURES
 extern "C" void ec_set_draw_method()
 {
 	if (use_point_particles)
@@ -110,6 +115,7 @@ extern "C" void ec_set_draw_method()
 	else
 		eye_candy.draw_method = ec::EyeCandy::FAST_BILLBOARDS;
 }
+#endif	/* NEW_TEXTURES */
 
 float ec_get_z(actor* _actor)
 {
@@ -266,7 +272,9 @@ extern "C" void ec_idle()
 	//  const float y = rot_matrix[13];
 	//  const float z = rot_matrix[14];
 
+#ifndef	NEW_TEXTURES
 	eye_candy.poor_transparency_resolution = transparency_resolution_fix;
+#endif	/* NEW_TEXTURES */
 	if (poor_man)
 		eye_candy.set_thresholds(3500, min_ec_framerate, max_ec_framerate); //Max particles, min framerate, max framerate
 

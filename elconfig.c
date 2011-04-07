@@ -534,6 +534,21 @@ void change_small_actor_texture_cache(int *value)
 
 	update_max_actor_texture_handles();
 }
+
+void change_eye_candy(int *value)
+{
+	if (*value)
+	{
+		*value = 0;
+	}
+	else if (!gl_extensions_loaded || ((get_texture_units() >= 2) &&
+		supports_gl_version(1, 5)))
+	{
+		// don't check if we have hardware support when OpenGL
+		// extensions are not initialized yet.
+		*value = 1;
+	}
+}
 #else	/* NEW_TEXTURES */
 void change_mipmaps(int *value)
 {
@@ -566,7 +581,9 @@ void change_point_particles(int *value)
 		LOG_TO_CONSOLE(c_green2, disabled_point_particles);
 	}
 
+#ifndef	NEW_TEXTURES
 	ec_set_draw_method();
+#endif	/* NEW_TEXTURES */
 }
 
 void change_particles_percentage(int *pointer, int value)
@@ -1363,6 +1380,7 @@ void check_options()
 	check_option_var("use_clouds_shadows");
 #ifdef	NEW_TEXTURES
 	check_option_var("use_small_actor_texture_cache");
+	check_option_var("use_eye_candy");
 #else	/* NEW_TEXTURES */
 	check_option_var("use_mipmaps");
 #endif	/* NEW_TEXTURES */
@@ -1704,10 +1722,16 @@ void init_vars()
 #ifdef DEBUG
 	add_var(OPT_BOOL,"enable_client_aiming","eca",&enable_client_aiming,change_var,0,"Enable client aiming","Allow to aim at something by holding CTRL key. This aim is only done on client side and is used only for debugging purposes. Warning: enabling this code can produce server resyncs or locks when playing with missiles...",CONTROLS);
 #endif // DEBUG
-	add_var(OPT_BOOL,"use_eye_candy", "ec", &use_eye_candy, change_var, 1, "Enable Eye Candy", "Toggles most visual effects, like spells' and harvesting events'", ECTAB);
+#ifdef	NEW_TEXTURES
+	add_var(OPT_BOOL,"use_eye_candy", "ec", &use_eye_candy, change_var, 1, "Enable Eye Candy", "Toggles most visual effects, like spells' and harvesting events'. Needs OpenGL 1.5", ECTAB);
+#else	/* NEW_TEXTURES */
+	add_var(OPT_BOOL,"use_eye_candy", "ec", &use_eye_candy, change_eye_candy, 1, "Enable Eye Candy", "Toggles most visual effects, like spells' and harvesting events'", ECTAB);
+#endif	/* NEW_TEXTURES */
 	add_var(OPT_BOOL,"enable_blood","eb",&enable_blood,change_var,0,"Enable Blood","Enable blood special effects during combat.",ECTAB);
 	add_var(OPT_BOOL,"use_lamp_halo","ulh",&use_lamp_halo,change_var,0,"Use Lamp Halos","Enable halos for torches, candles, etc.",ECTAB);
+#ifndef	NEW_TEXTURES
 	add_var(OPT_BOOL,"transparency_resolution_fix","trf",&transparency_resolution_fix,change_var,0,"Transparency Resolution Fix","Use this if your video card or driver has problems with rendering highly blended effects, like teleportation.",ECTAB);
+#endif	/* NEW_TEXTURES */
 	add_var(OPT_FLOAT,"max_ec_framerate","ecmaxf",&max_ec_framerate,change_max_ec_framerate,45,"Max Eye Candy Framerate","If your framerate is above this amount, eye candy will use maximum detail.",ECTAB,2.0,FLT_MAX,1.0);
 	add_var(OPT_FLOAT,"min_ec_framerate","ecminf",&min_ec_framerate,change_min_ec_framerate,15,"Min Eye Candy Framerate","If your framerate is below this amount, eye candy will use minimum detail.",ECTAB,1.0,FLT_MAX,1.0);
 	add_var(OPT_INT,"light_columns_threshold","lct",&light_columns_threshold,change_int,5,"Light columns threshold","If your framerate is below this amount, you will not get columns of light around teleportation effects (useful for slow systems).",ECTAB, 0, INT_MAX);

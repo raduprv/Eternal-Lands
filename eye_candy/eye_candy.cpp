@@ -1227,17 +1227,6 @@ namespace ec
 		alpha_t burn = get_burn();
 		alpha_t tempalpha = alpha;
 
-		if (base->poor_transparency_resolution)
-		{
-			if (tempalpha < MIN_SAFE_ALPHA)
-			{
-				if (randfloat() < (tempalpha / MIN_SAFE_ALPHA))
-					tempalpha = MIN_SAFE_ALPHA;
-				else
-					return;
-			}
-		}
-
 		coord_t tempsize = base->billboard_scalar * size;
 		tempsize *= flare();
 
@@ -1964,7 +1953,9 @@ namespace ec
 		lighting_scalar = 1000.0;
 		light_estimate = 0.0;
 		use_lights = true;
+#ifndef	NEW_TEXTURES
 		draw_method = FAST_BILLBOARDS;
+#endif	/* NEW_TEXTURES */
 		billboard_scalar = 0.2;
 		width = 800;
 		height = 600;
@@ -1972,7 +1963,9 @@ namespace ec
 		last_forced_LOD = 10;
 		framerate = 100.0;
 		max_fps = 255.0;
+#ifndef	NEW_TEXTURES
 		poor_transparency_resolution = false;
+#endif	/* NEW_TEXTURES */
 		draw_shapes = true;
 	}
 
@@ -1985,7 +1978,9 @@ namespace ec
 		lighting_scalar = 1000.0;
 		light_estimate = 0.0;
 		use_lights = true;
+#ifndef	NEW_TEXTURES
 		draw_method = FAST_BILLBOARDS;
+#endif	/* NEW_TEXTURES */
 		billboard_scalar = 0.2;
 		width = 800;
 		height = 600;
@@ -1993,7 +1988,9 @@ namespace ec
 		last_forced_LOD = 10;
 		framerate = 100.0;
 		max_fps = 255.0;
+#ifndef	NEW_TEXTURES
 		poor_transparency_resolution = false;
+#endif	/* NEW_TEXTURES */
 		draw_shapes = true;
 	}
 

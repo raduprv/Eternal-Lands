@@ -57,7 +57,9 @@ extern int use_harvesting_eye_candy;
 extern int use_lamp_halo;
 extern float min_ec_framerate;
 extern float max_ec_framerate;
+#ifndef	NEW_TEXTURES
 extern int transparency_resolution_fix;
+#endif	/* NEW_TEXTURES */
 extern int light_columns_threshold;
 extern int use_fancy_smoke;
 extern int max_idle_cycles_per_second;
@@ -183,7 +185,9 @@ extern "C"
 	void ec_load_textures();
 	void ec_init();
 	void ec_add_light(GLenum light_id);
+#ifndef	NEW_TEXTURES
 	void ec_set_draw_method();
+#endif	/* NEW_TEXTURES */
 	float ec_get_z(actor* _actor);
 	float ec_get_z2(int x, int y);
 	void ec_idle(); //!< \callergraph

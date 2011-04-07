@@ -2124,12 +2124,14 @@ namespace ec
 		class EyeCandy
 		{
 			public:
+#ifndef	NEW_TEXTURES
 			enum DrawType
 			{
 				POINT_SPRITES,
 				FAST_BILLBOARDS,
 				ACCURATE_BILLBOARDS
 			};
+#endif	/* NEW_TEXTURES */
 
 			EyeCandy();
 			EyeCandy(int _max_particles);
@@ -2219,10 +2221,14 @@ namespace ec
 			float LOD_9_time_threshold;
 			float LOD_10_time_threshold;
 			int allowable_particles_to_add;
+#ifndef	NEW_TEXTURES
 			bool poor_transparency_resolution;
+#endif	/* NEW_TEXTURES */
 			bool draw_shapes;
 			Uint16 last_forced_LOD;
+#ifndef	NEW_TEXTURES
 			DrawType draw_method;
+#endif	/* NEW_TEXTURES */
 			coord_t billboard_scalar;
 			coord_t sprite_scalar;
 			coord_t temp_sprite_scalar;
