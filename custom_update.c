@@ -8,12 +8,13 @@
 #include <SDL_thread.h>
 #include <ctype.h>
 #include "asc.h"
+#include "init.h"
 
 SDL_Thread* update_thread = 0;
 SDL_mutex* update_mutex = 0;
 SDL_cond* update_condition = 0;
 Uint32 update_running = 0;
-char update_str[1024];
+char update_str[4096];
 Uint32 update_error = 0;
 
 Uint32 progress_function(const char* str, const char* extra, const Uint32 max,
@@ -52,16 +53,25 @@ Uint32 custom_update_threaded(void* data)
 	char* server;
 	FILE* file;
 	Uint32 count, index, idx, len, result;
+	const char* file_name = "custom_mirrors.lst";
 
-	snprintf(str, sizeof(str), "%s%s", get_path_config_base(),
-		"custom_mirrors.lst");
+	snprintf(str, sizeof(str), "%s%s", datadir, file_name);
 
 	file = fopen(str, "r");
 
 	if (file == 0)
 	{
-		snprintf(buffer, sizeof(buffer), "Can't server list file '%s'",
-			str);
+		snprintf(str, sizeof(str), "%s%s", get_path_config_base(),
+			file_name);
+
+		file = fopen(str, "r");
+	}
+
+	if (file == 0)
+	{
+		snprintf(buffer, sizeof(buffer),
+			"Can't find server list file '%s' at dir '%s' or '%s'.",
+			file_name, datadir, get_path_config_base());
 
 		progress_function(buffer, "", 0, 0, 0);
 
@@ -232,11 +242,11 @@ void stopp_custom_update()
 	update_thread = 0;
 }
 
-int command_update(char *text, int len)
+int command_update_status(char *text, int len)
 {
 	if (update_mutex == 0)
 	{
-		LOG_TO_CONSOLE(c_red1, "Update not started");
+		LOG_TO_CONSOLE(c_red1, "Update disabled");
 
 		return 1;
 	}
@@ -252,9 +262,25 @@ int command_update(char *text, int len)
 			LOG_TO_CONSOLE(c_red1, update_str);
 			break;
 		case 2:
-			LOG_TO_CONSOLE(c_orange1, update_str);
+			LOG_TO_CONSOLE(c_red1, update_str);
 			break;
 	}
+
+	CHECK_AND_UNLOCK_MUTEX(update_mutex);
+
+	return 1;
+}
+
+int command_update(char *text, int len)
+{
+	if (update_mutex == 0)
+	{
+		LOG_TO_CONSOLE(c_red1, "Update disabled");
+
+		return 1;
+	}
+
+	CHECK_AND_LOCK_MUTEX(update_mutex);
 
 	if (update_running == 1)
 	{

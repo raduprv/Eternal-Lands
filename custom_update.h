@@ -32,11 +32,19 @@ void stopp_custom_update();
 
 /*!
  * \ingroup	update
+ * \brief	Starts the update.
+ *
+ * 		Starts the update.
+ */
+int command_update(char *text, int len);
+
+/*!
+ * \ingroup	update
  * \brief	Prints to console the update state.
  *
  * 		Prints to the el console the current update status.
  */
-int command_update(char *text, int len);
+int command_update_status(char *text, int len);
 
 #ifdef __cplusplus
 }
