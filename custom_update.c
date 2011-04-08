@@ -9,6 +9,7 @@
 #include <ctype.h>
 #include "asc.h"
 #include "init.h"
+#include <assert.h>
 
 SDL_Thread* update_thread = 0;
 SDL_mutex* update_mutex = 0;
@@ -259,10 +260,13 @@ int command_update_status(char *text, int len)
 			LOG_TO_CONSOLE(c_green1, update_str);
 			break;
 		case 1:
-			LOG_TO_CONSOLE(c_red1, update_str);
+			LOG_TO_CONSOLE(c_orange1, update_str);
 			break;
 		case 2:
 			LOG_TO_CONSOLE(c_red1, update_str);
+			break;
+		default:
+			LOG_TO_CONSOLE(c_red4, update_str);
 			break;
 	}
 

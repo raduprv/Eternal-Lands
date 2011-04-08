@@ -20,8 +20,11 @@ typedef struct
 } update_info_t;
 
 Uint32 download_file(const char* file_name, FILE* file, const char* server,
-	const char* path, const Uint32 size, char* buffer)
+	const char* path, const Uint32 size, char* buffer,
+	const Uint32 etag_size, char* etag)
 {
+	char str[64];
+	char* pos;
 	IPaddress http_ip;
 	TCPsocket http_sock;
 	Uint32 i, len, got_header, http_status;
@@ -45,11 +48,21 @@ Uint32 download_file(const char* file_name, FILE* file, const char* server,
 	}
 	
 	// send the GET request, try to avoid ISP caching	
-	
-	snprintf(buffer, size, "GET %s%s HTTP/1.1\r\nHost: %s\r\n"
-		"CONNECTION:CLOSE\r\nCACHE-CONTROL:NO-CACHE\r\nREFERER:%s\r\n"
-		"USER-AGENT:AUTOUPDATE %s\r\n\r\n", path, file_name,
-		server, "autoupdate", FILE_VERSION);
+	if ((etag != 0) && (strlen(etag) > 0))
+	{
+		snprintf(buffer, size, "GET %s%s HTTP/1.1\r\nHost: %s\r\n"
+			"CONNECTION:CLOSE\r\nCACHE-CONTROL:NO-CACHE\r\n"
+			"REFERER:%s\r\nUSER-AGENT:AUTOUPDATE %s\r\n"
+			"If-Match: \"%s\"\r\n\r\n", path, file_name, server,
+			"autoupdate", FILE_VERSION, etag);
+	}
+	else
+	{
+		snprintf(buffer, size, "GET %s%s HTTP/1.1\r\nHost: %s\r\n"
+			"CONNECTION:CLOSE\r\nCACHE-CONTROL:NO-CACHE\r\nREFERER:%s\r\n"
+			"USER-AGENT:AUTOUPDATE %s\r\n\r\n", path, file_name,
+			server, "autoupdate", FILE_VERSION);
+	}
 
 	len = strlen(buffer);
 
@@ -74,8 +87,31 @@ Uint32 download_file(const char* file_name, FILE* file, const char* server,
 			// check for http status
 			sscanf(buffer, "HTTP/%*s %i ", &http_status);
 
+			if (http_status != 200)
+			{
+				break;
+			}
+
+			if ((etag_size > 0) && (etag != 0))
+			{
+				pos = strstr(buffer, "ETag: \"");
+
+				if (pos != 0)
+				{
+					memset(etag, 0, etag_size);
+					snprintf(str, sizeof(str),
+						"ETag: \"%%%ds", etag_size - 1);
+					sscanf(pos, str, etag);
+
+					if (strlen(etag) > 0)
+					{
+						etag[strlen(etag) - 1] = '\0';
+					}
+				}
+			}
+
 			// look for the end of the header (a blank line)
-			for (i = 0; i < len && !got_header; i++)
+			for (i = 0; i < len; i++)
 			{
 				if (buffer[i] == 0x0D && buffer[i+1] == 0x0A &&
 					buffer[i+2] == 0x0D && buffer[i+3] == 0x0A)
@@ -178,10 +214,13 @@ Uint32 download_files(update_info_t* infos, const Uint32 count,
 			fseek(file, 0, SEEK_SET);
 
 			result = download_file(infos[i].file_name, file,
-				server, path, sizeof(buffer), buffer);
+				server, path, sizeof(buffer), buffer, 0, 0);
 
 			if (result != 0)
 			{
+				LOG_ERROR("Download error while updating file '%s'",
+					infos[i].file_name);
+
 				error = 3;
 				continue;
 			}
@@ -192,7 +231,7 @@ Uint32 download_files(update_info_t* infos, const Uint32 count,
 
 			data = realloc(data, size);
 
-			if (fread(data, size, 1, file) == 1)
+			if (fread(data, size, 1, file) != 1)
 			{
 				LOG_ERROR("Read error while updating file '%s'",
 					infos[i].file_name);
@@ -340,100 +379,14 @@ Uint32 add_to_downloads(FILE* file, update_info_t** infos, Uint32* count,
 	return 1;
 }
 
-Uint32 read_digest_file(FILE* file, MD5_DIGEST digest)
-{
-	char buffer[64];
-
-	if (file == 0)
-	{
-		return 0;
-	}
-
-	memset(buffer, 0, sizeof(buffer));
-
-	if (fread(buffer, 32, 1, file) != 1)
-		return 0;
-
-	return convert_string_to_md5_digest(buffer, digest);
-}
-
-Uint32 get_server_md5(const char* server, const char* file, const char* path,
-	MD5_DIGEST digest)
-{
-	char buffer[1024];
-	FILE *tmp_file;
-	Uint32 result;	
-
-	tmp_file = tmpfile();
-
-	if (tmp_file == 0)
-	{
-		return 1;
-	}
-
-	if (download_file(file, tmp_file, server, path,
-		sizeof(buffer), buffer) != 0)
-	{
-		fclose(tmp_file);
-
-		return 2;
-	}
-
-	fseek(tmp_file, 0, SEEK_SET);
-
-	result = read_digest_file(tmp_file, digest);
-
-	fclose(tmp_file);
-
-	if (result != 1)
-	{
-		return 3;
-	}
-
-	return 0;
-}
-
-Uint32 check_updates(const char* server, const char* file, const char* path,
-	MD5_DIGEST digest, progress_fnc update_progress_function,
-	void* user_data)
-{
-	char error_str[4096];
-	char file_name[256];
-	MD5_DIGEST server_digest;
-
-	update_progress_function("Checking for updates", 0, 0, user_data);
-
-	memset(file_name, 0, sizeof(file_name));
-	strcpy(file_name, file);
-	strcat(file_name, ".md5");
-
-	if (get_server_md5(server, file_name, path, server_digest) != 0)
-	{
-		snprintf(error_str, sizeof(error_str), "Can't get update list"
-			" md5 file '%s' from server '%s' using path '%s'.",
-			file_name, server, path);
-
-		update_progress_function(error_str, 0, 0, user_data);
-
-		return 2;
-	}
-
-	if (memcmp(digest, server_digest, sizeof(MD5_DIGEST)) == 0)
-	{
-		return 0;
-	}
-
-	memcpy(digest, server_digest, sizeof(MD5_DIGEST));
-
-	return 1;
-}
-
 Uint32 build_update_list(const char* server, const char* file,
 	const char* path, update_info_t** infos, Uint32* count,
+	const Uint32 etag_size, char* etag,
 	progress_fnc update_progress_function, void* user_data)
 {
 	char error_str[4096];
 	char buffer[1024];
+	Uint32 result;
 	FILE* tmp_file;
 
 	tmp_file = tmpfile();
@@ -443,8 +396,19 @@ Uint32 build_update_list(const char* server, const char* file,
 		return 3;
 	}
 
-	if (download_file(file, tmp_file, server, path, sizeof(buffer),
-		buffer) != 0)
+	update_progress_function("Checking for updates", 0, 0, user_data);
+
+	result = download_file(file, tmp_file, server, path, etag_size, etag,
+		sizeof(buffer), buffer);
+
+	if (result == 304)
+	{
+		update_progress_function("No update needed", 0, 0, user_data);
+
+		return 0;
+	}
+
+	if (result != 0)
 	{
 		fclose(tmp_file);
 
@@ -486,8 +450,8 @@ Uint32 update(const char* server, const char* file, const char* dir,
 {
 	char tmp[MAX_OLD_UPDATE_FILES][1024];
 	char path[1024];
-	char str[64];
-	MD5_DIGEST digest;
+	char str[1024];
+	char etag[1024];
 	unzFile source_zips[MAX_OLD_UPDATE_FILES];
 	zipFile dest_zip;
 	update_info_t* infos;
@@ -509,28 +473,14 @@ Uint32 update(const char* server, const char* file, const char* dir,
 	unzGetGlobalComment(source_zips[0], str, sizeof(str));
 	unzClose(source_zips[0]);
 
-	convert_comment_string_to_md5_digest(str, digest);
-
-	result = check_updates(server, file, path, digest,
-		update_progress_function, user_data);
-
-	if (result == 0)
-	{
-		update_progress_function("Update complete", 0, 0, user_data);
-
-		return 0;
-	}
-
-	if (result >= 2)
-	{
-		return 1;
-	}
-
 	infos = 0;
 	count = 0;
 
+	memset(etag, 0, sizeof(etag));
+	sscanf(str, "ETag: %128s", etag);
+
 	result = build_update_list(server, file, path, &infos, &count,
-		update_progress_function, user_data);
+		sizeof(etag), etag, update_progress_function, user_data);
 
 	if (result != 0)
 	{
@@ -559,7 +509,7 @@ Uint32 update(const char* server, const char* file, const char* dir,
 
 	if (result == 0)
 	{
-		convert_md5_digest_to_comment_string(digest, sizeof(str), str);
+		snprintf(str, sizeof(str), "ETag: %s", etag);
 	}
 
 	for (i = 0; i < MAX_OLD_UPDATE_FILES; i++)
@@ -587,7 +537,7 @@ Uint32 update(const char* server, const char* file, const char* dir,
 
 	if (result != 0)
 	{
-		return 4;
+		return result;
 	}
 
 	remove(zip);
