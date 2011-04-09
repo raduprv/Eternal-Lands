@@ -10,8 +10,27 @@
 #include "io/ziputil.h"
 #include "new_update.h"
 #include "errors.h"
+#include "threads.h"
+#include "queue.h"
 
 #define MAX_OLD_UPDATE_FILES	5
+#define	UPDATE_DOWNLOAD_THREAD_COUNT 2
+
+typedef struct
+{
+	const char* server;
+	const char* path;
+	queue_t* files;
+	zipFile dest;
+	Uint32 count;
+	Uint32 index;
+	Uint32 running;
+	SDL_Thread* threads[UPDATE_DOWNLOAD_THREAD_COUNT];
+	SDL_mutex* mutex;
+	SDL_cond* condition;
+	progress_fnc update_progress_function;
+	void* user_data;
+} download_files_thread_data_t;
 
 typedef struct
 {
@@ -28,6 +47,14 @@ Uint32 download_file(const char* file_name, FILE* file, const char* server,
 	IPaddress http_ip;
 	TCPsocket http_sock;
 	Uint32 i, len, got_header, http_status;
+
+	// resolve the hostname
+	if ((buffer == 0) || (size == 0))
+	{
+		LOG_ERROR("buffer: %p, size: %d", buffer, size);
+
+		return 1;  // can't resolve the hostname
+	}
 
 	got_header = 0;
 	http_status = 0;
@@ -46,22 +73,22 @@ Uint32 download_file(const char* file_name, FILE* file, const char* server,
 	{
 		return 2;  // failed to open the socket
 	}
-	
+
 	// send the GET request, try to avoid ISP caching	
 	if ((etag != 0) && (strlen(etag) > 0))
 	{
 		snprintf(buffer, size, "GET %s%s HTTP/1.1\r\nHost: %s\r\n"
-			"CONNECTION:CLOSE\r\nCACHE-CONTROL:NO-CACHE\r\n"
-			"REFERER:%s\r\nUSER-AGENT:AUTOUPDATE %s\r\n"
-			"If-Match: \"%s\"\r\n\r\n", path, file_name, server,
-			"autoupdate", FILE_VERSION, etag);
+			"CONNECTION:CLOSE\r\nREFERER:%s\r\n"
+			"USER-AGENT:AUTOUPDATE\r\nIf-None-Match: \"%s\"\r\n\r\n",
+			path, file_name, server, FILE_VERSION,
+			etag);
 	}
 	else
 	{
 		snprintf(buffer, size, "GET %s%s HTTP/1.1\r\nHost: %s\r\n"
 			"CONNECTION:CLOSE\r\nCACHE-CONTROL:NO-CACHE\r\nREFERER:%s\r\n"
-			"USER-AGENT:AUTOUPDATE %s\r\n\r\n", path, file_name,
-			server, "autoupdate", FILE_VERSION);
+			"USER-AGENT:AUTOUPDATE\r\n\r\n", path, file_name,
+			server, FILE_VERSION);
 	}
 
 	if (SDLNet_TCP_Send(http_sock, buffer, size) < size)
@@ -83,13 +110,7 @@ Uint32 download_file(const char* file_name, FILE* file, const char* server,
 		if (!got_header)
 		{
 			// check for http status
-			printf("%s\n", buffer);
 			sscanf(buffer, "HTTP/%*s %i ", &http_status);
-
-			if (http_status != 200)
-			{
-				break;
-			}
 
 			if ((etag_size > 0) && (etag != 0))
 			{
@@ -107,6 +128,11 @@ Uint32 download_file(const char* file_name, FILE* file, const char* server,
 						etag[strlen(etag) - 1] = '\0';
 					}
 				}
+			}
+
+			if (http_status != 200)
+			{
+				break;
 			}
 
 			// look for the end of the header (a blank line)
@@ -157,18 +183,19 @@ Uint32 download_file(const char* file_name, FILE* file, const char* server,
 	return 0;  // finished
 }
 
-Uint32 download_files(update_info_t* infos, const Uint32 count,
-	const char* server, const char* path, const Uint32 source_count,
-	unzFile* sources, zipFile dest, progress_fnc update_progress_function,
-	void* user_data)
+int download_files_thread(void* _data)
 {
-	char buffer[4096];
-	char str[4096];
+	download_files_thread_data_t *data;
+	update_info_t* info;
+	char* download_buffer;
+	void* file_buffer;
 	MD5 md5;
 	MD5_DIGEST digest;
 	FILE *file;
-	void* data;
-	Uint32 i, j, result, size, download, error;
+	Uint32 i, result, error, count, index, running;
+	Uint32 size, download_buffer_size, file_buffer_size;
+
+	data = (download_files_thread_data_t*)_data;
 
 	file = tmpfile();
 
@@ -177,16 +204,221 @@ Uint32 download_files(update_info_t* infos, const Uint32 count,
 		return 1;
 	}
 
-	data = 0;
+	error = 0;
+	result = 0;
+	file_buffer = 0;
+	file_buffer_size = 0;
+	download_buffer_size = 4096;
+	download_buffer = malloc(download_buffer_size);
+	count = data->count;
+
+	while (1)
+	{
+		CHECK_AND_UNLOCK_MUTEX(data->mutex);
+
+		do
+		{
+			info = queue_pop(data->files);
+
+			running = data->running;
+
+			if ((running == 1) && (info == 0))
+			{
+				SDL_CondWait(data->condition, data->mutex);
+			}
+		}
+		while ((data->running == 1) && (info == 0));
+
+		index = data->index;
+
+		CHECK_AND_UNLOCK_MUTEX(data->mutex);
+
+		if (info == 0)
+		{
+			break;
+		}
+
+		if (data->update_progress_function("Downloading files", count,
+			index, data->user_data) != 1)
+		{
+			CHECK_AND_LOCK_MUTEX(data->mutex);
+
+			data->running = 0;
+
+			CHECK_AND_UNLOCK_MUTEX(data->mutex);
+
+			error = 2;
+
+			break;
+		}
+
+		for (i = 0; i < 5; i++)
+		{
+			fseek(file, 0, SEEK_SET);
+
+			result = download_file(info->file_name, file,
+				data->server, data->path, download_buffer_size,
+				download_buffer, 0, 0);
+
+			if (result != 0)
+			{
+				LOG_ERROR("Download error %d while updating file"
+					" '%s'", result, info->file_name);
+
+				error = 3;
+				continue;
+			}
+
+			size = ftell(file);
+
+			fseek(file, 0, SEEK_SET);
+
+			if (size > file_buffer_size)
+			{
+				file_buffer_size = size;
+				file_buffer = realloc(file_buffer, size);
+			}
+
+			if (fread(file_buffer, size, 1, file) != 1)
+			{
+				LOG_ERROR("Read error while updating file '%s'",
+					info->file_name);
+
+				error = 3;
+				continue;
+			}
+
+			MD5Open(&md5);
+			MD5Digest(&md5, file_buffer, size);
+			MD5Close(&md5, digest);
+
+			if (memcmp(digest, info->digest, sizeof(MD5_DIGEST))
+				!= 0)
+			{
+				LOG_ERROR("MD5 error while updating file '%s'",
+					info->file_name);
+
+				error = 3;
+				continue;
+			}
+
+			CHECK_AND_LOCK_MUTEX(data->mutex);
+
+			add_to_zip(info->file_name, size, file_buffer,
+				data->dest);
+			data->index++;
+
+			CHECK_AND_UNLOCK_MUTEX(data->mutex);
+
+			break;
+		}
+	}
+
+	free(download_buffer);
+	free(file_buffer);
+
+	fclose(file);
+
+	return error;
+}
+
+void init(download_files_thread_data_t *data, const Uint32 count,
+	const char* server, const char* path, zipFile dest,
+	progress_fnc update_progress_function, void* user_data)
+{
+	Uint32 i;
+
+	data->files = 0;
+
+	queue_initialise(&(data->files));
+	data->mutex = SDL_CreateMutex();
+	data->condition = SDL_CreateCond();
+
+	data->server = server;
+	data->path = path;
+	data->dest = dest;
+	data->count = count;
+	data->index = 0;
+	data->running = 1;
+	data->update_progress_function = update_progress_function;
+	data->user_data = user_data;
+
+	for (i = 0; i < UPDATE_DOWNLOAD_THREAD_COUNT; i++)
+	{
+		data->threads[i] = SDL_CreateThread(download_files_thread,
+			data);
+	}
+}
+
+void wait(download_files_thread_data_t *data, Uint32* error)
+{
+	Sint32 result;
+	Uint32 i;
+
+	CHECK_AND_LOCK_MUTEX(data->mutex);
+
+	if (*error == 0)
+	{
+		data->running = 2;
+	}
+	else
+	{
+		data->running = 0;
+	}
+
+	CHECK_AND_UNLOCK_MUTEX(data->mutex);
+
+	for (i = 0; i < UPDATE_DOWNLOAD_THREAD_COUNT; i++)
+	{
+		SDL_CondBroadcast(data->condition);
+		SDL_WaitThread(data->threads[i], &result);
+
+		if (*error == 0)
+		{
+			*error = result;
+		}
+	}
+
+	SDL_DestroyMutex(data->mutex);
+	SDL_DestroyCond(data->condition);
+
+	while (queue_pop(data->files) != 0);
+
+	queue_destroy(data->files);
+}
+
+Uint32 download_files(update_info_t* infos, const Uint32 count,
+	const char* server, const char* path, const Uint32 source_count,
+	unzFile* sources, zipFile dest, progress_fnc update_progress_function,
+	void* user_data)
+{
+	download_files_thread_data_t thread_data;
+	FILE *file;
+	Uint32 i, j, result, download, error, index;
+
+	file = tmpfile();
+
+	if (file == 0)
+	{
+		return 1;
+	}
+
 	error = 0;
 	result = 0;
 
+	init(&thread_data, count, server, path, dest, update_progress_function,
+		user_data);
+
 	for (i = 0; i < count; i++)
 	{
-		snprintf(str, sizeof(str), "Updating file '%s'",
-			infos[i].file_name);
+		CHECK_AND_LOCK_MUTEX(thread_data.mutex);
 
-		if (update_progress_function(str, count, i, user_data) != 1)
+		index = thread_data.index;
+
+		CHECK_AND_UNLOCK_MUTEX(thread_data.mutex);
+
+		if (update_progress_function("Updating files", count, index,
+			user_data) != 1)
 		{
 			error = 2;
 
@@ -200,7 +432,12 @@ Uint32 download_files(update_info_t* infos, const Uint32 count,
 			if (check_md5_from_zip(sources[j], infos[i].file_name,
 				infos[i].digest) == 1)
 			{
+				CHECK_AND_LOCK_MUTEX(thread_data.mutex);
+
 				copy_from_zip(sources[j], dest);
+				thread_data.index++;
+
+				CHECK_AND_UNLOCK_MUTEX(thread_data.mutex);
 
 				download = 0;
 
@@ -210,54 +447,12 @@ Uint32 download_files(update_info_t* infos, const Uint32 count,
 
 		if (download == 1)
 		{
-			fseek(file, 0, SEEK_SET);
-
-			result = download_file(infos[i].file_name, file,
-				server, path, sizeof(buffer), buffer, 0, 0);
-
-			if (result != 0)
-			{
-				LOG_ERROR("Download error while updating file '%s'",
-					infos[i].file_name);
-
-				error = 3;
-				continue;
-			}
-
-			size = ftell(file);
-
-			fseek(file, 0, SEEK_SET);
-
-			data = realloc(data, size);
-
-			if (fread(data, size, 1, file) != 1)
-			{
-				LOG_ERROR("Read error while updating file '%s'",
-					infos[i].file_name);
-
-				error = 3;
-				continue;
-			}
-
-			MD5Open(&md5);
-			MD5Digest(&md5, data, size);
-			MD5Close(&md5, digest);
-
-			if (memcmp(digest, infos[i].digest,
-				sizeof(MD5_DIGEST)) != 0)
-			{
-				LOG_ERROR("MD5 error while updating file '%s'",
-					infos[i].file_name);
-
-				error = 3;
-				continue;
-			}
-
-			add_to_zip(infos[i].file_name, size, data, dest);
+			queue_push(thread_data.files, &infos[i]);
+			SDL_CondSignal(thread_data.condition);
 		}
 	}
 
-	free(data);
+	wait(&thread_data, &error);
 
 	fclose(file);
 
@@ -379,8 +574,8 @@ Uint32 add_to_downloads(FILE* file, update_info_t** infos, Uint32* count,
 }
 
 Uint32 build_update_list(const char* server, const char* file,
-	const char* path, update_info_t** infos, Uint32* count,
-	const char md5[32], const Uint32 etag_size, char* etag,
+	const char* path, update_info_t** infos, Uint32* count, char md5[32],
+	const Uint32 etag_size, char* etag,
 	progress_fnc update_progress_function, void* user_data)
 {
 	char error_str[4096];
@@ -402,14 +597,14 @@ Uint32 build_update_list(const char* server, const char* file,
 	strcpy(md5_file, file);
 	strcat(md5_file, ".md5");
 
-	printf("%s\n", md5_file);
+	result = download_file(md5_file, tmp_file, server, path,
+		sizeof(buffer), buffer, 0, 0);
 
-	result = download_file(md5_file, tmp_file, server, path, 0, 0,
-		sizeof(buffer), buffer);
-
-	if (result == 200)
+	if (result == 0)
 	{
 		fseek(tmp_file, 0, SEEK_SET);
+
+		memset(buffer, 0, sizeof(buffer));
 
 		result = fread(buffer, 32, 1, tmp_file);
 
@@ -424,13 +619,15 @@ Uint32 build_update_list(const char* server, const char* file,
 
 				return 0;
 			}
+
+			memcpy(md5, buffer, 32);
 		}
 	}
 
 	fseek(tmp_file, 0, SEEK_SET);
 
-	result = download_file(file, tmp_file, server, path, etag_size, etag,
-		sizeof(buffer), buffer);
+	result = download_file(file, tmp_file, server, path, sizeof(buffer),
+		buffer, etag_size, etag);
 
 	if (result == 304)
 	{
@@ -511,7 +708,8 @@ Uint32 update(const char* server, const char* file, const char* dir,
 	count = 0;
 
 	memset(etag, 0, sizeof(etag));
-	sscanf(str, "ETag: %128s MD5: %32s", etag, md5);
+	memset(md5, 0, sizeof(md5));
+	sscanf(str, "ETag: %s MD5: %s", etag, md5);
 
 	result = build_update_list(server, file, path, &infos, &count, md5,
 		sizeof(etag), etag, update_progress_function, user_data);
@@ -530,23 +728,23 @@ Uint32 update(const char* server, const char* file, const char* dir,
 	for (i = MAX_OLD_UPDATE_FILES - 1; i > 0; i--)
 	{
 		rename(tmp[i - 1], tmp[i]);
-		source_zips[i] = unzOpen64(tmp[i]);
+		source_zips[i - 1] = unzOpen64(tmp[i]);
 	}
 
 	dest_zip = zipOpen64(tmp[0], APPEND_STATUS_CREATE);
 
 	result = download_files(infos, count, server, path,
-		MAX_OLD_UPDATE_FILES, source_zips, dest_zip,
+		MAX_OLD_UPDATE_FILES - 1, source_zips, dest_zip,
 		update_progress_function, user_data);
 
 	memset(str, 0, sizeof(str));
 
 	if (result == 0)
 	{
-		snprintf(str, sizeof(str), "ETag: %128s MD5: %32s", etag, md5);
+		snprintf(str, sizeof(str), "ETag: %s MD5: %s", etag, md5);
 	}
 
-	for (i = 0; i < MAX_OLD_UPDATE_FILES; i++)
+	for (i = 0; i < MAX_OLD_UPDATE_FILES - 1; i++)
 	{
 		unzClose(source_zips[i]);
 	}
