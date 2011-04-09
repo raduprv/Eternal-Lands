@@ -1116,7 +1116,7 @@ void init_stats_display()
 			init_window(stats_bar_win, -1, 0, 24, window_height-44, window_width-24-64, 12);
 		}
 
-	mana_bar_start_x=0;
+	mana_bar_start_x=3;
 	mana_bar_start_y=0;
 
 	food_bar_start_x=mana_bar_start_x+100+40;
