@@ -64,8 +64,6 @@ Uint32 download_file(const char* file_name, FILE* file, const char* server,
 			server, "autoupdate", FILE_VERSION);
 	}
 
-	len = strlen(buffer);
-
 	if (SDLNet_TCP_Send(http_sock, buffer, size) < size)
 	{
 		SDLNet_TCP_Close(http_sock);
@@ -85,6 +83,7 @@ Uint32 download_file(const char* file_name, FILE* file, const char* server,
 		if (!got_header)
 		{
 			// check for http status
+			printf("%s\n", buffer);
 			sscanf(buffer, "HTTP/%*s %i ", &http_status);
 
 			if (http_status != 200)
@@ -381,11 +380,12 @@ Uint32 add_to_downloads(FILE* file, update_info_t** infos, Uint32* count,
 
 Uint32 build_update_list(const char* server, const char* file,
 	const char* path, update_info_t** infos, Uint32* count,
-	const Uint32 etag_size, char* etag,
+	const char md5[32], const Uint32 etag_size, char* etag,
 	progress_fnc update_progress_function, void* user_data)
 {
 	char error_str[4096];
 	char buffer[1024];
+	char md5_file[1024];
 	Uint32 result;
 	FILE* tmp_file;
 
@@ -398,11 +398,44 @@ Uint32 build_update_list(const char* server, const char* file,
 
 	update_progress_function("Checking for updates", 0, 0, user_data);
 
+	memset(md5_file, 0, sizeof(md5_file));
+	strcpy(md5_file, file);
+	strcat(md5_file, ".md5");
+
+	printf("%s\n", md5_file);
+
+	result = download_file(md5_file, tmp_file, server, path, 0, 0,
+		sizeof(buffer), buffer);
+
+	if (result == 200)
+	{
+		fseek(tmp_file, 0, SEEK_SET);
+
+		result = fread(buffer, 32, 1, tmp_file);
+
+		if (result == 1)
+		{
+			if (memcmp(buffer, md5, 32) == 0)
+			{
+				update_progress_function("No update needed",
+					0, 0, user_data);
+			
+				fclose(tmp_file);
+
+				return 0;
+			}
+		}
+	}
+
+	fseek(tmp_file, 0, SEEK_SET);
+
 	result = download_file(file, tmp_file, server, path, etag_size, etag,
 		sizeof(buffer), buffer);
 
 	if (result == 304)
 	{
+		fclose(tmp_file);
+
 		update_progress_function("No update needed", 0, 0, user_data);
 
 		return 0;
@@ -452,6 +485,7 @@ Uint32 update(const char* server, const char* file, const char* dir,
 	char path[1024];
 	char str[1024];
 	char etag[1024];
+	char md5[32];
 	unzFile source_zips[MAX_OLD_UPDATE_FILES];
 	zipFile dest_zip;
 	update_info_t* infos;
@@ -477,9 +511,9 @@ Uint32 update(const char* server, const char* file, const char* dir,
 	count = 0;
 
 	memset(etag, 0, sizeof(etag));
-	sscanf(str, "ETag: %128s", etag);
+	sscanf(str, "ETag: %128s MD5: %32s", etag, md5);
 
-	result = build_update_list(server, file, path, &infos, &count,
+	result = build_update_list(server, file, path, &infos, &count, md5,
 		sizeof(etag), etag, update_progress_function, user_data);
 
 	if (result != 0)
@@ -509,7 +543,7 @@ Uint32 update(const char* server, const char* file, const char* dir,
 
 	if (result == 0)
 	{
-		snprintf(str, sizeof(str), "ETag: %s", etag);
+		snprintf(str, sizeof(str), "ETag: %128s MD5: %32s", etag, md5);
 	}
 
 	for (i = 0; i < MAX_OLD_UPDATE_FILES; i++)
