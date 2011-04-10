@@ -206,10 +206,7 @@ int custom_update_thread(void* data)
 
 		result = custom_update_threaded(data);
 
-		if (result != 0)
-		{
-			LOG_ERROR(update_str);
-		}
+		LOG_ERROR("Custom updates: %s", update_str);
 	}
 
 	return 0;

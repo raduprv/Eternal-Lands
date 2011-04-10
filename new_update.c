@@ -617,7 +617,7 @@ Uint32 build_update_list(const char* server, const char* file,
 			
 				fclose(tmp_file);
 
-				return 0;
+				return 1;
 			}
 
 			memcpy(md5, buffer, 32);
@@ -635,7 +635,7 @@ Uint32 build_update_list(const char* server, const char* file,
 
 		update_progress_function("No update needed", 0, 0, user_data);
 
-		return 0;
+		return 1;
 	}
 
 	if (result != 0)
@@ -714,6 +714,11 @@ Uint32 update(const char* server, const char* file, const char* dir,
 	result = build_update_list(server, file, path, &infos, &count, md5,
 		sizeof(etag), etag, update_progress_function, user_data);
 
+	if (result == 1)
+	{
+		return 1;
+	}
+
 	if (result != 0)
 	{
 		free(infos);
@@ -728,13 +733,13 @@ Uint32 update(const char* server, const char* file, const char* dir,
 	for (i = MAX_OLD_UPDATE_FILES - 1; i > 0; i--)
 	{
 		rename(tmp[i - 1], tmp[i]);
-		source_zips[i - 1] = unzOpen64(tmp[i]);
+		source_zips[i] = unzOpen64(tmp[i]);
 	}
 
 	dest_zip = zipOpen64(tmp[0], APPEND_STATUS_CREATE);
 
 	result = download_files(infos, count, server, path,
-		MAX_OLD_UPDATE_FILES - 1, source_zips, dest_zip,
+		MAX_OLD_UPDATE_FILES, source_zips, dest_zip,
 		update_progress_function, user_data);
 
 	memset(str, 0, sizeof(str));
@@ -744,7 +749,7 @@ Uint32 update(const char* server, const char* file, const char* dir,
 		snprintf(str, sizeof(str), "ETag: %s MD5: %s", etag, md5);
 	}
 
-	for (i = 0; i < MAX_OLD_UPDATE_FILES - 1; i++)
+	for (i = 0; i < MAX_OLD_UPDATE_FILES; i++)
 	{
 		unzClose(source_zips[i]);
 	}
