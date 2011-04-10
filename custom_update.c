@@ -9,7 +9,7 @@
 #include <ctype.h>
 #include "asc.h"
 #include "init.h"
-#include <assert.h>
+#include "errors.h"
 
 SDL_Thread* update_thread = 0;
 SDL_mutex* update_mutex = 0;
