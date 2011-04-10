@@ -643,8 +643,8 @@ Uint32 build_update_list(const char* server, const char* file,
 		fclose(tmp_file);
 
 		snprintf(error_str, sizeof(error_str), "Can't get update list"
-			" file '%s' from server '%s' using path '%s'.",
-			file, server, path);
+			" file '%s' from server '%s' using path '%s', error %d.",
+			file, server, path, result);
 
 		LOG_ERROR(error_str);
 
