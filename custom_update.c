@@ -266,7 +266,7 @@ int command_update_status(char *text, int len)
 			LOG_TO_CONSOLE(c_red1, update_str);
 			break;
 		default:
-			LOG_TO_CONSOLE(c_red4, update_str);
+			LOG_TO_CONSOLE(c_red1, update_str);
 			break;
 	}
 
