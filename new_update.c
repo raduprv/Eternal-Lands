@@ -716,7 +716,7 @@ Uint32 update(const char* server, const char* file, const char* dir,
 
 	if (result == 1)
 	{
-		return 1;
+		return 0;
 	}
 
 	if (result != 0)
