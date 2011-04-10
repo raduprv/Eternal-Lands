@@ -205,6 +205,11 @@ int custom_update_thread(void* data)
 		CHECK_AND_UNLOCK_MUTEX(update_mutex);
 
 		result = custom_update_threaded(data);
+
+		if (result != 0)
+		{
+			LOG_ERROR(update_str);
+		}
 	}
 
 	return 0;
