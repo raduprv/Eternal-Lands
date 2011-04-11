@@ -38,8 +38,8 @@ typedef struct
 	MD5_DIGEST digest;
 } update_info_t;
 
-Uint32 download_file(const char* file_name, FILE* file, const char* server,
-	const char* path, const Uint32 size, char* buffer,
+static Uint32 download_file(const char* file_name, FILE* file,
+	const char* server, const char* path, const Uint32 size, char* buffer,
 	const Uint32 etag_size, char* etag)
 {
 	char str[64];
@@ -183,7 +183,7 @@ Uint32 download_file(const char* file_name, FILE* file, const char* server,
 	return 0;  // finished
 }
 
-int download_files_thread(void* _data)
+static int download_files_thread(void* _data)
 {
 	download_files_thread_data_t *data;
 	update_info_t* info;
@@ -322,7 +322,7 @@ int download_files_thread(void* _data)
 	return error;
 }
 
-void init(download_files_thread_data_t *data, const Uint32 count,
+static void init_update(download_files_thread_data_t *data, const Uint32 count,
 	const char* server, const char* path, zipFile dest,
 	progress_fnc update_progress_function, void* user_data)
 {
@@ -350,7 +350,7 @@ void init(download_files_thread_data_t *data, const Uint32 count,
 	}
 }
 
-void wait(download_files_thread_data_t *data, Uint32* error)
+static void wait_for_update(download_files_thread_data_t *data, Uint32* error)
 {
 	Sint32 result;
 	Uint32 i;
@@ -387,7 +387,7 @@ void wait(download_files_thread_data_t *data, Uint32* error)
 	queue_destroy(data->files);
 }
 
-Uint32 download_files(update_info_t* infos, const Uint32 count,
+static Uint32 download_files(update_info_t* infos, const Uint32 count,
 	const char* server, const char* path, const Uint32 source_count,
 	unzFile* sources, zipFile dest, progress_fnc update_progress_function,
 	void* user_data)
@@ -459,7 +459,7 @@ Uint32 download_files(update_info_t* infos, const Uint32 count,
 	return error;
 }
 
-Uint32 read_line(FILE* file, const Uint32 size, char* buffer)
+static Uint32 read_line(FILE* file, const Uint32 size, char* buffer)
 {
 	Sint64 len, skip;
 	char* ptr;
@@ -500,7 +500,7 @@ Uint32 read_line(FILE* file, const Uint32 size, char* buffer)
 	return 1;
 }
 
-Uint32 add_to_downloads(FILE* file, update_info_t** infos, Uint32* count,
+static Uint32 add_to_downloads(FILE* file, update_info_t** infos, Uint32* count,
 	progress_fnc update_progress_function, void* user_data)
 {
 	char buffer[1024];
@@ -573,7 +573,7 @@ Uint32 add_to_downloads(FILE* file, update_info_t** infos, Uint32* count,
 	return 1;
 }
 
-Uint32 build_update_list(const char* server, const char* file,
+static Uint32 build_update_list(const char* server, const char* file,
 	const char* path, update_info_t** infos, Uint32* count, char md5[32],
 	const Uint32 etag_size, char* etag,
 	progress_fnc update_progress_function, void* user_data)

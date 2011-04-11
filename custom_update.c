@@ -18,7 +18,7 @@ Uint32 update_running = 0;
 char update_str[4096];
 Uint32 update_error = 0;
 
-Uint32 progress_function(const char* str, const Uint32 max,
+static Uint32 progress_function(const char* str, const Uint32 max,
 	const Uint32 current, void* user_data)
 {
 	memset(update_str, 0, sizeof(update_str));
@@ -47,7 +47,7 @@ Uint32 progress_function(const char* str, const Uint32 max,
 	return 1;
 }
 
-Uint32 custom_update_threaded(void* data)
+static Uint32 custom_update_threaded(void* data)
 {
 	char buffer[1024];
 	char str[256];
@@ -176,7 +176,7 @@ Uint32 custom_update_threaded(void* data)
 	return result;
 }
 
-int custom_update_thread(void* data)
+static int custom_update_thread(void* data)
 {
 	Uint32 result;
 
