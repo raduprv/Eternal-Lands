@@ -322,7 +322,7 @@ static int download_files_thread(void* _data)
 	return error;
 }
 
-static void init_update(download_files_thread_data_t *data, const Uint32 count,
+static void init_threads(download_files_thread_data_t *data, const Uint32 count,
 	const char* server, const char* path, zipFile dest,
 	progress_fnc update_progress_function, void* user_data)
 {
@@ -350,7 +350,7 @@ static void init_update(download_files_thread_data_t *data, const Uint32 count,
 	}
 }
 
-static void wait_for_update(download_files_thread_data_t *data, Uint32* error)
+static void wait_for_threads(download_files_thread_data_t *data, Uint32* error)
 {
 	Sint32 result;
 	Uint32 i;
@@ -406,8 +406,8 @@ static Uint32 download_files(update_info_t* infos, const Uint32 count,
 	error = 0;
 	result = 0;
 
-	init(&thread_data, count, server, path, dest, update_progress_function,
-		user_data);
+	init_threads(&thread_data, count, server, path, dest,
+		update_progress_function, user_data);
 
 	for (i = 0; i < count; i++)
 	{
@@ -452,7 +452,7 @@ static Uint32 download_files(update_info_t* infos, const Uint32 count,
 		}
 	}
 
-	wait(&thread_data, &error);
+	wait_for_threads(&thread_data, &error);
 
 	fclose(file);
 
