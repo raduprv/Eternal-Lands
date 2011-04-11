@@ -263,6 +263,7 @@ namespace ec
 		EC_STAFF
 	};
 
+#ifdef  NEW_TEXTURES
 	enum TextureEnum
 	{
 		EC_CRYSTAL,
@@ -279,6 +280,7 @@ namespace ec
 		EC_PETAL,
 		EC_SNOWFLAKE
 	};
+#endif  /* NEW_TEXTURES */
 
 	// C L A S S E S //////////////////////////////////////////////////////////////
 
@@ -529,6 +531,32 @@ namespace ec
 		return lhs << "<" << rhs.x << ", " << rhs.y << ", " << rhs.z << ">";
 	}
 	;
+
+#ifndef  NEW_TEXTURES
+	/*!
+	 Uses SDL_image to load textures of any common format.  Designed to support
+	 four levels of detail for each texture: 16x16, 32x32, 64x64, and 128x128;
+	 this is the index into texture_ids.  Textures are designed to be animated,
+	 and the frame can be specified or chosen randomly via the get_texture
+	 memeber functions.
+	*/
+	class Texture
+	{
+		public:
+			Texture();
+			~Texture();
+
+			void push_texture(const std::string filename);
+			void clear(void);
+			GLuint get_texture(const Uint16 res_index) const;
+			GLuint get_texture(const Uint16 res_index, const int frame) const;
+			GLuint get_texture(const Uint16 res_index, const Uint64 born,
+			const Uint64 changerate) const;
+
+			std::vector<GLuint> texture_ids[4];
+
+	};
+#endif  /* NEW_TEXTURES */
 
 	/*!
 	 This class is a standard quaternion.  Think of a quaternion ("quat") as a
