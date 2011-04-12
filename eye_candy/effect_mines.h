@@ -67,7 +67,11 @@ namespace ec
 			MineParticle(Effect* _effect, ParticleMover* _mover,
 				const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
 				const alpha_t _alpha, const color_t red, const color_t green,
+#ifdef	NEW_TEXTURES
 				const color_t blue, TextureEnum _texture, const Uint16 _LOD,
+#else	/* NEW_TEXTURES */
+				const color_t blue, Texture* _texture, const Uint16 _LOD,
+#endif	/* NEW_TEXTURES */
 				const MineEffect::MineType _type);
 			~MineParticle()
 			{
@@ -88,7 +92,11 @@ namespace ec
 			;
 			virtual light_t get_light_level();
 
+#ifdef	NEW_TEXTURES
 			TextureEnum texture;
+#else	/* NEW_TEXTURES */
+			Texture* texture;
+#endif	/* NEW_TEXTURES */
 			Uint16 LOD;
 			MineEffect::MineType type;
 	};
@@ -99,7 +107,11 @@ namespace ec
 			MineParticleFire(Effect* _effect, ParticleMover* _mover,
 				const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
 				const alpha_t _alpha, const color_t red, const color_t green,
+#ifdef	NEW_TEXTURES
 				const color_t blue, TextureEnum _texture, const Uint16 _LOD);
+#else	/* NEW_TEXTURES */
+				const color_t blue, Texture* _texture, const Uint16 _LOD);
+#endif	/* NEW_TEXTURES */
 			~MineParticleFire()
 			{
 			}
@@ -115,7 +127,11 @@ namespace ec
 				return 0.0015;
 			}
 
+#ifdef	NEW_TEXTURES
 			TextureEnum texture;
+#else	/* NEW_TEXTURES */
+			Texture* texture;
+#endif	/* NEW_TEXTURES */
 			Uint16 LOD;
 	};
 
@@ -125,7 +141,11 @@ namespace ec
 			MineParticleSmoke(Effect* _effect, ParticleMover* _mover,
 				const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
 				const alpha_t _alpha, const color_t red, const color_t green,
+#ifdef	NEW_TEXTURES
 				const color_t blue, TextureEnum _texture, const Uint16 _LOD);
+#else	/* NEW_TEXTURES */
+				const color_t blue, Texture* _texture, const Uint16 _LOD);
+#endif	/* NEW_TEXTURES */
 			~MineParticleSmoke()
 			{
 			}
@@ -143,7 +163,11 @@ namespace ec
 				return 0.0015;
 			}
 
+#ifdef	NEW_TEXTURES
 			TextureEnum texture;
+#else	/* NEW_TEXTURES */
+			Texture* texture;
+#endif	/* NEW_TEXTURES */
 			Uint16 LOD;
 	};
 

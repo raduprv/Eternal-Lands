@@ -58,13 +58,21 @@ namespace ec
 				const Vec3 _pos, const Vec3 _velocity,
 				const color_t hue_adjust, const color_t saturation_adjust,
 				const coord_t _size, const alpha_t _alpha, color_t hue,
+#ifdef	NEW_TEXTURES
 				color_t saturation, color_t value, TextureEnum _texture,
+#else	/* NEW_TEXTURES */
+				color_t saturation, color_t value, Texture* _texture,
+#endif	/* NEW_TEXTURES */
 				const Uint16 _LOD, const OngoingEffect::OngoingType _type);
 			OngoingParticle(Effect* _effect, ParticleMover* _mover,
 				const Vec3 _pos, const Vec3 _velocity,
 				const color_t hue_adjust, const color_t saturation_adjust,
 				const coord_t _size, const alpha_t _alpha, color_t hue,
+#ifdef	NEW_TEXTURES
 				color_t saturation, color_t value, TextureEnum _texture,
+#else	/* NEW_TEXTURES */
+				color_t saturation, color_t value, Texture* _texture,
+#endif	/* NEW_TEXTURES */
 				const Uint16 _LOD, const OngoingEffect::OngoingType _type,
 				const angle_t _angle);
 			~OngoingParticle()
@@ -85,7 +93,11 @@ namespace ec
 			}
 			;
 
+#ifdef	NEW_TEXTURES
 			TextureEnum texture;
+#else	/* NEW_TEXTURES */
+			Texture* texture;
+#endif	/* NEW_TEXTURES */
 			Uint16 LOD;
 			OngoingEffect::OngoingType type;
 			angle_t angle;

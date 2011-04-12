@@ -19,6 +19,7 @@
 namespace ec
 {
 
+#ifdef	NEW_TEXTURES
 	namespace
 	{
 
@@ -87,6 +88,7 @@ namespace ec
 		}
 
 	}
+#endif	/* NEW_TEXTURES */
 
 	const float MIN_SAFE_ALPHA = 0.02942f;
 
@@ -800,6 +802,7 @@ namespace ec
 		q = (p1_second + p2_second) / 2;
 	}
 
+#ifdef	NEW_TEXTURES
 	CaplessCylinders::CaplessCylinders(EyeCandy* _base,
 		const std::vector<CaplessCylinderItem> &items)
 	{
@@ -957,6 +960,7 @@ namespace ec
 
 		base->set_particle_texture_combiner();
 	}
+#endif	/* NEW_TEXTURES */
 
 	Obstruction::Obstruction(const coord_t _max_distance, const coord_t _force)
 	{

@@ -99,7 +99,7 @@ static Uint32 download_file(const char* file_name, FILE* file,
 	}
 
 	// get the response & data
-	while (len > 0)
+	do
 	{
 		memset(buffer, 0, size);
 		// get a packet
@@ -165,6 +165,7 @@ static Uint32 download_file(const char* file_name, FILE* file,
 			}
 		}
 	}
+	while (len > 0);
 
 	SDLNet_TCP_Close(http_sock);
 

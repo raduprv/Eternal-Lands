@@ -20,7 +20,11 @@ namespace ec
 			StaffParticle(Effect* _effect, ParticleMover* _mover,
 				const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
 				const alpha_t _alpha, const color_t red, const color_t green,
+#ifdef	NEW_TEXTURES
 				const color_t blue, TextureEnum _texture, const Uint16 _LOD);
+#else	/* NEW_TEXTURES */
+				const color_t blue, Texture* _texture, const Uint16 _LOD);
+#endif	/* NEW_TEXTURES */
 			~StaffParticle()
 			{
 			}
@@ -42,7 +46,11 @@ namespace ec
 			}
 			;
 
+#ifdef	NEW_TEXTURES
 			TextureEnum texture;
+#else	/* NEW_TEXTURES */
+			Texture* texture;
+#endif	/* NEW_TEXTURES */
 			Uint16 LOD;
 	};
 
@@ -72,7 +80,11 @@ namespace ec
 			coord_t size;
 			alpha_t alpha;
 			color_t color[3];
+#ifdef	NEW_TEXTURES
 			TextureEnum texture;
+#else	/* NEW_TEXTURES */
+			Texture* texture;
+#endif	/* NEW_TEXTURES */
 			StaffType type;
 	};
 

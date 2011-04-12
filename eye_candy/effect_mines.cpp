@@ -15,7 +15,11 @@ namespace ec
 	MineParticle::MineParticle(Effect* _effect, ParticleMover* _mover,
 		const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
 		const alpha_t _alpha, const color_t red, const color_t green,
+#ifdef	NEW_TEXTURES
 		const color_t blue, TextureEnum _texture, const Uint16 _LOD,
+#else	/* NEW_TEXTURES */
+		const color_t blue, Texture* _texture, const Uint16 _LOD,
+#endif	/* NEW_TEXTURES */
 		const MineEffect::MineType _type) :
 		Particle(_effect, _mover, _pos, _velocity)
 	{
@@ -243,7 +247,11 @@ namespace ec
 					velocity.y = 0.2;
 					Particle
 						* p =
+#ifdef	NEW_TEXTURES
 							new MineParticle(this, mover, coords, velocity, 0.2, 1.0, 3.0, 3.0, 3.0, EC_SIMPLE, LOD, type);
+#else	/* NEW_TEXTURES */
+							new MineParticle(this, mover, coords, velocity, 0.2, 1.0, 3.0, 3.0, 3.0, &(base->TexSimple), LOD, type);
+#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -264,7 +272,11 @@ namespace ec
 					coords.y = randfloat(1.8);
 					Particle
 						* p =
+#ifdef	NEW_TEXTURES
 							new MineParticle(this, mover, coords, velocity, 1.2, 1.0, 3.0, 3.0, 3.0, EC_SIMPLE, LOD, type);
+#else	/* NEW_TEXTURES */
+							new MineParticle(this, mover, coords, velocity, 1.2, 1.0, 3.0, 3.0, 3.0, &(base->TexSimple), LOD, type);
+#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -284,7 +296,11 @@ namespace ec
 					velocity.normalize(0.2);
 					Particle
 						* p =
+#ifdef	NEW_TEXTURES
 							new MineParticle(this, mover, coords, velocity, 0.3, 1.0, 0.8, 0.35, 0.7, EC_SIMPLE, LOD, type);
+#else	/* NEW_TEXTURES */
+							new MineParticle(this, mover, coords, velocity, 0.3, 1.0, 0.8, 0.35, 0.7, &(base->TexSimple), LOD, type);
+#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -304,7 +320,11 @@ namespace ec
 					velocity.normalize(0.9);
 					Particle
 						* p =
+#ifdef	NEW_TEXTURES
 							new MineParticle(this, mover, coords, velocity, 0.5, 0.5, 0.8, 0.35, 0.7, EC_TWINFLARE, LOD, type);
+#else	/* NEW_TEXTURES */
+							new MineParticle(this, mover, coords, velocity, 0.5, 0.5, 0.8, 0.35, 0.7, &(base->TexTwinflare), LOD, type);
+#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -322,7 +342,11 @@ namespace ec
 					const Vec3 coords = spawner->get_new_coords()
 						+ effect_center;
 					const Vec3 velocity(0.0, 5.0, 0.0);
+#ifdef	NEW_TEXTURES
 					Particle* p = new MineParticle(this, mover, coords, velocity, 0.75, 0.6, 0.4, (type == DETONATE_CALTROP ? 0.3 : 0.5), 0.3, EC_TWINFLARE, LOD, type);
+#else	/* NEW_TEXTURES */
+					Particle* p = new MineParticle(this, mover, coords, velocity, 0.75, 0.6, 0.4, (type == DETONATE_CALTROP ? 0.3 : 0.5), 0.3, &(base->TexTwinflare), LOD, type);
+#endif	/* NEW_TEXTURES */
 					p->state = 1;
 					if (!base->push_back_particle(p))
 						break;
@@ -345,7 +369,11 @@ namespace ec
 					vel.randomize();
 					vel.normalize(2.0);
 					vel *= randfloat() * 4.0;
+#ifdef	NEW_TEXTURES
 					p = new MineParticle(this, mover, c, vel, 0.2, 1.0, 1.0, 1.0, 1.0, EC_VOID, LOD, type);
+#else	/* NEW_TEXTURES */
+					p = new MineParticle(this, mover, c, vel, 0.2, 1.0, 1.0, 1.0, 1.0, &(base->TexVoid), LOD, type);
+#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 
@@ -374,7 +402,11 @@ namespace ec
 					velocity.y = fabs(velocity.y) * 3.0f;
 					coords += effect_center;
 					coords.y -= 0.1;
+#ifdef	NEW_TEXTURES
 					Particle * p = new MineParticleFire(this, mover, coords, velocity, 0.5, 1.0, 1.0, randcolor(0.75), 0.0, EC_FLARE, LOD);
+#else	/* NEW_TEXTURES */
+					Particle * p = new MineParticleFire(this, mover, coords, velocity, 0.5, 1.0, 1.0, randcolor(0.75), 0.0, &(base->TexFlare), LOD);
+#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -389,7 +421,11 @@ namespace ec
 					velocity.normalize(0.25 * scale);
 					velocity.y = fabs(velocity.y) * 6.0f;
 					velocity += wind;
+#ifdef	NEW_TEXTURES
 					Particle *p = new MineParticleSmoke(this, mover, coords, velocity, 3.0 + randcoord(3.0 * scale), 0.0, grey, grey, grey, EC_SIMPLE, LOD);
+#else	/* NEW_TEXTURES */
+					Particle *p = new MineParticleSmoke(this, mover, coords, velocity, 3.0 + randcoord(3.0 * scale), 0.0, grey, grey, grey, &(base->TexSimple), LOD);
+#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -429,7 +465,11 @@ namespace ec
 	MineParticleFire::MineParticleFire(Effect* _effect, ParticleMover* _mover,
 		const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
 		const alpha_t _alpha, const color_t red, const color_t green,
-		const color_t blue, TextureEnum _texture, const Uint16 _LOD) :
+#ifdef	NEW_TEXTURES
+		const color_t blue, TextureEnum _texture, const Uint16 _LOD):
+#else	/* NEW_TEXTURES */
+		const color_t blue, Texture* _texture, const Uint16 _LOD):
+#endif	/* NEW_TEXTURES */
 		Particle(_effect, _mover, _pos, _velocity)
 	{
 		color[0] = red;
@@ -474,7 +514,11 @@ namespace ec
 	MineParticleSmoke::MineParticleSmoke(Effect* _effect, ParticleMover* _mover,
 		const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
 		const alpha_t _alpha, const color_t red, const color_t green,
-		const color_t blue, TextureEnum _texture, const Uint16 _LOD) :
+#ifdef	NEW_TEXTURES
+		const color_t blue, TextureEnum _texture, const Uint16 _LOD):
+#else	/* NEW_TEXTURES */
+		const color_t blue, Texture* _texture, const Uint16 _LOD):
+#endif	/* NEW_TEXTURES */
 		Particle(_effect, _mover, _pos, _velocity)
 	{
 		color[0] = red;

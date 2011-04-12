@@ -13,7 +13,11 @@ namespace ec
 	GlowParticle::GlowParticle(Effect* _effect, ParticleMover* _mover,
 		const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
 		const alpha_t _alpha, const color_t red, const color_t green,
+#ifdef	NEW_TEXTURES
 		const color_t blue, TextureEnum _texture, const Uint16 _LOD,
+#else	/* NEW_TEXTURES */
+		const color_t blue, Texture* _texture, const Uint16 _LOD,
+#endif	/* NEW_TEXTURES */
 		const GlowEffect::GlowType _type) :
 		Particle(_effect, _mover, _pos, _velocity)
 	{
@@ -277,15 +281,27 @@ namespace ec
 					coords += effect_center;
 					Particle
 						* p =
+#ifdef	NEW_TEXTURES
 							new GlowParticle(this, mover, coords, velocity, 0.65, 0.05, 0.4 + randcolor(0.3), 0.7, 0.2, EC_SHIMMER, LOD, type);
+#else	/* NEW_TEXTURES */
+							new GlowParticle(this, mover, coords, velocity, 0.65, 0.05, 0.4 + randcolor(0.3), 0.7, 0.2, &(base->TexShimmer), LOD, type);
+#endif	/* NEW_TEXTURES */
 					p->state = 1;
 					if (!base->push_back_particle(p))
 						break;
 				}
+#ifdef	NEW_TEXTURES
 				Particle* p = new GlowParticle(this, mover, effect_center, Vec3(0.0, 0.0, 0.0), 7.5, 1.0, 1.0, 1.0, 1.0, EC_CRYSTAL, LOD, type);
+#else	/* NEW_TEXTURES */
+				Particle* p = new GlowParticle(this, mover, effect_center, Vec3(0.0, 0.0, 0.0), 7.5, 1.0, 1.0, 1.0, 1.0, &(base->TexCrystal), LOD, type);
+#endif	/* NEW_TEXTURES */
 				if (!base->push_back_particle(p))
 					break;
+#ifdef	NEW_TEXTURES
 				p = new GlowParticle(this, mover, effect_center, Vec3(0.0, 0.01, 0.0), 7.5, 1.0, 1.0, 1.0, 1.0, EC_CRYSTAL, LOD, type);
+#else	/* NEW_TEXTURES */
+				p = new GlowParticle(this, mover, effect_center, Vec3(0.0, 0.01, 0.0), 7.5, 1.0, 1.0, 1.0, 1.0, &(base->TexCrystal), LOD, type);
+#endif	/* NEW_TEXTURES */
 				base->push_back_particle(p);
 				break;
 			}
@@ -300,15 +316,27 @@ namespace ec
 					coords += effect_center;
 					Particle
 						* p =
+#ifdef	NEW_TEXTURES
 							new GlowParticle(this, mover, coords, velocity, 0.95, 0.05, 1.0, 0.4 + randcolor(0.3), 0.2, EC_FLARE, LOD, type);
+#else	/* NEW_TEXTURES */
+							new GlowParticle(this, mover, coords, velocity, 0.95, 0.05, 1.0, 0.4 + randcolor(0.3), 0.2, &(base->TexFlare), LOD, type);
+#endif	/* NEW_TEXTURES */
 					p->state = 1;
 					if (!base->push_back_particle(p))
 						break;
 				}
+#ifdef	NEW_TEXTURES
 				Particle* p = new GlowParticle(this, mover, effect_center, Vec3(0.0, 0.0, 0.0), 7.5, 1.0, 1.0, 1.0, 1.0, EC_CRYSTAL, LOD, type);
+#else	/* NEW_TEXTURES */
+				Particle* p = new GlowParticle(this, mover, effect_center, Vec3(0.0, 0.0, 0.0), 7.5, 1.0, 1.0, 1.0, 1.0, &(base->TexCrystal), LOD, type);
+#endif	/* NEW_TEXTURES */
 				if (!base->push_back_particle(p))
 					break;
+#ifdef	NEW_TEXTURES
 				p = new GlowParticle(this, mover, effect_center, Vec3(0.0, 0.01, 0.0), 7.5, 1.0, 1.0, 1.0, 1.0, EC_CRYSTAL, LOD, type);
+#else	/* NEW_TEXTURES */
+				p = new GlowParticle(this, mover, effect_center, Vec3(0.0, 0.01, 0.0), 7.5, 1.0, 1.0, 1.0, 1.0, &(base->TexCrystal), LOD, type);
+#endif	/* NEW_TEXTURES */
 				base->push_back_particle(p);
 				break;
 			}
@@ -321,15 +349,27 @@ namespace ec
 					Vec3 coords = spawner->get_new_coords();
 					const Vec3 velocity = coords / 12.0;
 					coords += effect_center;
+#ifdef	NEW_TEXTURES
 					Particle* p = new GlowParticle(this, mover, coords, velocity, 1.95, 0.05, randcolor(0.3), 0.5 + randcolor(0.3), randcolor(0.5), EC_INVERSE, LOD, type);
+#else	/* NEW_TEXTURES */
+					Particle* p = new GlowParticle(this, mover, coords, velocity, 1.95, 0.05, randcolor(0.3), 0.5 + randcolor(0.3), randcolor(0.5), &(base->TexInverse), LOD, type);
+#endif	/* NEW_TEXTURES */
 					p->state = 1;
 					if (!base->push_back_particle(p))
 						break;
 				}
+#ifdef	NEW_TEXTURES
 				Particle* p = new GlowParticle(this, mover, effect_center, Vec3(0.0, 0.0, 0.0), 7.5, 1.0, 1.0, 1.0, 1.0, EC_CRYSTAL, LOD, type);
+#else	/* NEW_TEXTURES */
+				Particle* p = new GlowParticle(this, mover, effect_center, Vec3(0.0, 0.0, 0.0), 7.5, 1.0, 1.0, 1.0, 1.0, &(base->TexCrystal), LOD, type);
+#endif	/* NEW_TEXTURES */
 				if (!base->push_back_particle(p))
 					break;
+#ifdef	NEW_TEXTURES
 				p = new GlowParticle(this, mover, effect_center, Vec3(0.0, 0.01, 0.0), 7.5, 1.0, 1.0, 1.0, 1.0, EC_CRYSTAL, LOD, type);
+#else	/* NEW_TEXTURES */
+				p = new GlowParticle(this, mover, effect_center, Vec3(0.0, 0.01, 0.0), 7.5, 1.0, 1.0, 1.0, 1.0, &(base->TexCrystal), LOD, type);
+#endif	/* NEW_TEXTURES */
 				base->push_back_particle(p);
 				break;
 			}
@@ -344,7 +384,11 @@ namespace ec
 					Vec3 velocity;
 					velocity.randomize();
 					velocity.normalize(0.9);
+#ifdef	NEW_TEXTURES
 					Particle * p = new GlowParticle(this, mover, coords, velocity, 1.25, 0.5 + randcolor(0.5), randcolor(1.0), randcolor(1.0), randcolor(1.0), EC_CRYSTAL, LOD, type);
+#else	/* NEW_TEXTURES */
+					Particle * p = new GlowParticle(this, mover, coords, velocity, 1.25, 0.5 + randcolor(0.5), randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexCrystal), LOD, type);
+#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -365,7 +409,11 @@ namespace ec
 					Vec3 velocity;
 					velocity.randomize();
 					velocity.normalize(0.75);
+#ifdef	NEW_TEXTURES
 					Particle * p = new GlowParticle(this, mover, coords, velocity, 3.0 + randcolor(0.75), 0.7 + randcolor(0.3), 254.0/255.0, 254.0/255.0 - 0.1 + randcolor(0.1), 0.0, EC_INVERSE, LOD, type);
+#else	/* NEW_TEXTURES */
+					Particle * p = new GlowParticle(this, mover, coords, velocity, 3.0 + randcolor(0.75), 0.7 + randcolor(0.3), 254.0/255.0, 254.0/255.0 - 0.1 + randcolor(0.1), 0.0, &(base->TexInverse), LOD, type);
+#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -376,7 +424,11 @@ namespace ec
 					Vec3 velocity;
 					velocity.randomize();
 					velocity.normalize(0.9);
+#ifdef	NEW_TEXTURES
 					Particle * p = new GlowParticle(this, mover2, coords, velocity, 2.75, 0.7 + randcolor(0.3), 254.0/255.0 - 0.2 + randcolor(0.2), randcolor(1.0), randcolor(0.33), EC_TWINFLARE, LOD, type);
+#else	/* NEW_TEXTURES */
+					Particle * p = new GlowParticle(this, mover2, coords, velocity, 2.75, 0.7 + randcolor(0.3), 254.0/255.0 - 0.2 + randcolor(0.2), randcolor(1.0), randcolor(0.33), &(base->TexTwinflare), LOD, type);
+#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -398,7 +450,11 @@ namespace ec
 					velocity.y -= 0.7;
 					Particle
 						* p =
+#ifdef	NEW_TEXTURES
 							new GlowParticle(this, mover, coords, velocity, 8.0, 0.5, 1.0, 0.0, 0.0, EC_SHIMMER, LOD, type);
+#else	/* NEW_TEXTURES */
+							new GlowParticle(this, mover, coords, velocity, 8.0, 0.5, 1.0, 0.0, 0.0, &(base->TexShimmer), LOD, type);
+#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -412,7 +468,11 @@ namespace ec
 					velocity.y -= 0.7;
 					Particle
 						* p =
+#ifdef	NEW_TEXTURES
 							new GlowParticle(this, mover2, coords, velocity, 2.0, 1.0, 1.0, 0.2, 0.2, EC_SHIMMER, LOD, type);
+#else	/* NEW_TEXTURES */
+							new GlowParticle(this, mover2, coords, velocity, 2.0, 1.0, 1.0, 0.2, 0.2, &(base->TexShimmer), LOD, type);
+#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -431,7 +491,11 @@ namespace ec
 					velocity.normalize(0.1);
 					Particle
 						* p =
+#ifdef	NEW_TEXTURES
 							new GlowParticle(this, mover, coords, velocity, 2.0, 0.5, 0.0, 0.0, 1.0, EC_SHIMMER, LOD, type);
+#else	/* NEW_TEXTURES */
+							new GlowParticle(this, mover, coords, velocity, 2.0, 0.5, 0.0, 0.0, 1.0, &(base->TexShimmer), LOD, type);
+#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -450,7 +514,11 @@ namespace ec
 					Vec3 coords = spawner->get_new_coords() + effect_center;
 					coords.y += (coord_t)(randfloat(2.0) * randfloat(2.0) * randfloat(2.0));
 					const Vec3 velocity(0.0, -randfloat(0.25), 0.0);
+#ifdef	NEW_TEXTURES
 					Particle * p = new GlowParticle(this, mover, coords, velocity, 1.0 + randcoord(1.0), 0.8, randcolor(1.0), randcolor(1.0), randcolor(1.0), EC_SHIMMER, LOD, type);
+#else	/* NEW_TEXTURES */
+					Particle * p = new GlowParticle(this, mover, coords, velocity, 1.0 + randcoord(1.0), 0.8, randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexShimmer), LOD, type);
+#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -459,7 +527,11 @@ namespace ec
 					Vec3 coords = spawner2->get_new_coords() + effect_center;
 					coords.y += (coord_t)(randfloat(2.0) * randfloat(2.0) * randfloat(2.0));
 					const Vec3 velocity(0.0, -randfloat(0.125), 0.0);
+#ifdef	NEW_TEXTURES
 					Particle * p = new GlowParticle(this, mover2, coords, velocity, 2.0 + randcoord(1.0), 0.9, randcolor(1.0), randcolor(1.0), randcolor(1.0), EC_FLARE, LOD, type);
+#else	/* NEW_TEXTURES */
+					Particle * p = new GlowParticle(this, mover2, coords, velocity, 2.0 + randcoord(1.0), 0.9, randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexFlare), LOD, type);
+#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -468,7 +540,11 @@ namespace ec
 					Vec3 coords = spawner3->get_new_coords() + effect_center;
 					coords.y += (coord_t)(randfloat(2.0) * randfloat(2.0) * randfloat(2.0));
 					const Vec3 velocity(0.0, -randfloat(0.0625), 0.0);
+#ifdef	NEW_TEXTURES
 					Particle * p = new GlowParticle(this, mover3, coords, velocity, 3.0 + randcoord(1.0), 1.0, randcolor(1.0), randcolor(1.0), randcolor(1.0), EC_TWINFLARE, LOD, type);
+#else	/* NEW_TEXTURES */
+					Particle * p = new GlowParticle(this, mover3, coords, velocity, 3.0 + randcoord(1.0), 1.0, randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexTwinflare), LOD, type);
+#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -489,7 +565,11 @@ namespace ec
 					Vec3 velocity;
 					velocity.randomize(2.0);
 					velocity.y = randfloat(0.5);
+#ifdef	NEW_TEXTURES
 					Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), EC_SHIMMER, LOD, type);
+#else	/* NEW_TEXTURES */
+					Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), &(base->TexShimmer), LOD, type);
+#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -510,7 +590,11 @@ namespace ec
 					Vec3 velocity;
 					velocity.randomize(2.0);
 					velocity.y = randfloat(0.5);
+#ifdef	NEW_TEXTURES
 					Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), EC_SHIMMER, LOD, type);
+#else	/* NEW_TEXTURES */
+					Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), &(base->TexShimmer), LOD, type);
+#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -531,7 +615,11 @@ namespace ec
 					Vec3 velocity;
 					velocity.randomize(2.0);
 					velocity.y = randfloat(0.5);
+#ifdef	NEW_TEXTURES
 					Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), EC_SHIMMER, LOD, type);
+#else	/* NEW_TEXTURES */
+					Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), &(base->TexShimmer), LOD, type);
+#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -552,7 +640,11 @@ namespace ec
 					Vec3 velocity;
 					velocity.randomize(2.0);
 					velocity.y = randfloat(0.5);
+#ifdef	NEW_TEXTURES
 					Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), EC_SHIMMER, LOD, type);
+#else	/* NEW_TEXTURES */
+					Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), &(base->TexShimmer), LOD, type);
+#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -573,7 +665,11 @@ namespace ec
 					Vec3 velocity;
 					velocity.randomize(2.0);
 					velocity.y = randfloat(0.5);
+#ifdef	NEW_TEXTURES
 					Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), EC_SHIMMER, LOD, type);
+#else	/* NEW_TEXTURES */
+					Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), &(base->TexShimmer), LOD, type);
+#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -594,7 +690,11 @@ namespace ec
 					Vec3 velocity;
 					velocity.randomize(2.0);
 					velocity.y = randfloat(0.5);
+#ifdef	NEW_TEXTURES
 					Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), EC_SHIMMER, LOD, type);
+#else	/* NEW_TEXTURES */
+					Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), &(base->TexShimmer), LOD, type);
+#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -607,28 +707,48 @@ namespace ec
 				const Vec3 center = effect_center;
 				for (float i = 0; i < 26; i++)
 				{
+#ifdef	NEW_TEXTURES
 					p = new GlowParticle(this, mover, Vec3(1.25 - (1.25/26.0) * i, 0.0, 0.05 + (0.6/26.0) * i) + center - Vec3(0.7, 0.0, 0.5), Vec3(0.0, 0.0, 0.0), 1.0, 1.0, 1.0, 0.0, 0.0, EC_VOID, LOD, type);
+#else	/* NEW_TEXTURES */
+					p = new GlowParticle(this, mover, Vec3(1.25 - (1.25/26.0) * i, 0.0, 0.05 + (0.6/26.0) * i) + center - Vec3(0.7, 0.0, 0.5), Vec3(0.0, 0.0, 0.0), 1.0, 1.0, 1.0, 0.0, 0.0, &(base->TexVoid), LOD, type);
+#endif	/* NEW_TEXTURES */
 					base->push_back_particle(p);
 				}
 				for (float i = 0; i < 22; i++)
 				{
+#ifdef	NEW_TEXTURES
 					p = new GlowParticle(this, mover, Vec3(0.45 + (0.5/22.0) * i, 0.0, 0.0 + (1.05/22.0) * i) + center - Vec3(0.7, 0.0, 0.5), Vec3(0.0, 0.0, 0.0), 1.0, 1.0, 1.0, 0.0, 0.0, EC_VOID, LOD, type);
+#else	/* NEW_TEXTURES */
+					p = new GlowParticle(this, mover, Vec3(0.45 + (0.5/22.0) * i, 0.0, 0.0 + (1.05/22.0) * i) + center - Vec3(0.7, 0.0, 0.5), Vec3(0.0, 0.0, 0.0), 1.0, 1.0, 1.0, 0.0, 0.0, &(base->TexVoid), LOD, type);
+#endif	/* NEW_TEXTURES */
 					base->push_back_particle(p);
 				}
 				for (float i = 0; i < 5; i++)
 				{
+#ifdef	NEW_TEXTURES
 					p = new GlowParticle(this, mover, Vec3(1.05 - (0.1/5.0) * i, 0.0, 0.85 + (0.25/5.0) * i) + center - Vec3(0.7, 0.0, 0.5), Vec3(0.0, 0.0, 0.0), 1.0, 1.0, 1.0, 0.0, 0.0, EC_VOID, LOD, type);
+#else	/* NEW_TEXTURES */
+					p = new GlowParticle(this, mover, Vec3(1.05 - (0.1/5.0) * i, 0.0, 0.85 + (0.25/5.0) * i) + center - Vec3(0.7, 0.0, 0.5), Vec3(0.0, 0.0, 0.0), 1.0, 1.0, 1.0, 0.0, 0.0, &(base->TexVoid), LOD, type);
+#endif	/* NEW_TEXTURES */
 					base->push_back_particle(p);
 				}
 				for (float i = 0; i < 5; i++)
 				{
+#ifdef	NEW_TEXTURES
 					p = new GlowParticle(this, mover, Vec3(0.75 + (0.25/5.0) * i, 0.0, 0.95 + (0.1/5.0) * i) + center - Vec3(0.7, 0.0, 0.5), Vec3(0.0, 0.0, 0.0), 1.0, 1.0, 1.0, 0.0, 0.0, EC_VOID, LOD, type);
+#else	/* NEW_TEXTURES */
+					p = new GlowParticle(this, mover, Vec3(0.75 + (0.25/5.0) * i, 0.0, 0.95 + (0.1/5.0) * i) + center - Vec3(0.7, 0.0, 0.5), Vec3(0.0, 0.0, 0.0), 1.0, 1.0, 1.0, 0.0, 0.0, &(base->TexVoid), LOD, type);
+#endif	/* NEW_TEXTURES */
 					base->push_back_particle(p);
 				}
 				for (float i = 0; i < 34; i++)
 				{
 					p
+#ifdef	NEW_TEXTURES
 						= new GlowParticle(this, mover, Vec3(cos((10.0 + (105.0/32.0) * i)/360 * 2 * 3.14), 0.0, sin((10.0 + (105.0/32.0) * i)/360 * 2 * 3.14)) + center - Vec3(0.35, 0.0, 0.75), Vec3(0.0, 0.0, 0.0), 1.0, 1.0, 1.0, 0.0, 0.0, EC_VOID, LOD, type);
+#else	/* NEW_TEXTURES */
+						= new GlowParticle(this, mover, Vec3(cos((10.0 + (105.0/32.0) * i)/360 * 2 * 3.14), 0.0, sin((10.0 + (105.0/32.0) * i)/360 * 2 * 3.14)) + center - Vec3(0.35, 0.0, 0.75), Vec3(0.0, 0.0, 0.0), 1.0, 1.0, 1.0, 0.0, 0.0, &(base->TexVoid), LOD, type);
+#endif	/* NEW_TEXTURES */
 					base->push_back_particle(p);
 				}
 				break;
@@ -649,7 +769,11 @@ namespace ec
 					{
 						velocity.normalize(7.5);
 					}
+#ifdef	NEW_TEXTURES
 					Particle * p = new GlowParticle(this, mover, coords, velocity, 1.0 + randfloat(0.125), 1.0, randcolor(), randcolor(), randcolor(), EC_VOID, LOD, type);
+#else	/* NEW_TEXTURES */
+					Particle * p = new GlowParticle(this, mover, coords, velocity, 1.0 + randfloat(0.125), 1.0, randcolor(), randcolor(), randcolor(), &(base->TexVoid), LOD, type);
+#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -665,7 +789,11 @@ namespace ec
 					{
 						velocity.normalize(7.5);
 					}
+#ifdef	NEW_TEXTURES
 					Particle * p = new GlowParticle(this, mover, coords, velocity, 1.0 + randfloat(0.25), 1.0, randcolor(), randcolor(), randcolor(), EC_INVERSE, LOD, type);
+#else	/* NEW_TEXTURES */
+					Particle * p = new GlowParticle(this, mover, coords, velocity, 1.0 + randfloat(0.25), 1.0, randcolor(), randcolor(), randcolor(), &(base->TexInverse), LOD, type);
+#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -681,7 +809,11 @@ namespace ec
 					{
 						velocity.normalize(7.5);
 					}
+#ifdef	NEW_TEXTURES
 					Particle * p = new GlowParticle(this, mover, coords, velocity, 1.0 + randfloat(0.5), 1.0, randcolor(), randcolor(), randcolor(), EC_TWINFLARE, LOD, type);
+#else	/* NEW_TEXTURES */
+					Particle * p = new GlowParticle(this, mover, coords, velocity, 1.0 + randfloat(0.5), 1.0, randcolor(), randcolor(), randcolor(), &(base->TexTwinflare), LOD, type);
+#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -697,7 +829,11 @@ namespace ec
 					{
 						velocity.normalize(7.5);
 					}
+#ifdef	NEW_TEXTURES
 					Particle * p = new GlowParticle(this, mover, coords, velocity, 1.0 + randfloat(), 1.0, randcolor(), randcolor(), randcolor(), EC_FLARE, LOD, type);
+#else	/* NEW_TEXTURES */
+					Particle * p = new GlowParticle(this, mover, coords, velocity, 1.0 + randfloat(), 1.0, randcolor(), randcolor(), randcolor(), &(base->TexFlare), LOD, type);
+#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -705,7 +841,11 @@ namespace ec
 			case LEVEL_UP_SUM_GLOW:
 			{
 				mover = new ParticleMover(this);
+#ifdef	NEW_TEXTURES
 				Particle * p = new GlowParticle(this, mover, effect_center, Vec3(0.0, 0.0, 0.0), 1.0f, 1.0f, 0.7f, 0.3f, 0.7f, EC_CRYSTAL, LOD, type);
+#else	/* NEW_TEXTURES */
+				Particle * p = new GlowParticle(this, mover, effect_center, Vec3(0.0, 0.0, 0.0), 1.0f, 1.0f, 0.7f, 0.3f, 0.7f, &(base->TexCrystal), LOD, type);
+#endif	/* NEW_TEXTURES */
 				if (!base->push_back_particle(p))
 					break;
 				break;
@@ -781,7 +921,11 @@ namespace ec
 						Vec3 velocity;
 						velocity.randomize(2.0);
 						velocity.y = randfloat(0.5);
+#ifdef	NEW_TEXTURES
 						Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), EC_SHIMMER, LOD, type);
+#else	/* NEW_TEXTURES */
+						Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), &(base->TexShimmer), LOD, type);
+#endif	/* NEW_TEXTURES */
 						if (!base->push_back_particle(p))
 							break;
 					}
@@ -805,7 +949,11 @@ namespace ec
 								* (age_f + 1.0f) * 0.25;
 							coords.z += sin(M_PI * age_f + M_PI * angle)
 								* (age_f + 1.0f) * 0.25;
+#ifdef	NEW_TEXTURES
 							Particle * p = new GlowParticle(this, mover, coords, Vec3(0.0, -randfloat(0.75), 0.0), 0.1 + randcoord(0.5), 1.0f, 0.7f, 0.3f, 0.7f, EC_CRYSTAL, LOD, type);
+#else	/* NEW_TEXTURES */
+							Particle * p = new GlowParticle(this, mover, coords, Vec3(0.0, -randfloat(0.75), 0.0), 0.1 + randcoord(0.5), 1.0f, 0.7f, 0.3f, 0.7f, &(base->TexCrystal), LOD, type);
+#endif	/* NEW_TEXTURES */
 							if (!base->push_back_particle(p))
 								break;
 						}

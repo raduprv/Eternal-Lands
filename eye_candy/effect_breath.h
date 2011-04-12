@@ -79,7 +79,11 @@ namespace ec
 			BreathParticle(Effect* _effect, ParticleMover* _mover,
 				const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
 				const alpha_t _alpha, const color_t red, const color_t green,
+#ifdef	NEW_TEXTURES
 				const color_t blue, TextureEnum _texture, const Uint16 _LOD,
+#else	/* NEW_TEXTURES */
+				const color_t blue, Texture* _texture, const Uint16 _LOD,
+#endif	/* NEW_TEXTURES */
 				const BreathEffect::BreathType _type);
 			~BreathParticle()
 			{
@@ -97,7 +101,11 @@ namespace ec
 			}
 			;
 
+#ifdef	NEW_TEXTURES
 			TextureEnum texture;
+#else	/* NEW_TEXTURES */
+			Texture* texture;
+#endif	/* NEW_TEXTURES */
 			Uint16 LOD;
 			BreathEffect::BreathType type;
 	};
@@ -107,7 +115,11 @@ namespace ec
 		public:
 			BreathSmokeParticle(Effect* _effect, ParticleMover* _mover,
 				const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
+#ifdef	NEW_TEXTURES
 				const alpha_t _alpha, TextureEnum _texture, const Uint16 _LOD,
+#else	/* NEW_TEXTURES */
+				const alpha_t _alpha, Texture* _texture, const Uint16 _LOD,
+#endif	/* NEW_TEXTURES */
 				const BreathEffect::BreathType _type);
 			~BreathSmokeParticle()
 			{
@@ -132,7 +144,11 @@ namespace ec
 			}
 			; // Same.
 
+#ifdef	NEW_TEXTURES
 			TextureEnum texture;
+#else	/* NEW_TEXTURES */
+			Texture* texture;
+#endif	/* NEW_TEXTURES */
 			BreathEffect::BreathType type;
 	};
 
