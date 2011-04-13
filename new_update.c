@@ -688,7 +688,7 @@ static Uint32 build_update_list(const char* server, const char* file,
 
 		fseek(tmp_file, 0, SEEK_SET);
 
-		result = download_file(file, tmp_file, server, path,
+		result = download_file(file_name, tmp_file, server, path,
 			sizeof(buffer), buffer, etag_size, etag);
 
 		if (result == 304)
