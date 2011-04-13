@@ -41,7 +41,7 @@ Uint32 copy_from_zip(unzFile source, zipFile dest);
  * \callgraph
  */
 Uint32 add_to_zip(const char* file_name, const Uint32 size,
-	const Uint8* data, zipFile dest);
+	const Uint8* data, zipFile dest, const char* comment);
 
 /*!
  * \ingroup 	misc

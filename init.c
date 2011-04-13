@@ -82,6 +82,7 @@
 #ifdef	NEW_TEXTURES
 #include "image_loading.h"
 #endif	/* NEW_TEXTURES */
+#include "io/fileutil.h"
 
 #define	CFG_VERSION 7	// change this when critical changes to el.cfg are made that will break it
 
@@ -671,6 +672,7 @@ void init_stuff()
 		LOG_ERROR("%s() chdir(\"%s\") failed\n", __FUNCTION__, datadir);
 	}
 
+	init_crc_tables();
 	init_zip_archives();
 
 	// initialize the text buffers - needed early for logging

@@ -8,6 +8,7 @@
 #include "io/zip.h"
 #include "io/unzip.h"
 #include "io/ziputil.h"
+#include "io/fileutil.h"
 #include "new_update.h"
 #include "errors.h"
 #include "threads.h"
@@ -186,6 +187,7 @@ static Uint32 download_file(const char* file_name, FILE* file,
 
 static int download_files_thread(void* _data)
 {
+	char comment[64];
 	download_files_thread_data_t *data;
 	update_info_t* info;
 	char* download_buffer;
@@ -303,10 +305,13 @@ static int download_files_thread(void* _data)
 				continue;
 			}
 
+			convert_md5_digest_to_comment_string(digest,
+				sizeof(comment), comment);
+
 			CHECK_AND_LOCK_MUTEX(data->mutex);
 
 			add_to_zip(info->file_name, size, file_buffer,
-				data->dest);
+				data->dest, comment);
 			data->index++;
 
 			CHECK_AND_UNLOCK_MUTEX(data->mutex);
@@ -460,82 +465,85 @@ static Uint32 download_files(update_info_t* infos, const Uint32 count,
 	return error;
 }
 
-static Uint32 read_line(FILE* file, const Uint32 size, char* buffer)
+static Uint64 skip_line(const char** buffer, Uint64* size, Uint64* skip)
 {
-	Sint64 len, skip;
-	char* ptr;
+	Uint64 len, i;
 
-	len = fread(buffer, 1, size, file);
+	len = 0;
 
-	if (len > 0)
-	{
-		buffer[len - 1] = 0;
-	}
-	else
+	if (*skip > *size)
 	{
 		return 0;
 	}
 
-	skip = 0;
+	*buffer += *skip;
+	*size -= *skip;
+	*skip = 0;
 
-	ptr = strchr(buffer, 0x0D);
-
-	if (ptr != 0)
+	for (i = 0; i < *size; i++)
 	{
-		*ptr = 0;
-		skip += 1;
+		if (((*buffer)[i] == 0x0D) || ((*buffer)[i] == 0x0A))
+		{
+			if ((i + 1) < *size)
+			{
+				if (((*buffer)[i + 1] == 0x0D) ||
+					((*buffer)[i + 1] == 0x0A))
+				{
+					*skip += 1;
+				}
+			}
+
+			*skip += len + 1;
+
+			return len;
+		}
+
+		len++;
 	}
 
-	ptr = strchr(buffer, 0x0A);
+	*skip = *size;
 
-	if (ptr != 0)
-	{
-		*ptr = 0;
-		skip += 1;
-	}
-
-	skip += strlen(buffer) - len + 1;
-
-	fseek(file, skip, SEEK_CUR);
-
-	return 1;
+	return *size;
 }
 
-static Uint32 add_to_downloads(FILE* file, update_info_t** infos, Uint32* count,
+static Uint32 add_to_downloads(const char* buffer, const Uint64 buffer_size,
+	update_info_t** infos, Uint32* count,
 	progress_fnc update_progress_function, void* user_data)
 {
-	char buffer[1024];
 	char name[256];
 	char md5[256];
 	MD5_DIGEST digest;
+	const char* line_buffer;
+	Uint64 line_size, line_buffer_size, skip;
 	Uint32 size;
 
-	if ((file == 0) || (infos == 0) || (count == 0))
+	skip = 0;
+	line_buffer = buffer;
+	line_buffer_size = buffer_size;
+
+	line_size = skip_line(&line_buffer, &line_buffer_size, &skip);
+
+	if (strncmp(buffer, "CCCF", line_size) != 0)
 	{
-		return 0;
-	}
-
-	read_line(file, sizeof(buffer), buffer);
-
-	if (strcmp(buffer, "CCCF") != 0)
-	{
-		fclose(file);
-
 		return 0;
 	}
 
 	size = 0;
 
-	while (read_line(file, sizeof(buffer), buffer) == 1)
+	line_size = skip_line(&line_buffer, &line_buffer_size, &skip);
+
+	while (line_buffer_size > 0)
 	{
 		// parse the line
 		memset(name, 0, sizeof(name));
 		memset(md5, 0, sizeof(md5));
 
-		sscanf(buffer, "%*[^(](%250[^)])%*[^0-9a-zA-Z]%32s", name, md5);
+		sscanf(line_buffer, "%*[^(](%250[^)])%*[^0-9a-zA-Z]%32s", name,
+			md5);
 
 		// check for something to process
-		if (*name && *md5 && !strstr(name, "..") && name[0] != '/' && name[0] != '\\' && name[1] != ':')
+		if (*name && *md5 && (name[0] != '/') && (name[0] != '\\') &&
+			(name[1] != ':'))
 		{
 			if (convert_string_to_md5_digest(md5, digest) != 1)
 			{
@@ -562,16 +570,73 @@ static Uint32 add_to_downloads(FILE* file, update_info_t** infos, Uint32* count,
 			*count += 1;
 		}
 
-		if (feof(file) != 0)
+		line_size = skip_line(&line_buffer, &line_buffer_size, &skip);
+	}
+
+	return 1;
+}
+
+static Uint32 check_server_digest_file(const char* file, FILE* tmp_file,
+	const char* server, const char* path, const Uint32 size, char* buffer,
+	const Uint32 digest_size, char* digest)
+{
+	Uint32 result;
+
+	result = download_file(file, tmp_file, server, path, size, buffer,
+		0, 0);
+
+	if (result == 0)
+	{
+		fseek(tmp_file, 0, SEEK_SET);
+
+		memset(buffer, 0, sizeof(buffer));
+
+		result = fread(buffer, digest_size, 1, tmp_file);
+
+		if (result == 1)
 		{
-			break;
+			if (memcmp(buffer, digest, digest_size) == 0)
+			{
+				return 0;
+			}
+
+			memcpy(digest, buffer, digest_size);
+		}
+
+		return 1;
+	}
+
+	return 2;
+}
+
+const char* digest_extensions[2] =
+{
+	".md5", ".xz.md5"
+};
+
+static Uint32 check_server_digest_files(const char* file, FILE* tmp_file,
+	const char* server, const char* path, const Uint32 size, char* buffer,
+	char md5[32])
+{
+	char file_name[1024];
+	Uint32 i, result;
+
+	for (i = 0; i < 2; i++)
+	{
+		memset(file_name, 0, sizeof(file_name));
+		strcpy(file_name, file);
+		strcat(file_name, digest_extensions[i]);
+
+		result = check_server_digest_file(file_name, tmp_file, server,
+			path, size, buffer, 32, md5);
+
+		if (result == 0)
+		{
+			return result;
 		}
 	}
 
-	// close the file
-	fclose(file);
-
-	return 1;
+	return 2;
 }
 
 static Uint32 build_update_list(const char* server, const char* file,
@@ -581,9 +646,10 @@ static Uint32 build_update_list(const char* server, const char* file,
 {
 	char error_str[4096];
 	char buffer[1024];
-	char md5_file[1024];
-	Uint32 result;
+	Uint64 file_size;
 	FILE* tmp_file;
+	void* file_buffer;
+	Uint32 result;
 
 	tmp_file = tmpfile();
 
@@ -594,35 +660,16 @@ static Uint32 build_update_list(const char* server, const char* file,
 
 	update_progress_function("Checking for updates", 0, 0, user_data);
 
-	memset(md5_file, 0, sizeof(md5_file));
-	strcpy(md5_file, file);
-	strcat(md5_file, ".md5");
-
-	result = download_file(md5_file, tmp_file, server, path,
-		sizeof(buffer), buffer, 0, 0);
+	result = check_server_digest_files(file, tmp_file, server, path,
+		sizeof(buffer), buffer, md5);
 
 	if (result == 0)
 	{
-		fseek(tmp_file, 0, SEEK_SET);
-
-		memset(buffer, 0, sizeof(buffer));
-
-		result = fread(buffer, 32, 1, tmp_file);
-
-		if (result == 1)
-		{
-			if (memcmp(buffer, md5, 32) == 0)
-			{
-				update_progress_function("No update needed",
-					0, 0, user_data);
+		update_progress_function("No update needed", 0, 0, user_data);
 			
-				fclose(tmp_file);
+		fclose(tmp_file);
 
-				return 1;
-			}
-
-			memcpy(md5, buffer, 32);
-		}
+		return 1;
 	}
 
 	fseek(tmp_file, 0, SEEK_SET);
@@ -637,6 +684,24 @@ static Uint32 build_update_list(const char* server, const char* file,
 		update_progress_function("No update needed", 0, 0, user_data);
 
 		return 1;
+	}
+
+	if (result != 0)
+	{
+		fseek(tmp_file, 0, SEEK_SET);
+
+		result = download_file(file, tmp_file, server, path,
+			sizeof(buffer), buffer, etag_size, etag);
+
+		if (result == 304)
+		{
+			fclose(tmp_file);
+
+			update_progress_function("No update needed", 0, 0,
+				user_data);
+
+			return 1;
+		}
 	}
 
 	if (result != 0)
@@ -658,10 +723,14 @@ static Uint32 build_update_list(const char* server, const char* file,
 	*count = 0;
 
 	fseek(tmp_file, 0, SEEK_SET);
+	file_read(tmp_file, &file_buffer, &file_size);
+	fclose(tmp_file);
 
-	if (add_to_downloads(tmp_file, infos, count, update_progress_function,
-		user_data) != 1)
+	if (add_to_downloads(file_buffer, file_size, infos, count,
+		update_progress_function, user_data) != 1)
 	{
+		free(file_buffer);
+
 		snprintf(error_str, sizeof(error_str), "Update list"
 			" file '%s' from server '%s' using path '%s' has wrong"
 			" magic number in first line.", file, server, path);
@@ -672,6 +741,8 @@ static Uint32 build_update_list(const char* server, const char* file,
 
 		return 5;
 	}
+
+	free(file_buffer);
 
 	return 0;
 }

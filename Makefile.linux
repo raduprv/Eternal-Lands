@@ -3,7 +3,7 @@
 -include make.conf
 
 # basic compiling and linking - rarely changed
-OPTIONS = -DLINUX -DELC $(foreach FEATURE, $(FEATURES), -D$(FEATURE))
+OPTIONS = -DLINUX -DELC $(foreach FEATURE, $(FEATURES), -D$(FEATURE)) -D_7ZIP_ST
 CFLAGS=$(PLATFORM) $(CWARN) -O0 -ggdb -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags) -fno-strict-aliasing $(EXTRA_INCLUDES)
 _CFLAGS=$(PLATFORM) -O2 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags) -fno-strict-aliasing $(EXTRA_INCLUDES)
 CXXFLAGS=$(PLATFORM) $(CXXWARN) -O0 -ggdb -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags) -fno-strict-aliasing $(EXTRA_INCLUDES)
@@ -38,7 +38,7 @@ COBJS=2d_objects.o 3d_objects.o \
 	elconfig.o elwindows.o encyclopedia.o errors.o events.o	\
 	filter.o font.o framebuffer.o frustum.o	\
 	gamewin.o gl_init.o hud.o help.o highlight.o	\
-	ignore.o init.o interface.o items.o	\
+	ignore.o init.o interface.o items.o io/fileutil.o	\
 	io/e3d_io.o io/elc_io.o	io/map_io.o io/elpathwrapper.o io/xmlcallbacks.o \
 	io/half.o io/normal.o io/elfilewrapper.o io/unzip.o io/ioapi.o io/zip.o io/ziputil.o	\
 	keys.o knowledge.o langselwin.o lights.o list.o load_gl_extensions.o loginwin.o loading_win.o	\
@@ -53,6 +53,10 @@ COBJS=2d_objects.o 3d_objects.o \
 	spells.o stats.o storage.o special_effects.o	\
 	tabs.o text.o textures.o tile_map.o timers.o translate.o trade.o	\
 	update.o url.o weather.o widgets.o makeargv.o popup.o hash.o emotes.o \
+	xz/7zCrc.o xz/7zCrcOpt.o xz/Alloc.o xz/Bra86.o xz/Bra.o xz/BraIA64.o	\
+	xz/CpuArch.o xz/Delta.o xz/LzFind.o xz/Lzma2Dec.o xz/Lzma2Enc.o	\
+	xz/LzmaDec.o xz/LzmaEnc.o xz/Sha256.o xz/Xz.o xz/XzCrc64.o xz/XzDec.o	\
+	xz/XzEnc.o	\
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_COBJ))
 	
 CXXOBJS=actor_init.o cal3d_wrapper.o context_menu.o optimizer.o sendvideoinfo.o	\
@@ -76,7 +80,7 @@ CXXOBJS=actor_init.o cal3d_wrapper.o context_menu.o optimizer.o sendvideoinfo.o	
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_CXXOBJ))
 
 OBJS=$(COBJS) $(CXXOBJS)
-HEADER_DIRS = . books eye_candy io pawn fsaa engine
+HEADER_DIRS = . books eye_candy io pawn fsaa engine xz
 
 
 DEP_FILES=$(foreach OBJ, $(COBJS), .deps/$(OBJ).P) $(foreach OBJ, $(CXXOBJS), .deps/$(OBJ).P)
@@ -104,7 +108,7 @@ $(EXE): $(OBJS)
 #recompile on Makefile or conf change
 #.depend $(OBJS): Makefile.linux make.conf
 
-DEPS_MAGIC := $(shell mkdir .deps .deps/io .deps/shader .deps/eye_candy .deps/exceptions .deps/xml .deps/fsaa .deps/engine > /dev/null 2>&1 || :)
+DEPS_MAGIC := $(shell mkdir .deps .deps/io .deps/shader .deps/eye_candy .deps/exceptions .deps/xz .deps/xml .deps/fsaa .deps/engine > /dev/null 2>&1 || :)
 
 $(COBJS): %.o: %.c Makefile.linux make.conf
 	@echo "  CC   $@"

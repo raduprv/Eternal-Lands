@@ -1,6 +1,7 @@
 #include "elfilewrapper.h"
 #include "unzip.h"
 #include "elpathwrapper.h"
+#include "fileutil.h"
 #include <sys/stat.h>
 #include "../elc_private.h"
 #include "../errors.h"
@@ -8,7 +9,7 @@
 #include "../init.h"
 #include "../threads.h"
 #include "../hash.h"
-#include <assert.h>
+#include "../xz/7zCrc.h"
 
 struct el_file_t
 {
@@ -404,6 +405,15 @@ static Uint32 do_file_exists(const char* file_name, const char* path,
 
 	safe_strncpy2(buffer, path, size, strlen(path));
 	safe_strcat(buffer, file_name, size);
+	safe_strcat(buffer, ".xz", size);
+
+	if (stat(buffer, &fstat) == 0)
+	{
+		return 1;
+	}
+
+	safe_strncpy2(buffer, path, size, strlen(path));
+	safe_strcat(buffer, file_name, size);
 	safe_strcat(buffer, ".gz", size);
 
 	if (stat(buffer, &fstat) == 0)
@@ -476,7 +486,47 @@ static Uint32 file_exists_path(const char* file_name, const char* extra_path)
 	return 0;
 }
 
-el_file_ptr gz_file_open(const char* file_name)
+static el_file_ptr xz_file_open(const char* file_name)
+{
+	el_file_ptr result;
+	FILE* file;
+	Uint64 size;
+	Uint32 file_name_len, error;
+
+	file = fopen(file_name, "rb");
+
+	if (file == 0)
+	{
+		LOG_ERROR("Can't open file '%s'", file_name);
+
+		return 0;
+	}
+
+	result = malloc(sizeof(el_file_t));
+	memset(result, 0, sizeof(el_file_t));
+
+	error = xz_file_read(file, &(result->buffer), &size);
+	result->size = size;
+
+	fclose(file);
+
+	if (error == 0)
+	{
+		file_name_len = strlen(file_name) + 1;
+		result->file_name = malloc(file_name_len);
+		safe_strncpy(result->file_name, file_name, file_name_len);
+
+		result->crc32 = CrcCalc(result->buffer, result->size);
+
+		return result;
+	}
+
+	free(result);
+
+	return 0;
+}
+
+static el_file_ptr gz_file_open(const char* file_name)
 {
 	gzFile file;
 	el_file_ptr result;
@@ -521,14 +571,28 @@ el_file_ptr gz_file_open(const char* file_name)
 
 	result->buffer = realloc(result->buffer, size);
 	result->size = size;
-	result->crc32 = crc32(0, result->buffer, result->size);
+	result->crc32 = CrcCalc(result->buffer, result->size);
 
 	gzclose(file);
 
 	return result;
 }
 
-el_file_ptr zip_file_open(unzFile file)
+static el_file_ptr xz_gz_file_open(const char* file_name)
+{
+	el_file_ptr result;
+
+	result = xz_file_open(file_name);
+
+	if (result == 0)
+	{
+		result = gz_file_open(file_name);
+	}
+
+	return result;
+}
+
+static el_file_ptr zip_file_open(unzFile file)
 {
 	unz_file_info64 file_info;
 	el_file_ptr result;
@@ -581,7 +645,7 @@ el_file_ptr zip_file_open(unzFile file)
 	return result;
 }
 
-el_file_ptr file_open(const char* file_name, const char* extra_path)
+static el_file_ptr file_open(const char* file_name, const char* extra_path)
 {
 	char str[1024];
 	el_zip_file_entry_t key;
@@ -597,13 +661,13 @@ el_file_ptr file_open(const char* file_name, const char* extra_path)
 	{
 		if (do_file_exists(file_name, extra_path, sizeof(str), str) == 1)
 		{
-			return gz_file_open(str);
+			return xz_gz_file_open(str);
 		}
 	}
 
 	if (do_file_exists(file_name, get_path_updates(), sizeof(str), str) == 1)
 	{
-		return gz_file_open(str);
+		return xz_gz_file_open(str);
 	}
 
 	init_key(file_name, &key, sizeof(str), str);
@@ -632,7 +696,7 @@ el_file_ptr file_open(const char* file_name, const char* extra_path)
 
 	if (do_file_exists(file_name, datadir, sizeof(str), str) == 1)
 	{
-		return gz_file_open(str);
+		return xz_gz_file_open(str);
 	}
 
 	return 0;
