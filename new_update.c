@@ -638,6 +638,7 @@ static Uint32 build_update_list(const char* server, const char* file,
 	progress_fnc update_progress_function, void* user_data)
 {
 	char error_str[4096];
+	char file_name[1024];
 	char buffer[1024];
 	Uint64 file_size;
 	FILE* tmp_file;
@@ -681,6 +682,10 @@ static Uint32 build_update_list(const char* server, const char* file,
 
 	if (result != 0)
 	{
+		memset(file_name, 0, sizeof(file_name));
+		strcpy(file_name, file);
+		strcat(file_name, ".xz");
+
 		fseek(tmp_file, 0, SEEK_SET);
 
 		result = download_file(file, tmp_file, server, path,
