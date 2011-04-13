@@ -13,6 +13,7 @@
 #include "errors.h"
 #include "threads.h"
 #include "queue.h"
+#include "misc.h"
 
 #define MAX_OLD_UPDATE_FILES	5
 #define	UPDATE_DOWNLOAD_THREAD_COUNT 2
@@ -187,16 +188,16 @@ static Uint32 download_file(const char* file_name, FILE* file,
 
 static int download_files_thread(void* _data)
 {
+	char file_name[256];
 	char comment[64];
 	download_files_thread_data_t *data;
 	update_info_t* info;
 	char* download_buffer;
 	void* file_buffer;
-	MD5 md5;
-	MD5_DIGEST digest;
 	FILE *file;
-	Uint32 i, result, error, count, index, running;
-	Uint32 size, download_buffer_size, file_buffer_size;
+	Uint64 file_size;
+	Uint32 i, len, result, error, count, index, running;
+	Uint32 size, download_buffer_size;
 
 	data = (download_files_thread_data_t*)_data;
 
@@ -210,7 +211,6 @@ static int download_files_thread(void* _data)
 	error = 0;
 	result = 0;
 	file_buffer = 0;
-	file_buffer_size = 0;
 	download_buffer_size = 4096;
 	download_buffer = malloc(download_buffer_size);
 	count = data->count;
@@ -272,56 +272,37 @@ static int download_files_thread(void* _data)
 				continue;
 			}
 
-			size = ftell(file);
-
 			fseek(file, 0, SEEK_SET);
+			file_read(file, &file_buffer, &file_size);
 
-			if (size > file_buffer_size)
-			{
-				file_buffer_size = size;
-				file_buffer = realloc(file_buffer, size);
-			}
-
-			if (fread(file_buffer, size, 1, file) != 1)
-			{
-				LOG_ERROR("Read error while updating file '%s'",
-					info->file_name);
-
-				error = 3;
-				continue;
-			}
-
-			MD5Open(&md5);
-			MD5Digest(&md5, file_buffer, size);
-			MD5Close(&md5, digest);
-
-			if (memcmp(digest, info->digest, sizeof(MD5_DIGEST))
-				!= 0)
-			{
-				LOG_ERROR("MD5 error while updating file '%s'",
-					info->file_name);
-
-				error = 3;
-				continue;
-			}
-
-			convert_md5_digest_to_comment_string(digest,
+			convert_md5_digest_to_comment_string(info->digest,
 				sizeof(comment), comment);
+
+			len = strlen(info->file_name);
+
+			snprintf(file_name, sizeof(file_name), "%s",
+				info->file_name);
+
+			if (has_suffix(file_name, len, ".xz", 3))
+			{
+				file_name[len - 3] = 0;
+			}
 
 			CHECK_AND_LOCK_MUTEX(data->mutex);
 
-			add_to_zip(info->file_name, size, file_buffer,
+			add_to_zip(file_name, file_size, file_buffer,
 				data->dest, comment);
 			data->index++;
 
 			CHECK_AND_UNLOCK_MUTEX(data->mutex);
+
+			free(file_buffer);
 
 			break;
 		}
 	}
 
 	free(download_buffer);
-	free(file_buffer);
 
 	fclose(file);
 
@@ -398,8 +379,10 @@ static Uint32 download_files(update_info_t* infos, const Uint32 count,
 	unzFile* sources, zipFile dest, progress_fnc update_progress_function,
 	void* user_data)
 {
+	char file_name[256];
 	download_files_thread_data_t thread_data;
 	FILE *file;
+	Uint64 len;
 	Uint32 i, j, result, download, error, index;
 
 	file = tmpfile();
@@ -433,9 +416,19 @@ static Uint32 download_files(update_info_t* infos, const Uint32 count,
 
 		download = 1;
 
+		len = strlen(infos[i].file_name);
+
+		snprintf(file_name, sizeof(file_name), "%s",
+			infos[i].file_name);
+
+		if (has_suffix(file_name, len, ".xz", 3))
+		{
+			file_name[len - 3] = 0;
+		}
+
 		for (j = 0; j < source_count; j++)
 		{
-			if (check_md5_from_zip(sources[j], infos[i].file_name,
+			if (check_md5_from_zip(sources[j], file_name,
 				infos[i].digest) == 1)
 			{
 				CHECK_AND_LOCK_MUTEX(thread_data.mutex);
