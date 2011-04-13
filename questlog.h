@@ -169,6 +169,16 @@ unsigned int get_options_questlog(void);
 void set_options_questlog(unsigned int cfg_options);
 
 
+/*!
+ * \ingroup quest_window
+ * \brief  Draw a context menu like highlight.
+ *
+ *        Draw a context menu like highlight, i,e, shaded from top to bottom.
+ *
+ * \callgraph
+ */
+void draw_highlight(int topleftx, int toplefty, int widthx, int widthy, size_t col);
+
 
 #ifdef __cplusplus
 } // extern "C"

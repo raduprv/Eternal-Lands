@@ -825,7 +825,7 @@ CHECK_GL_ERRORS();
 
 //	Draw a context menu like hightlight using the supplied coords.
 //
-static void draw_highlight(int topleftx, int toplefty, int widthx, int widthy, size_t col = 0)
+void draw_highlight(int topleftx, int toplefty, int widthx, int widthy, size_t col)
 {
 	float colours[2][2][3] = { { {0.11f, 0.11f, 0.11f }, {0.77f, 0.57f, 0.39f} },
 							  { {0.11, 0.11f, 0.11f}, {0.33, 0.42f, 0.70f} } };
@@ -918,7 +918,7 @@ static int display_quest_filter_handler(window_info *win)
 		
 		// draw highlight over active name
 		if ((col+row*npc_name_cols) == quest_filter_active_npc_name)
-			draw_highlight(posx, posy, static_cast<int>(0.5+max_npc_name_x), static_cast<int>(0.5+max_npc_name_y));
+			draw_highlight(posx, posy, static_cast<int>(0.5+max_npc_name_x), static_cast<int>(0.5+max_npc_name_y), 0);
 
 		// set the colour and position for the box and text
 		if ((active_filter != QLFLT_NPC) && (active_filter != QLFLT_NONE))
@@ -1091,7 +1091,7 @@ static int display_questlist_handler(window_info *win)
 		{
 			questlist.set_highlighted(thequest->get_id());
 			// draw highlight over active name
-			draw_highlight(questlist.get_spacer(), posy-questlist.get_spacer(), hl_x, questlist.get_linesep());
+			draw_highlight(questlist.get_spacer(), posy-questlist.get_spacer(), hl_x, questlist.get_linesep(), 0);
 			// if clicked, update the filter
 			if (questlist.was_clicked())
 			{
