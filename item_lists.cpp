@@ -706,7 +706,7 @@ namespace ItemLists
 			int names_size_y = static_cast<int>(num_show_names_list * (get_list_gap() + names_list_height) + get_list_gap());
 			int size_x = get_grid_size()*6 + ELW_BOX_SIZE + get_list_gap();
 			int size_y = get_grid_size()*6 + names_size_y;
-			add_button_x = size_x - DEFAULT_FONT_X_LEN*2;
+			add_button_x = static_cast<int>(size_x - DEFAULT_FONT_X_LEN*2);
 			add_button_y = get_grid_size();
 
 			win_id = create_window(item_list_preview_title, win->window_id, 0, win->len_x + 5, 0, size_x, size_y, ELW_WIN_DEFAULT/*|ELW_RESIZEABLE*/);
@@ -836,7 +836,7 @@ namespace ItemLists
 			}
 			else
 				draw_string_small(get_list_gap(), pos_y, reinterpret_cast<const unsigned char*>(lists[i].get_name().c_str()), 1);
-			pos_y += names_list_height + get_list_gap();
+			pos_y += static_cast<int>(names_list_height + get_list_gap());
 			num_shown++;
 		}
 
@@ -915,7 +915,7 @@ CHECK_GL_ERRORS();
 		int names_size_y = static_cast<int>(num_show_names_list * (get_list_gap() + names_list_height) + get_list_gap());
 		if ((my > start_names) && (my < (start_names+names_size_y)))
 			name_under_mouse = vscrollbar_get_pos (win_id, names_scroll_id) +
-				(my - start_names - get_list_gap()/2) / (get_list_gap() + names_list_height);
+				static_cast<int>((my - start_names - get_list_gap()/2) / (get_list_gap() + names_list_height));
 
 		// name list context help
 		if ((my > start_names) && (my < (start_names+names_size_y)))
