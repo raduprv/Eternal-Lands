@@ -1809,6 +1809,12 @@ int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 #endif // NEW_SOUND
 		
 		protocol_name= LOCATE_ME;
+
+		if (flags & ELW_SHIFT)
+		{
+			copy_next_LOCATE_ME = 2;
+		}
+
 		my_tcp_send(my_socket,&protocol_name,1);
 		return 1;
 	}

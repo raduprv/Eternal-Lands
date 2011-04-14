@@ -531,8 +531,18 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 				item_uid_enabled = 1;
 			printf("item_uid_enabled=%d\n", item_uid_enabled);
 		}
-		else if (copy_next_LOCATE_ME && my_strncompare(text_to_add+1, "You are in ", 11)) {
-			copy_to_clipboard(text_to_add+1);
+		else if ((copy_next_LOCATE_ME > 0) && my_strncompare(text_to_add+1, "You are in ", 11)) {
+			char buffer[4096];
+			switch (copy_next_LOCATE_ME)
+			{
+				case 1:
+					copy_to_clipboard(text_to_add+1);
+					break;
+				case 2:
+					snprintf(buffer, sizeof(buffer), "@My Position: %s", text_to_add + 12);
+					send_input_text_line(buffer, strlen(buffer));
+					break;
+			}
 			copy_next_LOCATE_ME = 0;
 			return 0;
 		}
