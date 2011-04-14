@@ -499,9 +499,6 @@ int display_items_handler(window_info *win)
 	Uint32 _cur_time = SDL_GetTicks(); /* grab a snapshot of current time */
 	char *but_labels[NUMBUT] = { sto_all_str, get_all_str, drp_all_str, NULL, itm_lst_str };
 
-	if (show_item_list_menu && (cm_window_shown() == CM_INIT_VALUE))
-		show_items_list_window(1);
-
 	glEnable(GL_TEXTURE_2D);
 
 	/* 
@@ -1040,7 +1037,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	// Item List button
 	else if (over_button(win, mx, my)==BUT_ITEM_LIST)
-		show_items_list_window(0);
+		toggle_items_list_window(win);
 
 	//see if we clicked on any item in the wear category
 	else if(mx>wear_items_x_offset && mx<wear_items_x_offset+2*33 &&
@@ -1249,7 +1246,6 @@ int show_items_handler(window_info * win)
 	cm_add_region(cm_getall_but, items_win, win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[1], XLENBUT, YLENBUT);
 	cm_add_region(cm_dropall_but, items_win, win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[2], XLENBUT, YLENBUT);
 	cm_add_region(cm_mix_but, items_win, win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[3], XLENBUT, YLENBUT);
-	cm_add_region(cm_item_list_options_but, items_win, win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[4], XLENBUT, YLENBUT);
 
 	/* make sure we redraw any string */
 	last_items_string_id = 0;
@@ -1307,7 +1303,6 @@ void display_items_menu()
 
 		cm_getall_but = cm_create(auto_get_all_str, NULL);
 		cm_bool_line(cm_getall_but, 0, &items_auto_get_all, NULL);
-
 
 		setup_item_list_menus();
 

@@ -461,13 +461,15 @@ extern char
 		questlog_deldupe_end_str[75],
 		questlog_deleted_str[20],
 		/* item lists */
-		cm_item_list_menu_str[100],
 		cm_item_list_empty_str[15],
 		cm_item_list_selected_str[40],
+		cm_item_list_names_str[80],
 		item_list_use_help_str[40],
 		item_list_pickup_help_str[40],
 		item_list_edit_help_str[40],
 		item_list_add_help_str[40],
+		item_list_drag_help_str[40],
+		item_list_create_help_str[40],
 		item_list_magic_str[80],
 		/* new_character.c */
 		use_appropriate_name[500];

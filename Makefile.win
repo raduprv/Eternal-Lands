@@ -47,7 +47,7 @@ COBJS=2d_objects.o 3d_objects.o \
 	openingwin.o image.o \
 	shader/noise.o shader/shader.o	\
 	particles.o paste.o pathfinder.o pm_log.o	\
-	questlog.o queue.o reflection.o	rules.o	sky.o	\
+	queue.o reflection.o	rules.o	sky.o	\
 	skeletons.o skills.o serverpopup.o servers.o session.o shadows.o sound.o	\
 	spells.o stats.o storage.o special_effects.o	\
 	tabs.o text.o textures.o tile_map.o timers.o translate.o trade.o	\

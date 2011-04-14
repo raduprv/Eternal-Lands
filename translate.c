@@ -294,9 +294,9 @@ char
 	cm_dialog_copy_menu_str[50],
 	cm_minimap_menu_str[60],
 	cm_user_menu_str[150],
-	cm_item_list_menu_str[100],
 	cm_item_list_empty_str[15],
 	cm_item_list_selected_str[40],
+	cm_item_list_names_str[80],
 	/* user_menus.cpp */
 	um_invalid_command_str[50],
 	um_invalid_line_str[50],
@@ -322,6 +322,8 @@ char
 	item_list_pickup_help_str[40],
 	item_list_edit_help_str[40],
 	item_list_add_help_str[40],
+	item_list_drag_help_str[40],
+	item_list_create_help_str[40],
 	item_list_magic_str[80];
 /*! \} */
 
@@ -1239,7 +1241,7 @@ void init_help()
 	add_xml_identifier(misc,"dcdrpall_help",dcdrpall_help_str,"Double-click to drop all items",sizeof(dcdrpall_help_str));
 	add_xml_identifier(misc,"drpall_help",drpall_help_str,"Drop all items",sizeof(drpall_help_str));
 	add_xml_identifier(misc,"mixoneall_help",mixoneall_help_str,"Mix one/all, right-click to choose",sizeof(mixoneall_help_str));
-	add_xml_identifier(misc,"itmlst_help",itmlst_help_str,"Show items list, right-click for new/delete",sizeof(itmlst_help_str));
+	add_xml_identifier(misc,"itmlst_help",itmlst_help_str,"Show items list",sizeof(itmlst_help_str));
 	add_xml_identifier(misc,"items_stack",items_stack_str,"Client can't choose between multiple stacks, make a free slot and let the server do it!",sizeof(items_stack_str));
 	add_xml_identifier(misc,"mixbut_empty",mixbut_empty_str,"Nothing to mix, add some items using the manufacture window.",sizeof(mixbut_empty_str));
 	add_xml_identifier(misc,"mix_empty_str",mix_empty_str,"Nothing to mix, add some items.",sizeof(mix_empty_str));
@@ -1396,9 +1398,9 @@ void init_help()
 	add_xml_identifier(misc, "cm_dialog_copy_menu", cm_dialog_copy_menu_str, "Exclude Responses\nRemove newlines", sizeof(cm_dialog_copy_menu_str));
 	add_xml_identifier(misc, "cm_minimap_menu", cm_minimap_menu_str, "--\nRotate Minimap\nPin Minimap\nOpen On Start", sizeof(cm_minimap_menu_str));
 	add_xml_identifier(misc, "cm_user_menu", cm_user_menu_str, "--\nShow Title\nDraw Border\nSmall Font\nStandard Menus\n--\nShow Commands\n--\nReload Menus\nDisable Menus", sizeof(cm_user_menu_str));
-	add_xml_identifier(misc, "cm_item_list_menu", cm_item_list_menu_str, "Save a new list\nDisable list preview\n--\nDelete a list\n--\nReload item lists file", sizeof(cm_item_list_menu_str));
 	add_xml_identifier(misc, "cm_item_list_empty", cm_item_list_empty_str, "Empty", sizeof(cm_item_list_empty_str));
 	add_xml_identifier(misc, "cm_item_list_selected", cm_item_list_selected_str, "Edit quantity\n--\nDelete", sizeof(cm_item_list_selected_str));
+	add_xml_identifier(misc, "cm_item_list_names", cm_item_list_names_str, "Create new list\n--\nDelete active list\n--\nReload from file", sizeof(cm_item_list_names_str));
 	
 	/* user_menus.cpp */
 	add_xml_identifier(misc, "um_invalid_command", um_invalid_command_str, "Invalid command text", sizeof(um_invalid_command_str));
@@ -1431,7 +1433,9 @@ void init_help()
 	add_xml_identifier(misc, "item_list_pickup_help", item_list_pickup_help_str, "Pick up - left-click", sizeof(item_list_pickup_help_str));	
 	add_xml_identifier(misc, "item_list_edit_help", item_list_edit_help_str, "Edit menu - ctrl+right-click", sizeof(item_list_edit_help_str));	
 	add_xml_identifier(misc, "item_list_add_help", item_list_add_help_str, "Add to list - ctrl+left-click", sizeof(item_list_add_help_str));	
-	add_xml_identifier(misc, "item_list_magic", item_list_magic_str, "Magical interference caused the list preview to close O.O", sizeof(item_list_magic_str));	
+	add_xml_identifier(misc, "item_list_drag_help", item_list_drag_help_str, "Add to list - drag from inv/sto", sizeof(item_list_drag_help_str));
+	add_xml_identifier(misc, "item_list_create_help", item_list_create_help_str, "Create new list", sizeof(item_list_create_help_str));
+	add_xml_identifier(misc, "item_list_magic", item_list_magic_str, "Magical interference caused the list window to close O.O", sizeof(item_list_magic_str));	
 }
 #endif
 
@@ -1585,7 +1589,7 @@ void init_titles ()
 	add_xml_identifier (titles_str, "game_version", game_version_str, "Eternal Lands Version %d.%d.%d%s", sizeof(game_version_str));
 	add_xml_identifier (titles_str, "b_send", button_send, "Send", sizeof(button_send));
 	add_xml_identifier (titles_str, "item_list_name", item_list_name_str, "Enter list name", sizeof(item_list_name_str));
-	add_xml_identifier (titles_str, "item_list_preview", item_list_preview_title, "List preview", sizeof(item_list_preview_title));
+	add_xml_identifier (titles_str, "item_list_preview", item_list_preview_title, "Item lists", sizeof(item_list_preview_title));
 	add_xml_identifier (titles_str, "item_list_quantity", item_list_quantity_str, "Quantity", sizeof(item_list_quantity_str));
 }
 #endif // ELC
