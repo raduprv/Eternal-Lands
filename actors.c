@@ -164,6 +164,9 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	our_actor->rotating=0;
 	our_actor->busy=0;
 	our_actor->last_command=nothing;
+#ifdef	ANIMATION_SCALING
+	our_actor->animation_scale = 1.0f;
+#endif	/* ANIMATION_SCALING*/
 
     /* load the texture in case it's not already loaded and look if it has
      * an alpha map */

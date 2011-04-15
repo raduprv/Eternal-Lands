@@ -623,7 +623,7 @@ static Uint32 check_server_digest_files(const char* file, FILE* tmp_file,
 		result = check_server_digest_file(file_name, tmp_file, server,
 			path, size, buffer, 32, md5);
 
-		if (result == 0)
+		if (result < 2)
 		{
 			return result;
 		}

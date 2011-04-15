@@ -245,18 +245,84 @@ int get_motion_vector(int move_cmd, int *dx, int *dy)
 	return result;
 }
 
+#ifdef	ANIMATION_SCALING
+static void update_actor_animation_speed(actor* a, const float time_diff)
+{
+	float scale;
+	Uint32 i, animations;
+
+	if (a == 0)
+	{
+		return;
+	}
+
+	animations = 0;
+
+	for (i = 0; i < MAX_CMD_QUEUE; i++)
+	{
+		if ((a->que[i] != nothing) && (a->que[i] != wait_cmd))
+		{
+			animations++;
+		}
+	}
+
+	if (animations > 1)
+	{
+		animations -= 1;
+	}
+	else
+	{
+		animations = 1;
+	}
+
+	scale = a->animation_scale;
+
+	if (scale > animations)
+	{
+		scale = max2f(scale - time_diff, animations);
+	}
+	else
+	{
+		if (scale < animations)
+		{
+			scale = min2f(scale + time_diff, animations);
+		}
+	}
+
+	a->animation_scale = scale;
+}
+#endif	/* ANIMATION_SCALING */
+
 void animate_actors()
 {
+#ifdef	ANIMATION_SCALING
+	static int last_update = 0;
+	int i, animation_time_diff, actors_time_diff, time_diff, tmp_time_diff;
+
+	actors_time_diff = cur_time - last_update;
+#else	/* ANIMATION_SCALING */
 	int i;
 	static int last_update= 0;
     int time_diff = cur_time-last_update;
     int tmp_time_diff;
+#endif	/* ANIMATION_SCALING */
 
 	// lock the actors_list so that nothing can interere with this look
 	LOCK_ACTORS_LISTS();	//lock it to avoid timing issues
 	for(i=0; i<max_actors; i++) {
 		if(actors_list[i]) {
+#ifdef	ANIMATION_SCALING
+			update_actor_animation_speed(actors_list[i], actors_time_diff / 2000.0f);
+			time_diff = actors_list[i]->animation_scale * actors_time_diff;
+#endif	/* ANIMATION_SCALING */
 			if(actors_list[i]->moving) {
+#ifdef	ANIMATION_SCALING
+				tmp_time_diff = min2i(actors_list[i]->movement_time_left, time_diff);
+
+				actors_list[i]->x_pos += actors_list[i]->move_x_speed * tmp_time_diff;
+				actors_list[i]->y_pos += actors_list[i]->move_y_speed * tmp_time_diff;
+				actors_list[i]->z_pos += actors_list[i]->move_z_speed * tmp_time_diff;
+#else	/* ANIMATION_SCALING */
 				if (time_diff <= actors_list[i]->movement_time_left+40) {
 					actors_list[i]->x_pos += actors_list[i]->move_x_speed*time_diff;
 					actors_list[i]->y_pos += actors_list[i]->move_y_speed*time_diff;
@@ -267,6 +333,7 @@ void animate_actors()
 					actors_list[i]->y_pos += actors_list[i]->move_y_speed*actors_list[i]->movement_time_left;
 					actors_list[i]->z_pos += actors_list[i]->move_z_speed*actors_list[i]->movement_time_left;
 				}
+#endif	/* ANIMATION_SCALING */
 				actors_list[i]->movement_time_left -= time_diff;
 				if(actors_list[i]->movement_time_left <= 0){	//we moved all the way
 					Uint8 last_command;
@@ -304,6 +371,16 @@ void animate_actors()
 			} //moving
 
 			if(actors_list[i]->rotating) {
+#ifdef	ANIMATION_SCALING
+				tmp_time_diff = min2i(actors_list[i]->movement_time_left, time_diff);
+				actors_list[i]->rotate_time_left -= time_diff;
+
+				//we rotated all the way
+				if (actors_list[i]->rotate_time_left <= 0)
+				{
+					actors_list[i]->rotating = 0;//don't rotate next time, ok?
+				}
+#else	/* ANIMATION_SCALING */
 				actors_list[i]->rotate_time_left -= time_diff;
 				if (actors_list[i]->rotate_time_left <= 0) { //we rotated all the way
 					actors_list[i]->rotating= 0;//don't rotate next time, ok?
@@ -318,6 +395,7 @@ void animate_actors()
 				else {
 					tmp_time_diff = time_diff;
 				}
+#endif	/* ANIMATION_SCALING */
 				actors_list[i]->x_rot+= actors_list[i]->rotate_x_speed*tmp_time_diff;
 				actors_list[i]->y_rot+= actors_list[i]->rotate_y_speed*tmp_time_diff;
 				actors_list[i]->z_rot+= actors_list[i]->rotate_z_speed*tmp_time_diff;
@@ -330,8 +408,11 @@ void animate_actors()
 				//if(actors_list[i]->actor_id<0) printf("%i, rotating (horse): z_rot %f,  status %i-%i\n",thecount,actors_list[i]->z_rot,actors_list[i]->rotating,actors_list[i]->moving);
 			}//rotating
 
+#ifdef	ANIMATION_SCALING
+			actors_list[i]->anim_time += (time_diff*actors_list[i]->cur_anim.duration_scale)/1000.0;
+#else	/* ANIMATION_SCALING */
 			actors_list[i]->anim_time += ((cur_time-last_update)*actors_list[i]->cur_anim.duration_scale)/1000.0;
-
+#endif	/* ANIMATION_SCALING */
 			/*if(ACTOR(i)->anim_time>=ACTOR(i)->cur_anim.duration) {
 				if (HAS_HORSE(i)||IS_HORSE(i)) {
 						if(MY_HORSE(i)->anim_time<MY_HORSE(i)->cur_anim.duration) {
@@ -353,7 +434,11 @@ void animate_actors()
 					}
 				}
 #endif
+#ifdef	ANIMATION_SCALING
+				CalModel_Update(actors_list[i]->calmodel, (time_diff * actors_list[i]->cur_anim.duration_scale) / 1000.0f);
+#else	/* ANIMATION_SCALING */
 				CalModel_Update(actors_list[i]->calmodel, (((cur_time-last_update)*actors_list[i]->cur_anim.duration_scale)/1000.0));
+#endif	/* ANIMATION_SCALING */
 				build_actor_bounding_box(actors_list[i]);
 				{
 				int wasbusy = ACTOR(i)->busy;

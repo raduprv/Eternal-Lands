@@ -26,6 +26,7 @@ FEATURES += NEW_NEW_CHAR_WINDOW              # Use the new character creation wi
 #FEATURES += USE_SIMD                        # Enables usage of simd instructions
 FEATURES += ENCYCL_NAVIGATION                # Adds context menus to encyclopedia windows with search and bookmark functions
 FEATURES += FSAA		             # Adds support for full screen anti-aliasing using OpenGL multisampling.
+#FEATURES += ANIMATION_SCALING	             # Adds support for animation scaling, depending on the number of animation commands in the actor queue.
 
 ### Machine specific options (fixes or performance enhancements) ###
 #FEATURES += EL_BIG_ENDIAN                   # Enable big-endian code (automatically detected for OSX)

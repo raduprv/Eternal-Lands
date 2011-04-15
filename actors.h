@@ -580,6 +580,9 @@ typedef struct
 	/*! \name Command queue and current animations*/
 	/*! \{ */
 	actor_commands que[MAX_CMD_QUEUE+1];	/*!< Holds the current command queue*/
+#ifdef	ANIMATION_SCALING
+	float animation_scale;			/*!< scale factor for animations */
+#endif	/* ANIMATION_SCALING */
 	char last_command;	/*!< Holds the last command*/
 	char busy;			/*!< if the actor is busy executing the current command*/
 	char sitting;		/*!< Specifies if the actor is currently sitting*/

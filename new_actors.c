@@ -138,6 +138,9 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	our_actor->rotating=0;
 	our_actor->busy=0;
 	our_actor->last_command=nothing;
+#ifdef	ANIMATION_SCALING
+	our_actor->animation_scale = 1.0f;
+#endif	/* ANIMATION_SCALING*/
 
 	//clear the que
 	for(k=0; k<MAX_CMD_QUEUE; k++)	our_actor->que[k]=nothing;
