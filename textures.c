@@ -2055,6 +2055,32 @@ int load_enhanced_actor_thread(void* done)
 	return 1;
 }
 
+void unload_actor_texture_cache()
+{
+	Uint32 i, used;
+
+	if (actor_texture_handles != 0)
+	{
+		while (queue_pop(actor_texture_queue) != 0);
+
+		for (i = 0; i < ACTOR_TEXTURE_CACHE_MAX; i++)
+		{
+			CHECK_AND_LOCK_MUTEX(actor_texture_handles[i].mutex);
+
+			used = actor_texture_handles[i].used;
+
+			free_actor_texture_resources(&actor_texture_handles[i]);
+
+			CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[i].mutex);
+
+			if (used != 0)
+			{
+				queue_push_signal(actor_texture_queue,
+					&actor_texture_handles[i]);
+			}
+		}
+	}
+}
 #endif	/* ELC */
 
 void init_texture_cache()
@@ -2137,9 +2163,6 @@ void free_texture_cache()
 
 void unload_texture_cache()
 {
-#ifdef	ELC
-	Uint32 used;
-#endif	/* ELC */
 	Uint32 i;
 
 	for (i = 0; i < texture_handles_max_handle; i++)
@@ -2156,27 +2179,7 @@ void unload_texture_cache()
 	}
 
 #ifdef	ELC
-	if (actor_texture_handles != 0)
-	{
-		while (queue_pop(actor_texture_queue) != 0);
-
-		for (i = 0; i < ACTOR_TEXTURE_CACHE_MAX; i++)
-		{
-			CHECK_AND_LOCK_MUTEX(actor_texture_handles[i].mutex);
-
-			used = actor_texture_handles[i].used;
-
-			free_actor_texture_resources(&actor_texture_handles[i]);
-
-			CHECK_AND_UNLOCK_MUTEX(actor_texture_handles[i].mutex);
-
-			if (used != 0)
-			{
-				queue_push_signal(actor_texture_queue,
-					&actor_texture_handles[i]);
-			}
-		}
-	}
+	unload_actor_texture_cache();
 #endif	/* ELC */
 }
 

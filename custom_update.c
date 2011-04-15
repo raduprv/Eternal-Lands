@@ -10,29 +10,36 @@
 #include "asc.h"
 #include "init.h"
 #include "errors.h"
+#include "events.h"
 
 SDL_Thread* update_thread = 0;
 SDL_mutex* update_mutex = 0;
 SDL_cond* update_condition = 0;
 Uint32 update_running = 0;
-char update_str[4096];
-Uint32 update_error = 0;
+char update_strs[2][4096];
+Uint32 update_errors[2];
+
+const char* update_names[2] = { "EL", "Unofficial" };
 
 static Uint32 progress_function(const char* str, const Uint32 max,
 	const Uint32 current, void* user_data)
 {
-	memset(update_str, 0, sizeof(update_str));
+	Uint32 index;
+
+	index = *((Uint32*)user_data);
 
 	CHECK_AND_LOCK_MUTEX(update_mutex);
 
 	if (max > 0)
 	{
-		snprintf(update_str, sizeof(update_str), "%s %.2f%%", str,
-			(current * 100.0f) / max);
+		snprintf(update_strs[index], sizeof(update_strs[index]),
+			"%s custom updates: %s %.2f%%", update_names[index],
+			str, (current * 100.0f) / max);
 	}
 	else
 	{
-		snprintf(update_str, sizeof(update_str), "%s", str);
+		snprintf(update_strs[index], sizeof(update_strs[index]),
+			"%s custom updates: %s", update_names[index], str);
 	}
 
 	if (update_running == 0)
@@ -47,7 +54,8 @@ static Uint32 progress_function(const char* str, const Uint32 max,
 	return 1;
 }
 
-static Uint32 custom_update_threaded(void* data)
+static Uint32 custom_update_threaded(const char* dir, const char* zip_file,
+	void* data)
 {
 	char buffer[1024];
 	char str[256];
@@ -56,23 +64,14 @@ static Uint32 custom_update_threaded(void* data)
 	Uint32 count, index, idx, len, result;
 	const char* file_name = "custom_mirrors.lst";
 
-	snprintf(str, sizeof(str), "%s%s", datadir, file_name);
+	snprintf(str, sizeof(str), "%s%s", dir, file_name);
 
 	file = fopen(str, "r");
 
 	if (file == 0)
 	{
-		snprintf(str, sizeof(str), "%s%s", get_path_config_base(),
-			file_name);
-
-		file = fopen(str, "r");
-	}
-
-	if (file == 0)
-	{
-		snprintf(buffer, sizeof(buffer),
-			"Can't find server list file '%s' at dir '%s' or '%s'.",
-			file_name, datadir, get_path_config_base());
+		snprintf(buffer, sizeof(buffer), "Can't find server list file"
+			" '%s'.", str);
 
 		progress_function(buffer, 0, 0, 0);
 
@@ -98,8 +97,7 @@ static Uint32 custom_update_threaded(void* data)
 
 	if (count == 0)
 	{
-		snprintf(buffer, sizeof(buffer), "No server in file '%s'",
-			str);
+		snprintf(buffer, sizeof(buffer), "No server in file '%s'", str);
 
 		progress_function(buffer, 0, 0, 0);
 
@@ -152,21 +150,22 @@ static Uint32 custom_update_threaded(void* data)
 
 	if (server == 0)
 	{
-		snprintf(buffer, sizeof(buffer),
-			"Can't get server from file '%s'", str);
+		snprintf(buffer, sizeof(buffer), "Can't get server from file"
+			" '%s'", str);
 
 		progress_function(buffer, 0, 0, 0);
 
 		return 1;
 	}
 
-	snprintf(str, sizeof(str), "%s%s", get_path_config_base(),
-		"custom_files.zip");
+	snprintf(str, sizeof(str), "%s%s", get_path_config_base(), zip_file);
 
 	unload_zip_archive(str);
 
 	result = update(server, "custom_files.lst", "updates", str,
 		progress_function, data);
+
+	printf("result: %d, zip: %s\n", result, str);
 
 	if (result == 0)
 	{
@@ -178,15 +177,21 @@ static Uint32 custom_update_threaded(void* data)
 
 static int custom_update_thread(void* data)
 {
-	Uint32 result;
+	SDL_Event event;
+	Uint32 result[2];
+	Uint32 i, index;
 
-	result = 0;
+	result[0] = 0;
+	result[1] = 0;
 
 	while (1)
 	{
 		CHECK_AND_LOCK_MUTEX(update_mutex);
 
-		update_error = result;
+		for (i = 0; i < 2; i++)
+		{
+			update_errors[i] = result[i];
+		}
 
 		while (update_running == 1)
 		{
@@ -202,11 +207,30 @@ static int custom_update_thread(void* data)
 
 		update_running = 1;
 
+		for (i = 0; i < 2; i++)
+		{
+			update_errors[i] = 0;
+			snprintf(update_strs[i], sizeof(update_strs[i]),
+				update_names[i], "started");
+		}
+
 		CHECK_AND_UNLOCK_MUTEX(update_mutex);
 
-		result = custom_update_threaded(data);
+		index = 0;
+		result[index] = custom_update_threaded(datadir,
+			"custom_clothes.zip", &index);
+		LOG_ERROR("%s", update_strs[index]);
 
-		LOG_ERROR("Custom updates: %s", update_str);
+		index = 1;
+		result[index] = custom_update_threaded(get_path_config_base(),
+			"unofficial_custom_clothes.zip", &index);
+		LOG_ERROR("%s", update_strs[index]);
+
+		// signal we are done
+		event.type = SDL_USEREVENT;
+		event.user.code = EVENT_CUSTOM_UPDATE_COMPLETE;
+		event.user.data1 = 0;
+		SDL_PushEvent(&event);
 	}
 
 	return 0;
@@ -214,7 +238,14 @@ static int custom_update_thread(void* data)
 
 void start_custom_update()
 {
-	snprintf(update_str, sizeof(update_str), "Custom updates started");
+	Uint32 i;
+
+	for (i = 0; i < 2; i++)
+	{
+		update_errors[i] = 0;
+		snprintf(update_strs[i], sizeof(update_strs[i]),
+			update_names[i], "started");
+	}
 
 	update_condition = SDL_CreateCond();
 	update_mutex = SDL_CreateMutex();
@@ -247,6 +278,8 @@ void stopp_custom_update()
 
 int command_update_status(char *text, int len)
 {
+	Uint32 i;
+
 	if (update_mutex == 0)
 	{
 		LOG_TO_CONSOLE(c_red1, "Update disabled");
@@ -256,20 +289,20 @@ int command_update_status(char *text, int len)
 
 	CHECK_AND_LOCK_MUTEX(update_mutex);
 
-	switch (update_error)
+	for (i = 0; i < 2; i++)
 	{
-		case 0:
-			LOG_TO_CONSOLE(c_green1, update_str);
-			break;
-		case 1:
-			LOG_TO_CONSOLE(c_orange1, update_str);
-			break;
-		case 2:
-			LOG_TO_CONSOLE(c_red1, update_str);
-			break;
-		default:
-			LOG_TO_CONSOLE(c_red1, update_str);
-			break;
+		switch (update_errors[i])
+		{
+			case 0:
+				LOG_TO_CONSOLE(c_green1, update_strs[i]);
+				break;
+			case 1:
+				LOG_TO_CONSOLE(c_orange1, update_strs[i]);
+				break;
+			default:
+				LOG_TO_CONSOLE(c_red1, update_strs[i]);
+				break;
+		}
 	}
 
 	CHECK_AND_UNLOCK_MUTEX(update_mutex);

@@ -84,7 +84,7 @@ Uint32 add_to_zip(const char* file_name, const Uint32 size,
 	info.tmz_date.tm_year = ptm->tm_year - 80;
 
 	zipOpenNewFileInZip2_64(dest, file_name, &info, 0, 0, 0, 0, comment,
-		0, 9, 0, 1);
+		Z_DEFLATED, 9, 0, 1);
 	zipWriteInFileInZip(dest, buffer, size);
 	zipCloseFileInZip(dest);
 

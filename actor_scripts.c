@@ -372,7 +372,7 @@ void animate_actors()
 
 			if(actors_list[i]->rotating) {
 #ifdef	ANIMATION_SCALING
-				tmp_time_diff = min2i(actors_list[i]->movement_time_left, time_diff);
+				tmp_time_diff = min2i(actors_list[i]->rotate_time_left, time_diff);
 				actors_list[i]->rotate_time_left -= time_diff;
 
 				//we rotated all the way

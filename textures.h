@@ -91,9 +91,9 @@ void init_texture_cache();
 
 /*!
  * \ingroup 	textures
- * \brief 	Reloads the texture cache
+ * \brief 	Unloads the texture cache
  *
- *      	Reloads all textures in the texture cache.
+ *      	Unloads all textures in the texture cache.
  *
  * \callgraph
  */
@@ -295,6 +295,16 @@ void use_ready_actor_texture(const Uint32 handle);
  * \callgraph
  */
 void change_enhanced_actor(const Uint32 handle, enhanced_actor* actor);
+
+/*!
+ * \ingroup 	textures
+ * \brief 	Unloads the actor texture cache
+ *
+ *      	Unloads all actor textures in the actor texture cache.
+ *
+ * \callgraph
+ */
+void unload_actor_texture_cache();
 
 #endif	//ELC
 

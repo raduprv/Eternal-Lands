@@ -265,8 +265,9 @@ static int download_files_thread(void* _data)
 
 			if (result != 0)
 			{
-				LOG_ERROR("Download error %d while updating file"
-					" '%s'", result, info->file_name);
+				LOG_ERROR("Download error %d while updating "
+					"file '%s' from server '%s'",
+					result, info->file_name, data->server);
 
 				error = 3;
 				continue;
