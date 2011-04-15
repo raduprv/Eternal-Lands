@@ -73,7 +73,7 @@ static Uint32 custom_update_threaded(const char* dir, const char* zip_file,
 		snprintf(buffer, sizeof(buffer), "Can't find server list file"
 			" '%s'.", str);
 
-		progress_function(buffer, 0, 0, 0);
+		progress_function(buffer, 0, 0, data);
 
 		return 1;
 	}
@@ -99,7 +99,7 @@ static Uint32 custom_update_threaded(const char* dir, const char* zip_file,
 	{
 		snprintf(buffer, sizeof(buffer), "No server in file '%s'", str);
 
-		progress_function(buffer, 0, 0, 0);
+		progress_function(buffer, 0, 0, data);
 
 		fclose(file);
 
@@ -153,7 +153,7 @@ static Uint32 custom_update_threaded(const char* dir, const char* zip_file,
 		snprintf(buffer, sizeof(buffer), "Can't get server from file"
 			" '%s'", str);
 
-		progress_function(buffer, 0, 0, 0);
+		progress_function(buffer, 0, 0, data);
 
 		return 1;
 	}
@@ -164,8 +164,6 @@ static Uint32 custom_update_threaded(const char* dir, const char* zip_file,
 
 	result = update(server, "custom_files.lst", "updates", str,
 		progress_function, data);
-
-	printf("result: %d, zip: %s\n", result, str);
 
 	if (result == 0)
 	{

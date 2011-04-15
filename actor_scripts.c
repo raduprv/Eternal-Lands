@@ -297,7 +297,7 @@ void animate_actors()
 {
 #ifdef	ANIMATION_SCALING
 	static int last_update = 0;
-	int i, animation_time_diff, actors_time_diff, time_diff, tmp_time_diff;
+	int i, actors_time_diff, time_diff, tmp_time_diff;
 
 	actors_time_diff = cur_time - last_update;
 #else	/* ANIMATION_SCALING */

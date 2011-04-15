@@ -197,7 +197,7 @@ static int download_files_thread(void* _data)
 	FILE *file;
 	Uint64 file_size;
 	Uint32 i, len, result, error, count, index, running;
-	Uint32 size, download_buffer_size;
+	Uint32 download_buffer_size;
 
 	data = (download_files_thread_data_t*)_data;
 
