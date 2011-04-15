@@ -201,8 +201,6 @@ static int download_files_thread(void* _data)
 
 	data = (download_files_thread_data_t*)_data;
 
-	file = tmpfile();
-
 	if (file == 0)
 	{
 		return 1;
@@ -255,6 +253,8 @@ static int download_files_thread(void* _data)
 			break;
 		}
 
+		file = tmpfile();
+
 		for (i = 0; i < 5; i++)
 		{
 			fseek(file, 0, SEEK_SET);
@@ -301,11 +301,11 @@ static int download_files_thread(void* _data)
 
 			break;
 		}
+
+		fclose(file);
 	}
 
 	free(download_buffer);
-
-	fclose(file);
 
 	return error;
 }
