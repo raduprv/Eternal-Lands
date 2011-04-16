@@ -219,7 +219,11 @@ static int custom_update_thread(void* thread_data)
 
 		CHECK_AND_LOCK_MUTEX(data->mutex);
 
-		data->running = 1;
+		if (data->running == 2)
+		{
+			data->running = 1;
+		}
+
 		LOG_ERROR("%s", data->str);
 
 		CHECK_AND_UNLOCK_MUTEX(data->mutex);
