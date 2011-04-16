@@ -28,9 +28,6 @@
 #include "translate.h"
 #include "io/elpathwrapper.h"
 #include "threads.h"
-#ifdef  CUSTOM_UPDATE
-#include "custom_update.h"
-#endif	/* CUSTOM_UPDATE */
 
 void create_update_root_window (int width, int height, int time);		// Pre-declare this
 
@@ -224,13 +221,6 @@ void    handle_update_download(struct http_get_struct *get)
 	// total failure, error and clear the busy flag
 	log_error("Failed to download (%s) 3 times. Giving up.", files_lst);
 	update_busy= 0;
-#ifdef  CUSTOM_UPDATE
-	if(is_this_files_lst && custom_update){
-        update_attempt_count = 0;
-		init_custom_update();
-	}
-#endif  //CUSTOM_UPDATE
-	
 }
 
 
@@ -309,12 +299,6 @@ int    do_threaded_update(void *ptr)
 	}
 	update_busy= 0;
 
-#ifdef	CUSTOM_UPDATE
-	// watch for being able to do custom updates now
-	if(num_files == 0 && custom_update && is_this_files_lst){
-		init_custom_update();
-	}
-#endif	//CUSTOM_UPDATE
 	// all done
 	return(0);
 }
@@ -447,13 +431,6 @@ void    handle_file_download(struct http_get_struct *get)
 
 	// unlock mutex
 	CHECK_AND_UNLOCK_MUTEX(download_mutex);
-
-#ifdef	CUSTOM_UPDATE
-	// watch for being able to do custom updates now
-	if(!update_busy && download_queue_size <= 0 && !download_cur_file && custom_update && is_this_files_lst){
-		init_custom_update();
-	}
-#endif	//CUSTOM_UPDATE
 }
 
 
@@ -615,19 +592,6 @@ int http_get_file(char *server, char *path, FILE *fp)
 
 	return(0);  // finished
 }
-
-#ifdef  CUSTOM_UPDATE
-// initialize the custom looks auto update system, start the downloading
-void    init_custom_update()
-{
-	if (update_busy)
-	{
-		return;
-	}
-
-	start_custom_update();
-}
-#endif  //CUSTOM_UPDATE
 
 
 

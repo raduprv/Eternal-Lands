@@ -335,7 +335,7 @@ void load_zip_archive(const char* file_name)
 
 	for (i = 0; i < num_zip_files; i++)
 	{
-		if (zip_files[index].file_name == 0)
+		if (zip_files[i].file_name == 0)
 		{
 			index = i;
 
@@ -356,7 +356,7 @@ void load_zip_archive(const char* file_name)
 
 	CHECK_AND_UNLOCK_MUTEX(zip_files[index].mutex);
 
-	log_info("Loaded zip file '%s' with %d files", file_name, count);
+	LOG_ERROR("Loaded zip file '%s' with %d files", file_name, count);
 }
 
 void unload_zip_archive(const char* file_name)
@@ -388,7 +388,7 @@ void unload_zip_archive(const char* file_name)
 
 				CHECK_AND_UNLOCK_MUTEX(zip_files[i].mutex);
 
-				log_info("Unloaded zip '%s'", file_name);
+				LOG_ERROR("Unloaded zip '%s'", file_name);
 
 				return;
 			}

@@ -827,18 +827,10 @@ Uint32 update(const char* server, const char* file, const char* dir,
 
 	zipClose(dest_zip, str);
 
-	if (result != 0)
+	if (result == 2)
 	{
-		if (result == 2)
-		{
-			update_progress_function("Canceled updating", 0, 0,
-				user_data);
-		}
-		else
-		{
-			update_progress_function("Failed downlaoding updates",
-				0, 0, user_data);
-		}
+		update_progress_function("Canceled updating", 0, 0,
+			user_data);
 	}
 
 	free(infos);
@@ -848,9 +840,10 @@ Uint32 update(const char* server, const char* file, const char* dir,
 		return result;
 	}
 
+	unload_zip_archive(zip);
 	remove(zip);
-
 	rename(tmp[0], zip);
+	load_zip_archive(zip);
 
 	for (i = 1; i < MAX_OLD_UPDATE_FILES; i++)
 	{

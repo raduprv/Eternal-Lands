@@ -15,9 +15,17 @@ extern "C"
 
 /*!
  * \ingroup	update
+ * \brief	Initialize the custom update
+ *
+ * 		The function initializes the custom updates threads.
+ */
+void start_custom_update();
+
+/*!
+ * \ingroup	update
  * \brief	Starts the custom update
  *
- * 		The function starts the custom updates in a background thread.
+ * 		The function starts the custom updates in background threads.
  */
 void start_custom_update();
 
@@ -32,19 +40,21 @@ void stopp_custom_update();
 
 /*!
  * \ingroup	update
- * \brief	Starts the update.
+ * \brief	Starts the updates.
  *
- * 		Starts the update.
+ * 		Starts the updates.
  */
 int command_update(char *text, int len);
 
 /*!
  * \ingroup	update
- * \brief	Prints to console the update state.
+ * \brief	Prints to console the update status.
  *
  * 		Prints to the el console the current update status.
  */
 int command_update_status(char *text, int len);
+
+extern int custom_update;
 
 #ifdef __cplusplus
 }

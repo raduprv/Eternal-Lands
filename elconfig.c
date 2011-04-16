@@ -84,7 +84,9 @@
 #ifdef	FSAA
 #include "fsaa/fsaa.h"
 #endif	/* FSAA */
-
+#ifdef	CUSTOM_UPDATE
+#include "custom_update.h"
+#endif	/* CUSTOM_UPDATE */
 
 typedef	float (*float_min_max_func)();
 typedef	int (*int_min_max_func)();
@@ -884,6 +886,25 @@ void change_fsaa(int *pointer, int value)
 	}
 }
 #endif	/* FSAA */
+
+#ifdef CUSTOM_UPDATE
+void change_custom_update(int *var)
+{
+	*var = !*var;
+
+	if (*var)
+	{
+		start_custom_update();
+	}
+}
+
+void change_custom_clothing(int *var)
+{
+	*var = !*var;
+
+	unload_actor_texture_cache();
+}
+#endif    //CUSTOM_UPDATE
 
 #ifndef MAP_EDITOR2
 void set_afk_time(int *pointer, int time)
@@ -1846,8 +1867,8 @@ void init_vars()
      /* Note: We don't take any action on the already-running thread, as that wouldn't necessarily be good. */
 	add_var(OPT_BOOL,"autoupdate","aup",&auto_update,change_var,1,"Automatic Updates","Toggles whether updates are automatically downloaded.",SERVER);
   #ifdef CUSTOM_UPDATE
-	add_var(OPT_BOOL,"customupdate","cup",&custom_update,change_var,1,"Custom Looks Updates","Toggles whether custom look updates are automatically downloaded.",SERVER);
-	add_var(OPT_BOOL,"showcustomclothing","scc",&custom_clothing,change_var,1,"Show Custom clothing","Toggles whether custom clothing is shown.",SERVER);
+	add_var(OPT_BOOL,"customupdate","cup",&custom_update,change_custom_update,1,"Custom Looks Updates","Toggles whether custom look updates are automatically downloaded.",SERVER);
+	add_var(OPT_BOOL,"showcustomclothing","scc",&custom_clothing,change_custom_clothing,1,"Show Custom clothing","Toggles whether custom clothing is shown.",SERVER);
   #endif    //CUSTOM_UPDATE
  	add_var(OPT_STRING,"language","lang",lang,change_string,8,"Language","Wah?",MISC);
  	add_var(OPT_STRING,"browser","b",browser_name,change_string,70,"Browser","Location of your web browser (Windows users leave blank to use default browser)",MISC);

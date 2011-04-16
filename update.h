@@ -116,16 +116,6 @@ int http_get_file_thread_handler(void *specs);
  */
 int http_get_file(char *server, char *path, FILE *fp);
 
-
-/*!
- * \ingroup	update
- * \brief	Initialize the custom looks auto update system
- *
- * 		The function initializes the custom looks auto update system and starts downloading if enabled
- */
-void    init_custom_update();
-extern int custom_update;
-
 #ifdef __cplusplus
 } // extern "C"
 #endif

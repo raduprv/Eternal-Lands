@@ -768,6 +768,10 @@ void init_stuff()
 	ec_init();
 	log_info("Init eyecandy done");
 
+#ifdef  CUSTOM_UPDATE
+	init_custom_update();
+#endif  //CUSTOM_UPDATE
+
 	// check for invalid combinations
 	check_options();
 
@@ -956,10 +960,6 @@ void init_stuff()
 
 	if(auto_update){
 		init_update();
-#ifdef  CUSTOM_UPDATE
-	} else if(custom_update){
-		init_custom_update();
-#endif  //CUSTOM_UPDATE
 	}
 
 	have_rules=read_rules();

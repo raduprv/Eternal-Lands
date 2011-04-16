@@ -29,6 +29,9 @@
 #include "eye_candy_wrapper.h"
 #include "minimap.h"
 #include "actor_init.h"
+#ifdef	FSAA
+#include "fsaa/fsaa.h"
+#endif	/* FSAA */
 
 #ifdef ELC
 #define DRAW_ORTHO_INGAME_NORMAL(x, y, z, our_string, max_lines)	draw_ortho_ingame_string(x, y, z, (const Uint8*)our_string, max_lines, INGAME_FONT_X_LEN*10.0, INGAME_FONT_Y_LEN*10.0)
@@ -401,6 +404,10 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 
 	glColor3f (1.0f, 0.0f, 0.0f);
 
+#ifdef	FSAA
+	glDisable(GL_MULTISAMPLE);
+#endif	/* FSAA */
+
 	glDepthFunc(GL_ALWAYS);
 	if(actor_id->damage_ms){
 		if(floatingmessages_enabled){
@@ -607,6 +614,12 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		glEnd();
 		glDisable(GL_BLEND);
 	}
+#ifdef	FSAA
+	if (fsaa > 1)
+	{
+		glEnable(GL_MULTISAMPLE);
+	}
+#endif	/* FSAA */
 
 	glEnable(GL_TEXTURE_2D);
 
