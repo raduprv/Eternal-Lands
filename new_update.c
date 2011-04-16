@@ -9,6 +9,7 @@
 #include "io/unzip.h"
 #include "io/ziputil.h"
 #include "io/fileutil.h"
+#include "io/elfilewrapper.h"
 #include "new_update.h"
 #include "errors.h"
 #include "threads.h"
