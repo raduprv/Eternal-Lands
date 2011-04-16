@@ -209,8 +209,6 @@ static int custom_update_thread(void* thread_data)
 			return 1;
 		}
 
-		data->running = 1;
-
 		data->error = 0;
 		snprintf(data->str, sizeof(data->str), "%s custom updates: %s",
 			data->name, "started");
@@ -218,7 +216,13 @@ static int custom_update_thread(void* thread_data)
 		CHECK_AND_UNLOCK_MUTEX(data->mutex);
 
 		result = custom_update_threaded(data->dir, data->zip, data);
+
+		CHECK_AND_LOCK_MUTEX(data->mutex);
+
+		data->running = 1;
 		LOG_ERROR("%s", data->str);
+
+		CHECK_AND_UNLOCK_MUTEX(data->mutex);
 
 		// signal we are done
 		event.type = SDL_USEREVENT;
@@ -262,11 +266,6 @@ void start_custom_update()
 {
 	Uint32 i;
 
-	if (custom_update == 0)
-	{
-		return;
-	}
-
 	for (i = 0; i < 2; i++)
 	{
 		CHECK_AND_LOCK_MUTEX(update_thread_data[i].mutex);
@@ -276,9 +275,9 @@ void start_custom_update()
 			update_thread_data[i].running = 2;
 		}
 
-		SDL_CondSignal(update_thread_data[i].condition);
-
 		CHECK_AND_UNLOCK_MUTEX(update_thread_data[i].mutex);
+
+		SDL_CondSignal(update_thread_data[i].condition);
 	}
 }
 
