@@ -19,7 +19,7 @@ extern "C"
  *
  * 		The function initializes the custom updates threads.
  */
-void start_custom_update();
+void init_custom_update();
 
 /*!
  * \ingroup	update
