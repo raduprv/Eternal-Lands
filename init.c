@@ -778,13 +778,6 @@ void init_stuff()
 	// check for invalid combinations
 	check_options();
 
-#ifdef  CUSTOM_UPDATE
-	if (custom_update != 0)
-	{
-		start_custom_update();
-	}
-#endif  //CUSTOM_UPDATE
-
 	update_loading_win(init_random_str, 4);
 	seed= time (NULL);
 	srand(seed);
@@ -971,6 +964,13 @@ void init_stuff()
 	if(auto_update){
 		init_update();
 	}
+
+#ifdef  CUSTOM_UPDATE
+	if (custom_update != 0)
+	{
+		start_custom_update();
+	}
+#endif  //CUSTOM_UPDATE
 
 	have_rules=read_rules();
 	if(!have_rules){
