@@ -211,7 +211,7 @@ static int download_files_thread(void* _data)
 
 	while (1)
 	{
-		CHECK_AND_UNLOCK_MUTEX(data->mutex);
+		CHECK_AND_LOCK_MUTEX(data->mutex);
 
 		do
 		{
