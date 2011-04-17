@@ -202,11 +202,6 @@ static int download_files_thread(void* _data)
 
 	data = (download_files_thread_data_t*)_data;
 
-	if (file == 0)
-	{
-		return 1;
-	}
-
 	error = 0;
 	result = 0;
 	file_buffer = 0;
@@ -255,6 +250,13 @@ static int download_files_thread(void* _data)
 		}
 
 		file = tmpfile();
+
+		if (file == 0)
+		{
+			error = 1;
+
+			break;
+		}
 
 		for (i = 0; i < 5; i++)
 		{
