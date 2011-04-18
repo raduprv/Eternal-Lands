@@ -901,8 +901,9 @@ void change_custom_update(int *var)
 void change_custom_clothing(int *var)
 {
 	*var = !*var;
-
+#ifdef	NEW_TEXTURES
 	unload_actor_texture_cache();
+#endif	/* NEW_TEXTURES */	    
 }
 #endif    //CUSTOM_UPDATE
 
