@@ -598,7 +598,7 @@ static Uint32 check_server_digest_file(const char* file, FILE* tmp_file,
 	result = download_file(file, tmp_file, server, path, &file_size,
 		size, buffer, 0, 0);
 
-	if ((result == 0) && (file_size == digest_size))
+	if ((result == 0) && (file_size >= digest_size))
 	{
 		fseek(tmp_file, 0, SEEK_SET);
 
