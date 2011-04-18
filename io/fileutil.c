@@ -13,7 +13,8 @@ void init_crc_tables()
 	Crc64GenerateTable();
 }
 
-static Uint32 xz_file_read_unchecked(FILE* file, void** buffer, Uint64* size)
+static Uint32 xz_file_read_unchecked(FILE* file, const Uint64 file_size,
+	void** buffer, Uint64* size)
 {
 	CXzUnpacker state;
 	void* src_buffer;
@@ -22,9 +23,7 @@ static Uint32 xz_file_read_unchecked(FILE* file, void** buffer, Uint64* size)
 	Uint32 err;
 	ECoderStatus status;
 
-	fseek(file, 0, SEEK_END);
-
-	compressed_size = ftell(file);
+	compressed_size = file_size;
 
 	src_buffer = malloc(compressed_size);
 
@@ -81,7 +80,7 @@ static Uint32 xz_file_read_unchecked(FILE* file, void** buffer, Uint64* size)
 	return err;
 }
 
-Uint32 file_read(FILE* file, void** buffer, Uint64* size)
+Uint32 file_read(FILE* file, const Uint64 file_size, void** buffer, Uint64* size)
 {
 	Byte sig[XZ_SIG_SIZE];
 
@@ -90,12 +89,10 @@ Uint32 file_read(FILE* file, void** buffer, Uint64* size)
 
 	if (memcmp(sig, XZ_SIG, XZ_SIG_SIZE) == 0)
 	{
-		return xz_file_read_unchecked(file, buffer, size);
+		return xz_file_read_unchecked(file, file_size, buffer, size);
 	}
 
-	fseek(file, 0, SEEK_END);
-
-	*size = ftell(file);
+	*size = file_size;
 
 	if (*size == 0)
 	{
@@ -113,6 +110,7 @@ Uint32 file_read(FILE* file, void** buffer, Uint64* size)
 Uint32 xz_file_read(FILE* file, void** buffer, Uint64* size)
 {
 	Byte sig[XZ_SIG_SIZE];
+	Uint64 file_size;
 
 	fseek(file, 0, SEEK_SET);
 	fread(sig, XZ_SIG_SIZE, 1, file);
@@ -122,6 +120,10 @@ Uint32 xz_file_read(FILE* file, void** buffer, Uint64* size)
 		return 1;
 	}
 
-	return xz_file_read_unchecked(file, buffer, size);
+	fseek(file, 0, SEEK_END);
+
+	file_size = ftell(file);
+
+	return xz_file_read_unchecked(file, file_size, buffer, size);
 }
 

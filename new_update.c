@@ -42,8 +42,9 @@ typedef struct
 } update_info_t;
 
 static Uint32 download_file(const char* file_name, FILE* file,
-	const char* server, const char* path, const Uint32 size, char* buffer,
-	const Uint32 etag_size, char* etag)
+	const char* server, const char* path, Uint64* file_size,
+	const Uint32 size, char* buffer, const Uint32 etag_size,
+	char* etag)
 {
 	char str[64];
 	char* pos;
@@ -52,7 +53,7 @@ static Uint32 download_file(const char* file_name, FILE* file,
 	Uint32 i, len, got_header, http_status;
 
 	// resolve the hostname
-	if ((buffer == 0) || (size == 0))
+	if ((file_size == 0) || (buffer == 0) || (size == 0))
 	{
 		LOG_ERROR("buffer: %p, size: %d", buffer, size);
 
@@ -100,6 +101,8 @@ static Uint32 download_file(const char* file_name, FILE* file,
 
 		return 3;  // error in sending the get request
 	}
+
+	*file_size = 0;
 
 	// get the response & data
 	do
@@ -149,6 +152,8 @@ static Uint32 download_file(const char* file_name, FILE* file,
 
 					if (http_status == 200)
 					{
+						*file_size += len - i - 4;
+
 						fwrite(buffer + i + 4, 1,
 							len - i - 4, file);
 					}
@@ -160,6 +165,8 @@ static Uint32 download_file(const char* file_name, FILE* file,
 		{
 			if (http_status == 200)
 			{
+				*file_size += len;
+
 				fwrite(buffer, 1, len, file);
 			}
 			else
@@ -209,6 +216,13 @@ static int download_files_thread(void* _data)
 	download_buffer = malloc(download_buffer_size);
 	count = data->count;
 
+	file = tmpfile();
+
+	if (file == 0)
+	{
+		return 1;
+	}
+
 	while (1)
 	{
 		CHECK_AND_LOCK_MUTEX(data->mutex);
@@ -249,35 +263,30 @@ static int download_files_thread(void* _data)
 			break;
 		}
 
-		file = tmpfile();
-
-		if (file == 0)
-		{
-			error = 1;
-
-			break;
-		}
-
 		for (i = 0; i < 5; i++)
 		{
 			fseek(file, 0, SEEK_SET);
 
 			result = download_file(info->file_name, file,
-				data->server, data->path, download_buffer_size,
+				data->server, data->path, &file_size,
+				download_buffer_size,
 				download_buffer, 0, 0);
 
 			if (result != 0)
 			{
 				LOG_ERROR("Download error %d while updating "
-					"file '%s' from server '%s'",
-					result, info->file_name, data->server);
+					"file '%s' from server '%s', retrying"
+					" it", result, info->file_name,
+					data->server);
+
+				SDL_Delay(1000);
 
 				error = 3;
 				continue;
 			}
 
 			fseek(file, 0, SEEK_SET);
-			file_read(file, &file_buffer, &file_size);
+			file_read(file, file_size, &file_buffer, &file_size);
 
 			convert_md5_digest_to_comment_string(info->digest,
 				sizeof(comment), comment);
@@ -302,13 +311,19 @@ static int download_files_thread(void* _data)
 
 			free(file_buffer);
 
+			error = 0;
 			break;
 		}
 
-		fclose(file);
+		if (error != 0)
+		{
+			break;
+		}
 	}
 
 	free(download_buffer);
+
+	fclose(file);
 
 	return error;
 }
@@ -577,12 +592,13 @@ static Uint32 check_server_digest_file(const char* file, FILE* tmp_file,
 	const char* server, const char* path, const Uint32 size, char* buffer,
 	const Uint32 digest_size, char* digest)
 {
+	Uint64 file_size;
 	Uint32 result;
 
-	result = download_file(file, tmp_file, server, path, size, buffer,
-		0, 0);
+	result = download_file(file, tmp_file, server, path, &file_size,
+		size, buffer, 0, 0);
 
-	if (result == 0)
+	if ((result == 0) && (file_size == digest_size))
 	{
 		fseek(tmp_file, 0, SEEK_SET);
 
@@ -672,8 +688,8 @@ static Uint32 build_update_list(const char* server, const char* file,
 
 	fseek(tmp_file, 0, SEEK_SET);
 
-	result = download_file(file, tmp_file, server, path, sizeof(buffer),
-		buffer, etag_size, etag);
+	result = download_file(file, tmp_file, server, path, &file_size,
+		sizeof(buffer), buffer, etag_size, etag);
 
 	if (result == 304)
 	{
@@ -693,7 +709,7 @@ static Uint32 build_update_list(const char* server, const char* file,
 		fseek(tmp_file, 0, SEEK_SET);
 
 		result = download_file(file_name, tmp_file, server, path,
-			sizeof(buffer), buffer, etag_size, etag);
+			&file_size, sizeof(buffer), buffer, etag_size, etag);
 
 		if (result == 304)
 		{
@@ -725,7 +741,7 @@ static Uint32 build_update_list(const char* server, const char* file,
 	*count = 0;
 
 	fseek(tmp_file, 0, SEEK_SET);
-	file_read(tmp_file, &file_buffer, &file_size);
+	file_read(tmp_file, file_size, &file_buffer, &file_size);
 	fclose(tmp_file);
 
 	if (add_to_downloads(file_buffer, file_size, infos, count,

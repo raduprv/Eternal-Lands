@@ -26,13 +26,14 @@ void init_crc_tables();
  * Reads a file from the given file to memory. If the file is a xz file,
  * the data is uncompressed before it is written to memory.
  * @param file The file to read from.
+ * @param file_size The size of the file to read from.
  * @param buffer The pointer to the var where the memeory buffer should be
  * placed.
  * @param size The pointer to the var where the size of the memory buffer
  * should be placed.
  * @return Zero if no error, else one.
  */
-Uint32 file_read(FILE* file, void** buffer, Uint64* size);
+Uint32 file_read(FILE* file, const Uint64 file_size, void** buffer, Uint64* size);
 
 /**
  * @brief Reads and uncompress a xz file to memory.
