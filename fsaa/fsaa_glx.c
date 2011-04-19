@@ -1,5 +1,7 @@
 #include <GL/glx.h>
 #include <X11/extensions/Xrandr.h>
+#include "../platform.h"
+#include "../errors.h"
 
 static Display* get_gl_display()
 {
@@ -30,6 +32,8 @@ unsigned int get_fsaa_modes()
 	Display* display;
 	int i, count, caveat, samples;
 	unsigned int result;
+
+	LOG_ERROR("Using glx to get fsaa modes");
 
 	_glXChooseFBConfig = (PFNGLXCHOOSEFBCONFIGPROC)glXGetProcAddressARB((const GLubyte*)"glXChooseFBConfig");
 	_glXGetFBConfigAttrib = (PFNGLXGETFBCONFIGATTRIBPROC)glXGetProcAddressARB((const GLubyte*)"glXGetFBConfigAttrib");

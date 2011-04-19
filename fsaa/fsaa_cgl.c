@@ -1,4 +1,6 @@
 #include <OpenGL/OpenGL.h>
+#include "../platform.h"
+#include "../errors.h"
 
 unsigned int get_fsaa_modes()
 {
@@ -6,10 +8,14 @@ unsigned int get_fsaa_modes()
 	int i, j, index, result;
 	CGLRendererInfoObj render_info;
 
+	LOG_ERROR("Using cgl to get fsaa modes");
+
 	CGLQueryRendererInfo(1, &render_info, &renders);
 
 	if (renders == 0)
 	{
+		LOG_ERROR("Can't get render infos");
+
 		return 0;
 	}
 

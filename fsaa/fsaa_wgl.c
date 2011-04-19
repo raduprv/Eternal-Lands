@@ -2,6 +2,8 @@
 #include <gl/gl.h>
 #include <gl/glu.h>
 #include <gl/wglext.h>
+#include "../platform.h"
+#include "../errors.h"
 
 static const int iattr[] = {
 	WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
@@ -30,6 +32,8 @@ unsigned int get_fsaa_modes()
 	unsigned int multisample, pixel_format;
 	int query, samples, format;
 
+	LOG_ERROR("Using wgl to get fsaa modes");
+
 	result = 0;
 
 	str = "fsaa_dummy";
@@ -49,6 +53,8 @@ unsigned int get_fsaa_modes()
 
 	if (hwnd == 0)
 	{
+		LOG_ERROR("Can't create dummy window");
+
 		return result;
 	}
 

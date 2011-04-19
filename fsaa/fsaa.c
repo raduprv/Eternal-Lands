@@ -1,3 +1,7 @@
+#include "../platform.h"
+#include "../errors.h"
+#include "fsaa.h"
+
 unsigned int fsaa = 0;
 unsigned int fsaa_modes = 0;
 
@@ -11,14 +15,32 @@ char* fsaa_modes_strings[32] =
 
 unsigned int get_fsaa_modes();
 
-void init_fsaa_modes()
-{
-	fsaa_modes = get_fsaa_modes();
-}
-
 unsigned int get_fsaa_mode_count()
 {
 	return 32;
+}
+
+void init_fsaa_modes()
+{
+	char str[1024];
+	Uint32 i;
+
+	fsaa_modes = get_fsaa_modes();
+
+	memset(str, 0, sizeof(str));
+
+	strcpy(str, get_fsaa_mode_str(0));
+
+	for (i = 1; i < get_fsaa_mode_count(); i++)
+	{
+		if (get_fsaa_mode(i) == 1)
+		{
+			strcat(str, ", ");
+			strcat(str, get_fsaa_mode_str(i));
+		}
+	}
+
+	LOG_ERROR("Supported fsaa modes: %s", str);
 }
 
 unsigned int get_fsaa_mode(const unsigned int index)
@@ -37,7 +59,7 @@ unsigned int get_fsaa_mode(const unsigned int index)
 	}
 }
 
-const char* get_fsaa_mode_str(const unsigned int index)
+char* get_fsaa_mode_str(const unsigned int index)
 {
 	if (index < get_fsaa_mode_count())
 	{
