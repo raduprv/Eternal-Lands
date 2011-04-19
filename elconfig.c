@@ -1969,8 +1969,10 @@ void init_vars()
 	add_var(OPT_BOOL, "continent_map_boundaries", "cmb", &show_continent_map_boundaries, change_var, 1, "Map Boundaries On Continent Map", "Show map boundaries on the continent map", MISC);
 #ifdef	FSAA
 	add_var(OPT_MULTI_H, "anti_aliasing", "fsaa", &fsaa_index, change_fsaa, 0, "Anti-Aliasing", "Full Scene Anti-Aliasing", VIDEO, get_fsaa_mode_str(0), 0);
+	LOG_ERROR("get_fsaa_mode_count(): %d", get_fsaa_mode_count());
 	for (i = 1; i < get_fsaa_mode_count(); i++)
 	{
+		LOG_ERROR("get_fsaa_mode(%d)[%d]: %s", i, get_fsaa_mode(i), get_fsaa_mode_str(i));
 		if (get_fsaa_mode(i) == 1)
 		{
 			add_multi_h_option("anti_aliasing", get_fsaa_mode_str(i));
@@ -2471,7 +2473,7 @@ void elconfig_populate_tabs(void)
 			case OPT_MULTI_H:
 
 				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
-				widget_id= multiselect_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x+SPACING+get_string_width(our_vars.var[i]->display.str), elconfig_tabs[tab_id].y, 250, 80, 1.0f, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
+				widget_id= multiselect_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x+SPACING+get_string_width(our_vars.var[i]->display.str), elconfig_tabs[tab_id].y, 350, 80, 1.0f, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
 				x = 0;
 				for(y= 0; !queue_isempty(our_vars.var[i]->queue); y++) {
 					char *label= queue_pop(our_vars.var[i]->queue);
