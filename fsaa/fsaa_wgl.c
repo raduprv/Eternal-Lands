@@ -34,7 +34,7 @@ unsigned int get_fsaa_modes()
 
 	LOG_ERROR("Using wgl to get fsaa modes");
 
-	result = 0;
+	result = 1;
 
 	str = "fsaa_dummy";
 

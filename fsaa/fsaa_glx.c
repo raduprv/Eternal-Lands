@@ -55,7 +55,7 @@ unsigned int get_fsaa_modes()
 	}
 
 	count = 0;
-	result = 0;
+	result = 1;
 	display = get_gl_display();
 
 	if (_glXChooseFBConfig != 0)

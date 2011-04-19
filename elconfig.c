@@ -1971,7 +1971,7 @@ void init_vars()
 	add_var(OPT_MULTI_H, "anti_aliasing", "fsaa", &fsaa_index, change_fsaa, 0, "Anti-Aliasing", "Full Scene Anti-Aliasing", VIDEO, get_fsaa_mode_str(0), 0);
 	for (i = 1; i < get_fsaa_mode_count(); i++)
 	{
-		if (get_fsaa_mode(i))
+		if (get_fsaa_mode(i) == 1)
 		{
 			add_multi_h_option("anti_aliasing", get_fsaa_mode_str(i));
 		}
