@@ -1,6 +1,7 @@
 #include "ziputil.h"
 #include <time.h>
 #include <string.h>
+#include "../xz/7zCrc.h"
 
 Uint32 convert_string_to_md5_digest(const char* str, MD5_DIGEST digest)
 {
@@ -9,12 +10,12 @@ Uint32 convert_string_to_md5_digest(const char* str, MD5_DIGEST digest)
 
 	if (str == 0)
 	{
-		return 0;
+		return 1;
 	}
 
 	if (strlen(str) < 32)
 	{
-		return 0;
+		return 2;
 	}
 
 	memset(buffer, 0, sizeof(buffer));
@@ -30,7 +31,7 @@ Uint32 convert_string_to_md5_digest(const char* str, MD5_DIGEST digest)
 		digest[i] = val;
 	}
 
-	return 1;
+	return 0;
 }
 
 Uint32 convert_comment_string_to_md5_digest(const char* str, MD5_DIGEST digest)
@@ -49,7 +50,7 @@ Uint32 convert_md5_digest_to_comment_string(const MD5_DIGEST digest,
 {
 	if (size < 38)
 	{
-		return 0;
+		return 1;
 	}
 
 	memset(str, 0, size);
@@ -60,7 +61,7 @@ Uint32 convert_md5_digest_to_comment_string(const MD5_DIGEST digest,
 		digest[8], digest[9], digest[10], digest[11],
 		digest[12], digest[13], digest[14], digest[15]);
 
-	return 1;
+	return 0;
 }
 
 Uint32 add_to_zip(const char* file_name, const Uint32 size,
@@ -88,7 +89,7 @@ Uint32 add_to_zip(const char* file_name, const Uint32 size,
 	zipWriteInFileInZip(dest, buffer, size);
 	zipCloseFileInZip(dest);
 
-	return 1;
+	return 0;
 }
 
 Uint32 copy_from_zip(unzFile source, zipFile dest)
@@ -125,46 +126,90 @@ Uint32 copy_from_zip(unzFile source, zipFile dest)
 	zipOpenNewFileInZip2_64(dest, file_name, &info, 0, 0, 0, 0, comment,
 		method, level, 1, 1);
 	zipWriteInFileInZip(dest, buffer, size);
-	zipCloseFileInZipRaw64(dest, size, crc);
+	zipCloseFileInZipRaw64(dest, src_info.uncompressed_size, crc);
 
 	free(buffer);
 
-	return 1;
+	return 0;
 }
 
-Uint32 check_md5_from_zip(unzFile source, const char* file_name,
-	const MD5_DIGEST digest)
+static Uint32 check_crc_from_zip_current(unzFile source, const Uint32 size,
+	const Uint32 crc)
 {
-	unz_file_info64 info;
-	char comment[256];
-	MD5_DIGEST tmp_digest;
+	void* buffer;
+
+	buffer = malloc(size);
+
+	unzOpenCurrentFile(source);
+
+	unzReadCurrentFile(source, buffer, size);
+	unzCloseCurrentFile(source);
+
+	if (crc != CrcCalc(buffer, size))
+	{
+		free(buffer);
+
+		return 1;
+	}
+
+	free(buffer);
+
+	return 0;
+}
+
+Uint32 check_crc_from_zip(unzFile source, const char* file_name)
+{
+	unz_file_info64 file_info;
 
 	if (unzLocateFile(source, file_name, 2) != UNZ_OK)
 	{
 		return 0;
 	}
 
-	if (unzGetCurrentFileInfo64(source, &info, 0, 0, 0, 0,
-		comment, sizeof(comment)) != UNZ_OK)
+	if (unzGetCurrentFileInfo64(source, &file_info, 0, 0, 0, 0, 0, 0) !=
+		UNZ_OK)
 	{
 		return 0;
 	}
 
-	if (info.size_file_comment < 37)
-	{
-		return 0;
-	}
+	return check_crc_from_zip_current(source, file_info.uncompressed_size,
+		file_info.crc);
+}
 
-	if (convert_comment_string_to_md5_digest(comment, tmp_digest) != 1)
-	{
-		return 0;
-	}
+Uint32 check_md5_from_zip(unzFile source, const char* file_name,
+	const MD5_DIGEST digest)
+{
+	unz_file_info64 file_info;
+	char comment[256];
+	MD5_DIGEST tmp_digest;
 
-	if (memcmp(digest, tmp_digest, sizeof(MD5_DIGEST)) == 0)
+	if (unzLocateFile(source, file_name, 2) != UNZ_OK)
 	{
 		return 1;
 	}
 
-	return 0;
+	if (unzGetCurrentFileInfo64(source, &file_info, 0, 0, 0, 0,
+		comment, sizeof(comment)) != UNZ_OK)
+	{
+		return 1;
+	}
+
+	if (file_info.size_file_comment < 37)
+	{
+		return 1;
+	}
+
+	if (convert_comment_string_to_md5_digest(comment, tmp_digest) != 0)
+	{
+		return 1;
+	}
+
+	if (memcmp(digest, tmp_digest, sizeof(MD5_DIGEST)) != 0)
+	{
+		return 1;
+	}
+
+	return check_crc_from_zip_current(source, file_info.uncompressed_size,
+		file_info.crc);
 }
 

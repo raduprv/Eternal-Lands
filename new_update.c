@@ -279,14 +279,20 @@ static int download_files_thread(void* _data)
 					" it", result, info->file_name,
 					data->server);
 
-				SDL_Delay(1000);
-
 				error = 3;
 				continue;
 			}
 
-			fseek(file, 0, SEEK_SET);
-			file_read(file, size, &file_buffer, &file_size);
+			if (file_read(file, size, &file_buffer, &file_size) !=
+				0)
+			{
+				LOG_ERROR("Read error while updating file '%s' "
+					"from server '%s', retrying it",
+					info->file_name, data->server);
+
+				error = 3;
+				continue;
+			}
 
 			convert_md5_digest_to_comment_string(info->digest,
 				sizeof(comment), comment);
@@ -448,7 +454,7 @@ static Uint32 download_files(update_info_t* infos, const Uint32 count,
 		for (j = 0; j < source_count; j++)
 		{
 			if (check_md5_from_zip(sources[j], file_name,
-				infos[i].digest) == 1)
+				infos[i].digest) == 0)
 			{
 				CHECK_AND_LOCK_MUTEX(thread_data.mutex);
 
@@ -557,7 +563,7 @@ static Uint32 add_to_downloads(const char* buffer, const Uint64 buffer_size,
 		if (*name && *md5 && (name[0] != '/') && (name[0] != '\\') &&
 			(name[1] != ':'))
 		{
-			if (convert_string_to_md5_digest(md5, digest) != 1)
+			if (convert_string_to_md5_digest(md5, digest) != 0)
 			{
 				break;
 			}

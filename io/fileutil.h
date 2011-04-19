@@ -33,7 +33,8 @@ void init_crc_tables();
  * should be placed.
  * @return Zero if no error, else one.
  */
-Uint32 file_read(FILE* file, const Uint64 file_size, void** buffer, Uint64* size);
+Uint32 file_read(FILE* file, const Uint64 file_size, void** buffer,
+	Uint64* size);
 
 /**
  * @brief Reads and uncompress a xz file to memory.

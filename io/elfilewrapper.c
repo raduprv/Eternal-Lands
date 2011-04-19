@@ -596,7 +596,7 @@ static el_file_ptr zip_file_open(unzFile file)
 {
 	unz_file_info64 file_info;
 	el_file_ptr result;
-	Uint32 size;
+	Uint32 size, crc;
 
 	if (unzOpenCurrentFile(file) != UNZ_OK)
 	{
@@ -637,6 +637,18 @@ static el_file_ptr zip_file_open(unzFile file)
 
 	if (unzCloseCurrentFile(file) != UNZ_OK)
 	{
+		free_el_file(result);
+
+		return 0;
+	}
+
+	crc = CrcCalc(result->buffer, result->size);
+
+	if (result->crc32 != crc)
+	{
+		LOG_ERROR("crc value is 0x%08X, but should be 0x%08X", crc,
+			result->crc32);
+
 		free_el_file(result);
 
 		return 0;

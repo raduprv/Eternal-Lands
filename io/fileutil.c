@@ -13,22 +13,14 @@ void init_crc_tables()
 	Crc64GenerateTable();
 }
 
-static Uint32 xz_file_read_unchecked(FILE* file, const Uint64 file_size,
-	void** buffer, Uint64* size)
+static Uint32 xz_file_read_unchecked(FILE* file, const void* file_buffer,
+	const Uint64 file_size, void** buffer, Uint64* size)
 {
 	CXzUnpacker state;
-	void* src_buffer;
-	Uint64 compressed_size, uncompressed_size, dst_idx, src_idx;
+	Uint64 uncompressed_size, dst_idx, src_idx;
 	SizeT dst_size, src_size;
 	Uint32 err;
 	ECoderStatus status;
-
-	compressed_size = file_size;
-
-	src_buffer = malloc(compressed_size);
-
-	fseek(file, 0, SEEK_SET);
-	fread(src_buffer, compressed_size, 1, file);
 
 	err = XzUnpacker_Create(&state, &lzmaAlloc);
 
@@ -52,10 +44,10 @@ static Uint32 xz_file_read_unchecked(FILE* file, const Uint64 file_size,
 		*buffer = realloc(*buffer, uncompressed_size);
 
 		dst_size = uncompressed_size - dst_idx;
-		src_size = compressed_size - src_idx;
+		src_size = file_size - src_idx;
 
 		err = XzUnpacker_Code(&state, (Byte*)*buffer + dst_idx,
-			&dst_size, (Byte*)src_buffer + src_idx,
+			&dst_size, (Byte*)file_buffer + src_idx,
 			&src_size, CODER_FINISH_ANY, &status);
 
 		src_idx += src_size;
@@ -82,48 +74,74 @@ static Uint32 xz_file_read_unchecked(FILE* file, const Uint64 file_size,
 
 Uint32 file_read(FILE* file, const Uint64 file_size, void** buffer, Uint64* size)
 {
-	Byte sig[XZ_SIG_SIZE];
+	void* file_buffer;
+	Uint32 result;
 
-	fseek(file, 0, SEEK_SET);
-	fread(sig, XZ_SIG_SIZE, 1, file);
-
-	if (memcmp(sig, XZ_SIG, XZ_SIG_SIZE) == 0)
+	if (file_size == 0)
 	{
-		return xz_file_read_unchecked(file, file_size, buffer, size);
-	}
+		*size = 0;
+		*buffer = 0;
 
-	*size = file_size;
-
-	if (*size == 0)
-	{
 		return 1;
 	}
 
-	*buffer = malloc(*size);
+	file_buffer = malloc(file_size);
 
 	fseek(file, 0, SEEK_SET);
-	fread(*buffer, *size, 1, file);
+	fread(file_buffer, file_size, 1, file);
+
+	if (file_size > XZ_SIG_SIZE)
+	{
+		if (memcmp(file_buffer, XZ_SIG, XZ_SIG_SIZE) == 0)
+		{
+			result = xz_file_read_unchecked(file, file_buffer,
+				file_size, buffer, size);
+	
+			free(file_buffer);
+
+			return result;
+		}
+	}
+
+	*size = file_size;
+	*buffer = file_buffer;
 
 	return 0;
 }
 
 Uint32 xz_file_read(FILE* file, void** buffer, Uint64* size)
 {
-	Byte sig[XZ_SIG_SIZE];
+	void* file_buffer;
 	Uint64 file_size;
+	Uint32 result;
 
-	fseek(file, 0, SEEK_SET);
-	fread(sig, XZ_SIG_SIZE, 1, file);
+	fseek(file, 0, SEEK_END);
+	file_size = ftell(file);
+	*size = 0;
+	*buffer = 0;
 
-	if (memcmp(sig, XZ_SIG, XZ_SIG_SIZE) != 0)
+	if (file_size <= XZ_SIG_SIZE)
 	{
 		return 1;
 	}
 
-	fseek(file, 0, SEEK_END);
+	file_buffer = malloc(file_size);
 
-	file_size = ftell(file);
+	fseek(file, 0, SEEK_SET);
+	fread(file_buffer, file_size, 1, file);
 
-	return xz_file_read_unchecked(file, file_size, buffer, size);
+	if (memcmp(file_buffer, XZ_SIG, XZ_SIG_SIZE) != 0)
+	{
+		free(file_buffer);
+
+		return 1;
+	}
+
+	result = xz_file_read_unchecked(file, file_buffer, file_size, buffer,
+		size);
+	
+	free(file_buffer);
+
+	return result;
 }
 

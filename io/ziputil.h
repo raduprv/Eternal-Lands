@@ -24,7 +24,7 @@ extern "C"
  * 		given dest zip file.
  * \param   	source The zip file where the file is taken from.
  * \param   	dest The zip file where the file should be added.
- * \retval Uint32	Returns one if everything is ok, else zero.
+ * \retval Uint32	Returns zero if everything is ok, else one.
  * \callgraph
  */
 Uint32 copy_from_zip(unzFile source, zipFile dest);
@@ -37,7 +37,7 @@ Uint32 copy_from_zip(unzFile source, zipFile dest);
  * \param   	file_name The file name to use.
  * \param   	size The size of the buffer.
  * \param   	buffer The buffer with the data.
- * \retval Uint32	Returns one if everything is ok, else zero.
+ * \retval Uint32	Returns zero if everything is ok, else one.
  * \callgraph
  */
 Uint32 add_to_zip(const char* file_name, const Uint32 size,
@@ -50,7 +50,7 @@ Uint32 add_to_zip(const char* file_name, const Uint32 size,
  * 		Converts the string to a md5 digest
  * \param   	str The string to use.
  * \param   	digest The md5 digest to update.
- * \retval Uint32	Returns one if everything is ok, else zero.
+ * \retval Uint32	Returns zero if everything is ok, else one.
  * \callgraph
  */
 Uint32 convert_string_to_md5_digest(const char* str, MD5_DIGEST digest);
@@ -62,7 +62,7 @@ Uint32 convert_string_to_md5_digest(const char* str, MD5_DIGEST digest);
  * 		Converts the comment string to a md5 digest
  * \param   	str The string to use.
  * \param   	digest The md5 digest to update.
- * \retval Uint32	Returns one if everything is ok, else zero.
+ * \retval Uint32	Returns zero if everything is ok, else one.
  * \callgraph
  */
 Uint32 convert_comment_string_to_md5_digest(const char* str, MD5_DIGEST digest);
@@ -75,7 +75,7 @@ Uint32 convert_comment_string_to_md5_digest(const char* str, MD5_DIGEST digest);
  * \param   	digest The md5 digest to use.
  * \param   	size The maximum size fot the string.
  * \param   	str The string to update.
- * \retval Uint32	Returns one if everything is ok, else zero.
+ * \retval Uint32	Returns zero if everything is ok, else one.
  * \callgraph
  */
 Uint32 convert_md5_digest_to_comment_string(const MD5_DIGEST digest,
