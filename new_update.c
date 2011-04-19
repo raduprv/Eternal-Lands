@@ -203,7 +203,7 @@ static int download_files_thread(void* _data)
 	char* download_buffer;
 	void* file_buffer;
 	FILE *file;
-	Uint64 file_size;
+	Uint64 file_size, size;
 	Uint32 i, len, result, error, count, index, running;
 	Uint32 download_buffer_size;
 
@@ -268,7 +268,7 @@ static int download_files_thread(void* _data)
 			fseek(file, 0, SEEK_SET);
 
 			result = download_file(info->file_name, file,
-				data->server, data->path, &file_size,
+				data->server, data->path, &size,
 				download_buffer_size,
 				download_buffer, 0, 0);
 
@@ -286,7 +286,7 @@ static int download_files_thread(void* _data)
 			}
 
 			fseek(file, 0, SEEK_SET);
-			file_read(file, file_size, &file_buffer, &file_size);
+			file_read(file, size, &file_buffer, &file_size);
 
 			convert_md5_digest_to_comment_string(info->digest,
 				sizeof(comment), comment);
