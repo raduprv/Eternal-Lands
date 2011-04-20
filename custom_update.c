@@ -224,7 +224,7 @@ static int custom_update_thread(void* thread_data)
 			data->running = 1;
 		}
 
-		LOG_ERROR("%s", data->str);
+		LOG_INFO("%s", data->str);
 
 		CHECK_AND_UNLOCK_MUTEX(data->mutex);
 

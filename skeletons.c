@@ -15,7 +15,7 @@ int find_core_bone_id(struct CalCoreSkeleton *skel, const char *name)
 		if (!strcmp(CalCoreBone_GetName(bone), name))
 			return i;
 	}
-	log_error("no bone with name '%s' found in skeleton!\n", name);
+	LOG_ERROR("no bone with name '%s' found in skeleton!\n", name);
 	return -1;
 }
 
@@ -179,7 +179,7 @@ int get_skeleton(struct CalCoreModel *cal_model, const char *skeleton_name)
 		skel->cal_bones_id[highest_bone] = skel->cal_bones_id[head_bone];
 	}
 	else {
-		log_error("The skeleton '%s' is unknown, trying to guess main parts\n",
+		LOG_ERROR("The skeleton '%s' is unknown, trying to guess main parts\n",
 				  skeleton_name);
 		skel->cal_bones_id[head_bone] = find_core_bone_id(cal_skel, "head");
 		skel->cal_bones_id[mouth_bone] = find_core_bone_id(cal_skel, "mouth");

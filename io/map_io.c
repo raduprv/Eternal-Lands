@@ -96,7 +96,7 @@ int load_map(const char *file_name, update_func *update_function)
 	   cur_map_header.file_sig[2]!='m'||
 	   cur_map_header.file_sig[3]!='f')
 	{
-		log_error (invalid_map, map_file_name);
+		LOG_ERROR(invalid_map, map_file_name);
 		exit_now = 1; // We might as well quit...
 		free (file_mem);
 		return 0;

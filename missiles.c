@@ -718,12 +718,12 @@ void missiles_fire_a_to_b(int actor1_id, int actor2_id)
 	act2 = get_actor_ptr_from_id(actor2_id);
         
 	if (!act1) {
-		log_error("missiles_fire_a_to_b: the actor %d does not exists!", actor1_id);
+		LOG_ERROR("missiles_fire_a_to_b: the actor %d does not exists!", actor1_id);
 		UNLOCK_ACTORS_LISTS();
 		return;
 	}
 	if (!act2) {
-		log_error("missiles_fire_a_to_b: the actor %d does not exists!", actor2_id);
+		LOG_ERROR("missiles_fire_a_to_b: the actor %d does not exists!", actor2_id);
 		UNLOCK_ACTORS_LISTS();
 		return;
 	}
@@ -760,7 +760,7 @@ void missiles_fire_a_to_xyz(int actor_id, float *target)
 	act = get_actor_ptr_from_id(actor_id);
 
 	if (!act) {
-		log_error("missiles_fire_a_to_xyz: the actor %d does not exists!", actor_id);
+		LOG_ERROR("missiles_fire_a_to_xyz: the actor %d does not exists!", actor_id);
 		UNLOCK_ACTORS_LISTS();
 		return;
 	}
@@ -825,7 +825,7 @@ int missiles_parse_nodes(xmlNode *node)
 	mis_idx = get_int_property(node, "id");
 
 	if (mis_idx < 0 || mis_idx >= MAX_MISSILES_DEFS) {
-		log_error("missiles_parse_node: no ID found for node %s or ID out of range: id=%d\n", get_string_property(node, "type"), mis_idx);
+		LOG_ERROR("missiles_parse_node: no ID found for node %s or ID out of range: id=%d\n", get_string_property(node, "type"), mis_idx);
 		return 0;
 	}
 
@@ -865,11 +865,11 @@ int missiles_parse_nodes(xmlNode *node)
 				}
 				else {
 					mis->effect = REGULAR_MISSILE;
-					log_error("missiles_parse_node: \"%s\" is an unknown effect", effect_name);
+					LOG_ERROR("missiles_parse_node: \"%s\" is an unknown effect", effect_name);
 				}
 			}
 			else {
-				log_error("missiles_parse_node: unknown attribute \"%s\"", item->name);
+				LOG_ERROR("missiles_parse_node: unknown attribute \"%s\"", item->name);
 				ok = 0;
 			}
 		}

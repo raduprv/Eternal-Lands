@@ -148,7 +148,7 @@ void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
 	//now, get the Z position
 	if(bag_y*tile_map_size_x*6+bag_x>tile_map_size_x*tile_map_size_y*6*6) {
 		//Warn about this error:
-		log_error("A bag was placed OUTSIDE the map!\n");
+		LOG_WARNING("A bag was placed OUTSIDE the map!\n");
 		return;
 	}
 
@@ -224,7 +224,7 @@ void add_bags_from_list (const Uint8 *data)
 		//now, get the Z position
 		if(bag_y*tile_map_size_x*6+bag_x>tile_map_size_x*tile_map_size_y*6*6)  {
 			//Warn about this error!
-			log_error("A bag was located OUTSIDE the map!\n");
+			LOG_WARNING("A bag was located OUTSIDE the map!\n");
 			continue;
 		}
 

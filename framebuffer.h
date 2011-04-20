@@ -114,8 +114,8 @@ void change_depth_framebuffer_size(int width, int height, GLuint *fbo, GLuint *f
 void check_fbo_formats();
 
 #ifdef	DEBUG
-void print_fbo_errors(const char *file, const char *func, int line);
-#define CHECK_FBO_ERRORS()	print_fbo_errors(__FILE__,  __FUNCTION__, __LINE__)
+void print_fbo_errors(const char *file, int line);
+#define CHECK_FBO_ERRORS()	print_fbo_errors(__FILE__, __LINE__)
 #else	//DEBUG
 #define CHECK_FBO_ERRORS()	/**< NOP */
 #endif	//DEBUG

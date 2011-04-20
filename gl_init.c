@@ -327,7 +327,7 @@ void init_video()
 			SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,0);
 			if(!SDL_SetVideoMode( window_width, window_height, bpp, flags))
 			    {
-					log_error("%s: %s\n", fail_opengl_mode, SDL_GetError());
+					LOG_ERROR("%s: %s\n", fail_opengl_mode, SDL_GetError());
 					SDL_Quit();
 					exit(1);
 			    }
@@ -510,7 +510,7 @@ void evaluate_extension()
 	{
         safe_snprintf(str,sizeof(str),"Please update your graphic card driver!");
 		LOG_TO_CONSOLE(c_yellow1, str);
-		LOG_ERROR("%s\n",str);
+		LOG_WARNING("%s\n",str);
 	}
 
 	options = ((has_ati_texture_env_combine3 && has_arb_texture_env_crossbar) ||
@@ -524,7 +524,7 @@ void evaluate_extension()
 			" requirements for the next EL release, but don't expect that you can use",
 			" all features.");
         LOG_TO_CONSOLE(c_yellow1, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
         
 	}
 	else
@@ -537,7 +537,7 @@ void evaluate_extension()
             safe_snprintf(str,sizeof(str),"%s%s","Your graphic card supports the default ",
 				"requirements for the next EL release.");
 			LOG_TO_CONSOLE(c_green2, str);
-			LOG_ERROR("%s\n",str);
+			LOG_INFO("%s\n",str);
 		}
 		else
 		{
@@ -549,14 +549,14 @@ void evaluate_extension()
 				safe_snprintf(str,sizeof(str),"%s%s","Your graphic card supports all ",
 					"features EL will use in the future.");
                 LOG_TO_CONSOLE(c_blue2, str);
-                LOG_ERROR("%s\n",str);
+                LOG_INFO("%s\n",str);
 			}
 			else
 			{
                 safe_snprintf(str,sizeof(str),"%s%s","Your graphic card supports more than the",
 				" default requirements for the next EL release.");
 				LOG_TO_CONSOLE(c_blue2, str);
-                LOG_ERROR("%s\n",str);
+                LOG_INFO("%s\n",str);
 			}
 		}
 	}
@@ -574,13 +574,13 @@ void init_gl_extensions()
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_multitexture");
 		LOG_TO_CONSOLE(c_green2, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	else
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_ARB_multitexture");
 		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	/*	GL_ARB_multitexture			*/
 
@@ -602,13 +602,13 @@ void init_gl_extensions()
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_EXT_compiled_vertex_array");
 		LOG_TO_CONSOLE(c_green2, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	else
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_EXT_compiled_vertex_array");
 		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	/*	GL_EXT_compiled_vertex_array		*/
 
@@ -617,13 +617,13 @@ void init_gl_extensions()
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_point_sprite");
 		LOG_TO_CONSOLE(c_green2, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	else
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_ARB_point_sprite");
 		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	/*	GL_ARB_point_sprite		*/
 
@@ -632,13 +632,13 @@ void init_gl_extensions()
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_texture_compression");
 		LOG_TO_CONSOLE(c_green2, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	else
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_ARB_texture_compression");
 		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	/*	GL_ARB_texture_compression		*/
 
@@ -647,13 +647,13 @@ void init_gl_extensions()
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_EXT_texture_compression_s3tc");
 		LOG_TO_CONSOLE(c_green2, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	else
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_EXT_texture_compression_s3tc");
 		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	/*	GL_EXT_texture_compression_s3tc		*/
 	
@@ -662,13 +662,13 @@ void init_gl_extensions()
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_SGIS_generate_mipmap");
 		LOG_TO_CONSOLE(c_green2, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	else
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_SGIS_generate_mipmap");
 		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	/*	GL_SGIS_generate_mipmap			*/
 
@@ -677,13 +677,13 @@ void init_gl_extensions()
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_shadow");
 		LOG_TO_CONSOLE(c_green2, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	else
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_ARB_shadow");
 		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	/*	GL_ARB_shadow				*/
 
@@ -692,13 +692,13 @@ void init_gl_extensions()
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_vertex_buffer_object");
 		LOG_TO_CONSOLE(c_green2, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	else
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_ARB_vertex_buffer_object");
 		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	/*	GL_ARB_vertex_buffer_object		*/
 
@@ -707,13 +707,13 @@ void init_gl_extensions()
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_EXT_framebuffer_object");
 		LOG_TO_CONSOLE(c_green2, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	else
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_EXT_framebuffer_object");
 		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	/*	GL_EXT_framebuffer_object		*/
 	
@@ -722,13 +722,13 @@ void init_gl_extensions()
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_EXT_draw_range_elements");
 		LOG_TO_CONSOLE(c_green2, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	else
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_EXT_draw_range_elements");
 		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	/*	GL_EXT_draw_range_elements		*/
 
@@ -737,13 +737,13 @@ void init_gl_extensions()
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_texture_non_power_of_two");
 		LOG_TO_CONSOLE(c_green2, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	else
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_ARB_texture_non_power_of_two");
 		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	/*	GL_ARB_texture_non_power_of_two		*/
 
@@ -752,13 +752,13 @@ void init_gl_extensions()
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_fragment_program");
 		LOG_TO_CONSOLE(c_green2, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	else
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_ARB_fragment_program");
 		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	/*	GL_ARB_fragment_program			*/
 
@@ -767,13 +767,13 @@ void init_gl_extensions()
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_vertex_program");
 		LOG_TO_CONSOLE(c_green2, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	else
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_ARB_vertex_program");
 		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	/*	GL_ARB_vertex_program			*/
 
@@ -782,13 +782,13 @@ void init_gl_extensions()
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_fragment_shader");
 		LOG_TO_CONSOLE(c_green2, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	else
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_ARB_fragment_shader");
 		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	/*	GL_ARB_fragment_shader			*/
 
@@ -797,13 +797,13 @@ void init_gl_extensions()
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_vertex_shader");
 		LOG_TO_CONSOLE(c_green2, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	else
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_ARB_vertex_shader");
 		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	/*	GL_ARB_vertex_shader			*/
 
@@ -812,13 +812,13 @@ void init_gl_extensions()
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_shader_objects");
 		LOG_TO_CONSOLE(c_green2, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	else
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_ARB_shader_objects");
 		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	/*	GL_ARB_shader_objects			*/
 
@@ -827,13 +827,13 @@ void init_gl_extensions()
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_shading_language_100");
 		LOG_TO_CONSOLE(c_green2, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	else
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_ARB_shading_language_100");
 		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	/*	GL_ARB_shading_language_100		*/
 
@@ -842,13 +842,13 @@ void init_gl_extensions()
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_found_not_used, "GL_ARB_texture_mirrored_repeat");
 		LOG_TO_CONSOLE(c_green2, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	else
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_ARB_texture_mirrored_repeat");
 		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	/*	GL_ARB_texture_mirrored_repeat		*/
 
@@ -857,13 +857,13 @@ void init_gl_extensions()
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_found_not_used, "GL_ARB_texture_rectangle");
 		LOG_TO_CONSOLE(c_green2, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	else
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_ARB_texture_rectangle");
 		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	/*	GL_ARB_texture_rectangle		*/
 
@@ -872,13 +872,13 @@ void init_gl_extensions()
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_found_not_used, "GL_EXT_fog_coord");
 		LOG_TO_CONSOLE(c_green2, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	else
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_EXT_fog_coord");
 		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	/*	GL_EXT_fog_coord			*/
 
@@ -887,13 +887,13 @@ void init_gl_extensions()
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_ATI_texture_compression_3dc");
 		LOG_TO_CONSOLE(c_green2, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	else
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_ATI_texture_compression_3dc");
 		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	/*	GL_ATI_texture_compression_3dc		*/
 
@@ -902,13 +902,13 @@ void init_gl_extensions()
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_EXT_texture_compression_latc");
 		LOG_TO_CONSOLE(c_green2, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	else
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_EXT_texture_compression_latc");
 		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	/*	GL_EXT_texture_compression_latc		*/
 
@@ -918,14 +918,14 @@ void init_gl_extensions()
 		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &anisotropic_filter);
 		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_EXT_texture_filter_anisotropic");
 		LOG_TO_CONSOLE(c_green2, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	else
 	{
 		anisotropic_filter = 1.0f;
 		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_EXT_texture_filter_anisotropic");
 		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR("%s\n",str);
+		LOG_INFO("%s\n",str);
 	}
 	/*	GL_EXT_texture_filter_anisotropic	*/
 
@@ -1160,7 +1160,7 @@ void toggle_full_screen()
 }
 
 
-int print_gl_errors(const char *file, const char *func, int line)
+int print_gl_errors(const char *file, int line)
 {
 	int	glErr, anyErr=GL_NO_ERROR;
 
@@ -1170,7 +1170,7 @@ int print_gl_errors(const char *file, const char *func, int line)
 //#ifdef	GLUT
 //FIXME: this appears to be a GLU call, not GLUT, and we link with GLU normally...
 //unless this causes an error on some other compiler, the commented parts should be removed
-		log_error_detailed("OpenGL %s", file, func, line, gluErrorString(glErr));
+		log_error(file, line, "OpenGL %s", gluErrorString(glErr));
 //#else
 //		log_error_detailed("OpenGL error %d", file, func, line, glErr);
 //#endif // GLUT

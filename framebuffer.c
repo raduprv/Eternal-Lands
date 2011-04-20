@@ -172,7 +172,7 @@ void check_fbo_formats()
 	glGetIntegerv (GL_DRAW_BUFFER, &old_drawbuffer);
 	glGetIntegerv (GL_READ_BUFFER, &old_readbuffer);
 
-	log_info("Checking supported framebuffe formats....");
+	LOG_INFO("Checking supported framebuffe formats....");
 	for (i = 0; i < COLOR_FORMAT_COUNT; i++)
 	{
 		GLuint status;
@@ -216,7 +216,7 @@ void check_fbo_formats()
 				{
 					if (try_format(depth_formats[j], stencil_formats[k]))
 					{
-						log_info(fbo_supported_format, color_format_strs[i], depth_bits[j], stencil_bits[k]);
+						LOG_INFO(fbo_supported_format, color_format_strs[i], depth_bits[j], stencil_bits[k]);
 					}
 				}
 			}
@@ -232,7 +232,7 @@ void check_fbo_formats()
 	glReadBuffer(old_readbuffer);
 }
 
-void print_fbo_errors(const char *file, const char *func, int line)
+void print_fbo_errors(const char *file, int line)
 {
 	GLuint error_no = ELglCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 
@@ -243,28 +243,28 @@ void print_fbo_errors(const char *file, const char *func, int line)
 		case GL_FRAMEBUFFER_COMPLETE_EXT:
 			break;
 		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
-			log_error_detailed(fbo_attachment_error, file, func, line);
+			log_error(file, line, fbo_attachment_error);
 			break;
 		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
-			log_error_detailed(fbo_missing_attachment_error, file, func, line);
+			log_error(file, line, fbo_missing_attachment_error);
 			break;
 		case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-			log_error_detailed(fbo_dimensions_error, file, func, line);
+			log_error(file, line, fbo_dimensions_error);
 			break;
 		case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-			log_error_detailed(fbo_formats_error, file, func, line);
+			log_error(file, line, fbo_formats_error);
 			break;
 		case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
-			log_error_detailed(fbo_draw_buffer_error, file, func, line);
+			log_error(file, line, fbo_draw_buffer_error);
 			break;
 		case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
-			log_error_detailed(fbo_read_buffer_error, file, func, line);
+			log_error(file, line, fbo_read_buffer_error);
 			break;
 		case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
-			log_error_detailed(fbo_unsupported_fromat_error, file, func, line);
+			log_error(file, line, fbo_unsupported_fromat_error);
 			break;
 		default:
-			log_error_detailed(fbo_unknown_error, file, func, line, error_no);
+			log_error(file, line, fbo_unknown_error, error_no);
 			break;
 	}	
 }

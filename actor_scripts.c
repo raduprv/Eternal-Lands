@@ -1401,13 +1401,13 @@ void next_command()
 						if (actors_list[i]->cal_rotation_blend < 0.0 ||
 							(actors_list[i]->cal_h_rot_end == 0.0 &&
 							 actors_list[i]->cal_v_rot_end == 0.0)) {
-							log_error("next_command: trying to leave range mode while we are not in it => aborting safely...");
+							LOG_ERROR("next_command: trying to leave range mode while we are not in it => aborting safely...");
 							no_action = 1;
 							if (ACTOR(i)->horse_rotated) {rotate_actor_and_horse_range(i,1); ACTOR(i)->horse_rotated=0;}
 							break;
 						}
 						else {
-							log_error("next_command: trying to leave range mode while we are not in it => continuing because of a wrong actor bones rotation!");
+							LOG_ERROR("next_command: trying to leave range mode while we are not in it => continuing because of a wrong actor bones rotation!");
 						}
 					}
 
@@ -1448,7 +1448,7 @@ void next_command()
 						action->state = 3;
 
 						if (actors_list[i]->in_aim_mode != 1) {
-							log_error("next_command: trying to fire an arrow out of range mode => aborting!");
+							LOG_ERROR("next_command: trying to fire an arrow out of range mode => aborting!");
 							no_action = 1;
 							missiles_log_message("%s (%d): cleaning the queue from aim_mode_fire command (error)",
 												 actors_list[i]->actor_name, actors_list[i]->actor_id);
@@ -3703,7 +3703,7 @@ struct cal_anim cal_load_idle(actor_types *act, char *str)
 
 	res.anim_index=CalCoreModel_ELLoadCoreAnimation(act->coremodel,str,act->scale);
 	if(res.anim_index == -1) {
-		log_error("Cal3d error: %s: %s\n", str, CalError_GetLastErrorDescription());
+		LOG_ERROR("Cal3d error: %s: %s\n", str, CalError_GetLastErrorDescription());
 		return res;
 	}
 	coreanim=CalCoreModel_GetCoreAnimation(act->coremodel,res.anim_index);
@@ -3711,7 +3711,7 @@ struct cal_anim cal_load_idle(actor_types *act, char *str)
 	if (coreanim) {
 		res.duration=CalCoreAnimation_GetDuration(coreanim);
 	} else {
-		log_error("No Anim: %s\n",str);
+		LOG_ERROR("No Anim: %s\n",str);
 	}
 
 	return res;
@@ -4220,7 +4220,7 @@ int cal_load_mesh (actor_types *act, const char *fn, const char *kind)
 		mesh=CalCoreModel_GetCoreMesh(act->coremodel,res);
 		if ((mesh)&&(act->mesh_scale!=1.0)) CalCoreMesh_Scale(mesh,act->mesh_scale);
 	} else {
-		log_error("Cal3d error: %s: %s\n", fn, CalError_GetLastErrorDescription());
+		LOG_ERROR("Cal3d error: %s: %s\n", fn, CalError_GetLastErrorDescription());
 	}
 
 	return res;
@@ -4249,7 +4249,7 @@ int cal_load_weapon_mesh (actor_types *act, const char *fn, const char *kind)
 		mesh=CalCoreModel_GetCoreMesh(act->coremodel,res);
 		if ((mesh)&&(act->skel_scale!=1.0)) CalCoreMesh_Scale(mesh,act->skel_scale);
 	} else {
-		log_error("Cal3d error: %s: %s\n", fn, CalError_GetLastErrorDescription());
+		LOG_ERROR("Cal3d error: %s: %s\n", fn, CalError_GetLastErrorDescription());
 	}
 
 	return res;
@@ -4281,7 +4281,7 @@ int	parse_actor_nodes (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 				get_string_value(skeleton_name, sizeof(skeleton_name), item);
 				act->coremodel= CalCoreModel_New("Model");
 				if(!CalCoreModel_ELLoadCoreSkeleton(act->coremodel, skeleton_name)) {
-					log_error("Cal3d error: %s: %s\n", skeleton_name, CalError_GetLastErrorDescription());
+					LOG_ERROR("Cal3d error: %s: %s\n", skeleton_name, CalError_GetLastErrorDescription());
 					act->skeleton_type = -1;
 				}
 				else {
@@ -4364,7 +4364,7 @@ int parse_actor_script (xmlNode *cfg)
 		safe_snprintf(str, sizeof(str), "Data Error in %s(%d): Actor ID out of range %d",
 			name, act_idx, act_idx
 		);
-		log_error(str);
+		LOG_ERROR(str);
 		return 0;
 	}
 
@@ -4378,7 +4378,7 @@ int parse_actor_script (xmlNode *cfg)
 		safe_snprintf(str, sizeof(str), "Data Error in %s(%d): Already loaded %s(%d)",
 			name, act_idx, act->actor_name, act->actor_type
 		);
-		log_error(str);
+		LOG_ERROR(str);
 	}
 	ok= 1;
 	act->actor_type= act_idx;	// memorize the ID & name to help in debugging

@@ -4013,7 +4013,7 @@ void initial_sound_init(void)
 	sound_list_mutex = SDL_CreateMutex();
 	if (!sound_list_mutex)
 	{
-		log_error("Fatal error, unable to create sound list mutex: %s\n", SDL_GetError());
+		LOG_ERROR("Fatal error, unable to create sound list mutex: %s\n", SDL_GetError());
 		SDL_Quit();
 		exit(1);
 	}
@@ -4051,7 +4051,7 @@ void init_sound()
 	// Get a list of the available devices (not used yet)
 	if (alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT") != AL_TRUE)
 	{
-		LOG_ERROR("Warning: ALC_ENUMERATION_EXT not found. Retrieving list of sound devices may fail.");
+		LOG_WARNING("ALC_ENUMERATION_EXT not found. Retrieving list of sound devices may fail.");
 	}
 	device_list = (char*) alcGetString(NULL, ALC_DEVICE_SPECIFIER);
 	parse_snd_devices(device_list, sound_devices);
@@ -4100,21 +4100,21 @@ void init_sound()
 #ifdef _EXTRA_SOUND_DEBUG							// Debugging for Florian
 	if ((error = alGetError()) != AL_NO_ERROR)
 	{
-		printf("%s: Error setting up listener position - %s\n", snd_init_error, alGetString(error));
+		LOG_DEBUG_VERBOSE("%s: Error setting up listener position - %s\n", snd_init_error, alGetString(error));
 	}
 #endif // _EXTRA_SOUND_DEBUG
 	alListenerfv(AL_VELOCITY, listenerVel);
 #ifdef _EXTRA_SOUND_DEBUG
 	if ((error = alGetError()) != AL_NO_ERROR)
 	{
-		printf("%s: Error setting up listener velocity - %s\n", snd_init_error, alGetString(error));
+		LOG_DEBUG_VERBOSE("%s: Error setting up listener velocity - %s\n", snd_init_error, alGetString(error));
 	}
 #endif // _EXTRA_SOUND_DEBUG
 	alListenerfv(AL_ORIENTATION, listenerOri);
 #ifdef _EXTRA_SOUND_DEBUG
 	if ((error = alGetError()) != AL_NO_ERROR)
 	{
-		printf("%s: Error setting up listener orientation - %s\n", snd_init_error, alGetString(error));
+		LOG_DEBUG_VERBOSE("%s: Error setting up listener orientation - %s\n", snd_init_error, alGetString(error));
 	}
 #endif // _EXTRA_SOUND_DEBUG
 
@@ -4165,7 +4165,7 @@ void init_sound()
 	}
 	UNLOCK_SOUND_LIST();
 #ifdef _EXTRA_SOUND_DEBUG
-	printf("Generated and using %d sources\n", max_sources);
+	LOG_DEBUG_VERBOSE("Generated and using %d sources\n", max_sources);
 #endif // _EXTRA_SOUND_DEBUG
 
 	have_sound = 1;
@@ -4188,9 +4188,7 @@ void init_sound()
 	// Reset the error buffer
 	if ((error = alGetError()) != AL_NO_ERROR)
 	{
-#ifdef _EXTRA_SOUND_DEBUG
-		printf("%s: %s", snd_init_error, alGetString(error));
-#endif // _EXTRA_SOUND_DEBUG
+		LOG_DEBUG_VERBOSE("%s: %s", snd_init_error, alGetString(error));
 	}
 }
 

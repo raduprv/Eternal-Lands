@@ -61,14 +61,14 @@ static int langsel_load_list(void)
 	if ((doc = xmlReadFile("languages/langsel.xml", NULL, 0)) == NULL)
 	{
 		langsel_list_error = "Can't open file.";
-		log_error("%s%s\n", error_prefix, langsel_list_error );
+		LOG_ERROR("%s%s\n", error_prefix, langsel_list_error );
 		return 0;
 	}
 	
 	if ((cur = xmlDocGetRootElement (doc)) == NULL)
 	{
 		langsel_list_error = "Empty xml document.";
-		log_error("%s%s\n", error_prefix, langsel_list_error );
+		LOG_ERROR("%s%s\n", error_prefix, langsel_list_error );
 		xmlFreeDoc(doc);
 		return 0;
 	}
@@ -76,7 +76,7 @@ static int langsel_load_list(void)
 	if (xmlStrcasecmp (cur->name, (const xmlChar *) "LANGUAGE_LIST"))
 	{
 		langsel_list_error = "Not language list.";
-		log_error("%s%s\n", error_prefix, langsel_list_error );
+		LOG_ERROR("%s%s\n", error_prefix, langsel_list_error );
 		xmlFreeDoc(doc);
 		return 0;
 	}
@@ -94,7 +94,7 @@ static int langsel_load_list(void)
 			
 			if ((code == NULL) || (text == NULL))
 			{
-				log_error("%sWarning: invalid language node\n", error_prefix );
+				LOG_WARNING("%sInvalid language node\n", error_prefix );
 				continue;
 			}
 			
@@ -137,7 +137,7 @@ static int langsel_load_list(void)
 					langsel_winRGB[i][2] = b;
 				}
 				else
-					log_error("%sWarning: colour error\n", error_prefix );
+					LOG_WARNING("%sColour error\n", error_prefix );
 				xmlFree(text);
 			}
 		}
@@ -147,7 +147,7 @@ static int langsel_load_list(void)
 	if (!langsel_default_node || (langsel_default_node->save == NULL))
 	{
 		langsel_list_error = "Invalid default language.";
-		log_error("%s%s\n", error_prefix, langsel_list_error );
+		LOG_ERROR("%s%s\n", error_prefix, langsel_list_error );
 		if (langsel_default_node)
 			langsel_default_node = NULL;
 		return 0;
@@ -156,7 +156,7 @@ static int langsel_load_list(void)
 	if (langsel_list == NULL)
 	{
 		langsel_list_error = "No languages found.";
-		log_error("%s%s\n", error_prefix, langsel_list_error );
+		LOG_ERROR("%s%s\n", error_prefix, langsel_list_error );
 		return 0;
 	}
 	

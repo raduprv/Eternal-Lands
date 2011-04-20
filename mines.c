@@ -48,7 +48,7 @@ void put_mine_on_ground(int mine_x, int mine_y, int mine_type, int mine_id)
 	if (mine_y * tile_map_size_x * 6 + mine_x > tile_map_size_x * tile_map_size_y * 6 * 6)
 	{
 		//Warn about this error:
-		log_error("A mine was placed OUTSIDE the map!\n");
+		LOG_ERROR("A mine was placed OUTSIDE the map!\n");
 		return;
 	}
 	
@@ -108,7 +108,7 @@ void add_mines_from_list (const Uint8 *data)
 		if (mine_y * tile_map_size_x * 6 + mine_x > tile_map_size_x * tile_map_size_y * 6 * 6)
 		{
 			// Warn about this error!
-			log_error("A mine was located OUTSIDE the map!\n");
+			LOG_ERROR("A mine was located OUTSIDE the map!\n");
 			continue;
 		}
 		

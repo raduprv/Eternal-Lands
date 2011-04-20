@@ -462,7 +462,7 @@ int get_file_digest(const char * filename, Uint8 digest[16])
 
 	if (file == NULL)
 	{
-		log_error("MD5Digest: Unable to open %s (%d)", filename, errno);
+		LOG_ERROR("MD5Digest: Unable to open %s (%d)", filename, errno);
 		return 0;
 	}
 	

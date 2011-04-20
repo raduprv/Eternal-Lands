@@ -231,7 +231,7 @@ int start_rendering()
 	if(!done) {
 		done = 1;
 	}
-	log_error("Client closed");
+	LOG_INFO("Client closed");
 	SDL_WaitThread(network_thread,&done);
 	queue_destroy(message_queue);
 	if(pm_log.ppl)free_pm_log();
@@ -268,7 +268,7 @@ int start_rendering()
 /*#ifdef WINDOWS
 	// attempt to restart if requested
 	if(restart_required > 0){
-		log_error("Restarting %s", win_command_line);
+		LOG_INFO("Restarting %s", win_command_line);
 		SDL_CreateThread(system, win_command_line);
 	}
 #endif  //WINDOWS
@@ -281,7 +281,6 @@ int start_rendering()
 #endif	/* CUSTOM_UPDATE */
 	clear_zip_archives();
 
-	destroy_error_mutex();
 	destroy_tcp_out_mutex();
 
 	printf("doing SDL_Quit\n");
@@ -294,6 +293,8 @@ int start_rendering()
 	FreeXML();
 	// shouldn't this be before SDL_Quit()? that shutsdown the video mode
 	if (use_frame_buffer) free_reflection_framebuffer();
+
+	exit_logging();
 
 	return(0);
 }
@@ -352,7 +353,7 @@ int main(int argc, char **argv)
 #ifdef	OLC
 	olc_init();
 #endif	//OLC
-	create_error_mutex();
+	init_logging("el.log");
 	create_tcp_out_mutex();
 	init_translatables();
 #ifdef	FSAA
@@ -372,7 +373,7 @@ int main(int argc, char **argv)
 #ifndef WINDOWS
 	// attempt to restart if requested
 	if(restart_required > 0){
-		log_error("Restarting %s\n", *argv);
+		LOG_INFO("Restarting %s\n", *argv);
 		execv(*argv, argv);
 	}
 #endif  //WINDOWS
@@ -442,7 +443,7 @@ int APIENTRY WinMain (HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
 		STARTUPINFO si;
 		PROCESS_INFORMATION pi;
 
-		log_error("Restarting %s", win_command_line);
+		LOG_INFO("Restarting %s", win_command_line);
 		ZeroMemory( &si, sizeof(si) );
 		si.cb = sizeof(si);
 		ZeroMemory( &pi, sizeof(pi) );

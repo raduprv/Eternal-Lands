@@ -59,7 +59,7 @@ void set_server_details()
 	if (num == -1)
 	{
 		// Oops... what they they specify on the command line?
-		LOG_ERROR("Error: Server profile not found in servers.lst for server: %s. Failover to server: main.", id);
+		LOG_ERROR("Server profile not found in servers.lst for server: %s. Failover to server: main.", id);
 		// Failover to the main server
 		num = find_server_from_id("main");
 		if (num == -1)
@@ -70,7 +70,7 @@ void set_server_details()
 		}
 	}
 	// We found a valid profile so set some vars
-	LOG_ERROR("Using the server profile: %s", servers[num].id);
+	LOG_INFO("Using the server profile: %s", servers[num].id);
 	cur_server = num;
 	safe_strncpy((char *)server_address, (char *)servers[num].address, sizeof(server_address));
 	port = servers[num].port;

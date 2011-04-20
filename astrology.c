@@ -339,7 +339,7 @@ float calculate_width_coefficient(int amplitude,int value,int invert)
 	
 	if (capped_result && ! capping_already_reported)
 	{
-		LOG_ERROR("Warning: Capped astro for %s: amp=%d value=%d invert=%d\n", stone_name, amplitude, value, invert );
+		LOG_WARNING("Capped astro for %s: amp=%d value=%d invert=%d\n", stone_name, amplitude, value, invert );
 		capping_already_reported = 1;
 	}
 	

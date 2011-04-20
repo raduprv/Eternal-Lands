@@ -696,7 +696,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 		char    str[256];
 
 		safe_snprintf(str, sizeof(str), "Illegal/missing enhanced actor definition %d", actor_type);
-		log_error(str);
+		LOG_ERROR(str);
 		return;		// We cannot load an actor without a def (seg fault) so bail here.
 	}
 
@@ -783,9 +783,9 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			break;
 		}
 #ifdef UID
-		log_error("%s %d - %s\n", unknown_frame, frame, &in_data[32]);
+		LOG_ERROR("%s %d - %s\n", unknown_frame, frame, &in_data[32]);
 #else
-		log_error("%s %d - %s\n", unknown_frame, frame, &in_data[28]);
+		LOG_ERROR("%s %d - %s\n", unknown_frame, frame, &in_data[28]);
 #endif
 	}
 
@@ -803,9 +803,9 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 					if(actors_list[i]->actor_id==actor_id)
 						{
 #ifdef UID
-							log_error("%s %d = %s => %s\n", duplicate_actors_str, actor_id, actors_list[i]->actor_name, &in_data[32]);
+							LOG_ERROR("%s %d = %s => %s\n", duplicate_actors_str, actor_id, actors_list[i]->actor_name, &in_data[32]);
 #else
-							log_error("%s %d = %s => %s\n",duplicate_actors_str,actor_id, actors_list[i]->actor_name ,&in_data[28]);
+							LOG_ERROR("%s %d = %s => %s\n",duplicate_actors_str,actor_id, actors_list[i]->actor_name ,&in_data[28]);
 #endif
 							destroy_actor(actors_list[i]->actor_id);//we don't want two actors with the same ID
 							i--;// last actor was put here, he needs to be checked too
@@ -817,9 +817,9 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 #endif
 						{
 #ifdef UID
-							log_error("%s(%d) = %s => %s\n", duplicate_npc_actor, actor_id, actors_list[i]->actor_name, &in_data[32]);
+							LOG_ERROR("%s(%d) = %s => %s\n", duplicate_npc_actor, actor_id, actors_list[i]->actor_name, &in_data[32]);
 #else
-							log_error("%s(%d) = %s => %s\n",duplicate_npc_actor,actor_id, actors_list[i]->actor_name ,&in_data[28]);
+							LOG_ERROR("%s(%d) = %s => %s\n",duplicate_npc_actor,actor_id, actors_list[i]->actor_name ,&in_data[28]);
 #endif
 							destroy_actor(actors_list[i]->actor_id);//we don't want two actors with the same ID
 							i--;// last actor was put here, he needs to be checked too
@@ -1091,7 +1091,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	actors_list[i]->kind_of_actor=kind_of_actor;
 	if(strlen(&in_data[28]) >= 30)
 	{
-		log_error("%s (%d): %s/%d\n", bad_actor_name_length, actors_list[i]->actor_type,&in_data[28], (int)strlen(&in_data[28]));
+		LOG_ERROR("%s (%d): %s/%d\n", bad_actor_name_length, actors_list[i]->actor_type,&in_data[28], (int)strlen(&in_data[28]));
 	}
 	else
 	{

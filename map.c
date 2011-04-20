@@ -572,7 +572,7 @@ int get_3d_objects_from_server (int nr_objs, const Uint8 *data, int len)
 		if (nb_left < 14)
 		{
 			// Warn about this error!
-                        log_error ("Incomplete 3D objects list!");
+                        LOG_WARNING("Incomplete 3D objects list!");
 			all_ok = 0;
                         break;
 		}
@@ -584,7 +584,7 @@ int get_3d_objects_from_server (int nr_objs, const Uint8 *data, int len)
 		if (obj_x > tile_map_size_x * 6 || obj_y > tile_map_size_y * 6)
 		{
 			// Warn about this error!
-			log_error("A 3D object was located OUTSIDE the map!");
+			LOG_WARNING("A 3D object was located OUTSIDE the map!");
 			offset += 8;
 			obj_err = 1;
                 }
@@ -610,7 +610,7 @@ int get_3d_objects_from_server (int nr_objs, const Uint8 *data, int len)
 		if (name_len < 0 || name_len >= sizeof (obj_name))
 		{
 			// Warn about this error!
-                        log_error("3D object has invalid or too long file name!");
+                        LOG_WARNING("3D object has invalid or too long file name!");
 			all_ok = 0;
                         break;
 		}

@@ -1345,7 +1345,7 @@ int set_var_OPT_INT(const char *str, int new_value)
 
 void change_language(const char *new_lang)
 {
-	log_error("Language changed, was [%s] now [%s]\n",  lang, new_lang);
+	LOG_ERROR("Language changed, was [%s] now [%s]\n",  lang, new_lang);
 	/* guard against being the same string */
 	if (strcmp(lang, new_lang) != 0)
 		safe_strncpy(lang, new_lang, sizeof(lang));
@@ -1969,10 +1969,8 @@ void init_vars()
 	add_var(OPT_BOOL, "continent_map_boundaries", "cmb", &show_continent_map_boundaries, change_var, 1, "Map Boundaries On Continent Map", "Show map boundaries on the continent map", MISC);
 #ifdef	FSAA
 	add_var(OPT_MULTI_H, "anti_aliasing", "fsaa", &fsaa_index, change_fsaa, 0, "Anti-Aliasing", "Full Scene Anti-Aliasing", VIDEO, get_fsaa_mode_str(0), 0);
-	LOG_ERROR("get_fsaa_mode_count(): %d", get_fsaa_mode_count());
 	for (i = 1; i < get_fsaa_mode_count(); i++)
 	{
-		LOG_ERROR("get_fsaa_mode(%d)[%d]: %s", i, get_fsaa_mode(i), get_fsaa_mode_str(i));
 		if (get_fsaa_mode(i) == 1)
 		{
 			add_multi_h_option("anti_aliasing", get_fsaa_mode_str(i));

@@ -220,13 +220,13 @@ static int png_colortype_from_surface(SDL_Surface *surface)
 static void png_user_warn (png_structp ctx, png_const_charp str)
 {
 	//fprintf(stderr, "libpng: warning: %s\n", str);
-	LOG_ERROR("libpng: warning: %s\n", str);
+	LOG_WARNING("libpng: %s\n", str);
 }
 
 static void png_user_error(png_structp ctx, png_const_charp str)
 {
 	//fprintf(stderr, "libpng: error: %s\n", str);
-	LOG_ERROR("libpng: error: %s\n", str);
+	LOG_ERROR("libpng: %s\n", str);
 }
 
 int IMG_SavePNG_RW (SDL_Surface *face, SDL_RWops *src)

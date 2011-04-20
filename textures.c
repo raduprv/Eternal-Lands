@@ -2721,7 +2721,7 @@ int get_and_set_texture_id(int i)
 
 #ifdef	DEBUG
 	if(i<0||i>TEXTURE_CACHE_MAX) {
-		log_error("We tried binding a texture ID of %d\n", i);
+		LOG_ERROR("We tried binding a texture ID of %d\n", i);
 		return 0;
 	}
 #endif	//DEBUG
@@ -2783,7 +2783,7 @@ int load_alphamap(const char * FileName, Uint8 * texture_mem, int orig_x_size, i
 	y_size= tex->y_size;
 
 	if(x_size != orig_x_size || y_size != orig_y_size){
-		log_error("The alphamap for %s was not the same size as the original - we didn't load the alphamap...", FileName);
+		LOG_ERROR("The alphamap for %s was not the same size as the original - we didn't load the alphamap...", FileName);
 		free(tex->texture);
 		return 0;
 	}
@@ -3141,7 +3141,7 @@ int load_texture_cache_deferred (const char * file_name, int alpha)
         texture_cache[texture_slot].has_alpha = 0;
 		return texture_slot;
 	} else {	
-		log_error("Error: out of texture space\n");
+		LOG_ERROR("Error: out of texture space\n");
 		return 0;	// ERROR!
 	}
 }
@@ -3232,7 +3232,7 @@ int load_bmp8_to_coordinates_mask2 (const char *filename, const char *basename, 
 		// yes, either the mask or the base is missing, just do a load
 		return load_bmp8_to_coordinates(filename, texture_space, x_pos, y_pos, alpha);
 	}
-//log_error("%s %s %s", filename, basename, maskname);
+//LOG_ERROR("%s %s %s", filename, basename, maskname);
 	tex= load_bmp8_alpha(filename, &texture, alpha);
 	if(!tex){	// oops, failed
 		return 0;

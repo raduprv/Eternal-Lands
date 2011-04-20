@@ -486,7 +486,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
                 case RESEARCH_TOTAL:
                         your_info.research_total=value; check_book_known(); break;
                 default:
-                        log_error("Server sent invalid stat number\n");
+                        LOG_ERROR("Server sent invalid stat number\n");
                 }
                 //update spells
                 //this must be here, atm spells depend on mana, magic level and alchemy (bones to gold)

@@ -356,7 +356,7 @@ void load_zip_archive(const char* file_name)
 
 	CHECK_AND_UNLOCK_MUTEX(zip_files[index].mutex);
 
-	LOG_ERROR("Loaded zip file '%s' with %d files", file_name, count);
+	LOG_INFO("Loaded zip file '%s' with %d files", file_name, count);
 }
 
 void unload_zip_archive(const char* file_name)
@@ -388,7 +388,7 @@ void unload_zip_archive(const char* file_name)
 
 				CHECK_AND_UNLOCK_MUTEX(zip_files[i].mutex);
 
-				LOG_ERROR("Unloaded zip '%s'", file_name);
+				LOG_INFO("Unloaded zip '%s'", file_name);
 
 				return;
 			}
@@ -502,6 +502,8 @@ static el_file_ptr xz_file_open(const char* file_name)
 		return 0;
 	}
 
+	LOG_DEBUG_VERBOSE("File '%s' opened.", file_name);
+
 	result = malloc(sizeof(el_file_t));
 	memset(result, 0, sizeof(el_file_t));
 
@@ -542,9 +544,7 @@ static el_file_ptr gz_file_open(const char* file_name)
 		return 0;
 	}
 
-#ifdef	EXTRA_DEBUG
-	LOG_EXTRA_INFO("File '%s' opened.", file_name);
-#endif	// EXTRA_DEBUG
+	LOG_DEBUG_VERBOSE("File '%s' opened.", file_name);
 
 	result = malloc(sizeof(el_file_t));
 	memset(result, 0, sizeof(el_file_t));

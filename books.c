@@ -415,9 +415,9 @@ void add_xml_str_to_page(xmlNode * cur, int type, book * b, page *p)
 		add_str_to_page(string, type, b, p);
 	} else {
 #ifndef OSX
-		log_error("An error occured when parsing the content of the <%s>-tag on line %d - Check it for letters that cannot be translated into iso8859-1\n", cur->name, cur->line);
+		LOG_ERROR("An error occured when parsing the content of the <%s>-tag on line %d - Check it for letters that cannot be translated into iso8859-1\n", cur->name, cur->line);
 #else
-		log_error("An error occured when parsing the content of the <%s>-tag - Check it for letters that cannot be translated into iso8859-1\n", cur->name);
+		LOG_ERROR("An error occured when parsing the content of the <%s>-tag - Check it for letters that cannot be translated into iso8859-1\n", cur->name);
 #endif
 	}
 	free(string);
@@ -474,14 +474,14 @@ book * read_book(char * file, int type, int id)
 		char str[200];
 
 		safe_snprintf(str, sizeof(str), book_open_err_str, path);
-		log_error(str);
+		LOG_ERROR(str);
 		LOG_TO_CONSOLE(c_red1,str);
 	} else if ((root = xmlDocGetRootElement(doc))==NULL) {
-		log_error("Error while parsing: %s", path);
+		LOG_ERROR("Error while parsing: %s", path);
 	} else if(xmlStrcasecmp(root->name,(xmlChar*)"book")){
-		log_error("Root element in %s is not <book>", path);
+		LOG_ERROR("Root element in %s is not <book>", path);
 	} else if((title=xmlGetProp(root,(xmlChar*)"title"))==NULL){
-		log_error("Root element in %s does not contain a title=\"<short title>\" property.", path);
+		LOG_ERROR("Root element in %s does not contain a title=\"<short title>\" property.", path);
 	} else {
 		b=parse_book(root->children, (char*)title, type, id);
 	}
@@ -506,7 +506,7 @@ void parse_knowledge_item(xmlNode *in)
 		if(cur->type == XML_ELEMENT_NODE){
 			if(!xmlStrcasecmp(cur->name,(xmlChar*)"Knowledge")){
 				if ((strID=(char*)xmlGetProp(cur,(xmlChar*)"ID"))==NULL){
-					log_error("Knowledge Item does not contain an ID property.");
+					LOG_ERROR("Knowledge Item does not contain an ID property.");
 				} else {
 					id = atoi(strID);
 					if(cur->children && cur->children->content && MY_XMLSTRCPY(&string, (char*)cur->children->content)!=-1){
@@ -515,9 +515,9 @@ void parse_knowledge_item(xmlNode *in)
 						}
 					} else {
 #ifndef OSX
-						log_error("An error occured when parsing the content of the <%s>-tag on line %d - Check it for letters that cannot be translated into iso8859-1\n", cur->name, cur->line);
+						LOG_ERROR("An error occured when parsing the content of the <%s>-tag on line %d - Check it for letters that cannot be translated into iso8859-1\n", cur->name, cur->line);
 #else
-						log_error("An error occured when parsing the content of the <%s>-tag - Check it for letters that cannot be translated into iso8859-1\n", cur->name);
+						LOG_ERROR("An error occured when parsing the content of the <%s>-tag - Check it for letters that cannot be translated into iso8859-1\n", cur->name);
 #endif
 					}
 					xmlFree(strID);
@@ -540,9 +540,9 @@ void read_knowledge_book_index()
 	if ((doc = xmlReadFile("knowledge.xml", NULL, 0)) == NULL) {
 			LOG_TO_CONSOLE(c_red1, "Can't open knowledge book index");
 	} else if ((root = xmlDocGetRootElement(doc))==NULL) {
-		log_error("Error while parsing: %s", path);
+		LOG_ERROR("Error while parsing: %s", path);
 	} else if(xmlStrcasecmp(root->name,(xmlChar*)"Knowledge_Books")){
-		log_error("Root element in %s is not <Knowledge_Books>", path);
+		LOG_ERROR("Root element in %s is not <Knowledge_Books>", path);
 	} else {
 		parse_knowledge_item(root->children);
 	}

@@ -142,15 +142,15 @@ int read_rules()
 	if ((doc = xmlReadFile(file_name, NULL, 0)) == NULL) {
 		if((doc=xmlReadFile("languages/en/rules.xml",NULL,0))==NULL){
 			//report this error:
-			log_error(read_rules_str);
+			LOG_ERROR(read_rules_str);
 			return 0;
 		}
 	}
 
 	if ((root = xmlDocGetRootElement(doc))==NULL) {
-		log_error(read_rules_str);
+		LOG_ERROR(read_rules_str);
 	} else if(!parse_rules(root->children)){
-		log_error(parse_rules_str);
+		LOG_ERROR(parse_rules_str);
 	}
 
 	xmlFreeDoc(doc);

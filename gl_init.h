@@ -126,19 +126,18 @@ void toggle_full_screen();
  *      Prints OpenGL related errors to the console.
  *
  * \param file  the source file where the error occurred
- * \param func  the function where the error occurred
  * \param line  the line in the source file where the error occurred
  * \retval int
  * \callgraph
  */
-int print_gl_errors(const char *file, const char *func, int line);
+int print_gl_errors(const char *file, int line);
 
 /*!
  * \name CHECK_GL_ERRORS macro
  */
 /*! @{ */
 #if defined DEBUG || defined OPENGL_TRACE
-#define CHECK_GL_ERRORS()	print_gl_errors(__FILE__,  __FUNCTION__, __LINE__)
+#define CHECK_GL_ERRORS()	print_gl_errors(__FILE__, __LINE__)
 #else	//DEBUG
 #define CHECK_GL_ERRORS()	/*!< NOP */
 #endif	//DEBUG

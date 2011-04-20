@@ -100,20 +100,20 @@ const char * get_path_config_base(void)
 		{
 			if (chdir(locbuffer) == -1)
 			{
-				log_error("chdir(1) failed.\tcfgdirname: \"%s\"\tlocbuffer: \"%s\"\tpwd: \"%s\"\n", cfgdirname, locbuffer, pwd);
+				LOG_ERROR("chdir(1) failed.\tcfgdirname: \"%s\"\tlocbuffer: \"%s\"\tpwd: \"%s\"\n", cfgdirname, locbuffer, pwd);
 				strcpy(locbuffer, cfgdirname);
 				return locbuffer;
 			}
 			if (mkdir(cfgdirname) == -1 && errno != EEXIST)
 			{
-				log_error("mkdir() failed.\tcfgdirname: \"%s\"\tlocbuffer: \"%s\"\tpwd: \"%s\"\n", cfgdirname, locbuffer, pwd);
+				LOG_ERROR("mkdir() failed.\tcfgdirname: \"%s\"\tlocbuffer: \"%s\"\tpwd: \"%s\"\n", cfgdirname, locbuffer, pwd);
 				chdir(pwd);
 				strcpy(locbuffer, cfgdirname);
 				return locbuffer;
 			}
 			if (chdir(pwd) == -1)
 			{
-				log_error("chdir(2) failed.\tcfgdirname: \"%s\"\tlocbuffer: \"%s\"\tpwd: \"%s\"\n", cfgdirname, locbuffer, pwd);
+				LOG_ERROR("chdir(2) failed.\tcfgdirname: \"%s\"\tlocbuffer: \"%s\"\tpwd: \"%s\"\n", cfgdirname, locbuffer, pwd);
 				strcpy(locbuffer, cfgdirname);
 				return locbuffer;
 			}
@@ -123,7 +123,7 @@ const char * get_path_config_base(void)
 	}
 	else
 	{
-		log_error("getpath() failed.\tcfgdirname: \"%s\"\tlocbuffer: \"%s\"\tpwd: \"%s\"\n", cfgdirname, locbuffer, pwd);
+		LOG_ERROR("getpath() failed.\tcfgdirname: \"%s\"\tlocbuffer: \"%s\"\tpwd: \"%s\"\n", cfgdirname, locbuffer, pwd);
 		//No luck. fall through to using the folder in PWD
 		strcpy(locbuffer, cfgdirname);
 	}
@@ -440,7 +440,7 @@ int mkdir_tree (const char *path, int relative_only)
 		// watch for hidden ..
 		if (*slash == '.' && slash[1] == '.')
 		{
-			log_error ("Cannot create directory (Invalid character): %s, %s", dir, path);
+			LOG_ERROR ("Cannot create directory (Invalid character): %s, %s", dir, path);
 			return 0;
 		}
 
@@ -455,7 +455,7 @@ int mkdir_tree (const char *path, int relative_only)
 		{
 			if (MKDIR (dir) != 0)
 			{
-				log_error("Cannot create directory (mkdir() failed): %s, %s", dir, path);
+				LOG_ERROR("Cannot create directory (mkdir() failed): %s, %s", dir, path);
 				return 0;
 			}
 		}
@@ -494,14 +494,14 @@ int file_copy(const char* from_file, char* to_file)
 	{
 		ch = getc(in);
 		if((fe = ferror(in))) {
-			log_error("unable to copy %s to %s, read error",from_file, to_file);			
+			LOG_ERROR("unable to copy %s to %s, read error",from_file, to_file);			
 			clearerr(in);			
 			break;
 		} else {
 			if(!feof(in))
 				putc(ch, out);
 			if((fe = ferror(out))) {
-				log_error("unable to copy %s to %s, write error",from_file, to_file);
+				LOG_ERROR("unable to copy %s to %s, write error",from_file, to_file);
 				clearerr(out);
 				break;
 			}
@@ -661,7 +661,7 @@ void file_check_datadir(void)
 		char pwd[MAX_PATH];
 		if (getcwd(pwd, MAX_PATH) == NULL)
 			pwd[0] = '\0';
-		log_error("Warning: Didn't find your data_dir, using the current directory instead. Please correct this in your el.ini . Given data_dir was: \"%s\". Using \"%s\".\n", datadir, pwd);
+		LOG_WARNING("Didn't find your data_dir, using the current directory instead. Please correct this in your el.ini . Given data_dir was: \"%s\". Using \"%s\".\n", datadir, pwd);
 		strcpy(datadir, "./");
 	}
 #ifdef WINDOWS

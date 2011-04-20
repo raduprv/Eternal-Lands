@@ -512,7 +512,7 @@ extern "C" void build_buffers(actor_types* a)
 	face_count = 0;
 	vertex_count = 0;
 
-	log_info("Build vertex buffers for '%s'", a->actor_name);
+	LOG_INFO("Build vertex buffers for '%s'", a->actor_name);
 
 	calculate_face_and_vertex_count(a->coremodel, face_count, vertex_count);
 
@@ -680,7 +680,7 @@ extern "C" void build_buffers(actor_types* a)
 
 		file_name << get_path_config_base() << "cache/actor_" << a->actor_type << "_" << max_bones_per_mesh << ".elc";
 
-		log_info("Rebuilding file '%s'", file_name.str().c_str());
+		LOG_INFO("Rebuilding file '%s'", file_name.str().c_str());
 
 		mkdir_tree(file_name.str().c_str(), 0);
 
@@ -722,7 +722,7 @@ extern "C" void build_buffers(actor_types* a)
 
 	ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 
-	log_info("Build vertex buffers for '%s' done", a->actor_name);
+	LOG_INFO("Build vertex buffers for '%s' done", a->actor_name);
 }
 
 static inline void set_transformation_buffer(actor_types *a, actor *act, const Uint32 index,

@@ -232,7 +232,7 @@ void read_config()
 	{
 		no_lang_in_config = 1;
 		safe_strncpy(lang, "en", sizeof(lang));
-		log_error("No language set so defaulting to [%s] and using language selection window", lang );
+		LOG_INFO("No language set so defaulting to [%s] and using language selection window", lang );
 	}
 
 #ifndef WINDOWS
@@ -723,7 +723,7 @@ void init_stuff()
 	//if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE | SDL_INIT_EVENTTHREAD) == -1)	// experimental
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1)
 		{
-			log_error("%s: %s\n", no_sdl_str, SDL_GetError());
+			LOG_ERROR("%s: %s\n", no_sdl_str, SDL_GetError());
 			SDL_Quit();
 			exit(1);
 		}
@@ -762,14 +762,14 @@ void init_stuff()
 	show_window(loading_win);
 
 	update_loading_win(init_opengl_str, 5);
-	log_info("Init extensions.");
+	LOG_INFO("Init extensions.");
 	init_gl_extensions();
-	log_info("Init extensions done");
+	LOG_INFO("Init extensions done");
 
 	// Setup the new eye candy system
-	log_info("Init eyecandy");
+	LOG_INFO("Init eyecandy");
 	ec_init();
-	log_info("Init eyecandy done");
+	LOG_INFO("Init eyecandy done");
 
 #ifdef  CUSTOM_UPDATE
 	init_custom_update();
@@ -814,9 +814,9 @@ void init_stuff()
 	update_loading_win(init_actor_defs_str, 4);
 	memset(actors_defs, 0, sizeof(actors_defs));
 
-	log_info("Init actor defs");
+	LOG_INFO("Init actor defs");
 	init_actor_defs();
-	log_info("Init actor defs done");
+	LOG_INFO("Init actor defs done");
 	read_emotes_defs("", "emotes.xml");
 
 	missiles_init_defs();
@@ -830,9 +830,9 @@ void init_stuff()
 	build_sun_pos_table();
 	reset_material();
 
-	log_info("Init lights");
+	LOG_INFO("Init lights");
 	init_lights();
-	log_info("Init done");
+	LOG_INFO("Init done");
 
 	disable_local_lights();
 	update_loading_win(init_logs_str, 4);
@@ -939,7 +939,7 @@ void init_stuff()
 
 	update_loading_win(init_network_str, 5);
 	if(SDLNet_Init()<0){
-		log_error("%s: %s\n", failed_sdl_net_init, SDLNet_GetError());
+		LOG_ERROR("%s: %s\n", failed_sdl_net_init, SDLNet_GetError());
 		SDLNet_Quit();
 		SDL_Quit();
 		exit(2);
@@ -947,7 +947,7 @@ void init_stuff()
 	update_loading_win(init_timers_str, 5);
 
 	if(SDL_InitSubSystem(SDL_INIT_TIMER)<0){
-		log_error("%s: %s\n", failed_sdl_timer_init, SDL_GetError());
+		LOG_ERROR("%s: %s\n", failed_sdl_timer_init, SDL_GetError());
 		SDL_Quit();
 	 	exit(1);
 	}
@@ -974,7 +974,7 @@ void init_stuff()
 
 	have_rules=read_rules();
 	if(!have_rules){
-		log_error(rules_not_found);
+		LOG_ERROR(rules_not_found);
 		SDL_Quit();
 		exit(3);
 	}
@@ -1047,5 +1047,5 @@ void init_stuff()
 	skybox_init_gl();
 	popup_init();
 
-log_info("Init done!");
+LOG_INFO("Init done!");
 }

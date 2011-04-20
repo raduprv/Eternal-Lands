@@ -3,7 +3,7 @@
 -include make.conf
 
 # basic compiling and linking - rarely changed
-OPTIONS = -DLINUX -DELC $(foreach FEATURE, $(FEATURES), -D$(FEATURE)) -D_7ZIP_ST
+OPTIONS = -DLINUX -DELC $(foreach FEATURE, $(FEATURES), -D$(FEATURE)) -D_7ZIP_ST -DFEATURES="\"$(FEATURES)\""
 CFLAGS=$(PLATFORM) $(CWARN) -O0 -ggdb -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags) -fno-strict-aliasing $(EXTRA_INCLUDES)
 _CFLAGS=$(PLATFORM) -O2 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags) -fno-strict-aliasing $(EXTRA_INCLUDES)
 CXXFLAGS=$(PLATFORM) $(CXXWARN) -O0 -ggdb -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags) -fno-strict-aliasing $(EXTRA_INCLUDES)
@@ -61,6 +61,7 @@ COBJS=2d_objects.o 3d_objects.o \
 	
 CXXOBJS=actor_init.o cal3d_wrapper.o context_menu.o optimizer.o sendvideoinfo.o	\
 	exceptions/extendedexception.o xml/xmlhelper.o quest_log.o	\
+	engine/logging.o elloggingwrapper.o	\
 	io/cal3d_io_wrapper.o item_lists.o \
 	user_menus.o achievements.o select.o \
 	eye_candy_wrapper.o \

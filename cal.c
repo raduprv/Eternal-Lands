@@ -385,7 +385,7 @@ struct cal_anim cal_load_anim(actor_types *act, const char *str, int duration)
 
 	if (sscanf (str, "%254s %d", fname, (int*)(&res.kind)) != 2)
 	{
-		log_error("Bad animation formation: %s", str);
+		LOG_ERROR("Bad animation formation: %s", str);
 		return res;
 	}
 
@@ -409,7 +409,7 @@ struct cal_anim cal_load_anim(actor_types *act, const char *str, int duration)
 
 	res.anim_index=CalCoreModel_ELLoadCoreAnimation(act->coremodel,fname,act->scale);
 	if(res.anim_index == -1) {
-		log_error("Cal3d error: %s: %s\n", fname, CalError_GetLastErrorDescription());
+		LOG_ERROR("Cal3d error: %s: %s\n", fname, CalError_GetLastErrorDescription());
 		return res;
 	}
 	coreanim=CalCoreModel_GetCoreAnimation(act->coremodel,res.anim_index);
@@ -419,7 +419,7 @@ struct cal_anim cal_load_anim(actor_types *act, const char *str, int duration)
 		if (duration > 0) res.duration_scale = res.duration/(duration*0.001f);
 		else res.duration_scale = 1.0f;
 	} else {
-		log_error(no_animation_err_str, fname);
+		LOG_ERROR(no_animation_err_str, fname);
 	}
 	return res;
 }

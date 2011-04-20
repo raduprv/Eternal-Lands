@@ -183,7 +183,7 @@ void check_timers()
 	{
 		char str[120];
 		safe_snprintf(str, sizeof(str), timer_lagging_behind, "draw_scene");
-		log_error(str);
+		LOG_ERROR(str);
 		LOG_TO_CONSOLE(c_red2,str);
 		SDL_RemoveTimer(draw_scene_timer);
 		my_timer_clock=0;
@@ -194,7 +194,7 @@ void check_timers()
 	{
 		char str[120];
 		safe_snprintf(str, sizeof(str), timer_lagging_behind, "misc");
-		log_error(str);
+		LOG_ERROR(str);
 		LOG_TO_CONSOLE(c_red2,str);
 		SDL_RemoveTimer(misc_timer);
 		misc_timer = SDL_AddTimer (500, check_misc, NULL);
