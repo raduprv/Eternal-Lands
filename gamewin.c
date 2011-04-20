@@ -1379,6 +1379,22 @@ Uint8 key_to_char (Uint32 unikey)
 	return unikey & 0xff;
 }
 
+void string_input(char *text, size_t maxlen, char ch)
+{
+	size_t len = strlen(text);
+#ifndef OSX
+	if (ch == SDLK_BACKSPACE && len > 0)
+#else
+	if (((ch == SDLK_BACKSPACE) || (ch == 127)) && len > 0)
+#endif
+		text[len-1] = '\0';
+	else if (is_printable (ch) && (len < (maxlen-1)))
+	{
+		text[len] = ch;
+		text[len+1] = '\0';
+	}
+}
+
 void hide_all_windows(){
 	/* Note: We don't watch for if a window is otherwise closed; alt+d to reopen only cares about the last
 	 * time it hid windows itself. If you alt+d to reopen windows, manually close them all, and alt+d
