@@ -1265,6 +1265,7 @@ CHECK_GL_ERRORS();
 			case 5:
 				Vars::lists()->load();
 				ItemLists::Vars::win()->update_scroll_len();
+				ItemLists::Vars::win()->make_active_visable();
 				break;
 			default:
 				return 0;
