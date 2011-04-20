@@ -1304,8 +1304,6 @@ void display_items_menu()
 		cm_getall_but = cm_create(auto_get_all_str, NULL);
 		cm_bool_line(cm_getall_but, 0, &items_auto_get_all, NULL);
 
-		setup_item_list_menus();
-
 		show_items_handler(&windows_list.window[items_win]);
 
 	} else {

@@ -1534,7 +1534,7 @@ int save_local_data(char * text, int len){
 	// for the new questlog, this actually just saves any pending changes
 	// should be renamed when NEW_QUESTLOG #def is removed
 	unload_questlog();
-	save_category_maps();
+	save_item_lists();
 	LOG_TO_CONSOLE(c_green1, "Local files saved, asking server to save too...");
 	return 0;
 }
