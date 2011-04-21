@@ -337,6 +337,78 @@ char * check_server_id_on_command_line()
 	return gargv[gargc - 1];
 }
 
+void check_log_level_on_command_line()
+{
+	Uint32 i;
+
+	for (i = 1; i < gargc; i++)
+	{
+		if (strncmp(gargv[i], "--log_level=", 12) == 0)
+		{
+			if (strcmp(gargv[i], "--log_level=error") == 0)
+			{
+				set_log_level(llt_error);
+				continue;
+			}
+			if (strcmp(gargv[i], "--log_level=warning") == 0)
+			{
+				set_log_level(llt_warning);
+				continue;
+			}
+			if (strcmp(gargv[i], "--log_level=info") == 0)
+			{
+				set_log_level(llt_info);
+				continue;
+			}
+			if (strcmp(gargv[i], "--log_level=debug") == 0)
+			{
+				set_log_level(llt_debug);
+				continue;
+			}
+			if (strcmp(gargv[i], "--log_level=debug_verbose") == 0)
+			{
+				set_log_level(llt_debug_verbose);
+				continue;
+			}
+			continue;
+		}
+		if (strncmp(gargv[i], "-ll=", 4) == 0)
+		{
+			if (strcmp(gargv[i], "-ll=e") == 0)
+			{
+				set_log_level(llt_error);
+				continue;
+			}
+			if (strcmp(gargv[i], "-ll=w") == 0)
+			{
+				set_log_level(llt_warning);
+				continue;
+			}
+			if (strcmp(gargv[i], "-ll=i") == 0)
+			{
+				set_log_level(llt_info);
+				continue;
+			}
+			if (strcmp(gargv[i], "-ll=d") == 0)
+			{
+				set_log_level(llt_debug);
+				continue;
+			}
+			if (strcmp(gargv[i], "-ll=dv") == 0)
+			{
+				set_log_level(llt_debug_verbose);
+				continue;
+			}
+			continue;
+		}
+		if (strcmp(gargv[i], "--debug") == 0)
+		{
+			set_log_level(llt_debug_verbose);
+			continue;
+		}
+	}
+}
+
 #ifdef WINDOWS
 int Main(int argc, char **argv)
 #else
@@ -354,6 +426,7 @@ int main(int argc, char **argv)
 	olc_init();
 #endif	//OLC
 	init_logging("el.log");
+	check_log_level_on_command_line();
 	create_tcp_out_mutex();
 	init_translatables();
 #ifdef	FSAA

@@ -124,7 +124,7 @@ int display_loading_win_handler(window_info *win)
 
 	glDisable(GL_TEXTURE_2D);
 #ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
+	CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 	return 1;
 }
@@ -133,6 +133,10 @@ void take_snapshot (int width, int height)
 {
 	int bg_width = 1024;
 	int bg_height = 512;	
+
+#ifdef OPENGL_TRACE
+	CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 
 	glGenTextures (1, &loading_texture);
 	glBindTexture (GL_TEXTURE_2D, loading_texture);
@@ -146,8 +150,14 @@ void take_snapshot (int width, int height)
 	while (bg_height < height)
 		bg_height *= 2;
 	
+#ifdef OPENGL_TRACE
+	CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	// Copy the current screen to the texture
 	glReadBuffer(GL_BACK);
+#ifdef OPENGL_TRACE
+	CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	if (glGetError() != GL_NO_ERROR)
 	{
 		LOG_ERROR("%s: %d glReadBuffer(GL_BACK) problem.\n", __FUNCTION__, __LINE__);
@@ -170,7 +180,7 @@ void take_snapshot (int width, int height)
 #endif	/* NEW_TEXTURES */
 	
 #ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
+	CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
@@ -212,6 +222,7 @@ int create_loading_win (int width, int height, int snapshot)
 void update_loading_win (char *text, float progress_increase)
 {
 	if(loading_win != -1) {
+		LOG_DEBUG(text);
 		total_progress += progress_increase;
 		if(total_progress > 100) {
 			fprintf(stderr, "Loading window progress > 100%%! (%g)\n", total_progress);
