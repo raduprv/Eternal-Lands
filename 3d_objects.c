@@ -310,19 +310,7 @@ void draw_3d_objects(unsigned int object_type)
 		}
 #endif	//NEW_ALPHA
 		//enable alpha filtering, so we have some alpha key
-#ifdef	FSAA
-		if (fsaa > 1)
-		{
-			glEnable(GL_SAMPLE_COVERAGE);
-			glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE);
-		}
-		else
-		{
-			glEnable(GL_ALPHA_TEST);
-		}
-#else	/* FSAA */
 		glEnable(GL_ALPHA_TEST);
-#endif	/* FSAA */
 		if(is_ground)glAlphaFunc(GL_GREATER,0.23f);
 #ifdef OLD_MISC_OBJ_DIR
 		else glAlphaFunc(GL_GREATER,0.06f);
@@ -402,19 +390,7 @@ void draw_3d_objects(unsigned int object_type)
 			glDisable(GL_BLEND);
 		}
 #endif	//NEW_ALPHA
-#ifdef	FSAA
-		if (fsaa > 1)
-		{
-			glDisable(GL_SAMPLE_COVERAGE);
-			glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE);
-		}
-		else
-		{
-			glDisable(GL_ALPHA_TEST);
-		}
-#else	/* FSAA */
 		glDisable(GL_ALPHA_TEST);
-#endif	/* FSAA */
 	}
 #ifdef	FSAA
 	if (fsaa > 1)

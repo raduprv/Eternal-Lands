@@ -502,8 +502,6 @@ static el_file_ptr xz_file_open(const char* file_name)
 		return 0;
 	}
 
-	LOG_DEBUG_VERBOSE("File '%s' opened.", file_name);
-
 	result = malloc(sizeof(el_file_t));
 	memset(result, 0, sizeof(el_file_t));
 
@@ -520,8 +518,13 @@ static el_file_ptr xz_file_open(const char* file_name)
 
 		result->crc32 = CrcCalc(result->buffer, result->size);
 
+		LOG_DEBUG_VERBOSE("File '%s' [crc:0x%08X] opened.", file_name,
+			result->crc32);
+
 		return result;
 	}
+
+	LOG_ERROR("Can't read file '%s'", file_name);
 
 	free(result);
 
@@ -574,6 +577,9 @@ static el_file_ptr gz_file_open(const char* file_name)
 	result->crc32 = CrcCalc(result->buffer, result->size);
 
 	gzclose(file);
+
+	LOG_DEBUG_VERBOSE("File '%s' [crc:0x%08X] opened.", file_name,
+		result->crc32);
 
 	return result;
 }
@@ -653,6 +659,9 @@ static el_file_ptr zip_file_open(unzFile file)
 
 		return 0;
 	}
+
+	LOG_DEBUG_VERBOSE("File '%s' [crc:0x%08X] opened.", result->file_name,
+		result->crc32);
 
 	return result;
 }

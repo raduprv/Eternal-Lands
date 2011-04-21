@@ -15,6 +15,7 @@
 #include "threads.h"
 #include "queue.h"
 #include "misc.h"
+#include "asc.h"
 
 #define MAX_OLD_UPDATE_FILES	5
 #define	UPDATE_DOWNLOAD_THREAD_COUNT 2

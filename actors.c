@@ -1117,21 +1117,8 @@ void display_actors(int banner, int render_pass)
 	}
 	if (has_alpha)
 	{
-#ifdef	FSAA
-		if (fsaa > 1)
-		{
-			glEnable(GL_SAMPLE_COVERAGE);
-			glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE);
-		}
-		else
-		{
-			glEnable(GL_ALPHA_TEST);
-			glAlphaFunc(GL_GREATER, 0.4f);
-		}
-#else	/* FSAA */
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GREATER, 0.4f);
-#endif	/* FSAA */
 		for (i = 0; i < no_near_actors; i++)
 		{
 
@@ -1168,19 +1155,7 @@ void display_actors(int banner, int render_pass)
 				}
 			}
 		}
-#ifdef	FSAA
-		if (fsaa > 1)
-		{
-			glDisable(GL_SAMPLE_COVERAGE);
-			glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE);
-		}
-		else
-		{
-			glDisable(GL_ALPHA_TEST);
-		}
-#else	/* FSAA */
 		glDisable(GL_ALPHA_TEST);
-#endif	/* FSAA */
 	}
 	if (has_ghosts)
 	{

@@ -861,10 +861,10 @@ namespace ec
 			for (angle_t rad = 0; rad < 2 * PI - 0.0001;
 				rad += radian_increment, i++)
 			{
-				vertices[vertex_index + i].r = color.x * 255.0f + 0.5f;
-				vertices[vertex_index + i].g = color.y * 255.0f + 0.5f;
-				vertices[vertex_index + i].b = color.z * 255.0f + 0.5f;
-				vertices[vertex_index + i].a = alpha * 255.0f + 0.5f;
+				vertices[vertex_index + i].r = static_cast<GLubyte>(color.x * 255.0f + 0.5f);
+				vertices[vertex_index + i].g = static_cast<GLubyte>(color.y * 255.0f + 0.5f);
+				vertices[vertex_index + i].b = static_cast<GLubyte>(color.z * 255.0f + 0.5f);
+				vertices[vertex_index + i].a = static_cast<GLubyte>(alpha * 255.0f + 0.5f);
 
 				vertices[vertex_index + i].x = end.x + radius * (cos(rad) * normalized.z
 					+ sin(rad) * normalized.y);
@@ -879,10 +879,10 @@ namespace ec
 				vertices[vertex_index + i].nz = cos(rad) * normalized.y
 					+ sin(rad) * normalized.x;
 
-				vertices[vertex_index + i + subdivisions].r = color.x * 255.0f + 0.5f;
-				vertices[vertex_index + i + subdivisions].g = color.y * 255.0f + 0.5f;
-				vertices[vertex_index + i + subdivisions].b = color.z * 255.0f + 0.5f;
-				vertices[vertex_index + i + subdivisions].a = alpha * 255.0f + 0.5f;
+				vertices[vertex_index + i + subdivisions].r = static_cast<GLubyte>(color.x * 255.0f + 0.5f);
+				vertices[vertex_index + i + subdivisions].g = static_cast<GLubyte>(color.y * 255.0f + 0.5f);
+				vertices[vertex_index + i + subdivisions].b = static_cast<GLubyte>(color.z * 255.0f + 0.5f);
+				vertices[vertex_index + i + subdivisions].a = static_cast<GLubyte>(alpha * 255.0f + 0.5f);
 
 				vertices[vertex_index + i + subdivisions].x = start.x + radius * (cos(rad
 					- radian_increment / 2) * normalized.z + sin(rad

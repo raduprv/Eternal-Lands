@@ -8,6 +8,7 @@
 #include "elloggingwrapper.h"
 #include "engine/logging.hpp"
 #include "io/elpathwrapper.h"
+#include "asc.h"
 
 namespace el = eternal_lands;
 
@@ -41,12 +42,17 @@ extern "C" void log_error(const char* file, const Uint32 line,
 	va_list ap;
 	char err_msg[512];
 
-	va_start(ap, message);
+	memset(err_msg, 0, sizeof(err_msg));
 
-        vsnprintf(err_msg, sizeof(err_msg), message, ap);
-        err_msg[sizeof(err_msg) - 1] = '\0';
+	if (message != 0)
+	{
+		va_start(ap, message);
 
-	va_end(ap);
+        	vsnprintf(err_msg, sizeof(err_msg), message, ap);
+        	err_msg[sizeof(err_msg) - 1] = '\0';
+
+		va_end(ap);
+	}
 
 	el::log_message(el::llt_error, err_msg, file, line);
 }
@@ -57,12 +63,17 @@ extern "C" void log_warning(const char* file, const Uint32 line,
 	va_list ap;
 	char err_msg[512];
 
-	va_start(ap, message);
+	memset(err_msg, 0, sizeof(err_msg));
 
-        vsnprintf(err_msg, sizeof(err_msg), message, ap);
-        err_msg[sizeof(err_msg) - 1] = '\0';
+	if (message != 0)
+	{
+		va_start(ap, message);
 
-	va_end(ap);
+        	vsnprintf(err_msg, sizeof(err_msg), message, ap);
+        	err_msg[sizeof(err_msg) - 1] = '\0';
+
+		va_end(ap);
+	}
 
 	el::log_message(el::llt_warning, err_msg, file, line);
 }
@@ -73,12 +84,17 @@ extern "C" void log_info(const char* file, const Uint32 line,
 	va_list ap;
 	char err_msg[512];
 
-	va_start(ap, message);
+	memset(err_msg, 0, sizeof(err_msg));
 
-        vsnprintf(err_msg, sizeof(err_msg), message, ap);
-        err_msg[sizeof(err_msg) - 1] = '\0';
+	if (message != 0)
+	{
+		va_start(ap, message);
 
-	va_end(ap);
+        	vsnprintf(err_msg, sizeof(err_msg), message, ap);
+        	err_msg[sizeof(err_msg) - 1] = '\0';
+
+		va_end(ap);
+	}
 
 	el::log_message(el::llt_info, err_msg, file, line);
 }
@@ -89,12 +105,17 @@ extern "C" void log_debug(const char* file, const Uint32 line,
 	va_list ap;
 	char err_msg[512];
 
-	va_start(ap, message);
+	memset(err_msg, 0, sizeof(err_msg));
 
-        vsnprintf(err_msg, sizeof(err_msg), message, ap);
-        err_msg[sizeof(err_msg) - 1] = '\0';
+	if (message != 0)
+	{
+		va_start(ap, message);
 
-	va_end(ap);
+        	vsnprintf(err_msg, sizeof(err_msg), message, ap);
+        	err_msg[sizeof(err_msg) - 1] = '\0';
+
+		va_end(ap);
+	}
 
 	el::log_message(el::llt_debug, err_msg, file, line);
 }
@@ -105,12 +126,17 @@ extern "C" void log_debug_verbose(const char* file, const Uint32 line,
 	va_list ap;
 	char err_msg[512];
 
-	va_start(ap, message);
+	memset(err_msg, 0, sizeof(err_msg));
 
-        vsnprintf(err_msg, sizeof(err_msg), message, ap);
-        err_msg[sizeof(err_msg) - 1] = '\0';
+	if (message != 0)
+	{
+		va_start(ap, message);
 
-	va_end(ap);
+        	vsnprintf(err_msg, sizeof(err_msg), message, ap);
+        	err_msg[sizeof(err_msg) - 1] = '\0';
+
+		va_end(ap);
+	}
 
 	el::log_message(el::llt_debug_verbose, err_msg, file, line);
 }

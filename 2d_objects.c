@@ -644,18 +644,10 @@ void display_2d_objects()
 	if (fsaa > 1)
 	{
 		glEnable(GL_MULTISAMPLE);
-		glEnable(GL_SAMPLE_COVERAGE);
-		glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE);
 	}
-	else
-	{
-		glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GREATER, 0.18f);
-	}
-#else	/* FSAA */
+#endif	/* FSAA */
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.18f);
-#endif	/* FSAA */
 
 	if (!dungeon && !(!clouds_shadows && !use_shadow_mapping))
 	{
@@ -717,17 +709,10 @@ void display_2d_objects()
 #ifdef	FSAA
 	if (fsaa > 1)
 	{
-		glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE);
-		glDisable(GL_SAMPLE_COVERAGE);
 		glDisable(GL_MULTISAMPLE);
 	}
-	else
-	{
-		glDisable(GL_ALPHA_TEST);
-	}
-#else	/* FSAA */
-	glDisable(GL_ALPHA_TEST);
 #endif	/* FSAA */
+	glDisable(GL_ALPHA_TEST);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE

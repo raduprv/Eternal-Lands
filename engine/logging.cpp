@@ -12,7 +12,7 @@
 #include <ctime>
 #include <cstdio>
 #include <SDL/SDL_mutex.h>
-#include <cassert>
+#include "../elc_private.h"
 
 namespace eternal_lands
 {
@@ -104,7 +104,6 @@ namespace eternal_lands
 	void init_logging(const std::string &log_file_name)
 	{
 		std::string str;
-		size_t pos;
 
 		log_mutex = SDL_CreateMutex();
 
@@ -128,25 +127,7 @@ namespace eternal_lands
 		log_message("Log started at", get_local_time_string(),
 			__FILE__, __LINE__);
 
-		str = FEATURES;
-
-		pos = str.find("\t");
-
-		while (pos != std::string::npos)
-		{
-			str.replace(pos, 1, " ");
-			pos = str.find("\t");
-		}
-
-		pos = str.find("  ");
-
-		while (pos != std::string::npos)
-		{
-			str.replace(pos, 2, " ");
-			pos = str.find("  ");
-		}
-
-		log_message("build features", str, __FILE__, __LINE__);
+		log_message("version", FILE_VERSION, __FILE__, __LINE__);
 
 		if (log_file.is_open())
 		{
