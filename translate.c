@@ -294,9 +294,8 @@ char
 	cm_dialog_copy_menu_str[50],
 	cm_minimap_menu_str[60],
 	cm_user_menu_str[150],
-	cm_item_list_empty_str[15],
 	cm_item_list_selected_str[40],
-	cm_item_list_names_str[80],
+	cm_item_list_names_str[100],
 	/* user_menus.cpp */
 	um_invalid_command_str[50],
 	um_invalid_line_str[50],
@@ -324,7 +323,9 @@ char
 	item_list_add_help_str[40],
 	item_list_drag_help_str[40],
 	item_list_create_help_str[40],
-	item_list_magic_str[80];
+	item_list_magic_str[80],
+	item_list_find_str[20],
+	item_list_find_help_str[40];
 /*! \} */
 
 #ifdef ELC
@@ -687,6 +688,7 @@ char	win_notepad[20],
 	tab_session[20],
 	tab_main[20],
 	item_list_name_str[30],
+	item_list_rename_str[30],
 	item_list_preview_title[30],
 	item_list_quantity_str[20],
 	button_okay[10],
@@ -1398,9 +1400,8 @@ void init_help()
 	add_xml_identifier(misc, "cm_dialog_copy_menu", cm_dialog_copy_menu_str, "Exclude Responses\nRemove newlines", sizeof(cm_dialog_copy_menu_str));
 	add_xml_identifier(misc, "cm_minimap_menu", cm_minimap_menu_str, "--\nRotate Minimap\nPin Minimap\nOpen On Start", sizeof(cm_minimap_menu_str));
 	add_xml_identifier(misc, "cm_user_menu", cm_user_menu_str, "--\nShow Title\nDraw Border\nSmall Font\nStandard Menus\n--\nShow Commands\n--\nReload Menus\nDisable Menus", sizeof(cm_user_menu_str));
-	add_xml_identifier(misc, "cm_item_list_empty", cm_item_list_empty_str, "Empty", sizeof(cm_item_list_empty_str));
 	add_xml_identifier(misc, "cm_item_list_selected", cm_item_list_selected_str, "Edit quantity\n--\nDelete", sizeof(cm_item_list_selected_str));
-	add_xml_identifier(misc, "cm_item_list_names", cm_item_list_names_str, "Create new list\n--\nDelete active list\n--\nReload from file", sizeof(cm_item_list_names_str));
+	add_xml_identifier(misc, "cm_item_list_names", cm_item_list_names_str, "Create new list\nRename active list\n--\nDelete active list\n--\nReload from file", sizeof(cm_item_list_names_str));
 	
 	/* user_menus.cpp */
 	add_xml_identifier(misc, "um_invalid_command", um_invalid_command_str, "Invalid command text", sizeof(um_invalid_command_str));
@@ -1436,6 +1437,8 @@ void init_help()
 	add_xml_identifier(misc, "item_list_drag_help", item_list_drag_help_str, "Add to list - drag from inv/sto", sizeof(item_list_drag_help_str));
 	add_xml_identifier(misc, "item_list_create_help", item_list_create_help_str, "Create new list", sizeof(item_list_create_help_str));
 	add_xml_identifier(misc, "item_list_magic", item_list_magic_str, "Magical interference caused the list window to close O.O", sizeof(item_list_magic_str));	
+	add_xml_identifier(misc, "item_list_find", item_list_find_str, "Find: ", sizeof(item_list_find_str));
+	add_xml_identifier(misc, "item_list_find_help", item_list_find_help_str, "Find list - type text", sizeof(item_list_find_help_str));
 }
 #endif
 
@@ -1589,6 +1592,7 @@ void init_titles ()
 	add_xml_identifier (titles_str, "game_version", game_version_str, "Eternal Lands Version %d.%d.%d%s", sizeof(game_version_str));
 	add_xml_identifier (titles_str, "b_send", button_send, "Send", sizeof(button_send));
 	add_xml_identifier (titles_str, "item_list_name", item_list_name_str, "Enter list name", sizeof(item_list_name_str));
+	add_xml_identifier (titles_str, "item_list_rename", item_list_rename_str, "Enter new name", sizeof(item_list_rename_str));
 	add_xml_identifier (titles_str, "item_list_preview", item_list_preview_title, "Item lists", sizeof(item_list_preview_title));
 	add_xml_identifier (titles_str, "item_list_quantity", item_list_quantity_str, "Quantity", sizeof(item_list_quantity_str));
 }

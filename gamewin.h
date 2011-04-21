@@ -48,6 +48,15 @@ void draw_special_cursors();
 Uint8 key_to_char (Uint32 unikey);
 
 /*!
+ * \brief Maintain an input string with key presses
+ *
+ *	The keypress is appended to the string up to the max.  If the key
+ * 	press is the backspace chatacter, the last char is removed.
+ *
+ */
+void string_input(char *text, size_t maxlen, char ch);
+
+/*!
  * \ingroup events
  * \brief Checks for a quit or full screen key press
  *

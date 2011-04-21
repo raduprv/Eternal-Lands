@@ -11,9 +11,7 @@
  * Author bluap/pjbroad December 2009, new integrated names list April 2011
  *
  * TODO New features
- * 		Option to rename a list?
- * 		Resizable window height?
- * 		Changable number of item rows shown?
+ * 		...
  */
 
 
@@ -35,6 +33,7 @@
 #include "elconfig.h"
 #include "errors.h"
 #include "font.h"
+#include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
 #include "init.h"
@@ -56,9 +55,12 @@ namespace ItemLists
 	static int click_itemlist_handler(window_info *win, int mx, int my, Uint32 flags);
 	static int mouseover_itemlist_handler(window_info *win, int mx, int my);
 	static int hide_itemlist_handler(window_info *win);
-	static void name_input_handler(const char *input_text, void *data);
+	static int keypress_itemlist_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey);
+	static void new_list_handler(const char *input_text, void *data);
+	static void rename_list_handler(const char *input_text, void *data);
 	static int cm_selected_item_handler(window_info *win, int widget_id, int mx, int my, int option);
 	static int cm_names_handler(window_info *win, int widget_id, int mx, int my, int option);
+	static void cm_names_pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win);
 
 
 	//	A class for an individual item list.
@@ -68,6 +70,7 @@ namespace ItemLists
 		public:
 			bool set(std::string save_name);
 			const std::string & get_name(void) const { return name; }
+			void set_name(const char *new_name) { name = new_name; }
 			size_t get_num_items(void) const { return image_ids.size(); }
 			int get_image_id(size_t i) const { assert(i<image_ids.size()); return image_ids[i]; }
 			Uint16 get_item_id(size_t i) const { assert(i<item_ids.size()); return item_ids[i]; }
@@ -95,10 +98,13 @@ namespace ItemLists
 			void save(void);
 			bool add(const char *name);
 			void del(size_t list_index);
+			void rename_active(const char * name);
+			void select_by_name(const char *name);
+			void find_next_matching(const char *filter);
 			size_t get_active(void) const { return active_list; }
 			size_t size(void) const { return saved_item_lists.size(); }
 			bool valid_active_list(void) const { return active_list < size(); }
-			void scroll_change_active(Uint32 flags);
+			void change_active(int change);
 			const std::vector<List> & get_lists(void) const { return saved_item_lists; }
 			bool set_active(size_t new_active_list)
 				{ if (new_active_list >= size()) return false; active_list = new_active_list; return true; }
@@ -175,21 +181,25 @@ namespace ItemLists
 				win_id(-1), selected_item_number(static_cast<size_t>(-1)),
 				name_under_mouse(static_cast<size_t>(-1)), clicked(false),
 				mouse_over_add_button(false), last_click_time(0),
-				last_quantity_selected(0) {}
+				last_quantity_selected(0), num_grid_rows(min_grid_rows()), last_key_time(0) {}
 			int get_id(void) const { return win_id; }
 			size_t get_grid_cm(void) const { return cm_selected_item_menu; }
 			static int get_grid_size(void) { return 33; };
 			static int get_list_gap(void) { return 3; };
+			static int min_grid_rows(void) { return 3; };
 			void show(window_info *win);
 			int draw(window_info *win);
-			void get_new_list(void);
+			void new_or_rename_list(bool is_new);
 			int mouseover(window_info *win, int mx, int my);
 			int click(window_info *win, int mx, int my, Uint32 flags);
 			size_t get_item_number(int mx, int my);
 			void restore_inventory_quantity(void);
 			void update_scroll_len(void);
 			void make_active_visable(void);
+			void cm_names_pre_show(void);
+			void keypress(char the_key);
 		private:
+			void calc_num_show_names(int win_len_y);
 			size_t cm_selected_item_menu;
 			size_t cm_names_menu;
 			int num_show_names_list;
@@ -206,6 +216,9 @@ namespace ItemLists
 			INPUT_POPUP ipu_item_list_name;
 			int names_scroll_id;
 			std::vector<const char *>help_str;
+			int num_grid_rows;
+			char filter[20];
+			Uint32 last_key_time;
 	};
 
 
@@ -637,17 +650,42 @@ namespace ItemLists
 		{
 			sort_list();
 			save();
-			// find the first list with the new name - best we can simply do
-			for (size_t i=0; i<saved_item_lists.size(); ++i)
-				if (saved_item_lists[i].get_name() == std::string(name))
-				{
-					active_list = i;
-					break;
-				}
+			select_by_name(name);
 			return true;
 		}
 		saved_item_lists.pop_back();
 		return false;
+	}
+
+	//	Find the first list with the specified name - best we can simply do
+	//
+	void List_Container::select_by_name(const char *name)
+	{
+		for (size_t i=0; i<saved_item_lists.size(); ++i)
+			if (saved_item_lists[i].get_name() == std::string(name))
+			{
+				active_list = i;
+				break;
+			}
+	}
+
+
+	//	Find the next list after the current active who's name contains the
+	//	filter string - then make it the active_list.
+	//
+	void List_Container::find_next_matching(const char *filter)
+	{
+		for (size_t i=active_list+1; i<active_list+size(); ++i)
+		{
+			size_t check = i % size();
+			std::string lowercase(saved_item_lists[check].get_name());
+			std::transform(lowercase.begin(), lowercase.end(), lowercase.begin(), tolower);
+			if (lowercase.find(filter, 0) != std::string::npos)
+			{
+				active_list = check;
+				break;
+			}
+		}
 	}
 
 
@@ -663,14 +701,25 @@ namespace ItemLists
 	}
 
 
+	//	Rename the active list
+	//
+	void List_Container::rename_active(const char *name)
+	{
+		if (active_list >= size())
+			return;
+		saved_item_lists[active_list].set_name(name);
+		sort_list();
+		select_by_name(name);
+		save();
+	}
+
+
 	//	Change the current active list by mouse wheel
 	//
-	void List_Container::scroll_change_active(Uint32 flags)
+	void List_Container::change_active(int change)
 	{
-		if ((flags & ELW_WHEEL_UP ) && active_list > 0)
-			active_list--;
-		else if ((flags & ELW_WHEEL_DOWN ) && active_list+1 < size())
-			active_list++;
+		if (((active_list + change) >= 0) && ((active_list + change) < size()))
+			active_list += change;
 	}
 
 
@@ -696,31 +745,54 @@ namespace ItemLists
 	}
 
 
+	//	Calculate the number of item list names show - depends on window height
+	//	and number of grid rows shown
+	//
+	void List_Window::calc_num_show_names(int win_len_y = -1)
+	{
+		// get the actual window height if not specfified
+		if (win_len_y < 0)
+		{
+			if ((win_id < 0) || (win_id >= windows_list.num_windows))
+				return;
+			win_len_y = (&windows_list.window[win_id])->len_y;
+		}
+		num_show_names_list = static_cast<int>
+			((win_len_y - get_grid_size()*num_grid_rows) / (get_list_gap() + names_list_height));
+	}
+
+
 	//	Create the window or just toggle its open/closed state.
 	//
 	void List_Window::show(window_info *win)
 	{
 		if (win_id < 0 )
 		{
-			num_show_names_list = static_cast<int>((win->len_y - get_grid_size()*6) / (get_list_gap() + names_list_height));
+			ItemLists::Vars::lists()->load();
+			ItemLists::Vars::cat_maps()->load();
+			filter[0] = '\0';
+
+			calc_num_show_names(win->len_y);
 			int names_size_y = static_cast<int>(num_show_names_list * (get_list_gap() + names_list_height) + get_list_gap());
 			int size_x = get_grid_size()*6 + ELW_BOX_SIZE + get_list_gap();
-			int size_y = get_grid_size()*6 + names_size_y;
+			int size_y = get_grid_size()*num_grid_rows + names_size_y;
 			add_button_x = static_cast<int>(size_x - DEFAULT_FONT_X_LEN*2);
 			add_button_y = get_grid_size();
 
-			win_id = create_window(item_list_preview_title, win->window_id, 0, win->len_x + 5, 0, size_x, size_y, ELW_WIN_DEFAULT/*|ELW_RESIZEABLE*/);
+			win_id = create_window(item_list_preview_title, win->window_id, 0, win->len_x + 5, 0, size_x, size_y, ELW_WIN_DEFAULT);
 			set_window_handler(win_id, ELW_HANDLER_DISPLAY, (int (*)())&display_itemlist_handler );
 			set_window_handler(win_id, ELW_HANDLER_CLICK, (int (*)())&click_itemlist_handler );
 			set_window_handler(win_id, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_itemlist_handler );
 			set_window_handler(win_id, ELW_HANDLER_HIDE, (int (*)())&hide_itemlist_handler );
+			set_window_handler(win_id, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_itemlist_handler );
 
 			cm_selected_item_menu = cm_create(cm_item_list_selected_str, cm_selected_item_handler);
 			cm_names_menu = cm_create(cm_item_list_names_str, cm_names_handler);
+			cm_set_pre_show_handler(cm_names_menu, cm_names_pre_show_handler);
 			cm_add_region(cm_names_menu, win_id, 0, win->len_y-names_size_y, win->len_y, names_size_y);
 
 			names_scroll_id = vscrollbar_add_extended(win_id, 1, NULL,
-				size_x-ELW_BOX_SIZE, get_grid_size()*6, ELW_BOX_SIZE, names_size_y, 0,
+				size_x-ELW_BOX_SIZE, get_grid_size()*num_grid_rows, ELW_BOX_SIZE, names_size_y, 0,
 				1.0, 0.77f, 0.57f, 0.39f, 0, 1, Vars::lists()->size()-num_show_names_list);
 
 			init_ipu(&ipu_item_list_name, -1, -1, -1, 1, 1, NULL, NULL);
@@ -728,17 +800,36 @@ namespace ItemLists
 		else
 		{
 			toggle_window(win_id);
+			make_active_visable();
 			close_ipu(&ipu_item_list_name);
 			Vars::quantity_input()->close();
 		}
 	}
 
 
-	// Draw the item list item window
+	// Draw the item list window
 	//
 	int List_Window::draw(window_info *win)
 	{
 		Vars::lists()->check_and_timed_save(false);
+
+		// check if we need to change the number of grid rows shown
+		int new_num_grid_rows = min_grid_rows();
+		if (Vars::lists()->valid_active_list())
+			new_num_grid_rows = std::max(static_cast<size_t>(new_num_grid_rows), (Vars::lists()->get_list().get_num_items() +5) / 6);
+		if (num_grid_rows != new_num_grid_rows)
+		{
+			num_grid_rows = new_num_grid_rows;
+			calc_num_show_names();
+			int names_size_y = static_cast<int>(num_show_names_list * (get_list_gap() + names_list_height) + get_list_gap());
+			cm_remove_regions(win_id);
+			cm_add_region(cm_names_menu, win_id, 0, win->len_y-names_size_y, win->len_y, names_size_y);
+			widget_resize(win_id, names_scroll_id, ELW_BOX_SIZE, names_size_y);
+			widget_move(win_id, names_scroll_id, win->len_x-ELW_BOX_SIZE, get_grid_size()*num_grid_rows);
+			make_active_visable();
+			update_scroll_len();
+		}
+
 
 		glEnable(GL_TEXTURE_2D);
 
@@ -746,7 +837,7 @@ namespace ItemLists
 		if (Vars::lists()->valid_active_list())
 		{
 			glColor3f(1.0f,1.0f,1.0f);
-			for(size_t i=0; i<Vars::lists()->get_list().get_num_items(); i++)
+			for(size_t i=0; i<Vars::lists()->get_list().get_num_items() && i<static_cast<size_t>(6*num_grid_rows); i++)
 			{
 				int x_start, x_end, y_start, y_end;
 				x_start = get_grid_size() * (i%6) + 1;
@@ -757,13 +848,28 @@ namespace ItemLists
 			}
 		}
 
-		// draw mouse over window help text
 		size_t help_lines_shown = 0;
+
+		// Display any name search text
+		if (strlen(filter))
+		{
+			if (SDL_GetTicks() > (last_key_time+5000))
+			{
+				filter[0] = '\0';
+				last_key_time = 0;
+			}
+			else
+			{
+				std::string tmp = std::string(item_list_find_str) + std::string("[") + std::string(filter) + std::string("]");
+				show_help(tmp.c_str(), 0, static_cast<int>(0.5 + win->len_y + 10 + SMALL_FONT_Y_LEN * help_lines_shown++));
+			}
+		}
+
+		// draw mouse over window help text
 		if (show_help_text)
 		{
-			help_lines_shown = help_str.size();
 			for (size_t i=0; i<help_str.size(); ++i)
-				show_help(help_str[i], 0, static_cast<int>(0.5 + win->len_y + 10 + SMALL_FONT_Y_LEN * i));
+				show_help(help_str[i], 0, static_cast<int>(0.5 + win->len_y + 10 + SMALL_FONT_Y_LEN * help_lines_shown++));
 			help_str.clear();
 		}
 
@@ -771,7 +877,7 @@ namespace ItemLists
 
 		// draw the item grid
 		glColor3f(0.77f,0.57f,0.39f);
-		rendergrid(6, 6, 0, 0, get_grid_size(), get_grid_size());
+		rendergrid(6, num_grid_rows, 0, 0, get_grid_size(), get_grid_size());
 
 		// if an object is selected, draw a green grid around it
 		if (Vars::lists()->valid_active_list() && (quantities.selected == ITEM_EDIT_QUANT) && (selected_item_number < Vars::lists()->get_list().get_num_items()))
@@ -793,7 +899,7 @@ namespace ItemLists
 		{
 			glColor3f(1.0f,1.0f,1.0f);
 			char str[80];
-			for(size_t i=0; i<Vars::lists()->get_list().get_num_items(); i++)
+			for(size_t i=0; i<Vars::lists()->get_list().get_num_items() && i<static_cast<size_t>(6*num_grid_rows); i++)
 			{
 				int x_start, y_start, y_end;
 				x_start = get_grid_size() * (i%6) + 1;
@@ -813,7 +919,7 @@ namespace ItemLists
 
 		// draw the item list names
 		glColor3f(1.0f,1.0f,1.0f);
-		int pos_y = get_grid_size()*6 + get_list_gap();
+		int pos_y = get_grid_size()*num_grid_rows + get_list_gap();
 		int num_shown = 0;
 		const int top_entry = vscrollbar_get_pos (win_id, names_scroll_id);
 		const std::vector<List> lists = Vars::lists()->get_lists();
@@ -853,7 +959,7 @@ namespace ItemLists
 #ifdef NEW_SOUND
 			add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
 #endif // NEW_SOUND
-			get_new_list();
+			new_or_rename_list(true);
 		}
 		name_under_mouse = static_cast<size_t>(-1);
 		mouse_over_add_button = clicked = false;
@@ -867,16 +973,16 @@ CHECK_GL_ERRORS();
 
 	//	Prompt for the new list name, starting the process of adding a new list
 	//
-	void List_Window::get_new_list(void)
+	void List_Window::new_or_rename_list(bool is_new)
 	{
 		if ((win_id < 0) || (win_id >= windows_list.num_windows))
 			return;
 		window_info *win = &windows_list.window[win_id];
 		close_ipu(&ipu_item_list_name);
-		init_ipu(&ipu_item_list_name, win_id, 310, 100, 25, 1, NULL, name_input_handler);
+		init_ipu(&ipu_item_list_name, win_id, 310, 100, 25, 1, NULL, (is_new) ?new_list_handler :rename_list_handler);
 		ipu_item_list_name.x = (win->len_x - ipu_item_list_name.popup_x_len) / 2;
-		ipu_item_list_name.y = (get_grid_size()*6 - ipu_item_list_name.popup_y_len) / 2;
-		display_popup_win(&ipu_item_list_name, item_list_name_str );
+		ipu_item_list_name.y = (get_grid_size()*num_grid_rows - ipu_item_list_name.popup_y_len) / 2;
+		display_popup_win(&ipu_item_list_name, (is_new) ?item_list_name_str : item_list_rename_str );
 	}
 
 
@@ -888,7 +994,7 @@ CHECK_GL_ERRORS();
 			return 0;
 
 		if (Vars::lists()->valid_active_list() &&
-			mx>=0 && mx<(get_grid_size()*6) && my>=0 && my<(get_grid_size()*6))
+			mx>=0 && mx<(get_grid_size()*6) && my>=0 && my<(get_grid_size()*num_grid_rows))
 		{
 			size_t item_number = get_item_number(mx, my);
 			if (item_number < Vars::lists()->get_list().get_num_items())
@@ -911,7 +1017,7 @@ CHECK_GL_ERRORS();
 		}
 
 		// check if over the list names and get which name
-		int start_names = get_grid_size()*6;
+		int start_names = get_grid_size()*num_grid_rows;
 		int names_size_y = static_cast<int>(num_show_names_list * (get_list_gap() + names_list_height) + get_list_gap());
 		if ((my > start_names) && (my < (start_names+names_size_y)))
 			name_under_mouse = vscrollbar_get_pos (win_id, names_scroll_id) +
@@ -919,7 +1025,11 @@ CHECK_GL_ERRORS();
 
 		// name list context help
 		if ((my > start_names) && (my < (start_names+names_size_y)))
+		{
 			help_str.push_back(cm_help_options_str);
+			if (!strlen(filter))
+				help_str.push_back(item_list_find_help_str);
+		}
 
 		return 0;
 	}
@@ -932,7 +1042,7 @@ CHECK_GL_ERRORS();
 		if (!Vars::lists()->valid_active_list())
 			return 0;
 		size_t num_items = Vars::lists()->get_list().get_num_items();
-		if ((my >= get_grid_size()*6) || (mx >= get_grid_size()*6))
+		if ((my >= get_grid_size()*num_grid_rows) || (mx >= get_grid_size()*6))
 			return num_items;
 		size_t list_index = 6 * static_cast<int>(my/get_grid_size()) + mx/get_grid_size();
 		if (list_index < num_items)
@@ -984,9 +1094,12 @@ CHECK_GL_ERRORS();
 		if ((flags & ELW_WHEEL_UP ) || (flags & ELW_WHEEL_DOWN ))
 		{
 			// change the active list
-			if (my<get_grid_size()*6)
+			if (my<get_grid_size()*num_grid_rows)
 			{
-				Vars::lists()->scroll_change_active(flags);
+				if (flags & ELW_WHEEL_UP)
+					Vars::lists()->change_active(-1);
+				else if (flags & ELW_WHEEL_DOWN)
+					Vars::lists()->change_active(1);
 				make_active_visable();
 			}
 			// scroll the names
@@ -1090,6 +1203,45 @@ CHECK_GL_ERRORS();
 	}
 
 
+	//	Key presses in the window used for a search string
+	//
+	void List_Window::keypress(char the_key)
+	{
+		last_key_time = SDL_GetTicks();
+		if (the_key == SDLK_ESCAPE)
+		{
+			filter[0] = '\0';
+			last_key_time = 0;
+			return;
+		}
+		else
+			string_input(filter, sizeof(filter), the_key);
+		if (strlen(filter))
+		{
+			Vars::lists()->find_next_matching(filter);
+			Vars::win()->make_active_visable();
+		}
+	}
+
+
+	//	Enable/disable names conext menu options
+	//
+	void List_Window::cm_names_pre_show(void)
+	{
+		int no_active = (Vars::lists()->valid_active_list()) ?0 :1;
+		cm_grey_line(cm_names_menu, 1, no_active);
+		cm_grey_line(cm_names_menu, 3, no_active);
+	}
+
+
+	//	Call the names context menu pre show handler
+	//
+	static void cm_names_pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win)
+	{
+		Vars::win()->cm_names_pre_show();
+	}
+
+
 	//	Item list names context menu option handler
 	//
 	static int cm_names_handler(window_info *win, int widget_id, int mx, int my, int option)
@@ -1097,18 +1249,23 @@ CHECK_GL_ERRORS();
 		switch (option)
 		{
 			case 0:
-				Vars::win()->get_new_list();
+				Vars::win()->new_or_rename_list(true);
 				break;
-			case 2:
+			case 1:
+				if (Vars::lists()->valid_active_list())
+					Vars::win()->new_or_rename_list(false);
+				break;
+			case 3:
 				if (Vars::lists()->valid_active_list())
 				{
 					Vars::lists()->del(Vars::lists()->get_active());
 					ItemLists::Vars::win()->update_scroll_len();
 				}
 				break;
-			case 4:
+			case 5:
 				Vars::lists()->load();
 				ItemLists::Vars::win()->update_scroll_len();
+				ItemLists::Vars::win()->make_active_visable();
 				break;
 			default:
 				return 0;
@@ -1150,7 +1307,7 @@ CHECK_GL_ERRORS();
 
 	//	Enter name input callback - when OK selected
 	//
-	static void name_input_handler(const char *input_text, void *data)
+	static void new_list_handler(const char *input_text, void *data)
 	{
 		// if sucessful update the displayed list else tell user it failed
 		if (Vars::lists()->add(input_text))
@@ -1160,6 +1317,15 @@ CHECK_GL_ERRORS();
 		}
 		else
 			LOG_TO_CONSOLE(c_red1, item_list_empty_list_str);
+	}
+
+
+	//	Enter new name input callback - when OK selected
+	//
+	static void rename_list_handler(const char *input_text, void *data)
+	{
+		Vars::lists()->rename_active(input_text);
+		Vars::win()->make_active_visable();
 	}
 
 
@@ -1196,6 +1362,15 @@ CHECK_GL_ERRORS();
 		return 1;
 	}
 
+	static int keypress_itemlist_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+	{
+		char keychar = tolower(key_to_char(unikey));
+		if ((key & ELW_CTRL) || (key & ELW_ALT))
+			return 0;
+		Vars::win()->keypress(keychar);
+		return 1;
+	}
+
 
 } // end ItemLists namespace
 
@@ -1206,21 +1381,17 @@ CHECK_GL_ERRORS();
 //
 extern "C"
 {
-	int disable_item_list_preview = 0;
 	Uint32 il_pickup_fail_time = 0;
 
 	void toggle_items_list_window(window_info *win)
 		{ ItemLists::Vars::win()->show(win); }
 
-	void setup_item_list_menus(void)
-	{
-		ItemLists::Vars::lists()->load();
-		ItemLists::Vars::cat_maps()->load();
-	}
-
 	void update_category_maps(int image_id, Uint16 item_id, int cat_id)
 		{ ItemLists::Vars::cat_maps()->update(image_id, item_id, cat_id); }
 
-	void save_category_maps(void)
-		{ ItemLists::Vars::cat_maps()->save(); }
+	void save_item_lists(void)
+	{
+		ItemLists::Vars::lists()->save();
+		ItemLists::Vars::cat_maps()->save();
+	}
 }
