@@ -21,6 +21,9 @@
 #ifdef CLUSTER_INSIDES
 #include "cluster.h"
 #endif
+#ifdef FSAA
+#include "fsaa/fsaa.h"
+#endif /* FSAA */
 
 int use_3d_alpha_blend= 1;
 Uint32 highest_obj_3d= 0;
@@ -293,6 +296,12 @@ void draw_3d_objects(unsigned int object_type)
 		glDisable(GL_LIGHTING);
 	}
 
+#ifdef	FSAA
+	if (fsaa > 1)
+	{
+		glEnable(GL_MULTISAMPLE);
+	}
+#endif	/* FSAA */
 	if(is_transparent) {
 #ifdef	NEW_ALPHA
 		if(use_3d_alpha_blend){
@@ -301,7 +310,19 @@ void draw_3d_objects(unsigned int object_type)
 		}
 #endif	//NEW_ALPHA
 		//enable alpha filtering, so we have some alpha key
+#ifdef	FSAA
+		if (fsaa > 1)
+		{
+			glEnable(GL_SAMPLE_COVERAGE);
+			glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE);
+		}
+		else
+		{
+			glEnable(GL_ALPHA_TEST);
+		}
+#else	/* FSAA */
 		glEnable(GL_ALPHA_TEST);
+#endif	/* FSAA */
 		if(is_ground)glAlphaFunc(GL_GREATER,0.23f);
 #ifdef OLD_MISC_OBJ_DIR
 		else glAlphaFunc(GL_GREATER,0.06f);
@@ -381,8 +402,26 @@ void draw_3d_objects(unsigned int object_type)
 			glDisable(GL_BLEND);
 		}
 #endif	//NEW_ALPHA
+#ifdef	FSAA
+		if (fsaa > 1)
+		{
+			glDisable(GL_SAMPLE_COVERAGE);
+			glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE);
+		}
+		else
+		{
+			glDisable(GL_ALPHA_TEST);
+		}
+#else	/* FSAA */
 		glDisable(GL_ALPHA_TEST);
+#endif	/* FSAA */
 	}
+#ifdef	FSAA
+	if (fsaa > 1)
+	{
+		glDisable(GL_MULTISAMPLE);
+	}
+#endif	/* FSAA */
 
 	CHECK_GL_ERRORS();
 
@@ -636,7 +675,7 @@ void display_objects()
 	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT);
 	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_SELF_LIT_OBJECT);
 	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT);
-	
+
 	CHECK_GL_ERRORS();
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_COLOR_MATERIAL);
@@ -681,7 +720,7 @@ void display_ground_objects()
 
 	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT);
 	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
-	
+
 	CHECK_GL_ERRORS();
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_COLOR_MATERIAL);

@@ -25,6 +25,9 @@
 #include "global.h"
 #include "shader/shader.h"
 #include "sky.h"
+#ifdef FSAA
+#include "fsaa/fsaa.h"
+#endif /* FSAA */
 
 typedef struct
 {
@@ -895,11 +898,23 @@ void draw_lake_tiles()
 	}
 
 	get_intersect_start_stop(main_bbox_tree, TYPE_NO_REFLECTIV_WATER, &start, &stop);
+#ifdef	FSAA
+	if (fsaa > 1)
+	{
+		glEnable(GL_MULTISAMPLE);
+	}
+#endif	/* FSAA */
 #ifdef	NEW_TEXTURES
 	draw_quad_tiles(start, stop, 0, water_id);
 #else	/* NEW_TEXTURES */
 	draw_water_quad_tiles(start, stop, 0, water_id);
 #endif	/* NEW_TEXTURES */
+#ifdef	FSAA
+	if (fsaa > 1)
+	{
+		glDisable(GL_MULTISAMPLE);
+	}
+#endif	/* FSAA */
 
 	if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)
 	{
@@ -977,11 +992,20 @@ void draw_lake_tiles()
 	}
 
 	get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
+#ifdef	FSAA
+	if (fsaa > 1)
+	{
+		glEnable(GL_MULTISAMPLE);
+	}
+#endif	/* FSAA */
 #ifdef	NEW_TEXTURES
 	draw_quad_tiles(start, stop, water_buffer_reflectiv_index, water_id);
 #else	/* NEW_TEXTURES */
 	draw_water_quad_tiles(start, stop, water_buffer_reflectiv_index, water_id);
 #endif	/* NEW_TEXTURES */
+#ifdef	FSAA
+	glDisable(GL_MULTISAMPLE);
+#endif	/* FSAA */
 
 	if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)
 	{

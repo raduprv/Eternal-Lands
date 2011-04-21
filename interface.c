@@ -38,9 +38,6 @@
 #ifdef	NEW_TEXTURES
 #include "image_loading.h"
 #endif	/* NEW_TEXTURES */
-#ifdef	FSAA
-#include "fsaa/fsaa.h"
-#endif	/* FSAA */
 
 #define DEFAULT_CONTMAPS_SIZE 20
 
@@ -274,9 +271,6 @@ CHECK_GL_ERRORS();
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
-#ifdef	FSAA
-	glDisable(GL_MULTISAMPLE);
-#endif	/* FSAA */
 #ifdef OPENGL_TRACE
 	CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -302,12 +296,6 @@ CHECK_GL_ERRORS();
 	if (use_fog) glEnable(GL_FOG);
 	else glDisable(GL_FOG);
 	//glViewport(0, 0, window_width-hud_x, window_height-hud_y);	// Reset The Current Viewport
-#ifdef	FSAA
-	if (fsaa > 1)
-	{
-		glEnable(GL_MULTISAMPLE);
-	}
-#endif	/* FSAA */
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE

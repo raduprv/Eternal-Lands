@@ -14,6 +14,9 @@
 #ifdef CLUSTER_INSIDES_OLD
 #include "cluster.h"
 #endif
+#ifdef FSAA
+#include "fsaa/fsaa.h"
+#endif /* FSAA */
 
 #ifdef MAP_EDITOR2
 img_struct map_tiles[256];
@@ -343,11 +346,23 @@ void draw_tile_map()
 	}
 
 	get_intersect_start_stop(main_bbox_tree, TYPE_TERRAIN, &start, &stop);
+#ifdef	FSAA
+	if (fsaa > 1)
+	{
+		glEnable(GL_MULTISAMPLE);
+	}
+#endif	/* FSAA */
 #ifdef	NEW_TEXTURES
 	draw_quad_tiles(start, stop, 0, tile_list[0]);
 #else	/* NEW_TEXTURES */
 	draw_terrain_quad_tiles(start, stop);
 #endif	/* NEW_TEXTURES */
+#ifdef	FSAA
+	if (fsaa > 1)
+	{
+		glDisable(GL_MULTISAMPLE);
+	}
+#endif	/* FSAA */
 
 	glDisable(GL_CULL_FACE);
 

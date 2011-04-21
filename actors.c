@@ -404,10 +404,6 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 
 	glColor3f (1.0f, 0.0f, 0.0f);
 
-#ifdef	FSAA
-	glDisable(GL_MULTISAMPLE);
-#endif	/* FSAA */
-
 	glDepthFunc(GL_ALWAYS);
 	if(actor_id->damage_ms){
 		if(floatingmessages_enabled){
@@ -614,12 +610,6 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		glEnd();
 		glDisable(GL_BLEND);
 	}
-#ifdef	FSAA
-	if (fsaa > 1)
-	{
-		glEnable(GL_MULTISAMPLE);
-	}
-#endif	/* FSAA */
 
 	glEnable(GL_TEXTURE_2D);
 
@@ -1074,6 +1064,12 @@ void display_actors(int banner, int render_pass)
 	has_alpha = 0;
 	has_ghosts = 0;
 
+#ifdef	FSAA
+	if (fsaa > 1)
+	{
+		glEnable(GL_MULTISAMPLE);
+	}
+#endif	/* FSAA */
 	for (i = 0; i < no_near_actors; i++)
 	{
 		if (near_actors[i].ghost || (near_actors[i].buffs & BUFF_INVISIBILITY))
@@ -1121,8 +1117,21 @@ void display_actors(int banner, int render_pass)
 	}
 	if (has_alpha)
 	{
+#ifdef	FSAA
+		if (fsaa > 1)
+		{
+			glEnable(GL_SAMPLE_COVERAGE);
+			glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE);
+		}
+		else
+		{
+			glEnable(GL_ALPHA_TEST);
+			glAlphaFunc(GL_GREATER, 0.4f);
+		}
+#else	/* FSAA */
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GREATER, 0.4f);
+#endif	/* FSAA */
 		for (i = 0; i < no_near_actors; i++)
 		{
 
@@ -1159,7 +1168,19 @@ void display_actors(int banner, int render_pass)
 				}
 			}
 		}
+#ifdef	FSAA
+		if (fsaa > 1)
+		{
+			glDisable(GL_SAMPLE_COVERAGE);
+			glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE);
+		}
+		else
+		{
+			glDisable(GL_ALPHA_TEST);
+		}
+#else	/* FSAA */
 		glDisable(GL_ALPHA_TEST);
+#endif	/* FSAA */
 	}
 	if (has_ghosts)
 	{
@@ -1225,6 +1246,12 @@ void display_actors(int banner, int render_pass)
 		glDisable(GL_BLEND);
 		glEnable(GL_LIGHTING);
 	}
+#ifdef	FSAA
+	if (fsaa > 1)
+	{
+		glDisable(GL_MULTISAMPLE);
+	}
+#endif	/* FSAA */
 
 	if (use_animation_program)
 	{
