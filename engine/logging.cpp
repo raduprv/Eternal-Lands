@@ -30,6 +30,7 @@ namespace eternal_lands
 		{
 			char buffer[128];
 			std::time_t raw_time;
+			size_t pos;
 
 			if (!log_file.is_open())
 			{
@@ -50,7 +51,14 @@ namespace eternal_lands
 
 			log_file << "] " << type << ": " << message;
 
-			if (message.find('\n') == std::string::npos)
+			if (message.rbegin() != message.rend())
+			{
+				if (*message.rbegin() != '\n')
+				{
+					log_file << "\n";
+				}
+			}
+			else
 			{
 				log_file << "\n";
 			}

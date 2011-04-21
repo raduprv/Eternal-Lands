@@ -1443,21 +1443,29 @@ void load_quickspells ()
 		return;
 	}
 
+	if (num_spells > MAX_QUICKBAR_SLOTS)
+	{
+		LOG_WARNING("Too many spells (%d), only %d spells allowed",
+			num_spells, MAX_QUICKBAR_SLOTS);
+
+		num_spells = MAX_QUICKBAR_SLOTS;
+	}
+
 	memset (mqb_data, 0, sizeof (mqb_data));
 
 	LOG_DEBUG("Reading %d spells from file '%s'", num_spells, fname);
 
 	index = 1;
 
-	for (i = 1; i < num_spells; i++)
+	for (i = 0; i < num_spells; i++)
 	{
 		mqbdata* result;
 		Uint8 spell_id;
 
 		if (fread(&spell_id, sizeof(spell_id), 1, fp) != 1)
 		{
-			LOG_ERROR("Failed reading spell %d from file '%s'",
-				i - 1, fname);
+			LOG_ERROR("Failed reading spell %d from file '%s'", i,
+				fname);
 			continue;
 		}
 
@@ -1504,6 +1512,9 @@ void save_quickspells()
 		if (mqb_data[i] == NULL)
 			break;
 	}
+
+	i -= 1;
+
 	// write the number of spells + 1
 	fwrite(&i, sizeof(i), 1, fp);
 

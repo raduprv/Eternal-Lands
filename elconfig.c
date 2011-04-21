@@ -1425,9 +1425,9 @@ void check_options()
 {
 	check_option_var("use_compiled_vertex_array");
 	check_option_var("use_vertex_buffers");
-	check_option_var("use_clouds_shadows");
+	check_option_var("clouds_shadows");
 #ifdef	NEW_TEXTURES
-	check_option_var("use_small_actor_texture_cache");
+	check_option_var("small_actor_texture_cache");
 	check_option_var("use_eye_candy");
 #else	/* NEW_TEXTURES */
 	check_option_var("use_mipmaps");
