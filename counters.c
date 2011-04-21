@@ -178,6 +178,8 @@ FILE *open_counters_file(char *mode)
 
 	safe_snprintf(filename, sizeof(filename), "counters_%s.dat", username);
 
+	LOG_DEBUG("Open counters file '%s'", filename);
+
 	return open_file_config(filename, mode);
 }
 
@@ -235,6 +237,8 @@ void load_counters()
 			break;
 		io_name[io_name_len] = '\0';
 
+		LOG_DEBUG("Reading counter '%s'", io_name);
+
 		if (fread(&io_extra, sizeof(io_extra), 1, f) != 1)
 			break;
 		if (fread(&io_n_total, sizeof(io_n_total), 1, f) != 1)
@@ -261,6 +265,8 @@ void load_counters()
 	fclose(f);
 	
 	counters_initialized = 1;
+
+	LOG_DEBUG("Read counters");
 }
 
 void flush_counters()
@@ -283,6 +289,8 @@ void flush_counters()
 
 		for (j = 0; j < entries[i]; j++) {
 			io_name_len = strlen(counters[i][j].name);
+
+			LOG_DEBUG("Writing counter '%s'", counters[i][j].name);
 			
 			fwrite(&io_counter_id, sizeof(io_counter_id), 1, f);
 			fwrite(&io_name_len, sizeof(io_name_len), 1, f);
@@ -293,6 +301,8 @@ void flush_counters()
 	}
 
 	fclose(f);
+
+	LOG_DEBUG("Wrote counters");
 }
 
 void cleanup_counters()

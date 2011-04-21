@@ -430,6 +430,8 @@ void load_map_marks()
 	
 	fclose(fp);
 
+	LOG_DEBUG("Read map markings from file '%s'", marks_file);
+
 	//load server markers on this map
 	add_server_markers();
 
@@ -454,6 +456,8 @@ void save_markings()
 		}
 		fclose(fp);
 	}
+
+	LOG_DEBUG("Wrote map markings to file '%s'", marks_file);
 }
 
 
@@ -483,6 +487,9 @@ void load_server_markings(){
 	}
 	
 	fclose (fp);
+
+	LOG_DEBUG("Read server markings from file '%s'", fname);
+
 	add_server_markers();
 }
 
@@ -512,6 +519,8 @@ void save_server_markings(){
 	}
 	
 	fclose (fp);	
+
+	LOG_DEBUG("Wrote server markings to file '%s'", fname);
 }
 
 //called in elconfig.c when turning markers on/off

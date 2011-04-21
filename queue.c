@@ -8,14 +8,23 @@
 int queue_initialise (queue_t **queue)
 {
 	(*queue) = malloc(sizeof(queue_t));
-	/* Create a dummy node that's always at the front of our queue */
-	if (((*queue)->front = malloc(sizeof(node_t))) == NULL) {
-		fprintf(stderr, "%s:%i: Failed to allocate memory\n", __FILE__, __LINE__);
+	if (((*queue) = malloc(sizeof(queue_t))) == 0)
+	{
+		LOG_ERROR("Failed to allocate memory for queue");
+
 		return 0;
 	}
-	(*queue)->front->data = NULL;
+
+	/* Create a dummy node that's always at the front of our queue */
+	if (((*queue)->front = malloc(sizeof(node_t))) == 0)
+	{
+		LOG_ERROR("Failed to allocate memory for queue node");
+
+		return 0;
+	}
+	(*queue)->front->data = 0;
 	(*queue)->rear = (*queue)->front;
-	(*queue)->front->next = NULL;
+	(*queue)->front->next = 0;
 	(*queue)->mutex = SDL_CreateMutex();
 #ifdef	NEW_TEXTURES
 	(*queue)->condition = SDL_CreateCond();
@@ -28,20 +37,30 @@ int queue_push (queue_t *queue, void *item)
 {
 	node_t *newnode;
 
-	if(queue == NULL || (newnode = malloc(sizeof *newnode)) == NULL) {
-		fprintf(stderr, "%s:%i: Failed to allocate memory\n", __FILE__, __LINE__);
+	if (queue == 0)
+	{
+		LOG_ERROR("Null pointer for queue");
+
 		return 0;
-	} else {
-		newnode->data = item;
-		newnode->next = NULL;
-		/* Add to the end of the queue */
-		CHECK_AND_LOCK_MUTEX(queue->mutex);
-		queue->rear->next = newnode;
-		queue->rear = newnode;
-		queue->nodes++;
-		CHECK_AND_UNLOCK_MUTEX(queue->mutex);
-		return 1;
 	}
+
+	if ((newnode = malloc(sizeof(node_t))) == 0)
+	{
+		LOG_ERROR("Failed to allocate memory for queue node");
+
+		return 0;
+	}
+
+	newnode->data = item;
+	newnode->next = 0;
+	/* Add to the end of the queue */
+	CHECK_AND_LOCK_MUTEX(queue->mutex);
+	queue->rear->next = newnode;
+	queue->rear = newnode;
+	queue->nodes++;
+	CHECK_AND_UNLOCK_MUTEX(queue->mutex);
+
+	return 1;
 }
 
 void *queue_pop (queue_t *queue)

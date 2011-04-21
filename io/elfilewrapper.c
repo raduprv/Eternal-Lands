@@ -524,8 +524,6 @@ static el_file_ptr xz_file_open(const char* file_name)
 		return result;
 	}
 
-	LOG_ERROR("Can't read file '%s'", file_name);
-
 	free(result);
 
 	return 0;

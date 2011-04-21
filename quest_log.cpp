@@ -790,6 +790,8 @@ static void save_questlog(void)
 		if (!entry->get_deleted())
 			entry->save(out);
 	need_to_save = false;
+
+	LOG_DEBUG("Wrote questlog to file '%s'", filename.c_str());
 }
 
 
@@ -1754,7 +1756,9 @@ extern "C" void load_questlog()
 				quest_entries.back().save(out);
 		}
 	}
-	
+
+	LOG_DEBUG("Read questlog from file '%s'", filename.c_str());
+
 	rebuild_active_entries(quest_entries.size()-1);
 }
 

@@ -734,7 +734,7 @@ namespace cm
 			*menu_lines[selection].control_var ^= 1;
 			// if we have a config control name, set the control variable as unsaved
 			if (menu_lines[selection].config_name)
-				set_var_unsaved(menu_lines[selection].config_name, OPT_BOOL);
+				set_var_unsaved(menu_lines[selection].config_name, INI_FILE_VAR);
 			if (!handler)
 				return 1;
 		}

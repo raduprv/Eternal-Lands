@@ -1310,11 +1310,17 @@ int find_var (const char *str, var_name_type type)
 }
 
 
-int set_var_unsaved(const char *str, option_type type)
+int set_var_unsaved(const char *str, var_name_type type)
 {
-	int var_index = find_var(str, type);
+	int var_index;
+
+	var_index = find_var(str, type);
+
 	if (var_index == -1)
+	{
+		LOG_ERROR("Can't find var '%s', type %d", str, type);
 		return 0;
+	}
 	our_vars.var[var_index]->saved = 0;
 	return 1;
 }
@@ -1324,7 +1330,10 @@ int set_var_unsaved(const char *str, option_type type)
 // Other types might be useful but I just needed an OPT_INT this time.
 int set_var_OPT_INT(const char *str, int new_value)
 {
-	int var_index = find_var(str, OPT_INT);
+	int var_index;
+
+	var_index = find_var(str, IN_GAME_VAR);
+
 	if (var_index != -1)
 	{
 		int tab_win_id = elconfig_tabs[our_vars.var[var_index]->widgets.tab_id].tab;
@@ -1338,18 +1347,34 @@ int set_var_OPT_INT(const char *str, int new_value)
 			safe_snprintf(button->input_buffer, sizeof(button->input_buffer), "%i", *(int *)button->data);
 			return 1;
 		}
+
+		return 0;
 	}
+
+	LOG_ERROR("Can't find var '%s', type 'OPT_INT'", str);
 	return 0;
 }
 #endif
 
 void change_language(const char *new_lang)
 {
+	int var_index;
+
 	LOG_ERROR("Language changed, was [%s] now [%s]\n",  lang, new_lang);
 	/* guard against being the same string */
 	if (strcmp(lang, new_lang) != 0)
 		safe_strncpy(lang, new_lang, sizeof(lang));
-	our_vars.var[find_var ("language", OPT_STRING)]->saved= 0;
+
+	var_index = find_var("language", INI_FILE_VAR);
+
+	if (var_index != -1)
+	{
+		our_vars.var[var_index]->saved= 0;
+	}
+	else
+	{
+		LOG_ERROR("Can't find var '%s', type 'OPT_STRING'", "language");
+	}
 }
 
 static __inline__ void check_option_var(char* name)
@@ -1362,6 +1387,7 @@ static __inline__ void check_option_var(char* name)
 	i= find_var(name, IN_GAME_VAR);
 	if (i < 0)
 	{
+		LOG_ERROR("Can't find var '%s', type 'IN_GAME_VAR'", name);
 		return;
 	}
 
@@ -1423,6 +1449,7 @@ int check_var (char *str, var_name_type type)
 	i= find_var (str, type);
 	if (i < 0)
 	{
+		LOG_ERROR("Can't find var '%s', type %d", str, type);
 		return -1;
 	}
 
@@ -1652,13 +1679,20 @@ void add_var(option_type type, char * name, char * shortname, void * var, void *
 	our_vars.var[no]->widgets.tab_id= tab_id;
 }
 
-void add_multi_option(char * name, char * str) {
-	queue_push(our_vars.var[find_var (name, OPT_MULTI)]->queue, str);
-}
-
-void add_multi_h_option(char * name, char * str)
+void add_multi_option(char * name, char * str)
 {
-	queue_push(our_vars.var[find_var (name, OPT_MULTI_H)]->queue, str);
+	int var_index;
+
+	var_index = find_var(name, INI_FILE_VAR);
+
+	if (var_index == -1)
+	{
+		LOG_ERROR("Can't find var '%s', type 'INI_FILE_VAR'", name);
+	}
+	else
+	{
+		queue_push(our_vars.var[var_index]->queue, str);
+	}
 }
 
 void init_vars()
@@ -1973,7 +2007,7 @@ void init_vars()
 	{
 		if (get_fsaa_mode(i) == 1)
 		{
-			add_multi_h_option("anti_aliasing", get_fsaa_mode_str(i));
+			add_multi_option("anti_aliasing", get_fsaa_mode_str(i));
 		}
 	}
 #endif	/* FSAA */

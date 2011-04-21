@@ -1338,14 +1338,85 @@ void move_spell_on_quickbar (int pos, int direction)
 	}
 }
 
+static mqbdata* build_quickspell_data(const Uint32 spell_id)
+{
+	Uint8 str[20];
+	mqbdata* result;
+	Uint32 i, count, index, len, size;
 
+	index = 0xFFFFFFFF;
+
+	for (i = 0; i < SPELLS_NO; i++)
+	{
+		if (spells_list[i].id == spell_id)
+		{
+			index = i;
+			break;
+		}
+	}
+
+	if (index == 0xFFFFFFFF)
+	{
+		LOG_WARNING("Invalid spell id %d", spell_id);
+
+		return 0;
+	}
+
+	memset(str, 0, sizeof(str));
+
+	count = 0;
+
+	for (i = 0; i < 6; i++)
+	{
+		if (spells_list[index].sigils[i] != -1)
+		{
+			str[count + 2] = spells_list[index].sigils[i];
+			count++;
+		}
+	}
+
+	str[0] = CAST_SPELL;
+	str[1] = count;
+
+	result = calloc(1, sizeof(mqbdata));
+
+	if (result == 0)
+	{
+		LOG_WARNING("Can't allocate memory for spell");
+
+		return 0;
+	}
+
+	result->spell_id = spells_list[index].id;
+	result->spell_image = spells_list[index].image;
+
+	size = sizeof(result->spell_name);
+
+	len = strlen(spells_list[index].name);
+
+	if (size > len)
+	{
+		size = len;
+	}
+	else
+	{
+		size -= 1;
+	}
+
+	memset(result->spell_name, 0, size);
+	memset(result->spell_str, 0, sizeof(result->spell_str));
+	memcpy(result->spell_name, spells_list[index].name, len);
+	memcpy(result->spell_str, str, count + 2);
+
+	return result;
+}
 
 void load_quickspells ()
 {
 	char fname[128];
 	Uint8 num_spells;
 	FILE *fp;
-	Uint8 i;
+	Uint32 i, index;
 
 	// Grum: move this over here instead of at the end of the function,
 	// so that quickspells are always saved when the player logs in.
@@ -1357,12 +1428,15 @@ void load_quickspells ()
 	safe_snprintf(fname, sizeof(fname), "spells_%s.dat",username_str);
 	my_tolower(fname);
 	fp = open_file_config(fname,"rb");
-	if(fp == NULL){
-		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, fname);
+
+	if (fp == NULL)
+	{
+		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file,
+			fname);
 		return;
 	}
 
-	if (fread (&num_spells, sizeof(num_spells), 1, fp) != 1)
+	if (fread(&num_spells, sizeof(num_spells), 1, fp) != 1)
 	{
 		LOG_ERROR("%s() read failed for [%s] \n", __FUNCTION__, fname);
 		fclose (fp);
@@ -1370,11 +1444,37 @@ void load_quickspells ()
 	}
 
 	memset (mqb_data, 0, sizeof (mqb_data));
+
+	LOG_DEBUG("Reading %d spells from file '%s'", num_spells, fname);
+
+	index = 1;
+
 	for (i = 1; i < num_spells; i++)
 	{
-		mqb_data[i] = (mqbdata*) calloc (1, sizeof(mqbdata));
-		if (fread (mqb_data[i], sizeof(mqbdata), 1, fp) != 1)
-			break;
+		mqbdata* result;
+		Uint8 spell_id;
+
+		if (fread(&spell_id, sizeof(spell_id), 1, fp) != 1)
+		{
+			LOG_ERROR("Failed reading spell %d from file '%s'",
+				i - 1, fname);
+			continue;
+		}
+
+		mqb_data[index] = build_quickspell_data(spell_id);
+
+		if (mqb_data[index] == 0)
+		{
+			LOG_WARNING("Can't build spell %d at index %d",
+				spell_id, index);
+
+			continue;
+		}
+
+		LOG_DEBUG("Added quickspell %d '%s' at index %d", i,
+			mqb_data[index]->spell_name, index);
+
+		index++;
 	}
 	fclose (fp);
 
@@ -1385,7 +1485,7 @@ void save_quickspells()
 {
 	char fname[128];
 	FILE *fp;
-	Uint8 i;
+	Uint8 i, spell_id;
 
 	if (!quickspells_loaded)
 		return;
@@ -1407,11 +1507,22 @@ void save_quickspells()
 	// write the number of spells + 1
 	fwrite(&i, sizeof(i), 1, fp);
 
-	for (i = 1; i < MAX_QUICKBAR_SLOTS+1; i++)
+	LOG_DEBUG("Writing %d spells to file '%s'", i, fname);
+
+	for (i = 1; i < (MAX_QUICKBAR_SLOTS + 1); i++)
 	{
-		if (mqb_data[i] == NULL)
+		if (mqb_data[i] == 0)
+		{
 			break;
-		fwrite(mqb_data[i], sizeof(mqbdata), 1, fp);
+		}
+
+		spell_id = mqb_data[i]->spell_id;
+
+		if (fwrite(&spell_id, sizeof(spell_id), 1, fp) == 1)
+		{
+			LOG_DEBUG("Wrote spell '%s' to file '%s'",
+				mqb_data[i]->spell_name, fname);
+		}
 	}
 
 	fclose(fp);

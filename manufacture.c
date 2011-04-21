@@ -63,6 +63,8 @@ void load_recipes (){
 	if (fread (recipes,sizeof(recipes),1, fp) != 1)
 		LOG_ERROR("%s() read failed for file [%s]\n", __FUNCTION__, fname);
 	fclose (fp);
+
+	LOG_DEBUG("Read recipes from file '%s'", fname);
 }
 
 void save_recipes(){
@@ -83,6 +85,8 @@ void save_recipes(){
 	fwrite(recipes, sizeof(recipes), 1, fp);
 
 	fclose(fp);
+
+	LOG_DEBUG("Wrote recipes to file '%s'", fname);
 }
 
 void build_manufacture_list()

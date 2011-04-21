@@ -89,7 +89,7 @@ typedef enum
 	COMMAND_LINE_SHORT_VAR,	/*!< for abbreviated variable names from the command line */
 	COMMAND_LINE_LONG_VAR,	/*!< for full variable names from the command line */
 	INI_FILE_VAR,		/*!< for variables names from el.ini */
-	IN_GAME_VAR		/*!< for names of variables chenged in the games */
+	IN_GAME_VAR		/*!< for names of variables changed in the games */
 } var_name_type;
 
 extern struct variables our_vars; /*!< global variable containing all defined variables */
@@ -204,7 +204,7 @@ void change_windowed_chat (int *wc, int val);
  * \param type	the option type
  * \retval	1 if sucessfull, 0 if option does not exist
  */
-int set_var_unsaved(const char *str, option_type type);
+int set_var_unsaved(const char *str, var_name_type type);
 
 #ifdef	ELC
 /*!
