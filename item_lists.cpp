@@ -93,7 +93,7 @@ namespace ItemLists
 	class List_Container
 	{
 		public:
-			List_Container(void) : active_list(0), last_mod_time(0) {}
+			List_Container(void) : active_list(0), last_mod_time(0), loaded(false) {}
 			void load(void);
 			void save(void);
 			bool add(const char *name);
@@ -124,6 +124,7 @@ namespace ItemLists
 			static int FILE_REVISION;
 			size_t active_list;
 			Uint32 last_mod_time;
+			bool loaded;
 			static const char * filename;
 			static bool sort_compare(const List &a, const List &b);
 	};
@@ -594,6 +595,8 @@ namespace ItemLists
 	//
 	void List_Container::save(void)
 	{
+		if (!loaded)
+			return;
 		std::string fullpath = get_path_config() + std::string(filename);
 		std::ofstream out(fullpath.c_str());
 		if (!out)
@@ -617,6 +620,7 @@ namespace ItemLists
 	//
 	void List_Container::load(void)
 	{
+		loaded = true;
 		saved_item_lists.clear();
 		std::string fullpath = get_path_config() + std::string(filename);
 		std::ifstream in(fullpath.c_str());
