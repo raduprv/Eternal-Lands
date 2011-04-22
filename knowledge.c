@@ -39,6 +39,7 @@ static size_t cm_know_id = CM_INIT_VALUE;
 static INPUT_POPUP ipu_know;
 static char highlight_string[KNOWLEDGE_NAME_SIZE] = "";
 static int know_show_win_help = 0;
+static int mouse_over_progress_bar = 0;
 
 int add_knowledge_book_image() {
 	// Book image
@@ -88,12 +89,15 @@ int display_knowledge_handler(window_info *win)
 {
 	int i,x=2,y=2;
 	int progress = (125*your_info.research_completed+1)/(your_info.research_total+1);
+	int eta = (your_info.research_total-your_info.research_completed)/((your_info.wil.cur+your_info.rea.cur)/2);
 	int scroll = vscrollbar_get_pos (knowledge_win, knowledge_scroll_id);
 	char points_string[16];
+	char eta_string[20];
 	char *research_string;
 	int rx = win->len_x - 15;
 	int lx = win->len_x - 15 - (455-330);
 	int points_pos;
+	int eta_pos;
 	float font_ratio = 0.7;
 	float max_name_x = (win->len_x-4)/2;
 	int is_researching = 1;
@@ -158,6 +162,13 @@ int display_knowledge_handler(window_info *win)
 	draw_string_small(10,320,(unsigned char*)researching_str,1);
 	draw_string_small(120,320,(unsigned char*)research_string,1);
 	draw_string_small(lx+points_pos,320,(unsigned char*)points_string,1);
+	if (is_researching && mouse_over_progress_bar)
+	{
+		safe_snprintf(eta_string, sizeof(eta_string), "ETA: %i minutes", eta);
+		eta_pos = (rx - lx - strlen(eta_string)*8) / 2;
+		draw_string_small(lx+eta_pos,285,(unsigned char*)eta_string,1);
+		mouse_over_progress_bar=0;
+	}
 	// Draw knowledges
 	for(i = 2*scroll; i < 2 * (scroll + 19); i++)
 	{
@@ -225,6 +236,9 @@ CHECK_GL_ERRORS();
 int mouseover_knowledge_handler(window_info *win, int mx, int my)
 {
 	int	i;
+
+	if (mx>=win->len_x-140 && mx<win->len_x-15 && my>315 && my<335)
+		mouse_over_progress_bar=1;
 
 	if (cm_window_shown()!=CM_INIT_VALUE)
 		return 0;
