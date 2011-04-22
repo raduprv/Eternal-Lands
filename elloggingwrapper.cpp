@@ -42,6 +42,11 @@ extern "C" void log_error(const char* file, const Uint32 line,
 	va_list ap;
 	char err_msg[512];
 
+	if (el::get_log_level() < el::llt_error)
+	{
+		return;
+	}
+
 	memset(err_msg, 0, sizeof(err_msg));
 
 	if (message != 0)
@@ -62,6 +67,11 @@ extern "C" void log_warning(const char* file, const Uint32 line,
 {
 	va_list ap;
 	char err_msg[512];
+
+	if (el::get_log_level() < el::llt_warning)
+	{
+		return;
+	}
 
 	memset(err_msg, 0, sizeof(err_msg));
 
@@ -84,6 +94,11 @@ extern "C" void log_info(const char* file, const Uint32 line,
 	va_list ap;
 	char err_msg[512];
 
+	if (el::get_log_level() < el::llt_info)
+	{
+		return;
+	}
+
 	memset(err_msg, 0, sizeof(err_msg));
 
 	if (message != 0)
@@ -105,6 +120,11 @@ extern "C" void log_debug(const char* file, const Uint32 line,
 	va_list ap;
 	char err_msg[512];
 
+	if (el::get_log_level() < el::llt_debug)
+	{
+		return;
+	}
+
 	memset(err_msg, 0, sizeof(err_msg));
 
 	if (message != 0)
@@ -125,6 +145,11 @@ extern "C" void log_debug_verbose(const char* file, const Uint32 line,
 {
 	va_list ap;
 	char err_msg[512];
+
+	if (el::get_log_level() < el::llt_debug_verbose)
+	{
+		return;
+	}
 
 	memset(err_msg, 0, sizeof(err_msg));
 

@@ -545,8 +545,6 @@ static el_file_ptr gz_file_open(const char* file_name)
 		return 0;
 	}
 
-	LOG_DEBUG_VERBOSE("File '%s' opened.", file_name);
-
 	result = malloc(sizeof(el_file_t));
 	memset(result, 0, sizeof(el_file_t));
 

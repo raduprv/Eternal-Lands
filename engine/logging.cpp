@@ -22,7 +22,11 @@ namespace eternal_lands
 
 		SDL_mutex* log_mutex;
 		std::ofstream log_file;
-		LogLevelType log_levels = llt_info;
+#ifdef	RELEASE_MODE
+		volatile LogLevelType log_levels = llt_info;
+#else	/* RELEASE_MODE */
+		volatile LogLevelType log_levels = llt_debug_verbose;
+#endif	/* RELEASE_MODE */
 
 		void log_message(const std::string &type,
 			const std::string &message, const std::string &file,
@@ -152,24 +156,12 @@ namespace eternal_lands
 
 	LogLevelType get_log_level()
 	{
-		LogLevelType result;
-
-		SDL_LockMutex(log_mutex);
-
-		result = log_levels;
-
-		SDL_UnlockMutex(log_mutex);
-
-		return result;
+		return log_levels;
 	}
 
 	void set_log_level(const LogLevelType log_level)
 	{
-		SDL_LockMutex(log_mutex);
-
 		log_levels = log_level;
-
-		SDL_UnlockMutex(log_mutex);
 	}
 
 	void log_message(const LogLevelType log_level,
