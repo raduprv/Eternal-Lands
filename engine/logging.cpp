@@ -22,6 +22,8 @@ namespace eternal_lands
 
 		SDL_mutex* log_mutex;
 		std::ofstream log_file;
+		std::string last_message;
+		Uint32 last_message_count;
 #ifdef	RELEASE_MODE
 		volatile LogLevelType log_levels = llt_info;
 #else	/* RELEASE_MODE */
@@ -33,6 +35,7 @@ namespace eternal_lands
 			const Uint32 line)
 		{
 			char buffer[128];
+			std::stringstream str;
 			std::time_t raw_time;
 			size_t pos;
 
@@ -46,14 +49,42 @@ namespace eternal_lands
 			std::strftime(buffer, sizeof(buffer), "%X",
 				std::localtime(&raw_time));
 
-			log_file << "[" << buffer;
-
 			if (log_levels >= llt_debug_verbose)
 			{
-				log_file << ", " << file << ":" << line;
+				str << ", " << file << ":" << line;
 			}
 
-			log_file << "] " << type << ": " << message;
+			str << "] " << type << ": " << message;
+
+			if (str.str() == last_message)
+			{
+				last_message_count++;
+				return;
+			}
+
+			if (last_message_count > 0)
+			{
+				log_file << "[" << buffer;
+
+				if (log_levels >= llt_debug_verbose)
+				{
+					log_file << ", " << __FILE__ << ":";
+					log_file << __LINE__;
+				}
+
+				log_file << "]";
+				log_file << "Last message repeated ";
+				log_file << last_message_count << "time";
+
+				if (last_message_count > 1)
+				{
+					log_file << "s";
+				}
+
+				log_file << "\n";
+			}
+
+			log_file << "[" << buffer << str.str();
 
 			if (message.rbegin() != message.rend())
 			{
@@ -66,6 +97,9 @@ namespace eternal_lands
 			{
 				log_file << "\n";
 			}
+
+			last_message = str.str();
+			last_message_count = 0;
 		}
 
 		std::string get_str(const LogLevelType log_level)
@@ -145,6 +179,8 @@ namespace eternal_lands
 		{
 			log_file.flush();
 		}
+
+		last_message_count = 0;
 	}
 
 	void exit_logging()
