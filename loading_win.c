@@ -224,12 +224,16 @@ void update_loading_win (char *text, float progress_increase)
 	if(loading_win != -1) {
 		total_progress += progress_increase;
 		LOG_DEBUG("%s (%.0f%%)", text, total_progress);
-		if(total_progress > 100) {
-			fprintf(stderr, "Loading window progress > 100%%! (%g)\n", total_progress);
-		} else {
-			progressbar_set_progress(loading_win, loading_win_progress_bar, total_progress);
+		if (total_progress > 100.1f)
+		{
+			LOG_ERROR("Loading window progress > 100%%! (%g)", total_progress);
+			total_progress = 100.0f;
 		}
-		if(text != NULL && strlen(text) <= 255) {
+
+		progressbar_set_progress(loading_win, loading_win_progress_bar, total_progress);
+
+		if (text != NULL && strlen(text) <= 255)
+		{
 			put_small_text_in_box((unsigned char*)text, strlen(text), window_width, (char*)text_buffer);
 		}
 		// The loading window is supposed to display stuff while
