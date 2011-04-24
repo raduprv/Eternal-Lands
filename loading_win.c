@@ -222,8 +222,8 @@ int create_loading_win (int width, int height, int snapshot)
 void update_loading_win (char *text, float progress_increase)
 {
 	if(loading_win != -1) {
-		LOG_DEBUG(text);
 		total_progress += progress_increase;
+		LOG_DEBUG("%s (%.0f%%)", text, total_progress);
 		if(total_progress > 100) {
 			fprintf(stderr, "Loading window progress > 100%%! (%g)\n", total_progress);
 		} else {
@@ -247,7 +247,7 @@ void update_loading_win (char *text, float progress_increase)
 
 int destroy_loading_win(void)
 {
-	update_loading_win("", 0);
+	update_loading_win("done loading", 0);
 #ifdef	NEW_TEXTURES
 	if (use_snapshot != 0)
 	{

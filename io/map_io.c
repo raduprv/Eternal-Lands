@@ -40,6 +40,7 @@ int load_map(const char *file_name, update_func *update_function)
 	obj_2d_io* objs_2d;
 	light_io* lights;
 	particles_io* particles;
+	float progress;
 
 	el_file_ptr f = NULL;
 	f = el_open(file_name);
@@ -205,7 +206,17 @@ int load_map(const char *file_name, update_func *update_function)
 	}
 #endif // CLUSTER_INSIDES
 
-	update_function(load_3d_object_str, 0);
+	progress = (cur_map_header.obj_3d_no + 249) / 250;
+	if (progress > 0.0f)
+	{
+		update_function(load_3d_object_str, 0.0f);
+		progress = 20.0f / progress;
+	}
+	else
+	{
+		update_function(load_3d_object_str, 20.0f);
+		progress = 0.0f;
+	}
 	//see which objects in our cache are not used in this map
 	//read the 3d objects
 	clear_objects_list_placeholders();
@@ -251,13 +262,23 @@ int load_map(const char *file_name, update_func *update_function)
 			inc_objects_list_placeholders();
 		}
 
-		if (i % 100 == 0)
+		if (i % 250 == 0)
 		{
-			update_function(NULL, 0);
+			update_function(load_3d_object_str, progress);
 		}
 	}
 
-	update_function(load_2d_object_str, 20);
+	progress = (cur_map_header.obj_2d_no + 249) / 250;
+	if (progress > 0)
+	{
+		update_function(load_2d_object_str, 0.0f);
+		progress = 20.0f / progress;
+	}
+	else
+	{
+		update_function(load_2d_object_str, 20.0f);
+		progress = 0.0f;
+	}
 	//read the 2d objects
 	objs_2d = (obj_2d_io*) (file_mem + cur_map_header.obj_2d_offset);
 	for (i = 0; i < cur_map_header.obj_2d_no; i++)
@@ -294,9 +315,9 @@ int load_map(const char *file_name, update_func *update_function)
 			cur_2d_obj_io.z_rot, 0);
 #endif
 
-		if (i % 100 == 0)
+		if (i % 250 == 0)
 		{
-			update_function(NULL, 0);
+			update_function(load_2d_object_str, progress);
 		}
 	}
 
@@ -374,7 +395,17 @@ int load_map(const char *file_name, update_func *update_function)
 	}
 #endif
 
-	update_function(load_lights_str, 20);
+	progress = (cur_map_header.lights_no + 99) / 100;
+	if (progress > 0)
+	{
+		update_function(load_lights_str, 0.0f);
+		progress = 20.0f / progress;
+	}
+	else
+	{
+		update_function(load_lights_str, 20.0f);
+		progress = 0.0f;
+	}
 	//read the lights
 	lights = (light_io *) (file_mem + cur_map_header.lights_offset);
 	for (i = 0; i < cur_map_header.lights_no; i++)
@@ -410,11 +441,21 @@ int load_map(const char *file_name, update_func *update_function)
 
 		if (i % 100 == 0)
 		{
-			update_function(NULL, 0);
+			update_function(load_lights_str, progress);
 		}
 	}
 
-	update_function(load_particles_str, 20);
+	progress = (cur_map_header.particles_no + 99) / 100;
+	if (progress > 0.0f)
+	{
+		update_function(load_particles_str, 0.0f);
+		progress = 20.0f / progress;
+	}
+	else
+	{
+		update_function(load_particles_str, 20.0f);
+		progress = 0.0f;
+	}
 	//read particle systems
 	particles = (particles_io *) (file_mem + cur_map_header.particles_offset);
 	for (i = 0; i < cur_map_header.particles_no; i++)
@@ -439,18 +480,18 @@ int load_map(const char *file_name, update_func *update_function)
 		}
 		if (i % 100 == 0)
 		{
-			update_function(NULL, 0);
+			update_function(load_particles_str, progress);
 		}
 	}
 
 	// Everything copied, get rid of the file data
 	free (file_mem);
 	
-	update_function(bld_sectors_str, 20);
+	update_function(bld_sectors_str, 0.0f);
 	init_bbox_tree(main_bbox_tree, main_bbox_tree_items);
 	free_bbox_items(main_bbox_tree_items);
 	main_bbox_tree_items = NULL;
-	update_function(init_done_str, 20);
+	update_function(init_done_str, 20.0f);
 #ifdef EXTRA_DEBUG
 	ERR();//We finished loading the new map apparently...
 #endif

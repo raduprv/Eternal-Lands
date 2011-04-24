@@ -801,7 +801,7 @@ void init_stuff()
 
 	update_loading_win(init_lists_str, 2);
 	init_actors_lists();
-	update_loading_win(NULL, 4);
+	update_loading_win("init particles", 4);
 	memset(tile_list, 0, sizeof(tile_list));
 	memset(lights_list, 0, sizeof(lights_list));
 	main_bbox_tree = build_bbox_tree();
@@ -865,7 +865,7 @@ void init_stuff()
 #endif	/* NEW_TEXTURES */
 
 
-	update_loading_win(NULL, 5);
+	update_loading_win("init item textures", 5);
 
 	for(i=0; i<MAX_ITEMS_TEXTURES; i++){
 		char	buffer[256];
@@ -883,7 +883,7 @@ void init_stuff()
 #endif	/* NEW_TEXTURES */
 		}
 	}
-	update_loading_win(NULL, 5);
+	update_loading_win("init portraits", 5);
 
 	for(i=0; i<MAX_PORTRAITS_TEXTURES; i++){
 		char	buffer[256];
@@ -901,7 +901,7 @@ void init_stuff()
 #endif	/* NEW_TEXTURES */
 		}
 	}
-	update_loading_win(NULL, 5);
+	update_loading_win("init textures", 5);
 
 #ifdef NEW_CURSOR
 #ifdef	NEW_TEXTURES

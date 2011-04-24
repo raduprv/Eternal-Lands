@@ -9,6 +9,7 @@
 #include "engine/logging.hpp"
 #include "io/elpathwrapper.h"
 #include "asc.h"
+#include <cassert>
 
 namespace el = eternal_lands;
 
@@ -42,6 +43,9 @@ extern "C" void log_error(const char* file, const Uint32 line,
 	va_list ap;
 	char err_msg[512];
 
+	assert(message != 0);
+	assert(strlen(message) > 0);
+
 	if (el::get_log_level() < el::llt_error)
 	{
 		return;
@@ -67,6 +71,9 @@ extern "C" void log_warning(const char* file, const Uint32 line,
 {
 	va_list ap;
 	char err_msg[512];
+
+	assert(message != 0);
+	assert(strlen(message) > 0);
 
 	if (el::get_log_level() < el::llt_warning)
 	{
@@ -94,6 +101,9 @@ extern "C" void log_info(const char* file, const Uint32 line,
 	va_list ap;
 	char err_msg[512];
 
+	assert(message != 0);
+	assert(strlen(message) > 0);
+
 	if (el::get_log_level() < el::llt_info)
 	{
 		return;
@@ -120,6 +130,9 @@ extern "C" void log_debug(const char* file, const Uint32 line,
 	va_list ap;
 	char err_msg[512];
 
+	assert(message != 0);
+	assert(strlen(message) > 0);
+
 	if (el::get_log_level() < el::llt_debug)
 	{
 		return;
@@ -145,6 +158,9 @@ extern "C" void log_debug_verbose(const char* file, const Uint32 line,
 {
 	va_list ap;
 	char err_msg[512];
+
+	assert(message != 0);
+	assert(strlen(message) > 0);
 
 	if (el::get_log_level() < el::llt_debug_verbose)
 	{
