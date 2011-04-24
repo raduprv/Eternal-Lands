@@ -355,6 +355,7 @@ int command_update(char *text, int len)
 	else
 	{
 		start_custom_update();
+		LOG_TO_CONSOLE(c_green1, "Custom updates started. Use #update_status to check progress");
 	}
 
 	return 1;
