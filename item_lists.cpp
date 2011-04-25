@@ -153,7 +153,7 @@ namespace ItemLists
 	class Category_Maps
 	{
 		public:
-			Category_Maps(void) : must_save(false) {}
+			Category_Maps(void) : must_save(false), loaded(false) {}
 			void update(int image_id, Uint16 item_id, int cat_id);
 			bool have_image_id(int image_id) const
 				{ return cat_by_image_id.find(image_id) != cat_by_image_id.end(); }
@@ -167,6 +167,7 @@ namespace ItemLists
 			std::map<int, int> cat_by_image_id;
 			std::map<Uint16, int> cat_by_item_id;
 			bool must_save;
+			bool loaded;
 			struct IDS { public: std::vector<int> images; std::vector<Uint16> items; };
 	};
 
@@ -409,6 +410,8 @@ namespace ItemLists
 	//
 	void Category_Maps::update(int image_id, Uint16 item_id, int cat_id)
 	{
+		if (!loaded)
+			load();
 		if ((item_id != unset_item_uid) && !have_item_id(item_id))
 		{
 			//std::cout << "Storing item id " << item_id << " cat " << cat_id << std::endl;
@@ -492,6 +495,7 @@ namespace ItemLists
 	//
 	void Category_Maps::load(void)
 	{
+		loaded = true;
 		cat_by_image_id.clear();
 		cat_by_item_id.clear();
 
