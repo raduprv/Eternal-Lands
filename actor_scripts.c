@@ -2209,10 +2209,10 @@ void add_command_to_actor(int actor_id, unsigned char command)
 				}
 			}
 			//if we are here no emotes have been skipped
-			printf("Too much commands in the queue for actor %d (%s) => resync!\n",
+			LOG_ERROR("Too much commands in the queue for actor %d (%s) => resync!\n",
 					  act->actor_id, act->actor_name);
 			for (i = 0; i < MAX_CMD_QUEUE; ++i)
-				printf("%dth command in the queue: %d\n", i, (int)act->que[i]);
+				LOG_ERROR("%dth command in the queue: %d\n", i, (int)act->que[i]);
 			update_all_actors();
 		}
 	}

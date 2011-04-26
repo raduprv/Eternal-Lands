@@ -579,8 +579,8 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 
 	add_ec_effect_to_e3d(our_object);
 	ec_add_object_obstruction(our_object, returned_e3d, 2.0);
-//        printf("Bounding: %f, %f, %f -> %f, %f, %f\n", returned_e3d->min_x, returned_e3d->min_y, returned_e3d->min_z, returned_e3d->max_x, returned_e3d->max_y, returned_e3d->max_z);
-//	printf("Rotation: %f, %f, %f\n", our_object->x_rot, our_object->y_rot, our_object->z_rot);
+//	LOG_DEBUG_VERBOSE("Bounding: %f, %f, %f -> %f, %f, %f\n", returned_e3d->min_x, returned_e3d->min_y, returned_e3d->min_z, returned_e3d->max_x, returned_e3d->max_y, returned_e3d->max_z);
+//	LOG_DEBUG_VERBOSE("Rotation: %f, %f, %f\n", our_object->x_rot, our_object->y_rot, our_object->z_rot);
 
 	return id;
 }

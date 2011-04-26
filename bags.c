@@ -237,9 +237,9 @@ void add_bags_from_list (const Uint8 *data)
 		y = y + 0.25f; // + get_bag_offset_y(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y);
 
 		// DEBUG
-		// printf("bag <%i> (%f,%f) rot %f tilt %f\n", bag_id, x, y,
-		//	get_bag_rotation(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y),
-		//	get_bag_tilt(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y));
+		LOG_DEBUG_VERBOSE("bag <%i> (%f,%f) rot %f tilt %f\n", bag_id, x, y,
+			get_bag_rotation(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y),
+			get_bag_tilt(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y));
 
 		if (use_eye_candy) {
 	#ifdef ONGOING_BAG_EFFECT
