@@ -2266,10 +2266,12 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 		}
 #endif	/* NEW_TEXTURES */
 	}
+#ifdef	NEW_TEXTURES
 	else if (keysym == SDLK_F12)
 	{
 		dump_texture_cache();
 	}
+#endif	/* NEW_TEXTURES */
 #endif	/* DEBUG */
 	// END OF TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	else
