@@ -556,6 +556,8 @@ static __inline__ void render_submesh(int meshId, int submeshCount, struct CalRe
 	for(submeshId = 0; submeshId < submeshCount; submeshId++) {
 		// select mesh and submesh for further data access
 		if(CalRenderer_SelectMeshSubmesh(pCalRenderer,meshId, submeshId)) {
+			// get the transformed vertices of the submesh
+			CalRenderer_GetVertices(pCalRenderer,&meshVertices[0][0]);
 
 			// get the transformed normals of the submesh
 			if (use_lightning)
