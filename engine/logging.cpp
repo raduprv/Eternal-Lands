@@ -37,7 +37,6 @@ namespace eternal_lands
 			char buffer[128];
 			std::stringstream str;
 			std::time_t raw_time;
-			size_t pos;
 
 			if (!log_file.is_open())
 			{

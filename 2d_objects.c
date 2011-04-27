@@ -338,11 +338,7 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 obj_2d_def * load_obj_2d_def_cache(char * file_name)
 {
 	int i;
-	//int j;
-	int file_name_length;
 	obj_2d_def * obj_2d_def_id;
-
-	file_name_length=strlen(file_name);
 
 	for(i=0;i<MAX_OBJ_2D_DEF;i++)
 		{
@@ -628,16 +624,18 @@ CHECK_GL_ERRORS();
 void display_2d_objects()
 {
 	unsigned int i, l, start, stop;
-	int x, y;
 #ifdef  SIMPLE_LOD
 	int dist;
+	int x, y;
 #endif //SIMPLE_LOD
 #ifdef CLUSTER_INSIDES_OLD
 	short cluster = get_actor_cluster ();
 #endif
 
+#ifdef  SIMPLE_LOD
 	x= -camera_x;
 	y= -camera_y;
+#endif //SIMPLE_LOD
 
 	//First draw everyone with the same alpha test
 #ifdef	FSAA

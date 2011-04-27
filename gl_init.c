@@ -306,6 +306,7 @@ void init_video()
 	{
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, fsaa);
+		glDisable(GL_MULTISAMPLE);
 	}
 #endif	/* FSAA */
 	check_gl_mode();

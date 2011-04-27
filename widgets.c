@@ -1238,9 +1238,8 @@ int _tab_collection_close_tab_real (tab_collection* col, int tab)
 {
 	if (col != NULL && tab >= 0 && tab < col->nr_tabs)
 	{
-		int i, w;
-		
-		w = col->tabs[tab].tag_width;
+		int i;
+
 		destroy_window (col->tabs[tab].content_id);
 		for (i = tab+1; i < col->nr_tabs; i++)
 			col->tabs[i-1] = col->tabs[i];
@@ -2071,12 +2070,10 @@ void _text_field_cursor_end (widget_list *w)
 void _text_field_cursor_page_up (widget_list *w)
 {
 	text_field *tf = w->widget_info;
-	text_message *msg;
 
 	if (tf == NULL)
 		return;
 
-	msg = &(tf->buffer[tf->msg]);
 	if (tf->nr_visible_lines > tf->cursor_line)
 	{
 		tf->cursor = 0;

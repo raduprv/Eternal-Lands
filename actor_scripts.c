@@ -2211,6 +2211,9 @@ void add_command_to_actor(int actor_id, unsigned char command)
 			//if we are here no emotes have been skipped
 			LOG_ERROR("Too much commands in the queue for actor %d (%s) => resync!\n",
 					  act->actor_id, act->actor_name);
+#ifdef	ANIMATION_SCALING
+			LOG_ERROR("animation_scale: %f\n", act->animation_scale);
+#endif	/* ANIMATION_SCALING */
 			for (i = 0; i < MAX_CMD_QUEUE; ++i)
 				LOG_ERROR("%dth command in the queue: %d\n", i, (int)act->que[i]);
 			update_all_actors();

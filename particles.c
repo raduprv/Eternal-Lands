@@ -995,7 +995,6 @@ int create_particle_sys (particle_sys_def *def, float x, float y, float z)
  **********************************************************************/
 void draw_text_particle_sys(particle_sys *system_id)
 {
-	float x_pos,y_pos,z_pos;
 	int i;
 	float z_len=0.065f*system_id->def->part_size;
 	float x_len=z_len*cos(-rz*M_PI/180.0);
@@ -1003,10 +1002,6 @@ void draw_text_particle_sys(particle_sys *system_id)
 	particle *p;
 
 	LOCK_PARTICLES_LIST();	//lock it to avoid timing issues
-
-	x_pos=system_id->x_pos;
-	y_pos=system_id->y_pos;
-	z_pos=system_id->z_pos;
 
 	CHECK_GL_ERRORS();
 #ifdef	NEW_TEXTURES
@@ -1109,7 +1104,9 @@ void display_particles()
 #ifdef	MAP_EDITOR
 	int i;
 #endif
+#ifdef  SIMPLE_LOD
 	int x,y;
+#endif  //SIMPLE_LOD
 	GLenum sblend=GL_SRC_ALPHA,dblend=GL_ONE;
 #ifndef	MAP_EDITOR
 	unsigned int i, l, start, stop;
@@ -1121,8 +1118,10 @@ void display_particles()
 	if(!particles_percentage)
 	  return;
 
+#ifdef  SIMPLE_LOD
 	x=-camera_x;
 	y=-camera_y;
+#endif  //SIMPLE_LOD
 
 	CHECK_GL_ERRORS();
 	glPushAttrib(GL_ENABLE_BIT|GL_DEPTH_BUFFER_BIT);
@@ -1675,7 +1674,7 @@ void add_teleporters_from_list (const Uint8 *teleport_list)
 {
 	Uint16 teleporters_no;
 	int i;
-	int teleport_x,teleport_y,teleport_type,my_offset;
+	int teleport_x,teleport_y,my_offset;
 	float x,y,z;
 
 	teleporters_no=SDL_SwapLE16(*((Uint16 *)(teleport_list)));
@@ -1685,7 +1684,6 @@ void add_teleporters_from_list (const Uint8 *teleport_list)
 			my_offset=i*5+2;
 			teleport_x=SDL_SwapLE16(*((Uint16 *)(teleport_list+my_offset)));
 			teleport_y=SDL_SwapLE16(*((Uint16 *)(teleport_list+my_offset+2)));
-			teleport_type=teleport_list[my_offset+4];
 						
 			//later on, maybe we want to have different visual types
 			//now, get the Z position

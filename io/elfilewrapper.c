@@ -376,7 +376,7 @@ void unload_zip_archive(const char* file_name)
 
 	CHECK_AND_UNLOCK_MUTEX(zip_mutex);
 
-	for (i = 0; i < num_zip_files; i++)
+	for (i = 0; i < count; i++)
 	{
 		CHECK_AND_LOCK_MUTEX(zip_files[i].mutex);
 

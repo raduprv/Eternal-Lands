@@ -314,7 +314,7 @@ page * add_image_to_page(char * in_text, _image *img, book * b, page * p)
 {
 	char **line;
 	char *last_ptr;
-	int i=0,k;
+	int i=0;
 	int max_width;
 	int max_lines;
 	int h, w, x, y;
@@ -345,7 +345,6 @@ page * add_image_to_page(char * in_text, _image *img, book * b, page * p)
 	p->image=img;
 
 	if(in_text){
-		k=i;
 		line+=i;
 
 		last_ptr=in_text;

@@ -43,12 +43,11 @@ static int mouse_over_progress_bar = 0;
 
 int add_knowledge_book_image() {
 	// Book image
-	int isize, tsize, tid, picsperrow, xtile, ytile, ssize, id;
+	int isize, tsize, tid, picsperrow, xtile, ytile, id;
 	float ftsize, u, v, uend, vend;
 	
 	isize=256;
 	tsize=51;
-	ssize=100;
 	tid=21;
 	picsperrow=isize/tsize;
 	xtile=tid%picsperrow;

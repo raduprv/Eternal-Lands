@@ -97,10 +97,8 @@ int display_trade_handler(window_info *win)
 
 			cur_item=your_trade_list[i].image_id%25;
 #ifdef	NEW_TEXTURES
-			u_start = ((float)50/256) * (cur_item % 5) + 2.0f / 256.0f;
-			u_end = u_start + ((float)50/256);
-			v_start = ((float)50/256) * (cur_item / 5) + 2.0f / 256.0f;
-			v_end = v_start + ((float)50/256);
+			get_item_uv(cur_item, &u_start, &v_start, &u_end,
+				&v_end);
 #else	/* NEW_TEXTURES */
 			u_start=0.2f*(cur_item%5);
 			u_end=u_start+(float)50/255;
@@ -149,10 +147,8 @@ int display_trade_handler(window_info *win)
 
 			cur_item=others_trade_list[i].image_id%25;
 #ifdef	NEW_TEXTURES
-			u_start = ((float)50/256) * (cur_item % 5) + 2.0f / 256.0f;
-			u_end = u_start + ((float)50/256);
-			v_start = ((float)50/256) * (cur_item / 5) + 2.0f / 256.0f;
-			v_end = v_start + ((float)50/256);
+			get_item_uv(cur_item, &u_start, &v_start, &u_end,
+				&v_end);
 #else	/* NEW_TEXTURES */
 			u_start=0.2f*(cur_item%5);
 			u_end=u_start+(float)50/255;
