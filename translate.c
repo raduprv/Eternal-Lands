@@ -669,13 +669,11 @@ char	win_notepad[20],
 	ttab_audio[10],
 	ttab_hud[5],
 	ttab_server[10],
-	ttab_misc[10],
 	ttab_chat[10],
 	ttab_video[10],
-	ttab_lod[10],
-	ttab_advvideo[15],
-	ttab_emajekral[10],
-	ttab_ec[15],
+	ttab_gfx[10],
+	ttab_camera[15],
+	ttab_troubleshoot[15],
 	ttab_font[10],
 	tab_help[10],
 	tab_encyclopedia[20],
@@ -1563,13 +1561,11 @@ void init_titles ()
 	add_xml_identifier (titles_str, "tab_audio", ttab_audio, "Audio", sizeof(ttab_audio));
 	add_xml_identifier (titles_str, "tab_hud", ttab_hud, "HUD", sizeof(ttab_hud));
 	add_xml_identifier (titles_str, "tab_server", ttab_server, "Server", sizeof(ttab_server));
-	add_xml_identifier (titles_str, "tab_misc", ttab_misc, "Misc", sizeof(ttab_misc));
 	add_xml_identifier (titles_str, "tab_chat", ttab_chat, "Chat", sizeof(ttab_chat));
 	add_xml_identifier (titles_str, "tab_video", ttab_video, "Video", sizeof(ttab_video));
-	add_xml_identifier (titles_str, "tab_lod", ttab_lod, "Details", sizeof(ttab_lod));
-	add_xml_identifier (titles_str, "tab_adv_video", ttab_advvideo, "Adv Video", sizeof(ttab_advvideo));
-	add_xml_identifier (titles_str, "tab_ec", ttab_ec, "Eye Candy", sizeof(ttab_ec));
-	add_xml_identifier (titles_str, "tab_emajekral", ttab_emajekral, "Sky&Cam", sizeof(ttab_emajekral));
+	add_xml_identifier (titles_str, "tab_gfx", ttab_gfx, "GFX", sizeof(ttab_gfx));
+	add_xml_identifier (titles_str, "tab_camera", ttab_camera, "Camera", sizeof(ttab_camera));
+	add_xml_identifier (titles_str, "tab_troubleshoot", ttab_troubleshoot, "Troubleshhot", sizeof(ttab_troubleshoot));
 	add_xml_identifier (titles_str, "tab_font", ttab_font, "Font", sizeof(ttab_font));
 	add_xml_identifier (titles_str, "t_help", tab_help, "Help", sizeof(tab_help));
 	add_xml_identifier (titles_str, "t_ency", tab_encyclopedia, "Encyclopedia", sizeof(tab_encyclopedia));
