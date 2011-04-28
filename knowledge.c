@@ -164,7 +164,7 @@ int display_knowledge_handler(window_info *win)
 	if (is_researching && mouse_over_progress_bar)
 	{
 		safe_snprintf(eta_string, sizeof(eta_string), "ETA: %i minutes", eta);
-		eta_pos = (rx - lx - strlen(eta_string)*8) / 2;
+		eta_pos = (int)(rx - lx - strlen(eta_string)*8) / 2;
 		draw_string_small(lx+eta_pos,285,(unsigned char*)eta_string,1);
 		mouse_over_progress_bar=0;
 	}
