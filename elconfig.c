@@ -134,8 +134,8 @@ struct {
 
 int elconfig_menu_x= 10;
 int elconfig_menu_y= 10;
-int elconfig_menu_x_len= 720;
-int elconfig_menu_y_len= 490;
+int elconfig_menu_x_len= 620;
+int elconfig_menu_y_len= 430;
 
 int windows_on_top= 0;
 int options_set= 0;
@@ -2280,6 +2280,9 @@ int onclick_label_handler(widget_list *widget, int mx, int my, Uint32 flags)
 	int i;
 	var_struct *option= NULL;
 
+	if(!(flags&(ELW_LEFT_MOUSE|ELW_RIGHT_MOUSE)))
+		return 0;
+
 	for(i= 0; i < our_vars.no; i++) {
 		if(our_vars.var[i]->widgets.label_id == widget->id) {
 			option= our_vars.var[i];
@@ -2559,6 +2562,7 @@ void display_elconfig_win(void)
 {
 	if(elconfig_win < 0) {
 		int our_root_win= -1;
+		int i;
 
 		if (!windows_on_top) {
 			our_root_win= game_root_win;
@@ -2574,19 +2578,22 @@ void display_elconfig_win(void)
 		elconfig_tab_collection_id= tab_collection_add_extended (elconfig_win, elconfig_tab_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, elconfig_menu_x_len-TAB_MARGIN*2, elconfig_menu_y_len-TAB_MARGIN*2-LONG_DESC_SPACE, 0, 0.7, 0.77f, 0.57f, 0.39f, MAX_TABS, TAB_TAG_HEIGHT);
 		/* Pass ELW_SCROLLABLE as the final argument to tab_add() if you want
 		 * to put more widgets in the tab than the size of the window allows.*/
-		elconfig_tabs[CONTROLS].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_controls, 0, 0, 0);
+		elconfig_tabs[CONTROLS].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_controls, 0, 0, ELW_SCROLLABLE);
 		elconfig_tabs[HUD].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_hud, 0, 0, ELW_SCROLLABLE);
 		elconfig_tabs[CHAT].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_chat, 0, 0, ELW_SCROLLABLE);
-		elconfig_tabs[FONT].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_font, 0, 0, 0);
-		elconfig_tabs[SERVER].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_server, 0, 0, 0);
-		elconfig_tabs[AUDIO].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_audio, 0, 0, 0);
-		elconfig_tabs[VIDEO].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_video, 0, 0, 0);
+		elconfig_tabs[FONT].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_font, 0, 0, ELW_SCROLLABLE);
+		elconfig_tabs[SERVER].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_server, 0, 0, ELW_SCROLLABLE);
+		elconfig_tabs[AUDIO].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_audio, 0, 0, ELW_SCROLLABLE);
+		elconfig_tabs[VIDEO].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_video, 0, 0, ELW_SCROLLABLE);
 		elconfig_tabs[GFX].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_gfx, 0, 0, ELW_SCROLLABLE);
 		elconfig_tabs[CAMERA].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_camera, 0, 0, ELW_SCROLLABLE);
-		elconfig_tabs[TROUBLESHOOT].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_troubleshoot, 0, 0, 0);
+		elconfig_tabs[TROUBLESHOOT].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_troubleshoot, 0, 0, ELW_SCROLLABLE);
 #ifdef DEBUG
-		elconfig_tabs[DEBUGTAB].tab= tab_add(elconfig_win, elconfig_tab_collection_id, "Debug", 0, 0, 0);
+		elconfig_tabs[DEBUGTAB].tab= tab_add(elconfig_win, elconfig_tab_collection_id, "Debug", 0, 0, ELW_SCROLLABLE);
 #endif
+		/* disable all scrolling - will be set if required in elconfig_populate_tabs() */
+		for (i=0; i<MAX_TABS; i++)
+			set_window_scroll_inc(elconfig_tabs[i].tab, 0);
 		elconfig_populate_tabs();
 	}
 	show_window(elconfig_win);
