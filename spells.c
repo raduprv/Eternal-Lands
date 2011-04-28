@@ -1465,7 +1465,6 @@ void load_quickspells ()
 	for (i = 0; i < num_spells; i++)
 	{
 		mqbdata tmp;
-		Uint8 spell_id;
 
 		if (fread(&tmp, sizeof(mqbdata), 1, fp) != 1)
 		{
@@ -1495,7 +1494,7 @@ void save_quickspells()
 {
 	char fname[128];
 	FILE *fp;
-	Uint8 i, spell_id;
+	Uint8 i;
 
 	if (!quickspells_loaded)
 		return;

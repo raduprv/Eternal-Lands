@@ -502,7 +502,7 @@ extern "C" void build_buffers(actor_types* a)
 	Uint32* data32;
 	Uint32 face_count, vertex_count, max_index;
 	Sint32 i, j;
-	Uint32 idx, offset, count;
+	Uint32 offset, count;
 #ifdef	USE_ACTORS_OPTIMIZER
 	MD5_DIGEST digest;
 	Uint32 size, tmp;
@@ -541,8 +541,6 @@ extern "C" void build_buffers(actor_types* a)
 	a->hardware_model->load(0, 0, max_bones_per_mesh);
 
 	buffer = new ActorVertex[a->hardware_model->getTotalVertexCount()];
-
-	idx = 0;
 
 	for (i = 0; i < a->hardware_model->getTotalVertexCount(); i++)
 	{

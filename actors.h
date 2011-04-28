@@ -480,9 +480,9 @@ typedef struct _emote_command {
 #define EMOTE_MOTION(act) ((act->buffs & BUFF_DOUBLE_SPEED) ? (EMOTE_RUNNING):(EMOTE_WALKING))
 
 /*! The main actor structure.*/
-#define	MAX_CMD_QUEUE	15
-#define MAX_RANGE_ACTION_QUEUE 10
-#define MAX_ITEM_CHANGES_QUEUE 10
+#define	MAX_CMD_QUEUE	31
+#define MAX_RANGE_ACTION_QUEUE 16
+#define MAX_ITEM_CHANGES_QUEUE 16
 typedef struct
 {
 	/*! \name Misc.*/

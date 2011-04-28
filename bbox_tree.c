@@ -446,11 +446,9 @@ static __inline__ void build_start_stop(BBOX_TREE* bbox_tree)
 
 static __inline__ void delete_item_from_intersect_list(BBOX_TREE* bbox_tree, Uint32 ID, Uint32 type_mask)
 {
-	Uint32 i, j, k, size, idx;
+	Uint32 i, j, k, size;
 	int start, stop;
 	Uint32 id;
-	
-	idx = bbox_tree->cur_intersect_type;
 	
 	for (i = 0; i < MAX_INTERSECTION_TYPES; i++)
 	{
@@ -461,21 +459,21 @@ static __inline__ void delete_item_from_intersect_list(BBOX_TREE* bbox_tree, Uin
 			stop = bbox_tree->intersect[i].stop[j];
 			for (k = start; k < stop; k++)
 			{
-		if ((type_mask == TYPE_MASK_3D_BLEND_SELF_LIT_OBJECT) ||
-		    (type_mask == TYPE_MASK_3D_BLEND_NO_SELF_LIT_OBJECT) ||
-		    (type_mask == TYPE_MASK_3D_NO_BLEND_SELF_LIT_OBJECT) ||
-		    (type_mask == TYPE_MASK_3D_NO_BLEND_NO_SELF_LIT_OBJECT))
-		    id = get_3dobject_index(bbox_tree->intersect[i].items[k].ID);
-		else id = bbox_tree->intersect[i].items[k].ID;
+				if ((type_mask == TYPE_MASK_3D_BLEND_SELF_LIT_OBJECT) ||
+				    (type_mask == TYPE_MASK_3D_BLEND_NO_SELF_LIT_OBJECT) ||
+				    (type_mask == TYPE_MASK_3D_NO_BLEND_SELF_LIT_OBJECT) ||
+				    (type_mask == TYPE_MASK_3D_NO_BLEND_NO_SELF_LIT_OBJECT))
+				    id = get_3dobject_index(bbox_tree->intersect[i].items[k].ID);
+				else id = bbox_tree->intersect[i].items[k].ID;
 
-                if (id == ID)
+                		if (id == ID)
 				{
 					size = stop - k -1;
 					if (size > 0) 
 						memmove(&bbox_tree->intersect[i].items[k], &bbox_tree->intersect[i].items[k+1], size*sizeof(BBOX_ITEM));
 					bbox_tree->intersect[i].stop[j]--;
-                    stop--;
-                    k--;
+                			stop--;
+                			k--;
 				}
 			}
 		}
@@ -1263,9 +1261,7 @@ void free_bbox_items(BBOX_ITEMS* bbox_items)
 BBOX_TREE* build_bbox_tree()
 {
 	BBOX_TREE* bbox_tree;
-	Uint32 i, type_ids;
-	
-	type_ids = 0;
+	Uint32 i;
 
 	bbox_tree = (BBOX_TREE*)malloc(sizeof(BBOX_TREE));
 	

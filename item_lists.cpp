@@ -847,11 +847,9 @@ namespace ItemLists
 			glColor3f(1.0f,1.0f,1.0f);
 			for(size_t i=0; i<Vars::lists()->get_list().get_num_items() && i<static_cast<size_t>(6*num_grid_rows); i++)
 			{
-				int x_start, x_end, y_start, y_end;
+				int x_start, y_start;
 				x_start = get_grid_size() * (i%6) + 1;
-				x_end = x_start + get_grid_size() - 1;
 				y_start = get_grid_size() * (i/6);
-				y_end = y_start + get_grid_size() - 1;
 				draw_item(Vars::lists()->get_list().get_image_id(i), x_start, y_start, get_grid_size());
 			}
 		}

@@ -219,6 +219,17 @@ void reset_quantity (int pos)
 	quantities.quantity[pos].val = val;
 }
 
+#ifdef	NEW_TEXTURES
+void get_item_uv(const Uint32 item, float* u_start, float* v_start,
+	float* u_end, float* v_end)
+{
+	*u_start = (50.0f/256.0f) * (item % 5) + 1.0f / 256.0f;
+	*u_end = *u_start + (50.0f/256.0f);
+	*v_start = (50.0f/256.0f) * (item / 5) + 1.0f / 256.0f;
+	*v_end = *v_start + (50.0f/256.0f);
+}
+#endif	/* NEW_TEXTURES */
+
 void drag_item(int item, int storage, int mini)
 {
 	float u_start,v_start,u_end,v_end;
@@ -257,10 +268,7 @@ void drag_item(int item, int storage, int mini)
 
 	cur_item_img=cur_item%25;
 #ifdef	NEW_TEXTURES
-	u_start = ((float)50/256) * (cur_item_img % 5) + 2.0f / 256.0f;
-	u_end = u_start + ((float)50/256);
-	v_start = ((float)50/256) * (cur_item_img / 5) + 2.0f / 256.0f;
-	v_end = v_start + ((float)50/256);
+	get_item_uv(cur_item_img, &u_start, &v_start, &u_end, &v_end);
 #else	/* NEW_TEXTURES */
 	u_start=0.2f*(cur_item_img%5);
 	u_end=u_start+(float)50/256;
@@ -465,10 +473,7 @@ void draw_item(int id, int x_start, int y_start, int gridsize){
 	//get the UV coordinates.
 	cur_item=id%25;
 #ifdef	NEW_TEXTURES
-	u_start = ((float)50/256) * (cur_item % 5) + 2.0f / 256.0f;
-	u_end = u_start + ((float)50/256);
-	v_start = ((float)50/256) * (cur_item / 5) + 2.0f / 256.0f;
-	v_end = v_start + ((float)50/256);
+	get_item_uv(cur_item, &u_start, &v_start, &u_end, &v_end);
 #else	/* NEW_TEXTURES */
 	u_start=0.2f*(cur_item%5);
 	u_end=u_start+(float)50/256;

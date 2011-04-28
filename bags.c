@@ -237,9 +237,9 @@ void add_bags_from_list (const Uint8 *data)
 		y = y + 0.25f; // + get_bag_offset_y(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y);
 
 		// DEBUG
-		// printf("bag <%i> (%f,%f) rot %f tilt %f\n", bag_id, x, y,
-		//	get_bag_rotation(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y),
-		//	get_bag_tilt(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y));
+		LOG_DEBUG_VERBOSE("bag <%i> (%f,%f) rot %f tilt %f\n", bag_id, x, y,
+			get_bag_rotation(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y),
+			get_bag_tilt(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y));
 
 		if (use_eye_candy) {
 	#ifdef ONGOING_BAG_EFFECT
@@ -457,10 +457,8 @@ int display_ground_items_handler(window_info *win)
 			//get the UV coordinates.
 			cur_item=ground_item_list[i].image_id%25;
 #ifdef	NEW_TEXTURES
-			u_start = ((float)50/256) * (cur_item % 5) + 2.0f / 256.0f;
-			u_end = u_start + ((float)50/256);
-			v_start = ((float)50/256) * (cur_item / 5) + 2.0f / 256.0f;
-			v_end = v_start + ((float)50/256);
+			get_item_uv(cur_item, &u_start, &v_start, &u_end,
+				&v_end);
 #else	/* NEW_TEXTURES */
 			u_start=0.2f*(cur_item%5);
 			u_end=u_start+(float)50/256;

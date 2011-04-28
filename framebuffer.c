@@ -416,7 +416,7 @@ void free_depth_framebuffer(GLuint *fbo, GLuint *fbo_texture)
 
 void make_depth_framebuffer(int width, int height, GLuint *fbo, GLuint *fbo_texture)
 {
-	GLint depth_bits, depth_format;
+	GLint depth_bits;
 
 	if ((width <= 0) || (height <= 0)) return;
 
@@ -425,9 +425,6 @@ void make_depth_framebuffer(int width, int height, GLuint *fbo, GLuint *fbo_text
 	glGenTextures(1, fbo_texture);// texture
 	
 	glGetIntegerv(GL_DEPTH_BITS, &depth_bits);
-
-	if (depth_bits == 16) depth_format = GL_DEPTH_COMPONENT16_ARB;
-	else depth_format = GL_DEPTH_COMPONENT24_ARB;
 
 	glBindTexture(GL_TEXTURE_2D, *fbo_texture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);

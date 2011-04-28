@@ -199,13 +199,13 @@ void draw_3d_object_shadows(unsigned int object_type)
 	unsigned int    start, stop;
 	unsigned int    i, j, l;
 	int is_transparent;
-	int x, y;
 #ifdef SIMPLE_LOD
+	int x, y;
 	int dist;
-#endif //SIMPLE_LOD
 
 	x= -camera_x;
 	y= -camera_y;
+#endif //SIMPLE_LOD
 
 	cur_e3d= NULL;
 #ifdef  DEBUG

@@ -347,7 +347,6 @@ void read_key_config()
 {
 	FILE *f = NULL;
 	char * file_mem;
-	char * file_mem_start;
 	struct stat key_file;
 	int key_file_size,t;
 	size_t ret;
@@ -387,7 +386,6 @@ void read_key_config()
 	}
 
 	file_mem = (char *) calloc(key_file_size+2, sizeof(Uint8));
-	file_mem_start=file_mem;
 	ret = fread (file_mem, 1, key_file_size+1, f);
 	fclose(f);
 	if (ret != key_file_size)

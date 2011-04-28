@@ -1611,8 +1611,6 @@ int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy)
 
 	if(win->drag_in || mouse_in_window(win_id, x, y) > 0)
 	{
-		int	ret_val;
-
 		// widgets
 		glPushMatrix();
 		glTranslatef((float)win->cur_x, (float)win->cur_y-scroll_pos, 0.0f);
@@ -1639,7 +1637,6 @@ int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy)
 		{
 			glPushMatrix();
 			glTranslatef((float)win->cur_x, (float)win->cur_y-scroll_pos, 0.0f);
-			ret_val = (*win->drag_handler)(win, mx, my, flags, dx, dy);
 			glPopMatrix();
 		}
 		return	1;	// drag has been processed	

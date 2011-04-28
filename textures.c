@@ -716,14 +716,13 @@ static Uint32 copy_to_coordinates(const image_t* source, const Uint32 x,
 	const Uint32 y, image_t* dest)
 {
 	Uint32 source_height, source_width, source_offset;
-	Uint32 dest_height, dest_width, dest_offset;
+	Uint32 dest_width, dest_offset;
 	Uint32 i;
 	Uint8 *src, *dst;
 
 	source_width = source->width;
 	source_height = source->height;
 	dest_width = dest->width;
-	dest_height = dest->height;
 	src = source->image;
 	dst = dest->image;
 
@@ -836,14 +835,13 @@ static Uint32 copy_to_coordinates_mask2(const image_t* source0,
 	const Uint32 x, const Uint32 y, image_t* dest, Uint8* buffer)
 {
 	Uint32 source_height, source_width, source_offset;
-	Uint32 dest_height, dest_width, dest_offset;
+	Uint32 dest_width, dest_offset;
 	Uint32 i, size;
 	Uint8 *src0, *src1, *msk, *dst;
 
 	source_width = source0->width;
 	source_height = source0->height;
 	dest_width = dest->width;
-	dest_height = dest->height;
 	src0 = source0->image;
 	src1 = source1->image;
 	msk = mask->image;

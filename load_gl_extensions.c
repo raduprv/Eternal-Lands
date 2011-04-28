@@ -258,29 +258,19 @@ int multitexture_problem=0;
 static void check_for_problem_drivers()
 {
 	const char *my_string;
-	int is_nvidia=0;
 	int is_intel=0;
-	int is_ati=0;
-	int is_sis=0;
-	int is_s3=0;
 
 
 	my_string = (const char*) glGetString (GL_VENDOR);
-	if(strstr(my_string,"NVIDIA"))is_nvidia=1;
-	else
-	if(strstr(my_string,"ATI"))is_ati=1;
-	else
 	if(strstr(my_string,"Intel"))is_intel=1;
 	else
 	if(strstr(my_string,"SiS"))
 		{
-			is_sis=1;
 			multitexture_problem=1;
 		}
 	else
 	if(strstr(my_string,"S3 "))
 		{
-			is_s3=1;
 			multitexture_problem=1;
 		}
 

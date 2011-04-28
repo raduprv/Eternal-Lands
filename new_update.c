@@ -409,7 +409,7 @@ static Uint32 download_files(update_info_t* infos, const Uint32 count,
 	download_files_thread_data_t thread_data;
 	FILE *file;
 	Uint64 len;
-	Uint32 i, j, result, download, error, index;
+	Uint32 i, j, download, error, index;
 
 	file = tmpfile();
 
@@ -419,7 +419,6 @@ static Uint32 download_files(update_info_t* infos, const Uint32 count,
 	}
 
 	error = 0;
-	result = 0;
 
 	init_threads(&thread_data, count, server, path, dest,
 		update_progress_function, user_data);

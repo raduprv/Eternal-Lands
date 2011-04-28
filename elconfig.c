@@ -876,16 +876,10 @@ void change_fsaa(int *pointer, int value)
 
 	if (pointer != 0)
 	{
-		if (*pointer != index)
-		{
-			*pointer = index;
-
-			if (video_mode_set)
-			{
-				switch_video(video_mode, full_screen);
-			}
-		}
+		*pointer = index;
 	}
+
+	LOG_TO_CONSOLE(c_green2, video_restart_str);
 }
 #endif	/* FSAA */
 

@@ -790,7 +790,6 @@ void missiles_fire_a_to_xyz(int actor_id, float *target)
 void missiles_fire_xyz_to_b(float *origin, int actor_id)
 {
 	actor * act;
-	int mis_id;
 	float target[3];
 
 	missiles_log_message("missile was fired from %f,%f,%f to actor %d", origin[0], origin[1], origin[2], actor_id);
@@ -810,7 +809,7 @@ void missiles_fire_xyz_to_b(float *origin, int actor_id)
 	UNLOCK_ACTORS_LISTS();
 
 	// here, there's no way to know if the target is missed or not as we don't know the actor who fired!
-	mis_id = missiles_add(0, origin, target, 0.0, 0);
+	missiles_add(0, origin, target, 0.0, 0);
 }
 
 int missiles_parse_nodes(xmlNode *node)
