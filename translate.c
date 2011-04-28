@@ -1565,7 +1565,7 @@ void init_titles ()
 	add_xml_identifier (titles_str, "tab_video", ttab_video, "Video", sizeof(ttab_video));
 	add_xml_identifier (titles_str, "tab_gfx", ttab_gfx, "GFX", sizeof(ttab_gfx));
 	add_xml_identifier (titles_str, "tab_camera", ttab_camera, "Camera", sizeof(ttab_camera));
-	add_xml_identifier (titles_str, "tab_troubleshoot", ttab_troubleshoot, "Troubleshhot", sizeof(ttab_troubleshoot));
+	add_xml_identifier (titles_str, "tab_troubleshoot", ttab_troubleshoot, "Troubleshoot", sizeof(ttab_troubleshoot));
 	add_xml_identifier (titles_str, "tab_font", ttab_font, "Font", sizeof(ttab_font));
 	add_xml_identifier (titles_str, "t_help", tab_help, "Help", sizeof(tab_help));
 	add_xml_identifier (titles_str, "t_ency", tab_encyclopedia, "Encyclopedia", sizeof(tab_encyclopedia));
