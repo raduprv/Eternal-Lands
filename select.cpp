@@ -349,7 +349,7 @@ extern "C" void reset_under_the_mouse()
 							  	glDisable(GL_TEXTURE_2D);
 							}
 							glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colorf);
-#if (defined OSX && (defined EL_BIG_ENDIAN || defined SKY_FPV))
+#ifdef OSX
 							// Fedora's patch to fix NEW_SELECTION on PPC Macs
 							glPushAttrib(GL_ALL_ATTRIB_BITS);
 							glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);

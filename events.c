@@ -222,7 +222,7 @@ int HandleEvent (SDL_Event *event)
 				if (event->type == SDL_MOUSEMOTION && (event->motion.state & SDL_BUTTON(SDL_BUTTON_RIGHT)))
 				{
 					right_click++;
-#if defined SKY_FPV && defined OSX
+#ifdef OSX
 					if (osx_right_mouse_cam)
 					{
 						have_mouse = 1;
@@ -232,7 +232,7 @@ int HandleEvent (SDL_Event *event)
 				else
 				{
 					right_click = 0;
-#if defined SKY_FPV && defined OSX
+#ifdef OSX
 					if (osx_right_mouse_cam)
 					{
 						have_mouse = 0;
