@@ -223,9 +223,9 @@ void reset_quantity (int pos)
 void get_item_uv(const Uint32 item, float* u_start, float* v_start,
 	float* u_end, float* v_end)
 {
-	*u_start = (50.0f/256.0f) * (item % 5) + 1.0f / 256.0f;
+	*u_start = (50.0f/256.0f) * (item % 5) + 0.5f / 256.0f;
 	*u_end = *u_start + (50.0f/256.0f);
-	*v_start = (50.0f/256.0f) * (item / 5) + 1.0f / 256.0f;
+	*v_start = (50.0f/256.0f) * (item / 5) + 0.5f / 256.0f;
 	*v_end = *v_start + (50.0f/256.0f);
 }
 #endif	/* NEW_TEXTURES */

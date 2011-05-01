@@ -266,9 +266,9 @@ static void update_actor_animation_speed(actor* a, const float time_diff)
 		}
 	}
 
-	if (animations > 1)
+	if (animations > 2)
 	{
-		animations -= 1;
+		animations -= 2;
 	}
 	else
 	{
