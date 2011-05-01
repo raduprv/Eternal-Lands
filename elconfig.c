@@ -2516,11 +2516,6 @@ void elconfig_populate_tabs(void)
 		label_height= widget_find(elconfig_tabs[tab_id].tab, label_id)->len_y;
 		widget_height= widget_find(elconfig_tabs[tab_id].tab, widget_id)->len_y;
 		elconfig_tabs[tab_id].y += (widget_height > label_height ? widget_height : label_height)+SPACING;
-		if(elconfig_tabs[tab_id].y > widget_get_height(elconfig_win, elconfig_tab_collection_id)-TAB_TAG_HEIGHT) {
-			/* Expand the scrollbar to fit all our widgets. */
-			set_window_scroll_len(elconfig_tabs[tab_id].tab, elconfig_tabs[tab_id].y-widget_get_height(elconfig_win, elconfig_tab_collection_id)+TAB_TAG_HEIGHT);
-			set_window_scroll_inc(elconfig_tabs[tab_id].tab, widget_height+SPACING);
-		}
 		//Set IDs
 		our_vars.var[i]->widgets.label_id= label_id;
 		our_vars.var[i]->widgets.widget_id= widget_id;
@@ -2591,10 +2586,21 @@ void display_elconfig_win(void)
 #ifdef DEBUG
 		elconfig_tabs[DEBUGTAB].tab= tab_add(elconfig_win, elconfig_tab_collection_id, "Debug", 0, 0, ELW_SCROLLABLE);
 #endif
-		/* disable all scrolling - will be set if required in elconfig_populate_tabs() */
-		for (i=0; i<MAX_TABS; i++)
-			set_window_scroll_inc(elconfig_tabs[i].tab, 0);
 		elconfig_populate_tabs();
+
+		/* configure scrolling for tabs */
+		for (i=0; i<MAX_TABS; i++) {
+			/* configure scrolling for any tabs that exceed the window length */
+			if(elconfig_tabs[i].y > (widget_get_height(elconfig_win, elconfig_tab_collection_id)-TAB_TAG_HEIGHT)) {
+				set_window_scroll_len(elconfig_tabs[i].tab, elconfig_tabs[i].y-widget_get_height(elconfig_win, elconfig_tab_collection_id)+TAB_TAG_HEIGHT);
+				set_window_scroll_inc(elconfig_tabs[i].tab, TAB_TAG_HEIGHT);
+			}
+			/* otherwise disable scrolling */
+			else {
+				set_window_scroll_inc(elconfig_tabs[i].tab, 0);
+				widget_set_flags(elconfig_tabs[i].tab, windows_list.window[elconfig_tabs[i].tab].scroll_id, WIDGET_DISABLED);
+			}
+		}
 	}
 	show_window(elconfig_win);
 	select_window(elconfig_win);
