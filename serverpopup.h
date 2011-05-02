@@ -5,9 +5,6 @@
 extern "C" {
 #endif
 
-extern int server_popup_win;
-extern int server_popup_win_x;
-extern int server_popup_win_y;
 extern int use_server_pop_win;
 extern int server_pop_chan;
 

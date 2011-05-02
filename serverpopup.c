@@ -40,17 +40,16 @@ may be do:
 #include "widgets.h"
 
 /* these are visible externally and exported in the header file */
-int server_popup_win = -1;
-int use_server_pop_win = 1;
 int server_pop_chan = CHAT_POPUP;
-/* initialised by initialise() */
-int server_popup_win_x;
-int server_popup_win_y;
+int use_server_pop_win = 1;
 
 /* these are visible only to this code module but are needed by handlers for example */
 static const int sep = 5;
 static const int scroll_width = 20;
 /* initialised by initialise() */
+static int server_popup_win = -1;
+static int server_popup_win_x;
+static int server_popup_win_y;
 static int min_width;
 static int min_height;
 static text_message widget_text;
@@ -295,7 +294,6 @@ void display_server_popup_win(const char * const message)
 	int winWidth = 0;
 	int winHeight = 0;
 	widget_list *button_widget = NULL;
-	int our_root_win = -1;
 	Uint32 win_property_flags;
 	
 	/* exit now if message empty */
@@ -323,6 +321,9 @@ void display_server_popup_win(const char * const message)
 		/* this will re-wrap the text and add a scrollbar, title and resize widget as required */
 		resize_handler(win, win->len_x, win->len_y);
 
+		/* always show the window */
+		show_window(server_popup_win);
+
 	} else {
 		/* restart from scratch and initialise the window text widget text buffer */
 		initialise();
@@ -339,15 +340,10 @@ void display_server_popup_win(const char * const message)
 		num_text_lines = rewrap_message(&widget_text, chat_zoom, (window_width - unusable_width) - 4*sep, NULL);
 	}
 
-	/* config and alt-w control if shown on top of console */
-	if (!windows_on_top){
-		 our_root_win = game_root_win;
-	}
-
 	if (server_popup_win < 0){
 		/* create the window with initial size and location */
 		win_property_flags = ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE;
-		server_popup_win = create_window( "", our_root_win, 0,
+		server_popup_win = create_window( "", -1, 0,
 			server_popup_win_x, server_popup_win_y, winWidth, winHeight, win_property_flags);
 		set_window_handler( server_popup_win, ELW_HANDLER_RESIZE, &resize_handler);
 		set_window_handler( server_popup_win, ELW_HANDLER_CLICK, &click_handler);
@@ -430,7 +426,7 @@ void display_server_popup_win(const char * const message)
 	/* calculate the best position then move the window */
 	server_popup_win_x = (window_width - unusable_width - winWidth)/2;
 	server_popup_win_y = (window_height - unusable_height - winHeight)/2;
-	move_window(server_popup_win, our_root_win, 0, server_popup_win_x, server_popup_win_y);
+	move_window(server_popup_win, -1, 0, server_popup_win_x, server_popup_win_y);
 
 } /* end display_server_popup_win() */
 

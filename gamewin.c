@@ -1405,10 +1405,8 @@ void hide_all_windows(){
 	if (get_show_window(ground_items_win) > 0 || get_show_window(items_win) > 0 || get_show_window(buddy_win) > 0 ||
 		get_show_window(manufacture_win) > 0 || get_show_window(elconfig_win) > 0 || get_show_window(sigil_win) > 0 ||
 		get_show_window(tab_stats_win) > 0 || get_show_window(tab_help_win) > 0 || get_show_window(storage_win) > 0 ||
-		get_show_window(dialogue_win) > 0 || get_show_window(server_popup_win) > 0 || get_show_window(questlog_win) > 0 
-		|| (get_show_window(minimap_win) > 0 && !pin_minimap)
-		|| get_show_window(tab_info_win) > 0
-		|| get_show_window(emotes_win) > 0
+		get_show_window(dialogue_win) > 0 || get_show_window(questlog_win) > 0 || (get_show_window(minimap_win) > 0 && !pin_minimap)
+		|| get_show_window(tab_info_win) > 0 || get_show_window(emotes_win) > 0
 	){	//Okay, hide the open ones.
 		if (get_window_showable(ground_items_win) > 0){
 			unsigned char protocol_name;
@@ -1462,12 +1460,7 @@ void hide_all_windows(){
 		if (get_window_showable(dialogue_win) > 0){
 			hide_window (dialogue_win);
 		}
-		if (get_window_showable(server_popup_win) > 0){
-			hide_window (server_popup_win);
-			were_open |= 1<<7;
-		} else {
-			were_open &= ~(1<<7);
-		}
+		// 7 unused
 		if (get_window_showable(minimap_win) > 0 && !pin_minimap){
 			hide_window (minimap_win);
 			were_open |= 1<<8;
@@ -1523,9 +1516,7 @@ void hide_all_windows(){
 		if (were_open & 1<<6){
 			show_window (tab_help_win);
 		}
-		if (were_open & 1<<7){
-			show_window (server_popup_win );
-		}
+		// 7 unused
 		if (were_open & 1<<8){
 			show_window (minimap_win );
 		}
