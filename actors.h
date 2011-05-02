@@ -111,6 +111,7 @@ typedef struct
 	int helmet_meshindex;
 	int neck_meshindex;
 	int cape_meshindex;
+	int boots_meshindex;
 
 	/*! \name The texture names*/
 	/*! \{ */

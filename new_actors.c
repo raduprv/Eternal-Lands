@@ -1138,6 +1138,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			actors_list[i]->body_parts->torso_meshindex=actors_defs[actor_type].shirt[shirt].mesh_index;
 			actors_list[i]->body_parts->legs_meshindex=actors_defs[actor_type].legs[pants].mesh_index;
 			actors_list[i]->body_parts->head_meshindex=actors_defs[actor_type].head[head].mesh_index;
+			actors_list[i]->body_parts->boots_meshindex=actors_defs[actor_type].boots[boots].mesh_index;
 
 			if (cape!=CAPE_NONE) model_attach_mesh(actors_list[i], actors_defs[actor_type].cape[cape].mesh_index);
 			if (helmet!=HELMET_NONE) model_attach_mesh(actors_list[i], actors_defs[actor_type].helmet[helmet].mesh_index);
@@ -1312,6 +1313,7 @@ actor * add_actor_interface(float x, float y, float z_rot, float scale, int acto
 			a->body_parts->torso_meshindex=actors_defs[actor_type].shirt[shirt].mesh_index;
 			a->body_parts->legs_meshindex=actors_defs[actor_type].legs[pants].mesh_index;
 			a->body_parts->head_meshindex=actors_defs[actor_type].head[head].mesh_index;
+			a->body_parts->boots_meshindex=actors_defs[actor_type].boots[boots].mesh_index;
 
 			assert(!"Using old client data" || actors_defs[actor_type].neck != NULL);
 			a->body_parts->neck_meshindex=actors_defs[actor_type].neck[NECK_NONE].mesh_index;
