@@ -616,6 +616,12 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 									return;
 								}
 #endif	/* NEW_TEXTURES */
+								if(actors_defs[actors_list[i]->actor_type].boots[which_id].mesh_index != actors_list[i]->body_parts->boots_meshindex)
+								{
+									model_detach_mesh(actors_list[i], actors_list[i]->body_parts->boots_meshindex);
+									model_attach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].boots[which_id].mesh_index);
+									actors_list[i]->body_parts->boots_meshindex=actors_defs[actors_list[i]->actor_type].boots[which_id].mesh_index;
+								}
 							}
 						else return;
 

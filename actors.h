@@ -236,6 +236,7 @@ typedef struct
 typedef struct
 {
 	char boots_name[MAX_FILE_PATH];
+	char model_name[MAX_FILE_PATH];
 	char boots_mask[MAX_FILE_PATH];
 	int glow;
 	int mesh_index;
