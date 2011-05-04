@@ -1135,6 +1135,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			model_attach_mesh(actors_list[i], actors_defs[actor_type].head[head].mesh_index);
 			model_attach_mesh(actors_list[i], actors_defs[actor_type].shirt[shirt].mesh_index);
 			model_attach_mesh(actors_list[i], actors_defs[actor_type].legs[pants].mesh_index);
+			model_attach_mesh(actors_list[i], actors_defs[actor_type].boots[boots].mesh_index);
 			actors_list[i]->body_parts->torso_meshindex=actors_defs[actor_type].shirt[shirt].mesh_index;
 			actors_list[i]->body_parts->legs_meshindex=actors_defs[actor_type].legs[pants].mesh_index;
 			actors_list[i]->body_parts->head_meshindex=actors_defs[actor_type].head[head].mesh_index;
@@ -1309,6 +1310,7 @@ actor * add_actor_interface(float x, float y, float z_rot, float scale, int acto
 			model_attach_mesh(a, actors_defs[actor_type].head[head].mesh_index);
 			model_attach_mesh(a, actors_defs[actor_type].shirt[shirt].mesh_index);
 			model_attach_mesh(a, actors_defs[actor_type].legs[pants].mesh_index);
+			model_attach_mesh(a, actors_defs[actor_type].boots[boots].mesh_index);
 
 			a->body_parts->torso_meshindex=actors_defs[actor_type].shirt[shirt].mesh_index;
 			a->body_parts->legs_meshindex=actors_defs[actor_type].legs[pants].mesh_index;
