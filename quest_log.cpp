@@ -48,6 +48,9 @@
  * 				refresh highlighted title string?
  * 				copy highlighted title to clipboard
  * 				delete highlighted
+ * 		Feature to set the quest index for quest entries
+ * 			output md5sums with quest index
+ * 			import md5sums with quest index and set matches
  */
 
 
@@ -529,7 +532,7 @@ static const int qlwinheight = 350;
 static const int qlborder = 5;
 static size_t cm_questlog_id = CM_INIT_VALUE;
 static size_t cm_questlog_over_entry = static_cast<size_t>(-1);
-enum {	CMQL_SHOWALL=0, CMQL_QUESTFILTER, CMQL_NPCFILTER, CMQL_NPCSHOWNONE, CMQL_S01,
+enum {	CMQL_SHOWALL=0, CMQL_QUESTFILTER, CMQL_NPCFILTER, CMQL_NPCSHOWNONE, CMQL_JUSTTHISNPC, CMQL_S01,
 		CMQL_COPY, CMQL_COPYALL, CMQL_FIND, CMQL_ADD, CMQL_S02,
 		CMQL_SEL, CMQL_UNSEL, CMQL_SELALL, CMQL_UNSELALL, CMQL_SHOWSEL, CMQL_S03,
 		CMQL_DELETE, CMQL_UNDEL, CMQL_S04, CMQL_DEDUPE, CMQL_S05, CMQL_SAVE };
@@ -1475,6 +1478,7 @@ static void cm_questlog_pre_show_handler(window_info *win, int widget_id, int mx
 	cm_grey_line(cm_questlog_id, CMQL_QUESTFILTER, (qlw_open || quest_entries.empty()) ?1 :0);
 	cm_grey_line(cm_questlog_id, CMQL_NPCFILTER, (nfw_open || quest_entries.empty()) ?1 :0);
 	cm_grey_line(cm_questlog_id, CMQL_NPCSHOWNONE, (quest_entries.empty()) ?1 :0);
+	cm_grey_line(cm_questlog_id, CMQL_JUSTTHISNPC, (is_over_entry) ?0 :1);
 	cm_grey_line(cm_questlog_id, CMQL_COPY, (is_over_entry && !is_deleted) ?0 :1);
 	cm_grey_line(cm_questlog_id, CMQL_COPYALL, active_entries.empty() ?1 :0);
 	cm_grey_line(cm_questlog_id, CMQL_FIND, (current_action == -1 && !active_entries.empty()) ?0 :1);
@@ -1507,11 +1511,16 @@ static int cm_quest_handler(window_info *win, int widget_id, int mx, int my, int
 		case CMQL_SHOWALL: show_all_entries(); break;
 		case CMQL_QUESTFILTER: questlist.open_window(); break;
 		case CMQL_NPCFILTER: open_filter_window(); break;
+		case CMQL_JUSTTHISNPC:
 		case CMQL_NPCSHOWNONE:
 			questlist.set_selected(Quest::UNSET_ID);
 			active_filter = QLFLT_NPC;
 			for (std::map<std::string,int>::iterator i = filter_map.begin(); i != filter_map.end(); ++i)
+			{
 				i->second = 0;
+				if ((option == CMQL_JUSTTHISNPC) && (i->first == quest_entries[active_entries[over_entry]].get_npc()))
+					i->second = 1;
+			}
 			rebuild_active_entries((current_line < active_entries.size()) ?active_entries[current_line] :0);
 			open_filter_window();
 			break;
