@@ -152,6 +152,11 @@ namespace eternal_lands
 
 		log_mutex = SDL_CreateMutex();
 
+		str = log_file_name;
+		str += ".9";
+
+		std::remove(str.c_str());
+
 		rename_old_logfile(log_file_name, 8);
 		rename_old_logfile(log_file_name, 7);
 		rename_old_logfile(log_file_name, 6);
