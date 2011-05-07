@@ -221,16 +221,6 @@ namespace ItemLists
 			int num_grid_rows;
 			char filter[20];
 			Uint32 last_key_time;
-			class Clicker
-			{
-				public:
-					void reset(int x, int y) { mx=x; my=y, count=1; }
-					bool same(int x, int y) const { return (count && (x == mx) && (y == my)); }
-					bool exceeded(void) { return (++count > 3); }
-				private:
-					int mx; int my; size_t count;
-			};
-			std::vector<Clicker> clicks;
 	};
 
 
@@ -822,8 +812,6 @@ namespace ItemLists
 			close_ipu(&ipu_item_list_name);
 			Vars::quantity_input()->close();
 		}
-		clicks.clear();
-		clicks.resize(ITEM_WEAR_START);
 	}
 
 
@@ -1147,17 +1135,13 @@ CHECK_GL_ERRORS();
 #endif // NEW_SOUND
 				if (flags & ELW_LEFT_MOUSE)
 				{
-					if (clicks[new_selected].same(mx, my))
+					// randomly close the window
+					if (!(SDL_GetTicks() & 63))
 					{
-						if (clicks[new_selected].exceeded())
-						{
-							hide_window(Vars::win()->get_id());
-							set_shown_string(c_red2, item_list_magic_str);
-							return 0;
-						}
+						hide_window(Vars::win()->get_id());
+						set_shown_string(c_red2, item_list_magic_str);
+						return 0;
 					}
-					else
-						clicks[new_selected].reset(mx, my);
 					storage_item_dragged = item_dragged = -1;
 					int image_id = Vars::lists()->get_list().get_image_id(selected_item_number);
 					Uint16 item_id = Vars::lists()->get_list().get_item_id(selected_item_number);
