@@ -114,10 +114,11 @@
 #include <vector>
 #include <map>
 #include <iostream>
+#include <limits>
 #include <cassert>
 #include <SDL.h>
 #include <stdlib.h>
-#include <math.h>
+#include <cmath>
 
 #include "types.h"
 #include "math_cache.h"
@@ -133,15 +134,6 @@
 namespace el = eternal_lands;
 
 #endif	/* NEW_TEXTURES */
-
- #define GCC_VERSION (__GNUC__ * 10000 \
-                      + __GNUC_MINOR__ * 100 \
-                      + __GNUC_PATCHLEVEL__)
- /* Test for GCC >= 4.3.0 */ 	 
- #if GCC_VERSION >= 40300 	 
-  #undef isfinite 	 
-  #define isfinite(x) ((x) - (x) == 0) 	 
- #endif
 
 namespace ec
 {
@@ -500,17 +492,22 @@ namespace ec
 
 			Vec3 cross(const Vec3 rhs) const
 			{
-				return Vec3(y * rhs.z - z * rhs.y, z * rhs.x - x * rhs.z, x
-					* rhs.y - y * rhs.x);
+				return Vec3(y * rhs.z - z * rhs.y, z * rhs.x -
+					x * rhs.z, x * rhs.y - y * rhs.x);
 			}
-			;
+
+			static bool is_valid(const float value)
+			{
+				return (std::abs(value) <
+					std::numeric_limits<float>::infinity())
+					// test for NaN
+					&& (value == value);
+			}
 
 			bool is_valid() const
 			{
-				if (isfinite(x) && isfinite(z) && isfinite(y))
-					return true;
-				else
-					return false;
+				return is_valid(x) && is_valid(y) &&
+					is_valid(z);
 			}
 
 			Vec3 as_el()
