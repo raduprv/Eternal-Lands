@@ -7,6 +7,7 @@
 
 #include "image.h"
 #ifdef	USE_SIMD
+#include "errors.h"
 #include <SDL.h>
 #include <xmmintrin.h>
 
@@ -327,36 +328,62 @@ void fast_unpack(const Uint8* source, const Uint32 size, const Uint32 red,
 	const Uint32 green, const Uint32 blue, const Uint32 alpha, Uint8* dest)
 {
 #ifdef	USE_SIMD
-	if (SDL_HasSSE2() && ((size & 0x0F) == 0) &&
-		check_pointer_aligment(source) && check_pointer_aligment(dest))
+	if (SDL_HasSSE2())
 	{
-		if ((red == 0x000000FF) && (green == 0x000000FF) && (blue == 0x000000FF) && (alpha == 0x00000000))
+		LOG_DEBUG_VERBOSE("size: %d, source: %p, dest: %p", size,
+			source, dest);
+
+		if (((size & 0x0F) == 0) && check_pointer_aligment(source) &&
+			check_pointer_aligment(dest))
 		{
-			unpack_l8_sse2(source, size, dest);
-		}
-		if ((red == 0x00000000) && (green == 0x00000000) && (blue == 0x00000000) && (alpha == 0x000000FF))
-		{
-			unpack_a8_sse2(source, size, dest);
-		}
-		if ((red == 0x000000FF) && (green == 0x000000FF) && (blue == 0x000000FF) && (alpha == 0x0000FF00))
-		{
-			unpack_la8_sse2(source, size * 2, dest);
-		}
-		if ((red == 0x00FF0000) && (green == 0x0000FF00) && (blue == 0x000000FF) && (alpha == 0xFF000000))
-		{
-			unpack_rgba8_sse2(source, size * 4, dest);
-		}
-		if ((red == 0x0000F800) && (green == 0x000007E0) && (blue == 0x0000001F) && (alpha == 0x00000000))
-		{
-			unpack_r5g6b5_sse2(source, size * 2, dest);
-		}
-		if ((red == 0x00007C00) && (green == 0x000003E0) && (blue == 0x0000001F) && (alpha == 0x00008000))
-		{
-			unpack_rgb5a1_sse2(source, size * 2, dest);
-		}
-		if ((red == 0x00000F00) && (green == 0x000000F0) && (blue == 0x0000000F) && (alpha == 0x0000F000))
-		{
-			unpack_rgba4_sse2(source, size * 2, dest);
+			if ((red == 0x000000FF) && (green == 0x000000FF) &&
+				(blue == 0x000000FF) && (alpha == 0x00000000))
+			{
+				unpack_l8_sse2(source, size, dest);
+				return;
+			}
+
+			if ((red == 0x00000000) && (green == 0x00000000) &&
+				(blue == 0x00000000) && (alpha == 0x000000FF))
+			{
+				unpack_a8_sse2(source, size, dest);
+				return;
+			}
+
+			if ((red == 0x000000FF) && (green == 0x000000FF) &&
+				(blue == 0x000000FF) && (alpha == 0x0000FF00))
+			{
+				unpack_la8_sse2(source, size * 2, dest);
+				return;
+			}
+
+			if ((red == 0x00FF0000) && (green == 0x0000FF00) &&
+				(blue == 0x000000FF) && (alpha == 0xFF000000))
+			{
+				unpack_rgba8_sse2(source, size * 4, dest);
+				return;
+			}
+
+			if ((red == 0x0000F800) && (green == 0x000007E0) &&
+				(blue == 0x0000001F) && (alpha == 0x00000000))
+			{
+				unpack_r5g6b5_sse2(source, size * 2, dest);
+				return;
+			}
+
+			if ((red == 0x00007C00) && (green == 0x000003E0) &&
+				(blue == 0x0000001F) && (alpha == 0x00008000))
+			{
+				unpack_rgb5a1_sse2(source, size * 2, dest);
+				return;
+			}
+
+			if ((red == 0x00000F00) && (green == 0x000000F0) &&
+				(blue == 0x0000000F) && (alpha == 0x0000F000))
+			{
+				unpack_rgba4_sse2(source, size * 2, dest);
+				return;
+			}
 		}
 	}
 #endif
@@ -368,11 +395,15 @@ void fast_replace_a8_rgba8(const Uint8* alpha, const Uint32 size, Uint8* source)
 	Uint32 i;
 
 #ifdef	USE_SIMD
-	if (SDL_HasSSE2() && ((size & 0x03) == 0) && check_pointer_aligment(source))
+	if (SDL_HasSSE2())
 	{
-		replace_a8_rgba8_sse2(alpha, size, source);
+		LOG_DEBUG_VERBOSE("size: %d, source: %p", size, source);
 
-		return;
+		if (((size & 0x03) == 0) && check_pointer_aligment(source))
+		{
+			replace_a8_rgba8_sse2(alpha, size, source);
+			return;
+		}
 	}
 #endif
 
@@ -387,11 +418,15 @@ void fast_replace_alpha_rgba8(const Uint8 alpha, const Uint32 size, Uint8* sourc
 	Uint32 i;
 
 #ifdef	USE_SIMD
-	if (SDL_HasSSE2() && ((size & 0x03) == 0) && check_pointer_aligment(source))
+	if (SDL_HasSSE2())
 	{
-		replace_alpha_rgba8_sse2(alpha, size, source);
+		LOG_DEBUG_VERBOSE("size: %d, source: %p", size, source);
 
-		return;
+		if (((size & 0x03) == 0) && check_pointer_aligment(source))
+		{
+			replace_alpha_rgba8_sse2(alpha, size, source);
+			return;
+		}
 	}
 #endif
 
@@ -407,14 +442,18 @@ void fast_blend(const Uint8* alpha, const Uint32 size, const Uint8* source0,
 	Uint32 i, j, tmp;
 
 #ifdef	USE_SIMD
-	if (SDL_HasSSE2() && ((size & 0x03) == 0) &&
-		check_pointer_aligment(source0) &&
-		check_pointer_aligment(source1) &&
-		check_pointer_aligment(dest))
+	if (SDL_HasSSE2())
 	{
-		blend_sse2(alpha, size, source0, source1, dest);
+		LOG_DEBUG_VERBOSE("size: %d, source0: %p, sourc1: %p, dest: %p",
+			size, source0, source1, dest);
 
-		return;
+		if (((size & 0x03) == 0) && check_pointer_aligment(source0) &&
+			check_pointer_aligment(source1) &&
+			check_pointer_aligment(dest))
+		{
+			blend_sse2(alpha, size, source0, source1, dest);
+			return;
+		}
 	}
 #endif
 
