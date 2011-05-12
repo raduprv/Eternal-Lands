@@ -195,11 +195,21 @@ void blend_sse2(const Uint8* alpha, const Uint32 size, const Uint8* source0,
 	__m128i t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10;
 	Uint32 i;
 
+	LOG_DEBUG_VERBOSE("source0[0]: %d", source0[0]);
+	LOG_DEBUG_VERBOSE("&source0[0]: %p", &(source0[0]));
+	LOG_DEBUG_VERBOSE("source1[0]: %d", source1[0]);
+	LOG_DEBUG_VERBOSE("&source1[0]: %p", &(source1[0]));
+	LOG_DEBUG_VERBOSE("alpha[0]: %d", alpha[0]);
+	LOG_DEBUG_VERBOSE("&alpha[0]: %p", &(alpha[0]));
+	LOG_DEBUG_VERBOSE("dest[0]: %d", dest[0]);
+	LOG_DEBUG_VERBOSE("&dest[0]: %p", &(dest[0]));
+	LOG_DEBUG_VERBOSE("size: %p", size);
+
 	for (i = 0; i < (size / 4); i++)
 	{
-		t0 = _mm_load_si128((__m128i*)&source0[i * 16]);
-		t1 = _mm_load_si128((__m128i*)&source1[i * 16]);
-		t2 = (__m128i)_mm_load_ss((float*)&alpha[i * 4]);
+		t0 = _mm_load_si128((__m128i*)&(source0[i * 16]));
+		t1 = _mm_load_si128((__m128i*)&(source1[i * 16]));
+		t2 = (__m128i)_mm_load_ss((float*)&(alpha[i * 4]));
 
 		t2 = _mm_unpacklo_epi8(t2, t2);
 		t2 = _mm_unpacklo_epi16(t2, t2);
@@ -230,7 +240,7 @@ void blend_sse2(const Uint8* alpha, const Uint32 size, const Uint8* source0,
 
 		t10 = _mm_packus_epi16(t9, t10);
 
-		_mm_stream_si128((__m128i*)&dest[i * 16], t10);
+		_mm_stream_si128((__m128i*)&(dest[i * 16]), t10);
 	}
 }
 
