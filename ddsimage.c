@@ -1,7 +1,7 @@
 /****************************************************************************
  *            ddsimage.c
  *
- * Author: 2009-2011  Daniel Jungmann <dsj@gmx.net>
+ * Author: 2011  Daniel Jungmann <el.3d.source@googlemail.com>
  * Copyright: See COPYING file that comes with this distribution
  ****************************************************************************/
 
@@ -10,6 +10,7 @@
 #include "errors.h"
 #include "image.h"
 #include "misc.h"
+#include "memory.h"
 #include <assert.h>
 
 #ifdef	NEW_TEXTURES
@@ -688,7 +689,7 @@ static void* decompress_dds(el_file_ptr file, DdsHeader *header,
 		}
 	}
 
-	dest = malloc(size);
+	dest = malloc_aligned(size, 16);
 
 	el_seek(file, get_dds_offset(header, base_level), SEEK_CUR);
 
@@ -737,7 +738,7 @@ static void* unpack_dds(el_file_ptr file, DdsHeader *header,
 	offset = get_dds_offset(header, base_level);
 	bpp = header->m_pixel_format.m_bit_count / 8;
 
-	dest = malloc(size);
+	dest = malloc_aligned(size, 16);
 
 	fast_unpack(el_get_pointer(file) + sizeof(DdsHeader) + offset + 4, size / bpp,
 		header->m_pixel_format.m_red_mask,
@@ -758,7 +759,7 @@ static void* read_dds(el_file_ptr file, DdsHeader *header,
 	size = get_dds_size(header, 0, strip_mipmaps, base_level);
 	offset = get_dds_offset(header, base_level);
 
-	dst = malloc(size);
+	dst = malloc_aligned(size, 16);
 
 	memcpy(dst, el_get_pointer(file) + sizeof(DdsHeader) + offset + 4, size);
 

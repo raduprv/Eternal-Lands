@@ -1,7 +1,7 @@
 /****************************************************************************
  *            image_loading.c
  *
- * Author: 2011  Daniel Jungmann <dsj@gmx.net>
+ * Author: 2011  Daniel Jungmann <el.3d.source@googlemail.com>
  * Copyright: See COPYING file that comes with this distribution
  ****************************************************************************/
 
@@ -13,6 +13,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include "ddsimage.h"
+#include "memory.h"
 
 #define IMAGE_EXTENSIONS_MAX 5
 static const char* image_extensions[IMAGE_EXTENSIONS_MAX] =
@@ -260,7 +261,8 @@ static Uint32 load_image_SDL(el_file_ptr file, image_t* image)
 		x_padding = 0;
 	}
 
-	image->image = (GLubyte*)malloc(image_width * image_height * 4);
+	image->image = (GLubyte*)malloc_aligned(image_width * image_height * 4,
+		16);
 	data = image->image;
 
 	idx = 0;
@@ -578,6 +580,20 @@ Uint32 get_image_information(el_file_ptr file, image_t* image)
 	{
 		return get_sdl_image_information(file, image);
 	}
+}
+
+void free_image(image_t* image)
+{
+	if (image == 0)
+	{
+		LOG_ERROR("Invalid image!");
+
+		return;
+	}
+
+	free_aligned(image->image);
+
+	image->image = 0;
 }
 
 #endif	/* NEW_TEXTURES */
