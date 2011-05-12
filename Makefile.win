@@ -41,7 +41,7 @@ COBJS=2d_objects.o 3d_objects.o \
 	io/e3d_io.o io/elc_io.o	io/map_io.o io/elpathwrapper.o io/xmlcallbacks.o \
 	io/half.o io/normal.o io/elfilewrapper.o io/unzip.o io/ioapi.o io/zip.o io/ziputil.o	\
 	keys.o knowledge.o langselwin.o lights.o list.o load_gl_extensions.o loginwin.o loading_win.o	\
-	main.o manufacture.o map.o mapwin.o	\
+	main.o manufacture.o map.o mapwin.o memory.o	\
 	md5.o mines.o minimap.o misc.o missiles.o multiplayer.o	\
 	new_actors.o new_character.o notepad.o	\
 	openingwin.o image.o \

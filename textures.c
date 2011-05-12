@@ -18,10 +18,12 @@
 #include "image_loading.h"
 #include "queue.h"
 #include "threads.h"
+#include "memory.h"
 #include <assert.h>
-#endif	/* NEW_TEXTURES */
+#else	/* NEW_TEXTURES */
 #include "io/elfilewrapper.h"
 #include "ddsimage.h"
+#endif	/* NEW_TEXTURES */
 #include "hash.h"
 
 #define TEXTURE_SIZE_X 512
@@ -1043,11 +1045,11 @@ static Uint32 load_to_coordinates_mask2(el_file_ptr source0, el_file_ptr source1
 			return 0;
 		}
 
-		tmp = malloc(msk.width * msk.height);
+		tmp = malloc_aligned(msk.width * msk.height, 16);
 
 		build_alpha_mask(msk.image, msk.width * msk.height, tmp);
 
-		free(msk.image);
+		free_aligned(msk.image);
 		memset(msk.sizes, 0, sizeof(msk.sizes));
 		memset(msk.offsets, 0, sizeof(msk.offsets));
 
@@ -1412,7 +1414,7 @@ static void load_enhanced_actor_threaded(const enhanced_actor_images_t* files,
 	image->height = height;
 	image->mipmaps = 1;
 	image->format = format;
-	image->image = malloc(size);
+	image->image = malloc_aligned(size, 16);
 	memset(image->image, 0xFF, size);
 
 	alpha = 0;
@@ -1996,7 +1998,7 @@ int load_enhanced_actor_thread(void* done)
 	Uint8* buffer;
 	Uint32 hash;
 
-	buffer = malloc(TEXTURE_SIZE_X * TEXTURE_SIZE_Y * 4);
+	buffer = malloc_aligned(TEXTURE_SIZE_X * TEXTURE_SIZE_Y * 4, 16);
 
 	while (*((Uint32*)done) == 0)
 	{
@@ -2048,7 +2050,7 @@ int load_enhanced_actor_thread(void* done)
 		CHECK_AND_UNLOCK_MUTEX(actor->mutex);
 	}
 
-	free(buffer);
+	free_aligned(buffer);
 
 	return 1;
 }
