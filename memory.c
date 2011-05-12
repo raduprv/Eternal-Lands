@@ -6,25 +6,25 @@
  ****************************************************************************/
 
 #include "memory.h"
-#ifdef	SIMD
+#ifdef	USE_SIMD
 #include "mm_malloc.h"
 #endif	/* SIMD */
 
 void* malloc_aligned(const Uint64 size, const Uint64 alignment)
 {
-#ifdef	SIMD
+#ifdef	USE_SIMD
 	return _mm_malloc(size, alignment);
-#else	/* SIMD */
+#else	/* USE_SIMD */
 	return malloc(size);
-#endif	/* SIMD */
+#endif	/* USE_SIMD */
 }
 
 void free_aligned(void* memory)
 {
-#ifdef	SIMD
+#ifdef	USE_SIMD
 	_mm_free(memory);
-#else	/* SIMD */
+#else	/* USE_SIMD */
 	free(memory);
-#endif	/* SIMD */
+#endif	/* USE_SIMD */
 }
 
