@@ -214,7 +214,7 @@ void blend_sse2(const Uint8* alpha, const Uint32 size, const Uint8* source0,
 
 	LOG_DEBUG_VERBOSE("load");
 
-	t11 = _mm_or_ps(t11, t2);
+	t11 = _mm_or_si128(t11, t2);
 
 	LOG_DEBUG_VERBOSE("or");
 
