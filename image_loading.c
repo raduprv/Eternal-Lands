@@ -597,4 +597,3 @@ void free_image(image_t* image)
 }
 
 #endif	/* NEW_TEXTURES */
-

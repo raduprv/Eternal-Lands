@@ -562,8 +562,7 @@ static Uint32 load_texture(texture_cache_t* texture_handle)
 		texture_handle->size += image.sizes[i];
 	}
 
-	free(image.image);
-	image.image = 0;
+	free_image(&image);
 
 	return 1;
 }
@@ -680,8 +679,7 @@ void reload_actor_texture_resources(actor_texture_cache_t* texture)
 
 		if (texture->image.image != 0)
 		{
-			free(texture->image.image);
-			texture->image.image = 0;
+			free_image(&texture->image);
 		}
 
 		texture->state = tst_unloaded;
@@ -706,8 +704,7 @@ void free_actor_texture_resources(actor_texture_cache_t* texture)
 
 		if (texture->image.image != 0)
 		{
-			free(texture->image.image);
-			texture->image.image = 0;
+			free_image(&texture->image);
 		}
 
 		texture->state = tst_unloaded;
@@ -1049,7 +1046,7 @@ static Uint32 load_to_coordinates_mask2(el_file_ptr source0, el_file_ptr source1
 
 		build_alpha_mask(msk.image, msk.width * msk.height, tmp);
 
-		free_aligned(msk.image);
+		free_image(&msk);
 		memset(msk.sizes, 0, sizeof(msk.sizes));
 		memset(msk.offsets, 0, sizeof(msk.offsets));
 
@@ -1746,7 +1743,7 @@ Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
 
 		CHECK_GL_ERRORS();
 
-		free(actor_texture_handles[handle].image.image);
+		free_image(&actor_texture_handles[handle].image);
 
 		actor_texture_handles[handle].image.image = 0;
 
@@ -2035,7 +2032,7 @@ int load_enhanced_actor_thread(void* done)
 				}
 				else
 				{
-					free(image.image);
+					free_image(&image);
 
 					actor->state = tst_unloaded;
 				}
@@ -2043,7 +2040,7 @@ int load_enhanced_actor_thread(void* done)
 			else
 			{
 				LOG_ERROR("Wrong actor state %d", actor->state); 
-				free(image.image);
+				free_image(&image);
 			}
 		}
 

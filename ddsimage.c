@@ -689,7 +689,11 @@ static void* decompress_dds(el_file_ptr file, DdsHeader *header,
 		}
 	}
 
+#ifdef	NEW_TEXTURES
 	dest = malloc_aligned(size, 16);
+#else	/* NEW_TEXTURES */
+	dest = malloc(size);
+#endif	/* NEW_TEXTURES */
 
 	el_seek(file, get_dds_offset(header, base_level), SEEK_CUR);
 
@@ -738,7 +742,11 @@ static void* unpack_dds(el_file_ptr file, DdsHeader *header,
 	offset = get_dds_offset(header, base_level);
 	bpp = header->m_pixel_format.m_bit_count / 8;
 
+#ifdef	NEW_TEXTURES
 	dest = malloc_aligned(size, 16);
+#else	/* NEW_TEXTURES */
+	dest = malloc(size);
+#endif	/* NEW_TEXTURES */
 
 	fast_unpack(el_get_pointer(file) + sizeof(DdsHeader) + offset + 4, size / bpp,
 		header->m_pixel_format.m_red_mask,
@@ -953,4 +961,3 @@ void* load_dds(el_file_ptr file, int *width, int *height)
 	}
 }
 #endif	/* NEW_TEXTURES */
-
