@@ -193,7 +193,7 @@ void blend_sse2(const Uint8* alpha, const Uint32 size, const Uint8* source0,
 	const Uint8* source1, Uint8* dest)
 {
 	__m128i t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10;
-	__m128i t1;
+	__m128i t11;
 	Uint32 i;
 
 	LOG_DEBUG_VERBOSE("source0[0]: %d", source0[0]);
