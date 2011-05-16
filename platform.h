@@ -75,7 +75,7 @@
  #include "elglext.h"
  #define APIENTRY 
  #define APIENTRYP *
-#elifndef BSD
+#elif !defined(BSD)
  #define GL_GLEXT_LEGACY
  #include <GL/gl.h>
  #include <GL/glu.h>
