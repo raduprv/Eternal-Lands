@@ -562,8 +562,7 @@ static Uint32 load_texture(texture_cache_t* texture_handle)
 		texture_handle->size += image.sizes[i];
 	}
 
-	free(image.image);
-	image.image = 0;
+	free_image(&image);
 
 	return 1;
 }
@@ -680,8 +679,7 @@ void reload_actor_texture_resources(actor_texture_cache_t* texture)
 
 		if (texture->image.image != 0)
 		{
-			free(texture->image.image);
-			texture->image.image = 0;
+			free_image(&texture->image);
 		}
 
 		texture->state = tst_unloaded;
@@ -706,8 +704,7 @@ void free_actor_texture_resources(actor_texture_cache_t* texture)
 
 		if (texture->image.image != 0)
 		{
-			free(texture->image.image);
-			texture->image.image = 0;
+			free_image(&texture->image);
 		}
 
 		texture->state = tst_unloaded;
@@ -872,12 +869,68 @@ static Uint32 copy_to_coordinates_mask2(const image_t* source0,
 	}
 }
 
+Uint32 load_image_data_file_size(el_file_ptr file, const Uint32 compression,
+	const Uint32 unpack, const Uint32 width, const Uint32 height,
+	image_t* image)
+{
+	Uint32 sw, sh, s, size, base_level;
+
+	if (get_image_information(file, image) == 0)
+	{
+		LOG_ERROR("Can't get image information for '%s'!",
+			el_file_name(file));
+		return 0;
+	}
+
+	s = 1;
+	base_level = 0;
+	sw = image->width / width;
+	sh = image->height / height;
+
+	size = min2u(sw, sh);
+
+	if ((sw != sh) || (popcount(size) != 1))
+	{
+		LOG_ERROR("Invalid mipmap (%d) size <%d, %d> for file '%s' "
+			"<%d, %d>.", size, width, height, el_file_name(file),
+			image->width, image->height);
+		return 0;
+	}
+
+	while (size > s)
+	{
+		base_level++;
+		s += s;
+	}
+
+	assert(s == size);
+
+	if (base_level >= image->mipmaps)
+	{
+		LOG_ERROR("Image file '%s' has %d mipmaps, but base level is"
+			" %d", el_file_name(file), image->mipmaps, base_level);
+		return 0;
+	}
+
+	LOG_DEBUG("Using base level %d for image '%s'.", base_level,
+		el_file_name(file));
+
+	if (load_image_data_file(file, compression, unpack, 1, base_level,
+		image) == 0)
+	{
+		LOG_ERROR("Can't load file '%s'.", el_file_name(file));
+		return 0;
+	}
+
+	return 1;
+}
+
 static Uint32 load_to_coordinates(el_file_ptr file, const Uint32 x,
 	const Uint32 y, const Uint32 width, const Uint32 height,
-	const Uint32 use_compressed_image, const Uint32 mipmap, image_t *dst)
+	const Uint32 use_compressed_image, const Uint32 scale, image_t *dst)
 {
 	image_t image;
-	Uint32 tw, th, tx, ty;
+	Uint32 tw, th, tx, ty, result;
 
 	memset(&image, 0, sizeof(image));
 
@@ -887,35 +940,26 @@ static Uint32 load_to_coordinates(el_file_ptr file, const Uint32 x,
 		return 0;
 	}
 
-	if (mipmap == 1)
-	{
-		tw = width / 2;
-		th = height / 2;
-		tx = x / 2;
-		ty = y / 2;
-	}
-	else
-	{
-		tw = width;
-		th = height;
-		tx = x;
-		ty = y;
-	}
+	tw = width * scale;
+	th = height * scale;
+	tx = x * scale;
+	ty = y * scale;
 
 	if (use_compressed_image == 1)
 	{
-		if (load_image_data_file(file, tct_s3tc, 0, 1, mipmap,
+		if (load_image_data_file_size(file, tct_s3tc, 0, tw, th,
 			&image) == 0)
 		{
-			LOG_ERROR("Can't load file");
+			LOG_ERROR("Can't load file '%s'.", el_file_name(file));
 			return 0;
 		}
 
 		if ((image.width != tw) || (image.height != th))
 		{
-			LOG_ERROR("File has wrong size <%d, %d> instead "
-				"of <%d, %d>.", image.width, image.height,
-				tw, th);
+			LOG_ERROR("File '%s' has wrong size <%d, %d> instead "
+				"of <%d, %d>.", el_file_name(file), 
+				image.width, image.height, tw, th);
+			free_image(&image);
 			return 0;
 		}
 
@@ -924,29 +968,35 @@ static Uint32 load_to_coordinates(el_file_ptr file, const Uint32 x,
 		{
 			LOG_ERROR("Wrong sizes for compression <%d, %d>, "
 				"offset <%d, %d>.", tw, th, tx, ty);
+			free_image(&image);
 			return 0;
 		}
 
-		return copy_to_coordinates_block(&image, tx, ty, dst);
+		result = copy_to_coordinates_block(&image, tx, ty, dst);
 	}
 	else
 	{
-		if (load_image_data_file(file, 0, 1, 1, mipmap, &image) == 0)
+		if (load_image_data_file_size(file, 0, 1, tw, th, &image) == 0)
 		{
-			LOG_ERROR("Can't load file");
+			LOG_ERROR("Can't load file '%s'.", el_file_name(file));
 			return 0;
 		}
 
 		if ((image.width != tw) || (image.height != th))
 		{
-			LOG_ERROR("File has wrong size <%d, %d> instead "
-				"of <%d, %d>.", image.width, image.height,
-				tw, th);
+			LOG_ERROR("File '%s' has wrong size <%d, %d> instead "
+				"of <%d, %d>.", el_file_name(file),
+				image.width, image.height, tw, th);
+			free_image(&image);
 			return 0;
 		}
 
-		return copy_to_coordinates(&image, tx, ty, dst);
+		result = copy_to_coordinates(&image, tx, ty, dst);
 	}
+
+	free_image(&image);
+
+	return result;
 }
 
 static void build_alpha_mask(const Uint8* source, const Uint32 size,
@@ -963,40 +1013,31 @@ static void build_alpha_mask(const Uint8* source, const Uint32 size,
 static Uint32 load_to_coordinates_mask2(el_file_ptr source0, el_file_ptr source1,
 	el_file_ptr mask, const Uint32 x, const Uint32 y, const Uint32 width,
 	const Uint32 height, const Uint32 use_compressed_image,
-	const Uint32 mipmap, image_t *dest, Uint8* buffer)
+	const Uint32 scale, image_t *dest, Uint8* buffer)
 {
 	image_t src0, src1, msk;
 	Uint8* tmp;
-	Uint32 tw, th, tx, ty;
+	Uint32 tw, th, tx, ty, result;
 
 	memset(&src0, 0, sizeof(src0));
 	memset(&src1, 0, sizeof(src1));
 	memset(&msk, 0, sizeof(msk));
 
-	if (mipmap == 1)
-	{
-		tw = width / 2;
-		th = height / 2;
-		tx = x / 2;
-		ty = y / 2;
-	}
-	else
-	{
-		tw = width;
-		th = height;
-		tx = x;
-		ty = y;
-	}
+	tw = width * scale;
+	th = height * scale;
+	tx = x * scale;
+	ty = y * scale;
 
 	if ((source1 == 0) || (mask == 0))
 	{
 		return load_to_coordinates(source0, x, y, width, height,
-			use_compressed_image, mipmap, dest);
+			use_compressed_image, scale, dest);
 	}
 
-	if (load_image_data_file(source0, 0, 1, 1, mipmap, &src0) == 0)
+	if (load_image_data_file_size(source0, 0, 1, tw, th, &src0) == 0)
 	{
-		LOG_ERROR("Can't load file");
+		LOG_ERROR("Can't load file '%s'.", el_file_name(source0));
+		free_image(&src0);
 		el_close(source1);
 		el_close(mask);
 		return 0;
@@ -1004,35 +1045,42 @@ static Uint32 load_to_coordinates_mask2(el_file_ptr source0, el_file_ptr source1
 
 	if ((src0.width != tw) || (src0.height != th))
 	{
-		LOG_ERROR("File has wrong size <%d, %d> instead of "
+		LOG_ERROR("File '%s' has wrong size <%d, %d> instead of "
 			"<%d, %d>.", src0.width, src0.height, tw, th);
 		return 0;
 	}
 
-	if (load_image_data_file(source1, 0, 1, 1, mipmap, &src1) == 0)
+	if (load_image_data_file_size(source1, 0, 1, tw, th, &src1) == 0)
 	{
-		LOG_ERROR("Can't load file");
+		LOG_ERROR("Can't load file '%s'.", el_file_name(source1));
+		free_image(&src0);
+		free_image(&src1);
 		el_close(mask);
 		return 0;
 	}
 
 	if ((src1.width != tw) || (src1.height != th))
 	{
-		LOG_ERROR("File has wrong size <%d, %d> instead of "
+		LOG_ERROR("File '%s' has wrong size <%d, %d> instead of "
 			"<%d, %d>.", src1.width, src1.height, tw, th);
 		return 0;
 	}
 
-	if (load_image_data_file(mask, 0, 0, 1, mipmap, &msk) == 0)
+	if (load_image_data_file_size(mask, 0, 0, tw, th, &msk) == 0)
 	{
-		LOG_ERROR("Can't load file");
+		LOG_ERROR("Can't load file '%s'.", el_file_name(mask));
 		return 0;
 	}
 
 	if ((msk.width != tw) || (msk.height != th))
 	{
-		LOG_ERROR("File has wrong size <%d, %d> instead of "
+		LOG_ERROR("File '%s' has wrong size <%d, %d> instead of "
 			"<%d, %d>.", msk.width, msk.height, tw, th);
+
+		free_image(&src0);
+		free_image(&src1);
+		free_image(&msk);
+
 		return 0;
 	}
 
@@ -1049,7 +1097,7 @@ static Uint32 load_to_coordinates_mask2(el_file_ptr source0, el_file_ptr source1
 
 		build_alpha_mask(msk.image, msk.width * msk.height, tmp);
 
-		free_aligned(msk.image);
+		free_image(&msk);
 		memset(msk.sizes, 0, sizeof(msk.sizes));
 		memset(msk.offsets, 0, sizeof(msk.offsets));
 
@@ -1060,15 +1108,22 @@ static Uint32 load_to_coordinates_mask2(el_file_ptr source0, el_file_ptr source1
 		msk.sizes[0] = msk.width * msk.height;
 	}
 
-	return copy_to_coordinates_mask2(&src0, &src1, &msk, tx, ty, dest,
+	result = copy_to_coordinates_mask2(&src0, &src1, &msk, tx, ty, dest,
 		buffer);
+
+	free_image(&src0);
+	free_image(&src1);
+	free_image(&msk);
+
+	return result;
 }
 
 static Uint32 open_for_coordinates_checks(const char* file_name,
 	el_file_ptr* file, const Uint32 width, const Uint32 height,
-	Uint32* mipmap, image_t* image)
+	Uint16* sizes, image_t* image)
 {
 	char buffer[128];
+	Uint32 i, mask, size, size_x, size_y;
 
 	if (check_image_name(file_name, sizeof(buffer), buffer) == 0)
 	{
@@ -1093,23 +1148,30 @@ static Uint32 open_for_coordinates_checks(const char* file_name,
 		return 0;
 	}
 
-	if ((image->width != width) || (image->height != height))
+	size_x = image->width / width;
+	size_y = image->height / height;
+	size = min2u(size_x, size_y);
+
+	if (((image->width % width) != 0) || ((image->height % height) != 0) ||
+		(size_x != size_y) || (popcount(size) != 1))
 	{
-		LOG_ERROR("File '%s' has wrong size <%d, %d> instead "
-			"of <%d, %d>.", el_file_name(*file), image->width,
-			image->height, width, height);
+		LOG_ERROR("File '%s' has wrong size <%d, %d> instead of "
+			"being 2 ^ x * <%d, %d>.", el_file_name(*file),
+			image->width, image->height, width, height);
 		el_close(*file);
 		*file = 0;
 		return 0;
 	}
 
-	if (image->mipmaps < *mipmap)
+	mask = 0;
+
+	for (i = 0; i < image->mipmaps; i++)
 	{
-		LOG_ERROR("File '%s' has not enought mipmaps, %d are "
-			"needed.", el_file_name(*file), *mipmap);
-		*mipmap = image->mipmaps;
-		return 1;
+		size /= 2;
+		mask |= 1 << size;
 	}
+
+	*sizes &= mask;
 
 	if (image->mipmaps < 2)
 	{
@@ -1120,12 +1182,12 @@ static Uint32 open_for_coordinates_checks(const char* file_name,
 }
 
 static Uint32 open_for_coordinates(const char* file_name, el_file_ptr* file,
-	const Uint32 width, const Uint32 height, Uint32* mipmap,
+	const Uint32 width, const Uint32 height, Uint16* sizes,
 	image_format_type* format)
 {
 	image_t image;
 
-	if (open_for_coordinates_checks(file_name, file, width, height, mipmap,
+	if (open_for_coordinates_checks(file_name, file, width, height, sizes,
 		&image) == 0)
 	{
 		return 0;
@@ -1160,37 +1222,37 @@ static Uint32 open_for_coordinates(const char* file_name, el_file_ptr* file,
 static Uint32 open_for_coordinates_mask2(const char* source0,
 	const char* source1, const char* mask, el_file_ptr* src0,
 	el_file_ptr* src1, el_file_ptr* msk, const Uint32 width,
-	const Uint32 height, Uint32* mipmap, image_format_type* format)
+	const Uint32 height, Uint16* sizes, image_format_type* format)
 {
 	image_t image;
 
 	if ((source1 == 0) || (mask == 0))
 	{
 		return open_for_coordinates(source0, src0, width, height,
-			mipmap, format);
+			sizes, format);
 	}
 
 	if ((source1[0] == 0) || (mask[0] == 0))
 	{
 		return open_for_coordinates(source0, src0, width, height,
-			mipmap, format);
+			sizes, format);
 	}
 
-	if (open_for_coordinates_checks(source0, src0, width, height, mipmap,
+	if (open_for_coordinates_checks(source0, src0, width, height, sizes,
 		&image) == 0)
 	{
 		LOG_ERROR("Can't open file '%s'.", source0);
 		return 0;
 	}
 
-	if (open_for_coordinates_checks(source1, src1, width, height, mipmap,
+	if (open_for_coordinates_checks(source1, src1, width, height, sizes,
 		&image) == 0)
 	{
 		LOG_ERROR("Can't open file '%s'.", source1);
 		return 0;
 	}
 
-	if (open_for_coordinates_checks(mask, msk, width, height, mipmap,
+	if (open_for_coordinates_checks(mask, msk, width, height, sizes,
 		&image) == 0)
 	{
 		LOG_ERROR("Can't open file '%s'.", mask);
@@ -1249,7 +1311,8 @@ static void load_enhanced_actor_threaded(const enhanced_actor_images_t* files,
 	el_file_ptr hands_tex_save;
 	image_format_type format;
 	Uint32 alpha, use_compressed_image, size;
-	Uint32 width, height, mipmap;
+	Uint32 width, height, i, scale;
+	Uint16 sizes;
 
 	pants_tex = 0;
 	pants_mask = 0;
@@ -1288,99 +1351,106 @@ static void load_enhanced_actor_threaded(const enhanced_actor_images_t* files,
 
 	if (poor_man != 0)
 	{
-		mipmap = 2;
+		sizes = 0x0003;
 		format = ift_rgba8;
 	}
 	else
 	{
-		mipmap = 1;
+		sizes = 0x000F;
 	}
 
 	if (files->pants_tex[0])
 	{
 		open_for_coordinates_mask2(files->pants_tex,
 			files->legs_base, files->pants_mask, &pants_tex,
-			&legs_base, &pants_mask, 160, 160, &mipmap,
+			&legs_base, &pants_mask, 40, 40, &sizes,
 			&format);
 	}
 	if (files->boots_tex[0])
 	{
 		open_for_coordinates_mask2(files->boots_tex,
 			files->boots_base, files->boots_mask, &boots_tex,
-			&boots_base, &boots_mask, 156, 160, &mipmap,
+			&boots_base, &boots_mask, 39, 40, &sizes,
 			&format);
 	}
 	if (files->torso_tex[0])
 	{
 		open_for_coordinates_mask2(files->torso_tex,
 			files->body_base, files->torso_mask, &torso_tex,
-			&body_base, &torso_mask, 196, 216, &mipmap,
+			&body_base, &torso_mask, 49, 54, &sizes,
 			&format);
 	}
 	if (files->arms_tex[0])
 	{
 		open_for_coordinates_mask2(files->arms_tex,
 			files->arms_base, files->arms_mask, &arms_tex,
-			&arms_base, &arms_mask, 160, 160, &mipmap, 
+			&arms_base, &arms_mask, 40, 40, &sizes, 
 			&format);
 	}
 	if (files->hands_tex[0])
 	{
 		open_for_coordinates_mask2(files->hands_tex,
 			files->hands_tex_save, files->hands_mask, &hands_tex,
-			&hands_tex_save, &hands_mask, 64, 64, &mipmap,
+			&hands_tex_save, &hands_mask, 16, 16, &sizes,
 			&format);
 	}
 	if (files->head_tex[0])
 	{
 		open_for_coordinates_mask2(files->head_tex,
 			files->head_base, files->head_mask, &head_tex,
-			&head_base, &head_mask, 128, 128, &mipmap, 
+			&head_base, &head_mask, 32, 32, &sizes, 
 			&format);
 	}
 	if (files->hair_tex[0])
 	{
 		open_for_coordinates(files->hair_tex, &hair_tex,
-			136, 192, &mipmap, &format);
+			34, 48, &sizes, &format);
 	}
 	if (files->weapon_tex[0])
 	{
 		open_for_coordinates(files->weapon_tex, &weapon_tex,
-			156, 144, &mipmap, &format);
+			39, 36, &sizes, &format);
 	}
 	if (files->shield_tex[0])
 	{
 		open_for_coordinates(files->shield_tex, &shield_tex,
-			156, 144, &mipmap, &format);
+			39, 36, &sizes, &format);
 	}
 	if (files->helmet_tex[0])
 	{
 		open_for_coordinates(files->helmet_tex, &helmet_tex,
-			156, 56, &mipmap, &format);
+			39, 14, &sizes, &format);
 	}
 	if (files->neck_tex[0])
 	{
 		open_for_coordinates(files->neck_tex, &neck_tex,
-			40, 104, &mipmap, &format);
+			10, 26, &sizes, &format);
 	}
 	if (files->cape_tex[0])
 	{
 		open_for_coordinates(files->cape_tex, &cape_tex,
-			248, 152, &mipmap, &format);
+			62, 38, &sizes, &format);
 	}
 
-	if (mipmap == 2)
+	scale = 0;
+
+	for (i = 15; i >= 0; i--)
 	{
-		width = TEXTURE_SIZE_X / 2;
-		height = TEXTURE_SIZE_Y / 2;
-		mipmap = 1;
+		scale = 1 << i;
+
+		if ((sizes & scale) == scale)
+		{
+			break;
+		}
 	}
-	else
+
+	if (scale < 4)
 	{
-		width = TEXTURE_SIZE_X;
-		height = TEXTURE_SIZE_Y;
-		mipmap = 0;
+		format = ift_rgba8;
 	}
+
+	width = 128 * scale;
+	height = 128 * scale;
 
 	switch (format)
 	{
@@ -1422,68 +1492,68 @@ static void load_enhanced_actor_threaded(const enhanced_actor_images_t* files,
 	if (pants_tex != 0)
 	{
 		alpha += load_to_coordinates_mask2(pants_tex, legs_base,
-			pants_mask, 156, 352, 160, 160, use_compressed_image,
-			mipmap, image, buffer);
+			pants_mask, 39, 88, 40, 40, use_compressed_image,
+			scale, image, buffer);
 	}
 	if (boots_tex != 0)
 	{
 		alpha += load_to_coordinates_mask2(boots_tex, boots_base,
-			boots_mask, 0, 352, 156, 160, use_compressed_image,
-			mipmap, image, buffer);
+			boots_mask, 0, 88, 39, 40, use_compressed_image,
+			scale, image, buffer);
 	}
 	if (torso_tex != 0)
 	{
 		alpha += load_to_coordinates_mask2(torso_tex, body_base,
-			torso_mask, 316, 296, 196, 216, use_compressed_image,
-			mipmap, image, buffer);
+			torso_mask, 79, 74, 49, 54, use_compressed_image,
+			scale, image, buffer);
 	}
 	if (arms_tex != 0)
 	{
 		alpha += load_to_coordinates_mask2(arms_tex, arms_base,
-			arms_mask, 0, 192, 160, 160, use_compressed_image,
-			mipmap, image, buffer);
+			arms_mask, 0, 48, 40, 40, use_compressed_image,
+			scale, image, buffer);
 	}
 	if (hands_tex != 0)
 	{
 		alpha += load_to_coordinates_mask2(hands_tex, hands_tex_save,
-			hands_mask, 136, 128, 64, 64, use_compressed_image,
-			mipmap, image, buffer);
+			hands_mask, 34, 32, 16, 16, use_compressed_image,
+			scale, image, buffer);
 	}
 	if (head_tex != 0)
 	{
 		alpha += load_to_coordinates_mask2(head_tex, head_base,
-			head_mask, 136, 0, 128, 128, use_compressed_image,
-			mipmap, image, buffer);
+			head_mask, 34, 0, 32, 32, use_compressed_image,
+			scale, image, buffer);
 	}
 	if (hair_tex != 0)
 	{
-		alpha += load_to_coordinates(hair_tex, 0, 0, 136, 192,
-			use_compressed_image, mipmap, image);
+		alpha += load_to_coordinates(hair_tex, 0, 0, 34, 48,
+			use_compressed_image, scale, image);
 	}
 	if (weapon_tex != 0)
 	{
-		alpha += load_to_coordinates(weapon_tex, 356, 152, 156, 144,
-			use_compressed_image, mipmap, image);
+		alpha += load_to_coordinates(weapon_tex, 89, 38, 39, 36,
+			use_compressed_image, scale, image);
 	}
 	if (shield_tex != 0)
 	{
-		alpha += load_to_coordinates(shield_tex, 200, 152, 156, 144,
-			use_compressed_image, mipmap, image);
+		alpha += load_to_coordinates(shield_tex, 50, 38, 39, 36,
+			use_compressed_image, scale, image);
 	}
 	if (helmet_tex != 0)
 	{
-		alpha += load_to_coordinates(helmet_tex, 160, 296, 156, 56,
-			use_compressed_image, mipmap, image);
+		alpha += load_to_coordinates(helmet_tex, 40, 74, 39, 14,
+			use_compressed_image, scale, image);
 	}
 	if (neck_tex != 0)
 	{
-		alpha += load_to_coordinates(neck_tex, 160, 192, 40, 104,
-			use_compressed_image, mipmap, image);
+		alpha += load_to_coordinates(neck_tex, 40, 48, 10, 26,
+			use_compressed_image, scale, image);
 	}
 	if (cape_tex != 0)
 	{
-		alpha += load_to_coordinates(cape_tex, 264, 0, 248, 152,
-			use_compressed_image, mipmap, image);
+		alpha += load_to_coordinates(cape_tex, 66, 0, 62, 38,
+			use_compressed_image, scale, image);
 	}
 
 	if (alpha > 0)
@@ -1746,7 +1816,7 @@ Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
 
 		CHECK_GL_ERRORS();
 
-		free(actor_texture_handles[handle].image.image);
+		free_image(&actor_texture_handles[handle].image);
 
 		actor_texture_handles[handle].image.image = 0;
 
@@ -2035,7 +2105,7 @@ int load_enhanced_actor_thread(void* done)
 				}
 				else
 				{
-					free(image.image);
+					free_image(&image);
 
 					actor->state = tst_unloaded;
 				}
@@ -2043,7 +2113,7 @@ int load_enhanced_actor_thread(void* done)
 			else
 			{
 				LOG_ERROR("Wrong actor state %d", actor->state); 
-				free(image.image);
+				free_image(&image);
 			}
 		}
 
