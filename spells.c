@@ -69,6 +69,7 @@ typedef struct {
 	int lvls_req[NUM_WATCH_STAT];//minimum lvls requirement
 	int reagents_id[4]; //reagents needed
 	int reagents_qt[4]; //their quantities
+	Uint32 duration;
 	int uncastable; //0 if castable, otherwise if something missing
 } spell_info;
 
@@ -93,18 +94,16 @@ typedef struct {
 int num_groups=0;
 group_def groups_list[GROUPS_NO];
 
-#ifdef NEW_SOUND
 typedef struct
 {
 	Sint8 spell;
+	Uint32 cast_time;
+	Uint32 duration;
+#ifdef NEW_SOUND
 	unsigned int sound;
+#endif
 } spell_def;
 spell_def active_spells[NUM_ACTIVE_SPELLS];
-#else
-Sint8 active_spells[NUM_ACTIVE_SPELLS];
-#endif
-
-
 
 //windows related
 int sigil_win=-1; //this is referred externally so we will change it when we switch windows
@@ -243,141 +242,246 @@ int init_spells ()
 
 
 	spell_text[0]=spell_help[0]=0;
-	i=0;
+	i = 0;
 	//parse xml
-	doc = xmlReadFile (fname, NULL, 0);
-	if (doc == NULL) {
+	doc = xmlReadFile(fname, NULL, 0);
+	if (doc == 0) {
 		LOG_ERROR("Unable to read spells definition file %s", fname);
-		ok=0;
+		ok = 0;
 	}
 
 	root = xmlDocGetRootElement (doc);
-	if (root == NULL) {
+	if (root == 0)
+	{
 		LOG_ERROR("Unable to parse spells definition file %s", fname);
 		ok = 0;
-	} else if (xmlStrcasecmp (root->name, (xmlChar*)"Magic") != 0) {
+	}
+	else if (xmlStrcasecmp (root->name, (xmlChar*)"Magic") != 0)
+	{
 		LOG_ERROR("Unknown key \"%s\" (\"Magic\" expected).", root->name);
 		ok = 0;
-	} else {
+	}
+	else
+	{
 		xmlNode *node;
 		xmlNode *data;
 		char tmp[200];
-		i=0;
+		char name[200];
+		i = 0;
 		//parse spells
-		node=get_XML_node(root->children,"Spell_list");
-		node=get_XML_node(node->children,"spell");
+		node = get_XML_node(root->children, "Spell_list");
+		node = get_XML_node(node->children, "spell");
 			
-		while(node){
+		while (node)
+		{
 			int j;
-			data=get_XML_node(node->children,"name");			
-			get_string_value(tmp, sizeof(tmp), data);				
-			safe_strncpy(spells_list[i].name, tmp, sizeof(spells_list[i].name));
 
-			data=get_XML_node(node->children,"desc");			
-			get_string_value(tmp, sizeof(tmp), data);				
-			safe_strncpy(spells_list[i].desc, tmp, sizeof(spells_list[i].desc));
+			memset(name, 0, sizeof(name));
 
-			data=get_XML_node(node->children,"id");			
+			data=get_XML_node(node->children,"name");		
+
+			if (data == 0)
+			{
+				LOG_ERROR("No name for %d spell", i);
+			}
+
+			get_string_value(name, sizeof(name), data);	
+			safe_strncpy(spells_list[i].name, name,
+				sizeof(spells_list[i].name));
+
+			data=get_XML_node(node->children, "desc");			
+
+			if (data == 0)
+			{
+				LOG_ERROR("No desc for spell '%s'[%d]",
+					name, i);
+			}
+
+			get_string_value(tmp, sizeof(tmp), data);				
+			safe_strncpy(spells_list[i].desc, tmp,
+				sizeof(spells_list[i].desc));
+
+			data=get_XML_node(node->children, "id");			
+
+			if (data == 0)
+			{
+				LOG_ERROR("No id for spell '%s'[%d]",
+					name, i);
+			}
+
 			spells_list[i].id=get_int_value(data);				
 
 			data=get_XML_node(node->children,"icon");			
-			spells_list[i].image=get_int_value(data);				
 
-			data=get_XML_node(node->children,"mana");			
-			spells_list[i].mana=get_int_value(data);				
+			if (data == 0)
+			{
+				LOG_ERROR("No icon for spell '%s'[%d]",
+					name, i);
+			}
+
+			spells_list[i].image = get_int_value(data);				
+
+			data=get_XML_node(node->children, "mana");			
+
+			if (data == 0)
+			{
+				LOG_ERROR("No mana for spell '%s'[%d]",
+					name, i);
+			}
+
+			spells_list[i].mana = get_int_value(data);				
 
 			data=get_XML_node(node->children,"lvl");			
-			j=0;
-			while(data){
-				char *skill= get_string_property(data,"skill");			
-				spells_list[i].lvls_req[j]=get_int_value(data);
-				spells_list[i].lvls[j]=get_skill_address(skill);
-				j++;
-				data=get_XML_node(data->next,"lvl");				
+
+			if (data == 0)
+			{
+				LOG_ERROR("No lvl for spell '%s'[%d]",
+					name, i);
 			}
 
-			data=get_XML_node(node->children,"group");			
-			while(data){
-				int g=get_int_value(data);				
-				groups_list[g].spells_id[groups_list[g].spells]=i;
+			j = 0;
+			while (data)
+			{
+				char *skill = get_string_property(data,"skill");			
+				spells_list[i].lvls_req[j] = get_int_value(data);
+				spells_list[i].lvls[j] = get_skill_address(skill);
+				j++;
+				data = get_XML_node(data->next,"lvl");				
+			}
+
+			data = get_XML_node(node->children,"group");			
+
+			if (data == 0)
+			{
+				LOG_ERROR("No group for spell '%s'[%d]",
+					name, i);
+			}
+
+			while (data)
+			{
+				int g;
+
+				g = get_int_value(data);				
+				groups_list[g].spells_id[groups_list[g].spells] = i;
 				groups_list[g].spells++;
-				data=get_XML_node(data->next,"group");				
+				data = get_XML_node(data->next, "group");				
 			}			
 
-			data=get_XML_node(node->children,"sigil");
-			j=0;
-			while(data){
-				spells_list[i].sigils[j]=get_int_value(data);
-				j++;
-				data=get_XML_node(data->next,"sigil");				
+			data = get_XML_node(node->children, "sigil");
+
+			if (data == 0)
+			{
+				LOG_ERROR("No sigil for spell '%s'[%d]",
+					name, i);
 			}
 
-			data=get_XML_node(node->children,"reagent");			
-			j=0;
-			while(data){
-				spells_list[i].reagents_id[j]=get_int_property(data,"id");
-				spells_list[i].reagents_qt[j]=get_int_value(data);
+			j = 0;
+			while (data)
+			{
+				spells_list[i].sigils[j] = get_int_value(data);
 				j++;
-				data=get_XML_node(data->next,"reagent");				
+				data = get_XML_node(data->next, "sigil");				
 			}
 
-			node=get_XML_node(node->next,"spell");			
+			data=get_XML_node(node->children, "reagent");			
+
+			if (data == 0)
+			{
+				LOG_ERROR("No reagent for spell '%s'[%d]",
+					name, i);
+			}
+
+			j = 0;
+			while (data)
+			{
+				spells_list[i].reagents_id[j] =
+					get_int_property(data, "id");
+				spells_list[i].reagents_qt[j] =
+					get_int_value(data);
+				j++;
+				data = get_XML_node(data->next, "reagent");				
+			}
+
+			data = get_XML_node(node->children, "duration");
+
+			if (data == 0)
+			{
+				LOG_ERROR("No duration for spell '%s'[%d]",
+					name, i);
+			}
+
+			spells_list[i].duration = get_int_value(data);
+
+			node = get_XML_node(node->next, "spell");			
 			i++;
 		}
-		num_spells=i;
+		num_spells = i;
 
 		//parse sigils
-		node=get_XML_node(root->children,"Sigil_list");
-		node=get_XML_node(node->children,"sigil");
-		while(node){
-			int k = get_int_property(node,"id");
-			sigils_list[k].sigil_img=k;
-			get_string_value(sigils_list[k].description, sizeof(sigils_list[k].description), node);				
-			safe_strncpy((char*)sigils_list[k].name, get_string_property(node,"name"), sizeof(sigils_list[k].name));
-			sigils_list[k].have_sigil=1;
-			node=get_XML_node(node->next,"sigil");
+		node = get_XML_node(root->children, "Sigil_list");
+		node = get_XML_node(node->children, "sigil");
+		while (node)
+		{
+			int k;
+			k = get_int_property(node, "id");
+			sigils_list[k].sigil_img = k;
+			get_string_value(sigils_list[k].description,
+				sizeof(sigils_list[k].description), node);				
+			safe_strncpy((char*)sigils_list[k].name,
+				get_string_property(node, "name"),
+				sizeof(sigils_list[k].name));
+			sigils_list[k].have_sigil = 1;
+			node = get_XML_node(node->next, "sigil");
 		}
 
 		//parse groups
-		num_groups=0;		
-		node=get_XML_node(root->children,"Groups");
-		node=get_XML_node(node->children,"group");
-		while(node){
-			int k = get_int_property(node,"id");
+		num_groups = 0;	
+		node = get_XML_node(root->children,"Groups");
+		node = get_XML_node(node->children,"group");
+		while (node)
+		{
+			int k;
+			k = get_int_property(node, "id");
 			get_string_value(tmp, sizeof(tmp), node);
-			safe_strncpy((char*)groups_list[k].desc, tmp, sizeof(groups_list[k].desc));
+			safe_strncpy((char*)groups_list[k].desc, tmp,
+				sizeof(groups_list[k].desc));
 			num_groups++;
-			node=get_XML_node(node->next,"group");
-		}		
+			node = get_XML_node(node->next, "group");
+		}
 	}
 
 	xmlFreeDoc (doc);
 
-
 	//init arrays
-	for (i = 0; i < 6; i++) on_cast[i] = -1;
+	for (i = 0; i < 6; i++)
+	{
+		on_cast[i] = -1;
+	}
 	for (i = 0; i < NUM_ACTIVE_SPELLS; i++)
 	{
-#ifdef NEW_SOUND
 		active_spells[i].spell = -1;
+		active_spells[i].cast_time = 0;
+		active_spells[i].duration = 0;
+#ifdef NEW_SOUND
 		if (active_spells[i].sound > 0)
+		{
 			stop_sound(active_spells[i].sound);
-#else
-		active_spells[i] = -1;
+		}
 #endif // NEW_SOUND
 	}
 
-	if(!ok) //xml failed, init sigils manually
+	if (!ok) //xml failed, init sigils manually
+	{
 		init_sigils();
+	}
 
-	init_ok=ok;
+	init_ok = ok;
+
 	return ok;
 }
 
-
-
-void check_castability(){
-	
+void check_castability()
+{
 	int i,j,k,l;
 
 	for(i=0;i<num_spells;i++){
@@ -424,35 +528,59 @@ void check_castability(){
 //ACTIVE SPELLS
 void get_active_spell(int pos, int spell)
 {
-#ifdef NEW_SOUND
+	Uint32 i;
+	int cur_spell;
+
 	active_spells[pos].spell = spell;
+	active_spells[pos].cast_time = SDL_GetTicks();
+#ifdef NEW_SOUND
 	active_spells[pos].sound = add_spell_sound(spell);
-#else
-	active_spells[pos] = spell;
 #endif // NEW_SOUND
+
+	cur_spell = spell + 32;
+
+	for (i = 0; i < SPELLS_NO; i++)
+	{
+		if (cur_spell == spells_list[i].image)
+		{
+			active_spells[pos].duration = spells_list[i].duration;
+		}
+	}
 }
 
 void remove_active_spell(int pos)
 {
-#ifdef NEW_SOUND
 	active_spells[pos].spell = -1;
+	active_spells[pos].cast_time = 0;
+	active_spells[pos].duration = 0;
+#ifdef NEW_SOUND
 	if (active_spells[pos].sound > 0)
 		stop_sound(active_spells[pos].sound);
-#else
-	active_spells[pos] = -1;
 #endif // NEW_SOUND
 }
 
 void get_active_spell_list(const Uint8 *my_spell_list)
 {
-	int i;
+	Uint32 i, j;
+	int cur_spell;
+
 	for (i = 0; i < NUM_ACTIVE_SPELLS; i++)
 	{
-#ifdef NEW_SOUND
 		active_spells[i].spell = my_spell_list[i];
+		active_spells[i].cast_time = 0xFFFFFFFF;
+
+		cur_spell = my_spell_list[i] + 32;
+
+		for (j = 0; j < SPELLS_NO; j++)
+		{
+			if (cur_spell == spells_list[j].image)
+			{
+				active_spells[i].duration =
+					spells_list[j].duration;
+			}
+		}
+#ifdef NEW_SOUND
 		active_spells[i].sound = add_spell_sound(active_spells[i].spell);
-#else
-		active_spells[i] = my_spell_list[i];
 #endif // NEW_SOUND
 	}
 }
@@ -460,59 +588,75 @@ void get_active_spell_list(const Uint8 *my_spell_list)
 #ifdef NEW_SOUND
 void restart_active_spell_sounds(void)
 {
-	int i;
+	Uint32 i;
+
 	for (i = 0; i < NUM_ACTIVE_SPELLS; i++)
 	{
 		if (active_spells[i].sound > 0)
+		{
 			stop_sound(active_spells[i].sound);
+		}
 		if (active_spells[i].spell != -1)
+		{
 			active_spells[i].sound = add_spell_sound(active_spells[i].spell);
+		}
 	}
 }
 #endif // NEW_SOUND
 
 int we_are_poisoned()
 {
-	int i;
+	Uint32 i;
+
 	for (i = 0; i < NUM_ACTIVE_SPELLS; i++)
-#ifdef NEW_SOUND
+	{
 		if (active_spells[i].spell == 2)
-#else
-		if (active_spells[i] == 2)
-#endif // NEW_SOUND
+		{
 			return 1;
+		}
+	}
 	return 0;
+}
+
+void time_out(const float x_start, const float y_start, const float gridsize,
+	const float progress)
+{
+	glDisable(GL_TEXTURE_2D);
+
+	glColor3f(0.0f, 0.7f, 0.0f);
+
+	glBegin(GL_QUADS);
+		glVertex2f(x_start, y_start + gridsize * progress);
+		glVertex2f(x_start + gridsize, y_start + gridsize * progress);
+		glVertex2f(x_start + gridsize, y_start + gridsize);
+		glVertex2f(x_start, y_start + gridsize);
+	glEnd();
+	glEnable(GL_TEXTURE_2D);
+	glColor3f(1.0f, 1.0f, 1.0f);
 }
 
 void display_spells_we_have()
 {
-	int i;
+	Uint32 i;
+	float scale, duration, cur_time;
 
 #ifdef OPENGL_TRACE
 	CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
-	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
-	glColor3f(1.0f,1.0f,1.0f);
+	cur_time = SDL_GetTicks();
+
 	//ok, now let's draw the objects...
 	for (i = 0; i < NUM_ACTIVE_SPELLS; i++)
 	{
-#ifdef NEW_SOUND
 		if (active_spells[i].spell != -1)
-#else
-		if (active_spells[i] != -1)
-#endif // NEW_SOUND
 		{
 			int cur_spell,cur_pos;
 			int x_start,y_start;
 
 			//get the UV coordinates.
-#ifdef NEW_SOUND
 			cur_spell = active_spells[i].spell + 32;	//the first 32 icons are the sigils
-#else
-			cur_spell = active_spells[i] + 32;	//the first 32 icons are the sigils
-#endif // NEW_SOUND
 
 			//get the x and y
 			cur_pos=i;
@@ -520,10 +664,24 @@ void display_spells_we_have()
 			x_start=33*cur_pos;
 			y_start=window_height-hud_y-64;
 
+			duration = active_spells[i].duration;
+
+			if (duration > 0.0)
+			{
+				scale = (cur_time - active_spells[i].cast_time)
+					/ duration;
+
+				if ((scale >= 0.0) && (scale <= 1.0))
+				{
+					time_out(x_start, y_start, 32, scale);
+				}
+			}
+
+			glEnable(GL_BLEND);
 			draw_spell_icon(cur_spell,x_start,y_start,32,0,0);
+			glDisable(GL_BLEND);
 		}
 	}
-	glDisable(GL_BLEND);
 #ifdef OPENGL_TRACE
 	CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -1205,6 +1363,20 @@ void set_spell_name (int id, const char *data, int len)
 
 }
 
+static void spell_cast(const Sint8 spell)
+{
+	Uint32 i;
+
+	for (i = 0; i < NUM_ACTIVE_SPELLS; i++)
+	{
+		if (active_spells[i].spell == spell)
+		{
+			active_spells[i].cast_time = SDL_GetTicks();
+			return;
+		}
+	}
+}
+
 void process_network_spell (const char *data, int len)
 {
 	last_spell_name[0] = '\0';
@@ -1231,6 +1403,7 @@ void process_network_spell (const char *data, int len)
 		case S_SUCCES://spell_result==1
 			spell_result=1;
 			action_mode=ACTION_WALK;
+			spell_cast(data[2] - 32);
 			break;
 		case S_FAILED:
 			spell_result=0;
