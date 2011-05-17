@@ -246,14 +246,14 @@ int get_motion_vector(int move_cmd, int *dx, int *dy)
 }
 
 #ifdef	ANIMATION_SCALING
-static void update_actor_animation_speed(actor* a, const float time_diff)
+static Uint32 update_actor_animation_speed(actor* a, const float time_diff)
 {
 	float scale;
-	Uint32 i, animations;
+	Uint32 i, animations, seconds;
 
 	if (a == 0)
 	{
-		return;
+		return 0;
 	}
 
 	animations = 0;
@@ -266,6 +266,10 @@ static void update_actor_animation_speed(actor* a, const float time_diff)
 		}
 	}
 
+	scale = a->animation_scale;
+
+	seconds = time_diff / 2000.0f;
+
 	if (animations > 2)
 	{
 		animations -= 2;
@@ -275,21 +279,21 @@ static void update_actor_animation_speed(actor* a, const float time_diff)
 		animations = 1;
 	}
 
-	scale = a->animation_scale;
-
 	if (scale > animations)
 	{
-		scale = max2f(scale - time_diff, animations);
+		scale = max2f(scale - seconds, animations);
 	}
 	else
 	{
 		if (scale < animations)
 		{
-			scale = min2f(scale + time_diff, animations);
+			scale = min2f(scale + seconds, animations);
 		}
 	}
 
 	a->animation_scale = scale;
+
+	return scale * time_diff;
 }
 #endif	/* ANIMATION_SCALING */
 
@@ -312,7 +316,7 @@ void animate_actors()
 	for(i=0; i<max_actors; i++) {
 		if(actors_list[i]) {
 #ifdef	ANIMATION_SCALING
-			update_actor_animation_speed(actors_list[i], actors_time_diff / 2000.0f);
+			time_diff = update_actor_animation_speed(actors_list[i], actors_time_diff);
 			time_diff = actors_list[i]->animation_scale * actors_time_diff;
 #endif	/* ANIMATION_SCALING */
 			if(actors_list[i]->moving) {
