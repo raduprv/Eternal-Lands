@@ -37,6 +37,11 @@ namespace eternal_lands
 	void log_message(const LogLevelType log_level,
 		const std::string &message, const std::string &file,
 		const Uint32 line);
+	void init_thread_log(const std::string &name);
+	void enter_debug_mark(const std::string &name,
+		const std::string &file, const Uint32 line);
+	void leave_debug_mark(const std::string &name,
+		const std::string &file, const Uint32 line);
 
 }
 

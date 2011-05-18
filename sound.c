@@ -1394,7 +1394,9 @@ int update_streams(void * dummy)
 	ALfloat gain = 0.0;
 
    	sleep = SLEEP_TIME;
-	
+
+	init_thread_log("update_streams");
+
 #ifdef _EXTRA_SOUND_DEBUG
 	printf("Starting streams thread\n");
 #endif //_EXTRA_SOUND_DEBUG

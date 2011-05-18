@@ -2168,6 +2168,8 @@ int get_message_from_server(void *thread_args)
 	void *queue = ((void **) thread_args)[0];
 	int *done = ((void **) thread_args)[1];
 
+	init_thread_log("server_message");
+
 	while(!*done)
 	{
 		// Sleep while disconnected

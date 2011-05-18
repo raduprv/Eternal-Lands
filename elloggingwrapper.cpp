@@ -182,3 +182,29 @@ extern "C" void log_debug_verbose(const char* file, const Uint32 line,
 	el::log_message(el::llt_debug_verbose, err_msg, file, line);
 }
 
+extern "C" void enter_debug_mark(const char* file, const Uint32 line,
+	const char* name)
+{
+	assert(name != 0);
+	assert(strlen(name) > 0);
+
+	el::enter_debug_mark(name, file, line);
+}
+
+extern "C" void leave_debug_mark(const char* file, const Uint32 line,
+	const char* name)
+{
+	assert(name != 0);
+	assert(strlen(name) > 0);
+
+	el::leave_debug_mark(name, file, line);
+}
+
+extern "C" void init_thread_log(const char* name)
+{
+	assert(name != 0);
+	assert(strlen(name) > 0);
+
+	el::init_thread_log(name);
+}
+

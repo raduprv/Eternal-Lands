@@ -251,7 +251,6 @@ void update_loading_win (char *text, float progress_increase)
 
 int destroy_loading_win(void)
 {
-	update_loading_win("done loading", 0);
 #ifdef	NEW_TEXTURES
 	if (use_snapshot != 0)
 	{

@@ -1917,7 +1917,7 @@ int action_spell_keys(Uint32 key)
 	size_t i;
 	Uint32 keys[] = {K_SPELL1, K_SPELL2, K_SPELL3, K_SPELL4, K_SPELL5, K_SPELL6,
 					 K_SPELL7, K_SPELL8, K_SPELL9, K_SPELL10, K_SPELL11, K_SPELL12 };
-	for (i=0; i<sizeof(keys)/sizeof(Uint32); i++)
+	for (i=0; (i<sizeof(keys)/sizeof(Uint32)) & (i < num_quickbar_slots); i++)
 		if(key == keys[i])
 		{
 			if(mqb_data[i+1] && mqb_data[i+1]->spell_str[0])

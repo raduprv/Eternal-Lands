@@ -90,7 +90,7 @@ static __inline__ void log_shader_compile_log(GLhandleARB object, const char* sh
 		CHECK_GL_ERRORS();
 		if (error == 1)
 		{
-			LOG_INFO("Compiling shader '%s' successful: %s", shader_file_name, info_log);
+			LOG_DEBUG("Compiling shader '%s' successful: %s", shader_file_name, info_log);
 		}
 		else
 		{
@@ -102,7 +102,7 @@ static __inline__ void log_shader_compile_log(GLhandleARB object, const char* sh
 	{
 		if (error == 1)
 		{
-			LOG_INFO("Compiling shader '%s' successful", shader_file_name);
+			LOG_DEBUG("Compiling shader '%s' successful", shader_file_name);
 		}
 		else
 		{
@@ -126,7 +126,7 @@ static __inline__ void log_shader_linking_log(GLhandleARB object, GLint error)
 		CHECK_GL_ERRORS();
 		if (error == 1)
 		{
-			LOG_INFO("Linking shaders successful: %s", info_log);
+			LOG_DEBUG("Linking shaders successful: %s", info_log);
 		}
 		else
 		{
@@ -138,7 +138,7 @@ static __inline__ void log_shader_linking_log(GLhandleARB object, GLint error)
 	{
 		if (error == 1)
 		{
-			LOG_INFO("Linking shaders successful");
+			LOG_DEBUG("Linking shaders successful");
 		}
 		else
 		{
@@ -283,7 +283,7 @@ static __inline__ int get_shader_index(shader_type type, shader_shadow_type shad
 	int ret;
 
 	ret = type * 4;
-    ret += fog_type * 2;
+	ret += fog_type * 2;
 	ret += shadow_type;
 	ret += max2i(min2i(quality, 1), 0) * 8;
 
@@ -319,7 +319,7 @@ static __inline__ GLuint build_filter_lut(const Uint32 size)
 		x += 1.0f / (size - 1);
 	}
 
-	LOG_INFO("Filter lookup texture\n");
+	LOG_DEBUG("Filter lookup texture\n");
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_1D, texture);
 
@@ -341,6 +341,8 @@ void init_shaders()
 
 	if (is_shader_supported())
 	{
+		ENTER_DEBUG_MARK("init shaders");
+
 		noise_tex = build_3d_noise_texture(64, 3, 2);
 		filter_lut = build_filter_lut(128);
 
@@ -351,6 +353,8 @@ void init_shaders()
 				shader_data_list[i].fragment_shader_file_name,
 				shader_data_list[i].fragment_shader_defines);
 		}
+
+		LEAVE_DEBUG_MARK("init shaders");
 	}
 }
 

@@ -174,7 +174,7 @@ static __inline__ GLubyte* make_3d_noise_texture(int size, int frequency, int di
 
 	for (f = 0; f < numOctaves; f++, frequency *= 2, amp *= 0.5)
 	{
-		LOG_INFO("Generating 3D noise: octave %d/%d...\n", f + 1, numOctaves);
+		LOG_DEBUG("Generating 3D noise: octave %d/%d...", f + 1, numOctaves);
 		set_noise_frequency(frequency);
 		ni[0] = ni[1] = ni[2] = 0;
 
@@ -198,7 +198,7 @@ static __inline__ GLubyte* make_3d_noise_texture(int size, int frequency, int di
 		}
 	}
 
-	LOG_INFO("Compressing noise\n");
+	LOG_DEBUG("Compressing noise");
 	for (i = 0; i < size * size * size * dimensions; i++)
 	{
 		data[i] = tmp[i];
@@ -214,6 +214,8 @@ GLuint build_3d_noise_texture(int size, int frequency, int dimensions)
 	GLubyte* data;
 	GLuint noise_texture;
 	GLenum texture_format, input_format;
+
+	ENTER_DEBUG_MARK("build noise");
 
 	switch (dimensions)
 	{
@@ -251,12 +253,14 @@ GLuint build_3d_noise_texture(int size, int frequency, int dimensions)
 			input_format = GL_RGB;
 			break;
 		default:
+			LEAVE_DEBUG_MARK("build noise");
+
 			return 0;
 	}
 
 	data = make_3d_noise_texture(size, frequency, dimensions);
 
-	LOG_INFO("Building noise texture\n");
+	LOG_DEBUG("Building noise texture");
 	glGenTextures(1, &noise_texture);
 	glBindTexture(GL_TEXTURE_3D, noise_texture);
 
@@ -268,7 +272,9 @@ GLuint build_3d_noise_texture(int size, int frequency, int dimensions)
 	ELglTexImage3D(GL_TEXTURE_3D, 0, texture_format, size, size, size, 0, input_format, GL_UNSIGNED_BYTE, data);
 	glBindTexture(GL_TEXTURE_3D, 0);
 	free(data);
-	LOG_INFO("Done with noise\n");
+	LOG_DEBUG("Done with noise");
+
+	LEAVE_DEBUG_MARK("build noise");
 
 	return noise_texture;
 }
