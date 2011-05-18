@@ -210,6 +210,8 @@ static int download_files_thread(void* _data)
 
 	data = (download_files_thread_data_t*)_data;
 
+	init_thread_log("download_files");
+
 	error = 0;
 	result = 0;
 	file_buffer = 0;

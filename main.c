@@ -425,7 +425,8 @@ int main(int argc, char **argv)
 #ifdef	OLC
 	olc_init();
 #endif	//OLC
-	init_logging("el.log");
+	init_logging("log");
+
 	check_log_level_on_command_line();
 	create_tcp_out_mutex();
 	init_translatables();
@@ -433,7 +434,12 @@ int main(int argc, char **argv)
 	init_fsaa_modes();
 #endif	/* FSAA */
 	init_vars();
+
+	ENTER_DEBUG_MARK("init stuff");
+
 	init_stuff();
+
+	LEAVE_DEBUG_MARK("init stuff");
 
 	start_rendering();
 #ifdef MEMORY_DEBUG

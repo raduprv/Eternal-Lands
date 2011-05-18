@@ -24,16 +24,15 @@ float offset_2d = (1.0f / 32768.0f);
 const float offset_2d_max = 0.01f;
 #endif
 
-int load_map(const char *file_name, update_func *update_function)
+static int do_load_map(const char *file_name, update_func *update_function)
 {
 	int i;
 	int cur_tile, j;
 	AABBOX bbox;
 	map_header cur_map_header;
-	int file_size;
 	char* file_mem;
 #ifdef CLUSTER_INSIDES
-	char* occupied = NULL;
+	char* occupied = 0;
 	int have_clusters;
 #endif
 	object3d_io* objs_3d;
@@ -41,42 +40,39 @@ int load_map(const char *file_name, update_func *update_function)
 	light_io* lights;
 	particles_io* particles;
 	float progress;
+	el_file_ptr file;
 
-	el_file_ptr f = NULL;
-	f = el_open(file_name);
-	if (!f)
+	file = el_open(file_name);
+
+	if (!file)
 	{
 		return 0;
 	}
-	file_size = el_get_size (f);
+
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-	file_mem = calloc (file_size, 1);
-	if (!file_mem)
-		return 0;
+	file_mem = el_get_pointer(file);
 
-	my_strcp (map_file_name, file_name);
+	my_strcp(map_file_name, file_name);
 
-	// read the entire file into memory
-	el_read (f, file_size, file_mem);
-	el_close (f);
+	LOG_DEBUG("Loading map '%s'.", file_name);
 
 	main_bbox_tree_items = create_bbox_items(1024);
 
-	memcpy (&cur_map_header, file_mem, sizeof (cur_map_header));
+	memcpy(&cur_map_header, file_mem, sizeof(cur_map_header));
 	cur_map_header.tile_map_x_len = SDL_SwapLE32(cur_map_header.tile_map_x_len);
 	cur_map_header.tile_map_y_len = SDL_SwapLE32(cur_map_header.tile_map_y_len);
 	cur_map_header.tile_map_offset = SDL_SwapLE32(cur_map_header.tile_map_offset);
 	cur_map_header.height_map_offset = SDL_SwapLE32(cur_map_header.height_map_offset);
 	cur_map_header.obj_3d_struct_len = SDL_SwapLE32(cur_map_header.obj_3d_struct_len);
-	cur_map_header.obj_3d_no = SDL_SwapLE32 (cur_map_header.obj_3d_no);
+	cur_map_header.obj_3d_no = SDL_SwapLE32(cur_map_header.obj_3d_no);
 	cur_map_header.obj_3d_offset = SDL_SwapLE32(cur_map_header.obj_3d_offset);
 	cur_map_header.obj_2d_struct_len = SDL_SwapLE32(cur_map_header.obj_2d_struct_len);
-	cur_map_header.obj_2d_no = SDL_SwapLE32 (cur_map_header.obj_2d_no);
+	cur_map_header.obj_2d_no = SDL_SwapLE32(cur_map_header.obj_2d_no);
 	cur_map_header.obj_2d_offset = SDL_SwapLE32(cur_map_header.obj_2d_offset);
 	cur_map_header.lights_struct_len = SDL_SwapLE32(cur_map_header.lights_struct_len);
-	cur_map_header.lights_no = SDL_SwapLE32 (cur_map_header.lights_no);
+	cur_map_header.lights_no = SDL_SwapLE32(cur_map_header.lights_no);
 	cur_map_header.lights_offset = SDL_SwapLE32(cur_map_header.lights_offset);
     
 	cur_map_header.ambient_r = SwapLEFloat(cur_map_header.ambient_r);
@@ -84,13 +80,15 @@ int load_map(const char *file_name, update_func *update_function)
 	cur_map_header.ambient_b = SwapLEFloat(cur_map_header.ambient_b);
 	
 	cur_map_header.particles_struct_len = SDL_SwapLE32(cur_map_header.particles_struct_len);
-	cur_map_header.particles_no = SDL_SwapLE32 (cur_map_header.particles_no);
+	cur_map_header.particles_no = SDL_SwapLE32(cur_map_header.particles_no);
 	cur_map_header.particles_offset = SDL_SwapLE32(cur_map_header.particles_offset);
 
 #ifdef CLUSTER_INSIDES
-	cur_map_header.clusters_offset = SDL_SwapLE32 (cur_map_header.clusters_offset);
+	cur_map_header.clusters_offset = SDL_SwapLE32(cur_map_header.clusters_offset);
 #endif 
-	
+
+	LOG_DEBUG("Checking map '%s' file signature.", file_name);
+
 	//verify if we have a valid file
 	if(cur_map_header.file_sig[0]!='e'||
 	   cur_map_header.file_sig[1]!='l'||
@@ -99,9 +97,12 @@ int load_map(const char *file_name, update_func *update_function)
 	{
 		LOG_ERROR(invalid_map, map_file_name);
 		exit_now = 1; // We might as well quit...
-		free (file_mem);
+		el_close(file);
+
 		return 0;
 	}
+
+	LOG_DEBUG("Checking map '%s' sizes.", file_name);
 
 	// Check the sizes of structures. If they don't match, we have a
 	// major problem, since these structures are supposed to be 
@@ -114,28 +115,38 @@ int load_map(const char *file_name, update_func *update_function)
 	{
 		LOG_ERROR ("Invalid object size on map %s", map_file_name);
 		exit_now = 1; // We might as well quit...
-		free (file_mem);
+		el_close(file);
+
 		return 0;
 	}
 
-	update_function (load_map_str, 0);
+	update_function(load_map_str, 0);
 
 	//get the map size
 	tile_map_size_x = cur_map_header.tile_map_x_len;
 	tile_map_size_y = cur_map_header.tile_map_y_len;
 
+	LOG_DEBUG("Map '%s' size <%d, %d>.", file_name, tile_map_size_x,
+		tile_map_size_y);
+
 	// allocate the tile map (it was destroyed), and fill it
 	tile_map = calloc (tile_map_size_x*tile_map_size_y, 1);
-	memcpy (tile_map, file_mem + cur_map_header.tile_map_offset, tile_map_size_x*tile_map_size_y);
+	memcpy(tile_map, file_mem + cur_map_header.tile_map_offset, tile_map_size_x*tile_map_size_y);
+
 	// allocate the height map, and fill it
 	height_map = calloc (tile_map_size_x*tile_map_size_y*6*6, 1);
-	memcpy (height_map, file_mem + cur_map_header.height_map_offset, tile_map_size_x*tile_map_size_y*6*6);
+	memcpy(height_map, file_mem + cur_map_header.height_map_offset, tile_map_size_x*tile_map_size_y*6*6);
 
 #ifdef CLUSTER_INSIDES
 	// check if we need to compute the clusters, or if they're stored
 	// in the map
-	have_clusters = cur_map_header.clusters_offset > 0 
-	                && cur_map_header.clusters_offset + tile_map_size_x*tile_map_size_y*6*6 * sizeof (short) <= file_size;
+	have_clusters = (cur_map_header.clusters_offset > 0)
+	                && ((cur_map_header.clusters_offset +
+			tile_map_size_x * tile_map_size_y * 6 * 6 *
+			sizeof(short)) <= el_get_size(file));
+
+	LOG_DEBUG("Map '%s' has clusters: %d.", file_name, have_clusters);
+
 	if (have_clusters)
 	{
 		// clusters are stored in the map, set them
@@ -152,6 +163,9 @@ int load_map(const char *file_name, update_func *update_function)
 	}
 #endif
 
+	LOG_DEBUG("Map '%s' is dungeon %d and ambient <%f, %f, %f>.",
+		file_name, cur_map_header.dungeon, cur_map_header.ambient_r,
+		cur_map_header.ambient_g, cur_map_header.ambient_b);
 	//get the type of map, and the ambient light
 	dungeon = cur_map_header.dungeon;
 	ambient_r = cur_map_header.ambient_r;
@@ -165,8 +179,11 @@ int load_map(const char *file_name, update_func *update_function)
 /* 	else */
 /* 		water_tiles_extension = 0.0; */
 
+	LOG_DEBUG("Loading tiles");
 	//load the tiles in this map, if not already loaded
 	load_map_tiles();
+
+	LOG_DEBUG("Initializing buffers");
 	init_buffers();
 #ifndef CLUSTER_INSIDES
 	for(i = 0; i < tile_map_size_y; i++)
@@ -218,9 +235,14 @@ int load_map(const char *file_name, update_func *update_function)
 		progress = 0.0f;
 	}
 	//see which objects in our cache are not used in this map
+
+	LOG_DEBUG("Loading %d 3d objects.", cur_map_header.obj_3d_no);
+
 	//read the 3d objects
 	clear_objects_list_placeholders();
 	objs_3d = (object3d_io*) (file_mem + cur_map_header.obj_3d_offset);
+
+	ENTER_DEBUG_MARK("load 3d objects");
 	for (i = 0; i < cur_map_header.obj_3d_no; i++)
 	{
 		object3d_io cur_3d_obj_io = objs_3d[i];
@@ -234,6 +256,15 @@ int load_map(const char *file_name, update_func *update_function)
 		cur_3d_obj_io.r = SwapLEFloat (cur_3d_obj_io.r);
 		cur_3d_obj_io.g = SwapLEFloat (cur_3d_obj_io.g);
 		cur_3d_obj_io.b = SwapLEFloat (cur_3d_obj_io.b);
+
+		LOG_DEBUG("Adding 3d object (%d) '%s' at <%d, %f, %f> with "
+			"rotation <%f, %f, %f>, left lit %d, blended %d and "
+			"color <%f, %f, %f>.", i, cur_3d_obj_io.file_name,
+			cur_3d_obj_io.x_pos, cur_3d_obj_io.y_pos,
+			cur_3d_obj_io.z_pos, cur_3d_obj_io.x_rot,
+			cur_3d_obj_io.y_rot, cur_3d_obj_io.z_rot,
+			cur_3d_obj_io.self_lit, cur_3d_obj_io.blended,
+			cur_3d_obj_io.r, cur_3d_obj_io.g, cur_3d_obj_io.b);
 
 		if (cur_3d_obj_io.blended != 20)
 		{
@@ -267,6 +298,7 @@ int load_map(const char *file_name, update_func *update_function)
 			update_function(load_3d_object_str, progress);
 		}
 	}
+	LEAVE_DEBUG_MARK("load 3d objects");
 
 	progress = (cur_map_header.obj_2d_no + 249) / 250;
 	if (progress > 0)
@@ -279,8 +311,13 @@ int load_map(const char *file_name, update_func *update_function)
 		update_function(load_2d_object_str, 20.0f);
 		progress = 0.0f;
 	}
+
+	LOG_DEBUG("Loading %d 2d objects.", cur_map_header.obj_2d_no);
+
 	//read the 2d objects
 	objs_2d = (obj_2d_io*) (file_mem + cur_map_header.obj_2d_offset);
+
+	ENTER_DEBUG_MARK("load 2d objects");
 	for (i = 0; i < cur_map_header.obj_2d_no; i++)
 	{
 		obj_2d_io cur_2d_obj_io = objs_2d[i];
@@ -294,6 +331,12 @@ int load_map(const char *file_name, update_func *update_function)
 		cur_2d_obj_io.x_rot = SwapLEFloat(cur_2d_obj_io.x_rot);
 		cur_2d_obj_io.y_rot = SwapLEFloat(cur_2d_obj_io.y_rot);
 		cur_2d_obj_io.z_rot = SwapLEFloat(cur_2d_obj_io.z_rot);
+
+		LOG_DEBUG("Adding 2d object (%d) '%s' at <%d, %f, %f> with "
+			"rotation <%f, %f, %f>.", i, cur_2d_obj_io.file_name,
+			cur_2d_obj_io.x_pos, cur_2d_obj_io.y_pos,
+			cur_2d_obj_io.z_pos, cur_2d_obj_io.x_rot,
+			cur_2d_obj_io.y_rot, cur_2d_obj_io.z_rot);
 
 #ifndef SHOW_FLICKERING
 		// Add in low-order bits to prevent flicker.
@@ -320,6 +363,7 @@ int load_map(const char *file_name, update_func *update_function)
 			update_function(load_2d_object_str, progress);
 		}
 	}
+	LEAVE_DEBUG_MARK("load 2d objects");
 
 #ifdef CLUSTER_INSIDES
 	// If we need to compute the clusters, do it here, so that the
@@ -406,8 +450,13 @@ int load_map(const char *file_name, update_func *update_function)
 		update_function(load_lights_str, 20.0f);
 		progress = 0.0f;
 	}
+
+	LOG_DEBUG("Loading %d lights.", cur_map_header.lights_no);
+
 	//read the lights
 	lights = (light_io *) (file_mem + cur_map_header.lights_offset);
+
+	ENTER_DEBUG_MARK("load lights");
 	for (i = 0; i < cur_map_header.lights_no; i++)
 	{
 		light_io cur_light_io = lights[i];
@@ -418,6 +467,11 @@ int load_map(const char *file_name, update_func *update_function)
 		cur_light_io.r = SwapLEFloat (cur_light_io.r);
 		cur_light_io.g = SwapLEFloat (cur_light_io.g);
 		cur_light_io.b = SwapLEFloat (cur_light_io.b);
+
+		LOG_DEBUG("Adding light(%d) at <%d, %f, %f> with color "
+			"<%f, %f, %f>.", i, cur_light_io.pos_x,
+			cur_light_io.pos_y, cur_light_io.pos_z, cur_light_io.r,
+			cur_light_io.g, cur_light_io.b);
 
 		if (cur_light_io.pos_x < 0.0f || cur_light_io.pos_x > tile_map_size_x * 60 ||
 			cur_light_io.pos_y < 0.0f || cur_light_io.pos_y > tile_map_size_y * 60 ||
@@ -444,6 +498,7 @@ int load_map(const char *file_name, update_func *update_function)
 			update_function(load_lights_str, progress);
 		}
 	}
+	LEAVE_DEBUG_MARK("load lights");
 
 	progress = (cur_map_header.particles_no + 99) / 100;
 	if (progress > 0.0f)
@@ -456,8 +511,13 @@ int load_map(const char *file_name, update_func *update_function)
 		update_function(load_particles_str, 20.0f);
 		progress = 0.0f;
 	}
+
+	LOG_DEBUG("Loading %d particles.", cur_map_header.particles_no);
+
 	//read particle systems
 	particles = (particles_io *) (file_mem + cur_map_header.particles_offset);
+
+	ENTER_DEBUG_MARK("load particles");
 	for (i = 0; i < cur_map_header.particles_no; i++)
 	{
 		particles_io cur_particles_io = particles[i];
@@ -466,6 +526,10 @@ int load_map(const char *file_name, update_func *update_function)
 		cur_particles_io.y_pos = SwapLEFloat (cur_particles_io.y_pos);
 		cur_particles_io.z_pos = SwapLEFloat (cur_particles_io.z_pos);
 			
+		LOG_DEBUG("Adding particle(%d) '%s' at <%d, %f, %f>.", i,
+			cur_particles_io.file_name, cur_particles_io.x_pos,
+			cur_particles_io.y_pos, cur_particles_io.z_pos);
+
 		if (!strncmp(cur_particles_io.file_name, "ec://", 5))
 		{
 			ec_create_effect_from_map_code(cur_particles_io.file_name + 5, cur_particles_io.x_pos, cur_particles_io.y_pos, cur_particles_io.z_pos, (poor_man ? 6 : 10));
@@ -483,18 +547,35 @@ int load_map(const char *file_name, update_func *update_function)
 			update_function(load_particles_str, progress);
 		}
 	}
+	LEAVE_DEBUG_MARK("load particles");
 
 	// Everything copied, get rid of the file data
-	free (file_mem);
+	el_close(file);
 	
 	update_function(bld_sectors_str, 0.0f);
+
+	LOG_DEBUG("Building bbox tree for map '%s'.", file_name);
+
 	init_bbox_tree(main_bbox_tree, main_bbox_tree_items);
 	free_bbox_items(main_bbox_tree_items);
-	main_bbox_tree_items = NULL;
+	main_bbox_tree_items = 0;
 	update_function(init_done_str, 20.0f);
 #ifdef EXTRA_DEBUG
 	ERR();//We finished loading the new map apparently...
 #endif
 	return 1;
+}
+
+int load_map(const char *file_name, update_func *update_function)
+{
+	int result;
+
+	ENTER_DEBUG_MARK("load map");
+
+	result = do_load_map(file_name, update_function);
+
+	LEAVE_DEBUG_MARK("load map");
+
+	return result;
 }
 

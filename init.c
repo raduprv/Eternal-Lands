@@ -762,14 +762,14 @@ void init_stuff()
 	show_window(loading_win);
 
 	update_loading_win(init_opengl_str, 5);
-	LOG_INFO("Init extensions.");
+	LOG_DEBUG("Init extensions.");
 	init_gl_extensions();
-	LOG_INFO("Init extensions done");
+	LOG_DEBUG("Init extensions done");
 
 	// Setup the new eye candy system
-	LOG_INFO("Init eyecandy");
+	LOG_DEBUG("Init eyecandy");
 	ec_init();
-	LOG_INFO("Init eyecandy done");
+	LOG_DEBUG("Init eyecandy done");
 
 #ifdef  CUSTOM_UPDATE
 	init_custom_update();
@@ -814,9 +814,9 @@ void init_stuff()
 	update_loading_win(init_actor_defs_str, 4);
 	memset(actors_defs, 0, sizeof(actors_defs));
 
-	LOG_INFO("Init actor defs");
+	LOG_DEBUG("Init actor defs");
 	init_actor_defs();
-	LOG_INFO("Init actor defs done");
+	LOG_DEBUG("Init actor defs done");
 	read_emotes_defs("", "emotes.xml");
 
 	missiles_init_defs();
@@ -830,9 +830,9 @@ void init_stuff()
 	build_sun_pos_table();
 	reset_material();
 
-	LOG_INFO("Init lights");
+	LOG_DEBUG("Init lights");
 	init_lights();
-	LOG_INFO("Init done");
+	LOG_DEBUG("Init done");
 
 	disable_local_lights();
 	update_loading_win(init_logs_str, 4);
@@ -1047,5 +1047,5 @@ void init_stuff()
 	skybox_init_gl();
 	popup_init();
 
-LOG_INFO("Init done!");
+	LOG_DEBUG("Init done!");
 }

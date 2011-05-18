@@ -15,7 +15,6 @@ FEATURES += TEXT_ALIASES                    # Text aliases
 FEATURES += USE_INLINE                      # enable some optimizations to use inline functions instead of pure function calls
 # new for 1.9.0 release
 FEATURES += BANDWIDTH_SAVINGS				# enable bandwidth saving changes for message protocol
-#FEATURES += RELEASE_MODE		    # Sets the default log level to don't log debug messages
 
 ### Testing options (these options are possible for the next release and should be tested) ###
 #FEATURES += ANTI_ALIAS                      # allows to enable/disable anti-aliasing in el.ini

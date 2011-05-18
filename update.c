@@ -243,6 +243,8 @@ int    do_threaded_update(void *ptr)
 	gzFile *fp= NULL;
 	char filename[1024];
 
+	init_thread_log("update");
+
 	// open the update file
 	safe_snprintf(filename, sizeof(filename), "%s%s", doing_custom ? get_path_custom() : get_path_updates(), files_lst);
 	fp = my_gzopen(filename, "rb");
@@ -473,6 +475,8 @@ void http_threaded_get_file(char *server, char *path, FILE *fp, Uint8 *md5, Uint
 int http_get_file_thread_handler(void *specs){
 	struct http_get_struct *spec= (struct http_get_struct *) specs;
 	SDL_Event event;
+
+	init_thread_log("get_file");
 
 	// load the file
 	spec->status= http_get_file(spec->server, spec->path, spec->fp);

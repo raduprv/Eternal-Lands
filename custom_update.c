@@ -191,6 +191,8 @@ static int custom_update_thread(void* thread_data)
 	result = 0;
 	data = (UpdateThreaData_t*)thread_data;
 
+	init_thread_log("custom_update");
+
 	while (1)
 	{
 		CHECK_AND_LOCK_MUTEX(data->mutex);
@@ -224,7 +226,7 @@ static int custom_update_thread(void* thread_data)
 			data->running = 1;
 		}
 
-		LOG_INFO("%s", data->str);
+		LOG_DEBUG("%s", data->str);
 
 		CHECK_AND_UNLOCK_MUTEX(data->mutex);
 

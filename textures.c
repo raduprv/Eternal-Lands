@@ -2068,6 +2068,8 @@ int load_enhanced_actor_thread(void* done)
 	Uint8* buffer;
 	Uint32 hash;
 
+	init_thread_log("load_actors");
+
 	buffer = malloc_aligned(TEXTURE_SIZE_X * TEXTURE_SIZE_Y * 4, 16);
 
 	while (*((Uint32*)done) == 0)
