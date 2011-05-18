@@ -305,17 +305,6 @@ namespace eternal_lands
 				__LINE__, thread_datas[id]);
 		}
 
-		void rename_old_logfile(const std::string &dir,
-			const Uint32 index)
-		{
-			std::stringstream str1, str2;
-
-			str1 << dir << "_" << index;
-			str2 << dir << "_" << (index + 1);
-
-			std::rename(str1.str().c_str(), str2.str().c_str());
-		}
-
 		int rmfile(const char *path, const struct stat *sb, int flag,
 			struct FTW *ftwbuf)
 		{
@@ -339,24 +328,12 @@ namespace eternal_lands
 		log_dir = dir + "/";
 
 		str = dir;
-		str += "_9";
+		str += "_old";
 
 		remove_old_dir(str);
 
-		rename_old_logfile(dir, 8);
-		rename_old_logfile(dir, 7);
-		rename_old_logfile(dir, 6);
-		rename_old_logfile(dir, 5);
-		rename_old_logfile(dir, 4);
-		rename_old_logfile(dir, 3);
-		rename_old_logfile(dir, 2);
-		rename_old_logfile(dir, 1);
-		rename_old_logfile(dir, 0);
-
-		str = dir;
-		str += "_0";
-		std::rename(log_dir.c_str(), str.c_str());
-		mkdir(log_dir.c_str(), S_IRWXU | S_IRWXG);
+		std::rename(dir.c_str(), str.c_str());
+		mkdir(dir.c_str(), S_IRWXU | S_IRWXG);
 
 		init_thread_log("main");
 	}
