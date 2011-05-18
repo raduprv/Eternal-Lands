@@ -1885,7 +1885,7 @@ int action_item_keys(Uint32 key)
 	size_t i;
 	Uint32 keys[] = {K_ITEM1, K_ITEM2, K_ITEM3, K_ITEM4, K_ITEM5, K_ITEM6,
 					 K_ITEM7, K_ITEM8, K_ITEM9, K_ITEM10, K_ITEM11, K_ITEM12 };
-	for (i=0; i<sizeof(keys)/sizeof(Uint32); i++)
+	for (i=0; (i<sizeof(keys)/sizeof(Uint32)) & (i < num_quickbar_slots); i++)
 		if(key == keys[i])
 		{
 			quick_use (i);
