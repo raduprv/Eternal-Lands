@@ -1311,7 +1311,8 @@ static void load_enhanced_actor_threaded(const enhanced_actor_images_t* files,
 	el_file_ptr hands_tex_save;
 	image_format_type format;
 	Uint32 alpha, use_compressed_image, size;
-	Uint32 width, height, i, scale;
+	Uint32 width, height, scale;
+	Sint32 i;
 	Uint16 sizes;
 
 	pants_tex = 0;
