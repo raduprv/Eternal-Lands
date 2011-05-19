@@ -14,7 +14,8 @@
 #include <cstdio>
 #include <fcntl.h>
 #include <unistd.h>
-#include <ftw.h>
+#include <dirent.h>
+#include <sys/stat.h>
 #include <SDL/SDL_mutex.h>
 #include <SDL/SDL_thread.h>
 #include "../elc_private.h"
@@ -305,16 +306,31 @@ namespace eternal_lands
 				__LINE__, thread_datas[id]);
 		}
 
-		int rmfile(const char *path, const struct stat *sb, int flag,
-			struct FTW *ftwbuf)
+		void clear_dir(const std::string &dir)
 		{
-			std::remove(path);
-			return 0;
-		}
+			struct dirent *dp;
+			DIR *dirp;
+			std::string file_name;
 
-		void remove_old_dir(const std::string &dir)
-		{
-			nftw(dir.c_str(), rmfile, 255, FTW_DEPTH);
+			dirp = opendir(dir.c_str());
+
+			if (dirp == 0)
+			{
+				return;
+			}
+
+			dp = readdir(dirp);
+
+			while (dp != 0)
+			{
+				file_name = dir;
+				file_name += "/";
+				file_name += dp->d_name;
+				std::remove(file_name.c_str());
+				dp = readdir(dirp);
+			}
+
+			closedir(dirp);
 		}
 
 	}
@@ -327,12 +343,7 @@ namespace eternal_lands
 
 		log_dir = dir + "/";
 
-		str = dir;
-		str += "_old";
-
-		remove_old_dir(str);
-
-		std::rename(dir.c_str(), str.c_str());
+		clear_dir(dir);
 		mkdir(dir.c_str(), S_IRWXU | S_IRWXG);
 
 		init_thread_log("main");
