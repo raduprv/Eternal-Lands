@@ -204,7 +204,9 @@ void load_counters()
 		flush_counters();
 		return;
 	}
-	
+
+	ENTER_DEBUG_MARK("load counters");
+
 	for (i = 0; i < NUM_COUNTERS; i++) {
 		counters[i] = NULL;
 		entries[i] = 0;
@@ -228,10 +230,11 @@ void load_counters()
 	
 	if (!(f = open_counters_file("rb"))) {
 		counters_initialized = 1;
+
+		LEAVE_DEBUG_MARK("load counters");
+
 		return;
 	}
-
-	ENTER_DEBUG_MARK("load counters");
 
 	while (fread(&io_counter_id, sizeof(io_counter_id), 1, f) > 0) {
 		fread_ok = 0;
