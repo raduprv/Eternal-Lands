@@ -344,7 +344,11 @@ namespace eternal_lands
 		log_dir = dir + "/";
 
 		clear_dir(dir);
+#ifdef	WINDOWS
+		mkdir(dir.c_str());
+#else	/* WINDOWS */
 		mkdir(dir.c_str(), S_IRWXU | S_IRWXG);
+#endif	/* WINDOWS */
 
 		init_thread_log("main");
 	}
