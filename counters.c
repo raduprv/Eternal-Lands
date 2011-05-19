@@ -231,6 +231,8 @@ void load_counters()
 		return;
 	}
 
+	ENTER_DEBUG_MARK("load counters");
+
 	while (fread(&io_counter_id, sizeof(io_counter_id), 1, f) > 0) {
 		fread_ok = 0;
 		if (fread(&io_name_len, sizeof(io_name_len), 1, f) != 1)
@@ -268,7 +270,7 @@ void load_counters()
 	
 	counters_initialized = 1;
 
-	LOG_DEBUG("Read counters");
+	LEAVE_DEBUG_MARK("load counters");
 }
 
 void flush_counters()
@@ -286,13 +288,16 @@ void flush_counters()
 		return;
 	}
 
+	ENTER_DEBUG_MARK("flush counters");
+
 	for (i = 0; i < NUM_COUNTERS; i++) {
 		io_counter_id = i + 1;
 
 		for (j = 0; j < entries[i]; j++) {
 			io_name_len = strlen(counters[i][j].name);
 
-			LOG_DEBUG("Writing counter '%s'", counters[i][j].name);
+			LOG_DEBUG("Writing counter '%s'",
+				counters[i][j].name);
 			
 			fwrite(&io_counter_id, sizeof(io_counter_id), 1, f);
 			fwrite(&io_name_len, sizeof(io_name_len), 1, f);
@@ -304,7 +309,7 @@ void flush_counters()
 
 	fclose(f);
 
-	LOG_DEBUG("Wrote counters");
+	LEAVE_DEBUG_MARK("flush counters");
 }
 
 void cleanup_counters()

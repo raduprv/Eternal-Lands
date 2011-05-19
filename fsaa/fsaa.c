@@ -40,7 +40,7 @@ void init_fsaa_modes()
 		}
 	}
 
-	LOG_INFO("Supported fsaa modes: %s", str);
+	LOG_DEBUG("Supported fsaa modes: %s", str);
 }
 
 unsigned int get_fsaa_mode(const unsigned int index)

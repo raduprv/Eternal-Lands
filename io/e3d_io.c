@@ -396,8 +396,8 @@ static e3d_object* do_load_e3d_detail(e3d_object* cur_object)
 	LOG_DEBUG("E3d file material count %d and size %d.",
 		cur_object->material_no, material_size);
 
-	LOG_DEBUG("E3d file version %d.%d.%d.%d.", version[0], version[1],
-		version[2], version[3]);
+	LOG_DEBUG("E3d file version %d.%d.%d.%d.", version[0],
+		version[1], version[2], version[3]);
 
 	if ((version[0] == 1) && (version[1] == 1))
 	{
@@ -427,7 +427,6 @@ static e3d_object* do_load_e3d_detail(e3d_object* cur_object)
 		}
 		else
 		{
-			LEAVE_DEBUG_MARK("load e3d");
 			LOG_ERROR("File '%s' has wrong version number!",
 				cur_object->file_name);
 
@@ -676,7 +675,8 @@ static e3d_object* do_load_e3d_detail(e3d_object* cur_object)
 	}
 
 #ifndef	MAP_EDITOR
-	LOG_DEBUG("Adding e3d file '%s' to cache.", cur_object->file_name);
+	LOG_DEBUG("Adding e3d file '%s' to cache.",
+		cur_object->file_name);
 
 	cache_adj_size(cache_e3d, mem_size, cur_object);
 #endif	//MAP_EDITOR

@@ -8,7 +8,7 @@ unsigned int get_fsaa_modes()
 	int i, j, index, result;
 	CGLRendererInfoObj render_info;
 
-	LOG_INFO("Using cgl to get fsaa modes");
+	LOG_DEBUG("Using cgl to get fsaa modes");
 
 	CGLQueryRendererInfo(1, &render_info, &renders);
 
