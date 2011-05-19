@@ -196,7 +196,7 @@ void    handle_update_download(struct http_get_struct *get)
 			}
 			safe_strncpy(update_server, update_servers[num], sizeof(update_server));
 			update_server[127]= '\0';
-			LOG_INFO("downloading from mirror %d of %d %s", num+1, num_update_servers, update_server);
+			LOG_DEBUG("downloading from mirror %d of %d %s", num+1, num_update_servers, update_server);
 		} else {
 			safe_strncpy(update_server, update_servers[0], sizeof(update_server));
 		}
@@ -211,7 +211,7 @@ void    handle_update_download(struct http_get_struct *get)
 			} else {	//custom_files.lst
 			     safe_snprintf(filename, sizeof(filename), "http://%s/updates/%s", update_server, files_lst);
 			}
-			LOG_INFO("* server %s filename %s", update_server, filename);
+			LOG_DEBUG("* server %s filename %s", update_server, filename);
 			http_threaded_get_file(update_server, filename, fp, NULL, EVENT_UPDATES_DOWNLOADED);
 		}
 		// and keep running until we get a response
@@ -219,7 +219,7 @@ void    handle_update_download(struct http_get_struct *get)
 	}
 
 	// total failure, error and clear the busy flag
-	LOG_ERROR("Failed to download (%s) 3 times. Giving up.", files_lst);
+	LOG_DEBUG("Failed to download (%s) 3 times. Giving up.", files_lst);
 	update_busy= 0;
 }
 
@@ -308,7 +308,7 @@ int    do_threaded_update(void *ptr)
 
 void   add_to_download(const char *filename, const Uint8 *md5)
 {
-	LOG_INFO("Download needed for %s", filename);
+	LOG_DEBUG("Download needed for %s", filename);
 	// lock the mutex
 	CHECK_AND_LOCK_MUTEX(download_mutex);
 	if(download_queue_size < MAX_UPDATE_QUEUE_SIZE){
@@ -338,7 +338,7 @@ void   add_to_download(const char *filename, const Uint8 *md5)
 					safe_snprintf(buffer, sizeof(buffer), "http://%s/updates/%s", update_server, download_cur_file);
 				}
 				buffer[sizeof(buffer)-1]= '\0';
-				LOG_INFO("@@ %s %s",update_server,buffer);
+				LOG_DEBUG("@@ %s %s",update_server,buffer);
 				http_threaded_get_file(update_server, buffer, fp, download_cur_md5, EVENT_DOWNLOAD_COMPLETE);
 			}
 		}
@@ -362,7 +362,7 @@ void    handle_file_download(struct http_get_struct *get)
 	if(get->status == 0){
 		// replace the current file (creates all required directories)
 		sts = move_file_to_updates(download_temp_file, download_cur_file, doing_custom);
- 		LOG_INFO("Moved \"%s\" to \"%s\"", download_temp_file, download_cur_file);
+ 		LOG_DEBUG("Moved \"%s\" to \"%s\"", download_temp_file, download_cur_file);
 		// check for errors
 		if(!sts){
 			// TODO: make the restart more intelligent
@@ -441,7 +441,7 @@ void http_threaded_get_file(char *server, char *path, FILE *fp, Uint8 *md5, Uint
 {
 	struct http_get_struct  *spec;
 
-	LOG_INFO("Downloading %s from %s", path, server);
+	LOG_DEBUG("Downloading %s from %s", path, server);
 	// allocate & fill the spec structure
 	spec= (struct http_get_struct  *)calloc(1, sizeof(struct http_get_struct));
 	safe_strncpy(spec->server, server, sizeof(spec->server));
@@ -499,7 +499,7 @@ int http_get_file_thread_handler(void *specs){
 		}
 	}
 
-	LOG_INFO("Finished downloading %s\n", spec->path);
+	LOG_DEBUG("Finished downloading %s\n", spec->path);
 
 	// signal we are done
 	event.type= SDL_USEREVENT;

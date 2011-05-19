@@ -70,7 +70,7 @@ void set_server_details()
 		}
 	}
 	// We found a valid profile so set some vars
-	LOG_INFO("Using the server profile: %s", servers[num].id);
+	LOG_DEBUG("Using the server profile: %s", servers[num].id);
 	cur_server = num;
 	safe_strncpy((char *)server_address, (char *)servers[num].address, sizeof(server_address));
 	port = servers[num].port;
