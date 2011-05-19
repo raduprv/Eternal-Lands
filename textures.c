@@ -83,7 +83,7 @@ void bind_texture_id(const GLuint id)
 }
 
 static GLuint build_texture(image_t* image, const Uint32 wrap_mode_repeat,
-	const GLenum min_filter, const Uint32 af, const Uint32 build_mipmaps,
+	const GLenum min_filter, const Uint32 af,
 	const texture_format_type format)
 {
 	void* ptr;
@@ -325,15 +325,8 @@ static GLuint build_texture(image_t* image, const Uint32 wrap_mode_repeat,
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	}
 
-	if ((build_mipmaps == 1) && (image->mipmaps == 1))
-	{
-		glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
-	}
-	else
-	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL,
-			image->mipmaps - 1);
-	}
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL,
+		image->mipmaps - 1);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
@@ -478,7 +471,6 @@ static Uint32 load_texture(texture_cache_t* texture_handle)
 	image_t image;
 	GLuint id;
 	Uint32 strip_mipmaps, base_level, wrap_mode_repeat, af, i, compression;
-	Uint32 build_mipmaps;
 	GLenum min_filter;
 	texture_format_type format;
 
@@ -489,7 +481,6 @@ static Uint32 load_texture(texture_cache_t* texture_handle)
 	base_level = 0;
 	af = 0;
 	min_filter = GL_LINEAR;
-	build_mipmaps = 0;
 	format = tft_auto;
 
 	switch (texture_handle->type)
@@ -503,7 +494,6 @@ static Uint32 load_texture(texture_cache_t* texture_handle)
 			format = tft_dxt1;
 			break;
 		case tt_font:
-			build_mipmaps = 1;
 			min_filter = GL_LINEAR_MIPMAP_LINEAR;
 
 			if (poor_man == 0)
@@ -512,7 +502,6 @@ static Uint32 load_texture(texture_cache_t* texture_handle)
 			}
 			break;
 		case tt_mesh:
-			build_mipmaps = 1;
 			wrap_mode_repeat = 1;
 			if (poor_man != 0)
 			{
@@ -542,14 +531,13 @@ static Uint32 load_texture(texture_cache_t* texture_handle)
 	{
 		texture_handle->load_err = 1;
 
-		LOG_ERROR("Error loading image '%s'\n",
+		LOG_ERROR("Error loading image '%s'",
 			texture_handle->file_name);
 
 		return 0;
 	}
 
-	id = build_texture(&image, wrap_mode_repeat, min_filter, af,
-		build_mipmaps, format);
+	id = build_texture(&image, wrap_mode_repeat, min_filter, af, format);
 
 	assert(id != 0);
 
@@ -1813,7 +1801,7 @@ Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
 		}
 
 		id = build_texture(&actor_texture_handles[handle].image,
-			0, min_filter, af, 1, format);
+			0, min_filter, af, format);
 
 		CHECK_GL_ERRORS();
 
