@@ -230,6 +230,8 @@ void clear_zip_archives()
 {
 	Uint32 i;
 
+	ENTER_DEBUG_MARK("unload zips");
+
 	CHECK_AND_LOCK_MUTEX(zip_mutex);
 
 	for (i = 0; i < MAX_NUM_ZIP_FILES; i++)
@@ -244,6 +246,8 @@ void clear_zip_archives()
 	CHECK_AND_UNLOCK_MUTEX(zip_mutex);
 
 	SDL_DestroyMutex(zip_mutex);
+
+	LEAVE_DEBUG_MARK("unload zips");
 }
 
 void init_zip_archives()

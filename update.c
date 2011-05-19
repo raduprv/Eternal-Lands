@@ -127,7 +127,7 @@ void    init_update()
 
 
 // handle the update file event
-void    handle_update_download(struct http_get_struct *get)
+static void do_handle_update_download(struct http_get_struct *get)
 {
 	static int  mkdir_res= -1;  // flag as not tried
 	int sts;
@@ -223,6 +223,14 @@ void    handle_update_download(struct http_get_struct *get)
 	update_busy= 0;
 }
 
+void handle_update_download(struct http_get_struct *get)
+{
+	ENTER_DEBUG_MARK("update download");
+
+	do_handle_update_download(get);
+
+	LEAVE_DEBUG_MARK("update download");
+}
 
 // start the background checking of updates
 void    do_updates()
@@ -253,6 +261,8 @@ int    do_threaded_update(void *ptr)
 		update_busy= 0;
 		return(0);
 	}
+
+	ENTER_DEBUG_MARK("update");
 
 	buf= gzgets(fp, buffer, 1024);
 	while(buf && buf != Z_NULL){
@@ -301,14 +311,14 @@ int    do_threaded_update(void *ptr)
 	}
 	update_busy= 0;
 
+	LEAVE_DEBUG_MARK("update");
+
 	// all done
 	return(0);
 }
 
-
-void   add_to_download(const char *filename, const Uint8 *md5)
+void add_to_download(const char *filename, const Uint8 *md5)
 {
-	LOG_DEBUG("Download needed for %s", filename);
 	// lock the mutex
 	CHECK_AND_LOCK_MUTEX(download_mutex);
 	if(download_queue_size < MAX_UPDATE_QUEUE_SIZE){
@@ -346,7 +356,6 @@ void   add_to_download(const char *filename, const Uint8 *md5)
 	// unlock the mutex
 	CHECK_AND_UNLOCK_MUTEX(download_mutex);
 }
-
 
 // finish up on one file that just downloaded
 void    handle_file_download(struct http_get_struct *get)

@@ -70,6 +70,7 @@ typedef struct {
 	int reagents_id[4]; //reagents needed
 	int reagents_qt[4]; //their quantities
 	Uint32 duration;
+	Uint32 buff;
 	int uncastable; //0 if castable, otherwise if something missing
 } spell_info;
 
@@ -412,6 +413,16 @@ int init_spells ()
 
 			spells_list[i].duration = get_int_value(data);
 
+			data = get_XML_node(node->children, "buff");
+
+			if (data == 0)
+			{
+				LOG_ERROR("No buff for spell '%s'[%d]",
+					name, i);
+			}
+
+			spells_list[i].buff = get_int_value(data);
+
 			node = get_XML_node(node->next, "spell");			
 			i++;
 		}
@@ -529,7 +540,6 @@ void check_castability()
 void get_active_spell(int pos, int spell)
 {
 	Uint32 i;
-	int cur_spell;
 
 	active_spells[pos].spell = spell;
 	active_spells[pos].cast_time = SDL_GetTicks();
@@ -537,11 +547,9 @@ void get_active_spell(int pos, int spell)
 	active_spells[pos].sound = add_spell_sound(spell);
 #endif // NEW_SOUND
 
-	cur_spell = spell + 32;
-
 	for (i = 0; i < SPELLS_NO; i++)
 	{
-		if (cur_spell == spells_list[i].image)
+		if (spell == spells_list[i].buff)
 		{
 			active_spells[pos].duration = spells_list[i].duration;
 		}
@@ -569,14 +577,15 @@ void get_active_spell_list(const Uint8 *my_spell_list)
 		active_spells[i].spell = my_spell_list[i];
 		active_spells[i].cast_time = 0xFFFFFFFF;
 
-		cur_spell = my_spell_list[i] + 32;
+		cur_spell = my_spell_list[i];
 
 		for (j = 0; j < SPELLS_NO; j++)
 		{
-			if (cur_spell == spells_list[j].image)
+			if (cur_spell == spells_list[j].buff)
 			{
 				active_spells[i].duration =
 					spells_list[j].duration;
+				break;
 			}
 		}
 #ifdef NEW_SOUND
@@ -1363,9 +1372,20 @@ void set_spell_name (int id, const char *data, int len)
 
 }
 
-static void spell_cast(const Sint8 spell)
+static void spell_cast(const Uint8 id)
 {
-	Uint32 i;
+	Uint32 i, spell;
+
+	spell = 0xFFFFFFFF;
+
+	for (i = 0; i < SPELLS_NO; i++)
+	{
+		if (spells_list[i].id == id)
+		{
+			spell = spells_list[i].buff;
+			break;
+		}
+	}
 
 	for (i = 0; i < NUM_ACTIVE_SPELLS; i++)
 	{
@@ -1403,7 +1423,7 @@ void process_network_spell (const char *data, int len)
 		case S_SUCCES://spell_result==1
 			spell_result=1;
 			action_mode=ACTION_WALK;
-			spell_cast(data[2] - 32);
+			spell_cast(data[1]);
 			break;
 		case S_FAILED:
 			spell_result=0;
@@ -1616,6 +1636,8 @@ void load_quickspells ()
 		return;
 	}
 
+	ENTER_DEBUG_MARK("load spells");
+
 	if (num_spells > 0)
 	{
 		num_spells--;
@@ -1661,6 +1683,8 @@ void load_quickspells ()
 	fclose (fp);
 
 	cm_update_quickspells();
+
+	LEAVE_DEBUG_MARK("load spells");
 }
 
 void save_quickspells()
@@ -1687,6 +1711,8 @@ void save_quickspells()
 			break;
 	}
 
+	ENTER_DEBUG_MARK("save spells");
+
 	// write the number of spells + 1
 	fwrite(&i, sizeof(i), 1, fp);
 
@@ -1711,6 +1737,8 @@ void save_quickspells()
 	}
 
 	fclose(fp);
+
+	LEAVE_DEBUG_MARK("save spells");
 }
 
 // Quickspell window start

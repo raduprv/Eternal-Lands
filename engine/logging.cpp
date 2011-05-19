@@ -89,8 +89,8 @@ namespace eternal_lands
 			std::strftime(buffer, sizeof(buffer), "%X",
 				std::localtime(&raw_time));
 
-			str << ", " << thread.m_name << " - " << file << ":";
-			str << line << "] " << type << ": " << message;
+			str << ", " << file << ":" << line << "] " << type;
+			str << ": " << message;
 
 			if (str.str() == thread.m_last_message)
 			{

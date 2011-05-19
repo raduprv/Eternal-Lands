@@ -5595,6 +5595,9 @@ void load_sound_config_data (const char *file)
 	
 	if (no_sound)
 		return;
+	
+	if (!el_file_exists(file))
+		return;
 
 	if ((doc = xmlReadFile(file, NULL, 0)) == NULL)
 	{
