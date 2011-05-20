@@ -34,7 +34,7 @@
 
 #ifdef	ELC
 #define ACTOR_TEXTURE_CACHE_MAX 256
-#define ACTOR_TEXTURE_THREAD_COUNT 4
+#define ACTOR_TEXTURE_THREAD_COUNT 2
 
 actor_texture_cache_t* actor_texture_handles = 0;
 SDL_Thread* actor_texture_threads[ACTOR_TEXTURE_THREAD_COUNT];
@@ -900,7 +900,7 @@ Uint32 load_image_data_file_size(el_file_ptr file, const Uint32 compression,
 		return 0;
 	}
 
-	LOG_DEBUG("Using base level %d for image '%s'.", base_level,
+	LOG_DEBUG_VERBOSE("Using base level %d for image '%s'.", base_level,
 		el_file_name(file));
 
 	if (load_image_data_file(file, compression, unpack, 1, base_level,
