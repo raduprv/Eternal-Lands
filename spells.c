@@ -552,6 +552,7 @@ void get_active_spell(int pos, int spell)
 		if (spell == spells_list[i].buff)
 		{
 			active_spells[pos].duration = spells_list[i].duration;
+			return;
 		}
 	}
 }
