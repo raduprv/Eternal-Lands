@@ -106,11 +106,35 @@ void log_debug_verbose(const char* file, const Uint32 line,
 /**
  * @ingroup logging
  *
+ * Enters the given debug mark.
+ * @param file File of the debug mark.
+ * @param line Line of the debug mark.
+ * @param name Name of the debug mark.
+ */
+void enter_debug_mark(const char* file, const Uint32 line,
+	const char* name);
+
+/**
+ * @ingroup logging
+ *
+ * Leaves the given debug mark.
+ * @param file File of the debug mark.
+ * @param line Line of the debug mark.
+ * @param name Name of the debug mark.
+ */
+void leave_debug_mark(const char* file, const Uint32 line,
+	const char* name);
+
+/**
+ * @ingroup logging
+ *
  * Prints and changes the current log level.
  * @param text The new log level to use or empty
  * @param len The length of the text.
  */
 int command_log_level(char *text, int len);
+
+void init_thread_log(const char* name);
 
 #define LOG_ERROR(msg, args ...) log_error(__FILE__, __LINE__, msg, ## args)
 #define LOG_WARNING(msg, args ...) log_warning(__FILE__, __LINE__, msg,	\
@@ -119,6 +143,8 @@ int command_log_level(char *text, int len);
 #define LOG_DEBUG(msg, args ...) log_debug(__FILE__, __LINE__, msg, ## args)
 #define LOG_DEBUG_VERBOSE(msg, args ...) log_debug_verbose(__FILE__, 	\
 	__LINE__, msg, ## args)
+#define ENTER_DEBUG_MARK(name) enter_debug_mark(__FILE__, __LINE__, name)
+#define LEAVE_DEBUG_MARK(name) leave_debug_mark(__FILE__, __LINE__, name)
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -32,7 +32,7 @@ unsigned int get_fsaa_modes()
 	unsigned int multisample, pixel_format;
 	int query, samples, format;
 
-	LOG_INFO("Using wgl to get fsaa modes");
+	LOG_DEBUG("Using wgl to get fsaa modes");
 
 	result = 1;
 

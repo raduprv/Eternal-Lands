@@ -1394,7 +1394,9 @@ int update_streams(void * dummy)
 	ALfloat gain = 0.0;
 
    	sleep = SLEEP_TIME;
-	
+
+	init_thread_log("update_streams");
+
 #ifdef _EXTRA_SOUND_DEBUG
 	printf("Starting streams thread\n");
 #endif //_EXTRA_SOUND_DEBUG
@@ -5592,6 +5594,9 @@ void load_sound_config_data (const char *file)
 	xmlNode *root=NULL;
 	
 	if (no_sound)
+		return;
+	
+	if (!el_file_exists(file))
 		return;
 
 	if ((doc = xmlReadFile(file, NULL, 0)) == NULL)

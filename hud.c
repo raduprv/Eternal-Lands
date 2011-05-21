@@ -1872,6 +1872,7 @@ int quickbar_draggable=0;
 int quickbar_dir=VERTICAL;
 int quickbar_relocatable=0;
 int num_quickbar_slots = 6;
+static int last_num_quickbar_slots = 6;
 
 // return the window y len based on the number of slots
 int get_quickbar_y_len(void)
@@ -1885,7 +1886,7 @@ int action_item_keys(Uint32 key)
 	size_t i;
 	Uint32 keys[] = {K_ITEM1, K_ITEM2, K_ITEM3, K_ITEM4, K_ITEM5, K_ITEM6,
 					 K_ITEM7, K_ITEM8, K_ITEM9, K_ITEM10, K_ITEM11, K_ITEM12 };
-	for (i=0; i<sizeof(keys)/sizeof(Uint32); i++)
+	for (i=0; (i<sizeof(keys)/sizeof(Uint32)) & (i < num_quickbar_slots); i++)
 		if(key == keys[i])
 		{
 			quick_use (i);
@@ -1927,7 +1928,8 @@ void init_quickbar ()
 			quickbar_win = create_window ("Quickbar", -1, 0, window_width - quickbar_x, quickbar_y, quickbar_x_len, get_quickbar_y_len(), flags);
 		else
 			quickbar_win = create_window ("Quickbar", -1, 0, window_width - quickbar_x, quickbar_y, get_quickbar_y_len(), quickbar_x_len, flags);
-		
+		last_num_quickbar_slots = num_quickbar_slots;
+
 		set_window_handler(quickbar_win, ELW_HANDLER_DISPLAY, &display_quickbar_handler);
 		set_window_handler(quickbar_win, ELW_HANDLER_CLICK, &click_quickbar_handler);
 		set_window_handler(quickbar_win, ELW_HANDLER_MOUSEOVER, &mouseover_quickbar_handler );
@@ -1957,7 +1959,6 @@ void init_quickbar ()
 
 int	display_quickbar_handler(window_info *win)
 {
-	static int last_num_quickbar_slots = -1;
 	char str[80];
 	int y, i;
 	Uint32 _cur_time = SDL_GetTicks(); /* grab a snapshot of current time */

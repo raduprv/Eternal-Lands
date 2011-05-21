@@ -75,11 +75,14 @@
  #include "elglext.h"
  #define APIENTRY 
  #define APIENTRYP *
-#else
+#elif !defined(BSD)
  #define GL_GLEXT_LEGACY
  #include <GL/gl.h>
  #include <GL/glu.h>
  #include "glext.h"
+#else // BSD
+ #include <GL/gl.h>
+ #include <GL/glu.h>
 #endif
 
 // Inlucde the plaform specific location sound libs

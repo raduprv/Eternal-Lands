@@ -88,6 +88,8 @@ static void clear_zip(el_zip_file_t* zip)
 
 	CHECK_AND_LOCK_MUTEX(zip->mutex);
 
+	LOG_DEBUG("Clearing zip file '%s'", zip->file_name);
+
 	for (i = 0; i < zip->count; i++)
 	{
 		free(zip->files[i].file_name);
@@ -124,6 +126,9 @@ static Uint32 find_in_zip(el_zip_file_t* zip, const el_zip_file_entry_t* key)
 
 		return 0;
 	}
+
+	LOG_DEBUG("Searching file '%s' in zip file '%s'.", zip->file_name,
+		key->file_name);
 
 	if (zip->count == 0)
 	{
@@ -225,6 +230,8 @@ void clear_zip_archives()
 {
 	Uint32 i;
 
+	ENTER_DEBUG_MARK("unload zips");
+
 	CHECK_AND_LOCK_MUTEX(zip_mutex);
 
 	for (i = 0; i < MAX_NUM_ZIP_FILES; i++)
@@ -239,6 +246,8 @@ void clear_zip_archives()
 	CHECK_AND_UNLOCK_MUTEX(zip_mutex);
 
 	SDL_DestroyMutex(zip_mutex);
+
+	LEAVE_DEBUG_MARK("unload zips");
 }
 
 void init_zip_archives()
@@ -300,6 +309,10 @@ void load_zip_archive(const char* file_name)
 		return;
 	}
 
+	ENTER_DEBUG_MARK("load zip");
+
+	LOG_DEBUG("Loading zip file '%s' with %d files", file_name, count);
+
 	files = malloc(count * sizeof(el_zip_file_entry_t));
 
 	for (i = 0; i < count; i++)
@@ -316,6 +329,9 @@ void load_zip_archive(const char* file_name)
 		unzGetCurrentFileInfo64(file, 0, files[i].file_name, size,
 			0, 0, 0, 0);
 
+		LOG_DEBUG("Loading file (%d) '%s' from zip file '%s'.", i,
+			files[i].file_name, file_name);
+
 		files[i].hash = mem_hash(files[i].file_name, size);
 
 		unzGoToNextFile(file);
@@ -325,6 +341,8 @@ void load_zip_archive(const char* file_name)
 	name = malloc(size + 1);
 	memset(name, 0, size + 1);
 	memcpy(name, file_name, size);
+
+	LOG_DEBUG("Sorting files from zip file '%s'.", file_name);
 
 	qsort(files, count, sizeof(el_zip_file_entry_t),
 		compare_el_zip_file_entry);
@@ -349,6 +367,8 @@ void load_zip_archive(const char* file_name)
 
 	CHECK_AND_UNLOCK_MUTEX(zip_mutex);
 
+	LOG_DEBUG("Adding zip file '%s' at position %d.", file_name, index);
+
 	zip_files[index].file_name = name;
 	zip_files[index].file = file;
 	zip_files[index].files = files;
@@ -356,7 +376,9 @@ void load_zip_archive(const char* file_name)
 
 	CHECK_AND_UNLOCK_MUTEX(zip_files[index].mutex);
 
-	LOG_INFO("Loaded zip file '%s' with %d files", file_name, count);
+	LEAVE_DEBUG_MARK("load zip");
+
+	LOG_DEBUG("Loaded zip file '%s' with %d files", file_name, count);
 }
 
 void unload_zip_archive(const char* file_name)
@@ -370,15 +392,23 @@ void unload_zip_archive(const char* file_name)
 		return;
 	}
 
+	ENTER_DEBUG_MARK("unload zip");
+
+	LOG_DEBUG("Unloading zip '%s'.", file_name);
+
 	CHECK_AND_LOCK_MUTEX(zip_mutex);
 
 	count = num_zip_files;
 
 	CHECK_AND_UNLOCK_MUTEX(zip_mutex);
 
+	LOG_DEBUG("Checking %d zip files", count);
+
 	for (i = 0; i < count; i++)
 	{
 		CHECK_AND_LOCK_MUTEX(zip_files[i].mutex);
+
+		LOG_DEBUG("Checking zip file '%s'", zip_files[i].file_name);
 
 		if (zip_files[i].file_name != 0)
 		{
@@ -388,7 +418,7 @@ void unload_zip_archive(const char* file_name)
 
 				CHECK_AND_UNLOCK_MUTEX(zip_files[i].mutex);
 
-				LOG_INFO("Unloaded zip '%s'", file_name);
+				LEAVE_DEBUG_MARK("unload zip");
 
 				return;
 			}
@@ -396,6 +426,8 @@ void unload_zip_archive(const char* file_name)
 
 		CHECK_AND_UNLOCK_MUTEX(zip_files[i].mutex);
 	}
+
+	LEAVE_DEBUG_MARK("unload zip");
 }
 
 static Uint32 do_file_exists(const char* file_name, const char* path,
@@ -407,6 +439,8 @@ static Uint32 do_file_exists(const char* file_name, const char* path,
 	safe_strcat(buffer, file_name, size);
 	safe_strcat(buffer, ".xz", size);
 
+	LOG_DEBUG("Checking file '%s' exits.", buffer);
+
 	if (stat(buffer, &fstat) == 0)
 	{
 		return 1;
@@ -416,6 +450,8 @@ static Uint32 do_file_exists(const char* file_name, const char* path,
 	safe_strcat(buffer, file_name, size);
 	safe_strcat(buffer, ".gz", size);
 
+	LOG_DEBUG("Checking file '%s' exits.", buffer);
+
 	if (stat(buffer, &fstat) == 0)
 	{
 		return 1;
@@ -423,6 +459,8 @@ static Uint32 do_file_exists(const char* file_name, const char* path,
 
 	safe_strncpy2(buffer, path, size, strlen(path));
 	safe_strcat(buffer, file_name, size);
+
+	LOG_DEBUG("Checking file '%s' exits.", buffer);
 
 	if (stat(buffer, &fstat) == 0)
 	{
@@ -518,7 +556,7 @@ static el_file_ptr xz_file_open(const char* file_name)
 
 		result->crc32 = CrcCalc(result->buffer, result->size);
 
-		LOG_DEBUG_VERBOSE("File '%s' [crc:0x%08X] opened.", file_name,
+		LOG_DEBUG("File '%s' [crc:0x%08X] opened.", file_name,
 			result->crc32);
 
 		return result;
@@ -721,17 +759,41 @@ static el_file_ptr file_open(const char* file_name, const char* extra_path)
 
 el_file_ptr el_open(const char* file_name)
 {
-	return file_open(file_name, 0);
+	el_file_ptr result;
+
+	ENTER_DEBUG_MARK("file open");
+
+	result = file_open(file_name, 0);
+
+	LEAVE_DEBUG_MARK("file open");
+
+	return result;
 }
 
 el_file_ptr el_open_custom(const char* file_name)
 {
-	return file_open(file_name, get_path_config_base());
+	el_file_ptr result;
+
+	ENTER_DEBUG_MARK("file open");
+
+	result = file_open(file_name, get_path_config_base());
+
+	LEAVE_DEBUG_MARK("file open");
+
+	return result;
 }
 
 el_file_ptr el_open_anywhere(const char* file_name)
 {
-	return file_open(file_name, get_path_config());
+	el_file_ptr result;
+
+	ENTER_DEBUG_MARK("file open");
+
+	result = file_open(file_name, get_path_config());
+
+	LEAVE_DEBUG_MARK("file open");
+
+	return result;
 }
 
 Sint64 el_read(el_file_ptr file, Sint64 size, void* buffer)
@@ -840,17 +902,41 @@ void* el_get_pointer(el_file_ptr file)
 
 int el_file_exists(const char* file_name)
 {
-	return file_exists_path(file_name, 0);
+	int result;
+
+	ENTER_DEBUG_MARK("file exists");
+
+	result = file_exists_path(file_name, 0);
+
+	LEAVE_DEBUG_MARK("file exists");
+
+	return result;
 }
 
 int el_custom_file_exists(const char* file_name)
 {
-	return file_exists_path(file_name, get_path_config_base());
+	int result;
+
+	ENTER_DEBUG_MARK("file exists");
+
+	result = file_exists_path(file_name, get_path_config_base());
+
+	LEAVE_DEBUG_MARK("file exists");
+
+	return result;
 }
 
 int el_file_exists_anywhere(const char* file_name)
 {
-	return file_exists_path(file_name, get_path_config());
+	int result;
+
+	ENTER_DEBUG_MARK("file exists");
+
+	result = file_exists_path(file_name, get_path_config());
+
+	LEAVE_DEBUG_MARK("file exists");
+
+	return result;
 }
 
 const char* el_file_name(el_file_ptr file)

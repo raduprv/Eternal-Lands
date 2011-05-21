@@ -355,9 +355,6 @@ void fast_unpack(const Uint8* source, const Uint32 size, const Uint32 red,
 #ifdef	USE_SIMD
 	if (SDL_HasSSE2())
 	{
-		LOG_DEBUG_VERBOSE("size: %d, source: %p, dest: %p", size,
-			source, dest);
-
 		if (((size & 0x0F) == 0) && check_pointer_aligment(source) &&
 			check_pointer_aligment(dest))
 		{
@@ -422,8 +419,6 @@ void fast_replace_a8_rgba8(const Uint8* alpha, const Uint32 size, Uint8* source)
 #ifdef	USE_SIMD
 	if (SDL_HasSSE2())
 	{
-		LOG_DEBUG_VERBOSE("size: %d, source: %p", size, source);
-
 		if (((size & 0x03) == 0) && check_pointer_aligment(source))
 		{
 			replace_a8_rgba8_sse2(alpha, size, source);
@@ -445,8 +440,6 @@ void fast_replace_alpha_rgba8(const Uint8 alpha, const Uint32 size, Uint8* sourc
 #ifdef	USE_SIMD
 	if (SDL_HasSSE2())
 	{
-		LOG_DEBUG_VERBOSE("size: %d, source: %p", size, source);
-
 		if (((size & 0x03) == 0) && check_pointer_aligment(source))
 		{
 			replace_alpha_rgba8_sse2(alpha, size, source);
@@ -469,9 +462,6 @@ void fast_blend(const Uint8* alpha, const Uint32 size, const Uint8* source0,
 #ifdef	USE_SIMD
 	if (SDL_HasSSE2())
 	{
-		LOG_DEBUG_VERBOSE("size: %d, source0: %p, sourc1: %p, dest: %p",
-			size, source0, source1, dest);
-
 		if (((size & 0x03) == 0) && check_pointer_aligment(source0) &&
 			check_pointer_aligment(source1) &&
 			check_pointer_aligment(dest))

@@ -1162,7 +1162,7 @@ void init_opengl_extensions()
 			glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &texture_units);
 		}
 	}
-	LOG_INFO("GL_MAX_TEXTURE_UNITS_ARB: %d", texture_units);
+	LOG_DEBUG("GL_MAX_TEXTURE_UNITS_ARB: %d", texture_units);
 /*	GL_ARB_multitexture			*/
 /*	GL_ARB_texture_compression		*/
 	if (strstr(extensions_string, "GL_ARB_texture_compression") != NULL)

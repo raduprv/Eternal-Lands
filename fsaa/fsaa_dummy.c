@@ -3,7 +3,7 @@
 
 unsigned int get_fsaa_modes()
 {
-	LOG_INFO("Using dummy to get fsaa modes");
+	LOG_DEBUG("Using dummy to get fsaa modes");
 
 	return 1;
 }

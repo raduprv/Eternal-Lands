@@ -1,52 +1,166 @@
-PROG= el.x86.bsd.bin
-SRCS= 2d_objects.c 3d_objects.c \
-    actor_scripts.c actors.c asc.c astrology.c buddy.c books.c \
-    cache.c calc.c chat.c cluster.c colors.c console.c consolewin.c counters.c \
-    cursors.c dialogues.c draw_scene.c    \
-    elconfig.c elmemory.c elwindows.c encyclopedia.c errors.c events.c \
-    framebuffer.o filter.c font.c frustum.c   \
-    gamewin.c gl_init.c hud.c help.c    \
-    ignore.c init.c interface.c items.c \
-    keys.c knowledge.c langselwin.o lights.c loading_win.c loginwin.c list.c  \
-    main.c manufacture.c map_io.c mapwin.c  \
-    md2loader.c md5.c misc.c multiplayer.c  \
-    new_actors.c new_character.c notepad.c   \
-    openingwin.c \
-    particles.c paste.c pathfinder.c pm_log.c popup.o   \
-    questlog.c reflection.c rules.c \
-    sector.c session.c serverpopup.c shadows.c sound.c spells.c stats.c tabs.c  \
-    text.c textures.c tile_map.c timers.c translate.c trade.c   \
-    update.c url.c weather.c widgets.c \
-	books/fontdef.c books/parser.c books/symbols.c books/typesetter.c \
-    makeargv.o text_aliases.o
+.PHONY: clean release docs
 
-NOMAN= true
-LOCALBASE?=/usr/local
-X11BASE?=/usr/X11R6
-SDL_CONFIG?=${LOCALBASE}/bin/sdl11-config
-LIBXML2_CONFIG?=${LOCALBASE}/bin/xml2-config
-.if NODEBUG
-CFLAGS=-O3 -fomit-frame-pointer -ffast-math -pipe
-.else
-CFLAGS=-Wdeclaration-after-statement -Wall -Werror -ggdb -pipe
-.endif
-CFLAGS+=-march=i686 -DBSD -DELC -DCOUNTERS
-CFLAGS+=-I${X11BASE}/include `${SDL_CONFIG} --cflags`
-CFLAGS+=`${LIBXML2_CONFIG} --cflags` -I${LOCALBASE}/include
-LDFLAGS+=-L${X11BASE}/lib -lGL `${SDL_CONFIG} --libs` `${LIBXML2_CONFIG} --libs`
-LDFLAGS+=-L${LOCALBASE}/lib -lSDL_net -lSDL_image -lopenal -lGLU -lvorbis -lvorbisfile -lm
-.if CAL3D
-SRCS+=cal3dwrap.c
-LDFLAGS+=-lcal3d
-.endif
- 
+-include make.conf
+
+# basic compiling and linking - rarely changed
+OPTIONS = -DBSD -DUSE_FILE32API -DELC $(foreach FEATURE, $(FEATURES), -D$(FEATURE)) -D_7ZIP_ST
+CFLAGS=$(PLATFORM) $(CWARN) -O0 -ggdb -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags) -fno-strict-aliasing $(EXTRA_INCLUDES)
+_CFLAGS=$(PLATFORM) -O2 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags) -fno-strict-aliasing $(EXTRA_INCLUDES)
+CXXFLAGS=$(PLATFORM) $(CXXWARN) -O0 -ggdb -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags) -fno-strict-aliasing $(EXTRA_INCLUDES)
+_CXXFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags) -fno-strict-aliasing $(EXTRA_INCLUDES)
+
+PNG_SCREENSHOT_LIBS = -lpng
+LDFLAGS=$(shell sdl-config --libs) $(shell xml2-config --libs) -lSDL_net -lSDL_image -lopenal $(XDIR) -lGL -lGLU -lcal3d -lm $(EXTRA_LIBS) -lz -lpng -lvorbis -lvorbisfile \
+	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_LIBS))
+_LDFLAGS=$(XDIR) -lGL -lpthread -lstdc++
+
+# This works on Ubuntu 8.04 (LTS) at least
+# Install these packages in addition to those required for a standard build
+# libasound2-dev libaudio-dev libartsc0-dev libesd0-dev libpulse-dev libaa1-dev libgpmg1-dev libdirectfb-dev
+LIBD=/usr/lib
+STATICLIBS=$(LIBD)/libSDL_net.a $(LIBD)/libSDL.a $(LIBD)/libSDL_image.a $(LIBD)/libopenal.a $(LIBD)/libvorbisfile.a $(LIBD)/libvorbis.a $(LIBD)/libogg.a $(LIBD)/libxml2.a $(LIBD)/libcal3d.a $(LIBD)/libpng.a $(LIBD)/libasound.a $(LIBD)/libaudio.a $(LIBD)/libartsc.a $(LIBD)/libesd.a $(LIBD)/libpulse-simple.a $(LIBD)/libpulse.a $(LIBD)/libaa.a $(LIBD)/libgpm.a $(LIBD)/libcurses.a $(LIBD)/libslang.a $(LIBD)/libdirectfb.a $(LIBD)/libdirect.a $(LIBD)/libfusion.a $(LIBD)/librt.a $(LIBD)/libtiff.a $(LIBD)/libjpeg.a $(LIBD)/libGLU.a $(LIBD)/libz.a
+
+# the objects we need
+ENCYCLOPEDIA_COBJ = books/fontdef.o books/parser.o books/symbol.o books/typesetter.o sort.o symbol_table.o
+MEMORY_DEBUG_COBJ = elmemory.o
+TEXT_ALIASES_COBJ = text_aliases.o
+PAWN_COBJ = pawn/amx.o pawn/amxaux.o pawn/amxcons.o pawn/amxel.o \
+	pawn/amxfloat.o pawn/amxstring.o pawn/elpawn.o
+NEW_TEXTURES_COBJ = image_loading.o
+NEW_TEXTURES_CXXOBJ = engine/hardwarebuffer.o
+CUSTOM_UPDATE_COBJ = custom_update.o new_update.o
+FSAA_COBJ = fsaa/fsaa_glx.o fsaa/fsaa.o
+COBJS=2d_objects.o 3d_objects.o \
+	actor_scripts.o actors.o alphamap.o asc.o astrology.o \
+	bbox_tree.o books.o buddy.o buffs.o bags.o \
+	cache.o cal.o calc.o chat.o cluster.o colors.o console.o consolewin.o \
+	counters.o cursors.o dds.o ddsimage.o dialogues.o draw_scene.o eye_candy_debugwin.o \
+	elconfig.o elwindows.o encyclopedia.o errors.o events.o	\
+	filter.o font.o framebuffer.o frustum.o	\
+	gamewin.o gl_init.o hud.o help.o highlight.o	\
+	ignore.o init.o interface.o items.o io/fileutil.o	\
+	io/e3d_io.o io/elc_io.o	io/map_io.o io/elpathwrapper.o io/xmlcallbacks.o \
+	io/half.o io/normal.o io/elfilewrapper.o io/unzip.o io/ioapi.o io/zip.o io/ziputil.o	\
+	keys.o knowledge.o langselwin.o lights.o list.o load_gl_extensions.o loginwin.o loading_win.o	\
+	main.o manufacture.o map.o mapwin.o memory.o	\
+	md5.o mines.o minimap.o misc.o missiles.o multiplayer.o	\
+	new_actors.o new_character.o notepad.o	\
+	openingwin.o image.o \
+	shader/noise.o shader/shader.o	\
+	particles.o paste.o pathfinder.o pm_log.o	\
+	queue.o reflection.o	rules.o	sky.o	\
+	skeletons.o skills.o serverpopup.o servers.o session.o shadows.o sound.o	\
+	spells.o stats.o storage.o special_effects.o	\
+	tabs.o text.o textures.o tile_map.o timers.o translate.o trade.o	\
+	update.o url.o weather.o widgets.o makeargv.o popup.o hash.o emotes.o \
+	xz/7zCrc.o xz/7zCrcOpt.o xz/Alloc.o xz/Bra86.o xz/Bra.o xz/BraIA64.o	\
+	xz/CpuArch.o xz/Delta.o xz/LzFind.o xz/Lzma2Dec.o xz/Lzma2Enc.o	\
+	xz/LzmaDec.o xz/LzmaEnc.o xz/Sha256.o xz/Xz.o xz/XzCrc64.o xz/XzDec.o	\
+	xz/XzEnc.o	\
+	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_COBJ))
+	
+CXXOBJS=actor_init.o cal3d_wrapper.o context_menu.o optimizer.o sendvideoinfo.o	\
+	exceptions/extendedexception.o xml/xmlhelper.o quest_log.o	\
+	engine/logging.o elloggingwrapper.o	\
+	io/cal3d_io_wrapper.o item_lists.o \
+	user_menus.o achievements.o select.o \
+	eye_candy_wrapper.o \
+	eye_candy/eye_candy.o eye_candy/math_cache.o eye_candy/effect_lamp.o \
+	eye_candy/effect_candle.o \
+	eye_candy/effect_campfire.o eye_candy/effect_fountain.o \
+	eye_candy/effect_teleporter.o eye_candy/effect_firefly.o \
+	eye_candy/effect_sword.o eye_candy/effect_summon.o \
+	eye_candy/effect_selfmagic.o eye_candy/effect_targetmagic.o \
+	eye_candy/effect_ongoing.o eye_candy/effect_impact.o \
+	eye_candy/effect_smoke.o eye_candy/effect_bag.o eye_candy/effect_cloud.o \
+	eye_candy/effect_harvesting.o eye_candy/effect_wind.o \
+	eye_candy/effect_breath.o eye_candy/effect_glow.o \
+	eye_candy/effect_mines.o eye_candy/effect_missile.o \
+	eye_candy/orbital_mover.o eye_candy/kepler_orbit.o	\
+	eye_candy/effect_staff.o \
+	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_CXXOBJ))
+
+OBJS=$(COBJS) $(CXXOBJS)
+HEADER_DIRS = . books eye_candy io pawn fsaa engine xz
+
+
+DEP_FILES=$(foreach OBJ, $(COBJS), .deps/$(OBJ).P) $(foreach OBJ, $(CXXOBJS), .deps/$(OBJ).P)
+#(shell echo $OBJ |sed s/\.o/\.P/))
+
+EXE=el.x86.bsd.bin
+
+ifndef CC
+CC=gcc
+endif
+ifndef CXX
+CXX=g++
+endif
+ifndef LINK
+LINK=gcc
+endif
+
+all: $(EXE)
+
+# the compile targets
+$(EXE): $(OBJS)
+	@echo "  LINK $(EXE)"
+	@$(LINK) $(CFLAGS) -o $(EXE) $(OBJS) $(LDFLAGS)
+
+#recompile on Makefile or conf change
+#.depend $(OBJS): Makefile.bsd make.conf
+
+DEPS_MAGIC := $(shell mkdir .deps .deps/io .deps/shader .deps/eye_candy .deps/exceptions .deps/xz .deps/xml .deps/fsaa .deps/engine > /dev/null 2>&1 || :)
+
+$(COBJS): %.o: %.c Makefile.bsd make.conf
+	@echo "  CC   $@"
+	@if $(CC) $(CFLAGS) -MT '$@' -MD -MP -MF '.deps/$@.pp' -c $< -o $@; then \
+		mv ".deps/$@.pp" ".deps/$@.P"; \
+	else rm -f ".deps/$@.pp"; exit 1; \
+	fi
+
+$(CXXOBJS): %.o: %.cpp Makefile.bsd make.conf
+	@echo "  CXX  $@"
+	@if $(CXX) $(CXXFLAGS) -MT '$@' -MD -MP -MF '.deps/$@.pp' -c $< -o $@; then \
+		mv ".deps/$@.pp" ".deps/$@.P"; \
+	else rm -f ".deps/$@.pp"; exit 1; \
+	fi
+
 release:
-	make -DNODEBUG -f Makefile.bsd
+	@$(MAKE) -f Makefile.bsd 'CFLAGS=$(_CFLAGS)' 'CXXFLAGS=$(_CXXFLAGS)'
 
-cal3d:
-	make -DCAL3D -f Makefile.bsd 
+static:
+	@$(MAKE) -f Makefile.bsd 'CFLAGS=$(_CFLAGS)' 'CXXFLAGS=$(_CXXFLAGS)' 'LDFLAGS=$(_LDFLAGS)' 'OBJS=$(OBJS) $(STATICLIBS)'
 
-cal3dwrap.o:
-	$(CXX) ${CFLAGS} -c cal3dwrap.c 
+clean:
+	rm -f $(OBJS) $(EXE) 
 
-.include <bsd.prog.mk>
+docs:	
+	cd docs && doxygen Doxyfile
+
+.depend: $(foreach HEADER_DIR, $(HEADER_DIRS), $(wildcard $(HEADER_DIR)/*.h))
+	$(CC) $(CFLAGS) -MM $(patsubst %.o, %.c, $(COBJS)) >.depend
+	$(CXX) $(CXXFLAGS) -MM $(patsubst %.o, %.cpp, $(CXXOBJS)) >>.depend
+
+make.conf: make.defaults
+	@if (test -f $@ -a '$(UPDATE_CONF)' != 'yes'); \
+	then \
+		echo '**'; \
+		echo '* WARNING: $< is newer than $@!'; \
+		echo '* Proceeding in 10 seconds, hit Ctrl-C to abort...'; \
+		echo '*'; \
+		sleep 10; \
+	else \
+		cp $< $@; \
+	fi
+
+
+pawn_scripts/features.inc: make.conf
+	echo "#if defined _features_included" > $@; \
+	echo "\t#endinput" >> $@; \
+	echo "#endif" >> $@; \
+	echo "#define _features_included" >> $@; \
+	for feature in $(FEATURES); do \
+		echo "#define $$feature" >> $@; \
+	done
+
+-include $(DEP_FILES)

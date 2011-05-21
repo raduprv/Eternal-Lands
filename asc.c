@@ -529,80 +529,176 @@ int find_description_index (const dict_elem dict[], const char *elem, const char
 	return -1;
 }
 
-void get_string_value (char *buf, size_t maxlen, xmlNode *node) {
-	if (node->children == NULL)
+void get_string_value(char *buf, size_t maxlen, xmlNode *node)
+{
+	if (node == 0)
+	{
+		LOG_ERROR("Node is null!");
+
 		buf[0] = '\0';
+
+		return;
+	}
+
+	if (node->children == 0)
+	{
+		buf[0] = '\0';
+	}
 	else
-		my_strncp (buf, (char*)node->children->content, maxlen);
+	{
+		my_strncp(buf, (char*)node->children->content, maxlen);
+	}
 }
 
-void get_item_string_value (char *buf, size_t maxlen, xmlNode *item, const unsigned char *name) {
+void get_item_string_value(char *buf, size_t maxlen, xmlNode *item,
+	const unsigned char *name)
+{
 	xmlNode	*node;
 	
+	if (item == 0)
+	{
+		LOG_ERROR("Item is null!");
+
+		buf[0] = '\0';
+
+		return;
+	}
 	// look for this entry in the children
-	for(node=item->children; node; node=node->next){
-		if(node->type == XML_ELEMENT_NODE) {
-			if(xmlStrcasecmp(node->name, name) == 0){
-				if (node->children == NULL)
-					buf[0] = '\0';
-				else
-					my_strncp (buf, (char*)node->children->content, maxlen);
+	for (node = item->children; node; node = node->next)
+	{
+		if (node->type == XML_ELEMENT_NODE)
+		{
+			if (xmlStrcasecmp(node->name, name) == 0)
+			{
+				get_string_value(buf, maxlen, node);
 				return;
 			}
 		}
 	}
 }
 
-int get_bool_value (xmlNode *node) {
+int get_bool_value(xmlNode *node)
+{
 	Uint8 *tval;
-	if (node->children == NULL) return 0;
+
+	if (node == 0)
+	{
+		LOG_ERROR("Node is null!");
+
+		return 0;
+	}
+
+	if (node->children == 0)
+	{
+		return 0;
+	}
+
 	tval = node->children->content;
-	return (xmlStrcasecmp (tval, (Uint8 *)"yes") == 0 || xmlStrcasecmp (tval, (Uint8 *)"true") == 0 || xmlStrcasecmp (tval, (Uint8 *)"1") == 0);
+
+	return (xmlStrcasecmp(tval, (Uint8*)"yes") == 0) ||
+		(xmlStrcasecmp(tval, (Uint8*)"true") == 0) ||
+		(xmlStrcasecmp(tval, (Uint8*)"1") == 0);
 }
 
-int get_int_value (xmlNode *node) {
-	if (node->children == NULL) return 0;
+int get_int_value(xmlNode *node)
+{
+	if (node == 0)
+	{
+		LOG_ERROR("Node is null!");
+
+		return 0;
+	}
+
+	if (node->children == 0)
+	{
+		return 0;
+	}
+
 	return atoi ((char*)node->children->content);
 }
 
-double get_float_value (xmlNode *node) {
-	if (node->children == NULL) return 0.0;
+double get_float_value(xmlNode *node)
+{
+	if (node == 0)
+	{
+		LOG_ERROR("Node is null!");
+
+		return 0;
+	}
+
+	if (node->children == 0)
+	{
+		return 0.0;
+	}
+
 	return atof ((char*)node->children->content);
 }
 
-int get_int_property (xmlNode *node, const char *prop)
+int get_int_property(xmlNode *node, const char *prop)
 {
 	xmlAttr *attr;
 
+	if (node == 0)
+	{
+		LOG_ERROR("Node is null!");
+		return 0;
+	}
+
 	for (attr = node->properties; attr; attr = attr->next)
 	{
-		if (attr->type == XML_ATTRIBUTE_NODE && xmlStrcasecmp (attr->name, (Uint8 *)prop) == 0)
+		if ((attr->type == XML_ATTRIBUTE_NODE) &&
+			(xmlStrcasecmp(attr->name, (Uint8 *)prop) == 0))
 		{
-			return atoi ((char*)attr->children->content);
+			return atoi((char*)attr->children->content);
 		}
 	}
 
 	return -1;
 }
 
-int get_property (xmlNode *node, const char *prop, const char *desc, const dict_elem dict[]) {
+int get_property(xmlNode *node, const char *prop, const char *desc,
+	const dict_elem dict[])
+{
 	xmlAttr *attr;
 
-	for (attr = node->properties; attr; attr = attr->next) {
-		if (attr->type == XML_ATTRIBUTE_NODE && xmlStrcasecmp (attr->name, (Uint8 *)prop) == 0) {
-			return find_description_index (dict, (char*)attr->children->content, desc);
+	if (node == NULL)
+	{
+		LOG_ERROR("Node is null!");
+
+		return 0;
+	}
+
+	for (attr = node->properties; attr; attr = attr->next)
+	{
+		if ((attr->type == XML_ATTRIBUTE_NODE) &&
+			(xmlStrcasecmp (attr->name, (Uint8 *)prop) == 0))
+		{
+			return find_description_index(dict,
+				(char*)attr->children->content, desc);
 		}
 	}
 
 	LOG_ERROR("Unable to find property %s in node %s\n", prop, node->name);
+
 	return -1;
 }
 
-char *get_string_property (xmlNode *node, const char *prop) {
+char *get_string_property(xmlNode *node, const char *prop)
+{
 	xmlAttr *attr;
 
-	for (attr = node->properties; attr; attr = attr->next) {
-		if (attr->type == XML_ATTRIBUTE_NODE && xmlStrcasecmp (attr->name, (Uint8 *)prop) == 0) {
+	if (node == NULL)
+	{
+		LOG_ERROR("Node is null!");
+
+		return "";
+	}
+
+	for (attr = node->properties; attr; attr = attr->next)
+	{
+		if ((attr->type == XML_ATTRIBUTE_NODE) &&
+			(xmlStrcasecmp (attr->name, (Uint8 *)prop) == 0))
+		{
 			return (char*)attr->children->content;
 		}
 	}

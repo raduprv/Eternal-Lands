@@ -7,11 +7,17 @@
 
 #include "logging.hpp"
 #include <bitset>
-#include <fstream>
 #include <sstream>
 #include <ctime>
+#include <vector>
+#include <map>
 #include <cstdio>
+#include <fcntl.h>
+#include <unistd.h>
+#include <dirent.h>
+#include <sys/stat.h>
 #include <SDL/SDL_mutex.h>
+#include <SDL/SDL_thread.h>
 #include "../elc_private.h"
 
 namespace eternal_lands
@@ -20,86 +26,32 @@ namespace eternal_lands
 	namespace
 	{
 
-		SDL_mutex* log_mutex;
-		std::ofstream log_file;
-		std::string last_message;
-		Uint32 last_message_count;
-#ifdef	RELEASE_MODE
-		volatile LogLevelType log_levels = llt_info;
-#else	/* RELEASE_MODE */
-		volatile LogLevelType log_levels = llt_debug_verbose;
-#endif	/* RELEASE_MODE */
-
-		void log_message(const std::string &type,
-			const std::string &message, const std::string &file,
-			const Uint32 line)
+		class DebugMark
 		{
-			char buffer[128];
-			std::stringstream str;
-			std::time_t raw_time;
+			public:
+				std::string m_name;
+				Uint64 m_log_file_pos;
 
-			if (!log_file.is_open())
-			{
-				return;
-			}
+		};
 
-			std::time(&raw_time);
-			memset(buffer, 0, sizeof(buffer));
-			std::strftime(buffer, sizeof(buffer), "%X",
-				std::localtime(&raw_time));
+		class ThreadData
+		{
+			public:
+				std::vector<DebugMark> m_debug_marks;
+				std::string m_name;
+				std::string m_last_message;
+				Uint32 m_last_message_count;
+				Uint32 m_message_level;
+				int m_log_file;
 
-			if (log_levels >= llt_debug_verbose)
-			{
-				str << ", " << file << ":" << line;
-			}
+		};
 
-			str << "] " << type << ": " << message;
+		typedef std::map<Uint32, ThreadData> ThreadDatas;
 
-			if (str.str() == last_message)
-			{
-				last_message_count++;
-				return;
-			}
-
-			if (last_message_count > 0)
-			{
-				log_file << "[" << buffer;
-
-				if (log_levels >= llt_debug_verbose)
-				{
-					log_file << ", " << __FILE__ << ":";
-					log_file << __LINE__;
-				}
-
-				log_file << "]";
-				log_file << "Last message repeated ";
-				log_file << last_message_count << "time";
-
-				if (last_message_count > 1)
-				{
-					log_file << "s";
-				}
-
-				log_file << "\n";
-			}
-
-			log_file << "[" << buffer << str.str();
-
-			if (message.rbegin() != message.rend())
-			{
-				if (*message.rbegin() != '\n')
-				{
-					log_file << "\n";
-				}
-			}
-			else
-			{
-				log_file << "\n";
-			}
-
-			last_message = str.str();
-			last_message_count = 0;
-		}
+		std::string log_dir;
+		SDL_mutex* log_mutex;
+		ThreadDatas thread_datas;
+		volatile LogLevelType log_levels = llt_debug;
 
 		std::string get_str(const LogLevelType log_level)
 		{
@@ -119,15 +71,189 @@ namespace eternal_lands
 			}
 		}
 
-		void rename_old_logfile(const std::string &log_file_name,
-			const Uint32 index)
+		void log_message(const std::string &type,
+			const std::string &message, const std::string &file,
+			const Uint32 line, ThreadData &thread)
 		{
-			std::stringstream str1, str2;
+			char buffer[128];
+			std::stringstream str, log_stream;
+			std::time_t raw_time;
 
-			str1 << log_file_name << "." << index;
-			str2 << log_file_name << "." << (index + 1);
+			if (thread.m_log_file == -1)
+			{
+				return;
+			}
 
-			std::rename(str1.str().c_str(), str2.str().c_str());
+			std::time(&raw_time);
+			memset(buffer, 0, sizeof(buffer));
+			std::strftime(buffer, sizeof(buffer), "%X",
+				std::localtime(&raw_time));
+
+			str << ", " << file << ":" << line << "] " << type;
+			str << ": " << message;
+
+			if (str.str() == thread.m_last_message)
+			{
+				thread.m_last_message_count++;
+				return;
+			}
+
+			if (thread.m_last_message_count > 0)
+			{
+				log_stream << "[" << buffer;
+
+				if (log_levels >= llt_debug_verbose)
+				{
+					log_stream << ", " << __FILE__ << ":";
+					log_stream << __LINE__;
+				}
+
+				log_stream << "]";
+				log_stream << "Last message repeated ";
+				log_stream << thread.m_last_message_count;
+				log_stream << "time";
+
+				if (thread.m_last_message_count > 1)
+				{
+					log_stream << "s";
+				}
+
+				log_stream << "\n";
+			}
+
+			log_stream << "[" << buffer << str.str();
+
+			if (message.rbegin() != message.rend())
+			{
+				if (*message.rbegin() != '\n')
+				{
+					log_stream << "\n";
+				}
+			}
+			else
+			{
+				log_stream << "\n";
+			}
+
+			thread.m_last_message = str.str();
+			thread.m_last_message_count = 0;
+
+			write(thread.m_log_file, log_stream.str().c_str(),
+				log_stream.str().length());
+		}
+
+		void update_message_level(const LogLevelType log_level,
+			ThreadData &thread_data)
+		{
+			Uint32 level;
+
+			if ((log_levels >= log_level) &&
+				(thread_data.m_debug_marks.rbegin() !=
+				thread_data.m_debug_marks.rend()) &&
+				(log_level < llt_debug))
+			{
+				level = thread_data.m_debug_marks.size();
+				thread_data.m_message_level = std::max(level,
+					thread_data.m_message_level);
+			}
+		}
+
+		void do_log_message(const LogLevelType log_level,
+			const std::string &message, const std::string &file,
+			const Uint32 line, ThreadData &thread_data)
+		{
+			if (log_levels >= log_level)
+			{
+				log_message(get_str(log_level), message, file,
+					line, thread_data);
+
+				update_message_level(log_level, thread_data);
+			}
+		}
+
+		void do_enter_debug_mark(const std::string &name,
+			const std::string &file, const Uint32 line,
+			ThreadData &thread_data)
+		{
+			DebugMark debug_mark;
+			std::stringstream str;
+
+			debug_mark.m_name = name;
+			debug_mark.m_log_file_pos = lseek(
+				thread_data.m_log_file, 0, SEEK_CUR);
+
+			thread_data.m_debug_marks.push_back(debug_mark);
+
+			str << "Enter debug mark '" << name << "'";
+
+			do_log_message(llt_debug, str.str(), file, line,
+				thread_data);
+		}
+
+		void do_leave_debug_mark(const std::string &name,
+			const std::string &file, const Uint32 line,
+			ThreadData &thread_data)
+		{
+			std::stringstream str;
+			Uint64 size;
+			Uint32 level;
+
+			if (thread_data.m_debug_marks.rbegin() ==
+				thread_data.m_debug_marks.rend())
+			{
+				str << "Can't leave debug mark '";
+				str << name << "', because no debug mark ";
+				str << "entered.";
+
+				do_log_message(llt_error, str.str(), file,
+					line, thread_data);
+
+				return;
+			}
+
+			if (thread_data.m_debug_marks.rbegin()->m_name != name)
+			{
+				str << "Can't leave debug mark '";
+				str << name << "', because current debug mark";
+				str << " is '";
+				str << thread_data.m_debug_marks.rbegin(
+					)->m_name << "'.";
+
+				do_log_message(llt_error, str.str(), file,
+					line, thread_data);
+
+				thread_data.m_debug_marks.pop_back();
+
+				return;
+			}
+
+			if (log_levels < llt_debug_verbose)
+			{
+				size = thread_data.m_debug_marks.rbegin(
+					)->m_log_file_pos;
+
+				if (thread_data.m_message_level <
+					thread_data.m_debug_marks.size())
+				{
+					lseek(thread_data.m_log_file, size,
+						SEEK_SET);
+					ftruncate(thread_data.m_log_file,
+						size);
+				}
+			}
+			else
+			{
+				str << "Leave debug mark '" << name << "'";
+
+				do_log_message(llt_debug_verbose, str.str(),
+					file, line, thread_data);
+			}
+
+			thread_data.m_debug_marks.pop_back();
+
+			level = thread_data.m_debug_marks.size();
+			thread_data.m_message_level = std::min(level,
+				thread_data.m_message_level);
 		}
 
 		std::string get_local_time_string()
@@ -144,52 +270,99 @@ namespace eternal_lands
 			return buffer;
 		}
 
+		void init(const std::string &name)
+		{
+			ThreadDatas::iterator found;
+			std::stringstream file_name;
+			std::stringstream str;
+			Uint32 id;
+
+			id = SDL_ThreadID();
+
+			str << name << " (" << std::hex << id << ")";
+
+			found = thread_datas.find(id);
+
+			if (found != thread_datas.end())
+			{
+				found->second.m_name = str.str();
+
+				return;
+			}
+
+			file_name << log_dir << name << "_" << std::hex << id;
+			file_name << ".log";
+
+			thread_datas[id].m_name = str.str();
+			thread_datas[id].m_last_message_count = 0;
+			thread_datas[id].m_message_level = 0;
+			thread_datas[id].m_log_file = open(file_name.str(
+				).c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+
+			log_message("Log started at", get_local_time_string(),
+				__FILE__, __LINE__, thread_datas[id]);
+
+			log_message("version", FILE_VERSION, __FILE__,
+				__LINE__, thread_datas[id]);
+		}
+
+		void clear_dir(const std::string &dir)
+		{
+			struct dirent *dp;
+			DIR *dirp;
+			std::string file_name;
+
+			dirp = opendir(dir.c_str());
+
+			if (dirp == 0)
+			{
+				return;
+			}
+
+			dp = readdir(dirp);
+
+			while (dp != 0)
+			{
+				file_name = dir;
+				file_name += "/";
+				file_name += dp->d_name;
+				std::remove(file_name.c_str());
+				dp = readdir(dirp);
+			}
+
+			closedir(dirp);
+		}
+
 	}
 
-	void init_logging(const std::string &log_file_name)
+	void init_logging(const std::string &dir)
 	{
 		std::string str;
 
 		log_mutex = SDL_CreateMutex();
 
-		str = log_file_name;
-		str += ".9";
+		log_dir = dir + "/";
 
-		std::remove(str.c_str());
+		clear_dir(dir);
+#ifdef	WINDOWS
+		mkdir(dir.c_str());
+#else	/* WINDOWS */
+		mkdir(dir.c_str(), S_IRWXU | S_IRWXG);
+#endif	/* WINDOWS */
 
-		rename_old_logfile(log_file_name, 8);
-		rename_old_logfile(log_file_name, 7);
-		rename_old_logfile(log_file_name, 6);
-		rename_old_logfile(log_file_name, 5);
-		rename_old_logfile(log_file_name, 4);
-		rename_old_logfile(log_file_name, 3);
-		rename_old_logfile(log_file_name, 2);
-		rename_old_logfile(log_file_name, 1);
-		rename_old_logfile(log_file_name, 0);
-
-		str = log_file_name;
-		str += ".0";
-		std::rename(log_file_name.c_str(), str.c_str());
-
-		log_file.open(log_file_name.c_str(),
-			std::ios::out | std::ios::binary);
-
-		log_message("Log started at", get_local_time_string(),
-			__FILE__, __LINE__);
-
-		log_message("version", FILE_VERSION, __FILE__, __LINE__);
-
-		if (log_file.is_open())
-		{
-			log_file.flush();
-		}
-
-		last_message_count = 0;
+		init_thread_log("main");
 	}
 
 	void exit_logging()
 	{
-		log_file.close();
+		ThreadDatas::iterator it, end;
+
+		end = thread_datas.end();
+
+		for (it = thread_datas.begin(); it != end; ++it)
+		{
+			close(it->second.m_log_file);
+		}
 
 		SDL_DestroyMutex(log_mutex);
 	}
@@ -204,25 +377,67 @@ namespace eternal_lands
 		log_levels = log_level;
 	}
 
+	void init_thread_log(const std::string &name)
+	{
+		SDL_LockMutex(log_mutex);
+
+		init(name);
+
+		SDL_UnlockMutex(log_mutex);
+	}
+
 	void log_message(const LogLevelType log_level,
 		const std::string &message, const std::string &file,
 		const Uint32 line)
 	{
+		ThreadDatas::iterator found;
+
 		SDL_LockMutex(log_mutex);
 
-		if (log_levels >= log_level)
-		{
-			log_message(get_str(log_level), message, file, line);
+		found = thread_datas.find(SDL_ThreadID());
 
-			if (((log_level == llt_error) ||
-				(log_levels >= llt_debug_verbose)) &&
-				log_file.is_open())
-			{
-				log_file.flush();
-			}
+		if (found != thread_datas.end())
+		{
+			do_log_message(log_level, message, file, line,
+				found->second);
+		}
+
+		SDL_UnlockMutex(log_mutex);
+	}
+
+	void enter_debug_mark(const std::string &name,
+		const std::string &file, const Uint32 line)
+	{
+		ThreadDatas::iterator found;
+
+		SDL_LockMutex(log_mutex);
+
+		found = thread_datas.find(SDL_ThreadID());
+
+		if (found != thread_datas.end())
+		{
+			do_enter_debug_mark(name, file, line, found->second);
+		}
+
+		SDL_UnlockMutex(log_mutex);
+	}
+
+	void leave_debug_mark(const std::string &name,
+		const std::string &file, const Uint32 line)
+	{
+		ThreadDatas::iterator found;
+
+		SDL_LockMutex(log_mutex);
+
+		found = thread_datas.find(SDL_ThreadID());
+
+		if (found != thread_datas.end())
+		{
+			do_leave_debug_mark(name, file, line, found->second);
 		}
 
 		SDL_UnlockMutex(log_mutex);
 	}
 
 }
+

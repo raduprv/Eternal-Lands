@@ -467,7 +467,7 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 		return -1;
 	}
 
-	if(objects_list[id] != NULL)
+	if(objects_list[id] != 0)
 	{
 		LOG_ERROR("There's already an object with ID %d", id);
 		return -1;
