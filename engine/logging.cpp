@@ -146,6 +146,8 @@ namespace eternal_lands
 			const std::string &message, const std::string &file,
 			const Uint32 line, ThreadData &thread_data)
 		{
+			Uint32 level;
+
 			log_message(get_str(log_level), message, file,
 				line, thread_data);
 
@@ -190,7 +192,7 @@ namespace eternal_lands
 				if (log_levels >= llt_debug)
 				{
 					str << "Can't leave debug mark '";
-					str << name << "', because no debug "
+					str << name << "', because no debug ";
 					str << "mark " << "entered.";
 
 					do_log_message(llt_error, str.str(),
@@ -404,7 +406,7 @@ namespace eternal_lands
 	{
 		ThreadDatas::iterator found;
 
-		if (log_levels < log_level)
+		if (log_levels < llt_debug)
 		{
 			return;
 		}
@@ -426,7 +428,7 @@ namespace eternal_lands
 	{
 		ThreadDatas::iterator found;
 
-		if (log_levels < log_level)
+		if (log_levels < llt_debug)
 		{
 			return;
 		}
