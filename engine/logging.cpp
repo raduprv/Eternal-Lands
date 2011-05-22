@@ -142,32 +142,18 @@ namespace eternal_lands
 				log_stream.str().length());
 		}
 
-		void update_message_level(const LogLevelType log_level,
-			ThreadData &thread_data)
-		{
-			Uint32 level;
-
-			if ((log_levels >= log_level) &&
-				(thread_data.m_debug_marks.rbegin() !=
-				thread_data.m_debug_marks.rend()) &&
-				(log_level < llt_debug))
-			{
-				level = thread_data.m_debug_marks.size();
-				thread_data.m_message_level = std::max(level,
-					thread_data.m_message_level);
-			}
-		}
-
 		void do_log_message(const LogLevelType log_level,
 			const std::string &message, const std::string &file,
 			const Uint32 line, ThreadData &thread_data)
 		{
-			if (log_levels >= log_level)
-			{
-				log_message(get_str(log_level), message, file,
-					line, thread_data);
+			log_message(get_str(log_level), message, file,
+				line, thread_data);
 
-				update_message_level(log_level, thread_data);
+			if (log_level < llt_debug)
+			{
+				level = thread_data.m_debug_marks.size();
+				thread_data.m_message_level = std::max(level,
+					thread_data.m_message_level);
 			}
 		}
 
@@ -201,12 +187,15 @@ namespace eternal_lands
 			if (thread_data.m_debug_marks.rbegin() ==
 				thread_data.m_debug_marks.rend())
 			{
-				str << "Can't leave debug mark '";
-				str << name << "', because no debug mark ";
-				str << "entered.";
+				if (log_levels >= llt_debug)
+				{
+					str << "Can't leave debug mark '";
+					str << name << "', because no debug "
+					str << "mark " << "entered.";
 
-				do_log_message(llt_error, str.str(), file,
-					line, thread_data);
+					do_log_message(llt_error, str.str(),
+						file, line, thread_data);
+				}
 
 				return;
 			}
@@ -392,6 +381,11 @@ namespace eternal_lands
 	{
 		ThreadDatas::iterator found;
 
+		if (log_levels < log_level)
+		{
+			return;
+		}
+
 		SDL_LockMutex(log_mutex);
 
 		found = thread_datas.find(SDL_ThreadID());
@@ -410,6 +404,11 @@ namespace eternal_lands
 	{
 		ThreadDatas::iterator found;
 
+		if (log_levels < log_level)
+		{
+			return;
+		}
+
 		SDL_LockMutex(log_mutex);
 
 		found = thread_datas.find(SDL_ThreadID());
@@ -426,6 +425,11 @@ namespace eternal_lands
 		const std::string &file, const Uint32 line)
 	{
 		ThreadDatas::iterator found;
+
+		if (log_levels < log_level)
+		{
+			return;
+		}
 
 		SDL_LockMutex(log_mutex);
 
