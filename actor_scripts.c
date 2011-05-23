@@ -248,8 +248,8 @@ int get_motion_vector(int move_cmd, int *dx, int *dy)
 #ifdef	ANIMATION_SCALING
 static Uint32 update_actor_animation_speed(actor* a, const float time_diff)
 {
-	float scale;
-	Uint32 i, animations, seconds;
+	float scale, seconds;
+	Uint32 i, animations;
 
 	if (a == 0)
 	{
@@ -317,7 +317,6 @@ void animate_actors()
 		if(actors_list[i]) {
 #ifdef	ANIMATION_SCALING
 			time_diff = update_actor_animation_speed(actors_list[i], actors_time_diff);
-			time_diff = actors_list[i]->animation_scale * actors_time_diff;
 #endif	/* ANIMATION_SCALING */
 			if(actors_list[i]->moving) {
 #ifdef	ANIMATION_SCALING
