@@ -51,7 +51,7 @@ namespace eternal_lands
 		std::string log_dir;
 		SDL_mutex* log_mutex;
 		ThreadDatas thread_datas;
-		volatile LogLevelType log_levels = llt_debug;
+		volatile LogLevelType log_levels = llt_info;
 
 		std::string get_str(const LogLevelType log_level)
 		{
@@ -183,7 +183,7 @@ namespace eternal_lands
 			ThreadData &thread_data)
 		{
 			std::stringstream str;
-			Uint64 size;
+			Uint64 size, pos;
 			Uint32 level;
 
 			if (thread_data.m_debug_marks.rbegin() ==
@@ -226,10 +226,17 @@ namespace eternal_lands
 				if (thread_data.m_message_level <
 					thread_data.m_debug_marks.size())
 				{
+					pos = lseek(thread_data.m_log_file, 0,
+						SEEK_CUR);
 					lseek(thread_data.m_log_file, size,
 						SEEK_SET);
-					ftruncate(thread_data.m_log_file,
-						size);
+
+					if ((pos + 1024) < size)
+					{
+						ftruncate(
+							thread_data.m_log_file,
+							size);
+					}
 				}
 			}
 			else
@@ -347,11 +354,16 @@ namespace eternal_lands
 	void exit_logging()
 	{
 		ThreadDatas::iterator it, end;
+		Uint64 pos;
 
 		end = thread_datas.end();
 
 		for (it = thread_datas.begin(); it != end; ++it)
 		{
+			pos = lseek(it->second.m_log_file, 0, SEEK_CUR);
+
+			ftruncate(it->second.m_log_file, pos);
+
 			close(it->second.m_log_file);
 		}
 
