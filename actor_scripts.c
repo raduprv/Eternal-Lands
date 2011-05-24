@@ -4099,6 +4099,9 @@ int parse_actor_boots (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 		if (item->type == XML_ELEMENT_NODE) {
 			if (xmlStrcasecmp (item->name, (xmlChar*)"skin") == 0) {
 				get_string_value (boots->boots_name, sizeof (boots->boots_name), item);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"mesh") == 0) {
+				get_string_value (boots->model_name, sizeof (boots->model_name), item);
+				boots->mesh_index = cal_load_mesh (act, boots->model_name, "boots");
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"bootsmask") == 0) {
 				get_string_value (boots->boots_mask, sizeof (boots->boots_mask), item);
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"glow") == 0) {
@@ -4119,11 +4122,17 @@ int parse_actor_boots (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 		if(default_node){
 			if(boots->boots_name==NULL || *boots->boots_name=='\0')
 				get_item_string_value(boots->boots_name, sizeof(boots->boots_name), default_node, (xmlChar*)"skin");
+			if(boots->model_name==NULL || *boots->model_name=='\0'){
+				get_item_string_value(boots->model_name, sizeof(boots->model_name), default_node, (xmlChar*)"mesh");
+				boots->mesh_index= cal_load_mesh(act, boots->model_name, "boots");
+			}
 		}
 	}
 
 	// check the critical information
 	actor_check_string(act, "boots", "boots", boots->boots_name);
+	actor_check_string(act, "boots", "model", boots->model_name);
+	actor_check_int(act, "boots", "mesh", boots->mesh_index);
 
 	return ok;
 }
@@ -4157,6 +4166,14 @@ int cal_search_mesh (actor_types *act, const char *fn, const char *kind)
 		{
 			if (strcmp (fn, act->legs[i].model_name) == 0 && act->legs[i].mesh_index != -1)
 				return act->legs[i].mesh_index;
+		}
+	}
+	else if (act->boots && strcmp (kind, "boots") == 0)
+	{
+		for (i = 0; i < actor_part_sizes[ACTOR_BOOTS_SIZE]; i++)
+		{
+			if (strcmp (fn, act->boots[i].model_name) == 0 && act->boots[i].mesh_index != -1)
+				return act->boots[i].mesh_index;
 		}
 	}
 	else if (act->cape && strcmp (kind, "cape") == 0)

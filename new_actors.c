@@ -616,6 +616,12 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 									return;
 								}
 #endif	/* NEW_TEXTURES */
+								if(actors_defs[actors_list[i]->actor_type].boots[which_id].mesh_index != actors_list[i]->body_parts->boots_meshindex)
+								{
+									model_detach_mesh(actors_list[i], actors_list[i]->body_parts->boots_meshindex);
+									model_attach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].boots[which_id].mesh_index);
+									actors_list[i]->body_parts->boots_meshindex=actors_defs[actors_list[i]->actor_type].boots[which_id].mesh_index;
+								}
 							}
 						else return;
 
@@ -1129,9 +1135,11 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			model_attach_mesh(actors_list[i], actors_defs[actor_type].head[head].mesh_index);
 			model_attach_mesh(actors_list[i], actors_defs[actor_type].shirt[shirt].mesh_index);
 			model_attach_mesh(actors_list[i], actors_defs[actor_type].legs[pants].mesh_index);
+			model_attach_mesh(actors_list[i], actors_defs[actor_type].boots[boots].mesh_index);
 			actors_list[i]->body_parts->torso_meshindex=actors_defs[actor_type].shirt[shirt].mesh_index;
 			actors_list[i]->body_parts->legs_meshindex=actors_defs[actor_type].legs[pants].mesh_index;
 			actors_list[i]->body_parts->head_meshindex=actors_defs[actor_type].head[head].mesh_index;
+			actors_list[i]->body_parts->boots_meshindex=actors_defs[actor_type].boots[boots].mesh_index;
 
 			if (cape!=CAPE_NONE) model_attach_mesh(actors_list[i], actors_defs[actor_type].cape[cape].mesh_index);
 			if (helmet!=HELMET_NONE) model_attach_mesh(actors_list[i], actors_defs[actor_type].helmet[helmet].mesh_index);
@@ -1302,10 +1310,12 @@ actor * add_actor_interface(float x, float y, float z_rot, float scale, int acto
 			model_attach_mesh(a, actors_defs[actor_type].head[head].mesh_index);
 			model_attach_mesh(a, actors_defs[actor_type].shirt[shirt].mesh_index);
 			model_attach_mesh(a, actors_defs[actor_type].legs[pants].mesh_index);
+			model_attach_mesh(a, actors_defs[actor_type].boots[boots].mesh_index);
 
 			a->body_parts->torso_meshindex=actors_defs[actor_type].shirt[shirt].mesh_index;
 			a->body_parts->legs_meshindex=actors_defs[actor_type].legs[pants].mesh_index;
 			a->body_parts->head_meshindex=actors_defs[actor_type].head[head].mesh_index;
+			a->body_parts->boots_meshindex=actors_defs[actor_type].boots[boots].mesh_index;
 
 			assert(!"Using old client data" || actors_defs[actor_type].neck != NULL);
 			a->body_parts->neck_meshindex=actors_defs[actor_type].neck[NECK_NONE].mesh_index;
