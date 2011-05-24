@@ -513,6 +513,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			(my_strncompare(text_to_add+1, "You can't do that while trading!", 32)) ||
 			(my_strncompare(text_to_add+1, "You are too far away! Get closer!", 33)) ||
 			(my_strncompare(text_to_add+1, "You can't harvest here", 22)) ||
+			(my_strncompare(text_to_add+1, "You lack the knowledge of ", 26)) ||
 			((my_strncompare(text_to_add+1, "You need to wear ", 17) && strstr(text_to_add, "order to harvest") != NULL)) ||
 			((my_strncompare(text_to_add+1, "You need to have a ", 19) && strstr(text_to_add, "order to harvest") != NULL)))
 		{
