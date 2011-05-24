@@ -1084,14 +1084,6 @@ static void find_page(const char *search_title, void *data)
 {
 	size_t i;
 
-	/* an exact match always wins, open immediately */
-	for (i=0; i<num_page_links; ++i)
-		if(!xmlStrcasecmp((xmlChar*)page_links[i].title,(xmlChar*)search_title))
-		{
-			open_page(i);
-			return;
-		}
-
 	/* find matches where the search string is a substring of the title */
 	num_found_links = 0;
 	for (i=0; i<num_page_links && num_found_links<MAX_FOUND_LINKS; ++i)

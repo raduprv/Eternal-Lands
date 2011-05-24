@@ -111,6 +111,7 @@ typedef struct
 	int helmet_meshindex;
 	int neck_meshindex;
 	int cape_meshindex;
+	int boots_meshindex;
 
 	/*! \name The texture names*/
 	/*! \{ */
@@ -236,6 +237,7 @@ typedef struct
 typedef struct
 {
 	char boots_name[MAX_FILE_PATH];
+	char model_name[MAX_FILE_PATH];
 	char boots_mask[MAX_FILE_PATH];
 	int glow;
 	int mesh_index;
