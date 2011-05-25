@@ -320,7 +320,7 @@ void animate_actors()
 #endif	/* ANIMATION_SCALING */
 			if(actors_list[i]->moving) {
 #ifdef	ANIMATION_SCALING
-				tmp_time_diff = min2i(actors_list[i]->movement_time_left, time_diff);
+				tmp_time_diff = min2i(actors_list[i]->movement_time_left + 40, time_diff);
 
 				actors_list[i]->x_pos += actors_list[i]->move_x_speed * tmp_time_diff;
 				actors_list[i]->y_pos += actors_list[i]->move_y_speed * tmp_time_diff;
