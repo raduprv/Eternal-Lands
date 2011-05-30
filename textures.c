@@ -494,12 +494,6 @@ static Uint32 load_texture(texture_cache_t* texture_handle)
 			format = tft_dxt1;
 			break;
 		case tt_font:
-			min_filter = GL_LINEAR_MIPMAP_LINEAR;
-
-			if (poor_man == 0)
-			{
-				af = 1;
-			}
 			break;
 		case tt_mesh:
 			wrap_mode_repeat = 1;

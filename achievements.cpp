@@ -862,8 +862,9 @@ int achievements_keypress_handler(window_info *win, int mx, int my, Uint32 key, 
 			Achievements_System::get_instance()->hide_all();
 		else
 			hide_window(win->window_id);
+		return 1;
 	}
-	return 1;
+	return 0;
 }
 
 

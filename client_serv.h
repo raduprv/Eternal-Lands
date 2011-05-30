@@ -14,86 +14,88 @@ extern "C" {
  * \name Actor types
  */
 /*! @{ */
-#define human_female 0
-#define human_male 1
-#define elf_female 2
-#define elf_male 3
-#define dwarf_female 4
-#define dwarf_male 5
-#define wraith 6
-#define cyclops 7
-#define beaver 8
-#define rat 9
-#define goblin_male_2 10
-#define goblin_female_1 11
-#define town_folk4 12
-#define town_folk5 13
-#define shop_girl3 14
-#define deer 15
-#define bear 16
-#define wolf 17
-#define white_rabbit 18
-#define brown_rabbit 19
-#define boar 20
-#define bear2 21
-#define snake1 22
-#define snake2 23
-#define snake3 24
-#define fox 25
-#define puma 26
-#define ogre_male_1 27
-#define goblin_male_1 28
-#define orc_male_1 29
-#define orc_female_1 30
-#define skeleton 31
-#define gargoyle1 32
-#define gargoyle2 33
-#define gargoyle3 34
-#define troll 35
-#define chimeran_wolf_mountain 36
-#define gnome_female 37
-#define gnome_male 38
-#define orchan_female 39
-#define orchan_male 40
-#define draegoni_female 41
-#define draegoni_male 42
-#define skunk_1 43
-#define racoon_1 44
-#define unicorn_1 45
-#define chimeran_wolf_desert 46
-#define chimeran_wolf_forest 47
-#define bear_3 48
-#define bear_4 49
-#define panther 50
-#define feran 51
-#define leopard_1 52
-#define leopard_2 53
-#define chimeran_wolf_arctic 54
-#define tiger_1 55
-#define tiger_2 56
-#define armed_female_orc 57
-#define armed_male_orc 58
-#define armed_skeleton 59
-#define phantom_warrior 60
-#define imp 61
-#define brownie 62
-#define leprechaun 63
-#define spider_s_1 64
-#define spider_s_2 65
-#define spider_s_3 66
-#define spider_l_1 67
-#define spider_l_2 68
-#define spider_l_3 69
-#define wood_sprite 70
-#define spider_l_4 71
-#define spider_s_4 72
-#define giant_1 73
-#define hobgoblin 74
-#define yeti 75
-#define snake4 76
-#define feros 77
-#define dragon1 78
-
+typedef enum actor_types_type
+{
+	human_female = 0,
+	human_male = 1,
+	elf_female = 2,
+	elf_male = 3,
+	dwarf_female = 4,
+	dwarf_male = 5,
+	wraith = 6,
+	cyclops = 7,
+	beaver = 8,
+	rat = 9,
+	goblin_male_2 = 10,
+	goblin_female_1 = 11,
+	town_folk4 = 12,
+	town_folk5 = 13,
+	shop_girl3 = 14,
+	deer = 15,
+	bear = 16,
+	wolf = 17,
+	white_rabbit = 18,
+	brown_rabbit = 19,
+	boar = 20,
+	bear2 = 21,
+	snake1 = 22,
+	snake2 = 23,
+	snake3 = 24,
+	fox = 25,
+	puma = 26,
+	ogre_male_1 = 27,
+	goblin_male_1 = 28,
+	orc_male_1 = 29,
+	orc_female_1 = 30,
+	skeleton = 31,
+	gargoyle1 = 32,
+	gargoyle2 = 33,
+	gargoyle3 = 34,
+	troll = 35,
+	chimeran_wolf_mountain = 36,
+	gnome_female = 37,
+	gnome_male = 38,
+	orchan_female = 39,
+	orchan_male = 40,
+	draegoni_female = 41,
+	draegoni_male = 42,
+	skunk_1 = 43,
+	racoon_1 = 44,
+	unicorn_1 = 45,
+	chimeran_wolf_desert = 46,
+	chimeran_wolf_forest = 47,
+	bear_3 = 48,
+	bear_4 = 49,
+	panther = 50,
+	feran = 51,
+	leopard_1 = 52,
+	leopard_2 = 53,
+	chimeran_wolf_arctic = 54,
+	tiger_1 = 55,
+	tiger_2 = 56,
+	armed_female_orc = 57,
+	armed_male_orc = 58,
+	armed_skeleton = 59,
+	phantom_warrior = 60,
+	imp = 61,
+	brownie = 62,
+	leprechaun = 63,
+	spider_s_1 = 64,
+	spider_s_2 = 65,
+	spider_s_3 = 66,
+	spider_l_1 = 67,
+	spider_l_2 = 68,
+	spider_l_3 = 69,
+	wood_sprite = 70,
+	spider_l_4 = 71,
+	spider_s_4 = 72,
+	giant_1 = 73,
+	hobgoblin = 74,
+	yeti = 75,
+	snake4 = 76,
+	feros = 77,
+	dragon1 = 78
+} actor_types_type;
 /*! @} */
 
 /*!

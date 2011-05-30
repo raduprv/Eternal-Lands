@@ -1004,7 +1004,10 @@ void draw_lake_tiles()
 	draw_water_quad_tiles(start, stop, water_buffer_reflectiv_index, water_id);
 #endif	/* NEW_TEXTURES */
 #ifdef	FSAA
-	glDisable(GL_MULTISAMPLE);
+	if (fsaa > 1)
+	{
+		glDisable(GL_MULTISAMPLE);
+	}
 #endif	/* FSAA */
 
 	if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)
