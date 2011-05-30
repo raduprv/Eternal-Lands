@@ -2089,7 +2089,12 @@ int write_el_ini ()
 #endif // !WINDOWS
 	int nlines= 0, maxlines= 0, iline, ivar;
 	input_line *cont= NULL;
+	input_line last_line;
 	FILE *file;
+	short *written = NULL;
+
+	// Prevent duplicate entries by remembering which we have written
+	written = calloc(our_vars.no, sizeof(short));
 
 	// first check if we need to change anything
 	//
@@ -2130,29 +2135,41 @@ int write_el_ini ()
 		return 0;
 	}
 
+	strcpy(last_line, "");
 	for (iline= 0; iline < nlines; iline++)
 	{
 		if (cont[iline][0] != '#')
 		{
-			fprintf (file, "%s", cont[iline]);
+			if (strcmp(cont[iline], last_line) != 0)
+				fprintf (file, "%s", cont[iline]);
 		}
 		else
 		{
-			ivar= find_var (&(cont[iline][1]), 1);
+			ivar= find_var (&(cont[iline][1]), COMMAND_LINE_LONG_VAR);
+			if (ivar >= 0 && written[ivar])
+				continue;
 			if (ivar < 0 || our_vars.var[ivar]->saved)
 				fprintf (file, "%s", cont[iline]);
 			else
 				write_var (file, ivar);
+			if (ivar >= 0)
+				written[ivar] = 1;
 		}
+		strcpy(last_line, cont[iline]);
 	}
 
 	// now write all variables that still haven't been saved yet
 	for (ivar= 0; ivar < our_vars.no; ivar++)
 	{
+		// check if we already wrote a var with the same name
+		int check_var= find_var (our_vars.var[ivar]->name, COMMAND_LINE_LONG_VAR);
+		if (check_var >= 0 && written[check_var])
+			continue;
 		if (!our_vars.var[ivar]->saved)
 		{
 			fprintf (file, "\n");
 			write_var (file, ivar);
+			written[ivar] = 1;
 		}
 	}
 #if !defined(WINDOWS)
@@ -2165,6 +2182,7 @@ int write_el_ini ()
 #endif // !WINDOWS
 
 	fclose (file);
+	free (written);
 	free (cont);
 	return 1;
 }
