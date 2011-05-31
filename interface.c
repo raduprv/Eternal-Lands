@@ -693,14 +693,105 @@ CHECK_GL_ERRORS();
 #endif	/* NEW_TEXTURES */
 }
 
+static void draw_mark_filter(void)
+{
+	int screen_x=0;
+	int screen_y=0;
+
+	// display the Mark filter title
+	glColor3f(1.0f,1.0f,0.0f);
+	screen_x = 25 - 1.5*strlen(label_mark_filter);
+	screen_y = 150 + 22;
+	draw_string_zoomed(screen_x, screen_y, (unsigned char*)label_mark_filter, 1, 0.3);
+	
+	// if filtering marks, display the label and the current filter text
+	if (mark_filter_active) {
+		char * show_mark_filter_text;
+		int max_show_len = 15;
+		if (strlen(mark_filter_text) > max_show_len)
+		  show_mark_filter_text = &mark_filter_text[strlen(mark_filter_text)-max_show_len];
+		else if (strlen(mark_filter_text) == 0)
+			show_mark_filter_text = "_";
+		else
+		  show_mark_filter_text = mark_filter_text;
+		screen_x = 25 - 1.5*strlen(show_mark_filter_text);
+		screen_y = 150 + 29;
+		draw_string_zoomed(screen_x, screen_y, (unsigned char*)show_mark_filter_text, 1, 0.3);
+	}
+	// display which key to activate the filter
+	else
+	{
+		char buf[20];
+		get_key_string(K_MARKFILTER, buf, sizeof(buf));
+		draw_string_zoomed(25 - 1.5*strlen(buf), 150 + 29, (const unsigned char *)buf, 1, 0.3);
+	}
+}
+
+static void draw_marks(marking *the_marks, int the_max_mark, int the_tile_map_size_x, int the_tile_map_size_y)
+{
+	size_t i;
+	int screen_x=0;
+	int screen_y=0;
+
+	// crave the markings
+	for(i=0;i<the_max_mark;i++)
+	 {
+		int x = the_marks[i].x;
+		int y = the_marks[i].y;
+		if ( x > 0 ) {
+
+			// if filtering marks, don't display if it doesn't match the current filter
+			if (mark_filter_active
+				  && (get_string_occurance(mark_filter_text, the_marks[i].text, strlen(the_marks[i].text), 1) == -1))
+				continue;
+
+			screen_x=(51+200*x/(the_tile_map_size_x*6));
+			screen_y=201-200*y/(the_tile_map_size_y*6);
+
+			if(!the_marks[i].server_side) glColor3f((float)the_marks[i].r/255,(float)the_marks[i].g/255,(float)the_marks[i].b/255);//glColor3f(0.4f,1.0f,0.0f);
+			else glColor3f(0.33f,0.6f,1.0f);
+			glDisable(GL_TEXTURE_2D);
+			glBegin(GL_LINES);
+				glVertex2i(screen_x-9*mapmark_zoom,screen_y-9*mapmark_zoom);
+				glVertex2i(screen_x+6*mapmark_zoom,screen_y+6*mapmark_zoom);
+			
+				glVertex2i(screen_x+6*mapmark_zoom,screen_y-9*mapmark_zoom);
+				glVertex2i(screen_x-9*mapmark_zoom,screen_y+6*mapmark_zoom);
+			glEnd();
+				glEnable(GL_TEXTURE_2D);
+				if(!the_marks[i].server_side) glColor3f((float)the_marks[i].r/255,(float)the_marks[i].g/255,(float)the_marks[i].b/255);//glColor3f(0.2f,1.0f,0.0f);
+				else glColor3f(0.33f,0.6f,1.0f);
+			draw_string_zoomed(screen_x, screen_y, (unsigned char*)the_marks[i].text, 1, mapmark_zoom);
+		}
+	}
+}
+
+void draw_coordinates(int the_tile_map_size_x, int the_tile_map_size_y)
+{
+	int screen_x=0;
+	int screen_y=0;
+	int map_x, map_y;
+
+	// draw coordinates
+	if (pf_get_mouse_position_extended(mouse_x, mouse_y, &map_x, &map_y, the_tile_map_size_x, the_tile_map_size_y)) {
+		// we're pointing on the map, display position
+		char buf[10];
+		safe_snprintf(buf, sizeof(buf), "%d,%d", map_x, map_y);
+		glColor3f(1.0f,1.0f,0.0f);
+		screen_x = 25 - 1.5*strlen(buf);
+		screen_y = 150 + 8;
+		draw_string_zoomed(screen_x, screen_y, (unsigned char*)buf, 1, 0.3);
+		screen_x = 25 - 1.5*strlen(label_cursor_coords);
+		screen_y = 150 + 1;
+		draw_string_zoomed(screen_x, screen_y, (unsigned char*)label_cursor_coords, 1, 0.3);
+	}
+}
 
 void draw_game_map (int map, int mouse_mini)
 {     
 	int screen_x=0;
 	int screen_y=0;
-	int map_x, map_y;
 	int x=-1,y=-1;
-	int i;
 	float x_size=0,y_size=0;
 	GLuint map_small, map_large;
 	actor *me;
@@ -888,80 +979,14 @@ void draw_game_map (int map, int mouse_mini)
 			draw_string_zoomed (screen_x, screen_y, (unsigned char*)input_text_line.data, 1, mapmark_zoom);
 		}
 
+		draw_mark_filter();
 		if(inspect_map_text == 0) {
-			// display the Mark filter title
-			glColor3f(1.0f,1.0f,0.0f);
-			screen_x = 25 - 1.5*strlen(label_mark_filter);
-			screen_y = 150 + 22;
-			draw_string_zoomed(screen_x, screen_y, (unsigned char*)label_mark_filter, 1, 0.3);
-			
-			// if filtering marks, display the label and the current filter text
-			if (mark_filter_active) {
-				char * show_mark_filter_text;
-				int max_show_len = 15;
-				if (strlen(mark_filter_text) > max_show_len)
-				  show_mark_filter_text = &mark_filter_text[strlen(mark_filter_text)-max_show_len];
-				else if (strlen(mark_filter_text) == 0)
-					show_mark_filter_text = "_";
-				else
-				  show_mark_filter_text = mark_filter_text;
-				screen_x = 25 - 1.5*strlen(show_mark_filter_text);
-				screen_y = 150 + 29;
-				draw_string_zoomed(screen_x, screen_y, (unsigned char*)show_mark_filter_text, 1, 0.3);
-			}
-			// display which key to activate the filter
-			else
-			{
-				char buf[20];
-				get_key_string(K_MARKFILTER, buf, sizeof(buf));
-				draw_string_zoomed(25 - 1.5*strlen(buf), 150 + 29, (const unsigned char *)buf, 1, 0.3);
-			}
-	
-			// crave the markings
-			for(i=0;i<max_mark;i++)
-			 {
-				int x = marks[i].x;
-				int y = marks[i].y;
-				if ( x > 0 ) {
-	
-					// if filtering marks, don't display if it doesn't match the current filter
-					if (mark_filter_active
-						  && (get_string_occurance(mark_filter_text, marks[i].text, strlen(marks[i].text), 1) == -1))
-						continue;
-	
-					screen_x=(51+200*x/(tile_map_size_x*6));
-					screen_y=201-200*y/(tile_map_size_y*6);
-	
-					if(!marks[i].server_side) glColor3f((float)marks[i].r/255,(float)marks[i].g/255,(float)marks[i].b/255);//glColor3f(0.4f,1.0f,0.0f);
-					else glColor3f(0.33f,0.6f,1.0f);
-					glDisable(GL_TEXTURE_2D);
-					glBegin(GL_LINES);
-						glVertex2i(screen_x-9*mapmark_zoom,screen_y-9*mapmark_zoom);
-						glVertex2i(screen_x+6*mapmark_zoom,screen_y+6*mapmark_zoom);
-					
-						glVertex2i(screen_x+6*mapmark_zoom,screen_y-9*mapmark_zoom);
-						glVertex2i(screen_x-9*mapmark_zoom,screen_y+6*mapmark_zoom);
-					glEnd();
-						glEnable(GL_TEXTURE_2D);
-						if(!marks[i].server_side) glColor3f((float)marks[i].r/255,(float)marks[i].g/255,(float)marks[i].b/255);//glColor3f(0.2f,1.0f,0.0f);
-						else glColor3f(0.33f,0.6f,1.0f);
-					draw_string_zoomed(screen_x, screen_y, (unsigned char*)marks[i].text, 1, mapmark_zoom);
-				}
-			}
-
-			// draw coordinates
-			if (pf_get_mouse_position(mouse_x, mouse_y, &map_x, &map_y)) {
-				// we're pointing on the map, display position
-				char buf[10];
-				safe_snprintf(buf, sizeof(buf), "%d,%d", map_x, map_y);
-				glColor3f(1.0f,1.0f,0.0f);
-				screen_x = 25 - 1.5*strlen(buf);
-				screen_y = 150 + 8;
-				draw_string_zoomed(screen_x, screen_y, (unsigned char*)buf, 1, 0.3);
-				screen_x = 25 - 1.5*strlen(label_cursor_coords);
-				screen_y = 150 + 1;
-				draw_string_zoomed(screen_x, screen_y, (unsigned char*)label_cursor_coords, 1, 0.3);
-			}
+			draw_marks(marks, max_mark, tile_map_size_x, tile_map_size_y);
+			draw_coordinates(tile_map_size_x, tile_map_size_y);
+		}
+		else {
+			draw_marks(temp_marks, max_temp_mark, temp_tile_map_size_x, temp_tile_map_size_y);
+			draw_coordinates(temp_tile_map_size_x, temp_tile_map_size_y);
 		}
 	}
 

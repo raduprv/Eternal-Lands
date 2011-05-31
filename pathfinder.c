@@ -334,6 +334,11 @@ Uint32 pf_movement_timer_callback(Uint32 interval, void *param)
 
 int pf_get_mouse_position(int mouse_x, int mouse_y, int * px, int * py)
 {
+	return pf_get_mouse_position_extended(mouse_x, mouse_y, px, py, tile_map_size_x, tile_map_size_y);
+}
+
+int pf_get_mouse_position_extended(int mouse_x, int mouse_y, int * px, int * py, int tile_x, int tile_y)
+{
 	int min_mouse_x = (window_width-hud_x)/6;
 	int min_mouse_y = 0;
 
@@ -350,8 +355,8 @@ int pf_get_mouse_position(int mouse_x, int mouse_y, int * px, int * py)
 		return 0;
 	}
 
-	*px = ((mouse_x - min_mouse_x) * tile_map_size_x * 6) / screen_map_width;
-	*py = (tile_map_size_y * 6) - ((mouse_y * tile_map_size_y * 6) / screen_map_height);
+	*px = ((mouse_x - min_mouse_x) * tile_x * 6) / screen_map_width;
+	*py = (tile_y * 6) - ((mouse_y * tile_y * 6) / screen_map_height);
 	return 1;
 }
 

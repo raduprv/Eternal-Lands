@@ -10,6 +10,7 @@
 #include "io/map_io.h"
 
 #include "hash.h"
+#include "mapwin.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,9 +52,21 @@ void change_map (const char * mapname);
 
 /**
  * @ingroup maps
- * @brief Loads the given map marks for the given map
+ * @brief Loads the map marks for the given mapname into the given buffer
  *
- * 	Loads the map marks for the given map
+ * 	Loads the map marks for the given \a mapname into the given \a buffer
+ *
+ * @param mapname filename of the map
+ * @param buffer buffer for the map marks
+ * @param max maximum number of map marks in \a buffer
+ */
+void load_marks_to_buffer(char* mapname, marking* buffer, int* max);
+
+/**
+ * @ingroup maps
+ * @brief Loads the map marks for the current map
+ *
+ * 	Loads the map marks for the current map
  *
  */
 void load_map_marks(void);

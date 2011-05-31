@@ -36,7 +36,11 @@ typedef struct
 extern int adding_mark; /*!< flag that indicates we are currently adding a mark to a map */
 extern int mark_x, mark_y; /*!< map coordinates of the position of the mark */
 extern int max_mark; /*!< max. number of marks we can handle */
+extern int max_temp_mark; /*!< max. number of temporary marks we can handle */
+extern int temp_tile_map_size_x; /*!< The tile map size in the x direction */
+extern int temp_tile_map_size_y; /*!< The tile map size in the y direction */
 extern marking marks[MAX_MARKINGS]; /*!< a global array of marks */
+extern marking temp_marks[MAX_USER_MARKS]; /*!< a global array of temporary marks */
 extern int curmark_r,curmark_g,curmark_b; //current mark color
 
 extern int reload_tab_map; /*!< flag that indicates the tabmap needs to be reloaded */
