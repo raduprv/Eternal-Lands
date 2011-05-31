@@ -1026,6 +1026,11 @@ int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 
 void show_help(const char *help_message, int x, int y)
 {
+	show_help_coloured(help_message, x, y, 1.0f, 1.0f, 1.0f);
+}
+
+void show_help_coloured(const char *help_message, int x, int y, float r, float g, float b)
+{
 	char str[125];
 	int len=strlen(help_message)*8+1;
 	int width=window_width-80;
@@ -1046,7 +1051,7 @@ void show_help(const char *help_message, int x, int y)
 	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
 	
-	glColor3f(1.0f,1.0f,1.0f);
+	glColor3f(r,g,b);
 	safe_snprintf(str, sizeof(str), "%s", help_message);
 	draw_string_small(x, y, (unsigned char*)help_message,1);
 #ifdef OPENGL_TRACE
@@ -1251,12 +1256,59 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
+static struct { int d; int h; Uint32 dt; Uint32 ht; } my_last_health = { 0, 0, 0, 0 };
+
+/* called when our actor receives damage, displayed as hover over health bar */
+void set_last_damage(int quantity)
+{
+	my_last_health.d = quantity;
+	my_last_health.dt = SDL_GetTicks();
+}
+
+/* called when our actor heals, displayed as hover over health bar */
+void set_last_heal(int quantity)
+{
+	my_last_health.h = quantity;
+	my_last_health.ht = SDL_GetTicks();
+}
+
+/* draws damage and heal above the health bar */
+static void draw_last_health_change(void)
+{
+	char str[20];
+	static const Uint32 timeoutms = 2*60*1000;
+	static const int yoff = (int)(-(SMALL_FONT_Y_LEN+5));
+	/* damage in red */
+	if (my_last_health.d != 0)
+	{
+		if (abs(SDL_GetTicks() - my_last_health.dt) > timeoutms)
+			my_last_health.d = 0;
+		else
+		{
+			safe_snprintf(str, sizeof(str), " %d ", my_last_health.d);
+			show_help_coloured(str, health_bar_start_x+50-strlen(str)*SMALL_FONT_X_LEN, yoff, 1.0f, 0.0f, 0.0f);
+		}
+	}
+	/* heal in green */
+	if (my_last_health.h != 0)
+	{
+		if (abs(SDL_GetTicks() - my_last_health.ht) > timeoutms)
+			my_last_health.h = 0;
+		else
+		{
+			safe_snprintf(str, sizeof(str), " %d ", my_last_health.h);
+			show_help_coloured(str, health_bar_start_x+50, yoff, 0.0f, 1.0f, 0.0f);
+		}
+	}
+}
+
 int	display_stats_bar_handler(window_info *win)
 {
 	float health_adjusted_x_len;
 	float food_adjusted_x_len;
 	float mana_adjusted_x_len;
 	float load_adjusted_x_len;
+	int over_health_bar = statbar_cursor_x>health_bar_start_x && statbar_cursor_x < health_bar_start_x+100;
 
 	//get the adjusted length
 
@@ -1292,16 +1344,18 @@ int	display_stats_bar_handler(window_info *win)
 	draw_stats_bar(load_bar_start_x, load_bar_start_y, your_info.carry_capacity.base-your_info.carry_capacity.cur, load_adjusted_x_len, 0.6f, 0.4f, 0.4f, 0.4f, 0.2f, 0.2f);
 	if(win->len_x>640-64) draw_exp_display();
 	
-	if(show_help_text)
-		{
-        		if(mouse_in_window(win->window_id, mouse_x, mouse_y))
-				{
-					if(statbar_cursor_x>health_bar_start_x && statbar_cursor_x < health_bar_start_x+100) show_help((char*)attributes.material_points.name,health_bar_start_x+110,-3);
-					if(statbar_cursor_x>food_bar_start_x && statbar_cursor_x < food_bar_start_x+100) show_help((char*)attributes.food.name,food_bar_start_x+110,-3);
-					if(statbar_cursor_x>mana_bar_start_x && statbar_cursor_x < mana_bar_start_x+100) show_help((char*)attributes.ethereal_points.name,mana_bar_start_x+110,-3);
-					if(statbar_cursor_x>load_bar_start_x && statbar_cursor_x < load_bar_start_x+100) show_help((char*)attributes.carry_capacity.name,load_bar_start_x+110,-3);
-				}
-		}
+	if(show_help_text && statbar_cursor_x>=0)
+	{
+		if(over_health_bar) show_help((char*)attributes.material_points.name,health_bar_start_x+110,-3);
+		if(statbar_cursor_x>food_bar_start_x && statbar_cursor_x < food_bar_start_x+100) show_help((char*)attributes.food.name,food_bar_start_x+110,-3);
+		if(statbar_cursor_x>mana_bar_start_x && statbar_cursor_x < mana_bar_start_x+100) show_help((char*)attributes.ethereal_points.name,mana_bar_start_x+110,-3);
+		if(statbar_cursor_x>load_bar_start_x && statbar_cursor_x < load_bar_start_x+100) show_help((char*)attributes.carry_capacity.name,load_bar_start_x+110,-3);
+	}
+
+	if (over_health_bar)
+		draw_last_health_change();
+
+	statbar_cursor_x = -1;
 
 	return 1;
 }

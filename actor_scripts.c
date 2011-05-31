@@ -11,6 +11,7 @@
 #include "draw_scene.h"
 #include "errors.h"
 #include "global.h"
+#include "hud.h"
 #include "init.h"
 #include "interface.h"
 #include "missiles.h"
@@ -2312,6 +2313,9 @@ void get_actor_damage(int actor_id, int damage)
 			act->last_health_loss=cur_time;
 		}
 
+		if (actor_id == yourself)
+			set_last_damage(damage);
+
 		act->damage=damage;
 		act->damage_ms=2000;
 		act->cur_health-=damage;
@@ -2353,6 +2357,10 @@ void get_actor_heal(int actor_id, int quantity)
 	if(!act){
 		//if we got here, it means we don't have this actor, so get it from the server...
 	} else {
+
+		if (actor_id == yourself)
+			set_last_heal(quantity);
+
 		if(floatingmessages_enabled){
 			act->damage=-quantity;
 			act->damage_ms=2000;
