@@ -26,6 +26,7 @@
 #include "url.h"
 #include "counters.h"
 #include "io/elpathwrapper.h"
+#include "serverpopup.h"
 #include "sky.h"
 #ifdef NEW_SOUND
 #include "sound.h"
@@ -567,6 +568,11 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 	}
 	/* check for misc counter strings */
 	catch_counters_text(text_to_add+1);
+
+	/* put #mpm in a popup box, on top of all else */
+	if ((channel == CHAT_MODPM) && (my_strncompare(text_to_add+1, "[Mod PM from", 12))) {
+		display_server_popup_win(text_to_add);
+	}
 
 	//Make sure we don't check our own messages.
 	if( !(channel == CHAT_PERSONAL && len >= strlen(pm_from_str) && strncasecmp (text_to_add+1, pm_from_str, strlen(pm_from_str)) != 0) &&
