@@ -16,6 +16,7 @@
 #include "init.h"
 #include "interface.h"
 #include "lights.h"
+#include "map.h"
 #include "missiles.h"
 #include "new_character.h"
 #include "pathfinder.h"
@@ -33,6 +34,11 @@ extern int cur_tab_map;
 int mouse_over_minimap = 0;
 
 int reload_tab_map = 0;
+
+int temp_tile_map_size_x = 0;
+int temp_tile_map_size_y = 0;
+int max_temp_mark = 0;
+marking temp_marks[MAX_USER_MARKS];
 
 #define MARK_FILTER_MAX_LEN 40
 int mark_filter_active = 0;
@@ -114,6 +120,8 @@ int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 #ifdef DEBUG_MAP_SOUND
 						cur_tab_map = i;
 #endif // DEBUG_MAP_SOUND
+						load_marks_to_buffer(continent_maps[i].name, temp_marks, &max_temp_mark);
+						get_tile_map_sizes(continent_maps[i].name, &temp_tile_map_size_x, &temp_tile_map_size_y);
 						showing_continent = !showing_continent;
 						break;
 					}

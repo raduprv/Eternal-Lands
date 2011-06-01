@@ -379,51 +379,43 @@ void add_server_markers(){
 	}
 }
 
-
-void load_map_marks()
+void load_marks_to_buffer(char* mapname, marking* buffer, int* max)
 { 
 	FILE * fp = NULL;
 	char marks_file[256] = {0}, text[600] = {0};
-	char *mapname = strrchr (map_file_name,'/');
 	
 	if(mapname == NULL) {
 		//Oops
 		return;
 	}
-	safe_snprintf (marks_file, sizeof (marks_file), "maps/%s.txt", mapname + 1);
+	safe_snprintf (marks_file, sizeof (marks_file), "%s.txt", mapname + 1);
 	fp = open_file_config(marks_file, "r");
-	if(fp == NULL){
-		//TODO: remove this after the next update. Until then, people may still have files in the old location.
-		safe_snprintf (marks_file, sizeof (marks_file), "%s.txt", mapname + 1);
-		fp = open_file_config(marks_file, "r");
-	}
-	max_mark = 0;
+	*max = 0;
 	
-	if (fp == NULL) { add_server_markers(); return;}
+	if (fp == NULL) return;
 
-	
 	//load user markers
 	while ( fgets(text, 600,fp) ) {
 		if (strlen (text) > 1) {
 			int r,g,b;			
-			sscanf (text, "%d %d", &marks[max_mark].x, &marks[max_mark].y);
+			sscanf (text, "%d %d", &buffer[*max].x, &buffer[*max].y);
 			//scanning mark color. It can be optional -> default=green
 			if(sscanf(text,"%*d %*d|%d,%d,%d|",&r,&g,&b)<3) { //NO SPACES in RGB format string!
 				r=b=0;
 				g=255;
 			}
-			marks[max_mark].server_side=0;
+			buffer[*max].server_side=0;
 			text[strlen(text)-1] = '\0'; //remove the newline
 			if ((strstr(text, " ") == NULL) || (strstr(strstr(text, " ")+1, " ") == NULL)) {
  				LOG_ERROR("Bad map mark file=[%s] text=[%s]", marks_file, text);
 			}
 			else {
-				safe_strncpy(marks[max_mark].text, strstr(strstr(text, " ")+1, " ") + 1, sizeof(marks[max_mark].text));
-				marks[max_mark].r=r;
-				marks[max_mark].g=g;
-				marks[max_mark].b=b;
-				max_mark++;
-				if ( max_mark > MAX_USER_MARKS ) break;
+				safe_strncpy(buffer[*max].text, strstr(strstr(text, " ")+1, " ") + 1, sizeof(buffer[*max].text));
+				buffer[*max].r=r;
+				buffer[*max].g=g;
+				buffer[*max].b=b;
+				*max = *max + 1;
+				if ( *max > MAX_USER_MARKS ) break;
 			}
 		}
 	}
@@ -431,6 +423,13 @@ void load_map_marks()
 	fclose(fp);
 
 	LOG_DEBUG("Read map markings from file '%s'", marks_file);
+
+}
+
+void load_map_marks()
+{ 
+	//load user markers
+	load_marks_to_buffer(map_file_name, marks, &max_mark);
 
 	//load server markers on this map
 	add_server_markers();

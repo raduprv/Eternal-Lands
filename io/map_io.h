@@ -250,6 +250,20 @@ typedef void (update_func) (char *str, float percent);
  */
 int load_map(const char * file_name, update_func *update_function);
 
+/**
+ * @ingroup maps
+ * @brief Reads the tilemap sizes of the map given by \a file_name
+ *
+ *      Reads the tilemap sizes of the map given by \a file_name.
+ *
+ * @param file_name the filename of the map to read.
+ * @param x x-part of the tilemap size
+ * @param y y-part od the tilemap size
+ * @retval int  0, if the file given by \a file_name could not be opened, or if the file is invalid, i.e. has an invalid magic number, else 1 is returned.
+ * @callgraph
+ */
+int get_tile_map_sizes(const char * file_name, int *x, int *y);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

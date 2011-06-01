@@ -119,7 +119,7 @@ void pf_move_to_mouse_position();
 
 /*!
  * \ingroup move_actors
- * \brief Calulates the tile coordinates of the given mouse position
+ * \brief Calculates the tile coordinates of the given mouse position
  *
  *      Calculates the tile coordinates of the given mouse position.
  *      If the return value is zero, *px and *py are undefined.
@@ -133,6 +133,25 @@ void pf_move_to_mouse_position();
  * \callgraph
  */
 int pf_get_mouse_position(int mouse_x, int mouse_y, int * px, int * py);
+
+/*!
+ * \ingroup move_actors
+ * \brief Calculates the tile coordinates of the given mouse position
+ *
+ *      Calculates the tile coordinates of the given mouse position
+ *      for variable size map. If the return value is zero, *px and *py are undefined.
+ *
+ * \param mouse_x  x coordinate of mouse
+ * \param mouse_y  y coordinate of mouse
+ * \param px       return address for x tile coordinate
+ * \param py       return address for y tile coordinate
+ * \param tile_x   the map z size
+ * \param tile_y   the map y size
+ * \retval int     1 if the mouse over the map, 0 otherwise.
+ *
+ * \callgraph
+ */
+int pf_get_mouse_position_extended(int mouse_x, int mouse_y, int * px, int * py, int tile_x, int tile_y);
 
 #ifdef __cplusplus
 } // extern "C"

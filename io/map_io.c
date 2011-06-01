@@ -24,6 +24,28 @@ float offset_2d = (1.0f / 32768.0f);
 const float offset_2d_max = 0.01f;
 #endif
 
+int get_tile_map_sizes(const char *file_name, int *x, int *y)
+{
+	map_header cur_map_header;
+	char* file_mem;
+	el_file_ptr file;
+
+	file = el_open(file_name);
+
+	if (!file)
+	{
+		return 0;
+	}
+
+	file_mem = el_get_pointer(file);
+
+	memcpy(&cur_map_header, file_mem, sizeof(cur_map_header));
+	*x = SDL_SwapLE32(cur_map_header.tile_map_x_len);
+	*y = SDL_SwapLE32(cur_map_header.tile_map_y_len);
+	el_close(file);
+	return 1;
+}
+
 static int do_load_map(const char *file_name, update_func *update_function)
 {
 	int i;
