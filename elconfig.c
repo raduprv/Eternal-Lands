@@ -50,6 +50,7 @@
  #include "shadows.h"
  #include "sound.h"
  #include "spells.h"
+ #include "stats.h"
  #include "storage.h"
  #include "tabs.h"
  #include "trade.h"
@@ -1737,7 +1738,8 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"opaque_window_backgrounds", "opaquewin", &opaque_window_backgrounds, change_var, 0,"Use Opaque Window Backgrounds","Toggle the current state of all windows between transparent and opaque background. Use CTRL+D to toggle the current state of an individual window.",HUD);
 	add_var(OPT_SPECINT, "buff_icon_size","bufficonsize", &buff_icon_size, set_buff_icon_size, 32, "Buff Icon Size","The size of the icons of the active buffs.  Icons are not displayed when size set to zero.",HUD,0,48);
 	add_var(OPT_BOOL,"relocate_quickbar", "requick", &quickbar_relocatable, change_quickbar_relocatable, 0,"Relocate Quickbar","Set whether you can move the quickbar",HUD);
-	add_var(OPT_INT,"num_quickbar_slots","numqbslots",&num_quickbar_slots,change_int,6,"Number of quickbar slots","Set the number of quickbar slots displayed. May be automatically reduced for low resolutions",HUD,1,MAX_QUICKBAR_SLOTS);
+	add_var(OPT_INT,"num_quickbar_slots","numqbslots",&num_quickbar_slots,change_int,6,"Number Of Quickbar Slots","Set the number of quickbar slots displayed. May be automatically reduced for low resolutions",HUD,1,MAX_QUICKBAR_SLOTS);
+	add_var(OPT_INT,"max_food_level","maxfoodlevel",&max_food_level,change_int,45,"Maximum Food Level", "Set the maximum value displayed by the food level bar.",HUD,10,200);
 	add_var(OPT_BOOL,"3d_map_markers","3dmarks",&marks_3d,change_3d_marks,1,"Enable 3D Map Markers","Shows user map markers in the game window",HUD);
 	add_var(OPT_BOOL,"item_window_on_drop","itemdrop",&item_window_on_drop,change_var,1,"Item Window On Drop","Toggle whether the item window shows when you drop items",HUD);
 	add_var(OPT_FLOAT,"minimap_scale", "minimapscale", &minimap_size_coefficient, change_minimap_scale, 0.7, "Minimap Scale", "Adjust the overall size of the minimap", HUD, 0.5, 1.5, 0.1);

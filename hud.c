@@ -1320,7 +1320,7 @@ int	display_stats_bar_handler(window_info *win)
 	if(your_info.food_level<=0)
 		food_adjusted_x_len=0;//we don't want a div by 0
 	else
-		food_adjusted_x_len=100/(45.0f/(float)your_info.food_level);
+		food_adjusted_x_len=100/((float)max_food_level/(float)your_info.food_level);
 	if(food_adjusted_x_len>100) food_adjusted_x_len=100;
 
 	if(!your_info.ethereal_points.cur || !your_info.ethereal_points.base)
@@ -1335,7 +1335,7 @@ int	display_stats_bar_handler(window_info *win)
 
 	draw_stats_bar(health_bar_start_x, health_bar_start_y, your_info.material_points.cur, health_adjusted_x_len, 1.0f, 0.2f, 0.2f, 0.5f, 0.2f, 0.2f);
 
-	if (your_info.food_level<=45) //yellow
+	if (your_info.food_level<=max_food_level) //yellow
 		draw_stats_bar(food_bar_start_x, food_bar_start_y, your_info.food_level, food_adjusted_x_len, 1.0f, 1.0f, 0.2f, 0.5f, 0.5f, 0.2f);
 	else draw_stats_bar(food_bar_start_x, food_bar_start_y, your_info.food_level, food_adjusted_x_len, 1.0f, 0.5f, 0.0f, 0.7f, 0.3f, 0.0f); //orange
 
