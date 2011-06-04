@@ -459,6 +459,25 @@ static void copy_dialogue_text(void)
 	free(to_str);
 }
 
+static void send_repeat(window_info *win)
+{
+	if (!saved_response_init)
+		return;
+	repeat_end_highlight_time = SDL_GetTicks() + 500;
+	send_response(win, &saved_responses[saved_response_list_top]);
+#ifdef NEW_SOUND
+	add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+#endif // NEW_SOUND
+}
+
+static void do_copy(void)
+{
+	copy_end_highlight_time = SDL_GetTicks() + 500;
+	copy_dialogue_text();
+#ifdef NEW_SOUND
+	add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+#endif // NEW_SOUND
+}
 
 int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags)
 {
@@ -488,20 +507,12 @@ int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags)
 		}
 	if((flags & ELW_LEFT_MOUSE) && mx>str_edge && mx<str_edge+copy_str_width && my>=win->len_y-(SMALL_FONT_Y_LEN+1))
 		{
-			copy_end_highlight_time = SDL_GetTicks() + 500;
-			copy_dialogue_text();
-#ifdef NEW_SOUND
-			add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
-#endif // NEW_SOUND
+			do_copy();
 			return 1;
 		}
-	if(saved_response_init && (flags & ELW_LEFT_MOUSE) && mx>4*str_edge+copy_str_width && mx<4*str_edge+copy_str_width+repeat_str_width && my>=win->len_y-(SMALL_FONT_Y_LEN+1))
+	if((flags & ELW_LEFT_MOUSE) && mx>4*str_edge+copy_str_width && mx<4*str_edge+copy_str_width+repeat_str_width && my>=win->len_y-(SMALL_FONT_Y_LEN+1))
 		{
-			repeat_end_highlight_time = SDL_GetTicks() + 500;
-			send_response(win, &saved_responses[saved_response_list_top]);
-#ifdef NEW_SOUND
-			add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
-#endif // NEW_SOUND
+			send_repeat(win);
 			return 1;
 		}
 
@@ -533,10 +544,6 @@ int keypress_dialogue_handler (window_info *win, int mx, int my, Uint32 key, Uin
 
 	ch = key_to_char (unikey);
 
-	if((key & ELW_ALT) || (key & ELW_CTRL)) //Do not process Ctrl or Alt keypresses
-	{
-		return 0;
-	}
 	if(ch<'0' || ch>'z') // do not send special keys
 	{
 		return 0;
@@ -553,6 +560,27 @@ int keypress_dialogue_handler (window_info *win, int mx, int my, Uint32 key, Uin
 	{
 		return 0;
 	}
+	
+	// if not being used for responses, check for other use
+	if ((key & ELW_ALT) && ((MAX_RESPONSES-1<ch) || (dialogue_responces[ch].in_use == 0)))
+	{
+		if ((strlen(dialogue_repeat_str)>1) && (ch == (Uint8)dialogue_repeat_str[1]-87))
+		{
+			send_repeat(win);
+			return 1;
+		}
+		if ((strlen(dialogue_copy_str)>1) && (ch == (Uint8)dialogue_copy_str[1]-87))
+		{
+			do_copy();
+			return 1;
+		}
+	}
+
+	if((key & ELW_ALT) || (key & ELW_CTRL)) //Do not process Ctrl or Alt keypresses
+	{
+		return 0;
+	}
+
 	if(MAX_RESPONSES-1<ch)//pressed a key that the client is not expecting, ignore it
 	{
 		return 1;
