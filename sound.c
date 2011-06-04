@@ -2025,6 +2025,7 @@ int ensure_sample_loaded(char * in_filename)
 {
 	int i, j, k, l, sample_num, error;
 	ALvoid *data;
+	ALsizei datasize;
 	ALuint *pBuffer;
 	sound_sample *pSample;
 	char filename[200];				// This is for the full path to the file
@@ -2123,7 +2124,7 @@ int ensure_sample_loaded(char * in_filename)
 	strcat(filename, in_filename);
 
 	// Load the file into memory
-	data = load_ogg_into_memory(filename, &pSample->format, &pSample->size, &pSample->freq);
+	data = load_ogg_into_memory(filename, &pSample->format, &datasize, &pSample->freq);
 	if (!data)
 	{
 		// Couldn't load the file, so release this sample num
@@ -2133,7 +2134,7 @@ int ensure_sample_loaded(char * in_filename)
 	}
 			
 #ifdef _EXTRA_SOUND_DEBUG
-	printf("Result: File: %s, Format: %d, Size: %d, Freq: %f\n", filename, (int)pSample->format, (int)pSample->size, (float)pSample->freq);
+	printf("Result: File: %s, Format: %d, Size: %d, Freq: %f\n", filename, (int)pSample->format, (int)datasize, (float)pSample->freq);
 #endif //_EXTRA_SOUND_DEBUG
 
 	// Create a buffer for the sample
@@ -2153,7 +2154,7 @@ int ensure_sample_loaded(char * in_filename)
 	}
 
 	// Send this data to the buffer
-	alBufferData(*pBuffer, pSample->format, data, pSample->size, pSample->freq);
+	alBufferData(*pBuffer, pSample->format, data, datasize, pSample->freq);
 	if ((error=alGetError()) != AL_NO_ERROR)
 	{
 		LOG_ERROR("Error loading buffer: %s", alGetString(error));
@@ -2166,31 +2167,9 @@ int ensure_sample_loaded(char * in_filename)
 		return -1;
 	}
 
-	// Fix sound truncation on newer versions of openAL.
-	// I have the feeling I've not got down to the bottom of this but..
-	// Previous use of alGetBufferi() returned the wrong number of bits
-	// i.e. 32 instead of 16, as we know the format used for loading
-	// use that to work out the channels and hard wire the bits.
-	// If the loader changes to include other formats, we'll catch it
-	// and exit with an error.
-	//alGetBufferi(*pBuffer, AL_BITS, &pSample->bits);
-	//alGetBufferi(*pBuffer, AL_CHANNELS, &pSample->channels);
-	pSample->bits = 16;
-	if (pSample->format == AL_FORMAT_MONO16)
-		pSample->channels = 1;
-	else if (pSample->format == AL_FORMAT_STEREO16)
-		pSample->channels = 2;
-	else
-	{
-		LOG_ERROR("Error loading buffer format: %x", pSample->format);
-#ifdef _EXTRA_SOUND_DEBUG
-		printf("Error loading buffer format: %x\n", pSample->format);
-#endif //_EXTRA_SOUND_DEBUG
-		alDeleteBuffers(1, pBuffer);
-		// Get rid of the temporary data
-		free(data);
-		return -1;
-	}
+	alGetBufferi(*pBuffer, AL_BITS, &pSample->bits);
+	alGetBufferi(*pBuffer, AL_CHANNELS, &pSample->channels);
+	alGetBufferi(*pBuffer, AL_SIZE, &pSample->size);
 
 	pSample->length = (pSample->size * 1000) / ((pSample->bits >> 3) * pSample->channels * pSample->freq);
 
