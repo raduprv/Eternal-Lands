@@ -337,6 +337,8 @@ extern char
 		researching_str[30],
 		not_researching_anything[25],
 		knowledge_read_book[15],
+		knowledge_param_read[15],
+		knowledge_param_unread[15],
 		unknown_book_short_str[50],
 		unknown_book_long_str[150],
 		know_highlight_prompt_str[20],
