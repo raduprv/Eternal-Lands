@@ -29,6 +29,7 @@ int watch_this_stats[MAX_WATCH_STATS]={NUM_WATCH_STAT -1, 0, 0, 0, 0};  // defau
 int max_disp_stats=1;  // default to only 1 displayable stat
 int check_grid_y_top=0;
 int check_grid_x_left=0;
+int max_food_level=45;
 
 int have_stats=0;
 
