@@ -195,6 +195,8 @@ char
 	researching_str[30],
 	not_researching_anything[25],
 	knowledge_read_book[15],
+	knowledge_param_read[15],
+	knowledge_param_unread[15],
 	unknown_book_short_str[50],
 	unknown_book_long_str[150],
 	know_highlight_prompt_str[20],
@@ -896,7 +898,7 @@ void init_console()
 	add_xml_identifier(misc,"ig_from",ig_from_str,"#Ig [",sizeof(ig_from_str));
 	add_xml_identifier(misc,"mc_from",mc_from_str,"#Mod Chat from",sizeof(mc_from_str));
 	add_xml_identifier(misc,"date_format",date_format,"Today is the %s day in the month of %s, the year %04d, Age of the Eternals",sizeof(date_format));
-	add_xml_identifier(misc,"book_count",book_count_str,"You have read %d of %d books shown",sizeof(book_count_str));
+	add_xml_identifier(misc,"book_count",book_count_str,"You have read %d of %d matching books",sizeof(book_count_str));
 	add_xml_identifier(misc,"time_warn_hour",time_warn_hour_str,"This is your %d minute warning for the coming hour.",sizeof(time_warn_hour_str));
 	add_xml_identifier(misc,"time_warn_sunrise",time_warn_sunrise_str,"This is your %d minute warning for the coming sunrise.",sizeof(time_warn_sunrise_str));
 	add_xml_identifier(misc,"time_warn_sunset",time_warn_sunset_str,"This is your %d minute warning for the coming sunset.",sizeof(time_warn_sunset_str));
@@ -1211,6 +1213,8 @@ void init_help()
 	add_xml_identifier(misc,"research",researching_str,"Researching",sizeof(researching_str));
 	add_xml_identifier(misc,"nothing",not_researching_anything,"Nothing",sizeof(not_researching_anything));
 	add_xml_identifier(misc,"read_book",knowledge_read_book,"Read Book",sizeof(knowledge_read_book));
+	add_xml_identifier(misc,"kp_read",knowledge_param_read,"-read",sizeof(knowledge_param_read));
+	add_xml_identifier(misc,"kp_unread",knowledge_param_unread,"-unread",sizeof(knowledge_param_unread));
 	add_xml_identifier(misc,"unknown_book_s",unknown_book_short_str,"(Not yet known to client)",sizeof(unknown_book_short_str));
 	add_xml_identifier(misc,"unknown_book_l",unknown_book_long_str,"Researching book not yet known to the client.  Don't worry, reading it will count!",sizeof(unknown_book_long_str));
 	add_xml_identifier(misc,"know_highlight_prompt",know_highlight_prompt_str,"Highlight Text",sizeof(know_highlight_prompt_str));

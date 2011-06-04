@@ -1192,9 +1192,22 @@ int knowledge_command(char *text, int len)
 	char this_string[80], count_str[60];
 	char *cr;
 	int i, num_read = 0, num_total = 0;
+	int show_read = 1, show_unread = 1;
 
 	// find first space, then skip any spaces
 	text = getparams(text);
+
+	// Look for -read or -unread paramaters and vary the output appropriately
+	if (strncmp(text, knowledge_param_read, strlen(knowledge_param_read)) == 0)
+	{
+		show_unread = 0;
+		text = getparams(text+strlen(knowledge_param_read));
+	}
+	else if (strncmp(text, knowledge_param_unread, strlen(knowledge_param_unread)) == 0)
+	{
+		show_read = 0;
+		text = getparams(text+strlen(knowledge_param_unread));
+	}
 
 	LOG_TO_CONSOLE(c_green2,knowledge_cmd_str);
 	for (i=0; i<KNOWLEDGE_LIST_SIZE; i++)
@@ -1209,12 +1222,14 @@ int knowledge_command(char *text, int len)
 			if ( (cr = strchr(this_string, '\n')) != NULL)
 				*cr = '\0';
 			// highlight books that have been read
-			if (knowledge_list[i].present){
-				LOG_TO_CONSOLE(c_grey1,this_string);
+			if (knowledge_list[i].present)
+			{
+				if (show_read)
+					LOG_TO_CONSOLE(c_grey1,this_string);
 				++num_read;
-			} else {
-				LOG_TO_CONSOLE(c_grey2,this_string);
 			}
+			else if (show_unread)
+				LOG_TO_CONSOLE(c_grey2,this_string);
 			++num_total;
 		}
 	}
