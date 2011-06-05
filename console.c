@@ -1191,25 +1191,41 @@ int knowledge_command(char *text, int len)
 {
 	char this_string[80], count_str[60];
 	char *cr;
-	int i, num_read = 0, num_total = 0;
+	int num_read = 0, num_total = 0;
 	int show_read = 1, show_unread = 1;
+	size_t i;
+	char * pstr[3] = { knowledge_param_read, knowledge_param_unread, knowledge_param_total };
+	size_t plen[3] = { strlen(knowledge_param_read), strlen(knowledge_param_unread), strlen(knowledge_param_total) };
 
 	// find first space, then skip any spaces
 	text = getparams(text);
 
-	// Look for -read or -unread paramaters and vary the output appropriately
-	if (strncmp(text, knowledge_param_read, strlen(knowledge_param_read)) == 0)
+	// use the short form of the params (-r -u -t) if valid and different
+	if ((plen[0] > 1) && (plen[1] > 1) && (plen[2] > 1) &&
+		(pstr[0][0] == '-') && (pstr[1][0] == '-') && (pstr[2][0] == '-') &&
+		(pstr[0][1] != pstr[1][1]) && (pstr[0][1] != pstr[2][1]) && (pstr[1][1] != pstr[2][1]))
+		plen[0] = plen[1] = plen[2] = 2;
+
+	// Look for -read, -unread or -total paramaters and vary the output appropriately
+	if (strncmp(text, knowledge_param_read, plen[0]) == 0)
 	{
 		show_unread = 0;
-		text = getparams(text+strlen(knowledge_param_read));
+		text = getparams(text+plen[0]);
 	}
-	else if (strncmp(text, knowledge_param_unread, strlen(knowledge_param_unread)) == 0)
+	else if (strncmp(text, knowledge_param_unread, plen[1]) == 0)
 	{
 		show_read = 0;
-		text = getparams(text+strlen(knowledge_param_unread));
+		text = getparams(text+plen[1]);
+	}
+	else if (strncmp(text, knowledge_param_total, plen[2]) == 0)
+	{
+		show_read = show_unread = 0;
+		text = getparams(text+plen[2]);
 	}
 
-	LOG_TO_CONSOLE(c_green2,knowledge_cmd_str);
+	if (show_read || show_unread)
+		LOG_TO_CONSOLE(c_green2,knowledge_cmd_str);
+
 	for (i=0; i<KNOWLEDGE_LIST_SIZE; i++)
 	{
 		// only display books that contain the specified parameter string

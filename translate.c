@@ -197,6 +197,7 @@ char
 	knowledge_read_book[15],
 	knowledge_param_read[15],
 	knowledge_param_unread[15],
+	knowledge_param_total[15],
 	unknown_book_short_str[50],
 	unknown_book_long_str[150],
 	know_highlight_prompt_str[20],
@@ -1215,6 +1216,7 @@ void init_help()
 	add_xml_identifier(misc,"read_book",knowledge_read_book,"Read Book",sizeof(knowledge_read_book));
 	add_xml_identifier(misc,"kp_read",knowledge_param_read,"-read",sizeof(knowledge_param_read));
 	add_xml_identifier(misc,"kp_unread",knowledge_param_unread,"-unread",sizeof(knowledge_param_unread));
+	add_xml_identifier(misc,"kp_total",knowledge_param_total,"-total",sizeof(knowledge_param_total));
 	add_xml_identifier(misc,"unknown_book_s",unknown_book_short_str,"(Not yet known to client)",sizeof(unknown_book_short_str));
 	add_xml_identifier(misc,"unknown_book_l",unknown_book_long_str,"Researching book not yet known to the client.  Don't worry, reading it will count!",sizeof(unknown_book_long_str));
 	add_xml_identifier(misc,"know_highlight_prompt",know_highlight_prompt_str,"Highlight Text",sizeof(know_highlight_prompt_str));
