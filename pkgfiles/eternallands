@@ -74,28 +74,6 @@ do
 	[ ! -r $i -o ! -w $i ] && chmod +wr $i
 done
 
-# check el.ini files point to installed data
-if [ ! -r ~/.elc/no.el.ini.check ]
-then
-	show_suppression=false
-	for i in $(find ~/.elc/ -maxdepth 2 -name el.ini)
-	do
-		if [ "$(grep ^#data_dir $i | tail -1 | grep '^#data_dir = /usr/share/games/EternalLands$')" = "" ]
-		then
-			if zenity --question --text="Warning: $i does not use installed game data, shall I fix this problem?"
-			then
-				sed -i 's/^#data_dir.*$/#data_dir = \/usr\/share\/games\/EternalLands/g' $i
-			else
-				show_suppression=true
-			fi
-		fi
-	done
-	if $show_suppression
-	then
-		zenity --info --text="To surpress these warnings, create the empty file ~/.elc/no.el.ini.check"
-	fi
-fi
-
 # see if we intend to use non-standard build
 el_client=/usr/games/el.x86.linux.bin
 if [ -r ~/.elc/el_client ]
@@ -134,6 +112,26 @@ then
 			echo "no" > $showsel
 		fi
 		zenity --info --text="To change this option, edit or remove the file $showsel"
+	fi
+fi
+
+# check the chosen el.ini file points to installed data
+if [ ! -r ~/.elc/no.el.ini.check ]
+then
+	show_suppression=false
+	inifile=~/.elc/${config}/el.ini
+	if [ "$(grep ^#data_dir $inifile | tail -1 | grep '^#data_dir = /usr/share/games/EternalLands$')" = "" ]
+	then
+		if zenity --question --text="Warning: $inifile does not use installed game data, shall I fix this problem?"
+		then
+			sed -i 's/^#data_dir.*$/#data_dir = \/usr\/share\/games\/EternalLands/g' $inifile
+		else
+			show_suppression=true
+		fi
+	fi
+	if $show_suppression
+	then
+		zenity --info --text="To surpress these warnings, create the empty file ~/.elc/no.el.ini.check"
 	fi
 fi
 
