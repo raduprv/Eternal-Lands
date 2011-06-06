@@ -134,6 +134,13 @@ int get_skeleton(struct CalCoreModel *cal_model, const char *skeleton_name)
 		skel->cal_bones_id[hand_right_bone] = find_core_bone_id(cal_skel, "handR");
 		skel->cal_bones_id[highest_bone] = skel->cal_bones_id[head_bone];
 	}
+	else if (!strcmp(&skeleton_name[length-13], "nenorocit.csf")) {
+		skel->cal_bones_id[head_bone] = find_core_bone_id(cal_skel, "head");
+		skel->cal_bones_id[mouth_bone] = find_core_bone_id(cal_skel, "mouth");
+		skel->cal_bones_id[body_top_bone] = find_core_bone_id(cal_skel, "neck1");
+		skel->cal_bones_id[body_bottom_bone] = find_core_bone_id(cal_skel, "bodyF");
+		skel->cal_bones_id[highest_bone] = skel->cal_bones_id[head_bone];
+	}
 	else if (!strcmp(&skeleton_name[length-11], "penguin.csf")) {
 		skel->cal_bones_id[head_bone] = find_core_bone_id(cal_skel, "head");
 		skel->cal_bones_id[mouth_bone] = find_core_bone_id(cal_skel, "mouth");

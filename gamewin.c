@@ -1379,20 +1379,29 @@ Uint8 key_to_char (Uint32 unikey)
 	return unikey & 0xff;
 }
 
-void string_input(char *text, size_t maxlen, char ch)
+int string_input(char *text, size_t maxlen, char ch)
 {
 	size_t len = strlen(text);
 #ifndef OSX
-	if (ch == SDLK_BACKSPACE && len > 0)
+	if (ch == SDLK_BACKSPACE)
 #else
-	if (((ch == SDLK_BACKSPACE) || (ch == 127)) && len > 0)
+	if ((ch == SDLK_BACKSPACE) || (ch == 127))
 #endif
-		text[len-1] = '\0';
-	else if (is_printable (ch) && (len < (maxlen-1)))
 	{
-		text[len] = ch;
-		text[len+1] = '\0';
+		if (len > 0)
+			text[len-1] = '\0';
+		return 1;
 	}
+	if (is_printable (ch))
+	{
+		if (len < (maxlen-1))
+		{
+			text[len] = ch;
+			text[len+1] = '\0';
+		}
+		return 1;
+	}
+	return 0;
 }
 
 void hide_all_windows(){

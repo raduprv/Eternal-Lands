@@ -52,9 +52,11 @@ Uint8 key_to_char (Uint32 unikey);
  *
  *	The keypress is appended to the string up to the max.  If the key
  * 	press is the backspace chatacter, the last char is removed.
+ * 
+ * \retval int 1 if key used, 0 if not used
  *
  */
-void string_input(char *text, size_t maxlen, char ch);
+int string_input(char *text, size_t maxlen, char ch);
 
 /*!
  * \ingroup events
