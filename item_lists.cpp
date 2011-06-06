@@ -199,7 +199,7 @@ namespace ItemLists
 			void update_scroll_len(void);
 			void make_active_visable(void);
 			void cm_names_pre_show(void);
-			void keypress(char the_key);
+			int keypress(char the_key);
 		private:
 			void calc_num_show_names(int win_len_y);
 			size_t cm_selected_item_menu;
@@ -1211,22 +1211,25 @@ CHECK_GL_ERRORS();
 
 	//	Key presses in the window used for a search string
 	//
-	void List_Window::keypress(char the_key)
+	int List_Window::keypress(char the_key)
 	{
 		last_key_time = SDL_GetTicks();
 		if (the_key == SDLK_ESCAPE)
 		{
 			filter[0] = '\0';
 			last_key_time = 0;
-			return;
+			return 1;
 		}
-		else
-			string_input(filter, sizeof(filter), the_key);
-		if (strlen(filter))
+		if (string_input(filter, sizeof(filter), the_key) || (the_key == SDLK_RETURN))
 		{
-			Vars::lists()->find_next_matching(filter);
-			Vars::win()->make_active_visable();
+			if (strlen(filter))
+			{
+				Vars::lists()->find_next_matching(filter);
+				Vars::win()->make_active_visable();
+			}
+			return 1;
 		}
+		return 0;
 	}
 
 
@@ -1373,8 +1376,7 @@ CHECK_GL_ERRORS();
 		char keychar = tolower(key_to_char(unikey));
 		if ((key & ELW_CTRL) || (key & ELW_ALT))
 			return 0;
-		Vars::win()->keypress(keychar);
-		return 1;
+		return Vars::win()->keypress(keychar);
 	}
 
 
