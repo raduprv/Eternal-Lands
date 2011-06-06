@@ -1374,7 +1374,7 @@ CHECK_GL_ERRORS();
 	static int keypress_itemlist_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 	{
 		char keychar = tolower(key_to_char(unikey));
-		if ((key & ELW_CTRL) || (key & ELW_ALT))
+		if ((keychar == '`') || (key & ELW_CTRL) || (key & ELW_ALT))
 			return 0;
 		return Vars::win()->keypress(keychar);
 	}
