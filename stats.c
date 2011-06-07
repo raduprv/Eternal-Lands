@@ -157,9 +157,10 @@ void get_the_stats(Sint16 *stats, size_t len_in_bytes)
         your_info.research_total=SDL_SwapLE16(stats[82]);
         check_book_known();
 
-        if (len_in_bytes < 2*115+4)
+        // can be removed test when we change protocol number for 1.9.2
+        if (len_in_bytes <= 2*114)
         {
-                your_info.action_points.cur=0;;
+                your_info.action_points.cur=0;
                 your_info.action_points.base=0;
         }
         else
