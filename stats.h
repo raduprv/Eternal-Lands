@@ -112,6 +112,7 @@ struct attributes_struct
 	unsigned char pickpoints[30]; /*!< available pickpoints */
 	names material_points; /*!< name and short name of material points */
 	names ethereal_points; /*!< name and short name of ethereal points */
+	names action_points; /*!< name and short name of action points */
 
 	names carry_capacity; /*!< name and short name of carry capacity */
 };
@@ -153,6 +154,7 @@ typedef struct
 
 	attrib_16 material_points; /*!< base and current value of the players material points */
 	attrib_16 ethereal_points; /*!< base and current value of the players ethereal points */
+	attrib_16 action_points; /*!< base and current value of the players action points */
 
 	attrib_16 manufacturing_skill; /*!< base and current value of the manu skill */
 	attrib_16 harvesting_skill; /*!< base and current value of the harvesting skill */
@@ -244,7 +246,7 @@ extern player_attribs your_info; /*!< the players attributes */
  *
  * \callgraph
  */
-void get_the_stats(Sint16 *stats);
+void get_the_stats(Sint16 *stats, size_t len_in_bytes);
 
 /*!
  * \ingroup stats_window

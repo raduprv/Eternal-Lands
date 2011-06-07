@@ -933,6 +933,8 @@ typedef enum
 #define TAIL_EXP_NEXT 84
 #define TAIL_S_CUR 85
 #define TAIL_S_BASE 86
+#define ACTION_POINTS_CUR 87
+#define ACTION_POINTS_BASE 88
 /*! @} */
 
 /*!
