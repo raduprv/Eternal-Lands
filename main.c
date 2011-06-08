@@ -113,8 +113,17 @@ void cleanup_mem(void)
 	cache_e3d->free_item = &destroy_e3d;
 	cache_delete(cache_e3d);
 	cache_e3d = NULL;
-	cache_delete(cache_system);
+	// Horrible hack >>>>
+	// There's a bug with this call, it appears to make use of memory it's already freed.
+	// Valgrind shows on Linux but I've not seen a crash.
+	// It appears to cause a crash on windows XP.
+	// It appears only to happen when NEW_TEXTURES is enabled.
+	// It is in the code from many weeks back.
+	// Until the bug can be found, just don't do the call.
+	// Hunting the bug continues.... pjbroad/blaup
+	//cache_delete(cache_system);
 	cache_system = NULL;
+	// Horrible hack <<<
 	/* map location information */
 	for (i = 0; continent_maps[i].name; i++)
 	{
