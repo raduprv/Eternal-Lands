@@ -38,7 +38,7 @@ typedef struct
 
 static void free_el_file(el_file_t* file)
 {
-	if (file == 0)
+	if (!file)
 	{
 		return;
 	}
@@ -572,26 +572,18 @@ static el_file_ptr gz_file_open(const char* file_name)
 	gzFile file;
 	el_file_ptr result;
 	Sint64 read, size;
-	Uint32 file_name_len;
 
 	file = gzopen(file_name, "rb");
-
-	if (file == 0)
+	if (!file)
 	{
 		LOG_ERROR("Can't open file '%s'", file_name);
-
 		return 0;
 	}
 
-	result = malloc(sizeof(el_file_t));
-	memset(result, 0, sizeof(el_file_t));
-
-	file_name_len = strlen(file_name) + 1;
-	result->file_name = malloc(file_name_len);
-	safe_strncpy(result->file_name, file_name, file_name_len);
+	result = calloc(1, sizeof(el_file_t));
+	result->file_name = strdup(file_name);
 
 	size = 0;
-
 #if	(ZLIB_VERNUM >= 0x1235)
 	gzbuffer(file, 0x40000); // 256k
 #endif
@@ -599,9 +591,7 @@ static el_file_ptr gz_file_open(const char* file_name)
 	do
 	{
 		result->buffer = realloc(result->buffer, size + 0x40000);
-
 		read = gzread(file, result->buffer + size, 0x40000);
-
 		size += read;
 	}
 	while (gzeof(file) == 0);
@@ -872,12 +862,7 @@ Sint64 el_tell(el_file_ptr file)
 
 Sint64 el_get_size(el_file_ptr file)
 {
-	if (file == 0)
-	{
-		return -1;
-	}
-
-	return file->size;
+	return file ? file->size : -1;
 }
 
 void el_close(el_file_ptr file)
@@ -892,12 +877,7 @@ void el_close(el_file_ptr file)
 
 void* el_get_pointer(el_file_ptr file)
 {
-	if (file == 0)
-	{
-		return 0;
-	}
-
-	return file->buffer;
+	return file ? file->buffer : NULL;
 }
 
 int el_file_exists(const char* file_name)

@@ -405,9 +405,9 @@ void load_map_tiles()
 	for(i=0;i<255;i++){
 #ifdef OLD_MISC_OBJ_DIR
 		safe_snprintf(str,sizeof(str), "./tiles/tile%i.bmp",i);
-#else
+#else  // OLD_MISC_OBJ_DIR
 		safe_snprintf(str,sizeof(str), "./3dobjects/tile%i.dds",i);
-#endif
+#endif // OLD_MISC_OBJ_DIR
 		if(IS_WATER_TILE(i) && IS_REFLECTING(i))
 			tile_list[i]=load_texture_cache(str,70);
 		else 
@@ -416,8 +416,8 @@ void load_map_tiles()
 		if(get_texture_id(tile_list[i]) == 0)
 			tile_list[i]=0;
 	}
-#else
-#ifdef	NEW_TEXTURES
+#else  // MAP_EDITOR2
+#ifdef NEW_TEXTURES
 	char str[128];
 
 	for (i = 0; i < 255; i++)
@@ -425,7 +425,7 @@ void load_map_tiles()
 		safe_snprintf(str, sizeof(str), "./3dobjects/tile%i", i);
 		tile_list[i] = load_texture_cached(str, tt_mesh);
 	}
-#else	/* NEW_TEXTURES */
+#else  /* NEW_TEXTURES */
 	int cur_tile;
 	char str[80];
 	for(i=0;i<tile_map_size_x*tile_map_size_y;i++)
@@ -438,9 +438,9 @@ void load_map_tiles()
 					//tile not loaded, so load it
 #ifdef OLD_MISC_OBJ_DIR
 					safe_snprintf(str, sizeof(str), "./tiles/tile%i.bmp",cur_tile);
-#else
+#else  // OLD_MISC_OBJ_DIR
 					safe_snprintf(str, sizeof(str), "./3dobjects/tile%i.dds",cur_tile);
-#endif
+#endif // OLD_MISC_OBJ_DIR
 					if(IS_WATER_TILE(cur_tile) && IS_REFLECTING(cur_tile))
 						tile_list[cur_tile]=load_texture_cache(str,70);
 					else
@@ -448,8 +448,8 @@ void load_map_tiles()
 			
 				}
 		}
-#endif	/* NEW_TEXTURES */
-#endif
+#endif /* NEW_TEXTURES */
+#endif // MAP_EDITOR2
 }
 
 #ifdef NEW_SOUND

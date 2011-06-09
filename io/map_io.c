@@ -13,7 +13,7 @@
 #include "../tiles.h"
 #include "../translate.h"
 #include "elfilewrapper.h"
- #include "../eye_candy_wrapper.h"
+#include "../eye_candy_wrapper.h"
 #ifdef CLUSTER_INSIDES
 #include "../cluster.h"
 #endif
@@ -52,15 +52,15 @@ static int do_load_map(const char *file_name, update_func *update_function)
 	int cur_tile, j;
 	AABBOX bbox;
 	map_header cur_map_header;
-	char* file_mem;
+	const char* file_mem;
 #ifdef CLUSTER_INSIDES
 	char* occupied = 0;
 	int have_clusters;
 #endif
-	object3d_io* objs_3d;
-	obj_2d_io* objs_2d;
-	light_io* lights;
-	particles_io* particles;
+	const object3d_io* objs_3d;
+	const obj_2d_io* objs_2d;
+	const light_io* lights;
+	const particles_io* particles;
 	float progress;
 	el_file_ptr file;
 
@@ -245,30 +245,17 @@ static int do_load_map(const char *file_name, update_func *update_function)
 	}
 #endif // CLUSTER_INSIDES
 
-	progress = (cur_map_header.obj_3d_no + 249) / 250;
-	if (progress > 0.0f)
-	{
-		update_function(load_3d_object_str, 0.0f);
-		progress = 20.0f / progress;
-	}
-	else
-	{
-		update_function(load_3d_object_str, 20.0f);
-		progress = 0.0f;
-	}
-	//see which objects in our cache are not used in this map
-
+	update_function(load_3d_object_str, 20.0f);
 	LOG_DEBUG("Loading %d 3d objects.", cur_map_header.obj_3d_no);
 
 	//read the 3d objects
-	clear_objects_list_placeholders();
 	objs_3d = (object3d_io*) (file_mem + cur_map_header.obj_3d_offset);
 
 	ENTER_DEBUG_MARK("load 3d objects");
 	for (i = 0; i < cur_map_header.obj_3d_no; i++)
 	{
 		object3d_io cur_3d_obj_io = objs_3d[i];
-			
+
 		cur_3d_obj_io.x_pos = SwapLEFloat (cur_3d_obj_io.x_pos);
 		cur_3d_obj_io.y_pos = SwapLEFloat (cur_3d_obj_io.y_pos);
 		cur_3d_obj_io.z_pos = SwapLEFloat (cur_3d_obj_io.z_pos);
@@ -307,33 +294,17 @@ static int do_load_map(const char *file_name, update_func *update_function)
 			add_e3d (cur_3d_obj_io.file_name, cur_3d_obj_io.x_pos, cur_3d_obj_io.y_pos,
 				cur_3d_obj_io.z_pos, cur_3d_obj_io.x_rot, cur_3d_obj_io.y_rot,
 				cur_3d_obj_io.z_rot, cur_3d_obj_io.self_lit, cur_3d_obj_io.blended,
-				cur_3d_obj_io.r, cur_3d_obj_io.g, cur_3d_obj_io.b, 0);			
+				cur_3d_obj_io.r, cur_3d_obj_io.g, cur_3d_obj_io.b, 0);
 #endif
 		}
 		else
 		{
 			inc_objects_list_placeholders();
 		}
-
-		if (i % 250 == 0)
-		{
-			update_function(load_3d_object_str, progress);
-		}
 	}
 	LEAVE_DEBUG_MARK("load 3d objects");
 
-	progress = (cur_map_header.obj_2d_no + 249) / 250;
-	if (progress > 0)
-	{
-		update_function(load_2d_object_str, 0.0f);
-		progress = 20.0f / progress;
-	}
-	else
-	{
-		update_function(load_2d_object_str, 20.0f);
-		progress = 0.0f;
-	}
-
+	update_function(load_2d_object_str, 20.0f);
 	LOG_DEBUG("Loading %d 2d objects.", cur_map_header.obj_2d_no);
 
 	//read the 2d objects
@@ -367,23 +338,18 @@ static int do_load_map(const char *file_name, update_func *update_function)
 		if (offset_2d >= offset_2d_max)
 			offset_2d = offset_2d_increment;
 #endif
-			
+
 #ifdef CLUSTER_INSIDES
-		id = add_2d_obj (cur_2d_obj_io.file_name, cur_2d_obj_io.x_pos, cur_2d_obj_io.y_pos,
+		id = add_2d_obj(i, cur_2d_obj_io.file_name, cur_2d_obj_io.x_pos, cur_2d_obj_io.y_pos,
 			cur_2d_obj_io.z_pos, cur_2d_obj_io.x_rot, cur_2d_obj_io.y_rot,
 			cur_2d_obj_io.z_rot, 0);
 		if (!have_clusters)
 			update_occupied_with_2d (occupied, id);
 #else
-		add_2d_obj(cur_2d_obj_io.file_name, cur_2d_obj_io.x_pos, cur_2d_obj_io.y_pos,
+		add_2d_obj(i, cur_2d_obj_io.file_name, cur_2d_obj_io.x_pos, cur_2d_obj_io.y_pos,
 			cur_2d_obj_io.z_pos, cur_2d_obj_io.x_rot, cur_2d_obj_io.y_rot,
 			cur_2d_obj_io.z_rot, 0);
 #endif
-
-		if (i % 250 == 0)
-		{
-			update_function(load_2d_object_str, progress);
-		}
 	}
 	LEAVE_DEBUG_MARK("load 2d objects");
 
@@ -433,7 +399,7 @@ static int do_load_map(const char *file_name, update_func *update_function)
 			bbox.bbmax[Y] += water_tiles_extension;
 		for(j = 0; j < tile_map_size_x; j++)
 		{
-            current_cluster = get_cluster(j*6, i*6);
+			current_cluster = get_cluster(j*6, i*6);
 			cur_tile = tile_map[i*tile_map_size_x+j];
 			if (cur_tile != 255)
 			{
@@ -461,18 +427,7 @@ static int do_load_map(const char *file_name, update_func *update_function)
 	}
 #endif
 
-	progress = (cur_map_header.lights_no + 99) / 100;
-	if (progress > 0)
-	{
-		update_function(load_lights_str, 0.0f);
-		progress = 20.0f / progress;
-	}
-	else
-	{
-		update_function(load_lights_str, 20.0f);
-		progress = 0.0f;
-	}
-
+	update_function(load_lights_str, 20.0f);
 	LOG_DEBUG("Loading %d lights.", cur_map_header.lights_no);
 
 	//read the lights
@@ -482,7 +437,7 @@ static int do_load_map(const char *file_name, update_func *update_function)
 	for (i = 0; i < cur_map_header.lights_no; i++)
 	{
 		light_io cur_light_io = lights[i];
-			
+
 		cur_light_io.pos_x = SwapLEFloat (cur_light_io.pos_x);
 		cur_light_io.pos_y = SwapLEFloat (cur_light_io.pos_y);
 		cur_light_io.pos_z = SwapLEFloat (cur_light_io.pos_z);
@@ -514,26 +469,10 @@ static int do_load_map(const char *file_name, update_func *update_function)
 
 		add_light (cur_light_io.pos_x, cur_light_io.pos_y, cur_light_io.pos_z,
 		           cur_light_io.r, cur_light_io.g, cur_light_io.b, 1.0f, 0);
-
-		if (i % 100 == 0)
-		{
-			update_function(load_lights_str, progress);
-		}
 	}
 	LEAVE_DEBUG_MARK("load lights");
 
-	progress = (cur_map_header.particles_no + 99) / 100;
-	if (progress > 0.0f)
-	{
-		update_function(load_particles_str, 0.0f);
-		progress = 20.0f / progress;
-	}
-	else
-	{
-		update_function(load_particles_str, 20.0f);
-		progress = 0.0f;
-	}
-
+	update_function(load_particles_str, 20.0f);
 	LOG_DEBUG("Loading %d particles.", cur_map_header.particles_no);
 
 	//read particle systems
@@ -543,11 +482,11 @@ static int do_load_map(const char *file_name, update_func *update_function)
 	for (i = 0; i < cur_map_header.particles_no; i++)
 	{
 		particles_io cur_particles_io = particles[i];
-			
+
 		cur_particles_io.x_pos = SwapLEFloat (cur_particles_io.x_pos);
 		cur_particles_io.y_pos = SwapLEFloat (cur_particles_io.y_pos);
 		cur_particles_io.z_pos = SwapLEFloat (cur_particles_io.z_pos);
-			
+
 		LOG_DEBUG("Adding particle(%d) '%s' at <%d, %f, %f>.", i,
 			cur_particles_io.file_name, cur_particles_io.x_pos,
 			cur_particles_io.y_pos, cur_particles_io.z_pos);
@@ -564,16 +503,12 @@ static int do_load_map(const char *file_name, update_func *update_function)
 			add_particle_sys (cur_particles_io.file_name, cur_particles_io.x_pos, cur_particles_io.y_pos, cur_particles_io.z_pos, 0);
 #endif // NEW_SOUND
 		}
-		if (i % 100 == 0)
-		{
-			update_function(load_particles_str, progress);
-		}
 	}
 	LEAVE_DEBUG_MARK("load particles");
 
 	// Everything copied, get rid of the file data
 	el_close(file);
-	
+
 	update_function(bld_sectors_str, 0.0f);
 
 	LOG_DEBUG("Building bbox tree for map '%s'.", file_name);

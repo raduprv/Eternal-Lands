@@ -22,11 +22,13 @@ extern "C" {
 #define MAX_OBJ_2D_DEF 1000 /*!<Maximum number of loaded 2d object definitions*/
 /*! \} */
 
-/*! 
+/*!
  * obj_2d_def is loaded from a .2do-file and is shared amongst all objects of that type in the obj_2d_def_cache array
  */
 typedef struct
 {
+	char file_name[128];    /*!< name of the file that contains the definition of the 2d object */
+
     /*! \name start and end coordinates of the texture @{ */
 	float u_start; /*!< start position of the u coordinate */
 	float u_end; /*!< end position of the u coordinate */
@@ -34,7 +36,7 @@ typedef struct
 	float v_end; /*!< end position of the v coordiante */
     /*! @} */
 
-    /*! \name size of the 2d object @{ */    
+    /*! \name size of the 2d object @{ */
 	float x_size; /*!< size in x direction */
 	float y_size; /*!< size in y direction */
     /*! @} */
@@ -46,15 +48,13 @@ typedef struct
 			   * fence: put in an upwards rotation (x_rot+=90)
 			   */
 	int texture_id;  /*!< The location in the texture cache. */
-}obj_2d_def;
+} obj_2d_def;
 
-/*! 
+/*!
  * The obj_2d determines the position and rotation of the given 2d object. Furthermore it determines the type
  */
 typedef struct
 {
-	char file_name[80];    /*!< name of the file that contains the definition of the 2d object */
-    
     /*! \name position of the object @{ */
 	float x_pos;
 	float y_pos;
@@ -75,18 +75,7 @@ typedef struct
 #ifdef CLUSTER_INSIDES
 	short cluster;
 #endif
-}obj_2d;
-
-/*! 
- * This is used for searching the 2d object cache for an already existing instance of the object definition
- */
-typedef struct
-{
-	char file_name[128];   /*!< the filename of the object */
-	obj_2d_def *obj_2d_def_id; /*!< a pointer to the header structure of this object */
-}obj_2d_cache_struct;
-
-extern obj_2d_cache_struct obj_2d_def_cache[MAX_OBJ_2D_DEF]; /*!< The 2d object cache array - holds all loaded 2d object definitions*/
+} obj_2d;
 
 extern obj_2d *obj_2d_list[MAX_OBJ_2D]; /*!< The 2d object array - holds all 2d objects on that map*/
 
@@ -127,25 +116,30 @@ int get_2d_bbox (int id, AABBOX* box);
 #endif // CLUSTER_INSIDES
 
 /*!
- * \ingroup	load_2d
- * \brief	Adds a 2d object at the given location. 
+ * \ingroup     load_2d
+ * \brief       Adds a 2d object at the given location. 
  * 
- * 		Adds a 2d object at the given location.
- * 		It's usually called in the map loading process. Requires a location and rotation for the 2d object, that's loaded from the file given by the first parameter
- * 		
- * \param	file_name The filename of the object we wish to add
- * \param	x_pos The x position
- * \param	y_pos The y position
- * \param	z_pos The z position
- * \param	x_rot The x rotation
- * \param	y_rot The y rotation
- * \param	z_rot The z rotation
- * \retval int 	Returns -1 on failure and the location in the obj_2d_list if it succeeds
+ *              Adds a 2d object at the given location.
+ *              It's usually called in the map loading process. Requires a location and rotation for the 2d object, that's loaded from the$
+ *
+ * \param       id_hint   Hint on the position of the object in the list. If
+ *                        this spot is already taken, a vacant spot will be
+ *                        chosen, but chances are that mouse click events on
+ *                        object won;t work because of a wrong ID.
+ * \param       file_name The filename of the object we wish to add
+ * \param       x_pos     The x position
+ * \param       y_pos     The y position
+ * \param       z_pos     The z position
+ * \param       x_rot     The x rotation
+ * \param       y_rot     The y rotation
+ * \param       z_rot     The z rotation
+ * \retval int  Returns -1 on failure and the location in the obj_2d_list if it succeeds
  * \callgraph
  */
-int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
-			   float x_rot, float y_rot, float z_rot, unsigned int dynamic);
-			   
+int add_2d_obj(int id_hint, const char* file_name,
+	float x_pos, float y_pos, float z_pos,
+	float x_rot, float y_rot, float z_rot, unsigned int dynamic);
+
 /*!
  * \ingroup	load_2d
  * \brief	Show or hide one or more 2D map objects
@@ -174,22 +168,11 @@ void set_2d_object (Uint8 display, const void *ptr, int len);
  */
 void state_2d_object (Uint8 state, const void *ptr, int len);
 
-/*!
- * \ingroup	load_2d
- * \brief	Check the 2D object cache for file_name - if not found, load it into the cache
- * 
- * 	Check the 2D object cache for file_name - if not found, load it into the cache
- *
- * \param	file_name The file name of the 2D object
- * \retval	A pointer to the loaded 2D object
- */
-obj_2d_def * load_obj_2d_def_cache(char * file_name);
-
 /*
  * \ingroup	display_2d
  * \brief	Destroys the 2d object at position i in the obj_2d_list
  * 
- * 		Destroyes the 2d object on position i in the obj_2d_list - frees the memory and sets the obj_2d_list[i]=NULL.
+ * 		Destroys the 2d object on position i in the obj_2d_list - frees the memory and sets the obj_2d_list[i]=NULL.
  *
  * \param	i The position in the obj_2d_list
  *
@@ -197,22 +180,34 @@ obj_2d_def * load_obj_2d_def_cache(char * file_name);
  */
 void destroy_2d_object(int i);
 
+/*
+ * \ingroup	display_2d
+ * \brief	Destroys all current 2d objects
+ *
+ * 		Destroyes all 2d objects currently in the obj_2d_list
+ *
+ * \param	i The position in the obj_2d_list
+ *
+ * \callgraph
+ */
+void destroy_all_2d_objects(void);
+
 #ifdef NEW_SOUND
 /*!
  * \ingroup	load_2d
  * \brief	Searches for a 2d ground object at a location
- * 
+ *
  * 		It searches for a 2d ground object at the specified location
- * 		
+ *
  * \param	x_pos		The x position to search for
  * \param	y_pos		The y position to search for
  * \retval char			Returns the object's filename if found, "" otherwise.
- * 
+ *
  * \sa add_e3d_at_id
  *
  * \callgraph
  */
-char * get_2dobject_at_location(float x_pos, float y_pos);
+const char* get_2dobject_at_location(float x_pos, float y_pos);
 #endif // NEW_SOUND
 
 #ifdef MAP_EDITOR2

@@ -26,7 +26,6 @@
 #endif /* FSAA */
 
 int use_3d_alpha_blend= 1;
-Uint32 highest_obj_3d= 0;
 int objects_list_placeholders = 0;
 object3d *objects_list[MAX_OBJ_3D];
 
@@ -40,16 +39,11 @@ int cur_e3d_count;
 int e3d_count, e3d_total;
 #endif  //DEBUG
 
-float zero[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-
-void clear_objects_list_placeholders()
-{
-	objects_list_placeholders = 0;
-}
+static int next_obj_3d = 0;
 
 void inc_objects_list_placeholders()
 {
-	objects_list_placeholders++;
+	next_obj_3d++;
 }
 
 static __inline__ void build_clouds_planes(object3d* obj)
@@ -59,7 +53,7 @@ static __inline__ void build_clouds_planes(object3d* obj)
 	w = -obj->z_rot * M_PI / 180.0f;
 	cos_w = cos(w);
 	sin_w = sin(w);
-	
+
 	obj->clouds_planes[0][0] = cos_w / texture_scale;
 	obj->clouds_planes[0][1] = sin_w / texture_scale;
 	obj->clouds_planes[0][2] = 1.0f / texture_scale;
@@ -176,7 +170,7 @@ void draw_3d_object_detail(object3d * object_id, Uint32 material_index, Uint32 u
 		if (use_vertex_buffers)
 		{
 			ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
-				object_id->e3d_data->indicies_vbo);
+				object_id->e3d_data->indices_vbo);
 		}
 
 		// lock this new one
@@ -219,16 +213,16 @@ void draw_3d_object_detail(object3d * object_id, Uint32 material_index, Uint32 u
 
 	if (use_draw_range_elements && ELglDrawRangeElementsEXT)
 		ELglDrawRangeElementsEXT(GL_TRIANGLES,
-			object_id->e3d_data->materials[material_index].triangles_indicies_min,
-			object_id->e3d_data->materials[material_index].triangles_indicies_max,
-			object_id->e3d_data->materials[material_index].triangles_indicies_count,
+			object_id->e3d_data->materials[material_index].triangles_indices_min,
+			object_id->e3d_data->materials[material_index].triangles_indices_max,
+			object_id->e3d_data->materials[material_index].triangles_indices_count,
 			object_id->e3d_data->index_type,
-			object_id->e3d_data->materials[material_index].triangles_indicies_index);
+			object_id->e3d_data->materials[material_index].triangles_indices_index);
 	else
 		glDrawElements(GL_TRIANGLES,
-			object_id->e3d_data->materials[material_index].triangles_indicies_count,
+			object_id->e3d_data->materials[material_index].triangles_indices_count,
 			object_id->e3d_data->index_type,
-			object_id->e3d_data->materials[material_index].triangles_indicies_index);
+			object_id->e3d_data->materials[material_index].triangles_indices_index);
 
 	glPopMatrix();//restore the scene
 	CHECK_GL_ERRORS();
@@ -264,9 +258,8 @@ void draw_3d_objects(unsigned int object_type)
 
 	get_intersect_start_stop(main_bbox_tree, object_type, &start, &stop);
 	// nothing to draw?
-	if(start >= stop){
+	if(start >= stop)
 		return;
-	}
 
 	// reduce CPU usage while minimized
 	if(!(SDL_GetAppState()&SDL_APPACTIVE)){
@@ -413,47 +406,45 @@ void draw_3d_objects(unsigned int object_type)
 
 //Tests to see if an e3d object is already loaded. If it is, return the handle.
 //If not, load it, and return the handle
-e3d_object *load_e3d_cache (const char * file_name)
+static e3d_object *load_e3d_cache(const char* file_name)
 {
 	e3d_object *e3d_id;
 
 	//do we have it already?
-	e3d_id = cache_find_item (cache_e3d, file_name);
-	if (e3d_id != NULL) return e3d_id;
+	e3d_id = cache_find_item(cache_e3d, file_name);
+	if (e3d_id) return e3d_id;
 
 	//e3d not found in the cache, so load it, and store it
 	// allocate the memory
-	e3d_id = (e3d_object*)malloc(sizeof(e3d_object));
-	if (e3d_id == NULL) 
+	e3d_id = calloc(1, sizeof(e3d_object));
+	if (!e3d_id)
 	{
 		LOG_ERROR("Can't alloc data for file \"%s\"!", file_name);
 		return NULL;
 	}
 	// and fill in the data
-	memset(e3d_id, 0, sizeof(e3d_object));
-	if (e3d_id == NULL) 
-	{
-		LOG_ERROR("Memset Error for file \"%s\"!", file_name);
-		return NULL;
-	}
 	my_strncp(e3d_id->file_name, file_name, sizeof(e3d_id->file_name));
-	
-	e3d_id = load_e3d_detail(e3d_id);
 
-	if (e3d_id == NULL) 
+	e3d_id = load_e3d_detail(e3d_id);
+	if (!e3d_id)
 	{
 		LOG_ERROR("Can't load file \"%s\"!", file_name);
 		return NULL;
 	}
 
-	e3d_id->cache_ptr = cache_add_item (cache_e3d, e3d_id->file_name, e3d_id, sizeof(*e3d_id));
-	
+	e3d_id->cache_ptr = cache_add_item(cache_e3d, e3d_id->file_name,
+		e3d_id, sizeof(*e3d_id));
+
 	return e3d_id;
 }
 
-int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot, char self_lit, char blended, float r, float g, float b, unsigned int dynamic)
+int add_e3d_at_id(int id, const char* file_name,
+	float x_pos, float y_pos, float z_pos,
+	float x_rot, float y_rot, float z_rot, char self_lit, char blended,
+	float r, float g, float b, unsigned int dynamic)
 {
 	char fname[128];
+	const char* fbase;
 	e3d_object *returned_e3d;
 	object3d *our_object;
 	int i;
@@ -461,41 +452,44 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	unsigned int texture_id;
 	unsigned int is_transparent, ground;
 
-	if(id < 0 || id >= MAX_OBJ_3D)
+	if (id < 0 || id >= MAX_OBJ_3D)
 	{
 		LOG_ERROR ("Invalid object id %d", id);
 		return -1;
 	}
 
-	if(objects_list[id] != 0)
+	if (objects_list[id])
 	{
 		LOG_ERROR("There's already an object with ID %d", id);
 		return -1;
 	}
 
 	//convert any '\' in '/'
-	clean_file_name(fname, file_name, 128);
-	my_tolower(fname);
+	clean_file_name(fname, file_name, sizeof(fname));
+	fbase = strrchr(fname, '/');
+	if (fbase)
+		fbase++;
+	else
+		fbase = fname;
 
-	returned_e3d= load_e3d_cache(fname);
-	if(returned_e3d==NULL)
+	returned_e3d = load_e3d_cache(fname);
+	if (!returned_e3d)
 	{
-		LOG_ERROR (nasty_error_str, fname);
+		LOG_ERROR(nasty_error_str, fname);
 		//replace it with the null object, to avoid object IDs corruption
 #ifdef OLD_MISC_OBJ_DIR
-		returned_e3d= load_e3d_cache ("./3dobjects/misc_objects/badobject.e3d");
+		returned_e3d = load_e3d_cache("./3dobjects/misc_objects/badobject.e3d");
 #else
-		returned_e3d= load_e3d_cache ("./3dobjects/badobject.e3d");
+		returned_e3d = load_e3d_cache("./3dobjects/badobject.e3d");
 #endif
-		if(returned_e3d == NULL){
-			return 0; // umm, not even found the place holder, this is teh SUCK!!!
-		}
+		if (!returned_e3d)
+			return -1; // umm, not even found the place holder, this is teh SUCK!!!
 	}
 	// now, allocate the memory
-	our_object= calloc(1, sizeof (object3d));
+	our_object = calloc(1, sizeof (object3d));
 
 	// and fill it in
-	my_strncp(our_object->file_name, fname, 80);
+	my_strncp(our_object->file_name, fname, sizeof(our_object->file_name));
 	our_object->x_pos = x_pos;
 	our_object->y_pos = y_pos;
 	our_object->z_pos = z_pos;
@@ -517,30 +511,19 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	build_clouds_planes(our_object);
 
 	our_object->e3d_data = returned_e3d;
-	
+
 	our_object->id = id;
 
 	our_object->flags = 0;
 
-
-	for(i = 0; i < sizeof(harvestable_objects)/sizeof(harvestable_objects[0]); i++) {
-		if(*harvestable_objects[i] && strstr(file_name, harvestable_objects[i]) != NULL) {
-			our_object->flags |= OBJ_3D_HARVESTABLE;
-			break;
-		}
-	}
-	for(i = 0; i < sizeof(entrable_objects)/sizeof(entrable_objects[0]); i++) {
-		if(*(entrable_objects[i]) && strstr(file_name, entrable_objects[i]) != NULL) {
-			our_object->flags |= OBJ_3D_ENTRABLE;
-			break;
-		}
-	}
-	if (strcasecmp(file_name, "") && strcasecmp(strrchr(file_name, '/')+1, "bag1.e3d") == 0) {
+	if (is_harvestable(fbase))
+		our_object->flags |= OBJ_3D_HARVESTABLE;
+	if (is_entrable(fbase))
+		our_object->flags |= OBJ_3D_ENTRABLE;
+	if (*fbase && strcasecmp(fbase, "bag1.e3d") == 0)
 		our_object->flags |= OBJ_3D_BAG;
-	}
-	if (strcasecmp(file_name, "") && strcasecmp(strrchr(file_name, '/')+1, "branch1.e3d") == 0) {
+	if (*fbase && strcasecmp(fbase, "branch1.e3d") == 0)
 		our_object->flags |= OBJ_3D_MINE;
-	}
 
 #ifdef CLUSTER_INSIDES
 	our_object->cluster = get_cluster ((int)(x_pos/0.5f), (int)(y_pos/0.5f));
@@ -549,20 +532,18 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 
 	objects_list[id] = our_object;
 	// watch the top end
-	if((Uint32)id >= highest_obj_3d)
-	{
-		highest_obj_3d = id+1;
-	}
+	if (id >= next_obj_3d)
+		next_obj_3d = id+1;
 
 	calc_rotation_and_translation_matrix(our_object->matrix, x_pos, y_pos, z_pos, x_rot, y_rot, z_rot);
-	
+
 	// watch for needing to load the detailed information
 	//load_e3d_detail_if_needed(returned_e3d);
 
 	ground = returned_e3d->vertex_layout->normal_count == 0;
 
 	for (i = 0; i < returned_e3d->material_no; i++)
-	{	
+	{
 		bbox.bbmin[X] = returned_e3d->materials[i].min_x;
 		bbox.bbmax[X] = returned_e3d->materials[i].max_x;
 		bbox.bbmin[Y] = returned_e3d->materials[i].min_y;
@@ -573,8 +554,14 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 		matrix_mul_aabb(&bbox, our_object->matrix);
 		texture_id = returned_e3d->materials[i].texture;
 		is_transparent = returned_e3d->materials[i].options != 0;
-		if ((main_bbox_tree_items != NULL) && (dynamic == 0))  add_3dobject_to_list(main_bbox_tree_items, get_3dobject_id(id, i), bbox, blended, ground, is_transparent, self_lit, texture_id);
-		else add_3dobject_to_abt(main_bbox_tree, get_3dobject_id(id, i), bbox, blended, ground, is_transparent, self_lit, texture_id, dynamic);
+		if (main_bbox_tree_items != NULL && dynamic == 0)
+			add_3dobject_to_list(main_bbox_tree_items,
+				get_3dobject_id(id, i), bbox, blended, ground,
+				is_transparent, self_lit, texture_id);
+		else
+			add_3dobject_to_abt(main_bbox_tree,
+				get_3dobject_id(id, i), bbox, blended, ground,
+				is_transparent, self_lit, texture_id, dynamic);
 	}
 
 	add_ec_effect_to_e3d(our_object);
@@ -585,23 +572,32 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	return id;
 }
 
-int add_e3d (const char * file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot, char self_lit, char blended, float r, float g, float b, unsigned int dynamic)
+int add_e3d(const char *file_name, float x_pos, float y_pos, float z_pos,
+	float x_rot, float y_rot, float z_rot,
+	char self_lit, char blended, float r, float g, float b,
+	unsigned int dynamic)
 {
-	int i, j;
+	int i;
 
-	j = 0;
-	
-	//find a free spot, in the e3d_list
-	for(i = 0; i < MAX_OBJ_3D; i++)
+	if (next_obj_3d < MAX_OBJ_3D && ! objects_list[next_obj_3d])
+		return add_e3d_at_id(next_obj_3d, file_name, x_pos, y_pos, z_pos,
+			x_rot, y_rot, z_rot, self_lit, blended,
+			r, g, b, dynamic);
+
+	// Oh my, next_obj_3d is not free. Find a free spot in the e3d_list,
+	// but don't count on IDs being correct.
+	for (i = 0; i < MAX_OBJ_3D; i++)
 	{
-		if(objects_list[i] == NULL)
+		if (!objects_list[i])
 		{
-			if (j < objects_list_placeholders) j++;
-			else break;
+			return add_e3d_at_id(i, file_name, x_pos, y_pos, z_pos,
+				x_rot, y_rot, z_rot, self_lit, blended,
+				r, g, b, dynamic);
 		}
 	}
-	
-	return add_e3d_at_id (i, file_name, x_pos, y_pos, z_pos, x_rot, y_rot, z_rot, self_lit, blended, r, g, b, dynamic);
+
+	// No free spot available
+	return -1;
 }
 
 #ifdef NEW_SOUND
@@ -815,23 +811,25 @@ void display_blended_objects()
 
 void destroy_3d_object(int i)
 {
-	if ((i < 0) || (i >= MAX_OBJ_3D)) return;
-	if (objects_list[i] == NULL) return;
+	if (i < 0 || i >= MAX_OBJ_3D || !objects_list[i])
+		return;
 
 	ec_remove_obstruction_by_object3d(objects_list[i]);
 
 	delete_3dobject_from_abt(main_bbox_tree, i, objects_list[i]->blended, objects_list[i]->self_lit);
 	free(objects_list[i]);
 	objects_list[i] = NULL;
-	if((Uint32)i == highest_obj_3d+1){
-		highest_obj_3d = i;
+	if (i == next_obj_3d-1)
+	{
+		while (next_obj_3d > 0 && !objects_list[next_obj_3d-1])
+			next_obj_3d--;
 	}
 }
 
 Uint32 free_e3d_va(e3d_object *e3d_id)
 {
 	set_all_intersect_update_needed(main_bbox_tree);
-	
+
 	if (e3d_id != NULL)
 	{
 		if (e3d_id->vertex_data != NULL)
@@ -839,20 +837,20 @@ Uint32 free_e3d_va(e3d_object *e3d_id)
 			free(e3d_id->vertex_data);
 			e3d_id->vertex_data = NULL;
 		}
-		if (e3d_id->indicies != NULL)
+		if (e3d_id->indices != NULL)
 		{
-			free(e3d_id->indicies);
-			e3d_id->indicies = NULL;
+			free(e3d_id->indices);
+			e3d_id->indices = NULL;
 		}
-		if (e3d_id->vertex_vbo != 0) 
-		{		
+		if (e3d_id->vertex_vbo != 0)
+		{
 			ELglDeleteBuffersARB(1, &e3d_id->vertex_vbo);
 			e3d_id->vertex_vbo = 0;
 		}
-		if (e3d_id->indicies_vbo != 0) 
-		{		
-			ELglDeleteBuffersARB(1, &e3d_id->indicies_vbo);
-			e3d_id->indicies_vbo = 0;
+		if (e3d_id->indices_vbo != 0)
+		{
+			ELglDeleteBuffersARB(1, &e3d_id->indices_vbo);
+			e3d_id->indices_vbo = 0;
 		}
 	}
 
@@ -877,28 +875,28 @@ void destroy_e3d(e3d_object *e3d_id)
 void set_3d_object (Uint8 display, const void *ptr, int len)
 {
 	const Uint32 *id_ptr = ptr;
-	
+
 	// first look for the override to process ALL objects
-	if (len < sizeof(*id_ptr) ){
-		Uint32	i;
-		
-		for(i=0; i<= highest_obj_3d; i++){
-			if (objects_list[i]){
+	if (len < sizeof(*id_ptr) )
+	{
+		int i;
+		for (i = 0; i < next_obj_3d; i++)
+		{
+			if (objects_list[i])
 				objects_list[i]->display= display;
-			}
 		}
-	} else {
+	}
+	else
+	{
 		int idx = 0;
-		
-		while (len >= sizeof (*id_ptr))
+		while (len >= sizeof(*id_ptr))
 		{
 			Uint32 obj_id = SDL_SwapLE32(id_ptr[idx]);
-		
-			if (obj_id <= highest_obj_3d && objects_list[obj_id])
+			if ((int)obj_id < next_obj_3d && objects_list[obj_id])
 			{
 				objects_list[obj_id]->display = display;
 				idx++;
-				len -= sizeof (*id_ptr);
+				len -= sizeof(*id_ptr);
 			}
 		}
 	}
@@ -908,29 +906,48 @@ void set_3d_object (Uint8 display, const void *ptr, int len)
 void state_3d_object (Uint8 state, const void *ptr, int len)
 {
 	const Uint32 *id_ptr = ptr;
-	
+
 	// first look for the override to process ALL objects
 	if (len < sizeof(*id_ptr) ){
 		Uint32	i;
-		
-		for(i=0; i<= highest_obj_3d; i++){
-			if (objects_list[i]){
+		for (i=0; i < next_obj_3d; i++)
+		{
+			if (objects_list[i])
 				objects_list[i]->state= state;
-			}
 		}
-	} else {
+	}
+	else
+	{
 		int idx = 0;
-	
 		while (len >= sizeof(*id_ptr))
 		{
-			Uint32	obj_id = SDL_SwapLE32(id_ptr[idx]);
-		
-			if (obj_id <= highest_obj_3d && objects_list[obj_id])
+			Uint32 obj_id = SDL_SwapLE32(id_ptr[idx]);
+			if ((int)obj_id < next_obj_3d && objects_list[obj_id])
 			{
 				objects_list[obj_id]->state = state;
 				idx++;
-				len -= sizeof (*id_ptr);
+				len -= sizeof(*id_ptr);
 			}
 		}
 	}
 }
+
+void destroy_all_3d_objects()
+{
+	int i;
+
+	for(i = 0; i < MAX_OBJ_3D; i++)
+	{
+		if(objects_list[i])
+		{
+			ec_remove_obstruction_by_object3d(objects_list[i]);
+//			delete_3dobject_from_abt(main_bbox_tree, i, objects_list[i]->blended, objects_list[i]->self_lit);
+			free(objects_list[i]);
+			objects_list[i] = NULL; // kill any reference to it
+		}
+	}
+
+	// reset the top pointer
+	next_obj_3d = 0;
+}
+
