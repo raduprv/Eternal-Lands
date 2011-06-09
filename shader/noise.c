@@ -169,7 +169,8 @@ static __inline__ GLubyte* make_3d_noise_texture(int size, int frequency, int di
 	double amp = 0.5;
 
 	data = (GLubyte*)malloc(size * size * size * dimensions);
-	tmp = calloc(size * size * size * dimensions, sizeof(double));
+	tmp = (double*)malloc(size * size * size * dimensions * sizeof(double));
+	memset(tmp, 0, size * size * size * dimensions * sizeof(double));
 
 	for (f = 0; f < numOctaves; f++, frequency *= 2, amp *= 0.5)
 	{

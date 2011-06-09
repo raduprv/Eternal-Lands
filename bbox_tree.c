@@ -574,22 +574,34 @@ void free_bbox_tree(BBOX_TREE* bbox_tree)
 	else BBOX_TREE_LOG_INFO("bbox_tree");
 }
 
-static int Axis = 0;
+int Axis = 0;
 
 static int compboxes(const void *in_a, const void *in_b)
 {
-	const BBOX_ITEM *a = in_a, *b = in_b;
+	BBOX_ITEM *a, *b;
 	float am, bm;
+
+	a = (BBOX_ITEM *)in_a;
+	b = (BBOX_ITEM *)in_b;
 
 	am = a->bbox.bbmin[Axis];
 	bm = b->bbox.bbmin[Axis];
 
 	if (am < bm)
-		return -1;
-	else if (bm < am)
-		return 1;
+	{
+		return (-1);
+	}
 	else
-		return 0;
+	{
+		if (am == bm)
+		{
+			return (0);
+		}
+		else
+		{
+			return (1);
+		}
+	}
 }
 
 static __inline__ void build_area_table(BBOX_TREE *bbox_tree, Uint32 a, Uint32  b, float *areas)
@@ -639,9 +651,10 @@ static __inline__ void find_axis(BBOX_TREE *bbox_tree, Uint32 first, Uint32 last
 	a1 = 0;
 	a2 = 1;
 	a3 = 2;
-
+	
 	d = bmax[a1] - bmin[a1];
 	e = bmax[a2] - bmin[a2];
+	
 	if (d < e)
 	{
 		i = a2;
@@ -651,17 +664,17 @@ static __inline__ void find_axis(BBOX_TREE *bbox_tree, Uint32 first, Uint32 last
 
 	d = bmax[a1] - bmin[a1];
 	e = bmax[a3] - bmin[a3];
+	
 	if (d < e)
 	{
-//		i = a2;
-//		a2 = a1;
-		i = a3;
-		a3 = a1;
+		i = a2;
+		a2 = a1;
 		a1 = i;
 	}
-
+	
 	d = bmax[a2] - bmin[a2];
 	e = bmax[a3] - bmin[a3];
+	
 	if (d < e)
 	{
 		i = a3;
@@ -706,17 +719,18 @@ static __inline__ Uint32 sort_and_split(BBOX_TREE* bbox_tree, Uint32 node, Uint3
 	find_axis(bbox_tree, first, last, axis);
 
 	best_loc = -1;
-
+	
 	if (size > 8)
 	{
-		area_left = malloc(size * sizeof(float));
-		area_right = malloc(size * sizeof(float));
+
+		area_left = (float *)malloc(size * sizeof(float));
+		area_right = (float *)malloc(size * sizeof(float));
 
 		for (j = 0; j < 3; j++)
 		{
 			Axis = axis[j];
-
-			qsort(bbox_tree->items+first, size, sizeof(BBOX_ITEM), compboxes);
+			
+			qsort((void *)(&(bbox_tree->items[first])), size, sizeof(BBOX_ITEM), compboxes);
 			build_area_table(bbox_tree, first, last - 1, area_left);
 			build_area_table(bbox_tree, last - 1, first, area_right);
 
@@ -728,7 +742,7 @@ static __inline__ Uint32 sort_and_split(BBOX_TREE* bbox_tree, Uint32 node, Uint3
 			 * are the number of objects in the two groups and A1 and A2 are the
 			 * surface areas of the bounding boxes of the two groups.
 			 */
-
+			
 			for (i = 0; i < size - 1; i++)
 			{
 				new_index = (i + 1) * area_left[i] + (size - 1 - i) * area_right[i + 1];
@@ -745,7 +759,7 @@ static __inline__ Uint32 sort_and_split(BBOX_TREE* bbox_tree, Uint32 node, Uint3
 		free(area_left);
 		free(area_right);
 	}
-
+	
 	calc_bbox(&bbox_tree->nodes[node].bbox, bbox_tree, first, last);
 	VAssign(bbox_tree->nodes[node].orig_bbox.bbmin, bbox_tree->nodes[node].bbox.bbmin);
 	VAssign(bbox_tree->nodes[node].orig_bbox.bbmax, bbox_tree->nodes[node].bbox.bbmax);
@@ -756,7 +770,7 @@ static __inline__ Uint32 sort_and_split(BBOX_TREE* bbox_tree, Uint32 node, Uint3
 	bbox_tree->nodes[node].dynamic_objects.index = 0;
 	bbox_tree->nodes[node].dynamic_objects.items = NULL;
 
-	if (best_loc < 0)
+	if (best_loc < 0) 
 	{
 		bbox_tree->nodes[node].nodes[0] = NO_INDEX;
 		bbox_tree->nodes[node].nodes[1] = NO_INDEX;
@@ -764,7 +778,7 @@ static __inline__ Uint32 sort_and_split(BBOX_TREE* bbox_tree, Uint32 node, Uint3
 	}
 	else
 	{
-		if (*index+2 >= bbox_tree->nodes_count)
+		if (*index+2 >= bbox_tree->nodes_count) 
 		{
 			bbox_tree->nodes_count *= 2;
 			bbox_tree->nodes = (BBOX_TREE_NODE*)realloc(bbox_tree->nodes, bbox_tree->nodes_count*sizeof(BBOX_TREE_NODE));
@@ -778,7 +792,7 @@ static __inline__ Uint32 sort_and_split(BBOX_TREE* bbox_tree, Uint32 node, Uint3
 	}
 }
 
-void init_bbox_tree(BBOX_TREE* bbox_tree, const BBOX_ITEMS *bbox_items)
+void init_bbox_tree(BBOX_TREE* bbox_tree, BBOX_ITEMS *bbox_items)
 {
 	Uint32 size, index;
 
@@ -786,7 +800,7 @@ void init_bbox_tree(BBOX_TREE* bbox_tree, const BBOX_ITEMS *bbox_items)
 	{
 		if (bbox_items->index > 0)
 		{
-			size = bbox_items->index;
+			size = bbox_items->index;	
 			index = 1;
 			bbox_tree->nodes_count = 2*size;
 			bbox_tree->nodes = (BBOX_TREE_NODE*)malloc(size*2*sizeof(BBOX_TREE_NODE));

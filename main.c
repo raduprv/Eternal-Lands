@@ -98,12 +98,19 @@ void cleanup_mem(void)
 	end_actors_lists();
 	cleanup_lights();
 	/* 2d objects */
-	destroy_all_2d_objects();
+	for(i = 0; i < MAX_OBJ_2D_DEF; i++) {
+		if(obj_2d_list[i] != NULL) {
+			free(obj_2d_list[i]);
+		}
+	}
 	/* 3d objects */
-	destroy_all_3d_objects();
-
+	for(i = 0; i < MAX_OBJ_3D; i++) {
+		if(objects_list[i] != NULL) {
+			destroy_3d_object(i);
+		}
+	}
 	/* caches */
-	cache_set_free(cache_e3d, &destroy_e3d);
+	cache_e3d->free_item = &destroy_e3d;
 	cache_delete(cache_e3d);
 	cache_e3d = NULL;
 	// Horrible hack >>>>
@@ -208,7 +215,7 @@ int start_rendering()
 			{
 				weather_update();
 
-				animate_actors();
+                animate_actors();
 				//draw everything
 				draw_scene();
 				last_time=cur_time;
@@ -222,9 +229,8 @@ int start_rendering()
 			check_timers();
 #endif
 
-			// Cache handling
-			if (cache_system)
-				cache_system_maint();
+			//cache handling
+			if(cache_system)cache_system_maint();
 			//see if we need to exit
 			if(exit_now) {
 				done = 1;
@@ -330,12 +336,13 @@ void	read_command_line()
 /* We need an additional function as the command line should be read after the config, but this
  * variable is needed to load the correct config.
  */
-const char* check_server_id_on_command_line()
+char * check_server_id_on_command_line()
 {
 	if (gargc < 2)
 		return "";
 
 	// FIXME!! This should parse for -options rather than blindly returning the last option!
+	
 	return gargv[gargc - 1];
 }
 

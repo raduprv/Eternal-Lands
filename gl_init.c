@@ -1051,16 +1051,16 @@ void set_new_video_mode(int fs,int mode)
 
 	if (use_vertex_buffers)
 	{
-		e3d_object* obj;
-		for (i = 0; i < cache_e3d->num_items; i++)
-		{
-			if (cache_e3d->cached_items[i])
-			{
-				obj = cache_e3d->cached_items[i]->cache_item;
-				free_e3d_va(obj);
-			}
+		e3d_object * obj;
+
+		for(i=0; i<cache_e3d->max_item; i++){
+			if(!cache_e3d->cached_items[i] )continue;
+			obj= cache_e3d->cached_items[i]->cache_item;
+
+			free_e3d_va(obj);
 		}
 		CHECK_GL_ERRORS();
+		
 	}
 
 #ifndef	NEW_TEXTURES

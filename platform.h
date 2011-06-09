@@ -7,7 +7,7 @@
 #ifndef PLATFORM_H
 #define PLATFORM_H
 
-// Try to use compiler macros to detect 64-bitness. According to
+// Try to use compiler macros to detect 64-bitness. According to 
 // http://predef.sourceforge.net/prearch.html , these ought to work on
 // gcc, Sun Studio and Visual Studio.
 // Throw in ia64 as well, though I doubt anyone will play EL on that.
@@ -15,7 +15,7 @@
  #define X86_64
 #endif
 
-// only ever use WINDOWS anywhere else, in case we need to add another 'catch' to
+// only ever use WINDOWS anywhere else, in case we need to add another 'catch' to 
 // enable WINDOWS
 #if defined (_WIN32) || defined (_WIN64) || defined (WIN32)
  #ifndef WINDOWS
@@ -37,7 +37,7 @@
   #define snprintf safe_snprintf
   #define strncasecmp _strnicmp
   #define strcasecmp _stricmp
-
+                
   #define __inline__ __inline
 
   #if _MSC_VER < 1400 // VC 2003 needs these defines, VC 2005 will error with them included
@@ -47,10 +47,10 @@
    #define floorf floor
    #define fabsf fabs
   #endif  // _MSC_VER < 1400
-
+                
   #define rint(X) floor(X+0.5f)
  #endif // _MSC_VER
-
+        
  #ifdef __MINGW32__
   // Lachesis: Make sure snprintf is declared before we #define it to be something else,
   // else we'll eventually break C++ headers that use it
@@ -73,7 +73,7 @@
  #include <OpenGL/glu.h>
  //#include <OpenGL/glext.h>
  #include "elglext.h"
- #define APIENTRY
+ #define APIENTRY 
  #define APIENTRYP *
 #elif !defined(BSD)
  #define GL_GLEXT_LEGACY
@@ -106,9 +106,6 @@
 #ifndef M_PI
  #define M_PI 3.14159265358979323846
 #endif //M_PI
-#ifndef M_SQRT2
- #define M_SQRT2 1.41421356237309504880
-#endif
 
 #ifdef EL_BIG_ENDIAN
  #define SwapLEFloat(X) SwapFloat(X)

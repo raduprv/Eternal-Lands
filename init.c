@@ -129,6 +129,57 @@ int video_mode_set=0;
 
 void read_command_line(); //from main.c
 
+void load_harvestable_list()
+{
+	FILE *f = NULL;
+	int i = 0;
+	char strLine[255];
+
+	memset(harvestable_objects, 0, sizeof(harvestable_objects));
+	f = open_file_data("harvestable.lst", "rb");
+	if(f == NULL) {
+		LOG_ERROR("%s: %s \"harvestable.lst\"\n", reg_error_str, cant_open_file);
+		return;
+	}
+	while(1)
+	{
+		if (fscanf (f, "%254s", strLine) != 1)
+			break;
+		my_strncp (harvestable_objects[i], strLine, sizeof (harvestable_objects[i]));
+
+		i++;
+		if(!fgets(strLine, sizeof(strLine), f)) {
+			break;
+		}
+	}
+	fclose(f);
+}
+
+void load_entrable_list()
+{
+	FILE *f = NULL;
+	int i=0;
+	char strLine[255];
+
+	memset(entrable_objects, 0, sizeof(entrable_objects));
+	i=0;
+	f=open_file_data("entrable.lst", "rb");
+	if(f == NULL){
+		LOG_ERROR("%s: %s \"entrable.lst\"\n", reg_error_str, cant_open_file);
+		return;
+	}
+	while(1)
+		{
+			if (fscanf (f, "%254s", strLine) != 1)
+				break;
+			my_strncp (entrable_objects[i], strLine, sizeof (entrable_objects[i]));
+
+			i++;
+			if(!fgets(strLine, sizeof(strLine), f))break;
+		}
+	fclose(f);
+}
+
 void load_knowledge_list()
 {
 	FILE *f = NULL;
@@ -599,10 +650,16 @@ void init_texture_cache()
 void init_e3d_cache()
 {
 	//cache_e3d= cache_init(1000, &destroy_e3d);	//TODO: autofree the name as well
-	cache_e3d = cache_init("E3D cache", 1000, NULL);	//no aut- free permitted
+	cache_e3d= cache_init(1000, NULL);	//no aut- free permitted
+	cache_set_name(cache_system, "E3D cache", cache_e3d);
 	cache_set_compact(cache_e3d, &free_e3d_va);	// to compact, free VA arrays
 	cache_set_time_limit(cache_e3d, 5*60*1000);
 	cache_set_size_limit(cache_e3d, 8*1024*1024);
+}
+
+void init_2d_obj_cache()
+{
+	memset(obj_2d_def_cache, 0, sizeof(obj_2d_def_cache));
 }
 
 void init_stuff()
@@ -682,6 +739,7 @@ void init_stuff()
 	cache_system_init(MAX_CACHE_SYSTEM);
 	init_texture_cache();
 	init_e3d_cache();
+	init_2d_obj_cache();
 	//now load the font textures
 	load_font_textures ();
 	CHECK_GL_ERRORS();
