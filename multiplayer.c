@@ -744,7 +744,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  LOG_WARNING("CAUTION: Possibly forged HERE_YOUR_STATS packet received.\n");
 				  break;
 				}
-				get_the_stats((Sint16 *)(in_data+3));
+				get_the_stats((Sint16 *)(in_data+3), data_length-3);
 			}
 			break;
 

@@ -98,23 +98,25 @@ void cleanup_mem(void)
 	end_actors_lists();
 	cleanup_lights();
 	/* 2d objects */
-	for(i = 0; i < MAX_OBJ_2D_DEF; i++) {
-		if(obj_2d_list[i] != NULL) {
-			free(obj_2d_list[i]);
-		}
-	}
+	destroy_all_2d_objects();
 	/* 3d objects */
-	for(i = 0; i < MAX_OBJ_3D; i++) {
-		if(objects_list[i] != NULL) {
-			destroy_3d_object(i);
-		}
-	}
+	destroy_all_3d_objects();
+
 	/* caches */
-	cache_e3d->free_item = &destroy_e3d;
+	cache_set_free(cache_e3d, &destroy_e3d);
 	cache_delete(cache_e3d);
 	cache_e3d = NULL;
-	cache_delete(cache_system);
+	// Horrible hack >>>>
+	// There's a bug with this call, it appears to make use of memory it's already freed.
+	// Valgrind shows on Linux but I've not seen a crash.
+	// It appears to cause a crash on windows XP.
+	// It appears only to happen when NEW_TEXTURES is enabled.
+	// It is in the code from many weeks back.
+	// Until the bug can be found, just don't do the call.
+	// Hunting the bug continues.... pjbroad/blaup
+	//cache_delete(cache_system);
 	cache_system = NULL;
+	// Horrible hack <<<
 	/* map location information */
 	for (i = 0; continent_maps[i].name; i++)
 	{
@@ -206,7 +208,7 @@ int start_rendering()
 			{
 				weather_update();
 
-                animate_actors();
+				animate_actors();
 				//draw everything
 				draw_scene();
 				last_time=cur_time;
@@ -220,8 +222,9 @@ int start_rendering()
 			check_timers();
 #endif
 
-			//cache handling
-			if(cache_system)cache_system_maint();
+			// Cache handling
+			if (cache_system)
+				cache_system_maint();
 			//see if we need to exit
 			if(exit_now) {
 				done = 1;
@@ -327,13 +330,12 @@ void	read_command_line()
 /* We need an additional function as the command line should be read after the config, but this
  * variable is needed to load the correct config.
  */
-char * check_server_id_on_command_line()
+const char* check_server_id_on_command_line()
 {
 	if (gargc < 2)
 		return "";
 
 	// FIXME!! This should parse for -options rather than blindly returning the last option!
-	
 	return gargv[gargc - 1];
 }
 

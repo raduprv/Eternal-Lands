@@ -22,8 +22,8 @@ typedef struct
 	Uint32	size;			/*!< size of item */
 	Uint32	access_time;	/*!< last time used */
 	Uint32	access_count;	/*!< number of usages since last checkpoint */
-	char	*name;			/*!< original source or name, NOTE: this is NOT free()'d and allows dups! */
-}cache_item_struct;
+	const char *name;	/*!< original source or name, NOTE: this is NOT free()'d and allows dups! */
+} cache_item_struct;
 
 /*!
  * structure of the cache used
@@ -33,8 +33,6 @@ typedef struct
 	cache_item_struct	**cached_items; /*!< list of cached items */
 	cache_item_struct	*recent_item; /*!< pointer to the last used item */
 	Sint32	num_items;		/*!< the number of active items in the list */
-	Sint32	max_item;		/*!< the highest slot used */
-	Sint32	first_unused;	/*!< the lowest possible unused slow (might be in use!!) */
 	Sint32	num_allocated;	/*!< the allocated space for the list */
 	Uint32	LRU_time;		/*!< last time LRU processing done */
 	Uint32	total_size;		/*!< total size currently allocated */
@@ -42,7 +40,7 @@ typedef struct
 	Uint32	size_limit;		/*!< limit on size before forcing a scan */
 	void	(*free_item)();	/*!< routine to call to free an item */
 	Uint32	(*compact_item)();	/*!< routine to call to reduce memory usage without freeing */
-}cache_struct;
+} cache_struct;
 
 #ifndef	NEW_TEXTURES
 /*!
@@ -54,9 +52,9 @@ typedef struct
 	char file_name[128];          /*!< the filename of the texture */
 	cache_item_struct *cache_ptr; /*!< a pointer to the cached item */
 	int alpha;                    /*!< used for alpha blending the texture */
-    int has_alpha;                /*!< specify if the texture has an alpha map */
+	int has_alpha;                /*!< specify if the texture has an alpha map */
 	char load_err;                /*!< if true, we tried to load this texture before and failed */
-}texture_cache_struct;
+} texture_cache_struct;
 #endif
 
 /*!
@@ -91,7 +89,7 @@ void cache_system_init(Uint32 max_items);
  *
  * \callgraph
  */
-void cache_system_maint();
+void cache_system_maint(void);
 
 #ifdef	ELC
 /*!
@@ -104,7 +102,7 @@ void cache_system_maint();
  *
  * \callgraph
  */
-void cache_dump_sizes(cache_struct *cache);
+void cache_dump_sizes(const cache_struct *cache);
 #endif	/* ELC */
 
 /*!
@@ -113,12 +111,14 @@ void cache_dump_sizes(cache_struct *cache);
  *
  *      Initializes a new cache system with \a max_items items and the given callback routine to free an item.
  *
+ * \param name              the name of the cache 
  * \param max_items         max. number of items in the cache
  * \param free_item         routine used to free items in the cache.
  * \retval cache_struct*    a pointer to a newly created cache.
  * \callgraph
  */
-cache_struct *cache_init(Uint32 max_items, void (*free_item)());
+cache_struct *cache_init(const char *name, Uint32 max_items,
+	void (*free_item)());
 
 /*!
  * \ingroup cache
@@ -155,6 +155,17 @@ void cache_set_size_limit(cache_struct *cache, Uint32 size_limit);
 
 /*!
  * \ingroup cache
+ * \brief   sets the function to free items
+ *
+ *      Sets the function to apply to each item before it is evicted from the
+ *      cache.
+ *
+ * \param free_item     pointer to the free function
+ */
+void cache_set_free(cache_struct *cache, void (*free_item)());
+
+/*!
+ * \ingroup cache
  * \brief adds the given \a item to \a cache with the given \a name.
  *
  *      Adds the given \a item to \a cache with the given \a name. The parameter \a size determines the maximum size of items in \a cache.
@@ -166,7 +177,7 @@ void cache_set_size_limit(cache_struct *cache, Uint32 size_limit);
  * \retval cache_item_struct*   a pointer to a \see cache_item_struct of the given \a item.
  * \callgraph
  */
-cache_item_struct *cache_add_item(cache_struct *cache, char *name, void *item, Uint32 size);
+cache_item_struct *cache_add_item(cache_struct *cache, const char *name, void *item, Uint32 size);
 
 /*!
  * \ingroup cache
@@ -180,7 +191,7 @@ cache_item_struct *cache_add_item(cache_struct *cache, char *name, void *item, U
  *
  * \callgraph
  */
-void cache_set_name(cache_struct *cache, char *name, void *item);
+void cache_set_name(cache_struct *cache, const char *name, void *item);
 
 /*!
  * \ingroup cache
@@ -210,13 +221,13 @@ void cache_use(cache_struct *cache, cache_item_struct *item);
 #else	//USE_INLINE
 #include "global.h"
 
-static __inline__ void	cache_use(cache_struct *cache, cache_item_struct *item_ptr)
+static __inline__ void cache_use(cache_struct *cache, cache_item_struct *item_ptr)
 {
-	if(item_ptr)
-		{
-			item_ptr->access_time= cur_time;
-			item_ptr->access_count++;
-		}
+	if (item_ptr)
+	{
+		item_ptr->access_time = cur_time;
+		item_ptr->access_count++;
+	}
 }
 #endif	//USE_INLINE
 

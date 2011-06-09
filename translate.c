@@ -1516,6 +1516,7 @@ void init_stats()
 	add_xml_statid(misc,"ethereal",&(attributes.ethereal_points),"Ethereal Points","ethp");
 	add_xml_statid(misc,"carry",&(attributes.carry_capacity),"Carry capacity","Load");
 	add_xml_statid(misc,"food",&(attributes.food),"Food level","food");
+	add_xml_statid(misc,"action",&(attributes.action_points),"Action Points","actp");
 
 	add_xml_statid(nexus,"human",&(attributes.human_nex),"Human","hum");
 	add_xml_statid(nexus,"animal",&(attributes.animal_nex),"Animal","ani");

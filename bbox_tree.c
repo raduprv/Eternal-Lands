@@ -54,7 +54,7 @@ static __inline__ void adapt_intersect_list_size(BBOX_TREE* bbox_tree, Uint32 co
 	if (count == 0) count = 1;
 	idx = bbox_tree->cur_intersect_type;
 	size = bbox_tree->intersect[idx].size;
-	
+
 	if ((bbox_tree->intersect[idx].count+count) >= size)
 	{
 		size += max2i(count, size/2);
@@ -81,7 +81,7 @@ static __inline__ void add_intersect_item(BBOX_TREE* bbox_tree, Uint32 index, Ui
 static __inline__ void add_intersect_items(BBOX_TREE* bbox_tree, Uint32 index, Uint32 count)
 {
 	Uint32 i;
-	
+
 	adapt_intersect_list_size(bbox_tree, count);
 	for (i = 0; i < count; i++) add_intersect_item(bbox_tree, index+i, bbox_tree->cur_intersect_type);
 }
@@ -94,7 +94,7 @@ static __inline__ void add_dyn_intersect_item(BBOX_TREE* bbox_tree, Uint32 node,
 static __inline__ void add_dyn_intersect_items(BBOX_TREE* bbox_tree, Uint32 node, Uint32 count)
 {
 	Uint32 i;
-	
+
 	adapt_intersect_list_size(bbox_tree, count);
 	for (i = 0; i < count; i++) add_dyn_intersect_item(bbox_tree, node, i, bbox_tree->cur_intersect_type);
 }
@@ -105,10 +105,10 @@ static __inline__ int check_aabb_in_frustum(const AABBOX bbox, const FRUSTUM fru
 	VECTOR3 _n, _p;
 	float v;
 	Uint32 i, k, result;
-	
+
 	result = INSIDE;
 	*out_mask = 0;
-	
+
 	for (i = 0, k = 1; k <= in_mask; i++, k += k)
 	{
 		if (k & in_mask)
@@ -120,7 +120,7 @@ static __inline__ int check_aabb_in_frustum(const AABBOX bbox, const FRUSTUM fru
 			{
 				return OUTSIDE;
 			}
-			
+
 			VSelect(_p, bbox.bbmin, bbox.bbmax, frustum[i].mask);
 			VAssign4(p, _p, 1.0f);
 			v = VDot4(p, frustum[i].plane);
@@ -141,7 +141,7 @@ static __inline__ int check_aabb_in_frustum_no_out_mask(const AABBOX bbox, const
 	VECTOR3 _n, _p;
 	float v;
 	Uint32 i, k;
-	
+
 	for (i = 0, k = 1; k <= in_mask; i++, k += k)
 	{
 		if (k & in_mask)
@@ -153,7 +153,7 @@ static __inline__ int check_aabb_in_frustum_no_out_mask(const AABBOX bbox, const
 			{
 				return OUTSIDE;
 			}
-			
+
 			VSelect(_p, bbox.bbmin, bbox.bbmax, frustum[i].mask);
 			VAssign4(p, _p, 1.0f);
 			v = VDot4(p, frustum[i].plane);
@@ -173,7 +173,7 @@ static __inline__ int check_aabb_outside_frustum(const AABBOX bbox, const FRUSTU
 	VECTOR3 _n;
 	float v;
 	Uint32 i, k;
-	
+
 	for (i = 0, k = 1; k <= in_mask; i++, k += k)
 	{
 		if (k & in_mask)
@@ -184,7 +184,7 @@ static __inline__ int check_aabb_outside_frustum(const AABBOX bbox, const FRUSTU
 			if (v < 0.0f)
 			{
 				return OUTSIDE;
-			}			
+			}
 		}
 	}
 
@@ -228,7 +228,7 @@ static __inline__ void add_items(BBOX_TREE* bbox_tree, Uint32 sub_node, Uint32 i
 	idx1 = bbox_tree->cur_intersect_type;
 	idx2 = bbox_tree->nodes[sub_node].items_index;
 	size = bbox_tree->nodes[sub_node].items_count;
-		
+
 	for (i = 0; i < size; i++)
 	{
 		if (check_aabb_outside_frustum(bbox_tree->items[idx2+i].bbox, bbox_tree->intersect[idx1].frustum, in_mask) != OUTSIDE) 
@@ -242,7 +242,7 @@ static __inline__ void add_dyn_items(BBOX_TREE* bbox_tree, Uint32 sub_node, Uint
 
 	idx = bbox_tree->cur_intersect_type;
 	size = bbox_tree->nodes[sub_node].dynamic_objects.index;
-		
+
 	for (i = 0; i < size; i++)
 	{
 		if (check_aabb_outside_frustum(bbox_tree->nodes[sub_node].dynamic_objects.items[i].bbox, bbox_tree->intersect[idx].frustum, in_mask) != OUTSIDE) 
@@ -257,7 +257,7 @@ static __inline__ void merge_items(BBOX_TREE* bbox_tree, Uint32 sub_node, Uint32
 	idx1 = bbox_tree->cur_intersect_type;
 	idx2 = bbox_tree->nodes[sub_node].items_index;
 	size = bbox_tree->nodes[sub_node].items_count;
-		
+
 	for (i = 0; i < size; i++)
 	{
 		if (check_aabb_outside_frustum(bbox_tree->items[idx2+i].bbox, bbox_tree->intersect[idx1].frustum, in_mask) != OUTSIDE)
@@ -274,7 +274,7 @@ static __inline__ void merge_dyn_items(BBOX_TREE* bbox_tree, Uint32 sub_node, Ui
 
 	idx = bbox_tree->cur_intersect_type;
 	size = bbox_tree->nodes[sub_node].dynamic_objects.index;
-		
+
 	for (i = 0; i < size; i++)
 	{
 		if (check_aabb_outside_frustum(bbox_tree->nodes[sub_node].dynamic_objects.items[i].bbox,
@@ -289,7 +289,7 @@ static __inline__ void merge_dyn_items(BBOX_TREE* bbox_tree, Uint32 sub_node, Ui
 static __inline__ void check_sub_nodes(BBOX_TREE* bbox_tree, Uint32 sub_node, Uint32 in_mask)
 {
 	Uint32 out_mask, result, idx;
-	
+
 	if (sub_node != NO_INDEX)
 	{
 		idx = bbox_tree->cur_intersect_type;
@@ -319,7 +319,7 @@ static __inline__ void check_sub_nodes(BBOX_TREE* bbox_tree, Uint32 sub_node, Ui
 static __inline__ void calc_bbox_sub_nodes(BBOX_TREE* bbox_tree, Uint32 sub_node, Uint32 in_mask, AABBOX* bbox)
 {
 	Uint32 out_mask, result, idx;
-	
+
 	if (sub_node != NO_INDEX)
 	{
 		idx = bbox_tree->cur_intersect_type;
@@ -355,7 +355,7 @@ static __inline__ int light_depht_comp(BBOX_ITEM* a, BBOX_ITEM* b)
 	bi = b->ID;
 
 	if ((lights_list[ai] == NULL) || (lights_list[bi] == NULL)) return 0;
-	
+
 	ax = lights_list[ai]->pos_x + camera_x;
 	ay = lights_list[ai]->pos_y + camera_y;
 	az = lights_list[ai]->pos_z;
@@ -380,7 +380,7 @@ static int comp_items(const void *in_a, const void *in_b)
 
 	a = (BBOX_ITEM *)in_a;
 	b = (BBOX_ITEM *)in_b;
-	
+
 	am = a->type;
 	bm = b->type;
 
@@ -449,7 +449,7 @@ static __inline__ void delete_item_from_intersect_list(BBOX_TREE* bbox_tree, Uin
 	Uint32 i, j, k, size;
 	int start, stop;
 	Uint32 id;
-	
+
 	for (i = 0; i < MAX_INTERSECTION_TYPES; i++)
 	{
 		for (j = 0; j < TYPES_COUNT; j++)
@@ -495,14 +495,14 @@ void check_bbox_tree(BBOX_TREE* bbox_tree)
 			build_start_stop(bbox_tree);
 			bbox_tree->intersect[idx].intersect_update_needed = 0;
 		}
-	}	
+	}
 	else BBOX_TREE_LOG_INFO("bbox_tree");
 }
 
 void calc_scene_bbox(BBOX_TREE* bbox_tree, AABBOX* bbox)
 {
 	Uint32 idx;
-	
+
 	if (bbox_tree != NULL)
 	{
 		idx = bbox_tree->cur_intersect_type;
@@ -516,7 +516,7 @@ void calc_scene_bbox(BBOX_TREE* bbox_tree, AABBOX* bbox)
 static __inline__ void free_bbox_tree_data(BBOX_TREE* bbox_tree)
 {
 	Uint32 i;
-	
+
 	if (bbox_tree->items != NULL) 
 	{
 		free(bbox_tree->items);
@@ -542,7 +542,7 @@ static __inline__ void free_bbox_tree_data(BBOX_TREE* bbox_tree)
 void clear_bbox_tree(BBOX_TREE* bbox_tree)
 {
 	Uint32 i;
-	
+
 	if (bbox_tree != NULL)
 	{
 		for (i = 0; i < MAX_INTERSECTION_TYPES; i++)
@@ -574,66 +574,58 @@ void free_bbox_tree(BBOX_TREE* bbox_tree)
 	else BBOX_TREE_LOG_INFO("bbox_tree");
 }
 
-int Axis = 0;
+static int Axis = 0;
 
 static int compboxes(const void *in_a, const void *in_b)
 {
-	BBOX_ITEM *a, *b;
+	const BBOX_ITEM *a = in_a, *b = in_b;
 	float am, bm;
-
-	a = (BBOX_ITEM *)in_a;
-	b = (BBOX_ITEM *)in_b;
 
 	am = a->bbox.bbmin[Axis];
 	bm = b->bbox.bbmin[Axis];
 
 	if (am < bm)
-	{
-		return (-1);
-	}
+		return -1;
+	else if (bm < am)
+		return 1;
 	else
-	{
-		if (am == bm)
-		{
-			return (0);
-		}
-		else
-		{
-			return (1);
-		}
-	}
+		return 0;
 }
 
 static __inline__ void build_area_table(BBOX_TREE *bbox_tree, Uint32 a, Uint32  b, float *areas)
 {
-	int i, imin, dir;
 	VECTOR3 bmin, bmax, len;
-
-	if (a < b)
-	{
-		imin = a;
-		dir =  1;
-	}
-	else
-	{
-		imin = b;
-		dir = -1;
-	}
+	int i, j;
 
 	VFill(bmin, BOUND_HUGE);
 	VFill(bmax, -BOUND_HUGE);
 
-	for (i = a; i != (b + dir); i += dir)
+	if (a < b)
 	{
-		VMin(bmin, bmin, bbox_tree->items[i].bbox.bbmin);
-		VMax(bmax, bmax, bbox_tree->items[i].bbox.bbmax);
-		VSub(len, bmax, bmin);
+		for (i = a, j = 0; i < b; i++, j++)
+		{
+			VMin(bmin, bmin, bbox_tree->items[i].bbox.bbmin);
+			VMax(bmax, bmax, bbox_tree->items[i].bbox.bbmax);
+			VSub(len, bmax, bmin);
 
-		areas[i - imin] = len[X] * len[Y] * len[Z];
+			areas[j] = len[X] * len[Y] * len[Z];
+		}
+	}
+	else
+	{
+		for (i = b, j = 0; i > a; i--, j++)
+		{
+			VMin(bmin, bmin, bbox_tree->items[i].bbox.bbmin);
+			VMax(bmax, bmax, bbox_tree->items[i].bbox.bbmax);
+			VSub(len, bmax, bmin);
+
+			areas[j] = len[X] * len[Y] * len[Z];
+		}
 	}
 }
 
-static __inline__ void find_axis(BBOX_TREE *bbox_tree, Uint32 first, Uint32 last, Uint32 *ret)
+static __inline__ void find_axis_and_bbox(BBOX_TREE *bbox_tree,
+	Uint32 first, Uint32 last, Uint32 *ret, AABBOX *bbox)
 {
 	Uint32 i, a1, a2, a3;
 	VECTOR3 bmin, bmax;
@@ -648,13 +640,15 @@ static __inline__ void find_axis(BBOX_TREE *bbox_tree, Uint32 first, Uint32 last
 		VMax(bmax, bmax, bbox_tree->items[i].bbox.bbmax);
 	}
 
+	VAssign(bbox->bbmin, bmin);
+	VAssign(bbox->bbmax, bmax);
+
 	a1 = 0;
 	a2 = 1;
 	a3 = 2;
-	
+
 	d = bmax[a1] - bmin[a1];
 	e = bmax[a2] - bmin[a2];
-	
 	if (d < e)
 	{
 		i = a2;
@@ -664,17 +658,17 @@ static __inline__ void find_axis(BBOX_TREE *bbox_tree, Uint32 first, Uint32 last
 
 	d = bmax[a1] - bmin[a1];
 	e = bmax[a3] - bmin[a3];
-	
 	if (d < e)
 	{
-		i = a2;
-		a2 = a1;
+//		i = a2;
+//		a2 = a1;
+		i = a3;
+		a3 = a1;
 		a1 = i;
 	}
-	
+
 	d = bmax[a2] - bmin[a2];
 	e = bmax[a3] - bmin[a3];
-	
 	if (d < e)
 	{
 		i = a3;
@@ -711,26 +705,26 @@ static __inline__ Uint32 sort_and_split(BBOX_TREE* bbox_tree, Uint32 node, Uint3
 	int best_loc;
 	float *area_left, *area_right;
 	float best_index, new_index;
+	AABBOX bbox;
 
 	size = last - first;
 
 	if (size < 1) return -1;
 
-	find_axis(bbox_tree, first, last, axis);
+	find_axis_and_bbox(bbox_tree, first, last, axis, &bbox);
 
 	best_loc = -1;
-	
+
 	if (size > 8)
 	{
-
-		area_left = (float *)malloc(size * sizeof(float));
-		area_right = (float *)malloc(size * sizeof(float));
+		area_left = malloc(size * sizeof(float));
+		area_right = malloc(size * sizeof(float));
 
 		for (j = 0; j < 3; j++)
 		{
 			Axis = axis[j];
-			
-			qsort((void *)(&(bbox_tree->items[first])), size, sizeof(BBOX_ITEM), compboxes);
+
+			qsort(bbox_tree->items+first, size, sizeof(BBOX_ITEM), compboxes);
 			build_area_table(bbox_tree, first, last - 1, area_left);
 			build_area_table(bbox_tree, last - 1, first, area_right);
 
@@ -742,7 +736,7 @@ static __inline__ Uint32 sort_and_split(BBOX_TREE* bbox_tree, Uint32 node, Uint3
 			 * are the number of objects in the two groups and A1 and A2 are the
 			 * surface areas of the bounding boxes of the two groups.
 			 */
-			
+
 			for (i = 0; i < size - 1; i++)
 			{
 				new_index = (i + 1) * area_left[i] + (size - 1 - i) * area_right[i + 1];
@@ -759,10 +753,12 @@ static __inline__ Uint32 sort_and_split(BBOX_TREE* bbox_tree, Uint32 node, Uint3
 		free(area_left);
 		free(area_right);
 	}
-	
-	calc_bbox(&bbox_tree->nodes[node].bbox, bbox_tree, first, last);
-	VAssign(bbox_tree->nodes[node].orig_bbox.bbmin, bbox_tree->nodes[node].bbox.bbmin);
-	VAssign(bbox_tree->nodes[node].orig_bbox.bbmax, bbox_tree->nodes[node].bbox.bbmax);
+
+	VAssign(bbox_tree->nodes[node].bbox.bbmin, bbox.bbmin);
+	VAssign(bbox_tree->nodes[node].bbox.bbmax, bbox.bbmax);
+	VAssign(bbox_tree->nodes[node].orig_bbox.bbmin, bbox.bbmin);
+	VAssign(bbox_tree->nodes[node].orig_bbox.bbmax, bbox.bbmax);
+
 	bbox_tree->nodes[node].items_index = first;
 	bbox_tree->nodes[node].items_count = size;
 
@@ -770,7 +766,7 @@ static __inline__ Uint32 sort_and_split(BBOX_TREE* bbox_tree, Uint32 node, Uint3
 	bbox_tree->nodes[node].dynamic_objects.index = 0;
 	bbox_tree->nodes[node].dynamic_objects.items = NULL;
 
-	if (best_loc < 0) 
+	if (best_loc < 0)
 	{
 		bbox_tree->nodes[node].nodes[0] = NO_INDEX;
 		bbox_tree->nodes[node].nodes[1] = NO_INDEX;
@@ -778,7 +774,7 @@ static __inline__ Uint32 sort_and_split(BBOX_TREE* bbox_tree, Uint32 node, Uint3
 	}
 	else
 	{
-		if (*index+2 >= bbox_tree->nodes_count) 
+		if (*index+2 >= bbox_tree->nodes_count)
 		{
 			bbox_tree->nodes_count *= 2;
 			bbox_tree->nodes = (BBOX_TREE_NODE*)realloc(bbox_tree->nodes, bbox_tree->nodes_count*sizeof(BBOX_TREE_NODE));
@@ -792,7 +788,7 @@ static __inline__ Uint32 sort_and_split(BBOX_TREE* bbox_tree, Uint32 node, Uint3
 	}
 }
 
-void init_bbox_tree(BBOX_TREE* bbox_tree, BBOX_ITEMS *bbox_items)
+void init_bbox_tree(BBOX_TREE* bbox_tree, const BBOX_ITEMS *bbox_items)
 {
 	Uint32 size, index;
 
@@ -800,7 +796,7 @@ void init_bbox_tree(BBOX_TREE* bbox_tree, BBOX_ITEMS *bbox_items)
 	{
 		if (bbox_items->index > 0)
 		{
-			size = bbox_items->index;	
+			size = bbox_items->index;
 			index = 1;
 			bbox_tree->nodes_count = 2*size;
 			bbox_tree->nodes = (BBOX_TREE_NODE*)malloc(size*2*sizeof(BBOX_TREE_NODE));

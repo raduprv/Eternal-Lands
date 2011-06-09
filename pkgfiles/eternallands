@@ -35,7 +35,7 @@ getconfig()
 		--column "Server" \
 		--column "Port" \
 		--column "Directory" \
-		--text "Select Server/Configuration"
+		--text "Choose the Server/Configuration - main is the standard"
 }
 
 # check the minimum packages are installed OK
@@ -52,27 +52,15 @@ then
 fi
 
 # make sure the user config tree exists
-mkdir -p ~/.elc/main
+mkdir -p ~/.elc/
 
-# copy a servers.lst file as we don't have one
+# copy a servers.lst file if we don't have one
 serverfile=~/.elc/servers.lst
 if [ ! -r $serverfile -o ! -s $serverfile ]
 then
 	cp -p /usr/share/games/EternalLands/servers.lst $serverfile
 fi
-
-# copy an el.ini file as we don't have one
-if [ ! -r ~/.elc/main/el.ini -o ! -s $serverfile ]
-then
-	cp -p /usr/share/games/EternalLands/el.ini ~/.elc/main/el.ini
-fi
-
-# make sure we have permissions on config files
-[ ! -r $serverfile -o ! -w $serverfile ] && chmod +wr $serverfile
-for i in $(find ~/.elc/ -maxdepth 2 -name el.ini)
-do
-	[ ! -r $i -o ! -w $i ] && chmod +wr $i
-done
+chmod +wr $serverfile
 
 # see if we intend to use non-standard build
 el_client=/usr/games/el.x86.linux.bin
@@ -86,40 +74,55 @@ then
 	fi	
 fi
 
-config=""
-
 # if no command line options specified, see if we want to use the config selection window
 if [ "$*" = "" ]
 then
-	showsel=~/.elc/showconfigsel
+	showsel=$HOME/.elc/showconfigsel
 
 	# optionally get the server/config option
 	[ ! -r $showsel ] && touch $showsel
-	if [ "$(grep no $showsel)" = "" ]
+	if [ -n "$(grep yes $showsel)" -o ! -s $showsel ]
 	then
 		[ ! -s $showsel ] && rm -f $showsel
 		config="$(getconfig)"
 		[ $? -ne 0 ] && exit
+	else
+		config="$(cat $showsel)"
+		[ "$config" = "no" ] && config="main"
 	fi
 
 	# if not already configured, choose if to use the server/configuration selection window
 	if [ ! -r $showsel ]
 	then
-		if zenity --question --text="Always use the server/configuration selection window?"
+		if zenity --question --text="Do you want to choose each time you run the game?"
 		then
 			echo "yes" > $showsel
 		else
-			echo "no" > $showsel
+			echo "$config" > $showsel
 		fi
-		zenity --info --text="To change this option, edit or remove the file $showsel"
+		zenity --info --text="To change this option, edit or remove the file:\n $showsel"
 	fi
+else
+	config="$1"
+	shift
 fi
 
+# make sure we have the config directory
+config="$(basename $config)"
+mkdir -p ~/.elc/${config}/
+inifile=~/.elc/${config}/el.ini
+
+# copy an el.ini file if we don't have one
+if [ ! -r $inifile -o ! -s $inifile ]
+then
+	cp -p /usr/share/games/EternalLands/el.ini $inifile
+fi
+chmod +wr $inifile
+
 # check the chosen el.ini file points to installed data
-if [ ! -r ~/.elc/no.el.ini.check ]
+if [ ! -r ~/.elc/no.el.ini.check -a -n "$config" ]
 then
 	show_suppression=false
-	inifile=~/.elc/${config}/el.ini
 	if [ "$(grep ^#data_dir $inifile | tail -1 | grep '^#data_dir = /usr/share/games/EternalLands$')" = "" ]
 	then
 		if zenity --question --text="Warning: $inifile does not use installed game data, shall I fix this problem?"
@@ -131,7 +134,7 @@ then
 	fi
 	if $show_suppression
 	then
-		zenity --info --text="To surpress these warnings, create the empty file ~/.elc/no.el.ini.check"
+		zenity --info --text="To surpress these warnings, create the file:\n $HOME/.elc/no.el.ini.check"
 	fi
 fi
 
@@ -146,7 +149,6 @@ A few of things you can try:
 2) If the client crashes repeatedly, try changing some settings.  Either by directly modifying the configuration file (e.g. gedit ~/.elc/main/el.ini). Or clicking the settings button window at the login screen.
 	i) Enable the "Poor Man" option in the "Details" tab of the setting window.  Or edit the configuration file and set "#poor_man=1".
 	ii) Disable the "Use animation program" option in the "Adv Video" tab of the setting window.  Or edit the configuration file and set "#use_animation_program=0".
-	iii) Disable the "Custom Looks Updates" option in the "Server" tab of the setting windows.  Or edit the configuration file and set "#customupdate=0".
 
 If you continue to have problems check the Eternal Lands forums, especially the "Help Me" and "Bug Report" sections.  If you post a message make sure you include information about your system; i.e video driver and version, operating system and version.  Make sure you check your error log for clues too and include the contents in any forum report.
 
@@ -158,7 +160,7 @@ $(glxinfo | head -5)
 
 The following is your error log contents.  Note it is overwritten each time you run the game.
 
-$(cat ~/.elc/error_log.txt)
+$(cat $(ls -1tr ~/.elc/log/main*.log | tail -1))
 
 This was the program output:  Note it is overwritten each time you run the game.
 

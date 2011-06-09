@@ -37,13 +37,13 @@ typedef struct
 	int vertex_no;		/*!< the number of vertices in the file */
 	int vertex_size;	/*!< the size of each vertex in the file */
 	int vertex_offset;	/*!< the offset of the vertices in the file */
-	int index_no;		/*!< the number of indicies in the file */
+	int index_no;		/*!< the number of indices in the file */
 	int index_size;		/*!< the size of each index in the file */
-	int index_offset;	/*!< the offset of the indicies in the file */
+	int index_offset;	/*!< the offset of the indices in the file */
 	int material_no;	/*!< the number of materials in the file */
  	int material_size;	/*!< the size of this material in the file */
 	int material_offset;	/*!< the offset of the materials in the file */
-	
+
 	char vertex_options;	/*!< flag determining whether this is a ground object, has tangents or extra uv's */
 	char vertex_format;	/*!< flag determining whether haf floats are used for position, uv and/or extra uv's and if normals and tangents are compressed */
 	char reserved_2;
@@ -74,7 +74,7 @@ typedef struct
 	int triangles_min_index;
 	int triangles_max_index;
 	int index;		/*!< index of the index list */
-	int count;		/*!< number of indicies */
+	int count;		/*!< number of indices */
 } e3d_material;
 
 /*!

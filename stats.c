@@ -55,7 +55,7 @@ void floatingmessages_compare_stat(int actor_id, int value, int new_value, const
 void draw_stat_final(int len, int x, int y, const unsigned char * name, const char * value);
 
 
-void get_the_stats(Sint16 *stats)
+void get_the_stats(Sint16 *stats, size_t len_in_bytes)
 {
         have_stats=1;
 
@@ -156,6 +156,18 @@ void get_the_stats(Sint16 *stats)
         your_info.researching=SDL_SwapLE16(stats[81]);
         your_info.research_total=SDL_SwapLE16(stats[82]);
         check_book_known();
+
+        // can be removed test when we change protocol number for 1.9.2
+        if (len_in_bytes <= 2*114)
+        {
+                your_info.action_points.cur=0;
+                your_info.action_points.base=0;
+        }
+        else
+        {
+                your_info.action_points.cur=SDL_SwapLE16(stats[113]);
+                your_info.action_points.base=SDL_SwapLE16(stats[114]);
+        }
 
         init_session();
         check_castability();
@@ -331,6 +343,10 @@ void get_partial_stat(Uint8 name,Sint32 value)
                         }
                 case ETH_POINT_BASE:
                         your_info.ethereal_points.base=value;break;
+                case ACTION_POINTS_CUR:
+                        your_info.action_points.cur=value;break;
+                case ACTION_POINTS_BASE:
+                        your_info.action_points.base=value;break;                
                 case FOOD_LEV:
                         your_info.food_level=value;break;
                 case MAN_EXP:
@@ -656,6 +672,9 @@ int display_stats_handler(window_info *win)
 
         y+=14;
         draw_stat(24,x,y,&(cur_stats.ethereal_points),&(attributes.ethereal_points));
+
+        y+=14;
+        draw_stat(24,x,y,&(cur_stats.action_points),&(attributes.action_points));
 
         //other info
         safe_snprintf(str, sizeof(str), "%i",cur_stats.overall_skill.base-cur_stats.overall_skill.cur);

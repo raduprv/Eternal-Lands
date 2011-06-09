@@ -65,14 +65,38 @@ struct cursors_struct
 };
 
 /*!
- * contains the names of harvestable items
+ * \ingroup other
+ * \brief Load and initialize the list of harvestable objects
  */
-extern char harvestable_objects[300][80];
+void load_harvestable_list(void);
+/*!
+ * \ingroup other
+ * \brief Test if an object can be harvested
+ *
+ * Check if the 3d object with file name \a fname should in principle be
+ * harvestable. Ultimately, the server decides if an object can be harvested,
+ * this function exists to show the correct cursor in the GUI.
+ * \return Zero if the object is not in the harvestable list, non-zero
+ *    otherwise.
+ */
+int is_harvestable(const char* fname);
 
 /*!
- * contains the name of entrable items
+ * \ingroup other
+ * \brief Load and initialize the list of entrable objects
  */
-extern char entrable_objects[300][80];
+void load_entrable_list(void);
+/*!
+ * \ingroup other
+ * \brief Test if an object can be entered
+ *
+ * Check if the 3d object with file name \a fname should in principle be
+ * entrable. Ultimately, the server decides if an object can be entered,
+ * this function exists to show the correct cursor in the GUI.
+ * \return Zero if the object is not in the entrable list, non-zero
+ *    otherwise.
+ */
+int is_entrable(const char* fname);
 
 /*!
  * \ingroup other
