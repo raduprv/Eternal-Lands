@@ -624,7 +624,8 @@ static __inline__ void build_area_table(BBOX_TREE *bbox_tree, Uint32 a, Uint32  
 	}
 }
 
-static __inline__ void find_axis(BBOX_TREE *bbox_tree, Uint32 first, Uint32 last, Uint32 *ret)
+static __inline__ void find_axis_and_bbox(BBOX_TREE *bbox_tree,
+	Uint32 first, Uint32 last, Uint32 *ret, AABBOX *bbox)
 {
 	Uint32 i, a1, a2, a3;
 	VECTOR3 bmin, bmax;
@@ -638,6 +639,9 @@ static __inline__ void find_axis(BBOX_TREE *bbox_tree, Uint32 first, Uint32 last
 		VMin(bmin, bmin, bbox_tree->items[i].bbox.bbmin);
 		VMax(bmax, bmax, bbox_tree->items[i].bbox.bbmax);
 	}
+
+	VAssign(bbox->bbmin, bmin);
+	VAssign(bbox->bbmax, bmax);
 
 	a1 = 0;
 	a2 = 1;
@@ -701,12 +705,13 @@ static __inline__ Uint32 sort_and_split(BBOX_TREE* bbox_tree, Uint32 node, Uint3
 	int best_loc;
 	float *area_left, *area_right;
 	float best_index, new_index;
+	AABBOX bbox;
 
 	size = last - first;
 
 	if (size < 1) return -1;
 
-	find_axis(bbox_tree, first, last, axis);
+	find_axis_and_bbox(bbox_tree, first, last, axis, &bbox);
 
 	best_loc = -1;
 
@@ -749,9 +754,11 @@ static __inline__ Uint32 sort_and_split(BBOX_TREE* bbox_tree, Uint32 node, Uint3
 		free(area_right);
 	}
 
-	calc_bbox(&bbox_tree->nodes[node].bbox, bbox_tree, first, last);
-	VAssign(bbox_tree->nodes[node].orig_bbox.bbmin, bbox_tree->nodes[node].bbox.bbmin);
-	VAssign(bbox_tree->nodes[node].orig_bbox.bbmax, bbox_tree->nodes[node].bbox.bbmax);
+	VAssign(bbox_tree->nodes[node].bbox.bbmin, bbox.bbmin);
+	VAssign(bbox_tree->nodes[node].bbox.bbmax, bbox.bbmax);
+	VAssign(bbox_tree->nodes[node].orig_bbox.bbmin, bbox.bbmin);
+	VAssign(bbox_tree->nodes[node].orig_bbox.bbmax, bbox.bbmax);
+
 	bbox_tree->nodes[node].items_index = first;
 	bbox_tree->nodes[node].items_count = size;
 
