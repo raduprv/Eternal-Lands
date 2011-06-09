@@ -2144,7 +2144,7 @@ void init_texture_cache()
 	Uint32 i;
 #endif	/* ELC */
 
-	texture_cache = cache_init(TEXTURE_CACHE_MAX, 0);
+	texture_cache = cache_init("texture cache", TEXTURE_CACHE_MAX, 0);
 	cache_set_compact(texture_cache, compact_texture);
 	cache_set_time_limit(texture_cache, 5 * 60 * 1000);
 	cache_set_name(cache_system, "texture cache", texture_cache);
