@@ -98,8 +98,6 @@ extern int write_ini_on_exit; /*< variable that determines if el.ini file is rew
 
 extern int elconfig_win;
 
-extern int options_set;
-
 extern int gx_adjust;
 extern int gy_adjust;
 
@@ -219,6 +217,7 @@ int set_var_OPT_INT(const char *str, int new_value);
 
 void toggle_follow_cam(int * fc);
 void toggle_ext_cam(int * ec);
+void options_loaded(void);
 
 #ifdef __cplusplus
 } // extern "C"

@@ -139,7 +139,7 @@ int elconfig_menu_x_len= 620;
 int elconfig_menu_y_len= 430;
 
 int windows_on_top= 0;
-int options_set= 0;
+static int options_set= 0;
 int shadow_map_size_multi= 0;
 #ifdef	FSAA
 int fsaa_index = 0;
@@ -179,6 +179,17 @@ int video_info_sent = 0;
 #ifdef DEBUG
 int enable_client_aiming = 0;
 #endif // DEBUG
+
+void options_loaded(void)
+{
+	size_t i;
+	// find any options not marked as saved, excluding ones we marked on purpose
+	for (i= 0; i < our_vars.no; i++)
+		if ((!our_vars.var[i]->saved) && (our_vars.var[i]->type!=OPT_BOOL_INI) && (our_vars.var[i]->type!=OPT_INT_INI))
+			our_vars.var[i]->saved = 1;
+	options_set = 1;
+}
+
 
 int int_zero_func()
 {
@@ -657,7 +668,7 @@ int switch_video(int mode, int full_screen)
 #ifdef WINDOWS
 	LOG_TO_CONSOLE(c_green2, video_restart_str);
 	video_mode=mode;
-	set_var_unsaved("switch_vidmode", OPT_MULTI);
+	set_var_unsaved("switch_vidmode", INI_FILE_VAR);
 	return 1;
 #endif
 
@@ -1329,9 +1340,9 @@ int set_var_OPT_INT(const char *str, int new_value)
 {
 	int var_index;
 
-	var_index = find_var(str, IN_GAME_VAR);
+	var_index = find_var(str, INI_FILE_VAR);
 
-	if (var_index != -1)
+	if ((var_index != -1) && (our_vars.var[var_index]->type == OPT_INT))
 	{
 		int tab_win_id = elconfig_tabs[our_vars.var[var_index]->widgets.tab_id].tab;
 		int widget_id = our_vars.var[var_index]->widgets.widget_id;
@@ -2112,6 +2123,19 @@ int write_el_ini ()
 	if (ivar >= our_vars.no)
 		return 1; // nothing changed, no need to write
 
+	// Consolidate changes for any items featured more than once - on different tabs for example.
+	for (ivar= 0; ivar < our_vars.no; ivar++)
+	{
+		if (!our_vars.var[ivar]->saved)
+		{
+			size_t i;
+			for (i=0; i<our_vars.no; i++)
+				if (strcmp(our_vars.var[ivar]->name, our_vars.var[i]->name) == 0)
+					if (our_vars.var[i]->saved)
+						our_vars.var[i]->saved = 0;
+		}
+	}
+
 	// read the ini file
 	file = open_file_config("el.ini", "r");
 	if(file == NULL){
@@ -2147,7 +2171,7 @@ int write_el_ini ()
 		}
 		else
 		{
-			ivar= find_var (&(cont[iline][1]), COMMAND_LINE_LONG_VAR);
+			ivar= find_var (&(cont[iline][1]), INI_FILE_VAR);
 			if (ivar >= 0 && written[ivar])
 				continue;
 			if (ivar < 0 || our_vars.var[ivar]->saved)
@@ -2164,7 +2188,7 @@ int write_el_ini ()
 	for (ivar= 0; ivar < our_vars.no; ivar++)
 	{
 		// check if we already wrote a var with the same name
-		int check_var= find_var (our_vars.var[ivar]->name, COMMAND_LINE_LONG_VAR);
+		int check_var= find_var (our_vars.var[ivar]->name, INI_FILE_VAR);
 		if (check_var >= 0 && written[check_var])
 			continue;
 		if (!our_vars.var[ivar]->saved)

@@ -689,7 +689,9 @@ void init_stuff()
 
 	// Parse command line options
 	read_command_line();
-	options_set= 1;
+
+	// all options loaded
+	options_loaded();
 
 	// Check if our datadir is valid and if not failover to ./
 	file_check_datadir();
