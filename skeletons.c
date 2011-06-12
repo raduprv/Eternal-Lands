@@ -194,6 +194,8 @@ int get_skeleton(struct CalCoreModel *cal_model, const char *skeleton_name)
 			skel->cal_bones_id[mouth_bone] = find_core_bone_id(cal_skel, "jaw");
 		if (skel->cal_bones_id[head_bone] < 0)
 			skel->cal_bones_id[head_bone] = skel->cal_bones_id[mouth_bone];
+		if (skel->cal_bones_id[body_top_bone] < 0)
+			skel->cal_bones_id[body_top_bone] = skel->cal_bones_id[mouth_bone];
 		skel->cal_bones_id[highest_bone] = skel->cal_bones_id[head_bone];
 	}
 
