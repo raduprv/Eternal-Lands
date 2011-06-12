@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 #
 # Wrapper script for Eternal Lands client.
+# - Checks the el packages are configured OK
 # - Copies required files to ~/.elc if not already there
-# - Checks all ~/.elc/ tree el.ini files have correct and optionally fixes them
-# - optionally displays a server/configuration selection GUI
-# - optionally runs a user specified client executable
+# - Checks the data_dir in "to be used" el.ini file and optionally corrects
+# - Optionally displays a server/configuration selection GUI
+# - Optionally runs a user specified client executable
+# - If a crash is detected, help is offered
 #
 # Author Paul Broadhead pjbroad@twinmoons.org.uk
 #
@@ -37,6 +39,15 @@ getconfig()
 		--column "Directory" \
 		--text "Choose the Server/Configuration - main is the standard"
 }
+
+# don't run as root
+if [ "$(id -u)" = "0" ]
+then
+	text="Don't run as the root/adminstration user.\n\nJust don't!"
+	echo -e $text
+	zenity --error --text="$text"
+	exit
+fi
 
 # check the minimum packages are installed OK
 if [ -x /usr/bin/dpkg ]
