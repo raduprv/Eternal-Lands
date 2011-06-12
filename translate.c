@@ -369,6 +369,7 @@ char	name_too_long[75],
 	help_cmd_str[10],
 	date_format[100],
 	book_count_str[60],
+	know_help_str[60],
 	char_cmd_str[2],
 	char_at_str[2],
 	char_slash_str[2],
@@ -900,6 +901,7 @@ void init_console()
 	add_xml_identifier(misc,"mc_from",mc_from_str,"#Mod Chat from",sizeof(mc_from_str));
 	add_xml_identifier(misc,"date_format",date_format,"Today is the %s day in the month of %s, the year %04d, Age of the Eternals",sizeof(date_format));
 	add_xml_identifier(misc,"book_count",book_count_str,"You have read %d of %d matching books",sizeof(book_count_str));
+	add_xml_identifier(misc,"know_help",know_help_str,"Use -(t)otal -(r)ead or -(u)nread to select output",sizeof(know_help_str));
 	add_xml_identifier(misc,"time_warn_hour",time_warn_hour_str,"This is your %d minute warning for the coming hour.",sizeof(time_warn_hour_str));
 	add_xml_identifier(misc,"time_warn_sunrise",time_warn_sunrise_str,"This is your %d minute warning for the coming sunrise.",sizeof(time_warn_sunrise_str));
 	add_xml_identifier(misc,"time_warn_sunset",time_warn_sunset_str,"This is your %d minute warning for the coming sunset.",sizeof(time_warn_sunset_str));
