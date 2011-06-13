@@ -5,9 +5,7 @@
 #include <SDL_keysym.h>
 #include "errors.h"
 #include "keys.h"
-#ifndef FASTER_MAP_LOAD
 #include "asc.h"
-#endif
 #include "init.h"
 #include "misc.h"
 #ifdef FASTER_MAP_LOAD

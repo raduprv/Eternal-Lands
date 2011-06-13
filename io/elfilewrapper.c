@@ -11,6 +11,13 @@
 #include "../hash.h"
 #include "../xz/7zCrc.h"
 
+#ifdef FASTER_MAP_LOAD
+typedef enum
+{
+	EL_FILE_HAVE_CRC
+} el_file_flags_t;
+#endif
+
 struct el_file_t
 {
 	Sint64 size;
@@ -18,6 +25,9 @@ struct el_file_t
 	void* buffer;
 	char* file_name;
 	Uint32 crc32;
+#ifdef FASTER_MAP_LOAD
+	el_file_flags_t flags;
+#endif
 };
 
 typedef struct
@@ -38,10 +48,8 @@ typedef struct
 
 static void free_el_file(el_file_t* file)
 {
-	if (file == 0)
-	{
+	if (!file)
 		return;
-	}
 
 	free(file->buffer);
 	free(file->file_name);
@@ -323,8 +331,7 @@ void load_zip_archive(const char* file_name)
 
 		size = info.size_filename;
 
-		files[i].file_name = malloc(size + 1);
-		memset(files[i].file_name, 0, size + 1);
+		files[i].file_name = calloc(size + 1, 1);
 
 		unzGetCurrentFileInfo64(file, 0, files[i].file_name, size,
 			0, 0, 0, 0);
@@ -338,8 +345,7 @@ void load_zip_archive(const char* file_name)
 	}
 
 	size = strlen(file_name);
-	name = malloc(size + 1);
-	memset(name, 0, size + 1);
+	name = calloc(size + 1, 1);
 	memcpy(name, file_name, size);
 
 	LOG_DEBUG("Sorting files from zip file '%s'.", file_name);
@@ -540,8 +546,7 @@ static el_file_ptr xz_file_open(const char* file_name)
 		return 0;
 	}
 
-	result = malloc(sizeof(el_file_t));
-	memset(result, 0, sizeof(el_file_t));
+	result = calloc(1, sizeof(el_file_t));
 
 	error = xz_file_read(file, &(result->buffer), &size);
 	result->size = size;
@@ -554,10 +559,16 @@ static el_file_ptr xz_file_open(const char* file_name)
 		result->file_name = malloc(file_name_len);
 		safe_strncpy(result->file_name, file_name, file_name_len);
 
+#ifdef FASTER_MAP_LOAD
+		LOG_DEBUG("File '%s' [crc:0x%08X] opened.", file_name,
+			el_crc32(result));
+#else
 		result->crc32 = CrcCalc(result->buffer, result->size);
 
 		LOG_DEBUG("File '%s' [crc:0x%08X] opened.", file_name,
 			result->crc32);
+#endif
+
 
 		return result;
 	}
@@ -572,26 +583,18 @@ static el_file_ptr gz_file_open(const char* file_name)
 	gzFile file;
 	el_file_ptr result;
 	Sint64 read, size;
-	Uint32 file_name_len;
 
 	file = gzopen(file_name, "rb");
-
-	if (file == 0)
+	if (!file)
 	{
 		LOG_ERROR("Can't open file '%s'", file_name);
-
-		return 0;
+		return NULL;
 	}
 
-	result = malloc(sizeof(el_file_t));
-	memset(result, 0, sizeof(el_file_t));
-
-	file_name_len = strlen(file_name) + 1;
-	result->file_name = malloc(file_name_len);
-	safe_strncpy(result->file_name, file_name, file_name_len);
+	result = calloc(1, sizeof(el_file_t));
+	result->file_name = strdup(file_name);
 
 	size = 0;
-
 #if	(ZLIB_VERNUM >= 0x1235)
 	gzbuffer(file, 0x40000); // 256k
 #endif
@@ -599,21 +602,26 @@ static el_file_ptr gz_file_open(const char* file_name)
 	do
 	{
 		result->buffer = realloc(result->buffer, size + 0x40000);
-
 		read = gzread(file, result->buffer + size, 0x40000);
-
 		size += read;
 	}
 	while (gzeof(file) == 0);
 
 	result->buffer = realloc(result->buffer, size);
 	result->size = size;
+#ifndef FASTER_MAP_LOAD
 	result->crc32 = CrcCalc(result->buffer, result->size);
+#endif
 
 	gzclose(file);
 
+#ifdef FASTER_MAP_LOAD
+	LOG_DEBUG_VERBOSE("File '%s' [crc:0x%08X] opened.", file_name,
+		el_crc32(result));
+#else
 	LOG_DEBUG_VERBOSE("File '%s' [crc:0x%08X] opened.", file_name,
 		result->crc32);
+#endif
 
 	return result;
 }
@@ -623,11 +631,8 @@ static el_file_ptr xz_gz_file_open(const char* file_name)
 	el_file_ptr result;
 
 	result = xz_file_open(file_name);
-
-	if (result == 0)
-	{
+	if (!result)
 		result = gz_file_open(file_name);
-	}
 
 	return result;
 }
@@ -639,47 +644,41 @@ static el_file_ptr zip_file_open(unzFile file)
 	Uint32 size, crc;
 
 	if (unzOpenCurrentFile(file) != UNZ_OK)
-	{
-		return 0;
-	}
+		return NULL;
 
 	if (unzGetCurrentFileInfo64(file, &file_info, 0, 0, 0, 0, 0, 0) !=
 		UNZ_OK)
 	{
-		return 0;
+		return NULL;
 	}
 
-	result = malloc(sizeof(el_file_t));
-	memset(result, 0, sizeof(el_file_t));
+	result = calloc(1, sizeof(el_file_t));
 
 	size = file_info.size_filename;
-	result->file_name = malloc(size + 1);
-	memset(result->file_name, 0, size + 1);
+	result->file_name = calloc(size + 1, 1);
 
 	result->size = file_info.uncompressed_size;
 	result->crc32 = file_info.crc;
+	result->flags |= EL_FILE_HAVE_CRC;
 	result->buffer = malloc(file_info.uncompressed_size);
 
 	if (unzGetCurrentFileInfo64(file, 0, result->file_name, size, 0, 0,
 		0, 0) != UNZ_OK)
 	{
 		free_el_file(result);
-
-		return 0;
+		return NULL;
 	}
 
 	if (unzReadCurrentFile(file, result->buffer, result->size) < 0)
 	{
 		free_el_file(result);
-
-		return 0;
+		return NULL;
 	}
 
 	if (unzCloseCurrentFile(file) != UNZ_OK)
 	{
 		free_el_file(result);
-
-		return 0;
+		return NULL;
 	}
 
 	crc = CrcCalc(result->buffer, result->size);
@@ -688,10 +687,8 @@ static el_file_ptr zip_file_open(unzFile file)
 	{
 		LOG_ERROR("crc value is 0x%08X, but should be 0x%08X", crc,
 			result->crc32);
-
 		free_el_file(result);
-
-		return 0;
+		return NULL;
 	}
 
 	LOG_DEBUG_VERBOSE("File '%s' [crc:0x%08X] opened.", result->file_name,
@@ -707,12 +704,10 @@ static el_file_ptr file_open(const char* file_name, const char* extra_path)
 	el_file_ptr result;
 	Sint32 i, count;
 
-	if (file_name == 0)
-	{
-		return 0;
-	}
+	if (!file_name || !*file_name)
+		return NULL;
 
-	if (extra_path != 0)
+	if (extra_path)
 	{
 		if (do_file_exists(file_name, extra_path, sizeof(str), str) == 1)
 		{
@@ -754,7 +749,7 @@ static el_file_ptr file_open(const char* file_name, const char* extra_path)
 		return xz_gz_file_open(str);
 	}
 
-	return 0;
+	return NULL;
 }
 
 el_file_ptr el_open(const char* file_name)
@@ -800,10 +795,8 @@ Sint64 el_read(el_file_ptr file, Sint64 size, void* buffer)
 {
 	Sint64 count;
 
-	if (file == 0)
-	{
+	if (!file)
 		return -1;
-	}
 
 	count = file->size - file->position;
 
@@ -814,7 +807,7 @@ Sint64 el_read(el_file_ptr file, Sint64 size, void* buffer)
 
 	if (count <= 0)
 	{
-		return 0;
+		return -1;
 	}
 
 	memcpy(buffer, file->buffer + file->position, count);
@@ -828,10 +821,8 @@ Sint64 el_seek(el_file_ptr file, Sint64 offset, int seek_type)
 {
 	Sint64 pos;
 
-	if (file == 0)
-	{
+	if (!file)
 		return -1;
-	}
 
 	switch (seek_type)
 	{
@@ -862,42 +853,23 @@ Sint64 el_seek(el_file_ptr file, Sint64 offset, int seek_type)
 
 Sint64 el_tell(el_file_ptr file)
 {
-	if (file == 0)
-	{
-		return -1;
-	}
-
-	return file->position;
+	return file ? file->position : -1;
 }
 
 Sint64 el_get_size(el_file_ptr file)
 {
-	if (file == 0)
-	{
-		return -1;
-	}
-
-	return file->size;
+	return file ? file->size : -1;
 }
 
 void el_close(el_file_ptr file)
 {
-	if (file == 0)
-	{
-		return;
-	}
-
-	free_el_file(file);
+	if (file)
+		free_el_file(file);
 }
 
 void* el_get_pointer(el_file_ptr file)
 {
-	if (file == 0)
-	{
-		return 0;
-	}
-
-	return file->buffer;
+	return file ? file->buffer : NULL;
 }
 
 int el_file_exists(const char* file_name)
@@ -941,21 +913,21 @@ int el_file_exists_anywhere(const char* file_name)
 
 const char* el_file_name(el_file_ptr file)
 {
-	if (file == 0)
-	{
-		return 0;
-	}
-
-	return file->file_name;
+	return file ? file->file_name : NULL;
 }
 
 Uint32 el_crc32(el_file_ptr file)
 {
-	if (file == 0)
-	{
+	if (!file)
 		return 0;
-	}
 
+#ifdef FASTER_MAP_LOAD
+	if ((file->flags & EL_FILE_HAVE_CRC) == 0)
+	{
+		file->crc32 = CrcCalc(file->buffer, file->size);
+		file->flags |= EL_FILE_HAVE_CRC;
+	}
+#endif
 	return file->crc32;
 }
 
