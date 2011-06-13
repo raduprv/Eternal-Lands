@@ -963,7 +963,6 @@ char *el_fgets(char *str, int size, el_file_ptr file)
 {
 	const char *sp;
 	char *dp;
-	const char *cr, *nl;
 	int count;
 
 	if (!file || file->position >= file->size || size <= 0)
