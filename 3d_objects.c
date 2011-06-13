@@ -26,7 +26,7 @@
 #endif /* FSAA */
 
 int use_3d_alpha_blend= 1;
-Uint32 highest_obj_3d= 0;
+static Uint32 highest_obj_3d= 0;
 int objects_list_placeholders = 0;
 object3d *objects_list[MAX_OBJ_3D];
 
@@ -825,6 +825,24 @@ void destroy_3d_object(int i)
 	if((Uint32)i == highest_obj_3d+1){
 		highest_obj_3d = i;
 	}
+}
+
+void destroy_all_3d_objects()
+{
+	int i;
+
+	for (i = 0; i < MAX_OBJ_3D; i++)
+	{
+		if (objects_list[i])
+		{
+			ec_remove_obstruction_by_object3d(objects_list[i]);
+			free(objects_list[i]);
+			objects_list[i] = NULL; // kill any reference to it
+		}
+	}
+
+	// reset the top pointer
+	highest_obj_3d = 0;
 }
 
 Uint32 free_e3d_va(e3d_object *e3d_id)

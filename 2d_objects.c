@@ -710,6 +710,16 @@ void destroy_2d_object(int i)
 	obj_2d_list[i] = NULL;
 }
 
+void destroy_all_2d_objects()
+{
+	int i;
+	for (i = 0; i < MAX_OBJ_2D; i++)
+	{
+		free(obj_2d_list[i]);
+		obj_2d_list[i] = NULL;
+	}
+}
+
 // for support of the 1.0.3 server, change if an object is to be displayed or not
 void set_2d_object (Uint8 display, const void *ptr, int len)
 {

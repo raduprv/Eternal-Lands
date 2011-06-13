@@ -109,7 +109,7 @@ void clear_clouds_cache();
 /*!
  * \ingroup	display_3d
  * \brief	Destroys the 3d object at position i in the objects list
- * 
+ *
  * 		Destroyes the 3d object on position i in the objects_list - frees the memory and sets the objects_list[i]=NULL.
  *
  * \param	i The position in the objects_list
@@ -117,6 +117,14 @@ void clear_clouds_cache();
  * \callgraph
  */
 void destroy_3d_object(int i);
+
+/*!
+ * \ingroup	display_3d
+ * \brief	Destroys all 3d objects currently in use
+ *
+ *		Destroys all 3d objects in the objects list, freeing the associated memory and clearing the list.
+ */
+void destroy_all_3d_objects(void);
 
 void destroy_e3d(e3d_object *e3d_id);
 

@@ -86,28 +86,10 @@ void destroy_map()
 #endif
 
 	//kill the 3d objects links
-	for(i=0;i<MAX_OBJ_3D;i++)
-		{
-			if(objects_list[i])
-				{
-					ec_remove_obstruction_by_object3d(objects_list[i]);
-
-					free(objects_list[i]);
-					objects_list[i]=NULL;//kill any refference to it
-				}
-		}
-	// reset the top pointer
-	highest_obj_3d= 0;
+	destroy_all_3d_objects();
 
 	//kill the 2d objects links
-	for(i=0;i<MAX_OBJ_2D;i++)
-		{
-			if(obj_2d_list[i])
-				{
-					free(obj_2d_list[i]);
-					obj_2d_list[i]=0;//kill any refference to it
-				}
-		}
+	destroy_all_2d_objects();
 
 	//kill the lights links
 	for(i=0;i<MAX_LIGHTS;i++)
