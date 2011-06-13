@@ -26,8 +26,10 @@
 #endif /* FSAA */
 
 int use_3d_alpha_blend= 1;
-static Uint32 highest_obj_3d= 0;
-int objects_list_placeholders = 0;
+static Uint32 next_obj_3d = 0;
+#ifndef FASTER_MAP_LOADING
+static int objects_list_placeholders = 0;
+#endif
 object3d *objects_list[MAX_OBJ_3D];
 
 #include "eye_candy_wrapper.h"
@@ -42,6 +44,12 @@ int e3d_count, e3d_total;
 
 float zero[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
+#ifdef FASTER_MAP_LOADING
+void inc_objects_list_placeholders()
+{
+	next_obj_3d++;
+}
+#else
 void clear_objects_list_placeholders()
 {
 	objects_list_placeholders = 0;
@@ -51,6 +59,7 @@ void inc_objects_list_placeholders()
 {
 	objects_list_placeholders++;
 }
+#endif
 
 static __inline__ void build_clouds_planes(object3d* obj)
 {
@@ -548,20 +557,18 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 
 	objects_list[id] = our_object;
 	// watch the top end
-	if((Uint32)id >= highest_obj_3d)
-	{
-		highest_obj_3d = id+1;
-	}
+	if((Uint32)id >= next_obj_3d)
+		next_obj_3d = id+1;
 
 	calc_rotation_and_translation_matrix(our_object->matrix, x_pos, y_pos, z_pos, x_rot, y_rot, z_rot);
-	
+
 	// watch for needing to load the detailed information
 	//load_e3d_detail_if_needed(returned_e3d);
 
 	ground = returned_e3d->vertex_layout->normal_count == 0;
 
 	for (i = 0; i < returned_e3d->material_no; i++)
-	{	
+	{
 		bbox.bbmin[X] = returned_e3d->materials[i].min_x;
 		bbox.bbmax[X] = returned_e3d->materials[i].max_x;
 		bbox.bbmin[Y] = returned_e3d->materials[i].min_y;
@@ -584,23 +591,41 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	return id;
 }
 
-int add_e3d (const char * file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot, char self_lit, char blended, float r, float g, float b, unsigned int dynamic)
+int add_e3d(const char* file_name, float x_pos, float y_pos, float z_pos,
+	float x_rot, float y_rot, float z_rot, char self_lit, char blended,
+	float r, float g, float b, unsigned int dynamic)
 {
-	int i, j;
+	int i;
+#ifndef FASTER_MAP_LOADING
+	int j = 0;
+#endif
 
-	j = 0;
-	
-	//find a free spot, in the e3d_list
+#ifdef FASTER_MAP_LOADING
+	if (next_obj_3d < MAX_OBJ_3D && !objects_list[next_obj_3d])
+		return add_e3d_at_id(next_obj_3d, file_name, x_pos, y_pos, z_pos,
+			x_rot, y_rot, z_rot, self_lit, blended,
+			r, g, b, dynamic);
+
+	// Oh my, next_obj_3d is not free. Find a free spot in the e3d_list,
+	// but don't count on IDs being correct.
+#endif
 	for(i = 0; i < MAX_OBJ_3D; i++)
 	{
-		if(objects_list[i] == NULL)
+		if (!objects_list[i])
 		{
-			if (j < objects_list_placeholders) j++;
-			else break;
+#ifndef FASTER_MAP_LOADING
+			if (j < objects_list_placeholders)
+				j++;
+			else
+#endif
+			return add_e3d_at_id(i, file_name, x_pos, y_pos, z_pos,
+				x_rot, y_rot, z_rot, self_lit, blended,
+				r, g, b, dynamic);
 		}
 	}
-	
-	return add_e3d_at_id (i, file_name, x_pos, y_pos, z_pos, x_rot, y_rot, z_rot, self_lit, blended, r, g, b, dynamic);
+
+	// No free spot available
+	return -1;
 }
 
 #ifdef NEW_SOUND
@@ -822,8 +847,10 @@ void destroy_3d_object(int i)
 	delete_3dobject_from_abt(main_bbox_tree, i, objects_list[i]->blended, objects_list[i]->self_lit);
 	free(objects_list[i]);
 	objects_list[i] = NULL;
-	if((Uint32)i == highest_obj_3d+1){
-		highest_obj_3d = i;
+	if ((Uint32)i == next_obj_3d-1)
+	{
+		while (next_obj_3d > 0 && !objects_list[next_obj_3d-1])
+			next_obj_3d--;
 	}
 }
 
@@ -842,7 +869,7 @@ void destroy_all_3d_objects()
 	}
 
 	// reset the top pointer
-	highest_obj_3d = 0;
+	next_obj_3d = 0;
 }
 
 Uint32 free_e3d_va(e3d_object *e3d_id)
@@ -894,24 +921,26 @@ void destroy_e3d(e3d_object *e3d_id)
 void set_3d_object (Uint8 display, const void *ptr, int len)
 {
 	const Uint32 *id_ptr = ptr;
-	
+
 	// first look for the override to process ALL objects
 	if (len < sizeof(*id_ptr) ){
 		Uint32	i;
-		
-		for(i=0; i<= highest_obj_3d; i++){
-			if (objects_list[i]){
-				objects_list[i]->display= display;
-			}
+
+		for (i = 0; i < next_obj_3d; i++)
+		{
+			if (objects_list[i])
+				objects_list[i]->display = display;
 		}
-	} else {
+	}
+	else
+	{
 		int idx = 0;
-		
-		while (len >= sizeof (*id_ptr))
+
+		while (len >= sizeof(*id_ptr))
 		{
 			Uint32 obj_id = SDL_SwapLE32(id_ptr[idx]);
-		
-			if (obj_id <= highest_obj_3d && objects_list[obj_id])
+
+			if (obj_id < next_obj_3d && objects_list[obj_id])
 			{
 				objects_list[obj_id]->display = display;
 				idx++;
@@ -925,24 +954,27 @@ void set_3d_object (Uint8 display, const void *ptr, int len)
 void state_3d_object (Uint8 state, const void *ptr, int len)
 {
 	const Uint32 *id_ptr = ptr;
-	
+
 	// first look for the override to process ALL objects
-	if (len < sizeof(*id_ptr) ){
+	if (len < sizeof(*id_ptr))
+	{
 		Uint32	i;
-		
-		for(i=0; i<= highest_obj_3d; i++){
-			if (objects_list[i]){
+
+		for (i = 0; i < next_obj_3d; i++)
+		{
+			if (objects_list[i])
 				objects_list[i]->state= state;
-			}
 		}
-	} else {
+	}
+	else
+	{
 		int idx = 0;
-	
+
 		while (len >= sizeof(*id_ptr))
 		{
 			Uint32	obj_id = SDL_SwapLE32(id_ptr[idx]);
-		
-			if (obj_id <= highest_obj_3d && objects_list[obj_id])
+
+			if (obj_id < next_obj_3d && objects_list[obj_id])
 			{
 				objects_list[obj_id]->state = state;
 				idx++;

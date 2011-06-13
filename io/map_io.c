@@ -261,7 +261,9 @@ static int do_load_map(const char *file_name, update_func *update_function)
 	LOG_DEBUG("Loading %d 3d objects.", cur_map_header.obj_3d_no);
 
 	//read the 3d objects
+#ifndef FASTER_MAP_LOADING
 	clear_objects_list_placeholders();
+#endif
 	objs_3d = (object3d_io*) (file_mem + cur_map_header.obj_3d_offset);
 
 	ENTER_DEBUG_MARK("load 3d objects");
