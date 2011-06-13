@@ -197,6 +197,19 @@ int el_file_exists_anywhere(const char* file_name);
  */
 const char* el_file_name(el_file_ptr file);
 
+/*!
+ * \brief Read a line
+ *
+ * Read the next line from file \a file and store it in buffer \a str of
+ * length \a size. At most \a size-1 bytes are copied, the resulting string
+ * is always zero-terminated.
+ * \param str  The buffer in which the line is stored
+ * \param size The length of \a str
+ * \param file The file from which to read the line
+ * \return \a str on success, NULL on failure
+ */
+char *el_fgets(char *str, int size, el_file_ptr file);
+
 #ifdef __cplusplus
 }
 #endif

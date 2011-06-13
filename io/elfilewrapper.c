@@ -959,3 +959,36 @@ Uint32 el_crc32(el_file_ptr file)
 	return file->crc32;
 }
 
+char *el_fgets(char *str, int size, el_file_ptr file)
+{
+	const char *sp;
+	char *dp;
+	const char *cr, *nl;
+	int count;
+
+	if (!file || file->position >= file->size || size <= 0)
+		return NULL;
+
+	dp = str;
+	sp = (const char*)file->buffer + file->position;
+	count = size - 1;
+	if (count > file->size - file->position)
+		count = file->size - file->position;
+
+	while (count-- > 0)
+	{
+		char c = *sp++;
+		*dp++ = c;
+		if (c == '\n')
+			break;
+		if (c == '\r')
+		{
+			if (*sp == '\n' && count > 0)
+				*dp++ = *sp++;
+			break;
+		}
+	}
+	*dp = '\0';
+
+	return str;
+}
