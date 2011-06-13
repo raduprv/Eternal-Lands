@@ -443,9 +443,8 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 			if(!obj_2d_list[i])break;
 		}
 
-	//but first convert any '\' in '/'
-	clean_file_name(fname, file_name, 128);
-	my_tolower(fname);
+	// but first convert to lower case and replace any '\' by '/'
+	clean_file_name(fname, file_name, sizeof(fname));
 
 	returned_obj_2d_def=load_obj_2d_def_cache(fname);
 	if(!returned_obj_2d_def)

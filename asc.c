@@ -349,22 +349,15 @@ char ** get_lines(char * str, int chars_per_line)
 // File utilities
 Uint32 clean_file_name (char *dest, const char *src, Uint32 max_len)
 {
-	Uint32 len;
-	Uint32 i;
+	char *dptr, *dend = dest + (max_len-1);
+	const char *sptr;
 
-	len = strlen (src);
-	if (len >= max_len) len = max_len-1;
-	for (i = 0; i < len; i++)
-	{
-		if (src[i] == '\\')
-			dest[i] = '/';
-		else
-			dest[i] = src[i];
-	}
-	
+	for (dptr = dest, sptr = src; dptr < dend && *sptr; dptr++, sptr++)
+		*dptr = *sptr == '\\' ? '/' : tolower(*sptr);
 	// always place a null at the end
-	dest[len] = '\0';
-	return len;
+	*dptr = '\0';
+
+	return dptr-dest;
 }
 
 /*XML*/

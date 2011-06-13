@@ -100,7 +100,7 @@ particle_sys_def *load_particle_def(const char *filename)
 	FILE *f=NULL;
 	particle_sys_def *def=NULL;
 
-	clean_file_name(cleanpath,filename,128);
+	clean_file_name(cleanpath, filename, sizeof(cleanpath));
 
 	//Check if it's already loaded
 	for(i=0;i<MAX_PARTICLE_DEFS;i++)
@@ -446,7 +446,7 @@ int save_particle_def(particle_sys_def *def)
 	char cleanpath[128];
 	FILE *f=NULL;
 
-	clean_file_name ( cleanpath, def->file_name, sizeof (cleanpath) );
+	clean_file_name(cleanpath, def->file_name, sizeof(cleanpath));
 
 	f=open_file_data(cleanpath,"w");
 	if(f == NULL){
