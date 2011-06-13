@@ -158,17 +158,6 @@ void state_3d_object (Uint8 state, const void *ptr, int len);
 
 /*!
  * \ingroup	load_3d
- * \brief	Check to see if file_name is in the e3d cache - if not, load it
- *
- * 	Check to see if file_name is in the e3d_cache - if not, load it
- *
- * \param	file_name
- * \retval	A pointer to the e3d object
- */
-e3d_object *load_e3d_cache (const char * file_name);
-
-/*!
- * \ingroup	load_3d
  * \brief	Clears the placeholders
  *
  * 	Clears the placeholders. Used to avoid the ghost object bug

@@ -287,10 +287,10 @@ static void free_e3d_pointer(e3d_object* cur_object)
 			free(cur_object->vertex_data);
 			cur_object->vertex_data = 0;
 		}
-		if (cur_object->indicies != 0)
+		if (cur_object->indices != 0)
 		{
-			free(cur_object->indicies);
-			cur_object->indicies = 0;
+			free(cur_object->indices);
+			cur_object->indices = 0;
 		}
 		if (cur_object->materials != 0)
 		{
@@ -324,7 +324,7 @@ static e3d_object* do_load_e3d_detail(e3d_object* cur_object)
 	e3d_material material;
 	char cur_dir[1024];
 	int i, idx, l, mem_size, vertex_size, material_size;
-	int file_pos, indicies_size, index_size;
+	int file_pos, indices_size, index_size;
 	char text_file_name[1024];
 	Uint32 tmp;
 	Uint16 tmp_16;
@@ -507,26 +507,26 @@ static e3d_object* do_load_e3d_detail(e3d_object* cur_object)
 	read_vertex_buffer(file, (float*)(cur_object->vertex_data), cur_object->vertex_no,
 		vertex_size, header.vertex_options, header.vertex_format);
 
-	LOG_DEBUG("Reading indicies at %d from e3d file '%s'.",
+	LOG_DEBUG("Reading indices at %d from e3d file '%s'.",
 		SDL_SwapLE32(header.index_offset), cur_object->file_name);
-	// Now reading the indicies
+	// Now reading the indices
 	el_seek(file, SDL_SwapLE32(header.index_offset), SEEK_SET);
 
 	if (cur_object->index_no < 65536)
 	{
-		indicies_size = 2;
+		indices_size = 2;
 		cur_object->index_type = GL_UNSIGNED_SHORT;
 	}
 	else
 	{
-		indicies_size = 4;
+		indices_size = 4;
 		cur_object->index_type = GL_UNSIGNED_INT;
 	}
 
-	cur_object->indicies = malloc(cur_object->index_no * indicies_size);
+	cur_object->indices = malloc(cur_object->index_no * indices_size);
 
 	if (use_vertex_buffers) index_pointer = 0;
-	else index_pointer = cur_object->indicies;
+	else index_pointer = cur_object->indices;
 
 	for (i = 0; i < cur_object->index_no; i++)
 	{
@@ -541,13 +541,13 @@ static e3d_object* do_load_e3d_detail(e3d_object* cur_object)
 			tmp = SDL_SwapLE32(tmp);
 		}
 
-		if (indicies_size == 2)
+		if (indices_size == 2)
 		{
-			((Uint16*)(cur_object->indicies))[i] = tmp;
+			((Uint16*)(cur_object->indices))[i] = tmp;
 		}
 		else
 		{
-			((Uint32*)(cur_object->indicies))[i] = tmp;
+			((Uint32*)(cur_object->indices))[i] = tmp;
 		}
 	}
 
@@ -625,10 +625,10 @@ static e3d_object* do_load_e3d_detail(e3d_object* cur_object)
 		cur_object->max_z = max2f(cur_object->max_z, cur_object->materials[i].max_z);
 		cur_object->max_size = max2f(cur_object->max_size, cur_object->materials[i].max_size);
 
-		cur_object->materials[i].triangles_indicies_index = indicies_size*SDL_SwapLE32(material.index) + index_pointer;
-		cur_object->materials[i].triangles_indicies_count = SDL_SwapLE32(material.count);
-		cur_object->materials[i].triangles_indicies_min = SDL_SwapLE32(material.triangles_min_index);
-		cur_object->materials[i].triangles_indicies_max = SDL_SwapLE32(material.triangles_max_index);
+		cur_object->materials[i].triangles_indices_index = indices_size*SDL_SwapLE32(material.index) + index_pointer;
+		cur_object->materials[i].triangles_indices_count = SDL_SwapLE32(material.count);
+		cur_object->materials[i].triangles_indices_min = SDL_SwapLE32(material.triangles_min_index);
+		cur_object->materials[i].triangles_indices_max = SDL_SwapLE32(material.triangles_max_index);
 
 		file_pos += SDL_SwapLE32(material_size);
 
@@ -654,15 +654,15 @@ static e3d_object* do_load_e3d_detail(e3d_object* cur_object)
 		cur_object->vertex_data = 0;
 #endif	//MAP_EDITOR
 		
-		ELglGenBuffersARB(1, &cur_object->indicies_vbo);
+		ELglGenBuffersARB(1, &cur_object->indices_vbo);
 		ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
-			cur_object->indicies_vbo);
+			cur_object->indices_vbo);
 		ELglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
-			cur_object->index_no * indicies_size,
-			cur_object->indicies, GL_STATIC_DRAW_ARB);
+			cur_object->index_no * indices_size,
+			cur_object->indices, GL_STATIC_DRAW_ARB);
 #ifndef	MAP_EDITOR
-		free(cur_object->indicies);
-		cur_object->indicies = 0;
+		free(cur_object->indices);
+		cur_object->indices = 0;
 #endif	//MAP_EDITOR
 				
 		ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
@@ -671,7 +671,7 @@ static e3d_object* do_load_e3d_detail(e3d_object* cur_object)
 	else
 	{
 		cur_object->vertex_vbo = 0;
-		cur_object->indicies_vbo = 0;
+		cur_object->indices_vbo = 0;
 	}
 
 #ifndef	MAP_EDITOR

@@ -48,10 +48,10 @@ typedef struct
 	float max_size;
     /** @} */
 
-	void* triangles_indicies_index;
-	Uint32 triangles_indicies_count;
-	Uint32 triangles_indicies_min;
-	Uint32 triangles_indicies_max;
+	void* triangles_indices_index;
+	Uint32 triangles_indices_count;
+	Uint32 triangles_indices_min;
+	Uint32 triangles_indices_max;
 } e3d_draw_list;
 
 /**
@@ -60,15 +60,15 @@ typedef struct
 typedef struct
 {
 	void* vertex_data;		/**< an array of e3d vertex data */
-	void* indicies;			/**< an array of el3d indicies */
+	void* indices;			/**< an array of el3d indices */
 	e3d_draw_list* materials;	/**< an array of triangle data for every material */
 	int vertex_no;			/**< number of vertexe, normal, tangent, texture and extra texture coordinates in this object */
-	int index_no; 			/**< number of all indicies */
+	int index_no; 			/**< number of all indices */
 	int material_no;		/**< number of materials in this object */
-	int index_type;			/**< type of the indicies: GL_UNSIGNED_BYTE, GL_UNSIGNED_WORD or GL_UNSIGNED_INT */
+	int index_type;			/**< type of the indices: GL_UNSIGNED_BYTE, GL_UNSIGNED_WORD or GL_UNSIGNED_INT */
 
 	GLuint vertex_vbo;		/**< an array of e3d vertex data */
-	GLuint indicies_vbo;		/**< an array of el3d indicies */
+	GLuint indices_vbo;		/**< an array of el3d indices */
 	e3d_vertex_data* vertex_layout;	/**< Index of the vertex layout */
 
 	/**

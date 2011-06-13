@@ -129,7 +129,8 @@ int video_mode_set=0;
 
 void read_command_line(); //from main.c
 
-void load_harvestable_list()
+#ifndef FASTER_MAP_LOAD
+static void load_harvestable_list()
 {
 	FILE *f = NULL;
 	int i = 0;
@@ -155,7 +156,7 @@ void load_harvestable_list()
 	fclose(f);
 }
 
-void load_entrable_list()
+static void load_entrable_list()
 {
 	FILE *f = NULL;
 	int i=0;
@@ -179,6 +180,7 @@ void load_entrable_list()
 		}
 	fclose(f);
 }
+#endif // FASTER_MAP_LOAD
 
 void load_knowledge_list()
 {
