@@ -659,7 +659,9 @@ static el_file_ptr zip_file_open(unzFile file)
 
 	result->size = file_info.uncompressed_size;
 	result->crc32 = file_info.crc;
+#ifdef FASTER_MAP_LOAD
 	result->flags |= EL_FILE_HAVE_CRC;
+#endif
 	result->buffer = malloc(file_info.uncompressed_size);
 
 	if (unzGetCurrentFileInfo64(file, 0, result->file_name, size, 0, 0,
