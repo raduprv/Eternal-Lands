@@ -61,7 +61,9 @@ static int do_load_map(const char *file_name, update_func *update_function)
 	obj_2d_io* objs_2d;
 	light_io* lights;
 	particles_io* particles;
+#ifndef FASTER_MAP_LOAD
 	float progress;
+#endif
 	el_file_ptr file;
 
 	file = el_open(file_name);
@@ -245,6 +247,9 @@ static int do_load_map(const char *file_name, update_func *update_function)
 	}
 #endif // CLUSTER_INSIDES
 
+#ifdef FASTER_MAP_LOAD
+	update_function(load_3d_object_str, 20.0f);
+#else  // FASTER_MAP_LOAD
 	progress = (cur_map_header.obj_3d_no + 249) / 250;
 	if (progress > 0.0f)
 	{
@@ -256,7 +261,7 @@ static int do_load_map(const char *file_name, update_func *update_function)
 		update_function(load_3d_object_str, 20.0f);
 		progress = 0.0f;
 	}
-	//see which objects in our cache are not used in this map
+#endif // FASTER_MAP_LOAD
 
 	LOG_DEBUG("Loading %d 3d objects.", cur_map_header.obj_3d_no);
 
@@ -317,13 +322,18 @@ static int do_load_map(const char *file_name, update_func *update_function)
 			inc_objects_list_placeholders();
 		}
 
+#ifndef FASTER_MAP_LOAD
 		if (i % 250 == 0)
 		{
 			update_function(load_3d_object_str, progress);
 		}
+#endif
 	}
 	LEAVE_DEBUG_MARK("load 3d objects");
 
+#ifdef FASTER_MAP_LOAD
+	update_function(load_2d_object_str, 20.0f);
+#else  // FASTER_MAP_LOAD
 	progress = (cur_map_header.obj_2d_no + 249) / 250;
 	if (progress > 0)
 	{
@@ -335,6 +345,7 @@ static int do_load_map(const char *file_name, update_func *update_function)
 		update_function(load_2d_object_str, 20.0f);
 		progress = 0.0f;
 	}
+#endif // FASTER_MAP_LOAD
 
 	LOG_DEBUG("Loading %d 2d objects.", cur_map_header.obj_2d_no);
 
@@ -394,12 +405,12 @@ static int do_load_map(const char *file_name, update_func *update_function)
 			cur_2d_obj_io.z_pos, cur_2d_obj_io.x_rot, cur_2d_obj_io.y_rot,
 			cur_2d_obj_io.z_rot, 0);
 #endif // CLUSTER_INSIDES
-#endif // FASTER_MAP_LOAD
 
 		if (i % 250 == 0)
 		{
 			update_function(load_2d_object_str, progress);
 		}
+#endif // FASTER_MAP_LOAD
 	}
 	LEAVE_DEBUG_MARK("load 2d objects");
 
@@ -477,6 +488,9 @@ static int do_load_map(const char *file_name, update_func *update_function)
 	}
 #endif
 
+#ifdef FASTER_MAP_LOAD
+	update_function(load_lights_str, 20.0f);
+#else  // FASTER_MAP_LOAD
 	progress = (cur_map_header.lights_no + 99) / 100;
 	if (progress > 0)
 	{
@@ -488,6 +502,7 @@ static int do_load_map(const char *file_name, update_func *update_function)
 		update_function(load_lights_str, 20.0f);
 		progress = 0.0f;
 	}
+#endif // FASTER_MAP_LOAD
 
 	LOG_DEBUG("Loading %d lights.", cur_map_header.lights_no);
 
@@ -531,13 +546,18 @@ static int do_load_map(const char *file_name, update_func *update_function)
 		add_light (cur_light_io.pos_x, cur_light_io.pos_y, cur_light_io.pos_z,
 		           cur_light_io.r, cur_light_io.g, cur_light_io.b, 1.0f, 0);
 
+#ifndef FASTER_MAP_LOAD
 		if (i % 100 == 0)
 		{
 			update_function(load_lights_str, progress);
 		}
+#endif
 	}
 	LEAVE_DEBUG_MARK("load lights");
 
+#ifdef FASTER_MAP_LOAD
+	update_function(load_particles_str, 20.0f);
+#else  // FASTER_MAP_LOAD
 	progress = (cur_map_header.particles_no + 99) / 100;
 	if (progress > 0.0f)
 	{
@@ -549,6 +569,7 @@ static int do_load_map(const char *file_name, update_func *update_function)
 		update_function(load_particles_str, 20.0f);
 		progress = 0.0f;
 	}
+#endif // FASTER_MAP_LOAD
 
 	LOG_DEBUG("Loading %d particles.", cur_map_header.particles_no);
 
@@ -580,16 +601,19 @@ static int do_load_map(const char *file_name, update_func *update_function)
 			add_particle_sys (cur_particles_io.file_name, cur_particles_io.x_pos, cur_particles_io.y_pos, cur_particles_io.z_pos, 0);
 #endif // NEW_SOUND
 		}
+
+#ifndef FASTER_MAP_LOAD
 		if (i % 100 == 0)
 		{
 			update_function(load_particles_str, progress);
 		}
+#endif
 	}
 	LEAVE_DEBUG_MARK("load particles");
 
 	// Everything copied, get rid of the file data
 	el_close(file);
-	
+
 	update_function(bld_sectors_str, 0.0f);
 
 	LOG_DEBUG("Building bbox tree for map '%s'.", file_name);
