@@ -741,9 +741,14 @@ void missiles_fire_a_to_b(int actor1_id, int actor2_id)
 		action->state = 2;
 
 		act2->last_range_attacker_id = actor1_id;
+
 		UNLOCK_ACTORS_LISTS();
 
 		add_command_to_actor(actor1_id, aim_mode_fire);
+		if (act2->actor_type == 97)
+		{
+			add_command_to_actor(actor2_id, pain1);
+		}
 	}
 	else {
 		LOG_ERROR("%s (%d): unable to add a fire action, the queue is empty!",
