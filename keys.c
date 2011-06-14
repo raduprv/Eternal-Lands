@@ -333,13 +333,13 @@ static void parse_key_line(const char *line)
 		return;
 
 	add_key(&key, get_key_code(t1));
-	if (nkey > 1 && t2[0] != '#')
+	if (nkey > 2 && t2[0] != '#')
 	{
 		add_key(&key, get_key_code(t2));
-		if (nkey > 2 && t3[0] != '#')
+		if (nkey > 3 && t3[0] != '#')
 		{
 			add_key(&key, get_key_code(t3));
-			if (nkey > 3 && t4[0] != '#')
+			if (nkey > 4 && t4[0] != '#')
 			{
 				add_key(&key, get_key_code(t4));
 			}
