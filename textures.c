@@ -2148,12 +2148,9 @@ void init_texture_cache()
 	cache_set_compact(texture_cache, compact_texture);
 	cache_set_time_limit(texture_cache, 5 * 60 * 1000);
 
-	texture_handles = malloc(TEXTURE_CACHE_MAX * sizeof(texture_cache_t));
-	memset(texture_handles, 0, TEXTURE_CACHE_MAX * sizeof(texture_cache_t));
-
+	texture_handles = calloc(TEXTURE_CACHE_MAX, sizeof(texture_cache_t));
 #ifdef	ELC
-	actor_texture_handles = malloc(ACTOR_TEXTURE_CACHE_MAX * sizeof(actor_texture_cache_t));
-	memset(actor_texture_handles, 0, ACTOR_TEXTURE_CACHE_MAX * sizeof(actor_texture_cache_t));
+	actor_texture_handles = calloc(ACTOR_TEXTURE_CACHE_MAX, sizeof(actor_texture_cache_t));
 
 	queue_initialise(&actor_texture_queue);
 
@@ -2263,8 +2260,13 @@ void dump_texture_cache()
 }
 #endif	/* DEBUG */
 #else	// NEW_TEXTURES
-#ifdef NEW_CURSOR
 
+#ifdef FASTER_MAP_LOAD
+static int texture_cache_sorted[TEXTURE_CACHE_MAX];
+static int texture_cache_used = 0;
+#endif
+
+#ifdef NEW_CURSOR
 //Some textures just can't be compressed (written for custom cursors)
 static int compression_enabled = 1;
 
@@ -2277,7 +2279,6 @@ void disable_compression ()
 {
 	compression_enabled = 0;
 }
-
 #endif // NEW_CURSOR
 
 __inline__ static void set_texture_filter(texture_filter filter, float anisotropic_filter)
@@ -3149,17 +3150,63 @@ GLuint reload_bmp8_fixed_alpha(texture_cache_struct * tex_cache_entry, Uint8 a, 
 	return texture;
 }
 
+#ifdef FASTER_MAP_LOAD
+static int cache_cmp_string(const void* str, const void* iptr)
+{
+	int i = *((const int*)iptr);
+	return strcasecmp(str, texture_cache[i].file_name);
+}
+#endif
 
 //Tests to see if a texture is already loaded. If it is, return the handle.
 //If not, load it, and return the handle
-int load_texture_cache (const char * file_name, int alpha)
+int load_texture_cache(const char* file_name, int alpha)
 {
 	int slot = load_texture_cache_deferred(file_name, alpha);
 	get_and_set_texture_id(slot);
 	return slot;
 }
 
-int load_texture_cache_deferred (const char * file_name, int alpha)
+#ifdef FASTER_MAP_LOAD
+int load_texture_cache_deferred(const char* file_name, int alpha)
+{
+	int i;
+	int *iptr = bsearch(file_name, texture_cache_sorted, texture_cache_used,
+		sizeof(int), cache_cmp_string);
+	if (iptr)
+		return *iptr;
+
+	if (texture_cache_used < TEXTURE_CACHE_MAX)
+	{
+		int slot = texture_cache_used;
+		for (i = 0; i < texture_cache_used; i++)
+		{
+			int idx = texture_cache_sorted[i];
+			if (strcasecmp(file_name, texture_cache[idx].file_name) <= 0)
+			{
+				memmove(texture_cache_sorted+(i+1),
+					texture_cache_sorted+i,
+					(texture_cache_used-i)*sizeof(int));
+				break;
+			}
+		}
+		texture_cache_sorted[i] = slot;
+		my_strncp(texture_cache[slot].file_name, file_name,
+			sizeof(texture_cache[slot]));
+		texture_cache[slot].texture_id = 0;
+		texture_cache[slot].alpha = alpha;
+		texture_cache[slot].has_alpha = 0;
+		texture_cache_used++;
+		return slot;
+	}
+	else
+	{
+		LOG_ERROR("Error: out of texture space\n");
+		return 0;	// ERROR!
+	}
+}
+#else  // FASTER_MAP_LOAD
+int load_texture_cache_deferred(const char* file_name, int alpha)
 {
 	int i;
 	int file_name_length;
@@ -3199,7 +3246,7 @@ int load_texture_cache_deferred (const char * file_name, int alpha)
 		return 0;	// ERROR!
 	}
 }
-
+#endif // FASTER_MAP_LOAD
 
 #ifndef MAP_EDITOR2
 void copy_bmp8_to_coordinates (texture_struct *tex, Uint8 *texture_space, int x_pos, int y_pos)
