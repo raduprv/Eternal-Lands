@@ -15,33 +15,128 @@
 # include "misc.h"
 #endif //MAP_EDITOR
 
+/* NOTE: This file contains implementations of the following, currently unused and commented functions:
+ *          Look at the end of the file.
+ *
+ * Sint32 get_string_after_string(const Uint8*, const Uint8*, Sint32, Uint*, int);
+ */
+
 #ifndef LINUX
 int my_UTF8Toisolat1(char **dest, size_t * lu, const char **src, size_t * len);
 #else
 int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * len);
 #endif
 
-// find the first occurance of needle in haystack, and return the distance to
-// that string. If beginning is non-zero, it returns the offset to the beginning of
+// find the first occurance of needle in haystack, and return the distance to 
+// that string. If beggining is 1, it returns the offset to the beginning of 
 // the string otherwise it returns the offset to the end of the string. Needle
 // must be null-terminated. hyastack need not be, but must be at least max_len
 // bytes long
-Sint32 get_string_occurance(const char* needle, const char* haystack,
-	Uint32 max_len, int beginning)
+Sint32 get_string_occurance (const char* needle, const char* haystack, const Uint32 max_len, const char beginning)
 {
 	const Uint32 n_len = strlen(needle);
-	const char *hs, *hs_end;
+	Uint32 istart, i;
+	Uint32 search_len;
 
-	hs_end = haystack + (max_len-n_len+1);
-	hs = memmem(haystack, max_len, needle, n_len);
-	if (!hs) return -1;
-	if (!beginning)
-	{
-		hs += n_len;
-		while (hs < hs_end && (*hs == ' ' || *hs == '='))
-			hs++;
+	if (max_len < n_len) {
+		return -1;
 	}
-	return hs - haystack;
+
+	for (istart = 0, search_len = max_len - n_len; istart <= search_len; istart++)
+	{
+		for (i = 0; i < n_len; i++)
+		{
+			if (tolower(haystack[istart+i]) != tolower(needle[i])) {
+				break;
+			}
+		}
+		if (i >= n_len)
+		{
+			// We found the string. return the beginning if asked
+			if (beginning) {
+				return istart;
+			}
+			// return the end of the string occurence, but skip
+			// space and equal signs
+			while ((istart+i < max_len) && (haystack[istart+i] == ' ' || haystack[istart+i] == '=')) {
+				i++;
+			}
+			return istart+i;
+		}
+	}
+	return -1;
+}
+
+// This function returns an integer, after the needle in the haystack 
+// string. If the string is not found, after max_len, the function returns -1.
+// The function is NOT case sensitive
+Sint32 get_integer_after_string (const char *needle, const char *haystack, Uint32 max_len)
+{
+	Sint32 n_end = get_string_occurance (needle, haystack, max_len, 0);
+	Uint32 istart;
+	
+	if (n_end < 0)
+	{
+		// needle not found
+		return -1;
+	}
+	
+	istart = n_end;
+	while (istart < max_len)
+	{
+		if (haystack[istart] == '\n')
+			// no integer on this line
+			return -1;
+		if (isdigit (haystack[istart]) || haystack[istart] == '+' || haystack[istart] == '-'){
+			// we've probably found a number
+			//return atoi (&haystack[istart]);
+			char temp[1<<sizeof(int)];	//Wasteful, but it will reserve enough space for MAX_INT as a string. If we change to atol or similar, use sizeof(long) instead
+			int len = min2i(max_len-istart, (1<<sizeof(int))-1);
+			memcpy(temp, &haystack[istart], len-1);
+			temp[len] = '\0';
+			return atoi (temp);
+		}
+		istart++;
+	}
+	
+	// no integer after needle
+	return -1;
+}
+
+// This function returns a float, after the source string in the destination 
+// string. If the string is not found, after max_len, the function returns 
+// -1.0f. The function is NOT case sensitive
+float get_float_after_string (const char *needle, const char *haystack, Uint32 max_len)
+{
+	Sint32 n_end = get_string_occurance (needle, haystack, max_len, 0);
+	Uint32 istart;
+	
+	if (n_end < 0)
+	{
+		// needle not found
+		return -1.0f;
+	}
+	
+	istart = n_end;
+	while (istart < max_len)
+	{
+		if (haystack[istart] == '\n')
+			// no number on this line
+			return -1.0f;
+		if (isdigit (haystack[istart]) || haystack[istart] == '+' || haystack[istart] == '-' || haystack[istart] == '.'){
+			// we've probably found a number
+			//return atof (&haystack[istart]);
+			//char temp[max_len-istart+1];	//Wasteful, if the float doesn't go to the end of the line, but it will reserve enough space
+			char temp[200];	//It'd be better not to use an arbitrary constant, but we can't use run-time size on compilers like MSVC
+			memcpy(temp, &haystack[istart], min2i(max_len-istart, sizeof(temp)));
+			temp[min2i(max_len-istart, sizeof(temp))] = '\0';
+			return atof (temp);
+		}
+		istart++;
+	}
+	
+	// no number after needle
+	return -1.0f;
 }
 
 char* safe_strncpy(char *dest, const char * source, const size_t len)
@@ -125,22 +220,26 @@ char* safe_strcasestr (const char* haystack, size_t haystack_len, const char* ne
 
 void my_strcp(char *dest,const char * source)
 {
-	while (*source)
+	while(*source)
+	{
 		*dest++=*source++;
+	}
 	*dest='\0';
 }
 
 void my_strncp (char *dest, const char *source, size_t len)
 {
-	while (*source && --len > 0)
+	while (*source != '\0' && --len > 0)
+	{
 		*dest++ = *source++;
+	}
 	*dest = '\0';
 }
 
 void my_strcat(char *dest,const char * source)
 {
 	int i,l,dl;
-
+	
 	l=strlen(source);
 	dl=strlen(dest);
 	for(i=0;i<l;i++)dest[dl+i]=source[i];
@@ -248,17 +347,24 @@ char ** get_lines(char * str, int chars_per_line)
 }
 
 // File utilities
-Uint32 clean_file_name(char *dest, const char *src, Uint32 max_len)
+Uint32 clean_file_name (char *dest, const char *src, Uint32 max_len)
 {
-	char *dptr, *dend = dest + (max_len-1);
-	const char *sptr;
+	Uint32 len;
+	Uint32 i;
 
-	for (dptr = dest, sptr = src; dptr < dend && *sptr; dptr++, sptr++)
-		*dptr = *sptr == '\\' ? '/' : tolower(*sptr);
+	len = strlen (src);
+	if (len >= max_len) len = max_len-1;
+	for (i = 0; i < len; i++)
+	{
+		if (src[i] == '\\')
+			dest[i] = '/';
+		else
+			dest[i] = src[i];
+	}
+	
 	// always place a null at the end
-	*dptr = '\0';
-
-	return dptr-dest;
+	dest[len] = '\0';
+	return len;
 }
 
 /*XML*/
@@ -374,6 +480,40 @@ int get_file_digest(const char * filename, Uint8 digest[16])
 	
 	return 1;
 }
+
+/* currently UNUSED
+//find & copy a string into memory
+//return the length or -1 if not found
+Sint32 get_string_after_string(const Uint8 * source_pointer, const Uint8 * dest_pointer, Sint32 max_len, Uint8 *value, Sint32 value_len)
+{
+	int i;
+	int loc=get_string_occurance(source_pointer, dest_pointer, max_len, 0);
+
+	if (loc < 0)
+		{
+			return -1;
+		}
+	// now copy the string
+	for(i=0;i<value_len-1;i++)
+		{
+			Uint8 ch;
+			ch=dest_pointer[loc+i];
+			if(ch==0x0a || ch==0x0d)break;
+  			value[i]=ch;
+		}
+	value[i]=0;	// always place a NULL
+
+	return(i);
+}
+
+void get_string_digest(const Uint8 * string, Uint8 digest[16])
+{
+	MD5 md5;
+	MD5Open(&md5);
+	MD5Digest(&md5, string, strlen(string));
+	MD5Close(&md5, digest);
+}
+*/
 
 int find_description_index (const dict_elem dict[], const char *elem, const char *desc) {
 	int idx = 0;

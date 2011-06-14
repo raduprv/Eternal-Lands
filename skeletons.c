@@ -40,7 +40,7 @@ int get_skeleton(struct CalCoreModel *cal_model, const char *skeleton_name)
 
 	for (i = MAX_MAIN_CAL_BONES; i--;)
 		skel->cal_bones_id[i] = -1;
-	
+
 	if (!strcmp(&skeleton_name[length-8], "bear.csf")) {
 		skel->cal_bones_id[head_bone] = find_core_bone_id(cal_skel, "head");
 		skel->cal_bones_id[mouth_bone] = find_core_bone_id(cal_skel, "mouth");
@@ -185,6 +185,13 @@ int get_skeleton(struct CalCoreModel *cal_model, const char *skeleton_name)
 		skel->cal_bones_id[hand_right_bone] = find_core_bone_id(cal_skel, "handR");
 		skel->cal_bones_id[highest_bone] = skel->cal_bones_id[head_bone];
 	}
+	else if (!strcmp(&skeleton_name[length-10], "target.csf")) {
+		skel->cal_bones_id[head_bone] = find_core_bone_id(cal_skel, "head");
+		skel->cal_bones_id[mouth_bone] = skel->cal_bones_id[head_bone];
+		skel->cal_bones_id[body_top_bone] = skel->cal_bones_id[head_bone];
+		skel->cal_bones_id[body_bottom_bone] = skel->cal_bones_id[head_bone];
+		skel->cal_bones_id[highest_bone] = skel->cal_bones_id[head_bone];
+	}
 	else {
 		LOG_ERROR("The skeleton '%s' is unknown, trying to guess main parts\n",
 				  skeleton_name);
@@ -194,6 +201,8 @@ int get_skeleton(struct CalCoreModel *cal_model, const char *skeleton_name)
 			skel->cal_bones_id[mouth_bone] = find_core_bone_id(cal_skel, "jaw");
 		if (skel->cal_bones_id[head_bone] < 0)
 			skel->cal_bones_id[head_bone] = skel->cal_bones_id[mouth_bone];
+		if (skel->cal_bones_id[body_top_bone] < 0)
+			skel->cal_bones_id[body_top_bone] = skel->cal_bones_id[mouth_bone];
 		skel->cal_bones_id[highest_bone] = skel->cal_bones_id[head_bone];
 	}
 

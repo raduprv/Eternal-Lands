@@ -195,17 +195,7 @@ int el_file_exists_anywhere(const char* file_name);
  * \return Returns the file name.
  * \see el_open
  */
-const char* el_file_name(const el_file_ptr file);
-
-/*!
- * \brief Return the checksum of a file
- *
- * Return the CRC32 checksum of the file data. If this has not been computed
- * yet, calculate it first.
- * \param file The file pointer.
- * \return Returns the checksum.
- */
-Uint32 el_crc32(el_file_ptr file);
+const char* el_file_name(el_file_ptr file);
 
 #ifdef __cplusplus
 }

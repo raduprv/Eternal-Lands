@@ -22,10 +22,12 @@ extern "C" {
 #define OBJ_3D_ENTRABLE 	1
 #define OBJ_3D_HARVESTABLE 	1<<1
 #define OBJ_3D_BAG 			1<<2
-#define OBJ_3D_MINE			1<<3
+ #define OBJ_3D_MINE			1<<3
 
 //#define MAX_E3D_CACHE 1000 /* unused */
 /*! @} */
+
+extern Uint32 highest_obj_3d;  /*!< pointer to the highest 3D object in map */
 
 /*!
  * object3d structure

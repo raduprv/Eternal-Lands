@@ -1192,7 +1192,7 @@ int knowledge_command(char *text, int len)
 	char this_string[80], count_str[60];
 	char *cr;
 	int num_read = 0, num_total = 0;
-	int show_read = 1, show_unread = 1;
+	int show_read = 1, show_unread = 1, show_help = 0;
 	size_t i;
 	char * pstr[3] = { knowledge_param_read, knowledge_param_unread, knowledge_param_total };
 	size_t plen[3] = { strlen(knowledge_param_read), strlen(knowledge_param_unread), strlen(knowledge_param_total) };
@@ -1206,8 +1206,12 @@ int knowledge_command(char *text, int len)
 		(pstr[0][1] != pstr[1][1]) && (pstr[0][1] != pstr[2][1]) && (pstr[1][1] != pstr[2][1]))
 		plen[0] = plen[1] = plen[2] = 2;
 
+	// show the help if no paramaters specified
+	if (strlen(text) == 0)
+		show_help = 1;
+
 	// Look for -read, -unread or -total paramaters and vary the output appropriately
-	if (strncmp(text, knowledge_param_read, plen[0]) == 0)
+	else if (strncmp(text, knowledge_param_read, plen[0]) == 0)
 	{
 		show_unread = 0;
 		text = getparams(text+plen[0]);
@@ -1251,6 +1255,11 @@ int knowledge_command(char *text, int len)
 	}
 	safe_snprintf(count_str, sizeof(count_str), book_count_str, num_read, num_total);
 	LOG_TO_CONSOLE(c_grey1, count_str);
+
+	// give help only if no parameters specified
+	if (show_help)
+		LOG_TO_CONSOLE(c_grey1, know_help_str);
+
 	return 1;
 }
 
@@ -1692,11 +1701,11 @@ void print_version_string (char *buf, size_t len)
 	
 	if (client_version_patch > 0)
 	{
-		safe_snprintf (extra, sizeof(extra), "p%d Beta %s", client_version_patch, DEF_INFO);
+		safe_snprintf (extra, sizeof(extra), "p%d %s", client_version_patch, DEF_INFO);
 	}
 	else
 	{
-		safe_snprintf (extra, sizeof(extra), " Beta %s", DEF_INFO);
+		safe_snprintf (extra, sizeof(extra), " %s", DEF_INFO);
 	}
 	safe_snprintf (buf, len, game_version_str, client_version_major, client_version_minor, client_version_release, extra);
 }

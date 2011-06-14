@@ -20,7 +20,7 @@ server_def servers[MAX_SERVERS];		// The details of all the servers we know abou
 int num_servers = 0;
 int cur_server = -1;
 
-const char* check_server_id_on_command_line();	// From main.c
+char * check_server_id_on_command_line();	// From main.c
 
 const char * get_server_name(void)
 {

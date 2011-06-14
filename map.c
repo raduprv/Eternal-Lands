@@ -86,10 +86,28 @@ void destroy_map()
 #endif
 
 	//kill the 3d objects links
-	destroy_all_3d_objects();
+	for(i=0;i<MAX_OBJ_3D;i++)
+		{
+			if(objects_list[i])
+				{
+					ec_remove_obstruction_by_object3d(objects_list[i]);
+
+					free(objects_list[i]);
+					objects_list[i]=NULL;//kill any refference to it
+				}
+		}
+	// reset the top pointer
+	highest_obj_3d= 0;
 
 	//kill the 2d objects links
-	destroy_all_2d_objects();
+	for(i=0;i<MAX_OBJ_2D;i++)
+		{
+			if(obj_2d_list[i])
+				{
+					free(obj_2d_list[i]);
+					obj_2d_list[i]=0;//kill any refference to it
+				}
+		}
 
 	//kill the lights links
 	for(i=0;i<MAX_LIGHTS;i++)
@@ -108,7 +126,7 @@ void destroy_map()
 }
 
 #ifndef MAP_EDITOR2
-int get_cur_map(const char* file_name)
+int get_cur_map (const char * file_name)
 {
 	int i;
 
@@ -120,7 +138,7 @@ int get_cur_map(const char* file_name)
 		}
 	}
 
-	return -1;
+	return -1;	
 }
 #endif
 
@@ -208,7 +226,7 @@ static int el_load_map(const char * file_name)
 	return ret;
 }
 
-void change_map(const char* mapname)
+void change_map (const char *mapname)
 {
 #ifndef	MAP_EDITOR
 	remove_all_bags();
@@ -240,7 +258,7 @@ void change_map(const char* mapname)
 		locked_to_console = 0;
 	}
 	load_map_marks();
-
+	
 #ifdef NEW_SOUND
 	get_map_playlist();
 	setup_map_sounds(get_cur_map(mapname));
@@ -617,20 +635,20 @@ int get_3d_objects_from_server (int nr_objs, const Uint8 *data, int len)
 	return all_ok;
 }
 	
-void remove_3d_object_from_server(int id)
-{
+void remove_3d_object_from_server (int id)
+{	
 	if (id < 0 || id > MAX_OBJ_3D)
 	{
 		LOG_ERROR ("Trying to remove object with invalid id %d", id);
 		return;
 	}
-	if (!objects_list[id])
+	if (objects_list[id] == NULL)
 	{
 		LOG_ERROR ("Trying to remove non-existant object");
 		return;
 	}
 
-	destroy_3d_object(id);
+	destroy_3d_object (id);
 }
 
 

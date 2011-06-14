@@ -4,19 +4,13 @@
 #include <SDL_mouse.h>
 #include "errors.h"
 #include "translate.h"
-#include "asc.h"
 #include "io/elfilewrapper.h"
-#include "io/elpathwrapper.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
  *
  * void change_cursor_show(int);
  */
-
-#define OBJ_NAME_SIZE           80
-#define MAX_HARVESTABLE_OBJECTS 300
-#define MAX_ENTRABLE_OBJECTS    300
 
 actor *actor_under_mouse;
 int object_under_mouse;
@@ -26,95 +20,15 @@ int read_mouse_now=0;
 int elwin_mouse=-1;
 
 struct cursors_struct cursors_array[20];
-static char harvestable_objects[MAX_HARVESTABLE_OBJECTS][OBJ_NAME_SIZE];
-static int nr_harvestable_objects;
-static char entrable_objects[MAX_ENTRABLE_OBJECTS][OBJ_NAME_SIZE];
-static int nr_entrable_objects;
+char harvestable_objects[300][80];
+char entrable_objects[300][80];
 
 Uint8 *cursors_mem=NULL;
 int cursors_x_length;
 int cursors_y_length;
 
-void load_harvestable_list()
-{
-	FILE *f = NULL;
-	char strLine[255];
-
-	memset(harvestable_objects, 0, sizeof(harvestable_objects));
-	nr_harvestable_objects = 0;
-
-	f = open_file_data("harvestable.lst", "rb");
-	if (f == NULL)
-	{
-		LOG_ERROR("%s: %s \"harvestable.lst\"\n", reg_error_str, cant_open_file);
-		return;
-	}
-	while (nr_harvestable_objects < MAX_HARVESTABLE_OBJECTS)
-	{
-		if (fscanf(f, "%254s", strLine) != 1)
-			break;
-		my_tolower(strLine);
-		my_strncp(harvestable_objects[nr_harvestable_objects], strLine,
-			OBJ_NAME_SIZE);
-		nr_harvestable_objects++;
-		if (!fgets(strLine, sizeof(strLine), f))
-			break;
-
-	}
-	fclose(f);
-
-	// Sort the list so we can use binary search
-	qsort(harvestable_objects, nr_harvestable_objects, OBJ_NAME_SIZE,
-		(int(*)(const void*,const void*))strcmp);
-}
-
-int is_harvestable(const char* fname)
-{
-	return bsearch(fname, harvestable_objects, nr_harvestable_objects,
-		OBJ_NAME_SIZE, (int(*)(const void*,const void*))strcmp) != NULL;
-}
-
-void load_entrable_list()
-{
-	FILE *f = NULL;
-	char strLine[255];
-	int off;
-
-	memset(entrable_objects, 0, sizeof(entrable_objects));
-	nr_entrable_objects = 0;
-	f=open_file_data("entrable.lst", "rb");
-	if(f == NULL)
-	{
-		LOG_ERROR("%s: %s \"entrable.lst\"\n", reg_error_str, cant_open_file);
-		return;
-	}
-	while (nr_entrable_objects < MAX_ENTRABLE_OBJECTS)
-	{
-		if (fscanf(f, "%254s", strLine) != 1)
-			break;
-		my_tolower(strLine);
-		off = *strLine == '/' ? 1 : 0;
-		my_strncp(entrable_objects[nr_entrable_objects], strLine+off,
-			OBJ_NAME_SIZE);
-		nr_entrable_objects++;
-		if (!fgets(strLine, sizeof(strLine), f))
-			break;
-	}
-	fclose(f);
-
-	// Sort the list so we can use binary search
-	qsort(entrable_objects, nr_entrable_objects, OBJ_NAME_SIZE,
-		(int(*)(const void*,const void*))strcmp);
-}
-
-int is_entrable(const char* fname)
-{
-	return bsearch(fname, entrable_objects, nr_entrable_objects,
-		OBJ_NAME_SIZE, (int(*)(const void*,const void*))strcmp) != NULL;
-}
-
 void load_cursors()
-{
+{	
 	int cursors_colors_no, x, y, i;
 	Uint8 * cursors_mem_bmp;
 	Uint8 cur_color;

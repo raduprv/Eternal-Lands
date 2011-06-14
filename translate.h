@@ -544,6 +544,7 @@ extern char	reg_error_str[15],
 		msg_accept_buddy_str[55],
 		date_format[100],
 		book_count_str[60],
+		know_help_str[60],
 		/*cursors.c*/
 		cursors_file_str[30],
 		/*dialogues.c*/
