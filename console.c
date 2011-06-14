@@ -1701,11 +1701,11 @@ void print_version_string (char *buf, size_t len)
 	
 	if (client_version_patch > 0)
 	{
-		safe_snprintf (extra, sizeof(extra), "p%d Beta %s", client_version_patch, DEF_INFO);
+		safe_snprintf (extra, sizeof(extra), "p%d %s", client_version_patch, DEF_INFO);
 	}
 	else
 	{
-		safe_snprintf (extra, sizeof(extra), " Beta %s", DEF_INFO);
+		safe_snprintf (extra, sizeof(extra), " %s", DEF_INFO);
 	}
 	safe_snprintf (buf, len, game_version_str, client_version_major, client_version_minor, client_version_release, extra);
 }
