@@ -27,7 +27,6 @@ cache_struct *cache_e3d = NULL;
 #ifndef	NEW_TEXTURES
 texture_cache_struct texture_cache[TEXTURE_CACHE_MAX];
 #endif	/* NEW_TEXTURES */
-obj_2d_cache_struct obj_2d_def_cache[MAX_OBJ_2D_DEF];
 
 static Uint32 cache_system_clean();
 static Uint32 cache_system_compact();

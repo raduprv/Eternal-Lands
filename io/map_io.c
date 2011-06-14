@@ -369,18 +369,32 @@ static int do_load_map(const char *file_name, update_func *update_function)
 		if (offset_2d >= offset_2d_max)
 			offset_2d = offset_2d_increment;
 #endif
-			
+
+#ifdef FASTER_MAP_LOAD
+#ifdef CLUSTER_INSIDES
+		id = add_2d_obj(i, cur_2d_obj_io.file_name, cur_2d_obj_io.x_pos, cur_2d_obj_io.y_pos,
+			cur_2d_obj_io.z_pos, cur_2d_obj_io.x_rot, cur_2d_obj_io.y_rot,
+			cur_2d_obj_io.z_rot, 0);
+		if (!have_clusters)
+			update_occupied_with_2d (occupied, id);
+#else  // CLUSTER_INSIDES
+		add_2d_obj(i, cur_2d_obj_io.file_name, cur_2d_obj_io.x_pos, cur_2d_obj_io.y_pos,
+			cur_2d_obj_io.z_pos, cur_2d_obj_io.x_rot, cur_2d_obj_io.y_rot,
+			cur_2d_obj_io.z_rot, 0);
+#endif // CLUSTER_INSIDES
+#else  // FASTER_MAP_LOAD
 #ifdef CLUSTER_INSIDES
 		id = add_2d_obj (cur_2d_obj_io.file_name, cur_2d_obj_io.x_pos, cur_2d_obj_io.y_pos,
 			cur_2d_obj_io.z_pos, cur_2d_obj_io.x_rot, cur_2d_obj_io.y_rot,
 			cur_2d_obj_io.z_rot, 0);
 		if (!have_clusters)
 			update_occupied_with_2d (occupied, id);
-#else
+#else  // CLUSTER_INSIDES
 		add_2d_obj(cur_2d_obj_io.file_name, cur_2d_obj_io.x_pos, cur_2d_obj_io.y_pos,
 			cur_2d_obj_io.z_pos, cur_2d_obj_io.x_rot, cur_2d_obj_io.y_rot,
 			cur_2d_obj_io.z_rot, 0);
-#endif
+#endif // CLUSTER_INSIDES
+#endif // FASTER_MAP_LOAD
 
 		if (i % 250 == 0)
 		{

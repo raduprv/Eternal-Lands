@@ -32,11 +32,18 @@
 
 obj_2d *obj_2d_list[MAX_OBJ_2D];
 
+#ifdef FASTER_MAP_LOAD
+static obj_2d_def* obj_2d_def_cache[MAX_OBJ_2D_DEF];
+static int obj_2d_cache_used = 0;
+#else
+obj_2d_cache_struct obj_2d_def_cache[MAX_OBJ_2D_DEF];
+#endif
+
 int map_meters_size_x;
 int map_meters_size_y;
 float texture_scale=12.0;
 
-void draw_2d_object(obj_2d * object_id)
+void draw_2d_object(obj_2d *object_id)
 {
 	float render_x_start,render_y_start,u_start,v_start,u_end,v_end;
 	float x_pos,y_pos,z_pos;
@@ -178,8 +185,146 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
+#ifdef FASTER_MAP_LOAD
+static void parse_2d0(const char* desc, Uint32 len, const char* cur_dir,
+	obj_2d_def *def)
+{
+	char name[256], value[256];
+	const char *cp, *cp_end;
+	Uint32 i;
 
-obj_2d_def * load_obj_2d_def(char *file_name)
+	int file_x_len = -1, file_y_len = -1;
+	int u_start = -1, u_end = -1, v_start = -1, v_end = -1;
+
+	def->x_size = def->y_size = def->alpha_test = -1;
+
+	cp = desc;
+	cp_end = cp + len;
+	while (1)
+	{
+		// skip whitespace
+		while (cp < cp_end && isspace(*cp))
+			cp++;
+		if (cp >= cp_end) break;
+
+		// copy the key
+		i = 0;
+		while (cp < cp_end && i < sizeof(name)-1 && !isspace(*cp) && *cp != ':' && *cp != '=')
+			name[i++] = *cp++;
+		name[i] = '\0';
+		if (cp >= cp_end) break;
+
+		// skip separators
+		while (cp < cp_end && (isspace(*cp) || *cp == ':' || *cp == '='))
+		{
+			if (*cp == '\n')
+				break;
+			cp++;
+		}
+		if (cp >= cp_end) break;
+		if (*cp == '\n') continue; // no value
+
+		// copy value
+		i = 0;
+		while (cp < cp_end && i < sizeof(value)-1 && !isspace(*cp))
+			value[i++] = *cp++;
+		value[i] = '\0';
+
+		if (!strcasecmp(name, "file_x_len"))
+			file_x_len = atoi(value);
+		else if (!strcasecmp(name, "file_y_len"))
+			file_y_len = atoi(value);
+		else if (!strcasecmp(name, "u_start"))
+			u_start = atoi(value);
+		else if (!strcasecmp(name, "u_end"))
+			u_end = atoi(value);
+		else if (!strcasecmp(name, "v_start"))
+			v_start = atoi(value);
+		else if (!strcasecmp(name, "v_end"))
+			v_end = atoi(value);
+		else if (!strcasecmp(name, "x_size"))
+			def->x_size = atof(value);
+		else if (!strcasecmp(name, "y_size"))
+			def->y_size = atof(value);
+		else if (!strcasecmp(name, "alpha_test"))
+			def->alpha_test = atof(value);
+		else if (!strcasecmp(name, "texture"))
+		{
+			char texture_file_name[256];
+			safe_snprintf(texture_file_name, sizeof(texture_file_name),
+				"%s/%s", cur_dir, value);
+#ifdef	NEW_TEXTURES
+			def->texture_id = load_texture_cached(texture_file_name, tt_mesh);
+#else	/* NEW_TEXTURES */
+			def->texture_id = load_texture_cache_deferred(texture_file_name, 0);
+#endif	/* NEW_TEXTURES */
+		}
+		else if (!strcmp(name, "type"))
+		{
+			switch (*value)
+			{
+				case 'g':
+				case 'G': def->object_type = GROUND; break;
+				case 'p':
+				case 'P': def->object_type = PLANT; break;
+				case 'f':
+				case 'F': def->object_type = FENCE; break;
+				default:  def->object_type = INVALID;
+			}
+		}
+	}
+
+	def->u_start = (float)u_start/file_x_len;
+	def->u_end = (float)u_end/file_x_len;
+	def->v_start = 1.0f - (float)v_start/file_y_len;
+	def->v_end = 1.0f - (float)v_end/file_y_len;
+	if (def->alpha_test < 0)
+		def->alpha_test = 0;
+}
+
+static obj_2d_def* load_obj_2d_def(const char *file_name)
+{
+	int f_size;
+	el_file_ptr file = NULL;
+	char cur_dir[200]={0};
+	obj_2d_def *cur_object;
+	const char *obj_file_mem;
+	const char* sep;
+
+	sep = strrchr(file_name, '/');
+	if (!sep || sep == file_name)
+		*cur_dir = '\0';
+	else
+		my_strncp(cur_dir, file_name, sep-file_name+1);
+
+	file = el_open(file_name);
+	if (!file)
+	{
+		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, file_name);
+		return NULL;
+	}
+
+	obj_file_mem = el_get_pointer(file);
+	if (!obj_file_mem)
+	{
+		LOG_ERROR("%s: %s (read)\"%s\"\n", reg_error_str, cant_open_file, file_name);
+		el_close(file);
+		return NULL;
+	}
+	f_size = el_get_size(file);
+
+	//ok, the file is loaded, so parse it
+	cur_object=calloc(1, sizeof(obj_2d_def));
+	my_strncp(cur_object->file_name, file_name,
+		sizeof(cur_object->file_name));
+	parse_2d0(obj_file_mem, f_size, cur_dir, cur_object);
+
+	el_close(file);
+
+	return cur_object;
+}
+#else  // FASTER_MAP_LOAD
+static obj_2d_def* load_obj_2d_def(const char *file_name)
 {
 	int f_size;
 	int i,k,l;
@@ -331,11 +476,55 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 
 	return cur_object;
 }
+#endif // FASTER_MAP_LOAD
+
+#ifdef FASTER_MAP_LOAD
+static int cache_cmp_string(const void* str, const void *dptr)
+{
+	const obj_2d_def *def = *((const obj_2d_def**)dptr);
+	return strcmp(str, def->file_name);
+}
 
 //Tests to see if an obj_2d object is already loaded.
 //If it is, return the handle.
 //If not, load it, and return the handle
-obj_2d_def * load_obj_2d_def_cache(char * file_name)
+static obj_2d_def* load_obj_2d_def_cache(const char* file_name)
+{
+	obj_2d_def *def, **defp;
+	int i;
+
+	defp = bsearch(file_name, obj_2d_def_cache,
+		obj_2d_cache_used, sizeof(obj_2d_def*),
+		cache_cmp_string);
+	if (defp)
+		return *defp;
+
+	//asc not found in the cache, so load it ...
+	def = load_obj_2d_def(file_name);
+
+	// ... and store it
+	if (obj_2d_cache_used < MAX_OBJ_2D_DEF)
+	{
+		for (i = 0; i < obj_2d_cache_used; i++)
+		{
+			if (strcmp(file_name, obj_2d_def_cache[i]->file_name) <= 0)
+			{
+				memmove(obj_2d_def_cache+(i+1), obj_2d_def_cache+i,
+					(obj_2d_cache_used-i)*sizeof(obj_2d_def*));
+				break;
+			}
+		}
+		obj_2d_def_cache[i] = def;
+		obj_2d_cache_used++;
+	}
+
+	return def;
+}
+#else  // FASTER_MAP_LOAD
+//Tests to see if an obj_2d object is already loaded.
+//If it is, return the handle.
+//If not, load it, and return the handle
+static obj_2d_def* load_obj_2d_def_cache(const char * file_name)
 {
 	int i;
 	obj_2d_def * obj_2d_def_id;
@@ -376,6 +565,7 @@ obj_2d_def * load_obj_2d_def_cache(char * file_name)
 
 	return obj_2d_def_id;
 }
+#endif // FASTER_MAP_LOAD
 
 #ifdef CLUSTER_INSIDES
 int get_2d_bbox (int id, AABBOX* box)
@@ -395,7 +585,7 @@ int get_2d_bbox (int id, AABBOX* box)
 
 	len_x = def->x_size;
 	len_y = def->y_size;
-	
+
 	box->bbmin[X] = -len_x*0.5f;
 	box->bbmax[X] =  len_x*0.5f;
 	if (def->object_type == GROUND)
@@ -424,6 +614,130 @@ int get_2d_bbox (int id, AABBOX* box)
 }
 #endif // CLUSTER_INSIDES
 
+#ifdef FASTER_MAP_LOAD
+int add_2d_obj(int id_hint, const char* file_name,
+	float x_pos, float y_pos, float z_pos,
+	float x_rot, float y_rot, float z_rot, unsigned int dynamic)
+{
+	int id;
+	char fname[128];
+	obj_2d_def *returned_obj_2d_def;
+	obj_2d *our_object;
+#ifndef CLUSTER_INSIDES
+	float len_x, len_y;
+#endif
+	unsigned int alpha_test, texture_id;
+	AABBOX bbox;
+
+	id = id_hint;
+	if (obj_2d_list[id])
+	{
+		// occupied, find a free spot in the obj_2d_list
+		for(id = 0; id < MAX_OBJ_2D; id++)
+		{
+			if(!obj_2d_list[id])
+				break;
+		}
+		if (id >= MAX_OBJ_2D)
+		{
+			LOG_ERROR("2D object list is full");
+			return -1;
+		}
+	}
+
+	// convert filename to lower case and replace any '\' by '/'
+	clean_file_name(fname, file_name, sizeof(fname));
+
+	returned_obj_2d_def = load_obj_2d_def_cache(fname);
+	if(!returned_obj_2d_def)
+	{
+		LOG_ERROR ("%s: %s: %s", reg_error_str, cant_load_2d_object, fname);
+		return -1;
+	}
+
+	our_object = calloc(1, sizeof(obj_2d));
+	our_object->x_pos = x_pos;
+	our_object->y_pos = y_pos;
+	our_object->z_pos = z_pos;
+	our_object->x_rot = x_rot;
+	our_object->y_rot = y_rot;
+	our_object->z_rot = z_rot;
+	our_object->obj_pointer = returned_obj_2d_def;
+	our_object->display = 1;
+	our_object->state = 0;
+
+	obj_2d_list[id] = our_object;
+
+#ifdef CLUSTER_INSIDES
+	if (returned_obj_2d_def->object_type == PLANT)
+	{
+		x_rot += 90.0f;
+		z_rot = 0.0f;
+	}
+	else if (returned_obj_2d_def->object_type == FENCE)
+	{
+		x_rot += 90.0f;
+	}
+	calc_rotation_and_translation_matrix(our_object->matrix, x_pos, y_pos, 0.0f, x_rot, y_rot, z_rot);
+
+	our_object->cluster = get_cluster((int)(x_pos/0.5f), (int)(y_pos/0.5f));
+	current_cluster = our_object->cluster;
+#else
+	len_x = (returned_obj_2d_def->x_size);
+	len_y = (returned_obj_2d_def->y_size);
+	bbox.bbmin[X] = -len_x*0.5f;
+	bbox.bbmax[X] = len_x*0.5f;
+	if (returned_obj_2d_def->object_type == GROUND)
+	{
+		bbox.bbmin[Y] = -len_y*0.5f;
+		bbox.bbmax[Y] = len_y*0.5f;
+	}
+	else
+	{
+		bbox.bbmin[Y] = 0.0f;
+		bbox.bbmax[Y] = len_y;
+		if (returned_obj_2d_def->object_type == PLANT)
+		{
+			x_rot += 90.0f;
+			z_rot = 0.0f;
+			bbox.bbmin[X] *= M_SQRT2;
+			bbox.bbmax[X] *= M_SQRT2;
+			bbox.bbmin[Y] *= M_SQRT2;
+			bbox.bbmax[Y] *= M_SQRT2;
+		}
+		else if (returned_obj_2d_def->object_type == FENCE)
+		{
+			x_rot += 90.0f;
+		}
+	}
+	bbox.bbmin[Z] = z_pos;
+	bbox.bbmax[Z] = z_pos;
+
+	calc_rotation_and_translation_matrix(our_object->matrix, x_pos, y_pos, 0.0f, x_rot, y_rot, z_rot);
+	matrix_mul_aabb(&bbox, our_object->matrix);
+#endif // CLUSTER_INSIDES
+
+	alpha_test = returned_obj_2d_def->alpha_test ? 1 : 0;
+	texture_id = returned_obj_2d_def->texture_id;
+
+#ifdef CLUSTER_INSIDES
+	if (get_2d_bbox(id, &bbox))
+	{
+		if (main_bbox_tree_items != NULL && dynamic == 0)
+			add_2dobject_to_list(main_bbox_tree_items, id, bbox, alpha_test, texture_id);
+		else
+			add_2dobject_to_abt(main_bbox_tree, id, bbox, alpha_test, texture_id, dynamic);
+	}
+#else
+	if (main_bbox_tree_items != NULL && dynamic == 0)
+		add_2dobject_to_list(main_bbox_tree_items, id, bbox, alpha_test, texture_id);
+	else
+		add_2dobject_to_abt(main_bbox_tree, id, bbox, alpha_test, texture_id, dynamic);
+#endif // CLUSTER_INSIDES
+
+	return id;
+}
+#else  // FASTER_MAP_LOAD
 int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 			   float x_rot, float y_rot, float z_rot, unsigned int dynamic)
 {
@@ -534,9 +848,10 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 	
 	return i;
 }
+#endif // FASTER_MAP_LOAD
 
 #ifdef NEW_SOUND
-char * get_2dobject_at_location(float x_pos, float y_pos)
+const char* get_2dobject_at_location(float x_pos, float y_pos)
 {
 	int i;
 	float offset = 0.5f;
@@ -547,7 +862,11 @@ char * get_2dobject_at_location(float x_pos, float y_pos)
 			&& obj_2d_list[i]->y_pos > (y_pos - offset) && obj_2d_list[i]->y_pos < (y_pos + offset)
 			&& obj_2d_list[i]->display && obj_2d_list[i]->obj_pointer->object_type == GROUND)
 		{
+#ifdef FASTER_MAP_LOAD
+			return obj_2d_list[i]->obj_pointer->file_name;
+#else
 			return obj_2d_list[i]->file_name;
+#endif
 		}
 	}
 	return "";
@@ -703,8 +1022,8 @@ CHECK_GL_ERRORS();
 
 void destroy_2d_object(int i)
 {
-	if ((i < 0) || (i >= MAX_OBJ_2D)) return;
-	if (obj_2d_list[i] == NULL) return;
+	if (i < 0 || i >= MAX_OBJ_2D || !obj_2d_list[i])
+		return;
 	delete_2dobject_from_abt(main_bbox_tree, i, obj_2d_list[i]->obj_pointer->alpha_test);
 	free(obj_2d_list[i]);
 	obj_2d_list[i] = NULL;

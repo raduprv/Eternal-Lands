@@ -658,10 +658,12 @@ void init_e3d_cache()
 	cache_set_size_limit(cache_e3d, 8*1024*1024);
 }
 
+#ifndef FASTER_MAP_LOAD
 void init_2d_obj_cache()
 {
 	memset(obj_2d_def_cache, 0, sizeof(obj_2d_def_cache));
 }
+#endif
 
 void init_stuff()
 {
@@ -742,7 +744,9 @@ void init_stuff()
 	cache_system_init(MAX_CACHE_SYSTEM);
 	init_texture_cache();
 	init_e3d_cache();
+#ifndef FASTER_MAP_LOAD
 	init_2d_obj_cache();
+#endif
 	//now load the font textures
 	load_font_textures ();
 	CHECK_GL_ERRORS();

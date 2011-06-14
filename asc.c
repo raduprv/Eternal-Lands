@@ -67,6 +67,7 @@ Sint32 get_string_occurance (const char* needle, const char* haystack, const Uin
 	return -1;
 }
 
+#ifndef FASTER_MAP_LOAD
 // This function returns an integer, after the needle in the haystack 
 // string. If the string is not found, after max_len, the function returns -1.
 // The function is NOT case sensitive
@@ -138,6 +139,7 @@ float get_float_after_string (const char *needle, const char *haystack, Uint32 m
 	// no number after needle
 	return -1.0f;
 }
+#endif // FASTER_MAP_LOAD
 
 char* safe_strncpy(char *dest, const char * source, const size_t len)
 {
