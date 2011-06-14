@@ -963,5 +963,7 @@ char *el_fgets(char *str, int size, el_file_ptr file)
 	}
 	*dp = '\0';
 
+	file->position = sp - (const char*)file->buffer;
+
 	return str;
 }
