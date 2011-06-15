@@ -26,7 +26,7 @@
 #endif /* FSAA */
 
 int use_3d_alpha_blend= 1;
-#ifndef FASTER_MAP_LOADING
+#ifndef FASTER_MAP_LOAD
 static int objects_list_placeholders = 0;
 #endif
 object3d *objects_list[MAX_OBJ_3D];
@@ -43,7 +43,7 @@ int e3d_count, e3d_total;
 
 static int next_obj_3d = 0;
 
-#ifdef FASTER_MAP_LOADING
+#ifdef FASTER_MAP_LOAD
 void inc_objects_list_placeholders()
 {
 	next_obj_3d++;
@@ -67,7 +67,7 @@ static __inline__ void build_clouds_planes(object3d* obj)
 	w = -obj->z_rot * M_PI / 180.0f;
 	cos_w = cos(w);
 	sin_w = sin(w);
-	
+
 	obj->clouds_planes[0][0] = cos_w / texture_scale;
 	obj->clouds_planes[0][1] = sin_w / texture_scale;
 	obj->clouds_planes[0][2] = 1.0f / texture_scale;
@@ -617,11 +617,11 @@ int add_e3d(const char* file_name, float x_pos, float y_pos, float z_pos,
 	float r, float g, float b, unsigned int dynamic)
 {
 	int i;
-#ifndef FASTER_MAP_LOADING
+#ifndef FASTER_MAP_LOAD
 	int j = 0;
 #endif
 
-#ifdef FASTER_MAP_LOADING
+#ifdef FASTER_MAP_LOAD
 	if (next_obj_3d < MAX_OBJ_3D && !objects_list[next_obj_3d])
 		return add_e3d_at_id(next_obj_3d, file_name, x_pos, y_pos, z_pos,
 			x_rot, y_rot, z_rot, self_lit, blended,
@@ -630,11 +630,11 @@ int add_e3d(const char* file_name, float x_pos, float y_pos, float z_pos,
 	// Oh my, next_obj_3d is not free. Find a free spot in the e3d_list,
 	// but don't count on IDs being correct.
 #endif
-	for(i = 0; i < MAX_OBJ_3D; i++)
+	for (i = 0; i < MAX_OBJ_3D; i++)
 	{
 		if (!objects_list[i])
 		{
-#ifndef FASTER_MAP_LOADING
+#ifndef FASTER_MAP_LOAD
 			if (j < objects_list_placeholders)
 				j++;
 			else
