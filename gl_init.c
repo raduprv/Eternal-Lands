@@ -194,6 +194,21 @@ void check_gl_mode()
 	}
 	SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 8);
 
+#ifdef	FSAA
+	if (fsaa > 1)
+	{
+		if (!SDL_VideoModeOK(window_width, window_height, bpp, flags))
+		{
+			safe_snprintf(str, sizeof(str), "Can't use fsaa mode x%d, disabling it.", fsaa);
+			LOG_TO_CONSOLE(c_yellow1, str);
+			LOG_WARNING("%s\n", str);
+			SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
+			SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
+			fsaa = 0;
+		}
+	}
+#endif	/* FSAA */
+
 	//now, test if the video mode is OK...
 	if(!SDL_VideoModeOK(window_width, window_height, bpp, flags))
 		{
@@ -238,8 +253,6 @@ void check_gl_mode()
 void init_video()
 {
 	int rgb_size[3];
-	int use_fsaa;
-	char str[256];
 
 	setup_video_mode(full_screen, video_mode);
 
@@ -448,22 +461,6 @@ void init_video()
 		glDisable(GL_POLYGON_SMOOTH);
 	}
 #endif
-
-#ifdef	FSAA
-	if (fsaa > 1)
-	{
-		SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &use_fsaa);
-		if (use_fsaa != fsaa)
-		{
-			safe_snprintf(str, sizeof(str), "Can't use fsaa mode x%d, using x%d.",
-				fsaa, use_fsaa);
-			LOG_TO_CONSOLE(c_yellow1, str);
-			LOG_WARNING("%s\n", str);
-			fsaa = use_fsaa;
-		}
-	}
-#endif	/* FSAA */
-
 	SDL_EnableKeyRepeat(200, 100);
 	SDL_EnableUNICODE(1);
 	build_video_mode_array();
