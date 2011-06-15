@@ -288,7 +288,7 @@ void drag_item(int item, int storage, int mini)
 	if(mini)
 		draw_2d_thing(u_start,v_start,u_end,v_end,mouse_x-16,mouse_y-16,mouse_x+16,mouse_y+16);
 	else
-		draw_2d_thing(u_start,v_start,u_end,v_end,mouse_x-25,mouse_y-25,mouse_x+25,mouse_y+25);
+		draw_2d_thing(u_start,v_start,u_end,v_end,mouse_x-25,mouse_y-25,mouse_x+24,mouse_y+24);
 	glEnd();
 	
 	if(!mini && quantity!=-1){
@@ -560,7 +560,7 @@ int display_items_handler(window_info *win)
 				x_end=x_start+items_grid_size-1;
 				y_start=items_grid_size*(cur_pos/6);
 				y_end=y_start+items_grid_size-1;
-				draw_item(item_list[i].image_id,x_start,y_start,items_grid_size);
+				draw_item(item_list[i].image_id,x_start,y_start,items_grid_size - 1);
 			}
 
 
