@@ -19,46 +19,51 @@ https://help.ubuntu.com/community/GnuPrivacyGuardHowto
 Now we're ready:
 
 Set the version number
-	
-	elver="1.9.1"
+
+	elver="1.9.2"
 	packagename="eternallands"
 
-Checkout a clean version of the client
+Checkout or update the client
 
-	cvs -d:pserver:anonymous@cvs.elc.berlios.de:/cvsroot/elc login 
+	git clone git://git.berlios.de/elc
 
-	cvs -z3 -d:pserver:anonymous@cvs.elc.berlios.de:/cvsroot/elc co elc
-	
+	git pull
+
 Make an original source tar ball:
 
 	cd elc
 	bash pkgfiles/maketarball ${packagename} ${elver}
+
 	cd ..
-	
+
 Setup a temp directory for the build:
-	
-	tmpdir=$( mktemp -d)
+
+	tmpdir=${packagename}-${elver}-$(date +"%s")
+	mkdir $tmpdir
 	mv ${packagename}-${elver}.tar.gz $tmpdir
 	mv ${packagename}-debian-${elver}.tar.gz $tmpdir
 	cd $tmpdir
 
 Unpack the tarball then rename it as the original:
-	
+
 	tar xfz ${packagename}-${elver}.tar.gz
 	mv ${packagename}-${elver}.tar.gz ${packagename}_${elver}.orig.tar.gz
-	
+
 Move into package directory:
 
 	cd ${packagename}-${elver}/
 
 Unpack the debian files
+
 	tar xfz ../${packagename}-debian-${elver}.tar.gz
-	[ "$packagename" != "eternallands" ] && mv debian/eternallands.install debian/${packagename}.install
-	
+
 Make any modifications required then update the changelog:
 
-	dch -i
-	
+	sed -i s/^PLATFORM=/#PLATFORM/g make.defaults
+
+	dch -e
+
 Build the package:
 
 	debuild
+	debuild -S -sa
