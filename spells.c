@@ -405,23 +405,25 @@ int init_spells ()
 
 			data = get_XML_node(node->children, "duration");
 
-			if (data == 0)
+			if (data != 0)
 			{
-				LOG_ERROR("No duration for spell '%s'[%d]",
-					name, i);
+				spells_list[i].duration = get_int_value(data);
 			}
-
-			spells_list[i].duration = get_int_value(data);
+			else
+			{
+				spells_list[i].duration = 0;
+			}
 
 			data = get_XML_node(node->children, "buff");
 
-			if (data == 0)
+			if (data != 0)
 			{
-				LOG_ERROR("No buff for spell '%s'[%d]",
-					name, i);
+				spells_list[i].buff = get_int_value(data);
 			}
-
-			spells_list[i].buff = get_int_value(data);
+			else
+			{
+				spells_list[i].buff = 0;
+			}
 
 			node = get_XML_node(node->next, "spell");			
 			i++;

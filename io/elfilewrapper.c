@@ -751,6 +751,8 @@ static el_file_ptr file_open(const char* file_name, const char* extra_path)
 		return xz_gz_file_open(str);
 	}
 
+	LOG_ERROR("Can't open file '%s'.", file_name);
+
 	return NULL;
 }
 

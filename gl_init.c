@@ -194,6 +194,21 @@ void check_gl_mode()
 	}
 	SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 8);
 
+#ifdef	FSAA
+	if (fsaa > 1)
+	{
+		if (!SDL_VideoModeOK(window_width, window_height, bpp, flags))
+		{
+			safe_snprintf(str, sizeof(str), "Can't use fsaa mode x%d, disabling it.", fsaa);
+			LOG_TO_CONSOLE(c_yellow1, str);
+			LOG_WARNING("%s\n", str);
+			SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
+			SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
+			fsaa = 0;
+		}
+	}
+#endif	/* FSAA */
+
 	//now, test if the video mode is OK...
 	if(!SDL_VideoModeOK(window_width, window_height, bpp, flags))
 		{
@@ -237,8 +252,8 @@ void check_gl_mode()
 
 void init_video()
 {
+	char str[400];
 	int rgb_size[3];
-
 
 	setup_video_mode(full_screen, video_mode);
 
@@ -313,6 +328,21 @@ void init_video()
 
 	SDL_WM_SetIcon(SDL_LoadBMP("icon.bmp"), NULL);
 	/* Set the window manager title bar */
+
+#ifdef	FSAA
+	if (fsaa > 1)
+	{
+		if (!SDL_SetVideoMode(window_width, window_height, bpp, flags))
+		{
+			safe_snprintf(str, sizeof(str), "Can't use fsaa mode x%d, disabling it.", fsaa);
+			LOG_TO_CONSOLE(c_yellow1, str);
+			LOG_WARNING("%s\n", str);
+			SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
+			SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
+			fsaa = 0;
+		}
+	}
+#endif	/* FSAA */
 
 	//try to find a stencil buffer (it doesn't always work on Linux)
 	if(!SDL_SetVideoMode(window_width, window_height, bpp, flags))
@@ -447,7 +477,6 @@ void init_video()
 		glDisable(GL_POLYGON_SMOOTH);
 	}
 #endif
-
 	SDL_EnableKeyRepeat(200, 100);
 	SDL_EnableUNICODE(1);
 	build_video_mode_array();

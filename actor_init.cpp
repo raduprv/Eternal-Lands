@@ -93,14 +93,21 @@ static inline GLuint load_vertex_program(const std::string &name)
 	std::stringstream s2;
 	size_t pos;
 
-	ELglGenProgramsARB(1, &id);
-	ELglBindProgramARB(GL_VERTEX_PROGRAM_ARB, id);
-
 	file = el_open(name.c_str());
+
+	if ((el_get_pointer(file) == 0) || (el_get_size(file) == 0))
+	{
+		use_animation_program = 0;
+
+		return 0;
+	}
 
 	str = std::string(reinterpret_cast<char*>(el_get_pointer(file)), el_get_size(file));
 
 	el_close(file);
+
+	ELglGenProgramsARB(1, &id);
+	ELglBindProgramARB(GL_VERTEX_PROGRAM_ARB, id);
 
 	s1 << (max_bones_per_mesh * 3);
 	pos = str.find("%d");
@@ -114,7 +121,10 @@ static inline GLuint load_vertex_program(const std::string &name)
 	pos = str.find("%d");
 	if (pos == str.npos)
 	{
+		use_animation_program = 0;
+
 		LOG_ERROR("File '%s' is invalid.", name.c_str());
+
 		return 0;
 	}
 	str.replace(pos, 2, s2.str());
@@ -124,6 +134,10 @@ static inline GLuint load_vertex_program(const std::string &name)
 
 	if (glGetError() != GL_NO_ERROR)
 	{
+		use_animation_program = 0;
+
+		LOG_ERROR("GL error at actor animation program");
+
 		return 0;
 	}
 
@@ -132,6 +146,10 @@ static inline GLuint load_vertex_program(const std::string &name)
 
 	if (support != GL_TRUE)
 	{
+		use_animation_program = 0;
+
+		LOG_ERROR("Actor animation program not supported by OpenGL");
+
 		return 0;
 	}
 
@@ -384,7 +402,16 @@ extern "C" int load_vertex_programs()
 	vertex_program_ids[3] = load_vertex_program("shaders/anim_ghost.vert");
 	vertex_program_ids[4] = load_vertex_program("shaders/anim_ghost_shadow.vert");
 
-	return 1;
+	if ((vertex_program_ids[0] == 0) || (vertex_program_ids[1] == 0) ||
+		(vertex_program_ids[2] == 0) || (vertex_program_ids[3] == 0) ||
+		(vertex_program_ids[4] == 0))
+	{
+		return 0;
+	}
+	else
+	{
+		return 1;
+	}
 }
 
 extern "C" void cal_render_actor_shader(actor *act, Uint32 use_lightning, Uint32 use_textures, Uint32 use_glow)
