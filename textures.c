@@ -36,18 +36,21 @@
 #define ACTOR_TEXTURE_CACHE_MAX 256
 #define ACTOR_TEXTURE_THREAD_COUNT 2
 
-actor_texture_cache_t* actor_texture_handles = 0;
+actor_texture_cache_t* actor_texture_handles = NULL;
 SDL_Thread* actor_texture_threads[ACTOR_TEXTURE_THREAD_COUNT];
 Uint32 max_actor_texture_handles = 32;
-queue_t* actor_texture_queue = 0;
+queue_t* actor_texture_queue = NULL;
 Uint32 actor_texture_threads_done = 0;
 #endif	/* ELC */
 
 #define TEXTURE_CACHE_MAX 8192
 
-texture_cache_t* texture_handles = 0;
-cache_struct* texture_cache = 0;
-Uint32 texture_handles_max_handle = 0;
+static texture_cache_t* texture_handles = NULL;
+static cache_struct* texture_cache = NULL;
+static Uint32 texture_handles_used = 0;
+#ifdef FASTER_MAP_LOAD
+static Uint32 texture_cache_sorted[TEXTURE_CACHE_MAX];
+#endif
 
 Uint32 compact_texture(texture_cache_t* texture)
 {
@@ -376,19 +379,90 @@ static GLuint build_texture(image_t* image, const Uint32 wrap_mode_repeat,
 	return id;
 }
 
+#ifdef FASTER_MAP_LOAD
+typedef struct
+{
+	Uint32 hash;
+	char file_name[128];
+} cache_identifier_t;
+
+int cache_cmp_identifier(const void *idfp, const void *idxp)
+{
+	const cache_identifier_t *idf = idfp;
+	Uint32 idx = *((const Uint32*)idxp);
+	if (idf->hash < texture_handles[idx].hash)
+		return -1;
+	if (idf->hash > texture_handles[idx].hash)
+		return 1;
+	return strcasecmp(idf->file_name, texture_handles[idx].file_name);
+}
+
+Uint32 load_texture_cached(const char* file_name, const texture_type type)
+{
+	cache_identifier_t idf;
+	Uint32 i, len;
+	Uint32 *idxp, idx;
+
+	len = get_file_name_len(file_name);
+	idf.hash = mem_hash(file_name, len);
+	safe_strncpy2(idf.file_name, file_name, sizeof(idf.file_name), len);
+
+	idxp = bsearch(&idf, texture_cache_sorted, texture_handles_used,
+		sizeof(Uint32), cache_cmp_identifier);
+	if (idxp)
+		return *idxp;
+
+	if (texture_handles_used < TEXTURE_CACHE_MAX)
+	{
+		Uint32 slot = texture_handles_used;
+		for (i = 0; i < texture_handles_used; i++)
+		{
+			idx = texture_cache_sorted[i];
+			if (idf.hash < texture_handles[idx].hash
+				|| (idf.hash == texture_handles[idx].hash
+					&& strcasecmp(idf.file_name, texture_handles[idx].file_name) <= 0))
+			{
+				memmove(texture_cache_sorted+(i+1), texture_cache_sorted+i,
+					(texture_handles_used-i)*sizeof(Uint32));
+				break;
+			}
+		}
+
+		texture_cache_sorted[i] = slot;
+
+		safe_strncpy(texture_handles[slot].file_name, idf.file_name,
+			sizeof(texture_handles[slot].file_name));
+		texture_handles[slot].hash = idf.hash;
+		texture_handles[slot].type = type;
+		texture_handles[slot].id = 0;
+		texture_handles[slot].cache_ptr = cache_add_item(texture_cache,
+			texture_handles[slot].file_name,
+			&texture_handles[slot], 0);
+
+		texture_handles_used++;
+
+		return slot;
+	}
+	else
+	{
+		LOG_ERROR("Error: out of texture space\n");
+		return TEXTURE_CACHE_MAX;	// ERROR!
+	}
+}
+#else  // FASTER_MAP_LOAD
 Uint32 load_texture_cached(const char* file_name, const texture_type type)
 {
 	char buffer[128];
 	Uint32 i, handle, len, hash;
 
-	handle = texture_handles_max_handle;
+	handle = texture_handles_used;
 
 	len = get_file_name_len(file_name);
 	hash = mem_hash(file_name, len);
 
 	safe_strncpy2(buffer, file_name, sizeof(buffer), len);
 
-	for (i = 0; i < texture_handles_max_handle; i++)
+	for (i = 0; i < texture_handles_used; i++)
 	{
 		if (texture_handles[i].file_name[0] != 0)
 		{
@@ -405,7 +479,7 @@ Uint32 load_texture_cached(const char* file_name, const texture_type type)
 		else
 		{
 			// remember the first open slot we have
-			if (handle == texture_handles_max_handle)
+			if (handle == texture_handles_used)
 			{
 				handle = i;
 			}
@@ -425,7 +499,7 @@ Uint32 load_texture_cached(const char* file_name, const texture_type type)
 			texture_handles[handle].file_name,
 			&texture_handles[handle], 0);
 
-		texture_handles_max_handle++;
+		texture_handles_used++;
 
 		return handle;
 	}
@@ -436,6 +510,7 @@ Uint32 load_texture_cached(const char* file_name, const texture_type type)
 		return TEXTURE_CACHE_MAX;	// ERROR!
 	}
 }
+#endif // FASTER_MAP_LOAD
 
 static Uint32 get_supported_compression_formats()
 {
@@ -551,10 +626,10 @@ static Uint32 load_texture(texture_cache_t* texture_handle)
 
 static Uint32 load_texture_handle(const Uint32 handle)
 {
-	if (handle >= texture_handles_max_handle)
+	if (handle >= texture_handles_used)
 	{
 		LOG_ERROR("handle: %i, max_handle: %i\n", handle,
-			texture_handles_max_handle);
+			texture_handles_used);
 
 		return 0;
 	}
@@ -583,10 +658,10 @@ static Uint32 load_texture_handle(const Uint32 handle)
 
 static GLuint get_texture_id(const Uint32 handle)
 {
-	if (handle >= texture_handles_max_handle)
+	if (handle >= texture_handles_used)
 	{
 		LOG_ERROR("handle: %i, max_handle: %i\n", handle,
-			texture_handles_max_handle);
+			texture_handles_used);
 
 		return 0;
 	}
@@ -606,10 +681,10 @@ static GLuint get_texture_id(const Uint32 handle)
 
 Uint32 get_texture_alpha(const Uint32 handle)
 {
-	if (handle >= texture_handles_max_handle)
+	if (handle >= texture_handles_used)
 	{
 		LOG_ERROR("handle: %i, max_handle: %i\n", handle,
-			texture_handles_max_handle);
+			texture_handles_used);
 
 		return 0;
 	}
@@ -624,10 +699,10 @@ Uint32 get_texture_alpha(const Uint32 handle)
 
 void bind_texture(const Uint32 handle)
 {
-	if (handle >= texture_handles_max_handle)
+	if (handle >= texture_handles_used)
 	{
 		LOG_ERROR("handle: %i, max_handle: %i\n", handle,
-			texture_handles_max_handle);
+			texture_handles_used);
 
 		return;
 	}
@@ -637,10 +712,10 @@ void bind_texture(const Uint32 handle)
 
 void bind_texture_unbuffered(const Uint32 handle)
 {
-	if (handle >= texture_handles_max_handle)
+	if (handle >= texture_handles_used)
 	{
 		LOG_ERROR("handle: %i, max_handle: %i\n", handle,
-			texture_handles_max_handle);
+			texture_handles_used);
 
 		return;
 	}
@@ -1905,7 +1980,7 @@ void use_ready_actor_texture(const Uint32 handle)
 	if (handle >= ACTOR_TEXTURE_CACHE_MAX)
 	{
 		LOG_ERROR("handle: %i, max_handle: %i\n", handle,
-			texture_handles_max_handle);
+			ACTOR_TEXTURE_CACHE_MAX);
 
 		return;
 	}
@@ -2199,7 +2274,7 @@ void free_texture_cache()
 	free(actor_texture_handles);
 #endif	/* ELC */
 
-	for (i = 0; i < texture_handles_max_handle; i++)
+	for (i = 0; i < texture_handles_used; i++)
 	{
 		if (texture_handles[i].id != 0)
 		{
@@ -2216,7 +2291,7 @@ void unload_texture_cache()
 {
 	Uint32 i;
 
-	for (i = 0; i < texture_handles_max_handle; i++)
+	for (i = 0; i < texture_handles_used; i++)
 	{
 		if (texture_handles[i].id != 0)
 		{
