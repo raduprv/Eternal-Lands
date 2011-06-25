@@ -187,11 +187,6 @@ typedef struct
 	int user_menu_win_x;
 	int user_menu_win_y;
     /*! @} */
-    
-	//!!!!!!!If you add any new FLOAT option, decrement the reserved thingy accordingly!!!!!!
-#define NUM_RESERVED 2
-
-
 
 	/*!
 	 * \name do spells start minimized?
@@ -199,13 +194,19 @@ typedef struct
 	/*! @{ */
 	int start_mini_spells;
 	/*! @} */
+
 	int emotes_menu_x;
 	int emotes_menu_y;
 	int watch_this_stats[5];
 	unsigned int floating_counter_flags;
-	unsigned int questlog_flags; // no need to complicate NUM_RESERVED by using #ifdef NEW_QUESTLOG
-
-	float freserved[NUM_RESERVED];
+	unsigned int questlog_flags;
+   
+   /*!
+     * \name Ranging window loc
+     */    /*! @{ */
+	int ranging_win_x;
+	int ranging_win_y;
+    /*! @} */
 }bin_cfg;
 
 extern int auto_update; /*!<this flags signals whether or not autoupdates are performed at startup, or not. It requires a restart to have an effect. */

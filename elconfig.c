@@ -39,6 +39,7 @@
  #include "manufacture.h"
  #include "map.h"
  #include "mapwin.h"
+ #include "missiles.h"
  #include "multiplayer.h"
  #include "new_character.h"
  #include "openingwin.h"
@@ -1110,7 +1111,7 @@ void change_windows_on_top(int *var)
 {
 	int winid_list[] = { storage_win, manufacture_win, items_win, buddy_win, ground_items_win,
 						 sigil_win, elconfig_win, tab_stats_win, tab_info_win,
-						 minimap_win, questlog_win, trade_win };
+						 minimap_win, questlog_win, trade_win, range_win };
 	int i;
 
 	*var=!*var;

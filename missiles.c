@@ -4,15 +4,19 @@
 #include "cal.h"
 #include "cal3d_wrapper.h"
 #include "e3d.h"
+#include "elwindows.h"
 #include "errors.h"
 #include "eye_candy_wrapper.h"
+#include "gamewin.h"
 #include "gl_init.h"
 #include "global.h"
 #include "init.h"
 #include "missiles.h"
 #include "skeletons.h"
 #include "stats.h"
+#include "session.h"
 #include "tiles.h"
+#include "translate.h"
 #include "vmath.h"
 
 #include <math.h>
@@ -43,6 +47,10 @@ lost_missile lost_missiles_list[MAX_LOST_MISSILES];
 int missiles_count = 0;
 int begin_lost_missiles = -1;
 int end_lost_missiles = -1;
+
+int range_total_shots = 0;
+int range_success_hits = 0;
+int range_critical_hits = 0;
 
 #ifdef MISSILES_DEBUG
 FILE *missiles_log = NULL;
@@ -454,10 +462,25 @@ int missiles_fire_arrow(actor *a, float target[3], MissileShotType shot_type)
         
 /* 	if (shot_type != MISSED_SHOT) */
 	mis_id = missiles_add(mis_type_id, origin, target, 0.0, shot_type);
-	if (shot_type == MISSED_SHOT && a->actor_id == yourself)
+	
+	if(a->actor_id == yourself)
 	{
-		add_floating_message(a->actor_id, "miss", FLOATINGMESSAGE_NORTH, 1.0, 0.55, 0.0, 1250);
-	}/* 	else */
+		range_total_shots++;
+		if (shot_type == MISSED_SHOT)
+		{
+			add_floating_message(a->actor_id, "miss", FLOATINGMESSAGE_NORTH, 1.0, 0.55, 0.0, 1250);
+		}
+		else if (shot_type == NORMAL_SHOT)
+		{
+			range_success_hits++;
+		}
+		else if(shot_type == CRITICAL_SHOT)
+		{
+			range_critical_hits++;
+			range_success_hits++;
+		}
+	}
+	/* 	else */
 /* 		mis_id = missiles_add(a->cur_shield, origin, target, arrow_speed*2.0/3.0, arrow_trace_length*2.0/3.0, 0.0, shot_type); */
         
 	return mis_id;
@@ -939,4 +962,96 @@ void missiles_init_defs()
 	memset(missiles_defs, 0, sizeof(missiles_defs));
 
 	missiles_read_defs("actor_defs/missile_defs.xml");
+}
+
+/**********************************************/
+/*! Ranging win */
+/**********************************************/
+
+int range_win = -1;
+int range_win_x_len = 10;
+int range_win_y_len = 20;
+int ranging_win_x = 10;
+int ranging_win_y = 20;
+
+int display_range_handler(window_info *win)
+{
+	char str[50];
+	const int margin = 5;
+	const int step_y = (int)(SMALL_FONT_Y_LEN+0.5);
+	const int pos_x = margin;
+	int pos_y = margin;
+	int max_width = 0;
+	int len_x = 0;
+	int len_y = 0;
+	int resize = 0;
+
+	safe_snprintf(str, sizeof(str), ranging_total_shots_str, range_total_shots);
+	if (max_width < strlen(str)) max_width = strlen(str);
+	draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
+	pos_y += step_y;
+
+	safe_snprintf(str, sizeof(str), ranging_sucessful_shots_str, range_success_hits);
+	if (max_width < strlen(str)) max_width = strlen(str);
+	draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
+	pos_y += step_y;
+
+	safe_snprintf(str, sizeof(str), ranging_missed_shots_str, range_total_shots - range_success_hits);
+	if (max_width < strlen(str)) max_width = strlen(str);
+	draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
+	pos_y += 2*step_y;
+
+	if(range_success_hits > 0)
+		safe_snprintf(str, sizeof(str), ranging_success_rate_str, ((double)range_success_hits/(double)range_total_shots)*100.0);
+	else
+		safe_snprintf(str, sizeof(str), ranging_success_rate_str, 0.0);
+	if (max_width < strlen(str)) max_width = strlen(str);
+	draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
+	pos_y += step_y;
+
+	if(range_critical_hits > 0)
+		safe_snprintf(str, sizeof(str), ranging_critical_rate_str, ((double)range_critical_hits/(double)range_success_hits)*100.0);
+	else
+		safe_snprintf(str, sizeof(str), ranging_critical_rate_str, 0.0);
+	if (max_width < strlen(str)) max_width = strlen(str);
+	draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
+	pos_y += 2*step_y;
+
+	if(range_total_shots > 0)
+		safe_snprintf(str, sizeof(str), ranging_exp_per_arrow_str, get_session_exp_ranging()/(double)range_total_shots);
+	else
+		safe_snprintf(str, sizeof(str), ranging_exp_per_arrow_str, 0.0);
+	if (max_width < strlen(str)) max_width = strlen(str);
+	draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
+	pos_y += step_y;
+
+	len_x = (max_width * SMALL_FONT_X_LEN) + 2*margin + ELW_BOX_SIZE;
+	if (len_x != win->len_x)
+		resize = 1;
+
+	len_y = pos_y + margin;
+	if (len_y != win->len_y)
+		resize = 1;
+
+	if (resize)
+		resize_window(win->window_id, len_x, len_y);
+
+	return 1;
+}
+
+
+void display_range_win(void)
+{
+	if(range_win < 0){
+		int our_root_win = -1;
+			
+		if (!windows_on_top) {
+			our_root_win = game_root_win;
+		}
+		range_win = create_window("Ranging", our_root_win, 0, ranging_win_x, ranging_win_y, range_win_x_len, range_win_y_len, ELW_WIN_DEFAULT);
+		set_window_handler(range_win, ELW_HANDLER_DISPLAY, &display_range_handler );
+	} else {
+		show_window(range_win);
+		select_window(range_win);
+	}
 }

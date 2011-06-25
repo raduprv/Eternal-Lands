@@ -265,6 +265,13 @@ char
 	afk_names[15],
 	afk_messages[25],
 	afk_print_help[150],
+	/* ranging window */
+	ranging_total_shots_str[40],
+	ranging_sucessful_shots_str[40],
+	ranging_missed_shots_str[40],
+	ranging_success_rate_str[40],
+	ranging_critical_rate_str[40],
+	ranging_exp_per_arrow_str[40],
 	/* session.c */
 	session_reset_help[60],
 	/*trade.c*/
@@ -1277,6 +1284,12 @@ void init_help()
 	add_xml_identifier(misc,"ranginglock_enabled",ranginglock_enabled_str,"Ranging-Lock is now enabled. Disable it or unequip ranging weapon before walking.",sizeof(ranginglock_enabled_str));
 	add_xml_identifier(misc,"ranginglock_disabled",ranginglock_disabled_str,"Ranging-Lock is now disabled.",sizeof(ranginglock_disabled_str));
 	add_xml_identifier(misc,"video_restart", video_restart_str, "Video change will take effect at next restart.", sizeof(video_restart_str));
+	add_xml_identifier(misc,"ranging_total_shots", ranging_total_shots_str, "Total shots      %d", sizeof(ranging_total_shots_str));
+	add_xml_identifier(misc,"ranging_sucessful_shots", ranging_sucessful_shots_str, "Successful hits  %d", sizeof(ranging_sucessful_shots_str));
+	add_xml_identifier(misc,"ranging_missed_shots", ranging_missed_shots_str, "Missed hits      %d", sizeof(ranging_missed_shots_str));
+	add_xml_identifier(misc,"ranging_success_rate", ranging_success_rate_str, "Success rate     %.2f %%", sizeof(ranging_success_rate_str));
+	add_xml_identifier(misc,"ranging_critical_rate", ranging_critical_rate_str, "Critical rate    %.2f %%", sizeof(ranging_critical_rate_str));
+	add_xml_identifier(misc,"ranging_exp_per_arrow", ranging_exp_per_arrow_str, "Exp/arrows       %.2f exp", sizeof(ranging_exp_per_arrow_str));
 
 	//New characters
 	add_xml_identifier(new,"skin",skin_str,"Skin",sizeof(skin_str));

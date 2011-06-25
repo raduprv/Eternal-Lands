@@ -10,6 +10,7 @@ extern int session_win;
 void fill_session_win(void);
 void init_session(void);
 int session_reset_handler(void);
+int get_session_exp_ranging(void);
 
 #ifdef __cplusplus
 } // extern "C"

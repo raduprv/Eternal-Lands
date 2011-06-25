@@ -290,6 +290,9 @@ void read_bin_cfg()
 	ground_items_menu_x_len=cfg_mem.ground_items_menu_x >> 16;
 	ground_items_menu_y_len=cfg_mem.ground_items_menu_y >> 16;
 
+	ranging_win_x=cfg_mem.ranging_win_x;
+	ranging_win_y=cfg_mem.ranging_win_y;
+
 	trade_menu_x=cfg_mem.trade_menu_x;
 	trade_menu_y=cfg_mem.trade_menu_y;
 
@@ -445,6 +448,13 @@ void save_bin_cfg()
 	cfg_mem.questlog_menu_x=questlog_menu_x;
 	cfg_mem.questlog_menu_y=questlog_menu_y;
 */
+	if(range_win >= 0) {
+		cfg_mem.ranging_win_x=windows_list.window[range_win].cur_x;
+		cfg_mem.ranging_win_y=windows_list.window[range_win].cur_y;
+	} else {
+		cfg_mem.ranging_win_x=ranging_win_x;
+		cfg_mem.ranging_win_y=ranging_win_y;
+	}
 
 	if(tab_help_win >= 0) {
 		cfg_mem.tab_help_x=windows_list.window[tab_help_win].cur_x;

@@ -413,6 +413,13 @@ extern char
 		ig_from_str[10],
 		mc_from_str[20],
 		mod_pm_from_str[15],
+		/* ranging window */
+		ranging_total_shots_str[40],
+		ranging_sucessful_shots_str[40],
+		ranging_missed_shots_str[40],
+		ranging_success_rate_str[40],
+		ranging_critical_rate_str[40],
+		ranging_exp_per_arrow_str[40],
 		/* session.c */
 		session_reset_help[60],
 		/*trade.c*/
