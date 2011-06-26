@@ -344,7 +344,13 @@ void get_partial_stat(Uint8 name,Sint32 value)
                 case ETH_POINT_BASE:
                         your_info.ethereal_points.base=value;break;
                 case ACTION_POINTS_CUR:
-                        your_info.action_points.cur=value;break;
+                        {
+                                char str[5];
+                                safe_snprintf(str, sizeof(str), "%d", value-your_info.action_points.cur);
+                                add_floating_message(yourself, str, FLOATINGMESSAGE_MIDDLE, 1.0, 0.0, 1.0, 2500);
+                                your_info.action_points.cur=value;
+                                break;
+                        }
                 case ACTION_POINTS_BASE:
                         your_info.action_points.base=value;break;                
                 case FOOD_LEV:

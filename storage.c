@@ -4,6 +4,7 @@
 #include "storage.h"
 #include "asc.h"
 #include "context_menu.h"
+#include "dialogues.h"
 #include "elwindows.h"
 #include "filter.h"
 #include "gamewin.h"
@@ -654,6 +655,9 @@ void display_storage_menu()
 		vscrollbar_add_extended(storage_win, STORAGE_SCROLLBAR_ITEMS, NULL, 352, 10, 20, 192, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 28);
 		
 		cm_add(windows_list.window[storage_win].cm_id, cm_storage_menu_str, context_storage_handler);
+		cm_add(windows_list.window[storage_win].cm_id, cm_dialog_options_str, context_storage_handler);
+		cm_bool_line(windows_list.window[storage_win].cm_id, ELW_CM_MENU_LEN+2, &autoclose_storage_dialogue, NULL);
+		cm_bool_line(windows_list.window[storage_win].cm_id, ELW_CM_MENU_LEN+3, &auto_select_storage_option, NULL);
 	} else {
 		no_storage=0;
 		

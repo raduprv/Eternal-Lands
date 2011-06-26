@@ -649,6 +649,7 @@ void display_dialogue()
 		set_window_handler(dialogue_win, ELW_HANDLER_CLICK, &click_dialogue_handler );
 		
 		cm_add(windows_list.window[dialogue_win].cm_id, cm_dialog_menu_str, NULL);
+		cm_add(windows_list.window[dialogue_win].cm_id, cm_dialog_options_str, NULL);
 		cm_bool_line(windows_list.window[dialogue_win].cm_id, ELW_CM_MENU_LEN+1, &use_keypress_dialogue_boxes, "use_keypress_dialog_boxes");
 		cm_bool_line(windows_list.window[dialogue_win].cm_id, ELW_CM_MENU_LEN+2, &use_full_dialogue_window, "use_full_dialogue_window");
 		cm_bool_line(windows_list.window[dialogue_win].cm_id, ELW_CM_MENU_LEN+3, &autoclose_storage_dialogue, NULL);
