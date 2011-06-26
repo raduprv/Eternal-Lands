@@ -290,6 +290,9 @@ void read_bin_cfg()
 	ground_items_menu_x_len=cfg_mem.ground_items_menu_x >> 16;
 	ground_items_menu_y_len=cfg_mem.ground_items_menu_y >> 16;
 
+	ranging_win_x=cfg_mem.ranging_win_x;
+	ranging_win_y=cfg_mem.ranging_win_y;
+
 	trade_menu_x=cfg_mem.trade_menu_x;
 	trade_menu_y=cfg_mem.trade_menu_y;
 
@@ -379,8 +382,8 @@ void read_bin_cfg()
 	items_mix_but_all = (cfg_mem.misc_bool_options >> 3) & 1;
 	items_stoall_nolastrow = (cfg_mem.misc_bool_options >> 4) & 1;
 	items_dropall_nolastrow = (cfg_mem.misc_bool_options >> 5) & 1;
- 	autoclose_storage_dialogue = (cfg_mem.misc_bool_options >> 6) & 1;
-	/* ### no longer used - spare ### = (cfg_mem.misc_bool_options >> 7) & 1; */
+	autoclose_storage_dialogue = (cfg_mem.misc_bool_options >> 6) & 1;
+	auto_select_storage_option = (cfg_mem.misc_bool_options >> 7) & 1;
 	dialogue_copy_excludes_responses = (cfg_mem.misc_bool_options >> 8) & 1;
 	items_stoall_nofirstrow = (cfg_mem.misc_bool_options >> 9) & 1;
 	items_dropall_nofirstrow = (cfg_mem.misc_bool_options >> 10) & 1;
@@ -445,6 +448,13 @@ void save_bin_cfg()
 	cfg_mem.questlog_menu_x=questlog_menu_x;
 	cfg_mem.questlog_menu_y=questlog_menu_y;
 */
+	if(range_win >= 0) {
+		cfg_mem.ranging_win_x=windows_list.window[range_win].cur_x;
+		cfg_mem.ranging_win_y=windows_list.window[range_win].cur_y;
+	} else {
+		cfg_mem.ranging_win_x=ranging_win_x;
+		cfg_mem.ranging_win_y=ranging_win_y;
+	}
 
 	if(tab_help_win >= 0) {
 		cfg_mem.tab_help_x=windows_list.window[tab_help_win].cur_x;
@@ -621,7 +631,7 @@ void save_bin_cfg()
 	cfg_mem.misc_bool_options |= items_stoall_nolastrow << 4;
 	cfg_mem.misc_bool_options |= items_dropall_nolastrow << 5;
  	cfg_mem.misc_bool_options |= autoclose_storage_dialogue << 6;
-	/* cfg_mem.misc_bool_options |= ### spare ### << 7; */
+ 	cfg_mem.misc_bool_options |= auto_select_storage_option << 7;
 	cfg_mem.misc_bool_options |= dialogue_copy_excludes_responses << 8;
 	cfg_mem.misc_bool_options |= items_stoall_nofirstrow << 9;
 	cfg_mem.misc_bool_options |= items_dropall_nofirstrow << 10;

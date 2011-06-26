@@ -112,6 +112,7 @@ Uint32 K_PASTE_ALT=SHIFT|SDLK_INSERT;
 Uint32 K_ECDEBUGWIN=ALT|CTRL|'c';
 #endif
 Uint32 K_EMOTES=CTRL|'j';
+Uint32 K_RANGINGWIN=CTRL|'r';
 
 void add_key (Uint32 *key, Uint32 n)
 {
@@ -555,6 +556,8 @@ void read_key_config()
 		K_EXTEND_CAM = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_EMOTES",file_mem,key_file_size,0))!=-1)
 		K_EMOTES = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_RANGINGWIN",file_mem,key_file_size,0))!=-1)
+		K_RANGINGWIN = parse_key_string(&file_mem[t]);
 
 	free(file_mem);
 }

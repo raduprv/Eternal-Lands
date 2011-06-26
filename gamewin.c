@@ -1415,7 +1415,7 @@ void hide_all_windows(){
 		get_show_window(manufacture_win) > 0 || get_show_window(elconfig_win) > 0 || get_show_window(sigil_win) > 0 ||
 		get_show_window(tab_stats_win) > 0 || get_show_window(tab_help_win) > 0 || get_show_window(storage_win) > 0 ||
 		get_show_window(dialogue_win) > 0 || get_show_window(questlog_win) > 0 || (get_show_window(minimap_win) > 0 && !pin_minimap)
-		|| get_show_window(tab_info_win) > 0 || get_show_window(emotes_win) > 0
+		|| get_show_window(tab_info_win) > 0 || get_show_window(emotes_win) > 0 || get_show_window(range_win) > 0
 	){	//Okay, hide the open ones.
 		if (get_window_showable(ground_items_win) > 0){
 			unsigned char protocol_name;
@@ -1469,7 +1469,12 @@ void hide_all_windows(){
 		if (get_window_showable(dialogue_win) > 0){
 			hide_window (dialogue_win);
 		}
-		// 7 unused
+		if (get_window_showable(range_win)){
+			hide_window (range_win);
+			were_open |= 1<<7;
+		} else {
+			were_open &= ~(1<<7);
+		}
 		if (get_window_showable(minimap_win) > 0 && !pin_minimap){
 			hide_window (minimap_win);
 			were_open |= 1<<8;
@@ -1525,7 +1530,9 @@ void hide_all_windows(){
 		if (were_open & 1<<6){
 			show_window (tab_help_win);
 		}
-		// 7 unused
+		if (were_open & 1<<7){
+			show_window (range_win);
+		}
 		if (were_open & 1<<8){
 			show_window (minimap_win );
 		}
@@ -1913,6 +1920,10 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		{
 			go_ifk ();
 		}
+	}
+	else if(key == K_RANGINGWIN)
+	{
+		view_window(&range_win, -1);
 	}
 	else if (key == K_SIT)
 	{

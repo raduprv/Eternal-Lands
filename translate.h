@@ -413,6 +413,13 @@ extern char
 		ig_from_str[10],
 		mc_from_str[20],
 		mod_pm_from_str[15],
+		/* ranging window */
+		ranging_total_shots_str[40],
+		ranging_sucessful_shots_str[40],
+		ranging_missed_shots_str[40],
+		ranging_success_rate_str[40],
+		ranging_critical_rate_str[40],
+		ranging_exp_per_arrow_str[40],
 		/* session.c */
 		session_reset_help[60],
 		/*trade.c*/
@@ -437,7 +444,7 @@ extern char
 		cm_items_menu_str[150],
 		cm_storage_menu_str[50],
 		cm_astro_menu_str[50],
-		cm_dialog_menu_str[100],
+		cm_dialog_menu_str[120],
 		cm_url_menu_str[150],
 		cm_counters_menu_str[75],
 		cm_help_options_str[50],

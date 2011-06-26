@@ -7,6 +7,7 @@
 #include "init.h"
 #include "global.h"
 #include "hud.h"
+#include "missiles.h"
 #include "multiplayer.h"
 #include "platform.h"
 #include "stats.h"
@@ -27,6 +28,11 @@ player_attribs session_stats;
 Uint32 session_start_time;
 
 int display_session_handler(window_info *win);
+
+int get_session_exp_ranging(void)
+{
+	return your_info.ranging_exp - session_stats.ranging_exp;
+}
 
 static int mouseover_session_reset_handler(void)
 {
@@ -129,7 +135,7 @@ int display_session_handler(window_info *win)
 	y += 16;
 
 	draw_string_small(x, y, attributes.ranging_skill.name , 1);
-	safe_snprintf(buffer, sizeof(buffer), "%d", cur_stats.ranging_exp - session_stats.ranging_exp);
+	safe_snprintf(buffer, sizeof(buffer), "%d", get_session_exp_ranging());
 	draw_string_small(x + 200, y, (unsigned char*)buffer, 1);
 	y += 16;
 
@@ -213,6 +219,9 @@ int session_reset_handler(void)
 		session_stats = your_info;
 		session_start_time = cur_time;
 		reset_session_counters();
+		range_critical_hits = 0;
+		range_success_hits = 0;
+		range_total_shots = 0;
 	}
 	return 0;
 }
