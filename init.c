@@ -382,8 +382,8 @@ void read_bin_cfg()
 	items_mix_but_all = (cfg_mem.misc_bool_options >> 3) & 1;
 	items_stoall_nolastrow = (cfg_mem.misc_bool_options >> 4) & 1;
 	items_dropall_nolastrow = (cfg_mem.misc_bool_options >> 5) & 1;
- 	autoclose_storage_dialogue = (cfg_mem.misc_bool_options >> 6) & 1;
-	/* ### no longer used - spare ### = (cfg_mem.misc_bool_options >> 7) & 1; */
+	autoclose_storage_dialogue = (cfg_mem.misc_bool_options >> 6) & 1;
+	auto_select_storage_option = (cfg_mem.misc_bool_options >> 7) & 1;
 	dialogue_copy_excludes_responses = (cfg_mem.misc_bool_options >> 8) & 1;
 	items_stoall_nofirstrow = (cfg_mem.misc_bool_options >> 9) & 1;
 	items_dropall_nofirstrow = (cfg_mem.misc_bool_options >> 10) & 1;
@@ -631,7 +631,7 @@ void save_bin_cfg()
 	cfg_mem.misc_bool_options |= items_stoall_nolastrow << 4;
 	cfg_mem.misc_bool_options |= items_dropall_nolastrow << 5;
  	cfg_mem.misc_bool_options |= autoclose_storage_dialogue << 6;
-	/* cfg_mem.misc_bool_options |= ### spare ### << 7; */
+ 	cfg_mem.misc_bool_options |= auto_select_storage_option << 7;
 	cfg_mem.misc_bool_options |= dialogue_copy_excludes_responses << 8;
 	cfg_mem.misc_bool_options |= items_stoall_nofirstrow << 9;
 	cfg_mem.misc_bool_options |= items_dropall_nofirstrow << 10;
