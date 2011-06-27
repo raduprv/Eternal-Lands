@@ -265,6 +265,13 @@ char
 	afk_names[15],
 	afk_messages[25],
 	afk_print_help[150],
+	/* ranging window */
+	ranging_total_shots_str[40],
+	ranging_sucessful_shots_str[40],
+	ranging_missed_shots_str[40],
+	ranging_success_rate_str[40],
+	ranging_critical_rate_str[40],
+	ranging_exp_per_arrow_str[40],
 	/* session.c */
 	session_reset_help[60],
 	/*trade.c*/
@@ -289,7 +296,8 @@ char
 	cm_items_menu_str[150],
 	cm_storage_menu_str[50],
 	cm_astro_menu_str[50],
-	cm_dialog_menu_str[100],
+	cm_dialog_options_str[80],
+	cm_dialog_menu_str[60],
 	cm_url_menu_str[150],
 	cm_counters_menu_str[75],
 	cm_help_options_str[50],
@@ -1277,6 +1285,12 @@ void init_help()
 	add_xml_identifier(misc,"ranginglock_enabled",ranginglock_enabled_str,"Ranging-Lock is now enabled. Disable it or unequip ranging weapon before walking.",sizeof(ranginglock_enabled_str));
 	add_xml_identifier(misc,"ranginglock_disabled",ranginglock_disabled_str,"Ranging-Lock is now disabled.",sizeof(ranginglock_disabled_str));
 	add_xml_identifier(misc,"video_restart", video_restart_str, "Video change will take effect at next restart.", sizeof(video_restart_str));
+	add_xml_identifier(misc,"ranging_total_shots", ranging_total_shots_str, "Total shots      %d", sizeof(ranging_total_shots_str));
+	add_xml_identifier(misc,"ranging_sucessful_shots", ranging_sucessful_shots_str, "Successful hits  %d", sizeof(ranging_sucessful_shots_str));
+	add_xml_identifier(misc,"ranging_missed_shots", ranging_missed_shots_str, "Missed hits      %d", sizeof(ranging_missed_shots_str));
+	add_xml_identifier(misc,"ranging_success_rate", ranging_success_rate_str, "Success rate     %.2f %%", sizeof(ranging_success_rate_str));
+	add_xml_identifier(misc,"ranging_critical_rate", ranging_critical_rate_str, "Critical rate    %.2f %%", sizeof(ranging_critical_rate_str));
+	add_xml_identifier(misc,"ranging_exp_per_arrow", ranging_exp_per_arrow_str, "Exp/arrows       %.2f exp", sizeof(ranging_exp_per_arrow_str));
 
 	//New characters
 	add_xml_identifier(new,"skin",skin_str,"Skin",sizeof(skin_str));
@@ -1398,7 +1412,8 @@ void init_help()
 	add_xml_identifier(misc, "cm_items_menu", cm_items_menu_str, "--\nUse Small Window\nManual Window Size\nItem Window On Drop\nAllow Equipment Swap\n--\nOpen Storage (View Only)", sizeof(cm_items_menu_str));
 	add_xml_identifier(misc, "cm_storage_menu", cm_storage_menu_str, "--\nPrint Items To Console\n", sizeof(cm_storage_menu_str));
 	add_xml_identifier(misc, "cm_astro_menu", cm_astro_menu_str, "--\nPrint Details To Console", sizeof(cm_astro_menu_str));
-	add_xml_identifier(misc, "cm_dialog_menu", cm_dialog_menu_str, "--\nEnable Keypresses\nKeypresses Anywhere\nAuto close storage dialogue", sizeof(cm_dialog_menu_str));
+	add_xml_identifier(misc, "cm_dialog_options", cm_dialog_options_str, "Auto close storage dialogue\nAuto select storage option in dialogue", sizeof(cm_dialog_options_str));
+	add_xml_identifier(misc, "cm_dialog_menu", cm_dialog_menu_str, "--\nEnable Keypresses\nKeypresses Anywhere", sizeof(cm_dialog_menu_str));
 	add_xml_identifier(misc, "cm_url_menu", cm_url_menu_str, "Open\nFind In Console\nMark Visited\nMark Unvisited\n--\nDelete\n--\nDelete All", sizeof(cm_url_menu_str));	
 	add_xml_identifier(misc, "cm_counters_menu", cm_counters_menu_str, "Delete entry\n--\nReset Session Total\n--\nEnable floating messages", sizeof(cm_counters_menu_str));	
 	add_xml_identifier(misc, "cm_help_options", cm_help_options_str, "Right-click for options", sizeof(cm_help_options_str));

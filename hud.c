@@ -21,6 +21,7 @@
 #include "lights.h"
 #include "manufacture.h"
 #include "mapwin.h"
+#include "missiles.h"
 #include "multiplayer.h"
 #include "new_character.h"
 #include "platform.h"
@@ -964,6 +965,7 @@ void view_window(int * window, int id)
 			else if(window==&color_race_win) show_color_race_win();
 #endif
 			else if(window==&questlog_win) display_questlog();
+			else if(window==&range_win) display_range_win();
 		}
 	else toggle_window(*window);
 }

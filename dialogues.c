@@ -38,8 +38,10 @@ int dialogue_menu_y_len=220;
 int no_bounding_box=0;
 int show_keypress_letters=0;
 int autoclose_storage_dialogue=0;
+int auto_select_storage_option=0;
 int dialogue_copy_excludes_responses=0;
 int dialogue_copy_excludes_newlines=0;
+static int done_auto_storage_select=0;
 static Uint32 copy_end_highlight_time = 0;
 static Uint32 repeat_end_highlight_time = 0;
 static int close_str_width = -1;
@@ -63,6 +65,7 @@ static size_t saved_response_list_bot = 0;
 static size_t saved_response_init = 0;
 static response saved_responses[MAX_SAVED_RESPONSES];
 static int cm_dialogue_repeat_handler(window_info *win, int widget_id, int mx, int my, int option);
+static void send_response(window_info *win, const response *the_response);
 
 void build_response_entries (const Uint8 *data, int total_length)
 {
@@ -143,6 +146,18 @@ int	display_dialogue_handler(window_info *win)
 	int this_texture; //,cur_item,cur_pos; unused?
 	int x_start,x_end,y_start,y_end;
 	unsigned char str[128]; 
+
+	// for the moaners - auto select storage option
+	if (auto_select_storage_option && !done_auto_storage_select)
+	{
+		for(i=0;i<MAX_RESPONSES;i++)
+			if (dialogue_responces[i].in_use && (strcmp(dialogue_responces[i].text, open_storage_str) == 0))
+			{
+				send_response(win, &dialogue_responces[i]);
+				done_auto_storage_select = 1;
+				break;
+			}
+	}
 
 	//calculate the npc_name_x_start (to have it centered on the screen)
 	npc_name_len= strlen((char*)npc_name);
@@ -276,6 +291,7 @@ int	display_dialogue_handler(window_info *win)
 	if (new_dialogue)
 	{
 		new_dialogue = 0;
+		done_auto_storage_select = 0;
 		cm_remove_regions(win->window_id);
 		cm_add_region(cm_npcname_id, win->window_id, npc_name_x_start,
 			win->len_y-(SMALL_FONT_Y_LEN+1), npc_name_len*SMALL_FONT_X_LEN, SMALL_FONT_Y_LEN);
@@ -398,7 +414,7 @@ void save_response(const response *last_response)
 }
 
 
-void send_response(window_info *win, const response *the_response)
+static void send_response(window_info *win, const response *the_response)
 {
 	Uint8 str[16];
 	str[0]=RESPOND_TO_NPC;
@@ -633,9 +649,11 @@ void display_dialogue()
 		set_window_handler(dialogue_win, ELW_HANDLER_CLICK, &click_dialogue_handler );
 		
 		cm_add(windows_list.window[dialogue_win].cm_id, cm_dialog_menu_str, NULL);
+		cm_add(windows_list.window[dialogue_win].cm_id, cm_dialog_options_str, NULL);
 		cm_bool_line(windows_list.window[dialogue_win].cm_id, ELW_CM_MENU_LEN+1, &use_keypress_dialogue_boxes, "use_keypress_dialog_boxes");
 		cm_bool_line(windows_list.window[dialogue_win].cm_id, ELW_CM_MENU_LEN+2, &use_full_dialogue_window, "use_full_dialogue_window");
 		cm_bool_line(windows_list.window[dialogue_win].cm_id, ELW_CM_MENU_LEN+3, &autoclose_storage_dialogue, NULL);
+		cm_bool_line(windows_list.window[dialogue_win].cm_id, ELW_CM_MENU_LEN+4, &auto_select_storage_option, NULL);
 
 		cm_npcname_id = cm_create(cm_npcname_menu_str, cm_npcname_handler);
 		cm_dialog_copy_id = cm_create(cm_dialog_copy_menu_str, NULL);
