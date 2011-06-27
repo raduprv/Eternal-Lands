@@ -390,14 +390,14 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 		{
 			elwin_mouse = CURSOR_USE_WITEM;
 		}
-        // allow to shoot at 3D objects
+		// allow to shoot at 3D objects
 		else if (range_weapon_equipped &&
                  (action_mode == ACTION_ATTACK || (alt_on && ctrl_on)))
 		{
 			elwin_mouse = CURSOR_ATTACK;
 		}
 		//see if the object is a harvestable resource.
-		else if(objects_list[object_under_mouse]->flags&OBJ_3D_HARVESTABLE) 
+		else if(objects_list[object_under_mouse]->flags&OBJ_3D_HARVESTABLE)
 		{
 			elwin_mouse = CURSOR_HARVEST;
 		}
@@ -406,8 +406,8 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 			elwin_mouse = CURSOR_ENTER;
 		}
 		//hmm, no usefull object, so select walk....
-		else  
-		{				
+		else
+		{
 			if(spell_result==2)
 				elwin_mouse = CURSOR_WAND;
 			else
@@ -506,7 +506,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 							 your_actor->cur_weapon >= BOW_LONG &&
 							 your_actor->cur_weapon <= BOW_CROSS);
 	UNLOCK_ACTORS_LISTS();
-	
+
 	if (flags & ELW_WHEEL_UP)
 	{
 		if (camera_zoom_dir == -1)
@@ -516,7 +516,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		camera_zoom_dir = -1;
 		return 1;
 	}
-	
+
 	if (flags & ELW_WHEEL_DOWN)
 	{
 		if (camera_zoom_dir == 1)
@@ -526,17 +526,17 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		camera_zoom_dir = 1;
 		return 1;
 	}
-	
+
 	if (mx > win->len_x - 64 && my < 54 ) // 10 pixels dead space to try to prevent accidental misclicks
 	{
 		if(logo_click_to_url)
 			open_web_link(LOGO_URL_LINK);
 		return 1;
 	}
-	
+
 	if (!force_walk)
 	{
-		if (flag_right) 
+		if (flag_right)
 		{
 			if (!cm_banner_disabled)
 			{
@@ -567,7 +567,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 					reset_cursor_time = SDL_GetTicks();
 				}
 			}
-			if (item_dragged != -1 || use_item != -1 || object_under_mouse == -1 
+			if (item_dragged != -1 || use_item != -1 || object_under_mouse == -1
 					|| storage_item_dragged != -1
 					)
 			{
@@ -577,7 +577,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 				action_mode = ACTION_WALK;
 				return 1;
 			}
-			switch (current_cursor) 
+			switch (current_cursor)
 			{
 				case CURSOR_EYE:
 					if (thing_under_the_mouse == UNDER_MOUSE_ANIMAL && spell_result==3)
@@ -585,7 +585,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 					else if (thing_under_the_mouse == UNDER_MOUSE_PLAYER)
 						action_mode = ACTION_TRADE;
 					else if (thing_under_the_mouse == UNDER_MOUSE_3D_OBJ){
-                        action_mode = ACTION_USE;
+						action_mode = ACTION_USE;
 					}
 					else if ((thing_under_the_mouse == UNDER_MOUSE_ANIMAL) && include_use_cursor_on_animals)
 						action_mode = ACTION_USE;
@@ -626,11 +626,11 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 						action_mode = ACTION_WALK;
 					break;
 				case CURSOR_USE:
-                    if (range_weapon_equipped)
-                        action_mode = ACTION_ATTACK;
-                    else
-                        action_mode = ACTION_WALK;
-                    break;
+					if (range_weapon_equipped)
+						action_mode = ACTION_ATTACK;
+					else
+						action_mode = ACTION_WALK;
+					break;
 				case CURSOR_TALK:
 				case CURSOR_ARROW:
 				default:
@@ -666,7 +666,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 	}
 
 	// if we're following a path, stop now
-	if (pf_follow_path) 
+	if (pf_follow_path)
 	{
 		pf_destroy_path();
 	}
@@ -674,19 +674,19 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 	if (force_walk)
 	{
 		short x,y;
-		
+
 		get_old_world_x_y (&x, &y);
 		// check to see if the coordinates are OUTSIDE the map
 		if (y < 0 || x < 0 || x >= tile_map_size_x*6 || y >= tile_map_size_y*6)
 			return 1;
-		
+
 		add_highlight(x, y, HIGHLIGHT_TYPE_WALKING_DESTINATION);
-		
+
 		move_to (x, y, 1);
 		return 1;
 	}
-	
-	switch(current_cursor) 
+
+	switch(current_cursor)
 	{
 		case CURSOR_EYE:
 		{
@@ -699,7 +699,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			{
 #ifdef DEBUG
 				char log[100];
-				
+
 				safe_snprintf(log,sizeof(log),"Actor id: %d",object_under_mouse);
 				LOG_TO_CONSOLE(c_green1, log);
 #endif
@@ -714,7 +714,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			{
 #ifdef DEBUG
 				char log[100];
-				
+
 				safe_snprintf(log,sizeof(log),"Object id: %d",object_under_mouse);
 				LOG_TO_CONSOLE(c_green1, log);
 #endif
