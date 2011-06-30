@@ -56,6 +56,7 @@ namespace ItemLists
 	static int mouseover_itemlist_handler(window_info *win, int mx, int my);
 	static int hide_itemlist_handler(window_info *win);
 	static int keypress_itemlist_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey);
+	static int resize_itemlist_handler(window_info *win, int new_width, int new_height);
 	static void new_list_handler(const char *input_text, void *data);
 	static void rename_list_handler(const char *input_text, void *data);
 	static int cm_selected_item_handler(window_info *win, int widget_id, int mx, int my, int option);
@@ -182,7 +183,7 @@ namespace ItemLists
 				num_show_names_list(6), names_list_height(SMALL_FONT_Y_LEN),
 				win_id(-1), selected_item_number(static_cast<size_t>(-1)),
 				name_under_mouse(static_cast<size_t>(-1)), clicked(false),
-				mouse_over_add_button(false), last_click_time(0),
+				mouse_over_add_button(false), last_click_time(0), resizing(false),
 				last_quantity_selected(0), num_grid_rows(min_grid_rows()), last_key_time(0) {}
 			int get_id(void) const { return win_id; }
 			size_t get_grid_cm(void) const { return cm_selected_item_menu; }
@@ -200,8 +201,13 @@ namespace ItemLists
 			void make_active_visable(void);
 			void cm_names_pre_show(void);
 			int keypress(char the_key);
+			void resized_name_panel(window_info *win);
 		private:
 			void calc_num_show_names(int win_len_y);
+			int get_size_x(void) const { return get_grid_size()*6 + ELW_BOX_SIZE + get_list_gap(); }
+			int get_size_y(void) const { return get_grid_size()*num_grid_rows + get_names_size_y(); }
+			int get_names_size_y(void) const
+				{ return static_cast<int>(num_show_names_list * (get_list_gap() + names_list_height) + get_list_gap()); }
 			size_t cm_selected_item_menu;
 			size_t cm_names_menu;
 			int num_show_names_list;
@@ -214,6 +220,7 @@ namespace ItemLists
 			int add_button_x;
 			int add_button_y;
 			Uint32 last_click_time;
+			bool resizing;
 			int last_quantity_selected;
 			INPUT_POPUP ipu_item_list_name;
 			int names_scroll_id;
@@ -765,8 +772,24 @@ namespace ItemLists
 				return;
 			win_len_y = (&windows_list.window[win_id])->len_y;
 		}
+		if (win_len_y > window_height-HUD_MARGIN_Y)
+			win_len_y = window_height-HUD_MARGIN_Y;
 		num_show_names_list = static_cast<int>
 			((win_len_y - get_grid_size()*num_grid_rows) / (get_list_gap() + names_list_height));
+	}
+
+
+	//	The size available to the names list has changed so resize/move elements.
+	//
+	void List_Window::resized_name_panel(window_info *win)
+	{
+		calc_num_show_names();
+		cm_remove_regions(win_id);
+		cm_add_region(cm_names_menu, win_id, 0, get_size_y()-get_names_size_y(), get_size_y(), get_names_size_y());
+		widget_resize(win_id, names_scroll_id, ELW_BOX_SIZE, get_names_size_y()-ELW_BOX_SIZE);
+		widget_move(win_id, names_scroll_id, win->len_x-ELW_BOX_SIZE, get_grid_size()*num_grid_rows);
+		make_active_visable();
+		update_scroll_len();
 	}
 
 
@@ -780,27 +803,26 @@ namespace ItemLists
 			ItemLists::Vars::cat_maps()->load();
 			filter[0] = '\0';
 
-			calc_num_show_names(win->len_y);
-			int names_size_y = static_cast<int>(num_show_names_list * (get_list_gap() + names_list_height) + get_list_gap());
-			int size_x = get_grid_size()*6 + ELW_BOX_SIZE + get_list_gap();
-			int size_y = get_grid_size()*num_grid_rows + names_size_y;
-			add_button_x = static_cast<int>(size_x - DEFAULT_FONT_X_LEN*2);
+			calc_num_show_names(get_grid_size()*6+110);
+			add_button_x = static_cast<int>(get_size_x() - DEFAULT_FONT_X_LEN*2);
 			add_button_y = get_grid_size();
 
-			win_id = create_window(item_list_preview_title, win->window_id, 0, win->len_x + 5, 0, size_x, size_y, ELW_WIN_DEFAULT);
+			win_id = create_window(item_list_preview_title, win->window_id, 0, win->len_x + 5, 0, get_size_x(), get_size_y(), ELW_WIN_DEFAULT|ELW_RESIZEABLE);
 			set_window_handler(win_id, ELW_HANDLER_DISPLAY, (int (*)())&display_itemlist_handler );
 			set_window_handler(win_id, ELW_HANDLER_CLICK, (int (*)())&click_itemlist_handler );
 			set_window_handler(win_id, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_itemlist_handler );
 			set_window_handler(win_id, ELW_HANDLER_HIDE, (int (*)())&hide_itemlist_handler );
 			set_window_handler(win_id, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_itemlist_handler );
+			set_window_handler(win_id, ELW_HANDLER_RESIZE, (int (*)())&resize_itemlist_handler );
+			set_window_min_size(win_id, get_size_x(), get_size_y());
 
 			cm_selected_item_menu = cm_create(cm_item_list_selected_str, cm_selected_item_handler);
 			cm_names_menu = cm_create(cm_item_list_names_str, cm_names_handler);
 			cm_set_pre_show_handler(cm_names_menu, cm_names_pre_show_handler);
-			cm_add_region(cm_names_menu, win_id, 0, win->len_y-names_size_y, win->len_y, names_size_y);
+			cm_add_region(cm_names_menu, win_id, 0, get_size_y()-get_names_size_y(), get_size_y(), get_names_size_y());
 
 			names_scroll_id = vscrollbar_add_extended(win_id, 1, NULL,
-				size_x-ELW_BOX_SIZE, get_grid_size()*num_grid_rows, ELW_BOX_SIZE, names_size_y, 0,
+				get_size_x()-ELW_BOX_SIZE, get_grid_size()*num_grid_rows, ELW_BOX_SIZE, get_names_size_y()-ELW_BOX_SIZE, 0,
 				1.0, 0.77f, 0.57f, 0.39f, 0, 1, Vars::lists()->size()-num_show_names_list);
 
 			init_ipu(&ipu_item_list_name, -1, -1, -1, 1, 1, NULL, NULL);
@@ -821,6 +843,17 @@ namespace ItemLists
 	{
 		Vars::lists()->check_and_timed_save(false);
 
+		// if resizing wait until we stop
+		if (win->resized)
+			resizing = true;
+		// once we stop, snap the window size to fix nicely
+		else if (resizing)
+		{
+			calc_num_show_names(win->len_y);
+			resizing = false;
+			resize_window (win->window_id, get_size_x(), get_size_y());
+		}
+
 		// check if we need to change the number of grid rows shown
 		int new_num_grid_rows = min_grid_rows();
 		if (Vars::lists()->valid_active_list())
@@ -828,16 +861,8 @@ namespace ItemLists
 		if (num_grid_rows != new_num_grid_rows)
 		{
 			num_grid_rows = new_num_grid_rows;
-			calc_num_show_names();
-			int names_size_y = static_cast<int>(num_show_names_list * (get_list_gap() + names_list_height) + get_list_gap());
-			cm_remove_regions(win_id);
-			cm_add_region(cm_names_menu, win_id, 0, win->len_y-names_size_y, win->len_y, names_size_y);
-			widget_resize(win_id, names_scroll_id, ELW_BOX_SIZE, names_size_y);
-			widget_move(win_id, names_scroll_id, win->len_x-ELW_BOX_SIZE, get_grid_size()*num_grid_rows);
-			make_active_visable();
-			update_scroll_len();
+			resized_name_panel(win);
 		}
-
 
 		glEnable(GL_TEXTURE_2D);
 
@@ -874,8 +899,9 @@ namespace ItemLists
 		// draw mouse over window help text
 		if (show_help_text)
 		{
-			for (size_t i=0; i<help_str.size(); ++i)
-				show_help(help_str[i], 0, static_cast<int>(0.5 + win->len_y + 10 + SMALL_FONT_Y_LEN * help_lines_shown++));
+			if (!resizing)
+				for (size_t i=0; i<help_str.size(); ++i)
+					show_help(help_str[i], 0, static_cast<int>(0.5 + win->len_y + 10 + SMALL_FONT_Y_LEN * help_lines_shown++));
 			help_str.clear();
 		}
 
@@ -1024,13 +1050,12 @@ CHECK_GL_ERRORS();
 
 		// check if over the list names and get which name
 		int start_names = get_grid_size()*num_grid_rows;
-		int names_size_y = static_cast<int>(num_show_names_list * (get_list_gap() + names_list_height) + get_list_gap());
-		if ((my > start_names) && (my < (start_names+names_size_y)))
+		if ((my > start_names) && (my < (start_names+get_names_size_y())))
 			name_under_mouse = vscrollbar_get_pos (win_id, names_scroll_id) +
 				static_cast<int>((my - start_names - get_list_gap()/2) / (get_list_gap() + names_list_height));
 
 		// name list context help
-		if ((my > start_names) && (my < (start_names+names_size_y)))
+		if ((my > start_names) && (my < (start_names+get_names_size_y())))
 		{
 			help_str.push_back(cm_help_options_str);
 			if (!strlen(filter))
@@ -1379,6 +1404,11 @@ CHECK_GL_ERRORS();
 		return Vars::win()->keypress(keychar);
 	}
 
+	static int resize_itemlist_handler(window_info *win, int new_width, int new_height)
+	{
+		Vars::win()->resized_name_panel(win);
+		return 0;
+	}
 
 } // end ItemLists namespace
 
