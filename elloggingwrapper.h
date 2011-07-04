@@ -140,9 +140,24 @@ void init_thread_log(const char* name);
 #define LOG_WARNING(msg, args ...) log_warning(__FILE__, __LINE__, msg,	\
 	## args)
 #define LOG_INFO(msg, args ...) log_info(__FILE__, __LINE__, msg, ## args)
+#ifdef FASTER_MAP_LOAD
+#define LOG_DEBUG(msg, args ...)\
+	do\
+	{\
+		if (get_log_level() >= llt_debug)\
+			log_debug(__FILE__, __LINE__, msg, ## args);\
+	} while(0)
+#define LOG_DEBUG_VERBOSE(msg, args ...)\
+	do\
+	{\
+		if (get_log_level() >= llt_debug_verbose)\
+			log_debug_verbose(__FILE__, __LINE__, msg, ## args);\
+	} while(0)
+#else  // FASTER_MAP_LOAD
 #define LOG_DEBUG(msg, args ...) log_debug(__FILE__, __LINE__, msg, ## args)
-#define LOG_DEBUG_VERBOSE(msg, args ...) log_debug_verbose(__FILE__, 	\
+#define LOG_DEBUG_VERBOSE(msg, args ...) log_debug_verbose(__FILE__,	\
 	__LINE__, msg, ## args)
+#endif // FASTER_MAP_LOAD
 #define ENTER_DEBUG_MARK(name) enter_debug_mark(__FILE__, __LINE__, name)
 #define LEAVE_DEBUG_MARK(name) leave_debug_mark(__FILE__, __LINE__, name)
 

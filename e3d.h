@@ -27,8 +27,6 @@ extern "C" {
 //#define MAX_E3D_CACHE 1000 /* unused */
 /*! @} */
 
-extern Uint32 highest_obj_3d;  /*!< pointer to the highest 3D object in map */
-
 /*!
  * object3d structure
  */

@@ -64,6 +64,7 @@ struct cursors_struct
 	Uint8 *cursor_pointer; /*!< pointer to the actual cursor */
 };
 
+#ifndef FASTER_MAP_LOAD
 /*!
  * contains the names of harvestable items
  */
@@ -73,6 +74,43 @@ extern char harvestable_objects[300][80];
  * contains the name of entrable items
  */
 extern char entrable_objects[300][80];
+#endif
+
+#ifdef FASTER_MAP_LOAD
+/*!
+ * \ingroup other
+ * \brief Load and initialize the list of harvestable objects
+ */
+void load_harvestable_list(void);
+/*!
+ * \ingroup other
+ * \brief Test if an object can be harvested
+ *
+ * Check if the 3d object with file name \a fname should in principle be
+ * harvestable. Ultimately, the server decides if an object can be harvested,
+ * this function exists to show the correct cursor in the GUI.
+ * \return Zero if the object is not in the harvestable list, non-zero
+ *    otherwise.
+ */
+int is_harvestable(const char* fname);
+
+/*!
+ * \ingroup other
+ * \brief Load and initialize the list of entrable objects
+ */
+void load_entrable_list(void);
+/*!
+ * \ingroup other
+ * \brief Test if an object can be entered
+ *
+ * Check if the 3d object with file name \a fname should in principle be
+ * entrable. Ultimately, the server decides if an object can be entered,
+ * this function exists to show the correct cursor in the GUI.
+ * \return Zero if the object is not in the entrable list, non-zero
+ *    otherwise.
+ */
+int is_entrable(const char* fname);
+#endif // FASTER_MAP_LOAD
 
 /*!
  * \ingroup other

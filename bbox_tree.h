@@ -629,7 +629,7 @@ BBOX_TREE* build_bbox_tree();
  * @param bbox_tree	The bounding-box-tree.
  * @callgraph
  */
-void init_bbox_tree(BBOX_TREE* bbox_tree, BBOX_ITEMS *bbox_items);
+void init_bbox_tree(BBOX_TREE* bbox_tree, const BBOX_ITEMS *bbox_items);
 
 /**
  * @ingroup misc

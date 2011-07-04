@@ -67,6 +67,7 @@ Sint32 get_string_occurance (const char* needle, const char* haystack, const Uin
 	return -1;
 }
 
+#ifndef FASTER_MAP_LOAD
 // This function returns an integer, after the needle in the haystack 
 // string. If the string is not found, after max_len, the function returns -1.
 // The function is NOT case sensitive
@@ -138,6 +139,7 @@ float get_float_after_string (const char *needle, const char *haystack, Uint32 m
 	// no number after needle
 	return -1.0f;
 }
+#endif // FASTER_MAP_LOAD
 
 char* safe_strncpy(char *dest, const char * source, const size_t len)
 {
@@ -349,22 +351,15 @@ char ** get_lines(char * str, int chars_per_line)
 // File utilities
 Uint32 clean_file_name (char *dest, const char *src, Uint32 max_len)
 {
-	Uint32 len;
-	Uint32 i;
+	char *dptr, *dend = dest + (max_len-1);
+	const char *sptr;
 
-	len = strlen (src);
-	if (len >= max_len) len = max_len-1;
-	for (i = 0; i < len; i++)
-	{
-		if (src[i] == '\\')
-			dest[i] = '/';
-		else
-			dest[i] = src[i];
-	}
-	
+	for (dptr = dest, sptr = src; dptr < dend && *sptr; dptr++, sptr++)
+		*dptr = *sptr == '\\' ? '/' : tolower(*sptr);
 	// always place a null at the end
-	dest[len] = '\0';
-	return len;
+	*dptr = '\0';
+
+	return dptr-dest;
 }
 
 /*XML*/

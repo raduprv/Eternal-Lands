@@ -8,6 +8,9 @@
 #include "asc.h"
 #include "init.h"
 #include "misc.h"
+#ifdef FASTER_MAP_LOAD
+#include "io/elfilewrapper.h"
+#endif
 
 // default definitions for keys
 Uint32 K_QUIT=ALT|'x';
@@ -114,7 +117,7 @@ Uint32 K_ECDEBUGWIN=ALT|CTRL|'c';
 Uint32 K_EMOTES=CTRL|'j';
 Uint32 K_RANGINGWIN=CTRL|'t';
 
-void add_key (Uint32 *key, Uint32 n)
+static void add_key(Uint32 *key, Uint32 n)
 {
 	switch (n)
 	{
@@ -135,7 +138,7 @@ void add_key (Uint32 *key, Uint32 n)
         }
 }
 
-Uint32 CRC32 (const char *data, int len)
+static Uint32 CRC32(const char *data, int len)
 {
 	unsigned int result = 0;
 	int i, j;
@@ -157,15 +160,17 @@ Uint32 CRC32 (const char *data, int len)
 	return ~result;
 }
 
-Uint16 get_key_code (const char *key)
+static Uint16 get_key_code(const char *key)
 {
-	int len=strlen(key);
+	int len = strlen(key);
 
-	if(len==1)
-			return tolower(key[0]);
+	if (len==1)
+	{
+		return tolower(key[0]);
+	}
 	else
 	{
-		Uint32 crc=CRC32(key,len);
+		Uint32 crc = CRC32(key,len);
 		switch(crc){
 			case 0x414243d2: //UP
 				return 273;
@@ -316,6 +321,211 @@ Uint16 get_key_code (const char *key)
 		}
 	}
 }
+
+#ifdef FASTER_MAP_LOAD
+static void parse_key_line(const char *line)
+{
+	char kstr[100], t1[100], t2[100], t3[100], t4[100];
+	Uint32 key = 0;
+	int nkey = sscanf(line, " #K_%99s = %99s %99s %99s %99s", kstr,
+		t1, t2, t3, t4);
+
+	if (nkey <= 1)
+		return;
+
+	add_key(&key, get_key_code(t1));
+	if (nkey > 2 && t2[0] != '#')
+	{
+		add_key(&key, get_key_code(t2));
+		if (nkey > 3 && t3[0] != '#')
+		{
+			add_key(&key, get_key_code(t3));
+			if (nkey > 4 && t4[0] != '#')
+			{
+				add_key(&key, get_key_code(t4));
+			}
+		}
+	}
+
+	if (strcasecmp(kstr, "QUIT") == 0)
+		K_QUIT = key;
+	else if (strcasecmp(kstr, "#QUIT_ALT") == 0)
+		K_QUIT_ALT = key;
+	else if (strcasecmp(kstr, "CAMERAUP") == 0)
+		K_CAMERAUP = key;
+	else if (strcasecmp(kstr, "CAMERADOWN") == 0)
+		K_CAMERADOWN = key;
+	else if (strcasecmp(kstr, "ZOOMOUT") == 0)
+		K_ZOOMOUT = key;
+	else if (strcasecmp(kstr, "ZOOMIN") == 0)
+		K_ZOOMIN = key;
+	else if (strcasecmp(kstr, "TURNLEFT") == 0)
+		K_TURNLEFT = key;
+	else if (strcasecmp(kstr, "TURNRIGHT") == 0)
+		K_TURNRIGHT = key;
+	else if (strcasecmp(kstr, "ADVANCE") == 0)
+		K_ADVANCE = key;
+	else if (strcasecmp(kstr, "HEALTHBAR") == 0)
+		K_HEALTHBAR = key;
+	else if (strcasecmp(kstr, "VIEWNAMES") == 0)
+		K_VIEWNAMES = key;
+	else if (strcasecmp(kstr, "VIEWHP") == 0)
+		K_VIEWHP = key;
+	else if (strcasecmp(kstr, "STATS") == 0)
+		K_STATS = key;
+	else if (strcasecmp(kstr, "QUESTLOG") == 0)
+		K_QUESTLOG = key;
+	else if (strcasecmp(kstr, "SESSION") == 0)
+		K_SESSION = key;
+	else if (strcasecmp(kstr, "WALK") == 0)
+		K_WALK = key;
+	else if (strcasecmp(kstr, "LOOK") == 0)
+		K_LOOK = key;
+	else if (strcasecmp(kstr, "USE") == 0)
+		K_USE = key;
+	else if (strcasecmp(kstr, "OPTIONS") == 0)
+		K_OPTIONS = key;
+	else if (strcasecmp(kstr, "REPEATSPELL") == 0)
+		K_REPEATSPELL = key;
+	else if (strcasecmp(kstr, "SIGILS") == 0)
+		K_SIGILS = key;
+	else if (strcasecmp(kstr, "MANUFACTURE") == 0)
+		K_MANUFACTURE = key;
+	else if (strcasecmp(kstr, "ITEMS") == 0)
+		K_ITEMS = key;
+	else if (strcasecmp(kstr, "MAP") == 0)
+		K_MAP = key;
+	else if (strcasecmp(kstr, "MINIMAP") == 0)
+		K_MINIMAP = key;
+	else if (strcasecmp(kstr, "ROTATELEFT") == 0)
+		K_ROTATELEFT = key;
+	else if (strcasecmp(kstr, "ROTATERIGHT") == 0)
+		K_ROTATERIGHT = key;
+	else if (strcasecmp(kstr, "FROTATELEFT") == 0)
+		K_FROTATELEFT = key;
+	else if (strcasecmp(kstr, "FROTATERIGHT") == 0)
+		K_FROTATERIGHT = key;
+	else if (strcasecmp(kstr, "BROWSER") == 0)
+		K_BROWSER = key;
+	else if (strcasecmp(kstr, "BROWSERWIN") == 0)
+		K_BROWSERWIN = key;
+	else if (strcasecmp(kstr, "ESCAPE") == 0)
+		K_ESCAPE = key;
+	else if (strcasecmp(kstr, "CONSOLE") == 0)
+		K_CONSOLE = key;
+	else if (strcasecmp(kstr, "SHADOWS") == 0)
+		K_SHADOWS = key;
+	else if (strcasecmp(kstr, "KNOWLEDGE") == 0)
+		K_KNOWLEDGE = key;
+	else if (strcasecmp(kstr, "ENCYCLOPEDIA") == 0)
+		K_ENCYCLOPEDIA = key;
+	else if (strcasecmp(kstr, "HELP") == 0)
+		K_HELP = key;
+	else if (strcasecmp(kstr, "NOTEPAD") == 0)
+		K_NOTEPAD = key;
+	else if (strcasecmp(kstr, "HIDEWINS") == 0)
+		K_HIDEWINS = key;
+	else if (strcasecmp(kstr, "ITEM1") == 0)
+		K_ITEM1 = key;
+	else if (strcasecmp(kstr, "ITEM2") == 0)
+		K_ITEM2 = key;
+	else if (strcasecmp(kstr, "ITEM3") == 0)
+		K_ITEM3 = key;
+	else if (strcasecmp(kstr, "ITEM4") == 0)
+		K_ITEM4 = key;
+	else if (strcasecmp(kstr, "ITEM5") == 0)
+		K_ITEM5 = key;
+	else if (strcasecmp(kstr, "ITEM6") == 0)
+		K_ITEM6 = key;
+	else if (strcasecmp(kstr, "ITEM7") == 0)
+		K_ITEM7 = key;
+	else if (strcasecmp(kstr, "ITEM8") == 0)
+		K_ITEM8 = key;
+	else if (strcasecmp(kstr, "ITEM9") == 0)
+		K_ITEM9 = key;
+	else if (strcasecmp(kstr, "ITEM10") == 0)
+		K_ITEM10 = key;
+	else if (strcasecmp(kstr, "ITEM11") == 0)
+		K_ITEM11 = key;
+	else if (strcasecmp(kstr, "ITEM12") == 0)
+		K_ITEM12 = key;
+	else if (strcasecmp(kstr, "SCREENSHOT") == 0)
+		K_SCREENSHOT = key;
+	else if (strcasecmp(kstr, "VIEWTEXTASOVERTEXT") == 0)
+		K_VIEWTEXTASOVERTEXT = key;
+	else if (strcasecmp(kstr, "AFK") == 0)
+		K_AFK = key;
+	else if (strcasecmp(kstr, "SIT") == 0)
+		K_SIT = key;
+	else if (strcasecmp(kstr, "RANGINGLOCK") == 0)
+		K_RANGINGLOCK = key;
+	else if (strcasecmp(kstr, "BUDDY") == 0)
+		K_BUDDY = key;
+	else if (strcasecmp(kstr, "NEXT_CHAT_TAB") == 0)
+		K_NEXT_CHAT_TAB = key;
+	else if (strcasecmp(kstr, "PREV_CHAT_TAB") == 0)
+		K_PREV_CHAT_TAB = key;
+	else if (strcasecmp(kstr, "RULES") == 0)
+		K_RULES = key;
+	else if (strcasecmp(kstr, "SPELL1") == 0)
+		K_SPELL1 = key;
+	else if (strcasecmp(kstr, "SPELL2") == 0)
+		K_SPELL2 = key;
+	else if (strcasecmp(kstr, "SPELL3") == 0)
+		K_SPELL3 = key;
+	else if (strcasecmp(kstr, "SPELL4") == 0)
+		K_SPELL4 = key;
+	else if (strcasecmp(kstr, "SPELL5") == 0)
+		K_SPELL5 = key;
+	else if (strcasecmp(kstr, "SPELL6") == 0)
+		K_SPELL6 = key;
+	else if (strcasecmp(kstr, "SPELL7") == 0)
+		K_SPELL7 = key;
+	else if (strcasecmp(kstr, "SPELL8") == 0)
+		K_SPELL8 = key;
+	else if (strcasecmp(kstr, "SPELL9") == 0)
+		K_SPELL9 = key;
+	else if (strcasecmp(kstr, "SPELL10") == 0)
+		K_SPELL10 = key;
+	else if (strcasecmp(kstr, "SPELL11") == 0)
+		K_SPELL11 = key;
+	else if (strcasecmp(kstr, "SPELL12") == 0)
+		K_SPELL12 = key;
+	else if (strcasecmp(kstr, "TABCOMPLETE") == 0)
+		K_TABCOMPLETE = key;
+	else if (strcasecmp(kstr, "WINDOWS_ON_TOP") == 0)
+		K_WINDOWS_ON_TOP = key;
+	else if (strcasecmp(kstr, "MARKFILTER") == 0)
+		K_MARKFILTER = key;
+	else if (strcasecmp(kstr, "OPAQUEWIN") == 0)
+		K_OPAQUEWIN = key;
+	else if (strcasecmp(kstr, "GRAB_MOUSE") == 0)
+		K_GRAB_MOUSE = key;
+	else if (strcasecmp(kstr, "FIRST_PERSON") == 0)
+		K_FIRST_PERSON = key;
+	else if (strcasecmp(kstr, "EXTEND_CAM") == 0)
+		K_EXTEND_CAM = key;
+	else if (strcasecmp(kstr, "EMOTES") == 0)
+		K_EMOTES = key;
+}
+
+// load the dynamic definitions for keys
+void read_key_config()
+{
+	char line[512];
+	el_file_ptr f;
+
+	f = el_open_custom("key.ini");
+	if (!f)
+		return; //take the defaults
+
+	while (el_fgets(line, sizeof(line), f))
+		parse_key_line(line);
+
+	el_close(f);
+}
+
+#else  // FASTER_MAP_LOAD
 
 Uint32 parse_key_string (const char *s)
 {
@@ -561,6 +771,7 @@ void read_key_config()
 
 	free(file_mem);
 }
+#endif // FASTER_MAP_LOAD
 
 // Returns (in the buffer provided) a string describing the specified keydef.
 const char *get_key_string(Uint32 keydef, char *buf, size_t buflen)

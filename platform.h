@@ -37,7 +37,7 @@
   #define snprintf safe_snprintf
   #define strncasecmp _strnicmp
   #define strcasecmp _stricmp
-                
+
   #define __inline__ __inline
 
   #if _MSC_VER < 1400 // VC 2003 needs these defines, VC 2005 will error with them included
@@ -47,10 +47,10 @@
    #define floorf floor
    #define fabsf fabs
   #endif  // _MSC_VER < 1400
-                
+
   #define rint(X) floor(X+0.5f)
  #endif // _MSC_VER
-        
+
  #ifdef __MINGW32__
   // Lachesis: Make sure snprintf is declared before we #define it to be something else,
   // else we'll eventually break C++ headers that use it
@@ -106,6 +106,9 @@
 #ifndef M_PI
  #define M_PI 3.14159265358979323846
 #endif //M_PI
+#ifndef M_SQRT2
+ #define M_SQRT2 1.41421356237309504880
+#endif
 
 #ifdef EL_BIG_ENDIAN
  #define SwapLEFloat(X) SwapFloat(X)

@@ -129,7 +129,8 @@ int video_mode_set=0;
 
 void read_command_line(); //from main.c
 
-void load_harvestable_list()
+#ifndef FASTER_MAP_LOAD
+static void load_harvestable_list()
 {
 	FILE *f = NULL;
 	int i = 0;
@@ -155,7 +156,7 @@ void load_harvestable_list()
 	fclose(f);
 }
 
-void load_entrable_list()
+static void load_entrable_list()
 {
 	FILE *f = NULL;
 	int i=0;
@@ -179,6 +180,7 @@ void load_entrable_list()
 		}
 	fclose(f);
 }
+#endif // FASTER_MAP_LOAD
 
 void load_knowledge_list()
 {
@@ -660,17 +662,18 @@ void init_texture_cache()
 void init_e3d_cache()
 {
 	//cache_e3d= cache_init(1000, &destroy_e3d);	//TODO: autofree the name as well
-	cache_e3d= cache_init(1000, NULL);	//no aut- free permitted
-	cache_set_name(cache_system, "E3D cache", cache_e3d);
+	cache_e3d = cache_init("E3d cache", 1000, NULL);	//no aut- free permitted
 	cache_set_compact(cache_e3d, &free_e3d_va);	// to compact, free VA arrays
 	cache_set_time_limit(cache_e3d, 5*60*1000);
 	cache_set_size_limit(cache_e3d, 8*1024*1024);
 }
 
+#ifndef FASTER_MAP_LOAD
 void init_2d_obj_cache()
 {
 	memset(obj_2d_def_cache, 0, sizeof(obj_2d_def_cache));
 }
+#endif
 
 void init_stuff()
 {
@@ -751,7 +754,9 @@ void init_stuff()
 	cache_system_init(MAX_CACHE_SYSTEM);
 	init_texture_cache();
 	init_e3d_cache();
+#ifndef FASTER_MAP_LOAD
 	init_2d_obj_cache();
+#endif
 	//now load the font textures
 	load_font_textures ();
 	CHECK_GL_ERRORS();

@@ -98,17 +98,10 @@ void cleanup_mem(void)
 	end_actors_lists();
 	cleanup_lights();
 	/* 2d objects */
-	for(i = 0; i < MAX_OBJ_2D_DEF; i++) {
-		if(obj_2d_list[i] != NULL) {
-			free(obj_2d_list[i]);
-		}
-	}
+	destroy_all_2d_objects();
 	/* 3d objects */
-	for(i = 0; i < MAX_OBJ_3D; i++) {
-		if(objects_list[i] != NULL) {
-			destroy_3d_object(i);
-		}
-	}
+	destroy_all_3d_objects();
+
 	/* caches */
 	cache_e3d->free_item = &destroy_e3d;
 	cache_delete(cache_e3d);

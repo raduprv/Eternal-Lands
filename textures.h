@@ -113,7 +113,7 @@ void free_texture_cache();
  * \ingroup 	textures
  * \brief 	Binds the texture
  *
- *      	Binds the texture using the given OpenGL id. 
+ *      	Binds the texture using the given OpenGL id.
  *
  * \param	id The OpenGL id
  * \callgraph
@@ -262,7 +262,7 @@ void free_actor_texture(const Uint32 handle);
 
 /*!
  * \ingroup 	textures
- * \brief 	Returns if the actor texture is ready 
+ * \brief 	Returns if the actor texture is ready
  *
  *      	Returns one if the actor texture is ready to use, zero else.
  *

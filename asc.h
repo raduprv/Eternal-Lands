@@ -66,6 +66,7 @@ static __inline__ int is_printable (Uint8 c)
  */
 #define MY_XMLSTRCPY(d,s) my_xmlStrncopy(d,s,0)
 
+#ifndef FASTER_MAP_LOAD
 /*!
  * \ingroup	misc_utils
  * \brief	Gets an integer after the given string
@@ -91,6 +92,7 @@ Sint32 get_integer_after_string (const char* needle, const char* haystack, Uint3
  * \retval float	Returns the float after the string or -1.0f on failure.
  */
 float get_float_after_string (const char* needle, const char* haystack, Uint32 max_len);
+#endif // FASTER_MAP_LOAD
 
 /*!
  * \ingroup	misc_utils
