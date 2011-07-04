@@ -349,7 +349,7 @@ static void parse_key_line(const char *line)
 
 	if (strcasecmp(kstr, "QUIT") == 0)
 		K_QUIT = key;
-	else if (strcasecmp(kstr, "#QUIT_ALT") == 0)
+	else if (strcasecmp(kstr, "QUIT_ALT") == 0)
 		K_QUIT_ALT = key;
 	else if (strcasecmp(kstr, "CAMERAUP") == 0)
 		K_CAMERAUP = key;
