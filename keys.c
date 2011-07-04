@@ -115,7 +115,7 @@ Uint32 K_PASTE_ALT=SHIFT|SDLK_INSERT;
 Uint32 K_ECDEBUGWIN=ALT|CTRL|'c';
 #endif
 Uint32 K_EMOTES=CTRL|'j';
-Uint32 K_RANGINGWIN=CTRL|'r';
+Uint32 K_RANGINGWIN=CTRL|'t';
 
 static void add_key(Uint32 *key, Uint32 n)
 {
