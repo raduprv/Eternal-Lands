@@ -28,7 +28,7 @@ FEATURES += NEW_TEXTURES                     # Enables the new texture loading a
 #FEATURES += EXT_ACTOR_DICT                  # Removes remaining hard-coded actor def dictionaries - requires updated actor defs files (http://el.grug.redirectme.net/actor_defs.zip)
 #FEATURES += NEW_ALPHA                       # (undocumented)
 #FEATURES += USE_SIMD                        # Enables usage of simd instructions
-#FEATURES += FASTER_MAP_LOAD                 # Enables optimizations to speed up the process of switching between maps
+FEATURES += FASTER_MAP_LOAD                 # Enables optimizations to speed up the process of switching between maps
 
 ### Machine specific options (fixes or performance enhancements) ###
 #FEATURES += EL_BIG_ENDIAN                   # Enable big-endian code (automatically detected for OSX)
