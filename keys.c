@@ -322,7 +322,7 @@ static Uint16 get_key_code(const char *key)
 	}
 }
 
-#ifdef FASTER_MAP_LOAD
+#ifdef FASTER_STARTUP
 static void parse_key_line(const char *line)
 {
 	char kstr[100], t1[100], t2[100], t3[100], t4[100];
@@ -525,7 +525,7 @@ void read_key_config()
 	el_close(f);
 }
 
-#else  // FASTER_MAP_LOAD
+#else  // FASTER_STARTUP
 
 Uint32 parse_key_string (const char *s)
 {
@@ -771,7 +771,7 @@ void read_key_config()
 
 	free(file_mem);
 }
-#endif // FASTER_MAP_LOAD
+#endif // FASTER_STARTUP
 
 // Returns (in the buffer provided) a string describing the specified keydef.
 const char *get_key_string(Uint32 keydef, char *buf, size_t buflen)

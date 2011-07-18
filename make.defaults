@@ -29,6 +29,7 @@ FEATURES += NEW_TEXTURES                     # Enables the new texture loading a
 #FEATURES += NEW_ALPHA                       # (undocumented)
 #FEATURES += USE_SIMD                        # Enables usage of simd instructions
 FEATURES += FASTER_MAP_LOAD                 # Enables optimizations to speed up the process of switching between maps
+#FEATURES += FASTER_STARTUP                  # An attempt to reduce the startup time of EL somewhat
 
 ### Machine specific options (fixes or performance enhancements) ###
 #FEATURES += EL_BIG_ENDIAN                   # Enable big-endian code (automatically detected for OSX)
