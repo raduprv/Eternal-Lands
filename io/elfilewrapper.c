@@ -20,9 +20,15 @@ typedef enum
 
 struct el_file_t
 {
+#ifdef FASTER_STARTUP
+	unsigned char* buffer;
+	unsigned char* current;
+	unsigned char *end;
+#else
 	Sint64 size;
 	Sint64 position;
 	void* buffer;
+#endif
 	char* file_name;
 	Uint32 crc32;
 #ifdef FASTER_MAP_LOAD
@@ -548,8 +554,13 @@ static el_file_ptr xz_file_open(const char* file_name)
 
 	result = calloc(1, sizeof(el_file_t));
 
-	error = xz_file_read(file, &(result->buffer), &size);
+	error = xz_file_read(file, (void**)&(result->buffer), &size);
+#ifdef FASTER_STARTUP
+	result->current = result->buffer;
+	result->end = result->buffer + size;
+#else
 	result->size = size;
+#endif
 
 	fclose(file);
 
@@ -608,7 +619,12 @@ static el_file_ptr gz_file_open(const char* file_name)
 	while (gzeof(file) == 0);
 
 	result->buffer = realloc(result->buffer, size);
+#ifdef FASTER_STARTUP
+	result->current = result->buffer;
+	result->end = result->buffer + size;
+#else
 	result->size = size;
+#endif
 #ifndef FASTER_MAP_LOAD
 	result->crc32 = CrcCalc(result->buffer, result->size);
 #endif
@@ -657,12 +673,18 @@ static el_file_ptr zip_file_open(unzFile file)
 	size = file_info.size_filename;
 	result->file_name = calloc(size + 1, 1);
 
+#ifndef FASTER_STARTUP
 	result->size = file_info.uncompressed_size;
+#endif
 	result->crc32 = file_info.crc;
 #ifdef FASTER_MAP_LOAD
 	result->flags |= EL_FILE_HAVE_CRC;
 #endif
 	result->buffer = malloc(file_info.uncompressed_size);
+#ifdef FASTER_STARTUP
+	result->current = result->buffer;
+	result->end = result->buffer + file_info.uncompressed_size;
+#endif
 
 	if (unzGetCurrentFileInfo64(file, 0, result->file_name, size, 0, 0,
 		0, 0) != UNZ_OK)
@@ -671,7 +693,7 @@ static el_file_ptr zip_file_open(unzFile file)
 		return NULL;
 	}
 
-	if (unzReadCurrentFile(file, result->buffer, result->size) < 0)
+	if (unzReadCurrentFile(file, result->buffer, file_info.uncompressed_size) < 0)
 	{
 		free_el_file(result);
 		return NULL;
@@ -683,7 +705,11 @@ static el_file_ptr zip_file_open(unzFile file)
 		return NULL;
 	}
 
-	crc = CrcCalc(result->buffer, result->size);
+#ifdef FASTER_STARTUP
+	crc = CrcCalc(result->buffer, result->end - result->buffer);
+#else
+	crc = CrcCalc(result->buffer, result->buffer);
+#endif
 
 	if (result->crc32 != crc)
 	{
@@ -802,7 +828,11 @@ Sint64 el_read(el_file_ptr file, Sint64 size, void* buffer)
 	if (!file)
 		return -1;
 
+#ifdef FASTER_STARTUP
+	count = file->end - file->current;
+#else
 	count = file->size - file->position;
+#endif
 
 	if (count > size)
 	{
@@ -814,13 +844,83 @@ Sint64 el_read(el_file_ptr file, Sint64 size, void* buffer)
 		return -1;
 	}
 
+#ifdef FASTER_STARTUP
+	memcpy(buffer, file->current, count);
+	file->current += count;
+#else
 	memcpy(buffer, file->buffer + file->position, count);
-
 	file->position += count;
+#endif
 
 	return count;
 }
 
+#ifdef FASTER_STARTUP
+int el_read_float(el_file_ptr file, float *f)
+{
+	if (file->current + sizeof(float) > file->end)
+		return 0;
+#ifdef EL_FORCE_ALIGNED_READ
+	{
+		float tmp;
+		memcpy(&tmp, file->current, sizeof(float));
+		*f = SwapLEFloat(tmp);
+	}
+#else
+	*f = SwapLEFloat(*((float*)file->current));
+#endif
+	file->current += sizeof(float);
+	return 1;
+}
+
+int el_read_int(el_file_ptr file, int *i)
+{
+	if (file->current + sizeof(int) > file->end)
+		return 0;
+#ifdef EL_FORCE_ALIGNED_READ
+	{
+		int tmp;
+		memcpy(&tmp, file->current, sizeof(int));
+		*i = SDL_SwapLE32(tmp);
+	}
+#else
+	*i = SDL_SwapLE32(*((int*)file->current));
+#endif
+	file->current += sizeof(int);
+	return 1;
+}
+#endif // FASTER_STARTUP
+
+#ifdef FASTER_STARTUP
+Sint64 el_seek(el_file_ptr file, Sint64 offset, int seek_type)
+{
+	unsigned char* cur;
+
+	if (!file)
+		return -1;
+
+	switch (seek_type)
+	{
+		case SEEK_SET:
+			cur = file->buffer + offset;
+			break;
+		case SEEK_END:
+			cur = file->end - offset;
+			break;
+		case SEEK_CUR:
+			cur = file->current + offset;
+			break;
+		default:
+			return -1;
+	}
+
+	if (cur < file->buffer || cur > file->end)
+		return -1;
+
+	file->current = cur;
+	return file->current - file->buffer;
+}
+#else  // FASTER_STARTUP
 Sint64 el_seek(el_file_ptr file, Sint64 offset, int seek_type)
 {
 	Sint64 pos;
@@ -854,15 +954,24 @@ Sint64 el_seek(el_file_ptr file, Sint64 offset, int seek_type)
 		return pos;
 	}
 }
+#endif // FASTER_STARTUP
 
 Sint64 el_tell(el_file_ptr file)
 {
+#ifdef FASTER_STARTUP
+	return file ? file->current - file->buffer : -1;
+#else
 	return file ? file->position : -1;
+#endif
 }
 
 Sint64 el_get_size(el_file_ptr file)
 {
+#ifdef FASTER_STARTUP
+	return file ? file->end - file->buffer : -1;
+#else
 	return file ? file->size : -1;
+#endif
 }
 
 void el_close(el_file_ptr file)
@@ -928,10 +1037,14 @@ Uint32 el_crc32(el_file_ptr file)
 #ifdef FASTER_MAP_LOAD
 	if ((file->flags & EL_FILE_HAVE_CRC) == 0)
 	{
+#ifdef FASTER_STARTUP
+		file->crc32 = CrcCalc(file->buffer, file->end - file->buffer);
+#else
 		file->crc32 = CrcCalc(file->buffer, file->size);
+#endif
 		file->flags |= EL_FILE_HAVE_CRC;
 	}
-#endif
+#endif // FASTER_MAP_LOAD
 	return file->crc32;
 }
 
@@ -941,14 +1054,27 @@ char *el_fgets(char *str, int size, el_file_ptr file)
 	char *dp;
 	int count;
 
+#ifdef FASTER_STARTUP
+	if (!file || file->current >= file->end || size <= 0)
+#else
 	if (!file || file->position >= file->size || size <= 0)
+#endif
 		return NULL;
 
 	dp = str;
+#ifdef FASTER_STARTUP
+	sp = (const char*)file->current;
+#else
 	sp = (const char*)file->buffer + file->position;
+#endif
 	count = size - 1;
+#ifdef FASTER_STARTUP
+	if (file->current + count > file->end)
+		count = file->end - file->current;
+#else
 	if (count > file->size - file->position)
 		count = file->size - file->position;
+#endif
 
 	while (count-- > 0)
 	{
@@ -965,7 +1091,11 @@ char *el_fgets(char *str, int size, el_file_ptr file)
 	}
 	*dp = '\0';
 
+#ifdef FASTER_STARTUP
+	file->current = (unsigned char*)sp;
+#else
 	file->position = sp - (const char*)file->buffer;
+#endif
 
 	return str;
 }

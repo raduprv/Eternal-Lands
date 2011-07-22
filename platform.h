@@ -15,6 +15,16 @@
  #define X86_64
 #endif
 
+#ifdef FASTER_STARTUP
+// x86 can do unaligned reads of multi-byte data, not sure about other
+// architectures, so split unaligned reads there
+#if defined (__i386__) || defined (_M_IX86) || defined (__x86_64__) || defined (_M_X64)
+ #undef EL_FORCE_ALIGNED_READ
+#else
+ #define EL_FORCE_ALIGNED_READ
+#endif
+#endif // FASTER_STARTUP
+
 // only ever use WINDOWS anywhere else, in case we need to add another 'catch' to 
 // enable WINDOWS
 #if defined (_WIN32) || defined (_WIN64) || defined (WIN32)
