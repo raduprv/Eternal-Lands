@@ -175,8 +175,8 @@ xmlNode *get_XML_node(xmlNode *the_node, char *tagname){
 }
 
 
-attrib_16 *get_skill_address(char *skillname){
-
+attrib_16 *get_skill_address(const char *skillname)
+{
 	if(strcmp(skillname,(char*)attributes.manufacturing_skill.shortname)==0) return &your_info.manufacturing_skill;
 	if(strcmp(skillname,(char*)attributes.alchemy_skill.shortname)==0) return &your_info.alchemy_skill;
 	if(strcmp(skillname,(char*)attributes.magic_skill.shortname)==0) return &your_info.magic_skill;
@@ -343,14 +343,14 @@ int init_spells ()
 			j = 0;
 			while (data)
 			{
-				char *skill = get_string_property(data,"skill");			
+				const char *skill = get_string_property(data,"skill");
 				spells_list[i].lvls_req[j] = get_int_value(data);
 				spells_list[i].lvls[j] = get_skill_address(skill);
 				j++;
-				data = get_XML_node(data->next,"lvl");				
+				data = get_XML_node(data->next,"lvl");
 			}
 
-			data = get_XML_node(node->children,"group");			
+			data = get_XML_node(node->children,"group");
 
 			if (data == 0)
 			{

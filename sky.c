@@ -2260,6 +2260,7 @@ int skybox_parse_defs(xmlNode *node, const char *map_name)
 
 	for (def = node->children; def; def = def->next) {
 		if (def->type == XML_ELEMENT_NODE)
+		{
 			if (xmlStrcasecmp(def->name, (xmlChar*)"properties") == 0) {
 				ok &= skybox_parse_properties(def);
 			}
@@ -2336,16 +2337,17 @@ int skybox_parse_defs(xmlNode *node, const char *map_name)
 				ok &= skybox_parse_colors(def, skybox_light_diffuse_rainy);
 			}
 			else if (xmlStrcasecmp(def->name, (xmlChar*)"map") == 0) {
-                char *name = get_string_property(def, "name");
-                if (!strcasecmp(name, map_name)) {
-                    //printf("Found custom sky defs for the current map!\n");
-                    ok &= skybox_parse_defs(def, "");
-                }
+				const char *name = get_string_property(def, "name");
+				if (!strcasecmp(name, map_name)) {
+					//printf("Found custom sky defs for the current map!\n");
+					ok &= skybox_parse_defs(def, "");
+				}
 			}
 			else {
 				LOG_ERROR("unknown element for skybox: %s", def->name);
 				ok = 0;
 			}
+		}
 		else if (def->type == XML_ENTITY_REF_NODE) {
 			ok &= skybox_parse_defs(def->children, map_name);
 		}
