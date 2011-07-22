@@ -786,12 +786,12 @@ void play_stream(int sound, stream_data * stream, ALfloat gain)
 {
 	char * file;
 	char tmp_file_name[80];
-	
+
 	// Find the filename to play
 	if (stream->type == STREAM_TYPE_MUSIC)
 	{
 		if (!have_music || sound<0 || sound>=MAX_PLAYLIST_ENTRIES) return;
-		
+
 		if (playlist[sound].file_name[0]!='.' && playlist[sound].file_name[0]!='/')
 			safe_snprintf (tmp_file_name, sizeof (tmp_file_name), "./music/%s", playlist[sound].file_name);
 		else
@@ -807,10 +807,10 @@ void play_stream(int sound, stream_data * stream, ALfloat gain)
 		file = sound_type_data[sound].variant[stream->variant].part[STAGE_MAIN]->file_path;
 		if (!have_sound || sound == -1 || !strcmp(file, "")) return;
 	}
-	
+
 	// Set the gain for this stream
 	alSourcef(stream->source, AL_GAIN, gain * (stream->type == STREAM_TYPE_MUSIC ? 1.0f : sound_type_data[sound].variant[stream->variant].gain));
-	
+
 	// Load the Ogg file and start the stream
 	stream_ogg_file(file, stream, NUM_STREAM_BUFFERS);
 	stream->sound = sound;
@@ -2238,7 +2238,7 @@ void unload_sample(int sample_num)
 	// Check we have a valid sample_num
 	if (sample_num < 0 || sample_num >= MAX_BUFFERS)
 		return;
-	
+
 	// Find the places this sample is listed and reset them
 	for (i = 0; i < num_types; i++)
 	{
@@ -2384,7 +2384,7 @@ unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial
 	// Check if we have a sound config, and thus if its worth doing anything
 	if (num_types < 1)
 		return 0;
-	
+
 	// Get our position
 	if (your_actor)
 	{
@@ -2401,7 +2401,7 @@ unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial
 #endif //_EXTRA_SOUND_DEBUG
 	if (type == -1)			// Invalid sound, ignore
 		return 0;
-	
+
 	if (me)
 	{
 		// Override the x & y values to use the camera (listener) position because its me
@@ -2428,14 +2428,14 @@ unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial
 #endif //_EXTRA_SOUND_DEBUG
 		return 0;
 	}
-	
+
 	// Check this sound doesn't already exist in the sounds list and just isn't loaded
 /*	for (i = 0; i < MAX_BUFFERS * 2; i++)
 	{
 		if (sounds_list[i].sound == type && sounds_list[i].x == x && sounds_list[i].y == y && sounds_list)
 			return 0;		// This sound already exists so let update_sound handle it
 	}
-*/	
+*/
 	// Find a spot in the sounds list for this sound
 	sound_num = get_loaded_sound_num();
 	if (sound_num == -1)
@@ -2507,7 +2507,7 @@ unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial
 		printf("Not playing this sound as sound isn't enabled yet. Inited: %d, Have sound: %d, Sound on: %d, Cookie: %d\n", inited, have_sound, sound_on, cookie);
 	}
 #endif //_EXTRA_SOUND_DEBUG
-	
+
 	// We have added the sound to the list so return the cookie
 	UNLOCK_SOUND_LIST();
 	return cookie;
@@ -2526,11 +2526,11 @@ int play_sound(int sound_num, int x, int y, float initial_gain)
 	source_data * pSource;
 	sound_variants * pVariant;
 	sound_type * pNewType = &sound_type_data[sounds_list[sound_num].sound];
-	
+
 	// Check if we have a sound device and its worth continuing
 	if (!inited)
 		return 0;
-	
+
 #ifdef _EXTRA_SOUND_DEBUG
 	printf("Playing this sound: %d, Sound num: %d, Cookie: %d\n", sounds_list[sound_num].sound, sound_num, sounds_list[sound_num].cookie);
 #endif //_EXTRA_SOUND_DEBUG
@@ -2546,7 +2546,7 @@ int play_sound(int sound_num, int x, int y, float initial_gain)
 		sounds_list[sound_num].loaded = 1;
 	}
 	pVariant = &pNewType->variant[sounds_list[sound_num].variant];
-	
+
 	pSource = get_available_source(pNewType->priority);
 	if (!pSource)
 	{
@@ -2833,7 +2833,7 @@ void stop_all_sounds()
 		printf("Error killing all sounds\n");
 #endif //_EXTRA_SOUND_DEBUG
 	}
-	
+
 	must_restart_spell_sounds = 1;
 }
 
@@ -2913,7 +2913,7 @@ void update_sound(int ms)
 			must_restart_spell_sounds = 0;
 		}
 	}
-	
+
 	// Start to process the sounds
 	LOCK_SOUND_LIST();
 
@@ -2934,7 +2934,7 @@ void update_sound(int ms)
 #endif //_EXTRA_SOUND_DEBUG
 				stop_sound(sounds_list[i].cookie);
 				continue;
-			}			
+			}
 			// Check for any sounds that aren't being played and check if they need to be because
 			// sound has now been enabled or they have come back into range
 			x = sounds_list[i].x;
@@ -3046,7 +3046,7 @@ void update_sound(int ms)
 			++pSource;
 			continue;
 		}
-		
+
 		// Check for invalid sources -- This test should be redundant!
 		if (pSource->cookie == 0 || pSource->loaded_sound < 0 || sounds_list[pSource->loaded_sound].sound < 0 || pSource->current_stage == STAGE_UNUSED)
 		{
@@ -3061,7 +3061,7 @@ void update_sound(int ms)
 
 		// Update the gain for this source if nessessary
 		set_sound_gain(pSource, pSource->loaded_sound, sounds_list[pSource->loaded_sound].base_gain);
-		
+
 		pSoundType = &sound_type_data[sounds_list[pSource->loaded_sound].sound];
 		pVariant = &pSoundType->variant[sounds_list[pSource->loaded_sound].variant];
 		pSample = &sound_sample_data[pVariant->part[pSource->current_stage]->sample_num];
@@ -3271,7 +3271,7 @@ void handle_walking_sound(actor * pActor, int def_snd)
 		// NOTE: This code can and should be removed when the above functions are fixed.
 		if (snd == -1)
 			snd = get_boundary_walk_sound((int)(x * 2), (int)(y * 2));
-		
+
 		// Finally, check if we need to look for a tile, and look if necessary
 		if (snd == -1)
 			snd = get_tile_sound(get_tile_type((int)(x * 2), (int)(y * 2)), actors_defs[pActor->actor_type].actor_name);
@@ -3286,7 +3286,7 @@ void handle_walking_sound(actor * pActor, int def_snd)
 
 		// Check for something to do
 		if (snd > -1)
-		{			
+		{
 			// Check if we have a sound and it is different to the current one
 			cur_sound = find_sound_from_cookie(pActor->cur_anim_sound_cookie);
 			if (cur_sound >= 0 && sounds_list[cur_sound].sound != snd && sound_type_data[sounds_list[cur_sound].sound].type == SOUNDS_WALKING)
@@ -3423,8 +3423,28 @@ int find_sound_from_cookie(unsigned int cookie)
 	return -1;
 }
 
+#ifdef FASTER_STARTUP
+static int cmp_sound_type_names(const void* p1, const void* p2)
+{
+	const sound_type* st1 = p1;
+	const sound_type* st2 = p2;
+	return strcasecmp(st1->name, st2->name);
+}
+
+static int cmp_string_sound_type_name(const void* name, const void* p)
+{
+	const sound_type* st = p;
+	return strcasecmp(name, st->name);
+}
+#endif // FASTER_STARTUP
+
 int get_index_for_sound_type_name(const char *name)
 {
+#ifdef FASTER_STARTUP
+	sound_type *st = bsearch(name, sound_type_data, num_types,
+		sizeof(sound_type), cmp_string_sound_type_name);
+	return st ? st - sound_type_data : -1;
+#else  // FASTER_STARTUP
 	int i;
 	for(i = 0; i < num_types; ++i)
 	{
@@ -3432,6 +3452,7 @@ int get_index_for_sound_type_name(const char *name)
 			return i;
 	}
 	return -1;
+#endif // FASTER_STARTUP
 }
 
 // Look for a particle sound def matching the input filename
@@ -3464,19 +3485,13 @@ int get_sound_index_for_sfx(int sfx)
 
 int get_index_for_inv_usewith_item_sound(int use_image_id, int with_image_id)
 {
-	int i;
 	char name[MAX_SOUND_NAME_LENGTH];
-	
+
 #ifdef _EXTRA_SOUND_DEBUG
 	printf("Searching for the sound for: %d on %d\n", use_image_id, with_image_id);
 #endif //_EXTRA_SOUND_DEBUG
 	snprintf(name, sizeof(name), "%d on %d", use_image_id, with_image_id);
-	for (i = 0; i < num_types; ++i)
-	{
-		if (strcasecmp(sound_type_data[i].name, name) == 0)
-			return i;
-	}
-	return -1;
+	return get_index_for_sound_type_name(name);
 }
 
 int get_index_for_inv_use_item_sound(int image_id)
@@ -3824,12 +3839,12 @@ void clear_sound_type(int type)
 {
 	int i;
 	sound_type * sound;
-	
+
 	if (type < 0 || type > MAX_SOUNDS)
 		return;
-	
+
 	sound = &sound_type_data[type];
-	
+
 	sound->name[0] = '\0';
 	for (i = 0; i < MAX_SOUND_VARIANTS; i++)
 	{
@@ -3872,7 +3887,7 @@ void clear_boundary_data(map_sound_boundary_def * pBoundary)
 void clear_sound_data()
 {
 	int i, j;
-	
+
 	for (i = 0; i < MAX_BUFFERS * 2; i++)
 	{
 		sounds_list[i].sound = -1;
@@ -4494,19 +4509,19 @@ sound_file * load_sound_part(sound_file *pPart, SOUND_STAGE stage, const char * 
 	return NULL;
 }
 
-void parse_sound_variant(xmlNode *inNode, sound_type *inType)
+void parse_sound_variant(const xmlNode *inNode, sound_type *inType)
 {
 	char content[50];
 	float fVal = 0.0f;
 	sound_variants * pData;
-	xmlNode * attributeNode;
-	
+	const xmlNode *attributeNode;
+
 	if (inType->num_variants >= MAX_SOUND_VARIANTS)
 	{
 		LOG_ERROR("%s: Too many sound variants defined for this sound type: %s", snd_config_error, inType->name);
 		return;
 	}
-	
+
 	pData = &inType->variant[inType->num_variants++];
 	attributeNode = inNode->xmlChildrenNode;
 	while (attributeNode != NULL)
@@ -4561,14 +4576,14 @@ void parse_sound_variant(xmlNode *inNode, sound_type *inType)
 	return;
 }
 
-void parse_sound_object(xmlNode *inNode)
+void parse_sound_object(const xmlNode *inNode)
 {
-	xmlNode *attributeNode=NULL;
+	const xmlNode *attributeNode = NULL;
 
 	char content[50];
 	int iVal = 0;
 	float fVal = 0.0f;
-	char *sVal = NULL;
+	xmlChar *sVal = NULL;
 
 	sound_type *pData = NULL;
 
@@ -4577,18 +4592,19 @@ void parse_sound_object(xmlNode *inNode)
 		LOG_ERROR("%s: Maximum number of sounds (%d) reached!", snd_config_error, MAX_SOUNDS);
 		return;
 	}
-	
+
 	pData = &sound_type_data[num_types++];
 
-	sVal = (char *)xmlGetProp(inNode,(xmlChar*)"name");
+	sVal = xmlGetProp((xmlNode *)inNode, (const xmlChar*)"name");
 	if (!sVal)
 	{
 		LOG_ERROR("%s: sound has no name", snd_config_error);
 	}
 	else
 	{
-		safe_strncpy(pData->name, sVal, sizeof(pData->name));
-		
+		safe_strncpy(pData->name, (const char*)sVal, sizeof(pData->name));
+		xmlFree(sVal);
+
 		attributeNode = inNode->xmlChildrenNode;
 		while (attributeNode != NULL)
 		{
@@ -4860,7 +4876,7 @@ int validate_boundary(map_sound_boundary_def * bounds, char * map_name)
 	// Find the angle of the line from the bottom left corner to the top left (point4 -> point1)
 	bounds->p[3].a = calculate_bounds_angle(bounds->p[0].x, bounds->p[0].y, 3, bounds);
 
-	
+
 	// Check the angle of the line from the bottom left corner to the top right (point4 -> point2)
 	a = calculate_bounds_angle(bounds->p[1].x, bounds->p[1].y, 3, bounds);
 	if (bounds->p[3].a < a) bounds->int_point = 0;
@@ -4876,18 +4892,18 @@ int validate_boundary(map_sound_boundary_def * bounds, char * map_name)
 	// Check the angle of the line from the bottom right corner to the top left (point3 -> point1)
 	a = calculate_bounds_angle(bounds->p[0].x, bounds->p[0].y, 2, bounds);
 	if (bounds->p[2].a < a) bounds->int_point = 3;
-	
+
 	return 1;
 }
 
-void parse_map_sound(xmlNode *inNode)
+void parse_map_sound(const xmlNode *inNode)
 {
-	xmlNode *boundaryNode = NULL;
-	xmlNode *attributeNode = NULL;
+	const xmlNode *boundaryNode = NULL;
+	const xmlNode *attributeNode = NULL;
 
-	char *sVal = NULL;
+	xmlChar *sVal = NULL;
 	char content[50];
-	
+
 	int iVal;
 
 	map_sound_data *pMap = NULL;
@@ -4900,22 +4916,24 @@ void parse_map_sound(xmlNode *inNode)
 	}
 	pMap = &sound_map_data[sound_num_maps++];
 
-	sVal = (char *)xmlGetProp(inNode,(xmlChar*)"id");
-	if(!sVal)
+	sVal = xmlGetProp((xmlNode*)inNode,(const xmlChar*)"id");
+	if (!sVal)
 	{
 		pMap->id = -1;
 		LOG_ERROR("%s: map has no id", snd_config_error);
 	}
 	else
 	{
-		pMap->id = atoi(sVal);
-		
-		sVal = (char *)xmlGetProp(inNode,(xmlChar*)"name");
+		pMap->id = atoi((const char*)sVal);
+		xmlFree(sVal);
+
+		sVal = xmlGetProp((xmlNode*)inNode, (const xmlChar*)"name");
 		if (sVal)
 		{
-			safe_strncpy(pMap->name, sVal, sizeof(pMap->name));
+			safe_strncpy(pMap->name, (const char*)sVal, sizeof(pMap->name));
+			xmlFree(sVal);
 		}
-		
+
 		for (boundaryNode = inNode->children; boundaryNode; boundaryNode = boundaryNode->next)
 		{
 			if (boundaryNode->type == XML_ELEMENT_NODE)
@@ -5094,9 +5112,9 @@ void parse_map_sound(xmlNode *inNode)
 	}
 }
 
-void parse_effect_sound(xmlNode *inNode)
+void parse_effect_sound(const xmlNode *inNode)
 {
-	xmlNode *attributeNode = NULL;
+	const xmlNode *attributeNode = NULL;
 	effect_sound_data *pEffect = NULL;
 	char sound[MAX_SOUND_NAME_LENGTH] = "";
 
@@ -5132,9 +5150,9 @@ void parse_effect_sound(xmlNode *inNode)
 	}
 }
 
-void parse_particle_sound(xmlNode *inNode)
+void parse_particle_sound(const xmlNode *inNode)
 {
-	xmlNode *attributeNode = NULL;
+	const xmlNode *attributeNode = NULL;
 	particle_sound_data *pParticle = NULL;
 	char sound[MAX_SOUND_NAME_LENGTH] = "";
 
@@ -5190,9 +5208,9 @@ int check_for_valid_background_details(background_default * test)
 	return err;
 }
 
-void parse_background_defaults(xmlNode *inNode)
+void parse_background_defaults(const xmlNode *inNode)
 {
-	xmlNode *attributeNode = NULL;
+	const xmlNode *attributeNode = NULL;
 	background_default *pBackgroundDefault = NULL;
 	char content[MAX_SOUND_NAME_LENGTH] = "";
 
@@ -5255,9 +5273,9 @@ void parse_background_defaults(xmlNode *inNode)
 	}
 }
 
-void parse_sound_defaults(xmlNode *inNode)
+void parse_sound_defaults(const xmlNode *inNode)
 {
-	xmlNode *attributeNode = NULL;
+	const xmlNode *attributeNode = NULL;
 	char sound[MAX_SOUND_NAME_LENGTH] = "";
 
 	if (inNode->type == XML_ELEMENT_NODE)
@@ -5341,9 +5359,9 @@ void parse_item_image_ids(char * content, item_sound_data * pItem)
 	return;
 }
 
-void parse_item_sound(xmlNode *inNode)
+void parse_item_sound(const xmlNode *inNode)
 {
-	xmlNode *attributeNode = NULL;
+	const xmlNode *attributeNode = NULL;
 	char content[100] = "";
 	item_sound_data * pItem;
 
@@ -5428,9 +5446,9 @@ void parse_tile_types(char * content, tile_sound_data * pTileType)
 	return;
 }
 
-void parse_tile_type_sound(xmlNode *inNode)
+void parse_tile_type_sound(const xmlNode *inNode)
 {
-	xmlNode *attributeNode = NULL;
+	const xmlNode *attributeNode = NULL;
 	char content[1024] = "";
 	tile_sound_data * pTileType;
 
@@ -5480,7 +5498,7 @@ void parse_tile_type_sound(xmlNode *inNode)
 	}
 }
 
-void parse_spell_sound(xmlNode *inNode)
+void parse_spell_sound(const xmlNode *inNode)
 {
 	char content[100] = "";
 	int i = -1;
@@ -5511,9 +5529,9 @@ void parse_spell_sound(xmlNode *inNode)
 	}
 }
 
-int parse_sound_defs(xmlNode *node)
+int parse_sound_defs(const xmlNode *node)
 {
-	xmlNode *def;
+	const xmlNode *def;
 	int ok = 1;
 
 	for (def = node->children; def; def = def->next)
@@ -5570,11 +5588,11 @@ int parse_sound_defs(xmlNode *node)
 void load_sound_config_data (const char *file)
 {
 	xmlDoc *doc;
-	xmlNode *root=NULL;
-	
+	const xmlNode *root = NULL;
+
 	if (no_sound)
 		return;
-	
+
 	if (!el_file_exists(file))
 		return;
 
@@ -5609,6 +5627,12 @@ void load_sound_config_data (const char *file)
 #ifdef DEBUG
 	print_sound_types();
 #endif // DEBUG
+
+#ifdef FASTER_STARTUP
+	// Sort the sound types by name
+	qsort(sound_type_data, num_types, sizeof(sound_type),
+		cmp_sound_type_names);
+#endif
 }
 
 /***********************
