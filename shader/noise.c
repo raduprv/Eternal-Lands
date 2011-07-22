@@ -16,9 +16,11 @@
 static int p[MAXB + MAXB + 2];
 static double g3[MAXB + MAXB + 2][3];
 
+#ifndef FASTER_STARTUP
 int start;
 int noise_B;
-int noise_BM;
+#endif
+static int noise_BM;
 
 static __inline__ void normalize3(double v[3])
 {
@@ -30,6 +32,44 @@ static __inline__ void normalize3(double v[3])
 	v[2] = v[2] / s;
 }
 
+#ifdef FASTER_STARTUP
+static __inline__ void init_noise(int noise_B)
+{
+	int i, j, k;
+
+	srand(30757);
+
+	noise_BM = noise_B - 1;
+
+	for (i = 0; i < noise_B; i++)
+	{
+		p[i] = i;
+		for (j = 0; j < 3; j++)
+		{
+			g3[i][j] = (double)((rand() % (noise_B + noise_B)) - noise_B) / noise_B;
+		}
+		normalize3(g3[i]);
+	}
+
+	for (i = 0; i < noise_B; i++)
+	{
+		j = rand() % noise_B;
+
+		k = p[i];
+		p[i] = p[j];
+		p[j] = k;
+	}
+
+	for (i = 0; i < noise_B + 2; i++)
+	{
+		p[noise_B + i] = p[i];
+		for (j = 0; j < 3; j++)
+		{
+			g3[noise_B + i][j] = g3[i][j];
+		}
+	}
+}
+#else  // FASTER_STARTUP
 static __inline__ void init_noise()
 {
 	int i, j, k;
@@ -64,6 +104,7 @@ static __inline__ void init_noise()
 		}
 	}
 }
+#endif // FASTER_STARTUP
 
 static __inline__ double s_curve(double t)
 {
@@ -91,6 +132,55 @@ static __inline__ double at3(double q[3], double rx, double ry, double rz)
 	return rx * q[0] + ry * q[1] + rz * q[2];
 }
 
+#ifdef FASTER_STARTUP
+static __inline__ void dnoise3(double vec[3], int ndim, double amp, double *noise)
+{
+	int bx0, bx1, by0, by1, bz0, bz1, b00, b10, b01, b11;
+	double rx0, rx1, ry0, ry1, rz0, rz1, sy, sz, a, b, c, d, t, u, v;
+	int i, j, l;
+
+	setup(vec[0], &bx0, &bx1, &rx0, &rx1);
+	setup(vec[1], &by0, &by1, &ry0, &ry1);
+	setup(vec[2], &bz0, &bz1, &rz0, &rz1);
+
+	i = p[bx0];
+	j = p[bx1];
+
+	t  = s_curve(rx0);
+	sy = s_curve(ry0);
+	sz = s_curve(rz0);
+
+	b00 = p[i + by0];
+	b10 = p[j + by0];
+	b01 = p[i + by1];
+	b11 = p[j + by1];
+
+	for (l = 0; l < ndim; l++, bz0++, bz1++)
+	{
+		u = at3(g3[b00 + bz0], rx0, ry0, rz0);
+		v = at3(g3[b10 + bz0], rx1, ry0, rz0);
+		a = lerp(t, u, v);
+
+		u = at3(g3[b01 + bz0], rx0, ry1, rz0);
+		v = at3(g3[b11 + bz0], rx1, ry1, rz0);
+		b = lerp(t, u, v);
+
+		c = lerp(sy, a, b);
+
+		u = at3(g3[b00 + bz1], rx0, ry0, rz1);
+		v = at3(g3[b10 + bz1], rx1, ry0, rz1);
+		a = lerp(t, u, v);
+
+		u = at3(g3[b01 + bz1], rx0, ry1, rz1);
+		v = at3(g3[b11 + bz1], rx1, ry1, rz1);
+		b = lerp(t, u, v);
+
+		d = lerp(sy, a, b);
+
+		noise[l] += (lerp(sz, c, d) + 1) * amp;
+	}
+}
+#else
 static __inline__ void set_noise_frequency(int frequency)
 {
 	start = 1;
@@ -156,43 +246,52 @@ static __inline__ double dnoise3(double vec[3], int offset)
 
 	return lerp(sz, c, d);
 }
+#endif
 
 static __inline__ GLubyte* make_3d_noise_texture(int size, int frequency, int dimensions)
 {
-	int f, i, j, k, l;
+	int f, i, j, k;
+#ifndef FASTER_STARTUP
+	int l;
+#endif
 	int numOctaves = 4;
 	double ni[3];
 	double inci, incj, inck;
 	double* tmp;
 	double* ptr;
 	GLubyte* data;
-	double amp = 0.5;
+	double amp = 0.5 * 127.5;
 
 	data = (GLubyte*)malloc(size * size * size * dimensions);
-	tmp = (double*)malloc(size * size * size * dimensions * sizeof(double));
-	memset(tmp, 0, size * size * size * dimensions * sizeof(double));
+	tmp = calloc(size * size * size * dimensions, sizeof(double));
 
 	for (f = 0; f < numOctaves; f++, frequency *= 2, amp *= 0.5)
 	{
 		LOG_DEBUG("Generating 3D noise: octave %d/%d...", f + 1, numOctaves);
+#ifdef FASTER_STARTUP
+		init_noise(frequency);
+#else
 		set_noise_frequency(frequency);
+#endif
 		ni[0] = ni[1] = ni[2] = 0;
 
 		ptr = tmp;
 
-		inci = 1.0 / (size / frequency);
+		inci = incj = inck = 1.0 / (size / frequency);
 		for (i = 0; i < size; i++, ni[0] += inci)
 		{
-			incj = 1.0 / (size / frequency);
 			for (j = 0; j < size; j++, ni[1] += incj)
 			{
-				inck = 1.0 / (size / frequency);
 				for (k = 0; k < size; k++, ni[2] += inck, ptr += dimensions)
 				{
+#ifdef FASTER_STARTUP
+					dnoise3(ni, dimensions, amp, ptr);
+#else
 					for (l = 0; l < dimensions; l++)
 					{
-						ptr[l] += (dnoise3(ni, l) + 1.0) * amp * 127.5;
+						ptr[l] += (dnoise3(ni, l) + 1.0) * amp;
 					}
+#endif
 				}
 			}
 		}
