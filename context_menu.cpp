@@ -563,10 +563,10 @@ namespace cm
 		float fwidth = 0, fheight = 0;
 		for (size_t i=0; i<menu_lines.size(); i++)
 		{
-			float str_width = 0;
+			int str_width = 0;
 			const char *thetext = menu_lines[i].text.c_str();
 			while(*thetext != '\0')
-				str_width += get_char_width(*thetext++) * scale;
+				str_width += static_cast<int>(0.5 + get_char_width(*thetext++) * scale);
 			if (str_width > fwidth)
 				fwidth = str_width;
 			if (menu_lines[i].is_separator)
@@ -577,8 +577,8 @@ namespace cm
 		bool_tick_width = (menu_has_bools)? (bool_box_size()+text_border)*zoom : 0;
 		fwidth += bool_tick_width + (border + text_border) * 2;
 		fheight += border * 2;
-		height = int(fheight+0.5);
-		width = int(fwidth+0.5);
+		height = static_cast<int>(fheight+0.5);
+		width = static_cast<int>(fwidth+0.5);
 		return 1;
 	}
 

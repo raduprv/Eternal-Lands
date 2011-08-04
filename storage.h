@@ -24,6 +24,7 @@ extern ground_item storage_items[STORAGE_ITEMS_SIZE]; /*!< list of storage items
 extern int storage_win_x;
 extern int storage_win_y;
 extern int view_only_storage;
+extern int sort_storage_categories;
 
 /*!
  * \ingroup storage_window
