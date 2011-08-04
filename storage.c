@@ -39,6 +39,7 @@ int no_storage_categories=0;
 int selected_category=-1;
 int view_only_storage=0;
 static Uint32 drop_fail_time = 0;
+int sort_storage_categories = 0;
 
 int active_storage_item=-1;
 
@@ -177,6 +178,12 @@ void get_storage_text (const Uint8 *in_data, int len)
 	}
 }
 
+static int category_cmp(const void *a, const void *b)
+{
+	return strcmp(((const struct storage_category *)a)->name,
+				((const struct storage_category *)b)->name);
+}
+
 void get_storage_categories (const char *in_data, int len)
 {
 	int i;
@@ -203,6 +210,8 @@ void get_storage_categories (const char *in_data, int len)
 		}
 		idx++;
 	}
+	if (sort_storage_categories)
+		qsort(storage_categories, i, sizeof(*storage_categories), category_cmp);
 	for (i = in_data[0]; i < STORAGE_CATEGORIES_SIZE; i++)
 	{
 		storage_categories[i].id = -1;
@@ -621,6 +630,7 @@ static int context_storage_handler(window_info *win, int widget_id, int mx, int 
 	switch (option)
 	{
 		case ELW_CM_MENU_LEN+1: print_items(); break;
+		case ELW_CM_MENU_LEN+2: safe_strncpy(storage_text, reopen_storage_str, MAX_DESCR_LEN) ; break;
 	}
 	return 1;
 }
@@ -656,8 +666,9 @@ void display_storage_menu()
 		
 		cm_add(windows_list.window[storage_win].cm_id, cm_storage_menu_str, context_storage_handler);
 		cm_add(windows_list.window[storage_win].cm_id, cm_dialog_options_str, context_storage_handler);
-		cm_bool_line(windows_list.window[storage_win].cm_id, ELW_CM_MENU_LEN+2, &autoclose_storage_dialogue, NULL);
-		cm_bool_line(windows_list.window[storage_win].cm_id, ELW_CM_MENU_LEN+3, &auto_select_storage_option, NULL);
+		cm_bool_line(windows_list.window[storage_win].cm_id, ELW_CM_MENU_LEN+2, &sort_storage_categories, NULL);
+		cm_bool_line(windows_list.window[storage_win].cm_id, ELW_CM_MENU_LEN+3, &autoclose_storage_dialogue, NULL);
+		cm_bool_line(windows_list.window[storage_win].cm_id, ELW_CM_MENU_LEN+4, &auto_select_storage_option, NULL);
 	} else {
 		no_storage=0;
 		
@@ -671,6 +682,7 @@ void display_storage_menu()
 		vscrollbar_set_pos(storage_win, STORAGE_SCROLLBAR_ITEMS, 0);
 	}
 
+	storage_text[0] = '\0';
 	set_window_name("", "");
 }
 

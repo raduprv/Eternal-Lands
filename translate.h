@@ -442,7 +442,7 @@ extern char
 		cm_title_menu_str[150],
 		cm_title_help_str[50],
 		cm_items_menu_str[150],
-		cm_storage_menu_str[50],
+		cm_storage_menu_str[75],
 		cm_astro_menu_str[50],
 		cm_dialog_options_str[80],
 		cm_dialog_menu_str[60],
@@ -560,6 +560,7 @@ extern char	reg_error_str[15],
 		dialogue_copy_str[20],
 		dialogue_repeat_str[20],
 		open_storage_str[20],
+		reopen_storage_str[50],
 #endif
 		/*XML and channel list errors from chat.c*/
 		xml_bad_node[80],
