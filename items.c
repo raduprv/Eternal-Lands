@@ -1226,7 +1226,7 @@ static void drop_all_handler ()
 int show_items_handler(window_info * win)
 {
 	if (!manual_size_items_window)
-		use_small_items_window = video_mode <= 4;
+		use_small_items_window = ((window_height<=600) || (window_width<=800));
 
 	if(!use_small_items_window) {
 		items_grid_size=51;
@@ -1279,7 +1279,7 @@ void display_items_menu()
 			our_root_win = game_root_win;
 		}
 		if (!manual_size_items_window)
-			use_small_items_window = video_mode <= 4;
+			use_small_items_window = ((window_height<=600) || (window_width<=800));
 		
 		items_win= create_window(win_inventory, our_root_win, 0, items_menu_x, items_menu_y, items_menu_x_len, items_menu_y_len, ELW_WIN_DEFAULT);
 
