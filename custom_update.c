@@ -176,11 +176,10 @@ static Uint32 custom_update_threaded(const char* dir, const char* zip_file,
 		return 1;
 	}
 
-	snprintf(str, sizeof(str), "%s%s", get_path_config_base(), zip_file);
+	snprintf(str, sizeof(str), "Downloading from server %s", server);
+	progress_function(str, 0, 0, data);
 
-	snprintf(buffer, sizeof(buffer), "Downloading from: %s to %s", str,
-		zip_file);
-	progress_function(buffer, 0, 0, data);
+	snprintf(str, sizeof(str), "%s%s", get_path_config_base(), zip_file);
 
 	result = update(server, "custom_files.lst", "updates", str,
 		progress_function, data);
