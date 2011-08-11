@@ -793,7 +793,7 @@ Uint32 update(const char* server, const char* file, const char* dir,
 	memset(str, 0, sizeof(str));
 
 	snprintf(str, sizeof(str), "Downloading from server %s", path);
-	progress_function(str, 0, 0, user_data);
+	update_progress_function(str, 0, 0, user_data);
 
 	for (i = 0; i < MAX_OLD_UPDATE_FILES; i++)
 	{
@@ -804,7 +804,7 @@ Uint32 update(const char* server, const char* file, const char* dir,
 
 	memset(str, 0, sizeof(str));
 	snprintf(str, sizeof(str), "Opening %s", zip);
-	progress_function(str, 0, 0, user_data);
+	update_progress_function(str, 0, 0, user_data);
 
 	source_zips[0] = unzOpen64(zip);
 	unzGetGlobalComment(source_zips[0], str, sizeof(str));
