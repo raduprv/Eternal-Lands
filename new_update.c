@@ -790,8 +790,6 @@ Uint32 update(const char* server, const char* file, const char* dir,
 	memset(path, 0, sizeof(path));
 	snprintf(path, sizeof(path), "http://%s/%s/", server, dir);
 
-	memset(str, 0, sizeof(str));
-
 	snprintf(str, sizeof(str), "Downloading from server %s", path);
 	update_progress_function(str, 0, 0, user_data);
 
@@ -802,9 +800,10 @@ Uint32 update(const char* server, const char* file, const char* dir,
 		snprintf(tmp[i], sizeof(tmp[i]), "%s%s%i", zip, ".t", i);
 	}
 
-	memset(str, 0, sizeof(str));
 	snprintf(str, sizeof(str), "Opening %s", zip);
 	update_progress_function(str, 0, 0, user_data);
+
+	memset(str, 0, sizeof(str));
 
 	source_zips[0] = unzOpen64(zip);
 	unzGetGlobalComment(source_zips[0], str, sizeof(str));
