@@ -2260,6 +2260,7 @@ int skybox_parse_defs(xmlNode *node, const char *map_name)
 
 	for (def = node->children; def; def = def->next) {
 		if (def->type == XML_ELEMENT_NODE)
+		{
 			if (xmlStrcasecmp(def->name, (xmlChar*)"properties") == 0) {
 				ok &= skybox_parse_properties(def);
 			}
@@ -2336,16 +2337,17 @@ int skybox_parse_defs(xmlNode *node, const char *map_name)
 				ok &= skybox_parse_colors(def, skybox_light_diffuse_rainy);
 			}
 			else if (xmlStrcasecmp(def->name, (xmlChar*)"map") == 0) {
-                char *name = get_string_property(def, "name");
-                if (!strcasecmp(name, map_name)) {
-                    //printf("Found custom sky defs for the current map!\n");
-                    ok &= skybox_parse_defs(def, "");
-                }
+				const char *name = get_string_property(def, "name");
+				if (!strcasecmp(name, map_name)) {
+					//printf("Found custom sky defs for the current map!\n");
+					ok &= skybox_parse_defs(def, "");
+				}
 			}
 			else {
 				LOG_ERROR("unknown element for skybox: %s", def->name);
 				ok = 0;
 			}
+		}
 		else if (def->type == XML_ENTITY_REF_NODE) {
 			ok &= skybox_parse_defs(def->children, map_name);
 		}
@@ -2555,7 +2557,7 @@ void skybox_init_gl()
 	GLfloat randx,randy,randz;
 	int i;
 	float maxr;
-    float strs[NUM_STARS][3];
+	float strs[NUM_STARS][3];
 
 #ifdef	NEW_TEXTURES
 	thick_clouds_tex = load_texture_cached("textures/thick_clouds", tt_mesh);
@@ -2585,26 +2587,17 @@ void skybox_init_gl()
 	for (i = 0; i < NUM_STARS; i++)
 	{
 		float norm;
-		randx = rand()*(float)(maxr)-0.5f;
-		randy = rand()*(float)(maxr)-0.5f;
-		randz = rand()*(float)(maxr)-0.5f;
-		norm = sqrt(randx*randx + randy*randy + randz*randz);
-		if (norm > 0.5f) 
+		do
 		{
-			i--;
-		}
-		else
-		{
-			randx /= norm;
-			randy /= norm;
-			randz /= norm;
-			randx *= 500.0;
-			randy *= 500.0;
-			randz *= 500.0;
-			strs[i][0]=randx;
-			strs[i][1]=randy;
-			strs[i][2]=randz;
-		}
+			randx = rand()*(float)(maxr)-0.5f;
+			randy = rand()*(float)(maxr)-0.5f;
+			randz = rand()*(float)(maxr)-0.5f;
+			norm = sqrt(randx*randx + randy*randy + randz*randz);
+		} while (norm > 0.5f);
+
+		strs[i][0] = 500 * randx / norm;
+		strs[i][1] = 500 * randy / norm;
+		strs[i][2] = 500 * randz / norm;
 	}
 	glNewList(sky_lists,GL_COMPILE);
 	glBegin(GL_POINTS);
@@ -2649,11 +2642,11 @@ void skybox_init_gl()
 	dome_clouds_tex_coords_bis = (GLfloat*)malloc(2*dome_clouds.vertices_count*sizeof(GLfloat));
 	fog_colors = (GLfloat*)malloc(3*dome_sky.slices_count*sizeof(GLfloat));
 
-    for (i = dome_clouds.vertices_count; i--; )
-    {
-        int idx = i*2;
-        dome_clouds_tex_coords_bis[idx] = dome_clouds.tex_coords[idx];
-        dome_clouds_tex_coords_bis[idx+1] = dome_clouds.tex_coords[idx+1]+0.5;
-    }
+	for (i = dome_clouds.vertices_count; i--; )
+	{
+		int idx = i*2;
+		dome_clouds_tex_coords_bis[idx] = dome_clouds.tex_coords[idx];
+		dome_clouds_tex_coords_bis[idx+1] = dome_clouds.tex_coords[idx+1]+0.5;
+	}
 }
 

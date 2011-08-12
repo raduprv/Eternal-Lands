@@ -95,6 +95,26 @@ el_file_ptr el_open_anywhere(const char* file_name);
  * \see el_open
  */
 Sint64 el_read(el_file_ptr file, Sint64 size, void* buffer);
+#ifdef FASTER_STARTUP
+/*!
+ * \brief Read a float
+ *
+ * Read a float from the current position in the file and store it \a f.
+ * \param file The file to read from
+ * \param f    Place to store the float
+ * \return 1 on success, 0 on failure
+ */
+int el_read_float(el_file_ptr file, float *f);
+/*!
+ * \brief Read an integer
+ *
+ * Read an integer from the current position in the file and store it \a i.
+ * \param file The file to read from
+ * \param f    Place to store the integer
+ * \return 1 on success, 0 on failure
+ */
+int el_read_int(el_file_ptr file, int *i);
+#endif
 
 /*!
  * \brief Sets the position in the file.

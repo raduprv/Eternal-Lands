@@ -364,11 +364,11 @@ void cal_set_anim_sound(struct cal_anim *my_cal_anim, const char *sound, const c
 #endif // NEW_SOUND
 
 
-	#ifdef NEW_SOUND
+#ifdef NEW_SOUND
 struct cal_anim cal_load_anim(actor_types *act, const char *str, const char *sound, const char *sound_scale, int duration)
-	#else
+#else
 struct cal_anim cal_load_anim(actor_types *act, const char *str, int duration)
-	#endif	//NEW_SOUND
+#endif	//NEW_SOUND
 {
 	char fname[255]={0};
 	struct cal_anim res={-1,cycle,0,0.0f

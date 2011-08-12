@@ -84,15 +84,15 @@ int actor_part_sizes[ACTOR_NUM_PARTS];
 
 //Forward declarations
 int cal_load_weapon_mesh (actor_types *act, const char *fn, const char *kind);
-int cal_load_mesh (actor_types *act, const char *fn, const char *kind);
+int cal_load_mesh(actor_types *act, const char *fn, const char *kind);
 void unqueue_cmd(int i);
 #ifdef NEW_SOUND
-int parse_actor_sounds (actor_types *act, xmlNode *cfg);
+int parse_actor_sounds(actor_types *act, const xmlNode *cfg);
 #endif	//NEW_SOUND
 
 hash_table *emote_cmds = NULL;
 hash_table *emotes = NULL;
-int  parse_actor_frames(actor_types *act, xmlNode *cfg, xmlNode *defaults);
+int parse_actor_frames(actor_types *act, const xmlNode *cfg, const xmlNode *defaults);
 
 
 #ifdef MORE_ATTACHED_ACTORS_DEBUG
@@ -2480,9 +2480,10 @@ void actor_check_int(actor_types *act, const char *section, const char *type, in
 
 
 
-void add_emote_to_dict(xmlNode *node, emote_data *emote){
+void add_emote_to_dict(const xmlNode *node, emote_data *emote)
+{
 	emote_dict *entry=NULL;
-	if(!emote_cmds) 
+	if(!emote_cmds)
 		emote_cmds= create_hash_table(EMOTE_CMDS_HASH,hash_fn_str,cmp_fn_str,free);
 
 	entry = (emote_dict*) malloc(sizeof(emote_dict));
@@ -2603,13 +2604,13 @@ emote_data *new_emote(int id){
 	return emote;
 }
 
-void get_emote_props(xmlNode *item, int *sex, int *race, int *held){
-
-	char *s_sex,*s_race,*s_held;	
+void get_emote_props(const xmlNode *item, int *sex, int *race, int *held)
+{
+	const char *s_sex,*s_race,*s_held;
 	*sex=-1;
 	*race=-1;
 	*held=-1;
-	
+
 	s_sex=get_string_property(item,"sex");
 	s_race=get_string_property(item,"race");
 	s_held=get_string_property(item,"held");
@@ -2625,14 +2626,14 @@ void get_emote_props(xmlNode *item, int *sex, int *race, int *held){
 	if(!strcasecmp(s_race,"draegoni")) *race=5;
 	if(!strcasecmp(s_race,"monster")) *race=6;
 
-	if(!strcasecmp(s_held,"true")||!strcasecmp(s_held,"1")) *held=1;	
-	if(!strcasecmp(s_held,"false")||!strcasecmp(s_held,"0")) *held=0;	
+	if(!strcasecmp(s_held,"true")||!strcasecmp(s_held,"1")) *held=1;
+	if(!strcasecmp(s_held,"false")||!strcasecmp(s_held,"0")) *held=0;
 }
 
 
-emote_frame *get_emote_frames(xmlNode *node){
-
-	xmlNode *item;
+emote_frame *get_emote_frames(const xmlNode *node)
+{
+	const xmlNode *item;
 	emote_frame *frames=NULL,*head=NULL;
 	char tmp[100];
 
@@ -2669,11 +2670,11 @@ emote_frame *get_emote_frames(xmlNode *node){
 
 }
 
-int parse_emote_def(emote_data *emote, xmlNode *node)
+int parse_emote_def(emote_data *emote, const xmlNode *node)
 {
-	xmlNode *item;
+	const xmlNode *item;
 	int ok,s,r,h;
-	char *bare,*pose;
+	const char *bare,*pose;
 
 	if (node == NULL || node->children == NULL) return 0;
 
@@ -2731,9 +2732,9 @@ int parse_emote_def(emote_data *emote, xmlNode *node)
 }
 
 
-int parse_emotes_defs(xmlNode *node)
+int parse_emotes_defs(const xmlNode *node)
 {
-	xmlNode *def;
+	const xmlNode *def;
 	emote_data *emote = NULL;
 	int ok = 1;
 
@@ -2778,7 +2779,7 @@ int parse_emotes_defs(xmlNode *node)
 
 int read_emotes_defs(const char *dir, const char *index)
 {
-	xmlNode *root;
+	const xmlNode *root;
 	xmlDoc *doc;
 	char fname[120];
 	int ok = 1;
@@ -2817,15 +2818,14 @@ void free_emotes()
 	destroy_hash_table(emotes);
 }
 
-xmlNode *get_default_node(xmlNode *cfg, xmlNode *defaults)
+const xmlNode *get_default_node(const xmlNode *cfg, const xmlNode *defaults)
 {
-	xmlNode *item;
-	char *group;
+	const xmlNode *item;
+	const char *group;
 
 	// first, check for errors
-	if(defaults == NULL || cfg == NULL){
-        return NULL;
-	}
+	if(defaults == NULL || cfg == NULL)
+		return NULL;
 
 	//lets find out what group to look for
 	group = get_string_property(cfg, "group");
@@ -2834,7 +2834,7 @@ xmlNode *get_default_node(xmlNode *cfg, xmlNode *defaults)
 	for(item=defaults->children; item; item=item->next){
 		if(item->type == XML_ELEMENT_NODE) {
 			if(xmlStrcasecmp(item->name, cfg->name) == 0){
-				char *item_group;
+				const char *item_group;
 
 				item_group = get_string_property(item, "group");
 				// either both have no group, or both groups match
@@ -2850,9 +2850,9 @@ xmlNode *get_default_node(xmlNode *cfg, xmlNode *defaults)
 	return NULL;
 }
 
-int parse_actor_shirt (actor_types *act, xmlNode *cfg, xmlNode *defaults)
+int parse_actor_shirt(actor_types *act, const xmlNode *cfg, const xmlNode *defaults)
 {
-	xmlNode *item;
+	const xmlNode *item;
 	int ok, col_idx;
 	shirt_part *shirt;
 
@@ -2898,7 +2898,7 @@ int parse_actor_shirt (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 
 	// check for default entries, if found, use them to fill in missing data
 	if(defaults){
-		xmlNode *default_node= get_default_node(cfg, defaults);
+		const xmlNode *default_node = get_default_node(cfg, defaults);
 
 		if(default_node){
 			if(shirt->arms_name==NULL || *shirt->arms_name=='\0')
@@ -2921,9 +2921,9 @@ int parse_actor_shirt (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	return ok;
 }
 
-int parse_actor_skin (actor_types *act, xmlNode *cfg, xmlNode *defaults)
+int parse_actor_skin (actor_types *act, const xmlNode *cfg, const xmlNode *defaults)
 {
-	xmlNode *item;
+	const xmlNode *item;
 	int ok, col_idx;
 	skin_part *skin;
 
@@ -2970,7 +2970,7 @@ int parse_actor_skin (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 
 	// check for default entries, if found, use them to fill in missing data
 	if(defaults){
-		xmlNode *default_node= get_default_node(cfg, defaults);
+		const xmlNode *default_node= get_default_node(cfg, defaults);
 
 		if(default_node){
 			if(skin->hands_name==NULL || *skin->hands_name=='\0')
@@ -2988,9 +2988,9 @@ int parse_actor_skin (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	return ok;
 }
 
-int parse_actor_legs (actor_types *act, xmlNode *cfg, xmlNode *defaults)
+int parse_actor_legs (actor_types *act, const xmlNode *cfg, const xmlNode *defaults)
 {
-	xmlNode *item;
+	const xmlNode *item;
 	int ok, col_idx;
 	legs_part *legs;
 
@@ -3036,7 +3036,7 @@ int parse_actor_legs (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 
 	// check for default entries, if found, use them to fill in missing data
 	if(defaults){
-		xmlNode *default_node= get_default_node(cfg, defaults);
+		const xmlNode *default_node = get_default_node(cfg, defaults);
 
 		if(default_node){
 			if(legs->legs_name==NULL || *legs->legs_name=='\0')
@@ -3057,191 +3057,197 @@ int parse_actor_legs (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	return ok;
 }
 
-int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *cfg, xmlNode *defaults)
+int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, const xmlNode *cfg, const xmlNode *defaults)
 {
-	xmlNode *item;
+	const xmlNode *item;
 	char str[255];
+	char name[256];
 	int ok, index;
 
 	if (cfg == NULL || cfg->children == NULL) return 0;
 
 	ok = 1;
-	for (item = cfg->children; item; item = item->next) {
-		if (item->type == XML_ELEMENT_NODE) {
-			if (xmlStrcasecmp (item->name, (xmlChar*)"mesh") == 0) {
+	for (item = cfg->children; item; item = item->next)
+	{
+		if (item->type == XML_ELEMENT_NODE)
+		{
+			safe_strncpy(name, (const char*)item->name, sizeof(name));
+			my_tolower(name);
+
+			if (!strcmp(name, "mesh")) {
 				get_string_value (weapon->model_name, sizeof (weapon->model_name), item);
 				weapon->mesh_index = cal_load_weapon_mesh (act, weapon->model_name, "weapon");
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"skin") == 0) {
+			} else if (!strcmp(name, "skin")) {
 				get_string_value (weapon->skin_name, sizeof (weapon->skin_name), item);
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"skinmask") == 0) {
+			} else if (!strcmp(name, "skinmask")) {
 				get_string_value (weapon->skin_mask, sizeof (weapon->skin_mask), item);
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"glow") == 0) {
-				int mode = find_description_index (glow_mode_dict, (char*)item->children->content, "glow mode");
+			} else if (!strcmp(name, "glow")) {
+				int mode = find_description_index(glow_mode_dict, (char*)item->children->content, "glow mode");
 				if (mode < 0) mode = GLOW_NONE;
 				weapon->glow = mode;
 #ifdef NEW_SOUND
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up1") == 0) {
+			} else if (!strcmp(name, "snd_attack_up1")) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_1_frame], str, get_string_property(item, "sound_scale"));
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up2") == 0) {
+				cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_1_frame], str, get_string_property(item, "sound_scale"));
+			} else if (!strcmp(name, "snd_attack_up2")) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_2_frame], str, get_string_property(item, "sound_scale"));
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up3") == 0) {
+				cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_2_frame], str, get_string_property(item, "sound_scale"));
+			} else if (!strcmp(name, "snd_attack_up3")) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_3_frame], str, get_string_property(item, "sound_scale"));
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up4") == 0) {
+				cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_3_frame], str, get_string_property(item, "sound_scale"));
+			} else if (!strcmp(name, "snd_attack_up4")) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_4_frame], str, get_string_property(item, "sound_scale"));
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up5") == 0) {
+				cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_4_frame], str, get_string_property(item, "sound_scale"));
+			} else if (!strcmp(name, "snd_attack_up5")) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_5_frame], str, get_string_property(item, "sound_scale"));
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up6") == 0) {
+				cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_5_frame], str, get_string_property(item, "sound_scale"));
+			} else if (!strcmp(name, "snd_attack_up6")) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_6_frame], str, get_string_property(item, "sound_scale"));
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up7") == 0) {
+				cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_6_frame], str, get_string_property(item, "sound_scale"));
+			} else if (!strcmp(name, "snd_attack_up7")) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_7_frame], str, get_string_property(item, "sound_scale"));
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up8") == 0) {
+				cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_7_frame], str, get_string_property(item, "sound_scale"));
+			} else if (!strcmp(name, "snd_attack_up8")) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_8_frame], str, get_string_property(item, "sound_scale"));
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up9") == 0) {
+				cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_8_frame], str, get_string_property(item, "sound_scale"));
+			} else if (!strcmp(name, "snd_attack_up9")) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_9_frame], str, get_string_property(item, "sound_scale"));
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up10") == 0) {
+				cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_9_frame], str, get_string_property(item, "sound_scale"));
+			} else if (!strcmp(name, "snd_attack_up10")) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_10_frame], str, get_string_property(item, "sound_scale"));
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down1") == 0) {
+				cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_up_10_frame], str, get_string_property(item, "sound_scale"));
+			} else if (!strcmp(name, "snd_attack_down1")) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_1_frame], str, get_string_property(item, "sound_scale"));
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down2") == 0) {
+				cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_1_frame], str, get_string_property(item, "sound_scale"));
+			} else if (!strcmp(name, "snd_attack_down2")) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_2_frame], str, get_string_property(item, "sound_scale"));
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down3") == 0) {
+				cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_2_frame], str, get_string_property(item, "sound_scale"));
+			} else if (!strcmp(name, "snd_attack_down3")) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_3_frame], str, get_string_property(item, "sound_scale"));
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down4") == 0) {
+				cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_3_frame], str, get_string_property(item, "sound_scale"));
+			} else if (!strcmp(name, "snd_attack_down4")) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_4_frame], str, get_string_property(item, "sound_scale"));
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down5") == 0) {
+				cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_4_frame], str, get_string_property(item, "sound_scale"));
+			} else if (!strcmp(name, "snd_attack_down5")) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_5_frame], str, get_string_property(item, "sound_scale"));
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down6") == 0) {
+				cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_5_frame], str, get_string_property(item, "sound_scale"));
+			} else if (!strcmp(name, "snd_attack_down6")) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_6_frame], str, get_string_property(item, "sound_scale"));
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down7") == 0) {
+				cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_6_frame], str, get_string_property(item, "sound_scale"));
+			} else if (!strcmp(name, "snd_attack_down7")) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_7_frame], str, get_string_property(item, "sound_scale"));
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down8") == 0) {
+				cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_7_frame], str, get_string_property(item, "sound_scale"));
+			} else if (!strcmp(name, "snd_attack_down8")) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_8_frame], str, get_string_property(item, "sound_scale"));
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down9") == 0) {
+				cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_8_frame], str, get_string_property(item, "sound_scale"));
+			} else if (!strcmp(name, "snd_attack_down9")) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_9_frame], str, get_string_property(item, "sound_scale"));
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down10") == 0) {
+				cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_9_frame], str, get_string_property(item, "sound_scale"));
+			} else if (!strcmp(name, "snd_attack_down10")) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_10_frame], str, get_string_property(item, "sound_scale"));
+				cal_set_anim_sound(&weapon->cal_frames[cal_weapon_attack_down_10_frame], str, get_string_property(item, "sound_scale"));
 #endif	//NEW_SOUND
 			} else {
 				index = -1;
-				if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up1") == 0) {
+				if (!strcmp(name, "cal_attack_up1")) {
 					index = cal_weapon_attack_up_1_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up2") == 0) {
+				} else if (!strcmp(name, "cal_attack_up2")) {
 					index = cal_weapon_attack_up_2_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up3") == 0) {
+				} else if (!strcmp(name, "cal_attack_up3")) {
 					index = cal_weapon_attack_up_3_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up4") == 0) {
+				} else if (!strcmp(name, "cal_attack_up4")) {
 					index = cal_weapon_attack_up_4_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up5") == 0) {
+				} else if (!strcmp(name, "cal_attack_up5")) {
 					index = cal_weapon_attack_up_5_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up6") == 0) {
+				} else if (!strcmp(name, "cal_attack_up6")) {
 					index = cal_weapon_attack_up_6_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up7") == 0) {
+				} else if (!strcmp(name, "cal_attack_up7")) {
 					index = cal_weapon_attack_up_7_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up8") == 0) {
+				} else if (!strcmp(name, "cal_attack_up8")) {
 					index = cal_weapon_attack_up_8_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up9") == 0) {
+				} else if (!strcmp(name, "cal_attack_up9")) {
 					index = cal_weapon_attack_up_9_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up10") == 0) {
+				} else if (!strcmp(name, "cal_attack_up10")) {
 					index = cal_weapon_attack_up_10_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down1") == 0) {
+				} else if (!strcmp(name, "cal_attack_down1")) {
 					index = cal_weapon_attack_down_1_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down2") == 0) {
+				} else if (!strcmp(name, "cal_attack_down2")) {
 					index = cal_weapon_attack_down_2_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down3") == 0) {
+				} else if (!strcmp(name, "cal_attack_down3")) {
 					index = cal_weapon_attack_down_3_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down4") == 0) {
+				} else if (!strcmp(name, "cal_attack_down4")) {
 					index = cal_weapon_attack_down_4_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down5") == 0) {
+				} else if (!strcmp(name, "cal_attack_down5")) {
 					index = cal_weapon_attack_down_5_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down6") == 0) {
+				} else if (!strcmp(name, "cal_attack_down6")) {
 					index = cal_weapon_attack_down_6_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down7") == 0) {
+				} else if (!strcmp(name, "cal_attack_down7")) {
 					index = cal_weapon_attack_down_7_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down8") == 0) {
+				} else if (!strcmp(name, "cal_attack_down8")) {
 					index = cal_weapon_attack_down_8_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down9") == 0) {
+				} else if (!strcmp(name, "cal_attack_down9")) {
 					index = cal_weapon_attack_down_9_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down10") == 0) {
+				} else if (!strcmp(name, "cal_attack_down10")) {
 					index = cal_weapon_attack_down_10_frame;
-				}else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up1_held") == 0) {
+				}else if (!strcmp(name, "cal_attack_up1_held")) {
 					index = cal_weapon_attack_up_1_held_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up2_held") == 0) {
+				} else if (!strcmp(name, "cal_attack_up2_held")) {
 					index = cal_weapon_attack_up_2_held_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up3_held") == 0) {
+				} else if (!strcmp(name, "cal_attack_up3_held")) {
 					index = cal_weapon_attack_up_3_held_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up4_held") == 0) {
+				} else if (!strcmp(name, "cal_attack_up4_held")) {
 					index = cal_weapon_attack_up_4_held_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up5_held") == 0) {
+				} else if (!strcmp(name, "cal_attack_up5_held")) {
 					index = cal_weapon_attack_up_5_held_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up6_held") == 0) {
+				} else if (!strcmp(name, "cal_attack_up6_held")) {
 					index = cal_weapon_attack_up_6_held_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up7_held") == 0) {
+				} else if (!strcmp(name, "cal_attack_up7_held")) {
 					index = cal_weapon_attack_up_7_held_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up8_held") == 0) {
+				} else if (!strcmp(name, "cal_attack_up8_held")) {
 					index = cal_weapon_attack_up_8_held_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up9_held") == 0) {
+				} else if (!strcmp(name, "cal_attack_up9_held")) {
 					index = cal_weapon_attack_up_9_held_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up10_held") == 0) {
+				} else if (!strcmp(name, "cal_attack_up10_held")) {
 					index = cal_weapon_attack_up_10_held_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down1_held") == 0) {
+				} else if (!strcmp(name, "cal_attack_down1_held")) {
 					index = cal_weapon_attack_down_1_held_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down2_held") == 0) {
+				} else if (!strcmp(name, "cal_attack_down2_held")) {
 					index = cal_weapon_attack_down_2_held_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down3_held") == 0) {
+				} else if (!strcmp(name, "cal_attack_down3_held")) {
 					index = cal_weapon_attack_down_3_held_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down4_held") == 0) {
+				} else if (!strcmp(name, "cal_attack_down4_held")) {
 					index = cal_weapon_attack_down_4_held_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down5_held") == 0) {
+				} else if (!strcmp(name, "cal_attack_down5_held")) {
 					index = cal_weapon_attack_down_5_held_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down6_held") == 0) {
+				} else if (!strcmp(name, "cal_attack_down6_held")) {
 					index = cal_weapon_attack_down_6_held_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down7_held") == 0) {
+				} else if (!strcmp(name, "cal_attack_down7_held")) {
 					index = cal_weapon_attack_down_7_held_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down8_held") == 0) {
+				} else if (!strcmp(name, "cal_attack_down8_held")) {
 					index = cal_weapon_attack_down_8_held_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down9_held") == 0) {
+				} else if (!strcmp(name, "cal_attack_down9_held")) {
 					index = cal_weapon_attack_down_9_held_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down10_held") == 0) {
+				} else if (!strcmp(name, "cal_attack_down10_held")) {
 					index = cal_weapon_attack_down_10_held_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_range_fire") == 0) {
+				} else if (!strcmp(name, "cal_range_fire")) {
 					index = cal_weapon_range_fire_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_range_fire_out") == 0) {
+				} else if (!strcmp(name, "cal_range_fire_out")) {
 					index = cal_weapon_range_fire_out_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_range_idle") == 0) {
+				} else if (!strcmp(name, "cal_range_idle")) {
 					index = cal_weapon_range_idle_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_range_in") == 0) {
+				} else if (!strcmp(name, "cal_range_in")) {
 					index = cal_weapon_range_in_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_range_out") == 0) {
+				} else if (!strcmp(name, "cal_range_out")) {
 					index = cal_weapon_range_out_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_range_fire_held") == 0) {
+				} else if (!strcmp(name, "cal_range_fire_held")) {
 					index = cal_weapon_range_fire_held_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_range_fire_out_held") == 0) {
+				} else if (!strcmp(name, "cal_range_fire_out_held")) {
 					index = cal_weapon_range_fire_out_held_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_range_idle_held") == 0) {
+				} else if (!strcmp(name, "cal_range_idle_held")) {
 					index = cal_weapon_range_idle_held_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_range_in_held") == 0) {
+				} else if (!strcmp(name, "cal_range_in_held")) {
 					index = cal_weapon_range_in_held_frame;
-				} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_range_out_held") == 0) {
+				} else if (!strcmp(name, "cal_range_out_held")) {
 					index = cal_weapon_range_out_held_frame;
 				}
 				if (index > -1)
@@ -3261,8 +3267,10 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
 					ok = 0;
 				}
 			}
-		} else if (item->type == XML_ENTITY_REF_NODE) {
-			ok &= parse_actor_weapon_detail (act, weapon, item->children, defaults);
+		}
+		else if (item->type == XML_ENTITY_REF_NODE)
+		{
+			ok &= parse_actor_weapon_detail(act, weapon, item->children, defaults);
 		}
 	}
 
@@ -3270,7 +3278,7 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
 	return ok;
 }
 
-int parse_actor_weapon (actor_types *act, xmlNode *cfg, xmlNode *defaults)
+int parse_actor_weapon(actor_types *act, const xmlNode *cfg, const xmlNode *defaults)
 {
 	int ok, type_idx;
 	weapon_part *weapon;
@@ -3308,7 +3316,7 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 
 	// check for default entries, if found, use them to fill in missing data
 	if(defaults){
-		xmlNode *default_node= get_default_node(cfg, defaults);
+		const xmlNode *default_node= get_default_node(cfg, defaults);
 
 		if(default_node){
 			if(weapon->skin_name==NULL || *weapon->skin_name=='\0')
@@ -3337,9 +3345,9 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	return ok;
 }
 
-int parse_actor_body_part (actor_types *act, body_part *part, xmlNode *cfg, const char *part_name, xmlNode *default_node)
+int parse_actor_body_part (actor_types *act, body_part *part, const xmlNode *cfg, const char *part_name, const xmlNode *default_node)
 {
-	xmlNode *item;
+	const xmlNode *item;
 	int ok = 1;
 
 	if(cfg == NULL) return 0;
@@ -3393,9 +3401,9 @@ int parse_actor_body_part (actor_types *act, body_part *part, xmlNode *cfg, cons
 	return ok;
 }
 
-int parse_actor_helmet (actor_types *act, xmlNode *cfg, xmlNode *defaults)
+int parse_actor_helmet (actor_types *act, const xmlNode *cfg, const xmlNode *defaults)
 {
-	xmlNode *default_node= get_default_node(cfg, defaults);
+	const xmlNode *default_node= get_default_node(cfg, defaults);
 	int type_idx;
 	body_part *helmet;
 
@@ -3423,9 +3431,9 @@ int parse_actor_helmet (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	return parse_actor_body_part(act,helmet, cfg->children, "helmet", default_node);
 }
 
-int parse_actor_neck (actor_types *act, xmlNode *cfg, xmlNode *defaults)
+int parse_actor_neck (actor_types *act, const xmlNode *cfg, const xmlNode *defaults)
 {
-	xmlNode *default_node= get_default_node(cfg, defaults);
+	const xmlNode *default_node = get_default_node(cfg, defaults);
 	int type_idx;
 	body_part *neck;
 
@@ -3450,9 +3458,9 @@ int parse_actor_neck (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 }
 
 #ifdef NEW_SOUND
-int parse_actor_sounds (actor_types *act, xmlNode *cfg)
+int parse_actor_sounds(actor_types *act, const xmlNode *cfg)
 {
-	xmlNode *item;
+	const xmlNode *item;
 	char str[255];
 	int ok;
 	int i;
@@ -3515,9 +3523,9 @@ int parse_actor_sounds (actor_types *act, xmlNode *cfg)
 }
 #endif	//NEW_SOUND
 
-int parse_actor_cape (actor_types *act, xmlNode *cfg, xmlNode *defaults)
+int parse_actor_cape (actor_types *act, const xmlNode *cfg, const xmlNode *defaults)
 {
-	xmlNode *default_node= get_default_node(cfg, defaults);
+	const xmlNode *default_node = get_default_node(cfg, defaults);
 	int type_idx;
 	body_part *cape;
 
@@ -3545,9 +3553,9 @@ int parse_actor_cape (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	return parse_actor_body_part(act,cape, cfg->children, "cape", default_node);
 }
 
-int parse_actor_head (actor_types *act, xmlNode *cfg, xmlNode *defaults)
+int parse_actor_head (actor_types *act, const xmlNode *cfg, const xmlNode *defaults)
 {
-	xmlNode *default_node= get_default_node(cfg, defaults);
+	const xmlNode *default_node= get_default_node(cfg, defaults);
 	int type_idx;
 	body_part *head;
 
@@ -3576,9 +3584,9 @@ int parse_actor_head (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	return parse_actor_body_part(act, head, cfg->children, "head", default_node);
 }
 
-int parse_actor_shield_part (actor_types *act, shield_part *part, xmlNode *cfg, xmlNode *default_node)
+int parse_actor_shield_part (actor_types *act, shield_part *part, const xmlNode *cfg, const xmlNode *default_node)
 {
-	xmlNode *item;
+	const xmlNode *item;
 	int ok = 1;
 
 	if(cfg == NULL) return 0;
@@ -3621,9 +3629,9 @@ int parse_actor_shield_part (actor_types *act, shield_part *part, xmlNode *cfg, 
 	return ok;
 }
 
-int parse_actor_shield (actor_types *act, xmlNode *cfg, xmlNode *defaults)
+int parse_actor_shield (actor_types *act, const xmlNode *cfg, const xmlNode *defaults)
 {
-	xmlNode *default_node= get_default_node(cfg, defaults);
+	const xmlNode *default_node = get_default_node(cfg, defaults);
 	int type_idx;
 	shield_part *shield;
 
@@ -3654,7 +3662,7 @@ int parse_actor_shield (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	return parse_actor_shield_part(act, shield, cfg->children, default_node);
 }
 
-int parse_actor_hair (actor_types *act, xmlNode *cfg, xmlNode *defaults)
+int parse_actor_hair (actor_types *act, const xmlNode *cfg, const xmlNode *defaults)
 {
 	int col_idx;
 	size_t len;
@@ -3758,9 +3766,9 @@ void parse_idle_group (actor_types *act, const char *str)
 	//LOG_TO_CONSOLE(c_green2,temp);
 }
 
-int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
+int parse_actor_frames (actor_types *act, const xmlNode *cfg, const xmlNode *defaults)
 {
-	xmlNode *item;
+	const xmlNode *item;
 	char str[255];
 	int ok = 1, index;
 
@@ -3957,9 +3965,9 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	return ok;
 }
 
-int parse_actor_attachment (actor_types *act, xmlNode *cfg, int actor_type)
+int parse_actor_attachment (actor_types *act, const xmlNode *cfg, int actor_type)
 {
-	xmlNode *item;
+	const xmlNode *item;
 	int ok = 1;
 	attached_actors_types *att = &attached_actors_defs[act->actor_type];
 	actor_types *held_act = NULL;
@@ -4077,9 +4085,9 @@ int parse_actor_attachment (actor_types *act, xmlNode *cfg, int actor_type)
 	return ok;
 }
 
-int parse_actor_boots (actor_types *act, xmlNode *cfg, xmlNode *defaults)
+int parse_actor_boots (actor_types *act, const xmlNode *cfg, const xmlNode *defaults)
 {
-	xmlNode *item;
+	const xmlNode *item;
 	int ok, col_idx;
 	boots_part *boots;
 
@@ -4125,7 +4133,7 @@ int parse_actor_boots (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 
 	// check for default entries, if found, use them to fill in missing data
 	if(defaults){
-		xmlNode *default_node= get_default_node(cfg, defaults);
+		const xmlNode *default_node = get_default_node(cfg, defaults);
 
 		if(default_node){
 			if(boots->boots_name==NULL || *boots->boots_name=='\0')
@@ -4229,7 +4237,7 @@ int cal_search_mesh (actor_types *act, const char *fn, const char *kind)
 }
 
 //Loads a Cal3D mesh
-int cal_load_mesh (actor_types *act, const char *fn, const char *kind)
+int cal_load_mesh(actor_types *act, const char *fn, const char *kind)
 {
 	int res;
 	struct CalCoreMesh *mesh;
@@ -4286,28 +4294,34 @@ int cal_load_weapon_mesh (actor_types *act, const char *fn, const char *kind)
 	return res;
 }
 
-int	parse_actor_nodes (actor_types *act, xmlNode *cfg, xmlNode *defaults)
+int parse_actor_nodes(actor_types *act, const xmlNode *cfg, const xmlNode *defaults)
 {
-	xmlNode	*item;
-	int	ok= 1;
+	char name[256];
+	const xmlNode *item;
+	int ok= 1;
 
-	for(item=cfg->children; item; item=item->next) {
-		if(item->type == XML_ELEMENT_NODE) {
-			if(xmlStrcasecmp(item->name, (xmlChar*)"ghost") == 0) {
-				act->ghost= get_bool_value (item);
-			} else if(xmlStrcasecmp(item->name, (xmlChar*)"skin") == 0) {
+	for (item=cfg->children; item; item=item->next)
+	{
+		if(item->type == XML_ELEMENT_NODE)
+		{
+			safe_strncpy(name, (const char*)item->name, sizeof(name));
+			my_tolower(name);
+
+			if (!strcmp(name, "ghost")) {
+				act->ghost= get_bool_value(item);
+			} else if (!strcmp(name, "skin")) {
 				get_string_value(act->skin_name, sizeof (act->skin_name), item);
-			} else if(xmlStrcasecmp(item->name, (xmlChar*)"mesh") == 0) {
+			} else if (!strcmp(name, "mesh")) {
 				get_string_value(act->file_name, sizeof (act->file_name), item);
-			} else if(xmlStrcasecmp(item->name, (xmlChar*)"actor_scale")==0) {
+			} else if (!strcmp(name, "actor_scale")) {
 				act->actor_scale= get_float_value(item);
-			} else if(xmlStrcasecmp(item->name, (xmlChar*)"scale")==0) {
+			} else if (!strcmp(name, "scale")) {
 				act->scale= get_float_value(item);
-			} else if(xmlStrcasecmp(item->name, (xmlChar*)"mesh_scale")==0) {
+			} else if (!strcmp(name, "mesh_scale")) {
 				act->mesh_scale= get_float_value(item);
-			} else if(xmlStrcasecmp(item->name, (xmlChar*)"bone_scale")==0) {
+			} else if (!strcmp(name, "bone_scale")) {
 				act->skel_scale= get_float_value(item);
-			} else if(xmlStrcasecmp(item->name, (xmlChar*)"skeleton")==0) {
+			} else if (!strcmp(name, "skeleton")) {
 				char skeleton_name[MAX_FILE_PATH];
 				get_string_value(skeleton_name, sizeof(skeleton_name), item);
 				act->coremodel= CalCoreModel_New("Model");
@@ -4318,43 +4332,43 @@ int	parse_actor_nodes (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 				else {
 					act->skeleton_type = get_skeleton(act->coremodel, skeleton_name);
 				}
-			} else if(xmlStrcasecmp(item->name, (xmlChar*)"walk_speed") == 0) { // unused
+			} else if (!strcmp(name, "walk_speed")) { // unused
 				act->walk_speed= get_float_value(item);
-			} else if(xmlStrcasecmp(item->name, (xmlChar*)"run_speed") == 0) { // unused
+			} else if (!strcmp(name, "run_speed")) { // unused
 				act->run_speed= get_float_value(item);
-			} else if(xmlStrcasecmp(item->name, (xmlChar*)"step_duration") == 0) {
+			} else if (!strcmp(name, "step_duration")) {
 				act->step_duration = get_int_value(item);
-			} else if(xmlStrcasecmp(item->name, (xmlChar*)"defaults") == 0) {
+			} else if (!strcmp(name, "defaults")) {
 				defaults= item;
-			} else if(xmlStrcasecmp(item->name, (xmlChar*)"frames") == 0) {
+			} else if (!strcmp(name, "frames")) {
 				ok &= parse_actor_frames(act, item->children, defaults);
-			} else if(xmlStrcasecmp(item->name, (xmlChar*)"shirt") == 0) {
+			} else if (!strcmp(name, "shirt")) {
 				ok &= parse_actor_shirt(act, item, defaults);
-			} else if(xmlStrcasecmp(item->name, (xmlChar*)"hskin") == 0) {
+			} else if (!strcmp(name, "hskin")) {
 				ok &= parse_actor_skin(act, item, defaults);
-			} else if(xmlStrcasecmp(item->name, (xmlChar*)"hair") == 0) {
+			} else if (!strcmp(name, "hair")) {
 				ok &= parse_actor_hair(act, item, defaults);
-			} else if(xmlStrcasecmp(item->name, (xmlChar*)"boots") == 0) {
+			} else if (!strcmp(name, "boots")) {
 				ok &= parse_actor_boots(act, item, defaults);
-			} else if(xmlStrcasecmp(item->name, (xmlChar*)"legs") == 0) {
+			} else if (!strcmp(name, "legs")) {
 				ok &= parse_actor_legs(act, item, defaults);
-			} else if(xmlStrcasecmp(item->name, (xmlChar*)"cape") == 0) {
+			} else if (!strcmp(name, "cape")) {
 				ok &= parse_actor_cape(act, item, defaults);
-			} else if(xmlStrcasecmp(item->name, (xmlChar*)"head") == 0) {
+			} else if (!strcmp(name, "head")) {
 				ok &= parse_actor_head(act, item, defaults);
-			} else if(xmlStrcasecmp(item->name, (xmlChar*)"shield") == 0) {
+			} else if (!strcmp(name, "shield")) {
 				ok &= parse_actor_shield(act, item, defaults);
-			} else if(xmlStrcasecmp(item->name, (xmlChar*)"weapon") == 0) {
+			} else if (!strcmp(name, "weapon")) {
 				ok &= parse_actor_weapon(act, item, defaults);
-			} else if(xmlStrcasecmp(item->name, (xmlChar*)"helmet") == 0) {
+			} else if (!strcmp(name, "helmet")) {
 				ok &= parse_actor_helmet(act, item, defaults);
-			} else if(xmlStrcasecmp(item->name, (xmlChar*)"neck") == 0) {
+			} else if (!strcmp(name, "neck")) {
 				ok &= parse_actor_neck(act, item, defaults);
 #ifdef NEW_SOUND
-			} else if(xmlStrcasecmp(item->name, (xmlChar*)"sounds") == 0) {
+			} else if (!strcmp(name, "sounds")) {
 				ok &= parse_actor_sounds(act, item->children);
 #endif	//NEW_SOUND
-			} else if(xmlStrcasecmp(item->name, (xmlChar*)"actor_attachment") == 0) {
+			} else if (!strcmp(name, "actor_attachment")) {
 				int id = get_int_property(item, "id");
 				if (id < 0 || id >= MAX_ACTOR_DEFS) {
 					LOG_ERROR("Unable to find id/property node %s\n", item->name);
@@ -4373,7 +4387,7 @@ int	parse_actor_nodes (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	return ok;
 }
 
-int parse_actor_script (xmlNode *cfg)
+int parse_actor_script(const xmlNode *cfg)
 {
 	int ok, act_idx, i;
 	int j;
@@ -4387,7 +4401,7 @@ int parse_actor_script (xmlNode *cfg)
 		act_idx= get_property(cfg, "type", "actor type", actor_type_dict);
 	}
 */
-	if(act_idx < 0 || act_idx >= MAX_ACTOR_DEFS){
+	if (act_idx < 0 || act_idx >= MAX_ACTOR_DEFS){
 		char	str[256];
 		char    name[256];
 
@@ -4448,7 +4462,7 @@ int parse_actor_script (xmlNode *cfg)
 		}
 	}
 
-    act->step_duration = DEFAULT_STEP_DURATION; // default value
+	act->step_duration = DEFAULT_STEP_DURATION; // default value
 
 	ok= parse_actor_nodes(act, cfg, NULL);
 
@@ -4477,20 +4491,27 @@ int parse_actor_script (xmlNode *cfg)
 	return ok;
 }
 
-int parse_actor_defs (xmlNode *node)
+int parse_actor_defs(const xmlNode *node)
 {
-	xmlNode *def;
+	const xmlNode *def;
 	int ok = 1;
 
-	for (def = node->children; def; def = def->next) {
+	for (def = node->children; def; def = def->next)
+	{
 		if (def->type == XML_ELEMENT_NODE)
-			if (xmlStrcasecmp (def->name, (xmlChar*)"actor") == 0) {
+		{
+			if (xmlStrcasecmp (def->name, (xmlChar*)"actor") == 0)
+			{
 				ok &= parse_actor_script (def);
-			} else {
+			}
+			else
+			{
 				LOG_ERROR("parse error: actor or include expected");
 				ok = 0;
 			}
-		else if (def->type == XML_ENTITY_REF_NODE) {
+		}
+		else if (def->type == XML_ENTITY_REF_NODE)
+		{
 			ok &= parse_actor_defs (def->children);
 		}
 	}
@@ -4499,9 +4520,9 @@ int parse_actor_defs (xmlNode *node)
 }
 
 #ifdef EXT_ACTOR_DICT
-int parse_skin_colours(xmlNode *node)
+int parse_skin_colours(const xmlNode *node)
 {
-	xmlNode *data;
+	const xmlNode *data;
 	int ok = 1, i;
 
 	num_skin_colors = 0;
@@ -4527,9 +4548,9 @@ int parse_skin_colours(xmlNode *node)
 	return ok;
 }
 
-int parse_glow_modes(xmlNode *node)
+int parse_glow_modes(const xmlNode *node)
 {
-	xmlNode *data;
+	const xmlNode *data;
 	int ok = 1, i;
 
 	num_glow_modes = 0;
@@ -4555,9 +4576,9 @@ int parse_glow_modes(xmlNode *node)
 	return ok;
 }
 
-int parse_head_numbers(xmlNode *node)
+int parse_head_numbers(const xmlNode *node)
 {
-	xmlNode *data;
+	const xmlNode *data;
 	int ok = 1, i;
 
 	num_head_numbers = 0;
@@ -4583,9 +4604,9 @@ int parse_head_numbers(xmlNode *node)
 	return ok;
 }
 
-int parse_actor_dict(xmlNode *node)
+int parse_actor_dict(const xmlNode *node)
 {
-	xmlNode *data;
+	const xmlNode *data;
 	int ok = 1;
 
 	for (data = node->children; data; data = data->next) {
@@ -4608,9 +4629,9 @@ int parse_actor_dict(xmlNode *node)
 	return ok;
 }
 
-int parse_actor_part_sizes(xmlNode *node)
+int parse_actor_part_sizes(const xmlNode *node)
 {
-	xmlNode *data;
+	const xmlNode *data;
 	int ok = 1;
 	char str[20];
 
@@ -4653,9 +4674,9 @@ int parse_actor_part_sizes(xmlNode *node)
 	return ok;
 }
 
-int parse_actor_data(xmlNode *node)
+int parse_actor_data(const xmlNode *node)
 {
-	xmlNode *data;
+	const xmlNode *data;
 	int ok = 1;
 	static int dict = 0, parts = 0;
 
@@ -4689,7 +4710,7 @@ int parse_actor_data(xmlNode *node)
 
 int read_actor_defs (const char *dir, const char *index)
 {
-	xmlNode *root;
+	const xmlNode *root;
 	xmlDoc *doc;
 	char fname[120];
 	int ok = 1;
@@ -4728,7 +4749,6 @@ int read_actor_defs (const char *dir, const char *index)
 
 void init_actor_defs()
 {
-
 	// initialize the whole thing to zero
 	memset (actors_defs, 0, sizeof (actors_defs));
 	memset (attached_actors_defs, 0, sizeof (attached_actors_defs));

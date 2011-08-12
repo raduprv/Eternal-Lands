@@ -17,12 +17,22 @@ int pf_actor_id;
 SDL_TimerID pf_movement_timer = NULL;
 
 #define PF_DIFF(a, b) ((a > b) ? a - b : b - a)
-#define PF_HEUR(a, b) ((PF_DIFF(a->x, b->x) + PF_DIFF(a->y, b->y)) * 10)
+//#define PF_HEUR(a, b) ((PF_DIFF(a->x, b->x) + PF_DIFF(a->y, b->y)) * 10)
+#define PF_HEUR(a, b) pf_heuristic(a->x-b->x, a->y-b->y);
 
 int pf_is_tile_occupied(int x, int y);
 Uint32 pf_movement_timer_callback(Uint32 interval, void *param);
 
-#ifdef  NO_PF_MACRO
+static __inline__ int pf_heuristic(int dx, int dy)
+{
+	if (dx < 0) dx = -dx;
+	if (dy < 0) dy = -dy;
+	// Grum: Is the cost of a diagonal move really sqrt(2) times that of
+	// an aligned move? If not, the below should simply be max(dx, dy).
+	return dx < dy ? 14*dx + 10*(dy-dx) : 14*dy + 10*(dx-dy);
+}
+
+#ifdef NO_PF_MACRO
 __inline__ PF_TILE *pf_get_tile(int x, int y)
 {
 	if (x >= tile_map_size_x*6 || y >= tile_map_size_y*6 || x < 0 || y < 0) {
@@ -31,58 +41,43 @@ __inline__ PF_TILE *pf_get_tile(int x, int y)
 	return &pf_tile_map[y*tile_map_size_x*6+x];
 }
 #else
-#define pf_get_tile(x, y) (((x) >= tile_map_size_x*6 || (y) >= tile_map_size_y*6 || ((Sint32)(x)) < 0 || ((Sint32)(y)) < 0) ? NULL : &pf_tile_map[(y)*tile_map_size_x*6+(x)])
+#define pf_get_tile(x, y) \
+	(((x) >= tile_map_size_x*6 || (y) >= tile_map_size_y*6 || ((Sint32)(x)) < 0 || ((Sint32)(y)) < 0) ? NULL : &pf_tile_map[(y)*tile_map_size_x*6+(x)])
 #endif
 
 PF_TILE *pf_get_next_open_tile()
 {
-	PF_TILE *tmp, *ret = NULL;
-	int i, j, done = 0;
+	PF_TILE *ret = NULL;
+	int i;
 
-	if (pf_open.count == 0) {
+	if (pf_open.count == 0)
 		return NULL;
-	}
 
-	ret = pf_open.tiles[1];
+	ret = pf_open.tiles[0];
+	if (--pf_open.count)
+	{
+		for (i = 0; i < pf_open.count; i++)
+		{
+			pf_open.tiles[i] = pf_open.tiles[i+1];
+			pf_open.tiles[i]->open_pos--;
+		}
+	}
 
 	ret->state = PF_STATE_CLOSED;
-
-	pf_open.tiles[1] = pf_open.tiles[pf_open.count--];
-
-	j = 1;
-
-	while (!done) {
-		i = j;
-		if (2*i <= pf_open.count){
-			if (pf_open.tiles[i]->f > pf_open.tiles[2*i]->f) {
-				j = 2*i;
-			}
-			if (2*i+1 <= pf_open.count && pf_open.tiles[j]->f > pf_open.tiles[2*i+1]->f) {
-				j = 2*i+1;
-			}
-		}
-
-		if (i != j) {
-			tmp = pf_open.tiles[i];
-			pf_open.tiles[i] = pf_open.tiles[j];
-			pf_open.tiles[j] = tmp;
-		} else {
-			done = 1;
-		}
-	}
 
 	return ret;
 }
 
 void pf_add_tile_to_open_list(PF_TILE *current, PF_TILE *neighbour)
 {
-	PF_TILE *tmp;
-
-	if (!neighbour || neighbour->z == 0 || (current && PF_DIFF(current->z, neighbour->z) > 2)) {
+	if (!neighbour
+		|| neighbour->state == PF_STATE_CLOSED
+		|| neighbour->z == 0
+		|| (current && PF_DIFF(current->z, neighbour->z) > 2))
 		return;
-	}
 
-	if (current) {
+	if (current)
+	{
 		int f, g, h;
 		int diagonal = (neighbour->x != current->x && neighbour->y != current->y);
 
@@ -94,33 +89,39 @@ void pf_add_tile_to_open_list(PF_TILE *current, PF_TILE *neighbour)
 		h = PF_HEUR(neighbour, pf_dst_tile);
 		f = g + h;
 
-		if (neighbour->state != PF_STATE_NONE && f >= neighbour->f) {
+		if (neighbour->state != PF_STATE_NONE && f >= neighbour->f)
 			return;
-		}
 
 		neighbour->f = f;
 		neighbour->g = g;
 		neighbour->parent = current;
-	} else {
+	}
+	else
+	{
 		neighbour->f = PF_HEUR(pf_src_tile, pf_dst_tile);
 		neighbour->g = 0;
 		neighbour->parent = NULL;
 	}
 
-	if (neighbour->state != PF_STATE_OPEN) {
-		neighbour->open_pos = ++pf_open.count;
+	if (neighbour->state != PF_STATE_OPEN)
+	{
+		neighbour->open_pos = pf_open.count++;
 		pf_open.tiles[neighbour->open_pos] = neighbour;
 	}
 
-	while (neighbour->open_pos > 1) {
-		if (pf_open.tiles[neighbour->open_pos]->f < pf_open.tiles[neighbour->open_pos/2]->f) {
-			tmp = pf_open.tiles[neighbour->open_pos/2];
-			pf_open.tiles[neighbour->open_pos/2] = pf_open.tiles[neighbour->open_pos];
-			pf_open.tiles[neighbour->open_pos] = tmp;
-			neighbour->open_pos /= 2;
-		} else {
+	while (neighbour->open_pos > 0)
+	{
+		int idx = neighbour->open_pos;
+		PF_TILE *prev = pf_open.tiles[idx-1];
+
+		if (neighbour->f >= prev->f)
 			break;
-		}
+
+		pf_open.tiles[idx-1] = neighbour;
+		pf_open.tiles[idx] = prev;
+		prev->open_pos++;
+		neighbour->open_pos--;
+		idx--;
 	}
 
 	neighbour->state = PF_STATE_OPEN;
@@ -134,33 +135,36 @@ int pf_find_path(int x, int y)
 
 	pf_destroy_path();
 
-	if (!(me = get_our_actor())) {
+	me = get_our_actor();
+	if (!me)
 		return -1;
-	}
 
 	pf_src_tile = pf_get_tile(me->x_tile_pos, me->y_tile_pos);
 	pf_dst_tile = pf_get_tile(x, y);
 
-	if (!pf_dst_tile || pf_dst_tile->z == 0) {
+	if (!pf_dst_tile || pf_dst_tile->z == 0)
 		return 0;
-	}
 
-	for (i = 0; i < tile_map_size_x*tile_map_size_y*6*6; i++) {
+	for (i = 0; i < tile_map_size_x*tile_map_size_y*6*6; i++)
+	{
 		pf_tile_map[i].state = PF_STATE_NONE;
 		pf_tile_map[i].parent = NULL;
 	}
 
-	pf_open.tiles = (PF_TILE **)calloc(tile_map_size_x*tile_map_size_y*6*6, sizeof(PF_TILE*));
+	pf_open.tiles = calloc(tile_map_size_x*tile_map_size_y*6*6, sizeof(PF_TILE*));
 	pf_open.count = 0;
 
 	pf_add_tile_to_open_list(NULL, pf_src_tile);
 
-	while ((pf_cur_tile = pf_get_next_open_tile()) && attempts++ < MAX_PATHFINDER_ATTEMPTS) {
-		if (pf_cur_tile == pf_dst_tile) {
+	while ((pf_cur_tile = pf_get_next_open_tile()) && attempts++ < MAX_PATHFINDER_ATTEMPTS)
+	{
+		if (pf_cur_tile == pf_dst_tile)
+		{
 			pf_follow_path = 1;
 
 			pf_movement_timer_callback(0, NULL);
-            pf_movement_timer = SDL_AddTimer(me->step_duration * 10, pf_movement_timer_callback, NULL);
+			pf_movement_timer = SDL_AddTimer(me->step_duration * 10,
+				pf_movement_timer_callback, NULL);
 			break;
 		}
 
@@ -182,12 +186,14 @@ int pf_find_path(int x, int y)
 void pf_destroy_path()
 {
 	int i;
-    if (pf_movement_timer) {
+
+	if (pf_movement_timer)
+	{
 		SDL_RemoveTimer(pf_movement_timer);
 		pf_movement_timer = NULL;
 	}
 	pf_follow_path = 0;
-	for(i=0;i<20;i++)
+	for (i = 0; i < 20; i++)
 		pf_visited_squares[i]=-1;
 }
 
@@ -326,10 +332,10 @@ Uint32 pf_movement_timer_callback(Uint32 interval, void *param)
 	e.user.code = EVENT_MOVEMENT_TIMER;
 	SDL_PushEvent(&e);
 
-    if (get_our_actor())
-        return get_our_actor()->step_duration * 10;
-    else
-	return interval;
+	if (get_our_actor())
+		return get_our_actor()->step_duration * 10;
+	else
+		return interval;
 }
 
 int pf_get_mouse_position(int mouse_x, int mouse_y, int * px, int * py)

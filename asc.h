@@ -345,15 +345,15 @@ typedef struct {
 	int index;
 } dict_elem;
 
-int find_description_index (const dict_elem dict[], const char *elem, const char *desc);
-void get_string_value (char *buf, size_t maxlen, xmlNode *node);
-void get_item_string_value (char *buf, size_t maxlen, xmlNode *node, const unsigned char *name);
-int get_bool_value (xmlNode *node);
-int get_int_value (xmlNode *node);
-double get_float_value (xmlNode *node);
-int get_int_property (xmlNode *node, const char *prop);
-char *get_string_property (xmlNode *node, const char *prop);
-int get_property (xmlNode *node, const char *prop, const char *desc, const dict_elem dict[]);
+int find_description_index(const dict_elem dict[], const char *elem, const char *desc);
+void get_string_value(char *buf, size_t maxlen, const xmlNode *node);
+void get_item_string_value(char *buf, size_t maxlen, const xmlNode *node, const unsigned char *name);
+int get_bool_value(const xmlNode *node);
+int get_int_value(const xmlNode *node);
+double get_float_value(const xmlNode *node);
+int get_int_property(const xmlNode *node, const char *prop);
+const char *get_string_property(const xmlNode *node, const char *prop);
+int get_property(const xmlNode *node, const char *prop, const char *desc, const dict_elem dict[]);
 
 /*!
  * \brief Append char to the string given by s.
