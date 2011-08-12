@@ -294,7 +294,7 @@ char
 	cm_title_menu_str[150],
 	cm_title_help_str[50],
 	cm_items_menu_str[150],
-	cm_storage_menu_str[50],
+	cm_storage_menu_str[75],
 	cm_astro_menu_str[50],
 	cm_dialog_options_str[80],
 	cm_dialog_menu_str[60],
@@ -456,6 +456,7 @@ char	reg_error_str[15],
 	dialogue_copy_str[20],
 	dialogue_repeat_str[20],
 	open_storage_str[20],
+	reopen_storage_str[50],
 #endif
 	xml_bad_node[80],
 	xml_bad_root_node[50],
@@ -1206,6 +1207,7 @@ void init_help()
 	add_xml_identifier(misc,"dialog_copy",dialogue_copy_str,"[copy]",sizeof(dialogue_copy_str));
 	add_xml_identifier(misc,"dialogue_repeat",dialogue_repeat_str,"[repeat]",sizeof(dialogue_repeat_str));
 	add_xml_identifier(misc,"open_storage",open_storage_str,"Open storage",sizeof(open_storage_str));
+	add_xml_identifier(misc,"reopen_storage",reopen_storage_str,"Reopen for setting to take effect",sizeof(reopen_storage_str));
 	add_xml_identifier(misc,"low",low_framerate_str,"Low framerate detected, shadows and eye candy disabled!",sizeof(low_framerate_str));
 	add_xml_identifier(misc,"size",window_size_adjusted_str,"Window size adjusted to %s",sizeof(window_size_adjusted_str));
 	add_xml_identifier(misc,"trade",no_open_on_trade,"You can't open this window while on trade.",sizeof(no_open_on_trade));
@@ -1410,7 +1412,7 @@ void init_help()
 	add_xml_identifier(misc, "cm_title_menu", cm_title_menu_str, "Hide Windows\nOpaque Background\nWindows On Top\n", sizeof(cm_title_menu_str));
 	add_xml_identifier(misc, "cm_title_help", cm_title_help_str, "Right-click for window menu", sizeof(cm_title_help_str));
 	add_xml_identifier(misc, "cm_items_menu", cm_items_menu_str, "--\nUse Small Window\nManual Window Size\nItem Window On Drop\nAllow Equipment Swap\n--\nOpen Storage (View Only)", sizeof(cm_items_menu_str));
-	add_xml_identifier(misc, "cm_storage_menu", cm_storage_menu_str, "--\nPrint Items To Console\n", sizeof(cm_storage_menu_str));
+	add_xml_identifier(misc, "cm_storage_menu", cm_storage_menu_str, "--\nPrint Items To Console\nSort Categories Alphabetically\n", sizeof(cm_storage_menu_str));
 	add_xml_identifier(misc, "cm_astro_menu", cm_astro_menu_str, "--\nPrint Details To Console", sizeof(cm_astro_menu_str));
 	add_xml_identifier(misc, "cm_dialog_options", cm_dialog_options_str, "Auto close storage dialogue\nAuto select storage option in dialogue", sizeof(cm_dialog_options_str));
 	add_xml_identifier(misc, "cm_dialog_menu", cm_dialog_menu_str, "--\nEnable Keypresses\nKeypresses Anywhere", sizeof(cm_dialog_menu_str));

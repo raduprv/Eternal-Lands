@@ -1,10 +1,10 @@
-#include <OpenGL/OpenGL.h>
 #include "../platform.h"
 #include "../errors.h"
+#include <OpenGL/OpenGL.h>
 
 unsigned int get_fsaa_modes()
 {
-	long value, renders;
+	GLint value, renders;
 	int i, j, index, result;
 	CGLRendererInfoObj render_info;
 

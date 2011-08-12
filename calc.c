@@ -55,7 +55,7 @@ double last_res=0;
 
 //XP table
 //using exp_lev from hud.c
-#define XPT_MAX 178
+#define XPT_MAX 179
 #define XPLDIFF(a,b) (exp_lev[b]-exp_lev[a])
 #define XPL(a) (exp_lev[a])
 

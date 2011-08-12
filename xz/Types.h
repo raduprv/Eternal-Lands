@@ -9,6 +9,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #endif
+#include <SDL.h>
 
 #ifndef EXTERN_C_BEGIN
 #ifdef __cplusplus
@@ -52,39 +53,27 @@ typedef int WRes;
 #define RINOK(x) { int __result__ = (x); if (__result__ != 0) return __result__; }
 #endif
 
-typedef unsigned char Byte;
-typedef short Int16;
-typedef unsigned short UInt16;
+typedef Uint8 Byte;
+typedef Sint16 Int16;
+typedef Uint16 UInt16;
 
-#ifdef _LZMA_UINT32_IS_ULONG
-typedef long Int32;
+typedef Sint32 Int32;
+
+#ifdef	OSX
 typedef unsigned long UInt32;
-#else
-typedef int Int32;
-typedef unsigned int UInt32;
-#endif
+#else	/* OSX */
+typedef Uint32 UInt32;
+#endif	/* OSX */
 
-#ifdef _SZ_NO_INT_64
-
-/* define _SZ_NO_INT_64, if your compiler doesn't support 64-bit integers.
-   NOTES: Some code will work incorrectly in that case! */
-
-typedef long Int64;
-typedef unsigned long UInt64;
-
-#else
+typedef Sint64 Int64;
+typedef Uint64 UInt64;
 
 #if defined(_MSC_VER) || defined(__BORLANDC__)
-typedef __int64 Int64;
-typedef unsigned __int64 UInt64;
 #define UINT64_CONST(n) n
 #else
-typedef long long int Int64;
-typedef unsigned long long int UInt64;
 #define UINT64_CONST(n) n ## ULL
 #endif
 
-#endif
 
 #ifdef _LZMA_NO_SYSTEM_SIZE_T
 typedef UInt32 SizeT;

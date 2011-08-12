@@ -58,6 +58,8 @@ static Uint32 progress_function(const char* str, const Uint32 max,
 			"%s custom updates: %s", data->name, str);
 	}
 
+	LOG_INFO("%s", data->str);
+
 	if (data->running == 0)
 	{
 		CHECK_AND_UNLOCK_MUTEX(data->mutex);
@@ -174,6 +176,9 @@ static Uint32 custom_update_threaded(const char* dir, const char* zip_file,
 		return 1;
 	}
 
+	snprintf(str, sizeof(str), "Downloading from server %s", server);
+	progress_function(str, 0, 0, data);
+
 	snprintf(str, sizeof(str), "%s%s", get_path_config_base(), zip_file);
 
 	result = update(server, "custom_files.lst", "updates", str,
@@ -226,7 +231,7 @@ static int custom_update_thread(void* thread_data)
 			data->running = 1;
 		}
 
-		LOG_DEBUG("%s", data->str);
+		LOG_INFO("%s", data->str);
 
 		CHECK_AND_UNLOCK_MUTEX(data->mutex);
 
@@ -357,7 +362,8 @@ int command_update(char *text, int len)
 	else
 	{
 		start_custom_update();
-		LOG_TO_CONSOLE(c_green1, "Custom updates started. Use #update_status to check progress");
+		LOG_TO_CONSOLE(c_green1, "Custom updates started. "
+			"Use #update_status to check progress");
 	}
 
 	return 1;

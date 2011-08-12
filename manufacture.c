@@ -89,8 +89,6 @@ void build_manufacture_list()
 {
 	int i,j,l,k;
 
-
-	
 	for(i=0;i<36+6;i++)manufacture_list[i].quantity=0;
 
 	//ok, now see which items are resources
@@ -149,6 +147,15 @@ void build_manufacture_list()
 		}
 	}
 
+}
+
+void copy_recipe()
+{
+	int i;
+
+	for(i=36;i<36+6;i++){
+		manu_recipe[i-36]=manufacture_list[i];
+	}
 }
 
 //DRAWING FUNCTIONS
@@ -416,6 +423,7 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 					manufacture_list[j].pos=manufacture_list[pos].pos;
 					manufacture_list[j].image_id=manufacture_list[pos].image_id;
 					manufacture_list[pos].quantity -= quantitytomove;
+					copy_recipe();
 					return 1;
 				}
 
@@ -430,6 +438,7 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 					manufacture_list[j].pos=manufacture_list[pos].pos;
 					manufacture_list[j].image_id=manufacture_list[pos].image_id;
 					manufacture_list[pos].quantity -= quantitytomove;
+					copy_recipe();
 					return 1;
 				}
 		}
@@ -464,6 +473,7 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 					manufacture_list[j].pos=manufacture_list[36+pos].pos;
 					manufacture_list[j].image_id=manufacture_list[36+pos].image_id;
 					manufacture_list[36+pos].quantity -= quantitytomove;
+					copy_recipe();
 					return 1;
 				}
 
@@ -479,6 +489,7 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 					manufacture_list[j].pos=manufacture_list[36+pos].pos;
 					manufacture_list[j].image_id=manufacture_list[36+pos].image_id;
 					manufacture_list[36+pos].quantity -= quantitytomove;
+					copy_recipe();
 					return 1;
 				}
 		}
@@ -545,10 +556,6 @@ int mix_handler(Uint8 quantity, const char* empty_error_str)
 		//don't send an empty string
 		str[items_no*3+2]= quantity;
 		my_tcp_send(my_socket,str,items_no*3+3);
-		// and copy this recipe
-		for(i=36;i<36+6;i++){
-			manu_recipe[i-36]=manufacture_list[i];
-		}
 	}
 		
 	return 1;
