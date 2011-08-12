@@ -601,7 +601,7 @@ double get_float_value(const xmlNode *node)
 	if (!node)
 	{
 		LOG_ERROR("Node is null!");
-		return 0;
+		return 0.0;
 	}
 
 	if (!node->children)
@@ -623,7 +623,7 @@ int get_int_property(const xmlNode *node, const char *prop)
 	for (attr = node->properties; attr; attr = attr->next)
 	{
 		if (attr->type == XML_ATTRIBUTE_NODE &&
-			xmlStrcasecmp(attr->name, (xmlChar *)prop) == 0)
+			xmlStrcasecmp(attr->name, (const xmlChar*)prop) == 0)
 		{
 			return atoi((const char*)attr->children->content);
 		}
