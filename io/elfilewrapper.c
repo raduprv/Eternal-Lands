@@ -708,7 +708,7 @@ static el_file_ptr zip_file_open(unzFile file)
 #ifdef FASTER_STARTUP
 	crc = CrcCalc(result->buffer, result->end - result->buffer);
 #else
-	crc = CrcCalc(result->buffer, result->buffer);
+	crc = CrcCalc(result->buffer, result->size);
 #endif
 
 	if (result->crc32 != crc)
