@@ -658,7 +658,7 @@ static el_file_ptr xz_gz_file_open(const char* file_name)
 
 	result = xz_file_open(file_name);
 
-	if (result != 0)
+	if (!result)
 	{
 		result = gz_file_open(file_name);
 	}
