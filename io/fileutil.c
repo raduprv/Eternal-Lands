@@ -13,7 +13,7 @@ void init_crc_tables()
 	Crc64GenerateTable();
 }
 
-static Uint32 xz_file_read_unchecked(FILE* file, const void* file_buffer,
+static Uint32 xz_unpack_data(const void* file_buffer,
 	const Uint64 file_size, void** buffer, Uint64* size)
 {
 	CXzUnpacker state;
@@ -24,7 +24,7 @@ static Uint32 xz_file_read_unchecked(FILE* file, const void* file_buffer,
 
 	err = XzUnpacker_Create(&state, &lzmaAlloc);
 
-	*buffer = 0;
+	*buffer = NULL;
 	*size = 0;
 
 	if (err != SZ_OK)
@@ -65,8 +65,7 @@ static Uint32 xz_file_read_unchecked(FILE* file, const void* file_buffer,
 	else
 	{
 		free(*buffer);
-
-		*buffer = 0;
+		*buffer = NULL;
 	}
 
 	return err;
@@ -77,30 +76,27 @@ Uint32 file_read(FILE* file, const Uint64 file_size, void** buffer, Uint64* size
 	void* file_buffer;
 	Uint32 result;
 
-	if (file_size == 0)
-	{
-		*size = 0;
-		*buffer = 0;
+	*size = 0;
+	*buffer = NULL;
 
+	if (file_size == 0)
 		return 1;
-	}
 
 	file_buffer = malloc(file_size);
+	if (!file_buffer)
+		return 1;
 
 	fseek(file, 0, SEEK_SET);
-	fread(file_buffer, file_size, 1, file);
+	if (fread(file_buffer, file_size, 1, file) != 1)
+		return 1;
 
-	if (file_size > XZ_SIG_SIZE)
+	if (file_size > XZ_SIG_SIZE
+		&& memcmp(file_buffer, XZ_SIG, XZ_SIG_SIZE) == 0)
 	{
-		if (memcmp(file_buffer, XZ_SIG, XZ_SIG_SIZE) == 0)
-		{
-			result = xz_file_read_unchecked(file, file_buffer,
-				file_size, buffer, size);
-	
-			free(file_buffer);
-
-			return result;
-		}
+		result = xz_unpack_data(file_buffer, file_size,
+			buffer, size);
+		free(file_buffer);
+		return result;
 	}
 
 	*size = file_size;
@@ -121,25 +117,21 @@ Uint32 xz_file_read(FILE* file, void** buffer, Uint64* size)
 	*buffer = 0;
 
 	if (file_size <= XZ_SIG_SIZE)
-	{
 		return 1;
-	}
 
 	file_buffer = malloc(file_size);
+	if (!file_buffer)
+		return 1;
 
 	fseek(file, 0, SEEK_SET);
-	fread(file_buffer, file_size, 1, file);
-
-	if (memcmp(file_buffer, XZ_SIG, XZ_SIG_SIZE) != 0)
+	if (fread(file_buffer, file_size, 1, file) != 1
+		|| memcmp(file_buffer, XZ_SIG, XZ_SIG_SIZE) != 0)
 	{
 		free(file_buffer);
-
 		return 1;
 	}
 
-	result = xz_file_read_unchecked(file, file_buffer, file_size, buffer,
-		size);
-	
+	result = xz_unpack_data(file_buffer, file_size, buffer, size);
 	free(file_buffer);
 
 	return result;
