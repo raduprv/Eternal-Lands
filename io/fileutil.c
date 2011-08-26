@@ -88,7 +88,10 @@ Uint32 file_read(FILE* file, const Uint64 file_size, void** buffer, Uint64* size
 
 	fseek(file, 0, SEEK_SET);
 	if (fread(file_buffer, file_size, 1, file) != 1)
+	{
+		free(file_buffer);
 		return 1;
+	}
 
 	if (file_size > XZ_SIG_SIZE
 		&& memcmp(file_buffer, XZ_SIG, XZ_SIG_SIZE) == 0)
