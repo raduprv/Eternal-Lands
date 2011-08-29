@@ -496,7 +496,8 @@ namespace UserMenus
 		std::string line;
 		while (getline(in, line))
 		{
-			if (!line.empty())
+			// lines starting with ## are ignored - like a comment
+			if ((!line.empty()) && (line.substr(0,2) != "##"))
 				lines.push_back(new Line(line));
 		}
 		in.close();
