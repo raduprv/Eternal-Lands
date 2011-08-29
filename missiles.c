@@ -3,6 +3,7 @@
 #include "asc.h"
 #include "cal.h"
 #include "cal3d_wrapper.h"
+#include "context_menu.h"
 #include "e3d.h"
 #include "elwindows.h"
 #include "errors.h"
@@ -973,6 +974,7 @@ int range_win_x_len = 10;
 int range_win_y_len = 20;
 int ranging_win_x = 10;
 int ranging_win_y = 20;
+static int print_to_console = 0;
 
 int display_range_handler(window_info *win)
 {
@@ -986,17 +988,22 @@ int display_range_handler(window_info *win)
 	int len_y = 0;
 	int resize = 0;
 
+	if (print_to_console) LOG_TO_CONSOLE(c_green2, ranging_win_title_str);
+
 	safe_snprintf(str, sizeof(str), ranging_total_shots_str, range_total_shots);
+	if (print_to_console) LOG_TO_CONSOLE(c_green1, str);
 	if (max_width < strlen(str)) max_width = strlen(str);
 	draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
 	pos_y += step_y;
 
 	safe_snprintf(str, sizeof(str), ranging_sucessful_shots_str, range_success_hits);
+	if (print_to_console) LOG_TO_CONSOLE(c_green1, str);
 	if (max_width < strlen(str)) max_width = strlen(str);
 	draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
 	pos_y += step_y;
 
 	safe_snprintf(str, sizeof(str), ranging_missed_shots_str, range_total_shots - range_success_hits);
+	if (print_to_console) LOG_TO_CONSOLE(c_green1, str);
 	if (max_width < strlen(str)) max_width = strlen(str);
 	draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
 	pos_y += 2*step_y;
@@ -1005,6 +1012,7 @@ int display_range_handler(window_info *win)
 		safe_snprintf(str, sizeof(str), ranging_success_rate_str, ((double)range_success_hits/(double)range_total_shots)*100.0);
 	else
 		safe_snprintf(str, sizeof(str), ranging_success_rate_str, 0.0);
+	if (print_to_console) LOG_TO_CONSOLE(c_green1, str);
 	if (max_width < strlen(str)) max_width = strlen(str);
 	draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
 	pos_y += step_y;
@@ -1013,6 +1021,7 @@ int display_range_handler(window_info *win)
 		safe_snprintf(str, sizeof(str), ranging_critical_rate_str, ((double)range_critical_hits/(double)range_success_hits)*100.0);
 	else
 		safe_snprintf(str, sizeof(str), ranging_critical_rate_str, 0.0);
+	if (print_to_console) LOG_TO_CONSOLE(c_green1, str);
 	if (max_width < strlen(str)) max_width = strlen(str);
 	draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
 	pos_y += 2*step_y;
@@ -1021,6 +1030,7 @@ int display_range_handler(window_info *win)
 		safe_snprintf(str, sizeof(str), ranging_exp_per_arrow_str, get_session_exp_ranging()/(double)range_total_shots);
 	else
 		safe_snprintf(str, sizeof(str), ranging_exp_per_arrow_str, 0.0);
+	if (print_to_console) LOG_TO_CONSOLE(c_green1, str);
 	if (max_width < strlen(str)) max_width = strlen(str);
 	draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
 	pos_y += step_y;
@@ -1036,9 +1046,19 @@ int display_range_handler(window_info *win)
 	if (resize)
 		resize_window(win->window_id, len_x, len_y);
 
+	print_to_console = 0;
+
 	return 1;
 }
 
+static int cm_ranging_handler(window_info *win, int widget_id, int mx, int my, int option)
+{
+	if (option<ELW_CM_MENU_LEN)
+		return cm_title_handler(win, widget_id, mx, my, option);
+	if (option == ELW_CM_MENU_LEN+1)
+		print_to_console = 1;
+	return 1;
+}
 
 void display_range_win(void)
 {
@@ -1048,8 +1068,9 @@ void display_range_win(void)
 		if (!windows_on_top) {
 			our_root_win = game_root_win;
 		}
-		range_win = create_window("Ranging", our_root_win, 0, ranging_win_x, ranging_win_y, range_win_x_len, range_win_y_len, ELW_WIN_DEFAULT);
+		range_win = create_window(ranging_win_title_str, our_root_win, 0, ranging_win_x, ranging_win_y, range_win_x_len, range_win_y_len, ELW_WIN_DEFAULT);
 		set_window_handler(range_win, ELW_HANDLER_DISPLAY, &display_range_handler );
+		cm_add(windows_list.window[range_win].cm_id, cm_ranging_menu_str, cm_ranging_handler);
 	} else {
 		show_window(range_win);
 		select_window(range_win);

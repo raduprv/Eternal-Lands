@@ -414,6 +414,7 @@ extern char
 		mc_from_str[20],
 		mod_pm_from_str[15],
 		/* ranging window */
+		ranging_win_title_str[20],
 		ranging_total_shots_str[40],
 		ranging_sucessful_shots_str[40],
 		ranging_missed_shots_str[40],
@@ -444,6 +445,7 @@ extern char
 		cm_items_menu_str[150],
 		cm_storage_menu_str[75],
 		cm_astro_menu_str[50],
+		cm_ranging_menu_str[50],
 		cm_dialog_options_str[80],
 		cm_dialog_menu_str[60],
 		cm_url_menu_str[150],

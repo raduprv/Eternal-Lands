@@ -266,6 +266,7 @@ char
 	afk_messages[25],
 	afk_print_help[150],
 	/* ranging window */
+	ranging_win_title_str[20],
 	ranging_total_shots_str[40],
 	ranging_sucessful_shots_str[40],
 	ranging_missed_shots_str[40],
@@ -296,6 +297,7 @@ char
 	cm_items_menu_str[150],
 	cm_storage_menu_str[75],
 	cm_astro_menu_str[50],
+	cm_ranging_menu_str[50],
 	cm_dialog_options_str[80],
 	cm_dialog_menu_str[60],
 	cm_url_menu_str[150],
@@ -1287,6 +1289,7 @@ void init_help()
 	add_xml_identifier(misc,"ranginglock_enabled",ranginglock_enabled_str,"Ranging-Lock is now enabled. Disable it or unequip ranging weapon before walking.",sizeof(ranginglock_enabled_str));
 	add_xml_identifier(misc,"ranginglock_disabled",ranginglock_disabled_str,"Ranging-Lock is now disabled.",sizeof(ranginglock_disabled_str));
 	add_xml_identifier(misc,"video_restart", video_restart_str, "Video change will take effect at next restart.", sizeof(video_restart_str));
+	add_xml_identifier(misc,"ranging_win_title", ranging_win_title_str, "Ranging", sizeof(ranging_win_title_str));
 	add_xml_identifier(misc,"ranging_total_shots", ranging_total_shots_str, "Total shots      %d", sizeof(ranging_total_shots_str));
 	add_xml_identifier(misc,"ranging_sucessful_shots", ranging_sucessful_shots_str, "Successful hits  %d", sizeof(ranging_sucessful_shots_str));
 	add_xml_identifier(misc,"ranging_missed_shots", ranging_missed_shots_str, "Missed hits      %d", sizeof(ranging_missed_shots_str));
@@ -1414,6 +1417,7 @@ void init_help()
 	add_xml_identifier(misc, "cm_items_menu", cm_items_menu_str, "--\nUse Small Window\nManual Window Size\nItem Window On Drop\nAllow Equipment Swap\n--\nOpen Storage (View Only)", sizeof(cm_items_menu_str));
 	add_xml_identifier(misc, "cm_storage_menu", cm_storage_menu_str, "--\nPrint Items To Console\nSort Categories Alphabetically\n", sizeof(cm_storage_menu_str));
 	add_xml_identifier(misc, "cm_astro_menu", cm_astro_menu_str, "--\nPrint Details To Console", sizeof(cm_astro_menu_str));
+	add_xml_identifier(misc, "cm_ranging_menu", cm_ranging_menu_str, "--\nPrint To Console", sizeof(cm_ranging_menu_str));
 	add_xml_identifier(misc, "cm_dialog_options", cm_dialog_options_str, "Auto close storage dialogue\nAuto select storage option in dialogue", sizeof(cm_dialog_options_str));
 	add_xml_identifier(misc, "cm_dialog_menu", cm_dialog_menu_str, "--\nEnable Keypresses\nKeypresses Anywhere", sizeof(cm_dialog_menu_str));
 	add_xml_identifier(misc, "cm_url_menu", cm_url_menu_str, "Open\nFind In Console\nMark Visited\nMark Unvisited\n--\nDelete\n--\nDelete All", sizeof(cm_url_menu_str));	
