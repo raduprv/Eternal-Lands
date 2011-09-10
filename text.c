@@ -192,6 +192,11 @@ void write_to_log (Uint8 channel, const Uint8* const data, int len)
 	struct tm *l_time; time_t c_time;
 	FILE *fout;
 
+#ifdef NEW_SOUND
+	// Check if this string matches text we play a sound for
+	check_sound_alerts(data, len, channel);
+#endif // NEW_SOUND
+
 	if(log_chat == LOG_NONE || (channel == CHAT_SERVER && log_chat == LOG_CHAT))
 		// We're not logging at all, or this is a server message and
 		// we're not logging those
@@ -403,11 +408,6 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 	int l, idx;
 
 	if (len <= 0) return 0;	// no point
-
-#ifdef NEW_SOUND
-	// Check if this string matches text we play a sound for
-	check_sound_alerts(text_to_add, channel);
-#endif // NEW_SOUND
 
 	//check for auto receiving #help
 	for (idx = 0; idx < len; idx++)
