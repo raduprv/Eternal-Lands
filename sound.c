@@ -3524,7 +3524,7 @@ void check_sound_alerts(const Uint8* text, size_t len, Uint8 channel)
 	int i;
 	for (i = 0; i < num_sound_warnings; i++)
 	{
-		if (safe_strcasestr(text, len, warnings_list[i].string, strlen(warnings_list[i].string)))
+		if (safe_strcasestr((char *)text, len, warnings_list[i].string, strlen(warnings_list[i].string)))
 		{
 			add_sound_object_gain(warnings_list[i].sound, 0, 0, 1, 1.0f);
 			return;		// Only play one sound
