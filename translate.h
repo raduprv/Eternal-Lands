@@ -436,7 +436,7 @@ extern char
 		restart_now_label[20],
 		/* context menu strings */
 		cm_quickspell_menu_str[50],
-		cm_textedit_menu_str[50],
+		cm_textedit_menu_str[100],
 		cm_quickbar_menu_str[150],
 		cm_hud_menu_str[250],
 		cm_banner_menu_str[175],

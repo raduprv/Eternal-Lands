@@ -1518,6 +1518,21 @@ int AddXMLWindow(char *fn);
  */
 int skip_message (const text_message *msg, Uint8 filter);
 
+
+extern int do_input_insert_callback;
+
+/*!
+ * \brief Insert the string into teh arranged input widget.
+ *
+ *		For example, call the server function to get the game date, saving
+ * the input widet information and setting do_input_insert_callback to 1.
+ * When the result is returned, this callback is used to complete the operation.
+ * 
+ * \param thestring message to insert.
+ */
+void input_insert_callback(const char *thestring);
+
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
