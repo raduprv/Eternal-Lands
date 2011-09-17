@@ -14,7 +14,6 @@
 #include "gamewin.h"
 #include "global.h"
 #include "interface.h"
-#include "lights.h"
 #include "misc.h"
 #include "multiplayer.h"
 #include "paste.h"
