@@ -12,6 +12,7 @@
 #include "global.h"
 #include "init.h"
 #include "map.h"
+#include "particles.h"
 #include "platform.h"
 #include "shadows.h"
 #include "textures.h"
