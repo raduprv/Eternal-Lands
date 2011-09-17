@@ -15,7 +15,6 @@
 #include "hud.h"
 #include "init.h"
 #include "interface.h"
-#include "lights.h"
 #include "map.h"
 #include "missiles.h"
 #include "new_character.h"

@@ -14,6 +14,7 @@
 #include "global.h"
 #include "lights.h"
 #include "map.h"
+#include "multiplayer.h"
 #include "reflection.h"
 #include "shadows.h"
 #include "textures.h"

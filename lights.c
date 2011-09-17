@@ -3,6 +3,7 @@
 #include "lights.h"
 #include "bbox_tree.h"
 #include "map.h"
+#include "multiplayer.h"
 #include "shadows.h"
 #include "weather.h"
 #ifdef CLUSTER_INSIDES
@@ -58,9 +59,6 @@ sun sun_show[181];
 
 short game_minute = 0;
 short game_second = 0;
-Uint32 next_second_time = 0;
-short real_game_minute = 0;
-short real_game_second = 0;
 unsigned char freeze_time = 0;
 
 int test_point_visible(float x,float y,float z)

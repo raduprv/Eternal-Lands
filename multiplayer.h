@@ -32,6 +32,12 @@ extern int version_second_digit; /*!< the second digit of the version */
 extern int always_pathfinding; /*!< use pathfinding for walk click on far visible tiles of the 3d map */
 /*! @} */
 
+
+extern Uint32 next_second_time; /*!< the time of the next second */
+extern short real_game_minute; /*!< the real game minute */
+extern short real_game_second; /*!< the real game second */
+
+
 extern time_t last_heart_beat; /*!< a timestamp that inidicates when the last message was sent to the server */
 
 extern int log_conn_data; /*!< indicates whether we should log connection data or not */

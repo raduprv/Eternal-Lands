@@ -10,7 +10,6 @@
 #include "errors.h"
 #include "gl_init.h"
 #include "init.h"
-#include "lights.h"
 #include "load_gl_extensions.h"
 #include "map.h"
 #ifdef	NEW_TEXTURES

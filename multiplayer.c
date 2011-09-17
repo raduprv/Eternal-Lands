@@ -96,6 +96,10 @@ int yourself= -1;
 int last_sit= 0;
 int last_turn_around = 0;
 
+Uint32 next_second_time = 0;
+short real_game_minute = 0;
+short real_game_second = 0;
+
 void create_tcp_out_mutex()
 {
 	tcp_out_data_mutex = SDL_CreateMutex();

@@ -7,7 +7,6 @@
 #include "asc.h"
 #include "init.h"
 #include "interface.h"
-#include "lights.h"
 #include "multiplayer.h"
 #include "translate.h"
 #include "url.h"

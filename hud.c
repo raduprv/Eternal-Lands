@@ -18,7 +18,6 @@
 #include "interface.h"
 #include "items.h"
 #include "keys.h" //Avoid problems with SHIFT, ALT, CTRL
-#include "lights.h"
 #include "manufacture.h"
 #include "mapwin.h"
 #include "missiles.h"
