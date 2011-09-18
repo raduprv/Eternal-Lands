@@ -72,6 +72,8 @@ void finishpaste(XSelectionEvent event);
  */
 void process_copy(XSelectionRequestEvent* e);
 
+#endif // !def OSX && !def WINDOWS
+
 /*!
  * \brief Paste the given string into the specified text widget
  *
@@ -79,8 +81,6 @@ void process_copy(XSelectionRequestEvent* e);
  * \param text string to paste into widget
  */
 void do_paste_to_text_field (text_field *tf, const char* text);
-
-#endif // !def OSX && !def WINDOWS
 
 #ifdef __cplusplus
 } // extern "C"
