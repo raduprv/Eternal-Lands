@@ -21,6 +21,9 @@
 #include "client_serv.h"
 #include "consolewin.h"
 #include "context_menu.h"
+#ifdef WINDOWS
+#include "elloggingwrapper.h"
+#endif
 #include "elwindows.h"
 #include "font.h"
 #include "gamewin.h"
