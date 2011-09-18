@@ -33,7 +33,6 @@
 #endif // NEW_SOUND
 #include "actor_scripts.h"
 #include "emotes.h"
-#include "widgets.h"
 
 int emote_filter=0;
 
@@ -477,14 +476,12 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		}
 		else
 		{
-			if (do_input_insert_callback)
+			// only display initial or "#date" user requested date
+			if (!set_date(ptr))
 			{
-				input_insert_callback(ptr);
-				return 0;
+				safe_snprintf(new_str, sizeof(new_str), date_format, day_names[day-1], month_names[month-1], year);
+				LOG_TO_CONSOLE(c_green1, new_str);
 			}
-
-			safe_snprintf(new_str, sizeof(new_str), date_format, day_names[day-1], month_names[month-1], year);
-			LOG_TO_CONSOLE(c_green1, new_str);
 
 			//Calculate fraction Big Lunar month (2 conjunction months) less game clock time
 			//Represented in Degrees.

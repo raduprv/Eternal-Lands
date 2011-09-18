@@ -2309,25 +2309,23 @@ int text_field_resize (widget_list *w, int width, int height)
 	return 1;
 }
 
-int do_input_insert_callback = 0;
-static int input_insert_window_id = -1;
-static int input_insert_widget_id = -1;
+static int insert_window_id = -1;
+static int insert_widget_id = -1;
 
-/* Used to complete an widget text insert when we need server input */
-void input_insert_callback(const char *thestring)
+/* insert the given text string into the text widget */
+static void text_widget_insert(const char *thestring)
 {
-	widget_list* w = widget_find (input_insert_window_id, input_insert_widget_id);
+	widget_list* w = widget_find (insert_window_id, insert_widget_id);
 	if (w != NULL)
 	{
 		Uint32 saved_flag = w->Flags & TEXT_FIELD_NO_KEYPRESS;
 		if (w->Flags & TEXT_FIELD_MOUSE_EDITABLE)
 			w->Flags &= ~TEXT_FIELD_NO_KEYPRESS;
-		widget_unset_flags(input_insert_window_id, input_insert_widget_id, WIDGET_DISABLED);
+		widget_unset_flags(insert_window_id, insert_widget_id, WIDGET_DISABLED);
 		do_paste_to_text_field(w->widget_info, thestring);
 		w->Flags |= saved_flag;
 	}
-	input_insert_window_id = input_insert_widget_id = -1;
-	do_input_insert_callback = 0;
+	insert_window_id = insert_widget_id = -1;
 }
 
 
@@ -2353,11 +2351,9 @@ static int context_edit_handler(window_info *win, int widget_id, int mx, int my,
 		case 2: if (!text_field_keypress(w, 0, 0, K_PASTE, 22)) start_paste_to_text_field(NULL); break;
 		case 4:
 			{
-				unsigned char protocol_name = GET_DATE;
-				input_insert_window_id = win->window_id;
-				input_insert_widget_id = widget_id;
-				do_input_insert_callback = 1;
-				my_tcp_send(my_socket, &protocol_name, 1);
+				insert_window_id = win->window_id;
+				insert_widget_id = widget_id;
+				get_date(text_widget_insert);
 			}
 			break;
 		case 5:

@@ -100,6 +100,69 @@ Uint32 next_second_time = 0;
 short real_game_minute = 0;
 short real_game_second = 0;
 
+
+/*
+ *	Date handling code:
+ * 
+ * 		Maintain a string with the current date.  This gets invalidated
+ * 	at the turn of the day but not immediately refreshed.  Rather, the
+ * 	refresh (asking the server) is done next time the get string is
+ * 	read.  The alternative would be for all clients to request the new date
+ * 	just after the day changes.  This way lessens the load on the server.
+ */
+static char the_date[20] = "<unset>";	/* do not read directly, use get_date() */
+static int need_new_date = 0;			/* the date string is not valid - needs a refresh*/
+static int requested_date = 0;			/* a new date has been requested from the server */
+/* if not NULL the function to pass a new date string - one should do... */
+static void (*who_to_tell_callback)(const char *) = NULL;
+
+int set_date(const char *the_string)
+{
+	safe_strncpy(the_date, the_string, sizeof(the_date));
+
+	if (who_to_tell_callback != NULL)
+	{
+		(*who_to_tell_callback)(the_date);
+		who_to_tell_callback = NULL;
+	}
+
+	if (!need_new_date)
+		return 0;
+
+	need_new_date = requested_date = 0;
+	return 1;
+}
+
+const char *get_date(void (*callback)(const char *))
+{
+	if (!need_new_date)
+	{
+		if (callback != NULL)
+			(*callback)(the_date);
+		return the_date;
+	}
+
+	if (callback != NULL)
+		who_to_tell_callback = callback;
+
+	if (!requested_date)
+	{
+		unsigned char protocol_name = GET_DATE;
+		my_tcp_send(my_socket, &protocol_name, 1);
+		requested_date = 1;
+	}
+
+	return NULL;
+}
+
+static void invalidate_date(void)
+{
+	need_new_date = 1;
+}
+
+/*	End date handling code */
+
+
 void create_tcp_out_mutex()
 {
 	tcp_out_data_mutex = SDL_CreateMutex();
@@ -680,6 +743,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 		case NEW_MINUTE:
 			{
+				static short last_real_game_minute = -1;
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
@@ -695,6 +759,9 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				real_game_minute %= 360;
 				real_game_second = 0;
 				next_second_time = cur_time+1000;
+				if (real_game_minute < last_real_game_minute)
+					invalidate_date();
+				last_real_game_minute = real_game_minute;
 				new_minute();
 				new_minute_console();
 			}

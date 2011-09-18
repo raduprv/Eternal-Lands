@@ -159,6 +159,30 @@ void process_message_from_server(const Uint8 *in_data, int data_length);
 
 void send_heart_beat();
 
+/*!
+ * \brief	Store a new game date.
+ *
+ * 		If a callback is registered, send it the date too.
+ *
+ * \param	the_string	the new data string
+ * 
+ * \retval	int	1 if the date was requested from a get_date() call, otherwise 0
+*/
+int set_date(const char *the_string);
+
+/*!
+ * \brief	Get the latest game date.
+ *
+ * 		If there is a valid date string, a pointer to it is returned and any supplied
+ * callback function called.  Otherwise the server is requested to send the new date and
+ * save any callback function for when we have the new date.
+ *
+ * \param	callback	if not NULL a function to be passed the string when we have it
+ * 
+ * \retval	string pointer	NULL is no date ready
+*/
+const char *get_date(void (*callback)(const char *));
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
