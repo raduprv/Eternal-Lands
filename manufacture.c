@@ -29,6 +29,7 @@ int manufacture_win= -1;
 int recipe_win= -1;
 int recipes_shown=0;
 static int recipes_loaded=0;
+static int mouse_over_recipe_window = 0;
 int manufacture_menu_x=10;
 int manufacture_menu_y=20;
 int manufacture_menu_x_len=12*33+20;
@@ -313,6 +314,14 @@ int recipe_dropdown_draw(window_info *win){
 		draw_production_pipe(0,33*i,i);
 	}
 	draw_production_pipe(0,33*cur_recipe,cur_recipe);
+
+	if (mouse_over_recipe_window && show_help_text)
+	{
+		show_help(recipe_select_str, 0, win->len_y+10);
+		show_help(recipe_load_str, 0, win->len_y+10+SMALL_FONT_Y_LEN);
+	}
+	mouse_over_recipe_window = 0;
+
 	return 1;
 }
 
@@ -593,21 +602,31 @@ int mixall_handler()
 }
 
 
+/* show help for recipe window */
+int mouseover_recipe_handler(window_info *win, int mx, int my)
+{
+	mouse_over_recipe_window = 1;
+	return 0;
+}
+
 //MOUSEOVER HANDLERS
 int recipe_controls_mouseover_handler(int mx, int my){
 
 	int wpx=33*6+2;
 	int wpy=manufacture_menu_y_len-37;
 	int lpx=18;
-	int lpy=33;	
+	int lpy=33;
+
+	if (!show_help_text)
+		return 0;
 
 	if (mx>wpx&&mx<wpx+lpx&&my>wpy+lpy-10&&my<wpy+lpy){
 		//on arrow
-		show_help("Click to show/hide saved recipes. Wheel to scroll", 0, manufacture_menu_y_len+10);
+		show_help(recipe_show_hide_str, 0, manufacture_menu_y_len+10);
 	} else
 	if (mx>wpx+3&&mx<wpx+lpx-3&&my>wpy&&my<wpy+15){
 		//on + button
-		show_help("Click to save current recipe.", 0, manufacture_menu_y_len+10);
+		show_help(recipe_save_str, 0, manufacture_menu_y_len+10);
 	}
 	return 0;
 }
@@ -706,6 +725,7 @@ void display_manufacture_menu()
 			ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE|ELW_USE_BORDER);
 		set_window_handler(recipe_win, ELW_HANDLER_DISPLAY, &recipe_dropdown_draw);
 		set_window_handler(recipe_win, ELW_HANDLER_CLICK, &recipe_dropdown_click_handler );
+		set_window_handler(recipe_win, ELW_HANDLER_MOUSEOVER, &mouseover_recipe_handler );
 		hide_window(recipe_win); //start hidden
 	} else {
 		show_window(manufacture_win);

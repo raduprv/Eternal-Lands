@@ -332,6 +332,10 @@ extern char
 		mix_empty_str[50],
 		click_clear_str[50],
 		double_click_clear_str[50],
+		recipe_select_str[50],
+		recipe_load_str[50],
+		recipe_show_hide_str[70],
+		recipe_save_str[70],
 		/*knowledge.c*/
 		completed_research[12],
 		researching_str[30],
