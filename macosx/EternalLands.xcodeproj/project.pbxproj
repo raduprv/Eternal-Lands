@@ -816,7 +816,6 @@
 		1F812B000D033551008792A7 /* loginwin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = loginwin.h; path = ../loginwin.h; sourceTree = SOURCE_ROOT; };
 		1F812B010D033551008792A7 /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = main.c; path = ../main.c; sourceTree = SOURCE_ROOT; };
 		1F812B030D033551008792A7 /* Makefile.bsd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Makefile.bsd; path = ../Makefile.bsd; sourceTree = SOURCE_ROOT; };
-		1F812B040D033551008792A7 /* Makefile.bsdg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Makefile.bsdg; path = ../Makefile.bsdg; sourceTree = SOURCE_ROOT; };
 		1F812B050D033551008792A7 /* Makefile.linux */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Makefile.linux; path = ../Makefile.linux; sourceTree = SOURCE_ROOT; };
 		1F812B060D033551008792A7 /* Makefile.osx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Makefile.osx; path = ../Makefile.osx; sourceTree = SOURCE_ROOT; };
 		1F812B070D033551008792A7 /* Makefile.win */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Makefile.win; path = ../Makefile.win; sourceTree = SOURCE_ROOT; };
@@ -1304,7 +1303,6 @@
 				1F812B000D033551008792A7 /* loginwin.h */,
 				1F812B010D033551008792A7 /* main.c */,
 				1F812B030D033551008792A7 /* Makefile.bsd */,
-				1F812B040D033551008792A7 /* Makefile.bsdg */,
 				1F812B050D033551008792A7 /* Makefile.linux */,
 				1F812B060D033551008792A7 /* Makefile.osx */,
 				1F812B070D033551008792A7 /* Makefile.win */,
@@ -2551,6 +2549,11 @@
 					PNG_SCREENSHOT,
 					TEXT_ALIASES,
 					USE_INLINE,
+					BANDWIDTH_SAVINGS,
+					ANIMATION_SCALING,
+					ENCYCL_NAVIGATION,
+					NEW_NEW_CHAR_WINDOW,
+					NEW_TEXTURES,
 					_7ZIP_ST,
 				);
 				INFOPLIST_FILE = Info.plist;
@@ -2583,6 +2586,11 @@
 					PNG_SCREENSHOT,
 					TEXT_ALIASES,
 					USE_INLINE,
+					BANDWIDTH_SAVINGS,
+					ANIMATION_SCALING,
+					ENCYCL_NAVIGATION,
+					NEW_NEW_CHAR_WINDOW,
+					NEW_TEXTURES,
 					_7ZIP_ST,
 				);
 				HEADER_SEARCH_PATHS = (
@@ -2608,7 +2616,7 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1)";
 				ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1 = "ppc i386";
-				CURRENT_PROJECT_VERSION = 1.9.1;
+				CURRENT_PROJECT_VERSION = 1.9.2;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(EL_FRAMEWORKS_DIR)",
 					"$(HOME)/Library/Frameworks",
@@ -2627,6 +2635,11 @@
 					PNG_SCREENSHOT,
 					TEXT_ALIASES,
 					USE_INLINE,
+					BANDWIDTH_SAVINGS,
+					ANIMATION_SCALING,
+					ENCYCL_NAVIGATION,
+					NEW_NEW_CHAR_WINDOW,
+					NEW_TEXTURES,
 				);
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -2662,7 +2675,7 @@
 				ARCHS = "$(ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1)";
 				ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1 = "ppc i386";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1.9.1;
+				CURRENT_PROJECT_VERSION = 1.9.2;
 				DEPLOYMENT_LOCATION = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(EL_FRAMEWORKS_DIR)",
@@ -2684,6 +2697,11 @@
 					PNG_SCREENSHOT,
 					TEXT_ALIASES,
 					USE_INLINE,
+					BANDWIDTH_SAVINGS,
+					ANIMATION_SCALING,
+					ENCYCL_NAVIGATION,
+					NEW_NEW_CHAR_WINDOW,
+					NEW_TEXTURES,
 				);
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
