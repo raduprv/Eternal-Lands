@@ -211,11 +211,6 @@
 		1FB7E44A143560EA002C4FEA /* XzDec.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7E437143560EA002C4FEA /* XzDec.c */; };
 		1FB7E44B143560EA002C4FEA /* XzEnc.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7E438143560EA002C4FEA /* XzEnc.c */; };
 		1FB7E44E14356236002C4FEA /* fileutil.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7E44C14356236002C4FEA /* fileutil.c */; };
-		1FB7E45614361323002C4FEA /* fsaa.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7E45014361323002C4FEA /* fsaa.c */; };
-		1FB7E45714361323002C4FEA /* fsaa_cgl.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7E45214361323002C4FEA /* fsaa_cgl.c */; };
-		1FB7E45814361323002C4FEA /* fsaa_dummy.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7E45314361323002C4FEA /* fsaa_dummy.c */; };
-		1FB7E45914361323002C4FEA /* fsaa_glx.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7E45414361323002C4FEA /* fsaa_glx.c */; };
-		1FB7E45A14361323002C4FEA /* fsaa_wgl.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7E45514361323002C4FEA /* fsaa_wgl.c */; };
 		1FC155580FE906160046D7FE /* user_menus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FC155560FE906160046D7FE /* user_menus.cpp */; };
 		1FD61F5F0E2CCB560085FD81 /* effect_staff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FD61F5D0E2CCB560085FD81 /* effect_staff.cpp */; };
 		1FF1FA9C0D1AE4940002D512 /* cal3d.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1FF1FA950D1AE4940002D512 /* cal3d.framework */; };
@@ -1009,12 +1004,6 @@
 		1FB7E439143560EA002C4FEA /* XzEnc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XzEnc.h; sourceTree = "<group>"; };
 		1FB7E44C14356236002C4FEA /* fileutil.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fileutil.c; sourceTree = "<group>"; };
 		1FB7E44D14356236002C4FEA /* fileutil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fileutil.h; sourceTree = "<group>"; };
-		1FB7E45014361323002C4FEA /* fsaa.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fsaa.c; sourceTree = "<group>"; };
-		1FB7E45114361323002C4FEA /* fsaa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fsaa.h; sourceTree = "<group>"; };
-		1FB7E45214361323002C4FEA /* fsaa_cgl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fsaa_cgl.c; sourceTree = "<group>"; };
-		1FB7E45314361323002C4FEA /* fsaa_dummy.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fsaa_dummy.c; sourceTree = "<group>"; };
-		1FB7E45414361323002C4FEA /* fsaa_glx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fsaa_glx.c; sourceTree = "<group>"; };
-		1FB7E45514361323002C4FEA /* fsaa_wgl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fsaa_wgl.c; sourceTree = "<group>"; };
 		1FC155560FE906160046D7FE /* user_menus.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = user_menus.cpp; path = ../user_menus.cpp; sourceTree = SOURCE_ROOT; };
 		1FC155570FE906160046D7FE /* user_menus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = user_menus.h; path = ../user_menus.h; sourceTree = SOURCE_ROOT; };
 		1FD61F5D0E2CCB560085FD81 /* effect_staff.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = effect_staff.cpp; sourceTree = "<group>"; };
@@ -1126,7 +1115,6 @@
 		1F8128D90D033520008792A7 /* elc */ = {
 			isa = PBXGroup;
 			children = (
-				1FB7E44F14361323002C4FEA /* fsaa */,
 				1FB7E416143560EA002C4FEA /* xz */,
 				1FB7E40F143560DE002C4FEA /* engine */,
 				1FB7E409143560CB002C4FEA /* elloggingwrapper.cpp */,
@@ -2225,20 +2213,6 @@
 			path = ../xz;
 			sourceTree = "<group>";
 		};
-		1FB7E44F14361323002C4FEA /* fsaa */ = {
-			isa = PBXGroup;
-			children = (
-				1FB7E45014361323002C4FEA /* fsaa.c */,
-				1FB7E45114361323002C4FEA /* fsaa.h */,
-				1FB7E45214361323002C4FEA /* fsaa_cgl.c */,
-				1FB7E45314361323002C4FEA /* fsaa_dummy.c */,
-				1FB7E45414361323002C4FEA /* fsaa_glx.c */,
-				1FB7E45514361323002C4FEA /* fsaa_wgl.c */,
-			);
-			name = fsaa;
-			path = ../fsaa;
-			sourceTree = "<group>";
-		};
 		29B97314FDCFA39411CA2CEA /* EternalLands */ = {
 			isa = PBXGroup;
 			children = (
@@ -2538,11 +2512,6 @@
 				1FB7E44A143560EA002C4FEA /* XzDec.c in Sources */,
 				1FB7E44B143560EA002C4FEA /* XzEnc.c in Sources */,
 				1FB7E44E14356236002C4FEA /* fileutil.c in Sources */,
-				1FB7E45614361323002C4FEA /* fsaa.c in Sources */,
-				1FB7E45714361323002C4FEA /* fsaa_cgl.c in Sources */,
-				1FB7E45814361323002C4FEA /* fsaa_dummy.c in Sources */,
-				1FB7E45914361323002C4FEA /* fsaa_glx.c in Sources */,
-				1FB7E45A14361323002C4FEA /* fsaa_wgl.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
