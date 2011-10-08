@@ -56,7 +56,7 @@ void init_gl()
         {
             char str[120];
             sprintf(str, "Couldn't initialize SDL: %s\n", SDL_GetError());
-            log_error(str);
+            log_error(__FILE__, __LINE__, str);
             SDL_Quit();
             exit(1);
         }
@@ -98,7 +98,7 @@ void init_gl()
 	    {
 			char str[120];
 			sprintf(str, "Couldn't set GL mode: %s\n", SDL_GetError());
-			log_error(str);
+			log_error(__FILE__, __LINE__, str);
 			SDL_Quit();
 			exit(1);
         }

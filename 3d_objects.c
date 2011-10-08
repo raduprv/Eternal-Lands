@@ -109,11 +109,11 @@ void draw_3d_object(object3d * object_id)
 #endif	/* NEW_TEXTURES */
 
 		ELglDrawRangeElementsEXT(GL_TRIANGLES,
-			object_id->e3d_data->materials[i].triangles_indicies_min,
-			object_id->e3d_data->materials[i].triangles_indicies_max,
-			object_id->e3d_data->materials[i].triangles_indicies_count,
+			object_id->e3d_data->materials[i].triangles_indices_min,
+			object_id->e3d_data->materials[i].triangles_indices_max,
+			object_id->e3d_data->materials[i].triangles_indices_count,
 			object_id->e3d_data->index_type,
-			object_id->e3d_data->materials[i].triangles_indicies_index);
+			object_id->e3d_data->materials[i].triangles_indices_index);
 	}
 
 	glPopMatrix();//restore the scene
@@ -368,10 +368,10 @@ void destroy_e3d(e3d_object *e3d_id)
 			free(e3d_id->vertex_data);
 			e3d_id->vertex_data = NULL;
 		}
-		if (e3d_id->indicies != NULL)
+		if (e3d_id->indices != NULL)
 		{
-			free(e3d_id->indicies);
-			e3d_id->indicies = NULL;
+			free(e3d_id->indices);
+			e3d_id->indices = NULL;
 		}
 		if (e3d_id->materials != NULL)
 		{
@@ -384,10 +384,10 @@ void destroy_e3d(e3d_object *e3d_id)
 			ELglDeleteBuffersARB(1, &e3d_id->vertex_vbo);
 			e3d_id->vertex_vbo = 0;
 		}
-		if (e3d_id->indicies_vbo != 0) 
+		if (e3d_id->indices_vbo != 0) 
 		{		
-			ELglDeleteBuffersARB(1, &e3d_id->indicies_vbo);
-			e3d_id->indicies_vbo = 0;
+			ELglDeleteBuffersARB(1, &e3d_id->indices_vbo);
+			e3d_id->indices_vbo = 0;
 		}
 		// and finally free the main object
 		free(e3d_id);
@@ -727,9 +727,9 @@ void add_e3d_heightmap(int K, int D)
 		rotatehm(objects_list[K]->x_rot*(3.14159265/180), objects_list[K]->y_rot*(3.14159265/180), objects_list[K]->z_rot*(3.14159265/180), T, vertex_no);
 	}
 
-	u8 = (unsigned char*)objects_list[K]->e3d_data->indicies;
-	u16 = (unsigned short*)objects_list[K]->e3d_data->indicies;
-	u32 = (unsigned int*)objects_list[K]->e3d_data->indicies;
+	u8 = (unsigned char*)objects_list[K]->e3d_data->indices;
+	u16 = (unsigned short*)objects_list[K]->e3d_data->indices;
+	u32 = (unsigned int*)objects_list[K]->e3d_data->indices;
 
 	// Calculating min and max x and y values of the object
 	for (i = 0; i < vertex_no; i++)
@@ -750,20 +750,20 @@ void add_e3d_heightmap(int K, int D)
 	face_no = 0;
 	for (i = 0; i < objects_list[K]->e3d_data->material_no; i++)
 	{
-		face_no += objects_list[K]->e3d_data->materials[i].triangles_indicies_count / 3;
+		face_no += objects_list[K]->e3d_data->materials[i].triangles_indices_count / 3;
 	}
 
 	T3 = (float3*)malloc(face_no * 3 * sizeof(float3));
 
 	if (have_vertex_buffers) index_pointer = 0;
-	else index_pointer = objects_list[K]->e3d_data->indicies;
+	else index_pointer = objects_list[K]->e3d_data->indices;
 
 	index = 0;
 	for (i = 0; i < objects_list[K]->e3d_data->material_no; i++)
 	{
-		start = objects_list[K]->e3d_data->materials[i].triangles_indicies_index - index_pointer;
+		start = objects_list[K]->e3d_data->materials[i].triangles_indices_index - index_pointer;
 		start /= size;
-		for (j = 0; j < objects_list[K]->e3d_data->materials[i].triangles_indicies_count; j++)
+		for (j = 0; j < objects_list[K]->e3d_data->materials[i].triangles_indices_count; j++)
 		{
 			if (size == 1) idx = u8[start+j];
 			else

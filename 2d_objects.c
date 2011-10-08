@@ -210,7 +210,7 @@ obj_2d_def * load_obj_2d_def(char *file_name)
   {
     char str[120];
     sprintf(str,"Error: Can't open file: %s\n",file_name);
-    log_error(str);
+    log_error(__FILE__, __LINE__, str);
 	free(cur_object);
     return NULL;
   }
@@ -459,7 +459,7 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos, float x_
 	   {
             char str[120];
             sprintf(str,"Error: Can't load 2d object: %s\n",fname);
-            log_error(str);
+            log_error(__FILE__, __LINE__, str);
 	        return 0;
 	   }
 

@@ -356,7 +356,7 @@ void init_browser()
 	int idx, line;
 	FILE *fp=fopen("browser.lst","r");
 	if(!fp){
-		log_error("browser.lst not found");
+		log_error(__FILE__, __LINE__, "browser.lst not found");
 		return;
 	}
 	line = 1;
@@ -404,22 +404,22 @@ void init_browser()
 						}
 						else
 						{
-							log_error("line %d in browser.lst is too short!", line);
+							log_error(__FILE__, __LINE__, "line %d in browser.lst is too short!", line);
 						}
 					}
 					else
 					{
-						log_error("line %d in browser.lst is too short!", line);
+						log_error(__FILE__, __LINE__, "line %d in browser.lst is too short!", line);
 					}
 				}
 				else
 				{
-					log_error("line %d in browser.lst is too short!", line);
+					log_error(__FILE__, __LINE__, "line %d in browser.lst is too short!", line);
 				}
 			}
 			else
 			{
-				log_error("line %d in browser.lst is too short!", line);
+				log_error(__FILE__, __LINE__, "line %d in browser.lst is too short!", line);
 			}
 			Dir[dc].nf++;
 		}

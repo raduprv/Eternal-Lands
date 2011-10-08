@@ -1,6 +1,5 @@
 .PHONY: clean release gtk
 
-#CC=gcc-3.4
 CC=gcc
 CXX=g++
 LINK=g++
@@ -10,11 +9,11 @@ FEATURES += CLUSTER_INSIDES
 FEATURES += NEW_LIGHT_FORMAT
 FEATURES += ZLIB
 FEATURES += ZLIBW
-#FEATURES += NEW_TEXTURES
+FEATURES += NEW_TEXTURES
 
 WARN = -Wall -Wdeclaration-after-statement # -W -Werror
 CXXWARN = -Wall # -W -Werror
-OPTIONS = -DLINUX -DMAP_EDITOR $(foreach FEATURE, $(FEATURES), -D$(FEATURE))
+OPTIONS = -DLINUX -DMAP_EDITOR $(foreach FEATURE, $(FEATURES), -D$(FEATURE)) -D_7ZIP_ST
 OPTIONS += -DGL_GLEXT_PROTOTYPES # needed in my SDL_opengl.h for some function declarations
 
 GTK_CFLAGS = $(shell gtk-config --cflags) #If you wish to use the old gtk, compile with "make gtk"
@@ -41,23 +40,27 @@ COBJS=2d_objects.o 3d_objects.o	\
 	replace_window.o edit_window.o particles_window.o
 
 CLUSTER_INSIDES_ELC_COBJS = cluster.o
+
 ELC_COBJS = asc.o colors.o elconfig.o errors.o load_gl_extensions.o md5.o \
-	dds.o ddsimage.o particles.o queue.o textures.o translate.o hash.o \
+	dds.o ddsimage.o memory.o particles.o queue.o textures.o translate.o hash.o \
 	image.o image_loading.o cache.o \
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_ELC_COBJS))
 
-ELC_IO_COBJS = e3d_io.o elc_io.o elpathwrapper.o half.o normal.o	\
+ELC_IO_COBJS = fileutil.o e3d_io.o elc_io.o elpathwrapper.o half.o normal.o	\
 	elfilewrapper.o unzip.o ioapi.o zip.o ziputil.o
 
 ELC_EXCEPTION_CXXOBJS = extendedexception.o
 
-EYE_CANDY_CXXOBJS = eye_candy_window.o 
+EYE_CANDY_CXXOBJS = eye_candy_window.o
+
 CXXOBJS = $(foreach FEATURE, $(FEATURES), $($(FEATURE)_CXXOBJS))
 
 EYE_CANDY_ELC_CXXOBJS = eye_candy_wrapper.o
 
-ELC_CXXOBJS = cal3d_wrapper.o \
+ELC_CXXOBJS = elloggingwrapper.o cal3d_wrapper.o \
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_ELC_CXXOBJS))
+
+ELC_ENGINE_CXXOBJS = hardwarebuffer.o logging.o
 
 EYE_CANDY_ELC_EC_CXXOBJS = effect_bag.o effect_breath.o effect_campfire.o \
 	effect_cloud.o effect_candle.o effect_firefly.o effect_fountain.o \
@@ -65,13 +68,26 @@ EYE_CANDY_ELC_EC_CXXOBJS = effect_bag.o effect_breath.o effect_campfire.o \
 	effect_ongoing.o effect_selfmagic.o effect_smoke.o \
 	effect_summon.o effect_sword.o effect_targetmagic.o effect_teleporter.o\
 	effect_wind.o eye_candy.o math_cache.o
+
 ELC_EC_CXXOBJS = $(foreach FEATURE, $(FEATURES), $($(FEATURE)_ELC_EC_CXXOBJS))
 
-OBJS = $(COBJS) $(ELC_COBJS) $(ELC_IO_COBJS) $(ELC_IO_CXXOBJS) $(CXXOBJS)\
-	   $(ELC_CXXOBJS) $(ELC_EC_CXXOBJS) $(ELC_EXCEPTION_CXXOBJS)
+ELX_XZ_CCOBJS = 7zCrc.o 7zCrcOpt.o Alloc.o Bra86.o Bra.o BraIA64.o \
+	CpuArch.o Delta.o LzFind.o Lzma2Dec.o Lzma2Enc.o LzmaDec.o LzmaEnc.o \
+	Sha256.o Xz.o XzCrc64.o XzDec.o XzEnc.o
 
-mapedit.x86.linux.bin: $(OBJS)
-	$(LINK) $(CFLAGS) $(LIBS) $(GTK2_LIBS) -o $@ $^
+OBJS = $(COBJS) $(ELC_COBJS) $(ELC_IO_COBJS) $(ELC_IO_CXXOBJS) $(CXXOBJS)\
+	$(ELC_CXXOBJS) $(ELC_EC_CXXOBJS) $(ELC_EXCEPTION_CXXOBJS) \
+	$(ELC_ENGINE_CXXOBJS) $(ELX_XZ_CCOBJS)
+
+EXE=mapedit.x86.linux.bin
+
+GENDEP=Makefile.linux
+
+all: $(EXE)
+
+$(EXE): $(OBJS)
+	@echo "  LINK $(EXE)"
+	@$(LINK) $(CFLAGS) $(LIBS) $(GTK2_LIBS) -o $@ $^
 
 release:
 	make -f Makefile.linux 'CFLAGS=$(_CFLAGS)'
@@ -79,26 +95,45 @@ release:
 gtk: 
 	make -f Makefile.linux 'GTK2_CFLAGS=$(GTK_CFLAGS)' 'GTK2_LIBS=$(GTK_LIBS)'
 
-$(COBJS): %.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+$(COBJS): %.o: %.c $(GENDEP)
+	@echo "  CC   $@"
+	@$(CC) $(CFLAGS) -c -o $@ $<
 
-$(ELC_COBJS): %.o : ../elc/%.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+$(CXXOBJS): %.o : %.cpp $(GENDEP)
+	@echo "  CXX   $@"
+	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(ELC_IO_COBJS): %.o : ../elc/io/%.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+$(ELC_COBJS): %.o : ../elc/%.c $(GENDEP)
+	@echo "  ELC CC   $@"
+	@$(CC) $(CFLAGS) -c -o $@ $<
 
-$(ELC_IO_CXXOBJS): %.o : ../elc/io/%.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+$(ELC_IO_COBJS): %.o : ../elc/io/%.c $(GENDEP)
+	@echo "  ELC IO CC   $@"
+	@$(CC) $(CFLAGS) -c -o $@ $<
 
-$(ELC_EXCEPTION_CXXOBJS): %.o : ../elc/exceptions/%.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+$(ELC_IO_CXXOBJS): %.o : ../elc/io/%.cpp $(GENDEP)
+	@echo "  ELC IO CXX   $@"
+	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(ELC_CXXOBJS): %.o : ../elc/%.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+$(ELC_EXCEPTION_CXXOBJS): %.o : ../elc/exceptions/%.cpp $(GENDEP)
+	@echo "  ELC EXC CXX   $@"
+	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(ELC_EC_CXXOBJS): %.o : ../elc/eye_candy/%.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+$(ELC_CXXOBJS): %.o : ../elc/%.cpp $(GENDEP)
+	@echo "  ELC CXX   $@"
+	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(ELC_EC_CXXOBJS): %.o : ../elc/eye_candy/%.cpp $(GENDEP)
+	@echo "  ELC EC CXX   $@"
+	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(ELC_ENGINE_CXXOBJS): %.o : ../elc/engine/%.cpp $(GENDEP)
+	@echo "  ELC ENG CXX   $@"
+	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(ELX_XZ_CCOBJS): %.o : ../elc/xz/%.c $(GENDEP)
+	@echo "  ELC XZ CC   $@"
+	@$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	-rm -f $(OBJS) $(CXXOBJS) mapedit.x86.linux.bin
+	-rm -f $(OBJS) $(EXE)

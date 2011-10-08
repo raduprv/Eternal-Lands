@@ -12,6 +12,7 @@
 #include "../elc/asc.h"
 #include "../elc/io/elpathwrapper.h"
 #include "../elc/io/elfilewrapper.h"
+#include "../elc/io/fileutil.h"
 
 char lang[10]={"en"};
 
@@ -81,7 +82,8 @@ void init_stuff()
 #endif
 	init_translatables();
 
-	create_error_mutex();
+	//create_error_mutex();
+	init_crc_tables();
 	init_zip_archives();
 	cache_system_init(MAX_CACHE_SYSTEM);
 	init_texture_cache();
@@ -145,7 +147,7 @@ void init_stuff()
 	init_lights();
 	//disable_local_lights();
 	init_colors();
-	clear_error_log();
+	//clear_error_log();
 
 	// Setup the new eye candy system
 #ifdef	EYE_CANDY
@@ -185,7 +187,7 @@ void init_stuff()
     { 
         char str[120];
         snprintf(str, sizeof(str), "Couldn't initialize the timer: %s\n", SDL_GetError());
-        log_error(str);
+        log_error(__FILE__, __LINE__, str);
         SDL_Quit();
 	    exit(1);
     }

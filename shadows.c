@@ -102,11 +102,11 @@ void draw_3d_object_shadow(object3d * object_id)
 		}
 
 		ELglDrawRangeElementsEXT(GL_TRIANGLES,
-			object_id->e3d_data->materials[i].triangles_indicies_min,
-			object_id->e3d_data->materials[i].triangles_indicies_max,
-			object_id->e3d_data->materials[i].triangles_indicies_count,
+			object_id->e3d_data->materials[i].triangles_indices_min,
+			object_id->e3d_data->materials[i].triangles_indices_max,
+			object_id->e3d_data->materials[i].triangles_indices_count,
 			object_id->e3d_data->index_type,
-			object_id->e3d_data->materials[i].triangles_indicies_index);
+			object_id->e3d_data->materials[i].triangles_indices_index);
 	}
 
 	glPopMatrix();//restore the scene

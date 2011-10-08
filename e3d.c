@@ -69,7 +69,7 @@ void e3d_enable_vertex_arrays(e3d_object *e3d_data, Uint32 use_lightning, Uint32
 	if (have_vertex_buffers)
 	{
 		ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
-			e3d_data->indicies_vbo);
+			e3d_data->indices_vbo);
 	}
 }
 

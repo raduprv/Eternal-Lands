@@ -447,7 +447,7 @@ int load_font(int num, char *file)
 			fonts[num]=(font_info *)calloc(1, sizeof(font_info));
 			if(fonts[num] == NULL)
 				{
-					log_error("Unable to load font");
+					log_error(__FILE__, __LINE__, "Unable to load font");
 					return -1;
 				}
 		}
