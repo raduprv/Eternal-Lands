@@ -1,0 +1,128 @@
+.PHONY: clean release gtk
+
+#CC=gcc-3.4
+#!!!!!!Tested only with mingw32 using gcc 4.4.0!!!!!!!
+
+#for this to work you need your c:\mingw\bin (or whatever) in windows PATH
+CC=gcc
+CXX=g++
+LINK=g++
+
+FEATURES  = EYE_CANDY
+FEATURES += CLUSTER_INSIDES
+FEATURES += NEW_LIGHT_FORMAT
+FEATURES += ZLIB
+FEATURES += ZLIBW
+FEATURES += LIBZW
+#FEATURES += NEW_TEXTURES
+
+
+WARN = -Wall -Wdeclaration-after-statement # -W -Werror
+CXXWARN = -Wall # -W -Werror
+OPTIONS = -mwindows -DWINDOWS -DMAP_EDITOR -DWINVER=0x500 $(foreach FEATURE, $(FEATURES), -D$(FEATURE))
+OPTIONS += -DGL_GLEXT_PROTOTYPES # needed in my SDL_opengl.h for some function declarations
+
+GTK2_CFLAGS = $(shell pkg-config gtk+-2.0 --cflags) -DGTK2
+
+#Directories: set the paths to the corresponding library path
+SDL_DIR =C:/SDL
+XML_DIR =C:/libxml
+GTK_DIR =C:/GTK
+AL_DIR =C:/Openal
+CAL3D_DIR =c:/CAL3D
+
+#Include flags: Note, libxml has LIBXML_STATIC or some symbols are not resolved
+SDL_FLAGS = -I$(SDL_DIR)/include/SDL -I$(SDL_DIR)/include -I$(SDL_DIR)/include/SDL -D_GNU_SOURCE=1 -Dmain=SDL_main
+XML_FLAGS = -I$(XML_DIR)/include -IC:/ZLIB/include -IC:/ICONV/include -DLIBXML_STATIC
+AL_FLAGS = -I$(AL_DIR)/include
+CAL3D_FLAGS = -I$(CAL3D_DIR)
+
+CFLAGS=  $(OPTIONS) $(GTK2_CFLAGS) $(SDL_FLAGS)  $(XML_FLAGS) $(AL_FLAGS) $(CAL3D_FLAGS)-g $(WARN)    
+CXXFLAGS= $(OPTIONS) $(GTK2_CFLAGS) $(SDL_FLAGS)  $(XML_FLAGS) $(AL_FLAGS) $(CAL3D_FLAGS) -g $(CXXWARN)
+
+GTK2_LIBS = $(shell pkg-config gtk+-2.0 --libs)
+
+SDL_LIBS =  -L$(SDL_DIR)/lib  -lmingw32 -lSDL -lSDL_image 
+XML_LIBS = -L$(XML_DIR)/lib -LC:/ZLIB/lib -LC:/ICONV/lib  -llibxml2 -lz -lm -liconv
+AL_LIBS = -L$(AL_DIR)/lib
+#If you have a compiled libcal3d, substitute the dll with the .a or .lib
+CAL3D_LIBS = -L$(CAL3D_DIR) $(CAL3D_DIR)/libcal3d.dll
+GL_LIBS = -lglu32 -lglut32  -lopengl32
+
+
+#Our libraries
+LIBS= -Wl,-subsystem,windows $(GL_LIBS) -lstdc++ -lsdl $(SDL_LIBS) $(XML_LIBS) $(AL_LIBS) $(CAL3D_LIBS)
+
+COBJS=2d_objects.o 3d_objects.o	\
+	browser.o draw_scene.o	\
+	e3d.o elwindows.o events.o \
+	font.o frustum.o	\
+	gl_init.o global.o gui.o gui_callbacks.o	\
+	init.o interface.o lights.o \
+	main.o map_io.o misc.o o3dow.o reflection.o	\
+	shadows.o tile_map.o \
+	replace_window.o edit_window.o particles_window.o	
+
+
+CLUSTER_INSIDES_ELC_COBJS = cluster.o
+ELC_COBJS = asc.o colors.o elconfig.o errors.o load_gl_extensions.o md5.o \
+	dds.o ddsimage.o particles.o queue.o textures.o translate.o hash.o \
+	image.o image_loading.o cache.o \
+	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_ELC_COBJS))
+
+ELC_IO_COBJS = e3d_io.o elc_io.o elpathwrapper.o half.o normal.o
+
+ELC_IO_CXXOBJS = elfilewrapper.o elfile.o zipfilesystem.o
+
+ELC_EXCEPTION_CXXOBJS = extendedexception.o
+
+EYE_CANDY_CXXOBJS = eye_candy_window.o 
+CXXOBJS = $(foreach FEATURE, $(FEATURES), $($(FEATURE)_CXXOBJS))
+
+EYE_CANDY_ELC_CXXOBJS = eye_candy_wrapper.o
+
+ELC_CXXOBJS = cal3d_wrapper.o \
+	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_ELC_CXXOBJS))
+
+EYE_CANDY_ELC_EC_CXXOBJS = effect_bag.o effect_breath.o effect_campfire.o \
+	effect_cloud.o effect_candle.o effect_firefly.o effect_fountain.o \
+	effect_glow.o effect_harvesting.o effect_impact.o effect_lamp.o \
+	effect_ongoing.o effect_selfmagic.o effect_smoke.o \
+	effect_summon.o effect_sword.o effect_targetmagic.o effect_teleporter.o\
+	effect_wind.o eye_candy.o math_cache.o
+ELC_EC_CXXOBJS = $(foreach FEATURE, $(FEATURES), $($(FEATURE)_ELC_EC_CXXOBJS))
+
+OBJS = $(COBJS) $(ELC_COBJS) $(ELC_IO_COBJS) $(ELC_IO_CXXOBJS) $(CXXOBJS)\
+	   $(ELC_CXXOBJS) $(ELC_EC_CXXOBJS) $(ELC_EXCEPTION_CXXOBJS)
+
+
+#NOTICE: mingw32 wants libraries in a particular order if something needs lib x, it must be put before x
+#that's why libs are before and after the .o files (awful hack)
+mapedit.exe: $(OBJS)
+	$(LINK) $(CFLAGS) $(LIBS) $(GTK2_LIBS) -o $@ $^ $(LIBS) $(GTK2_LIBS)
+
+
+$(COBJS): %.o: %.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(ELC_COBJS): %.o : ../elc/%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(ELC_IO_COBJS): %.o : ../elc/io/%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(ELC_IO_CXXOBJS): %.o : ../elc/io/%.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(ELC_EXCEPTION_CXXOBJS): %.o : ../elc/exceptions/%.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(ELC_CXXOBJS): %.o : ../elc/%.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(ELC_EC_CXXOBJS): %.o : ../elc/eye_candy/%.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+clean:
+	-del $(OBJS) $(CXXOBJS) mapedit.exe
+
