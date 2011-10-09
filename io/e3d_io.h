@@ -7,7 +7,7 @@
 #define _E3D_IO_H_
 
 #ifdef	MAP_EDITOR
- #include "../../map_editor/gl_init.h"
+ #include "../map_editor/gl_init.h"
 #else
  #include "../gl_init.h"
 #endif

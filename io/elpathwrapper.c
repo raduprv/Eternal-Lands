@@ -6,7 +6,7 @@
 #include "../init.h"
 #include "../md5.h"
 #ifdef MAP_EDITOR
-# include "../../map_editor/misc.h"
+# include "../map_editor/misc.h"
 #else
 # include "../misc.h"
 #endif //MAP_EDITOR
