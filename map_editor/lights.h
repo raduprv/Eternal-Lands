@@ -1,7 +1,7 @@
 #ifndef __LIGHTS_H__
 #define __LIGHTS_H__
 
-#include "../elc/platform.h"
+#include "../platform.h"
 
 typedef struct
 {

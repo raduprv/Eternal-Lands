@@ -4,7 +4,7 @@
 #include <string.h>
 
 #ifdef EYE_CANDY
- #include "../elc/eye_candy_wrapper.h"
+ #include "../eye_candy_wrapper.h"
  #include "eye_candy_window.h" 
 #endif
 

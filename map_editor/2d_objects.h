@@ -1,7 +1,7 @@
 #ifndef __obj_2d_H__
 #define __obj_2d_H__
 
-#include "../elc/bbox_tree.h"
+#include "../bbox_tree.h"
 
 #define MAX_OBJ_2D 15000
 #define MAX_OBJ_2D_DEF 1000

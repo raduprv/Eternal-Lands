@@ -2,7 +2,7 @@
 #define __INTERFACE_H__
 
 #include <SDL_keysym.h>
-#include "../elc/platform.h"
+#include "../platform.h"
 
 //modes
 #define mode_tile 0

@@ -1,4 +1,4 @@
-#include "../elc/asc.h"
+#include "../asc.h"
 #include "global.h"
 
 int use_vertex_buffers=0;

@@ -17,7 +17,7 @@ extern "C"
 #include "editor.h"
 }
 
-#include "../elc/eye_candy/eye_candy.h"
+#include "../eye_candy/eye_candy.h"
 #include <vector>
 #include "eye_candy_window.h"
 

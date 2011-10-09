@@ -1,6 +1,6 @@
 #ifndef __TILE_H__
 #define __TILE_H__
-#include "../elc/textures.h"
+#include "../textures.h"
 
 #ifdef	NEW_TEXTURES
 image_t map_tiles[256];

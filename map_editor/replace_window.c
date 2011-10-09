@@ -5,8 +5,8 @@
 #include "font.h"
 #include "interface.h"
 #include "tiles.h"
-#include "../elc/particles.h"
-#include "../elc/platform.h"
+#include "../particles.h"
+#include "../platform.h"
 
 int view_replace_window=0;
 int replace_window_x=20;

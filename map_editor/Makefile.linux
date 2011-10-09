@@ -103,35 +103,35 @@ $(CXXOBJS): %.o : %.cpp $(GENDEP)
 	@echo "  CXX   $@"
 	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(ELC_COBJS): %.o : ../elc/%.c $(GENDEP)
+$(ELC_COBJS): %.o : ../%.c $(GENDEP)
 	@echo "  ELC CC   $@"
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
-$(ELC_IO_COBJS): %.o : ../elc/io/%.c $(GENDEP)
+$(ELC_IO_COBJS): %.o : ../io/%.c $(GENDEP)
 	@echo "  ELC IO CC   $@"
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
-$(ELC_IO_CXXOBJS): %.o : ../elc/io/%.cpp $(GENDEP)
+$(ELC_IO_CXXOBJS): %.o : ../io/%.cpp $(GENDEP)
 	@echo "  ELC IO CXX   $@"
 	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(ELC_EXCEPTION_CXXOBJS): %.o : ../elc/exceptions/%.cpp $(GENDEP)
+$(ELC_EXCEPTION_CXXOBJS): %.o : ../exceptions/%.cpp $(GENDEP)
 	@echo "  ELC EXC CXX   $@"
 	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(ELC_CXXOBJS): %.o : ../elc/%.cpp $(GENDEP)
+$(ELC_CXXOBJS): %.o : ../%.cpp $(GENDEP)
 	@echo "  ELC CXX   $@"
 	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(ELC_EC_CXXOBJS): %.o : ../elc/eye_candy/%.cpp $(GENDEP)
+$(ELC_EC_CXXOBJS): %.o : ../eye_candy/%.cpp $(GENDEP)
 	@echo "  ELC EC CXX   $@"
 	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(ELC_ENGINE_CXXOBJS): %.o : ../elc/engine/%.cpp $(GENDEP)
+$(ELC_ENGINE_CXXOBJS): %.o : ../engine/%.cpp $(GENDEP)
 	@echo "  ELC ENG CXX   $@"
 	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(ELX_XZ_CCOBJS): %.o : ../elc/xz/%.c $(GENDEP)
+$(ELX_XZ_CCOBJS): %.o : ../xz/%.c $(GENDEP)
 	@echo "  ELC XZ CC   $@"
 	@$(CC) $(CFLAGS) -c -o $@ $<
 

@@ -13,8 +13,8 @@
 //***********************************************************************//
 #include <math.h>
 #include "frustum.h"
-#include "../elc/bbox_tree.h"
-#include "../elc/platform.h"
+#include "../bbox_tree.h"
+#include "../platform.h"
 
 struct Sphere
 {

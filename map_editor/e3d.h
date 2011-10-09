@@ -5,8 +5,8 @@
 #define MAX_E3D_CACHE 1000
 
 
-#include "../elc/md5.h"
-#include "../elc/e3d_object.h"
+#include "../md5.h"
+#include "../e3d_object.h"
 
 
 typedef struct

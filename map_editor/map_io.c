@@ -4,7 +4,7 @@
  #include "eye_candy_window.h"
 #endif
 #ifdef CLUSTER_INSIDES
-#include "../elc/cluster.h"
+#include "../cluster.h"
 #endif
 
 #define LATEST_MAP_VERSION 1

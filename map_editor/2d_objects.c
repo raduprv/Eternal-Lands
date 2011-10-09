@@ -1,10 +1,10 @@
 #include "2d_objects.h"
 #include "draw_scene.h"
 #include "global.h"
-#include "../elc/asc.h"
-#include "../elc/platform.h"
-#include "../elc/textures.h"
-#include "../elc/io/elfilewrapper.h"
+#include "../asc.h"
+#include "../platform.h"
+#include "../textures.h"
+#include "../io/elfilewrapper.h"
 
 #define INVALID -1
 #define GROUND 0

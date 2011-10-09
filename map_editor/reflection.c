@@ -6,7 +6,7 @@ float mrandom(float max)
   return ((float) max * (rand () % 8 ));
 }
 
-#include "../elc/e3d_object.h"
+#include "../e3d_object.h"
 
 void draw_3d_reflection(object3d * object_id)
 {

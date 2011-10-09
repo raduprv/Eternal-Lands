@@ -38,7 +38,7 @@ void SetShadowMatrix()
 	fDestMat[15] = dot - fLightPos[3] * fPlane[3];
 }
 
-#include "../elc/e3d_object.h"
+#include "../e3d_object.h"
 
 void draw_3d_object_shadow(object3d * object_id)
 {

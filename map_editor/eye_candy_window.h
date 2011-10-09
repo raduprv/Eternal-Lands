@@ -6,8 +6,8 @@
 #ifdef __cplusplus
  #include <vector>
 
- #include "../elc/eye_candy/eye_candy.h"
- #include "../elc/eye_candy_wrapper.h"
+ #include "../eye_candy/eye_candy.h"
+ #include "../eye_candy_wrapper.h"
  
 class EffectDefinition
 {

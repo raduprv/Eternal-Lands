@@ -13,7 +13,7 @@
 #include <math.h>
 #include <time.h>
 
-#include "../elc/platform.h"
+#include "../platform.h"
 
 #ifndef min
 	#define min(x, y) (x<y?x:y)
@@ -36,11 +36,11 @@
 #include	<zlib.h>
 #endif
 
-#include "../elc/cache.h"
-#include "../elc/translate.h"
-#include "../elc/elconfig.h"
-#include "../elc/colors.h"
-#include "../elc/errors.h"
+#include "../cache.h"
+#include "../translate.h"
+#include "../elconfig.h"
+#include "../colors.h"
+#include "../errors.h"
 #include "init.h"
 #include "e3d.h"
 #include "2d_objects.h"
@@ -56,14 +56,14 @@
 #include "browser.h"
 #include "events.h"
 #include "frustum.h"
-#include "../elc/client_serv.h"
-#include "../elc/textures.h"
+#include "../client_serv.h"
+#include "../textures.h"
 #include "font.h"
 #include "elwindows.h"
 #include "o3dow.h"
 #include "replace_window.h"
 #include "edit_window.h"
-#include "../elc/particles.h"
+#include "../particles.h"
 #include "particles_window.h"
 #include "gl_init.h"
 #define sector_size_x 15

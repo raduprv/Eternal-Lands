@@ -2,8 +2,8 @@
 #include "elwindows.h"
 #include "font.h"
 #include "interface.h"
-#include "../elc/platform.h"
-#include "../elc/asc.h"
+#include "../platform.h"
+#include "../asc.h"
 
 int view_edit_window=0;
 int edit_window_x=20;

@@ -1,10 +1,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include "font.h"
-#include "../elc/errors.h"
-#include "../elc/client_serv.h"
-#include "../elc/colors.h"
-#include "../elc/textures.h"
+#include "../errors.h"
+#include "../client_serv.h"
+#include "../colors.h"
+#include "../textures.h"
 
 static int font_text = 0;
 

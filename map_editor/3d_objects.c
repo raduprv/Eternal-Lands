@@ -2,12 +2,12 @@
 #include <math.h>
 #include <string.h>
 #include "e3d.h"
-#include "../elc/platform.h"
-#include "../elc/asc.h"
+#include "../platform.h"
+#include "../asc.h"
 #include "global.h"
 
-#include "../elc/md5.h"
-#include "../elc/io/e3d_io.h"
+#include "../md5.h"
+#include "../io/e3d_io.h"
 
 typedef struct
 {

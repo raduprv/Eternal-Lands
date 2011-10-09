@@ -2,7 +2,7 @@
 
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
-#include "../elc/platform.h"
+#include "../platform.h"
 #include "global.h"
 
 #ifdef EYE_CANDY

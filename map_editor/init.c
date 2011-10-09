@@ -7,12 +7,12 @@
 #include "e3d.h"
 #include "global.h"
 #ifdef EYE_CANDY
-#include "../elc/eye_candy_wrapper.h"
+#include "../eye_candy_wrapper.h"
 #endif
-#include "../elc/asc.h"
-#include "../elc/io/elpathwrapper.h"
-#include "../elc/io/elfilewrapper.h"
-#include "../elc/io/fileutil.h"
+#include "../asc.h"
+#include "../io/elpathwrapper.h"
+#include "../io/elfilewrapper.h"
+#include "../io/fileutil.h"
 
 char lang[10]={"en"};
 
