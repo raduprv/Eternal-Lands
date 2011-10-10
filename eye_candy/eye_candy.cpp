@@ -278,34 +278,36 @@ namespace ec
 
 	void Effect::draw_particle_buffer()
 	{
-		particle_vertex_buffer.bind(el::hbt_vertex);
+        if (particle_count >0){
+            particle_vertex_buffer.bind(el::hbt_vertex);
 
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_COLOR_ARRAY);
+            glEnableClientState(GL_VERTEX_ARRAY);
+            glEnableClientState(GL_COLOR_ARRAY);
 
-		glColorPointer(4, GL_FLOAT, 10 * sizeof(float),
-			static_cast<char*>(0) + 0 * sizeof(float));
-		glVertexPointer(3, GL_FLOAT, 10 * sizeof(float),
-			static_cast<char*>(0) + 4 * sizeof(float));
+            glColorPointer(4, GL_FLOAT, 10 * sizeof(float),
+                static_cast<char*>(0) + 0 * sizeof(float));
+            glVertexPointer(3, GL_FLOAT, 10 * sizeof(float),
+                static_cast<char*>(0) + 4 * sizeof(float));
 
-		ELglClientActiveTextureARB(GL_TEXTURE0);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glTexCoordPointer(2, GL_FLOAT, 10 * sizeof(float),
-			static_cast<char*>(0) + 7 * sizeof(float));
+            ELglClientActiveTextureARB(GL_TEXTURE0);
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            glTexCoordPointer(2, GL_FLOAT, 10 * sizeof(float),
+                static_cast<char*>(0) + 7 * sizeof(float));
 
-		ELglClientActiveTextureARB(GL_TEXTURE1);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glTexCoordPointer(1, GL_FLOAT, 10 * sizeof(float),
-			static_cast<char*>(0) + 9 * sizeof(float));
+            ELglClientActiveTextureARB(GL_TEXTURE1);
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            glTexCoordPointer(1, GL_FLOAT, 10 * sizeof(float),
+                static_cast<char*>(0) + 9 * sizeof(float));
 
-		glDrawArrays(GL_QUADS, 0, particle_count * 4);
+            glDrawArrays(GL_QUADS, 0, particle_count * 4);
 
-		glDisableClientState(GL_VERTEX_ARRAY);
-		glDisableClientState(GL_COLOR_ARRAY);
-		ELglClientActiveTextureARB(GL_TEXTURE1);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		ELglClientActiveTextureARB(GL_TEXTURE0);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+            glDisableClientState(GL_VERTEX_ARRAY);
+            glDisableClientState(GL_COLOR_ARRAY);
+            ELglClientActiveTextureARB(GL_TEXTURE1);
+            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+            ELglClientActiveTextureARB(GL_TEXTURE0);
+            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        }
 	}
 #endif	/* NEW_TEXTURES */
 
@@ -2326,6 +2328,7 @@ namespace ec
 
 		set_particle_texture_combiner();
 
+#ifndef MAP_EDITOR
 		/* Fog hurts blending with 5 color blending
 		 * (red, green, blue, alpha and burn)
 		 */
@@ -2333,6 +2336,7 @@ namespace ec
 		{
 			glDisable(GL_FOG);
 		}
+#endif
 #else	/* NEW_TEXTURES */
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
@@ -2373,10 +2377,12 @@ namespace ec
 		ELglActiveTextureARB(GL_TEXTURE0);
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
+#ifndef MAP_EDITOR
 		if (use_fog)
 		{
 			glEnable(GL_FOG);
 		}
+#endif
 #else	/* NEW_TEXTURES */
 		if (draw_method == POINT_SPRITES)
 		{
