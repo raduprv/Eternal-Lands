@@ -71,13 +71,12 @@ EYE_CANDY_ELC_EC_CXXOBJS = effect_bag.o effect_breath.o effect_campfire.o \
 
 ELC_EC_CXXOBJS = $(foreach FEATURE, $(FEATURES), $($(FEATURE)_ELC_EC_CXXOBJS))
 
-ELX_XZ_CCOBJS = 7zCrc.o 7zCrcOpt.o Alloc.o Bra86.o Bra.o BraIA64.o \
+ELC_XZ_CCOBJS = 7zCrc.o 7zCrcOpt.o Alloc.o Bra86.o Bra.o BraIA64.o \
 	CpuArch.o Delta.o LzFind.o Lzma2Dec.o Lzma2Enc.o LzmaDec.o LzmaEnc.o \
 	Sha256.o Xz.o XzCrc64.o XzDec.o XzEnc.o
 
-OBJS = $(COBJS) $(ELC_COBJS) $(ELC_IO_COBJS) $(ELC_IO_CXXOBJS) $(CXXOBJS)\
-	$(ELC_CXXOBJS) $(ELC_EC_CXXOBJS) $(ELC_EXCEPTION_CXXOBJS) \
-	$(ELC_ENGINE_CXXOBJS) $(ELX_XZ_CCOBJS)
+OBJS = $(COBJS) $(CXXOBJS) $(ELC_COBJS) $(ELC_CXXOBJS) $(ELC_IO_COBJS) $(ELC_IO_CXXOBJS) \
+	$(ELC_EC_CXXOBJS) $(ELC_EXCEPTION_CXXOBJS) 	$(ELC_ENGINE_CXXOBJS) $(ELC_XZ_CCOBJS)
 
 EXE=mapedit.x86.linux.bin
 
@@ -131,7 +130,7 @@ $(ELC_ENGINE_CXXOBJS): %.o : ../engine/%.cpp $(GENDEP)
 	@echo "  ELC ENG CXX   $@"
 	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(ELX_XZ_CCOBJS): %.o : ../xz/%.c $(GENDEP)
+$(ELC_XZ_CCOBJS): %.o : ../xz/%.c $(GENDEP)
 	@echo "  ELC XZ CC   $@"
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
