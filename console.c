@@ -19,7 +19,6 @@
 #include "item_lists.h"
 #include "interface.h"
 #include "knowledge.h"
-#include "lights.h"
 #include "list.h"
 #include "mapwin.h"
 #include "manufacture.h"

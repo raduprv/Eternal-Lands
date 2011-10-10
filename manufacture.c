@@ -17,17 +17,19 @@
 #include "gl_init.h"
 #endif
 
-#define MAX_RECIPE 10
+#define MAX_RECIPE 11
+#define SHOW_MAX_RECIPE (MAX_RECIPE-1)
 
 int recipe_status[MAX_RECIPE];
 item recipes[MAX_RECIPE][6];
-item *manu_recipe=recipes[0];
+item *manu_recipe=recipes[SHOW_MAX_RECIPE];
 int cur_recipe=0;
 item manufacture_list[ITEM_NUM_ITEMS];
 int manufacture_win= -1;
 int recipe_win= -1;
 int recipes_shown=0;
 static int recipes_loaded=0;
+static int mouse_over_recipe_window = 0;
 int manufacture_menu_x=10;
 int manufacture_menu_y=20;
 int manufacture_menu_x_len=12*33+20;
@@ -103,13 +105,12 @@ void build_manufacture_list()
 	}
 	//now check for all items in all recipes
 	for(k=0;k<MAX_RECIPE;k++){
-		manu_recipe=recipes[k];
 		l=1;
 		for(i=0; l>0 && i<6; i++) {
-			if(manu_recipe[i].quantity > 0) {
+			if(recipes[k][i].quantity > 0) {
 				for(j=0; l>0 && j<36; j++) {
-					if(manufacture_list[j].quantity>0 && manu_recipe[i].image_id == manufacture_list[j].image_id) {
-						if(manu_recipe[i].quantity > manufacture_list[j].quantity) {
+					if(manufacture_list[j].quantity>0 && recipes[k][i].image_id == manufacture_list[j].image_id) {
+						if(recipes[k][i].quantity > manufacture_list[j].quantity) {
 							l=0;	// can't make
 						}
 						break;
@@ -126,8 +127,7 @@ void build_manufacture_list()
 		recipe_status[k]=l;
 	}
 	//all there? good, put them in from current recipe
-	manu_recipe=recipes[cur_recipe];
-	l=recipe_status[cur_recipe];
+	l=recipe_status[SHOW_MAX_RECIPE];
 	if(l>0) {
 		for(i=0; i<6; i++) {
 			if(manu_recipe[i].quantity > 0)	{
@@ -157,6 +157,12 @@ void copy_recipe()
 		manu_recipe[i-36]=manufacture_list[i];
 	}
 }
+
+static void use_recipe(int recipe_to_use)
+{
+	memcpy(manu_recipe, recipes[recipe_to_use], sizeof(item)*6);
+}
+
 
 //DRAWING FUNCTIONS
 
@@ -304,10 +310,18 @@ CHECK_GL_ERRORS();
 int recipe_dropdown_draw(window_info *win){
 	int i;
 
-	for (i=0;i<MAX_RECIPE;i++){
+	for (i=0;i<SHOW_MAX_RECIPE;i++){
 		draw_production_pipe(0,33*i,i);
 	}
 	draw_production_pipe(0,33*cur_recipe,cur_recipe);
+
+	if (mouse_over_recipe_window && show_help_text)
+	{
+		show_help(recipe_select_str, 0, win->len_y+10);
+		show_help(recipe_load_str, 0, win->len_y+10+SMALL_FONT_Y_LEN);
+	}
+	mouse_over_recipe_window = 0;
+
 	return 1;
 }
 
@@ -321,22 +335,22 @@ int recipe_dropdown_click_handler(window_info *win, int mx, int my, Uint32 flags
 	static int last_recipe=0;
 
 	if (flags & ELW_WHEEL_UP) {
-		cur_recipe=(cur_recipe-1+MAX_RECIPE)%MAX_RECIPE;			
+		cur_recipe=(cur_recipe-1+SHOW_MAX_RECIPE)%SHOW_MAX_RECIPE;			
 	} else
 	if (flags & ELW_WHEEL_DOWN) {
-		cur_recipe=(cur_recipe+1)%MAX_RECIPE;			
+		cur_recipe=(cur_recipe+1)%SHOW_MAX_RECIPE;			
 	} else {
 		//normal click
 		select_window(recipe_win);
 		cur_recipe=my/(33+1);	
 		if ( ((SDL_GetTicks() - last_clicked) < 400)&& last_recipe==cur_recipe){
 			//double click on the same recipe to select it and close the dropdown
+			use_recipe(cur_recipe);
 			recipes_shown=0;
 			hide_window(recipe_win);
 		}	
 		last_clicked = SDL_GetTicks();
 	}
-	manu_recipe=recipes[cur_recipe];
 	build_manufacture_list();
 	last_recipe = cur_recipe;
 	do_click_sound();
@@ -354,10 +368,12 @@ int recipe_controls_click_handler(int mx, int my, Uint32 flags){
 	if (mx>wpx&&mx<wpx+lpx&&my>wpy+lpy-10&&my<wpy+lpy){
 		//arrow
 		if (flags & ELW_WHEEL_UP) {
-			cur_recipe=(cur_recipe-1+MAX_RECIPE)%MAX_RECIPE;			
+			cur_recipe=(cur_recipe-1+SHOW_MAX_RECIPE)%SHOW_MAX_RECIPE;			
+			use_recipe(cur_recipe);
 		} else
 		if (flags & ELW_WHEEL_DOWN) {
-			cur_recipe=(cur_recipe+1)%MAX_RECIPE;			
+			cur_recipe=(cur_recipe+1)%SHOW_MAX_RECIPE;			
+			use_recipe(cur_recipe);
 		} else {
 			//normal click	
 			recipes_shown=!recipes_shown;
@@ -371,7 +387,8 @@ int recipe_controls_click_handler(int mx, int my, Uint32 flags){
 	if (mx>wpx+3&&mx<wpx+lpx-3&&my>wpy&&my<wpy+15){
 		//+ button
 		//copy the recipe
-		for(i=36;i<36+6;i++) manu_recipe[i-36]=manufacture_list[i];		
+		for(i=36;i<36+6;i++) recipes[cur_recipe][i-36]=manufacture_list[i];
+		build_manufacture_list();
 		do_click_sound();
 		// save recipes to disk to avoid loss on disconnects/crashes
 		save_recipes();
@@ -501,6 +518,8 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 			//simulate a click on the dropdown
 			last_slot=-1;
 			recipe_dropdown_click_handler(win,0,0,flags);
+			use_recipe(cur_recipe);
+			build_manufacture_list();
 			return 0;
 		} 
 	} else last_slot=-1;
@@ -583,21 +602,31 @@ int mixall_handler()
 }
 
 
+/* show help for recipe window */
+int mouseover_recipe_handler(window_info *win, int mx, int my)
+{
+	mouse_over_recipe_window = 1;
+	return 0;
+}
+
 //MOUSEOVER HANDLERS
 int recipe_controls_mouseover_handler(int mx, int my){
 
 	int wpx=33*6+2;
 	int wpy=manufacture_menu_y_len-37;
 	int lpx=18;
-	int lpy=33;	
+	int lpy=33;
+
+	if (!show_help_text)
+		return 0;
 
 	if (mx>wpx&&mx<wpx+lpx&&my>wpy+lpy-10&&my<wpy+lpy){
 		//on arrow
-		show_help("Click to show/hide saved recipes. Wheel to scroll", 0, manufacture_menu_y_len+10);
+		show_help(recipe_show_hide_str, 0, manufacture_menu_y_len+10);
 	} else
 	if (mx>wpx+3&&mx<wpx+lpx-3&&my>wpy&&my<wpy+15){
 		//on + button
-		show_help("Click to save current recipe.", 0, manufacture_menu_y_len+10);
+		show_help(recipe_save_str, 0, manufacture_menu_y_len+10);
 	}
 	return 0;
 }
@@ -692,10 +721,11 @@ void display_manufacture_menu()
 		widget_set_OnClick(manufacture_win, clear_button_id, clear_handler);
 
 		//Create a child window to show recipes in a dropdown panel
-		recipe_win= create_window("w_recipe", manufacture_win, 0, 2, manufacture_menu_y_len-2, 33*6, MAX_RECIPE*33, 
+		recipe_win= create_window("w_recipe", manufacture_win, 0, 2, manufacture_menu_y_len-2, 33*6, SHOW_MAX_RECIPE*33, 
 			ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE|ELW_USE_BORDER);
 		set_window_handler(recipe_win, ELW_HANDLER_DISPLAY, &recipe_dropdown_draw);
 		set_window_handler(recipe_win, ELW_HANDLER_CLICK, &recipe_dropdown_click_handler );
+		set_window_handler(recipe_win, ELW_HANDLER_MOUSEOVER, &mouseover_recipe_handler );
 		hide_window(recipe_win); //start hidden
 	} else {
 		show_window(manufacture_win);

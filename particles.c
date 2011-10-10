@@ -1104,9 +1104,9 @@ void display_particles()
 #ifdef	MAP_EDITOR
 	int i;
 #endif
-#ifdef  SIMPLE_LOD
+#if defined(SIMPLE_LOD) || defined(MAP_EDITOR)
 	int x,y;
-#endif  //SIMPLE_LOD
+#endif  //SIMPLE_LOD || MAP_EDITOR
 	GLenum sblend=GL_SRC_ALPHA,dblend=GL_ONE;
 #ifndef	MAP_EDITOR
 	unsigned int i, l, start, stop;
@@ -1118,10 +1118,10 @@ void display_particles()
 	if(!particles_percentage)
 	  return;
 
-#ifdef  SIMPLE_LOD
+#if defined(SIMPLE_LOD) || defined(MAP_EDITOR)
 	x=-camera_x;
 	y=-camera_y;
-#endif  //SIMPLE_LOD
+#endif  //SIMPLE_LOD || MAP_EDITOR
 
 	CHECK_GL_ERRORS();
 	glPushAttrib(GL_ENABLE_BIT|GL_DEPTH_BUFFER_BIT);

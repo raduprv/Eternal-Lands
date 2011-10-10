@@ -171,11 +171,11 @@ $(glxinfo | head -5)
 
 The following is your error log contents.  Note it is overwritten each time you run the game.
 
-$(cat $(ls -1tr ~/.elc/log/main*.log | tail -1))
+$(cat $(ls -1tr ~/.elc/log/main*.log | tail -1) /dev/null)
 
 This was the program output:  Note it is overwritten each time you run the game.
 
-$(cat ~/.elc/terminal_log.txt)
+$(cat ~/.elc/terminal_log.txt /dev/null)
 
 A search through dmesg output:
 $(dmesg | grep $(basename $el_client))

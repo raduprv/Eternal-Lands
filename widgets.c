@@ -15,6 +15,7 @@
 #include "global.h"
 #include "interface.h"
 #include "misc.h"
+#include "multiplayer.h"
 #include "paste.h"
 #include "tabs.h"
 #include "textures.h"
@@ -2308,6 +2309,26 @@ int text_field_resize (widget_list *w, int width, int height)
 	return 1;
 }
 
+static int insert_window_id = -1;
+static int insert_widget_id = -1;
+
+/* insert the given text string into the text widget */
+static void text_widget_insert(const char *thestring)
+{
+	widget_list* w = widget_find (insert_window_id, insert_widget_id);
+	if (w != NULL)
+	{
+		Uint32 saved_flag = w->Flags & TEXT_FIELD_NO_KEYPRESS;
+		if (w->Flags & TEXT_FIELD_MOUSE_EDITABLE)
+			w->Flags &= ~TEXT_FIELD_NO_KEYPRESS;
+		widget_unset_flags(insert_window_id, insert_widget_id, WIDGET_DISABLED);
+		do_paste_to_text_field(w->widget_info, thestring);
+		w->Flags |= saved_flag;
+	}
+	insert_window_id = insert_widget_id = -1;
+}
+
+
 /* the edit context menu callback */
 static int context_edit_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
@@ -2328,6 +2349,33 @@ static int context_edit_handler(window_info *win, int widget_id, int mx, int my,
 		case 0: text_field_keypress(w, 0, 0, K_CUT, 24); break;
 		case 1: text_field_keypress(w, 0, 0, K_COPY, 3); break;
 		case 2: if (!text_field_keypress(w, 0, 0, K_PASTE, 22)) start_paste_to_text_field(NULL); break;
+		case 4:
+			{
+				insert_window_id = win->window_id;
+				insert_widget_id = widget_id;
+				get_date(text_widget_insert);
+			}
+			break;
+		case 5:
+			{
+				char str[20];
+				safe_snprintf(str, sizeof(str), "%1d:%02d:%02d", real_game_minute/60, real_game_minute%60, real_game_second);
+				widget_unset_flags(win->window_id, widget_id, WIDGET_DISABLED);
+				do_paste_to_text_field(w->widget_info, str);
+			}
+			break;
+		case 6:
+			{
+				actor *me = get_our_actor ();
+				if (me != NULL)
+				{
+					char str[20];
+					safe_snprintf(str, sizeof(str), "%d,%d", me->x_tile_pos, me->y_tile_pos);
+					widget_unset_flags(win->window_id, widget_id, WIDGET_DISABLED);
+					do_paste_to_text_field(w->widget_info, str);
+				}
+			}
+			break;
 	}
 	w->Flags |= saved_flag;
 	return 1;
@@ -2353,6 +2401,12 @@ static void context_edit_pre_show_handler(window_info *win, int widget_id, int m
 	is_grey = is_grey || !(w->Flags & TEXT_FIELD_EDITABLE)
 		|| ((w->Flags & TEXT_FIELD_NO_KEYPRESS) && !(w->Flags & TEXT_FIELD_MOUSE_EDITABLE));
 	cm_grey_line(cm_edit_id, 0, is_grey);
+
+	is_grey = !((w->Flags & TEXT_FIELD_EDITABLE) || (w->Flags & TEXT_FIELD_MOUSE_EDITABLE));
+	cm_grey_line(cm_edit_id, 2, is_grey);
+	cm_grey_line(cm_edit_id, 4, is_grey);
+	cm_grey_line(cm_edit_id, 5, is_grey);
+	cm_grey_line(cm_edit_id, 6, is_grey);
 }
 
 int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unikey)

@@ -8,7 +8,6 @@
 #include "draw_scene.h"
 #include "elconfig.h"
 #include "global.h"
-#include "lights.h"
 #include "map.h"
 #include "misc.h"
 #include "particles.h"

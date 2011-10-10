@@ -446,14 +446,18 @@ static Uint32 do_file_exists(const char* file_name, const char* path,
 	const Uint32 size, char* buffer)
 {
 	struct stat fstat;
+	Uint32 found;
 
 	safe_strncpy2(buffer, path, size, strlen(path));
 	safe_strcat(buffer, file_name, size);
 	safe_strcat(buffer, ".xz", size);
 
-	LOG_DEBUG("Checking file '%s' exits.", buffer);
+	found = stat(buffer, &fstat) == 0;
 
-	if (stat(buffer, &fstat) == 0)
+	LOG_DEBUG("Checking file '%s': %s.", buffer, found ? "found" :
+		"not found");
+
+	if (found)
 	{
 		return 1;
 	}
@@ -462,9 +466,12 @@ static Uint32 do_file_exists(const char* file_name, const char* path,
 	safe_strcat(buffer, file_name, size);
 	safe_strcat(buffer, ".gz", size);
 
-	LOG_DEBUG("Checking file '%s' exits.", buffer);
+	found = stat(buffer, &fstat) == 0;
 
-	if (stat(buffer, &fstat) == 0)
+	LOG_DEBUG("Checking file '%s': %s.", buffer, found ? "found" :
+		"not found");
+
+	if (found)
 	{
 		return 1;
 	}
@@ -472,9 +479,12 @@ static Uint32 do_file_exists(const char* file_name, const char* path,
 	safe_strncpy2(buffer, path, size, strlen(path));
 	safe_strcat(buffer, file_name, size);
 
-	LOG_DEBUG("Checking file '%s' exits.", buffer);
+	found = stat(buffer, &fstat) == 0;
 
-	if (stat(buffer, &fstat) == 0)
+	LOG_DEBUG("Checking file '%s': %s.", buffer, found ? "found" :
+		"not found");
+
+	if (found)
 	{
 		return 1;
 	}
@@ -647,8 +657,11 @@ static el_file_ptr xz_gz_file_open(const char* file_name)
 	el_file_ptr result;
 
 	result = xz_file_open(file_name);
+
 	if (!result)
+	{
 		result = gz_file_open(file_name);
+	}
 
 	return result;
 }
@@ -660,7 +673,9 @@ static el_file_ptr zip_file_open(unzFile file)
 	Uint32 size, crc;
 
 	if (unzOpenCurrentFile(file) != UNZ_OK)
+	{
 		return NULL;
+	}
 
 	if (unzGetCurrentFileInfo64(file, &file_info, 0, 0, 0, 0, 0, 0) !=
 		UNZ_OK)

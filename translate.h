@@ -332,6 +332,10 @@ extern char
 		mix_empty_str[50],
 		click_clear_str[50],
 		double_click_clear_str[50],
+		recipe_select_str[50],
+		recipe_load_str[50],
+		recipe_show_hide_str[70],
+		recipe_save_str[70],
 		/*knowledge.c*/
 		completed_research[12],
 		researching_str[30],
@@ -414,6 +418,7 @@ extern char
 		mc_from_str[20],
 		mod_pm_from_str[15],
 		/* ranging window */
+		ranging_win_title_str[20],
 		ranging_total_shots_str[40],
 		ranging_sucessful_shots_str[40],
 		ranging_missed_shots_str[40],
@@ -435,7 +440,7 @@ extern char
 		restart_now_label[20],
 		/* context menu strings */
 		cm_quickspell_menu_str[50],
-		cm_textedit_menu_str[50],
+		cm_textedit_menu_str[100],
 		cm_quickbar_menu_str[150],
 		cm_hud_menu_str[250],
 		cm_banner_menu_str[175],
@@ -444,6 +449,7 @@ extern char
 		cm_items_menu_str[150],
 		cm_storage_menu_str[75],
 		cm_astro_menu_str[50],
+		cm_ranging_menu_str[50],
 		cm_dialog_options_str[80],
 		cm_dialog_menu_str[60],
 		cm_url_menu_str[150],

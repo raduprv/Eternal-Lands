@@ -300,7 +300,7 @@ void clear_sound_data();
 
 void handle_walking_sound(actor *pActor, int def_snd);
 int check_sound_loops(unsigned int cookie);
-void check_sound_alerts(char * text, Uint8 channel);
+void check_sound_alerts(const Uint8* text, size_t len, Uint8 channel);
 #ifdef DEBUG_MAP_SOUND
 void print_sound_boundaries(int map);
 #endif // DEBUG_MAP_SOUND

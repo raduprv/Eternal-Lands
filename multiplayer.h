@@ -32,6 +32,12 @@ extern int version_second_digit; /*!< the second digit of the version */
 extern int always_pathfinding; /*!< use pathfinding for walk click on far visible tiles of the 3d map */
 /*! @} */
 
+
+extern Uint32 next_second_time; /*!< the time of the next second */
+extern short real_game_minute; /*!< the real game minute */
+extern short real_game_second; /*!< the real game second */
+
+
 extern time_t last_heart_beat; /*!< a timestamp that inidicates when the last message was sent to the server */
 
 extern int log_conn_data; /*!< indicates whether we should log connection data or not */
@@ -152,6 +158,30 @@ int get_message_from_server(void *thread_args);
 void process_message_from_server(const Uint8 *in_data, int data_length);
 
 void send_heart_beat();
+
+/*!
+ * \brief	Store a new game date.
+ *
+ * 		If a callback is registered, send it the date too.
+ *
+ * \param	the_string	the new data string
+ * 
+ * \retval	int	1 if the date was requested from a get_date() call, otherwise 0
+*/
+int set_date(const char *the_string);
+
+/*!
+ * \brief	Get the latest game date.
+ *
+ * 		If there is a valid date string, a pointer to it is returned and any supplied
+ * callback function called.  Otherwise the server is requested to send the new date and
+ * save any callback function for when we have the new date.
+ *
+ * \param	callback	if not NULL a function to be passed the string when we have it
+ * 
+ * \retval	string pointer	NULL is no date ready
+*/
+const char *get_date(void (*callback)(const char *));
 
 #ifdef __cplusplus
 } // extern "C"

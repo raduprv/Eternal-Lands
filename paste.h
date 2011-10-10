@@ -74,6 +74,14 @@ void process_copy(XSelectionRequestEvent* e);
 
 #endif // !def OSX && !def WINDOWS
 
+/*!
+ * \brief Paste the given string into the specified text widget
+ *
+ * \param tf text widget to receive string
+ * \param text string to paste into widget
+ */
+void do_paste_to_text_field (text_field *tf, const char* text);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
