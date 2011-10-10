@@ -10,7 +10,7 @@
 #include "md5.h"
 #include "io/elfilewrapper.h"
 #ifdef MAP_EDITOR
-# include "../map_editor/misc.h"
+# include "map_editor/misc.h"
 #else
 # include "misc.h"
 #endif //MAP_EDITOR

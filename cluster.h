@@ -9,8 +9,8 @@
 #include "lights.h"
 #include "particles.h"
 #ifdef MAP_EDITOR
-#include "../map_editor/2d_objects.h"
-#include "../map_editor/3d_objects.h"
+#include "map_editor/2d_objects.h"
+#include "map_editor/3d_objects.h"
 #else
 #include "2d_objects.h"
 #include "3d_objects.h"
