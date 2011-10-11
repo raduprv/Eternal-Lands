@@ -5,7 +5,7 @@
 #include "../platform.h"
 #include "../textures.h"
 #ifdef MAP_EDITOR
- #include "../../map_editor/misc.h"
+ #include "../map_editor/misc.h"
 #else
  #include "../misc.h"
 #endif

@@ -24,8 +24,8 @@
 #include "io/elpathwrapper.h"
 #include "io/elfilewrapper.h"
 #ifdef MAP_EDITOR
-#include "../map_editor/3d_objects.h"
-#include "../map_editor/lights.h"
+#include "map_editor/3d_objects.h"
+#include "map_editor/lights.h"
 #else
 #include "3d_objects.h"
 #include "lights.h"

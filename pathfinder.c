@@ -17,8 +17,12 @@ int pf_actor_id;
 SDL_TimerID pf_movement_timer = NULL;
 
 #define PF_DIFF(a, b) ((a > b) ? a - b : b - a)
-//#define PF_HEUR(a, b) ((PF_DIFF(a->x, b->x) + PF_DIFF(a->y, b->y)) * 10)
 #define PF_HEUR(a, b) pf_heuristic(a->x-b->x, a->y-b->y);
+#define PF_SWAP(i, j) {\
+	PF_TILE *a = pf_open.tiles[i], *b = pf_open.tiles[j];\
+	a->open_pos = j; b->open_pos = i;\
+	pf_open.tiles[i] = b; pf_open.tiles[j] = a;\
+}
 
 int pf_is_tile_occupied(int x, int y);
 Uint32 pf_movement_timer_callback(Uint32 interval, void *param);
@@ -27,9 +31,18 @@ static __inline__ int pf_heuristic(int dx, int dy)
 {
 	if (dx < 0) dx = -dx;
 	if (dy < 0) dy = -dy;
+	// Grum: below heuristic overestimates the distance to the target since
+	// it doesn't take diagonal moves into account. The paths it generates
+	// may therefore be slightly too long, but it's much faster than the
+	// more accurate heuristic below (mainly because it expands fewer nodes)
+	return 10 * (dx + dy);
+#if 0
 	// Grum: Is the cost of a diagonal move really sqrt(2) times that of
-	// an aligned move? If not, the below should simply be max(dx, dy).
+	// an aligned move? If not, the below should simply be max(dx, dy), and
+	// the cost function in pf_add_tile_to_open_list() should also be
+	// updated.
 	return dx < dy ? 14*dx + 10*(dy-dx) : 14*dy + 10*(dx-dy);
+#endif
 }
 
 #ifdef NO_PF_MACRO
@@ -47,23 +60,30 @@ __inline__ PF_TILE *pf_get_tile(int x, int y)
 
 PF_TILE *pf_get_next_open_tile()
 {
-	PF_TILE *ret = NULL;
-	int i;
+	PF_TILE *ret;
 
 	if (pf_open.count == 0)
 		return NULL;
 
 	ret = pf_open.tiles[0];
+	ret->state = PF_STATE_CLOSED;
+
 	if (--pf_open.count)
 	{
-		for (i = 0; i < pf_open.count; i++)
+		int i, j;
+		PF_TILE *tmp = pf_open.tiles[0] = pf_open.tiles[pf_open.count];
+
+		i = 0;
+		while ( (j = 2*i + 1) < pf_open.count )
 		{
-			pf_open.tiles[i] = pf_open.tiles[i+1];
-			pf_open.tiles[i]->open_pos--;
+			if (j+1 < pf_open.count && pf_open.tiles[j+1]->f < pf_open.tiles[j]->f)
+				j++;
+			if (pf_open.tiles[j]->f >= tmp->f)
+				break;
+			PF_SWAP(i, j);
+			i = j;
 		}
 	}
-
-	ret->state = PF_STATE_CLOSED;
 
 	return ret;
 }
@@ -89,7 +109,7 @@ void pf_add_tile_to_open_list(PF_TILE *current, PF_TILE *neighbour)
 		h = PF_HEUR(neighbour, pf_dst_tile);
 		f = g + h;
 
-		if (neighbour->state != PF_STATE_NONE && f >= neighbour->f)
+		if (neighbour->state == PF_STATE_OPEN && f >= neighbour->f)
 			return;
 
 		neighbour->f = f;
@@ -112,16 +132,13 @@ void pf_add_tile_to_open_list(PF_TILE *current, PF_TILE *neighbour)
 	while (neighbour->open_pos > 0)
 	{
 		int idx = neighbour->open_pos;
-		PF_TILE *prev = pf_open.tiles[idx-1];
+		int parent_idx = (idx-1) / 2;
+		PF_TILE *parent = pf_open.tiles[parent_idx];
 
-		if (neighbour->f >= prev->f)
+		if (neighbour->f >= parent->f)
 			break;
 
-		pf_open.tiles[idx-1] = neighbour;
-		pf_open.tiles[idx] = prev;
-		prev->open_pos++;
-		neighbour->open_pos--;
-		idx--;
+		PF_SWAP(idx, parent_idx);
 	}
 
 	neighbour->state = PF_STATE_OPEN;
@@ -374,23 +391,23 @@ void pf_move_to_mouse_position()
 	if (!pf_get_mouse_position(mouse_x, mouse_y, &clicked_x, &clicked_y)) return;
 	x = clicked_x; y = clicked_y;
 
-	if (pf_find_path(x, y)) {
+	if (pf_find_path(x, y))
 		return;
-	}
 
-	for (x= clicked_x-3, tries= 0; x <= clicked_x+3 && tries < 4 ; x++) {
-		for (y= clicked_y-3; y <= clicked_y+3 && tries < 4; y++) {
-			if (x == clicked_x && y == clicked_y) {
+	for (x= clicked_x-3, tries= 0; x <= clicked_x+3 && tries < 4 ; x++)
+	{
+		for (y= clicked_y-3; y <= clicked_y+3 && tries < 4; y++)
+		{
+			if (x == clicked_x && y == clicked_y)
 				continue;
-			}
+
 			pf_dst_tile = pf_get_tile(x, y);
-			if(pf_dst_tile && pf_dst_tile->z > 0){
-				if (pf_find_path(x, y)) {
+			if (pf_dst_tile && pf_dst_tile->z > 0)
+			{
+				if (pf_find_path(x, y))
 					return;
-				}
 				tries++;
-		}
+			}
 		}
 	}
 }
-

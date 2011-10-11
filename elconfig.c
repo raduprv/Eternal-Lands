@@ -14,9 +14,9 @@
 #include "user_menus.h"
 
 #ifdef MAP_EDITOR
- #include "../map_editor/global.h"
- #include "../map_editor/browser.h"
- #include "../map_editor/interface.h"
+ #include "map_editor/global.h"
+ #include "map_editor/browser.h"
+ #include "map_editor/interface.h"
  #include "load_gl_extensions.h"
 #else
  #include "achievements.h"
