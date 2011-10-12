@@ -13,23 +13,22 @@ FEATURES += CLUSTER_INSIDES
 FEATURES += NEW_LIGHT_FORMAT
 FEATURES += ZLIB
 FEATURES += ZLIBW
-FEATURES += LIBZW
-#FEATURES += NEW_TEXTURES
+FEATURES += NEW_TEXTURES
 
 
 WARN = -Wall -Wdeclaration-after-statement # -W -Werror
 CXXWARN = -Wall # -W -Werror
-OPTIONS = -mwindows -DWINDOWS -DMAP_EDITOR -DWINVER=0x500 $(foreach FEATURE, $(FEATURES), -D$(FEATURE))
-OPTIONS += -DGL_GLEXT_PROTOTYPES # needed in my SDL_opengl.h for some function declarations
+OPTIONS = -mwindows -DWINDOWS -DMAP_EDITOR -DWINVER=0x500 $(foreach FEATURE, $(FEATURES), -D$(FEATURE)) -D_7ZIP_ST
+#OPTIONS += -DGL_GLEXT_PROTOTYPES # needed in my SDL_opengl.h for some function declarations
 
-GTK2_CFLAGS = $(shell pkg-config gtk+-2.0 --cflags) -DGTK2
+GTK2_CFLAGS = -DGTK2
 
 #Directories: set the paths to the corresponding library path
-SDL_DIR =C:/SDL
-XML_DIR =C:/libxml
-GTK_DIR =C:/GTK
-AL_DIR =C:/Openal
-CAL3D_DIR =c:/CAL3D
+SDL_DIR =C:/MinGW
+XML_DIR =C:/MinGW
+GTK_DIR =C:/MinGW
+AL_DIR =C:/MinGW
+CAL3D_DIR =c:/MinGW
 
 #Include flags: Note, libxml has LIBXML_STATIC or some symbols are not resolved
 SDL_FLAGS = -I$(SDL_DIR)/include/SDL -I$(SDL_DIR)/include -I$(SDL_DIR)/include/SDL -D_GNU_SOURCE=1 -Dmain=SDL_main
@@ -40,18 +39,18 @@ CAL3D_FLAGS = -I$(CAL3D_DIR)
 CFLAGS=  $(OPTIONS) $(GTK2_CFLAGS) $(SDL_FLAGS)  $(XML_FLAGS) $(AL_FLAGS) $(CAL3D_FLAGS)-g $(WARN)    
 CXXFLAGS= $(OPTIONS) $(GTK2_CFLAGS) $(SDL_FLAGS)  $(XML_FLAGS) $(AL_FLAGS) $(CAL3D_FLAGS) -g $(CXXWARN)
 
-GTK2_LIBS = $(shell pkg-config gtk+-2.0 --libs)
+GTK2_LIBS = -lgtk-win32-2.0.dll -lgobject-2.0.dll -lglib-2.0.dll
 
 SDL_LIBS =  -L$(SDL_DIR)/lib  -lmingw32 -lSDL -lSDL_image 
 XML_LIBS = -L$(XML_DIR)/lib -LC:/ZLIB/lib -LC:/ICONV/lib  -llibxml2 -lz -lm -liconv
 AL_LIBS = -L$(AL_DIR)/lib
 #If you have a compiled libcal3d, substitute the dll with the .a or .lib
-CAL3D_LIBS = -L$(CAL3D_DIR) $(CAL3D_DIR)/libcal3d.dll
-GL_LIBS = -lglu32 -lglut32  -lopengl32
+#CAL3D_LIBS = -L$(CAL3D_DIR) $(CAL3D_DIR)/libcal3d.dll
+GL_LIBS = -lglu32 -lopengl32
 
 
 #Our libraries
-LIBS= -Wl,-subsystem,windows $(GL_LIBS) -lstdc++ -lsdl $(SDL_LIBS) $(XML_LIBS) $(AL_LIBS) $(CAL3D_LIBS)
+LIBS= -Wl,-subsystem,windows $(GL_LIBS) -lstdc++ -lsdl $(SDL_LIBS) $(XML_LIBS) $(AL_LIBS) -lcal3d.dll
 
 COBJS=2d_objects.o 3d_objects.o	\
 	browser.o draw_scene.o	\
@@ -63,26 +62,28 @@ COBJS=2d_objects.o 3d_objects.o	\
 	shadows.o tile_map.o \
 	replace_window.o edit_window.o particles_window.o	
 
-
 CLUSTER_INSIDES_ELC_COBJS = cluster.o
+
 ELC_COBJS = asc.o colors.o elconfig.o errors.o load_gl_extensions.o md5.o \
-	dds.o ddsimage.o particles.o queue.o textures.o translate.o hash.o \
+	dds.o ddsimage.o memory.o particles.o queue.o textures.o translate.o hash.o \
 	image.o image_loading.o cache.o \
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_ELC_COBJS))
 
-ELC_IO_COBJS = e3d_io.o elc_io.o elpathwrapper.o half.o normal.o
-
-ELC_IO_CXXOBJS = elfilewrapper.o elfile.o zipfilesystem.o
+ELC_IO_COBJS = e3d_io.o elc_io.o elfilewrapper.o elpathwrapper.o fileutil.o \
+	half.o ioapi.o normal.o unzip.o zip.o ziputil.o
 
 ELC_EXCEPTION_CXXOBJS = extendedexception.o
 
 EYE_CANDY_CXXOBJS = eye_candy_window.o 
+
 CXXOBJS = $(foreach FEATURE, $(FEATURES), $($(FEATURE)_CXXOBJS))
 
 EYE_CANDY_ELC_CXXOBJS = eye_candy_wrapper.o
 
-ELC_CXXOBJS = cal3d_wrapper.o \
+ELC_CXXOBJS = cal3d_wrapper.o elloggingwrapper.o \
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_ELC_CXXOBJS))
+
+ELC_ENGINE_CXXOBJS = hardwarebuffer.o logging.o
 
 EYE_CANDY_ELC_EC_CXXOBJS = effect_bag.o effect_breath.o effect_campfire.o \
 	effect_cloud.o effect_candle.o effect_firefly.o effect_fountain.o \
@@ -92,8 +93,13 @@ EYE_CANDY_ELC_EC_CXXOBJS = effect_bag.o effect_breath.o effect_campfire.o \
 	effect_wind.o eye_candy.o math_cache.o
 ELC_EC_CXXOBJS = $(foreach FEATURE, $(FEATURES), $($(FEATURE)_ELC_EC_CXXOBJS))
 
-OBJS = $(COBJS) $(ELC_COBJS) $(ELC_IO_COBJS) $(ELC_IO_CXXOBJS) $(CXXOBJS)\
-	   $(ELC_CXXOBJS) $(ELC_EC_CXXOBJS) $(ELC_EXCEPTION_CXXOBJS)
+ELX_XZ_CCOBJS = 7zCrc.o 7zCrcOpt.o Alloc.o Bra86.o Bra.o BraIA64.o \
+	CpuArch.o Delta.o LzFind.o Lzma2Dec.o Lzma2Enc.o LzmaDec.o LzmaEnc.o \
+	Sha256.o Xz.o XzCrc64.o XzDec.o XzEnc.o
+
+OBJS = $(COBJS) $(ELC_COBJS) $(ELC_IO_COBJS) $(CXXOBJS)\
+	$(ELC_CXXOBJS) $(ELC_EC_CXXOBJS) $(ELC_EXCEPTION_CXXOBJS) \
+	$(ELC_ENGINE_CXXOBJS) $(ELX_XZ_CCOBJS)
 
 
 #NOTICE: mingw32 wants libraries in a particular order if something needs lib x, it must be put before x
@@ -105,23 +111,26 @@ mapedit.exe: $(OBJS)
 $(COBJS): %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(ELC_COBJS): %.o : ../elc/%.c
+$(ELC_COBJS): %.o : ../%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(ELC_IO_COBJS): %.o : ../elc/io/%.c
+$(ELC_IO_COBJS): %.o : ../io/%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(ELC_IO_CXXOBJS): %.o : ../elc/io/%.cpp
+$(ELC_EXCEPTION_CXXOBJS): %.o : ../exceptions/%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(ELC_EXCEPTION_CXXOBJS): %.o : ../elc/exceptions/%.cpp
+$(ELC_CXXOBJS): %.o : ../%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(ELC_CXXOBJS): %.o : ../elc/%.cpp
+$(ELC_EC_CXXOBJS): %.o : ../eye_candy/%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(ELC_EC_CXXOBJS): %.o : ../elc/eye_candy/%.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+$(ELC_ENGINE_CXXOBJS): %.o : ../engine/%.cpp $(GENDEP)
+	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(ELX_XZ_CCOBJS): %.o : ../xz/%.c $(GENDEP)
+	@$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
 	-del $(OBJS) $(CXXOBJS) mapedit.exe
