@@ -93,14 +93,13 @@ int HandleEvent (SDL_Event *event)
 
         if (mod_key_status & KMOD_META) meta_on = 1;
         else meta_on = 0;
-	
+
 	switch( event->type )
 	{
 
 #if !defined(WINDOWS) && !defined(OSX)
 		case SDL_SYSWMEVENT:
-	
-			if(event->syswm.msg->event.xevent.type == SelectionNotify)
+			if (event->syswm.msg->event.xevent.type == SelectionNotify)
 				finishpaste(event->syswm.msg->event.xevent.xselection);
 			else if (event->syswm.msg->event.xevent.type == SelectionRequest)
 				process_copy(&event->syswm.msg->event.xevent.xselectionrequest);
@@ -159,14 +158,16 @@ int HandleEvent (SDL_Event *event)
 		case SDL_MOUSEBUTTONDOWN:
 		case SDL_MOUSEBUTTONUP:
 			// make sure the mouse button is our window, or else we ignore it
-			//Checking if we have keyboard focus for a mouse click is wrong, but SDL doesn't care to tell use we have mouse focus when someone alt-tabs back in and the mouse was within bounds of both other and EL windows. Blech.
+			//Checking if we have keyboard focus for a mouse click is wrong, but SDL doesn't care to tell us we have mouse focus when someone alt-tabs back in and the mouse was within bounds of both other and EL windows. Blech.
 			if(event->button.x >= window_width || event->button.y >= window_height || !((SDL_GetAppState() & SDL_APPMOUSEFOCUS)||(SDL_GetAppState() & SDL_APPINPUTFOCUS)))
 			{
 				break;
 			}
-		
+
 			if (afk_time && event->type == SDL_MOUSEBUTTONDOWN)
 				last_action_time = cur_time;	// Set the latest events - don't make mousemotion set the afk_time... (if you prefer that mouse motion sets/resets the afk_time, then move this one step below...
+
+			// fallthrough
 		case SDL_MOUSEMOTION:
 			if (have_mouse)
 			{
@@ -178,11 +179,11 @@ int HandleEvent (SDL_Event *event)
 			}
 			else if(event->type==SDL_MOUSEMOTION)
 			{
-				mouse_x= event->motion.x;
-				mouse_y= event->motion.y;
+				mouse_x = event->motion.x;
+				mouse_y = event->motion.y;
 
-				mouse_delta_x= event->motion.xrel;
-				mouse_delta_y= event->motion.yrel;
+				mouse_delta_x = event->motion.xrel;
+				mouse_delta_y = event->motion.yrel;
 			}
 			else
 			{
@@ -200,16 +201,16 @@ int HandleEvent (SDL_Event *event)
 
 			if (event->type == SDL_MOUSEBUTTONDOWN)
 			{
-				if(event->button.button == SDL_BUTTON_LEFT)
+				if (event->button.button == SDL_BUTTON_LEFT)
 					left_click++;
-				if (event->button.button == SDL_BUTTON_RIGHT)
+				else if (event->button.button == SDL_BUTTON_RIGHT)
 					right_click++;
-				if (event->button.button == SDL_BUTTON_MIDDLE)
+				else if (event->button.button == SDL_BUTTON_MIDDLE)
 					middle_click++;
 			}
 			else
 			{
-				if (event->type == SDL_MOUSEMOTION && (event->motion.state & SDL_BUTTON(SDL_BUTTON_LEFT)))
+				if (event->type == SDL_MOUSEMOTION && (event->motion.state & SDL_BUTTON_LMASK))
 				{
 					left_click++;
 				}
@@ -219,7 +220,7 @@ int HandleEvent (SDL_Event *event)
 					left_click = 0;
 				}
 
-				if (event->type == SDL_MOUSEMOTION && (event->motion.state & SDL_BUTTON(SDL_BUTTON_RIGHT)))
+				if (event->type == SDL_MOUSEMOTION && (event->motion.state & SDL_BUTTON_RMASK))
 				{
 					right_click++;
 #ifdef OSX
@@ -240,7 +241,7 @@ int HandleEvent (SDL_Event *event)
 #endif
 				}
 
-				if (event->type == SDL_MOUSEMOTION && ((event->motion.state & SDL_BUTTON(SDL_BUTTON_MIDDLE)) || meta_on))
+				if (event->type == SDL_MOUSEMOTION && ((event->motion.state & SDL_BUTTON_MMASK) || meta_on))
 				{
 					middle_click++;
 				}
@@ -250,12 +251,12 @@ int HandleEvent (SDL_Event *event)
 				}
 			}
 
-			if (( SDL_GetMouseState (NULL, NULL) & SDL_BUTTON(2) )||(have_mouse))
+			if ((SDL_GetMouseState(NULL, NULL) & SDL_BUTTON_MMASK) || have_mouse)
 			{
 				camera_rotation_speed = camera_rotation_speed*0.5 + normal_camera_rotation_speed * mouse_delta_x*0.00025;
 				camera_tilt_speed = camera_tilt_speed*0.5 + normal_camera_rotation_speed * mouse_delta_y*0.00025;
-                camera_rotation_deceleration = normal_camera_deceleration*1E-3;
-                camera_tilt_deceleration = normal_camera_deceleration*1E-3;
+				camera_rotation_deceleration = normal_camera_deceleration*1E-3;
+				camera_tilt_deceleration = normal_camera_deceleration*1E-3;
 
 				if (camera_rotation_speed > 1.0)
 					camera_rotation_speed = 1.0;
@@ -278,7 +279,6 @@ int HandleEvent (SDL_Event *event)
 			if (left_click) flags |= ELW_LEFT_MOUSE;
 			if (middle_click || meta_on) flags |= ELW_MID_MOUSE;
 			if (right_click) flags |= ELW_RIGHT_MOUSE;
-
 			if (event->type == SDL_MOUSEBUTTONDOWN)
 			{
 				if (event->button.button == SDL_BUTTON_WHEELUP)
@@ -286,7 +286,14 @@ int HandleEvent (SDL_Event *event)
 				else if (event->button.button == SDL_BUTTON_WHEELDOWN)
 					flags |= ELW_WHEEL_DOWN;
 			}
-			if ( left_click==1 || right_click==1 || (flags & (ELW_WHEEL_UP | ELW_WHEEL_DOWN) ) )
+
+			if ( left_click == 1 || right_click == 1
+#if !defined OSX && !defined WINDOWS
+#ifdef MIDDLE_MOUSE_PASTE
+				|| middle_click == 1
+#endif
+#endif
+				|| (flags & (ELW_WHEEL_UP | ELW_WHEEL_DOWN) ) )
 			{
 				click_in_windows (mouse_x, mouse_y, flags);
 			}
@@ -304,7 +311,7 @@ int HandleEvent (SDL_Event *event)
 				}
 			}
 			break;
-			
+
 		case SDL_USEREVENT:
 			switch(event->user.code){
 			case	EVENT_MOVEMENT_TIMER:

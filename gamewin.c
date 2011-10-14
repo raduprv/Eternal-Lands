@@ -493,7 +493,7 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 }
 
 // this is the main part of the old check_mouse_click ()
-int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
+int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int flag_alt = flags & ELW_ALT;
 	int flag_ctrl = flags & ELW_CTRL;
@@ -501,11 +501,11 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 	int force_walk = (flag_ctrl && flag_right && !flag_alt);
 	int range_weapon_equipped;
 
-	LOCK_ACTORS_LISTS();
-	range_weapon_equipped = (your_actor &&
-							 your_actor->cur_weapon >= BOW_LONG &&
-							 your_actor->cur_weapon <= BOW_CROSS);
-	UNLOCK_ACTORS_LISTS();
+#ifdef MIDDLE_MOUSE_PASTE
+	if ((flags & ELW_MOUSE_BUTTON_WHEEL) == ELW_MID_MOUSE)
+		// Don't handle middle button clicks
+		return 0;
+#endif
 
 	if (flags & ELW_WHEEL_UP)
 	{
@@ -529,10 +529,16 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 
 	if (mx > win->len_x - 64 && my < 54 ) // 10 pixels dead space to try to prevent accidental misclicks
 	{
-		if(logo_click_to_url)
+		if (logo_click_to_url)
 			open_web_link(LOGO_URL_LINK);
 		return 1;
 	}
+
+	LOCK_ACTORS_LISTS();
+	range_weapon_equipped = (your_actor &&
+							 your_actor->cur_weapon >= BOW_LONG &&
+							 your_actor->cur_weapon <= BOW_CROSS);
+	UNLOCK_ACTORS_LISTS();
 
 	if (!force_walk)
 	{
@@ -1591,7 +1597,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	}
 	else if (key == K_PASTE)
 	{
-		startpaste ();
+		start_paste(NULL);
 	}
 #ifdef DEBUG
 	else if((keysym == SDLK_LEFT) && shift_on && ctrl_on && !alt_on)

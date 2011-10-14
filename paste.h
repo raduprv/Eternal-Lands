@@ -31,16 +31,10 @@ void do_paste(const Uint8 * buffer);
  *
  * \param[in] tf text_field to paste text to.
  */
-void start_paste_to_text_field(text_field* tf);
-
-/*!
- * \ingroup hotkey
- * \brief Callback used when pasting is started
- *
- *      A callback function used when pasting is started. 
- *
- */
-void startpaste(void);
+void start_paste(text_field* tf);
+#if !defined OSX && !defined WINDOWS
+void start_paste_from_primary(text_field* tf);
+#endif
 
 /*!
  * \brief this function is called when we copy selected text to clipboard.
@@ -48,6 +42,9 @@ void startpaste(void);
  * For X system it only copies selected text into buffer, which will be used by process_copy().
  */
 void copy_to_clipboard(const char* text);
+#if !defined OSX && !defined WINDOWS
+void copy_to_primary(const char* text);
+#endif
 
 #if !defined OSX && !defined WINDOWS
 

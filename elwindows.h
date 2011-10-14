@@ -217,6 +217,7 @@ typedef	struct	{
 #define ELW_WHEEL_UP		(1<<24)
 #define ELW_WHEEL_DOWN		(1<<23)
 #define ELW_WHEEL               (ELW_WHEEL_UP|ELW_WHEEL_DOWN)
+#define ELW_MOUSE_BUTTON_WHEEL  (ELW_MOUSE_BUTTON|ELW_WHEEL)
 /*! @} */
 
 /*!
