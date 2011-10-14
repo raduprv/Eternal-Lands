@@ -240,7 +240,7 @@ int HandleEvent (SDL_Event *event)
 #endif
 				}
 
-				if (event->type == SDL_MOUSEMOTION && (event->motion.state & (SDL_BUTTON(SDL_BUTTON_MIDDLE) || meta_on)))
+				if (event->type == SDL_MOUSEMOTION && ((event->motion.state & SDL_BUTTON(SDL_BUTTON_MIDDLE)) || meta_on))
 				{
 					middle_click++;
 				}
