@@ -67,7 +67,7 @@ int display_console_handler (window_info *win)
 {
 	static int msg = 0, offset = 0;
 	const unsigned char *sep_string = (unsigned char*)"^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^";
-	
+
 	// are we actively drawing things?
 	if (SDL_GetAppState () & SDL_APPACTIVE)
 	{
@@ -115,7 +115,7 @@ int display_console_handler (window_info *win)
 int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
 	Uint16 keysym = key & 0xffff;
-	
+
 	// first try the keypress handler for all root windows
 	if ( keypress_root_common (key, unikey) )
 	{
@@ -204,7 +204,7 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 	}
 
 	// we handled it, return 1 to let the window manager know
-	return 1;	
+	return 1;
 }
 
 int resize_console_handler (window_info *win, int width, int height)
@@ -215,12 +215,21 @@ int resize_console_handler (window_info *win, int width, int height)
 
 	nr_console_lines = (int) (height - input_widget->len_y - CONSOLE_SEP_HEIGHT - hud_y - 10) / (DEFAULT_FONT_Y_LEN * chat_zoom);
 	console_text_width = (int) (width - hud_x - 20);
-	
+
 	return 1;
 }
 
-int click_console_handler (window_info *win, int mx, int my, Uint32 flags)
+int click_console_handler(window_info *win, int mx, int my, Uint32 flags)
 {
+#if !defined OSX && !defined WINDOWS
+#ifdef MIDDLE_MOUSE_PASTE
+	if ( (flags & ELW_MID_MOUSE) )
+	{
+		start_paste_from_primary(NULL);
+	}
+	else
+#endif
+#endif
 	if ( (flags & ELW_WHEEL_UP) && total_nr_lines > nr_console_lines + scroll_up_lines )
 	{
 		scroll_up_lines++;
@@ -235,8 +244,8 @@ int click_console_handler (window_info *win, int mx, int my, Uint32 flags)
 	{
 		return 0; // we didn't handle it
 	}
-	
-	return 1;	
+
+	return 1;
 }
 
 int show_console_handler (window_info *win) {
@@ -247,7 +256,7 @@ int show_console_handler (window_info *win) {
 			tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[i].tab_id, -1.0f, -1.0f, -1.0f);
 		}
 	}
-			
+
 	hide_window(book_win);
 	hide_window(paper_win);
 	hide_window(color_race_win);
@@ -264,7 +273,7 @@ void create_console_root_window (int width, int height)
 	if (console_root_win < 0)
 	{
 		console_root_win = create_window ("Console", -1, -1, 0, 0, width, height, ELW_TITLE_NONE|ELW_SHOW_LAST);
-		
+
 		set_window_handler (console_root_win, ELW_HANDLER_DISPLAY, &display_console_handler);
 		set_window_handler (console_root_win, ELW_HANDLER_KEYPRESS, &keypress_console_handler);
 		set_window_handler (console_root_win, ELW_HANDLER_RESIZE, &resize_console_handler);

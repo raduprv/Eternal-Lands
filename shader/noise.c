@@ -10,8 +10,6 @@
 
 #define MAXB 0x100
 #define N 0x1000
-#define NP 12   // 2^N
-#define NM 0xfff
 
 static int p[MAXB + MAXB + 2];
 static double g3[MAXB + MAXB + 2][3];

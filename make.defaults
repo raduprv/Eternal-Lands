@@ -30,6 +30,7 @@ FEATURES += NEW_TEXTURES                     # Enables the new texture loading a
 #FEATURES += USE_SIMD                        # Enables usage of simd instructions
 FEATURES += FASTER_MAP_LOAD                 # Enables optimizations to speed up the process of switching between maps
 #FEATURES += FASTER_STARTUP                  # An attempt to reduce the startup time of EL somewhat
+#FEATURES += MIDDLE_MOUSE_PASTE              # Paste using the middle mouse button from the primary buffer on X systems
 
 ### Machine specific options (fixes or performance enhancements) ###
 #FEATURES += EL_BIG_ENDIAN                   # Enable big-endian code (automatically detected for OSX)

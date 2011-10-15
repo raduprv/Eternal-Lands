@@ -1792,12 +1792,12 @@ char* text_field_get_selected_text (const text_field* tf)
 	const select_info* select;
 	int len, max_len;
 	char* text = NULL;
-	
+
 	max_len = 0;
 	len = 0;
 	select = &tf->select;
 	if (TEXT_FIELD_SELECTION_EMPTY(select)) return NULL;
-	
+
 	if ((select->em > select->sm) || ((select->em == select->sm) && (select->ec >= select->sc)))
 	{
 		sm = select->sm;
@@ -1832,7 +1832,7 @@ char* text_field_get_selected_text (const text_field* tf)
 			{
 				append_char(&text, '\n', &len, &max_len);
 			}
-			else if (get_font_char(ch) >= 0) 
+			else if (get_font_char(ch) >= 0)
 			{
 				append_char(&text, ch, &len, &max_len);
 			}
@@ -2258,12 +2258,12 @@ void _text_field_insert_char (widget_list *w, char ch)
 		tf->cursor++;
 		tf->cursor_line++;
 	}
-	
+
 	if (tf->scroll_id != -1)
 		_text_field_scroll_to_cursor (w);
 }
 
-void _text_field_copy_to_clipboard (text_field *tf)
+void _text_field_copy_to_clipboard(text_field *tf)
 {
 	char* text = text_field_get_selected_text(tf);
 	if (text != NULL)
@@ -2273,7 +2273,21 @@ void _text_field_copy_to_clipboard (text_field *tf)
 	}
 }
 
-void update_cursor_selection(widget_list* w, int flag);
+#if !defined OSX && !defined WINDOWS
+#ifdef MIDDLE_MOUSE_PASTE
+void _text_field_copy_to_primary(text_field *tf)
+{
+	char* text = text_field_get_selected_text(tf);
+	if (text)
+	{
+		copy_to_primary(text);
+		free(text);
+	}
+}
+#endif
+#endif
+
+static void update_cursor_selection(widget_list* w, int flag);
 
 int text_field_resize (widget_list *w, int width, int height)
 {
@@ -2301,7 +2315,7 @@ int text_field_resize (widget_list *w, int width, int height)
 				nr_lines += rewrap_message (tf->buffer+i, w->size, width - tf->scrollbar_width, cursor);
 			}
 			_text_field_set_nr_lines (w, nr_lines);
-			
+
 			text_field_find_cursor_line (tf);
 		}
 	}
@@ -2348,7 +2362,10 @@ static int context_edit_handler(window_info *win, int widget_id, int mx, int my,
 	{
 		case 0: text_field_keypress(w, 0, 0, K_CUT, 24); break;
 		case 1: text_field_keypress(w, 0, 0, K_COPY, 3); break;
-		case 2: if (!text_field_keypress(w, 0, 0, K_PASTE, 22)) start_paste_to_text_field(NULL); break;
+		case 2:
+			if (!text_field_keypress(w, 0, 0, K_PASTE, 22))
+				start_paste(NULL);
+			break;
 		case 4:
 			{
 				insert_window_id = win->window_id;
@@ -2387,7 +2404,7 @@ static void context_edit_pre_show_handler(window_info *win, int widget_id, int m
 	widget_list* w = NULL;
 	text_field *tf;
 	int is_grey = 0;
-	
+
 	if (win == NULL)
 		return;
 	w = widget_find (win->window_id, widget_id);
@@ -2409,7 +2426,7 @@ static void context_edit_pre_show_handler(window_info *win, int widget_id, int m
 	cm_grey_line(cm_edit_id, 6, is_grey);
 }
 
-int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unikey)
+int text_field_keypress(widget_list *w, int mx, int my, Uint32 key, Uint32 unikey)
 {
 	Uint16 keysym = key & 0xffff;
 	Uint8 ch = key_to_char(unikey);
@@ -2457,7 +2474,7 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 			TEXT_FIELD_CLEAR_SELECTION(&tf->select);
 		}
 	}
-	
+
 	if (keysym == SDLK_LEFT)
 	{
 		_text_field_cursor_left (w, ctrl_on);
@@ -2554,7 +2571,7 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 	}
 	else if (key == K_CUT)
 	{
-		_text_field_copy_to_clipboard (tf);
+		_text_field_copy_to_clipboard(tf);
 		if (!TEXT_FIELD_SELECTION_EMPTY(&tf->select))
 		{
 			text_field_remove_selection(tf);
@@ -2569,7 +2586,7 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 			text_field_remove_selection(tf);
 			TEXT_FIELD_CLEAR_SELECTION(&tf->select);
 		}
-		start_paste_to_text_field(tf);
+		start_paste(tf);
 		return 1;
 	}
 	else if (!alt_on && !ctrl_on && ( is_printable (ch)
@@ -2639,14 +2656,14 @@ void update_selection(int x, int y, widget_list* w, int drag)
 	float displayed_font_y_size = floorf(DEFAULT_FONT_Y_LEN * w->size);
 	text_field* tf;
 	text_message* msg;
-	
+
 	tf = w->widget_info;
 	if (tf == NULL) return;
-	
+
 	line = y / displayed_font_y_size;
 	if (line < 0 || line >= tf->nr_visible_lines || tf->select.lines[line].msg == -1)
 	{
-		// Invalid position, if we were dragging keep the selection 
+		// Invalid position, if we were dragging keep the selection
 		// intact, but if this was a click, clear it
 		if (!drag)
 			tf->select.sm = tf->select.sc = tf->select.em = tf->select.ec = -1;
@@ -2675,24 +2692,29 @@ void update_selection(int x, int y, widget_list* w, int drag)
 		// drag, set the end position
 		tf->select.em = tf->select.lines[line].msg;
 		tf->select.ec = col;
+#if !defined OSX && !defined WINDOWS
+#ifdef MIDDLE_MOUSE_PASTE
+		_text_field_copy_to_primary(tf);
+#endif
+#endif
 	}
 }
 
-void update_cursor_selection(widget_list* w, int flag)
+static void update_cursor_selection(widget_list* w, int update_end)
 {
 	text_field* tf;
 	int line;
-	
+
 	tf = w->widget_info;
 	if (tf == NULL) return;
-	
+
 	line = tf->cursor_line - tf->line_offset;
 	if (line < 0)
 		line = 0;
 	else if (line >= tf->nr_visible_lines)
 		line = tf->nr_visible_lines - 1;
 
-	if (!flag)
+	if (!update_end)
 	{
 		tf->select.sm = tf->select.lines[line].msg;
 		tf->select.sc = tf->cursor;
@@ -2703,11 +2725,17 @@ void update_cursor_selection(widget_list* w, int flag)
 	{
 		tf->select.em = tf->select.lines[line].msg;
 		tf->select.ec = tf->cursor;
+#if !defined OSX && !defined WINDOWS
+#ifdef MIDDLE_MOUSE_PASTE
+		_text_field_copy_to_primary(tf);
+#endif
+#endif
 	}
 }
 
-int text_field_click (widget_list *w, int mx, int my, Uint32 flags)
+int text_field_click(widget_list *w, int mx, int my, Uint32 flags)
 {
+	Uint32 buttons;
 	text_field *tf;
 	int em_before;
 
@@ -2721,23 +2749,38 @@ int text_field_click (widget_list *w, int mx, int my, Uint32 flags)
 		widget_list* sbw = widget_find (w->window_id, tf->scroll_id);
 		return vscrollbar_click (sbw, mx, my, flags);
 	}
-	
-	// if no scrollbar, only handle mouse button clicks, 
+
+	// if no scrollbar, only handle mouse button clicks,
 	// not scroll wheels moves
-	if ( (flags & ELW_MOUSE_BUTTON) == 0)
+	buttons = flags & ELW_MOUSE_BUTTON;
+	if (!buttons)
 		return 0;
+
+#if !defined OSX && !defined WINDOWS
+#ifdef MIDDLE_MOUSE_PASTE
+	// Don't handle middle button clicks (paste) if the text field is not editable
+	if (buttons == ELW_MID_MOUSE)
+		return 0;
+#endif
+#endif
 
 	em_before = tf->select.em;
 	update_selection(mx, my, w, 0);
-	if(em_before != -1 && tf->select.em == -1) {
+	if (em_before != -1 && tf->select.em == -1)
 		/* We deselected some text, click was handled */
 		return 1;
-	}
 
 	if ( (w->Flags & TEXT_FIELD_EDITABLE) == 0)
 		return 0;
 
-	_set_edit_pos (tf, mx, my);
+	_set_edit_pos(tf, mx, my);
+
+#if !defined OSX && !defined WINDOWS
+#ifdef MIDDLE_MOUSE_PASTE
+	if (flags & ELW_MID_MOUSE)
+		start_paste_from_primary(tf);
+#endif // MIDDLE_MOUSE_PASTE
+#endif
 
 	return 1;
 }
@@ -2803,11 +2846,11 @@ int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 
 	}
 
 	res = widget_add (window_id, wid, OnInit, x, y, lx, ly, Flags, size, r, g, b, &text_field_type, T, NULL);
-	
+
 	if (buf != NULL)
 	{
-		// We need to set the correct nr of lines if we want the 
-		// scrollbar to work, but we couldn't do this earlier, since we 
+		// We need to set the correct nr of lines if we want the
+		// scrollbar to work, but we couldn't do this earlier, since we
 		// need the widget itself which was only just created.
 		widget_list *w = widget_find (window_id, wid);
 		if (w != NULL)
@@ -2829,7 +2872,7 @@ int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 
 	}
 	/* assign to the new widget */
 	cm_add_widget(cm_edit_id, window_id, res);
-	
+
 	return res;
 }
 
@@ -2859,7 +2902,7 @@ int text_field_draw (widget_list *w)
 		 * the text offset if necessary.
 		 */
 		int pos;
-		
+
 		if (tf->update_bar)
 		{
 			int nr_lines;
@@ -2912,7 +2955,7 @@ int text_field_draw (widget_list *w)
 		glVertex3i (w->pos_x + w->len_x, w->pos_y + w->len_y, 0);
 		glVertex3i (w->pos_x, w->pos_y + w->len_y, 0);
 		glEnd ();
-		
+
 		glEnable (GL_TEXTURE_2D);
 	}
 
@@ -2965,7 +3008,7 @@ int text_field_set_buf_pos (int window_id, Uint32 widget_id, int msg, int offset
 	if (w == NULL) {
 		return 0;
 	}
-	
+
 	tf = (text_field *) w->widget_info;
 
 	if (msg < 0)
@@ -2976,8 +3019,8 @@ int text_field_set_buf_pos (int window_id, Uint32 widget_id, int msg, int offset
 	{
 		msg = tf->buf_size - 1;
 	}
-		
-	if (offset < 0) 
+
+	if (offset < 0)
 	{
 		offset = 0;
 	}
@@ -2985,7 +3028,7 @@ int text_field_set_buf_pos (int window_id, Uint32 widget_id, int msg, int offset
 	{
 		offset = tf->buffer[msg].len;
 	}
-		
+
 	tf->msg = msg;
 	tf->offset = offset;
 
@@ -3000,19 +3043,19 @@ int text_field_clear (int window_id, Uint32 widget_id)
 
 	if (w == NULL)
 		return 0;
-	
+
 	tf = w->widget_info;
 	if (tf == NULL || !(w->Flags & TEXT_FIELD_EDITABLE))
 		return 0;
-	
+
 	msg = &(tf->buffer[tf->msg]);
 	clear_text_message_data (msg);
-	
+
 	tf->cursor = 0;
 	tf->cursor_line = 0;
 	if (tf->scroll_id != -1)
 		vscrollbar_set_bar_len (window_id, tf->scroll_id, 0);
-	
+
 	return 1;
 }
 
