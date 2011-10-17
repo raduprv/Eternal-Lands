@@ -412,7 +412,7 @@ void rotate_actor_and_horse(int id, int mul);
 #define EMOTE_BARE_R 4
 
 //ugliest mapping functions ever :/
-static int __inline__ emote_actor_type(int actor_type){
+static __inline__ int emote_actor_type(int actor_type){
 	switch(actor_type){
 		case human_female: return 0;
 		case human_male: return 1;
@@ -670,7 +670,7 @@ extern actor_types actors_defs[MAX_ACTOR_DEFS];	/*!< The actor definitions*/
 extern attached_actors_types attached_actors_defs[MAX_ACTOR_DEFS]; /*!< The definitions for the attached actors */
 
 
-static int __inline__ is_actor_barehanded(actor *act, int hand){
+static __inline__ int is_actor_barehanded(actor *act, int hand){
 	if(hand==EMOTE_BARE_L)
 		return (act->cur_shield==SHIELD_NONE||act->cur_shield==QUIVER_ARROWS||act->cur_shield==QUIVER_BOLTS);
 	else 

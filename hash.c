@@ -152,16 +152,17 @@ int cmp_fn_int(void *key1, void *key2){
 	return key1==key2;
 }
 
-unsigned long int __inline hash_fn_str(void *key){
-   	unsigned long int hash = 5381;
+unsigned long int hash_fn_str(void *key)
+{
+	unsigned long int hash = 5381;
 	char c;
 	char *k=(char*)key;
 
-        while ((c=*k++))
-            hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+	while ( (c=*k++) )
+		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+	hash--;
 
-		hash=hash-1;
-	    return hash;
+	return hash;
 }
 
 int cmp_fn_str(void *key1, void *key2){
