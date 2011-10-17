@@ -17,6 +17,11 @@
 #include "mapwin.h"
 #include "missiles.h"
 #include "new_character.h"
+#if !defined OSX && !defined WINDOWS
+#ifdef MIDDLE_MOUSE_PASTE
+#include "paste.h"
+#endif
+#endif
 #include "spells.h"
 #include "text.h"
 #include "special_effects.h"
