@@ -6,6 +6,8 @@
 #ifndef __NOTEPAD_H__
 #define __NOTEPAD_H__
 
+#include "widgets.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -90,7 +92,7 @@ void display_popup_win (INPUT_POPUP *ipu, const char* label);
  *
  * \callgraph
  */
-void fill_notpad_window(void);
+void fill_notepad_window(void);
 
 /*!
  * \ingroup notepad_window
@@ -100,7 +102,7 @@ void fill_notpad_window(void);
  *
  * \retval int  always 1
  */
-int notepad_save_file();
+int notepad_save_file(void);
 
 /*!
  * \ingroup notepad_window

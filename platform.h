@@ -120,6 +120,12 @@
  #define M_SQRT2 1.41421356237309504880
 #endif
 
+#ifdef __GNUC__
+#define UNUSED(x) x __attribute__((unused))
+#else
+#define UNUSED(x) x
+#endif // __GNUC__
+
 #ifdef EL_BIG_ENDIAN
  #define SwapLEFloat(X) SwapFloat(X)
 #else

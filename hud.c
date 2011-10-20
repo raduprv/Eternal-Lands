@@ -1033,12 +1033,11 @@ void show_help(const char *help_message, int x, int y)
 
 void show_help_coloured(const char *help_message, int x, int y, float r, float g, float b)
 {
-	char str[125];
 	int len=strlen(help_message)*8+1;
 	int width=window_width-80;
-	
+
 	if(x+len>width) x-=(x+len)-width;
-	
+
 	glColor4f(0.0f,0.0f,0.0f,0.5f);
 	glDisable(GL_TEXTURE_2D);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1049,13 +1048,12 @@ void show_help_coloured(const char *help_message, int x, int y, float r, float g
 	glVertex3i(x+len,y,0);
 	glVertex3i(x+len,y+15,0);
 	glEnd();
-	
+
 	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
-	
+
 	glColor3f(r,g,b);
-	safe_snprintf(str, sizeof(str), "%s", help_message);
-	draw_string_small(x, y, (unsigned char*)help_message,1);
+	draw_string_small(x, y, (unsigned char*)help_message, 1);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE

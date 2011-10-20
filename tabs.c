@@ -111,23 +111,23 @@ void display_tab_help ()
 }
 
 
-int display_tab_info_handler () 
+int display_tab_info_handler()
 {
 	return 1;
 }
 
-void display_tab_info ()
+void display_tab_info()
 {
 	if (tab_info_win < 0)
 	{
 		tab_info_win = create_window (tt_info, -1, 0, tab_info_x, tab_info_y, tab_info_len_x, tab_info_len_y, ELW_WIN_DEFAULT);
 
 		set_window_handler (tab_info_win, ELW_HANDLER_DISPLAY, &display_tab_info_handler);
-		
+
 		tab_info_collection_id = tab_collection_add_extended (tab_info_win, tab_info_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, INFO_TAB_WIDTH, INFO_TAB_HEIGHT+TAB_TAG_HEIGHT, 0, 0.7, 0.77f, 0.57f, 0.39f, 3, TAB_TAG_HEIGHT);
 
 		notepad_win = tab_add(tab_info_win, tab_info_collection_id, win_notepad, 0, 0, 0);
-		fill_notpad_window();
+		fill_notepad_window();
 
 		url_win = tab_add(tab_info_win, tab_info_collection_id, win_url_str, 0, 0, 0);
 		fill_url_window();
