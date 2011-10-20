@@ -1567,7 +1567,7 @@ int save_local_data(char * text, int len){
 	// save el.ini if asked
 	if (write_ini_on_exit) write_el_ini ();
 	// save notepad contents if the file was loaded
-	if (notepad_loaded) notepad_save_file (NULL, 0, 0, 0);
+	if (notepad_loaded) notepad_save_file();
 	save_exploration_map();
 	flush_counters();
 	// for the new questlog, this actually just saves any pending changes

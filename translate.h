@@ -756,7 +756,9 @@ extern char	reg_error_str[15],
 		user_no_more_notes[100],
 		user_no_more_note_tabs[100],
 		warn_currently_ignoring[50],
-		dc_note_remove[50];
+		dc_note_remove[50],
+		note_saved[50],
+		note_save_failed[50];
 #else
 		;
 #endif  // ELC
