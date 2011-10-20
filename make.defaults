@@ -5,66 +5,66 @@ UPDATE_CONF=yes
 # IMPORTANT: if you are using a linker that needs libraries in correct order, make sure you list EYE_CANDY before PNG_SCREENSHOT if you use both
 
 ### Current release default options ###
-FEATURES += CLUSTER_INSIDES                 # Group objects into separate clusters for clipping on inside maps
-FEATURES += CUSTOM_LOOK                     # allows you to customize your look.
-FEATURES += CUSTOM_UPDATE                   # allows autoupdating of custom look information
-FEATURES += FUZZY_PATHS                     # Makes Tab Map walking not always follow exaclty the same path
-FEATURES += NEW_SOUND                       # Enables extended sound effects system
-FEATURES += PNG_SCREENSHOT                  # make screenshots in W3C's PNG format in game, requires libpng
-FEATURES += TEXT_ALIASES                    # Text aliases
-FEATURES += USE_INLINE                      # enable some optimizations to use inline functions instead of pure function calls
+FEATURES += CLUSTER_INSIDES		# Group objects into separate clusters for clipping on inside maps
+FEATURES += CUSTOM_LOOK			# allows you to customize your look.
+FEATURES += CUSTOM_UPDATE		# allows autoupdating of custom look information
+FEATURES += FUZZY_PATHS			# Makes Tab Map walking not always follow exaclty the same path
+FEATURES += NEW_SOUND			# Enables extended sound effects system
+FEATURES += PNG_SCREENSHOT		# make screenshots in W3C's PNG format in game, requires libpng
+FEATURES += TEXT_ALIASES		# Text aliases
+FEATURES += USE_INLINE			# enable some optimizations to use inline functions instead of pure function calls
 # new for 1.9.0 release
-FEATURES += BANDWIDTH_SAVINGS				# enable bandwidth saving changes for message protocol
+FEATURES += BANDWIDTH_SAVINGS		# enable bandwidth saving changes for message protocol
 # new for 1.9.2 release
-FEATURES += ANIMATION_SCALING	             # Adds support for animation scaling, depending on the number of animation commands in the actor queue.
-FEATURES += ENCYCL_NAVIGATION                # Adds context menus to encyclopedia windows with search and bookmark functions
-FEATURES += FSAA		             # Adds support for full screen anti-aliasing using OpenGL multisampling.
-FEATURES += NEW_NEW_CHAR_WINDOW              # Use the new character creation window; controls always on-screen
-FEATURES += NEW_TEXTURES                     # Enables the new texture loading and caching system (http://www.eternal-lands.com/forum/index.php?showtopic=54756)
+FEATURES += ANIMATION_SCALING		# Adds support for animation scaling, depending on the number of animation commands in the actor queue.
+FEATURES += ENCYCL_NAVIGATION		# Adds context menus to encyclopedia windows with search and bookmark functions
+FEATURES += FSAA			# Adds support for full screen anti-aliasing using OpenGL multisampling.
+FEATURES += NEW_NEW_CHAR_WINDOW		# Use the new character creation window; controls always on-screen
+FEATURES += NEW_TEXTURES		# Enables the new texture loading and caching system (http://www.eternal-lands.com/forum/index.php?showtopic=54756)
 
 ### Testing options (these options are possible for the next release and should be tested) ###
-#FEATURES += ANTI_ALIAS                      # allows to enable/disable anti-aliasing in el.ini
-#FEATURES += DYNAMIC_ANIMATIONS              # Synchronizes animation to FPS instead of a fixed timer
-#FEATURES += EXT_ACTOR_DICT                  # Removes remaining hard-coded actor def dictionaries - requires updated actor defs files (http://el.grug.redirectme.net/actor_defs.zip)
-#FEATURES += NEW_ALPHA                       # (undocumented)
-#FEATURES += USE_SIMD                        # Enables usage of simd instructions
-FEATURES += FASTER_MAP_LOAD                 # Enables optimizations to speed up the process of switching between maps
-#FEATURES += FASTER_STARTUP                  # An attempt to reduce the startup time of EL somewhat
-#FEATURES += MIDDLE_MOUSE_PASTE              # Paste using the middle mouse button from the primary buffer on X systems
+#FEATURES += ANTI_ALIAS			# allows to enable/disable anti-aliasing in el.ini
+#FEATURES += DYNAMIC_ANIMATIONS		# Synchronizes animation to FPS instead of a fixed timer
+#FEATURES += EXT_ACTOR_DICT		# Removes remaining hard-coded actor def dictionaries - requires updated actor defs files (http://el.grug.redirectme.net/actor_defs.zip)
+#FEATURES += NEW_ALPHA			# (undocumented)
+#FEATURES += USE_SIMD			# Enables usage of simd instructions
+FEATURES += FASTER_MAP_LOAD		# Enables optimizations to speed up the process of switching between maps
+#FEATURES += FASTER_STARTUP		# An attempt to reduce the startup time of EL somewhat
+#FEATURES += MIDDLE_MOUSE_PASTE		# Paste using the middle mouse button from the primary buffer on X systems
 
 ### Machine specific options (fixes or performance enhancements) ###
-#FEATURES += EL_BIG_ENDIAN                   # Enable big-endian code (automatically detected for OSX)
-#FEATURES += NO_PF_MACRO                     # Use a function instead of a macro for pf_get_tile()
-#FEATURES += SIMPLE_LOD                      # enable a simplistic distance culling to improve performance
+#FEATURES += EL_BIG_ENDIAN		# Enable big-endian code (automatically detected for OSX)
+#FEATURES += NO_PF_MACRO		# Use a function instead of a macro for pf_get_tile()
+#FEATURES += SIMPLE_LOD			# enable a simplistic distance culling to improve performance
 
 
 ### Debug options ###
-#FEATURES += CONTEXT_MENUS_TEST              # Enable "#cmtest" command to help test/demo the context menu code
-#FEATURES += DEBUG                           # (undocumented)
-#FEATURES += DEBUG_XML                       # Enables missing (optional) XML string property messages
-#FEATURES += DEBUG_POINT_PARTICLES           # (undocumented)
-#FEATURES += DEBUG_TIME                      # Fakes the acceleration of time for use in debugging shadows and the like.
-#FEATURES += DEBUG_MAP_SOUND                 # Adds (some??) map boundary areas to tab maps and additional logging to stdout
-#FEATURES += ECDEBUGWIN                      # press ctrl-alt-c to open the Eye Candy debug window: trigger most effects without casting spells or server side events
-#FEATURES += EXTRA_DEBUG                     # (undocumented)
-#FEATURES += MEMORY_DEBUG                    # gather information about memory allocation and freeing
-#FEATURES += MISSILES_DEBUG                  # Enables debug for missiles feature. It will create a file missiles_log.txt file in your settings directory.
-#FEATURES += MUTEX_DEBUG                     # (undocumented)
-#FEATURES += OPENGL_TRACE                    # make far more frequent checks for OpenGL errors (requires -DDEBUG to be of any use). Will make error_log.txt a lot larger.
-#FEATURES += TIMER_CHECK                     # (undocumented)
-#FEATURES += _EXTRA_SOUND_DEBUG				 # Enable debug for sound effects
+#FEATURES += CONTEXT_MENUS_TEST		# Enable "#cmtest" command to help test/demo the context menu code
+#FEATURES += DEBUG			# (undocumented)
+#FEATURES += DEBUG_XML			# Enables missing (optional) XML string property messages
+#FEATURES += DEBUG_POINT_PARTICLES	# (undocumented)
+#FEATURES += DEBUG_TIME			# Fakes the acceleration of time for use in debugging shadows and the like.
+#FEATURES += DEBUG_MAP_SOUND		# Adds (some??) map boundary areas to tab maps and additional logging to stdout
+#FEATURES += ECDEBUGWIN			# press ctrl-alt-c to open the Eye Candy debug window: trigger most effects without casting spells or server side events
+#FEATURES += EXTRA_DEBUG		# (undocumented)
+#FEATURES += MEMORY_DEBUG		# gather information about memory allocation and freeing
+#FEATURES += MISSILES_DEBUG		# Enables debug for missiles feature. It will create a file missiles_log.txt file in your settings directory.
+#FEATURES += MUTEX_DEBUG		# (undocumented)
+#FEATURES += OPENGL_TRACE		# make far more frequent checks for OpenGL errors (requires -DDEBUG to be of any use). Will make error_log.txt a lot larger.
+#FEATURES += TIMER_CHECK		# (undocumented)
+#FEATURES += _EXTRA_SOUND_DEBUG		# Enable debug for sound effects
 
 
 ### Other options (Experimental, unfinished, defunct or otherwise unknown) ###
-#FEATURES += NEW_CURSOR                      # New coloured cursors made by Emajekral (Experimental) Extract http://users.on.net/~gingerman/sky_cursor-textures.zip into datadir/textures/
-#FEATURES += PAWN                            # Experimental, not for release, will need server support to function properly. This *will* eat your cat. You've been warned. Enables the Pawn abstract machine.
-#FEATURES += UID                             # use unique ID sent from server for custom looks. (INCOMPLETE)
-#FEATURES += USE_ACTORS_OPTIMIZER            # Enables actor optimizations
+#FEATURES += NEW_CURSOR			# New coloured cursors made by Emajekral (Experimental) Extract http://users.on.net/~gingerman/sky_cursor-textures.zip into datadir/textures/
+#FEATURES += PAWN			# Experimental, not for release, will need server support to function properly. This *will* eat your cat. You've been warned. Enables the Pawn abstract machine.
+#FEATURES += UID			# use unique ID sent from server for custom looks. (INCOMPLETE)
+#FEATURES += USE_ACTORS_OPTIMIZER	# Enables actor optimizations
 #FEATURES += USE_BOOST
-#FEATURES += USE_TR1                         # Needs tr1 version of c++ stl, used for NEW_FILE_IO
-#FEATURES += WRITE_XML                       # dangerous to use, will wipe out some XML files that are part of the main game download
-#FEATURES += ZLIBW                           # Enables being able to write gzip compressed files, requires -lzlib/-lz needed for map_editor
-#FEATURES += OLD_MISC_OBJ_DIR                # if not defined, ./3dobjects/misc_objects/ paths becomes ./3dobjects/
+#FEATURES += USE_TR1			# Needs tr1 version of c++ stl, used for NEW_FILE_IO
+#FEATURES += WRITE_XML			# dangerous to use, will wipe out some XML files that are part of the main game download
+#FEATURES += ZLIBW			# Enables being able to write gzip compressed files, requires -lzlib/-lz needed for map_editor
+#FEATURES += OLD_MISC_OBJ_DIR		# if not defined, ./3dobjects/misc_objects/ paths becomes ./3dobjects/
 
 
 
@@ -79,7 +79,7 @@ CXXWARN=-Wall
 
 ## These 2 lines should be uncommented if you used Emajekral's Windows compilation how-to (adjust them if required)
 #EXTRA_LIBS=-lstdc++
-#EXTRA_INCLUDES=-IC:\\Dev-Cpp\\Include\\AL -IC:\\Dev-Cpp\\Include\\SDL
+#EXTRA_INCLUDES=-IC:\\Dev-Cpp\\Include\\SDL
 
 ## These are the originally listed settings, uncomment them if you need them
 #EXTRA_INCLUDES=-IC:\\Programme\\Dev-Cpp\\Include
