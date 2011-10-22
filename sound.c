@@ -3423,28 +3423,8 @@ int find_sound_from_cookie(unsigned int cookie)
 	return -1;
 }
 
-#ifdef FASTER_STARTUP
-static int cmp_sound_type_names(const void* p1, const void* p2)
-{
-	const sound_type* st1 = p1;
-	const sound_type* st2 = p2;
-	return strcasecmp(st1->name, st2->name);
-}
-
-static int cmp_string_sound_type_name(const void* name, const void* p)
-{
-	const sound_type* st = p;
-	return strcasecmp(name, st->name);
-}
-#endif // FASTER_STARTUP
-
 int get_index_for_sound_type_name(const char *name)
 {
-#ifdef FASTER_STARTUP
-	sound_type *st = bsearch(name, sound_type_data, num_types,
-		sizeof(sound_type), cmp_string_sound_type_name);
-	return st ? st - sound_type_data : -1;
-#else  // FASTER_STARTUP
 	int i;
 	for(i = 0; i < num_types; ++i)
 	{
@@ -3452,7 +3432,6 @@ int get_index_for_sound_type_name(const char *name)
 			return i;
 	}
 	return -1;
-#endif // FASTER_STARTUP
 }
 
 // Look for a particle sound def matching the input filename
@@ -5628,11 +5607,6 @@ void load_sound_config_data (const char *file)
 	print_sound_types();
 #endif // DEBUG
 
-#ifdef FASTER_STARTUP
-	// Sort the sound types by name
-	qsort(sound_type_data, num_types, sizeof(sound_type),
-		cmp_sound_type_names);
-#endif
 }
 
 /***********************
