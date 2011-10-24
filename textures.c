@@ -557,6 +557,8 @@ static Uint32 load_texture(texture_cache_t* texture_handle)
 	min_filter = GL_LINEAR;
 	format = tft_auto;
 
+	compression = get_supported_compression_formats();
+
 	switch (texture_handle->type)
 	{
 		case tt_gui:
@@ -565,7 +567,11 @@ static Uint32 load_texture(texture_cache_t* texture_handle)
 			break;
 		case tt_image:
 			strip_mipmaps = 1;
-			format = tft_dxt1;
+			if ((compression & tct_s3tc) == tct_s3tc)
+			{
+				format = tft_dxt1;
+			}
+
 			break;
 		case tt_font:
 			break;
@@ -585,13 +591,6 @@ static Uint32 load_texture(texture_cache_t* texture_handle)
 		case tt_atlas:
 			wrap_mode_repeat = 0;
 			break;
-	}
-
-	compression = get_supported_compression_formats();
-
-	if (compression == 0)
-	{
-		format = tft_auto;
 	}
 
 	if (load_image_data(texture_handle->file_name, compression, 0,
