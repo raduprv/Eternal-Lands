@@ -96,10 +96,7 @@
 #endif
 
 // Inlucde the plaform specific location sound libs
-#ifdef WINDOWS //lib location platform checking
-	#include <al.h>
-	#include <alc.h>
-#elif defined(OSX)
+#ifdef OSX
 	#include <Carbon/Carbon.h>
 	#include <AudioToolbox/AudioToolbox.h>
 	#include <AudioUnit/AudioUnit.h>
