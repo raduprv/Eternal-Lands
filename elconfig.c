@@ -1458,7 +1458,7 @@ int check_var (char *str, var_name_type type)
 	i= find_var (str, type);
 	if (i < 0)
 	{
-		LOG_ERROR("Can't find var '%s', type %d", str, type);
+		LOG_WARNING("Can't find var '%s', type %d", str, type);
 		return -1;
 	}
 
