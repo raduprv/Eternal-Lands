@@ -131,7 +131,8 @@ void copy_to_clipboard(const char* text)
 #else
 
 static text_field *cur_text_field = NULL;
-static char* cur_text = NULL;
+static char* cur_text_primary = NULL;
+static char* cur_text_clipboard = NULL;
 
 int use_clipboard = 1;
 Atom targets_atom = None;
@@ -232,8 +233,6 @@ static void copy_to_clipboard_target(const char* text, int clipboard)
 	SDL_SysWMinfo wminfo;
 	Atom selection;
 
-	if (cur_text != NULL) free(cur_text);
-	cur_text = strdup(text);
 	SDL_VERSION(&wminfo.version);
 	if (SDL_GetWMInfo(&wminfo) && (wminfo.subsystem == SDL_SYSWM_X11))
 	{
@@ -246,9 +245,17 @@ static void copy_to_clipboard_target(const char* text, int clipboard)
 			targets_atom = XInternAtom(dpy, "TARGETS", False);
 
 		if (clipboard)
-			selection = XInternAtom(dpy,"CLIPBOARD",0);
+		{
+			selection = XInternAtom(dpy, "CLIPBOARD", False);
+			if (cur_text_clipboard) free(cur_text_clipboard);
+			cur_text_clipboard = strdup(text);
+		}
 		else
+		{
 			selection = XA_PRIMARY;
+			if (cur_text_primary) free(cur_text_primary);
+			cur_text_primary = strdup(text);
+		}
 		//property = XInternAtom(dpy, "PASTE", 0);
 		XSetSelectionOwner(dpy, selection, window, CurrentTime);
 		wminfo.info.x11.unlock_func();
@@ -276,13 +283,19 @@ void process_copy(XSelectionRequestEvent* e)
 	if (e->target == XA_STRING)
 	{
 		// Copy the string
-		XChangeProperty(e->display, e->requestor, e->property, XA_STRING, 8, PropModeReplace, (unsigned char *)cur_text, strlen(cur_text));
+		char *buf = e->selection == XA_PRIMARY
+			? cur_text_primary : cur_text_clipboard;
+		XChangeProperty(e->display, e->requestor, e->property,
+			XA_STRING, 8, PropModeReplace,
+			(unsigned char *)buf, strlen(buf));
 		r.xselection.property = e->property;
 	}
 	else if (targets_atom != None && e->target == targets_atom)
 	{
 		// Tell X we have a string available
-		XChangeProperty (e->display, e->requestor, e->property, XA_ATOM, 32, PropModeReplace, (unsigned char*) targets, sizeof(targets) / sizeof (targets[0]));
+		XChangeProperty(e->display, e->requestor, e->property, XA_ATOM,
+			32, PropModeReplace, (unsigned char*)targets,
+			sizeof(targets) / sizeof(targets[0]));
 		r.xselection.property = e->property;
 	}
 	else
