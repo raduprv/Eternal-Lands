@@ -11,34 +11,43 @@
 	<label index="8" name="GMs">Guild Messages</label>
 	<label index="9" name="Server">Messages from the server</label>
 	<label index="10" name="Mod">Mod chat</label>
-
-
-	<channel number="1" name="Newbie">Newbie Q&amp;A about the game</channel>
+   
+	<channel number="1" name="Newbie Help">Newbie Q&amp;A about the game</channel>
 	<channel number="2" name="Gen Help">General/Advanced help</channel>
 	<channel number="3" name="Market">Trading, hiring, and price checks</channel>
 	<channel number="4" name="EL Gen Chat">Chat about EL-related topics</channel>
 	<channel number="5" name="Roleplay">Discussion about, and Roleplaying</channel>
-	<channel number="6" name="Events">Chat about the Contest/Event; what's happening and where</channel>
+	<channel number="6" name="Invasions">Chat about Invasions and Leonard</channel>
+	<channel number="7" name="Events">Chat about Contests and Events</channel>
+	<channel number="8" name="Leonard">Chat about Leonard</channel>
 	<channel number="11" name="Prattler">Come listen to the story bot</channel>
 	<channel number="20" name="Off Topic">Chat about (almost) any topic</channel>
-	<channel number="23" name="Czech/Slovak">Chat in Czech and Slovak</channel>
 	<channel number="24" name="Irilion">Chat for people visiting Irilion</channel>
-	<channel number="44" name="Polish">Chat in Polish</channel>
-	<channel number="105" name="Turkish">Chat in Turkish</channel>
-	<channel number="111" name="Hungarian">Chat in Hungarian</channel>
 	<channel number="124" name="Trivia">Play Trivia!</channel>
-	<channel number="206" name="German">Chat in German</channel>
-	<channel number="231" name="Swedish">Chat in Swedish</channel>
-	<channel number="242" name="Italian">Chat in Italian</channel>
-	<channel number="255" name="Spanish">Chat in Spanish</channel>
-	<channel number="381" name="Ex-Yugoslavian">Chat in the Ex-Yugoslavian languages</channel>
-	<channel number="500" name="Portuguese">Chat in Portuguese</channel>
-	<channel number="777" name="African">Chat for Africans</channel>
-	<channel number="888" name="French">Chat in French</channel>
-	<channel number="999" name="Romanian">Chat in Romanian</channel>
-	<channel number="1192" name="Japanese">Chat in Japanese</channel>
-	<channel number="1500" name="Dutch">Chat in Dutch</channel>
-	<channel number="2000" name="Irish">Chat in Irish</channel>
-	<channel number="4900" name="Russian">Chat in Russian</channel>
 	<channel number="9872" name="*nix">Chat about *nix (linux, *BSD, etc)</channel>
+	<channel number="4060" name="Invance 40-60">Invance channel for level 40-60</channel>
+	<channel number="6080" name="Invance 60-80">Invance channel for level 60-80</channel>
+	<channel number="80100" name="Invance 80-100">Invance channel for level 80-100</channel>
+	<channel number="100120" name="Invance 100-120">Invance channel for level 100-120</channel>
+	<channel number="120200" name="Invance 120-200">Invance channel for level 120-200</channel>
+	<channel number="777" name="African">Chat for Africans</channel>
+	<channel number="1600" name="Arabic">Chat in Arabic</channel>
+	<channel number="23" name="Czech/Slovak">Chat in Czech and Slovak</channel>
+	<channel number="1805" name="Danish">Chat in Dutch</channel>
+	<channel number="1500" name="Dutch">Chat in Dutch</channel>
+	<channel number="381" name="Ex-Yugoslavian">Chat in the Ex-Yugoslavian languages</channel>
+	<channel number="888" name="French">Chat in French</channel>
+	<channel number="206" name="German">Chat in German</channel>
+	<channel number="111" name="Hungarian">Chat in Hungarian</channel>
+	<channel number="2000" name="Irish">Chat in Irish</channel>
+	<channel number="242" name="Italian">Chat in Italian</channel>
+	<channel number="1192" name="Japanese">Chat in Japanese</channel>
+	<channel number="734" name="Lithuanian">Chat in Lithuanian</channel>
+	<channel number="44" name="Polish">Chat in Polish</channel>
+	<channel number="500" name="Portuguese">Chat in Portuguese</channel>
+	<channel number="999" name="Romanian">Chat in Romanian</channel>
+	<channel number="4900" name="Russian">Chat in Russian</channel>
+	<channel number="255" name="Spanish">Chat in Spanish</channel>
+	<channel number="231" name="Swedish">Chat in Swedish</channel>
+	<channel number="105" name="Turkish">Chat in Turkish</channel>
 </channels>
