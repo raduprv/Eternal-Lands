@@ -64,19 +64,6 @@ extern int pf_follow_path; /*!< flag, that indicates whether we should follow th
 
 /*!
  * \ingroup move_actors
- * \brief Finds the tile at the given position
- *
- * 	Finds the tile at the position (x,y)
- *
- * \param x     x coordinate of the position
- * \param y     y coordinate of the position
- * \retval PF_TILE*
- * \callgraph
- */
-PF_TILE *pf_get_tile(int x, int y);
-
-/*!
- * \ingroup move_actors
  * \brief Finds a path to the given position
  *
  *      Finds a path from the current position to the given target position (x,y).

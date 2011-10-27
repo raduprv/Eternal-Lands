@@ -8,13 +8,14 @@
 #include "multiplayer.h"
 #include "tiles.h"
 
-PF_OPEN_LIST pf_open;
-PF_TILE *pf_tile_map=NULL;
-PF_TILE *pf_src_tile, *pf_dst_tile, *pf_cur_tile;
+PF_TILE *pf_tile_map = NULL;
+PF_TILE *pf_dst_tile;
 int pf_follow_path = 0;
-int pf_visited_squares[20];
-int pf_actor_id;
-SDL_TimerID pf_movement_timer = NULL;
+
+static PF_OPEN_LIST pf_open;
+static PF_TILE *pf_src_tile, *pf_cur_tile;
+static int pf_visited_squares[20];
+static SDL_TimerID pf_movement_timer = NULL;
 
 #define PF_DIFF(a, b) ((a > b) ? a - b : b - a)
 #define PF_HEUR(a, b) pf_heuristic(a->x-b->x, a->y-b->y);
@@ -23,9 +24,6 @@ SDL_TimerID pf_movement_timer = NULL;
 	a->open_pos = j; b->open_pos = i;\
 	pf_open.tiles[i] = b; pf_open.tiles[j] = a;\
 }
-
-int pf_is_tile_occupied(int x, int y);
-Uint32 pf_movement_timer_callback(Uint32 interval, void *param);
 
 static __inline__ int pf_heuristic(int dx, int dy)
 {
@@ -46,7 +44,7 @@ static __inline__ int pf_heuristic(int dx, int dy)
 }
 
 #ifdef NO_PF_MACRO
-__inline__ PF_TILE *pf_get_tile(int x, int y)
+static __inline__ PF_TILE *pf_get_tile(int x, int y)
 {
 	if (x >= tile_map_size_x*6 || y >= tile_map_size_y*6 || x < 0 || y < 0) {
 		return NULL;
@@ -58,7 +56,7 @@ __inline__ PF_TILE *pf_get_tile(int x, int y)
 	(((x) >= tile_map_size_x*6 || (y) >= tile_map_size_y*6 || ((Sint32)(x)) < 0 || ((Sint32)(y)) < 0) ? NULL : &pf_tile_map[(y)*tile_map_size_x*6+(x)])
 #endif
 
-PF_TILE *pf_get_next_open_tile()
+static PF_TILE *pf_get_next_open_tile()
 {
 	PF_TILE *ret;
 
@@ -88,7 +86,7 @@ PF_TILE *pf_get_next_open_tile()
 	return ret;
 }
 
-void pf_add_tile_to_open_list(PF_TILE *current, PF_TILE *neighbour)
+static void pf_add_tile_to_open_list(PF_TILE *current, PF_TILE *neighbour)
 {
 	if (!neighbour
 		|| neighbour->state == PF_STATE_CLOSED
@@ -142,6 +140,20 @@ void pf_add_tile_to_open_list(PF_TILE *current, PF_TILE *neighbour)
 	}
 
 	neighbour->state = PF_STATE_OPEN;
+}
+
+static Uint32 pf_movement_timer_callback(Uint32 interval, void* UNUSED(param))
+{
+	SDL_Event e;
+
+	e.type = SDL_USEREVENT;
+	e.user.code = EVENT_MOVEMENT_TIMER;
+	SDL_PushEvent(&e);
+
+	if (get_our_actor())
+		return get_our_actor()->step_duration * 10;
+	else
+		return interval;
 }
 
 int pf_find_path(int x, int y)
@@ -216,51 +228,66 @@ void pf_destroy_path()
 
 int checkvisitedlist(int x, int y)
 {
-/*
-    This (slightly) optimised version of the code stores the X and Y in the same word
-    x is bits 0-15, y is bits 16-31
-*/
-int i,visited = 0,tx,ty;//visited: Is this square already in the list?
-x=x & 0xFFFF;
-y=y & 0xFFFF;
+	/*
+	 * This (slightly) optimised version of the code stores the X and Y in the same word
+	 * x is bits 0-15, y is bits 16-31
+	 */
+	int i,visited = 0,tx,ty;//visited: Is this square already in the list?
+	int square;
 
-for(i=0;i<20;i++)
-{
-    if((pf_visited_squares[i] & 0xFFFF)==x && ((pf_visited_squares[i]& 0xFFFF0000)/0x10000)==y)
-    {
-            visited=1;//yes
-    }
-    if(i)
-    {
-        //move everything in the list up one place
-        //to make room for the new square
-        pf_visited_squares[i]=pf_visited_squares[i-1];
-    }
+	x &= 0xFFFF;
+	y &= 0xFFFF;
+
+	square = x | (y << 16);
+	for (i = 20-1; i > 0; i--)
+	{
+		if (pf_visited_squares[i] == square)
+			visited = 1; //yes
+		//move everything in the list up one place
+		//to make room for the new square
+		pf_visited_squares[i] = pf_visited_squares[i-1];
+	}
+	if (pf_visited_squares[0] == square)
+		visited = 1; //yes
+
+	//put the new square at the start of the list
+	pf_visited_squares[0] = square;
+
+	//check if we have visited and the destination is close to us
+	if (visited)
+	{
+		if (pf_dst_tile->x > x)
+        		tx = pf_dst_tile->x-x;
+		else
+			tx = x-pf_dst_tile->x;
+
+		if (pf_dst_tile->y>y)
+			ty = pf_dst_tile->y-y;
+		else
+			ty = y-pf_dst_tile->y;
+
+		if (tx<5 && ty<5)
+			visited = 1;//yes
+		else
+			visited = 0;//yes
+	}
+
+	return visited;
 }
-//put the new square at the start of the list
-pf_visited_squares[0]=x;
-pf_visited_squares[0]+=(y*0x10000);
 
-//check if we have visited and the destination is close to us
-if(visited)
+static int pf_is_tile_occupied(int x, int y)
 {
-    if(pf_dst_tile->x>x)
-        tx=pf_dst_tile->x-x;
-    else
-        tx=x-pf_dst_tile->x;
+	int i;
 
-    if(pf_dst_tile->y>y)
-        ty=pf_dst_tile->y-y;
-    else
-        ty=y-pf_dst_tile->y;
+	for (i = 0; i < max_actors; i++) {
+		if(actors_list[i]) {
+			if (actors_list[i]->x_tile_pos == x && actors_list[i]->y_tile_pos == y) {
+				return 1;
+			}
+		}
+	}
 
-    if(tx<5 && ty<5)
-        visited=1;//yes
-    else
-        visited=0;//yes
-}
-
-return visited;
+	return 0;
 }
 
 void pf_move()
@@ -324,35 +351,6 @@ void pf_move()
 			}
 		}
 	}
-}
-
-int pf_is_tile_occupied(int x, int y)
-{
-	int i;
-
-	for (i = 0; i < max_actors; i++) {
-		if(actors_list[i]) {
-			if (actors_list[i]->x_tile_pos == x && actors_list[i]->y_tile_pos == y) {
-				return 1;
-			}
-		}
-	}
-
-	return 0;
-}
-
-Uint32 pf_movement_timer_callback(Uint32 interval, void *param)
-{
-	SDL_Event e;
-
-	e.type = SDL_USEREVENT;
-	e.user.code = EVENT_MOVEMENT_TIMER;
-	SDL_PushEvent(&e);
-
-	if (get_our_actor())
-		return get_our_actor()->step_duration * 10;
-	else
-		return interval;
 }
 
 int pf_get_mouse_position(int mouse_x, int mouse_y, int * px, int * py)
