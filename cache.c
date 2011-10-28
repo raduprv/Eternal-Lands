@@ -331,7 +331,7 @@ static Uint32 cache_compact(cache_struct *cache)
 
 #ifndef	USE_INLINE
 // detailed items
-void cache_use(cache_struct *cache, cache_item_struct *item_ptr)
+void cache_use(cache_item_struct *item_ptr)
 {
 	if (item_ptr)
 	{
@@ -356,7 +356,7 @@ cache_item_struct *cache_find(cache_struct *cache, const char *name)
 	if (cache->recent_item && cache->recent_item->name
 		&& strcmp(cache->recent_item->name, name) == 0)
 	{
-		cache_use(cache, cache->recent_item);
+		cache_use(cache->recent_item);
 		return cache->recent_item;
 	}
 
@@ -366,7 +366,7 @@ cache_item_struct *cache_find(cache_struct *cache, const char *name)
 		sizeof(cache_item_struct*), cache_item_cmp_str);
 	if (!item)
 		return NULL;
-	cache_use(cache, *item);
+	cache_use(*item);
 	cache->recent_item = *item;
 	return *item;
 #else
@@ -376,7 +376,7 @@ cache_item_struct *cache_find(cache_struct *cache, const char *name)
 		if (cache->cached_items[i] && cache->cached_items[i]->name
 			&& strcmp(cache->cached_items[i]->name, name) == 0)
 		{
-			cache_use(cache, cache->cached_items[i]);
+			cache_use(cache->cached_items[i]);
 			cache->recent_item = cache->cached_items[i];
 			return cache->cached_items[i];
 		}
@@ -398,7 +398,7 @@ static cache_item_struct *cache_find_ptr(cache_struct *cache, const void *item)
 	if (cache->recent_item && cache->recent_item->name
 		&& cache->recent_item->cache_item == item)
 	{
-		cache_use(cache, cache->recent_item);
+		cache_use(cache->recent_item);
 		return cache->recent_item;
 	}
 
@@ -412,7 +412,7 @@ static cache_item_struct *cache_find_ptr(cache_struct *cache, const void *item)
 		citem = cache->cached_items[i];
 		if (citem && citem->name && citem->cache_item == item)
 		{
-			cache_use(cache, citem);
+			cache_use(citem);
 			cache->recent_item = citem;
 			return citem;
 		}
@@ -427,7 +427,7 @@ void *cache_find_item(cache_struct *cache, const char *name)
 	if (!item_ptr)
 		return NULL;
 
-	//cache_use(cache, item_ptr);
+	//cache_use(item_ptr);
 	return item_ptr->cache_item;
 }
 
@@ -540,7 +540,7 @@ void cache_adj_size(cache_struct *cache, Uint32 size, void *item)
 				cache_adj_size(cache_system, size, cache);
 		//}
 		item_ptr->size += size;
-		cache_use(cache, item_ptr);
+		cache_use(item_ptr);
 		//item_ptr->access_time=cur_time;
 		//item_ptr->access_count++;
 	}
@@ -719,7 +719,7 @@ void cache_set_size(cache_struct *cache, Uint32 size, void *item)
 						}
 				}
 			item_ptr->size=size;
-			cache_use(cache, item_ptr);
+			cache_use(item_ptr);
 			//item_ptr->access_time=cur_time;
 			//item_ptr->access_count++;
 		}

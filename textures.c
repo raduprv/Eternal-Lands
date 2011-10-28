@@ -672,7 +672,7 @@ static GLuint get_texture_id(const Uint32 handle)
 	assert(texture_handles[handle].cache_ptr != 0);
 	assert(texture_handles[handle].id != 0);
 
-	cache_use(texture_cache, texture_handles[handle].cache_ptr);
+	cache_use(texture_handles[handle].cache_ptr);
 
 	return texture_handles[handle].id;
 }

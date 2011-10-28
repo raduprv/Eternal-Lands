@@ -214,19 +214,18 @@ void cache_adj_size(cache_struct *cache, Uint32 size, void *item);
 
 /*!
  * \ingroup cache
- * \brief   determines whether \a item is an element of \a cache.
+ * \brief   update the last use time of a cache item
  *
- *      Determines whether \a item is an element of \a cache.
+ *      Sets the time a cache item was accessed last to the current time
  *
- * \param cache     the cache to search
- * \param item      the item to search for
+ * \param item      the item for which to set the access time
  */
 #ifndef	USE_INLINE
-void cache_use(cache_struct *cache, cache_item_struct *item);
+void cache_use(cache_item_struct *item);
 #else	//USE_INLINE
 #include "global.h"
 
-static __inline__ void	cache_use(cache_struct *cache, cache_item_struct *item_ptr)
+static __inline__ void	cache_use(cache_item_struct *item_ptr)
 {
 	if (item_ptr)
 	{

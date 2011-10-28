@@ -226,7 +226,7 @@ void draw_3d_object_shadows(unsigned int object_type)
 			l = get_intersect_item_ID(main_bbox_tree, i);
 			if (objects_list[l] == NULL) continue;
 			//track the usage
-			cache_use(cache_e3d, objects_list[l]->e3d_data->cache_ptr);
+			cache_use(objects_list[l]->e3d_data->cache_ptr);
 		}
 		// and all done
 		return;
@@ -250,7 +250,7 @@ void draw_3d_object_shadows(unsigned int object_type)
 		l = get_3dobject_index(j);
 		if (objects_list[l] == NULL) continue;
 		//track the usage
-		cache_use(cache_e3d, objects_list[l]->e3d_data->cache_ptr);
+		cache_use(objects_list[l]->e3d_data->cache_ptr);
 		if(!objects_list[l]->display) continue;	// not currently on the map, ignore it
 #ifdef  SIMPLE_LOD
 		// simple size/distance culling
