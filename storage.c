@@ -14,9 +14,7 @@
 #include "item_lists.h"
 #include "misc.h"
 #include "multiplayer.h"
-#ifdef NEW_SOUND
 #include "sound.h"
-#endif // NEW_SOUND
 #include "textures.h"
 #include "translate.h"
 #include "widgets.h"
@@ -84,9 +82,7 @@ static void select_item(int image_id, Uint16 item_id)
 
 	if (found_at < 0)
 	{
-#ifdef NEW_SOUND
-		add_sound_object(get_index_for_sound_type_name("alert1"), 0, 0, 1);
-#endif // NEW_SOUND
+		do_alert1_sound();
 		il_pickup_fail_time = SDL_GetTicks();
 	}
 	else
@@ -95,15 +91,11 @@ static void select_item(int image_id, Uint16 item_id)
 		if (!view_only_storage)
 		{
 			storage_item_dragged=found_at;
-#ifdef NEW_SOUND
-			add_sound_object(get_index_for_sound_type_name("Drag Item"), 0, 0, 1);
-#endif // NEW_SOUND
+			do_drag_item_sound();
 		}
 		else
 		{
-#ifdef NEW_SOUND
-			add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
-#endif // NEW_SOUND
+			do_click_sound();
 		}
 	}
 }
@@ -141,9 +133,7 @@ void pickup_storage_item(int image_id, Uint16 item_id, int cat_id)
 {
 	if ((storage_win<0) || (find_category(cat_id) == -1))
 	{
-#ifdef NEW_SOUND
-		add_sound_object(get_index_for_sound_type_name("alert1"), 0, 0, 1);
-#endif // NEW_SOUND
+		do_alert1_sound();
 		il_pickup_fail_time = SDL_GetTicks();
 		return;
 	}
@@ -520,9 +510,7 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 			} else if(mx>150 && mx<352){
 				if(view_only_storage && item_dragged!=-1 && left_click){
 					drop_fail_time = SDL_GetTicks();
-	#ifdef NEW_SOUND
-					add_sound_object(get_index_for_sound_type_name("alert1"), 0, 0, 1);
-	#endif // NEW_SOUND
+					do_alert1_sound();
 				} else if(!view_only_storage && item_dragged!=-1 && left_click){
 					Uint8 str[6];
 
@@ -531,11 +519,8 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 					*((Uint32*)(str+2))=SDL_SwapLE32(item_quantity);
 
 					my_tcp_send(my_socket, str, 6);
-	
-#ifdef NEW_SOUND
-					add_sound_object(get_index_for_sound_type_name("Drop Item"), 0, 0, 1);
-#endif // NEW_SOUND
-					
+					do_drop_item_sound();
+
 					if(item_list[item_dragged].quantity<=item_quantity) item_dragged=-1;//Stop dragging this item...
 				} else if(right_click || (view_only_storage && left_click)){
 					storage_item_dragged=-1;
@@ -554,9 +539,7 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 				} else if(!view_only_storage && cur_item_over!=-1){
 					storage_item_dragged=cur_item_over;
 					active_storage_item=storage_items[cur_item_over].pos;
-#ifdef NEW_SOUND
-					add_sound_object(get_index_for_sound_type_name("Drag Item"), 0, 0, 1);
-#endif // NEW_SOUND
+					do_drag_item_sound();
 				}
 			}
 		}
