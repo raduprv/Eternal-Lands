@@ -20,9 +20,7 @@
 #include "misc.h"
 #include "multiplayer.h"
 #include "platform.h"
-#ifdef NEW_SOUND
 #include "sound.h"
-#endif // NEW_SOUND
 #include "storage.h"
 #include "textures.h"
 #include "translate.h"
@@ -122,7 +120,7 @@ static int over_button(window_info *win, int mx, int my)
 {
 	if (mx>(win->len_x-(XLENBUT+3)) && mx<win->len_x-3 && my>wear_items_y_offset
 		&& my<wear_items_y_offset+but_y_off[NUMBUT-1]+YLENBUT) {
-		return (my -  wear_items_y_offset) / YLENBUT;
+		return (my - wear_items_y_offset) / YLENBUT;
 	}
 	return -1;
 }
@@ -156,7 +154,7 @@ void rendergrid(int columns, int rows, int left, int top, int width, int height)
 
 	for(y=0; y<=rows; y++){
 		temp = top + y * height;
-		glVertex2i(left,         temp);
+		glVertex2i(left, temp);
 		glVertex2i(left + width*columns, temp);
 	}
 
@@ -530,8 +528,8 @@ int display_items_handler(window_info *win)
 		glColor3f(0.77f,0.57f,0.39f);
 		draw_string_small(win->len_x+gx_adjust-XLENBUT, wear_items_y_offset+but_y_off[i]+2+gy_adjust, (unsigned char*)my_str, 2);
 	}
-    
-   	x=quantity_x_offset+quantity_width/2;
+
+	x=quantity_x_offset+quantity_width/2;
 	y=quantity_y_offset+3;
 	glColor3f(0.3f,0.5f,1.0f);
 	for(i=0;i<ITEM_EDIT_QUANT;x+=quantity_width,++i){
@@ -543,7 +541,7 @@ int display_items_handler(window_info *win)
 			glColor3f(0.0f, 1.0f, 0.3f);
 			draw_string_small(1+gx_adjust+x-strlen(quantities.quantity[i].str)*4, y+gy_adjust, (unsigned char*)quantities.quantity[i].str, 1);
 			glColor3f(0.3f, 0.5f, 1.0f);
-		} else  draw_string_small(1+gx_adjust+x-strlen(quantities.quantity[i].str)*4, y+gy_adjust, (unsigned char*)quantities.quantity[i].str, 1);
+		} else draw_string_small(1+gx_adjust+x-strlen(quantities.quantity[i].str)*4, y+gy_adjust, (unsigned char*)quantities.quantity[i].str, 1);
 	}
 	draw_string_small(win->len_x-strlen(quantity_str)*8-5, quantity_y_offset-19, (unsigned char*)quantity_str, 1);
 
@@ -634,7 +632,7 @@ int display_items_handler(window_info *win)
 			
 			if(!item_is_weared){
 				safe_snprintf(str, sizeof(str), "%i", item_list[i].quantity);
-                draw_string_small_shadowed(x_start, (i&1)?(y_end-15):(y_end-25), (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);			}
+				draw_string_small_shadowed(x_start, (i&1)?(y_end-15):(y_end-25), (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);			}
 		}
 	}
 	
@@ -724,7 +722,7 @@ int display_items_handler(window_info *win)
 		glEnd();
 	}
 
-    //now, draw the quantity boxes
+	//now, draw the quantity boxes
 	glColor3f(0.3f,0.5f,1.0f);
 	rendergrid(ITEM_EDIT_QUANT, 1, quantity_x_offset, quantity_y_offset, quantity_width, 20);
 	
@@ -777,7 +775,7 @@ int move_item(int item_pos_to_mov, int destination_pos)
 					proposed_slot = i;
 				}
 			}
-			/* only use the stack if  we're sure there are no other possibilities */
+			/* only use the stack if we're sure there are no other possibilities */
 			if (num_stacks_found == 1){
 				destination_pos = proposed_slot;
 				drop_on_stack = 1;
@@ -821,7 +819,7 @@ static void equip_item(int item_pos_to_equip, int destination_pos)
 
 int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 {	
-    Uint8 str[100];
+	Uint8 str[100];
 	int right_click = flags & ELW_RIGHT_MOUSE;
 	int ctrl_on = flags & ELW_CTRL;
 	int shift_on = flags & ELW_SHIFT;
@@ -832,10 +830,8 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	// only handle mouse button clicks, not scroll wheels moves (unless its the mix button)
 	if (((flags & ELW_MOUSE_BUTTON) == 0) && (over_button(win, mx, my) != BUT_MIX)) return 0;
 
-#ifdef NEW_SOUND
 	if (!right_click && over_button(win, mx, my) != -1)
-		add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
-#endif // NEW_SOUND
+		do_click_sound();
 
 	if(right_click) {
 		if(item_dragged!=-1 || use_item!=-1 || storage_item_dragged!=-1){
@@ -916,7 +912,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	
 	//see if we clicked on any item in the main category
 	else if(mx>0 && mx < 6*items_grid_size &&
-	   my>0 && my < 6*items_grid_size) {
+				my>0 && my < 6*items_grid_size) {
 		int pos=get_mouse_pos_in_grid(mx, my, 6, 6, 0, 0, items_grid_size, items_grid_size);
 		
 #ifdef NEW_SOUND
@@ -926,40 +922,31 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 		if(pos==-1) {
 		} else if(item_dragged!=-1){
 			if(item_dragged == pos){ //let's try auto equip
-                             int i;
-                             for(i = ITEM_WEAR_START; i<ITEM_WEAR_START+8;i++)
-                             {
-                                  if(item_list[i].quantity<1)
-                                  {
-                                         move_item(pos,i);
-                                         item_dragged=-1;
-                                         break;
-                                   }
-                              }
+				int i;
+				for(i = ITEM_WEAR_START; i<ITEM_WEAR_START+8;i++) {
+					if(item_list[i].quantity<1) {
+						move_item(pos,i);
+						item_dragged=-1;
+						break;
+					}
+				}
 			} else {
-			   if (move_item(item_dragged, pos)){
-#ifdef NEW_SOUND
-				add_sound_object(get_index_for_sound_type_name("Drop Item"), 0, 0, 1);
-#endif // NEW_SOUND
-			    }
-			    else {
-#ifdef NEW_SOUND
-				add_sound_object(get_index_for_sound_type_name("alert1"), 0, 0, 1);
-#endif // NEW_SOUND
-			    }
-			    item_dragged=-1;
+				if (move_item(item_dragged, pos)){
+					do_drop_item_sound();
+				}
+				else {
+					do_alert1_sound();
+				}
+				item_dragged=-1;
 			}
-		   
+		
 		}
 		else if(storage_item_dragged!=-1){
 			str[0]=WITHDRAW_ITEM;
 			*((Uint16*)(str+1))=SDL_SwapLE16(storage_items[storage_item_dragged].pos);
 			*((Uint32*)(str+3))=SDL_SwapLE32(item_quantity);
 			my_tcp_send(my_socket, str, 6);
-			
-#ifdef NEW_SOUND
-			add_sound_object(get_index_for_sound_type_name("Drop Item"), 0, 0, 1);
-#endif // NEW_SOUND
+			do_drop_item_sound();
 			if(storage_items[storage_item_dragged].quantity<=item_quantity) storage_item_dragged=-1;
 		}
 		else if(item_list[pos].quantity){
@@ -971,9 +958,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 				else 
 					*((Uint32 *)(str+2))=SDL_SwapLE32(36);//Drop all
 				my_tcp_send(my_socket, str, 6);
-#ifdef NEW_SOUND
-				add_sound_object(get_index_for_sound_type_name("Drop Item"), 0, 0, 1);
-#endif // NEW_SOUND
+				do_drop_item_sound();
 			} else if (alt_on) {
 				if ((storage_win >= 0) && (view_only_storage == 0) && (get_show_window(storage_win))) {
 					if(item_list[pos].quantity>0) {
@@ -982,15 +967,11 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 						*((Uint32*)(str+2))=SDL_SwapLE32(item_list[pos].quantity);
 						my_tcp_send(my_socket, str, 6);
 					}
-#ifdef NEW_SOUND
-					add_sound_object(get_index_for_sound_type_name("Drop Item"), 0, 0, 1);
-#endif // NEW_SOUND
+					do_drop_item_sound();
 				} else {
 					if (view_only_storage)
 						drop_fail_time = SDL_GetTicks();
-#ifdef NEW_SOUND
-					add_sound_object(get_index_for_sound_type_name("alert1"), 0, 0, 1);
-#endif // NEW_SOUND
+					do_alert1_sound();
 				}
 			} else if(item_action_mode==ACTION_LOOK) {
 				click_time=cur_time;
@@ -1028,11 +1009,8 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 					use_item=pos;
 				}
 			} else {
-			        item_dragged=pos;
-                                
-#ifdef NEW_SOUND
-				add_sound_object(get_index_for_sound_type_name("Drag Item"), 0, 0, 1);
-#endif // NEW_SOUND
+				item_dragged=pos;
+				do_drag_item_sound();
 			}
 		}
 	} 
@@ -1084,7 +1062,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			}
 		}
 #endif
-     }
+	}
 
 	// Drop All button
 	else if(over_button(win, mx, my)==BUT_DROP){
@@ -1105,7 +1083,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	//see if we clicked on any item in the wear category
 	else if(mx>wear_items_x_offset && mx<wear_items_x_offset+2*33 &&
-	   my>wear_items_y_offset && my<wear_items_y_offset+4*33){
+				my>wear_items_y_offset && my<wear_items_y_offset+4*33){
 		int pos=36+get_mouse_pos_in_grid(mx, my, 2, 4, wear_items_x_offset, wear_items_y_offset, 32, 32);
 		
 		if(pos<36) {
@@ -1116,31 +1094,23 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 				my_tcp_send(my_socket, str, 2);
 			} else if(item_dragged==-1 && left_click) {
 				item_dragged=pos;
-#ifdef NEW_SOUND
-				add_sound_object(get_index_for_sound_type_name("Drag Item"), 0, 0, 1);
-#endif // NEW_SOUND
+				do_drag_item_sound();
 			}
 			else if(item_dragged!=-1 && left_click) {
 				int can_move = (item_dragged == pos) || allow_equip_swap;
 				if (can_move && move_item(pos, 0)) {
 					equip_item(item_dragged, pos);
-#ifdef NEW_SOUND
-					add_sound_object(get_index_for_sound_type_name("Get Item"), 0, 0, 1);
-#endif // NEW_SOUND
+					do_get_item_sound();
 				}
 				else {
-#ifdef NEW_SOUND
-					add_sound_object(get_index_for_sound_type_name("alert1"), 0, 0, 1);
-#endif // NEW_SOUND
+					do_alert1_sound();
 				}
 				item_dragged=-1;
 			}
 		} else if(item_dragged!=-1){
 			equip_item(item_dragged, pos);
 			item_dragged=-1;
-#ifdef NEW_SOUND
-			add_sound_object(get_index_for_sound_type_name("Drop Item"), 0, 0, 1);
-#endif // NEW_SOUND
+			do_drop_item_sound();
 		}
 	}
 
@@ -1183,7 +1153,7 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 			return 1;
 		}
 	} else if(mx>wear_items_x_offset && mx<wear_items_x_offset+2*33 &&
-	          my>wear_items_y_offset && my<wear_items_y_offset+4*33){
+				my>wear_items_y_offset && my<wear_items_y_offset+4*33) {
 		pos=36+get_mouse_pos_in_grid(mx, my, 2, 4, wear_items_x_offset, wear_items_y_offset, 33, 33);
 		item_help_str = equip_here_str;
 		if(pos==-1) {
@@ -1197,7 +1167,6 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 			} else {
 				elwin_mouse=CURSOR_PICK;
 			}
-
 			return 1;
 		}
 	} else if(show_help_text && mx>quantity_x_offset && mx<quantity_x_offset+ITEM_EDIT_QUANT*quantity_width &&
@@ -1253,9 +1222,7 @@ static void drop_all_handler ()
 {
 	Uint8 str[6] = {0};
 	int i;
-#ifdef NEW_SOUND
 	int dropped_something = 0;
-#endif // NEW_SOUND
 	static Uint32 last_click = 0;
 
 	/* provide some protection for inadvertent pressing (double click that can be disabled) */
@@ -1271,15 +1238,11 @@ static void drop_all_handler ()
 				str[1] = item_list[i].pos;
 				*((Uint32 *)(str+2)) = SDL_SwapLE32(item_list[i].quantity);
 				my_tcp_send (my_socket, str, 6);
-#ifdef NEW_SOUND
 				dropped_something = 1;
-#endif // NEW_SOUND
 			}
 		}
-#ifdef NEW_SOUND
 		if (dropped_something)
-			add_sound_object(get_index_for_sound_type_name("Drop Item"), 0, 0, 1);
-#endif // NEW_SOUND
+			do_drop_item_sound();
 	}
 }
 
