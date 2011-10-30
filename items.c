@@ -93,6 +93,7 @@ int items_stoall_nolastrow = 0;
 int items_dropall_nofirstrow = 0;
 int items_dropall_nolastrow = 0;
 int items_auto_get_all = 0;
+static char *item_help_str = NULL;
 static int mouse_over_but = -1;
 static size_t cm_stoall_but = CM_INIT_VALUE;
 static size_t cm_dropall_but = CM_INIT_VALUE;
@@ -732,9 +733,14 @@ int display_items_handler(window_info *win)
 	// display help text for button if mouse over one
 	if ((mouse_over_but != -1) && show_help_text) {
 		char *helpstr[NUMBUT] = { stoall_help_str, getall_help_str, ((disable_double_click) ?drpall_help_str :dcdrpall_help_str), mixoneall_help_str, itmlst_help_str };
-		show_help(helpstr[mouse_over_but], 0, quantity_y_offset+30);
+		show_help(helpstr[mouse_over_but], 0, win->len_y+10);
 	}
-	
+	// show help set in the mouse_over handler
+	else if (show_help_text && (item_help_str != NULL)) {
+		show_help(item_help_str, 0, win->len_y+10);
+		item_help_str = NULL;
+	}
+
 	mouse_over_but = -1;
 	
 #ifdef OPENGL_TRACE
@@ -1169,6 +1175,8 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 			} else if(item_action_mode==ACTION_USE_WITEM) {
 				elwin_mouse=CURSOR_USE_WITEM;
 			} else {
+				if (item_dragged == -1)
+					item_help_str = pick_item_help_str;
 				elwin_mouse=CURSOR_PICK;
 			}
 			
@@ -1177,9 +1185,7 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 	} else if(mx>wear_items_x_offset && mx<wear_items_x_offset+2*33 &&
 	          my>wear_items_y_offset && my<wear_items_y_offset+4*33){
 		pos=36+get_mouse_pos_in_grid(mx, my, 2, 4, wear_items_x_offset, wear_items_y_offset, 33, 33);
-		if(show_help_text){
-			show_help(equip_here_str, 0, quantity_y_offset+30);
-		}
+		item_help_str = equip_here_str;
 		if(pos==-1) {
 		} else if(item_list[pos].quantity){
 			if(item_action_mode==ACTION_LOOK) {
@@ -1196,9 +1202,9 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 		}
 	} else if(show_help_text && mx>quantity_x_offset && mx<quantity_x_offset+ITEM_EDIT_QUANT*quantity_width &&
 			my>quantity_y_offset && my<quantity_y_offset+6*20){
-		show_help(quantity_edit_str, 0, quantity_y_offset+30);
+		item_help_str = quantity_edit_str;
 	} else if (show_help_text && *inventory_item_string && (my > (win->len_y - (use_small_items_window?105:85)))) {
-		show_help((disable_double_click)?click_clear_str :double_click_clear_str, 0, win->len_y+10);
+		item_help_str = (disable_double_click)?click_clear_str :double_click_clear_str;
 	}
 	
 	return 0;

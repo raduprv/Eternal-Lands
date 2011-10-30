@@ -321,6 +321,7 @@ extern char
 		quantity_edit_str[100],
 		equip_here_str[100],
 		equip_str[20],
+		pick_item_help_str[50],
 		stoall_help_str[50],
 		getall_help_str[50],
 		dcdrpall_help_str[50],
