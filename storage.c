@@ -38,7 +38,7 @@ struct storage_category {
 int no_storage_categories=0;
 int selected_category=-1;
 int view_only_storage=0;
-static Uint32 drop_fail_time = 0;
+Uint32 drop_fail_time = 0;
 int sort_storage_categories = 0;
 
 int active_storage_item=-1;

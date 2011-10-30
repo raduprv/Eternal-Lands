@@ -819,6 +819,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	int right_click = flags & ELW_RIGHT_MOUSE;
 	int ctrl_on = flags & ELW_CTRL;
 	int shift_on = flags & ELW_SHIFT;
+	int alt_on = flags & ELW_ALT;
 	int pos;
 	actor *me;
 
@@ -967,6 +968,24 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 #ifdef NEW_SOUND
 				add_sound_object(get_index_for_sound_type_name("Drop Item"), 0, 0, 1);
 #endif // NEW_SOUND
+			} else if (alt_on) {
+				if ((storage_win >= 0) && (view_only_storage == 0) && (get_show_window(storage_win))) {
+					if(item_list[pos].quantity>0) {
+						str[0]=DEPOSITE_ITEM;
+						str[1]=item_list[pos].pos;
+						*((Uint32*)(str+2))=SDL_SwapLE32(item_list[pos].quantity);
+						my_tcp_send(my_socket, str, 6);
+					}
+#ifdef NEW_SOUND
+					add_sound_object(get_index_for_sound_type_name("Drop Item"), 0, 0, 1);
+#endif // NEW_SOUND
+				} else {
+					if (view_only_storage)
+						drop_fail_time = SDL_GetTicks();
+#ifdef NEW_SOUND
+					add_sound_object(get_index_for_sound_type_name("alert1"), 0, 0, 1);
+#endif // NEW_SOUND
+				}
 			} else if(item_action_mode==ACTION_LOOK) {
 				click_time=cur_time;
 				str[0]=LOOK_AT_INVENTORY_ITEM;

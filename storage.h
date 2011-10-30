@@ -25,6 +25,7 @@ extern int storage_win_x;
 extern int storage_win_y;
 extern int view_only_storage;
 extern int sort_storage_categories;
+extern Uint32 drop_fail_time;
 
 /*!
  * \ingroup storage_window
