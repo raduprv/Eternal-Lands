@@ -306,11 +306,20 @@ void print_sound_boundaries(int map);
 #endif // DEBUG_MAP_SOUND
 
 static __inline__ void do_click_sound(){
-#ifdef NEW_SOUND
 	add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
-#endif // NEW_SOUND
 }
-
+static __inline__ void do_drag_item_sound(){
+	add_sound_object(get_index_for_sound_type_name("Drag Item"), 0, 0, 1);
+}
+static __inline__ void do_alert1_sound(){
+	add_sound_object(get_index_for_sound_type_name("alert1"), 0, 0, 1);
+}
+static __inline__ void do_drop_item_sound(){
+	add_sound_object(get_index_for_sound_type_name("Drop Item"), 0, 0, 1);
+}
+static __inline__ void do_get_item_sound(){
+	add_sound_object(get_index_for_sound_type_name("Get Item"), 0, 0, 1);
+}
 
 
 /////// MUSIC FUNCTIONALITY ///////////
@@ -390,5 +399,9 @@ void toggle_music(int * var);
 
 #else
 static __inline__ void do_click_sound(){}
+static __inline__ void do_drag_item_sound(){}
+static __inline__ void do_alert1_sound(){}
+static __inline__ void do_drop_item_sound(){}
+static __inline__ void do_get_item_sound(){}
 #endif // NEW_SOUND
 #endif // __SOUND_H__
