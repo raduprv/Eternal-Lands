@@ -71,6 +71,7 @@ static PF_TILE *pf_get_next_open_tile()
 		int i, j;
 		PF_TILE *tmp = pf_open.tiles[0] = pf_open.tiles[pf_open.count];
 
+		tmp->open_pos = 0;
 		i = 0;
 		while ( (j = 2*i + 1) < pf_open.count )
 		{
