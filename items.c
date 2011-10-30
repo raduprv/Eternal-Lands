@@ -1062,7 +1062,8 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 #endif // NEW_SOUND
 			}
 			else if(item_dragged!=-1 && left_click) {
-				if (allow_equip_swap && move_item(pos, 0)) {
+				int can_move = (item_dragged == pos) || allow_equip_swap;
+				if (can_move && move_item(pos, 0)) {
 					equip_item(item_dragged, pos);
 #ifdef NEW_SOUND
 					add_sound_object(get_index_for_sound_type_name("Get Item"), 0, 0, 1);
