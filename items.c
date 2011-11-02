@@ -30,7 +30,7 @@
 
 item item_list[ITEM_NUM_ITEMS];
 
-static Uint32 flash_grid[ITEM_NUM_ITEMS];
+static Uint32 highlight_grid[ITEM_NUM_ITEMS];
 static int moving_item = 0;
 
 struct quantities quantities = {
@@ -322,7 +322,7 @@ void get_your_items (const Uint8 *data)
 	//clear the items first
 	for(i=0;i<ITEM_NUM_ITEMS;i++){
 		item_list[i].quantity=0;
-		flash_grid[i]=0;
+		highlight_grid[i]=0;
 	}
 	
 	for(i=0;i<total_items;i++){
@@ -444,9 +444,9 @@ void get_new_inventory_item (const Uint8 *data)
 		increment_harvest_counter(item_list[pos].quantity > 0 ? quantity - item_list[pos].quantity : quantity);
 	}
 
-	// flash the grid box showing where the new items have done
+	// flag to highlight the grid box showing where the new items have done
 	if (quantity>item_list[pos].quantity && !moving_item)
-		flash_grid[pos] = SDL_GetTicks();
+		highlight_grid[pos] = SDL_GetTicks();
 
 	// don't touch cool down when it's already active
 	if(item_list[pos].quantity == 0 || item_list[pos].image_id != image_id){
@@ -675,25 +675,21 @@ int display_items_handler(window_info *win)
 	glColor3f(0.57f,0.67f,0.49f);
 	rendergrid(2, 4, wear_items_x_offset, wear_items_y_offset, 33, 33);
 
-	// if any grid positions are flagged to flash, draw a blight, flashing box
+	// highlight and new items
 	{
 		Uint32 curr_time = SDL_GetTicks();
-		int flash_on = (curr_time/250) & 1;
 		for(i=0; i<ITEM_NUM_ITEMS-ITEM_NUM_WEAR; i++)
 		{
-			if (flash_grid[i] > 0)
+			if (highlight_grid[i] > 0)
 			{
-				Uint32 elapse_time = abs(curr_time - flash_grid[i]);
-				if ((elapse_time > 3000) || (item_list[i].quantity <= 0))
-					flash_grid[i] = 0;
+				Uint32 elapse_time = abs(curr_time - highlight_grid[i]);
+				if ((elapse_time > 2000) || (item_list[i].quantity <= 0))
+					highlight_grid[i] = 0;
 				else
 				{
-					if (flash_on)
-					{
-						int row = i/6, col=i%6;
-						glColor3f(0.99f,0.77f,0.55f);
-						rendergrid(1, 1, col*items_grid_size+1, row*items_grid_size+1, items_grid_size-2, items_grid_size-2);
-					}
+					int row = i/6, col=i%6;
+					glColor3f(0.99f,0.87f,0.75f);
+					rendergrid(1, 1, col*items_grid_size+1, row*items_grid_size+1, items_grid_size-2, items_grid_size-2);
 				}
 			}
 		}
