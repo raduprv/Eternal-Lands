@@ -752,6 +752,11 @@ void init_stuff()
 	SDL_WM_SetCaption( win_principal, "eternallands" );
 #endif
 
+#ifdef OSX
+	// don't emulate a 3 button mouse, ALT+leftclick doesn't work with the emulation
+	SDL_putenv("SDL_HAS3BUTTONMOUSE=1");
+#endif
+
 	//Init the caches here, as the loading window needs them
 	cache_system_init(MAX_CACHE_SYSTEM);
 	init_texture_cache();
