@@ -219,7 +219,11 @@ static int download_files_thread(void* _data)
 	download_buffer = malloc(download_buffer_size);
 	count = data->count;
 
+#ifdef WINDOWS
+	file = my_tmpfile();
+#else
 	file = tmpfile();
+#endif
 
 	if (file == 0)
 	{
@@ -413,7 +417,11 @@ static Uint32 download_files(update_info_t* infos, const Uint32 count,
 	Uint64 len;
 	Uint32 i, j, download, error, index;
 
+#ifdef WINDOWS
+	file = my_tmpfile();
+#else
 	file = tmpfile();
+#endif
 
 	if (file == 0)
 	{
@@ -673,7 +681,11 @@ static Uint32 build_update_list(const char* server, const char* file,
 	void* file_buffer;
 	Uint32 result;
 
+#ifdef WINDOWS
+	tmp_file = my_tmpfile();
+#else
 	tmp_file = tmpfile();
+#endif
 
 	if (tmp_file == 0)
 	{

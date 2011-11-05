@@ -66,6 +66,15 @@ void set_current_frustum(unsigned int intersect_type);
 
 /*!
  * \ingroup misc
+ * \brief Creates a temporary file
+ *
+ *      Replacement for tmpfile() to use in Windows (at least in Vista tmpfile() requires Administrator privileges)
+ *
+ * \retval FILE* Pointer to the file on success, NULL otherwise
+ */
+FILE *my_tmpfile ();
+/*!
+ * \ingroup misc
  * \brief Opens a file and check the result
  *
  *      Tries to open a file, and logs an error message if it fails
