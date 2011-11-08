@@ -578,7 +578,7 @@ extern "C" void build_buffers(actor_types* a)
 		}
 		for (j = 0; j < 4; j++)
 		{
-			buffer[i].m_weight[j] = (Uint8)(weight_buffer[i * 4 + j] * 255.0f);
+			buffer[i].m_weight[j] = (Uint8)(weight_buffer[i * 4 + j] * 255.0f + 0.5f);
 /*			if (weight_buffer[i * 4 + j] > 0.0f)
 			{
 				buffer[i].m_bone_count = j + 1;
