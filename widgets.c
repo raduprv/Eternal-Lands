@@ -972,6 +972,7 @@ int progressbar_set_progress(int window_id, Uint32 widget_id, float progress)
 // Vertical scrollbar
 int vscrollbar_draw(widget_list *W)
 {
+	int drawn_bar_len = 0;
 	vscrollbar *c = (vscrollbar *)W->widget_info;
 	glDisable(GL_TEXTURE_2D);
 	if(W->r!=-1.0)
@@ -997,11 +998,19 @@ int vscrollbar_draw(widget_list *W)
 	glVertex3i(W->pos_x + 15 + gx_adjust, W->pos_y + W->len_y - 10 + gy_adjust,0);
 	glEnd();
 
+	if (c->bar_len > 0)
+		drawn_bar_len = c->bar_len;
+	else
+	{
+		drawn_bar_len = 1;
+		if(W->r!=-1.0)
+			glColor3f(W->r/3, W->g/3, W->b/3);
+	}
 	glBegin(GL_QUADS);
-	glVertex3i(W->pos_x + 7 + gx_adjust, W->pos_y + 15 + (c->pos*((float)(W->len_y-50)/c->bar_len)) + gy_adjust, 0);
-	glVertex3i(W->pos_x + W->len_x - 7 + gx_adjust, W->pos_y +  15 + (c->pos*((float)(W->len_y-50)/c->bar_len)) + gy_adjust, 0);
-	glVertex3i(W->pos_x + W->len_x - 7 + gx_adjust, W->pos_y + 35 + (c->pos*((float)(W->len_y-50)/c->bar_len)) + gy_adjust, 0);
-	glVertex3i(W->pos_x + 7 + gx_adjust, W->pos_y + 35 + (c->pos*((float)(W->len_y-50)/c->bar_len)) + gy_adjust, 0);
+	glVertex3i(W->pos_x + 7 + gx_adjust, W->pos_y + 15 + (c->pos*((float)(W->len_y-50)/drawn_bar_len)) + gy_adjust, 0);
+	glVertex3i(W->pos_x + W->len_x - 7 + gx_adjust, W->pos_y +  15 + (c->pos*((float)(W->len_y-50)/drawn_bar_len)) + gy_adjust, 0);
+	glVertex3i(W->pos_x + W->len_x - 7 + gx_adjust, W->pos_y + 35 + (c->pos*((float)(W->len_y-50)/drawn_bar_len)) + gy_adjust, 0);
+	glVertex3i(W->pos_x + 7 + gx_adjust, W->pos_y + 35 + (c->pos*((float)(W->len_y-50)/drawn_bar_len)) + gy_adjust, 0);
 	glEnd();
 
 	glEnable(GL_TEXTURE_2D);
@@ -1087,7 +1096,7 @@ int vscrollbar_set_bar_len (int window_id, Uint32 widget_id, int bar_len)
 	widget_list *w = widget_find(window_id, widget_id);
 	if(w){
 		vscrollbar *c = (vscrollbar *)w->widget_info;
-		c->bar_len = bar_len > 0 ? bar_len : 1;
+		c->bar_len = bar_len >= 0 ? bar_len : 1;
 		if (c->pos > c->bar_len)
 			c->pos = c->bar_len;
 		return 1;
@@ -3041,8 +3050,14 @@ int text_field_clear (int window_id, Uint32 widget_id)
 
 	tf->cursor = 0;
 	tf->cursor_line = 0;
+	tf->offset = 0;
+	tf->line_offset = 0;
 	if (tf->scroll_id != -1)
+	{
 		vscrollbar_set_bar_len (window_id, tf->scroll_id, 0);
+		vscrollbar_set_pos (window_id, tf->scroll_id, 0);
+		tf->update_bar = 1;
+	}
 
 	return 1;
 }
