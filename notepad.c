@@ -255,7 +255,7 @@ void display_popup_win (INPUT_POPUP *ipu, const char* label)
 			window_info *win = &windows_list.window[ipu->parent];
 			move_window(ipu->popup_win, ipu->parent, 0, win->pos_x+ipu->x, win->pos_y+ipu->y);
 		}
-		clear_text_message_data (&ipu->popup_text);
+		text_field_clear(ipu->popup_win, ipu->popup_field);
 		label_set_text (ipu->popup_win, ipu->popup_label, label);
 		show_window (ipu->popup_win);
 		select_window (ipu->popup_win);
