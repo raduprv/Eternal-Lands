@@ -398,7 +398,8 @@ namespace UserMenus
 	{
 		if (commands.empty())
 			return;
-		commands.pop();
+		while (!commands.empty())
+			commands.pop();
 		params.clear();
 	}
 
@@ -409,8 +410,6 @@ namespace UserMenus
 	void Command_Queue::clear(void)
 	{
 		cancel();
-		while (!commands.empty())
-			commands.pop();
 		hide_window(ipu.popup_win);
 	}
 
