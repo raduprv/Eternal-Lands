@@ -9,6 +9,7 @@
 #include "hud.h"
 #include "init.h"
 #include "interface.h"
+#include "manufacture.h"
 #include "multiplayer.h"
 #include "spells.h"
 #include "tabs.h"
@@ -1007,6 +1008,7 @@ void increment_summon_counter(char *string)
 	string += 12;
 
 	increment_counter(SUMMONS, string, 1, 0);
+	check_for_recipe_name(string);
 }
 
 

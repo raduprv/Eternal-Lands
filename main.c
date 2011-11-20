@@ -39,6 +39,7 @@
 #include "item_lists.h"
 #include "interface.h"
 #include "lights.h"
+#include "manufacture.h"
 #include "multiplayer.h"
 #include "particles.h"
 #include "pm_log.h"
@@ -91,6 +92,7 @@ void cleanup_mem(void)
 	history_destroy();
 	command_cleanup();
 	queue_destroy(buddy_request_queue);
+	cleanup_manufacture();
 	cleanup_text_buffers();
 	cleanup_fonts();
 	cursors_cleanup();

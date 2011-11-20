@@ -945,7 +945,10 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 							while (*product!='\0' && *product!= ' ')
 								product++;
 							if (strlen(product)>1)
+							{
 								counters_set_product_info(product+1, product_count);
+								check_for_recipe_name(product+1);
+							}
 						}
 						free(restofstring);
 					}

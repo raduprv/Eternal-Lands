@@ -70,6 +70,24 @@ void load_recipes();
  */
 void save_recipes();
 
+/*!
+ * \ingroup manufacture_window
+ * \brief Assign name to unnamed recipe matching the last mixed ingredients.
+ *
+ * \param name to assign to a matching recipe
+ * \callgraph
+ */
+void check_for_recipe_name(const char *name);
+
+
+/*!
+ * \ingroup manufacture_window
+ * \brief Called on exit - free memory and clean up.
+ *
+ * \callgraph
+ */
+void cleanup_manufacture(void);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

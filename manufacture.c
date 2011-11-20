@@ -1,4 +1,6 @@
 #include <stdlib.h>
+#include <errno.h>
+#include <string.h>
 #include "manufacture.h"
 #include "asc.h"
 #include "cursors.h"
@@ -18,6 +20,8 @@
 #endif
 
 #define MAX_RECIPE 11
+#define NUM_MIX_SLOTS 6
+#define MIX_SLOT_OFFSET 36
 #define SHOW_MAX_RECIPE (MAX_RECIPE-1)
 
 int recipe_status[MAX_RECIPE];
@@ -29,7 +33,7 @@ int manufacture_win= -1;
 int recipe_win= -1;
 int recipes_shown=0;
 static int recipes_loaded=0;
-static int mouse_over_recipe_window = 0;
+static int mouse_over_recipe = -1;
 int manufacture_menu_x=10;
 int manufacture_menu_y=20;
 int manufacture_menu_x_len=12*33+20;
@@ -37,6 +41,202 @@ int manufacture_menu_y_len=6*33;
 
 static char items_string[350]={0};
 static size_t last_items_string_id = 0;
+
+/* vars for saving recipe names */
+static char *recipe_name[SHOW_MAX_RECIPE];
+static item last_mix[NUM_MIX_SLOTS];
+static int recipe_names_changed = 0;
+
+/* called on client exit to free memory and clean up */
+void cleanup_manufacture(void)
+{
+	size_t i;
+	for (i=0; i<SHOW_MAX_RECIPE; i++)
+		if (recipe_name[i] != NULL)
+		{
+			free(recipe_name[i]);
+			recipe_name[i] = NULL;
+		}
+}
+
+/* create a new recipe name entry */
+static void new_recipe_name(size_t recipe_no, const char *name)
+{
+	size_t len = strlen(name);
+	if ((recipe_no >= SHOW_MAX_RECIPE) || (recipe_name[recipe_no] != NULL))
+		return;
+	recipe_name[recipe_no] = (char *)malloc(len+1);
+	safe_strncpy(recipe_name[recipe_no], name, len+1);
+	recipe_names_changed = 1;
+}
+
+/* save recipe names to file if any have changed */
+static void save_recipe_names(void)
+{
+	char fname[128];
+	FILE *fp;
+	size_t i;
+	int errorflag = 0;
+
+	if (!recipe_names_changed)
+		return;
+
+	safe_snprintf(fname, sizeof(fname), "recipes_%s.names",username_str);
+	my_tolower(fname);
+	fp = open_file_config(fname,"w");
+	if(fp == NULL)
+	{
+		LOG_ERROR("%s() %s \"%s\" [%s]\n", __FUNCTION__, cant_open_file, fname, strerror(errno));
+		return;
+	}
+
+	for (i=0; i<SHOW_MAX_RECIPE; i++)
+	{
+		if (recipe_name[i] != NULL)
+		{
+			if (fputs(recipe_name[i], fp) < 0)
+			{
+				errorflag = 1;
+				break;
+			}
+		}
+		if (fputc('\n', fp) != '\n')
+		{
+			errorflag = 1;
+			break;
+		}
+	}
+	if (errorflag)
+		LOG_ERROR("%s() %s \"%s\" [%s]\n", __FUNCTION__, cant_open_file, fname, strerror(errno));
+
+	fclose(fp);
+}
+
+/* load saved recipe names from file */
+static void load_recipe_names(void)
+{
+	char fname[128];
+	FILE *fp;
+	char line [128];
+	size_t i, recipe_no;
+
+	for (i=0; i<SHOW_MAX_RECIPE; i++)
+		recipe_name[i] = NULL;
+	for (i=0; i<NUM_MIX_SLOTS; i++)
+		last_mix[i].quantity = 0;
+
+	recipe_names_changed = 0;
+
+	safe_snprintf(fname, sizeof(fname), "recipes_%s.names",username_str);
+	my_tolower(fname);
+	fp = open_file_config(fname,"r");
+	if(fp == NULL)
+	{
+		LOG_ERROR("%s() %s \"%s\" [%s]\n", __FUNCTION__, cant_open_file, fname, strerror(errno));
+		return;
+	}
+
+	recipe_no = 0;
+ 	while (fgets(line, sizeof(line), fp) != NULL)
+	{
+		size_t len = strlen(line);
+		while ((len > 0) && ((line[len-1] == '\r') || (line[len-1] == '\n') || (line[len-1] == ' ')))
+		{
+			line[len-1] = '\0';
+			len--;
+		}
+		if (len > 0)
+			new_recipe_name(recipe_no, line);
+		recipe_no++;
+	}
+
+	fclose(fp);
+}
+
+/* each time a mix is called, save the ingredients - so we can compare later */
+static void save_last_mix(void)
+{
+	size_t i;
+	for (i=MIX_SLOT_OFFSET;i<MIX_SLOT_OFFSET+NUM_MIX_SLOTS;i++)
+		if (manufacture_list[i].quantity > 0)
+			last_mix[i-MIX_SLOT_OFFSET] = manufacture_list[i];
+}
+
+/* if the name is set, delete it */
+static void clear_recipe_name(size_t recipe_no)
+{
+	if ((recipe_no < SHOW_MAX_RECIPE) && (recipe_name[cur_recipe] != NULL))
+	{
+		free(recipe_name[cur_recipe]);
+		recipe_name[cur_recipe] = NULL;
+		recipe_names_changed = 1;
+	}
+}
+
+/*	Compare the last mixed ingredients to all the recipes without a name.
+ *	If one matches then set the name to the provided string.
+ */
+void check_for_recipe_name(const char *name)
+{
+	size_t i, recipe_index;
+	int num_last_ing = 0;
+
+	// exit now if no last recipe
+	for (i=0; i<NUM_MIX_SLOTS; i++)
+		if (last_mix[i].quantity > 0)
+			num_last_ing++;
+	if (!num_last_ing)
+		return;
+
+	// check any not-set recipe name to see if the recipe matches the last_mix
+	for (recipe_index=0; recipe_index<SHOW_MAX_RECIPE; recipe_index++)
+	{
+		int num_recipe_ing = 0;
+		int num_match_ing = 0;
+		size_t recipe_slot_index;
+		item last_mix_cpy[NUM_MIX_SLOTS];
+		item *recipe = recipes[recipe_index];
+
+		// move on if already have name, no recipe or if the ingredient counts don't match
+		if (recipe_name[recipe_index] != NULL)
+			continue;
+		for (i=0; i<NUM_MIX_SLOTS; i++)
+			if (recipe[i].quantity > 0)
+				num_recipe_ing++;
+		if (!num_recipe_ing || (num_recipe_ing!=num_last_ing))
+			continue;
+
+		// allowing for any order, check if ingredients are the same
+		memcpy(last_mix_cpy, last_mix, sizeof(item)*NUM_MIX_SLOTS);
+		for (recipe_slot_index=0; recipe_slot_index<NUM_MIX_SLOTS; recipe_slot_index++)
+		{
+			size_t last_mix_slot_index;
+			if (recipe[recipe_slot_index].quantity < 1)
+				continue;
+			for (last_mix_slot_index=0; last_mix_slot_index<NUM_MIX_SLOTS; last_mix_slot_index++)
+				if ((last_mix_cpy[last_mix_slot_index].quantity > 0) &&
+					(recipe[recipe_slot_index].quantity == last_mix_cpy[last_mix_slot_index].quantity) &&
+					(recipe[recipe_slot_index].image_id == last_mix_cpy[last_mix_slot_index].image_id) &&
+					(recipe[recipe_slot_index].id == last_mix_cpy[last_mix_slot_index].id))
+				{
+					last_mix_cpy[last_mix_slot_index].quantity = 0;
+					num_match_ing++;
+					break;
+				}
+		}
+
+		// if ingredients are the same, eureka!
+		if (num_match_ing == num_recipe_ing)
+		{
+			new_recipe_name(recipe_index, name);
+			break;
+		}
+	}
+
+	/* clear the last mix in all cases */
+	for (i=0; i<NUM_MIX_SLOTS; i++)
+		last_mix[i].quantity = 0;
+}
 
 void load_recipes (){
 	char fname[128];
@@ -65,6 +265,8 @@ void load_recipes (){
 	if (fread (recipes,sizeof(recipes),1, fp) != 1)
 		LOG_ERROR("%s() read failed for file [%s]\n", __FUNCTION__, fname);
 	fclose (fp);
+
+	load_recipe_names();
 }
 
 void save_recipes(){
@@ -73,6 +275,8 @@ void save_recipes(){
 
 	if (!recipes_loaded)
 		return;
+
+	save_recipe_names();
 
 	safe_snprintf(fname, sizeof(fname), "recipes_%s.dat",username_str);
 	my_tolower(fname);
@@ -315,12 +519,21 @@ int recipe_dropdown_draw(window_info *win){
 	}
 	draw_production_pipe(0,33*cur_recipe,cur_recipe);
 
-	if (mouse_over_recipe_window && show_help_text)
+	if ((cur_recipe < SHOW_MAX_RECIPE) && (recipe_name[cur_recipe] != NULL))
+		show_help(recipe_name[cur_recipe], win->len_x+5, 33*cur_recipe+(33-SMALL_FONT_Y_LEN)/2);
+
+	if (mouse_over_recipe != -1)
 	{
-		show_help(recipe_select_str, 0, win->len_y+10);
-		show_help(recipe_load_str, 0, win->len_y+10+SMALL_FONT_Y_LEN);
+		if ((mouse_over_recipe != cur_recipe) && (mouse_over_recipe < SHOW_MAX_RECIPE) &&
+			(recipe_name[mouse_over_recipe] != NULL))
+			show_help(recipe_name[mouse_over_recipe], win->len_x+5, 33*mouse_over_recipe+(33-SMALL_FONT_Y_LEN)/2);
+		if (show_help_text)
+		{
+			show_help(recipe_select_str, 0, win->len_y+10);
+			show_help(recipe_load_str, 0, win->len_y+10+SMALL_FONT_Y_LEN);
+		}
 	}
-	mouse_over_recipe_window = 0;
+	mouse_over_recipe = -1;
 
 	return 1;
 }
@@ -387,7 +600,9 @@ int recipe_controls_click_handler(int mx, int my, Uint32 flags){
 	if (mx>wpx+3&&mx<wpx+lpx-3&&my>wpy&&my<wpy+15){
 		//+ button
 		//copy the recipe
-		for(i=36;i<36+6;i++) recipes[cur_recipe][i-36]=manufacture_list[i];
+		for(i=36;i<36+6;i++)
+			recipes[cur_recipe][i-36]=manufacture_list[i];
+		clear_recipe_name(cur_recipe);
 		build_manufacture_list();
 		do_click_sound();
 		// save recipes to disk to avoid loss on disconnects/crashes
@@ -573,6 +788,7 @@ int mix_handler(Uint8 quantity, const char* empty_error_str)
 	str[1]=items_no;
 	if(items_no){
 		//don't send an empty string
+		save_last_mix();
 		str[items_no*3+2]= quantity;
 		my_tcp_send(my_socket,str,items_no*3+3);
 	}
@@ -605,7 +821,7 @@ int mixall_handler()
 /* show help for recipe window */
 int mouseover_recipe_handler(window_info *win, int mx, int my)
 {
-	mouse_over_recipe_window = 1;
+	mouse_over_recipe = my/(33+1);
 	return 0;
 }
 
