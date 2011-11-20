@@ -46,6 +46,7 @@ static size_t last_items_string_id = 0;
 static char *recipe_name[SHOW_MAX_RECIPE];
 static item last_mix[NUM_MIX_SLOTS];
 static int recipe_names_changed = 0;
+static int initialised_recipe_names = 0;
 
 /* called on client exit to free memory and clean up */
 void cleanup_manufacture(void)
@@ -57,6 +58,19 @@ void cleanup_manufacture(void)
 			free(recipe_name[i]);
 			recipe_name[i] = NULL;
 		}
+}
+
+/* initialse recipe name vars */
+static void init_recipe_names(void)
+{
+	size_t i;
+	if (initialised_recipe_names)
+		return;
+	for (i=0; i<SHOW_MAX_RECIPE; i++)
+		recipe_name[i] = NULL;
+	for (i=0; i<NUM_MIX_SLOTS; i++)
+		last_mix[i].quantity = 0;
+	initialised_recipe_names = 1;
 }
 
 /* create a new recipe name entry */
@@ -118,12 +132,7 @@ static void load_recipe_names(void)
 	char fname[128];
 	FILE *fp;
 	char line [128];
-	size_t i, recipe_no;
-
-	for (i=0; i<SHOW_MAX_RECIPE; i++)
-		recipe_name[i] = NULL;
-	for (i=0; i<NUM_MIX_SLOTS; i++)
-		last_mix[i].quantity = 0;
+	size_t recipe_no;
 
 	recipe_names_changed = 0;
 
@@ -241,7 +250,9 @@ void check_for_recipe_name(const char *name)
 void load_recipes (){
 	char fname[128];
 	FILE *fp;
-	
+
+	init_recipe_names();
+
 	if (recipes_loaded) {
 		/*
 		 * save existing recipes instead of loading them if we are already logged in
