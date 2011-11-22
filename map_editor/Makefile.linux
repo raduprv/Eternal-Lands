@@ -86,7 +86,7 @@ all: $(EXE)
 
 $(EXE): $(OBJS)
 	@echo "  LINK $(EXE)"
-	@$(LINK) $(CFLAGS) $(LIBS) $(GTK2_LIBS) -o $@ $^
+	@$(LINK) $(CFLAGS) -o $@ $^ $(LIBS) $(GTK2_LIBS)
 
 release:
 	make -f Makefile.linux 'CFLAGS=$(_CFLAGS)'
