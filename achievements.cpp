@@ -21,9 +21,7 @@
 #include "gl_init.h"
 #include "hud.h"
 #include "init.h"
-#ifdef NEW_SOUND
 #include "sound.h"
-#endif
 #include "text.h"
 #include "textures.h"
 #include "io/elfilewrapper.h"
@@ -798,12 +796,10 @@ int Achievements_Window::display_handler(window_info *win)
 	else if (over_next && another_page && clicked)
 		first += physical_rows * as->get_per_row();
 
-#ifdef NEW_SOUND
 	if (clicked && (over_prev || over_next))
-		add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+		do_click_sound();
 	if ((ctrl_clicked || clicked) && over_close)
-		add_sound_object(get_index_for_sound_type_name("Window Close"), 0, 0, 1);
-#endif
+		do_window_close_sound();
 
 	if (over_controls && show_help_text)
 	{
@@ -855,9 +851,7 @@ int achievements_keypress_handler(window_info *win, int mx, int my, Uint32 key, 
 		return 0;
 	if ((key & 0xffff) == SDLK_ESCAPE) // close window if Escape pressed
 	{
-#ifdef NEW_SOUND
-		add_sound_object(get_index_for_sound_type_name("Window Close"), 0, 0, 1);
-#endif // NEW_SOUND
+		do_window_close_sound();
 		if (key & ELW_CTRL)
 			Achievements_System::get_instance()->hide_all();
 		else

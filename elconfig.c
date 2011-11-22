@@ -2347,9 +2347,7 @@ int onclick_label_handler(widget_list *widget, int mx, int my, Uint32 flags)
 		option->saved= 0;
 	}
 
-#ifdef NEW_SOUND
-	add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
-#endif // NEW_SOUND
+	do_click_sound();
 	return 1;
 }
 

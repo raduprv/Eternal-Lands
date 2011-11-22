@@ -1017,9 +1017,7 @@ int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 						break;
 					}
 				}
-#ifdef NEW_SOUND
-			add_sound_object(get_index_for_sound_type_name("Icon Click"), 0, 0, 1);
-#endif // NEW_SOUND
+			do_icon_click_sound();
 			// cancel any flashing icon now user has responded
 			icon_list[id]->flashing = 0;
 		}
@@ -1862,11 +1860,7 @@ int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 	if(my>win->len_y-(64+clockheight) && my<win->len_y-64)
 	{
 		unsigned char protocol_name;
-
-#ifdef NEW_SOUND
-		add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
-#endif // NEW_SOUND
-
+		do_click_sound();
 		protocol_name= GET_TIME;
 		my_tcp_send(my_socket,&protocol_name,1);
 		return 1;
@@ -1875,18 +1869,12 @@ int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 	if(my>win->len_y-64 && my<win->len_y)
 	{
 		unsigned char protocol_name;
-
-#ifdef NEW_SOUND
-		add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
-#endif // NEW_SOUND
-		
+		do_click_sound();
 		protocol_name= LOCATE_ME;
-
 		if (flags & ELW_SHIFT)
 		{
 			copy_next_LOCATE_ME = 2;
 		}
-
 		my_tcp_send(my_socket,&protocol_name,1);
 		return 1;
 	}
@@ -2311,9 +2299,7 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 											any_item=1;
 											if(item_dragged==i)//drop the item only over itself
 												item_dragged=-1;
-#ifdef NEW_SOUND
-											add_sound_object(get_index_for_sound_type_name("Drop Item"), 0, 0, 1);
-#endif // NEW_SOUND
+											do_drop_item_sound();
 											return 1;
 										}
 								}
@@ -2325,9 +2311,7 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 									str[2]=y;
 									my_tcp_send(my_socket,str,3);
 									item_dragged=-1;
-#ifdef NEW_SOUND
-									add_sound_object(get_index_for_sound_type_name("Drag Item"), 0, 0, 1);
-#endif // NEW_SOUND
+									do_drag_item_sound();
 									return 1;
 								}
 						}
@@ -2361,9 +2345,7 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 										str[1]=item_list[i].pos;
 										*((Uint32 *)(str+2))=item_list[i].quantity;
 										my_tcp_send(my_socket, str, 4);
-#ifdef NEW_SOUND
-										add_sound_object(get_index_for_sound_type_name("Drop Item"), 0, 0, 1);
-#endif // NEW_SOUND
+										do_drop_item_sound();
 										return 1;
 									} else if(qb_action_mode==ACTION_LOOK)
 										{
@@ -2407,9 +2389,7 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 											if(item_dragged==-1)//we have to drag this item
 												{
 													item_dragged=i;
-#ifdef NEW_SOUND
-													add_sound_object(get_index_for_sound_type_name("Drag Item"), 0, 0, 1);
-#endif // NEW_SOUND
+													do_drag_item_sound();
 												}
 										}
 
@@ -2615,9 +2595,7 @@ void handle_stats_selection(int stat, Uint32 flags)
 		if (watch_this_stats[i] > 0)
 			cm_add_region(cm_id, stats_bar_win, exp_bar_start_x+i*180, exp_bar_start_y, 100, 12);
 	}
-#ifdef NEW_SOUND
-	add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
-#endif // NEW_SOUND
+	do_click_sound();
 }
 
 /*Change flags*/

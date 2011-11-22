@@ -11,9 +11,7 @@
 #include "gamewin.h"
 #include "gl_init.h"
 #include "interface.h"
-#ifdef NEW_SOUND
 #include "sound.h"
-#endif
 
 //
 //  Implements a simple context menu system using the standard el windows.
@@ -162,12 +160,10 @@ namespace cm
 	{
 		Menu *thismenu = (Menu *)win->data;
 		int return_value = thismenu->click(win, mx, my, flags);
-#ifdef NEW_SOUND
 		if (return_value)
-			add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+			do_click_sound();
 		else
-			add_sound_object(get_index_for_sound_type_name("alert1"), 0, 0, 1);
-#endif
+			do_alert1_sound();
 		return return_value;
 	}
 

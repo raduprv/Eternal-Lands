@@ -21,8 +21,8 @@
 #include "gl_init.h"
 #ifdef NEW_SOUND
 #include "actors.h"
-#include "sound.h"
 #endif // NEW_SOUND
+#include "sound.h"
 
 ground_item ground_item_list[ITEMS_PER_BAG];
 bag bag_list[NUM_BAGS];
@@ -552,9 +552,7 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	// see if we clicked on the "Get All" box
 	if(mx>(win->len_x-GRIDSIZE) && mx<win->len_x && my>ELW_BOX_SIZE && my<GRIDSIZE+ELW_BOX_SIZE){
 		pick_up_all_items();
-#ifdef NEW_SOUND
-		add_sound_object(get_index_for_sound_type_name("Get Item"), 0, 0, 1);
-#endif // NEW_SOUND
+		do_get_item_sound();
 		return 1;
 	}
 
@@ -568,9 +566,7 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			str[1] = item_dragged;
 			*((Uint32 *) (str + 2)) = SDL_SwapLE32(item_quantity);
 			my_tcp_send(my_socket, str, 6);
-#ifdef NEW_SOUND
-			add_sound_object(get_index_for_sound_type_name("Drop Item"), 0, 0, 1);
-#endif // NEW_SOUND
+			do_drop_item_sound();
 		}
 	} else if(item_action_mode==ACTION_LOOK) {
 		str[0]= LOOK_AT_GROUND_ITEM;
@@ -585,9 +581,7 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 		str[1]= ground_item_list[pos].pos;
 		*((Uint32 *)(str+2))= SDL_SwapLE32(quantity);
 		my_tcp_send(my_socket,str,6);
-#ifdef NEW_SOUND
-		add_sound_object(get_index_for_sound_type_name("Get Item"), 0, 0, 1);
-#endif // NEW_SOUND
+		do_get_item_sound();
 	}
 
 	return 1;

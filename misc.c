@@ -121,6 +121,20 @@ void set_click_line()
 	if (read_mouse_now) get_click_line(&click_line);
 }
 
+#ifdef WINDOWS
+FILE* my_tmpfile()
+{
+	FILE* fp;
+	char* name = _tempnam(NULL, "elc_");
+
+	if(!name)
+		return NULL;
+	fp = fopen(name, "wb+TD");
+	if(name)
+		free(name);
+	return fp;
+}
+#endif
 
 FILE *my_fopen (const char *fname, const char *mode)
 {

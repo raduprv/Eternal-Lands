@@ -64,6 +64,18 @@ void enable_reflection_clip_planes();
 void disable_reflection_clip_planes();
 void set_current_frustum(unsigned int intersect_type);
 
+#ifdef WINDOWS
+/*!
+ * \ingroup misc
+ * \brief Creates a temporary file
+ *
+ *      Replacement for tmpfile() to use in Windows (at least in Vista tmpfile() requires Administrator privileges)
+ *
+ * \retval FILE* Pointer to the file on success, NULL otherwise
+ */
+FILE *my_tmpfile ();
+#endif
+
 /*!
  * \ingroup misc
  * \brief Opens a file and check the result

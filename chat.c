@@ -23,9 +23,7 @@
 #include "gl_init.h"
 #endif
 #include "io/elfilewrapper.h"
-#ifdef NEW_SOUND
 #include "sound.h"
-#endif // NEW_SOUND
 
 int chat_win = -1;
 
@@ -1451,9 +1449,7 @@ int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
 						}
 					}
 				}
-#ifdef NEW_SOUND
-				add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
-#endif // NEW_SOUND
+				do_click_sound();
 				return 1; //The click was handled, no need to continue
 			}
 	}
@@ -1462,9 +1458,7 @@ int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
 	if (current_tab != itab)
 	{
 		switch_to_tab(itab);
-#ifdef NEW_SOUND
-		add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
-#endif // NEW_SOUND
+		do_click_sound();
 	}
 	lines_to_show = 10;
 	
@@ -1647,9 +1641,7 @@ int click_chan_sel_handler(window_info *win, int mx, int my, Uint32 flags)
 			char tmp[20];
 			safe_snprintf(tmp, sizeof(tmp), "#jc %d", ((chan_name*)(step->data))->channel);
 			send_input_text_line(tmp, strlen(tmp));
-#ifdef NEW_SOUND
-			add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
-#endif // NEW_SOUND
+			do_click_sound();
 		}
 	}
 	return 1;
@@ -1664,9 +1656,7 @@ int tab_special_click(widget_list *w, int mx, int my, Uint32 flags)
 				case CHAT_HIST:
 					toggle_window(game_root_win);
 					toggle_window(console_root_win);
-#ifdef NEW_SOUND
-					add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
-#endif // NEW_SOUND
+					do_click_sound();
 					break;
 				case CHAT_LIST:
 					if(chan_sel_win >= 0) {
@@ -1681,9 +1671,7 @@ int tab_special_click(widget_list *w, int mx, int my, Uint32 flags)
 							chan_sel_scroll_id = vscrollbar_add_extended (chan_sel_win, 0, NULL, 165, 20, 20, 163, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, len);
 						}
 					}
-#ifdef NEW_SOUND
-					add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
-#endif // NEW_SOUND
+					do_click_sound();
 					break;
 				default:
 					return tab_bar_button_click(w, mx, my, flags);	//grumble. this shouldn't happen

@@ -306,12 +306,38 @@ void print_sound_boundaries(int map);
 #endif // DEBUG_MAP_SOUND
 
 static __inline__ void do_click_sound(){
-#ifdef NEW_SOUND
 	add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
-#endif // NEW_SOUND
 }
-
-
+static __inline__ void do_drag_item_sound(){
+	add_sound_object(get_index_for_sound_type_name("Drag Item"), 0, 0, 1);
+}
+static __inline__ void do_alert1_sound(){
+	add_sound_object(get_index_for_sound_type_name("alert1"), 0, 0, 1);
+}
+static __inline__ void do_drop_item_sound(){
+	add_sound_object(get_index_for_sound_type_name("Drop Item"), 0, 0, 1);
+}
+static __inline__ void do_get_item_sound(){
+	add_sound_object(get_index_for_sound_type_name("Get Item"), 0, 0, 1);
+}
+static __inline__ void do_window_close_sound(){
+	add_sound_object(get_index_for_sound_type_name("Window Close"), 0, 0, 1);
+}
+static __inline__ void do_icon_click_sound(){
+	add_sound_object(get_index_for_sound_type_name("Icon Click"), 0, 0, 1);
+}
+static __inline__ void do_error_sound(){
+	add_sound_object(get_index_for_sound_type_name("Error"), 0, 0, 1);
+}
+static __inline__ void do_disconnect_sound(){
+	add_sound_object(get_index_for_sound_type_name("Disconnected"), 0, 0, 1);
+}
+static __inline__ void do_connect_sound(){
+	add_sound_object(get_index_for_sound_type_name("Connected"), 0, 0, 1);
+}
+static __inline__ void do_afk_sound(){
+	add_sound_object(get_index_for_sound_type_name("AFK Message"), 0, 0, 1);
+}
 
 /////// MUSIC FUNCTIONALITY ///////////
 ///////////////////////////////////////
@@ -390,5 +416,15 @@ void toggle_music(int * var);
 
 #else
 static __inline__ void do_click_sound(){}
+static __inline__ void do_drag_item_sound(){}
+static __inline__ void do_alert1_sound(){}
+static __inline__ void do_drop_item_sound(){}
+static __inline__ void do_get_item_sound(){}
+static __inline__ void do_window_close_sound(){}
+static __inline__ void do_icon_click_sound(){}
+static __inline__ void do_error_sound(){}
+static __inline__ void do_disconnect_sound(){}
+static __inline__ void do_connect_sound(){}
+static __inline__ void do_afk_sound(){}
 #endif // NEW_SOUND
 #endif // __SOUND_H__

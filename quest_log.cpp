@@ -31,9 +31,7 @@
 #include "notepad.h"
 #include "paste.h"
 #include "questlog.h"
-#ifdef NEW_SOUND
 #include "sound.h"
-#endif
 #include "translate.h"
 
 /*
@@ -979,9 +977,7 @@ static int click_quest_filter_handler(window_info *win, int mx, int my, Uint32 f
 	for (std::map<std::string,int>::iterator i = filter_map.begin(); i != filter_map.end(); ++i, j++)
 		if (j == index)
 		{
-#ifdef NEW_SOUND
-			add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
-#endif			
+			do_click_sound();
 			i->second ^= 1;
 			active_filter = QLFLT_NPC;
 			questlist.set_selected(Quest::UNSET_ID);
@@ -1111,9 +1107,7 @@ static int display_questlist_handler(window_info *win)
 					questlist.set_selected(thequest->get_id());
 					rebuild_active_entries(quest_entries.size()-1);
 				}
-#ifdef NEW_SOUND
-				add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
-#endif
+				do_click_sound();
 			}
 			questlist.clear_mouseover();
 		}
@@ -1371,9 +1365,7 @@ static void questlog_find_input_handler(const char *input_text, void *data)
 			goto_questlog_entry(entry);
 			return;
 		}
-#ifdef NEW_SOUND
-		add_sound_object(get_index_for_sound_type_name("alert1"), 0, 0, 1);
-#endif
+		do_alert1_sound();
 }
 
 //	Prompt for text to find.  The dialogue will not close when "OK"

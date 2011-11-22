@@ -41,9 +41,7 @@
 #include "items.h"
 #include "item_lists.h"
 #include "questlog.h"
-#ifdef NEW_SOUND
 #include "sound.h"
-#endif
 #include "storage.h"
 #include "translate.h"
 
@@ -369,9 +367,7 @@ namespace ItemLists
 	//	Add a new item to a list or increase quantity if already in the list
 	void List::add(int image_id, Uint16 id, int quantity)
 	{
-#ifdef NEW_SOUND
-		add_sound_object(get_index_for_sound_type_name("Drop Item"), 0, 0, 1);
-#endif // NEW_SOUND
+		do_drop_item_sound();
 
 		// Add to quanity if already in list
 
@@ -980,17 +976,13 @@ namespace ItemLists
 
 		if (clicked && (name_under_mouse < lists.size()))
 		{
-#ifdef NEW_SOUND
-			add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
-#endif // NEW_SOUND
+			do_click_sound();
 			Vars::lists()->set_active(name_under_mouse);
 		}
 
 		if (clicked && mouse_over_add_button)
 		{
-#ifdef NEW_SOUND
-			add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
-#endif // NEW_SOUND
+			do_click_sound();
 			new_or_rename_list(true);
 		}
 		name_under_mouse = static_cast<size_t>(-1);
@@ -1154,10 +1146,8 @@ CHECK_GL_ERRORS();
 				last_quantity_selected = quantities.selected;
 				quantities.selected = ITEM_EDIT_QUANT;
 				item_quantity = quantities.quantity[ITEM_EDIT_QUANT].val = Vars::lists()->get_list().get_quantity(selected_item_number);
-#ifdef NEW_SOUND
 				if (flags & ELW_RIGHT_MOUSE)
-					add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
-#endif // NEW_SOUND
+					do_click_sound();
 				if (flags & ELW_LEFT_MOUSE)
 				{
 					// randomly close the window
@@ -1175,9 +1165,7 @@ CHECK_GL_ERRORS();
 						pickup_storage_item(image_id, item_id, cat_id);
 					else
 					{
-#ifdef NEW_SOUND
-						add_sound_object(get_index_for_sound_type_name("alert1"), 0, 0, 1);
-#endif // NEW_SOUND
+						do_alert1_sound();
 						il_pickup_fail_time = SDL_GetTicks();
 						static bool first_fail = true;
 						if (first_fail)

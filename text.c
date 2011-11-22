@@ -28,9 +28,7 @@
 #include "io/elpathwrapper.h"
 #include "serverpopup.h"
 #include "sky.h"
-#ifdef NEW_SOUND
 #include "sound.h"
-#endif // NEW_SOUND
 #include "actor_scripts.h"
 #include "emotes.h"
 
@@ -61,6 +59,10 @@ FILE	*chat_log=NULL;
 FILE	*srv_log=NULL;
 
 ec_reference harvesting_effect_reference = NULL;
+
+#ifndef NEW_SOUND
+int afk_snd_warning = 0;
+#endif
 
 /* forward declaration */
 void put_small_colored_text_in_box (Uint8 color, const Uint8 *text_to_add, int len, int pixels_limit, char *buffer);
@@ -595,22 +597,18 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			{
 				// player sent us a PM
 				add_message_to_pm_log (text_to_add, len, channel);
-#ifdef NEW_SOUND
 				if (afk_snd_warning) {
-					add_sound_object(get_index_for_sound_type_name("AFK Message"), 0, 0, 1);
+					do_afk_sound();
 				}
-#endif // NEW_SOUND
 			}
 			else if (channel == CHAT_LOCAL && from_color_char (text_to_add[0]) == c_grey1 && is_talking_about_me (&text_to_add[1], len-1, 0))
 			{
 				// player mentions our name in local chat
 				if (afk_local) {
 					add_message_to_pm_log (&text_to_add[1], len - 1, channel);
-#ifdef NEW_SOUND
 					if (afk_snd_warning) {
-						add_sound_object(get_index_for_sound_type_name("AFK Message"), 0, 0, 1);
+						do_afk_sound();
 					}
-#endif // NEW_SOUND
 				} else {
 					send_afk_message (&text_to_add[1], len - 1, channel);
 				}
@@ -626,11 +624,9 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 				}
 				if (i < len-15 && strncasecmp (&text_to_add[i], " wants to trade", 15) == 0) {
 					send_afk_message (&text_to_add[1], len - 1, channel);
-#ifdef NEW_SOUND
 					if (afk_snd_warning) {
-						add_sound_object(get_index_for_sound_type_name("AFK Message"), 0, 0, 1);
+						do_afk_sound();
 					}
-#endif // NEW_SOUND
 				}
 			}
 		}

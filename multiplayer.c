@@ -466,9 +466,7 @@ void connect_to_server()
 	if(!set)
         {
             LOG_ERROR("SDLNet_AllocSocketSet: %s\n", SDLNet_GetError());
-#ifdef NEW_SOUND
-			add_sound_object(get_index_for_sound_type_name("Error"), 0, 0, 1);
-#endif // NEW_SOUND
+            do_error_sound();
 			SDLNet_Quit();
 			SDL_Quit();
 			exit(4); //most of the time this is a major error, but do what you want.
@@ -477,9 +475,7 @@ void connect_to_server()
 	if(SDLNet_ResolveHost(&ip,(char*)server_address,port)==-1)
 		{
 			LOG_TO_CONSOLE(c_red2,failed_resolve);
-#ifdef NEW_SOUND
-	add_sound_object(get_index_for_sound_type_name("Disconnected"), 0, 0, 1);
-#endif // NEW_SOUND
+			do_disconnect_sound();
 			return;
 		}
 
@@ -489,9 +485,7 @@ void connect_to_server()
 			LOG_TO_CONSOLE(c_red1,failed_connect);
 			LOG_TO_CONSOLE(c_red1,reconnect_str);
 			LOG_TO_CONSOLE(c_red1,alt_x_quit);
-#ifdef NEW_SOUND
-	add_sound_object(get_index_for_sound_type_name("Disconnected"), 0, 0, 1);
-#endif // NEW_SOUND
+			do_disconnect_sound();
 			return;
 		}
 
@@ -530,9 +524,7 @@ void connect_to_server()
 	last_heart_beat= time(NULL);
 	send_heart_beat();	// prime the hearbeat to prevent some stray issues when there is lots of lag
 	hide_window(trade_win);
-#ifdef NEW_SOUND
-	add_sound_object(get_index_for_sound_type_name("Connected"), 0, 0, 1);
-#endif // NEW_SOUND
+	do_connect_sound();
 
 	my_tcp_flush(my_socket);    // make sure tcp output buffer is empty
 }
@@ -953,7 +945,10 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 							while (*product!='\0' && *product!= ' ')
 								product++;
 							if (strlen(product)>1)
+							{
 								counters_set_product_info(product+1, product_count);
+								check_for_recipe_name(product+1);
+							}
 						}
 						free(restofstring);
 					}
@@ -2220,7 +2215,7 @@ static void process_data_from_server(queue_t *queue)
 				disconnected = 1;
 #ifdef NEW_SOUND
 				stop_all_sounds();
-				add_sound_object(get_index_for_sound_type_name("Disconnected"), 0, 0, 1);
+				do_disconnect_sound();
 #endif // NEW_SOUND
 				disconnect_time = SDL_GetTicks();
 			}
@@ -2269,7 +2264,7 @@ int get_message_from_server(void *thread_args)
 			disconnected = 1;
 #ifdef NEW_SOUND
 			stop_all_sounds();
-			add_sound_object(get_index_for_sound_type_name("Disconnected"), 0, 0, 1);
+			do_disconnect_sound();
 #endif // NEW_SOUND
 			disconnect_time = SDL_GetTicks();
 		}

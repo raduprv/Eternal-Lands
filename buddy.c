@@ -124,6 +124,15 @@ int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 	int x=mx,y=my;
 	char str[50];
 
+	// scroll the winow with the mouse wheel
+	if(flags & ELW_WHEEL_UP) {
+		vscrollbar_scroll_up(buddy_win,buddy_scroll_id);
+		return 1;
+	} else if(flags & ELW_WHEEL_DOWN) {
+		vscrollbar_scroll_down(buddy_win,buddy_scroll_id);
+		return 1;
+	}
+
 	// only handle mouse button clicks, not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0)
 		return 0;
