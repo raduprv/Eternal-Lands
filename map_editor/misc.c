@@ -1375,7 +1375,10 @@ void open_3d_obj_continued()
 		}
 		if(datadir_len > 0 && strncmp(selected_file, datadir, datadir_len) == 0) {
 			/* add_e3d() wants a path relative to the data dir */
-			file += datadir_len-1;
+			if (file[datadir_len-1] == '/')
+				file += datadir_len-2;
+			else
+				file += datadir_len-1;
 			*file = '.';
 		}
 		selected_3d_object=add_e3d(file,scene_mouse_x,scene_mouse_y,0,0,0,0,0,0,0,0,0);
@@ -1411,7 +1414,10 @@ void open_particles_obj_continued()
 
 		if(datadir_len > 0 && strncmp(selected_file, datadir, datadir_len) == 0) {
 			/* add_particle_sys() wants a path relative to the data dir */
-			file += datadir_len-1;
+			if (file[datadir_len-1] == '/')
+				file += datadir_len-2;
+			else
+				file += datadir_len-1;
 			*file = '.';
 		}
 		selected_particles_object=add_particle_sys(file,scene_mouse_x,scene_mouse_y,0.0);
@@ -1468,7 +1474,10 @@ void open_2d_obj_continued()
 
 		if(datadir_len > 0 && strncmp(selected_file, datadir, datadir_len) == 0) {
 			/* add_2d_obj() expects a path relative to datadir */
-			file += datadir_len-1;
+			if (file[datadir_len-1] == '/')
+				file += datadir_len-2;
+			else
+				file += datadir_len-1;
 			*file = '.';
 		}
 		selected_2d_object=add_2d_obj(file,scene_mouse_x,scene_mouse_y,0.001f,0,0,0);
