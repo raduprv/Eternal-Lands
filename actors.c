@@ -364,26 +364,95 @@ void set_health_color(float percent, float multiplier, float a)
 	glColor4f(r*multiplier,g*multiplier,0.0f, a);
 }
 
+void set_mana_color(float percent, float multiplier, float a)
+{
+	float c;
+
+	c=0.6f - percent*0.6f;
+
+	if(c<0.0f)c=0.0f;
+	else if(c>1.0f)c=1.0f;
+
+	glColor4f(c,c,2.0f, a);
+}
+
+
 void draw_actor_banner(actor * actor_id, float offset_z)
 {
 	unsigned char str[60];
 	unsigned char temp[255];
 	GLdouble model[16],proj[16];
 	GLint view[4];
+
 	GLdouble hx,hy,hz,a_bounce;
 	float font_scale = 1.0f/ALT_INGAME_FONT_X_LEN;
 	double healthbar_x=0.0f;
 	double healthbar_y=0.0f;
 	double healthbar_z=offset_z+0.1;
-	double healthbar_x_len=ALT_INGAME_FONT_X_LEN*12.0*name_zoom*3*font_scale;
+	double health_str_x_len=ALT_INGAME_FONT_X_LEN*12.0*name_zoom*3*font_scale;
 	double healthbar_x_len_converted=0;
 	double healthbar_x_len_loss=0;
 	double healthbar_x_loss_fade=1.0f;
-	double healthbar_y_len=ALT_INGAME_FONT_Y_LEN*12.0*name_zoom*font_scale;
+
+	//we use health bar variables if possible, all the extras we need for ether bar are:
+	double ether_str_x_len = 0;
+	double etherbar_x_len_converted=0;
+	GLdouble ey;
+
+	//some general values valid for whole banner
+	double bar_x_len = 0;
+	double bar_y_len=ALT_INGAME_FONT_Y_LEN*12.0*name_zoom*font_scale;
 	float banner_width = 0.0f;
+	int num_lines;
+
+	//define inner display_xxxxx variables to have more control over displaying inside this function
+	//necesary to implement instance mode makes code a bit more easy to understand imho
+	int display_hp = view_hp;
+	int display_names = view_names;
+	int display_health_bar = view_health_bar;
+	int display_ether_bar = view_ether_bar;
+	int display_ether = view_ether;
+	int display_banner_alpha = use_alpha_banner;
+
+	//some general info about "what's going on" - allows not to repeat complex conditions later
+	int displaying_me = 0;
+	int displaying_other_player = 0;
+	int display_health_line = 0;
+	int display_ether_line = 0;
+
 	//if first person, dont draw banner
 	actor *me = get_our_actor();
-	if (me&&me->actor_id==actor_id->actor_id&&first_person) return;
+	if (me && me->actor_id==actor_id->actor_id) {
+		displaying_me = 1;
+	};
+	if (displaying_me && first_person) return;
+
+	//if not drawing me, can't display ether and ether bar
+	if (!displaying_me) {
+		display_ether_bar = 0;
+		display_ether = 0;
+	}
+
+	//if instance mode enabled, overwrite default view banner view options according to it
+	if (view_mode_instance) {
+		//for my banner - use standard banner settings
+		if (!actor_id->is_enhanced_model) {
+			//creatures
+			display_hp = im_creature_view_hp;
+			display_names = im_creature_view_names;
+			display_health_bar = im_creature_view_hp_bar;
+			display_banner_alpha = im_creature_banner_bg;
+		//TODO: it shows healthbar above mule & summons too - probably no way to solve this issue
+		} else if (!displaying_me && actor_id->is_enhanced_model){
+			//other players
+			displaying_other_player = (actor_id->kind_of_actor != NPC);
+			display_hp = im_other_player_view_hp;
+			display_names = im_other_player_view_names;
+			display_health_bar = im_other_player_view_hp_bar;
+			display_banner_alpha = im_other_player_banner_bg;
+		}
+	}
+
 	//Figure out where the point just above the actor's head is in the viewport
 	//See if Projection and viewport can be saved elsewhere to prevent doing this so often
 	//MODELVIEW is hopeless
@@ -392,6 +461,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	glGetIntegerv(GL_VIEWPORT, view);
 	// Input adjusted healthbar_y value to scale hy according to actor scale
 	gluProject(healthbar_x, healthbar_y, healthbar_z * actor_id->scale * actors_defs[actor_id->actor_type].actor_scale + 0.02, model, proj, view, &hx, &hy, &hz);
+
 	//Save World-view and Projection matrices to allow precise raster placement of quads
 	glPushMatrix();
 	glLoadIdentity();
@@ -434,7 +504,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				a_bounce = 0.0640*(a-1720.0) - .0002 * powf((a-1720.0), 2);
 			}
 			/* Schmurk: actually we never reach this code as long as there's
-             * an exit condition at the beginning of the function */
+			 * an exit condition at the beginning of the function */
 			if ((first_person)&&(actor_id->actor_id==yourself)){
 				float x,y;
 				x = window_width/2.0 -(((float)get_string_width(str) * (font_scale*0.17*name_zoom)))*0.5f;
@@ -453,16 +523,36 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			glColor3f (1.0f, 0.3f, 0.3f);
 			DRAW_ORTHO_INGAME_NORMAL(-0.1f,healthbar_z/2.0f,0,str,1.0f);
 		}
+		if (view_mode_instance && im_other_player_show_banner_on_damage && displaying_other_player && !display_hp && !display_health_bar && actor_id->damage>0) {
+			display_hp = 1;
+			display_names = 1;
+		}
 	}
 
 	glDepthFunc(GL_LESS);
+
+	//figure out which lines should we display and how many lines total do we show
+	display_health_line = (actor_id->kind_of_actor != NPC && (display_hp || display_health_bar) && actor_id->cur_health > 0 && actor_id->max_health > 0);
+	display_ether_line = ((display_ether || display_ether_bar) && displaying_me && your_info.ethereal_points.base > 0 );
+	num_lines = display_names + display_health_line + display_ether_line;
+	if (view_mode_instance && displaying_me) {
+		//make your bar a bit more above everything else so you can see it good enough
+		//and got no problems with attacking mobs
+		hy += view_mode_instance_banner_height*bar_y_len;
+	} else if (displaying_me && display_health_line && display_ether_line) {
+		hy += 1.5*bar_y_len;
+	}
+
+	//calculate "y" positions of ether lines
+	ey = hy -(display_health_line * bar_y_len);
+
 	// Schmurk: same here, we actually never reach this code
 	if (!((first_person)&&(actor_id->actor_id==yourself)))
 	{
-		if(actor_id->actor_name[0] && (view_names || view_health_bar || view_hp)){
+		if(actor_id->actor_name[0] && (display_names || display_health_line || display_ether_line)){
 			set_font(name_font);	// to variable length
 
-			if(view_names){
+			if(display_names){
 				float font_size_x=font_scale*SMALL_INGAME_FONT_X_LEN;
 				float font_size_y=font_scale*SMALL_INGAME_FONT_Y_LEN;
 
@@ -481,34 +571,65 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				}
 				safe_snprintf ((char*)temp, sizeof (temp), "%s", actor_id->actor_name);
 				banner_width = ((float)get_string_width((unsigned char*)actor_id->actor_name)*(font_size_x*name_zoom))/2.0;
-				draw_ortho_ingame_string(hx-banner_width, hy+healthbar_y_len/2.0f, hz, temp, 1, font_size_x, font_size_y);
+				draw_ortho_ingame_string(hx-banner_width, hy+bar_y_len/2.0f, hz, temp, 1, font_size_x, font_size_y);
 			}
 			if (view_buffs)
 			{
 				draw_buffs(actor_id->actor_id, hx, hy, hz);
 			}
-			if((view_hp || view_health_bar) && actor_id->cur_health > 0 && actor_id->max_health > 0 && (!actor_id->dead) && (actor_id->kind_of_actor != NPC)){
+
+			if(  (!actor_id->dead) && (actor_id->kind_of_actor != NPC) && (display_health_line || display_ether_line)){
 				unsigned char hp[200];
+				unsigned char mana[200];
 
 				// make the heath bar the same length as the the health text so they are balanced
 				// use the same length health bar, even if not displaying the health text
 				sprintf((char*)hp,"%u/%u", actor_id->cur_health, actor_id->max_health);
-				healthbar_x_len = (float)get_string_width(hp)*(ALT_INGAME_FONT_X_LEN*name_zoom*font_scale);
+				health_str_x_len = (float)get_string_width(hp)*(ALT_INGAME_FONT_X_LEN*name_zoom*font_scale);
+				//do the same with mana if we want to display it
+				if (display_ether || display_ether_bar) {
+					sprintf((char*)mana,"%u/%u", your_info.ethereal_points.cur, your_info.ethereal_points.base);
+					ether_str_x_len=(float)get_string_width(mana)*(ALT_INGAME_FONT_X_LEN*name_zoom*font_scale);
+				}
+				//set bar length to longer one (mana or health) - not really clean solution
+				if (ether_str_x_len > health_str_x_len) {
+					bar_x_len = ether_str_x_len;
+				} else {
+					bar_x_len = health_str_x_len;
+				}
 
-				if (view_hp) {
-					float off=0,disp;
-					//choose color for the health
-					set_health_color((float)actor_id->cur_health/(float)actor_id->max_health, 1.0f, 1.0f);
-					disp=(healthbar_x_len/2.0);
-					if(view_health_bar){
-						off=5.0+disp;
+				if (display_hp || display_ether) {
+					float hp_off=(bar_x_len - health_str_x_len)/2.0;
+					float eth_off=(bar_x_len - ether_str_x_len)/2.0;
+					float disp;
+					disp=(bar_x_len/2.0);
+
+					if(display_health_bar){
+						hp_off+=5.0+disp;
 					}
-					draw_ortho_ingame_string(hx-disp+off, hy-healthbar_y_len/3.0f, hz, hp, 1, ALT_INGAME_FONT_X_LEN*font_scale, ALT_INGAME_FONT_Y_LEN*font_scale);
-					if (disp+off > banner_width) {
-						banner_width = disp + off;
+					if(display_ether_bar){
+						eth_off+=5.0+disp;
+					}
+					if (display_hp && (disp+hp_off > banner_width)) {
+						banner_width = disp + hp_off;
+					}
+					if (display_ether && (disp+eth_off > banner_width)) {
+						banner_width = disp + eth_off;
+					}
+
+					if (display_hp) {
+						//choose color for the health
+						set_health_color((float)actor_id->cur_health/(float)actor_id->max_health, 1.0f, 1.0f);
+						draw_ortho_ingame_string(hx-disp+hp_off, hy-bar_y_len/3.0f, hz, hp, 1, ALT_INGAME_FONT_X_LEN*font_scale, ALT_INGAME_FONT_Y_LEN*font_scale);
+					}
+
+					if (display_ether) {
+						set_mana_color((float)your_info.ethereal_points.cur / (float)your_info.ethereal_points.base, 1.0f, 1.0f);
+						draw_ortho_ingame_string(hx-disp+eth_off, ey-bar_y_len/3.0f, hz, mana, 1, ALT_INGAME_FONT_X_LEN*font_scale, ALT_INGAME_FONT_Y_LEN*font_scale);
 					}
 				}
 			}
+
 			set_font(0);	// back to fixed pitch
 		}
 	}
@@ -516,35 +637,35 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	//draw the health bar
 	glDisable(GL_TEXTURE_2D);
 
-	if(view_health_bar && actor_id->cur_health>0 && actor_id->max_health>0 && (!actor_id->dead) && (actor_id->kind_of_actor != NPC)){
+	if(display_health_bar && display_health_line && (!actor_id->dead) && (actor_id->kind_of_actor != NPC)){
 		float percentage = (float)actor_id->cur_health/(float)actor_id->max_health;
 		float off;
 		
 		if(percentage>110.0f) //deal with massive bars by trimming at 110%
 			percentage = 110.0f;
-		if (view_hp){
-			off = healthbar_x_len + 5.0f;
+		if (display_hp){
+			off = bar_x_len + 5.0f;
 		} else {
-			off = healthbar_x_len / 2.0f;
+			off = bar_x_len / 2.0f;
 		}
 
 		if(actor_id->last_health_loss && cur_time-actor_id->last_health_loss<1000){//only when using floatingmessages
 			if(actor_id->damage>0){
-				healthbar_x_len_converted=healthbar_x_len*percentage;
-				healthbar_x_len_loss=healthbar_x_len*(float)((float)actor_id->damage/(float)actor_id->max_health);
+				healthbar_x_len_converted=bar_x_len*percentage;
+				healthbar_x_len_loss=bar_x_len*(float)((float)actor_id->damage/(float)actor_id->max_health);
 				healthbar_x_loss_fade=1.0f-((float)(cur_time-actor_id->last_health_loss)/1000.0f);
 			} else {
-				healthbar_x_len_converted=healthbar_x_len*(float)((float)(actor_id->cur_health+actor_id->damage)/(float)actor_id->max_health);
-				healthbar_x_len_loss=healthbar_x_len*(float)((float)(-actor_id->damage)/(float)actor_id->max_health);
+				healthbar_x_len_converted=bar_x_len*(float)((float)(actor_id->cur_health+actor_id->damage)/(float)actor_id->max_health);
+				healthbar_x_len_loss=bar_x_len*(float)((float)(-actor_id->damage)/(float)actor_id->max_health);
 				healthbar_x_loss_fade=((float)(cur_time-actor_id->last_health_loss)/1000.0f);
 			}
 		} else {
-			healthbar_x_len_converted=healthbar_x_len*percentage;
+			healthbar_x_len_converted=bar_x_len*percentage;
 			actor_id->last_health_loss=0;
 		}
 
-		if (healthbar_x_len / 2.0f > banner_width) {
-			banner_width = healthbar_x_len / 2.0f;
+		if (bar_x_len / 2.0f > banner_width) {
+			banner_width = bar_x_len / 2.0f;
 		}
 
 		hx-=off;
@@ -557,8 +678,8 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 
 		set_health_color(percentage, 1.0f, 1.0f);
 
-			glVertex3d(hx+healthbar_x_len_converted,hy+healthbar_y_len/3.0,hz);
-			glVertex3d(hx,hy+healthbar_y_len/3.0,hz);
+			glVertex3d(hx+healthbar_x_len_converted,hy+bar_y_len/3.0,hz);
+			glVertex3d(hx,hy+bar_y_len/3.0,hz);
 		glEnd();
 
 		if(healthbar_x_len_loss){
@@ -573,8 +694,8 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 
 			set_health_color(percentage, 1.0f, healthbar_x_loss_fade);
 
-				glVertex3d(hx+healthbar_x_len_converted+healthbar_x_len_loss, hy+healthbar_y_len/3.0,hz);
-				glVertex3d(hx+healthbar_x_len_converted, hy+healthbar_y_len/3.0,hz);
+				glVertex3d(hx+healthbar_x_len_converted+healthbar_x_len_loss, hy+bar_y_len/3.0,hz);
+				glVertex3d(hx+healthbar_x_len_converted, hy+bar_y_len/3.0,hz);
 			glEnd();
 
 			glDisable(GL_BLEND);
@@ -586,18 +707,58 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		glColor3f (0.0f, 0.0f, 0.0f);
 		glBegin(GL_LINE_LOOP);
 			glVertex3f (hx-1.0, hy-1.0, hz);
-			glVertex3f (hx+healthbar_x_len+1.0, hy-1.0,hz);
-			glVertex3f (hx+healthbar_x_len+1.0, hy+healthbar_y_len/3.0+1.0,hz);
-			glVertex3f (hx-1.0, hy+healthbar_y_len/3.0+1.0,hz);
+			glVertex3f (hx+bar_x_len+1.0, hy-1.0,hz);
+			glVertex3f (hx+bar_x_len+1.0, hy+bar_y_len/3.0+1.0,hz);
+			glVertex3f (hx-1.0, hy+bar_y_len/3.0+1.0,hz);
 		glEnd();
 
 		hx+=off;
 	}
 
+	if (display_ether_bar && display_ether_line) {
+		float percentage = (float)your_info.ethereal_points.cur / (float)your_info.ethereal_points.base;
+		float off;
+		if(percentage>110.0f) //deal with massive bars by trimming at 110%
+			percentage = 110.0f;
+		if (display_ether){
+			off = bar_x_len + 5.0f;
+		} else {
+			off = bar_x_len / 2.0f;
+		}
+		if (bar_x_len / 2.0f > banner_width) {
+			banner_width = bar_x_len / 2.0f;
+		}
+		hx-=off;
+
+		set_mana_color(percentage, 0.5f, 1.0f);
+		etherbar_x_len_converted = percentage * bar_x_len;
+		glBegin(GL_QUADS);
+			glVertex3d(hx,ey,hz);
+			glVertex3d(hx+etherbar_x_len_converted,ey,hz);
+
+		set_mana_color(percentage, 1.0f, 1.0f);
+
+			glVertex3d(hx+etherbar_x_len_converted,ey+bar_y_len/3.0,hz);
+			glVertex3d(hx,ey+bar_y_len/3.0,hz);
+		glEnd();
+		set_health_color(percentage, 1.0f, 1.0f);
+		glDepthFunc(GL_LEQUAL);
+		glColor3f (0.0f, 0.0f, 0.0f);
+		glBegin(GL_LINE_LOOP);
+			glVertex3f (hx-1.0, ey-1.0 , hz);
+			glVertex3f (hx+bar_x_len+1.0, ey-1.0,hz);
+			glVertex3f (hx+bar_x_len+1.0, ey+bar_y_len/3.0+1.0,hz);
+			glVertex3f (hx-1.0, ey+bar_y_len/3.0+1.0,hz);
+		glEnd();
+		hx+=off;
+	}
+
 	// draw the alpha background (if ness)
-	if (use_alpha_banner && banner_width > 0) {
-		int num_lines = (view_names && (view_health_bar || view_hp) && actor_id->cur_health>0 && (actor_id->kind_of_actor != NPC)) ?2: 1;
-		float start_y = hy + ((num_lines==1 && view_names) ?healthbar_y_len-6.0 :-5.0);
+	if (display_banner_alpha && banner_width > 0) {
+		//if banner width > 0 there MUST be something displayed in the banner
+		float start_y = hy;
+		start_y  += ((!display_health_line && !display_ether_line && display_names) ?bar_y_len-6.0 :-5.0);
+		start_y  -= (num_lines == 3 || (num_lines==2 && !display_names)) ? bar_y_len:0.0;
 		banner_width += 3;
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE, GL_SRC_ALPHA);
@@ -605,8 +766,8 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		glBegin(GL_QUADS);
 			glVertex3f (hx-banner_width, start_y, hz + 0.0001);
 			glVertex3f (hx+banner_width, start_y, hz + 0.0001);
-			glVertex3f (hx+banner_width, start_y+healthbar_y_len*num_lines+2, hz + 0.0001);
-			glVertex3f (hx-banner_width, start_y+healthbar_y_len*num_lines+2, hz + 0.0001);
+			glVertex3f (hx+banner_width, start_y+bar_y_len*num_lines+2, hz + 0.0001);
+			glVertex3f (hx-banner_width, start_y+bar_y_len*num_lines+2, hz + 0.0001);
 		glEnd();
 		glDisable(GL_BLEND);
 	}
@@ -628,12 +789,12 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	if (actor_id->actor_id == yourself)
 	{
 		/* use the same calculation as for the alpha background but have a fallback if no banner shown */
-		int base_lines = (!view_names && !view_health_bar && !view_hp) ?3: 1;
-		int num_lines = (view_names && (view_health_bar || view_hp)) ?2: base_lines;
-		int start_y = hy + ((num_lines==1 && view_names) ?healthbar_y_len-6 :-5);
 		int xoff = (banner_width > 0) ?banner_width: 60;
+		float start_y = hy;
+		start_y  += ((!display_health_line && !display_ether_line && display_names) ?bar_y_len-6.0 :-5.0);
+		start_y  -= (num_lines == 3 || (num_lines==2 && !display_names)) ? bar_y_len:0.0;
 		if ((mouse_x > hx-xoff) && (mouse_x < hx+xoff) &&
-			(window_height-mouse_y > start_y) && (window_height-mouse_y < start_y+healthbar_y_len*num_lines))
+			(window_height-mouse_y > start_y) && (window_height-mouse_y < start_y+bar_y_len*((num_lines>0)?num_lines:3)))
 			cm_mouse_over_banner = 1;
 		else
 			cm_mouse_over_banner = 0;
@@ -644,6 +805,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
+
 
 void draw_bubble(float x_left, float x_right, float x_leg_left, float x_leg_right, float y_top, float y_bottom, float y_actor)
 {
@@ -1581,3 +1743,4 @@ void transform_actor_local_position_to_absolute(actor *in_act, float *in_local_p
 		out_pos[2] += shift[2];
 	}
 }
+
