@@ -423,11 +423,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			display_ether = 1;
 			display_banner_alpha = 1;
 		//TODO: it shows healthbar above mule too
-		} else if (!actor_id->is_enhanced_model){
-			display_hp = 1;
-			display_names = 1;
-			display_health_bar = 1;
-		} else {
+		} else if (actor_id->is_enhanced_model){
 			display_hp = 0;
 			display_names = 0;
 			display_health_bar = 0;
@@ -744,8 +740,8 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	{
 		/* use the same calculation as for the alpha background but have a fallback if no banner shown */
 		int base_lines = (!display_names && !display_health_bar && !display_hp) ?3: 1;
-		int num_lines = (display_names && (display_health_bar || display_hp)) ?2: base_lines;
-		int start_y = hy + ((num_lines==1 && display_names) ?healthbar_y_len-6 :-5);
+		int num_lines = ((display_names && (display_health_bar || display_hp)) ?2: base_lines) + ((display_ether_bar || display_ether) ? 1:0);
+		int start_y = hy + ((num_lines==1 && display_names) ?healthbar_y_len-6 :-5)- ((display_ether_bar || display_ether) ? 1:0) * healthbar_y_len;
 		int xoff = (banner_width > 0) ?banner_width: 60;
 		if ((mouse_x > hx-xoff) && (mouse_x < hx+xoff) &&
 			(window_height-mouse_y > start_y) && (window_height-mouse_y < start_y+healthbar_y_len*num_lines))
