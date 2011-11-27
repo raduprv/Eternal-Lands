@@ -444,7 +444,7 @@ extern char
 		cm_textedit_menu_str[100],
 		cm_quickbar_menu_str[150],
 		cm_hud_menu_str[250],
-		cm_banner_menu_str[175],
+		cm_banner_menu_str[197],
 		cm_title_menu_str[150],
 		cm_title_help_str[50],
 		cm_items_menu_str[150],
