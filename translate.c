@@ -296,7 +296,7 @@ char
 	cm_textedit_menu_str[100],
 	cm_quickbar_menu_str[150],
 	cm_hud_menu_str[250],
-	cm_banner_menu_str[175],
+	cm_banner_menu_str[197],
 	cm_title_menu_str[150],
 	cm_title_help_str[50],
 	cm_items_menu_str[150],
@@ -1425,7 +1425,7 @@ void init_help()
 	add_xml_identifier(misc, "cm_textedit_menu", cm_textedit_menu_str, "Cut\nCopy\nPaste\n--\nDate\nTime\nCoords", sizeof(cm_textedit_menu_str));
 	add_xml_identifier(misc, "cm_quickbar_menu", cm_quickbar_menu_str, "Quickbar Relocatable\nQuickbar Draggable\nReset Quickbar Position\nFlip Quickbar\nEnable Quickbar Menu\n", sizeof(cm_quickbar_menu_str));
 	add_xml_identifier(misc, "cm_hud_menu", cm_hud_menu_str, "Show Stats\nShow Stats Bars\nShow Digital Clock\nShow Analogue Clock\nShow Seconds\nShow FPS\nShow Minimap\nEnable Quickbar Menu\n--\nEnable Sound Effects\nEnable Music\n--\nCopy Location", sizeof(cm_hud_menu_str));
-	add_xml_identifier(misc, "cm_banner_menu", cm_banner_menu_str, "Show Names\nShow Health Bars\nShow Health Numbers\nShow Speech Bubbles\nEnable Banner Background\nSit Lock\nRanging Lock\n--\nDisable This Menu\n", sizeof(cm_banner_menu_str));
+	add_xml_identifier(misc, "cm_banner_menu", cm_banner_menu_str, "Show Names\nShow Health Bars\nShow Health Numbers\nEnable Instance Mode\nShow Speech Bubbles\nEnable Banner Background\nSit Lock\nRanging Lock\n--\nDisable This Menu\n", sizeof(cm_banner_menu_str));
 	add_xml_identifier(misc, "cm_title_menu", cm_title_menu_str, "Hide Windows\nOpaque Background\nWindows On Top\n", sizeof(cm_title_menu_str));
 	add_xml_identifier(misc, "cm_title_help", cm_title_help_str, "Right-click for window menu", sizeof(cm_title_help_str));
 	add_xml_identifier(misc, "cm_items_menu", cm_items_menu_str, "--\nUse Small Window\nManual Window Size\nItem Window On Drop\nAllow Equipment Swap\n--\nOpen Storage (View Only)", sizeof(cm_items_menu_str));

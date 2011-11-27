@@ -68,6 +68,8 @@ int view_health_bar=1;
 int view_names=1;
 int view_hp=0;
 int view_chat_text_as_overtext=0;
+int view_mode_instance=0;
+float view_mode_instance_banner_height=5.0f;
 int limit_fps=0;
 
 int action_mode=ACTION_WALK;
