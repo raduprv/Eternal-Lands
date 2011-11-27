@@ -47,6 +47,8 @@ extern int view_health_bar; /*!< indicates whether we should display the health 
 extern int view_names; /*!< indicates whether the names of actors should be displayed or not */
 extern int view_hp; /*!< indicates whether the current/max material points of an actor should be displayed or not */
 extern int view_chat_text_as_overtext; /*!< if this is true, then any text an actor is saying will be additionally displayed in a bubble over its head */
+extern int view_mode_instance; /*!< indicates if we have instance mode turned on, it shows monsters and our hp only, no other players, overwrites all other actor banner display options */
+extern float view_mode_instance_banner_height; /*!< factor, we use to setup how high is banner above your toon when using view_mode_instance */
 
 extern char username_box_selected; /*!< true, if the cursor is currently in the username input field */
 extern char password_box_selected; /*!< true, if the cursor is currently in the password input field */
