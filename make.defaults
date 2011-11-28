@@ -68,7 +68,7 @@ FEATURES += FASTER_MAP_LOAD		# Enables optimizations to speed up the process of 
 
 
 
-PLATFORM=-march=i686
+PLATFORM=-march=native
 XDIR=-L/usr/X11R6/lib
 CWARN=-Wall -Wdeclaration-after-statement
 # -Wno-pointer-sign -Wno-sign-compare -Werror
