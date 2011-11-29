@@ -178,7 +178,8 @@ void init_hud_interface (hud_interface type)
 	else
 	{
 #ifdef NEW_NEW_CHAR_WINDOW
-		hud_x=64;
+		if (hud_x>0)
+			hud_x=HUD_MARGIN_X;
 		resize_root_window();
 #endif
 		free_icons ();
