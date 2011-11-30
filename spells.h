@@ -185,6 +185,9 @@ int we_are_poisoned();
 #ifdef NEW_SOUND
 void restart_active_spell_sounds(void);
 #endif
+void increment_poison_incidence(void);
+void draw_spell_icon_strings(void);
+extern int show_poison_count;
 
 #ifdef __cplusplus
 } // extern "C"

@@ -85,6 +85,8 @@ int spell_result=0;
 int have_error_message=0;
 int we_have_spell=-1; //selected spell
 int on_spell=-1;//mouse over this spell
+int show_poison_count = 0; // elconfig variable
+static int poison_drop_counter = 0;
 
 typedef struct {
 	unsigned char desc[120];
@@ -533,10 +535,33 @@ void check_castability()
 	set_spell_help_text(we_have_spell);
 }
 
+/* called each time we get poisoned - perhaps */
+void increment_poison_incidence(void)
+{
+	poison_drop_counter++;
+}
 
+/* called from display_game_handler() so we are in a position to draw text */
+void draw_spell_icon_strings(void)
+{
+	size_t i;
+	int x_start = 0;
+	int y_start = window_height-hud_y-64-SMALL_FONT_Y_LEN;
 
+	for (i = 0; i < NUM_ACTIVE_SPELLS; i++)
+	{
+		unsigned char str[20];
+		/* handle the poison count */
+		if ((poison_drop_counter > 0) && (active_spells[i].spell == 2) && show_poison_count)
+		{
+			safe_snprintf((char*)str, sizeof(str), "%d", poison_drop_counter );
+			draw_string_small_shadowed(x_start+(33-strlen((char *)str)*SMALL_FONT_X_LEN)/2, y_start, str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
+		}
+		/* other strings on spell icons, timers perhaps .....*/
+		x_start += 33;
+	}
 
-
+}
 
 //ACTIVE SPELLS
 void get_active_spell(int pos, int spell)
@@ -561,6 +586,8 @@ void get_active_spell(int pos, int spell)
 
 void remove_active_spell(int pos)
 {
+	if (active_spells[pos].spell == 2)
+		poison_drop_counter = 0;
 	active_spells[pos].spell = -1;
 	active_spells[pos].cast_time = 0;
 	active_spells[pos].duration = 0;
@@ -594,6 +621,8 @@ void get_active_spell_list(const Uint8 *my_spell_list)
 #ifdef NEW_SOUND
 		active_spells[i].sound = add_spell_sound(active_spells[i].spell);
 #endif // NEW_SOUND
+		if (active_spells[i].spell == 2)
+			increment_poison_incidence();
 	}
 }
 

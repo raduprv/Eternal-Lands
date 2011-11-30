@@ -1302,6 +1302,7 @@ int display_game_handler (window_info *win)
 		e3d_count= e3d_total= 0;
 #endif //DEBUG
 	}
+	draw_spell_icon_strings();
 
 	CHECK_GL_ERRORS ();
 	/* Draw the chat text */

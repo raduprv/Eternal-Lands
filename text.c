@@ -26,6 +26,7 @@
 #include "url.h"
 #include "counters.h"
 #include "io/elpathwrapper.h"
+#include "spells.h"
 #include "serverpopup.h"
 #include "sky.h"
 #include "sound.h"
@@ -557,6 +558,10 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		else if (my_strncompare(text_to_add+1, "You see: ", 9)) {
 			achievements_player_name(text_to_add+10, len-10);
 		}
+		else if (my_strncompare(text_to_add+1, "You just got food poisoned!", 27)) {
+			increment_poison_incidence();
+		}
+		
 	} else if (channel == CHAT_LOCAL) {
 		if (harvesting && my_strncompare(text_to_add+1, username_str, strlen(username_str))) {
 			char *ptr = text_to_add+1+strlen(username_str);
