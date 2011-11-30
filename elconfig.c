@@ -1267,7 +1267,7 @@ void set_auto_save_interval (int *save_time, int time)
 	}
 }
 
-void switch_vidmode(int mode)
+void switch_vidmode(int *pointer, int mode)
 {
 	switch(mode)
 		{
@@ -2010,6 +2010,7 @@ void init_vars()
 	add_var(OPT_STRING,"data_dir","dir",datadir,change_dir_name,90,"Data Directory","Place were we keep our data. Can only be changed with a Client restart.",SERVER);
 	add_var(OPT_INT,"limit_fps","lfps",&limit_fps,change_int,0,"Limit FPS","Limit the frame rate to reduce load on the system",VIDEO,0,INT_MAX);
 #ifdef MAP_EDITOR
+	add_var(OPT_INT,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO,1,7);
 	add_var(OPT_BOOL,"close_browser_on_select","cbos",&close_browser_on_select, change_var, 0,"Close Browser","Close the browser on select",HUD);
 	add_var(OPT_BOOL,"show_position_on_minimap","spos",&show_position_on_minimap, change_var, 0,"Show Pos","Show position on the minimap",HUD);
 	add_var(OPT_SPECINT,"auto_save","asv",&auto_save_time, set_auto_save_interval, 0,"Auto Save","Auto Save",HUD,0,INT_MAX);
