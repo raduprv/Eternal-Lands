@@ -2113,8 +2113,6 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
 	Uint16 keysym = key & 0xffff;
-	int shift_on = key & ELW_SHIFT;
-	int ctrl_on = key & ELW_CTRL;
 
 	// first try the keypress handler for all root windows
 	if ( keypress_root_common (key, unikey) )
