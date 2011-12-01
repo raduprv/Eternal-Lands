@@ -387,14 +387,13 @@ void open_web_link(const char * url)
 			_exit(1);
 		}
 #else
-		SDL_Thread *go_to_url_thread;
 		// make a copy of the url string as it may be freed by the caller
 		// will be freed as the only_call_from_open_web_link__go_to_url() exits
 		char *cp_url = malloc(strlen(url)+1);
 		safe_strncpy(cp_url, url, strlen(url)+1);
 
 		// windows needs to spawn it in its own thread
-		go_to_url_thread= SDL_CreateThread(only_call_from_open_web_link__go_to_url, cp_url);
+		SDL_CreateThread(only_call_from_open_web_link__go_to_url, cp_url);
 	} else {
 		ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWNOACTIVATE); //this returns an int we could check for errors, but that's mainly when you use shellexecute for local files
 #endif  //_WIN32

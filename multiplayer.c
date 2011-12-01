@@ -1179,7 +1179,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 		case STOP_RAIN:
 			{
-				float severity;
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
@@ -1189,11 +1188,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					break;
 				}
 
-				if (data_length > 4) {
-					severity= 0.1f + 0.9f * (in_data[4] / 255.0f);
-				} else {
-					severity= 1.0f;
-				}
 				weather_set_area(0, tile_map_size_x*1.5, tile_map_size_y*1.5, 100000.0, 1, 0.0, in_data[3]);
 			}
 			break;
