@@ -132,13 +132,15 @@ typedef struct
     /*! @{ */
 	int minimap_win_x;
 	int minimap_win_y;
-/* leave defined for now so el.cfg does not change */
-//#ifndef MINIMAP2
-	int minimap_flags;
 	int minimap_zoom;
-//#endif //MINIMAP2
     /*! @} */
 
+    /*!
+     * \name current selected tabs 4 bits each
+     */
+    /*! @{ */
+	unsigned tab_selected;
+    /*! @} */
 
     /*!
      * \name Camera position and attributes

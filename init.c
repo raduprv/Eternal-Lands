@@ -335,6 +335,8 @@ void read_bin_cfg()
 	minimap_win_y=cfg_mem.minimap_win_y;
 	minimap_tiles_distance=cfg_mem.minimap_zoom;
 
+	tab_selected=cfg_mem.tab_selected;
+
 	tab_info_x=cfg_mem.tab_info_x;
 	tab_info_y=cfg_mem.tab_info_y;
 
@@ -582,6 +584,8 @@ void save_bin_cfg()
 		cfg_mem.minimap_win_y=minimap_win_y;
 	}
 	cfg_mem.minimap_zoom=minimap_tiles_distance;
+
+	cfg_mem.tab_selected=get_tab_selected();
 
 	if(tab_info_win >= 0) {
 		cfg_mem.tab_info_x=windows_list.window[tab_info_win].cur_x;

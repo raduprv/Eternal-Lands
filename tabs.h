@@ -37,6 +37,7 @@ extern int tab_stats_win; /*!< handler for the stats tabbed window */
 
 extern int tab_stats_x;
 extern int tab_stats_y;
+extern unsigned int tab_selected;
 
 extern int tab_stats_collection_id; /*!< pointer to the \see tab_collection for statistics windows */
 
@@ -90,6 +91,17 @@ void display_tab_help ();
  * \callgraph
  */
 void display_tab_info ();
+
+
+/*!
+ * \ingroup tabs
+ * \brief Displays the tabbed info window.
+ *
+ *      Each tab collection has 4 bits of the word, this function controls which is which.
+ *
+ * \callgraph
+ */
+unsigned get_tab_selected(void);
 
 #ifdef __cplusplus
 } // extern "C"

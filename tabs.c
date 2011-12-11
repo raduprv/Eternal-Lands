@@ -17,6 +17,7 @@ int tab_stats_win = -1;
 int tab_stats_collection_id = 16;
 int tab_stats_x = 150;
 int tab_stats_y = 70;
+unsigned tab_selected = 0;
 Uint16 tab_stats_len_x = STATS_TAB_WIDTH + 2*TAB_MARGIN;
 Uint16 tab_stats_len_y = STATS_TAB_HEIGHT + TAB_TAG_HEIGHT + 2*TAB_MARGIN;
 
@@ -65,7 +66,7 @@ void display_tab_stats ()
 		session_win = tab_add(tab_stats_win, tab_stats_collection_id, tab_session, 0, 0, 0);
 		fill_session_win();
 		
-		tab_collection_select_tab (tab_stats_win, tab_stats_collection_id, 0);
+		tab_collection_select_tab (tab_stats_win, tab_stats_collection_id, tab_selected & 0xf);
 	}
 	else
 	{
@@ -101,7 +102,7 @@ void display_tab_help ()
 		rules_win = tab_add(tab_help_win, tab_help_collection_id, tab_rules, 0, 0, 0);
 		fill_rules_window();
 
-		tab_collection_select_tab (tab_help_win, tab_help_collection_id, 0);
+		tab_collection_select_tab (tab_help_win, tab_help_collection_id, (tab_selected >> 4) & 0xf);
 	}
 	else
 	{
@@ -132,11 +133,30 @@ void display_tab_info()
 		url_win = tab_add(tab_info_win, tab_info_collection_id, win_url_str, 0, 0, 0);
 		fill_url_window();
 
-		tab_collection_select_tab (tab_info_win, tab_info_collection_id, 0);
+		tab_collection_select_tab (tab_info_win, tab_info_collection_id, (tab_selected >> 8) & 0xf);
 	}
 	else
 	{
 		show_window (tab_info_win);
 		select_window (tab_info_win);
 	}
+}
+
+/* get selected tabs when saved in cfg file */
+unsigned get_tab_selected(void)
+{
+	unsigned int old_tab_selected = tab_selected;
+	int tabnr;
+	tab_selected = 0;
+
+	tabnr = tab_collection_get_tab(tab_stats_win, tab_stats_collection_id);
+	tab_selected |= ((tabnr < 0) ?old_tab_selected :tabnr) & 0xf;
+
+	tabnr = tab_collection_get_tab(tab_help_win, tab_help_collection_id);
+	tab_selected |= ((tabnr < 0) ?old_tab_selected :(tabnr<<4)) & 0xf0;
+
+	tabnr = tab_collection_get_tab(tab_info_win, tab_info_collection_id);
+	tab_selected |= ((tabnr < 0) ?old_tab_selected :(tabnr<<8)) & 0xf00;
+
+	return tab_selected;
 }
