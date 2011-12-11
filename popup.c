@@ -1211,6 +1211,9 @@ void popup_create_from_network( const unsigned char *payload, size_t size )
 	FETCH_U16( size_hint );
 	FETCH_SIZESTRING( text );
 
+	if (flags)
+		LOG_ERROR("%s: flags=%d set but not yet supported\n", __FUNCTION__, flags );
+
 	/* Ensure there is no popup with this ID */
 	if ( popup_node_find_by_id( popup_id ) != NULL ) {
 		return;
