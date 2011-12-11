@@ -15,6 +15,7 @@
 #endif
 #ifdef ENCYCL_NAVIGATION
 #include "context_menu.h"
+#include "gamewin.h"
 #include "hud.h"
 #include "notepad.h"
 #include "tabs.h"
@@ -1201,6 +1202,19 @@ int mouseover_encyclopedia_handler(window_info *win, int mx, int my)
 		show_cm_help = 1;
 	return 1;
 }
+
+/*	Add shortcut keypresses for search
+*/
+int keypress_encyclopedia_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+{
+	char keychar = tolower(key_to_char(unikey));
+	if ((key == K_MARKFILTER) || (keychar=='/'))
+	{
+		cm_encycl_handler(win, -1, mx, my, CM_ENCYCL_SEARCH);
+		return 1;
+	}
+	return 0;
+}
 #endif // ENCYCL_NAVIGATION
 
 
@@ -1213,6 +1227,7 @@ void fill_encyclopedia_win ()
 
 #ifdef ENCYCL_NAVIGATION
 	set_window_handler(encyclopedia_win, ELW_HANDLER_MOUSEOVER, &mouseover_encyclopedia_handler);
+	set_window_handler(encyclopedia_win, ELW_HANDLER_KEYPRESS, &keypress_encyclopedia_handler);
 
 	if (!cm_valid(cm_encycl))
 	{
