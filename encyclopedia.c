@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "encyclopedia.h"
 #include "asc.h"
 #include "elwindows.h"
