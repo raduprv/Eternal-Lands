@@ -2028,6 +2028,7 @@ namespace ec
 #ifdef	NEW_TEXTURES
 				particle_max_count = 0;
 				particle_count = 0;
+				buffer = 0;
 #endif	/* NEW_TEXTURES */
 			}
 			;

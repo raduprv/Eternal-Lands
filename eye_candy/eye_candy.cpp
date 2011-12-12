@@ -240,16 +240,29 @@ namespace ec
 	{
 		std::map<Particle*, bool>::const_iterator iter;
 		const Vec3 center(base->center);
+		Uint32 size;
 
 		particle_count = 0;
 
 		particle_max_count = particles.size() * (1 + motion_blur_points);
 
-		particle_vertex_buffer.bind(el::hbt_vertex);
+		if (particle_max_count == 0)
+		{
+			return;
+		}
 
-		particle_vertex_buffer.set_size(el::hbt_vertex,
-			particle_max_count * 40 * sizeof(float),
-			el::hbut_dynamic_draw);
+		particle_max_count = (particle_max_count + 0xF) & 0xFFFFFFF0;
+		size = particle_max_count * 40 * sizeof(float);
+
+		if (particle_vertex_buffer.get_size() < size)
+		{
+			particle_vertex_buffer.bind(el::hbt_vertex);
+
+			particle_vertex_buffer.set_size(el::hbt_vertex, size,
+				el::hbut_dynamic_draw);
+		}
+
+		particle_vertex_buffer.bind(el::hbt_vertex);
 
 		buffer = static_cast<float*>(particle_vertex_buffer.map(
 			el::hbt_vertex, el::hbat_write_only));
@@ -278,36 +291,39 @@ namespace ec
 
 	void Effect::draw_particle_buffer()
 	{
-        if (particle_count >0){
-            particle_vertex_buffer.bind(el::hbt_vertex);
+		if (particle_count <= 0)
+		{
+			return;
+		}
 
-            glEnableClientState(GL_VERTEX_ARRAY);
-            glEnableClientState(GL_COLOR_ARRAY);
+		particle_vertex_buffer.bind(el::hbt_vertex);
 
-            glColorPointer(4, GL_FLOAT, 10 * sizeof(float),
-                static_cast<char*>(0) + 0 * sizeof(float));
-            glVertexPointer(3, GL_FLOAT, 10 * sizeof(float),
-                static_cast<char*>(0) + 4 * sizeof(float));
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_COLOR_ARRAY);
 
-            ELglClientActiveTextureARB(GL_TEXTURE0);
-            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-            glTexCoordPointer(2, GL_FLOAT, 10 * sizeof(float),
-                static_cast<char*>(0) + 7 * sizeof(float));
+		glColorPointer(4, GL_FLOAT, 10 * sizeof(float),
+			static_cast<char*>(0) + 0 * sizeof(float));
+		glVertexPointer(3, GL_FLOAT, 10 * sizeof(float),
+			static_cast<char*>(0) + 4 * sizeof(float));
 
-            ELglClientActiveTextureARB(GL_TEXTURE1);
-            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-            glTexCoordPointer(1, GL_FLOAT, 10 * sizeof(float),
-                static_cast<char*>(0) + 9 * sizeof(float));
+		ELglClientActiveTextureARB(GL_TEXTURE0);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glTexCoordPointer(2, GL_FLOAT, 10 * sizeof(float),
+			static_cast<char*>(0) + 7 * sizeof(float));
 
-            glDrawArrays(GL_QUADS, 0, particle_count * 4);
+		ELglClientActiveTextureARB(GL_TEXTURE1);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glTexCoordPointer(1, GL_FLOAT, 10 * sizeof(float),
+			static_cast<char*>(0) + 9 * sizeof(float));
 
-            glDisableClientState(GL_VERTEX_ARRAY);
-            glDisableClientState(GL_COLOR_ARRAY);
-            ELglClientActiveTextureARB(GL_TEXTURE1);
-            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-            ELglClientActiveTextureARB(GL_TEXTURE0);
-            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-        }
+		glDrawArrays(GL_QUADS, 0, particle_count * 4);
+
+		glDisableClientState(GL_VERTEX_ARRAY);
+		glDisableClientState(GL_COLOR_ARRAY);
+		ELglClientActiveTextureARB(GL_TEXTURE1);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		ELglClientActiveTextureARB(GL_TEXTURE0);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 #endif	/* NEW_TEXTURES */
 
