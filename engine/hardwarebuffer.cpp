@@ -11,9 +11,11 @@
 namespace eternal_lands
 {
 
-	HardwareBuffer::HardwareBuffer()
+	HardwareBuffer::HardwareBuffer(): m_size(0), m_id(0)
 	{
 		ELglGenBuffersARB(1, &m_id);
+
+		assert(m_id != 0);
 	}
 
 	HardwareBuffer::~HardwareBuffer() throw()
