@@ -8,6 +8,9 @@
 #include "logging.hpp"
 #include <bitset>
 #include <sstream>
+#include <iostream>
+#include <cerrno>
+#include <cstring>
 #include <ctime>
 #include <vector>
 #include <map>
@@ -138,8 +141,12 @@ namespace eternal_lands
 			thread.m_last_message = str.str();
 			thread.m_last_message_count = 0;
 
-			write(thread.m_log_file, log_stream.str().c_str(),
-				log_stream.str().length());
+			ssize_t ret = write(thread.m_log_file,
+				log_stream.str().c_str(), log_stream.str().length());
+
+			if (ret != log_stream.str().length())
+				std::cerr << "Failed to write the log file: "
+					<< log_stream.str(); // newline included
 		}
 
 		void do_log_message(const LogLevelType log_level,
@@ -233,9 +240,11 @@ namespace eternal_lands
 
 					if ((pos + 1024) < size)
 					{
-						ftruncate(
+						if (ftruncate(
 							thread_data.m_log_file,
-							size);
+							size) < 0)
+						std::cerr << "Failed to truncate log file: "
+							<< strerror(errno) << std::endl;
 					}
 				}
 			}
@@ -362,7 +371,9 @@ namespace eternal_lands
 		{
 			pos = lseek(it->second.m_log_file, 0, SEEK_CUR);
 
-			ftruncate(it->second.m_log_file, pos);
+			if (ftruncate(it->second.m_log_file, pos) < 0)
+				std::cerr << "Failed to truncate log file: "
+					<< strerror(errno) << std::endl;
 
 			close(it->second.m_log_file);
 		}
