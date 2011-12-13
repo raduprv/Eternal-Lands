@@ -422,6 +422,7 @@ namespace ec
 		float* vertices;
 		float* normals;
 		GLushort* facets;
+		Uint32 size;
 #endif	/* NEW_TEXTURES */
 		radius = _radius;
 		start = _start;
@@ -440,9 +441,22 @@ namespace ec
 		const int subdivisions = ((polys - 1) / 2) + 1;
 		vertex_count = subdivisions * 2;
 #ifdef	NEW_TEXTURES
+		if (vertex_count == 0)
+		{
+			return;
+		}
+
+		size = 6 * sizeof(float) * vertex_count;
+
+		if (vertex_buffer.get_size() < size)
+		{
+			vertex_buffer.bind(el::hbt_vertex);
+
+			vertex_buffer.set_size(el::hbt_vertex, size,
+				el::hbut_dynamic_draw);
+		}
+
 		vertex_buffer.bind(el::hbt_vertex);
-		vertex_buffer.set_size(el::hbt_vertex,
-			6 * sizeof(float) * vertex_count, el::hbut_static_draw);
 		vertices = static_cast<float*>(vertex_buffer.map(el::hbt_vertex,
 			el::hbat_write_only));
 		normals = &vertices[vertex_count * 3];
@@ -494,9 +508,17 @@ namespace ec
 
 		facet_count = subdivisions * 2;
 #ifdef	NEW_TEXTURES
+		size = 3 * sizeof(GLushort) * facet_count;
+
+		if (index_buffer.get_size() < size)
+		{
+			index_buffer.bind(el::hbt_index);
+
+			index_buffer.set_size(el::hbt_index, size,
+				el::hbut_dynamic_draw);
+		}
+
 		index_buffer.bind(el::hbt_index);
-		index_buffer.set_size(el::hbt_index,
-			3 * sizeof(GLushort) * facet_count, el::hbut_static_draw);
 		facets = static_cast<GLushort*>(index_buffer.map(el::hbt_index,
 			el::hbat_write_only));
 #else	/* NEW_TEXTURES */
@@ -533,6 +555,7 @@ namespace ec
 		float* vertices;
 		float* normals;
 		GLushort* facets;
+		Uint32 size;
 #endif	/* NEW_TEXTURES */
 		radius = _radius;
 		start = _start;
@@ -551,9 +574,22 @@ namespace ec
 		const int subdivisions = ((polys - 1) / 4) + 1;
 		vertex_count = subdivisions * 4 + 2; //+2 is for the centerpoints of the caps.
 #ifdef	NEW_TEXTURES
+		if (vertex_count == 0)
+		{
+			return;
+		}
+
+		size = 6 * sizeof(float) * vertex_count;
+
+		if (vertex_buffer.get_size() < size)
+		{
+			vertex_buffer.bind(el::hbt_vertex);
+
+			vertex_buffer.set_size(el::hbt_vertex, size,
+				el::hbut_dynamic_draw);
+		}
+
 		vertex_buffer.bind(el::hbt_vertex);
-		vertex_buffer.set_size(el::hbt_vertex,
-			6 * sizeof(float) * vertex_count, el::hbut_static_draw);
 		vertices = static_cast<float*>(vertex_buffer.map(el::hbt_vertex,
 			el::hbat_write_only));
 		normals = &vertices[vertex_count * 3];
@@ -635,9 +671,17 @@ namespace ec
 
 		facet_count = subdivisions * 4;
 #ifdef	NEW_TEXTURES
+		size = 3 * sizeof(GLushort) * facet_count;
+
+		if (index_buffer.get_size() < size)
+		{
+			index_buffer.bind(el::hbt_index);
+
+			index_buffer.set_size(el::hbt_index, size,
+				el::hbut_dynamic_draw);
+		}
+
 		index_buffer.bind(el::hbt_index);
-		index_buffer.set_size(el::hbt_index,
-			3 * sizeof(GLushort) * facet_count, el::hbut_static_draw);
 		facets = static_cast<GLushort*>(index_buffer.map(el::hbt_index,
 			el::hbat_write_only));
 #else	/* NEW_TEXTURES */
@@ -687,6 +731,7 @@ namespace ec
 		float* vertices;
 		float* normals;
 		GLushort* facets;
+		Uint32 size;
 #endif	/* NEW_TEXTURES */
 		radius = _radius;
 		pos = _pos;
@@ -750,9 +795,22 @@ namespace ec
 		// Convert spherical to rectangular.
 		vertex_count = (int)spherical_vertices.size();
 #ifdef	NEW_TEXTURES
+		if (vertex_count == 0)
+		{
+			return;
+		}
+
+		size = 6 * sizeof(float) * vertex_count;
+
+		if (vertex_buffer.get_size() < size)
+		{
+			vertex_buffer.bind(el::hbt_vertex);
+
+			vertex_buffer.set_size(el::hbt_vertex, size,
+				el::hbut_dynamic_draw);
+		}
+
 		vertex_buffer.bind(el::hbt_vertex);
-		vertex_buffer.set_size(el::hbt_vertex,
-			6 * sizeof(float) * vertex_count, el::hbut_static_draw);
 		vertices = static_cast<float*>(vertex_buffer.map(el::hbt_vertex,
 			el::hbat_write_only));
 		normals = &vertices[vertex_count * 3];
@@ -780,9 +838,17 @@ namespace ec
 		// Convert facets to OpenGL-suitable array.
 		facet_count = (int)spherical_facets.size();
 #ifdef	NEW_TEXTURES
+		size = 3 * sizeof(GLushort) * facet_count;
+
+		if (index_buffer.get_size() < size)
+		{
+			index_buffer.bind(el::hbt_index);
+
+			index_buffer.set_size(el::hbt_index, size,
+				el::hbut_dynamic_draw);
+		}
+
 		index_buffer.bind(el::hbt_index);
-		index_buffer.set_size(el::hbt_index,
-			3 * sizeof(GLushort) * facet_count, el::hbut_static_draw);
 		facets = static_cast<GLushort*>(index_buffer.map(el::hbt_index,
 			el::hbat_write_only));
 #else	/* NEW_TEXTURES */
@@ -828,7 +894,7 @@ namespace ec
 		GLushort* facets;
 		Vec3 start, end, pos, color;
 		float radius, alpha;
-		Uint32 idx, count, face_index, vertex_index;
+		Uint32 idx, count, face_index, vertex_index, size;
 
 		base = _base;
 
@@ -844,14 +910,35 @@ namespace ec
 			facet_count += subdivisions * 2;
 		}
 
+		if ((vertex_count == 0) || (facet_count == 0))
+		{
+			return;
+		}
+
+		size = sizeof(CaplessCylindersVertex) * vertex_count;
+
+		if (vertex_buffer.get_size() < size)
+		{
+			vertex_buffer.bind(el::hbt_vertex);
+
+			vertex_buffer.set_size(el::hbt_vertex, size,
+				el::hbut_dynamic_draw);
+		}
+
 		vertex_buffer.bind(el::hbt_vertex);
-		vertex_buffer.set_size(el::hbt_vertex,
-			sizeof(CaplessCylindersVertex) * vertex_count, el::hbut_static_draw);
 		vertices = static_cast<CaplessCylindersVertex*>(vertex_buffer.map(el::hbt_vertex, el::hbat_write_only));
 
+		size = 3 * sizeof(GLushort) * facet_count;
+
+		if (index_buffer.get_size() < size)
+		{
+			index_buffer.bind(el::hbt_index);
+
+			index_buffer.set_size(el::hbt_index, size,
+				el::hbut_dynamic_draw);
+		}
+
 		index_buffer.bind(el::hbt_index);
-		index_buffer.set_size(el::hbt_index,
-			3 * sizeof(GLushort) * facet_count, el::hbut_static_draw);
 		facets = static_cast<GLushort*>(index_buffer.map(el::hbt_index,
 			el::hbat_write_only));
 
