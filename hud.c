@@ -600,6 +600,10 @@ int exp_bar_start_y;
 
 void init_newchar_icons()
 {
+	/* wait until we have the root window to avoid hiding this one */
+	if (newchar_root_win < 0)
+		return;
+
 	//create the icon window
 	if(icons_win < 0)
 		{
