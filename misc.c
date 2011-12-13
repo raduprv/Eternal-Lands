@@ -213,10 +213,8 @@ static void png_write_data(png_structp ctx, png_bytep area, png_size_t size)
 
 static void png_io_flush (png_structp ctx)
 {
-	SDL_RWops *src;
-	
-	src = (SDL_RWops *) png_get_io_ptr(ctx);
-	/* how do I flush src? */
+	// it appears nobody ever writes a proper flush function but a dummy is required
+	// possibly we could just call png_write_flush()
 }
 
 static int png_colortype_from_surface(SDL_Surface *surface)
