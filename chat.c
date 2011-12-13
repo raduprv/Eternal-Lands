@@ -760,9 +760,7 @@ void update_chat_win_buffers(void)
 	for (itab = 0; itab < MAX_CHAT_TABS; itab++)
 		channels[itab].nr_lines = 0;
 
-	imsg = buffer_full ? last_message+1 : 0;
-	if (imsg >= DISPLAY_TEXT_BUFFER_SIZE)
-		imsg = 0;
+	imsg = 0;
 	while (1)
 	{
 		update_chat_window (&display_text_buffer[imsg], 0);

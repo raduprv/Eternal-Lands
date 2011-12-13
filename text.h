@@ -16,6 +16,7 @@ extern "C" {
 #endif
 
 #define DISPLAY_TEXT_BUFFER_SIZE 5000 /*!< maximum number of lines in the text buffer */
+#define DISPLAY_TEXT_BUFFER_DEL 100 /*!< number of lines to discard when buffer is full */
 
 #define CHAT_ALL	((Uint8) -1)
 #define CHAT_NONE	((Uint8) -2)
@@ -54,7 +55,6 @@ typedef struct
 
 extern text_message display_text_buffer[DISPLAY_TEXT_BUFFER_SIZE];
 extern int last_message;
-extern int buffer_full;
 extern int total_nr_lines; /*!< The number of lines in the text buffer */
 extern Uint8 current_filter;
 

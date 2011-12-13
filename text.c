@@ -37,7 +37,6 @@ int emote_filter=0;
 
 text_message display_text_buffer[DISPLAY_TEXT_BUFFER_SIZE];
 int last_message = -1;
-int buffer_full = 0;
 int total_nr_lines = 0;
 Uint8 current_filter = FILTER_ALL;
 
@@ -852,20 +851,29 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 	// set the time when we got this message
 	last_server_message_time = cur_time;
 
+	// if the buffer is full, delete some old lines and move the remainder to the front
 	if (++last_message >= DISPLAY_TEXT_BUFFER_SIZE)
 	{
-		buffer_full = 1;
-		last_message = 0;
+		const size_t num_move = DISPLAY_TEXT_BUFFER_SIZE - DISPLAY_TEXT_BUFFER_DEL;
+		size_t i;
+		for (i=0; i<DISPLAY_TEXT_BUFFER_DEL; i++)
+		{
+			msg = &(display_text_buffer[i]);
+			if (msg->data)
+			{
+				total_nr_lines -= msg->wrap_lines;
+				msg->deleted = 1;
+				update_text_windows(msg);
+				free_text_message_data (msg);
+			}
+		}
+		memmove(display_text_buffer, &display_text_buffer[DISPLAY_TEXT_BUFFER_DEL], sizeof(text_message)*num_move);
+		last_message -= DISPLAY_TEXT_BUFFER_DEL;
+		for (i = num_move; i < DISPLAY_TEXT_BUFFER_SIZE; i++)
+			init_text_message (display_text_buffer + i, 0);
 	}
 
 	msg = &(display_text_buffer[last_message]);
-
-	if (buffer_full && msg->data) {
-		total_nr_lines -= msg->wrap_lines;
-		msg->deleted = 1;
-		update_text_windows(msg);
-		free_text_message_data (msg);
-	}
 
 	// Try to make a guess at the number of wrapping newlines required,
 	// but allow al least for a null byte and up to 8 extra newlines and
@@ -1121,8 +1129,8 @@ int find_line_nr (int nr_lines, int line, Uint8 filter, int *msg, int *offset, f
 			}
 		}
 
-		if (--imsg < 0 && buffer_full)
-			imsg = DISPLAY_TEXT_BUFFER_SIZE - 1;
+		--imsg;
+
 	} while (imsg >= 0 && imsg != last_message);
 
 	*msg = 0;
@@ -1162,8 +1170,7 @@ void console_move_up ()
 				console_msg_offset = ichar + 1;
 				return;
 			}
-			if (--console_msg_nr < 0 && buffer_full)
-				console_msg_nr = DISPLAY_TEXT_BUFFER_SIZE - 1;
+			--console_msg_nr;
 			nl_found = 1;
 		}
 	}
@@ -1247,7 +1254,6 @@ void clear_display_text_buffer ()
 		display_text_buffer[i].deleted= 1;
 	}
 
-	buffer_full = 0;
 	console_msg_nr = 0;
 	console_msg_offset = 0;
 	last_message = -1;

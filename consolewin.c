@@ -344,14 +344,7 @@ int history_grep (const char* text, int len)
 		{
 			wraps = 1;
 			if (--idx < 0)
-			{
-				if (buffer_full)
-					// wrap around
-					idx = DISPLAY_TEXT_BUFFER_SIZE - 1;
-				else
-					// we've searched all messages
-					break;
-			}
+				break;
 		}
 		
 		if (i <= scroll_up_lines || display_text_buffer[idx].len < len)
