@@ -144,7 +144,7 @@ namespace eternal_lands
 			ssize_t ret = write(thread.m_log_file,
 				log_stream.str().c_str(), log_stream.str().length());
 
-			if (ret != log_stream.str().length())
+			if (ret != static_cast<ssize_t>(log_stream.str().length()))
 				std::cerr << "Failed to write the log file: "
 					<< log_stream.str(); // newline included
 		}
