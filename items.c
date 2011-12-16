@@ -245,7 +245,7 @@ void drag_item(int item, int storage, int mini)
 		
 		cur_item=storage_items[item].image_id;
 		if(!storage_items[item].quantity) {
-			storage_item_dragged=-1;
+			use_item = storage_item_dragged=-1;
 			return;
 		}
 		if (quantity > storage_items[item].quantity)
@@ -257,7 +257,7 @@ void drag_item(int item, int storage, int mini)
 		
 		cur_item=item_list[item].image_id;
 		if(!item_list[item].quantity) {
-			item_dragged=-1;
+			use_item = item_dragged=-1;
 			return;
 		}
 		if(item_list[item].is_stackable){
@@ -842,7 +842,6 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	}
 	
 	if(item_action_mode==ACTION_USE_WITEM)	action_mode=ACTION_USE_WITEM;
-	if(item_action_mode==ACTION_USE)	action_mode=ACTION_USE;
 
 	//see if we changed the quantity
 	if(mx>=quantity_x_offset && mx<quantity_x_offset+ITEM_EDIT_QUANT*quantity_width
@@ -1110,6 +1109,8 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 				elwin_mouse=CURSOR_USE;
 			} else if(item_action_mode==ACTION_USE_WITEM) {
 				elwin_mouse=CURSOR_USE_WITEM;
+				if (use_item!=-1)
+					item_help_str = multiuse_item_help_str;
 			} else {
 				if (item_dragged == -1)
 					item_help_str = pick_item_help_str;

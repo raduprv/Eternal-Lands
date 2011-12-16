@@ -180,6 +180,7 @@ char
 	equip_here_str[100],
 	equip_str[20],
 	pick_item_help_str[50],
+	multiuse_item_help_str[50],
 	stoall_help_str[50],
 	getall_help_str[50],
 	dcdrpall_help_str[50],
@@ -1263,6 +1264,7 @@ void init_help()
 	add_xml_identifier(misc,"edit_quantity",quantity_edit_str,"Rightclick on the quantity you wish to edit",sizeof(quantity_edit_str));
 	add_xml_identifier(misc,"equip_here",equip_here_str,"Place an item in these boxes to equip it",sizeof(equip_here_str));
 	add_xml_identifier(misc,"pick_item_help",pick_item_help_str,"Pick item. +ctrl to drop, +alt to store",sizeof(pick_item_help_str));
+	add_xml_identifier(misc,"multiuse_item_help",multiuse_item_help_str,"Leftclick to use (+shift to use again)",sizeof(multiuse_item_help_str));
 	add_xml_identifier(misc,"equipment",equip_str,"Equipment",sizeof(equip_str));
 	add_xml_identifier(misc,"stoall_help",stoall_help_str,"Move all items into opened storage",sizeof(stoall_help_str));
 	add_xml_identifier(misc,"getall_help",getall_help_str,"Get all items from ground bag",sizeof(getall_help_str));

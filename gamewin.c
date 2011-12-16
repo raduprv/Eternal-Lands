@@ -499,6 +499,7 @@ int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 	int flag_ctrl = flags & ELW_CTRL;
 	int flag_right = flags & ELW_RIGHT_MOUSE;
 	int force_walk = (flag_ctrl && flag_right && !flag_alt);
+	int shift_on = flags & ELW_SHIFT;
 	int range_weapon_equipped;
 
 #ifdef MIDDLE_MOUSE_PASTE
@@ -852,8 +853,11 @@ int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 			if (use_item != -1 && current_cursor == CURSOR_USE_WITEM)
 			{
 				*((int *)(str+5)) = SDL_SwapLE32((int)item_list[use_item].pos);
-				use_item = -1;
-				action_mode = ACTION_WALK;
+				if (!shift_on)
+				{
+					use_item = -1;
+					action_mode = ACTION_WALK;
+				}
 			} 
 			else
 			{

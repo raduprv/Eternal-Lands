@@ -2227,6 +2227,7 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 	int trigger=ELW_LEFT_MOUSE|ELW_CTRL|ELW_SHIFT;//flags we'll use for the quickbar relocation handling
 	int right_click = flags & ELW_RIGHT_MOUSE;
 	int ctrl_on = flags & ELW_CTRL;
+	int shift_on = flags & ELW_SHIFT;
 
 	// only handle mouse button clicks, not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
@@ -2258,7 +2259,6 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 	}
 	
 	if(qb_action_mode==ACTION_USE_WITEM)	action_mode=ACTION_USE_WITEM;
-	if(qb_action_mode==ACTION_USE)		action_mode=ACTION_USE;
 
 	// no in window check needed, already done
 	//see if we clicked on any item in the main category
@@ -2383,7 +2383,8 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 											item_list[use_item].action = ITEM_ON_ITEM;
 											item_list[i].action = ITEM_ON_ITEM;
 #endif // NEW_SOUND
-											use_item=-1;
+											if (!shift_on)
+												use_item=-1;
 										}
 										else
 											use_item=i;
