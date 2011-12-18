@@ -115,8 +115,11 @@ typedef struct
 	int quantity_selected;
 
 	int view_health_bar;
+	int view_ether_bar;
 	int view_names;
 	int view_hp;
+	int view_ether;
+
 
 	/*!
 	 * \name quest log window position

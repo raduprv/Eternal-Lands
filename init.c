@@ -364,8 +364,10 @@ void read_bin_cfg()
 	new_zoom_level=zoom_level=cfg_mem.zoom_level;
 
 	view_health_bar=cfg_mem.view_health_bar;
+	view_ether_bar=cfg_mem.view_ether_bar;
 	view_names=cfg_mem.view_names;
 	view_hp=cfg_mem.view_hp;
+	view_ether=cfg_mem.view_ether;
 	quantities.selected=cfg_mem.quantity_selected;
 
 	for(i=0;i<ITEM_EDIT_QUANT;i++){
@@ -596,8 +598,10 @@ void save_bin_cfg()
 	}
 
 	cfg_mem.view_health_bar=view_health_bar;
+	cfg_mem.view_ether_bar=view_ether_bar;
 	cfg_mem.view_names=view_names;
 	cfg_mem.view_hp=view_hp;
+	cfg_mem.view_ether=view_ether;
 	cfg_mem.quantity_selected=(quantities.selected<ITEM_EDIT_QUANT)?quantities.selected :0;
 
 	if(quickbar_relocatable>0)
