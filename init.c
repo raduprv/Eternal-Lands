@@ -87,7 +87,7 @@
 #include "custom_update.h"
 #endif  //CUSTOM_UPDATE
 
-#define	CFG_VERSION 7	// change this when critical changes to el.cfg are made that will break it
+#define	CFG_VERSION 8	// change this when critical changes to el.cfg are made that will break it
 
 int ini_file_size=0;
 
