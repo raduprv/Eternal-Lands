@@ -698,6 +698,7 @@ char	win_notepad[20],
 	ttab_camera[15],
 	ttab_troubleshoot[15],
 	ttab_font[10],
+	ttab_instance[15],
 	tab_help[10],
 	tab_encyclopedia[20],
 	tab_skills[20],
@@ -1427,7 +1428,7 @@ void init_help()
 	add_xml_identifier(misc, "cm_textedit_menu", cm_textedit_menu_str, "Cut\nCopy\nPaste\n--\nDate\nTime\nCoords", sizeof(cm_textedit_menu_str));
 	add_xml_identifier(misc, "cm_quickbar_menu", cm_quickbar_menu_str, "Quickbar Relocatable\nQuickbar Draggable\nReset Quickbar Position\nFlip Quickbar\nEnable Quickbar Menu\n", sizeof(cm_quickbar_menu_str));
 	add_xml_identifier(misc, "cm_hud_menu", cm_hud_menu_str, "Show Stats\nShow Stats Bars\nShow Digital Clock\nShow Analogue Clock\nShow Seconds\nShow FPS\nShow Minimap\nEnable Quickbar Menu\n--\nEnable Sound Effects\nEnable Music\n--\nCopy Location", sizeof(cm_hud_menu_str));
-	add_xml_identifier(misc, "cm_banner_menu", cm_banner_menu_str, "Show Names\nShow Health Bars\nShow Health Numbers\nShow Ether Bars\nShow Ether Numbers\nEnable Instance Mode\nShow Speech Bubbles\nEnable Banner Background\nSit Lock\nRanging Lock\n--\nDisable This Menu\n", sizeof(cm_banner_menu_str));
+	add_xml_identifier(misc, "cm_banner_menu", cm_banner_menu_str, "Show Names\nShow Health Bars\nShow Health Numbers\nShow Ether Bar\nShow Ether Numbers\nEnable Instance Mode\nShow Speech Bubbles\nEnable Banner Background\nSit Lock\nRanging Lock\n--\nDisable This Menu\n", sizeof(cm_banner_menu_str));
 	add_xml_identifier(misc, "cm_title_menu", cm_title_menu_str, "Hide Windows\nOpaque Background\nWindows On Top\n", sizeof(cm_title_menu_str));
 	add_xml_identifier(misc, "cm_title_help", cm_title_help_str, "Right-click for window menu", sizeof(cm_title_help_str));
 	add_xml_identifier(misc, "cm_items_menu", cm_items_menu_str, "--\nUse Small Window\nManual Window Size\nItem Window On Drop\nAllow Equipment Swap\n--\nOpen Storage (View Only)", sizeof(cm_items_menu_str));
@@ -1613,6 +1614,7 @@ void init_titles ()
 	add_xml_identifier (titles_str, "tab_camera", ttab_camera, "Camera", sizeof(ttab_camera));
 	add_xml_identifier (titles_str, "tab_troubleshoot", ttab_troubleshoot, "Troubleshoot", sizeof(ttab_troubleshoot));
 	add_xml_identifier (titles_str, "tab_font", ttab_font, "Font", sizeof(ttab_font));
+	add_xml_identifier (titles_str, "tab_instance", ttab_instance, "Instance", sizeof(ttab_instance));
 	add_xml_identifier (titles_str, "t_help", tab_help, "Help", sizeof(tab_help));
 	add_xml_identifier (titles_str, "t_ency", tab_encyclopedia, "Encyclopedia", sizeof(tab_encyclopedia));
 	add_xml_identifier (titles_str, "t_skills", tab_skills, "Skills", sizeof(tab_skills));

@@ -434,17 +434,20 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 
 	//if instance mode enabled, overwrite default view banner view options according to it
 	if (view_mode_instance) {
-		if (displaying_me) {
-			display_hp = 1;
-			display_names = 1;
-			display_health_bar = 1;
-			display_ether_bar = 1;
-			display_ether = 1;
+		//for my banner - use standard banner settings
+		if (!actor_id->is_enhanced_model) {
+			//creatures
+			display_hp = im_creature_view_hp;
+			display_names = im_creature_view_names;
+			display_health_bar = im_creature_view_hp_bar;
+			display_banner_alpha = im_creature_banner_bg;
 		//TODO: it shows healthbar above mule & summons too - probably no way to solve this issue
-		} else if (actor_id->is_enhanced_model){
-			display_hp = 0;
-			display_names = 0;
-			display_health_bar = 0;
+		} else if (!displaying_me && actor_id->is_enhanced_model){
+			//other players
+			display_hp = im_other_player_view_hp;
+			display_names = im_other_player_view_names;
+			display_health_bar = im_other_player_view_hp_bar;
+			display_banner_alpha = im_other_player_banner_bg;
 		}
 	}
 

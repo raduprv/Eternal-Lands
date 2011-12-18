@@ -52,6 +52,16 @@ extern int view_chat_text_as_overtext; /*!< if this is true, then any text an ac
 extern int view_mode_instance; /*!< indicates if we have instance mode turned on, it shows monsters and our hp only, no other players, overwrites all other actor banner display options */
 extern float view_mode_instance_banner_height; /*!< factor, we use to setup how high is banner above your toon when using view_mode_instance */
 
+//instance mode banners config:
+extern int im_creature_view_names; /*!< indicates whether the names of creatures should be displayed or not in instance mode*/
+extern int im_creature_view_hp; /*!< indicates whether health numbers of creatures should be displayed or not in instance mode*/
+extern int im_creature_view_hp_bar; /*!< indicates whether health bars of creatures should be displayed or not in instance mode*/
+extern int im_creature_banner_bg; /*!< indicates whether creatures banners background should be displayed or not in instance mode*/
+extern int im_other_player_view_names; /*!< indicates whether the names of creatures should be displayed or not in instance mode*/
+extern int im_other_player_view_hp; /*!< indicates whether health numbers of creatures should be displayed or not in instance mode*/
+extern int im_other_player_view_hp_bar; /*!< indicates whether health bars of creatures should be displayed or not in instance mode*/
+extern int im_other_player_banner_bg; /*!< indicates whether creatures banners background should be displayed or not in instance mode*/
+
 extern char username_box_selected; /*!< true, if the cursor is currently in the username input field */
 extern char password_box_selected; /*!< true, if the cursor is currently in the password input field */
 

@@ -104,12 +104,13 @@ typedef	int (*int_min_max_func)();
 #define GFX			7
 #define CAMERA		8
 #define TROUBLESHOOT	9
+#define INSTANCE	10
 
 #ifdef DEBUG
-#define DEBUGTAB	10
-#define MAX_TABS 11
+#define DEBUGTAB	11
+#define MAX_TABS 12
 #else
-#define MAX_TABS 10
+#define MAX_TABS 11
 #endif
 
 #define CHECKBOX_SIZE		15
@@ -136,7 +137,7 @@ struct {
 
 int elconfig_menu_x= 10;
 int elconfig_menu_y= 10;
-int elconfig_menu_x_len= 620;
+int elconfig_menu_x_len= 630;
 int elconfig_menu_y_len= 430;
 
 int windows_on_top= 0;
@@ -1764,8 +1765,6 @@ static void init_ELC_vars(void)
 #endif
 
 	add_var(OPT_BOOL,"show_poison_count", "poison_count", &show_poison_count, change_var, 0, "Show Food Poison Count", "Displays on the poison drop icon, the number of times you have been food poisoned since last being free of poison.",HUD);
-	add_var(OPT_BOOL,"use_view_mode_instance","instance_mode",&view_mode_instance, change_var, 0, "Use instance mode banners", "Shows only your and mobs banners, adds mana bar to your banner.",HUD);
-	add_var(OPT_FLOAT,"instance_mode_banner_height","instance_mode_bheight",&view_mode_instance_banner_height,change_float,5.0f,"Instance mode banner height","Sets how high the banner is located above your character",HUD,1.0,12.0,0.2);
 	// HUD TAB
 
 
@@ -1976,6 +1975,18 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"poor_man","poor",&poor_man,change_poor_man,0,"Poor Man","If the game is running very slow for you, toggle this setting.",TROUBLESHOOT);
 	// TROUBLESHOOT TAB
 
+	// INSTANCE TAB
+	add_var(OPT_BOOL,"use_view_mode_instance","instance_mode",&view_mode_instance, change_var, 0, "Use instance mode banners", "Shows only your and mobs banners, adds mana bar to your banner.",INSTANCE);
+	add_var(OPT_FLOAT,"instance_mode_banner_height","instance_mode_bheight",&view_mode_instance_banner_height,change_float,5.0f,"Your banner height","Sets how high the banner is located above your character",INSTANCE,1.0,12.0,0.2);
+	add_var(OPT_BOOL,"im_creature_view_names","im_cnm",&im_creature_view_names, change_var, 0, "Creatures - display names", "Show creature names when using instance mode",INSTANCE);
+	add_var(OPT_BOOL,"im_creature_view_hp","im_chp",&im_creature_view_hp, change_var, 0, "Creatures - display health numbers", "Show creature health numbers when using instance mode",INSTANCE);
+	add_var(OPT_BOOL,"im_creature_view_hp_bar","im_chpbar",&im_creature_view_hp_bar, change_var, 0, "Creatures - display health bars", "Show creature health bars when using instance mode",INSTANCE);
+	add_var(OPT_BOOL,"im_creature_banner_bg","im_cbbg",&im_creature_banner_bg, change_var, 0, "Creatures - use banner background", "Show creatures banners background when using instance mode",INSTANCE);
+	add_var(OPT_BOOL,"im_other_player_view_names","im_opnm",&im_other_player_view_names, change_var, 0, "Other players - display names", "Show other players names when using instance mode",INSTANCE);
+	add_var(OPT_BOOL,"im_other_player_view_hp","im_ophp",&im_other_player_view_hp, change_var, 0, "Other players - display health numbers", "Show other players health numbers when using instance mode",INSTANCE);
+	add_var(OPT_BOOL,"im_other_player_view_hp_bar","im_ophpbar",&im_other_player_view_hp_bar, change_var, 0, "Other players - display health bars", "Show other players health bars when using instance mode",INSTANCE);
+	add_var(OPT_BOOL,"im_other_player_banner_bg","im_opbbg",&im_other_player_banner_bg, change_var, 0, "Other players - use banner background", "Show other players banners background when using instance mode",INSTANCE);
+	// INSTANCE TAB
 
 	// DEBUGTAB TAB
 #ifdef DEBUG
@@ -2631,6 +2642,7 @@ void display_elconfig_win(void)
 		elconfig_tabs[GFX].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_gfx, 0, 0, ELW_SCROLLABLE);
 		elconfig_tabs[CAMERA].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_camera, 0, 0, ELW_SCROLLABLE);
 		elconfig_tabs[TROUBLESHOOT].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_troubleshoot, 0, 0, ELW_SCROLLABLE);
+		elconfig_tabs[INSTANCE].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_instance, 0, 0, ELW_SCROLLABLE);
 #ifdef DEBUG
 		elconfig_tabs[DEBUGTAB].tab= tab_add(elconfig_win, elconfig_tab_collection_id, "Debug", 0, 0, ELW_SCROLLABLE);
 #endif
