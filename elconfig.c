@@ -1776,7 +1776,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"im_other_player_view_hp","im_ophp",&im_other_player_view_hp, change_var, 0, "Other players instance banners - health numbers", "Show other players health numbers when using instance mode",HUD);
 	add_var(OPT_BOOL,"im_other_player_view_hp_bar","im_ophpbar",&im_other_player_view_hp_bar, change_var, 0, "Other players instance banners - health bars", "Show other players health bars when using instance mode",HUD);
 	add_var(OPT_BOOL,"im_other_player_banner_bg","im_opbbg",&im_other_player_banner_bg, change_var, 0, "Other players instance banners - background", "Show other players banners background when using instance mode",HUD);
-	add_var(OPT_BOOL,"im_other_player_show_banner_on_damage","im_opbdmg",&im_other_player_show_banner_on_damage, change_var, 0, "Other players instance banners - show on damage", "Show other players banners for a while if player gets hit when using instance mode",HUD);
+	add_var(OPT_BOOL,"im_other_player_show_banner_on_damage","im_opbdmg",&im_other_player_show_banner_on_damage, change_var, 0, "Other players instance banners - show hp on damage", "Show other players banners for a while if player gets hit when using instance mode",HUD);
 	// HUD TAB
 
 
