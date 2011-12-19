@@ -416,6 +416,8 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 
 	//some general info about "what's going on" - allows not to repeat complex conditions later
 	int displaying_me = 0;
+	int displaying_creature = 0;
+	int displaying_other_player = 0;
 	int display_health_line = 0;
 	int display_ether_line = 0;
 
@@ -437,6 +439,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		//for my banner - use standard banner settings
 		if (!actor_id->is_enhanced_model) {
 			//creatures
+			displaying_creature = 1;
 			display_hp = im_creature_view_hp;
 			display_names = im_creature_view_names;
 			display_health_bar = im_creature_view_hp_bar;
@@ -444,17 +447,13 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		//TODO: it shows healthbar above mule & summons too - probably no way to solve this issue
 		} else if (!displaying_me && actor_id->is_enhanced_model){
 			//other players
+			displaying_other_player = (actor_id->kind_of_actor != NPC);
 			display_hp = im_other_player_view_hp;
 			display_names = im_other_player_view_names;
 			display_health_bar = im_other_player_view_hp_bar;
 			display_banner_alpha = im_other_player_banner_bg;
 		}
 	}
-
-	//figure out which lines should we display and how many lines total do we show
-	display_health_line = (actor_id->kind_of_actor != NPC && (display_hp || display_health_bar) && actor_id->cur_health > 0 && actor_id->max_health > 0);
-	display_ether_line = ((display_ether || display_ether_bar) && displaying_me && your_info.ethereal_points.base > 0 );
-	num_lines = display_names + display_health_line + display_ether_line;
 
 	//Figure out where the point just above the actor's head is in the viewport
 	//See if Projection and viewport can be saved elsewhere to prevent doing this so often
@@ -464,17 +463,6 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	glGetIntegerv(GL_VIEWPORT, view);
 	// Input adjusted healthbar_y value to scale hy according to actor scale
 	gluProject(healthbar_x, healthbar_y, healthbar_z * actor_id->scale * actors_defs[actor_id->actor_type].actor_scale + 0.02, model, proj, view, &hx, &hy, &hz);
-
-	if (view_mode_instance && displaying_me) {
-		//make your bar a bit more above everything else so you can see it good enough
-		//and got no problems with attacking mobs
-		hy += view_mode_instance_banner_height*bar_y_len;
-	} else if (displaying_me && display_health_line && display_ether_line) {
-		hy += 1.5*bar_y_len;
-	}
-
-	//calculate "y" positions of ether lines
-	ey = hy -(display_health_line * bar_y_len);
 
 	//Save World-view and Projection matrices to allow precise raster placement of quads
 	glPushMatrix();
@@ -537,9 +525,29 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			glColor3f (1.0f, 0.3f, 0.3f);
 			DRAW_ORTHO_INGAME_NORMAL(-0.1f,healthbar_z/2.0f,0,str,1.0f);
 		}
+		if (view_mode_instance && im_other_player_show_banner_on_damage && displaying_other_player && !display_hp && !display_health_bar && actor_id->damage>0) {
+			display_hp = 1;
+			display_names = 1;
+		}
 	}
 
 	glDepthFunc(GL_LESS);
+
+	//figure out which lines should we display and how many lines total do we show
+	display_health_line = (actor_id->kind_of_actor != NPC && (display_hp || display_health_bar) && actor_id->cur_health > 0 && actor_id->max_health > 0);
+	display_ether_line = ((display_ether || display_ether_bar) && displaying_me && your_info.ethereal_points.base > 0 );
+	num_lines = display_names + display_health_line + display_ether_line;
+	if (view_mode_instance && displaying_me) {
+		//make your bar a bit more above everything else so you can see it good enough
+		//and got no problems with attacking mobs
+		hy += view_mode_instance_banner_height*bar_y_len;
+	} else if (displaying_me && display_health_line && display_ether_line) {
+		hy += 1.5*bar_y_len;
+	}
+
+	//calculate "y" positions of ether lines
+	ey = hy -(display_health_line * bar_y_len);
+
 	// Schmurk: same here, we actually never reach this code
 	if (!((first_person)&&(actor_id->actor_id==yourself)))
 	{

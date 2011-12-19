@@ -57,10 +57,11 @@ extern int im_creature_view_names; /*!< indicates whether the names of creatures
 extern int im_creature_view_hp; /*!< indicates whether health numbers of creatures should be displayed or not in instance mode*/
 extern int im_creature_view_hp_bar; /*!< indicates whether health bars of creatures should be displayed or not in instance mode*/
 extern int im_creature_banner_bg; /*!< indicates whether creatures banners background should be displayed or not in instance mode*/
-extern int im_other_player_view_names; /*!< indicates whether the names of creatures should be displayed or not in instance mode*/
-extern int im_other_player_view_hp; /*!< indicates whether health numbers of creatures should be displayed or not in instance mode*/
-extern int im_other_player_view_hp_bar; /*!< indicates whether health bars of creatures should be displayed or not in instance mode*/
-extern int im_other_player_banner_bg; /*!< indicates whether creatures banners background should be displayed or not in instance mode*/
+extern int im_other_player_view_names; /*!< indicates whether the names of  other players should be displayed or not in instance mode*/
+extern int im_other_player_view_hp; /*!< indicates whether health numbers of  other players should be displayed or not in instance mode*/
+extern int im_other_player_view_hp_bar; /*!< indicates whether health bars of  other players should be displayed or not in instance mode*/
+extern int im_other_player_banner_bg; /*!< indicates whether other players banners background should be displayed or not in instance mode*/
+extern int im_other_player_show_banner_on_damage;  /*!< indicates whether  other players name and hp should appear for a while if player gets damage in instance mode*/
 
 extern char username_box_selected; /*!< true, if the cursor is currently in the username input field */
 extern char password_box_selected; /*!< true, if the cursor is currently in the password input field */
