@@ -788,7 +788,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		start_y  += ((!display_health_line && !display_ether_line && display_names) ?bar_y_len-6.0 :-5.0);
 		start_y  -= (num_lines == 3) ? bar_y_len:0.0;
 		if ((mouse_x > hx-xoff) && (mouse_x < hx+xoff) &&
-			(window_height-mouse_y > start_y) && (window_height-mouse_y < start_y+bar_y_len*num_lines))
+			(window_height-mouse_y > start_y) && (window_height-mouse_y < start_y+bar_y_len*((num_lines>0)?num_lines:1)))
 			cm_mouse_over_banner = 1;
 		else
 			cm_mouse_over_banner = 0;

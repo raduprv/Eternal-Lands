@@ -121,6 +121,9 @@ typedef struct
 	int banner_settings;
 	/*! @} */
 
+	int unused_01;
+	int unused_02;
+
 	/*!
 	 * \name quest log window position
 	 */
