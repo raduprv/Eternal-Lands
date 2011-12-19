@@ -96,15 +96,16 @@ typedef	int (*int_min_max_func)();
 // Defines for config variables
 #define CONTROLS	0
 #define HUD			1
-#define CHAT		2
-#define FONT 		3
-#define SERVER		4
-#define AUDIO		5
-#define VIDEO		6
-#define GFX			7
-#define CAMERA		8
-#define TROUBLESHOOT	9
-#define INSTANCE	10
+#define INSTANCE	2
+#define CHAT		3
+#define FONT 		4
+#define SERVER		5
+#define AUDIO		6
+#define VIDEO		7
+#define GFX			8
+#define CAMERA		9
+#define TROUBLESHOOT	10
+
 
 #ifdef DEBUG
 #define DEBUGTAB	11
@@ -2634,6 +2635,7 @@ void display_elconfig_win(void)
 		 * to put more widgets in the tab than the size of the window allows.*/
 		elconfig_tabs[CONTROLS].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_controls, 0, 0, ELW_SCROLLABLE);
 		elconfig_tabs[HUD].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_hud, 0, 0, ELW_SCROLLABLE);
+		elconfig_tabs[INSTANCE].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_instance, 0, 0, ELW_SCROLLABLE);
 		elconfig_tabs[CHAT].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_chat, 0, 0, ELW_SCROLLABLE);
 		elconfig_tabs[FONT].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_font, 0, 0, ELW_SCROLLABLE);
 		elconfig_tabs[SERVER].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_server, 0, 0, ELW_SCROLLABLE);
@@ -2642,7 +2644,6 @@ void display_elconfig_win(void)
 		elconfig_tabs[GFX].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_gfx, 0, 0, ELW_SCROLLABLE);
 		elconfig_tabs[CAMERA].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_camera, 0, 0, ELW_SCROLLABLE);
 		elconfig_tabs[TROUBLESHOOT].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_troubleshoot, 0, 0, ELW_SCROLLABLE);
-		elconfig_tabs[INSTANCE].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_instance, 0, 0, ELW_SCROLLABLE);
 #ifdef DEBUG
 		elconfig_tabs[DEBUGTAB].tab= tab_add(elconfig_win, elconfig_tab_collection_id, "Debug", 0, 0, ELW_SCROLLABLE);
 #endif

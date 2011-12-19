@@ -452,7 +452,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	}
 
 	//figure out which lines should we display and how many lines total do we show
-	display_health_line = ((display_hp || display_health_bar) && actor_id->cur_health > 0 && actor_id->max_health > 0);
+	display_health_line = (actor_id->kind_of_actor != NPC && (display_hp || display_health_bar) && actor_id->cur_health > 0 && actor_id->max_health > 0);
 	display_ether_line = ((display_ether || display_ether_bar) && displaying_me && your_info.ethereal_points.base > 0 );
 	num_lines = display_names + display_health_line + display_ether_line;
 

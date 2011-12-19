@@ -87,7 +87,7 @@
 #include "custom_update.h"
 #endif  //CUSTOM_UPDATE
 
-#define	CFG_VERSION 8	// change this when critical changes to el.cfg are made that will break it
+#define	CFG_VERSION 7	// change this when critical changes to el.cfg are made that will break it
 
 int ini_file_size=0;
 
@@ -363,11 +363,12 @@ void read_bin_cfg()
 	rz=cfg_mem.camera_z;
 	new_zoom_level=zoom_level=cfg_mem.zoom_level;
 
-	view_health_bar=cfg_mem.view_health_bar;
-	view_ether_bar=cfg_mem.view_ether_bar;
-	view_names=cfg_mem.view_names;
-	view_hp=cfg_mem.view_hp;
-	view_ether=cfg_mem.view_ether;
+	view_health_bar=cfg_mem.banner_settings & 1;
+	view_ether_bar=(cfg_mem.banner_settings >> 1) & 1;
+	view_names=(cfg_mem.banner_settings >> 2) & 1;
+	view_hp=(cfg_mem.banner_settings >> 3) & 1;
+	view_ether=(cfg_mem.banner_settings >> 4) & 1;
+
 	quantities.selected=cfg_mem.quantity_selected;
 
 	for(i=0;i<ITEM_EDIT_QUANT;i++){
@@ -597,11 +598,13 @@ void save_bin_cfg()
 		cfg_mem.tab_info_y=tab_info_y;
 	}
 
-	cfg_mem.view_health_bar=view_health_bar;
-	cfg_mem.view_ether_bar=view_ether_bar;
-	cfg_mem.view_names=view_names;
-	cfg_mem.view_hp=view_hp;
-	cfg_mem.view_ether=view_ether;
+	cfg_mem.banner_settings = 0;
+	cfg_mem.banner_settings |= view_health_bar;
+	cfg_mem.banner_settings |= view_ether_bar << 1;
+	cfg_mem.banner_settings |= view_names << 2;
+	cfg_mem.banner_settings |= view_hp << 3;
+	cfg_mem.banner_settings |= view_ether << 4;
+
 	cfg_mem.quantity_selected=(quantities.selected<ITEM_EDIT_QUANT)?quantities.selected :0;
 
 	if(quickbar_relocatable>0)
