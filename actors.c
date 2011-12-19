@@ -752,7 +752,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		//if banner width > 0 there MUST be something displayed in the banner
 		float start_y = hy;
 		start_y  += ((!display_health_line && !display_ether_line && display_names) ?bar_y_len-6.0 :-5.0);
-		start_y  -= (num_lines == 3) ? bar_y_len:0.0;
+		start_y  -= (num_lines == 3 || (num_lines==2 && !display_names)) ? bar_y_len:0.0;
 		banner_width += 3;
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE, GL_SRC_ALPHA);
@@ -786,7 +786,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		int xoff = (banner_width > 0) ?banner_width: 60;
 		float start_y = hy;
 		start_y  += ((!display_health_line && !display_ether_line && display_names) ?bar_y_len-6.0 :-5.0);
-		start_y  -= (num_lines == 3) ? bar_y_len:0.0;
+		start_y  -= (num_lines == 3 || (num_lines==2 && !display_names)) ? bar_y_len:0.0;
 		if ((mouse_x > hx-xoff) && (mouse_x < hx+xoff) &&
 			(window_height-mouse_y > start_y) && (window_height-mouse_y < start_y+bar_y_len*((num_lines>0)?num_lines:3)))
 			cm_mouse_over_banner = 1;
