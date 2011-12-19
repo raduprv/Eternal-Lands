@@ -416,7 +416,6 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 
 	//some general info about "what's going on" - allows not to repeat complex conditions later
 	int displaying_me = 0;
-	int displaying_creature = 0;
 	int displaying_other_player = 0;
 	int display_health_line = 0;
 	int display_ether_line = 0;
@@ -439,7 +438,6 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		//for my banner - use standard banner settings
 		if (!actor_id->is_enhanced_model) {
 			//creatures
-			displaying_creature = 1;
 			display_hp = im_creature_view_hp;
 			display_names = im_creature_view_names;
 			display_health_bar = im_creature_view_hp_bar;
