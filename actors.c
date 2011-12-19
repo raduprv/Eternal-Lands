@@ -604,10 +604,10 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 					if(display_ether_bar){
 						eth_off+=5.0+disp;
 					}
-					if (disp+hp_off > banner_width) {
+					if (display_hp && (disp+hp_off > banner_width)) {
 						banner_width = disp + hp_off;
 					}
-					if (disp+eth_off > banner_width) {
+					if (display_ether && (disp+eth_off > banner_width)) {
 						banner_width = disp + eth_off;
 					}
 
@@ -788,7 +788,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		start_y  += ((!display_health_line && !display_ether_line && display_names) ?bar_y_len-6.0 :-5.0);
 		start_y  -= (num_lines == 3) ? bar_y_len:0.0;
 		if ((mouse_x > hx-xoff) && (mouse_x < hx+xoff) &&
-			(window_height-mouse_y > start_y) && (window_height-mouse_y < start_y+bar_y_len*((num_lines>0)?num_lines:1)))
+			(window_height-mouse_y > start_y) && (window_height-mouse_y < start_y+bar_y_len*((num_lines>0)?num_lines:3)))
 			cm_mouse_over_banner = 1;
 		else
 			cm_mouse_over_banner = 0;
