@@ -114,7 +114,12 @@ typedef struct
 
 	int quantity_selected;
 
+	/*!
+	 * \name Banner settings configured via banner popup menu
+	 */
+	/*! @{ */
 	int banner_settings;
+	/*! @} */
 
 	/*!
 	 * \name quest log window position
