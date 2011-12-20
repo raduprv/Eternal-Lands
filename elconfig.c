@@ -1763,6 +1763,7 @@ static void init_ELC_vars(void)
 #if !defined(WINDOWS) && !defined(OSX)
 	add_var(OPT_BOOL,"use_clipboard","uclb",&use_clipboard, change_var, 1, "Use Clipboard For Pasting", "Use CLIPBOARD for pasting (as e.g. GNOME does) or use PRIMARY cutbuffer (as xterm does)",HUD);
 #endif
+
 	add_var(OPT_BOOL,"show_poison_count", "poison_count", &show_poison_count, change_var, 0, "Show Food Poison Count", "Displays on the poison drop icon, the number of times you have been food poisoned since last being free of poison.",HUD);
 	// instance mode options
 	add_var(OPT_BOOL,"use_view_mode_instance","instance_mode",&view_mode_instance, change_var, 0, "Use instance mode banners", "Shows only your and mobs banners, adds mana bar to your banner.",HUD);
