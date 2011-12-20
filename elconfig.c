@@ -105,6 +105,7 @@ typedef	int (*int_min_max_func)();
 #define CAMERA		8
 #define TROUBLESHOOT	9
 
+
 #ifdef DEBUG
 #define DEBUGTAB	10
 #define MAX_TABS 11
@@ -1762,7 +1763,20 @@ static void init_ELC_vars(void)
 #if !defined(WINDOWS) && !defined(OSX)
 	add_var(OPT_BOOL,"use_clipboard","uclb",&use_clipboard, change_var, 1, "Use Clipboard For Pasting", "Use CLIPBOARD for pasting (as e.g. GNOME does) or use PRIMARY cutbuffer (as xterm does)",HUD);
 #endif
+
 	add_var(OPT_BOOL,"show_poison_count", "poison_count", &show_poison_count, change_var, 0, "Show Food Poison Count", "Displays on the poison drop icon, the number of times you have been food poisoned since last being free of poison.",HUD);
+	// instance mode options
+	add_var(OPT_BOOL,"use_view_mode_instance","instance_mode",&view_mode_instance, change_var, 0, "Use instance mode banners", "Shows only your and mobs banners, adds mana bar to your banner.",HUD);
+	add_var(OPT_FLOAT,"instance_mode_banner_height","instance_mode_bheight",&view_mode_instance_banner_height,change_float,5.0f,"Your instance banner height","Sets how high the banner is located above your character",HUD,1.0,12.0,0.2);
+	add_var(OPT_BOOL,"im_creature_view_names","im_cnm",&im_creature_view_names, change_var, 0, "Creatures instance banners - names", "Show creature names when using instance mode",HUD);
+	add_var(OPT_BOOL,"im_creature_view_hp","im_chp",&im_creature_view_hp, change_var, 0, "Creatures instance banners - health numbers", "Show creature health numbers when using instance mode",HUD);
+	add_var(OPT_BOOL,"im_creature_view_hp_bar","im_chpbar",&im_creature_view_hp_bar, change_var, 0, "Creatures instance banners - health bars", "Show creature health bars when using instance mode",HUD);
+	add_var(OPT_BOOL,"im_creature_banner_bg","im_cbbg",&im_creature_banner_bg, change_var, 0, "Creatures instance banners - background", "Show creatures banners background when using instance mode",HUD);
+	add_var(OPT_BOOL,"im_other_player_view_names","im_opnm",&im_other_player_view_names, change_var, 0, "Other players instance banners - names", "Show other players names when using instance mode",HUD);
+	add_var(OPT_BOOL,"im_other_player_view_hp","im_ophp",&im_other_player_view_hp, change_var, 0, "Other players instance banners - health numbers", "Show other players health numbers when using instance mode",HUD);
+	add_var(OPT_BOOL,"im_other_player_view_hp_bar","im_ophpbar",&im_other_player_view_hp_bar, change_var, 0, "Other players instance banners - health bars", "Show other players health bars when using instance mode",HUD);
+	add_var(OPT_BOOL,"im_other_player_banner_bg","im_opbbg",&im_other_player_banner_bg, change_var, 0, "Other players instance banners - background", "Show other players banners background when using instance mode",HUD);
+	add_var(OPT_BOOL,"im_other_player_show_banner_on_damage","im_opbdmg",&im_other_player_show_banner_on_damage, change_var, 0, "Other players instance banners - show hp on damage", "Show other players banners for a while if player gets hit when using instance mode",HUD);
 	// HUD TAB
 
 
@@ -1972,7 +1986,6 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL, "use_animation_program", "uap", &use_animation_program, change_use_animation_program, 1, "Use animation program", "Use GL_ARB_vertex_program for actor animation", TROUBLESHOOT);
 	add_var(OPT_BOOL,"poor_man","poor",&poor_man,change_poor_man,0,"Poor Man","If the game is running very slow for you, toggle this setting.",TROUBLESHOOT);
 	// TROUBLESHOOT TAB
-
 
 	// DEBUGTAB TAB
 #ifdef DEBUG
