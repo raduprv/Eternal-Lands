@@ -363,6 +363,15 @@ void read_bin_cfg()
 	rz=cfg_mem.camera_z;
 	new_zoom_level=zoom_level=cfg_mem.zoom_level;
 
+	// Needed for just one release, recover previous settings for player banners.
+	if (cfg_mem.unused_01 != 0 || cfg_mem.unused_02 != 0)
+	{
+		cfg_mem.banner_settings &= 1;
+		cfg_mem.banner_settings |= (cfg_mem.unused_01 << 2);
+		cfg_mem.banner_settings |= (cfg_mem.unused_02 << 3);
+		cfg_mem.unused_01 = cfg_mem.unused_02 = 0;
+	}
+
 	view_health_bar=cfg_mem.banner_settings & 1;
 	view_ether_bar=(cfg_mem.banner_settings >> 1) & 1;
 	view_names=(cfg_mem.banner_settings >> 2) & 1;
