@@ -651,12 +651,6 @@ int cm_title_handler(window_info *win, int widget_id, int mx, int my, int option
 	{
 		case 0: hide_all_windows(); break;
 		case 1: break; // make sure the sound is sucess. 
-#ifndef MAP_EDITOR2
-		case 2:
-			windows_on_top ^= 1; /* context_menu will already have toggled the option but this saves having a new var */
-			change_windows_on_top(&windows_on_top);
-			break;
-#endif
 	}
 	return 1;
 }

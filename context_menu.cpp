@@ -727,10 +727,11 @@ namespace cm
 		// if a bool line, toggle the control variable
 		if (menu_lines[selection].control_var)
 		{
-			*menu_lines[selection].control_var = (*menu_lines[selection].control_var) ?0 :1;
-			// if we have a config control name, set the control variable as unsaved
+			// if we have a config control name, use the vars change function, otherwise just toggle
 			if (menu_lines[selection].config_name)
-				set_var_unsaved(menu_lines[selection].config_name, INI_FILE_VAR);
+				toggle_OPT_BOOL_by_name(menu_lines[selection].config_name);
+			else
+				*menu_lines[selection].control_var = !*menu_lines[selection].control_var;
 			if (!handler)
 				return 1;
 		}

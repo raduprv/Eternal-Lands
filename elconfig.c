@@ -1334,6 +1334,19 @@ int set_var_unsaved(const char *str, var_name_type type)
 	return 1;
 }
 
+int toggle_OPT_BOOL_by_name(const char *str)
+{
+	int var_index = find_var(str, OPT_BOOL);
+	if ((var_index == -1) || (our_vars.var[var_index]->type != OPT_BOOL))
+	{
+		fprintf(stderr, "%s(): Invalid OPT_BOOL '%s'\n", __FUNCTION__, str);
+		return 0;
+	}
+	our_vars.var[var_index]->func(our_vars.var[var_index]->var);
+	our_vars.var[var_index]->saved= 0;
+	return 1;
+}
+
 #ifdef	ELC
 // Find an OPT_INT widget and set its's value
 // Other types might be useful but I just needed an OPT_INT this time.

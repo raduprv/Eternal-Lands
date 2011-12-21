@@ -204,6 +204,14 @@ void change_windowed_chat (int *wc, int val);
  */
 int set_var_unsaved(const char *str, var_name_type type);
 
+/*!
+ * \ingroup other
+ * brief Toggle the specfied OPT_BOOL variable (if valid) and save.
+ * \param str	the option name
+ * \retval	1 if sucessfull, 0 if name is invalid
+ */
+int toggle_OPT_BOOL_by_name(const char *str);
+
 #ifdef	ELC
 /*!
  * \ingroup other
