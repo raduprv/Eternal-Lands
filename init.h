@@ -114,9 +114,15 @@ typedef struct
 
 	int quantity_selected;
 
-	int view_health_bar;
-	int view_names;
-	int view_hp;
+	/*!
+	 * \name Banner settings configured via banner popup menu
+	 */
+	/*! @{ */
+	int banner_settings;
+	/*! @} */
+
+	int unused_01;
+	int unused_02;
 
 	/*!
 	 * \name quest log window position

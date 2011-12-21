@@ -65,9 +65,25 @@ int have_a_map=0;
 int combat_mode=0;
 int auto_camera=0;
 int view_health_bar=1;
+int view_ether_bar=0;
 int view_names=1;
 int view_hp=0;
+int view_ether=0;
 int view_chat_text_as_overtext=0;
+int view_mode_instance=0;
+float view_mode_instance_banner_height=5.0f;
+
+//instance mode banners config:
+int im_creature_view_names = 1;
+int im_creature_view_hp = 1;
+int im_creature_view_hp_bar = 0;
+int im_creature_banner_bg = 0;
+int im_other_player_view_names = 1;
+int im_other_player_view_hp = 1;
+int im_other_player_view_hp_bar = 0;
+int im_other_player_banner_bg = 0;
+int im_other_player_show_banner_on_damage = 0;
+
 int limit_fps=0;
 
 int action_mode=ACTION_WALK;
