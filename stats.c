@@ -25,11 +25,8 @@ int attrib_menu_x_len=STATS_TAB_WIDTH;
 int attrib_menu_y_len=STATS_TAB_HEIGHT;
 //int attrib_menu_dragged=0;
 
-int watch_this_stats[MAX_WATCH_STATS]={NUM_WATCH_STAT -1, 0, 0, 0, 0};  // default to only watching overall
-int max_disp_stats=1;  // default to only 1 displayable stat
 int check_grid_y_top=0;
 int check_grid_x_left=0;
-int max_food_level=45;
 
 int have_stats=0;
 

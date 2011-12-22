@@ -228,10 +228,6 @@ extern struct stats_struct statsinfo[];
 extern int attrib_menu_x;
 extern int attrib_menu_y;
 
-extern int watch_this_stats[];	/*!< used for displaying more than 1 stat in the hud */
-extern int max_disp_stats;	/*!< max number of stats displayable in hud, depending on screen resolution */
-extern int max_food_level; /*!< normally 45 but can be set from options for people with diffent values (big belly) */
-
 extern int have_stats; /*!< indicator for whether or not the stats have been send to us yet*/
 
 extern player_attribs your_info; /*!< the players attributes */
