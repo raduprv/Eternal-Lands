@@ -1433,7 +1433,7 @@ int	display_stats_bar_handler(window_info *win)
 	draw_stats_bar(mana_bar_start_x, mana_bar_start_y, your_info.ethereal_points.cur, mana_adjusted_x_len, 0.2f, 0.2f, 1.0f, 0.2f, 0.2f, 0.5f);
 	draw_stats_bar(load_bar_start_x, load_bar_start_y, your_info.carry_capacity.base-your_info.carry_capacity.cur, load_adjusted_x_len, 0.6f, 0.4f, 0.4f, 0.4f, 0.2f, 0.2f);
 	if (show_action_bar)
-		draw_stats_bar(action_bar_start_x, action_bar_start_y, your_info.action_points.cur, action_adjusted_x_len, 1.0f, 0.0f, 1.0f, 0.5f, 0.0f, 0.5f);
+		draw_stats_bar(action_bar_start_x, action_bar_start_y, your_info.action_points.cur, action_adjusted_x_len, 0.8f, 0.3f, 0.8f, 0.5f, 0.1f, 0.5f);
 
 	draw_exp_display();
 
