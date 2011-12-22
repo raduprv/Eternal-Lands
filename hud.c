@@ -580,24 +580,6 @@ float colored_urlwin_icon_v_start=1.0f-(float)64/256;
 // to help highlight the proper icon
 int	icon_cursor_x;
 
-int	statbar_cursor_x;
-
-//stat bars
-int health_bar_start_x;
-int health_bar_start_y;
-
-int mana_bar_start_x;
-int mana_bar_start_y;
-
-int food_bar_start_x;
-int food_bar_start_y;
-
-int load_bar_start_x;
-int load_bar_start_y;
-
-int exp_bar_start_x;
-int exp_bar_start_y;
-
 void init_newchar_icons()
 {
 	/* wait until we have the root window to avoid hiding this one */
@@ -607,7 +589,7 @@ void init_newchar_icons()
 	//create the icon window
 	if(icons_win < 0)
 		{
-			icons_win= create_window("Icons", -1, 0, 0, window_height-32, window_width-64, 32, ELW_TITLE_NONE|ELW_SHOW_LAST);
+			icons_win= create_window("Icons", -1, 0, 0, window_height-32, window_width-hud_x, 32, ELW_TITLE_NONE|ELW_SHOW_LAST);
 			set_window_handler(icons_win, ELW_HANDLER_DISPLAY, &display_icons_handler);
 			set_window_handler(icons_win, ELW_HANDLER_CLICK, &click_icons_handler);
 			set_window_handler(icons_win, ELW_HANDLER_MOUSEOVER, &mouseover_icons_handler);
@@ -633,7 +615,7 @@ void init_peace_icons()
 	//create the icon window
 	if(icons_win < 0)
 		{
-			icons_win= create_window("Icons", -1, 0, 0, window_height-32, window_width-64, 32, ELW_TITLE_NONE|ELW_SHOW_LAST);
+			icons_win= create_window("Icons", -1, 0, 0, window_height-32, window_width-hud_x, 32, ELW_TITLE_NONE|ELW_SHOW_LAST);
 			set_window_handler(icons_win, ELW_HANDLER_DISPLAY, &display_icons_handler);
 			set_window_handler(icons_win, ELW_HANDLER_CLICK, &click_icons_handler);
 			set_window_handler(icons_win, ELW_HANDLER_MOUSEOVER, &mouseover_icons_handler);
@@ -1062,27 +1044,104 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
+// Stats bars in the bottom HUD .....
+
+int show_action_bar = 0;
+int watch_this_stats[MAX_WATCH_STATS]={NUM_WATCH_STAT -1, 0, 0, 0, 0};  // default to only watching overall
+int max_food_level=45;
+static int exp_bar_text_len = 8.5*SMALL_FONT_X_LEN;
+static int stats_bar_text_len = 4.5 * SMALL_FONT_X_LEN;
+
+// return the number of watched stat bars, the number displayed in the botton HUD
+static int get_num_statsbar_exp(void)
+{
+	size_t i;
+	int num_skills_bar = 0;
+	for (i=0; i<MAX_WATCH_STATS; i++)
+		if ((watch_this_stats[i] > 0) && statsinfo[watch_this_stats[i]-1].is_selected)
+			num_skills_bar++;
+	return num_skills_bar;
+}
+
+// return the optimal length for stat bars for the botton HUD
+static int calc_stats_bar_len(int num_exp)
+{
+	// calculate the maximum length for stats bars given the current number of both bar types
+	int num_stat = (show_action_bar) ?5: 4;
+	int prosed_len = (window_width-hud_x-1) - (num_stat * stats_bar_text_len) - (num_exp * exp_bar_text_len);
+	prosed_len /= num_stat + num_exp;
+
+	// constain the maximum and minimum length of the skills bars to reasonable size
+	if (prosed_len < 50)
+		prosed_len = 50;
+	else if (prosed_len > 100)
+		prosed_len = 100;
+
+	return prosed_len;
+}
+
+// calculate the maximum number of exp bars
+static int calc_max_disp_stats(int suggested_stats_bar_len)
+{
+	int exp_offset = ((show_action_bar)?5:4) * (suggested_stats_bar_len + stats_bar_text_len);
+	int preposed_max_disp_stats = (window_width - hud_x - exp_offset) / (suggested_stats_bar_len + exp_bar_text_len);
+	if (preposed_max_disp_stats > MAX_WATCH_STATS)
+		preposed_max_disp_stats = MAX_WATCH_STATS;
+	return preposed_max_disp_stats;
+}
+
+static int	statbar_cursor_x;
+static int stats_bar_len;
+static int max_disp_stats=1;
+static int health_bar_start_x;
+static int health_bar_start_y;
+static int mana_bar_start_x;
+static int mana_bar_start_y;
+static int food_bar_start_x;
+static int food_bar_start_y;
+static int load_bar_start_x;
+static int load_bar_start_y;
+static int action_bar_start_x;
+static int action_bar_start_y;
+static int exp_bar_start_x;
+static int exp_bar_start_y;
+
+// clear the context menu regions for all stats bars and set up again
+static void reset_statsbar_exp_cm_regions(void)
+{
+	size_t i;
+	cm_remove_regions(stats_bar_win);
+	for (i=0; i<max_disp_stats; i++)
+		if (watch_this_stats[i] > 0)
+			cm_add_region(cm_id, stats_bar_win, exp_bar_start_x+i*(stats_bar_len+exp_bar_text_len), exp_bar_start_y, stats_bar_len, 12);
+}
+
 static int cm_statsbar_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
 	int i;
+	int add_bar = 0;
 
-	// selecting the same stat more than once or removing the last bar
-	// is not possible as options are greyed out.
+	// selecting the same stat more than once, removing the last bar
+	// or adding too many is not possible as options are greyed out.
 	
 	for (i=0; i<max_disp_stats;i++)
 	{
-		if ((mx >= exp_bar_start_x+i*180) && (mx <= exp_bar_start_x+i*180+100))
+		if ((mx >= exp_bar_start_x+i*(stats_bar_len+exp_bar_text_len)) && (mx <= exp_bar_start_x+i*(stats_bar_len+exp_bar_text_len)+stats_bar_len))
 		{
-			statsinfo[watch_this_stats[i]-1].is_selected=0;
 			// if deleting the bar, close any gap
-			if (option == NUM_WATCH_STAT)
+			if (option == NUM_WATCH_STAT+1)
 			{
+				statsinfo[watch_this_stats[i]-1].is_selected=0;
 				if (i<max_disp_stats-1)
 					memmove(&(watch_this_stats[i]), &(watch_this_stats[i+1]), (max_disp_stats-i-1) * sizeof(int));
 				watch_this_stats[max_disp_stats-1] = 0;
+				init_stats_display();
 			}
+			else if (option == NUM_WATCH_STAT)
+				add_bar = 1;
 			else
 			{
+				statsinfo[watch_this_stats[i]-1].is_selected=0;
 				watch_this_stats[i] = option+1;
 				statsinfo[option].is_selected=1;
 			}
@@ -1090,94 +1149,117 @@ static int cm_statsbar_handler(window_info *win, int widget_id, int mx, int my, 
 		}
 	}
 
-	cm_remove_regions(stats_bar_win);
-	for (i=0;i<max_disp_stats;i++)
+	// if we want another bar, assigning it to teh first unwatched stat
+	if (add_bar)
 	{
-		if (watch_this_stats[i] > 0)
-			cm_add_region(cm_id, stats_bar_win, exp_bar_start_x+i*180, exp_bar_start_y, 100, 12);
+		int proposed_max_disp_stats = calc_max_disp_stats(calc_stats_bar_len(get_num_statsbar_exp()+1));
+		int next_free = -1;
+		for (i=0; i<NUM_WATCH_STAT-1; i++)
+			if (statsinfo[i].is_selected == 0)
+			{
+				next_free = i;
+				break;
+			}
+		for (i=0; next_free>=0 && i<proposed_max_disp_stats; i++)
+			if (watch_this_stats[i] == 0)
+			{
+				watch_this_stats[i] = next_free + 1;
+				statsinfo[next_free].is_selected =1 ;
+				break;
+			}
+		init_stats_display();
 	}
+
+	reset_statsbar_exp_cm_regions();
+
 	return 1;
 }
 
 static void cm_statsbar_pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win)
 {
-	int i;
+	size_t i;
+	int proposed_max_disp_stats = calc_max_disp_stats(calc_stats_bar_len(get_num_statsbar_exp()+1));
 	for (i=0; i<NUM_WATCH_STAT-1; i++)
 		cm_grey_line(cm_id, i, 0);
 	for (i=0; i<max_disp_stats; i++)
-		cm_grey_line(cm_id, watch_this_stats[i]-1, 1);
-	watch_this_stats[1]==0?cm_grey_line(cm_id, NUM_WATCH_STAT, 1):cm_grey_line(cm_id, NUM_WATCH_STAT, 0);
+		if (watch_this_stats[i] > 0)
+			cm_grey_line(cm_id, watch_this_stats[i]-1, 1);
+	cm_grey_line(cm_id, NUM_WATCH_STAT, ((get_num_statsbar_exp() < proposed_max_disp_stats) ?0 :1));
+	cm_grey_line(cm_id, NUM_WATCH_STAT+1, ((watch_this_stats[1]==0)?1:0));
 }
 
 // the stats display
 void init_stats_display()
 {
-	int i;
+	int num_exp = get_num_statsbar_exp();
 
 	//create the stats bar window
 	if(stats_bar_win < 0)
-		{
-			stats_bar_win= create_window("Stats Bar", -1, 0, 24, window_height-44, window_width-24-64, 12, ELW_TITLE_NONE|ELW_SHOW_LAST);
-			set_window_handler(stats_bar_win, ELW_HANDLER_DISPLAY, &display_stats_bar_handler);
-			set_window_handler(stats_bar_win, ELW_HANDLER_MOUSEOVER, &mouseover_stats_bar_handler);
-		}
+	{
+		stats_bar_win= create_window("Stats Bar", -1, 0, 0, window_height-44, window_width-hud_x, 12, ELW_TITLE_NONE|ELW_SHOW_LAST);
+		set_window_handler(stats_bar_win, ELW_HANDLER_DISPLAY, &display_stats_bar_handler);
+		set_window_handler(stats_bar_win, ELW_HANDLER_MOUSEOVER, &mouseover_stats_bar_handler);
+	}
 	else
-		{
-			init_window(stats_bar_win, -1, 0, 24, window_height-44, window_width-24-64, 12);
-		}
+		init_window(stats_bar_win, -1, 0, 0, window_height-44, window_width-hud_x, 12);
 
-	mana_bar_start_x=3;
-	mana_bar_start_y=0;
+	// calculate the statsbar len given curent config
+	stats_bar_len = calc_stats_bar_len(num_exp);
 
-	food_bar_start_x=mana_bar_start_x+100+40;
-	food_bar_start_y=mana_bar_start_y;
+	// calculate the maximum number of exp bars we can have
+	max_disp_stats = calc_max_disp_stats(stats_bar_len);
 
-	health_bar_start_x=food_bar_start_x+100+40;
-	health_bar_start_y=mana_bar_start_y;
+	// if we need to reduce the number of bars, recalculate the optimum stats bar len
+	if (num_exp > max_disp_stats)
+		stats_bar_len = calc_stats_bar_len(max_disp_stats);
 
-	load_bar_start_x=health_bar_start_x+100+40;
-	load_bar_start_y=mana_bar_start_y;
+	// all the bars are at the top of the window
+	mana_bar_start_y = food_bar_start_y = health_bar_start_y = load_bar_start_y = action_bar_start_y = exp_bar_start_y = 0;
 
-	exp_bar_start_x=load_bar_start_x+100+80;
-	exp_bar_start_y=mana_bar_start_y;
+	// calculate the stats bar x position
+	mana_bar_start_x = stats_bar_text_len;
+	food_bar_start_x = stats_bar_len + 2 * stats_bar_text_len;
+	health_bar_start_x = 2 * stats_bar_len + 3 * stats_bar_text_len;
+	load_bar_start_x = 3 * stats_bar_len + 4 * stats_bar_text_len;
+	if (show_action_bar)
+		action_bar_start_x = 4 * stats_bar_len + 5 * stats_bar_text_len;
 
-	max_disp_stats=(window_width-exp_bar_start_x-8)/180;
-	if (max_disp_stats > MAX_WATCH_STATS)
-		max_disp_stats=MAX_WATCH_STATS;
+	// the x position of the first exp bar
+	exp_bar_start_x = ((show_action_bar)?5:4) * (stats_bar_len + stats_bar_text_len) + exp_bar_text_len;
 
+	// clear any unused slots in the watch list
 	if (max_disp_stats < MAX_WATCH_STATS)
 	{
+		size_t i;
 		for (i=max_disp_stats;i<MAX_WATCH_STATS;i++)
-		{
 			if (watch_this_stats[i] > 0)
 			{
 				statsinfo[watch_this_stats[i]-1].is_selected=0;
 				watch_this_stats[i]=0;
 			}
-		}
 	}
-	
+
+	// context menu to enable/disable the action points bar - temporary during dev?
 	{
-		if (!cm_valid(cm_id))
-		{
-			int thestat;
-			cm_id = cm_create(NULL, cm_statsbar_handler);
-			for (thestat=0; thestat<NUM_WATCH_STAT-1; thestat++)
-				cm_add(cm_id, (char *)statsinfo[thestat].skillnames->name, NULL);
-			cm_add(cm_id, "--", NULL);
-			cm_add(cm_id, "Remove Bar", NULL);
-			cm_set_pre_show_handler(cm_id,cm_statsbar_pre_show_handler);
-		}
-		cm_remove_regions(stats_bar_win);
-		if(max_disp_stats > 0)
-		{
-			for (i=0;i<max_disp_stats;i++)
-			{
-				if (watch_this_stats[i] > 0)
-					cm_add_region(cm_id, stats_bar_win, exp_bar_start_x+i*180, exp_bar_start_y, 100, 12);
-			}
-		}
+		static size_t cm_id_x =  CM_INIT_VALUE;
+		if (cm_id_x != CM_INIT_VALUE)
+			cm_destroy(cm_id_x);
+		cm_id_x = cm_create("Show Action Points Bar", NULL);
+		cm_add_window(cm_id_x, stats_bar_win);
+		cm_bool_line(cm_id_x, 0, &show_action_bar, "show_action_bar");
 	}
+
+	// create the exp bars context menu, used by all ative exp bars
+	if (!cm_valid(cm_id))
+	{
+		int thestat;
+		cm_id = cm_create(NULL, cm_statsbar_handler);
+		for (thestat=0; thestat<NUM_WATCH_STAT-1; thestat++)
+			cm_add(cm_id, (char *)statsinfo[thestat].skillnames->name, NULL);
+		cm_add(cm_id, cm_stats_bar_base_str, NULL);
+		cm_set_pre_show_handler(cm_id,cm_statsbar_pre_show_handler);
+	}
+	reset_statsbar_exp_cm_regions();
 }
 
 void draw_stats_bar(int x, int y, int val, int len, float r, float g, float b, float r2, float g2, float b2)
@@ -1185,8 +1267,8 @@ void draw_stats_bar(int x, int y, int val, int len, float r, float g, float b, f
 	char buf[32];
 	int i; // i deals with massive bars by trimming at 110%
 	
-	if(len>110)
-		i=110;
+	if(len>stats_bar_len*1.1)
+		i=stats_bar_len*1.1;
 	else
 		i=len;
 	glDisable(GL_TEXTURE_2D);
@@ -1208,8 +1290,8 @@ void draw_stats_bar(int x, int y, int val, int len, float r, float g, float b, f
 	glColor3f(0.77f, 0.57f, 0.39f);
 	glBegin(GL_LINE_LOOP);
 	glVertex3i(x, y, 0);
-	glVertex3i(x+100, y, 0);
-	glVertex3i(x+100, y+8, 0);
+	glVertex3i(x+stats_bar_len, y, 0);
+	glVertex3i(x+stats_bar_len, y+8, 0);
 	glVertex3i(x, y+8, 0);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
@@ -1289,7 +1371,7 @@ static void draw_last_health_change(void)
 		else
 		{
 			safe_snprintf(str, sizeof(str), " %d ", my_last_health.d);
-			show_help_coloured(str, health_bar_start_x+50-strlen(str)*SMALL_FONT_X_LEN, yoff, 1.0f, 0.0f, 0.0f);
+			show_help_coloured(str, health_bar_start_x+stats_bar_len/2-strlen(str)*SMALL_FONT_X_LEN, yoff, 1.0f, 0.0f, 0.0f);
 		}
 	}
 	/* heal in green */
@@ -1300,7 +1382,7 @@ static void draw_last_health_change(void)
 		else
 		{
 			safe_snprintf(str, sizeof(str), " %d ", my_last_health.h);
-			show_help_coloured(str, health_bar_start_x+50, yoff, 0.0f, 1.0f, 0.0f);
+			show_help_coloured(str, health_bar_start_x+stats_bar_len/2, yoff, 0.0f, 1.0f, 0.0f);
 		}
 	}
 }
@@ -1311,30 +1393,36 @@ int	display_stats_bar_handler(window_info *win)
 	float food_adjusted_x_len;
 	float mana_adjusted_x_len;
 	float load_adjusted_x_len;
-	int over_health_bar = statbar_cursor_x>health_bar_start_x && statbar_cursor_x < health_bar_start_x+100;
+	float action_adjusted_x_len;
+	int over_health_bar = statbar_cursor_x>health_bar_start_x && statbar_cursor_x < health_bar_start_x+stats_bar_len;
 
 	//get the adjusted length
 
 	if(!your_info.material_points.cur || !your_info.material_points.base)
 		health_adjusted_x_len=0;//we don't want a div by 0
 	else
-		health_adjusted_x_len=100/((float)your_info.material_points.base/(float)your_info.material_points.cur);
+		health_adjusted_x_len=stats_bar_len/((float)your_info.material_points.base/(float)your_info.material_points.cur);
 
 	if(your_info.food_level<=0)
 		food_adjusted_x_len=0;//we don't want a div by 0
 	else
-		food_adjusted_x_len=100/((float)max_food_level/(float)your_info.food_level);
-	if(food_adjusted_x_len>100) food_adjusted_x_len=100;
+		food_adjusted_x_len=stats_bar_len/((float)max_food_level/(float)your_info.food_level);
+	if(food_adjusted_x_len>stats_bar_len) food_adjusted_x_len=stats_bar_len;
 
 	if(!your_info.ethereal_points.cur || !your_info.ethereal_points.base)
 		mana_adjusted_x_len=0;//we don't want a div by 0
 	else
-		mana_adjusted_x_len=100/((float)your_info.ethereal_points.base/(float)your_info.ethereal_points.cur);
+		mana_adjusted_x_len=stats_bar_len/((float)your_info.ethereal_points.base/(float)your_info.ethereal_points.cur);
 
 	if(!your_info.carry_capacity.cur || !your_info.carry_capacity.base)
 		load_adjusted_x_len=0;//we don't want a div by 0
 	else
-		load_adjusted_x_len=100/((float)your_info.carry_capacity.base/(float)your_info.carry_capacity.cur);
+		load_adjusted_x_len=stats_bar_len/((float)your_info.carry_capacity.base/(float)your_info.carry_capacity.cur);
+
+	if(!your_info.action_points.cur || !your_info.action_points.base)
+		action_adjusted_x_len=0;//we don't want a div by 0
+	else
+		action_adjusted_x_len=stats_bar_len/((float)your_info.action_points.base/(float)your_info.action_points.cur);
 
 	draw_stats_bar(health_bar_start_x, health_bar_start_y, your_info.material_points.cur, health_adjusted_x_len, 1.0f, 0.2f, 0.2f, 0.5f, 0.2f, 0.2f);
 
@@ -1342,17 +1430,20 @@ int	display_stats_bar_handler(window_info *win)
 		draw_stats_bar(food_bar_start_x, food_bar_start_y, your_info.food_level, food_adjusted_x_len, 1.0f, 1.0f, 0.2f, 0.5f, 0.5f, 0.2f);
 	else draw_stats_bar(food_bar_start_x, food_bar_start_y, your_info.food_level, food_adjusted_x_len, 1.0f, 0.5f, 0.0f, 0.7f, 0.3f, 0.0f); //orange
 
-
 	draw_stats_bar(mana_bar_start_x, mana_bar_start_y, your_info.ethereal_points.cur, mana_adjusted_x_len, 0.2f, 0.2f, 1.0f, 0.2f, 0.2f, 0.5f);
 	draw_stats_bar(load_bar_start_x, load_bar_start_y, your_info.carry_capacity.base-your_info.carry_capacity.cur, load_adjusted_x_len, 0.6f, 0.4f, 0.4f, 0.4f, 0.2f, 0.2f);
-	if(win->len_x>640-64) draw_exp_display();
-	
+	if (show_action_bar)
+		draw_stats_bar(action_bar_start_x, action_bar_start_y, your_info.action_points.cur, action_adjusted_x_len, 1.0f, 0.0f, 1.0f, 0.5f, 0.0f, 0.5f);
+
+	draw_exp_display();
+
 	if(show_help_text && statbar_cursor_x>=0)
 	{
-		if(over_health_bar) show_help((char*)attributes.material_points.name,health_bar_start_x+110,-3);
-		if(statbar_cursor_x>food_bar_start_x && statbar_cursor_x < food_bar_start_x+100) show_help((char*)attributes.food.name,food_bar_start_x+110,-3);
-		if(statbar_cursor_x>mana_bar_start_x && statbar_cursor_x < mana_bar_start_x+100) show_help((char*)attributes.ethereal_points.name,mana_bar_start_x+110,-3);
-		if(statbar_cursor_x>load_bar_start_x && statbar_cursor_x < load_bar_start_x+100) show_help((char*)attributes.carry_capacity.name,load_bar_start_x+110,-3);
+		if(over_health_bar) show_help((char*)attributes.material_points.name,health_bar_start_x+stats_bar_len+10,-3);
+		else if(statbar_cursor_x>food_bar_start_x && statbar_cursor_x < food_bar_start_x+stats_bar_len) show_help((char*)attributes.food.name,food_bar_start_x+stats_bar_len+10,-3);
+		else if(statbar_cursor_x>mana_bar_start_x && statbar_cursor_x < mana_bar_start_x+stats_bar_len) show_help((char*)attributes.ethereal_points.name,mana_bar_start_x+stats_bar_len+10,-3);
+		else if(statbar_cursor_x>load_bar_start_x && statbar_cursor_x < load_bar_start_x+stats_bar_len) show_help((char*)attributes.carry_capacity.name,load_bar_start_x+stats_bar_len+10,-3);
+		else if(show_action_bar && statbar_cursor_x>action_bar_start_x && statbar_cursor_x < action_bar_start_x+stats_bar_len) show_help((char*)attributes.action_points.name,action_bar_start_x+stats_bar_len+10,-3);
 	}
 
 	if (over_health_bar)
@@ -1466,7 +1557,7 @@ void init_misc_display(hud_interface type)
 	//create the misc window
 	if(misc_win < 0)
 		{
-			misc_win= create_window("Misc", -1, 0, window_width-64, window_height-y_len, 64, y_len, ELW_TITLE_NONE|ELW_SHOW_LAST);
+			misc_win= create_window("Misc", -1, 0, window_width-hud_x, window_height-y_len, hud_x, y_len, ELW_TITLE_NONE|ELW_SHOW_LAST);
 			set_window_handler(misc_win, ELW_HANDLER_DISPLAY, &display_misc_handler);
 			set_window_handler(misc_win, ELW_HANDLER_CLICK, &click_misc_handler);
 			set_window_handler(misc_win, ELW_HANDLER_MOUSEOVER, &mouseover_misc_handler );
@@ -1486,7 +1577,7 @@ void init_misc_display(hud_interface type)
 		}
 	else
 		{
-			move_window(misc_win, -1, 0, window_width-64, window_height-y_len);
+			move_window(misc_win, -1, 0, window_width-hud_x, window_height-y_len);
 		}
 	
 	cm_grey_line(cm_hud_id, CMH_STATS, (type == HUD_INTERFACE_NEW_CHAR));
@@ -1810,10 +1901,10 @@ CHECK_GL_ERRORS();
 			cm_remove_regions(map_root_win);
 			cm_remove_regions(console_root_win);
 			cm_remove_regions(newchar_root_win);
-			cm_add_region(cm_hud_id, game_root_win, window_width-64, 0, 64, window_height);
-			cm_add_region(cm_hud_id, map_root_win, window_width-64, 0, 64, window_height);
-			cm_add_region(cm_hud_id, console_root_win, window_width-64, 0, 64, window_height);
-			cm_add_region(cm_hud_id, newchar_root_win, window_width-64, 0, 64, window_height);
+			cm_add_region(cm_hud_id, game_root_win, window_width-hud_x, 0, hud_x, window_height);
+			cm_add_region(cm_hud_id, map_root_win, window_width-hud_x, 0, hud_x, window_height);
+			cm_add_region(cm_hud_id, console_root_win, window_width-hud_x, 0, hud_x, window_height);
+			cm_add_region(cm_hud_id, newchar_root_win, window_width-hud_x, 0, hud_x, window_height);
 			last_window_width = window_width;
 			last_window_height = window_height;
 		}
@@ -2464,72 +2555,78 @@ void reset_quickbar()
 
 void build_levels_table()
 {
-  int i;
-  Uint64 exp=100;
+	int i;
+	Uint64 exp=100;
 
-  exp_lev[0]=0;
-  for(i=1;i<180;i++)
-    {
-        if(i<=10)exp+=exp*40/100;
-        else
-        if(i<=20)exp+=exp*30/100;
-        else
-        if(i<=30)exp+=exp*20/100;
-        else
-        if(i<=40)exp+=exp*14/100;
-	else 
-	if(i<=90)exp+=exp*7/100;
-	else exp+=exp*5/100;
-
-        exp_lev[i]=(Uint32)exp;
-//LOG_ERROR("exp %d: %d", i, exp_lev[i]);
-    }
+	exp_lev[0]=0;
+	for(i=1;i<180;i++)
+	{
+		if(i<=10)exp+=exp*40/100;
+		else
+		if(i<=20)exp+=exp*30/100;
+		else
+		if(i<=30)exp+=exp*20/100;
+		else
+		if(i<=40)exp+=exp*14/100;
+		else 
+		if(i<=90)exp+=exp*7/100;
+		else exp+=exp*5/100;
+		exp_lev[i]=(Uint32)exp;
+	}
 }
 
 void draw_exp_display()
 {
-	int exp_adjusted_x_len;
-	int nl_exp, baselev, cur_exp;
-	int delta_exp;
-	unsigned char * name;
-	float prev_exp;
-	int i;
+	size_t i;
 	int my_exp_bar_start_x = exp_bar_start_x;
 
 	// default to overall if no valid first skill is set
 	if(watch_this_stats[0]<1 || watch_this_stats[0]>=NUM_WATCH_STAT)
+	{
 		watch_this_stats[0]=NUM_WATCH_STAT-1;
+		statsinfo[watch_this_stats[0]-1].is_selected=1;
+		reset_statsbar_exp_cm_regions();
+	}
 
 	for (i=0; i<max_disp_stats; i++)
-	{	
+	{
 		if (watch_this_stats[i] > 0)
 		{
-			cur_exp = *statsinfo[watch_this_stats[i]-1].exp;
-			nl_exp = *statsinfo[watch_this_stats[i]-1].next_lev;
-			baselev = statsinfo[watch_this_stats[i]-1].skillattr->base;
-			name = statsinfo[watch_this_stats[i]-1].skillnames->name;
-			//statsinfo[watch_this_stats[i]-1].is_selected = 1;
+			int name_x;
+			int name_y = exp_bar_start_y+10;
+			int icon_x = 32 * icons_no;
+			int cur_exp = *statsinfo[watch_this_stats[i]-1].exp;
+			int nl_exp = *statsinfo[watch_this_stats[i]-1].next_lev;
+			int baselev = statsinfo[watch_this_stats[i]-1].skillattr->base;
+			unsigned char * name = statsinfo[watch_this_stats[i]-1].skillnames->name;
+			int exp_adjusted_x_len;
+			int delta_exp;
+			float prev_exp;
 
 			if(!baselev)
 				prev_exp= 0;
 			else
 				prev_exp= exp_lev[baselev];
 
-			//nl_exp= exp_lev[baselev+1];
 			delta_exp= nl_exp-prev_exp;
 
 			if(!cur_exp || !nl_exp || delta_exp <=0)
 				exp_adjusted_x_len= 0;
 			else
-				//exp_bar_length= (int)( (((float)cur_exp - prev_exp) / ((float)nl_exp - prev_exp)) * 100.0);
-				exp_adjusted_x_len= 100-100.0f/(float)((float)delta_exp/(float)(nl_exp-cur_exp));
+				exp_adjusted_x_len= stats_bar_len-(float)stats_bar_len/(float)((float)delta_exp/(float)(nl_exp-cur_exp));
 
-			// only display if you are below the exp needed, don't allow negative bars
-			//if(exp_adjusted_x_len >= 0){
-				draw_stats_bar(my_exp_bar_start_x, exp_bar_start_y, nl_exp - cur_exp, exp_adjusted_x_len, 0.1f, 0.8f, 0.1f, 0.1f, 0.4f, 0.1f);
-				draw_string_small_shadowed(my_exp_bar_start_x, exp_bar_start_y+10, name, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
-			//}
-			my_exp_bar_start_x += 180;
+			draw_stats_bar(my_exp_bar_start_x, exp_bar_start_y, nl_exp - cur_exp, exp_adjusted_x_len, 0.1f, 0.8f, 0.1f, 0.1f, 0.4f, 0.1f);
+			
+			name_x = my_exp_bar_start_x + stats_bar_len - strlen((char *)name) * SMALL_FONT_X_LEN;
+			if (name_x < icon_x)
+			{
+				name = statsinfo[watch_this_stats[i]-1].skillnames->shortname;
+				name_x = my_exp_bar_start_x + stats_bar_len - strlen((char *)name) * SMALL_FONT_X_LEN - 3;
+				name_y = -3;
+			}
+			draw_string_small_shadowed(name_x, name_y, name, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
+
+			my_exp_bar_start_x += stats_bar_len+exp_bar_text_len;
 		}
 		else
 			break;
@@ -2541,17 +2638,19 @@ void handle_stats_selection(int stat, Uint32 flags)
 {
 	int i;
 
+	int proposed_max_disp_stats = calc_max_disp_stats(calc_stats_bar_len(get_num_statsbar_exp()+1));
+
 	if (((flags & ELW_ALT) || (flags & ELW_SHIFT)) && (max_disp_stats > 1))
 	{
-		for (i=0;i<max_disp_stats;i++)
+		for (i=0;i<proposed_max_disp_stats;i++)
 		{
 			// if already selected, unselect and remove bar, closing any gap
 			if (watch_this_stats[i]==stat)
 			{
 				statsinfo[stat-1].is_selected=0;
-				if (i<max_disp_stats-1)
-					memmove(&(watch_this_stats[i]), &(watch_this_stats[i+1]), (max_disp_stats-i-1) * sizeof(int));
-				watch_this_stats[max_disp_stats-1] = 0;
+				if (i<proposed_max_disp_stats-1)
+					memmove(&(watch_this_stats[i]), &(watch_this_stats[i+1]), (proposed_max_disp_stats-i-1) * sizeof(int));
+				watch_this_stats[proposed_max_disp_stats-1] = 0;
 				break;
 			}
 			// if the bar is not in use, set it to the new stat
@@ -2594,13 +2693,8 @@ void handle_stats_selection(int stat, Uint32 flags)
 		watch_this_stats[0]=NUM_WATCH_STAT-1;
 		statsinfo[watch_this_stats[0]-1].is_selected=1;
 	}
-	
-	cm_remove_regions(stats_bar_win);
-	for (i=0;i<max_disp_stats;i++)
-	{
-		if (watch_this_stats[i] > 0)
-			cm_add_region(cm_id, stats_bar_win, exp_bar_start_x+i*180, exp_bar_start_y, 100, 12);
-	}
+
+	init_stats_display();
 	do_click_sound();
 }
 
