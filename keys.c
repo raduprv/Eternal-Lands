@@ -204,6 +204,14 @@ static key_store_entry key_store[] =
 	{ "#K_GRAB_MOUSE", &K_GRAB_MOUSE },
 	{ "#K_FIRST_PERSON", &K_FIRST_PERSON },
 	{ "#K_EXTEND_CAM", &K_EXTEND_CAM },
+	{ "#K_CUT", &K_CUT },
+	{ "#K_COPY", &K_COPY },
+	{ "#K_PASTE", &K_PASTE },
+	{ "#K_COPY_ALT", &K_COPY_ALT },
+	{ "#K_PASTE_ALT", &K_PASTE_ALT },
+#ifdef ECDEBUGWIN
+	{ "#K_ECDEBUGWIN", &K_ECDEBUGWIN },
+#endif
 	{ "#K_EMOTES", &K_EMOTES },
 	{ "#K_RANGINGWIN", &K_RANGINGWIN }
 };
