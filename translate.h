@@ -273,6 +273,7 @@ extern char
 		cmd_exit[10],
 		cmd_msg[10],
 		cmd_afk[5],
+		cmd_keypress[20],
 		cmd_open_url[20],
 		cmd_show_spell[20],
 		cmd_cast_spell[20],

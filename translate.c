@@ -423,6 +423,7 @@ char	name_too_long[75],
 	cmd_exit[10],
 	cmd_msg[10],
 	cmd_afk[5],
+	cmd_keypress[20],
 	cmd_open_url[20],
 	cmd_show_spell[20],
 	cmd_cast_spell[20];
@@ -994,6 +995,7 @@ void init_console()
 	add_xml_identifier(cmd_grp,"knowledge",cmd_knowledge,"knowledge",sizeof(cmd_knowledge));
 	add_xml_identifier(cmd_grp,"knowledge_short",cmd_knowledge_short,"know",sizeof(cmd_knowledge_short));
 	add_xml_identifier(cmd_grp,"open_url",cmd_open_url,"open_url",sizeof(cmd_open_url));
+	add_xml_identifier(cmd_grp,"keypress",cmd_keypress,"keypress",sizeof(cmd_keypress));
 	add_xml_identifier(cmd_grp,"show_spell",cmd_show_spell,"show_spell",sizeof(cmd_show_spell));
 	add_xml_identifier(cmd_grp,"cast_spell",cmd_cast_spell,"cast_spell",sizeof(cmd_cast_spell));
 }
