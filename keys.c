@@ -117,6 +117,115 @@ Uint32 K_ECDEBUGWIN=ALT|CTRL|'c';
 Uint32 K_EMOTES=CTRL|'j';
 Uint32 K_RANGINGWIN=CTRL|'t';
 
+typedef struct
+{
+	char name[25];
+	Uint32 *value;
+} key_store_entry;
+
+static key_store_entry key_store[] =
+{
+	{ "#K_QUIT", &K_QUIT },
+	{ "#K_QUIT_ALT", &K_QUIT_ALT },
+	{ "#K_CAMERAUP", &K_CAMERAUP },
+	{ "#K_CAMERADOWN", &K_CAMERADOWN },
+	{ "#K_ZOOMOUT", &K_ZOOMOUT },
+	{ "#K_ZOOMIN", &K_ZOOMIN },
+	{ "#K_TURNLEFT", &K_TURNLEFT },
+	{ "#K_TURNRIGHT", &K_TURNRIGHT },
+	{ "#K_ADVANCE", &K_ADVANCE },
+	{ "#K_HEALTHBAR", &K_HEALTHBAR },
+	{ "#K_VIEWNAMES", &K_VIEWNAMES },
+	{ "#K_VIEWHP", &K_VIEWHP },
+	{ "#K_STATS", &K_STATS },
+	{ "#K_QUESTLOG", &K_QUESTLOG },
+	{ "#K_SESSION", &K_SESSION },
+	{ "#K_WALK", &K_WALK },
+	{ "#K_LOOK", &K_LOOK },
+	{ "#K_USE", &K_USE },
+	{ "#K_OPTIONS", &K_OPTIONS },
+	{ "#K_REPEATSPELL", &K_REPEATSPELL },
+	{ "#K_SIGILS", &K_SIGILS },
+	{ "#K_MANUFACTURE", &K_MANUFACTURE },
+	{ "#K_ITEMS", &K_ITEMS },
+	{ "#K_MAP", &K_MAP },
+	{ "#K_MINIMAP", &K_MINIMAP },
+	{ "#K_ROTATELEFT", &K_ROTATELEFT },
+	{ "#K_ROTATERIGHT", &K_ROTATERIGHT },
+	{ "#K_FROTATELEFT", &K_FROTATELEFT },
+	{ "#K_FROTATERIGHT", &K_FROTATERIGHT },
+	{ "#K_BROWSER", &K_BROWSER },
+	{ "#K_BROWSERWIN", &K_BROWSERWIN },
+	{ "#K_ESCAPE", &K_ESCAPE },
+	{ "#K_CONSOLE", &K_CONSOLE },
+	{ "#K_SHADOWS", &K_SHADOWS },
+	{ "#K_KNOWLEDGE", &K_KNOWLEDGE },
+	{ "#K_ENCYCLOPEDIA", &K_ENCYCLOPEDIA },
+	{ "#K_HELP", &K_HELP },
+	{ "#K_NOTEPAD", &K_NOTEPAD },
+	{ "#K_HIDEWINS", &K_HIDEWINS },
+	{ "#K_ITEM1", &K_ITEM1 },
+	{ "#K_ITEM2", &K_ITEM2 },
+	{ "#K_ITEM3", &K_ITEM3 },
+	{ "#K_ITEM4", &K_ITEM4 },
+	{ "#K_ITEM5", &K_ITEM5 },
+	{ "#K_ITEM6", &K_ITEM6 },
+	{ "#K_ITEM7", &K_ITEM7 },
+	{ "#K_ITEM8", &K_ITEM8 },
+	{ "#K_ITEM9", &K_ITEM9 },
+	{ "#K_ITEM10", &K_ITEM10 },
+	{ "#K_ITEM11", &K_ITEM11 },
+	{ "#K_ITEM12", &K_ITEM12 },
+	{ "#K_SCREENSHOT", &K_SCREENSHOT },
+	{ "#K_VIEWTEXTASOVERTEXT", &K_VIEWTEXTASOVERTEXT },
+	{ "#K_AFK", &K_AFK },
+	{ "#K_SIT", &K_SIT },
+	{ "#K_RANGINGLOCK", &K_RANGINGLOCK },
+	{ "#K_BUDDY", &K_BUDDY },
+	{ "#K_NEXT_CHAT_TAB", &K_NEXT_CHAT_TAB },
+	{ "#K_PREV_CHAT_TAB", &K_PREV_CHAT_TAB },
+	{ "#K_RULES", &K_RULES },
+	{ "#K_SPELL1", &K_SPELL1 },
+	{ "#K_SPELL2", &K_SPELL2 },
+	{ "#K_SPELL3", &K_SPELL3 },
+	{ "#K_SPELL4", &K_SPELL4 },
+	{ "#K_SPELL5", &K_SPELL5 },
+	{ "#K_SPELL6", &K_SPELL6 },
+	{ "#K_SPELL7", &K_SPELL7 },
+	{ "#K_SPELL8", &K_SPELL8 },
+	{ "#K_SPELL9", &K_SPELL9 },
+	{ "#K_SPELL10", &K_SPELL10 },
+	{ "#K_SPELL11", &K_SPELL11 },
+	{ "#K_SPELL12", &K_SPELL12 },
+	{ "#K_TABCOMPLETE", &K_TABCOMPLETE },
+	{ "#K_WINDOWS_ON_TOP", &K_WINDOWS_ON_TOP },
+	{ "#K_MARKFILTER", &K_MARKFILTER },
+	{ "#K_OPAQUEWIN", &K_OPAQUEWIN },
+	{ "#K_GRAB_MOUSE", &K_GRAB_MOUSE },
+	{ "#K_FIRST_PERSON", &K_FIRST_PERSON },
+	{ "#K_EXTEND_CAM", &K_EXTEND_CAM },
+	{ "#K_EMOTES", &K_EMOTES },
+	{ "#K_RANGINGWIN", &K_RANGINGWIN }
+};
+
+
+Uint32 get_key_value(const char* name)
+{
+	size_t num_keys = sizeof(key_store)/sizeof(key_store_entry);
+	size_t i;
+	if ((name == NULL) || strlen(name) == 0)
+	{
+		LOG_ERROR("%s() empty name\n", __FUNCTION__);
+		return 0;
+	}
+	for (i=0; i<num_keys; i++)
+	{
+		if (strcasecmp(name, key_store[i].name) == 0)
+			return *key_store[i].value;
+	}
+	return 0;
+}
+
 static void add_key(Uint32 *key, Uint32 n)
 {
 	switch (n)
@@ -329,6 +438,8 @@ static void parse_key_line(const char *line)
 	Uint32 key = 0;
 	int nkey = sscanf(line, " #K_%99s = %99s %99s %99s %99s", kstr,
 		t1, t2, t3, t4);
+	size_t num_keys = sizeof(key_store)/sizeof(key_store_entry);
+	size_t i;
 
 	if (nkey <= 1)
 		return;
@@ -347,166 +458,12 @@ static void parse_key_line(const char *line)
 		}
 	}
 
-	if (strcasecmp(kstr, "QUIT") == 0)
-		K_QUIT = key;
-	else if (strcasecmp(kstr, "QUIT_ALT") == 0)
-		K_QUIT_ALT = key;
-	else if (strcasecmp(kstr, "CAMERAUP") == 0)
-		K_CAMERAUP = key;
-	else if (strcasecmp(kstr, "CAMERADOWN") == 0)
-		K_CAMERADOWN = key;
-	else if (strcasecmp(kstr, "ZOOMOUT") == 0)
-		K_ZOOMOUT = key;
-	else if (strcasecmp(kstr, "ZOOMIN") == 0)
-		K_ZOOMIN = key;
-	else if (strcasecmp(kstr, "TURNLEFT") == 0)
-		K_TURNLEFT = key;
-	else if (strcasecmp(kstr, "TURNRIGHT") == 0)
-		K_TURNRIGHT = key;
-	else if (strcasecmp(kstr, "ADVANCE") == 0)
-		K_ADVANCE = key;
-	else if (strcasecmp(kstr, "HEALTHBAR") == 0)
-		K_HEALTHBAR = key;
-	else if (strcasecmp(kstr, "VIEWNAMES") == 0)
-		K_VIEWNAMES = key;
-	else if (strcasecmp(kstr, "VIEWHP") == 0)
-		K_VIEWHP = key;
-	else if (strcasecmp(kstr, "STATS") == 0)
-		K_STATS = key;
-	else if (strcasecmp(kstr, "QUESTLOG") == 0)
-		K_QUESTLOG = key;
-	else if (strcasecmp(kstr, "SESSION") == 0)
-		K_SESSION = key;
-	else if (strcasecmp(kstr, "WALK") == 0)
-		K_WALK = key;
-	else if (strcasecmp(kstr, "LOOK") == 0)
-		K_LOOK = key;
-	else if (strcasecmp(kstr, "USE") == 0)
-		K_USE = key;
-	else if (strcasecmp(kstr, "OPTIONS") == 0)
-		K_OPTIONS = key;
-	else if (strcasecmp(kstr, "REPEATSPELL") == 0)
-		K_REPEATSPELL = key;
-	else if (strcasecmp(kstr, "SIGILS") == 0)
-		K_SIGILS = key;
-	else if (strcasecmp(kstr, "MANUFACTURE") == 0)
-		K_MANUFACTURE = key;
-	else if (strcasecmp(kstr, "ITEMS") == 0)
-		K_ITEMS = key;
-	else if (strcasecmp(kstr, "MAP") == 0)
-		K_MAP = key;
-	else if (strcasecmp(kstr, "MINIMAP") == 0)
-		K_MINIMAP = key;
-	else if (strcasecmp(kstr, "ROTATELEFT") == 0)
-		K_ROTATELEFT = key;
-	else if (strcasecmp(kstr, "ROTATERIGHT") == 0)
-		K_ROTATERIGHT = key;
-	else if (strcasecmp(kstr, "FROTATELEFT") == 0)
-		K_FROTATELEFT = key;
-	else if (strcasecmp(kstr, "FROTATERIGHT") == 0)
-		K_FROTATERIGHT = key;
-	else if (strcasecmp(kstr, "BROWSER") == 0)
-		K_BROWSER = key;
-	else if (strcasecmp(kstr, "BROWSERWIN") == 0)
-		K_BROWSERWIN = key;
-	else if (strcasecmp(kstr, "ESCAPE") == 0)
-		K_ESCAPE = key;
-	else if (strcasecmp(kstr, "CONSOLE") == 0)
-		K_CONSOLE = key;
-	else if (strcasecmp(kstr, "SHADOWS") == 0)
-		K_SHADOWS = key;
-	else if (strcasecmp(kstr, "KNOWLEDGE") == 0)
-		K_KNOWLEDGE = key;
-	else if (strcasecmp(kstr, "ENCYCLOPEDIA") == 0)
-		K_ENCYCLOPEDIA = key;
-	else if (strcasecmp(kstr, "HELP") == 0)
-		K_HELP = key;
-	else if (strcasecmp(kstr, "NOTEPAD") == 0)
-		K_NOTEPAD = key;
-	else if (strcasecmp(kstr, "HIDEWINS") == 0)
-		K_HIDEWINS = key;
-	else if (strcasecmp(kstr, "ITEM1") == 0)
-		K_ITEM1 = key;
-	else if (strcasecmp(kstr, "ITEM2") == 0)
-		K_ITEM2 = key;
-	else if (strcasecmp(kstr, "ITEM3") == 0)
-		K_ITEM3 = key;
-	else if (strcasecmp(kstr, "ITEM4") == 0)
-		K_ITEM4 = key;
-	else if (strcasecmp(kstr, "ITEM5") == 0)
-		K_ITEM5 = key;
-	else if (strcasecmp(kstr, "ITEM6") == 0)
-		K_ITEM6 = key;
-	else if (strcasecmp(kstr, "ITEM7") == 0)
-		K_ITEM7 = key;
-	else if (strcasecmp(kstr, "ITEM8") == 0)
-		K_ITEM8 = key;
-	else if (strcasecmp(kstr, "ITEM9") == 0)
-		K_ITEM9 = key;
-	else if (strcasecmp(kstr, "ITEM10") == 0)
-		K_ITEM10 = key;
-	else if (strcasecmp(kstr, "ITEM11") == 0)
-		K_ITEM11 = key;
-	else if (strcasecmp(kstr, "ITEM12") == 0)
-		K_ITEM12 = key;
-	else if (strcasecmp(kstr, "SCREENSHOT") == 0)
-		K_SCREENSHOT = key;
-	else if (strcasecmp(kstr, "VIEWTEXTASOVERTEXT") == 0)
-		K_VIEWTEXTASOVERTEXT = key;
-	else if (strcasecmp(kstr, "AFK") == 0)
-		K_AFK = key;
-	else if (strcasecmp(kstr, "SIT") == 0)
-		K_SIT = key;
-	else if (strcasecmp(kstr, "RANGINGLOCK") == 0)
-		K_RANGINGLOCK = key;
-	else if (strcasecmp(kstr, "BUDDY") == 0)
-		K_BUDDY = key;
-	else if (strcasecmp(kstr, "NEXT_CHAT_TAB") == 0)
-		K_NEXT_CHAT_TAB = key;
-	else if (strcasecmp(kstr, "PREV_CHAT_TAB") == 0)
-		K_PREV_CHAT_TAB = key;
-	else if (strcasecmp(kstr, "RULES") == 0)
-		K_RULES = key;
-	else if (strcasecmp(kstr, "SPELL1") == 0)
-		K_SPELL1 = key;
-	else if (strcasecmp(kstr, "SPELL2") == 0)
-		K_SPELL2 = key;
-	else if (strcasecmp(kstr, "SPELL3") == 0)
-		K_SPELL3 = key;
-	else if (strcasecmp(kstr, "SPELL4") == 0)
-		K_SPELL4 = key;
-	else if (strcasecmp(kstr, "SPELL5") == 0)
-		K_SPELL5 = key;
-	else if (strcasecmp(kstr, "SPELL6") == 0)
-		K_SPELL6 = key;
-	else if (strcasecmp(kstr, "SPELL7") == 0)
-		K_SPELL7 = key;
-	else if (strcasecmp(kstr, "SPELL8") == 0)
-		K_SPELL8 = key;
-	else if (strcasecmp(kstr, "SPELL9") == 0)
-		K_SPELL9 = key;
-	else if (strcasecmp(kstr, "SPELL10") == 0)
-		K_SPELL10 = key;
-	else if (strcasecmp(kstr, "SPELL11") == 0)
-		K_SPELL11 = key;
-	else if (strcasecmp(kstr, "SPELL12") == 0)
-		K_SPELL12 = key;
-	else if (strcasecmp(kstr, "TABCOMPLETE") == 0)
-		K_TABCOMPLETE = key;
-	else if (strcasecmp(kstr, "WINDOWS_ON_TOP") == 0)
-		K_WINDOWS_ON_TOP = key;
-	else if (strcasecmp(kstr, "MARKFILTER") == 0)
-		K_MARKFILTER = key;
-	else if (strcasecmp(kstr, "OPAQUEWIN") == 0)
-		K_OPAQUEWIN = key;
-	else if (strcasecmp(kstr, "GRAB_MOUSE") == 0)
-		K_GRAB_MOUSE = key;
-	else if (strcasecmp(kstr, "FIRST_PERSON") == 0)
-		K_FIRST_PERSON = key;
-	else if (strcasecmp(kstr, "EXTEND_CAM") == 0)
-		K_EXTEND_CAM = key;
-	else if (strcasecmp(kstr, "EMOTES") == 0)
-		K_EMOTES = key;
+	for (i=0; i<num_keys; i++)
+		if (strcasecmp(kstr, &key_store[i].name[3]) == 0) // skip "#K_"
+		{
+			*key_store[i].value = key;
+			break;
+		}
 }
 
 // load the dynamic definitions for keys
@@ -561,6 +518,8 @@ void read_key_config()
 	struct stat key_file;
 	int key_file_size,t;
 	size_t ret;
+	size_t num_keys = sizeof(key_store)/sizeof(key_store_entry);
+	size_t i;
 
 #ifndef WINDOWS
 	char key_ini[256];
@@ -606,168 +565,9 @@ void read_key_config()
 		return;
 	}
 
-	if ( (t = get_string_occurance ("#K_QUIT", file_mem, key_file_size, 0)) != -1)
-		K_QUIT = parse_key_string (&file_mem[t]);
-	if ( (t = get_string_occurance ("#K_QUIT_ALT", file_mem, key_file_size, 0)) != -1)
-		K_QUIT_ALT = parse_key_string (&file_mem[t]);
-	if((t=get_string_occurance("#K_CAMERAUP",file_mem,key_file_size,0))!=-1)
-		K_CAMERAUP = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_CAMERADOWN",file_mem,key_file_size,0))!=-1)
-		K_CAMERADOWN = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ZOOMOUT",file_mem,key_file_size,0))!=-1)
-		K_ZOOMOUT = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ZOOMIN",file_mem,key_file_size,0))!=-1)
-		K_ZOOMIN = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_TURNLEFT",file_mem,key_file_size,0))!=-1)
-		K_TURNLEFT = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_TURNRIGHT",file_mem,key_file_size,0))!=-1)
-		K_TURNRIGHT = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ADVANCE",file_mem,key_file_size,0))!=-1)
-		K_ADVANCE = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_HEALTHBAR",file_mem,key_file_size,0))!=-1)
-		K_HEALTHBAR = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_VIEWNAMES",file_mem,key_file_size,0))!=-1)
-		K_VIEWNAMES = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_VIEWHP",file_mem,key_file_size,0))!=-1)
-		K_VIEWHP = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_STATS",file_mem,key_file_size,0))!=-1)
-		K_STATS = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_QUESTLOG",file_mem,key_file_size,0))!=-1)
-		K_QUESTLOG = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_SESSION",file_mem,key_file_size,0))!=-1)
-		K_SESSION = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_WALK",file_mem,key_file_size,0))!=-1)
-		K_WALK = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_LOOK",file_mem,key_file_size,0))!=-1)
-		K_LOOK = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_USE",file_mem,key_file_size,0))!=-1)
-		K_USE = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_OPTIONS",file_mem,key_file_size,0))!=-1)
-		K_OPTIONS = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_REPEATSPELL",file_mem,key_file_size,0))!=-1)
-		K_REPEATSPELL = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_SIGILS",file_mem,key_file_size,0))!=-1)
-		K_SIGILS = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_MANUFACTURE",file_mem,key_file_size,0))!=-1)
-		K_MANUFACTURE = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ITEMS",file_mem,key_file_size,0))!=-1)
-		K_ITEMS = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_MAP",file_mem,key_file_size,0))!=-1)
-		K_MAP = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_MINIMAP",file_mem,key_file_size,0))!=-1)
-		K_MINIMAP = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ROTATELEFT",file_mem,key_file_size,0))!=-1)
-		K_ROTATELEFT = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ROTATERIGHT",file_mem,key_file_size,0))!=-1)
-		K_ROTATERIGHT = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_FROTATELEFT",file_mem,key_file_size,0))!=-1)
-		K_FROTATELEFT = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_FROTATERIGHT",file_mem,key_file_size,0))!=-1)
-		K_FROTATERIGHT = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_BROWSER",file_mem,key_file_size,0))!=-1)
-		K_BROWSER = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_BROWSERWIN",file_mem,key_file_size,0))!=-1)
-		K_BROWSERWIN = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ESCAPE",file_mem,key_file_size,0))!=-1)
-		K_ESCAPE = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_CONSOLE",file_mem,key_file_size,0))!=-1)
-		K_CONSOLE = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_SHADOWS",file_mem,key_file_size,0))!=-1)
-		K_SHADOWS = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_KNOWLEDGE",file_mem,key_file_size,0))!=-1)
-		K_KNOWLEDGE = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ENCYCLOPEDIA",file_mem,key_file_size,0))!=-1)
-		K_ENCYCLOPEDIA = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_HELP",file_mem,key_file_size,0))!=-1)
-		K_HELP = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_NOTEPAD",file_mem,key_file_size,0))!=-1)
-		K_NOTEPAD = parse_key_string(&file_mem[t]);	
-	if((t=get_string_occurance("#K_HIDEWINS",file_mem,key_file_size,0))!=-1)
-		K_HIDEWINS = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ITEM1",file_mem,key_file_size,0))!=-1)
-		K_ITEM1 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ITEM2",file_mem,key_file_size,0))!=-1)
-		K_ITEM2 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ITEM3",file_mem,key_file_size,0))!=-1)
-		K_ITEM3 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ITEM4",file_mem,key_file_size,0))!=-1)
-		K_ITEM4 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ITEM5",file_mem,key_file_size,0))!=-1)
-		K_ITEM5 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ITEM6",file_mem,key_file_size,0))!=-1)
-		K_ITEM6 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ITEM7",file_mem,key_file_size,0))!=-1)
-		K_ITEM7 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ITEM8",file_mem,key_file_size,0))!=-1)
-		K_ITEM8 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ITEM9",file_mem,key_file_size,0))!=-1)
-		K_ITEM9 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ITEM10",file_mem,key_file_size,0))!=-1)
-		K_ITEM10 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ITEM11",file_mem,key_file_size,0))!=-1)
-		K_ITEM11 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ITEM12",file_mem,key_file_size,0))!=-1)
-		K_ITEM12 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_SCREENSHOT",file_mem,key_file_size,0))!=-1)
-		K_SCREENSHOT = parse_key_string (&file_mem[t]);
-	if((t=get_string_occurance("#K_VIEWTEXTASOVERTEXT",file_mem,key_file_size,0))!=-1)
-		K_VIEWTEXTASOVERTEXT = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_AFK",file_mem,key_file_size,0))!=-1)
-		K_AFK = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_SIT",file_mem,key_file_size,0))!=-1)
-		K_SIT = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_RANGINGLOCK",file_mem,key_file_size,0))!=-1)
-		K_RANGINGLOCK = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_BUDDY",file_mem,key_file_size,0))!=-1)
-		K_BUDDY = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_NEXT_CHAT_TAB",file_mem,key_file_size,0))!=-1)
-		K_NEXT_CHAT_TAB = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_PREV_CHAT_TAB",file_mem,key_file_size,0))!=-1)
-		K_PREV_CHAT_TAB = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_RULES",file_mem,key_file_size,0))!=-1)
-		K_RULES = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_SPELL1",file_mem,key_file_size,0))!=-1)
-		K_SPELL1 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_SPELL2",file_mem,key_file_size,0))!=-1)
-		K_SPELL2 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_SPELL3",file_mem,key_file_size,0))!=-1)
-		K_SPELL3 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_SPELL4",file_mem,key_file_size,0))!=-1)
-		K_SPELL4 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_SPELL5",file_mem,key_file_size,0))!=-1)
-		K_SPELL5 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_SPELL6",file_mem,key_file_size,0))!=-1)
-		K_SPELL6 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_SPELL7",file_mem,key_file_size,0))!=-1)
-		K_SPELL7 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_SPELL8",file_mem,key_file_size,0))!=-1)
-		K_SPELL8 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_SPELL9",file_mem,key_file_size,0))!=-1)
-		K_SPELL9 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_SPELL10",file_mem,key_file_size,0))!=-1)
-		K_SPELL10 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_SPELL11",file_mem,key_file_size,0))!=-1)
-		K_SPELL11 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_SPELL12",file_mem,key_file_size,0))!=-1)
-		K_SPELL12 = parse_key_string(&file_mem[t]);
-	if((t = get_string_occurance("#K_TABCOMPLETE",file_mem,key_file_size,0)) != -1)
-		K_TABCOMPLETE = parse_key_string(&file_mem[t]);
-	if((t = get_string_occurance("#K_WINDOWS_ON_TOP",file_mem,key_file_size,0)) != -1)
-		K_WINDOWS_ON_TOP = parse_key_string(&file_mem[t]);
-	if((t = get_string_occurance("#K_MARKFILTER",file_mem,key_file_size,0)) != -1)
-		K_MARKFILTER = parse_key_string(&file_mem[t]);
-	if((t = get_string_occurance("#K_OPAQUEWIN",file_mem,key_file_size,0)) != -1)
-		K_OPAQUEWIN = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_GRAB_MOUSE",file_mem,key_file_size,0))!=-1)
-		K_GRAB_MOUSE = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_FIRST_PERSON",file_mem,key_file_size,0))!=-1)
-		K_FIRST_PERSON = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_EXTEND_CAM",file_mem,key_file_size,0))!=-1)
-		K_EXTEND_CAM = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_EMOTES",file_mem,key_file_size,0))!=-1)
-		K_EMOTES = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_RANGINGWIN",file_mem,key_file_size,0))!=-1)
-		K_RANGINGWIN = parse_key_string(&file_mem[t]);
+	for (i=0; i<num_keys; i++)
+		if ( (t = get_string_occurance (key_store[i].name, file_mem, key_file_size, 0)) != -1)
+			*key_store[i].value = parse_key_string (&file_mem[t]);
 
 	free(file_mem);
 }

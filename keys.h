@@ -144,6 +144,14 @@ void read_key_config();
  */
 const char *get_key_string(Uint32 keydef, char *buf, size_t buflen);
 
+/*!
+ * \brief   Returns the value of the specified keydef.
+ * 
+ *      Returns the key value or 0 if not found.
+ *
+ * \callgraph
+ */
+Uint32 get_key_value(const char* name);
 
 #ifdef __cplusplus
 } // extern "C"
