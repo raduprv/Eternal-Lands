@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 #include "spells.h"
 #include "asc.h"
 #include "cursors.h"
@@ -249,7 +250,7 @@ int init_spells ()
 	//parse xml
 	doc = xmlReadFile(fname, NULL, 0);
 	if (doc == 0) {
-		LOG_ERROR("Unable to read spells definition file %s", fname);
+		LOG_ERROR("Unable to read spells definition file %s: %s", fname, strerror(errno));
 		ok = 0;
 	}
 
@@ -1656,8 +1657,8 @@ void load_quickspells ()
 
 	if (fp == NULL)
 	{
-		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file,
-			fname);
+		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file,
+			fname, strerror(errno));
 		return;
 	}
 
@@ -1733,7 +1734,7 @@ void save_quickspells()
 	my_tolower(fname);
 	fp=open_file_config(fname,"wb");
 	if(fp == NULL){
-		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, fname);
+		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, fname, strerror(errno));
 		return;
 	}
 

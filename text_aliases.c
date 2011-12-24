@@ -9,6 +9,7 @@
 #endif
 #include <ctype.h>
 #include <stdlib.h>
+#include <errno.h>
 #include "text_aliases.h"
 #include "io/elpathwrapper.h"
 #include "errors.h"
@@ -36,8 +37,8 @@ static int save_aliases ()
 	FILE *fp = open_file_config (NUMERIC_ALIASES_FILENAME, "w");
 	if (fp == NULL)
 	{
-		LOG_ERROR ("%s: %s \"%s\"\n", reg_error_str, cant_open_file,
-				   NUMERIC_ALIASES_FILENAME);
+		LOG_ERROR ("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file,
+				   NUMERIC_ALIASES_FILENAME, strerror(errno));
 		return -1;
 	}
 
@@ -355,8 +356,8 @@ int init_text_aliases ()
 	fp = open_file_config (NUMERIC_ALIASES_FILENAME, "r");
 	if (fp == NULL)
 	{
-		LOG_DEBUG("%s: %s \"%s\"\n", reg_error_str, cant_open_file,
-				   NUMERIC_ALIASES_FILENAME);
+		LOG_DEBUG("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file,
+				   NUMERIC_ALIASES_FILENAME, strerror(errno));
 		error = 0;
 	}
 	else

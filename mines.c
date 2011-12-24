@@ -1,4 +1,4 @@
-
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include "mines.h"
@@ -209,7 +209,7 @@ void load_mines_config()
 	if ((doc = xmlReadFile(file, NULL, 0)) == NULL)
 	{
 		char str[200];
-		safe_snprintf(str, sizeof(str), "%s: %s", mines_config_open_err_str, file);
+		safe_snprintf(str, sizeof(str), "%s: %s: %s", mines_config_open_err_str, file, strerror(errno));
 		LOG_ERROR(str);
 		LOG_TO_CONSOLE(c_red1,str);
 	}

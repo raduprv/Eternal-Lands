@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <errno.h>
 #include "2d_objects.h"
 #include "asc.h"
 #include "draw_scene.h"
@@ -301,7 +302,7 @@ static obj_2d_def* load_obj_2d_def(const char *file_name)
 	file = el_open(file_name);
 	if (!file)
 	{
-		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, file_name);
+		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, file_name, strerror(errno));
 		return NULL;
 	}
 
@@ -365,7 +366,7 @@ static obj_2d_def* load_obj_2d_def(const char *file_name)
 
 	file = el_open(file_name);
 	if(file == NULL){
-		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, file_name);
+		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, file_name, strerror(errno));
 		free(cur_object);
 		return NULL;
 	}

@@ -13,6 +13,7 @@
 #include <SDL_net.h>
 #include <SDL_thread.h>
 #include <assert.h>
+#include <errno.h>
 #include "update.h"
 #include "asc.h"
 #include "draw_scene.h"
@@ -85,7 +86,7 @@ void    init_update()
 	update_server[0]= '\0';
 	fp = open_file_data("mirrors.lst", "r");
 	if(fp == NULL){
-		LOG_ERROR("%s: %s \"mirrors.lst\"\n", reg_error_str, cant_open_file);
+		LOG_ERROR("%s: %s \"mirrors.lst\": %s\n", reg_error_str, cant_open_file, strerror(errno));
 	} else {
 		char    buffer[1024];
 		char	*ptr;
@@ -203,7 +204,7 @@ static void do_handle_update_download(struct http_get_struct *get)
 		++temp_counter;
 		fp = open_file_config("tmp/temp000.dat", "wb+");
 		if(fp == NULL){
-			LOG_ERROR("%s: %s \"tmp/temp000.dat\"\n", reg_error_str, cant_open_file);
+			LOG_ERROR("%s: %s \"tmp/temp000.dat\": %s\n", reg_error_str, cant_open_file, strerror(errno));
 		} else {
 			if(is_this_files_lst)	//files.lst
 			{
@@ -337,7 +338,7 @@ void add_to_download(const char *filename, const Uint8 *md5)
 			buffer[sizeof(buffer)-1]= '\0';
 			fp = open_file_config(download_temp_file, "wb+");
 			if(fp == NULL){
-				LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, download_temp_file);
+				LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, download_temp_file, strerror(errno));
 			} else {
 				// build the proper URL to download
 				download_cur_file= download_queue[--download_queue_size];
@@ -416,7 +417,7 @@ void    handle_file_download(struct http_get_struct *get)
 		safe_snprintf(download_temp_file, sizeof(download_temp_file), "tmp/temp%03d.dat", ++temp_counter);
 		fp = open_file_config(download_temp_file, "wb+");
 		if(fp == NULL){
-			LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, download_temp_file);
+			LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, download_temp_file, strerror(errno));
 		} else {
 			// build the proper URL to download
 			download_cur_file= download_queue[--download_queue_size];

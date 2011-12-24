@@ -2,6 +2,7 @@
 #include "cursors.h"
 #include "elwindows.h"
 #include <SDL_mouse.h>
+#include <errno.h>
 #include "errors.h"
 #include "translate.h"
 #include "io/elfilewrapper.h"
@@ -55,7 +56,7 @@ void load_harvestable_list()
 	f = open_file_data("harvestable.lst", "rb");
 	if (f == NULL)
 	{
-		LOG_ERROR("%s: %s \"harvestable.lst\"\n", reg_error_str, cant_open_file);
+		LOG_ERROR("%s: %s \"harvestable.lst\": %s\n", reg_error_str, cant_open_file, strerror(errno));
 		return;
 	}
 	while (nr_harvestable_objects < MAX_HARVESTABLE_OBJECTS)
@@ -94,7 +95,7 @@ void load_entrable_list()
 	f=open_file_data("entrable.lst", "rb");
 	if(f == NULL)
 	{
-		LOG_ERROR("%s: %s \"entrable.lst\"\n", reg_error_str, cant_open_file);
+		LOG_ERROR("%s: %s \"entrable.lst\": %s\n", reg_error_str, cant_open_file, strerror(errno));
 		return;
 	}
 	while (nr_entrable_objects < MAX_ENTRABLE_OBJECTS)

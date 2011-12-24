@@ -3,6 +3,7 @@
 #include "elpathwrapper.h"
 #include "fileutil.h"
 #include <sys/stat.h>
+#include <errno.h>
 #include "../elc_private.h"
 #include "../errors.h"
 #include "../asc.h"
@@ -557,7 +558,7 @@ static el_file_ptr xz_file_open(const char* file_name)
 
 	if (file == 0)
 	{
-		LOG_ERROR("Can't open file '%s'", file_name);
+		LOG_ERROR("Can't open file '%s': %s", file_name, strerror(errno));
 
 		return 0;
 	}
@@ -608,7 +609,7 @@ static el_file_ptr gz_file_open(const char* file_name)
 	file = gzopen(file_name, "rb");
 	if (!file)
 	{
-		LOG_ERROR("Can't open file '%s'", file_name);
+		LOG_ERROR("Can't open file '%s': %s", file_name, strerror(errno));
 		return NULL;
 	}
 

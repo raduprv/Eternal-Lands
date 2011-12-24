@@ -100,7 +100,7 @@ static void save_recipe_names(void)
 	fp = open_file_config(fname,"w");
 	if(fp == NULL)
 	{
-		LOG_ERROR("%s() %s \"%s\" [%s]\n", __FUNCTION__, cant_open_file, fname, strerror(errno));
+		LOG_ERROR("%s() %s \"%s\": %s\n", __FUNCTION__, cant_open_file, fname, strerror(errno));
 		return;
 	}
 
@@ -121,7 +121,7 @@ static void save_recipe_names(void)
 		}
 	}
 	if (errorflag)
-		LOG_ERROR("%s() %s \"%s\" [%s]\n", __FUNCTION__, cant_open_file, fname, strerror(errno));
+		LOG_ERROR("%s() %s \"%s\": %s\n", __FUNCTION__, cant_open_file, fname, strerror(errno));
 
 	fclose(fp);
 }
@@ -141,7 +141,7 @@ static void load_recipe_names(void)
 	fp = open_file_config(fname,"r");
 	if(fp == NULL)
 	{
-		LOG_ERROR("%s() %s \"%s\" [%s]\n", __FUNCTION__, cant_open_file, fname, strerror(errno));
+		LOG_ERROR("%s() %s \"%s\": %s\n", __FUNCTION__, cant_open_file, fname, strerror(errno));
 		return;
 	}
 
@@ -269,7 +269,7 @@ void load_recipes (){
 	my_tolower(fname);
 	fp = open_file_config(fname,"rb");
 	if(fp == NULL){
-		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, fname);
+		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, fname, strerror(errno));
 		return;
 	}
 
@@ -293,7 +293,7 @@ void save_recipes(){
 	my_tolower(fname);
 	fp=open_file_config(fname,"wb");
 	if(fp == NULL){
-		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, fname);
+		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, fname, strerror(errno));
 		return;
 	}
 

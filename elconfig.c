@@ -5,6 +5,7 @@
 #include <stdarg.h>
 #include <limits.h>
 #include <float.h>
+#include <errno.h>
 //For stat() etc.. below
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -2116,7 +2117,7 @@ int read_el_ini ()
 #endif //MAP_EDITOR
 
 	if (fin == NULL){
-		LOG_ERROR("%s: %s \"el.ini\"\n", reg_error_str, cant_open_file);
+		LOG_ERROR("%s: %s \"el.ini\": %s\n", reg_error_str, cant_open_file, strerror(errno));
 		return 0;
 	}
 
@@ -2176,7 +2177,7 @@ int write_el_ini ()
 	// read the ini file
 	file = open_file_config("el.ini", "r");
 	if(file == NULL){
-		LOG_ERROR("%s: %s \"el.ini\"\n", reg_error_str, cant_open_file);
+		LOG_ERROR("%s: %s \"el.ini\": %s\n", reg_error_str, cant_open_file, strerror(errno));
 	} else {
 		maxlines= 300;
 	 	cont= malloc (maxlines * sizeof (input_line));
@@ -2194,7 +2195,7 @@ int write_el_ini ()
 	// Now write the contents of the file, updating those variables that have been changed
 	file = open_file_config("el.ini", "w");
 	if(file == NULL){
-		LOG_ERROR("%s: %s \"el.ini\"\n", reg_error_str, cant_open_file);
+		LOG_ERROR("%s: %s \"el.ini\": %s\n", reg_error_str, cant_open_file, strerror(errno));
 		return 0;
 	}
 

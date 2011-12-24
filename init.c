@@ -6,6 +6,7 @@
  #include <unistd.h>
 #endif
 #include <string.h>
+#include <errno.h>
 #include <ctype.h>
 #include <time.h>
 #include "init.h"
@@ -139,7 +140,7 @@ static void load_harvestable_list()
 	memset(harvestable_objects, 0, sizeof(harvestable_objects));
 	f = open_file_data("harvestable.lst", "rb");
 	if(f == NULL) {
-		LOG_ERROR("%s: %s \"harvestable.lst\"\n", reg_error_str, cant_open_file);
+		LOG_ERROR("%s: %s \"harvestable.lst\": %s\n", reg_error_str, cant_open_file, strerror(errno));
 		return;
 	}
 	while(1)
@@ -166,7 +167,7 @@ static void load_entrable_list()
 	i=0;
 	f=open_file_data("entrable.lst", "rb");
 	if(f == NULL){
-		LOG_ERROR("%s: %s \"entrable.lst\"\n", reg_error_str, cant_open_file);
+		LOG_ERROR("%s: %s \"entrable.lst\": %s\n", reg_error_str, cant_open_file, strerror(errno));
 		return;
 	}
 	while(1)
@@ -195,7 +196,7 @@ void load_knowledge_list()
 	// try the language specific knowledge list
 	f=open_file_lang("knowledge.lst", "rb");
 	if(f == NULL){
-		LOG_ERROR("%s: %s \"knowledge.lst\"\n", reg_error_str, cant_open_file);
+		LOG_ERROR("%s: %s \"knowledge.lst\": %s\n", reg_error_str, cant_open_file, strerror(errno));
 		return;
 	}
 	while(1)
@@ -240,7 +241,7 @@ void read_config()
 #ifndef WINDOWS
 	if (chdir(datadir) != 0)
 	{
-		LOG_ERROR("%s() chdir(\"%s\") failed\n", __FUNCTION__, datadir);
+		LOG_ERROR("%s() chdir(\"%s\") failed: %s\n", __FUNCTION__, datadir, strerror(errno));
 	}
 #endif //!WINDOWS
 
@@ -426,7 +427,7 @@ void save_bin_cfg()
 
 	f=open_file_config("el.cfg","wb");
 	if(f == NULL){
-		LOG_ERROR("%s: %s \"el.cfg\"\n", reg_error_str, cant_open_file);
+		LOG_ERROR("%s: %s \"el.cfg\": %s\n", reg_error_str, cant_open_file, strerror(errno));
 		return;//blah, whatever
 	}
 	memset(&cfg_mem, 0, sizeof(cfg_mem));	// make sure its clean
@@ -710,7 +711,7 @@ void init_stuff()
 
 	if (chdir(datadir) != 0)
 	{
-		LOG_ERROR("%s() chdir(\"%s\") failed\n", __FUNCTION__, datadir);
+		LOG_ERROR("%s() chdir(\"%s\") failed: %s\n", __FUNCTION__, datadir, strerror(errno));
 	}
 
 	init_crc_tables();

@@ -3,6 +3,7 @@
 #ifndef WINDOWS
  #include <locale.h>
 #endif
+#include <errno.h>
 #include "particles.h"
 #include "asc.h"
 #include "draw_scene.h"
@@ -119,7 +120,7 @@ particle_sys_def *load_particle_def(const char *filename)
 
 	f=open_file_data(cleanpath,"r");
 	if(f == NULL){
-		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, cleanpath);
+		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, cleanpath, strerror(errno));
 		free(def);
 		defs_list[i]=NULL;
 		return NULL;
@@ -450,7 +451,7 @@ int save_particle_def(particle_sys_def *def)
 
 	f=open_file_data(cleanpath,"w");
 	if(f == NULL){
-		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, cleanpath);
+		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, cleanpath, strerror(errno));
 		return 0;
 	}
 
