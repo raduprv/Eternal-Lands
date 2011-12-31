@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <limits.h>
 #include "items.h"
 #include "asc.h"
 #include "cursors.h"
@@ -929,7 +930,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 					if(item_list[pos].quantity>0) {
 						str[0]=DEPOSITE_ITEM;
 						str[1]=item_list[pos].pos;
-						*((Uint32*)(str+2))=SDL_SwapLE32(item_list[pos].quantity);
+						*((Uint32*)(str+2))=SDL_SwapLE32(INT_MAX);
 						my_tcp_send(my_socket, str, 6);
 					}
 					do_drop_item_sound();
