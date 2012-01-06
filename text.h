@@ -67,6 +67,8 @@ extern char last_pm_from[32]; /*!< actor name from whom the last pm arrived */
 extern Uint32 last_server_message_time; /*!< timestamp of the last server message */
 extern int lines_to_show; /*!< number of lines to show at once */
 
+extern int show_timestamp;
+
 extern char not_from_the_end_console;
 
 extern int log_chat; /*!< flag stating whether to log server messages or not */

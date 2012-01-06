@@ -10,7 +10,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #ifndef _MSC_VER
-	#include <unistd.h>
+ #include <unistd.h>
 #endif //_MSC_VER
 #include "user_menus.h"
 
@@ -57,16 +57,16 @@
  #include "tabs.h"
  #include "trade.h"
  #include "weather.h"
-  #include "minimap.h"
+ #include "minimap.h"
  #ifdef NEW_ALPHA
   #include "3d_objects.h"
  #endif
-  #include "io/elpathwrapper.h"
-  #include "notepad.h"
-  #include "sky.h"
-  #ifdef OSX
-   #include "events.h"
-  #endif // OSX
+ #include "io/elpathwrapper.h"
+ #include "notepad.h"
+ #include "sky.h"
+ #ifdef OSX
+  #include "events.h"
+ #endif // OSX
 #endif
 
 #include "asc.h"
@@ -82,13 +82,13 @@
 #include "actor_init.h"
 #include "io/elpathwrapper.h"
 #ifdef	NEW_TEXTURES
-#include "textures.h"
+ #include "textures.h"
 #endif	/* NEW_TEXTURES */
 #ifdef	FSAA
-#include "fsaa/fsaa.h"
+ #include "fsaa/fsaa.h"
 #endif	/* FSAA */
 #ifdef	CUSTOM_UPDATE
-#include "custom_update.h"
+ #include "custom_update.h"
 #endif	/* CUSTOM_UPDATE */
 
 typedef	float (*float_min_max_func)();
@@ -96,26 +96,26 @@ typedef	int (*int_min_max_func)();
 
 // Defines for config variables
 #define CONTROLS	0
-#define HUD			1
+#define HUD		1
 #define CHAT		2
 #define FONT 		3
 #define SERVER		4
 #define AUDIO		5
 #define VIDEO		6
-#define GFX			7
+#define GFX		7
 #define CAMERA		8
 #define TROUBLESHOOT	9
 
 
 #ifdef DEBUG
-#define DEBUGTAB	10
-#define MAX_TABS 11
+ #define DEBUGTAB	10
+ #define MAX_TABS	11
 #else
-#define MAX_TABS 10
+ #define MAX_TABS	10
 #endif
 
 #define CHECKBOX_SIZE		15
-#define SPACING				5	//Space between widgets and labels and lines
+#define SPACING			5	//Space between widgets and labels and lines
 #define LONG_DESC_SPACE		50	//Space to give to the long descriptions
 #define MAX_LONG_DESC_LINES	3	//How many lines of text we can fit in LONG_DESC_SPACE
 
@@ -145,7 +145,7 @@ int windows_on_top= 0;
 static int options_set= 0;
 int shadow_map_size_multi= 0;
 #ifdef	FSAA
-int fsaa_index = 0;
+ int fsaa_index = 0;
 #endif	/* FSAA */
 
 /* temporary variables for fine graphic positions asjustmeet */
@@ -162,25 +162,25 @@ int render_mesh= 1;
 int render_bones_id = 0;
 int render_bones_orientation = 0;
 #ifdef NEW_CURSOR
-int big_cursors = 0;
-int sdl_cursors = 0;
-float pointer_size = 1.0;
+ int big_cursors = 0;
+ int sdl_cursors = 0;
+ float pointer_size = 1.0;
 #endif // NEW_CURSOR
 float water_tiles_extension = 200.0;
 int show_game_seconds = 0;
 int skybox_update_delay = 10;
 int skybox_local_weather = 0;
 #ifdef OSX	// for probelem with rounded buttons on Intel graphics
-int square_buttons = 0;
+ int square_buttons = 0;
 #endif
 #ifdef	NEW_TEXTURES
-int small_actor_texture_cache = 0;
+ int small_actor_texture_cache = 0;
 #endif	/* NEW_TEXTURES */
 
 int video_info_sent = 0;
 
 #ifdef DEBUG
-int enable_client_aiming = 0;
+ int enable_client_aiming = 0;
 #endif // DEBUG
 
 void options_loaded(void)
@@ -1826,6 +1826,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL, "use_global_filters", "gfil", &use_global_filters, change_global_filters, 1, "Global Filter", "Toggle the use of global text filters.", CHAT);
 	/* add_var(OPT_STRING,"text_filter_replace","trepl",text_filter_replace,change_string,127,"Text Filter","The word to replace bad text with",CHAT); */
 	add_var(OPT_BOOL,"caps_filter","caps",&caps_filter,change_var,1,"Caps Filter","Toggle the caps filter",CHAT);
+	add_var(OPT_BOOL,"show_timestamp","timestamp",&show_timestamp,change_var,0,"Show Time Stamps","Toggle time stamps for chat messages",CHAT);
 	// CHAT TAB
 
 

@@ -50,6 +50,8 @@ char last_pm_from[32];
 Uint32 last_server_message_time;
 int lines_to_show=0;
 
+int show_timestamp = 0;
+
 char not_from_the_end_console=0;
 
 int log_chat = LOG_SERVER;
@@ -214,10 +216,18 @@ void write_to_log (Uint8 channel, const Uint8* const data, int len)
 	// The file we'll write to
 	fout = (channel == CHAT_SERVER && log_chat >= 3) ? srv_log : chat_log;
 
-	// Start filling the buffer with the time stamp
-	time (&c_time);
-	l_time = localtime (&c_time);
-	j = strftime (str, sizeof(str), "[%H:%M:%S] ", l_time);
+	if(!show_timestamp)
+	{
+		// Start filling the buffer with the time stamp
+		time (&c_time);
+		l_time = localtime (&c_time);
+		j = strftime (str, sizeof(str), "[%H:%M:%S] ", l_time);
+	}
+	else
+	{
+		//we already have a time stamp
+		j=0;
+	}
 
 	i = 0;
 	while (i < len)
@@ -841,6 +851,8 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 	text_message *msg;
 	int minlen;
 	Uint32 cnr = 0, ibreak = -1;
+	char time_stamp[12];
+	struct tm *l_time; time_t c_time;
 
 	check_chat_text_to_overtext (text_to_add, len, channel);
 
@@ -879,6 +891,13 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 	// but allow al least for a null byte and up to 8 extra newlines and
 	// colour codes
 	minlen = len + 18 + (len/60);
+	if (show_timestamp)
+	{
+		minlen += 12;
+		time (&c_time);
+		l_time = localtime (&c_time);
+		strftime (time_stamp, sizeof(time_stamp), "[%H:%M:%S] ", l_time);
+	}
 	cnr = get_active_channel (channel);
 	if (cnr != 0)
 		// allow some space for the channel number
@@ -902,12 +921,26 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 		if(!is_color (text_to_add[0]))
 		{
 			// force the color
-			safe_snprintf (msg->data, msg->size, "%c%.*s", to_color_char (color), len, text_to_add);
+			if (show_timestamp)
+			{
+				safe_snprintf (msg->data, msg->size, "%c%s%.*s", to_color_char (color), time_stamp, len, text_to_add);
+			}
+			else
+			{
+				safe_snprintf (msg->data, msg->size, "%c%.*s", to_color_char (color), len, text_to_add);
+			}
 		}
 		else
 		{
 			// color set by server
-			safe_snprintf (msg->data, msg->size, "%.*s", len, text_to_add);
+			if (show_timestamp)
+			{
+				safe_snprintf (msg->data, msg->size, "%c%s%.*s", text_to_add[0], time_stamp, len, &text_to_add[1]);
+			}
+			else
+			{
+				safe_snprintf (msg->data, msg->size, "%.*s", len, text_to_add);
+			}
 		}
 	}
 	else
@@ -921,12 +954,26 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 		if(!is_color (text_to_add[0]))
 		{
 			// force the color
-			safe_snprintf (msg->data, msg->size, "%c%.*s @ %s%.*s", to_color_char (color), ibreak, text_to_add, nr_str, len-ibreak, &text_to_add[ibreak]);
+			if (show_timestamp)
+			{
+				safe_snprintf (msg->data, msg->size, "%c%s%.*s @ %s%.*s", to_color_char (color), time_stamp, ibreak, text_to_add, nr_str, len-ibreak, &text_to_add[ibreak]);
+			}
+			else
+			{
+				safe_snprintf (msg->data, msg->size, "%c%.*s @ %s%.*s", to_color_char (color), ibreak, text_to_add, nr_str, len-ibreak, &text_to_add[ibreak]);
+			}
 		}
 		else
 		{
 			// color set by server
-			safe_snprintf (msg->data, msg->size, "%.*s @ %s%.*s", ibreak, text_to_add, nr_str, len-ibreak, &text_to_add[ibreak]);
+			if (show_timestamp)
+			{
+				safe_snprintf (msg->data, msg->size, "%c%s%.*s @ %s%.*s", text_to_add[0], time_stamp, ibreak-1, &text_to_add[1], nr_str, len-ibreak, &text_to_add[ibreak]);
+			}
+			else
+			{
+				safe_snprintf (msg->data, msg->size, "%.*s @ %s%.*s", ibreak, text_to_add, nr_str, len-ibreak, &text_to_add[ibreak]);
+			}
 		}
 	}
 
