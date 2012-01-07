@@ -12,6 +12,7 @@
 extern "C" {
 #endif
 
+extern int wanted_num_recipe_entries; /*!< option window set number of recipe entries */
 extern item manufacture_list[ITEM_NUM_ITEMS]; /*!< global list of manufacturable items */
 
 extern int manufacture_menu_x;
@@ -87,6 +88,14 @@ void check_for_recipe_name(const char *name);
  * \callgraph
  */
 void cleanup_manufacture(void);
+
+/*!
+ * \ingroup manufacture_window
+ * \brief Called when the number of recipe entries is changed in the options window.
+ *
+ * \callgraph
+ */
+ void change_num_recipe_entries(int * var, int value);
 
 #ifdef __cplusplus
 } // extern "C"
