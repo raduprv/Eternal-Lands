@@ -673,8 +673,8 @@ int recipe_dropdown_draw(window_info *win){
 		else
 		{
 			static char tmp[30];
-			safe_snprintf(tmp, sizeof(tmp), "[%s]", recipe_name_filter);
-			show_help(recipe_name_filter, 0, win->len_y + 10 + SMALL_FONT_Y_LEN*help_line++);
+			safe_snprintf(tmp, sizeof(tmp), "%s[%s]", item_list_find_str, recipe_name_filter);
+			show_help(tmp, 0, win->len_y + 10 + SMALL_FONT_Y_LEN*help_line++);
 		}
 	}
 
