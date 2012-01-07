@@ -780,10 +780,10 @@ int recipe_dropdown_click_handler(window_info *win, int mx, int my, Uint32 flags
 			hide_window(recipe_win);
 		}
 		last_clicked = SDL_GetTicks();
+		do_click_sound();
 	}
 	build_manufacture_list();
 	last_recipe = cur_recipe;
-	do_click_sound();
 	return 1;
 }
 
