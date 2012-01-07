@@ -194,6 +194,7 @@ char
 	double_click_clear_str[50],
 	recipe_select_str[50],
 	recipe_load_str[50],
+	recipe_find_str[50],
 	recipe_show_hide_str[70],
 	recipe_save_str[70],
 	/*knowledge.c*/
@@ -1282,6 +1283,7 @@ void init_help()
 	add_xml_identifier(misc,"double_click_clear",double_click_clear_str,"Double-click to clear message.",sizeof(double_click_clear_str));
 	add_xml_identifier(misc,"recipe_select",recipe_select_str,"Click or scroll to select recipe slot.",sizeof(recipe_select_str));
 	add_xml_identifier(misc,"recipe_load",recipe_load_str,"Double-click to load recipe.",sizeof(recipe_load_str));
+	add_xml_identifier(misc,"recipe_find",recipe_find_str,"Type text - find recipe.",sizeof(recipe_find_str));
 	add_xml_identifier(misc,"recipe_show_hide",recipe_show_hide_str,"Click to show/hide saved recipes. Wheel to scroll.",sizeof(recipe_show_hide_str));
 	add_xml_identifier(misc,"recipe_save",recipe_save_str,"Click to save current recipe to selected slot.",sizeof(recipe_save_str));
 	add_xml_identifier(misc,"you",you_str,"You",sizeof(you_str));

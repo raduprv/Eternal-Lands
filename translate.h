@@ -337,6 +337,7 @@ extern char
 		double_click_clear_str[50],
 		recipe_select_str[50],
 		recipe_load_str[50],
+		recipe_find_str[50],
 		recipe_show_hide_str[70],
 		recipe_save_str[70],
 		/*knowledge.c*/
