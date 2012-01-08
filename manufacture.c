@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+#include <ctype.h>
 #include "manufacture.h"
 #include "asc.h"
 #include "cursors.h"
