@@ -25,12 +25,12 @@
 #include <SDL.h>
 #include <SDL_endian.h>
 
-#ifdef LINUX
+//#ifdef LINUX
 #include <gtk/gtk.h>
 #include "gui.h"
 #include "gui_callbacks.h"
 #include "gui_support.h"
-#endif
+//#endif
 
 #ifdef	ZLIB
 #include	<zlib.h>
