@@ -1,3 +1,4 @@
+#include "../asc.h"
 #include "global.h"
 
 int particles_window = -1;

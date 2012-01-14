@@ -52,16 +52,12 @@ int Main(int argc, char *argv[])
 {
   
         //int i
-  	int logo;
-	int numtests;
+  	//int logo = 1;
+	//int numtests = 1;
 	//int bpp = 0;
-	int slowly;
+	//int slowly = 1;
 	//float gamma = 0.0;
 	//int noframe = 1;
-
-	logo = 1;
-	slowly = 1;
-	numtests = 1;
 
 #ifdef	LINUX
 	gtk_set_locale ();

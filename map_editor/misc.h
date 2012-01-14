@@ -18,7 +18,7 @@ void open_particles_obj();
 void save_particle_def_file();
 void open_eye_candy_obj();
 
-#ifdef LINUX
+//#ifdef LINUX
 void open_3d_obj_continued();
 void open_2d_obj_continued();
 void open_map_file_continued();
@@ -26,7 +26,7 @@ void save_map_file_continued();
 void open_particles_obj_continued();
 void open_eye_candy_obj_continued();
 void save_particle_def_file_continued();
-#endif
+//#endif
 
 
 void kill_height_map_at_texture_tile(int tex_pos);

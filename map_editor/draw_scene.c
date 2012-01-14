@@ -1,4 +1,5 @@
 #include <SDL.h>
+#include "../asc.h"
 #include "global.h"
 #include <math.h>
 #include <string.h>

@@ -1,3 +1,4 @@
+#include "../asc.h"
 #include "global.h"
 
 #ifdef EYE_CANDY

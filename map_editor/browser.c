@@ -1,3 +1,4 @@
+#include "../asc.h"
 #include "global.h"
 #include <string.h>
 

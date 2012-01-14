@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "tiles.h"
+#include "../asc.h"
 #include "global.h"
 //#ifdef OSX
 //#include <ApplicationServices/ApplicationServices.h>

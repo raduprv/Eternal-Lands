@@ -461,12 +461,9 @@ void draw_global_light()
 
 void draw_dungeon_light()
 {
-     int i;
      GLfloat global_light_position[] = { 400.0, 400.0, 500.0, 0.0 };
      GLfloat difuse_light[] = { 0.0, 0.0, 0.0, 0.0 };
      GLfloat ambient_light[4];
-     i=light_level;
-     if(light_level>59)i=119-light_level;
      //the ambient light should be half of the difuse light
      ambient_light[0]=ambient_r;
      ambient_light[1]=ambient_g;
