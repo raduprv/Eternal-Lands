@@ -22,9 +22,10 @@
 
 /*
  * TO DO: pjbroad/bluap Jan 2012
- * recipe window
+ * recipe window - context menu?
  * 	- add sort by name option
  * 	- remove unused slots - shuffle up
+ *  - one more slot 
 */
 
 #define NUM_MIX_SLOTS 6
@@ -637,6 +638,7 @@ int recipe_dropdown_draw(window_info *win){
 	int first_displayed_recipe = vscrollbar_get_pos (win->window_id, recipe_win_scroll_id);
 	int relative_cur = cur_recipe - first_displayed_recipe;
 	int help_line = 0;
+	int find_active = 0;
 
 	/* if resizing wait until we stop */
 	if (win->resized)
@@ -676,6 +678,7 @@ int recipe_dropdown_draw(window_info *win){
 			static char tmp[30];
 			safe_snprintf(tmp, sizeof(tmp), "%s[%s]", item_list_find_str, recipe_name_filter);
 			show_help(tmp, 0, win->len_y + 10 + SMALL_FONT_Y_LEN*help_line++);
+			find_active = 1;
 		}
 	}
 
@@ -691,7 +694,7 @@ int recipe_dropdown_draw(window_info *win){
 		{
 			show_help(recipe_select_str, 0, win->len_y + 10 + SMALL_FONT_Y_LEN*help_line++);
 			show_help(recipe_load_str, 0, win->len_y + 10 + SMALL_FONT_Y_LEN*help_line++);
-			show_help(recipe_find_str, 0, win->len_y + 10 + SMALL_FONT_Y_LEN*help_line++);
+			show_help(find_active?recipe_during_find_str:recipe_find_str, 0, win->len_y + 10 + SMALL_FONT_Y_LEN*help_line++);
 		}
 	}
 	mouse_over_recipe = -1;
@@ -700,13 +703,28 @@ int recipe_dropdown_draw(window_info *win){
 }
 
 
+/* select the specified recipe and and make sure the window is hidden */
+static void select_recipe(int the_recipe)
+{
+	cur_recipe = the_recipe;
+	use_recipe(cur_recipe);
+	recipes_shown=0;
+	hide_window(recipe_win);
+	build_manufacture_list();
+}
+
 /* key presses in the window used for a recipe name search string */
 static int keypress_recipe_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
 	char keychar = tolower(key_to_char(unikey));
+	last_recipe_key_time = SDL_GetTicks();
+	if ((keychar == SDLK_RETURN) && (key & ELW_CTRL))
+	{
+		select_recipe(cur_recipe);
+		return 1;
+	}
 	if ((keychar == '`') || (key & ELW_CTRL) || (key & ELW_ALT))
 		return 0;
-	last_recipe_key_time = SDL_GetTicks();
 	if (keychar == SDLK_ESCAPE)
 	{
 		recipe_name_filter[0] = '\0';
@@ -774,16 +792,12 @@ int recipe_dropdown_click_handler(window_info *win, int mx, int my, Uint32 flags
 		//normal click
 		select_window(recipe_win);
 		cur_recipe=first_displayed_recipe + my/(SLOT_SIZE+1);
-		if ( ((SDL_GetTicks() - last_clicked) < 400)&& last_recipe==cur_recipe){
-			//double click on the same recipe to select it and close the dropdown
-			use_recipe(cur_recipe);
-			recipes_shown=0;
-			hide_window(recipe_win);
-		}
+		//double click on the same recipe to select it and close the dropdown
+		if ( ((SDL_GetTicks() - last_clicked) < 400)&& last_recipe==cur_recipe)
+			select_recipe(cur_recipe);
 		last_clicked = SDL_GetTicks();
 		do_click_sound();
 	}
-	build_manufacture_list();
 	last_recipe = cur_recipe;
 	return 1;
 }
