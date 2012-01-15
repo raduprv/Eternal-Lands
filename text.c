@@ -935,7 +935,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 			// color set by server
 			if (show_timestamp)
 			{
-				safe_snprintf (msg->data, msg->size, "%c%s%.*s", text_to_add[0], time_stamp, len, &text_to_add[1]);
+				safe_snprintf (msg->data, msg->size, "%c%s%.*s", text_to_add[0], time_stamp, len-1, &text_to_add[1]);
 			}
 			else
 			{
