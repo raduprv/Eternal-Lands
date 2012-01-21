@@ -1049,8 +1049,8 @@ CHECK_GL_ERRORS();
 int show_action_bar = 0;
 int watch_this_stats[MAX_WATCH_STATS]={NUM_WATCH_STAT -1, 0, 0, 0, 0};  // default to only watching overall
 int max_food_level=45;
-static int exp_bar_text_len = 8.5*SMALL_FONT_X_LEN;
-static int stats_bar_text_len = 4.5 * SMALL_FONT_X_LEN;
+static int exp_bar_text_len = 9.5*SMALL_FONT_X_LEN;
+static const int stats_bar_text_len = 4.5 * SMALL_FONT_X_LEN;
 
 // return the number of watched stat bars, the number displayed in the botton HUD
 static int get_num_statsbar_exp(void)
@@ -1063,6 +1063,79 @@ static int get_num_statsbar_exp(void)
 	return num_skills_bar;
 }
 
+
+// calculate the number of digits for the specified Uint32
+static Uint32 Uint32_digits(Uint32 number)
+{
+	Uint32 digits = 1;
+	long step = 10;
+	while ((step <= number) && (digits<11))
+	{
+		digits++;
+		step *= 10;
+	}
+	return digits;
+}
+
+
+// check if we need to adjust exp_bar_text_len due to an exp change
+static int recalc_exp_bar_text_len(void)
+{
+	static int init_flag = 1;
+	static Uint32 last_exp[NUM_WATCH_STAT-1];
+	static Uint32 last_to_go_len[NUM_WATCH_STAT-1];
+	static Uint32 last_selected[NUM_WATCH_STAT-1];
+	int recalc = 1;
+	int i;
+
+	if (init_flag)
+	{
+		for (i=0; i<NUM_WATCH_STAT-1; i++)
+		{
+			last_exp[i] = *statsinfo[i].exp;
+			last_to_go_len[i] = Uint32_digits(*statsinfo[i].next_lev - *statsinfo[i].exp);
+			last_selected[i] = 0;
+		}
+		init_flag =  0;
+	}
+
+	for (i=0; i<NUM_WATCH_STAT-1; i++)
+	{
+		/* if any exp changes, recalculate the number of digits for next level value */
+		if (last_exp[i] != *statsinfo[i].exp)
+		{
+			unsigned int curr = Uint32_digits(*statsinfo[i].next_lev - *statsinfo[i].exp);
+			/* if the number of digit changes, we need to recalulate exp_bar_text_len */
+			if (last_to_go_len[i] != curr)
+			{
+				last_to_go_len[i] = curr;
+				recalc = 1;
+			}
+			last_exp[i] = *statsinfo[i].exp;
+		}
+		/* if the selected status of any skill changed, we need to recalulate exp_bar_text_len */
+		if (last_selected[i] != statsinfo[i].is_selected)
+		{
+			last_selected[i] = statsinfo[i].is_selected;
+			recalc = 1;
+		}
+	}
+
+	/* recalc based only the skills being watched */
+	if (recalc)
+	{
+		int max_len = 0;
+		for (i=0; i<MAX_WATCH_STATS; i++)
+			if ((watch_this_stats[i] > 0) && statsinfo[watch_this_stats[i]-1].is_selected &&
+					(last_to_go_len[watch_this_stats[i]-1] > max_len))
+				max_len = last_to_go_len[watch_this_stats[i]-1];
+		return SMALL_FONT_X_LEN*(max_len+1.5);
+	}
+	else
+		return exp_bar_text_len;
+}
+
+
 // return the optimal length for stat bars for the botton HUD
 static int calc_stats_bar_len(int num_exp)
 {
@@ -1071,7 +1144,7 @@ static int calc_stats_bar_len(int num_exp)
 	int prosed_len = (window_width-hud_x-1) - (num_stat * stats_bar_text_len) - (num_exp * exp_bar_text_len);
 	prosed_len /= num_stat + num_exp;
 
-	// constain the maximum and minimum length of the skills bars to reasonable size
+	// constrain the maximum and minimum length of the skills bars to reasonable size
 	if (prosed_len < 50)
 		prosed_len = 50;
 	else if (prosed_len > 100)
@@ -1105,6 +1178,7 @@ static int action_bar_start_x;
 static int action_bar_start_y;
 static int exp_bar_start_x;
 static int exp_bar_start_y;
+static int free_statbar_space;
 
 // clear the context menu regions for all stats bars and set up again
 static void reset_statsbar_exp_cm_regions(void)
@@ -1149,7 +1223,7 @@ static int cm_statsbar_handler(window_info *win, int widget_id, int mx, int my, 
 		}
 	}
 
-	// if we want another bar, assigning it to teh first unwatched stat
+	// if we want another bar, assigning it to the first unwatched stat
 	if (add_bar)
 	{
 		int proposed_max_disp_stats = calc_max_disp_stats(calc_stats_bar_len(get_num_statsbar_exp()+1));
@@ -1192,6 +1266,7 @@ static void cm_statsbar_pre_show_handler(window_info *win, int widget_id, int mx
 void init_stats_display()
 {
 	int num_exp = get_num_statsbar_exp();
+	int actual_num_exp = 0;
 
 	//create the stats bar window
 	if(stats_bar_win < 0)
@@ -1227,7 +1302,7 @@ void init_stats_display()
 	// the x position of the first exp bar
 	exp_bar_start_x = ((show_action_bar)?5:4) * (stats_bar_len + stats_bar_text_len) + exp_bar_text_len;
 
-	// clear any unused slots in the watch list
+	// clear any unused slots in the watch list and recalc how many are being displayed
 	if (max_disp_stats < MAX_WATCH_STATS)
 	{
 		size_t i;
@@ -1238,13 +1313,21 @@ void init_stats_display()
 				watch_this_stats[i]=0;
 			}
 	}
+	actual_num_exp = get_num_statsbar_exp();
+
+	free_statbar_space = (window_width-hud_x-1) -
+		(exp_bar_start_x - exp_bar_text_len + actual_num_exp * (exp_bar_text_len + stats_bar_len));
+
+	// apologise if we had to reduce the number of exp bars
+	if (num_exp > actual_num_exp)
+		LOG_TO_CONSOLE(c_red2, remove_bar_message_str);
 
 	// context menu to enable/disable the action points bar - temporary during dev?
 	{
 		static size_t cm_id_x =  CM_INIT_VALUE;
 		if (cm_id_x != CM_INIT_VALUE)
 			cm_destroy(cm_id_x);
-		cm_id_x = cm_create("Show Action Points Bar", NULL);
+		cm_id_x = cm_create(cm_action_points_str, NULL);
 		cm_add_window(cm_id_x, stats_bar_win);
 		cm_bool_line(cm_id_x, 0, &show_action_bar, "show_action_bar");
 	}
@@ -1389,12 +1472,28 @@ static void draw_last_health_change(void)
 
 int	display_stats_bar_handler(window_info *win)
 {
+	static Uint32 last_time = 0;
 	float health_adjusted_x_len;
 	float food_adjusted_x_len;
 	float mana_adjusted_x_len;
 	float load_adjusted_x_len;
 	float action_adjusted_x_len;
-	int over_health_bar = statbar_cursor_x>health_bar_start_x && statbar_cursor_x < health_bar_start_x+stats_bar_len;
+	int over_health_bar;
+
+	// the space taken up by the exp bar text is minimised, but may change
+	// don't have to check often but this is an easy place to do it and its quick anyway
+	if (abs(SDL_GetTicks()-last_time) > 250)
+	{
+		int proposed_len = recalc_exp_bar_text_len();
+		if (proposed_len != exp_bar_text_len) // it will very rarely change
+		{
+			exp_bar_text_len = proposed_len;
+			init_stats_display();
+		}
+		last_time = SDL_GetTicks();
+	}
+
+	over_health_bar = statbar_cursor_x>health_bar_start_x && statbar_cursor_x < health_bar_start_x+stats_bar_len;
 
 	//get the adjusted length
 
@@ -2615,15 +2714,27 @@ void draw_exp_display()
 			else
 				exp_adjusted_x_len= stats_bar_len-(float)stats_bar_len/(float)((float)delta_exp/(float)(nl_exp-cur_exp));
 
-			draw_stats_bar(my_exp_bar_start_x, exp_bar_start_y, nl_exp - cur_exp, exp_adjusted_x_len, 0.1f, 0.8f, 0.1f, 0.1f, 0.4f, 0.1f);
-			
 			name_x = my_exp_bar_start_x + stats_bar_len - strlen((char *)name) * SMALL_FONT_X_LEN;
+			// the the name would overlap with the icons...
 			if (name_x < icon_x)
 			{
-				name = statsinfo[watch_this_stats[i]-1].skillnames->shortname;
-				name_x = my_exp_bar_start_x + stats_bar_len - strlen((char *)name) * SMALL_FONT_X_LEN - 3;
-				name_y = -3;
+				// if there is space just use it
+				int need = icon_x - name_x;
+				if (need < free_statbar_space)
+				{
+					name_x += need;
+					my_exp_bar_start_x += need;
+				}
+				// otherwise move the name onto the bar and use short form
+				else
+				{
+					name = statsinfo[watch_this_stats[i]-1].skillnames->shortname;
+					name_x = my_exp_bar_start_x + stats_bar_len - strlen((char *)name) * SMALL_FONT_X_LEN - 3;
+					name_y = -3;
+				}
 			}
+
+			draw_stats_bar(my_exp_bar_start_x, exp_bar_start_y, nl_exp - cur_exp, exp_adjusted_x_len, 0.1f, 0.8f, 0.1f, 0.1f, 0.4f, 0.1f);
 			draw_string_small_shadowed(name_x, name_y, name, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
 
 			my_exp_bar_start_x += stats_bar_len+exp_bar_text_len;
