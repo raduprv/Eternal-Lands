@@ -163,6 +163,8 @@ char
 	/*hud.c*/
 	no_open_on_trade[100],
 	stats_scroll_help_str[100],
+	remove_bar_message_str[50],
+	cm_action_points_str[30],
 	/*loginwin.c*/
 	login_username_str[20],
 	login_password_str[20],
@@ -1306,6 +1308,8 @@ void init_help()
 	add_xml_identifier(misc,"reset",reset_str,"Reset",sizeof(reset_str));
 	add_xml_identifier(misc,"channel_help",channel_help_str,"Click a Channel to join. You can be in up to 3 channels at a time.\n\nTo talk in a channel, type @ before your message. You do not have to type @ to talk in Local.",sizeof(channel_help_str));
 	add_xml_identifier(misc,"stats_scroll_help",stats_scroll_help_str,"Scroll Up/Down using CTRL+left/CTRL+right click or scrollwheel.",sizeof(stats_scroll_help_str));
+	add_xml_identifier(misc,"remove_bar_message",remove_bar_message_str,"Removed exp bar as space is limited.",sizeof(remove_bar_message_str));
+	add_xml_identifier(misc,"cm_action_points",cm_action_points_str,"Show Action Points Bar",sizeof(cm_action_points_str));
 	add_xml_identifier(misc,"dc_note_rm",dc_note_remove,"Double-click to remove this category",sizeof(dc_note_remove));
 	add_xml_identifier(misc,"note_saved",note_saved,"Your notes have been saved",sizeof(note_saved));
 	add_xml_identifier(misc,"note_save_failed",note_save_failed,"Failed to save your notes!",sizeof(note_save_failed));
