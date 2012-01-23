@@ -76,6 +76,16 @@ int get_skeleton(struct CalCoreModel *cal_model, const char *skeleton_name)
 		skel->cal_bones_id[body_bottom_bone] = find_core_bone_id(cal_skel, "bodyF");
 		skel->cal_bones_id[highest_bone] = skel->cal_bones_id[head_bone];
 	}
+	else if (!strcmp(&skeleton_name[length-13], "castellan.csf")) {
+		skel->cal_bones_id[head_bone] = find_core_bone_id(cal_skel, "head");
+		skel->cal_bones_id[mouth_bone] = skel->cal_bones_id[head_bone];
+		skel->cal_bones_id[body_top_bone] = find_core_bone_id(cal_skel, "spine3");
+		skel->cal_bones_id[body_bottom_bone] = find_core_bone_id(cal_skel, "spine1");
+		skel->cal_bones_id[weapon_left_bone] = find_core_bone_id(cal_skel, "weaponL");
+		skel->cal_bones_id[hand_left_bone] = find_core_bone_id(cal_skel, "handL");
+		skel->cal_bones_id[hand_right_bone] = find_core_bone_id(cal_skel, "handR");
+		skel->cal_bones_id[highest_bone] = skel->cal_bones_id[head_bone];
+	}
 	else if (!strcmp(&skeleton_name[length-8], "deer.csf")) {
 		skel->cal_bones_id[head_bone] = find_core_bone_id(cal_skel, "head");
 		skel->cal_bones_id[mouth_bone] = find_core_bone_id(cal_skel, "mouth");
