@@ -2756,7 +2756,7 @@ int text_field_click(widget_list *w, int mx, int my, Uint32 flags)
 #if !defined OSX && !defined WINDOWS
 #ifdef MIDDLE_MOUSE_PASTE
 	// Don't handle middle button clicks (paste) if the text field is not editable
-	if (buttons == ELW_MID_MOUSE)
+	if (buttons == ELW_MID_MOUSE && !(w->Flags & TEXT_FIELD_EDITABLE))
 		return 0;
 #endif
 #endif
