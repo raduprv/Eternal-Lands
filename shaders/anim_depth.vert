@@ -41,7 +41,7 @@ DPH result.position.y, R1.xyzx, mvp[1];
 DPH result.position.z, R1.xyzx, mvp[2];
 DPH result.position.w, R1.xyzx, mvp[3];
 
-MOV result.color, constant.xxxz;
+MOV result.color, constant.xxxx;
 
 MOV result.texcoord[0].xy, texure_coord.xyxx;	
 
