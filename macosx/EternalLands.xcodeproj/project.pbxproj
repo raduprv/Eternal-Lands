@@ -2284,7 +2284,6 @@
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "EternalLands" */;
 			compatibilityVersion = "Xcode 3.0";
-			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				English,
@@ -2555,6 +2554,8 @@
 					NEW_NEW_CHAR_WINDOW,
 					NEW_TEXTURES,
 					_7ZIP_ST,
+					FASTER_MAP_LOAD,
+					FASTER_STARTUP,
 				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -2592,6 +2593,8 @@
 					NEW_NEW_CHAR_WINDOW,
 					NEW_TEXTURES,
 					_7ZIP_ST,
+					FASTER_MAP_LOAD,
+					FASTER_STARTUP,
 				);
 				HEADER_SEARCH_PATHS = (
 					/usr/include/libxml2,
@@ -2616,7 +2619,7 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1)";
 				ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1 = "ppc i386";
-				CURRENT_PROJECT_VERSION = 1.9.2;
+				CURRENT_PROJECT_VERSION = 1.9.3;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(EL_FRAMEWORKS_DIR)",
 					"$(HOME)/Library/Frameworks",
@@ -2640,6 +2643,9 @@
 					ENCYCL_NAVIGATION,
 					NEW_NEW_CHAR_WINDOW,
 					NEW_TEXTURES,
+					_7ZIP_ST,
+					FASTER_MAP_LOAD,
+					FASTER_STARTUP,
 				);
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -2666,6 +2672,7 @@
 					"-liconv",
 				);
 				PREBINDING = NO;
+				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.4u.sdk";
 			};
 			name = Debug;
 		};
@@ -2675,7 +2682,7 @@
 				ARCHS = "$(ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1)";
 				ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1 = "ppc i386";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1.9.2;
+				CURRENT_PROJECT_VERSION = 1.9.3;
 				DEPLOYMENT_LOCATION = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(EL_FRAMEWORKS_DIR)",
@@ -2702,6 +2709,9 @@
 					ENCYCL_NAVIGATION,
 					NEW_NEW_CHAR_WINDOW,
 					NEW_TEXTURES,
+					_7ZIP_ST,
+					FASTER_MAP_LOAD,
+					FASTER_STARTUP,
 				);
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -2728,6 +2738,7 @@
 					"-liconv",
 				);
 				PREBINDING = NO;
+				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.4u.sdk";
 				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = Release;
