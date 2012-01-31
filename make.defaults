@@ -21,16 +21,17 @@ FEATURES += ENCYCL_NAVIGATION		# Adds context menus to encyclopedia windows with
 FEATURES += FSAA			# Adds support for full screen anti-aliasing using OpenGL multisampling.
 FEATURES += NEW_NEW_CHAR_WINDOW		# Use the new character creation window; controls always on-screen
 FEATURES += NEW_TEXTURES		# Enables the new texture loading and caching system (http://www.eternal-lands.com/forum/index.php?showtopic=54756)
+# new for 1.9.3 release
+FEATURES += FASTER_MAP_LOAD		# Enables optimizations to speed up the process of switching between maps
+FEATURES += FASTER_STARTUP		# An attempt to reduce the startup time of EL somewhat
+FEATURES += MIDDLE_MOUSE_PASTE	# Paste using the middle mouse button from the primary buffer on X systems
 
 ### Testing options (these options are possible for the next release and should be tested) ###
 #FEATURES += ANTI_ALIAS			# allows to enable/disable anti-aliasing in el.ini
-#FEATURES += DYNAMIC_ANIMATIONS		# Synchronizes animation to FPS instead of a fixed timer
+#FEATURES += DYNAMIC_ANIMATIONS		# (appears broken) Synchronizes animation to FPS instead of a fixed timer
 #FEATURES += EXT_ACTOR_DICT		# Removes remaining hard-coded actor def dictionaries - requires updated actor defs files (http://el.grug.redirectme.net/actor_defs.zip)
 #FEATURES += NEW_ALPHA			# (undocumented)
 #FEATURES += USE_SIMD			# Enables usage of simd instructions
-FEATURES += FASTER_MAP_LOAD		# Enables optimizations to speed up the process of switching between maps
-#FEATURES += FASTER_STARTUP		# An attempt to reduce the startup time of EL somewhat
-#FEATURES += MIDDLE_MOUSE_PASTE		# Paste using the middle mouse button from the primary buffer on X systems
 
 ### Machine specific options (fixes or performance enhancements) ###
 #FEATURES += EL_BIG_ENDIAN		# Enable big-endian code (automatically detected for OSX)
