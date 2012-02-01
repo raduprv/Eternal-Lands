@@ -236,6 +236,7 @@ extern int mouse_limit;
 extern int show_fps; /*!< flag that indicates whether to display FPS or not */
 #ifdef OSX
 extern int square_buttons; /* flag to overcome intel opengl issues on early MacBooks*/
+extern int emulate3buttonmouse;
 #endif
 #ifdef DEBUG
 extern int render_skeleton;

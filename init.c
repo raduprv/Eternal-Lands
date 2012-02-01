@@ -128,6 +128,10 @@ static int no_lang_in_config = 0;
 
 int video_mode_set=0;
 
+#ifdef OSX
+int emulate3buttonmouse=0;
+#endif
+
 void read_command_line(); //from main.c
 
 #ifndef FASTER_MAP_LOAD
@@ -777,8 +781,8 @@ void init_stuff()
 #endif
 
 #ifdef OSX
-	// don't emulate a 3 button mouse, ALT+leftclick doesn't work with the emulation
-	SDL_putenv("SDL_HAS3BUTTONMOUSE=1");
+	// don't emulate a 3 button mouse except you still have a 1 button mouse, ALT+leftclick doesn't work with the emulation
+	if (!emulate3buttonmouse) SDL_putenv("SDL_HAS3BUTTONMOUSE=1");
 #endif
 
 	//Init the caches here, as the loading window needs them
