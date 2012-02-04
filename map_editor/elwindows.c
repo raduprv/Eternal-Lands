@@ -714,14 +714,10 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 			
 			//use the handler
 			if(win->click_handler != NULL){
-			    int	ret_val;
-			    
 				glPushMatrix();
 				glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
-				ret_val= (*win->click_handler)(win, _x, _y, flags);
+				(*win->click_handler)(win, _x, _y, flags);
 				glPopMatrix();
-
-				//return	ret_val;	// with click-thru
 				return	1;	// no click-thru permitted
 			} else {
 				return 1;
@@ -734,7 +730,6 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 int	mouseover_window(int win_id, int x, int y)
 {
 	int	_x,	_y;
-	int	ret_val=0;
 	
 	if(mouse_in_window(win_id, x, y) > 0)
 		{
@@ -745,15 +740,10 @@ int	mouseover_window(int win_id, int x, int y)
 
 				glPushMatrix();
 				glTranslatef((float)windows_list.window[win_id].cur_x, (float)windows_list.window[win_id].cur_y, 0.0f);
-				ret_val= (*windows_list.window[win_id].mouseover_handler)(&windows_list.window[win_id], _x, _y);
+				(*windows_list.window[win_id].mouseover_handler)(&windows_list.window[win_id], _x, _y);
 				glPopMatrix();
 
 			} 
-#ifdef	ELC
-			if(!ret_val) {
-				if(current_cursor!=CURSOR_ARROW)change_cursor(CURSOR_ARROW);
-			}
-#endif	//ELC
 			return 1;
 		}
 
