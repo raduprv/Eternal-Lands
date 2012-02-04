@@ -3,16 +3,15 @@ Section: games
 Priority: optional
 Maintainer: Paul Broadhead <pjbroad@twinmoons.org.uk>
 Build-Depends: debhelper (>= 5), libsdl-net1.2-dev, libxml2-dev, libogg-dev, libvorbis-dev, libopenal-dev, libcal3d12-dev, libsdl-image1.2-dev, libxrandr-dev
-Standards-Version: 3.8.3
+Standards-Version: 3.9.2
 Homepage: http://www.eternal-lands.com
 
 Package: eternallands
 Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends}, eternallands-data (>=1.9.2), zenity
-Conflicts: eternallands-rc, eternallands-rc-data, eternallands-cvs (<<1.9.2)
+Depends: ${misc:Depends}, ${shlibs:Depends}, eternallands-data (>=1.9.3), zenity
 Recommends: eternallands-sound (>=1.6.0)
 Suggests: eternallands-music (>=1.6.0)
-Description: the client package for Eternal Lands, a free MMORPG 
+Description: client package for Eternal Lands, a free MMORPG 
  Eternal Lands is a free to play, graphical MMORPG (massively-multi-player
  online role-playing game).  Different from other role-playing games, there are
  no fixed classes so you can improve any of the many skills.  There is a choice

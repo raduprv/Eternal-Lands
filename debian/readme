@@ -20,12 +20,12 @@ Now we're ready:
 
 Set the version number
 
-	elver="1.9.2"
+	elver="1.9.3"
 	packagename="eternallands"
 
 Checkout or update the client
 
-	git clone git://git.berlios.de/elc
+	git clone git://github.com/raduprv/Eternal-Lands.git elc
 
 	git pull
 
