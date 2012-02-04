@@ -1,3 +1,34 @@
+2011-Jun-19: Release 1.9.2
+
+* Minimap open-on-start option, circles + shadows
+* Buddy icon flashes on change
+* Improved new character window
+* Critical fails and poisoning in counters
+* Search and bookmarks for encyclopedia
+* Allow the camera to zoom out more
+* Variable number of quick bar item/spell slots
+* Knowledge window - highlight books matching filter
+* Option to open minimap when the client starts
+* If the mouse is over a stats bar, draw the EXP remaining
+* More NPC dialogue options and function to repeat last selection
+* New item list window
+* Compass shift-click copies location to current channel
+* Mouse over knowledge window progress-bar shows time left
+* Display last recent damage/heal values as hover over health bar
+* #Know command - added -read, -unread and -total options
+* Option to configure the maximum food level shown in the hud bar
+* Restructure options window and reduced size
+* Fixes for hardware_animation_program
+* Rewrite of custom cloths and updates downloads.
+* Added action point attributes
+* Properly centre floating messages
+* Minor quest log fixes and improvements
+* New texture code, now almost everything is DDS
+* Added support for OpenGL multi sampling (FSAA)
+* Performance improvements actor loading, map changing, textures, threading
+* Eye candy speed ups and fixes (requires OpenGL 1.5)
+* Added support for boots meshes
+
 2010-DEC-31: Release 1.9.1
 
 * Support for 512x512 actor textures
