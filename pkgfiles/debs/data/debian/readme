@@ -19,25 +19,25 @@ https://help.ubuntu.com/community/GnuPrivacyGuardHowto
 Now we're ready:
 
 Set the version number
-	
-	elver="1.9.2"
+
+	elver="1.9.3"
 	packagename="eternallands-data"
+	srcdir=$(pwd)
 
 Make a destination directory:
 
+	cd <some place else>
 	mkdir ${packagename}-${elver}
 
 Copy packaging files:
 
 	rm -rf ${packagename}-${elver}/debian
-	cp -a data/debian/ ${packagename}-${elver}/
-	rm -rf ${packagename}-${elver}/debian/CVS
+	cp -a ${srcdir}/data/debian/ ${packagename}-${elver}/
 
 Append the licence file and clean up:
 
 	wget -O - http://www.eternal-lands.com/page/license.txt | fmt -w 79 >> ${packagename}-${elver}/debian/copyright
 	nedit ${packagename}-${elver}/debian/copyright
-	
 
 Save the source archive:
 
@@ -50,7 +50,7 @@ Move into package directory:
 Make any modifications required then update the changelog:
 
 	dch -e
-	
+
 Build the package:
 
 	debuild

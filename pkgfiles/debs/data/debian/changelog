@@ -1,5 +1,5 @@
-eternallands-data (1.9.2-0ubuntu1) hardy; urgency=low
+eternallands-data (1.9.3-0ubuntu1) lucid; urgency=low
 
-  * Release 1.9.2
+  * Release candidate 1.9.3
 
- -- Paul Broadhead <pjbroad@twinmoons.org.uk>  Wed, 15 Jun 2011 23:13:56 +0100
+ -- Paul Broadhead <pjbroad@twinmoons.org.uk>  Sun, 05 Feb 2012 00:25:16 +0000
