@@ -26,6 +26,8 @@ case "$1" in
 	DOWNLOADURL="http://twinmoons.org.uk/el/rel/193"
 	DOWNLOADMAIN="el_190_linux_data.zip"
 	MD5SUMMAIN="28b8563080386a9401848c36d21a839d"
+	DOWNLOADMAIN193="el_linux_193.zip"
+	MD5SUMMAIN193="df8c47f5f3fe9aaaeec5b1332217b8c0"
 	DOWNLOADPATCH190="el_linux_190_update.zip"
 	MD5SUMPATCH190="6c88fb3a4e799fbcfa99e7c90215627b"
 	DOWNLOADUPDATE191="el_linux_update_191.zip"
@@ -45,52 +47,45 @@ case "$1" in
 		el_update_191_rc*.zip* EternalLands-update_191_2.zip* el_192_rc2.zip
 
 	# if we already have an archive check the md5sum is ok and remove if not
-	[ ! -f $DOWNLOADMAIN ] || echo "$MD5SUMMAIN  $DOWNLOADMAIN" | md5sum -c - || rm -fv $DOWNLOADMAIN
-	[ -z "$DOWNLOADPATCH190" ] || [ ! -f $DOWNLOADPATCH190 ] || echo "$MD5SUMPATCH190  $DOWNLOADPATCH190" | md5sum -c - || rm -fv $DOWNLOADPATCH190
+	[ ! -f "$DOWNLOADMAIN" ] || echo "$MD5SUMMAIN  $DOWNLOADMAIN" | md5sum -c - || rm -fv $DOWNLOADMAIN
+	[ ! -f "$DOWNLOADMAIN193" ] || echo "$MD5SUMMAIN193  $DOWNLOADMAIN193" | md5sum -c - || rm -fv $DOWNLOADMAIN193	[ -z "$DOWNLOADPATCH190" ] || [ ! -f $DOWNLOADPATCH190 ] || echo "$MD5SUMPATCH190  $DOWNLOADPATCH190" | md5sum -c - || rm -fv $DOWNLOADPATCH190
 	[ -z "$DOWNLOADUPDATE191" ] || [ ! -f $DOWNLOADUPDATE191 ] || echo "$MD5SUMUPDATE191  $DOWNLOADUPDATE191" | md5sum -c - || rm -fv $DOWNLOADUPDATE191
 	[ -z "$DOWNLOADUPDATE192" ] || [ ! -f $DOWNLOADUPDATE192 ] || echo "$MD5SUMUPDATE192  $DOWNLOADUPDATE192" | md5sum -c - || rm -fv $DOWNLOADUPDATE192
 	[ -z "$DOWNLOADUPDATE193" ] || [ ! -f $DOWNLOADUPDATE193 ] || echo "$MD5SUMUPDATE193  $DOWNLOADUPDATE193" | md5sum -c - || rm -fv $DOWNLOADUPDATE193
 	
-	# download the main, update and patch archives if we don't already have a copy
-	if [ ! -f $DOWNLOADMAIN ]
-	then
-		wget -P "." -v --progress="dot:mega" $DOWNLOADURL/$DOWNLOADMAIN
-		echo "$MD5SUMMAIN  $DOWNLOADMAIN" | md5sum -c -
-	fi
-	if [ -n "$DOWNLOADPATCH190" -a ! -f "$DOWNLOADPATCH190" ]
-	then
-		wget -P "." -v --progress="dot:mega" $DOWNLOADURL/$DOWNLOADPATCH190
-		echo "$MD5SUMPATCH190  $DOWNLOADPATCH190" | md5sum -c -
-	fi
-	if [ -n "$DOWNLOADUPDATE191" -a ! -f "$DOWNLOADUPDATE191" ]
-	then
-		wget -P "." -v --progress="dot:mega" $DOWNLOADURL/$DOWNLOADUPDATE191
-		echo "$MD5SUMUPDATE191  $DOWNLOADUPDATE191" | md5sum -c -
-	fi	
-	if [ -n "$DOWNLOADUPDATE192" -a ! -f "$DOWNLOADUPDATE192" ]
-	then
-		wget -P "." -v --progress="dot:mega" $DOWNLOADURL/$DOWNLOADUPDATE192
-		echo "$MD5SUMUPDATE192  $DOWNLOADUPDATE192" | md5sum -c -
-	fi
-	if [ -n "$DOWNLOADUPDATE193" -a ! -f "$DOWNLOADUPDATE193" ]
-	then
-		wget -P "." -v --progress="dot:mega" $DOWNLOADURL/$DOWNLOADUPDATE193
-		echo "$MD5SUMUPDATE193  $DOWNLOADUPDATE193" | md5sum -c -
-	fi
 	UNPACKDIR="`mktemp -d /tmp/eternallands-data.XXXXXXXXXX`"
 	
-	# unpack the archives
-	cd $UNPACKDIR
-	unzip -q $CACHEDIR/$DOWNLOADMAIN
-	mv EternalLands-Test4 el_install
-	[ -z "$DOWNLOADPATCH190" ] || unzip -o -q $CACHEDIR/$DOWNLOADPATCH190
-	mv el_install el_linux_update
-	[ -z "$DOWNLOADUPDATE191" ] || unzip -o -q $CACHEDIR/$DOWNLOADUPDATE191
-	mv el_linux_update el_update
-	[ -z "$DOWNLOADUPDATE192" ] || unzip -o -q $CACHEDIR/$DOWNLOADUPDATE192
-	[ -z "$DOWNLOADUPDATE193" ] || unzip -o -q $CACHEDIR/$DOWNLOADUPDATE193
-	mv el_update el_install
-	
+	# if we have all the old files, just download the 193 update
+	if [ -f "$DOWNLOADMAIN" -a -f "$DOWNLOADPATCH190" -a -f "$DOWNLOADUPDATE191" -a -f "$DOWNLOADUPDATE192" ]
+	then
+		if [ -n "$DOWNLOADUPDATE193" -a ! -f "$DOWNLOADUPDATE193" ]
+		then
+			wget -P "." -v --progress="dot:mega" $DOWNLOADURL/$DOWNLOADUPDATE193
+			echo "$MD5SUMUPDATE193  $DOWNLOADUPDATE193" | md5sum -c -
+		fi
+		# unpack the archives
+		cd $UNPACKDIR
+		unzip -q $CACHEDIR/$DOWNLOADMAIN
+		mv EternalLands-Test4 el_install
+		[ -z "$DOWNLOADPATCH190" ] || unzip -o -q $CACHEDIR/$DOWNLOADPATCH190
+		mv el_install el_linux_update
+		[ -z "$DOWNLOADUPDATE191" ] || unzip -o -q $CACHEDIR/$DOWNLOADUPDATE191
+		mv el_linux_update el_update
+		[ -z "$DOWNLOADUPDATE192" ] || unzip -o -q $CACHEDIR/$DOWNLOADUPDATE192
+		[ -z "$DOWNLOADUPDATE193" ] || unzip -o -q $CACHEDIR/$DOWNLOADUPDATE193
+		mv el_update el_install
+	# no old stuff so use existing new main or download it
+	else
+		if [ ! -f "$DOWNLOADMAIN193" ]
+		then
+			wget -P "." -v --progress="dot:mega" $DOWNLOADURL/$DOWNLOADMAIN193
+			echo "$MD5SUMMAIN193  $DOWNLOADMAIN193" | md5sum -c -
+		fi
+		cd $UNPACKDIR
+		unzip -q $CACHEDIR/$DOWNLOADMAIN193
+		mv el_linux el_install
+	fi
+
 	# fix el.ini and server.lst, remove unneeded files and set the permissions
 	cd el_install
 	rm -f *.dll *.exe el.*.bin
