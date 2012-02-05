@@ -1,0 +1,19 @@
+This package was debianized by Paul Broadhead <pjbroad@twinmoons.clara.co.uk>
+on Sun, 02 Jul 2008 00:32:29 +0100.
+
+Copyright: 
+
+    Downloaded data files Copyright (C) 2003, Radu Privantu and Maura Privantu.
+
+License:
+
+	The download data files can be freely distributed but not used for other
+	purposes without the permission of the copyright holder.  See below.
+
+The Debian packaging is (C) 2008, Paul Broadhead
+<pjbroad@twinmoons.clara.co.uk> and is licensed under the GPL, see
+`/usr/share/common-licenses/GPL'.
+
+Original licence file follows:
+------------------------------
+

@@ -1,0 +1,4 @@
+version=3
+
+# There is no source to watch.
+# This package purely downloads and installs game binary data.

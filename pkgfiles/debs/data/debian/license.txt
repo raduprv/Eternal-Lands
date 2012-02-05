@@ -1,0 +1,61 @@
+This is the license for Eternal Lands. Before playing the game, you have to agree with the 
+stuff written here.
+I will try to keep it in English, unlike most of the software out there, who use a veeeeeeery
+hard to understand legal language :D
+
+1. Basically, this software can be freely distributed. That is, if you want to put it on your
+web site, or on a CD, etc. feel free to do it. However, it would be a good idea to tell me
+(chaos_rift at yahoo.com) if you do that, so I can send you a notification when it will be updated.
+
+2. If you can make money using this software, by letting others play it 
+(say, you own an Internet Cafe), then good for you, we don't require you to pay us, even tho
+it would be nice if you would :)
+
+3. You are NOT allowed to take our art (2d/3d files), and use it for your own devious purpose,
+either commercial or not. The only exception is if you want to make some sort of fan website,
+in which case it is OK to use some of our art on that site. Of course, taking a screenshot and
+using it for whatever you need is perfectly OK.
+Just don't use our art for your own game/software. If you really want to do that, then send me
+an e-mail, with information on where/how/what/why you want to use, and, most likely, we can come
+to a deal.
+
+4. If you want to [re]distribute this game, you are NOT allowed to modify anything. You can, however,
+distribute some txt/doc/etc file, with information about you, etc.
+
+5. If something goes bad with this game (ie. it doesn't work on your computer, it crashes your
+computer, it kills your GF/BF/cat/familly/etc. it is not our fault, and you agree NOT to sue us.)
+If you kill someone because you played this game, it is also not our fault, but your 
+parents fault! :D No, really, I am tired of seeing on TV how this or that kid killed someone,
+and s/he justified it like: "I played this or that game, and I thought it would be k3w1 to do it too,
+in real life".
+Anyway, this software contains no code that is harmful to your computer. That is, it's not like
+we put some HDD formatting code, or something. Normally, nothing bad should happen by simply 
+running this software.
+
+6. This license might change in the future, and if/when it will change, you have to agree with
+the new license. 
+
+
+7. This software, and the web page doesn't store the login information in an encrypted way.
+Also, the login information should be regarded as non secure. That is, do NOT use any already
+existing password, like, say, your e-mail, ICQ, bank account, etc. password. If we get hacked,
+and/or if someone intercepts your password, we have no fault. I mean, ok, we do have a morale
+fault, but no legal fault, so you can't sue us.
+I stress again on this: DO NOT USE ANY ALREADY EXISTING PASSWORD WHEN YOU REGISTER TO THIS
+GAME, OR THE WEBPAGE.
+
+8. Scripting/macroing (the action of automating processes such as harvesting) with little or no human 
+intervention is considered cheating, and if you do it, and get caught, you might have your account deleted.
+
+9. If something happenes with your account (some accident, haxx0r, punishment, etc.) we have no obligation to 
+restore it. If such thing does happen, however, we will try our best to fix the problem, but we are only humans, 
+so you agree NOT to sue us, or demand anything from us.
+
+10. You have to agree with the ingame rules.
+
+11. You will also have to agree with the rules found in our forum, under the Rules section. Failure to do so may result in getting banned.
+
+12. If you start/play the game, it means you agreed with all the terms here.
+
+
+

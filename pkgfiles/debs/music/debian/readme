@@ -1,0 +1,50 @@
+How to build a package:
+
+Read the guides or at least install the necessary packages as detailed here:
+
+http://www.debian.org/doc/maint-guide/index.en.html
+https://wiki.ubuntu.com/PackagingGuide/Complete
+
+
+Set-up your ~/.bachrc so the package scripts known who you are:
+e.g. 
+export DEBFULLNAME='Paul Broadhead' 
+export DEBEMAIL='pjbroad@twinmoons.clara.co.uk'
+
+
+If you're going to sign the package make sure you have keys set-up:
+https://help.ubuntu.com/community/GnuPrivacyGuardHowto
+
+
+Now we're ready:
+
+Make a destination directory:
+
+	mkdir eternallands-music-1.6.0
+
+Copy packaging files:
+
+	rm -rf eternallands-music-1.6.0/debian
+	cp -a music/debian/ eternallands-music-1.6.0/
+	rm -rf eternallands-music-1.6.0/debian/CVS
+
+Append the licence file:
+
+	wget -O - http://www.eternal-lands.com/page/license.txt >> eternallands-music-1.6.0/debian/copyright
+
+Save the source archive:
+
+	tar cfz eternallands-music_1.6.0.orig.tar.gz eternallands-music-1.6.0
+
+Move into package directory:
+
+	cd eternallands-music-1.6.0
+
+Make any modifications required then update the changelog:
+
+	dch -i
+	
+Build the package:
+
+	debuild
+	debuild -S -sa

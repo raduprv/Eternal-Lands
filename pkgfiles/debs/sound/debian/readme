@@ -1,0 +1,55 @@
+How to build a package:
+
+Read the guides or at least install the necessary packages as detailed here:
+
+http://www.debian.org/doc/maint-guide/index.en.html
+https://wiki.ubuntu.com/PackagingGuide/Complete
+
+
+Set-up your ~/.bachrc so the package scripts known who you are:
+e.g. 
+export DEBFULLNAME='Paul Broadhead' 
+export DEBEMAIL='pjbroad@twinmoons.org.uk'
+
+
+If you're going to sign the package make sure you have keys set-up:
+https://help.ubuntu.com/community/GnuPrivacyGuardHowto
+
+Now we're ready:
+
+Set the version number
+	
+	elver="1.9.2"
+	packagename="eternallands-sound"
+
+Make a destination directory:
+
+	mkdir ${packagename}-${elver}
+
+Copy packaging files:
+
+	rm -rf ${packagename}-${elver}/debian
+	cp -a sound/debian/ ${packagename}-${elver}/
+	rm -rf ${packagename}-${elver}/debian/CVS
+
+Append the licence file and clean up:
+
+	wget -O - http://www.eternal-lands.com/page/license.txt | fmt -w 79 >> ${packagename}-${elver}/debian/copyright
+	less ${packagename}-${elver}/debian/copyright
+
+Save the source archive:
+
+	tar cfz ${packagename}_${elver}.orig.tar.gz ${packagename}-${elver}
+
+Move into package directory:
+
+	cd ${packagename}-${elver}/
+
+Make any modifications required then update the changelog:
+
+	dch -i
+
+Build the package:
+
+	debuild
+	debuild -S -sa
