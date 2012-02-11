@@ -1,3 +1,77 @@
+2012-Feb-06: Release 1.9.3
+
+Client changes:
+* Gé Vissers
+	* Speed improvements & code tidy ups
+	* Add X-style copy to/paste from the primary selection with the
+	middle mouse button for Linux (or other Unices if the client builds
+	on them). Works in console and text widgets, compile with
+	MIDDLE_MOUSE_PASTE to enable
+	* Add a feedback message when saving notes.
+* Tosh
+	* Ranging window
+* pjbroad/bluap
+	* Option to auto select *open storage* npc option
+	* Added floating message for action points
+	* Storage dialogue options on storage title menu too.
+	* Allow resizing of the item list window.
+	* Detect inv window auto size correctly
+	* Added *Print To Console* option on teh ranging window title menu.
+	* Add Date, Time and Coord insert functions to text widget menu.
+	* Code tidy-ups.
+	* Allow double click to unequip even if item swap disabled.
+	* Add alt-click to store all items.
+	* Allow scrolling using the mouse wheel in the buddy window.
+	* Add keypresses K_MARKFILTER and / as shortcut to encyclopedia
+	search.
+	* Remember select tabs for help, stats and info.
+	* Stop the new character icon window being created before the root
+	window, otherwise it is hidden.
+	* Fixed when the buffer fills, old chat shows up in bottom normally
+	blank line.
+	* Do not set use cursor for game window when set on inv/qb windows.
+	* For use_with, allow item reuse in qb and game window (like
+	inv window) when shift+click used.
+	* Bottom HUD. Added action points stats bar. Allow more flexible
+	use of stats and exp bars with variable length.
+	* Add new #keypress command - can be used by user menu to reproduce
+	#K_ defined key presses.
+	* Recipe window changes: Gather store and display names for
+	manufacture recipes. Configurable number of recipes, resizable and
+	scrollable window. Search by name.  Help text.
+* sir_odie
+	* Keep current recipe in manu-window when eat before first mix.
+	* Add L179 to the #calc command.
+	* Added the invance channels to the Channels menu as suggested
+	by the mods.
+	* Don't emulate a 3 button mouse on the Mac, ALT+leftclick
+	doesn't work with the emulation.
+	* Workaround for a Windows bug (at least Vista): tmpfile() needs
+	Administrator privileges there, so it doesn't work for normal
+	users...
+	* Added optional time stamp to chat text (requested by Aislinn)
+	* Added castellan skeleton
+* Vegar
+	* Sort storage categories alphabetically (but made configurable
+	via the title context menu).
+* xaphier
+	* More logging for new update.
+	* Fix for custom updates.
+	* Better debug logging,
+	* Fixed bug that crashed el client when 3dc or latc are supported
+	but not s3tc (texture compression)
+	* Fix for random crashes when eye-candy is used.
+	* Fixed uninitialized size of hardware buffer (vbo).
+* Jeffrey Wilson
+	* Fix for crash on some OS X hardware. Only draw particles if there
+	are particles in buffer to draw
+* Schmurk 
+	* Fixed a bug in the weights of vertices sent to the animation
+	vertex program
+	* Fix for lost shadows when wearing a medallion.
+* kbialowas
+	* instance mode implementation with banners customization
+
 2011-Jun-19: Release 1.9.2
 
 * Minimap open-on-start option, circles + shadows
