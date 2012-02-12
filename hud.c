@@ -1656,7 +1656,7 @@ void init_misc_display(hud_interface type)
 	//create the misc window
 	if(misc_win < 0)
 		{
-			misc_win= create_window("Misc", -1, 0, window_width-hud_x, window_height-y_len, hud_x, y_len, ELW_TITLE_NONE|ELW_SHOW_LAST);
+			misc_win= create_window("Misc", -1, 0, window_width-HUD_MARGIN_X, window_height-y_len, HUD_MARGIN_X, y_len, ELW_TITLE_NONE|ELW_SHOW_LAST);
 			set_window_handler(misc_win, ELW_HANDLER_DISPLAY, &display_misc_handler);
 			set_window_handler(misc_win, ELW_HANDLER_CLICK, &click_misc_handler);
 			set_window_handler(misc_win, ELW_HANDLER_MOUSEOVER, &mouseover_misc_handler );
@@ -1676,7 +1676,7 @@ void init_misc_display(hud_interface type)
 		}
 	else
 		{
-			move_window(misc_win, -1, 0, window_width-hud_x, window_height-y_len);
+			move_window(misc_win, -1, 0, window_width-HUD_MARGIN_X, window_height-y_len);
 		}
 	
 	cm_grey_line(cm_hud_id, CMH_STATS, (type == HUD_INTERFACE_NEW_CHAR));
