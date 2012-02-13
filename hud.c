@@ -1271,9 +1271,15 @@ void init_stats_display()
 	//create the stats bar window
 	if(stats_bar_win < 0)
 	{
+		static size_t cm_id_ap = CM_INIT_VALUE;
 		stats_bar_win= create_window("Stats Bar", -1, 0, 0, window_height-44, window_width-hud_x, 12, ELW_TITLE_NONE|ELW_SHOW_LAST);
 		set_window_handler(stats_bar_win, ELW_HANDLER_DISPLAY, &display_stats_bar_handler);
 		set_window_handler(stats_bar_win, ELW_HANDLER_MOUSEOVER, &mouseover_stats_bar_handler);
+
+		// context menu to enable/disable the action points bar
+		cm_id_ap = cm_create(cm_action_points_str, NULL);
+		cm_add_window(cm_id_ap, stats_bar_win);
+		cm_bool_line(cm_id_ap, 0, &show_action_bar, "show_action_bar");
 	}
 	else
 		init_window(stats_bar_win, -1, 0, 0, window_height-44, window_width-hud_x, 12);
@@ -1321,16 +1327,6 @@ void init_stats_display()
 	// apologise if we had to reduce the number of exp bars
 	if (num_exp > actual_num_exp)
 		LOG_TO_CONSOLE(c_red2, remove_bar_message_str);
-
-	// context menu to enable/disable the action points bar - temporary during dev?
-	{
-		static size_t cm_id_x =  CM_INIT_VALUE;
-		if (cm_id_x != CM_INIT_VALUE)
-			cm_destroy(cm_id_x);
-		cm_id_x = cm_create(cm_action_points_str, NULL);
-		cm_add_window(cm_id_x, stats_bar_win);
-		cm_bool_line(cm_id_x, 0, &show_action_bar, "show_action_bar");
-	}
 
 	// create the exp bars context menu, used by all ative exp bars
 	if (!cm_valid(cm_id))
