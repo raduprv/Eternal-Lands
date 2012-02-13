@@ -56,7 +56,7 @@ int rules_scroll_id = 0;
 int reached_end=0;
 int read_all_rules=0;
 int have_rules=0;
-rule_string * display_rules;
+rule_string * display_rules=NULL;
 int last_display=-1;
 
 /* virtual window */
