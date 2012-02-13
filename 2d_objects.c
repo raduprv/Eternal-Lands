@@ -504,6 +504,10 @@ static obj_2d_def* load_obj_2d_def_cache(const char* file_name)
 	//asc not found in the cache, so load it ...
 	def = load_obj_2d_def(file_name);
 
+	// no object found, so nothing to store in the cache
+	if (def == NULL)
+		return NULL;
+
 	// ... and store it
 	if (obj_2d_cache_used < MAX_OBJ_2D_DEF)
 	{
