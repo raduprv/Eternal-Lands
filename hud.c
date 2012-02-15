@@ -1141,7 +1141,7 @@ static int calc_stats_bar_len(int num_exp)
 {
 	// calculate the maximum length for stats bars given the current number of both bar types
 	int num_stat = (show_action_bar) ?5: 4;
-	int prosed_len = (window_width-hud_x-1) - (num_stat * stats_bar_text_len) - (num_exp * exp_bar_text_len);
+	int prosed_len = (window_width-HUD_MARGIN_X-1) - (num_stat * stats_bar_text_len) - (num_exp * exp_bar_text_len);
 	prosed_len /= num_stat + num_exp;
 
 	// constrain the maximum and minimum length of the skills bars to reasonable size
@@ -1157,7 +1157,7 @@ static int calc_stats_bar_len(int num_exp)
 static int calc_max_disp_stats(int suggested_stats_bar_len)
 {
 	int exp_offset = ((show_action_bar)?5:4) * (suggested_stats_bar_len + stats_bar_text_len);
-	int preposed_max_disp_stats = (window_width - hud_x - exp_offset) / (suggested_stats_bar_len + exp_bar_text_len);
+	int preposed_max_disp_stats = (window_width - HUD_MARGIN_X - exp_offset) / (suggested_stats_bar_len + exp_bar_text_len);
 	if (preposed_max_disp_stats > MAX_WATCH_STATS)
 		preposed_max_disp_stats = MAX_WATCH_STATS;
 	return preposed_max_disp_stats;
@@ -1272,7 +1272,7 @@ void init_stats_display()
 	if(stats_bar_win < 0)
 	{
 		static size_t cm_id_ap = CM_INIT_VALUE;
-		stats_bar_win= create_window("Stats Bar", -1, 0, 0, window_height-44, window_width-hud_x, 12, ELW_TITLE_NONE|ELW_SHOW_LAST);
+		stats_bar_win= create_window("Stats Bar", -1, 0, 0, window_height-44, window_width-HUD_MARGIN_X, 12, ELW_TITLE_NONE|ELW_SHOW_LAST);
 		set_window_handler(stats_bar_win, ELW_HANDLER_DISPLAY, &display_stats_bar_handler);
 		set_window_handler(stats_bar_win, ELW_HANDLER_MOUSEOVER, &mouseover_stats_bar_handler);
 
@@ -1282,7 +1282,7 @@ void init_stats_display()
 		cm_bool_line(cm_id_ap, 0, &show_action_bar, "show_action_bar");
 	}
 	else
-		init_window(stats_bar_win, -1, 0, 0, window_height-44, window_width-hud_x, 12);
+		init_window(stats_bar_win, -1, 0, 0, window_height-44, window_width-HUD_MARGIN_X, 12);
 
 	// calculate the statsbar len given curent config
 	stats_bar_len = calc_stats_bar_len(num_exp);
@@ -1321,7 +1321,7 @@ void init_stats_display()
 	}
 	actual_num_exp = get_num_statsbar_exp();
 
-	free_statbar_space = (window_width-hud_x-1) -
+	free_statbar_space = (window_width-HUD_MARGIN_X-1) -
 		(exp_bar_start_x - exp_bar_text_len + actual_num_exp * (exp_bar_text_len + stats_bar_len));
 
 	// apologise if we had to reduce the number of exp bars
