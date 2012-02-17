@@ -1509,7 +1509,7 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 		glTranslatef((float)win->cur_x, (float)win->cur_y-scroll_pos, 0.0f);
 		while (W != NULL)
 		{
-			if (!(W->Flags&WIDGET_DISABLED) && !(W->Flags&WIDGET_CLICK_TRANSPARENT) && 
+			if (!(W->Flags&WIDGET_DISABLED) && !(W->Flags&WIDGET_CLICK_TRANSPARENT) &&  !(W->Flags&WIDGET_INVISIBLE) &&
 					mx > W->pos_x && mx <= W->pos_x + W->len_x && my > W->pos_y && my <= W->pos_y + W->len_y)
 			{
 				if ( widget_handle_click (W, mx - W->pos_x, my - W->pos_y, flags) )
