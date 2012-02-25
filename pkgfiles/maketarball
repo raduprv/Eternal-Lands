@@ -33,7 +33,7 @@ echo "Removing unwanted files from copy"
 make -f Makefile.linux clean
 rm -rf animations actor_defs books generic languages map_editor \
 		pawn pawn_scripts shader/data shaders skybox temlates \
-		eye_candy/textures tmp_1_8_0 .deps macosx .git
+		eye_candy/textures tmp_1_8_0 .deps macosx .git map_editor
 rm -f e3dlist.txt *.xml *.ini *.lst *.pl *.res *.dsp *.dsw .git*
 rm -f Makefile.bsd* Makefile.osx Makefile.win
 chmod -R -x *.{c,cpp,h}
