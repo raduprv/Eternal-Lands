@@ -925,18 +925,15 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 					*((Uint32 *)(str+2))=SDL_SwapLE32(36);//Drop all
 				my_tcp_send(my_socket, str, 6);
 				do_drop_item_sound();
-			} else if (alt_on) {
-				if ((storage_win >= 0) && (view_only_storage == 0) && (get_show_window(storage_win))) {
-					if(item_list[pos].quantity>0) {
-						str[0]=DEPOSITE_ITEM;
-						str[1]=item_list[pos].pos;
-						*((Uint32*)(str+2))=SDL_SwapLE32(INT_MAX);
-						my_tcp_send(my_socket, str, 6);
-					}
+			} else if (alt_on && (item_action_mode == ACTION_WALK)) {
+				if ((storage_win >= 0) && (get_show_window(storage_win)) && (view_only_storage == 0)) {
+					str[0]=DEPOSITE_ITEM;
+					str[1]=item_list[pos].pos;
+					*((Uint32*)(str+2))=SDL_SwapLE32(INT_MAX);
+					my_tcp_send(my_socket, str, 6);
 					do_drop_item_sound();
 				} else {
-					if (view_only_storage)
-						drop_fail_time = SDL_GetTicks();
+					drop_fail_time = SDL_GetTicks();
 					do_alert1_sound();
 				}
 			} else if(item_action_mode==ACTION_LOOK) {
