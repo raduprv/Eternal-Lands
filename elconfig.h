@@ -29,6 +29,11 @@ extern float pointer_size;
 extern Uint32 max_actor_texture_handles;
 #endif	/* NEW_TEXTURES */
 
+extern int write_ini_on_exit; /*< variable that determines if el.ini file is rewritten on exit of the program */
+
+extern int gx_adjust;
+extern int gy_adjust;
+
 /*!
  * The different kinds of options
  */
@@ -93,13 +98,6 @@ typedef enum
 } var_name_type;
 
 extern struct variables our_vars; /*!< global variable containing all defined variables */
-
-extern int write_ini_on_exit; /*< variable that determines if el.ini file is rewritten on exit of the program */
-
-extern int elconfig_win;
-
-extern int gx_adjust;
-extern int gy_adjust;
 
 void display_elconfig_win(void);
 
