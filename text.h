@@ -79,6 +79,8 @@ extern ec_reference harvesting_effect_reference;
 
 extern int emote_filter; //used to ignore text lines of emotes only
 
+extern int summoning_filter; //used to ignore text lines of summoning messages
+
 /*!
  * \brief Allocate the character buffer for a text_message
  *

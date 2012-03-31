@@ -34,6 +34,7 @@
 #include "emotes.h"
 
 int emote_filter=0;
+int summoning_filter=0;
 
 text_message display_text_buffer[DISPLAY_TEXT_BUFFER_SIZE];
 int last_message = -1;
@@ -584,6 +585,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			}
 		} else if (my_strncompare(text_to_add+1, "(*) ", 4)) {
 			increment_summon_counter(text_to_add+1+4);
+			if (summoning_filter) return 0;
 		}
 	}
 	/* check for misc counter strings */
