@@ -13,6 +13,7 @@ extern "C" {
 #endif
 
 extern int wanted_num_recipe_entries; /*!< option window set number of recipe entries */
+extern const int max_num_recipe_entries;  /*!< max number of recipe entries */
 extern item manufacture_list[ITEM_NUM_ITEMS]; /*!< global list of manufacturable items */
 
 extern int manufacture_menu_x;
