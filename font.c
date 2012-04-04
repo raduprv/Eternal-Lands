@@ -645,7 +645,6 @@ void draw_string_zoomed_clipped (int x, int y, const unsigned char* our_string, 
 			continue;
 		}
 
-//		cur_x += draw_font_char_scaled (0, cur_char, cur_x, cur_y, text_zoom);
 		cur_x += draw_char_scaled (cur_char, cur_x, cur_y, displayed_font_x_size, displayed_font_y_size);
 
 		i++;

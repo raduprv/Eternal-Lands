@@ -29,6 +29,11 @@ extern float pointer_size;
 extern Uint32 max_actor_texture_handles;
 #endif	/* NEW_TEXTURES */
 
+extern int write_ini_on_exit; /*< variable that determines if el.ini file is rewritten on exit of the program */
+
+extern int gx_adjust;
+extern int gy_adjust;
+
 /*!
  * The different kinds of options
  */
@@ -49,39 +54,6 @@ typedef enum
 } option_type;
 
 /*!
- * var_struct stores the data for a single configuration entry.
- */
-typedef struct
-{
-	option_type type; /*!< type of the variable */
-	char	*name; /*!< name of the variable */
-	int 	nlen; /*!< length of the \a name */
-	char 	*shortname; /*!< shortname of the variable */
-	int 	snlen; /*!< length of the \a shortname */
-	void 	(*func)(); /*!< routine to execute when this variable is selected. */
-	void 	*var; /*!< data for this variable */
-	int 	len; /*!< length of the variable */
-	int	saved;
-//	char 	*message; /*!< In case you want a message to be written when a setting is changed */
-	dichar display;
-	struct {
-		int tab_id; /*!< The tab ID in which we find this option */
-		int label_id; /*!< The label ID associated with this option */
-		int widget_id; /*!< Widget ID for things like checkboxes */
-	} widgets;
-	queue_t *queue; /*!< Queue that holds info for certain widget types. */
-} var_struct;
-
-/*!
- * a list of variables of type \see var_struct
- */
-struct variables
-{
-	int no; /*!< current number of allocated \see var_struct in \a var */
-	var_struct * var[200]; /*!< fixed array of \a no \see var_struct structures */
-};
-
-/*!
  * The type of variable name.
  */
 typedef enum
@@ -91,15 +63,6 @@ typedef enum
 	INI_FILE_VAR,		/*!< for variables names from el.ini */
 	IN_GAME_VAR		/*!< for names of variables changed in the games */
 } var_name_type;
-
-extern struct variables our_vars; /*!< global variable containing all defined variables */
-
-extern int write_ini_on_exit; /*< variable that determines if el.ini file is rewritten on exit of the program */
-
-extern int elconfig_win;
-
-extern int gx_adjust;
-extern int gy_adjust;
 
 void display_elconfig_win(void);
 
