@@ -1285,7 +1285,7 @@ void init_help()
 	add_xml_identifier(misc,"mix_empty_str",mix_empty_str,"Nothing to mix, add some items.",sizeof(mix_empty_str));
 	add_xml_identifier(misc,"click_clear",click_clear_str,"Click to clear message.",sizeof(click_clear_str));
 	add_xml_identifier(misc,"double_click_clear",double_click_clear_str,"Double-click to clear message.",sizeof(double_click_clear_str));
-	add_xml_identifier(misc,"recipe_select",recipe_select_str,"Click or scroll to select recipe slot.",sizeof(recipe_select_str));
+	add_xml_identifier(misc,"recipe_select",recipe_select_str,"Left-click or scroll to select recipe slot.",sizeof(recipe_select_str));
 	add_xml_identifier(misc,"recipe_load",recipe_load_str,"Double-click to load recipe.",sizeof(recipe_load_str));
 	add_xml_identifier(misc,"recipe_find",recipe_find_str,"Type text - find recipe.",sizeof(recipe_find_str));
 	add_xml_identifier(misc,"recipe_during_find",recipe_during_find_str,"Next match - return, +ctrl to load.",sizeof(recipe_during_find_str));
@@ -1450,7 +1450,7 @@ void init_help()
 	add_xml_identifier(misc, "cm_dialog_menu", cm_dialog_menu_str, "--\nEnable Keypresses\nKeypresses Anywhere", sizeof(cm_dialog_menu_str));
 	add_xml_identifier(misc, "cm_url_menu", cm_url_menu_str, "Open\nFind In Console\nMark Visited\nMark Unvisited\n--\nDelete\n--\nDelete All", sizeof(cm_url_menu_str));	
 	add_xml_identifier(misc, "cm_counters_menu", cm_counters_menu_str, "Delete entry\n--\nReset Session Total\n--\nEnable floating messages", sizeof(cm_counters_menu_str));	
-	add_xml_identifier(misc, "cm_help_options", cm_help_options_str, "Right-click for options", sizeof(cm_help_options_str));
+	add_xml_identifier(misc, "cm_help_options", cm_help_options_str, "Right-click for options.", sizeof(cm_help_options_str));
 	add_xml_identifier(misc, "cm_npcname_menu", cm_npcname_menu_str, "Copy NPC Name", sizeof(cm_npcname_menu_str));
 	add_xml_identifier(misc, "cm_dialog_copy_menu", cm_dialog_copy_menu_str, "Exclude Responses\nRemove newlines", sizeof(cm_dialog_copy_menu_str));
 	add_xml_identifier(misc, "cm_minimap_menu", cm_minimap_menu_str, "--\nRotate Minimap\nPin Minimap\nOpen On Start", sizeof(cm_minimap_menu_str));

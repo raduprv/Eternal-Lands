@@ -692,6 +692,7 @@ int recipe_dropdown_draw(window_info *win){
 			show_help(recipes_store[actual_recipe].name, win->len_x+5, SLOT_SIZE*mouse_over_recipe+(SLOT_SIZE-SMALL_FONT_Y_LEN)/2);
 		if (show_help_text)
 		{
+			show_help(cm_help_options_str, 0, win->len_y + 10 + SMALL_FONT_Y_LEN*help_line++);
 			show_help(recipe_select_str, 0, win->len_y + 10 + SMALL_FONT_Y_LEN*help_line++);
 			show_help(recipe_load_str, 0, win->len_y + 10 + SMALL_FONT_Y_LEN*help_line++);
 			show_help(find_active?recipe_during_find_str:recipe_find_str, 0, win->len_y + 10 + SMALL_FONT_Y_LEN*help_line++);
