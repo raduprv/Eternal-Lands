@@ -35,6 +35,7 @@
 #include "tabs.h"
 #include "translate.h"
 #include "url.h"
+#include "user_menus.h"
 #include "counters.h"
 #include "minimap.h"
 #include "errors.h"
@@ -1408,6 +1409,18 @@ static int command_open_url(char *text, int len)
 }
 
 
+/* set the user menu wait time between commands */
+static int command_set_user_menu_wait_time_ms(char *text, int len)
+{
+	text = getparams(text);
+	if (*text)
+		set_user_menu_wait_time_ms(atol(text));
+	else
+		set_user_menu_wait_time_ms(0);
+	return 1;
+}
+
+
 /* parse the command parameters for a spell message, then cast it */
 static int command_cast_spell(char *text, int len)
 {
@@ -1705,6 +1718,7 @@ add_command("horse", &horse_cmd);
 	add_command(cmd_show_spell, &command_show_spell);
 	add_command(cmd_cast_spell, &command_cast_spell);
 	add_command(cmd_keypress, &command_keypress);
+	add_command(cmd_user_menu_wait_time_ms, &command_set_user_menu_wait_time_ms);
 	command_buffer_offset = NULL;
 }
 

@@ -38,6 +38,7 @@ Example
 Show Server Stats||#stats
 Show Invasion Monsters Count||#il
 Show Day, Date & Time||#day||#date||#time
+Show Day, Date & Time with 5 second delay||#user_menu_wait_time_ms 5000||#day||#date||#time||#user_menu_wait_time_ms
 ||
 Say local hi||hi
 Stats On||%show_stats_in_hud=1
@@ -56,8 +57,6 @@ BBC News||#open_url http://news.bbc.co.uk/
 	- tidy up how the container window creates its context menu
 	- restore context help text
 	- split Container class, possibly into window/container classes
-	- Add option for key presses (from keys.ini file) do as #key command ?
-	- Add a "pause for no output" #wait ?
 	- block use of #suicide #reset #killme #change_pass - may be store in file
 	- virtical/horizontal option
 	- option auto hide down to icon
@@ -192,6 +191,8 @@ namespace UserMenus
 			void get_options(int *win_x, int *win_y, int *options);
 			void command_input(const char* input_text, void *data) { command_queue.input(input_text); }
 			void command_cancel(void) { command_queue.cancel(); }
+			void set_wait_time_ms(Uint32 wait_time);
+			Uint32 get_wait_time_ms(void) const { return wait_time_ms; }
 			static Container * get_instance(void);
 			static int action_handler(window_info *win, int widget_id, int mx, int my, int option) { return get_instance()->action(widget_id, option); }
 			static void pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win) { get_instance()->pre_show(win, widget_id, mx, my, cm_win); }
@@ -216,10 +217,12 @@ namespace UserMenus
 			int just_echo;
 			int win_x_pos;
 			int win_y_pos;
+			Uint32 wait_time_ms;
 			std::vector<Menu *> menus;
 			Command_Queue command_queue;
 			static const int name_sep;
 			static const int window_pad;
+			static const Uint32 min_wait_time_ms;
 
 			void reload(void);
 			void recalc_win_width(void);
@@ -370,7 +373,7 @@ namespace UserMenus
 
 		// delay consecutive commands by a small amount to avoid spamming
 		Uint32 curr_time = SDL_GetTicks();
-		if ((curr_time >= last_time) && ((curr_time - 500) < last_time))
+		if ((curr_time >= last_time) && ((curr_time - Container::get_instance()->get_wait_time_ms()) < last_time))
 			return;
 
 		// if the command needs parameter(s) prompt and wait for input
@@ -533,13 +536,15 @@ namespace UserMenus
 	// 	pixels around the window edge
 	const int Container::window_pad = 4;
 
+	//	protect the server - the minimum wait time, in milli-seconds, between executing commands
+	const Uint32 Container::min_wait_time_ms = 500;
 
 	//
 	//	constructor for Container, just initialises attributes
 	//
 	Container::Container(void) : win_id(-1), win_width(0), current_mouseover_menu(0), mouse_over_window(false), 
 		reload_menus(false), context_id(CM_INIT_VALUE), window_used(false), title_on(1),
-		border_on(1), use_small_font(0), include_datadir(1), just_echo(0), win_x_pos(100), win_y_pos(100)
+		border_on(1), use_small_font(0), include_datadir(1), just_echo(0), win_x_pos(100), win_y_pos(100), wait_time_ms(min_wait_time_ms)
 	{
 	}
 
@@ -643,6 +648,18 @@ namespace UserMenus
 			win_x_pos = win_x;
 			win_y_pos = win_y;
 		}
+	}
+
+
+	//
+	//	Set the delay between executing commands on a single user menu line
+	//
+	void Container::set_wait_time_ms(Uint32 time_ms)
+	{
+		if (time_ms > min_wait_time_ms)
+			wait_time_ms = time_ms;
+		else
+			wait_time_ms = min_wait_time_ms;
 	}
 
 
@@ -988,7 +1005,12 @@ namespace UserMenus
 extern "C"
 {
 	int enable_user_menus = 0;
-	int ready_for_user_menus = 0; 
+	int ready_for_user_menus = 0;
+
+	void set_user_menu_wait_time_ms(Uint32 wait_time_ms)
+	{
+		UserMenus::Container::get_instance()->set_wait_time_ms(wait_time_ms);
+	}
 
 	void set_options_user_menus(int win_x, int win_y, int options)
 	{
