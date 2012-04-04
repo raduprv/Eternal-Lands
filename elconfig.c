@@ -121,7 +121,38 @@ typedef	int (*int_min_max_func)();
 
 typedef char input_line[256];
 
-struct variables our_vars= {0,{NULL}};
+/*!
+ * var_struct stores the data for a single configuration entry.
+ */
+typedef struct
+{
+	option_type type; /*!< type of the variable */
+	char	*name; /*!< name of the variable */
+	int 	nlen; /*!< length of the \a name */
+	char 	*shortname; /*!< shortname of the variable */
+	int 	snlen; /*!< length of the \a shortname */
+	void 	(*func)(); /*!< routine to execute when this variable is selected. */
+	void 	*var; /*!< data for this variable */
+	int 	len; /*!< length of the variable */
+	int	saved;
+//	char 	*message; /*!< In case you want a message to be written when a setting is changed */
+	dichar display;
+	struct {
+		int tab_id; /*!< The tab ID in which we find this option */
+		int label_id; /*!< The label ID associated with this option */
+		int widget_id; /*!< Widget ID for things like checkboxes */
+	} widgets;
+	queue_t *queue; /*!< Queue that holds info for certain widget types. */
+} var_struct;
+
+/*!
+ * a list of variables of type \see var_struct
+ */
+struct variables
+{
+	int no; /*!< current number of allocated \see var_struct in \a var */
+	var_struct * var[200]; /*!< fixed array of \a no \see var_struct structures */
+} our_vars= {0,{NULL}};
 
 int write_ini_on_exit= 1;
 // Window Handling

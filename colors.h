@@ -32,17 +32,7 @@ typedef struct
 
 } color_rgb;
 
-extern color_rgb colors_list[30]; /*!< the global list of colors we use */
-
-/*!
- * \ingroup other
- * \brief initializes the colors_list color table of EL.
- *
- *      Initializes the colors_list color table of EL.
- *
- * \sa init_stuff
- */
-void init_colors();
+extern const color_rgb colors_list[]; /*!< the global list of colors we use */
 
 #ifdef __cplusplus
 } // extern "C"
