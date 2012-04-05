@@ -2073,7 +2073,7 @@ int ensure_sample_loaded(char * in_filename)
 			found = 0;
 			for (j = 0; j < used_sources; j++)
 			{
-				for (k = 0; k <= sound_type_data[sounds_list[sound_source_data[j].loaded_sound].variant].num_variants; k++)
+				for (k = 0; k < sound_type_data[sounds_list[sound_source_data[j].loaded_sound].sound].num_variants; k++)
 				{
 					for (l = STAGE_INTRO; l <= STAGE_OUTRO; l++)
 					{
