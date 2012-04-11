@@ -431,10 +431,10 @@ int create_buddy_interface_win(const char *title, void *argument)
 		x = 5;
 		y += 25;
 
+		x += string_width = get_string_width((unsigned char*)buddy_type_str)*0.9f;
 		buddy_type_input_id = -1;
 		if (buddy->type < 0xFE) {
 			/* Add type label and input widget */
-			x += string_width = get_string_width((unsigned char*)buddy_type_str)*0.9f;
 			label_id = label_add_extended(buddy_change_win, label_id, NULL, 5, y, 0, 0.9f, 0.77f, 0.57f, 0.39f, buddy_type_str);
 
 			buddy_type_input_id = multiselect_add(buddy_change_win, NULL, x, y, buddy_add_x_len-string_width*2);
