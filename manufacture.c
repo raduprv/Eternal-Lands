@@ -1092,23 +1092,20 @@ static int mouseover_recipe_handler(window_info *win, int mx, int my)
 }
 
 //MOUSEOVER HANDLERS
-static int recipe_controls_mouseover_handler(int mx, int my){
-
+static int recipe_controls_mouseover_handler(window_info *win, int mx, int my, int *help_line)
+{
 	int wpx=SLOT_SIZE*NUM_MIX_SLOTS+2;
-	int wpy=manufacture_menu_y_len-37;
+	int wpy=win->len_y-37;
 	int lpx=18;
 	int lpy=SLOT_SIZE;
 
-	if (!show_help_text)
-		return 0;
-
 	if (mx>wpx&&mx<wpx+lpx&&my>wpy+lpy-10&&my<wpy+lpy){
 		//on arrow
-		show_help(recipe_show_hide_str, 0, manufacture_menu_y_len+10);
+		show_help(recipe_show_hide_str, 0, win->len_y + 10 + SMALL_FONT_Y_LEN*(*help_line)++);
 	} else
 	if (mx>wpx+3&&mx<wpx+lpx-3&&my>wpy&&my<wpy+15){
 		//on + button
-		show_help(recipe_save_str, 0, manufacture_menu_y_len+10);
+		show_help(recipe_save_str, 0, win->len_y + 10 + SMALL_FONT_Y_LEN*(*help_line)++);
 	}
 	return 0;
 }
@@ -1125,7 +1122,7 @@ static int mouseover_manufacture_slot_handler(window_info *win, int mx, int my)
 		show_help((disable_double_click)?click_clear_str :double_click_clear_str, 0, win->len_y + 10 + SMALL_FONT_Y_LEN*help_line++);
 	}
 
-	/* see if we clicked on any item in the main category */
+	/* see if we're over an item in the main category */
 	pos=get_mouse_pos_in_grid(mx, my, 12, 3, 0, 0, SLOT_SIZE, SLOT_SIZE);
 	if (pos >= 0 && manufacture_list[pos].quantity > 0){
 		if (show_help_text)
@@ -1133,7 +1130,7 @@ static int mouseover_manufacture_slot_handler(window_info *win, int mx, int my)
 		check_for_eye = 1;
 	}
 
-	/* see if we clicked on any item from the "production pipe" */
+	/* see if we're over an item from the "production pipe" */
 	pos=get_mouse_pos_in_grid(mx, my, NUM_MIX_SLOTS, 1, 5, manufacture_menu_y_len-37, SLOT_SIZE, SLOT_SIZE);
 	if (pos >= 0) {
 		if (manufacture_list[MIX_SLOT_OFFSET+pos].quantity > 0){
@@ -1145,13 +1142,13 @@ static int mouseover_manufacture_slot_handler(window_info *win, int mx, int my)
 			show_help(recipe_show_hide_str, 0, win->len_y + 10 + SMALL_FONT_Y_LEN*help_line++);
 	}
 
+	/*check recipe controls*/
+	if (pos<0 && show_help_text)
+		recipe_controls_mouseover_handler(win, mx,my,&help_line);
+
 	// show the recipe search help
 	if (show_help_text && !recipes_shown)
 		show_help(recipe_find_str, 0, win->len_y + 10 + SMALL_FONT_Y_LEN*help_line++);
-
-	/*check recipe controls*/
-	if (show_help_text)
-		recipe_controls_mouseover_handler(mx,my);
 
 	/* if we're over an occupied slot and the eye cursor function is active, show the eye cursor */
 	if (check_for_eye){
