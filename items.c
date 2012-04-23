@@ -882,8 +882,10 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 		int pos=get_mouse_pos_in_grid(mx, my, 6, 6, 0, 0, items_grid_size, items_grid_size);
 		
 #ifdef NEW_SOUND
-		item_list[pos].action = ITEM_NO_ACTION;
-		item_list[pos].action_time = 0;
+		if(pos>-1) {
+			item_list[pos].action = ITEM_NO_ACTION;
+			item_list[pos].action_time = 0;
+		}
 #endif // NEW_SOUND
 		if(pos==-1) {
 		} else if(item_dragged!=-1){
