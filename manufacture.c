@@ -784,10 +784,12 @@ static int keypress_manufacture_handler(window_info *win, int mx, int my, Uint32
 	if ((recipe_win > -1) && (recipe_win < windows_list.num_windows))
 	{
 		window_info *win_recp = &windows_list.window[recipe_win];
-		if (!recipes_shown)
-			toggle_recipe_window();
-		if (win_recp != NULL)
-			return keypress_recipe_handler(win_recp, mx, my, key, unikey);
+		if (win_recp != NULL && keypress_recipe_handler(win_recp, mx, my, key, unikey))
+		{
+			if (!recipes_shown)
+			    toggle_recipe_window();
+			return 1;
+		}
 	}
 	return 0;
 }
