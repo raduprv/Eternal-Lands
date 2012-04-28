@@ -724,6 +724,7 @@ static void select_recipe(int the_recipe)
 	cur_recipe = the_recipe;
 	use_recipe(cur_recipe);
 	recipes_shown=0;
+	clear_recipe_filter();
 	hide_window(recipe_win);
 	build_manufacture_list();
 }
@@ -784,9 +785,10 @@ static int keypress_manufacture_handler(window_info *win, int mx, int my, Uint32
 	if ((recipe_win > -1) && (recipe_win < windows_list.num_windows))
 	{
 		window_info *win_recp = &windows_list.window[recipe_win];
+		int current_recipes_shown = recipes_shown; // so we don't undo keypress_recipe_handler() work
 		if (win_recp != NULL && keypress_recipe_handler(win_recp, mx, my, key, unikey))
 		{
-			if (!recipes_shown)
+			if (!recipes_shown && (current_recipes_shown == recipes_shown))
 			    toggle_recipe_window();
 			return 1;
 		}
