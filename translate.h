@@ -469,6 +469,7 @@ extern char
 		cm_user_menu_str[150],
 		cm_stats_bar_base_str[30],
 		cm_recipe_menu_str[100],
+		cm_manuwin_menu_str[50],
 		/* user_menus.cpp */
 		um_invalid_command_str[50],
 		um_invalid_line_str[50],

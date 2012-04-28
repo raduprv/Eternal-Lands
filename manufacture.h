@@ -13,6 +13,7 @@ extern "C" {
 #endif
 
 extern int wanted_num_recipe_entries; /*!< option window set number of recipe entries */
+extern int disable_manuwin_keypress; /*!< option to disable key presses in the main manu window */
 extern const int max_num_recipe_entries;  /*!< max number of recipe entries */
 extern item manufacture_list[ITEM_NUM_ITEMS]; /*!< global list of manufacturable items */
 

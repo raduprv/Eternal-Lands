@@ -27,6 +27,7 @@
 #define SLOT_SIZE 33
 
 int wanted_num_recipe_entries = 10;
+int disable_manuwin_keypress = 0;
 const int max_num_recipe_entries = 500;
 item manufacture_list[ITEM_NUM_ITEMS];
 int manufacture_win= -1;
@@ -782,7 +783,7 @@ static int keypress_recipe_handler(window_info *win, int mx, int my, Uint32 key,
 /* keypress in main window is passed to recipe window search */
 static int keypress_manufacture_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
-	if ((recipe_win > -1) && (recipe_win < windows_list.num_windows))
+	if (!disable_manuwin_keypress && (recipe_win > -1) && (recipe_win < windows_list.num_windows))
 	{
 		window_info *win_recp = &windows_list.window[recipe_win];
 		int current_recipes_shown = recipes_shown; // so we don't undo keypress_recipe_handler() work
@@ -1151,7 +1152,7 @@ static int mouseover_manufacture_slot_handler(window_info *win, int mx, int my)
 		recipe_controls_mouseover_handler(win, mx,my,&help_line);
 
 	// show the recipe search help
-	if (show_help_text && !recipes_shown)
+	if (show_help_text && !recipes_shown && !disable_manuwin_keypress)
 		show_help(recipe_find_str, 0, win->len_y + 10 + SMALL_FONT_Y_LEN*help_line++);
 
 	/* if we're over an occupied slot and the eye cursor function is active, show the eye cursor */
@@ -1296,6 +1297,12 @@ void display_manufacture_menu()
 
 		clear_button_id=button_add_extended(manufacture_win, clear_button_id, NULL, SLOT_SIZE*9+18+10, manufacture_menu_y_len-36, 70, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, clear_str);
 		widget_set_OnClick(manufacture_win, clear_button_id, clear_handler);
+
+		if ((manufacture_win > -1) && (manufacture_win < windows_list.num_windows))
+		{
+			cm_add(windows_list.window[manufacture_win].cm_id, cm_manuwin_menu_str, NULL);
+			cm_bool_line(windows_list.window[manufacture_win].cm_id, ELW_CM_MENU_LEN+1, &disable_manuwin_keypress, NULL);
+		}
 
 		//Create a child window to show recipes in a dropdown panel
 		recipe_win= create_window("w_recipe", manufacture_win, 0, 2, manufacture_menu_y_len-2, recipe_win_width, num_displayed_recipes*SLOT_SIZE,
