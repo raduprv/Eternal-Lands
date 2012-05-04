@@ -18,6 +18,7 @@
 #include "interface.h"
 #include "items.h"
 #include "keys.h" //Avoid problems with SHIFT, ALT, CTRL
+#include "knowledge.h"
 #include "manufacture.h"
 #include "mapwin.h"
 #include "missiles.h"
@@ -100,7 +101,7 @@ static int cm_quickbar_enabled = 0;
 static int cm_sound_enabled = 0;
 static int cm_music_enabled = 0;
 static int cm_minimap_shown = 0;
-enum {	CMH_STATS=0, CMH_STATBARS, CMH_DIGCLOCK, CMH_ANACLOCK, CMH_SECONDS, CMH_FPS,
+enum {	CMH_STATS=0, CMH_STATBARS, CMH_KNOWBAR, CMH_DIGCLOCK, CMH_ANACLOCK, CMH_SECONDS, CMH_FPS,
 		CMH_MINIMAP, CMH_QUICKBM, CMH_SEP1, CMH_SOUND, CMH_MUSIC, CMH_SEP2, CMH_LOCATION };
 enum {	CMQB_RELOC=0, CMQB_DRAG, CMQB_RESET, CMQB_FLIP, CMQB_ENABLE };
 
@@ -109,6 +110,7 @@ int hud_y= 48;
 int hud_text;
 int view_analog_clock= 1;
 int view_digital_clock= 0;
+int view_knowledge_bar = 1;
 int copy_next_LOCATE_ME = 0;
 int	icons_win= -1;
 int	stats_bar_win= -1;
@@ -125,11 +127,15 @@ int show_statbars_in_hud=0;
 struct stats_struct statsinfo[NUM_WATCH_STAT-1];
 
 static int first_disp_stat = 0;					/* first skill that will be display */
-static int num_disp_stat = NUM_WATCH_STAT-1;			/* number of skills to be displayed */
+static int num_disp_stat = NUM_WATCH_STAT-1;		/* number of skills to be displayed */
 static int statbar_start_y = 0;					/* y coord in window of top if stats bar */
 static int stat_mouse_is_over = -1;				/* set to stat of the is mouse over that bar */
-static int mouse_over_clock = 0;				/* 1 if mouse is over digital or analogue clock */
-static int mouse_over_compass = 0;				/* 1 if mouse is over the compass */
+static int mouse_over_clock = 0;					/* 1 if mouse is over digital or analogue clock */
+static int mouse_over_compass = 0;					/* 1 if mouse is over the compass */
+static int mouse_over_knowledge_bar = 0;			/* 1 if mouse is over the knowledge bar */
+
+static const int knowledge_bar_height = SMALL_FONT_Y_LEN + 6;
+static const int stats_bar_height = SMALL_FONT_Y_LEN;
 
 
 /* #exp console command, display current exp information */
@@ -1028,10 +1034,10 @@ void show_help_coloured(const char *help_message, int x, int y, float r, float g
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
 	glBegin(GL_QUADS);
-	glVertex3i(x-1,y+15,0);
+	glVertex3i(x-1,y+SMALL_FONT_Y_LEN,0);
 	glVertex3i(x-1,y,0);
 	glVertex3i(x+len,y,0);
-	glVertex3i(x+len,y+15,0);
+	glVertex3i(x+len,y+SMALL_FONT_Y_LEN,0);
 	glEnd();
 
 	glDisable(GL_BLEND);
@@ -1384,9 +1390,15 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-void draw_side_stats_bar(const int x, const int y, const int baselev, const int cur_exp, const int nl_exp)
+static void draw_side_stats_bar(const int x, const int y, const int baselev, const int cur_exp, const int nl_exp, size_t colour)
 {
 	int len = 58-58.0f/(float)((float)(nl_exp-exp_lev[baselev])/(float)(nl_exp-cur_exp));
+
+	GLfloat colours[2][2][3] = { { {0.11f, 0.11f, 0.11f}, {0.3f, 0.5f, 0.2f} },
+								 { {0.10f,0.10f,0.80f}, {0.40f,0.40f,1.00f} } };
+
+	if (colour > 1)
+		colour = 0;
 
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -1395,13 +1407,13 @@ CHECK_GL_ERRORS();
 	if(len >= 0){
 		glBegin(GL_QUADS);
 		//draw the colored section
-		glColor3f(0.11f, 0.11f, 0.11f);	
+		glColor3fv(colours[colour][0]);
 		glVertex3i(x, y+13, 0);
-		glColor3f(0.3f, 0.5f, 0.2f);
+		glColor3fv(colours[colour][1]);
 		glVertex3i(x, y, 0);
-		glColor3f(0.3f, 0.5f, 0.2f);	
+		glColor3fv(colours[colour][1]);
 		glVertex3i(x+len, y, 0);
-		glColor3f(0.11f, 0.11f, 0.11f);	
+		glColor3fv(colours[colour][0]);
 		glVertex3i(x+len, y+13, 0);
 		glEnd();
 	}
@@ -1647,7 +1659,7 @@ static void context_hud_pre_show_handler(window_info *win, int widget_id, int mx
 
 void init_misc_display(hud_interface type)
 {
-	int y_len = 150 + (NUM_WATCH_STAT-1) * 15;
+	int y_len = 128 + DEFAULT_FONT_Y_LEN + knowledge_bar_height + (NUM_WATCH_STAT-1) * stats_bar_height;
 	int i;
 	//create the misc window
 	if(misc_win < 0)
@@ -1659,6 +1671,7 @@ void init_misc_display(hud_interface type)
 			cm_hud_id = cm_create(cm_hud_menu_str, context_hud_handler);
 			cm_bool_line(cm_hud_id, CMH_STATS, &show_stats_in_hud, "show_stats_in_hud");
 			cm_bool_line(cm_hud_id, CMH_STATBARS, &show_statbars_in_hud, "show_statbars_in_hud");
+			cm_bool_line(cm_hud_id, CMH_KNOWBAR, &view_knowledge_bar, "view_knowledge_bar");
 			cm_bool_line(cm_hud_id, CMH_DIGCLOCK, &view_digital_clock, "view_digital_clock");
 			cm_bool_line(cm_hud_id, CMH_ANACLOCK, &view_analog_clock, "view_analog_clock");
 			cm_bool_line(cm_hud_id, CMH_SECONDS, &show_game_seconds, "show_game_seconds");
@@ -1782,7 +1795,7 @@ static int calc_statbar_start_y(int base_y_start, int win_y_len)
 {
 	int winoverlap = 0;
 
-	statbar_start_y = base_y_start - 15*(NUM_WATCH_STAT-1);
+	statbar_start_y = base_y_start - stats_bar_height*(NUM_WATCH_STAT-1);
 	
 	/* calculate the overlap between the longest of the quickspell/bar and the statsbar */
 	winoverlap = (win_y_len - statbar_start_y) - get_max_quick_y();
@@ -1790,8 +1803,8 @@ static int calc_statbar_start_y(int base_y_start, int win_y_len)
 	/* if they overlap, only display some skills and allow to scroll */
 	if (winoverlap > 0)
 	{
-		num_disp_stat = (NUM_WATCH_STAT-1) - (winoverlap + 14)/15;
-		statbar_start_y = base_y_start - 15*num_disp_stat;
+		num_disp_stat = (NUM_WATCH_STAT-1) - (winoverlap + stats_bar_height-1)/stats_bar_height;
+		statbar_start_y = base_y_start - stats_bar_height*num_disp_stat;
 		if ((first_disp_stat + num_disp_stat) > (NUM_WATCH_STAT-1))
 			first_disp_stat = (NUM_WATCH_STAT-1) - num_disp_stat;
 	}
@@ -1884,7 +1897,7 @@ CHECK_GL_ERRORS();
 	if (mouse_over_clock)
 	{
 		const char *the_date = get_date(NULL);
-		int centre_y =  (view_analog_clock) ?win->len_y-96 : base_y_start + SMALL_FONT_Y_LEN/2;
+		int centre_y =  (view_analog_clock) ?win->len_y-96 : base_y_start + DEFAULT_FONT_Y_LEN/2;
 
 		safe_snprintf(str, sizeof(str), "%1d:%02d:%02d", real_game_minute/60, real_game_minute%60, real_game_second);
 		draw_string_small_shadowed(-(int)(SMALL_FONT_X_LEN*(strlen(str)+0.5)), centre_y-SMALL_FONT_Y_LEN, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
@@ -1906,6 +1919,41 @@ CHECK_GL_ERRORS();
 			draw_string_small_shadowed(-(int)(SMALL_FONT_X_LEN*(strlen(str)+0.5)), win->len_y-64, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
 		}
 		mouse_over_compass = 0;
+	}
+
+	/* if the knowledge bar is enabled, show progress in bar and ETA as hover over */
+	if (view_knowledge_bar)
+	{
+		char str[20];
+		char *use_str = idle_str;
+		int percentage_done = 0;
+		int x = 4;
+		int y = base_y_start - stats_bar_height - ((knowledge_bar_height - stats_bar_height) / 2);
+		int off = 0;
+		
+		if (is_researching())
+		{
+			percentage_done = (int)(100 * get_research_fraction());
+			safe_snprintf(str, sizeof(str), "%d%%", percentage_done);
+			use_str = str;
+		}
+		off = (58 - SMALL_FONT_X_LEN * strlen(use_str)) / 2;
+		draw_side_stats_bar( x, y, 0, percentage_done, 100, 1);
+		draw_string_small_shadowed(x+off+gx_adjust, y+gy_adjust, (unsigned char *)use_str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
+
+		if (mouse_over_knowledge_bar)
+		{
+			use_str = not_researching_str;
+			if (is_researching())
+			{
+				safe_snprintf(str, sizeof(str), "ETA: %d %s", get_research_eta(), minutes_str);
+				use_str = str;
+			}
+			draw_string_small_shadowed(-(int)(SMALL_FONT_X_LEN*(strlen(use_str)+0.5)), y+gy_adjust, (unsigned char*)use_str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
+			mouse_over_knowledge_bar = 0;
+		}
+
+		base_y_start -= knowledge_bar_height;
 	}
 
 	// Trade the number of quickbar slots if too much is displayed (not considering stats yet)
@@ -1952,7 +2000,7 @@ CHECK_GL_ERRORS();
 		
 			if (show_statbars_in_hud)
 				draw_side_stats_bar( x-2, y+1, statsinfo[thestat].skillattr->base,
-					*statsinfo[thestat].exp, *statsinfo[thestat].next_lev);
+					*statsinfo[thestat].exp, *statsinfo[thestat].next_lev, 0);
 		
 			safe_snprintf(str,sizeof(str),"%-3s %3i",
 				statsinfo[thestat].skillnames->shortname,
@@ -1982,7 +2030,7 @@ CHECK_GL_ERRORS();
 				stat_mouse_is_over = -1;
 			}
 
-			y+=15;
+			y+=stats_bar_height;
 		}
 	}
 
@@ -2017,7 +2065,7 @@ int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 	int in_stats_bar = 0;
 
 	// handle scrolling the stats bars if not all displayed
-	if (show_stats_in_hud && (my - statbar_start_y >= 0) && (my - statbar_start_y < num_disp_stat*15))
+	if (show_stats_in_hud && (my - statbar_start_y >= 0) && (my - statbar_start_y < num_disp_stat*stats_bar_height))
 	{
 		in_stats_bar = 1;
 
@@ -2043,7 +2091,7 @@ int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	//check to see if we clicked on the clock
 	if(view_digital_clock>0){
-		clockheight+=16;
+		clockheight+=DEFAULT_FONT_Y_LEN;
 	}
 	if(view_analog_clock>0){
 		clockheight+=64;
@@ -2055,7 +2103,22 @@ int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 		protocol_name= GET_TIME;
 		my_tcp_send(my_socket,&protocol_name,1);
 		return 1;
-	}	
+	}
+
+	/* show research if click on the knowledge bar */
+	if (view_knowledge_bar)
+	{
+		int bar_y_pos = win->len_y - 64;
+		if (view_analog_clock) bar_y_pos -= 64;
+		if (view_digital_clock) bar_y_pos -= DEFAULT_FONT_Y_LEN;
+		if (my>bar_y_pos-knowledge_bar_height && my<bar_y_pos)
+		{
+			do_click_sound();
+			send_input_text_line("#research", 9);
+			return 1;
+		}
+	}
+
 	//check to see if we clicked on the compass
 	if(my>win->len_y-64 && my<win->len_y)
 	{
@@ -2072,7 +2135,7 @@ int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 	//check to see if we clicked on the stats
 	if (in_stats_bar)
 	{
-		handle_stats_selection(first_disp_stat + ((my - statbar_start_y ) / 15) + 1, flags);
+		handle_stats_selection(first_disp_stat + ((my - statbar_start_y ) / stats_bar_height) + 1, flags);
 		return 1;
 	}
 
@@ -2083,12 +2146,12 @@ int mouseover_misc_handler(window_info *win, int mx, int my)
 {
 	/* Optionally display scrolling help if statsbar is active and restricted in size */
 	if (show_help_text && show_stats_in_hud && (num_disp_stat < NUM_WATCH_STAT-1) &&
-		(my - statbar_start_y >= 0) && (my - statbar_start_y < num_disp_stat*15))
+		(my - statbar_start_y >= 0) && (my - statbar_start_y < num_disp_stat*stats_bar_height))
 		show_help(stats_scroll_help_str, -10-strlen(stats_scroll_help_str)*SMALL_FONT_X_LEN, win->len_y-70);
 
 	/* stat hover experience left */
-	if (show_stats_in_hud && have_stats && (my - statbar_start_y >= 0) && (my - statbar_start_y < num_disp_stat*15))
-		stat_mouse_is_over = first_disp_stat + ((my - statbar_start_y ) / 15);
+	if (show_stats_in_hud && have_stats && (my - statbar_start_y >= 0) && (my - statbar_start_y < num_disp_stat*stats_bar_height))
+		stat_mouse_is_over = first_disp_stat + ((my - statbar_start_y ) / stats_bar_height);
 
 	/* if the mouse is over either clock - display the date and time */
 	if (view_analog_clock)
@@ -2100,8 +2163,18 @@ int mouseover_misc_handler(window_info *win, int mx, int my)
 	{
 		int digital_clock_y_pos = win->len_y-64;
 		if (view_analog_clock) digital_clock_y_pos-=64;
-		if (my>digital_clock_y_pos-16 && my<digital_clock_y_pos)
+		if (my>digital_clock_y_pos-DEFAULT_FONT_Y_LEN && my<digital_clock_y_pos)
 			mouse_over_clock = 1;
+	}
+
+	/* check if over the knowledge bar */
+	if (view_knowledge_bar)
+	{
+		int bar_y_pos = win->len_y - 64;
+		if (view_analog_clock) bar_y_pos -= 64;
+		if (view_digital_clock) bar_y_pos -= DEFAULT_FONT_Y_LEN;
+		if (my>bar_y_pos-knowledge_bar_height && my<bar_y_pos)
+			mouse_over_knowledge_bar = 1;
 	}
 
 	/* if mouse over the compass - display the coords */
@@ -2330,7 +2403,7 @@ int	display_quickbar_handler(window_info *win)
 			}
 			
 			safe_snprintf(str,sizeof(str),"%i",item_list[i].quantity);
-			draw_string_small_shadowed(x_start,y_end-15,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
+			draw_string_small_shadowed(x_start,y_end-SMALL_FONT_Y_LEN,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
 		}
 	}
 	

@@ -96,6 +96,30 @@ void fill_knowledge_win ();
  */
 void check_book_known();
 
+/*! 
+ * \ingroup knowledge_window
+ * \brief Returns the eta in minutes for current research.
+ *
+ * \callgraph
+ */
+int get_research_eta(void);
+
+/*! 
+ * \ingroup knowledge_window
+ * \brief Returns the progress on the current book in the range 0 to 1.
+ *
+ * \callgraph
+ */
+float get_research_fraction(void);
+
+/*! 
+ * \ingroup knowledge_window
+ * \brief Returns 1 if currently reading, otherwise 0.
+ *
+ * \callgraph
+ */
+int is_researching(void);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

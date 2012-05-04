@@ -95,6 +95,7 @@ extern int hud_y;
 
 extern int view_analog_clock;
 extern int view_digital_clock;
+extern int view_knowledge_bar;
 
 extern int quickbar_x;
 extern int quickbar_y;
