@@ -808,6 +808,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  break;
 				}
 				get_the_stats((Sint16 *)(in_data+3), data_length-3);
+				update_research_rate();
 			}
 			break;
 
@@ -820,6 +821,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					in_data+= 5;
 					data_length-= 5;
 				}
+				update_research_rate();
 			}
 			break;
 

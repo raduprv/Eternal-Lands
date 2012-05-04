@@ -102,9 +102,31 @@ float get_research_fraction(void)
 	return progress;
 }
 
+static float research_rate = -1;
+
+void update_research_rate(void)
+{
+	static int last_research_completed = -1;
+	if (last_research_completed > 0)
+	{
+		if ((your_info.research_completed - last_research_completed) > 0)
+		{
+			research_rate = 1.0 / (float)(your_info.research_completed - last_research_completed);
+			last_research_completed = your_info.research_completed;
+		}
+	}
+	else
+	{
+		last_research_completed = your_info.research_completed;
+		research_rate = 2.0 / (float)(your_info.wil.cur + your_info.rea.cur);
+	}
+}
+
 int get_research_eta(void)
 {
-	return (your_info.research_total-your_info.research_completed)/((your_info.wil.cur+your_info.rea.cur)/2);
+	if (research_rate < 0)
+		return 0;
+	return (int)(research_rate * (your_info.research_total - your_info.research_completed) + 0.5);
 }
 
 int display_knowledge_handler(window_info *win)

@@ -120,6 +120,14 @@ float get_research_fraction(void);
  */
 int is_researching(void);
 
+/*! 
+ * \ingroup knowledge_window
+ * \brief recalculate rate of research.
+ *
+ * \callgraph
+ */
+void update_research_rate(void);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
