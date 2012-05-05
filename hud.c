@@ -2059,6 +2059,20 @@ CHECK_GL_ERRORS();
 	return	1;
 }
 
+static int mouse_is_over_knowedge_bar(window_info *win, int mx, int my)
+{
+	if (view_knowledge_bar)
+	{
+		int bar_y_pos = win->len_y - 64;
+		if (view_analog_clock) bar_y_pos -= 64;
+		if (view_digital_clock) bar_y_pos -= DEFAULT_FONT_Y_LEN;
+		if (my>bar_y_pos-knowledge_bar_height && my<bar_y_pos)
+			return 1;
+	}
+	return 0;
+}
+
+
 int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int clockheight = 0;
@@ -2106,17 +2120,11 @@ int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 	}
 
 	/* show research if click on the knowledge bar */
-	if (view_knowledge_bar)
+	if (mouse_is_over_knowedge_bar(win, mx, my))
 	{
-		int bar_y_pos = win->len_y - 64;
-		if (view_analog_clock) bar_y_pos -= 64;
-		if (view_digital_clock) bar_y_pos -= DEFAULT_FONT_Y_LEN;
-		if (my>bar_y_pos-knowledge_bar_height && my<bar_y_pos)
-		{
-			do_click_sound();
-			send_input_text_line("#research", 9);
-			return 1;
-		}
+		do_click_sound();
+		send_input_text_line("#research", 9);
+		return 1;
 	}
 
 	//check to see if we clicked on the compass
@@ -2168,14 +2176,8 @@ int mouseover_misc_handler(window_info *win, int mx, int my)
 	}
 
 	/* check if over the knowledge bar */
-	if (view_knowledge_bar)
-	{
-		int bar_y_pos = win->len_y - 64;
-		if (view_analog_clock) bar_y_pos -= 64;
-		if (view_digital_clock) bar_y_pos -= DEFAULT_FONT_Y_LEN;
-		if (my>bar_y_pos-knowledge_bar_height && my<bar_y_pos)
-			mouse_over_knowledge_bar = 1;
-	}
+	if (mouse_is_over_knowedge_bar(win, mx, my))
+		mouse_over_knowledge_bar = 1;
 
 	/* if mouse over the compass - display the coords */
 	if(my>win->len_y-64 && my<win->len_y)
