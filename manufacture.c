@@ -2,6 +2,7 @@
 #include <errno.h>
 #include <string.h>
 #include <ctype.h>
+#include <sys/types.h>
 #include "manufacture.h"
 #include "asc.h"
 #include "context_menu.h"
@@ -314,6 +315,8 @@ void load_recipes (){
 	FILE *fp;
 	size_t i;
 	int logged = 0;
+	off_t file_size;
+	const size_t recipe_size = sizeof(item)*NUM_MIX_SLOTS;
 
 	if (recipes_loaded) {
 		/*
@@ -323,6 +326,21 @@ void load_recipes (){
 		save_recipes();
 		save_recipe_names();
 		return;
+	}
+
+	safe_snprintf(fname, sizeof(fname), "recipes_%s.dat",username_str);
+	my_tolower(fname);
+
+	/* get file length, if a valid length adjust the number of recipe slots if required */
+	file_size = get_file_size_config(fname);
+	if ((file_size > 0) && (file_size % recipe_size == 0))
+	{
+		int num_recipes_in_file = file_size / recipe_size - 1; // -1 as last is current in pipline
+		if ((num_recipes_in_file > wanted_num_recipe_entries) && (num_recipes_in_file < max_num_recipe_entries))
+		{
+			wanted_num_recipe_entries = num_recipes_in_file;
+			set_var_OPT_INT("wanted_num_recipe_entries", wanted_num_recipe_entries);
+		}
 	}
 
 	/* allocate and initialise the recipe store */
@@ -336,8 +354,13 @@ void load_recipes (){
 	recipes_loaded=1;
 	init_recipe_names();
 
-	safe_snprintf(fname, sizeof(fname), "recipes_%s.dat",username_str);
-	my_tolower(fname);
+	/* if the file exists but is not a valid size, don't use it */
+	if ((file_size > 0) && (file_size % recipe_size != 0))
+	{
+		LOG_ERROR("%s: Invalid format (size mismatch) \"%s\"\n", reg_error_str, fname);
+		return;
+	}
+
 	fp = open_file_config(fname,"rb");
 	if(fp == NULL){
 		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, fname, strerror(errno));
@@ -347,22 +370,22 @@ void load_recipes (){
 	/* attempt to read all the recipies we're expecting */
 	for (i=0; !feof(fp) && i<num_recipe_entries; i++)
 	{
-		if (fread (recipes_store[i].items,sizeof(item)*NUM_MIX_SLOTS,1, fp) != 1)
+		if (fread (recipes_store[i].items,recipe_size,1, fp) != 1)
 		{
 			if (!logged)
 			{
 				LOG_ERROR("%s() fail during read of file [%s] : %s\n", __FUNCTION__, fname, strerror(errno));
 				logged = 1;
 			}
-			memset(recipes_store[i].items, 0, sizeof(item)*NUM_MIX_SLOTS);
+			memset(recipes_store[i].items, 0, recipe_size);
 			break;
 		}
 	}
 
 	/* if there is another, use it as the current recipe in the manufacturing pipeline */
 	if (!feof(fp))
-		if (fread (manu_recipe.items,sizeof(item)*NUM_MIX_SLOTS,1, fp) != 1)
-			memset(manu_recipe.items, 0, sizeof(item)*NUM_MIX_SLOTS);
+		if (fread (manu_recipe.items,recipe_size,1, fp) != 1)
+			memset(manu_recipe.items, 0, recipe_size);
 
 	fclose (fp);
 
