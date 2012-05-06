@@ -1402,6 +1402,7 @@ int set_var_OPT_INT(const char *str, int new_value)
 		int widget_id = our_vars.var[var_index]->widgets.widget_id;
 		// This bit belongs in the widgets module
 		widget_list *widget = widget_find(tab_win_id, widget_id);
+		our_vars.var[var_index]->saved = 0;
 		if(widget != NULL && widget->widget_info != NULL)
 		{
 			spinbutton *button = widget->widget_info;
