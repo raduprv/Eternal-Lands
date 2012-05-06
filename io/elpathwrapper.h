@@ -12,6 +12,7 @@ extern "C" {
 #endif //C++
 
 #include <stdio.h>
+#include <sys/types.h>
 
 /**
  * @brief Gets the base directory for config files
@@ -196,6 +197,14 @@ int copy_file(const char *source, const char *dest);
  * @return 1 if file exists in config_dir, 0 if it does not exist, -1 if some error occurred
  */
 int file_exists_config( const char *filename );
+
+/**
+ * @brief Get the size of the specified file from the config_dir
+ *
+ * @param filename The name of the file in the config_dir
+ * @return size if file exists in config_dir, -1 if the size check fails (may not exist)
+ */
+off_t get_file_size_config( const char *filename );
 
 /**
  * @brief Rename a specified file in the config_dir

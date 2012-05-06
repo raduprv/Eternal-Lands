@@ -87,6 +87,7 @@ FILE *my_tmpfile ();
  * \retval FILE* Pointer to the file on success, NULL otherwise
  */
 FILE *my_fopen (const char *fname, const char *mode);
+off_t get_file_size(const char *fname);
 int file_exists(const char *fname);
 int gzfile_exists(const char *fname);
 

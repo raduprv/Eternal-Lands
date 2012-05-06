@@ -672,6 +672,18 @@ void file_check_datadir(void)
 #endif // WINDOWS
 }
 
+off_t get_file_size_config( const char *filename )
+{
+	char locbuffer[MAX_PATH];
+	const char * cfgdir = get_path_config();
+	if(strlen(cfgdir) + strlen(filename) + 1 > MAX_PATH){
+		return -1;
+	}
+	strcpy(locbuffer, cfgdir);
+	strcat(locbuffer, filename);
+	return get_file_size(locbuffer);
+}
+
 int file_exists_config( const char *filename )
 {
 	char locbuffer[MAX_PATH];

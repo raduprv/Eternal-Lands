@@ -147,6 +147,14 @@ FILE *my_fopen (const char *fname, const char *mode)
 	return file;
 }
 
+off_t get_file_size(const char *fname)
+{
+	struct stat fstat;
+	if (stat(fname, &fstat) < 0)
+		return -1;
+	return fstat.st_size;
+}
+
 //warning: when checking directories, do not include the trailing slash, for portability reasons
 int file_exists(const char *fname)
 {
