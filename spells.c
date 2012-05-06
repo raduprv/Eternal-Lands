@@ -1653,6 +1653,11 @@ void load_quickspells ()
 	//open the data file
 	safe_snprintf(fname, sizeof(fname), "spells_%s.dat",username_str);
 	my_tolower(fname);
+
+	/* sliently ignore non existing file */
+	if (!file_exists_config(fname))
+		return;
+
 	fp = open_file_config(fname,"rb");
 
 	if (fp == NULL)

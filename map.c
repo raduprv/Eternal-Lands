@@ -456,6 +456,11 @@ void load_server_markings(){
 	//open server markings file
 	safe_snprintf(fname, sizeof(fname), "servermarks_%s.dat",username_str);
 	my_tolower(fname);
+
+	/* sliently ignore non existing file */
+	if (!file_exists_config(fname))
+		return;
+
 	fp = open_file_config(fname,"r");
 	if(fp == NULL){
 		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, fname, strerror(errno));

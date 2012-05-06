@@ -159,6 +159,11 @@ static void load_recipe_names(void)
 
 	safe_snprintf(fname, sizeof(fname), "recipes_%s.names",username_str);
 	my_tolower(fname);
+
+	/* sliently ignore non existing file */
+	if (!file_exists_config(fname))
+		return;
+
 	fp = open_file_config(fname,"r");
 	if(fp == NULL)
 	{
@@ -360,6 +365,10 @@ void load_recipes (){
 		LOG_ERROR("%s: Invalid format (size mismatch) \"%s\"\n", reg_error_str, fname);
 		return;
 	}
+
+	/* sliently ignore non existing file */
+	if (!file_exists_config(fname))
+		return;
 
 	fp = open_file_config(fname,"rb");
 	if(fp == NULL){

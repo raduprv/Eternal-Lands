@@ -1423,7 +1423,7 @@ void change_language(const char *new_lang)
 {
 	int var_index;
 
-	LOG_ERROR("Language changed, was [%s] now [%s]\n",  lang, new_lang);
+	LOG_DEBUG("Language changed, was [%s] now [%s]\n",  lang, new_lang);
 	/* guard against being the same string */
 	if (strcmp(lang, new_lang) != 0)
 		safe_strncpy(lang, new_lang, sizeof(lang));
