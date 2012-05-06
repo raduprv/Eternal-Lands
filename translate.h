@@ -350,6 +350,7 @@ extern char
 		not_researching_anything[25],
 		not_researching_str[25],
 		minutes_str[15],
+		minute_str[15],
 		idle_str[15],
 		knowledge_read_book[15],
 		knowledge_param_read[15],

@@ -134,12 +134,10 @@ int display_knowledge_handler(window_info *win)
 	int i,x=2,y=2;
 	int scroll = vscrollbar_get_pos (knowledge_win, knowledge_scroll_id);
 	char points_string[16];
-	char eta_string[20];
 	char *research_string;
 	int rx = win->len_x - 15;
 	int lx = win->len_x - 15 - (455-330);
 	int points_pos;
-	int eta_pos;
 	float font_ratio = 0.7;
 	float max_name_x = (win->len_x-4)/2;
 	int is_researching = 1;
@@ -206,7 +204,10 @@ int display_knowledge_handler(window_info *win)
 	draw_string_small(lx+points_pos,320,(unsigned char*)points_string,1);
 	if (is_researching && mouse_over_progress_bar)
 	{
-		safe_snprintf(eta_string, sizeof(eta_string), "ETA: %i %s", get_research_eta(), minutes_str);
+		char eta_string[20];
+		int eta = get_research_eta();
+		int eta_pos;
+		safe_snprintf(eta_string, sizeof(eta_string), "ETA: %i %s", eta, (eta==1)?minute_str:minutes_str);
 		eta_pos = (int)(rx - lx - strlen(eta_string)*8) / 2;
 		draw_string_small(lx+eta_pos,285,(unsigned char*)eta_string,1);
 		mouse_over_progress_bar=0;

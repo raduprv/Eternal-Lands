@@ -206,6 +206,7 @@ char
 	not_researching_anything[25],
 	not_researching_str[25],
 	minutes_str[15],
+	minute_str[15],
 	idle_str[15],
 	knowledge_read_book[15],
 	knowledge_param_read[15],
@@ -1251,6 +1252,7 @@ void init_help()
 	add_xml_identifier(misc,"nothing",not_researching_anything,"Nothing",sizeof(not_researching_anything));
 	add_xml_identifier(misc,"not_researching",not_researching_str,"Researching nothing",sizeof(not_researching_anything));
 	add_xml_identifier(misc,"minutes",minutes_str,"minutes",sizeof(minutes_str));
+	add_xml_identifier(misc,"minute",minute_str,"minute",sizeof(minute_str));
 	add_xml_identifier(misc,"idle",idle_str,"Idle",sizeof(idle_str));
 	add_xml_identifier(misc,"read_book",knowledge_read_book,"Read Book",sizeof(knowledge_read_book));
 	add_xml_identifier(misc,"kp_read",knowledge_param_read,"-read",sizeof(knowledge_param_read));
