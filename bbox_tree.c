@@ -523,6 +523,9 @@ static __inline__ void free_bbox_tree_data(BBOX_TREE* bbox_tree)
 		bbox_tree->items = NULL;
 	}
 	else BBOX_TREE_LOG_INFO("bbox_tree->items");
+
+	bbox_tree->items_count = 0;
+
 	for (i = 0; i < bbox_tree->nodes_count; i++)
 	{
 		if (bbox_tree->nodes[i].dynamic_objects.items != NULL)
@@ -537,6 +540,8 @@ static __inline__ void free_bbox_tree_data(BBOX_TREE* bbox_tree)
 		bbox_tree->nodes = NULL;
 	}
 	else BBOX_TREE_LOG_INFO("bbox_tree->nodes");
+
+	bbox_tree->nodes_count = 0;
 }
 
 void clear_bbox_tree(BBOX_TREE* bbox_tree)
