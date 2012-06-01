@@ -1507,7 +1507,7 @@ void next_command()
 							action->fire_position[2] == 0.0) {
 							int tile_x = (int)(action->fire_position[0]*2.0);
 							int tile_y = (int)(action->fire_position[1]*2.0);
-							action->fire_position[2] = height_map[tile_y*tile_map_size_x*6+tile_x]*0.2-2.2;
+							action->fire_position[2] = get_tile_height(tile_x, tile_y);
 							missiles_log_message("missed shot detected: new height computed: %f", action->fire_position[2]);
 						}
 						else if (action->fire_actor >= 0) {
@@ -1646,7 +1646,7 @@ void next_command()
                             // we compute the moving speeds in x, y and z directions
 							actors_list[i]->move_x_speed = 0.5*(dx+actors_list[i]->x_tile_pos)-actors_list[i]->x_pos;
 							actors_list[i]->move_y_speed = 0.5*(dy+actors_list[i]->y_tile_pos)-actors_list[i]->y_pos;
-							actors_list[i]->move_z_speed = -2.2 + height_map[(actors_list[i]->y_tile_pos+dy)*tile_map_size_x*6+actors_list[i]->x_tile_pos+dx]*0.2 - actors_list[i]->z_pos;
+							actors_list[i]->move_z_speed = get_tile_height(actors_list[i]->x_tile_pos+dx, actors_list[i]->y_tile_pos+dy) - actors_list[i]->z_pos;
 							actors_list[i]->move_x_speed /= (float)actors_list[i]->movement_time_left;
 							actors_list[i]->move_y_speed /= (float)actors_list[i]->movement_time_left;
 							actors_list[i]->move_z_speed /= (float)actors_list[i]->movement_time_left;

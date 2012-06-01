@@ -146,13 +146,14 @@ void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
 #endif // NEW_SOUND
 
 	//now, get the Z position
-	if(bag_y*tile_map_size_x*6+bag_x>tile_map_size_x*tile_map_size_y*6*6) {
+	if (!get_tile_valid(bag_x, bag_y))
+	{
 		//Warn about this error:
 		LOG_WARNING("A bag was placed OUTSIDE the map!\n");
 		return;
 	}
 
-	z=-2.2f+height_map[bag_y*tile_map_size_x*6+bag_x]*0.2f;
+	z = get_tile_height(bag_x, bag_y);
 	//convert from height values to meters
 	x=(float)bag_x/2;
 	y=(float)bag_y/2;
@@ -222,13 +223,14 @@ void add_bags_from_list (const Uint8 *data)
 			continue;
 		}
 		//now, get the Z position
-		if(bag_y*tile_map_size_x*6+bag_x>tile_map_size_x*tile_map_size_y*6*6)  {
+		if (!get_tile_valid(bag_x, bag_y))
+		{
 			//Warn about this error!
 			LOG_WARNING("A bag was located OUTSIDE the map!\n");
 			continue;
 		}
 
-		z=-2.2f+height_map[bag_y*tile_map_size_x*6+bag_x]*0.2f;
+		z = get_tile_height(bag_x, bag_y);
 		//convert from height values to meters
 		x=(float)bag_x/2;
 		y=(float)bag_y/2;

@@ -121,9 +121,7 @@ float ec_get_z(actor* _actor)
 {
 	if (_actor != NULL)
 	{
-		return -2.2f
-		+height_map[_actor->y_tile_pos*tile_map_size_x*6+_actor->x_tile_pos]
-		            *0.2f;
+		return get_tile_height(_actor->x_tile_pos, _actor->y_tile_pos);
 	}
 	else
 	{
@@ -133,7 +131,7 @@ float ec_get_z(actor* _actor)
 
 float ec_get_z2(int x, int y)
 {
-	return -2.2f+height_map[y*tile_map_size_x*6+x]*0.2f;
+	return get_tile_height(x, y);
 }
 #ifndef MAP_EDITOR
 void set_vec3_actor_bone(ec::Vec3& position, actor* _actor, int bone,

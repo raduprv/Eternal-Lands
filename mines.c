@@ -45,14 +45,14 @@ void put_mine_on_ground(int mine_x, int mine_y, int mine_type, int mine_id)
 	int obj_3d_id;
 	
 	// Now, get the Z position
-	if (mine_y * tile_map_size_x * 6 + mine_x > tile_map_size_x * tile_map_size_y * 6 * 6)
+	if (!get_tile_valid(mine_x, mine_y))
 	{
 		//Warn about this error:
 		LOG_ERROR("A mine was placed OUTSIDE the map!\n");
 		return;
 	}
 	
-	z = -2.2f + height_map[mine_y * tile_map_size_x * 6 + mine_x] * 0.2f;
+	z = get_tile_height(mine_x, mine_y);
 	// Convert from height values to meters
 	x = (float)mine_x / 2;
 	y = (float)mine_y / 2;
@@ -105,14 +105,14 @@ void add_mines_from_list (const Uint8 *data)
 			continue;
 		}
 		// Now, get the Z position
-		if (mine_y * tile_map_size_x * 6 + mine_x > tile_map_size_x * tile_map_size_y * 6 * 6)
+		if (!get_tile_valid(mine_x, mine_y))
 		{
 			// Warn about this error!
 			LOG_ERROR("A mine was located OUTSIDE the map!\n");
 			continue;
 		}
 		
-		z = -2.2f + height_map[mine_y * tile_map_size_x * 6 + mine_x] * 0.2f;
+		z = get_tile_height(mine_x, mine_y);
 		// Convert from height values to meters
 		x = (float)mine_x / 2;
 		y = (float)mine_y / 2;

@@ -128,8 +128,8 @@ void get_world_x_y (short *scene_x, short *scene_y)
 void get_old_world_x_y (short *scene_x, short *scene_y)
 {
 	AABBOX box;
-	float t, x, y, z, t1, t2, tx, ty, dx, dy, h, len;
-	int i, j, h_max, h_min, h1, h2, h3, h4, sx, sy, zx, zy, i_min, i_max, j_min, j_max;
+	float t, x, y, z, t1, t2, tx, ty, dx, dy, h, len, h1, h2, h3, h4;
+	int i, j, h_max, h_min, sx, sy, zx, zy, i_min, i_max, j_min, j_max;
 
 	x = click_line.center[X];
 	y = click_line.center[Y];
@@ -188,64 +188,64 @@ void get_old_world_x_y (short *scene_x, short *scene_y)
 	h = 0.0f;
 	while ((i >= i_min) && (j >= j_min) && (i < i_max) && (j < j_max))
 	{
-		h1 = height_map[j*tile_map_size_x*6+i];
-		h2 = height_map[j*tile_map_size_x*6+i+1];
-		h3 = height_map[(j+1)*tile_map_size_x*6+i];
-		h4 = height_map[(j+1)*tile_map_size_x*6+i+1];
-		h_max = max2i(max2i(h1, h2), max2i(h3, h4));
-		h_min = min2i(min2i(h1, h2), min2i(h3, h4));
+		h1 = get_tile_height(i, j);
+		h2 = get_tile_height(i + 1, j);
+		h3 = get_tile_height(i, j + 1);
+		h4 = get_tile_height(i + 1, j + 1);
+		h_max = max2f(max2f(h1, h2), max2f(h3, h4));
+		h_min = min2f(min2f(h1, h2), min2f(h3, h4));
 		tx = i*0.5f;
 		ty = j*0.5f;
 		box.bbmin[X] = tx;
 		box.bbmin[Y] = ty;
-		box.bbmin[Z] = h_min*0.2f-2.2f;
+		box.bbmin[Z] = h_min;
 		box.bbmax[X] = tx+1.0f;
 		box.bbmax[Y] = ty+1.0f;
-		box.bbmax[Z] = h_max*0.2f-2.2f;
+		box.bbmax[Z] = h_max;
 		if (click_line_bbox_intersection(box))
 		{
 			box.bbmin[X] = tx+0.0f;
 			box.bbmin[Y] = ty+0.0f;
-			box.bbmin[Z] = h1*0.2f-2.2f;
+			box.bbmin[Z] = h1;
 			box.bbmax[X] = tx+0.5f;
 			box.bbmax[Y] = ty+0.5f;
-			box.bbmax[Z] = h1*0.2f-2.2f;
+			box.bbmax[Z] = h1;
 			if (click_line_bbox_intersection(box))
 			{
-				h = h1*0.2f-2.2f;
+				h = h1;
 				break;
 			}
 			box.bbmin[X] = tx+0.5f;
 			box.bbmin[Y] = ty+0.0f;
-			box.bbmin[Z] = h2*0.2f-2.2f;
+			box.bbmin[Z] = h2;
 			box.bbmax[X] = tx+1.0f;
 			box.bbmax[Y] = ty+0.5f;
-			box.bbmax[Z] = h2*0.2f-2.2f;
+			box.bbmax[Z] = h2;
 			if (click_line_bbox_intersection(box))
 			{
-				h = h2*0.2f-2.2f;
+				h = h2;
 				break;
 			}
 			box.bbmin[X] = tx+0.0f;
 			box.bbmin[Y] = ty+0.5f;
-			box.bbmin[Z] = h3*0.2f-2.2f;
+			box.bbmin[Z] = h3;
 			box.bbmax[X] = tx+0.5f;
 			box.bbmax[Y] = ty+1.0f;
-			box.bbmax[Z] = h3*0.2f-2.2f;
+			box.bbmax[Z] = h3;
 			if (click_line_bbox_intersection(box))
 			{
-				h = h3*0.2f-2.2f;
+				h = h3;
 				break;
 			}
 			box.bbmin[X] = tx+0.5f;
 			box.bbmin[Y] = ty+0.5f;
-			box.bbmin[Z] = h4*0.2f-2.2f;
+			box.bbmin[Z] = h4;
 			box.bbmax[X] = tx+1.0f;
 			box.bbmax[Y] = ty+1.0f;
-			box.bbmax[Z] = h4*0.2f-2.2f;
+			box.bbmax[Z] = h4;
 			if (click_line_bbox_intersection(box))
 			{
-				h = h4*0.2f-2.2f;
+				h = h4;
 				break;
 			}
 		}

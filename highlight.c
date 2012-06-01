@@ -51,49 +51,11 @@ void add_highlight(short x, short y, int type) {
 	m->active = 1;
 }
 
-float get_tile_height(short x, short y) {
-	float z;
-	if (x < 0 || x >= tile_map_size_x * 6) return 0;
-	if (y < 0 || y >= tile_map_size_x * 6) return 0;
-	z=height_map[y * tile_map_size_x * 6 + x];
-	if (isnan(z)) return 0;
-	else return z;
-}
-
-float get_tile_display_height(short x, short y) {
-	int i = 0;
-	float f = get_tile_height(x, y);
-	float f2;
-	if (f == 0 ) {
-		//if the tile is non-walkable, we get the average height from the
-		// surrounding tiles.
-		f += f2 = get_tile_height(x - 1, y - 1);
-		if (f2 != 0) i++;
-		f += f2 = get_tile_height(x    , y - 1);
-		if (f2 != 0) i++;
-		f += f2 = get_tile_height(x + 1, y - 1);
-		if (f2 != 0) i++;
-		f += f2 = get_tile_height(x - 1, y    );
-		if (f2 != 0) i++;
-		f += f2 = get_tile_height(x + 1, y - 1);
-		if (f2 != 0) i++;
-		f += f2 = get_tile_height(x - 1, y + 1);
-		if (f2 != 0) i++;
-		f += f2 = get_tile_height(x    , y + 1);
-		if (f2 != 0) i++;
-		f += f2 = get_tile_height(x - 1, y + 1);
-		if (f2 != 0) i++;
-		
-		f = (i==0) ? (0):(f/i);
-	}
-	return -2.2f+f*0.2f;
-}
-
 void display_highlight_marker(const highlight_marker *marker) {
 	// (a) varies from 1..0 depending on the age of this marker
 	const float a = ((float)marker->timeleft) / HIGHLIGHT_MARKER_LIFESPAN;
 	
-	float z = get_tile_display_height(marker->x, marker->y);
+	float z = get_tile_height(marker->x, marker->y);
 	
 	float x = (float)marker->x/2;
 	float y = (float)marker->y/2;

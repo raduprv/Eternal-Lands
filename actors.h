@@ -821,7 +821,7 @@ static __inline__ void set_our_actor (actor *act)
  */
 static __inline__ float get_actor_z(actor *a)
 {
-	return -2.2f + height_map[a->y_tile_pos*tile_map_size_x*6+a->x_tile_pos]*0.2f;
+	return get_tile_height(a->x_tile_pos, a->y_tile_pos);
 }
 
 /*!

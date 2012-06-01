@@ -184,7 +184,7 @@ void move_camera ()
 /* 		z = -1.6f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + head_pos[2]; */
 	if (first_person || ext_cam) {
         // the camera position corresponds to the head position
-		z = -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f;
+		z = get_tile_height(me->x_tile_pos, me->y_tile_pos);
 		// z += (head_pos[2]+0.1)*get_actor_scale(me);
 		
 		//attachment_props *att_props = get_attachment_props_if_held(me);
@@ -192,7 +192,7 @@ void move_camera ()
 		if (me->attached_actor>=0) z+=me->z_pos + me->attachment_shift[Z]+2.0*get_actor_scale(me);
 		else z += (me->sitting ? 0.7 : 1.5) * get_actor_scale(me);
 	} else {
-		z = -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + sitting;
+		z = get_tile_height(me->x_tile_pos, me->y_tile_pos) + sitting;
 	}
 
 	if(first_person||ext_cam){
@@ -428,20 +428,14 @@ void update_camera()
 		tx = (int)((dir[0] - camera_x)*2);
 		ty = (int)((dir[1] - camera_y)*2);
 
-		if (tx >= 0 && tx < tile_map_size_x*6 &&
-			ty >= 0 && ty < tile_map_size_y*6)
+		if (get_tile_walkable(tx, ty))
 		{
-			tz = height_map[ty*tile_map_size_x*6+tx]*0.2 - 2.2;
-			if (tz <= -2.2)
-			{
-				// if the tile is not walkable, we take the height at the actor position
-				tz = height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2 - 2.2;
-			}
+			tz = get_tile_height(tx, ty);
 		}
 		else
 		{
 			// if the tile is outside the map, we take the height at the actor position
-			tz = height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2 - 2.2;
+			tz = get_tile_height(me->x_tile_pos, me->y_tile_pos);
 		}
 		// here we use a shift of 0.2 to avoid to be too close to the ground
 		if (tz + 0.2 > dir[2] - camera_z)

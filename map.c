@@ -597,7 +597,7 @@ int get_3d_objects_from_server (int nr_objs, const Uint8 *data, int len)
 
 			x = 0.5f * obj_x + 0.25f;
 			y = 0.5f * obj_y + 0.25f;
-			z = -2.2f + height_map[obj_y*tile_map_size_x*6+obj_x] * 0.2f;
+			z = get_tile_height(obj_x, obj_y);
 		}
 		
 		nb_left -= 12;
@@ -685,7 +685,7 @@ void display_map_marks(){
 		x += (TILESIZE_X / 2);
 		y += (TILESIZE_Y / 2);
 		if(DST(ax,ay,x,y)>MARK_DIST||marks[i].x<0||!marks_3d) continue;
-		z = get_tile_display_height(marks[i].x, marks[i].y);
+		z = get_tile_height(marks[i].x, marks[i].y);
 		for(j=z-fr/5,ff=1;j<z+2;j+=0.1,ff=(2-(j-z))/2) {
 			if(marks[i].server_side) glColor4f(0.0f, 0.0f, 1.0f, 0.9f-(j-z)/3);
 			else glColor4f((float)marks[i].r/255, (float)marks[i].g/255, (float)marks[i].b/255, 0.7f-(j-z)/3);
@@ -747,7 +747,7 @@ void display_map_markers() {
 		x += (TILESIZE_X / 2);
 		y += (TILESIZE_Y / 2);
 		if(DST(ax,ay,x,y)>MARK_DIST||marks[i].x<0||!marks_3d) continue;
-		z = get_tile_display_height(marks[i].x, marks[i].y)+2.3;
+		z = get_tile_height(marks[i].x, marks[i].y)+2.3;
 		gluProject(x, y, z, model, proj, view, &hx, &hy, &hz);
 		//shorten text
 		memcpy(tmpb,marks[i].text+MARK_CLIP_POS,4);

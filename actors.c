@@ -964,8 +964,7 @@ void draw_actor_without_banner(actor * actor_id, Uint32 use_lightning, Uint32 us
 	if (z_pos == 0.0f)
 	{
 		//actor is walking, as opposed to flying, get the height underneath
-		z_pos = -2.2f + height_map[actor_id->y_tile_pos * tile_map_size_x * 6
-			+ actor_id->x_tile_pos] * 0.2f;
+		z_pos = get_tile_height(actor_id->x_tile_pos, actor_id->y_tile_pos);
 	}
 
 	x_rot = actor_id->x_rot;
@@ -1014,8 +1013,7 @@ static __inline__ void draw_actor_banner_new(actor * actor_id)
 	if (z_pos == 0.0f)
 	{
 		//actor is walking, as opposed to flying, get the height underneath
-		z_pos = -2.2f + height_map[actor_id->y_tile_pos * tile_map_size_x * 6
-			+ actor_id->x_tile_pos] * 0.2f;
+		z_pos = get_tile_height(actor_id->x_tile_pos, actor_id->y_tile_pos);
 	}
 
 	glTranslatef(x_pos + 0.25f, y_pos + 0.25f, z_pos);
@@ -1137,8 +1135,7 @@ void get_actors_in_range()
 			if (pos[Z] == 0.0f)
 			{
 				//actor is walking, as opposed to flying, get the height underneath
-				pos[Z] = -2.2f + height_map[actors_list[i]->y_tile_pos *
-					tile_map_size_x * 6 + actors_list[i]->x_tile_pos] * 0.2f;
+				pos[Z] = get_tile_height(actors_list[i]->x_tile_pos, actors_list[i]->y_tile_pos);
 			}
 
 			if (actors_list[i]->calmodel == NULL) continue;

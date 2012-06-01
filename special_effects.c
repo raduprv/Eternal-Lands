@@ -424,7 +424,7 @@ void display_special_effect(special_effect *marker) {
 	float x,y/*,center_offset_x, center_offset_y, base_offset_z*/;
 	
 	// height of terrain at the effect's location
-	float z = get_tile_display_height(marker->x, marker->y);
+	float z = get_tile_height(marker->x, marker->y);
 
 	// place x,y in the center of the actor's tile
 	switch (marker->type)
