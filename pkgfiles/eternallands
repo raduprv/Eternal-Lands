@@ -46,7 +46,7 @@ then
 	text="Don't run as the root/adminstration user.\n\nJust don't!"
 	echo -e $text
 	zenity --error --text="$text"
-	exit
+	exit 1
 fi
 
 # check the minimum packages are installed OK
@@ -58,7 +58,7 @@ then
 	if ! $installedOK
 	then
 		zenity --error --text "Eternal Lands is not completely installed. As root or using sudo, please run \"dpkg --configure -a\" to complete the install."
-		exit
+		exit 1
 	fi
 fi
 
@@ -96,7 +96,7 @@ then
 	then
 		[ ! -s $showsel ] && rm -f $showsel
 		config="$(getconfig)"
-		[ $? -ne 0 ] && exit
+		[ $? -ne 0 ] && exit 1
 	else
 		config="$(cat $showsel)"
 		[ "$config" = "no" ] && config="main"
@@ -181,4 +181,6 @@ A search through dmesg output:
 $(dmesg | grep $(basename $el_client))
 
 EOT
+	exit 1
 fi
+exit 0
