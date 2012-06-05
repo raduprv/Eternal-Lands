@@ -626,6 +626,9 @@ static int cm_npcname_handler(window_info *win, int widget_id, int mx, int my, i
 
 void display_dialogue()
 {
+	if (!get_show_window(dialogue_win))
+		do_icon_click_sound();
+
 	if(dialogue_win < 0){
 		dialogue_win= create_window("Dialogue", game_root_win, 0, dialogue_menu_x, dialogue_menu_y, dialogue_menu_x_len, dialogue_menu_y_len, ELW_WIN_DEFAULT^ELW_CLOSE_BOX);
 
