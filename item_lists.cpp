@@ -78,7 +78,7 @@ namespace ItemLists
 			void write(std::ostream & out) const;
 			bool read(std::istream & in);
 			void del(size_t item_index);
-			void add(int image_id, Uint16 id, int quantity);
+			void add(size_t over_item_number, int image_id, Uint16 id, int quantity);
 		private:
 			std::string name;
 			std::vector<int> image_ids;
@@ -111,8 +111,8 @@ namespace ItemLists
 				{ assert(valid_active_list()); last_mod_time = SDL_GetTicks(); return saved_item_lists[active_list].set_quantity(item, quantity); }
 			void del_item(size_t i)
 				{ assert(valid_active_list()); saved_item_lists[active_list].del(i); last_mod_time = SDL_GetTicks(); }
-			void add_item(int image_id, Uint16 id, int quantity)
-				{ assert(valid_active_list()); saved_item_lists[active_list].add(image_id, id, quantity); last_mod_time = SDL_GetTicks(); }
+			void add_item(size_t over_item_number, int image_id, Uint16 id, int quantity)
+				{ assert(valid_active_list()); saved_item_lists[active_list].add(over_item_number, image_id, id, quantity); last_mod_time = SDL_GetTicks(); }
 			const List & get_list(void) const
 				{ assert(valid_active_list()); return saved_item_lists[active_list]; }
 			void sort_list(void)
@@ -365,7 +365,7 @@ namespace ItemLists
 
 
 	//	Add a new item to a list or increase quantity if already in the list
-	void List::add(int image_id, Uint16 id, int quantity)
+	void List::add(size_t over_item_number, int image_id, Uint16 id, int quantity)
 	{
 		do_drop_item_sound();
 
@@ -400,10 +400,20 @@ namespace ItemLists
 				}
 		}
 
-		// otherwise add new item
-		image_ids.push_back(image_id);
-		item_ids.push_back(id);
-		quantities.push_back(quantity);
+		// otherwise insert the new item or add it to the end
+
+		if (over_item_number < get_num_items())
+		{
+			image_ids.insert(image_ids.begin()+over_item_number, image_id);
+			item_ids.insert(item_ids.begin()+over_item_number, id);
+			quantities.insert(quantities.begin()+over_item_number, quantity);
+		}
+		else
+		{
+			image_ids.push_back(image_id);
+			item_ids.push_back(id);
+			quantities.push_back(quantity);
+		}
 	}
 
 
@@ -1092,19 +1102,20 @@ CHECK_GL_ERRORS();
 		size_t last_selected = selected_item_number;
 		size_t num_items = Vars::lists()->get_list().get_num_items();
 		bool was_dragging = ((storage_item_dragged != -1) || (item_dragged != -1));
+		size_t over_item_number = Vars::win()->get_item_number(mx, my);
 
 		// If dragging item and ctrl+left-click on window, add item to list
 		if ((flags & ELW_LEFT_MOUSE) && (flags & ELW_CTRL) && was_dragging)
 		{
 			if (storage_item_dragged != -1)
-				Vars::lists()->add_item(storage_items[storage_item_dragged].image_id, storage_items[storage_item_dragged].id, item_quantity);
+				Vars::lists()->add_item(over_item_number, storage_items[storage_item_dragged].image_id, storage_items[storage_item_dragged].id, item_quantity);
 			else if (item_dragged != -1)
-				Vars::lists()->add_item(item_list[item_dragged].image_id, item_list[item_dragged].id, item_quantity);
+				Vars::lists()->add_item(over_item_number, item_list[item_dragged].image_id, item_list[item_dragged].id, item_quantity);
 			return 1;
 		}
 
 		// ctrl+right-click on a selected item opens the edit menu
-		if ((flags & ELW_RIGHT_MOUSE) && (flags & ELW_CTRL) && (Vars::win()->get_item_number(mx, my)<num_items))
+		if ((flags & ELW_RIGHT_MOUSE) && (flags & ELW_CTRL) && (over_item_number<num_items))
 		{
 			cm_show_direct(Vars::win()->get_grid_cm(), win->window_id, -1);
 			storage_item_dragged = item_dragged = -1;
@@ -1139,10 +1150,9 @@ CHECK_GL_ERRORS();
 		// see if we can use the item quantity or take items from storage
 		if ((flags & ELW_RIGHT_MOUSE) || (flags & ELW_LEFT_MOUSE))
 		{
-			size_t new_selected = Vars::win()->get_item_number(mx, my);
-			if ((new_selected!=last_selected) && (new_selected < num_items))
+			if ((over_item_number!=last_selected) && (over_item_number < num_items))
 			{
-				selected_item_number = new_selected;
+				selected_item_number = over_item_number;
 				last_quantity_selected = quantities.selected;
 				quantities.selected = ITEM_EDIT_QUANT;
 				item_quantity = quantities.quantity[ITEM_EDIT_QUANT].val = Vars::lists()->get_list().get_quantity(selected_item_number);
