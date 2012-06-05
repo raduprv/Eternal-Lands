@@ -68,6 +68,7 @@ int camera_z_duration;
 
 int camera_zoom_dir;
 int camera_zoom_duration=0;
+int camera_zoom_speed=1;
 
 float new_zoom_level=3.0f;
 float camera_distance = 2.5f;
@@ -376,12 +377,15 @@ void update_camera()
 	}
 	if(camera_zoom_duration > 0) {
 		if (time_diff <= camera_zoom_duration)
-			new_zoom_level += (camera_zoom_dir==1?0.003f:-0.003f)*time_diff;
+			new_zoom_level += camera_zoom_speed*(camera_zoom_dir==1?0.003f:-0.003f)*time_diff;
 		else
-			new_zoom_level += (camera_zoom_dir==1?0.003f:-0.003f)*camera_zoom_duration;
+			new_zoom_level += camera_zoom_speed*(camera_zoom_dir==1?0.003f:-0.003f)*camera_zoom_duration;
 		camera_zoom_duration-=time_diff;
 		adjust_view++;
 	}
+	else
+		camera_zoom_speed = 1;
+
 
 	if (camera_rotation_speed > 0.0)
 	{

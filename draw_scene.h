@@ -49,6 +49,7 @@ extern float normal_camera_rotation_speed; /*!< configurable normal speed for ro
 extern float zoom_level; /*!< current displayed zoom level */
 extern int camera_zoom_dir; /*!< direction of where the zoomed camera points to */
 extern int camera_zoom_duration;
+extern int camera_zoom_speed; /*!< A multipler for the camera zoom speed, increase if holding ctrl down */
 extern float camera_distance; /*!< The camera is camera_distance*zoom_level (world coordinates) away from your actor. */
 extern float new_zoom_level;
 extern float max_zoom_level;

@@ -512,6 +512,7 @@ int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	if (flags & ELW_WHEEL_UP)
 	{
+		camera_zoom_speed = (flag_ctrl) ?10 :1;
 		if (camera_zoom_dir == -1)
 			camera_zoom_duration += 100;
 		else
@@ -522,6 +523,7 @@ int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	if (flags & ELW_WHEEL_DOWN)
 	{
+		camera_zoom_speed = (flag_ctrl) ?10 :1;
 		if (camera_zoom_dir == 1)
 			camera_zoom_duration += 100;
 		else
