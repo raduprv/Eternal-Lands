@@ -51,7 +51,8 @@ static Uint32 download_file(const char* file_name, FILE* file,
 	char* pos;
 	IPaddress http_ip;
 	TCPsocket http_sock;
-	Uint32 i, len, got_header, http_status;
+	Uint32 got_header, http_status;
+	int i, len;
 
 	// resolve the hostname
 	if ((file_size == 0) || (buffer == 0) || (size == 0))
@@ -96,7 +97,7 @@ static Uint32 download_file(const char* file_name, FILE* file,
 			server, FILE_VERSION);
 	}
 
-	if (SDLNet_TCP_Send(http_sock, buffer, size) < size)
+	if (SDLNet_TCP_Send(http_sock, buffer, size) < (int)size)
 	{
 		SDLNet_TCP_Close(http_sock);
 
@@ -113,6 +114,14 @@ static Uint32 download_file(const char* file_name, FILE* file,
 
 		len = SDLNet_TCP_Recv(http_sock, buffer, size);
 		// have we gotten the full header?
+
+		if (len < 0) 
+		{
+		    // Read error (connection lost);
+		    LOG_ERROR("Read error: %d", len);
+		    SDLNet_TCP_Close(http_sock);
+		    return 5;
+		}
 
 		if (!got_header)
 		{
