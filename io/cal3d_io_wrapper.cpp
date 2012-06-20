@@ -4,6 +4,7 @@
 #include "../errors.h"
 #include <cal3d/global.h>
 #include <cal3d/cal3d.h>
+#include "cal3d/coretrack.h"
 #include <iostream>
 #include "elfilewrapper.h"
 
@@ -120,6 +121,34 @@ class CalAnimationCache
 
 		CalAnimationCache()
 		{
+		}
+
+
+		//The m_animations map will free itself when the CalAnimationCache singleton goes out of 
+		//scope. However, for some reason the tracks/keyframes of that animation are not managed with
+		//reference-counted objects (like everything else in Cal3D). So, we have to explicitly delete them.
+		//At that point, it's probably best not to leave stale animation objects in the map, so we remove them as well.
+		~CalAnimationCache()
+		{
+			while (!m_animations.empty()) {
+				free_and_remove_animation(m_animations.begin());
+			}
+		}
+
+		//This function should work externally, too, although we never delete items from the animations cache.
+		void free_and_remove_animation(const AnimationsMap::iterator& animIt) {
+			//Remove all keyframes (via destroy()) from each track individually.
+			std::list<CalCoreTrack*>& trackList = animIt->second->getListCoreTrack();
+			for (std::list<CalCoreTrack*>::iterator trIt=trackList.begin(); trIt!=trackList.end(); trIt++) {
+				(*trIt)->destroy();
+				delete *trIt;
+			}
+
+			//Clear the track list too.
+			trackList.clear();
+
+			//Now eject this item from the map.
+			m_animations.erase(animIt);
 		}
 		
 		static CalAnimationCache & instance()
