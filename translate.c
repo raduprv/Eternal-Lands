@@ -310,7 +310,7 @@ char
 	cm_title_help_str[50],
 	cm_items_menu_str[150],
 	cm_storage_menu_str[75],
-	cm_astro_menu_str[50],
+	cm_astro_menu_str[80],
 	cm_ranging_menu_str[50],
 	cm_dialog_options_str[80],
 	cm_dialog_menu_str[60],
@@ -1455,7 +1455,7 @@ void init_help()
 	add_xml_identifier(misc, "cm_title_help", cm_title_help_str, "Right-click for window menu", sizeof(cm_title_help_str));
 	add_xml_identifier(misc, "cm_items_menu", cm_items_menu_str, "--\nUse Small Window\nManual Window Size\nItem Window On Drop\nAllow Equipment Swap\n--\nOpen Storage (View Only)", sizeof(cm_items_menu_str));
 	add_xml_identifier(misc, "cm_storage_menu", cm_storage_menu_str, "--\nPrint Items To Console\nSort Categories Alphabetically\n", sizeof(cm_storage_menu_str));
-	add_xml_identifier(misc, "cm_astro_menu", cm_astro_menu_str, "--\nPrint Details To Console", sizeof(cm_astro_menu_str));
+	add_xml_identifier(misc, "cm_astro_menu", cm_astro_menu_str, "--\nPrint Details To Console\nAlways Print Details To Console", sizeof(cm_astro_menu_str));
 	add_xml_identifier(misc, "cm_ranging_menu", cm_ranging_menu_str, "--\nPrint To Console", sizeof(cm_ranging_menu_str));
 	add_xml_identifier(misc, "cm_dialog_options", cm_dialog_options_str, "Auto close storage dialogue\nAuto select storage option in dialogue", sizeof(cm_dialog_options_str));
 	add_xml_identifier(misc, "cm_dialog_menu", cm_dialog_menu_str, "--\nEnable Keypresses\nKeypresses Anywhere", sizeof(cm_dialog_menu_str));

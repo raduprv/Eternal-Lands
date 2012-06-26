@@ -460,7 +460,7 @@ extern char
 		cm_title_help_str[50],
 		cm_items_menu_str[150],
 		cm_storage_menu_str[75],
-		cm_astro_menu_str[50],
+		cm_astro_menu_str[80],
 		cm_ranging_menu_str[50],
 		cm_dialog_options_str[80],
 		cm_dialog_menu_str[60],

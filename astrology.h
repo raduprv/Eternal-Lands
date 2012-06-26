@@ -14,6 +14,7 @@ extern int astrology_win_x_len;
 extern int astrology_win_y_len;
 
 extern int astrology_win;
+extern int always_show_astro_details;
 
 /*!
  * \ingroup astrology_window

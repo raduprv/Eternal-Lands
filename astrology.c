@@ -62,6 +62,7 @@ int astrology_win_y_len = 198;
 
 int	astrology_win= -1;
 int ok_button_id=103;
+int always_show_astro_details = 0;
 
 char stone_name[50];
 int value1,value2,value3;
@@ -267,15 +268,21 @@ void adjust_astrology_window()
 	}
 }
 
-static int cm_astro_handler(window_info *win, int widget_id, int mx, int my, int option)
+static void show_astro_details(void)
 {
-	if (option<ELW_CM_MENU_LEN)
-		return cm_title_handler(win, widget_id, mx, my, option);
-	if (last_astro_message_len && (option == ELW_CM_MENU_LEN+1) && last_astro_message!=NULL)
+	if (last_astro_message_len && last_astro_message!=NULL)
 	{
 		LOG_TO_CONSOLE(c_green2, stone_name);
 		LOG_TO_CONSOLE(c_grey1, last_astro_message);
 	}
+}
+
+static int cm_astro_handler(window_info *win, int widget_id, int mx, int my, int option)
+{
+	if (option<ELW_CM_MENU_LEN)
+		return cm_title_handler(win, widget_id, mx, my, option);
+	if (option == ELW_CM_MENU_LEN+1)
+		show_astro_details();
 	return 1;
 }
 
@@ -298,6 +305,7 @@ void display_astrology_window(const char * raw_text)
 		widget_set_OnClick(astrology_win, ok_button_id, ok_handler);
 
 		cm_add(windows_list.window[astrology_win].cm_id, cm_astro_menu_str, cm_astro_handler);
+		cm_bool_line(windows_list.window[astrology_win].cm_id, ELW_CM_MENU_LEN+2, &always_show_astro_details, NULL );
 	} 
 	else 
 	{
@@ -313,6 +321,8 @@ void display_astrology_window(const char * raw_text)
 			last_astro_message_len = 0;
 	}
 	safe_strncpy(last_astro_message, raw_text, last_astro_message_len);
+	if (always_show_astro_details)
+		show_astro_details();
 }
 
 void free_astro_buffer()

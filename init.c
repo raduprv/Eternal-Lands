@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <ctype.h>
 #include <time.h>
+#include "astrology.h"
 #include "init.h"
 #include "2d_objects.h"
 #include "actor_scripts.h"
@@ -416,6 +417,7 @@ void read_bin_cfg()
 	open_minimap_on_start = (cfg_mem.misc_bool_options >> 13) & 1;
 	sort_storage_categories = (cfg_mem.misc_bool_options >> 14) & 1;
 	disable_manuwin_keypress = (cfg_mem.misc_bool_options >> 15) & 1;
+	always_show_astro_details = (cfg_mem.misc_bool_options >> 16) & 1;
 
 	set_options_user_menus(cfg_mem.user_menu_win_x, cfg_mem.user_menu_win_y, cfg_mem.user_menu_options);
 
@@ -672,6 +674,7 @@ void save_bin_cfg()
 	cfg_mem.misc_bool_options |= open_minimap_on_start << 13;
 	cfg_mem.misc_bool_options |= sort_storage_categories << 14;
 	cfg_mem.misc_bool_options |= disable_manuwin_keypress << 15;
+	cfg_mem.misc_bool_options |= always_show_astro_details << 16;
 
 	get_options_user_menus(&cfg_mem.user_menu_win_x, &cfg_mem.user_menu_win_y, &cfg_mem.user_menu_options);
 
