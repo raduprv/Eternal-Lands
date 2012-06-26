@@ -101,8 +101,10 @@ static int cm_quickbar_enabled = 0;
 static int cm_sound_enabled = 0;
 static int cm_music_enabled = 0;
 static int cm_minimap_shown = 0;
-enum {	CMH_STATS=0, CMH_STATBARS, CMH_KNOWBAR, CMH_DIGCLOCK, CMH_ANACLOCK, CMH_SECONDS, CMH_FPS,
-		CMH_MINIMAP, CMH_QUICKBM, CMH_SEP1, CMH_SOUND, CMH_MUSIC, CMH_SEP2, CMH_LOCATION };
+static int cm_rangstats_shown = 0;
+enum {	CMH_STATS=0, CMH_STATBARS, CMH_KNOWBAR, CMH_DIGCLOCK, CMH_ANACLOCK,
+		CMH_SECONDS, CMH_FPS, CMH_QUICKBM, CMH_SEP1, CMH_MINIMAP, CMH_RANGSTATS,
+		CMH_SEP2, CMH_SOUND, CMH_MUSIC, CMH_SEP3, CMH_LOCATION };
 enum {	CMQB_RELOC=0, CMQB_DRAG, CMQB_RESET, CMQB_FLIP, CMQB_ENABLE };
 
 int hud_x= 64;
@@ -1624,6 +1626,7 @@ static int context_hud_handler(window_info *win, int widget_id, int mx, int my, 
 	switch (option)
 	{
 		case CMH_MINIMAP: view_window(&minimap_win, 0); break;
+		case CMH_RANGSTATS: view_window(&range_win, 0); break;
 #ifdef NEW_SOUND
 		case CMH_SOUND: toggle_sounds(&sound_on); set_var_unsaved("enable_sounds", OPT_BOOL); break;
 		case CMH_MUSIC: toggle_music(&music_on); set_var_unsaved("enable_music", OPT_BOOL); break;
@@ -1655,6 +1658,7 @@ static void context_hud_pre_show_handler(window_info *win, int widget_id, int mx
 	cm_music_enabled = music_on;
 #endif // NEW_SOUND
 	cm_minimap_shown = get_show_window(minimap_win);
+	cm_rangstats_shown = get_show_window(range_win);
 }
 
 void init_misc_display(hud_interface type)
@@ -1677,6 +1681,7 @@ void init_misc_display(hud_interface type)
 			cm_bool_line(cm_hud_id, CMH_SECONDS, &show_game_seconds, "show_game_seconds");
 			cm_bool_line(cm_hud_id, CMH_FPS, &show_fps, "show_fps");
 			cm_bool_line(cm_hud_id, CMH_MINIMAP, &cm_minimap_shown, NULL);
+			cm_bool_line(cm_hud_id, CMH_RANGSTATS, &cm_rangstats_shown, NULL);
 			cm_bool_line(cm_hud_id, CMH_QUICKBM, &cm_quickbar_enabled, NULL);
 			cm_bool_line(cm_hud_id, CMH_SOUND, &cm_sound_enabled, NULL);
 			cm_bool_line(cm_hud_id, CMH_MUSIC, &cm_music_enabled, NULL);
@@ -1692,6 +1697,7 @@ void init_misc_display(hud_interface type)
 	cm_grey_line(cm_hud_id, CMH_STATBARS, (type == HUD_INTERFACE_NEW_CHAR));
 	cm_grey_line(cm_hud_id, CMH_FPS, (type == HUD_INTERFACE_NEW_CHAR));
 	cm_grey_line(cm_hud_id, CMH_MINIMAP, (type == HUD_INTERFACE_NEW_CHAR));
+	cm_grey_line(cm_hud_id, CMH_RANGSTATS, (type == HUD_INTERFACE_NEW_CHAR));
 	cm_grey_line(cm_hud_id, CMH_QUICKBM, (type == HUD_INTERFACE_NEW_CHAR));
 	cm_grey_line(cm_hud_id, CMH_LOCATION, (type == HUD_INTERFACE_NEW_CHAR));
 		
