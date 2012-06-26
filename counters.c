@@ -4,6 +4,7 @@
 #include "counters.h"
 #include "context_menu.h"
 #include "asc.h"
+#include "elconfig.h"
 #include "elwindows.h"
 #include "errors.h"
 #include "hud.h"
@@ -444,7 +445,11 @@ static int cm_counters_handler(window_info *win, int widget_id, int mx, int my, 
 	{
 		int flagbit = multiselect_get_selected(counters_win, multiselect_id);
 		if (cm_floating_flag)
+		{
 			floating_counter_flags |= 1 << flagbit;
+			if (!floating_session_counters)
+				toggle_OPT_BOOL_by_name("floating_session_counters");
+		}
 		else
 			floating_counter_flags &= ~(1 << flagbit);
 		return 1;
