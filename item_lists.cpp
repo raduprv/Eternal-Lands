@@ -78,6 +78,7 @@ namespace ItemLists
 	class List
 	{
 		public:
+			List(void) : format_error(false) {}
 			bool set(std::string save_name);
 			const std::string & get_name(void) const { return name; }
 			void set_name(const char *new_name) { name = new_name; }
@@ -90,11 +91,13 @@ namespace ItemLists
 			bool read(std::istream & in);
 			void del(size_t item_index);
 			void add(size_t over_item_number, int image_id, Uint16 id, int quantity);
+			bool is_valid_format(void) const { return format_error; }
 		private:
 			std::string name;
 			std::vector<int> image_ids;
 			std::vector<int> quantities;
 			std::vector<Uint16> item_ids;
+			bool format_error;
 	};
 
 
@@ -328,6 +331,7 @@ namespace ItemLists
 		if (image_id_line.empty() || cnt_line.empty() || item_uid_line.empty())
 		{
 			LOG_ERROR("%s: %s [%s]\n", __FILE__, item_list_format_error, name_line.c_str() );
+			format_error = true;
 			return false;
 		}
 
@@ -355,6 +359,7 @@ namespace ItemLists
 		if ((quantities.size() != image_ids.size()) || (quantities.size() != item_ids.size()) || quantities.empty())
 		{
 			LOG_ERROR("%s: %s name=[%s] #id=%d #cnts=%d #uid=%d\n", __FILE__, item_list_format_error, name_line.c_str(), image_ids.size(), quantities.size(), item_ids.size() );
+			format_error = true;
 			return false;
 		}
 
@@ -661,11 +666,19 @@ namespace ItemLists
 			LOG_ERROR("%s: %s [%s]\n", __FILE__, item_list_version_error_str, fullpath.c_str() );
 			return;
 		}
+		bool logged_error = false;
 		while (!in.eof())
 		{
 			saved_item_lists.push_back(List());
 			if (!saved_item_lists.back().read(in))
+			{
+				if ((saved_item_lists.back().is_valid_format()) && !logged_error)
+				{
+					LOG_TO_CONSOLE(c_red2, item_list_format_error);
+					logged_error = true;
+				}
 				saved_item_lists.pop_back();
+			}
 		}
 		in.close();
 		sort_list();
