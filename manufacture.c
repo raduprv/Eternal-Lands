@@ -1154,6 +1154,10 @@ static int mouseover_manufacture_slot_handler(window_info *win, int mx, int my)
 	int check_for_eye = 0;
 	int help_line = 0;
 
+	/* Do nothing when mouse over title bar */
+	if (my<0)
+		return 0;
+
 	/* See if we're over a message - and offer clear help if so */
 	if (show_help_text && *inventory_item_string && (my > manufacture_menu_y_len-85) && my < (manufacture_menu_y_len-37)) {
 		show_help((disable_double_click)?click_clear_str :double_click_clear_str, 0, win->len_y + 10 + SMALL_FONT_Y_LEN*help_line++);
