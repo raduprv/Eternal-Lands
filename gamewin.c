@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <SDL/SDL_keysym.h>
 #include "gamewin.h"
 #include "2d_objects.h"
 #include "3d_objects.h"
@@ -1379,21 +1380,34 @@ int check_quit_or_fullscreen (Uint32 key)
 
 Uint8 key_to_char (Uint32 unikey)
 {
-	if ( (unikey >= 256 && unikey <= 267) || unikey==271)
+	// convert keypad values (numlock on)
+	if (unikey >= SDLK_KP0 && unikey <= SDLK_KP_EQUALS)
 	{
 		switch (unikey)
 		{
-			case 266:
-				return 46;
-			case 267:
-				return 47;
-			case 271:
-				return 13;
+			case SDLK_KP_PERIOD:
+				return SDLK_PERIOD;
+			case SDLK_KP_DIVIDE:
+				return SDLK_SLASH;
+			case SDLK_KP_MULTIPLY:
+				return SDLK_ASTERISK;
+			case SDLK_KP_MINUS:
+				return SDLK_MINUS;
+			case SDLK_KP_PLUS:
+				return SDLK_PLUS;
+			case SDLK_KP_ENTER:
+				return SDLK_RETURN;
+			case SDLK_KP_EQUALS:
+				return SDLK_EQUALS;
 			default:
-				return (unikey-208)&0xff;
+				return (unikey-SDLK_WORLD_48)&0xff;
 		}
 	}
-	
+
+	// catch stupid windows problem if control+enter pressed (that 10 is retuned not 13)
+	if (unikey == 10)
+		return SDLK_RETURN;
+
 	return unikey & 0xff;
 }
 
