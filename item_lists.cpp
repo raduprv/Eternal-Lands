@@ -61,6 +61,17 @@ namespace ItemLists
 	static int cm_names_handler(window_info *win, int widget_id, int mx, int my, int option);
 	static void cm_names_pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win);
 
+	//
+	//	Read a line from a file with any training "\r" removed.
+	//	Perhaps some evil windows interaction put it there.....
+	//
+	std::istream& getline_nocr( std::istream& is, std::string& str )
+	{
+		std::istream &res = std::getline(is, str);
+		if (!str.empty() && str[str.size() - 1] == '\r')
+			str.erase(str.size() - 1);
+		return res;
+	}
 
 	//	A class for an individual item list.
 	//
@@ -304,10 +315,10 @@ namespace ItemLists
 		std::string name_line, image_id_line, cnt_line, item_uid_line;
 
 		// each part is on a separate line, but allow empty lines
-		while (getline(in, name_line) && name_line.empty());
-		while (getline(in, image_id_line) && image_id_line.empty());
-		while (getline(in, cnt_line) && cnt_line.empty());
-		while (getline(in, item_uid_line) && item_uid_line.empty());
+		while (getline_nocr(in, name_line) && name_line.empty());
+		while (getline_nocr(in, image_id_line) && image_id_line.empty());
+		while (getline_nocr(in, cnt_line) && cnt_line.empty());
+		while (getline_nocr(in, item_uid_line) && item_uid_line.empty());
 
 		// mop up extra lines at the end of the file silently
 		if (name_line.empty())
@@ -521,9 +532,9 @@ namespace ItemLists
 		{
 			// read the info, image_id and item_id lines
 			std::string info_line, image_id_line, item_id_line;
-			while (getline(in, info_line) && info_line.empty());
-			getline(in, image_id_line);
-			getline(in, item_id_line);
+			while (getline_nocr(in, info_line) && info_line.empty());
+			getline_nocr(in, image_id_line);
+			getline_nocr(in, item_id_line);
 			if (info_line.empty())
 				break;
 
