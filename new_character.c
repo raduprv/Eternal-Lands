@@ -493,7 +493,7 @@ int display_newchar_handler (window_info *win)
 	{
 #ifdef NEW_NEW_CHAR_WINDOW
 		int msg, offset;
-		if ( find_last_lines_time (&msg, &offset, current_filter, console_text_width) ){
+		if ( find_last_lines_time (&msg, &offset, current_filter, get_console_text_width()) ){
 			set_font(chat_font);    // switch to the chat font
 			draw_messages (10, 40, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, FILTER_ALL, msg, offset, -1, win->len_x - hud_x - 20, win->len_y, chat_zoom, NULL);
 			set_font (0);   // switch to fixed
@@ -502,7 +502,7 @@ int display_newchar_handler (window_info *win)
 		int msg, offset, ytext, filter;
 		ytext = use_windowed_chat == 1 ? 25 : 20;
 		filter = use_windowed_chat == 1 ? current_filter : FILTER_ALL;
-		if ( find_last_lines_time (&msg, &offset, current_filter, console_text_width) ){
+		if ( find_last_lines_time (&msg, &offset, current_filter, get_console_text_width()) ){
 			set_font(chat_font);    // switch to the chat font
 			draw_messages (10, ytext, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, filter, msg, offset, -1, win->len_x - hud_x - 20, win->len_y, chat_zoom, NULL);
 			set_font (0);   // switch to fixed

@@ -1045,8 +1045,7 @@ void change_chat_zoom(float *dest, float *value)
 			opening_win_update_zoom();
 		}
 		if (console_root_win >= 0) {
-			nr_console_lines= (int) (window_height - input_widget->len_y - CONSOLE_SEP_HEIGHT - hud_y - 10) / (18 * chat_zoom);
-			widget_set_size(console_root_win, console_out_id, *value);
+			console_font_resize(*value);
 		}
 		if (chat_win >= 0) {
 			chat_win_update_zoom();
@@ -1817,6 +1816,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"pin_minimap","pinminimap",&pin_minimap,change_var,0,"Pin Minimap","Toggle whether the minimap ignores close-all-windows.",HUD);
 	add_var(OPT_BOOL, "continent_map_boundaries", "cmb", &show_continent_map_boundaries, change_var, 1, "Map Boundaries On Continent Map", "Show map boundaries on the continent map", HUD);
 	add_var(OPT_BOOL,"enable_user_menus", "user_menus", &enable_user_menus, toggle_user_menus, 0, "Enable User Menus","Create .menu files in your config directory.  First line is the menu name. After that, each line is a command using the format \"Menus Text||command\".  Prompt for input using \"command text <prompt text>\". A line can include multiple commands.",HUD);
+	add_var(OPT_BOOL,"console_scrollbar_enabled", "console_scrollbar", &console_scrollbar_enabled, toggle_console_scrollbar, 1, "Show Console Scrollbar","If enabled, a scrollbar will be shown in the console window.",HUD);
 #if !defined(WINDOWS) && !defined(OSX)
 	add_var(OPT_BOOL,"use_clipboard","uclb",&use_clipboard, change_var, 1, "Use Clipboard For Pasting", "Use CLIPBOARD for pasting (as e.g. GNOME does) or use PRIMARY cutbuffer (as xterm does)",HUD);
 #endif

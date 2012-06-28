@@ -1827,13 +1827,13 @@ void update_tab_bar (text_message * msg)
 	// Only update specific channels
 	channel = get_tab_channel (msg->chan_idx);
 	if (channel == CHAT_ALL || channel == CHAT_MODPM) {
-		lines_to_show += rewrap_message(msg, chat_zoom, console_text_width, NULL);
+		lines_to_show += rewrap_message(msg, chat_zoom, get_console_text_width(), NULL);
 		if (lines_to_show >= 10) lines_to_show = 10;
 		return;
 	}
 
 	if (tabs[current_tab].channel == CHAT_ALL) {
-		lines_to_show += rewrap_message(msg, chat_zoom, console_text_width, NULL);
+		lines_to_show += rewrap_message(msg, chat_zoom, get_console_text_width(), NULL);
 		if (lines_to_show >= 10) lines_to_show = 10;
 	}
 
@@ -1844,7 +1844,7 @@ void update_tab_bar (text_message * msg)
 			if (current_tab != itab && !tabs[itab].highlighted && tabs[current_tab].channel != CHAT_ALL && !get_show_window(console_root_win))
 				widget_set_color (tab_bar_win, tabs[itab].button, 1.0f, 1.0f, 0.0f);
 			if (current_tab == itab) {
-				lines_to_show += rewrap_message(msg, chat_zoom, console_text_width, NULL);
+				lines_to_show += rewrap_message(msg, chat_zoom, get_console_text_width(), NULL);
 				if (lines_to_show >= 10) lines_to_show = 10;
 			}
 			return;

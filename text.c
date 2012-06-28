@@ -128,7 +128,7 @@ void update_text_windows (text_message * pmsg)
 	if (console_root_win >= 0) update_console_win (pmsg);
 	switch (use_windowed_chat) {
 		case 0:
-			rewrap_message(pmsg, chat_zoom, console_text_width, NULL);
+			rewrap_message(pmsg, chat_zoom, get_console_text_width(), NULL);
 			lines_to_show += pmsg->wrap_lines;
 			if (lines_to_show > 10) lines_to_show = 10;
 			break;
@@ -1116,7 +1116,7 @@ int find_last_lines_time (int *msg, int *offset, Uint8 filter, int width)
 
 int find_last_console_lines (int lines_no)
 {
-	return find_line_nr (total_nr_lines, total_nr_lines - lines_no, FILTER_ALL, &console_msg_nr, &console_msg_offset, chat_zoom, console_text_width);
+	return find_line_nr (total_nr_lines, total_nr_lines - lines_no, FILTER_ALL, &console_msg_nr, &console_msg_offset, chat_zoom, get_console_text_width());
 }
 
 
