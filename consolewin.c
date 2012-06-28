@@ -30,9 +30,11 @@
 
 /* To Do
  * Existing bugs before I even started on the scroll bar:
- * - "^^" loss with fonts > 1
  * - Input loss when switching to windowed chat with console active
- * - Loss of top console line if input box height grows
+ * - Loss of top console line if input box height grows (rewrap_message() called without CHAT_NONE hack?)
+ * - At max up scroll, first line does not scroll (main console has one extra line over console window)
+ * - above two related - need to undo that ?
+ * - 	int text_field_resize () needs total_nr_lines protection to fix but still better remove the hack.
  * - Font size of zero - number of lines go crazy
  * - Resize of chat window going very wide after font size change
  * - Mouse paste does not resize input box
@@ -79,7 +81,6 @@ static void update_console_scrollbar(void)
 static int display_console_handler (window_info *win)
 {
 	static int msg = 0, offset = 0;
-	const unsigned char *sep_string = (unsigned char*)"^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^";
 
 	// are we actively drawing things?
 	if (SDL_GetAppState () & SDL_APPACTIVE)
@@ -96,10 +97,11 @@ static int display_console_handler (window_info *win)
 		draw_console_pic (cons_text);
 		if (scroll_up_lines != 0)
 		{
+			const unsigned char *sep_string = (unsigned char*)"^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^";
 			glColor3f (1.0, 1.0, 1.0);
-			draw_string_zoomed_clipped (CONSOLE_TEXT_X_BORDER,
+			draw_string_clipped (CONSOLE_TEXT_X_BORDER,
 				CONSOLE_TEXT_Y_BORDER + win->len_y - input_widget->len_y - CONSOLE_SEP_HEIGHT - HUD_MARGIN_Y,
-				sep_string, -1, console_text_width, CONSOLE_SEP_HEIGHT, chat_zoom);
+				sep_string, console_text_width, CONSOLE_SEP_HEIGHT);
 		}
 		//ttlanhil: disabled, until the scrolling in console is adusted to work with filtering properly
 		//if the users prefer that console not be filtered, the following line can be removed.
@@ -244,6 +246,10 @@ static int resize_console_handler (window_info *win, int width, int height)
 		update_console_scrollbar();
 	}
 
+	/* making the font smaller can leave the scroll position invalid */
+	if (scroll_up_lines && (total_nr_lines <= nr_console_lines))
+		scroll_up_lines = 0;
+
 	return 1;
 }
 
@@ -332,6 +338,7 @@ void console_font_resize(float font_size)
 {
 	nr_console_lines= (int) (window_height - input_widget->len_y - CONSOLE_SEP_HEIGHT - hud_y - CONSOLE_TEXT_Y_BORDER) / (DEFAULT_FONT_Y_LEN * chat_zoom);
 	widget_set_size(console_root_win, console_out_id, font_size);
+	resize_console_handler (&windows_list.window[console_root_win], window_width, window_height);
 }
 
 void clear_console(){
