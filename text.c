@@ -41,9 +41,6 @@ int last_message = -1;
 int total_nr_lines = 0;
 Uint8 current_filter = FILTER_ALL;
 
-int console_msg_nr = 0;
-int console_msg_offset = 0;
-
 text_message input_text_line;
 
 char last_pm_from[32];
@@ -52,8 +49,6 @@ Uint32 last_server_message_time;
 int lines_to_show=0;
 
 int show_timestamp = 0;
-
-char not_from_the_end_console=0;
 
 int log_chat = LOG_SERVER;
 
@@ -1113,11 +1108,6 @@ int find_last_lines_time (int *msg, int *offset, Uint8 filter, int width)
 	return find_line_nr (total_nr_lines, total_nr_lines - lines_to_show, filter, msg, offset, chat_zoom, width);
 }
 
-int find_last_console_lines (int lines_no)
-{
-	return find_line_nr (total_nr_lines, total_nr_lines - lines_no, FILTER_ALL, &console_msg_nr, &console_msg_offset, chat_zoom, get_console_text_width());
-}
-
 
 int find_line_nr (int nr_lines, int line, Uint8 filter, int *msg, int *offset, float zoom, int width)
 {
@@ -1185,111 +1175,6 @@ int find_line_nr (int nr_lines, int line, Uint8 filter, int *msg, int *offset, f
 	*offset = 0;
 	return 1;
 }
-void console_move_up ()
-{
-	int nl_found, ichar;
-	int max_lines;
-
-	// get the number of lines we have - the last one, which is the
-	// command line
-	max_lines = (window_height - hud_y) / 18 - 1;
-	if (not_from_the_end_console) max_lines--;
-
-	// if we have less lines of text than the max lines onscreen, don't
-	// scroll up
-	if (total_nr_lines > max_lines)
-	{
-		not_from_the_end_console = 1;
-
-		nl_found = 0;
-		while (1)
-		{
-			const char *data = display_text_buffer[console_msg_nr].data;
-			for (ichar = console_msg_offset; ichar >= 0; ichar--)
-			{
-				if (data[ichar] == '\n' || data[ichar] == '\r')
-				{
-					if (nl_found) break;
-					nl_found = 1;
-				}
-			}
-			if (nl_found)
-			{
-				console_msg_offset = ichar + 1;
-				return;
-			}
-			--console_msg_nr;
-			nl_found = 1;
-		}
-	}
-}
-
-
-void console_move_down ()
-{
-	int ichar;
-	int max_lines;
-	const char *data = display_text_buffer[console_msg_nr].data;
-
-	if (!not_from_the_end_console)
-		// we can't scroll down anymore
-		return;
-
-	// get the number of lines we have on screen
-	max_lines = (window_height-hud_y)/18 - 1;
-	max_lines--;
-
-	for (ichar = console_msg_offset; data[ichar] != '\0'; ichar++)
-		if (data[ichar] == '\n' || data[ichar] == '\r')
-			break;
-
-	if (data[ichar] == '\n' || data[ichar] == '\r')
-	{
-		console_msg_offset = ichar + 1;
-	}
-	else
-	{
-		if (++console_msg_nr >= DISPLAY_TEXT_BUFFER_SIZE)
-			console_msg_nr = 0;
-		console_msg_offset = 0;
-	}
-
-	if (console_msg_nr == last_message)
-	{
-		data = display_text_buffer[console_msg_nr].data;
-		for (ichar = console_msg_offset; data[ichar] != '\0'; ichar++)
-			if (data[ichar] == '\n' || data[ichar] == '\r')
-				break;
-		if (data[ichar] == '\0')
-			not_from_the_end_console = 0;
-	}
-}
-
-void console_move_page_down()
-{
-	int max_lines;
-	int i;
-
-	max_lines=(window_height-hud_y)/18-3;
-
-	for(i=0;i<max_lines;i++)
-		{
-			console_move_down();
-		}
-}
-
-void console_move_page_up()
-{
-	int max_lines;
-	int i;
-
-	max_lines=(window_height-hud_y)/18-3;
-
-	for(i=0;i<max_lines;i++)
-		{
-			console_move_up();
-		}
-}
 
 void clear_display_text_buffer ()
 {
@@ -1302,12 +1187,9 @@ void clear_display_text_buffer ()
 		display_text_buffer[i].deleted= 1;
 	}
 
-	console_msg_nr = 0;
-	console_msg_offset = 0;
 	last_message = -1;
 	last_server_message_time = cur_time;
 	total_nr_lines = 0;
-	not_from_the_end_console = 1;
 
 	clear_console();
 	if(use_windowed_chat == 2){

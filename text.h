@@ -69,11 +69,7 @@ extern int lines_to_show; /*!< number of lines to show at once */
 
 extern int show_timestamp;
 
-extern char not_from_the_end_console;
-
 extern int log_chat; /*!< flag stating whether to log server messages or not */
-
-extern int current_text_width; /*!< Current wrapping width for text buffers */
 
 extern ec_reference harvesting_effect_reference;
 

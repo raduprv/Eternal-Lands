@@ -32,6 +32,7 @@
  * Existing bugs before I even started on the scroll bar:
  * - Input loss when switching to windowed chat with console active
  * - Font size of zero - number of lines go crazy
+ * - changing fond size doe snot update total_nr_lines
  * - Resize of chat window going very wide after font size change
  * - Mouse paste does not resize input box
  * - Mouse paste can resize input box (have a patch)
@@ -341,7 +342,6 @@ void console_font_resize(float font_size)
 void clear_console(){
 	console_text_changed = 1;
 	lines_to_show = 0;
-	not_from_the_end_console= 0;
 	scroll_up_lines = 0;
 }
 
