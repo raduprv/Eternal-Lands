@@ -2144,7 +2144,7 @@ void _text_field_delete_backward (widget_list * w)
 {
 	text_field *tf = w->widget_info;
 	text_message *msg;
-	int i, n = 1, nr_lines, tmp_chan, nr_del_lines;
+	int i, n = 1, nr_lines, nr_del_lines;
 	
 	if (tf == NULL)
 		return;
@@ -2163,12 +2163,8 @@ void _text_field_delete_backward (widget_list * w)
 	
 	// set invalid width to force rewrap
 	msg->wrap_width = 0;
-	//Set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines.
-	tmp_chan = msg->chan_idx;
-	msg->chan_idx = CHAT_NONE;
 	nr_lines = rewrap_message (msg, w->size, w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
 	_text_field_set_nr_lines (w, nr_lines);
-	msg->chan_idx = tmp_chan;
 
 	tf->cursor -= n;
 	tf->cursor_line -= nr_del_lines;
@@ -2181,7 +2177,7 @@ void _text_field_delete_forward (widget_list *w)
 {
 	text_field *tf = w->widget_info;
 	text_message *msg;
-	int i, n = 1, nr_lines, tmp_chan;
+	int i, n = 1, nr_lines;
 	
 	if (tf == NULL)
 		return;
@@ -2197,12 +2193,8 @@ void _text_field_delete_forward (widget_list *w)
 	msg->len -= n;
 	// set invalid width to force rewrap
 	msg->wrap_width = 0;
-	//Set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines.
-	tmp_chan = msg->chan_idx;
-	msg->chan_idx = CHAT_NONE;
 	nr_lines = rewrap_message (msg, w->size, w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
 	_text_field_set_nr_lines (w, nr_lines);
-	msg->chan_idx = tmp_chan;
 	
 	// cursor position doesn't change, so no need to update it here
 }
@@ -2211,7 +2203,7 @@ void _text_field_insert_char (widget_list *w, char ch)
 {
 	text_field *tf = w->widget_info;
 	text_message *msg;
-	int nr_lines, old_cursor, tmp_chan;
+	int nr_lines, old_cursor;
 
 	if (tf == NULL)
 		return;
@@ -2237,9 +2229,6 @@ void _text_field_insert_char (widget_list *w, char ch)
 	
 	// set invalid width to force rewrap
 	msg->wrap_width = 0;
-	//Set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines.
-	tmp_chan = msg->chan_idx;
-	msg->chan_idx = CHAT_NONE;
 	// Save the current character position, and rewrap the message.
 	// The difference between the old and the new position should
 	// be the number of extra line breaks introduced before the 
@@ -2248,7 +2237,6 @@ void _text_field_insert_char (widget_list *w, char ch)
 	nr_lines = rewrap_message (msg, w->size, w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
 	tf->cursor_line += tf->cursor - old_cursor;
 	_text_field_set_nr_lines (w, nr_lines);
-	msg->chan_idx = tmp_chan;
 
 	// XXX FIXME: Grum: is the following even possible?
 	while (msg->data[tf->cursor] == '\r') {

@@ -31,10 +31,6 @@
 /* To Do
  * Existing bugs before I even started on the scroll bar:
  * - Input loss when switching to windowed chat with console active
- * - Loss of top console line if input box height grows (rewrap_message() called without CHAT_NONE hack?)
- * - At max up scroll, first line does not scroll (main console has one extra line over console window)
- * - above two related - need to undo that ?
- * - 	int text_field_resize () needs total_nr_lines protection to fix but still better remove the hack.
  * - Font size of zero - number of lines go crazy
  * - Resize of chat window going very wide after font size change
  * - Mouse paste does not resize input box
@@ -42,6 +38,7 @@
  * Code Tidy:
  * 	- Sort out len_y of console output text field - sep/margin etc
  * 	- Intimate use of input_widget all over the place in different modules
+ * 	- Complete tidy up of total_nr_lines and all the dead code console in text.c.
  */
 
 int console_root_win = -1;
@@ -350,15 +347,16 @@ void clear_console(){
 
 void update_console_win (text_message * msg)
 {
-	int nlines = rewrap_message(msg, chat_zoom, console_text_width, NULL);
 	if (msg->deleted) {
-		if (scroll_up_lines > nlines) {
-			scroll_up_lines -= nlines;
+		if (scroll_up_lines > msg->wrap_lines) {
+			scroll_up_lines -= msg->wrap_lines;
 		} else {
 			scroll_up_lines = 0;
 			console_text_changed = 1;
 		}
+		total_nr_lines -= msg->wrap_lines;
 	} else {
+		int nlines = rewrap_message(msg, chat_zoom, console_text_width, NULL);
 		if (scroll_up_lines == 0) {
 			console_text_changed = 1;
 		} else {
@@ -367,6 +365,7 @@ void update_console_win (text_message * msg)
 				scroll_up_lines = DISPLAY_TEXT_BUFFER_SIZE;
 			}
 		}
+		total_nr_lines += nlines;
 	}
 }
 
@@ -387,6 +386,7 @@ void create_console_root_window (int width, int height)
 {
 	if (console_root_win < 0)
 	{
+		size_t i;
 		int scrollbar_x_adjust = (console_scrollbar_enabled) ?ELW_BOX_SIZE :0;
 		int console_active_width = width - HUD_MARGIN_X;
 		int console_active_height = height - HUD_MARGIN_Y;
@@ -404,6 +404,11 @@ void create_console_root_window (int width, int height)
 			CONSOLE_TEXT_X_BORDER, CONSOLE_Y_OFFSET,
 			console_text_width, console_active_height - INPUT_HEIGHT - CONSOLE_SEP_HEIGHT - CONSOLE_TEXT_Y_BORDER,
 			0, chat_zoom, -1.0f, -1.0f, -1.0f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, CHAT_ALL, 0, 0);
+
+		total_nr_lines = 0;
+		for (i=0; i<DISPLAY_TEXT_BUFFER_SIZE; i++)
+			if (display_text_buffer[i].len && !display_text_buffer[i].deleted)
+				total_nr_lines += rewrap_message(&display_text_buffer[i], chat_zoom, console_text_width, NULL);
 
 		if(input_widget == NULL) {
 			Uint32 id;
@@ -434,15 +439,11 @@ int input_field_resize(widget_list *w, Uint32 x, Uint32 y)
 	widget_list *console_out_w = widget_find(console_root_win, console_out_id);
 	text_field *tf = w->widget_info;
 	text_message *msg = &(tf->buffer[tf->msg]);
-	int tmp_chan = msg->chan_idx;
 	int console_active_height;
 
 	// set invalid width to force rewrap
 	msg->wrap_width = 0;
-	//Set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines.
-	msg->chan_idx = CHAT_NONE;
 	tf->nr_lines = rewrap_message(msg, w->size, w->len_x - 2 * tf->x_space, &tf->cursor);
-	msg->chan_idx = tmp_chan;
 	if(use_windowed_chat != 2 || !get_show_window(chat_win)) {
 		window_info *win = &windows_list.window[w->window_id];
 		widget_move(input_widget->window_id, input_widget->id, 0, win->len_y - input_widget->len_y - HUD_MARGIN_Y);

@@ -875,7 +875,6 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 			msg = &(display_text_buffer[i]);
 			if (msg->data)
 			{
-				total_nr_lines -= msg->wrap_lines;
 				msg->deleted = 1;
 				update_text_windows(msg);
 				free_text_message_data (msg);
@@ -1326,11 +1325,7 @@ int rewrap_message(text_message * msg, float zoom, int width, int * cursor)
 
 	if (msg->wrap_width != width || msg->wrap_zoom != zoom)
 	{
-		if (msg->chan_idx != CHAT_NONE)
-			total_nr_lines -= msg->wrap_lines;
  		nlines = reset_soft_breaks(msg->data, msg->len, msg->size, zoom, width, cursor, &max_line_width);
-		if (msg->chan_idx != CHAT_NONE)
-			total_nr_lines += nlines;
 		msg->len = strlen(msg->data);
 		msg->wrap_lines = nlines;
 		msg->wrap_width = width;
