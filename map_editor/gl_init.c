@@ -163,5 +163,4 @@ void handle_window_resize()
 	map_has_changed=1;
 	reset_material();
 	init_lights();
-	init_colors();
 }

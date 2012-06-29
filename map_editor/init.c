@@ -19,8 +19,6 @@ char lang[10]={"en"};
 char datadir[256]={"./"};
 char configdir[256]={"./"};
 
-void init_colors();
-
 #ifndef	NEW_TEXTURES
 void init_texture_cache()
 {
@@ -146,7 +144,6 @@ void init_stuff()
 	reset_material();
 	init_lights();
 	//disable_local_lights();
-	init_colors();
 	//clear_error_log();
 
 	// Setup the new eye candy system
