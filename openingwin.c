@@ -2,6 +2,7 @@
 #include <SDL.h>
 #include "openingwin.h"
 #include "books.h"
+#include "consolewin.h"
 #include "draw_scene.h"
 #include "elconfig.h"
 #include "gamewin.h"
@@ -12,7 +13,6 @@
 #include "multiplayer.h"
 #include "new_character.h"
 #include "tabs.h"
-#include "text.h"
 #include "widgets.h"
 
 int opening_root_win = -1;
@@ -35,10 +35,10 @@ int display_opening_handler ()
 	{
 		int msg, offset, iline;
 		
-		iline = total_nr_lines - nr_opening_lines;
+		iline = get_total_nr_lines() - nr_opening_lines;
 		if (iline < 0) iline = 0;
 		
-		find_line_nr (total_nr_lines, iline, FILTER_ALL, &msg, &offset, chat_zoom, opening_win_text_width);
+		find_line_nr (get_total_nr_lines(), iline, FILTER_ALL, &msg, &offset, chat_zoom, opening_win_text_width);
 		text_field_set_buf_pos (opening_root_win, opening_out_id, msg, offset);
 		draw_console_pic (cons_text);
 		CHECK_GL_ERRORS();

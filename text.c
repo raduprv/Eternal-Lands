@@ -38,7 +38,6 @@ int summoning_filter=0;
 
 text_message display_text_buffer[DISPLAY_TEXT_BUFFER_SIZE];
 int last_message = -1;
-int total_nr_lines = 0;
 Uint8 current_filter = FILTER_ALL;
 
 text_message input_text_line;
@@ -1105,7 +1104,7 @@ int find_last_lines_time (int *msg, int *offset, Uint8 filter, int width)
 	}
 	if (lines_to_show <= 0) return 0;
 
-	return find_line_nr (total_nr_lines, total_nr_lines - lines_to_show, filter, msg, offset, chat_zoom, width);
+	return find_line_nr (get_total_nr_lines(), get_total_nr_lines() - lines_to_show, filter, msg, offset, chat_zoom, width);
 }
 
 
@@ -1189,7 +1188,6 @@ void clear_display_text_buffer ()
 
 	last_message = -1;
 	last_server_message_time = cur_time;
-	total_nr_lines = 0;
 
 	clear_console();
 	if(use_windowed_chat == 2){

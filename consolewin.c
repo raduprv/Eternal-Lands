@@ -30,16 +30,14 @@
 
 /* To Do
  * Existing bugs before I even started on the scroll bar:
- * - Input loss when switching to windowed chat with console active
  * - Font size of zero - number of lines go crazy
- * - changing fond size doe snot update total_nr_lines
+ * - Changing font size does not update total_nr_lines
  * - Resize of chat window going very wide after font size change
  * - Mouse paste does not resize input box
  * - Mouse paste can resize input box (have a patch)
  * Code Tidy:
  * 	- Sort out len_y of console output text field - sep/margin etc
  * 	- Intimate use of input_widget all over the place in different modules
- * 	- Complete tidy up of total_nr_lines and all the dead code console in text.c.
  */
 
 int console_root_win = -1;
@@ -55,7 +53,8 @@ static const int CONSOLE_SEP_HEIGHT = DEFAULT_FONT_Y_LEN;
 static const int CONSOLE_TEXT_X_BORDER = 10;
 static const int CONSOLE_TEXT_Y_BORDER = 10;
 
-static int nr_console_lines;
+static int nr_console_lines = 0;
+static int total_nr_lines = 0;
 static int scroll_up_lines = 0;
 static int console_text_changed = 0;
 static int console_text_width = -1;
@@ -332,6 +331,11 @@ int get_console_text_width(void)
 	return console_text_width;
 }
 
+int get_total_nr_lines(void)
+{
+	return total_nr_lines;
+}
+
 void console_font_resize(float font_size)
 {
 	nr_console_lines= (int) (window_height - input_widget->len_y - CONSOLE_SEP_HEIGHT - hud_y - CONSOLE_TEXT_Y_BORDER) / (DEFAULT_FONT_Y_LEN * chat_zoom);
@@ -343,6 +347,7 @@ void clear_console(){
 	console_text_changed = 1;
 	lines_to_show = 0;
 	scroll_up_lines = 0;
+	total_nr_lines = 0;
 }
 
 void update_console_win (text_message * msg)

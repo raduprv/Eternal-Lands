@@ -55,7 +55,6 @@ typedef struct
 
 extern text_message display_text_buffer[DISPLAY_TEXT_BUFFER_SIZE];
 extern int last_message;
-extern int total_nr_lines; /*!< The number of lines in the text buffer */
 extern Uint8 current_filter;
 
 extern float chat_zoom; /*!< zoom factor for chat text */
