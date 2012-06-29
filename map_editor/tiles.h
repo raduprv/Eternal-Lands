@@ -18,4 +18,8 @@ void draw_tile_map();
 void load_map_tiles();
 void destroy_map_tiles();
 
+float get_tile_height(const float x, const float y);
+int get_tile_walkable(const int x, const int y);
+int get_tile_valid(const int x, const int y);
+
 #endif

@@ -182,4 +182,63 @@ void load_map_tiles()
 
 }
 
+int get_tile_walkable(const int x, const int y)
+{
+	if (!get_tile_valid(x, y))
+	{
+		return 0;
+	}
 
+	return (height_map[x * tile_map_size_x * 6 + y] & 0x3F) != 0;
+}
+
+int get_tile_valid(const int x, const int y)
+{
+	return (x >= 0) && (x < (tile_map_size_x * 6)) &&
+		(y >= 0) && (y < (tile_map_size_y * 6));
+}
+
+float get_tile_height(const float x, const float y)
+{
+	float z;
+	int pos_x, pos_y, i, j, tmp, count;
+
+	if (!get_tile_valid(x, y))
+	{
+		return 0.0f;
+	}
+
+	pos_x = x;
+	pos_y = y;
+
+	tmp = height_map[pos_y * tile_map_size_x * 6 + pos_x];
+
+	if (tmp != 0)
+	{
+		return tmp * 0.2f - 2.2f;
+	}
+
+	tmp = 0;
+	count = 0;
+
+	for (j = pos_y - 1; j <= (pos_y + 1); ++j)
+	{
+		for (i = pos_x - 1; i <= (pos_x + 1); ++i)
+		{
+			if (get_tile_walkable(i, j))
+			{
+				tmp += height_map[j * tile_map_size_x * 6 + i];
+				count++;
+			}
+		}
+	}
+
+	z = tmp;
+
+	if (count > 1)
+	{
+		z /= count;
+	}
+
+	return z * 0.2f - 2.2f;
+}

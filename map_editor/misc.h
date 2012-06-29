@@ -81,6 +81,7 @@ void save_map_file_continued();
 
 extern char* selected_file;
 FILE *my_fopen (const char *fname, const char *mode);
+off_t get_file_size(const char *fname);
 int file_exists(const char *fname);
 int gzfile_exists(const char *fname);
 #ifdef ZLIB
