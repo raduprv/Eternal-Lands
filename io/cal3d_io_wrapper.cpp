@@ -20,16 +20,12 @@ class ElDataSource: public CalDataSource
 	public:
 		ElDataSource(const std::string &file_name)
 		{
-			ENTER_DEBUG_MARK("load cal3d");
-
 			m_file = el_open(file_name.c_str());
 		}
 
 		virtual ~ElDataSource()
 		{
 			el_close(m_file);
-
-			LEAVE_DEBUG_MARK("load cal3d");
 		}
 
 		virtual bool ok() const
@@ -44,6 +40,18 @@ class ElDataSource: public CalDataSource
 		virtual bool readBytes(void* pBuffer, int length)
 		{
 			return el_read(m_file, length, pBuffer) == length;
+		}
+
+		virtual bool readShort(short& value)
+		{
+			Sint16 tmp;
+			int length;
+
+			length = el_read(m_file, sizeof(Sint16), &tmp);
+
+			value = SDL_SwapLE16(tmp);
+
+			return length == sizeof(Sint16);
 		}
 
 		virtual bool readFloat(float &value)
