@@ -477,7 +477,7 @@ static const char* rotate_chat_log_flag_file = "rotate_chat_log_enabled";
 int get_rotate_chat_log(void)
 {
 	if (rotate_chat_log == -1)
-		rotate_chat_log = (file_exists_config(rotate_chat_log_flag_file)) ?1: 0;
+		rotate_chat_log = (file_exists_config(rotate_chat_log_flag_file)==1) ?1: 0;
 	return rotate_chat_log;
 }
 
@@ -487,7 +487,7 @@ static void change_rotate_chat_log(int *value)
 	*value = !*value;
 
 	/* create the flag file if we are switching on chat log rotate */
-	if (*value && !file_exists_config(rotate_chat_log_flag_file))
+	if (*value && (file_exists_config(rotate_chat_log_flag_file)!=1))
 	{
 		FILE *fp = open_file_config(rotate_chat_log_flag_file,"w");
 		if ((fp == NULL) || (fclose(fp) != 0))
@@ -496,7 +496,7 @@ static void change_rotate_chat_log(int *value)
 			LOG_TO_CONSOLE(c_green2, rotate_chat_log_restart_str);
 	}
 	/* remove the flag file if we are switching off chat log rotate */
-	else if (!(*value) && file_exists_config(rotate_chat_log_flag_file))
+	else if (!(*value) && (file_exists_config(rotate_chat_log_flag_file)==1))
 	{
 		const char *config_dir = get_path_config();
 		char *name_buf = NULL;

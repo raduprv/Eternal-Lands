@@ -161,7 +161,7 @@ static void load_recipe_names(void)
 	my_tolower(fname);
 
 	/* sliently ignore non existing file */
-	if (!file_exists_config(fname))
+	if (file_exists_config(fname)!=1)
 		return;
 
 	fp = open_file_config(fname,"r");
@@ -367,7 +367,7 @@ void load_recipes (){
 	}
 
 	/* sliently ignore non existing file */
-	if (!file_exists_config(fname))
+	if (file_exists_config(fname)!=1)
 		return;
 
 	fp = open_file_config(fname,"rb");

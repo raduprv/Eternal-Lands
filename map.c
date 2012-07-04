@@ -458,7 +458,7 @@ void load_server_markings(){
 	my_tolower(fname);
 
 	/* sliently ignore non existing file */
-	if (!file_exists_config(fname))
+	if (file_exists_config(fname)!=1)
 		return;
 
 	fp = open_file_config(fname,"r");
