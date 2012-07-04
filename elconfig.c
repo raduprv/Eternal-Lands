@@ -227,6 +227,7 @@ void options_loaded(void)
 			our_vars.var[i]->saved = 1;
 	options_set = 1;
 #ifdef ELC
+	get_rotate_chat_log();
 	consolidate_rotate_chat_log_status();
 #endif
 }
@@ -521,7 +522,7 @@ static void change_rotate_chat_log(int *value)
 static void consolidate_rotate_chat_log_status(void)
 {
 	/* it is too late to use a newly set rotate log value, but we can set the el.ini flag if rotating is on */
-	if (rotate_chat_log && !rotate_chat_log_config_var)
+	if ((rotate_chat_log==1) && !rotate_chat_log_config_var)
 	{
 		rotate_chat_log_config_var = 1;
 		set_var_unsaved("rotate_chat_log", OPT_BOOL);
