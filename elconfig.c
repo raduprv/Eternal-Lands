@@ -214,6 +214,10 @@ int video_info_sent = 0;
  int enable_client_aiming = 0;
 #endif // DEBUG
 
+#ifdef ELC
+static void consolidate_rotate_chat_log_status(void);
+#endif
+
 void options_loaded(void)
 {
 	size_t i;
@@ -222,6 +226,9 @@ void options_loaded(void)
 		if ((!our_vars.var[i]->saved) && (our_vars.var[i]->type!=OPT_BOOL_INI) && (our_vars.var[i]->type!=OPT_INT_INI))
 			our_vars.var[i]->saved = 1;
 	options_set = 1;
+#ifdef ELC
+	consolidate_rotate_chat_log_status();
+#endif
 }
 
 
@@ -453,6 +460,74 @@ void change_string(char * var, char * str, int len)
 }
 
 #ifdef ELC
+
+/*
+ * The chat logs are created very early on in the client start up, before the
+ * el.ini file is read at least. Because of this, a simple el.ini file variable
+ * can not be used to enabled/disable rotating chat log files. I suppose the init
+ * code could be changed but rather do that and unleash all kinds of grief, use a
+ * simple flag file when the chat logs are opened.  The el.ini file setting now
+ * becomes the creater/remover of that file.
+ */
+static int rotate_chat_log_config_var = 0;
+static int rotate_chat_log = -1;
+static const char* rotate_chat_log_flag_file = "rotate_chat_log_enabled";
+
+/* get the current value depending on if the flag file exists */
+int get_rotate_chat_log(void)
+{
+	if (rotate_chat_log == -1)
+		rotate_chat_log = (file_exists_config(rotate_chat_log_flag_file)) ?1: 0;
+	return rotate_chat_log;
+}
+
+/* create or delete the flag file to reflect the el.ini file rotate chat log value */
+static void change_rotate_chat_log(int *value)
+{
+	*value = !*value;
+
+	/* create the flag file if we are switching on chat log rotate */
+	if (*value && !file_exists_config(rotate_chat_log_flag_file))
+	{
+		FILE *fp = open_file_config(rotate_chat_log_flag_file,"w");
+		if ((fp == NULL) || (fclose(fp) != 0))
+			LOG_ERROR("%s: Failed to create [%s] [%s]\n", __FILE__, rotate_chat_log_flag_file, strerror(errno) );
+		else
+			LOG_TO_CONSOLE(c_green2, rotate_chat_log_restart_str);
+	}
+	/* remove the flag file if we are switching off chat log rotate */
+	else if (!(*value) && file_exists_config(rotate_chat_log_flag_file))
+	{
+		const char *config_dir = get_path_config();
+		char *name_buf = NULL;
+		if (config_dir != NULL)
+		{
+			size_t buf_len = strlen(config_dir) + strlen(rotate_chat_log_flag_file) + 1;
+			name_buf = (char *)malloc(buf_len);
+			if (name_buf != NULL)
+			{
+				safe_strncpy(name_buf, config_dir, buf_len);
+				safe_strcat(name_buf, rotate_chat_log_flag_file, buf_len);
+				if (unlink(name_buf) != 0)
+					LOG_ERROR("%s: Failed to remove [%s] [%s]\n", __FILE__, rotate_chat_log_flag_file, strerror(errno) );
+				else
+					LOG_TO_CONSOLE(c_green2, rotate_chat_log_restart_str);
+			}
+		}
+	}
+}
+
+/* called after the el.in file has been read, so we can consolidate the rotate chat log status */
+static void consolidate_rotate_chat_log_status(void)
+{
+	/* it is too late to use a newly set rotate log value, but we can set the el.ini flag if rotating is on */
+	if (rotate_chat_log && !rotate_chat_log_config_var)
+	{
+		rotate_chat_log_config_var = 1;
+		set_var_unsaved("rotate_chat_log", OPT_BOOL);
+	}
+}
+
 void change_sound_level(float *var, float * value)
 {
 	if(*value >= 0.0f && *value <= 1.0f+0.00001) {
@@ -1883,6 +1958,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_STRING,"username","u",username_str,change_string,MAX_USERNAME_LENGTH,"Username","Your user name here",SERVER);
 	add_var(OPT_PASSWORD,"password","p",password_str,change_string,MAX_USERNAME_LENGTH,"Password","Put your password here",SERVER);
 	add_var(OPT_MULTI,"log_chat","log",&log_chat,change_int,LOG_SERVER,"Log Messages","Log messages from the server (chat, harvesting events, GMs, etc)",SERVER,"Do not log chat", "Log chat only", "Log server messages", "Log server to srv_log.txt", NULL);
+	add_var(OPT_BOOL,"rotate_chat_log","rclog",&rotate_chat_log_config_var,change_rotate_chat_log,0,"Rotate Chat Log File","Tag the chat/server message log files with year and month. You will still need to manage deletion the the old files. Requires a client restart.",SERVER);
 	add_var(OPT_BOOL,"buddy_log_notice", "buddy_log_notice", &buddy_log_notice, change_var, 1, "Log Buddy Sign On/Off", "Toggle whether to display notices when people on your buddy list log on or off", SERVER);
 	add_var(OPT_STRING,"language","lang",lang,change_string,8,"Language","Wah?",SERVER);
 	add_var(OPT_STRING,"browser","b",browser_name,change_string,70,"Browser","Location of your web browser (Windows users leave blank to use default browser)",SERVER);

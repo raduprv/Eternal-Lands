@@ -10,6 +10,7 @@
 #include "chat.h"
 #include "console.h"
 #include "consolewin.h"
+#include "elconfig.h"
 #include "errors.h"
 #include "filter.h"
 #include "gl_init.h"
@@ -139,10 +140,28 @@ void open_chat_log(){
 	char starttime[200], sttime[200];
 	struct tm *l_time; time_t c_time;
 
-	chat_log = open_file_config ("chat_log.txt", "a");
-	if (log_chat == LOG_SERVER || log_chat == LOG_SERVER_SEPERATE)
-		srv_log = open_file_config ("srv_log.txt", "a");
+	char chat_log_file[100];
+	char srv_log_file[100];
 
+	time(&c_time);
+	l_time = localtime(&c_time);
+
+	if (get_rotate_chat_log())
+	{
+		char logsuffix[7];
+		strftime(logsuffix, sizeof(logsuffix), "%Y%m", l_time);
+		safe_snprintf (chat_log_file, sizeof (chat_log_file),  "chat_log_%s.txt", logsuffix);
+		safe_snprintf (srv_log_file, sizeof (srv_log_file), "srv_log_%s.txt", logsuffix); 
+	}
+	else
+	{
+		safe_strncpy(chat_log_file, "chat_log.txt", sizeof(chat_log_file));
+		safe_strncpy(srv_log_file, "srv_log.txt", sizeof(srv_log_file));
+	}
+
+	chat_log = open_file_config (chat_log_file, "a");
+	if (log_chat == LOG_SERVER || log_chat == LOG_SERVER_SEPERATE)
+		srv_log = open_file_config (srv_log_file, "a");
 	if (chat_log == NULL)
 	{
 		LOG_TO_CONSOLE(c_red3, "Unable to open log file to write. We will NOT be recording anything.");
@@ -155,8 +174,6 @@ void open_chat_log(){
 		log_chat = LOG_CHAT;
 		return;
 	}
-	time(&c_time);
-	l_time = localtime(&c_time);
 	strftime(sttime, sizeof(sttime), "\n\nLog started at %Y-%m-%d %H:%M:%S localtime", l_time);
 	safe_snprintf(starttime, sizeof(starttime), "%s (%s)\n\n", sttime, tzname[l_time->tm_isdst>0]);
 	fwrite (starttime, strlen(starttime), 1, chat_log);

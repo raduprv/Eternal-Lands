@@ -66,6 +66,8 @@ typedef enum
 
 void display_elconfig_win(void);
 
+int get_rotate_chat_log(void);
+
 void change_language(const char *new_lang);
 
 /*!
