@@ -196,7 +196,8 @@ namespace ItemLists
 				win_id(-1), selected_item_number(static_cast<size_t>(-1)),
 				name_under_mouse(static_cast<size_t>(-1)), clicked(false),
 				mouse_over_add_button(false), last_click_time(0), resizing(false),
-				last_quantity_selected(0), num_grid_rows(min_grid_rows()), last_key_time(0) {}
+				last_quantity_selected(0), num_grid_rows(min_grid_rows()),
+				last_key_time(0), last_items_list_on_left(-1) {}
 			int get_id(void) const { return win_id; }
 			size_t get_grid_cm(void) const { return cm_selected_item_menu; }
 			static int get_grid_size(void) { return 33; };
@@ -210,12 +211,14 @@ namespace ItemLists
 			size_t get_item_number(int mx, int my);
 			void restore_inventory_quantity(void);
 			void update_scroll_len(void);
+			void reset_position(void);
 			void make_active_visable(void);
 			void cm_names_pre_show(void);
 			int keypress(char the_key);
 			void resized_name_panel(window_info *win);
 		private:
 			void calc_num_show_names(int win_len_y);
+			int get_window_pos_x(window_info *parent_win) const;
 			int get_size_x(void) const { return get_grid_size()*6 + ELW_BOX_SIZE + get_list_gap(); }
 			int get_size_y(void) const { return get_grid_size()*num_grid_rows + get_names_size_y(); }
 			int get_names_size_y(void) const
@@ -240,6 +243,7 @@ namespace ItemLists
 			int num_grid_rows;
 			char filter[20];
 			Uint32 last_key_time;
+			int last_items_list_on_left;
 	};
 
 
@@ -837,7 +841,7 @@ namespace ItemLists
 			add_button_x = static_cast<int>(get_size_x() - DEFAULT_FONT_X_LEN*2);
 			add_button_y = get_grid_size();
 
-			win_id = create_window(item_list_preview_title, win->window_id, 0, win->len_x + 5, 0, get_size_x(), get_size_y(), ELW_WIN_DEFAULT|ELW_RESIZEABLE);
+			win_id = create_window(item_list_preview_title, win->window_id, 0, get_window_pos_x(win), 0, get_size_x(), get_size_y(), ELW_WIN_DEFAULT|ELW_RESIZEABLE);
 			set_window_handler(win_id, ELW_HANDLER_DISPLAY, (int (*)())&display_itemlist_handler );
 			set_window_handler(win_id, ELW_HANDLER_CLICK, (int (*)())&click_itemlist_handler );
 			set_window_handler(win_id, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_itemlist_handler );
@@ -892,6 +896,14 @@ namespace ItemLists
 		{
 			num_grid_rows = new_num_grid_rows;
 			resized_name_panel(win);
+		}
+
+		// if the left/right position flag has changed, restore the window to its default location
+		if (last_items_list_on_left != items_list_on_left)
+		{
+			if (last_items_list_on_left != -1)
+				reset_position();
+			last_items_list_on_left = items_list_on_left;
 		}
 
 		glEnable(GL_TEXTURE_2D);
@@ -1253,6 +1265,46 @@ CHECK_GL_ERRORS();
 	{
 		if (win_id>=0)
 			vscrollbar_set_bar_len(win_id, names_scroll_id, Vars::lists()->size()-num_show_names_list);
+	}
+
+
+	//	Place to the preferred side butoverride if that would be off screen.
+	//
+	int List_Window::get_window_pos_x(window_info *parent_win) const
+	{
+		if (!parent_win)
+			return 0;
+		int left_pos_x = -5 - get_size_x();
+		int right_pos_x = parent_win->len_x + 5;
+		if (items_list_on_left)
+		{
+			if (parent_win->pos_x + left_pos_x < 0)
+				return right_pos_x;
+			return left_pos_x;
+		}
+		if (parent_win->pos_x + right_pos_x + get_size_x() > window_width)
+			return left_pos_x;
+		return right_pos_x;
+	}
+
+
+	//	Move the window back to the default poistion
+	//
+	void List_Window::reset_position(void)
+	{
+		if ((win_id>=0) && (win_id<windows_list.num_windows))
+		{
+			window_info *list_win = &windows_list.window[win_id];
+			if (list_win && (list_win->pos_id>=0) && (list_win->pos_id<windows_list.num_windows))
+			{
+				window_info *parent_win = &windows_list.window[list_win->pos_id];
+				if (parent_win)
+				{
+					int pos_x = get_window_pos_x(parent_win);
+					move_window(win_id, list_win->pos_id, list_win->pos_loc, parent_win->pos_x + pos_x, parent_win->pos_y);
+				}
+			}
+		}
 	}
 
 

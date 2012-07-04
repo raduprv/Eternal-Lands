@@ -117,6 +117,7 @@ extern int items_dropall_nofirstrow;
 extern int items_dropall_nolastrow;
 
 extern int items_auto_get_all;
+extern int items_list_on_left;
 
 extern int item_uid_enabled;
 extern const Uint16 unset_item_uid;

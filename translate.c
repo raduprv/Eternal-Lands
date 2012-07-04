@@ -177,6 +177,7 @@ char
 	mix_one_str[8],
 	mix_all_str[8],
 	auto_get_all_str[30],
+	item_list_but_str[35],
 	inv_keeprow_str[30],
 	quantity_edit_str[100],
 	equip_here_str[100],
@@ -1246,6 +1247,7 @@ void init_help()
 	add_xml_identifier(misc,"mixone",mix_one_str,"Mix One",sizeof(mix_one_str));
 	add_xml_identifier(misc,"mixall",mix_all_str,"Mix All",sizeof(mix_all_str));
 	add_xml_identifier(misc,"autogetall",auto_get_all_str,"Empty Bag Automatically",sizeof(auto_get_all_str));
+	add_xml_identifier(misc,"itemlistbut",item_list_but_str,"Preferred Left Of Inventory",sizeof(item_list_but_str));
 	add_xml_identifier(misc,"inv_keeprow",inv_keeprow_str,"Keep First Row\nKeep Last Row",sizeof(inv_keeprow_str));
 	add_xml_identifier(misc,"completed",completed_research,"COMPLETED",sizeof(completed_research));
 	add_xml_identifier(misc,"research",researching_str,"Researching",sizeof(researching_str));
@@ -1285,12 +1287,12 @@ void init_help()
 	add_xml_identifier(misc,"pick_item_help",pick_item_help_str,"Pickup item. +ctrl/+alt to drop/store all",sizeof(pick_item_help_str));
 	add_xml_identifier(misc,"multiuse_item_help",multiuse_item_help_str,"Leftclick to use (+shift to use again)",sizeof(multiuse_item_help_str));
 	add_xml_identifier(misc,"equipment",equip_str,"Equipment",sizeof(equip_str));
-	add_xml_identifier(misc,"stoall_help",stoall_help_str,"Move all items into opened storage",sizeof(stoall_help_str));
-	add_xml_identifier(misc,"getall_help",getall_help_str,"Get all items from ground bag",sizeof(getall_help_str));
-	add_xml_identifier(misc,"dcdrpall_help",dcdrpall_help_str,"Double-click to drop all items",sizeof(dcdrpall_help_str));
-	add_xml_identifier(misc,"drpall_help",drpall_help_str,"Drop all items",sizeof(drpall_help_str));
-	add_xml_identifier(misc,"mixoneall_help",mixoneall_help_str,"Mix one/all, right-click to choose",sizeof(mixoneall_help_str));
-	add_xml_identifier(misc,"itmlst_help",itmlst_help_str,"Show items list",sizeof(itmlst_help_str));
+	add_xml_identifier(misc,"stoall_help",stoall_help_str,"Move all items into opened storage.",sizeof(stoall_help_str));
+	add_xml_identifier(misc,"getall_help",getall_help_str,"Get all items from ground bag.",sizeof(getall_help_str));
+	add_xml_identifier(misc,"dcdrpall_help",dcdrpall_help_str,"Double-click to drop all items.",sizeof(dcdrpall_help_str));
+	add_xml_identifier(misc,"drpall_help",drpall_help_str,"Drop all items.",sizeof(drpall_help_str));
+	add_xml_identifier(misc,"mixoneall_help",mixoneall_help_str,"Mix current manufacture recipe.",sizeof(mixoneall_help_str));
+	add_xml_identifier(misc,"itmlst_help",itmlst_help_str,"Show/hide item lists window.",sizeof(itmlst_help_str));
 	add_xml_identifier(misc,"items_stack",items_stack_str,"Client can't choose between multiple stacks, make a free slot and let the server do it!",sizeof(items_stack_str));
 	add_xml_identifier(misc,"mixbut_empty",mixbut_empty_str,"Nothing to mix, add some items using the manufacture window.",sizeof(mixbut_empty_str));
 	add_xml_identifier(misc,"mix_empty_str",mix_empty_str,"Nothing to mix, add some items.",sizeof(mix_empty_str));
