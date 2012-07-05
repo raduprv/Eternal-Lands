@@ -1960,7 +1960,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_STRING,"username","u",username_str,change_string,MAX_USERNAME_LENGTH,"Username","Your user name here",SERVER);
 	add_var(OPT_PASSWORD,"password","p",password_str,change_string,MAX_USERNAME_LENGTH,"Password","Put your password here",SERVER);
 	add_var(OPT_MULTI,"log_chat","log",&log_chat,change_int,LOG_SERVER,"Log Messages","Log messages from the server (chat, harvesting events, GMs, etc)",SERVER,"Do not log chat", "Log chat only", "Log server messages", "Log server to srv_log.txt", NULL);
-	add_var(OPT_BOOL,"rotate_chat_log","rclog",&rotate_chat_log_config_var,change_rotate_chat_log,0,"Rotate Chat Log File","Tag the chat/server message log files with year and month. You will still need to manage deletion the the old files. Requires a client restart.",SERVER);
+	add_var(OPT_BOOL,"rotate_chat_log","rclog",&rotate_chat_log_config_var,change_rotate_chat_log,0,"Rotate Chat Log File","Tag the chat/server message log files with year and month. You will still need to manage deletion of the old files. Requires a client restart.",SERVER);
 	add_var(OPT_BOOL,"buddy_log_notice", "buddy_log_notice", &buddy_log_notice, change_var, 1, "Log Buddy Sign On/Off", "Toggle whether to display notices when people on your buddy list log on or off", SERVER);
 	add_var(OPT_STRING,"language","lang",lang,change_string,8,"Language","Wah?",SERVER);
 	add_var(OPT_STRING,"browser","b",browser_name,change_string,70,"Browser","Location of your web browser (Windows users leave blank to use default browser)",SERVER);
