@@ -2341,7 +2341,11 @@ int show_game_handler (window_info *win) {
 		if (use_windowed_chat == 1) {
 			display_tab_bar();
 		}
-		input_widget_move_to_win(game_root_win);
+		if (get_show_window(console_root_win) == 1) {
+			input_widget_move_to_win(console_root_win);
+		} else {
+			input_widget_move_to_win(game_root_win);
+		}
 	}
 	return 1;
 }
