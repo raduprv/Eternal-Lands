@@ -513,6 +513,7 @@ static void change_rotate_chat_log(int *value)
 					LOG_ERROR("%s: Failed to remove [%s] [%s]\n", __FILE__, rotate_chat_log_flag_file, strerror(errno) );
 				else
 					LOG_TO_CONSOLE(c_green2, rotate_chat_log_restart_str);
+				free(name_buf);
 			}
 		}
 	}
