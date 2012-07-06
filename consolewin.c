@@ -124,6 +124,10 @@ static int display_console_handler (window_info *win)
     update_camera();
 
 	draw_delay = 20;
+
+	if ((input_widget!= NULL) && (input_widget->window_id != win->window_id))
+		input_widget_move_to_win(win->window_id);
+
 	return 1;
 }
 
@@ -321,7 +325,6 @@ static int show_console_handler (window_info *win) {
 	if (use_windowed_chat == 1) {
 		display_tab_bar ();
 	}
-	input_widget_move_to_win(win->window_id);
 	return 1;
 }
 
@@ -423,8 +426,6 @@ void create_console_root_window (int width, int height)
 				chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL, INPUT_MARGIN, INPUT_MARGIN);
 			input_widget = widget_find(console_root_win, id);
 			input_widget->OnResize = input_field_resize;
-		} else {
-			input_widget_move_to_win(console_root_win);
 		}
 		widget_set_OnKey(input_widget->window_id, input_widget->id, chat_input_key);
 

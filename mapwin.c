@@ -165,6 +165,10 @@ int display_map_handler (window_info * win)
     update_camera();
 
 	draw_delay = 20;
+
+	if ((input_widget!= NULL) && (input_widget->window_id != win->window_id))
+		input_widget_move_to_win(win->window_id);
+
 	return 1;
 }
 
@@ -266,7 +270,6 @@ int show_map_handler (window_info *win)
 	hide_window(paper_win);
 	hide_window(color_race_win);
 	hide_window(tab_bar_win);
-	input_widget_move_to_win(win->window_id);
 	return 1;
 }
 
