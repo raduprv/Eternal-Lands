@@ -44,8 +44,11 @@ widget_list *input_widget = NULL;
 
 void input_widget_move_to_win(int window_id)
 {
-	window_info *win = &windows_list.window[window_id];
-	text_field *tf = input_widget->widget_info;
+	window_info *win = NULL;
+	if ((window_id >= 0) && (window_id < windows_list.num_windows))
+		win = &windows_list.window[window_id];
+	if ((input_widget == NULL) || (win == NULL))
+		return;
 
 	widget_move_win(input_widget->window_id, input_widget->id, window_id);
 	if(window_id == chat_win) {
@@ -53,6 +56,7 @@ void input_widget_move_to_win(int window_id)
 		input_widget->OnResize = NULL;
 		resize_chat_handler(win, win->len_x, win->len_y);
 	} else {
+		text_field *tf = input_widget->widget_info;
 		Uint32 flags;
 
 		input_widget->OnResize = input_field_resize;
@@ -524,6 +528,9 @@ int display_chat_handler (window_info *win)
 		text_changed = 0;
 	}
 
+	if ((input_widget!= NULL) && (input_widget->window_id != win->window_id))
+		input_widget_move_to_win(win->window_id);
+
 	return 1;
 }
 
@@ -983,8 +990,6 @@ void create_chat_window(void)
 		id = text_field_add_extended (chat_win, 19, NULL, CHAT_WIN_SPACE, input_y, inout_width, input_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL, CHAT_WIN_SPACE, CHAT_WIN_SPACE);
 		widget_set_OnKey (chat_win, id, chat_input_key);
 		input_widget = widget_find(chat_win, id);
-	} else {
-		input_widget_move_to_win(chat_win);
 	}
 	set_window_min_size (chat_win, min_width, min_height);
 }

@@ -1076,26 +1076,12 @@ void change_windowed_chat (int *wc, int val)
 	{
 		if (game_root_win >= 0)
 		{
-			int target_win = chat_win;
-			if (get_show_window(console_root_win))
-				target_win = console_root_win;
 			display_chat();
-			input_widget_move_to_win(target_win);
 		}
 	}
 	else if (chat_win >= 0)
 	{
-		int target_win= game_root_win;
-
 		hide_window (chat_win);
-		if(get_show_window(game_root_win)) {
-			target_win= game_root_win;
-		} else if(get_show_window(console_root_win)) {
-			target_win= console_root_win;
-		} else if(get_show_window(map_root_win)) {
-			target_win= map_root_win;
-		}
-		input_widget_move_to_win(target_win);
 	}
 
 	if (old_wc != *wc && (old_wc == 1 || old_wc == 2) )

@@ -12,6 +12,7 @@
 #include "buffs.h"
 #include "chat.h"
 #include "console.h"
+#include "consolewin.h"
 #include "dialogues.h"
 #include "draw_scene.h"
 #include "elwindows.h"
@@ -772,7 +773,8 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					hide_window( newchar_advice_win );
 				}
 				newchar_root_win = -1;
-				show_window (game_root_win);
+				if (!get_show_window(console_root_win))
+					show_window (game_root_win);
 
 				safe_snprintf(str,sizeof(str),"(%s on %s) %s",username_str,get_server_name(),win_principal);
 				SDL_WM_SetCaption(str, "eternallands" );
