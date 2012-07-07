@@ -784,7 +784,7 @@ static void increment_kill_counter(actor *me, actor *them)
 	y2 = y1 + face_offsets[((int)me->async_z_rot)/45][1];
 
 	/* return if this actor is not on one of these tiles */
-	if ((them->async_x_tile_pos != x1 || them->async_y_tile_pos != y1) && (them->async_x_tile_pos != x2 || them->async_y_tile_pos != y2)) {
+	if ((them->async_x_tile_pos != x1 || them->async_y_tile_pos != y1) && (them->async_x_tile_pos != x2 || them->async_y_tile_pos != y1) && (them->async_x_tile_pos != x1 || them->async_y_tile_pos != y2) && (them->async_x_tile_pos != x2 || them->async_y_tile_pos != y2)) {
 		return;
 	}
 	
