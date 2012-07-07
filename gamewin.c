@@ -2063,6 +2063,13 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		if (top_SWITCHABLE_OPAQUE_window_drawn != -1)
 			windows_list.window[top_SWITCHABLE_OPAQUE_window_drawn].opaque ^= 1;
 	}
+	else if (key == K_REPEATSPELL)	// REPEAT spell command
+	{
+		if ( !get_show_window (trade_win) )
+		{
+			repeat_spell();
+		}
+	}
 	else
 	{
 		return 0; // nothing we can handle
@@ -2179,13 +2186,6 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 		else
 			camera_zoom_duration = 100;
 		camera_zoom_dir = 1;
-	}
-	else if (key == K_REPEATSPELL)	// REPEAT spell command
-	{
-		if ( !get_show_window (trade_win) )
-		{
-			repeat_spell();
-		}
 	}
 	else if ((key == K_MAP) || (key == K_MARKFILTER))
 	{
