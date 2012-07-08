@@ -1268,23 +1268,15 @@ CHECK_GL_ERRORS();
 	}
 
 
-	//	Place to the preferred side butoverride if that would be off screen.
+	//	Place to the preferred side.
 	//
 	int List_Window::get_window_pos_x(window_info *parent_win) const
 	{
 		if (!parent_win)
 			return 0;
-		int left_pos_x = -5 - get_size_x();
-		int right_pos_x = parent_win->len_x + 5;
 		if (items_list_on_left)
-		{
-			if (parent_win->pos_x + left_pos_x < 0)
-				return right_pos_x;
-			return left_pos_x;
-		}
-		if (parent_win->pos_x + right_pos_x + get_size_x() > window_width)
-			return left_pos_x;
-		return right_pos_x;
+			return -5 - get_size_x();
+		return parent_win->len_x + 5;
 	}
 
 

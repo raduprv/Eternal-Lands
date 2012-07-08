@@ -1248,7 +1248,7 @@ void init_help()
 	add_xml_identifier(misc,"mixone",mix_one_str,"Mix One",sizeof(mix_one_str));
 	add_xml_identifier(misc,"mixall",mix_all_str,"Mix All",sizeof(mix_all_str));
 	add_xml_identifier(misc,"autogetall",auto_get_all_str,"Empty Bag Automatically",sizeof(auto_get_all_str));
-	add_xml_identifier(misc,"itemlistbut",item_list_but_str,"Preferred Left Of Inventory",sizeof(item_list_but_str));
+	add_xml_identifier(misc,"itemlistbut",item_list_but_str,"Open Left Of Inventory",sizeof(item_list_but_str));
 	add_xml_identifier(misc,"inv_keeprow",inv_keeprow_str,"Keep First Row\nKeep Last Row",sizeof(inv_keeprow_str));
 	add_xml_identifier(misc,"completed",completed_research,"COMPLETED",sizeof(completed_research));
 	add_xml_identifier(misc,"research",researching_str,"Researching",sizeof(researching_str));
