@@ -1082,6 +1082,9 @@ void draw_game_map (int map, int mouse_mini)
 	{
 		glColor3f (0.0f, 0.0f, 1.0f);
 		glDisable (GL_TEXTURE_2D);
+		glPushAttrib(GL_LINE_BIT);
+		glLineWidth(2.0);
+		glEnable(GL_LINE_SMOOTH);
 		glBegin (GL_LINES);
 
 		glVertex2i(screen_x-9*mapmark_zoom,screen_y-9*mapmark_zoom);
@@ -1091,6 +1094,7 @@ void draw_game_map (int map, int mouse_mini)
 		glVertex2i(screen_x-9*mapmark_zoom,screen_y+6*mapmark_zoom);
 
 		glEnd();
+		glPopAttrib();
 	}
 
 	if(!map && show_continent_map_boundaries && cont_text!=fallback_text) {
