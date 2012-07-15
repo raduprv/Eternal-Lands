@@ -107,6 +107,8 @@ static float research_rate = -1;
 void update_research_rate(void)
 {
 	static int last_research_completed = -1;
+	if (last_research_completed > your_info.research_completed)
+		last_research_completed = -1;
 	if (last_research_completed > 0)
 	{
 		if ((your_info.research_completed - last_research_completed) > 0)
