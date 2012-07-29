@@ -1949,13 +1949,7 @@ CHECK_GL_ERRORS();
 
 		if (mouse_over_knowledge_bar)
 		{
-			use_str = not_researching_str;
-			if (is_researching())
-			{
-				int eta = get_research_eta();
-				safe_snprintf(str, sizeof(str), "ETA: %d %s", eta, (eta==1)?minute_str:minutes_str);
-				use_str = str;
-			}
+			use_str = (is_researching()) ?get_research_eta_str(str, sizeof(str)) : not_researching_str;
 			draw_string_small_shadowed(-(int)(SMALL_FONT_X_LEN*(strlen(use_str)+0.5)), y+gy_adjust, (unsigned char*)use_str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
 			mouse_over_knowledge_bar = 0;
 		}

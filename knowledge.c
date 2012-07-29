@@ -124,11 +124,26 @@ void update_research_rate(void)
 	}
 }
 
-int get_research_eta(void)
+static float get_research_eta(void)
 {
 	if (research_rate < 0)
 		return 0;
-	return (int)(research_rate * (your_info.research_total - your_info.research_completed) + 0.5);
+	return research_rate * (your_info.research_total - your_info.research_completed);
+}
+
+char *get_research_eta_str(char *str, size_t size)
+{
+	float eta = get_research_eta();
+	if (eta < 0.01)
+		safe_snprintf(str, size, completed_research);
+	else if (eta < 1)
+		safe_snprintf(str, size, lessthanaminute_str);
+	else
+	{
+		int ieta = (int)(eta + 0.5);
+		safe_snprintf(str, size, "ETA: %i %s", ieta, (ieta==1)?minute_str:minutes_str);
+	}
+	return str;
 }
 
 int display_knowledge_handler(window_info *win)
@@ -163,7 +178,7 @@ int display_knowledge_handler(window_info *win)
 		points_string[0] = '\0';
 		is_researching = 0;
 	}
-	points_pos = (rx - lx - strlen(points_string)*8) / 2;
+	points_pos = (rx - lx - strlen(points_string)*SMALL_FONT_X_LEN) / 2;
 
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(0.77f,0.57f,0.39f);
@@ -207,10 +222,9 @@ int display_knowledge_handler(window_info *win)
 	if (is_researching && mouse_over_progress_bar)
 	{
 		char eta_string[20];
-		int eta = get_research_eta();
 		int eta_pos;
-		safe_snprintf(eta_string, sizeof(eta_string), "ETA: %i %s", eta, (eta==1)?minute_str:minutes_str);
-		eta_pos = (int)(rx - lx - strlen(eta_string)*8) / 2;
+		get_research_eta_str(eta_string, sizeof(eta_string));
+		eta_pos = (int)(rx - lx - strlen(eta_string)*SMALL_FONT_X_LEN) / 2;
 		draw_string_small(lx+eta_pos,285,(unsigned char*)eta_string,1);
 		mouse_over_progress_bar=0;
 	}

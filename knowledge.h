@@ -98,11 +98,14 @@ void check_book_known();
 
 /*! 
  * \ingroup knowledge_window
- * \brief Returns the eta in minutes for current research.
+ * \brief Returns the eta string for current research.
  *
+ * \param str	string to write eta
+ * \param size	capacity of string including terminating \0
+ * 
  * \callgraph
  */
-int get_research_eta(void);
+char *get_research_eta_str(char *str, size_t size);
 
 /*! 
  * \ingroup knowledge_window

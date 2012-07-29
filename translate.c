@@ -203,6 +203,7 @@ char
 	recipe_save_str[70],
 	/*knowledge.c*/
 	completed_research[12],
+	lessthanaminute_str[30],
 	researching_str[30],
 	not_researching_anything[25],
 	not_researching_str[25],
@@ -1251,6 +1252,7 @@ void init_help()
 	add_xml_identifier(misc,"itemlistbut",item_list_but_str,"Open Left Of Inventory",sizeof(item_list_but_str));
 	add_xml_identifier(misc,"inv_keeprow",inv_keeprow_str,"Keep First Row\nKeep Last Row",sizeof(inv_keeprow_str));
 	add_xml_identifier(misc,"completed",completed_research,"COMPLETED",sizeof(completed_research));
+	add_xml_identifier(misc,"lessthanaminute",lessthanaminute_str,"Less than a minute",sizeof(lessthanaminute_str));
 	add_xml_identifier(misc,"research",researching_str,"Researching",sizeof(researching_str));
 	add_xml_identifier(misc,"nothing",not_researching_anything,"Nothing",sizeof(not_researching_anything));
 	add_xml_identifier(misc,"not_researching",not_researching_str,"Researching nothing",sizeof(not_researching_anything));

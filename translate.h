@@ -347,6 +347,7 @@ extern char
 		recipe_save_str[70],
 		/*knowledge.c*/
 		completed_research[12],
+		lessthanaminute_str[30],
 		researching_str[30],
 		not_researching_anything[25],
 		not_researching_str[25],
