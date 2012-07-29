@@ -48,7 +48,8 @@ case "$1" in
 
 	# if we already have an archive check the md5sum is ok and remove if not
 	[ ! -f "$DOWNLOADMAIN" ] || echo "$MD5SUMMAIN  $DOWNLOADMAIN" | md5sum -c - || rm -fv $DOWNLOADMAIN
-	[ ! -f "$DOWNLOADMAIN193" ] || echo "$MD5SUMMAIN193  $DOWNLOADMAIN193" | md5sum -c - || rm -fv $DOWNLOADMAIN193	[ -z "$DOWNLOADPATCH190" ] || [ ! -f $DOWNLOADPATCH190 ] || echo "$MD5SUMPATCH190  $DOWNLOADPATCH190" | md5sum -c - || rm -fv $DOWNLOADPATCH190
+	[ ! -f "$DOWNLOADMAIN193" ] || echo "$MD5SUMMAIN193  $DOWNLOADMAIN193" | md5sum -c - || rm -fv $DOWNLOADMAIN193
+	[ -z "$DOWNLOADPATCH190" ] || [ ! -f $DOWNLOADPATCH190 ] || echo "$MD5SUMPATCH190  $DOWNLOADPATCH190" | md5sum -c - || rm -fv $DOWNLOADPATCH190
 	[ -z "$DOWNLOADUPDATE191" ] || [ ! -f $DOWNLOADUPDATE191 ] || echo "$MD5SUMUPDATE191  $DOWNLOADUPDATE191" | md5sum -c - || rm -fv $DOWNLOADUPDATE191
 	[ -z "$DOWNLOADUPDATE192" ] || [ ! -f $DOWNLOADUPDATE192 ] || echo "$MD5SUMUPDATE192  $DOWNLOADUPDATE192" | md5sum -c - || rm -fv $DOWNLOADUPDATE192
 	[ -z "$DOWNLOADUPDATE193" ] || [ ! -f $DOWNLOADUPDATE193 ] || echo "$MD5SUMUPDATE193  $DOWNLOADUPDATE193" | md5sum -c - || rm -fv $DOWNLOADUPDATE193
