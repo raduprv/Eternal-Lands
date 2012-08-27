@@ -671,6 +671,8 @@ static void clear_recipe_filter(void)
 
 static void toggle_recipe_window(void)
 {
+	if (!recipes_loaded)
+		return;
 	recipes_shown=!recipes_shown;
 	if (recipes_shown)
 		show_window(recipe_win);
@@ -875,6 +877,9 @@ static int recipe_controls_click_handler(int mx, int my, Uint32 flags){
 	int lpx=18;
 	int lpy=SLOT_SIZE;
 
+	if (!recipes_loaded)
+		return 0;
+
 	if (mx>wpx&&mx<wpx+lpx&&my>wpy+lpy-10&&my<wpy+lpy){
 		//arrow
 		if (flags & ELW_WHEEL_UP) {
@@ -1026,7 +1031,7 @@ static int click_manufacture_handler(window_info *win, int mx, int my, Uint32 fl
 	if (pos>=0) {
 		//click on an empty slot
 		//handle the mouse wheel
-		if (pos!=last_slot)
+		if (recipes_loaded && (pos!=last_slot))
 		{
 			if ((flags&ELW_WHEEL_UP)||(flags&ELW_WHEEL_DOWN)) {
 				//simulate a click on the dropdown
