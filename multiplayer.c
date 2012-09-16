@@ -1013,7 +1013,13 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  LOG_WARNING("CAUTION: Possibly forged CHANGE_MAP packet received.\n");
 				  break;
 				}
-				safe_strncpy2(mapname, (char*)in_data + 3, sizeof(mapname), data_length - 3);
+				if(in_data[3] == '.' && in_data[4] == '/')
+				{
+					safe_strncpy2(mapname, (char*)in_data + 3, sizeof(mapname), data_length - 3);
+				} else 
+				{
+					safe_snprintf(mapname, sizeof(mapname), "./%s", (char*)in_data + 3);
+				}
 				change_map(mapname);
 			}
 			break;
