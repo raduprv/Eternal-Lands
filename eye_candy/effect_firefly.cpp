@@ -47,7 +47,7 @@ namespace ec
 		Vec3 velocity_shift;
 		velocity_shift.randomize();
 		velocity_shift.y *= 0.3;
-		velocity_shift.normalize(0.0005 * fastsqrt(delta_t));
+		velocity_shift.normalize(0.0005 * std::sqrt(delta_t));
 		velocity += velocity_shift;
 		const coord_t magnitude = velocity.magnitude();
 		if (magnitude > 0.35)
@@ -59,7 +59,7 @@ namespace ec
 		}
 
 		if (fabs(velocity.y) > 0.1)
-			velocity.y *= math_cache.powf_05_close(delta_t / 300000.0);
+			velocity.y *= std::pow(0.5f, delta_t / 300000.0);
 
 		if (pos.y < min_height)
 		{

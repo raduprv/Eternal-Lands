@@ -56,8 +56,8 @@ namespace ec
 			return false;
 
 		const alpha_t scalar =
-			math_cache.powf_05_close((float)delta_t / 300000);
-		alpha *= fastsqrt(scalar);
+			std::pow(0.5f, (float)delta_t / 300000);
+		alpha *= std::sqrt(scalar);
 
 		return true;
 	}
@@ -342,7 +342,7 @@ namespace ec
 			}
 		}
 
-		while (math_cache.powf_0_1_rough_close(randfloat(), (float)usec * 0.000083 * speed) < bias)
+		while (std::pow(randfloat(), (float)usec * 0.000083 * speed) < bias)
 		{
 			const percent_t percent= square(randpercent());
 			Vec3 randcoords;

@@ -68,14 +68,14 @@ namespace ec
 			return false;
 
 		const alpha_t alpha_scalar =
-			1.0 - math_cache.powf_05_close((float)delta_t / (60000000
+			1.0 - std::pow(0.5f, (float)delta_t / (60000000
 				* sqrt_scale));
 		alpha -= alpha_scalar;
 
 		if (alpha < 0.006)
 			return false;
 
-		const coord_t size_scalar = math_cache.powf_05_close((float)delta_t
+		const coord_t size_scalar = std::pow(0.5f, (float)delta_t
 			/ (1500000 * sqrt_scale));
 		size = size / size_scalar * 0.25 + size * 0.75;
 		if (size >= max_size)
@@ -84,7 +84,7 @@ namespace ec
 		Vec3 velocity_shift;
 		velocity_shift.randomize();
 		velocity_shift.y /= 3;
-		velocity_shift.normalize(0.00002 * fastsqrt(delta_t));
+		velocity_shift.normalize(0.00002 * std::sqrt(delta_t));
 		velocity += velocity_shift;
 		return true;
 	}
@@ -115,10 +115,10 @@ namespace ec
 		saturation_adjust = _saturation_adjust;
 		count = 0;
 		scale = _scale;
-		sqrt_scale = fastsqrt(scale);
+		sqrt_scale = std::sqrt(scale);
 		max_size = scale * 270 / (_LOD + 10);
 		size_scalar = sqrt_scale * 75 / (_LOD + 5);
-		alpha_scalar = 5.5 / (fastsqrt(_LOD) + 1.0);
+		alpha_scalar = 5.5 / (std::sqrt(_LOD) + 1.0);
 		count_scalar = 500000 / _LOD;
 		LOD = base->last_forced_LOD;
 		desired_LOD = _LOD;

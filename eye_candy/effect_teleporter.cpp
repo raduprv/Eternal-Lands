@@ -46,7 +46,7 @@ namespace ec
 			return false;
 
 		const alpha_t scalar =
-			math_cache.powf_05_close((float)delta_t / 800000);
+			std::pow(0.5f, (float)delta_t / 800000);
 		alpha *= scalar;
 
 		return true;
@@ -78,7 +78,7 @@ namespace ec
 		saturation_adjust = _saturation_adjust;
 		LOD = base->last_forced_LOD;
 		desired_LOD = _LOD;
-		sqrt_LOD = fastsqrt(LOD);
+		sqrt_LOD = std::sqrt(LOD);
 		size_scalar = 15 / (LOD + 5);
 		scale = _scale;
 		bounds = NULL;
@@ -159,7 +159,7 @@ namespace ec
 			return true;
 
 		while (((int)particles.size() < LOD * 50)
-			&& (math_cache.powf_0_1_rough_close(randfloat(), (float)usec / 100000 * LOD) < 0.5))
+			&& (std::pow(randfloat(), (float)usec / 100000 * LOD) < 0.5))
 		{
 			const Vec3 coords = spawner->get_new_coords() + *pos + Vec3(0.0,
 				randcoord() * randcoord() * 8.0 * sqrt_LOD, 0.0);
@@ -218,7 +218,7 @@ namespace ec
 		else
 			LOD = desired_LOD;
 
-		sqrt_LOD = fastsqrt(LOD);
+		sqrt_LOD = std::sqrt(LOD);
 		size_scalar = 15 / (LOD + 5);
 
 #ifdef	NEW_TEXTURES

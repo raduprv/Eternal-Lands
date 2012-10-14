@@ -56,7 +56,7 @@ namespace ec
 				velocity.z *= 0.82;
 
 				const alpha_t scalar =
-					math_cache.powf_0_1_rough_close(randfloat(), float_time * 1);
+					std::pow(randfloat(), float_time * 1);
 				alpha *= scalar;
 
 				break;
@@ -67,7 +67,7 @@ namespace ec
 					return false;
 
 				const alpha_t scalar =
-					math_cache.powf_0_1_rough_close(randfloat(), float_time * 1);
+					std::pow(randfloat(), float_time * 1);
 				alpha *= scalar;
 				size *= 0.95;
 
@@ -89,7 +89,7 @@ namespace ec
 					return false;
 
 				const alpha_t scalar =
-					math_cache.powf_0_1_rough_close(randfloat(), float_time * 6);
+					std::pow(randfloat(), float_time * 6);
 				alpha *= scalar;
 
 				break;
@@ -104,7 +104,7 @@ namespace ec
 				else
 				{
 					const percent_t scalar =
-						math_cache.powf_05_close(float_time * 1);
+						std::pow(0.5f, float_time * 1);
 					alpha *= scalar;
 
 					if (alpha < 0.01)
@@ -137,7 +137,7 @@ namespace ec
 
 				velocity *= 0.5;
 
-				//		const alpha_t scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * 2);
+				//		const alpha_t scalar = std::pow(randfloat(), float_time * 2);
 				if (age > 500000)
 					alpha *= 0.8; // scalar
 
@@ -410,7 +410,7 @@ namespace ec
 					if (!base->push_back_particle(p))
 						break;
 				}
-				spawner = new FilledSphereSpawner(0.5 * fastsqrt(scale));
+				spawner = new FilledSphereSpawner(0.5 * std::sqrt(scale));
 				for (int i = 0; i < LOD * 32 * scale; i++)
 				{
 					Vec3 coords = spawner->get_new_coords();
@@ -490,7 +490,7 @@ namespace ec
 		const interval_t float_time = delta_t / 1000000.0;
 		const Uint64 age = get_time() - born;
 		const float age_f = (float)(age)/1000000.0f;
-		const alpha_t scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * 2);
+		const alpha_t scalar = std::pow(randfloat(), float_time * 2);
 		if (age_f > 1.5)
 			alpha = 2.5 - age_f;
 		if (alpha < 0.01)
@@ -547,8 +547,8 @@ namespace ec
 			return true;
 		}
 		const interval_t float_time = delta_t / 1000000.0;
-		const alpha_t scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time);
-		alpha *= fastsqrt(scalar);
+		const alpha_t scalar = std::pow(randfloat(), float_time);
+		alpha *= std::sqrt(scalar);
 		if (alpha < 0.01)
 			return false;
 		return true;

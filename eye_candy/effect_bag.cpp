@@ -77,7 +77,7 @@ namespace ec
 		const interval_t float_time = delta_t / 1000000.0;
 		if (age > 220000)
 		{
-			const alpha_t alpha_scalar = math_cache.powf_05_close(float_time
+			const alpha_t alpha_scalar = std::pow(0.5f, float_time
 				* 3.0);
 			alpha *= alpha_scalar;
 

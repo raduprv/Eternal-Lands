@@ -49,7 +49,7 @@ namespace ec
 				else
 					LOD = desired_LOD;
 				count_scalar = 3000 / LOD;
-				size_scalar = scale * fastsqrt(LOD) / sqrt(10.0);
+				size_scalar = scale * std::sqrt(LOD) / sqrt(10.0);
 			}
 			;
 			static Uint64 get_max_end_time()

@@ -66,6 +66,12 @@ namespace ec
 	 waste.
 	 */
 	/*
+		Removed most MathCache funktions, because they are no speed gain
+		and make life for the optimizer harder ;)
+
+		15.10.2012 Xaphier
+	*/
+	/*
 	 class MathCache_Hirange	// Currently unused. 
 	 {
 	 public:
@@ -108,138 +114,10 @@ namespace ec
 	class MathCache
 	{
 		public:
-			MathCache();
-			~MathCache()
-			{
-			}
-			;
-
-			float powf_05_rough(const float power) const;
-			float powf_05_close(const float power) const;
-			float
-				powf_0_1_rough_rough(const float base, const float power) const;
-			float
-				powf_0_1_rough_close(const float base, const float power) const;
-			float
-				powf_0_1_close_rough(const float base, const float power) const;
-			float
-				powf_0_1_close_close(const float base, const float power) const;
-
-			static float invsqrt(float f)
-			{
-#ifdef __SSE__	// Hardware fast invsqrt.
-				typedef union match
-				{
-						__m128 m128;
-						struct
-						{
-								float x, y, z, w;
-						};
-				} match;
-				match f2;
-				f2.m128 = _mm_rsqrt_ss(_mm_set_ss(f));
-				return f2.x;
-#else		// Quake fast invsqrt.
-				typedef union match
-				{	int i; float f;}match;
-				match tmp;
-				float half = 0.5f * f;
-				tmp.f = f;
-				tmp.i = 0x5f3759df - (tmp.i >> 1);
-				f = tmp.f;
-				f = f * (1.5f - half * f * f);
-				return f;
-#endif
-			}
-			;
 
 			static int randint(const int upto)
 			{
 				return rand() % upto;
-			}
-			;
-
-			static Uint8 rand8()
-			{
-				return (Uint8)rand();
-			}
-			;
-
-			static Uint16 rand16()
-			{
-#if RAND_MAX >= 0xFFFF
-				return (Uint16)rand();
-#elif RAND_MAX > 0xFF
-				return (((Uint16)rand()) << 8) | (Uint16)rand();
-#else
-				return (((Uint16)rand8()) << 8) | (Uint16)rand8();
-#endif
-			}
-			;
-
-			static Uint32 rand32()
-			{
-#if RAND_MAX >= 0xFFFFFFFF
-				return (Uint32)rand();
-#elif RAND_MAX > 0xFFFF
-				return (((Uint32)rand()) << 16) | (Uint32)rand();
-#else
-				return (((Uint32)rand16()) << 16) | (Uint32)rand16();
-#endif
-			}
-			;
-
-			static Uint64 rand64()
-			{
-#if RAND_MAX >= 0xFFFFFFFFFFFFFFFF
-				return (Uint64)rand();
-#elif RAND_MAX > 0xFFFFFFFF
-				return (((Uint64)rand()) << 32) | (Uint64)rand();
-#else
-				return (((Uint64)rand16()) << 32) | (Uint64)rand16();
-#endif
-			}
-			;
-
-			static Uint8 rand7()
-			{
-				return (Uint8)rand();
-			}
-			;
-
-			static Uint16 rand15()
-			{
-#if RAND_MAX >= 0x8FFF
-				return (Uint16)rand();
-#elif RAND_MAX > 0xFF
-				return (((Uint16)rand()) << 8) | (Uint16)rand();
-#else
-				return (((Uint16)rand8()) << 8) | (Uint16)rand8();
-#endif
-			}
-			;
-
-			static Uint32 rand31()
-			{
-#if RAND_MAX >= 0x8FFFFFFF
-				return (Uint32)rand();
-#elif RAND_MAX > 0xFFFF
-				return (((Uint32)rand()) << 16) | (Uint32)rand();
-#else
-				return (((Uint32)rand16()) << 16) | (Uint32)rand16();
-#endif
-			}
-			;
-
-			static Uint64 rand63()
-			{
-#if RAND_MAX >= 0x8FFFFFFFFFFFFFFF
-				return (Uint64)rand();
-#elif RAND_MAX > 0xFFFFFFFF
-				return (((Uint64)rand()) << 32) | (Uint64)rand();
-#else
-				return (((Uint64)rand16()) << 32) | (Uint64)rand16();
-#endif
 			}
 			;
 
@@ -389,37 +267,6 @@ namespace ec
 				return i * i;
 			}
 			;
-
-			static double cube(const double d)
-			{
-				return d * d * d;
-			}
-			;
-
-			static float cube(const float f)
-			{
-				return f * f * f;
-			}
-			;
-
-			static int cube(const int i)
-			{
-				return i * i * i;
-			}
-			;
-
-			static float fastsqrt(float f) // This could probably stand to be faster; use invsqrt wherever possible.
-			{
-				return f * invsqrt(f);
-			}
-			;
-
-		protected:
-			static int get_lower_index(const float power);
-			static void get_lower_index_and_percent(const float power,
-				int& index, float& percent);
-
-			float powf_map[10001][65];
 
 	};
 

@@ -50,7 +50,7 @@ namespace ec
 				if (state == 0)
 				{
 					if ((get_time() - born > 500000)
-						|| (math_cache.powf_0_1_rough_close(randfloat(), float_time * 5.0)) < 0.5)
+						|| (std::pow(randfloat(), float_time * 5.0)) < 0.5)
 						state = 1;
 				}
 				else
@@ -59,7 +59,7 @@ namespace ec
 						return false;
 
 					const float scalar =
-						math_cache.powf_0_1_rough_close(randfloat(), float_time * 15.0);
+						std::pow(randfloat(), float_time * 15.0);
 					energy *= scalar;
 					if (size < 10)
 						size /= scalar;
@@ -74,7 +74,7 @@ namespace ec
 				if (state == 0)
 				{
 					if ((get_time() - born > 700000)
-						|| (math_cache.powf_0_1_rough_close(randfloat(), float_time * 3.0)) < 0.5)
+						|| (std::pow(randfloat(), float_time * 3.0)) < 0.5)
 						state = 1;
 				}
 				else
@@ -83,7 +83,7 @@ namespace ec
 						return false;
 
 					const float scalar =
-						math_cache.powf_0_1_rough_close(randfloat(), float_time * 7.0);
+						std::pow(randfloat(), float_time * 7.0);
 					energy *= scalar;
 					alpha *= scalar;
 				}
@@ -99,7 +99,7 @@ namespace ec
 				if (state == 0)
 				{
 					if ((get_time() - born > 700000)
-						|| (math_cache.powf_0_1_rough_close(randfloat(), float_time * 3.0)) < 0.5)
+						|| (std::pow(randfloat(), float_time * 3.0)) < 0.5)
 						state = 1;
 				}
 				else
@@ -108,7 +108,7 @@ namespace ec
 						return false;
 
 					const float scalar =
-						math_cache.powf_0_1_rough_close(randfloat(), float_time * 4.5);
+						std::pow(randfloat(), float_time * 4.5);
 					if (size < 10)
 						size /= scalar;
 					alpha *= square(scalar);
@@ -122,7 +122,7 @@ namespace ec
 				if (state == 0)
 				{
 					if ((get_time() - born > 700000)
-						|| (math_cache.powf_0_1_rough_close(randfloat(), float_time * 3.0)) < 0.5)
+						|| (std::pow(randfloat(), float_time * 3.0)) < 0.5)
 						state = 1;
 				}
 				else
@@ -131,7 +131,7 @@ namespace ec
 						return false;
 
 					const float scalar =
-						math_cache.powf_0_1_rough_close(randfloat(), float_time * 4.5);
+						std::pow(randfloat(), float_time * 4.5);
 					if (size < 10)
 						size /= scalar;
 					alpha *= square(scalar);
@@ -145,7 +145,7 @@ namespace ec
 				if (state == 0)
 				{
 					if ((get_time() - born > 500000)
-						|| (math_cache.powf_0_1_rough_close(randfloat(), float_time * 6.0)) < 0.5)
+						|| (std::pow(randfloat(), float_time * 6.0)) < 0.5)
 					{
 						for (int i = 0; i < 5; i++)
 						{
@@ -172,7 +172,7 @@ namespace ec
 						return false;
 
 					const float scalar =
-						math_cache.powf_0_1_rough_close(randfloat(), float_time * 10.0);
+						std::pow(randfloat(), float_time * 10.0);
 					energy *= scalar;
 					if (size < 10)
 						size /= scalar;
@@ -185,7 +185,7 @@ namespace ec
 				if (alpha < 0.005)
 					return false;
 
-				const alpha_t scalar = math_cache.powf_05_close((float)delta_t
+				const alpha_t scalar = std::pow(0.5f, (float)delta_t
 					/ 500000);
 				alpha *= scalar;
 
@@ -198,7 +198,7 @@ namespace ec
 				if (state == 0)
 				{
 					if ((get_time() - born > 700000)
-						|| (math_cache.powf_0_1_rough_close(randfloat(), float_time * 3.0)) < 0.5)
+						|| (std::pow(randfloat(), float_time * 3.0)) < 0.5)
 						state = 1;
 				}
 				else
@@ -207,7 +207,7 @@ namespace ec
 						return false;
 
 					const float scalar =
-						math_cache.powf_0_1_rough_close(randfloat(), float_time * 7.0);
+						std::pow(randfloat(), float_time * 7.0);
 					alpha *= scalar;
 				}
 				break;
@@ -522,7 +522,7 @@ namespace ec
 			{
 				mover = new ParticleMover(this);
 				spawner = new FilledDiscSpawner(0.2);
-				const float sqrt_LOD= fastsqrt(LOD);
+				const float sqrt_LOD= std::sqrt(LOD);
 				size_scalar = 1.0;
 				for (int i = 0; i < LOD * 96; i++)
 				{
@@ -725,10 +725,10 @@ namespace ec
 				if (age > 500000)
 				{
 #ifdef	NEW_TEXTURES
-					alpha_scale *= math_cache.powf_05_close((interval_t)usec / 200000.0);
+					alpha_scale *= std::pow(0.5f, (interval_t)usec / 200000.0);
 #else	/* NEW_TEXTURES */
 					const alpha_t scalar =
-						math_cache.powf_05_close((interval_t)usec / 200000.0);
+						std::pow(0.5f, (interval_t)usec / 200000.0);
 					for (int i = 0; i < (int)capless_cylinders.size(); i++)
 					{
 						float percent = float(i) / float(capless_cylinders.size()) * 0.8;

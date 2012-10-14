@@ -72,7 +72,7 @@ namespace ec
 				case TargetMagicEffect::POISON:
 				{
 					const alpha_t scalar =
-						math_cache.powf_0_1_rough_close(randfloat(), float_time * 2.0);
+						std::pow(randfloat(), float_time * 2.0);
 					alpha *= scalar;
 					break;
 				}
@@ -88,7 +88,7 @@ namespace ec
 				}
 				case TargetMagicEffect::LIFE_DRAIN:
 				{
-					const coord_t scalar = math_cache.powf_05_close(float_time
+					const coord_t scalar = std::pow(0.5f, float_time
 						* 0.8);
 					if (size < 4.0)
 						size /= scalar;
@@ -124,7 +124,7 @@ namespace ec
 			to_source /= dist_to_source;
 			to_target /= dist_to_target;
 			velocity = mover->nonpreserving_vec_shift(velocity, to_target
-				* speed, 1.0 - math_cache.powf_05_close(3 * float_time));
+				* speed, 1.0 - std::pow(0.5f, 3 * float_time));
 			energy = mover->calculate_energy(*this);
 
 			if (((dist_to_source > dist_to_target)
@@ -154,7 +154,7 @@ namespace ec
 				}
 				case TargetMagicEffect::LIFE_DRAIN:
 				{
-					const color_t scalar = math_cache.powf_05_close(float_time
+					const color_t scalar = std::pow(0.5f, float_time
 						* 4.0);
 					if (color[0] > 0.2)
 						color[0] *= scalar;
@@ -180,7 +180,7 @@ namespace ec
 						return false;
 
 					const float scalar =
-						math_cache.powf_0_1_rough_close(randfloat(), float_time * 5.0);
+						std::pow(randfloat(), float_time * 5.0);
 					energy *= scalar;
 					if (size < 10)
 						size /= scalar;
@@ -193,7 +193,7 @@ namespace ec
 						return false;
 
 					const float scalar =
-						math_cache.powf_0_1_rough_close(randfloat(), float_time * 5.0);
+						std::pow(randfloat(), float_time * 5.0);
 					energy *= scalar;
 					if (size < 6)
 						size /= scalar;
@@ -206,7 +206,7 @@ namespace ec
 						return false;
 
 					const alpha_t scalar =
-						math_cache.powf_05_close((float)delta_t / 500000);
+						std::pow(0.5f, (float)delta_t / 500000);
 					alpha *= scalar;
 					break;
 				}
@@ -222,7 +222,7 @@ namespace ec
 						return false;
 
 					const float scalar =
-						math_cache.powf_0_1_rough_close(randfloat(), float_time * 5.0);
+						std::pow(randfloat(), float_time * 5.0);
 					if (color[0] > 0.2)
 						color[0] *= scalar;
 					if (color[1] < 1.0)
@@ -239,7 +239,7 @@ namespace ec
 						return false;
 
 					const float scalar =
-						math_cache.powf_0_1_rough_close(randfloat(), float_time * 5.0);
+						std::pow(randfloat(), float_time * 5.0);
 					energy *= scalar;
 					if (size < 5)
 						size /= scalar;
@@ -258,7 +258,7 @@ namespace ec
 						return false;
 
 					const float scalar =
-						math_cache.powf_0_1_rough_close(randfloat(), float_time * 2.5);
+						std::pow(randfloat(), float_time * 2.5);
 					energy *= scalar;
 					alpha *= scalar;
 					break;
@@ -458,7 +458,7 @@ namespace ec
 						break;
 				}
 
-				const float sqrt_LOD= fastsqrt(LOD);
+				const float sqrt_LOD= std::sqrt(LOD);
 				const coord_t size_scalar = 15 / (LOD + 5);
 				for (int i = 0; i < LOD * 100; i++)
 				{
@@ -789,7 +789,7 @@ namespace ec
 				if (age > 1200000)
 				{
 					const alpha_t scalar =
-						math_cache.powf_05_close((interval_t)usec / 400000);
+						std::pow(0.5f, (interval_t)usec / 400000);
 					for (int i = 0; i < LOD * 2; i++)
 						capless_cylinders[i]->alpha *= scalar;
 					if ((age > 2200000) && ((int)capless_cylinders.size()
@@ -926,7 +926,7 @@ namespace ec
 			case TargetMagicEffect::TELEPORT_TO_RANGE:
 			{
 				center = *(effect->targets[0]);
-				const float sqrt_LOD= fastsqrt(LOD);
+				const float sqrt_LOD= std::sqrt(LOD);
 				const coord_t size_scalar = 15 / (LOD + 5);
 				for (int i = 0; i < LOD * 10; i++)
 				{

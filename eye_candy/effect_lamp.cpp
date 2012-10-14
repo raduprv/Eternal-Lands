@@ -48,7 +48,7 @@ namespace ec
 			return false;
 		}
 
-		const float scalar = math_cache.powf_05_close((float)delta_t / 400000);
+		const float scalar = std::pow(0.5f, (float)delta_t / 400000);
 		//  color[0] = color[0] * scalar * 0.5 + color[0] * 0.5;
 		//  color[1] = color[1] * scalar * 0.5 + color[1] * 0.5;
 		//  color[2] = color[2] * scalar * 0.5 + color[2] * 0.5;
@@ -99,7 +99,7 @@ namespace ec
 		if (effect->recall)
 			return false;
 
-		const float scalar = 1.0 - math_cache.powf_05_close((interval_t)delta_t
+		const float scalar = 1.0 - std::pow(0.5f, (interval_t)delta_t
 			* LOD / 32000000.0);
 		//  color[0] = color[0] * scalar * 0.5 + color[0] * 0.5;
 		//  color[1] = color[1] * scalar * 0.5 + color[1] * 0.5;
@@ -204,7 +204,7 @@ namespace ec
 			new_scale = scale * 1.25;
 		else
 			new_scale = scale;
-		sqrt_scale = fastsqrt(new_scale);
+		sqrt_scale = std::sqrt(new_scale);
 		LOD = base->last_forced_LOD;
 		desired_LOD = _LOD;
 		bounds = NULL;
@@ -265,7 +265,7 @@ namespace ec
 			return true;
 
 		while (((int)particles.size() < LOD * 15)
-			&& (math_cache.powf_0_1_rough_close(randfloat(), (LOD * 15 - particles.size()) * (interval_t)usec / 20000 / square(LOD)) < 0.5))
+			&& (std::pow(randfloat(), (LOD * 15 - particles.size()) * (interval_t)usec / 20000 / square(LOD)) < 0.5))
 		{
 			Vec3 coords = spawner->get_new_coords() + *pos;
 			coords.y += 0.11 * sqrt_scale;
@@ -279,7 +279,7 @@ namespace ec
 		}
 
 		while ((big_particles < LOD * 7)
-			&& ((math_cache.powf_0_1_rough_close(randfloat(), (LOD * 7 - big_particles) * (interval_t)usec / 9000.0 / square(LOD)) < 0.5) || (big_particles < LOD * 4)))
+			&& ((std::pow(randfloat(), (LOD * 7 - big_particles) * (interval_t)usec / 9000.0 / square(LOD)) < 0.5) || (big_particles < LOD * 4)))
 		{
 			Vec3 coords = spawner->get_new_coords();
 			coords.y *= 1.6;

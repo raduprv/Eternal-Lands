@@ -43,7 +43,7 @@ namespace ec
 		if (effect->recall)
 			return false;
 
-		const float scalar = 1.0 - math_cache.powf_05_close((interval_t)delta_t
+		const float scalar = 1.0 - std::pow(0.5f, (interval_t)delta_t
 			* LOD / 42000000.0);
 		alpha -= scalar;
 
@@ -102,7 +102,7 @@ namespace ec
 		hue_adjust = _hue_adjust;
 		saturation_adjust = _saturation_adjust;
 		scale = _scale;
-		sqrt_scale = fastsqrt(scale);
+		sqrt_scale = std::sqrt(scale);
 		LOD = base->last_forced_LOD;
 		desired_LOD = _LOD;
 		bounds = NULL;
@@ -128,7 +128,7 @@ namespace ec
 			return true;
 
 		while (((int)particles.size() < LOD * 20)
-			&& ((math_cache.powf_0_1_rough_close(randfloat(), (LOD * 20 - particles.size()) * (interval_t)usec / 80 / square(LOD)) < 0.5) || ((int)particles.size() < LOD * 10)))
+			&& ((std::pow(randfloat(), (LOD * 20 - particles.size()) * (interval_t)usec / 80 / square(LOD)) < 0.5) || ((int)particles.size() < LOD * 10)))
 		{
 			Vec3 coords = spawner->get_new_coords();
 			coords.y += 0.1 * sqrt_scale;

@@ -40,7 +40,7 @@ namespace ec
 			return false;
 
 		const alpha_t scalar =
-			math_cache.powf_05_close((float)delta_t / 100000);
+			std::pow(0.5f, (float)delta_t / 100000);
 		alpha *= scalar;
 
 		return true;
@@ -100,7 +100,7 @@ namespace ec
 		}
 		else if (state == 1)
 		{
-			const alpha_t scalar = math_cache.powf_05_close((float)delta_t
+			const alpha_t scalar = std::pow(0.5f, (float)delta_t
 				/ 500000);
 			alpha *= scalar;
 

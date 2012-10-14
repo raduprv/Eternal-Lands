@@ -92,7 +92,7 @@ namespace ec
 		if (alpha < 0.12 - LOD * 0.01)
 			return false;
 
-		const float scalar= square(math_cache.powf_05_close((interval_t)delta_t / (3000000 - LOD * 200000)));
+		const float scalar= square(std::pow(0.5f, (interval_t)delta_t / (3000000 - LOD * 200000)));
 
 		if (state == 0)
 			alpha = alpha * square(scalar) * 0.6 + alpha * 0.4;
@@ -227,7 +227,7 @@ namespace ec
 		hue_adjust = _hue_adjust;
 		saturation_adjust = _saturation_adjust;
 		scale = _scale * 0.7;
-		sqrt_scale = fastsqrt(scale);
+		sqrt_scale = std::sqrt(scale);
 		LOD = base->last_forced_LOD;
 		desired_LOD = _LOD;
 		bounds = NULL;
@@ -295,7 +295,7 @@ namespace ec
 			return true;
 
 		while (((int)particles.size() < LOD * 100)
-			&& (math_cache.powf_0_1_rough_close(randfloat(), (interval_t)usec / 80000 * LOD) < 0.5))
+			&& (std::pow(randfloat(), (interval_t)usec / 80000 * LOD) < 0.5))
 		{
 			int state = 0;
 			if (rand() & 1)

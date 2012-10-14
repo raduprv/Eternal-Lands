@@ -203,7 +203,7 @@ namespace ec
 			}
 		}
 
-		const float scalar = math_cache.powf_05_close((interval_t)delta_t
+		const float scalar = std::pow(0.5f, (interval_t)delta_t
 			/ divisor);
 		velocity = velocity * scalar + cur_wind * (1.0 - scalar);
 
@@ -246,7 +246,7 @@ namespace ec
 				velocity.y -= delta_t / 2000000.0;
 
 			Vec3 shifted_pos = pos - wind_effect->center;
-			const coord_t radius= fastsqrt(square(shifted_pos.x) + square(shifted_pos.z));
+			const coord_t radius= std::sqrt(square(shifted_pos.x) + square(shifted_pos.z));
 			const angle_t angle = atan2(shifted_pos.x, shifted_pos.z);
 			const coord_t max_radius =
 				wind_effect->bounding_range->get_radius(angle);
@@ -708,7 +708,7 @@ namespace ec
 		Vec3 velocity_shift;
 		velocity_shift.randomize();
 		velocity_shift.y /= 2;
-		velocity_shift.normalize(0.00004 * 4 * fastsqrt(usec));
+		velocity_shift.normalize(0.00004 * 4 * std::sqrt(usec));
 		overall_wind_adjust += velocity_shift;
 		const coord_t magnitude = overall_wind_adjust.magnitude();
 		if (magnitude > max_adjust * 3.5)
@@ -719,7 +719,7 @@ namespace ec
 		//  std::cout << "Wind adjust: " << overall_wind_adjust.magnitude() << ", " << overall_wind_adjust << std::endl;
 
 		if (fabs(overall_wind_adjust.y) > 0.15)
-			overall_wind_adjust.y *= math_cache.powf_05_close(usec / 300000.0);
+			overall_wind_adjust.y *= std::pow(0.5f, usec / 300000.0);
 
 		overall_wind = prevailing_wind + overall_wind_adjust;
 

@@ -62,14 +62,14 @@ namespace ec
 		Vec3 velocity_shift;
 		velocity_shift.randomize();
 		velocity_shift.y /= 3;
-		velocity_shift.normalize(0.00002 * fastsqrt(delta_t));
+		velocity_shift.normalize(0.00002 * std::sqrt(delta_t));
 		velocity += velocity_shift;
 		const coord_t magnitude = velocity.magnitude();
 		if (magnitude > 0.15)
 			velocity /= (magnitude / 0.15);
 
 		if (fabs(velocity.y) > 0.1)
-			velocity.y *= math_cache.powf_05_close(delta_t / 300000.0);
+			velocity.y *= std::pow(0.5f, delta_t / 300000.0);
 
 		if (pos.y - size / 40 < min_height)
 			velocity.y += delta_t / 500000.0;
@@ -166,13 +166,13 @@ namespace ec
 		centerpoint = (pos * 20) - centerpoint;
 		Vec3 new_normal = centerpoint;
 		const coord_t magnitude_squared = centerpoint.magnitude_squared();
-		const coord_t scale= fastsqrt(magnitude_squared);
+		const coord_t scale= std::sqrt(magnitude_squared);
 		new_normal /= scale; // Normalize
 		//  light_t new_brightness = 1.0 - (25.0 / (scale + 50.0));
 		//  new_normal.x = (new_normal.x < 0 ? -1 : 1) * math_cache.powf_0_1_rough_close(fabs(new_normal.x), new_brightness * 2.0 - 1.0);
 		//  new_normal.y = (new_normal.y < 0 ? -1 : 1) * math_cache.powf_0_1_rough_close(fabs(new_normal.y), new_brightness * 2.0 - 1.0);
 		//  new_normal.z = (new_normal.z < 0 ? -1 : 1) * math_cache.powf_0_1_rough_close(fabs(new_normal.z), new_brightness * 2.0 - 1.0);
-		const percent_t change_rate = math_cache.powf_05_close(delta_t
+		const percent_t change_rate = std::pow(0.5f, delta_t
 			/ 2000000.0);
 		normal = normal * change_rate + new_normal * (1.0 - change_rate);
 		normal.normalize();
@@ -296,7 +296,7 @@ namespace ec
 			count = 21;
 
 		alpha = 0.1725 / (1.0 / _density + 0.15);
-		size_scalar = 110.0 * invsqrt(LOD + 1);
+		size_scalar = 110.0 / std::sqrt(LOD + 1);
 
 		for (int i = 0; i < count; i++)
 		{

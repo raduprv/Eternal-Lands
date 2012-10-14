@@ -50,7 +50,7 @@ namespace ec
 					return false;
 
 				const alpha_t scalar =
-					math_cache.powf_0_1_rough_close(randfloat(), float_time * 2);
+					std::pow(randfloat(), float_time * 2);
 				alpha *= scalar;
 
 				break;
@@ -61,7 +61,7 @@ namespace ec
 					return false;
 
 				const alpha_t scalar =
-					math_cache.powf_0_1_rough_close(randfloat(), float_time * 2);
+					std::pow(randfloat(), float_time * 2);
 				const float age_f = (float)(age)/1000000.0f;
 				alpha *= scalar;
 				velocity.x *= 1.0f / (1.0f + age_f);
@@ -83,7 +83,7 @@ namespace ec
 					return false;
 
 				const alpha_t scalar =
-					math_cache.powf_0_1_rough_close(randfloat(), float_time * 3);
+					std::pow(randfloat(), float_time * 3);
 				if (size < 10)
 					size /= scalar;
 				alpha *= scalar;
@@ -96,7 +96,7 @@ namespace ec
 					return false;
 
 				const alpha_t scalar =
-					math_cache.powf_0_1_rough_close(randfloat(), float_time);
+					std::pow(randfloat(), float_time);
 				alpha *= scalar;
 
 				break;
@@ -116,7 +116,7 @@ namespace ec
 				if (age > 220000)
 				{
 					const alpha_t alpha_scalar =
-						math_cache.powf_05_close(float_time * 6.0);
+						std::pow(0.5f, float_time * 6.0);
 					alpha *= alpha_scalar;
 
 					if (alpha < 0.02)
@@ -139,7 +139,7 @@ namespace ec
 				else
 				{
 					const percent_t scalar =
-						math_cache.powf_05_close(float_time * 0.5);
+						std::pow(0.5f, float_time * 0.5);
 					size *= scalar;
 					alpha *= scalar;
 

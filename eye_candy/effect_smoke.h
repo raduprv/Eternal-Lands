@@ -74,7 +74,7 @@ namespace ec
 					LOD = desired_LOD;
 				max_size = scale * 270 / (_LOD + 10);
 				size_scalar = sqrt_scale * 75 / (_LOD + 5);
-				alpha_scalar = 6.5 / (fastsqrt(_LOD) + 1.0);
+				alpha_scalar = 6.5 / (std::sqrt(_LOD) + 1.0);
 				count_scalar = 500000 / LOD;
 			}
 			;
