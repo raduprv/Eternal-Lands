@@ -78,7 +78,7 @@ namespace ec
 		if (age > 220000)
 		{
 			const alpha_t alpha_scalar = std::pow(0.5f, float_time
-				* 3.0);
+				* 3.0f);
 			alpha *= alpha_scalar;
 
 			if (alpha < 0.01)

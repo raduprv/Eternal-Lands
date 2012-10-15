@@ -52,7 +52,7 @@ namespace ec
 				color[2] = 0.2 + 0.15 * sin(age / 780000.0 + 1.9);
 
 				const percent_t scalar = std::pow(0.5f, float_time
-					* 0.5);
+					* 0.5f);
 				const float age_f = (float)(age)/1000000.0f;
 				size = 32.0f * age_f / exp(1.5f * age_f);
 				alpha *= scalar;
@@ -68,7 +68,7 @@ namespace ec
 				color[2] = 0.2 + 0.15 * sin(age / 780000.0 + 1.9);
 
 				const percent_t scalar = std::pow(0.5f, float_time
-					* 0.5);
+					* 0.5f);
 				const float age_f = (float)(age)/1000000.0f;
 				size = 32.0f * age_f / exp(1.5f * age_f);
 				alpha *= scalar;
@@ -84,7 +84,7 @@ namespace ec
 				color[2] = randcolor(0.5);
 
 				const percent_t scalar = std::pow(0.5f, float_time
-					* 0.5);
+					* 0.5f);
 				const float age_f = (float)(age)/1000000.0f;
 				size = 32.0f * age_f / exp(1.5f * age_f);
 				alpha *= scalar;
@@ -103,7 +103,7 @@ namespace ec
 				if (alpha < 0.01)
 					return false;
 				const alpha_t scalar =
-					std::pow(randfloat(), float_time * 1.0); // smaller numbers -> longer effect
+					std::pow(randfloat(), float_time * 1.0f); // smaller numbers -> longer effect
 				alpha *= scalar;
 				break;
 			}
@@ -117,7 +117,7 @@ namespace ec
 				if (alpha < 0.01)
 					return false;
 				const alpha_t scalar =
-					std::pow(randfloat(), float_time * 1.0); // smaller numbers -> longer effect
+					std::pow(randfloat(), float_time * 1.0f); // smaller numbers -> longer effect
 				alpha *= scalar;
 				break;
 			}
@@ -152,7 +152,7 @@ namespace ec
 				velocity.z *= 0.025 * float_time;
 				velocity.y += float_time;
 				const alpha_t scalar = 1.0
-					- std::pow(randfloat(), float_time * 0.75);
+					- std::pow(randfloat(), float_time * 0.75f);
 				alpha -= scalar;
 				if (alpha < 0.01)
 					return false;
@@ -160,7 +160,7 @@ namespace ec
 			}
 			case GlowEffect::LEVEL_UP_MAG_GLOW:
 			{
-				alpha *= std::pow(randfloat(), delta_t / 1500000.0); // increase this number to make particles live longer
+				alpha *= std::pow(randfloat(), delta_t / 1500000.0f); // increase this number to make particles live longer
 				if (alpha < 0.01)
 					return false;
 				const Vec3 velshift = (*(effect->pos) - pos).normalize(20.0) * float_time;
@@ -173,7 +173,7 @@ namespace ec
 			}
 			default:
 			{
-				alpha *= std::pow(randfloat(), delta_t / 1000000.0); // increase this number to make particles live longer
+				alpha *= std::pow(randfloat(), delta_t / 1000000.0f); // increase this number to make particles live longer
 				if (alpha < 0.01)
 					return false;
 				break;

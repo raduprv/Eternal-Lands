@@ -46,7 +46,7 @@ namespace ec
 			case ImpactEffect::MAGIC_PROTECTION:
 			{
 				const alpha_t scalar = 1.0
-					- std::pow(randfloat(), float_time * 4.0);
+					- std::pow(randfloat(), float_time * 4.0f);
 				alpha -= scalar;
 				if (alpha < 0.02)
 					return false;
@@ -55,7 +55,7 @@ namespace ec
 			case ImpactEffect::SHIELD:
 			{
 				const alpha_t scalar = 1.0
-					- std::pow(randfloat(), float_time * 4.0);
+					- std::pow(randfloat(), float_time * 4.0f);
 				alpha -= scalar;
 				if (alpha < 0.02)
 					return false;
@@ -64,7 +64,7 @@ namespace ec
 			case ImpactEffect::MAGIC_IMMUNITY:
 			{
 				const alpha_t scalar = 1.0
-					- std::pow(randfloat(), float_time * 2.0);
+					- std::pow(randfloat(), float_time * 2.0f);
 				alpha -= scalar;
 				if (alpha < 0.02)
 					return false;
@@ -73,7 +73,7 @@ namespace ec
 			case ImpactEffect::POISON:
 			{
 				const alpha_t scalar = 1.0
-					- std::pow(randfloat(), float_time * 1.4);
+					- std::pow(randfloat(), float_time * 1.4f);
 				alpha -= scalar;
 				if (alpha < 0.02)
 					return false;
@@ -82,7 +82,7 @@ namespace ec
 			case ImpactEffect::BLOOD:
 			{
 				const alpha_t scalar = 1.0
-					- std::pow(randfloat(), float_time * 0.8);
+					- std::pow(randfloat(), float_time * 0.8f);
 				alpha -= scalar;
 				if (alpha < 0.02)
 					return false;

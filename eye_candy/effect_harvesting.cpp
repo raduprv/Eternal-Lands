@@ -116,7 +116,7 @@ namespace ec
 				if (age > 220000)
 				{
 					const alpha_t alpha_scalar =
-						std::pow(0.5f, float_time * 6.0);
+						std::pow(0.5f, float_time * 6.0f);
 					alpha *= alpha_scalar;
 
 					if (alpha < 0.02)
@@ -139,7 +139,7 @@ namespace ec
 				else
 				{
 					const percent_t scalar =
-						std::pow(0.5f, float_time * 0.5);
+						std::pow(0.5f, float_time * 0.5f);
 					size *= scalar;
 					alpha *= scalar;
 

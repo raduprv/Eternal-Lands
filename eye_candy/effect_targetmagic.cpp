@@ -72,7 +72,7 @@ namespace ec
 				case TargetMagicEffect::POISON:
 				{
 					const alpha_t scalar =
-						std::pow(randfloat(), float_time * 2.0);
+						std::pow(randfloat(), float_time * 2.0f);
 					alpha *= scalar;
 					break;
 				}
@@ -89,7 +89,7 @@ namespace ec
 				case TargetMagicEffect::LIFE_DRAIN:
 				{
 					const coord_t scalar = std::pow(0.5f, float_time
-						* 0.8);
+						* 0.8f);
 					if (size < 4.0)
 						size /= scalar;
 					break;
@@ -155,7 +155,7 @@ namespace ec
 				case TargetMagicEffect::LIFE_DRAIN:
 				{
 					const color_t scalar = std::pow(0.5f, float_time
-						* 4.0);
+						* 4.0f);
 					if (color[0] > 0.2)
 						color[0] *= scalar;
 					if (color[1] < 1.0)
@@ -180,7 +180,7 @@ namespace ec
 						return false;
 
 					const float scalar =
-						std::pow(randfloat(), float_time * 5.0);
+						std::pow(randfloat(), float_time * 5.0f);
 					energy *= scalar;
 					if (size < 10)
 						size /= scalar;
@@ -193,7 +193,7 @@ namespace ec
 						return false;
 
 					const float scalar =
-						std::pow(randfloat(), float_time * 5.0);
+						std::pow(randfloat(), float_time * 5.0f);
 					energy *= scalar;
 					if (size < 6)
 						size /= scalar;
@@ -222,7 +222,7 @@ namespace ec
 						return false;
 
 					const float scalar =
-						std::pow(randfloat(), float_time * 5.0);
+						std::pow(randfloat(), float_time * 5.0f);
 					if (color[0] > 0.2)
 						color[0] *= scalar;
 					if (color[1] < 1.0)
@@ -239,7 +239,7 @@ namespace ec
 						return false;
 
 					const float scalar =
-						std::pow(randfloat(), float_time * 5.0);
+						std::pow(randfloat(), float_time * 5.0f);
 					energy *= scalar;
 					if (size < 5)
 						size /= scalar;
@@ -258,7 +258,7 @@ namespace ec
 						return false;
 
 					const float scalar =
-						std::pow(randfloat(), float_time * 2.5);
+						std::pow(randfloat(), float_time * 2.5f);
 					energy *= scalar;
 					alpha *= scalar;
 					break;

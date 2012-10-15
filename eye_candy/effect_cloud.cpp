@@ -69,7 +69,7 @@ namespace ec
 			velocity /= (magnitude / 0.15);
 
 		if (fabs(velocity.y) > 0.1)
-			velocity.y *= std::pow(0.5f, delta_t / 300000.0);
+			velocity.y *= std::pow(0.5f, delta_t / 300000.0f);
 
 		if (pos.y - size / 40 < min_height)
 			velocity.y += delta_t / 500000.0;
@@ -173,7 +173,7 @@ namespace ec
 		//  new_normal.y = (new_normal.y < 0 ? -1 : 1) * math_cache.powf_0_1_rough_close(fabs(new_normal.y), new_brightness * 2.0 - 1.0);
 		//  new_normal.z = (new_normal.z < 0 ? -1 : 1) * math_cache.powf_0_1_rough_close(fabs(new_normal.z), new_brightness * 2.0 - 1.0);
 		const percent_t change_rate = std::pow(0.5f, delta_t
-			/ 2000000.0);
+			/ 2000000.0f);
 		normal = normal * change_rate + new_normal * (1.0 - change_rate);
 		normal.normalize();
 		//  color[0] = color[0] * change_rate + new_brightness * (1.0 - change_rate);

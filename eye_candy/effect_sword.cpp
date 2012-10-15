@@ -342,7 +342,7 @@ namespace ec
 			}
 		}
 
-		while (std::pow(randfloat(), (float)usec * 0.000083 * speed) < bias)
+		while (std::pow(randfloat(), (float)usec * 0.000083f * speed) < bias)
 		{
 			const percent_t percent= square(randpercent());
 			Vec3 randcoords;

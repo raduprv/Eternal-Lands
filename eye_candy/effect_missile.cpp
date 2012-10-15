@@ -56,7 +56,7 @@ namespace ec
 			return false;
 
 		//const alpha_t scalar = math_cache.powf_05_close((float)delta_t / 20000);
-		alpha *= std::pow(randfloat(), delta_t / 2000000.0); // increase this number to make particles live longer
+		alpha *= std::pow(randfloat(), delta_t / 2000000.0f); // increase this number to make particles live longer
 		velocity *= 1 / (1 + delta_t / 500000.0); // slow down particles
 		velocity.y -= ((delta_t / 250000.0) * (delta_t / 250000.0)); // let particles drop
 

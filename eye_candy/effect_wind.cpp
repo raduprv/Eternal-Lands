@@ -719,7 +719,7 @@ namespace ec
 		//  std::cout << "Wind adjust: " << overall_wind_adjust.magnitude() << ", " << overall_wind_adjust << std::endl;
 
 		if (fabs(overall_wind_adjust.y) > 0.15)
-			overall_wind_adjust.y *= std::pow(0.5f, usec / 300000.0);
+			overall_wind_adjust.y *= std::pow(0.5f, usec / 300000.0f);
 
 		overall_wind = prevailing_wind + overall_wind_adjust;
 

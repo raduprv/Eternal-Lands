@@ -41,9 +41,9 @@ namespace ec
 		if (effect->recall)
 			return false;
 
-		const interval_t float_time = delta_t / 1000000.0;
+		const interval_t float_time = delta_t / 1000000.0f;
 		velocity *= std::pow(0.5f, float_time * velocity.magnitude()
-			/ 8.0);
+			/ 8.0f);
 
 		switch (type)
 		{
@@ -56,7 +56,7 @@ namespace ec
 				{
 					if ((get_time() - born
 						> (type == BreathEffect::POISON ? 100000 : 400000))
-						|| (std::pow(randfloat(), float_time * 5.0)) < 0.5)
+						|| (std::pow(randfloat(), float_time * 5.0f)) < 0.5)
 						state = 1;
 				}
 				else
@@ -76,7 +76,7 @@ namespace ec
 					}
 
 					const alpha_t scalar =
-						std::pow(randfloat(), float_time * 5.0);
+						std::pow(randfloat(), float_time * 5.0f);
 					alpha *= scalar;
 
 					const coord_t size_scalar =
@@ -92,7 +92,7 @@ namespace ec
 				if (state == 0)
 				{
 					if ((get_time() - born > 400000)
-						|| (std::pow(randfloat(), float_time * 70.0)) < 0.5)
+						|| (std::pow(randfloat(), float_time * 70.0f)) < 0.5)
 						state = 1;
 				}
 				else
@@ -112,7 +112,7 @@ namespace ec
 					}
 
 					const alpha_t scalar =
-						std::pow(randfloat(), float_time * 20.0);
+						std::pow(randfloat(), float_time * 20.0f);
 					alpha *= scalar;
 
 					const coord_t size_scalar =
@@ -128,7 +128,7 @@ namespace ec
 				if (state == 0)
 				{
 					if ((get_time() - born > 400000)
-						|| (std::pow(randfloat(), float_time * 10.0)) < 0.5)
+						|| (std::pow(randfloat(), float_time * 10.0f)) < 0.5)
 						state = 1;
 				}
 				else
@@ -245,7 +245,7 @@ namespace ec
 					}
 
 					const alpha_t scalar =
-						std::pow(randfloat(), float_time * 5.0);
+						std::pow(randfloat(), float_time * 5.0f);
 					alpha *= scalar;
 					if (state == 2)
 						alpha *= square(scalar);
@@ -369,7 +369,7 @@ namespace ec
 
 		const interval_t float_time = delta_t / 1000000.0;
 		velocity *= std::pow(0.5f, float_time * velocity.magnitude()
-			/ 2.0);
+			/ 2.0f);
 
 		if (state == 0)
 		{

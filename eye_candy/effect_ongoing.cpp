@@ -97,7 +97,7 @@ namespace ec
 			case OngoingEffect::OG_MAGIC_PROTECTION:
 			{
 				const alpha_t scalar = (1.0
-					- std::pow(randfloat(), float_time * 1.0)) * 0.25f;
+					- std::pow(randfloat(), float_time * 1.0f)) * 0.25f;
 				alpha -= scalar;
 				velocity.y -= scalar;
 				if (alpha < 0.01)
@@ -107,7 +107,7 @@ namespace ec
 			case OngoingEffect::OG_SHIELD:
 			{
 				const alpha_t scalar = (1.0
-					- std::pow(randfloat(), float_time * 1.0)) * 0.5f;
+					- std::pow(randfloat(), float_time * 1.0f)) * 0.5f;
 				alpha -= scalar;
 				velocity.y -= scalar;
 				if (alpha < 0.01)
@@ -117,7 +117,7 @@ namespace ec
 			case OngoingEffect::OG_MAGIC_IMMUNITY:
 			{
 				const alpha_t scalar = (1.0
-					- std::pow(randfloat(), float_time * 0.75)) * 0.25f;
+					- std::pow(randfloat(), float_time * 0.75f)) * 0.25f;
 				alpha -= scalar;
 				velocity.y -= scalar * 0.25f;
 				if (alpha < 0.01)
@@ -127,7 +127,7 @@ namespace ec
 			case OngoingEffect::OG_POISON:
 			{
 				const alpha_t scalar = 1.0
-					- std::pow(randfloat(), float_time * 0.5);
+					- std::pow(randfloat(), float_time * 0.5f);
 				alpha -= scalar;
 				if (alpha < 0.02)
 					return false;
@@ -294,7 +294,7 @@ namespace ec
 		{
 			case OG_MAGIC_PROTECTION:
 			{
-				while (std::pow(randfloat(), float_time * 6.0 * LOD * strength) < 0.5)
+				while (std::pow(randfloat(), float_time * 6.0f * LOD * strength) < 0.5)
 				{
 					Vec3 coords = spawner->get_new_coords() + effect_center;
 					coords += (coords - effect_center).normalize() * sin(age_f * 2.5f)
@@ -315,7 +315,7 @@ namespace ec
 			}
 			case OG_SHIELD:
 			{
-				while (std::pow(randfloat(), float_time * 12.0 * LOD * strength) < 0.75)
+				while (std::pow(randfloat(), float_time * 12.0f * LOD * strength) < 0.75)
 				{
 					Vec3 coords = spawner->get_new_coords() + effect_center;
 					coords.y += sin(age_f * 2.5f) * 0.33f - 0.125f;
@@ -334,7 +334,7 @@ namespace ec
 			}
 			case OG_MAGIC_IMMUNITY:
 			{
-				while (std::pow(randfloat(), float_time * 6.0 * LOD * strength) < 0.5)
+				while (std::pow(randfloat(), float_time * 6.0f * LOD * strength) < 0.5)
 				{
 					const Vec3 coords = spawner->get_new_coords()
 						+ effect_center;
@@ -353,7 +353,7 @@ namespace ec
 			}
 			case OG_POISON: //The odd one out.  ;)
 			{
-				while (std::pow(randfloat(), float_time * 4.0 * LOD * strength) < 0.5)
+				while (std::pow(randfloat(), float_time * 4.0f * LOD * strength) < 0.5)
 				{
 					Vec3 coords = spawner->get_new_coords();
 					Vec3 velocity;
@@ -389,7 +389,7 @@ namespace ec
 			}
 			case OG_HARVEST:
 			{
-				while (std::pow(randfloat(), float_time * 2.0 * LOD * strength) < 0.6)
+				while (std::pow(randfloat(), float_time * 2.0f * LOD * strength) < 0.6)
 				{
 					const Vec3 coords = spawner->get_new_coords()
 						+ effect_center;

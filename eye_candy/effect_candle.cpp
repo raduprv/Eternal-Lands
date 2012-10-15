@@ -44,7 +44,7 @@ namespace ec
 			return false;
 
 		const float scalar = 1.0 - std::pow(0.5f, (interval_t)delta_t
-			* LOD / 42000000.0);
+			* LOD / 42000000.0f);
 		alpha -= scalar;
 
 		if (alpha < 0.02)

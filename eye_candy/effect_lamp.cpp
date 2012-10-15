@@ -100,7 +100,7 @@ namespace ec
 			return false;
 
 		const float scalar = 1.0 - std::pow(0.5f, (interval_t)delta_t
-			* LOD / 32000000.0);
+			* LOD / 32000000.0f);
 		//  color[0] = color[0] * scalar * 0.5 + color[0] * 0.5;
 		//  color[1] = color[1] * scalar * 0.5 + color[1] * 0.5;
 		//  color[2] = color[2] * scalar * 0.5 + color[2] * 0.5;
@@ -279,7 +279,7 @@ namespace ec
 		}
 
 		while ((big_particles < LOD * 7)
-			&& ((std::pow(randfloat(), (LOD * 7 - big_particles) * (interval_t)usec / 9000.0 / square(LOD)) < 0.5) || (big_particles < LOD * 4)))
+			&& ((std::pow(randfloat(), (LOD * 7 - big_particles) * (interval_t)usec / 9000.0f / square(LOD)) < 0.5) || (big_particles < LOD * 4)))
 		{
 			Vec3 coords = spawner->get_new_coords();
 			coords.y *= 1.6;

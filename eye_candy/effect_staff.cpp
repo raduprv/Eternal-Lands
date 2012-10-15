@@ -174,7 +174,7 @@ namespace ec
 		else if (speed < 0.25f)
 			speed = 0.25f;
 
-		while (std::pow(randfloat(), (float)usec * 0.000015 * speed) < bias)
+		while (std::pow(randfloat(), (float)usec * 0.000015f * speed) < bias)
 		{
 			const Vec3 coords = *pos;
 			const Vec3 velocity = Vec3(0.0, -randcoord(0.25), 0.0);

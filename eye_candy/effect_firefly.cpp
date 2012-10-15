@@ -59,7 +59,7 @@ namespace ec
 		}
 
 		if (fabs(velocity.y) > 0.1)
-			velocity.y *= std::pow(0.5f, delta_t / 300000.0);
+			velocity.y *= std::pow(0.5f, delta_t / 300000.0f);
 
 		if (pos.y < min_height)
 		{
