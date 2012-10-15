@@ -303,13 +303,10 @@ namespace ec
 				x = _x;
 				y = _y;
 				z = _z;
-
-				assert(is_valid());
 			}
 			;
 			~Vec3()
 			{
-				assert(is_valid());
 			}
 			;
 
@@ -318,8 +315,6 @@ namespace ec
 				x += rhs.x;
 				y += rhs.y;
 				z += rhs.z;
-
-				assert(is_valid());
 
 				if (!is_valid()) 
 				{
@@ -354,8 +349,6 @@ namespace ec
 				Vec3 lhs(x, y, z);
 				lhs += rhs;
 
-				assert(is_valid());
-
 				return lhs;
 			}
 			;
@@ -364,8 +357,6 @@ namespace ec
 			{
 				Vec3 lhs(x, y, z);
 				lhs -= rhs;
-
-				assert(is_valid());
 
 				return lhs;
 			}
@@ -377,8 +368,6 @@ namespace ec
 				y *= d;
 				z *= d;
 
-				assert(is_valid());
-
 				return *this;
 			}
 			;
@@ -389,8 +378,6 @@ namespace ec
 				y /= d;
 				z /= d;
 
-				assert(is_valid());
-
 				return *this;
 			}
 			;
@@ -399,8 +386,6 @@ namespace ec
 			{
 				Vec3 lhs(x, y, z);
 				lhs *= d;
-
-				assert(is_valid());
 
 				return lhs;
 			}
@@ -411,16 +396,12 @@ namespace ec
 				Vec3 lhs(x, y, z);
 				lhs /= d;
 
-				assert(is_valid());
-
 				return lhs;
 			}
 			;
 
 			bool operator==(const Vec3& rhs) const
 			{
-				assert(is_valid());
-
 				if ((x == rhs.x) && (y == rhs.y) && (z == rhs.z))
 					return true;
 				else
@@ -430,8 +411,6 @@ namespace ec
 
 			bool operator!=(const Vec3& rhs) const
 			{
-				assert(is_valid());
-
 				return !(*this == rhs);
 			}
 			;
@@ -442,57 +421,56 @@ namespace ec
 				y = rhs.y;
 				z = rhs.z;
 
-				assert(is_valid());
-
 				return *this;
 			}
 			;
 
 			Vec3 operator-()
 			{
-				assert(is_valid());
-
 				return Vec3(-x, -y, -z);
 			}
 			;
 
 			coord_t magnitude() const
 			{
-				assert(is_valid());
-
 				return std::sqrt(square(x) + square(y) + square(z));
 			}
 			;
 
 			coord_t magnitude_squared() const
 			{
-				assert(is_valid());
-
 				return square(x) + square(y) + square(z);
 			}
 			;
 
 			coord_t planar_magnitude() const
 			{
-				assert(is_valid());
-
 				return std::sqrt(square(x) + square(z));
 			}
 			;
 
 			coord_t planar_magnitude_squared() const
 			{
-				assert(is_valid());
-
 				return square(x) + square(z);
 			}
 			;
 
 			Vec3 normalize()
 			{
-				(*this) /= std::sqrt(magnitude_squared());
+				coord_t tmp;
 
-				assert(is_valid());
+				tmp = magnitude_squared();
+
+				if (is_valid(tmp) && (tmp > 0.0001f))
+				{
+					(*this) /= std::sqrt(tmp);
+				}
+				else
+				{
+					x = 0.0f;
+					y = 1.0f;
+					z = 0.0f;
+				}
 
 				return *this;
 			}
@@ -500,9 +478,20 @@ namespace ec
 
 			Vec3 normalize(const coord_t scale)
 			{
-				(*this) *= (scale / std::sqrt(magnitude_squared()));
+				coord_t tmp;
 
-				assert(is_valid());
+				tmp = magnitude_squared();
+
+				if (is_valid(tmp) && (tmp > 0.0001f))
+				{
+					(*this) *= (scale / std::sqrt(tmp));
+				}
+				else
+				{
+					x = 0.0f;
+					y = 1.0f;
+					z = 0.0f;
+				}
 
 				return *this;
 			}
@@ -520,8 +509,6 @@ namespace ec
 
 			angle_t dot(const Vec3 rhs) const
 			{
-				assert(is_valid());
-
 				return x * rhs.x + y * rhs.y + z * rhs.z;
 			}
 			;
@@ -533,25 +520,19 @@ namespace ec
 				Vec3 rhs_normal = rhs;
 				rhs_normal.normalize();
 
-				assert(is_valid());
-
-				return acos(lhs_normal.x * rhs_normal.x + lhs_normal.y
+				return std::acos(lhs_normal.x * rhs_normal.x + lhs_normal.y
 					* rhs_normal.y + lhs_normal.z * rhs_normal.z);
 			}
 			;
 
 			angle_t angle_to_prenormalized(const Vec3 rhs) const
 			{
-				assert(is_valid());
-
-				return acos(x * rhs.x + y * rhs.y + z * rhs.z);
+				return std::acos(x * rhs.x + y * rhs.y + z * rhs.z);
 			}
 			;
 
 			Vec3 cross(const Vec3 rhs) const
 			{
-				assert(is_valid());
-
 				return Vec3(y * rhs.z - z * rhs.y, z * rhs.x -
 					x * rhs.z, x * rhs.y - y * rhs.x);
 			}
@@ -572,15 +553,11 @@ namespace ec
 
 			Vec3 as_el()
 			{
-				assert(is_valid());
-
 				return Vec3(x, y, z);
 			}
 
 			Vec3 as_ec()
 			{
-				assert(is_valid());
-
 				return Vec3(x, z, -y);
 			}
 

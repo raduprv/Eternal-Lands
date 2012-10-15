@@ -1339,6 +1339,12 @@ namespace ec
 		coord_t tempsize = base->billboard_scalar * size;
 		tempsize *= flare();
 
+		assert(std::isfinite(burn));
+		assert(std::isfinite(tempalpha));
+		assert(std::isfinite(base->billboard_scalar));
+		assert(std::isfinite(size));
+		assert(std::isfinite(tempsize));
+
 		Uint32 texture = get_texture(); // Always hires, since we're not checking distance.
 
 		effect->draw_particle(tempsize, texture, color[0], color[1],
