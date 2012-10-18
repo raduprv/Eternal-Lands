@@ -15,7 +15,8 @@ namespace ec
 		const color_t saturation_adjust, const coord_t _sqrt_scale,
 		const coord_t _max_size, const coord_t size_scalar,
 		const alpha_t alpha_scale) :
-		Particle(_effect, _mover, _pos, _velocity)
+		Particle(_effect, _mover, _pos, _velocity,
+			size_scalar * (0.5f + randcoord()))
 	{
 		sqrt_scale = _sqrt_scale;
 		max_size = _max_size;
@@ -31,14 +32,9 @@ namespace ec
 		hue += hue_adjust;
 		if (hue > 1.0)
 			hue -= 1.0;
-		saturation *= saturation_adjust;
-		if (saturation > 1.0)
-			saturation = 1.0;
+		saturation = std::min(1.0f, saturation * saturation_adjust);
 		hsv_to_rgb(hue, saturation, value, color[0], color[1], color[2]);
-		size = size_scalar * (0.5 + randcoord());
-		alpha = (0.05 + randcoord(0.1)) * alpha_scale;
-		if (alpha > 1.0)
-			alpha = 1.0;
+		alpha = std::min(1.0f, (0.05f + randcoord(0.1f)) * alpha_scale);
 		flare_max = 1.0;
 		flare_exp = 1.0;
 		flare_frequency = 1.0;
@@ -77,9 +73,7 @@ namespace ec
 
 		const coord_t size_scalar = std::pow(0.5f, (float)delta_t
 			/ (1500000 * sqrt_scale));
-		size = size / size_scalar * 0.25 + size * 0.75;
-		if (size >= max_size)
-			size = max_size;
+		size = std::min(max_size, size / size_scalar * 0.25f + size * 0.75f);
 
 		Vec3 velocity_shift;
 		velocity_shift.randomize();

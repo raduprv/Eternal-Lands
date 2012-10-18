@@ -18,27 +18,13 @@ namespace ec
 #else	/* NEW_TEXTURES */
 		const color_t blue, Texture* _texture, const Uint16 _LOD) :
 #endif	/* NEW_TEXTURES */
-		Particle(_effect, _mover, _pos, _velocity)
+		Particle(_effect, _mover, _pos, _velocity,
+			std::min(1.0f, _size * (0.2f + randcoord())))
 	{
-		color[0] = red + randcolor(0.25) - 0.125;
-		if (color[0] > 1.0)
-			color[0] = 1.0;
-		else if (color[0] < 0.0)
-			color[0] = 0.0;
-		color[1] = green + randcolor(0.25) - 0.125;
-		if (color[1] > 1.0)
-			color[1] = 1.0;
-		else if (color[1] < 0.0)
-			color[1] = 0.0;
-		color[2] = blue + randcolor(0.25) - 0.125;
-		if (color[2] > 1.0)
-			color[2] = 1.0;
-		else if (color[2] < 0.0)
-			color[2] = 0.0;
+		color[0] = std::max(0.0f, std::min(1.0f, red + randcolor(0.25f) - 0.125f));
+		color[1] = std::max(0.0f, std::min(1.0f, green + randcolor(0.25f) - 0.125f));
+		color[2] = std::max(0.0f, std::min(1.0f, blue + randcolor(0.25f) - 0.125f));
 		texture = _texture;
-		size = _size * (0.2 + randcoord());
-		if (size > 1.0)
-			size = 1.0f;
 		alpha = _alpha;
 		velocity /= size;
 		flare_max = 1.6;
@@ -342,7 +328,7 @@ namespace ec
 			}
 		}
 
-		while (std::pow(randfloat(), (float)usec * 0.000083f * speed) < bias)
+		while (pow_randfloat((float)usec * 0.000083f * speed) < bias)
 		{
 			const percent_t percent= square(randpercent());
 			Vec3 randcoords;

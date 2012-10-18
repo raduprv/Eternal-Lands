@@ -20,15 +20,13 @@ namespace ec
 		Texture* _texture, const Uint16 _LOD,
 #endif	/* NEW_TEXTURES */
 		const OngoingEffect::OngoingType _type) :
-		Particle(_effect, _mover, _pos, _velocity)
+		Particle(_effect, _mover, _pos, _velocity, _size)
 	{
 		type = _type;
 		hue += hue_adjust;
 		if (hue > 1.0)
 			hue -= 1.0;
-		saturation *= saturation_adjust;
-		if (saturation > 1.0)
-			saturation = 1.0;
+		saturation = std::min(1.0f, saturation * saturation_adjust);
 		hsv_to_rgb(hue, saturation, value, color[0], color[1], color[2]);
 		if (type == OngoingEffect::OG_HARVEST)
 		{
@@ -37,7 +35,6 @@ namespace ec
 			color[2] = value;
 		}
 		texture = _texture;
-		size = _size;
 		alpha = _alpha;
 		velocity /= size;
 		flare_max = 1.0;
@@ -59,7 +56,7 @@ namespace ec
 		Texture* _texture, const Uint16 _LOD,
 #endif	/* NEW_TEXTURES */
 		const OngoingEffect::OngoingType _type, const angle_t _angle) :
-		Particle(_effect, _mover, _pos, _velocity)
+		Particle(_effect, _mover, _pos, _velocity, _size)
 	{
 		type = _type;
 		hue += hue_adjust;
@@ -76,7 +73,6 @@ namespace ec
 			color[2] = value;
 		}
 		texture = _texture;
-		size = _size;
 		alpha = _alpha;
 		velocity /= size;
 		flare_max = 1.0;
@@ -97,7 +93,7 @@ namespace ec
 			case OngoingEffect::OG_MAGIC_PROTECTION:
 			{
 				const alpha_t scalar = (1.0
-					- std::pow(randfloat(), float_time * 1.0f)) * 0.25f;
+					- pow_randfloat(float_time * 1.0f)) * 0.25f;
 				alpha -= scalar;
 				velocity.y -= scalar;
 				if (alpha < 0.01)
@@ -107,7 +103,7 @@ namespace ec
 			case OngoingEffect::OG_SHIELD:
 			{
 				const alpha_t scalar = (1.0
-					- std::pow(randfloat(), float_time * 1.0f)) * 0.5f;
+					- pow_randfloat(float_time * 1.0f)) * 0.5f;
 				alpha -= scalar;
 				velocity.y -= scalar;
 				if (alpha < 0.01)
@@ -117,7 +113,7 @@ namespace ec
 			case OngoingEffect::OG_MAGIC_IMMUNITY:
 			{
 				const alpha_t scalar = (1.0
-					- std::pow(randfloat(), float_time * 0.75f)) * 0.25f;
+					- pow_randfloat(float_time * 0.75f)) * 0.25f;
 				alpha -= scalar;
 				velocity.y -= scalar * 0.25f;
 				if (alpha < 0.01)
@@ -127,7 +123,7 @@ namespace ec
 			case OngoingEffect::OG_POISON:
 			{
 				const alpha_t scalar = 1.0
-					- std::pow(randfloat(), float_time * 0.5f);
+					- pow_randfloat(float_time * 0.5f);
 				alpha -= scalar;
 				if (alpha < 0.02)
 					return false;
@@ -148,7 +144,7 @@ namespace ec
 					* 4.0f)));
 				pos.y = center.y - 0.0625f + pow(age_f, 2.0f) * 0.25f;
 				const alpha_t scalar = 1.0f
-					- std::pow(randfloat(), float_time * 0.5f);
+					- pow_randfloat(float_time * 0.5f);
 				alpha -= scalar * 0.5f;
 				if (alpha < 0.01)
 					return false;
@@ -294,7 +290,7 @@ namespace ec
 		{
 			case OG_MAGIC_PROTECTION:
 			{
-				while (std::pow(randfloat(), float_time * 6.0f * LOD * strength) < 0.5)
+				while (pow_randfloat(float_time * 6.0f * LOD * strength) < 0.5)
 				{
 					Vec3 coords = spawner->get_new_coords() + effect_center;
 					coords += (coords - effect_center).normalize() * sin(age_f * 2.5f)
@@ -315,7 +311,7 @@ namespace ec
 			}
 			case OG_SHIELD:
 			{
-				while (std::pow(randfloat(), float_time * 12.0f * LOD * strength) < 0.75)
+				while (pow_randfloat(float_time * 12.0f * LOD * strength) < 0.75)
 				{
 					Vec3 coords = spawner->get_new_coords() + effect_center;
 					coords.y += sin(age_f * 2.5f) * 0.33f - 0.125f;
@@ -334,7 +330,7 @@ namespace ec
 			}
 			case OG_MAGIC_IMMUNITY:
 			{
-				while (std::pow(randfloat(), float_time * 6.0f * LOD * strength) < 0.5)
+				while (pow_randfloat(float_time * 6.0f * LOD * strength) < 0.5)
 				{
 					const Vec3 coords = spawner->get_new_coords()
 						+ effect_center;
@@ -353,7 +349,7 @@ namespace ec
 			}
 			case OG_POISON: //The odd one out.  ;)
 			{
-				while (std::pow(randfloat(), float_time * 4.0f * LOD * strength) < 0.5)
+				while (pow_randfloat(float_time * 4.0f * LOD * strength) < 0.5)
 				{
 					Vec3 coords = spawner->get_new_coords();
 					Vec3 velocity;
@@ -389,7 +385,7 @@ namespace ec
 			}
 			case OG_HARVEST:
 			{
-				while (std::pow(randfloat(), float_time * 2.0f * LOD * strength) < 0.6)
+				while (pow_randfloat(float_time * 2.0f * LOD * strength) < 0.6)
 				{
 					const Vec3 coords = spawner->get_new_coords()
 						+ effect_center;

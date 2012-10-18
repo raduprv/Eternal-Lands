@@ -21,7 +21,8 @@ namespace ec
 		const Uint16 _LOD, const TargetMagicEffect::TargetMagicType _type,
 		ParticleSpawner* _spawner2, ParticleMover* _mover2, Vec3* _target,
 		Uint16 _effect_id, Uint16 _state) :
-		Particle(_effect, _mover, _pos, _velocity)
+		Particle(_effect, _mover, _pos, _velocity,
+			_size * (0.5 + randcoord()))
 	{
 		type = _type;
 		color[0] = red;
@@ -29,7 +30,6 @@ namespace ec
 		color[2] = blue;
 		texture = _texture;
 		state = _state;
-		size = _size * (0.5 + randcoord());
 		if (state != 0)
 			size *= 15.0 / (_LOD + 5);
 		alpha = _alpha;
@@ -72,7 +72,7 @@ namespace ec
 				case TargetMagicEffect::POISON:
 				{
 					const alpha_t scalar =
-						std::pow(randfloat(), float_time * 2.0f);
+						pow_randfloat(float_time * 2.0f);
 					alpha *= scalar;
 					break;
 				}
@@ -180,7 +180,7 @@ namespace ec
 						return false;
 
 					const float scalar =
-						std::pow(randfloat(), float_time * 5.0f);
+						pow_randfloat(float_time * 5.0f);
 					energy *= scalar;
 					if (size < 10)
 						size /= scalar;
@@ -193,7 +193,7 @@ namespace ec
 						return false;
 
 					const float scalar =
-						std::pow(randfloat(), float_time * 5.0f);
+						pow_randfloat(float_time * 5.0f);
 					energy *= scalar;
 					if (size < 6)
 						size /= scalar;
@@ -222,7 +222,7 @@ namespace ec
 						return false;
 
 					const float scalar =
-						std::pow(randfloat(), float_time * 5.0f);
+						pow_randfloat(float_time * 5.0f);
 					if (color[0] > 0.2)
 						color[0] *= scalar;
 					if (color[1] < 1.0)
@@ -239,7 +239,7 @@ namespace ec
 						return false;
 
 					const float scalar =
-						std::pow(randfloat(), float_time * 5.0f);
+						pow_randfloat(float_time * 5.0f);
 					energy *= scalar;
 					if (size < 5)
 						size /= scalar;
@@ -258,7 +258,7 @@ namespace ec
 						return false;
 
 					const float scalar =
-						std::pow(randfloat(), float_time * 2.5f);
+						pow_randfloat(float_time * 2.5f);
 					energy *= scalar;
 					alpha *= scalar;
 					break;

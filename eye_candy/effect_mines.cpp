@@ -21,14 +21,14 @@ namespace ec
 		const color_t blue, Texture* _texture, const Uint16 _LOD,
 #endif	/* NEW_TEXTURES */
 		const MineEffect::MineType _type) :
-		Particle(_effect, _mover, _pos, _velocity)
+		Particle(_effect, _mover, _pos, _velocity,
+			_size * (0.5 + randcoord()) * 10 / _LOD)
 	{
 		type = _type;
 		color[0] = red;
 		color[1] = green;
 		color[2] = blue;
 		texture = _texture;
-		size = _size * (0.5 + randcoord()) * 10 / _LOD;
 		alpha = _alpha;
 		flare_max = 5.0;
 		flare_exp = 0.1;
@@ -56,7 +56,7 @@ namespace ec
 				velocity.z *= 0.82;
 
 				const alpha_t scalar =
-					std::pow(randfloat(), float_time * 1);
+					pow_randfloat(float_time * 1);
 				alpha *= scalar;
 
 				break;
@@ -67,7 +67,7 @@ namespace ec
 					return false;
 
 				const alpha_t scalar =
-					std::pow(randfloat(), float_time * 1);
+					pow_randfloat(float_time * 1);
 				alpha *= scalar;
 				size *= 0.95;
 
@@ -89,7 +89,7 @@ namespace ec
 					return false;
 
 				const alpha_t scalar =
-					std::pow(randfloat(), float_time * 6);
+					pow_randfloat(float_time * 6);
 				alpha *= scalar;
 
 				break;
@@ -137,7 +137,7 @@ namespace ec
 
 				velocity *= 0.5;
 
-				//		const alpha_t scalar = std::pow(randfloat(), float_time * 2);
+				//		const alpha_t scalar = pow_randfloat(float_time * 2);
 				if (age > 500000)
 					alpha *= 0.8; // scalar
 
@@ -470,13 +470,12 @@ namespace ec
 #else	/* NEW_TEXTURES */
 		const color_t blue, Texture* _texture, const Uint16 _LOD):
 #endif	/* NEW_TEXTURES */
-		Particle(_effect, _mover, _pos, _velocity)
+		Particle(_effect, _mover, _pos, _velocity, _size)
 	{
 		color[0] = red;
 		color[1] = green;
 		color[2] = blue;
 		texture = _texture;
-		size = _size;
 		alpha = _alpha;
 		flare_max = 5.0;
 		flare_exp = 0.5;
@@ -490,7 +489,7 @@ namespace ec
 		const interval_t float_time = delta_t / 1000000.0;
 		const Uint64 age = get_time() - born;
 		const float age_f = (float)(age)/1000000.0f;
-		const alpha_t scalar = std::pow(randfloat(), float_time * 2);
+		const alpha_t scalar = pow_randfloat(float_time * 2);
 		if (age_f > 1.5)
 			alpha = 2.5 - age_f;
 		if (alpha < 0.01)
@@ -519,13 +518,12 @@ namespace ec
 #else	/* NEW_TEXTURES */
 		const color_t blue, Texture* _texture, const Uint16 _LOD):
 #endif	/* NEW_TEXTURES */
-		Particle(_effect, _mover, _pos, _velocity)
+		Particle(_effect, _mover, _pos, _velocity, _size)
 	{
 		color[0] = red;
 		color[1] = green;
 		color[2] = blue;
 		texture = _texture;
-		size = _size;
 		alpha = _alpha;
 		flare_max = 1.0;
 		flare_exp = 1.0;
@@ -547,7 +545,7 @@ namespace ec
 			return true;
 		}
 		const interval_t float_time = delta_t / 1000000.0;
-		const alpha_t scalar = std::pow(randfloat(), float_time);
+		const alpha_t scalar = pow_randfloat(float_time);
 		alpha *= std::sqrt(scalar);
 		if (alpha < 0.01)
 			return false;

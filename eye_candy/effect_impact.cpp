@@ -19,14 +19,14 @@ namespace ec
 		const color_t blue, Texture* _texture, const Uint16 _LOD,
 #endif	/* NEW_TEXTURES */
 		const ImpactEffect::ImpactType _type) :
-		Particle(_effect, _mover, _pos, _velocity)
+		Particle(_effect, _mover, _pos, _velocity,
+			(0.3 + randcoord()) * 15 / 3.16 / std::sqrt(_LOD))
 	{
 		type = _type;
 		color[0] = red;
 		color[1] = green;
 		color[2] = blue;
 		texture = _texture;
-		size = (0.3 + randcoord()) * 15 / 3.16 / std::sqrt(_LOD);
 		alpha = _alpha;
 		velocity /= size;
 		size *= _size;
@@ -46,7 +46,7 @@ namespace ec
 			case ImpactEffect::MAGIC_PROTECTION:
 			{
 				const alpha_t scalar = 1.0
-					- std::pow(randfloat(), float_time * 4.0f);
+					- pow_randfloat(float_time * 4.0f);
 				alpha -= scalar;
 				if (alpha < 0.02)
 					return false;
@@ -55,7 +55,7 @@ namespace ec
 			case ImpactEffect::SHIELD:
 			{
 				const alpha_t scalar = 1.0
-					- std::pow(randfloat(), float_time * 4.0f);
+					- pow_randfloat(float_time * 4.0f);
 				alpha -= scalar;
 				if (alpha < 0.02)
 					return false;
@@ -64,7 +64,7 @@ namespace ec
 			case ImpactEffect::MAGIC_IMMUNITY:
 			{
 				const alpha_t scalar = 1.0
-					- std::pow(randfloat(), float_time * 2.0f);
+					- pow_randfloat(float_time * 2.0f);
 				alpha -= scalar;
 				if (alpha < 0.02)
 					return false;
@@ -73,7 +73,7 @@ namespace ec
 			case ImpactEffect::POISON:
 			{
 				const alpha_t scalar = 1.0
-					- std::pow(randfloat(), float_time * 1.4f);
+					- pow_randfloat(float_time * 1.4f);
 				alpha -= scalar;
 				if (alpha < 0.02)
 					return false;
@@ -82,7 +82,7 @@ namespace ec
 			case ImpactEffect::BLOOD:
 			{
 				const alpha_t scalar = 1.0
-					- std::pow(randfloat(), float_time * 0.8f);
+					- pow_randfloat(float_time * 0.8f);
 				alpha -= scalar;
 				if (alpha < 0.02)
 					return false;

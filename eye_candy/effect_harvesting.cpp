@@ -19,14 +19,14 @@ namespace ec
 		const color_t green, const color_t blue, Texture* _texture,
 #endif	/* NEW_TEXTURES */
 		const Uint16 _LOD, const HarvestingEffect::HarvestingType _type) :
-		Particle(_effect, _mover, _pos, _velocity)
+		Particle(_effect, _mover, _pos, _velocity,
+			_size * (0.5 + randcoord()) * 15 / (_LOD + 5))
 	{
 		type = _type;
 		color[0] = red;
 		color[1] = green;
 		color[2] = blue;
 		texture = _texture;
-		size = _size * (0.5 + randcoord()) * 15 / (_LOD + 5);
 		alpha = _alpha;
 		flare_max = 5.0;
 		flare_exp = 0.1;
@@ -50,7 +50,7 @@ namespace ec
 					return false;
 
 				const alpha_t scalar =
-					std::pow(randfloat(), float_time * 2);
+					pow_randfloat(float_time * 2);
 				alpha *= scalar;
 
 				break;
@@ -61,7 +61,7 @@ namespace ec
 					return false;
 
 				const alpha_t scalar =
-					std::pow(randfloat(), float_time * 2);
+					pow_randfloat(float_time * 2);
 				const float age_f = (float)(age)/1000000.0f;
 				alpha *= scalar;
 				velocity.x *= 1.0f / (1.0f + age_f);
@@ -83,7 +83,7 @@ namespace ec
 					return false;
 
 				const alpha_t scalar =
-					std::pow(randfloat(), float_time * 3);
+					pow_randfloat(float_time * 3);
 				if (size < 10)
 					size /= scalar;
 				alpha *= scalar;
@@ -96,7 +96,7 @@ namespace ec
 					return false;
 
 				const alpha_t scalar =
-					std::pow(randfloat(), float_time);
+					pow_randfloat(float_time);
 				alpha *= scalar;
 
 				break;
@@ -127,9 +127,9 @@ namespace ec
 			}
 			case HarvestingEffect::RARE_STONE:
 			{
-				color[0] = 0.7 + 0.3 * sin(age / 530000.0);
-				color[1] = 0.7 + 0.3 * sin(age / 970000.0 + 1.3);
-				color[2] = 0.7 + 0.3 * sin(age / 780000.0 + 1.9);
+				color[0] = 0.7 + 0.3 * std::sin(age / 530000.0);
+				color[1] = 0.7 + 0.3 * std::sin(age / 970000.0 + 1.3);
+				color[2] = 0.7 + 0.3 * std::sin(age / 780000.0 + 1.9);
 
 				if (age < 700000)
 				{

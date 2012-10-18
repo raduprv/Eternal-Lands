@@ -14,7 +14,8 @@ namespace ec
 		ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity,
 		const color_t hue_adjust, const color_t saturation_adjust,
 		const coord_t size_scalar) :
-		Particle(_effect, _mover, _pos, _velocity)
+		Particle(_effect, _mover, _pos, _velocity,
+			size_scalar * (0.5 + 1.5 * randcoord()))
 	{
 		color_t hue, saturation, value;
 		hue = randcolor(1.0);
@@ -23,14 +24,9 @@ namespace ec
 		hue += hue_adjust;
 		if (hue > 1.0)
 			hue -= 1.0;
-		saturation *= saturation_adjust;
-		if (saturation > 1.0)
-			saturation = 1.0;
+		saturation = std::min(1.0f, saturation * saturation_adjust);
 		hsv_to_rgb(hue, saturation, value, color[0], color[1], color[2]);
-		size = size_scalar * (0.5 + 1.5 * randcoord());
-		alpha = 5.0 / size;
-		if (alpha > 1.0)
-			alpha = 1.0;
+		alpha = std::min(1.0f, 5.0f / size);
 		velocity /= size;
 		flare_max = 1.6;
 		flare_exp = 0.2;
@@ -159,7 +155,7 @@ namespace ec
 			return true;
 
 		while (((int)particles.size() < LOD * 50)
-			&& (std::pow(randfloat(), (float)usec / 100000 * LOD) < 0.5))
+			&& (pow_randfloat((float)usec / 100000 * LOD) < 0.5))
 		{
 			const Vec3 coords = spawner->get_new_coords() + *pos + Vec3(0.0,
 				randcoord() * randcoord() * 8.0 * sqrt_LOD, 0.0);

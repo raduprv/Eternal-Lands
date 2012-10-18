@@ -1306,7 +1306,7 @@ namespace ec
 	}
 
 	Particle::Particle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos,
-		const Vec3 _velocity)
+		const Vec3 _velocity, const coord_t _size)
 	{
 		effect = _effect;
 		base = effect->base;
@@ -1320,6 +1320,7 @@ namespace ec
 		energy = mover->calculate_energy(*this);
 		born = get_time();
 		mover->attachParticle(this);
+		size = _size;
 	}
 
 	Particle::~Particle()
@@ -1757,8 +1758,8 @@ namespace ec
 
 		// Simulated point gravity sources tend to promote extreme forces that, even if you fix the energy balance, will throw off angles.  Cancel them out.
 		energy_t scalar = G * mass / square(dist) + 0.00001;
-		if (scalar > max_gravity)
-			scalar = max_gravity;
+
+		scalar = std::min(scalar, max_gravity);
 		gravity_vec.normalize(scalar);
 		p.pos += p.velocity * ((coord_t)usec / 1000000.0);
 		p.velocity += gravity_vec * ((coord_t)usec / 1000000.0);
@@ -1779,10 +1780,10 @@ namespace ec
 			p.velocity = Vec3(0.0, 0.0, 0.0);
 #else	// Fast but obfuscated
 			const coord_t new_velocity_squared = 2.0 * new_velocity_energy;
-			if (new_velocity_squared)
+			if (std::abs(new_velocity_squared) > 0.00001)
 				p.velocity /= std::sqrt(p.velocity.magnitude_squared() / new_velocity_squared + 0.000001);
 			else
-				p.velocity = Vec3(0.0, 0.0, 0.0);
+				p.velocity = Vec3(0.0, 0.0, 1.0);
 #endif
 		}
 
@@ -1797,10 +1798,10 @@ namespace ec
 		else
 		obstruction_velocity = Vec3(0.0, 0.0, 0.0);
 #else	// Fast but obfuscated.
-		if (grad_mag_squared)
+		if (std::abs(grad_mag_squared) > 0.00001)
 			obstruction_velocity /= std::sqrt(obstruction_velocity.magnitude_squared() / (grad_mag_squared + 0.00001) + 0.00001);
 		else
-			obstruction_velocity = Vec3(0.0, 0.0, 0.0);
+			obstruction_velocity = Vec3(0.0, 0.0, 1.0);
 #endif
 		const coord_t obstruction_velocity_energy = 0.5
 			* obstruction_velocity.magnitude_squared();
@@ -1943,7 +1944,7 @@ namespace ec
 	{
 		Vec3 ret;
 		ret.randomize();
-		ret.normalize(randcoord() * radius);
+		ret *= randcoord_non_zero() * radius;
 		return ret;
 	}
 
@@ -1951,10 +1952,11 @@ namespace ec
 	{
 		Vec3 ret;
 		ret.randomize();
-		ret.normalize(randcoord());
+		ret *= randcoord_non_zero();
 		ret.x *= radius.x;
 		ret.y *= radius.y;
 		ret.z *= radius.z;
+
 		return ret;
 	}
 
@@ -1962,7 +1964,8 @@ namespace ec
 	{
 		Vec3 ret;
 		ret.randomize();
-		ret.normalize(radius);
+		ret *= radius;
+
 		return ret;
 	}
 
@@ -1970,10 +1973,10 @@ namespace ec
 	{
 		Vec3 ret;
 		ret.randomize();
-		ret.normalize();
 		ret.x *= radius.x;
 		ret.y *= radius.y;
 		ret.z *= radius.z;
+
 		return ret;
 	}
 

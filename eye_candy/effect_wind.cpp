@@ -161,9 +161,7 @@ namespace ec
 		hue += hue_adjust;
 		if (hue > 1.0)
 			hue -= 1.0;
-		saturation *= saturation_adjust;
-		if (saturation > 1.0)
-			saturation = 1.0;
+		saturation = std::min(1.0f, saturation * saturation_adjust);
 		hsv_to_rgb(hue, saturation, value, color[0], color[1], color[2]);
 	}
 

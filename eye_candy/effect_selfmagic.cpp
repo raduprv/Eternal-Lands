@@ -19,14 +19,14 @@ namespace ec
 		const color_t green, const color_t blue, Texture* _texture,
 #endif	/* NEW_TEXTURES */
 		const Uint16 _LOD, const SelfMagicEffect::SelfMagicType _type) :
-		Particle(_effect, _mover, _pos, _velocity)
+		Particle(_effect, _mover, _pos, _velocity,
+			_size * (0.5 + randcoord()) * 13 / (_LOD + 3))
 	{
 		type = _type;
 		color[0] = red;
 		color[1] = green;
 		color[2] = blue;
 		texture = _texture;
-		size = _size * (0.5 + randcoord()) * 13 / (_LOD + 3);
 		alpha = _alpha;
 		velocity /= size;
 		flare_max = 5.0;
@@ -50,7 +50,7 @@ namespace ec
 				if (state == 0)
 				{
 					if ((get_time() - born > 500000)
-						|| (std::pow(randfloat(), float_time * 5.0f)) < 0.5)
+						|| (pow_randfloat(float_time * 5.0f)) < 0.5)
 						state = 1;
 				}
 				else
@@ -58,8 +58,7 @@ namespace ec
 					if (alpha < 0.04)
 						return false;
 
-					const float scalar =
-						std::pow(randfloat(), float_time * 15.0f);
+					const float scalar = pow_randfloat(float_time * 15.0f);
 					energy *= scalar;
 					if (size < 10)
 						size /= scalar;
@@ -74,7 +73,7 @@ namespace ec
 				if (state == 0)
 				{
 					if ((get_time() - born > 700000)
-						|| (std::pow(randfloat(), float_time * 3.0f)) < 0.5)
+						|| (pow_randfloat(float_time * 3.0f)) < 0.5)
 						state = 1;
 				}
 				else
@@ -82,8 +81,7 @@ namespace ec
 					if (alpha < 0.02)
 						return false;
 
-					const float scalar =
-						std::pow(randfloat(), float_time * 7.0f);
+					const float scalar = pow_randfloat(float_time * 7.0f);
 					energy *= scalar;
 					alpha *= scalar;
 				}
@@ -99,7 +97,7 @@ namespace ec
 				if (state == 0)
 				{
 					if ((get_time() - born > 700000)
-						|| (std::pow(randfloat(), float_time * 3.0f)) < 0.5)
+						|| (pow_randfloat(float_time * 3.0f)) < 0.5)
 						state = 1;
 				}
 				else
@@ -107,8 +105,8 @@ namespace ec
 					if (alpha < 0.02)
 						return false;
 
-					const float scalar =
-						std::pow(randfloat(), float_time * 4.5f);
+					const float scalar = std::max(0.0001f,
+						pow_randfloat(float_time * 4.5f));
 					if (size < 10)
 						size /= scalar;
 					alpha *= square(scalar);
@@ -122,7 +120,7 @@ namespace ec
 				if (state == 0)
 				{
 					if ((get_time() - born > 700000)
-						|| (std::pow(randfloat(), float_time * 3.0f)) < 0.5)
+						|| (pow_randfloat(float_time * 3.0f)) < 0.5)
 						state = 1;
 				}
 				else
@@ -130,8 +128,8 @@ namespace ec
 					if (alpha < 0.02)
 						return false;
 
-					const float scalar =
-						std::pow(randfloat(), float_time * 4.5f);
+					const float scalar = std::max(0.0001f,
+						pow_randfloat(float_time * 4.5f));
 					if (size < 10)
 						size /= scalar;
 					alpha *= square(scalar);
@@ -145,7 +143,7 @@ namespace ec
 				if (state == 0)
 				{
 					if ((get_time() - born > 500000)
-						|| (std::pow(randfloat(), float_time * 6.0f)) < 0.5)
+						|| (pow_randfloat(float_time * 6.0f)) < 0.5)
 					{
 						for (int i = 0; i < 5; i++)
 						{
@@ -171,8 +169,7 @@ namespace ec
 					if (alpha < 0.02)
 						return false;
 
-					const float scalar =
-						std::pow(randfloat(), float_time * 10.0f);
+					const float scalar = pow_randfloat(float_time * 10.0f);
 					energy *= scalar;
 					if (size < 10)
 						size /= scalar;
@@ -198,7 +195,7 @@ namespace ec
 				if (state == 0)
 				{
 					if ((get_time() - born > 700000)
-						|| (std::pow(randfloat(), float_time * 3.0f)) < 0.5)
+						|| (pow_randfloat(float_time * 3.0f)) < 0.5)
 						state = 1;
 				}
 				else
@@ -206,8 +203,7 @@ namespace ec
 					if (alpha < 0.02)
 						return false;
 
-					const float scalar =
-						std::pow(randfloat(), float_time * 7.0f);
+					const float scalar = pow_randfloat(float_time * 7.0f);
 					alpha *= scalar;
 				}
 				break;

@@ -19,25 +19,13 @@ namespace ec
 		const color_t blue, Texture* _texture, const Uint16 _LOD,
 #endif	/* NEW_TEXTURES */
 		const MissileEffect::MissileType _type) :
-		Particle(_effect, _mover, _pos, _velocity)
+		Particle(_effect, _mover, _pos, _velocity,
+			std::max(1.0f, (float)(_size * (0.25 + randcoord(1.25)))))
 	{
-		color[0] = red + randcolor(0.25) - 0.125;
-		if (color[0] > 1.0)
-			color[0] = 1.0;
-		else if (color[0] < 0.0)
-			color[0] = 0.0;
-		color[1] = green + randcolor(0.25) - 0.125;
-		if (color[1] > 1.0)
-			color[1] = 1.0;
-		else if (color[1] < 0.0)
-			color[1] = 0.0;
-		color[2] = blue + randcolor(0.25) - 0.125;
-		if (color[2] > 1.0)
-			color[2] = 1.0;
-		else if (color[2] < 0.0)
-			color[2] = 0.0;
+		color[0] = std::max(1.0f, std::min(0.0f, red + randcolor(0.25f) - 0.125f));
+		color[1] = std::max(1.0f, std::min(0.0f, green + randcolor(0.25f) - 0.125f));
+		color[2] = std::max(1.0f, std::min(0.0f, blue + randcolor(0.25f) - 0.125f));
 		texture = _texture;
-		size = std::max(1.0f, (float)(_size * (0.25 + randcoord(1.25)))); // size >= 1.0
 		alpha = std::max(0.25f, (float)_alpha); // at least 25% alpha
 		velocity /= size;
 		flare_max = 1.6;
@@ -56,7 +44,7 @@ namespace ec
 			return false;
 
 		//const alpha_t scalar = math_cache.powf_05_close((float)delta_t / 20000);
-		alpha *= std::pow(randfloat(), delta_t / 2000000.0f); // increase this number to make particles live longer
+		alpha *= pow_randfloat(delta_t / 2000000.0f); // increase this number to make particles live longer
 		velocity *= 1 / (1 + delta_t / 500000.0); // slow down particles
 		velocity.y -= ((delta_t / 250000.0) * (delta_t / 250000.0)); // let particles drop
 
@@ -193,25 +181,25 @@ namespace ec
 			case MAGIC:
 			{
 				alpha = 1.0 + ((float)hitOrMiss - 2.0) / 4.0;
-				size = 1.25;
+				size = 1.25f;
 				break;
 			}
 			case FIRE:
 			{
 				alpha = 1.0 + ((float)hitOrMiss - 2.0) / 4.0;
-				size = 1.25;
+				size = 1.25f;
 				break;
 			}
 			case ICE:
 			{
 				alpha = 1.0 + ((float)hitOrMiss - 2.0) / 4.0;
-				size = 1.25;
+				size = 1.25f;
 				break;
 			}
 			case EXPLOSIVE:
 			{
 				alpha = 0.75 + ((float)hitOrMiss - 2.0) / 6.0;
-				size = 1.25;
+				size = 1.25f;
 				break;
 			}
 		}
@@ -226,10 +214,11 @@ namespace ec
 			return false;
 
 		const interval_t dist = (old_pos - *pos).magnitude();
-		const Vec3 direction = (old_pos - *pos).normalize(0.75);
 
 		if (dist < 1E-4)
 			return true; // do not add more particles, dist < 0.0001
+
+		const Vec3 direction = (old_pos - *pos).normalize(0.75);
 
 		for (float step = 0.0; step < dist; step += (0.1 / ((1.0
 			+ (float)hitOrMiss) / 1.5)))

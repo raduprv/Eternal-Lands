@@ -19,14 +19,14 @@ namespace ec
 		const color_t blue, Texture* _texture, const Uint16 _LOD,
 #endif	/* NEW_TEXTURES */
 		const BreathEffect::BreathType _type) :
-		Particle(_effect, _mover, _pos, _velocity)
+		Particle(_effect, _mover, _pos, _velocity,
+			_size * (0.2 + randcoord()) * 15 / _LOD)
 	{
 		type = _type;
 		color[0] = red;
 		color[1] = green;
 		color[2] = blue;
 		texture = _texture;
-		size = _size * (0.2 + randcoord()) * 15 / _LOD;
 		//  alpha = _alpha;
 		alpha = _alpha * 2 / size;
 		flare_max = 8.0;
@@ -56,7 +56,7 @@ namespace ec
 				{
 					if ((get_time() - born
 						> (type == BreathEffect::POISON ? 100000 : 400000))
-						|| (std::pow(randfloat(), float_time * 5.0f)) < 0.5)
+						|| (pow_randfloat(float_time * 5.0f)) < 0.5)
 						state = 1;
 				}
 				else
@@ -75,15 +75,12 @@ namespace ec
 						}
 					}
 
-					const alpha_t scalar =
-						std::pow(randfloat(), float_time * 5.0f);
+					const alpha_t scalar = pow_randfloat(float_time * 5.0f);
 					alpha *= scalar;
 
 					const coord_t size_scalar =
 						std::pow(0.5f, (float)delta_t / 1500000);
-					size = size / size_scalar * 0.125 + size * 0.5;
-					if (size >= 3.0)
-						size = 3.0;
+					size = std::min(3.0f, size / size_scalar * 0.125f + size * 0.5f);
 				}
 				break;
 			}
@@ -92,7 +89,7 @@ namespace ec
 				if (state == 0)
 				{
 					if ((get_time() - born > 400000)
-						|| (std::pow(randfloat(), float_time * 70.0f)) < 0.5)
+						|| (pow_randfloat(float_time * 70.0f)) < 0.5)
 						state = 1;
 				}
 				else
@@ -111,15 +108,12 @@ namespace ec
 						}
 					}
 
-					const alpha_t scalar =
-						std::pow(randfloat(), float_time * 20.0f);
+					const alpha_t scalar = pow_randfloat(float_time * 20.0f);
 					alpha *= scalar;
 
 					const coord_t size_scalar =
 						std::pow(0.5f, (float)delta_t / 1500000);
-					size = size / size_scalar * 0.125 + size * 0.5;
-					if (size >= 3.0)
-						size = 3.0;
+					size = std::min(3.0f, size / size_scalar * 0.125f + size * 0.5f);
 				}
 				break;
 			}
@@ -128,7 +122,7 @@ namespace ec
 				if (state == 0)
 				{
 					if ((get_time() - born > 400000)
-						|| (std::pow(randfloat(), float_time * 10.0f)) < 0.5)
+						|| (pow_randfloat(float_time * 10.0f)) < 0.5)
 						state = 1;
 				}
 				else
@@ -244,17 +238,14 @@ namespace ec
 						}
 					}
 
-					const alpha_t scalar =
-						std::pow(randfloat(), float_time * 5.0f);
+					const alpha_t scalar = pow_randfloat(float_time * 5.0f);
 					alpha *= scalar;
 					if (state == 2)
 						alpha *= square(scalar);
 
 					const coord_t size_scalar =
 						std::pow(0.5f, (float)delta_t / 1500000);
-					size = size / size_scalar * 0.125 + size * 0.5;
-					if (size >= 2.0)
-						size = 2.0;
+					size = std::min(2.0f, size / size_scalar * 0.125f + size * 0.5f);
 				}
 				break;
 			}
@@ -392,9 +383,7 @@ namespace ec
 
 			const coord_t size_scalar = std::pow(0.5f, (float)delta_t
 				/ 1500000);
-			size = size / size_scalar * 0.125 + size * 0.5;
-			if (size >= 3)
-				size = 3;
+			size = std::min(3.0f, size / size_scalar * 0.125f + size * 0.5f);
 		}
 
 		return true;

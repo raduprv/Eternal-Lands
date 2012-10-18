@@ -14,7 +14,7 @@ namespace ec
 		const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust,
 		const color_t saturation_adjust, const coord_t _min_height,
 		const coord_t _max_height, const coord_t _size, const alpha_t _alpha) :
-		Particle(_effect, _mover, _pos, _velocity)
+		Particle(_effect, _mover, _pos, _velocity, _size)
 	{
 		color_t hue, saturation, value;
 		hue = 0.67;
@@ -23,11 +23,8 @@ namespace ec
 		hue += hue_adjust;
 		if (hue > 1.0)
 			hue -= 1.0;
-		saturation *= saturation_adjust;
-		if (saturation > 1.0)
-			saturation = 1.0;
+		saturation = std::min(1.0f, saturation * saturation_adjust);
 		hsv_to_rgb(hue, saturation, value, color[0], color[1], color[2]);
-		size = _size;
 		alpha = _alpha;
 		flare_max = 2.0;
 		flare_exp = 0.7;

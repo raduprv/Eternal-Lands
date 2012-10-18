@@ -12,12 +12,11 @@ namespace ec
 
 	BagParticle::BagParticle(Effect* _effect, ParticleMover* _mover,
 		const Vec3 _pos, const Vec3 _velocity, const coord_t _size) :
-		Particle(_effect, _mover, _pos, _velocity)
+		Particle(_effect, _mover, _pos, _velocity, _size)
 	{
 		color[0] = randcolor(0.3) + 0.7;
 		color[1] = randcolor(0.3) + 0.5;
 		color[2] = randcolor(0.3) + 0.3;
-		size = _size;
 		alpha = 0.75;
 		flare_max = 1.0;
 		flare_exp = 1.0;

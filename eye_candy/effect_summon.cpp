@@ -14,12 +14,12 @@ namespace ec
 		ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity,
 		const coord_t _size, const alpha_t _alpha, const color_t red,
 		const color_t green, const color_t blue, const Uint16 _LOD) :
-		Particle(_effect, _mover, _pos, _velocity)
+		Particle(_effect, _mover, _pos, _velocity,
+			_size * (0.2 + randcoord()))
 	{
 		color[0] = red;
 		color[1] = green;
 		color[2] = blue;
-		size = _size * (0.2 + randcoord());
 		alpha = _alpha;
 		velocity /= size;
 		flare_max = 1.6;
@@ -67,13 +67,13 @@ namespace ec
 		const color_t green, const color_t blue, Texture* _texture,
 #endif	/* NEW_TEXTURES */
 		const Uint16 _LOD) :
-		Particle(_effect, _mover, _pos, _velocity)
+		Particle(_effect, _mover, _pos, _velocity,
+			_size * (0.2 + randcoord()))
 	{
 		color[0] = red;
 		color[1] = green;
 		color[2] = blue;
 		texture = _texture;
-		size = _size * (0.2 + randcoord());
 		alpha = _alpha;
 		velocity /= size;
 		flare_max = 4.0;

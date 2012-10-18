@@ -155,6 +155,8 @@ namespace ec
 #define rand63 MathCache::rand63
 #define randcoord MathCache::randcoord
 #define randcoord MathCache::randcoord
+#define randcoord_non_zero MathCache::randcoord_non_zero
+#define pow_randfloat MathCache::pow_randfloat
 #define randcolor MathCache::randcolor
 #define randcolor MathCache::randcolor
 #define randalpha MathCache::randalpha
@@ -455,43 +457,13 @@ namespace ec
 			}
 			;
 
-			Vec3 normalize()
+			Vec3 normalize(const coord_t scale = 1.0f)
 			{
 				coord_t tmp;
 
-				tmp = magnitude_squared();
+				tmp = std::max(magnitude_squared(), 0.0001f);
 
-				if (is_valid(tmp) && (tmp > 0.0001f))
-				{
-					(*this) /= std::sqrt(tmp);
-				}
-				else
-				{
-					x = 0.0f;
-					y = 1.0f;
-					z = 0.0f;
-				}
-
-				return *this;
-			}
-			;
-
-			Vec3 normalize(const coord_t scale)
-			{
-				coord_t tmp;
-
-				tmp = magnitude_squared();
-
-				if (is_valid(tmp) && (tmp > 0.0001f))
-				{
-					(*this) *= (scale / std::sqrt(tmp));
-				}
-				else
-				{
-					x = 0.0f;
-					y = 1.0f;
-					z = 0.0f;
-				}
+				(*this) *= (scale / std::sqrt(tmp));
 
 				return *this;
 			}
@@ -499,11 +471,14 @@ namespace ec
 
 			void randomize(const coord_t scale = 1.0)
 			{
-				x = scale * (randcoord() * 2.0 - 1.0);
-				y = scale * (randcoord() * 2.0 - 1.0);
-				z = scale * (randcoord() * 2.0 - 1.0);
+				angle_t a, b;
 
-				assert(is_valid());
+				a = randfloat() * 2.0f * M_PI;
+				b = randfloat() * 2.0f * M_PI;
+
+				x = scale * std::sin(a) * std::cos(b);
+				y = scale * std::sin(a) * std::sin(b);
+				z = scale * std::cos(a);
 			}
 			;
 
@@ -1075,7 +1050,7 @@ namespace ec
 	{
 		public:
 			Particle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos,
-				const Vec3 _velocity);
+				const Vec3 _velocity, const coord_t _size = 1.0f);
 			virtual ~Particle();
 
 			virtual bool idle(const Uint64 delta_t) = 0;
@@ -1125,6 +1100,7 @@ namespace ec
 
 			ParticleHistory* motion_blur;
 			int cur_motion_blur_point;
+
 	};
 
 	/*!

@@ -13,7 +13,8 @@ namespace ec
 	LampParticle::LampParticle(Effect* _effect, ParticleMover* _mover,
 		const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust,
 		const color_t saturation_adjust, const float _scale, const Uint16 _LOD) :
-		Particle(_effect, _mover, _pos, _velocity)
+		Particle(_effect, _mover, _pos, _velocity,
+			4 * (0.15 + 2.3 * randcoord() * randcoord()) / (LOD + 2))
 	{
 		LOD = _LOD;
 		color_t hue, saturation, value;
@@ -23,14 +24,9 @@ namespace ec
 		hue += hue_adjust;
 		if (hue > 1.0)
 			hue -= 1.0;
-		saturation *= saturation_adjust;
-		if (saturation > 1.0)
-			saturation = 1.0;
+		saturation = std::min(1.0f, saturation * saturation_adjust);
 		hsv_to_rgb(hue, saturation, value, color[0], color[1], color[2]);
-		size = 4 * (0.15 + 2.3 * randcoord() * randcoord()) / (LOD + 2);
-		alpha = 7.0 / size;
-		if (alpha > 1.0)
-			alpha = 1.0;
+		alpha = std::min(1.0f, 7.0f / size);
 		velocity /= size;
 		size *= _scale;
 		flare_max = 1.0;
@@ -78,14 +74,10 @@ namespace ec
 		color_t hue = 0.02 + randcolor(0.07);
 		color_t saturation = 0.7;
 		color_t value = 1.0;
-		saturation *= saturation_adjust;
-		if (saturation > 1.0)
-			saturation = 1.0;
+		saturation = std::min(1.0f, saturation * saturation_adjust);
 		hsv_to_rgb(hue, saturation, value, color[0], color[1], color[2]);
 		size = 9 * (2.0 + randcoord()) / (LOD + 2);
-		alpha = 1.4 * 5 / size / (LOD + 2);
-		if (alpha > 1.0)
-			alpha = 1.0;
+		alpha = std::min(1.0f, 1.4f * 5 / size / (LOD + 2));
 		size *= _scale;
 		velocity = Vec3(0.0, 0.0, 0.0);
 		flare_max = 1.0;
@@ -153,12 +145,11 @@ namespace ec
 	LampFlareParticle::LampFlareParticle(Effect* _effect,
 		ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity,
 		const float _scale) :
-		Particle(_effect, _mover, _pos, _velocity)
+		Particle(_effect, _mover, _pos, _velocity, _scale * 9.5)
 	{
 		color[0] = 1.0;
 		color[1] = 0.5;
 		color[2] = 0.1;
-		size = _scale * 9.5;
 		true_size = size;
 		alpha = 1.0;
 		velocity = Vec3(0.0, 0.0, 0.0);
@@ -265,7 +256,7 @@ namespace ec
 			return true;
 
 		while (((int)particles.size() < LOD * 15)
-			&& (std::pow(randfloat(), (LOD * 15 - particles.size()) * (interval_t)usec / 20000 / square(LOD)) < 0.5))
+			&& (pow_randfloat((LOD * 15 - particles.size()) * (interval_t)usec / 20000 / square(LOD)) < 0.5))
 		{
 			Vec3 coords = spawner->get_new_coords() + *pos;
 			coords.y += 0.11 * sqrt_scale;
@@ -279,7 +270,7 @@ namespace ec
 		}
 
 		while ((big_particles < LOD * 7)
-			&& ((std::pow(randfloat(), (LOD * 7 - big_particles) * (interval_t)usec / 9000.0f / square(LOD)) < 0.5) || (big_particles < LOD * 4)))
+			&& ((pow_randfloat((LOD * 7 - big_particles) * (interval_t)usec / 9000.0f / square(LOD)) < 0.5) || (big_particles < LOD * 4)))
 		{
 			Vec3 coords = spawner->get_new_coords();
 			coords.y *= 1.6;

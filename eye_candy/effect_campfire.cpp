@@ -38,9 +38,7 @@ namespace ec
 		hue += hue_adjust;
 		if (hue > 1.0)
 			hue -= 1.0;
-		saturation *= saturation_adjust;
-		if (saturation > 1.0)
-			saturation = 1.0;
+		saturation = std::min(1.0f, saturation * saturation_adjust);
 		hsv_to_rgb(hue, saturation, value, color[0], color[1], color[2]);
 		LOD = _LOD;
 		size = _sqrt_scale * 9.5 * (1.0 + 4 * randfloat()) / (_LOD + 5.0);
@@ -50,13 +48,12 @@ namespace ec
 		{
 			size *= 1.9;
 			alpha *= 2.0;
-			if (alpha > 1.0 - LOD * 0.07)
-				alpha = 1.0 - LOD * 0.07;
+			alpha = std::min(alpha, 1.0f - LOD * 0.07f);
 		}
 		while (alpha > 1.0)
 		{
 			alpha *= 0.7;
-			size /= 0.7;
+			size /= 0.7f;
 		}
 		velocity /= size;
 		flare_max = 1.5;
@@ -66,7 +63,7 @@ namespace ec
 			size *= 0.7;
 
 #ifdef DEBUG_POINT_PARTICLES
-		size = 10.0;
+		size = 10.0f;
 #endif
 	}
 
@@ -106,9 +103,7 @@ namespace ec
 			velocity.x = velocity.x * scalar;
 			velocity.z = velocity.z * scalar;
 		}
-		size = size / scalar * 0.3 + size * 0.7;
-		if (size >= size_max)
-			size = size_max;
+		size = std::min(size_max, size / scalar * 0.3f + size * 0.7f);
 
 		return true;
 	}
@@ -178,15 +173,11 @@ namespace ec
 		hue += hue_adjust;
 		if (hue > 1.0)
 			hue -= 1.0;
-		saturation *= saturation_adjust;
-		if (saturation > 1.0)
-			saturation = 1.0;
+		saturation = std::min(1.0f, saturation * saturation_adjust);
 		hsv_to_rgb(hue, saturation, value, color[0], color[1], color[2]);
 		size = 7.5 * (2.0 + randfloat()) / 2.5;
-		alpha = 7.0 / size / (LOD + 5);
+		alpha = std::min(1.0f, 7.0f / size / (LOD + 5));
 		size *= _sqrt_scale;
-		if (alpha > 1.0)
-			alpha = 1.0;
 		velocity = Vec3(0.0, 0.0, 0.0);
 		flare_max = 1.0;
 		flare_exp = 0.0;
@@ -295,7 +286,7 @@ namespace ec
 			return true;
 
 		while (((int)particles.size() < LOD * 100)
-			&& (std::pow(randfloat(), (interval_t)usec / 80000 * LOD) < 0.5))
+			&& (pow_randfloat((interval_t)usec / 80000 * LOD) < 0.5))
 		{
 			int state = 0;
 			if (rand() & 1)

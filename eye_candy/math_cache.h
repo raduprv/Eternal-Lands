@@ -145,12 +145,20 @@ namespace ec
 			}
 			;
 
+			static float pow_randfloat(const float exponent)
+			{
+				return std::max(0.0001f, std::pow(randfloat(), exponent));
+			}
+
+			static coord_t randcoord_non_zero(void)
+			{
+				return (coord_t)randfloat() * 0.9999f + 0.0001f;
+			}
+			;
+
 			static coord_t randcoord(void)
 			{
-				if (sizeof(coord_t) == 4) // Compiler should optimize this out.
-					return (coord_t)randfloat();
-				else
-					return (coord_t)randdouble();
+				return (coord_t)randfloat();
 			}
 			;
 
@@ -162,10 +170,7 @@ namespace ec
 
 			static color_t randcolor(void)
 			{
-				if (sizeof(color_t) == 4)
-					return (color_t)randfloat();
-				else
-					return (color_t)randdouble();
+				return (color_t)randfloat();
 			}
 			;
 
@@ -177,10 +182,7 @@ namespace ec
 
 			static alpha_t randalpha(void)
 			{
-				if (sizeof(alpha_t) == 4)
-					return (alpha_t)randfloat();
-				else
-					return (alpha_t)randdouble();
+				return (alpha_t)randfloat();
 			}
 			;
 
@@ -192,10 +194,7 @@ namespace ec
 
 			static energy_t randenergy(void)
 			{
-				if (sizeof(energy_t) == 4)
-					return (energy_t)randfloat();
-				else
-					return (energy_t)randdouble();
+				return (energy_t)randfloat();
 			}
 			;
 
@@ -207,10 +206,7 @@ namespace ec
 
 			static light_t randlight(void)
 			{
-				if (sizeof(light_t) == 4)
-					return (light_t)randfloat();
-				else
-					return (light_t)randdouble();
+				return (light_t)randfloat();
 			}
 			;
 
@@ -222,10 +218,7 @@ namespace ec
 
 			static percent_t randpercent(void)
 			{
-				if (sizeof(percent_t) == 4)
-					return (percent_t)randfloat();
-				else
-					return (percent_t)randdouble();
+				return (percent_t)randfloat();
 			}
 			;
 
@@ -237,10 +230,7 @@ namespace ec
 
 			static angle_t randangle(void)
 			{
-				if (sizeof(angle_t) == 4)
-					return (angle_t)randfloat();
-				else
-					return (angle_t)randdouble();
+				return (angle_t)randfloat();
 			}
 			;
 

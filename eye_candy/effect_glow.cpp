@@ -19,14 +19,14 @@ namespace ec
 		const color_t blue, Texture* _texture, const Uint16 _LOD,
 #endif	/* NEW_TEXTURES */
 		const GlowEffect::GlowType _type) :
-		Particle(_effect, _mover, _pos, _velocity)
+		Particle(_effect, _mover, _pos, _velocity,
+			_size * (0.5 + randcoord()) * 15 / (_LOD + 5))
 	{
 		type = _type;
 		color[0] = red;
 		color[1] = green;
 		color[2] = blue;
 		texture = _texture;
-		size = _size * (0.5 + randcoord()) * 15 / (_LOD + 5);
 		alpha = _alpha;
 		flare_max = 5.0;
 		flare_exp = 0.1;
@@ -47,14 +47,14 @@ namespace ec
 		{
 			case GlowEffect::REMOTE_HEAL_GLOW:
 			{
-				color[0] = 0.4 + randcolor(0.15) * sin(age / 530000.0);
+				color[0] = 0.4 + randcolor(0.15) * std::sin(age / 530000.0f);
 				color[1] = 0.7;
-				color[2] = 0.2 + 0.15 * sin(age / 780000.0 + 1.9);
+				color[2] = 0.2 + 0.15 * std::sin(age / 780000.0f + 1.9f);
 
 				const percent_t scalar = std::pow(0.5f, float_time
 					* 0.5f);
 				const float age_f = (float)(age)/1000000.0f;
-				size = 32.0f * age_f / exp(1.5f * age_f);
+				size = 32.0f * age_f / std::exp(1.5f * age_f);
 				alpha *= scalar;
 
 				if (alpha < 0.01)
@@ -64,13 +64,13 @@ namespace ec
 			case GlowEffect::HARM_GLOW:
 			{
 				color[0] = 1.0;
-				color[1] = 0.4 + randcolor(0.15) * sin(age / 530000.0);
-				color[2] = 0.2 + 0.15 * sin(age / 780000.0 + 1.9);
+				color[1] = 0.4 + randcolor(0.15) * std::sin(age / 530000.0f);
+				color[2] = 0.2 + 0.15 * std::sin(age / 780000.0f + 1.9f);
 
 				const percent_t scalar = std::pow(0.5f, float_time
 					* 0.5f);
 				const float age_f = (float)(age)/1000000.0f;
-				size = 32.0f * age_f / exp(1.5f * age_f);
+				size = 32.0f * age_f / std::exp(1.5f * age_f);
 				alpha *= scalar;
 
 				if (alpha < 0.01)
@@ -86,7 +86,7 @@ namespace ec
 				const percent_t scalar = std::pow(0.5f, float_time
 					* 0.5f);
 				const float age_f = (float)(age)/1000000.0f;
-				size = 32.0f * age_f / exp(1.5f * age_f);
+				size = 32.0f * age_f / std::exp(1.5f * age_f);
 				alpha *= scalar;
 
 				if (alpha < 0.01)
@@ -103,7 +103,7 @@ namespace ec
 				if (alpha < 0.01)
 					return false;
 				const alpha_t scalar =
-					std::pow(randfloat(), float_time * 1.0f); // smaller numbers -> longer effect
+					pow_randfloat(float_time * 1.0f); // smaller numbers -> longer effect
 				alpha *= scalar;
 				break;
 			}
@@ -117,7 +117,7 @@ namespace ec
 				if (alpha < 0.01)
 					return false;
 				const alpha_t scalar =
-					std::pow(randfloat(), float_time * 1.0f); // smaller numbers -> longer effect
+					pow_randfloat(float_time * 1.0f); // smaller numbers -> longer effect
 				alpha *= scalar;
 				break;
 			}
@@ -127,7 +127,7 @@ namespace ec
 					return false;
 
 				const alpha_t scalar =
-					std::pow(randfloat(), float_time);
+					pow_randfloat(float_time);
 				alpha *= scalar;
 
 				velocity.y -= ((delta_t / 250000.0) * (delta_t / 250000.0)
@@ -152,7 +152,7 @@ namespace ec
 				velocity.z *= 0.025 * float_time;
 				velocity.y += float_time;
 				const alpha_t scalar = 1.0
-					- std::pow(randfloat(), float_time * 0.75f);
+					- pow_randfloat(float_time * 0.75f);
 				alpha -= scalar;
 				if (alpha < 0.01)
 					return false;
@@ -160,7 +160,7 @@ namespace ec
 			}
 			case GlowEffect::LEVEL_UP_MAG_GLOW:
 			{
-				alpha *= std::pow(randfloat(), delta_t / 1500000.0f); // increase this number to make particles live longer
+				alpha *= pow_randfloat(delta_t / 1500000.0f); // increase this number to make particles live longer
 				if (alpha < 0.01)
 					return false;
 				const Vec3 velshift = (*(effect->pos) - pos).normalize(20.0) * float_time;
@@ -173,7 +173,7 @@ namespace ec
 			}
 			default:
 			{
-				alpha *= std::pow(randfloat(), delta_t / 1000000.0f); // increase this number to make particles live longer
+				alpha *= pow_randfloat(delta_t / 1000000.0f); // increase this number to make particles live longer
 				if (alpha < 0.01)
 					return false;
 				break;
