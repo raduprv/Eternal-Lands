@@ -8,9 +8,9 @@
 # basic compiling and linking - rarely changed
 OPTIONS = -DWINDOWS -DELC -DWINVER=0x500 -mwindows $(foreach FEATURE, $(FEATURES), -D$(FEATURE)) -D_7ZIP_ST
 CFLAGS=$(PLATFORM) $(CWARN) -O0 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
-_CFLAGS=$(PLATFORM) -O2 -fomit-frame-pointer -ffast-math -pipe -fno-strict-aliasing $(EXTRA_INCLUDES)
+_CFLAGS=$(PLATFORM) -O2 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) -DNDEBUG -fno-strict-aliasing $(EXTRA_INCLUDES)
 CXXFLAGS=$(PLATFORM) $(CXXWARN) -O0 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
-_CXXFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe -fno-strict-aliasing $(EXTRA_INCLUDES)
+_CXXFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) -DNDEBUG -fno-strict-aliasing $(EXTRA_INCLUDES)
 
 # WARNING: the order is important! If -lX uses -lY, then you must list -lX before -lY (sic!)
 LDFLAGS= $(EXTRA_LIBS) $(foreach FEATURE, $(FEATURES), $($(FEATURE)_LIBS)) \
