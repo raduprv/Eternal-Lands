@@ -680,8 +680,8 @@ int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 		//TODO: Withdraw from storage, drop on ground...
 	}
 
-	// if we're following a path, stop now
-	if (pf_follow_path)
+	// if we're following a path, stop now if the click was in the main window
+	if (pf_follow_path && !((mx >= window_width-hud_x) || (my >= window_height-hud_y)))
 	{
 		pf_destroy_path();
 	}
