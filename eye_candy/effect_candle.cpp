@@ -15,7 +15,7 @@ namespace ec
 		const color_t saturation_adjust, const float _scale, const Uint16 _LOD) :
 		Particle(_effect, _mover, _pos, _velocity)
 	{
-		color_t hue, saturation, value, unscaled_size;
+		color_t hue, saturation, value;
 		LOD = _LOD;
 		hue = 0.03 + randcolor(0.08);
 		saturation = 0.78;
