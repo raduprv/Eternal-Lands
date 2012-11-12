@@ -88,6 +88,7 @@ static const char *temp_event_string[] =
 		"While harvesting, %s upset a radon pouch, ",
 		"%s found Joker and got ",
 		"%s found Joker and failed to get",
+		"%s found 1 Pear.",
 		"While harvesting, %s lit up a match to check the dung level, ",
 		"While trying to harvest, the outhouse lid fell on %s, ",
 		"You just got food poisoned!" };
@@ -101,6 +102,7 @@ static const char *count_str[] =
 		"Upset a radon pouch",
 		"Gift from Joker",
 		"Gift from Joker (lost)",
+		"Found a Pear",
 		"Explosion while harvesting dung",
 		"Outhouse lid accident",
 		"Food poisoned" };
