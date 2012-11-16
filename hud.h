@@ -27,36 +27,6 @@ extern "C" {
 #define MAX_QUICKBAR_SLOTS 12
 /*! @} */
 
-/*!
- * structure to store the data and event handlers for an icon
- */
-typedef struct
-{
-	int state; /*!< the state of the icon, some icons are toggable */
-	/*!
-	 * \name icon image position
-	 */
-	/*! @{ */
-	float u[2];
-	float v[2];
-	/*! @} */
-
-	char * help_message; /*!< icon help message */
-    
-	/*!
-	 * \name Function pointer and data
-	 */
-	/*! @{ */
-	int (*func)(void*, int);
-	void * data;
-	/*! @} */
-
-	char data_type; /*!< data type indicator for \a data */
-	char free_data; /*!< inidicator whether to free the data after use or not */
-	Uint32 flashing;  /*!< if non-zero, the number times left to flash */
-	Uint32 last_flash_change; /*!< if flashing, the time the state last changed */
-} icon_struct;
-
 typedef enum
 {
 	HUD_INTERFACE_NEW_CHAR, /*!< the interface for the character creation screen */
@@ -89,6 +59,8 @@ extern int 	quickbar_relocatable; /*!< flag that indicates whether the quickbar 
  *      Initializes the quickbar, it's event handlers and shows it. If the quickbar has been moved by the player it will be drawn in its new position.
  */
 void init_quickbar();
+
+void switch_action_mode(int * mode, int id);
 
 extern int hud_x;
 extern int hud_y;
@@ -180,42 +152,9 @@ int check_hud_interface();
  */
 void draw_hud_frame();
 
-// icons subsection
-
-/*!
- * \ingroup windows
- * \brief Frees the data used by the icons.
- *
- *      Frees the data used by \ref icon_list.
- */
-void free_icons();
-
-/*!
- * \ingroup windows
- * \brief Flash an icon.
- *
- *      Makes the specified icon flash between pressed/not press state.
- * 
- * \param	title	the help text of the icon (to find it in the list).
- * \param	seconds	The number of seconds to flash.
- *
- * \callgraph
- */
-void flash_icon(const char* name, Uint32 seconds);
 
 
 //Functions for the function pointers
-
-/*!
- * \ingroup windows
- * \brief Sends the sit down command to the server.
- *
- *      Sends the \ref SIT_DOWN command to the server, causing the actor to either sit down or stand up, depending on the value of \ref you_sit.
- *
- * \param unused    unused
- * \param id        unused
- */
-void sit_button_pressed(void *unused, int id);
 
 /*!
  * \ingroup windows

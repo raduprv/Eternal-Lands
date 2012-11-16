@@ -11,7 +11,7 @@
 #include "console.h"
 #include "elwindows.h"
 #include "gamewin.h"
-#include "hud.h"
+#include "icon_window.h"
 #include "init.h"
 #include "interface.h"
 #include "multiplayer.h"

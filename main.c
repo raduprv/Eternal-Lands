@@ -34,7 +34,7 @@
 #include "errors.h"
 #include "events.h"
 #include "gl_init.h"
-#include "hud.h"
+#include "icon_window.h"
 #include "init.h"
 #include "item_lists.h"
 #include "interface.h"

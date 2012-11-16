@@ -24,6 +24,7 @@
 #include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
+#include "icon_window.h"
 #include "init.h"
 #include "interface.h"
 #include "io/elpathwrapper.h"

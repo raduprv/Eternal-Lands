@@ -28,6 +28,7 @@
 #include "global.h"
 #include "highlight.h"
 #include "hud.h"
+#include "icon_window.h"
 #include "init.h"
 #include "interface.h"
 #include "items.h"
