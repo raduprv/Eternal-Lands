@@ -2321,7 +2321,7 @@ static void text_widget_insert(const char *thestring)
 		if (w->Flags & TEXT_FIELD_MOUSE_EDITABLE)
 			w->Flags &= ~TEXT_FIELD_NO_KEYPRESS;
 		widget_unset_flags(insert_window_id, insert_widget_id, WIDGET_DISABLED);
-		do_paste_to_text_field(w->widget_info, thestring);
+		do_paste_to_text_field(w, thestring);
 		w->Flags |= saved_flag;
 	}
 	insert_window_id = insert_widget_id = -1;
@@ -2363,7 +2363,7 @@ static int context_edit_handler(window_info *win, int widget_id, int mx, int my,
 				char str[20];
 				safe_snprintf(str, sizeof(str), "%1d:%02d:%02d", real_game_minute/60, real_game_minute%60, real_game_second);
 				widget_unset_flags(win->window_id, widget_id, WIDGET_DISABLED);
-				do_paste_to_text_field(w->widget_info, str);
+				do_paste_to_text_field(w, str);
 			}
 			break;
 		case 6:
@@ -2374,7 +2374,7 @@ static int context_edit_handler(window_info *win, int widget_id, int mx, int my,
 					char str[20];
 					safe_snprintf(str, sizeof(str), "%d,%d", me->x_tile_pos, me->y_tile_pos);
 					widget_unset_flags(win->window_id, widget_id, WIDGET_DISABLED);
-					do_paste_to_text_field(w->widget_info, str);
+					do_paste_to_text_field(w, str);
 				}
 			}
 			break;
@@ -2571,7 +2571,7 @@ int text_field_keypress(widget_list *w, int mx, int my, Uint32 key, Uint32 unike
 			text_field_remove_selection(tf);
 			TEXT_FIELD_CLEAR_SELECTION(&tf->select);
 		}
-		start_paste(tf);
+		start_paste(w);
 		return 1;
 	}
 	else if (!alt_on && !ctrl_on && ( is_printable (ch)
@@ -2763,7 +2763,7 @@ int text_field_click(widget_list *w, int mx, int my, Uint32 flags)
 #if !defined OSX && !defined WINDOWS
 #ifdef MIDDLE_MOUSE_PASTE
 	if (flags & ELW_MID_MOUSE)
-		start_paste_from_primary(tf);
+		start_paste_from_primary(w);
 #endif // MIDDLE_MOUSE_PASTE
 #endif
 

@@ -10,13 +10,26 @@ void do_paste(const Uint8* buffer)
 	paste_in_input_field(buffer);
 }
 
-void do_paste_to_text_field(text_field *tf, const char* text)
+void do_paste_to_text_field(widget_list *widget, const char* text)
 {
-	// XXX FIXME: We should probably check if the text field
-	// is editable, and the data buffer reallocatable.
+	text_field *tf;
 	int bytes = strlen(text);
-	text_message* msg = &tf->buffer[tf->msg];
+	text_message* msg;
 	int p;
+
+	if ((widget == NULL) || (widget->widget_info == NULL))
+		return;
+
+	// if not editable, don't allow paste
+	if (!(widget->Flags & TEXT_FIELD_EDITABLE))
+		return;
+
+	tf = (text_field *) widget->widget_info;
+	msg = &tf->buffer[tf->msg];
+
+	// if can't grow and would over fill, just use what we can
+	if ((msg->len + bytes >= msg->size) && !(widget->Flags & TEXT_FIELD_CAN_GROW))
+		bytes = msg->size - msg->len - 1;
 
 	resize_text_message_data (msg, msg->len + bytes);
 
@@ -30,7 +43,7 @@ void do_paste_to_text_field(text_field *tf, const char* text)
 
 #if defined OSX
 
-void start_paste(text_field *tf)
+void start_paste(widget_list *widget)
 {
 	OSStatus err = noErr;
 	PasteboardRef gClipboard;
@@ -55,13 +68,13 @@ void start_paste(text_field *tf)
 	}
 	flavorText[flavorDataSize] = '\0';
 	CFRelease(flavorData);
-	if (!tf)
+	if (widget == NULL)
 	{
 		do_paste (flavorText);
 	}
 	else
 	{
-		do_paste_to_text_field(tf, flavorText);
+		do_paste_to_text_field(widget, flavorText);
 	}
 
 	free(flavorText);
@@ -89,16 +102,16 @@ void copy_to_clipboard(const char* text)
 
 #elif defined WINDOWS
 
-void start_paste(text_field *tf)
+void start_paste(widget_list *widget)
 {
 	if (OpenClipboard(NULL))
 	{
 		HANDLE hText = GetClipboardData (CF_TEXT);
 		char* text = GlobalLock (hText);
-		if (!tf)
+		if (widget == NULL)
 			do_paste(text);
 		else
-			do_paste_to_text_field(tf, text);
+			do_paste_to_text_field(widget, text);
 		GlobalUnlock (hText);
 		CloseClipboard ();
 	}
@@ -130,7 +143,7 @@ void copy_to_clipboard(const char* text)
 
 #else
 
-static text_field *cur_text_field = NULL;
+static widget_list *paste_to_widget = NULL;
 static char* cur_text_primary = NULL;
 static char* cur_text_clipboard = NULL;
 
@@ -155,14 +168,14 @@ void processpaste(Display *dpy, Window window, Atom atom)
 	XGetWindowProperty(dpy, window, atom, 0, (bytes+3)/4, 1, XA_STRING, &type, &actualformat, &items, &tmp, &value);
 	if(type == XA_STRING)
 	{
-		if (!cur_text_field)
+		if (paste_to_widget == NULL)
 		{
 			do_paste(value); // copy to input line
 		}
 		else
 		{
-			do_paste_to_text_field(cur_text_field, (const char*) value);
-			cur_text_field = NULL;
+			do_paste_to_text_field(paste_to_widget, (const char*) value);
+			paste_to_widget = NULL;
 		}
 	}
 	/* XGetWindowProperty allocated this, so we have to free it */
@@ -172,7 +185,7 @@ void processpaste(Display *dpy, Window window, Atom atom)
 	}
 }
 
-static void start_paste_from_target(text_field *tf, int clipboard)
+static void start_paste_from_target(widget_list *widget, int clipboard)
 {
 	Display *dpy;
 	Window window;
@@ -188,7 +201,7 @@ static void start_paste_from_target(text_field *tf, int clipboard)
 		dpy = wminfo.info.x11.display;
 		window = wminfo.info.x11.window;
 
-		cur_text_field = tf;
+		paste_to_widget = widget;
 
 		/* Set selection to XA_PRIMARY to use xterm-style select,
 		 * or CLIPBOARD to use Gnome-style cut'n'paste.
@@ -216,14 +229,14 @@ static void start_paste_from_target(text_field *tf, int clipboard)
 	}
 }
 
-void start_paste(text_field *tf)
+void start_paste(widget_list *widget)
 {
-	start_paste_from_target(tf, use_clipboard);
+	start_paste_from_target(widget, use_clipboard);
 }
 
-void start_paste_from_primary(text_field *tf)
+void start_paste_from_primary(widget_list *widget)
 {
-	start_paste_from_target(tf, 0);
+	start_paste_from_target(widget, 0);
 }
 
 static void copy_to_clipboard_target(const char* text, int clipboard)

@@ -29,11 +29,11 @@ void do_paste(const Uint8 * buffer);
 /*!
  * \brief this function is used to start paste to certain text_field.
  *
- * \param[in] tf text_field to paste text to.
+ * \param[in] widget text widget to paste text to.
  */
-void start_paste(text_field* tf);
+void start_paste(widget_list *widget);
 #if !defined OSX && !defined WINDOWS
-void start_paste_from_primary(text_field* tf);
+void start_paste_from_primary(widget_list *widget);
 #endif
 
 /*!
@@ -74,10 +74,10 @@ void process_copy(XSelectionRequestEvent* e);
 /*!
  * \brief Paste the given string into the specified text widget
  *
- * \param tf text widget to receive string
+ * \param widget text widget to receive string
  * \param text string to paste into widget
  */
-void do_paste_to_text_field (text_field *tf, const char* text);
+void do_paste_to_text_field (widget_list *widget, const char* text);
 
 #ifdef __cplusplus
 } // extern "C"
