@@ -890,6 +890,26 @@ void load_translatables();
  */
 void add_options_distringid(char * xml_id, dichar * var, char * str, char * desc);
 
+
+/*!
+ * \ingroup	translation
+ *
+ *          Retrieve a translated string by its name.
+ *
+ * \callgraph
+ */
+const char* get_named_string(const char* group_name, const char* string_name);
+
+
+/*!
+ * \ingroup	translation
+ *
+ *          Free allocated memory.
+ *
+ * \callgraph
+ */
+ void free_translations(void);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

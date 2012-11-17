@@ -266,6 +266,7 @@ int start_rendering()
 	free_bbox_tree(main_bbox_tree);
 	main_bbox_tree = NULL;
 	free_astro_buffer();
+	free_translations();
 	/* Destroy our GL context, etc. */
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 	SDL_QuitSubSystem(SDL_INIT_TIMER);

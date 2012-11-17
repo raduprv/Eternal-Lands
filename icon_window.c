@@ -27,7 +27,7 @@
 static int	display_icons_handler(window_info *win);
 static int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags);
 static int	mouseover_icons_handler(window_info *win, int mx, int my);
-static void add_icon(float u_start, float v_start, float colored_u_start, float colored_v_start, char * help_message, void * func, void * data, char data_type);
+static void add_icon(int icon_id, int coloured_icon_id, char * help_name, void * func, void * data, char data_type);
 
 
 /*!
@@ -44,7 +44,7 @@ typedef struct
 	float v[2];
 	/*! @} */
 
-	char * help_message; /*!< icon help message */
+	const char * help_message; /*!< icon help message */
     
 	/*!
 	 * \name Function pointer and data
@@ -76,277 +76,23 @@ static int	icon_cursor_x; // to help highlight the proper icon
 #define NOT_ACTIVE 0
 
 
-// the icons section
+static float get_u_start(int icon_id)
+{
 #ifdef	NEW_TEXTURES
-
-float walk_icon_u_start = (float)0/256;
-float walk_icon_v_start = (float)0/256;
-
-float colored_walk_icon_u_start = (float)64/256;
-float colored_walk_icon_v_start = (float)64/256;
-
-float eye_icon_u_start = (float)64/256;
-float eye_icon_v_start = (float)0/256;
-
-float colored_eye_icon_u_start = (float)128/256;
-float colored_eye_icon_v_start = (float)64/256;
-
-float use_with_item_icon_u_start = (float)224/256;
-float use_with_item_icon_v_start = (float)160/256;
-
-float colored_use_with_item_icon_u_start = (float)192/256;
-float colored_use_with_item_icon_v_start = (float)160/256;
-
-float emotes_icon_u_start = (float)160/256;
-float emotes_icon_v_start = (float)160/256;
-
-float colored_emotes_icon_u_start = (float)128/256;
-float colored_emotes_icon_v_start = (float)160/256;
-
-float trade_icon_u_start = (float)128/256;
-float trade_icon_v_start = (float)0/256;
-
-float colored_trade_icon_u_start = (float)192/256;
-float colored_trade_icon_v_start = (float)64/256;
-
-float sit_icon_u_start = (float)224/256;
-float sit_icon_v_start = (float)0/256;
-
-float colored_sit_icon_u_start = (float)32/256;
-float colored_sit_icon_v_start = (float)96/256;
-
-float stand_icon_u_start = (float)0/256;
-float stand_icon_v_start = (float)32/256;
-
-float colored_stand_icon_u_start = (float)64/256;
-float colored_stand_icon_v_start = (float)96/256;
-
-float spell_icon_u_start = (float)32/256;
-float spell_icon_v_start = (float)32/256;
-
-float colored_spell_icon_u_start = (float)96/256;
-float colored_spell_icon_v_start = (float)96/256;
-
-float inventory_icon_u_start = (float)96/256;
-float inventory_icon_v_start = (float)32/256;
-
-float colored_inventory_icon_u_start = (float)160/256;
-float colored_inventory_icon_v_start = (float)96/256;
-
-float manufacture_icon_u_start = (float)128/256;
-float manufacture_icon_v_start = (float)32/256;
-
-float colored_manufacture_icon_u_start = (float)0/256;
-float colored_manufacture_icon_v_start = (float)128/256;
-
-float stats_icon_u_start = (float)160/256;
-float stats_icon_v_start = (float)32/256;
-
-float colored_stats_icon_u_start = (float)32/256;
-float colored_stats_icon_v_start = (float)128/256;
-
-float options_icon_u_start = (float)192/256;
-float options_icon_v_start = (float)32/256;
-
-float colored_options_icon_u_start = (float)64/256;
-float colored_options_icon_v_start = (float)128/256;
-
-float use_icon_u_start = (float)224/256;
-float use_icon_v_start = (float)32/256;
-
-float colored_use_icon_u_start = (float)96/256;
-float colored_use_icon_v_start = (float)128/256;
-
-float attack_icon_u_start = (float)160/256;
-float attack_icon_v_start = (float)0/256;
-
-float colored_attack_icon_u_start = (float)224/256;
-float colored_attack_icon_v_start = (float)64/256;
-
-float knowledge_icon_u_start = (float)96/256;
-float knowledge_icon_v_start = (float)64/256;
-
-float colored_knowledge_icon_u_start = (float)160/256;
-float colored_knowledge_icon_v_start = (float)64/256;
-
-float encyclopedia_icon_u_start = (float)0/256;
-float encyclopedia_icon_v_start = (float)64/256;
-
-float colored_encyclopedia_icon_u_start = (float)32/256;
-float colored_encyclopedia_icon_v_start = (float)64/256;
-
-float questlog_icon_u_start = (float)96/256;
-float questlog_icon_v_start = (float)64/256;
-
-float colored_questlog_icon_u_start = (float)160/256;
-float colored_questlog_icon_v_start = (float)64/256;
-
-float map_icon_u_start = (float)128/256;
-float map_icon_v_start = (float)128/256;
-
-float colored_map_icon_u_start = (float)160/256;
-float colored_map_icon_v_start = (float)128/256;
-
-float help_icon_u_start = (float)224/256;
-float help_icon_v_start = (float)128/256;
-
-float colored_help_icon_u_start = (float)192/256;
-float colored_help_icon_v_start = (float)128/256;
-
-float console_icon_u_start = (float)32/256;
-float console_icon_v_start = (float)0/256;
-
-float colored_console_icon_u_start = (float)128/256;
-float colored_console_icon_v_start = (float)96/256;
-
-float buddy_icon_u_start = (float)64/256;
-float buddy_icon_v_start = (float)32/256;
-
-float colored_buddy_icon_u_start = (float)0/256;
-float colored_buddy_icon_v_start = (float)96/256;
-
-float notepad_icon_u_start = (float)96/256;
-float notepad_icon_v_start = (float)0/256;
-
-float colored_notepad_icon_u_start = (float)192/256;
-float colored_notepad_icon_v_start = (float)0/256;
-
-#else	/* NEW_TEXTURES */
-
-float walk_icon_u_start=(float)0/256;
-float walk_icon_v_start=1.0f-(float)0/256;
-
-float colored_walk_icon_u_start=(float)64/256;
-float colored_walk_icon_v_start=1.0f-(float)64/256;
-
-float eye_icon_u_start=(float)64/256;
-float eye_icon_v_start=1.0f-(float)0/256;
-
-float colored_eye_icon_u_start=(float)128/256;
-float colored_eye_icon_v_start=1.0f-(float)64/256;
-
-float use_with_item_icon_u_start=(float)224/256;
-float use_with_item_icon_v_start=1.0f-(float)160/256;
-
-float colored_use_with_item_icon_u_start=(float)192/256;
-float colored_use_with_item_icon_v_start=1.0f-(float)160/256;
-
-float emotes_icon_u_start=(float)160/256;
-float emotes_icon_v_start=1.0f-(float)160/256;
-
-float colored_emotes_icon_u_start=(float)128/256;
-float colored_emotes_icon_v_start=1.0f-(float)160/256;
-
-float trade_icon_u_start=(float)128/256;
-float trade_icon_v_start=1.0f-(float)0/256;
-
-float colored_trade_icon_u_start=(float)192/256;
-float colored_trade_icon_v_start=1.0f-(float)64/256;
-
-float sit_icon_u_start=(float)224/256;
-float sit_icon_v_start=1.0f-(float)0/256;
-
-float colored_sit_icon_u_start=(float)32/256;
-float colored_sit_icon_v_start=1.0f-(float)96/256;
-
-float stand_icon_u_start=(float)0/256;
-float stand_icon_v_start=1.0f-(float)32/256;
-
-float colored_stand_icon_u_start=(float)64/256;
-float colored_stand_icon_v_start=1.0f-(float)96/256;
-
-float spell_icon_u_start=(float)32/256;
-float spell_icon_v_start=1.0f-(float)32/256;
-
-float colored_spell_icon_u_start=(float)96/256;
-float colored_spell_icon_v_start=1.0f-(float)96/256;
-
-float inventory_icon_u_start=(float)96/256;
-float inventory_icon_v_start=1.0f-(float)32/256;
-
-float colored_inventory_icon_u_start=(float)160/256;
-float colored_inventory_icon_v_start=1.0f-(float)96/256;
-
-float manufacture_icon_u_start=(float)128/256;
-float manufacture_icon_v_start=1.0f-(float)32/256;
-
-float colored_manufacture_icon_u_start=(float)0/256;
-float colored_manufacture_icon_v_start=1.0f-(float)128/256;
-
-float stats_icon_u_start=(float)160/256;
-float stats_icon_v_start=1.0f-(float)32/256;
-
-float colored_stats_icon_u_start=(float)32/256;
-float colored_stats_icon_v_start=1.0f-(float)128/256;
-
-float options_icon_u_start=(float)192/256;
-float options_icon_v_start=1.0f-(float)32/256;
-
-float colored_options_icon_u_start=(float)64/256;
-float colored_options_icon_v_start=1.0f-(float)128/256;
-
-float use_icon_u_start=(float)224/256;
-float use_icon_v_start=1.0f-(float)32/256;
-
-float colored_use_icon_u_start=(float)96/256;
-float colored_use_icon_v_start=1.0f-(float)128/256;
-
-float attack_icon_u_start=(float)160/256;
-float attack_icon_v_start=1.0f-(float)0/256;
-
-float colored_attack_icon_u_start=(float)224/256;
-float colored_attack_icon_v_start=1.0f-(float)64/256;
-
-float knowledge_icon_u_start=(float)96/256;
-float knowledge_icon_v_start=1.0f-(float)64/256;
-
-float colored_knowledge_icon_u_start=(float)160/256;
-float colored_knowledge_icon_v_start=1.0f-(float)64/256;
-
-float encyclopedia_icon_u_start=(float)0/256;
-float encyclopedia_icon_v_start=1.0f-(float)64/256;
-
-float colored_encyclopedia_icon_u_start=(float)32/256;
-float colored_encyclopedia_icon_v_start=1.0f-(float)64/256;
-
-float questlog_icon_u_start=(float)96/256;
-float questlog_icon_v_start=1.0f-(float)64/256;
-
-float colored_questlog_icon_u_start=(float)160/256;
-float colored_questlog_icon_v_start=1.0f-(float)64/256;
-
-float map_icon_u_start=(float)128/256;
-float map_icon_v_start=1.0f-(float)128/256;
-
-float colored_map_icon_u_start=(float)160/256;
-float colored_map_icon_v_start=1.0f-(float)128/256;
-
-float help_icon_u_start=(float)224/256;
-float help_icon_v_start=1.0f-(float)128/256;
-
-float colored_help_icon_u_start=(float)192/256;
-float colored_help_icon_v_start=1.0f-(float)128/256;
-
-float console_icon_u_start=(float)32/256;
-float console_icon_v_start=1.0f-(float)0/256;
-
-float colored_console_icon_u_start=(float)128/256;
-float colored_console_icon_v_start=1.0f-(float)96/256;
-
-float buddy_icon_u_start=(float)64/256;
-float buddy_icon_v_start=1.0f-(float)32/256;
-
-float colored_buddy_icon_u_start=(float)0/256;
-float colored_buddy_icon_v_start=1.0f-(float)96/256;
-
-float notepad_icon_u_start=(float)96/256;
-float notepad_icon_v_start=1.0f-(float)0/256;
-
-float colored_notepad_icon_u_start=(float)192/256;
-float colored_notepad_icon_v_start=1.0f-(float)0/256;
-
-#endif	/* NEW_TEXTURES */
-
+	float tmp = 32.0 * (float)(icon_id % 8)/256.0;
+#else
+	float tmp =  1.0 - (32.0 * (float)(icon_id % 8))/256.0;
+#endif
+	//printf("%s: %d %.2f\n", __FUNCTION__, icon_id, tmp);
+	return tmp;
+}
+
+static float get_v_start(int icon_id)
+{
+	float tmp = 32.0 * (float)(icon_id >> 3)/256.0;
+	//printf("%s: %d %.2f\n", __FUNCTION__, icon_id, tmp);
+	return tmp;
+}
 
 
 void init_newchar_icons(void)
@@ -369,14 +115,13 @@ void init_newchar_icons(void)
 		}
 
 	if(icons_no) return;
+
 #ifndef NEW_NEW_CHAR_WINDOW
-	add_icon(stand_icon_u_start, stand_icon_v_start, colored_stand_icon_u_start, colored_stand_icon_v_start, tt_name, view_window, &namepass_win, DATA_WINDOW);
-	
-	add_icon(eye_icon_u_start, eye_icon_v_start, colored_eye_icon_u_start, colored_eye_icon_v_start, tt_customize, view_window, &color_race_win, DATA_WINDOW);
+	add_icon(0, 18, "name_pass", view_window, &namepass_win, DATA_WINDOW);
+	add_icon(2, 20, "customize", view_window, &color_race_win, DATA_WINDOW);
 #endif
-	add_icon(help_icon_u_start, help_icon_v_start, colored_help_icon_u_start, colored_help_icon_v_start, tt_help, view_window, &tab_help_win, DATA_WINDOW);
-	
-	add_icon(options_icon_u_start, options_icon_v_start, colored_options_icon_u_start, colored_options_icon_v_start, tt_options, view_window, &elconfig_win, DATA_WINDOW);
+	add_icon(39, 38, "help", view_window, &tab_help_win, DATA_WINDOW);
+	add_icon(14, 34, "opts", view_window, &elconfig_win, DATA_WINDOW);
 }
 
 void init_peace_icons(void)
@@ -396,56 +141,43 @@ void init_peace_icons(void)
 
 	if(icons_no) return;
 
-	add_icon(walk_icon_u_start, walk_icon_v_start, colored_walk_icon_u_start, colored_walk_icon_v_start, tt_walk, switch_action_mode, (void *)ACTION_WALK, DATA_ACTIONMODE);
-	
+	add_icon(0, 18, "walk", switch_action_mode, (void *)ACTION_WALK, DATA_ACTIONMODE);
 	if(you_sit)
-		add_icon(stand_icon_u_start, stand_icon_v_start, colored_stand_icon_u_start, colored_stand_icon_v_start, tt_stand, sit_button_pressed, NULL, DATA_NONE);
+		add_icon(8, 26, "stand", sit_button_pressed, NULL, DATA_NONE);
 	else
-		add_icon(sit_icon_u_start, sit_icon_v_start, colored_sit_icon_u_start, colored_sit_icon_v_start, tt_sit, sit_button_pressed, NULL, DATA_NONE);
-	
-	add_icon(eye_icon_u_start, eye_icon_v_start, colored_eye_icon_u_start, colored_eye_icon_v_start, tt_look, switch_action_mode, (void *)ACTION_LOOK, DATA_ACTIONMODE);
-
-	add_icon(use_icon_u_start, use_icon_v_start, colored_use_icon_u_start, colored_use_icon_v_start, tt_use, switch_action_mode, (void *)ACTION_USE, DATA_ACTIONMODE);
-	
-	add_icon(use_with_item_icon_u_start, use_with_item_icon_v_start, colored_use_with_item_icon_u_start, colored_use_with_item_icon_v_start, tt_use_witem, switch_action_mode, (void *)ACTION_USE_WITEM, DATA_ACTIONMODE);
-
-	add_icon(trade_icon_u_start, trade_icon_v_start, colored_trade_icon_u_start, colored_trade_icon_v_start, tt_trade, switch_action_mode, (void *)ACTION_TRADE, DATA_ACTIONMODE);
-
-	add_icon(attack_icon_u_start, attack_icon_v_start, colored_attack_icon_u_start, colored_attack_icon_v_start, tt_attack, switch_action_mode, (void *)ACTION_ATTACK, DATA_ACTIONMODE);
+		add_icon(7, 25, "sit", sit_button_pressed, NULL, DATA_NONE);
+	add_icon(2, 20, "look", switch_action_mode, (void *)ACTION_LOOK, DATA_ACTIONMODE);
+	add_icon(15, 35, "use", switch_action_mode, (void *)ACTION_USE, DATA_ACTIONMODE);
+	add_icon(47, 46, "use_witem", switch_action_mode, (void *)ACTION_USE_WITEM, DATA_ACTIONMODE);
+	add_icon(4, 22, "trade", switch_action_mode, (void *)ACTION_TRADE, DATA_ACTIONMODE);
+	add_icon(5, 23, "attack", switch_action_mode, (void *)ACTION_ATTACK, DATA_ACTIONMODE);
 
 	//done with the integer variables - now for the windows
-	
-	add_icon(inventory_icon_u_start, inventory_icon_v_start, colored_inventory_icon_u_start, colored_inventory_icon_v_start, tt_inventory, view_window, &items_win, DATA_WINDOW);
-	
-	add_icon(spell_icon_u_start, spell_icon_v_start, colored_spell_icon_u_start, colored_spell_icon_v_start, tt_spell, view_window, &sigil_win, DATA_WINDOW);
-	
-	add_icon(manufacture_icon_u_start, manufacture_icon_v_start, colored_manufacture_icon_u_start, colored_manufacture_icon_v_start, tt_manufacture, view_window, &manufacture_win, DATA_WINDOW);
-
-	add_icon(emotes_icon_u_start, emotes_icon_v_start, colored_emotes_icon_u_start, colored_emotes_icon_v_start, tt_emotewin, view_window, &emotes_win, DATA_WINDOW);
-
-	add_icon(questlog_icon_u_start, questlog_icon_v_start, colored_questlog_icon_u_start, colored_questlog_icon_v_start, tt_questlog, view_window, &questlog_win, DATA_WINDOW);
-
-	add_icon(map_icon_u_start, map_icon_v_start, colored_map_icon_u_start, colored_map_icon_v_start, tt_mapwin, view_map_win, &map_root_win, DATA_MODE);
-
-	add_icon(notepad_icon_u_start, notepad_icon_v_start, colored_notepad_icon_u_start, colored_notepad_icon_v_start, tt_info, view_window, &tab_info_win, DATA_WINDOW);
-
-	add_icon(buddy_icon_u_start, buddy_icon_v_start, colored_buddy_icon_u_start, colored_buddy_icon_v_start, tt_buddy, view_window, &buddy_win, DATA_WINDOW);
-
-	add_icon(stats_icon_u_start, stats_icon_v_start, colored_stats_icon_u_start, colored_stats_icon_v_start, tt_stats, view_window, &tab_stats_win, DATA_WINDOW);
-
-	add_icon(console_icon_u_start, console_icon_v_start, colored_console_icon_u_start, colored_console_icon_v_start, tt_console, view_console_win, &console_root_win, DATA_MODE);
-
-	add_icon(help_icon_u_start, help_icon_v_start, colored_help_icon_u_start, colored_help_icon_v_start, tt_help, view_window, &tab_help_win, DATA_WINDOW);
-
-	add_icon(options_icon_u_start, options_icon_v_start, colored_options_icon_u_start, colored_options_icon_v_start, tt_options, view_window, &elconfig_win, DATA_WINDOW);
+	add_icon(11, 29, "invent", view_window, &items_win, DATA_WINDOW);
+	add_icon(9, 27, "spell", view_window, &sigil_win, DATA_WINDOW);
+	add_icon(12, 32, "manu", view_window, &manufacture_win, DATA_WINDOW);
+	add_icon(45, 44, "emotewin", view_window, &emotes_win, DATA_WINDOW);
+	add_icon(19, 21, "quest", view_window, &questlog_win, DATA_WINDOW);
+	add_icon(36, 37, "map", view_map_win, &map_root_win, DATA_MODE);
+	add_icon(3, 6, "info", view_window, &tab_info_win, DATA_WINDOW);
+	add_icon(10, 24, "buddy", view_window, &buddy_win, DATA_WINDOW);
+	add_icon(13, 33, "stats", view_window, &tab_stats_win, DATA_WINDOW);
+	add_icon(1, 28, "console", view_console_win, &console_root_win, DATA_MODE);
+	add_icon(39, 38, "help", view_window, &tab_help_win, DATA_WINDOW);
+	add_icon(14, 34, "opts", view_window, &elconfig_win, DATA_WINDOW);
 
 	resize_window(icons_win, 32*icons_no, 32);
-
 }
 
-static void	add_icon(float u_start, float v_start, float colored_u_start, float colored_v_start, char * help_message, void * func, void * data, char data_type)
+static void add_icon(int icon_id, int coloured_icon_id, char * help_name, void * func, void * data, char data_type)
 {
 	int no=icons_no++;
+
+	float u_start = get_u_start(icon_id);
+	float v_start = get_v_start(icon_id);
+	float colored_u_start = get_u_start(coloured_icon_id);
+	float colored_v_start = get_v_start(coloured_icon_id);
+
 	icon_list[no]=(icon_struct*)calloc(1,sizeof(icon_struct));
 	if(no == 0)
 		icon_list[no]->state=PRESSED;
@@ -456,7 +188,7 @@ static void	add_icon(float u_start, float v_start, float colored_u_start, float 
 	icon_list[no]->v[0]=v_start;
 	icon_list[no]->v[1]=colored_v_start;
 	icon_list[no]->func=func;
-	icon_list[no]->help_message=help_message;
+	icon_list[no]->help_message=get_named_string("tooltips", help_name);
 	icon_list[no]->free_data=0;
 	icon_list[no]->flashing=0;
 	switch(data_type)
@@ -637,22 +369,22 @@ void you_sit_down()
 {
 	you_sit=1;
 	if(!icon_list[1])return;
-	icon_list[1]->u[0]=stand_icon_u_start;//Change the icon to stand
-	icon_list[1]->u[1]=colored_stand_icon_u_start;
-	icon_list[1]->v[0]=stand_icon_v_start;
-	icon_list[1]->v[1]=colored_stand_icon_v_start;
-	icon_list[1]->help_message=tt_stand;
+	icon_list[1]->u[0]=get_u_start(8);//Change the icon to stand
+	icon_list[1]->u[1]=get_u_start(26);
+	icon_list[1]->v[0]=get_v_start(8);
+	icon_list[1]->v[1]=get_v_start(26);
+	icon_list[1]->help_message=get_named_string("tooltips", "stand");
 }
 
 void you_stand_up()
 {
 	you_sit=0;
 	if(!icon_list[1])return;
-	icon_list[1]->u[0]=sit_icon_u_start;
-	icon_list[1]->u[1]=colored_sit_icon_u_start;
-	icon_list[1]->v[0]=sit_icon_v_start;
-	icon_list[1]->v[1]=colored_sit_icon_v_start;
-	icon_list[1]->help_message=tt_sit;
+	icon_list[1]->u[0]=get_u_start(7);
+	icon_list[1]->u[1]=get_u_start(25);
+	icon_list[1]->v[0]=get_v_start(7);
+	icon_list[1]->v[1]=get_v_start(25);
+	icon_list[1]->help_message=get_named_string("tooltips", "sit");
 }
 
 
