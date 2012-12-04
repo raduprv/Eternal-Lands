@@ -1603,6 +1603,7 @@ int save_local_data(char * text, int len){
 	// should be renamed when NEW_QUESTLOG #def is removed
 	unload_questlog();
 	save_item_lists();
+	save_channel_colors();
 	LOG_TO_CONSOLE(c_green1, "Local files saved, asking server to save too...");
 	return 0;
 }
@@ -1693,6 +1694,7 @@ add_command("horse", &horse_cmd);
 	add_command(cmd_afk, &command_afk);
 	add_command("jc", &command_jlc);//since we only mess with the part after the
 	add_command("lc", &command_jlc);//command, one function can do both
+	add_command("channel_colors", &command_channel_colors);
 	add_command(help_cmd_str, &command_help);
 	add_command("sto", &command_storage);
 	add_command("storage", &command_storage);

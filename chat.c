@@ -23,6 +23,7 @@
 #include "gl_init.h"
 #endif
 #include "io/elfilewrapper.h"
+#include "io/elpathwrapper.h"
 #include "sound.h"
 
 int chat_win = -1;
@@ -34,6 +35,7 @@ void remove_tab_button (Uint8 channel);
 int add_tab_button (Uint8 channel);
 void update_tab_button_idx (Uint8 old_idx, Uint8 new_idx);
 void convert_tabs (int new_wc);
+int display_channel_color_win(Uint32 channel_number);
 
 Uint32 active_channels[MAX_ACTIVE_CHANNELS];
 Uint8 current_channel = 0;
@@ -652,11 +654,27 @@ int chat_tabs_click (widget_list *widget, int mx, int my, Uint32 flags)
 	int id;
 	
 	id = tab_collection_get_tab_id (chat_win, widget->id);
-	if (id != channels[active_tab].tab_id)
+
+	if (flags&ELW_RIGHT_MOUSE)
 	{
-		//We're not looking at the tab we clicked
-		switch_to_chat_tab(id, 1);
-		return 1;
+		int i;
+		for(i=0; i < MAX_CHAT_TABS; i++)
+		{
+			if(channels[i].tab_id == id)
+			{
+				display_channel_color_win(get_active_channel(channels[i].chan_nr));
+				return 1;
+			}
+		}
+	}
+	else
+	{
+		if (id != channels[active_tab].tab_id)
+		{
+			//We're not looking at the tab we clicked
+			switch_to_chat_tab(id, 1);
+			return 1;
+		}
 	}
 	return 0;
 }
@@ -1406,13 +1424,19 @@ int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
 		// shouldn't happen
 		return 0;
 	
-
-	// NOTE: This is an optimization, instead of redefining a "Tab/Button" type.
-	//		 Further use of this would be best served be a new definition.
-	// Detect clicking on 'x'
-	if(tabs[itab].channel == CHAT_CHANNEL1 || tabs[itab].channel == CHAT_CHANNEL2 ||
-	   tabs[itab].channel == CHAT_CHANNEL3)
+	if (flags&ELW_RIGHT_MOUSE)
 	{
+		display_channel_color_win(get_active_channel(tabs[itab].channel));
+		return 1;
+	}
+	else
+	{
+		// NOTE: This is an optimization, instead of redefining a "Tab/Button" type.
+		//		 Further use of this would be best served be a new definition.
+		// Detect clicking on 'x'
+		if(tabs[itab].channel == CHAT_CHANNEL1 || tabs[itab].channel == CHAT_CHANNEL2 ||
+		   tabs[itab].channel == CHAT_CHANNEL3)
+		{
 			int x = w->len_x - 6;
 			int y = 5;
 			char str[256];
@@ -1440,16 +1464,16 @@ int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
 				do_click_sound();
 				return 1; //The click was handled, no need to continue
 			}
-	}
+		}
 
 
-	if (current_tab != itab)
-	{
-		switch_to_tab(itab);
-		do_click_sound();
+		if (current_tab != itab)
+		{
+			switch_to_tab(itab);
+			do_click_sound();
+		}
+		lines_to_show = 10;
 	}
-	lines_to_show = 10;
-	
 	return 1;
 }
 
@@ -2077,4 +2101,355 @@ void chan_target_name(char * text, int len)
 	}
 	safe_snprintf(buffer, sizeof(buffer), "@@%d%s", num, text+2+mylen);
 	send_input_text_line (buffer, strlen(buffer));
+}
+
+////////////////////////////////////////////////////////////////////////
+//  channel color stuff
+
+channelcolor channel_colors[MAX_CHANNEL_COLORS];
+char channel_number_buffer[10] = {0};
+Uint32 channel_to_change = 0;
+int selected_color = -1;
+static int channel_colors_set = 0;
+
+int channel_color_win = -1;
+int color_button1_id = 0;
+int color_button2_id = 7;
+int color_button3_id = 14;
+int color_button4_id = 21;
+int color_button5_id = 1;
+int color_button6_id = 8;
+int color_button7_id = 15;
+int color_button8_id = 22;
+int color_button9_id = 2;
+int color_button10_id = 9;
+int color_button11_id = 16;
+int color_button12_id = 23;
+int color_button13_id = 3;
+int color_button14_id = 10;
+int color_button15_id = 17;
+int color_button16_id = 24;
+int color_button17_id = 4;
+int color_button18_id = 11;
+int color_button19_id = 18;
+int color_button20_id = 25;
+int color_button21_id = 5;
+int color_button22_id = 12;
+int color_button23_id = 19;
+int color_button24_id = 26;
+int color_button25_id = 6;
+int color_button26_id = 13;
+int color_button27_id = 20;
+int color_button28_id = 27;
+int color_set_button_id = 31;
+int color_delete_button_id = 32;
+int color_label_id = 41;
+
+int display_channel_color_handler(window_info *win)
+{
+	char string[50] = {0};
+
+	safe_snprintf(string, sizeof(string), "%s %i", channel_color_str, channel_to_change);
+	label_set_text(channel_color_win, color_label_id, string);
+	return 1;
+}
+
+int click_channel_color_handler(widget_list *w, int mx, int my, Uint32 flags)
+{
+	if(w->id >= color_button1_id && w->id <= color_button28_id)
+	{
+		selected_color = w->id;
+		do_click_sound();
+		return 1;
+	}
+	if(w->id == color_set_button_id)
+	{
+		if(channel_to_change > 0 && selected_color >= 0)
+		{
+			int i;
+			for(i=0; i<MAX_CHANNEL_COLORS; i++)
+			{
+				if(channel_colors[i].nr == channel_to_change)
+					break;
+			}
+			if(i<MAX_CHANNEL_COLORS)
+			{
+				channel_colors[i].color = selected_color;
+				do_click_sound();
+				hide_window(channel_color_win);
+				channel_to_change = 0;
+				selected_color = -1;
+				channel_colors_set = 1;
+				return 1;
+			}
+			for(i=0; i<MAX_CHANNEL_COLORS; i++)
+			{
+				if(channel_colors[i].nr == 0)
+					break;
+			}
+			
+			if(i<MAX_CHANNEL_COLORS)
+			{
+				channel_colors[i].nr = channel_to_change;
+				channel_colors[i].color = selected_color;
+				do_click_sound();
+				hide_window(channel_color_win);
+				channel_to_change = 0;
+				selected_color = -1;
+				channel_colors_set = 1;
+				return 1;
+			} else {
+				LOG_TO_CONSOLE(c_red3, "You reached the maximum numbers of channel colors.");
+				return 1;
+			}
+		}
+		return 0;
+	}
+	if(w->id == color_delete_button_id)
+	{
+		int i;
+		for(i=0; i<MAX_CHANNEL_COLORS; i++)
+		{
+			if(channel_colors[i].nr == channel_to_change)
+				break;
+		}
+		if(i<MAX_CHANNEL_COLORS)
+		{
+			channel_colors[i].color = -1;
+			channel_colors[i].nr = 0;
+			channel_colors_set = 1;
+		}
+		do_click_sound();
+		hide_window(channel_color_win);
+		channel_to_change = 0;
+		selected_color = -1;
+		return 1;
+	}
+	return 0;
+}
+
+int display_channel_color_win(Uint32 channel_number)
+{
+	int our_root_win = -1;
+	int x, y = 6;
+	int string_width;
+	int window_width = 470;
+
+	if(channel_number == 0){
+		return -1;
+	}
+
+	channel_to_change = channel_number;
+
+	if(channel_color_win < 0) 
+	{
+		if (!windows_on_top) {
+			our_root_win = game_root_win;
+		}
+		/* Create the window */
+		channel_color_win = create_window(channel_color_title_str, our_root_win, 0, 300, 40, window_width, 350, ELW_WIN_DEFAULT);
+		set_window_handler(channel_color_win, ELW_HANDLER_DISPLAY, &display_channel_color_handler);
+		/* Add labels */
+		x = 10;
+		color_label_id = label_add_extended(channel_color_win, color_label_id, NULL, x, y, 0, 0.9f, 0.77f, 0.57f, 0.39f, channel_color_str);
+		/* Add color buttons */
+		y += 24;
+		color_button1_id = button_add_extended(channel_color_win, color_button1_id, NULL, x, y, 107, 30, 0, 1.0, 1.0, 0.7, 0.76, "red1");
+		widget_set_OnClick(channel_color_win, color_button1_id, click_channel_color_handler);
+		x += 115;
+		color_button2_id = button_add_extended(channel_color_win, color_button2_id, NULL, x, y, 107, 30, 0, 1.0, 0.98, 0.35, 0.35, "red2");
+		widget_set_OnClick(channel_color_win, color_button2_id, click_channel_color_handler);
+		x += 115;
+		color_button3_id = button_add_extended(channel_color_win, color_button3_id, NULL, x, y, 107, 30, 0, 1.0, 0.87, 0.0, 0.0, "red3");
+		widget_set_OnClick(channel_color_win, color_button3_id, click_channel_color_handler);
+		x += 115;
+		color_button4_id = button_add_extended(channel_color_win, color_button4_id, NULL, x, y, 107, 30, 0, 1.0, 0.49, 0.01, 0.01, "red4");
+		widget_set_OnClick(channel_color_win, color_button4_id, click_channel_color_handler);
+		x = 10;
+		y += 39;
+		color_button5_id = button_add_extended(channel_color_win, color_button5_id, NULL, x, y, 107, 30, 0, 1.0, 0.97, 0.77, 0.62, "orange1");
+		widget_set_OnClick(channel_color_win, color_button5_id, click_channel_color_handler);
+		x += 115;
+		color_button6_id = button_add_extended(channel_color_win, color_button6_id, NULL, x, y, 107, 30, 0, 1.0, 0.99, 0.48, 0.23, "orange2");
+		widget_set_OnClick(channel_color_win, color_button6_id, click_channel_color_handler);
+		x += 115;
+		color_button7_id = button_add_extended(channel_color_win, color_button7_id, NULL, x, y, 107, 30, 0, 1.0, 0.75, 0.4, 0.06, "orange3");
+		widget_set_OnClick(channel_color_win, color_button7_id, click_channel_color_handler);
+		x += 115;
+		color_button8_id = button_add_extended(channel_color_win, color_button8_id, NULL, x, y, 107, 30, 0, 1.0, 0.51, 0.19, 0.01, "orange4");
+		widget_set_OnClick(channel_color_win, color_button8_id, click_channel_color_handler);
+		x = 10;
+		y += 39;
+		color_button9_id = button_add_extended(channel_color_win, color_button9_id, NULL, x, y, 107, 30, 0, 1.0, 0.98, 0.98, 0.75, "yellow1");
+		widget_set_OnClick(channel_color_win, color_button9_id, click_channel_color_handler);
+		x += 115;
+		color_button10_id = button_add_extended(channel_color_win, color_button10_id, NULL, x, y, 107, 30, 0, 1.0, 0.99, 0.93, 0.22, "yellow2");
+		widget_set_OnClick(channel_color_win, color_button10_id, click_channel_color_handler);
+		x += 115;
+		color_button11_id = button_add_extended(channel_color_win, color_button11_id, NULL, x, y, 107, 30, 0, 1.0, 0.91, 0.68, 0.08, "yellow3");
+		widget_set_OnClick(channel_color_win, color_button11_id, click_channel_color_handler);
+		x += 115;
+		color_button12_id = button_add_extended(channel_color_win, color_button12_id, NULL, x, y, 107, 30, 0, 1.0, 0.51, 0.44, 0.02, "yellow4");
+		widget_set_OnClick(channel_color_win, color_button12_id, click_channel_color_handler);
+		x = 10;
+		y += 39;
+		color_button13_id = button_add_extended(channel_color_win, color_button13_id, NULL, x, y, 107, 30, 0, 1.0, 0.79, 1.0, 0.8, "green1");
+		widget_set_OnClick(channel_color_win, color_button13_id, click_channel_color_handler);
+		x += 115;
+		color_button14_id = button_add_extended(channel_color_win, color_button14_id, NULL, x, y, 107, 30, 0, 1.0, 0.02, 0.98, 0.61, "green2");
+		widget_set_OnClick(channel_color_win, color_button14_id, click_channel_color_handler);
+		x += 115;
+		color_button15_id = button_add_extended(channel_color_win, color_button15_id, NULL, x, y, 107, 30, 0, 1.0, 0.15, 0.77, 0.0, "green3");
+		widget_set_OnClick(channel_color_win, color_button15_id, click_channel_color_handler);
+		x += 115;
+		color_button16_id = button_add_extended(channel_color_win, color_button16_id, NULL, x, y, 107, 30, 0, 1.0, 0.08, 0.58, 0.02, "green4");
+		widget_set_OnClick(channel_color_win, color_button16_id, click_channel_color_handler);
+		x = 10;
+		y += 39;
+		color_button17_id = button_add_extended(channel_color_win, color_button17_id, NULL, x, y, 107, 30, 0, 1.0, 0.66, 0.94, 0.98, "blue1");
+		widget_set_OnClick(channel_color_win, color_button17_id, click_channel_color_handler);
+		x += 115;
+		color_button18_id = button_add_extended(channel_color_win, color_button18_id, NULL, x, y, 107, 30, 0, 1.0, 0.46, 0.59, 0.97, "blue2");
+		widget_set_OnClick(channel_color_win, color_button18_id, click_channel_color_handler);
+		x += 115;
+		color_button19_id = button_add_extended(channel_color_win, color_button19_id, NULL, x, y, 107, 30, 0, 1.0, 0.27, 0.28, 0.82, "blue3");
+		widget_set_OnClick(channel_color_win, color_button19_id, click_channel_color_handler);
+		x += 115;
+		color_button20_id = button_add_extended(channel_color_win, color_button20_id, NULL, x, y, 107, 30, 0, 1.0, 0.06, 0.06, 0.73, "blue4");
+		widget_set_OnClick(channel_color_win, color_button20_id, click_channel_color_handler);
+		x = 10;
+		y += 39;
+		color_button21_id = button_add_extended(channel_color_win, color_button21_id, NULL, x, y, 107, 30, 0, 1.0, 0.82, 0.71, 0.98, "purple1");
+		widget_set_OnClick(channel_color_win, color_button21_id, click_channel_color_handler);
+		x += 115;
+		color_button22_id = button_add_extended(channel_color_win, color_button22_id, NULL, x, y, 107, 30, 0, 1.0, 0.85, 0.36, 0.96, "purple2");
+		widget_set_OnClick(channel_color_win, color_button22_id, click_channel_color_handler);
+		x += 115;
+		color_button23_id = button_add_extended(channel_color_win, color_button23_id, NULL, x, y, 107, 30, 0, 1.0, 0.51, 0.33, 0.96, "purple3");
+		widget_set_OnClick(channel_color_win, color_button23_id, click_channel_color_handler);
+		x += 115;
+		color_button24_id = button_add_extended(channel_color_win, color_button24_id, NULL, x, y, 107, 30, 0, 1.0, 0.42, 0.0, 0.67, "purple4");
+		widget_set_OnClick(channel_color_win, color_button24_id, click_channel_color_handler);
+		x = 10;
+		y += 39;
+		color_button25_id = button_add_extended(channel_color_win, color_button25_id, NULL, x, y, 107, 30, 0, 1.0, 1.0, 1.0, 1.0, "grey1");
+		widget_set_OnClick(channel_color_win, color_button25_id, click_channel_color_handler);
+		x += 115;
+		color_button26_id = button_add_extended(channel_color_win, color_button26_id, NULL, x, y, 107, 30, 0, 1.0, 0.6, 0.6, 0.6, "grey2");
+		widget_set_OnClick(channel_color_win, color_button26_id, click_channel_color_handler);
+		x += 115;
+		color_button27_id = button_add_extended(channel_color_win, color_button27_id, NULL, x, y, 107, 30, 0, 1.0, 0.62, 0.62, 0.62, "grey3");
+		widget_set_OnClick(channel_color_win, color_button27_id, click_channel_color_handler);
+		x += 115;
+		color_button28_id = button_add_extended(channel_color_win, color_button28_id, NULL, x, y, 107, 30, 0, 1.0, 0.16, 0.16, 0.16, "grey4");
+		widget_set_OnClick(channel_color_win, color_button28_id, click_channel_color_handler);
+		/* Add set/delete buttons */
+		x = (window_width - 100 - 110) /3;
+		y += 44;
+		color_set_button_id = button_add_extended(channel_color_win, color_set_button_id, NULL, x, y, 110, 30, 0, 1.0, 0.77f, 0.57f, 0.39f, channel_color_add_str);
+		widget_set_OnClick(channel_color_win, color_set_button_id, click_channel_color_handler);
+		x += x + 110;
+		color_delete_button_id = button_add_extended(channel_color_win, color_delete_button_id, NULL, x, y, 110, 30, 0, 1.0, 0.77f, 0.57f, 0.39f, channel_color_delete_str);
+		widget_set_OnClick(channel_color_win, color_delete_button_id, click_channel_color_handler);
+	} 
+	else
+	{
+		toggle_window(channel_color_win);
+	}
+
+	return channel_color_win;
+}
+
+void load_channel_colors (){
+	char fname[128];
+	FILE *fp;
+	int i;
+	off_t file_size;
+
+	if (channel_colors_set) {
+		/*
+		 * save existing channel colors instead of loading them if we are already logged in
+		 * this will take place when relogging after disconnection
+		 */
+		save_channel_colors();
+		return;
+	}
+
+	for(i=0; i<MAX_CHANNEL_COLORS; i++)
+	{
+		channel_colors[i].nr = 0;
+		channel_colors[i].color = -1;
+	}
+
+	safe_snprintf(fname, sizeof(fname), "channel_colors_%s.dat",username_str);
+	my_tolower(fname);
+
+	/* sliently ignore non existing file */
+	if (file_exists_config(fname)!=1)
+		return;
+
+	file_size = get_file_size_config(fname);
+
+	/* if the file exists but is not a valid size, don't use it */
+	if ((file_size == 0) || (file_size != sizeof(channel_colors)))
+	{
+		LOG_ERROR("%s: Invalid format (size mismatch) \"%s\"\n", reg_error_str, fname);
+		return;
+	}
+
+	fp = open_file_config(fname,"rb");
+	if(fp == NULL){
+		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, fname, strerror(errno));
+		return;
+	}
+
+	if (fread (channel_colors,sizeof(channel_colors),1, fp) != 1)
+	{
+		LOG_ERROR("%s() fail during read of file [%s] : %s\n", __FUNCTION__, fname, strerror(errno));
+		fclose (fp);
+		return;
+	}
+
+	fclose (fp);
+	channel_colors_set = 1;
+}
+
+void save_channel_colors(){
+	char fname[128];
+	FILE *fp;
+
+	if (!channel_colors_set)
+		return;
+
+	safe_snprintf(fname, sizeof(fname), "channel_colors_%s.dat",username_str);
+	my_tolower(fname);
+	fp=open_file_config(fname,"wb");
+	if(fp == NULL){
+		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, fname, strerror(errno));
+		return;
+	}
+
+	if (fwrite (channel_colors,sizeof(channel_colors),1, fp) != 1)
+	{
+		LOG_ERROR("%s() fail during write of file [%s] : %s\n", __FUNCTION__, fname, strerror(errno));
+	}
+
+	fclose(fp);
+}
+
+int command_channel_colors(char * text, int len)
+{
+	int i;
+	char string[20];
+
+	LOG_TO_CONSOLE(c_grey1, "Your currently set channel colors:");
+	for(i=0; i<MAX_CHANNEL_COLORS; i++)
+	{
+		if(channel_colors[i].nr >0 && channel_colors[i].color > -1)
+		{
+			safe_snprintf(string, sizeof(string), "Channel %u", channel_colors[i].nr);
+			LOG_TO_CONSOLE(channel_colors[i].color, string);
+		}
+	}
+	return 1;
 }

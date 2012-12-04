@@ -139,6 +139,10 @@ char
 	buddy_request_str[10],
 	/* chat.c */
 	channel_help_str[200],
+	channel_color_title_str[30],
+	channel_color_str[40],
+	channel_color_add_str[20],
+	channel_color_delete_str[20],
 	/* console.c */
 	help_cmd_markpos_str[50],
 	location_info_str[40],
@@ -1324,6 +1328,10 @@ void init_help()
 	add_xml_identifier(misc,"clear_urlwin",urlwin_clear_str,"Clear the URL list",sizeof(urlwin_clear_str));
 	add_xml_identifier(misc,"reset",reset_str,"Reset",sizeof(reset_str));
 	add_xml_identifier(misc,"channel_help",channel_help_str,"Click a Channel to join. You can be in up to 3 channels at a time.\n\nTo talk in a channel, type @ before your message. You do not have to type @ to talk in Local.",sizeof(channel_help_str));
+	add_xml_identifier(misc,"channel_color_title",channel_color_title_str,"Channel Colors",sizeof(channel_color_title_str));
+	add_xml_identifier(misc,"channel_color",channel_color_str,"Set/delete the color for channel",sizeof(channel_color_str));
+	add_xml_identifier(misc,"channel_color_add",channel_color_add_str,"Set",sizeof(channel_color_str));
+	add_xml_identifier(misc,"channel_color_delete",channel_color_delete_str,"Delete",sizeof(channel_color_str));
 	add_xml_identifier(misc,"stats_scroll_help",stats_scroll_help_str,"Scroll Up/Down using CTRL+left/CTRL+right click or scrollwheel.",sizeof(stats_scroll_help_str));
 	add_xml_identifier(misc,"remove_bar_message",remove_bar_message_str,"Removed exp bar as space is limited.",sizeof(remove_bar_message_str));
 	add_xml_identifier(misc,"cm_action_points",cm_action_points_str,"Show Action Points Bar",sizeof(cm_action_points_str));

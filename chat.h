@@ -325,6 +325,30 @@ int chat_input_key(widget_list *widget, int mx, int my, Uint32 key, Uint32 unike
 
 int resize_chat_handler(window_info *win, int width, int height);
 
+/*
+ * \ingroup channel_colors
+ *
+ *      Channel color stuff
+ *
+ * \callgraph
+ *
+ */
+#define MAX_CHANNEL_COLORS 64
+
+typedef struct
+{
+	Uint32 nr;
+	int color;
+} channelcolor;
+
+extern channelcolor channel_colors[MAX_CHANNEL_COLORS];
+
+void load_channel_colors();
+
+void save_channel_colors();
+
+int command_channel_colors(char * text, int len);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

@@ -243,6 +243,10 @@ extern char
 		buddy_request_str[10],
 		/* chat.c */
 		channel_help_str[200],
+		channel_color_title_str[30],
+		channel_color_str[40],
+		channel_color_add_str[20],
+		channel_color_delete_str[20],
 		/*console.c*/
 		logconn_str[50],
 		time_warn_hour_str[75],
