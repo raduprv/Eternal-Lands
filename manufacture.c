@@ -2,6 +2,7 @@
 #include <errno.h>
 #include <string.h>
 #include <ctype.h>
+#include <errno.h>
 #include <sys/types.h>
 #include "manufacture.h"
 #include "asc.h"
