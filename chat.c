@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <errno.h>
 #include <libxml/parser.h>
 #include "chat.h"
 #include "asc.h"
