@@ -2246,7 +2246,6 @@ int display_channel_color_win(Uint32 channel_number)
 {
 	int our_root_win = -1;
 	int x, y = 6;
-	int string_width;
 	int window_width = 470;
 
 	if(channel_number == 0){
