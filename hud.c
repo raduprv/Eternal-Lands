@@ -338,8 +338,54 @@ void view_map_win (int * win, int id)
 	}
 }
 
+typedef struct
+{
+	char name[20];
+	int *id;
+} windowid_by_name;
+
+int* get_winid(const char *name)
+{
+	static windowid_by_name win_ids[] = {
+		{ "invent", &items_win },
+		{ "spell", &sigil_win },
+		{ "manu", &manufacture_win },
+		{ "emotewin", &emotes_win },
+		{ "quest", &questlog_win },
+		{ "map", &map_root_win },
+		{ "info", &tab_info_win },
+		{ "buddy", &buddy_win },
+		{ "stats", &tab_stats_win },
+		{ "console", &console_root_win },
+		{ "help", &tab_help_win },
+		{ "opts", &elconfig_win },
+		{ "range", &range_win },
+		{ "name_pass", &namepass_win },
+		{ "customize", &color_race_win } };
+	size_t i;
+	for (i=0; i<sizeof(win_ids)/sizeof(windowid_by_name); i++)
+		if (strcmp(win_ids[i].name, name) == 0)
+			return win_ids[i].id;
+	return NULL;
+}
+
 void view_window(int * window, int id)
 {
+	if (window == NULL)
+		return;
+
+	if (window == &map_root_win)
+	{
+		view_map_win(window, id);
+		return;
+	}
+
+	if (window == &console_root_win)
+	{
+		view_console_win(window, id);
+		return;
+	}
+	
 	if(window==&sigil_win||window==&manufacture_win)
 		{
 			if(get_show_window(trade_win))
@@ -348,6 +394,7 @@ void view_window(int * window, int id)
 					return;
 				}
 		}
+
 	if(*window < 0)
 		{
 			//OK, the window has not been created yet - use the standard functions

@@ -152,6 +152,17 @@ int check_hud_interface();
  */
 void draw_hud_frame();
 
+/*!
+ * \ingroup windows
+ * \brief Get the window ID pointer using the name string
+ *
+ * \param name		the name of the window
+ *
+ *	returns if sucessful, a pointer to the window id variable, otherwise NULL.
+ * 
+ * \callgraph
+ */
+ int* get_winid(const char *name);
 
 
 //Functions for the function pointers
