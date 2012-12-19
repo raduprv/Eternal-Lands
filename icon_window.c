@@ -1,5 +1,7 @@
+#include "asc.h"
 #include "actors.h"
 #include "elwindows.h"
+#include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
 #include "interface.h"
@@ -11,23 +13,12 @@
 #include "translate.h"
 #include "sound.h"
 
-/* needed for window vars - sort out! */
-#include "tabs.h"
-#include "elconfig.h"
-#include "items.h"
-#include "spells.h"
-#include "manufacture.h"
-#include "emotes.h"
-#include "questlog.h"
-#include "mapwin.h"
-#include "buddy.h"
-#include "consolewin.h"
-
 
 static int	display_icons_handler(window_info *win);
 static int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags);
 static int	mouseover_icons_handler(window_info *win, int mx, int my);
-static void add_icon(int icon_id, int coloured_icon_id, char * help_name, void * func, void * data, char data_type);
+static void add_icon(int icon_id, int coloured_icon_id, const char * help_name, const char * icon_type, void * data);
+static void * get_action_mode(const char *name);
 
 
 /*!
@@ -70,6 +61,7 @@ static int	icon_cursor_x; // to help highlight the proper icon
 #define DATA_WINDOW 0
 #define DATA_ACTIONMODE 1
 #define DATA_MODE 2
+#define DATA_KEY 3
 
 #define STATE(I) (icon_list[I]->state&0x0F)
 #define PRESSED (1|(1<<31))
@@ -95,6 +87,17 @@ static float get_v_start(int icon_id)
 }
 
 
+static void do_keypress(const char *key_name, int id)
+{
+	if ((key_name != NULL) && *key_name)
+	{
+		Uint32 value = get_key_value(key_name);
+		if (value)
+			keypress_root_common(value, 0);
+	}
+}
+
+
 void init_newchar_icons(void)
 {
 	/* wait until we have the root window to avoid hiding this one */
@@ -117,11 +120,11 @@ void init_newchar_icons(void)
 	if(icons_no) return;
 
 #ifndef NEW_NEW_CHAR_WINDOW
-	add_icon(0, 18, "name_pass", view_window, &namepass_win, DATA_WINDOW);
-	add_icon(2, 20, "customize", view_window, &color_race_win, DATA_WINDOW);
+	add_icon(0, 18, "name_pass", "view_window", get_winid("name_pass") );
+	add_icon(2, 20, "customize", "view_window", get_winid("customize") );
 #endif
-	add_icon(39, 38, "help", view_window, &tab_help_win, DATA_WINDOW);
-	add_icon(14, 34, "opts", view_window, &elconfig_win, DATA_WINDOW);
+	add_icon(39, 38, "help", "view_window", get_winid("help") );
+	add_icon(14, 34, "opts", "view_window", get_winid("opts") );
 }
 
 void init_peace_icons(void)
@@ -141,72 +144,139 @@ void init_peace_icons(void)
 
 	if(icons_no) return;
 
-	add_icon(0, 18, "walk", switch_action_mode, (void *)ACTION_WALK, DATA_ACTIONMODE);
-	if(you_sit)
-		add_icon(8, 26, "stand", sit_button_pressed, NULL, DATA_NONE);
-	else
-		add_icon(7, 25, "sit", sit_button_pressed, NULL, DATA_NONE);
-	add_icon(2, 20, "look", switch_action_mode, (void *)ACTION_LOOK, DATA_ACTIONMODE);
-	add_icon(15, 35, "use", switch_action_mode, (void *)ACTION_USE, DATA_ACTIONMODE);
-	add_icon(47, 46, "use_witem", switch_action_mode, (void *)ACTION_USE_WITEM, DATA_ACTIONMODE);
-	add_icon(4, 22, "trade", switch_action_mode, (void *)ACTION_TRADE, DATA_ACTIONMODE);
-	add_icon(5, 23, "attack", switch_action_mode, (void *)ACTION_ATTACK, DATA_ACTIONMODE);
+	add_icon(0, 18, "walk", "switch_action_mode", get_action_mode("walk") );
 
-	//done with the integer variables - now for the windows
-	add_icon(11, 29, "invent", view_window, &items_win, DATA_WINDOW);
-	add_icon(9, 27, "spell", view_window, &sigil_win, DATA_WINDOW);
-	add_icon(12, 32, "manu", view_window, &manufacture_win, DATA_WINDOW);
-	add_icon(45, 44, "emotewin", view_window, &emotes_win, DATA_WINDOW);
-	add_icon(19, 21, "quest", view_window, &questlog_win, DATA_WINDOW);
-	add_icon(36, 37, "map", view_map_win, &map_root_win, DATA_MODE);
-	add_icon(3, 6, "info", view_window, &tab_info_win, DATA_WINDOW);
-	add_icon(10, 24, "buddy", view_window, &buddy_win, DATA_WINDOW);
-	add_icon(13, 33, "stats", view_window, &tab_stats_win, DATA_WINDOW);
-	add_icon(1, 28, "console", view_console_win, &console_root_win, DATA_MODE);
-	add_icon(39, 38, "help", view_window, &tab_help_win, DATA_WINDOW);
-	add_icon(14, 34, "opts", view_window, &elconfig_win, DATA_WINDOW);
+	if(you_sit)
+		add_icon(8, 26, "stand", "do_keypress", "#K_SIT" );
+	else
+		add_icon(7, 25, "sit", "do_keypress", "#K_SIT" );
+
+	add_icon(2, 20, "look", "switch_action_mode", get_action_mode("look") );
+	add_icon(15, 35, "use", "switch_action_mode", get_action_mode("use") );
+	add_icon(47, 46, "use_witem", "switch_action_mode", get_action_mode("use_witem") );
+	add_icon(4, 22, "trade", "switch_action_mode", get_action_mode("trade") );
+	add_icon(5, 23, "attack", "switch_action_mode", get_action_mode("attack") );
+
+	add_icon(11, 29, "invent", "view_window", get_winid("invent") );
+	add_icon(9, 27, "spell", "view_window", get_winid("spell") );
+	add_icon(12, 32, "manu", "view_window", get_winid("manu") );
+	add_icon(45, 44, "emotewin", "view_window", get_winid("emotewin") );
+	add_icon(19, 21, "quest", "view_window", get_winid("quest") );
+	add_icon(36, 37, "map", "view_window", get_winid("map") );
+	add_icon(3, 6, "info", "view_window", get_winid("info") );
+	add_icon(10, 24, "buddy", "view_window", get_winid("buddy") );
+	add_icon(13, 33, "stats", "view_window", get_winid("stats") );
+	add_icon(1, 28, "console", "view_window", get_winid("console") );
+	add_icon(39, 38, "help", "view_window", get_winid("help") );
+	add_icon(14, 34, "opts", "view_window", get_winid("opts") );
+
+	add_icon(16, 17, "XXX", "do_keypress", "#K_RANGINGWIN" );
+	add_icon(16, 17, "range", "view_window", get_winid("range") );
+
+	add_icon(16, 17, NULL, NULL, NULL );
 
 	resize_window(icons_win, 32*icons_no, 32);
 }
 
-static void add_icon(int icon_id, int coloured_icon_id, char * help_name, void * func, void * data, char data_type)
+typedef struct
+{
+	char name[20];
+	void *func;
+	int datatype;
+} icon_type;
+
+
+static icon_type icon_types[] = {
+	{ "switch_action_mode", switch_action_mode, DATA_ACTIONMODE },
+	{ "do_keypress", do_keypress, DATA_KEY },
+	{ "view_window", view_window, DATA_WINDOW } };
+
+static void *get_func(const char *name)
+{
+	size_t i;
+	if (name!=NULL)
+		for (i=0; i<sizeof(icon_types)/sizeof(icon_type); i++)
+			if (strcmp(name, icon_types[i].name) == 0)
+				return icon_types[i].func;
+	return NULL;
+}
+
+static int get_datatype(const char *name)
+{
+	size_t i;
+	if (name!=NULL)
+		for (i=0; i<sizeof(icon_types)/sizeof(icon_type); i++)
+			if (strcmp(name, icon_types[i].name) == 0)
+				return icon_types[i].datatype;
+	return DATA_NONE;
+}
+
+typedef struct
+{
+	char name[20];
+	void *mode;
+} icon_action_mode;
+
+static icon_action_mode icon_action_modes[] = {
+	{ "walk", (void *)ACTION_WALK },
+	{ "look", (void *)ACTION_LOOK },
+	{ "use", (void *)ACTION_USE },
+	{ "use_witem", (void *)ACTION_USE_WITEM },
+	{ "trade", (void *)ACTION_TRADE },
+	{ "attack", (void *)ACTION_ATTACK } };
+
+static void * get_action_mode(const char *name)
+{
+	size_t i;
+	if (name!=NULL)
+		for (i=0; i<sizeof(icon_action_modes)/sizeof(icon_action_mode); i++)
+			if (strcmp(name, icon_action_modes[i].name) == 0)
+				return icon_action_modes[i].mode;
+	return (void *)ACTION_WALK;
+}
+
+
+static void add_icon(int icon_id, int coloured_icon_id, const char * help_name, const char * icon_type, void * data)
 {
 	int no=icons_no++;
-
-	float u_start = get_u_start(icon_id);
-	float v_start = get_v_start(icon_id);
-	float colored_u_start = get_u_start(coloured_icon_id);
-	float colored_v_start = get_v_start(coloured_icon_id);
 
 	icon_list[no]=(icon_struct*)calloc(1,sizeof(icon_struct));
 	if(no == 0)
 		icon_list[no]->state=PRESSED;
 	else
 		icon_list[no]->state=0;
-	icon_list[no]->u[0]=u_start;
-	icon_list[no]->u[1]=colored_u_start;
-	icon_list[no]->v[0]=v_start;
-	icon_list[no]->v[1]=colored_v_start;
-	icon_list[no]->func=func;
+	icon_list[no]->u[0]=get_u_start(icon_id);
+	icon_list[no]->u[1]=get_u_start(coloured_icon_id);
+	icon_list[no]->v[0]=get_v_start(icon_id);
+	icon_list[no]->v[1]=get_v_start(coloured_icon_id);
+	icon_list[no]->func=get_func(icon_type);
 	icon_list[no]->help_message=get_named_string("tooltips", help_name);
 	icon_list[no]->free_data=0;
 	icon_list[no]->flashing=0;
-	switch(data_type)
+	icon_list[no]->data_type=get_datatype(icon_type);
+	switch(icon_list[no]->data_type)
 		{
 		case DATA_ACTIONMODE:
 			icon_list[no]->data=(int*)calloc(1,sizeof(int));
 			*(int *)icon_list[no]->data=(point)data;
 			icon_list[no]->free_data=1;
 			break;
-		case DATA_MODE:			
+		case DATA_MODE:	
 		case DATA_WINDOW:
 			icon_list[no]->data=data;
 			break;
 		case DATA_NONE:
 			icon_list[no]->data=NULL;
 			break;
+		case DATA_KEY:
+			{
+				size_t len = strlen((char *)data) + 1;
+				icon_list[no]->data=(char*)calloc(len,sizeof(char));
+				safe_strncpy((char *)icon_list[no]->data, (char *)data, len);
+				icon_list[no]->free_data=1;
+			}
+			break;
 		}
-	icon_list[no]->data_type=data_type;
 }
 
 void free_icons()
@@ -247,7 +317,7 @@ static int	display_icons_handler(window_info *win)
 			z = (int*)icon_list[i]->data;
 			switch(icon_list[i]->data_type) {
 			case DATA_WINDOW:
-				if ( *z >= 0 && (windows_list.window[*z].displayed || windows_list.window[*z].reinstate) )
+				if ( z!=NULL && *z >= 0 && (windows_list.window[*z].displayed || windows_list.window[*z].reinstate) )
 					icon_list[i]->state = 1;
 				else
 					icon_list[i]->state = 0;
@@ -327,14 +397,17 @@ static int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 				case DATA_MODE:
 				case DATA_ACTIONMODE:
 				case DATA_WINDOW:
+				case DATA_KEY:
 					{
 						int * data=(int *)icon_list[id]->data;
-						icon_list[id]->func(data, id);
+						if (icon_list[id]->func != NULL)
+							icon_list[id]->func(data, id);
 						break;
 					}
 				default:
 					{
-						icon_list[id]->func(0, id);
+						if (icon_list[id]->func != NULL)
+							icon_list[id]->func(0, id);
 						break;
 					}
 				}
