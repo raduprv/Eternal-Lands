@@ -63,8 +63,9 @@ char	tt_walk[30],
 	newchar_cred_help[100],
 	newchar_done_help[100],
 	tt_name[60],
-	tt_info[30];
-char	tt_emotewin[30];
+	tt_info[30],
+	tt_emotewin[30],
+	tt_rangewin[30];
 
 #endif // ELC
 
@@ -951,11 +952,12 @@ void save_named_strings(const group_id *groups, size_t num_groups, const char *g
 const char* get_named_string(const char* group_name, const char* string_name)
 {
 	size_t i,j;
-	for (j=0; j<num_named_strings; j++)
-		if (strcmp(named_strings[j].name, group_name) == 0)
-			for (i=0; i<named_strings[j].num_strings; i++)
-				if (strcmp(named_strings[j].strings[i].name, string_name) == 0)
-					return named_strings[j].strings[i].string;
+	if ((group_name!=NULL) && (string_name!=NULL))
+		for (j=0; j<num_named_strings; j++)
+			if (strcmp(named_strings[j].name, group_name) == 0)
+				for (i=0; i<named_strings[j].num_strings; i++)
+					if (strcmp(named_strings[j].strings[i].name, string_name) == 0)
+						return named_strings[j].strings[i].string;
 	return "Unknown string";
 }
 #endif
@@ -1514,6 +1516,7 @@ void init_help()
 	add_xml_identifier(tooltips,"name_pass",tt_name,"Choose name and password",sizeof(tt_name));
 	add_xml_identifier (tooltips, "info", tt_info, "View notepad/URL window", sizeof (tt_info));
 	add_xml_identifier (tooltips, "emotewin", tt_emotewin, "View Emote window", sizeof (tt_emotewin));
+	add_xml_identifier (tooltips, "range", tt_rangewin, "View Ranging window", sizeof (tt_rangewin));
 	
 	//Buddy list
 	add_xml_identifier(buddy, "name", buddy_name_str, "Name:", sizeof(buddy_name_str));

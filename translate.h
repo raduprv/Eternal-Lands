@@ -205,8 +205,9 @@ extern char 	tt_walk[30],
 		newchar_cred_help[100],
 		newchar_done_help[100],
 		tt_name[60],
-		tt_info[30];
-extern char	tt_emotewin[30];
+		tt_info[30],
+		tt_emotewin[30],
+		tt_rangewin[30];
 
 
 #endif  //DOXYGEN_SKIP_THIS
