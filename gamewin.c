@@ -1588,6 +1588,26 @@ void hide_all_windows(){
 }
 
 
+static void toggle_sit_stand()
+{
+	if(you_sit)
+		{
+			Uint8 str[4];
+			//Send message to server...	
+			str[0]=SIT_DOWN;
+			str[1]=0;
+			my_tcp_send(my_socket,str,2);
+		}
+	else
+		{
+			Uint8 str[4];
+			//Send message to server...
+			str[0]=SIT_DOWN;
+			str[1]=1;
+			my_tcp_send(my_socket,str,2);
+		}
+}
+
 // keypress handler common to all in-game root windows (game_root_win, 
 // console_root_win, and map_root_win)
 int keypress_root_common (Uint32 key, Uint32 unikey)
@@ -1963,7 +1983,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	}
 	else if (key == K_SIT)
 	{
-		sit_button_pressed (NULL, 0);
+		toggle_sit_stand ();
 	}
 	else if (key == K_BROWSER)
 	{

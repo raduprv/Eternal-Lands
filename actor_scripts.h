@@ -163,24 +163,6 @@ void move_self_forward();
  */
 void init_actor_defs();
 
-/*!
- * \ingroup events_actors
- * \brief   Executes the sit down command
- *
- *      Executes the command to sit down.
- *
- */
-void you_sit_down();
-
-/*!
- * \ingroup events_actors
- * \brief   Executes the stand up command
- *
- *      Executes the command to stand up
- *
- */
-void you_stand_up();
-
 int checkvisitedlist(int x, int y);
 
 /*!

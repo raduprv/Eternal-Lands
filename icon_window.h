@@ -8,8 +8,7 @@ extern "C" {
 #include "platform.h"
 
 int get_icons_win_active_len(void);
-void you_sit_down(void);
-void you_stand_up(void);
+
 void init_newchar_icons(void);
 void init_peace_icons(void);
 
@@ -36,17 +35,6 @@ void free_icons();
  * \callgraph
  */
 void flash_icon(const char* name, Uint32 seconds);
-
-/*!
- * \ingroup windows
- * \brief Sends the sit down command to the server.
- *
- *      Sends the \ref SIT_DOWN command to the server, causing the actor to either sit down or stand up, depending on the value of \ref you_sit.
- *
- * \param unused    unused
- * \param id        unused
- */
-void sit_button_pressed(void *unused, int id);
 
 #ifdef __cplusplus
 } // extern "C"

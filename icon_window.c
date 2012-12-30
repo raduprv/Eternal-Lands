@@ -308,9 +308,42 @@ static int	mouseover_icons_handler(window_info *win, int mx, int my)
 	return 0;
 }
 
+
+static void sync_sit_stand_icon(void)
+{
+	static int last_you_sit = -1;
+
+	if (last_you_sit != you_sit)
+	{
+		last_you_sit = you_sit;
+		if(!icon_list[1])
+			return;
+			
+		if (you_sit)
+		{
+			icon_list[1]->u[0]=get_u_start(8);
+			icon_list[1]->u[1]=get_u_start(26);
+			icon_list[1]->v[0]=get_v_start(8);
+			icon_list[1]->v[1]=get_v_start(26);
+			icon_list[1]->help_message=get_named_string("tooltips", "stand");
+		}
+		else
+		{
+			icon_list[1]->u[0]=get_u_start(7);
+			icon_list[1]->u[1]=get_u_start(25);
+			icon_list[1]->v[0]=get_v_start(7);
+			icon_list[1]->v[1]=get_v_start(25);
+			icon_list[1]->help_message=get_named_string("tooltips", "sit");
+		}
+	}
+
+}
+
 static int	display_icons_handler(window_info *win)
 {
 	int i, state=-1, *z;
+
+	sync_sit_stand_icon();
 
 	for(i=0;i<icons_no;i++)
 		{
@@ -417,49 +450,6 @@ static int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 		}
 	return 1;
 }
-
-void sit_button_pressed(void * none, int id)
-{
-	if(you_sit)
-		{
-			Uint8 str[4];
-			//Send message to server...	
-			str[0]=SIT_DOWN;
-			str[1]=0;
-			my_tcp_send(my_socket,str,2);
-		}
-	else
-		{
-			Uint8 str[4];
-			//Send message to server...
-			str[0]=SIT_DOWN;
-			str[1]=1;
-			my_tcp_send(my_socket,str,2);
-		}
-}
-
-void you_sit_down()
-{
-	you_sit=1;
-	if(!icon_list[1])return;
-	icon_list[1]->u[0]=get_u_start(8);//Change the icon to stand
-	icon_list[1]->u[1]=get_u_start(26);
-	icon_list[1]->v[0]=get_v_start(8);
-	icon_list[1]->v[1]=get_v_start(26);
-	icon_list[1]->help_message=get_named_string("tooltips", "stand");
-}
-
-void you_stand_up()
-{
-	you_sit=0;
-	if(!icon_list[1])return;
-	icon_list[1]->u[0]=get_u_start(7);
-	icon_list[1]->u[1]=get_u_start(25);
-	icon_list[1]->v[0]=get_v_start(7);
-	icon_list[1]->v[1]=get_v_start(25);
-	icon_list[1]->help_message=get_named_string("tooltips", "sit");
-}
-
 
 int get_icons_win_active_len(void)
 {

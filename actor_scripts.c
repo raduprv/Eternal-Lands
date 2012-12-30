@@ -1123,7 +1123,7 @@ void next_command()
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->sitting=1;
 						if(actors_list[i]->actor_id==yourself)
-							you_sit_down();
+							you_sit=1;
 						break;
 					case stand_up:
 						//LOG_TO_CONSOLE(c_green2,"stand_up");
@@ -1131,7 +1131,7 @@ void next_command()
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->sitting=0;
 						if(actors_list[i]->actor_id==yourself)
-							you_stand_up();
+							you_sit=0;
 						break;
 					case enter_combat:
 					case leave_combat:
