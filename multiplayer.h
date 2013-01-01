@@ -18,8 +18,6 @@ extern unsigned char server_address[60]; /*!< the server address we use */
 
 extern TCPsocket my_socket; /*!< our TCP socket to communiate with the server */
 
-extern int combat_mode; /*!< a flag that indicates whether our actor is currently in combat mode, aka fighting or not */
-
 /*! \name Version information 
  * @{ */
 extern char version_string[]; /*!< a buffer for the complete version string */
