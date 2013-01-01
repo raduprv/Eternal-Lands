@@ -65,7 +65,8 @@ char	tt_walk[30],
 	tt_name[60],
 	tt_info[30],
 	tt_emotewin[30],
-	tt_rangewin[30];
+	tt_rangewin[30],
+	tt_minimap[30];
 
 #endif // ELC
 
@@ -1517,7 +1518,8 @@ void init_help()
 	add_xml_identifier (tooltips, "info", tt_info, "View notepad/URL window", sizeof (tt_info));
 	add_xml_identifier (tooltips, "emotewin", tt_emotewin, "View Emote window", sizeof (tt_emotewin));
 	add_xml_identifier (tooltips, "range", tt_rangewin, "View Ranging window", sizeof (tt_rangewin));
-	
+	add_xml_identifier (tooltips, "minimap", tt_minimap, "View Minimap window", sizeof (tt_minimap));
+
 	//Buddy list
 	add_xml_identifier(buddy, "name", buddy_name_str, "Name:", sizeof(buddy_name_str));
 	add_xml_identifier(buddy, "name_desc", buddy_long_name_str, "The name of your buddy", sizeof(buddy_long_name_str));

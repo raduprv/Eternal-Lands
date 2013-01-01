@@ -360,9 +360,12 @@ int* get_winid(const char *name)
 		{ "help", &tab_help_win },
 		{ "opts", &elconfig_win },
 		{ "range", &range_win },
+		{ "minimap", &minimap_win },
 		{ "name_pass", &namepass_win },
 		{ "customize", &color_race_win } };
 	size_t i;
+	if (name == NULL)
+		return NULL;
 	for (i=0; i<sizeof(win_ids)/sizeof(windowid_by_name); i++)
 		if (strcmp(win_ids[i].name, name) == 0)
 			return win_ids[i].id;

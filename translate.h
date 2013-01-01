@@ -207,7 +207,8 @@ extern char 	tt_walk[30],
 		tt_name[60],
 		tt_info[30],
 		tt_emotewin[30],
-		tt_rangewin[30];
+		tt_rangewin[30],
+		tt_minimap[30];
 
 
 #endif  //DOXYGEN_SKIP_THIS
