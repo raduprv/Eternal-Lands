@@ -50,6 +50,8 @@ int lines_to_show=0;
 
 int show_timestamp = 0;
 
+int dark_channeltext = 0;
+
 int log_chat = LOG_SERVER;
 
 float	chat_zoom=1.0;
@@ -862,8 +864,8 @@ int put_string_in_buffer (text_message *buf, const Uint8 *str, int pos)
 void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_to_add, int len)
 {
 	text_message *msg;
-	int minlen;
-	Uint32 cnr = 0, ibreak = -1;
+	int minlen, text_color;
+	Uint32 cnr = 0, ibreak = -1, jbreak = -1;
 	char time_stamp[12];
 	struct tm *l_time; time_t c_time;
 
@@ -927,6 +929,19 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 		}
 	}
 
+	if (channel == CHAT_LOCAL)
+	{
+		for (jbreak = 0; jbreak < len; jbreak++)
+		{
+			if (text_to_add[jbreak] == ':' && text_to_add[jbreak+1] == ' ') break;
+		}
+	}
+
+	if (dark_channeltext==1)
+		text_color = c_grey2;
+	else if (dark_channeltext==2)
+		text_color = c_grey4;
+
 	if (ibreak >= len)
 	{
 		// not a channel, or something's messed up
@@ -947,11 +962,25 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 			// color set by server
 			if (show_timestamp)
 			{
-				safe_snprintf (msg->data, msg->size, "%c%s%.*s", text_to_add[0], time_stamp, len-1, &text_to_add[1]);
+				if(dark_channeltext && channel==CHAT_LOCAL && jbreak < (len-3))
+				{
+					safe_snprintf (msg->data, msg->size, "%c%s%.*s%.*s", to_color_char (text_color), time_stamp, jbreak+1, &text_to_add[1], len-jbreak-3, &text_to_add[jbreak+3]);
+				}
+				else
+				{
+					safe_snprintf (msg->data, msg->size, "%c%s%.*s", text_to_add[0], time_stamp, len-1, &text_to_add[1]);
+				}
 			}
 			else
 			{
-				safe_snprintf (msg->data, msg->size, "%.*s", len, text_to_add);
+				if(dark_channeltext && channel==CHAT_LOCAL && jbreak < (len-3))
+				{
+					safe_snprintf (msg->data, msg->size, "%c%.*s%.*s", to_color_char (text_color), jbreak+1, &text_to_add[1], len-jbreak-3, &text_to_add[jbreak+3]);
+				}
+				else
+				{
+					safe_snprintf (msg->data, msg->size, "%.*s", len, text_to_add);
+				}
 			}
 		}
 	}
@@ -968,11 +997,25 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 			// force the color
 			if (show_timestamp)
 			{
-				safe_snprintf (msg->data, msg->size, "%c%s%.*s @ %s%.*s", to_color_char (color), time_stamp, ibreak, text_to_add, nr_str, len-ibreak, &text_to_add[ibreak]);
+				if (dark_channeltext)
+				{
+					safe_snprintf (msg->data, msg->size, "%c%s%.*s @ %s%.*s%c%.*s", to_color_char (color), time_stamp, ibreak, text_to_add, nr_str, 3, &text_to_add[ibreak], to_color_char (text_color), len-ibreak-4, &text_to_add[ibreak+4]);
+				}
+				else
+				{
+					safe_snprintf (msg->data, msg->size, "%c%s%.*s @ %s%.*s", to_color_char (color), time_stamp, ibreak, text_to_add, nr_str, len-ibreak, &text_to_add[ibreak]);
+				}
 			}
 			else
 			{
-				safe_snprintf (msg->data, msg->size, "%c%.*s @ %s%.*s", to_color_char (color), ibreak, text_to_add, nr_str, len-ibreak, &text_to_add[ibreak]);
+				if (dark_channeltext)
+				{
+					safe_snprintf (msg->data, msg->size, "%c%.*s @ %s%.*s%c%.*s", to_color_char (color), ibreak, text_to_add, nr_str, 3, &text_to_add[ibreak], to_color_char (text_color), len-ibreak-4, &text_to_add[ibreak+4]);
+				}
+				else
+				{
+					safe_snprintf (msg->data, msg->size, "%c%.*s @ %s%.*s", to_color_char (color), ibreak, text_to_add, nr_str, len-ibreak, &text_to_add[ibreak]);
+				}
 			}
 		}
 		else
@@ -980,11 +1023,25 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 			// color set by server
 			if (show_timestamp)
 			{
-				safe_snprintf (msg->data, msg->size, "%c%s%.*s @ %s%.*s", text_to_add[0], time_stamp, ibreak-1, &text_to_add[1], nr_str, len-ibreak, &text_to_add[ibreak]);
+				if (dark_channeltext)
+				{
+					safe_snprintf (msg->data, msg->size, "%c%s%.*s @ %s%.*s%c%.*s", text_to_add[0], time_stamp, ibreak-1, &text_to_add[1], nr_str, 3, &text_to_add[ibreak], to_color_char (text_color), len-ibreak-4, &text_to_add[ibreak+4]);
+				}
+				else
+				{
+					safe_snprintf (msg->data, msg->size, "%c%s%.*s @ %s%.*s", text_to_add[0], time_stamp, ibreak-1, &text_to_add[1], nr_str, len-ibreak, &text_to_add[ibreak]);
+				}
 			}
 			else
 			{
-				safe_snprintf (msg->data, msg->size, "%.*s @ %s%.*s", ibreak, text_to_add, nr_str, len-ibreak, &text_to_add[ibreak]);
+				if (dark_channeltext)
+				{
+					safe_snprintf (msg->data, msg->size, "%.*s @ %s%.*s%c%.*s", ibreak, text_to_add, nr_str, 3, &text_to_add[ibreak], to_color_char (text_color), len-ibreak-4, &text_to_add[ibreak+4]);
+				}
+				else
+				{
+					safe_snprintf (msg->data, msg->size, "%.*s @ %s%.*s", ibreak, text_to_add, nr_str, len-ibreak, &text_to_add[ibreak]);
+				}
 			}
 		}
 	}

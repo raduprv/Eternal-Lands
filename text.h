@@ -68,6 +68,8 @@ extern int lines_to_show; /*!< number of lines to show at once */
 
 extern int show_timestamp;
 
+extern int dark_channeltext;
+
 extern int log_chat; /*!< flag stating whether to log server messages or not */
 
 extern ec_reference harvesting_effect_reference;
