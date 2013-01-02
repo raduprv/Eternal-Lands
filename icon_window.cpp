@@ -3,7 +3,7 @@
 
 	Rewritten from the code previously contained in hud.c, primarily so
 	the icons can be configured from an xml file at run-time.
- 
+
 	Author bluap/pjbroad December 2012 / January 2013
 */
 #include <iostream>
@@ -144,7 +144,7 @@ namespace IconWindow
 			}
 			~Window_Icon(void) {}
 		private:
-			int *window_id;	
+			int *window_id;
 	};
 
 
@@ -413,7 +413,9 @@ namespace IconWindow
 			return false;
 		}
 
-		
+		if (!el_file_exists(file_name.c_str()))
+			return false;
+
 		xmlDocPtr doc;
 		xmlNodePtr cur;
 
