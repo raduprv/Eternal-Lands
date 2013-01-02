@@ -7,21 +7,30 @@ extern "C" {
 
 #include "platform.h"
 
-int get_icons_win_active_len(void);
+extern int	icons_win;	/*!< the icon window id  */
 
-void init_newchar_icons(void);
-void init_peace_icons(void);
-
-extern int	icons_win;
+typedef enum { NEW_CHARACTER_ICONS=1, MAIN_WINDOW_ICONS=2 } icon_window_mode; /*!< possible icom window modes  */
 
 
 /*!
  * \ingroup windows
- * \brief Frees the data used by the icons.
+ * \brief Return the current width of the icon window.
  *
- *      Frees the data used by \ref icon_list.
+ * \callgraph
  */
-void free_icons();
+int get_icons_win_active_len(void);
+
+
+/*!
+ * \ingroup windows
+ * \brief Initialise the icon window to the specified mode.
+ *
+ * \param	icon_mode	The new icom mode.
+ * 
+ * \callgraph
+ */
+void init_icon_window(icon_window_mode icon_mode);
+
 
 /*!
  * \ingroup windows
