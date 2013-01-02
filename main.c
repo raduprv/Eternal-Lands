@@ -254,7 +254,6 @@ int start_rendering()
 	unload_questlog();
 	save_item_lists();
 	free_emotes();
-	free_icons();
 	free_vars();
 	cleanup_rules();
 	save_exploration_map();
