@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<icon_window>
+
+<icon type="action_mode" image_id="0" alt_image_id="18" help_name="walk" param_name="walk"/>
+
+<multi_icon control_name="you_sit">
+<icon type="keypress" image_id="7" alt_image_id="25" help_name="sit" param_name="#K_SIT"/>
+<icon type="keypress" image_id="8" alt_image_id="26" help_name="stand" param_name="#K_SIT"/>
+</multi_icon>
+
+<icon type="action_mode" image_id="2" alt_image_id="20" help_name="look" param_name="look"/>
+<icon type="action_mode" image_id="15" alt_image_id="35" help_name="use" param_name="use"/>
+<icon type="action_mode" image_id="47" alt_image_id="46" help_name="use_witem" param_name="use_witem"/>
+<icon type="action_mode" image_id="4" alt_image_id="22" help_name="trade" param_name="trade"/>
+<icon type="action_mode" image_id="5" alt_image_id="23" help_name="attack" param_name="attack"/>
+
+<icon type="window" image_id="11" alt_image_id="29" help_name="invent" param_name="invent"/>
+<icon type="window" image_id="9" alt_image_id="27" help_name="spell" param_name="spell"/>
+<icon type="window" image_id="12" alt_image_id="32" help_name="manu" param_name="manu"/>
+<icon type="window" image_id="45" alt_image_id="44" help_name="emotewin" param_name="emotewin"/>
+<icon type="window" image_id="19" alt_image_id="21" help_name="quest" param_name="quest"/>
+<icon type="window" image_id="36" alt_image_id="37" help_name="map" param_name="map"/>
+<icon type="window" image_id="3" alt_image_id="6" help_name="info" param_name="info"/>
+<icon type="window" image_id="10" alt_image_id="24" help_name="buddy" param_name="buddy"/>
+<icon type="window" image_id="13" alt_image_id="33" help_name="stats" param_name="stats"/>
+<icon type="window" image_id="1" alt_image_id="28" help_name="console" param_name="console"/>
+<icon type="window" image_id="39" alt_image_id="38" help_name="help" param_name="help"/>
+<icon type="window" image_id="14" alt_image_id="34" help_name="opts" param_name="opts"/>
+
+
+<icon type="window" image_id="16" alt_image_id="17" help_name="range" param_name="range"/>
+<icon type="window" image_id="30" alt_image_id="31" help_name="minimap" param_name="minimap"/>
+
+
+<image_settings display_size="32"/>
+
+</icon_window>

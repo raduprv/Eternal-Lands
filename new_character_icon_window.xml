@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<icon_window>
+
+<icon type="window" image_id="39" alt_image_id="38" help_name="help" param_name="help"/>
+<icon type="window" image_id="14" alt_image_id="34" help_name="opts" param_name="opts"/>
+
+<image_settings display_size="32"/>
+
+</icon_window>
