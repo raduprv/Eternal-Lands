@@ -161,8 +161,7 @@ void init_hud_interface (hud_interface type)
 		hud_x=270;
 		resize_root_window();
 #endif
-		free_icons ();
-		init_newchar_icons ();
+		init_icon_window (NEW_CHARACTER_ICONS);
 	}
 	else
 	{
@@ -171,8 +170,7 @@ void init_hud_interface (hud_interface type)
 			hud_x=HUD_MARGIN_X;
 		resize_root_window();
 #endif
-		free_icons ();
-		init_peace_icons ();
+		init_icon_window (MAIN_WINDOW_ICONS);
 		init_stats_display ();
 		init_quickbar ();
 		init_quickspell ();
