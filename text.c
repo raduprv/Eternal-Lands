@@ -987,6 +987,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 	else
 	{
 		char nr_str[16];
+		int has_additional_color = is_color(text_to_add[ibreak+3]);
 		if (cnr >= 1000000000)
 			safe_snprintf (nr_str, sizeof (nr_str), "guild");
 		else
@@ -999,7 +1000,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 			{
 				if (dark_channeltext)
 				{
-					safe_snprintf (msg->data, msg->size, "%c%s%.*s @ %s%.*s%c%.*s", to_color_char (color), time_stamp, ibreak, text_to_add, nr_str, 3, &text_to_add[ibreak], to_color_char (text_color), len-ibreak-4, &text_to_add[ibreak+4]);
+					safe_snprintf (msg->data, msg->size, "%c%s%.*s @ %s%.*s%c%.*s", to_color_char (color), time_stamp, ibreak, text_to_add, nr_str, 3, &text_to_add[ibreak], to_color_char (text_color), len-ibreak-3-has_additional_color, &text_to_add[ibreak+3+has_additional_color]);
 				}
 				else
 				{
@@ -1010,7 +1011,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 			{
 				if (dark_channeltext)
 				{
-					safe_snprintf (msg->data, msg->size, "%c%.*s @ %s%.*s%c%.*s", to_color_char (color), ibreak, text_to_add, nr_str, 3, &text_to_add[ibreak], to_color_char (text_color), len-ibreak-4, &text_to_add[ibreak+4]);
+					safe_snprintf (msg->data, msg->size, "%c%.*s @ %s%.*s%c%.*s", to_color_char (color), ibreak, text_to_add, nr_str, 3, &text_to_add[ibreak], to_color_char (text_color), len-ibreak-3-has_additional_color, &text_to_add[ibreak+3+has_additional_color]);
 				}
 				else
 				{
@@ -1025,7 +1026,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 			{
 				if (dark_channeltext)
 				{
-					safe_snprintf (msg->data, msg->size, "%c%s%.*s @ %s%.*s%c%.*s", text_to_add[0], time_stamp, ibreak-1, &text_to_add[1], nr_str, 3, &text_to_add[ibreak], to_color_char (text_color), len-ibreak-4, &text_to_add[ibreak+4]);
+					safe_snprintf (msg->data, msg->size, "%c%s%.*s @ %s%.*s%c%.*s", text_to_add[0], time_stamp, ibreak-1, &text_to_add[1], nr_str, 3, &text_to_add[ibreak], to_color_char (text_color), len-ibreak-3-has_additional_color, &text_to_add[ibreak+3+has_additional_color]);
 				}
 				else
 				{
@@ -1036,7 +1037,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 			{
 				if (dark_channeltext)
 				{
-					safe_snprintf (msg->data, msg->size, "%.*s @ %s%.*s%c%.*s", ibreak, text_to_add, nr_str, 3, &text_to_add[ibreak], to_color_char (text_color), len-ibreak-4, &text_to_add[ibreak+4]);
+					safe_snprintf (msg->data, msg->size, "%.*s @ %s%.*s%c%.*s", ibreak, text_to_add, nr_str, 3, &text_to_add[ibreak], to_color_char (text_color), len-ibreak-3-has_additional_color, &text_to_add[ibreak+3+has_additional_color]);
 				}
 				else
 				{

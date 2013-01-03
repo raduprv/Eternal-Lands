@@ -1929,7 +1929,7 @@ static void init_ELC_vars(void)
 	/* add_var(OPT_STRING,"text_filter_replace","trepl",text_filter_replace,change_string,127,"Text Filter","The word to replace bad text with",CHAT); */
 	add_var(OPT_BOOL,"caps_filter","caps",&caps_filter,change_var,1,"Caps Filter","Toggle the caps filter",CHAT);
 	add_var(OPT_BOOL,"show_timestamp","timestamp",&show_timestamp,change_var,0,"Show Time Stamps","Toggle time stamps for chat messages",CHAT);
-	add_var(OPT_MULTI_H,"dark_channeltext","dark_channeltext",&dark_channeltext,change_int,0,"Channel Text Color","Display the channel text in a darker color for better reading on bright maps",CHAT, "Normal", "Medium", "Dark");
+	add_var(OPT_MULTI_H,"dark_channeltext","dark_channeltext",&dark_channeltext,change_int,0,"Channel Text Color","Display the channel text in a darker color for better reading on bright maps ('Dark' may be unreadable in F1 screen)",CHAT, "Normal", "Medium", "Dark");
 	// CHAT TAB
 
 
