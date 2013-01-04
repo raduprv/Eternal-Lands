@@ -962,7 +962,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 			// color set by server
 			if (show_timestamp)
 			{
-				if(dark_channeltext && channel==CHAT_LOCAL && jbreak < (len-3))
+				if(dark_channeltext && channel==CHAT_LOCAL && from_color_char(text_to_add[0])==c_grey1 && jbreak < (len-3))
 				{
 					safe_snprintf (msg->data, msg->size, "%c%s%.*s%.*s", to_color_char (text_color), time_stamp, jbreak+1, &text_to_add[1], len-jbreak-3, &text_to_add[jbreak+3]);
 				}
@@ -973,7 +973,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 			}
 			else
 			{
-				if(dark_channeltext && channel==CHAT_LOCAL && jbreak < (len-3))
+				if(dark_channeltext && channel==CHAT_LOCAL && from_color_char(text_to_add[0])==c_grey1 && jbreak < (len-3))
 				{
 					safe_snprintf (msg->data, msg->size, "%c%.*s%.*s", to_color_char (text_color), jbreak+1, &text_to_add[1], len-jbreak-3, &text_to_add[jbreak+3]);
 				}
