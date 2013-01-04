@@ -1585,7 +1585,8 @@ void init_help()
 
 	/* quest_log.cpp */
 	add_xml_identifier(misc, "cm_questlog_menu", cm_questlog_menu_str,
-		"Show all quests & entries\nOpen quest list window\nOpen NPC list window\nSelect NPCs, starting with none...\nShow just this NPC\n--\n"
+		"Show all quests & entries\nOpen quest list window\nOpen NPC list window\n"
+		"Select NPCs, starting with none...\nShow just this NPC\nShow just this quest\n--\n"
 		"Copy entry\nCopy all entries\nFind text...\nAdd entry...\n--\n"
 		"Select entry\nUnselect entry\nSelect all entries\nUnselect all entires\nShow only selected entries\n--\n"
 		"Delete entry\nUndelete entry\n--\n"

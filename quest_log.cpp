@@ -138,6 +138,7 @@ class Quest_List
 		void open_window(void);
 		int get_win_id(void) const { return win_id; }
 		int get_scroll_id(void) const  { return scroll_id; }
+		void scroll_to_selected(void);
 		int get_mouseover_y(void) const { return mouseover_y; }
 		void set_mouseover_y(int val) { mouseover_y = val; }
 		bool has_mouseover(void) const { return mouseover_y != -1; }
@@ -531,7 +532,8 @@ static const int qlwinheight = 350;
 static const int qlborder = 5;
 static size_t cm_questlog_id = CM_INIT_VALUE;
 static size_t cm_questlog_over_entry = static_cast<size_t>(-1);
-enum {	CMQL_SHOWALL=0, CMQL_QUESTFILTER, CMQL_NPCFILTER, CMQL_NPCSHOWNONE, CMQL_JUSTTHISNPC, CMQL_S01,
+enum {	CMQL_SHOWALL=0, CMQL_QUESTFILTER, CMQL_NPCFILTER, CMQL_NPCSHOWNONE,
+		CMQL_JUSTTHISNPC, CMQL_JUSTTHISQUEST, CMQL_S01,
 		CMQL_COPY, CMQL_COPYALL, CMQL_FIND, CMQL_ADD, CMQL_S02,
 		CMQL_SEL, CMQL_UNSEL, CMQL_SELALL, CMQL_UNSELALL, CMQL_SHOWSEL, CMQL_S03,
 		CMQL_DELETE, CMQL_UNDEL, CMQL_S04, CMQL_DEDUPE, CMQL_S05, CMQL_SAVE };
@@ -1213,6 +1215,26 @@ static void cm_questlist_pre_show_handler(window_info *win, int widget_id, int m
 }
 
 
+//	Scroll to show the currently selected quest in the quest list window.
+//
+void Quest_List::scroll_to_selected(void)
+{
+	Uint16 setected_id = questlist.get_selected();
+	if (setected_id == Quest::UNSET_ID)
+		return;
+	const Quest* thequest = questlist.get_first_quest(0);
+	for (int line_num = 0; thequest != 0; line_num++)
+	{
+		if (thequest->get_id() == setected_id)
+		{
+			vscrollbar_set_pos(questlist.get_win_id(), questlist.get_scroll_id(), line_num);
+			break;
+		}
+		thequest = questlist.get_next_quest();
+	}
+}
+
+
 //	Create or open the quest list window.
 //
 void Quest_List::open_window(void)
@@ -1472,6 +1494,7 @@ static void cm_questlog_pre_show_handler(window_info *win, int widget_id, int mx
 	cm_grey_line(cm_questlog_id, CMQL_NPCFILTER, (nfw_open || quest_entries.empty()) ?1 :0);
 	cm_grey_line(cm_questlog_id, CMQL_NPCSHOWNONE, (quest_entries.empty()) ?1 :0);
 	cm_grey_line(cm_questlog_id, CMQL_JUSTTHISNPC, (is_over_entry) ?0 :1);
+	cm_grey_line(cm_questlog_id, CMQL_JUSTTHISQUEST, (is_over_entry && (quest_entries[active_entries[cm_questlog_over_entry]].get_id() != Quest::UNSET_ID)) ?0 :1);
 	cm_grey_line(cm_questlog_id, CMQL_COPY, (is_over_entry && !is_deleted) ?0 :1);
 	cm_grey_line(cm_questlog_id, CMQL_COPYALL, active_entries.empty() ?1 :0);
 	cm_grey_line(cm_questlog_id, CMQL_FIND, (current_action == -1 && !active_entries.empty()) ?0 :1);
@@ -1504,6 +1527,19 @@ static int cm_quest_handler(window_info *win, int widget_id, int mx, int my, int
 		case CMQL_SHOWALL: show_all_entries(); break;
 		case CMQL_QUESTFILTER: questlist.open_window(); break;
 		case CMQL_NPCFILTER: open_filter_window(); break;
+		case CMQL_JUSTTHISQUEST:
+			if (over_entry < active_entries.size())
+			{
+				Uint16 the_id = quest_entries[active_entries[over_entry]].get_id();
+				if (the_id != Quest::UNSET_ID)
+				{
+					active_filter = QLFLT_QUEST;
+					questlist.set_selected(the_id);
+					rebuild_active_entries(quest_entries.size()-1);
+					questlist.scroll_to_selected();
+				}
+			}
+			break;
 		case CMQL_JUSTTHISNPC:
 		case CMQL_NPCSHOWNONE:
 			questlist.set_selected(Quest::UNSET_ID);
