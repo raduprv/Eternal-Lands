@@ -1594,7 +1594,7 @@ void init_help()
 		"Save changes", sizeof(cm_questlog_menu_str));
 	add_xml_identifier(misc, "cm_questlist_menu", cm_questlist_menu_str,
 		"Quest completed\nAdd selected entries to quest\n--\n"
-		"Hide completed quests\nDo not always open window\n", sizeof(cm_questlist_menu_str));
+		"Hide completed quests\nDo not always open window\nStart window left of entires\n", sizeof(cm_questlist_menu_str));
 	add_xml_identifier(misc, "questlog_find_prompt", questlog_find_prompt_str, "Text to Find", sizeof(questlog_find_prompt_str));
 	add_xml_identifier(misc, "questlog_add_npc_prompt", questlog_add_npc_prompt_str, "NPC name", sizeof(questlog_add_npc_prompt_str));	
 	add_xml_identifier(misc, "questlog_add_text_prompt", questlog_add_text_prompt_str, "Entry text", sizeof(questlog_add_text_prompt_str));	
