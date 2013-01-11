@@ -13,6 +13,7 @@
 
 #include "asc.h"
 #include "actors.h"
+#include "chat.h"
 #include "elwindows.h"
 #include "elloggingwrapper.h"
 #include "gamewin.h"
@@ -31,7 +32,7 @@
 /* ToDo
  *
  * 	Add reload #command
- * 	Add "#command running" icon
+ * 	Modify #command icon to reuse usermenu code, allowing parameter prompts and multi #commands
  *	Add icon window position code - allowing the window to be repositioned
  *
  */
@@ -58,9 +59,9 @@ namespace IconWindow
 	class Basic_Icon : public Virtual_Icon
 	{
 		public:
-			Basic_Icon(int icon_id, int coloured_icon_id, const char * help_name);
+			Basic_Icon(int icon_id, int coloured_icon_id, const char * help_str);
 			virtual ~Basic_Icon(void) {}
-			virtual const char *get_help_message(void) const { return help_message; }
+			virtual const char *get_help_message(void) const { return help_message.c_str(); }
 			virtual void set_flash(Uint32 seconds) { flashing = 4*seconds; }
 			virtual void set_highlight(bool is_highlighted) { has_highlight = is_highlighted; }
 			virtual void update_highlight(void) { has_highlight = false; }
@@ -69,7 +70,7 @@ namespace IconWindow
 		private:
 			bool has_highlight;				// true if the icon is highlighted
 			float u[2], v[2];				// icon image positions
-			const char * help_message;		// icon help message
+			std::string help_message;		// icon help message
 			Uint32 flashing;				// if non-zero, the number times left to flash
 			Uint32 last_flash_change;		// if flashing, the time the flashing state last changed
 	};
@@ -126,8 +127,8 @@ namespace IconWindow
 	class Window_Icon : public Basic_Icon
 	{
 		public:
-			Window_Icon(int icon_id, int coloured_icon_id, const char * help_name, const char * window_name)
-				: Basic_Icon(icon_id, coloured_icon_id, help_name), window_id(0)
+			Window_Icon(int icon_id, int coloured_icon_id, const char * help_str, const char * window_name)
+				: Basic_Icon(icon_id, coloured_icon_id, help_str), window_id(0)
 				{ window_id = get_winid(window_name); }
 			void update_highlight(void)
 			{
@@ -153,8 +154,8 @@ namespace IconWindow
 	class Keypress_Icon : public Basic_Icon
 	{
 		public:
-			Keypress_Icon(int icon_id, int coloured_icon_id, const char * help_name, const char * the_key_name)
-				: Basic_Icon(icon_id, coloured_icon_id, help_name)
+			Keypress_Icon(int icon_id, int coloured_icon_id, const char * help_str, const char * the_key_name)
+				: Basic_Icon(icon_id, coloured_icon_id, help_str)
 			{
 				if (the_key_name && (strlen(the_key_name)>0))
 					key_name = std::string(the_key_name);
@@ -180,8 +181,8 @@ namespace IconWindow
 	class Actionmode_Icon : public Basic_Icon
 	{
 		public:
-			Actionmode_Icon(int icon_id, int coloured_icon_id, const char * help_name, const char * action_name)
-				: Basic_Icon(icon_id, coloured_icon_id, help_name), the_action_mode(ACTION_WALK)
+			Actionmode_Icon(int icon_id, int coloured_icon_id, const char * help_str, const char * action_name)
+				: Basic_Icon(icon_id, coloured_icon_id, help_str), the_action_mode(ACTION_WALK)
 			{
 				if (action_name && (strlen(action_name) > 0))
 					for (size_t i=0; icon_action_modes[i].name!=0; i++)
@@ -213,6 +214,30 @@ namespace IconWindow
 		{ "trade", ACTION_TRADE },
 		{ "attack", ACTION_ATTACK },
 		{ 0, 0 } /* needed as terminator */ };
+
+
+	//	Implements #command icons.
+	//
+	class Command_Icon : public Basic_Icon
+	{
+		public:
+			Command_Icon(int icon_id, int coloured_icon_id, const char * help_str, const char * command)
+				: Basic_Icon(icon_id, coloured_icon_id, help_str), command_text(command) {}
+			void action(void)
+			{
+				if (!command_text.empty())
+				{
+					size_t command_len = command_text.size() + 1;
+					char temp[command_len];
+					safe_strncpy(temp, command_text.c_str(), command_len);
+					parse_input(temp, strlen(temp));
+				}
+				Basic_Icon::action();
+			}
+			~Command_Icon(void) {}
+		private:
+			std::string command_text;
+	};
 
 
 	//	A generation and container class for the icons
@@ -272,7 +297,8 @@ namespace IconWindow
 
 	// Constucture basic icon object
 	//
-	Basic_Icon::Basic_Icon(int icon_id, int coloured_icon_id, const char * help_name)
+	Basic_Icon::Basic_Icon(int icon_id, int coloured_icon_id, const char * help_str)
+		: help_message(help_str)
 	{
 		has_highlight = false;
 #ifdef	NEW_TEXTURES
@@ -284,7 +310,6 @@ namespace IconWindow
 #endif
 		v[0] = 32.0 * (float)(icon_id >> 3)/256.0;
 		v[1] = 32.0 * (float)(coloured_icon_id >> 3)/256.0;
-		help_message = get_named_string("tooltips", help_name);
 		flashing = 0;
 	}
 
@@ -375,24 +400,34 @@ namespace IconWindow
 	//
 	Virtual_Icon * Container::icon_xml_factory(const xmlNodePtr cur)
 	{
-		std::string the_type, help_name, param_name;
+		std::string the_type, help_name, help_text, param_name;
+		const char *help_str;
 		int image_id = -1, alt_image_id = -1;
 		get_xml_field_string(the_type, "type", cur);
 		get_xml_field_int(&image_id, "image_id", cur);
 		get_xml_field_int(&alt_image_id, "alt_image_id", cur);
 		get_xml_field_string(help_name, "help_name", cur);
+		get_xml_field_string(help_text, "help_text", cur);
 		get_xml_field_string(param_name, "param_name", cur);
-		if (the_type.empty() || (image_id<0) || (alt_image_id<0) || help_name.empty() || param_name.empty())
+		if (the_type.empty() || (image_id<0) || (alt_image_id<0) ||
+			(help_name.empty() && help_text.empty()) || param_name.empty())
 		{
-			LOG_ERROR("icon window factory: xml field error\n");
+			LOG_ERROR("icon window factory: xml field error type=[%s] image_id=[%d] alt_image_id=[%d] help_name=[%s] help_text=[%s] param_name=[%s]\n",
+				the_type.c_str(), image_id, alt_image_id, help_name.c_str(), help_text.c_str(), param_name.c_str() );
 			return 0;
 		}
+		if (!help_text.empty())
+			help_str = help_text.c_str();
+		else
+			help_str = get_named_string("tooltips", help_name.c_str());
 		if (the_type == "keypress")
-			return new Keypress_Icon(image_id, alt_image_id, help_name.c_str(), param_name.c_str());
+			return new Keypress_Icon(image_id, alt_image_id, help_str, param_name.c_str());
 		else if (the_type == "window")
-			return new Window_Icon(image_id, alt_image_id, help_name.c_str(), param_name.c_str());
+			return new Window_Icon(image_id, alt_image_id, help_str, param_name.c_str());
 		else if (the_type == "action_mode")
-			return new Actionmode_Icon(image_id, alt_image_id, help_name.c_str(), param_name.c_str());
+			return new Actionmode_Icon(image_id, alt_image_id, help_str, param_name.c_str());
+		else if (the_type == "#command")
+			return new Command_Icon(image_id, alt_image_id, help_str, param_name.c_str());
 		return 0;
 	}
 

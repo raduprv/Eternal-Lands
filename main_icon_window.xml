@@ -26,12 +26,14 @@
 <icon type="window" image_id="13" alt_image_id="33" help_name="stats" param_name="stats"/>
 <icon type="window" image_id="1" alt_image_id="28" help_name="console" param_name="console"/>
 <icon type="window" image_id="39" alt_image_id="38" help_name="help" param_name="help"/>
-<icon type="window" image_id="14" alt_image_id="34" help_name="opts" param_name="opts"/>
 
-
+<!--- New stuff examples -->
 <icon type="window" image_id="16" alt_image_id="17" help_name="range" param_name="range"/>
 <icon type="window" image_id="30" alt_image_id="31" help_name="minimap" param_name="minimap"/>
+<icon type="#command" image_id="11" alt_image_id="29" help_text="Open view-only storage" param_name="#sto"/>
 
+<!-- Prefered always last -->
+<icon type="window" image_id="14" alt_image_id="34" help_name="opts" param_name="opts"/>
 
 <image_settings display_size="32"/>
 
