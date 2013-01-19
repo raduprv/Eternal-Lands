@@ -35,7 +35,7 @@
 #include "tabs.h"
 #include "translate.h"
 #include "url.h"
-#include "user_menus.h"
+#include "command_queue.h"
 #include "counters.h"
 #include "minimap.h"
 #include "errors.h"
@@ -1409,14 +1409,14 @@ static int command_open_url(char *text, int len)
 }
 
 
-/* set the user menu wait time between commands */
+/* set the command queues wait time between commands */
 static int command_set_user_menu_wait_time_ms(char *text, int len)
 {
 	text = getparams(text);
 	if (*text)
-		set_user_menu_wait_time_ms(atol(text));
+		set_command_queue_wait_time_ms(atol(text));
 	else
-		set_user_menu_wait_time_ms(0);
+		set_command_queue_wait_time_ms(0);
 	return 1;
 }
 

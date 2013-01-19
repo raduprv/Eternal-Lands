@@ -98,7 +98,7 @@ BBC News||#open_url http://news.bbc.co.uk/
 #include "notepad.h"
 #include "user_menus.h"
 
-namespace UserMenus
+namespace CommandQueue
 {
 	//
 	//	A single command created from one of the command fields in
@@ -122,21 +122,26 @@ namespace UserMenus
 	//	Manages a queue of commands to be executed, provides input when
 	//	required and introduces a delay between commands to avoid spamming.
 	//
-	class Command_Queue
+	class Queue
 	{
 		public:
-			Command_Queue(void);
-			~Command_Queue(void) { close_ipu(&ipu); }
+			Queue(void);
+			~Queue(void) { close_ipu(&ipu); }
 			void process(bool just_echo);
 			void add(const Command &new_command) { commands.push(new_command); }
-			void input(const char* input_text) { params.push_back(input_text); }
-			void cancel(void);
+			static void set_wait_time_ms(Uint32 wait_time);
 			void clear(void);
 		private:
+			static void input_handler(const char *input_text, void *data) { Queue *q = static_cast<Queue *>(data); assert(q!=NULL); q->input(input_text); };
+			static void cancel_handler(void *data) { Queue *q = static_cast<Queue *>(data); assert(q!=NULL); q->cancel(); };
+			void input(const char* input_text) { params.push_back(input_text); }
+			void cancel(void);
 			std::queue<Command> commands;
 			std::vector<std::string> params;
 			Uint32 last_time;
 			INPUT_POPUP ipu;
+			static Uint32 wait_time_ms;
+			static const Uint32 min_wait_time_ms;
 	};
 
 
@@ -149,13 +154,16 @@ namespace UserMenus
 		public:
 			Line(const std::string &line_text);
 			const std::string & get_text(void) const { return text; }
-			void action(Command_Queue &cq) const;
+			void action(CommandQueue::Queue &cq) const;
 		private:
 			std::string text;
 			std::vector<Command> command_list;
 	};
+}
 
 
+namespace UserMenus
+{
 	//
 	//	A single user menu, constructed from a menu file.  Contains
 	//	one or more Line objects.
@@ -168,12 +176,12 @@ namespace UserMenus
 			const std::string & get_name(void) const { return menu_name; }
 			int get_name_width(void) const { return menu_name_width; }
 			size_t get_cm_id(void) const { return cm_menu_id; }
-			void action(int option, Command_Queue &cq) const { lines[option]->action(cq); };
+			void action(int option, CommandQueue::Queue &cq) const { lines[option]->action(cq); };
 		private:
 			size_t cm_menu_id;
 			int menu_name_width;
 			std::string menu_name;
-			std::vector<Line *> lines;
+			std::vector<CommandQueue::Line *> lines;
 	};
 
 
@@ -189,20 +197,12 @@ namespace UserMenus
 			void close_window(void) { command_queue.clear(); if (win_id >= 0) hide_window(win_id); }
 			void set_options(int win_x, int win_y, int options);
 			void get_options(int *win_x, int *win_y, int *options);
-			void command_input(const char* input_text, void *data) { command_queue.input(input_text); }
-			void command_cancel(void) { command_queue.cancel(); }
-			void set_wait_time_ms(Uint32 wait_time);
-			Uint32 get_wait_time_ms(void) const { return wait_time_ms; }
 			static Container * get_instance(void);
 			static int action_handler(window_info *win, int widget_id, int mx, int my, int option) { return get_instance()->action(widget_id, option); }
 			static void pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win) { get_instance()->pre_show(win, widget_id, mx, my, cm_win); }
-			static void command_input_handler(const char *input_text, void *data) { get_instance()->command_input(input_text, data); };
-			static void command_cancel_handler(void *data) { get_instance()->command_cancel(); };
-
-		protected:
-			Container(void);
 
 		private:
+			Container(void);
 			int win_id;
 			int win_width;
 			size_t current_mouseover_menu;
@@ -217,12 +217,10 @@ namespace UserMenus
 			int just_echo;
 			int win_x_pos;
 			int win_y_pos;
-			Uint32 wait_time_ms;
 			std::vector<Menu *> menus;
-			Command_Queue command_queue;
+			CommandQueue::Queue command_queue;
 			static const int name_sep;
 			static const int window_pad;
-			static const Uint32 min_wait_time_ms;
 
 			void reload(void);
 			void recalc_win_width(void);
@@ -243,8 +241,11 @@ namespace UserMenus
 			static int click_handler(window_info *win, int mx, int my, Uint32 flags) { return get_instance()->click(win, mx, flags); }
 			static int context_handler(window_info *win, int widget_id, int mx, int my, int option){ return get_instance()->context(win, widget_id, mx, my, option); }
 	};
+}
 
 
+namespace CommandQueue
+{
 	//
 	//	Construct a command object from a command string.  Parsing for
 	//	input fields and splitting into text/input sections.
@@ -318,7 +319,7 @@ namespace UserMenus
 		size_t command_len = command_text.str().size() + 1;
 		char temp[command_len];
 		safe_strncpy(temp, command_text.str().c_str(), command_len);
-		parse_input(temp, strlen(temp));				
+		parse_input(temp, strlen(temp));
 	}
 
 
@@ -348,18 +349,19 @@ namespace UserMenus
 	//
 	//	Initialise the command queue
 	//
-	Command_Queue::Command_Queue(void) : last_time(0)
+	Queue::Queue(void) : last_time(0)
 	{
-		init_ipu(&ipu, -1, 300, 100, MAX_TEXT_MESSAGE_LENGTH, 3, Container::command_cancel_handler, Container::command_input_handler);
+		init_ipu(&ipu, -1, 300, 100, MAX_TEXT_MESSAGE_LENGTH, 3, cancel_handler, input_handler);
 		ipu.x = (window_width - ipu.popup_x_len) / 2;
 		ipu.y = (window_height - ipu.popup_y_len) / 2;
+		ipu.data = static_cast<void *>(this);
 	}
 
 
 	//
 	//	If the command queue is not empty, process the next command.
 	//
-	void Command_Queue::process(bool just_echo)
+	void Queue::process(bool just_echo = false)
 	{
 		// if required, print all the commands to the console emptying the queue 
 		while (just_echo && !commands.empty())
@@ -373,7 +375,7 @@ namespace UserMenus
 
 		// delay consecutive commands by a small amount to avoid spamming
 		Uint32 curr_time = SDL_GetTicks();
-		if ((curr_time >= last_time) && ((curr_time - Container::get_instance()->get_wait_time_ms()) < last_time))
+		if ((curr_time >= last_time) && ((curr_time - wait_time_ms) < last_time))
 			return;
 
 		// if the command needs parameter(s) prompt and wait for input
@@ -397,7 +399,7 @@ namespace UserMenus
 	//
 	//	The input popup window cancel callback
 	//
-	void Command_Queue::cancel(void)
+	void Queue::cancel(void)
 	{
 		if (commands.empty())
 			return;
@@ -410,13 +412,33 @@ namespace UserMenus
 	//
 	//	If the user menu window is closed, clear the queue
 	//
-	void Command_Queue::clear(void)
+	void Queue::clear(void)
 	{
 		cancel();
 		hide_window(ipu.popup_win);
 	}
 
 
+	//
+	//	Set the delay between executing commands on a single user menu line
+	//
+	void Queue::set_wait_time_ms(Uint32 time_ms)
+	{
+		if (time_ms > min_wait_time_ms)
+			wait_time_ms = time_ms;
+		else
+			wait_time_ms = min_wait_time_ms;
+	}
+
+	//	protect the server - the minimum wait time, in milli-seconds, between executing commands
+	const Uint32 Queue::min_wait_time_ms = 500;
+	Uint32 Queue::wait_time_ms = Queue::min_wait_time_ms;
+}
+
+
+
+namespace CommandQueue
+{
 	//
 	// construct a menu line from a text string
 	//
@@ -464,13 +486,16 @@ namespace UserMenus
 	//
 	//	action the selected menu options 
 	//
-	void Line::action(Command_Queue &cq) const
+	void Line::action(Queue &cq) const
 	{
 		for (size_t i=0; i<command_list.size(); i++)
 			cq.add(command_list[i]);
 	}
+}
 
 
+namespace UserMenus
+{
 	//
 	//	Construct the Menu given a filepath and name.
 	//
@@ -500,7 +525,7 @@ namespace UserMenus
 		{
 			// lines starting with ## are ignored - like a comment
 			if ((!line.empty()) && (line.substr(0,2) != "##"))
-				lines.push_back(new Line(line));
+				lines.push_back(new CommandQueue::Line(line));
 		}
 		in.close();
 
@@ -536,15 +561,12 @@ namespace UserMenus
 	// 	pixels around the window edge
 	const int Container::window_pad = 4;
 
-	//	protect the server - the minimum wait time, in milli-seconds, between executing commands
-	const Uint32 Container::min_wait_time_ms = 500;
-
 	//
 	//	constructor for Container, just initialises attributes
 	//
 	Container::Container(void) : win_id(-1), win_width(0), current_mouseover_menu(0), mouse_over_window(false), 
 		reload_menus(false), context_id(CM_INIT_VALUE), window_used(false), title_on(1),
-		border_on(1), use_small_font(0), include_datadir(1), just_echo(0), win_x_pos(100), win_y_pos(100), wait_time_ms(min_wait_time_ms)
+		border_on(1), use_small_font(0), include_datadir(1), just_echo(0), win_x_pos(100), win_y_pos(100)
 	{
 	}
 
@@ -648,18 +670,6 @@ namespace UserMenus
 			win_x_pos = win_x;
 			win_y_pos = win_y;
 		}
-	}
-
-
-	//
-	//	Set the delay between executing commands on a single user menu line
-	//
-	void Container::set_wait_time_ms(Uint32 time_ms)
-	{
-		if (time_ms > min_wait_time_ms)
-			wait_time_ms = time_ms;
-		else
-			wait_time_ms = min_wait_time_ms;
 	}
 
 
@@ -796,7 +806,7 @@ namespace UserMenus
 		else
 			 new_y_pos += win->len_y;
 
-   		move_window(cm_win->window_id, -1, 0, new_x_pos, new_y_pos);			
+   		move_window(cm_win->window_id, -1, 0, new_x_pos, new_y_pos);
 	}
 
 
@@ -1007,9 +1017,9 @@ extern "C"
 	int enable_user_menus = 0;
 	int ready_for_user_menus = 0;
 
-	void set_user_menu_wait_time_ms(Uint32 wait_time_ms)
+	void set_command_queue_wait_time_ms(Uint32 wait_time_ms)
 	{
-		UserMenus::Container::get_instance()->set_wait_time_ms(wait_time_ms);
+		CommandQueue::Queue::set_wait_time_ms(wait_time_ms);
 	}
 
 	void set_options_user_menus(int win_x, int win_y, int options)

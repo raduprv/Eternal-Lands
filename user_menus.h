@@ -6,8 +6,6 @@ extern "C"
 {
 #endif
 
-#include <SDL.h>
-
 /* config option variable */
 extern int enable_user_menus;
 extern int ready_for_user_menus; 
@@ -51,13 +49,6 @@ void display_user_menus(void);
  */
 void toggle_user_menus(int *enable);
 
-/*!
- * \ingroup user_menus
- * \brief Set the delay between commands from a single user menu line.
- *
- * \param wait_time_ms the time in milli-seconds.  If less than the mimimum, the minimum is used.
- */
-void set_user_menu_wait_time_ms(Uint32 wait_time_ms);
 
 #ifdef __cplusplus
 }
