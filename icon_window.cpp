@@ -27,6 +27,7 @@
 #include "textures.h"
 #include "translate.h"
 #include "sound.h"
+#include "command_queue.hpp"
 
 
 /* ToDo
@@ -227,16 +228,18 @@ namespace IconWindow
 			{
 				if (!command_text.empty())
 				{
-					size_t command_len = command_text.size() + 1;
-					char temp[command_len];
-					safe_strncpy(temp, command_text.c_str(), command_len);
-					parse_input(temp, strlen(temp));
+					std::string temp("IconWindow||");
+					temp += command_text;
+					CommandQueue::Line temp_line(temp);
+					temp_line.action(cq);
 				}
 				Basic_Icon::action();
 			}
+			void update_highlight(void) { cq.process(); Basic_Icon::update_highlight(); }
 			~Command_Icon(void) {}
 		private:
 			std::string command_text;
+			CommandQueue::Queue cq;
 	};
 
 

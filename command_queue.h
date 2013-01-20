@@ -1,10 +1,12 @@
-#if !defined(Command_Queue_H)
-#define Command_Queue_H
+#if !defined(COMMAND_QUEUE_H)
+#define COMMAND_QUEUE_H
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+
+#include <SDL.h>
 
 
 /*!
