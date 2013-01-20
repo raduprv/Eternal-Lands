@@ -31,6 +31,7 @@
 <icon type="window" image_id="16" alt_image_id="17" help_name="range" param_name="range"/>
 <icon type="window" image_id="30" alt_image_id="31" help_name="minimap" param_name="minimap"/>
 <icon type="#command" image_id="11" alt_image_id="29" help_text="Open view-only storage" param_name="#sto"/>
+<icon type="#command" image_id="16" alt_image_id="17" help_text="Book Read Search" param_name="#know &lt;Filter String&gt;"/>
 
 <!-- Prefered always last -->
 <icon type="window" image_id="14" alt_image_id="34" help_name="opts" param_name="opts"/>
