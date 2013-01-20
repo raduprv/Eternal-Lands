@@ -62,7 +62,7 @@ CXXOBJS=actor_init.o cal3d_wrapper.o context_menu.o optimizer.o sendvideoinfo.o	
 	exceptions/extendedexception.o xml/xmlhelper.o quest_log.o	\
 	engine/logging.o elloggingwrapper.o	\
 	io/cal3d_io_wrapper.o icon_window.o item_lists.o \
-	user_menus.o achievements.o select.o	\
+	command_queue.o user_menus.o achievements.o select.o	\
 	eye_candy_wrapper.o \
 	eye_candy/eye_candy.o eye_candy/math_cache.o eye_candy/effect_lamp.o \
 	eye_candy/effect_candle.o \
