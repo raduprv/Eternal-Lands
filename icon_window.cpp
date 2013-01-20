@@ -521,37 +521,37 @@ namespace IconWindow
 		if (icon_mode == NEW_CHARACTER_ICONS)
 		{
 #ifndef NEW_NEW_CHAR_WINDOW
-			icon_list.push_back(new Window_Icon(0, 18, "name_pass", "name_pass"));
-			icon_list.push_back(new Window_Icon(2, 20, "customize", "customize"));
+			icon_list.push_back(new Window_Icon(0, 18, get_named_string("tooltips", "name_pass"), "name_pass"));
+			icon_list.push_back(new Window_Icon(2, 20, get_named_string("tooltips", "customize"), "customize"));
 #endif
-			icon_list.push_back(new Window_Icon(39, 38, "help", "help"));
-			icon_list.push_back(new Window_Icon(14, 34, "opts", "opts"));
+			icon_list.push_back(new Window_Icon(39, 38, get_named_string("tooltips", "help"), "help"));
+			icon_list.push_back(new Window_Icon(14, 34, get_named_string("tooltips", "opts"), "opts"));
 			LOG_ERROR("%s : Using default new character icons\n", __PRETTY_FUNCTION__ );
 		}
 		else if (icon_mode == MAIN_WINDOW_ICONS)
 		{
-			icon_list.push_back(new Actionmode_Icon(0, 18, "walk", "walk"));
+			icon_list.push_back(new Actionmode_Icon(0, 18, get_named_string("tooltips", "walk"), "walk"));
 			std::vector<Virtual_Icon *> sit_stand_icons;
-			sit_stand_icons.push_back(new Keypress_Icon(7, 25, "sit", "#K_SIT"));
-			sit_stand_icons.push_back(new Keypress_Icon(8, 26, "stand", "#K_SIT"));
+			sit_stand_icons.push_back(new Keypress_Icon(7, 25, get_named_string("tooltips", "sit"), "#K_SIT"));
+			sit_stand_icons.push_back(new Keypress_Icon(8, 26, get_named_string("tooltips", "stand"), "#K_SIT"));
 			icon_list.push_back(new Multi_Icon("you_sit", sit_stand_icons));
-			icon_list.push_back(new Actionmode_Icon(2, 20, "look", "look"));
-			icon_list.push_back(new Actionmode_Icon(15, 35, "use", "use"));
-			icon_list.push_back(new Actionmode_Icon(47, 46, "use_witem", "use_witem"));
-			icon_list.push_back(new Actionmode_Icon(4, 22, "trade", "trade"));
-			icon_list.push_back(new Actionmode_Icon(5, 23, "attack", "attack"));
-			icon_list.push_back(new Window_Icon(11, 29, "invent", "invent"));
-			icon_list.push_back(new Window_Icon(9, 27, "spell", "spell"));
-			icon_list.push_back(new Window_Icon(12, 32, "manu", "manu"));
-			icon_list.push_back(new Window_Icon(45, 44, "emotewin", "emotewin"));
-			icon_list.push_back(new Window_Icon(19, 21, "quest", "quest"));
-			icon_list.push_back(new Window_Icon(36, 37, "map", "map"));
-			icon_list.push_back(new Window_Icon(3, 6, "info", "info"));
-			icon_list.push_back(new Window_Icon(10, 24, "buddy", "buddy"));
-			icon_list.push_back(new Window_Icon(13, 33, "stats", "stats"));
-			icon_list.push_back(new Window_Icon(1, 28, "console", "console"));
-			icon_list.push_back(new Window_Icon(39, 38, "help", "help"));
-			icon_list.push_back(new Window_Icon(14, 34, "opts", "opts"));
+			icon_list.push_back(new Actionmode_Icon(2, 20, get_named_string("tooltips", "look"), "look"));
+			icon_list.push_back(new Actionmode_Icon(15, 35, get_named_string("tooltips", "use"), "use"));
+			icon_list.push_back(new Actionmode_Icon(47, 46, get_named_string("tooltips", "use_witem"), "use_witem"));
+			icon_list.push_back(new Actionmode_Icon(4, 22, get_named_string("tooltips", "trade"), "trade"));
+			icon_list.push_back(new Actionmode_Icon(5, 23, get_named_string("tooltips", "attack"), "attack"));
+			icon_list.push_back(new Window_Icon(11, 29, get_named_string("tooltips", "invent"), "invent"));
+			icon_list.push_back(new Window_Icon(9, 27, get_named_string("tooltips", "spell"), "spell"));
+			icon_list.push_back(new Window_Icon(12, 32, get_named_string("tooltips", "manu"), "manu"));
+			icon_list.push_back(new Window_Icon(45, 44, get_named_string("tooltips", "emotewin"), "emotewin"));
+			icon_list.push_back(new Window_Icon(19, 21, get_named_string("tooltips", "quest"), "quest"));
+			icon_list.push_back(new Window_Icon(36, 37, get_named_string("tooltips", "map"), "map"));
+			icon_list.push_back(new Window_Icon(3, 6, get_named_string("tooltips", "info"), "info"));
+			icon_list.push_back(new Window_Icon(10, 24, get_named_string("tooltips", "buddy"), "buddy"));
+			icon_list.push_back(new Window_Icon(13, 33, get_named_string("tooltips", "stats"), "stats"));
+			icon_list.push_back(new Window_Icon(1, 28, get_named_string("tooltips", "console"), "console"));
+			icon_list.push_back(new Window_Icon(39, 38, get_named_string("tooltips", "help"), "help"));
+			icon_list.push_back(new Window_Icon(14, 34, get_named_string("tooltips", "opts"), "opts"));
 			LOG_ERROR("%s : Using default main icons\n", __PRETTY_FUNCTION__ );
 		}
 		else
