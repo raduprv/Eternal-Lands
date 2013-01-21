@@ -2378,6 +2378,12 @@ void create_game_root_window (int width, int height)
 
 		if(input_widget == NULL) {
 			Uint32 id;
+			if (dark_channeltext == 1)
+				set_text_message_color (&input_text_line, 0.6f, 0.6f, 0.6f);
+			else if (dark_channeltext == 2)
+				set_text_message_color (&input_text_line, 0.16f, 0.16f, 0.16f);
+			else
+				set_text_message_color (&input_text_line, 1.0f, 1.0f, 1.0f);
 			id = text_field_add_extended(game_root_win, 42, NULL, 0, height-INPUT_HEIGHT-hud_y, width-hud_x, INPUT_HEIGHT, INPUT_DEFAULT_FLAGS, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL, INPUT_MARGIN, INPUT_MARGIN);
 			input_widget = widget_find(game_root_win, id);
 			input_widget->OnResize = input_field_resize;
