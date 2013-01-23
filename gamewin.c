@@ -1918,53 +1918,6 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		item_action_mode = qb_action_mode = action_mode = ACTION_USE;
 	}
-	// Roja likes to rotate the camera while in console mode :)
-	else if (key == K_ROTATELEFT)
-	{
-		camera_rotation_speed = (first_person?-1:1)*normal_camera_rotation_speed / 800.0;
-		camera_rotation_deceleration = normal_camera_deceleration*0.5E-3;
-		camera_rotation_duration = 800;
-		if (fol_cam && !fol_cam_behind)
-		{
-			hold_camera += camera_kludge - last_kludge;
-			last_kludge = camera_kludge;
-		}
-	}
-	else if (key == K_FROTATELEFT)
-	{
-		camera_rotation_speed = (first_person?-1:1)*fine_camera_rotation_speed / 200.0;
-		camera_rotation_speed /= 4.0;
-		camera_rotation_deceleration = normal_camera_deceleration*0.5E-3;
-		camera_rotation_duration = 200;
-		if (fol_cam && !fol_cam_behind)
-		{
-			hold_camera += camera_kludge - last_kludge;
-			last_kludge = camera_kludge;
-		}
-	}
-	else if (key == K_ROTATERIGHT)
-	{
-		camera_rotation_speed = (first_person?1:-1)*normal_camera_rotation_speed / 800.0;
-		camera_rotation_deceleration = normal_camera_deceleration*0.5E-3;
-		camera_rotation_duration = 800;
-		if (fol_cam && !fol_cam_behind)
-		{
-			hold_camera += camera_kludge - last_kludge;
-			last_kludge = camera_kludge;
-		}
-	}
-	else if (key == K_FROTATERIGHT)
-	{
-		camera_rotation_speed = (first_person?1:-1)*fine_camera_rotation_speed / 200.0;
-		camera_rotation_speed /= 4.0;
-		camera_rotation_deceleration = normal_camera_deceleration*0.5E-3;
-		camera_rotation_duration = 200;
-		if (fol_cam && !fol_cam_behind)
-		{
-			hold_camera += camera_kludge - last_kludge;
-			last_kludge = camera_kludge;
-		}
-	}
 	else if (key == K_AFK)
 	{
 		if (!afk) 
@@ -2179,6 +2132,52 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	else if (key == K_TABCOMPLETE && input_text_line.len > 0)
 	{
 		do_tab_complete(&input_text_line);
+	}
+	else if (key == K_ROTATELEFT)
+	{
+		camera_rotation_speed = (first_person?-1:1)*normal_camera_rotation_speed / 800.0;
+		camera_rotation_deceleration = normal_camera_deceleration*0.5E-3;
+		camera_rotation_duration = 800;
+		if (fol_cam && !fol_cam_behind)
+		{
+			hold_camera += camera_kludge - last_kludge;
+			last_kludge = camera_kludge;
+		}
+	}
+	else if (key == K_FROTATELEFT)
+	{
+		camera_rotation_speed = (first_person?-1:1)*fine_camera_rotation_speed / 200.0;
+		camera_rotation_speed /= 4.0;
+		camera_rotation_deceleration = normal_camera_deceleration*0.5E-3;
+		camera_rotation_duration = 200;
+		if (fol_cam && !fol_cam_behind)
+		{
+			hold_camera += camera_kludge - last_kludge;
+			last_kludge = camera_kludge;
+		}
+	}
+	else if (key == K_ROTATERIGHT)
+	{
+		camera_rotation_speed = (first_person?1:-1)*normal_camera_rotation_speed / 800.0;
+		camera_rotation_deceleration = normal_camera_deceleration*0.5E-3;
+		camera_rotation_duration = 800;
+		if (fol_cam && !fol_cam_behind)
+		{
+			hold_camera += camera_kludge - last_kludge;
+			last_kludge = camera_kludge;
+		}
+	}
+	else if (key == K_FROTATERIGHT)
+	{
+		camera_rotation_speed = (first_person?1:-1)*fine_camera_rotation_speed / 200.0;
+		camera_rotation_speed /= 4.0;
+		camera_rotation_deceleration = normal_camera_deceleration*0.5E-3;
+		camera_rotation_duration = 200;
+		if (fol_cam && !fol_cam_behind)
+		{
+			hold_camera += camera_kludge - last_kludge;
+			last_kludge = camera_kludge;
+		}
 	}
 	else if (key == K_CAMERAUP)
 	{
