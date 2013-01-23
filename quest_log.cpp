@@ -615,6 +615,10 @@ void Quest_Entry::set_lines(const std::string & the_text)
 			text += last_char = the_text[i];
 	}
 
+	// strip any line breaks from the end of the line
+	while (!text.empty() && (*(text.end()-1) == '\r'))
+		text.erase(text.end()-1, text.end());
+
 	// look for and <<number>> at the end of the text, its the quest id
 	std::string::size_type close = text.rfind(">>");
 	if (close == text.size()-2)
