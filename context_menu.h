@@ -279,6 +279,24 @@ void cm_showinfo(void);
 size_t cm_window_shown(void);
 
 
+/*!
+ * \ingroup context_menu
+ * \brief Set the data pointer assiociated with a menu
+ * \param  cm_id	id of the assiociated context menu
+ * \param  data 	the pointer to save
+ */
+void cm_set_data(size_t cm_id, void *data);
+
+
+/*!
+ * \ingroup context_menu
+ * \brief Get the previously saved data pointer assiociated with a menu
+ * \param  cm_id	id of the assiociated context menu
+ * \retval void * 	NULL or the pointer previously set
+ */
+void *cm_get_data(size_t cm_id);
+
+
 #ifdef __cplusplus
 }
 #endif

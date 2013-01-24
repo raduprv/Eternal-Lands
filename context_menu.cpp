@@ -46,6 +46,8 @@ namespace cm
 			int bool_line(size_t line_index, int *control_var, const char *config_name);
 			int grey_line(size_t line_index, bool is_grey);
 			void show_lines(size_t my_id);
+			void set_data(void *data) { data_ptr = data; }
+			void *get_data(void) const { return data_ptr; }
 
 		private:
 			int resize(void);
@@ -55,6 +57,7 @@ namespace cm
 			int opened_mouse_x, opened_mouse_y;
 			int (*handler)(window_info *, int, int, int, int);
 			void (*pre_show_handler)(window_info *, int, int, int, window_info *);
+			void *data_ptr;
 			int width, height;
 			int selection;
 			bool menu_has_bools;
@@ -118,6 +121,8 @@ namespace cm
 			bool valid(size_t cm_id) const { return cm_id<menus.size() && menus[cm_id]; }
 			size_t window_shown(void) const;
 			void showinfo(void);
+			void *get_data(size_t cm_id) const { if (!valid(cm_id)) return 0; return menus[cm_id]->get_data(); }
+			void set_data(size_t cm_id, void *data) { if (valid(cm_id)) menus[cm_id]->set_data(data); }
 
 		private:
 			class Region	//  Wrapper for window region activation area.
@@ -464,7 +469,7 @@ namespace cm
 	
 	// Constructor - set default values for new menu
 	Menu::Menu(const char *menu_list, int (*handler)(window_info *, int, int, int, int))
-		: border(5), text_border(5), line_sep(3), zoom(0.8), selection(-1), menu_has_bools(false)
+		: border(5), text_border(5), line_sep(3), zoom(0.8), data_ptr(0), selection(-1), menu_has_bools(false)
 	{
 		set(menu_list, handler);
 		pre_show_handler = 0;
@@ -825,6 +830,8 @@ extern "C" int cm_remove_widget(int window_id, int widget_id) { return cm::conta
 extern "C" void cm_showinfo(void) { cm::container.showinfo(); }
 extern "C" int cm_valid(size_t cm_id) { if (cm::container.valid(cm_id)) return 1; else return 0; }
 extern "C" size_t cm_window_shown(void) { return cm::container.window_shown(); }
+extern "C" void *cm_get_data(size_t cm_id) { return cm::container.get_data(cm_id); }
+extern "C" void cm_set_data(size_t cm_id, void *data) { cm::container.set_data(cm_id, data); }
 
 
 
