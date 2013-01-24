@@ -10,10 +10,12 @@
 #include <sstream>
 #include <utility>
 #include <cassert>
+#include <algorithm>
 
 #include "asc.h"
 #include "actors.h"
 #include "chat.h"
+#include "context_menu.h"
 #include "elwindows.h"
 #include "elloggingwrapper.h"
 #include "gamewin.h"
@@ -33,7 +35,6 @@
 /* ToDo
  *
  * 	Add reload #command
- * 	Modify #command icon to reuse usermenu code, allowing parameter prompts and multi #commands
  *	Add icon window position code - allowing the window to be repositioned
  *
  */
@@ -51,6 +52,8 @@ namespace IconWindow
 			virtual void update_highlight(void) = 0;
 			virtual std::pair<float, float> get_uv(void) = 0;
 			virtual void action(void) = 0;
+			virtual void menu(void) = 0;
+			virtual int cm_handler(size_t option) = 0;
 			virtual ~Virtual_Icon(void) {};
 	};
 
@@ -60,20 +63,27 @@ namespace IconWindow
 	class Basic_Icon : public Virtual_Icon
 	{
 		public:
-			Basic_Icon(int icon_id, int coloured_icon_id, const char * help_str);
-			virtual ~Basic_Icon(void) {}
+			Basic_Icon(int icon_id, int coloured_icon_id, const char * help_str, const std::vector<CommandQueue::Line> *lines = 0);
+			virtual ~Basic_Icon(void) { if (cq) delete cq; if (cm_valid(cm_menu_id)) cm_destroy(cm_menu_id); }
 			virtual const char *get_help_message(void) const { return help_message.c_str(); }
 			virtual void set_flash(Uint32 seconds) { flashing = 4*seconds; }
 			virtual void set_highlight(bool is_highlighted) { has_highlight = is_highlighted; }
-			virtual void update_highlight(void) { has_highlight = false; }
-			virtual void action(void) { flashing = 0; }
+			virtual void update_highlight(void) { has_highlight = false; if (cq) cq->process(); }
+			virtual void action(void) { flashing = 0; do_icon_click_sound(); }
+			virtual void menu(void) { if (cm_valid(cm_menu_id)) cm_show_direct(cm_menu_id, -1, -1); else action(); }
 			virtual std::pair<float, float> get_uv(void);
+			virtual int cm_handler(size_t option) { if (!cm_valid(cm_menu_id) || (option>=menu_lines.size())) return 0; menu_lines[option].action(*get_cq()); return 1; }
+		protected:
+			CommandQueue::Queue *get_cq(void) { if (!cq) cq = new CommandQueue::Queue(); return cq; }
 		private:
 			bool has_highlight;				// true if the icon is highlighted
 			float u[2], v[2];				// icon image positions
 			std::string help_message;		// icon help message
 			Uint32 flashing;				// if non-zero, the number times left to flash
 			Uint32 last_flash_change;		// if flashing, the time the flashing state last changed
+			std::vector<CommandQueue::Line> menu_lines; 	// context menu #command lines
+			CommandQueue::Queue *cq;		// Command queue for commands
+			size_t cm_menu_id;				// if this icon has a context menu, this is the id, otherwise CM_INIT_VALUE
 	};
 
 
@@ -102,6 +112,8 @@ namespace IconWindow
 			void update_highlight(void) { icons[get_index()]->update_highlight(); }
 			std::pair<float, float> get_uv(void) { return icons[get_index()]->get_uv(); }
 			void action(void) { icons[get_index()]->action(); }
+			void menu(void) { icons[get_index()]->menu(); }
+			int cm_handler(size_t option) { return icons[get_index()]->cm_handler(option); }
 		private:
 			size_t get_index(void) const
 			{
@@ -128,15 +140,14 @@ namespace IconWindow
 	class Window_Icon : public Basic_Icon
 	{
 		public:
-			Window_Icon(int icon_id, int coloured_icon_id, const char * help_str, const char * window_name)
-				: Basic_Icon(icon_id, coloured_icon_id, help_str), window_id(0)
+			Window_Icon(int icon_id, int coloured_icon_id, const char * help_str, const char * window_name, const std::vector<CommandQueue::Line> *lines = 0)
+				: Basic_Icon(icon_id, coloured_icon_id, help_str, lines), window_id(0)
 				{ window_id = get_winid(window_name); }
 			void update_highlight(void)
 			{
+				Basic_Icon::update_highlight();
 				if ( window_id &&  *window_id >= 0 && (windows_list.window[*window_id].displayed || windows_list.window[*window_id].reinstate) )
 					Basic_Icon::set_highlight(true);
-				else
-					Basic_Icon::set_highlight(false);
 			}
 			void action(void)
 			{
@@ -155,8 +166,8 @@ namespace IconWindow
 	class Keypress_Icon : public Basic_Icon
 	{
 		public:
-			Keypress_Icon(int icon_id, int coloured_icon_id, const char * help_str, const char * the_key_name)
-				: Basic_Icon(icon_id, coloured_icon_id, help_str)
+			Keypress_Icon(int icon_id, int coloured_icon_id, const char * help_str, const char * the_key_name, const std::vector<CommandQueue::Line> *lines = 0)
+				: Basic_Icon(icon_id, coloured_icon_id, help_str, lines)
 			{
 				if (the_key_name && (strlen(the_key_name)>0))
 					key_name = std::string(the_key_name);
@@ -182,8 +193,8 @@ namespace IconWindow
 	class Actionmode_Icon : public Basic_Icon
 	{
 		public:
-			Actionmode_Icon(int icon_id, int coloured_icon_id, const char * help_str, const char * action_name)
-				: Basic_Icon(icon_id, coloured_icon_id, help_str), the_action_mode(ACTION_WALK)
+			Actionmode_Icon(int icon_id, int coloured_icon_id, const char * help_str, const char * action_name, const std::vector<CommandQueue::Line> *lines = 0)
+				: Basic_Icon(icon_id, coloured_icon_id, help_str, lines), the_action_mode(ACTION_WALK)
 			{
 				if (action_name && (strlen(action_name) > 0))
 					for (size_t i=0; icon_action_modes[i].name!=0; i++)
@@ -193,7 +204,9 @@ namespace IconWindow
 			~Actionmode_Icon(void) {}
 			void update_highlight(void)
 			{
-				Basic_Icon::set_highlight((action_mode == the_action_mode));
+				Basic_Icon::update_highlight();
+				if (action_mode == the_action_mode)
+					Basic_Icon::set_highlight(true);
 			}
 			void action(void)
 			{
@@ -222,24 +235,22 @@ namespace IconWindow
 	class Command_Icon : public Basic_Icon
 	{
 		public:
-			Command_Icon(int icon_id, int coloured_icon_id, const char * help_str, const char * command)
-				: Basic_Icon(icon_id, coloured_icon_id, help_str), command_text(command) {}
+			Command_Icon(int icon_id, int coloured_icon_id, const char * help_str, const char * command, const std::vector<CommandQueue::Line> *lines = 0)
+				: Basic_Icon(icon_id, coloured_icon_id, help_str, lines), command_text(command) {}
 			void action(void)
 			{
 				if (!command_text.empty())
 				{
-					std::string temp("IconWindow||");
+					std::string temp("CommandIcon||");
 					temp += command_text;
 					CommandQueue::Line temp_line(temp);
-					temp_line.action(cq);
+					temp_line.action(*get_cq());
 				}
 				Basic_Icon::action();
 			}
-			void update_highlight(void) { cq.process(); Basic_Icon::update_highlight(); }
 			~Command_Icon(void) {}
 		private:
 			std::string command_text;
-			CommandQueue::Queue cq;
 	};
 
 
@@ -248,7 +259,7 @@ namespace IconWindow
 	class Container
 	{
 		public:
-			Container(void) : mouse_over_icon(-1), doing_action(false), display_icon_size(32) {}
+			Container(void) : mouse_over_icon(-1), display_icon_size(32) {}
 			~Container(void) { free_icons(); }
 			size_t get_num_icons(void) const { return icon_list.size(); }
 			bool empty(void) const { return icon_list.empty(); };
@@ -258,19 +269,29 @@ namespace IconWindow
 			Virtual_Icon * icon_xml_factory(const xmlNodePtr cur);
 			bool read_xml(icon_window_mode icon_mode);
 			int get_icon_size(void) const { return display_icon_size; }
+			static int cm_generic_handler(window_info *win, int widget_id, int mx, int my, int option)
+			{
+				Busy dummy;
+				IconWindow::Virtual_Icon * the_icon = reinterpret_cast<IconWindow::Virtual_Icon *>(cm_get_data(cm_window_shown()));
+				if (the_icon)
+					return the_icon->cm_handler(option);
+				return 0;
+			}
 			void action(size_t icon_number)
 			{
+				Busy dummy;
 				if (icon_number < icon_list.size())
-				{
-					doing_action = true;
 					icon_list[icon_number]->action();
-					do_icon_click_sound();
-					doing_action = false;
-				}
+			}
+			void menu(size_t icon_number)
+			{
+				Busy dummy;
+				if (icon_number < icon_list.size())
+					icon_list[icon_number]->menu();
 			}
 			void free_icons(void)
 			{
-				if (doing_action)
+				if (busy)
 				{
 					const char *error_str = " : not freeing as doing action";
 					std::cerr << __PRETTY_FUNCTION__ << error_str << std::endl;
@@ -291,17 +312,19 @@ namespace IconWindow
 					}
 			}
 		private:
+			class Busy { public: Busy(void) { busy = true; } ~Busy(void) { busy = false; } };
 			std::vector <Virtual_Icon *> icon_list;
 			int mouse_over_icon;
-			bool doing_action;
+			static bool busy;
 			int display_icon_size;
 	};
 
+	bool Container::busy = false;
 
 	// Constucture basic icon object
 	//
-	Basic_Icon::Basic_Icon(int icon_id, int coloured_icon_id, const char * help_str)
-		: help_message(help_str)
+	Basic_Icon::Basic_Icon(int icon_id, int coloured_icon_id, const char * help_str, const std::vector<CommandQueue::Line> *lines)
+		: help_message(help_str), cq(0), cm_menu_id(CM_INIT_VALUE)
 	{
 		has_highlight = false;
 #ifdef	NEW_TEXTURES
@@ -314,6 +337,17 @@ namespace IconWindow
 		v[0] = 32.0 * (float)(icon_id >> 3)/256.0;
 		v[1] = 32.0 * (float)(coloured_icon_id >> 3)/256.0;
 		flashing = 0;
+
+		// construct context menu if we need one
+		if (lines)
+		{
+			std::copy(lines->begin(), lines->end(), back_inserter(menu_lines));
+			std::string menu_text;
+			for (size_t i=0; i<menu_lines.size(); i++)
+				menu_text += menu_lines[i].get_text() + "\n";
+			cm_menu_id = cm_create(menu_text.c_str(), Container::cm_generic_handler);
+			cm_set_data(cm_menu_id, dynamic_cast<void *>(this));
+		}
 	}
 
 
@@ -406,12 +440,33 @@ namespace IconWindow
 		std::string the_type, help_name, help_text, param_name;
 		const char *help_str;
 		int image_id = -1, alt_image_id = -1;
+
 		get_xml_field_string(the_type, "type", cur);
 		get_xml_field_int(&image_id, "image_id", cur);
 		get_xml_field_int(&alt_image_id, "alt_image_id", cur);
 		get_xml_field_string(help_name, "help_name", cur);
 		get_xml_field_string(help_text, "help_text", cur);
 		get_xml_field_string(param_name, "param_name", cur);
+
+		std::vector<CommandQueue::Line> *menu_lines_ptr = 0;
+		std::vector<CommandQueue::Line> menu_lines;
+		{
+			char *text = (char*)(cur->children ? cur->children->content : NULL);
+			char *parsed = 0;
+			MY_XMLSTRCPY(&parsed, text);
+			if (parsed)
+			{
+    			std::istringstream lines(parsed);
+    			std::string line;    
+    			while (std::getline(lines, line))
+					if (!line.empty())
+						menu_lines.push_back(CommandQueue::Line(line));
+				free(parsed);
+				if (!menu_lines.empty())
+					menu_lines_ptr = &menu_lines;
+			}
+		}
+
 		if (the_type.empty() || (image_id<0) || (alt_image_id<0) ||
 			(help_name.empty() && help_text.empty()) || param_name.empty())
 		{
@@ -419,18 +474,20 @@ namespace IconWindow
 				the_type.c_str(), image_id, alt_image_id, help_name.c_str(), help_text.c_str(), param_name.c_str() );
 			return 0;
 		}
+
 		if (!help_text.empty())
 			help_str = help_text.c_str();
 		else
 			help_str = get_named_string("tooltips", help_name.c_str());
+
 		if (the_type == "keypress")
-			return new Keypress_Icon(image_id, alt_image_id, help_str, param_name.c_str());
+			return new Keypress_Icon(image_id, alt_image_id, help_str, param_name.c_str(), menu_lines_ptr);
 		else if (the_type == "window")
-			return new Window_Icon(image_id, alt_image_id, help_str, param_name.c_str());
+			return new Window_Icon(image_id, alt_image_id, help_str, param_name.c_str(), menu_lines_ptr);
 		else if (the_type == "action_mode")
-			return new Actionmode_Icon(image_id, alt_image_id, help_str, param_name.c_str());
+			return new Actionmode_Icon(image_id, alt_image_id, help_str, param_name.c_str(), menu_lines_ptr);
 		else if (the_type == "#command")
-			return new Command_Icon(image_id, alt_image_id, help_str, param_name.c_str());
+			return new Command_Icon(image_id, alt_image_id, help_str, param_name.c_str(), menu_lines_ptr);
 		return 0;
 	}
 
@@ -583,7 +640,10 @@ static int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	if ( (flags & ELW_MOUSE_BUTTON) == 0)
 		return 0; // only handle mouse button clicks, not scroll wheels moves;
-	action_icons.action(mx/action_icons.get_icon_size());
+	if (flags & ELW_RIGHT_MOUSE)
+		action_icons.menu(mx/action_icons.get_icon_size());
+	else if (flags & ELW_LEFT_MOUSE)
+		action_icons.action(mx/action_icons.get_icon_size());
 	return 1;
 }
 

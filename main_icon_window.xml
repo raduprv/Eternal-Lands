@@ -5,8 +5,11 @@
 <icon type="action_mode" image_id="0" alt_image_id="18" help_name="walk" param_name="walk"/>
 
 <multi_icon control_name="you_sit">
-<icon type="keypress" image_id="7" alt_image_id="25" help_name="sit" param_name="#K_SIT"/>
-<icon type="keypress" image_id="8" alt_image_id="26" help_name="stand" param_name="#K_SIT"/>
+<icon type="keypress" image_id="7" alt_image_id="25" help_name="sit" param_name="#K_SIT">Set AFK||#afk</icon>
+<icon type="keypress" image_id="8" alt_image_id="26" help_name="stand" param_name="#K_SIT">
+Set AFK||#afk
+Read Messages||#msg all
+</icon>
 </multi_icon>
 
 <icon type="action_mode" image_id="2" alt_image_id="20" help_name="look" param_name="look"/>
@@ -15,23 +18,36 @@
 <icon type="action_mode" image_id="4" alt_image_id="22" help_name="trade" param_name="trade"/>
 <icon type="action_mode" image_id="5" alt_image_id="23" help_name="attack" param_name="attack"/>
 
-<icon type="window" image_id="11" alt_image_id="29" help_name="invent" param_name="invent"/>
+<icon type="window" image_id="11" alt_image_id="29" help_name="invent" param_name="invent">View only storage||#sto</icon>
 <icon type="window" image_id="9" alt_image_id="27" help_name="spell" param_name="spell"/>
 <icon type="window" image_id="12" alt_image_id="32" help_name="manu" param_name="manu"/>
 <icon type="window" image_id="45" alt_image_id="44" help_name="emotewin" param_name="emotewin"/>
 <icon type="window" image_id="19" alt_image_id="21" help_name="quest" param_name="quest"/>
-<icon type="window" image_id="36" alt_image_id="37" help_name="map" param_name="map"/>
-<icon type="window" image_id="3" alt_image_id="6" help_name="info" param_name="info"/>
+<icon type="window" image_id="36" alt_image_id="37" help_name="map" param_name="map">
+Temporary Mark Here||#unmark **temp**||#mark **temp**
+Temporary Mark x, y||#unmark **temp**||#markpos &lt;x,y coords&gt; **temp**
+Remove Temporary Mark||#unmark **temp**
+</icon>
+<icon type="window" image_id="3" alt_image_id="6" help_name="info" param_name="info">
+Url Tab||#keypress #K_BROWSERWIN
+Notepad Tab||#keypress #K_NOTEPAD
+</icon>
 <icon type="window" image_id="10" alt_image_id="24" help_name="buddy" param_name="buddy"/>
-<icon type="window" image_id="13" alt_image_id="33" help_name="stats" param_name="stats"/>
+<icon type="window" image_id="13" alt_image_id="33" help_name="stats" param_name="stats">
+Statistics Tab||#keypress #K_STATS
+Knowledge Tab||#keypress #K_KNOWLEDGE
+Session Tab||#keypress #K_SESSION
+Search Knowledge ...||#know &lt;Knowledge Filter String&gt;
+</icon>
 <icon type="window" image_id="1" alt_image_id="28" help_name="console" param_name="console"/>
-<icon type="window" image_id="39" alt_image_id="38" help_name="help" param_name="help"/>
+<icon type="window" image_id="39" alt_image_id="38" help_name="help" param_name="help">
+Encyclopedia Tab||#keypress #K_ENCYCLOPEDIA
+Rules Tab||#keypress #K_RULES
+</icon>
 
 <!--- New stuff examples -->
 <icon type="window" image_id="16" alt_image_id="17" help_name="range" param_name="range"/>
 <icon type="window" image_id="30" alt_image_id="31" help_name="minimap" param_name="minimap"/>
-<icon type="#command" image_id="11" alt_image_id="29" help_text="Open view-only storage" param_name="#sto"/>
-<icon type="#command" image_id="16" alt_image_id="17" help_text="Book Read Search" param_name="#know &lt;Filter String&gt;"/>
 
 <!-- Prefered always last -->
 <icon type="window" image_id="14" alt_image_id="34" help_name="opts" param_name="opts"/>
