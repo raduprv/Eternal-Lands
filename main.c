@@ -287,6 +287,8 @@ int start_rendering()
 
 	destroy_tcp_out_mutex();
 
+	if (use_frame_buffer) free_reflection_framebuffer();
+
 	printf("doing SDL_Quit\n");
 	fflush(stderr);
 	SDL_Quit( );
@@ -295,8 +297,6 @@ int start_rendering()
 	cleanup_mem();
 	xmlCleanupParser();
 	FreeXML();
-	// shouldn't this be before SDL_Quit()? that shutsdown the video mode
-	if (use_frame_buffer) free_reflection_framebuffer();
 
 	exit_logging();
 
