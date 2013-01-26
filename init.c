@@ -1011,6 +1011,8 @@ void init_stuff()
 	}
 	update_loading_win(load_encyc_str, 5);
 	safe_snprintf(file_name, sizeof(file_name), "languages/%s/Encyclopedia/index.xml", lang);
+	if (!el_file_exists(file_name))
+		safe_snprintf(file_name, sizeof(file_name), "languages/%s/Encyclopedia/index.xml", "en");
 	ReadXML(file_name);
 	read_key_config();
 	init_buddy();
