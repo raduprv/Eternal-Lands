@@ -800,7 +800,13 @@ void init_stuff()
 	init_2d_obj_cache();
 #endif
 	//now load the font textures
-	load_font_textures ();
+	if (load_font_textures () != 1)
+	{
+		LOG_ERROR("%s\n", fatal_data_error);
+		fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, fatal_data_error);
+		SDL_Quit();
+		exit(1);
+	}
 	CHECK_GL_ERRORS();
 
 	// read the continent map info

@@ -695,6 +695,7 @@ char	reg_error_str[15],
 	exceed_note_buffer[100],
 	user_no_more_notes[100],
 	user_no_more_note_tabs[100],
+	fatal_data_error[120],
 	dc_note_remove[50],
 	note_saved[50],
 	note_save_failed[50],
@@ -1157,7 +1158,7 @@ void init_errors()
 	add_xml_identifier(load,"exceednotes",exceed_note_buffer,"Tried to exceed notepad buffer! Ignored.",sizeof(exceed_note_buffer));
 	add_xml_identifier(load,"nomorenotes",user_no_more_notes,"No room for more notes.",sizeof(user_no_more_notes));
 	add_xml_identifier(load,"nomorenotetabs",user_no_more_note_tabs,"No room for more note tabs.",sizeof(user_no_more_note_tabs));
-
+	add_xml_identifier(load,"fataldataerror",fatal_data_error,"Fatal error while loading data files. Either set the data_dir correctly or run from the data directory.",sizeof(fatal_data_error));
 
 	//Miscellaneous errors
 	add_xml_identifier(misc,"no_walk_sitlock",no_walk_with_sitlock,"Sitlock is enabled. Disable it or stand before walking.",sizeof(no_walk_with_sitlock));
