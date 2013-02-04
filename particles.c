@@ -703,7 +703,8 @@ void add_ec_effect_to_e3d(object3d* e3d)
 		ec_add_smooth_polygon_bound(bounds, 2.0, 0.4);
 		shift[2] += 1.75f; // add height
 		ec_create_fireflies(e3d->x_pos, e3d->y_pos, e3d->z_pos + 1.75f, 1.0, 1.0, 0.0075, 1.0, bounds);
-	}	
+	}
+	ec_free_bounds_list(bounds);	
 }
 
 #ifdef NEW_SOUND
