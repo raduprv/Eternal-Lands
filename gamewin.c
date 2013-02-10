@@ -1786,24 +1786,6 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	else if (action_spell_keys(key))
 	{
 	}
-	// Okay, let's move, even when in console or map mode
-	else if (key == K_TURNLEFT)
-	{
-		//Moved delay to my_tcp_send
-		Uint8 str[2];
-		str[0] = TURN_LEFT;
-		my_tcp_send (my_socket, str, 1);
-	}
-	else if (key == K_TURNRIGHT)
-	{
-		Uint8 str[2];
-		str[0] = TURN_RIGHT;
-		my_tcp_send (my_socket, str, 1);
-	}
-	else if (key==K_ADVANCE)
-	{
-		move_self_forward();
-	}
 	// hide all windows
 	else if(key==K_HIDEWINS)
 	{
@@ -2132,6 +2114,23 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	else if (key == K_TABCOMPLETE && input_text_line.len > 0)
 	{
 		do_tab_complete(&input_text_line);
+	}
+	else if (key == K_TURNLEFT)
+	{
+		//Moved delay to my_tcp_send
+		Uint8 str[2];
+		str[0] = TURN_LEFT;
+		my_tcp_send (my_socket, str, 1);
+	}
+	else if (key == K_TURNRIGHT)
+	{
+		Uint8 str[2];
+		str[0] = TURN_RIGHT;
+		my_tcp_send (my_socket, str, 1);
+	}
+	else if (key==K_ADVANCE)
+	{
+		move_self_forward();
 	}
 	else if (key == K_ROTATELEFT)
 	{
