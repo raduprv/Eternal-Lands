@@ -86,7 +86,7 @@ namespace Trade_Log
 			void accepted(const char *name, const trade_item *yours, const trade_item *others, int max_items);
 			void completed(void);
 			void post_inventory(void) { the_state = (the_state == TLS_EXIT) ?TLS_INV :TLS_INIT; }
-			void exit(void) { the_state = (the_state == TLS_ACCEPT) ?TLS_INV :TLS_INIT; }
+			void exit(void) { the_state = (the_state == TLS_ACCEPT) ?TLS_EXIT :TLS_INIT; }
 			void aborted(void) { the_state = TLS_INIT; }
 		private:
 			List *your_stuff;
@@ -127,7 +127,7 @@ namespace Trade_Log
 	//
 	void State::completed(void)
 	{
-		if (the_state == TLS_INV)
+		if (the_state != TLS_INV)
 		{
 			the_state = TLS_INIT;
 			return;
