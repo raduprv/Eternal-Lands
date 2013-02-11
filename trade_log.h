@@ -41,14 +41,6 @@ void trade_aborted(const char *message);
 
 /**
  * @ingroup trade_log
- * @brief server has sent the HERE_YOUR_INVENTORY command.
- *
- * @callgraph
- */
-void trade_post_inventory(void);
-
-/**
- * @ingroup trade_log
  * @brief server has sent the STORAGE_ITEMS command.
  *
  * @callgraph

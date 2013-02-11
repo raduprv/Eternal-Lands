@@ -15,6 +15,9 @@
 
 #include "client_serv.h"
 #include "interface.h"
+#if 0
+#include "item_info.h"
+#endif
 #include "text.h"
 #include "trade_log.h"
 
@@ -63,12 +66,22 @@ namespace Trade_Log
 		for(size_t i=0;i<size;i++)
 			if (the_stuff[i].quantity > 0)
 			{
-				out <<
-					" type=" << the_stuff[i].type <<
-					" image_id=" << the_stuff[i].image_id <<
-					" quantity=" << the_stuff[i].quantity <<
-					" id=" << the_stuff[i].id <<
-					std::endl;
+#if 0
+				if (get_item_count(the_stuff[i].id, the_stuff[i].image_id)==1)
+					out <<
+						" " << the_stuff[i].quantity <<
+						" " << get_item_description(the_stuff[i].id, the_stuff[i].image_id) <<
+						((the_stuff[i].type != 1) ?" (s)" :"") <<
+						std::endl;
+				else
+#else
+					out <<
+						" " << the_stuff[i].quantity <<
+						" image_id=" << the_stuff[i].image_id <<
+						" id=" << the_stuff[i].id <<
+						((the_stuff[i].type != 1) ?" (s)" :"") <<
+						std::endl;
+#endif
 				no_items = false;
 			}
 		if (no_items)
@@ -85,13 +98,13 @@ namespace Trade_Log
 			~State(void);
 			void accepted(const char *name, const trade_item *yours, const trade_item *others, int max_items);
 			void completed(void);
-			void post_inventory(void) { the_state = (the_state == TLS_EXIT) ?TLS_INV :TLS_INIT; }
-			void exit(void) { the_state = (the_state == TLS_ACCEPT) ?TLS_EXIT :TLS_INIT; }
-			void aborted(void) { the_state = TLS_INIT; }
+			void exit(void) { if (the_state == TLS_ACCEPT) the_state = TLS_EXIT; else init(); }
+			void aborted(void) { init(); }
 		private:
+			void init(void) { the_state = TLS_INIT; }
 			List *your_stuff;
 			List *their_stuff;
-			enum TRADE_LOG_STATE { TLS_INIT, TLS_ACCEPT, TLS_EXIT, TLS_INV } the_state;
+			enum TRADE_LOG_STATE { TLS_INIT, TLS_ACCEPT, TLS_EXIT } the_state;
 	};
 
 
@@ -127,12 +140,12 @@ namespace Trade_Log
 	//
 	void State::completed(void)
 	{
-		if (!enable_trade_log || (the_state != TLS_INV))
+		if (!enable_trade_log || (the_state != TLS_EXIT))
 		{
-			the_state = TLS_INIT;
+			init();
 			return;
 		}
-		the_state = TLS_INIT;
+		init();
 
 		char buf[80];
 		time_t now = time(0);
@@ -161,6 +174,5 @@ extern "C"
 		{ the_log.accepted(name, yours, others, max_items); }
 	void trade_exit(void) { the_log.exit(); }
 	void trade_aborted(const char *message) { the_log.aborted(); }
-	void trade_post_inventory(void) { the_log.post_inventory(); }
 	void trade_post_storage(void) { the_log.completed(); }
 }
