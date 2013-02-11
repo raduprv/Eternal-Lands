@@ -31,12 +31,10 @@
 #include "sound.h"
 #include "command_queue.hpp"
 
-
-/* ToDo
- *
- * 	Add reload #command
- *	Add icon window position code - allowing the window to be repositioned
- *
+/* 
+ * TODO		Add icon window position code - allowing the window to be repositioned
+ * TODO		Look for xml files in user config directory
+ * TODO		Give indication that command queue is busy?
  */
 
 namespace IconWindow
@@ -374,6 +372,7 @@ namespace IconWindow
 	//
 	void Container::draw_icons(void)
 	{
+		Busy dummy;
 		for (size_t i=0; i<icon_list.size(); ++i)
 			icon_list[i]->update_highlight();
 		if ((mouse_over_icon >= 0) && ((size_t)mouse_over_icon < icon_list.size()))
@@ -621,6 +620,10 @@ namespace IconWindow
 //	The icon container object, does nothing much when constructed, frees the icons when looses scope.
 static IconWindow::Container action_icons;
 
+int	icons_win = -1;
+static int reload_flag = false;
+static icon_window_mode last_mode = (icon_window_mode)0;
+
 //	Window callback for mouse over
 static int	mouseover_icons_handler(window_info *win, int mx, int my)
 {
@@ -631,6 +634,12 @@ static int	mouseover_icons_handler(window_info *win, int mx, int my)
 //	Window callback for display
 static int	display_icons_handler(window_info *win)
 {
+	if (reload_flag)
+	{
+		action_icons.free_icons();
+		init_icon_window(last_mode);
+		reload_flag = false;
+	}
 	action_icons.draw_icons();
 	return 1;
 }
@@ -647,8 +656,12 @@ static int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-//	The window id
-int	icons_win = -1;
+//	Reload the icons from file
+extern "C" int reload_icon_window(char *text, int len)
+{
+	reload_flag = true;
+	return 1;
+}
 
 //	Used for hacking the hud stats bar displays, really just returns window width
 extern "C" int get_icons_win_active_len(void)
@@ -665,8 +678,6 @@ extern "C" void flash_icon(const char* name, Uint32 seconds)
 //	Create/display the icon window and create the icons as needed
 extern "C" void init_icon_window(icon_window_mode icon_mode)
 {
-	static icon_window_mode last_mode = (icon_window_mode)0;
-
 	if (!action_icons.empty() && (last_mode != icon_mode))
 		action_icons.free_icons();
 	last_mode = icon_mode;

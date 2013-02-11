@@ -14,6 +14,17 @@ typedef enum { NEW_CHARACTER_ICONS=1, MAIN_WINDOW_ICONS=2 } icon_window_mode; /*
 
 /*!
  * \ingroup windows
+ * \brief Reload the icon window from file.
+ *
+ * \param	all ignored
+ * \return	always 1
+ * \callgraph
+ */
+int reload_icon_window(char *text, int len);
+
+
+/*!
+ * \ingroup windows
  * \brief Return the current width of the icon window.
  *
  * \callgraph

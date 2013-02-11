@@ -17,6 +17,7 @@
 #include "global.h"
 #include "hud.h"
 #include "ignore.h"
+#include "icon_window.h"
 #include "init.h"
 #include "item_lists.h"
 #include "interface.h"
@@ -1716,6 +1717,7 @@ add_command("horse", &horse_cmd);
 	add_command("aliases", &aliases_command);
 #endif
 	add_command("ckdata", &command_ckdata);
+	add_command("reload_icons", &reload_icon_window);
 	add_command(cmd_open_url, &command_open_url);
 	add_command(cmd_show_spell, &command_show_spell);
 	add_command(cmd_cast_spell, &command_cast_spell);
