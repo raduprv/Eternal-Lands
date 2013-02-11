@@ -127,7 +127,7 @@ namespace Trade_Log
 	//
 	void State::completed(void)
 	{
-		if (the_state != TLS_INV)
+		if (!enable_trade_log || (the_state != TLS_INV))
 		{
 			the_state = TLS_INIT;
 			return;
@@ -162,5 +162,5 @@ extern "C"
 	void trade_exit(void) { the_log.exit(); }
 	void trade_aborted(const char *message) { the_log.aborted(); }
 	void trade_post_inventory(void) { the_log.post_inventory(); }
-	void trade_post_storage(void) { if (enable_trade_log) the_log.completed(); }
+	void trade_post_storage(void) { the_log.completed(); }
 }
