@@ -31,6 +31,7 @@
 #include "serverpopup.h"
 #include "sky.h"
 #include "sound.h"
+#include "trade_log.h"
 #include "actor_scripts.h"
 #include "emotes.h"
 
@@ -583,6 +584,9 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		}
 		else if (my_strncompare(text_to_add+1, "You just got food poisoned!", 27)) {
 			increment_poison_incidence();
+		}
+		else if (strstr(text_to_add+1, "aborted the trade.")) {
+			trade_aborted(text_to_add+1);
 		}
 		
 	} else if (channel == CHAT_LOCAL) {
