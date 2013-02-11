@@ -899,7 +899,8 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 	}
 	else if (get_show_window(console_root_win))
 	{
-		chat_input_key (input_widget, 0, 0, key, unikey);
+		if (!chat_input_key (input_widget, 0, 0, key, unikey))
+			return 0;
 	}
 	else
 	{
