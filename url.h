@@ -6,6 +6,10 @@
 #ifndef __URL_H__
 #define __URL_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * \ingroup url
  * \brief   Clears the list of stored URL freeing all allocated memory.
@@ -74,4 +78,9 @@ extern int url_win_x; 			/*!< the current x coordinate value of the url window *
 extern int url_win_y; 			/*!< the current y coordinate value of the url window */
 extern int url_win; 			/*!< the id of the url window */
 extern char LOGO_URL_LINK[128];		/*!< the link clicking the EL logo sends you to */
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
 #endif
