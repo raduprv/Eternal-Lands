@@ -47,6 +47,14 @@ void trade_aborted(const char *message);
  */
 void trade_post_storage(void);
 
+/**
+ * @ingroup trade_log
+ * @brief server has sent the HERE_YOUR_INVENTORY command.
+ *
+ * @callgraph
+ */
+void trade_post_inventory(void);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

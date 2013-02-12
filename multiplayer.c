@@ -890,6 +890,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				inventory_item_string[0]=0;
 				inventory_item_string_id=0;
 				get_your_items(in_data+3);
+				trade_post_inventory();
 			}
 			break;
 
