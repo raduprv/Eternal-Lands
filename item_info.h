@@ -11,6 +11,7 @@ extern "C" {
  *
  * @param item_id the item unique id
  * @param image_id the item image id
+ * @return Returns the description text
  * @callgraph
  */
 const char *get_item_description(Uint16 item_id, int image_id);
@@ -21,6 +22,7 @@ const char *get_item_description(Uint16 item_id, int image_id);
  *
  * @param item_id the item unique id
  * @param image_id the item image id
+ * @return Returns the item enu
  * @callgraph
  */
 int get_item_emu(Uint16 item_id, int image_id);

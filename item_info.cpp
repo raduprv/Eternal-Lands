@@ -6,7 +6,7 @@
 	read when first needed.
 
 	Functions provide descriptions and emu for items based on their image
-	and unique id.  If unique id are not enable (#item_uid) and so only
+	and unique id.  If unique id are not enabled (#item_uid) and so only
 	image id are used then the values may not be unique.  The get_item_count()
 	function allows you to check for uniqueness.
 
@@ -22,9 +22,12 @@
 
 #include <SDL/SDL_types.h>
 
+#include "client_serv.h"
 #include "init.h"
 #include "items.h"
 #include "io/elpathwrapper.h"
+#include "text.h"
+#include "url.h"
 
 namespace Item_Info
 {
@@ -73,7 +76,7 @@ namespace Item_Info
 	}
 
 
-	//	Return true of the item patches the ids, allowing for unset unique ids
+	//	Return true of the item matches the ids, allowing for unset unique ids
 	//
 	const bool Item::compare(Uint16 the_item_id, int the_image_id) const
 	{
@@ -106,7 +109,7 @@ namespace Item_Info
 	std::string List::empty_str;
 
 
-	//	Glean up memory on exit
+	//	Clean up memory on exit
 	//
 	List::~List(void)
 	{
@@ -156,7 +159,7 @@ namespace Item_Info
 	}
 
 
-	//	Read lines from the item_info.txt files and create item objects
+	//	Read lines from the item_info.txt file and create item objects
 	//
 	void List::load(void)
 	{
@@ -170,8 +173,17 @@ namespace Item_Info
 			in.clear();
 			in.open(fname.c_str());
 			if (!in)
+			{
+				std::string url("Download from http://el.other-life.com/downloads/item_info.txt");
+				find_all_url(url.c_str(), url.size());
+				LOG_TO_CONSOLE(c_red1, "Could not find the item information file");
+				LOG_TO_CONSOLE(c_red1, url.c_str());
+				LOG_TO_CONSOLE(c_red1, "Save the file in the data or updates/x_y_z directory.");
 				return;
+			}
 		}
+		if (!item_uid_enabled)
+			LOG_TO_CONSOLE(c_red1, "Use #item_uid (set to 1) to enable unique item information.");
 		std::string line;
 		while (std::getline(in, line))
 		{
@@ -185,8 +197,10 @@ namespace Item_Info
 
 } // end Item_Info namespace
 
+// Holds all the item information
 static Item_Info::List the_list;
 
+// The external interface
 extern "C"
 {
 	const char *get_item_description(Uint16 item_id, int image_id) { return the_list.get_description(item_id, image_id).c_str(); }
