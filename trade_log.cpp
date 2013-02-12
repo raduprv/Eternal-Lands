@@ -15,14 +15,11 @@
 
 #include "client_serv.h"
 #include "interface.h"
-#if 0
 #include "item_info.h"
-#endif
 #include "text.h"
 #include "trade_log.h"
 
 /*
- * TODO		Read item names from item info file (to be written).
  * TODO		Write to Trade Log tab in one of the existing windows.
  * TODO		Option to write to per player trade log file.
  * TODO		Finalise the log format.
@@ -36,7 +33,7 @@ namespace Trade_Log
 	{
 		public:
 			List(const char *name, const trade_item *stuff, size_t max_size);
-			~List(void) { delete the_stuff; }
+			~List(void) { delete [] the_stuff; }
 		 	void get_details(std::ostream & out) const;
 		private:
 			trade_item *the_stuff;
@@ -66,26 +63,23 @@ namespace Trade_Log
 		for(size_t i=0;i<size;i++)
 			if (the_stuff[i].quantity > 0)
 			{
-#if 0
+				// if we have a description, and it is unique use it
 				if (get_item_count(the_stuff[i].id, the_stuff[i].image_id)==1)
 					out <<
 						" " << the_stuff[i].quantity <<
 						" " << get_item_description(the_stuff[i].id, the_stuff[i].image_id) <<
-						((the_stuff[i].type != 1) ?" (s)" :"") <<
-						std::endl;
+						((the_stuff[i].type != 1) ?" (s)" :"");
+				// otherwise use the raw ids
 				else
-#else
 					out <<
 						" " << the_stuff[i].quantity <<
 						" image_id=" << the_stuff[i].image_id <<
 						" id=" << the_stuff[i].id <<
-						((the_stuff[i].type != 1) ?" (s)" :"") <<
-						std::endl;
-#endif
+						((the_stuff[i].type != 1) ?" (s)" :"");
 				no_items = false;
 			}
 		if (no_items)
-			out << " <nothing traded>" << std::endl;
+			out << " <nothing traded>";
 	}
 
 
@@ -155,6 +149,7 @@ namespace Trade_Log
 
 		if (your_stuff)
 			your_stuff->get_details(message);
+		message << std::endl;
 		if (their_stuff)
 			their_stuff->get_details(message);
 
