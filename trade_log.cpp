@@ -12,6 +12,7 @@
 #include <sstream>
 #include <string>
 #include <time.h>
+#include <algorithm>
 
 #include "client_serv.h"
 #include "interface.h"
@@ -68,18 +69,18 @@ namespace Trade_Log
 					out <<
 						" " << the_stuff[i].quantity <<
 						" " << get_item_description(the_stuff[i].id, the_stuff[i].image_id) <<
-						((the_stuff[i].type != 1) ?" (s)" :"");
+						((the_stuff[i].type != 1) ?" (s)" :"") << std::endl;
 				// otherwise use the raw ids
 				else
 					out <<
 						" " << the_stuff[i].quantity <<
 						" image_id=" << the_stuff[i].image_id <<
 						" id=" << the_stuff[i].id <<
-						((the_stuff[i].type != 1) ?" (s)" :"");
+						((the_stuff[i].type != 1) ?" (s)" :"") << std::endl;
 				no_items = false;
 			}
 		if (no_items)
-			out << " <nothing traded>";
+			out << " <nothing traded>" << std::endl;
 	}
 
 
@@ -149,11 +150,12 @@ namespace Trade_Log
 
 		if (your_stuff)
 			your_stuff->get_details(message);
-		message << std::endl;
 		if (their_stuff)
 			their_stuff->get_details(message);
+		std::string message_str =  message.str();
+		message_str.erase(std::find_if(message_str.rbegin(), message_str.rend(), std::not1(std::ptr_fun<int, int>(std::iscntrl))).base(), message_str.end());
 
-		LOG_TO_CONSOLE(c_green2, message.str().c_str());
+		LOG_TO_CONSOLE(c_green2, message_str.c_str());
 	}
 
 } // end of Trade_Log namespace
