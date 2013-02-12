@@ -2,8 +2,8 @@
 	Log trades.
 
 	If enabled, logs all successful trades.  Any time you fully "Accept", the
-	items are recorded.  Only after GET_TRADE_EXIT, HERE_YOUT_INVENTORY and
-	STORAGE_ITEMS is the trade confirmed and the log entry written.
+	items are recorded.  Only after GET_TRADE_EXIT and STORAGE_ITEMS is
+	the trade confirmed and the log entry written.
 
 	Author bluap/pjbroad February 2013
 */
@@ -64,7 +64,7 @@ namespace Trade_Log
 		for(size_t i=0;i<size;i++)
 			if (the_stuff[i].quantity > 0)
 			{
-				// if we have a description, and it is unique use it
+				// if we have a description, and it is unique, use it
 				if (get_item_count(the_stuff[i].id, the_stuff[i].image_id)==1)
 					out <<
 						" " << the_stuff[i].quantity <<
