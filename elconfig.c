@@ -601,6 +601,7 @@ void change_poor_man(int *poor_man)
 		special_effects= 0;
 		use_eye_candy = 0;
 		use_fog= 0;
+		show_weather = 0;
 #endif
 #ifndef MAP_EDITOR
 		use_frame_buffer= 0;
@@ -2047,6 +2048,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"clouds_shadows","cshad",&clouds_shadows,change_clouds_shadows,1,"Cloud Shadows","The clouds shadows are projected on the ground, and the game looks nicer with them on.",GFX);
 	add_var(OPT_BOOL,"show_reflection","refl",&show_reflection,change_reflection,1,"Show Reflections","Toggle the reflections",GFX);
 	add_var(OPT_BOOL,"render_fog","fog",&use_fog,change_var,1,"Render Fog","Toggles fog rendering.",GFX);
+	add_var(OPT_BOOL,"show_weather","weather",&show_weather,change_var,1,"Show Weather Effects","Toggles thunder, lightning and rain effects.",GFX);
 	add_var(OPT_BOOL,"skybox_show_sky","sky", &skybox_show_sky, change_sky_var,1,"Show Sky", "Enable the sky box.", GFX);
 /* 	add_var(OPT_BOOL,"reflect_sky","reflect_sky", &reflect_sky, change_var,1,"Reflect Sky", "Sky Performance Option. Disable these from top to bottom until you're happy", GFX); */
 	add_var(OPT_BOOL,"skybox_show_clouds","sky_clouds", &skybox_show_clouds, change_sky_var,1,"Show Clouds", "Sky Performance Option. Disable these from top to bottom until you're happy", GFX);

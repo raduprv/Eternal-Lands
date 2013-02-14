@@ -27,6 +27,7 @@ extern float lightning_color[];
 extern float lightning_ambient_color[];
 extern float lightning_position[];
 extern int lightning_falling;
+extern int show_weather;
 
 void weather_init();
 void weather_clear();

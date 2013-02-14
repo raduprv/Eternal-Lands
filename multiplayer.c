@@ -1186,7 +1186,10 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				} else {
 					severity= 1.0f;
 				}
-				weather_set_area(0, tile_map_size_x*1.5, tile_map_size_y*1.5, 100000.0, 1, severity, in_data[3]);
+				if (show_weather)
+				{
+					weather_set_area(0, tile_map_size_x*1.5, tile_map_size_y*1.5, 100000.0, 1, severity, in_data[3]);
+				}
 			}
 			break;
 
@@ -1215,9 +1218,12 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					LOG_WARNING("CAUTION: Possibly forged THUNDER packet received.\n");
 					break;
 				}
-				weather_add_lightning(rand()%5,
-                                      -camera_x + (50.0 + rand()%101)*(rand()%2 ? 1.0 : -1.0),
-                                      -camera_y + (50.0 + rand()%101)*(rand()%2 ? 1.0 : -1.0));
+				if (show_weather)
+				{
+					weather_add_lightning(rand()%5,
+                                      		-camera_x + (50.0 + rand()%101)*(rand()%2 ? 1.0 : -1.0),
+                                      		-camera_y + (50.0 + rand()%101)*(rand()%2 ? 1.0 : -1.0));
+				}
 			}
 			break;
 

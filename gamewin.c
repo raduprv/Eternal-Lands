@@ -1192,7 +1192,9 @@ int display_game_handler (window_info *win)
 		return 1;
 	}
 
-	weather_render();
+	if (show_weather){
+		weather_render();
+	}
 
 	CHECK_GL_ERRORS ();
 	//particles should be last, we have no Z writting
