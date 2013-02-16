@@ -93,16 +93,18 @@ namespace Item_Info
 	class List
 	{
 		public:
-			List(void) : load_tried(false) {}
+			List(void) : load_tried(false), shown_help(false) {}
 			~List(void);
 			const std::string &get_description(Uint16 item_id, int image_id);
 			int get_emu(Uint16 item_id, int image_id);
 			int get_count(Uint16 item_id, int image_id);
+			bool info_available(void) { if (!load_tried) load(); return !the_list.empty(); }
+			void help_if_needed(void);
 		private:
 			void load(void);
 			std::vector<Item *> the_list;
 			static std::string empty_str;
-			bool load_tried;
+			bool load_tried, shown_help;
 	};
 
 
@@ -123,8 +125,7 @@ namespace Item_Info
 	//
 	const std::string & List::get_description(Uint16 item_id, int image_id)
 	{
-		if (!load_tried)
-			load();
+		info_available();
 		for (size_t i=0; i<the_list.size(); ++i)
 			if (the_list[i]->compare(item_id, image_id))
 				return the_list[i]->get_description();
@@ -136,8 +137,7 @@ namespace Item_Info
 	//
 	int List::get_emu(Uint16 item_id, int image_id)
 	{
-		if (!load_tried)
-			load();
+		info_available();
 		for (size_t i=0; i<the_list.size(); ++i)
 			if (the_list[i]->compare(item_id, image_id))
 				return the_list[i]->get_emu();
@@ -149,8 +149,7 @@ namespace Item_Info
 	//
 	int List::get_count(Uint16 item_id, int image_id)
 	{
-		if (!load_tried)
-			load();
+		info_available();
 		size_t match_count = 0;
 		for (size_t i=0; i<the_list.size(); ++i)
 			if (the_list[i]->compare(item_id, image_id))
@@ -173,17 +172,8 @@ namespace Item_Info
 			in.clear();
 			in.open(fname.c_str());
 			if (!in)
-			{
-				std::string url("Download from http://el.other-life.com/downloads/item_info.txt");
-				find_all_url(url.c_str(), url.size());
-				LOG_TO_CONSOLE(c_red1, "Could not find the item information file");
-				LOG_TO_CONSOLE(c_red1, url.c_str());
-				LOG_TO_CONSOLE(c_red1, "Save the file in the data or updates/x_y_z directory.");
 				return;
-			}
 		}
-		if (!item_uid_enabled)
-			LOG_TO_CONSOLE(c_red1, "Use #item_uid (set to 1) to enable unique item information.");
 		std::string line;
 		while (std::getline(in, line))
 		{
@@ -193,6 +183,23 @@ namespace Item_Info
 			else
 				delete new_item;
 		}
+	}
+
+	void List::help_if_needed(void)
+	{
+		if (shown_help)
+			return;
+		if (!info_available())
+		{
+			std::string url("Download from: http://el.other-life.com/downloads/item_info.txt");
+			find_all_url(url.c_str(), url.size());
+			LOG_TO_CONSOLE(c_red1, "Could not load the item information file.");
+			LOG_TO_CONSOLE(c_red1, url.c_str());
+			LOG_TO_CONSOLE(c_red1, "Save the file in the data or updates/x_y_z directory then restart.");
+		}
+		if (!item_uid_enabled)
+			LOG_TO_CONSOLE(c_red1, "Use #item_uid (set to 1) to enable unique item information.");
+		shown_help = true;
 	}
 
 } // end Item_Info namespace
@@ -206,4 +213,6 @@ extern "C"
 	const char *get_item_description(Uint16 item_id, int image_id) { return the_list.get_description(item_id, image_id).c_str(); }
 	int get_item_emu(Uint16 item_id, int image_id) { return the_list.get_emu(item_id, image_id); }
 	int get_item_count(Uint16 item_id, int image_id) { return the_list.get_count(item_id, image_id); }
+	int item_info_available(void) { return ((the_list.info_available()) ?1: 0); }
+	void item_info_help_if_needed(void) { the_list.help_if_needed(); }
 }

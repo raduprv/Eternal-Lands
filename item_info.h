@@ -39,6 +39,24 @@ int get_item_emu(Uint16 item_id, int image_id);
  */
 int get_item_count(Uint16 item_id, int image_id);
 
+/**
+ * @ingroup item_info
+ * @brief find out if we have item information
+ *
+ * @return Returns 1 if the information is available, otherwise 0
+ * @callgraph
+ */
+int item_info_available(void);
+
+/**
+ * @ingroup item_info
+ * @brief CONSOLE_LOG help about enabling item_info, but only once and if needed
+ *
+ * @callgraph
+ */
+void item_info_help_if_needed(void);
+
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

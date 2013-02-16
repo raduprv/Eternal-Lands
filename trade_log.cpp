@@ -2,8 +2,9 @@
 	Log trades.
 
 	If enabled, logs all successful trades.  Any time you fully "Accept", the
-	items are recorded.  Only after GET_TRADE_EXIT and STORAGE_ITEMS is
-	the trade confirmed and the log entry written.
+	items are recorded.  Only after GET_TRADE_EXIT, followed by either
+	STORAGE_ITEMS or HERE_YOUR_INVENTORY is the trade confirmed and the
+	log entry written.
 
 	Author bluap/pjbroad February 2013
 */
@@ -141,6 +142,7 @@ namespace Trade_Log
 			return;
 		}
 		init();
+		item_info_help_if_needed();
 
 		char buf[80];
 		time_t now = time(0);
