@@ -12,6 +12,7 @@
 #include "init.h"
 #include "interface.h"
 #include "items.h"
+#include "item_info.h"
 #include "stats.h"
 #include "colors.h"
 #include "multiplayer.h"
@@ -68,7 +69,8 @@ typedef struct {
 	int mana;//required mana
 	attrib_16 *lvls[NUM_WATCH_STAT];//pointers to your_info lvls
 	int lvls_req[NUM_WATCH_STAT];//minimum lvls requirement
-	int reagents_id[4]; //reagents needed
+	int reagents_id[4]; //reagents needed image id
+	Uint16 reagents_uid[4]; //reagents needed, unique item id
 	int reagents_qt[4]; //their quantities
 	Uint32 duration;
 	Uint32 buff;
@@ -233,8 +235,10 @@ int init_spells ()
 		spells_list[i].image = -1;
 		for(j=0;j<6;j++)
 			spells_list[i].sigils[j] =-1;
-		for(j=0;j<4;j++)
+		for(j=0;j<4;j++) {
 			spells_list[i].reagents_id[j] = -1;
+			spells_list[i].reagents_uid[j] = unset_item_uid;
+		}
 		for(j=0;j<NUM_WATCH_STAT;j++)
 			spells_list[i].lvls[j] = NULL;
 		spells_list[i].uncastable=0;
@@ -398,8 +402,11 @@ int init_spells ()
 			j = 0;
 			while (data)
 			{
+				int tmpval = -1;
 				spells_list[i].reagents_id[j] =
 					get_int_property(data, "id");
+				if ((tmpval = get_int_property(data, "uid")) >= 0)
+					spells_list[i].reagents_uid[j] = (Uint16)tmpval;
 				spells_list[i].reagents_qt[j] =
 					get_int_value(data);
 				j++;
@@ -513,7 +520,11 @@ void check_castability()
 		for(j=0;j<4&&spells_list[i].reagents_id[j]>=0;j++){
 			l=0;
 			for(k=0;k<ITEM_WEAR_START;k++) {
-				if(item_list[k].image_id==spells_list[i].reagents_id[j]&&item_list[k].quantity>0){
+				if ((item_list[k].quantity > 0) &&
+					(item_list[k].image_id == spells_list[i].reagents_id[j]) &&
+					((item_list[k].id == unset_item_uid) ||
+						(spells_list[i].reagents_uid[j] == unset_item_uid) ||
+						(item_list[k].id == spells_list[i].reagents_uid[j])) ) {
 					l=1;
 					if(item_list[k].quantity<spells_list[i].reagents_qt[j]) {
 						spells_list[i].uncastable|=UNCASTABLE_REAGENTS;
@@ -2085,6 +2096,20 @@ void calc_spell_windows(){
 //Create and show/hide our windows
 void display_sigils_menu()
 {
+	static int checked_reagents = 0;
+	if (!checked_reagents) {
+		if (item_info_available()) {
+			int i, j;
+			// check item ids/uid all give unique items
+			for (i = 0; i < SPELLS_NO; i++)
+				for(j=0;j<4;j++)
+					if (spells_list[i].reagents_id[j] >= 0)
+						if (get_item_count(spells_list[i].reagents_uid[j], spells_list[i].reagents_id[j]) != 1)
+							LOG_ERROR("Invalid spell.xml reagents spells_list[%d].reagents_uid[%d]=%d spells_list[%d].reagents_id[%d]=%d\n",
+								i, j, spells_list[i].reagents_uid[j], i, j, spells_list[i].reagents_id[j]);
+		}
+		checked_reagents = 1;
+	}
 
 	calc_spell_windows();
 	if(sigils_win < 0){

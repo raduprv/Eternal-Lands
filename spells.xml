@@ -12,7 +12,7 @@
 		<lvl skill="mag">0</lvl>
 		<sigil>3</sigil>	
 		<sigil>23</sigil>	
-		<reagent id="59">1</reagent>
+		<reagent id="59" uid="40">1</reagent>
 	</spell>
 	<spell>
 		<name>Remote Heal</name>
@@ -25,8 +25,8 @@
 		<sigil>9</sigil>	
 		<sigil>3</sigil>	
 		<sigil>23</sigil>	
-		<reagent id="59">2</reagent>
-		<reagent id="60">1</reagent>
+		<reagent id="59" uid="40">2</reagent>
+		<reagent id="60" uid="41">1</reagent>
 	</spell>
 	<spell>
 		<name>Restoration</name>
@@ -38,7 +38,7 @@
 		<lvl skill="mag">21</lvl>
 		<sigil>1</sigil>	
 		<sigil>24</sigil>	
-		<reagent id="59">4</reagent>
+		<reagent id="59" uid="40">4</reagent>
 	</spell>
 	<spell>
 		<name>Heal Summoned</name>
@@ -52,9 +52,9 @@
 		<sigil>2</sigil>	
 		<sigil>23</sigil>	
 		<sigil>14</sigil>	
-		<reagent id="54">2</reagent>
-		<reagent id="57">2</reagent>
-		<reagent id="59">2</reagent>
+		<reagent id="54" uid="35">2</reagent>
+		<reagent id="57" uid="38">2</reagent>
+		<reagent id="59" uid="40">2</reagent>
 	</spell>
 <!-- misc group -->
 	<spell>
@@ -69,9 +69,9 @@
 		<sigil>0</sigil>	
 		<sigil>8</sigil>	
 		<sigil>2</sigil>	
-		<reagent id="55">1</reagent>
-		<reagent id="56">1</reagent>
-		<reagent id="54">1</reagent>
+		<reagent id="55" uid="36">1</reagent>
+		<reagent id="56" uid="37">1</reagent>
+		<reagent id="54" uid="35">1</reagent>
 	</spell>
 	<spell>
 		<name>Bones to Gold</name>
@@ -85,8 +85,8 @@
 		<sigil>6</sigil>	
 		<sigil>0</sigil>	
 		<sigil>15</sigil>	
-		<reagent id="55">2</reagent>
-		<reagent id="56">1</reagent>
+		<reagent id="55" uid="36">2</reagent>
+		<reagent id="56" uid="37">1</reagent>
 	</spell>
 	<spell>
 		<name>Teleport to Portal Room</name>
@@ -100,9 +100,9 @@
 		<sigil>0</sigil>	
 		<sigil>9</sigil>	
 		<sigil>2</sigil>	
-		<reagent id="55">1</reagent>
-		<reagent id="56">5</reagent>
-		<reagent id="54">1</reagent>
+		<reagent id="55" uid="36">1</reagent>
+		<reagent id="56" uid="37">5</reagent>
+		<reagent id="54" uid="35">1</reagent>
 	</spell>
 	<spell>
 		<name>True Sight</name>
@@ -115,9 +115,9 @@
 		<sigil>19</sigil>	
 		<sigil>15</sigil>	
 		<sigil>20</sigil>	
-		<reagent id="56">4</reagent>
-		<reagent id="60">4</reagent>
-		<reagent id="54">4</reagent>
+		<reagent id="56" uid="37">4</reagent>
+		<reagent id="60" uid="41">4</reagent>
+		<reagent id="54" uid="35">4</reagent>
 	</spell>
 	<spell>
 		<name>Intercontinental Teleport</name>
@@ -130,9 +130,9 @@
 		<sigil>0</sigil>	
 		<sigil>9</sigil>	
 		<sigil>2</sigil>	
-		<reagent id="55">4</reagent>
-		<reagent id="56">10</reagent>
-		<reagent id="54">12</reagent>
+		<reagent id="55" uid="36">4</reagent>
+		<reagent id="56" uid="37">10</reagent>
+		<reagent id="54" uid="35">12</reagent>
 	</spell>
 	<spell>
 		<name>Invisibility</name>
@@ -145,9 +145,9 @@
 		<sigil>22</sigil>	
 		<sigil>15</sigil>	
 		<sigil>20</sigil>	
-		<reagent id="53">10</reagent>
-		<reagent id="56">10</reagent>
-		<reagent id="55">10</reagent>
+		<reagent id="53" uid="34">10</reagent>
+		<reagent id="56" uid="37">10</reagent>
+		<reagent id="55" uid="36">10</reagent>
 	</spell>
 <!-- attack group -->
 	<spell>
@@ -161,7 +161,7 @@
 		<sigil>5</sigil>	
 		<sigil>4</sigil>	
 		<sigil>24</sigil>	
-		<reagent id="58">2</reagent>
+		<reagent id="58" uid="39">2</reagent>
 	</spell>
 	<spell>
 		<name>Harm</name>
@@ -173,8 +173,8 @@
 		<lvl skill="mag">20</lvl>
 		<sigil>22</sigil>	
 		<sigil>23</sigil>	
-		<reagent id="59">5</reagent>
-		<reagent id="58">3</reagent>
+		<reagent id="59" uid="40">5</reagent>
+		<reagent id="58" uid="39">3</reagent>
 	</spell>
 	<spell>
 		<name>Life Drain</name>
@@ -187,7 +187,7 @@
 		<sigil>7</sigil>	
 		<sigil>0</sigil>	
 		<sigil>24</sigil>	
-		<reagent id="57">3</reagent>
+		<reagent id="57" uid="38">3</reagent>
 	</spell>
 	<spell>
 		<name>Smite Summoned</name>
@@ -201,9 +201,9 @@
 		<sigil>2</sigil>	
 		<sigil>22</sigil>	
 		<sigil>24</sigil>	
-		<reagent id="54">2</reagent>
-		<reagent id="58">3</reagent>
-		<reagent id="55">2</reagent>
+		<reagent id="54" uid="35">2</reagent>
+		<reagent id="58" uid="39">3</reagent>
+		<reagent id="55" uid="36">2</reagent>
 	</spell>
 	<spell>
 		<name>Mana Drain</name>
@@ -216,7 +216,7 @@
 		<sigil>7</sigil>	
 		<sigil>0</sigil>	
 		<sigil>17</sigil>	
-		<reagent id="53">6</reagent>
+		<reagent id="53" uid="34">6</reagent>
 	</spell>
 <!-- defense group -->
 	<spell>
@@ -230,8 +230,8 @@
 		<sigil>19</sigil>	
 		<sigil>17</sigil>	
 		<sigil>21</sigil>	
-		<reagent id="60">1</reagent>
-		<reagent id="56">1</reagent>
+		<reagent id="60" uid="41">1</reagent>
+		<reagent id="56" uid="37">1</reagent>
 	</spell>
 	<spell>
 		<name>Shield</name>
@@ -244,7 +244,7 @@
 		<sigil>19</sigil>	
 		<sigil>15</sigil>	
 		<sigil>21</sigil>	
-		<reagent id="55">1</reagent>
+		<reagent id="55" uid="36">1</reagent>
 	</spell>
 	<spell>
 		<name>Magic Immunity</name>
@@ -258,8 +258,8 @@
 		<sigil>3</sigil>	
 		<sigil>17</sigil>	
 		<sigil>21</sigil>	
-		<reagent id="60">2</reagent>
-		<reagent id="56">1</reagent>
+		<reagent id="60" uid="41">2</reagent>
+		<reagent id="56" uid="37">1</reagent>
 	</spell>
 	<spell>
 		<name>Heat Shield</name>
@@ -272,9 +272,9 @@
 		<sigil>19</sigil>	
 		<sigil>10</sigil>	
 		<sigil>21</sigil>	
-		<reagent id="56">3</reagent>
-		<reagent id="55">3</reagent>
-		<reagent id="51">4</reagent>
+		<reagent id="56" uid="37">3</reagent>
+		<reagent id="55" uid="36">3</reagent>
+		<reagent id="51" uid="32">4</reagent>
 	</spell>
 	<spell>
 		<name>Cold Shield</name>
@@ -287,9 +287,9 @@
 		<sigil>19</sigil>	
 		<sigil>11</sigil>	
 		<sigil>21</sigil>	
-		<reagent id="56">3</reagent>
-		<reagent id="55">3</reagent>
-		<reagent id="50">4</reagent>
+		<reagent id="56" uid="37">3</reagent>
+		<reagent id="55" uid="36">3</reagent>
+		<reagent id="50" uid="31">4</reagent>
 	</spell>
 	<spell>
 		<name>Radiation Shield</name>
@@ -303,9 +303,9 @@
 		<sigil>15</sigil>	
 		<sigil>16</sigil>	
 		<sigil>21</sigil>	
-		<reagent id="56">3</reagent>
-		<reagent id="55">3</reagent>
-		<reagent id="60">4</reagent>
+		<reagent id="56" uid="37">3</reagent>
+		<reagent id="55" uid="36">3</reagent>
+		<reagent id="60" uid="41">4</reagent>
 	</spell>
 </Spell_list>
 <Groups>
@@ -340,6 +340,6 @@
 	<sigil id="22" name="Remove">remove</sigil>
 	<sigil id="23" name="Health">health</sigil>
 	<sigil id="24" name="Life">life</sigil>
-	<sigil id="25" name="Space">death</sigil>
+	<sigil id="25" name="Death">death</sigil>
 </Sigil_list>
 </Magic>
