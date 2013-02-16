@@ -1227,9 +1227,12 @@ void init_channel_names(void)
 			/*channeldesc = malloc (attriblen)+1;
 			my_xmlStrncopy (&channeldesc, attrib, attriblen);*/
 			channeldesc = (char*)xmlStrdup(attrib);
+			xmlFree (attrib);
 			
 			// Add it.
 			add_spec_chan_name(channelno, channelname, channeldesc);
+			free(channelname);
+			free(channeldesc);
 		} else if ((!xmlStrcmp (cur->name, (const xmlChar *)"channel"))) {
 			// Get the channel.
 			attrib = xmlGetProp (cur, (xmlChar*)"number");
@@ -1280,9 +1283,12 @@ void init_channel_names(void)
 			channeldesc = malloc (attriblen);
 			my_xmlStrncopy (&channeldesc, attrib, attriblen);*/
 			channeldesc = (char*)xmlStrdup(attrib);
+			xmlFree (attrib);
 			
 			// Add it.
 			add_chan_name(channelno, channelname, channeldesc);
+			free(channelname);
+			free(channeldesc);
 		} else {
 			LOG_ERROR (xml_undefined_node, file, (cur->name != NULL && strlen((char*)cur->name) < 100) ? cur->name	: (const xmlChar *)"not a string");
 		}

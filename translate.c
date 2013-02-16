@@ -977,6 +977,7 @@ void free_translations(void)
 		for (i=0; i<named_strings[j].num_strings; i++)
 			free(named_strings[j].strings[i].name);
 		free(named_strings[j].name);
+		free(named_strings[j].strings);
 	}
 	free(named_strings);
 	num_named_strings = 0;
