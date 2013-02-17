@@ -16,6 +16,7 @@
 #include "hud.h"
 #include "init.h"
 #include "interface.h"
+#include "item_info.h"
 #include "item_lists.h"
 #include "manufacture.h"
 #include "misc.h"
@@ -90,7 +91,8 @@ int items_dropall_nofirstrow = 0;
 int items_dropall_nolastrow = 0;
 int items_auto_get_all = 0;
 int items_list_on_left = 0;
-static char *item_help_str = NULL;
+static const char *item_help_str = NULL;
+static const char *item_desc_str = NULL;
 static int mouse_over_but = -1;
 static size_t cm_stoall_but = CM_INIT_VALUE;
 static size_t cm_dropall_but = CM_INIT_VALUE;
@@ -705,9 +707,17 @@ int display_items_handler(window_info *win)
 		show_help(cm_help_options_str, 0, win->len_y+10+SMALL_FONT_Y_LEN);
 	}
 	// show help set in the mouse_over handler
-	else if (show_help_text && (item_help_str != NULL)) {
-		show_help(item_help_str, 0, win->len_y+10);
-		item_help_str = NULL;
+	else if (show_help_text) {
+		int offset = 10;
+		if (item_help_str != NULL) {
+			show_help(item_help_str, 0, win->len_y+offset);
+			item_help_str = NULL;
+			offset += SMALL_FONT_Y_LEN;
+		}
+		if (item_desc_str != NULL) {
+			show_help(item_desc_str, 0, win->len_y+offset);
+			item_desc_str = NULL;
+		}
 	}
 
 	mouse_over_but = -1;
@@ -1094,6 +1104,14 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	return 1;
 }
 
+void set_description_help(int pos)
+{
+	Uint16 item_id = item_list[pos].id;
+	int image_id = item_list[pos].image_id;
+	if (item_info_available() && (get_item_count(item_id, image_id) == 1))
+		item_desc_str = get_item_description(item_id, image_id);
+}
+
 int mouseover_items_handler(window_info *win, int mx, int my) {
 	int pos;
 	
@@ -1106,6 +1124,7 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 
 		if(pos==-1) {
 		} else if(item_list[pos].quantity){
+			set_description_help(pos);
 			if(item_action_mode==ACTION_LOOK) {
 				elwin_mouse=CURSOR_EYE;
 			} else if(item_action_mode==ACTION_USE) {
@@ -1128,6 +1147,7 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 		item_help_str = equip_here_str;
 		if(pos==-1) {
 		} else if(item_list[pos].quantity){
+			set_description_help(pos);
 			if(item_action_mode==ACTION_LOOK) {
 				elwin_mouse=CURSOR_EYE;
 			} else if(item_action_mode==ACTION_USE) {
