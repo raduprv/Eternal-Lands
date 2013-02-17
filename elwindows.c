@@ -749,6 +749,7 @@ int	create_window(const char *name, int pos_id, Uint32 pos_loc, int pos_x, int p
 
 		win->init_handler = NULL;
 		win->display_handler = NULL;
+		win->pre_display_handler = NULL;
 		win->click_handler = NULL;
 		win->drag_handler = NULL;
 		win->mouseover_handler = NULL;
@@ -1229,6 +1230,8 @@ CHECK_GL_ERRORS();
 	draw_window_title(win);
 	draw_window_border(win);
 	glColor3f(1.0f, 1.0f, 1.0f);
+	if(win->pre_display_handler)
+		(*win->pre_display_handler)(win);
 
 	if(win->flags&ELW_SCROLLABLE) {
 		int pos = vscrollbar_get_pos(win->window_id, win->scroll_id);
@@ -1791,6 +1794,10 @@ void	*set_window_handler(int win_id, int handler_id, int (*handler)() )
 		case	ELW_HANDLER_DISPLAY:
 			old_handler= (void *)windows_list.window[win_id].display_handler;
 			windows_list.window[win_id].display_handler=handler;
+			break;
+		case	ELW_HANDLER_PRE_DISPLAY:
+			old_handler= (void *)windows_list.window[win_id].pre_display_handler;
+			windows_list.window[win_id].pre_display_handler=handler;
 			break;
 		case	ELW_HANDLER_CLICK:
 			old_handler= (void *)windows_list.window[win_id].click_handler;

@@ -64,6 +64,7 @@ typedef	struct	{
     /*! @{ */
 	int (*init_handler)();		/*!< init, scaling, etc */
 	int (*display_handler)();	/*!< display the window */
+	int (*pre_display_handler)();	/*!< display the window, before body (e.g. scissor) */
 	int (*click_handler)();		/*!< handle mouse clicks */
 	int (*drag_handler)();		/*!< handle dragging inside windows */
 	int (*mouseover_handler)();	/*!< handle mouseovers */
@@ -199,6 +200,7 @@ typedef	struct	{
 #define	ELW_HANDLER_SHOW	9
 #define	ELW_HANDLER_HIDE	10
 #define	ELW_HANDLER_AFTER_SHOW	11
+#define	ELW_HANDLER_PRE_DISPLAY	12
 /*! @} */
 
 /*!
