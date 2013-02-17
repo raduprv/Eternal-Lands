@@ -8,9 +8,11 @@
 #include "elwindows.h"
 #include "errors.h"
 #include "gamewin.h"
+#include "hud.h"
 #include "init.h"
 #include "interface.h"
 #include "items.h"
+#include "item_info.h"
 #include "md5.h"
 #include "multiplayer.h"
 #include "particles.h"
@@ -40,6 +42,7 @@ static int ground_items_grid_rows = 10;
 static int ground_items_grid_cols = 5;
 static const int min_grid_rows = 4;
 static const int min_grid_cols = 2;
+static const char *item_desc_str = NULL;
 
 int view_ground_items=0;
 
@@ -359,6 +362,7 @@ void get_bag_item (const Uint8 *data)
 
 	ground_item_list[pos].image_id= SDL_SwapLE16(*((Uint16 *)(data)));
 	ground_item_list[pos].quantity= SDL_SwapLE32(*((Uint32 *)(data+2)));
+	ground_item_list[pos].id= unset_item_uid;
 	ground_item_list[pos].pos= pos;
 }
 
@@ -400,6 +404,7 @@ void get_bags_items_list (const Uint8 *data)
 		pos= data[my_offset+6];
 		ground_item_list[pos].image_id= SDL_SwapLE16(*((Uint16 *)(data+my_offset)));
 		ground_item_list[pos].quantity= SDL_SwapLE32(*((Uint32 *)(data+my_offset+2)));
+		ground_item_list[pos].id= unset_item_uid;
 		ground_item_list[pos].pos= pos;
 	}
 
@@ -417,6 +422,17 @@ void get_bags_items_list (const Uint8 *data)
 	if(item_window_on_drop) {
 		display_items_menu();
 	}
+}
+
+int pre_display_ground_items_handler(window_info *win)
+{
+	glEnable(GL_TEXTURE_2D);
+	if (show_help_text && (item_desc_str != NULL))
+	{
+		show_help(item_desc_str, 0, win->len_y+10);
+		item_desc_str = NULL;
+	}
+	return 1;
 }
 
 int display_ground_items_handler(window_info *win)
@@ -595,6 +611,10 @@ int mouseover_ground_items_handler(window_info *win, int mx, int my) {
 	int pos = (yoffset>my) ?-1 :get_mouse_pos_in_grid(mx, my+1, ground_items_grid_cols, ground_items_grid_rows, 0, 0, GRIDSIZE, GRIDSIZE);
 
 	if(pos!=-1 && pos<ITEMS_PER_BAG && ground_item_list[pos].quantity) {
+		Uint16 item_id = ground_item_list[pos].id;
+		int image_id = ground_item_list[pos].image_id;
+		if (item_info_available() && (get_item_count(item_id, image_id) == 1))
+			item_desc_str = get_item_description(item_id, image_id);
 		if(item_action_mode==ACTION_LOOK) {
 			elwin_mouse=CURSOR_EYE;
 		} else {
@@ -645,6 +665,7 @@ void draw_pick_up_menu()
 			ground_items_menu_x_len, ground_items_menu_y_len, ELW_SCROLLABLE|ELW_RESIZEABLE|ELW_WIN_DEFAULT);
 
 		set_window_handler(ground_items_win, ELW_HANDLER_DISPLAY, &display_ground_items_handler );
+		set_window_handler(ground_items_win, ELW_HANDLER_PRE_DISPLAY, &pre_display_ground_items_handler );
 		set_window_handler(ground_items_win, ELW_HANDLER_CLICK, &click_ground_items_handler );
 		set_window_handler(ground_items_win, ELW_HANDLER_MOUSEOVER, &mouseover_ground_items_handler );
 		set_window_handler(ground_items_win, ELW_HANDLER_RESIZE, &resize_ground_items_handler );
