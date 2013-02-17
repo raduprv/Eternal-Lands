@@ -10,6 +10,10 @@
 	image id are used then the values may not be unique.  The get_item_count()
 	function allows you to check for uniqueness.
 
+	The description, emu and count functions all cached last result to speed
+	up the look-up, otherwise, the return time is dependant on the position
+	in the list (but still not that slow).
+
 	Author bluap/pjbroad February 2013
 */
 #include <iostream>
@@ -93,7 +97,7 @@ namespace Item_Info
 	class List
 	{
 		public:
-			List(void) : load_tried(false), shown_help(false) {}
+			List(void) : load_tried(false), shown_help(false), last_item(0) {}
 			~List(void);
 			const std::string &get_description(Uint16 item_id, int image_id);
 			int get_emu(Uint16 item_id, int image_id);
@@ -101,10 +105,26 @@ namespace Item_Info
 			bool info_available(void) { if (!load_tried) load(); return !the_list.empty(); }
 			void help_if_needed(void);
 		private:
+			Item *get_item(Uint16 item_id, int image_id);
 			void load(void);
 			std::vector<Item *> the_list;
 			static std::string empty_str;
 			bool load_tried, shown_help;
+			Item *last_item;
+			class Count
+			{
+				public:
+					Count(void) : count(-1) {}
+					bool matches(Uint16 item_id, int image_id) const
+						{ return ((count >= 0) && (this->item_id == item_id) && (this->image_id == image_id)); }
+					int get_count(void) const { return count; }
+					void set(Uint16 item_id, int image_id, int count)
+						{ this->item_id = item_id; this->image_id = image_id; this->count = count; }
+				private:
+					Uint16 item_id; int image_id; int count;
+			};
+			Count last_count;
+
 	};
 
 
@@ -121,14 +141,30 @@ namespace Item_Info
 	}
 
 
+	//	Find and item by the ids
+	//
+	Item *List::get_item(Uint16 item_id, int image_id)
+	{
+		info_available();
+		if (last_item && last_item->compare(item_id, image_id))
+			return last_item;
+		for (size_t i=0; i<the_list.size(); ++i)
+			if (the_list[i]->compare(item_id, image_id))
+			{
+				last_item = the_list[i];
+				return last_item;
+			}
+		return 0;
+	}
+
+
 	//	Get the description for the specified ids, or return an empty string
 	//
 	const std::string & List::get_description(Uint16 item_id, int image_id)
 	{
-		info_available();
-		for (size_t i=0; i<the_list.size(); ++i)
-			if (the_list[i]->compare(item_id, image_id))
-				return the_list[i]->get_description();
+		Item *matching_item = get_item(item_id, image_id);
+		if (matching_item)
+			return matching_item->get_description();
 		return empty_str;
 	}
 
@@ -137,10 +173,9 @@ namespace Item_Info
 	//
 	int List::get_emu(Uint16 item_id, int image_id)
 	{
-		info_available();
-		for (size_t i=0; i<the_list.size(); ++i)
-			if (the_list[i]->compare(item_id, image_id))
-				return the_list[i]->get_emu();
+		Item *matching_item = get_item(item_id, image_id);
+		if (matching_item)
+			return matching_item->get_emu();
 		return -1;
 	}
 
@@ -150,11 +185,14 @@ namespace Item_Info
 	int List::get_count(Uint16 item_id, int image_id)
 	{
 		info_available();
-		size_t match_count = 0;
+		if (last_count.matches(item_id, image_id))
+			return last_count.get_count();
+		int match_count = 0;
 		for (size_t i=0; i<the_list.size(); ++i)
 			if (the_list[i]->compare(item_id, image_id))
 				match_count++;
-		return match_count;
+		last_count.set(item_id, image_id, match_count);
+		return last_count.get_count();
 	}
 
 
