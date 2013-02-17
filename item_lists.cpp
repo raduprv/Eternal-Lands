@@ -39,6 +39,7 @@
 #include "init.h"
 #include "io/elpathwrapper.h"
 #include "items.h"
+#include "item_info.h"
 #include "item_lists.h"
 #include "questlog.h"
 #include "sound.h"
@@ -1069,6 +1070,10 @@ CHECK_GL_ERRORS();
 			size_t item_number = get_item_number(mx, my);
 			if (item_number < Vars::lists()->get_list().get_num_items())
 			{
+				Uint16 item_id = Vars::lists()->get_list().get_item_id(item_number);
+				int image_id = Vars::lists()->get_list().get_image_id(item_number);
+				if (item_info_available() && (get_item_count(item_id, image_id) == 1))
+					help_str.push_back(get_item_description(item_id, image_id));
 				help_str.push_back(item_list_pickup_help_str);
 				help_str.push_back(item_list_use_help_str);
 				help_str.push_back(item_list_edit_help_str);
