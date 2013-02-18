@@ -2283,6 +2283,7 @@ void free_texture_cache()
 	free(texture_handles);
 
 	cache_delete(texture_cache);
+	texture_cache = NULL;
 }
 
 void unload_texture_cache()

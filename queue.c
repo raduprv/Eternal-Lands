@@ -266,6 +266,11 @@ void *queue_pop_blocking(queue_t *queue)
 	while (queue->front == queue->rear)
 	{
 		SDL_CondWait(queue->condition, queue->mutex);
+		if (queue->front == queue->rear)
+		{
+			CHECK_AND_UNLOCK_MUTEX(queue->mutex);
+			return 0;
+		}
 	}
 
 	node = queue->front->next;
