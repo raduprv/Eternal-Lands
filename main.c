@@ -51,6 +51,7 @@
 #include "text.h"
 #include "timers.h"
 #include "translate.h"
+#include "textures.h"
 #include "url.h"
 #include "weather.h"
 #include "counters.h"
