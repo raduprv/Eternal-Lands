@@ -2464,6 +2464,7 @@ unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial
 	sounds_list[sound_num].cur_gain = -1.0f;		// Make sure we set the gain when we first play the sound
 	cookie = get_next_cookie();
 	sounds_list[sound_num].cookie = cookie;
+	num_sounds++;
 	
 	// Check if we should try to load the samples (sound is enabled)
 	if (inited && have_sound && sound_on)
@@ -3952,7 +3953,7 @@ void clear_sound_data()
 		sound_tile_data[i].num_sounds = 0;
 		sound_tile_data[i].default_sound = -1;
 	}
-	for (i = 0; i < 9; i++)
+	for (i = 0; i < 10; i++)
 	{
 		server_sound[i] = -1;
 	}
@@ -4030,12 +4031,12 @@ void init_sound()
 	}
 	device_list = (char*) alcGetString(NULL, ALC_DEVICE_SPECIFIER);
 	parse_snd_devices(device_list, sound_devices);
-	LOG_ERROR("Sound devices detected: %s\n", sound_devices);
+	LOG_INFO("Sound devices detected: %s\n", sound_devices);
 
 	// If you want to use a specific device, use, for example:
 	// device = alcOpenDevice((ALCchar*) "DirectSound3D")
 	// NULL makes it use the default device
-	LOG_ERROR("Soundcard device attempted: %s", sound_device);
+	LOG_INFO("Soundcard device attempted: %s", sound_device);
 	device = alcOpenDevice((ALCchar*) sound_device);
 	if ((error = alcGetError(device)) != AL_NO_ERROR || !device)
 	{
@@ -4055,7 +4056,7 @@ void init_sound()
 			LOG_ERROR("Soundcard device specified (%s) failed. Using default device: %s", sound_device, alcGetString(device, ALC_DEVICE_SPECIFIER));
 		}
 	} else {
-		LOG_ERROR("Soundcard device in-use: %s", alcGetString(device, ALC_DEVICE_SPECIFIER));
+		LOG_INFO("Soundcard device in-use: %s", alcGetString(device, ALC_DEVICE_SPECIFIER));
 	}
 
 	context = alcCreateContext( device, NULL );
@@ -5602,7 +5603,7 @@ void load_sound_config_data (const char *file)
 		load_sound_warnings_list(SOUND_WARNINGS_PATH);
 	}
 
-	xmlFree(doc);
+	xmlFreeDoc(doc);
 #ifdef DEBUG
 	print_sound_types();
 #endif // DEBUG

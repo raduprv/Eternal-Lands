@@ -229,6 +229,6 @@ void load_mines_config()
 		parse_mine_defs(root);
 	}
 
-	xmlFree(doc);
+	xmlFreeDoc(doc);
 }
 
