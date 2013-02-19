@@ -427,7 +427,7 @@ void get_bags_items_list (const Uint8 *data)
 int pre_display_ground_items_handler(window_info *win)
 {
 	glEnable(GL_TEXTURE_2D);
-	if (show_help_text && (item_desc_str != NULL))
+	if (item_desc_str != NULL)
 	{
 		show_help(item_desc_str, 0, win->len_y+10);
 		item_desc_str = NULL;
@@ -613,7 +613,7 @@ int mouseover_ground_items_handler(window_info *win, int mx, int my) {
 	if(pos!=-1 && pos<ITEMS_PER_BAG && ground_item_list[pos].quantity) {
 		Uint16 item_id = ground_item_list[pos].id;
 		int image_id = ground_item_list[pos].image_id;
-		if (item_info_available() && (get_item_count(item_id, image_id) == 1))
+		if (show_item_desc_text && item_info_available() && (get_item_count(item_id, image_id) == 1))
 			item_desc_str = get_item_description(item_id, image_id);
 		if(item_action_mode==ACTION_LOOK) {
 			elwin_mouse=CURSOR_EYE;

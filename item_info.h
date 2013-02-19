@@ -5,6 +5,11 @@
 extern "C" {
 #endif
 
+#include <SDL/SDL_types.h>
+
+/* if true, items descrtion tooltips are enabled in the GUI */
+extern int show_item_desc_text;
+
 /**
  * @ingroup item_info
  * @brief get the item description from the lookup table

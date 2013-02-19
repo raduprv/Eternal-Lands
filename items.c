@@ -707,17 +707,16 @@ int display_items_handler(window_info *win)
 		show_help(cm_help_options_str, 0, win->len_y+10+SMALL_FONT_Y_LEN);
 	}
 	// show help set in the mouse_over handler
-	else if (show_help_text) {
+	else {
 		int offset = 10;
-		if (item_help_str != NULL) {
+		if (show_help_text && (item_help_str != NULL)) {
 			show_help(item_help_str, 0, win->len_y+offset);
-			item_help_str = NULL;
 			offset += SMALL_FONT_Y_LEN;
 		}
-		if (item_desc_str != NULL) {
+		if (item_desc_str != NULL)
 			show_help(item_desc_str, 0, win->len_y+offset);
-			item_desc_str = NULL;
-		}
+		item_help_str = NULL;
+		item_desc_str = NULL;
 	}
 
 	mouse_over_but = -1;
@@ -1108,7 +1107,7 @@ void set_description_help(int pos)
 {
 	Uint16 item_id = item_list[pos].id;
 	int image_id = item_list[pos].image_id;
-	if (item_info_available() && (get_item_count(item_id, image_id) == 1))
+	if (show_item_desc_text && item_info_available() && (get_item_count(item_id, image_id) == 1))
 		item_desc_str = get_item_description(item_id, image_id);
 }
 

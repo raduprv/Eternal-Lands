@@ -418,7 +418,7 @@ int display_storage_handler(window_info * win)
 		char str[20];
 		Uint16 item_id = storage_items[cur_item_over].id;
 		int image_id = storage_items[cur_item_over].image_id;
-		if (item_info_available() && (get_item_count(item_id, image_id) == 1))
+		if (show_item_desc_text && item_info_available() && (get_item_count(item_id, image_id) == 1))
 			show_help(get_item_description(item_id, image_id), 0, win->len_y + 10);
 
 		safe_snprintf(str, sizeof(str), "%d",storage_items[cur_item_over].quantity);

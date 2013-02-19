@@ -248,6 +248,7 @@ static Item_Info::List the_list;
 // The external interface
 extern "C"
 {
+	int show_item_desc_text = 1;
 	const char *get_item_description(Uint16 item_id, int image_id) { return the_list.get_description(item_id, image_id).c_str(); }
 	int get_item_emu(Uint16 item_id, int image_id) { return the_list.get_emu(item_id, image_id); }
 	int get_item_count(Uint16 item_id, int image_id) { return the_list.get_count(item_id, image_id); }
