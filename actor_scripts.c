@@ -4757,3 +4757,14 @@ void init_actor_defs()
 #endif	/* NEW_TEXTURES */
 	read_actor_defs ("actor_defs", "actor_defs.xml");
 }
+
+void free_actor_defs()
+{
+	int i;
+	for (i=0; i<MAX_ACTOR_DEFS; i++)
+	{
+		if (actors_defs[i].hardware_model)
+			free(actors_defs[i].hardware_model);
+		CalCoreModel_Delete(actors_defs[i].coremodel);
+	}
+}

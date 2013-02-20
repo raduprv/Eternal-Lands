@@ -163,6 +163,16 @@ void move_self_forward();
  */
 void init_actor_defs();
 
+/*!
+ * \ingroup other
+ * \brief frees the actor_def list
+ *
+ *      Frees the actor_def list
+ *
+ * \callgraph
+ */
+void free_actor_defs();
+
 int checkvisitedlist(int x, int y);
 
 /*!
