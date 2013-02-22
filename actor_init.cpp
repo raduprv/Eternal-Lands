@@ -760,6 +760,11 @@ extern "C" void build_buffers(actor_types* a)
 	LOG_INFO("Build vertex buffers for '%s' done", a->actor_name);
 }
 
+extern "C" void clear_buffers(actor_types* a)
+{
+	delete a->hardware_model;
+}
+
 static inline void set_transformation_buffer(actor_types *a, actor *act, const Uint32 index,
 	HardwareMeshData &hmd)
 {

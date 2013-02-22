@@ -23,6 +23,7 @@
 #include "asc.h"
 #include "astrology.h"
 #include "bbox_tree.h"
+#include "books.h"
 #include "buddy.h"
 #include "console.h"
 #include "cursors.h"
@@ -47,6 +48,7 @@
 #include "queue.h"
 #include "reflection.h"
 #include "rules.h"
+#include "sky.h"
 #include "sound.h"
 #include "text.h"
 #include "timers.h"
@@ -244,10 +246,13 @@ int start_rendering()
 	destroy_sound();		// Cleans up physical elements of the sound system and the streams thread
 	clear_sound_data();		// Cleans up the config data
 #endif // NEW_SOUND
+	if (have_a_map)
+		destroy_map();
 	unload_questlog();
 	save_item_lists();
 	free_emotes();
 	free_actor_defs();
+	free_books();
 	free_vars();
 	cleanup_rules();
 	save_exploration_map();
@@ -260,6 +265,7 @@ int start_rendering()
 	main_bbox_tree = NULL;
 	free_astro_buffer();
 	free_translations();
+	free_skybox();
 	/* Destroy our GL context, etc. */
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 	SDL_QuitSubSystem(SDL_INIT_TIMER);

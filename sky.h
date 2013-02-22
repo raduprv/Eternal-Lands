@@ -70,6 +70,7 @@ void skybox_display();
 
 void skybox_init_gl();
 void skybox_init_defs(const char *map_name);
+void free_skybox();
 
 void skybox_update_positions();
 void skybox_update_colors();

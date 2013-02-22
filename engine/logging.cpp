@@ -111,10 +111,10 @@ namespace eternal_lands
 					log_stream << __LINE__;
 				}
 
-				log_stream << "]";
+				log_stream << "] ";
 				log_stream << "Last message repeated ";
 				log_stream << thread.m_last_message_count;
-				log_stream << "time";
+				log_stream << " time";
 
 				if (thread.m_last_message_count > 1)
 				{

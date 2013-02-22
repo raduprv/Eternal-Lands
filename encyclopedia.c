@@ -873,6 +873,9 @@ static void encycl_nav_free(void)
 	if (last_search != NULL)
 		free(last_search);
 	last_search = NULL;
+	if (raw_page_links != NULL)
+		free(raw_page_links);
+	raw_page_links = NULL;
 	max_gen_titles = num_gen_titles = max_page_links = num_page_links = 0;
 }
 
@@ -1002,6 +1005,7 @@ static void process_encycl_links(void)
 
 	free(temp_links);
 	free(raw_page_links);
+	raw_page_links = NULL;
 	num_raw_page_links = max_raw_page_links = 0;
 }
 

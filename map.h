@@ -119,6 +119,7 @@ void init_terrain_buffers(int terrain_buffer_size);
  */
 void init_buffers(void);
 
+void destroy_map();
 
 typedef struct _s_mark{
 

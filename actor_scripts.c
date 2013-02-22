@@ -4763,8 +4763,30 @@ void free_actor_defs()
 	int i;
 	for (i=0; i<MAX_ACTOR_DEFS; i++)
 	{
+		if (actors_defs[i].head)
+			free(actors_defs[i].head);
+		if (actors_defs[i].shield)
+			free(actors_defs[i].shield);
+		if (actors_defs[i].cape)
+			free(actors_defs[i].cape);
+		if (actors_defs[i].helmet)
+			free(actors_defs[i].helmet);
+		if (actors_defs[i].neck)
+			free(actors_defs[i].neck);
+		if (actors_defs[i].weapon)
+			free(actors_defs[i].weapon);
+		if (actors_defs[i].shirt)
+			free(actors_defs[i].shirt);
+		if (actors_defs[i].skin)
+			free(actors_defs[i].skin);
+		if (actors_defs[i].hair)
+			free(actors_defs[i].hair);
+		if (actors_defs[i].boots)
+			free(actors_defs[i].boots);
+		if (actors_defs[i].legs)
+			free(actors_defs[i].legs);
 		if (actors_defs[i].hardware_model)
-			free(actors_defs[i].hardware_model);
+			clear_buffers(&actors_defs[i]);
 		CalCoreModel_Delete(actors_defs[i].coremodel);
 	}
 }

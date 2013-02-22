@@ -2651,3 +2651,15 @@ void skybox_init_gl()
 	}
 }
 
+void free_skybox()
+{
+	destroy_dome(&dome_sky);
+	destroy_dome(&dome_clouds);
+	destroy_sphere(&moon_mesh);
+	if (dome_clouds_detail_colors) free(dome_clouds_detail_colors);
+	if (dome_clouds_colors_bis) free(dome_clouds_colors_bis);
+	if (dome_clouds_detail_colors_bis) free(dome_clouds_detail_colors_bis);
+	if (dome_clouds_tex_coords_bis) free(dome_clouds_tex_coords_bis);
+	if (fog_colors) free(fog_colors);
+}
+

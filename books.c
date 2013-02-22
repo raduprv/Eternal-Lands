@@ -33,7 +33,6 @@
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
  *
- * void free_books();
  * int have_book(int);
  */
 
@@ -178,6 +177,7 @@ void free_page(page * p)
 	if(p->image) free(p->image);
 	for(;*l;l++) free(*l);
 	free(p->lines);
+	free(p);
 }
 
 void free_book(book * b)
@@ -1161,16 +1161,17 @@ void close_book(int book_id)
 	book_opened=-1;
 }
 
-/* currently UNUSED
 void free_books()
 {
 	book *b,*l=NULL;
 	for(b=books;b;l=b){
 		b=b->next;
-		free_book(l);
+		if (l)
+			free_book(l);
 	}
 }
 
+/* currently UNUSED
 int have_book(int id)
 {
 	book *b=books;

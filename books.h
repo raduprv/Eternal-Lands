@@ -41,6 +41,14 @@ void read_local_book (const char * data, int len);
 void init_books();
 
 /*!
+ * \ingroup	books_window
+ * \brief	Frees the memory allocated for books
+ *
+ * 		Frees the memory allocated for books
+ */
+void free_books();
+
+/*!
  * \ingroup	network_books
  * \brief	Selects the parser for the book send from the server
  *

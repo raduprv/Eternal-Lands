@@ -16,6 +16,7 @@ extern Uint32 use_animation_program;
 int load_vertex_programs();
 void unload_vertex_programs();
 void build_buffers(actor_types* a);
+void clear_buffers(actor_types* a);
 void build_actor_bounding_box(actor* a);
 void set_transformation_buffers(actor* act);
 
