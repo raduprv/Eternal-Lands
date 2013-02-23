@@ -246,6 +246,7 @@ int start_rendering()
 	destroy_sound();		// Cleans up physical elements of the sound system and the streams thread
 	clear_sound_data();		// Cleans up the config data
 #endif // NEW_SOUND
+	ec_destroy_all_effects();
 	if (have_a_map)
 	{
 		destroy_map();

@@ -195,6 +195,7 @@ extern "C"
 	void ec_draw(); //!< \callergraph
 	void ec_actor_delete(actor* _actor);
 	void ec_recall_effect(ec_reference ref);
+	void ec_destroy_all_effects();
 	void ec_delete_all_effects();
 	void ec_delete_effect_loc(float x, float y);
 	void ec_delete_effect_loc_type(float x, float y, ec_EffectEnum type);

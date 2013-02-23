@@ -648,6 +648,19 @@ extern "C" void ec_recall_effect(const ec_reference ref)
 	}
 }
 
+extern "C" void ec_destroy_all_effects()
+{
+	// loop marking all active effects as done, cleaning up the dead till we're done
+	for (int i=0; !references.empty() && i<50; ++i)
+	{
+		ec_delete_all_effects();
+		ec_idle();
+	}
+	if (!references.empty()) // unlikely to happen but just so we don't get stick on exit.
+		LOG_ERROR("%s: failed to clear up. references.size()=%lu", __PRETTY_FUNCTION__, references.size());
+}
+
+
 extern "C" void ec_delete_all_effects()
 {
 	force_idle = true;
