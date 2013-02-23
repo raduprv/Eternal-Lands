@@ -1253,7 +1253,7 @@ static __inline__ Uint32 delete_dynamic_aabb_from_node(BBOX_TREE *bbox_tree, Uin
 	Uint32 i, result, idx1, idx2;
 	AABBOX new_bbox;
 
-	if (node != NO_INDEX)
+	if (node != NO_INDEX && bbox_tree->nodes_count > 0)
 	{		
 		result = dynamic_aabb_is_in_node(bbox_tree, node, ID, type_mask);
 		if (result != 0)

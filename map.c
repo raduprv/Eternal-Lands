@@ -548,6 +548,16 @@ void init_buffers()
 	init_reflection_portals(water_buffer_size);
 }
 
+void free_buffers()
+{
+	if (water_tile_buffer)
+		free(water_tile_buffer);
+	if (terrain_tile_buffer)
+		free(terrain_tile_buffer);
+	if (reflection_portals)
+		free(reflection_portals);
+}
+
 int get_3d_objects_from_server (int nr_objs, const Uint8 *data, int len)
 {
 	int iobj;

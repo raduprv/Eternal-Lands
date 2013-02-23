@@ -247,7 +247,10 @@ int start_rendering()
 	clear_sound_data();		// Cleans up the config data
 #endif // NEW_SOUND
 	if (have_a_map)
+	{
 		destroy_map();
+		free_buffers();
+	}
 	unload_questlog();
 	save_item_lists();
 	free_emotes();

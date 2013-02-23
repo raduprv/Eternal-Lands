@@ -11,6 +11,7 @@
 
 #include "hash.h"
 #include "mapwin.h"
+#include "platform.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,6 +29,9 @@ extern float ambient_b;
 /** @} */
 
 extern int map_type; /**< id of the type of map we are currently using */
+
+extern GLfloat* water_tile_buffer;
+extern GLfloat* terrain_tile_buffer;
 
 /**
  * @ingroup maps
@@ -118,6 +122,17 @@ void init_terrain_buffers(int terrain_buffer_size);
  * @callgraph
  */
 void init_buffers(void);
+
+/**
+ * @ingroup maps
+ * @brief Frees the buffer and the portals.
+ *
+ * Frees the buffer used for terrain and water, also the portals.
+ * Should only be called on client exit.
+ *
+ * @callgraph
+ */
+void free_buffers(void);
 
 void destroy_map();
 

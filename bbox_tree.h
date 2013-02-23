@@ -972,6 +972,7 @@ void check_bbox_tree_shadow(BBOX_TREE* bbox_tree, const FRUSTUM frustum, Uint32 
 
 void reflection_portal_check(BBOX_TREE* bbox_tree, const PLANE* portals, Uint32 count);
 
+extern PLANE* reflection_portals;
 extern LINE click_line;
 
 #ifdef __cplusplus
