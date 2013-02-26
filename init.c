@@ -699,7 +699,7 @@ void init_texture_cache()
 void init_e3d_cache()
 {
 	//cache_e3d= cache_init(1000, &destroy_e3d);	//TODO: autofree the name as well
-	cache_e3d = cache_init("E3d cache", 1000, NULL);	//no aut- free permitted
+	cache_e3d = cache_init("E3d cache", 1500, NULL);	//no aut- free permitted
 	cache_set_compact(cache_e3d, &free_e3d_va);	// to compact, free VA arrays
 	cache_set_time_limit(cache_e3d, 5*60*1000);
 	cache_set_size_limit(cache_e3d, 8*1024*1024);

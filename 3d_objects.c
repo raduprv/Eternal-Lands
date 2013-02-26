@@ -885,6 +885,8 @@ void destroy_all_3d_objects()
 		if (objects_list[i])
 		{
 			ec_remove_obstruction_by_object3d(objects_list[i]);
+			if(!cache_find_item(cache_e3d, objects_list[i]->file_name))
+				destroy_e3d(objects_list[i]->e3d_data);
 			free(objects_list[i]);
 			objects_list[i] = NULL; // kill any reference to it
 		}
@@ -922,7 +924,10 @@ Uint32 free_e3d_va(e3d_object *e3d_id)
 		}
 	}
 
-	return (e3d_id->cache_ptr->size - sizeof(*e3d_id));
+	if (e3d_id->cache_ptr != NULL)
+		return (e3d_id->cache_ptr->size - sizeof(*e3d_id));
+	else
+		return sizeof(*e3d_id);
 }
 
 void destroy_e3d(e3d_object *e3d_id)
