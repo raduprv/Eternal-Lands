@@ -36,7 +36,8 @@ namespace Trade_Log
 		public:
 			List(const char *name, const trade_item *stuff, size_t max_size);
 			~List(void) { delete [] the_stuff; }
-		 	void get_details(std::ostream & out) const;
+			const std::string &who(void) const { return trade_name; }
+		 	void get_details(std::ostream & out, const char* prefix) const;
 		private:
 			trade_item *the_stuff;
 			std::string trade_name;
@@ -58,30 +59,25 @@ namespace Trade_Log
 
 	//	Write the trade information to the specified stream
 	//
- 	void List::get_details(std::ostream & out) const
- 	{
-		bool no_items = true;
-		out << "items from " << trade_name << ":-" << std::endl;
+	void List::get_details(std::ostream & out, const char* prefix) const
+	{
 		for(size_t i=0;i<size;i++)
 			if (the_stuff[i].quantity > 0)
 			{
 				// if we have a description, and it is unique, use it
 				if (get_item_count(the_stuff[i].id, the_stuff[i].image_id)==1)
-					out <<
+					out << "   " << prefix << 
 						" " << the_stuff[i].quantity <<
 						" " << get_item_description(the_stuff[i].id, the_stuff[i].image_id) <<
 						((the_stuff[i].type != 1) ?" (s)" :"") << std::endl;
 				// otherwise use the raw ids
 				else
-					out <<
+					out << "   " << prefix << 
 						" " << the_stuff[i].quantity <<
 						" image_id=" << the_stuff[i].image_id <<
 						" id=" << the_stuff[i].id <<
 						((the_stuff[i].type != 1) ?" (s)" :"") << std::endl;
-				no_items = false;
 			}
-		if (no_items)
-			out << " <nothing traded>" << std::endl;
 	}
 
 
@@ -124,7 +120,7 @@ namespace Trade_Log
 		if (their_stuff)
 			delete their_stuff;
 
-		std::string you = std::string(username_str) + std::string(" (you)");
+		std::string you = std::string(username_str);
 		your_stuff = new List(you.c_str(), yours, max_items);
 		their_stuff = new List(name, others, max_items);
 
@@ -146,14 +142,17 @@ namespace Trade_Log
 
 		char buf[80];
 		time_t now = time(0);
-		strftime(buf, sizeof(buf), "Trade log %Y-%m-%d %X", localtime(&now));
+		strftime(buf, sizeof(buf), "%Y-%m-%d %X", localtime(&now));
+
 		std::ostringstream message;
-		message << buf << std::endl;
+		message << "Trade log (" << your_stuff->who() << " <-"
+			<< "-> " << their_stuff->who() << ") " << buf << std::endl;
 
 		if (your_stuff)
-			your_stuff->get_details(message);
+			your_stuff->get_details(message, "-->");
 		if (their_stuff)
-			their_stuff->get_details(message);
+			their_stuff->get_details(message, "<--");
+
 		std::string message_str =  message.str();
 		message_str.erase(std::find_if(message_str.rbegin(), message_str.rend(), std::not1(std::ptr_fun<int, int>(std::iscntrl))).base(), message_str.end());
 
