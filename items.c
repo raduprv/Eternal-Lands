@@ -809,6 +809,9 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	// only handle mouse button clicks, not scroll wheels moves (unless its the mix button)
 	if (((flags & ELW_MOUSE_BUTTON) == 0) && (over_button(win, mx, my) != BUT_MIX)) return 0;
 
+	// ignore middle mouse button presses
+	if ((flags & ELW_MID_MOUSE) != 0) return 0;
+
 	if (!right_click && over_button(win, mx, my) != -1)
 		do_click_sound();
 

@@ -1917,8 +1917,8 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 	int ctrl_on = flags & ELW_CTRL;
 	int shift_on = flags & ELW_SHIFT;
 
-	// only handle mouse button clicks, not scroll wheels moves
-	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+	// only handle mouse button clicks, not scroll wheels moves or clicks
+	if (( (flags & ELW_MOUSE_BUTTON) == 0) || ( (flags & ELW_MID_MOUSE) != 0)) return 0;
 
 	if(right_click) {
 		switch(qb_action_mode) {
