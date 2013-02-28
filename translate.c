@@ -342,7 +342,7 @@ char
 	cm_dialog_options_str[80],
 	cm_dialog_menu_str[60],
 	cm_url_menu_str[150],
-	cm_counters_menu_str[90],
+	cm_counters_menu_str[160],
 	cm_help_options_str[50],
 	cm_npcname_menu_str[50],
 	cm_dialog_copy_menu_str[50],
@@ -1567,7 +1567,7 @@ void init_help()
 	add_xml_identifier(misc, "cm_dialog_options", cm_dialog_options_str, "Auto close storage dialogue\nAuto select storage option in dialogue", sizeof(cm_dialog_options_str));
 	add_xml_identifier(misc, "cm_dialog_menu", cm_dialog_menu_str, "--\nEnable Keypresses\nKeypresses Anywhere", sizeof(cm_dialog_menu_str));
 	add_xml_identifier(misc, "cm_url_menu", cm_url_menu_str, "Open\nFind In Console\nMark Visited\nMark Unvisited\n--\nDelete\n--\nDelete All", sizeof(cm_url_menu_str));	
-	add_xml_identifier(misc, "cm_counters_menu", cm_counters_menu_str, "Delete Entry\n--\nReset Session Total\n--\nEnable Floating Messages For Category", sizeof(cm_counters_menu_str));
+	add_xml_identifier(misc, "cm_counters_menu", cm_counters_menu_str, "Delete Entry\n--\nReset Session Total\n--\nEnable Floating Messages For Category\n--\nPrint Category\nPrint All Categories\nPrint Just Session Information", sizeof(cm_counters_menu_str));
 	add_xml_identifier(misc, "cm_help_options", cm_help_options_str, "Right-click for options.", sizeof(cm_help_options_str));
 	add_xml_identifier(misc, "cm_npcname_menu", cm_npcname_menu_str, "Copy NPC Name", sizeof(cm_npcname_menu_str));
 	add_xml_identifier(misc, "cm_dialog_copy_menu", cm_dialog_copy_menu_str, "Exclude Responses\nRemove newlines", sizeof(cm_dialog_copy_menu_str));

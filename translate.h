@@ -474,7 +474,7 @@ extern char
 		cm_dialog_options_str[80],
 		cm_dialog_menu_str[60],
 		cm_url_menu_str[150],
-		cm_counters_menu_str[90],
+		cm_counters_menu_str[160],
 		cm_help_options_str[50],
 		cm_npcname_menu_str[50],
 		cm_dialog_copy_menu_str[50],

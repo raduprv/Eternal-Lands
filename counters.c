@@ -78,6 +78,9 @@ static char to_count_name[128];
 static char *spell_names[128] = { NULL };
 static int requested_spell_id = -1;
 
+static const char *cat_str[] = { "Kills", "Deaths", "Harvests", "Alchemy", "Crafting", "Manufac.",
+	"Potions", "Spells", "Summons", "Engineering", "Breakages", "Events", "Tailoring", "Crit Fails" };
+
 static const char *temp_event_string[] =
 	{	"%s found a", /* keep this one first in the list as its different from the rest*/
 		"%s was blessed by the Queen of Nature with ", /* referenced laters as second in the list */
@@ -440,35 +443,67 @@ static void cm_counters_pre_show_handler(window_info *win, int widget_id, int mx
 	cm_floating_flag = (floating_counter_flags & (1 << cm_selected_id)) ?1 :0;
 }
 
-static int cm_counters_handler(window_info *win, int widget_id, int mx, int my, int option)
+
+//	Prints the entries (total and name) in the specified category.
+//	If just_session is true, then session infomation is also
+//	included but only non-zero entries are included.
+//
+static void print_category(size_t cat, int just_session)
 {
-	// set the floating flag from the control var
-	if (option == 4)
+	int i;
+	char buf[256];
+
+	if (cat >= NUM_COUNTERS)
+		return;
+
+	if (just_session)
 	{
-		int flagbit = multiselect_get_selected(counters_win, multiselect_id);
-		if (cm_floating_flag)
-		{
-			floating_counter_flags |= 1 << flagbit;
-			if (!floating_session_counters)
-				toggle_OPT_BOOL_by_name("floating_session_counters");
-		}
-		else
-			floating_counter_flags &= ~(1 << flagbit);
-		return 1;
+		int has_session = 0;
+		for (i = 0; i < entries[cat]; i++)
+			if (counters[cat][i].n_session > 0)
+			{
+				has_session = 1;
+				break;
+			}
+		if (!has_session)
+			return;
 	}
 
+	safe_snprintf(buf, sizeof(buf), "%s:", cat_str[cat]);
+	LOG_TO_CONSOLE(c_green2, buf);
+
+	for (i = 0; i < entries[cat]; i++)
+	{
+		if (just_session)
+		{
+			if (counters[cat][i].n_session <= 0)
+				continue;
+			safe_snprintf(buf, sizeof(buf), "%12d %12d  %s",
+				counters[cat][i].n_session, counters[cat][i].n_total, counters[cat][i].name);
+		}
+		else
+			safe_snprintf(buf, sizeof(buf), "%12d  %s", counters[cat][i].n_total, counters[cat][i].name);
+		LOG_TO_CONSOLE(c_grey1,buf);
+	}
+}
+
+
+static int cm_counters_handler(window_info *win, int widget_id, int mx, int my, int option)
+{
+	struct Counter *the_entry = NULL;
+	
 	// if the number of entries has changed, we could be about to use the wrong entry, don't use it
 	// if a entry index is invalid, don't use it
 	if ((cm_entry_count == entries[cm_selected_id]) &&
 		(cm_selected_entry >= 0) && (cm_selected_entry < entries[cm_selected_id]))
-	{
-		int i;
-		struct Counter *the_entry = &counters[cm_selected_id][cm_selected_entry];
+		the_entry = &counters[cm_selected_id][cm_selected_entry];
 
-		switch (option)
-		{
-			// delete entry
-			case 0:
+	switch (option)
+	{
+		case 0:		// delete entry
+			if (the_entry != NULL)
+			{
+				int i;
 				if (the_entry->name != NULL)
 					free(the_entry->name);	
 				// move the entries up, replacing the deleted one
@@ -481,17 +516,57 @@ static int cm_counters_handler(window_info *win, int widget_id, int mx, int my, 
 					the_entry++;
 				}
 				entries[cm_selected_id]--;
-				break;
+			}
+			else
+				return 0;
+			break;
 
-			// reset session total for entry
-			case 2:
+		case 2:		// reset session total for entry
+			if (the_entry != NULL)
 				the_entry->n_session = 0;
-				break;
-		}
-		return 1;
+			else
+				return 0;
+			break;
+
+		case 4:		// set the floating flag from the control var
+			{
+				int flagbit = multiselect_get_selected(counters_win, multiselect_id);
+				if (cm_floating_flag)
+				{
+					floating_counter_flags |= 1 << flagbit;
+					if (!floating_session_counters)
+						toggle_OPT_BOOL_by_name("floating_session_counters");
+				}
+				else
+					floating_counter_flags &= ~(1 << flagbit);
+			}
+			break;
+
+		case 6:		// print the category to console
+			print_category(cm_selected_id, 0);
+			break;
+
+		case 7:		// print all categories to console
+			{
+				int i;
+				for (i = 0; i < NUM_COUNTERS; i++)
+					print_category(i, 0);
+			}
+			break;
+
+		case 8:		// print session information to console
+			{
+				int i;
+				for (i = 0; i < NUM_COUNTERS; i++)
+					print_category(i, 1);
+			}
+			break;
+
+		default:
+			return 0;
 	}
 
-	return 0;
+	return 1;
 }
 
 void fill_counters_win()
@@ -503,20 +578,20 @@ void fill_counters_win()
 	set_window_handler(counters_win, ELW_HANDLER_MOUSEOVER, &mouseover_counters_handler);
 
 	multiselect_id = multiselect_add(counters_win, NULL, 8, 2, 104);
-	multiselect_button_add(counters_win, multiselect_id, 0, 0, "Kills", 1);
-	multiselect_button_add(counters_win, multiselect_id, 0, 25, "Deaths", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 125, "Harvests", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 150, "Alchemy", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 175, "Crafting", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 200, "Manufac.", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 225, "Potions", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 250, "Spells", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 275, "Summons", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 300, "Engineering", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 50, "Breakages", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 100, "Events", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 325, "Tailoring", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 75, "Crit Fails", 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 0, cat_str[0], 1);
+	multiselect_button_add(counters_win, multiselect_id, 0, 25, cat_str[1], 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 125, cat_str[2], 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 150, cat_str[3], 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 175, cat_str[4], 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 200, cat_str[5], 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 225, cat_str[6], 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 250, cat_str[7], 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 275, cat_str[8], 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 300, cat_str[9], 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 50, cat_str[10], 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 100, cat_str[11], 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 325, cat_str[12], 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 75, cat_str[13], 0);
 
 	counters_scroll_id = vscrollbar_add_extended(counters_win,
 			counters_scroll_id, NULL,
