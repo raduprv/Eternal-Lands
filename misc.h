@@ -197,7 +197,7 @@ void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, 
  * \param mode The i/o mode (see open())
  * \return a zlib file handle
  */
-gzFile * my_gzopen(const char * filename, const char * mode);
+gzFile my_gzopen(const char * filename, const char * mode);
 
 /*!
  * \ingroup misc

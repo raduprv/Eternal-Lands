@@ -191,10 +191,10 @@ int gzfile_exists(const char *fname)
 	return(file_exists(fname));
 }
 
-gzFile * my_gzopen(const char * filename, const char * mode)
+gzFile my_gzopen(const char * filename, const char * mode)
 {
 	char gzfilename[1024];
-	gzFile * result;
+	gzFile result;
 
 	safe_snprintf(gzfilename, sizeof(gzfilename), "%s.gz", filename);
 	result= gzopen(gzfilename, mode);
