@@ -2073,24 +2073,13 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 	}
 	else if (ch == SDLK_RETURN && input_text_line.len > 0)
 	{
-		if (input_text_line.data[0] == '%' && input_text_line.len > 1) 
-		{
-			if ( (check_var (&(input_text_line.data[1]), IN_GAME_VAR) ) < 0)
-				send_input_text_line (input_text_line.data, input_text_line.len);
-		}
-		else if (input_text_line.len > 5 && input_text_line.data[0] == '@' && input_text_line.data[1] == '@' && input_text_line.data[2] != ' ')
+		if (input_text_line.len > 5 && input_text_line.data[0] == '@' && input_text_line.data[1] == '@' && input_text_line.data[2] != ' ')
 		{
 			chan_target_name(input_text_line.data, input_text_line.len);
 		}
-		else if ( input_text_line.data[0] == '#' || input_text_line.data[0] == char_cmd_str[0] )
-		{
-			test_for_console_command (input_text_line.data, input_text_line.len);
-		}
 		else
 		{
-			if(input_text_line.data[0] == char_at_str[0])
-				input_text_line.data[0]='@';
-			send_input_text_line (input_text_line.data, input_text_line.len);
+			parse_input(input_text_line.data, input_text_line.len);
 		}
 		add_line_to_history(input_text_line.data, input_text_line.len);
 		// also clear the buffer
