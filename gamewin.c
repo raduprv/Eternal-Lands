@@ -2073,16 +2073,8 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 	}
 	else if (ch == SDLK_RETURN && input_text_line.len > 0)
 	{
-		if (input_text_line.len > 5 && input_text_line.data[0] == '@' && input_text_line.data[1] == '@' && input_text_line.data[2] != ' ')
-		{
-			chan_target_name(input_text_line.data, input_text_line.len);
-		}
-		else
-		{
-			parse_input(input_text_line.data, input_text_line.len);
-		}
+		parse_input(input_text_line.data, input_text_line.len);
 		add_line_to_history(input_text_line.data, input_text_line.len);
-		// also clear the buffer
 		clear_input_line();
 	}
 	else

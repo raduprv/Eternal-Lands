@@ -319,8 +319,6 @@ void update_chat_win_buffers(void);
 
 void cleanup_chan_names(void);
 
-void chan_target_name(char * text, int len);
-
 int chat_input_key(widget_list *widget, int mx, int my, Uint32 key, Uint32 unikey);
 
 int resize_chat_handler(window_info *win, int width, int height);

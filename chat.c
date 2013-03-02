@@ -2112,21 +2112,6 @@ int command_jlc(char * text, int len)
 	return 0; //note: this change could also put us over the 160-char limit if not checked
 }
 
-void chan_target_name(char * text, int len)
-{
-	unsigned int num;
-	int mylen;
-	char buffer[MAX_TEXT_MESSAGE_LENGTH];
-
-	num = chan_int_from_name(text+2, &mylen);
-	if(num <= 0) {
-		send_input_text_line (text, len);
-		return;
-	}
-	safe_snprintf(buffer, sizeof(buffer), "@@%d%s", num, text+2+mylen);
-	send_input_text_line (buffer, strlen(buffer));
-}
-
 ////////////////////////////////////////////////////////////////////////
 //  channel color stuff
 
