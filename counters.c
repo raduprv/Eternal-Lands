@@ -78,7 +78,7 @@ static char to_count_name[128];
 static char *spell_names[128] = { NULL };
 static int requested_spell_id = -1;
 
-static const char *cat_str[] = { "Kills", "Deaths", "Harvests", "Alchemy", "Crafting", "Manufac.",
+static const char *cat_str[NUM_COUNTERS] = { "Kills", "Deaths", "Harvests", "Alchemy", "Crafting", "Manufac.",
 	"Potions", "Spells", "Summons", "Engineering", "Breakages", "Events", "Tailoring", "Crit Fails" };
 
 static const char *temp_event_string[] =
@@ -488,6 +488,26 @@ static void print_category(size_t cat, int just_session)
 }
 
 
+// The #session_counters command and menu option
+//
+void print_session_counters(const char *category)
+{
+	int i;
+	if ((category == NULL) || !(*category))
+		for (i = 0; i < NUM_COUNTERS; i++)
+			print_category(i, 1);
+	else
+	{
+		for (i = 0; i < NUM_COUNTERS; i++)
+			if (strncasecmp(category, cat_str[i], strlen(category)) == 0)
+			{
+				print_category(i, 1);
+				break;
+			}
+	}
+}
+
+
 static int cm_counters_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
 	struct Counter *the_entry = NULL;
@@ -555,11 +575,7 @@ static int cm_counters_handler(window_info *win, int widget_id, int mx, int my, 
 			break;
 
 		case 8:		// print session information to console
-			{
-				int i;
-				for (i = 0; i < NUM_COUNTERS; i++)
-					print_category(i, 1);
-			}
+			print_session_counters(NULL);
 			break;
 
 		default:
