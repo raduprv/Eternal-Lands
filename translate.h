@@ -284,6 +284,8 @@ extern char
 		cmd_open_url[20],
 		cmd_show_spell[20],
 		cmd_cast_spell[20],
+		cmd_reload_icons[20],
+		cmd_session_counters[20],
 		help_cmd_markpos_str[50],
 		location_info_str[40],
 		knowledge_cmd_str[40],

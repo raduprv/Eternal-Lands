@@ -21,6 +21,7 @@ void flush_counters();
 void cleanup_counters();
 void fill_counters_win();
 void reset_session_counters();
+void print_session_counters(const char *category);
 
 void increment_death_counter(actor *a);
 void increment_critfail_counter(char *name);
