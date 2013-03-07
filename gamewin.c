@@ -1592,22 +1592,11 @@ void hide_all_windows(){
 
 static void toggle_sit_stand()
 {
-	if(you_sit)
-		{
-			Uint8 str[4];
-			//Send message to server...	
-			str[0]=SIT_DOWN;
-			str[1]=0;
-			my_tcp_send(my_socket,str,2);
-		}
-	else
-		{
-			Uint8 str[4];
-			//Send message to server...
-			str[0]=SIT_DOWN;
-			str[1]=1;
-			my_tcp_send(my_socket,str,2);
-		}
+	Uint8 str[4];
+	//Send message to server...	
+	str[0]=SIT_DOWN;
+	str[1]=!you_sit;
+	my_tcp_send(my_socket,str,2);
 }
 
 // keypress handler common to all in-game root windows (game_root_win, 
