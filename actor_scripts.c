@@ -4717,7 +4717,7 @@ int read_actor_defs (const char *dir, const char *index)
 
 	safe_snprintf (fname, sizeof(fname), "%s/%s", dir, index);
 
-	doc = xmlReadFile (fname, NULL, 0);
+	doc = xmlReadFile (fname, NULL, XML_PARSE_NOENT);
 	if (doc == NULL) {
 		LOG_ERROR("Unable to read actor definition file %s", fname);
 		return 0;

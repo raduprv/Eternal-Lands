@@ -2363,7 +2363,7 @@ int skybox_read_defs(const char *file_name, const char *map_name)
 	xmlDoc *doc;
 	int ok = 1;
 
-	doc = xmlReadFile(file_name, NULL, 0);
+	doc = xmlReadFile(file_name, NULL, XML_PARSE_NOENT);
 	if (doc == NULL) {
 		LOG_ERROR("Unable to read skybox definition file %s", file_name);
 		return 0;

@@ -5576,7 +5576,7 @@ void load_sound_config_data (const char *file)
 	if (!el_file_exists(file))
 		return;
 
-	if ((doc = xmlReadFile(file, NULL, 0)) == NULL)
+	if ((doc = xmlReadFile(file, NULL, XML_PARSE_NOENT)) == NULL)
 	{
 		char str[200];
 		safe_snprintf(str, sizeof(str), snd_config_open_err_str, file);
