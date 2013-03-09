@@ -24,7 +24,6 @@
 /*
  * TODO		Write to Trade Log tab in one of the existing windows.
  * TODO		Option to write to per player trade log file.
- * TODO		Finalise the log format.
 */
 
 namespace Trade_Log
@@ -172,7 +171,7 @@ extern "C"
 	void trade_accepted(const char *name, const trade_item *yours, const trade_item *others, int max_items)
 		{ if (enable_local_debug) printf("%s\n", __FUNCTION__); the_log.accepted(name, yours, others, max_items); }
 	void trade_exit(void) { if (enable_local_debug) printf("%s\n", __FUNCTION__); the_log.exit(); }
-	void trade_aborted(const char *message) { printf("%s\n", __FUNCTION__); the_log.aborted(); }
+	void trade_aborted(const char *message) { if (enable_local_debug) printf("%s\n", __FUNCTION__); the_log.aborted(); }
 	void trade_post_storage(void) { if (enable_local_debug) printf("%s\n", __FUNCTION__); the_log.completed(); }
 	void trade_post_inventory(void) { if (enable_local_debug) printf("%s\n", __FUNCTION__); the_log.completed(); }
 }
