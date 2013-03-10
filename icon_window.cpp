@@ -507,7 +507,8 @@ namespace IconWindow
 			return false;
 		}
 
-		if (!el_file_exists(file_name.c_str()))
+		// shame but xmlFileMatch gives an additional error message
+		if (!el_file_exists_anywhere(file_name.c_str()))
 			return false;
 
 		xmlDocPtr doc;
