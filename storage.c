@@ -414,16 +414,17 @@ int display_storage_handler(window_info * win)
 		glEnd();
 	}
 
-	if(cur_item_over!=-1 && mouse_in_window(win->window_id, mouse_x, mouse_y) == 1 && active_storage_item!=storage_items[cur_item_over].pos){
+	if(cur_item_over!=-1 && mouse_in_window(win->window_id, mouse_x, mouse_y) == 1){
 		char str[20];
 		Uint16 item_id = storage_items[cur_item_over].id;
 		int image_id = storage_items[cur_item_over].image_id;
 		if (show_item_desc_text && item_info_available() && (get_item_count(item_id, image_id) == 1))
 			show_help(get_item_description(item_id, image_id), 0, win->len_y + 10);
 
-		safe_snprintf(str, sizeof(str), "%d",storage_items[cur_item_over].quantity);
-
-		show_help(str,mouse_x-win->pos_x-(strlen(str)/2)*8,mouse_y-win->pos_y-14);
+		if (active_storage_item!=storage_items[cur_item_over].pos) {
+			safe_snprintf(str, sizeof(str), "%d",storage_items[cur_item_over].quantity);
+			show_help(str,mouse_x-win->pos_x-(strlen(str)/2)*8,mouse_y-win->pos_y-14);
+		}
 	}
 	
 	// Render the grid *after* the images. It seems impossible to code
