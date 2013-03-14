@@ -546,6 +546,7 @@ extern char	reg_error_str[15],
 		/* books.c*/
 		book_open_err_str[30],
 		/*cache.c*/
+		cache_items_str[20],
 		cache_size_str[20],
 		/* cal.c */
 		no_animation_err_str[30],

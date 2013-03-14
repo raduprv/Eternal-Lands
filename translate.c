@@ -494,6 +494,7 @@ char	reg_error_str[15],
 	/* books.c */
 	book_open_err_str[30],
 	/*cache.c*/
+	cache_items_str[20],
 	cache_size_str[20],
 	/* cal.c */
 	no_animation_err_str[30],
@@ -1382,7 +1383,8 @@ void init_help()
 	add_xml_identifier(misc,"abort",abort_str,"Abort",sizeof(abort_str));
 	add_xml_identifier(misc,"sigils",sig_too_few_sigs,"This spell requires at least 2 sigils",sizeof(sig_too_few_sigs));
 	add_xml_identifier(misc,"switch",switch_video_mode,"Switches to video mode %s",sizeof(switch_video_mode));
-	add_xml_identifier(misc,"cache",cache_size_str,"Cache size",sizeof(cache_size_str));
+	add_xml_identifier(misc,"cachei",cache_items_str,"items",sizeof(cache_items_str));
+	add_xml_identifier(misc,"caches",cache_size_str,"Cache size",sizeof(cache_size_str));
 	add_xml_identifier (misc, "appropr_name", use_appropriate_name, "Use an appropriate name:\nPlease do not create a name that is obscene or offensive, contains more than 2 digits, is senseless or stupid (i.e. djrtq47fa), or is made with the intent of impersonating another player.\nTake into consideration that the name you choose does affect the atmosphere of the game. Inappropriate names can and will be locked.", sizeof (use_appropriate_name) );
 	add_xml_identifier(misc,"edit_quantity",quantity_edit_str,"Rightclick on the quantity you wish to edit",sizeof(quantity_edit_str));
 	add_xml_identifier(misc,"equip_here",equip_here_str,"Place an item in these boxes to equip it",sizeof(equip_here_str));

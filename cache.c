@@ -91,8 +91,19 @@ void cache_dump_sizes(const cache_struct *cache)
 				size /= 1024;
 				scale = 'K';
 			}
-			safe_snprintf(str, sizeof(str), "%s %6d%c - %d: %s",
-				cache_size_str, size, scale, i, item->name);
+			if(cache==cache_system)
+			{
+				cache_struct *temp = item->cache_item;
+				safe_snprintf(str, sizeof(str), "%s %6d%c - %d: %s (%d %s)",
+#ifdef FASTER_MAP_LOAD
+					cache_size_str, size, scale, i, item->name, temp->num_items, cache_items_str);
+#else
+					cache_size_str, size, scale, i, item->name, temp->max_item, cache_items_str);
+#endif
+			}
+			else
+				safe_snprintf(str, sizeof(str), "%s %6d%c - %d: %s",
+					cache_size_str, size, scale, i, item->name);
 			put_colored_text_in_buffer(c_yellow1, CHAT_SERVER, (unsigned char*)str, -1);
 #ifdef MAP_EDITOR2
 			log_error(str);
