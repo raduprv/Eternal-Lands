@@ -672,6 +672,7 @@ extern char	reg_error_str[15],
 		init_display_str[35],
 		prep_op_win_str[35],
 		/* interface;c */
+		err_mapmarks_str[60],
 		err_nomap_str[60],
 		/* map_io.c */
 		load_map_str[35],

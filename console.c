@@ -806,9 +806,11 @@ int command_mark(char *text, int len)
 
 		for(;isspace(*text); text++);
 		if(strlen(text) > 0) {
-			put_mark_on_current_position(text);
-			safe_snprintf (str, sizeof(str), marked_str, text);
-			LOG_TO_CONSOLE(c_orange1,str);
+			if (put_mark_on_current_position(text))
+			{
+				safe_snprintf (str, sizeof(str), marked_str, text);
+				LOG_TO_CONSOLE(c_orange1,str);
+			}
 		}
 	}
 	return 1;

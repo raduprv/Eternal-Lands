@@ -344,7 +344,7 @@ void delete_mark_on_map_on_mouse_position();
  * \param map_x x coordinate of tile to be marked
  * \param map_y y coordinate of tile to be marked
  * \param name  name for the mark to set
- * \retval int returns 1 if the location is valid, and 0 otherwise.
+ * \retval int returns 1 if the location is valid and there is a free slot, and 0 otherwise.
  *
  * \callgraph
  *
@@ -369,12 +369,13 @@ void put_mark_on_map_on_mouse_position();
  *      Adds a mark with the text \a name at the actors current position.
  *
  * \param name  the text for the mark.
+ * \retval int returns 1 if there is a free slot, and 0 otherwise.
  *
  * \callgraph
  *
  * \pre If we don't have an active actor, this function won't perform any actions further actions.
  */
-void put_mark_on_current_position(char *name);
+int put_mark_on_current_position(char *name);
 
 /*!
  * \ingroup interfaces

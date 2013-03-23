@@ -398,7 +398,7 @@ void load_marks_to_buffer(char* mapname, marking* buffer, int* max)
 				buffer[*max].g=g;
 				buffer[*max].b=b;
 				*max = *max + 1;
-				if ( *max > MAX_USER_MARKS ) break;
+				if ( *max >= MAX_USER_MARKS ) break;
 			}
 		}
 	}

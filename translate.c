@@ -584,6 +584,7 @@ char	reg_error_str[15],
 	init_display_str[35],
 	prep_op_win_str[35],
 	/* interface;c */
+	err_mapmarks_str[60],
 	err_nomap_str[60],
 	/* map_io.c */
 	load_map_str[35],
@@ -1200,6 +1201,7 @@ void init_errors()
 	add_xml_identifier (misc, "emptymap", empty_map_str, "Using an empty map instead.", sizeof(empty_map_str));
 	add_xml_identifier (misc, "nonomap", no_nomap_str, "Fatal error: Couldn't load map ./maps/nomap.elm.\nFix your maps.", sizeof(no_nomap_str));
 	add_xml_identifier (misc, "nobmpmap", err_nomap_str, "There is no map for this place.", sizeof(err_nomap_str));
+	add_xml_identifier (misc, "mapmarks", err_mapmarks_str, "Maximum number of mapmarks reached.", sizeof(err_mapmarks_str));
 	add_xml_identifier (misc, "book_open", book_open_err_str, "Couldn't open the book: %s!", sizeof(book_open_err_str));
 	add_xml_identifier (misc, "noanimation", no_animation_err_str, "No animation: %s!\n", sizeof(no_animation_err_str));
 	add_xml_identifier (misc, "invalid_location", invalid_location_str, "Invalid location %d,%d", sizeof(invalid_location_str));
