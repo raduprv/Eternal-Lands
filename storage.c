@@ -595,6 +595,15 @@ int mouseover_storage_handler(window_info *win, int mx, int my)
 void print_items(void)
 {
 	int i;
+	actor *me;
+
+	me = get_our_actor();
+	if (me)
+		if(me->fighting)
+		{
+			LOG_TO_CONSOLE(c_red1, "You can't do this during combat!");
+			return;
+		}
 	
 	/* request the description for each item */
 	number_to_print = next_item_to_print = 0;
