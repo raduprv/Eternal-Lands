@@ -1181,7 +1181,7 @@ void toggle_full_screen()
 {
 #ifdef WINDOWS
 	full_screen=!full_screen;
-	set_var_unsaved("full_screen", OPT_BOOL);
+	set_var_unsaved("full_screen", INI_FILE_VAR);
 	LOG_TO_CONSOLE(c_green2, video_restart_str);
 #else
 	reload_tab_map = 1;

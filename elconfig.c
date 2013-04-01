@@ -528,7 +528,7 @@ static void consolidate_rotate_chat_log_status(void)
 	if ((rotate_chat_log==1) && !rotate_chat_log_config_var)
 	{
 		rotate_chat_log_config_var = 1;
-		set_var_unsaved("rotate_chat_log", OPT_BOOL);
+		set_var_unsaved("rotate_chat_log", INI_FILE_VAR);
 	}
 }
 
@@ -789,7 +789,7 @@ int switch_video(int mode, int full_screen)
 #ifndef LINUX
 	LOG_TO_CONSOLE(c_green2, video_restart_str);
 	video_mode=mode;
-	set_var_unsaved("switch_vidmode", INI_FILE_VAR);
+	set_var_unsaved("video_mode", INI_FILE_VAR);
 	return 1;
 #endif
 

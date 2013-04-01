@@ -1054,8 +1054,8 @@ static int context_hud_handler(window_info *win, int widget_id, int mx, int my, 
 		case CMH_MINIMAP: view_window(&minimap_win, 0); break;
 		case CMH_RANGSTATS: view_window(&range_win, 0); break;
 #ifdef NEW_SOUND
-		case CMH_SOUND: toggle_sounds(&sound_on); set_var_unsaved("enable_sound", OPT_BOOL); break;
-		case CMH_MUSIC: toggle_music(&music_on); set_var_unsaved("enable_music", OPT_BOOL); break;
+		case CMH_SOUND: toggle_sounds(&sound_on); set_var_unsaved("enable_sound", INI_FILE_VAR); break;
+		case CMH_MUSIC: toggle_music(&music_on); set_var_unsaved("enable_music", INI_FILE_VAR); break;
 #endif // NEW_SOUND
 		case CMH_LOCATION:
 			copy_next_LOCATE_ME = 1;

@@ -966,7 +966,7 @@ int close_chat_handler (window_info *win)
 	// revert to using the tab bar
 	// call the config function to make sure it's done properly
 	change_windowed_chat(&use_windowed_chat, 1);
-	set_var_unsaved("windowed_chat", OPT_MULTI);
+	set_var_unsaved("windowed_chat", INI_FILE_VAR);
 	
 	return 1;
 }
