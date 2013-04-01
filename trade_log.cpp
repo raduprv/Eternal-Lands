@@ -17,6 +17,7 @@
 #include <algorithm>
 
 #include "client_serv.h"
+#include "elconfig.h"
 #include "elloggingwrapper.h"
 #include "interface.h"
 #include "io/elpathwrapper.h"
@@ -135,6 +136,15 @@ namespace Trade_Log
 	//
 	void State::completed(void)
 	{
+		// TODO temporary code dlete in a bit - pick up the old version of the option
+		if (enable_trade_log && (trade_log_mode == TRADE_LOG_NONE))
+		{
+			enable_trade_log = 0;
+			set_var_unsaved("enable_trade_log", INI_FILE_VAR);
+			trade_log_mode = TRADE_LOG_CONSOLE;
+			set_var_unsaved("trade_log_mode", INI_FILE_VAR);
+		}
+		
 		if ((trade_log_mode == TRADE_LOG_NONE) || (the_state != TLS_EXIT))
 		{
 			init();
@@ -194,6 +204,7 @@ static Trade_Log::State the_log;
 extern "C"
 {
 	static int enable_local_debug = 0;
+	int enable_trade_log = 0; // TODO temporary code delete in a bit - this is a hiden option
 	int trade_log_mode = TRADE_LOG_NONE; // The config window option to enable the trade log
 	void trade_accepted(const char *name, const trade_item *yours, const trade_item *others, int max_items)
 		{ if (enable_local_debug) printf("%s\n", __FUNCTION__); the_log.accepted(name, yours, others, max_items); }

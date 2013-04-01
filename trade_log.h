@@ -9,6 +9,7 @@ extern "C" {
 
 // The trade log mode, set by the options window, as described in the enum
 extern int trade_log_mode;
+extern int enable_trade_log;	// TODO temporary code delete in a bit - this is a hiden option
 enum { TRADE_LOG_NONE = 0, TRADE_LOG_CONSOLE, TRADE_LOG_FILE, TRADE_LOG_BOTH };
 
 /**
