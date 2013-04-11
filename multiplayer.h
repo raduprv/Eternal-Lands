@@ -38,6 +38,8 @@ extern short real_game_second; /*!< the real game second */
 
 extern time_t last_heart_beat; /*!< a timestamp that inidicates when the last message was sent to the server */
 
+extern time_t last_save_time; /*!< a timestamp inidicating the last #save */
+
 extern int log_conn_data; /*!< indicates whether we should log connection data or not */
 
 extern char inventory_item_string[300]; /*!< the last inventory text string */

@@ -591,6 +591,9 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		else if (strstr(text_to_add+1, "Trade session failed")) {
 			trade_aborted(text_to_add+1);
 		}
+		else if (strstr(text_to_add+1, "You have been saved!")) {
+			last_save_time = time(NULL);
+		}
 		
 	} else if (channel == CHAT_LOCAL) {
 		if (harvesting && my_strncompare(text_to_add+1, username_str, strlen(username_str))) {

@@ -536,7 +536,7 @@ int aliases_command ( char *text, int len)
 	char alias_temp[128+6]; /* 128 chars of alias + at most '#100 ' */
     size_t templen;
 
-	LOG_TO_CONSOLE(c_green1, "List of current text alias:");
+	LOG_TO_CONSOLE(c_green1, "List of current text aliases:");
 	for (i=0; i<100; i++) {
 		if (NULL!=numeric_aliases[i]) {
 			sprintf(alias_temp, "#%d ", i);

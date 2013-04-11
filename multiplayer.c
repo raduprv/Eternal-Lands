@@ -74,6 +74,7 @@ int in_data_used=0;
 int tcp_out_loc= 0;
 int previously_logged_in= 0;
 time_t last_heart_beat;
+time_t last_save_time;
 int always_pathfinding = 0;
 char inventory_item_string[300] = {0};
 size_t inventory_item_string_id = 0;
@@ -794,6 +795,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				load_channel_colors();
 				send_video_info();
 				previously_logged_in=1;
+				last_save_time= time(NULL);
 
 			// Print the game date cos its pretty (its also needed for SKY_FPV to set moons for signs, wonders, times and seasons)
 			command_date("", 0);

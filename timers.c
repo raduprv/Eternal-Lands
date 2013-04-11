@@ -148,6 +148,14 @@ Uint32 check_misc(Uint32 interval, void * data)
 		send_heart_beat();
 	}
 
+	//time to auto-save?
+	if(!disconnected && get_our_actor() && last_save_time+5000 <= time(NULL))
+	{
+		char command[] = "#save";
+		last_save_time = time(NULL);  // avoid double-save due to slow connection
+		test_for_console_command(command, strlen(command));
+	}
+
 	//AFK?
 	if(!disconnected && afk_time)
 	{
