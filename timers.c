@@ -153,7 +153,7 @@ Uint32 check_misc(Uint32 interval, void * data)
 	{
 		char command[] = "#save";
 		last_save_time = time(NULL);  // avoid double-save due to slow connection
-		test_for_console_command(command, strlen(command));
+		//test_for_console_command(command, strlen(command));
 	}
 
 	//AFK?
