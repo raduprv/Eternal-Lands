@@ -74,6 +74,16 @@ void go_ifk(void);
 
 /*!
  * \ingroup actor_utils
+ * \brief Check for afk state changes and action change.
+ *
+ *      Check for afk state changes and action change.
+ *
+ * \callgraph
+ */
+void check_afk_state(void);
+
+/*!
+ * \ingroup actor_utils
  * \brief Adds the given message up to the speciifed length to the PM log.
  *
  *      Adds the given message msg, up to the specified length len to the PM log.

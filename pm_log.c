@@ -64,6 +64,25 @@ void go_ifk()
 	afk=0;
 }
 
+void check_afk_state(void)
+{
+	//AFK?
+	if(!disconnected && afk_time)
+	{
+		if(cur_time-last_action_time>afk_time) 
+		{
+			if(!afk)
+			{
+				go_afk();
+			}
+		}
+		else if(afk)
+		{
+			go_ifk();
+		}
+	}
+}
+
 void print_title(char * no, char * name, char * messages)
 {
 	char * ptr = afk_title;

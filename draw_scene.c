@@ -17,6 +17,7 @@
 #include "multiplayer.h"
 #include "new_actors.h"
 #include "new_character.h"
+#include "pm_log.h"
 #include "shadows.h"
 #include "skeletons.h"
 #include "sky.h"
@@ -168,6 +169,8 @@ void draw_scene()
 			check_harvesting_effect();
 			/* check for and possibly do auto save */
 			auto_save_local_and_server();
+			/* action on afk state changes */
+			check_afk_state();
 			/* until next time */
 			last_half_second_timer = current_time;
 		}

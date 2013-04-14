@@ -140,7 +140,6 @@ Uint32 check_misc(Uint32 interval, void * data)
 #ifdef TIMER_CHECK
 	misc_timer_clock=SDL_GetTicks();//This isn't accurate, but it's not needed here...
 #endif
-	
 
 	//should we send the heart beat?
 	if(!disconnected && last_heart_beat+25 <= time(NULL))
@@ -148,22 +147,6 @@ Uint32 check_misc(Uint32 interval, void * data)
 		send_heart_beat();
 	}
 
-	//AFK?
-	if(!disconnected && afk_time)
-	{
-		if(cur_time-last_action_time>afk_time) 
-		{
-			if(!afk)
-			{
-				go_afk();
-			}
-		}
-		else if(afk)
-		{
-			go_ifk();
-		}
-	}
-	
 	if(countdown>0)
 	{
 		countdown --;
