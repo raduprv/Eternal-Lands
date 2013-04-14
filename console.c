@@ -1612,6 +1612,20 @@ int save_local_data(char * text, int len){
 }
 
 
+//	On a regular basis, send the "#save" command to the server and save local data.
+//
+void auto_save_local_and_server(void)
+{
+	time_t time_delta = 60 * 90;
+	if(!disconnected && get_our_actor() && ((last_save_time + time_delta) <= time(NULL)))
+	{
+		last_save_time = time(NULL);
+		save_local_data(NULL, 0);
+		send_input_text_line("#save", 5);
+	}
+}
+
+
 /* show counters for this session */
 static int session_counters(char *text, int len)
 {

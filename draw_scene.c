@@ -4,6 +4,7 @@
 #include "draw_scene.h"
 #include "bbox_tree.h"
 #include "cal.h"
+#include "console.h"
 #include "cursors.h"
 #include "elwindows.h"
 #include "gamewin.h"
@@ -150,10 +151,28 @@ void draw_scene()
 	
 	SDL_GL_SwapBuffers();
 	CHECK_GL_ERRORS();
-	
-	/* start or stop the harvesting effect depending on harvesting state */
-	check_harvesting_effect();
-	
+
+	/* stuff to do not every frame, twice a second is fine */
+	{
+		static Uint32 last_half_second_timer = 0;
+		static int first_time = 1;
+		Uint32 current_time = SDL_GetTicks();
+		if (first_time)
+		{
+			last_half_second_timer = current_time;
+			first_time = 0;
+		}
+		if ((current_time - last_half_second_timer) > 500u)
+		{
+			/* start or stop the harvesting effect depending on harvesting state */
+			check_harvesting_effect();
+			/* check for and possibly do auto save */
+			auto_save_local_and_server();
+			/* until next time */
+			last_half_second_timer = current_time;
+		}
+	}
+
 	if (draw_delay > 0)
 	{
 		SDL_Delay (draw_delay);
