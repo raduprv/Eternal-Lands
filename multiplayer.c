@@ -797,13 +797,14 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				previously_logged_in=1;
 				last_save_time= time(NULL);
 
-			// Print the game date cos its pretty (its also needed for SKY_FPV to set moons for signs, wonders, times and seasons)
-			command_date("", 0);
-			// print the game time in order to get the seconds for the SKY_FPV feature
-			command_time("", 0);
-			safe_snprintf(str, sizeof(str), "%c#il", RAW_TEXT);
-		        my_tcp_send(my_socket, (Uint8*)str, strlen(str+1)+1);
-			break;
+				// Print the game date cos its pretty (its also needed for SKY_FPV to set moons for signs, wonders, times and seasons)
+				command_date("", 0);
+				// print the game time in order to get the seconds for the SKY_FPV feature
+				command_time("", 0);
+				// print the invading monster count
+				safe_snprintf(str, sizeof(str), "%c#il", RAW_TEXT);
+				my_tcp_send(my_socket, (Uint8*)str, strlen(str+1)+1);
+				break;
 			}
 
 		case HERE_YOUR_STATS:
