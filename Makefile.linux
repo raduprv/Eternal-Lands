@@ -10,7 +10,9 @@ CXXFLAGS=$(PLATFORM) $(CXXWARN) -O0 -ggdb -pipe $(OPTIONS) $(shell sdl-config --
 _CXXFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags) -fno-strict-aliasing $(EXTRA_INCLUDES)
 
 PNG_SCREENSHOT_LIBS = -lpng
-LDFLAGS=$(shell sdl-config --libs) $(shell xml2-config --libs) -lSDL_net -lSDL_image -lopenal $(XDIR) -lGL -lGLU -lcal3d -lm $(EXTRA_LIBS) -lz -lpng -lvorbis -lvorbisfile \
+LDFLAGS=$(shell sdl-config --libs) $(shell xml2-config --libs) -lSDL_net \
+	-lSDL_image -lopenal $(XDIR) -lGL -lGLU -lcal3d -lm $(EXTRA_LIBS) \
+	-lz -lpng -lvorbis -lvorbisfile -lstdc++ -lX11 \
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_LIBS))
 _LDFLAGS=$(XDIR) -lGL -lpthread -lstdc++
 
