@@ -388,6 +388,7 @@ void increment_counter(int counter_id, const char *name, int quantity, int extra
 	if (new_entry) {
 		/* Create a new entry. */
 		j = entries[i]++;
+		last_selected_counter_id = -1;  /* force recalculation of the scrollbar */
 		counters[i] = realloc(counters[i], entries[i] * sizeof(struct Counter));
 		counters[i][j].name = strdup(name);
 		counters[i][j].n_session = quantity;
