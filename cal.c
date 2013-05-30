@@ -239,21 +239,21 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 	if(anim.anim_index==-1){
         attachment_props *att_props;
 		if(	pActor->sitting==1 ){
-			//we dont have sittng anim so cancel it
+			//we dont have sitting anim so cancel it
 			pActor->sitting=0;
 		}
 		pActor->stop_animation=0;
-        att_props = get_attachment_props_if_held(pActor);
+		att_props = get_attachment_props_if_held(pActor);
 		if (att_props)
 		{
 			anim.anim_index = att_props->cal_frames[cal_attached_idle_frame].anim_index;
-			anim.duration = att_props->cal_frames[cal_attached_idle_frame].duration;
+			anim.duration = 0.5; // we're not really idle, so only play a short version as placeholder
 			anim.duration_scale = att_props->cal_frames[cal_attached_idle_frame].duration_scale;
 		}
 		else
 		{
 			anim.anim_index = actors_defs[pActor->actor_type].cal_frames[cal_actor_idle1_frame].anim_index;
-			anim.duration = actors_defs[pActor->actor_type].cal_frames[cal_actor_idle1_frame].duration;
+			anim.duration = 0.5; // we're not really idle, so only play a short version as placeholder
 			anim.duration_scale = actors_defs[pActor->actor_type].cal_frames[cal_actor_idle1_frame].duration_scale;
 		}
 		anim.kind = cycle;
