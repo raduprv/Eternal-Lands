@@ -831,6 +831,7 @@ int command_unmark(char *text, int len)
 				char str[512];
 				marks[i].x = marks[i].y = -1;
 				save_markings();
+				load_map_marks(); // simply to compact the array and make room for new marks
 				safe_snprintf(str, sizeof(str), unmarked_str, marks[i].text);
 				LOG_TO_CONSOLE(c_orange1, str);
 				break;

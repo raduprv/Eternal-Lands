@@ -1334,6 +1334,8 @@ void delete_mark_on_map_on_mouse_position()
 	}
 
 	save_markings();
+	load_map_marks(); // simply to compact the array and make room for new marks
+
 }
 
 
