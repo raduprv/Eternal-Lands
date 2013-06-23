@@ -627,7 +627,7 @@ static Uint32 check_server_digest_file(const char* file, FILE* tmp_file,
 	{
 		fseek(tmp_file, 0, SEEK_SET);
 
-		memset(buffer, 0, sizeof(buffer));
+		memset(buffer, 0, size);
 
 		result = fread(buffer, digest_size, 1, tmp_file);
 
