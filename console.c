@@ -38,6 +38,7 @@
 #include "url.h"
 #include "command_queue.h"
 #include "counters.h"
+#include "map.h"
 #include "minimap.h"
 #include "errors.h"
 #include "io/elpathwrapper.h"
