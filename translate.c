@@ -703,6 +703,8 @@ char	reg_error_str[15],
 	dc_note_remove[50],
 	note_saved[50],
 	note_save_failed[50],
+	/* encyclopedia */
+	cant_load_encycl[70],
 	/* text.c */
 	warn_currently_ignoring[50];
 #else
@@ -1166,6 +1168,8 @@ void init_errors()
 	add_xml_identifier(load,"nomorenotes",user_no_more_notes,"No room for more notes.",sizeof(user_no_more_notes));
 	add_xml_identifier(load,"nomorenotetabs",user_no_more_note_tabs,"No room for more note tabs.",sizeof(user_no_more_note_tabs));
 	add_xml_identifier(load,"fataldataerror",fatal_data_error,"Fatal error while loading data files. Either set the data_dir correctly or run from the data directory.",sizeof(fatal_data_error));
+	add_xml_identifier(load,"encyclerror",cant_load_encycl,"Failed to load encyclopedia, check your installation.",sizeof(cant_load_encycl));
+
 
 	//Miscellaneous errors
 	add_xml_identifier(misc,"no_walk_sitlock",no_walk_with_sitlock,"Sitlock is enabled. Disable it or stand before walking.",sizeof(no_walk_with_sitlock));
