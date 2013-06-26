@@ -18,6 +18,7 @@
 #include "init.h"
 #include "interface.h"
 #include "items.h"
+#include "item_info.h"
 #include "keys.h" //Avoid problems with SHIFT, ALT, CTRL
 #include "knowledge.h"
 #include "manufacture.h"
@@ -1870,6 +1871,27 @@ CHECK_GL_ERRORS();
 
 int last_type=0;
 
+static void quickbar_item_description_help(window_info *win, int pos)
+{
+	Uint16 item_id = item_list[pos].id;
+	int image_id = item_list[pos].image_id;
+	if (show_item_desc_text && item_info_available() && (get_item_count(item_id, image_id) == 1))
+	{
+		const char *str = get_item_description(item_id, image_id);
+		if (str != NULL)
+		{
+			int xpos = 0;
+			int ypos = -(5 + SMALL_FONT_Y_LEN + (quickbar_draggable * ELW_TITLE_HEIGHT));
+			int len_str = (strlen(str) + 1) * SMALL_FONT_X_LEN;
+			if ((ypos + win->cur_y) < 0)
+				ypos = win->len_y + 5;
+			if ((xpos + len_str + win->cur_x) > window_width)
+				xpos = window_width - win->cur_x - len_str;
+			show_help(str, xpos, ypos);
+		}
+	}
+}
+
 int mouseover_quickbar_handler(window_info *win, int mx, int my) {
 	int y,i=0;
 	int x_screen,y_screen;
@@ -1899,6 +1921,7 @@ int mouseover_quickbar_handler(window_info *win, int mx, int my) {
 								} else {
 									elwin_mouse=CURSOR_PICK;
 								}
+								quickbar_item_description_help(win, i);
 								return 1;
 							}
 					}
