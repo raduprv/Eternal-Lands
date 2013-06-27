@@ -1616,6 +1616,7 @@ int mouseover_misc_handler(window_info *win, int mx, int my)
 
 /* #define as these numbers are used many times */
 #define DEF_QUICKBAR_X_LEN 30
+#define DEF_QUICKBAR_Y_LEN 30
 #define DEF_QUICKBAR_X (DEF_QUICKBAR_X_LEN+4)
 #define DEF_QUICKBAR_Y 64
 
@@ -1631,7 +1632,7 @@ static int last_num_quickbar_slots = 6;
 // return the window y len based on the number of slots
 int get_quickbar_y_len(void)
 {
-	return num_quickbar_slots * 30 + 1;
+	return num_quickbar_slots * DEF_QUICKBAR_Y_LEN + 1;
 }
 
 // check if key is one of the item keys and use it if so.
@@ -1757,7 +1758,7 @@ int	display_quickbar_handler(window_info *win)
 					
 			x_start= 2;
 			x_end= x_start+27;
-			y_start= 30*(cur_pos%num_quickbar_slots)+2;
+			y_start= DEF_QUICKBAR_Y_LEN*(cur_pos%num_quickbar_slots)+2;
 			y_end= y_start+27;
 
 			if(quickbar_dir != VERTICAL)
@@ -1848,16 +1849,16 @@ int	display_quickbar_handler(window_info *win)
 		{
 			for(y=1;y<num_quickbar_slots;y++)
 				{
-					glVertex3i(0, y*30+1, 0);
-					glVertex3i(quickbar_x_len, y*30+1, 0);
+					glVertex3i(0, y*DEF_QUICKBAR_Y_LEN+1, 0);
+					glVertex3i(quickbar_x_len, y*DEF_QUICKBAR_Y_LEN+1, 0);
 				}
 		}
 	else
 		{
 			for(y=1;y<num_quickbar_slots;y++)
 				{
-					glVertex3i(y*30+1, 0, 0);
-					glVertex3i(y*30+1, quickbar_x_len, 0);
+					glVertex3i(y*DEF_QUICKBAR_Y_LEN+1, 0, 0);
+					glVertex3i(y*DEF_QUICKBAR_Y_LEN+1, quickbar_x_len, 0);
 				}
 		}
 	glEnd();
@@ -1871,7 +1872,7 @@ CHECK_GL_ERRORS();
 
 int last_type=0;
 
-static void quickbar_item_description_help(window_info *win, int pos)
+static void quickbar_item_description_help(window_info *win, int pos, int slot)
 {
 	Uint16 item_id = item_list[pos].id;
 	int image_id = item_list[pos].image_id;
@@ -1880,13 +1881,28 @@ static void quickbar_item_description_help(window_info *win, int pos)
 		const char *str = get_item_description(item_id, image_id);
 		if (str != NULL)
 		{
-			int xpos = 0;
-			int ypos = -(5 + SMALL_FONT_Y_LEN + (quickbar_draggable * ELW_TITLE_HEIGHT));
+			int xpos, ypos = 0;
 			int len_str = (strlen(str) + 1) * SMALL_FONT_X_LEN;
-			if ((ypos + win->cur_y) < 0)
+			/* vertical place right (or left) and aligned with slot */
+			if (quickbar_dir==VERTICAL)
+			{
+				xpos = win->len_x + 5;
+				if ((xpos + len_str + win->cur_x) > window_width)
+					xpos = -len_str;
+				ypos = slot * DEF_QUICKBAR_Y_LEN + (DEF_QUICKBAR_Y_LEN - SMALL_FONT_Y_LEN) / 2;
+			}
+			/* horizontal place right at bottom (or top) of window */
+			else
+			{
+				xpos = 0;
 				ypos = win->len_y + 5;
-			if ((xpos + len_str + win->cur_x) > window_width)
-				xpos = window_width - win->cur_x - len_str;
+				if ((xpos + len_str + win->cur_x) > window_width)
+					xpos = window_width - win->cur_x - len_str;
+				if ((xpos + win->cur_x) < 0)
+					xpos = -win->cur_x + 5;
+				if ((ypos + SMALL_FONT_Y_LEN + win->cur_y) > window_height)
+					ypos = -(5 + SMALL_FONT_Y_LEN + (quickbar_draggable * ELW_TITLE_HEIGHT));
+			}
 			show_help(str, xpos, ypos);
 		}
 	}
@@ -1900,14 +1916,14 @@ int mouseover_quickbar_handler(window_info *win, int mx, int my) {
 			if(quickbar_dir==VERTICAL)
 				{
 					x_screen=0;
-					y_screen=y*30;
+					y_screen=y*DEF_QUICKBAR_Y_LEN;
 				}
 			else
 				{
-					x_screen=y*30;
+					x_screen=y*DEF_QUICKBAR_Y_LEN;
 					y_screen=0;
 				}
-			if(mx>x_screen && mx<x_screen+30 && my>y_screen && my<y_screen+30)
+			if(mx>x_screen && mx<x_screen+DEF_QUICKBAR_Y_LEN && my>y_screen && my<y_screen+DEF_QUICKBAR_Y_LEN)
 				{
 					for(i=0;i<ITEM_NUM_ITEMS;i++){
 						if(item_list[i].quantity && item_list[i].pos==y)
@@ -1921,7 +1937,7 @@ int mouseover_quickbar_handler(window_info *win, int mx, int my) {
 								} else {
 									elwin_mouse=CURSOR_PICK;
 								}
-								quickbar_item_description_help(win, i);
+								quickbar_item_description_help(win, i, y);
 								return 1;
 							}
 					}
@@ -1978,14 +1994,14 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 			if(quickbar_dir==VERTICAL)
 				{
 					x_screen=0;
-					y_screen=y*30;
+					y_screen=y*DEF_QUICKBAR_Y_LEN;
 				}
 			else
 				{
-					x_screen=y*30;
+					x_screen=y*DEF_QUICKBAR_Y_LEN;
 					y_screen=0;
 				}
-			if(mx>x_screen && mx<x_screen+30 && my>y_screen && my<y_screen+30)
+			if(mx>x_screen && mx<x_screen+DEF_QUICKBAR_Y_LEN && my>y_screen && my<y_screen+DEF_QUICKBAR_Y_LEN)
 				{
 					//see if there is an empty space to drop this item over.
 					if(item_dragged!=-1)//we have to drop this item
