@@ -2,6 +2,7 @@
 #include <string.h>
 #include <SDL_endian.h>
 #include "context_menu.h"
+#include "console.h"
 #include "elconfig.h"
 #include "dialogues.h"
 #include "asc.h"
@@ -21,6 +22,7 @@
 
 unsigned char dialogue_string[2048];
 unsigned char npc_name[20] = "";
+char npc_mark_str[20] = "%s (npc)";
 int cur_portrait=8;
 int portraits_tex[MAX_PORTRAITS_TEXTURES];
 
@@ -639,12 +641,17 @@ static int cm_dialogue_repeat_handler(window_info *win, int widget_id, int mx, i
 static int cm_npcname_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
 	if (option == 0)
-	{
 		copy_to_clipboard((const char *)npc_name);
-		return 1;
+	else if (option == 1)
+	{
+		char str[80];
+		safe_snprintf(str, sizeof(str), npc_mark_str, npc_name);
+		command_unmark_special(str, strlen(str), 0);
+		command_mark(str, strlen(str));
 	}
 	else
 		return 0;
+	return 1;
 }
 
 void display_dialogue()

@@ -344,7 +344,7 @@ char
 	cm_url_menu_str[150],
 	cm_counters_menu_str[160],
 	cm_help_options_str[50],
-	cm_npcname_menu_str[50],
+	cm_npcname_menu_str[60],
 	cm_dialog_copy_menu_str[50],
 	cm_minimap_menu_str[60],
 	cm_user_menu_str[150],
@@ -1581,8 +1581,8 @@ void init_help()
 	add_xml_identifier(misc, "cm_url_menu", cm_url_menu_str, "Open\nFind In Console\nMark Visited\nMark Unvisited\n--\nDelete\n--\nDelete All", sizeof(cm_url_menu_str));	
 	add_xml_identifier(misc, "cm_counters_menu", cm_counters_menu_str, "Delete Entry\n--\nReset Session Total\n--\nEnable Floating Messages For Category\n--\nPrint Category\nPrint All Categories\nPrint Just Session Information", sizeof(cm_counters_menu_str));
 	add_xml_identifier(misc, "cm_help_options", cm_help_options_str, "Right-click for options.", sizeof(cm_help_options_str));
-	add_xml_identifier(misc, "cm_npcname_menu", cm_npcname_menu_str, "Copy NPC Name", sizeof(cm_npcname_menu_str));
-	add_xml_identifier(misc, "cm_dialog_copy_menu", cm_dialog_copy_menu_str, "Exclude Responses\nRemove newlines", sizeof(cm_dialog_copy_menu_str));
+	add_xml_identifier(misc, "cm_npcname_menu", cm_npcname_menu_str, "Copy NPC Name\nSet Map Mark", sizeof(cm_npcname_menu_str));
+	add_xml_identifier(misc, "cm_dialog_copy_menu", cm_dialog_copy_menu_str, "Exclude Responses\nRemove Newlines", sizeof(cm_dialog_copy_menu_str));
 	add_xml_identifier(misc, "cm_minimap_menu", cm_minimap_menu_str, "--\nRotate Minimap\nPin Minimap\nOpen On Start", sizeof(cm_minimap_menu_str));
 	add_xml_identifier(misc, "cm_user_menu", cm_user_menu_str, "--\nShow Title\nDraw Border\nSmall Font\nStandard Menus\n--\nShow Commands\n--\nReload Menus\nDisable Menus", sizeof(cm_user_menu_str));
 	add_xml_identifier(misc, "cm_item_list_selected", cm_item_list_selected_str, "Edit quantity\n--\nDelete", sizeof(cm_item_list_selected_str));

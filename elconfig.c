@@ -27,6 +27,7 @@
  #include "chat.h"
  #include "console.h"
  #include "counters.h"
+ #include "dialogues.h"
  #include "draw_scene.h"
  #include "errors.h"
  #include "elwindows.h"
@@ -1892,6 +1893,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_INT,"num_quickbar_slots","numqbslots",&num_quickbar_slots,change_int,6,"Number Of Quickbar Slots","Set the number of quickbar slots (both inventory & spells) displayed. May be automatically reduced for low resolutions",HUD,1,MAX_QUICKBAR_SLOTS);
 	add_var(OPT_INT,"max_food_level","maxfoodlevel",&max_food_level,change_int,45,"Maximum Food Level", "Set the maximum value displayed by the food level bar.",HUD,10,200);
 	add_var(OPT_INT,"wanted_num_recipe_entries","wantednumrecipeentries",&wanted_num_recipe_entries,change_num_recipe_entries,10,"Number of receipe entries", "Sets the number of entries available for the manufacturing window stored recipes.",HUD,4,max_num_recipe_entries);
+	add_var(OPT_STRING,"npc_mark_template","npcmarktemplate",npc_mark_str,change_string,sizeof(npc_mark_str)-1,"NCP map mark template","The template used when setting a map mark from the NPC dialogue (right click name). The %s is substituted for the NPC name.",HUD);
 	add_var(OPT_BOOL,"3d_map_markers","3dmarks",&marks_3d,change_3d_marks,1,"Enable 3D Map Markers","Shows user map markers in the game window",HUD);
 	add_var(OPT_BOOL,"item_window_on_drop","itemdrop",&item_window_on_drop,change_var,1,"Item Window On Drop","Toggle whether the item window shows when you drop items",HUD);
 	add_var(OPT_FLOAT,"minimap_scale", "minimapscale", &minimap_size_coefficient, change_minimap_scale, 0.7, "Minimap Scale", "Adjust the overall size of the minimap", HUD, 0.5, 1.5, 0.1);

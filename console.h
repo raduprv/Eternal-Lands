@@ -70,6 +70,8 @@ int save_local_data(char * text, int len);
 
 int command_time(char *text, int len);
 int command_date(char *text, int len);
+int command_mark(char *text, int len);
+int command_unmark_special(char *text, int len, int do_log);
 
 void new_minute_console(void);
 

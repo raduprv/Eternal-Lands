@@ -20,6 +20,7 @@ extern "C" {
 extern unsigned char dialogue_string[2048]; /*!< buffer for strings in a dialogue */
 extern unsigned char npc_name[20]; /*!< buffer for the NPCs name */
 extern int cur_portrait; /*!< pointer to the portrait used by a particular NPC */
+extern char npc_mark_str[20]; /*!< npc location in map mark - the template (print format) string used */
 
 /*!
  * \name portrait textures
