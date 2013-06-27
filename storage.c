@@ -513,6 +513,7 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 		
 				cat=(my-20)/13 + vscrollbar_get_pos(storage_win, STORAGE_SCROLLBAR_CATEGORIES);
 				move_to_category(cat);
+				do_click_sound();
 			} else if(mx>150 && mx<352){
 				if(view_only_storage && item_dragged!=-1 && left_click){
 					drop_fail_time = SDL_GetTicks();
@@ -541,6 +542,7 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 						my_tcp_send(my_socket, str, 3);
 	
 						active_storage_item=storage_items[cur_item_over].pos;
+						do_click_sound();
 					}
 				} else if(!view_only_storage && cur_item_over!=-1){
 					storage_item_dragged=cur_item_over;
