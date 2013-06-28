@@ -1881,7 +1881,7 @@ static void quickbar_item_description_help(window_info *win, int pos, int slot)
 		const char *str = get_item_description(item_id, image_id);
 		if (str != NULL)
 		{
-			int xpos, ypos = 0;
+			int xpos = 0, ypos = 0;
 			int len_str = (strlen(str) + 1) * SMALL_FONT_X_LEN;
 			/* vertical place right (or left) and aligned with slot */
 			if (quickbar_dir==VERTICAL)
