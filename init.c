@@ -47,6 +47,7 @@
 #include "astrology.h"
 #include "mapwin.h"
 #include "missiles.h"
+#include "named_colours.h"
 #include "new_actors.h"
 #include "openingwin.h"
 #include "particles.h"
@@ -761,6 +762,9 @@ void init_stuff()
 	// never used otherwise, then move it down till after the configuration
 	// is read.
 	init_chat_channels ();
+
+	// load the named colours for the elgl-Colour-() functions
+	init_named_colours();
 
 	// initialize the fonts, but don't load the textures yet. Do that here
 	// because the messages need the font widths.
