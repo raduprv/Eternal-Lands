@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<named_colours>
+
+<!-- Mini Map Blob Colours -->
+<colour name="minimap.npc" r="0.0" g="0.0" b="1.0"/>
+<colour name="minimap.yourself" r="0.0" g="1.0" b="0.0"/>
+<colour name="minimap.pkable" r="1.0" g="0.0" b="0.0"/>
+<colour name="minimap.buddy" r="0.0" g="0.9" b="1.0"/>
+<colour name="minimap.deadcreature" r="0.8" g="0.8" b="0.0"/>
+<colour name="minimap.creature" r="1.0" g="1.0" b="0.0"/>
+<colour name="minimap.mine" r="0.15" g="0.65" b="0.45"/>
+<colour name="minimap.servermark" r="0.33" g="0.6" b="1.0"/>
+<colour name="minimap.otherplayer" r="1.0" g="1.0" b="1.0"/>
+
+<!-- Alpha can be specified too
+<colour name="test" r="1.0" g="1.0" b="1.0" a="1.0"/>
+-->
+
+</named_colours>
+
+
