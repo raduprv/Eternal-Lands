@@ -74,6 +74,8 @@ extern int cons_text;
 extern int icons_text;
 extern int hud_text;
 
+extern int ranging_lock;
+
 /*!
  * A flag for a mode, that show whether a mode is supported and/or selected.
  */

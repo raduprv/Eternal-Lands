@@ -89,7 +89,7 @@ int cursors_tex;
 extern int e3d_count, e3d_total;    // LRNR:stats testing only
 #endif  //DEBUG
 int cm_banner_disabled = 0;
-static int ranging_lock = 0;
+int ranging_lock = 0;
 
 void draw_special_cursors()
 {
