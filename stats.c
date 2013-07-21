@@ -30,6 +30,8 @@ int check_grid_x_left=0;
 
 int have_stats=0;
 
+struct stats_struct statsinfo[NUM_SKILLS];
+
 #define MAX_NUMBER_OF_FLOATING_MESSAGES 25
 
 typedef struct {
@@ -354,18 +356,21 @@ void get_partial_stat(Uint8 name,Sint32 value)
                         your_info.food_level=value;break;
                 case MAN_EXP:
                         floatingmessages_compare_stat(yourself, your_info.manufacturing_exp, value, attributes.manufacturing_skill.shortname);
+                        set_last_skill_exp(SI_MAN, value-your_info.manufacturing_exp);
                         increment_manufacturing_counter();
                         your_info.manufacturing_exp=value;
                         break;
                 case MAN_EXP_NEXT:
                         your_info.manufacturing_exp_next_lev=value;break;
                 case HARV_EXP:
+                        set_last_skill_exp(SI_HAR, value-your_info.harvesting_exp);
 						floatingmessages_compare_stat(yourself, your_info.harvesting_exp, value, attributes.harvesting_skill.shortname);
                         your_info.harvesting_exp=value;
                         break;
                 case HARV_EXP_NEXT:
                         your_info.harvesting_exp_next_lev=value;break;
                 case ALCH_EXP:
+                        set_last_skill_exp(SI_ALC, value-your_info.alchemy_exp);
                         floatingmessages_compare_stat(yourself, your_info.alchemy_exp, value, attributes.alchemy_skill.shortname);
                         increment_alchemy_counter();
                         your_info.alchemy_exp=value;
@@ -373,28 +378,33 @@ void get_partial_stat(Uint8 name,Sint32 value)
                 case ALCH_EXP_NEXT:
                         your_info.alchemy_exp_next_lev=value;break;
                 case OVRL_EXP:
+                        set_last_skill_exp(SI_ALL, value-your_info.overall_exp);
                         your_info.overall_exp=value;break;
                 case OVRL_EXP_NEXT:
                         your_info.overall_exp_next_lev=value;break;
                 case DEF_EXP:
+                        set_last_skill_exp(SI_DEF, value-your_info.defense_exp);
                         floatingmessages_compare_stat(yourself, your_info.defense_exp, value, attributes.defense_skill.shortname);
                         your_info.defense_exp=value;
                         break;
                 case DEF_EXP_NEXT:
                         your_info.defense_exp_next_lev=value;break;
                 case ATT_EXP:
+                        set_last_skill_exp(SI_ATT, value-your_info.attack_exp);
                         floatingmessages_compare_stat(yourself, your_info.attack_exp, value, attributes.attack_skill.shortname);
                         your_info.attack_exp=value;
                         break;
                 case ATT_EXP_NEXT:
                         your_info.attack_exp_next_lev=value;break;
                 case MAG_EXP:
+                        set_last_skill_exp(SI_MAG, value-your_info.magic_exp);
                         floatingmessages_compare_stat(yourself, your_info.magic_exp, value, attributes.magic_skill.shortname);
                         your_info.magic_exp=value;
                         break;
                 case MAG_EXP_NEXT:
                         your_info.magic_exp_next_lev=value;break;
                 case POT_EXP:
+                        set_last_skill_exp(SI_POT, value-your_info.potion_exp);
                         floatingmessages_compare_stat(yourself, your_info.potion_exp, value, attributes.potion_skill.shortname);
                         increment_potions_counter();
                         your_info.potion_exp=value;
@@ -402,6 +412,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
                 case POT_EXP_NEXT:
                         your_info.potion_exp_next_lev=value;break;
                 case SUM_EXP:
+                        set_last_skill_exp(SI_SUM, value-your_info.summoning_exp);
                         floatingmessages_compare_stat(yourself, your_info.summoning_exp, value, attributes.summoning_skill.shortname);
                         increment_summon_manu_counter();
                         your_info.summoning_exp=value;
@@ -421,6 +432,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
                         }
                         your_info.summoning_skill.base=value;break;
                 case CRA_EXP:
+                        set_last_skill_exp(SI_CRA, value-your_info.crafting_exp);
                         floatingmessages_compare_stat(yourself, your_info.crafting_exp, value, attributes.crafting_skill.shortname);
                         increment_crafting_counter();
                         your_info.crafting_exp=value;
@@ -441,6 +453,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
                         }
                         your_info.crafting_skill.base=value;break;
                 case ENG_EXP:
+                        set_last_skill_exp(SI_ENG, value-your_info.engineering_exp);
                         floatingmessages_compare_stat(yourself, your_info.engineering_exp, value, attributes.engineering_skill.shortname);
                         increment_engineering_counter();
                         your_info.engineering_exp=value;
@@ -461,6 +474,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
                         }
                         your_info.engineering_skill.base=value;break;
                 case TAIL_EXP:
+                        set_last_skill_exp(SI_TAI, value-your_info.tailoring_exp);
                         floatingmessages_compare_stat(yourself, your_info.tailoring_exp, value, attributes.tailoring_skill.shortname);
                         increment_tailoring_counter();
                         your_info.tailoring_exp=value;
@@ -482,6 +496,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
                         your_info.tailoring_skill.base=value;break;
 
                 case RANG_EXP:
+                        set_last_skill_exp(SI_RAN, value-your_info.ranging_exp);
                         floatingmessages_compare_stat(yourself, your_info.ranging_exp, value, attributes.ranging_skill.shortname);
                         your_info.ranging_exp=value;
                         break;
@@ -541,6 +556,78 @@ Sint16 get_cur_dext() { return (your_info.coo.cur+your_info.rea.cur)/2;}
 
 Sint16 get_base_eth() { return (your_info.wil.base+your_info.vit.base)/2;}
 Sint16 get_cur_eth() { return (your_info.wil.cur+your_info.vit.cur)/2;}
+
+
+/* store references to the skills info in an easy to use array */
+void init_statsinfo_array(void)
+{
+	statsinfo[SI_ATT].exp = &your_info.attack_exp;
+	statsinfo[SI_ATT].next_lev = &your_info.attack_exp_next_lev;
+	statsinfo[SI_ATT].skillattr = &your_info.attack_skill;
+	statsinfo[SI_ATT].skillnames = &attributes.attack_skill;
+
+	statsinfo[SI_DEF].exp = &your_info.defense_exp;
+	statsinfo[SI_DEF].next_lev = &your_info.defense_exp_next_lev;
+	statsinfo[SI_DEF].skillattr = &your_info.defense_skill;
+	statsinfo[SI_DEF].skillnames = &attributes.defense_skill;
+
+	statsinfo[SI_HAR].exp = &your_info.harvesting_exp;
+	statsinfo[SI_HAR].next_lev = &your_info.harvesting_exp_next_lev;
+	statsinfo[SI_HAR].skillattr = &your_info.harvesting_skill;
+	statsinfo[SI_HAR].skillnames = &attributes.harvesting_skill;
+
+	statsinfo[SI_ALC].exp = &your_info.alchemy_exp;
+	statsinfo[SI_ALC].next_lev = &your_info.alchemy_exp_next_lev;
+	statsinfo[SI_ALC].skillattr = &your_info.alchemy_skill;
+	statsinfo[SI_ALC].skillnames = &attributes.alchemy_skill;
+
+	statsinfo[SI_MAG].exp = &your_info.magic_exp;
+	statsinfo[SI_MAG].next_lev = &your_info.magic_exp_next_lev;
+	statsinfo[SI_MAG].skillattr = &your_info.magic_skill;
+	statsinfo[SI_MAG].skillnames = &attributes.magic_skill;
+
+	statsinfo[SI_POT].exp = &your_info.potion_exp;
+	statsinfo[SI_POT].next_lev = &your_info.potion_exp_next_lev;
+	statsinfo[SI_POT].skillattr = &your_info.potion_skill;
+	statsinfo[SI_POT].skillnames = &attributes.potion_skill;
+
+	statsinfo[SI_SUM].exp = &your_info.summoning_exp;
+	statsinfo[SI_SUM].next_lev = &your_info.summoning_exp_next_lev;
+	statsinfo[SI_SUM].skillattr = &your_info.summoning_skill;
+	statsinfo[SI_SUM].skillnames = &attributes.summoning_skill;
+
+	statsinfo[SI_MAN].exp = &your_info.manufacturing_exp;
+	statsinfo[SI_MAN].next_lev = &your_info.manufacturing_exp_next_lev;
+	statsinfo[SI_MAN].skillattr = &your_info.manufacturing_skill;
+	statsinfo[SI_MAN].skillnames = &attributes.manufacturing_skill;
+
+	statsinfo[SI_CRA].exp = &your_info.crafting_exp;
+	statsinfo[SI_CRA].next_lev = &your_info.crafting_exp_next_lev;
+	statsinfo[SI_CRA].skillattr = &your_info.crafting_skill;
+	statsinfo[SI_CRA].skillnames = &attributes.crafting_skill;
+
+	statsinfo[SI_ENG].exp = &your_info.engineering_exp;
+	statsinfo[SI_ENG].next_lev = &your_info.engineering_exp_next_lev;
+	statsinfo[SI_ENG].skillattr = &your_info.engineering_skill;
+	statsinfo[SI_ENG].skillnames = &attributes.engineering_skill;
+
+	statsinfo[SI_TAI].exp = &your_info.tailoring_exp;
+	statsinfo[SI_TAI].next_lev = &your_info.tailoring_exp_next_lev;
+	statsinfo[SI_TAI].skillattr = &your_info.tailoring_skill;
+	statsinfo[SI_TAI].skillnames = &attributes.tailoring_skill;
+
+	statsinfo[SI_RAN].exp = &your_info.ranging_exp;
+	statsinfo[SI_RAN].next_lev = &your_info.ranging_exp_next_lev;
+	statsinfo[SI_RAN].skillattr = &your_info.ranging_skill;
+	statsinfo[SI_RAN].skillnames = &attributes.ranging_skill;
+
+	/* always make last as special case for skills modifiers - and best displayed last anyway */
+	statsinfo[SI_ALL].exp = &your_info.overall_exp;
+	statsinfo[SI_ALL].next_lev = &your_info.overall_exp_next_lev;
+	statsinfo[SI_ALL].skillattr = &your_info.overall_skill;
+	statsinfo[SI_ALL].skillnames = &attributes.overall_skill;
+}
+
 
 void init_attribf()
 {

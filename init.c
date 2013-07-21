@@ -1058,6 +1058,8 @@ void init_stuff()
 	//initiate function pointers
 	init_attribf();
 
+	init_statsinfo_array();
+
 	//Read the books for i.e. the new char window
 	init_books();
 
