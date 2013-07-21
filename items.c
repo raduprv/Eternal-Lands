@@ -99,6 +99,7 @@ static size_t cm_dropall_but = CM_INIT_VALUE;
 static size_t cm_mix_but = CM_INIT_VALUE;
 static size_t cm_getall_but = CM_INIT_VALUE;
 static size_t cm_itemlist_but = CM_INIT_VALUE;
+static int mouseover_item_pos = 0;
 
 static void drop_all_handler();
 
@@ -628,10 +629,15 @@ int display_items_handler(window_info *win)
 			
 			if(!item_is_weared){
 				safe_snprintf(str, sizeof(str), "%i", item_list[i].quantity);
-				draw_string_small_shadowed(x_start, (i&1)?(y_end-15):(y_end-25), (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);			}
+				if ((mouseover_item_pos == i) && (SDL_GetModState() & (KMOD_CTRL|KMOD_ALT)))
+					draw_string_shadowed(x_start, (i&1)?(y_end-15):(y_end-25), (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);
+				else
+					draw_string_small_shadowed(x_start, (i&1)?(y_end-15):(y_end-25), (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);
+			}
 		}
 	}
-	
+	mouseover_item_pos = 0;
+
 	//draw the load string
 	if (!use_small_items_window)
 	{
@@ -1140,6 +1146,7 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 					item_help_str = pick_item_help_str;
 				elwin_mouse=CURSOR_PICK;
 			}
+			mouseover_item_pos = pos;
 			
 			return 1;
 		}
