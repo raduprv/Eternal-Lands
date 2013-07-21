@@ -99,7 +99,7 @@ static size_t cm_dropall_but = CM_INIT_VALUE;
 static size_t cm_mix_but = CM_INIT_VALUE;
 static size_t cm_getall_but = CM_INIT_VALUE;
 static size_t cm_itemlist_but = CM_INIT_VALUE;
-static int mouseover_item_pos = 0;
+static int mouseover_item_pos = -1;
 
 static void drop_all_handler();
 
@@ -636,7 +636,7 @@ int display_items_handler(window_info *win)
 			}
 		}
 	}
-	mouseover_item_pos = 0;
+	mouseover_item_pos = -1;
 
 	//draw the load string
 	if (!use_small_items_window)
