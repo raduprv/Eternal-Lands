@@ -24,8 +24,11 @@ static int reconnecting = 0;
 static int last_port = -1;
 static unsigned char last_server_address[60];
 static int show_reset_help = 0;
+static int last_mouse_click_y = -1;
+static int last_mouse_over_y = -1;
 
 static Uint32 session_exp[NUM_SKILLS];
+static Uint32 max_exp[NUM_SKILLS];
 static Uint32 last_exp[NUM_SKILLS];
 
 Uint32 session_start_time;
@@ -44,10 +47,24 @@ static int mouseover_session_reset_handler(void)
 	return 0;
 }
 
+static int click_session_handler(window_info *win, int mx, int my, Uint32 flags)
+{
+	last_mouse_click_y = my;
+	return 1;
+}
+
+static int mouseover_session_handler(window_info *win, int mx, int my)
+{
+	last_mouse_over_y = my;
+	return 1;
+}
+
 void fill_session_win(void)
 {
 	int reset_button_id = -1;
 	set_window_handler(session_win, ELW_HANDLER_DISPLAY, &display_session_handler);
+	set_window_handler(session_win, ELW_HANDLER_CLICK, &click_session_handler );
+	set_window_handler(session_win, ELW_HANDLER_MOUSEOVER, &mouseover_session_handler );
 
 	reset_button_id=button_add_extended(session_win, reset_button_id, NULL, 450, 280, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, reset_str);
 	widget_set_OnClick(session_win, reset_button_id, session_reset_handler);
@@ -60,6 +77,8 @@ void set_last_skill_exp(size_t skill, int exp)
 	if (skill < NUM_SKILLS)
 	{
 		last_exp[skill] = exp;
+		if (exp > max_exp[skill])
+			max_exp[skill] = exp;
 		if ((skill != SI_ALL) && (exp >= exp_log_threshold) && (exp_log_threshold > 0))
 		{
 			char str[80];
@@ -74,7 +93,7 @@ void set_session_exp_to_current(void)
 	int i;
 	for (i=0; i<NUM_SKILLS; i++)
 	{
-		last_exp[i] = 0;
+		max_exp[i] = last_exp[i] = 0;
 		session_exp[i] = *(statsinfo[i].exp);
 	}
 }
@@ -82,16 +101,16 @@ void set_session_exp_to_current(void)
 int display_session_handler(window_info *win)
 {
 	int i, x, y, timediff;
-	char buffer[80];
+	char buffer[128];
 
 	x = 10;
 	y = 21;
 	timediff = 0;
 
 	glColor3f(1.0f, 1.0f, 1.0f);
-	draw_string_small(x, y, (unsigned char*)"Skill", 1);
-	draw_string_small(x + 200, y, (unsigned char*)"Experience Gain", 1);
-	draw_string_small(x + 400, y, (unsigned char*)"Last Gain", 1);
+	safe_snprintf(buffer, sizeof(buffer), "%-20s%-17s%-17s%-17s",
+		"Skill", "Total Exp", "Max Exp", "Last Exp" );
+	draw_string_small(x, y, (unsigned char*)buffer, 1);
 
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(0.77f, 0.57f, 0.39f);
@@ -106,16 +125,20 @@ int display_session_handler(window_info *win)
 
 	for (i=0; i<NUM_SKILLS; i++)
 	{
-		draw_string_small(x, y, statsinfo[i].skillnames->name , 1);
-		safe_snprintf(buffer, sizeof(buffer), "%d", *(statsinfo[i].exp) - session_exp[i]);
-		draw_string_small(x + 200, y, (unsigned char*)buffer, 1);
-		safe_snprintf(buffer, sizeof(buffer), "%d", last_exp[i]);
-		draw_string_small(x + 400, y, (unsigned char*)buffer, 1);
+		if (((last_mouse_click_y >= y) && (last_mouse_click_y < y+16)) ||
+				((last_mouse_over_y >= y) && (last_mouse_over_y < y+16)))
+			glColor3f(0.0f, 0.7f, 1.0f);
+		else
+			glColor3f(1.0f, 1.0f, 1.0f);
+		safe_snprintf(buffer, sizeof(buffer), "%-20s%-17u%-17u%-17u",
+			statsinfo[i].skillnames->name, *(statsinfo[i].exp) - session_exp[i], max_exp[i], last_exp[i]);
+		draw_string_small(x, y, (unsigned char*)buffer, 1);
 		y += 16;
 	}
 
 	y += 16;
 
+	glColor3f(1.0f, 1.0f, 1.0f);
 	draw_string_small(x, y, (unsigned char*)"Session Time", 1);
 	timediff = cur_time - session_start_time;
 	safe_snprintf(buffer, sizeof(buffer), "%02d:%02d:%02d", timediff/3600000, (timediff/60000)%60, (timediff/1000)%60);
