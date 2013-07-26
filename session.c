@@ -10,6 +10,7 @@
 #include "missiles.h"
 #include "multiplayer.h"
 #include "platform.h"
+#include "sound.h"
 #include "stats.h"
 #include "translate.h"
 #include "counters.h"
@@ -50,6 +51,7 @@ static int mouseover_session_reset_handler(void)
 static int click_session_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	last_mouse_click_y = my;
+	do_click_sound();
 	return 1;
 }
 
