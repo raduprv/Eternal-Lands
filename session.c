@@ -127,9 +127,10 @@ int display_session_handler(window_info *win)
 
 	for (i=0; i<NUM_SKILLS; i++)
 	{
-		if (((last_mouse_click_y >= y) && (last_mouse_click_y < y+16)) ||
-				((last_mouse_over_y >= y) && (last_mouse_over_y < y+16)))
-			glColor3f(0.0f, 0.7f, 1.0f);
+		if ((last_mouse_click_y >= y) && (last_mouse_click_y < y+16))
+			elglColourN("global.mouseselected");
+		else if ((last_mouse_over_y >= y) && (last_mouse_over_y < y+16))
+			elglColourN("global.mousehighlight");
 		else
 			glColor3f(1.0f, 1.0f, 1.0f);
 		safe_snprintf(buffer, sizeof(buffer), "%-20s%-17u%-17u%-17u",
