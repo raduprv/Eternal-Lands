@@ -12,6 +12,8 @@
 <colour name="minimap.mine" r="0.15" g="0.65" b="0.45"/>
 <colour name="minimap.servermark" r="0.33" g="0.6" b="1.0"/>
 <colour name="minimap.otherplayer" r="1.0" g="1.0" b="1.0"/>
+<colour name="global.mousehighlight" r="0.5" g="0.5" b="1.0"/>
+<colour name="global.mouseselected" r="0.4" g="0.8" b="1.0"/>
 
 <!-- Alpha can be specified too
 <colour name="test" r="1.0" g="1.0" b="1.0" a="1.0"/>
