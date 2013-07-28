@@ -1,4 +1,3 @@
-
 #include <stdlib.h>
 #include <ctype.h>
 #include "counters.h"
@@ -12,6 +11,8 @@
 #include "interface.h"
 #include "manufacture.h"
 #include "multiplayer.h"
+#include "named_colours.h"
+#include "sound.h"
 #include "spells.h"
 #include "tabs.h"
 #include "io/elpathwrapper.h"
@@ -70,6 +71,8 @@ static int mouseover_name = 0;
 static int mouseover_session = 0;
 static int mouseover_total = 0;
 static int mouseover_entry_y = -1;
+static int mouse_clicked = 0;
+static int selected_entry = -1;
 static int counters_show_win_help = 0;
 
 static int product_count = 0;
@@ -640,6 +643,7 @@ int display_counters_handler(window_info *win)
 		vscrollbar_set_bar_len(counters_win, counters_scroll_id, MAX(0, entries[i] - NUM_LINES));
 		vscrollbar_set_pos(counters_win, counters_scroll_id, 0);
 		last_selected_counter_id = selected_counter_id;
+		selected_entry = -1;
 	}
 
 	x = 120;
@@ -685,18 +689,27 @@ int display_counters_handler(window_info *win)
 		cm_selected_entry = -1;
 	
 	for (j = scroll, n = 0, y = 30; j < entries[i]; j++, n++) {
-		if (n == NUM_LINES) {
+		int mouse_over_this_entry = ((mouseover_entry_y >= y) && (mouseover_entry_y < y+16));
+
+		if (n == NUM_LINES)
 			break;
+
+		if (mouse_over_this_entry && mouse_clicked) {
+			selected_entry = j;
+			mouse_clicked = 0;
 		}
 
 		if (cm_selected_entry == j)
 			glColor3f(0.77f, 0.57f, 0.39f);
-		else if ((selected_counter_id == KILLS || selected_counter_id == DEATHS) && counters[i][j].extra) {
+		else if ((selected_counter_id == KILLS || selected_counter_id == DEATHS) && counters[i][j].extra)
 			glColor3f(0.8f, 0.2f, 0.2f);
-		} else {
+		else if (selected_entry == j)
+			elglColourN("global.mouseselected");
+		else if (mouse_over_this_entry)
+			elglColourN("global.mousehighlight");
+		else
 			glColor3f(1.0f, 1.0f, 1.0f);
-		}
-		
+
 		/* draw first so left padding does not overwrite name */
 		safe_snprintf(buffer, sizeof(buffer), "%12d", counters[i][j].n_session);
 		draw_string_small(x + 200, y, (unsigned char*)buffer, 1);
@@ -716,8 +729,7 @@ int display_counters_handler(window_info *win)
 				truncated_string(used_name, counters[i][j].name, dest_max_len, append_str, max_name_x, font_ratio);
 				draw_string_small(x, y, (unsigned char*)used_name, 1);
 				/* if the mouse is over this line and its truncated, tooltip to full name */
-				if (mouseover_entry_y > y && mouseover_entry_y < y+16)
-				{
+				if (mouseover_entry_y >= y && mouseover_entry_y < y+16) {
 					show_help(counters[i][j].name, -TAB_MARGIN, win->len_y+10+TAB_MARGIN);
 					counters_show_win_help = 0;
 				}
@@ -729,8 +741,7 @@ int display_counters_handler(window_info *win)
 		y += 16;
 	}
 
-	if (counters_show_win_help)
-	{
+	if (counters_show_win_help) {
 		show_help(cm_help_options_str, -TAB_MARGIN, win->len_y+10+TAB_MARGIN);
 		counters_show_win_help = 0;
 	}
@@ -758,15 +769,20 @@ CHECK_GL_ERRORS();
 int click_counters_handler(window_info *win, int mx, int my, Uint32 extra)
 {
 	 if (mx > 120 && my > 25 && my < win->len_y - 25) {
-		 if (extra&ELW_WHEEL_UP) {
+		if (extra&ELW_WHEEL_UP) {
 			vscrollbar_scroll_up(counters_win, counters_scroll_id);
 			return 1;
-		 }
+		}
 
-		 if (extra&ELW_WHEEL_DOWN) {
+		if (extra&ELW_WHEEL_DOWN) {
 			vscrollbar_scroll_down(counters_win, counters_scroll_id);
 			return 1;
-		 }
+		}
+
+		mouse_clicked = 1;
+		selected_entry = -1;
+		do_click_sound();
+
 	} else {
 		if (mouseover_name) {
 			if (sort_by[selected_counter_id-1] == NAME) {
@@ -790,6 +806,7 @@ int click_counters_handler(window_info *win, int mx, int my, Uint32 extra)
 			}
 		}
 		sort_counter(selected_counter_id);
+		selected_entry = -1;
 	}
 
 	return 1;
@@ -804,7 +821,7 @@ int mouseover_counters_handler(window_info *win, int mx, int my)
 		counters_show_win_help = 1;
 
 	if (my > 25){
-		if (my > 30 && my < (30+NUM_LINES*16) && mx >= 130 && mx <= 425) {
+		if (my > 30 && my < (30+NUM_LINES*16) && mx >= 130 && mx <= 540) {
 			mouseover_entry_y = my;
 		}
 		return 0;
