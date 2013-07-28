@@ -9,8 +9,10 @@
 #include "gamewin.h"
 #include "hud.h"
 #include "multiplayer.h"
+#include "named_colours.h"
 #include "notepad.h"
 #include "paste.h"
+#include "sound.h"
 #include "stats.h"
 #include "tabs.h"
 #include "textures.h"
@@ -40,6 +42,7 @@ static INPUT_POPUP ipu_know;
 static char highlight_string[KNOWLEDGE_NAME_SIZE] = "";
 static int know_show_win_help = 0;
 static int mouse_over_progress_bar = 0;
+static int selected_book = -1;
 
 int add_knowledge_book_image() {
 	// Book image
@@ -232,28 +235,24 @@ int display_knowledge_handler(window_info *win)
 	for(i = 2*scroll; i < 2 * (scroll + 19); i++)
 	{
 		int highlight = 0;
+		float colour_brightness = (knowledge_list[i].present) ?1.0 : 0.6;
+
 		if (*highlight_string && (strlen(knowledge_list[i].name) > 0) &&
 			(get_string_occurance(highlight_string, knowledge_list[i].name, strlen(knowledge_list[i].name), 1) != -1))
 			highlight = 1;
 
-		if (knowledge_list[i].mouse_over)
+		if (!highlight && (i == selected_book))
 		{
-			glColor3f (0.0f, 0.7f, 1.0f);
+			GLfloat cols[3];
+			elglGetColour3v("global.mouseselected", cols);
+			glColor3f (cols[0]*colour_brightness, cols[1]*colour_brightness, cols[2]*colour_brightness);
 		}
-		else if (knowledge_list[i].present)
-		{
-			if (highlight)
-				glColor3f (1.0f, 0.6f, 0.0f);
-			else
-				glColor3f (0.9f, 0.9f, 0.9f);
-		}
+		else if (knowledge_list[i].mouse_over)
+			elglColourN("global.mousehighlight");
+		else if (highlight)
+			glColor3f (1.0f*colour_brightness, 0.6f*colour_brightness, 0.0f*colour_brightness);
 		else
-		{
-			if (highlight)
-				glColor3f (0.7f, 0.4f, 0.0f);
-			else
-				glColor3f (0.5f, 0.5f, 0.5f);
-		}
+			glColor3f (1.0f*colour_brightness, 1.0f*colour_brightness, 1.0f*colour_brightness);
 
 		/* truncate the string if it is too long */
 		if ((get_string_width((unsigned char*)knowledge_list[i].name) * font_ratio) > max_name_x)
@@ -335,7 +334,8 @@ int click_knowledge_handler(window_info *win, int mx, int my, Uint32 flags)
 		vscrollbar_scroll_down(knowledge_win, knowledge_scroll_id);
 		return 1;
 	} else {
-		
+
+		selected_book = -1;
 		x = (x < (win->len_x-20)/2) ?0 :1;
 		y/=10;
 		idx = x + 2 *(y + vscrollbar_get_pos (knowledge_win, knowledge_scroll_id));
@@ -353,7 +353,9 @@ int click_knowledge_handler(window_info *win, int mx, int my, Uint32 flags)
 					widget_set_flags(knowledge_win, knowledge_book_image_id, WIDGET_DISABLED);
 					widget_set_flags(knowledge_win, knowledge_book_label_id, WIDGET_DISABLED);
 				}
+				selected_book = idx;
 			}
+		do_click_sound();
 	}
 	return 1;
 } 
