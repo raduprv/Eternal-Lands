@@ -9,6 +9,7 @@
 #include "hud.h"
 #include "missiles.h"
 #include "multiplayer.h"
+#include "named_colours.h"
 #include "platform.h"
 #include "sound.h"
 #include "stats.h"
