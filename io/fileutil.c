@@ -60,7 +60,8 @@ static Uint32 xz_unpack_data(const void* file_buffer,
 	if (err == SZ_OK)
 	{
 		*size = dst_idx;
-		*buffer = realloc(*buffer, dst_idx);
+		*buffer = realloc(*buffer, dst_idx+1);
+		(*(char **)buffer)[dst_idx] = 0;
 	}
 	else
 	{
@@ -82,7 +83,7 @@ Uint32 file_read(FILE* file, const Uint64 file_size, void** buffer, Uint64* size
 	if (file_size == 0)
 		return 1;
 
-	file_buffer = malloc(file_size);
+	file_buffer = malloc(file_size+1);
 	if (!file_buffer)
 		return 1;
 
@@ -102,6 +103,7 @@ Uint32 file_read(FILE* file, const Uint64 file_size, void** buffer, Uint64* size
 		return result;
 	}
 
+	((char *)file_buffer)[file_size] = 0;
 	*size = file_size;
 	*buffer = file_buffer;
 
