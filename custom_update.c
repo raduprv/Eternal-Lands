@@ -270,6 +270,8 @@ void init_custom_update()
 	size_t str_size = 256;
 	Uint32 i;
 
+	memset(update_thread_data, 0, sizeof(update_thread_data));
+
 	update_thread_data[0].dir = datadir;
 	update_thread_data[1].dir = get_path_config_base();
 

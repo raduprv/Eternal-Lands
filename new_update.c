@@ -112,7 +112,7 @@ static Uint32 download_file(const char* file_name, FILE* file,
 		memset(buffer, 0, size);
 		// get a packet
 
-		len = SDLNet_TCP_Recv(http_sock, buffer, size);
+		len = SDLNet_TCP_Recv(http_sock, buffer, size-1);
 		// have we gotten the full header?
 
 		if (len < 0) 
@@ -548,7 +548,7 @@ static Uint32 add_to_downloads(const char* buffer, const Uint64 buffer_size,
 	progress_fnc update_progress_function, void* user_data)
 {
 	char name[256];
-	char md5[256];
+	char md5[33];
 	MD5_DIGEST digest;
 	const char* line_buffer;
 	Uint64 line_size, line_buffer_size, skip;
@@ -654,7 +654,7 @@ const char* digest_extensions[2] =
 
 static Uint32 check_server_digest_files(const char* file, FILE* tmp_file,
 	const char* server, const char* path, const Uint32 size, char* buffer,
-	char md5[32])
+	char md5[33])
 {
 	char *file_name = NULL;
 	const size_t file_name_size = 1024;
@@ -683,7 +683,7 @@ static Uint32 check_server_digest_files(const char* file, FILE* tmp_file,
 }
 
 static Uint32 build_update_list(const char* server, const char* file,
-	const char* path, update_info_t** infos, Uint32* count, char md5[32],
+	const char* path, update_info_t** infos, Uint32* count, char md5[33],
 	const Uint32 etag_size, char* etag,
 	progress_fnc update_progress_function, void* user_data)
 {
@@ -837,7 +837,7 @@ Uint32 update(const char* server, const char* file, const char* dir,
 	const size_t str_size = 1024;
 	char *etag = NULL;
 	const size_t etag_size = 1024;
-	char md5[32];
+	char md5[33];
 	unzFile source_zips[MAX_OLD_UPDATE_FILES];
 	zipFile dest_zip;
 	update_info_t* infos;
@@ -871,7 +871,7 @@ Uint32 update(const char* server, const char* file, const char* dir,
 
 	etag = (char *)calloc(sizeof(char), etag_size);
 	memset(md5, 0, sizeof(md5));
-	sscanf(str, "ETag: %s MD5: %s", etag, md5);
+	sscanf(str, "ETag: %s MD5: %32s", etag, md5);
 
 	result = build_update_list(server, file, path, &infos, &count, md5,
 		etag_size, etag, update_progress_function, user_data);
