@@ -227,6 +227,10 @@ extern "C" void reset_under_the_mouse()
 	Sint32 j;
 	Sint32 x, y;
 
+	memset(color, 0, sizeof(color));
+	memset(colorf, 0, sizeof(colorf));
+	memset(buffer, 0, sizeof(buffer));
+
 	if (use_new_selection)
 	{
 		read_selection = add_selection;
