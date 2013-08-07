@@ -83,7 +83,7 @@ static Uint32 download_file(const char* file_name, FILE* file,
 	// send the GET request, try to avoid ISP caching	
 	if ((etag != 0) && (strlen(etag) > 0))
 	{
-		snprintf(buffer, size, "GET %s%s HTTP/1.1\r\nHost: %s\r\n"
+		safe_snprintf(buffer, size, "GET %s%s HTTP/1.1\r\nHost: %s\r\n"
 			"CONNECTION:CLOSE\r\nREFERER:%s\r\n"
 			"USER-AGENT:AUTOUPDATE\r\nIf-None-Match: \"%s\"\r\n\r\n",
 			path, file_name, server, FILE_VERSION,
@@ -91,7 +91,7 @@ static Uint32 download_file(const char* file_name, FILE* file,
 	}
 	else
 	{
-		snprintf(buffer, size, "GET %s%s HTTP/1.1\r\nHost: %s\r\n"
+		safe_snprintf(buffer, size, "GET %s%s HTTP/1.1\r\nHost: %s\r\n"
 			"CONNECTION:CLOSE\r\nCACHE-CONTROL:NO-CACHE\r\nREFERER:%s\r\n"
 			"USER-AGENT:AUTOUPDATE\r\n\r\n", path, file_name,
 			server, FILE_VERSION);
@@ -135,7 +135,7 @@ static Uint32 download_file(const char* file_name, FILE* file,
 				if (pos != 0)
 				{
 					memset(etag, 0, etag_size);
-					snprintf(str, sizeof(str),
+					safe_snprintf(str, sizeof(str),
 						"ETag: \"%%%ds", etag_size - 1);
 					sscanf(pos, str, etag);
 
@@ -208,11 +208,11 @@ static int download_files_thread(void* _data)
 {
 	char file_name[256];
 	char comment[64];
-	download_files_thread_data_t *data;
-	update_info_t* info;
-	char* download_buffer;
-	void* file_buffer;
-	FILE *file;
+	download_files_thread_data_t *data = NULL;
+	update_info_t* info = NULL;
+	char* download_buffer = NULL;
+	void* file_buffer = NULL;
+	FILE *file = NULL;
 	Uint64 file_size, size;
 	Uint32 i, len, result, error, count, index, running;
 	Uint32 download_buffer_size;
@@ -225,7 +225,7 @@ static int download_files_thread(void* _data)
 	result = 0;
 	file_buffer = 0;
 	download_buffer_size = 4096;
-	download_buffer = malloc(download_buffer_size);
+	download_buffer = (char *)calloc(sizeof(char), download_buffer_size);
 	count = data->count;
 
 #ifdef WINDOWS
@@ -315,7 +315,7 @@ static int download_files_thread(void* _data)
 
 			len = strlen(info->file_name);
 
-			snprintf(file_name, sizeof(file_name), "%s",
+			safe_snprintf(file_name, sizeof(file_name), "%s",
 				info->file_name);
 
 			if (has_suffix(file_name, len, ".xz", 3))
@@ -462,7 +462,7 @@ static Uint32 download_files(update_info_t* infos, const Uint32 count,
 
 		len = strlen(infos[i].file_name);
 
-		snprintf(file_name, sizeof(file_name), "%s",
+		safe_snprintf(file_name, sizeof(file_name), "%s",
 			infos[i].file_name);
 
 		if (has_suffix(file_name, len, ".xz", 3))
@@ -656,24 +656,29 @@ static Uint32 check_server_digest_files(const char* file, FILE* tmp_file,
 	const char* server, const char* path, const Uint32 size, char* buffer,
 	char md5[32])
 {
-	char file_name[1024];
+	char *file_name = NULL;
+	const size_t file_name_size = 1024;
 	Uint32 i, result;
+
+	if ((file_name = calloc(sizeof(char), file_name_size)) == NULL)
+		return 0;
 
 	for (i = 0; i < 2; i++)
 	{
-		memset(file_name, 0, sizeof(file_name));
-		strcpy(file_name, file);
-		strcat(file_name, digest_extensions[i]);
+		safe_strncpy(file_name, file, file_name_size);
+		safe_strcat(file_name, digest_extensions[i], file_name_size);
 
 		result = check_server_digest_file(file_name, tmp_file, server,
 			path, size, buffer, 32, md5);
 
 		if (result < 2)
 		{
+			free(file_name);
 			return result;
 		}
 	}
 
+	free(file_name);
 	return 2;
 }
 
@@ -682,9 +687,8 @@ static Uint32 build_update_list(const char* server, const char* file,
 	const Uint32 etag_size, char* etag,
 	progress_fnc update_progress_function, void* user_data)
 {
-	char error_str[4096];
-	char file_name[1024];
-	char buffer[1024];
+	char *buffer = NULL;
+	const size_t buffer_size = 1024;
 	Uint64 file_size;
 	FILE* tmp_file;
 	void* file_buffer;
@@ -704,8 +708,11 @@ static Uint32 build_update_list(const char* server, const char* file,
 
 	update_progress_function("Checking for updates", 0, 0, user_data);
 
+	if ((buffer = (char *)calloc(sizeof(char), buffer_size)) == NULL)
+		return 1;
+
 	result = check_server_digest_files(file, tmp_file, server, path,
-		sizeof(buffer), buffer, md5);
+		buffer_size, buffer, md5);
 
 	if (result == 0)
 	{
@@ -713,13 +720,14 @@ static Uint32 build_update_list(const char* server, const char* file,
 			
 		fclose(tmp_file);
 
+		free(buffer);
 		return 1;
 	}
 
 	fseek(tmp_file, 0, SEEK_SET);
 
 	result = download_file(file, tmp_file, server, path, &file_size,
-		sizeof(buffer), buffer, etag_size, etag);
+		buffer_size, buffer, etag_size, etag);
 
 	if (result == 304)
 	{
@@ -727,19 +735,26 @@ static Uint32 build_update_list(const char* server, const char* file,
 
 		update_progress_function("No update needed", 0, 0, user_data);
 
+		free(buffer);
 		return 1;
 	}
 
 	if (result != 0)
 	{
-		memset(file_name, 0, sizeof(file_name));
-		strcpy(file_name, file);
-		strcat(file_name, ".xz");
+		char *file_name = NULL;
+		const size_t file_name_size = 1024;
+
+		file_name = (char *)calloc(sizeof(char), file_name_size);
+
+		safe_strncpy(file_name, file, file_name_size);
+		safe_strcat(file_name, ".xz", file_name_size);
 
 		fseek(tmp_file, 0, SEEK_SET);
 
 		result = download_file(file_name, tmp_file, server, path,
-			&file_size, sizeof(buffer), buffer, etag_size, etag);
+			&file_size, buffer_size, buffer, etag_size, etag);
+
+		free(file_name);
 
 		if (result == 304)
 		{
@@ -748,15 +763,21 @@ static Uint32 build_update_list(const char* server, const char* file,
 			update_progress_function("No update needed", 0, 0,
 				user_data);
 
+			free(buffer);
 			return 1;
 		}
 	}
 
 	if (result != 0)
 	{
+		char *error_str = NULL;
+		const size_t error_str_size = 4096;
+
 		fclose(tmp_file);
 
-		snprintf(error_str, sizeof(error_str), "Can't get update list"
+		error_str = (char *)calloc(sizeof(char), error_str_size);
+
+		safe_snprintf(error_str, error_str_size, "Can't get update list"
 			" file '%s' from server '%s' using path '%s', error %d.",
 			file, server, path, result);
 
@@ -764,6 +785,8 @@ static Uint32 build_update_list(const char* server, const char* file,
 
 		update_progress_function(error_str, 0, 0, user_data);
 
+		free(error_str);
+		free(buffer);
 		return 4;
 	}
 
@@ -777,9 +800,14 @@ static Uint32 build_update_list(const char* server, const char* file,
 	if (add_to_downloads(file_buffer, file_size, infos, count,
 		update_progress_function, user_data) != 1)
 	{
+		char *error_str = NULL;
+		const size_t error_str_size = 4096;
+
 		free(file_buffer);
 
-		snprintf(error_str, sizeof(error_str), "Update list"
+		error_str = (char *)calloc(sizeof(char), error_str_size);
+
+		safe_snprintf(error_str, error_str_size, "Update list"
 			" file '%s' from server '%s' using path '%s' has wrong"
 			" magic number in first line.", file, server, path);
 
@@ -787,9 +815,12 @@ static Uint32 build_update_list(const char* server, const char* file,
 
 		update_progress_function(error_str, 0, 0, user_data);
 
+		free(error_str);
+		free(buffer);
 		return 5;
 	}
 
+	free(buffer);
 	free(file_buffer);
 
 	return 0;
@@ -798,57 +829,65 @@ static Uint32 build_update_list(const char* server, const char* file,
 Uint32 update(const char* server, const char* file, const char* dir,
 	const char* zip, progress_fnc update_progress_function, void* user_data)
 {
-	char tmp[MAX_OLD_UPDATE_FILES][1024];
-	char path[1024];
-	char str[1024];
-	char etag[1024];
+	char *tmp[MAX_OLD_UPDATE_FILES];
+	const size_t tmp_size = 1024;
+	char *path = NULL;
+	const size_t path_size = 1024;
+	char *str = NULL;
+	const size_t str_size = 1024;
+	char *etag = NULL;
+	const size_t etag_size = 1024;
 	char md5[32];
 	unzFile source_zips[MAX_OLD_UPDATE_FILES];
 	zipFile dest_zip;
 	update_info_t* infos;
 	Uint32 count, result, i;
 
-	memset(path, 0, sizeof(path));
-	snprintf(path, sizeof(path), "http://%s/%s/", server, dir);
+	path = (char*)calloc(sizeof(char), path_size);
+	safe_snprintf(path, path_size, "http://%s/%s/", server, dir);
 
-	snprintf(str, sizeof(str), "Downloading from server %s", path);
+	str = (char *)calloc(sizeof(char), str_size);
+	safe_snprintf(str, str_size, "Downloading from server %s", path);
 	update_progress_function(str, 0, 0, user_data);
 
 	for (i = 0; i < MAX_OLD_UPDATE_FILES; i++)
 	{
-		memset(tmp[i], 0, sizeof(tmp[i]));
+		tmp[i] = (char *)calloc(sizeof(char), tmp_size);
 
-		snprintf(tmp[i], sizeof(tmp[i]), "%s%s%i", zip, ".t", i);
+		safe_snprintf(tmp[i], tmp_size, "%s%s%i", zip, ".t", i);
 	}
 
-	snprintf(str, sizeof(str), "Opening %s", zip);
+	safe_snprintf(str, str_size, "Opening %s", zip);
 	update_progress_function(str, 0, 0, user_data);
 
-	memset(str, 0, sizeof(str));
+	memset(str, 0, str_size);
 
 	source_zips[0] = unzOpen64(zip);
-	unzGetGlobalComment(source_zips[0], str, sizeof(str));
+	unzGetGlobalComment(source_zips[0], str, str_size);
 	unzClose(source_zips[0]);
 
 	infos = 0;
 	count = 0;
 
-	memset(etag, 0, sizeof(etag));
+	etag = (char *)calloc(sizeof(char), etag_size);
 	memset(md5, 0, sizeof(md5));
 	sscanf(str, "ETag: %s MD5: %s", etag, md5);
 
 	result = build_update_list(server, file, path, &infos, &count, md5,
-		sizeof(etag), etag, update_progress_function, user_data);
-
-	if (result == 1)
-	{
-		return 0;
-	}
+		etag_size, etag, update_progress_function, user_data);
 
 	if (result != 0)
 	{
-		free(infos);
+		free(path);
+		free(str);
+		free(etag);
+		for (i = 0; i < MAX_OLD_UPDATE_FILES; i++)
+			free(tmp[i]);
 
+		if (result == 1)
+			return 0;
+
+		free(infos);
 		return 3;
 	}
 
@@ -868,11 +907,10 @@ Uint32 update(const char* server, const char* file, const char* dir,
 		MAX_OLD_UPDATE_FILES, source_zips, dest_zip,
 		update_progress_function, user_data);
 
-	memset(str, 0, sizeof(str));
-
 	if (result == 0)
 	{
-		snprintf(str, sizeof(str), "ETag: %s MD5: %s", etag, md5);
+		memset(str, 0, str_size);
+		safe_snprintf(str, str_size, "ETag: %s MD5: %s", etag, md5);
 	}
 
 	for (i = 0; i < MAX_OLD_UPDATE_FILES; i++)
@@ -892,6 +930,11 @@ Uint32 update(const char* server, const char* file, const char* dir,
 
 	if (result != 0)
 	{
+		free(path);
+		free(str);
+		free(etag);
+		for (i = 0; i < MAX_OLD_UPDATE_FILES; i++)
+			free(tmp[i]);
 		return result;
 	}
 
@@ -906,6 +949,12 @@ Uint32 update(const char* server, const char* file, const char* dir,
 	}
 
 	update_progress_function("Update complete", 0, 0, user_data);
+
+	free(path);
+	free(str);
+	free(etag);
+	for (i = 0; i < MAX_OLD_UPDATE_FILES; i++)
+		free(tmp[i]);
 
 	return 0;
 }
