@@ -48,13 +48,13 @@ static Uint32 progress_function(const char* str, const Uint32 max,
 
 	if (max > 0)
 	{
-		snprintf(data->str, sizeof(data->str),
+		safe_snprintf(data->str, sizeof(data->str),
 			"%s custom updates: %s %.2f%%", data->name,
 			str, (current * 100.0f) / max);
 	}
 	else
 	{
-		snprintf(data->str, sizeof(data->str),
+		safe_snprintf(data->str, sizeof(data->str),
 			"%s custom updates: %s", data->name, str);
 	}
 
@@ -75,29 +75,41 @@ static Uint32 progress_function(const char* str, const Uint32 max,
 static Uint32 custom_update_threaded(const char* dir, const char* zip_file,
 	void* data)
 {
-	char buffer[1024];
-	char str[256];
+	char *buffer = NULL;
+	size_t buffer_size = 1024;
+	char *str = NULL;
+	size_t str_size = 256;
 	char* server;
 	FILE* file;
 	Uint32 count, index, idx, len, result;
 	const char* file_name = "custom_mirrors.lst";
 
-	snprintf(str, sizeof(str), "%s%s", dir, file_name);
+	if ((buffer = (char *)calloc(sizeof(char), buffer_size)) == NULL)
+		return 1;
+	if ((str = (char *)calloc(sizeof(char), str_size)) == NULL)
+	{
+		free(buffer);
+		return 1;
+	}
+
+	safe_snprintf(str, str_size, "%s%s", dir, file_name);
 
 	file = fopen(str, "r");
 
 	if (file == 0)
 	{
-		snprintf(buffer, sizeof(buffer), "Can't find server list file"
+		safe_snprintf(buffer, buffer_size, "Can't find server list file"
 			" '%s'.", str);
 
 		progress_function(buffer, 0, 0, data);
 
+		free(buffer);
+		free(str);
 		return 1;
 	}
 
 	count = 0;
-	server = fgets(buffer, sizeof(buffer), file);
+	server = fgets(buffer, buffer_size, file);
 
 	while (server != 0)
 	{
@@ -110,17 +122,19 @@ static Uint32 custom_update_threaded(const char* dir, const char* zip_file,
 		}
 
 		// read the next line
-		server = fgets(buffer, sizeof(buffer), file);
+		server = fgets(buffer, buffer_size, file);
 	}
 
 	if (count == 0)
 	{
-		snprintf(buffer, sizeof(buffer), "No server in file '%s'", str);
+		safe_snprintf(buffer, buffer_size, "No server in file '%s'", str);
 
 		progress_function(buffer, 0, 0, data);
 
 		fclose(file);
 
+		free(buffer);
+		free(str);
 		return 1;
 	}
 
@@ -132,7 +146,7 @@ static Uint32 custom_update_threaded(const char* dir, const char* zip_file,
 
 	index = 0;
 
-	server = fgets(buffer, sizeof(buffer), file);
+	server = fgets(buffer, buffer_size, file);
 
 	while (server != 0)
 	{
@@ -161,28 +175,33 @@ static Uint32 custom_update_threaded(const char* dir, const char* zip_file,
 		}
 
 		// read the next line
-		server = fgets(buffer, sizeof(buffer), file);
+		server = fgets(buffer, buffer_size, file);
 	}
 
 	fclose(file);
 
 	if (server == 0)
 	{
-		snprintf(buffer, sizeof(buffer), "Can't get server from file"
+		safe_snprintf(buffer, buffer_size, "Can't get server from file"
 			" '%s'", str);
 
 		progress_function(buffer, 0, 0, data);
 
+		free(buffer);
+		free(str);
 		return 1;
 	}
 
-	snprintf(str, sizeof(str), "Downloading from server %s", server);
+	safe_snprintf(str, str_size, "Downloading from server %s", server);
 	progress_function(str, 0, 0, data);
 
-	snprintf(str, sizeof(str), "%s%s", get_path_config_base(), zip_file);
+	safe_snprintf(str, str_size, "%s%s", get_path_config_base(), zip_file);
 
 	result = update(server, "custom_files.lst", "updates", str,
 		progress_function, data);
+
+	free(buffer);
+	free(str);
 
 	return result;
 }
@@ -217,7 +236,7 @@ static int custom_update_thread(void* thread_data)
 		}
 
 		data->error = 0;
-		snprintf(data->str, sizeof(data->str), "%s custom updates: %s",
+		safe_snprintf(data->str, sizeof(data->str), "%s custom updates: %s",
 			data->name, "started");
 
 		CHECK_AND_UNLOCK_MUTEX(data->mutex);
@@ -247,19 +266,23 @@ static int custom_update_thread(void* thread_data)
 
 void init_custom_update()
 {
-	char str[256];
+	char *str = NULL;
+	size_t str_size = 256;
 	Uint32 i;
 
 	update_thread_data[0].dir = datadir;
 	update_thread_data[1].dir = get_path_config_base();
 
+	if ((str = (char *)calloc(sizeof(char), str_size)) == NULL)
+		return;
+
 	for (i = 0; i < 2; i++)
 	{
-		snprintf(str, sizeof(str), "%s%s", get_path_config_base(),
+		safe_snprintf(str, str_size, "%s%s", get_path_config_base(),
 			zip_names[i]);
 		load_zip_archive(str);
 
-		snprintf(update_thread_data[i].str,
+		safe_snprintf(update_thread_data[i].str,
 			sizeof(update_thread_data[i].str),
 			"%s custom updates: %s", update_names[i], "waiting");
 		update_thread_data[i].mutex = SDL_CreateMutex();
@@ -271,6 +294,7 @@ void init_custom_update()
 		update_thread_data[i].thread = SDL_CreateThread(
 			custom_update_thread, &update_thread_data[i]);
 	}
+	free(str);
 }
 
 void start_custom_update()
