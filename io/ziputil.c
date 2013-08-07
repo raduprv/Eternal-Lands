@@ -103,6 +103,9 @@ Uint32 copy_from_zip(unzFile source, zipFile dest)
 	Uint32 crc;
 	int method, level;
 
+	memset(&info, 0, sizeof(zip_fileinfo));
+	memset(&src_info, 0, sizeof(unz_file_info64));
+
 	unzGetCurrentFileInfo64(source, &src_info, file_name,
 		sizeof(file_name), 0, 0, comment, sizeof(comment));
 

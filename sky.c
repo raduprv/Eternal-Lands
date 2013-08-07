@@ -135,7 +135,7 @@ int sun_tex;
 
 sky_dome create_dome(int slices, int stacks, float radius, float opening, int fake_opening, float first_angle, float texture_size)
 {
-	sky_dome dome;
+	sky_dome dome = {0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 0.0, 0.0, 0.0};
     int i, j;
     float angle, angle_step;
     int idx, vtx_idx;
