@@ -197,9 +197,9 @@ int start_rendering()
 				next_second_time += 1000;
 			}
 
-#if defined(NEW_WEATHER) && defined(NEW_SOUND)
+#ifdef NEW_SOUND
 			weather_sound_control();
-#endif // NEW_WEATHER
+#endif	//NEW_SOUND
 
 			if(!limit_fps || (cur_time-last_time && 1000/(cur_time-last_time) <= limit_fps))
 			{

@@ -2148,9 +2148,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"render_bones_id","rbid",&render_bones_id,change_var,0,"Render bones ID", "Render the bones ID", DEBUGTAB);
 	add_var(OPT_BOOL,"render_bones_orientation","rbor",&render_bones_orientation,change_var,0,"Render bones orientation", "Render the bones orientation", DEBUGTAB);
 	add_var(OPT_FLOAT,"near_plane", "near_plane", &near_plane, change_projection_float, 0.1, "Minimum Viewing Distance", "Adjusts how near you can see.", DEBUGTAB, 0.1, 10.0, 0.1);
-#if defined(NEW_WEATHER)
 	add_var(OPT_BOOL,"skybox_local_weather","skybox_local_weather", &skybox_local_weather, change_var,0,"Local Weather", "Show local weather areas on the sky. It allows to see distant weather but can reduce performance.", DEBUGTAB);
-#endif // NEW_WEATHER
 #endif // DEBUG
 	// DEBUGTAB TAB
 
