@@ -26,6 +26,7 @@
 #include "books.h"
 #include "buddy.h"
 #include "console.h"
+#include "counters.h"
 #include "cursors.h"
 #include "draw_scene.h"
 #include "e3d.h"
@@ -36,11 +37,14 @@
 #include "events.h"
 #include "gl_init.h"
 #include "icon_window.h"
+#include "io/elfilewrapper.h"
 #include "init.h"
 #include "item_lists.h"
 #include "interface.h"
 #include "lights.h"
 #include "manufacture.h"
+#include "map.h"
+#include "minimap.h"
 #include "multiplayer.h"
 #include "particles.h"
 #include "pm_log.h"
@@ -48,6 +52,7 @@
 #include "queue.h"
 #include "reflection.h"
 #include "rules.h"
+#include "shader/shader.h"
 #include "sky.h"
 #include "sound.h"
 #include "text.h"
@@ -56,16 +61,12 @@
 #include "textures.h"
 #include "url.h"
 #include "weather.h"
-#include "counters.h"
 #ifdef MEMORY_DEBUG
 #include "elmemory.h"
 #endif
-#include "minimap.h"
 #ifdef PAWN
 #include "pawn/elpawn.h"
 #endif
-#include "map.h"
-#include "io/elfilewrapper.h"
 #ifdef	CUSTOM_UPDATE
 #include "custom_update.h"
 #endif	/* CUSTOM_UPDATE */
@@ -128,6 +129,7 @@ void cleanup_mem(void)
 		if (video_modes[i].name)
 			free(video_modes[i].name);
 	}
+	free_shaders();
 }
 
 /* temp code to allow my_timer to dynamically adjust partical update rate */

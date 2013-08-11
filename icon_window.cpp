@@ -335,6 +335,7 @@ namespace IconWindow
 		v[0] = 32.0 * (float)(icon_id >> 3)/256.0;
 		v[1] = 32.0 * (float)(coloured_icon_id >> 3)/256.0;
 		flashing = 0;
+		last_flash_change = 0;
 
 		// construct context menu if we need one
 		if (lines)
