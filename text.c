@@ -836,7 +836,7 @@ int put_string_in_buffer (text_message *buf, const Uint8 *str, int pos)
 	for (ib = 0; str[ib] && nr_paste < nr_free; ib++)
 	{
 		ch = str[ib];
-		if (is_printable (ch))
+		if (is_printable (ch) || ch == '\n')
 			nr_paste++;
 	}
 
@@ -861,6 +861,8 @@ int put_string_in_buffer (text_message *buf, const Uint8 *str, int pos)
 	for (ib = 0; str[ib]; ib++)
 	{
 		ch = str[ib];
+		if (ch == '\n')
+			ch = ' ';
 		if (is_printable (ch))
 		{
 			buf->data[pos+jb] = ch;
