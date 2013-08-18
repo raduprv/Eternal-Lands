@@ -90,6 +90,7 @@ extern int e3d_count, e3d_total;    // LRNR:stats testing only
 #endif  //DEBUG
 int cm_banner_disabled = 0;
 int ranging_lock = 0;
+int auto_disable_ranging_lock = 1;
 
 void draw_special_cursors()
 {
