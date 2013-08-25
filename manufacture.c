@@ -13,6 +13,7 @@
 #include "hud.h"
 #include "init.h"
 #include "interface.h"
+#include "item_info.h"
 #include "multiplayer.h"
 #include "textures.h"
 #include "translate.h"
@@ -30,12 +31,13 @@
 int wanted_num_recipe_entries = 10;
 int disable_manuwin_keypress = 0;
 const int max_num_recipe_entries = 500;
-item manufacture_list[ITEM_NUM_ITEMS];
 int manufacture_win= -1;
-int recipe_win= -1;
-size_t cm_recipewin = CM_INIT_VALUE;
 int manufacture_menu_x=10;
 int manufacture_menu_y=20;
+
+static item manufacture_list[ITEM_NUM_ITEMS];
+static int recipe_win= -1;
+static size_t cm_recipewin = CM_INIT_VALUE;
 
 enum { CMRIC_ADD=0, CMRIC_CLEAR, CMRIC_SORT };
 
@@ -66,6 +68,16 @@ static size_t last_items_string_id = 0;
 static item last_mix[NUM_MIX_SLOTS];
 static int recipe_names_changed = 0;
 static int initialised_recipe_names = 0;
+
+
+/* compare two item ids and return true if they match or either is not set */
+static int item_ids_match(Uint16 lid, Uint16 rid)
+{
+	if ((lid == unset_item_uid) || (rid == unset_item_uid) || (lid == rid))
+		return 1;
+	else
+		return 0;
+}
 
 
 /* called on client exit to free memory and clean up */
@@ -255,7 +267,7 @@ void check_for_recipe_name(const char *name)
 				if ((last_mix_cpy[last_mix_slot_index].quantity > 0) &&
 					(recipe[recipe_item_index].quantity == last_mix_cpy[last_mix_slot_index].quantity) &&
 					(recipe[recipe_item_index].image_id == last_mix_cpy[last_mix_slot_index].image_id) &&
-					(recipe[recipe_item_index].id == last_mix_cpy[last_mix_slot_index].id))
+					item_ids_match(recipe[recipe_item_index].id, last_mix_cpy[last_mix_slot_index].id))
 				{
 					last_mix_cpy[last_mix_slot_index].quantity = 0;
 					num_match_ing++;
@@ -311,6 +323,21 @@ void change_num_recipe_entries(int * var, int value)
 	/* reset the scroll length and position to show the new slot */
 	vscrollbar_set_bar_len(recipe_win, recipe_win_scroll_id, num_recipe_entries - num_displayed_recipes);
 	vscrollbar_set_pos(recipe_win, recipe_win_scroll_id, num_recipe_entries - num_displayed_recipes);
+}
+
+
+/* The manu window was not setting item ids when saving recipes
+ * so for previously saved recipes, all uid are set to zero. The
+ * value for unset uids is (Uint16)-1 so this needs fixing.  From now on
+ * saved recipes with set the uid properly.
+ * Zero is the uid for sunflowers (image id 25) so don't change that.
+ */
+static void fix_recipe_uids(item items[NUM_MIX_SLOTS])
+{
+	int i;
+	for (i=0; i<NUM_MIX_SLOTS; i++)
+		if ((items[i].quantity > 0) && (items[i].id == 0) && (items[i].image_id != 25))
+			items[i].id = unset_item_uid;
 }
 
 
@@ -389,13 +416,17 @@ void load_recipes (){
 			memset(recipes_store[i].items, 0, recipe_size);
 			break;
 		}
+		fix_recipe_uids(recipes_store[i].items);
 	}
 
 	/* if there is another, use it as the current recipe in the manufacturing pipeline */
 	if (!feof(fp))
+	{
 		if (fread (manu_recipe.items,recipe_size,1, fp) != 1)
 			memset(manu_recipe.items, 0, recipe_size);
-
+		else
+			fix_recipe_uids(manu_recipe.items);
+	}
 	fclose (fp);
 
 	load_recipe_names();
@@ -449,7 +480,9 @@ static void check_if_possible_recipe(recipe_entry *this_recipe)
 			int not_found = 1;
 			int j;
 			for (j=0; possible && j<MIX_SLOT_OFFSET; j++)
-				if (manufacture_list[j].quantity>0 && this_recipe->items[i].image_id == manufacture_list[j].image_id)
+				if ((manufacture_list[j].quantity > 0) &&
+					(this_recipe->items[i].image_id == manufacture_list[j].image_id) &&
+					item_ids_match(this_recipe->items[i].id, manufacture_list[j].id))
 				{
 					if(this_recipe->items[i].quantity > manufacture_list[j].quantity)
 						possible = 0;
@@ -476,6 +509,7 @@ void build_manufacture_list()
 		if(item_list[i].quantity && item_list[i].is_resource) {
 			manufacture_list[j].quantity=item_list[i].quantity;
 			manufacture_list[j].image_id=item_list[i].image_id;
+			manufacture_list[j].id=item_list[i].id;
 			manufacture_list[j].pos=item_list[i].pos;
 			j++;
 		}
@@ -490,12 +524,16 @@ void build_manufacture_list()
 		for(i=0; i<NUM_MIX_SLOTS; i++) {
 			if(manu_recipe.items[i].quantity > 0)	{
 				for(j=0;j<MIX_SLOT_OFFSET;j++){
-					if(manufacture_list[j].quantity>0 && manufacture_list[j].quantity>=manu_recipe.items[i].quantity && manufacture_list[j].image_id==manu_recipe.items[i].image_id){
+					if ((manufacture_list[j].quantity > 0) &&
+						(manufacture_list[j].quantity >= manu_recipe.items[i].quantity) &&
+						(manufacture_list[j].image_id == manu_recipe.items[i].image_id) &&
+						item_ids_match(manufacture_list[j].id, manu_recipe.items[i].id)) {
 						//found an empty space in the "production pipe"
 						manufacture_list[j].quantity -= manu_recipe.items[i].quantity;
 						manufacture_list[i+MIX_SLOT_OFFSET].quantity = manu_recipe.items[i].quantity;
 						manufacture_list[i+MIX_SLOT_OFFSET].pos = manufacture_list[j].pos;
 						manufacture_list[i+MIX_SLOT_OFFSET].image_id = manufacture_list[j].image_id;
+						manufacture_list[i+MIX_SLOT_OFFSET].id = manufacture_list[j].id;
 						break;
 					}
 				}
@@ -952,6 +990,7 @@ static int click_manufacture_handler(window_info *win, int mx, int my, Uint32 fl
 					manufacture_list[j].quantity += quantitytomove;
 					manufacture_list[j].pos=manufacture_list[pos].pos;
 					manufacture_list[j].image_id=manufacture_list[pos].image_id;
+					manufacture_list[j].id=manufacture_list[pos].id;
 					manufacture_list[pos].quantity -= quantitytomove;
 					copy_recipe_from_manu_list(manu_recipe.items);
 					do_click_sound();
@@ -968,6 +1007,7 @@ static int click_manufacture_handler(window_info *win, int mx, int my, Uint32 fl
 					manufacture_list[j].quantity += quantitytomove;
 					manufacture_list[j].pos=manufacture_list[pos].pos;
 					manufacture_list[j].image_id=manufacture_list[pos].image_id;
+					manufacture_list[j].id=manufacture_list[pos].id;
 					manufacture_list[pos].quantity -= quantitytomove;
 					copy_recipe_from_manu_list(manu_recipe.items);
 					do_click_sound();
@@ -1004,6 +1044,7 @@ static int click_manufacture_handler(window_info *win, int mx, int my, Uint32 fl
 					manufacture_list[j].quantity += quantitytomove;
 					manufacture_list[j].pos=manufacture_list[MIX_SLOT_OFFSET+pos].pos;
 					manufacture_list[j].image_id=manufacture_list[MIX_SLOT_OFFSET+pos].image_id;
+					manufacture_list[j].id=manufacture_list[MIX_SLOT_OFFSET+pos].id;
 					manufacture_list[MIX_SLOT_OFFSET+pos].quantity -= quantitytomove;
 					copy_recipe_from_manu_list(manu_recipe.items);
 					do_click_sound();
@@ -1021,6 +1062,7 @@ static int click_manufacture_handler(window_info *win, int mx, int my, Uint32 fl
 					manufacture_list[j].quantity += quantitytomove;
 					manufacture_list[j].pos=manufacture_list[MIX_SLOT_OFFSET+pos].pos;
 					manufacture_list[j].image_id=manufacture_list[MIX_SLOT_OFFSET+pos].image_id;
+					manufacture_list[j].id=manufacture_list[MIX_SLOT_OFFSET+pos].id;
 					manufacture_list[MIX_SLOT_OFFSET+pos].quantity -= quantitytomove;
 					copy_recipe_from_manu_list(manu_recipe.items);
 					do_click_sound();
@@ -1108,7 +1150,7 @@ static int clear_handler()
 {
 	int i;
 
-	for(i=0; i<NUM_MIX_SLOTS; i++) manu_recipe.items[i].quantity= manu_recipe.items[i].image_id= 0; // clear the recipe
+	for(i=0; i<NUM_MIX_SLOTS; i++) manu_recipe.items[i].quantity= manu_recipe.items[i].image_id= manu_recipe.items[i].id= 0; // clear the recipe
 	build_manufacture_list();
 	return 1;
 }
@@ -1158,6 +1200,7 @@ static int mouseover_manufacture_slot_handler(window_info *win, int mx, int my)
 	int pos;
 	int check_for_eye = 0;
 	int help_line = 0;
+	const char *descp_str = NULL;
 
 	/* Do nothing when mouse over title bar */
 	if (my<0)
@@ -1173,6 +1216,8 @@ static int mouseover_manufacture_slot_handler(window_info *win, int mx, int my)
 	if (pos >= 0 && manufacture_list[pos].quantity > 0){
 		if (show_help_text)
 			show_help(manu_add_str, 0, win->len_y + 10 + SMALL_FONT_Y_LEN*help_line++);
+		if (show_item_desc_text && item_info_available() && (get_item_count(manufacture_list[pos].id, manufacture_list[pos].image_id) == 1))
+			descp_str = get_item_description(manufacture_list[pos].id, manufacture_list[pos].image_id);
 		check_for_eye = 1;
 	}
 
@@ -1195,6 +1240,10 @@ static int mouseover_manufacture_slot_handler(window_info *win, int mx, int my)
 	// show the recipe search help
 	if (show_help_text && !recipes_shown && !disable_manuwin_keypress)
 		show_help(recipe_find_str, 0, win->len_y + 10 + SMALL_FONT_Y_LEN*help_line++);
+
+	/* if set, show the description last */
+	if (descp_str != NULL)
+		show_help(descp_str, 0, win->len_y + 10 + SMALL_FONT_Y_LEN*help_line++);
 
 	/* if we're over an occupied slot and the eye cursor function is active, show the eye cursor */
 	if (check_for_eye){
