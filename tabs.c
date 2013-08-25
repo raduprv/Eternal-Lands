@@ -121,7 +121,10 @@ void display_tab_info()
 {
 	if (tab_info_win < 0)
 	{
-		tab_info_win = create_window (tt_info, -1, 0, tab_info_x, tab_info_y, tab_info_len_x, tab_info_len_y, ELW_WIN_DEFAULT);
+		int our_root_win = -1;
+		if (!windows_on_top)
+			our_root_win = game_root_win;
+		tab_info_win = create_window (tt_info, our_root_win, 0, tab_info_x, tab_info_y, tab_info_len_x, tab_info_len_y, ELW_WIN_DEFAULT);
 
 		set_window_handler (tab_info_win, ELW_HANDLER_DISPLAY, &display_tab_info_handler);
 
