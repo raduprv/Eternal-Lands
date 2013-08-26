@@ -359,6 +359,8 @@ extern char
 		researching_str[30],
 		not_researching_anything[25],
 		not_researching_str[25],
+		countdown_str[20],
+		stopwatch_str[20],
 		minutes_str[15],
 		minute_str[15],
 		idle_str[15],

@@ -171,6 +171,8 @@ void draw_scene()
 			auto_save_local_and_server();
 			/* action on afk state changes */
 			check_afk_state();
+			/* the timer in the hud */
+			update_hud_timer();
 			/* until next time */
 			last_half_second_timer = current_time;
 		}

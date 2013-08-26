@@ -86,7 +86,7 @@ static int cm_sound_enabled = 0;
 static int cm_music_enabled = 0;
 static int cm_minimap_shown = 0;
 static int cm_rangstats_shown = 0;
-enum {	CMH_STATS=0, CMH_STATBARS, CMH_KNOWBAR, CMH_DIGCLOCK, CMH_ANACLOCK,
+enum {	CMH_STATS=0, CMH_STATBARS, CMH_KNOWBAR, CMH_TIMER, CMH_DIGCLOCK, CMH_ANACLOCK,
 		CMH_SECONDS, CMH_FPS, CMH_QUICKBM, CMH_SEP1, CMH_MINIMAP, CMH_RANGSTATS,
 		CMH_SEP2, CMH_SOUND, CMH_MUSIC, CMH_SEP3, CMH_LOCATION };
 enum {	CMQB_RELOC=0, CMQB_DRAG, CMQB_RESET, CMQB_FLIP, CMQB_ENABLE };
@@ -97,6 +97,7 @@ int hud_text;
 int view_analog_clock= 1;
 int view_digital_clock= 0;
 int view_knowledge_bar = 1;
+int view_hud_timer = 1;
 int copy_next_LOCATE_ME = 0;
 int	stats_bar_win= -1;
 int	misc_win= -1;
@@ -119,6 +120,151 @@ static int mouse_over_knowledge_bar = 0;			/* 1 if mouse is over the knowledge b
 
 static const int knowledge_bar_height = SMALL_FONT_Y_LEN + 6;
 static const int stats_bar_height = SMALL_FONT_Y_LEN;
+
+
+/*
+ *  The countdown / stopwatch timer code
+ *
+ * 	TODO
+ * 		add #command start/stop/reset/mode/set
+ * 		add context menu including dynamic list of previous start values
+ */
+
+static struct
+{
+	int running;
+	int current_value;
+	int start_value;
+	int mode_coundown;
+	int mouse_over;
+	const int max_value;
+	const int height;
+} hud_timer = {0, 90, 90, 1, 0, 9*60+59, DEFAULT_FONT_Y_LEN };
+
+static const int get_height_of_timer(void)
+{
+	return hud_timer.height;
+}
+
+static void set_mouse_over_timer(void)
+{
+	hud_timer.mouse_over = 1;
+}
+
+
+/* Called from the main thread 500 ms timer */
+void update_hud_timer(void)
+{
+	static int use_it = 0;
+	if (hud_timer.running && use_it)
+	{
+		if (hud_timer.mode_coundown)
+		{
+			if ((--hud_timer.current_value) == 0)
+				do_alert1_sound();
+		}
+		else
+			hud_timer.current_value++;
+		if (hud_timer.current_value > hud_timer.max_value)
+			hud_timer.current_value = 0;
+		else if (hud_timer.current_value < 0)
+			hud_timer.current_value = 0;
+	}
+	use_it = !use_it;
+}
+
+
+/* display the current time for the hud timer, coloured by stopped or running */
+static int display_timer(window_info *win, int base_y_start)
+{
+	char str[10];
+	int x;
+	base_y_start -= hud_timer.height;
+	safe_snprintf(str, sizeof(str), "%c%1d:%02d", ((hud_timer.mode_coundown) ?countdown_str[0] :stopwatch_str[0]), hud_timer.current_value/60, hud_timer.current_value%60);
+	x= 3+(win->len_x - (get_string_width((unsigned char*)str)*11)/12)/2;
+	if (hud_timer.running)
+		draw_string_shadowed(x, 2 + base_y_start, (unsigned char*)str, 1,0.5f, 1.0f, 0.5f,0.0f,0.0f,0.0f);
+	else
+		draw_string_shadowed(x, 2 + base_y_start, (unsigned char*)str, 1,1.0f, 0.5f, 0.5f,0.0f,0.0f,0.0f);
+	if (hud_timer.mouse_over)
+	{
+		char *use_str = ((hud_timer.mode_coundown) ?countdown_str:stopwatch_str);
+		draw_string_small_shadowed(-(int)(SMALL_FONT_X_LEN*(strlen(use_str)+0.5)), base_y_start, (unsigned char*)use_str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
+		hud_timer.mouse_over = 0;
+	}
+	return base_y_start;
+}
+
+
+/* return true if the coords are over the hud timer */
+static int mouse_is_over_timer(window_info *win, int mx, int my)
+{
+	if (view_hud_timer)
+	{
+		int bar_y_pos = win->len_y - 64;
+		if (view_analog_clock) bar_y_pos -= 64;
+		if (view_digital_clock) bar_y_pos -= DEFAULT_FONT_Y_LEN;
+		if (view_knowledge_bar) bar_y_pos -= knowledge_bar_height;
+		if ((my > (bar_y_pos - hud_timer.height)) && (my < bar_y_pos))
+			return 1;
+	}
+	return 0;
+}
+
+
+/*
+ * Control the hud timer by variosu mouse clicks:
+ * Shift+click changed mode Countdown / Stopwatch
+ * For Countdown, mouse wheel up/down decrease/increase start time.
+ * 		Defaul step 5, +ctrl 1, +alt 30
+ * Left-click start/stop timer
+ * Mouse wheel click - reset timer.
+ */
+static int mouse_click_timer(Uint32 flags)
+{
+	/* change countdown start */
+	if (flags & (ELW_WHEEL_DOWN|ELW_WHEEL_UP))
+	{
+		int step = 5;
+		if (!hud_timer.mode_coundown)
+			return 1;
+		if (flags & ELW_CTRL)
+			step = 1;
+		else if (flags & ELW_ALT)
+			step = 30;
+		hud_timer.running = 0;
+		hud_timer.start_value += step * ((flags & ELW_WHEEL_DOWN)!=0) - step * ((flags & ELW_WHEEL_UP)!=0);
+		if (hud_timer.start_value < 0)
+			hud_timer.start_value = 0;
+		else if (hud_timer.start_value > hud_timer.max_value)
+			hud_timer.start_value = hud_timer.max_value;
+		hud_timer.current_value = hud_timer.start_value;
+	}
+	/* control mode */
+	else if (flags & ELW_SHIFT)
+	{
+		if (hud_timer.mode_coundown)
+			hud_timer.mode_coundown = hud_timer.current_value = 0;
+		else
+		{
+			hud_timer.mode_coundown = 1;
+			hud_timer.current_value = hud_timer.start_value;
+		}
+		hud_timer.running = 0;
+		do_window_close_sound();
+	}
+	else
+	{
+		/* reset */
+		if (flags & ELW_MID_MOUSE)
+			hud_timer.current_value = (hud_timer.mode_coundown) ?hud_timer.start_value : 0;
+		/* start / stop */
+		else if (flags & ELW_LEFT_MOUSE)
+			hud_timer.running = !hud_timer.running;
+		do_click_sound();
+	}
+	return 1;
+}
 
 
 /* #exp console command, display current exp information */
@@ -1089,7 +1235,7 @@ static void context_hud_pre_show_handler(window_info *win, int widget_id, int mx
 
 void init_misc_display(hud_interface type)
 {
-	int y_len = 128 + DEFAULT_FONT_Y_LEN + knowledge_bar_height + (NUM_WATCH_STAT-1) * stats_bar_height;
+	int y_len = 128 + DEFAULT_FONT_Y_LEN + knowledge_bar_height + get_height_of_timer() + (NUM_WATCH_STAT-1) * stats_bar_height;
 	int i;
 	//create the misc window
 	if(misc_win < 0)
@@ -1102,6 +1248,7 @@ void init_misc_display(hud_interface type)
 			cm_bool_line(cm_hud_id, CMH_STATS, &show_stats_in_hud, "show_stats_in_hud");
 			cm_bool_line(cm_hud_id, CMH_STATBARS, &show_statbars_in_hud, "show_statbars_in_hud");
 			cm_bool_line(cm_hud_id, CMH_KNOWBAR, &view_knowledge_bar, "view_knowledge_bar");
+			cm_bool_line(cm_hud_id, CMH_TIMER, &view_hud_timer, "view_hud_timer");
 			cm_bool_line(cm_hud_id, CMH_DIGCLOCK, &view_digital_clock, "view_digital_clock");
 			cm_bool_line(cm_hud_id, CMH_ANACLOCK, &view_analog_clock, "view_analog_clock");
 			cm_bool_line(cm_hud_id, CMH_SECONDS, &show_game_seconds, "show_game_seconds");
@@ -1189,7 +1336,6 @@ static int calc_statbar_start_y(int base_y_start, int win_y_len)
 int display_misc_handler(window_info *win)
 {
 	int base_y_start = win->len_y - (view_analog_clock?128:64) - (view_digital_clock?DEFAULT_FONT_Y_LEN:0);
-	char str[16];	// one extra incase the length of the day ever changes
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -1243,6 +1389,7 @@ CHECK_GL_ERRORS();
 	//Digital Clock
 	if(view_digital_clock > 0){
 		int x;
+		char str[10];
 
 		//glColor3f(0.77f, 0.57f, 0.39f); // useless
 		if (show_game_seconds)
@@ -1261,6 +1408,7 @@ CHECK_GL_ERRORS();
 	/* if mouse over the either of the clocks - display the time & date */
 	if (mouse_over_clock)
 	{
+		char str[20];
 		const char *the_date = get_date(NULL);
 		int centre_y =  (view_analog_clock) ?win->len_y-96 : base_y_start + DEFAULT_FONT_Y_LEN/2;
 
@@ -1277,6 +1425,7 @@ CHECK_GL_ERRORS();
 	/* if mouse over the compass - display the coords */
 	if (mouse_over_compass)
 	{
+		char str[12];
 		actor *me = get_our_actor ();
 		if (me != NULL)
 		{
@@ -1315,6 +1464,10 @@ CHECK_GL_ERRORS();
 
 		base_y_start -= knowledge_bar_height;
 	}
+
+	/* if the timer is visable, draw it */
+	if (view_hud_timer)
+		base_y_start = display_timer(win, base_y_start);
 
 	// Trade the number of quickbar slots if too much is displayed (not considering stats yet)
 	while (((win->len_y - base_y_start) - get_max_quick_y()) > 0)
@@ -1457,9 +1610,12 @@ int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 		}
 	}
 
+	if (mouse_is_over_timer(win, mx, my))
+		return mouse_click_timer(flags);
+
 	// only handle mouse button clicks, not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
-	
+
 	// reserve CTRL clicks for scrolling
 	if (flags & ELW_CTRL) return 0;
 
@@ -1538,6 +1694,10 @@ int mouseover_misc_handler(window_info *win, int mx, int my)
 	/* check if over the knowledge bar */
 	if (mouse_is_over_knowedge_bar(win, mx, my))
 		mouse_over_knowledge_bar = 1;
+
+	/* check if over the timer */
+	if (mouse_is_over_timer(win, mx, my))
+		set_mouse_over_timer();
 
 	/* if mouse over the compass - display the coords */
 	if(my>win->len_y-64 && my<win->len_y)

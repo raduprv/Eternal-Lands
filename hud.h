@@ -68,6 +68,7 @@ extern int hud_y;
 extern int view_analog_clock;
 extern int view_digital_clock;
 extern int view_knowledge_bar;
+extern int view_hud_timer;
 
 extern int quickbar_x;
 extern int quickbar_y;
@@ -78,6 +79,16 @@ extern int num_quickbar_slots;
 extern int copy_next_LOCATE_ME;
 
 // the main hud handling
+
+/*!
+ * \ingroup other
+ * \brief Update the hud timer display
+ *
+ *       Expects a 500ms update interval.  Only call from main thread.
+ *
+ * \callgraph
+*/
+void update_hud_timer(void);
 
 /*!
  * \ingroup other
