@@ -51,6 +51,8 @@ static int mouseover_session_reset_handler(void)
 
 static int click_session_handler(window_info *win, int mx, int my, Uint32 flags)
 {
+	if (flags & (ELW_WHEEL_UP|ELW_WHEEL_DOWN))
+		return 0;
 	last_mouse_click_y = my;
 	do_click_sound();
 	return 1;
