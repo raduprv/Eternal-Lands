@@ -121,8 +121,13 @@ typedef struct
 	int banner_settings;
 	/*! @} */
 
+	/*!
+	 * \name Item lists - active list index.
+	 */
+	/*! @{ */
+	unsigned int active_item_list;
+		
 	int unused_01;
-	int unused_02;
 
 	/*!
 	 * \name quest log window position

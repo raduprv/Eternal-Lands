@@ -107,7 +107,7 @@ namespace ItemLists
 	class List_Container
 	{
 		public:
-			List_Container(void) : active_list(0), last_mod_time(0), loaded(false) {}
+			List_Container(void) : active_list(0), initial_active_list(0), last_mod_time(0), loaded(false) {}
 			void load(void);
 			void save(void);
 			bool add(const char *name);
@@ -122,6 +122,7 @@ namespace ItemLists
 			const std::vector<List> & get_lists(void) const { return saved_item_lists; }
 			bool set_active(size_t new_active_list)
 				{ if (new_active_list >= size()) return false; active_list = new_active_list; return true; }
+			void set_initial_active(size_t list_index) { initial_active_list = list_index; }
 			void set_quantity(size_t item, int quantity)
 				{ assert(valid_active_list()); last_mod_time = SDL_GetTicks(); return saved_item_lists[active_list].set_quantity(item, quantity); }
 			void del_item(size_t i)
@@ -137,6 +138,7 @@ namespace ItemLists
 			std::vector<List> saved_item_lists;
 			static int FILE_REVISION;
 			size_t active_list;
+			size_t initial_active_list;
 			Uint32 last_mod_time;
 			bool loaded;
 			static const char * filename;
@@ -688,7 +690,7 @@ namespace ItemLists
 		}
 		in.close();
 		sort_list();
-		active_list = 0;
+		set_active(initial_active_list);
 	}
 
 
@@ -862,6 +864,8 @@ namespace ItemLists
 				1.0, 0.77f, 0.57f, 0.39f, 0, 1, Vars::lists()->size()-num_show_names_list);
 
 			init_ipu(&ipu_item_list_name, -1, -1, -1, 1, 1, NULL, NULL);
+			
+			make_active_visable();
 		}
 		else
 		{
@@ -1509,5 +1513,15 @@ extern "C"
 	{
 		ItemLists::Vars::lists()->save();
 		ItemLists::Vars::cat_maps()->save();
+	}
+	
+	unsigned int item_lists_get_active(void)
+	{
+		return static_cast<unsigned int>(ItemLists::Vars::lists()->get_active());
+	}
+	
+	void item_lists_set_active(unsigned int active_list)
+	{
+		ItemLists::Vars::lists()->set_initial_active(static_cast<size_t>(active_list));
 	}
 }
