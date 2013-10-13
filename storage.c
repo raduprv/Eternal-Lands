@@ -84,7 +84,7 @@ static void select_item(int image_id, Uint16 item_id)
 	if (found_at < 0)
 	{
 		do_alert1_sound();
-		il_pickup_fail_time = SDL_GetTicks();
+		item_lists_reset_pickup_fail_time();
 	}
 	else
 	{
@@ -135,7 +135,7 @@ void pickup_storage_item(int image_id, Uint16 item_id, int cat_id)
 	if ((storage_win<0) || (find_category(cat_id) == -1))
 	{
 		do_alert1_sound();
-		il_pickup_fail_time = SDL_GetTicks();
+		item_lists_reset_pickup_fail_time();
 		return;
 	}
 	wanted_category = find_category(cat_id);

@@ -200,7 +200,8 @@ namespace ItemLists
 				name_under_mouse(static_cast<size_t>(-1)), clicked(false),
 				mouse_over_add_button(false), last_click_time(0), resizing(false),
 				last_quantity_selected(0), num_grid_rows(min_grid_rows()),
-				last_key_time(0), last_items_list_on_left(-1), desc_str(0) {}
+				last_key_time(0), last_items_list_on_left(-1), desc_str(0),
+				pickup_fail_time(0) {}
 			int get_id(void) const { return win_id; }
 			size_t get_grid_cm(void) const { return cm_selected_item_menu; }
 			static int get_grid_size(void) { return 33; };
@@ -219,6 +220,7 @@ namespace ItemLists
 			void cm_names_pre_show(void);
 			int keypress(char the_key);
 			void resized_name_panel(window_info *win);
+			void reset_pickup_fail_time(void) { pickup_fail_time = SDL_GetTicks(); }
 		private:
 			void calc_num_show_names(int win_len_y);
 			int get_window_pos_x(window_info *parent_win) const;
@@ -248,6 +250,7 @@ namespace ItemLists
 			Uint32 last_key_time;
 			int last_items_list_on_left;
 			const char *desc_str;
+			Uint32 pickup_fail_time;
 	};
 
 
@@ -970,7 +973,7 @@ namespace ItemLists
 		{
 			int x_start = selected_item_number%6 * get_grid_size();
 			int y_start = static_cast<int>(selected_item_number/6) * get_grid_size();
-			if ((SDL_GetTicks() - il_pickup_fail_time) < 250)
+			if ((SDL_GetTicks() - pickup_fail_time) < 250)
 				glColor3f(0.8f,0.2f,0.2f);
 			else
 				glColor3f(0.0f, 1.0f, 0.3f);
@@ -1228,7 +1231,7 @@ CHECK_GL_ERRORS();
 					else
 					{
 						do_alert1_sound();
-						il_pickup_fail_time = SDL_GetTicks();
+						reset_pickup_fail_time();
 						static bool first_fail = true;
 						if (first_fail)
 						{
@@ -1501,8 +1504,6 @@ CHECK_GL_ERRORS();
 //
 extern "C"
 {
-	Uint32 il_pickup_fail_time = 0;
-
 	void toggle_items_list_window(window_info *win)
 		{ ItemLists::Vars::win()->show(win); }
 
@@ -1524,4 +1525,10 @@ extern "C"
 	{
 		ItemLists::Vars::lists()->set_initial_active(static_cast<size_t>(active_list));
 	}
+	
+	void item_lists_reset_pickup_fail_time(void)
+	{
+		ItemLists::Vars::win()->reset_pickup_fail_time();
+	}
+
 }
