@@ -27,6 +27,7 @@
 #include "missiles.h"
 #include "multiplayer.h"
 #include "new_character.h"
+#include "notepad.h"
 #include "platform.h"
 #include "questlog.h"
 #include "sound.h"
@@ -127,7 +128,9 @@ static const int stats_bar_height = SMALL_FONT_Y_LEN;
  *
  * 	TODO
  * 		add #command start/stop/reset/mode/set
- * 		add context menu including dynamic list of previous start values
+ * 		add to context menu, dynamic list of previous start values
+ * 		move code to separate module
+ * 		move strings to translate module
  */
 
 static struct
@@ -139,20 +142,32 @@ static struct
 	int mouse_over;
 	const int max_value;
 	const int height;
-} hud_timer = {0, 90, 90, 1, 0, 9*60+59, DEFAULT_FONT_Y_LEN };
+	size_t cm_id;
+	int last_base_y_start;
+	INPUT_POPUP *input;
+} hud_timer = {0, 90, 90, 1, 0, 9*60+59, DEFAULT_FONT_Y_LEN, CM_INIT_VALUE, -1, NULL };
 
+enum {	CMHT_MODE=0, CMHT_RUNSTATE, CMHT_SETTIME, CMHT_RESET, CMHT_SEP1, CMHT_HELP  };
+
+static const char *hud_timer_cm_str = "Change Mode\nStart/Stop\nSet Time\nReset Time\n--\nShow Help";
+static const char *hud_timer_popup_title = "Time (in seconds)";
+
+
+/* return the height in pixels of the timer */
 static const int get_height_of_timer(void)
 {
 	return hud_timer.height;
 }
 
+
+/* note the mouse is over the timer */
 static void set_mouse_over_timer(void)
 {
 	hud_timer.mouse_over = 1;
 }
 
 
-/* Called from the main thread 500 ms timer */
+/* Called from the main thread 500 ms timer - implement the timer */
 void update_hud_timer(void)
 {
 	static int use_it = 0;
@@ -174,11 +189,138 @@ void update_hud_timer(void)
 }
 
 
+
+/* set the start value for the countdown timer, stop running and reset */
+static void set_timer_start(int new_start_value)
+{
+	if (!hud_timer.mode_coundown)
+		return;
+	hud_timer.running = 0;
+	hud_timer.start_value = new_start_value;
+	if (hud_timer.start_value < 0)
+		hud_timer.start_value = 0;
+	else if (hud_timer.start_value > hud_timer.max_value)
+		hud_timer.start_value = hud_timer.max_value;
+	hud_timer.current_value = hud_timer.start_value;
+}
+
+
+/* toggle the timer between countdown and stopwatch mode */
+static void toggle_timer_mode(void)
+{
+	if (hud_timer.mode_coundown)
+		hud_timer.mode_coundown = hud_timer.current_value = 0;
+	else
+	{
+		hud_timer.mode_coundown = 1;
+		hud_timer.current_value = hud_timer.start_value;
+	}
+	hud_timer.running = 0;
+}
+
+
+/* reset the timer to its initial value */
+static void hud_timer_reset(void)
+{
+	hud_timer.current_value = (hud_timer.mode_coundown) ?hud_timer.start_value : 0;
+}
+
+
+/* toggle the timer running state */
+static void hud_timer_toggle_running(void)
+{
+	hud_timer.running = !hud_timer.running;
+}
+
+
+/* callback for timer popup - new time setting */
+static void set_timer_time(const char *text, void *data)
+{
+	if ((text != NULL) && (strlen(text)>0))
+		set_timer_start(atoi(text));
+}
+
+
+/* change timer context menu options depending on state */
+static void cm_timer_pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win)
+{
+	cm_grey_line(hud_timer.cm_id, CMHT_SETTIME, !hud_timer.mode_coundown);
+}
+
+
+/* implement the timer context menu options */
+static int cm_timer_handler(window_info *win, int widget_id, int mx, int my, int option)
+{
+	switch (option)
+	{
+		case CMHT_MODE: toggle_timer_mode(); break;
+		case CMHT_RUNSTATE: hud_timer_toggle_running(); break;
+		case CMHT_SETTIME:
+			{
+				if (hud_timer.input == NULL)
+					hud_timer.input = (INPUT_POPUP *)malloc(sizeof(INPUT_POPUP));
+				else
+					close_ipu(hud_timer.input);
+				init_ipu(hud_timer.input, win->window_id, 220, -1, 4, 1, NULL, set_timer_time);
+				hud_timer.input->x = -230;
+				hud_timer.input->y = hud_timer.last_base_y_start;
+				display_popup_win(hud_timer.input, hud_timer_popup_title);
+			}
+			break;
+		case CMHT_RESET: hud_timer_reset(); break;
+		case CMHT_HELP:
+			{
+				const char *desc = get_option_description("view_hud_timer", OPT_BOOL);
+				if ((desc != NULL) && (*desc != '\0'))
+					LOG_TO_CONSOLE(c_green1, desc);
+			}
+			break;
+		default: return 0;
+	}
+	return 1;
+}
+
+
+/* create or destroy the timer context menu depending on if the timer is shown */
+static void check_timer_cm_menu(window_info *win, int base_y_start)
+{
+	if (cm_valid(hud_timer.cm_id) && (!view_hud_timer || (hud_timer.last_base_y_start != base_y_start)))
+	{
+		cm_destroy(hud_timer.cm_id);
+		hud_timer.cm_id = CM_INIT_VALUE;
+	}
+	if (view_hud_timer && !cm_valid(hud_timer.cm_id))
+	{
+		hud_timer.cm_id = cm_create(hud_timer_cm_str, cm_timer_handler);
+		cm_add_region(hud_timer.cm_id, win->window_id, 0, base_y_start - hud_timer.height, win->len_x, hud_timer.height);
+		cm_set_pre_show_handler(hud_timer.cm_id, cm_timer_pre_show_handler);
+	}
+	hud_timer.last_base_y_start = base_y_start;
+}
+
+
+/* if we have a popup window for the timer, destroy it, freeing the resources */
+static void destroy_timer_popup(void)
+{
+	if (hud_timer.input != NULL)
+	{
+		close_ipu(hud_timer.input);
+		free(hud_timer.input);
+		hud_timer.input = NULL;
+	}
+}
+
+
 /* display the current time for the hud timer, coloured by stopped or running */
 static int display_timer(window_info *win, int base_y_start)
 {
 	char str[10];
 	int x;
+	check_timer_cm_menu(win, base_y_start);
+	if ((hud_timer.input != NULL) && (!view_hud_timer || !get_show_window(hud_timer.input->popup_win)))
+		destroy_timer_popup();
+	if (!view_hud_timer)
+		return 0;
 	base_y_start -= hud_timer.height;
 	safe_snprintf(str, sizeof(str), "%c%1d:%02d", ((hud_timer.mode_coundown) ?countdown_str[0] :stopwatch_str[0]), hud_timer.current_value/60, hud_timer.current_value%60);
 	x= 3+(win->len_x - (get_string_width((unsigned char*)str)*11)/12)/2;
@@ -192,28 +334,22 @@ static int display_timer(window_info *win, int base_y_start)
 		draw_string_small_shadowed(-(int)(SMALL_FONT_X_LEN*(strlen(use_str)+0.5)), base_y_start, (unsigned char*)use_str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
 		hud_timer.mouse_over = 0;
 	}
-	return base_y_start;
+	return hud_timer.height;
 }
 
 
 /* return true if the coords are over the hud timer */
 static int mouse_is_over_timer(window_info *win, int mx, int my)
 {
-	if (view_hud_timer)
-	{
-		int bar_y_pos = win->len_y - 64;
-		if (view_analog_clock) bar_y_pos -= 64;
-		if (view_digital_clock) bar_y_pos -= DEFAULT_FONT_Y_LEN;
-		if (view_knowledge_bar) bar_y_pos -= knowledge_bar_height;
-		if ((my > (bar_y_pos - hud_timer.height)) && (my < bar_y_pos))
-			return 1;
-	}
-	return 0;
+	if ((view_hud_timer) && ((my > (hud_timer.last_base_y_start - hud_timer.height)) && (my < hud_timer.last_base_y_start)))
+		return 1;
+	else
+		return 0;
 }
 
 
 /*
- * Control the hud timer by variosu mouse clicks:
+ * Control the hud timer by various mouse clicks:
  * Shift+click changed mode Countdown / Stopwatch
  * For Countdown, mouse wheel up/down decrease/increase start time.
  * 		Defaul step 5, +ctrl 1, +alt 30
@@ -232,38 +368,50 @@ static int mouse_click_timer(Uint32 flags)
 			step = 1;
 		else if (flags & ELW_ALT)
 			step = 30;
-		hud_timer.running = 0;
-		hud_timer.start_value += step * ((flags & ELW_WHEEL_DOWN)!=0) - step * ((flags & ELW_WHEEL_UP)!=0);
-		if (hud_timer.start_value < 0)
-			hud_timer.start_value = 0;
-		else if (hud_timer.start_value > hud_timer.max_value)
-			hud_timer.start_value = hud_timer.max_value;
-		hud_timer.current_value = hud_timer.start_value;
+		if ((flags & ELW_WHEEL_UP)!=0)
+			step *= -1;
+		set_timer_start(hud_timer.start_value + step);
 	}
 	/* control mode */
 	else if (flags & ELW_SHIFT)
 	{
-		if (hud_timer.mode_coundown)
-			hud_timer.mode_coundown = hud_timer.current_value = 0;
-		else
-		{
-			hud_timer.mode_coundown = 1;
-			hud_timer.current_value = hud_timer.start_value;
-		}
-		hud_timer.running = 0;
+		toggle_timer_mode();
 		do_window_close_sound();
 	}
 	else
 	{
 		/* reset */
 		if (flags & ELW_MID_MOUSE)
-			hud_timer.current_value = (hud_timer.mode_coundown) ?hud_timer.start_value : 0;
+			hud_timer_reset();
 		/* start / stop */
 		else if (flags & ELW_LEFT_MOUSE)
-			hud_timer.running = !hud_timer.running;
+			hud_timer_toggle_running();
 		do_click_sound();
 	}
 	return 1;
+}
+
+
+/* clean up timer resource usage */
+static void destroy_timer(void)
+{
+	destroy_timer_popup();
+	if (cm_valid(hud_timer.cm_id))
+	{
+		cm_destroy(hud_timer.cm_id);
+		hud_timer.cm_id = CM_INIT_VALUE;
+	}
+}
+
+
+/* called on client exit to free resources */
+void cleanup_hud(void)
+{
+	destroy_timer();
+	destroy_window(misc_win);
+	destroy_window(stats_bar_win);
+	destroy_window(quickbar_win);
+	stats_bar_win = quickbar_win = misc_win = -1;
 }
 
 
@@ -1465,9 +1613,8 @@ CHECK_GL_ERRORS();
 		base_y_start -= knowledge_bar_height;
 	}
 
-	/* if the timer is visable, draw it */
-	if (view_hud_timer)
-		base_y_start = display_timer(win, base_y_start);
+	/* if the timer is visible, draw it */
+	base_y_start -= display_timer(win, base_y_start);
 
 	// Trade the number of quickbar slots if too much is displayed (not considering stats yet)
 	while (((win->len_y - base_y_start) - get_max_quick_y()) > 0)

@@ -111,6 +111,14 @@ void init_hud_interface (hud_interface type);
 
 /*!
  * \ingroup other
+ * \brief Called on client exit - free memory and generally clean up
+ *
+ * \callgraph
+ */
+void cleanup_hud(void);
+
+/*!
+ * \ingroup other
  * \brief Shows the different hud related windows if they have already been created.
  *
  *      Shows the different hud related windows, i.e. the icons, the stats bar, the miscellaneous (compass and clock) and the quickbar window if they have been created before. If none of them has been created nothing will be done.
