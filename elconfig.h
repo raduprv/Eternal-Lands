@@ -72,6 +72,18 @@ void change_language(const char *new_lang);
 
 /*!
  * \ingroup config
+ * \brief   returns the long description of the variable with the given \a str name and the given \a type.
+ *
+ * \param str       the name of the variable to check
+ * \param type      the type of the variable name
+ * \retval str       the long description or NULL
+ *
+ * \callgraph
+*/
+const char *get_option_description(const char *str, var_name_type type);
+
+/*!
+ * \ingroup config
  * \brief   checks whether we have a variable with the given \a str as name and the given \a type.
  *
  *      Checks whether we have a variable with the given \a str as name and the given \a type.
