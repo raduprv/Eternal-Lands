@@ -5,17 +5,7 @@
 extern "C" {
 #endif
 
-
-/*!
- * \ingroup other
- * \brief Update the hud timer display
- *
- *       Expects a 500ms update interval.  Only call from main thread.
- *
- * \callgraph
-*/
 void update_hud_timer(void);
-
 int get_height_of_timer(void);
 void set_mouse_over_timer(void);
 int display_timer(window_info *win, int base_y_start);
