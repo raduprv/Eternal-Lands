@@ -6,7 +6,7 @@
 #ifndef	__HUD_H
 #define	__HUD_H
 
-#include "elwindows.h"
+#include <SDL_types.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -79,16 +79,6 @@ extern int num_quickbar_slots;
 extern int copy_next_LOCATE_ME;
 
 // the main hud handling
-
-/*!
- * \ingroup other
- * \brief Update the hud timer display
- *
- *       Expects a 500ms update interval.  Only call from main thread.
- *
- * \callgraph
-*/
-void update_hud_timer(void);
 
 /*!
  * \ingroup other
