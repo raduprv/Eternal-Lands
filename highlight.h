@@ -12,6 +12,7 @@ extern "C" {
 #define HIGHLIGHT_TYPE_SPELL_TARGET 	2
 #define HIGHLIGHT_TYPE_ATTACK_TARGET 	3
 #define HIGHLIGHT_TYPE_LOCK 			4
+#define HIGHLIGHT_SOFT_FAIL 			5
 
 extern int highlighting_enabled;
 

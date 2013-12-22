@@ -108,6 +108,9 @@ void display_highlight_marker(const highlight_marker *marker) {
 		case HIGHLIGHT_TYPE_LOCK:
 			glColor4f(1.0f, 1.0f, 0.0f, a);
 			break;
+		case HIGHLIGHT_SOFT_FAIL:
+			glColor4f(1.0f, 0.5f, 0.0f, a);
+			break;
 	}
 	
 	glBegin(GL_POLYGON);
