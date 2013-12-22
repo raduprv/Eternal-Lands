@@ -8,7 +8,9 @@
 //		Author bluap/pjbroad Aug/Dec 2013
 //
 
-#include <stdlib.h>
+#include <cstdlib>
+#include <cmath>
+#include <cstring>
 
 #include "asc.h"
 #include "context_menu.h"
@@ -30,8 +32,8 @@ class Hud_Timer
 	public:
 		Hud_Timer(void) : running(false), use_tick(false), current_value(90),
 			start_value(90), mode_coundown(true), mouse_over(false),
-			max_value(9*60+59), height(DEFAULT_FONT_Y_LEN), cm_id(CM_INIT_VALUE),
-			last_base_y_start(-1), input(NULL) {}
+			max_value(9*60+59), height(static_cast<int>(ceil(DEFAULT_FONT_Y_LEN))), cm_id(CM_INIT_VALUE),
+			last_base_y_start(-1), input(0) {}
 		~Hud_Timer(void) { destroy(); }
 		int get_height(void) const { return height; }
 		void set_mouse_over(void) { mouse_over = true; }
@@ -71,7 +73,7 @@ static Hud_Timer my_timer;
 //
 static void set_timer_time(const char *text, void *data)
 {
-	if ((text != NULL) && (strlen(text)>0))
+	if (text && (strlen(text)>0))
 		my_timer.set_start(atoi(text));
 }
 
@@ -150,11 +152,11 @@ int Hud_Timer::cm_handler(window_info *win, int option)
 		case CMHT_RUNSTATE: toggle_running(); break;
 		case CMHT_SETTIME:
 			{
-				if (input == NULL)
-					input = (INPUT_POPUP *)malloc(sizeof(INPUT_POPUP));
+				if (!input)
+					input = new INPUT_POPUP;
 				else
 					close_ipu(input);
-				init_ipu(input, win->window_id, 220, -1, 4, 1, NULL, set_timer_time);
+				init_ipu(input, win->window_id, 220, -1, 4, 1, 0, set_timer_time);
 				input->x = -230;
 				input->y = last_base_y_start;
 				display_popup_win(input, hud_timer_popup_title_str);
@@ -164,7 +166,7 @@ int Hud_Timer::cm_handler(window_info *win, int option)
 		case CMHT_HELP:
 			{
 				const char *desc = get_option_description("view_hud_timer", INI_FILE_VAR);
-				if ((desc != NULL) && (*desc != '\0'))
+				if (desc && (strlen(desc) > 0))
 					LOG_TO_CONSOLE(c_green1, desc);
 			}
 			break;
@@ -198,7 +200,7 @@ int Hud_Timer::display(window_info *win, int base_y_start)
 	char str[10];
 	int x;
 	check_cm_menu(win, base_y_start);
-	if ((input != NULL) && (!view_hud_timer || !get_show_window(input->popup_win)))
+	if (input && (!view_hud_timer || !get_show_window(input->popup_win)))
 		destroy_popup();
 	if (!view_hud_timer)
 		return 0;
@@ -298,11 +300,11 @@ void Hud_Timer::destroy_cm(void)
 //
 void Hud_Timer::destroy_popup(void)
 {
-	if (input != NULL)
+	if (input)
 	{
 		close_ipu(input);
-		free(input);
-		input = NULL;
+		delete input;
+		input = 0;
 	}
 }
 
