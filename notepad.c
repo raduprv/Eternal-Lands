@@ -410,6 +410,14 @@ static void init_note (int id, const char* name, const char* content)
 	safe_strncpy (note_list[id].name, name, sizeof (note_list[id].name));
 }
 
+static void increase_note_storage(void)
+{
+	int new_size = note_list_size * 2;
+	note_list = realloc (note_list, new_size * sizeof (note));
+	memset(&note_list[note_list_size], 0, (new_size - note_list_size) * sizeof (note) );
+	note_list_size = new_size;
+}
+
 static int notepad_load_file()
 {
 	xmlDocPtr doc;
@@ -460,11 +468,7 @@ static int notepad_load_file()
 				 data = fromUTF8 (cur->children->content, strlen ((const char*)cur->children->content));
 
 			if (nr_notes >= note_list_size)
-			{
-				int new_size = note_list_size * 2;
-				note_list = realloc (note_list, new_size * sizeof (note));
-				note_list_size = new_size;
-			}
+				increase_note_storage();
 
 			init_note (nr_notes, name, data);
 
@@ -688,11 +692,7 @@ static void notepad_add_continued(const char *name, void* UNUSED(data))
 	int potential_id, next_id = 0;
 
 	if (i >= note_list_size)
-	{
-		int new_size = note_list_size * 2;
-		note_list = realloc (note_list, new_size * sizeof (note));
-		note_list_size = new_size;
-	}
+		increase_note_storage();
 
 	for (potential_id = 0; potential_id < nr_notes; potential_id++)
 	{
@@ -729,11 +729,7 @@ static int notepad_add_category(widget_list* UNUSED(w),
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
 
 	if (nr_notes >= note_list_size)
-	{
-		int new_size = note_list_size * 2;
-		note_list = realloc (note_list, new_size * sizeof (note));
-		note_list_size = new_size;
-	}
+		increase_note_storage();
 
 	display_popup_win (&popup_str, label_note_name);
 	return 1;
