@@ -4,7 +4,6 @@
 // 	TODO
 // 		add #command start/stop/reset/mode/set
 // 		add to context menu, dynamic list of previous start values
-// 		move strings to translate module
 // 
 //		Author bluap/pjbroad Aug/Dec 2013
 //
@@ -19,9 +18,8 @@
 #include "hud_timer.h"
 #include "notepad.h"
 #include "sound.h"
+#include "translate.h"
 
-static const char *hud_timer_cm_str = "Change Mode\nStart/Stop\nSet Time\nReset Time\n--\nShow Help";
-static const char *hud_timer_popup_title = "Time (in seconds)";
 
 // A simple countdown / stopwatch timer class
 // Digital display in main HUD
@@ -159,7 +157,7 @@ int Hud_Timer::cm_handler(window_info *win, int option)
 				init_ipu(input, win->window_id, 220, -1, 4, 1, NULL, set_timer_time);
 				input->x = -230;
 				input->y = last_base_y_start;
-				display_popup_win(input, hud_timer_popup_title);
+				display_popup_win(input, hud_timer_popup_title_str);
 			}
 			break;
 		case CMHT_RESET: reset(); break;

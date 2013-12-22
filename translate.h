@@ -314,6 +314,8 @@ extern char
 		stats_scroll_help_str[100],
 		remove_bar_message_str[50],
 		cm_action_points_str[30],
+		hud_timer_cm_str[80],
+		hud_timer_popup_title_str[25],
 		/*ignore.c*/
 		no_ignores_str[50],
 		ignores_str[50],
