@@ -89,6 +89,8 @@
  #define GL_GLEXT_LEGACY
  #include <GL/gl.h>
  #include <GL/glu.h>
+ #undef GL_VERSION_1_2
+ #undef GL_VERSION_1_3
  #include "glext.h"
 #else // BSD
  #include <GL/gl.h>
