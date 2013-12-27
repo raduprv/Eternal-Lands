@@ -6,6 +6,7 @@
 #include "cal.h"
 #include "client_serv.h"
 #include "eye_candy_wrapper.h"
+#include "elwindows.h"
 #include "gamewin.h"
 #include "hud.h"
 #include "init.h"
