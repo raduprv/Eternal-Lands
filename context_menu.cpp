@@ -983,7 +983,7 @@ extern "C" int cm_test_window(char *text, int len)
 		cm_test_reg_menu = cm_create("Region 1\nRegion 2\n", cm_test_menu_handler);
 		cm_test_wid_menu = cm_create("Widget 1\n--\nWidget 3\nWidget 4\nWidget 5\nWidget 6\n", cm_test_menu_handler);
 		cm_test_dir_menu = cm_create("Direct 1\nDirect 2\n", cm_test_menu_handler);
-		printf("Created menus window=%d region=%d widget=%d direct=%d\n",
+		printf("Created menus window=%lu region=%lu widget=%lu direct=%lu\n",
 			cm_test_win_menu, cm_test_reg_menu, cm_test_wid_menu, cm_test_dir_menu);
 		
 		printf("Replacing window menu cm_set()=%d\n", cm_set(cm_test_win_menu, "Window 1\nWindow 2\n--\nGrey me...\nGrey above\n", cm_test_menu_handler));
