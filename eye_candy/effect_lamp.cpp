@@ -14,7 +14,7 @@ namespace ec
 		const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust,
 		const color_t saturation_adjust, const float _scale, const Uint16 _LOD) :
 		Particle(_effect, _mover, _pos, _velocity,
-			4 * (0.15 + 2.3 * randcoord() * randcoord()) / (LOD + 2))
+			4 * (0.15 + 2.3 * randcoord() * randcoord()) / (_LOD + 2))
 	{
 		LOD = _LOD;
 		color_t hue, saturation, value;
