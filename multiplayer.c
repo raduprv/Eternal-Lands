@@ -76,6 +76,7 @@ int previously_logged_in= 0;
 time_t last_heart_beat;
 time_t last_save_time;
 int always_pathfinding = 0;
+int mixed_message_filter = 0;
 char inventory_item_string[300] = {0};
 size_t inventory_item_string_id = 0;
 
@@ -936,7 +937,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				safe_strncpy2(inventory_item_string, (const char *)&in_data[3], sizeof(inventory_item_string)-1, data_length - 3);
 				inventory_item_string[sizeof(inventory_item_string)-1] = 0;
 				inventory_item_string_id++;
-				if(!(get_show_window(items_win)||get_show_window(manufacture_win)||get_show_window(trade_win)))
+				if(!(mixed_message_filter||get_show_window(items_win)||get_show_window(manufacture_win)||get_show_window(trade_win)))
 					{
 						put_text_in_buffer(CHAT_SERVER, &in_data[3], data_length-3);
 					}

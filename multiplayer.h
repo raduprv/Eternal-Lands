@@ -28,6 +28,7 @@ extern int client_version_patch; /*!< The clients Patchlevel number */
 extern int version_first_digit; /*!< the first digit of the version */
 extern int version_second_digit; /*!< the second digit of the version */
 extern int always_pathfinding; /*!< use pathfinding for walk click on far visible tiles of the 3d map */
+extern int mixed_message_filter; /*!< If true, do not display console messages for mixed items when other windows are closed */
 /*! @} */
 
 
