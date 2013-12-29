@@ -1110,16 +1110,17 @@ int mix_handler(Uint8 quantity, const char* empty_error_str)
 	Uint8 str[32];
 	int items_no=0;
 	int i;
-	int cannot_manu = 0;
+	int cannot_manu = 1;
 
 	if(manufacture_win < 0)
-		cannot_manu = 1;
-	else {
-		cannot_manu = 1;
-		for(i=MIX_SLOT_OFFSET;i<MIX_SLOT_OFFSET+NUM_MIX_SLOTS;i++)
-			if(manufacture_list[i].quantity > 0)
-				cannot_manu = 0;
-	}
+		build_manufacture_list();
+
+	for(i=MIX_SLOT_OFFSET;i<MIX_SLOT_OFFSET+NUM_MIX_SLOTS;i++)
+		if(manufacture_list[i].quantity > 0)
+		{
+			cannot_manu = 0;
+			break;
+		}
 
 	if (cannot_manu) {
 		set_shown_string(c_red2, empty_error_str);
