@@ -461,12 +461,23 @@ void view_tab (int *window, int *col_id, int tab)
 
 void show_help(const char *help_message, int x, int y)
 {
-	show_help_coloured(help_message, x, y, 1.0f, 1.0f, 1.0f);
+	show_sized_help_coloured(help_message, x, y, 1.0f, 1.0f, 1.0f, 0);
+}
+
+void show_sized_help(const char *help_message, int x, int y, int big)
+{
+	show_sized_help_coloured(help_message, x, y, 1.0f, 1.0f, 1.0f, big);
 }
 
 void show_help_coloured(const char *help_message, int x, int y, float r, float g, float b)
 {
-	int len=strlen(help_message)*8+1;
+	show_sized_help_coloured(help_message, x, y, r, g, b, 0);
+}
+
+void show_sized_help_coloured(const char *help_message, int x, int y, float r, float g, float b, int big)
+{
+	float y_font_len = (big) ?DEFAULT_FONT_Y_LEN: SMALL_FONT_Y_LEN;
+	int len=strlen(help_message)*((big) ?DEFAULT_FONT_X_LEN :SMALL_FONT_X_LEN)+1;
 	int width=window_width-80;
 
 	if(x+len>width) x-=(x+len)-width;
@@ -476,17 +487,20 @@ void show_help_coloured(const char *help_message, int x, int y, float r, float g
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
 	glBegin(GL_QUADS);
-	glVertex3i(x-1,y+SMALL_FONT_Y_LEN,0);
+	glVertex3i(x-1,y+y_font_len,0);
 	glVertex3i(x-1,y,0);
 	glVertex3i(x+len,y,0);
-	glVertex3i(x+len,y+SMALL_FONT_Y_LEN,0);
+	glVertex3i(x+len,y+y_font_len,0);
 	glEnd();
 
 	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
 
 	glColor3f(r,g,b);
-	draw_string_small(x, y, (unsigned char*)help_message, 1);
+	if (big)
+		draw_string(x, y, (unsigned char*)help_message, 1);
+	else
+		draw_string_small(x, y, (unsigned char*)help_message, 1);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE

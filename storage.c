@@ -423,7 +423,10 @@ int display_storage_handler(window_info * win)
 
 		if (active_storage_item!=storage_items[cur_item_over].pos) {
 			safe_snprintf(str, sizeof(str), "%d",storage_items[cur_item_over].quantity);
-			show_help(str,mouse_x-win->pos_x-(strlen(str)/2)*8,mouse_y-win->pos_y-14);
+			if ((SDL_GetModState() & (KMOD_CTRL|KMOD_ALT)))
+				show_sized_help(str, mouse_x-win->pos_x-(strlen(str)/2)*DEFAULT_FONT_X_LEN,mouse_y-win->pos_y-DEFAULT_FONT_Y_LEN-1, 1);
+			else
+				show_help(str,mouse_x-win->pos_x-(strlen(str)/2)*8,mouse_y-win->pos_y-14);
 		}
 	}
 	
@@ -475,7 +478,10 @@ int display_storage_handler(window_info * win)
 					if(x > 353) {
 						x = 321;
 					}
-					show_help(str, x, ((i-pos)/6)*32+18);
+					if ((mouse_in_window(win->window_id, mouse_x, mouse_y) == 1) && (SDL_GetModState() & (KMOD_CTRL|KMOD_ALT)))
+						show_sized_help(str, x, ((i-pos)/6)*32+18, 1);
+					else
+						show_help(str, x, ((i-pos)/6)*32+18);
 				}
 				break;
 			}

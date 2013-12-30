@@ -248,6 +248,21 @@ void show_help(const char *message, int x, int y);
 
 /*!
  * \ingroup windows
+ * \brief Shows the \a message at the given position (\a x, \a y).
+ *
+ *      Shows the \a message at the given position (\a x, \a y).
+ *
+ * \param message   the help message to show
+ * \param x         the x coordinate of the position to draw the help message
+ * \param y         the y coordinate of the position to draw the help message
+ * \param big       if zero use the small font, otherwise the default
+ *
+ * \callgraph
+ */
+void show_sized_help(const char *message, int x, int y, int big);
+
+/*!
+ * \ingroup windows
  * \brief Shows the \a message at the given position and colour (\a x, \a y).
  *
  *      Shows the \a message at the given position and colour (\a x, \a y).
@@ -262,6 +277,25 @@ void show_help(const char *message, int x, int y);
  * \callgraph
  */
 void show_help_coloured(const char *help_message, int x, int y, float r, float g, float b);
+
+
+/*!
+ * \ingroup windows
+ * \brief Shows the \a message at the given position and colour (\a x, \a y).
+ *
+ *      Shows the \a message at the given position and colour (\a x, \a y).
+ *
+ * \param message   the help message to show
+ * \param x         the x coordinate of the position to draw the help message
+ * \param y         the y coordinate of the position to draw the help message
+ * \param r         the red RGB value for text
+ * \param g         the green RGB value for text
+ * \param b         the blue RGB value for text
+ * \param big       if zero use the small font, otherwise the default
+ *
+ * \callgraph
+ */
+void show_sized_help_coloured(const char *help_message, int x, int y, float r, float g, float b, int big);
 
 //stats/health section
 
