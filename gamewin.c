@@ -1825,6 +1825,10 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		view_tab (&tab_stats_win, &tab_stats_collection_id, STATS_TAB_SESSION);
 	}
+	else if (key == K_COUNTERS)
+	{
+		view_tab (&tab_stats_win, &tab_stats_collection_id, STATS_TAB_COUNTERS);
+	}
 	else if (key == K_OPTIONS)
 	{
 		view_window (&elconfig_win, 0);
@@ -1840,6 +1844,10 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	else if (key == K_HELP)
 	{
 		view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_HELP);
+	}
+	else if (key == K_HELPSKILLS)
+	{
+		view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_SKILLS);
 	}
 	else if (key == K_RULES)
 	{

@@ -49,7 +49,7 @@ extern Uint32 K_SIGILS;         /*!< key used to toggle display of \ref spells_w
 extern Uint32 K_MANUFACTURE;    /*!< key used to toggle display of \ref manufacture_window */
 extern Uint32 K_ITEMS;          /*!< key used to toggle display of \ref items_window */
 extern Uint32 K_MAP;            /*!< key used to go into \ref interface_map mode */
-extern Uint32 K_MINIMAP;		/*!< key used to open minimap window */
+extern Uint32 K_MINIMAP;        /*!< key used to open minimap window */
 extern Uint32 K_ROTATELEFT;     /*!< key used to rotate left (counter clockwise) */
 extern Uint32 K_ROTATERIGHT;    /*!< key used to rotate right (clockwise) */
 extern Uint32 K_FROTATELEFT;    /*!< key used to fine rotate left (counter clockwise) */
@@ -65,7 +65,7 @@ extern Uint32 K_HELP;           /*!< key used to toggle display of \ref help_win
 extern Uint32 K_RULES;          /*!< key used to toggle display of \ref rules_window */
 extern Uint32 K_NOTEPAD;        /*!< key used to toggle display of \ref notepad_window */
 extern Uint32 K_HIDEWINS;       /*!< key used to hide all open windows */
-extern Uint32 K_SCREENSHOT;		/*!< key used to make a screenshot */
+extern Uint32 K_SCREENSHOT;         /*!< key used to make a screenshot */
 extern Uint32 K_VIEWTEXTASOVERTEXT; /*!< key used to toggle display of text bubbles (overtext) */
 extern Uint32 K_AFK;                /*!< key used to display AFK messages */
 extern Uint32 K_SIT;                /*!< key used to toggle sitting status, i.e. sit down/stand up */
@@ -79,7 +79,7 @@ extern Uint32 K_MARKFILTER;         /*!< key used to toggle the TAB map mark fil
 extern Uint32 K_OPAQUEWIN;          /*!< key used to toggle window opacity */
 extern Uint32 K_GRAB_MOUSE;         /*!< key used to toggle whether mouse is in HUD or camera control mode */
 extern Uint32 K_FIRST_PERSON;       /*!< key used to toggle first person/third person view mode*/
-extern Uint32 K_EXTEND_CAM;			/*!< key used to toggle extended camera mode*/
+extern Uint32 K_EXTEND_CAM;         /*!< key used to toggle extended camera mode*/
 extern Uint32 K_CUT;                /*!< key used to cut text and copy it into a clipboard */ 
 extern Uint32 K_COPY;               /*!< key used to copy text into a clipboard */ 
 extern Uint32 K_PASTE;              /*!< key used to copy text from a clipboard into EL */
@@ -90,6 +90,8 @@ extern Uint32 K_ECDEBUGWIN;         /*!< open Eye Candy debug window */
 #endif /* ECDEBUGWIN */
 extern Uint32 K_EMOTES;             /*!< key used to toggle display of \ref emotes_window */
 extern Uint32 K_RANGINGWIN;         /*!< key used to toggle display of ranging win */
+extern Uint32 K_COUNTERS;           /*!< key used to toggle display of counters window  */
+extern Uint32 K_HELPSKILLS;         /*!< key used to toggle display of help window skills tab  */
 /*! @} */
 
 /*! \name Quickbar access keys */

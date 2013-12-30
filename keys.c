@@ -117,6 +117,13 @@ Uint32 K_ECDEBUGWIN=ALT|CTRL|'c';
 Uint32 K_EMOTES=CTRL|'j';
 Uint32 K_RANGINGWIN=CTRL|'t';
 
+// Remaining keys are not assigned to the keyboard but
+// can be redefined or used by the #keypress command.
+// They will get values at startup along with any keys
+// undefined in key.ini
+Uint32 K_COUNTERS=SDLK_UNKNOWN;
+Uint32 K_HELPSKILLS=SDLK_UNKNOWN;
+
 typedef struct
 {
 	char name[25];
@@ -213,7 +220,9 @@ static key_store_entry key_store[] =
 	{ "#K_ECDEBUGWIN", &K_ECDEBUGWIN },
 #endif
 	{ "#K_EMOTES", &K_EMOTES },
-	{ "#K_RANGINGWIN", &K_RANGINGWIN }
+	{ "#K_RANGINGWIN", &K_RANGINGWIN },
+	{ "#K_COUNTERS", &K_COUNTERS },
+	{ "#K_HELPSKILLS", &K_HELPSKILLS }
 };
 
 
@@ -434,7 +443,7 @@ static Uint16 get_key_code(const char *key)
 			case 0xdf6ba7e: //UNDO
 				return 322;
 			default:
-				return 0;
+				return SDLK_UNKNOWN;
 		}
 	}
 }
@@ -479,15 +488,22 @@ void read_key_config()
 {
 	char line[512];
 	el_file_ptr f;
+	size_t num_keys = sizeof(key_store)/sizeof(key_store_entry);
+	Uint32 last_key_value = SDLK_LAST;
+	size_t i;
 
 	f = el_open_custom("key.ini");
-	if (!f)
-		return; //take the defaults
+	if (f)
+	{
+		while (el_fgets(line, sizeof(line), f))
+			parse_key_line(line);
+		el_close(f);
+	}
 
-	while (el_fgets(line, sizeof(line), f))
-		parse_key_line(line);
-
-	el_close(f);
+	// look for unassigned keys and assign one up from SDLK_LAST
+	for (i=0; i<num_keys; i++)
+		if (*key_store[i].value == 0)
+			*key_store[i].value = ++last_key_value;
 }
 
 #else  // FASTER_STARTUP

@@ -18,29 +18,94 @@ Read Messages||#msg all
 <icon type="action_mode" image_id="4" alt_image_id="22" help_name="trade" param_name="trade"/>
 <icon type="action_mode" image_id="5" alt_image_id="23" help_name="attack" param_name="attack"/>
 
-<icon type="window" image_id="11" alt_image_id="29" help_name="invent" param_name="invent">View only storage||#sto</icon>
-<icon type="window" image_id="9" alt_image_id="27" help_name="spell" param_name="spell"/>
+<icon type="window" image_id="11" alt_image_id="29" help_name="invent" param_name="invent">
+View only storage||#sto
+</icon>
+
+<icon type="window" image_id="9" alt_image_id="27" help_name="spell" param_name="spell">
+Heal||#cast_spell 27020317
+Remote Heal||#cast_spell 2703090317
+Restoration||#cast_spell 27020118
+Heal Summoned||#cast_spell 27040802170e
+Teleport to Range||#cast_spell 270407000802
+Bones to Gold||#cast_spell 270306000f
+Teleport to Portal Room||#cast_spell 270407000902
+True Sight||#cast_spell 2703130f14
+Intercontinental Teleport||#cast_spell 2703000902
+Invisibility||#cast_spell 2703160f14
+Poison||#cast_spell 2703050418
+Harm||#cast_spell 27021617
+Life Drain||#cast_spell 2703070018
+Smite Summoned||#cast_spell 270408021618
+Mana Drain||#cast_spell 2703070011
+Magic Protection||#cast_spell 2703131115
+Shield||#cast_spell 2703130f15
+Magic Immunity||#cast_spell 270413031115
+Heat Shield||#cast_spell 2703130a15
+Cold Shield||#cast_spell 2703130b15
+Radiation Shield||#cast_spell 2704130f1015
+</icon>
+
 <icon type="window" image_id="12" alt_image_id="32" help_name="manu" param_name="manu"/>
-<icon type="window" image_id="45" alt_image_id="44" help_name="emotewin" param_name="emotewin"/>
+
+<icon type="window" image_id="45" alt_image_id="44" help_name="emotewin" param_name="emotewin">
+Wave Left Hand||*waveleft
+Wave Right Hand||*waveright
+Wave Both Hands||*waveboth
+Nod Head||*nod
+Shake Head||*shake
+Jump||*jump
+Clap||*clap
+Cheer Left||*cheerleft
+Cheer Right||*cheerright
+Thumbs Up||*thumbsup
+Strug||*shrug
+Stretch||*stretch
+Face Palm||*facepalm
+Scratch Head||*scratchhead
+Bow||*bow1
+Bow &amp; Pray||*bow2
+Curtsy||*curtsy
+Salute||*salute
+Blow Kiss||*blowkiss
+Pat Belly||*patbelly
+Knock||*knock
+</icon>
+
 <icon type="window" image_id="19" alt_image_id="21" help_name="quest" param_name="quest"/>
+
 <icon type="window" image_id="36" alt_image_id="37" help_name="map" param_name="map">
 Temporary Mark Here||#unmark **temp**||#mark **temp**
 Temporary Mark x, y||#unmark **temp**||#markpos &lt;x,y coords&gt; **temp**
 Remove Temporary Mark||#unmark **temp**
+||
+Mark with +||#mark +
+||
+Toggle 3D Map Markers||%3d_map_markers=!
 </icon>
+
 <icon type="window" image_id="3" alt_image_id="6" help_name="info" param_name="info">
 Url Tab||#keypress #K_BROWSERWIN
 Notepad Tab||#keypress #K_NOTEPAD
 </icon>
+
 <icon type="window" image_id="10" alt_image_id="24" help_name="buddy" param_name="buddy"/>
+
 <icon type="window" image_id="13" alt_image_id="33" help_name="stats" param_name="stats">
 Statistics Tab||#keypress #K_STATS
 Knowledge Tab||#keypress #K_KNOWLEDGE
+Counters Tab||#keypress #K_COUNTERS
 Session Tab||#keypress #K_SESSION
+||
 Search Knowledge ...||#know &lt;Knowledge Filter String&gt;
+Session Counters||#session_counters
 </icon>
+
 <icon type="window" image_id="1" alt_image_id="28" help_name="console" param_name="console"/>
+
 <icon type="window" image_id="39" alt_image_id="38" help_name="help" param_name="help">
+Help Tab||#keypress #K_HELP
+Skills Tab||#keypress #K_HELPSKILLS
 Encyclopedia Tab||#keypress #K_ENCYCLOPEDIA
 Rules Tab||#keypress #K_RULES
 </icon>
@@ -50,7 +115,14 @@ Rules Tab||#keypress #K_RULES
 <icon type="window" image_id="30" alt_image_id="31" help_name="minimap" param_name="minimap"/>
 
 <!-- Prefered always last -->
-<icon type="window" image_id="14" alt_image_id="34" help_name="opts" param_name="opts"/>
+<icon type="window" image_id="14" alt_image_id="34" help_name="opts" param_name="opts">
+Reload Icons||#reload_icons
+Save||#save
+||
+Exit||#exit
+</icon>
+
+
 
 <image_settings display_size="32"/>
 
