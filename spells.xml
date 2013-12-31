@@ -232,6 +232,8 @@
 		<sigil>21</sigil>	
 		<reagent id="60" uid="41">1</reagent>
 		<reagent id="56" uid="37">1</reagent>
+		<duration>190000</duration>
+		<buff>1</buff>
 	</spell>
 	<spell>
 		<name>Shield</name>
@@ -245,6 +247,8 @@
 		<sigil>15</sigil>	
 		<sigil>21</sigil>	
 		<reagent id="55" uid="36">1</reagent>
+		<duration>130000</duration>
+		<buff>0</buff>
 	</spell>
 	<spell>
 		<name>Magic Immunity</name>
@@ -260,6 +264,8 @@
 		<sigil>21</sigil>	
 		<reagent id="60" uid="41">2</reagent>
 		<reagent id="56" uid="37">1</reagent>
+		<duration>100000</duration>
+		<buff>3</buff>
 	</spell>
 	<spell>
 		<name>Heat Shield</name>
@@ -275,6 +281,8 @@
 		<reagent id="56" uid="37">3</reagent>
 		<reagent id="55" uid="36">3</reagent>
 		<reagent id="51" uid="32">4</reagent>
+		<duration>120000</duration>
+		<buff>24</buff>
 	</spell>
 	<spell>
 		<name>Cold Shield</name>
@@ -290,6 +298,8 @@
 		<reagent id="56" uid="37">3</reagent>
 		<reagent id="55" uid="36">3</reagent>
 		<reagent id="50" uid="31">4</reagent>
+		<duration>120000</duration>
+		<buff>23</buff>
 	</spell>
 	<spell>
 		<name>Radiation Shield</name>
@@ -306,6 +316,8 @@
 		<reagent id="56" uid="37">3</reagent>
 		<reagent id="55" uid="36">3</reagent>
 		<reagent id="60" uid="41">4</reagent>
+		<duration>160000</duration>
+		<buff>25</buff>
 	</spell>
 </Spell_list>
 <Groups>
