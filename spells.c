@@ -432,7 +432,7 @@ int init_spells ()
 			}
 			else
 			{
-				spells_list[i].buff = 0;
+				spells_list[i].buff = 0xFFFFFFFF;
 			}
 
 			node = get_XML_node(node->next, "spell");			
