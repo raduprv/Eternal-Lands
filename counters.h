@@ -9,6 +9,8 @@ extern "C" {
 #endif
 
 extern int harvesting;
+int now_harvesting(void);
+
 extern char harvest_name[32];
 extern int counters_win;
 extern Uint32 disconnect_time;

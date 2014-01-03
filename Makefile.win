@@ -60,7 +60,7 @@ COBJS=2d_objects.o 3d_objects.o \
 	
 CXXOBJS=achievements.o actor_init.o cal3d_wrapper.o command_queue.o \
 	context_menu.o elloggingwrapper.o engine/logging.o exceptions/extendedexception.o \
-	hud_timer.o icon_window.o io/cal3d_io_wrapper.o item_info.o item_lists.o named_colours.o \
+	hud_indicators.o hud_timer.o icon_window.o io/cal3d_io_wrapper.o item_info.o item_lists.o named_colours.o \
 	optimizer.o quest_log.o select.o sendvideoinfo.o trade_log.o user_menus.o \
 	xml/xmlhelper.o eye_candy_wrapper.o \
 	eye_candy/eye_candy.o eye_candy/math_cache.o eye_candy/effect_lamp.o \

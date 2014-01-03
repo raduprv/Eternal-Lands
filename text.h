@@ -466,6 +466,16 @@ void cleanup_text_buffers(void);
  */
 void check_harvesting_effect(void);
 
+/*!
+ * \ingroup text_font
+ * \brief return special day status
+ *
+ * \retval       true is today is special
+ *
+ * \callgraph
+ */
+int today_is_special_day(void);
+
 
 #define LOG_TO_CONSOLE(color,buffer)	put_colored_text_in_buffer(color,CHAT_SERVER,(const Uint8*)buffer,-1) /*!< logs the text in buffer with the specified color to the console. */
 

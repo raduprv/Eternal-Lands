@@ -118,6 +118,7 @@ static size_t *search_len = NULL;
 static Uint32 misc_event_time = 0;
 
 int harvesting = 0;
+int now_harvesting(void) { return harvesting; }
 Uint32 disconnect_time;
 char harvest_name[32] = {0};
 int killed_by_player = 0;

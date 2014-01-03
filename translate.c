@@ -191,6 +191,9 @@ char
 	cm_action_points_str[30],
 	hud_timer_cm_str[80],
 	hud_timer_popup_title_str[25],
+	day_indicator_str[40],
+	harvest_indicator_str[40],
+	poison_indicator_str[40],
 	/*loginwin.c*/
 	login_username_str[20],
 	login_password_str[20],
@@ -335,7 +338,7 @@ char
 	cm_quickspell_menu_str[50],
 	cm_textedit_menu_str[100],
 	cm_quickbar_menu_str[150],
-	cm_hud_menu_str[250],
+	cm_hud_menu_str[270],
 	cm_banner_menu_str[240],
 	cm_title_menu_str[150],
 	cm_title_help_str[50],
@@ -1446,6 +1449,9 @@ void init_help()
 	add_xml_identifier(misc,"cm_action_points",cm_action_points_str,"Show Action Points Bar",sizeof(cm_action_points_str));
 	add_xml_identifier(misc,"hud_timer_cm",hud_timer_cm_str,"Change Mode\nStart/Stop\nSet Time\nReset Time\n--\nShow Help",sizeof(hud_timer_cm_str));
 	add_xml_identifier(misc,"hud_timer_popup_title",hud_timer_popup_title_str,"Time (in seconds)",sizeof(hud_timer_popup_title_str));
+	add_xml_identifier(misc,"day indicator",day_indicator_str,"S||Special Day||Ordinary Day",sizeof(day_indicator_str));
+	add_xml_identifier(misc,"harvest_indicator",harvest_indicator_str,"H||Harvesting||Not Harvesting",sizeof(harvest_indicator_str));
+	add_xml_identifier(misc,"poison_indicator",poison_indicator_str,"P||Poisoned||Not Poisoned",sizeof(poison_indicator_str));
 	add_xml_identifier(misc,"dc_note_rm",dc_note_remove,"Double-click to remove this category",sizeof(dc_note_remove));
 	add_xml_identifier(misc,"note_saved",note_saved,"Your notes have been saved",sizeof(note_saved));
 	add_xml_identifier(misc,"note_save_failed",note_save_failed,"Failed to save your notes!",sizeof(note_save_failed));
@@ -1576,7 +1582,7 @@ void init_help()
 	add_xml_identifier(misc, "cm_quickspell_menu", cm_quickspell_menu_str, "Move Up\nMove Down\nRemove\n", sizeof(cm_quickspell_menu_str));
 	add_xml_identifier(misc, "cm_textedit_menu", cm_textedit_menu_str, "Cut\nCopy\nPaste\n--\nDate\nTime\nCoords", sizeof(cm_textedit_menu_str));
 	add_xml_identifier(misc, "cm_quickbar_menu", cm_quickbar_menu_str, "Quickbar Relocatable\nQuickbar Draggable\nReset Quickbar Position\nFlip Quickbar\nEnable Quickbar Menu\n", sizeof(cm_quickbar_menu_str));
-	add_xml_identifier(misc, "cm_hud_menu", cm_hud_menu_str, "Show Stats\nShow Stats Bars\nShow Knowledge Bar\nShow Timer\nShow Digital Clock\nShow Analogue Clock\nShow Seconds\nShow FPS\nEnable Quickbar Menu\n--\nShow Minimap\nShow Ranging Stats\n--\nEnable Sound Effects\nEnable Music\n--\nCopy Location", sizeof(cm_hud_menu_str));
+	add_xml_identifier(misc, "cm_hud_menu", cm_hud_menu_str, "Show Stats\nShow Stats Bars\nShow Knowledge Bar\nShow Timer\nShow Digital Clock\nShow Analogue Clock\nShow Seconds\nShow FPS\nShow Indicators\nEnable Quickbar Menu\n--\nShow Minimap\nShow Ranging Stats\n--\nEnable Sound Effects\nEnable Music\n--\nCopy Location", sizeof(cm_hud_menu_str));
 	add_xml_identifier(misc, "cm_banner_menu", cm_banner_menu_str, "Show Names\nShow Health Bars\nShow Health Numbers\nShow Ether Bar\nShow Ether Numbers\nEnable Instance Mode\nShow Speech Bubbles\nEnable Banner Background\nSit Lock\nRanging Lock\n--\nDisable This Menu\n", sizeof(cm_banner_menu_str));
 	add_xml_identifier(misc, "cm_title_menu", cm_title_menu_str, "Hide Windows\nOpaque Background\nWindows On Top\n", sizeof(cm_title_menu_str));
 	add_xml_identifier(misc, "cm_title_help", cm_title_help_str, "Right-click for window menu", sizeof(cm_title_help_str));

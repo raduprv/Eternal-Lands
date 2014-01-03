@@ -14,6 +14,7 @@
 #include "gamewin.h"
 #include "gl_init.h"
 #include "global.h"
+#include "hud_indicators.h"
 #include "hud_timer.h"
 #include "icon_window.h"
 #include "init.h"
@@ -89,7 +90,7 @@ static int cm_music_enabled = 0;
 static int cm_minimap_shown = 0;
 static int cm_rangstats_shown = 0;
 enum {	CMH_STATS=0, CMH_STATBARS, CMH_KNOWBAR, CMH_TIMER, CMH_DIGCLOCK, CMH_ANACLOCK,
-		CMH_SECONDS, CMH_FPS, CMH_QUICKBM, CMH_SEP1, CMH_MINIMAP, CMH_RANGSTATS,
+		CMH_SECONDS, CMH_FPS, CMH_INDICATORS, CMH_QUICKBM, CMH_SEP1, CMH_MINIMAP, CMH_RANGSTATS,
 		CMH_SEP2, CMH_SOUND, CMH_MUSIC, CMH_SEP3, CMH_LOCATION };
 enum {	CMQB_RELOC=0, CMQB_DRAG, CMQB_RESET, CMQB_FLIP, CMQB_ENABLE };
 
@@ -131,7 +132,8 @@ void cleanup_hud(void)
 	destroy_window(misc_win);
 	destroy_window(stats_bar_win);
 	destroy_window(quickbar_win);
-	stats_bar_win = quickbar_win = misc_win = -1;
+	destroy_window(indicators_win);
+	stats_bar_win = quickbar_win = misc_win = indicators_win = -1;
 }
 
 
@@ -188,6 +190,8 @@ void init_hud_interface (hud_interface type)
 		init_stats_display ();
 		init_quickbar ();
 		init_quickspell ();
+		if (show_indicators)
+			init_hud_indicators (); 
 		ready_for_user_menus = 1;
 		if (enable_user_menus)
 			display_user_menus();
@@ -205,6 +209,7 @@ void show_hud_windows ()
 	if (misc_win >= 0) show_window (misc_win);
 	if (quickbar_win >= 0) show_window (quickbar_win);
 	if (quickspell_win >= 0) show_window (quickspell_win);
+	if (indicators_win >= 0) show_window (indicators_win);
 }
 
 void hide_hud_windows ()
@@ -214,6 +219,7 @@ void hide_hud_windows ()
 	if (misc_win >= 0) hide_window (misc_win);
 	if (quickbar_win >= 0) hide_window (quickbar_win);
 	if (quickspell_win >= 0) hide_window (quickspell_win);
+	if (indicators_win >= 0) hide_window (indicators_win);
 }
 
 // draw everything related to the hud
@@ -1135,6 +1141,7 @@ void init_misc_display(hud_interface type)
 			cm_bool_line(cm_hud_id, CMH_ANACLOCK, &view_analog_clock, "view_analog_clock");
 			cm_bool_line(cm_hud_id, CMH_SECONDS, &show_game_seconds, "show_game_seconds");
 			cm_bool_line(cm_hud_id, CMH_FPS, &show_fps, "show_fps");
+			cm_bool_line(cm_hud_id, CMH_INDICATORS, &show_indicators, "show_indicators");
 			cm_bool_line(cm_hud_id, CMH_MINIMAP, &cm_minimap_shown, NULL);
 			cm_bool_line(cm_hud_id, CMH_RANGSTATS, &cm_rangstats_shown, NULL);
 			cm_bool_line(cm_hud_id, CMH_QUICKBM, &cm_quickbar_enabled, NULL);
@@ -1151,6 +1158,7 @@ void init_misc_display(hud_interface type)
 	cm_grey_line(cm_hud_id, CMH_STATS, (type == HUD_INTERFACE_NEW_CHAR));
 	cm_grey_line(cm_hud_id, CMH_STATBARS, (type == HUD_INTERFACE_NEW_CHAR));
 	cm_grey_line(cm_hud_id, CMH_FPS, (type == HUD_INTERFACE_NEW_CHAR));
+	cm_grey_line(cm_hud_id, CMH_INDICATORS, (type == HUD_INTERFACE_NEW_CHAR));
 	cm_grey_line(cm_hud_id, CMH_MINIMAP, (type == HUD_INTERFACE_NEW_CHAR));
 	cm_grey_line(cm_hud_id, CMH_RANGSTATS, (type == HUD_INTERFACE_NEW_CHAR));
 	cm_grey_line(cm_hud_id, CMH_QUICKBM, (type == HUD_INTERFACE_NEW_CHAR));

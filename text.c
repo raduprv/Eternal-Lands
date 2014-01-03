@@ -54,6 +54,9 @@ int show_timestamp = 0;
 
 int dark_channeltext = 0;
 
+static int is_special_day = 0;
+int today_is_special_day(void) { return is_special_day; };
+
 int log_chat = LOG_SERVER;
 
 float	chat_zoom=1.0;
@@ -593,6 +596,12 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		}
 		else if (strstr(text_to_add+1, "You have been saved!")) {
 			last_save_time = time(NULL);
+		}
+		else if (strstr(text_to_add+1, "Day ends:") || strstr(text_to_add+1, "This day was removed by ")) {
+			is_special_day = 0;
+		}
+		else if (strstr(text_to_add+1, "Today is a special day:")) {
+			is_special_day = 1;
 		}
 		else if (my_strncompare(text_to_add+1, "You are too far away! Get closer!", 33)) {
 			static Uint32 last_time = 0;

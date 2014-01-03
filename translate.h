@@ -316,6 +316,9 @@ extern char
 		cm_action_points_str[30],
 		hud_timer_cm_str[80],
 		hud_timer_popup_title_str[25],
+		day_indicator_str[40],
+		harvest_indicator_str[40],
+		poison_indicator_str[40],
 		/*ignore.c*/
 		no_ignores_str[50],
 		ignores_str[50],
@@ -469,7 +472,7 @@ extern char
 		cm_quickspell_menu_str[50],
 		cm_textedit_menu_str[100],
 		cm_quickbar_menu_str[150],
-		cm_hud_menu_str[250],
+		cm_hud_menu_str[270],
 		cm_banner_menu_str[240],
 		cm_title_menu_str[150],
 		cm_title_help_str[50],
