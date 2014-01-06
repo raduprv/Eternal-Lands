@@ -732,6 +732,10 @@ void init_stuff()
 	load_server_list("servers.lst");
 	set_server_details();
 
+#ifdef NEW_SOUND
+	initial_sound_init();
+#endif
+
 	// Read the config file
 	read_config();
 
@@ -874,7 +878,6 @@ void init_stuff()
 	init_particles ();
 #ifdef NEW_SOUND
 	update_loading_win(init_audio_str, 1);
-	initial_sound_init();
 	load_sound_config_data(SOUND_CONFIG_PATH);
 #endif // NEW_SOUND
 	update_loading_win(init_actor_defs_str, 4);
