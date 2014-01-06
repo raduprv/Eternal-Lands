@@ -118,6 +118,8 @@
 		<reagent id="56" uid="37">4</reagent>
 		<reagent id="60" uid="41">4</reagent>
 		<reagent id="54" uid="35">4</reagent>
+		<duration>60000</duration>
+		<buff>7</buff>
 	</spell>
 	<spell>
 		<name>Intercontinental Teleport</name>
@@ -148,6 +150,8 @@
 		<reagent id="53" uid="34">10</reagent>
 		<reagent id="56" uid="37">10</reagent>
 		<reagent id="55" uid="36">10</reagent>
+		<duration>30000</duration>
+		<buff>11</buff>
 	</spell>
 <!-- attack group -->
 	<spell>
