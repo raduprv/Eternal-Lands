@@ -31,7 +31,7 @@ static int generic_numeric_process (char *text, int len, int (*callback) (int in
 /**
  \brief Save current aliases to a file
 */
-static int save_aliases ()
+static int save_aliases (void)
 {
 	int i;
 	FILE *fp = open_file_config (NUMERIC_ALIASES_FILENAME, "w");
@@ -224,7 +224,7 @@ static dbuffer_t *expand_alias_parameters( char *parameters, const char *aliaste
 
 	ENTER_DEBUG_MARK("expand text aliases");
 
-	return_text = dbuffer_new( alias_size );
+	return_text = dbuffer_sized( alias_size );
 
 	if (NULL==return_text) {
 		ENTER_DEBUG_MARK("expand text aliases");
@@ -337,7 +337,7 @@ static int read_alias_line (int index, char *text, int len)
 
 
 
-int init_text_aliases ()
+int init_text_aliases (void)
 {
 	int i;
 	char line[512];
@@ -388,7 +388,7 @@ int init_text_aliases ()
 	return error;
 }
 
-void shutdown_text_aliases ()
+void shutdown_text_aliases (void)
 {
 	int i;
 	for (i = 0; i < 100; i++)
