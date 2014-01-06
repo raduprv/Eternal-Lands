@@ -98,14 +98,14 @@ void login_from_new_char();
  *
  * \pre If the character creation interface root window was created before (\ref newchar_root_win < 0), this function won't perform any actions.
  */
-void create_newchar_root_window ();
+void create_newchar_root_window (void);
 
 
 #ifdef NEW_NEW_CHAR_WINDOW
-void resize_newchar_hud_window();
+void resize_newchar_hud_window(void);
 #else
-void show_account_win ();
-void show_color_race_win();
+void show_account_win (void);
+void show_color_race_win(void);
 #endif
 
 #ifdef __cplusplus

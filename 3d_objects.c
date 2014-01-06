@@ -45,17 +45,17 @@ int e3d_count, e3d_total;
 static int next_obj_3d = 0;
 
 #ifdef FASTER_MAP_LOAD
-void inc_objects_list_placeholders()
+void inc_objects_list_placeholders(void)
 {
 	next_obj_3d++;
 }
 #else
-void clear_objects_list_placeholders()
+void clear_objects_list_placeholders(void)
 {
 	objects_list_placeholders = 0;
 }
 
-void inc_objects_list_placeholders()
+void inc_objects_list_placeholders(void)
 {
 	objects_list_placeholders++;
 }
@@ -79,7 +79,7 @@ static __inline__ void build_clouds_planes(object3d* obj)
 	obj->clouds_planes[1][3] = obj->y_pos / texture_scale;
 }
 
-void disable_buffer_arrays()
+void disable_buffer_arrays(void)
 {
 	if (use_vertex_buffers)
 	{
@@ -669,7 +669,7 @@ char * get_3dobject_at_location(float x_pos, float y_pos)
 }
 #endif // NEW_SOUND
 
-void display_objects()
+void display_objects(void)
 {	
 	CHECK_GL_ERRORS();
 	glEnable(GL_CULL_FACE);
@@ -716,7 +716,7 @@ void display_objects()
 	CHECK_GL_ERRORS();
 }
 
-void display_ground_objects()
+void display_ground_objects(void)
 {
 	CHECK_GL_ERRORS();
 	glEnable(GL_CULL_FACE);
@@ -761,7 +761,7 @@ void display_ground_objects()
 	CHECK_GL_ERRORS();
 }
 
-void display_alpha_objects()
+void display_alpha_objects(void)
 {
 	CHECK_GL_ERRORS();
 	glEnable(GL_COLOR_MATERIAL);
@@ -804,7 +804,7 @@ void display_alpha_objects()
 	CHECK_GL_ERRORS();
 }
 
-void display_blended_objects()
+void display_blended_objects(void)
 {	
 	CHECK_GL_ERRORS();
 	glEnable(GL_CULL_FACE);
@@ -876,7 +876,7 @@ void destroy_3d_object(int i)
 	}
 }
 
-void destroy_all_3d_objects()
+void destroy_all_3d_objects(void)
 {
 	int i;
 

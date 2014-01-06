@@ -335,7 +335,7 @@ void highlight_rule (int type, const Uint8 *rule, int no)
 				break;
 			case INTERFACE_NEW_CHAR:
 				if (newchar_root_win < 0)
-					create_newchar_root_window (window_width, window_height);
+					create_newchar_root_window ();
 				next_win_id = newchar_root_win;
 				break;
 			case INTERFACE_CONSOLE:

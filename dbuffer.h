@@ -121,7 +121,7 @@ static __inline__ UNUSED_RESULT_DECL dbuffer_t *dbuffer_append_data( dbuffer_t *
  \returns The newly created dbuffer.
  */
 
-static __inline__ dbuffer_t *dbuffer_new()
+static __inline__ dbuffer_t *dbuffer_new(void)
 {
 	return dbuffer_append_data(NULL, NULL, 0); /* Will alloc a new buffer */
 }

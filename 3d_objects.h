@@ -21,7 +21,7 @@ extern int use_3d_alpha_blend;	// do 3d models use alpha blending?
  *
  * \return	nothing.
  */
-void draw_3d_objects();
+void draw_3d_objects(unsigned int object_type);
 
 /*!
  * \ingroup	load_3d
@@ -81,9 +81,9 @@ int add_e3d (const char * file_name, float x_pos, float y_pos, float z_pos, floa
  * 		
  * \callgraph
  */
-void display_objects();
-void display_ground_objects();
-void display_alpha_objects();
+void display_objects(void);
+void display_ground_objects(void);
+void display_alpha_objects(void);
 
 /*!
  * \ingroup	display_3d
@@ -93,7 +93,7 @@ void display_alpha_objects();
  * 		
  * \callgraph
  */
-void display_blended_objects();
+void display_blended_objects(void);
 
 /*! 
  * \ingroup	display_3d
@@ -104,7 +104,7 @@ void display_blended_objects();
  * 
  * \callgraph
  */
-void clear_clouds_cache();
+void clear_clouds_cache(void);
 
 /*!
  * \ingroup	display_3d
@@ -163,7 +163,7 @@ void state_3d_object (Uint8 state, const void *ptr, int len);
  * 	Clears the placeholders. Used to avoid the ghost object bug
  *
  */
-void clear_objects_list_placeholders();
+void clear_objects_list_placeholders(void);
 
 /*!
  * \ingroup	load_3d
@@ -172,7 +172,7 @@ void clear_objects_list_placeholders();
  * 	Increments the number of placeholders. Used to avoid the ghost object bug
  *
  */
-void inc_objects_list_placeholders();
+void inc_objects_list_placeholders(void);
 
 #ifdef NEW_SOUND
 /*!
@@ -217,7 +217,7 @@ void draw_3d_object_detail(object3d * object_id, Uint32 material_index, Uint32 u
  *
  * \callgraph
  */
-void disable_buffer_arrays();
+void disable_buffer_arrays(void);
 
 #ifdef __cplusplus
 } // extern "C"

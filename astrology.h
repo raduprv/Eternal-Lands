@@ -24,7 +24,7 @@ extern int always_show_astro_details;
  *
  * \callgraph
  */
-void display_astrology_window();
+void display_astrology_window(const char * raw_text);
 
 /*!
  * \brief Check for astrology messages

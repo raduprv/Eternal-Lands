@@ -184,7 +184,7 @@ void set_create_char_error (const char *msg, int len)
 	creating_char=1;
 }
 
-void change_actor ()
+void change_actor (void)
 {
 	// We only need to reload the core model, and attach all the correct mesh types.
 	if (our_actor.our_model){
@@ -659,10 +659,10 @@ int show_newchar_handler (window_info *win) {
 }
 
 #ifdef NEW_NEW_CHAR_WINDOW
-void create_newchar_hud_window();
+void create_newchar_hud_window(void);
 #endif
 
-void create_newchar_root_window ()
+void create_newchar_root_window (void)
 {
 	if (newchar_root_win < 0)
 	{
@@ -771,7 +771,7 @@ void add_text_to_buffer(int color, char * text, int time_to_display)
 	display_time=cur_time+time_to_display;
 }
 
-void create_character()
+void create_character(void)
 {
 	if(!strncasecmp(inputs[1].str, actors_list[0]->actor_name, strlen(actors_list[0]->actor_name))){
 #ifdef NEW_NEW_CHAR_WINDOW
@@ -810,7 +810,7 @@ void create_character()
 	}
 }
 
-void login_from_new_char()
+void login_from_new_char(void)
 {
 	safe_snprintf(username_str, sizeof(username_str), "%s", inputs[0].str);
 	safe_snprintf(password_str, sizeof(password_str), "%s", inputs[1].str);
@@ -963,7 +963,7 @@ int click_namepass_handler(window_info * win, int mx, int my, Uint32 flags)
 	return 0;
 }
 
-void show_account_win ()
+void show_account_win (void)
 {
 	if (namepass_win < 0){
 	        // Create the window
@@ -1401,7 +1401,7 @@ int click_color_race_handler (window_info *win, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-void show_color_race_win()
+void show_color_race_win(void)
 {
 	if(color_race_win < 0){
 		color_race_win = create_window (win_design, newchar_root_win, 0, 300, start_y, 420, 170, ELW_WIN_DEFAULT|ELW_CLICK_TRANSPARENT);
@@ -1689,7 +1689,7 @@ int click_newchar_race_handler(widget_list *w, int mx, int my, Uint32 flags)
 	return 0;
 }
 
-static void update_head()
+static void update_head(void)
 {
 	// Detach the old head, and reattach and save the new one.
 	model_detach_mesh(our_actor.our_model,
@@ -1700,7 +1700,7 @@ static void update_head()
 		actors_defs[our_actor.race].head[our_actor.head].mesh_index;
 }
 
-static void update_skin()
+static void update_skin(void)
 {
 	// Copy the skin texture names.
 	my_strncp(our_actor.our_model->body_parts->hands_tex,
@@ -1719,7 +1719,7 @@ static void update_skin()
 #endif	/* NEW_TEXTURES */
 }
 
-static void update_hair()
+static void update_hair(void)
 {
 	// Copy the hair texture name.
 	my_strncp(our_actor.our_model->body_parts->hair_tex,
@@ -1735,7 +1735,7 @@ static void update_hair()
 #endif	/* NEW_TEXTURES */
 }
 
-static void update_shirt()
+static void update_shirt(void)
 {
 	// Copy the shirt and arms texture names.
 	my_strncp(our_actor.our_model->body_parts->arms_tex,
@@ -1765,7 +1765,7 @@ static void update_shirt()
 #endif	/* NEW_TEXTURES */
 }
 
-static void update_pants()
+static void update_pants(void)
 {
 	// Copy the pants texture name.
 	my_strncp(our_actor.our_model->body_parts->pants_tex,
@@ -1793,7 +1793,7 @@ static void update_pants()
 #endif	/* NEW_TEXTURES */
 }
 
-static void update_boots()
+static void update_boots(void)
 {
 	// Copy the new boots texture name.
 	my_strncp(our_actor.our_model->body_parts->boots_tex,
@@ -2071,7 +2071,7 @@ CHECK_GL_ERRORS();
 	return 1;
 }
 
-void create_newchar_hud_window()
+void create_newchar_hud_window(void)
 {
 	if(newchar_hud_win != -1) return;
 	newchar_hud_win = create_window("Newchar_Hud", newchar_root_win, 0, window_width - 270, 0, 270, window_height - hud_y, ELW_USE_BORDER|ELW_SHOW|ELW_SHOW_LAST);
@@ -2088,7 +2088,7 @@ void create_newchar_hud_window()
 	init_window(namepass_win, newchar_hud_win, 0, 0, 10, 270, window_height - hud_y - 10);
 }
 
-void resize_newchar_hud_window()
+void resize_newchar_hud_window(void)
 {
 	if(get_show_window(newchar_hud_win)) //Simply destroy and recreate everything
 	{

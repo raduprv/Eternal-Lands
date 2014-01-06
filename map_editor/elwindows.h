@@ -138,7 +138,7 @@ extern	windows_info	windows_list;
 #define	SCREEN	0
 
 // windows manager function
-void	display_windows();
+void	display_windows(int level);
 int		click_in_windows(int _x, int _y, Uint32 flags);
 int		drag_windows(int _x, int _y, int dx, int dy);
 void	end_drag_windows();
