@@ -18,6 +18,7 @@
  */
 
 #define OBJ_NAME_SIZE           80
+#define MAX_CURSORS		20
 #define MAX_HARVESTABLE_OBJECTS 300
 #define MAX_ENTRABLE_OBJECTS    300
 
@@ -28,7 +29,7 @@ int current_cursor;
 int read_mouse_now=0;
 int elwin_mouse=-1;
 
-struct cursors_struct cursors_array[20];
+struct cursors_struct cursors_array[MAX_CURSORS];
 
 #ifdef FASTER_MAP_LOAD
 static char harvestable_objects[MAX_HARVESTABLE_OBJECTS][OBJ_NAME_SIZE];
@@ -190,6 +191,12 @@ void load_cursors()
 
 void cursors_cleanup(void)
 {
+	int i;
+	for (i=0; i<MAX_CURSORS; i++)
+	{
+		if(cursors_array[i].cursor_pointer != NULL)
+			SDL_FreeCursor((SDL_Cursor*)cursors_array[i].cursor_pointer);
+	}
 	if(cursors_mem != NULL) {
 		free(cursors_mem);
 	}

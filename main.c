@@ -100,7 +100,6 @@ void cleanup_mem(void)
 	cleanup_manufacture();
 	cleanup_text_buffers();
 	cleanup_fonts();
-	cursors_cleanup();
 	destroy_all_actors();
 	end_actors_lists();
 	cleanup_lights();
@@ -296,6 +295,8 @@ int start_rendering()
 	destroy_tcp_out_mutex();
 
 	if (use_frame_buffer) free_reflection_framebuffer();
+
+	cursors_cleanup();
 
 	printf("doing SDL_Quit\n");
 	fflush(stderr);

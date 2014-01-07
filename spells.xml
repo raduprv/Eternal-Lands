@@ -29,6 +29,20 @@
 		<reagent id="60" uid="41">1</reagent>
 	</spell>
 	<spell>
+		<name>Heal Allies</name>
+		<desc>Restores some HP on Guildies</desc>
+		<id>21</id>
+		<group>0</group>
+		<icon>41</icon>
+		<mana>24</mana>
+		<lvl skill="mag">40</lvl>
+		<sigil>3</sigil>	
+		<sigil>8</sigil>	
+		<sigil>23</sigil>	
+		<reagent id="59" uid="40">3</reagent>
+		<reagent id="60" uid="41">2</reagent>
+	</spell>
+	<spell>
 		<name>Restoration</name>
 		<desc>Restores some of your health</desc>
 		<id>7</id>
