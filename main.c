@@ -111,7 +111,9 @@ void cleanup_mem(void)
 	cache_e3d->free_item = &destroy_e3d;
 	cache_delete(cache_e3d);
 	cache_e3d = NULL;
+#ifdef NEW_TEXTURES
 	free_texture_cache();
+#endif
 	// This should be fixed now  Sir_Odie
 	cache_delete(cache_system);
 	cache_system = NULL;

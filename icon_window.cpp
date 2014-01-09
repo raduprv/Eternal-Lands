@@ -22,6 +22,7 @@
 #include "gl_init.h"
 #include "hud.h"
 #include "interface.h"
+#include "io/elfilewrapper.h"
 #include "multiplayer.h"
 #include "new_character.h"
 #include "icon_window.h"
