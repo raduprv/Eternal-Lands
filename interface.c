@@ -1339,6 +1339,18 @@ void delete_mark_on_map_on_mouse_position()
 }
 
 
+void destroy_all_root_windows ()
+{
+	if (game_root_win >= 0) destroy_window (game_root_win);
+	if (console_root_win >= 0) destroy_window (console_root_win);
+	if (map_root_win >= 0) destroy_window (map_root_win);
+	if (login_root_win >= 0) destroy_window (login_root_win);
+	if (rules_root_win >= 0) destroy_window (rules_root_win);
+	if (opening_root_win >= 0) destroy_window (opening_root_win);
+	if (newchar_root_win >= 0) destroy_window (newchar_root_win);
+	if (update_root_win >= 0) destroy_window (update_root_win);
+	if (langsel_rootwin >= 0) destroy_window (langsel_rootwin);
+}
 void hide_all_root_windows ()
 {
 	if (game_root_win >= 0) hide_window (game_root_win);

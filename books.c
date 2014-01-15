@@ -1169,6 +1169,8 @@ void free_books()
 		if (l)
 			free_book(l);
 	}
+	if(books)
+		free_book(books);
 }
 
 /* currently UNUSED

@@ -37,6 +37,14 @@ void    init_update();
 
 /*!
  * \ingroup	update
+ * \brief	Clean up the auto update system
+ *
+ * 		The function cleans up the auto update system on client exit
+ */
+void    clean_update();
+
+/*!
+ * \ingroup	update
  * \brief   Check the results of having downloaded the updates file
  *
  * 		The function checks the results of the having downloaded the updates file and either

@@ -60,6 +60,7 @@
 #include "timers.h"
 #include "translate.h"
 #include "textures.h"
+#include "update.h"
 #include "url.h"
 #include "weather.h"
 #ifdef MEMORY_DEBUG
@@ -105,6 +106,7 @@ void cleanup_mem(void)
 	cleanup_lights();
 	/* 2d objects */
 	destroy_all_2d_objects();
+	destroy_all_2d_object_defs();
 	/* 3d objects */
 	destroy_all_3d_objects();
 	/* caches */
@@ -267,6 +269,7 @@ int start_rendering()
 	cleanup_counters();
 	cleanup_chan_names();
 	cleanup_hud();
+	destroy_all_root_windows();
 	SDL_RemoveTimer(draw_scene_timer);
 	SDL_RemoveTimer(misc_timer);
 	end_particles ();
@@ -293,6 +296,7 @@ int start_rendering()
 	stopp_custom_update();
 #endif	/* CUSTOM_UPDATE */
 	clear_zip_archives();
+	clean_update();
 
 	destroy_tcp_out_mutex();
 

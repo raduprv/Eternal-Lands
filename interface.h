@@ -382,6 +382,16 @@ int put_mark_on_current_position(char *name);
 
 /*!
  * \ingroup interfaces
+ * \brief   Destroys all of the root windows if necessary.
+ *
+ *      Destroys all the root windows, if necessary, i.e. if the associated *_root_win variables are greater than or equal to zero, by calling \ref destroy_window for each of them.
+ *
+ * \callgraph
+ */
+void destroy_all_root_windows ();
+
+/*!
+ * \ingroup interfaces
  * \brief   Hides all of the root windows if necessary.
  *
  *      Hides all the root windows, if necessary, i.e. if the associated *_root_win variables are greater than or equal to zero, by calling \ref hide_window for each of them.

@@ -126,6 +126,19 @@ void    init_update()
 	}
 }
 
+// clean up the auto update system
+void clean_update()
+{
+	int i;
+
+	SDL_DestroyMutex(download_mutex);
+	for(i=0; i< num_update_servers; i++)
+	{
+		if(update_servers[i])
+			free(update_servers[i]);
+	}
+
+}
 
 // handle the update file event
 static void do_handle_update_download(struct http_get_struct *get)

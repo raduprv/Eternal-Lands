@@ -1045,6 +1045,25 @@ void destroy_all_2d_objects()
 	}
 }
 
+void destroy_all_2d_object_defs()
+{
+	int i;
+#ifdef FASTER_MAP_LOAD
+	for (i = 0; i < obj_2d_cache_used; i++)
+	{
+		free(obj_2d_def_cache[i]);
+		obj_2d_def_cache[i] = NULL;
+	}
+	obj_2d_cache_used=0;
+#else
+	for (i = 0; i < MAX_OBJ_2D_DEF; i++)
+	{
+		free(obj_2d_def_cache[i]);
+		obj_2d_def_cache[i] = NULL;
+	}
+#endif
+}
+
 // for support of the 1.0.3 server, change if an object is to be displayed or not
 void set_2d_object (Uint8 display, const void *ptr, int len)
 {

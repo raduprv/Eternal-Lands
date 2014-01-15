@@ -573,7 +573,7 @@ static void cache_remove(cache_struct *cache, cache_item_struct *item)
 	item->name = NULL;		//failsafe
 	item->size = 0;			//failsafe
 #ifdef FASTER_MAP_LOAD
-	if (cache->num_items > 0)
+	if (cache->num_items >= 0)
 	{
 		cache_item_struct **ci = cache->cached_items + cache->num_items;
 		if (*ci == item)

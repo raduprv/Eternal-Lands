@@ -226,11 +226,19 @@ void destroy_2d_object(int i);
  *
  * 		Destroys all 2d objects currently in the obj_2d_list
  *
- * \param	i The position in the obj_2d_list
- *
  * \callgraph
  */
 void destroy_all_2d_objects(void);
+
+/*!
+ * \ingroup	display_2d
+ * \brief	Destroys all current 2d object defs
+ *
+ * 		Destroys all 2d object defs currently in the obj_2d_def_cache
+ *
+ * \callgraph
+ */
+void destroy_all_2d_object_defs(void);
 
 #ifdef NEW_SOUND
 /*!
