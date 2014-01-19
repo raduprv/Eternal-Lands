@@ -298,7 +298,7 @@ int start_rendering()
 	clear_zip_archives();
 	clean_update();
 
-	destroy_tcp_out_mutex();
+	cleanup_tcp();
 
 	if (use_frame_buffer) free_reflection_framebuffer();
 

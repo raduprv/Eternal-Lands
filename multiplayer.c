@@ -172,11 +172,14 @@ void create_tcp_out_mutex()
 	tcp_out_data_mutex = SDL_CreateMutex();
 }
 
-void destroy_tcp_out_mutex()
+void cleanup_tcp()
 {
 	SDL_DestroyMutex(tcp_out_data_mutex);
-
 	tcp_out_data_mutex = 0;
+	SDLNet_TCP_Close(my_socket);
+	SDLNet_FreeSocketSet(set);
+	set=NULL;
+	SDLNet_Quit();
 }
 
 #ifdef DEBUG

@@ -57,10 +57,10 @@ void create_tcp_out_mutex();
 /*!
  * \ingroup network_actors
  *
- *      Destroys the mutex for the tcp output buffer.
+ *      Destroys the mutex for the tcp output buffer, the socket and the socket set
  *
  */
-void destroy_tcp_out_mutex();
+void cleanup_tcp();
 
 	/*!
  * \ingroup network_actors
