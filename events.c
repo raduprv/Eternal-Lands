@@ -287,13 +287,7 @@ int HandleEvent (SDL_Event *event)
 					flags |= ELW_WHEEL_DOWN;
 			}
 
-			if ( left_click == 1 || right_click == 1
-#if !defined OSX && !defined WINDOWS
-#ifdef MIDDLE_MOUSE_PASTE
-				|| middle_click == 1
-#endif
-#endif
-				|| (flags & (ELW_WHEEL_UP | ELW_WHEEL_DOWN) ) )
+			if ( left_click == 1 || right_click == 1 || middle_click == 1 || (flags & (ELW_WHEEL_UP | ELW_WHEEL_DOWN) ) )
 			{
 				click_in_windows (mouse_x, mouse_y, flags);
 			}
