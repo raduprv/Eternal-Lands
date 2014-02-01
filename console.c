@@ -1628,7 +1628,10 @@ int save_local_data(char * text, int len){
 void auto_save_local_and_server(void)
 {
 	time_t time_delta = 60 * 90;
-	if(!disconnected && get_our_actor() && ((last_save_time + time_delta) <= time(NULL)))
+	actor *me;
+
+	me = get_our_actor();
+	if(!disconnected && me && !me->fighting && ((last_save_time + time_delta) <= time(NULL)))
 	{
 		last_save_time = time(NULL);
 		save_local_data(NULL, 0);
