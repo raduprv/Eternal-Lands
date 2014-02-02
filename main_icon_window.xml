@@ -101,7 +101,10 @@ Search Knowledge ...||#know &lt;Knowledge Filter String&gt;
 Session Counters||#session_counters
 </icon>
 
-<icon type="window" image_id="1" alt_image_id="28" help_name="console" param_name="console"/>
+<icon type="window" image_id="1" alt_image_id="28" help_name="console" param_name="console">
+Find Console Text||#keypress #K_CONSOLE||#find &lt;Text to find&gt;
+Clear Console||#cls
+</icon>
 
 <icon type="window" image_id="39" alt_image_id="38" help_name="help" param_name="help">
 Help Tab||#keypress #K_HELP

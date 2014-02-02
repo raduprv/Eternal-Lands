@@ -178,7 +178,7 @@ namespace IconWindow
 				{
 					Uint32 value = get_key_value(key_name.c_str());
 					if (value)
-						keypress_root_common(value, 0);
+						do_keypress(value);
 				}
 				Basic_Icon::action();
 			}

@@ -97,6 +97,15 @@ int text_input_handler (Uint32 key, Uint32 unikey);
 int keypress_root_common (Uint32 key, Uint32 unikey);
 
 /*!
+ * \ingroup events
+ * \brief treat key value as if it was a real key press 
+ *
+ * \param key
+ * \callgraph
+ */
+void do_keypress(Uint32 key);
+
+/*!
  * \ingroup root_window
  * \brief Creates the game (root) window of the game.
  *

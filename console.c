@@ -1595,7 +1595,7 @@ int command_keypress(char *text, int len)
 	{
 		Uint32 value = get_key_value(text);
 		if (value)
-			keypress_root_common(value, 0);
+			do_keypress(value);
 	}
 	return 1;
 }

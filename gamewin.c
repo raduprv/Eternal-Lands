@@ -2329,6 +2329,16 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	return 1;
 }
 
+void do_keypress(Uint32 key)
+{
+	if (game_root_win >= 0)
+	{
+		window_info *win = &windows_list.window[game_root_win];
+		if (win != NULL)
+			keypress_game_handler(win, 0, 0, key, 0);
+	}
+}
+
 int show_game_handler (window_info *win) {
 	init_hud_interface (HUD_INTERFACE_GAME);
 	show_hud_windows();
