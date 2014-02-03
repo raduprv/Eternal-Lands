@@ -35,7 +35,6 @@
 #include "gl_init.h"
 #include "hud.h"
 #include "items.h"
-#include "item_lists.h"
 #include "keys.h"
 #include "knowledge.h"
 #include "langselwin.h"
@@ -375,8 +374,6 @@ void read_bin_cfg()
 	rz=cfg_mem.camera_z;
 	new_zoom_level=zoom_level=cfg_mem.zoom_level;
 
-	item_lists_set_active(cfg_mem.active_item_list);
-
 	view_health_bar=cfg_mem.banner_settings & 1;
 	view_ether_bar=(cfg_mem.banner_settings >> 1) & 1;
 	view_names=(cfg_mem.banner_settings >> 2) & 1;
@@ -621,8 +618,6 @@ void save_bin_cfg()
 	cfg_mem.banner_settings |= view_names << 2;
 	cfg_mem.banner_settings |= view_hp << 3;
 	cfg_mem.banner_settings |= view_ether << 4;
-
-	cfg_mem.active_item_list = item_lists_get_active();
 
 	cfg_mem.quantity_selected=(quantities.selected<ITEM_EDIT_QUANT)?quantities.selected :0;
 

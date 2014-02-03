@@ -107,7 +107,7 @@ namespace ItemLists
 	class List_Container
 	{
 		public:
-			List_Container(void) : active_list(0), initial_active_list(0), last_mod_time(0), loaded(false) {}
+			List_Container(void) : active_list(0), last_mod_time(0), loaded(false) {}
 			void load(void);
 			void save(void);
 			bool add(const char *name);
@@ -122,7 +122,6 @@ namespace ItemLists
 			const std::vector<List> & get_lists(void) const { return saved_item_lists; }
 			bool set_active(size_t new_active_list)
 				{ if (new_active_list >= size()) return false; active_list = new_active_list; return true; }
-			void set_initial_active(size_t list_index) { initial_active_list = list_index; }
 			void set_quantity(size_t item, int quantity)
 				{ assert(valid_active_list()); last_mod_time = SDL_GetTicks(); return saved_item_lists[active_list].set_quantity(item, quantity); }
 			void del_item(size_t i)
@@ -136,9 +135,8 @@ namespace ItemLists
 			void check_and_timed_save(bool force);
 		private:
 			std::vector<List> saved_item_lists;
-			static int FILE_REVISION;
+			static size_t FILE_REVISION;
 			size_t active_list;
-			size_t initial_active_list;
 			Uint32 last_mod_time;
 			bool loaded;
 			static const char * filename;
@@ -632,7 +630,7 @@ namespace ItemLists
 	}
 
 
-	int List_Container::FILE_REVISION = 2;
+	size_t List_Container::FILE_REVISION = 2;
 	const char * List_Container::filename = "item_lists.txt";
 
 	//  Save the item lists to a file in players config directory
@@ -649,7 +647,7 @@ namespace ItemLists
 			LOG_TO_CONSOLE(c_red2, item_list_save_error_str);
 			return;
 		}
-		out << FILE_REVISION << std::endl << std::endl;
+		out << FILE_REVISION << " " << get_active() << std::endl << std::endl;
 		for (size_t i=0; i<saved_item_lists.size(); ++i)
 		{
 			saved_item_lists[i].write(out);
@@ -670,8 +668,24 @@ namespace ItemLists
 		std::ifstream in(fullpath.c_str());
 		if (!in)
 			return;
-		int revision;
-		in >> revision;
+
+		// First line is "<file revision> [<active list>]", other parameters could be added....
+		size_t revision = 0;
+		size_t initial_active = 0;
+		std::string first_line;
+		if (getline_nocr(in, first_line) && !first_line.empty())
+		{
+			std::vector<size_t> values;
+			std::istringstream ss(first_line);
+			size_t value = 0;
+			while (ss >> value)
+				values.push_back(value);
+			if (values.size() > 0)
+				revision = values[0];
+			if (values.size() > 1)
+				initial_active = values[1];
+		}
+
 		if (revision != FILE_REVISION)
 		{
 			LOG_ERROR("%s: %s [%s]\n", __FILE__, item_list_version_error_str, fullpath.c_str() );
@@ -693,7 +707,7 @@ namespace ItemLists
 		}
 		in.close();
 		sort_list();
-		set_active(initial_active_list);
+		set_active(initial_active);
 	}
 
 
@@ -1515,20 +1529,9 @@ extern "C"
 		ItemLists::Vars::lists()->save();
 		ItemLists::Vars::cat_maps()->save();
 	}
-	
-	unsigned int item_lists_get_active(void)
-	{
-		return static_cast<unsigned int>(ItemLists::Vars::lists()->get_active());
-	}
-	
-	void item_lists_set_active(unsigned int active_list)
-	{
-		ItemLists::Vars::lists()->set_initial_active(static_cast<size_t>(active_list));
-	}
-	
+
 	void item_lists_reset_pickup_fail_time(void)
 	{
 		ItemLists::Vars::win()->reset_pickup_fail_time();
 	}
-
 }
