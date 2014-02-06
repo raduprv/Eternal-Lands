@@ -637,7 +637,7 @@ namespace ItemLists
 	//
 	void List_Container::save(void)
 	{
-		if (!loaded)
+		if (!loaded || saved_item_lists.empty())
 			return;
 		std::string fullpath = get_path_config() + std::string(filename);
 		std::ofstream out(fullpath.c_str());
@@ -689,6 +689,7 @@ namespace ItemLists
 		if (revision != FILE_REVISION)
 		{
 			LOG_ERROR("%s: %s [%s]\n", __FILE__, item_list_version_error_str, fullpath.c_str() );
+			LOG_TO_CONSOLE(c_red2, item_list_version_error_str);
 			return;
 		}
 		bool logged_error = false;
