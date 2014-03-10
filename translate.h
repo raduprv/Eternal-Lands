@@ -301,6 +301,8 @@ extern char
 		urlwin_clear_str[30],
 		/*draw_scene.c*/
 		low_framerate_str[100],
+		/* encyclopedia */
+		encycl_search_prompt_str[25],
 		/*filter.c*/
 		no_filters_str[50],
 		filters_str[50],
@@ -492,6 +494,7 @@ extern char
 		cm_stats_bar_base_str[30],
 		cm_recipe_menu_str[100],
 		cm_manuwin_menu_str[50],
+		cm_encycl_base_str[150],
 		/* user_menus.cpp */
 		um_invalid_command_str[50],
 		um_invalid_line_str[50],

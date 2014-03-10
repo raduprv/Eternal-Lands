@@ -769,7 +769,6 @@ void FreeXML()
  *	pjbroad/bluap Feb 2011.
  *
  * TODO
- *		Move strings to translate.
  * 		Could add window to all three help sections help, skills, encycl
  * 			already have which pages belong to which tabs, we just throw all but encycl away
 */
@@ -781,10 +780,6 @@ struct PAGE_LINK
 	const char *title;
 	size_t from_page_index;
 };
-
-/* move to translate */
-static const char* cm_encycl_base_str = "Encyclopedia Index\nSearch Encyclopedia Titles\nRepeat Last Search\nBookmark This Page\nUnbookmark This Page\nClear Bookmarks";
-static const char* encycl_search_propmt = "Enter text to find";
 
 #define MAX_SAME_TITLE_LINKS 10
 #define MAX_FOUND_LINKS 25
@@ -1133,7 +1128,7 @@ static int cm_encycl_handler(window_info *win, int widget_id, int mx, int my, in
 			close_ipu(&ipu_encycl);
 			init_ipu(&ipu_encycl, encyclopedia_win, DEFAULT_FONT_X_LEN * 20, -1, 40, 1, NULL, find_page_callback);
 			ipu_encycl.x = mx; ipu_encycl.y = my;
-			display_popup_win(&ipu_encycl, encycl_search_propmt);
+			display_popup_win(&ipu_encycl, encycl_search_prompt_str);
 			if (ipu_encycl.popup_win >=0 && ipu_encycl.popup_win<windows_list.num_windows)
 				windows_list.window[ipu_encycl.popup_win].opaque = 1;
 			break;
