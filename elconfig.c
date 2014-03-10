@@ -1666,6 +1666,9 @@ int check_var (char *str, var_name_type type)
 		our_vars.var[i]->saved= 0;
 	switch (our_vars.var[i]->type)
 	{
+		case OPT_INT_INI:
+			// Needed, because var is never changed through widget
+			our_vars.var[i]->saved= 0;
 		case OPT_INT:
 		case OPT_MULTI:
 		case OPT_MULTI_H:
@@ -1673,7 +1676,6 @@ int check_var (char *str, var_name_type type)
 			our_vars.var[i]->func ( our_vars.var[i]->var, atoi (ptr) );
 			return 1;
 		case OPT_BOOL_INI:
-		case OPT_INT_INI:
 			// Needed, because var is never changed through widget
 			our_vars.var[i]->saved= 0;
 		case OPT_BOOL:
