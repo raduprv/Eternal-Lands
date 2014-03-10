@@ -415,6 +415,7 @@ void read_bin_cfg()
 	disable_manuwin_keypress = (cfg_mem.misc_bool_options >> 15) & 1;
 	always_show_astro_details = (cfg_mem.misc_bool_options >> 16) & 1;
 	items_list_on_left = (cfg_mem.misc_bool_options >> 17) & 1;
+	items_mod_click_any_cursor = (cfg_mem.misc_bool_options >> 18) & 1;
 
 	set_options_user_menus(cfg_mem.user_menu_win_x, cfg_mem.user_menu_win_y, cfg_mem.user_menu_options);
 
@@ -675,6 +676,7 @@ void save_bin_cfg()
 	cfg_mem.misc_bool_options |= disable_manuwin_keypress << 15;
 	cfg_mem.misc_bool_options |= always_show_astro_details << 16;
 	cfg_mem.misc_bool_options |= items_list_on_left << 17;
+	cfg_mem.misc_bool_options |= items_mod_click_any_cursor << 18;
 
 	get_options_user_menus(&cfg_mem.user_menu_win_x, &cfg_mem.user_menu_win_y, &cfg_mem.user_menu_options);
 

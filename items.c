@@ -73,6 +73,7 @@ int quantity_y_offset=185;
 
 int use_small_items_window = 0;
 int manual_size_items_window = 0;
+int items_mod_click_any_cursor = 1;
 
 int item_uid_enabled = 0;
 const Uint16 unset_item_uid = (Uint16)-1;
@@ -939,7 +940,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			if(storage_items[storage_item_dragged].quantity<=item_quantity) storage_item_dragged=-1;
 		}
 		else if(item_list[pos].quantity){
-			if(ctrl_on){
+			if (ctrl_on && (items_mod_click_any_cursor || (item_action_mode==ACTION_WALK))) {
 				str[0]=DROP_ITEM;
 				str[1]=item_list[pos].pos;
 				if(item_list[pos].is_stackable)
@@ -948,7 +949,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 					*((Uint32 *)(str+2))=SDL_SwapLE32(36);//Drop all
 				my_tcp_send(my_socket, str, 6);
 				do_drop_item_sound();
-			} else if (alt_on && (item_action_mode == ACTION_WALK)) {
+			} else if (alt_on && (items_mod_click_any_cursor || (item_action_mode==ACTION_WALK))) {
 				if ((storage_win >= 0) && (get_show_window(storage_win)) && (view_only_storage == 0)) {
 					str[0]=DEPOSITE_ITEM;
 					str[1]=item_list[pos].pos;
@@ -1133,6 +1134,8 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 		if(pos==-1) {
 		} else if(item_list[pos].quantity){
 			set_description_help(pos);
+			if ((item_dragged == -1) && (items_mod_click_any_cursor || (item_action_mode==ACTION_WALK)))
+					item_help_str = mod_click_item_help_str;
 			if(item_action_mode==ACTION_LOOK) {
 				elwin_mouse=CURSOR_EYE;
 			} else if(item_action_mode==ACTION_USE) {
@@ -1142,8 +1145,6 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 				if (use_item!=-1)
 					item_help_str = multiuse_item_help_str;
 			} else {
-				if (item_dragged == -1)
-					item_help_str = pick_item_help_str;
 				elwin_mouse=CURSOR_PICK;
 			}
 			mouseover_item_pos = pos;
@@ -1289,7 +1290,7 @@ static int context_items_handler(window_info *win, int widget_id, int mx, int my
 	{
 		case ELW_CM_MENU_LEN+1: manual_size_items_window = 1; show_items_handler(win); break;
 		case ELW_CM_MENU_LEN+2: show_items_handler(win); break;
-		case ELW_CM_MENU_LEN+6: send_input_text_line("#sto", 4); break;
+		case ELW_CM_MENU_LEN+7: send_input_text_line("#sto", 4); break;
 	}
 	return 1;
 }
@@ -1317,6 +1318,7 @@ void display_items_menu()
 		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+2, &manual_size_items_window, NULL);
 		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+3, &item_window_on_drop, "item_window_on_drop");
 		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+4, &allow_equip_swap, NULL);
+		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+5, &items_mod_click_any_cursor, NULL);
 				
 		cm_stoall_but = cm_create(inv_keeprow_str, NULL);
 		cm_bool_line(cm_stoall_but, 0, &items_stoall_nofirstrow, NULL);

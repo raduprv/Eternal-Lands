@@ -211,7 +211,7 @@ char
 	quantity_edit_str[100],
 	equip_here_str[100],
 	equip_str[20],
-	pick_item_help_str[50],
+	mod_click_item_help_str[50],
 	multiuse_item_help_str[50],
 	stoall_help_str[50],
 	getall_help_str[50],
@@ -1401,10 +1401,10 @@ void init_help()
 	add_xml_identifier(misc,"cachei",cache_items_str,"items",sizeof(cache_items_str));
 	add_xml_identifier(misc,"caches",cache_size_str,"Cache size",sizeof(cache_size_str));
 	add_xml_identifier (misc, "appropr_name", use_appropriate_name, "Use an appropriate name:\nPlease do not create a name that is obscene or offensive, contains more than 2 digits, is senseless or stupid (i.e. djrtq47fa), or is made with the intent of impersonating another player.\nTake into consideration that the name you choose does affect the atmosphere of the game. Inappropriate names can and will be locked.", sizeof (use_appropriate_name) );
-	add_xml_identifier(misc,"edit_quantity",quantity_edit_str,"Rightclick on the quantity you wish to edit",sizeof(quantity_edit_str));
+	add_xml_identifier(misc,"edit_quantity",quantity_edit_str,"Right-click on the quantity you wish to edit",sizeof(quantity_edit_str));
 	add_xml_identifier(misc,"equip_here",equip_here_str,"Place an item in these boxes to equip it",sizeof(equip_here_str));
-	add_xml_identifier(misc,"pick_item_help",pick_item_help_str,"Pickup item. +ctrl/+alt to drop/store all",sizeof(pick_item_help_str));
-	add_xml_identifier(misc,"multiuse_item_help",multiuse_item_help_str,"Leftclick to use (+shift to use again)",sizeof(multiuse_item_help_str));
+	add_xml_identifier(misc,"mod_click_item_help",mod_click_item_help_str,"Left-click +ctrl/+alt to drop/store all",sizeof(mod_click_item_help_str));
+	add_xml_identifier(misc,"multiuse_item_help",multiuse_item_help_str,"Left-click to use (+shift to use again)",sizeof(multiuse_item_help_str));
 	add_xml_identifier(misc,"equipment",equip_str,"Equipment",sizeof(equip_str));
 	add_xml_identifier(misc,"stoall_help",stoall_help_str,"Move all items into opened storage.",sizeof(stoall_help_str));
 	add_xml_identifier(misc,"getall_help",getall_help_str,"Get all items from ground bag.",sizeof(getall_help_str));
@@ -1586,7 +1586,7 @@ void init_help()
 	add_xml_identifier(misc, "cm_banner_menu", cm_banner_menu_str, "Show Names\nShow Health Bars\nShow Health Numbers\nShow Ether Bar\nShow Ether Numbers\nEnable Instance Mode\nShow Speech Bubbles\nEnable Banner Background\nSit Lock\nRanging Lock\n--\nDisable This Menu\n", sizeof(cm_banner_menu_str));
 	add_xml_identifier(misc, "cm_title_menu", cm_title_menu_str, "Hide Windows\nOpaque Background\nWindows On Top\n", sizeof(cm_title_menu_str));
 	add_xml_identifier(misc, "cm_title_help", cm_title_help_str, "Right-click for window menu", sizeof(cm_title_help_str));
-	add_xml_identifier(misc, "cm_items_menu", cm_items_menu_str, "--\nUse Small Window\nManual Window Size\nItem Window On Drop\nAllow Equipment Swap\n--\nOpen Storage (View Only)", sizeof(cm_items_menu_str));
+	add_xml_identifier(misc, "cm_items_menu", cm_items_menu_str, "--\nUse Small Window\nManual Window Size\nItem Window On Drop\nAllow Equipment Swap\nAlt/Ctrl-click With Any Cursor\n--\nOpen Storage (View Only)", sizeof(cm_items_menu_str));
 	add_xml_identifier(misc, "cm_storage_menu", cm_storage_menu_str, "--\nPrint Items To Console\nSort Categories Alphabetically\n", sizeof(cm_storage_menu_str));
 	add_xml_identifier(misc, "cm_astro_menu", cm_astro_menu_str, "--\nPrint Details To Console\nAlways Print Details To Console", sizeof(cm_astro_menu_str));
 	add_xml_identifier(misc, "cm_ranging_menu", cm_ranging_menu_str, "--\nPrint To Console", sizeof(cm_ranging_menu_str));
