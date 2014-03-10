@@ -17,7 +17,6 @@ FEATURES += USE_INLINE			# enable some optimizations to use inline functions ins
 FEATURES += BANDWIDTH_SAVINGS		# enable bandwidth saving changes for message protocol
 # new for 1.9.2 release
 FEATURES += ANIMATION_SCALING		# Adds support for animation scaling, depending on the number of animation commands in the actor queue.
-FEATURES += ENCYCL_NAVIGATION		# Adds context menus to encyclopedia windows with search and bookmark functions
 FEATURES += FSAA			# Adds support for full screen anti-aliasing using OpenGL multisampling.
 FEATURES += NEW_NEW_CHAR_WINDOW		# Use the new character creation window; controls always on-screen
 FEATURES += NEW_TEXTURES		# Enables the new texture loading and caching system (http://www.eternal-lands.com/forum/index.php?showtopic=54756)

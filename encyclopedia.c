@@ -14,13 +14,11 @@
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
-#ifdef ENCYCL_NAVIGATION
 #include "context_menu.h"
 #include "gamewin.h"
 #include "hud.h"
 #include "notepad.h"
 #include "tabs.h"
-#endif // ENCYCL_NAVIGATION
 #include "translate.h"
 #include "text.h"
 
@@ -39,7 +37,6 @@ int num_category=0,numpage=-1,numtext,x,y,numimage,id,color,size,ref,currentpage
 float u,v,uend,vend,xend,yend,r,g,b;
 char *s,*ss;
 
-#ifdef ENCYCL_NAVIGATION
 static void save_raw_page_link(const char *link, const char *title, size_t from_page_index);
 static void find_page(const char *search_title, void *data);
 static void encycl_nav_free(void);
@@ -48,7 +45,6 @@ static int repeat_search = 0;
 static int show_cm_help = 0;
 /* move to translate */
 static const char* cm_encycl_help_str = "Right-click for search and bookmark options";
-#endif // ENCYCL_NAVIGATION
 
 int display_encyclopedia_handler(window_info *win)
 {
@@ -135,7 +131,6 @@ CHECK_GL_ERRORS();
 
 	}
 
-#ifdef ENCYCL_NAVIGATION
 	if (repeat_search && last_search != NULL)
 	{
 		find_page(last_search, NULL);
@@ -146,7 +141,6 @@ CHECK_GL_ERRORS();
 		show_help(cm_encycl_help_str, 0, win->len_y+10);
 		show_cm_help = 0;
 	}
-#endif
 
 	return 1;
 }
@@ -659,9 +653,7 @@ void ReadCategoryXML(xmlNode * a_node)
 				t->Next=T;
 				x+=strlen(T->text)*((T->size)?11:8);
 				lastextlen=strlen(T->text)*((T->size)?11:8);
-#ifdef ENCYCL_NAVIGATION
 				save_raw_page_link(T->ref, T->text, numpage);
-#endif
 			}
 			// See if this is the new maximum length.
 			if(Page[numpage].max_y < y)
@@ -756,13 +748,10 @@ void FreeXML()
 			free(tmp);
 		}
 	}
-#ifdef ENCYCL_NAVIGATION
 	encycl_nav_free();
-#endif
 }
 
 
-#ifdef ENCYCL_NAVIGATION
 /*
  *	Functions to search and navigate to encyclopedia pages.
  *	All links are save into a list with the link text used as the title.
@@ -1223,7 +1212,6 @@ int keypress_encyclopedia_handler(window_info *win, int mx, int my, Uint32 key, 
 	}
 	return 0;
 }
-#endif // ENCYCL_NAVIGATION
 
 
 void fill_encyclopedia_win ()
@@ -1239,7 +1227,6 @@ void fill_encyclopedia_win ()
 		return;
 	}
 
-#ifdef ENCYCL_NAVIGATION
 	set_window_handler(encyclopedia_win, ELW_HANDLER_MOUSEOVER, &mouseover_encyclopedia_handler);
 	set_window_handler(encyclopedia_win, ELW_HANDLER_KEYPRESS, &keypress_encyclopedia_handler);
 
@@ -1252,5 +1239,4 @@ void fill_encyclopedia_win ()
 		find_base_pages();
 		process_encycl_links();
 	}
-#endif
 }
