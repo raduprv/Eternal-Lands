@@ -167,6 +167,14 @@ void load_server_list(const char *filename)
 					break;	// This is a comment so ignore the rest of the line
 				else if (section < 4 && (server_list_mem[i] == ' ' || server_list_mem[i] == '\t' || i == iend))
 				{
+					if (num_servers >= MAX_SERVERS)
+					{
+						const char *errstg = "Fatal error: Too many servers specified in";
+						LOG_ERROR("%s %s", errstg, filename);
+						fprintf(stderr, "%s %s\n", errstg, filename);
+						exit(1);
+					}
+
 					// This is the end of a section so store it (except the description)
 					// as we include whitespace in the description
 					string[len] = '\0';
