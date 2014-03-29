@@ -27,7 +27,7 @@ _CXXFLAGS=$(OPTIONS) -mcpu=i686 -O3 -fomit-frame-pointer -ffast-math -pipe $(GTK
 GTK_LIBS =  $(shell gtk-config --libs) 
 GTK2_LIBS = $(shell pkg-config gtk+-2.0 --libs)
 
-LIBS=$(shell sdl-config --libs) -lGL -lGLU $(shell xml2-config --libs) -lcal3d -lSDL_image
+LIBS=$(shell sdl-config --libs) -lGL -lGLU $(shell xml2-config --libs) -lcal3d -lSDL_image -lz
 
 COBJS=2d_objects.o 3d_objects.o	\
 	browser.o draw_scene.o	\
