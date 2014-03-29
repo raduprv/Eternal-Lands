@@ -68,6 +68,16 @@ void read_config()
 	}
 }
 
+static void init_globals(void)
+{
+	size_t i;
+	return;
+	for (i = 0; i < MAX_OBJ_3D; i++)
+		objects_list[i] = NULL;
+	for (i = 0; i < MAX_OBJ_2D; i++)
+		obj_2d_list[i] = NULL;
+}
+
 void init_stuff()
 {
 	int i;
@@ -81,6 +91,7 @@ void init_stuff()
 	init_translatables();
 
 	//create_error_mutex();
+	init_globals();
 	init_crc_tables();
 	init_zip_archives();
 	cache_system_init(MAX_CACHE_SYSTEM);
