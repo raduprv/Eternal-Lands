@@ -8,8 +8,9 @@
 extern "C" {
 #endif
 
-extern int harvesting;
 int now_harvesting(void);
+void clear_now_harvesting(void);
+void set_now_harvesting(void);
 
 extern char harvest_name[32];
 extern int counters_win;

@@ -117,8 +117,10 @@ static char **search_str = NULL;
 static size_t *search_len = NULL;
 static Uint32 misc_event_time = 0;
 
-int harvesting = 0;
-int now_harvesting(void) { return harvesting; }
+static int harvesting_flag = 0;
+int now_harvesting(void) { return harvesting_flag; }
+void clear_now_harvesting(void) { harvesting_flag = 0; }
+void set_now_harvesting(void) { harvesting_flag = 1; }
 Uint32 disconnect_time;
 char harvest_name[32] = {0};
 int killed_by_player = 0;
@@ -352,7 +354,7 @@ void cleanup_counters()
 		search_len = NULL;
 	}
 	
-	harvesting = 0;
+	clear_now_harvesting();
 	counters_initialized = 0;
 }
 
@@ -932,7 +934,7 @@ void increment_death_counter(actor *a)
 		}
 
 		/* count deaths that happend while harvesting, may not have been due to harvest event though */
-		if (harvesting) {
+		if (now_harvesting()) {
 			/* a crude check to see if death was just after (1 second should be enough) a harvest event */
 			if (abs(SDL_GetTicks() - misc_event_time) < 1000) {
 				increment_counter(DEATHS, "Harvesting event", 1, 0);
@@ -941,7 +943,7 @@ void increment_death_counter(actor *a)
 
 			/* if you are killed while harvesting, there is no "you stopped harvesting" message */
 			/* resetting now prevents next items added to inventry getting added to harvest counter */
-			harvesting = 0;
+			clear_now_harvesting();
 		}
 
 		if (!found_death_reason && me->async_fighting) {

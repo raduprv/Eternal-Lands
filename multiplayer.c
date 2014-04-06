@@ -527,7 +527,8 @@ void connect_to_server()
 
 	//clear out info
 	clear_waiting_for_questlog_entry();
-	harvesting = 0;
+	clear_today_is_special_day();
+	clear_now_harvesting();
 	last_heart_beat= time(NULL);
 	send_heart_beat();	// prime the hearbeat to prevent some stray issues when there is lots of lag
 	hide_window(trade_win);
