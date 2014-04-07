@@ -98,7 +98,7 @@ then
 		config="$(getconfig)"
 		[ $? -ne 0 ] && exit 1
 	else
-		config="$(cat $showsel)"
+		config="$(cat $showsel | awk -F\| '{print $1}')"
 		[ "$config" = "no" ] && config="main"
 	fi
 
