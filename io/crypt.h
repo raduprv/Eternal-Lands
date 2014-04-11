@@ -32,7 +32,11 @@
 /***********************************************************************
  * Return the next byte in the pseudo-random sequence
  */
+#if ZLIB_VERNUM >= 0x1270
+static int decrypt_byte(unsigned long* pkeys, const z_crc_t* pcrc_32_tab)
+#else
 static int decrypt_byte(unsigned long* pkeys, const unsigned long* pcrc_32_tab)
+#endif
 {
     unsigned temp;  /* POTENTIAL BUG:  temp*(temp^1) may overflow in an
                      * unpredictable manner on 16-bit systems; not a problem
@@ -45,7 +49,11 @@ static int decrypt_byte(unsigned long* pkeys, const unsigned long* pcrc_32_tab)
 /***********************************************************************
  * Update the encryption keys with the next byte of plain text
  */
+#if ZLIB_VERNUM >= 0x1270
+static int update_keys(unsigned long* pkeys,const z_crc_t* pcrc_32_tab,int c)
+#else
 static int update_keys(unsigned long* pkeys,const unsigned long* pcrc_32_tab,int c)
+#endif
 {
     (*(pkeys+0)) = CRC32((*(pkeys+0)), c);
     (*(pkeys+1)) += (*(pkeys+0)) & 0xff;
@@ -62,7 +70,11 @@ static int update_keys(unsigned long* pkeys,const unsigned long* pcrc_32_tab,int
  * Initialize the encryption keys and the random header according to
  * the given password.
  */
+#if ZLIB_VERNUM >= 0x1270
+static void init_keys(const char* passwd,unsigned long* pkeys,const z_crc_t* pcrc_32_tab)
+#else
 static void init_keys(const char* passwd,unsigned long* pkeys,const unsigned long* pcrc_32_tab)
+#endif
 {
     *(pkeys+0) = 305419896L;
     *(pkeys+1) = 591751049L;
@@ -91,7 +103,11 @@ static int crypthead(const char* passwd,      /* password string */
                      unsigned char* buf,      /* where to write header */
                      int bufSize,
                      unsigned long* pkeys,
+#if ZLIB_VERNUM >= 0x1270
+                     const z_crc_t* pcrc_32_tab,
+#else
                      const unsigned long* pcrc_32_tab,
+#endif
                      unsigned long crcForCrypting)
 {
     int n;                       /* index in random header */
