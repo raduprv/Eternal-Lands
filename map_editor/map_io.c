@@ -89,7 +89,7 @@ int save_map (const char* file_name)
 	int particles_io_size;
 
 #ifdef	ZLIBW
-	gzFile *f = NULL;
+	gzFile f = NULL;
 #else	//ZLIBW
 	FILE *f = NULL;
 #endif	//ZLIBW
@@ -421,7 +421,7 @@ int load_map (const char* file_name)
 	int particles_io_size;
 
 #ifdef	ZLIB
-	gzFile *f = NULL;
+	gzFile f = NULL;
 	f= my_gzopen(file_name, "rb");
 #else	//ZLIB
 	FILE *f = NULL;

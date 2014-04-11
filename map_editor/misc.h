@@ -96,7 +96,7 @@ int gzfile_exists(const char *fname);
  * \param mode The i/o mode (see open())
  * \return a zlib file handle
  */
-gzFile * my_gzopen(const char * filename, const char * mode);
+gzFile my_gzopen(const char * filename, const char * mode);
 #endif // ZLIB
 
 static __inline__ int min2i (int x, int y)

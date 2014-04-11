@@ -1613,10 +1613,10 @@ FILE *my_fopen (const char *fname, const char *mode)
 }
 
 #ifdef ZLIB
-gzFile * my_gzopen(const char * filename, const char * mode)
+gzFile my_gzopen(const char * filename, const char * mode)
 {
 	char gzfilename[1024];
-	gzFile * result;
+	gzFile result;
 
 	snprintf(gzfilename, sizeof(gzfilename), "%s.gz", filename);
 	result= gzopen(gzfilename, mode);
