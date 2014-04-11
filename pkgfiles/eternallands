@@ -95,12 +95,17 @@ then
 	if [ -n "$(grep yes $showsel)" -o ! -s $showsel ]
 	then
 		[ ! -s $showsel ] && rm -f $showsel
-		config="$(getconfig)"
-		[ $? -ne 0 ] && exit 1
+		config=""
+		until [ -n "$config" ]
+		do
+			config="$(getconfig)"
+			[ $? -ne 0 ] && exit 1
+		done
 	else
-		config="$(cat $showsel | awk -F\| '{print $1}')"
+		config="$(cat $showsel)"
 		[ "$config" = "no" ] && config="main"
 	fi
+	config="$(echo $config | awk -F\| '{print $1}')"
 
 	# if not already configured, choose if to use the server/configuration selection window
 	if [ ! -r $showsel ]
