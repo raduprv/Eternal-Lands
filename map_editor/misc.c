@@ -9,13 +9,13 @@
 #include <sys/stat.h>
 #include "tiles.h"
 #include "global.h"
-#include "../asc.h"
 //#ifdef OSX
 //#include <ApplicationServices/ApplicationServices.h>
 //#endif
 #ifdef EYE_CANDY
 #include "eye_candy_window.h"
 #endif
+#include "../asc.h"
 
 extern char* selected_file;
 

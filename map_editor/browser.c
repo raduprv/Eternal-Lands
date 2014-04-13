@@ -1,6 +1,6 @@
-#include "../asc.h"
-#include "global.h"
 #include <string.h>
+#include "global.h"
+#include "../asc.h"
 
 int view_browser=0;
 int browser_menu_x=150;
@@ -22,6 +22,7 @@ int setobject(int n, char *fn,float xrot, float yrot, float zrot)
 	object3d *our_object=&o3d[n];
 	snprintf(our_object->file_name,80,"%s",fn);
 	
+	our_object->e3d_data = NULL;
 	our_object->e3d_data=load_e3d_cache(fn);
 	if(our_object->e3d_data==NULL)return 0;
 	our_object->x_pos=0;
@@ -355,7 +356,10 @@ void init_browser()
 	char temp[512];
 	char *pch;
 	int idx, line;
-	FILE *fp=fopen("browser.lst","r");
+	FILE *fp=NULL;
+
+	sprintf(temp, "%s/browser.lst", datadir );
+	fp=fopen(temp,"r");
 	if(!fp){
 		log_error(__FILE__, __LINE__, "browser.lst not found");
 		return;

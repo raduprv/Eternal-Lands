@@ -1,13 +1,13 @@
 #include <SDL.h>
-#include "../asc.h"
-#include "global.h"
 #include <math.h>
 #include <string.h>
+#include "global.h"
 
 #ifdef EYE_CANDY
  #include "../eye_candy_wrapper.h"
  #include "eye_candy_window.h" 
 #endif
+#include "../asc.h"
 
 float camera_x=0;
 float camera_y=0;

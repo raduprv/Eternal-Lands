@@ -16,6 +16,12 @@ void e3d_enable_vertex_arrays(e3d_object *e3d_data, Uint32 use_lightning, Uint32
 	e3d_vertex_data* vertex_layout;
 	Uint8 * data_ptr;
 
+	if (e3d_data == NULL)
+	{
+		fprintf(stderr, "%s:%d numm pointer\n", __FUNCTION__, __LINE__);
+		return;
+	}
+
 	if (have_vertex_buffers)
 	{
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, e3d_data->vertex_vbo);

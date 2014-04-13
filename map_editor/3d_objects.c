@@ -2,12 +2,12 @@
 #include <math.h>
 #include <string.h>
 #include "e3d.h"
-#include "../platform.h"
-#include "../asc.h"
 #include "global.h"
+#include "../platform.h"
 
 #include "../md5.h"
 #include "../io/e3d_io.h"
+#include "../asc.h"
 
 typedef struct
 {
@@ -38,6 +38,12 @@ void draw_3d_object(object3d * object_id)
 	float s_plane[4], t_plane[4];
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
+
+	if (object_id->e3d_data==NULL)
+	{
+		fprintf(stderr, "%s:%d null pointer\n", __FUNCTION__, __LINE__);
+		return;
+	}
 
 	//also, update the last time this object was used
 	object_id->last_acessed_time=cur_time;

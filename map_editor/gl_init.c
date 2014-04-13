@@ -1,5 +1,5 @@
-#include "../asc.h"
 #include "global.h"
+#include "../asc.h"
 
 int use_vertex_buffers=0;
 int have_vertex_buffers=0;

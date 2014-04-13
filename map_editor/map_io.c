@@ -1,4 +1,3 @@
-#include "../asc.h"
 #include "global.h"
 
 #ifdef EYE_CANDY
@@ -7,6 +6,7 @@
 #ifdef CLUSTER_INSIDES
 #include "../cluster.h"
 #endif
+#include "../asc.h"
 
 #define LATEST_MAP_VERSION 1
 

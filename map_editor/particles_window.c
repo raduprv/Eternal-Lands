@@ -1,5 +1,5 @@
-#include "../asc.h"
 #include "global.h"
+#include "../asc.h"
 
 int particles_window = -1;
 int view_particles_window=0;
