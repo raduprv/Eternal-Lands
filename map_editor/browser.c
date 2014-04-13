@@ -358,7 +358,7 @@ void init_browser()
 	int idx, line;
 	FILE *fp=NULL;
 
-	sprintf(temp, "%s/browser.lst", datadir );
+	snprintf(temp, sizeof(temp), "%s/browser.lst", datadir );
 	fp=fopen(temp,"r");
 	if(!fp){
 		log_error(__FILE__, __LINE__, "browser.lst not found");
