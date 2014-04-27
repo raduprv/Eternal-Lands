@@ -763,7 +763,7 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 			line_width = 0;
 		} else {
 			font_bit_width = (int) (0.5f + get_char_width (str[isrc]) * 11.0f * zoom / 12.0f);
-			if (line_width + font_bit_width > width)
+			if (line_width + font_bit_width >= width)
 			{
 				// search back for a space
 				for (nchar = 0; ibuf-nchar-1 > lastline; nchar++) {
