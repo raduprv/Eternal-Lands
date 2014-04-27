@@ -18,7 +18,7 @@
 #include "asc.h"
 
 #define MAX_OLD_UPDATE_FILES	5
-#define	UPDATE_DOWNLOAD_THREAD_COUNT 2
+#define	UPDATE_DOWNLOAD_THREAD_COUNT 1
 
 typedef struct
 {
