@@ -1802,6 +1802,8 @@ Uint32 bind_actor_texture(const Uint32 handle, char* alpha)
 	GLenum min_filter;
 	texture_format_type format;
 
+	af = 0;
+
 	if (handle >= ACTOR_TEXTURE_CACHE_MAX)
 	{
 		LOG_ERROR("handle: %i, max_handle: %i\n", handle,

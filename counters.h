@@ -1,6 +1,6 @@
 
 #ifndef __COUNTERS_H__
-#define __COUNTERS_H___
+#define __COUNTERS_H__
 
 #include "actors.h"
 
