@@ -97,6 +97,7 @@ static const char *temp_event_string[] =
 		"%s found 1 Pear.",
 		"While harvesting, %s lit up a match to check the dung level, ",
 		"While trying to harvest, the outhouse lid fell on %s, ",
+		"While harvesting some dung, Mother Nature was nearby taking a dump. Unfortunately %s ",
 		"You just got food poisoned!" };
 static const char *count_str[] =
 	{	"dummy",
@@ -111,6 +112,7 @@ static const char *count_str[] =
 		"Found a Pear",
 		"Explosion while harvesting dung",
 		"Outhouse lid accident",
+		"Mother Nature taking a dump",
 		"Food poisoned" };
 static const int num_search_str = sizeof(count_str)/sizeof(char *);
 static char **search_str = NULL;
