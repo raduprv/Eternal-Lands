@@ -938,26 +938,29 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	my_strncp(this_actor->pants_mask,actors_defs[actor_type].legs[pants].legs_mask,sizeof(this_actor->pants_mask));
 
 #ifdef CUSTOM_LOOK
-	//torso
-	custom_path(this_actor->arms_tex, playerpath, guildpath);
-	custom_path(this_actor->torso_tex, playerpath, guildpath);
-	custom_path(this_actor->arms_mask, playerpath, guildpath);
-	custom_path(this_actor->torso_mask, playerpath, guildpath);
-	//skin
-	custom_path(this_actor->hands_tex, playerpath, guildpath);
-	custom_path(this_actor->hands_tex_save, playerpath, guildpath);
-	custom_path(this_actor->head_tex, playerpath, guildpath);
-	custom_path(this_actor->body_base, playerpath, guildpath);
-	custom_path(this_actor->arms_base, playerpath, guildpath);
-	custom_path(this_actor->legs_base, playerpath, guildpath);
-	//hair
-	custom_path(this_actor->hair_tex, playerpath, guildpath);
-	//boots
-	custom_path(this_actor->boots_tex, playerpath, guildpath);
-	custom_path(this_actor->boots_mask, playerpath, guildpath);
-	//legs
-	custom_path(this_actor->pants_tex, playerpath, guildpath);
-	custom_path(this_actor->pants_mask, playerpath, guildpath);
+	if(kind_of_actor != NPC)
+	{
+		//torso
+		custom_path(this_actor->arms_tex, playerpath, guildpath);
+		custom_path(this_actor->torso_tex, playerpath, guildpath);
+		custom_path(this_actor->arms_mask, playerpath, guildpath);
+		custom_path(this_actor->torso_mask, playerpath, guildpath);
+		//skin
+		custom_path(this_actor->hands_tex, playerpath, guildpath);
+		custom_path(this_actor->hands_tex_save, playerpath, guildpath);
+		custom_path(this_actor->head_tex, playerpath, guildpath);
+		custom_path(this_actor->body_base, playerpath, guildpath);
+		custom_path(this_actor->arms_base, playerpath, guildpath);
+		custom_path(this_actor->legs_base, playerpath, guildpath);
+		//hair
+		custom_path(this_actor->hair_tex, playerpath, guildpath);
+		//boots
+		custom_path(this_actor->boots_tex, playerpath, guildpath);
+		custom_path(this_actor->boots_mask, playerpath, guildpath);
+		//legs
+		custom_path(this_actor->pants_tex, playerpath, guildpath);
+		custom_path(this_actor->pants_mask, playerpath, guildpath);
+	}
 #endif //CUSTOM_LOOK
 
 	//cape
@@ -965,7 +968,8 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 		{
 			my_strncp(this_actor->cape_tex,actors_defs[actor_type].cape[cape].skin_name,sizeof(this_actor->cape_tex));
 #ifdef CUSTOM_LOOK
-			custom_path(this_actor->cape_tex, playerpath, guildpath);
+			if(kind_of_actor != NPC)
+				custom_path(this_actor->cape_tex, playerpath, guildpath);
 #endif //CUSTOM_LOOK
 		}
 	else
@@ -977,7 +981,8 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 		{
 			my_strncp(this_actor->shield_tex,actors_defs[actor_type].shield[shield].skin_name,sizeof(this_actor->shield_tex));
 #ifdef CUSTOM_LOOK
-			custom_path(this_actor->shield_tex, playerpath, guildpath);
+			if(kind_of_actor != NPC)
+				custom_path(this_actor->shield_tex, playerpath, guildpath);
 #endif //CUSTOM_LOOK
 		}
 	else
@@ -989,14 +994,16 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	{
 		my_strncp(this_actor->hands_tex, actors_defs[actor_type].weapon[weapon].skin_name,sizeof(this_actor->hands_tex));
 #ifdef CUSTOM_LOOK
-		custom_path(this_actor->hands_tex, playerpath, guildpath);
+		if(kind_of_actor != NPC)
+			custom_path(this_actor->hands_tex, playerpath, guildpath);
 #endif //CUSTOM_LOOK
 	}
 	else
 	{
 		my_strncp(this_actor->weapon_tex,actors_defs[actor_type].weapon[weapon].skin_name,sizeof(this_actor->weapon_tex));
 #ifdef CUSTOM_LOOK
-		custom_path(this_actor->weapon_tex, playerpath, guildpath);
+		if(kind_of_actor != NPC)
+			custom_path(this_actor->weapon_tex, playerpath, guildpath);
 #endif //CUSTOM_LOOK
 	}
 
@@ -1008,7 +1015,8 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			my_strncp(this_actor->helmet_tex,actors_defs[actor_type].helmet[helmet].skin_name,sizeof(this_actor->helmet_tex));
 
 #ifdef CUSTOM_LOOK
-			custom_path(this_actor->helmet_tex, playerpath, guildpath);
+			if(kind_of_actor != NPC)
+				custom_path(this_actor->helmet_tex, playerpath, guildpath);
 #endif //CUSTOM_LOOK
 		}
 	else
@@ -1022,7 +1030,8 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			assert(!"Using old client data" || actors_defs[actor_type].neck != NULL);
 			my_strncp(this_actor->neck_tex,actors_defs[actor_type].neck[neck].skin_name,sizeof(this_actor->neck_tex));
 #ifdef CUSTOM_LOOK
-			custom_path(this_actor->neck_tex, playerpath, guildpath);
+			if(kind_of_actor != NPC)
+				custom_path(this_actor->neck_tex, playerpath, guildpath);
 #endif //CUSTOM_LOOK
 		}
 	else
