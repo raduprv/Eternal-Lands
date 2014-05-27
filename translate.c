@@ -441,6 +441,7 @@ char	name_too_long[75],
 	mod_cmd_str[5],
 	bc_cmd_str[5],
 	msg_accept_buddy_str[55],
+	local_save_str[80],
 	logconn_str[50],
 	time_warn_hour_str[75],
 	time_warn_sunrise_str[100],
@@ -1035,6 +1036,7 @@ void init_console()
 	add_xml_identifier(filter,"none",no_filters_str,"You are filtering nothing!",sizeof(no_filters_str));
 	add_xml_identifier(filter,"cur",filters_str,"You are currently filtering",sizeof(filters_str));
 	
+	add_xml_identifier(misc,"localsave",local_save_str,"Local files saved, asking server to save too...",sizeof(local_save_str));
 	add_xml_identifier(misc,"log",logconn_str,"Logging raw connection data",sizeof(logconn_str));
 	add_xml_identifier(misc,"card",video_card_str,"Video card",sizeof(video_card_str));
 	add_xml_identifier(misc,"vendor",video_vendor_str,"Vendor ID",sizeof(video_vendor_str));

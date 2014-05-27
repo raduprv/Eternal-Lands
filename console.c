@@ -1618,7 +1618,7 @@ int save_local_data(char * text, int len){
 	unload_questlog();
 	save_item_lists();
 	save_channel_colors();
-	LOG_TO_CONSOLE(c_green1, "Local files saved, asking server to save too...");
+	LOG_TO_CONSOLE(c_green1, local_save_str);
 	return 0;
 }
 
