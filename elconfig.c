@@ -1440,17 +1440,29 @@ void switch_vidmode(int *pointer, int mode)
 
 int find_var (const char *str, var_name_type type)
 {
-	int i, isvar;
+	size_t i, isvar;
+
+	/* Make a copy of the passed string but only up to the first ' ' or '='.
+	   We can then compare both strings in full, previously, partical
+	   strings would match as we only compared up to the length of the var. */
+	size_t passed_len = strlen(str);
+	char *str_copy = calloc(passed_len+1, sizeof(char));
+	for (i=0; i<passed_len && str[i] != ' ' && str[i] != '='; i++)
+		str_copy[i] = str[i];
 
 	for(i= 0; i < our_vars.no; i++)
 	{
 		if (type != COMMAND_LINE_SHORT_VAR)
-			isvar= !strncmp(str, our_vars.var[i]->name, our_vars.var[i]->nlen);
+			isvar= !strcmp(str_copy, our_vars.var[i]->name);
 		else
-			isvar= !strncmp(str, our_vars.var[i]->shortname, our_vars.var[i]->snlen);
+			isvar= !strcmp(str_copy, our_vars.var[i]->shortname);
 		if (isvar)
+		{
+			free(str_copy);
 			return i;
+		}
 	}
+	free(str_copy);
 	return -1;
 }
 
