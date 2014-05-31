@@ -132,7 +132,6 @@
 		<reagent id="56" uid="37">4</reagent>
 		<reagent id="60" uid="41">4</reagent>
 		<reagent id="54" uid="35">4</reagent>
-		<duration>60000</duration>
 		<buff>7</buff>
 	</spell>
 	<spell>
@@ -164,7 +163,6 @@
 		<reagent id="53" uid="34">10</reagent>
 		<reagent id="56" uid="37">10</reagent>
 		<reagent id="55" uid="36">10</reagent>
-		<duration>30000</duration>
 		<buff>11</buff>
 	</spell>
 <!-- attack group -->
@@ -250,7 +248,6 @@
 		<sigil>21</sigil>	
 		<reagent id="60" uid="41">1</reagent>
 		<reagent id="56" uid="37">1</reagent>
-		<duration>190000</duration>
 		<buff>1</buff>
 	</spell>
 	<spell>
@@ -265,7 +262,6 @@
 		<sigil>15</sigil>	
 		<sigil>21</sigil>	
 		<reagent id="55" uid="36">1</reagent>
-		<duration>130000</duration>
 		<buff>0</buff>
 	</spell>
 	<spell>
@@ -282,7 +278,6 @@
 		<sigil>21</sigil>	
 		<reagent id="60" uid="41">2</reagent>
 		<reagent id="56" uid="37">1</reagent>
-		<duration>100000</duration>
 		<buff>3</buff>
 	</spell>
 	<spell>
@@ -299,7 +294,6 @@
 		<reagent id="56" uid="37">3</reagent>
 		<reagent id="55" uid="36">3</reagent>
 		<reagent id="51" uid="32">4</reagent>
-		<duration>120000</duration>
 		<buff>24</buff>
 	</spell>
 	<spell>
@@ -316,7 +310,6 @@
 		<reagent id="56" uid="37">3</reagent>
 		<reagent id="55" uid="36">3</reagent>
 		<reagent id="50" uid="31">4</reagent>
-		<duration>120000</duration>
 		<buff>23</buff>
 	</spell>
 	<spell>
@@ -334,7 +327,6 @@
 		<reagent id="56" uid="37">3</reagent>
 		<reagent id="55" uid="36">3</reagent>
 		<reagent id="60" uid="41">4</reagent>
-		<duration>160000</duration>
 		<buff>25</buff>
 	</spell>
 </Spell_list>

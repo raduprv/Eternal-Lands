@@ -36,6 +36,34 @@ extern Uint32 next_second_time; /*!< the time of the next second */
 extern short real_game_minute; /*!< the real game minute */
 extern short real_game_second; /*!< the real game second */
 
+/*!
+ * \brief	check validity of game seconds
+ *
+ * \retval	true if we have set seconds.
+*/
+int is_real_game_second_valid(void);
+
+/*!
+ * \brief	Set game seconds as valid.
+ * 
+*/
+void set_real_game_second_valid(void);
+
+/*!
+ * \brief	Get the current game time.
+ * 
+ * \retval	game time in seconds.
+*/
+Uint32 get_game_time_sec(void);
+
+/*!
+ * \brief	Get the time difference from current game time.
+ *
+ * \param	the relative time to compare
+ * 
+ * \retval	the time difference in seconds, wrapped appropriately
+*/
+Uint32 diff_game_time_sec(Uint32 ref_time);
 
 extern time_t last_heart_beat; /*!< a timestamp that inidicates when the last message was sent to the server */
 

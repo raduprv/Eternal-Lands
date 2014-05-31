@@ -16,6 +16,7 @@
 #include "stats.h"
 #include "colors.h"
 #include "multiplayer.h"
+#include "named_colours.h"
 #include "pathfinder.h"
 #include "textures.h"
 #include "translate.h"
@@ -72,7 +73,6 @@ typedef struct {
 	int reagents_id[4]; //reagents needed image id
 	Uint16 reagents_uid[4]; //reagents needed, unique item id
 	int reagents_qt[4]; //their quantities
-	Uint32 duration;
 	Uint32 buff;
 	int uncastable; //0 if castable, otherwise if something missing
 } spell_info;
@@ -132,6 +132,149 @@ int sigil_y_len=(3+NUM_SIGILS_ROW)*33;
 int spell_mini_x_len=0;
 int spell_mini_y_len=0;
 int spell_mini_rows=0;
+
+
+/* spell duration state */
+#undef BUFF_DURATION_DEBUG
+static Uint16 requested_durations = 0;
+static Uint16 last_requested_duration = 0;
+static size_t buff_duration_colour_id = 0;
+
+/* mapping of spell buff value from spells.xml to buff bit-masks */
+typedef struct buff_buffmask {
+	Uint32 buff;
+	Uint16 buffmask;
+} buff_buffmask;
+static buff_buffmask buff_to_buffmask[NUM_BUFFS] = {
+		{11, BUFF_INVISIBILITY},
+		{3, BUFF_MAGIC_IMMUNITY},
+		{1, BUFF_MAGIC_PROTECTION},
+		{23, BUFF_COLD_SHIELD},
+		{24, BUFF_HEAT_SHIELD},
+		{25, BUFF_RADIATION_SHIELD},
+		{0, BUFF_SHIELD},
+		{7, BUFF_TRUE_SIGHT},
+		{5, BUFF_ACCURACY},
+		{6, BUFF_EVASION},
+		{0xFFFFFFFF, BUFF_DOUBLE_SPEED}
+	};
+
+/* display debug information about buff durations */
+#if defined(BUFF_DURATION_DEBUG)
+static void duration_debug(int buff, int duration, const char*message)
+{
+	size_t i;
+	char buf[128];
+	const char *buff_name = "Unknown";
+	if (buff == 5)
+		buff_name = "Accuracy";
+	else if (buff == 6)
+		buff_name = "Evasion";
+	else
+		for (i=0; i<SPELLS_NO; i++)
+			if (spells_list[i].buff == buff)
+			{
+				buff_name = spells_list[i].name;
+				break;
+			}
+	safe_snprintf(buf, sizeof(buf), "Debug: Buff [%s] %s: %d seconds", buff_name, message, duration, message);
+	LOG_TO_CONSOLE (c_red1, buf);
+}
+#endif
+
+/* Called when the client receives SEND_BUFF_DURATION from server.
+ * Set the duration and start the time out for the buff duration.
+*/
+void here_is_a_buff_duration(Uint8 duration)
+{
+	/* check the request is on the queue */
+	if (requested_durations & last_requested_duration)
+	{
+		size_t i;
+		Uint32 buff = 0xFFFFFFFF;
+
+		/* get the spell / buff value from the bit-mask we used */
+		for (i=0; i<NUM_BUFFS; i++)
+			if (last_requested_duration == buff_to_buffmask[i].buffmask)
+			{
+				buff = buff_to_buffmask[i].buff;
+				break;
+			}
+
+		/* if we have a matching spell, set the duration information */
+		for (i = 0; i < NUM_ACTIVE_SPELLS; i++)
+		{
+			if ((active_spells[i].spell != -1) && (buff == active_spells[i].spell))
+			{
+				active_spells[i].cast_time = get_game_time_sec();
+				active_spells[i].duration = (Uint32)duration;
+#if defined(BUFF_DURATION_DEBUG)
+				duration_debug(buff, active_spells[i].duration, "duration from server");
+#endif
+				break;
+			}
+		}
+
+		/* clear request */
+		requested_durations &= ~last_requested_duration;
+		last_requested_duration = 0;
+	}
+
+	/* to save waiting, process others in the queue now */
+	check_then_do_buff_duration_request();
+}
+
+
+/* Called periodically from the main loop
+ * Time out any old requests.
+ * If no request is pending but we have one in the queue, ask the server for the duration.
+*/
+void check_then_do_buff_duration_request(void)
+{
+	static Uint32 last_request_time = 0;
+
+	/* wait until the client knows the game time fully */
+	if (!is_real_game_second_valid())
+		return;
+
+	/* stop waiting for server response after 10 seconds, clear all other requests */
+	if (last_requested_duration && abs(SDL_GetTicks() - last_request_time) > 10000)
+	{
+		last_requested_duration = 0;
+		requested_durations = 0;
+	}
+
+	/* else if there is no active request but we have one queued, make the server request */
+	else if (!last_requested_duration && requested_durations)
+	{
+		Uint8 str[4];
+
+		last_requested_duration = 1;
+		while (!(requested_durations & last_requested_duration))
+			last_requested_duration <<= 1;
+		last_request_time = SDL_GetTicks();
+
+		str[0] = GET_BUFF_DURATION;
+		*((Uint16 *)(str+1)) = SDL_SwapLE16(requested_durations);
+		my_tcp_send (my_socket, str, 3);
+	}
+}
+
+/*	Called when we receive notification that a spell is active.
+ * 	If the spell is in the buff bit-mask array, queue the duration request.
+*/
+static void request_buff_duration(Uint32 buff)
+{
+	size_t i;
+	for (i=0; i<NUM_BUFFS; i++)
+		if (buff == buff_to_buffmask[i].buff)
+		{
+			requested_durations |= buff_to_buffmask[i].buffmask;
+			check_then_do_buff_duration_request();
+			return;
+		}
+}
+
 
 typedef struct {
 	char spell_name[60];//The spell_name
@@ -222,6 +365,8 @@ int init_spells ()
 	xmlDoc *doc;
 	int ok = 1;
 	char *fname="./spells.xml";
+
+	buff_duration_colour_id = elglGetColourId("buff.duration.background");
 
 	//init textures and structs
 #ifdef	NEW_TEXTURES
@@ -413,17 +558,6 @@ int init_spells ()
 				data = get_XML_node(data->next, "reagent");				
 			}
 
-			data = get_XML_node(node->children, "duration");
-
-			if (data != 0)
-			{
-				spells_list[i].duration = get_int_value(data);
-			}
-			else
-			{
-				spells_list[i].duration = 0;
-			}
-
 			data = get_XML_node(node->children, "buff");
 
 			if (data != 0)
@@ -578,26 +712,20 @@ void draw_spell_icon_strings(void)
 //ACTIVE SPELLS
 void get_active_spell(int pos, int spell)
 {
-	Uint32 i;
-
 	active_spells[pos].spell = spell;
-	active_spells[pos].cast_time = SDL_GetTicks();
+	active_spells[pos].cast_time = 0;
+	request_buff_duration(spell);
 #ifdef NEW_SOUND
 	active_spells[pos].sound = add_spell_sound(spell);
 #endif // NEW_SOUND
-
-	for (i = 0; i < SPELLS_NO; i++)
-	{
-		if (spell == spells_list[i].buff)
-		{
-			active_spells[pos].duration = spells_list[i].duration;
-			return;
-		}
-	}
 }
 
 void remove_active_spell(int pos)
 {
+#if defined(BUFF_DURATION_DEBUG)
+	if (active_spells[pos].duration > 0)
+		duration_debug(active_spells[pos].spell, diff_game_time_sec(active_spells[pos].cast_time), "actual duration");
+#endif
 	if (active_spells[pos].spell == 2)
 		poison_drop_counter = 0;
 	active_spells[pos].spell = -1;
@@ -611,25 +739,13 @@ void remove_active_spell(int pos)
 
 void get_active_spell_list(const Uint8 *my_spell_list)
 {
-	Uint32 i, j;
-	int cur_spell;
+	size_t i;
 
 	for (i = 0; i < NUM_ACTIVE_SPELLS; i++)
 	{
 		active_spells[i].spell = my_spell_list[i];
-		active_spells[i].cast_time = 0xFFFFFFFF;
-
-		cur_spell = my_spell_list[i];
-
-		for (j = 0; j < SPELLS_NO; j++)
-		{
-			if (cur_spell == spells_list[j].buff)
-			{
-				active_spells[i].duration =
-					spells_list[j].duration;
-				break;
-			}
-		}
+		active_spells[i].cast_time = 0;
+		request_buff_duration(my_spell_list[i]);
 #ifdef NEW_SOUND
 		active_spells[i].sound = add_spell_sound(active_spells[i].spell);
 #endif // NEW_SOUND
@@ -675,8 +791,9 @@ void time_out(const float x_start, const float y_start, const float gridsize,
 	const float progress)
 {
 	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
 
-	glColor3f(0.0f, 0.7f, 0.0f);
+	elglColourI(buff_duration_colour_id);
 
 	glBegin(GL_QUADS);
 		glVertex2f(x_start, y_start + gridsize * progress);
@@ -684,6 +801,7 @@ void time_out(const float x_start, const float y_start, const float gridsize,
 		glVertex2f(x_start + gridsize, y_start + gridsize);
 		glVertex2f(x_start, y_start + gridsize);
 	glEnd();
+	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
 	glColor3f(1.0f, 1.0f, 1.0f);
 }
@@ -691,14 +809,12 @@ void time_out(const float x_start, const float y_start, const float gridsize,
 void display_spells_we_have()
 {
 	Uint32 i;
-	float scale, duration, cur_time;
+	float scale, duration;
 
 #ifdef OPENGL_TRACE
 	CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-
-	cur_time = SDL_GetTicks();
 
 	//ok, now let's draw the objects...
 	for (i = 0; i < NUM_ACTIVE_SPELLS; i++)
@@ -721,8 +837,7 @@ void display_spells_we_have()
 
 			if (duration > 0.0)
 			{
-				scale = (cur_time - active_spells[i].cast_time)
-					/ duration;
+				scale = diff_game_time_sec(active_spells[i].cast_time) / duration;
 
 				if ((scale >= 0.0) && (scale <= 1.0))
 				{
@@ -1435,7 +1550,7 @@ static void spell_cast(const Uint8 id)
 	{
 		if (active_spells[i].spell == spell)
 		{
-			active_spells[i].cast_time = SDL_GetTicks();
+			request_buff_duration(spell);
 			return;
 		}
 	}

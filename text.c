@@ -530,6 +530,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 	if (from_color_char (text_to_add[0]) == c_green1 && my_strncompare(text_to_add+1,"Game Time", 9))
 	{
 		real_game_second = atoi(&text_to_add[18]);
+		set_real_game_second_valid();
 		next_second_time = cur_time + 1000;
         new_second();
 	}

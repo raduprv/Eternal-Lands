@@ -22,6 +22,7 @@
 #include "shadows.h"
 #include "skeletons.h"
 #include "sky.h"
+#include "spells.h"
 #include "sound.h"
 #include "storage.h"
 #include "text.h"
@@ -174,6 +175,8 @@ void draw_scene()
 			check_afk_state();
 			/* the timer in the hud */
 			update_hud_timer();
+			/* check if we need to do buff duration requests */
+			check_then_do_buff_duration_request();
 			/* until next time */
 			last_half_second_timer = current_time;
 		}

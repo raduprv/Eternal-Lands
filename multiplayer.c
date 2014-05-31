@@ -104,6 +104,26 @@ Uint32 next_second_time = 0;
 short real_game_minute = 0;
 short real_game_second = 0;
 
+/* real_game_second_valid set when we know the server seconds */
+static short real_game_second_valid = 0;
+int is_real_game_second_valid(void) { return real_game_second_valid; }
+void set_real_game_second_valid(void) { real_game_second_valid = 1; }
+
+/* get the current game time in seconds */
+Uint32 get_game_time_sec(void)
+{
+	return real_game_minute * 60 + real_game_second;
+}
+
+/* get the difference between the supplied time and current game time, allowing for wrap round */
+Uint32 diff_game_time_sec(Uint32 ref_time)
+{
+	Uint32 curr_game_time = get_game_time_sec();
+	if (ref_time > curr_game_time)
+		curr_game_time += 6 * 60 * 60;
+	return curr_game_time - ref_time;
+}
+
 
 /*
  *	Date handling code:
@@ -758,6 +778,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				real_game_minute= SDL_SwapLE16(*((short *)(in_data+3)));
 				real_game_minute %= 360;
 				real_game_second = 0;
+				set_real_game_second_valid();
 				next_second_time = cur_time+1000;
 				if (real_game_minute < last_real_game_minute)
 					invalidate_date();
@@ -2185,6 +2206,14 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				free(achievement_data);
 			}
 			break;
+		case SEND_BUFF_DURATION:
+			{
+				if (data_length <= 3)
+					LOG_WARNING("CAUTION: Possibly forged/invalid SEND_BUFF_DURATION packet received.\n");
+				else
+					here_is_a_buff_duration((Uint8)in_data[3]);
+				break;
+			}
 		default:
 			{
 				// Unknown packet type??
