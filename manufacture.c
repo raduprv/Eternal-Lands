@@ -563,7 +563,7 @@ static void use_recipe(int recipe_to_use)
 //DRAWING FUNCTIONS
 
 static void draw_recipe_controls(){
-	int wpx=SLOT_SIZE*NUM_MIX_SLOTS+2;
+	int wpx=manufacture_menu_x_len-100-25;
 	int wpy=manufacture_menu_y_len-37;
 	int lpx=18;
 	int lpy=SLOT_SIZE;
@@ -669,7 +669,7 @@ static int	display_manufacture_handler(window_info *win)
 	}
 
 	//ok, now let's draw the mixed objects
-	draw_production_pipe(2,manufacture_menu_y_len-37, -1);
+	draw_production_pipe(manufacture_menu_x_len-100-25-SLOT_SIZE*NUM_MIX_SLOTS,manufacture_menu_y_len-37, -1);
 
 	//now, draw the inventory text, if any.
 	if (last_items_string_id != inventory_item_string_id)
@@ -910,7 +910,7 @@ static int recipe_dropdown_click_handler(window_info *win, int mx, int my, Uint3
 
 static int recipe_controls_click_handler(int mx, int my, Uint32 flags){
 
-	int wpx=SLOT_SIZE*NUM_MIX_SLOTS+2;
+	int wpx=manufacture_menu_x_len-100-25;
 	int wpy=manufacture_menu_y_len-37;
 	int lpx=18;
 	int lpy=SLOT_SIZE;
@@ -1018,7 +1018,7 @@ static int click_manufacture_handler(window_info *win, int mx, int my, Uint32 fl
 	if (pos>=0) last_slot=-1;
 
 	//see if we clicked on any item from the "production pipe"
-	pos=get_mouse_pos_in_grid(mx, my, NUM_MIX_SLOTS, 1, 5, manufacture_menu_y_len-37, SLOT_SIZE, SLOT_SIZE);
+	pos=get_mouse_pos_in_grid(mx, my, NUM_MIX_SLOTS, 1, manufacture_menu_x_len-100-20-SLOT_SIZE*NUM_MIX_SLOTS, manufacture_menu_y_len-37, SLOT_SIZE, SLOT_SIZE);
 
 	if (pos >= 0 && manufacture_list[MIX_SLOT_OFFSET+pos].quantity > 0)
 	{
@@ -1179,7 +1179,7 @@ static int mouseover_recipe_handler(window_info *win, int mx, int my)
 //MOUSEOVER HANDLERS
 static int recipe_controls_mouseover_handler(window_info *win, int mx, int my, int *help_line)
 {
-	int wpx=SLOT_SIZE*NUM_MIX_SLOTS+2;
+	int wpx=manufacture_menu_x_len-100-25;
 	int wpy=win->len_y-37;
 	int lpx=18;
 	int lpy=SLOT_SIZE;
@@ -1223,7 +1223,7 @@ static int mouseover_manufacture_slot_handler(window_info *win, int mx, int my)
 	}
 
 	/* see if we're over an item from the "production pipe" */
-	pos=get_mouse_pos_in_grid(mx, my, NUM_MIX_SLOTS, 1, 5, manufacture_menu_y_len-37, SLOT_SIZE, SLOT_SIZE);
+	pos=get_mouse_pos_in_grid(mx, my, NUM_MIX_SLOTS, 1, manufacture_menu_x_len-100-25-SLOT_SIZE*NUM_MIX_SLOTS, manufacture_menu_y_len-37, SLOT_SIZE, SLOT_SIZE);
 	if (pos >= 0) {
 		if (manufacture_list[MIX_SLOT_OFFSET+pos].quantity > 0){
 			if (show_help_text)
@@ -1261,7 +1261,7 @@ static int mouseover_manufacture_slot_handler(window_info *win, int mx, int my)
 static int mouseover_mixone_handler(window_info *win, int mx, int my)
 {
 	if (show_help_text)
-		show_help(mix_str, SLOT_SIZE*NUM_MIX_SLOTS+25, manufacture_menu_y_len+10);
+		show_help(mix_str, manufacture_menu_x_len-100, manufacture_menu_y_len+10);
 	return 0;
 }
 
@@ -1269,7 +1269,7 @@ static int mouseover_mixone_handler(window_info *win, int mx, int my)
 static int mouseover_mixall_handler(window_info *win, int mx, int my)
 {
 	if (show_help_text)
-		show_help(mixall_str, SLOT_SIZE*8-5, manufacture_menu_y_len+10);
+		show_help(mixall_str, manufacture_menu_x_len-50, manufacture_menu_y_len+10);
 	return 0;
 }
 
@@ -1376,17 +1376,15 @@ void display_manufacture_menu()
 		set_window_handler(manufacture_win, ELW_HANDLER_MOUSEOVER, &mouseover_manufacture_slot_handler );
 		set_window_handler(manufacture_win, ELW_HANDLER_KEYPRESS, &keypress_manufacture_handler );
 
-		mixone_button_id=button_add_extended(manufacture_win, mixone_button_id,
-			NULL, SLOT_SIZE*NUM_MIX_SLOTS+15+10, manufacture_menu_y_len-36, 43, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, ">");
+		mixone_button_id=button_add_extended(manufacture_win, mixone_button_id, NULL, manufacture_menu_x_len-100, manufacture_menu_y_len-36, 43, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, ">");
 		widget_set_OnClick(manufacture_win, mixone_button_id, mixone_handler);
 		widget_set_OnMouseover(manufacture_win, mixone_button_id, mouseover_mixone_handler);
 
-		mixall_button_id=button_add_extended(manufacture_win, mixall_button_id,
-			NULL, SLOT_SIZE*8+10, manufacture_menu_y_len-36, 43, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, ">>");
+		mixall_button_id=button_add_extended(manufacture_win, mixall_button_id, NULL, manufacture_menu_x_len-50, manufacture_menu_y_len-36, 43, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, ">>");
 		widget_set_OnClick(manufacture_win, mixall_button_id, mixall_handler);
 		widget_set_OnMouseover(manufacture_win, mixall_button_id, mouseover_mixall_handler);
 
-		clear_button_id=button_add_extended(manufacture_win, clear_button_id, NULL, SLOT_SIZE*9+18+10, manufacture_menu_y_len-36, 70, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, clear_str);
+		clear_button_id=button_add_extended(manufacture_win, clear_button_id, NULL, 2, manufacture_menu_y_len-36, 70, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, clear_str);
 		widget_set_OnClick(manufacture_win, clear_button_id, clear_handler);
 
 		if ((manufacture_win > -1) && (manufacture_win < windows_list.num_windows))
@@ -1396,8 +1394,7 @@ void display_manufacture_menu()
 		}
 
 		//Create a child window to show recipes in a dropdown panel
-		recipe_win= create_window("w_recipe", manufacture_win, 0, 2, manufacture_menu_y_len-2, recipe_win_width, num_displayed_recipes*SLOT_SIZE,
-			ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE|ELW_USE_BORDER|ELW_RESIZEABLE);
+		recipe_win= create_window("w_recipe", manufacture_win, 0, manufacture_menu_x_len-100-25-SLOT_SIZE*NUM_MIX_SLOTS, manufacture_menu_y_len-2, recipe_win_width, num_displayed_recipes*SLOT_SIZE, ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE|ELW_USE_BORDER|ELW_RESIZEABLE);
 		set_window_handler(recipe_win, ELW_HANDLER_DISPLAY, &recipe_dropdown_draw);
 		set_window_handler(recipe_win, ELW_HANDLER_CLICK, &recipe_dropdown_click_handler );
 		set_window_handler(recipe_win, ELW_HANDLER_MOUSEOVER, &mouseover_recipe_handler );
