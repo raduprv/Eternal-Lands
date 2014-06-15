@@ -813,7 +813,7 @@ typedef enum
 #define QUEST_FINISHED 94
 /* sent: 5 x 32 bit integers, each active bit is an achievement the last "You see: name" player has */
 #define SEND_ACHIEVEMENTS 95
-/* sent: 1 single byte duration, to get the time remaining multiply the by 10, the result is seconds */
+/* sent: 1 single byte buff duration, time remaining in seconds */
 #define SEND_BUFF_DURATION 96
 
 #define SEND_WEATHER 100
