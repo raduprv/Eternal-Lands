@@ -588,7 +588,9 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		else if (my_strncompare(text_to_add+1, "You see: ", 9)) {
 			achievements_player_name(text_to_add+10, len-10);
 		}
-		else if (my_strncompare(text_to_add+1, "You just got food poisoned!", 27)) {
+		else if ((my_strncompare(text_to_add+1, "You just got food poisoned!", 27)) ||
+			(my_strncompare(text_to_add+1, "Oh well, no invisibility, but we got poisoned.", 46)))
+		{
 			increment_poison_incidence();
 		}
 		else if (strstr(text_to_add+1, "aborted the trade.")) {
