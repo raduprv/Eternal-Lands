@@ -188,8 +188,11 @@ void restart_active_spell_sounds(void);
 void increment_poison_incidence(void);
 void draw_spell_icon_strings(void);
 extern int show_poison_count;
+
+#undef BUFF_DURATION_DEBUG
 void here_is_a_buff_duration(Uint8 duration);
 void check_then_do_buff_duration_request(void);
+int command_buff_duration(char *text, int len);
 
 #ifdef __cplusplus
 } // extern "C"

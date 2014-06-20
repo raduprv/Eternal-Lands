@@ -135,7 +135,6 @@ int spell_mini_rows=0;
 
 
 /* spell duration state */
-#undef BUFF_DURATION_DEBUG
 static Uint16 requested_durations = 0;
 static Uint16 last_requested_duration = 0;
 static size_t buff_duration_colour_id = 0;
@@ -255,7 +254,7 @@ void check_then_do_buff_duration_request(void)
 		last_request_time = SDL_GetTicks();
 
 		str[0] = GET_BUFF_DURATION;
-		*((Uint16 *)(str+1)) = SDL_SwapLE16(requested_durations);
+		*((Uint16 *)(str+1)) = SDL_SwapLE16(last_requested_duration);
 		my_tcp_send (my_socket, str, 3);
 	}
 }
@@ -420,7 +419,16 @@ int init_spells ()
 		xmlNode *data;
 		char tmp[200];
 		char name[200];
+		const int expected_version = 1;
+		int actual_version = -1;
 		i = 0;
+
+		if ((actual_version = xmlGetInt(root,(xmlChar*)"version")) < expected_version)
+		{
+			safe_snprintf(tmp, sizeof(tmp), "Warning: %s file is out of date expecting %d, actual %d.", fname, expected_version, actual_version);
+			LOG_TO_CONSOLE (c_red1, tmp);
+		}
+
 		//parse spells
 		node = get_XML_node(root->children, "Spell_list");
 		node = get_XML_node(node->children, "spell");
@@ -737,6 +745,25 @@ void remove_active_spell(int pos)
 #endif // NEW_SOUND
 }
 
+#if defined(BUFF_DURATION_DEBUG)
+static void rerequest_durations(void)
+{
+	size_t i;
+	for (i = 0; i < NUM_ACTIVE_SPELLS; i++)
+	{
+		if (active_spells[i].spell >= 0)
+			request_buff_duration(active_spells[i].spell);
+	}
+}
+
+int command_buff_duration(char *text, int len)
+{
+	LOG_TO_CONSOLE(c_green1, "Request buff durations");
+	rerequest_durations();
+	return 1;
+}
+#endif
+
 void get_active_spell_list(const Uint8 *my_spell_list)
 {
 	size_t i;
@@ -744,8 +771,9 @@ void get_active_spell_list(const Uint8 *my_spell_list)
 	for (i = 0; i < NUM_ACTIVE_SPELLS; i++)
 	{
 		active_spells[i].spell = my_spell_list[i];
-		active_spells[i].cast_time = 0;
-		request_buff_duration(my_spell_list[i]);
+		active_spells[i].duration = active_spells[i].cast_time = 0;
+		if (active_spells[i].spell >= 0)
+			request_buff_duration(active_spells[i].spell);
 #ifdef NEW_SOUND
 		active_spells[i].sound = add_spell_sound(active_spells[i].spell);
 #endif // NEW_SOUND
