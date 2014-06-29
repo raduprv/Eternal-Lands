@@ -48,11 +48,11 @@
  * void draw_menu_title_bar(int, int, int);
  */
 
-int mouse_x;
-int mouse_y;
-int right_click;
-int middle_click;
-int left_click;
+int mouse_x = 0;
+int mouse_y = 0;
+int right_click = 0;
+int middle_click = 0;
+int left_click = 0;
 
 char username_box_selected=1;
 char password_box_selected=0;
