@@ -322,6 +322,9 @@ char
 	ranging_success_rate_str[40],
 	ranging_critical_rate_str[40],
 	ranging_exp_per_arrow_str[40],
+	/* storage */
+	storage_filter_prompt_str[15],
+	storage_filter_help_str[40],
 	/* session.c */
 	session_reset_help[60],
 	/*trade.c*/
@@ -1472,6 +1475,8 @@ void init_help()
 	add_xml_identifier(misc,"ranging_success_rate", ranging_success_rate_str, "Success rate     %.2f %%", sizeof(ranging_success_rate_str));
 	add_xml_identifier(misc,"ranging_critical_rate", ranging_critical_rate_str, "Critical rate    %.2f %%", sizeof(ranging_critical_rate_str));
 	add_xml_identifier(misc,"ranging_exp_per_arrow", ranging_exp_per_arrow_str, "Exp/arrows       %.2f exp", sizeof(ranging_exp_per_arrow_str));
+	add_xml_identifier(misc,"storage_filter_prompt", storage_filter_prompt_str, "Filter: ", sizeof(storage_filter_prompt_str));
+	add_xml_identifier(misc,"storage_filter_help", storage_filter_help_str, "Type text - filter items.", sizeof(storage_filter_help_str));
 
 	//New characters
 	add_xml_identifier(new,"skin",skin_str,"Skin",sizeof(skin_str));

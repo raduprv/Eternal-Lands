@@ -104,6 +104,7 @@ namespace Item_Info
 			int get_count(Uint16 item_id, int image_id);
 			bool info_available(void) { if (!load_tried) load(); return !the_list.empty(); }
 			void help_if_needed(void);
+			void filter_by_description(Uint8 *storage_items_filter, const ground_item *storage_items, const char *filter_item_text, int no_storage);
 		private:
 			Item *get_item(Uint16 item_id, int image_id);
 			void load(void);
@@ -195,6 +196,28 @@ namespace Item_Info
 		return last_count.get_count();
 	}
 
+	//	Match passed string against specified item descriptions and return details for matches
+	//	Element in results array set to zero if their description matches the passed string
+	//
+	void List::filter_by_description(Uint8 *storage_items_filter, const ground_item *storage_items, const char *filter_item_text, int no_storage)
+	{
+		if (!info_available() || (no_storage<=0) || !storage_items_filter || !storage_items)
+			return;
+		std::string needle(filter_item_text);
+		std::transform(needle.begin(), needle.end(), needle.begin(), tolower);
+		for (size_t i=0; i<static_cast<size_t>(no_storage); i++)
+		{
+			storage_items_filter[i] = 1;
+			Item *item = get_item(storage_items[i].id, storage_items[i].image_id);
+			if (item)
+			{
+				std::string haystack(item->get_description());
+				std::transform(haystack.begin(), haystack.end(), haystack.begin(), tolower);
+				if (haystack.find(needle) != std::string::npos)
+					storage_items_filter[i] = 0;
+			}
+		}
+	}
 
 	//	Read lines from the item_info.txt file and create item objects
 	//
@@ -223,6 +246,9 @@ namespace Item_Info
 		}
 	}
 
+
+	//	If the item_info file is missing or item_uid not enabled, show one time help
+	//
 	void List::help_if_needed(void)
 	{
 		if (shown_help)
@@ -250,6 +276,8 @@ extern "C"
 {
 	int show_item_desc_text = 1;
 	const char *get_item_description(Uint16 item_id, int image_id) { return the_list.get_description(item_id, image_id).c_str(); }
+	void filter_items_by_description(Uint8 *storage_items_filter, const ground_item *storage_items, const char *filter_item_text, int no_storage)
+		{ the_list.filter_by_description(storage_items_filter, storage_items, filter_item_text, no_storage); }
 	int get_item_emu(Uint16 item_id, int image_id) { return the_list.get_emu(item_id, image_id); }
 	int get_item_count(Uint16 item_id, int image_id) { return the_list.get_count(item_id, image_id); }
 	int item_info_available(void) { return ((the_list.info_available()) ?1: 0); }

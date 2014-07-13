@@ -457,6 +457,9 @@ extern char
 		ranging_success_rate_str[40],
 		ranging_critical_rate_str[40],
 		ranging_exp_per_arrow_str[40],
+		/* storage */
+		storage_filter_prompt_str[15],
+		storage_filter_help_str[40],
 		/* session.c */
 		session_reset_help[60],
 		/*trade.c*/
