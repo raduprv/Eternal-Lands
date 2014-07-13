@@ -118,7 +118,8 @@ namespace ItemLists
 			size_t get_active(void) const { return active_list; }
 			size_t size(void) const { return saved_item_lists.size(); }
 			bool valid_active_list(void) const { return active_list < size(); }
-			void change_active(int change);
+			void active_next_list(void) { if (active_list + 1 < size()) active_list++; }
+			void active_previous_list(void) { if (active_list > 0) active_list--; }
 			const std::vector<List> & get_lists(void) const { return saved_item_lists; }
 			bool set_active(size_t new_active_list)
 				{ if (new_active_list >= size()) return false; active_list = new_active_list; return true; }
@@ -198,7 +199,7 @@ namespace ItemLists
 				num_show_names_list(6), names_list_height(SMALL_FONT_Y_LEN),
 				win_id(-1), selected_item_number(static_cast<size_t>(-1)),
 				name_under_mouse(static_cast<size_t>(-1)), clicked(false),
-				mouse_over_add_button(false), last_click_time(0), resizing(false),
+				mouse_over_add_button(false), resizing(false),
 				last_quantity_selected(0), num_grid_rows(min_grid_rows()),
 				last_key_time(0), last_items_list_on_left(-1), desc_str(0),
 				pickup_fail_time(0) {}
@@ -239,7 +240,6 @@ namespace ItemLists
 			bool mouse_over_add_button;
 			int add_button_x;
 			int add_button_y;
-			Uint32 last_click_time;
 			bool resizing;
 			int last_quantity_selected;
 			INPUT_POPUP ipu_item_list_name;
@@ -771,15 +771,6 @@ namespace ItemLists
 	}
 
 
-	//	Change the current active list by mouse wheel
-	//
-	void List_Container::change_active(int change)
-	{
-		if (((active_list + change) >= 0) && ((active_list + change) < size()))
-			active_list += change;
-	}
-
-
 	// Used by the sort algorithm to alphabetically compare two list names, case insensitive
 	//
 	bool List_Container::sort_compare(const List &a, const List &b)
@@ -1187,9 +1178,9 @@ CHECK_GL_ERRORS();
 			if (my<get_grid_size()*num_grid_rows)
 			{
 				if (flags & ELW_WHEEL_UP)
-					Vars::lists()->change_active(-1);
+					Vars::lists()->active_previous_list();
 				else if (flags & ELW_WHEEL_DOWN)
-					Vars::lists()->change_active(1);
+					Vars::lists()->active_next_list();
 				make_active_visable();
 			}
 			// scroll the names

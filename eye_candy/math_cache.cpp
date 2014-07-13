@@ -6,8 +6,6 @@
 
 #include "math_cache.h"
 
-const float PI = 3.141592654;
-
 namespace ec
 {
 

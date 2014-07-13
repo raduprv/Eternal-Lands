@@ -46,7 +46,6 @@ int idle_cycles_this_second = 0;
 
 const float MAX_EFFECT_DISTANCE = 16.0;
 const float MAX_OBSTRUCT_DISTANCE_SQUARED = MAX_EFFECT_DISTANCE * MAX_EFFECT_DISTANCE;
-const float OBSTRUCTION_FORCE = 2.0;
 const float WALK_RATE = 1.0;
 const float SWORD_HILT_LENGTH = 0.1;
 const float SWORD_BLADE_LENGTH = 0.5;

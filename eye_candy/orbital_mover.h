@@ -33,7 +33,6 @@ namespace ec
 			virtual void setParticleData(Particle *,
 				const OrbitalParticleData &data);
 		private:
-			float m_fSpeedY;
 			KeplerOrbit orbit;
 			Vec3 m_vec3Center;
 			// Private data for the particles

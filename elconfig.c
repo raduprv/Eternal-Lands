@@ -1491,7 +1491,7 @@ int set_var_unsaved(const char *str, var_name_type type)
 
 int toggle_OPT_BOOL_by_name(const char *str)
 {
-	int var_index = find_var(str, OPT_BOOL);
+	int var_index = find_var(str, INI_FILE_VAR);
 	if ((var_index == -1) || (our_vars.var[var_index]->type != OPT_BOOL))
 	{
 		fprintf(stderr, "%s(): Invalid OPT_BOOL '%s'\n", __FUNCTION__, str);

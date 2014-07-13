@@ -88,9 +88,10 @@ namespace ec
 		}
 
 	}
-#endif	/* NEW_TEXTURES */
 
+#else
 	const float MIN_SAFE_ALPHA = 0.02942f;
+#endif	/* NEW_TEXTURES */
 
 	// G L O B A L S //////////////////////////////////////////////////////////////
 
