@@ -55,8 +55,10 @@ static int print_quanities[STORAGE_ITEMS_SIZE];
 static int number_to_print = 0;
 static int next_item_to_print = 0;
 static int printing_category = -1;
+static int mouse_over_titlebar = 0;
 static int mouse_over_storage = 0;
 
+int disable_storage_filter = 0;
 static char filter_item_text[40] = "";
 static size_t filter_item_text_size = 0;
 static Uint8 storage_items_filter[STORAGE_ITEMS_SIZE];
@@ -261,7 +263,7 @@ void move_to_category(int cat)
 
 static void update_item_filter(void)
 {
-	if ((no_storage > 0) && (filter_item_text_size > 0))
+	if (!disable_storage_filter && (no_storage > 0) && (filter_item_text_size > 0))
 		filter_items_by_description(storage_items_filter, storage_items, filter_item_text, no_storage);
 	else
 	{
@@ -435,7 +437,7 @@ int display_storage_handler(window_info * win)
 		draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 		glEnd();
 
-		if (filter_item_text_size && storage_items_filter[i])
+		if (!disable_storage_filter && filter_item_text_size && storage_items_filter[i])
 			gray_out(x_start,y_start,32);
 	}
 
@@ -513,16 +515,19 @@ int display_storage_handler(window_info * win)
 		}
 	}
 	
-	if (filter_item_text_size > 0)
+	if (!disable_storage_filter && !mouse_over_titlebar)
 	{
-		static char tmp[50];
-		safe_snprintf(tmp, sizeof(tmp), "%s[%s]", storage_filter_prompt_str, filter_item_text);
-		show_help(tmp, 0, win->len_y + 10 + (help_text_line++) * SMALL_FONT_Y_LEN);
+		if(filter_item_text_size > 0)
+		{
+			static char tmp[50];
+			safe_snprintf(tmp, sizeof(tmp), "%s[%s]", storage_filter_prompt_str, filter_item_text);
+			show_help(tmp, 0, win->len_y + 10 + (help_text_line++) * SMALL_FONT_Y_LEN);
+		}
+		else if (show_help_text && mouse_over_storage)
+			show_help(storage_filter_help_str, 0, win->len_y + 10 + (help_text_line++) * SMALL_FONT_Y_LEN);
 	}
-	else if (show_help_text && mouse_over_storage)
-		show_help(storage_filter_help_str, 0, win->len_y + 10 + (help_text_line++) * SMALL_FONT_Y_LEN);
 
-	mouse_over_storage = 0;
+	mouse_over_storage = mouse_over_titlebar = 0;
 
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -603,10 +608,14 @@ int mouseover_storage_handler(window_info *win, int mx, int my)
 {
 	static int last_pos;
 	int last_category;
-	
+
 	cur_item_over=-1;
-	mouse_over_storage = 1;
-	
+
+	if (my < 0)
+		mouse_over_titlebar = 1;
+	else
+		mouse_over_storage = 1;
+
 	if(my>10 && my<202){
 		if(mx>10 && mx<130){
 			int i;
@@ -642,7 +651,7 @@ int mouseover_storage_handler(window_info *win, int mx, int my)
 static int keypress_storage_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
 	char keychar = tolower(key_to_char(unikey));
-	if ((keychar == '`') || (key & ELW_CTRL) || (key & ELW_ALT))
+	if (disable_storage_filter || (keychar == '`') || (key & ELW_CTRL) || (key & ELW_ALT))
 		return 0;
 	if (keychar == SDLK_ESCAPE)
 	{
@@ -735,8 +744,9 @@ void display_storage_menu()
 		cm_add(windows_list.window[storage_win].cm_id, cm_storage_menu_str, context_storage_handler);
 		cm_add(windows_list.window[storage_win].cm_id, cm_dialog_options_str, context_storage_handler);
 		cm_bool_line(windows_list.window[storage_win].cm_id, ELW_CM_MENU_LEN+2, &sort_storage_categories, NULL);
-		cm_bool_line(windows_list.window[storage_win].cm_id, ELW_CM_MENU_LEN+3, &autoclose_storage_dialogue, NULL);
-		cm_bool_line(windows_list.window[storage_win].cm_id, ELW_CM_MENU_LEN+4, &auto_select_storage_option, NULL);
+		cm_bool_line(windows_list.window[storage_win].cm_id, ELW_CM_MENU_LEN+3, &disable_storage_filter, NULL);
+		cm_bool_line(windows_list.window[storage_win].cm_id, ELW_CM_MENU_LEN+4, &autoclose_storage_dialogue, NULL);
+		cm_bool_line(windows_list.window[storage_win].cm_id, ELW_CM_MENU_LEN+5, &auto_select_storage_option, NULL);
 	} else {
 		no_storage=0;
 		
