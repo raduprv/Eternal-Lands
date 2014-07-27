@@ -22,7 +22,9 @@
 #define _ZLIBIOAPI64_H
 
 #if (!defined(OF) & defined(_Z_OF))
-#define OF _Z_OF 
+#define OF _Z_OF
+#elif !defined(OF)
+#define OF(x) x
 #endif
 
 #if (!defined(_WIN32)) && (!defined(WIN32))
