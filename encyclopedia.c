@@ -713,7 +713,7 @@ void ReadXML(const char *filename)
 	xmlFreeDoc(doc);
 	
 	// Sanitize all of the page lengths.
-	for (i = 0; i < numpage; i++) {
+	for (i = 0; i < numpage+1; i++) {
 		if(Page[i].max_y > encyclopedia_menu_y_len - ENCYC_OFFSET)
 		{
 			Page[i].max_y -= encyclopedia_menu_y_len - ENCYC_OFFSET;
@@ -875,7 +875,7 @@ static void find_base_pages(void)
 
 	/* find the index  in the Page list of each of the base pages */
 	for (j=0; j<NUM_PAGE_INDEX; j++)
-		for (i=0; i<numpage; ++i)
+		for (i=0; i<numpage+1; ++i)
 			if(!xmlStrcasecmp((xmlChar*)index_name[j],(xmlChar*)Page[i].Name))
 			{
 				page_index[j] = i;
@@ -1005,7 +1005,7 @@ static void open_page(size_t index)
 	if (index>=num_page_links)
 		return;
 
-	for (i=0; i<numpage; ++i)
+	for (i=0; i<numpage+1; ++i)
 		if(!xmlStrcasecmp((xmlChar*)Page[i].Name,(xmlChar*)page_links[index].link))
 		{
 			currentpage = i;
