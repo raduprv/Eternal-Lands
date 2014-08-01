@@ -630,7 +630,7 @@ int display_items_handler(window_info *win)
 			
 			if(!item_is_weared){
 				safe_snprintf(str, sizeof(str), "%i", item_list[i].quantity);
-				if ((mouseover_item_pos == i) && (SDL_GetModState() & (KMOD_CTRL|KMOD_ALT)))
+				if ((mouseover_item_pos == i) && enlarge_text())
 					draw_string_shadowed(x_start, (i&1)?(y_end-15):(y_end-25), (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);
 				else
 					draw_string_small_shadowed(x_start, (i&1)?(y_end-15):(y_end-25), (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);

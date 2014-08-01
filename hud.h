@@ -78,6 +78,9 @@ extern int num_quickbar_slots;
 
 extern int copy_next_LOCATE_ME;
 
+extern int show_help_text;
+extern int always_enlarge_text;
+
 // the main hud handling
 
 /*!
@@ -296,6 +299,21 @@ void show_help_coloured(const char *help_message, int x, int y, float r, float g
  * \callgraph
  */
 void show_sized_help_coloured(const char *help_message, int x, int y, float r, float g, float b, int big);
+
+/*!
+ * \ingroup windows
+ * \brief Check if we need to enlarge text.
+ *
+ *      If the "Always Enlarge Text" option on the HUB tab is set, return
+ *      true.  Otherwise test if either Ctrl or Alt is pressed and return
+ *      true if one of those is set.
+ *
+ *	returns true if text should be enlarged.
+ * 
+ * \callgraph
+ */
+int enlarge_text(void);
+
 
 //stats/health section
 

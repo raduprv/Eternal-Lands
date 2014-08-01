@@ -107,6 +107,7 @@ int	misc_win= -1;
 int	quickbar_win= -1;
 int	quickspell_win= -1;
 int show_help_text=1;
+int always_enlarge_text=1;
 
 int qb_action_mode=ACTION_USE;
 
@@ -464,6 +465,12 @@ void view_tab (int *window, int *col_id, int tab)
 	}
 }
 
+int enlarge_text(void)
+{
+	if (always_enlarge_text)
+		return 1;
+	return ((SDL_GetModState() & (KMOD_CTRL|KMOD_ALT)));
+}
 
 void show_help(const char *help_message, int x, int y)
 {
