@@ -43,6 +43,7 @@ static int ground_items_grid_cols = 5;
 static const int min_grid_rows = 4;
 static const int min_grid_cols = 2;
 static const char *item_desc_str = NULL;
+static int mouseover_ground_item_pos = -1;
 
 int view_ground_items=0;
 
@@ -505,9 +506,13 @@ int display_ground_items_handler(window_info *win)
 			glEnd();
 
 			safe_snprintf(str,sizeof(str),"%i",ground_item_list[i].quantity);
-			draw_string_small_shadowed(x_start,y_end-(i&1?22:12),(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
+			if ((mouseover_ground_item_pos == i) && enlarge_text())
+				draw_string_shadowed(x_start,y_end-(i&1?22:12),(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
+			else
+				draw_string_small_shadowed(x_start,y_end-(i&1?22:12),(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
 		}
 	}
+	mouseover_ground_item_pos = -1;
 
 	// Render the grid *after* the images. It seems impossible to code
 	// it such that images are rendered exactly within the boxes on all
@@ -620,6 +625,7 @@ int mouseover_ground_items_handler(window_info *win, int mx, int my) {
 		} else {
 			elwin_mouse=CURSOR_PICK;
 		}
+		mouseover_ground_item_pos = pos;
 		return 1;
 	}
 
