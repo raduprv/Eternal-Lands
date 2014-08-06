@@ -113,7 +113,6 @@ int display_session_handler(window_info *win)
 	y = 21;
 	timediff = 0;
 	oa_exp = 0.0f;
-	
 
 	glColor3f(1.0f, 1.0f, 1.0f);
 	safe_snprintf(buffer, sizeof(buffer), "%-20s%-17s%-17s%-17s",
