@@ -107,10 +107,13 @@ int display_session_handler(window_info *win)
 {
 	int i, x, y, timediff;
 	char buffer[128];
+	float oa_exp;
 
 	x = 10;
 	y = 21;
 	timediff = 0;
+	oa_exp = 0.0f;
+	
 
 	glColor3f(1.0f, 1.0f, 1.0f);
 	safe_snprintf(buffer, sizeof(buffer), "%-20s%-17s%-17s%-17s",
@@ -140,6 +143,8 @@ int display_session_handler(window_info *win)
 			statsinfo[i].skillnames->name, *(statsinfo[i].exp) - session_exp[i], max_exp[i], last_exp[i]);
 		draw_string_small(x, y, (unsigned char*)buffer, 1);
 		y += 16;
+		if(i < NUM_SKILLS-1)
+			oa_exp += *(statsinfo[i].exp) - session_exp[i];
 	}
 
 	y += 16;
@@ -157,7 +162,7 @@ int display_session_handler(window_info *win)
 	if(timediff<=0){
 		timediff=1;
 	}
-	safe_snprintf(buffer, sizeof(buffer), "%2.2f", (float)(*(statsinfo[SI_ALL].exp) - session_exp[SI_ALL])/((float)timediff/60000.0f));
+	safe_snprintf(buffer, sizeof(buffer), "%2.2f", oa_exp/((float)timediff/60000.0f));
 	draw_string_small(x + 200, y, (unsigned char*)buffer, 1);
 
 	if (show_reset_help)
