@@ -17,8 +17,8 @@ build-indep: build-stamp
 build-stamp: configure-stamp 
 	dh_testdir
 
-	# Cmmands to compile the package.
-	$(MAKE) -f Makefile.linux release
+	# Commands to compile the package.
+	$(MAKE) -f Makefile.linux release PLATFORM=""
 
 	touch $@
 
