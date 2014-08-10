@@ -781,6 +781,7 @@ char	win_notepad[20],
 	button_save_notes[30],
 	label_note_name[20],
 	game_version_str[60],
+	game_version_prefix_str[60],
 	label_cursor_coords[17],
 	label_mark_filter[13];
 #endif  // ELC
@@ -1804,6 +1805,7 @@ void init_titles ()
 	add_xml_identifier (titles_str, "l_cursor_coords", label_cursor_coords, "Cursor position", sizeof(label_cursor_coords));
 	add_xml_identifier (titles_str, "l_mark_filter", label_mark_filter, "Mark filter", sizeof(label_mark_filter));
 	add_xml_identifier (titles_str, "game_version", game_version_str, "Eternal Lands Version %d.%d.%d%s", sizeof(game_version_str));
+	add_xml_identifier (titles_str, "game_version_prefix", game_version_prefix_str, "Eternal Lands Version", sizeof(game_version_prefix_str));
 	add_xml_identifier (titles_str, "b_send", button_send, "Send", sizeof(button_send));
 	add_xml_identifier (titles_str, "item_list_name", item_list_name_str, "Enter list name", sizeof(item_list_name_str));
 	add_xml_identifier (titles_str, "item_list_rename", item_list_rename_str, "Enter new name", sizeof(item_list_rename_str));

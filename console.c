@@ -1775,6 +1775,9 @@ add_command("horse", &horse_cmd);
 
 void print_version_string (char *buf, size_t len)
 {
+#ifdef GIT_VERSION
+	safe_snprintf (buf, len, "%s %s", game_version_prefix_str, GIT_VERSION);
+#else
 	char extra[100];
 	
 	if (client_version_patch > 0)
@@ -1786,6 +1789,7 @@ void print_version_string (char *buf, size_t len)
 		safe_snprintf (extra, sizeof(extra), " %s", DEF_INFO);
 	}
 	safe_snprintf (buf, len, game_version_str, client_version_major, client_version_minor, client_version_release, extra);
+#endif
 }
 
 void new_minute_console(void){

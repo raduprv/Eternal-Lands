@@ -3,7 +3,7 @@
 -include make.conf
 
 # basic compiling and linking - rarely changed
-OPTIONS = -DLINUX -DELC $(foreach FEATURE, $(FEATURES), -D$(FEATURE)) -D_7ZIP_ST
+OPTIONS = -DLINUX -DELC $(foreach FEATURE, $(FEATURES), -D$(FEATURE)) -D_7ZIP_ST $(GIT_VERSION)
 CFLAGS=$(PLATFORM) $(CWARN) -O0 -ggdb -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags) -fno-strict-aliasing $(EXTRA_INCLUDES)
 _CFLAGS=$(PLATFORM) -O2 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags) -fno-strict-aliasing $(EXTRA_INCLUDES)
 CXXFLAGS=$(PLATFORM) $(CXXWARN) -O0 -ggdb -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags) -fno-strict-aliasing $(EXTRA_INCLUDES)
@@ -139,6 +139,18 @@ clean:
 
 docs:	
 	cd docs && doxygen Doxyfile
+
+# define GIT_VERSION if we have a version file
+VTMP := $(shell [ -r git_version ] && cat git_version)
+ifdef VTMP
+GIT_VERSION = -DGIT_VERSION=\"$(VTMP)\"
+endif
+
+# generate the git_version file
+VERSION = $(shell git describe --abbrev=4 --dirty --always)
+gen_git_version:
+	@echo -n "$(VERSION)" > git_version
+	@echo "New version file: $(VERSION)"
 
 .depend: $(foreach HEADER_DIR, $(HEADER_DIRS), $(wildcard $(HEADER_DIR)/*.h))
 	$(CC) $(CFLAGS) -MM $(patsubst %.o, %.c, $(COBJS)) >.depend
