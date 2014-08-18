@@ -63,7 +63,7 @@ class Hud_Timer
 		size_t cm_id;
 		int last_base_y_start;
 		INPUT_POPUP *input;
-		enum {	CMHT_MODE=0, CMHT_RUNSTATE, CMHT_SETTIME, CMHT_RESET, CMHT_SEP1, CMHT_HELP  };
+		enum {	CMHT_MODE=0, CMHT_KEEPSTATE, CMHT_SEP1, CMHT_RUNSTATE, CMHT_SETTIME, CMHT_RESET, CMHT_SEP2, CMHT_HELP  };
 };
 
 static Hud_Timer my_timer;
@@ -137,8 +137,17 @@ void Hud_Timer::set_start(int new_start_value)
 void Hud_Timer::toggle_mode(void)
 {
 	mode_coundown = !mode_coundown;
-	reset();
-	running = false;
+	if (hud_timer_keep_state)
+	{
+		if (mode_coundown)
+			start_value = current_value;
+	}
+	else
+	{
+		reset();
+		running = false;
+	}
+		
 }
 
 
@@ -170,6 +179,7 @@ int Hud_Timer::cm_handler(window_info *win, int option)
 					LOG_TO_CONSOLE(c_green1, desc);
 			}
 			break;
+		case CMHT_KEEPSTATE: break;
 		default: return 0;
 	}
 	return 1;
@@ -187,6 +197,7 @@ void Hud_Timer::check_cm_menu(window_info *win, int base_y_start)
 		cm_id = cm_create(hud_timer_cm_str, cm_timer_handler);
 		cm_add_region(cm_id, win->window_id, 0, base_y_start - height, win->len_x, height);
 		cm_set_pre_show_handler(cm_id, cm_timer_pre_show_handler);
+		cm_bool_line(cm_id, CMHT_KEEPSTATE, &hud_timer_keep_state, NULL);
 	}
 	last_base_y_start = base_y_start;
 }
@@ -311,6 +322,9 @@ void Hud_Timer::destroy_popup(void)
 
 extern "C"
 {
+	// when chaning mode, keep the current time and running status
+	int hud_timer_keep_state = 0;
+
 	// external interface from hud
 	int get_height_of_timer(void) { return my_timer.get_height(); }
 	void set_mouse_over_timer(void) { my_timer.set_mouse_over(); }

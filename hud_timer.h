@@ -13,6 +13,8 @@ int mouse_is_over_timer(window_info *win, int mx, int my);
 int mouse_click_timer(Uint32 flags);
 void destroy_timer(void);
 
+extern int hud_timer_keep_state;
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
