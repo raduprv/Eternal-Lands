@@ -151,6 +151,7 @@ VERSION = $(shell git describe --abbrev=4 --dirty --always)
 gen_git_version:
 	@echo -n "$(VERSION)" > git_version
 	@echo "New version file: $(VERSION)"
+	@rm -f console.o $(EXE) 
 
 .depend: $(foreach HEADER_DIR, $(HEADER_DIRS), $(wildcard $(HEADER_DIR)/*.h))
 	$(CC) $(CFLAGS) -MM $(patsubst %.o, %.c, $(COBJS)) >.depend
