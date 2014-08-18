@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <ctype.h>
 #include "session.h"
+#include "actors.h"
 #include "asc.h"
 #include "elwindows.h"
 #include "init.h"
@@ -28,6 +29,7 @@ static unsigned char last_server_address[60];
 static int show_reset_help = 0;
 static int last_mouse_click_y = -1;
 static int last_mouse_over_y = -1;
+static int distance_moved = -1;
 
 static Uint32 session_exp[NUM_SKILLS];
 static Uint32 max_exp[NUM_SKILLS];
@@ -103,6 +105,20 @@ void set_session_exp_to_current(void)
 	}
 }
 
+void update_session_distance(void)
+{
+	static int last_x = -1, last_y = -1;
+	actor *me = get_our_actor ();
+	if (me == NULL)
+		return;
+	if ((me->x_tile_pos != last_x) || (me->y_tile_pos != last_y))
+	{
+		last_x = me->x_tile_pos;
+		last_y = me->y_tile_pos;
+		distance_moved++;
+	}
+}
+
 int display_session_handler(window_info *win)
 {
 	int i, x, y, timediff;
@@ -162,6 +178,11 @@ int display_session_handler(window_info *win)
 		timediff=1;
 	}
 	safe_snprintf(buffer, sizeof(buffer), "%2.2f", oa_exp/((float)timediff/60000.0f));
+	draw_string_small(x + 200, y, (unsigned char*)buffer, 1);
+
+	y += 16;
+	draw_string_small(x, y, (unsigned char*)"Distance", 1);
+	safe_snprintf(buffer, sizeof(buffer), "%d", (distance_moved<0) ?0: distance_moved);
 	draw_string_small(x + 200, y, (unsigned char*)buffer, 1);
 
 	if (show_reset_help)
@@ -226,6 +247,7 @@ int session_reset_handler(void)
 		range_critical_hits = 0;
 		range_success_hits = 0;
 		range_total_shots = 0;
+		distance_moved = 0;
 	}
 	return 0;
 }

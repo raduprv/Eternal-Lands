@@ -13,6 +13,7 @@ void init_session(void);
 int session_reset_handler(void);
 int get_session_exp_ranging(void);
 void set_last_skill_exp(size_t skill, int exp);
+void update_session_distance(void);
 
 #ifdef __cplusplus
 } // extern "C"
