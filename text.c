@@ -608,18 +608,26 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		else if (strstr(text_to_add+1, "Today is a special day:")) {
 			set_today_is_special_day();
 		}
-		else if (my_strncompare(text_to_add+1, "You are too far away! Get closer!", 33)) {
-			static Uint32 last_time = 0;
-			static int done_one = 0;
-			Uint32 new_time = SDL_GetTicks();
-			clear_now_harvesting(); /* messages was previously in the list above */
-			if(your_actor != NULL)
-				add_highlight(your_actor->x_tile_pos,your_actor->y_tile_pos, HIGHLIGHT_SOFT_FAIL);
-			/* suppress further messages within for 5 seconds of last */
-			if (done_one && (abs(new_time - last_time) < 5000))
-				return 0;
-			done_one = 1;
-			last_time = new_time;
+		else {
+			static Uint32 last_time[] = { 0, 0 };
+			static int done_one[] = { 0, 0 };
+			int match_index = -1;
+			if (my_strncompare(text_to_add+1, "You are too far away! Get closer!", 33))
+				match_index = 0;
+			else if (my_strncompare(text_to_add+1, "Can't do, your target is already fighting with someone else,", 60))
+				match_index = 1;
+			if (match_index > -1)
+			{
+				Uint32 new_time = SDL_GetTicks();
+				clear_now_harvesting();
+				if(your_actor != NULL)
+					add_highlight(your_actor->x_tile_pos,your_actor->y_tile_pos, HIGHLIGHT_SOFT_FAIL);
+				/* suppress further messages within for 5 seconds of last */
+				if (done_one[match_index] && (abs(new_time - last_time[match_index]) < 5000))
+					return 0;
+				done_one[match_index] = 1;
+				last_time[match_index] = new_time;
+			}
 		}
 
 	} else if (channel == CHAT_LOCAL) {
