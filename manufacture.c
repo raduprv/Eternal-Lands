@@ -643,10 +643,15 @@ static int	display_manufacture_handler(window_info *win)
 	Uint8 str[80];
 	int i;
 
-	//dirty hack for opacity
-	//if manufacture_win is opaque then recipe_win should be and viceversa
-	if (recipes_shown) win->opaque=windows_list.window[recipe_win].opaque;
-	else windows_list.window[recipe_win].opaque=win->opaque;
+	// keep the main and recipe windows opacity in sync
+	if (recipe_win >= 0)
+	{
+		static int last_recipes_opaque = -1, last_main_opaque = -1;
+		if (win->opaque != last_main_opaque)
+			last_recipes_opaque = last_main_opaque = windows_list.window[recipe_win].opaque = win->opaque;
+		else if (windows_list.window[recipe_win].opaque != last_recipes_opaque)
+			last_recipes_opaque = last_main_opaque = win->opaque = windows_list.window[recipe_win].opaque;
+	}
 
 	glColor3f(0.77f,0.57f,0.39f);
 	glEnable(GL_TEXTURE_2D);
