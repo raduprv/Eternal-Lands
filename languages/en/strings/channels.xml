@@ -29,7 +29,8 @@
 	<channel number="6080" name="Invance 60-80">Invance channel for level 60-80</channel>
 	<channel number="80100" name="Invance 80-100">Invance channel for level 80-100</channel>
 	<channel number="100120" name="Invance 100-120">Invance channel for level 100-120</channel>
-	<channel number="120200" name="Invance 120-200">Invance channel for level 120-200</channel>
+	<channel number="120145" name="Invance 120-145">Invance channel for level 120-145</channel>
+	<channel number="145200" name="Invance 145-200">Invance channel for level 145-200</channel>
 	<channel number="777" name="African">Chat for Africans</channel>
 	<channel number="1600" name="Arabic">Chat in Arabic</channel>
 	<channel number="23" name="Czech/Slovak">Chat in Czech and Slovak</channel>
