@@ -727,7 +727,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	}
 #endif
 	//the last bytes of the packet even if scale+attachment is not sent
-	if(*(in_data+len-2) > EYES_GOLD)
+	if((*(in_data+len-2) > EYES_GOLD)|| (*(in_data+len-2) < 0))
 	{
 		eyes=0;
 	} else {
