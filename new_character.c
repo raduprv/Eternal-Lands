@@ -48,9 +48,10 @@ typedef int my_enum;//This enumeration will decrease, then wrap to top, increase
 
 my_enum	normal_skin_enum[]	= { SKIN_BROWN, SKIN_NORMAL, SKIN_PALE, SKIN_TAN, SKIN_BROWN };
 my_enum	elf_skin_enum[]		= { SKIN_BROWN, SKIN_NORMAL, SKIN_PALE, SKIN_TAN, SKIN_DARK_BLUE, SKIN_BROWN };
-my_enum	draegoni_skin_enum[]= { SKIN_BROWN, SKIN_NORMAL, SKIN_PALE, SKIN_TAN, SKIN_WHITE, SKIN_BROWN };
+my_enum	draegoni_skin_enum[]	= { SKIN_BROWN, SKIN_NORMAL, SKIN_PALE, SKIN_TAN, SKIN_WHITE, SKIN_BROWN };
 my_enum	normal_hair_enum[]	= { HAIR_BLACK, HAIR_BLOND, HAIR_BROWN, HAIR_GRAY, HAIR_RED, HAIR_WHITE, HAIR_DARK_BROWN, HAIR_STRAWBERRY, HAIR_LIGHT_BLOND, HAIR_DIRTY_BLOND, HAIR_BROWN_GRAY, HAIR_DARK_GRAY, HAIR_DARK_RED, HAIR_BLACK };
-my_enum	draegoni_hair_enum[]= { HAIR_BLACK, HAIR_BLOND, HAIR_BROWN, HAIR_GRAY, HAIR_RED, HAIR_WHITE, HAIR_DARK_BROWN, HAIR_STRAWBERRY, HAIR_LIGHT_BLOND, HAIR_DIRTY_BLOND, HAIR_BROWN_GRAY, HAIR_DARK_GRAY, HAIR_DARK_RED, HAIR_BLUE, HAIR_GREEN, HAIR_PURPLE, HAIR_BLACK };
+my_enum	draegoni_hair_enum[]	= { HAIR_BLACK, HAIR_BLOND, HAIR_BROWN, HAIR_GRAY, HAIR_RED, HAIR_WHITE, HAIR_DARK_BROWN, HAIR_STRAWBERRY, HAIR_LIGHT_BLOND, HAIR_DIRTY_BLOND, HAIR_BROWN_GRAY, HAIR_DARK_GRAY, HAIR_DARK_RED, HAIR_BLUE, HAIR_GREEN, HAIR_PURPLE, HAIR_BLACK };
+my_enum	eyes_enum[]		= { EYES_BROWN, EYES_DARK_BROWN, EYES_BROWN_RED, EYES_LIGHT_BLUE, EYES_BLUE, EYES_DARK_BLUE, EYES_LIGHT_GREEN, EYES_GREEN, EYES_DARK_GREEN, EYES_LAVENDER, EYES_VIOLET, EYES_GOLD, EYES_BROWN };
 my_enum	male_shirt_enum[]	= { SHIRT_BLACK, SHIRT_BLUE, SHIRT_BROWN, SHIRT_GREY, SHIRT_GREEN, SHIRT_LIGHTBROWN, SHIRT_ORANGE, SHIRT_PURPLE, SHIRT_RED, SHIRT_WHITE, SHIRT_YELLOW, SHIRT_BLACK };
 my_enum	normal_shirt_enum[]	= { SHIRT_BLACK, SHIRT_BLUE, SHIRT_BROWN, SHIRT_GREY, SHIRT_GREEN, SHIRT_LIGHTBROWN, SHIRT_ORANGE, SHIRT_PINK, SHIRT_PURPLE, SHIRT_RED, SHIRT_WHITE, SHIRT_YELLOW, SHIRT_BLACK };
 my_enum	normal_pants_enum[]	= { PANTS_BLACK, PANTS_BLUE, PANTS_BROWN, PANTS_DARKBROWN, PANTS_GREY, PANTS_GREEN, PANTS_LIGHTBROWN, PANTS_RED, PANTS_WHITE, PANTS_BLACK };
@@ -62,24 +63,25 @@ struct race_def {
 	int type;
 	my_enum *skin;
 	my_enum *hair;
+	my_enum *eyes;
 	my_enum *shirts;
 	my_enum *pants;
 	my_enum *boots;
 	my_enum *head;
 	float x, y, z_rot;
 } races[12] = {
-	{human_female, 		normal_skin_enum, normal_hair_enum, 	normal_shirt_enum, 	normal_pants_enum, normal_boots_enum, human_head_enum, 43.0f,	156.0f,	140.0f},
-	{human_male, 		normal_skin_enum, normal_hair_enum, 	male_shirt_enum, 	normal_pants_enum, normal_boots_enum, human_head_enum, 43.0f,	156.0f,	140.0f},
-	{elf_female, 		elf_skin_enum,    normal_hair_enum,	 	normal_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 42.0f,	92.0f,	180.0f},
-	{elf_male,			elf_skin_enum,    normal_hair_enum,	 	male_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 42.0f,	92.0f,	180.0f},
-	{dwarf_female,		normal_skin_enum, normal_hair_enum, 	normal_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 100.0f,	149.0f,	180.0f},
-	{dwarf_male,		normal_skin_enum, normal_hair_enum, 	male_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 100.0f,	149.0f,	180.0f},
-	{gnome_female,		normal_skin_enum, normal_hair_enum, 	normal_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 43.0f,	156.0f,	180.0f},
-	{gnome_male,		normal_skin_enum, normal_hair_enum, 	male_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 43.0f,	156.0f,	180.0f},
-	{orchan_female,		normal_skin_enum, normal_hair_enum, 	normal_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 42.0f,	92.0f,	180.0f},
-	{orchan_male,		normal_skin_enum, normal_hair_enum, 	male_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 42.0f,	92.0f,	180.0f},
-	{draegoni_female,	draegoni_skin_enum, draegoni_hair_enum, normal_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 100.0f,	149.0f,	180.0f},
-	{draegoni_male,		draegoni_skin_enum, draegoni_hair_enum, male_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 100.0f,	149.0f,	180.0f},
+	{human_female, 		normal_skin_enum, normal_hair_enum, 	eyes_enum,	normal_shirt_enum, 	normal_pants_enum, normal_boots_enum, human_head_enum, 43.0f,	156.0f,	140.0f},
+	{human_male, 		normal_skin_enum, normal_hair_enum, 	eyes_enum,	male_shirt_enum, 	normal_pants_enum, normal_boots_enum, human_head_enum, 43.0f,	156.0f,	140.0f},
+	{elf_female, 		elf_skin_enum,    normal_hair_enum,	eyes_enum,	normal_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 42.0f,	92.0f,	180.0f},
+	{elf_male,		elf_skin_enum,    normal_hair_enum,	eyes_enum,	male_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 42.0f,	92.0f,	180.0f},
+	{dwarf_female,		normal_skin_enum, normal_hair_enum, 	eyes_enum,	normal_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 100.0f,	149.0f,	180.0f},
+	{dwarf_male,		normal_skin_enum, normal_hair_enum, 	eyes_enum,	male_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 100.0f,	149.0f,	180.0f},
+	{gnome_female,		normal_skin_enum, normal_hair_enum, 	eyes_enum,	normal_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 43.0f,	156.0f,	180.0f},
+	{gnome_male,		normal_skin_enum, normal_hair_enum, 	eyes_enum,	male_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 43.0f,	156.0f,	180.0f},
+	{orchan_female,		normal_skin_enum, normal_hair_enum, 	eyes_enum,	normal_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 42.0f,	92.0f,	180.0f},
+	{orchan_male,		normal_skin_enum, normal_hair_enum, 	eyes_enum,	male_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 42.0f,	92.0f,	180.0f},
+	{draegoni_female,	draegoni_skin_enum, draegoni_hair_enum, eyes_enum,	normal_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 100.0f,	149.0f,	180.0f},
+	{draegoni_male,		draegoni_skin_enum, draegoni_hair_enum, eyes_enum,	male_shirt_enum, 	normal_pants_enum, normal_boots_enum, normal_head_enum, 100.0f,	149.0f,	180.0f},
 };
 
 struct char_def {
@@ -88,6 +90,7 @@ struct char_def {
 	int race;
 	int skin;
 	int hair;
+	int eyes;
 	int shirt;
 	int pants;
 	int boots;
@@ -95,7 +98,7 @@ struct char_def {
 	struct race_def * def;
 	actor * our_model;
 } our_actor = {
-	0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	NULL,
 	NULL
 };
@@ -219,7 +222,9 @@ void change_actor (void)
 		my_strncp(our_actor.our_model->body_parts->head_tex,actors_defs[our_actor.race].skin[our_actor.skin].head_name,sizeof(our_actor.our_model->body_parts->head_tex));
 		
 		my_strncp(our_actor.our_model->body_parts->hair_tex,actors_defs[our_actor.race].hair[our_actor.hair].hair_name,sizeof(our_actor.our_model->body_parts->hair_tex));
-		
+#ifdef NEW_EYES
+		my_strncp(our_actor.our_model->body_parts->eyes_tex,actors_defs[our_actor.race].eyes[our_actor.eyes].eyes_name,sizeof(our_actor.our_model->body_parts->eyes_tex));
+#endif
 		my_strncp(our_actor.our_model->body_parts->arms_tex,actors_defs[our_actor.race].shirt[our_actor.shirt].arms_name,sizeof(our_actor.our_model->body_parts->arms_tex));
 		my_strncp(our_actor.our_model->body_parts->torso_tex,actors_defs[our_actor.race].shirt[our_actor.shirt].torso_name,sizeof(our_actor.our_model->body_parts->torso_tex));
 		
@@ -391,7 +396,7 @@ int display_newchar_handler (window_info *win)
 	//see if we have to load a model (male or female)
 	if (creating_char && !our_actor.our_model){
 		move_camera();//Make sure we lag a little...
-		our_actor.our_model = add_actor_interface (our_actor.def->x, our_actor.def->y, our_actor.def->z_rot, 1.0f, our_actor.race, our_actor.skin, our_actor.hair, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head);
+		our_actor.our_model = add_actor_interface (our_actor.def->x, our_actor.def->y, our_actor.def->z_rot, 1.0f, our_actor.race, our_actor.skin, our_actor.hair, our_actor.eyes, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head);
 		yourself = 0;
 		LOCK_ACTORS_LISTS();	
 		set_our_actor (our_actor.our_model);
@@ -670,6 +675,7 @@ void create_newchar_root_window (void)
 		our_actor.def=&races[our_actor.race_id];//6 "races" - counting women as their own race, of course ;-) We cannot include the new races in the random function since they are p2p
 		our_actor.skin = inc(our_actor.def->skin, SKIN_BROWN, RAND (SKIN_BROWN, SKIN_TAN));//Increment a random # of times. 
 		our_actor.hair = inc(our_actor.def->hair, HAIR_BLACK, RAND (HAIR_BLACK, our_actor.def->type >= draegoni_female ? HAIR_PURPLE:HAIR_WHITE));
+		our_actor.eyes = inc(our_actor.def->eyes, EYES_BROWN, RAND (EYES_BROWN, EYES_GOLD));
 		our_actor.shirt = inc(our_actor.def->shirts, SHIRT_BLACK, RAND (SHIRT_BLACK, SHIRT_YELLOW));
 		our_actor.pants = inc(our_actor.def->pants, PANTS_BLACK, RAND (PANTS_BLACK, PANTS_WHITE));
 		our_actor.boots = inc(our_actor.def->boots, BOOTS_BLACK, RAND (BOOTS_BLACK, BOOTS_ORANGE));
@@ -796,7 +802,7 @@ void create_character(void)
 		creating_char=0;
 		// Clear the error message, if necessary
 		create_char_error_str[0] = '\0';
-		send_new_char(inputs[0].str, inputs[1].str, our_actor.skin, our_actor.hair, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head, our_actor.race);
+		send_new_char(inputs[0].str, inputs[1].str, our_actor.skin, our_actor.hair, our_actor.eyes, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head, our_actor.race);
 	} else {
 		are_you_sure=1;
 		
@@ -986,6 +992,7 @@ void change_race(int new_race)
 	our_actor.def=&races[new_race];
 	our_actor.skin = our_actor.def->skin[find_pos_in_enum(our_actor.def->skin, our_actor.skin)];//Increment a random # of times. 
 	our_actor.hair = our_actor.def->hair[find_pos_in_enum(our_actor.def->hair, our_actor.hair)];
+	our_actor.eyes = our_actor.def->eyes[find_pos_in_enum(our_actor.def->eyes, our_actor.eyes)];
 	our_actor.shirt = our_actor.def->shirts[find_pos_in_enum(our_actor.def->shirts, our_actor.shirt)];
 	our_actor.pants = our_actor.def->pants[find_pos_in_enum(our_actor.def->pants, our_actor.pants)];
 	our_actor.boots = our_actor.def->boots[find_pos_in_enum(our_actor.def->boots, our_actor.boots)];
@@ -1049,9 +1056,10 @@ int display_color_race_handler (window_info *win)
 	draw_string_small(x-(get_string_width((unsigned char*)head_str)*8.0f/12.0f)/2.0f, 25, (unsigned char*)head_str, 1);
 	draw_string_small(x-(get_string_width((unsigned char*)skin_str)*8.0f/12.0f)/2.0f, 48, (unsigned char*)skin_str, 1);
 	draw_string_small(x-(get_string_width((unsigned char*)hair_str)*8.0f/12.0f)/2.0f, 71, (unsigned char*)hair_str, 1);
-	draw_string_small(x-(get_string_width((unsigned char*)shirt_str)*8.0f/12.0f)/2.0f, 94, (unsigned char*)shirt_str, 1);
-	draw_string_small(x-(get_string_width((unsigned char*)pants_str)*8.0f/12.0f)/2.0f, 117, (unsigned char*)pants_str, 1);
-	draw_string_small(x-(get_string_width((unsigned char*)boots_str)*8.0f/12.0f)/2.0f, 140, (unsigned char*)boots_str, 1);
+	draw_string_small(x-(get_string_width((unsigned char*)eyes_str)*8.0f/12.0f)/2.0f, 94, (unsigned char*)eyes_str, 1);
+	draw_string_small(x-(get_string_width((unsigned char*)shirt_str)*8.0f/12.0f)/2.0f, 117, (unsigned char*)shirt_str, 1);
+	draw_string_small(x-(get_string_width((unsigned char*)pants_str)*8.0f/12.0f)/2.0f, 140, (unsigned char*)pants_str, 1);
+	draw_string_small(x-(get_string_width((unsigned char*)boots_str)*8.0f/12.0f)/2.0f, 163, (unsigned char*)boots_str, 1);
 	
 	//<<
 	x=280;
@@ -1061,6 +1069,7 @@ int display_color_race_handler (window_info *win)
 	draw_string_small(x, 94, (unsigned char*)"<<", 1);
 	draw_string_small(x, 117, (unsigned char*)"<<", 1);
 	draw_string_small(x, 140, (unsigned char*)"<<", 1);
+	draw_string_small(x, 163, (unsigned char*)"<<", 1);
 	
 	//>>
 	x=364;
@@ -1070,6 +1079,7 @@ int display_color_race_handler (window_info *win)
 	draw_string_small(x, 94, (unsigned char*)">>", 1);
 	draw_string_small(x, 117, (unsigned char*)">>", 1);
 	draw_string_small(x, 140, (unsigned char*)">>", 1);
+	draw_string_small(x, 163, (unsigned char*)">>", 1);
 	
 	switch(race_help){
 		case 1:
@@ -1256,7 +1266,20 @@ int click_color_race_handler (window_info *win, int mx, int my, Uint32 flags)
 			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
 			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
 #endif	/* NEW_TEXTURES */
+#ifdef NEW_EYES
 		} else if(my>94 && my<105){
+			our_actor.eyes=dec(our_actor.def->eyes, our_actor.eyes, 1);
+
+			// Copy the eyes texture name.
+			my_strncp(our_actor.our_model->body_parts->eyes_tex,actors_defs[our_actor.race].eyes[our_actor.eyes].eyes_name,sizeof(our_actor.our_model->body_parts->eyes_tex));
+#ifdef	NEW_TEXTURES
+			change_enhanced_actor(our_actor.our_model->texture_id, our_actor.our_model->body_parts);
+#else	/* NEW_TEXTURES */
+			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
+			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
+#endif	/* NEW_TEXTURES */
+#endif	/* NEW_EYES */
+		} else if(my>117 && my<128){
 			our_actor.shirt=dec(our_actor.def->shirts, our_actor.shirt, 1);
 			
 			// Copy the shirt and arms texture names.
@@ -1277,7 +1300,7 @@ int click_color_race_handler (window_info *win, int mx, int my, Uint32 flags)
 			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
 			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
 #endif	/* NEW_TEXTURES */
-		} else if(my>117 && my<128){
+		} else if(my>140 && my<151){
 			our_actor.pants=dec(our_actor.def->pants, our_actor.pants, 1);
 			
 			// Copy the pants texture name.
@@ -1297,7 +1320,7 @@ int click_color_race_handler (window_info *win, int mx, int my, Uint32 flags)
 			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
 			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
 #endif	/* NEW_TEXTURES */
-		} else if(my>140 && my<151){
+		} else if(my>163 && my<174){
 			our_actor.boots=dec(our_actor.def->boots, our_actor.boots, 1);
 			
 			// Copy the new boots texture name.
@@ -1343,7 +1366,20 @@ int click_color_race_handler (window_info *win, int mx, int my, Uint32 flags)
 			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
 			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
 #endif	/* NEW_TEXTURES */
+#ifdef NEW_EYES
 		} else if(my>94 && my<109){
+			our_actor.eyes=inc(our_actor.def->eyes, our_actor.eyes, 1);
+
+			// Copy the eyes texture name.
+			my_strncp(our_actor.our_model->body_parts->eyes_tex,actors_defs[our_actor.race].eyes[our_actor.eyes].eyes_name,sizeof(our_actor.our_model->body_parts->eyes_tex));
+#ifdef	NEW_TEXTURES
+			change_enhanced_actor(our_actor.our_model->texture_id, our_actor.our_model->body_parts);
+#else	/* NEW_TEXTURES */
+			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
+			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
+#endif	/* NEW_TEXTURES */
+#endif	/* NEW_EYES */
+		} else if(my>117 && my<132){
 			our_actor.shirt=inc(our_actor.def->shirts, our_actor.shirt, 1);
 			
 			// Copy the shirt and arms texture names.
@@ -1364,7 +1400,7 @@ int click_color_race_handler (window_info *win, int mx, int my, Uint32 flags)
 			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
 			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
 #endif	/* NEW_TEXTURES */
-		} else if(my>117 && my<132){
+		} else if(my>140 && my<155){
 			our_actor.pants=inc(our_actor.def->pants, our_actor.pants, 1);
 			
 			// Copy the pants texture name.
@@ -1384,7 +1420,7 @@ int click_color_race_handler (window_info *win, int mx, int my, Uint32 flags)
 			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
 			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
 #endif	/* NEW_TEXTURES */
-		} else if(my>140 && my<155){
+		} else if(my>163 && my<178){
 			our_actor.boots=inc(our_actor.def->boots, our_actor.boots, 1);
 			
 			// Copy the new boots texture name.
@@ -1404,7 +1440,7 @@ int click_color_race_handler (window_info *win, int mx, int my, Uint32 flags)
 void show_color_race_win(void)
 {
 	if(color_race_win < 0){
-		color_race_win = create_window (win_design, newchar_root_win, 0, 300, start_y, 420, 170, ELW_WIN_DEFAULT|ELW_CLICK_TRANSPARENT);
+		color_race_win = create_window (win_design, newchar_root_win, 0, 300, start_y, 420, 193, ELW_WIN_DEFAULT|ELW_CLICK_TRANSPARENT);
 		set_window_handler (color_race_win, ELW_HANDLER_DISPLAY, &display_color_race_handler);
 		set_window_handler (color_race_win, ELW_HANDLER_MOUSEOVER, &mouseover_color_race_handler);
 		set_window_handler (color_race_win, ELW_HANDLER_CLICK, &click_color_race_handler);
@@ -1735,7 +1771,25 @@ static void update_hair(void)
 #endif	/* NEW_TEXTURES */
 }
 
-static void update_shirt(void)
+#ifdef NEW_EYES
+static void update_eyes()
+{
+	// Copy the eyes texture name.
+	my_strncp(our_actor.our_model->body_parts->eyes_tex,
+		actors_defs[our_actor.race].eyes[our_actor.eyes].eyes_name,
+		sizeof(our_actor.our_model->body_parts->eyes_tex));
+
+#ifdef	NEW_TEXTURES
+	change_enhanced_actor(our_actor.our_model->texture_id,
+		our_actor.our_model->body_parts);
+#else	/* NEW_TEXTURES */
+	glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
+	our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
+#endif	/* NEW_TEXTURES */
+}
+#endif	/* NEW_EYES */
+
+static void update_shirt()
 {
 	// Copy the shirt and arms texture names.
 	my_strncp(our_actor.our_model->body_parts->arms_tex,
@@ -1875,6 +1929,24 @@ int hair_inc_handler(widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
+int eyes_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
+{
+	our_actor.eyes = dec(our_actor.def->eyes, our_actor.eyes, 1);
+#ifdef NEW_EYES
+	update_eyes();
+#endif
+	return 1;
+}
+
+int eyes_inc_handler(widget_list *w, int mx, int my, Uint32 flags)
+{
+	our_actor.eyes = inc(our_actor.def->eyes, our_actor.eyes, 1);
+#ifdef NEW_EYES
+	update_eyes();
+#endif
+	return 1;
+}
+
 int shirt_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
 	our_actor.shirt = dec(our_actor.def->shirts, our_actor.shirt, 1);
@@ -1966,9 +2038,9 @@ int init_color_race_handler(window_info * win)
 	int widget_id;
 	int i, x, y = 20, size;
 	int sep = 6;
-	char* body_part_strs[6] = {head_str, skin_str, hair_str, shirt_str, pants_str, boots_str};
-	void* body_handlers_dec[6] = {&head_dec_handler, &skin_dec_handler, &hair_dec_handler, &shirt_dec_handler, &pants_dec_handler, &boots_dec_handler};
-	void* body_handlers_inc[6] = {&head_inc_handler, &skin_inc_handler, &hair_inc_handler, &shirt_inc_handler, &pants_inc_handler, &boots_inc_handler};
+	char* body_part_strs[7] = {head_str, skin_str, hair_str, eyes_str, shirt_str, pants_str, boots_str};
+	void* body_handlers_dec[7] = {&head_dec_handler, &skin_dec_handler, &hair_dec_handler, &eyes_dec_handler, &shirt_dec_handler, &pants_dec_handler, &boots_dec_handler};
+	void* body_handlers_inc[7] = {&head_inc_handler, &skin_inc_handler, &hair_inc_handler, &eyes_inc_handler, &shirt_inc_handler, &pants_inc_handler, &boots_inc_handler};
 	int book_ids[6] = {book_human, book_elf, book_dwarf, book_gnome, book_orchan, book_draegoni};
 
 	//Design your character
@@ -2016,9 +2088,9 @@ int init_color_race_handler(window_info * win)
 	//Appereance
 	size = 2*DEFAULT_FONT_X_LEN*bit_small;
 	y += 3*22 + 8 + 4*sep;
-	widget_add(win->window_id, free_widget_id++, 0, 10, y, win->len_x - 20, 3*DEFAULT_FONT_Y_LEN*bit_small + 6*sep, 0, normal, r, g, b, &box_type, appearance_str, NULL);
+	widget_add(win->window_id, free_widget_id++, 0, 10, y, win->len_x - 20, 4*DEFAULT_FONT_Y_LEN*bit_small + 6*sep, 0, normal, r, g, b, &box_type, appearance_str, NULL);
 	y += 2*sep;
-	for(i = 0; i < 3; i++)//Head, Skin and Hair
+	for(i = 0; i < 4; i++)//Head, Skin, Hair and Eyes
 	{
 		widget_id = label_add_extended(win->window_id, free_widget_id++, 0, 20, y+(DEFAULT_FONT_Y_LEN*bit_small+sep)*i, 0, bit_small, r, g, b, "<<");
 		widget_set_OnClick(win->window_id, widget_id, body_handlers_dec[i]);
@@ -2027,13 +2099,13 @@ int init_color_race_handler(window_info * win)
 		widget_id = label_add_extended(win->window_id, free_widget_id++, 0, win->len_x/2-10-size, y+(DEFAULT_FONT_Y_LEN*bit_small+sep)*i, 0, bit_small, r, g, b, ">>");
 		widget_set_OnClick(win->window_id, widget_id, body_handlers_inc[i]);
 	}
-	for(i = 3; i < 6; i++)//Shirt, Pants and Boots
+	for(i = 4; i < 7; i++)//Shirt, Pants and Boots
 	{
-		widget_id = label_add_extended(win->window_id, free_widget_id++, 0, win->len_x/2+10, y+(DEFAULT_FONT_Y_LEN*bit_small+sep)*(i-3), 0, bit_small, r, g, b, "<<");
+		widget_id = label_add_extended(win->window_id, free_widget_id++, 0, win->len_x/2+10, y+(DEFAULT_FONT_Y_LEN*bit_small+sep)*(i-4), 0, bit_small, r, g, b, "<<");
 		widget_set_OnClick(win->window_id, widget_id, body_handlers_dec[i]);
 		x = win->len_x/2 + 10 + size + (win->len_x/2 - 30 - 2*size - strlen((char*)body_part_strs[i])*DEFAULT_FONT_X_LEN*bit_small)/2;
-		label_add_extended(win->window_id, free_widget_id++, 0, x, y+(DEFAULT_FONT_Y_LEN*bit_small+sep)*(i-3), 0, bit_small, r, g, b, (char*)body_part_strs[i]);
-		widget_id = label_add_extended(win->window_id, free_widget_id++, 0, win->len_x-20-size, y+(DEFAULT_FONT_Y_LEN*bit_small+sep)*(i-3), 0, bit_small, r, g, b, ">>");
+		label_add_extended(win->window_id, free_widget_id++, 0, x, y+(DEFAULT_FONT_Y_LEN*bit_small+sep)*(i-4), 0, bit_small, r, g, b, (char*)body_part_strs[i]);
+		widget_id = label_add_extended(win->window_id, free_widget_id++, 0, win->len_x-20-size, y+(DEFAULT_FONT_Y_LEN*bit_small+sep)*(i-4), 0, bit_small, r, g, b, ">>");
 		widget_set_OnClick(win->window_id, widget_id, body_handlers_inc[i]);
 	}
 	y = win->len_y -40;

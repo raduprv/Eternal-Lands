@@ -77,7 +77,7 @@ void init_actors_lists()
 }
 
 //return the ID (number in the actors_list[]) of the new allocated actor
-int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float z_pos, float z_rot, float scale, char remappable, short skin_color, short hair_color, short shirt_color, short pants_color, short boots_color, int actor_id)
+int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float z_pos, float z_rot, float scale, char remappable, short skin_color, short hair_color, short eyes_color, short shirt_color, short pants_color, short boots_color, int actor_id)
 {
 	int texture_id;
 	int i;
@@ -114,7 +114,7 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	else
 		{
 			LOG_ERROR("remapped skin for %s", skin_name);
-			//texture_id=load_bmp8_remapped_skin(skin_name,150,skin_color,hair_color,shirt_color,pants_color,boots_color);
+			//texture_id=load_bmp8_remapped_skin(skin_name,150,skin_color,hair_color,eyes_color,shirt_color,pants_color,boots_color);
 			exit(-1);
 		}
 #endif	/* NEW_TEXTURES */
@@ -200,6 +200,7 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	our_actor->texture_id=texture_id;
 	our_actor->skin=skin_color;
 	our_actor->hair=hair_color;
+	our_actor->eyes=eyes_color;
 	our_actor->pants=pants_color;
 	our_actor->boots=boots_color;
 	our_actor->shirt=shirt_color;
@@ -260,7 +261,7 @@ void add_actor_attachment(int actor_id, int attachment_type)
 	{
 		int id = add_actor(attachment_type, actors_defs[attachment_type].skin_name,
 						   parent->x_pos, parent->y_pos, parent->z_pos, parent->z_rot, get_actor_scale(parent),
-						   0, 0, 0, 0, 0, 0, -1);
+						   0, 0, 0, 0, 0, 0, 0, -1);
 		actors_list[id]->attached_actor = i;
 		parent->attached_actor = id;
 
@@ -1561,7 +1562,7 @@ void add_actor_from_server (const char *in_data, int len)
 					}
 		}
 
-	i= add_actor(actor_type, actors_defs[actor_type].skin_name, f_x_pos, f_y_pos, 0.0, f_z_rot, scale, 0, 0, 0, 0, 0, 0, actor_id);
+	i= add_actor(actor_type, actors_defs[actor_type].skin_name, f_x_pos, f_y_pos, 0.0, f_z_rot, scale, 0, 0, 0, 0, 0, 0, 0, actor_id);
 
 	if(i==-1) return;//A nasty error occured and we couldn't add the actor. Ignore it.
 

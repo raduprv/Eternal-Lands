@@ -171,6 +171,24 @@ typedef enum actor_types_type
 /*! @} */
 
 /*!
+ * \name Eyes colors
+ */
+/*! @{ */
+#define EYES_BROWN	0
+#define EYES_DARK_BROWN	1
+#define EYES_BROWN_RED	2
+#define EYES_LIGHT_BLUE	3
+#define EYES_BLUE	4
+#define EYES_DARK_BLUE	5
+#define EYES_LIGHT_GREEN	6
+#define EYES_GREEN	7
+#define EYES_DARK_GREEN	8
+#define EYES_LAVENDER	9
+#define EYES_VIOLET	10
+#define EYES_GOLD	11
+/*! @} */
+
+/*!
  * \name Boots colors
  */
 /*! @{ */

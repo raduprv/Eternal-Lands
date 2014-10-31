@@ -68,7 +68,7 @@ const dict_elem head_number_dict[] =
 	  { "5" ,  HEAD_5 },
 	  { NULL, -1      }
 	};
-int actor_part_sizes[ACTOR_NUM_PARTS] = {10, 40, 50, 100, 100, 100, 10, 20, 40, 60, 20};		// Elements according to actor_parts_enum
+int actor_part_sizes[ACTOR_NUM_PARTS] = {10, 40, 50, 100, 100, 100, 10, 20, 40, 60, 20, 20};		// Elements according to actor_parts_enum
 #else // EXT_ACTOR_DICT
 #define MAX_SKIN_COLORS 7
 #define MAX_GLOW_MODES 5
@@ -3699,6 +3699,38 @@ int parse_actor_hair (actor_types *act, const xmlNode *cfg, const xmlNode *defau
 	return 1;
 }
 
+int parse_actor_eyes (actor_types *act, const xmlNode *cfg, const xmlNode *defaults)
+{
+	int col_idx;
+	size_t len;
+	char *buf;
+
+	if(cfg == NULL || cfg->children == NULL) return 0;
+
+	col_idx= get_int_property(cfg, "id");
+/*	if(col_idx < 0){
+		col_idx= get_property(cfg, "color", "eyes color", eyes_color_dict);
+	}
+*/
+	if(col_idx < 0 || col_idx >= actor_part_sizes[ACTOR_EYES_SIZE]){
+		LOG_ERROR("Unable to find id/property node %s\n", cfg->name);
+		return 0;
+	}
+
+	if (act->eyes == NULL) {
+		int i;
+		act->eyes = (eyes_part*)calloc(actor_part_sizes[ACTOR_EYES_SIZE], sizeof(eyes_part));
+		for (i = actor_part_sizes[ACTOR_EYES_SIZE]; i--;) act->eyes[i].mesh_index= -1;
+	}
+
+	buf= act->eyes[col_idx].eyes_name;
+	len= sizeof (act->eyes[col_idx].eyes_name);
+	get_string_value(buf, len, cfg);
+
+
+	return 1;
+}
+
 int cal_get_idle_group(actor_types *act,char *name)
 {
 	int i;
@@ -4353,6 +4385,8 @@ int parse_actor_nodes(actor_types *act, const xmlNode *cfg, const xmlNode *defau
 				ok &= parse_actor_skin(act, item, defaults);
 			} else if (!strcmp(name, "hair")) {
 				ok &= parse_actor_hair(act, item, defaults);
+			} else if (!strcmp(name, "eyes")) {
+				ok &= parse_actor_eyes(act, item, defaults);
 			} else if (!strcmp(name, "boots")) {
 				ok &= parse_actor_boots(act, item, defaults);
 			} else if (!strcmp(name, "legs")) {
@@ -4662,6 +4696,8 @@ int parse_actor_part_sizes(const xmlNode *node)
 					actor_part_sizes[ACTOR_SKIN_SIZE] = get_int_value(data);
 				} else if (!strcasecmp(str, "hair")) {
 					actor_part_sizes[ACTOR_HAIR_SIZE] = get_int_value(data);
+				} else if (!strcasecmp(str, "eyes")) {
+					actor_part_sizes[ACTOR_EYES_SIZE] = get_int_value(data);
 				} else if (!strcasecmp(str, "boots")) {
 					actor_part_sizes[ACTOR_BOOTS_SIZE] = get_int_value(data);
 				} else if (!strcasecmp(str, "legs")) {

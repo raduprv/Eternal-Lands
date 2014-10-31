@@ -592,7 +592,7 @@ void send_login_info()
 }
 
 
-void send_new_char(char * user_str, char * pass_str, char skin, char hair, char shirt, char pants, char boots,char head, char type)
+void send_new_char(char * user_str, char * pass_str, char skin, char hair, char eyes, char shirt, char pants, char boots,char head, char type)
 {
 	int i,j,len;
 	unsigned char str[120];
@@ -613,8 +613,8 @@ void send_new_char(char * user_str, char * pass_str, char skin, char hair, char 
 	str[i+j+6]= boots;
 	str[i+j+7]= type;
 	str[i+j+8]= head;
-
-	len= i+j+9;
+	str[i+j+9]= eyes;
+	len= i+j+10;
 	if(my_tcp_send(my_socket,str,len)<len) {
 		//we got a nasty error, log it
 	}

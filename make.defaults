@@ -31,12 +31,12 @@ FEATURES += MIDDLE_MOUSE_PASTE	# Paste using the middle mouse button from the pr
 #FEATURES += EXT_ACTOR_DICT		# Removes remaining hard-coded actor def dictionaries - requires updated actor defs files (http://el.grug.redirectme.net/actor_defs.zip)
 #FEATURES += NEW_ALPHA			# (undocumented)
 #FEATURES += USE_SIMD			# Enables usage of simd instructions
+#FEATURES += NEW_EYES			# Support for different eye colors, needs new data files
 
 ### Machine specific options (fixes or performance enhancements) ###
 #FEATURES += EL_BIG_ENDIAN		# Enable big-endian code (automatically detected for OSX)
 #FEATURES += NO_PF_MACRO		# Use a function instead of a macro for pf_get_tile()
 #FEATURES += SIMPLE_LOD			# enable a simplistic distance culling to improve performance
-
 
 ### Debug options ###
 #FEATURES += CONTEXT_MENUS_TEST		# Enable "#cmtest" command to help test/demo the context menu code

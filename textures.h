@@ -186,6 +186,7 @@ typedef struct
 	char boots_base[MAX_FILE_PATH];
 
 	char hair_tex[MAX_FILE_PATH];
+	char eyes_tex[MAX_FILE_PATH];
 	char weapon_tex[MAX_FILE_PATH];
 	char shield_tex[MAX_FILE_PATH];
 	char helmet_tex[MAX_FILE_PATH];
@@ -549,13 +550,14 @@ char * load_bmp8_color_key_no_texture_img(char * FileName, img_struct * img);
  * \param   	a The fixed alpha value
  * \param   	skin The skin colour
  * \param   	hair The hair colour
+ * \param   	eyes The eyes colour
  * \param   	shirt The shirt colour
  * \param   	pants The pants colour
  * \param   	boots The boots colour
  * \retval GLuint  	The GL texture ID.
  * \callgraph
  */
-GLuint	load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair, short shirt,
+GLuint	load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair, short eyes, short shirt,
 							   short pants, short boots);
 
 #ifdef	ELC

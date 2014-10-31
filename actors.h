@@ -138,6 +138,7 @@ typedef struct
 	char boots_base[MAX_FILE_PATH];
 
 	char hair_tex[MAX_FILE_PATH];
+	char eyes_tex[MAX_FILE_PATH];
 	char weapon_tex[MAX_FILE_PATH];
 	char shield_tex[MAX_FILE_PATH];
 	char helmet_tex[MAX_FILE_PATH];
@@ -233,6 +234,14 @@ typedef struct
 
 }hair_part;
 
+/*! Sets the models eyes name*/
+typedef struct
+{
+	char eyes_name[MAX_FILE_PATH];
+	int mesh_index;
+
+}eyes_part;
+
 /*! Holds info about the boots */
 typedef struct
 {
@@ -302,6 +311,7 @@ typedef enum {
 	ACTOR_BOOTS_SIZE,
 	ACTOR_LEGS_SIZE,
 	ACTOR_NECK_SIZE,
+	ACTOR_EYES_SIZE,
 	ACTOR_NUM_PARTS
 } actor_parts_enum;
 
@@ -355,6 +365,7 @@ typedef struct
 	shirt_part *shirt;
 	skin_part  *skin;
 	hair_part  *hair;
+	eyes_part  *eyes;
 	boots_part *boots;
 	legs_part *legs;
 	/*! \} */
@@ -560,6 +571,7 @@ typedef struct
 	/*! \{ */
 	int boots;		/*!< Sets the boots ID (loaded from the actor_defs array)*/
 	int hair;		/*!< Sets the hair ID (loaded from the actor_defs array)*/
+	int eyes;		/*!< Sets the eyes ID (loaded from the actor_defs array)*/
 	int skin;		/*!< Sets the skin ID (loaded from the actor_defs array)*/
 	int pants;		/*!< Sets the pants ID (loaded from the actor_defs array)*/
 	int shirt;		/*!< Sets the shirt ID (loaded from the actor_defs array)*/

@@ -86,7 +86,7 @@ void build_glow_color_table();
 
 /*!
  * \ingroup	display_actors
- * \brief	Adds an actor with the given types of skin, head, hair and clothes.
+ * \brief	Adds an actor with the given types of skin, head, hair, eyes and clothes.
  *
  * 		The function is called from the new character creation screen. It adds an actor with the given parameters that can be displayed later using draw_interface_actor
  *
@@ -97,6 +97,7 @@ void build_glow_color_table();
  * \param	actor_type The race and sex
  * \param	skin The skin type
  * \param	hair The hair type
+ * \param	eyes The eyes type
  * \param	shirt The shirt type
  * \param	pants The pants type
  * \param	boots The type of boots
@@ -105,7 +106,7 @@ void build_glow_color_table();
  * \sa		client_serv.h
  * \callgraph
  */
-actor * add_actor_interface(float x, float y, float z_rot, float scale, int actor_type, short skin, short hair,
+actor * add_actor_interface(float x, float y, float z_rot, float scale, int actor_type, short skin, short hair, short eyes,
 							short shirt, short pants, short boots, short head);
 
 #ifdef __cplusplus

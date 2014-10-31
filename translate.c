@@ -266,6 +266,7 @@ char
 	/*new_character.c*/
 	skin_str[15],
 	hair_str[15],
+	eyes_str[15],
 	shirt_str[15],
 	pants_str[15],
 	boots_str[15],
@@ -1482,6 +1483,7 @@ void init_help()
 	//New characters
 	add_xml_identifier(new,"skin",skin_str,"Skin",sizeof(skin_str));
 	add_xml_identifier(new,"hair",hair_str,"Hair",sizeof(hair_str));
+	add_xml_identifier(new,"eyes",eyes_str,"Eyes",sizeof(eyes_str));
 	add_xml_identifier(new,"shirt",shirt_str,"Shirt",sizeof(shirt_str));
 	add_xml_identifier(new,"pants",pants_str,"Pants",sizeof(pants_str));
 	add_xml_identifier(new,"boots",boots_str,"Boots",sizeof(boots_str));

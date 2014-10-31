@@ -647,6 +647,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	Uint32 actor_type;
 	Uint8 skin;
 	Uint8 hair;
+	Uint8 eyes;
 	Uint8 shirt;
 	Uint8 pants;
 	Uint8 boots;
@@ -724,11 +725,15 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 		if(len > 28+(int)strlen(in_data+28)+3)
 			attachment_type = (unsigned char)in_data[28+strlen(in_data+28)+3];
 	}
-	//the last byte of the packet even if scale+attachment is not sent
-	neck=*(in_data+len-1);
-
-	
 #endif
+	//the last bytes of the packet even if scale+attachment is not sent
+	if(*(in_data+len-2) > EYES_GOLD)
+	{
+		eyes=0;
+	} else {
+		eyes=*(in_data+len-2);
+	}
+	neck=*(in_data+len-1);
 
 	//translate from tile to world
 	f_x_pos=x_pos*0.5;
@@ -930,6 +935,10 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	my_strncp(this_actor->boots_base,actors_defs[actor_type].skin[skin].feet_name,sizeof(this_actor->boots_base));
 	//hair
 	my_strncp(this_actor->hair_tex,actors_defs[actor_type].hair[hair].hair_name,sizeof(this_actor->hair_tex));
+#ifdef NEW_EYES
+	//eyes
+	my_strncp(this_actor->eyes_tex,actors_defs[actor_type].eyes[eyes].eyes_name,sizeof(this_actor->eyes_tex));
+#endif
 	//boots
 	my_strncp(this_actor->boots_tex,actors_defs[actor_type].boots[boots].boots_name,sizeof(this_actor->boots_tex));
 	my_strncp(this_actor->boots_mask,actors_defs[actor_type].boots[boots].boots_mask,sizeof(this_actor->boots_mask));
@@ -954,6 +963,10 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 		custom_path(this_actor->legs_base, playerpath, guildpath);
 		//hair
 		custom_path(this_actor->hair_tex, playerpath, guildpath);
+#ifdef NEW_EYES
+		//eyes
+		custom_path(this_actor->eyes_tex, playerpath, guildpath);
+#endif
 		//boots
 		custom_path(this_actor->boots_tex, playerpath, guildpath);
 		custom_path(this_actor->boots_mask, playerpath, guildpath);
@@ -1277,7 +1290,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 #endif
 }
 
-actor * add_actor_interface(float x, float y, float z_rot, float scale, int actor_type, short skin, short hair,
+actor * add_actor_interface(float x, float y, float z_rot, float scale, int actor_type, short skin, short hair, short eyes,
 				short shirt, short pants, short boots, short head)
 {
 	enhanced_actor * this_actor=calloc(1,sizeof(enhanced_actor));
@@ -1291,6 +1304,9 @@ actor * add_actor_interface(float x, float y, float z_rot, float scale, int acto
 	my_strncp(this_actor->hands_tex,actors_defs[actor_type].skin[skin].hands_name,sizeof(this_actor->hands_tex));
 	my_strncp(this_actor->head_tex,actors_defs[actor_type].skin[skin].head_name,sizeof(this_actor->head_tex));
 	my_strncp(this_actor->hair_tex,actors_defs[actor_type].hair[hair].hair_name,sizeof(this_actor->hair_tex));
+#ifdef NEW_EYES
+	my_strncp(this_actor->eyes_tex,actors_defs[actor_type].eyes[eyes].eyes_name,sizeof(this_actor->eyes_tex));
+#endif
 	my_strncp(this_actor->boots_tex,actors_defs[actor_type].boots[boots].boots_name,sizeof(this_actor->boots_tex));
 	my_strncp(this_actor->boots_mask,actors_defs[actor_type].boots[boots].boots_mask,sizeof(this_actor->boots_mask));
 	my_strncp(this_actor->pants_tex,actors_defs[actor_type].legs[pants].legs_name,sizeof(this_actor->pants_tex));

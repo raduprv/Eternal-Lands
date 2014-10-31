@@ -395,6 +395,7 @@ extern char
 		/*new_character.c*/
 		skin_str[15],
 		hair_str[15],
+		eyes_str[15],
 		shirt_str[15],
 		pants_str[15],
 		boots_str[15],
