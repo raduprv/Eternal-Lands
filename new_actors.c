@@ -647,7 +647,9 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	Uint32 actor_type;
 	Uint8 skin;
 	Uint8 hair;
+#ifdef NEW_EYES
 	Uint8 eyes;
+#endif
 	Uint8 shirt;
 	Uint8 pants;
 	Uint8 boots;
@@ -727,12 +729,14 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	}
 #endif
 	//the last bytes of the packet even if scale+attachment is not sent
+#ifdef NEW_EYES
 	if((*(in_data+len-2) > EYES_GOLD)|| (*(in_data+len-2) < 0))
 	{
 		eyes=0;
 	} else {
 		eyes=*(in_data+len-2);
 	}
+#endif
 	neck=*(in_data+len-1);
 
 	//translate from tile to world
