@@ -1327,7 +1327,7 @@ void init_errors()
 	add_xml_identifier(video,"invalid",invalid_video_mode,"Stop playing with the configuration file and select valid modes!",sizeof(invalid_video_mode));
 
 	//Rule errors
-	add_xml_identifier(rules,"proceed",you_can_proceed,"Read the rules and you can play in %dsec",sizeof(you_can_proceed));
+	add_xml_identifier(rules,"proceed",you_can_proceed,"Read the rules and you can play in %d seconds",sizeof(you_can_proceed));
 	add_xml_identifier(rules,"ready",accepted_rules,"Read the rules and click on \"I Accept\" to play!",sizeof(accepted_rules));
 	add_xml_identifier(rules,"accept",accept_label,"I Accept",sizeof(accept_label));
 	add_xml_identifier(rules,"read",read_rules_str,"An error occured while reading the rules",sizeof(read_rules_str));
