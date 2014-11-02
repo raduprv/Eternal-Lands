@@ -988,6 +988,8 @@ void show_account_win (void)
 void change_race(int new_race)
 {
 	if(our_actor.race_id==new_race)return;
+	destroy_all_actors();
+	our_actor.our_model = NULL;
 	our_actor.race_id=new_race;
 	our_actor.def=&races[new_race];
 	our_actor.skin = our_actor.def->skin[find_pos_in_enum(our_actor.def->skin, our_actor.skin)];//Increment a random # of times. 
