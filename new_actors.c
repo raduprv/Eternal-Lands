@@ -941,7 +941,19 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	my_strncp(this_actor->hair_tex,actors_defs[actor_type].hair[hair].hair_name,sizeof(this_actor->hair_tex));
 #ifdef NEW_EYES
 	//eyes
-	my_strncp(this_actor->eyes_tex,actors_defs[actor_type].eyes[eyes].eyes_name,sizeof(this_actor->eyes_tex));
+	if (actors_defs[actor_type].eyes[eyes].eyes_name)
+		my_strncp(this_actor->eyes_tex,actors_defs[actor_type].eyes[eyes].eyes_name,sizeof(this_actor->eyes_tex));
+	else
+	{
+		static int already_said = 0;
+		if (!already_said)
+		{
+			char *message = "Looks like we compiled with NEW_EYES but do not have the textures";
+			LOG_ERROR(message);
+			LOG_TO_CONSOLE(c_red2,message);
+			already_said = 1;
+		}
+	}
 #endif
 	//boots
 	my_strncp(this_actor->boots_tex,actors_defs[actor_type].boots[boots].boots_name,sizeof(this_actor->boots_tex));
