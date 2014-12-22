@@ -177,6 +177,8 @@ void draw_scene()
 			update_hud_timer();
 			/* check if we need to do buff duration requests */
 			check_then_do_buff_duration_request();
+			/* check if we are doing a server connection test */
+			check_if_testing_server_connection();
 			/* until next time */
 			last_half_second_timer = current_time;
 		}

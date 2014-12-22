@@ -65,6 +65,26 @@ Uint32 get_game_time_sec(void);
 */
 Uint32 diff_game_time_sec(Uint32 ref_time);
 
+/*!
+ * \brief	Set the state to disconnected from the server, showing messages and recording time.
+ *
+ * \param	A message string, or NULL
+ * 
+*/
+void enter_disconnected_state(char *message);
+
+/*!
+ * \brief	Called from the main thread 500 ms timer, check if testing server connection.
+ *
+*/
+void check_if_testing_server_connection(void);
+
+/*!
+ * \brief	Initiates a test for server connection, the client will enter the disconnected state if needed.
+ *
+*/
+void start_testing_server_connection(void);
+
 extern time_t last_heart_beat; /*!< a timestamp that inidicates when the last message was sent to the server */
 
 extern time_t last_save_time; /*!< a timestamp inidicating the last #save */

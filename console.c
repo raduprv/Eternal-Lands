@@ -1649,6 +1649,14 @@ static int session_counters(char *text, int len)
 }
 
 
+/* initilates a test for server connection, the client will enter the disconnected state if needed */
+static int command_relogin(char *text, int len)
+{
+	start_testing_server_connection();
+	return 1;
+}
+
+
 #ifdef CONTEXT_MENUS_TEST
 int cm_test_window(char *text, int len);
 #endif
@@ -1767,6 +1775,7 @@ add_command("horse", &horse_cmd);
 	add_command(cmd_cast_spell, &command_cast_spell);
 	add_command(cmd_keypress, &command_keypress);
 	add_command(cmd_user_menu_wait_time_ms, &command_set_user_menu_wait_time_ms);
+	add_command("relogin", &command_relogin);
 	command_buffer_offset = NULL;
 }
 

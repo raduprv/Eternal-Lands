@@ -390,6 +390,8 @@ extern char
 		/*multiplayer.c*/
 		connect_to_server_str[50],
 		reconnect_str[50],
+		test_server_connect_str[40],
+		server_connect_test_failed_str[40],
 		alt_x_quit[50],
 		license_check[150], 
 		/*new_character.c*/

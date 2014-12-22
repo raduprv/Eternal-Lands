@@ -72,6 +72,7 @@ int command_time(char *text, int len);
 int command_date(char *text, int len);
 int command_mark(char *text, int len);
 int command_unmark_special(char *text, int len, int do_log);
+int command_ping(char *text, int len);
 
 void new_minute_console(void);
 
