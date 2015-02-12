@@ -192,7 +192,6 @@ static ELGL_Colour::Colour_Container colours;
 // The external interface
 extern "C"
 {
-	size_t ELGL_INVALID_COLOUR = 0;
 	void init_named_colours(void) { colours.load(); }
 	void elglColourI(size_t index) { colours.use(index); }
 	void elglColourN(const char *name) { colours.use(name); }

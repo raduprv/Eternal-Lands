@@ -7,7 +7,8 @@ extern "C" {
 
 #include "platform.h"
 
-extern size_t ELGL_INVALID_COLOUR; /*!< The id return if the colour was not found by elglGetColourId() */
+/*!< The id return if the colour was not found by elglGetColourId() */
+#define ELGL_INVALID_COLOUR ((size_t)0)
 
 /*!
  * \ingroup named_colours
