@@ -16,6 +16,7 @@
 #include "item_lists.h"
 #include "misc.h"
 #include "multiplayer.h"
+#include "named_colours.h"
 #include "sound.h"
 #include "textures.h"
 #include "translate.h"
@@ -383,14 +384,34 @@ int display_storage_handler(window_info * win)
 	int pos;
 	int help_text_line = 0;
 
+	static int have_colours = 0;
+	static size_t c_selected = ELGL_INVALID_COLOUR;
+	static size_t c_highlighted = ELGL_INVALID_COLOUR;
+
+	if (!have_colours)
+	{
+		c_selected = elglGetColourId("global.mouseselected");
+		c_highlighted = elglGetColourId("global.mousehighlight");
+		have_colours = 1;
+	}
+
 	have_storage_list = 0;	//We visited storage, so we may have changed something
 
 	glColor3f(0.77f, 0.57f, 0.39f);
 	glEnable(GL_TEXTURE_2D);
 	
 	for(i=pos=vscrollbar_get_pos(storage_win,STORAGE_SCROLLBAR_CATEGORIES); i<no_storage_categories && storage_categories[i].id!=-1 && i<pos+STORAGE_CATEGORIES_DISPLAY; i++,n++){
-		draw_string_small(20, 20+n*13, (unsigned char*)storage_categories[i].name,1);
+		int the_colour = from_color_char(storage_categories[i].name[0]);
+		size_t offset = 1;
+		if (the_colour == c_red3)
+			elglColourI(c_selected);
+		else if (the_colour == c_green2)
+			elglColourI(c_highlighted);
+		else
+			offset = 0;
+		draw_string_small(20, 20+n*13, (unsigned char*)&storage_categories[i].name[offset],1);
 	}
+	glColor3f(0.77f, 0.57f, 0.39f);
 	if(storage_text[0]){
 		if (strcmp(storage_text, last_storage_text) != 0) {
 			safe_strncpy(last_storage_text, storage_text, sizeof(last_storage_text));
