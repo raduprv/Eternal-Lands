@@ -6,6 +6,7 @@
 #include "achievements.h"
 #include "actors.h"
 #include "asc.h"
+#include "books.h"
 #include "buddy.h"
 #include "chat.h"
 #include "console.h"
@@ -607,6 +608,10 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		}
 		else if (strstr(text_to_add+1, "Today is a special day:")) {
 			set_today_is_special_day();
+		}
+		else if (strstr(text_to_add+1, "You'd need a pair of binoculars to read the book from here - get closer!")) {
+			if (book_opened == -1)
+				return 0;
 		}
 		else {
 			static Uint32 last_time[] = { 0, 0 };
