@@ -1,9 +1,8 @@
 /*
 	Provide item description and emu lookup from a data file.
 
-	Using the file from http://el.other-life.com/downloads/item_info.txt
-	The file should be stored in the datadir or updates directory and is
-	read when first needed.
+	Uses the file item_info.txt, stored in the datadir or updates
+	directory which is read when first needed.
 
 	Functions provide descriptions and emu for items based on their image
 	and unique id.  If unique id are not enabled (#item_uid) and so only
