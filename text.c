@@ -659,6 +659,12 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		display_server_popup_win(text_to_add);
 	}
 
+	// look for astrology messages
+	if((channel == CHAT_SERVER) && is_astrology_message (text_to_add))
+	{
+		return 0;
+	}
+
 	//Make sure we don't check our own messages.
 	if( !(channel == CHAT_PERSONAL && len >= strlen(pm_from_str) && strncasecmp (text_to_add+1, pm_from_str, strlen(pm_from_str)) != 0) &&
 		!(channel == CHAT_MODPM && len >= strlen(mod_pm_from_str) && strncasecmp (text_to_add+1, mod_pm_from_str, strlen(mod_pm_from_str)) != 0)
@@ -755,12 +761,6 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			}
 			add_buddy_confirmation (name);
 		}
-	}
-
-	// look for astrology messages
-	if((channel == CHAT_SERVER) && is_astrology_message (text_to_add))
-	{
-		return 0;
 	}
 
 	// filter any naughty words out
