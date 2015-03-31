@@ -10,7 +10,6 @@ Package: eternallands-data
 Architecture: all
 Depends: ${misc:Depends}, wget (>>1), unzip (>>2), findutils (>>4), eternallands (>=1.9.2)
 Recommends: eternallands-sound (>=1.6.0)
-Conflicts: eternallands-rc, eternallands-rc-data
 Suggests: eternallands-music (>=1.6.0)
 Description: data package for Eternal Lands, a free MMORPG
  Eternal Lands is a free to play, graphical MMORPG (massively-multi-player
