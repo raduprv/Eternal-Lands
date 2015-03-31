@@ -1899,7 +1899,6 @@ void add_command_to_actor(int actor_id, unsigned char command)
 		//Resync
 		//if we got here, it means we don't have this actor, so get it from the server...
 		LOG_ERROR("%s %d - %d\n", cant_add_command, command, actor_id);
-		UNLOCK_ACTORS_LISTS();
 	} else {
 
 		//if (get_our_actor()->actor_id==act->actor_id) printf("ADD COMMAND %i to %i\n",command,actor_id);
