@@ -1892,17 +1892,17 @@ void add_command_to_actor(int actor_id, unsigned char command)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
+	LOCK_ACTORS_LISTS();
 	act= get_actor_ptr_from_id(actor_id);
 
 	if(!act){
 		//Resync
 		//if we got here, it means we don't have this actor, so get it from the server...
 		LOG_ERROR("%s %d - %d\n", cant_add_command, command, actor_id);
+		UNLOCK_ACTORS_LISTS();
 	} else {
-		LOCK_ACTORS_LISTS();
 
 		//if (get_our_actor()->actor_id==act->actor_id) printf("ADD COMMAND %i to %i\n",command,actor_id);
-
 
 		if (command == missile_miss) {
 			missiles_log_message("%s (%d): will miss his target", act->actor_name, actor_id);
@@ -2188,7 +2188,6 @@ void add_command_to_actor(int actor_id, unsigned char command)
 			 act->async_z_rot= (command-turn_n)*45;
 			 break;
 		}
-		UNLOCK_ACTORS_LISTS();
 
 		if (k != k2) {
 			LOG_ERROR("Inconsistency between queues of attached actors %s (%d) and %s (%d)!",
@@ -2214,6 +2213,7 @@ void add_command_to_actor(int actor_id, unsigned char command)
 					act->que[k]=nothing;
 					actors_list[act->attached_actor]->que[k]=nothing;
 					add_command_to_actor(actor_id,command); //RECURSIVE!!!! should be done only one time
+					UNLOCK_ACTORS_LISTS();
 					return;
 				}
 			}
@@ -2228,6 +2228,7 @@ void add_command_to_actor(int actor_id, unsigned char command)
 			update_all_actors();
 		}
 	}
+	UNLOCK_ACTORS_LISTS();
 }
 
 
