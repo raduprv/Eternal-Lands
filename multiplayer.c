@@ -901,18 +901,21 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  break;
 				}
 				items = in_data[3];
-				if (data_length - 4  == items * 8 )
+
+				// only consider changing item_uid_enabled if we can be sure
+				if ((items > 0) && ((data_length - 4) > 0))
 				{
-					item_uid_enabled = 0;
+					if (data_length - 4 == items * 8 )
+						item_uid_enabled = 0;
+					else if (data_length - 4 == items * 10 )
+						item_uid_enabled = 1;
+					//printf("HERE_YOUR_INVENTORY item_uid_enabled=%d\n", item_uid_enabled);
+				}
+
+				if (item_uid_enabled == 0)
 					plen = 8;
-				}
-				else if (data_length - 4  == items * 10 )
-				{
-					item_uid_enabled = 1;
-					plen = 10;
-				}
 				else
-				plen = 8;
+					plen = 10;
 
 				if (data_length - 4 != items * plen)
 				{
