@@ -1,6 +1,6 @@
-eternallands (1.9.3-0ubuntu1) lucid; urgency=low
+eternallands (1.9.4-0ubuntu1) precise; urgency=low
 
   * Git Version: ##GIT_VERSION##
     See https://github.com/raduprv/Eternal-Lands/commits/
 
- -- Paul Broadhead <pjbroad@twinmoons.org.uk>  Sat, 09 Aug 2014 15:06:06 +0100
+ -- Paul Broadhead <pjbroad@twinmoons.org.uk>  Tue, 07 Apr 2015 22:51:10 +0100

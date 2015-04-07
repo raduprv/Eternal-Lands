@@ -20,14 +20,12 @@ Now we're ready:
 
 Set the version number
 
-	elver="1.9.3"
-	packagename="eternallands"
+	elver="1.9.4"
+	packagename="eternallands-rc"
 
 Checkout or update the client
 
 	git clone git://github.com/raduprv/Eternal-Lands.git elc
-
-	git pull
 
 Make an original source tar ball:
 
@@ -59,9 +57,7 @@ Unpack the debian files
 
 Make any modifications required then update the changelog:
 
-	sed -i s/^PLATFORM=/#PLATFORM/g make.defaults
-
-	dch -e
+	dch --release --force-save-on-release
 
 Build the package:
 

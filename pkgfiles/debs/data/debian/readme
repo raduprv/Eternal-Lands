@@ -20,7 +20,7 @@ Now we're ready:
 
 Set the version number
 
-	elver="1.9.3"
+	elver="1.9.4"
 	packagename="eternallands-data"
 	srcdir=$(pwd)
 
@@ -49,7 +49,7 @@ Move into package directory:
 
 Make any modifications required then update the changelog:
 
-	dch -e
+	dch --release --force-save-on-release
 
 Build the package:
 
