@@ -37,7 +37,7 @@ Copy packaging files:
 Append the licence file and clean up:
 
 	wget -O - http://www.eternal-lands.com/page/license.txt | fmt -w 79 >> ${packagename}-${elver}/debian/copyright
-	nedit ${packagename}-${elver}/debian/copyright
+	gedit ${packagename}-${elver}/debian/copyright
 
 Save the source archive:
 

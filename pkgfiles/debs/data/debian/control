@@ -3,7 +3,7 @@ Section: games
 Priority: optional
 Maintainer: Paul Broadhead <pjbroad@twinmoons.org.uk>
 Build-Depends: debhelper (>= 5)
-Standards-Version: 3.9.2
+Standards-Version: 3.9.6
 Homepage: http://www.eternal-lands.com
 
 Package: eternallands-data
@@ -17,5 +17,7 @@ Description: data package for Eternal Lands, a free MMORPG
  no fixed classes so you can improve any of the many skills.  There is a choice
  of several character races but all are equal. 
  .
- WARNING: Installing this package causes the Eternal Lands data archive to be
- downloaded from twinmoons.org.uk and installed.
+ NOTE: This package will download and install the Eternal Lands data
+ archive from twinmoons.org.uk.  This file is the same as the official
+ release but hosted to ensure the package continues to work if the
+ archive is moved or modified.

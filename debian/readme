@@ -21,7 +21,7 @@ Now we're ready:
 Set the version number
 
 	elver="1.9.4"
-	packagename="eternallands-rc"
+	packagename="eternallands"
 
 Checkout or update the client
 
@@ -30,6 +30,7 @@ Checkout or update the client
 Make an original source tar ball:
 
 	cd elc
+	make -f Makefile.linux gen_git_version
 	bash pkgfiles/maketarball ${packagename} ${elver}
 
 	cd ..
