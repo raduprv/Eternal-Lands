@@ -38,6 +38,7 @@ FEATURES += NEW_EYES			# Support for different eye colors, needs new data files
 #FEATURES += EL_BIG_ENDIAN		# Enable big-endian code (automatically detected for OSX)
 #FEATURES += NO_PF_MACRO		# Use a function instead of a macro for pf_get_tile()
 #FEATURES += SIMPLE_LOD			# enable a simplistic distance culling to improve performance
+#FEATURES += SOUND_FORK_BUGFIX	# needed for current linux static build to prevent crash when forking in url.c after F2 press and sound/music enabled
 
 ### Debug options ###
 #FEATURES += CONTEXT_MENUS_TEST		# Enable "#cmtest" command to help test/demo the context menu code

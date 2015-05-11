@@ -368,7 +368,11 @@ void open_web_link(const char * url)
 	if(*browser_name){
 #ifndef WINDOWS
 		static int have_set_signal = 0;
-		
+#ifdef SOUND_FORK_BUGFIX
+		int sound_on_copy = sound_on;
+		int music_on_copy = music_on;
+#endif
+
 		/* we're not interested in the exit status of the child so
 		   set SA_NOCLDWAIT to stop it becoming a zombie if we don't wait() */
 		if (!have_set_signal)
@@ -380,12 +384,27 @@ void open_web_link(const char * url)
 			sigaction(SIGCHLD, &act, NULL);
 			have_set_signal = 1;
 		}
-		
+
+#ifdef SOUND_FORK_BUGFIX
+		if (sound_on_copy)
+			toggle_sounds(&sound_on);
+		if (music_on_copy)
+			toggle_music(&music_on);
+#endif
+
 		if (fork() == 0){
 			execlp(browser_name, browser_name, url, NULL);
 			// in case the exec errors
 			_exit(1);
 		}
+
+#ifdef SOUND_FORK_BUGFIX
+		if (sound_on_copy)
+			toggle_sounds(&sound_on);
+		if (music_on_copy)
+			toggle_music(&music_on);
+#endif
+
 #else
 		// make a copy of the url string as it may be freed by the caller
 		// will be freed as the only_call_from_open_web_link__go_to_url() exits
