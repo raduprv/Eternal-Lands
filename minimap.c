@@ -153,7 +153,7 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 			x = a->x_tile_pos * size_x;
 			y = float_minimap_size - (a->y_tile_pos * size_y);
 
-			glColor3f(0.0f,0.0f,0.0f);
+			glColor4f(0.0f,0.0f,0.0f,1.0f);
 			glVertex2f(x+2*zoom_multip, y+2*zoom_multip);
 
 			if (a->kind_of_actor == NPC)
@@ -171,9 +171,9 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 				else
 				{	// Use the colour of their name. This gives purple bots, green demigods, etc.
 					int color = from_color_char (a->actor_name[0]);
-					glColor3ub (colors_list[color].r1,
+					glColor4ub (colors_list[color].r1,
 						colors_list[color].g1,
-						colors_list[color].b1);
+						colors_list[color].b1, 255);
 				}
 			}
 			else if(!a->is_enhanced_model)
