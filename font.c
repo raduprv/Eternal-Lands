@@ -1528,7 +1528,7 @@ int set_font_parameters (int num)
 
 	// load font information
 	// TODO: write this and remove the hack!
-	if(num!=1||num!=2)for(i=0; i<FONTS_ARRAY_SIZE*FONT_CHARS_PER_LINE; i++) fonts[num]->widths[i]=12;
+	for(i=0; i<FONTS_ARRAY_SIZE*FONT_CHARS_PER_LINE; i++) fonts[num]->widths[i]=12;
 	if(num==1){
 		static int widths[]={
 			4,2,7,11,8,12,12,2,7,7,9,10,3,8,
