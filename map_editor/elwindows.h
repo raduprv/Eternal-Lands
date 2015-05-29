@@ -3,6 +3,10 @@
 
 #include <SDL_types.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * A simple window handler setup to reduce the code needed to do windows
  *
@@ -179,6 +183,10 @@ int	draw_window_base(window_info *win);	// border & background
 //int	display_handler(window_info *win);
 //int	click_handler(window_info *win);
 //int	mouseover_handler(window_info *win);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif	//__EL_WINDOWS_H
 

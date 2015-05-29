@@ -1,6 +1,10 @@
 #ifndef __FONT_H__
 #define __FONT_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // constants for fonts
 #define FONT_START_CHAR	32	// first character in font.bmp
 #define FONT_CHARS_PER_LINE	14	// how manu chars per line in font.bmp?
@@ -41,6 +45,10 @@ int load_font(int num, char *file);
 int	set_font(int num);
 void remove_font(int num);
 int init_fonts();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif
 

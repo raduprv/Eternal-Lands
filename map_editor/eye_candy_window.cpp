@@ -7,15 +7,12 @@ TODO:
 
 #ifdef EYE_CANDY
 
-extern "C"
-{
 #include "global.h"
 #include "interface.h"
 #include "elwindows.h"
 #include "shadows.h"
 #include "gui.h"
 #include "editor.h"
-}
 
 #include "../eye_candy/eye_candy.h"
 #include <vector>
