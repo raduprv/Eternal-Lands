@@ -139,7 +139,7 @@ chmod +wr $inifile
 if [ ! -r ~/.elc/no.el.ini.check -a -n "$config" ]
 then
 	show_suppression=false
-	if [ "$(grep ^#data_dir $inifile | tail -1 | grep '^#data_dir = /usr/share/games/EternalLands$')" = "" ]
+	if [ "$(grep -a ^#data_dir $inifile | tail -1 | grep -a '^#data_dir = /usr/share/games/EternalLands$')" = "" ]
 	then
 		if zenity --question --text="Warning: $inifile does not use installed game data, shall I fix this problem?"
 		then
