@@ -1008,7 +1008,7 @@ static int click_manufacture_handler(window_info *win, int mx, int my, Uint32 fl
 
 
 			for(j=MIX_SLOT_OFFSET;j<MIX_SLOT_OFFSET+NUM_MIX_SLOTS;j++)
-				if(!manufacture_list[j].quantity > 0){
+				if(manufacture_list[j].quantity <= 0){
 					//found an empty space in the "production pipe"
 					if (flags & ELW_WHEEL_UP) return 1; //quantity already 0 in production pipeline
 					if (manufacture_list[pos].quantity < quantitytomove)
