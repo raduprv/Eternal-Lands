@@ -20,6 +20,7 @@
 // lower 7 bits - ybits
 #define BOTTOM_MASK  0x007f
 
+#ifdef _ENABLE_USUSED_CODE_
 Uint16 compress_normal(const float *normal)
 {
 	float tmp[3];
@@ -27,6 +28,12 @@ Uint16 compress_normal(const float *normal)
 	Uint32 xbits, ybits;
 	Uint16 result;
 
+/* Assume this is needed if this is to work.....
+ * but the function is unused anyway
+ * added _ENABLE_USUSED_CODE_
+ * 
+ * 	memcpy(tmp, normal, sizeof(float)*3);
+ */
 	result = 0;
 
 	if (tmp[0] < 0.0f)
@@ -76,6 +83,7 @@ Uint16 compress_normal(const float *normal)
 
 	return result;
 }
+#endif
 
 void uncompress_normal(const Uint16 value, float *normal)
 {
