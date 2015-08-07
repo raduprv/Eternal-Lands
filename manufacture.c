@@ -42,7 +42,7 @@ static item manufacture_list[ITEM_NUM_ITEMS];
 static int recipe_win= -1;
 static size_t cm_recipewin = CM_INIT_VALUE;
 
-enum { CMRIC_ADD=0, CMRIC_CLEAR, CMRIC_SORT };
+enum { CMRIC_ADD=0, CMRIC_CLEAR, CMRIC_DELETE, CMRIC_SORT };
 
 typedef struct
 {
@@ -1315,6 +1315,17 @@ static int recipe_is_empty(const recipe_entry *recipe)
 	return 1;
 }
 
+// clear the specified recipe entry
+static void clear_recipe(size_t recipe_index)
+{
+	size_t i;
+	if (recipe_index >= num_recipe_entries)
+		return;
+	for(i=0; i<NUM_MIX_SLOTS; i++)
+		recipes_store[recipe_index].items[i].quantity = 0;
+	clear_recipe_name(recipe_index);
+}
+
 // compare to recipes by name, or if both un-named, by oif they are empty
 static int recipe_cmp(const void *a, const void *b)
 {
@@ -1355,14 +1366,21 @@ static int context_recipe_handler(window_info *win, int widget_id, int mx, int m
 		case CMRIC_CLEAR:
 		{
 			// clear the current recipe
-			size_t i;
-			for(i=0; i<NUM_MIX_SLOTS; i++)
-				recipes_store[cur_recipe].items[i].quantity = 0;
-			clear_recipe_name(cur_recipe);
+			clear_recipe(cur_recipe);
+			break;
+		}
+		case CMRIC_DELETE:
+		{
+			// delete the current recipe and move the rest down to fill the gap
+			if (cur_recipe < (num_recipe_entries - 1))
+				memmove(&recipes_store[cur_recipe], &recipes_store[cur_recipe+1],
+					(num_recipe_entries - cur_recipe -1) * sizeof(recipe_entry));
+			clear_recipe(num_recipe_entries - 1);
 			break;
 		}
 		case CMRIC_SORT:
 		{
+			// alphabetically sort the recipes by name, unnamed then empty slots at the end
 			qsort(recipes_store, num_recipe_entries, sizeof(recipe_entry), recipe_cmp);
 			break;
 		}
@@ -1378,6 +1396,7 @@ static void context_recipe_pre_show_handler(window_info *win, int widget_id, int
 	int first_shown = vscrollbar_get_pos (win->window_id, recipe_win_scroll_id);
 	cm_grey_line(cm_recipewin, CMRIC_ADD, (wanted_num_recipe_entries >= max_num_recipe_entries));
 	cm_grey_line(cm_recipewin, CMRIC_CLEAR, (cur_recipe < first_shown) || (cur_recipe >= first_shown + num_displayed_recipes));
+	cm_grey_line(cm_recipewin, CMRIC_DELETE, (cur_recipe < first_shown) || (cur_recipe >= first_shown + num_displayed_recipes));
 }
 
 void display_manufacture_menu()
