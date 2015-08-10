@@ -1,5 +1,5 @@
-eternallands-sound (1.9.2-0ubuntu1) hardy; urgency=low
+eternallands-sound (1.9.4-0ubuntu1) precise; urgency=low
 
-  * Update to envonment sounds - cavern wall collapse
+  * Update for 1.9.4 client - fix warning sound types
 
- -- Paul Broadhead <pjbroad@twinmoons.org.uk>  Sun, 07 Aug 2011 13:57:42 +0100
+ -- Paul Broadhead <pjbroad@twinmoons.org.uk>  Mon, 10 Aug 2015 22:33:32 +0100

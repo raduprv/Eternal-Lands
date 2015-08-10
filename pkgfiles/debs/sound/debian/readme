@@ -19,7 +19,7 @@ Now we're ready:
 
 Set the version number
 	
-	elver="1.9.2"
+	elver="1.9.4"
 	packagename="eternallands-sound"
 
 Make a destination directory:
@@ -30,7 +30,6 @@ Copy packaging files:
 
 	rm -rf ${packagename}-${elver}/debian
 	cp -a sound/debian/ ${packagename}-${elver}/
-	rm -rf ${packagename}-${elver}/debian/CVS
 
 Append the licence file and clean up:
 
@@ -47,7 +46,7 @@ Move into package directory:
 
 Make any modifications required then update the changelog:
 
-	dch -i
+	dch --release --force-save-on-release
 
 Build the package:
 
