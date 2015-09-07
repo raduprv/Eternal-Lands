@@ -1193,7 +1193,7 @@ void draw_game_map (int map, int mouse_mini)
 }
 
 
-int put_mark_on_position(int map_x, int map_y, char * name)
+int put_mark_on_position(int map_x, int map_y, const char * name)
 {
 		if (map_x < 0
 		|| map_x >= tile_map_size_x*6
@@ -1227,51 +1227,19 @@ int put_mark_on_position(int map_x, int map_y, char * name)
 
 void put_mark_on_map_on_mouse_position()
 {
-		if (pf_get_mouse_position(mouse_x, mouse_y, &mark_x, &mark_y)) {
-				/* Lachesis: reusing available code from pathfinder.c
-        int min_mouse_x = (window_width-hud_x)/6;
-        int min_mouse_y = 0;
-
-        int max_mouse_x = min_mouse_x+((window_width-hud_x)/1.5);
-        int max_mouse_y = window_height - hud_y;
-
-        int screen_map_width = max_mouse_x - min_mouse_x;
-        int screen_map_height = max_mouse_y - min_mouse_y;
-
-        // FIXME (Malaclypse): should be moved above the screen_map_* init, to avoid additional computation
-        if (mouse_x < min_mouse_x
-        || mouse_x > max_mouse_x
-        || mouse_y < min_mouse_y
-        || mouse_y > max_mouse_y) {
-                return;
-        }
-
-        mark_x = ((mouse_x - min_mouse_x) * tile_map_size_x * 6) / screen_map_width;
-        mark_y = (tile_map_size_y * 6) - ((mouse_y * tile_map_size_y * 6) / screen_map_height);
-				*/
-        adding_mark = 1;
-		}
+	if (pf_get_mouse_position(mouse_x, mouse_y, &mark_x, &mark_y))
+		adding_mark = 1;
 }
-int put_mark_on_current_position(char *name)
+int put_mark_on_current_position(const char *name)
 {
 	actor *me = get_our_actor ();
 
 	if (me != NULL)
-	{	
+	{
 		if (put_mark_on_position(me->x_tile_pos, me->y_tile_pos, name))
 			return 1;
-		/* Lachesis: reusing available code
-		marks[max_mark].x = me->x_tile_pos;
-		marks[max_mark].y = me->y_tile_pos;
-		memset(marks[max_mark].text,0,500);
-		
-		my_strncp(marks[max_mark].text,name,500);
-		marks[max_mark].text[strlen(marks[max_mark].text)]=0;
-		max_mark++;
-		save_markings();
-		*/
 	}
-	return 0;		
+	return 0;
 }
 
 void delete_mark_on_map_on_mouse_position()

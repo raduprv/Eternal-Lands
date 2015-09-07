@@ -353,7 +353,7 @@ void delete_mark_on_map_on_mouse_position();
  *
  * \pre If the position is outside the map area, this function will return without performing any actions.
  */
-int put_mark_on_position(int map_x, int map_y, char * name);
+int put_mark_on_position(int map_x, int map_y, const char * name);
 
 /*!
  * \ingroup interfaces
@@ -378,7 +378,7 @@ void put_mark_on_map_on_mouse_position();
  *
  * \pre If we don't have an active actor, this function won't perform any actions further actions.
  */
-int put_mark_on_current_position(char *name);
+int put_mark_on_current_position(const char *name);
 
 /*!
  * \ingroup interfaces
