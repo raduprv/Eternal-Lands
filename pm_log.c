@@ -19,7 +19,7 @@ char afk_message[MAX_TEXT_MESSAGE_LENGTH]={0};
 char afk_title[101];
 int afk_local = 0;
 
-struct pm_struct pm_log;
+static struct pm_struct pm_log;
 
 void print_return_message(void);    /* forward declaration */
 
@@ -27,20 +27,21 @@ void free_pm_log()
 {
 	int i;
 
-	for(;--pm_log.ppl>=0;)                                           
-		{                                                       
-			pm_log.afk_msgs[pm_log.ppl].msgs=0;
-			free(pm_log.afk_msgs[pm_log.ppl].name); 
-			pm_log.afk_msgs[pm_log.ppl].name=NULL;
-			for(i=pm_log.afk_msgs[pm_log.ppl].msgs;--i>=0;)
-				{
-					free(pm_log.afk_msgs[pm_log.ppl].messages[i]); 
-					pm_log.afk_msgs[pm_log.ppl].messages[i]=NULL;
-				}
+	while (pm_log.ppl > 0)
+	{
+		--pm_log.ppl;
+		pm_log.afk_msgs[pm_log.ppl].msgs = 0;
+		free(pm_log.afk_msgs[pm_log.ppl].name);
+		pm_log.afk_msgs[pm_log.ppl].name = NULL;
+		for(i = pm_log.afk_msgs[pm_log.ppl].msgs - 1; i >= 0; --i)
+		{
+			free(pm_log.afk_msgs[pm_log.ppl].messages[i]);
+			pm_log.afk_msgs[pm_log.ppl].messages[i] = NULL;
 		}
+	}
 	free(pm_log.afk_msgs);
-	pm_log.afk_msgs=NULL;
-	pm_log.msgs=pm_log.ppl=0;
+	pm_log.afk_msgs = NULL;
+	pm_log.msgs = 0;
 }
 
 void go_afk()
@@ -86,7 +87,7 @@ void check_afk_state(void)
 void print_title(char * no, char * name, char * messages)
 {
 	char * ptr = afk_title;
-	
+
 	memset(afk_title,' ',100);
 	while(*no)*ptr++=*no++;
 	*ptr=':';
@@ -128,10 +129,22 @@ void print_return_message()
 
 void print_message(int no)
 {
-	int m=-1;
+	if (no >= 0 && no < pm_log.ppl)
+	{
+		int m;
+		for (m = 0; m < pm_log.afk_msgs[no].msgs; ++m)
+			LOG_TO_CONSOLE(c_blue1,pm_log.afk_msgs[no].messages[m]);
+	}
+}
 
-	while(++m<pm_log.afk_msgs[no].msgs)
-		LOG_TO_CONSOLE(c_blue1,pm_log.afk_msgs[no].messages[m]);
+void print_all_messages()
+{
+	int no, m;
+	for (no = 0; no < pm_log.ppl; ++no)
+	{
+		for (m = 0; m < pm_log.afk_msgs[no].msgs; ++m)
+			LOG_TO_CONSOLE(c_blue1,pm_log.afk_msgs[no].messages[m]);
+	}
 }
 
 int have_name(char *name, int len)

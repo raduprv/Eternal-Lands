@@ -1294,19 +1294,18 @@ int command_log_conn_data(char *text, int len)
 // TODO: make this automatic or a better command, m is too short
 int command_msg(char *text, int len)
 {
-	int no;//, m=-1;
+	int no;
 
 	// find first space, then skip any spaces
 	text = getparams(text);
-	if(my_strncompare(text, "all", 3)) {
-		for(no = 0; no < pm_log.ppl; no++) {
-			print_message(no);
-		}
-	} else {
+	if(my_strncompare(text, "all", 3))
+	{
+		print_all_messages();
+	}
+	else
+	{
 		no = atoi(text) - 1;
-		if(no < pm_log.ppl && no >= 0) {
-			print_message(no);
-		}
+		print_message(no);
 	}
 	return 1;
 }

@@ -243,7 +243,7 @@ int start_rendering()
 	LOG_INFO("Client closed");
 	SDL_WaitThread(network_thread,&done);
 	queue_destroy(message_queue);
-	if(pm_log.ppl)free_pm_log();
+	free_pm_log();
 
 	//save all local data
 	save_local_data(NULL, 0);

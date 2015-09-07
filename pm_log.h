@@ -35,7 +35,6 @@ struct pm_struct
         afk_struct * afk_msgs; /*!< array of \see afk_struct elements */
 };
 
-extern struct pm_struct pm_log;
 extern int afk; /*!< flag indicating whether a player is currently AFK or not */
 extern int last_action_time; /*!< timestamp of the last action for this player */
 extern int afk_time; /*!< number of minutes after which the client will go AFK automatically. This can be set via the el.ini file. */
@@ -119,6 +118,13 @@ void send_afk_message (const char *server_msg, int len, Uint8 channel);
  * \param no    the number of the message to print
  */
 void print_message(int no);
+/*!
+ * \ingroup actor_utils
+ * \brief Prints all messages
+ *
+ *     Print all messages from all users received while afk.
+ */
+void print_all_messages();
 
 /*!
  * \ingroup network_actors
