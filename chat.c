@@ -1811,7 +1811,7 @@ int add_tab_button (Uint8 channel)
 			// already there
 			return itab;
 	}
-	
+
 	if (tabs_in_use >= MAX_CHAT_TABS)
 		// no more room. Shouldn't happen anyway.
 		return -1;
@@ -1825,23 +1825,22 @@ int add_tab_button (Uint8 channel)
 	label = chan->name;
 	tabs[tabs_in_use].description = chan->description;
 
-	tabs[tabs_in_use].button = button_add_extended (tab_bar_win, cur_button_id++, NULL, tab_bar_width, 0, 0, tab_bar_height, 0, 0.75, 0.77f, 0.57f, 0.39f, label);
+	tabs[tabs_in_use].button = button_add_extended(tab_bar_win, cur_button_id++, NULL, tab_bar_width, 0, 0, tab_bar_height, BUTTON_SQUARE, 0.75, 0.77f, 0.57f, 0.39f, label);
 	if(channel == CHAT_HIST || channel == CHAT_LIST) {
 		//a couple of special cases
-		widget_set_OnClick (tab_bar_win, tabs[itab].button, tab_special_click);
-		widget_set_color (tab_bar_win, tabs[itab].button, 0.5f, 0.75f, 1.0f);
+		widget_set_OnClick (tab_bar_win, tabs[tabs_in_use].button, tab_special_click);
+		widget_set_color (tab_bar_win, tabs[tabs_in_use].button, 0.5f, 0.75f, 1.0f);
 	} else {
 		//general case
-		widget_set_OnClick (tab_bar_win, tabs[itab].button, tab_bar_button_click);
+		widget_set_OnClick (tab_bar_win, tabs[tabs_in_use].button, tab_bar_button_click);
 	}
-	widget_set_OnMouseover (tab_bar_win, tabs[itab].button, chan_tab_mouseover_handler);
-	widget_set_type(tab_bar_win, tabs[itab].button, &square_button_type); 
+	widget_set_OnMouseover (tab_bar_win, tabs[tabs_in_use].button, chan_tab_mouseover_handler);
  	// Handlers for the 'x'
  	// Make sure it's a CHANNEL first
- 	if(tabs[itab].channel == CHAT_CHANNEL1 || tabs[itab].channel == CHAT_CHANNEL2 ||
- 	   tabs[itab].channel == CHAT_CHANNEL3)
+	if(tabs[tabs_in_use].channel == CHAT_CHANNEL1 || tabs[tabs_in_use].channel == CHAT_CHANNEL2 ||
+		tabs[tabs_in_use].channel == CHAT_CHANNEL3)
  	{
- 		widget_set_OnDraw (tab_bar_win, tabs[itab].button, draw_tab_details);
+ 		widget_set_OnDraw (tab_bar_win, tabs[tabs_in_use].button, draw_tab_details);
  	}
 	tab_bar_width += widget_get_width (tab_bar_win, tabs[tabs_in_use].button)+1;
 	resize_window (tab_bar_win, tab_bar_width, tab_bar_height);

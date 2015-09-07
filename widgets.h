@@ -43,25 +43,6 @@ struct WIDGET_TYPE {
     // We can conceivably store other generic info here too
 } ;
 
-/*!
- * These are the type declarations for widgets.c
-  */
-extern const struct WIDGET_TYPE label_type;
-extern const struct WIDGET_TYPE image_type;
-extern const struct WIDGET_TYPE checkbox_type;
-extern const struct WIDGET_TYPE round_button_type;
-extern const struct WIDGET_TYPE square_button_type;
-extern const struct WIDGET_TYPE progressbar_type;
-extern const struct WIDGET_TYPE vscrollbar_type;
-extern const struct WIDGET_TYPE tab_collection_type;
-extern const struct WIDGET_TYPE text_field_type;
-extern const struct WIDGET_TYPE pword_field_type;
-extern const struct WIDGET_TYPE multiselect_type;
-extern const struct WIDGET_TYPE spinbutton_type;
-
-// Type Conversion Function - TODO : Document'
-int widget_set_type (int window_id, Uint32 widget_id, const struct WIDGET_TYPE *type);
-
 typedef struct {
 	int pos, pos_inc, bar_len;
 }vscrollbar;
@@ -109,13 +90,14 @@ typedef struct wl{
 #define WIDGET_CLICK_TRANSPARENT 0x100
 /*! \} */
 
-#ifdef NEW_NEW_CHAR_WINDOW
 /*!
  * \name	Flags for the buttons
  */
 /*! \{ */
+#ifdef NEW_NEW_CHAR_WINDOW
 #define BUTTON_ACTIVE 0x400
 #endif
+#define BUTTON_SQUARE 0x800
 
 /*!
  * \name	Flags for the text field

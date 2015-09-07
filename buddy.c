@@ -551,9 +551,8 @@ void display_buddy()
 			set_window_handler(buddy_win, ELW_HANDLER_CLICK, &click_buddy_handler );
 
 			buddy_scroll_id = vscrollbar_add_extended (buddy_win, buddy_scroll_id, NULL, 130, 20, 20, 180, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, MAX_BUDDY-19);
-			buddy_button_id = button_add_extended(buddy_win, buddy_button_id, NULL, 0, buddy_menu_y_len-20, buddy_menu_x_len, 20, 0, 1.0, -1.0, -1.0, -1.0, buddy_add_str);
+			buddy_button_id = button_add_extended(buddy_win, buddy_button_id, NULL, 0, buddy_menu_y_len-20, buddy_menu_x_len, 20, BUTTON_SQUARE, 1.0, -1.0, -1.0, -1.0, buddy_add_str);
 			widget_set_OnClick(buddy_win, buddy_button_id, click_buddy_button_handler);
-			widget_set_type(buddy_win, buddy_button_id, &square_button_type); 
 		}
 	else
 		{
