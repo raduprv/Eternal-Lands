@@ -415,18 +415,6 @@ void console_move_page_down();
  */
 void console_move_page_up();
 
-// XXX FIXME (Grum): obsolete
-///*!
-// * \ingroup interface_console
-// * \brief displays the console text
-// *
-// *      Switches to console mode and displays the txt.
-// *
-// * \callgraph
-// */
-//void display_console_text();
-
-
 /*!
  * \ingroup text_font
  * \brief Clears the text buffer
