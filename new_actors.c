@@ -941,8 +941,10 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	my_strncp(this_actor->hair_tex,actors_defs[actor_type].hair[hair].hair_name,sizeof(this_actor->hair_tex));
 #ifdef NEW_EYES
 	//eyes
-	if (actors_defs[actor_type].eyes[eyes].eyes_name)
+	if (actors_defs[actor_type].eyes && actors_defs[actor_type].eyes[eyes].eyes_name)
+	{
 		my_strncp(this_actor->eyes_tex,actors_defs[actor_type].eyes[eyes].eyes_name,sizeof(this_actor->eyes_tex));
+	}
 	else
 	{
 		static int already_said = 0;
