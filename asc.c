@@ -15,12 +15,6 @@
 # include "misc.h"
 #endif //MAP_EDITOR
 
-/* NOTE: This file contains implementations of the following, currently unused and commented functions:
- *          Look at the end of the file.
- *
- * Sint32 get_string_after_string(const Uint8*, const Uint8*, Sint32, Uint*, int);
- */
-
 #ifndef LINUX
 int my_UTF8Toisolat1(char **dest, size_t * lu, const char **src, size_t * len);
 #else
@@ -475,40 +469,6 @@ int get_file_digest(const char * filename, Uint8 digest[16])
 	
 	return 1;
 }
-
-/* currently UNUSED
-//find & copy a string into memory
-//return the length or -1 if not found
-Sint32 get_string_after_string(const Uint8 * source_pointer, const Uint8 * dest_pointer, Sint32 max_len, Uint8 *value, Sint32 value_len)
-{
-	int i;
-	int loc=get_string_occurance(source_pointer, dest_pointer, max_len, 0);
-
-	if (loc < 0)
-		{
-			return -1;
-		}
-	// now copy the string
-	for(i=0;i<value_len-1;i++)
-		{
-			Uint8 ch;
-			ch=dest_pointer[loc+i];
-			if(ch==0x0a || ch==0x0d)break;
-  			value[i]=ch;
-		}
-	value[i]=0;	// always place a NULL
-
-	return(i);
-}
-
-void get_string_digest(const Uint8 * string, Uint8 digest[16])
-{
-	MD5 md5;
-	MD5Open(&md5);
-	MD5Digest(&md5, string, strlen(string));
-	MD5Close(&md5, digest);
-}
-*/
 
 int find_description_index (const dict_elem dict[], const char *elem, const char *desc) {
 	int idx = 0;

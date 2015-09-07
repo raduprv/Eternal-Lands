@@ -11,12 +11,6 @@
 #include "asc.h"
 #endif
 
-/* NOTE: This file contains implementations of the following, currently unused, and commented functions:
- *          Look at the end of the file.
- *
- * void change_cursor_show(int);
- */
-
 #define OBJ_NAME_SIZE           80
 #define MAX_CURSORS		20
 #define MAX_HARVESTABLE_OBJECTS 300
@@ -340,12 +334,3 @@ void build_cursors()
 	cursors_array[CURSOR_TEXT].hot_y=3;
 	assign_cursor(CURSOR_TEXT);
 }
-
-/* currently UNUSED
-void change_cursor_show(int cursor_id)
-{
-	SDL_SetCursor((SDL_Cursor*)cursors_array[cursor_id].cursor_pointer);
-	current_cursor=cursor_id;
-	SDL_WarpMouse(mouse_x,mouse_y);
-}
-*/

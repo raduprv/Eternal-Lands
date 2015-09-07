@@ -23,12 +23,6 @@
 #include "draw_scene.h"
 #endif // SKY_FPV_OPTIONAL
 
-/* NOTE: This file contains implementations of the following, currently unused, and commented functions:
- *          Look at the end of the file.
- *
- * void remove_font(int);
- */
-
 #define FONT_START_CHAR	32
 #define FONT_CHARS_PER_LINE	14
 #define	FONT_X_SPACING	18
@@ -1576,18 +1570,3 @@ int	set_font(int num)
 
 	return cur_font_num;
 }
-
-/* currently UNUSED
-void remove_font(int num)
-{
-	if(num < max_fonts && fonts[num])
-		{
-			free(fonts[num]);
-			fonts[num]=NULL;
-			if (num == max_fonts-1)
-				{
-					max_fonts--;
-				}
-		}
-}
-*/

@@ -35,12 +35,6 @@
 #include "image_loading.h"
 #endif	/* NEW_TEXTURES */
 
-/* NOTE: This file contains implementations of the following, currently unused, and commented functions:
- *          Look at the end of the file.
- *
- * void dump_part_sys_info();
- */
-
 #ifdef NEW_SOUND
 int real_add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos, unsigned int dynamic);
 #endif // NEW_SOUND
@@ -1704,39 +1698,6 @@ void add_teleporters_from_list (const Uint8 *teleport_list)
 	UNLOCK_PARTICLES_LIST();
 
 }
-
-/* currently UNUSED
-void dump_part_sys_info()
-{
-	char str[256];
-	int i,partdefs=0,partsys=0;
-	LOG_TO_CONSOLE(c_grey1,particle_system_dump);
-	if(!particles_percentage)
-		{
-			LOG_TO_CONSOLE(c_grey1,particles_disabled_str);
-			return;
-		}
-	if(have_point_sprite)
-	  LOG_TO_CONSOLE(c_grey1,point_sprites_enabled);
-	else
-	  LOG_TO_CONSOLE(c_grey1,using_textured_quads);
-	LOG_TO_CONSOLE(c_grey1,definitions_str);
-	for(i=0;i<MAX_PARTICLE_DEFS;i++)
-		if(defs_list[i])
-			{
-				partdefs++;
-				LOG_TO_CONSOLE(c_grey1,defs_list[i]->file_name);
-			}
-	safe_snprintf(str, sizeof(str), "#%s: %i",my_tolower(definitions_str),partdefs);
-	LOG_TO_CONSOLE(c_grey1,str);
-	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)
-		if(particles_list[i])partsys++;
-	safe_snprintf(str, sizeof(str), "#%s: %i",part_sys_str,partsys);
-	LOG_TO_CONSOLE(c_grey1,str);
-	safe_snprintf(str, sizeof(str), "#%s: %i%%",part_part_str,particles_percentage);
-	LOG_TO_CONSOLE(c_grey1,str);
-}
-*/
 #endif // ELC
 
 #ifdef MAP_EDITOR

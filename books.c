@@ -30,12 +30,6 @@
  #endif   //OSX
 #endif   //BSD
 
-/* NOTE: This file contains implementations of the following, currently unused, and commented functions:
- *          Look at the end of the file.
- *
- * int have_book(int);
- */
-
 #define _TITLE 0
 #define _AUTHOR 1
 #define _TEXT 2
@@ -1172,16 +1166,3 @@ void free_books()
 	if(books)
 		free_book(books);
 }
-
-/* currently UNUSED
-int have_book(int id)
-{
-	book *b=books;
-	if(b){
-		for(;b->next;b=b->next){
-			if(b->id==id) return 1;
-		}
-	}
-	return 0;
-}
-*/

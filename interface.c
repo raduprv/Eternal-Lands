@@ -42,12 +42,6 @@
 
 #define DEFAULT_CONTMAPS_SIZE 20
 
-/* NOTE: This file contains implementations of the following, currently unused, and commented functions:
- *          Look at the end of the file.
- *
- * void draw_menu_title_bar(int, int, int);
- */
-
 int mouse_x = 0;
 int mouse_y = 0;
 int right_click = 0;
@@ -1382,68 +1376,3 @@ void resize_all_root_windows (Uint32 w, Uint32 h)
 	resize_newchar_hud_window();
 #endif
 }
-
-/* currently UNUSED
-void draw_menu_title_bar(int x, int y, int x_len)
-{
-	float u_first_start=(float)31/256;
-	float u_first_end=0;
-	float v_first_start=1.0f-(float)160/256;
-	float v_first_end=1.0f-(float)175/256;
-
-	float u_middle_start=(float)32/256;
-	float u_middle_end=(float)63/256;
-	float v_middle_start=1.0f-(float)160/256;
-	float v_middle_end=1.0f-(float)175/256;
-
-	float u_last_start=0;
-	float u_last_end=(float)31/256;
-	float v_last_start=1.0f-(float)160/256;
-	float v_last_end=1.0f-(float)175/256;
-
-	int segments_no;
-	int i;
-
-	glColor3f(1.0f,1.0f,1.0f);
-	//ok, now draw that shit...
-	segments_no=x_len/32;
-
-	get_and_set_texture_id(icons_text);
-	glEnable(GL_ALPHA_TEST);
-    glAlphaFunc(GL_GREATER,0.03f);
-	glBegin(GL_QUADS);
-
-	glTexCoord2f(u_first_end,v_first_start);
-	glVertex3i(x,y,0);
-	glTexCoord2f(u_first_end,v_first_end);
-	glVertex3i(x,y+16,0);
-	glTexCoord2f(u_first_start,v_first_end);
-	glVertex3i(x+32,y+16,0);
-	glTexCoord2f(u_first_start,v_first_start);
-	glVertex3i(x+32,y,0);
-
-	for(i=1;i<segments_no-1;i++)
-		{
-			glTexCoord2f(u_middle_end,v_middle_start);
-			glVertex3i(x+i*32,y,0);
-			glTexCoord2f(u_middle_end,v_middle_end);
-			glVertex3i(x+i*32,y+16,0);
-			glTexCoord2f(u_middle_start,v_middle_end);
-			glVertex3i(x+i*32+32,y+16,0);
-			glTexCoord2f(u_middle_start,v_middle_start);
-			glVertex3i(x+i*32+32,y,0);
-		}
-
-	glTexCoord2f(u_last_end,v_last_start);
-	glVertex3i(x+i*32,y,0);
-	glTexCoord2f(u_last_end,v_last_end);
-	glVertex3i(x+i*32,y+16,0);
-	glTexCoord2f(u_last_start,v_last_end);
-	glVertex3i(x+i*32+32,y+16,0);
-	glTexCoord2f(u_last_start,v_last_start);
-	glVertex3i(x+i*32+32,y,0);
-
-	glEnd();
-	glDisable(GL_ALPHA_TEST);
-}
-*/

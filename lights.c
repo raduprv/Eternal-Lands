@@ -29,12 +29,6 @@ const float debug_time_accel = 120.0f;
 Uint64 old_time = 0;
 #endif
 
-/* NOTE: This file contains implementations of the following, currently unused, and commented functions:
- *          Look at the end of the file.
- *
- * void draw_test_light();
- */
-
 typedef struct
 {
 	float x;
@@ -672,18 +666,3 @@ void light_idle()
 	old_time = new_time;
 }
 #endif // DEBUG_TIME
-
-/* currently UNUSED
-void draw_test_light()
-{
-	GLfloat light_position[] = { 15.0, 15.0, 3.0, 1.0 };
-	GLfloat light_position_2[] = { 5.0, 5.0, -3.0, 1.0 };
-	GLfloat spot_direction[] = { 0.0, 0.0, -1.0f };
-
-	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spot_direction);
-
-	glLightfv(GL_LIGHT1, GL_POSITION, light_position_2);
-	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spot_direction);
-}
-*/

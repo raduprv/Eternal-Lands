@@ -21,13 +21,6 @@
 #include "widgets.h"
 #include "sound.h"
 
-/* NOTE: This file contains implementations of the following, currently unused, and commented functions:
- *          Look at the end of the file.
- *
- * int find_window(const char*);
- * void* get_window_handler(int, int);
- */
-
 #define ELW_WIN_MAX 128
 
 windows_info	windows_list;	// the master list of windows
@@ -1959,59 +1952,3 @@ int get_window_scroll_pos(int win_id)
 	else
 		return 0;
 }
-
-/* currently UNUSED
-int	find_window(const char *name)
-{
-	int	win_id= -1;
-	int	i;
-
-	for(i=0; i<windows_list.num_windows; i++)
-		{
-			if(!strcmp(windows_list.window[win_id].window_name, name))
-				{
-					win_id= i;
-					break;
-				}
-		}
-
-	return win_id;
-}
-
-void	*get_window_handler(int win_id, int handler_id)
-{
-	void	*old_handler;
-
-	// get the information
-	switch(handler_id){
-		case	ELW_HANDLER_INIT:
-			old_handler= (void *)windows_list.window[win_id].init_handler;
-			break;
-		case	ELW_HANDLER_DISPLAY:
-			old_handler= (void *)windows_list.window[win_id].display_handler;
-			break;
-		case	ELW_HANDLER_CLICK:
-			old_handler= (void *)windows_list.window[win_id].click_handler;
-			break;
-		case	ELW_HANDLER_DRAG:
-			old_handler= (void *)windows_list.window[win_id].drag_handler;
-			break;
-		case	ELW_HANDLER_MOUSEOVER:
-			old_handler= (void *)windows_list.window[win_id].mouseover_handler;
-			break;
-		case	ELW_HANDLER_RESIZE:
-			old_handler= (void *)windows_list.window[win_id].resize_handler;
-			break;
-		case	ELW_HANDLER_KEYPRESS:
-			old_handler= (void *)windows_list.window[win_id].keypress_handler;
-			break;
-		case	ELW_HANDLER_DESTROY:
-			old_handler= (void *)windows_list.window[win_id].destroy_handler;
-			break;
-		default:
-			old_handler=NULL;
-	}
-
-	return old_handler;
-}
-*/
