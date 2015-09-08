@@ -81,9 +81,9 @@ int action_mode=ACTION_WALK;
 
 Uint32 click_time=0;
 
-GLdouble model_mat[16];
-GLdouble projection_mat[16];
-GLint viewport[4];
+static GLdouble model_mat[16];
+static GLdouble projection_mat[16];
+static GLint viewport[4];
 
 // Grum: attempt to work around bug in Ati linux drivers.
 int ati_click_workaround = 0;
