@@ -1512,8 +1512,6 @@ int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-char tmp_tab_label[20];
-
 chan_name *tab_label (Uint8 chan)
 {
 	//return pointer after stepping through chan_name_queue
