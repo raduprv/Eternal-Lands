@@ -902,28 +902,28 @@ Uint32 free_e3d_va(e3d_object *e3d_id)
 {
 	set_all_intersect_update_needed(main_bbox_tree);
 
-	if (e3d_id != NULL)
+	if (e3d_id == NULL)
+		return 0;
+
+	if (e3d_id->vertex_data != NULL)
 	{
-		if (e3d_id->vertex_data != NULL)
-		{
-			free(e3d_id->vertex_data);
-			e3d_id->vertex_data = NULL;
-		}
-		if (e3d_id->indices != NULL)
-		{
-			free(e3d_id->indices);
-			e3d_id->indices = NULL;
-		}
-		if (e3d_id->vertex_vbo != 0)
-		{
-			ELglDeleteBuffersARB(1, &e3d_id->vertex_vbo);
-			e3d_id->vertex_vbo = 0;
-		}
-		if (e3d_id->indices_vbo != 0)
-		{
-			ELglDeleteBuffersARB(1, &e3d_id->indices_vbo);
-			e3d_id->indices_vbo = 0;
-		}
+		free(e3d_id->vertex_data);
+		e3d_id->vertex_data = NULL;
+	}
+	if (e3d_id->indices != NULL)
+	{
+		free(e3d_id->indices);
+		e3d_id->indices = NULL;
+	}
+	if (e3d_id->vertex_vbo != 0)
+	{
+		ELglDeleteBuffersARB(1, &e3d_id->vertex_vbo);
+		e3d_id->vertex_vbo = 0;
+	}
+	if (e3d_id->indices_vbo != 0)
+	{
+		ELglDeleteBuffersARB(1, &e3d_id->indices_vbo);
+		e3d_id->indices_vbo = 0;
 	}
 
 	if (e3d_id->cache_ptr != NULL)
