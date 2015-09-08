@@ -57,7 +57,6 @@ int username_text_length=0;
 int password_text_length=0;
 
 int have_a_map=0;
-int auto_camera=0;
 int view_health_bar=1;
 int view_ether_bar=0;
 int view_names=1;

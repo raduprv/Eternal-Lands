@@ -1609,10 +1609,6 @@ void next_command()
 								targeted_z_rot=(actors_list[i]->que[0]-move_n)*45.0f;
 								rotation_angle=get_rotation_vector(z_rot,targeted_z_rot);
 								actors_list[i]->rotate_z_speed=rotation_angle/360.0;
-								if(auto_camera && actors_list[i]->actor_id==yourself){
-									camera_rotation_speed=rotation_angle/1000.0;
-									camera_rotation_duration=1000;
-								}
 
 								actors_list[i]->rotate_time_left=360;
 								actors_list[i]->rotating=1;

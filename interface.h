@@ -16,7 +16,6 @@ extern "C" {
 #define MAX_USERNAME_LENGTH (15 + 1)
 
 extern int have_a_map;  /*!< flag indicating whether a map is available or not */
-extern int auto_camera; /*!< if this is true, we are using the auto camera */
 
 /*! \name Action types */
 /*! @{ */
@@ -72,7 +71,6 @@ extern char display_password_str[20]; /*!< a string that will be displayed when 
 
 extern int cons_text;
 extern int icons_text;
-extern int hud_text;
 
 extern int ranging_lock;
 extern int auto_disable_ranging_lock;
