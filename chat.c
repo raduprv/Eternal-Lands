@@ -1086,25 +1086,25 @@ int current_tab = 0;
 int tab_bar_width = 0;
 int tab_bar_height = 18;
 
-void add_chan_name(int no, char * name, char * desc)
+static chan_name *add_chan_name(int no, const char * name, const char * desc)
 {
 	chan_name *entry;
 	int len;
 
 	if(((entry = malloc(sizeof(*entry))) == NULL)
-		||((entry->description = malloc(strlen(desc)+1)) == NULL)
-		||((entry->name = malloc(strlen(name)+1)) == NULL)) {
+		||((entry->description = strdup(desc)) == NULL)
+		||((entry->name = strdup(name)) == NULL)) {
 		LOG_ERROR("Memory allocation error reading channel list");
-		return;
+		return NULL;
 	}
 	entry->channel = no;
-	safe_strncpy(entry->name, name, strlen(name) + 1);
-	safe_strncpy(entry->description, desc, strlen(desc) + 1);
 	queue_push(chan_name_queue, entry);
 	len = chan_name_queue->nodes-CS_MAX_DISPLAY_CHANS;
 	if(len > 0 && chan_sel_scroll_id == -1 && chan_sel_win != -1) {
 		chan_sel_scroll_id = vscrollbar_add_extended (chan_sel_win, 0, NULL, 165, 20, 20, 163, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, len);
 	}
+
+	return entry;
 }
 
 void add_spec_chan_name(int no, char * name, char * desc)
@@ -1519,6 +1519,8 @@ chan_name *tab_label (Uint8 chan)
 	node_t *step = queue_front_node(chan_name_queue);
 	char name[255];
 	char desc[255];
+	chan_name *res;
+
 	switch (chan)
 	{
 		case CHAT_ALL:	return pseudo_chans[2];
@@ -1552,15 +1554,16 @@ chan_name *tab_label (Uint8 chan)
 		}
 	}
 	//we didn't find it, so we use the generic version
-	safe_snprintf (name, sizeof(name), pseudo_chans[0]->name, cnr);
-	safe_snprintf (desc, sizeof(desc), pseudo_chans[0]->description, cnr);
-	add_chan_name(cnr,name,desc);
+	safe_snprintf(name, sizeof(name), pseudo_chans[0]->name, cnr);
+	safe_snprintf(desc, sizeof(desc), pseudo_chans[0]->description, cnr);
+	res = add_chan_name(cnr, name, desc);
 
-	if(chan_sel_scroll_id >= 0 && steps > 8) {
+	if (chan_sel_scroll_id >= 0 && steps > 8) {
 		vscrollbar_set_bar_len(chan_sel_win, chan_sel_scroll_id, steps-8);
 		//we're adding another name to the queue, so the window scrollbar needs to be adusted
 	}
-	return step->next->data;
+
+	return res;
 }
 
 unsigned int chan_int_from_name(char * name, int * return_length)
