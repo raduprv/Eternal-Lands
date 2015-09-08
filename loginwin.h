@@ -13,6 +13,9 @@ extern "C" {
 extern int login_root_win; /*!< ID for the login root window */
 extern int login_text; /*!< ID for the background texture */
 
+extern char username_box_selected; /*!< true, if the cursor is currently in the username input field */
+extern char password_box_selected; /*!< true, if the cursor is currently in the password input field */
+
 /*!
  * \ingroup interface_login
  * \brief   Loads the textures for the opening interface.

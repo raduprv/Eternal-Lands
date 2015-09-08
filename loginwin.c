@@ -24,6 +24,9 @@
 int login_root_win = -1;
 int login_text = -1;
 
+char username_box_selected = 1;
+char password_box_selected = 0;
+
 static int login_screen_menus;
 
 static char log_in_error_str[520] = {0};

@@ -48,8 +48,6 @@ int right_click = 0;
 int middle_click = 0;
 int left_click = 0;
 
-char username_box_selected=1;
-char password_box_selected=0;
 char username_str[20]={0};
 char password_str[20]={0};
 char display_password_str[20]={0};

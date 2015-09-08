@@ -62,6 +62,7 @@ void init_quickbar();
 
 void switch_action_mode(int * mode, int id);
 
+extern int hud_text;
 extern int hud_x;
 extern int hud_y;
 

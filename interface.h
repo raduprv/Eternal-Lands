@@ -62,9 +62,6 @@ extern int im_other_player_view_hp_bar; /*!< indicates whether health bars of  o
 extern int im_other_player_banner_bg; /*!< indicates whether other players banners background should be displayed or not in instance mode*/
 extern int im_other_player_show_banner_on_damage;  /*!< indicates whether  other players name and hp should appear for a while if player gets damage in instance mode*/
 
-extern char username_box_selected; /*!< true, if the cursor is currently in the username input field */
-extern char password_box_selected; /*!< true, if the cursor is currently in the password input field */
-
 extern char username_str[20]; /*!< the username of the actor */
 extern char password_str[20]; /*!< the password of the actor */
 extern char display_password_str[20]; /*!< a string that will be displayed when entering a password */
