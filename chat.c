@@ -266,11 +266,12 @@ void init_chat_channels(void)
 	}
 }
 
-void clear_input_line (void)
+void clear_input_line(void)
 {
 	input_text_line.data[0] = '\0';
 	input_text_line.len = 0;
-	if(input_widget != NULL) {
+	if (input_widget != NULL)
+	{
 		text_field *field = input_widget->widget_info;
 		field->cursor = 0;
 		field->cursor_line = 0;
@@ -278,10 +279,9 @@ void clear_input_line (void)
 		if(use_windowed_chat != 2) {
 			widget_resize(input_widget->window_id, input_widget->id, input_widget->len_x, field->y_space*2+DEFAULT_FONT_Y_LEN*input_widget->size);
 		}
-	}
-	/* Hide the game win input widget */
-	if(input_widget->window_id == game_root_win) {
-		widget_set_flags(game_root_win, input_widget->id, INPUT_DEFAULT_FLAGS|WIDGET_DISABLED);
+		/* Hide the game win input widget */
+		if(input_widget->window_id == game_root_win)
+			widget_set_flags(game_root_win, input_widget->id, INPUT_DEFAULT_FLAGS|WIDGET_DISABLED);
 	}
 	history_reset();
 }
