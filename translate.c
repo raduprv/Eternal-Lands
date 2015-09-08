@@ -952,16 +952,14 @@ void save_named_strings(const group_id *groups, size_t num_groups, const char *g
 		if (strcmp(groups[j].xml_id, group_name) == 0)
 		{
 			named_strings = (string_group*)realloc(named_strings, (num_named_strings+1) * sizeof(string_group));
-			named_strings[num_named_strings].name = (char *)malloc(sizeof(char *) * (strlen(group_name) + 1));
-			strcpy(named_strings[num_named_strings].name, group_name);
+			named_strings[num_named_strings].name = strdup(group_name);
 
 			named_strings[num_named_strings].num_strings = groups[j].no;
 			named_strings[num_named_strings].strings = (named_string*)malloc(sizeof(named_string) * groups[j].no);
 
 			for (i=0; i<groups[j].no; i++)
 			{
-				named_strings[num_named_strings].strings[i].name = (char *)malloc(sizeof(char *) * (strlen(groups[j].strings[i]->xml_id) + 1));
-				strcpy(named_strings[num_named_strings].strings[i].name, groups[j].strings[i]->xml_id);
+				named_strings[num_named_strings].strings[i].name = strdup(groups[j].strings[i]->xml_id);
 				named_strings[num_named_strings].strings[i].string = groups[j].strings[i]->var;
 			}
 

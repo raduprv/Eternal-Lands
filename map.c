@@ -153,7 +153,7 @@ static __inline__ void build_path_map()
 	int i, x, y;
 
 	//create the tile map that will be used for pathfinding
-	pf_tile_map = (PF_TILE *)calloc(tile_map_size_x*tile_map_size_y*6*6, sizeof(PF_TILE));
+	pf_tile_map = calloc(tile_map_size_x*tile_map_size_y*6*6, sizeof(PF_TILE));
 
 	i = 0;
 	for (y = 0; y < tile_map_size_y*6; y++)
@@ -310,10 +310,10 @@ int load_empty_map()
 		ambient_r = 0;
 		ambient_g = 0;
 		ambient_b = 0;
-		tile_map = calloc(tile_map_size_x*tile_map_size_y, sizeof(char));
-		height_map = calloc(tile_map_size_x*tile_map_size_y*6*6, sizeof(char));
+		tile_map = calloc(tile_map_size_x*tile_map_size_y, sizeof(unsigned char));
+		height_map = calloc(tile_map_size_x*tile_map_size_y*6*6, sizeof(unsigned char));
 #ifndef MAP_EDITOR2
-		pf_tile_map = calloc(tile_map_size_x*tile_map_size_y*6*6, sizeof(char));
+		pf_tile_map = calloc(tile_map_size_x*tile_map_size_y*6*6, sizeof(PF_TILE));
 #endif
 		return 0;
 	}

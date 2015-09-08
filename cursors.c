@@ -35,7 +35,7 @@ char harvestable_objects[300][80];
 char entrable_objects[300][80];
 #endif
 
-Uint8 *cursors_mem=NULL;
+Uint8 *cursors_mem = NULL;
 int cursors_x_length;
 int cursors_y_length;
 
@@ -151,7 +151,7 @@ void load_cursors()
 
 	//ok, now transform the bitmap in cursors info
 	if(cursors_mem) free(cursors_mem);
-	cursors_mem = (Uint8 *)calloc ( cursors_x_length*cursors_y_length*2, sizeof(char));
+	cursors_mem = calloc (cursors_x_length*cursors_y_length*2, sizeof(Uint8));
 
 	for(y=cursors_y_length-1;y>=0;y--)
 		{
@@ -207,7 +207,7 @@ void assign_cursor(int cursor_id)
 	for(i=0;i<16*16/8;i++)cursor_data[i]=0;
 	for(i=0;i<16*16/8;i++)cursor_mask[i]=0;
 
-	cur_cursor_mem=(Uint8 *)calloc(16*16*2, sizeof(char));
+	cur_cursor_mem = calloc(16*16*2, sizeof(Uint8));
 
 	i=0;
 	for(y=0;y<cursors_y_length;y++)
