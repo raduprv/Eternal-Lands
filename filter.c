@@ -56,7 +56,6 @@ int add_to_filter_list (const char *name, char local, char save_name)
 				if(left[t]=='=')
 				{
 					left[t] = '\0';
-					tp = t - 1;
 					for (tp = t-1; tp >= 0 && isspace (left[tp]); tp--)
 					{
 						left[tp] = '\0';
