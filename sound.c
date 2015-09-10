@@ -359,7 +359,6 @@ int list_pos = -1;
 int load_ogg_file(char *file_name, OggVorbis_File *oggFile);
 int stream_ogg_file(char *file_name, stream_data * stream, int numBuffers);
 int stream_ogg(ALuint buffer, OggVorbis_File * inStream, vorbis_info * info);
-ALvoid * load_ogg_into_memory(char * szPath, ALenum *inFormat, ALsizei *inSize, ALfloat *inFreq);
 /* Stream handling */
 static char * get_stream_type(int type);
 void play_stream(int sound, stream_data * stream, ALfloat gain);
@@ -378,9 +377,6 @@ void play_song(int list_pos);
 void find_next_song(int tx, int ty, int day_time);
 
 /* Source functions */
-void add_source_to_lists(source_data *pSource);
-void remove_source_from_lists(source_data *pSource);
-void clear_source(source_data *pSource);
 source_data * get_available_source(int priority);
 source_data *insert_sound_source_at_index(unsigned int index);
 void release_source(source_data *pSource, int index);
@@ -727,34 +723,32 @@ ALvoid * load_ogg_into_memory(char * szPath, ALenum *inFormat, ALsizei *inSize, 
 	ALsizei size;
 	ALfloat freq;
 	char * data;
-	
-	// Reset the variables
-	bitStream = 0;
-	result = 0;
-	format = 0;
-	size = 0;
-	freq = 0.0f;
-	
+
 	// Load the file
 	result = load_ogg_file(szPath, &oggFile);
 	if (!result)
-	{
 		return NULL;
-	}
+
 	// Get some information about the OGG file
 	pInfo = ov_info(&oggFile, -1);
-	
+
 	// Check the number of channels... always use 16-bit samples
-	if (pInfo->channels == 1)
-		format = AL_FORMAT_MONO16;
-	else
-		format = AL_FORMAT_STEREO16;
-	
+	format = (pInfo->channels == 1) ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+
 	// The frequency of the sampling rate
 	freq = pInfo->rate;
 
 	data = malloc(OGG_BUFFER_SIZE);
-	
+	if (!data)
+	{
+		ov_clear(&oggFile);
+		return NULL;
+	}
+
+	// Reset the variables
+	bitStream = 0;
+	size = 0;
+
 	// Hope OGG_BUFFER_SIZE is large enough for this sample - 1MB should be! Anything more should be streamed.
 	while (size < OGG_BUFFER_SIZE)
 	{
@@ -763,21 +757,19 @@ ALvoid * load_ogg_into_memory(char * szPath, ALenum *inFormat, ALsizei *inSize, 
 #else
 		result = ov_read(&oggFile, data + size, OGG_BUFFER_SIZE - size, 1, 2, 1, &bitStream);
 #endif
-		if((result > 0) || (result == OV_HOLE))		// OV_HOLE is informational
-		{
-			if (result != OV_HOLE) size += result;
-		}
-		else if(result < 0)
+		if (result > 0)
+			size += result;
+		else if (result < 0 && result != OV_HOLE)		// OV_HOLE is informational
 			ogg_error(result);
 		else
 			break;
 	}
-	
+
 	ov_clear(&oggFile);
 
 	*inFormat = format;
 	*inSize = size;
-	*inFreq = freq;	
+	*inFreq = freq;
 	return data;
 }
 
@@ -1698,80 +1690,72 @@ void find_next_song(int tx, int ty, int day_time)
 /*****************************
  * SOURCE HANDLING FUNCTIONS *
  *****************************/
-void add_source_to_lists(source_data *pSource)
+static void add_source_to_lists(source_data *pSource)
 {
+	int samples[num_STAGES];
+	int nr_samples = 0;
 	int i;
-	source_list *source_id;
 	source_list *new_source_id;
-	
+
+	for (i = 0; i < num_STAGES; i++)
+	{
+		if (pSource->sample[i] > -1)
+			samples[nr_samples++] = pSource->sample[i];
+	}
+
+	if (nr_samples == 0)
+		return;
+
 	new_source_id = calloc(1, sizeof(source_list));
 	new_source_id->source = pSource->source;
 	new_source_id->next = NULL;
 	new_source_id->last = NULL;
-	
-	for (i = 0; i < num_STAGES; i++)
+
+	for (i = 0; i < nr_samples; i++)
 	{
-		if (pSource->sample[i] > -1)
+		// Get the current list of sources for this sample
+		source_list *source_id = sound_sample_data[samples[i]].sources;
+		if (source_id)
 		{
-			// Get the current list of sources for this sample
-			source_id = sound_sample_data[pSource->sample[i]].sources;
-			if (source_id)
-			{
-				// Find the end of the list and add this source to it
-				while (source_id->next)
-					source_id = source_id->next;
-				source_id->next = new_source_id;
-				new_source_id->last = source_id;
-			}
-			else
-			{
-				// Create this source as the start of the list
-				source_id = new_source_id;
-			}
+			// Find the end of the list and add this source to it
+			while (source_id->next)
+				source_id = source_id->next;
+			source_id->next = new_source_id;
+			new_source_id->last = source_id;
+		}
+		else
+		{
+			// Create this source as the start of the list
+			sound_sample_data[samples[i]].sources = new_source_id;
 		}
 	}
 }
 
-void remove_source_from_lists(source_data *pSource)
+static void remove_source_from_lists(source_data *pSource)
 {
 	int i;
 	source_list *source_id;
-	
+
 	for (i = 0; i < num_STAGES; i++)
 	{
 		if (pSource->sample[i] > -1)
 		{
-			source_id = sound_sample_data[pSource->sample[i]].sources;
-			while (source_id)
+			for (source_id = sound_sample_data[pSource->sample[i]].sources;
+				source_id; source_id = source_id->next)
 			{
 				if (source_id->source == pSource->source)
-				{
-					// Check if there are sources before and after this one in the list
-					// and adjust their last and nexts to remove this one from the list
-					if (source_id->next && source_id->last)
-					{
-						source_id->next->last = source_id->last;
-						source_id->last->next = source_id->next;
-					}
-					else if (source_id->next) // This is the first source
-					{
-						source_id->next->last = NULL;
-					}
-					else if (source_id->last) // This is the last source
-					{
-						source_id->last->next = NULL;
-					}
-					else	// This is the only source, so free the buffer for this sample
-					{
-						release_sample(pSource->sample[i]);
-					}
-					free(source_id);
-					source_id = NULL;
-				}
-				else if (source_id && source_id->next)
-				{
-					source_id = source_id->next;
-				}
+					break;
+			}
+
+			if (source_id)
+			{
+				if (source_id->next)
+					source_id->next->last = source_id->last;
+				if (source_id->last)
+					source_id->last->next = source_id->next;
+				else
+					sound_sample_data[pSource->sample[i]].sources = source_id->next;
+				free(source_id);
 			}
 		}
 	}
@@ -1930,7 +1914,7 @@ int stop_sound_source_at_index(int index)
 int find_sound_source_from_cookie(unsigned int cookie)
 {
 	int n;
-	source_data *pSource = sound_source_data;
+	source_data *pSource;
 
 	if (!cookie)
 		return -1;
@@ -2149,7 +2133,7 @@ int ensure_sample_loaded(char * in_filename)
 		// We have already dumped an error message so just return
 		return -1;
 	}
-			
+
 #ifdef _EXTRA_SOUND_DEBUG
 	printf("Result: File: %s, Format: %d, Size: %d, Freq: %f\n", filename, (int)pSample->format, (int)datasize, (float)pSample->freq);
 #endif //_EXTRA_SOUND_DEBUG
@@ -5309,7 +5293,7 @@ void parse_map_sound(const xmlNode *inNode)
 // This block ^^ is a temporary fix for detecting 2d and 3d objects. It can be removed once the other functionality is coded.
 				else
 				{
-					LOG_ERROR("%s: Boundary definition expected. Found: %s", snd_config_error, attributeNode->name);
+					LOG_ERROR("%s: Boundary definition expected. Found: %s", snd_config_error, boundaryNode->name);
 				}
 			}
 			else if (boundaryNode->type == XML_ENTITY_REF_NODE)
