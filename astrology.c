@@ -64,9 +64,9 @@ int	astrology_win= -1;
 int ok_button_id=103;
 int always_show_astro_details = 0;
 
-char stone_name[50];
-int value1,value2,value3;
-char text_item1[50],text_item2[50],text_item3[50];
+static char stone_name[50];
+static int value1,value2,value3;
+static char text_item1[50],text_item2[50],text_item3[50];
 ASTROLOGY_DISPLAY_TYPES astrology_display_type;
 ASTROLOGY_TYPES astrology_type;
 static int capping_already_reported = 0;
@@ -146,9 +146,11 @@ int is_astrology_message (const char * RawText)
 
 		tmp1 = strstr(tmp1,"Def: ");
 		if(tmp1)
+		{
 			tmp1 += strlen("Def: ");
-		value2 = atoi(tmp1);
-		safe_snprintf(text_item2,sizeof(text_item2),"Defense: %d",value2);
+			value2 = atoi(tmp1);
+			safe_snprintf(text_item2,sizeof(text_item2),"Defense: %d",value2);
+		}
 
 		display_astrology_window(RawText);
 		return 1;
@@ -167,9 +169,11 @@ int is_astrology_message (const char * RawText)
 		safe_snprintf(text_item1,sizeof(text_item1),"To hit: %d",value1);
 		tmp1 = strstr(tmp1,"To damage: ");
 		if(tmp1)
+		{
 			tmp1 += strlen("To damage: ");
-		value2 = atoi(tmp1);
-		safe_snprintf(text_item2,sizeof(text_item2),"To damage: %d",value2);
+			value2 = atoi(tmp1);
+			safe_snprintf(text_item2,sizeof(text_item2),"To damage: %d",value2);
+		}
 
 		display_astrology_window(RawText);
 		return 1;
@@ -189,9 +193,11 @@ int is_astrology_message (const char * RawText)
 
 		tmp1 = strstr(tmp1,"Magic: ");
 		if(tmp1)
+		{
 			tmp1 += strlen("Magic: ");
-		value2 = atoi(tmp1);
-		safe_snprintf(text_item2,sizeof(text_item2),"Magic: %d",value2);
+			value2 = atoi(tmp1);
+			safe_snprintf(text_item2,sizeof(text_item2),"Magic: %d",value2);
+		}
 
 		display_astrology_window(RawText);
 		return 1;
@@ -211,9 +217,11 @@ int is_astrology_message (const char * RawText)
 
 		tmp1 = strstr(tmp1,"Degrade: ");
 		if(tmp1)
+		{
 			tmp1 += strlen("Degrade: ");
-		value2 = atoi(tmp1);
-		safe_snprintf(text_item2,sizeof(text_item2),"Degrade: %d",value2);
+			value2 = atoi(tmp1);
+			safe_snprintf(text_item2,sizeof(text_item2),"Degrade: %d",value2);
+		}
 
 		display_astrology_window(RawText);
 		return 1;
@@ -233,9 +241,11 @@ int is_astrology_message (const char * RawText)
 
 		tmp1 = strstr(tmp1,"Failure: ");
 		if(tmp1)
+		{
 			tmp1 += strlen("Failure: ");
-		value2 = atoi(tmp1);
-		safe_snprintf(text_item2,sizeof(text_item2),"Failure: %d",value2);
+			value2 = atoi(tmp1);
+			safe_snprintf(text_item2,sizeof(text_item2),"Failure: %d",value2);
+		}
 
 		display_astrology_window(RawText);
 		return 1;
