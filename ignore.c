@@ -302,26 +302,25 @@ void load_ignores_list(char * file_name)
 
 	j=0;
 	i=0;
-	while(i<f_size)
+	while (i<f_size)
+	{
+		ch = ignore_list_mem[i];
+		if (ch == '\n' || ch == '\r')
 		{
-			ch=ignore_list_mem[i];
-			if(ch=='\n' || ch=='\r')
-				{
-					if(j && add_to_ignore_list(name,0) == -1) {
-						return;//ignore list full
-					}
-					j=0;
-					i++;
-					continue;
-				}
-			else
-				{
-					name[j]=ch;
-				}
-			name[j+1]=0;
-			j++;
+			if (j > 0 && add_to_ignore_list(name, 0) == -1)
+				// ignore list full
+				break;
+			j = 0;
 			i++;
 		}
+		else
+		{
+			name[j++] = ch;
+			name[j] = '\0';
+			i++;
+		}
+	}
+
 	free(ignore_list_mem);
 }
 
