@@ -2305,10 +2305,7 @@ int write_el_ini ()
 	input_line *cont= NULL;
 	input_line last_line;
 	FILE *file;
-	short *written = NULL;
-
-	// Prevent duplicate entries by remembering which we have written
-	written = calloc(our_vars.no, sizeof(short));
+	short *written;
 
 	// first check if we need to change anything
 	//
@@ -2352,15 +2349,19 @@ int write_el_ini ()
 				cont= realloc (cont, maxlines * sizeof (input_line));
 			}
 		}
-		fclose (file);
+		fclose(file);
 	}
 
 	// Now write the contents of the file, updating those variables that have been changed
 	file = open_file_config("el.ini", "w");
 	if(file == NULL){
 		LOG_ERROR("%s: %s \"el.ini\": %s\n", reg_error_str, cant_open_file, strerror(errno));
+		free(cont);
 		return 0;
 	}
+
+	// Prevent duplicate entries by remembering which we have written
+	written = calloc(our_vars.no, sizeof(short));
 
 	strcpy(last_line, "");
 	for (iline= 0; iline < nlines; iline++)
@@ -2562,6 +2563,10 @@ int onclick_checkbox_handler(widget_list *widget, int mx, int my, Uint32 flags)
 			break;
 		}
 	}
+
+	if (!option)
+		// shouldn't happen
+		return 0;
 
 	if (option->type == OPT_BOOL)
 	{
