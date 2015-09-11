@@ -1086,18 +1086,36 @@ int current_tab = 0;
 int tab_bar_width = 0;
 int tab_bar_height = 18;
 
-static chan_name *add_chan_name(int no, const char * name, const char * desc)
+static chan_name *create_chan_name(int no, const char* name, const char* desc)
 {
-	chan_name *entry;
-	int len;
-
-	if(((entry = malloc(sizeof(*entry))) == NULL)
-		||((entry->description = strdup(desc)) == NULL)
-		||((entry->name = strdup(name)) == NULL)) {
-		LOG_ERROR("Memory allocation error reading channel list");
+	chan_name *entry = malloc(sizeof(*entry));
+	if (!entry)
+		return NULL;
+	if ( !(entry->description = strdup(desc)) )
+	{
+		free(entry);
+		return NULL;
+	}
+	if ( !(entry->name = strdup(name)) )
+	{
+		free(entry->description);
+		free(entry);
 		return NULL;
 	}
 	entry->channel = no;
+	return entry;
+}
+
+static chan_name *add_chan_name(int no, const char * name, const char * desc)
+{
+	chan_name *entry = create_chan_name(no, name, desc);
+	int len;
+
+	if (!entry)
+	{
+		LOG_ERROR("Memory allocation error reading channel list");
+		return NULL;
+	}
 	queue_push(chan_name_queue, entry);
 	len = chan_name_queue->nodes-CS_MAX_DISPLAY_CHANS;
 	if(len > 0 && chan_sel_scroll_id == -1 && chan_sel_win != -1) {
@@ -1107,19 +1125,13 @@ static chan_name *add_chan_name(int no, const char * name, const char * desc)
 	return entry;
 }
 
-void add_spec_chan_name(int no, char * name, char * desc)
+static void add_spec_chan_name(int no, const char* name, const char* desc)
 {
-	chan_name *entry;
-	if(((entry = malloc(sizeof(*entry))) == NULL)
-		||((entry->description = malloc(strlen(desc)+1)) == NULL)
-		||((entry->name = malloc(strlen(name)+1)) == NULL)){
-			LOG_ERROR("Memory allocation error reading channel list");
-			return;
-		}
-	entry->channel = no;
-	safe_strncpy(entry->name, name, strlen(name) + 1);
-	safe_strncpy(entry->description, desc, strlen(desc) + 1);
-	pseudo_chans[no]=entry;
+	chan_name *entry = create_chan_name(no, name, desc);
+	if (entry)
+		pseudo_chans[no] = entry;
+	else
+		LOG_ERROR("Memory allocation error reading channel list");
 }
 
 void generic_chans(void)
