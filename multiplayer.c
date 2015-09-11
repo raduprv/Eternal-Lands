@@ -667,12 +667,11 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					// if we're expecting a quest entry, this will be it
 					if (waiting_for_questlog_entry())
 					{
-						char *cur_npc_name = (char *)malloc(sizeof(npc_name));
+						char cur_npc_name[sizeof(npc_name)];
 						safe_strncpy2(cur_npc_name, (char *)npc_name, sizeof(npc_name), sizeof(npc_name));
 						safe_strncpy((char *)npc_name, "<None>", sizeof(npc_name));
 						add_questlog((char*)text_buf, len);
 						safe_strncpy2((char *)npc_name, cur_npc_name, sizeof(npc_name), sizeof(npc_name));
-						free(cur_npc_name);
 					}
 				}
 
