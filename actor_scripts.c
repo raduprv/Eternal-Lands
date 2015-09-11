@@ -2902,13 +2902,13 @@ int parse_actor_shirt(actor_types *act, const xmlNode *cfg, const xmlNode *defau
 		const xmlNode *default_node = get_default_node(cfg, defaults);
 
 		if(default_node){
-			if(shirt->arms_name==NULL || *shirt->arms_name=='\0')
+			if (*shirt->arms_name=='\0')
 				get_item_string_value(shirt->arms_name, sizeof(shirt->arms_name), default_node, (xmlChar*)"arms");
-			if(shirt->model_name==NULL || *shirt->model_name=='\0'){
+			if (*shirt->model_name=='\0'){
 				get_item_string_value(shirt->model_name, sizeof(shirt->model_name), default_node, (xmlChar*)"mesh");
 				shirt->mesh_index= cal_load_mesh(act, shirt->model_name, "shirt");
 			}
-			if(shirt->torso_name==NULL || *shirt->torso_name=='\0')
+			if (*shirt->torso_name=='\0')
 				get_item_string_value(shirt->torso_name, sizeof(shirt->torso_name), default_node, (xmlChar*)"torso");
 		}
 	}
@@ -3040,9 +3040,9 @@ int parse_actor_legs (actor_types *act, const xmlNode *cfg, const xmlNode *defau
 		const xmlNode *default_node = get_default_node(cfg, defaults);
 
 		if(default_node){
-			if(legs->legs_name==NULL || *legs->legs_name=='\0')
+			if (*legs->legs_name=='\0')
 				get_item_string_value(legs->legs_name, sizeof(legs->legs_name), default_node, (xmlChar*)"skin");
-			if(legs->model_name==NULL || *legs->model_name=='\0'){
+			if (*legs->model_name=='\0'){
 				get_item_string_value(legs->model_name, sizeof(legs->model_name), default_node, (xmlChar*)"mesh");
 				legs->mesh_index= cal_load_mesh(act, legs->model_name, "legs");
 			}
@@ -4169,9 +4169,10 @@ int parse_actor_boots (actor_types *act, const xmlNode *cfg, const xmlNode *defa
 		const xmlNode *default_node = get_default_node(cfg, defaults);
 
 		if(default_node){
-			if(boots->boots_name==NULL || *boots->boots_name=='\0')
+			if (*boots->boots_name=='\0')
 				get_item_string_value(boots->boots_name, sizeof(boots->boots_name), default_node, (xmlChar*)"skin");
-			if(boots->model_name==NULL || *boots->model_name=='\0'){
+			if (*boots->model_name=='\0')
+			{
 				get_item_string_value(boots->model_name, sizeof(boots->model_name), default_node, (xmlChar*)"mesh");
 				boots->mesh_index= cal_load_mesh(act, boots->model_name, "boots");
 			}
