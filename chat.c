@@ -1167,11 +1167,10 @@ void init_channel_names(void)
 	char *channelname;
 	char *channeldesc;
 	int channelno;
-	
+
 	// Temp info
 	xmlChar *attrib;
-	int attriblen;
-	
+
 	queue_initialise(&chan_name_queue);
 
 	// Load the file, depending on WINDOWS = def|undef
@@ -1207,10 +1206,10 @@ void init_channel_names(void)
 		generic_chans();
 		return;
 	}
-	
+
 	// Load first child node
 	cur = cur->xmlChildrenNode;
-	
+
 	// Loop while we have a node, copying ATTRIBS, etc
 	while (cur != NULL)	{
 		if(cur->type != XML_ELEMENT_NODE) {
@@ -1223,14 +1222,11 @@ void init_channel_names(void)
 				xmlFree (attrib);
 				continue;
 			}
-			attriblen = strlen ((char*)attrib);
-			if (attriblen < 1) {
+			if (xmlStrlen(attrib) < 1) {
 				LOG_ERROR (xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
-			/*channelname = malloc (attriblen)+1;
-			my_xmlStrncopy (&channelname, attrib, attriblen);*/
 			channelname = (char*)xmlStrdup(attrib);
 			xmlFree (attrib);
 
@@ -1241,8 +1237,7 @@ void init_channel_names(void)
 				xmlFree (attrib);
 				continue;
 			}
-			attriblen = strlen ((char*)attrib);
-			if (attriblen < 1) {
+			if (xmlStrlen(attrib) < 1) {
 				LOG_ERROR (xml_bad_node);
 				xmlFree (attrib);
 				continue;
@@ -1257,11 +1252,8 @@ void init_channel_names(void)
 				continue;
 			}
 			attrib = cur->children->content;
-			attriblen = strlen ((char*)attrib);
-			/*channeldesc = malloc (attriblen)+1;
-			my_xmlStrncopy (&channeldesc, attrib, attriblen);*/
 			channeldesc = (char*)xmlStrdup(attrib);
-			
+
 			// Add it.
 			add_spec_chan_name(channelno, channelname, channeldesc);
 			free(channelname);
@@ -1274,15 +1266,14 @@ void init_channel_names(void)
 				xmlFree (attrib);
 				continue;
 			}
-			attriblen = strlen ((char*)attrib);
-			if (attriblen < 1){
+			if (xmlStrlen(attrib) < 1){
 				LOG_ERROR (xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
 			channelno = atoi ((char*)attrib);
 			xmlFree (attrib);
-			
+
 			// Get the name.
 			attrib = xmlGetProp (cur, (xmlChar*)"name");
 			if (attrib == NULL){
@@ -1290,17 +1281,14 @@ void init_channel_names(void)
 				xmlFree (attrib);
 				continue;
 			}
-			attriblen = strlen ((char*)attrib);
-			if (attriblen < 1){
+			if (xmlStrlen(attrib) < 1){
 				LOG_ERROR (xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
-			/*channelname = malloc (attriblen)+1;
-			my_xmlStrncopy (&channelname, attrib, attriblen);*/
 			channelname = (char*)xmlStrdup(attrib);
 			xmlFree (attrib);
-			
+
 			// Get the description.
 			if (cur->children == NULL) {
 				free (channelname);
@@ -1312,11 +1300,8 @@ void init_channel_names(void)
 				continue;
 			}
 			attrib = cur->children->content;
-			/*attriblen = strlen (attrib);
-			channeldesc = malloc (attriblen);
-			my_xmlStrncopy (&channeldesc, attrib, attriblen);*/
 			channeldesc = (char*)xmlStrdup(attrib);
-			
+
 			// Add it.
 			add_chan_name(channelno, channelname, channeldesc);
 			free(channelname);
