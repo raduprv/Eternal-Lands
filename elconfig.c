@@ -2303,7 +2303,7 @@ int write_el_ini ()
 #endif // !WINDOWS
 	int nlines= 0, maxlines= 0, iline, ivar;
 	input_line *cont= NULL;
-	input_line last_line;
+	const char *last_line;
 	FILE *file;
 	short *written;
 
@@ -2363,7 +2363,7 @@ int write_el_ini ()
 	// Prevent duplicate entries by remembering which we have written
 	written = calloc(our_vars.no, sizeof(short));
 
-	strcpy(last_line, "");
+	last_line = "";
 	for (iline= 0; iline < nlines; iline++)
 	{
 		if (cont[iline][0] != '#')
@@ -2383,7 +2383,7 @@ int write_el_ini ()
 			if (ivar >= 0)
 				written[ivar] = 1;
 		}
-		strcpy(last_line, cont[iline]);
+		last_line = cont[iline];
 	}
 
 	// now write all variables that still haven't been saved yet
