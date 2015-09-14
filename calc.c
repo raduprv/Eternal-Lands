@@ -91,10 +91,11 @@ double calc_exp(const char* str, int *err)
 			last_res = res = ctr->value;
 	}
 
-	done_calcstack(cs);
-
 	if (err)
 		*err = cs->error;
+
+	done_calcstack(cs);
+
 	return res;
 }
 
