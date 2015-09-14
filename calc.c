@@ -37,16 +37,16 @@ typedef struct caltoken {
 
 typedef struct calstack {
 	int pos;
-	CalcTok* stack[CALCSTACKMAX];
+	CalcTok stack[CALCSTACKMAX];
 } CalcStack;
 
-int reduce_stack(CalcStack* cs);
-CalcTok* next_calctoken(char* str, int *spos);
+static int reduce_stack(CalcStack* cs);
+static void next_calctoken(const char* str, int *spos, CalcTok *ct);
 static CalcStack* init_calcstack();
-void done_calcstack(CalcStack* cs);
-CalcTok* calcpop(CalcStack* cs);
-CalcTok* calcinspect(CalcStack* cs,int pos);
-void calcpush(CalcStack* cs, CalcTok* ct);
+static void done_calcstack(CalcStack* cs);
+static void calcpop(CalcStack* cs);
+static CalcTok* calcinspect(CalcStack* cs, int pos);
+static void calcpush(CalcStack* cs, CalcTok *ct);
 
 int calc_error=CALCERR_OK;
 double last_res=0;
@@ -60,35 +60,42 @@ double last_res=0;
 
 //Parsing functions
 
-int calc_geterror(){
-	int t_err=calc_error;
-	calc_error=CALCERR_OK;
+int calc_geterror()
+{
+	int t_err = calc_error;
+	calc_error = CALCERR_OK;
 	return t_err;
 }
 
-double calc_exp(char* str){
+double calc_exp(const char* str)
+{
 	CalcStack* cs;
-	CalcTok* ct;
+	CalcTok ct;
 	int pos=0;
 	double res=0;
-	
-	calc_error=CALCERR_OK;
-	cs= init_calcstack();
-	ct=next_calctoken(str,&pos);
-	while(ct->type!=CALCTOK_END && calc_error==CALCERR_OK){
-		calcpush(cs,ct);
-		while(reduce_stack(cs));
-		ct=next_calctoken(str,&pos);
+
+	calc_error = CALCERR_OK;
+	cs = init_calcstack();
+	next_calctoken(str, &pos, &ct);
+	while (ct.type != CALCTOK_END && calc_error == CALCERR_OK)
+	{
+		calcpush(cs, &ct);
+		while (reduce_stack(cs))
+			/* do nothing */;
+		next_calctoken(str, &pos, &ct);
 	}
-	calcpush(cs,ct);
-	
-	if (calc_error==CALCERR_OK) {
-		while(reduce_stack(cs));
-		ct = calcinspect(cs,0);
-		if (cs->pos!=1||ct==NULL) calc_error=CALCERR_SYNTAX;
-		else 
-			if (ct->type==CALCTOK_NUM) last_res = res = ct->value;
-			else calc_error=CALCERR_SYNTAX;
+	calcpush(cs, &ct);
+
+	if (calc_error == CALCERR_OK)
+	{
+		CalcTok *ctr;
+		while (reduce_stack(cs))
+			/* do nothing */ ;
+		ctr = calcinspect(cs, 0);
+		if (cs->pos != 1 || ctr == NULL || ctr->type != CALCTOK_NUM)
+			calc_error = CALCERR_SYNTAX;
+		else
+			last_res = res = ctr->value;
 	}
 
 	done_calcstack(cs);
@@ -96,131 +103,150 @@ double calc_exp(char* str){
 }
 
 
-int reduce_stack(CalcStack* cs){
-	CalcTok *cs1,*cs2,*cs3,*cs4,*nt;
+static int reduce_stack(CalcStack* cs)
+{
+	CalcTok *cs1,*cs2,*cs3,*cs4, nt;
 	int t1,t2,t3,t4;
-	
+
 	cs1=calcinspect(cs,0);
 	cs2=calcinspect(cs,-1);
 	cs3=calcinspect(cs,-2);
 	cs4=calcinspect(cs,-3);
-	
+
 	t1=(cs1) ? (cs1->type):(0);
 	t2=(cs2) ? (cs2->type):(0);
 	t3=(cs3) ? (cs3->type):(0);
 	t4=(cs4) ? (cs4->type):(0);
-	
+
 	//L operator
-	if(t1==CALCTOK_NUM&&t2==CALCTOK_LOP){
+	if (t1 == CALCTOK_NUM && t2 == CALCTOK_LOP)
+	{
 		int lvl;
 		calcpop(cs);calcpop(cs);
-		if(cs1->value>=0&&cs1->value<=XPT_MAX){
-			nt=(CalcTok*)malloc(sizeof(CalcTok));
-			nt->type=CALCTOK_NUM;
-			lvl=(int)trunc(cs1->value);
-			nt->value=XPL(lvl)+(cs1->value-lvl)*XPLDIFF(lvl,lvl+1);			
-			calcpush(cs,nt);
-		} else calc_error=CALCERR_LOPSYNTAX;
-		free(cs1);free(cs2);
+		if (cs1->value >= 0 && cs1->value <= XPT_MAX)
+		{
+			nt.type = CALCTOK_NUM;
+			lvl = (int)trunc(cs1->value);
+			nt.value = XPL(lvl) + (cs1->value-lvl) * XPLDIFF(lvl, lvl+1);
+			calcpush(cs, &nt);
+		}
+		else
+		{
+			calc_error=CALCERR_LOPSYNTAX;
+		}
 		return 1;
-	}	
+	}
 	//X operator
-	if(t1==CALCTOK_NUM&&t2==CALCTOK_XOP){
+	if (t1 == CALCTOK_NUM && t2 == CALCTOK_XOP)
+	{
 		int i;
 		calcpop(cs);calcpop(cs);
-		if(cs1->value>=0&&cs1->value<=XPL(XPT_MAX)){
-			nt=(CalcTok*)malloc(sizeof(CalcTok));
-			nt->type=CALCTOK_NUM;
-			for(i=0;i<=XPT_MAX;i++) {
-				if(XPL(i)>=cs1->value) break;
+		if (cs1->value >= 0 && cs1->value <= XPL(XPT_MAX))
+		{
+			nt.type = CALCTOK_NUM;
+			for (i = 0; i <= XPT_MAX; i++)
+			{
+				if (XPL(i) >= cs1->value)
+					break;
 			}
 			i--;
-			nt->value=i+(cs1->value-XPL(i))/(XPLDIFF(i,i+1));
-			calcpush(cs,nt);
-		} else calc_error=CALCERR_XOPSYNTAX;
-		free(cs1);free(cs2);
+			nt.value = i + (cs1->value-XPL(i)) / XPLDIFF(i, i+1);
+			calcpush(cs, &nt);
+		}
+		else
+		{
+			calc_error=CALCERR_XOPSYNTAX;
+		}
 		return 1;
 	}
 	//mul
-	if(t1==CALCTOK_NUM&&t2==CALCTOK_MUL&&t3==CALCTOK_NUM){
+	if (t1 == CALCTOK_NUM && t2 == CALCTOK_MUL && t3 == CALCTOK_NUM)
+	{
 		calcpop(cs);calcpop(cs);calcpop(cs);
-		nt=(CalcTok*)malloc(sizeof(CalcTok));
-		nt->type=CALCTOK_NUM;
-		nt->value=cs1->value*cs3->value;
-		calcpush(cs,nt);
-		free(cs1);free(cs2);free(cs3);
+		nt.type = CALCTOK_NUM;
+		nt.value = cs1->value * cs3->value;
+		calcpush(cs, &nt);
 		return 1;
 	}
 	//div
-	if(t1==CALCTOK_NUM&&t2==CALCTOK_DIV&&t3==CALCTOK_NUM){
+	if (t1 == CALCTOK_NUM && t2 == CALCTOK_DIV && t3 == CALCTOK_NUM)
+	{
 		calcpop(cs);calcpop(cs);calcpop(cs);
-		nt=(CalcTok*)malloc(sizeof(CalcTok));
-		if(cs1->value!=0){
-			nt->type=CALCTOK_NUM;
-			nt->value=cs3->value/cs1->value;
-		} else calc_error=CALCERR_DIVIDE;
-		calcpush(cs,nt);
-		free(cs1);free(cs2);free(cs3);
+		if (cs1->value != 0)
+		{
+			nt.type = CALCTOK_NUM;
+			nt.value = cs3->value / cs1->value;
+			calcpush(cs, &nt);
+		}
+		else
+		{
+			calc_error = CALCERR_DIVIDE;
+		}
 		return 1;
 	}
 	//plus&minus
-	if(
-	   (t1==CALCTOK_PLUS||t1==CALCTOK_MINUS||t1==CALCTOK_END||t1==CALCTOK_CPAR)&&
-	   t2==CALCTOK_NUM&&
-	   (t3==CALCTOK_PLUS||t3==CALCTOK_MINUS)&&
-	   t4==CALCTOK_NUM
-	   ){
+	if (
+	   (t1 == CALCTOK_PLUS || t1 == CALCTOK_MINUS || t1 == CALCTOK_END || t1 == CALCTOK_CPAR) &&
+	   t2 == CALCTOK_NUM &&
+	   (t3 == CALCTOK_PLUS || t3 == CALCTOK_MINUS) &&
+	   t4 == CALCTOK_NUM)
+	{
+		CalcTok nt1 = *cs1;
 		calcpop(cs);calcpop(cs);calcpop(cs);calcpop(cs);
-		nt=(CalcTok*)malloc(sizeof(CalcTok));
-		nt->type=CALCTOK_NUM;
-		if(t3==CALCTOK_MINUS) nt->value=cs4->value-cs2->value;
-		else nt->value=cs4->value+cs2->value;
-		calcpush(cs,nt);
-		calcpush(cs,cs1);
-		free(cs2);free(cs3);free(cs4);
+		nt.type = CALCTOK_NUM;
+		if (t3==CALCTOK_MINUS)
+			nt.value = cs4->value - cs2->value;
+		else
+			nt.value = cs4->value + cs2->value;
+		calcpush(cs, &nt);
+		calcpush(cs, &nt1);
 		return 1;
 	}
 	//modulo
-	if(t1==CALCTOK_NUM&&t2==CALCTOK_MOD&&t3==CALCTOK_NUM){
+	if (t1 == CALCTOK_NUM && t2 == CALCTOK_MOD && t3 == CALCTOK_NUM)
+	{
 		calcpop(cs);calcpop(cs);calcpop(cs);
-		nt=(CalcTok*)malloc(sizeof(CalcTok));
-		if(cs1->value!=0){
-			nt->type=CALCTOK_NUM;
-			nt->value=fmod(cs3->value, cs1->value);
-		} else calc_error=CALCERR_DIVIDE;
-		calcpush(cs,nt);
-		free(cs1);free(cs2);free(cs3);
+		if (cs1->value!=0)
+		{
+			nt.type=CALCTOK_NUM;
+			nt.value = fmod(cs3->value, cs1->value);
+			calcpush(cs, &nt);
+		}
+		else
+		{
+			calc_error = CALCERR_DIVIDE;
+		}
 		return 1;
 	}
 	//pars
-	if(t1==CALCTOK_CPAR&&t2==CALCTOK_NUM&&t3==CALCTOK_OPAR){
+	if (t1 == CALCTOK_CPAR && t2 == CALCTOK_NUM && t3 == CALCTOK_OPAR)
+	{
+		CalcTok nt = *cs2;
 		calcpop(cs);calcpop(cs);calcpop(cs);
-		calcpush(cs,cs2);
-		free(cs1);free(cs3);
+		calcpush(cs, &nt);
 		return 1;
 	}
 	//done
-	if(t1==CALCTOK_END&&t2==CALCTOK_NUM&&t3==0){
+	if (t1 == CALCTOK_END && t2 == CALCTOK_NUM && t3 == 0)
+	{
+		CalcTok nt = *cs2;
 		calcpop(cs);calcpop(cs);
-		calcpush(cs,cs2);
-		free(cs1);
+		calcpush(cs, &nt);
 		return 1;
 	}
-	
+
 	return 0;
 }
 
-
-
-CalcTok* next_calctoken(char *str, int *spos){
-	CalcTok* ct = (CalcTok*) malloc(sizeof(CalcTok));
+static void next_calctoken(const char *str, int *spos, CalcTok *ct)
+{
 	int startpos = 0;
 	int pos = *spos;
 	char *pp;
-	
+
 	ct->type=CALCTOK_END;
 	ct->value=0;
-	
+
 	while(str[pos]==' ') pos++;
 	startpos=pos;
 	switch (str[pos]){
@@ -281,10 +307,8 @@ CalcTok* next_calctoken(char *str, int *spos){
 		default:
 			ct->type=CALCTOK_END;calc_error=CALCERR_SYNTAX;
 			break;
-			
 	}
 	*spos=pos;
-	return ct;
 }
 
 
@@ -296,34 +320,33 @@ static CalcStack* init_calcstack()
 	return cs;
 }
 
-void done_calcstack(CalcStack* cs){
-	int i;
-	for (i=0;i<cs->pos;i++) free(cs->stack[i]);
+static void done_calcstack(CalcStack* cs)
+{
 	free(cs);
 }
 
-void calcpush(CalcStack* cs, CalcTok* ct){
-	if (cs->pos+1>CALCSTACKMAX) {
+static void calcpush(CalcStack* cs, CalcTok* ct)
+{
+	if (cs->pos >= CALCSTACKMAX)
 		calc_error=CALCERR_MEM;
-		return;
-	}
-	cs->stack[cs->pos]=ct;
-	cs->pos++;
+	else
+		cs->stack[cs->pos++] = *ct;
 }
 
 
-CalcTok* calcpop(CalcStack *cs){
-	if (cs->pos<=0) {
-		calc_error=CALCERR_MEM;
+static void calcpop(CalcStack *cs)
+{
+	if (cs->pos <= 0)
+		calc_error = CALCERR_MEM;
+	else
+		cs->pos--;
+}
+
+static CalcTok* calcinspect(CalcStack *cs, int p)
+{
+	if (cs->pos + p - 1 < 0)
 		return NULL;
-	}
-	cs->pos--;
-	return cs->stack[cs->pos+1];
-}
-
-CalcTok* calcinspect(CalcStack *cs, int p){
-	if (cs->pos+p-1<0) return NULL;
-	return cs->stack[cs->pos+p-1];
+	return cs->stack + (cs->pos + p - 1);
 }
 
 
