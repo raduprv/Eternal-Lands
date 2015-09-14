@@ -44,7 +44,7 @@ static int reduce_stack(CalcStack* cs);
 static void next_calctoken(const char* str, int *spos, CalcTok *ct);
 static CalcStack* init_calcstack();
 static void done_calcstack(CalcStack* cs);
-static void calcpop(CalcStack* cs);
+static void calcpop(CalcStack* cs, int n);
 static CalcTok* calcinspect(CalcStack* cs, int pos);
 static void calcpush(CalcStack* cs, CalcTok *ct);
 
@@ -122,7 +122,7 @@ static int reduce_stack(CalcStack* cs)
 	if (t1 == CALCTOK_NUM && t2 == CALCTOK_LOP)
 	{
 		int lvl;
-		calcpop(cs);calcpop(cs);
+		calcpop(cs, 2);
 		if (cs1->value >= 0 && cs1->value <= XPT_MAX)
 		{
 			nt.type = CALCTOK_NUM;
@@ -140,7 +140,7 @@ static int reduce_stack(CalcStack* cs)
 	if (t1 == CALCTOK_NUM && t2 == CALCTOK_XOP)
 	{
 		int i;
-		calcpop(cs);calcpop(cs);
+		calcpop(cs, 2);
 		if (cs1->value >= 0 && cs1->value <= XPL(XPT_MAX))
 		{
 			nt.type = CALCTOK_NUM;
@@ -162,7 +162,7 @@ static int reduce_stack(CalcStack* cs)
 	//mul
 	if (t1 == CALCTOK_NUM && t2 == CALCTOK_MUL && t3 == CALCTOK_NUM)
 	{
-		calcpop(cs);calcpop(cs);calcpop(cs);
+		calcpop(cs, 3);
 		nt.type = CALCTOK_NUM;
 		nt.value = cs1->value * cs3->value;
 		calcpush(cs, &nt);
@@ -171,7 +171,7 @@ static int reduce_stack(CalcStack* cs)
 	//div
 	if (t1 == CALCTOK_NUM && t2 == CALCTOK_DIV && t3 == CALCTOK_NUM)
 	{
-		calcpop(cs);calcpop(cs);calcpop(cs);
+		calcpop(cs, 3);
 		if (cs1->value != 0)
 		{
 			nt.type = CALCTOK_NUM;
@@ -192,7 +192,7 @@ static int reduce_stack(CalcStack* cs)
 	   t4 == CALCTOK_NUM)
 	{
 		CalcTok nt1 = *cs1;
-		calcpop(cs);calcpop(cs);calcpop(cs);calcpop(cs);
+		calcpop(cs, 4);
 		nt.type = CALCTOK_NUM;
 		if (t3==CALCTOK_MINUS)
 			nt.value = cs4->value - cs2->value;
@@ -205,7 +205,7 @@ static int reduce_stack(CalcStack* cs)
 	//modulo
 	if (t1 == CALCTOK_NUM && t2 == CALCTOK_MOD && t3 == CALCTOK_NUM)
 	{
-		calcpop(cs);calcpop(cs);calcpop(cs);
+		calcpop(cs, 3);
 		if (cs1->value!=0)
 		{
 			nt.type=CALCTOK_NUM;
@@ -222,7 +222,7 @@ static int reduce_stack(CalcStack* cs)
 	if (t1 == CALCTOK_CPAR && t2 == CALCTOK_NUM && t3 == CALCTOK_OPAR)
 	{
 		CalcTok nt = *cs2;
-		calcpop(cs);calcpop(cs);calcpop(cs);
+		calcpop(cs, 3);
 		calcpush(cs, &nt);
 		return 1;
 	}
@@ -230,7 +230,7 @@ static int reduce_stack(CalcStack* cs)
 	if (t1 == CALCTOK_END && t2 == CALCTOK_NUM && t3 == 0)
 	{
 		CalcTok nt = *cs2;
-		calcpop(cs);calcpop(cs);
+		calcpop(cs, 2);
 		calcpush(cs, &nt);
 		return 1;
 	}
@@ -334,12 +334,12 @@ static void calcpush(CalcStack* cs, CalcTok* ct)
 }
 
 
-static void calcpop(CalcStack *cs)
+static inline void calcpop(CalcStack *cs, int n)
 {
-	if (cs->pos <= 0)
+	if (cs->pos < n)
 		calc_error = CALCERR_MEM;
 	else
-		cs->pos--;
+		cs->pos -= n;
 }
 
 static CalcTok* calcinspect(CalcStack *cs, int p)
