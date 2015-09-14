@@ -37,13 +37,12 @@ typedef struct caltoken {
 
 typedef struct calstack {
 	int pos;
-	CalcTok **stack;
-	
+	CalcTok* stack[CALCSTACKMAX];
 } CalcStack;
 
 int reduce_stack(CalcStack* cs);
 CalcTok* next_calctoken(char* str, int *spos);
-CalcStack* init_calcstack();
+static CalcStack* init_calcstack();
 void done_calcstack(CalcStack* cs);
 CalcTok* calcpop(CalcStack* cs);
 CalcTok* calcinspect(CalcStack* cs,int pos);
@@ -58,8 +57,6 @@ double last_res=0;
 #define XPT_MAX 179
 #define XPLDIFF(a,b) (exp_lev[b]-exp_lev[a])
 #define XPL(a) (exp_lev[a])
-
-
 
 //Parsing functions
 
@@ -292,17 +289,16 @@ CalcTok* next_calctoken(char *str, int *spos){
 
 
 //Token stack
-CalcStack* init_calcstack(){
-	CalcStack* cs = (CalcStack*) malloc(sizeof(CalcStack));
+static CalcStack* init_calcstack()
+{
+	CalcStack* cs = malloc(sizeof(CalcStack));
 	cs->pos=0;
-	cs->stack = (CalcTok**)malloc(CALCSTACKMAX*sizeof(CalcTok*));
 	return cs;
 }
 
 void done_calcstack(CalcStack* cs){
 	int i;
 	for (i=0;i<cs->pos;i++) free(cs->stack[i]);
-	free(cs->stack);
 	free(cs);
 }
 
