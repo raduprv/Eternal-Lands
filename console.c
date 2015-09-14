@@ -735,9 +735,8 @@ int command_calc(char *text, int len)
 	double res;
 	char str[100];
 	int calcerr;
-	
-	res = calc_exp(text);
-	calcerr = calc_geterror();
+
+	res = calc_exp(text, &calcerr);
 	switch (calcerr){
 		case CALCERR_OK:
 			if (trunc(res)==res) safe_snprintf (str,sizeof(str), "%s = %.0f",text,res);

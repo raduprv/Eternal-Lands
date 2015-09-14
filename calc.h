@@ -10,7 +10,6 @@
 #define CALCERR_XOPSYNTAX 5
 
 
-double calc_exp(const char* str);
-int calc_geterror();
+double calc_exp(const char* str, int *err);
 
 #endif
