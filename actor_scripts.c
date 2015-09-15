@@ -2568,28 +2568,34 @@ void flag_emote_frames(emote_data *emote,emote_frame *frame){
 			for(k=0;k<2;k++)
 				if(emote->anims[i][j][k]==frame)
 					emote->anims[i][j][k]=NULL;
-			
 }
-void free_emote_data(void *data){
-	emote_data *emote=data;
-	emote_frame *head,*frame,*tf;
-	int i,j,k;
-	if (!emote) return;
-	for(i=0;i<EMOTE_ACTOR_TYPES;i++)
-		for(j=0;j<4;j++)
-			for(k=0;k<2;k++) {
-				head=emote->anims[i][j][k];
-				if(!head) continue;
-				frame=head;
-				while(frame){
-					tf=frame->next;
+
+void free_emote_data(void *data)
+{
+	emote_data *emote = data;
+	emote_frame *head, *frame, *tf;
+	int i, j, k;
+	if (!emote)
+		return;
+
+	for (i = 0; i < EMOTE_ACTOR_TYPES; i++)
+	{
+		for (j = 0; j < 4; j++)
+		{
+			for (k = 0; k < 2; k++)
+			{
+				head = emote->anims[i][j][k];
+				if (!head)
+					continue;
+
+				flag_emote_frames(emote, head);
+
+				for (frame = head, tf = head->next; frame; frame = tf, tf = tf->next)
 					free(frame);
-					frame=tf;	
-				}
-				flag_emote_frames(emote,head);
 			}
+		}
+	}
 	free(emote);
-		
 }
 
 emote_data *new_emote(int id){
@@ -3803,13 +3809,13 @@ int parse_actor_frames (actor_types *act, const xmlNode *cfg, const xmlNode *def
 {
 	const xmlNode *item;
 	char str[255];
-	int ok = 1, index;
+	int ok = 1;
 
 	if (cfg == NULL) return 0;
 
 	for (item = cfg; item; item = item->next) {
 		if (item->type == XML_ELEMENT_NODE) {
-			index = -1;
+			int index = -1;
 			if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_IDLE_GROUP") == 0) {
 				get_string_value (str,sizeof(str),item);
      				//act->cal_walk_frame=cal_load_anim(act,str);
@@ -3968,8 +3974,8 @@ int parse_actor_frames (actor_types *act, const xmlNode *cfg, const xmlNode *def
 					, get_int_property(item, "duration")
 					);
 					hash_add(act->emote_frames, (void*)(NULL+j), (void*)anim);					
+					continue;
 				}
-				continue;
 			}
 
 			if (index >= 0)
@@ -3982,10 +3988,6 @@ int parse_actor_frames (actor_types *act, const xmlNode *cfg, const xmlNode *def
 #endif	//NEW_SOUND
 					, get_int_property(item, "duration")
 					);
-
-
-
-
 			}
 			else if (index != -2)
 			{
@@ -4461,7 +4463,6 @@ int parse_actor_script(const xmlNode *cfg)
 		);
 		LOG_ERROR(str);
 	}
-	ok= 1;
 	act->actor_type= act_idx;	// memorize the ID & name to help in debugging
 	safe_strncpy(act->actor_name, get_string_property(cfg, "type"), sizeof(act->actor_name));
 	actor_check_string(act, "actor", "name", act->actor_name);
