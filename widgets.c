@@ -1051,7 +1051,7 @@ int vscrollbar_click(widget_list *W, int mx, int my, Uint32 flags)
 
 	if (b->pos < 0) b->pos = 0;
 	if (b->pos > b->bar_len) b->pos = b->bar_len;
-	
+
 	return 1;
 }
 
@@ -1120,11 +1120,16 @@ int vscrollbar_set_bar_len (int window_id, Uint32 widget_id, int bar_len)
 
 static int vscrollbar_drag(widget_list *W, int x, int y, Uint32 flags, int dx, int dy)
 {
-	window_info *win = (W==NULL) ? NULL : &windows_list.window[W->window_id];
+	window_info *win;
+
+	if (!W)
+		return 0;
+
 	vscrollbar_click(W, x, y, flags);
 
 	/* the drag event can happen multiple times for each redraw as its done in the event loop
 	 * so update the scroll bar position each time to avoid positions glitches */
+	win = &windows_list.window[W->window_id];
 	if(win!=NULL && win->flags&ELW_SCROLLABLE && win->scroll_id==W->id)
 	{
 		int pos = vscrollbar_get_pos(win->window_id, win->scroll_id);
