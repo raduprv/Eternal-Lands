@@ -478,21 +478,22 @@ void popup_add_option(popup_t *this_popup,
  * \param text The option text
  * \param value The value to be sent back to server
  * \param type The type of the option
- * \returns Nothing
+ * \returns 0 if adding the option fails, 1 otherwise
  */
-static void popup_add_option_extended(popup_t *this_popup,
+static int popup_add_option_extended(popup_t *this_popup,
 									  popup_option_group_t group_id,
 									  const char *const text,
 									  popup_option_value_t value,
 									  popup_option_type_t type)
 {
+	popup_grouped_option_t *this_group;
 	popup_option_t *new_popup_option =  popup_option_create( text, group_id, value, type );
+	if (!new_popup_option)
+		return 0;
 
-	popup_grouped_option_t *this_group = popup_find_or_create_group( this_popup, group_id, type );
-
-	if (NULL!=new_popup_option) {
-		list_append(&this_group->options, new_popup_option);
-	}
+	this_group = popup_find_or_create_group( this_popup, group_id, type );
+	list_append(&this_group->options, new_popup_option);
+	return 1;
 }
 
 /*!
@@ -530,8 +531,10 @@ void popup_add_option_textentry(popup_t *this_popup,
 	popup_option_value_t dummy_value;
 	dummy_value.str = calloc( 256, sizeof(char) );
 
-	popup_add_option_extended( this_popup, group_id, text, dummy_value, OPTION_TYPE_TEXTENTRY );
-    this_popup->has_send_button = 1;
+	if (popup_add_option_extended(this_popup, group_id, text, dummy_value, OPTION_TYPE_TEXTENTRY))
+		this_popup->has_send_button = 1;
+	else
+		free(dummy_value.str);
 }
 
 /*!
