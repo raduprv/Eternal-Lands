@@ -2590,8 +2590,9 @@ void free_emote_data(void *data)
 
 				flag_emote_frames(emote, head);
 
-				for (frame = head, tf = head->next; frame; frame = tf, tf = tf->next)
+				for (frame = head, tf = head->next; tf; frame = tf, tf = tf->next)
 					free(frame);
+				free(frame);
 			}
 		}
 	}
