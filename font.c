@@ -33,14 +33,14 @@ typedef struct	{
 	int	spacing;
 	int	texture_id;
 	int	widths[FONTS_ARRAY_SIZE * FONT_CHARS_PER_LINE];
-	char	name[32];
+//	char	name[32];
 } font_info;
 
 static int font_text = 0;
 
 int	cur_font_num=0;
 int	max_fonts=0;
-font_info	*fonts[FONTS_ARRAY_SIZE];
+font_info *fonts[FONTS_ARRAY_SIZE];
 char font_names[FONTS_ARRAY_SIZE][30];
 int	chat_font=0;
 int	name_font=0;
@@ -1517,7 +1517,6 @@ int set_font_parameters (int num)
 			max_fonts=num+1;
 		}
 	// set default font info
-	my_strcp (fonts[num]->name, "default");
 	fonts[num]->spacing=0;
 
 	// load font information
