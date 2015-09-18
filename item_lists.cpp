@@ -1258,11 +1258,11 @@ CHECK_GL_ERRORS();
 	//
 	void List_Window::make_active_visable(void)
 	{
-		const size_t top_entry = vscrollbar_get_pos (win_id, names_scroll_id);
-		int new_pos = top_entry;
-		if (Vars::lists()->get_active()<top_entry)
+		const size_t top_entry = vscrollbar_get_pos(win_id, names_scroll_id);
+		int new_pos;
+		if (Vars::lists()->get_active() < top_entry)
 			new_pos = Vars::lists()->get_active();
-		else if (Vars::lists()->get_active()>=(top_entry+num_show_names_list))
+		else if (Vars::lists()->get_active() >= (top_entry+num_show_names_list))
 			new_pos = Vars::lists()->get_active() - (num_show_names_list - 1);
 		else
 			return;
