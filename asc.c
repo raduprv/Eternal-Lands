@@ -232,16 +232,6 @@ void my_strncp (char *dest, const char *source, size_t len)
 	*dest = '\0';
 }
 
-void my_strcat(char *dest,const char * source)
-{
-	int i,l,dl;
-	
-	l=strlen(source);
-	dl=strlen(dest);
-	for(i=0;i<l;i++)dest[dl+i]=source[i];
-	dest[dl+i]='\0';
-}
-
 Sint32 my_strncompare(const char *dest, const char *src, Sint32 len)
 {
 	int i;

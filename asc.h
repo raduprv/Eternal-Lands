@@ -207,18 +207,6 @@ void my_strncp (char *dest, const char *source, size_t len);
 
 /*!
  * \ingroup	misc_utils
- * \brief	The function concencates the source string to the dest string
- *
- * 		The function concencates the source string to the dest string and sets a terminating \\0
- *
- * \param	dest The destination string
- * \param	source The source string
- * \todo	Err, use strcat instead...
- */
-void my_strcat(char *dest, const char * source);
-
-/*!
- * \ingroup	misc_utils
  * \brief	Compares n bytes of the 2 strings (case insensitive)
  *
  * 		The function compares n bytes of the 2 strings. It is not case sensitive
