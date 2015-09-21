@@ -221,13 +221,6 @@ static int download_files_thread(void* _data)
 
 	init_thread_log("download_files");
 
-	error = 0;
-	result = 0;
-	file_buffer = 0;
-	download_buffer_size = 4096;
-	download_buffer = (char *)calloc(sizeof(char), download_buffer_size);
-	count = data->count;
-
 #ifdef WINDOWS
 	file = my_tmpfile();
 #else
@@ -238,6 +231,12 @@ static int download_files_thread(void* _data)
 	{
 		return 1;
 	}
+
+	error = 0;
+	file_buffer = 0;
+	download_buffer_size = 4096;
+	download_buffer = calloc(download_buffer_size, sizeof(char));
+	count = data->count;
 
 	while (1)
 	{
@@ -559,7 +558,9 @@ static Uint32 add_to_downloads(const char* buffer, const Uint64 buffer_size,
 	line_buffer_size = buffer_size;
 
 	line_size = skip_line(&line_buffer, &line_buffer_size, &skip);
-
+	// XXX FIXME: the following test can succeed for short strings with
+	// line_size < 4, e.g. "CCC". I don't know whether that is correct
+	// behaviour or not, though I suspect it isn't.
 	if (strncmp(buffer, "CCCF", line_size) != 0)
 	{
 		return 0;
@@ -567,7 +568,7 @@ static Uint32 add_to_downloads(const char* buffer, const Uint64 buffer_size,
 
 	size = 0;
 
-	line_size = skip_line(&line_buffer, &line_buffer_size, &skip);
+	skip_line(&line_buffer, &line_buffer_size, &skip);
 
 	while (line_buffer_size > 0)
 	{
@@ -607,7 +608,7 @@ static Uint32 add_to_downloads(const char* buffer, const Uint64 buffer_size,
 			*count += 1;
 		}
 
-		line_size = skip_line(&line_buffer, &line_buffer_size, &skip);
+		skip_line(&line_buffer, &line_buffer_size, &skip);
 	}
 
 	return 1;
@@ -708,8 +709,11 @@ static Uint32 build_update_list(const char* server, const char* file,
 
 	update_progress_function("Checking for updates", 0, 0, user_data);
 
-	if ((buffer = (char *)calloc(sizeof(char), buffer_size)) == NULL)
+	if ((buffer = calloc(buffer_size, sizeof(char))) == NULL)
+	{
+		fclose(tmp_file);
 		return 1;
+	}
 
 	result = check_server_digest_files(file, tmp_file, server, path,
 		buffer_size, buffer, md5);
@@ -717,9 +721,8 @@ static Uint32 build_update_list(const char* server, const char* file,
 	if (result == 0)
 	{
 		update_progress_function("No update needed", 0, 0, user_data);
-			
-		fclose(tmp_file);
 
+		fclose(tmp_file);
 		free(buffer);
 		return 1;
 	}
