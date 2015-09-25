@@ -656,7 +656,7 @@ void Achievements_Window::open_child(void)
 
 
 //	Display the main window.  All the players achievemnt icons and the controls.
-//	Handle the mouse over events for the icons and the cpntrols.
+//	Handle the mouse over events for the icons and the controls.
 //
 int Achievements_Window::display_handler(window_info *win)
 {
@@ -668,10 +668,9 @@ int Achievements_Window::display_handler(window_info *win)
 
 	glEnable(GL_TEXTURE_2D);
 	glColor3f(1.0f,1.0f,1.0f);
-	
+
 	for (size_t i=first; i<their_achievements.size(); ++i)
 	{
-		bool missing = false;
 		size_t shown_num = i-first;
 
 		if ((static_cast<int>(shown_num)/as->get_per_row()) >= physical_rows)
@@ -680,16 +679,13 @@ int Achievements_Window::display_handler(window_info *win)
 			break;
 		}
 
+		int texture = -1;
 		const Achievement * achievement = as->achievement(their_achievements[i]);
 		if (achievement)
-		{
-			int texture = as->texture(achievement->get_id() / icon_per_texture);
-			if (texture < 0)
-			{
-				missing = true;
-				continue;
-			}
+			texture = as->texture(achievement->get_id() / icon_per_texture);
 
+		if (texture >= 0)
+		{
 			int cur_item = achievement->get_id() % icon_per_texture;
 
 #ifdef	NEW_TEXTURES
@@ -721,9 +717,6 @@ int Achievements_Window::display_handler(window_info *win)
 			glDisable(GL_ALPHA_TEST);
 		}
 		else
-			missing = true;
-
-		if (missing)
 		{
 			int pos_x = as->get_border() + (shown_num % as->get_per_row()) * as->get_display()
 				+ (as->get_display() - static_cast<int>(DEFAULT_FONT_X_LEN)) / 2;
