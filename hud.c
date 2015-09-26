@@ -131,11 +131,11 @@ static int mouseover_quickbar_item_pos = -1;
 void cleanup_hud(void)
 {
 	destroy_timer();
+	destroy_hud_indicators();
 	destroy_window(misc_win);
 	destroy_window(stats_bar_win);
 	destroy_window(quickbar_win);
-	destroy_window(indicators_win);
-	stats_bar_win = quickbar_win = misc_win = indicators_win = -1;
+	stats_bar_win = quickbar_win = misc_win = -1;
 }
 
 
@@ -192,8 +192,7 @@ void init_hud_interface (hud_interface type)
 		init_stats_display ();
 		init_quickbar ();
 		init_quickspell ();
-		if (show_indicators)
-			init_hud_indicators (); 
+		init_hud_indicators (); 
 		ready_for_user_menus = 1;
 		if (enable_user_menus)
 			display_user_menus();
@@ -211,7 +210,7 @@ void show_hud_windows ()
 	if (misc_win >= 0) show_window (misc_win);
 	if (quickbar_win >= 0) show_window (quickbar_win);
 	if (quickspell_win >= 0) show_window (quickspell_win);
-	if (indicators_win >= 0) show_window (indicators_win);
+	show_hud_indicators_window();
 }
 
 void hide_hud_windows ()
@@ -221,7 +220,7 @@ void hide_hud_windows ()
 	if (misc_win >= 0) hide_window (misc_win);
 	if (quickbar_win >= 0) hide_window (quickbar_win);
 	if (quickspell_win >= 0) hide_window (quickspell_win);
-	if (indicators_win >= 0) hide_window (indicators_win);
+	hide_hud_indicators_window();
 }
 
 // draw everything related to the hud
@@ -1149,7 +1148,7 @@ void init_misc_display(hud_interface type)
 			cm_bool_line(cm_hud_id, CMH_ANACLOCK, &view_analog_clock, "view_analog_clock");
 			cm_bool_line(cm_hud_id, CMH_SECONDS, &show_game_seconds, "show_game_seconds");
 			cm_bool_line(cm_hud_id, CMH_FPS, &show_fps, "show_fps");
-			cm_bool_line(cm_hud_id, CMH_INDICATORS, &show_indicators, "show_indicators");
+			cm_bool_line(cm_hud_id, CMH_INDICATORS, &show_hud_indicators, "show_indicators");
 			cm_bool_line(cm_hud_id, CMH_MINIMAP, &cm_minimap_shown, NULL);
 			cm_bool_line(cm_hud_id, CMH_RANGSTATS, &cm_rangstats_shown, NULL);
 			cm_bool_line(cm_hud_id, CMH_QUICKBM, &cm_quickbar_enabled, NULL);

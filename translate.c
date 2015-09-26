@@ -196,6 +196,7 @@ char
 	day_indicator_str[40],
 	harvest_indicator_str[40],
 	poison_indicator_str[40],
+	messages_indicator_str[40],
 	/*loginwin.c*/
 	login_username_str[20],
 	login_password_str[20],
@@ -1465,6 +1466,7 @@ void init_help()
 	add_xml_identifier(misc,"day indicator",day_indicator_str,"S||Special Day||Ordinary Day",sizeof(day_indicator_str));
 	add_xml_identifier(misc,"harvest_indicator",harvest_indicator_str,"H||Harvesting||Not Harvesting",sizeof(harvest_indicator_str));
 	add_xml_identifier(misc,"poison_indicator",poison_indicator_str,"P||Poisoned||Not Poisoned",sizeof(poison_indicator_str));
+	add_xml_identifier(misc,"messages_indicator",messages_indicator_str,"M||Recent Messages||No Messages",sizeof(messages_indicator_str));
 	add_xml_identifier(misc,"dc_note_rm",dc_note_remove,"Double-click to remove this category",sizeof(dc_note_remove));
 	add_xml_identifier(misc,"note_saved",note_saved,"Your notes have been saved",sizeof(note_saved));
 	add_xml_identifier(misc,"note_save_failed",note_save_failed,"Failed to save your notes!",sizeof(note_save_failed));

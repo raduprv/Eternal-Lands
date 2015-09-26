@@ -5,9 +5,12 @@
 extern "C" {
 #endif
 
-extern int indicators_win;
-extern int show_indicators;
+extern int show_hud_indicators;
 void init_hud_indicators(void);
+void destroy_hud_indicators(void);
+void show_hud_indicators_window(void);
+void hide_hud_indicators_window(void);
+void toggle_hud_indicators_window(int *show);
 
 #ifdef __cplusplus
 } // extern "C"
