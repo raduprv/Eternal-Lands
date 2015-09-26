@@ -322,6 +322,7 @@ extern char
 		day_indicator_str[40],
 		harvest_indicator_str[40],
 		poison_indicator_str[40],
+		messages_indicator_str[40],
 		/*ignore.c*/
 		no_ignores_str[50],
 		ignores_str[50],
