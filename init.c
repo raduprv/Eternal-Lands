@@ -34,6 +34,7 @@
 #include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
+#include "hud_indicators.h"
 #include "hud_timer.h"
 #include "items.h"
 #include "item_lists.h"
@@ -425,6 +426,8 @@ void read_bin_cfg()
 	floating_counter_flags = cfg_mem.floating_counter_flags;
 
 	set_options_questlog(cfg_mem.questlog_flags);
+
+	set_settings_hud_indicators(cfg_mem.hud_indicators_options, cfg_mem.hud_indicators_position);
 }
 
 void save_bin_cfg()
@@ -688,6 +691,8 @@ void save_bin_cfg()
 	cfg_mem.floating_counter_flags = floating_counter_flags;
 
 	cfg_mem.questlog_flags = get_options_questlog();
+
+	get_settings_hud_indicators(&cfg_mem.hud_indicators_options, &cfg_mem.hud_indicators_position);
 
 	fwrite(&cfg_mem,sizeof(cfg_mem),1,f);
 	fclose(f);
