@@ -60,6 +60,12 @@ int today_is_special_day(void) { return is_special_day; };
 void set_today_is_special_day(void) { is_special_day = 1; };
 void clear_today_is_special_day(void) { is_special_day = 0; };
 
+/* functions to count, return and clear the number of PM or MODPM seen */
+static int seen_pm_count = 0;
+static void inc_seen_pm_count(void) { seen_pm_count++; }
+int get_seen_pm_count(void) { return seen_pm_count; }
+void clear_seen_pm_count(void) { seen_pm_count = 0; }
+
 int log_chat = LOG_SERVER;
 
 float	chat_zoom=1.0;
@@ -676,6 +682,8 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			return 0;
 		}
 		//All right, we do not ignore the person
+		if (channel == CHAT_PERSONAL || channel == CHAT_MODPM)
+			inc_seen_pm_count();
 		if (afk)
 		{
 			if (channel == CHAT_PERSONAL || channel == CHAT_MODPM)

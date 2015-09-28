@@ -84,6 +84,7 @@ BBC News||#open_url http://news.bbc.co.uk/
 
 #include "command_queue.hpp"
 #include "context_menu.h"
+#include "elconfig.h"
 #include "elwindows.h"
 #include "errors.h"
 #include "font.h"
@@ -708,6 +709,7 @@ extern "C"
 	void toggle_user_menus(int *enable)
 	{
 		*enable = !*enable;
+		set_var_unsaved("enable_user_menus", INI_FILE_VAR);
 		if (!ready_for_user_menus)
 			return;
 		if (*enable)

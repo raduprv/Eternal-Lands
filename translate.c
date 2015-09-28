@@ -193,9 +193,13 @@ char
 	cm_action_points_str[30],
 	hud_timer_cm_str[100],
 	hud_timer_popup_title_str[25],
-	day_indicator_str[40],
-	harvest_indicator_str[40],
-	poison_indicator_str[40],
+	/* hud_indicators.cpp */
+	no_indicators_str[20],
+	cm_indicators_str[50],
+	day_indicator_str[60],
+	harvest_indicator_str[60],
+	poison_indicator_str[60],
+	messages_indicator_str[60],
 	/*loginwin.c*/
 	login_username_str[20],
 	login_password_str[20],
@@ -1462,9 +1466,12 @@ void init_help()
 	add_xml_identifier(misc,"cm_action_points",cm_action_points_str,"Show Action Points Bar",sizeof(cm_action_points_str));
 	add_xml_identifier(misc,"hud_timer_cm",hud_timer_cm_str,"Change Mode\nKeep State\n--\nStart/Stop\nSet Time\nReset Time\n--\nShow Help",sizeof(hud_timer_cm_str));
 	add_xml_identifier(misc,"hud_timer_popup_title",hud_timer_popup_title_str,"Time (in seconds)",sizeof(hud_timer_popup_title_str));
-	add_xml_identifier(misc,"day indicator",day_indicator_str,"S||Special Day||Ordinary Day",sizeof(day_indicator_str));
-	add_xml_identifier(misc,"harvest_indicator",harvest_indicator_str,"H||Harvesting||Not Harvesting",sizeof(harvest_indicator_str));
-	add_xml_identifier(misc,"poison_indicator",poison_indicator_str,"P||Poisoned||Not Poisoned",sizeof(poison_indicator_str));
+	add_xml_identifier(misc,"no_indicators",no_indicators_str,"No Indicators",sizeof(no_indicators_str));
+	add_xml_identifier(misc,"cm_indicators",cm_indicators_str,"Movable Window\nReset Position\n--\n",sizeof(cm_indicators_str));
+	add_xml_identifier(misc,"day_indicator",day_indicator_str,"S||Special Day||Ordinary Day||Special Days",sizeof(day_indicator_str));
+	add_xml_identifier(misc,"harvest_indicator",harvest_indicator_str,"H||Harvesting||Not Harvesting||Harvesting Status",sizeof(harvest_indicator_str));
+	add_xml_identifier(misc,"poison_indicator",poison_indicator_str,"P||Poisoned||Not Poisoned||Poison Status",sizeof(poison_indicator_str));
+	add_xml_identifier(misc,"messages_indicator",messages_indicator_str,"M||Recent Messages||No Messages||Message Count",sizeof(messages_indicator_str));
 	add_xml_identifier(misc,"dc_note_rm",dc_note_remove,"Double-click to remove this category",sizeof(dc_note_remove));
 	add_xml_identifier(misc,"note_saved",note_saved,"Your notes have been saved",sizeof(note_saved));
 	add_xml_identifier(misc,"note_save_failed",note_save_failed,"Failed to save your notes!",sizeof(note_save_failed));

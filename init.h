@@ -100,7 +100,7 @@ typedef struct
 	int quickbar_flags;
 	/*! @} */
 
-	int watch_this_stat;	// not used anymore, left here to avoid breaking the file-structure
+	unsigned int hud_indicators_options;
 
 	int has_accepted_rules;
 
@@ -126,8 +126,9 @@ typedef struct
 	 */
 	/*! @{ */
 	unsigned int active_item_list;
-		
-	int unused_01;
+	/*! @} */
+
+	unsigned int hud_indicators_position;
 
 	/*!
 	 * \name quest log window position

@@ -319,9 +319,13 @@ extern char
 		cm_action_points_str[30],
 		hud_timer_cm_str[100],
 		hud_timer_popup_title_str[25],
-		day_indicator_str[40],
-		harvest_indicator_str[40],
-		poison_indicator_str[40],
+		/* hud_indicators.cpp */
+		no_indicators_str[20],
+		cm_indicators_str[50],
+		day_indicator_str[60],
+		harvest_indicator_str[60],
+		poison_indicator_str[60],
+		messages_indicator_str[60],
 		/*ignore.c*/
 		no_ignores_str[50],
 		ignores_str[50],
