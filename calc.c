@@ -332,7 +332,7 @@ static void calcpush(CalcStack* cs, CalcTok* ct)
 }
 
 
-static inline void calcpop(CalcStack *cs, int n)
+static void calcpop(CalcStack *cs, int n)
 {
 	if (cs->pos < n)
 		cs->error = CALCERR_MEM;
