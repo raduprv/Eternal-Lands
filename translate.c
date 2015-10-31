@@ -195,7 +195,7 @@ char
 	hud_timer_popup_title_str[25],
 	/* hud_indicators.cpp */
 	no_indicators_str[20],
-	cm_indicators_str[50],
+	cm_indicators_str[85],
 	day_indicator_str[60],
 	harvest_indicator_str[60],
 	poison_indicator_str[60],
@@ -1467,7 +1467,7 @@ void init_help()
 	add_xml_identifier(misc,"hud_timer_cm",hud_timer_cm_str,"Change Mode\nKeep State\n--\nStart/Stop\nSet Time\nReset Time\n--\nShow Help",sizeof(hud_timer_cm_str));
 	add_xml_identifier(misc,"hud_timer_popup_title",hud_timer_popup_title_str,"Time (in seconds)",sizeof(hud_timer_popup_title_str));
 	add_xml_identifier(misc,"no_indicators",no_indicators_str,"No Indicators",sizeof(no_indicators_str));
-	add_xml_identifier(misc,"cm_indicators",cm_indicators_str,"Movable Window\nReset Position\n--\n",sizeof(cm_indicators_str));
+	add_xml_identifier(misc,"cm_indicators",cm_indicators_str,"--\nMovable Window\nBackground On\nBorder On\n--\nReset Position\n\n--\n",sizeof(cm_indicators_str));
 	add_xml_identifier(misc,"day_indicator",day_indicator_str,"S||Special Day||Ordinary Day||Special Days",sizeof(day_indicator_str));
 	add_xml_identifier(misc,"harvest_indicator",harvest_indicator_str,"H||Harvesting||Not Harvesting||Harvesting Status",sizeof(harvest_indicator_str));
 	add_xml_identifier(misc,"poison_indicator",poison_indicator_str,"P||Poisoned||Not Poisoned||Poison Status",sizeof(poison_indicator_str));
@@ -1621,7 +1621,7 @@ void init_help()
 	add_xml_identifier(misc, "cm_npcname_menu", cm_npcname_menu_str, "Copy NPC Name\nSet Map Mark", sizeof(cm_npcname_menu_str));
 	add_xml_identifier(misc, "cm_dialog_copy_menu", cm_dialog_copy_menu_str, "Exclude Responses\nRemove Newlines", sizeof(cm_dialog_copy_menu_str));
 	add_xml_identifier(misc, "cm_minimap_menu", cm_minimap_menu_str, "--\nRotate Minimap\nPin Minimap\nOpen On Start", sizeof(cm_minimap_menu_str));
-	add_xml_identifier(misc, "cm_user_menu", cm_user_menu_str, "--\nShow Title\nDraw Border\nSmall Font\nStandard Menus\n--\nShow Commands\n--\nReload Menus\nDisable Menus", sizeof(cm_user_menu_str));
+	add_xml_identifier(misc, "cm_user_menu", cm_user_menu_str, "--\nMovable Window\nBorder On\nSmall Font\nStandard Menus\n--\nShow Commands\n--\nReload Menus\nDisable Menus", sizeof(cm_user_menu_str));
 	add_xml_identifier(misc, "cm_item_list_selected", cm_item_list_selected_str, "Edit quantity\n--\nDelete", sizeof(cm_item_list_selected_str));
 	add_xml_identifier(misc, "cm_item_list_names", cm_item_list_names_str, "Create new list\nRename active list\n--\nDelete active list\n--\nReload from file", sizeof(cm_item_list_names_str));
 	add_xml_identifier(misc, "cm_stats_bar_base", cm_stats_bar_base_str, "--\nAdd Bar\nRemove Bar", sizeof(cm_stats_bar_base_str));

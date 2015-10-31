@@ -20,6 +20,7 @@
 #include "chat.h"
 #include "context_menu.h"
 #include "counters.h"
+#include "errors.h"
 #include "font.h"
 #include "elwindows.h"
 #include "gamewin.h"
@@ -114,7 +115,8 @@ namespace Indicators
 			Indicators_Container(void)
 				: indicators_win(-1), cm_menu_id(CM_INIT_VALUE),
 					cm_relocatable(0), x_len(0), y_len(0), default_location(true),
-					option_settings(0), position_settings(0), have_settings(false) {}
+					option_settings(0), position_settings(0), have_settings(false),
+					background_on(0), border_on(0) {}
 			void init(void);
 			void destroy(void);
 			void show(void) { if (indicators_win >= 0) show_window (indicators_win); }
@@ -123,11 +125,14 @@ namespace Indicators
 			void draw(void);
 			void show_tooltip(window_info *win, int mx);
 			void click(int mx, Uint32 flags);
-			int cm_handler(window_info *win, int option);
+			int cm_handler(window_info *win, int widget_id, int mx, int my, int option);
 			void set_settings(unsigned int opts, unsigned int pos) { option_settings = opts; position_settings = pos; have_settings = true;}
 			void get_settings(unsigned int *opts, unsigned int *pos);
 			~Indicators_Container(void) { destroy(); }
 		private:
+			void set_win_flag(Uint32 flag, int state);
+			void set_background(bool on) { background_on = on; set_win_flag(ELW_USE_BACKGROUND, background_on); }
+			void set_border(bool on) { border_on = on; set_win_flag(ELW_USE_BORDER, border_on); }
 			std::vector<Basic_Indicator *> indicators;
 			int indicators_win;
 			size_t cm_menu_id;
@@ -138,10 +143,13 @@ namespace Indicators
 			unsigned int option_settings;
 			unsigned int position_settings;
 			bool have_settings;
+			int background_on;
+			int border_on;
 			std::vector<Basic_Indicator *>::iterator get_over(int mx);
 			std::pair<int,int> get_default_location(void);
 			void change_width(int new_x_len);
-			enum {	CMHI_RELOC=0, CMHI_RESET, CMHI_SPACE1, CMHI_INDBASE};
+			enum {	CMHI_RELOC=ELW_CM_MENU_LEN+1, CMHI_BACKGROUND, CMHI_BORDER,
+					CMHI_SPACE1, CMHI_RESET, CMHI_SPACE2, CMHI_INDBASE};
 	};
 
 
@@ -247,7 +255,7 @@ namespace Indicators
 	static int display_indicators_handler(window_info *win) { container.draw(); return 1; }
 	static int mouseover_indicators_handler(window_info *win, int mx, int my) { if (my>=0) container.show_tooltip(win, mx); return 0; }
 	static int click_indicators_handler(window_info *win, int mx, int my, Uint32 flags) { if (my>=0) container.click(mx, flags); return 1; }
-	static int cm_indicators_handler(window_info *win, int widget_id, int mx, int my, int option) { return container.cm_handler(win, option); }
+	static int cm_indicators_handler(window_info *win, int widget_id, int mx, int my, int option) { return container.cm_handler(win, widget_id, mx, my, option); }
 
 
 	//	Initialise the indicators, create or re-initialise the window.
@@ -301,13 +309,23 @@ namespace Indicators
 
 		if (indicators_win < 0)
 		{
-			indicators_win = create_window("Indicators", -1, 0, loc.first, loc.second, x_len, y_len, ELW_SHOW);
+			indicators_win = create_window("Indicators", -1, 0, loc.first, loc.second, x_len, y_len, ELW_SHOW|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE);
+			if (indicators_win < 0)
+			{
+				LOG_ERROR("%s: Failed to create indicators window\n", __FILE__ );
+				return;
+			}
 			set_window_handler(indicators_win, ELW_HANDLER_DISPLAY, (int (*)())&display_indicators_handler);
 			set_window_handler(indicators_win, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_indicators_handler);
 			set_window_handler(indicators_win, ELW_HANDLER_CLICK, (int (*)())&click_indicators_handler);
 		}
 		else
 			init_window(indicators_win, -1, 0, loc.first, loc.second, x_len, y_len);
+
+		background_on = ((option_settings >> 25) & 1);
+		border_on = ((option_settings >> 26) & 1);
+		set_background(background_on);
+		set_border(border_on);
 
 		if (!cm_valid(cm_menu_id))
 		{
@@ -317,8 +335,13 @@ namespace Indicators
 			cm_menu << cm_indicators_str;
 			for (i=indicators.begin(); i<indicators.end(); ++i)
 				cm_menu << (*i)->get_context_menu_str() << std::endl;
-			cm_menu_id = cm_create(cm_menu.str().c_str(), cm_indicators_handler);
+			cm_menu_id = cm_create(cm_title_menu_str, NULL);
+			cm_bool_line(cm_menu_id, 1, &windows_list.window[indicators_win].opaque, NULL);
+			cm_bool_line(cm_menu_id, 2, &windows_on_top, "windows_on_top");
+			cm_add(cm_menu_id, cm_menu.str().c_str(), cm_indicators_handler);
 			cm_bool_line(cm_menu_id, CMHI_RELOC, &cm_relocatable, 0);
+			cm_bool_line(cm_menu_id, CMHI_BACKGROUND, &background_on, 0);
+			cm_bool_line(cm_menu_id, CMHI_BORDER, &border_on, 0);
 			for (i=indicators.begin(), j=0; i<indicators.end(); ++i, j++)
 				cm_bool_line(cm_menu_id, CMHI_INDBASE+j, (*i)->get_active_var(), 0);
 			cm_add_window(cm_menu_id, indicators_win);
@@ -452,11 +475,28 @@ namespace Indicators
 	}
 
 
+	//	Change a window property bit flag
+	//
+	void Indicators_Container::set_win_flag(Uint32 flag, int state)
+	{
+		if ((indicators_win > -1) && (indicators_win < windows_list.num_windows))
+		{
+			Uint32 *flags = &windows_list.window[indicators_win].flags;
+			if (state)
+				*flags |= flag;
+			else
+				*flags &= ~flag;
+		}
+	}
+
+
 	//	The context menu callback function.
 	//
-	int Indicators_Container::cm_handler(window_info *win, int option)
+	int Indicators_Container::cm_handler(window_info *win, int widget_id, int mx, int my, int option)
 	{
 		size_t index = static_cast<size_t>(option - CMHI_INDBASE);
+		if (option < ELW_CM_MENU_LEN)
+			return cm_title_handler(win, widget_id, mx, my, option);
 		if (index < indicators.size())
 			return 1;
 		switch (option)
@@ -480,6 +520,8 @@ namespace Indicators
 				else if (win->cur_y == 0)
 					move_window(win->window_id, -1, 0, win->cur_x, ELW_TITLE_HEIGHT);
 				break;
+			case CMHI_BACKGROUND: set_background(background_on); break;
+			case CMHI_BORDER: set_border(border_on); break;
 			case CMHI_RESET:
 				{
 					std::pair<int,int> loc = get_default_location();
@@ -487,6 +529,8 @@ namespace Indicators
 					win->flags &= ~(ELW_TITLE_BAR|ELW_DRAGGABLE);
 					cm_relocatable = 0;
 					default_location = true;
+					set_background(false);
+					set_border(false);
 					break;
 				}
 			default:
@@ -526,6 +570,8 @@ namespace Indicators
 			x = static_cast<unsigned int>(windows_list.window[indicators_win].cur_x);
 			y = static_cast<unsigned int>(windows_list.window[indicators_win].cur_y);
 		}
+		flags |= background_on << 25;
+		flags |= border_on << 26;
 
 		*opts = flags;
 		*pos = x | (y<<16);

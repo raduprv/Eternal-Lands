@@ -321,7 +321,7 @@ extern char
 		hud_timer_popup_title_str[25],
 		/* hud_indicators.cpp */
 		no_indicators_str[20],
-		cm_indicators_str[50],
+		cm_indicators_str[85],
 		day_indicator_str[60],
 		harvest_indicator_str[60],
 		poison_indicator_str[60],
