@@ -400,7 +400,7 @@ namespace Indicators
 		{
 			glColor3f(0.40f,0.30f,0.20f);
 			draw_string_zoomed(pos_x, Vars::border(), (const unsigned char *)no_indicators_str, 1, Vars::zoom());
-			pos_x += strlen(no_indicators_str) * Vars::zoom() * Vars::font_x();
+			pos_x += static_cast<int>(strlen(no_indicators_str) * Vars::zoom() * Vars::font_x() + 0.5);
 		}
 		change_width(pos_x + Vars::border());
 	}
