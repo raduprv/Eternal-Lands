@@ -33,7 +33,7 @@ static int distance_moved = -1;
 
 static Uint32 session_exp[NUM_SKILLS];
 static Uint32 max_exp[NUM_SKILLS];
-static Uint32 last_exp[NUM_SKILLS];
+Uint32 last_exp[NUM_SKILLS];
 
 Uint32 session_start_time;
 

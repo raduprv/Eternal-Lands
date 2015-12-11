@@ -229,6 +229,7 @@ enum { SI_ATT = 0, SI_DEF, SI_HAR, SI_ALC, SI_MAG, SI_POT, SI_SUM, SI_MAN, SI_CR
  * An array of pointers to the player stats information - enables looping rather than duplicate code.
  */
 extern struct stats_struct statsinfo[];
+extern Uint32 last_exp[];
 
 #define NUM_SKILLS 13		/*!< the number of skills */
 #define	NUM_WATCH_STAT	14	/*!< allow watching stats 0-13 */
