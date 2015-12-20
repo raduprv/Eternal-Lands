@@ -8,6 +8,7 @@
 #include "calc.h"
 #include "hud.h"
 #include "platform.h"
+#include "stats.h"
 
 
 #define CALCSTACKMAX 256
@@ -22,6 +23,10 @@
 #define CALCTOK_XOP 9
 #define CALCTOK_LOP 10
 #define CALCTOK_MOD 11
+#define CALCTOK_EOP 12
+#define CALCTOK_NOP 13
+#define CALCTOK_ZOP 14
+#define CALCTOK_QOP 15
 
 /*Implementation of #calc command
 
@@ -48,6 +53,8 @@ static void done_calcstack(CalcStack* cs);
 static void calcpop(CalcStack* cs, int n);
 static CalcTok* calcinspect(CalcStack* cs, int pos);
 static void calcpush(CalcStack* cs, CalcTok *ct);
+
+static int si_from_str(const char *str);
 
 double last_res=0;
 
@@ -153,6 +160,64 @@ static int reduce_stack(CalcStack* cs)
 		else
 		{
 			cs->error=CALCERR_XOPSYNTAX;
+		}
+		return 1;
+	}
+	//E operator
+	if(t1 == CALCTOK_EOP){
+		calcpop(cs, 1);
+		if(cs1->value < NUM_SKILLS){
+			nt.type = CALCTOK_NUM;
+			nt.value = *statsinfo[(int)cs1->value].exp;
+			calcpush(cs, &nt);
+		}
+		else
+		{
+			cs->error=CALCERR_EOPSYNTAX;
+		}
+		return 1;
+	}
+	//N operator
+	if(t1==CALCTOK_NOP){
+		calcpop(cs, 1);
+		if(cs1->value < NUM_SKILLS){
+			nt.type = CALCTOK_NUM;
+			nt.value = *statsinfo[(int)cs1->value].next_lev-*statsinfo[(int)cs1->value].exp;
+			calcpush(cs, &nt);
+		}
+		else
+		{
+			cs->error = CALCERR_NOPSYNTAX;
+		}
+		return 1;
+	}
+	//Z operator
+	if(t1==CALCTOK_ZOP){
+		calcpop(cs, 1);
+		if(cs1->value < NUM_SKILLS){
+			nt.type = CALCTOK_NUM;
+			nt.value = last_exp[(int)cs1->value];
+			calcpush(cs, &nt);
+		}
+		else
+		{
+			cs->error = CALCERR_ZOPSYNTAX;
+		}
+		return 1;
+	}
+	//Q operator
+	if(t1 == CALCTOK_NUM && t2 == CALCTOK_QOP){
+		calcpop(cs, 2);
+		if(cs1->value <= exp_lev[XPT_MAX]){
+			int i=0;
+			while(cs1->value >= exp_lev[i]) i++;
+			nt.type = CALCTOK_NUM;
+			nt.value = i-1;
+			calcpush(cs, &nt);
+		}
+		else
+		{
+			cs->error = CALCERR_QOPSYNTAX;
 		}
 		return 1;
 	}
@@ -298,6 +363,31 @@ static void next_calctoken(const char *str, int *spos, CalcStack *cs, CalcTok *c
 		case 'l':
 			ct->type=CALCTOK_LOP;pos++;
 			break;
+		case 'E':
+		case 'e':
+			ct->type = CALCTOK_EOP;pos++;
+			ct->value = si_from_str(&str[pos]);
+			if (ct->value < NUM_SKILLS)
+				pos += strlen((char *)statsinfo[(int)ct->value].skillnames->shortname);
+			break;
+		case 'N':
+		case 'n':
+			ct->type = CALCTOK_NOP;pos++;
+			ct->value = si_from_str(&str[pos]);
+			if (ct->value < NUM_SKILLS)
+				pos += strlen((char *)statsinfo[(int)ct->value].skillnames->shortname);
+			break;
+		case 'Z':
+		case 'z':
+			ct->type = CALCTOK_ZOP;pos++;
+			ct->value = si_from_str(&str[pos]);
+			if (ct->value < NUM_SKILLS)
+				pos += strlen((char *)statsinfo[(int)ct->value].skillnames->shortname);
+			break;
+		case 'Q':
+		case 'q':
+			ct->type = CALCTOK_QOP;pos++;
+			break;
 		case '\0':
 			ct->type=CALCTOK_END;
 			break;
@@ -309,6 +399,16 @@ static void next_calctoken(const char *str, int *spos, CalcStack *cs, CalcTok *c
 	*spos=pos;
 }
 
+int si_from_str(const char *str){
+	int i;
+	char *shortname;
+	for(i = 0; i < NUM_SKILLS; i++) {
+		shortname = (char *)statsinfo[i].skillnames->shortname;
+		if (0==strncasecmp(str, shortname, strlen(shortname)))
+			return i;
+	}
+	return NUM_SKILLS;
+}
 
 //Token stack
 static CalcStack* init_calcstack()

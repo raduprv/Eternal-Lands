@@ -763,6 +763,22 @@ int command_calc(char *text, int len)
 			safe_snprintf (str,sizeof(str), "%s = Bad argument for L", text);
 			LOG_TO_CONSOLE (c_orange1, str);
 			break;
+		case CALCERR_EOPSYNTAX:
+			safe_snprintf (str,sizeof(str), "%s = Bad argument for E", text);
+			LOG_TO_CONSOLE (c_orange1, str);
+			break;
+		case CALCERR_NOPSYNTAX:
+			safe_snprintf (str,sizeof(str), "%s = Bad argument for N", text);
+			LOG_TO_CONSOLE (c_orange1, str);
+			break;
+		case CALCERR_ZOPSYNTAX:
+			safe_snprintf (str,sizeof(str), "%s = Bad argument for Z", text);
+			LOG_TO_CONSOLE (c_orange1, str);
+			break;
+		case CALCERR_QOPSYNTAX:
+			safe_snprintf (str,sizeof(str), "%s = Bad argument for Q", text);
+			LOG_TO_CONSOLE (c_orange1, str);
+			break;
 	}
 	return 1;
 }
