@@ -318,14 +318,14 @@ namespace Indicators
 			set_window_handler(indicators_win, ELW_HANDLER_DISPLAY, (int (*)())&display_indicators_handler);
 			set_window_handler(indicators_win, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_indicators_handler);
 			set_window_handler(indicators_win, ELW_HANDLER_CLICK, (int (*)())&click_indicators_handler);
+
+			background_on = ((option_settings >> 25) & 1);
+			border_on = ((option_settings >> 26) & 1);
+			set_background(background_on);
+			set_border(border_on);
 		}
 		else
 			init_window(indicators_win, -1, 0, loc.first, loc.second, x_len, y_len);
-
-		background_on = ((option_settings >> 25) & 1);
-		border_on = ((option_settings >> 26) & 1);
-		set_background(background_on);
-		set_border(border_on);
 
 		if (!cm_valid(cm_menu_id))
 		{
