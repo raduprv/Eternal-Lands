@@ -1316,14 +1316,14 @@ static int recipe_is_empty(const recipe_entry *recipe)
 }
 
 // clear the specified recipe entry
-static void clear_recipe(size_t recipe_index)
+static void init_recipe_slot(size_t recipe_index)
 {
 	size_t i;
 	if (recipe_index >= num_recipe_entries)
 		return;
 	for(i=0; i<NUM_MIX_SLOTS; i++)
 		recipes_store[recipe_index].items[i].quantity = 0;
-	clear_recipe_name(recipe_index);
+	recipes_store[recipe_index].name = NULL;
 }
 
 // compare to recipes by name, or if both un-named, by oif they are empty
@@ -1366,16 +1366,18 @@ static int context_recipe_handler(window_info *win, int widget_id, int mx, int m
 		case CMRIC_CLEAR:
 		{
 			// clear the current recipe
-			clear_recipe(cur_recipe);
+			clear_recipe_name(cur_recipe);
+			init_recipe_slot(cur_recipe);
 			break;
 		}
 		case CMRIC_DELETE:
 		{
 			// delete the current recipe and move the rest down to fill the gap
+			clear_recipe_name(cur_recipe);
 			if (cur_recipe < (num_recipe_entries - 1))
 				memmove(&recipes_store[cur_recipe], &recipes_store[cur_recipe+1],
 					(num_recipe_entries - cur_recipe -1) * sizeof(recipe_entry));
-			clear_recipe(num_recipe_entries - 1);
+			init_recipe_slot(num_recipe_entries - 1);
 			break;
 		}
 		case CMRIC_SORT:
