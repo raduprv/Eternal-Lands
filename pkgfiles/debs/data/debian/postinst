@@ -26,6 +26,9 @@ case "$1" in
 	DOWNLOADURL="http://twinmoons.org.uk/el/rel/194"
 	DOWNLOADMAIN="eternallands-data_1.9.4-1.zip"
 	MD5SUMMAIN="5980492e7abdd1e1a7adebf0db1c1f6b"
+	# post release updates
+	DOWNLOADUPDATE2="el_data_update_1.9.4-2.zip"
+	MD5SUMUPDATE2="8d4fcd4fc36ac76b09171e861e3f88ca"
 
 	[ -f ~paul/el/installpkg/localdownload ] && DOWNLOADURL="https://harry/~paul/el"
 
@@ -40,6 +43,8 @@ case "$1" in
 
 	# if we already have an archive check the md5sum is ok and remove if not
 	[ ! -f "$DOWNLOADMAIN" ] || echo "$MD5SUMMAIN  $DOWNLOADMAIN" | md5sum -c - || rm -fv $DOWNLOADMAIN
+	# post release updates
+	[ ! -f "$DOWNLOADUPDATE2" ] || echo "$MD5SUMUPDATE2  $DOWNLOADUPDATE2" | md5sum -c - || rm -fv $DOWNLOADUPDATE2
 	
 	
 	# Use existing file or download it 
@@ -48,15 +53,24 @@ case "$1" in
 		wget -P "." -v --progress="dot:mega" --no-check-certificate $DOWNLOADURL/$DOWNLOADMAIN
 		echo "$MD5SUMMAIN  $DOWNLOADMAIN" | md5sum -c -
 	fi
+	# post release updates
+	if [ ! -f "$DOWNLOADUPDATE2" ]
+	then
+		wget -P "." -v --progress="dot:mega" --no-check-certificate $DOWNLOADURL/$DOWNLOADUPDATE2
+		echo "$MD5SUMUPDATE2  $DOWNLOADUPDATE2" | md5sum -c -
+	fi
 
 	# unnpack the archive
 	UNPACKDIR="`mktemp -d /tmp/eternallands-data.XXXXXXXXXX`"
 	cd $UNPACKDIR
 	unzip -q $CACHEDIR/$DOWNLOADMAIN
 	mv EL-1.9.4-datafiles el_install
+	# post release updates
+	cd el_install
+	unzip -q -o $CACHEDIR/$DOWNLOADUPDATE2
 
 	# fix el.ini and server.lst, remove unneeded files and set the permissions
-	cd el_install
+	cd $UNPACKDIR/el_install
 	rm -f *.dll *.exe el.*.bin
 	sed -i 's/^#data_dir.*$/#data_dir = \/usr\/share\/games\/EternalLands/g' el.ini
 	sed -i 's/^#browser.*$/#browser = x-www-browser/g' el.ini
