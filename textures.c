@@ -2699,10 +2699,17 @@ void	texture_overlay(texture_struct *tex, texture_struct *blend)
 
 			alpha= btexture_mem[texture_offset+3];
 			if(alpha > 0){
+/* This makes no sense to me and I assume the following is meant but maybe someone more familiar with this code should look into it.
+
 				texture_mem[texture_offset]= texture_mem[texture_offset];
 				texture_mem[texture_offset+1]= texture_mem[texture_offset+1];
 				texture_mem[texture_offset+2]= texture_mem[texture_offset+2];
 				texture_mem[texture_offset+3]= texture_mem[texture_offset+3];
+*/
+				texture_mem[texture_offset]= btexture_mem[texture_offset];
+				texture_mem[texture_offset+1]= btexture_mem[texture_offset+1];
+				texture_mem[texture_offset+2]= btexture_mem[texture_offset+2];
+				texture_mem[texture_offset+3]= btexture_mem[texture_offset+3];
 			}
 		}
 	}

@@ -1414,6 +1414,7 @@ void switch_vidmode(int *pointer, int mode)
 			case 6:
 				window_width=1600;
 				window_height=1200;
+				return;
 			case 7:
 				window_width=1280;
 				window_height=800;
