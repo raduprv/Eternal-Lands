@@ -442,11 +442,20 @@ int HandleEvent(SDL_Event *event)
 
             if ( SDL_GetMouseState (NULL, NULL) & SDL_BUTTON(2) )
             {
-                camera_rotation_speed = normal_camera_rotation_speed * mouse_delta_x / 220;
-                camera_rotation_frames = 40;
-                camera_tilt_speed = normal_camera_rotation_speed * mouse_delta_y / 220;
-                camera_tilt_frames = 40;
-//                printf("mouse_delta_x %i mouse_delta_y %i rotation_speed %f tilt_speed %f \n",mouse_delta_x,mouse_delta_y,camera_rotation_speed,camera_tilt_speed);   
+                //Holding shift while rotating the camera allows fine adjusting
+                if(shift_on) {
+                  camera_rotation_speed = normal_camera_rotation_speed * mouse_delta_x / 220;
+                  camera_rotation_frames = 1;
+                  camera_tilt_speed = normal_camera_rotation_speed * mouse_delta_y / 220;
+                  camera_tilt_frames = 1;
+  //                printf("mouse_delta_x %i mouse_delta_y %i rotation_speed %f tilt_speed %f \n",mouse_delta_x,mouse_delta_y,camera_rotation_speed,camera_tilt_speed);   
+                } else {
+                  camera_rotation_speed = normal_camera_rotation_speed * mouse_delta_x / 220;
+                  camera_rotation_frames = 40;
+                  camera_tilt_speed = normal_camera_rotation_speed * mouse_delta_y / 220;
+                  camera_tilt_frames = 40;
+  //                printf("mouse_delta_x %i mouse_delta_y %i rotation_speed %f tilt_speed %f \n",mouse_delta_x,mouse_delta_y,camera_rotation_speed,camera_tilt_speed);   
+                }
             }
 
  		           //get the buttons state
