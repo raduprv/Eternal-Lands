@@ -2314,11 +2314,10 @@ int write_el_ini ()
 		if (!our_vars.var[ivar]->saved)
 		{
 			size_t i;
-			for (i = ivar+1; i < our_vars.no; i++)
-			{
+			for (i=0; i<our_vars.no; i++)
 				if (strcmp(our_vars.var[ivar]->name, our_vars.var[i]->name) == 0)
-					our_vars.var[i]->saved = 0;
-			}
+					if (our_vars.var[i]->saved)
+						our_vars.var[i]->saved = 0;
 		}
 	}
 
