@@ -69,9 +69,6 @@ extern char display_password_str[20]; /*!< a string that will be displayed when 
 extern int cons_text;
 extern int icons_text;
 
-extern int ranging_lock;
-extern int auto_disable_ranging_lock;
-
 /*!
  * A flag for a mode, that show whether a mode is supported and/or selected.
  */

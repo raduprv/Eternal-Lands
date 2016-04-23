@@ -2079,11 +2079,7 @@ void add_command_to_actor(int actor_id, unsigned char command)
 		switch(command) {
 		case enter_combat:
 			act->async_fighting= 1;
-			if(ranging_lock && auto_disable_ranging_lock)
-			{
-				ranging_lock= 0;
-				LOG_TO_CONSOLE(c_green1, ranginglock_disabled_str);
-			}
+			check_to_auto_disable_ranging_lock();
 			break;
 		case leave_combat:
 			act->async_fighting= 0;

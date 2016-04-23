@@ -27,13 +27,49 @@ extern int include_use_cursor_on_animals;
 extern int have_mouse;
 extern int keep_grabbing_mouse;
 extern int just_released_mouse;
-void toggle_have_mouse();
 #ifdef NEW_CURSOR
 extern int cursors_tex;
 #endif // NEW_CURSOR
 extern int cm_banner_disabled;
 extern int logo_click_to_url;
-void draw_special_cursors();
+extern int auto_disable_ranging_lock;
+
+/*!
+ * \brief Return the true if the ranging lock is on.
+ *
+ *	Return the true if the ranging lock is on.
+ *
+ * \callgraph
+ * \retval int 0 for off, non-zero on
+ */
+int ranging_lock_is_on(void);
+
+/*!
+ * \brief Turn of ranging lock if on and auto disable is active.
+ *
+ *	Turn of ranging lock if on and auto disable is active.  Give the normal console message.
+ *
+ * \callgraph
+ */
+void check_to_auto_disable_ranging_lock(void);
+
+/*!
+ * \brief Draw the action graphic for the current cursor.
+ *
+ *	Draw the action graphic for the current cursor.
+ *
+ * \callgraph
+ */
+void draw_special_cursors(void);
+
+/*!
+ * \brief Switch between normal and grab mode.
+ *
+ *	Switch between normal and grab mode.
+ *
+ * \callgraph
+*/
+void toggle_have_mouse(void);
 
 /*!
  * \ingroup events

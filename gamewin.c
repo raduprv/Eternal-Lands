@@ -89,10 +89,32 @@ int cursors_tex;
 extern int e3d_count, e3d_total;    // LRNR:stats testing only
 #endif  //DEBUG
 int cm_banner_disabled = 0;
-int ranging_lock = 0;
+
 int auto_disable_ranging_lock = 1;
 
-void draw_special_cursors()
+static int ranging_lock = 0;
+
+int ranging_lock_is_on(void)
+{
+	return ranging_lock;
+}
+
+static void toggle_ranging_lock(void)
+{
+	ranging_lock = !ranging_lock;
+	if (ranging_lock)
+		LOG_TO_CONSOLE(c_green1, ranginglock_enabled_str);
+	else
+		LOG_TO_CONSOLE(c_green1, ranginglock_disabled_str);
+}
+
+void check_to_auto_disable_ranging_lock(void)
+{
+	if(ranging_lock && auto_disable_ranging_lock)
+		toggle_ranging_lock();
+}
+
+void draw_special_cursors(void)
 {
 	const float RET_WID = 4.0f;
 	const float RET_LEN = 10.0f;
@@ -317,7 +339,7 @@ void draw_special_cursors()
 	reset_material();
 }
 
-void toggle_have_mouse()
+void toggle_have_mouse(void)
 {
 	have_mouse = !have_mouse;
 	if(have_mouse){
@@ -916,7 +938,7 @@ int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 
 			if (flag_alt && range_weapon_equipped)
 				return 1;
-			if (ranging_lock && range_weapon_equipped){
+			if (ranging_lock_is_on() && range_weapon_equipped){
 				if(your_actor != NULL)
 					add_highlight(your_actor->x_tile_pos,your_actor->y_tile_pos, HIGHLIGHT_TYPE_LOCK);
 				return 1;
@@ -1802,11 +1824,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	}
 	else if (key == K_RANGINGLOCK)
 	{
-		ranging_lock = !ranging_lock;
-		if (ranging_lock)
-			LOG_TO_CONSOLE(c_green1, ranginglock_enabled_str);
-		else
-			LOG_TO_CONSOLE(c_green1, ranginglock_disabled_str);
+		toggle_ranging_lock();
 	}
 	// open or close windows
 	else if (key == K_STATS)
