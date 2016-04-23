@@ -266,11 +266,12 @@ namespace Indicators
 
 		if (indicators.empty())
 		{
-			indicators.reserve(4);
+			indicators.reserve(5);
 			indicators.push_back(new Parse_Action_Indicator(day_indicator_str, today_is_special_day, indicators.size(), "#day"));
 			indicators.push_back(new Basic_Indicator(harvest_indicator_str, now_harvesting, indicators.size()));
 			indicators.push_back(new Basic_Indicator(poison_indicator_str, we_are_poisoned, indicators.size()));
 			indicators.push_back(new Value_Indicator(messages_indicator_str, get_seen_pm_count, indicators.size(), clear_seen_pm_count));
+			indicators.push_back(new Parse_Action_Indicator(ranginglock_indicator_str, ranging_lock_is_on, indicators.size(), "#keypress #K_RANGINGLOCK"));
 		}
 
 		x_len = static_cast<int>(Vars::font_x() * indicators.size() * Vars::zoom() +
