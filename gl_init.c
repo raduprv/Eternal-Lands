@@ -645,7 +645,7 @@ void init_gl_extensions()
 	/*	GL_EXT_compiled_vertex_array		*/
 
 	/*	GL_ARB_point_sprite			*/
-	if (have_extension(ext_compiled_vertex_array))
+	if (have_extension(arb_point_sprite))
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_point_sprite");
 		LOG_TO_CONSOLE(c_green2, str);
