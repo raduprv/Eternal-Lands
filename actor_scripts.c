@@ -10,6 +10,7 @@
 #include "cursors.h"
 #include "draw_scene.h"
 #include "errors.h"
+#include "gamewin.h"
 #include "global.h"
 #include "hud.h"
 #include "init.h"
