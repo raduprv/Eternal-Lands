@@ -1,0 +1,4 @@
+*.o
+.deps/
+make.conf
+el.x86.linux.bin
