@@ -2205,7 +2205,11 @@ namespace ec
 			void set_particle_texture_combiner();
 			void set_shape_texture_combiner(const float alpha_scale);
 
+#if __cplusplus >= 201103L
+			std::unique_ptr<el::HardwareBuffer> index_buffer;
+#else
 			std::auto_ptr<el::HardwareBuffer> index_buffer;
+#endif
 			Uint32 texture_atlas;
 			Uint32 texture_burn;
 #else	/* NEW_TEXTURES */
