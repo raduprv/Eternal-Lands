@@ -2578,39 +2578,39 @@ namespace ec
 		{
 			while (light_particles.size() < lights.size())
 				light_particles.push_back(std::pair<Particle*, float>(particles[randint((int)particles.size())], 0.0));
-				for (int i = 0; i < (int)light_particles.size(); i++)
+			for (int i = 0; i < (int)light_particles.size(); i++)
+			{
+				Particle* p = light_particles[i].first;
+				if (p->get_light_level() < 0.00005)
 				{
-					Particle* p = light_particles[i].first;
-					if (p->get_light_level() < 0.00005)
+					int j;
+					for (j = 0; j < 40; j++)
 					{
-						int j;
-						for (j = 0; j < 40; j++)
-						{
-							light_particles[i] = std::pair<Particle*, float>(*(particles.begin() + randint((int)particles.size())), 0.0);
-							Particle* p = light_particles[i].first;
-							if (p->get_light_level()> 0.0001)
-							break;
-						}
-						if (j == 40)
-						continue;
+						light_particles[i] = std::pair<Particle*, float>(*(particles.begin() + randint((int)particles.size())), 0.0);
+						Particle* p = light_particles[i].first;
+						if (p->get_light_level()> 0.0001)
+						break;
 					}
+					if (j == 40)
+						continue;
+				}
 
-					light_particles[i].second += time_diff / 100000.0;
-					if (light_particles[i].second >= 1.0)
+				light_particles[i].second += time_diff / 100000.0;
+				if (light_particles[i].second >= 1.0)
 					light_particles[i].second = 1.0;
 
-					const light_t light_level = p->get_light_level() * light_particles[i].second;
-					const GLenum light_id = lights[i];
-					const GLfloat light_pos[4] =
+				const light_t light_level = p->get_light_level() * light_particles[i].second;
+				const GLenum light_id = lights[i];
+				const GLfloat light_pos[4] =
 					{	p->pos.x, p->pos.y, p->pos.z, 1.0};
-					const light_t brightness = light_estimate * lighting_scalar * light_level;
-					const GLfloat light_color[4] =
+				const light_t brightness = light_estimate * lighting_scalar * light_level;
+				const GLfloat light_color[4] =
 					{	p->color[0] * brightness, p->color[1] * brightness, p->color[2] * brightness, 0.0};
-					glEnable(light_id);
-					glLightfv(light_id, GL_POSITION, light_pos);
-					glLightfv(light_id, GL_DIFFUSE, light_color);
-				}
-				for (int i = (int)light_particles.size(); i < (int)lights.size(); i++)
+				glEnable(light_id);
+				glLightfv(light_id, GL_POSITION, light_pos);
+				glLightfv(light_id, GL_DIFFUSE, light_color);
+			}
+			for (int i = (int)light_particles.size(); i < (int)lights.size(); i++)
 				glDisable(lights[i]);
 		}
 		else

@@ -250,10 +250,10 @@ static int	display_dialogue_handler(window_info *win)
 
 	glColor3f(1.0f,1.0f,1.0f);
 	if(y_start>win->orig_len_y)//automatically Y-resizing window if there are a lot of options
-	    win->len_y=y_start;
-    else
-        win->len_y=win->orig_len_y;
-        
+		win->len_y=y_start;
+	else
+		win->len_y=win->orig_len_y;
+
 	//now, draw the character name
 	glColor3f(1.0f,1.0f,1.0f);
 	draw_string_small(npc_name_x_start,win->len_y-(SMALL_FONT_Y_LEN+1),npc_name,1);

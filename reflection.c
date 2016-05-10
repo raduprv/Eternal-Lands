@@ -1244,10 +1244,10 @@ void draw_water_background()
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 
-    if (dungeon)
-        glColor3f(0.00f, 0.21f, 0.34f);
-    else
-        glColor3fv(skybox_sky_color);
+	if (dungeon)
+		glColor3f(0.00f, 0.21f, 0.34f);
+	else
+		glColor3fv(skybox_sky_color);
 
 	if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)
 	{

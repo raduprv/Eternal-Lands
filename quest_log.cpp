@@ -1419,7 +1419,7 @@ static void questlog_find_input_handler(const char *input_text, void *data)
 			goto_questlog_entry(entry);
 			return;
 		}
-		do_alert1_sound();
+	do_alert1_sound();
 }
 
 //	Prompt for text to find.  The dialogue will not close when "OK"
