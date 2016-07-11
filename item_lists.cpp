@@ -112,6 +112,8 @@ namespace ItemLists
 			void save(void);
 			bool add(const char *name);
 			void del(size_t list_index);
+			const std::string & get_active_name(void) const
+				{ static const std::string empty(""); return (!valid_active_list()) ?saved_item_lists[active_list].get_name() :empty; }
 			void rename_active(const char * name);
 			void select_by_name(const char *name);
 			void find_next_matching(const char *filter);
@@ -1056,10 +1058,12 @@ CHECK_GL_ERRORS();
 			return;
 		window_info *win = &windows_list.window[win_id];
 		close_ipu(&ipu_item_list_name);
-		init_ipu(&ipu_item_list_name, win_id, 310, 100, 25, 1, NULL, (is_new) ?new_list_handler :rename_list_handler);
+		init_ipu(&ipu_item_list_name, win_id, -1, -1, 41, 1, NULL, (is_new) ?new_list_handler :rename_list_handler);
 		ipu_item_list_name.x = (win->len_x - ipu_item_list_name.popup_x_len) / 2;
 		ipu_item_list_name.y = (get_grid_size()*num_grid_rows - ipu_item_list_name.popup_y_len) / 2;
 		display_popup_win(&ipu_item_list_name, (is_new) ?item_list_name_str : item_list_rename_str );
+		if (!is_new && Vars::lists()->valid_active_list())
+			set_text_message_data(&ipu_item_list_name.popup_text, Vars::lists()->get_active_name().c_str());
 	}
 
 
