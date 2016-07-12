@@ -113,7 +113,7 @@ namespace ItemLists
 			bool add(const char *name);
 			void del(size_t list_index);
 			const std::string & get_active_name(void) const
-				{ static const std::string empty(""); return (!valid_active_list()) ?saved_item_lists[active_list].get_name() :empty; }
+				{ static const std::string empty(""); return (valid_active_list()) ?saved_item_lists[active_list].get_name() :empty; }
 			void rename_active(const char * name);
 			void select_by_name(const char *name);
 			void find_next_matching(const char *filter);
