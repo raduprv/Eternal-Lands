@@ -1016,10 +1016,19 @@ void draw_point_particle_sys(particle_sys *system_id)
 	int i;
 	particle *p;
 
+	/* Particle size is scaled according to the zoom level but based on
+	 * a previous maximum of 4.0.  When the maximum zoom was increased,
+	 * the scaling code broke.  This compromise keeps the particles  
+	 * visible at the maximum zoom without changing the previous size 
+	 * at closer zooms. */
+	GLfloat local_zoom_level = zoom_level;
+	if (local_zoom_level > 4.0)
+		local_zoom_level = 4.0;
+
 	CHECK_GL_ERRORS();
 	glEnable(GL_POINT_SPRITE_NV);
 	glTexEnvf(GL_POINT_SPRITE_NV,GL_COORD_REPLACE_NV,GL_TRUE);
-	glPointSize(system_id->def->part_size*(5.5f-zoom_level)*4.4f);
+	glPointSize(system_id->def->part_size*(5.5f-local_zoom_level)*4.4f);
 #ifdef	NEW_TEXTURES
 	bind_texture(particle_textures[system_id->def->part_texture]);
 #else	/* NEW_TEXTURES */
