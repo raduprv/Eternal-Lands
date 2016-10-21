@@ -34,14 +34,14 @@ COBJS=2d_objects.o 3d_objects.o \
 	bbox_tree.o books.o buddy.o buffs.o bags.o \
 	cache.o cal.o calc.o chat.o cluster.o colors.o console.o consolewin.o \
 	counters.o cursors.o dds.o ddsimage.o dialogues.o draw_scene.o eye_candy_debugwin.o \
-	elconfig.o elwindows.o encyclopedia.o errors.o events.o	\
+	el_memory.o elconfig.o elwindows.o encyclopedia.o errors.o events.o	\
 	filter.o font.o framebuffer.o frustum.o	\
 	gamewin.o gl_init.o hud.o help.o highlight.o	\
 	ignore.o init.o interface.o items.o io/fileutil.o	\
 	io/e3d_io.o io/elc_io.o	io/map_io.o io/elpathwrapper.o io/xmlcallbacks.o \
 	io/half.o io/normal.o io/elfilewrapper.o io/unzip.o io/ioapi.o io/zip.o io/ziputil.o	\
 	keys.o knowledge.o langselwin.o lights.o list.o load_gl_extensions.o loginwin.o loading_win.o	\
-	main.o manufacture.o map.o mapwin.o memory.o	\
+	main.o manufacture.o map.o mapwin.o	\
 	md5.o mines.o minimap.o misc.o missiles.o multiplayer.o	\
 	new_actors.o new_character.o notepad.o	\
 	openingwin.o image.o \

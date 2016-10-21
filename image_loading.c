@@ -13,7 +13,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include "ddsimage.h"
-#include "memory.h"
+#include "el_memory.h"
 
 #define IMAGE_EXTENSIONS_MAX 5
 static const char* image_extensions[IMAGE_EXTENSIONS_MAX] =

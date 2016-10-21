@@ -189,7 +189,7 @@
 		1F8F613010CDC8CD007B270D /* text.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F8F612C10CDC8CD007B270D /* text.c */; };
 		1F94C1AC0CFE5B4D00E88CB7 /* SDLmain.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F94C1AB0CFE5B4D00E88CB7 /* SDLmain.m */; };
 		1FB7E40D143560CB002C4FEA /* elloggingwrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7E409143560CB002C4FEA /* elloggingwrapper.cpp */; };
-		1FB7E40E143560CB002C4FEA /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7E40B143560CB002C4FEA /* memory.c */; };
+		1FB7E40E143560CB002C4FEA /* el_memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7E40B143560CB002C4FEA /* el_memory.c */; };
 		1FB7E414143560DE002C4FEA /* hardwarebuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7E410143560DE002C4FEA /* hardwarebuffer.cpp */; };
 		1FB7E415143560DE002C4FEA /* logging.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7E412143560DE002C4FEA /* logging.cpp */; };
 		1FB7E43A143560EA002C4FEA /* 7zCrc.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7E417143560EA002C4FEA /* 7zCrc.c */; };
@@ -961,8 +961,8 @@
 		1F94C1AB0CFE5B4D00E88CB7 /* SDLmain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDLmain.m; sourceTree = SOURCE_ROOT; };
 		1FB7E409143560CB002C4FEA /* elloggingwrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = elloggingwrapper.cpp; path = ../elloggingwrapper.cpp; sourceTree = "<group>"; };
 		1FB7E40A143560CB002C4FEA /* elloggingwrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = elloggingwrapper.h; path = ../elloggingwrapper.h; sourceTree = "<group>"; };
-		1FB7E40B143560CB002C4FEA /* memory.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = memory.c; path = ../memory.c; sourceTree = "<group>"; };
-		1FB7E40C143560CB002C4FEA /* memory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = memory.h; path = ../memory.h; sourceTree = "<group>"; };
+		1FB7E40B143560CB002C4FEA /* el_memory.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = el_memory.c; path = ../el_memory.c; sourceTree = "<group>"; };
+		1FB7E40C143560CB002C4FEA /* el_memory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = el_memory.h; path = ../el_memory.h; sourceTree = "<group>"; };
 		1FB7E410143560DE002C4FEA /* hardwarebuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hardwarebuffer.cpp; sourceTree = "<group>"; };
 		1FB7E411143560DE002C4FEA /* hardwarebuffer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = hardwarebuffer.hpp; sourceTree = "<group>"; };
 		1FB7E412143560DE002C4FEA /* logging.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = logging.cpp; sourceTree = "<group>"; };
@@ -1119,8 +1119,8 @@
 				1FB7E40F143560DE002C4FEA /* engine */,
 				1FB7E409143560CB002C4FEA /* elloggingwrapper.cpp */,
 				1FB7E40A143560CB002C4FEA /* elloggingwrapper.h */,
-				1FB7E40B143560CB002C4FEA /* memory.c */,
-				1FB7E40C143560CB002C4FEA /* memory.h */,
+				1FB7E40B143560CB002C4FEA /* el_memory.c */,
+				1FB7E40C143560CB002C4FEA /* el_memory.h */,
 				E1DE78661330EE79005E7747 /* custom_update.c */,
 				E1DE78671330EE79005E7747 /* custom_update.h */,
 				E1DE78681330EE79005E7747 /* new_update.c */,
@@ -2489,7 +2489,7 @@
 				E1DE786A1330EE79005E7747 /* custom_update.c in Sources */,
 				E1DE786B1330EE79005E7747 /* new_update.c in Sources */,
 				1FB7E40D143560CB002C4FEA /* elloggingwrapper.cpp in Sources */,
-				1FB7E40E143560CB002C4FEA /* memory.c in Sources */,
+				1FB7E40E143560CB002C4FEA /* el_memory.c in Sources */,
 				1FB7E414143560DE002C4FEA /* hardwarebuffer.cpp in Sources */,
 				1FB7E415143560DE002C4FEA /* logging.cpp in Sources */,
 				1FB7E43A143560EA002C4FEA /* 7zCrc.c in Sources */,

@@ -10,7 +10,7 @@
 #include "errors.h"
 #include "image.h"
 #include "misc.h"
-#include "memory.h"
+#include "el_memory.h"
 #include <assert.h>
 
 #ifdef	NEW_TEXTURES

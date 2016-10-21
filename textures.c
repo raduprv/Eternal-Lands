@@ -17,7 +17,7 @@
 #include "image_loading.h"
 #include "queue.h"
 #include "threads.h"
-#include "memory.h"
+#include "el_memory.h"
 #include <assert.h>
 #else	/* NEW_TEXTURES */
 #include "io/elfilewrapper.h"
