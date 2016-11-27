@@ -65,7 +65,7 @@ COBJS=2d_objects.o 3d_objects.o	\
 CLUSTER_INSIDES_ELC_COBJS = cluster.o
 
 ELC_COBJS = asc.o colors.o elconfig.o errors.o load_gl_extensions.o md5.o \
-	dds.o ddsimage.o memory.o particles.o queue.o textures.o translate.o hash.o \
+	dds.o ddsimage.o el_memory.o particles.o queue.o textures.o translate.o hash.o \
 	image.o image_loading.o cache.o \
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_ELC_COBJS))
 
