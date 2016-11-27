@@ -15,12 +15,14 @@
 
 #include "../platform.h"
 
+#ifndef __cplusplus
 #ifndef min
 	#define min(x, y) (x<y?x:y)
 #endif //min
 #ifndef max
 	#define max(x, y) (x>y?x:y)
 #endif //max
+#endif
 
 #include <SDL.h>
 #include <SDL_endian.h>
