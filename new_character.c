@@ -20,6 +20,7 @@
 #include "gl_init.h"
 #include "global.h"
 #include "hud.h"
+#include "icon_window.h"
 #include "init.h"
 #include "interface.h"
 #include "lights.h"
@@ -517,8 +518,8 @@ int display_newchar_handler (window_info *win)
 
 	glColor3f(251/255.0f, 250/255.0f, 190/255.0f);
 #ifdef NEW_NEW_CHAR_WINDOW
-	draw_string_small(68, win->len_y-hud_y+15, (unsigned char*)zoom_in_out, 1);
-	draw_string_small(68, win->len_y-hud_y+32, (unsigned char*)rotate_camera, 1);
+	draw_string_small(get_icons_win_active_len() + 2, win->len_y-hud_y+15, (unsigned char*)zoom_in_out, 1);
+	draw_string_small(get_icons_win_active_len() + 2, win->len_y-hud_y+32, (unsigned char*)rotate_camera, 1);
 #else
 	draw_string_small(132, win->len_y-hud_y+15, (unsigned char*)zoom_in_out, 1);
 	draw_string_small(132, win->len_y-hud_y+32, (unsigned char*)rotate_camera, 1);
