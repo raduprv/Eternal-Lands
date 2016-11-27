@@ -13,6 +13,9 @@
 extern "C" {
 #endif
 
+extern float global_scale;
+#define GLOBAL_SCALED_VALUE(BASE) ((int)(0.5 + ((BASE) * global_scale)))
+
 extern int elconfig_win;
 extern int elconfig_menu_x;
 extern int elconfig_menu_y;

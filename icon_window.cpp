@@ -16,6 +16,7 @@
 #include "actors.h"
 #include "chat.h"
 #include "context_menu.h"
+#include "elconfig.h"
 #include "elwindows.h"
 #include "elloggingwrapper.h"
 #include "gamewin.h"
@@ -267,7 +268,7 @@ namespace IconWindow
 			void default_icons(icon_window_mode icon_mode);
 			Virtual_Icon * icon_xml_factory(const xmlNodePtr cur);
 			bool read_xml(icon_window_mode icon_mode);
-			int get_icon_size(void) const { return display_icon_size; }
+			int get_icon_size(void) const { return GLOBAL_SCALED_VALUE(display_icon_size); }
 			static int cm_generic_handler(window_info *win, int widget_id, int mx, int my, int option)
 			{
 				Busy dummy;
@@ -666,10 +667,16 @@ extern "C" int reload_icon_window(char *text, int len)
 	return 1;
 }
 
-//	Used for hacking the hud stats bar displays, really just returns window width
+//	Returns width occupied by the icons
 extern "C" int get_icons_win_active_len(void)
 {
 	return action_icons.get_icon_size() * action_icons.get_num_icons();
+}
+
+//	Returns height occupied by the icons
+extern "C" int get_icons_win_active_height(void)
+{
+	return action_icons.get_icon_size();
 }
 
 //	Make the specified icon flash

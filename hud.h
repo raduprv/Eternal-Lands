@@ -61,6 +61,7 @@ extern int 	quickbar_relocatable; /*!< flag that indicates whether the quickbar 
 void init_quickbar();
 
 void switch_action_mode(int * mode, int id);
+int get_player_statsbar_active_height(void);
 
 extern int hud_text;
 extern int hud_x;

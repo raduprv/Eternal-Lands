@@ -653,7 +653,14 @@ static int action_bar_start_x;
 static int action_bar_start_y;
 static int exp_bar_start_x;
 static int exp_bar_start_y;
-static int free_statbar_space;
+
+static int player_statsbar_y_offset = 4;
+static int player_statsbar_bar_height = 8;
+
+int get_player_statsbar_active_height(void)
+{
+	return player_statsbar_y_offset + GLOBAL_SCALED_VALUE(player_statsbar_bar_height);
+}
 
 // clear the context menu regions for all stats bars and set up again
 static void reset_statsbar_exp_cm_regions(void)
@@ -662,7 +669,7 @@ static void reset_statsbar_exp_cm_regions(void)
 	cm_remove_regions(stats_bar_win);
 	for (i=0; i<max_disp_stats; i++)
 		if (watch_this_stats[i] > 0)
-			cm_add_region(cm_id, stats_bar_win, exp_bar_start_x+i*(stats_bar_len+exp_bar_text_len), exp_bar_start_y, stats_bar_len, 12);
+			cm_add_region(cm_id, stats_bar_win, exp_bar_start_x+i*(stats_bar_len+exp_bar_text_len), exp_bar_start_y, stats_bar_len, get_player_statsbar_active_height());
 }
 
 static int cm_statsbar_handler(window_info *win, int widget_id, int mx, int my, int option)
@@ -742,12 +749,15 @@ void init_stats_display()
 {
 	int num_exp = get_num_statsbar_exp();
 	int actual_num_exp = 0;
+	int stats_height = get_player_statsbar_active_height();
+	int stats_width = window_width - HUD_MARGIN_X;
+	int stats_y_pos = window_height - (HUD_MARGIN_Y - player_statsbar_y_offset);
 
 	//create the stats bar window
 	if(stats_bar_win < 0)
 	{
 		static size_t cm_id_ap = CM_INIT_VALUE;
-		stats_bar_win= create_window("Stats Bar", -1, 0, 0, window_height-44, window_width-HUD_MARGIN_X, 12, ELW_TITLE_NONE|ELW_SHOW_LAST);
+		stats_bar_win= create_window("Stats Bar", -1, 0, 0, stats_y_pos, stats_width, stats_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
 		set_window_handler(stats_bar_win, ELW_HANDLER_DISPLAY, &display_stats_bar_handler);
 		set_window_handler(stats_bar_win, ELW_HANDLER_MOUSEOVER, &mouseover_stats_bar_handler);
 
@@ -757,7 +767,7 @@ void init_stats_display()
 		cm_bool_line(cm_id_ap, 0, &show_action_bar, "show_action_bar");
 	}
 	else
-		init_window(stats_bar_win, -1, 0, 0, window_height-44, window_width-HUD_MARGIN_X, 12);
+		init_window(stats_bar_win, -1, 0, 0, stats_y_pos, stats_width, stats_height);
 
 	// calculate the statsbar len given curent config
 	stats_bar_len = calc_stats_bar_len(num_exp);
@@ -780,9 +790,6 @@ void init_stats_display()
 	if (show_action_bar)
 		action_bar_start_x = 4 * stats_bar_len + 5 * stats_bar_text_len;
 
-	// the x position of the first exp bar
-	exp_bar_start_x = ((show_action_bar)?5:4) * (stats_bar_len + stats_bar_text_len) + exp_bar_text_len;
-
 	// clear any unused slots in the watch list and recalc how many are being displayed
 	if (max_disp_stats < MAX_WATCH_STATS)
 	{
@@ -796,8 +803,9 @@ void init_stats_display()
 	}
 	actual_num_exp = get_num_statsbar_exp();
 
-	free_statbar_space = (window_width-HUD_MARGIN_X-1) -
-		(exp_bar_start_x - exp_bar_text_len + actual_num_exp * (exp_bar_text_len + stats_bar_len));
+	// the x position of the first exp bar, keep right aligned
+	exp_bar_start_x = window_width + exp_bar_text_len - HUD_MARGIN_X - 2
+		- actual_num_exp * (exp_bar_text_len + stats_bar_len);
 
 	// apologise if we had to reduce the number of exp bars
 	if (num_exp > actual_num_exp)
@@ -820,6 +828,7 @@ void draw_stats_bar(int x, int y, int val, int len, float r, float g, float b, f
 {
 	char buf[32];
 	int i; // i deals with massive bars by trimming at 110%
+	int bar_height = GLOBAL_SCALED_VALUE(player_statsbar_bar_height);
 	
 	if(len>stats_bar_len*1.1)
 		i=stats_bar_len*1.1;
@@ -831,13 +840,13 @@ void draw_stats_bar(int x, int y, int val, int len, float r, float g, float b, f
 		glBegin(GL_QUADS);
 		//draw the colored section
  		glColor3f(r2, g2, b2);
-		glVertex3i(x, y+8, 0);
+		glVertex3i(x, y+bar_height, 0);
 		glColor3f(r, g, b);
 		glVertex3i(x, y, 0);
 		glColor3f(r, g, b);
 		glVertex3i(x+i, y, 0);
 		glColor3f(r2, g2, b2);
-		glVertex3i(x+i, y+8, 0);
+		glVertex3i(x+i, y+bar_height, 0);
 		glEnd();
 	}
 	// draw the bar frame
@@ -845,15 +854,15 @@ void draw_stats_bar(int x, int y, int val, int len, float r, float g, float b, f
 	glBegin(GL_LINE_LOOP);
 	glVertex3i(x, y, 0);
 	glVertex3i(x+stats_bar_len, y, 0);
-	glVertex3i(x+stats_bar_len, y+8, 0);
-	glVertex3i(x, y+8, 0);
+	glVertex3i(x+stats_bar_len, y+bar_height, 0);
+	glVertex3i(x, y+bar_height, 0);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 	
 	// handle the text
 	safe_snprintf(buf, sizeof(buf), "%d", val);
 	//glColor3f(0.8f, 0.8f, 0.8f); moved to next line
-	draw_string_small_shadowed(x-(1+8*strlen(buf))-1, y-2, (unsigned char*)buf, 1,0.8f, 0.8f, 0.8f,0.0f,0.0f,0.0f);
+	draw_string_small_shadowed(x-(1+SMALL_FONT_X_LEN*strlen(buf))-1, y-2, (unsigned char*)buf, 1,0.8f, 0.8f, 0.8f,0.0f,0.0f,0.0f);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -2235,7 +2244,7 @@ void draw_exp_display()
 		if (watch_this_stats[i] > 0)
 		{
 			int name_x;
-			int name_y = exp_bar_start_y+10;
+			int name_y = exp_bar_start_y + 2 + GLOBAL_SCALED_VALUE(player_statsbar_bar_height);
 			int icon_x = get_icons_win_active_len();
 			int cur_exp = *statsinfo[watch_this_stats[i]-1].exp;
 			int nl_exp = *statsinfo[watch_this_stats[i]-1].next_lev;
@@ -2261,20 +2270,9 @@ void draw_exp_display()
 			// the the name would overlap with the icons...
 			if (name_x < icon_x)
 			{
-				// if there is space just use it
-				int need = icon_x - name_x;
-				if (need < free_statbar_space)
-				{
-					name_x += need;
-					my_exp_bar_start_x += need;
-				}
-				// otherwise move the name onto the bar and use short form
-				else
-				{
-					name = statsinfo[watch_this_stats[i]-1].skillnames->shortname;
-					name_x = my_exp_bar_start_x + stats_bar_len - strlen((char *)name) * SMALL_FONT_X_LEN - 3;
-					name_y = -3;
-				}
+				name = statsinfo[watch_this_stats[i]-1].skillnames->shortname;
+				name_x = my_exp_bar_start_x + stats_bar_len - strlen((char *)name) * SMALL_FONT_X_LEN - 3;
+				name_y = (int)(0.5 + (player_statsbar_y_offset + player_statsbar_bar_height * global_scale - SMALL_FONT_Y_LEN) / 2) - 1;
 			}
 
 			draw_stats_bar(my_exp_bar_start_x, exp_bar_start_y, nl_exp - cur_exp, exp_adjusted_x_len, 0.1f, 0.8f, 0.1f, 0.1f, 0.4f, 0.1f);

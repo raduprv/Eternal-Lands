@@ -72,6 +72,9 @@
 #include "actor_init.h"
 #include "emotes.h"
 
+int HUD_MARGIN_X = 64;
+int HUD_MARGIN_Y = 49;
+
 int game_root_win = -1;
 int gamewin_in_id = 4442;
 int use_old_clicker=0;
