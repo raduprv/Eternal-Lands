@@ -34,6 +34,15 @@ int get_icons_win_active_len(void);
 
 /*!
  * \ingroup windows
+ * \brief Return the current height of the icon window.
+ *
+ * \callgraph
+ */
+int get_icons_win_active_height(void);
+
+
+/*!
+ * \ingroup windows
  * \brief Initialise the icon window to the specified mode.
  *
  * \param	icon_mode	The new icom mode.

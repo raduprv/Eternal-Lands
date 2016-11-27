@@ -12,8 +12,8 @@
 extern "C" {
 #endif
 
-#define HUD_MARGIN_X 64
-#define HUD_MARGIN_Y 49
+extern int HUD_MARGIN_X;
+extern int HUD_MARGIN_Y;
 
 /*! \name windows handlers 
  * @{ */

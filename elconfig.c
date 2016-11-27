@@ -36,6 +36,7 @@
  #include "gl_init.h"
  #include "hud.h"
  #include "hud_indicators.h"
+ #include "icon_window.h"
  #include "init.h"
  #include "interface.h"
  #include "items.h"
@@ -183,6 +184,8 @@ int shadow_map_size_multi= 0;
 #ifdef	FSAA
  int fsaa_index = 0;
 #endif	/* FSAA */
+
+float global_scale = 1.0;
 
 /* temporary variables for fine graphic positions asjustmeet */
 int gx_adjust = 0;
@@ -466,6 +469,20 @@ void change_string(char * var, char * str, int len)
 }
 
 #ifdef ELC
+
+void change_global_scale(float *var, float *value)
+{
+	*var= *value;
+	//HUD_MARGIN_X = GLOBAL_SCALED_VALUE(64);
+	//hud_x = HUD_MARGIN_X;
+	hud_y = HUD_MARGIN_Y = 5 + get_player_statsbar_active_height() + get_icons_win_active_height();
+
+	if ((game_root_win >= 0) || (newchar_root_win >= 0))
+	{
+		init_hud_interface (HUD_INTERFACE_LAST);
+		resize_all_root_windows (window_width, window_height);
+	}
+}
 
 /*
  * The chat logs are created very early on in the client start up, before the
@@ -1893,6 +1910,7 @@ static void init_ELC_vars(void)
 
 
 	// HUD TAB
+	add_var(OPT_FLOAT,"global_scale","global_scale",&global_scale,change_global_scale,1,"Global scaling factor.","Under development: Scale user interface by this factor, useful for high DPI displays.",HUD,1.0,3.0,0.01);
 	add_var(OPT_BOOL,"show_fps","fps",&show_fps,change_var,1,"Show FPS","Show the current frames per second in the corner of the window",HUD);
 	add_var(OPT_BOOL,"view_analog_clock","analog",&view_analog_clock,change_var,1,"Analog Clock","Toggle the analog clock",HUD);
 	add_var(OPT_BOOL,"view_digital_clock","digit",&view_digital_clock,change_var,1,"Digital Clock","Toggle the digital clock",HUD);
