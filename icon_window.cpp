@@ -33,9 +33,8 @@
 #include "sound.h"
 #include "command_queue.hpp"
 
-/* 
+/*
  * TODO		Add icon window position code - allowing the window to be repositioned
- * TODO		Look for xml files in user config directory
  * TODO		Give indication that command queue is busy?
  */
 
@@ -481,7 +480,7 @@ namespace IconWindow
 			if (parsed)
 			{
     			std::istringstream lines(parsed);
-    			std::string line;    
+    			std::string line;
     			while (std::getline(lines, line))
 					if (!line.empty())
 						menu_lines.push_back(CommandQueue::Line(line));
@@ -656,14 +655,14 @@ static int reload_flag = false;
 static icon_window_mode last_mode = (icon_window_mode)0;
 
 //	Window callback for mouse over
-static int	mouseover_icons_handler(window_info *win, int mx, int my)
+static int mouseover_icons_handler(window_info *win, int mx, int my)
 {
 	action_icons.mouse_over(action_icons.over_icon(mx));
 	return 0;
 }
 
 //	Window callback for display
-static int	display_icons_handler(window_info *win)
+static int display_icons_handler(window_info *win)
 {
 	if (reload_flag)
 	{
@@ -676,7 +675,7 @@ static int	display_icons_handler(window_info *win)
 }
 
 //	Window callback mouse click
-static int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
+static int click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	if ( (flags & ELW_MOUSE_BUTTON) == 0)
 		return 0; // only handle mouse button clicks, not scroll wheels moves;
@@ -712,11 +711,13 @@ extern "C" void flash_icon(const char* name, Uint32 seconds)
 	action_icons.flash(name, seconds);
 }
 
+//	Set the icon size
 extern "C" void set_icon_size(int icon_size)
 {
 	action_icons.set_icon_size(icon_size);
 }
 
+//	Set the spacing between icons
 extern "C" void set_icon_spacing(int icon_spacing)
 {
 	action_icons.set_icon_spacing(icon_spacing);
