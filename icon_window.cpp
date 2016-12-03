@@ -259,16 +259,21 @@ namespace IconWindow
 	class Container
 	{
 		public:
-			Container(void) : mouse_over_icon(-1), display_icon_size(32) {}
+			Container(void) : mouse_over_icon(-1), display_icon_size(32), icon_spacing(0) {}
 			~Container(void) { free_icons(); }
 			size_t get_num_icons(void) const { return icon_list.size(); }
-			bool empty(void) const { return icon_list.empty(); };
-			void mouse_over(int icon_number) { mouse_over_icon = icon_number; }
+			bool empty(void) const { return icon_list.empty(); }
+			void mouse_over(size_t icon_number) { if (icon_number < icon_list.size()) mouse_over_icon = icon_number; }
 			void draw_icons(void);
 			void default_icons(icon_window_mode icon_mode);
 			Virtual_Icon * icon_xml_factory(const xmlNodePtr cur);
 			bool read_xml(icon_window_mode icon_mode);
 			int get_icon_size(void) const { return GLOBAL_SCALED_VALUE(display_icon_size); }
+			int get_icon_spacing(void) const { return GLOBAL_SCALED_VALUE(icon_spacing); }
+			int get_icon_slot_width(void) const { return  get_icon_spacing() + get_icon_size(); }
+			int get_icons_win_width(void) const { return  get_icon_slot_width() * get_num_icons() - get_icon_spacing(); }
+			void set_icon_size(int icon_size) { display_icon_size = icon_size; update_window(); }
+			void set_icon_spacing(int icon_spacing) { this->icon_spacing = icon_spacing; update_window(); }
 			static int cm_generic_handler(window_info *win, int widget_id, int mx, int my, int option)
 			{
 				Busy dummy;
@@ -311,12 +316,28 @@ namespace IconWindow
 						break;
 					}
 			}
+			size_t over_icon(int mx)
+			{
+				int icon_number = mx / get_icon_slot_width();
+				if (mx - (icon_number * get_icon_slot_width()) <= get_icon_size())
+					return static_cast<size_t>(icon_number);
+				else
+					return icon_list.size();
+			}
+			void update_window(void)
+			{
+				if(icons_win < 0)
+					return;
+				move_window(icons_win, -1, 0, 0, window_height-get_icon_size());
+				resize_window(icons_win, get_icons_win_width(), get_icon_size());
+			}
 		private:
 			class Busy { public: Busy(void) { busy = true; } ~Busy(void) { busy = false; } };
 			std::vector <Virtual_Icon *> icon_list;
 			int mouse_over_icon;
 			static bool busy;
 			int display_icon_size;
+			int icon_spacing;
 	};
 
 	bool Container::busy = false;
@@ -392,11 +413,12 @@ namespace IconWindow
 		for (size_t i=0; i<icon_list.size(); ++i)
 		{
 			std::pair<float, float> uv = icon_list[i]->get_uv();
-			draw_2d_thing( uv.first, uv.second, uv.first+uoffset, uv.second+voffset, i*get_icon_size(), 0, i*get_icon_size()+(get_icon_size()-1), get_icon_size() );
+			draw_2d_thing( uv.first, uv.second, uv.first+uoffset, uv.second+voffset,
+				i*get_icon_slot_width(), 0, i*get_icon_slot_width()+(get_icon_size()-1), get_icon_size() );
 		}
 		glEnd();
 		if (show_help_text && (mouse_over_icon >= 0) && ((size_t)mouse_over_icon < icon_list.size()))
-			show_help(icon_list[mouse_over_icon]->get_help_message(), get_icon_size()*(mouse_over_icon+1)+2, 10);
+			show_help(icon_list[mouse_over_icon]->get_help_message(), get_icon_slot_width()*(mouse_over_icon+1)+2, 10);
 		mouse_over_icon = -1;
 	}
 
@@ -567,7 +589,12 @@ namespace IconWindow
 				}
 			}
 			else if (!xmlStrcasecmp(cur->name, (const xmlChar *)"image_settings"))
-				get_xml_field_int(&display_icon_size, "display_size", cur);
+			{
+				int temp_size = display_icon_size;
+				get_xml_field_int(&temp_size, "display_size", cur);
+				if (temp_size != display_icon_size)
+					LOG_ERROR("Setting the icon size from the XML file is no longer supported.");
+			}
 		}
 		xmlFreeDoc(doc);
 		return true;
@@ -631,7 +658,7 @@ static icon_window_mode last_mode = (icon_window_mode)0;
 //	Window callback for mouse over
 static int	mouseover_icons_handler(window_info *win, int mx, int my)
 {
-	action_icons.mouse_over(mx/action_icons.get_icon_size());
+	action_icons.mouse_over(action_icons.over_icon(mx));
 	return 0;
 }
 
@@ -654,9 +681,9 @@ static int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 	if ( (flags & ELW_MOUSE_BUTTON) == 0)
 		return 0; // only handle mouse button clicks, not scroll wheels moves;
 	if (flags & ELW_RIGHT_MOUSE)
-		action_icons.menu(mx/action_icons.get_icon_size());
+		action_icons.menu(action_icons.over_icon(mx));
 	else if (flags & ELW_LEFT_MOUSE)
-		action_icons.action(mx/action_icons.get_icon_size());
+		action_icons.action(action_icons.over_icon(mx));
 	return 1;
 }
 
@@ -670,7 +697,7 @@ extern "C" int reload_icon_window(char *text, int len)
 //	Returns width occupied by the icons
 extern "C" int get_icons_win_active_len(void)
 {
-	return action_icons.get_icon_size() * action_icons.get_num_icons();
+	return action_icons.get_icons_win_width() ;
 }
 
 //	Returns height occupied by the icons
@@ -683,6 +710,16 @@ extern "C" int get_icons_win_active_height(void)
 extern "C" void flash_icon(const char* name, Uint32 seconds)
 {
 	action_icons.flash(name, seconds);
+}
+
+extern "C" void set_icon_size(int icon_size)
+{
+	action_icons.set_icon_size(icon_size);
+}
+
+extern "C" void set_icon_spacing(int icon_spacing)
+{
+	action_icons.set_icon_spacing(icon_spacing);
 }
 
 //	Create/display the icon window and create the icons as needed
@@ -706,8 +743,6 @@ extern "C" void init_icon_window(icon_window_mode icon_mode)
 		set_window_handler(icons_win, ELW_HANDLER_CLICK, (int (*)())&click_icons_handler);
 		set_window_handler(icons_win, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_icons_handler);
 	}
-	else
-		move_window(icons_win, -1, 0, 0, window_height-action_icons.get_icon_size());
 
-	resize_window(icons_win, action_icons.get_icon_size()*action_icons.get_num_icons(), action_icons.get_icon_size());
+	action_icons.update_window();
 }

@@ -65,6 +65,38 @@ void init_icon_window(icon_window_mode icon_mode);
  */
 void flash_icon(const char* name, Uint32 seconds);
 
+
+/*!
+ * \ingroup windows
+ * \brief Set the icon size.
+ *
+ *      Set the icon size.  Can be called before creating the icon window.
+ * If called after creation, the hud and root windows will need resizing
+ * which must include recalling the init_icon_window() function. The
+ * global_scaling factor will be applied.
+ * 
+ * \param	icon_size	the size in pixels of one icon, both height & width.
+ * 
+ * \callgraph
+ */
+void set_icon_size(int icon_size);
+
+
+/*!
+ * \ingroup windows
+ * \brief Set the spacing between icons.
+ *
+ *      Set the spacing between icons. If other hud compoents use the
+ * latest window width using get_icons_win_active_len(), no further
+ * resizing should be necessary.  The global_scaling factor will be applied.
+ * 
+ * \param	icon_spacing	The size in pixels of the space between icons.
+ * 
+ * \callgraph
+ */
+void set_icon_spacing(int icon_spacing);
+
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
