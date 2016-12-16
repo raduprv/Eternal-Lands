@@ -730,8 +730,8 @@ int Achievements_Window::display_handler(window_info *win)
 
 	if ((cm_window_shown() == CM_INIT_VALUE) && (win_mouse_x > as->get_border()) && (win_mouse_y > as->get_border()))
 	{
-		int row = (win_mouse_y - as->get_border()) / as->get_size();
-		int col = (win_mouse_x - as->get_border()) / as->get_size();
+		int row = (win_mouse_y - as->get_border()) / as->get_display();
+		int col = (win_mouse_x - as->get_border()) / as->get_display();
 		if ((row >= 0) && (row < physical_rows) && (col >= 0) && (col < as->get_per_row()))
 		{
 			size_t current_index = first + row * as->get_per_row() + col;
