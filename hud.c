@@ -659,7 +659,7 @@ static int player_statsbar_bar_height = 8;
 
 int get_player_statsbar_active_height(void)
 {
-	return player_statsbar_y_offset + GLOBAL_SCALED_VALUE(player_statsbar_bar_height);
+	return player_statsbar_y_offset + UI_SCALED_VALUE(player_statsbar_bar_height);
 }
 
 // clear the context menu regions for all stats bars and set up again
@@ -828,7 +828,7 @@ void draw_stats_bar(int x, int y, int val, int len, float r, float g, float b, f
 {
 	char buf[32];
 	int i; // i deals with massive bars by trimming at 110%
-	int bar_height = GLOBAL_SCALED_VALUE(player_statsbar_bar_height);
+	int bar_height = UI_SCALED_VALUE(player_statsbar_bar_height);
 	
 	if(len>stats_bar_len*1.1)
 		i=stats_bar_len*1.1;
@@ -2244,7 +2244,7 @@ void draw_exp_display()
 		if (watch_this_stats[i] > 0)
 		{
 			int name_x;
-			int name_y = exp_bar_start_y + 2 + GLOBAL_SCALED_VALUE(player_statsbar_bar_height);
+			int name_y = exp_bar_start_y + 2 + UI_SCALED_VALUE(player_statsbar_bar_height);
 			int icon_x = get_icons_win_active_len();
 			int cur_exp = *statsinfo[watch_this_stats[i]-1].exp;
 			int nl_exp = *statsinfo[watch_this_stats[i]-1].next_lev;
@@ -2272,7 +2272,7 @@ void draw_exp_display()
 			{
 				name = statsinfo[watch_this_stats[i]-1].skillnames->shortname;
 				name_x = my_exp_bar_start_x + stats_bar_len - strlen((char *)name) * SMALL_FONT_X_LEN - 3;
-				name_y = (int)(0.5 + (player_statsbar_y_offset + player_statsbar_bar_height * global_scale - SMALL_FONT_Y_LEN) / 2) - 1;
+				name_y = (int)(0.5 + (player_statsbar_y_offset + UI_SCALED_VALUE(player_statsbar_bar_height) - SMALL_FONT_Y_LEN) / 2) - 1;
 			}
 
 			draw_stats_bar(my_exp_bar_start_x, exp_bar_start_y, nl_exp - cur_exp, exp_adjusted_x_len, 0.1f, 0.8f, 0.1f, 0.1f, 0.4f, 0.1f);

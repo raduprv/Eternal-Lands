@@ -185,7 +185,7 @@ int shadow_map_size_multi= 0;
  int fsaa_index = 0;
 #endif	/* FSAA */
 
-float global_scale = 1.0;
+float ui_scale = 1.0;
 
 /* temporary variables for fine graphic positions asjustmeet */
 int gx_adjust = 0;
@@ -470,10 +470,10 @@ void change_string(char * var, char * str, int len)
 
 #ifdef ELC
 
-void change_global_scale(float *var, float *value)
+void change_ui_scale(float *var, float *value)
 {
 	*var= *value;
-	//HUD_MARGIN_X = GLOBAL_SCALED_VALUE(64);
+	//HUD_MARGIN_X = UI_SCALED_VALUE(64);
 	//hud_x = HUD_MARGIN_X;
 	HUD_MARGIN_Y = 5 + get_player_statsbar_active_height() + get_icons_win_active_height();
 	if (hud_y != 0)
@@ -1912,7 +1912,7 @@ static void init_ELC_vars(void)
 
 
 	// HUD TAB
-	add_var(OPT_FLOAT,"global_scale","global_scale",&global_scale,change_global_scale,1,"Global scaling factor.","Under development: Scale user interface by this factor, useful for high DPI displays.",HUD,1.0,3.0,0.01);
+	add_var(OPT_FLOAT,"ui_scale","ui_scale",&ui_scale,change_ui_scale,1,"UI scaling factor.","Under development: Scale user interface by this factor, useful for high DPI displays.",HUD,1.0,3.0,0.01);
 	add_var(OPT_BOOL,"show_fps","fps",&show_fps,change_var,1,"Show FPS","Show the current frames per second in the corner of the window",HUD);
 	add_var(OPT_BOOL,"view_analog_clock","analog",&view_analog_clock,change_var,1,"Analog Clock","Toggle the analog clock",HUD);
 	add_var(OPT_BOOL,"view_digital_clock","digit",&view_digital_clock,change_var,1,"Digital Clock","Toggle the digital clock",HUD);

@@ -267,8 +267,8 @@ namespace IconWindow
 			void default_icons(icon_window_mode icon_mode);
 			Virtual_Icon * icon_xml_factory(const xmlNodePtr cur);
 			bool read_xml(icon_window_mode icon_mode);
-			int get_icon_size(void) const { return GLOBAL_SCALED_VALUE(display_icon_size); }
-			int get_icon_spacing(void) const { return GLOBAL_SCALED_VALUE(icon_spacing); }
+			int get_icon_size(void) const { return UI_SCALED_VALUE(display_icon_size); }
+			int get_icon_spacing(void) const { return UI_SCALED_VALUE(icon_spacing); }
 			int get_icon_slot_width(void) const { return  get_icon_spacing() + get_icon_size(); }
 			int get_icons_win_width(void) const { return  get_icon_slot_width() * get_num_icons() - get_icon_spacing(); }
 			void set_icon_size(int icon_size) { display_icon_size = icon_size; update_window(); }
