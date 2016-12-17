@@ -15,6 +15,7 @@ extern int achievements_ctrl_click;
 void achievements_player_name(const char *name, int len);
 void achievements_data(Uint32 *data, size_t word_count);
 void achievements_requested(int mouse_pos_x, int mouse_pos_y, int control_used);
+int achievements_close_all(void);
 
 #ifdef __cplusplus
 } // extern "C"
