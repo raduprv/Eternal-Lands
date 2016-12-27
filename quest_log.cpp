@@ -873,12 +873,13 @@ CHECK_GL_ERRORS();
 }
 
 
+// quest log filter window vars automatically scaled
+static int npc_name_space = 0;
+static int npc_name_border = 0;
+static int npc_name_box_size = 0;
+static float max_npc_name_x = 0;
+static float max_npc_name_y = 0;
 // quest log filter window vars
-static const int npc_name_space = 3;
-static const int npc_name_border = 5;
-static const int npc_name_box_size = 12;
-static const float max_npc_name_x = npc_name_space*3+npc_name_box_size+(MAX_USERNAME_LENGTH) * font_x;
-static const float max_npc_name_y = font_y + 2*npc_name_space;
 static const unsigned int min_npc_name_cols = 1;
 static const unsigned int min_npc_name_rows = 10;
 static unsigned int npc_name_cols = 0;
@@ -907,6 +908,31 @@ static int resize_quest_filter_handler(window_info *win, int new_width, int new_
 		set_window_scroll_len(win->window_id, static_cast<int>(npc_name_rows*max_npc_name_y-win->len_y));
 		return 0;
 }
+
+
+//	Called on creation and when scaling changes, set the starting size and position fo npc filter window
+//
+static void npclist_resize(void)
+{
+	if ((quest_filter_win >= 0) && (quest_filter_win<windows_list.num_windows))
+	{
+		window_info *npc_win = &windows_list.window[quest_filter_win];
+		if ((npc_win->pos_id >= 0) && (npc_win->pos_id<windows_list.num_windows))
+		{
+			window_info *parent_win = &windows_list.window[npc_win->pos_id];
+			int size_x = static_cast<int>(2*npc_name_border + min_npc_name_cols * max_npc_name_x + box_size);
+			int size_y = static_cast<int>(static_cast<int>(parent_win->len_y/max_npc_name_y)*max_npc_name_y);
+			int min_size_x = static_cast<int>(2*npc_name_border + min_npc_name_cols * max_npc_name_x + box_size);
+			int min_size_y = static_cast<int>(min_npc_name_rows * max_npc_name_y);
+			int pos_x = parent_win->len_x + win_space;
+			int pos_y = 0;
+			resize_window(quest_filter_win, size_x, size_y);
+			move_window(quest_filter_win, npc_win->pos_id, npc_win->pos_loc, parent_win->pos_x + pos_x, parent_win->pos_y + pos_y);
+			set_window_min_size(quest_filter_win, min_size_x, min_size_y);
+		}
+	}
+}
+
 
 
 //	Display handler for the quest log filter.
@@ -1048,20 +1074,14 @@ static void open_filter_window(void)
 {
 	if (quest_filter_win < 0)
 	{
-		window_info *win = &windows_list.window[questlog_win];
-		int min_x = static_cast<int>(2*npc_name_border + min_npc_name_cols * max_npc_name_x + box_size);
-		int min_y = static_cast<int>(min_npc_name_rows * max_npc_name_y);
-		quest_filter_win = create_window(questlog_npc_filter_title_str, questlog_win, 0, win->len_x + win_space, 0,
-			min_x, static_cast<int>(static_cast<int>(win->len_y/max_npc_name_y)*max_npc_name_y),
-			ELW_SCROLLABLE|ELW_RESIZEABLE|ELW_WIN_DEFAULT);
+		quest_filter_win = create_window(questlog_npc_filter_title_str, questlog_win, 0, 0, 0, 0, 0, ELW_SCROLLABLE|ELW_RESIZEABLE|ELW_WIN_DEFAULT);
 		set_window_handler(quest_filter_win, ELW_HANDLER_DISPLAY, (int (*)())&display_quest_filter_handler );
 		set_window_handler(quest_filter_win, ELW_HANDLER_CLICK, (int (*)())&click_quest_filter_handler );
 		set_window_handler(quest_filter_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_quest_filter_handler );
 		set_window_handler(quest_filter_win, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_quest_filter_handler );
 		set_window_handler(quest_filter_win, ELW_HANDLER_RESIZE, (int (*)())&resize_quest_filter_handler );
-		set_window_min_size(quest_filter_win, min_x, min_y);
 		set_window_scroll_inc(quest_filter_win, static_cast<int>(max_npc_name_y));
-		resize_quest_filter_handler(&windows_list.window[quest_filter_win], -1, -1);
+		npclist_resize();
 	}
 	else
 		show_window(quest_filter_win);
@@ -1636,6 +1656,11 @@ static bool update_scalable_values(float new_scale)
 		box_size = static_cast<int>(0.5 + ELW_BOX_SIZE * new_scale);
 		qlwinheight = static_cast<int>(0.5 + 350 * new_scale);
 		linesep = font_y + 2 * spacer;
+		npc_name_space = 3 * new_scale;
+		npc_name_border = 5 * new_scale;
+		npc_name_box_size = 12 * new_scale;
+		max_npc_name_x = npc_name_space * 3 + npc_name_box_size + (MAX_USERNAME_LENGTH) * font_x;
+		max_npc_name_y = font_y + 2 * npc_name_space;
 		if (qlwinwidth == 0)
 		{
 			// chars_per_line is constant based on initial window size
@@ -1661,6 +1686,7 @@ static int display_questlog_handler(window_info *win)
 		widget_move(questlog_win, quest_scroll_id, qlwinwidth - box_size, box_size);
 		resize_window(questlog_win, qlwinwidth, qlwinheight);
 		questlist.resize();
+		npclist_resize();
 	}
 
 	// If required, call the next stage of a entry input.
