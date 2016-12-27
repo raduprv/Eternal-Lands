@@ -1038,10 +1038,18 @@ static int click_npc_filter_handler(window_info *win, int mx, int my, Uint32 fla
 
 //	Move the window scroll position to match the key pressed with the first character of the npc name.
 //
+#ifdef ANDROID
+static int keypress_npc_filter_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey, Uint16 mods)
+#else
 static int keypress_npc_filter_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+#endif
 {
 	char keychar = tolower(static_cast<char>(unikey));
+#ifdef ANDROID
+	if ((mods & KMOD_CTRL) || (mods & KMOD_ALT) || (keychar<'a') || (keychar>'z'))
+#else
 	if ((key & ELW_CTRL) || (key & ELW_ALT) || (keychar<'a') || (keychar>'z'))
+#endif
 		return 0;
 	size_t line = 0;
 	for (std::map<std::string,int>::iterator i = npc_filter_map.begin(); i != npc_filter_map.end(); ++i, line++)
@@ -1771,7 +1779,11 @@ static int questlog_click(window_info *win, int mx, int my, Uint32 flags)
 }
 
 
+#ifdef ANDROID
+static int keypress_questlog_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey, Uint16 mods)
+#else
 static int keypress_questlog_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+#endif
 {
 	char keychar = tolower(static_cast<char>(unikey));
 	if ((key == K_MARKFILTER) || (keychar=='/'))
