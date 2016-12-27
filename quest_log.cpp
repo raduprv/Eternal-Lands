@@ -1,6 +1,6 @@
 /*
 	Rewrite of quest log with new context menu features.
- 
+
 	Author bluap/pjbroad Feb 2010
 */
 
@@ -116,7 +116,7 @@ class Quest_List
 	public:
 		Quest_List(void) : save_needed(false), iter_set(false), max_title(0),
 			selected_id(Quest::UNSET_ID), highlighted_id(Quest::UNSET_ID),
-			win_id(-1), scroll_id(0), mouseover_y(-1), clicked(false), cm_id(CM_INIT_VALUE), 
+			win_id(-1), scroll_id(0), mouseover_y(-1), clicked(false), cm_id(CM_INIT_VALUE),
 			no_auto_open(0), hide_completed(0), list_left_of_entries(0), quest_completed(0), number_shown(0) {}
 		void add(Uint16 id);
 		void set_requested_title(const char* title);
@@ -319,7 +319,7 @@ void Quest_List::load(void)
 			}
 		}
 	}
-	
+
 	save_needed = false;
 	recalc_num_shown();
 }
@@ -556,7 +556,7 @@ static int chars_per_line = 0;
 
 
 //	Create a fixed vector to use if deleted and a raw npc name / deleted string.
-// 
+//
 void Quest_Entry::update_displayed_npc_name(void)
 {
 	if (deleted_line.empty())
@@ -721,7 +721,7 @@ void Quest_Entry::set(const std::string & the_text_const)
 			is_color(the_text[npc_end + npc_spacer.size()]))
 			npc = the_text.substr(1,npc_end-1);
 	}
-	
+
 	if (npc.empty())
 	{
 		npc = std::string("----");
@@ -740,7 +740,7 @@ bool Quest_Entry::contains_string(const char *text_to_find) const
 		return false;
 	std::string lowercase(text_to_find);
 	std::transform(lowercase.begin(), lowercase.end(), lowercase.begin(), tolower);
-	std::string fulltext;	
+	std::string fulltext;
 	for (std::vector<std::string>::size_type i=0; i<lines.size(); i++)
 		fulltext += lines[i] + ' ';
 	std::transform(fulltext.begin(), fulltext.end(), fulltext.begin(), tolower);
@@ -915,7 +915,7 @@ static int display_quest_filter_handler(window_info *win)
 {
 	static Uint8 resizing = 0;
 	static size_t last_filter_size = static_cast<size_t>(-1);
-	
+
 	// if resizing wait until we stop
 	if (win->resized)
 		resizing = 1;
@@ -940,7 +940,7 @@ static int display_quest_filter_handler(window_info *win)
 	{
 		int posx = static_cast<int>(npc_name_border + col*max_npc_name_x + 0.5);
 		int posy = static_cast<int>(row*max_npc_name_y + 0.5);
-		
+
 		// draw highlight over active name
 		if ((col+row*npc_name_cols) == quest_filter_active_npc_name)
 			draw_highlight(posx, posy, static_cast<int>(0.5+max_npc_name_x), static_cast<int>(0.5+max_npc_name_y), 0);
@@ -977,7 +977,7 @@ static int display_quest_filter_handler(window_info *win)
 
 	// make sure the mouse over detection is fresh next time
 	quest_filter_active_npc_name = static_cast<size_t>(-1);
-	
+
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -1025,7 +1025,7 @@ static int keypress_quest_filter_handler(window_info *win, int mx, int my, Uint3
 			set_window_scroll_pos(win->window_id, static_cast<int>(static_cast<int>(line/npc_name_cols)*max_npc_name_y));
 			return 1;
 		}
-	}	
+	}
 	return 1;
 }
 
@@ -1197,10 +1197,9 @@ static int resize_questlist_handler(window_info *win, int new_width, int new_hei
 }
 
 
-//	Handle option selection for the quest list context menu 
+//	Handle option selection for the quest list context menu
 static int cm_questlist_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
-	
 	switch (option)
 	{
 		case CMQL_COMPLETED: questlist.toggle_completed(questlist.get_highlighted()); break;
@@ -1756,7 +1755,7 @@ static int keypress_questlog_handler(window_info *win, int mx, int my, Uint32 ke
 	}
 	return 0;
 }
-	
+
 
 static int mouseover_questlog_handler(window_info *win, int mx, int my)
 {
@@ -1779,7 +1778,7 @@ static int show_questlog_handler(window_info *win)
 //	Rebuilding the active_entry list must be done by the caller after this.
 //
 static void add_questlog_line(const char *t, const char *npcprefix)
-{	
+{
 	quest_entries.push_back(Quest_Entry());
 	if (strlen(npcprefix))
 		quest_entries.back().set(std::string(t), std::string(npcprefix));
@@ -1839,7 +1838,7 @@ extern "C" void load_questlog()
 {
 	update_scalable_values(1.0);
 	questlist.load();
-	
+
 	// If the quest log is already loaded, just make sure we're saved.
 	// This will take place when relogging after disconnection.
 	if (!quest_entries.empty())
@@ -1847,7 +1846,7 @@ extern "C" void load_questlog()
 		save_questlog();
 		return;
 	}
-	
+
 	std::string username = std::string(username_str);
 	std::transform(username.begin(), username.end(), username.begin(), tolower);
 	filename = std::string(get_path_config()) + "quest_" + username + ".log";
