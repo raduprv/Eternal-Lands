@@ -85,7 +85,7 @@ class Quest_Title_Request
 		Uint16 get_id(void) const { return id; }
 		void request(void);
 		bool been_requested(void) const { return requested; }
-		bool is_too_old(void) const { return (abs(SDL_GetTicks() - request_time) > 5000); }
+		bool is_too_old(void) const { return (abs(static_cast<long>(SDL_GetTicks() - request_time)) > 5000); }
 	private:
 		Uint16 id;
 		Uint32 request_time;
@@ -153,6 +153,7 @@ class Quest_List
 		bool cm_active(void) const { return ((cm_id != CM_INIT_VALUE) && (cm_window_shown() == cm_id)); }
 		void check_title_requests(void);
 		void resize(void);
+		void check_auto_open(void) { if (auto_open_window() && !get_show_window(get_win_id())) open_window(); }
 	private:
 		std::map <Uint16,Quest,QuestCompare> quests;
 		std::queue <Quest_Title_Request> title_requests;
@@ -1767,8 +1768,7 @@ static int mouseover_questlog_handler(window_info *win, int mx, int my)
 
 static int show_questlog_handler(window_info *win)
 {
-	if (questlist.auto_open_window() && !get_show_window(questlist.get_win_id()))
-		questlist.open_window();
+	questlist.check_auto_open();
 	return 0;
 }
 
@@ -1889,33 +1889,6 @@ extern "C" void unload_questlog()
 }
 
 
-//	Create the questlog (possibly) inside a tabbed window.
-//
-extern "C" void fill_questlog_win ()
-{
-	set_window_handler(questlog_win, ELW_HANDLER_DISPLAY, (int (*)())display_questlog_handler);
-	set_window_handler(questlog_win, ELW_HANDLER_CLICK, (int (*)())questlog_click);
-	set_window_handler(questlog_win, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_questlog_handler );
-	set_window_handler(questlog_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_questlog_handler );
-	set_window_handler(questlog_win, ELW_HANDLER_SHOW, (int (*)())&show_questlog_handler );
-
-	size_t last_entry = active_entries.size()-1;
-	quest_scroll_id = vscrollbar_add_extended (questlog_win, quest_scroll_id, NULL, qlwinwidth - box_size, box_size, box_size, qlwinheight - box_size, 0, 1.0, 0.77f, 0.57f, 0.39f, last_entry, 1, last_entry);
-	goto_questlog_entry(last_entry);
-	
-	widget_set_OnClick (questlog_win, quest_scroll_id, (int (*)())questlog_scroll_click);
-	widget_set_OnDrag (questlog_win, quest_scroll_id, (int (*)())questlog_scroll_drag);
-
-	if (!cm_valid(cm_questlog_id))
-	{
-		cm_questlog_id = cm_create(cm_questlog_menu_str, cm_quest_handler);
-		cm_add_window(cm_questlog_id, questlog_win);
-		cm_set_pre_show_handler(cm_questlog_id, cm_questlog_pre_show_handler);
-		init_ipu(&ipu_questlog, -1, -1, -1, 1, 1, NULL, NULL);
-	}
-}
-
-
 //	Create (or show existing) a stand alone quest log window.
 //
 extern "C" void display_questlog()
@@ -1928,12 +1901,32 @@ extern "C" void display_questlog()
 		}
 		update_scalable_values(1.0);
 		questlog_win = create_window(tab_questlog,our_root_win, 0, questlog_menu_x, questlog_menu_y, qlwinwidth, qlwinheight, ELW_WIN_DEFAULT);
-		fill_questlog_win ();
+
+		set_window_handler(questlog_win, ELW_HANDLER_DISPLAY, (int (*)())display_questlog_handler);
+		set_window_handler(questlog_win, ELW_HANDLER_CLICK, (int (*)())questlog_click);
+		set_window_handler(questlog_win, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_questlog_handler );
+		set_window_handler(questlog_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_questlog_handler );
+		set_window_handler(questlog_win, ELW_HANDLER_SHOW, (int (*)())&show_questlog_handler );
+
+		size_t last_entry = active_entries.size()-1;
+		quest_scroll_id = vscrollbar_add_extended (questlog_win, quest_scroll_id, NULL, qlwinwidth - box_size, box_size, box_size, qlwinheight - box_size, 0, 1.0, 0.77f, 0.57f, 0.39f, last_entry, 1, last_entry);
+		goto_questlog_entry(last_entry);
+
+		widget_set_OnClick (questlog_win, quest_scroll_id, (int (*)())questlog_scroll_click);
+		widget_set_OnDrag (questlog_win, quest_scroll_id, (int (*)())questlog_scroll_drag);
+
+		if (!cm_valid(cm_questlog_id))
+		{
+			cm_questlog_id = cm_create(cm_questlog_menu_str, cm_quest_handler);
+			cm_add_window(cm_questlog_id, questlog_win);
+			cm_set_pre_show_handler(cm_questlog_id, cm_questlog_pre_show_handler);
+			init_ipu(&ipu_questlog, -1, -1, -1, 1, 1, NULL, NULL);
+		}
 	}
 	else
 		show_window(questlog_win);
-	if (questlist.auto_open_window() && !get_show_window(questlist.get_win_id()))
-		questlist.open_window();
+
+	questlist.check_auto_open();
 }
 
 

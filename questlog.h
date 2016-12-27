@@ -74,18 +74,6 @@ void goto_questlog_entry(int ln);
 
 /*!
  * \ingroup quest_window
- * \brief Sets the window handler functions for the quest log window
- *
- *      Sets the window handler functions for the quest log window
- *
- * \callgraph
- */
-void fill_questlog_win ();
-
-
-
-/*!
- * \ingroup quest_window
  * \brief Sets the quest id for the next quest log entry which will be sent.
  *
  *      Sets the quest id for the next quest log entry which will be sent.
