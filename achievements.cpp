@@ -37,16 +37,6 @@
 */
 
 
-static int get_font_x(void)
-{
-	return static_cast<int>(0.5 + SMALL_FONT_X_LEN);
-}
-static int get_font_y(void)
-{
-	return static_cast<int>(0.5 + SMALL_FONT_Y_LEN);
-}
-
-
 //	A class to hold a single achievement object.
 //
 class Achievement
@@ -58,7 +48,7 @@ class Achievement
 		const std::string & get_title(void) const { return title; }
 		size_t get_id(void) const { return image_id; }
 		static const size_t npos;
-		void prepare(int win_x, int border);
+		void prepare(int win_x, int font_x, int border);
 		size_t get_num_lines(void) const { return lines.size(); }
 	private:
 		std::string text;
@@ -96,7 +86,7 @@ void Achievement::show(std::ostream & out) const
 
 //	Process the main text into lines that fix into the pop-up window
 //
-void Achievement::prepare(int win_x, int border)
+void Achievement::prepare(int win_x, int font_x, int border)
 {
 	if (prepared)
 		return;
@@ -105,7 +95,7 @@ void Achievement::prepare(int win_x, int border)
 	int col = 0;
 	std::string::size_type last_space = 0;
 	std::string::size_type start = 0;
-	int chars_per_line = (win_x - 2 * border) / get_font_x();
+	int chars_per_line = (win_x - 2 * border) / font_x;
 
 	for (std::string::size_type i=0; i<text.size(); i++)
 	{
@@ -181,11 +171,13 @@ class Achievements_System
 		int texture(size_t index) const;
 		bool hide_all(void) const;
 		int get_size(void) const { return size; }
-		int get_display(void) const { return UI_SCALED_VALUE(display); }
-		int get_y_win_offset(void) const { return UI_SCALED_VALUE(y_win_offset); }
+		int get_font_x(void) const { return static_cast<int>(0.5 + SMALL_FONT_X_LEN * ui_scale); }
+		int get_font_y(void) const { return static_cast<int>(0.5 + SMALL_FONT_Y_LEN * ui_scale); }
+		int get_display(void) const { return static_cast<int>(0.5 + display * ui_scale); }
+		int get_y_win_offset(void) const { return static_cast<int>(0.5 + y_win_offset * ui_scale); }
 		int get_per_row(void) const { return per_row; }
 		int get_max_rows(void) const { return max_rows; }
-		int get_border(void) const { return UI_SCALED_VALUE(border); }
+		int get_border(void) const { return static_cast<int>(0.5 + border * ui_scale); }
 		int main_win_x(void) const { return per_row * get_display() + 3 * get_border(); }
 		int get_child_win_x(void) const;
 		int get_child_win_y(void) const { return get_font_y() * (1 + max_detail_lines) + 2 * get_border(); }
@@ -427,7 +419,7 @@ int Achievements_System::texture(size_t index) const
 //	Return the width of the popup window
 int Achievements_System::get_child_win_x(void) const
 {
-	int proposed = get_font_x() * max_title_len + 2 * border;
+	int proposed = get_font_x() * max_title_len + 2 * get_border();
 	if (proposed > main_win_x())
 		return proposed;
 	else
@@ -529,8 +521,8 @@ bool Achievements_System::hide_all(void) const
 //
 void Achievements_System::show(void) const
 {
-	std::cout << "image props size=" << size << " display=" << display << std::endl;
-	std::cout << "window props per_row=" << per_row << " min_rows=" << min_rows << " max_rows=" << max_rows << " border=" << border << std::endl;
+	std::cout << "image props size=" << size << " display=" << get_display() << std::endl;
+	std::cout << "window props per_row=" << per_row << " min_rows=" << min_rows << " max_rows=" << max_rows << " border=" << get_border() << std::endl;
 	std::cout << "window strings prev=" << prev << " next=" << next << " close=" << close << std::endl;
 }
 
@@ -591,7 +583,7 @@ void Achievements_System::prepare_details(size_t index)
 {
 	if ((index >= achievements.size()) || !achievements[index])
 		return;
-	achievements[index]->prepare(get_child_win_x(), border);
+	achievements[index]->prepare(get_child_win_x(), get_font_x(), get_border());
 	if (achievements[index]->get_num_lines() > max_detail_lines)
 		max_detail_lines = achievements[index]->get_num_lines();
 }
@@ -624,7 +616,7 @@ static int achievements_child_display_handler(window_info *win)
 	const Achievement * achievement = as->achievement(index);
 	if (achievement)
 	{
-		int title_x = (win->len_x - achievement->get_title().size() * get_font_x()) / 2;
+		int title_x = (win->len_x - achievement->get_title().size() * as->get_font_x()) / 2;
 
 		glColor3f(0.77f, 0.57f, 0.39f);
 		draw_string_small(title_x + gx_adjust, as->get_border() + gy_adjust,
@@ -632,7 +624,7 @@ static int achievements_child_display_handler(window_info *win)
 
 		glColor3f(1.0f, 1.0f, 1.0f);
 		for (size_t i=0; i<achievement->get_text().size(); ++i)
-			draw_string_small(as->get_border() + gx_adjust, (i + 1) * get_font_y() + gy_adjust,
+			draw_string_small(as->get_border() + gx_adjust, (i + 1) * as->get_font_y() + gy_adjust,
 				reinterpret_cast<const unsigned char *>(achievement->get_text()[i].c_str()), 1);
 	}
 	else
@@ -640,7 +632,7 @@ static int achievements_child_display_handler(window_info *win)
 		glColor3f(0.77f, 0.57f, 0.39f);
 		std::ostringstream buf;
 		buf << "Undefined " << index;
-		int title_x = (win->len_x - buf.str().size() * get_font_x()) / 2;
+		int title_x = (win->len_x - buf.str().size() * as->get_font_x()) / 2;
 		draw_string_small(title_x + gx_adjust, as->get_border() + gy_adjust, reinterpret_cast<const unsigned char *>(buf.str().c_str()), 1);
 	}
 
@@ -767,13 +759,13 @@ int Achievements_Window::display_handler(window_info *win)
 	}
 
 	int prev_start = gx_adjust + as->get_border();
-	int prev_end = prev_start + get_font_x() * as->get_prev().size();
+	int prev_end = prev_start + as->get_font_x() * as->get_prev().size();
 	int next_start = prev_end + 2 * as->get_border();
-	int next_end = next_start + get_font_x() * as->get_next().size();
-	int close_start = gx_adjust + win->len_x - (as->get_border() + get_font_x() * as->get_close().size());
+	int next_end = next_start + as->get_font_x() * as->get_next().size();
+	int close_start = gx_adjust + win->len_x - (as->get_border() + as->get_font_x() * as->get_close().size());
 	int close_end = gx_adjust + win->len_x - as->get_border();
 
-	bool over_controls = (win_mouse_y > (win->len_y - (get_font_y() + as->get_border())));
+	bool over_controls = (win_mouse_y > (win->len_y - (as->get_font_y() + as->get_border())));
 	bool over_close = (over_controls && (win_mouse_x > close_start) && (win_mouse_x < close_end));
 	bool over_prev = (over_controls && (win_mouse_x > prev_start) && (win_mouse_x < prev_end));
 	bool over_next = (over_controls && (win_mouse_x > next_start) && (win_mouse_x < next_end));
@@ -783,15 +775,15 @@ int Achievements_Window::display_handler(window_info *win)
 	float mouse_over_colour[3] = { 1.0f, 0.5f, 0.0f };
 
 	glColor3fv((first) ?((over_prev) ?mouse_over_colour :active_colour) :inactive_colour);
-	draw_string_small(prev_start, gy_adjust + win->len_y - (get_font_y() + as->get_border()),
+	draw_string_small(prev_start, gy_adjust + win->len_y - (as->get_font_y() + as->get_border()),
 		reinterpret_cast<const unsigned char *>(as->get_prev().c_str()), 1);
 
 	glColor3fv((another_page) ?((over_next) ?mouse_over_colour :active_colour) :inactive_colour);
-	draw_string_small(next_start, gy_adjust + win->len_y - (get_font_y() + as->get_border()),
+	draw_string_small(next_start, gy_adjust + win->len_y - (as->get_font_y() + as->get_border()),
 		reinterpret_cast<const unsigned char *>(as->get_next().c_str()), 1);
 
 	glColor3fv((over_close) ?mouse_over_colour :active_colour);
-	draw_string_small(close_start, gy_adjust + win->len_y - (get_font_y() + as->get_border()),
+	draw_string_small(close_start, gy_adjust + win->len_y - (as->get_font_y() + as->get_border()),
 		reinterpret_cast<const unsigned char *>(as->get_close().c_str()), 1);
 
 	if (over_close && ctrl_clicked)
@@ -935,7 +927,7 @@ void Achievements_Window::open(int win_pos_x, int win_pos_y)
 	logical_rows = (their_achievements.size() + (as->get_per_row() - 1)) / as->get_per_row();
 	physical_rows = (logical_rows > as->get_max_rows()) ?as->get_max_rows() :logical_rows;
 	int win_x = as->main_win_x();
-	int win_y = physical_rows * as->get_display() + get_font_y() + 2 * as->get_border();
+	int win_y = physical_rows * as->get_display() + as->get_font_y() + 2 * as->get_border();
 
 	main_win_id = create_window(their_name.c_str(), -1, 0, win_pos_x, win_pos_y, win_x, win_y,
 		ELW_TITLE_BAR|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE);
