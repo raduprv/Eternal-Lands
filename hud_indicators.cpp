@@ -296,8 +296,6 @@ namespace Indicators
 					flags >>= 1;
 				}
 			}
-			else
-				std::cerr << __PRETTY_FUNCTION__ << ": curious, do not have settings" << std::endl;
 		}
 		else if (!default_location)
 		{
