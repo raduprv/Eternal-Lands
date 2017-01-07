@@ -167,8 +167,10 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
  * \callgraph
  */
 void draw_string_small(int x, int y,const unsigned char * our_string,int max_lines);
-void scaled_draw_string_small(int x, int y,const unsigned char * our_string,int max_lines); /* temporary function during ui scaling changes */
 void draw_string_small_shadowed(int x, int y,const unsigned char * our_string,int max_lines, float fr, float fg, float fb, float br, float bg, float bb);
+/* temporary functions during ui scaling changes */
+void scaled_draw_string_small(int x, int y,const unsigned char * our_string,int max_lines);
+void scaled_draw_string_small_shadowed(int x, int y,const unsigned char * our_string,int max_lines, float fr, float fg, float fb, float br, float bg, float bb);
 
 #ifdef	ELC
 /*!
