@@ -257,6 +257,7 @@ void view_map_win(int *win, int id);
  * \callgraph
  */
 void show_help(const char *message, int x, int y);
+void scaled_show_help(const char *message, int x, int y); /* temporary function during ui scaling changes */
 
 /*!
  * \ingroup windows

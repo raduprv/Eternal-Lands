@@ -477,6 +477,11 @@ void show_help(const char *help_message, int x, int y)
 	show_sized_help_coloured(help_message, x, y, 1.0f, 1.0f, 1.0f, SHOW_SMALL_HELP);
 }
 
+void scaled_show_help(const char *help_message, int x, int y)
+{
+	show_sized_help_coloured(help_message, x, y, 1.0f, 1.0f, 1.0f, SHOW_SCALED_HELP);
+}
+
 void show_sized_help(const char *help_message, int x, int y, show_help_modes size_mode)
 {
 	show_sized_help_coloured(help_message, x, y, 1.0f, 1.0f, 1.0f, size_mode);
