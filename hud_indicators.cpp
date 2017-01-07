@@ -22,6 +22,7 @@
 #include "counters.h"
 #include "errors.h"
 #include "font.h"
+#include "elconfig.h"
 #include "elwindows.h"
 #include "gamewin.h"
 #include "gl_init.h"
@@ -39,9 +40,9 @@ namespace Indicators
 	class Vars
 	{
 		public:
-			static const float zoom(void) { return 1.0; }
-			static const int space(void) { return 5; }
-			static const int border(void) { return 2; }
+			static const float zoom(void) { return ui_scale; }
+			static const int space(void) { return UI_SCALED_VALUE(5); }
+			static const int border(void) { return UI_SCALED_VALUE(2); }
 			static const float font_x(void) { return DEFAULT_FONT_X_LEN; }
 			static const float font_y(void) { return DEFAULT_FONT_Y_LEN; }
 			static const int y_len(void) { return static_cast<int>(border() + zoom() * font_y() + 0.5); }
@@ -453,10 +454,10 @@ namespace Indicators
 		{
 			std::string tooltip("");
 			(*i)->get_tooltip(tooltip);
-			int x_offset = -static_cast<int>(Vars::border() + SMALL_FONT_X_LEN * (1 + tooltip.size()) + 0.5);
+			int x_offset = -static_cast<int>(Vars::border() + UI_SCALED_VALUE(SMALL_FONT_X_LEN) * (1 + tooltip.size()) + 0.5);
 			if ((win->cur_x + x_offset) < 0)
 				x_offset = win->len_x;
-			show_help(tooltip.c_str(), x_offset, Vars::border());
+			scaled_show_help(tooltip.c_str(), x_offset, Vars::border());
 		}
 	}
 
