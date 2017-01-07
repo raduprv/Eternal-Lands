@@ -3052,22 +3052,18 @@ int pword_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unikey)
 	}
 
 	if (ch == SDLK_BACKSPACE) {
-		int i;
-
-		for(i = 0; pword->password[i] != '\0' && i < pword->max_chars; i++);
-		if(i > 0) {
+		int i = 0;
+		while(pword->password[i] != '\0' && i < pword->max_chars)
+			i++;
+		if(i > 0)
 			pword->password[i-1] = '\0';
-		}
-
 		return 1;
 	} else if (!alt_on && !ctrl_on && is_printable (ch) && ch != '`' ) {
-		int i;
-		
-		for(i = 0; pword->password[i] != '\0' && i < pword->max_chars-1; i++);
-		if(i >= 0) {
-			pword->password[i] = ch;
-			pword->password[i+1] = '\0';
-		}
+		int i = 0;
+		while(pword->password[i] != '\0' && i < pword->max_chars-2)
+			i++;
+		pword->password[i] = ch;
+		pword->password[i+1] = '\0';
 		return 1;
 	} else {
 		return 0;
