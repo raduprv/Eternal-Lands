@@ -474,24 +474,40 @@ int enlarge_text(void)
 
 void show_help(const char *help_message, int x, int y)
 {
-	show_sized_help_coloured(help_message, x, y, 1.0f, 1.0f, 1.0f, 0);
+	show_sized_help_coloured(help_message, x, y, 1.0f, 1.0f, 1.0f, SHOW_SMALL_HELP);
 }
 
-void show_sized_help(const char *help_message, int x, int y, int big)
+void show_sized_help(const char *help_message, int x, int y, show_help_modes size_mode)
 {
-	show_sized_help_coloured(help_message, x, y, 1.0f, 1.0f, 1.0f, big);
+	show_sized_help_coloured(help_message, x, y, 1.0f, 1.0f, 1.0f, size_mode);
 }
 
 void show_help_coloured(const char *help_message, int x, int y, float r, float g, float b)
 {
-	show_sized_help_coloured(help_message, x, y, r, g, b, 0);
+	show_sized_help_coloured(help_message, x, y, r, g, b, SHOW_SMALL_HELP);
 }
 
-void show_sized_help_coloured(const char *help_message, int x, int y, float r, float g, float b, int big)
+void show_sized_help_coloured(const char *help_message, int x, int y, float r, float g, float b, show_help_modes size_mode)
 {
-	float y_font_len = (big) ?DEFAULT_FONT_Y_LEN: SMALL_FONT_Y_LEN;
-	int len=strlen(help_message)*((big) ?DEFAULT_FONT_X_LEN :SMALL_FONT_X_LEN)+1;
+	float y_font_len = 0;
+	int len = 0;
 	int width=window_width-80;
+
+	if (size_mode == SHOW_BIG_HELP)
+	{
+		y_font_len = DEFAULT_FONT_Y_LEN;
+		len = strlen(help_message) * DEFAULT_FONT_X_LEN + 1;
+	}
+	else if (size_mode == SHOW_SCALED_HELP)
+	{
+		y_font_len = SMALL_FONT_Y_LEN * ui_scale;
+		len = strlen(help_message) * SMALL_FONT_X_LEN * ui_scale + 1;
+	}
+	else
+	{
+		y_font_len = SMALL_FONT_Y_LEN;
+		len = strlen(help_message) * SMALL_FONT_X_LEN + 1;
+	}
 
 	if(x+len>width) x-=(x+len)-width;
 
@@ -510,8 +526,10 @@ void show_sized_help_coloured(const char *help_message, int x, int y, float r, f
 	glEnable(GL_TEXTURE_2D);
 
 	glColor3f(r,g,b);
-	if (big)
+	if (size_mode == SHOW_BIG_HELP)
 		draw_string(x, y, (unsigned char*)help_message, 1);
+	else if (size_mode == SHOW_SCALED_HELP)
+		scaled_draw_string_small(x, y, (unsigned char*)help_message, 1);
 	else
 		draw_string_small(x, y, (unsigned char*)help_message, 1);
 #ifdef OPENGL_TRACE
