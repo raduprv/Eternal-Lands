@@ -1337,7 +1337,5 @@ void resize_all_root_windows (Uint32 w, Uint32 h)
 		widget_resize (input_widget->window_id, input_widget->id, w-HUD_MARGIN_X, input_widget->len_y);
 		widget_move (input_widget->window_id, input_widget->id, 0, h-input_widget->len_y-HUD_MARGIN_Y);
 	}
-#ifdef NEW_NEW_CHAR_WINDOW
 	resize_newchar_hud_window();
-#endif
 }

@@ -993,12 +993,7 @@ void resize_root_window()
 	glMatrixMode(GL_PROJECTION);					// Select The Projection Matrix
 	glLoadIdentity();							// Reset The Projection Matrix
 
-#ifdef NEW_NEW_CHAR_WINDOW
 	window_ratio=(GLfloat)(window_width-hud_x)/(GLfloat)(window_height-hud_y);
-#else
-	//window_ratio=(GLfloat)(window_width-hud_x)/(GLfloat)(window_height-hud_y);
-	window_ratio=(GLfloat)window_width/(GLfloat)window_height;
-#endif
 
 	//hud_y_adjust=(2.0/window_height)*hud_y;
 	//hud_x_adjust=(2.0/window_width)*hud_x;
