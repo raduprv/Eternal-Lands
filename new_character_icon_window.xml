@@ -2,11 +2,6 @@
 
 <icon_window>
 
-<!-- include if compiled without NEW_NEW_CHAR_WINDOW
-<icon type="window" image_id="0" alt_image_id="18" help_name="name_pass" param_name="name_pass"/>
-<icon type="window" image_id="2" alt_image_id="20" help_name="customize" param_name="customize"/>
--->
-
 <icon type="window" image_id="39" alt_image_id="38" help_name="help" param_name="help"/>
 <icon type="window" image_id="14" alt_image_id="34" help_name="opts" param_name="opts"/>
 

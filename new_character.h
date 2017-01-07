@@ -100,13 +100,15 @@ void login_from_new_char();
  */
 void create_newchar_root_window (void);
 
-
-#ifdef NEW_NEW_CHAR_WINDOW
+/*!
+ * \ingroup interface_newchar
+ * \brief   Resize the new character window.
+ *
+ *      Destroys all the new charater window elements and recreates them.
+ *
+ * \callgraph
+ */
 void resize_newchar_hud_window(void);
-#else
-void show_account_win (void);
-void show_color_race_win(void);
-#endif
 
 #ifdef __cplusplus
 } // extern "C"

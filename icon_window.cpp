@@ -606,10 +606,6 @@ namespace IconWindow
 	{
 		if (icon_mode == NEW_CHARACTER_ICONS)
 		{
-#ifndef NEW_NEW_CHAR_WINDOW
-			icon_list.push_back(new Window_Icon(0, 18, get_named_string("tooltips", "name_pass"), "name_pass"));
-			icon_list.push_back(new Window_Icon(2, 20, get_named_string("tooltips", "customize"), "customize"));
-#endif
 			icon_list.push_back(new Window_Icon(39, 38, get_named_string("tooltips", "help"), "help"));
 			icon_list.push_back(new Window_Icon(14, 34, get_named_string("tooltips", "opts"), "opts"));
 			LOG_ERROR("%s : Using default new character icons\n", __PRETTY_FUNCTION__ );

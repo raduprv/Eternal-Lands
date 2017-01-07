@@ -1529,11 +1529,7 @@ void init_help()
 	add_xml_identifier(new,"confirmcreate",error_confirm_create_char,"Click done again to create a character with that name and appearance.",sizeof(error_confirm_create_char));
 	add_xml_identifier(new,"newcharwarning",newchar_warning,"Character creation screen",sizeof(newchar_warning));
 	add_xml_identifier(new,"newcharcusthelp",newchar_cust_help,"Click the eye icon below to customize your character.",sizeof(newchar_cust_help)); // it pains me to spell customize with a z:(
-#ifndef NEW_NEW_CHAR_WINDOW
-	add_xml_identifier(new,"newcharcredhelp",newchar_cred_help,"Click the person icon below to choose your character name and password.",sizeof(newchar_cred_help));
-#else
 	add_xml_identifier(new,"newcharcredhelp",newchar_cred_help,"When ready, click \"Done\" to choose your character name and password.",sizeof(newchar_cred_help));
-#endif
 	add_xml_identifier(new,"newchardonehelp",newchar_done_help,"When ready, click \"Done\" to create your character and enter the game.",sizeof(newchar_done_help));
 	add_xml_identifier(new,"wrongpass",invalid_pass,"Invalid password!",sizeof(invalid_pass));
 	add_xml_identifier(new,"showpass",show_password,"Show password",sizeof(show_password));
