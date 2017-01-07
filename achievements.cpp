@@ -619,12 +619,12 @@ static int achievements_child_display_handler(window_info *win)
 		int title_x = (win->len_x - achievement->get_title().size() * as->get_font_x()) / 2;
 
 		glColor3f(0.77f, 0.57f, 0.39f);
-		draw_string_small(title_x + gx_adjust, as->get_border() + gy_adjust,
+		scaled_draw_string_small(title_x + gx_adjust, as->get_border() + gy_adjust,
 			reinterpret_cast<const unsigned char *>(achievement->get_title().c_str()), 1);
 
 		glColor3f(1.0f, 1.0f, 1.0f);
 		for (size_t i=0; i<achievement->get_text().size(); ++i)
-			draw_string_small(as->get_border() + gx_adjust, (i + 1) * as->get_font_y() + gy_adjust,
+			scaled_draw_string_small(as->get_border() + gx_adjust, (i + 1) * as->get_font_y() + gy_adjust,
 				reinterpret_cast<const unsigned char *>(achievement->get_text()[i].c_str()), 1);
 	}
 	else
@@ -633,7 +633,7 @@ static int achievements_child_display_handler(window_info *win)
 		std::ostringstream buf;
 		buf << "Undefined " << index;
 		int title_x = (win->len_x - buf.str().size() * as->get_font_x()) / 2;
-		draw_string_small(title_x + gx_adjust, as->get_border() + gy_adjust, reinterpret_cast<const unsigned char *>(buf.str().c_str()), 1);
+		scaled_draw_string_small(title_x + gx_adjust, as->get_border() + gy_adjust, reinterpret_cast<const unsigned char *>(buf.str().c_str()), 1);
 	}
 
 	return 1;
@@ -775,15 +775,15 @@ int Achievements_Window::display_handler(window_info *win)
 	float mouse_over_colour[3] = { 1.0f, 0.5f, 0.0f };
 
 	glColor3fv((first) ?((over_prev) ?mouse_over_colour :active_colour) :inactive_colour);
-	draw_string_small(prev_start, gy_adjust + win->len_y - (as->get_font_y() + as->get_border()),
+	scaled_draw_string_small(prev_start, gy_adjust + win->len_y - (as->get_font_y() + as->get_border()),
 		reinterpret_cast<const unsigned char *>(as->get_prev().c_str()), 1);
 
 	glColor3fv((another_page) ?((over_next) ?mouse_over_colour :active_colour) :inactive_colour);
-	draw_string_small(next_start, gy_adjust + win->len_y - (as->get_font_y() + as->get_border()),
+	scaled_draw_string_small(next_start, gy_adjust + win->len_y - (as->get_font_y() + as->get_border()),
 		reinterpret_cast<const unsigned char *>(as->get_next().c_str()), 1);
 
 	glColor3fv((over_close) ?mouse_over_colour :active_colour);
-	draw_string_small(close_start, gy_adjust + win->len_y - (as->get_font_y() + as->get_border()),
+	scaled_draw_string_small(close_start, gy_adjust + win->len_y - (as->get_font_y() + as->get_border()),
 		reinterpret_cast<const unsigned char *>(as->get_close().c_str()), 1);
 
 	if (over_close && ctrl_clicked)
@@ -803,11 +803,11 @@ int Achievements_Window::display_handler(window_info *win)
 	if (over_controls && show_help_text)
 	{
 		if (over_close)
-			show_help(as->get_close_help(), 0, win->len_y + as->get_y_win_offset());
+			scaled_show_help(as->get_close_help(), 0, win->len_y + as->get_y_win_offset());
 		else if (over_prev)
-			show_help((first)?as->get_prev_help() :as->get_no_prev_help(), 0, win->len_y + as->get_y_win_offset());
+			scaled_show_help((first)?as->get_prev_help() :as->get_no_prev_help(), 0, win->len_y + as->get_y_win_offset());
 		else if (over_next)
-			show_help((another_page)?as->get_next_help() :as->get_no_next_help(), 0, win->len_y + as->get_y_win_offset());
+			scaled_show_help((another_page)?as->get_next_help() :as->get_no_next_help(), 0, win->len_y + as->get_y_win_offset());
 	}
 
 	win_mouse_x = win_mouse_y = -1;

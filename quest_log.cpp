@@ -990,7 +990,7 @@ static int display_npc_filter_handler(window_info *win)
 		glEnable(GL_TEXTURE_2D);
 
 		// draw the string
-		draw_string_small(posx + npc_name_box_size + npc_name_space, posy, (unsigned char*)i->first.c_str(), 1);
+		scaled_draw_string_small(posx + npc_name_box_size + npc_name_space, posy, (unsigned char*)i->first.c_str(), 1);
 
 		// control row and col values
 		col++;
@@ -1125,7 +1125,7 @@ static int display_questlist_handler(window_info *win)
 	{
 		questlist.clear_highlighted();
 		if (show_help_text && questlist.has_mouseover())
-			show_help(questlog_cm_help_str, 0, win->len_y + win_space);
+			scaled_show_help(questlog_cm_help_str, 0, win->len_y + win_space);
 	}
 
 	// get the top line and then loop drawing all quests we can display
@@ -1175,12 +1175,12 @@ static int display_questlist_handler(window_info *win)
 		if (thequest->get_title().size() > disp_chars)
 		{
 			std::string todisp = thequest->get_title().substr(0,disp_chars);
-			draw_string_small(2*spacer, posy, (const unsigned char*)todisp.c_str(), 1);
+			scaled_draw_string_small(2*spacer, posy, (const unsigned char*)todisp.c_str(), 1);
 		}
 		else if (thequest->get_title().empty())
-			draw_string_small(2*spacer, posy, (const unsigned char*)"???", 1);
+			scaled_draw_string_small(2*spacer, posy, (const unsigned char*)"???", 1);
 		else
-			draw_string_small(2*spacer, posy, (const unsigned char*)thequest->get_title().c_str(), 1);
+			scaled_draw_string_small(2*spacer, posy, (const unsigned char*)thequest->get_title().c_str(), 1);
 		thequest = questlist.get_next_quest();
 		posy += linesep;
 	}
@@ -1708,7 +1708,7 @@ static int display_questlog_handler(window_info *win)
 		cm_questlog_over_entry = active_entries.size();
 		if (show_help_text && mouse_over_questlog && (current_action == -1))
 		{
-			show_help(questlog_cm_help_str, 0, win->len_y + win_space);
+			scaled_show_help(questlog_cm_help_str, 0, win->len_y + win_space);
 			mouse_over_questlog = false;
 		}
 	}
@@ -1722,7 +1722,7 @@ static int display_questlog_handler(window_info *win)
 		glColor3f(1.0f, 1.0f, 1.0f);
 		for (std::vector<std::string>::const_iterator line = lines.begin(); line != lines.end(); ++line)
 		{
-			draw_string_small(qlborder+gx_adjust, questlog_y+gy_adjust, reinterpret_cast<const unsigned char *>(line->c_str()), 1);
+			scaled_draw_string_small(qlborder+gx_adjust, questlog_y+gy_adjust, reinterpret_cast<const unsigned char *>(line->c_str()), 1);
 			questlog_y += font_y;
 			if (questlog_y+qlborder > qlwinheight - font_y)
 				break;
@@ -1731,7 +1731,7 @@ static int display_questlog_handler(window_info *win)
 		if ((cm_questlog_over_entry < active_entries.size()) && (entry == cm_questlog_over_entry))
 		{
 			glColor3f(0.77f, 0.57f, 0.39f);
-			draw_string_small(qlborder+gx_adjust, start_y+gy_adjust,
+			scaled_draw_string_small(qlborder+gx_adjust, start_y+gy_adjust,
 				reinterpret_cast<const unsigned char *>(quest_entries[active_entries[entry]].get_disp_npc().c_str()), 1);
 		}
 		if (selected_entries.find(active_entries[entry]) != selected_entries.end())

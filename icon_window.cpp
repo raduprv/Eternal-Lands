@@ -417,7 +417,7 @@ namespace IconWindow
 		}
 		glEnd();
 		if (show_help_text && (mouse_over_icon >= 0) && ((size_t)mouse_over_icon < icon_list.size()))
-			show_help(icon_list[mouse_over_icon]->get_help_message(), get_icon_slot_width()*(mouse_over_icon+1)+2, 10);
+			scaled_show_help(icon_list[mouse_over_icon]->get_help_message(), get_icon_slot_width()*(mouse_over_icon+1)+2, 10);
 		mouse_over_icon = -1;
 	}
 
