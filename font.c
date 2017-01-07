@@ -834,7 +834,7 @@ void draw_string_small_shadowed(int x, int y,const unsigned char * our_string,in
      draw_string_small(x, y, our_string, max_lines);
 }
 
-void draw_string_small(int x, int y,const unsigned char * our_string,int max_lines)
+static void draw_string_small_scaled(int x, int y,const unsigned char * our_string,int max_lines, float scale_factor)
 {
 	//int displayed_font_x_size=SMALL_FONT_X_LEN;
 	//int displayed_font_y_size=SMALL_FONT_Y_LEN;
@@ -868,7 +868,7 @@ CHECK_GL_ERRORS();
 				}
 			else if(cur_char=='\n')
 				{
-					cur_y+=SMALL_FONT_Y_LEN;
+					cur_y+=0.5+SMALL_FONT_Y_LEN*scale_factor;
 					cur_x=x;
 					i++;
 					current_lines++;
@@ -876,7 +876,7 @@ CHECK_GL_ERRORS();
 					continue;
 				}
 
-			cur_x+=draw_char_scaled(cur_char, cur_x, cur_y, SMALL_FONT_X_LEN, SMALL_FONT_Y_LEN);
+			cur_x+=draw_char_scaled(cur_char, cur_x, cur_y, SMALL_FONT_X_LEN*scale_factor, SMALL_FONT_Y_LEN*scale_factor);
 
 			i++;
 		}
@@ -888,6 +888,20 @@ CHECK_GL_ERRORS();
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
+
+
+void draw_string_small(int x, int y,const unsigned char * our_string,int max_lines)
+{
+	draw_string_small_scaled(x, y, our_string, max_lines, 1.0);
+}
+
+void scaled_draw_string_small(int x, int y,const unsigned char * our_string,int max_lines)
+{
+	draw_string_small_scaled(x, y, our_string, max_lines, ui_scale);
+}
+
+
+
 
 #ifdef	ELC
 #ifndef MAP_EDITOR2
