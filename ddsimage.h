@@ -10,9 +10,7 @@
 
 #include "platform.h"
 #include "io/elfilewrapper.h"
-#ifdef	NEW_TEXTURES
 #include "image_loading.h"
-#endif	/* NEW_TEXTURES */
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,7 +28,6 @@ extern "C" {
  */
 Uint32 check_dds(const Uint8 *ID);
 
-#ifdef	NEW_TEXTURES
 /**
  * @ingroup textures
  * @brief Loads a dds image.
@@ -66,9 +63,6 @@ Uint32 load_dds(el_file_ptr file, const Uint32 compression, const Uint32 unpack,
  * @callgraph
  */
 Uint32 get_dds_information(el_file_ptr file, image_t* image);
-#else	/* NEW_TEXTURES */
-void* load_dds(el_file_ptr file, int *width, int *height);
-#endif	/* NEW_TEXTURES */
 
 #ifdef __cplusplus
 } // extern "C"

@@ -31,9 +31,6 @@ extern "C"
 	int use_lamp_halo = 0;
 	float min_ec_framerate = 13.0;
 	float max_ec_framerate = 37.0;
-#ifndef	NEW_TEXTURES
-	int transparency_resolution_fix = 0;
-#endif	/* NEW_TEXTURES */
 	int light_columns_threshold = 5;
 	int use_fancy_smoke = 1;
 	int max_idle_cycles_per_second = 40;
@@ -71,13 +68,6 @@ void set_vec3_target_bone2(ec::Vec3& position, actor* _actor, int bone);
 void set_vec3_target_bone2(ec::Vec3& position, actor* _actor, int bone,
 	const ec::Vec3 shift);
 
-#ifndef	NEW_TEXTURES
-extern "C" void ec_clear_textures()
-{
-	eye_candy.clear_textures();
-}
-#endif	/* NEW_TEXTURES */
-
 extern "C" void ec_load_textures()
 {
 	eye_candy.load_textures();
@@ -88,9 +78,6 @@ extern "C" void ec_init()
 	eye_candy.load_textures();
 	ec_last_time = 0;
 	ec_cur_time = 0;
-#ifndef	NEW_TEXTURES
-	ec_set_draw_method();
-#endif	/* NEW_TEXTURES */
 	self_actor.obstruction = new ec::CappedSimpleCylinderObstruction(&(self_actor.center), 0.45, 3.0, self_actor.center.y, self_actor.center.y + 0.9);
 
 #ifdef MAP_EDITOR
@@ -103,16 +90,6 @@ extern "C" void ec_add_light(GLenum light_id)
 {
 	eye_candy.add_light(light_id);
 }
-
-#ifndef	NEW_TEXTURES
-extern "C" void ec_set_draw_method()
-{
-	if (use_point_particles)
-		eye_candy.draw_method = ec::EyeCandy::POINT_SPRITES;
-	else
-		eye_candy.draw_method = ec::EyeCandy::FAST_BILLBOARDS;
-}
-#endif	/* NEW_TEXTURES */
 
 float ec_get_z(actor* _actor)
 {
@@ -267,9 +244,6 @@ extern "C" void ec_idle()
 	//  const float y = rot_matrix[13];
 	//  const float z = rot_matrix[14];
 
-#ifndef	NEW_TEXTURES
-	eye_candy.poor_transparency_resolution = transparency_resolution_fix;
-#endif	/* NEW_TEXTURES */
 	if (poor_man)
 		eye_candy.set_thresholds(3500, min_ec_framerate, max_ec_framerate); //Max particles, min framerate, max framerate
 

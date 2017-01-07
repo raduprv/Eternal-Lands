@@ -69,14 +69,8 @@ char settings_button_selected = 0;
 void init_login_screen ()
 {
 	CHECK_GL_ERRORS();
-#ifdef	NEW_TEXTURES
 	login_screen_menus = load_texture_cached("textures/login_menu.dds", tt_image);
 	login_text = load_texture_cached("textures/login_back.dds", tt_image);
-#else	/* NEW_TEXTURES */
-	login_screen_menus = load_texture_cache ("./textures/login_menu.bmp",0);
-	CHECK_GL_ERRORS();
-	login_text = load_texture_cache ("./textures/login_back.bmp",255);
-#endif	/* NEW_TEXTURES */
 	CHECK_GL_ERRORS();
 }
 
@@ -146,7 +140,6 @@ int resize_login_handler (window_info *win, Uint32 w, Uint32 h)
 int display_login_handler (window_info *win)
 {
 	int num_lines;
-#ifdef	NEW_TEXTURES
 	float selected_bar_u_start = (float)0/256;
 	float selected_bar_v_start = (float)0/256;
 
@@ -194,55 +187,6 @@ int display_login_handler (window_info *win)
 
 	float settings_selected_end_u = (float)87/256;
 	float settings_selected_end_v = (float)235/256;
-#else	/* NEW_TEXTURES */
-	float selected_bar_u_start = (float)0/256;
-	float selected_bar_v_start = 1.0f - (float)0/256;
-
-	float selected_bar_u_end = (float)174/256;
-	float selected_bar_v_end = 1.0f - (float)28/256;
-
-	float unselected_bar_u_start = (float)0/256;
-	float unselected_bar_v_start = 1.0f - (float)40/256;
-
-	float unselected_bar_u_end = (float)170/256;
-	float unselected_bar_v_end = 1.0f - (float)63/256;
-	/////////////////////////
-	float log_in_unselected_start_u = (float)0/256;
-	float log_in_unselected_start_v = 1.0f - (float)80/256;
-
-	float log_in_unselected_end_u = (float)87/256;
-	float log_in_unselected_end_v = 1.0f - (float)115/256;
-
-	float log_in_selected_start_u = (float)0/256;
-	float log_in_selected_start_v = 1.0f - (float)120/256;
-
-	float log_in_selected_end_u = (float)87/256;
-	float log_in_selected_end_v = 1.0f-(float)155/256;
-	/////////////////////////
-	float new_char_unselected_start_u = (float)100/256;
-	float new_char_unselected_start_v = 1.0f-(float)80/256;
-
-	float new_char_unselected_end_u = (float)238/256;
-	float new_char_unselected_end_v = 1.0f-(float)115/256;
-
-	float new_char_selected_start_u = (float)100/256;
-	float new_char_selected_start_v = 1.0f-(float)120/256;
-
-	float new_char_selected_end_u = (float)238/256;
-	float new_char_selected_end_v = 1.0f-(float)155/256;
-	/////////////////////////
-	float settings_unselected_start_u = (float)0/256;
-	float settings_unselected_start_v = 1.0f - (float)160/256;
-
-	float settings_unselected_end_u = (float)87/256;
-	float settings_unselected_end_v = 1.0f - (float)195/256;
-
-	float settings_selected_start_u = (float)0/256;
-	float settings_selected_start_v = 1.0f - (float)200/256;
-
-	float settings_selected_end_u = (float)87/256;
-	float settings_selected_end_v = 1.0f-(float)235/256;
-#endif	/* NEW_TEXTURES */
 
 	draw_console_pic(login_text);
 
@@ -254,11 +198,7 @@ int display_login_handler (window_info *win)
 	draw_string_zoomed(username_text_x, log_in_y + 60, (unsigned char*)login_rules_str, num_lines, 1);
 
 	// start drawing the actual interface pieces
-#ifdef	NEW_TEXTURES
 	bind_texture(login_screen_menus);
-#else	/* NEW_TEXTURES */
-	get_and_set_texture_id(login_screen_menus);
-#endif	/* NEW_TEXTURES */
 	glColor3f (1.0f,1.0f,1.0f);
 	glBegin (GL_QUADS);
 

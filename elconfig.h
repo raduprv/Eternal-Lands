@@ -25,9 +25,7 @@ extern int big_cursors;
 extern int sdl_cursors;
 extern float pointer_size;
 #endif // NEW_CURSOR
-#ifdef	NEW_TEXTURES
 extern Uint32 max_actor_texture_handles;
-#endif	/* NEW_TEXTURES */
 
 extern int write_ini_on_exit; /*< variable that determines if el.ini file is rewritten on exit of the program */
 

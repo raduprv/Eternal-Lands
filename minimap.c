@@ -30,9 +30,7 @@
 #include "io/elfilewrapper.h"
 #include "mapwin.h"
 #include "map.h"
-#ifdef	NEW_TEXTURES
 #include "image_loading.h"
-#endif	/* NEW_TEXTURES */
 
 
 int minimap_size;
@@ -282,7 +280,6 @@ static __inline__ void draw_compass()
 	glEnable(GL_TEXTURE_2D); 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-#ifdef	NEW_TEXTURES
 	bind_texture(compass_tex);
 
 	glBegin(GL_QUADS); 
@@ -295,20 +292,6 @@ static __inline__ void draw_compass()
 		glTexCoord2f(1.0f, 1.0f);
 		glVertex2f(-float_minimap_size/2, -float_minimap_size/2);
 	glEnd();
-#else	/* NEW_TEXTURES */
-	bind_texture_id(compass_tex);
-
-	glBegin(GL_QUADS); 
-		glTexCoord2f(0.0f, 0.0f);
-		glVertex2f(-float_minimap_size/2, float_minimap_size/2);
-		glTexCoord2f(0.0f, 1.0f);
-		glVertex2f(float_minimap_size/2, float_minimap_size/2);
-		glTexCoord2f(1.0f, 1.0f);
-		glVertex2f(float_minimap_size/2, -float_minimap_size/2);
-		glTexCoord2f(1.0f, 0.0f);
-		glVertex2f(-float_minimap_size/2, -float_minimap_size/2);
-	glEnd();
-#endif	/* NEW_TEXTURES */
 
 	glDisable(GL_ALPHA_TEST); 
 	glDisable( GL_BLEND );
@@ -356,16 +339,11 @@ static __inline__ void draw_map(window_info *win,float zoom_multip, float px, fl
 	glEnable(GL_TEXTURE_2D);
 
 	//draw the map
-#ifdef	NEW_TEXTURES
 	bind_texture(minimap_texture);
-#else	/* NEW_TEXTURES */
-	bind_texture_id(minimap_texture);
-#endif	/* NEW_TEXTURES */
 	glColor4f(1.0f,1.0f,1.0f,1.0f);
 
 	rotate_at_player(zoom_multip,px,py);
 	glBegin(GL_QUADS);
-#ifdef	NEW_TEXTURES
 		glTexCoord2f(0.0f, 1.0f);
 		glVertex2f(-float_minimap_size/2, float_minimap_size/2);
 		glTexCoord2f(1.0f, 1.0f);
@@ -374,16 +352,6 @@ static __inline__ void draw_map(window_info *win,float zoom_multip, float px, fl
 		glVertex2f(float_minimap_size/2, -float_minimap_size/2);
 		glTexCoord2f(0.0f, 0.0f);
 		glVertex2f(-float_minimap_size/2, -float_minimap_size/2);
-#else	/* NEW_TEXTURES */
-		glTexCoord2f(0.0f, 0.0f);
-		glVertex2f(-float_minimap_size/2, float_minimap_size/2);
-		glTexCoord2f(1.0f, 0.0f);
-		glVertex2f(float_minimap_size/2, float_minimap_size/2);
-		glTexCoord2f(1.0f, 1.0f);
-		glVertex2f(float_minimap_size/2, -float_minimap_size/2);
-		glTexCoord2f(0.0f, 1.0f);
-		glVertex2f(-float_minimap_size/2, -float_minimap_size/2);
-#endif	/* NEW_TEXTURES */
 	glEnd();
 
 	glDisable(GL_STENCIL_TEST);
@@ -398,7 +366,6 @@ static __inline__ void draw_map(window_info *win,float zoom_multip, float px, fl
 
 void draw_minimap_title_bar(window_info *win)
 {
-#ifdef	NEW_TEXTURES
 	float u_first_start= (float)31/255;
 	float u_first_end = 0.0f;
 	float v_first_start = (float)160/255;
@@ -408,17 +375,6 @@ void draw_minimap_title_bar(window_info *win)
 	float u_last_end = (float)31/255;
 	float v_last_start = (float)160/255;
 	float v_last_end = (float)175/255;
-#else	/* NEW_TEXTURES */
-	float u_first_start= (float)31/255;
-	float u_first_end= 0;
-	float v_first_start= 1.0f-(float)160/255;
-	float v_first_end= 1.0f-(float)175/255;
-
-	float u_last_start= 0;
-	float u_last_end= (float)31/255;
-	float v_last_start= 1.0f-(float)160/255;
-	float v_last_end= 1.0f-(float)175/255;
-#endif	/* NEW_TEXTURES */
 
 	int close_button_x = win->len_x/2 + 32 - 1;
 
@@ -426,11 +382,7 @@ void draw_minimap_title_bar(window_info *win)
 
 	glColor3f(1.0f,1.0f,1.0f);
 	
-#ifdef	NEW_TEXTURES
 	bind_texture(icons_text);
-#else	/* NEW_TEXTURES */
-	get_and_set_texture_id(icons_text);
-#endif	/* NEW_TEXTURES */
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER,0.03f);
 	glEnable(GL_TEXTURE_2D);
@@ -752,15 +704,11 @@ void save_exploration_map()
 
 void change_minimap(){
 	char minimap_file_name[256];
-#ifndef	NEW_TEXTURES
-	texture_cache_struct tex;
-#endif	/* NEW_TEXTURES */
 
 	if(minimap_win < 0)
 		return;
 	//save_exploration_map();
 
-#ifdef	NEW_TEXTURES
 	//unload all textures
 	if(exploration_texture)
 		glDeleteTextures(1,&exploration_texture);
@@ -776,30 +724,6 @@ void change_minimap(){
 	}
 
 	compass_tex = load_texture_cached("./textures/compass", tt_gui);
-#else	/* NEW_TEXTURES */
-	//unload all textures
-	if(minimap_texture)
-		glDeleteTextures(1,&minimap_texture);
-	if(compass_tex)
-		glDeleteTextures(1,&compass_tex);
-	if(exploration_texture)
-		glDeleteTextures(1,&exploration_texture);
-
-	//make filename
-	my_strcp(minimap_file_name,map_file_name);
-	minimap_file_name[strlen(minimap_file_name)-4] = '\0';
-	strcat(minimap_file_name, ".bmp");
-
-	//load textures
-	my_strcp(tex.file_name, minimap_file_name);
-	if (!el_file_exists(minimap_file_name))
-		minimap_texture = 0;
-	else
-		minimap_texture = load_bmp8_fixed_alpha(&tex,128);
-	
-	my_strcp(tex.file_name, "./textures/compass.bmp");
-	compass_tex = load_bmp8_fixed_alpha_with_transparent_color(&tex,255,0,0,0);
-#endif	/* NEW_TEXTURES */
 
 	glGenTextures(1, &exploration_texture);
 	bind_texture_id(exploration_texture);

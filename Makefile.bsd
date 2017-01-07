@@ -26,8 +26,6 @@ MEMORY_DEBUG_COBJ = elmemory.o
 TEXT_ALIASES_COBJ = text_aliases.o
 PAWN_COBJ = pawn/amx.o pawn/amxaux.o pawn/amxcons.o pawn/amxel.o \
 	pawn/amxfloat.o pawn/amxstring.o pawn/elpawn.o
-NEW_TEXTURES_COBJ = image_loading.o
-NEW_TEXTURES_CXXOBJ = engine/hardwarebuffer.o
 CUSTOM_UPDATE_COBJ = custom_update.o new_update.o
 FSAA_COBJ = fsaa/fsaa_glx.o fsaa/fsaa.o
 COBJS=2d_objects.o 3d_objects.o \
@@ -38,7 +36,7 @@ COBJS=2d_objects.o 3d_objects.o \
 	el_memory.o elconfig.o elwindows.o encyclopedia.o errors.o events.o	\
 	filter.o font.o framebuffer.o frustum.o	\
 	gamewin.o gl_init.o hud.o help.o highlight.o	\
-	ignore.o init.o interface.o items.o io/fileutil.o	\
+	ignore.o image_loading.o init.o interface.o items.o io/fileutil.o	\
 	io/e3d_io.o io/elc_io.o	io/map_io.o io/elpathwrapper.o io/xmlcallbacks.o \
 	io/half.o io/normal.o io/elfilewrapper.o io/unzip.o io/ioapi.o io/zip.o io/ziputil.o	\
 	keys.o knowledge.o langselwin.o lights.o list.o load_gl_extensions.o loginwin.o loading_win.o	\
@@ -64,6 +62,7 @@ CXXOBJS=achievements.o actor_init.o cal3d_wrapper.o command_queue.o \
 	hud_indicators.o hud_timer.o icon_window.o io/cal3d_io_wrapper.o item_info.o item_lists.o named_colours.o \
 	optimizer.o quest_log.o select.o sendvideoinfo.o trade_log.o user_menus.o \
 	xml/xmlhelper.o eye_candy_wrapper.o \
+	engine/hardwarebuffer.o \
 	eye_candy/eye_candy.o eye_candy/math_cache.o eye_candy/effect_lamp.o \
 	eye_candy/effect_candle.o \
 	eye_candy/effect_campfire.o eye_candy/effect_fountain.o \
