@@ -56,7 +56,7 @@ int buddy_accept_x_len = 400;
 int buddy_accept_y_len = 130;
 queue_t *buddy_request_queue;
 
-unsigned char buddy_name_buffer[16] = {0};
+unsigned char buddy_name_buffer[MAX_USERNAME_LENGTH] = {0};
 char description_buffer[255] = {0};
 _buddy buddy_list[MAX_BUDDY];
 
@@ -395,7 +395,7 @@ int create_buddy_interface_win(const char *title, void *argument)
 			string_width = get_string_width((unsigned char*)buddy_name_str)*0.9f;
 			x = string_width+5;
 			y = 5;
-			buddy_name_input_id = pword_field_add_extended(buddy_add_win, buddy_name_input_id, NULL, x, y, buddy_add_x_len-x*2+10, 20, P_TEXT, 0.9f, 0.77f, 0.57f, 0.39f, buddy_name_buffer, MAX_USERNAME_LENGTH+1);
+			buddy_name_input_id = pword_field_add_extended(buddy_add_win, buddy_name_input_id, NULL, x, y, buddy_add_x_len-x*2+10, 20, P_TEXT, 0.9f, 0.77f, 0.57f, 0.39f, buddy_name_buffer, MAX_USERNAME_LENGTH);
 			widget_set_OnMouseover(buddy_add_win, buddy_name_input_id, name_onmouseover_handler);
 			widget_set_OnMouseover(buddy_add_win, label_id, name_onmouseover_handler);
 			widget_set_OnKey(buddy_add_win, buddy_name_input_id, name_input_keypress_handler);
