@@ -84,9 +84,7 @@
 #endif /* TEXT_ALIASES */
 #include "user_menus.h"
 #include "emotes.h"
-#ifdef	NEW_TEXTURES
 #include "image_loading.h"
-#endif	/* NEW_TEXTURES */
 #include "io/fileutil.h"
 #ifdef  CUSTOM_UPDATE
 #include "custom_update.h"
@@ -699,13 +697,6 @@ void save_bin_cfg()
 
 }
 
-#ifndef	NEW_TEXTURES
-void init_texture_cache()
-{
-	memset(texture_cache, 0, sizeof(texture_cache));
-}
-#endif	/* NEW_TEXTURES */
-
 void init_e3d_cache()
 {
 	//cache_e3d= cache_init(1000, &destroy_e3d);	//TODO: autofree the name as well
@@ -926,24 +917,10 @@ void init_stuff()
 
 	update_loading_win(load_icons_str, 4);
 	//load the necesary textures
-#ifdef	NEW_TEXTURES
 	icons_text = load_texture_cached("textures/gamebuttons.dds", tt_gui);
 	hud_text = load_texture_cached("textures/gamebuttons2.dds", tt_gui);
-#else	/* NEW_TEXTURES */
-#ifdef	NEW_ALPHA
-	icons_text= load_texture_cache("./textures/gamebuttons.bmp", -1);
-	hud_text= load_texture_cache("./textures/gamebuttons2.bmp", -1);
-#else	//NEW_ALPHA
-	icons_text= load_texture_cache("./textures/gamebuttons.bmp",0);
-	hud_text= load_texture_cache("./textures/gamebuttons2.bmp",0);
-#endif	//NEW_ALPHA
-#endif	/* NEW_TEXTURES */
 	update_loading_win(load_textures_str, 4);
-#ifdef	NEW_TEXTURES
 	cons_text = load_texture_cached("textures/console.dds", tt_gui);
-#else	/* NEW_TEXTURES */
-	cons_text= load_texture_cache("./textures/console.bmp",255);
-#endif	/* NEW_TEXTURES */
 
 
 	update_loading_win("init item textures", 5);
@@ -951,17 +928,11 @@ void init_stuff()
 	for(i=0; i<MAX_ITEMS_TEXTURES; i++){
 		char	buffer[256];
 
-#ifdef	NEW_TEXTURES
 		safe_snprintf(buffer, sizeof(buffer), "textures/items%d.dds", i+1);
 
 		if (check_image_name(buffer, sizeof(buffer), buffer) != 0)
 		{
 			items_text[i] = load_texture_cached(buffer, tt_gui);
-#else	/* NEW_TEXTURES */
-		safe_snprintf(buffer, sizeof(buffer), "./textures/items%d.bmp", i+1);
-		if(el_custom_file_exists(buffer)){
-			items_text[i]= load_texture_cache(buffer, 0);
-#endif	/* NEW_TEXTURES */
 		}
 	}
 	update_loading_win("init portraits", 5);
@@ -969,46 +940,26 @@ void init_stuff()
 	for(i=0; i<MAX_PORTRAITS_TEXTURES; i++){
 		char	buffer[256];
 
-#ifdef	NEW_TEXTURES
 		safe_snprintf(buffer, sizeof(buffer), "textures/portraits%d.dds", i+1);
 
 		if (check_image_name(buffer, sizeof(buffer), buffer) != 0)
 		{
 			portraits_tex[i] = load_texture_cached(buffer, tt_gui);
-#else	/* NEW_TEXTURES */
-		safe_snprintf(buffer, sizeof(buffer), "./textures/portraits%d.bmp", i+1);
-		if(el_custom_file_exists(buffer)){
-			portraits_tex[i]= load_texture_cache_deferred(buffer, 0);
-#endif	/* NEW_TEXTURES */
 		}
 	}
 	update_loading_win("init textures", 5);
 
 #ifdef NEW_CURSOR
-#ifdef	NEW_TEXTURES
 	cursors_tex = load_texture_cached("textures/cursors2.dds", tt_gui);
-#else	/* NEW_TEXTURES */
-	disable_compression();
-	cursors_tex = load_texture_cache("./textures/cursors2.bmp",0);
-	enable_compression();
-#endif	/* NEW_TEXTURES */
 
 	//Emajekral's hi-color & big cursor code
 	if (!sdl_cursors) SDL_ShowCursor(0);
 #endif // NEW_CURSOR
 
 	//Load the map legend and continent map
-#ifdef	NEW_TEXTURES
 	legend_text = load_texture_cached("maps/legend.dds", tt_gui);
-#else	/* NEW_TEXTURES */
-	legend_text= load_texture_cache("./maps/legend.bmp",0);
-#endif	/* NEW_TEXTURES */
 
-#ifdef	NEW_TEXTURES
 	ground_detail_text = load_texture_cached("textures/ground_detail.dds", tt_gui);
-#else	/* NEW_TEXTURES */
-	ground_detail_text=load_texture_cache("./textures/ground_detail.bmp",255);
-#endif	/* NEW_TEXTURES */
 	CHECK_GL_ERRORS();
 	init_login_screen ();
 	init_spells ();

@@ -151,11 +151,7 @@ _image *create_image (const char* file, int x, int y, int w, int h, float u_star
 	img->v[0]=v_start;
 	img->v[1]=v_end;
 
-#ifdef	NEW_TEXTURES
 	img->texture = load_texture_cached(file, tt_image);
-#else	/* NEW_TEXTURES */
-	img->texture=load_texture_cache(file,0);
-#endif	/* NEW_TEXTURES */
 	if(!img->texture) {
 		free(img);
 		img=NULL;
@@ -547,13 +543,8 @@ void read_knowledge_book_index()
 
 void init_books()
 {
-#ifdef	NEW_TEXTURES
 	paper1_text = load_texture_cached ("textures/paper1.dds", tt_image);
 	book1_text = load_texture_cached ("textures/book1.dds", tt_image);
-#else	/* NEW_TEXTURES */
-	paper1_text = load_texture_cache_deferred ("./textures/paper1.bmp", 0);
-	book1_text = load_texture_cache_deferred ("./textures/book1.bmp", 0);
-#endif	/* NEW_TEXTURES */
 
 	read_book("books/races/human.xml", 2, book_human);
 	read_book("books/races/dwarf.xml", 2, book_dwarf);
@@ -726,11 +717,7 @@ void read_network_book (const char *in_data, int data_length)
 void display_image(_image *i)
 {
 	glColor4f(1.0f,1.0f,1.0f,0.5f);
-#ifdef	NEW_TEXTURES
 	bind_texture(i->texture);
-#else	/* NEW_TEXTURES */
-	get_and_set_texture_id(i->texture);
-#endif	/* NEW_TEXTURES */
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.05f);
 	glBegin(GL_QUADS);
@@ -825,18 +812,10 @@ int display_book_handler(window_info *win)
 	}
 	switch(b->type){
 		case 1:
-#ifdef	NEW_TEXTURES
 			bind_texture(paper1_text);
-#else	/* NEW_TEXTURES */
-			get_and_set_texture_id(paper1_text);
-#endif	/* NEW_TEXTURES */
 			break;
 		case 2:
-#ifdef	NEW_TEXTURES
 			bind_texture(book1_text);
-#else	/* NEW_TEXTURES */
-			get_and_set_texture_id(book1_text);
-#endif	/* NEW_TEXTURES */
 			break;
 	}
 	glBegin(GL_QUADS);
