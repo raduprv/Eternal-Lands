@@ -91,7 +91,6 @@ yes_no()
 		zenity --question --text="$1"
 		;;
     kdialog)
-        echo "yesno"
         kdialog --yesno "$1"
         ;;
 	dialog)
