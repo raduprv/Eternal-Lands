@@ -159,17 +159,6 @@ void cache_set_size_limit(cache_struct *cache, Uint32 size_limit);
 
 /*!
  * \ingroup cache
- * \brief   sets the function to free items
- *
- *      Sets the function to apply to each item before it is evicted from the
- *      cache.
- *
- * \param free_item     pointer to the free function
- */
-void cache_set_free(cache_struct *cache, void (*free_item)());
-
-/*!
- * \ingroup cache
  * \brief adds the given \a item to \a cache with the given \a name.
  *
  *      Adds the given \a item to \a cache with the given \a name. The parameter \a size determines the maximum size of items in \a cache.

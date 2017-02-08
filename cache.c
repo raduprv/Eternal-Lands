@@ -247,11 +247,6 @@ void cache_set_size_limit(cache_struct *cache, Uint32 size_limit)
 	cache->size_limit=size_limit;
 }
 
-void cache_set_free(cache_struct *cache, void (*free_item)())
-{
-	cache->free_item = free_item;
-}
-
 static Uint32 cache_clean(cache_struct *cache)
 {
 	cache_item_struct *item;
