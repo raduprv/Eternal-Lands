@@ -77,7 +77,7 @@ show_text_info()
 # question posed, 1 otherwise.
 yes_no()
 {
-	case dialog in
+	case $dialog in
 	zenity)
 		zenity --question --text="$1"
 		;;
