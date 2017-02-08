@@ -26,6 +26,9 @@ show_error()
 	zenity)
 		zenity --error --text="$1"
 		;;
+    kdialog)
+        kdialog --error "$1"
+        ;;
 	dialog)
 		dialog --msgbox "$1" 0 0
 		;;
@@ -40,6 +43,9 @@ show_info()
 	zenity)
 		zenity --info --text="$1"
 		;;
+    kdialog)
+        kdialog --msgbox "$1"
+        ;;
 	dialog)
 		dialog --msgbox "$1" 0 0
 		;;
@@ -56,6 +62,9 @@ show_text_info()
 	zenity)
 		zenity --text-info --width=500 --height=300 --title "$1" --filename="$2"
 		;;
+    kdialog)
+        kdialog --title "$1" --textbox "$2" 500 300
+        ;;
 	dialog)
 		# Ugh, we have the error string in a temporary file, but dialog's textbox
 		# doesn't fold the lines automatically. So try to do it ourselves by
@@ -64,7 +73,7 @@ show_text_info()
 		fold_fname=$(mktemp)
 		columns=$(expr $(tput cols || echo 80) - 5)
 		cat "$2" | fold -w "$columns" -s > "$fold_fname"
-		dialog --title "$1" --textbox "$fold_fname" 80 0
+		dialog --title "$1" --textbox "$fold_fname" 0 0
 		rm -f $fold_fname
 		;;
 	*)
@@ -81,13 +90,17 @@ yes_no()
 	zenity)
 		zenity --question --text="$1"
 		;;
+    kdialog)
+        echo "yesno"
+        kdialog --yesno "$1"
+        ;;
 	dialog)
 		dialog --yesno "$1" 0 0
 		;;
 	*)
 		while true
 		do
-			read -p "$1 [y/n]" ans
+			read -p "$1 [y/n] " ans
 			case $ans in
 			[Yy]*)
 				return 0
@@ -127,6 +140,14 @@ getconfig()
 			--column "Directory" \
 			--text "${title}"
 		;;
+    kdialog)
+		sort -u $serverfile | tr -d '\015' | grep -v -e ^$ -e ^# | \
+		while read name dir server port description
+		do
+			printf "${name}\0${dir}\t${server}\t${port}\t${description}\0"
+		done | \
+		xargs -0 kdialog --menu "${title}"
+		;;
 	dialog)
 		sort -u $serverfile | tr -d '\015' | grep -v -e ^$ -e ^# | \
 		while read name dir server port description
@@ -143,7 +164,7 @@ getconfig()
 }
 
 # check which dialog method to use
-for dialog in zenity dialog none; do
+for dialog in zenity kdialog dialog none; do
 	command -v $dialog > /dev/null 2>&1 && break
 done
 
