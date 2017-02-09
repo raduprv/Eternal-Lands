@@ -41,7 +41,6 @@ typedef struct
 	Uint32	LRU_time;		/*!< last time LRU processing done */
 	Uint32	total_size;		/*!< total size currently allocated */
 	Uint32	time_limit;		/*!< limit on LRU time before forcing a scan */
-	Uint32	size_limit;		/*!< limit on size before forcing a scan */
 	void	(*free_item)();	/*!< routine to call to free an item */
 	Uint32	(*compact_item)();	/*!< routine to call to reduce memory usage without freeing */
 } cache_struct;
@@ -145,17 +144,6 @@ void cache_set_compact(cache_struct *cache, Uint32 (*compact_item)());
  * \param time_limit    the max. amount of time to live for items in \a cache.
  */
 void cache_set_time_limit(cache_struct *cache, Uint32 time_limit);
-
-/*!
- * \ingroup cache
- * \brief   sets a \a size_limit for items in \a cache.
- *
- *      Sets a \a size_limit in bytes for items in the given \a cache.
- *
- * \param cache         the cache for which the size limit should be set.
- * \param size_limit    the max. size for items in \a cache (in bytes).
- */
-void cache_set_size_limit(cache_struct *cache, Uint32 size_limit);
 
 /*!
  * \ingroup cache

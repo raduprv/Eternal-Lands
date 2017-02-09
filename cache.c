@@ -182,7 +182,6 @@ cache_struct *cache_init(const char* name, Uint32 max_items,
 	cache->num_allocated = max_items;
 	cache->LRU_time = cur_time;
 	cache->time_limit = 0;	// 0 == no time based LRU check
-	cache->size_limit = 0;	// 0 == no space based LRU check
 	cache->free_item = free_item;
 	cache->compact_item = NULL;
 	if (cache_system)
@@ -230,11 +229,6 @@ void cache_set_compact(cache_struct *cache, Uint32 (*compact_item)())
 void cache_set_time_limit(cache_struct *cache, Uint32 time_limit)
 {
 	cache->time_limit=time_limit;
-}
-
-void cache_set_size_limit(cache_struct *cache, Uint32 size_limit)
-{
-	cache->size_limit=size_limit;
 }
 
 static Uint32 cache_clean(cache_struct *cache)
