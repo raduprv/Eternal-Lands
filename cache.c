@@ -199,8 +199,6 @@ void cache_delete(cache_struct *cache)
 	static int cache_delete_loop_block = 0;
 
 	if (!cache) return;
-	if (cache != cache_system)
-		cache_adj_size(cache_system, -cache->total_size, cache);
 	if (cache->cached_items)
 	{
 		cache_remove_all(cache);
@@ -445,7 +443,6 @@ cache_item_struct *cache_add_item(cache_struct *cache, const char* name,
 	}
 	cache->recent_item = cache->cached_items[i] = new_item;
 	cache->num_items++;
-	cache->total_size += size;
 
 	if (cache != cache_system)
 		cache_adj_size(cache_system, size, cache);
@@ -485,7 +482,6 @@ cache_item_struct *cache_add_item(cache_struct *cache, const char* name,
 	cache->cached_items[i]->access_time=cur_time;
 	cache->cached_items[i]->access_count=1;	//start at 0 or 1? Is this a usage
 	cache->num_items++;
-	cache->total_size+=size;
 	if(cache != cache_system) cache_adj_size(cache_system, size, cache);
 	//return the pointer to the detailed item
 	cache->recent_item = cache->cached_items[i];
@@ -498,17 +494,10 @@ void cache_adj_size(cache_struct *cache, Uint32 size, void *item)
 	cache_item_struct *item_ptr = cache_find_ptr(cache, item);
 	if (item_ptr)
 	{
-		// adjust the current size
-		//if(item_ptr->size != size)
-		//{
-			cache->total_size += size;
-			if (cache != cache_system)
-				cache_adj_size(cache_system, size, cache);
-		//}
+        if (cache != cache_system)
+            cache_adj_size(cache_system, size, cache);
 		item_ptr->size += size;
 		cache_use(item_ptr);
-		//item_ptr->access_time=cur_time;
-		//item_ptr->access_count++;
 	}
 }
 
@@ -520,7 +509,6 @@ static void cache_remove(cache_struct *cache, cache_item_struct *item)
 		cache_adj_size(cache_system, -item->size, cache);
 	if (item->cache_item && cache->free_item)
 		(*cache->free_item)(item->cache_item);
-	cache->total_size -= item->size;
 	cache->num_items--;
 	cache->recent_item = NULL;	//forget where we are just incase
 

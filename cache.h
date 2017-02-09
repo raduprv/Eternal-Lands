@@ -39,7 +39,6 @@ typedef struct
 #endif
 	Sint32	num_allocated;	/*!< the allocated space for the list */
 	Uint32	LRU_time;		/*!< last time LRU processing done */
-	Uint32	total_size;		/*!< total size currently allocated */
 	Uint32	time_limit;		/*!< limit on LRU time before forcing a scan */
 	void	(*free_item)();	/*!< routine to call to free an item */
 	Uint32	(*compact_item)();	/*!< routine to call to reduce memory usage without freeing */
