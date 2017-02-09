@@ -26,16 +26,6 @@ static void cache_remove(cache_struct *cache, cache_item_struct *item);
 static void cache_remove_all(cache_struct *cache);
 
 #ifdef FASTER_MAP_LOAD
-// Compare two cache items by name. NULL pointer always go beyond "real" items.
-static int cache_item_cmp(const void* i, const void *j)
-{
-	const cache_item_struct *item = *((const cache_item_struct **)i);
-	const cache_item_struct *jtem = *((const cache_item_struct **)j);
-	if (!item) return jtem ? 1 : 0;
-	if (!jtem) return -1;
-	return strcmp(item->name, jtem->name);
-}
-
 // Compare string \a str with the name of item \a iptr.
 static int cache_item_cmp_str(const void* str, const void *iptr)
 {
@@ -507,19 +497,6 @@ cache_item_struct *cache_add_item(cache_struct *cache, const char* name,
 	cache->recent_item = cache->cached_items[i];
 	return(cache->recent_item);
 #endif
-}
-
-void cache_set_name(cache_struct *cache, const char* name, void *item)
-{
-	cache_item_struct *item_ptr = cache_find_ptr(cache, item);
-	if (item_ptr)
-	{
-		item_ptr->name = name;
-#ifdef FASTER_MAP_LOAD
-		qsort(cache->cached_items, cache->num_items, sizeof(item_ptr),
-			cache_item_cmp);
-#endif
-	}
 }
 
 void cache_adj_size(cache_struct *cache, Uint32 size, void *item)

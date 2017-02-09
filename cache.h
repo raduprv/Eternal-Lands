@@ -175,20 +175,6 @@ cache_item_struct *cache_add_item(cache_struct *cache, const char* name,
 
 /*!
  * \ingroup cache
- * \brief   sets the \a name of the given \a item in \a cache.
- *
- *      Sets the \a name of the given \a item in \a cache.
- *
- * \param cache     the cache which contains the \a item to change the \a name
- * \param name      the new name of \a item in \a cache
- * \param item      a pointer to the item which \a name should get changed.
- *
- * \callgraph
- */
-void cache_set_name(cache_struct *cache, const char* name, void *item);
-
-/*!
- * \ingroup cache
  * \brief       adjusts the \a size of the given \a item in \a cache.
  *
  *      Adjusts the \a size of the given \a item in \a cache.
