@@ -19,7 +19,7 @@
 #define PROGRESSBAR_ID       1
 
 const float load_bar_colors[12] = {
-/* 
+/*
 	// exp bar colors
 	//red    green   blue
 	0.100f, 0.800f, 0.100f, // topleft
@@ -114,7 +114,7 @@ int display_loading_win_handler(window_info *win)
 	glVertex3i (win->len_x, 0, 0);
 	glEnd();
 #endif	/* NEW_TEXTURES */
-	
+
 	// Since the background doesn't use the texture cache, invalidate
 	// the last texture, so that the font will be loaded
 	last_texture = -1;
@@ -132,7 +132,7 @@ int display_loading_win_handler(window_info *win)
 void take_snapshot (int width, int height)
 {
 	int bg_width = 1024;
-	int bg_height = 512;	
+	int bg_height = 512;
 
 #ifdef OPENGL_TRACE
 	CHECK_GL_ERRORS();
@@ -143,13 +143,13 @@ void take_snapshot (int width, int height)
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	
+
 	// texture sizes need to be powers of 2
 	while (bg_width < width)
 		bg_width *= 2;
 	while (bg_height < height)
 		bg_height *= 2;
-	
+
 #ifdef OPENGL_TRACE
 	CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -163,22 +163,22 @@ void take_snapshot (int width, int height)
 		LOG_ERROR("%s: %d glReadBuffer(GL_BACK) problem.\n", __FUNCTION__, __LINE__);
 		glReadBuffer(GL_FRONT);
 	}
-	
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bg_width, bg_height, 0, GL_RGBA, GL_BYTE, &loading_texture);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bg_width, bg_height, 0, GL_RGBA, GL_BYTE, NULL);
 	if (glIsTexture(loading_texture) == GL_FALSE)
 		LOG_ERROR("%s: %d texture problem.\n", __FUNCTION__, __LINE__);
 	else
-		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, bg_width, bg_height);		
-	
+		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, bg_width, bg_height);
+
 	frac_x = ((float) width) / bg_width;
 	frac_y = ((float) height) / bg_height;
-	
+
 #ifdef	NEW_TEXTURES
 	use_snapshot = 1;
 #else	/* NEW_TEXTURES */
 	delete_texture = 1;
 #endif	/* NEW_TEXTURES */
-	
+
 #ifdef OPENGL_TRACE
 	CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -196,7 +196,7 @@ int create_loading_win (int width, int height, int snapshot)
 	{
 		loading_win = create_window("Loading window", -1, -1, 0, 0, width, height, ELW_TITLE_NONE|ELW_SHOW);
 		set_window_handler(loading_win, ELW_HANDLER_DISPLAY, &display_loading_win_handler);
-		loading_win_progress_bar = progressbar_add_extended(loading_win, PROGRESSBAR_ID, NULL, (width - PROGRESSBAR_LEN)/2, (height*2)/3, 
+		loading_win_progress_bar = progressbar_add_extended(loading_win, PROGRESSBAR_ID, NULL, (width - PROGRESSBAR_LEN)/2, (height*2)/3,
 				PROGRESSBAR_LEN, PROGRESSBAR_HEIGHT, 0, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, load_bar_colors);
 		if (!snapshot)
 		{
@@ -212,10 +212,10 @@ int create_loading_win (int width, int height, int snapshot)
 #endif	/* NEW_TEXTURES */
 
 			print_version_string (version_str, sizeof (version_str));
-			version_width = (get_string_width ((unsigned char*)version_str) * DEFAULT_FONT_X_LEN) / 12;		
+			version_width = (get_string_width ((unsigned char*)version_str) * DEFAULT_FONT_X_LEN) / 12;
 		}
 	}
-	
+
 	return loading_win;
 }
 
