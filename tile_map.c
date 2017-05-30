@@ -355,11 +355,7 @@ void load_map_tiles()
 	char str[200];
 	
 	for(i=0;i<255;i++){
-#ifdef OLD_MISC_OBJ_DIR
-		safe_snprintf(str,sizeof(str), "./tiles/tile%i.bmp",i);
-#else
 		safe_snprintf(str,sizeof(str), "./3dobjects/tile%i.dds",i);
-#endif
 		if(IS_WATER_TILE(i) && IS_REFLECTING(i))
 			tile_list[i]=load_texture_cache(str,70);
 		else 

@@ -64,7 +64,6 @@ FEATURES += NEW_EYES			# Support for different eye colors, needs new data files
 #FEATURES += USE_TR1			# Needs tr1 version of c++ stl, used for NEW_FILE_IO
 #FEATURES += WRITE_XML			# dangerous to use, will wipe out some XML files that are part of the main game download
 #FEATURES += ZLIBW			# Enables being able to write gzip compressed files, requires -lzlib/-lz needed for map_editor
-#FEATURES += OLD_MISC_OBJ_DIR		# if not defined, ./3dobjects/misc_objects/ paths becomes ./3dobjects/
 
 
 

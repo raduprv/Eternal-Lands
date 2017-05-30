@@ -189,11 +189,7 @@ void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
 	}
 #endif // NEW_SOUND
 
-#ifdef OLD_MISC_OBJ_DIR
-	obj_3d_id=add_e3d("./3dobjects/misc_objects/bag1.e3d", x, y, z,
-#else
 	obj_3d_id=add_e3d("./3dobjects/bag1.e3d", x, y, z,
-#endif
 		get_bag_tilt(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y), 0,
 		get_bag_rotation(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y),
 		1 ,0 ,1.0f ,1.0f, 1.0f, 1);
@@ -263,11 +259,7 @@ void add_bags_from_list (const Uint8 *data)
 			return;
 		}
 
-#ifdef OLD_MISC_OBJ_DIR
-		obj_3d_id = add_e3d("./3dobjects/misc_objects/bag1.e3d", x, y, z,
-#else
 		obj_3d_id = add_e3d("./3dobjects/bag1.e3d", x, y, z,
-#endif
 			get_bag_tilt(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y), 0,
 			get_bag_rotation(bag_x, bag_y, bag_id, tile_map_size_x, tile_map_size_y),
 			1, 0, 1.0f, 1.0f, 1.0f, 1);
