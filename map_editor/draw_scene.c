@@ -9,6 +9,8 @@
 #endif
 #include "../asc.h"
 
+int show_mapeditor_reflections = 0;
+
 float camera_x=0;
 float camera_y=0;
 float camera_z=0;
@@ -84,7 +86,8 @@ void draw_scene()
     //CalculateFrustum();
     new_minute();
 
-    any_reflection=find_reflection();
+    if (show_mapeditor_reflections)
+        any_reflection=find_reflection();
 
     if(!dungeon)
         draw_global_light();
