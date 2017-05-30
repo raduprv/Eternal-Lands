@@ -183,7 +183,6 @@ namespace ec
 		return true;
 	}
 
-#ifdef	NEW_TEXTURES
 	Uint32 CloudParticle::get_texture()
 	{
 		return base->get_texture(EC_SIMPLE);
@@ -193,25 +192,6 @@ namespace ec
 	{
 		return 0.0f;
 	}
-#else	/* NEW_TEXTURES */
-	GLuint CloudParticle::get_texture(const Uint16 res_index)
-	{
-		return base->TexSimple.get_texture(res_index);
-	}
-
-	void CloudParticle::draw(const Uint64 usec)
-	{
-		glEnable(GL_LIGHTING);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		//  Vec3 shifted_pos = *pos - ((CloudEffect*)effect)->pos;
-
-		glNormal3f(normal.x, normal.y, normal.z);
-		Particle::draw(usec);
-
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		glDisable(GL_LIGHTING);
-	}
-#endif	/* NEW_TEXTURES */
 
 	void CloudParticle::remove_neighbor(const CloudParticle*const p)
 	{

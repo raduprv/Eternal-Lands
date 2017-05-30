@@ -11,15 +11,12 @@ FEATURES += CUSTOM_UPDATE		# allows autoupdating of custom look information
 FEATURES += FUZZY_PATHS			# Makes Tab Map walking not always follow exaclty the same path
 FEATURES += NEW_SOUND			# Enables extended sound effects system
 FEATURES += PNG_SCREENSHOT		# make screenshots in W3C's PNG format in game, requires libpng
-FEATURES += TEXT_ALIASES		# Text aliases
 FEATURES += USE_INLINE			# enable some optimizations to use inline functions instead of pure function calls
 # new for 1.9.0 release
 FEATURES += BANDWIDTH_SAVINGS		# enable bandwidth saving changes for message protocol
 # new for 1.9.2 release
 FEATURES += ANIMATION_SCALING		# Adds support for animation scaling, depending on the number of animation commands in the actor queue.
 FEATURES += FSAA			# Adds support for full screen anti-aliasing using OpenGL multisampling.
-FEATURES += NEW_NEW_CHAR_WINDOW		# Use the new character creation window; controls always on-screen
-FEATURES += NEW_TEXTURES		# Enables the new texture loading and caching system (http://www.eternal-lands.com/forum/index.php?showtopic=54756)
 # new for 1.9.3 release
 FEATURES += FASTER_MAP_LOAD		# Enables optimizations to speed up the process of switching between maps
 FEATURES += FASTER_STARTUP		# An attempt to reduce the startup time of EL somewhat
@@ -66,7 +63,6 @@ FEATURES += NEW_EYES			# Support for different eye colors, needs new data files
 #FEATURES += USE_TR1			# Needs tr1 version of c++ stl, used for NEW_FILE_IO
 #FEATURES += WRITE_XML			# dangerous to use, will wipe out some XML files that are part of the main game download
 #FEATURES += ZLIBW			# Enables being able to write gzip compressed files, requires -lzlib/-lz needed for map_editor
-#FEATURES += OLD_MISC_OBJ_DIR		# if not defined, ./3dobjects/misc_objects/ paths becomes ./3dobjects/
 
 
 

@@ -92,11 +92,7 @@ void draw_2d_object(obj_2d *object_id)
 		glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 	}
 
-#ifdef	NEW_TEXTURES
 	bind_texture(obj_def_pointer->texture_id);
-#else	/* NEW_TEXTURES */
-	get_and_set_texture_id(obj_def_pointer->texture_id);
-#endif	/* NEW_TEXTURES */
 
 	if (dungeon || (!clouds_shadows && !use_shadow_mapping))
 		{
@@ -255,11 +251,7 @@ static void parse_2d0(const char* desc, Uint32 len, const char* cur_dir,
 			char texture_file_name[256];
 			safe_snprintf(texture_file_name, sizeof(texture_file_name),
 				"%s/%s", cur_dir, value);
-#ifdef	NEW_TEXTURES
 			def->texture_id = load_texture_cached(texture_file_name, tt_mesh);
-#else	/* NEW_TEXTURES */
-			def->texture_id = load_texture_cache_deferred(texture_file_name, 0);
-#endif	/* NEW_TEXTURES */
 		}
 		else if (!strcmp(name, "type"))
 		{
@@ -278,13 +270,8 @@ static void parse_2d0(const char* desc, Uint32 len, const char* cur_dir,
 
 	def->u_start = (float)u_start/file_x_len;
 	def->u_end = (float)u_end/file_x_len;
-#ifdef NEW_TEXTURES
 	def->v_start = 1.0f + (float)v_start/file_y_len;
 	def->v_end = 1.0f + (float)v_end/file_y_len;
-#else
-	def->v_start = 1.0f - (float)v_start/file_y_len;
-	def->v_end = 1.0f - (float)v_end/file_y_len;
-#endif
 	if (def->alpha_test < 0)
 		def->alpha_test = 0;
 }
@@ -443,11 +430,7 @@ static obj_2d_def* load_obj_2d_def(const char *file_name)
 				}
 		}
 
-#ifdef	NEW_TEXTURES
 	cur_object->texture_id = load_texture_cached(texture_file_name, tt_mesh);
-#else	/* NEW_TEXTURES */
-	cur_object->texture_id=load_texture_cache_deferred(texture_file_name,0);
-#endif	/* NEW_TEXTURES */
 	//now get the object type
 	i=get_string_occurance("type:",obj_file_mem,f_size,0);
 	obj_file_mem+=i;
@@ -970,11 +953,7 @@ void display_2d_objects()
 			ELglActiveTextureARB(detail_unit);
 			glEnable(GL_TEXTURE_2D);
 			//glBindTexture(GL_TEXTURE_2D, texture_cache[ground_detail_text].texture_id);
-#ifdef	NEW_TEXTURES
 			bind_texture_unbuffered(ground_detail_text);
-#else	/* NEW_TEXTURES */
-			glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
-#endif	/* NEW_TEXTURES */
 		}
 		ELglActiveTextureARB(base_unit);
 		glEnable(GL_TEXTURE_2D);

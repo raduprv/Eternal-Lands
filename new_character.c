@@ -38,9 +38,7 @@
 #include "tiles.h"
 #include "translate.h"
 #include "weather.h"
-#ifdef NEW_NEW_CHAR_WINDOW
 #include "widgets.h"
-#endif
 #include "actor_init.h"
 
 void add_text_to_buffer(int color, char * text, int time_to_display);
@@ -146,13 +144,9 @@ int dec(my_enum * def, int val, int no_steps)
 //New char interface
 
 static char create_char_error_str[520] = {0};
-#ifndef NEW_NEW_CHAR_WINDOW
-static int textboxy = 9*SMALL_FONT_Y_LEN; /* 8 lines of text + top/bottom space */
-#else
-int old_use_windowed_chat;
-#endif
-int display_time=0;
-	
+static int old_use_windowed_chat;
+static int display_time=0;
+
 struct input_text {
 	char str[40];
 	int pos;
@@ -180,7 +174,7 @@ void set_create_char_error (const char *msg, int len)
 	}
 
 	LOG_TO_CONSOLE(c_red1, create_char_error_str);
-	
+
 	put_small_colored_text_in_box(c_red1, (unsigned char*)create_char_error_str, strlen(create_char_error_str), 200, buf);
 	safe_snprintf(create_char_error_str, sizeof(create_char_error_str), "%s", buf);
 	display_time=cur_time+6000;
@@ -194,10 +188,10 @@ void change_actor (void)
 	if (our_actor.our_model){
 		if(our_actor.our_model->calmodel!=NULL)
 			model_delete(our_actor.our_model->calmodel);
-		
+
 		our_actor.our_model->calmodel = model_new(actors_defs[our_actor.race].coremodel);
 		our_actor.our_model->actor_type = our_actor.race;
-			
+
 		// Attach the Meshes.
 		model_attach_mesh(our_actor.our_model,
 			actors_defs[our_actor.race].head[our_actor.head].mesh_index);
@@ -207,7 +201,7 @@ void change_actor (void)
 			actors_defs[our_actor.race].legs[our_actor.pants].mesh_index);
 		model_attach_mesh(our_actor.our_model,
 			actors_defs[our_actor.race].boots[our_actor.boots].mesh_index);
-		
+
 		// Save which mesh is which.
 		our_actor.our_model->body_parts->head_meshindex =
 			actors_defs[our_actor.race].head[our_actor.head].mesh_index;
@@ -217,30 +211,25 @@ void change_actor (void)
 			actors_defs[our_actor.race].legs[our_actor.pants].mesh_index;
 		our_actor.our_model->body_parts->boots_meshindex =
 			actors_defs[our_actor.race].boots[our_actor.boots].mesh_index;
-				
+
 		// Recopy all of the textures.
 		my_strncp(our_actor.our_model->body_parts->hands_tex,actors_defs[our_actor.race].skin[our_actor.skin].hands_name,sizeof(our_actor.our_model->body_parts->hands_tex));
 		my_strncp(our_actor.our_model->body_parts->head_tex,actors_defs[our_actor.race].skin[our_actor.skin].head_name,sizeof(our_actor.our_model->body_parts->head_tex));
-		
+
 		my_strncp(our_actor.our_model->body_parts->hair_tex,actors_defs[our_actor.race].hair[our_actor.hair].hair_name,sizeof(our_actor.our_model->body_parts->hair_tex));
 #ifdef NEW_EYES
 		my_strncp(our_actor.our_model->body_parts->eyes_tex,actors_defs[our_actor.race].eyes[our_actor.eyes].eyes_name,sizeof(our_actor.our_model->body_parts->eyes_tex));
 #endif
 		my_strncp(our_actor.our_model->body_parts->arms_tex,actors_defs[our_actor.race].shirt[our_actor.shirt].arms_name,sizeof(our_actor.our_model->body_parts->arms_tex));
 		my_strncp(our_actor.our_model->body_parts->torso_tex,actors_defs[our_actor.race].shirt[our_actor.shirt].torso_name,sizeof(our_actor.our_model->body_parts->torso_tex));
-		
+
 		my_strncp(our_actor.our_model->body_parts->pants_tex,actors_defs[our_actor.race].legs[our_actor.pants].legs_name,sizeof(our_actor.our_model->body_parts->pants_tex));
-		
+
 		my_strncp(our_actor.our_model->body_parts->boots_tex,actors_defs[our_actor.race].boots[our_actor.boots].boots_name,sizeof(our_actor.our_model->body_parts->boots_tex));
 
-#ifdef	NEW_TEXTURES
 		free_actor_texture(our_actor.our_model->texture_id);
 		our_actor.our_model->texture_id = load_enhanced_actor(our_actor.our_model->body_parts, 0);	// Rebuild the actor's textures.
-#else	/* NEW_TEXTURES */
-		glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
-		our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the textures.
-#endif	/* NEW_TEXTURES */
-		
+
 		// Move the actor. Could be a little disorienting, though.
 		our_actor.our_model->x_tile_pos = our_actor.def->x;
 		our_actor.our_model->y_tile_pos = our_actor.def->y;
@@ -258,9 +247,7 @@ int newchar_root_win = -1;
 int color_race_win = -1;
 int namepass_win = -1;
 int newchar_advice_win = -1;
-#ifdef NEW_NEW_CHAR_WINDOW
 int newchar_hud_win = -1;
-#endif
 static int start_y = 50;
 
 //	Display the "Character creation screen" and creation step help window.
@@ -280,11 +267,7 @@ int display_advice_handler (window_info *win)
 	{
 		int len_x = (int)(2*sep + strlen(newchar_warning) * DEFAULT_FONT_X_LEN);
 		int len_y = (int)(2*sep + DEFAULT_FONT_Y_LEN);
-#ifdef NEW_NEW_CHAR_WINDOW
 		int pos_x = (int)((window_width - len_x - hud_x) / 2);
-#else
-		int pos_x = (int)((window_width - len_x - HUD_MARGIN_X) / 2);
-#endif
 		resize_window(win->window_id, len_x, len_y);
 		move_window(win->window_id, win->pos_id, win->pos_loc, pos_x, sep);
 		start_y = sep*6 + len_y;
@@ -321,9 +304,6 @@ int display_advice_handler (window_info *win)
 
 	// Either always on or 1 in 4 off.
 	if (!flash || (flash & 3))
-#ifndef NEW_NEW_CHAR_WINDOW
-		show_help(help_str, (int)((win->len_x - strlen(help_str) * SMALL_FONT_X_LEN)/2), window_height - HUD_MARGIN_Y - sep - DEFAULT_FONT_Y_LEN);
-#else
 	{
 		int len = strlen(help_str);
 		int x = (int)((win->len_x - len * SMALL_FONT_X_LEN)/2);
@@ -362,7 +342,6 @@ int display_advice_handler (window_info *win)
 			help_str[i] = ' ';
 		}
 	}
-#endif // NEW_NEW_CHAR_WINDOW
 
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -373,7 +352,7 @@ CHECK_GL_ERRORS();
 
 int display_newchar_handler (window_info *win)
 {
-	int any_reflection; 
+	int any_reflection;
 	static int main_count = 0;
 
 	if(disconnected)
@@ -382,11 +361,7 @@ int display_newchar_handler (window_info *win)
 		/* connect_to_server() calls draw_scene() so we need to prevent recursion */
 		if (!nested_flag)
 		{
-#ifndef NEW_NEW_CHAR_WINDOW
-			add_text_to_buffer(c_red2, "Connection failed, please try again", 6000);
-#else
 			LOG_TO_CONSOLE(c_red2, "Connection failed, please try again");
-#endif
 			creating_char = 1;	/* this was clear before the failed connect so reset */
 			nested_flag = 1;
 			connect_to_server();
@@ -399,16 +374,16 @@ int display_newchar_handler (window_info *win)
 		move_camera();//Make sure we lag a little...
 		our_actor.our_model = add_actor_interface (our_actor.def->x, our_actor.def->y, our_actor.def->z_rot, 1.0f, our_actor.race, our_actor.skin, our_actor.hair, our_actor.eyes, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head);
 		yourself = 0;
-		LOCK_ACTORS_LISTS();	
+		LOCK_ACTORS_LISTS();
 		set_our_actor (our_actor.our_model);
-		UNLOCK_ACTORS_LISTS();	
+		UNLOCK_ACTORS_LISTS();
 	}
 
 	if (!(main_count%10))
 		read_mouse_now = 1;
 	else
 		read_mouse_now = 0;
-	
+
 	//This window is a bit special since it's not fully 2D
 	Leave2DMode ();
 	glPushMatrix ();
@@ -419,14 +394,14 @@ int display_newchar_handler (window_info *win)
 		zoom_level = new_zoom_level;
 		resize_root_window ();
 	}
-	
+
 	move_camera ();
 
 	CalculateFrustum ();
 	set_click_line();
 	any_reflection = find_reflection ();
 	CHECK_GL_ERRORS ();
-	
+
 	reset_under_the_mouse();
 
 	if (SDL_GetAppState() & SDL_APPACTIVE)
@@ -487,44 +462,28 @@ int display_newchar_handler (window_info *win)
 	//particles should be last, we have no Z writting
 	display_particles ();
 	CHECK_GL_ERRORS ();
-	
+
 	Enter2DMode ();
 
 	glColor3f(1.0f,1.0f,1.0f);
 
 	draw_hud_frame();
-	
+
 	CHECK_GL_ERRORS ();
 
 	{
-#ifdef NEW_NEW_CHAR_WINDOW
 		int msg, offset;
 		if ( find_last_lines_time (&msg, &offset, current_filter, get_console_text_width()) ){
 			set_font(chat_font);    // switch to the chat font
 			draw_messages (10, 40, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, FILTER_ALL, msg, offset, -1, win->len_x - hud_x - 20, win->len_y, chat_zoom, NULL);
 			set_font (0);   // switch to fixed
 		}
-#else
-		int msg, offset, ytext, filter;
-		ytext = use_windowed_chat == 1 ? 25 : 20;
-		filter = use_windowed_chat == 1 ? current_filter : FILTER_ALL;
-		if ( find_last_lines_time (&msg, &offset, current_filter, get_console_text_width()) ){
-			set_font(chat_font);    // switch to the chat font
-			draw_messages (10, ytext, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, filter, msg, offset, -1, win->len_x - hud_x - 20, win->len_y, chat_zoom, NULL);
-			set_font (0);   // switch to fixed
-		}
-#endif
 	}
 
 	glColor3f(251/255.0f, 250/255.0f, 190/255.0f);
-#ifdef NEW_NEW_CHAR_WINDOW
 	draw_string_small(get_icons_win_active_len() + 2, win->len_y-hud_y+15, (unsigned char*)zoom_in_out, 1);
 	draw_string_small(get_icons_win_active_len() + 2, win->len_y-hud_y+32, (unsigned char*)rotate_camera, 1);
-#else
-	draw_string_small(132, win->len_y-hud_y+15, (unsigned char*)zoom_in_out, 1);
-	draw_string_small(132, win->len_y-hud_y+32, (unsigned char*)rotate_camera, 1);
-#endif
-	
+
 	Leave2DMode ();
 
 	glEnable (GL_LIGHTING);
@@ -652,7 +611,7 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 			add_command_to_actor(0, turn_right);
 			last_time=cur_time;
 		}
-	} 
+	}
 	return 1;
 }
 
@@ -660,13 +619,11 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 int show_newchar_handler (window_info *win) {
 	init_hud_interface (HUD_INTERFACE_NEW_CHAR);
 	show_hud_windows();
-	
+
 	return 1;
 }
 
-#ifdef NEW_NEW_CHAR_WINDOW
 void create_newchar_hud_window(void);
-#endif
 
 void create_newchar_root_window (void)
 {
@@ -674,7 +631,7 @@ void create_newchar_root_window (void)
 	{
 		our_actor.race_id=RAND(0, 5);
 		our_actor.def=&races[our_actor.race_id];//6 "races" - counting women as their own race, of course ;-) We cannot include the new races in the random function since they are p2p
-		our_actor.skin = inc(our_actor.def->skin, SKIN_BROWN, RAND (SKIN_BROWN, SKIN_TAN));//Increment a random # of times. 
+		our_actor.skin = inc(our_actor.def->skin, SKIN_BROWN, RAND (SKIN_BROWN, SKIN_TAN));//Increment a random # of times.
 		our_actor.hair = inc(our_actor.def->hair, HAIR_BLACK, RAND (HAIR_BLACK, our_actor.def->type >= draegoni_female ? HAIR_PURPLE:HAIR_WHITE));
 		our_actor.eyes = inc(our_actor.def->eyes, EYES_BROWN, RAND (EYES_BROWN, EYES_GOLD));
 		our_actor.shirt = inc(our_actor.def->shirts, SHIRT_BLACK, RAND (SHIRT_BLACK, SHIRT_YELLOW));
@@ -683,7 +640,7 @@ void create_newchar_root_window (void)
 		our_actor.head = inc(our_actor.def->head, HEAD_1, RAND (HEAD_1, our_actor.def->type==human_female?HEAD_5:HEAD_4));
 		our_actor.race = our_actor.def->type;
 		our_actor.male = our_actor.race<gnome_female?our_actor.race%2:!(our_actor.race%2);
-		
+
 		game_minute = 120;	//Midday. So that it's bright and sunny.
 		real_game_minute = game_minute;
 
@@ -701,42 +658,29 @@ void create_newchar_root_window (void)
 
 		newchar_advice_win = create_window ("Advice", newchar_root_win, 0, 100, 10, 200, 100, ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_ALPHA_BORDER);
 		set_window_handler (newchar_advice_win, ELW_HANDLER_DISPLAY, &display_advice_handler);
-#ifdef NEW_NEW_CHAR_WINDOW
 		create_newchar_hud_window();
-#endif
 
 		LOG_TO_CONSOLE(c_green1, char_help);
 	} else {
 		show_window(newchar_root_win);
 		show_window(newchar_advice_win);
-#ifdef NEW_NEW_CHAR_WINDOW
 		show_window(newchar_hud_win);
 		show_window(color_race_win);
 		hide_window(namepass_win);
-#endif
 	}
-#ifdef NEW_NEW_CHAR_WINDOW
 	old_use_windowed_chat = use_windowed_chat;
 	use_windowed_chat = 0;
-#endif
 }
 
 int active=0;
-#ifdef NEW_NEW_CHAR_WINDOW
 int hidden=0;
-
 int are_you_sure=1;
-#else
-int hidden=1;
-
-int are_you_sure=0;
-#endif
 int numbers_in_name=0;
 
 char * get_pass_str(int l)
 {
 	static char str[20];
-	
+
 	memset(str, '*', l);
 	str[l]=0;
 
@@ -781,12 +725,7 @@ void add_text_to_buffer(int color, char * text, int time_to_display)
 void create_character(void)
 {
 	if(!strncasecmp(inputs[1].str, actors_list[0]->actor_name, strlen(actors_list[0]->actor_name))){
-#ifdef NEW_NEW_CHAR_WINDOW
 		add_text_to_buffer(c_red2, error_bad_pass, 6000);
-#else
-		add_text_to_buffer(c_red2, "Bad password!", 6000);
-		//add_text_to_buffer(c_red2, error_bad_pass, 6000);
-#endif
 		return;
 	} else if(strcmp(inputs[1].str, inputs[2].str)){
 		add_text_to_buffer(c_red2, error_pass_no_match, 6000);
@@ -806,14 +745,10 @@ void create_character(void)
 		send_new_char(inputs[0].str, inputs[1].str, our_actor.skin, our_actor.hair, our_actor.eyes, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head, our_actor.race);
 	} else {
 		are_you_sure=1;
-		
+
 		add_text_to_buffer(c_orange3, error_confirm_create_char, 6000);
 		LOG_TO_CONSOLE(c_green2, "\n");
 		LOG_TO_CONSOLE(c_green2, remember_change_appearance);
-		
-#ifndef NEW_NEW_CHAR_WINDOW
-		show_color_race_win();
-#endif
 	}
 }
 
@@ -821,7 +756,7 @@ void login_from_new_char(void)
 {
 	safe_snprintf(username_str, sizeof(username_str), "%s", inputs[0].str);
 	safe_snprintf(password_str, sizeof(password_str), "%s", inputs[1].str);
-	
+
 	// now destroy reference to ourself, otherwise we'll mess up the ID's
 	destroy_all_actors();
 	our_actor.our_model=NULL;
@@ -830,160 +765,13 @@ void login_from_new_char(void)
 	if (tab_help_win >= 0) hide_window (tab_help_win);
 	if (elconfig_win >= 0) hide_window (elconfig_win);
 
-#ifdef NEW_NEW_CHAR_WINDOW
 	//restore use_windowed_chat
 	use_windowed_chat = old_use_windowed_chat;
 	hide_window(newchar_hud_win);
-#endif
 
 	//now send the log in info
 	send_login_info();
 }
-
-#ifndef NEW_NEW_CHAR_WINDOW
-int display_namepass_handler (window_info * win)
-{
-	glColor3f(0.77f,0.57f,0.39f);
-	
-	draw_string_small(20, 20, (unsigned char*)login_username_str, 1);
-	draw_string_small(20, 60, (unsigned char*)login_password_str, 1);
-	draw_string_small(20, 90, (unsigned char*)confirm_password, 1);
-	draw_smooth_button(inputs[0].str, DEFAULT_SMALL_RATIO, 100, 16, 120, 1, 0.77f, 0.57f ,0.39f, active == 0, 0.32f, 0.23f, 0.15f, 0.5f);
-	draw_smooth_button(hidden?get_pass_str(inputs[1].pos):inputs[1].str, DEFAULT_SMALL_RATIO, 100, 56, 120, 1, 0.77f, 0.57f ,0.39f, active == 1, 0.32f, 0.23f, 0.15f, 0.5f);
-	draw_smooth_button(hidden?get_pass_str(inputs[2].pos):inputs[2].str, DEFAULT_SMALL_RATIO, 100, 86, 120, 1, 0.77f, 0.57f ,0.39f, active == 2, 0.32f, 0.23f, 0.15f, 0.5f);
-	
-	draw_smooth_button(hidden?show_password:hide_password, DEFAULT_SMALL_RATIO, 20, 120, 200, 1, 0.77f, 0.57f ,0.39f, hidden, 0.32f, 0.23f, 0.15f, 0.5f);
-
-	draw_box(NULL, 20, 160, 220, textboxy, 0);
-	
-	draw_smooth_button(char_done, DEFAULT_SMALL_RATIO, 20, 170+textboxy, 60, 1, 0.77f, 0.57f ,0.39f, are_you_sure, 0.32f, 0.23f, 0.15f, 0.5f);
-	draw_smooth_button(char_back, DEFAULT_SMALL_RATIO, 160, 170+textboxy, 60, 1, 0.77f, 0.57f ,0.39f, 0, 0.32f, 0.23f, 0.15f, 0.5f);
-
-	//why remove the massage after a time delay, I may have missed it
-	//debate and remove the code if really not wanted - pjbroad/bluap
-	//if(display_time>cur_time){
-		draw_string_small(30, 168, (unsigned char*)create_char_error_str, 8);
-	//}
-	
-	return 1;
-}
-
-int keypress_namepass_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
-{
-	Uint8 ch = key_to_char (unikey);
-	int ret=0;
-	struct input_text * t=&inputs[active];
-
-	if ((ret=check_character (active > 0, ch)))
-	{
-		if (ret==-1)
-		{
-			add_text_to_buffer (c_red1, error_max_digits, 6000);
-		}
-		else if (t->pos + 1 > MAX_USERNAME_LENGTH - 1)		// MAX_USERNAME_LENGTH includes the null terminator and t->pos counts from 0
-		{
-			add_text_to_buffer (c_red2, error_length, 6000);
-		}
-		else
-		{
-			// don't allow a character to start with player
-			if(active == 0 && !strcasecmp(t->str, "player")) t->pos= 0;
-			// add the character to the buffer
-			t->str[t->pos++]=ch;
-			t->str[t->pos]=0;
-			ret=1;	//Reused to show that a letter has been added
-		}
-	} 
-	else if (unikey == SDLK_TAB || unikey == SDLK_RETURN)
-	{
-		active++;
-		if(active>2) active=0;
-	}
-#ifndef OSX
-	else if (unikey == SDLK_BACKSPACE && t->pos>0)
-#else
-        else if (key == SDLK_BACKSPACE && t->pos>0)
-#endif
-	{
-		t->pos--;
-		if (isdigit (t->str[t->pos])) numbers_in_name--;
-		t->str[t->pos] = 0;
-		ret = 1;	// Reused to show that a letter has been removed
-	}
-	else
-	{
-		//only send error messages on non-null characters
-		if(ch != 0){
-			add_text_to_buffer (c_red2, error_illegal_character, 6000);
-		}
-	}
-
-	if(active>0){
-		//Password/confirm
-		if(ret){
-			if(!strncasecmp(inputs[1].str, actors_list[0]->actor_name, strlen(actors_list[0]->actor_name))){
-				add_text_to_buffer(c_red2, error_bad_pass, 6000);
-			} else if(strcmp(inputs[1].str, inputs[2].str)){
-				add_text_to_buffer(c_red2, error_pass_no_match, 6000);
-			} else {
-				add_text_to_buffer(c_green1, passwords_match, 6000);
-			}
-		}
-	} else {
-		safe_snprintf(actors_list[0]->actor_name, sizeof(actors_list[0]->actor_name), "%s", inputs[0].str);
-	}
-	
-	return 1;
-}
-
-int click_namepass_handler(window_info * win, int mx, int my, Uint32 flags)
-{   
-	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
-
-	if(mx>100 && mx<260){
-		if(my>16 && my<38){
-			active=0;
-		} else if(my>56 && my<78){
-			active=1;
-		} else if(my>86 && my<108){
-			active=2;
-		}
-	}
-
-	if(mx>20 && mx<220 && my>120 && my<144){
-		hidden=!hidden;
-	}
-
-	if(my>170+textboxy && my<192+textboxy){
-		if(mx>20 && mx<100){
-			create_character();
-		} if(mx>160 && mx<240){
-			destroy_all_actors();
-			our_actor.our_model=NULL;
-			hide_window (newchar_root_win);
-			show_window (login_root_win);
-			hide_hud_windows ();
-		}
-	}
-	
-	
-	return 0;
-}
-
-void show_account_win (void)
-{
-	if (namepass_win < 0){
-	        // Create the window
-	        namepass_win = create_window (win_name_pass, newchar_root_win, 0, 10, start_y, 270, 200+textboxy, ELW_WIN_DEFAULT);
-	        set_window_handler (namepass_win, ELW_HANDLER_DISPLAY, &display_namepass_handler);
-	        set_window_handler (namepass_win, ELW_HANDLER_KEYPRESS, &keypress_namepass_handler);
-	        set_window_handler (namepass_win, ELW_HANDLER_CLICK, &click_namepass_handler);
-    	} else {
-        	show_window(namepass_win);
-		select_window(namepass_win);
-	}
-}
-#endif
 
 //The character design window
 void change_race(int new_race)
@@ -993,7 +781,7 @@ void change_race(int new_race)
 	our_actor.our_model = NULL;
 	our_actor.race_id=new_race;
 	our_actor.def=&races[new_race];
-	our_actor.skin = our_actor.def->skin[find_pos_in_enum(our_actor.def->skin, our_actor.skin)];//Increment a random # of times. 
+	our_actor.skin = our_actor.def->skin[find_pos_in_enum(our_actor.def->skin, our_actor.skin)];//Increment a random # of times.
 	our_actor.hair = our_actor.def->hair[find_pos_in_enum(our_actor.def->hair, our_actor.hair)];
 	our_actor.eyes = our_actor.def->eyes[find_pos_in_enum(our_actor.def->eyes, our_actor.eyes)];
 	our_actor.shirt = our_actor.def->shirts[find_pos_in_enum(our_actor.def->shirts, our_actor.shirt)];
@@ -1028,433 +816,6 @@ void toggle_book(int id)
 	}
 }
 
-#ifndef NEW_NEW_CHAR_WINDOW
-int display_color_race_handler (window_info *win)
-{
-	int x;
-
-	glColor3f(1.00f,0.0f,0.f);
-	// the red box around P2P races
-	draw_box("P2P", 135, 70, 120, 88 , 0);
-
-	glColor3f(0.77f,0.57f,0.39f);
-
-	//Gender
-	draw_box(gender_str, 10, 10, 250, 45, 0);
-	draw_smooth_button(male_str, DEFAULT_SMALL_RATIO, 40, 22, 60, 1, 0.77f, 0.57f ,0.39f, our_actor.male, 0.32f, 0.23f, 0.15f, 0.5f);
-	draw_smooth_button(female_str, DEFAULT_SMALL_RATIO, 150, 22, 60, 1, 0.77f, 0.57f ,0.39f, !our_actor.male, 0.32f, 0.23f, 0.15f, 0.5f);
-
-	//Race
-	draw_box(race_str, 10, 65, 250, 98, 0);
-	draw_smooth_button(human_str, DEFAULT_SMALL_RATIO, 20, 75, 60, 1, 0.77f, 0.57f ,0.39f, our_actor.race==human_female||our_actor.race==human_male, 0.32f, 0.23f, 0.15f, 0.5f);
-	draw_smooth_button(elf_str, DEFAULT_SMALL_RATIO, 20, 103, 60, 1, 0.77f, 0.57f ,0.39f, our_actor.race==elf_female||our_actor.race==elf_male, 0.32f, 0.23f, 0.15f, 0.5f);
-	draw_smooth_button(dwarf_str, DEFAULT_SMALL_RATIO, 20, 131, 60, 1, 0.77f, 0.57f ,0.39f, our_actor.race==dwarf_female||our_actor.race==dwarf_male, 0.32f, 0.23f, 0.15f, 0.5f);
-	draw_smooth_button(gnome_str, DEFAULT_SMALL_RATIO, 140, 75, 60, 1, 0.77f, 0.57f ,0.39f, our_actor.race==gnome_female||our_actor.race==gnome_male, 0.32f, 0.23f, 0.15f, 0.5f);
-	draw_smooth_button(orchan_str, DEFAULT_SMALL_RATIO, 140, 103, 60, 1, 0.77f, 0.57f ,0.39f, our_actor.race==orchan_female||our_actor.race==orchan_male, 0.32f, 0.23f, 0.15f, 0.5f);
-	draw_smooth_button(draegoni_str, DEFAULT_SMALL_RATIO, 140, 131, 60, 1, 0.77f, 0.57f ,0.39f, our_actor.race==draegoni_female||our_actor.race==draegoni_male, 0.32f, 0.23f, 0.15f, 0.5f);
-	
-	//Appearance
-	draw_box(appearance_str, 270, 10, 120, win->len_y-17, 0);
-	x=330;
-	draw_string_small(x-(get_string_width((unsigned char*)head_str)*8.0f/12.0f)/2.0f, 25, (unsigned char*)head_str, 1);
-	draw_string_small(x-(get_string_width((unsigned char*)skin_str)*8.0f/12.0f)/2.0f, 48, (unsigned char*)skin_str, 1);
-	draw_string_small(x-(get_string_width((unsigned char*)hair_str)*8.0f/12.0f)/2.0f, 71, (unsigned char*)hair_str, 1);
-	draw_string_small(x-(get_string_width((unsigned char*)eyes_str)*8.0f/12.0f)/2.0f, 94, (unsigned char*)eyes_str, 1);
-	draw_string_small(x-(get_string_width((unsigned char*)shirt_str)*8.0f/12.0f)/2.0f, 117, (unsigned char*)shirt_str, 1);
-	draw_string_small(x-(get_string_width((unsigned char*)pants_str)*8.0f/12.0f)/2.0f, 140, (unsigned char*)pants_str, 1);
-	draw_string_small(x-(get_string_width((unsigned char*)boots_str)*8.0f/12.0f)/2.0f, 163, (unsigned char*)boots_str, 1);
-	
-	//<<
-	x=280;
-	draw_string_small(x, 25, (unsigned char*)"<<", 1);
-	draw_string_small(x, 48, (unsigned char*)"<<", 1);
-	draw_string_small(x, 71, (unsigned char*)"<<", 1);
-	draw_string_small(x, 94, (unsigned char*)"<<", 1);
-	draw_string_small(x, 117, (unsigned char*)"<<", 1);
-	draw_string_small(x, 140, (unsigned char*)"<<", 1);
-	draw_string_small(x, 163, (unsigned char*)"<<", 1);
-	
-	//>>
-	x=364;
-	draw_string_small(x, 25, (unsigned char*)">>", 1);
-	draw_string_small(x, 48, (unsigned char*)">>", 1);
-	draw_string_small(x, 71, (unsigned char*)">>", 1);
-	draw_string_small(x, 94, (unsigned char*)">>", 1);
-	draw_string_small(x, 117, (unsigned char*)">>", 1);
-	draw_string_small(x, 140, (unsigned char*)">>", 1);
-	draw_string_small(x, 163, (unsigned char*)">>", 1);
-	
-	switch(race_help){
-		case 1:
-			show_help(p2p_race, 260, 80);
-			break;
-		case 2:
-			show_help(p2p_race, 260, 110);
-			break;
-		case 3:
-			show_help(p2p_race, 260, 140);
-			break;
-		case 0:
-		default:
-			break;
-	}
-
-	if(book_over==book_human){
-		show_help(about_human, 142, 80);
-	} else if(book_over==book_elf){
-		show_help(about_elves, 142, 108);
-	} else if(book_over==book_dwarf){
-		show_help(about_dwarfs, 142, 136);
-	} else if(book_over==book_gnome){
-		show_help(about_gnomes, 260, 80);
-	} else if(book_over==book_orchan){
-		show_help(about_orchans, 262, 108);
-	} else if(book_over==book_draegoni){
-		show_help(about_draegoni, 262, 136);
-	}
-	
-	glColor3f(1.0f,1.0f,1.0f);
-	glEnable(GL_TEXTURE_2D);
-
-#ifdef	NEW_TEXTURES
-	bind_texture(icons_text);
-#else	/* NEW_TEXTURES */
-	get_and_set_texture_id(icons_text);
-#endif	/* NEW_TEXTURES */
-	glBegin(GL_QUADS);
-	if(book_opened==book_human||book_over==book_human)
-		draw_2d_thing((float)32/256,1.0f-(float)64/256,(float)63/256,1.0f-(float)95/256, 110, 75, 132, 97);
-	else 
-		draw_2d_thing((float)0/256,1.0f-(float)64/256,(float)31/256,1.0f-(float)95/256, 110, 75, 132, 97);
-	if(book_opened==book_elf||book_over==book_elf)
-		draw_2d_thing((float)32/256,1.0f-(float)64/256,(float)63/256,1.0f-(float)95/256, 110, 103, 132, 125);
-	else 
-		draw_2d_thing((float)0/256,1.0f-(float)64/256,(float)31/256,1.0f-(float)95/256, 110, 103, 132, 125);
-	if(book_opened==book_dwarf||book_over==book_dwarf)
-		draw_2d_thing((float)32/256,1.0f-(float)64/256,(float)63/256,1.0f-(float)95/256, 110, 131, 132, 153);
-	else 
-		draw_2d_thing((float)0/256,1.0f-(float)64/256,(float)31/256,1.0f-(float)95/256, 110, 131, 132, 153);
-	if(book_opened==book_gnome||book_over==book_gnome)
-		draw_2d_thing((float)32/256,1.0f-(float)64/256,(float)63/256,1.0f-(float)95/256, 230, 75, 252, 97);
-	else 
-		draw_2d_thing((float)0/256,1.0f-(float)64/256,(float)31/256,1.0f-(float)95/256, 230, 75, 252, 97);
-	if(book_opened==book_orchan||book_over==book_orchan)
-		draw_2d_thing((float)32/256,1.0f-(float)64/256,(float)63/256,1.0f-(float)95/256, 230, 103, 252, 125);
-	else 
-		draw_2d_thing((float)0/256,1.0f-(float)64/256,(float)31/256,1.0f-(float)95/256, 230, 103, 252, 125);
-	if(book_opened==book_draegoni||book_over==book_draegoni)
-		draw_2d_thing((float)32/256,1.0f-(float)64/256,(float)63/256,1.0f-(float)95/256, 230, 131, 252, 153);
-	else 
-		draw_2d_thing((float)0/256,1.0f-(float)64/256,(float)31/256,1.0f-(float)95/256, 230, 131, 252, 153);
-	
-	glEnd();
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
-	return 1;
-}
-
-int mouseover_color_race_handler (window_info *win, int mx, int my)
-{
-	if(mx>140 && mx<220){
-		//P2P races
-		if(my>75 && my<97){
-			race_help=1;
-		} else if(my>103 && my<125){
-			race_help=2;
-		} else if(my>131 && my<153){
-			race_help=3;
-		} else  race_help=0;
-	} else race_help=0;
-	
-	if(mx>110 && mx<132) {
-		if(my>75 && my<97){
-			book_over=book_human;
-		} else if(my>103 && my<125){
-			book_over=book_elf;
-		} else if(my>131 && my<153){
-			book_over=book_dwarf;
-		} else  book_over=-1;
-	} else if(mx>230 && mx<252){
-		if(my>75 && my<97){
-			book_over=book_gnome;
-		} else if(my>103 && my<125){
-			book_over=book_orchan;
-		} else if(my>131 && my<153){
-			book_over=book_draegoni;
-		} else  book_over=-1;
-	} else book_over=-1;
-	return 1;
-}
-
-int click_color_race_handler (window_info *win, int mx, int my, Uint32 flags)
-{
-	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
-
-	if(my>22 && my<44){
-		if(mx>40 && mx<120){
-			change_race(our_actor.race_id+!our_actor.male);
-		} else if(mx>150 && mx<210){
-			change_race(our_actor.race_id-our_actor.male);
-		}
-	}
-	
-	if(mx>20 && mx<100){
-		if(my>75 && my<97){
-			change_race(0+our_actor.male);
-		} else if(my>103 && my<125){
-			change_race(2+our_actor.male);
-		} else if(my>131 && my<153){
-			change_race(4+our_actor.male);
-		}
-	} else if(mx>110 && mx<132) {
-		if(my>75 && my<97){
-			toggle_book(book_human);
-			return 0;
-		} else if(my>103 && my<125){
-			toggle_book(book_elf);
-			return 0;
-		} else if(my>131 && my<153){
-			toggle_book(book_dwarf);
-			return 0;
-		}
-	} else if(mx>140 && mx<220) {
-		if(my>75 && my<97){
-			change_race(6+our_actor.male);
-		} else if(my>103 && my<125){
-			change_race(8+our_actor.male);
-		} else if(my>131 && my<153){
-			change_race(10+our_actor.male);
-		} 
-	} else if(mx>230 && mx<252){
-		if(my>75 && my<97){
-			toggle_book(book_gnome);
-			return 0;
-		} else if(my>103 && my<125){
-			toggle_book(book_orchan);
-			return 0;
-		} else if(my>131 && my<153){
-			toggle_book(book_draegoni);
-			return 0;
-		}
-	} else if(mx>280 && mx<295){
-		if(my>25 && my<36){
-			our_actor.head=dec(our_actor.def->head, our_actor.head, 1);
-			
-			// Detach the old head, and reattach and save the new one.
-			model_detach_mesh(our_actor.our_model, our_actor.our_model->body_parts->head_meshindex);
-			model_attach_mesh(our_actor.our_model, actors_defs[our_actor.race].head[our_actor.head].mesh_index);
-			our_actor.our_model->body_parts->head_meshindex=actors_defs[our_actor.race].head[our_actor.head].mesh_index;
-		} else if(my>48 && my<59){
-			our_actor.skin=dec(our_actor.def->skin, our_actor.skin, 1);
-			// Copy the skin texture names.
-			my_strncp(our_actor.our_model->body_parts->hands_tex,actors_defs[our_actor.race].skin[our_actor.skin].hands_name,sizeof(our_actor.our_model->body_parts->hands_tex));
-			my_strncp(our_actor.our_model->body_parts->head_tex,actors_defs[our_actor.race].skin[our_actor.skin].head_name,sizeof(our_actor.our_model->body_parts->head_tex));
-			
-#ifdef	NEW_TEXTURES
-			change_enhanced_actor(our_actor.our_model->texture_id, our_actor.our_model->body_parts);
-#else	/* NEW_TEXTURES */
-			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
-			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
-#endif	/* NEW_TEXTURES */
-		} else if(my>71 && my<82){
-			our_actor.hair=dec(our_actor.def->hair, our_actor.hair, 1);
-			
-			// Copy the hair texture name.
-			my_strncp(our_actor.our_model->body_parts->hair_tex,actors_defs[our_actor.race].hair[our_actor.hair].hair_name,sizeof(our_actor.our_model->body_parts->hair_tex));
-			
-#ifdef	NEW_TEXTURES
-			change_enhanced_actor(our_actor.our_model->texture_id, our_actor.our_model->body_parts);
-#else	/* NEW_TEXTURES */
-			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
-			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
-#endif	/* NEW_TEXTURES */
-#ifdef NEW_EYES
-		} else if(my>94 && my<105){
-			our_actor.eyes=dec(our_actor.def->eyes, our_actor.eyes, 1);
-
-			// Copy the eyes texture name.
-			my_strncp(our_actor.our_model->body_parts->eyes_tex,actors_defs[our_actor.race].eyes[our_actor.eyes].eyes_name,sizeof(our_actor.our_model->body_parts->eyes_tex));
-#ifdef	NEW_TEXTURES
-			change_enhanced_actor(our_actor.our_model->texture_id, our_actor.our_model->body_parts);
-#else	/* NEW_TEXTURES */
-			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
-			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
-#endif	/* NEW_TEXTURES */
-#endif	/* NEW_EYES */
-		} else if(my>117 && my<128){
-			our_actor.shirt=dec(our_actor.def->shirts, our_actor.shirt, 1);
-			
-			// Copy the shirt and arms texture names.
-			my_strncp(our_actor.our_model->body_parts->arms_tex,actors_defs[our_actor.race].shirt[our_actor.shirt].arms_name,sizeof(our_actor.our_model->body_parts->arms_tex));
-			my_strncp(our_actor.our_model->body_parts->torso_tex,actors_defs[our_actor.race].shirt[our_actor.shirt].torso_name,sizeof(our_actor.our_model->body_parts->torso_tex));
-			
-			// If we need a new mesh, drop the old one and load it.
-			if(actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index != our_actor.our_model->body_parts->torso_meshindex)
-			{
-				model_detach_mesh(our_actor.our_model, our_actor.our_model->body_parts->torso_meshindex);
-				model_attach_mesh(our_actor.our_model, actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index);
-				our_actor.our_model->body_parts->torso_meshindex=actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index;
-			}
-			
-#ifdef	NEW_TEXTURES
-			change_enhanced_actor(our_actor.our_model->texture_id, our_actor.our_model->body_parts);
-#else	/* NEW_TEXTURES */
-			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
-			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
-#endif	/* NEW_TEXTURES */
-		} else if(my>140 && my<151){
-			our_actor.pants=dec(our_actor.def->pants, our_actor.pants, 1);
-			
-			// Copy the pants texture name.
-			my_strncp(our_actor.our_model->body_parts->pants_tex,actors_defs[our_actor.race].legs[our_actor.pants].legs_name,sizeof(our_actor.our_model->body_parts->pants_tex));
-			
-			// If we need a new mesh, drop the old one and load it.
-			if(actors_defs[our_actor.race].legs[our_actor.pants].mesh_index != our_actor.our_model->body_parts->legs_meshindex)
-			{
-				model_detach_mesh(our_actor.our_model, our_actor.our_model->body_parts->legs_meshindex);
-				model_attach_mesh(our_actor.our_model, actors_defs[our_actor.race].legs[our_actor.pants].mesh_index);
-				our_actor.our_model->body_parts->legs_meshindex=actors_defs[our_actor.race].legs[our_actor.pants].mesh_index;
-			}
-			
-#ifdef	NEW_TEXTURES
-			change_enhanced_actor(our_actor.our_model->texture_id, our_actor.our_model->body_parts);
-#else	/* NEW_TEXTURES */
-			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
-			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
-#endif	/* NEW_TEXTURES */
-		} else if(my>163 && my<174){
-			our_actor.boots=dec(our_actor.def->boots, our_actor.boots, 1);
-			
-			// Copy the new boots texture name.
-			my_strncp(our_actor.our_model->body_parts->boots_tex,actors_defs[our_actor.race].boots[our_actor.boots].boots_name,sizeof(our_actor.our_model->body_parts->boots_tex));
-			
-#ifdef	NEW_TEXTURES
-			change_enhanced_actor(our_actor.our_model->texture_id, our_actor.our_model->body_parts);
-#else	/* NEW_TEXTURES */
-			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
-			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
-#endif	/* NEW_TEXTURES */
-		}
-	} else if(mx>364 && mx<379){
-		if(my>25 && my<40){
-			our_actor.head=inc(our_actor.def->head, our_actor.head, 1);
-			
-			// Detach the old head, and reattach and save the new one.
-			model_detach_mesh(our_actor.our_model, our_actor.our_model->body_parts->head_meshindex);
-			model_attach_mesh(our_actor.our_model, actors_defs[our_actor.race].head[our_actor.head].mesh_index);
-			our_actor.our_model->body_parts->head_meshindex=actors_defs[our_actor.race].head[our_actor.head].mesh_index;
-		} else if(my>48 && my<63){
-			our_actor.skin=inc(our_actor.def->skin, our_actor.skin, 1);
-			
-			// Copy the skin texture names.
-			my_strncp(our_actor.our_model->body_parts->hands_tex,actors_defs[our_actor.race].skin[our_actor.skin].hands_name,sizeof(our_actor.our_model->body_parts->hands_tex));
-			my_strncp(our_actor.our_model->body_parts->head_tex,actors_defs[our_actor.race].skin[our_actor.skin].head_name,sizeof(our_actor.our_model->body_parts->head_tex));
-			
-#ifdef	NEW_TEXTURES
-			change_enhanced_actor(our_actor.our_model->texture_id, our_actor.our_model->body_parts);
-#else	/* NEW_TEXTURES */
-			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
-			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
-#endif	/* NEW_TEXTURES */
-		} else if(my>71 && my<86){
-			our_actor.hair=inc(our_actor.def->hair, our_actor.hair, 1);
-			
-			// Copy the hair texture name.
-			my_strncp(our_actor.our_model->body_parts->hair_tex,actors_defs[our_actor.race].hair[our_actor.hair].hair_name,sizeof(our_actor.our_model->body_parts->hair_tex));
-			
-#ifdef	NEW_TEXTURES
-			change_enhanced_actor(our_actor.our_model->texture_id, our_actor.our_model->body_parts);
-#else	/* NEW_TEXTURES */
-			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
-			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
-#endif	/* NEW_TEXTURES */
-#ifdef NEW_EYES
-		} else if(my>94 && my<109){
-			our_actor.eyes=inc(our_actor.def->eyes, our_actor.eyes, 1);
-
-			// Copy the eyes texture name.
-			my_strncp(our_actor.our_model->body_parts->eyes_tex,actors_defs[our_actor.race].eyes[our_actor.eyes].eyes_name,sizeof(our_actor.our_model->body_parts->eyes_tex));
-#ifdef	NEW_TEXTURES
-			change_enhanced_actor(our_actor.our_model->texture_id, our_actor.our_model->body_parts);
-#else	/* NEW_TEXTURES */
-			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
-			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
-#endif	/* NEW_TEXTURES */
-#endif	/* NEW_EYES */
-		} else if(my>117 && my<132){
-			our_actor.shirt=inc(our_actor.def->shirts, our_actor.shirt, 1);
-			
-			// Copy the shirt and arms texture names.
-			my_strncp(our_actor.our_model->body_parts->arms_tex,actors_defs[our_actor.race].shirt[our_actor.shirt].arms_name,sizeof(our_actor.our_model->body_parts->arms_tex));
-			my_strncp(our_actor.our_model->body_parts->torso_tex,actors_defs[our_actor.race].shirt[our_actor.shirt].torso_name,sizeof(our_actor.our_model->body_parts->torso_tex));
-			
-			// If we need a new mesh, drop the old one and load it.
-			if(actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index != our_actor.our_model->body_parts->torso_meshindex)
-			{
-				model_detach_mesh(our_actor.our_model, our_actor.our_model->body_parts->torso_meshindex);
-				model_attach_mesh(our_actor.our_model, actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index);
-				our_actor.our_model->body_parts->torso_meshindex=actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index;
-			}
-			
-#ifdef	NEW_TEXTURES
-			change_enhanced_actor(our_actor.our_model->texture_id, our_actor.our_model->body_parts);
-#else	/* NEW_TEXTURES */
-			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
-			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
-#endif	/* NEW_TEXTURES */
-		} else if(my>140 && my<155){
-			our_actor.pants=inc(our_actor.def->pants, our_actor.pants, 1);
-			
-			// Copy the pants texture name.
-			my_strncp(our_actor.our_model->body_parts->pants_tex,actors_defs[our_actor.race].legs[our_actor.pants].legs_name,sizeof(our_actor.our_model->body_parts->pants_tex));
-			
-			// If we need a new mesh, drop the old one and load it.
-			if(actors_defs[our_actor.race].legs[our_actor.pants].mesh_index != our_actor.our_model->body_parts->legs_meshindex)
-			{
-				model_detach_mesh(our_actor.our_model, our_actor.our_model->body_parts->legs_meshindex);
-				model_attach_mesh(our_actor.our_model, actors_defs[our_actor.race].legs[our_actor.pants].mesh_index);
-				our_actor.our_model->body_parts->legs_meshindex=actors_defs[our_actor.race].legs[our_actor.pants].mesh_index;
-			}
-			
-#ifdef	NEW_TEXTURES
-			change_enhanced_actor(our_actor.our_model->texture_id, our_actor.our_model->body_parts);
-#else	/* NEW_TEXTURES */
-			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
-			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
-#endif	/* NEW_TEXTURES */
-		} else if(my>163 && my<178){
-			our_actor.boots=inc(our_actor.def->boots, our_actor.boots, 1);
-			
-			// Copy the new boots texture name.
-			my_strncp(our_actor.our_model->body_parts->boots_tex,actors_defs[our_actor.race].boots[our_actor.boots].boots_name,sizeof(our_actor.our_model->body_parts->boots_tex));
-			
-#ifdef	NEW_TEXTURES
-			change_enhanced_actor(our_actor.our_model->texture_id, our_actor.our_model->body_parts);
-#else	/* NEW_TEXTURES */
-			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
-			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
-#endif	/* NEW_TEXTURES */
-		}
-	}
-	return 1;
-}
-
-void show_color_race_win(void)
-{
-	if(color_race_win < 0){
-		color_race_win = create_window (win_design, newchar_root_win, 0, 300, start_y, 420, 193, ELW_WIN_DEFAULT|ELW_CLICK_TRANSPARENT);
-		set_window_handler (color_race_win, ELW_HANDLER_DISPLAY, &display_color_race_handler);
-		set_window_handler (color_race_win, ELW_HANDLER_MOUSEOVER, &mouseover_color_race_handler);
-		set_window_handler (color_race_win, ELW_HANDLER_CLICK, &click_color_race_handler);
-    	} else {
-        	show_window(color_race_win);
-        	select_window(color_race_win);
-    	}
-}
-#endif
-
-#ifdef NEW_NEW_CHAR_WINDOW
 int newchar_mouseover = 0; //book id if mouse is over a book 1 if mouse is over p2p race
 int newchar_mouseover_time = 0;
 char* tooltip;
@@ -1749,13 +1110,8 @@ static void update_skin(void)
 		actors_defs[our_actor.race].skin[our_actor.skin].head_name,
 		sizeof(our_actor.our_model->body_parts->head_tex));
 
-#ifdef	NEW_TEXTURES
 	change_enhanced_actor(our_actor.our_model->texture_id,
 		our_actor.our_model->body_parts);
-#else	/* NEW_TEXTURES */
-	glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
-	our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
-#endif	/* NEW_TEXTURES */
 }
 
 static void update_hair(void)
@@ -1765,13 +1121,8 @@ static void update_hair(void)
 		actors_defs[our_actor.race].hair[our_actor.hair].hair_name,
 		sizeof(our_actor.our_model->body_parts->hair_tex));
 
-#ifdef	NEW_TEXTURES
 	change_enhanced_actor(our_actor.our_model->texture_id,
 		our_actor.our_model->body_parts);
-#else	/* NEW_TEXTURES */
-	glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
-	our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
-#endif	/* NEW_TEXTURES */
 }
 
 #ifdef NEW_EYES
@@ -1782,13 +1133,8 @@ static void update_eyes()
 		actors_defs[our_actor.race].eyes[our_actor.eyes].eyes_name,
 		sizeof(our_actor.our_model->body_parts->eyes_tex));
 
-#ifdef	NEW_TEXTURES
 	change_enhanced_actor(our_actor.our_model->texture_id,
 		our_actor.our_model->body_parts);
-#else	/* NEW_TEXTURES */
-	glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
-	our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
-#endif	/* NEW_TEXTURES */
 }
 #endif	/* NEW_EYES */
 
@@ -1814,12 +1160,7 @@ static void update_shirt()
 			actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index;
 	}
 
-#ifdef	NEW_TEXTURES
 	change_enhanced_actor(our_actor.our_model->texture_id, our_actor.our_model->body_parts);
-#else	/* NEW_TEXTURES */
-	glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
-	our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
-#endif	/* NEW_TEXTURES */
 }
 
 static void update_pants(void)
@@ -1841,13 +1182,8 @@ static void update_pants(void)
 			actors_defs[our_actor.race].legs[our_actor.pants].mesh_index;
 	}
 
-#ifdef	NEW_TEXTURES
 	change_enhanced_actor(our_actor.our_model->texture_id,
 		our_actor.our_model->body_parts);
-#else	/* NEW_TEXTURES */
-	glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
-	our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
-#endif	/* NEW_TEXTURES */
 }
 
 static void update_boots(void)
@@ -1869,13 +1205,8 @@ static void update_boots(void)
 			actors_defs[our_actor.race].boots[our_actor.boots].mesh_index;
 	}
 
-#ifdef	NEW_TEXTURES
 	change_enhanced_actor(our_actor.our_model->texture_id,
 		our_actor.our_model->body_parts);
-#else	/* NEW_TEXTURES */
-	glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
-	our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
-#endif	/* NEW_TEXTURES */
 }
 
 int head_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
@@ -2176,4 +1507,3 @@ void resize_newchar_hud_window(void)
 		create_newchar_hud_window();
 	}
 }
-#endif

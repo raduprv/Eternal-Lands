@@ -5,7 +5,6 @@
 
 void destroy_map_tiles()
 {
-#ifdef	NEW_TEXTURES
 	int i;
 
 	for (i = 0; i < 256; i++)
@@ -15,10 +14,6 @@ void destroy_map_tiles()
 			free(map_tiles[i].image);
 		}
 	}
-#else	/* NEW_TEXTURES */
-	int i=0;
-	for(;i<256;i++) if(map_tiles[i].texture) free(map_tiles[i].texture);
-#endif	/* NEW_TEXTURES */
 }
 
 
@@ -66,12 +61,7 @@ void draw_tile_map()
 								glEnable(GL_TEXTURE_2D);*/
 								continue;
 							}//null, skip
-#ifdef	NEW_TEXTURES
 							bind_texture(tile_list[tile_map[y*tile_map_size_x+x]]);
-#else	/* NEW_TEXTURES */
-							get_and_set_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
-#endif	/* NEW_TEXTURES */
-
 							glBegin(GL_QUADS);
  							glTexCoord2f(0, 0.0f);
 			 				glVertex3f(x_scaled,y_scaled+3, 0.0f);
@@ -90,11 +80,7 @@ void draw_tile_map()
 			//bind the detail texture
 			glActiveTextureARB(GL_TEXTURE1_ARB);
 			glEnable(GL_TEXTURE_2D);
-#ifdef	NEW_TEXTURES
 			bind_texture_unbuffered(ground_detail_text);
-#else	/* NEW_TEXTURES */
-			glBindTexture(GL_TEXTURE_2D,  texture_cache[ground_detail_text].texture_id);
-#endif	/* NEW_TEXTURES */
 			glActiveTextureARB(GL_TEXTURE0_ARB);
 			glEnable(GL_TEXTURE_2D);
 
@@ -120,11 +106,7 @@ void draw_tile_map()
 								glEnable(GL_TEXTURE_2D);*/
 								continue;
 							}//null, skip
-#ifdef	NEW_TEXTURES
 							bind_texture(tile_list[tile_map[y*tile_map_size_x+x]]);
-#else	/* NEW_TEXTURES */
-							get_and_set_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
-#endif	/* NEW_TEXTURES */
 							//draw our normal tile
 							glBegin(GL_QUADS);
  							glMultiTexCoord2fARB(GL_TEXTURE0_ARB,0, 0.0f);
@@ -169,14 +151,7 @@ void load_map_tiles()
 				//tile not loaded, so load it
 				if(!cur_tile && dungeon) cur_tile=231;
 				sprintf(str,"./3dobjects/tile%i.dds",cur_tile);
-#ifdef	NEW_TEXTURES
 				tile_list[cur_tile] = load_texture_cached(str, tt_mesh);
-#else	/* NEW_TEXTURES */
-				if(is_water_tile(cur_tile) && is_reflecting(cur_tile))
-					tile_list[cur_tile]=load_texture_cache(str,70);
-				else
-					tile_list[cur_tile]=load_texture_cache(str,255);
-#endif	/* NEW_TEXTURES */
 			}
 	}
 

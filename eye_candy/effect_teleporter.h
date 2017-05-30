@@ -27,11 +27,7 @@ namespace ec
 			}
 
 			virtual bool idle(const Uint64 delta_t);
-#ifdef	NEW_TEXTURES
 			virtual Uint32 get_texture();
-#else	/* NEW_TEXTURES */
-			virtual GLuint get_texture(const Uint16 res_index);
-#endif	/* NEW_TEXTURES */
 			virtual light_t estimate_light_level() const
 			{
 				return 0.0;
@@ -64,11 +60,7 @@ namespace ec
 
 			ParticleMover* mover;
 			ParticleSpawner* spawner;
-#ifdef	NEW_TEXTURES
 			CaplessCylinders* capless_cylinders;
-#else	/* NEW_TEXTURES */
-			std::vector<Shape*> capless_cylinders;
-#endif	/* NEW_TEXTURES */
 			color_t hue_adjust;
 			color_t saturation_adjust;
 			float sqrt_LOD;

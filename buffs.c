@@ -178,11 +178,7 @@ void draw_buffs(int actor_id, float x, float y,float z)
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 		glColor3f(1.0f,1.0f,1.0f);
-#ifdef	NEW_TEXTURES
 		bind_texture(sigils_text);
-#else	/* NEW_TEXTURES */
-		get_and_set_texture_id(sigils_text);
-#endif	/* NEW_TEXTURES */
 		// keep in sync with client_serv.h !!!
 		if (act->buffs & BUFF_SHIELD) {
 			texture_ids[num_buffs] = 32;
@@ -222,17 +218,10 @@ void draw_buffs(int actor_id, float x, float y,float z)
 		{
 			cur_tex = texture_ids[i];
 			//now get the texture coordinates, copied from spells.c
-#ifdef	NEW_TEXTURES
 			u_start = 0.125f * (cur_tex % 8);
 			u_end = u_start + 0.125f;
 			v_start = 0.125f * (cur_tex / 8);
 			v_end = v_start + 0.125f;
-#else	/* NEW_TEXTURES */
-			u_start=0.125f*(cur_tex%8);
-			u_end=u_start+0.125f;
-			v_start=1.0f-(0.125f*(cur_tex/8));
-			v_end=v_start-0.125f;
-#endif	/* NEW_TEXTURES */
 			x_off = (int)(-1.0 * ((float)num_buffs * buff_icon_size) / 2.0f + (buff_icon_size * i));
 			// draw the spell icon
 			glBegin(GL_QUADS);

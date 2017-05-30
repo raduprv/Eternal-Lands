@@ -580,11 +580,7 @@ void weather_render()
 					  weather_defs[type].color[2]*light_level[2],
 					  weather_defs[type].color[3]);
 			
-#ifdef	NEW_TEXTURES
 			bind_texture(weather_defs[type].texture);
-#else	/* NEW_TEXTURES */
-			get_and_set_texture_id(weather_defs[type].texture);
-#endif	/* NEW_TEXTURES */
             glDrawArrays(GL_QUADS, 0, weather_drops_count[type]);
 		}
 
@@ -679,11 +675,7 @@ void weather_render_lightning()
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-#ifdef	NEW_TEXTURES
 		bind_texture(lightnings_defs[lightning_type%lightnings_defs_count].texture);
-#else	/* NEW_TEXTURES */
-		get_and_set_texture_id(lightnings_defs[lightning_type%lightnings_defs_count].texture);
-#endif	/* NEW_TEXTURES */
  
 		glColor4fv(lightning_color);
 		glBegin(GL_QUADS);
@@ -872,11 +864,7 @@ int weather_parse_effect(xmlNode *node)
 				weather_defs[id].wind_effect = get_float_value(item);
 			}
 			else if (xmlStrcasecmp(item->name, (xmlChar*)"texture") == 0) {
-#ifdef	NEW_TEXTURES
 				weather_defs[id].texture = load_texture_cached((char*)item->children->content, tt_mesh);
-#else	/* NEW_TEXTURES */
-				weather_defs[id].texture = load_texture_cache((char*)item->children->content, 0);
-#endif	/* NEW_TEXTURES */
 			}
 			else {
 				LOG_ERROR("unknown node for weather effect: %s", item->name);
@@ -908,11 +896,7 @@ int weather_parse_lightning(xmlNode *node)
 		if (attr->type == XML_ATTRIBUTE_NODE)
 		{
 			if (!xmlStrcasecmp (attr->name, (xmlChar*)"texture"))
-#ifdef	NEW_TEXTURES
 				lightnings_defs[id].texture = load_texture_cached((char*)attr->children->content, tt_mesh);
-#else	/* NEW_TEXTURES */
-				lightnings_defs[id].texture = load_texture_cache((char*)attr->children->content, 0);
-#endif	/* NEW_TEXTURES */
 			else if (!xmlStrcasecmp (attr->name, (xmlChar*)"x1"))
 				lightnings_defs[id].coords[0] = atof((char*)attr->children->content);
 			else if (!xmlStrcasecmp (attr->name, (xmlChar*)"y1"))

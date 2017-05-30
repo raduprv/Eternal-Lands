@@ -31,9 +31,7 @@
 #include "3d_objects.h"
 #include "lights.h"
 #endif
-#ifdef	NEW_TEXTURES
 #include "image_loading.h"
-#endif	/* NEW_TEXTURES */
 
 #ifdef NEW_SOUND
 int real_add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos, unsigned int dynamic);
@@ -495,7 +493,6 @@ void init_particles ()
 
 	for (i = 0; i < MAX_PARTICLE_TEXTURES; i++)
 	{
-#ifdef	NEW_TEXTURES
 		char buffer[256], filename[256];
 
 		safe_snprintf (filename, sizeof(filename), "./textures/particle%d", i);
@@ -508,16 +505,7 @@ void init_particles ()
 		{
 			particle_textures[i] = -1;
 		}
-#else	/* NEW_TEXTURES */
-		char buffer[256];
-
-		safe_snprintf (buffer, sizeof(buffer), "./textures/particle%d.bmp", i);
-		if (el_file_exists (buffer))
-			particle_textures[i] = load_texture_cache_deferred (buffer, 0);
-		else
-			particle_textures[i] = -1;
-#endif	/* NEW_TEXTURES */
-        }
+	}
 
 	particles_list_mutex = SDL_CreateMutex();
 	LOCK_PARTICLES_LIST ();   // lock it to avoid timing issues
@@ -975,11 +963,7 @@ void draw_text_particle_sys(particle_sys *system_id)
 	LOCK_PARTICLES_LIST();	//lock it to avoid timing issues
 
 	CHECK_GL_ERRORS();
-#ifdef	NEW_TEXTURES
 	bind_texture(particle_textures[system_id->def->part_texture]);
-#else	/* NEW_TEXTURES */
-	get_and_set_texture_id(particle_textures[system_id->def->part_texture]);
-#endif	/* NEW_TEXTURES */
 
 	for(i=0,p=&system_id->particles[0];i<system_id->def->total_particle_no;i=i+5,p=p+5)
 		{
@@ -1029,11 +1013,7 @@ void draw_point_particle_sys(particle_sys *system_id)
 	glEnable(GL_POINT_SPRITE_NV);
 	glTexEnvf(GL_POINT_SPRITE_NV,GL_COORD_REPLACE_NV,GL_TRUE);
 	glPointSize(system_id->def->part_size*(5.5f-local_zoom_level)*4.4f);
-#ifdef	NEW_TEXTURES
 	bind_texture(particle_textures[system_id->def->part_texture]);
-#else	/* NEW_TEXTURES */
-	get_and_set_texture_id(particle_textures[system_id->def->part_texture]);
-#endif	/* NEW_TEXTURES */
 #if 0
 	//#ifdef USE_VERTEX_ARRAYS
 	// This might be useful if we allow more particles per system.
@@ -1682,18 +1662,10 @@ void add_teleporters_from_list (const Uint8 *teleport_list)
 
 #ifndef	MAP_EDITOR
 			add_particle_sys ("./particles/teleporter.part", x, y, z, 1);
-#ifdef OLD_MISC_OBJ_DIR
-			add_e3d("./3dobjects/misc_objects/portal1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f, 1);
-#else
 			add_e3d("./3dobjects/portal1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f, 1);
-#endif
 #else
 			add_particle_sys ("./particles/teleporter.part", x, y, z);
-#ifdef OLD_MISC_OBJ_DIR
-			sector_add_3do(add_e3d("./3dobjects/misc_objects/portal1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f));
-#else
 			sector_add_3do(add_e3d("./3dobjects/portal1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f));
-#endif
 #endif
 			
 			//mark the teleporter as an unwalkable so that the pathfinder
@@ -1712,10 +1684,6 @@ void add_teleporters_from_list (const Uint8 *teleport_list)
 #ifdef MAP_EDITOR
 void get_and_set_particle_texture_id (int i)
 {
-#ifdef	NEW_TEXTURES
 	bind_texture(particle_textures[i]);
-#else	/* NEW_TEXTURES */
-	get_and_set_texture_id(particle_textures[i]);
-#endif	/* NEW_TEXTURES */
 }
 #endif // MAP_EDITOR

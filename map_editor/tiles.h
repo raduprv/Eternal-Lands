@@ -2,11 +2,7 @@
 #define __TILE_H__
 #include "../textures.h"
 
-#ifdef	NEW_TEXTURES
 image_t map_tiles[256];
-#else	/* NEW_TEXTURES */
-texture_struct map_tiles[256];
-#endif	/* NEW_TEXTURES */
 
 extern unsigned char *tile_map;
 extern unsigned char *height_map;

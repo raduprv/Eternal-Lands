@@ -118,11 +118,7 @@ CHECK_GL_ERRORS();
 						i=i->Next;
 				}
 			}
-#ifdef	NEW_TEXTURES
 			bind_texture(i->id);
-#else	/* NEW_TEXTURES */
-			get_and_set_texture_id(i->id);
-#endif	/* NEW_TEXTURES */
 			glBegin(GL_QUADS);
 			draw_2d_thing(i->u, i->v, i->uend, i->vend,i->x, i->y-j,i->xend,i->yend-j);
 			glEnd();
@@ -283,11 +279,7 @@ void ParseImage(xmlAttr *a_node)
 			}
 			//name=""
 			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"name")){
-#ifdef	NEW_TEXTURES
 				id = load_texture_cached((char*)cur_attr->children->content, tt_gui);
-#else	/* NEW_TEXTURES */
-				id=load_texture_cache_deferred((char*)cur_attr->children->content,0);
-#endif	/* NEW_TEXTURES */
 			}
 			//x=""
 			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"x")){
@@ -321,11 +313,7 @@ void ParseSimage(xmlAttr *a_node)
 		if (cur_attr->type==XML_ATTRIBUTE_NODE){
 			//name=""
 			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"name")){
-#ifdef	NEW_TEXTURES
 				id = load_texture_cached((char*)cur_attr->children->content, tt_gui);
-#else	/* NEW_TEXTURES */
-				id=load_texture_cache_deferred((char*)cur_attr->children->content,0);
-#endif	/* NEW_TEXTURES */
 			}
 			//isize=""
 			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"isize")){
@@ -540,17 +528,10 @@ void ReadCategoryXML(xmlNode * a_node)
 				xtile=tid%picsperrow;
 				ytile=tid/picsperrow;
 				ftsize=(float)tsize/isize;
-#ifdef	NEW_TEXTURES
 				u = ftsize * xtile;
 				v = ftsize * ytile;
 				uend = u + ftsize;
 				vend = v + ftsize;
-#else	/* NEW_TEXTURES */
-				u=ftsize*xtile;
-				v=-ftsize*ytile;
-				uend=u+ftsize;
-				vend=v-ftsize;
-#endif	/* NEW_TEXTURES */
 				I->mouseover=mouseover;
 				mouseover=0;
 				

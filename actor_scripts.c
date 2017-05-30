@@ -36,9 +36,7 @@
 #include "io/elfilewrapper.h"
 #include "io/cal3d_io_wrapper.h"
 #include "actor_init.h"
-#ifdef	NEW_TEXTURES
 #include "textures.h"
-#endif	/* NEW_TEXTURES */
 
 #ifndef EXT_ACTOR_DICT
 const dict_elem skin_color_dict[] =
@@ -602,14 +600,9 @@ void move_to_next_frame()
 						missiles_log_message("%s (%d): leaving range mode finished!\n",
 											 actors_list[i]->actor_name, actors_list[i]->actor_id);
 
-#ifndef	NEW_TEXTURES
-						// then we do all the item changes that have been delayed
-						flush_delayed_item_changes(actors_list[i]);
-#endif	/* NEW_TEXTURES */
 					}
 				}
 			}
-#ifdef	NEW_TEXTURES
 			if (actors_list[i]->in_aim_mode == 0)
 			{
 				if (actors_list[i]->is_enhanced_model != 0)
@@ -631,7 +624,6 @@ void move_to_next_frame()
 					actors_list[i]->delay_texture_item_changes = 1;
 				}
 			}
-#endif	/* NEW_TEXTURES */
 
 			// we change the idle animation only when the previous one is finished
 			if (actors_list[i]->stand_idle && actors_list[i]->anim_time >= actors_list[i]->cur_anim.duration - 0.2)
@@ -1713,9 +1705,8 @@ void next_command()
 void free_actor_data(int actor_index)
 {
 	actor *act = actors_list[actor_index];
-    if(act->calmodel!=NULL)
-        model_delete(act->calmodel);
-#ifdef	NEW_TEXTURES
+	if(act->calmodel!=NULL)
+		model_delete(act->calmodel);
 	if(act->remapped_colors)
 	{
 		free_actor_texture(act->texture_id);
@@ -1723,19 +1714,11 @@ void free_actor_data(int actor_index)
 	if (act->is_enhanced_model)
 	{
 		free_actor_texture(act->texture_id);
-
-	        if (act->body_parts)
+		if (act->body_parts)
 		{
 			free(act->body_parts);
 		}
 	}
-#else	/* NEW_TEXTURES */
-    if(act->remapped_colors) glDeleteTextures(1,&act->texture_id);
-    if(act->is_enhanced_model){
-        glDeleteTextures(1,&act->texture_id);
-        if(act->body_parts)free(act->body_parts);
-    }
-#endif	/* NEW_TEXTURES */
 #ifdef NEW_SOUND
     stop_sound(act->cur_anim_sound_cookie);
     act->cur_anim_sound_cookie = 0;
@@ -4789,9 +4772,7 @@ void init_actor_defs()
 	// initialize the whole thing to zero
 	memset (actors_defs, 0, sizeof (actors_defs));
 	memset (attached_actors_defs, 0, sizeof (attached_actors_defs));
-#ifdef	NEW_TEXTURES
 	set_invert_v_coord();
-#endif	/* NEW_TEXTURES */
 	read_actor_defs ("actor_defs", "actor_defs.xml");
 }
 

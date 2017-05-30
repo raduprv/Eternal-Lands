@@ -142,13 +142,8 @@ int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, float display
 	//now get the texture coordinates
 	u_start=(float)(row*font_x_size+ignored_bits)/256.0f;
 	u_end=(float)(row*font_x_size+font_x_size-7-ignored_bits)/256.0f;
-#ifdef	NEW_TEXTURES
 	v_start = (1+col*font_y_size)/256.0f;
 	v_end = (col*font_y_size+font_y_size-1)/256.0f;
-#else	/* NEW_TEXTURES */
-	v_start=(float)1.0f-(1+col*font_y_size)/256.0f;
-	v_end=(float)1.0f-(col*font_y_size+font_y_size-1)/256.0f;
-#endif	/* NEW_TEXTURES */
 	//v_end=(float)1.0f-(col*font_y_size+font_y_size-2)/256.0f;
 
 	// and place the text from the graphics on the map
@@ -184,11 +179,7 @@ void draw_string_zoomed(int x, int y,const unsigned char * our_string,int max_li
 
    	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
     glAlphaFunc(GL_GREATER,0.1f);
-#ifdef	NEW_TEXTURES
 	bind_texture(font_text);
-#else	/* NEW_TEXTURES */
-	get_and_set_texture_id(font_text);
-#endif	/* NEW_TEXTURES */
 
 	i=0;
 	cur_x=x;
@@ -235,11 +226,7 @@ void draw_string_small(int x, int y,const unsigned char * our_string,int max_lin
 
    	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
     glAlphaFunc(GL_GREATER,0.1f);
-#ifdef	NEW_TEXTURES
 	bind_texture(font_text);
-#else	/* NEW_TEXTURES */
-	get_and_set_texture_id(font_text);
-#endif	/* NEW_TEXTURES */
 
 	i=0;
 	cur_x=x;
@@ -306,11 +293,7 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 
    	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
     glAlphaFunc(GL_GREATER,0.1f);
-#ifdef	NEW_TEXTURES
 	bind_texture(font_text);
-#else	/* NEW_TEXTURES */
-	get_and_set_texture_id(font_text);
-#endif	/* NEW_TEXTURES */
 
 	i=0;
 	cur_x=x;
@@ -351,13 +334,8 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 					//now get the texture coordinates
 					u_start=(float)(row*font_x_size+ignored_bits)/256.0f;
 					u_end=(float)(row*font_x_size+font_x_size-7-ignored_bits)/256.0f;
-#ifdef	NEW_TEXTURES
 					v_start = (float)(1+col*font_y_size)/256.0f;
 					v_end = (float)(col*font_y_size+font_y_size-1)/256.0f;
-#else	/* NEW_TEXTURES */
-					v_start=(float)1.0f-(1+col*font_y_size)/256.0f;
-					v_end=(float)1.0f-(col*font_y_size+font_y_size-1)/256.0f;
-#endif	/* NEW_TEXTURES */
 					//v_end=(float)1.0f-(col*font_y_size+font_y_size-2)/256.0f;
 
 					glTexCoord2f(u_start,v_start);
@@ -461,11 +439,7 @@ int load_font(int num, char *file)
 	fonts[num]->spacing=0;
 	for(i=0; i<9*FONT_CHARS_PER_LINE; i++) fonts[num]->widths[i]=12;
 	// load texture
-#ifdef	NEW_TEXTURES
 	fonts[num]->texture_id = load_texture_cached(file, tt_font);
-#else	/* NEW_TEXTURES */
-	fonts[num]->texture_id=load_texture_cache(file, 0);
-#endif	/* NEW_TEXTURES */
 	// load font information
 	// TODO: write this and remove the hack!
 	if(num > 0){

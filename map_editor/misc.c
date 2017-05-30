@@ -659,7 +659,6 @@ void clone_particles_object(int object_id) {
 
 ////////////////////////////////////////////////////////////////////////////
 ////////////tile things/////////////////////////////////////////////////////
-#ifdef	NEW_TEXTURES
 void load_all_tiles()
 {
 	int i;
@@ -676,32 +675,6 @@ void load_all_tiles()
 		load_image_data(str, 1, 1, 1, 0, &map_tiles[i]);
 	}
 }
-#else	/* NEW_TEXTURES */
-texture_struct *load_texture(const char * file_name, texture_struct *tex, Uint8 alpha);
-
-void load_all_tiles()
-{
-	int i;
-	int cur_text;
-	char str[80];
-	for(i=0;i<255;i++)
-	{
-		sprintf(str,"./3dobjects/tile%i.dds",i);
-		if(is_water_tile(i) && is_reflecting(i)) cur_text=load_texture_cache(str,70);
-		else cur_text=load_texture_cache(str,255);
-		if(cur_text==-1)return;
-		tile_list[i]=cur_text;
-		tiles_no=i;
-#ifdef	OLD_TEXTURE_LOADER
-		//map_tiles[i].img=load_bmp8_color_key_no_texture_img(str,map_tiles+i,255);
-		load_bmp8_texture(str,map_tiles+i,255);
-#else	//OLD_TEXTURE_LOADER
-		load_texture(str,map_tiles+i,255);
-#endif	//OLD_TEXTURE_LOADER
-	}
-	map_tiles[255].texture=NULL;
-}
-#endif	/* NEW_TEXTURES */
 
 void move_tile()
 {
@@ -726,11 +699,7 @@ void move_tile()
 	}
 	else
 	{
-#ifdef	NEW_TEXTURES
 		bind_texture(tile_list[selected_tile]);
-#else	/* NEW_TEXTURES */
-		get_and_set_texture_id(tile_list[selected_tile]);
-#endif	/* NEW_TEXTURES */
 		glBegin(GL_QUADS);
 
  		glTexCoord2f(0, 0.0f);

@@ -656,13 +656,8 @@ int image_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Ui
 	image *T = calloc (1, sizeof (image));
 	T->u1 = u1;
 	T->u2 = u2;
-#ifdef	NEW_TEXTURES
 	T->v1 = -v1;
 	T->v2 = -v2;
-#else	/* NEW_TEXTURES */
-	T->v1 = v1;
-	T->v2 = v2;
-#endif	/* NEW_TEXTURES */
 	T->id = id;
 	T->alpha = alpha;
 
@@ -677,11 +672,7 @@ int image_add(int window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uint16
 int image_draw(widget_list *W)
 {
 	image *i = (image *)W->widget_info;
-#ifdef	NEW_TEXTURES
 	bind_texture(i->id);
-#else	/* NEW_TEXTURES */
-	get_and_set_texture_id(i->id);
-#endif	/* NEW_TEXTURES */
 	glColor3f(W->r, W->g, W->b);
 	if (i->alpha > -1) {
 		glEnable(GL_ALPHA_TEST);
@@ -717,13 +708,8 @@ int image_set_uv(int window_id, Uint32 widget_id, float u1, float v1, float u2, 
 		image *l = (image *) w->widget_info;
 		l->u1 = u1;
 		l->u2 = u2;
-#ifdef	NEW_TEXTURES
 		l->v1 = -v1;
 		l->v2 = -v2;
-#else	/* NEW_TEXTURES */
-		l->v1 = v1;
-		l->v2 = v2;
-#endif	/* NEW_TEXTURES */
 		return 1;
 	}
 	return 0;
@@ -833,18 +819,7 @@ int button_add(int window_id, int (*OnInit)(), const char *text, Uint16 x, Uint1
 int button_draw(widget_list *W)
 {
 	button *l = (button *)W->widget_info;
-// 0ctane: I suspect the below section was a reminant from the original button drawing routine below
-/*	float extra_space = (W->len_x - get_string_width((unsigned char*)l->text)*W->size)/2.0f;
-	if(extra_space < 0) {
-		extra_space = 0;
-	}*/
-
-#ifdef NEW_NEW_CHAR_WINDOW
 	draw_smooth_button(l->text, W->size, W->pos_x, W->pos_y, W->len_x-2*BUTTONRADIUS*W->size, 1, W->r, W->g, W->b, W->Flags & BUTTON_ACTIVE, 0.32f, 0.23f, 0.15f, 0.0f);
-#else
-	draw_smooth_button(l->text, W->size, W->pos_x, W->pos_y, W->len_x-2*BUTTONRADIUS*W->size, 1, W->r, W->g, W->b, 0, 0.0f, 0.0f, 0.0f, 0.0f);
-#endif
-	
 	return 1;
 }
 

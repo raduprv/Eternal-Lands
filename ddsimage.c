@@ -13,7 +13,6 @@
 #include "el_memory.h"
 #include <assert.h>
 
-#ifdef	NEW_TEXTURES
 static Uint32 decompression_needed(const DdsHeader *header,
 	const Uint32 compression, const Uint32 unpack)
 {
@@ -191,7 +190,6 @@ static image_format_type detect_dds_file_format(const DdsHeader *header,
 
 	return ift_rgba8;
 }
-#endif	/* NEW_TEXTURES */
 
 Uint32 check_dds(const Uint8 *ID)
 {
@@ -689,11 +687,7 @@ static void* decompress_dds(el_file_ptr file, DdsHeader *header,
 		}
 	}
 
-#ifdef	NEW_TEXTURES
 	dest = malloc_aligned(size, 16);
-#else	/* NEW_TEXTURES */
-	dest = malloc(size);
-#endif	/* NEW_TEXTURES */
 
 	el_seek(file, get_dds_offset(header, base_level), SEEK_CUR);
 
@@ -742,11 +736,7 @@ static void* unpack_dds(el_file_ptr file, DdsHeader *header,
 	offset = get_dds_offset(header, base_level);
 	bpp = header->m_pixel_format.m_bit_count / 8;
 
-#ifdef	NEW_TEXTURES
 	dest = malloc_aligned(size, 16);
-#else	/* NEW_TEXTURES */
-	dest = malloc(size);
-#endif	/* NEW_TEXTURES */
 
 	fast_unpack(el_get_pointer(file) + sizeof(DdsHeader) + offset + 4, size / bpp,
 		header->m_pixel_format.m_red_mask,
@@ -757,7 +747,6 @@ static void* unpack_dds(el_file_ptr file, DdsHeader *header,
 	return dest;
 }
 
-#ifdef	NEW_TEXTURES
 static void* read_dds(el_file_ptr file, DdsHeader *header,
 	const Uint32 strip_mipmaps, const Uint32 base_level)
 {
@@ -926,38 +915,3 @@ Uint32 get_dds_information(el_file_ptr file, image_t* image)
 		return 0;
 	}
 }
-#else	/* NEW_TEXTURES */
-void* load_dds(el_file_ptr file, int *width, int *height)
-{
-	DdsHeader header;
-	Uint32 format;
-
-	if (file == 0)
-	{
-		return 0;
-	}
-
-	if (init_dds_image(file, &header) != 0)
-	{
-		*width = header.m_width;
-		*height = header.m_height;
-
-		format = header.m_pixel_format.m_fourcc;
-
-		if ((format == DDSFMT_DXT1) || (format == DDSFMT_DXT2) || (format == DDSFMT_DXT3) ||
-			(format == DDSFMT_DXT4) || (format == DDSFMT_DXT5) || (format == DDSFMT_ATI1) ||
-			(format == DDSFMT_ATI2))
-		{
-			return decompress_dds(file, &header, 1, 0);
-		}
-		else
-		{
-			return unpack_dds(file, &header, 1, 0);
-		}
-	}
-	else
-	{
-		return 0;
-	}
-}
-#endif	/* NEW_TEXTURES */

@@ -369,11 +369,7 @@ int init_spells ()
 	buff_duration_colour_id = elglGetColourId("buff.duration.background");
 
 	//init textures and structs
-#ifdef	NEW_TEXTURES
 	sigils_text = load_texture_cached("textures/sigils.dds", tt_gui);
-#else	/* NEW_TEXTURES */
-	sigils_text = load_texture_cache ("./textures/sigils.bmp", 0);
-#endif	/* NEW_TEXTURES */
 	for (i = 0; i < SIGILS_NO; i++)
 		sigils_list[i].have_sigil = 0;
 	for (i = 0; i < SPELLS_NO; i++){
@@ -951,21 +947,12 @@ void draw_spell_icon(int id,int x_start, int y_start, int gridsize, int alpha, i
 
 	float u_start,v_start,u_end,v_end;
 
-#ifdef	NEW_TEXTURES
 	u_start = 0.125f * (id % 8);
 	v_start = 0.125f * (id / 8);
 	u_end = u_start + 0.125f;
 	v_end = v_start + 0.125f;
 
 	bind_texture(sigils_text);
-#else	/* NEW_TEXTURES */
-	u_start=0.125f*(id%8);
-	v_start=1.0f-((float)32/256*(id/8));
-	u_end=u_start+0.125f;
-	v_end=v_start-0.125f;
-
-	get_and_set_texture_id(sigils_text);
-#endif	/* NEW_TEXTURES */
 	if(alpha) {
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GREATER, 0.05f);

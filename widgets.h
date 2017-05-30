@@ -94,9 +94,7 @@ typedef struct wl{
  * \name	Flags for the buttons
  */
 /*! \{ */
-#ifdef NEW_NEW_CHAR_WINDOW
 #define BUTTON_ACTIVE 0x400
-#endif
 #define BUTTON_SQUARE 0x800
 
 /*!
@@ -174,7 +172,6 @@ typedef struct {
 
 // Common widget functions
 
-#ifdef NEW_NEW_CHAR_WINDOW
 /*!
  * \ingroup	widgets
  * \brief 	Creates a widget and adds it to the given window
@@ -201,7 +198,6 @@ typedef struct {
 Uint32 widget_add (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y,
 	Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b,
 	const struct WIDGET_TYPE *type, void *T, void *S);
-#endif
 
 /*!
  * \ingroup	widgets

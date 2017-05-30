@@ -110,20 +110,7 @@ void init_gl()
 
 void handle_window_resize()
 {
-#ifdef	NEW_TEXTURES
 	unload_texture_cache();
-#else	// NEW_TEXTURES
-	int i,alpha;
-
-	for(i = 0; i < TEXTURE_CACHE_MAX; i++)
-	{
-		if(texture_cache[i].file_name[0])
-		{
-			glDeleteTextures (1, (GLuint*)&texture_cache[i].texture_id);
-			texture_cache[i].texture_id = 0; //force a reload
-		}
-	}
-#endif	// NEW_TEXTURES
 	if(minimap_tex) {glDeleteTextures(1,&minimap_tex);minimap_tex=0;}
 	
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
@@ -144,21 +131,6 @@ void handle_window_resize()
 	glClearStencil(0);
 	SDL_EnableKeyRepeat (200, 100);
 	SDL_EnableUNICODE(1);
-	
-#ifndef	NEW_TEXTURES
-	for (i = 0; i < TEXTURE_CACHE_MAX; i++)
-	{
-		if (texture_cache[i].file_name[0] && !texture_cache[i].load_err)
-		{
-			alpha = texture_cache[i].alpha;
-			//our texture was freed, we have to reload it
-			if(alpha <= 0)
-				texture_cache[i].texture_id = load_bmp8_color_key (&texture_cache[i], alpha);
-			else
-				texture_cache[i].texture_id = load_bmp8_fixed_alpha (&texture_cache[i], alpha);
-		}
-	}
-#endif	// NEW_TEXTURES
 
 	map_has_changed=1;
 	reset_material();

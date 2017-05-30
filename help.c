@@ -87,11 +87,7 @@ CHECK_GL_ERRORS();
 						i=i->Next;
 				}
 			}
-#ifdef	NEW_TEXTURES
 			bind_texture(i->id);
-#else	/* NEW_TEXTURES */
-			get_and_set_texture_id(i->id);
-#endif	/* NEW_TEXTURES */
 			glBegin(GL_QUADS);
 			draw_2d_thing(i->u, i->v, i->uend, i->vend,i->x, i->y-j,i->xend,i->yend-j);
 			glEnd();

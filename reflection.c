@@ -783,53 +783,6 @@ CHECK_GL_ERRORS();
 }
 #endif
 
-#ifndef	NEW_TEXTURES
-void draw_water_quad_tiles(unsigned int start, unsigned int stop, unsigned int idx, int water_id)
-{
-	unsigned int i, l, size;
-	int x, y, cur_texture;
-#ifdef CLUSTER_INSIDES_OLD
-	short cluster = get_actor_cluster ();
-	short tile_cluster;
-#endif
-
-	size = 0;
-	cur_texture = last_texture;
-
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		x = get_terrain_x(l);
-		y = get_terrain_y(l);
-
-#ifdef CLUSTER_INSIDES_OLD
-		tile_cluster = get_cluster (6*x, 6*y);
-		if (tile_cluster && tile_cluster != cluster)
-			continue;
-#endif
-
-		if (!tile_map[y * tile_map_size_x + x])
-		{
-			cur_texture = get_texture_id(water_id);
-		}
-		else
-		{
-			cur_texture = get_texture_id(tile_list[tile_map[y * tile_map_size_x + x]]);
-		}
-		if (cur_texture != last_texture)
-		{
-			glDrawArrays(GL_QUADS, idx * 4, size * 4);
-			bind_texture_id(cur_texture);
-			cur_texture = last_texture;
-			idx += size;
-			size = 0;
-		}
-		size++;
-	}
-	glDrawArrays(GL_QUADS, idx * 4, size * 4);
-}
-#endif	/* NEW_TEXTURES */
-
 void draw_lake_tiles()
 {
 	unsigned int start, stop;
@@ -907,11 +860,7 @@ void draw_lake_tiles()
 		glEnable(GL_MULTISAMPLE);
 	}
 #endif	/* FSAA */
-#ifdef	NEW_TEXTURES
 	draw_quad_tiles(start, stop, 0, water_id);
-#else	/* NEW_TEXTURES */
-	draw_water_quad_tiles(start, stop, 0, water_id);
-#endif	/* NEW_TEXTURES */
 #ifdef	FSAA
 	if (fsaa > 1)
 	{
@@ -1001,11 +950,7 @@ void draw_lake_tiles()
 		glEnable(GL_MULTISAMPLE);
 	}
 #endif	/* FSAA */
-#ifdef	NEW_TEXTURES
 	draw_quad_tiles(start, stop, water_buffer_reflectiv_index, water_id);
-#else	/* NEW_TEXTURES */
-	draw_water_quad_tiles(start, stop, water_buffer_reflectiv_index, water_id);
-#endif	/* NEW_TEXTURES */
 #ifdef	FSAA
 	if (fsaa > 1)
 	{

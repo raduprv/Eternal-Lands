@@ -225,7 +225,6 @@ void reset_quantity (int pos)
 	quantities.quantity[pos].val = val;
 }
 
-#ifdef	NEW_TEXTURES
 void get_item_uv(const Uint32 item, float* u_start, float* v_start,
 	float* u_end, float* v_end)
 {
@@ -234,7 +233,6 @@ void get_item_uv(const Uint32 item, float* u_start, float* v_start,
 	*v_start = (50.0f/256.0f) * (item / 5) + 0.5f / 256.0f;
 	*v_end = *v_start + (50.0f/256.0f);
 }
-#endif	/* NEW_TEXTURES */
 
 void drag_item(int item, int storage, int mini)
 {
@@ -273,23 +271,12 @@ void drag_item(int item, int storage, int mini)
 	}
 
 	cur_item_img=cur_item%25;
-#ifdef	NEW_TEXTURES
 	get_item_uv(cur_item_img, &u_start, &v_start, &u_end, &v_end);
-#else	/* NEW_TEXTURES */
-	u_start=0.2f*(cur_item_img%5);
-	u_end=u_start+(float)50/256;
-	v_start=(1.0f+((float)50/256)/256.0f)-((float)50/256*(cur_item_img/5));
-	v_end=v_start-(float)50/256;
-#endif	/* NEW_TEXTURES */
 
 	//get the texture this item belongs to
 	this_texture=get_items_texture(cur_item/25);
 
-#ifdef	NEW_TEXTURES
 	bind_texture(this_texture);
-#else	/* NEW_TEXTURES */
-	get_and_set_texture_id(this_texture);
-#endif	/* NEW_TEXTURES */
 	glBegin(GL_QUADS);
 	if(mini)
 		draw_2d_thing(u_start,v_start,u_end,v_end,mouse_x-16,mouse_y-16,mouse_x+16,mouse_y+16);
@@ -478,23 +465,12 @@ void draw_item(int id, int x_start, int y_start, int gridsize){
 
 	//get the UV coordinates.
 	cur_item=id%25;
-#ifdef	NEW_TEXTURES
 	get_item_uv(cur_item, &u_start, &v_start, &u_end, &v_end);
-#else	/* NEW_TEXTURES */
-	u_start=0.2f*(cur_item%5);
-	u_end=u_start+(float)50/256;
-	v_start=(1.0f+((float)50/256)/256.0f)-((float)50/256*(cur_item/5));
-	v_end=v_start-(float)50/256;
-#endif	/* NEW_TEXTURES */
 
 	//get the texture this item belongs to
 	this_texture=get_items_texture(id/25);
 		
-#ifdef	NEW_TEXTURES
 	bind_texture(this_texture);
-#else	/* NEW_TEXTURES */
-	get_and_set_texture_id(this_texture);
-#endif	/* NEW_TEXTURES */
 	glBegin(GL_QUADS);
 		draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_start+gridsize-1,y_start+gridsize-1);
 	glEnd();

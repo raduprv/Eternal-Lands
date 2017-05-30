@@ -429,25 +429,14 @@ int display_storage_handler(window_info * win)
 
 		if(!storage_items[i].quantity)continue;
 		cur_item=storage_items[i].image_id%25;
-#ifdef	NEW_TEXTURES
 		get_item_uv(cur_item, &u_start, &v_start, &u_end, &v_end);
-#else	/* NEW_TEXTURES */
-		u_start=0.2f*(cur_item%5);
-		u_end=u_start+(float)50/255;
-		v_start=(1.0f+((float)50/255)/255.0f)-((float)50/255*(cur_item/5));
-		v_end=v_start-(float)50/255;
-#endif	/* NEW_TEXTURES */
 		
 		this_texture=get_items_texture(storage_items[i].image_id/25);
 
-#ifdef	NEW_TEXTURES
 		if (this_texture != -1)
 		{
 			bind_texture(this_texture);
 		}
-#else	/* NEW_TEXTURES */
-		if(this_texture!=-1) get_and_set_texture_id(this_texture);
-#endif	/* NEW_TEXTURES */
 
 		x_start=(i%6)*32+161;
 		x_end=x_start+31;

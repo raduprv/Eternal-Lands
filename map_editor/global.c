@@ -27,9 +27,6 @@ int last_texture=-2;
 
 float gcr=0.8f,gcg=0.8f,gcb=0.8f;
 
-#ifndef	NEW_TEXTURES
-texture_cache_struct texture_cache[TEXTURE_CACHE_MAX];
-#endif	// NEW_TEXTURES
 e3d_cache_struct e3d_cache[1000];
 obj_2d_cache_struct obj_2d_def_cache[MAX_OBJ_2D_DEF];
 

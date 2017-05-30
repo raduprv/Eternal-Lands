@@ -79,33 +79,21 @@ namespace ec
 			BreathParticle(Effect* _effect, ParticleMover* _mover,
 				const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
 				const alpha_t _alpha, const color_t red, const color_t green,
-#ifdef	NEW_TEXTURES
 				const color_t blue, TextureEnum _texture, const Uint16 _LOD,
-#else	/* NEW_TEXTURES */
-				const color_t blue, Texture* _texture, const Uint16 _LOD,
-#endif	/* NEW_TEXTURES */
 				const BreathEffect::BreathType _type);
 			~BreathParticle()
 			{
 			}
 
 			virtual bool idle(const Uint64 delta_t);
-#ifdef	NEW_TEXTURES
 			virtual Uint32 get_texture();
-#else	/* NEW_TEXTURES */
-			virtual GLuint get_texture(const Uint16 res_index);
-#endif	/* NEW_TEXTURES */
 			virtual light_t estimate_light_level() const
 			{
 				return 0.002;
 			}
 			;
 
-#ifdef	NEW_TEXTURES
 			TextureEnum texture;
-#else	/* NEW_TEXTURES */
-			Texture* texture;
-#endif	/* NEW_TEXTURES */
 			Uint16 LOD;
 			BreathEffect::BreathType type;
 	};
@@ -115,24 +103,15 @@ namespace ec
 		public:
 			BreathSmokeParticle(Effect* _effect, ParticleMover* _mover,
 				const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
-#ifdef	NEW_TEXTURES
 				const alpha_t _alpha, TextureEnum _texture, const Uint16 _LOD,
-#else	/* NEW_TEXTURES */
-				const alpha_t _alpha, Texture* _texture, const Uint16 _LOD,
-#endif	/* NEW_TEXTURES */
 				const BreathEffect::BreathType _type);
 			~BreathSmokeParticle()
 			{
 			}
 
 			virtual bool idle(const Uint64 delta_t);
-#ifdef	NEW_TEXTURES
 			virtual Uint32 get_texture();
 			virtual float get_burn() const;
-#else	/* NEW_TEXTURES */
-			virtual GLuint get_texture(const Uint16 res_index);
-			virtual void draw(const Uint64 usec);
-#endif	/* NEW_TEXTURES */
 			virtual light_t estimate_light_level() const
 			{
 				return 0.0;
@@ -144,11 +123,7 @@ namespace ec
 			}
 			; // Same.
 
-#ifdef	NEW_TEXTURES
 			TextureEnum texture;
-#else	/* NEW_TEXTURES */
-			Texture* texture;
-#endif	/* NEW_TEXTURES */
 			BreathEffect::BreathType type;
 	};
 

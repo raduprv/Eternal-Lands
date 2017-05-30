@@ -55,11 +55,7 @@ void draw_3d_reflection(object3d * object_id)
 			glEnable(GL_CULL_FACE);
 		}
 
-#ifdef	NEW_TEXTURES
 		bind_texture(object_id->e3d_data->materials[i].texture);
-#else	/* NEW_TEXTURES */
-		get_and_set_texture_id(object_id->e3d_data->materials[i].texture);
-#endif	/* NEW_TEXTURES */
 
 		ELglDrawRangeElementsEXT(GL_TRIANGLES,
 			object_id->e3d_data->materials[i].triangles_indices_min,
@@ -318,11 +314,7 @@ void draw_lake_tiles()
 				{
 					index = tile_map[y * tile_map_size_x + x];
 				}
-#ifdef	NEW_TEXTURES
 				bind_texture(tile_list[index]);
-#else	/* NEW_TEXTURES */
-				get_and_set_texture_id(tile_list[index]);
-#endif	/* NEW_TEXTURES */
 				draw_lake_water_tile(x_scaled,y_scaled);
 			}
 		}
