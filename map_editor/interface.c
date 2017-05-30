@@ -207,11 +207,7 @@ void draw_2d_thing(float u_start,float v_start,float u_end,float v_end,int x_sta
 
 void draw_toolbar()
 {
-#ifdef	NEW_TEXTURES
 	bind_texture(buttons_text);
-#else	/* NEW_TEXTURES */
-	get_and_set_texture_id(buttons_text);
-#endif	/* NEW_TEXTURES */
 
 	glColor3f(1.0f,1.0f,1.0f);
 	glBegin(GL_QUADS);
@@ -220,142 +216,82 @@ void draw_toolbar()
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_tile && cur_mode!=mode_tile)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-#ifdef	NEW_TEXTURES
 	draw_2d_thing((float)64/255, 0.0f, (float)96/255, (float)32/255, 0,0,32,32);
-#else	/* NEW_TEXTURES */
-	draw_2d_thing((float)64/255,1.0f,(float)96/255,1.0f-(float)32/255, 0,0,32,32);
-#endif	/* NEW_TEXTURES */
 
 	if(cur_mode!=mode_2d && view_2d)
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_2d && cur_mode!=mode_2d)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-#ifdef	NEW_TEXTURES
 	draw_2d_thing((float)32/255, 0.0f,(float)64/255, (float)32/255, 32,0,64,32);
-#else	/* NEW_TEXTURES */
-	draw_2d_thing((float)32/255,1.0f,(float)64/255,1.0f-(float)32/255, 32,0,64,32);
-#endif	/* NEW_TEXTURES */
 
 	if(cur_mode!=mode_3d && view_3d)
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_3d && cur_mode!=mode_3d)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-#ifdef	NEW_TEXTURES
 	draw_2d_thing(0, 0.0f, (float)32/255, (float)32/255, 64,0,96,32);
-#else	/* NEW_TEXTURES */
-	draw_2d_thing(0,1.0f,(float)32/255,1.0f-(float)32/255, 64,0,96,32);
-#endif	/* NEW_TEXTURES */
 
 	if(cur_mode!=mode_particles && view_particles)
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_particles && cur_mode!=mode_particles)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-#ifdef	NEW_TEXTURES
 	draw_2d_thing((float)192/255, (float)32/255, (float)224/255, (float)64/255, 96,0,128,32);
-#else	/* NEW_TEXTURES */
-	draw_2d_thing((float)192/255,1.0f-(float)32/255,(float)224/255,1.0f-(float)64/255, 96,0,128,32);
-#endif	/* NEW_TEXTURES */
 
 #ifdef	EYE_CANDY
 	if(cur_mode!=mode_eye_candy && view_eye_candy)
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_eye_candy && cur_mode!=mode_eye_candy)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-#ifdef	NEW_TEXTURES
 	draw_2d_thing((float)224/255, (float)32/255, (float)255/255, (float)64/255, 128,0,160,32);
-#else	/* NEW_TEXTURES */
-	draw_2d_thing((float)224/255,1.0f-(float)32/255,(float)255/255,1.0f-(float)64/255, 128,0,160,32);
-#endif	/* NEW_TEXTURES */
 #endif	//EYE_CANDY
 
 	if(cur_mode!=mode_light && view_light)
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_light && cur_mode!=mode_light)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-#ifdef	NEW_TEXTURES
 	draw_2d_thing((float)96/255, 0.0f,(float)128/255, (float)32/255, 160,0,192,32);
-#else	/* NEW_TEXTURES */
-	draw_2d_thing((float)96/255,1.0f,(float)128/255,1.0f-(float)32/255, 160,0,192,32);
-#endif	/* NEW_TEXTURES */
 
 	if(cur_mode!=mode_height && view_height)
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_height && cur_mode!=mode_height)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-#ifdef	NEW_TEXTURES
 	draw_2d_thing((float)160/255, (float)32/255, (float)192/255, (float)64/255, 192,0,224,32);
-#else	/* NEW_TEXTURES */
-	draw_2d_thing((float)160/255,1.0f-(float)32/255,(float)192/255,1.0f-(float)64/255, 192,0,224,32);
-#endif	/* NEW_TEXTURES */
 
 
 	if(cur_mode!=mode_map)
 	glColor3f(1.0f,1.0f,1.0f);
 	else glColor3f(0.0f,1.0f,1.0f);
-#ifdef	NEW_TEXTURES
 	draw_2d_thing((float)128/255, 0.0f, (float)160/255, (float)32/255, 224,0,256,32);
-#else	/* NEW_TEXTURES */
-	draw_2d_thing((float)128/255,1.0f,(float)160/255,1.0f-(float)32/255, 224,0,256,32);
-#endif	/* NEW_TEXTURES */
 
 
 	if(cur_tool!=tool_select)
 	glColor3f(1.0f,1.0f,1.0f);
 	else glColor3f(0.0f,1.0f,1.0f);
-#ifdef	NEW_TEXTURES
 	draw_2d_thing(0, (float)32/255, (float)32/255, (float)64/255, 256,0,288,32);
-#else	/* NEW_TEXTURES */
-	draw_2d_thing(0,1.0f-(float)32/255,(float)32/255,1.0f-(float)64/255, 256,0,288,32);
-#endif	/* NEW_TEXTURES */
 
 	if(cur_tool!=tool_clone)
 	glColor3f(1.0f,1.0f,1.0f);
 	else glColor3f(0.0f,1.0f,1.0f);
-#ifdef	NEW_TEXTURES
 	draw_2d_thing((float)32/255, (float)32/255, (float)64/255, (float)64/255, 288,0,320,32);
-#else	/* NEW_TEXTURES */
-	draw_2d_thing((float)32/255,1.0f-(float)32/255,(float)64/255,1.0f-(float)64/255, 288,0,320,32);
-#endif	/* NEW_TEXTURES */
 
 	if(cur_tool!=tool_new)
 	glColor3f(1.0f,1.0f,1.0f);
 	else glColor3f(0.0f,1.0f,1.0f);
-#ifdef	NEW_TEXTURES
 	draw_2d_thing((float)224/255, 0.0f, (float)256/255, (float)32/255, 320,0,352,32);
-#else	/* NEW_TEXTURES */
-	draw_2d_thing((float)224/255,1.0f,(float)256/255,1.0f-(float)32/255, 320,0,352,32);
-#endif	/* NEW_TEXTURES */
 
 	if(cur_tool!=tool_kill)
 	glColor3f(1.0f,1.0f,1.0f);
 	else glColor3f(0.0f,1.0f,1.0f);
-#ifdef	NEW_TEXTURES
 	draw_2d_thing((float)192/255, 0.0f, (float)224/255, (float)32/255, 352,0,384,32);
-#else	/* NEW_TEXTURES */
-	draw_2d_thing((float)192/255,1.0f,(float)224/255,1.0f-(float)32/255, 352,0,384,32);
-#endif	/* NEW_TEXTURES */
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//save
-#ifdef	NEW_TEXTURES
 	draw_2d_thing((float)64/255, (float)32/255, (float)96/255, (float)64/255, 384,0,416,32);
-#else	/* NEW_TEXTURES */
-	draw_2d_thing((float)64/255,1.0f-(float)32/255,(float)96/255,1.0f-(float)64/255, 384,0,416,32);
-#endif	/* NEW_TEXTURES */
 
 	//open
-#ifdef	NEW_TEXTURES
 	draw_2d_thing((float)96/255, (float)32/255, (float)128/255, (float)64/255, 416,0,448,32);
-#else	/* NEW_TEXTURES */
-	draw_2d_thing((float)96/255,1.0f-(float)32/255,(float)128/255,1.0f-(float)64/255, 416,0,448,32);
-#endif	/* NEW_TEXTURES */
 
 	//new
-#ifdef	NEW_TEXTURES
 	draw_2d_thing((float)128/255, (float)32/255, (float)160/255, (float)64/255, 448,0,480,32);
-#else	/* NEW_TEXTURES */
-	draw_2d_thing((float)128/255,1.0f-(float)32/255,(float)160/255,1.0f-(float)64/255, 448,0,480,32);
-#endif	/* NEW_TEXTURES */
 
 	glEnd();
 }
@@ -654,11 +590,7 @@ int display_tiles_handler(window_info *win)
 			}
 			else
 			{
-#ifdef	NEW_TEXTURES
 				bind_texture(tile_list[i]);
-#else	/* NEW_TEXTURES */
-				get_and_set_texture_id(tile_list[i]);
-#endif	/* NEW_TEXTURES */
 
 				glBegin(GL_QUADS);
 				glTexCoord2f(0,0.0f);
@@ -858,21 +790,15 @@ void draw_mouse_minimap()
 //Generates a minimap and returns the texture's integer value
 GLuint generate_minimap()
 {
-        int x=0,y=0,i,j;
-        float scale=(float)256/tile_map_size_x;//Set the scale...
-        //img_struct * cur_img;
-#ifdef	NEW_TEXTURES
+	int x=0,y=0,i,j;
+	float scale=(float)256/tile_map_size_x;//Set the scale...
+	//img_struct * cur_img;
 	image_t* cur_img;
 	Uint32* ptr;
 	Sint32 s;
-#else	/* NEW_TEXTURES */
-        texture_struct * cur_img;
-#endif	/* NEW_TEXTURES */
-        GLuint texture;
+	GLuint texture;
+	char map[256*256*4]={0};
 
-        char map[256*256*4]={0};
-
-#ifdef	NEW_TEXTURES
 	if (scale >= 1.0f)
 	{
 		s = scale;
@@ -903,44 +829,6 @@ GLuint generate_minimap()
 			}
 		}
 	}
-#else	/* NEW_TEXTURES */
-        if(scale>=1)
-                {
-                        for(y=0;y<tile_map_size_y;y++)
-                                {
-                                for(x=0;x<tile_map_size_x;x++)
-                                        {
-                                        //Scale up
-                                        for(i=0;i<scale;i++)
-                                                {
-                                                for(j=0;j<scale;j++)
-                                                        {
-                                                                if((cur_img=&map_tiles[tile_map[x*tile_map_size_y+y]])==NULL||
-                                                                    cur_img->texture==NULL)
-                                                                	*((Uint32 *)(map+(((x*(int)scale+j)+(i+y*(int)scale)*256)*4)))=0x00000000;
-								else
-                                                                	*((Uint32 *)(map+(((x*(int)scale+j)+(i+y*(int)scale)*256)*4)))=*((Uint32 *)(cur_img->texture+(((i+y*(int)scale)&(cur_img->y_size-1))*cur_img->x_size+((j+x*(int)scale)&(cur_img->x_size-1)))*4));
-                                                        }
-                                                }
-                                        }
-                                }
-                }
-        else
-                {
-                        //Maps are not available at 256x256 yet... should they be supported?
-                        /*
-                        scale=(float)1/scale;
-                        for(y=0;y<tile_map_size_y;y++)
-                                {
-                                        for(x=0;x<tile_map_size_x;x+=scale)
-                                                {
-                                                        cur_img=&map_tiles[tile_map[x*tile_map_size_y+y]];
-                                                        *((Uint32*)(map+(((x*(int)scale+j)+(i+y*(int)scale)*256)*4))=*((Uint32 *)(cur_img->img+(((i+y*(int)scale)&(cur_img->y-1))*cur_img->x+((j+x*(int)scale)&(cur_img->x-1)))*4));;
-                                                }
-
-                                }*/
-                }
-#endif	/* NEW_TEXTURES */
 
 	//OK, now check the 3d objects... we want them all to show up as red dots...
 	scale=(float)3/scale;//Change the scale for 3d objects...

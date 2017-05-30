@@ -229,11 +229,7 @@ int display_browser_handler(window_info *win)
 			//bind the detail texture
 			glActiveTextureARB(GL_TEXTURE1_ARB);
 			glEnable(GL_TEXTURE_2D);
-#ifdef	NEW_TEXTURES
 			bind_texture_unbuffered(ground_detail_text);
-#else	/* NEW_TEXTURES */
-			glBindTexture(GL_TEXTURE_2D,  texture_cache[ground_detail_text].texture_id);
-#endif	/* NEW_TEXTURES */
 			glActiveTextureARB(GL_TEXTURE0_ARB);
 			glEnable(GL_TEXTURE_2D);
 		}
