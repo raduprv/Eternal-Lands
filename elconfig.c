@@ -87,9 +87,7 @@
 #include "sendvideoinfo.h"
 #include "actor_init.h"
 #include "io/elpathwrapper.h"
-#ifdef	NEW_TEXTURES
- #include "textures.h"
-#endif	/* NEW_TEXTURES */
+#include "textures.h"
 #ifdef	FSAA
  #include "fsaa/fsaa.h"
 #endif	/* FSAA */
@@ -212,9 +210,7 @@ int skybox_local_weather = 0;
 #ifdef OSX	// for probelem with rounded buttons on Intel graphics
  int square_buttons = 0;
 #endif
-#ifdef	NEW_TEXTURES
- int small_actor_texture_cache = 0;
-#endif	/* NEW_TEXTURES */
+int small_actor_texture_cache = 0;
 
 int video_info_sent = 0;
 
@@ -581,7 +577,6 @@ void change_password(char * passwd)
 	}
 }
 
-#ifdef	NEW_TEXTURES
 void update_max_actor_texture_handles()
 {
 	if (poor_man == 1)
@@ -607,15 +602,12 @@ void update_max_actor_texture_handles()
 		}
 	}
 }
-#endif	/* NEW_TEXTURES */
 
 void change_poor_man(int *poor_man)
 {
 	*poor_man= !*poor_man;
-#ifdef	NEW_TEXTURES
 	unload_texture_cache();
 	update_max_actor_texture_handles();
-#endif	/* NEW_TEXTURES */
 	if(*poor_man) {
 		show_reflection= 0;
 		shadows_on= 0;
@@ -680,7 +672,6 @@ void change_clouds_shadows(int *value)
 //	else LOG_TO_CONSOLE(c_green2,disabled_clouds_shadows);
 }
 
-#ifdef	NEW_TEXTURES
 void change_small_actor_texture_cache(int *value)
 {
 	if (*value)
@@ -709,21 +700,6 @@ void change_eye_candy(int *value)
 		*value = 1;
 	}
 }
-#else	/* NEW_TEXTURES */
-void change_mipmaps(int *value)
-{
-	if (*value) {
-		*value= 0;
-	}
-	else if (!gl_extensions_loaded || have_extension(sgis_generate_mipmap))
-	{
-		// don't check if we have hardware support when OpenGL
-		// extensions are not initialized yet.
-		*value= 1;
-	}
-//	else LOG_TO_CONSOLE(c_green2,disabled_mipmaps);
-}
-#endif	/* NEW_TEXTURES */
 
 void change_point_particles(int *value)
 {
@@ -740,10 +716,6 @@ void change_point_particles(int *value)
 	{
 		LOG_TO_CONSOLE(c_green2, disabled_point_particles);
 	}
-
-#ifndef	NEW_TEXTURES
-	ec_set_draw_method();
-#endif	/* NEW_TEXTURES */
 }
 
 void change_particles_percentage(int *pointer, int value)
@@ -1053,9 +1025,7 @@ void change_custom_update(int *var)
 void change_custom_clothing(int *var)
 {
 	*var = !*var;
-#ifdef	NEW_TEXTURES
 	unload_actor_texture_cache();
-#endif	/* NEW_TEXTURES */	    
 }
 #endif    //CUSTOM_UPDATE
 
@@ -1609,12 +1579,8 @@ void check_options()
 	check_option_var("use_compiled_vertex_array");
 	check_option_var("use_vertex_buffers");
 	check_option_var("clouds_shadows");
-#ifdef	NEW_TEXTURES
 	check_option_var("small_actor_texture_cache");
 	check_option_var("use_eye_candy");
-#else	/* NEW_TEXTURES */
-	check_option_var("use_mipmaps");
-#endif	/* NEW_TEXTURES */
 	check_option_var("use_point_particles");
 	check_option_var("use_frame_buffer");
 	check_option_var("use_shadow_mapping");
@@ -2082,11 +2048,7 @@ static void init_ELC_vars(void)
 #endif	/* FSAA */
 	add_var (OPT_BOOL, "use_frame_buffer", "fb", &use_frame_buffer, change_frame_buffer, 0, "Toggle Frame Buffer Support", "Toggle frame buffer support. Used for reflection and shadow mapping.", VIDEO);
 	add_var(OPT_INT_F,"water_shader_quality","water_shader_quality",&water_shader_quality,change_water_shader_quality,1,"  water shader quality","Defines what shader is used for water rendering. Higher values are slower but look better. Needs \"toggle frame buffer support\" to be turned on.",VIDEO, int_zero_func, int_max_water_shader_quality);
-#ifdef	NEW_TEXTURES
 	add_var(OPT_BOOL,"small_actor_texture_cache","small_actor_tc",&small_actor_texture_cache,change_small_actor_texture_cache,0,"Small actor texture cache","A small Actor texture cache uses less video memory, but actor loading can be slower.",VIDEO);
-#else	/* NEW_TEXTURES */
-	add_var(OPT_BOOL,"use_mipmaps","mm",&use_mipmaps,change_mipmaps,0,"Mipmaps","Mipmaps is a texture effect that blurs the texture a bit - it may look smoother and better, or it may look worse depending on your graphics driver settings and the like.",VIDEO);
-#endif	/* NEW_TEXTURES */
 	add_var(OPT_BOOL,"use_vertex_buffers","vbo",&use_vertex_buffers,change_vertex_buffers,0,"Vertex Buffer Objects","Toggle the use of the vertex buffer objects, restart required to activate it",VIDEO);
 	add_var(OPT_BOOL, "use_animation_program", "uap", &use_animation_program, change_use_animation_program, 1, "Use animation program", "Use GL_ARB_vertex_program for actor animation", VIDEO);
 	add_var(OPT_BOOL_INI, "video_info_sent", "svi", &video_info_sent, change_var, 0, "Video info sent", "Video information are sent to the server (like OpenGL version and OpenGL extentions)", VIDEO);
@@ -2112,11 +2074,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_INT,"skybox_update_delay","skybox_update_delay", &skybox_update_delay, change_int, skybox_update_delay, "Sky Update Delay", "Specifies the delay in seconds between 2 updates of the sky and the environment. A value of 0 corresponds to an update at every frame.", GFX, 0, 60);
 	add_var(OPT_INT,"particles_percentage","pp",&particles_percentage,change_particles_percentage,100,"Particle Percentage","If you experience a significant slowdown when particles are nearby, you should consider lowering this number.",GFX,0,100);
 	add_var(OPT_BOOL,"special_effects", "sfx", &special_effects, change_var, 1, "Toggle Special Effects", "Special spell effects", GFX);
-#ifdef	NEW_TEXTURES
 	add_var(OPT_BOOL,"use_eye_candy", "ec", &use_eye_candy, change_eye_candy, 1, "Enable Eye Candy", "Toggles most visual effects, like spells' and harvesting events'. Needs OpenGL 1.5", GFX);
-#else	/* NEW_TEXTURES */
-	add_var(OPT_BOOL,"use_eye_candy", "ec", &use_eye_candy, change_var, 1, "Enable Eye Candy", "Toggles most visual effects, like spells' and harvesting events'", GFX);
-#endif	/* NEW_TEXTURES */
 	add_var(OPT_BOOL,"enable_blood","eb",&enable_blood,change_var,0,"Enable Blood","Enable blood special effects during combat.",GFX);
 	add_var(OPT_BOOL,"use_harvesting_eye_candy","uharvec",&use_harvesting_eye_candy,change_var,0,"Enable harvesting effect","This effect shows that you're harvesting. Only you can see it!",GFX);
 	add_var(OPT_BOOL,"use_lamp_halo","ulh",&use_lamp_halo,change_var,0,"Use Lamp Halos","Enable halos for torches, candles, etc.",GFX);
@@ -2170,9 +2128,6 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"use_compiled_vertex_array","cva",&use_compiled_vertex_array,change_compiled_vertex_array,1,"Compiled Vertex Array","Some systems will not support the new compiled vertex array in EL. Disable this if some 3D objects do not display correctly.",TROUBLESHOOT);
 	add_var(OPT_BOOL,"use_draw_range_elements","dre",&use_draw_range_elements,change_var,1,"Draw Range Elements","Disable this if objects appear partially stretched.",TROUBLESHOOT);
 	add_var(OPT_BOOL,"use_point_particles","upp",&use_point_particles,change_point_particles,1,"Point Particles","Some systems will not support the new point based particles in EL. Disable this if your client complains about not having the point based particles extension.",TROUBLESHOOT);
-#ifndef	NEW_TEXTURES
-	add_var(OPT_BOOL,"transparency_resolution_fix","trf",&transparency_resolution_fix,change_var,0,"Transparency Resolution Fix","Use this if your video card or driver has problems with rendering highly blended effects, like teleportation.",TROUBLESHOOT);
-#endif	/* NEW_TEXTURES */
 	add_var(OPT_INT, "gx_adjust","gxa", &gx_adjust, change_signed_int, 0, "Adjust graphics X","Fine adjustment for text/line positioning - X direction.",TROUBLESHOOT, -3,3);
 	add_var(OPT_INT, "gy_adjust","gxa", &gy_adjust, change_signed_int, 0, "Adjust graphics Y","Fine adjustment for text/line positioning - Y direction.",TROUBLESHOOT, -3,3);
 #ifdef OSX

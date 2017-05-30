@@ -214,11 +214,7 @@ void draw_3d_object_detail(object3d * object_id, Uint32 material_index, Uint32 u
 	if (use_textures)
 	{
 		glEnable(GL_TEXTURE_2D);
-#ifdef	NEW_TEXTURES
 		bind_texture(object_id->e3d_data->materials[material_index].texture);
-#else	/* NEW_TEXTURES */
-		get_and_set_texture_id(object_id->e3d_data->materials[material_index].texture);
-#endif	/* NEW_TEXTURES */
 	}
 	else
 	{
@@ -684,11 +680,7 @@ void display_objects(void)
 		//bind the detail texture
 		ELglActiveTextureARB(detail_unit);
 		glEnable(GL_TEXTURE_2D);
-#ifdef	NEW_TEXTURES
 		bind_texture_unbuffered(ground_detail_text);
-#else	/* NEW_TEXTURES */
-		glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
-#endif	/* NEW_TEXTURES */
 		ELglActiveTextureARB(base_unit);
 		glEnable(GL_TEXTURE_2D);
 	}
@@ -731,11 +723,7 @@ void display_ground_objects(void)
 		//bind the detail texture
 		ELglActiveTextureARB(detail_unit);
 		glEnable(GL_TEXTURE_2D);
-#ifdef	NEW_TEXTURES
 		bind_texture_unbuffered(ground_detail_text);
-#else	/* NEW_TEXTURES */
-		glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
-#endif	/* NEW_TEXTURES */
 		ELglActiveTextureARB(base_unit);
 		glEnable(GL_TEXTURE_2D);
 	}
@@ -775,11 +763,7 @@ void display_alpha_objects(void)
 		//bind the detail texture
 		ELglActiveTextureARB(detail_unit);
 		glEnable(GL_TEXTURE_2D);
-#ifdef	NEW_TEXTURES
 		bind_texture_unbuffered(ground_detail_text);
-#else	/* NEW_TEXTURES */
-		glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
-#endif	/* NEW_TEXTURES */
 		ELglActiveTextureARB(base_unit);
 		glEnable(GL_TEXTURE_2D);
 	}
@@ -821,11 +805,7 @@ void display_blended_objects(void)
 		//bind the detail texture
 		ELglActiveTextureARB(detail_unit);
 		glEnable(GL_TEXTURE_2D);
-#ifdef	NEW_TEXTURES
 		bind_texture_unbuffered(ground_detail_text);
-#else	/* NEW_TEXTURES */
-		glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
-#endif	/* NEW_TEXTURES */
 		ELglActiveTextureARB(base_unit);
 		glEnable(GL_TEXTURE_2D);
 	}

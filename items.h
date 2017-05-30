@@ -280,10 +280,8 @@ void update_cooldown ();
  */
 void set_shown_string(char colour_code, const char *the_text);
 
-#ifdef	NEW_TEXTURES
 void get_item_uv(const Uint32 item, float* u_start, float* v_start,
 	float* u_end, float* v_end);
-#endif	/* NEW_TEXTURES */
 
 #ifdef __cplusplus
 } // extern "C"

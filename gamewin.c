@@ -2290,41 +2290,12 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	}
 	else if (keysym == SDLK_F11)
 	{
-#ifdef	NEW_TEXTURES
 		unload_texture_cache();
-#else	/* NEW_TEXTURES */
-		int i;
-
-		for (i = 0; i < TEXTURE_CACHE_MAX; i++)
-		{
-			if(texture_cache[i].file_name[0])
-			{
-				glDeleteTextures(1,(GLuint*)&texture_cache[i].texture_id);
-				texture_cache[i].texture_id = 0;
-				CHECK_GL_ERRORS();
-			}
-		}
-		
-		//now, reload the textures
-		for (i=0; i < TEXTURE_CACHE_MAX; i++)
-		{
-			if(texture_cache[i].file_name[0] && !texture_cache[i].load_err)
-			{
-				int alpha = texture_cache[i].alpha;
-				if(alpha <= 0)
-					texture_cache[i].texture_id = load_bmp8_color_key (&(texture_cache[i]), alpha);
-				else 
-					texture_cache[i].texture_id = load_bmp8_fixed_alpha (&(texture_cache[i]), alpha);
-			}
-		}
-#endif	/* NEW_TEXTURES */
 	}
-#ifdef	NEW_TEXTURES
 	else if (keysym == SDLK_F12)
 	{
 		dump_texture_cache();
 	}
-#endif	/* NEW_TEXTURES */
 #endif	/* DEBUG */
 	// END OF TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	else

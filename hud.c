@@ -236,38 +236,21 @@ float horizontal_bar_v_end = 0.0f;
 
 void init_hud_frame()
 {
-#ifdef	NEW_TEXTURES
 	vertical_bar_v_end = (float)window_height/256;
 	horizontal_bar_v_start = (float)(window_width-hud_x)/256;
-#else	/* NEW_TEXTURES */
-	vertical_bar_v_start = (float)window_height/256;
-	horizontal_bar_v_end = (float)(window_width-hud_x)/256;
-#endif	/* NEW_TEXTURES */
 }
 
-#ifdef	NEW_TEXTURES
 float logo_u_start = (float)64/256;
 float logo_v_start = (float)128/256;
 float logo_u_end = (float)127/256;
 float logo_v_end = (float)191/256;
-#else	/* NEW_TEXTURES */
-float logo_u_start=(float)64/256;
-float logo_v_start=1.0f-(float)128/256;
-
-float logo_u_end=(float)127/256;
-float logo_v_end=1.0f-(float)191/256;
-#endif	/* NEW_TEXTURES */
 
 void draw_hud_frame()
 {
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
-#ifdef	NEW_TEXTURES
 	bind_texture(hud_text);
-#else	/* NEW_TEXTURES */
-	get_and_set_texture_id(hud_text);
-#endif	/* NEW_TEXTURES */
 	glBegin(GL_QUADS);
 	draw_2d_thing_r(horizontal_bar_u_start, horizontal_bar_v_start, horizontal_bar_u_end, horizontal_bar_v_end,0,window_height,window_width, window_height-hud_y);
 	if(last_interface == HUD_INTERFACE_GAME)
@@ -1046,7 +1029,6 @@ int mouseover_stats_bar_handler(window_info *win, int mx, int my)
 }
 
 // the misc section (compass, clock, ?)
-#ifdef	NEW_TEXTURES
 float compass_u_start = (float)32/256;
 float compass_v_start = (float)192/256;
 
@@ -1070,31 +1052,6 @@ float clock_needle_v_start = (float)192/256;
 
 float clock_needle_u_end = (float)31/256;
 float clock_needle_v_end = (float)223/256;
-#else	/* NEW_TEXTURES */
-float compass_u_start=(float)32/256;
-float compass_v_start=1.0f-(float)192/256;
-
-float compass_u_end=(float)95/256;
-float compass_v_end=0;
-
-float clock_u_start=0;
-float clock_v_start=1.0f-(float)128/256;
-
-float clock_u_end=(float)63/256;
-float clock_v_end=1.0f-(float)191/256;
-
-float needle_u_start=(float)4/256;
-float needle_v_start=1.0f-(float)200/256;
-
-float needle_u_end=(float)14/256;
-float needle_v_end=1.0f-(float)246/256;
-
-float clock_needle_u_start=(float)21/256;
-float clock_needle_v_start=1.0f-(float)192/256;
-
-float clock_needle_u_end=(float)31/256;
-float clock_needle_v_end=1.0f-(float)223/256;
-#endif	/* NEW_TEXTURES */
 
 static int context_hud_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
@@ -1245,11 +1202,7 @@ int display_misc_handler(window_info *win)
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
-#ifdef	NEW_TEXTURES
 	bind_texture(hud_text);
-#else	/* NEW_TEXTURES */
-	get_and_set_texture_id(hud_text);
-#endif	/* NEW_TEXTURES */
 
 	// allow for transparency
 	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
@@ -1741,15 +1694,8 @@ int	display_quickbar_handler(window_info *win)
 
 			//get the UV coordinates.
 			cur_item=item_list[i].image_id%25;
-#ifdef	NEW_TEXTURES
 			get_item_uv(cur_item, &u_start, &v_start, &u_end,
 				&v_end);
-#else	/* NEW_TEXTURES */
-			u_start=0.2f*(cur_item%5);
-			u_end=u_start+(float)50/256;
-			v_start=(1.0f+((float)50/256)/256.0f)-((float)50/256*(cur_item/5));
-			v_end=v_start-(float)50/256;
-#endif	/* NEW_TEXTURES */
 
 			//get the x and y
 			cur_pos=item_list[i].pos;
@@ -1768,11 +1714,7 @@ int	display_quickbar_handler(window_info *win)
 			//get the texture this item belongs to
 			this_texture=get_items_texture(item_list[i].image_id/25);
 
-#ifdef	NEW_TEXTURES
 			bind_texture(this_texture);
-#else	/* NEW_TEXTURES */
-			get_and_set_texture_id(this_texture);
-#endif	/* NEW_TEXTURES */
 			glBegin(GL_QUADS);
 				draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 			glEnd();

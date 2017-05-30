@@ -5,8 +5,6 @@
  * Copyright: See COPYING file that comes with this distribution
  ****************************************************************************/
 
-#ifdef	NEW_TEXTURES
-
 #include "image_loading.h"
 #include "errors.h"
 #include "asc.h"
@@ -595,5 +593,3 @@ void free_image(image_t* image)
 
 	image->image = 0;
 }
-
-#endif	/* NEW_TEXTURES */

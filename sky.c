@@ -1671,11 +1671,7 @@ void cloudy_sky()
 		
 		glEnable(GL_LIGHTING);
 		glDisable(GL_COLOR_MATERIAL);
-#ifdef	NEW_TEXTURES
 		bind_texture(moon_tex);
-#else	/* NEW_TEXTURES */
-		get_and_set_texture_id(moon_tex);
-#endif	/* NEW_TEXTURES */
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, black_color);
 
 		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, moon1_color);
@@ -1769,21 +1765,13 @@ void cloudy_sky()
 		glColorPointer(4, GL_FLOAT, 0, dome_clouds.colors);
 		glTexCoordPointer(2, GL_FLOAT, 0, dome_clouds.tex_coords);
 		
-#ifdef	NEW_TEXTURES
 		bind_texture(skybox_clouds_tex);
-#else	/* NEW_TEXTURES */
-		get_and_set_texture_id(skybox_clouds_tex);
-#endif	/* NEW_TEXTURES */
 		
 		glDrawElements(GL_TRIANGLES, dome_clouds.faces_count*3, GL_UNSIGNED_INT, dome_clouds.faces);
 		
 		{
 			// we draw the second clouds layer
-#ifdef	NEW_TEXTURES
 			bind_texture(thick_clouds_tex);
-#else	/* NEW_TEXTURES */
-			get_and_set_texture_id(thick_clouds_tex);
-#endif	/* NEW_TEXTURES */
 			glColorPointer(4, GL_FLOAT, 0, dome_clouds_colors_bis);
 			glTexCoordPointer(2, GL_FLOAT, 0, dome_clouds_tex_coords_bis);
 			glPushMatrix();
@@ -1806,12 +1794,7 @@ void cloudy_sky()
 		 skybox_sun_position[2] != 0.0))
 	{
 		glColor4fv(sun_color);
-#ifdef	NEW_TEXTURES
 		bind_texture(sun_tex);
-#else	/* NEW_TEXTURES */
-		get_and_set_texture_id(sun_tex);
-#endif	/* NEW_TEXTURES */
-		
 		glPushMatrix();
 		glScalef(480.0, 480.0, 480.0);
 		glBegin(GL_QUADS);
@@ -1851,11 +1834,7 @@ void cloudy_sky()
 		glEnableClientState(GL_COLOR_ARRAY);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		
-#ifdef	NEW_TEXTURES
 		bind_texture(skybox_clouds_detail_tex);
-#else	/* NEW_TEXTURES */
-		get_and_set_texture_id(skybox_clouds_detail_tex);
-#endif	/* NEW_TEXTURES */
 		glVertexPointer(3, GL_FLOAT, 0, dome_clouds.vertices);
 		glColorPointer(4, GL_FLOAT, 0, dome_clouds_detail_colors);
 		glTexCoordPointer(2, GL_FLOAT, 0, dome_clouds.tex_coords);
@@ -1866,11 +1845,7 @@ void cloudy_sky()
 		glPopMatrix();
 		
 		{
-#ifdef	NEW_TEXTURES
 			bind_texture(thick_clouds_detail_tex);
-#else	/* NEW_TEXTURES */
-			get_and_set_texture_id(thick_clouds_detail_tex);
-#endif	/* NEW_TEXTURES */
 			glColorPointer(4, GL_FLOAT, 0, dome_clouds_detail_colors_bis);
 			glTexCoordPointer(2, GL_FLOAT, 0, dome_clouds_tex_coords_bis);
 			glPushMatrix();
@@ -2001,11 +1976,7 @@ void underworld_sky()
 
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_TEXTURE_2D);
-#ifdef	NEW_TEXTURES
 		bind_texture(thick_clouds_detail_tex);
-#else	/* NEW_TEXTURES */
-		get_and_set_texture_id(thick_clouds_detail_tex);
-#endif	/* NEW_TEXTURES */
 
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -2177,17 +2148,9 @@ int skybox_parse_properties(xmlNode *node)
 						if (!xmlStrcasecmp (attr->name, (xmlChar*)"show"))
 							skybox_no_clouds = !XML_BOOL(attr->children->content);
 						else if (xmlStrcasecmp (attr->name, (xmlChar*)"texture") == 0)
-#ifdef	NEW_TEXTURES
 							skybox_clouds_tex = load_texture_cached((char*)attr->children->content, tt_mesh);
-#else	/* NEW_TEXTURES */
-							skybox_clouds_tex = load_texture_cache((char*)attr->children->content, 0);
-#endif	/* NEW_TEXTURES */
 						else if (xmlStrcasecmp (attr->name, (xmlChar*)"texture_detail") == 0)
-#ifdef	NEW_TEXTURES
 							skybox_clouds_detail_tex = load_texture_cached((char*)attr->children->content, tt_mesh);
-#else	/* NEW_TEXTURES */
-							skybox_clouds_detail_tex = load_texture_cache((char*)attr->children->content, 0);
-#endif	/* NEW_TEXTURES */
 						else {
 							LOG_ERROR("unknown attribute for clouds: %s", (char*)attr->name);
 							ok = 0;
@@ -2560,17 +2523,10 @@ void skybox_init_gl()
 	float maxr;
 	float strs[NUM_STARS][3];
 
-#ifdef	NEW_TEXTURES
 	thick_clouds_tex = load_texture_cached("textures/thick_clouds", tt_mesh);
 	thick_clouds_detail_tex = load_texture_cached("textures/thick_clouds_detail", tt_mesh);
 	moon_tex = load_texture_cached("textures/moonmap", tt_mesh);
 	sun_tex = load_texture_cached("textures/BrightSun", tt_mesh);
-#else	/* NEW_TEXTURES */
-	thick_clouds_tex = load_texture_cache("./textures/thick_clouds.bmp", 0);
-	thick_clouds_detail_tex = load_texture_cache("./textures/thick_clouds_detail.bmp", 0);
-	moon_tex=load_texture_cache("./textures/moonmap.bmp", 0);
-	sun_tex=load_texture_cache("./textures/BrightSun.bmp", 255);
-#endif	/* NEW_TEXTURES */
 
 	sky_lists = glGenLists(3);
 

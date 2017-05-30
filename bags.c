@@ -475,15 +475,7 @@ int display_ground_items_handler(window_info *win)
 
 			//get the UV coordinates.
 			cur_item=ground_item_list[i].image_id%25;
-#ifdef	NEW_TEXTURES
-			get_item_uv(cur_item, &u_start, &v_start, &u_end,
-				&v_end);
-#else	/* NEW_TEXTURES */
-			u_start=0.2f*(cur_item%5);
-			u_end=u_start+(float)50/256;
-			v_start=(1.0f+((float)50/256)/256.0f)-((float)50/256*(cur_item/5));
-			v_end=v_start-(float)50/256;
-#endif	/* NEW_TEXTURES */
+			get_item_uv(cur_item, &u_start, &v_start, &u_end, &v_end);
 
 			//get the x and y
 			cur_pos=i;
@@ -494,12 +486,7 @@ int display_ground_items_handler(window_info *win)
 
 			//get the texture this item belongs to
 			this_texture=get_items_texture(ground_item_list[i].image_id/25);
-
-#ifdef	NEW_TEXTURES
 			bind_texture(this_texture);
-#else	/* NEW_TEXTURES */
-			get_and_set_texture_id(this_texture);
-#endif	/* NEW_TEXTURES */
 
 			glBegin(GL_QUADS);
 				draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);

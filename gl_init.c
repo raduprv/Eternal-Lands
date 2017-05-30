@@ -1035,43 +1035,12 @@ void resize_root_window()
 void set_new_video_mode(int fs,int mode)
 {
 	int i;
-#ifndef	NEW_TEXTURES
-	int alpha;
-#endif	/* NEW_TEXTURES */
-	
+
 	full_screen=fs;
 	video_mode=mode;
 
 	//now, clear all the textures...
-#ifdef	NEW_TEXTURES
 	unload_texture_cache();
-#else	/* NEW_TEXTURES */
-	for(i = 0; i < TEXTURE_CACHE_MAX; i++)
-	{
-		if(texture_cache[i].file_name[0])
-		{
-			glDeleteTextures(1,(GLuint*)&texture_cache[i].texture_id);
-			texture_cache[i].texture_id=0;//force a reload
-			CHECK_GL_ERRORS();
-		}
-	}
-
-#ifndef MAP_EDITOR2
-	//do the same for the actors textures...
-	for(i=0;i<max_actors;i++)
-		{
-			if(actors_list[i])
-				{
-					if(actors_list[i]->remapped_colors || actors_list[i]->is_enhanced_model)//if it is not remapable, then it is already in the cache
-						{
-							glDeleteTextures(1,&actors_list[i]->texture_id);
-							actors_list[i]->texture_id=0;
-							CHECK_GL_ERRORS();
-						}
-				}
-		}
-#endif
-#endif	/* NEW_TEXTURES */
 
 	if (use_vertex_buffers)
 	{
@@ -1089,10 +1058,6 @@ void set_new_video_mode(int fs,int mode)
 		}
 		CHECK_GL_ERRORS();
 	}
-
-#ifndef	NEW_TEXTURES
-	ec_clear_textures();
-#endif	/* NEW_TEXTURES */
 
 	//destroy the current context
 
@@ -1114,44 +1079,6 @@ void set_new_video_mode(int fs,int mode)
 
 	ec_load_textures();
 
-	//now, reload the textures
-#ifndef	NEW_TEXTURES
-	for(i = 0; i < TEXTURE_CACHE_MAX; i++)
-	{
-		if (texture_cache[i].file_name[0] && !texture_cache[i].load_err)
-		{
-			alpha=texture_cache[i].alpha;
-			//our texture was freed, we have to reload it
-			if(alpha<=0)
-				texture_cache[i].texture_id = load_bmp8_color_key (&(texture_cache[i]), alpha);
-	            	else
-				texture_cache[i].texture_id = load_bmp8_fixed_alpha (&(texture_cache[i]), alpha);
-		}
-	}
-	reload_fonts();
-
-#ifndef MAP_EDITOR2
-	//do the same for the actors textures...
-	for(i=0;i<max_actors;i++)
-		{
-			if(actors_list[i])
-				{
-					if(actors_list[i]->remapped_colors)//if it is not remapable, then it is already in the cache
-						{
-							//reload the skin
-							//actors_list[i]->texture_id=load_bmp8_remapped_skin(actors_list[i]->skin_name,
-							//												   150,actors_list[i]->skin,actors_list[i]->hair,actors_list[i]->shirt,
-							//												   actors_list[i]->pants,actors_list[i]->boots);
-						}
-					if(actors_list[i]->is_enhanced_model)
-						{
-							actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
-						}
-				}
-		}
-#endif
-#endif	/* NEW_TEXTURES */
-	
 	//it is dependent on the window height...
 	init_hud_interface (HUD_INTERFACE_LAST);
 	new_minute();
