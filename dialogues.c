@@ -180,17 +180,10 @@ static int	display_dialogue_handler(window_info *win)
 	if(cur_portrait!=-1)
 	{
 		//get the UV coordinates.
-#ifdef	NEW_TEXTURES
 		u_start = 0.25f * (cur_portrait % 4);
 		u_end = u_start + 0.25f;
 		v_start = 0.25f * (cur_portrait / 4);
 		v_end = v_start + 0.25f;
-#else	/* NEW_TEXTURES */
-		u_start=0.25f*(cur_portrait%4);
-		u_end=u_start+0.25f;
-		v_start=1.0f-(0.25f*(cur_portrait/4));
-		v_end=v_start-0.25f;
-#endif	/* NEW_TEXTURES */
 
 		//get the x and y
 		x_start=1;
@@ -202,11 +195,7 @@ static int	display_dialogue_handler(window_info *win)
 		this_texture=cur_portrait/16;
 		this_texture=portraits_tex[this_texture];
 
-#ifdef	NEW_TEXTURES
 		bind_texture(this_texture);
-#else	/* NEW_TEXTURES */
-		get_and_set_texture_id(this_texture);
-#endif	/* NEW_TEXTURES */
 		glBegin(GL_QUADS);
 		draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 		glEnd();

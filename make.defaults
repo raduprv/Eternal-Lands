@@ -19,7 +19,6 @@ FEATURES += BANDWIDTH_SAVINGS		# enable bandwidth saving changes for message pro
 FEATURES += ANIMATION_SCALING		# Adds support for animation scaling, depending on the number of animation commands in the actor queue.
 FEATURES += FSAA			# Adds support for full screen anti-aliasing using OpenGL multisampling.
 FEATURES += NEW_NEW_CHAR_WINDOW		# Use the new character creation window; controls always on-screen
-FEATURES += NEW_TEXTURES		# Enables the new texture loading and caching system (http://www.eternal-lands.com/forum/index.php?showtopic=54756)
 # new for 1.9.3 release
 FEATURES += FASTER_MAP_LOAD		# Enables optimizations to speed up the process of switching between maps
 FEATURES += FASTER_STARTUP		# An attempt to reduce the startup time of EL somewhat

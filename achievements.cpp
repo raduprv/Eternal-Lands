@@ -25,9 +25,7 @@
 #include "text.h"
 #include "textures.h"
 #include "io/elfilewrapper.h"
-#ifdef	NEW_TEXTURES
 #include "image_loading.h"
-#endif	/* NEW_TEXTURES */
 
 /*
  *	TO DO
@@ -363,17 +361,12 @@ Achievements_System::Achievements_System(void)
 		else if (!xmlStrcasecmp(cur->name, (const xmlChar *)"texture"))
 		{
 			char *path = (char*)(cur->children ? cur->children->content : NULL);
-#ifdef	NEW_TEXTURES
 			char buffer[1024];
 
 			if (check_image_name(path, sizeof(buffer), buffer) == 1)
 			{
 				textures.push_back(load_texture_cached(buffer, tt_gui));
 			}
-#else	/* NEW_TEXTURES */
-			if(path && el_custom_file_exists(path))
-				textures.push_back(load_texture_cache(path, 0));
-#endif	/* NEW_TEXTURES */
 		}
 	}
 	xmlFreeDoc(doc);
@@ -688,7 +681,6 @@ int Achievements_Window::display_handler(window_info *win)
 		{
 			int cur_item = achievement->get_id() % icon_per_texture;
 
-#ifdef	NEW_TEXTURES
 			float u_start = 1.0f/static_cast<float>(icon_per) * (cur_item % icon_per);
 			float u_end = u_start + static_cast<float>(as->get_size())/256;
 			float v_start = 1.0f/static_cast<float>(icon_per) * (cur_item / icon_per);
@@ -697,17 +689,6 @@ int Achievements_Window::display_handler(window_info *win)
 			int start_y = as->get_border() + as->get_display() * (shown_num / as->get_per_row());
 
 			bind_texture(texture);
-#else	/* NEW_TEXTURES */
-			float u_start = 1.0f/static_cast<float>(icon_per) * (cur_item % icon_per);
-			float u_end = u_start + static_cast<float>(as->get_size())/256;
-			float v_start= (1.0f + (static_cast<float>(as->get_size())/256) / 256.0f) -
-				(static_cast<float>(as->get_size()) / 256 * (cur_item / icon_per));
-			float v_end = v_start - static_cast<float>(as->get_size()) / 256;
-			int start_x = as->get_border() + as->get_display() * (shown_num % as->get_per_row());
-			int start_y = as->get_border() + as->get_display() * (shown_num / as->get_per_row());
-
-			get_and_set_texture_id(texture);
-#endif	/* NEW_TEXTURES */
 			glEnable(GL_ALPHA_TEST);
 			glAlphaFunc(GL_GREATER, 0.05f);
 			glBegin(GL_QUADS);

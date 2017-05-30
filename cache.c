@@ -13,10 +13,6 @@
 cache_struct *cache_system = NULL;
 cache_struct *cache_e3d = NULL;
 
-#ifndef	NEW_TEXTURES
-texture_cache_struct texture_cache[TEXTURE_CACHE_MAX];
-#endif	/* NEW_TEXTURES */
-
 static Uint32 cache_system_clean();
 static Uint32 cache_system_compact();
 static Uint32 cache_clean(cache_struct *cache);

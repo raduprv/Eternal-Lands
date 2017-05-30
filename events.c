@@ -23,9 +23,7 @@
 #ifdef PAWN
 #include "pawn/elpawn.h"
 #endif
-#ifdef	NEW_TEXTURES
 #include "textures.h"
-#endif	/* NEW_TEXTURES */	    
 
 #ifndef WINDOWS
 #include <SDL_syswm.h>
@@ -330,9 +328,7 @@ int HandleEvent (SDL_Event *event)
 #endif
 #ifdef	CUSTOM_UPDATE
 			case    EVENT_CUSTOM_UPDATE_COMPLETE:
-#ifdef	NEW_TEXTURES
 				unload_actor_texture_cache();
-#endif	/* NEW_TEXTURES */	    
 				break;
 #endif	/* CUSTOM_UPDATE */
 			}

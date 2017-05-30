@@ -59,13 +59,8 @@ void build_glow_color_table()
 }
 
 //return the ID (number in the actors_list[]) of the new allocated actor
-#ifdef	NEW_TEXTURES
 int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	float z_pos, float z_rot, float scale, int actor_id, const char* name)
-#else	// NEW_TEXTURES
-int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
-					   float z_pos, float z_rot, float scale, int actor_id)
-#endif	// NEW_TEXTURES
 {
 	int texture_id;
 	int i;
@@ -81,16 +76,9 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 #endif
 
 	//get the skin
-#ifdef	NEW_TEXTURES
 	texture_id = load_enhanced_actor(this_actor, name);
-#else	/* NEW_TEXTURES */
-	texture_id= load_bmp8_enhanced_actor(this_actor, 255);
-#endif	/* NEW_TEXTURES */
 
 	our_actor = calloc(1, sizeof(actor));
-#ifndef	NEW_TEXTURES
-	our_actor->has_alpha= this_actor->has_alpha;
-#endif	/* NEW_TEXTURES */
 
 	memset(our_actor->current_displayed_text, 0, MAX_CURRENT_DISPLAYED_TEXT_LEN);
 	our_actor->current_displayed_text_time_left =  0;
@@ -197,7 +185,6 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	return i;
 }
 
-#ifdef	NEW_TEXTURES
 Uint32 delay_texture_item_change(actor* a, const int which_part, const int which_id)
 {
 	if (a == 0)
@@ -221,7 +208,6 @@ Uint32 delay_texture_item_change(actor* a, const int which_part, const int which
 
 	return 0;
 }
-#endif	/* NEW_TEXTURES */
 
 void unwear_item_from_actor(int actor_id,Uint8 which_part)
 {
@@ -236,35 +222,13 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 						if(which_part==KIND_OF_WEAPON)
 							{
 								ec_remove_weapon(actors_list[i]);
-#ifndef	NEW_TEXTURES
-								if (actors_list[i]->in_aim_mode > 0) {
-									if (actors_list[i]->delayed_item_changes_count < MAX_ITEM_CHANGES_QUEUE) {
-										missiles_log_message("%s (%d): unwear item type %d delayed",
-															 actors_list[i]->actor_name, actors_list[i]->actor_id, which_part);
-										actors_list[i]->delayed_item_changes[actors_list[i]->delayed_item_changes_count] = -1;
-										actors_list[i]->delayed_item_type_changes[actors_list[i]->delayed_item_changes_count] = which_part;
-										++actors_list[i]->delayed_item_changes_count;
-									}
-									else {
-										LOG_ERROR("the item changes queue is full!");
-									}
-									return;
-								}
-#endif	/* NEW_TEXTURES */
 								if(actors_list[i]->cur_weapon == GLOVE_FUR || actors_list[i]->cur_weapon == GLOVE_LEATHER){
 									my_strcp(actors_list[i]->body_parts->hands_tex, actors_list[i]->body_parts->hands_tex_save);
-#ifndef	NEW_TEXTURES
-									glDeleteTextures(1,&actors_list[i]->texture_id);
-									actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
-#endif	/* NEW_TEXTURES */
-
 								}
-#ifdef	NEW_TEXTURES
 								if (delay_texture_item_change(actors_list[i], which_part, -1))
 								{
 									return;
 								}
-#endif	/* NEW_TEXTURES */
 								model_detach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].weapon[actors_list[i]->cur_weapon].mesh_index);
 								actors_list[i]->body_parts->weapon_tex[0]=0;
 								actors_list[i]->cur_weapon = WEAPON_NONE;
@@ -388,22 +352,6 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 						my_tolower(onlyname);
 						safe_snprintf(playerpath, sizeof(playerpath), "custom/player/%s/", onlyname);
 #endif
-#ifndef	NEW_TEXTURES
-						if (actors_list[i]->in_aim_mode > 0 &&
-							(which_part == KIND_OF_WEAPON || which_part == KIND_OF_SHIELD)) {
-							if (actors_list[i]->delayed_item_changes_count < MAX_ITEM_CHANGES_QUEUE) {
-								missiles_log_message("%s (%d): wear item type %d delayed",
-													 actors_list[i]->actor_name, actors_list[i]->actor_id, which_part);
-								actors_list[i]->delayed_item_changes[actors_list[i]->delayed_item_changes_count] = which_id;
-								actors_list[i]->delayed_item_type_changes[actors_list[i]->delayed_item_changes_count] = which_part;
-								++actors_list[i]->delayed_item_changes_count;
-							}
-							else {
-								LOG_ERROR("the item changes queue is full!");
-							}
-							return;
-						}
-#endif	/* NEW_TEXTURES */
 						if (which_part==KIND_OF_WEAPON)
 							{
 								if (which_id == GLOVE_FUR || which_id == GLOVE_LEATHER)
@@ -422,12 +370,10 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 									custom_path(actors_list[i]->body_parts->weapon_tex, playerpath, guildpath);
 #endif
 								}
-#ifdef	NEW_TEXTURES
 								if (delay_texture_item_change(actors_list[i], which_part, which_id))
 								{
 									return;
 								}
-#endif	/* NEW_TEXTURES */
 								model_attach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].weapon[which_id].mesh_index);
 								actors_list[i]->cur_weapon=which_id;
 								actors_list[i]->body_parts->weapon_meshindex = actors_defs[actors_list[i]->actor_type].weapon[which_id].mesh_index;
@@ -495,14 +441,12 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #ifdef CUSTOM_LOOK
 								custom_path(actors_list[i]->body_parts->shield_tex, playerpath, guildpath);
 #endif
-#ifdef	NEW_TEXTURES
 								if (delay_texture_item_change(actors_list[i], which_part, which_id))
 								{
 									return;
 								}
-#endif	/* NEW_TEXTURES */
 								model_attach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].shield[which_id].mesh_index);
-				                                actors_list[i]->body_parts->shield_meshindex=actors_defs[actors_list[i]->actor_type].shield[which_id].mesh_index;
+								actors_list[i]->body_parts->shield_meshindex=actors_defs[actors_list[i]->actor_type].shield[which_id].mesh_index;
 								actors_list[i]->cur_shield=which_id;
 								actors_list[i]->body_parts->shield_meshindex = actors_defs[actors_list[i]->actor_type].shield[which_id].mesh_index;
 							}
@@ -513,12 +457,10 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #ifdef CUSTOM_LOOK
 								custom_path(actors_list[i]->body_parts->cape_tex, playerpath, guildpath);
 #endif
-#ifdef	NEW_TEXTURES
 								if (delay_texture_item_change(actors_list[i], which_part, which_id))
 								{
 									return;
 								}
-#endif	/* NEW_TEXTURES */
 								model_attach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].cape[which_id].mesh_index);
 								actors_list[i]->body_parts->cape_meshindex=actors_defs[actors_list[i]->actor_type].cape[which_id].mesh_index;
 							}
@@ -529,12 +471,10 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #ifdef CUSTOM_LOOK
 								custom_path(actors_list[i]->body_parts->helmet_tex, playerpath, guildpath);
 #endif
-#ifdef	NEW_TEXTURES
 								if (delay_texture_item_change(actors_list[i], which_part, which_id))
 								{
 									return;
 								}
-#endif	/* NEW_TEXTURES */
 								model_attach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].helmet[which_id].mesh_index);
 								actors_list[i]->body_parts->helmet_meshindex=actors_defs[actors_list[i]->actor_type].helmet[which_id].mesh_index;
 							}
@@ -545,12 +485,10 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #ifdef CUSTOM_LOOK
 								custom_path(actors_list[i]->body_parts->neck_tex, playerpath, guildpath);
 #endif
-#ifdef	NEW_TEXTURES
 								if (delay_texture_item_change(actors_list[i], which_part, which_id))
 								{
 									return;
 								}
-#endif	/* NEW_TEXTURES */
 								model_attach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].neck[which_id].mesh_index);
 								actors_list[i]->body_parts->neck_meshindex=actors_defs[actors_list[i]->actor_type].neck[which_id].mesh_index;
 							}
@@ -567,12 +505,10 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								custom_path(actors_list[i]->body_parts->arms_mask, playerpath, guildpath);
 								custom_path(actors_list[i]->body_parts->torso_mask, playerpath, guildpath);
 #endif
-#ifdef	NEW_TEXTURES
 								if (delay_texture_item_change(actors_list[i], which_part, which_id))
 								{
 									return;
 								}
-#endif	/* NEW_TEXTURES */
 								if(actors_defs[actors_list[i]->actor_type].shirt[which_id].mesh_index != actors_list[i]->body_parts->torso_meshindex)
 								{
 									model_detach_mesh(actors_list[i], actors_list[i]->body_parts->torso_meshindex);
@@ -588,12 +524,10 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								custom_path(actors_list[i]->body_parts->pants_tex, playerpath, guildpath);
 								custom_path(actors_list[i]->body_parts->pants_mask, playerpath, guildpath);
 #endif
-#ifdef	NEW_TEXTURES
 								if (delay_texture_item_change(actors_list[i], which_part, which_id))
 								{
 									return;
 								}
-#endif	/* NEW_TEXTURES */
 								if(actors_defs[actors_list[i]->actor_type].legs[which_id].mesh_index != actors_list[i]->body_parts->legs_meshindex)
 								{
 									model_detach_mesh(actors_list[i], actors_list[i]->body_parts->legs_meshindex);
@@ -610,12 +544,10 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								custom_path(actors_list[i]->body_parts->boots_tex, playerpath, guildpath);
 								custom_path(actors_list[i]->body_parts->boots_mask, playerpath, guildpath);
 #endif
-#ifdef	NEW_TEXTURES
 								if (delay_texture_item_change(actors_list[i], which_part, which_id))
 								{
 									return;
 								}
-#endif	/* NEW_TEXTURES */
 								if(actors_defs[actors_list[i]->actor_type].boots[which_id].mesh_index != actors_list[i]->body_parts->boots_meshindex)
 								{
 									model_detach_mesh(actors_list[i], actors_list[i]->body_parts->boots_meshindex);
@@ -625,11 +557,6 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 							}
 						else return;
 
-#ifndef	NEW_TEXTURES
-						glDeleteTextures(1,&actors_list[i]->texture_id);
-						actors_list[i]->texture_id = load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
-						actors_list[i]->has_alpha = actors_list[i]->body_parts->has_alpha;
-#endif	/* NEW_TEXTURES */
 						return;
 					}
 		}
@@ -664,11 +591,9 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	int dead=0;
 	int kind_of_actor;
 	enhanced_actor *this_actor;
-#if defined(CUSTOM_LOOK) || defined(NEW_TEXTURES)
 	char playerpath[256], guildpath[256];
 	char onlyname[32]={0};
 	Uint32 j;
-#endif
 	Uint32 uniq_id; // - Post ported.... We'll come up with something later...
 	Uint32 guild_id;
 	double f_x_pos,f_y_pos,f_z_rot;
@@ -859,16 +784,12 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 		uniq_id = 0;
 #endif
 
-#if defined(CUSTOM_LOOK) || defined(NEW_TEXTURES)
 		/* skip leading color codes */
 		for (name=buffer; *name && is_color (*name); name++) /* nothing */ ;
 		/* trim off any guild tag, leaving solely the name (onlyname)*/
 		for(j=0; name[j] && name[j]>32;j++){
 			onlyname[j]=name[j];
 		}
-#else
-		name = buffer;
-#endif //CUSTOM_LOOK
 
 		/* search for string end or color mark */
 		this_actor->guild_tag_color = 0;
@@ -882,9 +803,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 
 		/* perform case insensitive comparison/hashing */
 		my_tolower(name);
-#if defined(CUSTOM_LOOK) || defined(NEW_TEXTURES)
 		my_tolower(onlyname);
-#endif //CUSTOM_LOOK
 
 		//perfect hashing of guildtag
  		switch(strlen(guild))
@@ -1070,11 +989,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			my_strncp(this_actor->neck_tex,"",sizeof(this_actor->neck_tex));
 		}
 
-#ifdef	NEW_TEXTURES
 	i=add_enhanced_actor(this_actor,f_x_pos,f_y_pos,0.0,f_z_rot,scale,actor_id, onlyname);
-#else	/* NEW_TEXTURES */
-	i=add_enhanced_actor(this_actor,f_x_pos,f_y_pos,0.0,f_z_rot,scale,actor_id);
-#endif	/* NEW_TEXTURES */
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif //EXTRA_DEBUG
@@ -1330,11 +1245,7 @@ actor * add_actor_interface(float x, float y, float z_rot, float scale, int acto
 	my_strncp(this_actor->pants_tex,actors_defs[actor_type].legs[pants].legs_name,sizeof(this_actor->pants_tex));
 	my_strncp(this_actor->pants_mask,actors_defs[actor_type].legs[pants].legs_mask,sizeof(this_actor->pants_mask));
 
-#ifdef	NEW_TEXTURES
 	a=actors_list[add_enhanced_actor(this_actor, x*0.5f, y*0.5f, 0.00000001f, z_rot, scale, 0, 0)];
-#else	/* NEW_TEXTURES */
-	a=actors_list[add_enhanced_actor(this_actor, x*0.5f, y*0.5f, 0.00000001f, z_rot, scale, 0)];
-#endif	/* NEW_TEXTURES */
 
 	a->x_tile_pos=x;
 	a->y_tile_pos=y;
