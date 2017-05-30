@@ -24,48 +24,10 @@ namespace ec
 		state = 0;
 	}
 
-#ifdef	NEW_TEXTURES
 	float BagParticle::get_burn() const
 	{
 		return 0.0f;
 	}
-#else	/* NEW_TEXTURES */
-	void BagParticle::draw(const Uint64 usec)
-	{
-		glEnable(GL_LIGHTING);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		Vec3 shifted_pos = pos - ((BagEffect*)effect)->effect_center;
-#if 0	// Clear, but slow.  Consider this a comment.
-		Vec3 velocity2 = velocity;
-		//    velocity2.normalize();
-		shifted_pos.normalize();
-		Vec3 cross = velocity2.cross(shifted_pos).cross(velocity2);
-		glNormal3f(cross.x, cross.y, cross.z);
-#else	// Faster, but obfuscated.  NOTE: For some reason, it's not producing the same output!  However, I like the new output better.
-		const coord_t vel_mag_squared = velocity.magnitude_squared();
-		const coord_t sp_mag = shifted_pos.magnitude();
-		const coord_t scalar = vel_mag_squared * sp_mag;
-		const coord_t vx_squared = velocity.x * velocity.x;
-		const coord_t vy_squared = velocity.y * velocity.y;
-		const coord_t vz_squared = velocity.z * velocity.z;
-		const coord_t x = (shifted_pos.x * (vz_squared - vy_squared)
-			- velocity.x * (shifted_pos.z * velocity.z + shifted_pos.y
-				* velocity.y)) / scalar;
-		const coord_t y = (shifted_pos.y * (vx_squared - vz_squared)
-			- velocity.y * (shifted_pos.x * velocity.x + shifted_pos.z
-				* velocity.z)) / scalar;
-		const coord_t z = (shifted_pos.z * (vy_squared - vx_squared)
-			- velocity.z * (shifted_pos.y * velocity.y + shifted_pos.x
-				* velocity.x)) / scalar;
-		glNormal3f(-x, -y, -z);
-#endif
-
-		Particle::draw(usec);
-
-		glDisable(GL_LIGHTING);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	}
-#endif	/* NEW_TEXTURES */
 
 	bool BagParticle::idle(const Uint64 delta_t)
 	{
@@ -87,17 +49,10 @@ namespace ec
 		return true;
 	}
 
-#ifdef	NEW_TEXTURES
 	Uint32 BagParticle::get_texture()
 	{
 		return base->get_texture(EC_FLARE);
 	}
-#else	/* NEW_TEXTURES */
-	GLuint BagParticle::get_texture(const Uint16 res_index)
-	{
-		return base->TexFlare.get_texture(res_index);
-	}
-#endif	/* NEW_TEXTURES */
 
 	BagEffect::BagEffect(EyeCandy* _base, bool* _dead, Vec3* _pos,
 		const bool _picked_up, const Uint16 _LOD)

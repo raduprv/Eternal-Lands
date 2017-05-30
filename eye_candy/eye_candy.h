@@ -127,13 +127,10 @@
 #ifdef CLUSTER_INSIDES
 #include "../cluster.h"
 #endif
-#ifdef	NEW_TEXTURES
 #include <memory>
 #include "../engine/hardwarebuffer.hpp"
 
 namespace el = eternal_lands;
-
-#endif	/* NEW_TEXTURES */
 
 namespace ec
 {
@@ -257,7 +254,6 @@ namespace ec
 		EC_STAFF
 	};
 
-#ifdef  NEW_TEXTURES
 	enum TextureEnum
 	{
 		EC_CRYSTAL,
@@ -274,7 +270,6 @@ namespace ec
 		EC_PETAL,
 		EC_SNOWFLAKE
 	};
-#endif  /* NEW_TEXTURES */
 
 	// C L A S S E S //////////////////////////////////////////////////////////////
 
@@ -545,32 +540,6 @@ namespace ec
 	}
 	;
 
-#ifndef  NEW_TEXTURES
-	/*!
-	 Uses SDL_image to load textures of any common format.  Designed to support
-	 four levels of detail for each texture: 16x16, 32x32, 64x64, and 128x128;
-	 this is the index into texture_ids.  Textures are designed to be animated,
-	 and the frame can be specified or chosen randomly via the get_texture
-	 memeber functions.
-	*/
-	class Texture
-	{
-		public:
-			Texture();
-			~Texture();
-
-			void push_texture(const std::string filename);
-			void clear(void);
-			GLuint get_texture(const Uint16 res_index) const;
-			GLuint get_texture(const Uint16 res_index, const int frame) const;
-			GLuint get_texture(const Uint16 res_index, const Uint64 born,
-			const Uint64 changerate) const;
-
-			std::vector<GLuint> texture_ids[4];
-
-	};
-#endif  /* NEW_TEXTURES */
-
 	/*!
 	 This class is a standard quaternion.  Think of a quaternion ("quat") as a
 	 vector to rotate around and an angle.  That's not exactly correct, but close
@@ -788,14 +757,8 @@ namespace ec
 				base = _base;
 			}
 			;
-#ifdef	NEW_TEXTURES
 			~Shape();
 			void draw();
-#else	/* NEW_TEXTURES */
-			virtual ~Shape();
-
-			virtual void draw();
-#endif	/* NEW_TEXTURES */
 
 			Vec3 pos;
 			Vec3 color;
@@ -803,18 +766,10 @@ namespace ec
 			EyeCandy* base;
 
 		protected:
-#ifdef	NEW_TEXTURES
 			int vertex_count;
 			int facet_count;
 			el::HardwareBuffer vertex_buffer;
 			el::HardwareBuffer index_buffer;
-#else	/* NEW_TEXTURES */
-			int vertex_count;
-			coord_t* vertices;
-			coord_t* normals;
-			int facet_count;
-			GLuint* facets;
-#endif	/* NEW_TEXTURES */
 
 			class Facet
 			{
@@ -889,7 +844,6 @@ namespace ec
 	};
 
 
-#ifdef	NEW_TEXTURES
 	class CaplessCylinders
 	{
 		public:
@@ -939,7 +893,6 @@ namespace ec
 			el::HardwareBuffer index_buffer;
 
 	};
-#endif	/* NEW_TEXTURES */
 
 	/*!
 	 \brief The basic element of a geometric boundary comprised of sinous polar
@@ -1054,11 +1007,7 @@ namespace ec
 			virtual ~Particle();
 
 			virtual bool idle(const Uint64 delta_t) = 0;
-#ifdef	NEW_TEXTURES
 			virtual Uint32 get_texture() = 0;
-#else	/* NEW_TEXTURES */
-			virtual GLuint get_texture(const Uint16 res_index) = 0;
-#endif	/* NEW_TEXTURES */
 			virtual light_t estimate_light_level() const = 0;
 			virtual light_t get_light_level()
 			{
@@ -1071,16 +1020,12 @@ namespace ec
 			}
 			;
 
-#ifdef	NEW_TEXTURES
 			virtual float get_burn() const
 			{
 				return 1.0f;
 			}
 
 			void draw(const Uint64 usec);
-#else	/* NEW_TEXTURES */
-			virtual void draw(const Uint64 usec);
-#endif	/* NEW_TEXTURES */
 			virtual coord_t flare() const;
 
 			ParticleMover* mover;
@@ -2042,11 +1987,9 @@ namespace ec
 				active = true;
 				obstructions = &null_obstructions;
 				bounds = NULL;
-#ifdef	NEW_TEXTURES
 				particle_max_count = 0;
 				particle_count = 0;
 				buffer = 0;
-#endif	/* NEW_TEXTURES */
 			}
 			;
 			virtual ~Effect()
@@ -2055,7 +1998,6 @@ namespace ec
 			}
 			;
 
-#ifdef	NEW_TEXTURES
 			void draw_particle(const coord_t size,
 				const Uint32 texture, const color_t r,
 				const color_t g, const color_t b,
@@ -2063,7 +2005,6 @@ namespace ec
 				const alpha_t burn);
 			void build_particle_buffer(const Uint64 time_diff);
 			void draw_particle_buffer();
-#endif	/* NEW_TEXTURES */
 
 			void register_particle(Particle* p)
 			{
@@ -2137,13 +2078,11 @@ namespace ec
 			bool recall;
 			Uint16 desired_LOD;
 			Uint16 LOD;
-#ifdef	NEW_TEXTURES
 			protected:
 			el::HardwareBuffer particle_vertex_buffer;
 			Uint32 particle_max_count;
 			Uint32 particle_count;
 			float* buffer;
-#endif	/* NEW_TEXTURES */
 		};
 
 		/*!
@@ -2167,23 +2106,12 @@ namespace ec
 		class EyeCandy
 		{
 			public:
-#ifndef	NEW_TEXTURES
-			enum DrawType
-			{
-				POINT_SPRITES,
-				FAST_BILLBOARDS,
-				ACCURATE_BILLBOARDS
-			};
-#endif	/* NEW_TEXTURES */
 
 			EyeCandy();
 			EyeCandy(int _max_particles);
 			~EyeCandy();
 
 			void set_thresholds(const int _max_particles, const float min_framerate, const float max_framerate);
-#ifndef	NEW_TEXTURES
-			void clear_textures();
-#endif	/* NEW_TEXTURES */
 			void load_textures();
 			void push_back_effect(Effect* e);
 			bool push_back_particle(Particle* p);
@@ -2200,7 +2128,6 @@ namespace ec
 			void add_light(GLenum light_id);
 			void start_draw();
 			void end_draw();
-#ifdef	NEW_TEXTURES
 			Uint32 get_texture(const TextureEnum type) const;
 			void set_particle_texture_combiner();
 			void set_shape_texture_combiner(const float alpha_scale);
@@ -2212,26 +2139,6 @@ namespace ec
 #endif
 			Uint32 texture_atlas;
 			Uint32 texture_burn;
-#else	/* NEW_TEXTURES */
-			void draw_point_sprite_particle(const coord_t size, const GLuint texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos);
-			void draw_fast_billboard_particle(const coord_t size, const GLuint texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos);
-			void draw_accurate_billboard_particle(const coord_t size, const GLuint texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos);
-
-			Texture TexSimple;
-			Texture TexFlare;
-			Texture TexVoid;
-			Texture TexTwinflare;
-			Texture TexInverse;
-			Texture TexCrystal;
-			Texture TexShimmer;
-			Texture TexWater;
-			Texture Tex2Lava;
-			Texture TexLeafMaple;
-			Texture TexLeafOak;
-			Texture TexLeafAsh;
-			Texture TexPetal;
-			Texture TexSnowflake;
-#endif	/* NEW_TEXTURES */
 			int max_particles;
 			Uint64 max_usec_per_particle_move;
 			coord_t max_point_size;
@@ -2268,14 +2175,8 @@ namespace ec
 			float LOD_9_time_threshold;
 			float LOD_10_time_threshold;
 			int allowable_particles_to_add;
-#ifndef	NEW_TEXTURES
-			bool poor_transparency_resolution;
-#endif	/* NEW_TEXTURES */
 			bool draw_shapes;
 			Uint16 last_forced_LOD;
-#ifndef	NEW_TEXTURES
-			DrawType draw_method;
-#endif	/* NEW_TEXTURES */
 			coord_t billboard_scalar;
 			coord_t sprite_scalar;
 			coord_t temp_sprite_scalar;

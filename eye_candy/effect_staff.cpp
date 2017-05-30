@@ -13,11 +13,7 @@ namespace ec
 	StaffParticle::StaffParticle(Effect* _effect, ParticleMover* _mover,
 		const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
 		const alpha_t _alpha, const color_t red, const color_t green,
-#ifdef	NEW_TEXTURES
 		const color_t blue, TextureEnum _texture, const Uint16 _LOD) :
-#else	/* NEW_TEXTURES */
-		const color_t blue, Texture* _texture, const Uint16 _LOD) :
-#endif	/* NEW_TEXTURES */
 		Particle(_effect, _mover, _pos, _velocity,
 			std::min(1.0f, _size * (0.2f + randcoord())))
 	{
@@ -48,17 +44,10 @@ namespace ec
 		return true;
 	}
 
-#ifdef	NEW_TEXTURES
 	Uint32 StaffParticle::get_texture()
 	{
 		return base->get_texture(texture);
 	}
-#else	/* NEW_TEXTURES */
-	GLuint StaffParticle::get_texture(const Uint16 res_index)
-	{
-		return texture->get_texture(res_index);
-	}
-#endif	/* NEW_TEXTURES */
 
 	StaffEffect::StaffEffect(EyeCandy* _base, bool* _dead,
 		Vec3* _end, const StaffType _type, const Uint16 _LOD)
@@ -80,11 +69,7 @@ namespace ec
 				color[0] = 1.0;
 				color[1] = 0.0;
 				color[2] = 0.6;
-#ifdef	NEW_TEXTURES
 				texture = EC_FLARE;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexFlare);
-#endif	/* NEW_TEXTURES */
 				break;
 			}
 			case STAFF_OF_PROTECTION:
@@ -92,11 +77,7 @@ namespace ec
 				color[0] = 0.0;
 				color[1] = 0.0;
 				color[2] = 1.0;
-#ifdef	NEW_TEXTURES
 				texture = EC_TWINFLARE;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexTwinflare);
-#endif	/* NEW_TEXTURES */
 				break;
 			}
 		}
@@ -168,11 +149,7 @@ namespace ec
 			if (!base->push_back_particle(p))
 				break;
 			if (randfloat(2.0f) < 0.1f) {
-#ifdef	NEW_TEXTURES
 				p = new StaffParticle(this, mover, coords, velocity, 1.5, 1.0, 2.0, 2.0, 2.0, EC_CRYSTAL, LOD);
-#else	/* NEW_TEXTURES */
-				p = new StaffParticle(this, mover, coords, velocity, 1.5, 1.0, 2.0, 2.0, 2.0, &(base->TexCrystal), LOD);
-#endif	/* NEW_TEXTURES */
 				base->push_back_particle(p);
 			}
 		}

@@ -11,15 +11,12 @@
 #endif
 #include "../io/elfilewrapper.h"
 #include "../textures.h"
-#ifdef	NEW_TEXTURES
 #include "../load_gl_extensions.h"
 #include "../weather.h"
-#endif	/* NEW_TEXTURES */
 
 namespace ec
 {
 
-#ifdef	NEW_TEXTURES
 	namespace
 	{
 
@@ -89,10 +86,6 @@ namespace ec
 
 	}
 
-#else
-	const float MIN_SAFE_ALPHA = 0.02942f;
-#endif	/* NEW_TEXTURES */
-
 	// G L O B A L S //////////////////////////////////////////////////////////////
 
 	MathCache math_cache;
@@ -102,109 +95,6 @@ namespace ec
 
 	// C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
-#ifndef	NEW_TEXTURES
-	Texture::Texture()
-	{
-	}
-
-	Texture::~Texture()
-	{
-		clear();
-	}
-
-	GLuint Texture::get_texture(const Uint16 res_index) const
-	{
-		return (GLuint)get_texture(res_index, randint(texture_ids[res_index].size()));
-	}
-
-	GLuint Texture::get_texture(const Uint16 res_index, const int frame) const
-	{
-		return texture_ids[res_index][frame];
-	}
-
-	GLuint Texture::get_texture(const Uint16 res_index, const Uint64 born,
-		const Uint64 changerate) const
-	{
-		return (GLuint)get_texture(res_index,
-			((get_time() - born) / changerate) % texture_ids[res_index].size());
-	}
-
-	void Texture::clear()
-	{
-		for (int i = 0; i < 4; i++)
-		{
-			for (std::vector<GLuint>::iterator iter = texture_ids[i].begin(); iter
-				!= texture_ids[i].end(); iter++)
-			{
-				const GLuint texture = *iter;
-				glDeleteTextures(1, &texture);
-			}
-			texture_ids[i].clear();
-		}
-	}
-
-	void Texture::push_texture(const std::string filename)
-	{
-		SDL_Surface* tex;
-		GLuint texture_id;
-
-		el_file_ptr file;
-
-		file = el_open(filename.c_str());
-
-		if (file == NULL)
-			tex = NULL;
-		else
-		{
-			tex = IMG_Load_RW(SDL_RWFromMem(el_get_pointer(file),
-				el_get_size(file)), 1);
-			el_close(file);
-		}
-
-		if (!tex)
-		{
-			logger.log_error("Cannot load texture '" + filename + "'.");
-			return;
-		}
-		if (tex->format->palette)
-		{
-			logger.log_error("Cannot use paletted texture '" + filename + "'.");
-			return;
-		}
-		if (tex->w != tex->h)
-		{
-			logger.log_error("Textures must be square; please fix '" + filename
-				+ "'.");
-			return;
-		}
-		if ((tex->w != 16) && (tex->w != 32) && (tex->w != 64) && (tex->w
-			!= 128))
-		{
-			logger.log_error("Only 16x16, 32x32, 64x64, and 128x128 textures supportex; fix '"
-				+ filename + "'.");
-			return;
-		}
-
-		glGenTextures(1, &texture_id);
-		glBindTexture(GL_TEXTURE_2D, texture_id);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexImage2D(GL_TEXTURE_2D, 0, tex->format->BytesPerPixel, tex->w,
-			tex->h, 0, (tex->format->BytesPerPixel == 4 ? GL_RGBA : GL_RGB),
-			GL_UNSIGNED_BYTE, tex->pixels);
-
-		if (tex->w == 16)
-			texture_ids[0].push_back(texture_id);
-		if (tex->w == 32)
-			texture_ids[1].push_back(texture_id);
-		if (tex->w == 64)
-			texture_ids[2].push_back(texture_id);
-		if (tex->w == 128)
-			texture_ids[3].push_back(texture_id);
-
-		SDL_FreeSurface(tex);
-	}
-#else	/* NEW_TEXTURES */
 	void Effect::draw_particle(const coord_t size,
 		const Uint32 texture, const color_t r, const color_t g,
 		const color_t b, const alpha_t alpha, const Vec3 pos,
@@ -326,15 +216,9 @@ namespace ec
 		ELglClientActiveTextureARB(GL_TEXTURE0);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
-#endif	/* NEW_TEXTURES */
 
 	Shape::~Shape()
 	{
-#ifndef	NEW_TEXTURES
-		delete[] vertices;
-		delete[] facets;
-		delete[] normals;
-#endif	/* NEW_TEXTURES */
 	}
 
 	void Shape::draw()
@@ -346,7 +230,6 @@ namespace ec
 
 		glPushMatrix();
 		glTranslated(pos.x, pos.y, pos.z);
-#ifdef	NEW_TEXTURES
 		base->set_shape_texture_combiner(1.0f);
 
 		vertex_buffer.bind(el::hbt_vertex);
@@ -367,50 +250,6 @@ namespace ec
 		glDisableClientState(GL_NORMAL_ARRAY);
 
 		base->set_particle_texture_combiner();
-#else	/* NEW_TEXTURES */
-		glDisable(GL_TEXTURE_2D);
-
-		if (base->poor_transparency_resolution)
-#ifdef X86_64
-			srand((Uint32)(Uint64)(void*)this);
-#else
-			srand((Uint32)(void*)this);
-#endif
-		glBegin(GL_TRIANGLES);
-		{
-			for (int i = 0; i < facet_count; i++)
-			{
-				if (base->poor_transparency_resolution && (alpha
-					< MIN_SAFE_ALPHA)) // Ttlanhil recommends this number.
-				{
-					if (randfloat() < (alpha / MIN_SAFE_ALPHA))
-						glColor4f(color.x, color.y, color.z, MIN_SAFE_ALPHA);
-					else
-						continue;
-				}
-				glNormal3f(normals[facets[i * 3] * 3],
-					normals[facets[i * 3] * 3 + 1],
-					normals[facets[i * 3] * 3 + 2]);
-				glVertex3f(vertices[facets[i * 3] * 3],
-					vertices[facets[i * 3] * 3 + 1],
-					vertices[facets[i * 3] * 3 + 2]);
-				glNormal3f(normals[facets[i * 3 + 1] * 3],
-					normals[facets[i * 3 + 1] * 3 + 1],
-					normals[facets[i * 3 + 1] * 3 + 2]);
-				glVertex3f(vertices[facets[i * 3 + 1] * 3],
-					vertices[facets[i * 3 + 1] * 3 + 1],
-					vertices[facets[i * 3 + 1] * 3 + 2]);
-				glNormal3f(normals[facets[i * 3 + 2] * 3],
-					normals[facets[i * 3 + 2] * 3 + 1],
-					normals[facets[i * 3 + 2] * 3 + 2]);
-				glVertex3f(vertices[facets[i * 3 + 2] * 3],
-					vertices[facets[i * 3 + 2] * 3 + 1],
-					vertices[facets[i * 3 + 2] * 3 + 2]);
-			}
-		}
-		glEnd();
-		glEnable(GL_TEXTURE_2D);
-#endif	/* NEW_TEXTURES */
 		glPopMatrix();
 	}
 
@@ -419,12 +258,10 @@ namespace ec
 		const coord_t _radius, const int polys) :
 		Shape(_base)
 	{
-#ifdef	NEW_TEXTURES
 		float* vertices;
 		float* normals;
 		GLushort* facets;
 		Uint32 size;
-#endif	/* NEW_TEXTURES */
 		radius = _radius;
 		start = _start;
 		end = _end;
@@ -441,7 +278,6 @@ namespace ec
 
 		const int subdivisions = ((polys - 1) / 2) + 1;
 		vertex_count = subdivisions * 2;
-#ifdef	NEW_TEXTURES
 		if (vertex_count == 0)
 		{
 			return;
@@ -461,10 +297,6 @@ namespace ec
 		vertices = static_cast<float*>(vertex_buffer.map(el::hbt_vertex,
 			el::hbat_write_only));
 		normals = &vertices[vertex_count * 3];
-#else	/* NEW_TEXTURES */
-		vertices = new coord_t[vertex_count * 3];
-		normals = new coord_t[vertex_count * 3];
-#endif	/* NEW_TEXTURES */
 
 		// Get the coordinates.
 		const angle_t radian_increment = 2 * PI / subdivisions;
@@ -502,13 +334,10 @@ namespace ec
 				* normalized.x;
 		}
 
-#ifdef	NEW_TEXTURES
 		vertex_buffer.unmap(el::hbt_vertex);
 		vertex_buffer.unbind(el::hbt_vertex);
-#endif	/* NEW_TEXTURES */
 
 		facet_count = subdivisions * 2;
-#ifdef	NEW_TEXTURES
 		size = 3 * sizeof(GLushort) * facet_count;
 
 		if (index_buffer.get_size() < size)
@@ -522,9 +351,6 @@ namespace ec
 		index_buffer.bind(el::hbt_index);
 		facets = static_cast<GLushort*>(index_buffer.map(el::hbt_index,
 			el::hbat_write_only));
-#else	/* NEW_TEXTURES */
-		facets = new GLuint[facet_count * 3];
-#endif	/* NEW_TEXTURES */
 
 		// Add in the sides.
 		for (int i = 0; i < subdivisions; i++)
@@ -541,10 +367,8 @@ namespace ec
 		facets[(subdivisions - 1) * 6 + 2] = subdivisions;
 		facets[(subdivisions - 1) * 6 + 3] = subdivisions;
 		facets[(subdivisions - 1) * 6 + 4] = 0;
-#ifdef	NEW_TEXTURES
 		index_buffer.unmap(el::hbt_index);
 		index_buffer.unbind(el::hbt_index);
-#endif	/* NEW_TEXTURES */
 	}
 
 	Cylinder::Cylinder(EyeCandy* _base, const Vec3 _start, const Vec3 _end,
@@ -552,12 +376,10 @@ namespace ec
 		const int polys) :
 		Shape(_base)
 	{
-#ifdef	NEW_TEXTURES
 		float* vertices;
 		float* normals;
 		GLushort* facets;
 		Uint32 size;
-#endif	/* NEW_TEXTURES */
 		radius = _radius;
 		start = _start;
 		end = _end;
@@ -574,7 +396,6 @@ namespace ec
 
 		const int subdivisions = ((polys - 1) / 4) + 1;
 		vertex_count = subdivisions * 4 + 2; //+2 is for the centerpoints of the caps.
-#ifdef	NEW_TEXTURES
 		if (vertex_count == 0)
 		{
 			return;
@@ -594,10 +415,6 @@ namespace ec
 		vertices = static_cast<float*>(vertex_buffer.map(el::hbt_vertex,
 			el::hbat_write_only));
 		normals = &vertices[vertex_count * 3];
-#else	/* NEW_TEXTURES */
-		vertices = new coord_t[vertex_count * 3];
-		normals = new coord_t[vertex_count * 3];
-#endif	/* NEW_TEXTURES */
 
 		// Get the coordinates.
 		const angle_t radian_increment = 2 * PI / subdivisions;
@@ -665,13 +482,10 @@ namespace ec
 		normals[subdivisions * 12 + 4] = -normalized.y;
 		normals[subdivisions * 12 + 5] = -normalized.z;
 
-#ifdef	NEW_TEXTURES
 		vertex_buffer.unmap(el::hbt_vertex);
 		vertex_buffer.unbind(el::hbt_vertex);
-#endif	/* NEW_TEXTURES */
 
 		facet_count = subdivisions * 4;
-#ifdef	NEW_TEXTURES
 		size = 3 * sizeof(GLushort) * facet_count;
 
 		if (index_buffer.get_size() < size)
@@ -685,9 +499,6 @@ namespace ec
 		index_buffer.bind(el::hbt_index);
 		facets = static_cast<GLushort*>(index_buffer.map(el::hbt_index,
 			el::hbat_write_only));
-#else	/* NEW_TEXTURES */
-		facets = new GLuint[facet_count * 3];
-#endif	/* NEW_TEXTURES */
 
 		// First, add in the caps.
 		for (int i = 0; i < subdivisions; i++)
@@ -718,22 +529,18 @@ namespace ec
 		facets[subdivisions * 3 * 2 + (subdivisions - 1) * 6 + 2] = subdivisions * 3;
 		facets[subdivisions * 3 * 2 + (subdivisions - 1) * 6 + 3] = subdivisions * 3;
 		facets[subdivisions * 3 * 2 + (subdivisions - 1) * 6 + 4] = subdivisions * 2;
-#ifdef	NEW_TEXTURES
 		index_buffer.unmap(el::hbt_index);
 		index_buffer.unbind(el::hbt_index);
-#endif	/* NEW_TEXTURES */
 	}
 
 	Sphere::Sphere(EyeCandy* _base, const Vec3 _pos, const Vec3 _color,
 		const alpha_t _alpha, const coord_t _radius, const int polys) :
 		Shape(_base)
 	{
-#ifdef	NEW_TEXTURES
 		float* vertices;
 		float* normals;
 		GLushort* facets;
 		Uint32 size;
-#endif	/* NEW_TEXTURES */
 		radius = _radius;
 		pos = _pos;
 		color = _color;
@@ -795,7 +602,6 @@ namespace ec
 
 		// Convert spherical to rectangular.
 		vertex_count = (int)spherical_vertices.size();
-#ifdef	NEW_TEXTURES
 		if (vertex_count == 0)
 		{
 			return;
@@ -815,10 +621,6 @@ namespace ec
 		vertices = static_cast<float*>(vertex_buffer.map(el::hbt_vertex,
 			el::hbat_write_only));
 		normals = &vertices[vertex_count * 3];
-#else	/* NEW_TEXTURES */
-		vertices = new coord_t[vertex_count * 3];
-		normals = new coord_t[vertex_count * 3];
-#endif	/* NEW_TEXTURES */
 
 		for (int i = 0; i < vertex_count; i++)
 		{
@@ -831,14 +633,11 @@ namespace ec
 			vertices[i * 3 + 1] = normals[i * 3 + 1] * radius;
 			vertices[i * 3 + 2] = normals[i * 3 + 2] * radius;
 		}
-#ifdef	NEW_TEXTURES
 		vertex_buffer.unmap(el::hbt_vertex);
 		vertex_buffer.unbind(el::hbt_vertex);
-#endif	/* NEW_TEXTURES */
 
 		// Convert facets to OpenGL-suitable array.
 		facet_count = (int)spherical_facets.size();
-#ifdef	NEW_TEXTURES
 		size = 3 * sizeof(GLushort) * facet_count;
 
 		if (index_buffer.get_size() < size)
@@ -852,19 +651,14 @@ namespace ec
 		index_buffer.bind(el::hbt_index);
 		facets = static_cast<GLushort*>(index_buffer.map(el::hbt_index,
 			el::hbat_write_only));
-#else	/* NEW_TEXTURES */
-		facets = new GLuint[facet_count * 3];
-#endif	/* NEW_TEXTURES */
 		for (int i = 0; i < facet_count; i++)
 		{
 			facets[i * 3] = spherical_facets[i].f[0];
 			facets[i * 3 + 1] = spherical_facets[i].f[1];
 			facets[i * 3 + 2] = spherical_facets[i].f[2];
 		}
-#ifdef	NEW_TEXTURES
 		index_buffer.unmap(el::hbt_index);
 		index_buffer.unbind(el::hbt_index);
-#endif	/* NEW_TEXTURES */
 	}
 
 	void Sphere::average_points(const coord_t p1_first, const coord_t p2_first,
@@ -887,7 +681,6 @@ namespace ec
 		q = (p1_second + p2_second) / 2;
 	}
 
-#ifdef	NEW_TEXTURES
 	CaplessCylinders::CaplessCylinders(EyeCandy* _base,
 		const std::vector<CaplessCylinderItem> &items)
 	{
@@ -1066,7 +859,6 @@ namespace ec
 
 		base->set_particle_texture_combiner();
 	}
-#endif	/* NEW_TEXTURES */
 
 	Obstruction::Obstruction(const coord_t _max_distance, const coord_t _force)
 	{
@@ -1332,7 +1124,6 @@ namespace ec
 	}
 	;
 
-#ifdef	NEW_TEXTURES
 	void Particle::draw(const Uint64 usec)
 	{
 		alpha_t burn = get_burn();
@@ -1378,149 +1169,6 @@ namespace ec
 				cur_motion_blur_point = 0;
 		}
 	}
-#else	/* NEW_TEXTURES */
-	void Particle::draw(const Uint64 usec)
-	{
-		switch (base->draw_method)
-		{
-			case EyeCandy::POINT_SPRITES:
-			{
-				coord_t tempsize = base->temp_sprite_scalar * size / std::sqrt(square(pos.x - base->camera.x) + square(pos.y - base->camera.y) + square(pos.z - base->camera.z));
-				tempsize *= flare();
-
-				if (tempsize > base->max_allowable_point_size)
-				{
-					//Fall through.
-				}
-				else
-				{
-					alpha_t tempalpha = alpha;
-					if (tempsize < 5.0) // Pseudo-antialiasing.  Makes the particles look nice.
-					{
-						tempalpha /= square(5.0 / tempsize);
-						tempsize = 5.0;
-					}
-					else if (tempsize > base->max_point_size)
-						tempsize = base->max_point_size;
-
-					if (base->poor_transparency_resolution)
-					{
-						if (tempalpha < MIN_SAFE_ALPHA)
-						{
-							if (randfloat() < (tempalpha / MIN_SAFE_ALPHA))
-								tempalpha = MIN_SAFE_ALPHA;
-							else
-								return;
-						}
-					}
-
-					int res_index;
-					if (tempsize <= 16)
-						res_index = 0;
-					else if (tempsize <= 32)
-						res_index = 1;
-					else if (tempsize <= 64)
-						res_index = 2;
-					else
-						res_index = 3;
-					const GLuint texture = get_texture(res_index);
-					base->draw_point_sprite_particle(tempsize, texture,
-						color[0], color[1], color[2], tempalpha, pos);
-					if (effect->motion_blur_points > 0)
-					{
-						const alpha_t faderate =
-							std::pow(
-								effect->motion_blur_fade_rate, (float)usec
-									/ 1000000);
-
-						for (int i = 0; i < effect->motion_blur_points; i++)
-							base->draw_point_sprite_particle(
-								motion_blur[i].size, motion_blur[i].texture,
-								motion_blur[i].color[0],
-								motion_blur[i].color[1],
-								motion_blur[i].color[2], motion_blur[i].alpha,
-								motion_blur[i].pos);
-
-						motion_blur[cur_motion_blur_point] = ParticleHistory(
-							tempsize, texture, color[0], color[1], color[2],
-							tempalpha, pos);
-						cur_motion_blur_point++;
-
-						for (int i = 0; i < effect->motion_blur_points; i++)
-							motion_blur[i].alpha *= faderate;
-
-						if (cur_motion_blur_point == effect->motion_blur_points)
-							cur_motion_blur_point = 0;
-					}
-					break;
-				}
-			}
-			default:
-			{
-				alpha_t tempalpha = alpha;
-				if (base->poor_transparency_resolution)
-				{
-					if (tempalpha < MIN_SAFE_ALPHA)
-					{
-						if (randfloat() < (tempalpha / MIN_SAFE_ALPHA))
-							tempalpha = MIN_SAFE_ALPHA;
-						else
-							return;
-					}
-				}
-
-				coord_t tempsize = base->billboard_scalar * size;
-				tempsize *= flare();
-
-				const GLuint texture = get_texture(3); // Always hires, since we're not checking distance.
-				//    std::cout << this << ": " << tempsize << ", " << size << ": " << pos << std::endl;
-				if (base->draw_method != EyeCandy::ACCURATE_BILLBOARDS)
-					base->draw_fast_billboard_particle(tempsize, texture,
-						color[0], color[1], color[2], tempalpha, pos);
-				else
-					base->draw_accurate_billboard_particle(tempsize, texture,
-						color[0], color[1], color[2], tempalpha, pos);
-				if (effect->motion_blur_points > 0)
-				{
-					const alpha_t faderate = std::pow(
-						effect->motion_blur_fade_rate, (float)usec / 1000000);
-
-					if (base->draw_method != EyeCandy::ACCURATE_BILLBOARDS)
-					{
-						for (int i = 0; i < effect->motion_blur_points; i++)
-							base->draw_fast_billboard_particle(
-								motion_blur[i].size, motion_blur[i].texture,
-								motion_blur[i].color[0],
-								motion_blur[i].color[1],
-								motion_blur[i].color[2], motion_blur[i].alpha,
-								motion_blur[i].pos);
-					}
-					else
-					{
-						for (int i = 0; i < effect->motion_blur_points; i++)
-							base->draw_accurate_billboard_particle(
-								motion_blur[i].size, motion_blur[i].texture,
-								motion_blur[i].color[0],
-								motion_blur[i].color[1],
-								motion_blur[i].color[2], motion_blur[i].alpha,
-								motion_blur[i].pos);
-					}
-
-					motion_blur[cur_motion_blur_point] = ParticleHistory(
-						tempsize, texture, color[0], color[1], color[2], alpha,
-						pos);
-					cur_motion_blur_point++;
-
-					for (int i = 0; i < effect->motion_blur_points; i++)
-						motion_blur[i].alpha *= faderate;
-
-					if (cur_motion_blur_point == effect->motion_blur_points)
-						cur_motion_blur_point = 0;
-				}
-			}
-		}
-	}
-#endif	/* NEW_TEXTURES */
 
 	coord_t Particle::flare() const
 	{
@@ -2073,9 +1721,6 @@ namespace ec
 		lighting_scalar = 1000.0;
 		light_estimate = 0.0;
 		use_lights = true;
-#ifndef	NEW_TEXTURES
-		draw_method = FAST_BILLBOARDS;
-#endif	/* NEW_TEXTURES */
 		billboard_scalar = 0.2;
 		width = 800;
 		height = 600;
@@ -2083,9 +1728,6 @@ namespace ec
 		last_forced_LOD = 10;
 		framerate = 100.0;
 		max_fps = 255.0;
-#ifndef	NEW_TEXTURES
-		poor_transparency_resolution = false;
-#endif	/* NEW_TEXTURES */
 		draw_shapes = true;
 	}
 
@@ -2098,9 +1740,6 @@ namespace ec
 		lighting_scalar = 1000.0;
 		light_estimate = 0.0;
 		use_lights = true;
-#ifndef	NEW_TEXTURES
-		draw_method = FAST_BILLBOARDS;
-#endif	/* NEW_TEXTURES */
 		billboard_scalar = 0.2;
 		width = 800;
 		height = 600;
@@ -2108,9 +1747,6 @@ namespace ec
 		last_forced_LOD = 10;
 		framerate = 100.0;
 		max_fps = 255.0;
-#ifndef	NEW_TEXTURES
-		poor_transparency_resolution = false;
-#endif	/* NEW_TEXTURES */
 		draw_shapes = true;
 	}
 
@@ -2154,7 +1790,6 @@ namespace ec
 		//  allowable_particles_to_add = max_particles;
 	}
 
-#ifdef	NEW_TEXTURES
 	Uint32 EyeCandy::get_texture(const TextureEnum type) const
 	{
 		return get_texture_index(type);
@@ -2243,154 +1878,12 @@ namespace ec
 		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA, GL_SRC_ALPHA);
 		glTexEnvi(GL_TEXTURE_ENV, GL_ALPHA_SCALE, 1);
 	}
-#else	/* NEW_TEXTURES */
-	void EyeCandy::clear_textures()
-	{
-		//clear any existing textures
-		TexCrystal.clear();
-		TexFlare.clear();
-		TexInverse.clear();
-		TexLeafAsh.clear();
-		TexLeafMaple.clear();
-		TexLeafOak.clear();
-		TexPetal.clear();
-		TexShimmer.clear();
-		TexSimple.clear();
-		TexSnowflake.clear();
-		TexTwinflare.clear();
-		TexVoid.clear();
-		TexWater.clear();
-	}
-#endif	/* NEW_TEXTURES */
 
 	void EyeCandy::load_textures()
 	{
 		// Load the textures.
-#ifdef	NEW_TEXTURES
 		texture_atlas = load_texture_cached("./textures/eye_candy.dds", tt_atlas);
 		texture_burn = load_texture_cached("./textures/eye_candy_burn.dds", tt_atlas);
-#else	/* NEW_TEXTURES */
-		TexSimple.push_texture("./textures/eye_candy/16x16/simple.png");
-		TexFlare.push_texture("./textures/eye_candy/16x16/flare1.png");
-		TexFlare.push_texture("./textures/eye_candy/16x16/flare2.png");
-		TexFlare.push_texture("./textures/eye_candy/16x16/flare3.png");
-		TexVoid.push_texture("./textures/eye_candy/16x16/void1.png");
-		TexVoid.push_texture("./textures/eye_candy/16x16/void2.png");
-		TexVoid.push_texture("./textures/eye_candy/16x16/void3.png");
-		TexTwinflare.push_texture("./textures/eye_candy/16x16/twinflare1.png");
-		TexTwinflare.push_texture("./textures/eye_candy/16x16/twinflare2.png");
-		TexTwinflare.push_texture("./textures/eye_candy/16x16/twinflare3.png");
-		TexTwinflare.push_texture("./textures/eye_candy/16x16/twinflare4.png");
-		TexTwinflare.push_texture("./textures/eye_candy/16x16/twinflare5.png");
-		TexInverse.push_texture("./textures/eye_candy/16x16/inverse1.png");
-		TexInverse.push_texture("./textures/eye_candy/16x16/inverse2.png");
-		TexInverse.push_texture("./textures/eye_candy/16x16/inverse3.png");
-		TexInverse.push_texture("./textures/eye_candy/16x16/inverse4.png");
-		TexShimmer.push_texture("./textures/eye_candy/16x16/shimmer1.png");
-		TexShimmer.push_texture("./textures/eye_candy/16x16/shimmer2.png");
-		TexShimmer.push_texture("./textures/eye_candy/16x16/shimmer3.png");
-		TexCrystal.push_texture("./textures/eye_candy/16x16/crystal1.png");
-		TexCrystal.push_texture("./textures/eye_candy/16x16/crystal2.png");
-		TexCrystal.push_texture("./textures/eye_candy/16x16/crystal3.png");
-		TexWater.push_texture("./textures/eye_candy/16x16/water1.png");
-		TexWater.push_texture("./textures/eye_candy/16x16/water2.png");
-		TexWater.push_texture("./textures/eye_candy/16x16/water3.png");
-		TexLeafMaple.push_texture("./textures/eye_candy/16x16/leaf_maple.png");
-		TexLeafOak.push_texture("./textures/eye_candy/16x16/leaf_oak.png");
-		TexLeafAsh.push_texture("./textures/eye_candy/16x16/leaf_ash.png");
-		TexPetal.push_texture("./textures/eye_candy/16x16/petal.png");
-		TexSnowflake.push_texture("./textures/eye_candy/16x16/snowflake.png");
-		TexSimple.push_texture("./textures/eye_candy/32x32/simple.png");
-		TexFlare.push_texture("./textures/eye_candy/32x32/flare1.png");
-		TexFlare.push_texture("./textures/eye_candy/32x32/flare2.png");
-		TexFlare.push_texture("./textures/eye_candy/32x32/flare3.png");
-		TexVoid.push_texture("./textures/eye_candy/32x32/void1.png");
-		TexVoid.push_texture("./textures/eye_candy/32x32/void2.png");
-		TexVoid.push_texture("./textures/eye_candy/32x32/void3.png");
-		TexTwinflare.push_texture("./textures/eye_candy/32x32/twinflare1.png");
-		TexTwinflare.push_texture("./textures/eye_candy/32x32/twinflare2.png");
-		TexTwinflare.push_texture("./textures/eye_candy/32x32/twinflare3.png");
-		TexTwinflare.push_texture("./textures/eye_candy/32x32/twinflare4.png");
-		TexTwinflare.push_texture("./textures/eye_candy/32x32/twinflare5.png");
-		TexInverse.push_texture("./textures/eye_candy/32x32/inverse1.png");
-		TexInverse.push_texture("./textures/eye_candy/32x32/inverse2.png");
-		TexInverse.push_texture("./textures/eye_candy/32x32/inverse3.png");
-		TexInverse.push_texture("./textures/eye_candy/32x32/inverse4.png");
-		TexShimmer.push_texture("./textures/eye_candy/32x32/shimmer1.png");
-		TexShimmer.push_texture("./textures/eye_candy/32x32/shimmer2.png");
-		TexShimmer.push_texture("./textures/eye_candy/32x32/shimmer3.png");
-		TexCrystal.push_texture("./textures/eye_candy/32x32/crystal1.png");
-		TexCrystal.push_texture("./textures/eye_candy/32x32/crystal2.png");
-		TexCrystal.push_texture("./textures/eye_candy/32x32/crystal3.png");
-		TexWater.push_texture("./textures/eye_candy/32x32/water1.png");
-		TexWater.push_texture("./textures/eye_candy/32x32/water2.png");
-		TexWater.push_texture("./textures/eye_candy/32x32/water3.png");
-		TexLeafMaple.push_texture("./textures/eye_candy/32x32/leaf_maple.png");
-		TexLeafOak.push_texture("./textures/eye_candy/32x32/leaf_oak.png");
-		TexLeafAsh.push_texture("./textures/eye_candy/32x32/leaf_ash.png");
-		TexPetal.push_texture("./textures/eye_candy/32x32/petal.png");
-		TexSnowflake.push_texture("./textures/eye_candy/32x32/snowflake.png");
-		TexSimple.push_texture("./textures/eye_candy/64x64/simple.png");
-		TexFlare.push_texture("./textures/eye_candy/64x64/flare1.png");
-		TexFlare.push_texture("./textures/eye_candy/64x64/flare2.png");
-		TexFlare.push_texture("./textures/eye_candy/64x64/flare3.png");
-		TexVoid.push_texture("./textures/eye_candy/64x64/void1.png");
-		TexVoid.push_texture("./textures/eye_candy/64x64/void2.png");
-		TexVoid.push_texture("./textures/eye_candy/64x64/void3.png");
-		TexTwinflare.push_texture("./textures/eye_candy/64x64/twinflare1.png");
-		TexTwinflare.push_texture("./textures/eye_candy/64x64/twinflare2.png");
-		TexTwinflare.push_texture("./textures/eye_candy/64x64/twinflare3.png");
-		TexTwinflare.push_texture("./textures/eye_candy/64x64/twinflare4.png");
-		TexTwinflare.push_texture("./textures/eye_candy/64x64/twinflare5.png");
-		TexInverse.push_texture("./textures/eye_candy/64x64/inverse1.png");
-		TexInverse.push_texture("./textures/eye_candy/64x64/inverse2.png");
-		TexInverse.push_texture("./textures/eye_candy/64x64/inverse3.png");
-		TexInverse.push_texture("./textures/eye_candy/64x64/inverse4.png");
-		TexShimmer.push_texture("./textures/eye_candy/64x64/shimmer1.png");
-		TexShimmer.push_texture("./textures/eye_candy/64x64/shimmer2.png");
-		TexShimmer.push_texture("./textures/eye_candy/64x64/shimmer3.png");
-		TexCrystal.push_texture("./textures/eye_candy/64x64/crystal1.png");
-		TexCrystal.push_texture("./textures/eye_candy/64x64/crystal2.png");
-		TexCrystal.push_texture("./textures/eye_candy/64x64/crystal3.png");
-		TexWater.push_texture("./textures/eye_candy/64x64/water1.png");
-		TexWater.push_texture("./textures/eye_candy/64x64/water2.png");
-		TexWater.push_texture("./textures/eye_candy/64x64/water3.png");
-		TexLeafMaple.push_texture("./textures/eye_candy/64x64/leaf_maple.png");
-		TexLeafOak.push_texture("./textures/eye_candy/64x64/leaf_oak.png");
-		TexLeafAsh.push_texture("./textures/eye_candy/64x64/leaf_ash.png");
-		TexPetal.push_texture("./textures/eye_candy/64x64/petal.png");
-		TexSnowflake.push_texture("./textures/eye_candy/64x64/snowflake.png");
-		TexSimple.push_texture("./textures/eye_candy/128x128/simple.png");
-		TexFlare.push_texture("./textures/eye_candy/128x128/flare1.png");
-		TexFlare.push_texture("./textures/eye_candy/128x128/flare2.png");
-		TexFlare.push_texture("./textures/eye_candy/128x128/flare3.png");
-		TexVoid.push_texture("./textures/eye_candy/128x128/void1.png");
-		TexVoid.push_texture("./textures/eye_candy/128x128/void2.png");
-		TexVoid.push_texture("./textures/eye_candy/128x128/void3.png");
-		TexTwinflare.push_texture("./textures/eye_candy/128x128/twinflare1.png");
-		TexTwinflare.push_texture("./textures/eye_candy/128x128/twinflare2.png");
-		TexTwinflare.push_texture("./textures/eye_candy/128x128/twinflare3.png");
-		TexTwinflare.push_texture("./textures/eye_candy/128x128/twinflare4.png");
-		TexTwinflare.push_texture("./textures/eye_candy/128x128/twinflare5.png");
-		TexInverse.push_texture("./textures/eye_candy/128x128/inverse1.png");
-		TexInverse.push_texture("./textures/eye_candy/128x128/inverse2.png");
-		TexInverse.push_texture("./textures/eye_candy/128x128/inverse3.png");
-		TexInverse.push_texture("./textures/eye_candy/128x128/inverse4.png");
-		TexShimmer.push_texture("./textures/eye_candy/128x128/shimmer1.png");
-		TexShimmer.push_texture("./textures/eye_candy/128x128/shimmer2.png");
-		TexShimmer.push_texture("./textures/eye_candy/128x128/shimmer3.png");
-		TexCrystal.push_texture("./textures/eye_candy/128x128/crystal1.png");
-		TexCrystal.push_texture("./textures/eye_candy/128x128/crystal2.png");
-		TexCrystal.push_texture("./textures/eye_candy/128x128/crystal3.png");
-		TexWater.push_texture("./textures/eye_candy/128x128/water1.png");
-		TexWater.push_texture("./textures/eye_candy/128x128/water2.png");
-		TexWater.push_texture("./textures/eye_candy/128x128/water3.png");
-		TexLeafMaple.push_texture("./textures/eye_candy/128x128/leaf_maple.png");
-		TexLeafOak.push_texture("./textures/eye_candy/128x128/leaf_oak.png");
-		TexLeafAsh.push_texture("./textures/eye_candy/128x128/leaf_ash.png");
-		TexPetal.push_texture("./textures/eye_candy/128x128/petal.png");
-		TexSnowflake.push_texture("./textures/eye_candy/128x128/snowflake.png");
-#endif	/* NEW_TEXTURES */
 	}
 
 	void EyeCandy::push_back_effect(Effect* e)
@@ -2423,7 +1916,6 @@ namespace ec
 		glEnable(GL_COLOR_MATERIAL);
 		glEnable(GL_DEPTH_TEST);
 		glDepthMask(false);
-#ifdef	NEW_TEXTURES
 		float modelview[16];
 		glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
 
@@ -2453,39 +1945,10 @@ namespace ec
 			glDisable(GL_FOG);
 		}
 #endif
-#else	/* NEW_TEXTURES */
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-
-		if ((draw_method == FAST_BILLBOARDS) || (draw_method == POINT_SPRITES)) //We need to do this for point sprites as well because if the particle is too big, it falls through to fast billboards.
-		{
-			float modelview[16];
-			glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
-
-			const Vec3 right(modelview[0], modelview[4], modelview[8]);
-			const Vec3 up(modelview[1], modelview[5], modelview[9]);
-			corner_offset1 = (right + up) * billboard_scalar;
-			corner_offset2 = (right - up) * billboard_scalar;
-		}
-
-		if (draw_method == POINT_SPRITES)
-		{
-			// Scale
-			//    glPointSize(100);	// Max on some vidcards
-			//    float quadratic[] = {0.0f, 0.0f, 0.01f};
-			//    glPointParameterfvARB(GL_POINT_DISTANCE_ATTENUATION_ARB, quadratic);
-			//    glPointParameterfARB(GL_POINT_SIZE_MAX_ARB, 200.0f);
-			//    glPointParameterfARB(GL_POINT_SIZE_MIN_ARB, 1.0f);
-
-			glEnable(GL_POINT_SPRITE_ARB);
-			glTexEnvf(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE);
-			glGetFloatv(GL_POINT_SIZE_MAX_ARB, &max_allowable_point_size);
-		}
-#endif	/* NEW_TEXTURES */
 	}
 
 	void EyeCandy::end_draw()
 	{
-#ifdef	NEW_TEXTURES
 		ELglActiveTextureARB(GL_TEXTURE1);
 		glDisable(GL_TEXTURE_2D);
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
@@ -2499,12 +1962,6 @@ namespace ec
 			glEnable(GL_FOG);
 		}
 #endif
-#else	/* NEW_TEXTURES */
-		if (draw_method == POINT_SPRITES)
-		{
-			glDisable(GL_POINT_SPRITE_ARB);
-		}
-#endif	/* NEW_TEXTURES */
 		glColor4f(1.0, 1.0, 1.0, 1.0);
 		glDisable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -2520,7 +1977,6 @@ namespace ec
 
 		start_draw();
 
-#ifdef	NEW_TEXTURES
 		Uint32 i, count;
 
 		count = effects.size();
@@ -2539,38 +1995,6 @@ namespace ec
 
 		el::HardwareBuffer::unbind(el::hbt_index);
 		el::HardwareBuffer::unbind(el::hbt_vertex);
-#else	/* NEW_TEXTURES */
-		// Draw effects (any special drawing functionality) and their particles.
-		for (std::vector<Effect*>::const_iterator iter = effects.begin(); iter
-			!= effects.end(); iter++)
-		{
-			Effect* e = *iter;
-			if (!e->active)
-				continue;
-
-			e->draw(time_diff);
-
-			// Draw particles
-			if (e->bounds)
-			{
-				for (std::map<Particle*, bool>::const_iterator iter2 = (*iter)->particles.begin(); iter2 != (*iter)->particles.end(); iter2++)
-				{
-					Particle* p = iter2->first;
-					const coord_t dist_squared = (p->pos - center).magnitude_squared();
-					if (dist_squared < MAX_DRAW_DISTANCE_SQUARED)
-						p->draw(time_diff);
-				}
-			}
-			else
-			{
-				for (std::map<Particle*, bool>::const_iterator iter2 = (*iter)->particles.begin(); iter2 != (*iter)->particles.end(); iter2++)
-				{
-					Particle* p = iter2->first;
-					p->draw(time_diff);
-				}
-			}
-		}
-#endif	/* NEW_TEXTURES */
 
 		end_draw();
 		// Draw lights.
@@ -2865,7 +2289,6 @@ namespace ec
 
 			//  allowable_particles_to_add = 1 + (int)(particles.size() * 0.00005 * time_diff / 1000000.0 * (max_particles - particles.size()) * change_LOD);
 			//  std::cout << "Current: " << particles.size() << "; Allowable new: " << allowable_particles_to_add << std::endl;
-#ifdef	NEW_TEXTURES
 			Uint32 i, count;
 
 			count = effects.size();
@@ -2882,7 +2305,6 @@ namespace ec
 
 			el::HardwareBuffer::unbind(el::hbt_index);
 			el::HardwareBuffer::unbind(el::hbt_vertex);
-#endif	/* NEW_TEXTURES */
 		}
 
 		void EyeCandy::add_light(GLenum light_id)
@@ -2897,112 +2319,6 @@ namespace ec
 			glLightfv(light_id, GL_POSITION, light_pos);
 			glLightf(light_id, GL_LINEAR_ATTENUATION, 1.0);
 		}
-
-#ifndef	NEW_TEXTURES
-		void EyeCandy::draw_point_sprite_particle(coord_t size, const GLuint texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos)
-		{
-			//  std::cout << "A: " << size << ", " << texture << ", " << Vec3(r, g, b) << ", " << alpha << std::endl;
-			glPointSize(size);
-
-			glBindTexture(GL_TEXTURE_2D, texture);
-
-			glBegin(GL_POINTS);
-			{
-				glColor4f(r, g, b, alpha);
-				glVertex3d(pos.x, pos.y, pos.z);
-			}
-			glEnd();
-		}
-
-		void EyeCandy::draw_fast_billboard_particle(coord_t size, const GLuint texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos)
-		{
-			//  std::cout << "B: " << size << ", " << texture << ", " << Vec3(r, g, b) << ", " << alpha << std::endl;
-			const Vec3 corner1(pos - corner_offset1 * size);
-			const Vec3 corner2(pos + corner_offset2 * size);
-			const Vec3 corner3(pos + corner_offset1 * size);
-			const Vec3 corner4(pos - corner_offset2 * size);
-
-			//  std::cout << corner1 << ", " << corner2 << ", " << corner3 << ", " << corner4 << std::endl;
-			//  std::cout << size << ", " << texture << ", " << Vec3(r, g, b) << ", " << alpha << std::endl;
-
-			glBindTexture(GL_TEXTURE_2D, texture);
-
-			glBegin(GL_QUADS);
-			{
-				glColor4f(r, g, b, alpha);
-				glTexCoord2f(0.0, 0.0);
-				glVertex3f(corner1.x, corner1.y, corner1.z);
-				glTexCoord2f(1.0, 0.0);
-				glVertex3f(corner2.x, corner2.y, corner2.z);
-				glTexCoord2f(1.0, 1.0);
-				glVertex3f(corner3.x, corner3.y, corner3.z);
-				glTexCoord2f(0.0, 1.0);
-				glVertex3f(corner4.x, corner4.y, corner4.z);
-			}
-			glEnd();
-		}
-
-		void EyeCandy::draw_accurate_billboard_particle(coord_t size, const GLuint texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos)
-		{
-			glPushMatrix();
-			glTranslatef(pos.x, pos.y, pos.z);
-
-			Vec3 object_to_camera_projection(camera.x - pos.x, 0, camera.z - pos.z);
-			object_to_camera_projection.normalize();
-
-			const Vec3 look_at(0, 0, 1);
-			const Vec3 up = look_at.cross(object_to_camera_projection);
-			const float cos_angle = look_at.dot(object_to_camera_projection);
-
-			if ((cos_angle < 0.9999) && (cos_angle> -0.9999))
-			glRotatef(acos(cos_angle) * 180.0 / PI, up.x, up.y, up.z);
-
-			Vec3 object_to_camera = camera - pos;
-			object_to_camera.normalize();
-			const float cos_angle2 = object_to_camera_projection.dot(object_to_camera);
-
-			if ((cos_angle2 < 0.9999) && (cos_angle2> -0.9999))
-			{
-				if (object_to_camera.y < 0)
-				glRotatef(acos(cos_angle2) * 180.0 / PI, 1, 0, 0);
-				else
-				glRotatef(acos(cos_angle2) * 180.0 / PI, -1, 0, 0);
-			}
-
-			const float scaled_size = size * billboard_scalar;
-
-			glBindTexture(GL_TEXTURE_2D, texture);
-			/*
-			 glBegin(GL_QUADS);
-			 {
-			 glColor4f(r, g, b, alpha);
-			 glTexCoord2f(0.0, 0.0);
-			 glVertex3f(pos.x - scaled_size, pos.y - scaled_size, pos.z);
-			 glTexCoord2f(1.0, 0.0);
-			 glVertex3f(pos.x + scaled_size, pos.y - scaled_size, pos.z);
-			 glTexCoord2f(1.0, 1.0);
-			 glVertex3f(pos.x + scaled_size, pos.y + scaled_size, pos.z);
-			 glTexCoord2f(0.0, 1.0);
-			 glVertex3f(pos.x - scaled_size, pos.y + scaled_size, pos.z);
-			 }
-			 glEnd();
-			 */
-			glBegin(GL_QUADS);
-			{
-				glColor4f(r, g, b, alpha);
-				glTexCoord2f(0.0, 0.0);
-				glVertex3f(-scaled_size, -scaled_size, 0.0);
-				glTexCoord2f(1.0, 0.0);
-				glVertex3f(scaled_size, -scaled_size, 0.0);
-				glTexCoord2f(1.0, 1.0);
-				glVertex3f(scaled_size, scaled_size, 0.0);
-				glTexCoord2f(0.0, 1.0);
-				glVertex3f(-scaled_size, scaled_size, 0.0);
-			}
-			glEnd();
-			glPopMatrix();
-		}
-#endif	/* NEW_TEXTURES */
 
 		// F U N C T I O N S //////////////////////////////////////////////////////////
 
