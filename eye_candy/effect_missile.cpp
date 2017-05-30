@@ -13,11 +13,7 @@ namespace ec
 	MissileParticle::MissileParticle(Effect* _effect, ParticleMover* _mover,
 		const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
 		const alpha_t _alpha, const color_t red, const color_t green,
-#ifdef	NEW_TEXTURES
 		const color_t blue, TextureEnum _texture, const Uint16 _LOD,
-#else	/* NEW_TEXTURES */
-		const color_t blue, Texture* _texture, const Uint16 _LOD,
-#endif	/* NEW_TEXTURES */
 		const MissileEffect::MissileType _type) :
 		Particle(_effect, _mover, _pos, _velocity,
 			std::max(1.0f, (float)(_size * (0.25 + randcoord(1.25)))))
@@ -65,17 +61,10 @@ namespace ec
 		return true;
 	}
 
-#ifdef	NEW_TEXTURES
 	Uint32 MissileParticle::get_texture()
 	{
 		return base->get_texture(texture);
 	}
-#else	/* NEW_TEXTURES */
-	GLuint MissileParticle::get_texture(const Uint16 res_index)
-	{
-		return texture->get_texture(res_index);
-	}
-#endif	/* NEW_TEXTURES */
 
 	MissileEffect::MissileEffect(EyeCandy* _base, bool* _dead, Vec3* _pos,
 		const MissileType _type, const Uint16 _LOD, int _hitOrMiss)
@@ -98,11 +87,7 @@ namespace ec
 				color[0] = 1.0;
 				color[1] = 1.0;
 				color[2] = 0.125;
-#ifdef	NEW_TEXTURES
 				texture = EC_SHIMMER;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexShimmer);
-#endif	/* NEW_TEXTURES */
 				break;
 			}
 			case FIRE:
@@ -110,11 +95,7 @@ namespace ec
 				color[0] = 1.0;
 				color[1] = 0.125;
 				color[2] = 0.125;
-#ifdef	NEW_TEXTURES
 				texture = EC_FLARE;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexFlare);
-#endif	/* NEW_TEXTURES */
 				break;
 			}
 			case ICE:
@@ -122,11 +103,7 @@ namespace ec
 				color[0] = 0.125;
 				color[1] = 0.125;
 				color[2] = 1.0;
-#ifdef	NEW_TEXTURES
 				texture = EC_CRYSTAL;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexCrystal);
-#endif	/* NEW_TEXTURES */
 				break;
 			}
 			case EXPLOSIVE:
@@ -134,11 +111,7 @@ namespace ec
 				color[0] = 0.75;
 				color[1] = 0.75;
 				color[2] = 0.75;
-#ifdef	NEW_TEXTURES
 				texture = EC_INVERSE;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexInverse);
-#endif	/* NEW_TEXTURES */
 				break;
 			}
 		}

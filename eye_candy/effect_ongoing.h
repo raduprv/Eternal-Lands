@@ -58,21 +58,13 @@ namespace ec
 				const Vec3 _pos, const Vec3 _velocity,
 				const color_t hue_adjust, const color_t saturation_adjust,
 				const coord_t _size, const alpha_t _alpha, color_t hue,
-#ifdef	NEW_TEXTURES
 				color_t saturation, color_t value, TextureEnum _texture,
-#else	/* NEW_TEXTURES */
-				color_t saturation, color_t value, Texture* _texture,
-#endif	/* NEW_TEXTURES */
 				const Uint16 _LOD, const OngoingEffect::OngoingType _type);
 			OngoingParticle(Effect* _effect, ParticleMover* _mover,
 				const Vec3 _pos, const Vec3 _velocity,
 				const color_t hue_adjust, const color_t saturation_adjust,
 				const coord_t _size, const alpha_t _alpha, color_t hue,
-#ifdef	NEW_TEXTURES
 				color_t saturation, color_t value, TextureEnum _texture,
-#else	/* NEW_TEXTURES */
-				color_t saturation, color_t value, Texture* _texture,
-#endif	/* NEW_TEXTURES */
 				const Uint16 _LOD, const OngoingEffect::OngoingType _type,
 				const angle_t _angle);
 			~OngoingParticle()
@@ -80,24 +72,15 @@ namespace ec
 			}
 
 			virtual bool idle(const Uint64 delta_t);
-#ifdef	NEW_TEXTURES
 			virtual Uint32 get_texture();
 			virtual float get_burn() const;
-#else	/* NEW_TEXTURES */
-			virtual GLuint get_texture(const Uint16 res_index);
-			virtual void draw(const Uint64 usec);
-#endif	/* NEW_TEXTURES */
 			virtual light_t estimate_light_level() const
 			{
 				return 0.002;
 			}
 			;
 
-#ifdef	NEW_TEXTURES
 			TextureEnum texture;
-#else	/* NEW_TEXTURES */
-			Texture* texture;
-#endif	/* NEW_TEXTURES */
 			Uint16 LOD;
 			OngoingEffect::OngoingType type;
 			angle_t angle;

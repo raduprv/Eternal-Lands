@@ -38,7 +38,6 @@ extern int ground_detail_text;      /*!< The texture for ground details (clouds 
  */
 void draw_tile_map();
 
-#ifdef	NEW_TEXTURES
 /*!
  * \ingroup	tile
  * \brief 	Draw quad tiles.
@@ -49,7 +48,6 @@ void draw_tile_map();
  */
 void draw_quad_tiles(const unsigned int start, const unsigned int stop,
 	unsigned int idx, const unsigned int zero_id);
-#endif	/* NEW_TEXTURES */
 
 /*!
  * \ingroup 	maps

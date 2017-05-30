@@ -1662,18 +1662,10 @@ void add_teleporters_from_list (const Uint8 *teleport_list)
 
 #ifndef	MAP_EDITOR
 			add_particle_sys ("./particles/teleporter.part", x, y, z, 1);
-#ifdef OLD_MISC_OBJ_DIR
-			add_e3d("./3dobjects/misc_objects/portal1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f, 1);
-#else
 			add_e3d("./3dobjects/portal1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f, 1);
-#endif
 #else
 			add_particle_sys ("./particles/teleporter.part", x, y, z);
-#ifdef OLD_MISC_OBJ_DIR
-			sector_add_3do(add_e3d("./3dobjects/misc_objects/portal1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f));
-#else
 			sector_add_3do(add_e3d("./3dobjects/portal1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f));
-#endif
 #endif
 			
 			//mark the teleporter as an unwalkable so that the pathfinder

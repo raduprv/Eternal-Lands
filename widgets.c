@@ -656,13 +656,8 @@ int image_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Ui
 	image *T = calloc (1, sizeof (image));
 	T->u1 = u1;
 	T->u2 = u2;
-#ifdef	NEW_TEXTURES
 	T->v1 = -v1;
 	T->v2 = -v2;
-#else	/* NEW_TEXTURES */
-	T->v1 = v1;
-	T->v2 = v2;
-#endif	/* NEW_TEXTURES */
 	T->id = id;
 	T->alpha = alpha;
 
@@ -677,11 +672,7 @@ int image_add(int window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uint16
 int image_draw(widget_list *W)
 {
 	image *i = (image *)W->widget_info;
-#ifdef	NEW_TEXTURES
 	bind_texture(i->id);
-#else	/* NEW_TEXTURES */
-	get_and_set_texture_id(i->id);
-#endif	/* NEW_TEXTURES */
 	glColor3f(W->r, W->g, W->b);
 	if (i->alpha > -1) {
 		glEnable(GL_ALPHA_TEST);
@@ -717,13 +708,8 @@ int image_set_uv(int window_id, Uint32 widget_id, float u1, float v1, float u2, 
 		image *l = (image *) w->widget_info;
 		l->u1 = u1;
 		l->u2 = u2;
-#ifdef	NEW_TEXTURES
 		l->v1 = -v1;
 		l->v2 = -v2;
-#else	/* NEW_TEXTURES */
-		l->v1 = v1;
-		l->v2 = v2;
-#endif	/* NEW_TEXTURES */
 		return 1;
 	}
 	return 0;

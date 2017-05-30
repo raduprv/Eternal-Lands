@@ -55,15 +55,7 @@ int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 	if (left_click && mx > 0 && mx < 50*scale && my > 0 && my < 55*scale)
 	{
 		showing_continent = !showing_continent;
-#ifdef	NEW_TEXTURES
 		inspect_map_text = 0;
-#else	/* NEW_TEXTURES */
-		if(inspect_map_text != 0)
-		{
-			glDeleteTextures(1,&inspect_map_text);
-			inspect_map_text = 0;
-		}
-#endif	/* NEW_TEXTURES */
 	}
 	else if (!showing_continent && inspect_map_text == 0)
 	{
@@ -105,16 +97,7 @@ int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 					{
 						/* Load this map's bmp */
 						if(cur_map != i) {
-#ifdef	NEW_TEXTURES
 							inspect_map_text = load_texture_cached(continent_maps[i].name, tt_image);
-#else	/* NEW_TEXTURES */
-							texture_cache_struct tex;
-							size_t name_len;
-							my_strcp(tex.file_name,continent_maps[i].name);
-							name_len = strlen(tex.file_name);
-							sprintf(tex.file_name+name_len-3, "bmp");
-							inspect_map_text = load_bmp8_fixed_alpha(&tex, 128);
-#endif	/* NEW_TEXTURES */
 						}
 #ifdef DEBUG_MAP_SOUND
 						cur_tab_map = i;

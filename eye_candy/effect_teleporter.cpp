@@ -48,17 +48,10 @@ namespace ec
 		return true;
 	}
 
-#ifdef	NEW_TEXTURES
 	Uint32 TeleporterParticle::get_texture()
 	{
 		return base->get_texture(EC_SHIMMER);
 	}
-#else	/* NEW_TEXTURES */
-	GLuint TeleporterParticle::get_texture(const Uint16 res_index)
-	{
-		return base->TexShimmer.get_texture(res_index);
-	}
-#endif	/* NEW_TEXTURES */
 
 	TeleporterEffect::TeleporterEffect(EyeCandy* _base, bool* _dead,
 		Vec3* _pos, const color_t _hue_adjust,
@@ -108,15 +101,12 @@ namespace ec
 		hsv_to_rgb(hue, saturation, value, teleporter_color.x,
 			teleporter_color.y, teleporter_color.z);
 
-#ifdef	NEW_TEXTURES
 		capless_cylinders = 0;
 
 		std::vector<CaplessCylinders::CaplessCylinderItem> cylinders;
-#endif	/* NEW_TEXTURES */
 		for (int i = 0; i < LOD * 4; i++)
 		{
 			const percent_t percent = ((coord_t)i + 1) / (LOD * 4);
-#ifdef	NEW_TEXTURES
 			cylinders.push_back(CaplessCylinders::CaplessCylinderItem(*pos, *pos + Vec3(0.0, 10.0 / percent, 0.0), teleporter_color, (0.1 + (1.0 - percent) * 0.05) / (LOD + 2), radius * percent, (int)(25 * (percent + 0.2))));
 		}
 
@@ -124,23 +114,13 @@ namespace ec
 		{
 			capless_cylinders = new CaplessCylinders(base, cylinders);
 		}
-#else	/* NEW_TEXTURES */
-			capless_cylinders.push_back(new CaplessCylinder(base, *pos, *pos + Vec3(0.0, 10.0 / percent, 0.0), teleporter_color, (0.1 + (1.0 - percent) * 0.05) / (LOD + 2), radius * percent, (int)(25 * (percent + 0.2))));
-		}
-#endif	/* NEW_TEXTURES */
 	}
 
 	TeleporterEffect::~TeleporterEffect()
 	{
 		delete mover;
 		delete spawner;
-#ifdef	NEW_TEXTURES
 		delete capless_cylinders;
-#else	/* NEW_TEXTURES */
-		for (size_t i = 0; i < capless_cylinders.size(); i++)
-			delete capless_cylinders[i];
-		capless_cylinders.clear();
-#endif	/* NEW_TEXTURES */
 		if (EC_DEBUG)
 			std::cout << "TeleporterEffect (" << this << ") destroyed."
 				<< std::endl;
@@ -195,13 +175,7 @@ namespace ec
 
 	void TeleporterEffect::draw(const Uint64 usec)
 	{
-#ifdef	NEW_TEXTURES
 		capless_cylinders->draw(1.0f);
-#else	/* NEW_TEXTURES */
-		for (std::vector<Shape*>::iterator iter = capless_cylinders.begin(); iter
-			!= capless_cylinders.end(); iter++)
-			(*iter)->draw();
-#endif	/* NEW_TEXTURES */
 	}
 
 	void TeleporterEffect::request_LOD(const float _LOD)
@@ -217,21 +191,14 @@ namespace ec
 		sqrt_LOD = std::sqrt(LOD);
 		size_scalar = 15 / (LOD + 5);
 
-#ifdef	NEW_TEXTURES
 		delete capless_cylinders;
 		capless_cylinders = 0;
 
 		std::vector<CaplessCylinders::CaplessCylinderItem> cylinders;
-#else	/* NEW_TEXTURES */
-		for (size_t i = 0; i < capless_cylinders.size(); i++)
-			delete capless_cylinders[i];
-		capless_cylinders.clear();
-#endif	/* NEW_TEXTURES */
 
 		for (int i = 0; i < LOD * 4; i++)
 		{
 			const percent_t percent = ((coord_t)i + 1) / (LOD * 4);
-#ifdef	NEW_TEXTURES
 			cylinders.push_back(CaplessCylinders::CaplessCylinderItem(*pos, *pos + Vec3(0.0, 10.0 / percent, 0.0), teleporter_color, (0.1 + (1.0 - percent) * 0.05) / (LOD + 2), radius * percent, (int)(25 * (percent + 0.2))));
 		}
 
@@ -239,10 +206,6 @@ namespace ec
 		{
 			capless_cylinders = new CaplessCylinders(base, cylinders);
 		}
-#else	/* NEW_TEXTURES */
-			capless_cylinders.push_back(new CaplessCylinder(base, *pos, *pos + Vec3(0.0, 10.0 / percent, 0.0), teleporter_color, (0.1 + (1.0 - percent) * 0.05) / (LOD + 2), radius * percent, (int)(25 * (percent + 0.2))));
-		}
-#endif	/* NEW_TEXTURES */
 	}
 
 	void TeleporterEffect::add_actor_alpha_pointer(float* ptr)

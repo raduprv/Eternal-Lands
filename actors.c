@@ -91,7 +91,6 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	ERR();
 #endif
 
-#ifdef	NEW_TEXTURES
 	if (actors_defs[actor_type].ghost)
 	{
 		texture_id = load_texture_cached(skin_name, tt_mesh);
@@ -108,16 +107,6 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 			exit(-1);
 		}
 	}
-#else	/* NEW_TEXTURES */
-	if(actors_defs[actor_type].ghost)	texture_id= load_texture_cache_deferred(skin_name, 150);
-	else if(!remappable)texture_id= load_texture_cache_deferred(skin_name, -1);
-	else
-		{
-			LOG_ERROR("remapped skin for %s", skin_name);
-			//texture_id=load_bmp8_remapped_skin(skin_name,150,skin_color,hair_color,eyes_color,shirt_color,pants_color,boots_color);
-			exit(-1);
-		}
-#endif	/* NEW_TEXTURES */
 
 	our_actor = calloc(1, sizeof(actor));
 
@@ -173,12 +162,7 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 
     /* load the texture in case it's not already loaded and look if it has
      * an alpha map */
-#ifdef	NEW_TEXTURES
 	our_actor->has_alpha = get_texture_alpha(texture_id);
-#else
-    get_texture_id(texture_id);
-	our_actor->has_alpha=texture_cache[texture_id].has_alpha;
-#endif
 
 	//clear the que
 	for(k=0;k<MAX_CMD_QUEUE;k++)	our_actor->que[k]=nothing;
@@ -915,7 +899,6 @@ void draw_actor_without_banner(actor * actor_id, Uint32 use_lightning, Uint32 us
 	if (me&&me->actor_id==actor_id->actor_id&&first_person) return;
 	if (use_textures)
 	{
-#ifdef	NEW_TEXTURES
 		if (actor_id->is_enhanced_model)
 		{
 			if (bind_actor_texture(actor_id->texture_id, &actor_id->has_alpha) == 0)
@@ -937,23 +920,6 @@ void draw_actor_without_banner(actor * actor_id, Uint32 use_lightning, Uint32 us
 				}
 			}
 		}
-#else	/* NEW_TEXTURES */
-		if (actor_id->is_enhanced_model)
-		{
-			bind_texture_id(actor_id->texture_id);
-		}
-		else
-		{
-			if (!actor_id->remapped_colors)
-			{
-				get_and_set_texture_id(actor_id->texture_id);
-			}
-			else
-			{
-				bind_texture_id(actor_id->texture_id);
-			}
-		}
-#endif	/* NEW_TEXTURES */
 	}
 
 	glPushMatrix();//we don't want to affect the rest of the scene

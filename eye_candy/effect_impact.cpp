@@ -13,11 +13,7 @@ namespace ec
 	ImpactParticle::ImpactParticle(Effect* _effect, ParticleMover* _mover,
 		const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
 		const alpha_t _alpha, const color_t red, const color_t green,
-#ifdef	NEW_TEXTURES
 		const color_t blue, TextureEnum _texture, const Uint16 _LOD,
-#else	/* NEW_TEXTURES */
-		const color_t blue, Texture* _texture, const Uint16 _LOD,
-#endif	/* NEW_TEXTURES */
 		const ImpactEffect::ImpactType _type) :
 		Particle(_effect, _mover, _pos, _velocity,
 			(0.3 + randcoord()) * 15 / 3.16 / std::sqrt(_LOD))
@@ -93,7 +89,6 @@ namespace ec
 		return true;
 	}
 
-#ifdef	NEW_TEXTURES
 	Uint32 ImpactParticle::get_texture()
 	{
 		return base->get_texture(texture);
@@ -110,33 +105,6 @@ namespace ec
 			return 0.0f;
 		}
 	}
-#else	/* NEW_TEXTURES */
-	GLuint ImpactParticle::get_texture(const Uint16 res_index)
-	{
-		return texture->get_texture(res_index);
-	}
-
-	void ImpactParticle::draw(const Uint64 usec)
-	{
-		if (state == 1)
-		{
-			glEnable(GL_LIGHTING);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			Vec3 normal;
-			normal.randomize();
-			normal.normalize();
-			glNormal3f(normal.x, normal.y, normal.z);
-		}
-
-		Particle::draw(usec);
-
-		if (state == 1)
-		{
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-			glDisable(GL_LIGHTING);
-		}
-	}
-#endif	/* NEW_TEXTURES */
 
 	ImpactEffect::ImpactEffect(EyeCandy* _base, bool* _dead, Vec3* _pos,
 		const Vec3 _angle, const ImpactType _type, const Uint16 _LOD,
@@ -171,13 +139,7 @@ namespace ec
 					Vec3 offset;
 					offset.randomize(0.3);
 					velocity += offset;
-					Particle
-						* p =
-#ifdef	NEW_TEXTURES
-							new ImpactParticle(this, mover, center, velocity, 0.3 * size_scalar, 1.0, 0.7, 0.2, 0.4, EC_SHIMMER, LOD, type);
-#else	/* NEW_TEXTURES */
-							new ImpactParticle(this, mover, center, velocity, 0.3 * size_scalar, 1.0, 0.7, 0.2, 0.4, &(base->TexShimmer), LOD, type);
-#endif	/* NEW_TEXTURES */
+					Particle * p = new ImpactParticle(this, mover, center, velocity, 0.3 * size_scalar, 1.0, 0.7, 0.2, 0.4, EC_SHIMMER, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -193,13 +155,7 @@ namespace ec
 					Vec3 offset;
 					offset.randomize(0.3);
 					velocity += offset;
-					Particle
-						* p =
-#ifdef	NEW_TEXTURES
-							new ImpactParticle(this, mover, center, velocity, 0.3 * size_scalar, 1.0, 0.9, 0.9, 0.9, EC_SHIMMER, LOD, type);
-#else	/* NEW_TEXTURES */
-							new ImpactParticle(this, mover, center, velocity, 0.3 * size_scalar, 1.0, 0.9, 0.9, 0.9, &(base->TexShimmer), LOD, type);
-#endif	/* NEW_TEXTURES */
+					Particle * p = new ImpactParticle(this, mover, center, velocity, 0.3 * size_scalar, 1.0, 0.9, 0.9, 0.9, EC_SHIMMER, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -215,13 +171,7 @@ namespace ec
 					Vec3 offset;
 					offset.randomize(0.4);
 					velocity += offset;
-					Particle
-						* p =
-#ifdef	NEW_TEXTURES
-							new ImpactParticle(this, mover, center, velocity, 0.35 * size_scalar, 1.0, randcolor(1.0), randcolor(1.0), randcolor(1.0), EC_VOID, LOD, type);
-#else	/* NEW_TEXTURES */
-							new ImpactParticle(this, mover, center, velocity, 0.35 * size_scalar, 1.0, randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexVoid), LOD, type);
-#endif	/* NEW_TEXTURES */
+					Particle * p = new ImpactParticle(this, mover, center, velocity, 0.35 * size_scalar, 1.0, randcolor(1.0), randcolor(1.0), randcolor(1.0), EC_VOID, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -240,22 +190,12 @@ namespace ec
 					Particle* p;
 					if (randfloat() < 0.4)
 					{
-						p
-#ifdef	NEW_TEXTURES
-							= new ImpactParticle(this, mover, center, velocity, 0.6 * size_scalar, 0.5, 0.2 + randcolor(0.2), 0.5 + randcolor(0.3), 0.2, EC_FLARE, LOD, type);
-#else	/* NEW_TEXTURES */
-							= new ImpactParticle(this, mover, center, velocity, 0.6 * size_scalar, 0.5, 0.2 + randcolor(0.2), 0.5 + randcolor(0.3), 0.2, &(base->TexFlare), LOD, type);
-#endif	/* NEW_TEXTURES */
+						p = new ImpactParticle(this, mover, center, velocity, 0.6 * size_scalar, 0.5, 0.2 + randcolor(0.2), 0.5 + randcolor(0.3), 0.2, EC_FLARE, LOD, type);
 						p->state = 1;
 					}
 					else
 					{
-						p
-#ifdef	NEW_TEXTURES
-							= new ImpactParticle(this, mover, center, velocity, 0.3 * size_scalar, 1.0, randcolor(0.1), 0.2 + randcolor(0.1), 0.2, EC_WATER, LOD, type);
-#else	/* NEW_TEXTURES */
-							= new ImpactParticle(this, mover, center, velocity, 0.3 * size_scalar, 1.0, randcolor(0.1), 0.2 + randcolor(0.1), 0.2, &(base->TexWater), LOD, type);
-#endif	/* NEW_TEXTURES */
+						p = new ImpactParticle(this, mover, center, velocity, 0.3 * size_scalar, 1.0, randcolor(0.1), 0.2 + randcolor(0.1), 0.2, EC_WATER, LOD, type);
 						p->state = 0;
 					}
 					if (!base->push_back_particle(p))
@@ -276,13 +216,7 @@ namespace ec
 					velocity += offset;
 					velocity.normalize(0.8 * vel_scalar);
 					//        std::cout << velocity << std::endl;
-					Particle
-						* p =
-#ifdef	NEW_TEXTURES
-							new ImpactParticle(this, mover, center, velocity, square(square(randcoord(0.85))) * size_scalar, 0.5, 0.3 + randcolor(0.7), 0.15 + randcolor(0.1), 0.15 + randcolor(0.1), EC_WATER, LOD, type);
-#else	/* NEW_TEXTURES */
-							new ImpactParticle(this, mover, center, velocity, square(square(randcoord(0.85))) * size_scalar, 0.5, 0.3 + randcolor(0.7), 0.15 + randcolor(0.1), 0.15 + randcolor(0.1), &(base->TexWater), LOD, type);
-#endif	/* NEW_TEXTURES */
+					Particle * p = new ImpactParticle(this, mover, center, velocity, square(square(randcoord(0.85))) * size_scalar, 0.5, 0.3 + randcolor(0.7), 0.15 + randcolor(0.1), 0.15 + randcolor(0.1), EC_WATER, LOD, type);
 					p->state = 1;
 					if (!base->push_back_particle(p))
 						break;

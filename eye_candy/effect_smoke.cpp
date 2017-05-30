@@ -41,22 +41,10 @@ namespace ec
 		state = 0;
 	}
 
-#ifdef	NEW_TEXTURES
 	float SmokeParticle::get_burn() const
 	{
 		return 0.0f;
 	}
-#else	/* NEW_TEXTURES */
-	void SmokeParticle::draw(const Uint64 usec)
-	{
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		Vec3 shifted_pos = pos - *(((SmokeEffect*)effect)->pos);
-
-		Particle::draw(usec);
-
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	}
-#endif	/* NEW_TEXTURES */
 
 	bool SmokeParticle::idle(const Uint64 delta_t)
 	{
@@ -83,17 +71,10 @@ namespace ec
 		return true;
 	}
 
-#ifdef	NEW_TEXTURES
 	Uint32 SmokeParticle::get_texture()
 	{
 		return base->get_texture(EC_SIMPLE);
 	}
-#else	/* NEW_TEXTURES */
-	GLuint SmokeParticle::get_texture(const Uint16 res_index)
-	{
-		return base->TexSimple.get_texture(res_index);
-	}
-#endif	/* NEW_TEXTURES */
 
 	SmokeEffect::SmokeEffect(EyeCandy* _base, bool* _dead, Vec3* _pos,
 		const color_t _hue_adjust, const color_t _saturation_adjust,

@@ -46,26 +46,15 @@ namespace ec
 		return true;
 	}
 
-#ifdef	NEW_TEXTURES
 	Uint32 OuterSummonParticle::get_texture()
 	{
 		return base->get_texture(EC_FLARE);
 	}
-#else	/* NEW_TEXTURES */
-	GLuint OuterSummonParticle::get_texture(const Uint16 res_index)
-	{
-		return base->TexFlare.get_texture(res_index);
-	}
-#endif	/* NEW_TEXTURES */
 
 	InnerSummonParticle::InnerSummonParticle(Effect* _effect,
 		ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity,
 		const coord_t _size, const alpha_t _alpha, const color_t red,
-#ifdef	NEW_TEXTURES
 		const color_t green, const color_t blue, TextureEnum _texture,
-#else	/* NEW_TEXTURES */
-		const color_t green, const color_t blue, Texture* _texture,
-#endif	/* NEW_TEXTURES */
 		const Uint16 _LOD) :
 		Particle(_effect, _mover, _pos, _velocity,
 			_size * (0.2 + randcoord()))
@@ -111,17 +100,10 @@ namespace ec
 		return true;
 	}
 
-#ifdef	NEW_TEXTURES
 	Uint32 InnerSummonParticle::get_texture()
 	{
 		return base->get_texture(texture);
 	}
-#else	/* NEW_TEXTURES */
-	GLuint InnerSummonParticle::get_texture(const Uint16 res_index)
-	{
-		return texture->get_texture(res_index);
-	}
-#endif	/* NEW_TEXTURES */
 
 	SummonEffect::SummonEffect(EyeCandy* _base, bool* _dead, Vec3* _pos,
 		const SummonType _type, const Uint16 _LOD)
@@ -154,11 +136,7 @@ namespace ec
 				outer_color[0] = 0.7;
 				outer_color[1] = 0.3;
 				outer_color[2] = 0.7;
-#ifdef	NEW_TEXTURES
 				texture = EC_VOID;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexVoid);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, -1.0), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.155, 0.0, 1.0), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.155, 0.0, 1.0), 0.5));
@@ -169,11 +147,7 @@ namespace ec
 				outer_color[0] = 0.65;
 				outer_color[1] = 0.3;
 				outer_color[2] = 0.8;
-#ifdef	NEW_TEXTURES
 				texture = EC_FLARE;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexFlare);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.8, 0.0, 1.0), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, 0.5), 0.9));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.2, 0.0, -0.9), 0.3));
@@ -185,11 +159,7 @@ namespace ec
 				outer_color[0] = 0.65;
 				outer_color[1] = 0.3;
 				outer_color[2] = 0.85;
-#ifdef	NEW_TEXTURES
 				texture = EC_VOID;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexVoid);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, 1.0), 0.8));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.6, 0.0, -0.3), 0.2));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, -1.0), 0.2));
@@ -201,11 +171,7 @@ namespace ec
 				outer_color[0] = 0.6;
 				outer_color[1] = 0.3;
 				outer_color[2] = 0.9;
-#ifdef	NEW_TEXTURES
 				texture = EC_VOID;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexVoid);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.3, 0.0, 0.5), 0.8));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, -0.3), 0.2));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.5, 0.0, -1.0), 0.2));
@@ -217,11 +183,7 @@ namespace ec
 				outer_color[0] = 0.5;
 				outer_color[1] = 0.3;
 				outer_color[2] = 0.95;
-#ifdef	NEW_TEXTURES
 				texture = EC_VOID;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexVoid);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.3, 0.0, 0.5), 0.8));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.5, 0.0, -0.3), 0.2));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.5, 0.0, -1.0), 0.2));
@@ -233,11 +195,7 @@ namespace ec
 				outer_color[0] = 0.4;
 				outer_color[1] = 0.3;
 				outer_color[2] = 0.95;
-#ifdef	NEW_TEXTURES
 				texture = EC_VOID;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexVoid);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSRingElement(0.3, Vec3(1.0, 0.0, 1.0), Vec3(1.0, 1e6, 1.0)));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.0), 0.2));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, -1.0), 0.2));
@@ -248,11 +206,7 @@ namespace ec
 				outer_color[0] = 0.3;
 				outer_color[1] = 0.3;
 				outer_color[2] = 1.0;
-#ifdef	NEW_TEXTURES
 				texture = EC_FLARE;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexFlare);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, -1.0), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSSinusoidalElement(0.5, Vec3(0.3, 0.0, 0.8), Vec3(0.30, 0.0, 0.54), Vec3(1.0, 0.0, 0.85)));
 				outer_spawner->ifs_elements.push_back(new IFSSinusoidalElement(0.5, Vec3(1.1, 0.0, 2.2), Vec3(0.21, 0.0, 0.77), Vec3(0.89, 0.0, 0.91)));
@@ -264,11 +218,7 @@ namespace ec
 				outer_color[0] = 0.3;
 				outer_color[1] = 0.5;
 				outer_color[2] = 0.95;
-#ifdef	NEW_TEXTURES
 				texture = EC_FLARE;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexFlare);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, -1.0), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSSinusoidalElement(0.5, Vec3(3.3, 0.0, 0.8), Vec3(0.30, 0.0, 0.54), Vec3(1.0, 0.0, 0.85)));
 				outer_spawner->ifs_elements.push_back(new IFSSinusoidalElement(0.5, Vec3(3.1, 0.0, 2.2), Vec3(0.21, 0.0, 0.77), Vec3(0.89, 0.0, 0.91)));
@@ -280,11 +230,7 @@ namespace ec
 				outer_color[0] = 0.3;
 				outer_color[1] = 0.65;
 				outer_color[2] = 0.85;
-#ifdef	NEW_TEXTURES
 				texture = EC_FLARE;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexFlare);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, 1.0), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSSinusoidalElement(0.5, Vec3(5.3, 0.0, 3.8), Vec3(0.30, 0.0, 0.54), Vec3(1.0, 0.0, 0.85)));
 				outer_spawner->ifs_elements.push_back(new IFSSinusoidalElement(0.5, Vec3(5.1, 0.0, 5.2), Vec3(0.21, 0.0, 0.77), Vec3(0.89, 0.0, 0.91)));
@@ -296,11 +242,7 @@ namespace ec
 				outer_color[0] = 0.3;
 				outer_color[1] = 0.75;
 				outer_color[2] = 0.75;
-#ifdef	NEW_TEXTURES
 				texture = EC_VOID;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexVoid);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, -1.0), 0.3));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.8, 0.0, 0.0), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, 0.7), 0.3));
@@ -313,11 +255,7 @@ namespace ec
 				outer_color[0] = 0.3;
 				outer_color[1] = 0.85;
 				outer_color[2] = 0.65;
-#ifdef	NEW_TEXTURES
 				texture = EC_VOID;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexVoid);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.0), 0.3));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, 0.0), 0.3));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.7, 0.0, 0.8), 0.2));
@@ -333,11 +271,7 @@ namespace ec
 				outer_color[0] = 0.3;
 				outer_color[1] = 0.95;
 				outer_color[2] = 0.5;
-#ifdef	NEW_TEXTURES
 				texture = EC_FLARE;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexFlare);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.8, 0.0, -1.0), 0.3));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.7, 0.0, 0.3), 0.7));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.3, 0.0, 0.2), 0.2));
@@ -351,11 +285,7 @@ namespace ec
 				outer_color[0] = 0.3;
 				outer_color[1] = 1.0;
 				outer_color[2] = 0.3;
-#ifdef	NEW_TEXTURES
 				texture = EC_WATER;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexWater);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSRingElement(0.3, Vec3(1.0, 0.0, 1.0), Vec3(1.0, 1e6, 1.0)));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.0), 0.2));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, -1.0), 0.2));
@@ -366,11 +296,7 @@ namespace ec
 				outer_color[0] = 0.4;
 				outer_color[1] = 1.0;
 				outer_color[2] = 0.3;
-#ifdef	NEW_TEXTURES
 				texture = EC_INVERSE;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexInverse);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.6, 0.0, -1.0), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.6, 0.0, -1.0), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.2), 0.5));
@@ -383,11 +309,7 @@ namespace ec
 				outer_color[0] = 0.5;
 				outer_color[1] = 0.95;
 				outer_color[2] = 0.3;
-#ifdef	NEW_TEXTURES
 				texture = EC_INVERSE;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexInverse);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.6, 0.0, -1.0), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.6, 0.0, -1.0), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.2), 0.5));
@@ -402,11 +324,7 @@ namespace ec
 				outer_color[0] = 0.6;
 				outer_color[1] = 0.9;
 				outer_color[2] = 0.3;
-#ifdef	NEW_TEXTURES
 				texture = EC_INVERSE;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexInverse);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.6, 0.0, -1.0), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.6, 0.0, -1.0), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.2), 0.5));
@@ -421,11 +339,7 @@ namespace ec
 				outer_color[0] = 0.65;
 				outer_color[1] = 0.85;
 				outer_color[2] = 0.3;
-#ifdef	NEW_TEXTURES
 				texture = EC_INVERSE;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexInverse);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.6, 0.0, -1.0), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.6, 0.0, -1.0), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.2), 0.5));
@@ -440,11 +354,7 @@ namespace ec
 				outer_color[0] = 0.75;
 				outer_color[1] = 0.8;
 				outer_color[2] = 0.3;
-#ifdef	NEW_TEXTURES
 				texture = EC_CRYSTAL;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexCrystal);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.8, 0.0, -1.0), 0.3));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.7, 0.0, 0.3), 0.7));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.4, 0.0, 0.6), 0.7));
@@ -459,11 +369,7 @@ namespace ec
 				outer_color[0] = 0.8;
 				outer_color[1] = 0.8;
 				outer_color[2] = 0.3;
-#ifdef	NEW_TEXTURES
 				texture = EC_CRYSTAL;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexCrystal);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, -1.0), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, -0.7), 0.7));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, -0.7), 0.7));
@@ -478,11 +384,7 @@ namespace ec
 				outer_color[0] = 0.8;
 				outer_color[1] = 0.75;
 				outer_color[2] = 0.3;
-#ifdef	NEW_TEXTURES
 				texture = EC_CRYSTAL;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexCrystal);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, -1.0), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, -1.0), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 1.0), 0.5));
@@ -496,11 +398,7 @@ namespace ec
 				outer_color[0] = 0.85;
 				outer_color[1] = 0.75;
 				outer_color[2] = 0.3;
-#ifdef	NEW_TEXTURES
 				texture = EC_CRYSTAL;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexCrystal);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, -1.0), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, -1.0), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, 1.0), 0.5));
@@ -514,11 +412,7 @@ namespace ec
 				outer_color[0] = 0.85;
 				outer_color[1] = 0.7;
 				outer_color[2] = 0.3;
-#ifdef	NEW_TEXTURES
 				texture = EC_FLARE;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexFlare);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, 1.0), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.7), 0.7));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, 0.7), 0.7));
@@ -533,11 +427,7 @@ namespace ec
 				outer_color[0] = 0.9;
 				outer_color[1] = 0.7;
 				outer_color[2] = 0.3;
-#ifdef	NEW_TEXTURES
 				texture = EC_INVERSE;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexInverse);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.6), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, -0.6), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.2, 0.0, -1.0), 0.5));
@@ -550,11 +440,7 @@ namespace ec
 				outer_color[0] = 0.9;
 				outer_color[1] = 0.65;
 				outer_color[2] = 0.3;
-#ifdef	NEW_TEXTURES
 				texture = EC_FLARE;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexFlare);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.0), 0.8));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.7, 0.0, -1.0), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.7, 0.0, 1.0), 0.5));
@@ -569,11 +455,7 @@ namespace ec
 				outer_color[0] = 0.9;
 				outer_color[1] = 0.6;
 				outer_color[2] = 0.3;
-#ifdef	NEW_TEXTURES
 				texture = EC_FLARE;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexFlare);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.0), 0.8));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.7, 0.0, 1.0), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.7, 0.0, -1.0), 0.5));
@@ -588,11 +470,7 @@ namespace ec
 				outer_color[0] = 0.9;
 				outer_color[1] = 0.6;
 				outer_color[2] = 0.3;
-#ifdef	NEW_TEXTURES
 				texture = EC_FLARE;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexFlare);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.0), 0.8));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, -1.0), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 1.0), 0.5));
@@ -607,11 +485,7 @@ namespace ec
 				outer_color[0] = 0.9;
 				outer_color[1] = 0.55;
 				outer_color[2] = 0.3;
-#ifdef	NEW_TEXTURES
 				texture = EC_FLARE;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexFlare);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.0), 0.8));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 1.0), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, -1.0), 0.5));
@@ -626,11 +500,7 @@ namespace ec
 				outer_color[0] = 0.95;
 				outer_color[1] = 0.5;
 				outer_color[2] = 0.3;
-#ifdef	NEW_TEXTURES
 				texture = EC_CRYSTAL;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexCrystal);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.8, 0.0, 1.0), 0.3));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.9, 0.0, -0.3), 0.7));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.4, 0.0, -0.6), 0.7));
@@ -645,11 +515,7 @@ namespace ec
 				outer_color[0] = 0.95;
 				outer_color[1] = 0.45;
 				outer_color[2] = 0.3;
-#ifdef	NEW_TEXTURES
 				texture = EC_FLARE;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexFlare);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, -0.9), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, -0.5), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, -0.5), 0.5));
@@ -664,11 +530,7 @@ namespace ec
 				outer_color[0] = 0.95;
 				outer_color[1] = 0.4;
 				outer_color[2] = 0.3;
-#ifdef	NEW_TEXTURES
 				texture = EC_WATER;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexWater);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSRingElement(0.3, Vec3(1.0, 0.0, 1.0), Vec3(1.0, 1e6, 1.0)));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.0), 0.2));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, -1.0), 0.2));
@@ -679,11 +541,7 @@ namespace ec
 				outer_color[0] = 1.0;
 				outer_color[1] = 0.35;
 				outer_color[2] = 0.3;
-#ifdef	NEW_TEXTURES
 				texture = EC_FLARE;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexFlare);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.5, 0.0, 1.0), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSSinusoidalElement(0.5, Vec3(3.3, 0.0, 0.8), Vec3(0.30, 0.0, 0.54), Vec3(1.0, 0.0, 0.85)));
 				outer_spawner->ifs_elements.push_back(new IFSSinusoidalElement(0.5, Vec3(3.1, 0.0, 2.2), Vec3(0.21, 0.0, 0.77), Vec3(0.89, 0.0, 0.91)));
@@ -695,11 +553,7 @@ namespace ec
 				outer_color[0] = 1.0;
 				outer_color[1] = 0.3;
 				outer_color[2] = 0.3;
-#ifdef	NEW_TEXTURES
 				texture = EC_VOID;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexVoid);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, -1.0), 0.3));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, -1.0), 0.3));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.2, 0.0, 1.0), 0.3));
@@ -712,11 +566,7 @@ namespace ec
 				outer_color[0] = 1.0;
 				outer_color[1] = 0.35;
 				outer_color[2] = 0.35;
-#ifdef	NEW_TEXTURES
 				texture = EC_FLARE;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexFlare);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, 0.5), 0.3));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.8, 0.0, -1.0), 0.3));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.3, 0.0, -0.2), 0.3));
@@ -733,11 +583,7 @@ namespace ec
 				outer_color[0] = 1.0;
 				outer_color[1] = 0.4;
 				outer_color[2] = 0.4;
-#ifdef	NEW_TEXTURES
 				texture = EC_FLARE;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexFlare);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, -1.0), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.155, 0.0, 1.0), 0.5));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.155, 0.0, 1.0), 0.5));
@@ -748,11 +594,7 @@ namespace ec
 				outer_color[0] = 1.0;
 				outer_color[1] = 0.45;
 				outer_color[2] = 0.45;
-#ifdef	NEW_TEXTURES
 				texture = EC_VOID;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexVoid);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, 0.5), 0.8));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.8, 0.0, -1.0), 0.8));
 				outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.3, 0.0, -0.2), 0.8));
@@ -769,11 +611,7 @@ namespace ec
 				outer_color[0] = 1.0;
 				outer_color[1] = 0.5;
 				outer_color[2] = 0.5;
-#ifdef	NEW_TEXTURES
 				texture = EC_SHIMMER;
-#else	/* NEW_TEXTURES */
-				texture = &(base->TexShimmer);
-#endif	/* NEW_TEXTURES */
 				outer_spawner->ifs_elements.push_back(new IFS2DSwirlElement(0.5));
 				outer_spawner->ifs_elements.push_back(new IFSSinusoidalElement(2.5, Vec3(1.3, 0.0, 2.3), Vec3(0.88, 0.0, 0.93), Vec3(1.0, 0.0, 1.0)));
 				outer_spawner->ifs_elements.push_back(new IFSRingElement(0.5, Vec3(0.0, 0.0, 1.0), Vec3(1.0, 1e6, 1.0)));

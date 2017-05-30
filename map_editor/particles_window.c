@@ -41,10 +41,6 @@ void reset_def()
 	def.lightr=def.lightg=def.lightb=0;
 	
 	def.sound_nr = -1;
-#ifdef OLD_SOUND
-	def.positional = 0;
-	def.loop = 0;
-#endif //OLD_SOUND
 }
 
 void set_and_draw_particle_lights(){
@@ -254,11 +250,7 @@ void display_particles_window_preview(window_info *win)
 	}
 	glDepthMask(GL_TRUE);
 	// Draw a few tiles as a background
-#ifdef	NEW_TEXTURES
 	bind_texture(tile_list[1]);
-#else	/* NEW_TEXTURES */
-	get_and_set_texture_id(tile_list[1]);
-#endif	/* NEW_TEXTURES */
 	glBegin(GL_TRIANGLE_STRIP);
 	glTexCoord2f(1.0f, 1.0f);
 	glVertex2f(-3.0,3.0);
@@ -611,20 +603,12 @@ int display_particles_window_handler(window_info *win)
 		case PREVIEW_PARTICLE_SOUND:
 			snprintf (temp, sizeof (temp), "Sound number: %d", def.sound_nr);
 			draw_string (previewx + 2, sel_handle_bottom + 32,(const unsigned char*)  temp, 1);
-#ifdef OLD_SOUND
-			draw_string (previewx + 2, sel_handle_bottom + 57,(const unsigned char*)  "Positional: ", 1);
-			draw_string (previewx + 2, sel_handle_bottom + 77,(const unsigned char*)  "Loops: ", 1);
-#endif //OLD_SOUND
 			break;
 		}
 	switch(preview_display_particle_handles)
 	{
 		case PREVIEW_PARTICLE_SOUND:
 			display_plus_minus (previewx2-pm_width, sel_handle_bottom + 30);
-#ifdef OLD_SOUND
-			draw_checkbox (previewx2-pm_width, sel_handle_bottom+55, def.positional);
-			draw_checkbox (previewx2-pm_width, sel_handle_bottom+75, def.loop);
-#endif //OLD_SOUND
 			break;
 		case(PREVIEW_PARTICLE_LIGHT):
 			draw_checkbox(previewx+11*12-2,sel_handle_bottom+4,def.use_light);
@@ -645,11 +629,7 @@ int display_particles_window_handler(window_info *win)
 	draw_string(10,450,(const unsigned char*) temp,1);
 	UNLOCK_PARTICLES_LIST();
 
-#ifdef	NEW_TEXTURES
 	bind_texture(buttons_text);
-#else	/* NEW_TEXTURES */
-	get_and_set_texture_id(buttons_text);
-#endif	/* NEW_TEXTURES */
 	glBegin(GL_QUADS);
        	draw_2d_thing((float)64/255,1.0f-(float)32/255,(float)96/255,1.0f-(float)64/255, 10,380,42,412);
 	glEnd();
@@ -860,16 +840,6 @@ int check_particles_window_interface(window_info *win, int _x, int _y)
 		case PREVIEW_PARTICLE_SOUND:
 			if (maxx == 1 && def.sound_nr < 9) def.sound_nr++;
 			if (maxx == 2 && def.sound_nr > -1) def.sound_nr--;
-#ifdef OLD_SOUND
-			if (_x > previewx2 - pm_width && _x < previewx2 - pm_width + 15 && _y > sel_handle_bottom+55 && _y < sel_handle_bottom+55+15)
-			{
-				def.positional = !def.positional;
-			}
-			if (_x > previewx2 - pm_width && _x < previewx2 - pm_width + 15 && _y > sel_handle_bottom+75 && _y < sel_handle_bottom+75+15)
-			{
-				def.loop = !def.loop;
-			}
-#endif //OLD_SOUND
 			break;
 	}
 

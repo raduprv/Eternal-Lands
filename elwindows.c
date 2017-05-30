@@ -941,7 +941,6 @@ int	move_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y)
 
 int	draw_window_title(window_info *win)
 {
-#ifdef	NEW_TEXTURES
 	float u_first_start = (float)31/255;
 	float u_first_end = 0;
 	float v_first_start = (float)160/255;
@@ -956,22 +955,6 @@ int	draw_window_title(window_info *win)
 	float u_last_end = (float)31/255;
 	float v_last_start = (float)160/255;
 	float v_last_end = (float)175/255;
-#else	/* NEW_TEXTURES */
-	float u_first_start= (float)31/255;
-	float u_first_end= 0;
-	float v_first_start= 1.0f-(float)160/255;
-	float v_first_end= 1.0f-(float)175/255;
-
-	float u_middle_start= (float)32/255;
-	float u_middle_end= (float)63/255;
-	float v_middle_start= 1.0f-(float)160/255;
-	float v_middle_end= 1.0f-(float)175/255;
-
-	float u_last_start= 0;
-	float u_last_end= (float)31/255;
-	float v_last_start= 1.0f-(float)160/255;
-	float v_last_end= 1.0f-(float)175/255;
-#endif	/* NEW_TEXTURES */
 
 	if((win->flags&ELW_TITLE_BAR) == ELW_TITLE_NONE)	return 0;
 
@@ -984,11 +967,7 @@ int	draw_window_title(window_info *win)
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now draw that shit...
 
-#ifdef	NEW_TEXTURES
 	bind_texture(icons_text);
-#else	/* NEW_TEXTURES */
-	get_and_set_texture_id(icons_text);
-#endif	/* NEW_TEXTURES */
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER,0.03f);
 	glBegin(GL_QUADS);

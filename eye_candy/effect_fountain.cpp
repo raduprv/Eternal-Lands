@@ -44,7 +44,6 @@ namespace ec
 		state = 0;
 	}
 
-#ifdef	NEW_TEXTURES
 	float FountainParticle::get_burn() const
 	{
 		if (backlight)
@@ -56,47 +55,6 @@ namespace ec
 			return 0.0f;
 		}
 	}
-#else	/* NEW_TEXTURES */
-	void FountainParticle::draw(const Uint64 usec)
-	{
-		if (!backlight)
-		{
-			glEnable(GL_LIGHTING);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			Vec3 shifted_pos = pos - *(((FountainEffect*)effect)->pos);
-#if 0	// Clear, but slow.  Consider this a comment.
-			Vec3 velocity2 = velocity;
-			//    velocity2.normalize();
-			shifted_pos.normalize();
-			Vec3 cross = velocity2.cross(shifted_pos).cross(velocity2);
-			glNormal3f(cross.x, cross.y, cross.z);
-#else	// Faster, but obfuscated.  NOTE: For some reason, it's not producing the same output!  However, I like the new output better.
-			const coord_t vel_mag_squared = velocity.magnitude_squared();
-			const coord_t sp_mag = shifted_pos.magnitude();
-			const coord_t scalar = vel_mag_squared * sp_mag;
-			const coord_t vx_squared = velocity.x * velocity.x;
-			const coord_t vy_squared = velocity.y * velocity.y;
-			const coord_t vz_squared = velocity.z * velocity.z;
-			const coord_t x = (shifted_pos.x * (vz_squared - vy_squared)
-				- velocity.x * (shifted_pos.z * velocity.z + shifted_pos.y
-					* velocity.y)) / scalar;
-			const coord_t y = (shifted_pos.y * (vx_squared - vz_squared)
-				- velocity.y * (shifted_pos.x * velocity.x + shifted_pos.z
-					* velocity.z)) / scalar;
-			const coord_t z = (shifted_pos.z * (vy_squared - vx_squared)
-				- velocity.z * (shifted_pos.y * velocity.y + shifted_pos.x
-					* velocity.x)) / scalar;
-			glNormal3f(-x, -y, -z);
-#endif
-		}
-		Particle::draw(usec);
-		if (!backlight)
-		{
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-			glDisable(GL_LIGHTING);
-		}
-	}
-#endif	/* NEW_TEXTURES */
 
 	bool FountainParticle::idle(const Uint64 delta_t)
 	{
@@ -132,7 +90,6 @@ namespace ec
 		return true;
 	}
 
-#ifdef	NEW_TEXTURES
 	Uint32 FountainParticle::get_texture()
 	{
 		if (state == 1)
@@ -144,15 +101,6 @@ namespace ec
 			return base->get_texture(EC_FLARE);
 		}
 	}
-#else	/* NEW_TEXTURES */
-	GLuint FountainParticle::get_texture(const Uint16 res_index)
-	{
-		if (state == 1)
-			return base->TexWater.get_texture(res_index);
-		else
-			return base->TexFlare.get_texture(res_index);
-	}
-#endif	/* NEW_TEXTURES */
 
 	FountainEffect::FountainEffect(EyeCandy* _base, bool* _dead, Vec3* _pos,
 		const color_t _hue_adjust, const color_t _saturation_adjust,

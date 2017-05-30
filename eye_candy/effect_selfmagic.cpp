@@ -13,11 +13,7 @@ namespace ec
 	SelfMagicParticle::SelfMagicParticle(Effect* _effect,
 		ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity,
 		const coord_t _size, const alpha_t _alpha, const color_t red,
-#ifdef	NEW_TEXTURES
 		const color_t green, const color_t blue, TextureEnum _texture,
-#else	/* NEW_TEXTURES */
-		const color_t green, const color_t blue, Texture* _texture,
-#endif	/* NEW_TEXTURES */
 		const Uint16 _LOD, const SelfMagicEffect::SelfMagicType _type) :
 		Particle(_effect, _mover, _pos, _velocity,
 			_size * (0.5 + randcoord()) * 13 / (_LOD + 3))
@@ -150,13 +146,7 @@ namespace ec
 							Vec3 new_velocity;
 							new_velocity.randomize(1.5);
 							new_velocity += velocity;
-							Particle
-								* p =
-#ifdef	NEW_TEXTURES
-									new SelfMagicParticle(effect, mover, pos, new_velocity, 2.0, 1.0, 1.0, 1.0, 0.5, EC_SHIMMER, LOD, type);
-#else	/* NEW_TEXTURES */
-									new SelfMagicParticle(effect, mover, pos, new_velocity, 2.0, 1.0, 1.0, 1.0, 0.5, &(base->TexShimmer), LOD, type);
-#endif	/* NEW_TEXTURES */
+							Particle * p = new SelfMagicParticle(effect, mover, pos, new_velocity, 2.0, 1.0, 1.0, 1.0, 0.5, EC_SHIMMER, LOD, type);
 							p->state = 1;
 							if (!base->push_back_particle(p))
 								break;
@@ -224,17 +214,10 @@ namespace ec
 		return true;
 	}
 
-#ifdef	NEW_TEXTURES
 	Uint32 SelfMagicParticle::get_texture()
 	{
 		return base->get_texture(texture);
 	}
-#else	/* NEW_TEXTURES */
-	GLuint SelfMagicParticle::get_texture(const Uint16 res_index)
-	{
-		return texture->get_texture(res_index);
-	}
-#endif	/* NEW_TEXTURES */
 
 	SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos,
 		const SelfMagicType _type, const Uint16 _LOD)
@@ -257,10 +240,8 @@ namespace ec
 		target_alpha = NULL;
 		shift = Vec3(0.0, 0.0, 0.0);
 
-#ifdef	NEW_TEXTURES
 		alpha_scale = 1.0f;
 		capless_cylinders = 0;
-#endif	/* NEW_TEXTURES */
 
 		switch (type)
 		{
@@ -274,13 +255,7 @@ namespace ec
 					Vec3 coords = spawner->get_new_coords() * 0.5;
 					Vec3 velocity = -coords * 3;
 					coords += effect_center;
-					Particle
-						* p =
-#ifdef	NEW_TEXTURES
-							new SelfMagicParticle(this, mover, coords, velocity, 0.7, 0.5, 0.4, 0.7, 0.2, EC_FLARE, LOD, type);
-#else	/* NEW_TEXTURES */
-							new SelfMagicParticle(this, mover, coords, velocity, 0.7, 0.5, 0.4, 0.7, 0.2, &(base->TexFlare), LOD, type);
-#endif	/* NEW_TEXTURES */
+					Particle * p = new SelfMagicParticle(this, mover, coords, velocity, 0.7, 0.5, 0.4, 0.7, 0.2, EC_FLARE, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -295,13 +270,7 @@ namespace ec
 					Vec3 coords = spawner->get_new_coords() + effect_center;
 					Vec3 velocity;
 					velocity.randomize(0.4);
-					Particle
-						* p =
-#ifdef	NEW_TEXTURES
-							new SelfMagicParticle(this, mover, coords, velocity, 1.1, 1.0, 0.7, 0.2, 0.4, EC_VOID, LOD, type);
-#else	/* NEW_TEXTURES */
-							new SelfMagicParticle(this, mover, coords, velocity, 1.1, 1.0, 0.7, 0.2, 0.4, &(base->TexVoid), LOD, type);
-#endif	/* NEW_TEXTURES */
+					Particle * p = new SelfMagicParticle(this, mover, coords, velocity, 1.1, 1.0, 0.7, 0.2, 0.4, EC_VOID, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -319,13 +288,7 @@ namespace ec
 					velocity.randomize(0.3);
 					velocity.y *= 5;
 					velocity.y += 0.7;
-					Particle
-						* p =
-#ifdef	NEW_TEXTURES
-							new SelfMagicParticle(this, mover, coords, velocity, 2.0, 1.0, 0.5, 0.5, 0.6, EC_SHIMMER, LOD, type);
-#else	/* NEW_TEXTURES */
-							new SelfMagicParticle(this, mover, coords, velocity, 2.0, 1.0, 0.5, 0.5, 0.6, &(base->TexShimmer), LOD, type);
-#endif	/* NEW_TEXTURES */
+					Particle * p = new SelfMagicParticle(this, mover, coords, velocity, 2.0, 1.0, 0.5, 0.5, 0.6, EC_SHIMMER, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -345,13 +308,7 @@ namespace ec
 					velocity.randomize(0.39);
 					velocity.y *= 1.5;
 					velocity.y += 0.7;
-					Particle
-						* p =
-#ifdef	NEW_TEXTURES
-							new SelfMagicParticle(this, mover, coords, velocity, 5.0, 0.9, 1.0, 0.55, 0.05, EC_SHIMMER, LOD, type);
-#else	/* NEW_TEXTURES */
-							new SelfMagicParticle(this, mover, coords, velocity, 5.0, 0.9, 1.0, 0.55, 0.05, &(base->TexShimmer), LOD, type);
-#endif	/* NEW_TEXTURES */
+					Particle * p = new SelfMagicParticle(this, mover, coords, velocity, 5.0, 0.9, 1.0, 0.55, 0.05, EC_SHIMMER, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -362,13 +319,7 @@ namespace ec
 					velocity.randomize(0.39);
 					velocity.y *= 1.5;
 					velocity.y += 0.7;
-					Particle
-						* p =
-#ifdef	NEW_TEXTURES
-							new SelfMagicParticle(this, mover2, coords, velocity, 2.0, 1.0, 1.0, 0.55, 0.05, EC_SHIMMER, LOD, type);
-#else	/* NEW_TEXTURES */
-							new SelfMagicParticle(this, mover2, coords, velocity, 2.0, 1.0, 1.0, 0.55, 0.05, &(base->TexShimmer), LOD, type);
-#endif	/* NEW_TEXTURES */
+					Particle * p = new SelfMagicParticle(this, mover2, coords, velocity, 2.0, 1.0, 1.0, 0.55, 0.05, EC_SHIMMER, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -388,13 +339,7 @@ namespace ec
 					velocity.randomize(0.36);
 					velocity.y *= 2.5;
 					velocity.y -= 0.7;
-					Particle
-						* p =
-#ifdef	NEW_TEXTURES
-							new SelfMagicParticle(this, mover, coords, velocity, 8.0, 0.5, 0.05, 0.50, 0.95, EC_SHIMMER, LOD, type);
-#else	/* NEW_TEXTURES */
-							new SelfMagicParticle(this, mover, coords, velocity, 8.0, 0.5, 0.05, 0.50, 0.95, &(base->TexShimmer), LOD, type);
-#endif	/* NEW_TEXTURES */
+					Particle * p = new SelfMagicParticle(this, mover, coords, velocity, 8.0, 0.5, 0.05, 0.50, 0.95, EC_SHIMMER, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -405,13 +350,7 @@ namespace ec
 					velocity.randomize(0.36);
 					velocity.y *= 2.5;
 					velocity.y -= 0.7;
-					Particle
-						* p =
-#ifdef	NEW_TEXTURES
-							new SelfMagicParticle(this, mover2, coords, velocity, 2.0, 1.0, 0.05, 0.50, 0.95, EC_SHIMMER, LOD, type);
-#else	/* NEW_TEXTURES */
-							new SelfMagicParticle(this, mover2, coords, velocity, 2.0, 1.0, 0.05, 0.50, 0.95, &(base->TexShimmer), LOD, type);
-#endif	/* NEW_TEXTURES */
+					Particle * p = new SelfMagicParticle(this, mover2, coords, velocity, 2.0, 1.0, 0.05, 0.50, 0.95, EC_SHIMMER, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -431,13 +370,7 @@ namespace ec
 					velocity.randomize(0.33);
 					velocity.y *= 4.25;
 					velocity.y += 0.3;
-					Particle
-						* p =
-#ifdef	NEW_TEXTURES
-							new SelfMagicParticle(this, mover, coords, velocity, 4.0, 0.9, 0.05, 1.0, 0.25, EC_SHIMMER, LOD, type);
-#else	/* NEW_TEXTURES */
-							new SelfMagicParticle(this, mover, coords, velocity, 4.0, 0.9, 0.05, 1.0, 0.25, &(base->TexShimmer), LOD, type);
-#endif	/* NEW_TEXTURES */
+					Particle * p = new SelfMagicParticle(this, mover, coords, velocity, 4.0, 0.9, 0.05, 1.0, 0.25, EC_SHIMMER, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -448,13 +381,7 @@ namespace ec
 					velocity.randomize(0.33);
 					velocity.y *= 4.25;
 					velocity.y += 0.3;
-					Particle
-						* p =
-#ifdef	NEW_TEXTURES
-							new SelfMagicParticle(this, mover2, coords, velocity, 2.0, 1.0, 0.05, 0.8, 0.25, EC_SHIMMER, LOD, type);
-#else	/* NEW_TEXTURES */
-							new SelfMagicParticle(this, mover2, coords, velocity, 2.0, 1.0, 0.05, 0.8, 0.25, &(base->TexShimmer), LOD, type);
-#endif	/* NEW_TEXTURES */
+					Particle * p = new SelfMagicParticle(this, mover2, coords, velocity, 2.0, 1.0, 0.05, 0.8, 0.25, EC_SHIMMER, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -471,11 +398,7 @@ namespace ec
 					Vec3 coords = spawner->get_new_coords() * 3.5;
 					Vec3 velocity = -coords * 3;
 					coords += effect_center;
-#ifdef	NEW_TEXTURES
 					Particle * p = new SelfMagicParticle(this, mover, coords, velocity, 1.9 + randcoord(1.5), 0.85 + randalpha(0.15), 0.25 + randcolor(0.3), 0.7 + randcolor(0.2), 0.3, EC_FLARE, LOD, type);
-#else	/* NEW_TEXTURES */
-					Particle * p = new SelfMagicParticle(this, mover, coords, velocity, 1.9 + randcoord(1.5), 0.85 + randalpha(0.15), 0.25 + randcolor(0.3), 0.7 + randcolor(0.2), 0.3, &(base->TexFlare), LOD, type);
-#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -486,11 +409,7 @@ namespace ec
 					velocity.randomize(0.3);
 					velocity.y *= 5;
 					velocity.y -= 0.7;
-#ifdef	NEW_TEXTURES
 					Particle * p = new SelfMagicParticle(this, mover2, coords, velocity, 1.0 + randcoord(1.5), 0.75 + randalpha(0.25), 0.6 + randcolor(0.3), 0.35 + randcolor(0.45), 0.3, EC_SHIMMER, LOD, type);
-#else	/* NEW_TEXTURES */
-					Particle * p = new SelfMagicParticle(this, mover2, coords, velocity, 1.0 + randcoord(1.5), 0.75 + randalpha(0.25), 0.6 + randcolor(0.3), 0.35 + randcolor(0.45), 0.3, &(base->TexShimmer), LOD, type);
-#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -506,11 +425,7 @@ namespace ec
 				Vec3 velocity;
 				velocity.randomize(0.4);
 				velocity.y += 2.8;
-#ifdef	NEW_TEXTURES
 				Particle * p = new SelfMagicParticle(this, mover, coords, velocity, 2.0, 1.0, 0.6, 0.5, 0.5, EC_INVERSE, LOD, type);
-#else	/* NEW_TEXTURES */
-				Particle * p = new SelfMagicParticle(this, mover, coords, velocity, 2.0, 1.0, 0.6, 0.5, 0.5, &(base->TexInverse), LOD, type);
-#endif	/* NEW_TEXTURES */
 				base->push_back_particle(p);
 				break;
 			}
@@ -528,23 +443,16 @@ namespace ec
 					velocity.randomize(0.25);
 					const coord_t size = size_scalar * (0.5 + 1.5 * randcoord());
 					velocity /= size;
-#ifdef	NEW_TEXTURES
 					Particle* p = new SelfMagicParticle(this, mover, coords, velocity, size, 1.0, randcolor(1.0), randcolor(1.0), randcolor(1.0), EC_SHIMMER, LOD, type);
-#else	/* NEW_TEXTURES */
-					Particle* p = new SelfMagicParticle(this, mover, coords, velocity, size, 1.0, randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexShimmer), LOD, type);
-#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
 
 				const float radius = 0.377628;
-#ifdef	NEW_TEXTURES
 				std::vector<CaplessCylinders::CaplessCylinderItem> cylinders;
-#endif	/* NEW_TEXTURES */
 				for (int i = 0; i < LOD * 4; i++)
 				{
 					const percent_t percent = ((percent_t)i + 1) / (LOD * 4);
-#ifdef	NEW_TEXTURES
 					cylinders.push_back(CaplessCylinders::CaplessCylinderItem(effect_center, effect_center + Vec3(0.0, 10.0 / percent, 0.0), Vec3(1.0, 1.0, 1.0), (0.1 + (1.0 - percent) * 0.05) / (LOD + 2), radius * percent, (int)(25 * (percent + 0.2))));
 				}
 
@@ -552,10 +460,6 @@ namespace ec
 				{
 					capless_cylinders = new CaplessCylinders(base, cylinders);
 				}
-#else	/* NEW_TEXTURES */
-					capless_cylinders.push_back(new CaplessCylinder(base, effect_center, effect_center + Vec3(0.0, 10.0 / percent, 0.0), Vec3(1.0, 1.0, 1.0), (0.1 + (1.0 - percent) * 0.05) / (LOD + 2), radius * percent, (int)(25 * (percent + 0.2))));
-				}
-#endif	/* NEW_TEXTURES */
 
 				break;
 			}
@@ -569,11 +473,7 @@ namespace ec
 					Vec3 velocity;
 					velocity.randomize(2.0);
 					coords += effect_center;
-#ifdef	NEW_TEXTURES
 					Particle * p = new SelfMagicParticle(this, mover, coords, velocity, randcoord(7.0) + 0.3, 1.0, randcolor(), randcolor(), randcolor(), EC_VOID, LOD, type);
-#else	/* NEW_TEXTURES */
-					Particle * p = new SelfMagicParticle(this, mover, coords, velocity, randcoord(7.0) + 0.3, 1.0, randcolor(), randcolor(), randcolor(), &(base->TexVoid), LOD, type);
-#endif	/* NEW_TEXTURES */
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -589,13 +489,7 @@ namespace ec
 					Vec3 coords = spawner->get_new_coords();
 					Vec3 velocity = coords * 16;
 					coords += effect_center;
-					Particle
-						* p =
-#ifdef	NEW_TEXTURES
-							new SelfMagicParticle(this, mover, coords, velocity, 7.0, 0.12, 1.0, 1.0, 1.0, EC_VOID, LOD, type);
-#else	/* NEW_TEXTURES */
-							new SelfMagicParticle(this, mover, coords, velocity, 7.0, 0.12, 1.0, 1.0, 1.0, &(base->TexVoid), LOD, type);
-#endif	/* NEW_TEXTURES */
+					Particle * p = new SelfMagicParticle(this, mover, coords, velocity, 7.0, 0.12, 1.0, 1.0, 1.0, EC_VOID, LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -614,13 +508,7 @@ namespace ec
 			delete spawner2;
 		if (mover2)
 			delete mover2;
-#ifdef	NEW_TEXTURES
 		delete capless_cylinders;
-#else	/* NEW_TEXTURES */
-		for (size_t i = 0; i < capless_cylinders.size(); i++)
-			delete capless_cylinders[i];
-		capless_cylinders.clear();
-#endif	/* NEW_TEXTURES */
 		if (EC_DEBUG)
 			std::cout << "SelfMagicEffect (" << this << ") destroyed."
 				<< std::endl;
@@ -630,7 +518,6 @@ namespace ec
 	{
 		if (particles.size() == 0)
 		{
-#ifdef	NEW_TEXTURES
 			if (capless_cylinders != 0)
 			{
 				if (alpha_scale < 0.01f)
@@ -642,15 +529,6 @@ namespace ec
 			{
 				return false;
 			}
-#else	/* NEW_TEXTURES */
-			if (capless_cylinders.size())
-			{
-				if ((*capless_cylinders.rbegin())->alpha < 0.01)
-					return false;
-			}
-			else
-				return false;
-#endif	/* NEW_TEXTURES */
 		}
 		else if (recall)
 			return true;
@@ -699,13 +577,7 @@ namespace ec
 						Vec3 velocity;
 						velocity.randomize(0.4);
 						velocity.y += 2.8;
-						Particle
-							* p =
-#ifdef	NEW_TEXTURES
-								new SelfMagicParticle(this, mover, coords, velocity, 2.0, 1.0, 0.6, 0.5, 0.5, EC_INVERSE, LOD, type);
-#else	/* NEW_TEXTURES */
-								new SelfMagicParticle(this, mover, coords, velocity, 2.0, 1.0, 0.6, 0.5, 0.5, &(base->TexInverse), LOD, type);
-#endif	/* NEW_TEXTURES */
+						Particle * p = new SelfMagicParticle(this, mover, coords, velocity, 2.0, 1.0, 0.6, 0.5, 0.5, EC_INVERSE, LOD, type);
 						if (!base->push_back_particle(p))
 						{
 							count = 0;
@@ -720,28 +592,7 @@ namespace ec
 			{
 				if (age > 500000)
 				{
-#ifdef	NEW_TEXTURES
 					alpha_scale *= std::pow(0.5f, (interval_t)usec / 200000.0f);
-#else	/* NEW_TEXTURES */
-					const alpha_t scalar =
-						std::pow(0.5f, (interval_t)usec / 200000.0f);
-					for (int i = 0; i < (int)capless_cylinders.size(); i++)
-					{
-						float percent = float(i) / float(capless_cylinders.size()) * 0.8;
-						std::vector<Shape*>::const_iterator iter =
-							capless_cylinders.begin() + i;
-						(*iter)->alpha = (*iter)->alpha * percent + (*iter)->alpha * scalar * (1.0 - percent);
-					}
-					/*
-					 for (std::vector<Shape*>::iterator iter = capless_cylinders.begin(); iter != capless_cylinders.end(); iter++)
-					 {
-					 (*iter)->alpha *= scalar;
-					 //          std::coutk << (*iter)->alpha << scalar << ((*iter)->alpha * scalar) << std::endl;
-					 if ((*iter)->alpha > 0.005)
-					 break;
-					 }
-					 */
-#endif	/* NEW_TEXTURES */
 				}
 
 				if (target_alpha)
@@ -777,16 +628,10 @@ namespace ec
 
 	void SelfMagicEffect::draw(const Uint64 usec)
 	{
-#ifdef	NEW_TEXTURES
 		if (capless_cylinders != 0)
 		{
 			capless_cylinders->draw(alpha_scale);
 		}
-#else	/* NEW_TEXTURES */
-		for (std::vector<Shape*>::iterator iter = capless_cylinders.begin(); iter
-			!= capless_cylinders.end(); iter++)
-			(*iter)->draw();
-#endif	/* NEW_TEXTURES */
 	}
 
 ///////////////////////////////////////////////////////////////////////////////

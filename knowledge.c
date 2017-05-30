@@ -60,11 +60,7 @@ int add_knowledge_book_image() {
 	v=-ftsize*ytile;
 	uend=u+ftsize;
 	vend=v-ftsize;
-#ifdef	NEW_TEXTURES
 	id = load_texture_cached("textures/items1", tt_gui);
-#else	/* NEW_TEXTURES */
-	id= load_texture_cache_deferred("textures/items1.bmp", 0);
-#endif	/* NEW_TEXTURES */
 	return image_add_extended(knowledge_win, 0, NULL, 500, 215, 50, 50, WIDGET_DISABLED, 1.0, 1.0, 1.0, 1.0, id, u, v, uend, vend, 0.05f); 
 }
 

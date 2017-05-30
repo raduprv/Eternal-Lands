@@ -317,11 +317,7 @@ void draw_3d_objects(unsigned int object_type)
 		//enable alpha filtering, so we have some alpha key
 		glEnable(GL_ALPHA_TEST);
 		if(is_ground)glAlphaFunc(GL_GREATER,0.23f);
-#ifdef OLD_MISC_OBJ_DIR
-		else glAlphaFunc(GL_GREATER,0.06f);
-#else
 		else glAlphaFunc(GL_GREATER,0.3f);
-#endif
 		glDisable(GL_CULL_FACE);
 	}
 

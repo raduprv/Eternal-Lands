@@ -213,13 +213,8 @@ int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, float display
 	//now get the texture coordinates
 	u_start= (float)(row*FONT_X_SPACING+ignored_bits)/256.0f;
 	u_end= (float)(row*FONT_X_SPACING+FONT_X_SPACING-7-ignored_bits)/256.0f;
-#ifdef NEW_TEXTURES
 	v_start= (float)(1+col*FONT_Y_SPACING)/256.0f;
 	v_end= (float)(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
-#else
-	v_start= (float)1.0f-(1+col*FONT_Y_SPACING)/256.0f;
-	v_end= (float)1.0f-(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
-#endif //NEW_TEXTURES
 
 	// and place the text from the graphics on the map
 	glTexCoord2f(u_start,v_start);
@@ -341,11 +336,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 
  	glEnable (GL_ALPHA_TEST);	// enable alpha filtering, so we have some alpha key
 	glAlphaFunc (GL_GREATER, 0.1f);
-#ifdef	NEW_TEXTURES
 	bind_texture(font_text);
-#else	/* NEW_TEXTURES */
-	get_and_set_texture_id(font_text);
-#endif	/* NEW_TEXTURES */
 
 	i = 0;
 	cur_x = x;
@@ -539,11 +530,7 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER,0.1f);
-#ifdef	NEW_TEXTURES
 	bind_texture(font_text);
-#else	/* NEW_TEXTURES */
-	get_and_set_texture_id(font_text);
-#endif	/* NEW_TEXTURES */
 
 	i=0;
 	cur_x=x;
@@ -607,11 +594,7 @@ void draw_string_zoomed_clipped (int x, int y, const unsigned char* our_string, 
 
 	glEnable (GL_ALPHA_TEST);	// enable alpha filtering, so we have some alpha key
 	glAlphaFunc (GL_GREATER, 0.1f);
-#ifdef	NEW_TEXTURES
 	bind_texture(font_text);
-#else	/* NEW_TEXTURES */
-	get_and_set_texture_id(font_text);
-#endif	/* NEW_TEXTURES */
 
 	i = 0;
 	cur_x = x;
@@ -835,11 +818,7 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER,0.1f);
-#ifdef	NEW_TEXTURES
 	bind_texture(font_text);
-#else	/* NEW_TEXTURES */
-	get_and_set_texture_id(font_text);
-#endif	/* NEW_TEXTURES */
 
 	i=0;
 	cur_x=x;
@@ -955,11 +934,7 @@ void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * ou
 
 	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER,0.1f);
-#ifdef	NEW_TEXTURES
 	bind_texture(font_text);
-#else	/* NEW_TEXTURES */
-	get_and_set_texture_id(font_text);
-#endif	/* NEW_TEXTURES */
 
 	i=0;
 	cur_x=x;
@@ -1001,14 +976,8 @@ void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * ou
 					//now get the texture coordinates
 					u_start=(float)(row*font_x_size+ignored_bits)/256.0f;
 					u_end=(float)(row*font_x_size+font_x_size-7-ignored_bits)/256.0f;
-#ifdef NEW_TEXTURES
 					v_start=(float)(1+col*font_y_size)/256.0f;
 					v_end=(float)(col*font_y_size+font_y_size-1)/256.0f;
-#else
-					v_start=(float)1.0f-(1+col*font_y_size)/256.0f;
-					v_end=(float)1.0f-(col*font_y_size+font_y_size-1)/256.0f;
-#endif //NEW_TEXTURES
-					//v_end=(float)1.0f-(col*font_y_size+font_y_size-2)/256.0f;
 
 					glTexCoord2f(u_start,v_start);
 					glVertex3f(cur_x,cur_y+displayed_font_y_size,z);
@@ -1022,8 +991,6 @@ void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * ou
 					glTexCoord2f(u_end,v_start);
 					glVertex3f(cur_x+displayed_font_x_width,cur_y+displayed_font_y_size,z);
 
-
-					//cur_x+=displayed_font_x_size;
 					cur_x+=displayed_font_x_width;
 				}
 			else if (is_color (cur_char))
@@ -1062,13 +1029,8 @@ void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * ou
 			//now get the texture coordinates
 			u_start=(float)(row*FONT_X_SPACING+ignored_bits)/256.0f;
 			u_end=(float)(row*FONT_X_SPACING+FONT_X_SPACING-7-ignored_bits)/256.0f;
-#ifdef NEW_TEXTURES
 			v_start=(float)(1+col*FONT_Y_SPACING)/256.0f;
 			v_end=(float)(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
-#else
-			v_start=(float)1.0f-(1+col*FONT_Y_SPACING)/256.0f;
-			v_end=(float)1.0f-(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
-#endif //NEW_TEXTURES
 
 			glTexCoord2f(u_start,v_start);
 			glVertex3f(cur_x,cur_y+displayed_font_y_size,z);
@@ -1143,11 +1105,7 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 
 	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER,0.1f);
-#ifdef	NEW_TEXTURES
 	bind_texture(font_text);
-#else	/* NEW_TEXTURES */
-	get_and_set_texture_id(font_text);
-#endif	/* NEW_TEXTURES */
 
 	i=0;
 #ifndef SKY_FPV_OPTIONAL
@@ -1193,13 +1151,8 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 					//now get the texture coordinates
 					u_start=(float)(row*FONT_X_SPACING+ignored_bits)/256.0f;
 					u_end=(float)(row*FONT_X_SPACING+FONT_X_SPACING-7-ignored_bits)/256.0f;
-#ifdef NEW_TEXTURES
 					v_start=(float)(1+col*FONT_Y_SPACING)/256.0f;
 					v_end=(float)(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
-#else
-					v_start=(float)1.0f-(1+col*FONT_Y_SPACING)/256.0f;
-					v_end=(float)1.0f-(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
-#endif //NEW_TEXTURES
 
 					glTexCoord2f(u_start,v_start);
 					glVertex3f(cur_x,0,cur_y+displayed_font_y_size);
@@ -1252,13 +1205,8 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 			//now get the texture coordinates
 			u_start=(float)(row*FONT_X_SPACING+ignored_bits)/256.0f;
 			u_end=(float)(row*FONT_X_SPACING+FONT_X_SPACING-7-ignored_bits)/256.0f;
-#ifdef NEW_TEXTURES
 			v_start=(float)(1+col*FONT_Y_SPACING)/256.0f;
 			v_end=(float)(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
-#else
-			v_start=(float)1.0f-(1+col*FONT_Y_SPACING)/256.0f;
-			v_end=(float)1.0f-(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
-#endif // NEW_TEXTURES
 
 			glTexCoord2f(u_start,v_start);
 			glVertex3f(cur_x,cur_y+displayed_font_y_size,0);
@@ -1364,41 +1312,9 @@ void cleanup_fonts(void)
 	}
 }
 
-#ifndef	NEW_TEXTURES
-void reload_fonts()
-{
-	int i;
-	int poor_man_save=poor_man;
-	int use_mipmaps_save=use_mipmaps;
-
-	poor_man=0;
-	use_mipmaps=0;
-
-	for(i=0;i < FONTS_ARRAY_SIZE; i++){
-		if(fonts[i] != NULL){
-			if(fonts[i]->texture_id>=0){
-				glDeleteTextures(1, (GLuint*)&texture_cache[fonts[i]->texture_id].texture_id);
-				texture_cache[fonts[i]->texture_id].texture_id=0;
-				get_texture_id(fonts[i]->texture_id);
-			}
-		}
-	}
-
-	poor_man=poor_man_save;
-	use_mipmaps=use_mipmaps_save;
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
-}
-#endif	/* NEW_TEXTURES */
-
 static const char texture_dir[] = "textures/";
 int load_font_textures ()
 {
-#ifndef	NEW_TEXTURES
-	int poor_man_save=poor_man;
-	int use_mipmaps_save=use_mipmaps;
-#endif	/* NEW_TEXTURES */
 	size_t i = 0;
 	char *glob_pattern;
 #ifdef WINDOWS
@@ -1422,27 +1338,14 @@ int load_font_textures ()
 		if ( !init_fonts () ) return 0;
 	}
 
-#ifndef	NEW_TEXTURES
-	poor_man=0;
-	use_mipmaps=0;
-#endif	/* NEW_TEXTURES */
-
-#ifdef	NEW_TEXTURES
 	fonts[0]->texture_id = load_texture_cached("textures/font.dds", tt_font);
-#else	/* NEW_TEXTURES */
-	fonts[0]->texture_id = load_texture_cache("./textures/font.bmp", 0);
-#endif	/* NEW_TEXTURES */
 	i = 1;
 	// Force the selection of the base font.
 	add_multi_option("chat_font", "Type 1");
 	add_multi_option("name_font", "Type 1");
 	// Find what font's exist and load them
 	glob_pattern = malloc(strlen(datadir)+sizeof(texture_dir)+10+1); //+10 = font*.bmp*
-#ifdef	NEW_TEXTURES
 	sprintf(glob_pattern, "%s%sfont*.dds", datadir, texture_dir);
-#else	/* NEW_TEXTURES */
-	sprintf(glob_pattern, "%s%sfont*.bmp*", datadir, texture_dir);
-#endif	/* NEW_TEXTURES */
 #ifdef WINDOWS
 	if( (hFile = _findfirst( glob_pattern, &c_file )) == -1L ){
 		free(glob_pattern);
@@ -1466,26 +1369,12 @@ int load_font_textures ()
 		safe_strncpy(file, glob_res.gl_pathv[j]+sizeof(texture_dir)-1+strlen(datadir), sizeof(file));
 #endif //WINDOWS
 		len= strlen(file);
-#ifdef	NEW_TEXTURES
 		if (((len + sizeof(texture_dir) - 1) < sizeof(str)) && !strncasecmp(file, "font", 4)
 			&& has_suffix(file, len, ".dds", 4))
 		{
 			safe_snprintf(str, sizeof(str), "./textures/%s", file); //Use a relative path here, load_texture_cache_deferred() is using the path wrappers.
 			file[len - 4] = 0;
 			fonts[i]->texture_id = load_texture_cached(str, tt_font);
-#else	/* NEW_TEXTURES */
-		if (len+sizeof(texture_dir)-1 < sizeof(str) && !strncasecmp(file, "font", 4)
-				&& (has_suffix(file, len, ".bmp", 4) || has_suffix(file, len, ".bmp.gz", 7))
-				&& (!has_suffix(file, len, "_alpha.bmp", 10)) && (!has_suffix(file, len, "_alpha.bmp.gz", 13))) {
-			// Get the filename, remove the .bmp and add _alpha.bmp to a copy, then replace the .bmp
-			safe_snprintf(str, sizeof(str), "./textures/%s", file); //Use a relative path here, load_texture_cache_deferred() is using the path wrappers.
-			if(has_suffix(file, len, ".bmp.gz", 7)){
-				file[len - 7]= 0;
-			} else {
-				file[len - 4]= 0;
-			}
-			fonts[i]->texture_id = load_texture_cache_deferred(str, 0);
-#endif	/* NEW_TEXTURES */
 			safe_snprintf(font_names[i], sizeof(font_names[i]), "Type %i - %s", i + 1, file);
 			add_multi_option("chat_font", font_names[i]);
 			add_multi_option("name_font", font_names[i]);
@@ -1502,11 +1391,6 @@ int load_font_textures ()
 	globfree(&glob_res);
 #endif //WINDOWS
 	free(glob_pattern);
-
-#ifndef	NEW_TEXTURES
-	poor_man=poor_man_save;
-	use_mipmaps=use_mipmaps_save;
-#endif	/* NEW_TEXTURES */
 
 	//set the default font
 	cur_font_num = 0;

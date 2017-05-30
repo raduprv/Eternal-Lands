@@ -29,9 +29,7 @@ int queue_initialise (queue_t **queue)
 	(*queue)->rear = (*queue)->front;
 	(*queue)->front->next = 0;
 	(*queue)->mutex = SDL_CreateMutex();
-#ifdef	NEW_TEXTURES
 	(*queue)->condition = SDL_CreateCond();
-#endif	/* NEW_TEXTURES */
 	(*queue)->nodes = 0;
 	return 1;
 }
@@ -206,14 +204,11 @@ void queue_destroy (queue_t *queue)
 		free(queue->front);
 		CHECK_AND_UNLOCK_MUTEX(queue->mutex);
 		SDL_DestroyMutex(queue->mutex);
-#ifdef	NEW_TEXTURES
 		SDL_DestroyCond(queue->condition);
-#endif	/* NEW_TEXTURES */
 		free (queue);
 	}
 }
 
-#ifdef	NEW_TEXTURES
 int queue_push_signal(queue_t *queue, void *item)
 {
 	node_t *node;
@@ -291,6 +286,3 @@ void *queue_pop_blocking(queue_t *queue)
 
 	return item;
 }
-
-#endif	/* NEW_TEXTURES */
-
