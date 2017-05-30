@@ -79,9 +79,7 @@
 #include "sky.h"
 #include "mines.h"
 #include "popup.h"
-#ifdef TEXT_ALIASES
 #include "text_aliases.h"
-#endif /* TEXT_ALIASES */
 #include "user_menus.h"
 #include "emotes.h"
 #include "image_loading.h"
@@ -1049,9 +1047,7 @@ void init_stuff()
 
 	init_commands("commands.lst");
 
-#ifdef TEXT_ALIASES
 	init_text_aliases();
-#endif
 
 #ifdef NEW_SOUND
 	// Try to turn the sound on now so we have it for the login window

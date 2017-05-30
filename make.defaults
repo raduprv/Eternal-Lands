@@ -11,7 +11,6 @@ FEATURES += CUSTOM_UPDATE		# allows autoupdating of custom look information
 FEATURES += FUZZY_PATHS			# Makes Tab Map walking not always follow exaclty the same path
 FEATURES += NEW_SOUND			# Enables extended sound effects system
 FEATURES += PNG_SCREENSHOT		# make screenshots in W3C's PNG format in game, requires libpng
-FEATURES += TEXT_ALIASES		# Text aliases
 FEATURES += USE_INLINE			# enable some optimizations to use inline functions instead of pure function calls
 # new for 1.9.0 release
 FEATURES += BANDWIDTH_SAVINGS		# enable bandwidth saving changes for message protocol

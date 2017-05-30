@@ -44,9 +44,7 @@
 #include "io/elpathwrapper.h"
 #include "io/elfilewrapper.h"
 #include "calc.h"
-#ifdef TEXT_ALIASES
 #include "text_aliases.h"
-#endif
 //only for debugging command #add_emote <actor name> <emote id>, can be removed later
 #include "actor_scripts.h"
 #include "emotes.h"
@@ -406,14 +404,12 @@ int test_for_console_command(char *text, int length)
 		return 0;
 	} else {
 		int cmd_len;
-#ifdef TEXT_ALIASES
 		/* Handle numeric shortcuts */
 		if ( isdigit(text[0]) ) {
 			if ( process_text_alias(text,length) >= 0 ) {
 				return 1;
 			}
 		}
-#endif
 		/* Look for a matching command */
 		for(i = 0; i < command_count; i++) {
 			cmd_len = strlen(commands[i].command);
@@ -1770,11 +1766,9 @@ add_command("horse", &horse_cmd);
 #ifdef CONTEXT_MENUS_TEST
 	add_command("cmtest", &cm_test_window);
 #endif
-#ifdef TEXT_ALIASES
 	add_command("alias", &alias_command);
 	add_command("unalias", &unalias_command);
 	add_command("aliases", &aliases_command);
-#endif
 	add_command("ckdata", &command_ckdata);
 #if defined(BUFF_DURATION_DEBUG)
 	add_command("buffd", &command_buff_duration);

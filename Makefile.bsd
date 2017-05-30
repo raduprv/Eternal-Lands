@@ -23,7 +23,6 @@ STATICLIBS=$(LIBD)/libSDL_net.a $(LIBD)/libSDL.a $(LIBD)/libSDL_image.a $(LIBD)/
 # the objects we need
 ENCYCLOPEDIA_COBJ = books/fontdef.o books/parser.o books/symbol.o books/typesetter.o sort.o symbol_table.o
 MEMORY_DEBUG_COBJ = elmemory.o
-TEXT_ALIASES_COBJ = text_aliases.o
 PAWN_COBJ = pawn/amx.o pawn/amxaux.o pawn/amxcons.o pawn/amxel.o \
 	pawn/amxfloat.o pawn/amxstring.o pawn/elpawn.o
 CUSTOM_UPDATE_COBJ = custom_update.o new_update.o
@@ -44,7 +43,7 @@ COBJS=2d_objects.o 3d_objects.o \
 	md5.o mines.o minimap.o misc.o missiles.o multiplayer.o	\
 	new_actors.o new_character.o notepad.o	\
 	openingwin.o image.o \
-	shader/noise.o shader/shader.o	\
+	shader/noise.o shader/shader.o text_aliases.o	\
 	particles.o paste.o pathfinder.o pm_log.o	\
 	queue.o reflection.o	rules.o	sky.o	\
 	skeletons.o skills.o serverpopup.o servers.o session.o shadows.o sound.o	\
