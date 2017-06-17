@@ -238,7 +238,7 @@ void check_then_do_buff_duration_request(void)
 		return;
 
 	/* stop waiting for server response after 10 seconds, clear all other requests */
-	if (last_requested_duration && abs(SDL_GetTicks() - last_request_time) > 10000)
+	if (last_requested_duration && (SDL_GetTicks() - last_request_time) > 10000)
 	{
 		last_requested_duration = 0;
 		requested_durations = 0;

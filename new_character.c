@@ -296,7 +296,7 @@ int display_advice_handler (window_info *win)
 	}
 
 	// Time flashing, flash for a few seconds then remain on.
-	if (flash && abs(SDL_GetTicks()-last_time) > 250)
+	if (flash && (SDL_GetTicks()-last_time) > 250)
 	{
 		flash--;
 		last_time = SDL_GetTicks();

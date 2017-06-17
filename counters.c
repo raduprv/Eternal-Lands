@@ -938,7 +938,7 @@ void increment_death_counter(actor *a)
 		/* count deaths that happend while harvesting, may not have been due to harvest event though */
 		if (now_harvesting()) {
 			/* a crude check to see if death was just after (1 second should be enough) a harvest event */
-			if (abs(SDL_GetTicks() - misc_event_time) < 1000) {
+			if ((SDL_GetTicks() - misc_event_time) < 1000) {
 				increment_counter(DEATHS, "Harvesting event", 1, 0);
 				found_death_reason = 1;
 			}

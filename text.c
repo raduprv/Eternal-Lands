@@ -634,7 +634,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 				if(your_actor != NULL)
 					add_highlight(your_actor->x_tile_pos,your_actor->y_tile_pos, HIGHLIGHT_SOFT_FAIL);
 				/* suppress further messages within for 5 seconds of last */
-				if (done_one[match_index] && (abs(new_time - last_time[match_index]) < 5000))
+				if (done_one[match_index] && ((new_time - last_time[match_index]) < 5000))
 					return 0;
 				done_one[match_index] = 1;
 				last_time[match_index] = new_time;
