@@ -917,7 +917,7 @@ static void draw_last_health_change(void)
 	/* damage in red */
 	if (my_last_health.d != 0)
 	{
-		if (abs(SDL_GetTicks() - my_last_health.dt) > timeoutms)
+		if ((SDL_GetTicks() - my_last_health.dt) > timeoutms)
 			my_last_health.d = 0;
 		else
 		{
@@ -928,7 +928,7 @@ static void draw_last_health_change(void)
 	/* heal in green */
 	if (my_last_health.h != 0)
 	{
-		if (abs(SDL_GetTicks() - my_last_health.ht) > timeoutms)
+		if ((SDL_GetTicks() - my_last_health.ht) > timeoutms)
 			my_last_health.h = 0;
 		else
 		{
@@ -950,7 +950,7 @@ int	display_stats_bar_handler(window_info *win)
 
 	// the space taken up by the exp bar text is minimised, but may change
 	// don't have to check often but this is an easy place to do it and its quick anyway
-	if (abs(SDL_GetTicks()-last_time) > 250)
+	if ((SDL_GetTicks()-last_time) > 250)
 	{
 		int proposed_len = 0;
 		stats_bar_text_len = 4.5 * UI_SCALED_VALUE(SMALL_FONT_X_LEN);

@@ -375,7 +375,7 @@ namespace IconWindow
 		size_t index = (has_highlight)? 1: 0;
 		if (flashing)
 		{
-			if (abs(SDL_GetTicks() - last_flash_change) > 250)
+			if ((SDL_GetTicks() - last_flash_change) > 250)
 			{
 				last_flash_change = SDL_GetTicks();
 				flashing--;

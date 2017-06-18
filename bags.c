@@ -403,7 +403,7 @@ void get_bags_items_list (const Uint8 *data)
 
 	//	If we have auto bag empting set, only do so within 1 second of pressing getall
 	if (ground_items_empty_next_bag) {
-		if (abs(ground_items_empty_next_bag - SDL_GetTicks()) < 1000)
+		if ((ground_items_empty_next_bag - SDL_GetTicks()) < 1000)
 			pick_up_all_items();
 		ground_items_empty_next_bag = 0;
 	}
