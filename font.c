@@ -474,19 +474,29 @@ int draw_string (int x, int y, const unsigned char * our_string, int max_lines)
 	return draw_string_zoomed_width (x, y, our_string, window_width, max_lines, 1.0f);
 }
 
+static int draw_string_shadowed_zoomed (int x, int y, const unsigned char * our_string, int max_lines, float fr,float fg,float fb, float br,float bg,float bb, float zoom)
+{
+	int px,py,r;
+	//set shadow colour
+	glColor3f(br, bg, bb);
+	for(px=-1;px<2;px++)
+		for(py=-1;py<2;py++)
+			if(px!=0 || py!=0)
+				r=draw_string_zoomed(x+px, y+py, our_string, max_lines, zoom);
+	//set foreground colour
+	glColor3f(fr, fg, fb);
+	r=draw_string_zoomed(x, y, our_string, max_lines, zoom);
+	return r;
+}
+
 int draw_string_shadowed (int x, int y, const unsigned char * our_string, int max_lines, float fr,float fg,float fb, float br,float bg,float bb)
 {
- 	 int px,py,r;
- 	 //set shadow colour
-	 glColor3f(br, bg, bb);
-	 for(px=-1;px<2;px++)
-  	     for(py=-1;py<2;py++)
-  	         if(px!=0 || py!=0)
-  	             r=draw_string(x+px, y+py, our_string, max_lines);
- 	 //set foreground colour
-	 glColor3f(fr, fg, fb);
-     r=draw_string(x, y, our_string, max_lines);
-     return r;
+	return draw_string_shadowed_zoomed(x, y, our_string, max_lines, fr, fg, fb, br, bg, bb, 1.0);
+}
+
+int scaled_draw_string_shadowed (int x, int y, const unsigned char * our_string, int max_lines, float fr,float fg,float fb, float br,float bg,float bb)
+{
+	return draw_string_shadowed_zoomed(x, y, our_string, max_lines, fr, fg, fb, br, bg, bb, ui_scale);
 }
 
 int draw_string_shadowed_width (int x, int y, const unsigned char * our_string, int max_width, int max_lines, float fr,float fg,float fb, float br,float bg,float bb)

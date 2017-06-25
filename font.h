@@ -77,6 +77,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
  */
 int draw_string(int x, int y, const unsigned char * our_string, int max_lines);
 int draw_string_shadowed (int x, int y, const unsigned char * our_string, int max_lines, float fr,float fg,float fb, float br,float bg,float bb);
+int scaled_draw_string_shadowed (int x, int y, const unsigned char * our_string, int max_lines, float fr,float fg,float fb, float br,float bg,float bb);
 int draw_string_shadowed_width (int x, int y, const unsigned char * our_string, int max_width, int max_lines, float fr,float fg,float fb, float br,float bg,float bb);
 /*!
  * \ingroup text_font
