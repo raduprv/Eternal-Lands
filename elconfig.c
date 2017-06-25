@@ -469,8 +469,8 @@ void change_string(char * var, char * str, int len)
 void change_ui_scale(float *var, float *value)
 {
 	*var= *value;
-	//HUD_MARGIN_X = UI_SCALED_VALUE(64);
-	//hud_x = HUD_MARGIN_X;
+	HUD_MARGIN_X = UI_SCALED_VALUE(64);
+	hud_x = HUD_MARGIN_X;
 	HUD_MARGIN_Y = 5 + get_player_statsbar_active_height() + get_icons_win_active_height();
 	if (hud_y != 0)
 		hud_y = HUD_MARGIN_Y;
