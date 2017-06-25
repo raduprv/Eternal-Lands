@@ -556,7 +556,7 @@ int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 		return 1;
 	}
 
-	if (mx > win->len_x - 64 && my < 54 ) // 10 pixels dead space to try to prevent accidental misclicks
+	if (mx > win->len_x - UI_SCALED_VALUE(64) && my < UI_SCALED_VALUE(54) ) // 10 pixels dead space to try to prevent accidental misclicks
 	{
 		if (logo_click_to_url)
 			open_web_link(LOGO_URL_LINK);
