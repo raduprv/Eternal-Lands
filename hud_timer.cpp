@@ -32,10 +32,10 @@ class Hud_Timer
 	public:
 		Hud_Timer(void) : running(false), use_tick(false), current_value(90),
 			start_value(90), mode_coundown(true), mouse_over(false),
-			max_value(9*60+59), height(static_cast<int>(ceil(DEFAULT_FONT_Y_LEN))), cm_id(CM_INIT_VALUE),
+			max_value(9*60+59), height(UI_SCALED_VALUE(DEFAULT_FONT_Y_LEN)), cm_id(CM_INIT_VALUE),
 			last_base_y_start(-1), input(0) {}
 		~Hud_Timer(void) { destroy(); }
-		int get_height(void) const { return height; }
+		int get_height(void) const { return (view_hud_timer) ?height :0; }
 		void set_mouse_over(void) { mouse_over = true; }
 		void update(void);
 		void set_start(int new_start_value);
@@ -59,7 +59,7 @@ class Hud_Timer
 		bool mode_coundown;
 		bool mouse_over;
 		const int max_value;
-		const int height;
+		int height;
 		size_t cm_id;
 		int last_base_y_start;
 		INPUT_POPUP *input;
@@ -210,6 +210,12 @@ int Hud_Timer::display(window_info *win, int base_y_start)
 {
 	char str[10];
 	int x;
+	static float last_ui_scale = 0.0;
+	if (ui_scale != last_ui_scale)
+	{
+		height = UI_SCALED_VALUE(DEFAULT_FONT_Y_LEN);
+		last_ui_scale = ui_scale;
+	}
 	check_cm_menu(win, base_y_start);
 	if (input && (!view_hud_timer || !get_show_window(input->popup_win)))
 		destroy_popup();
@@ -217,15 +223,15 @@ int Hud_Timer::display(window_info *win, int base_y_start)
 		return 0;
 	base_y_start -= height;
 	safe_snprintf(str, sizeof(str), "%c%1d:%02d", ((mode_coundown) ?countdown_str[0] :stopwatch_str[0]), current_value/60, current_value%60);
-	x= 3+(win->len_x - (get_string_width((unsigned char*)str)*11)/12)/2;
+	x= 3+(win->len_x - UI_SCALED_VALUE((get_string_width((unsigned char*)str)*11)/12))/2;
 	if (running)
-		draw_string_shadowed(x, 2 + base_y_start, (unsigned char*)str, 1,0.5f, 1.0f, 0.5f,0.0f,0.0f,0.0f);
+		scaled_draw_string_shadowed(x, 2 + base_y_start, (unsigned char*)str, 1,0.5f, 1.0f, 0.5f,0.0f,0.0f,0.0f);
 	else
-		draw_string_shadowed(x, 2 + base_y_start, (unsigned char*)str, 1,1.0f, 0.5f, 0.5f,0.0f,0.0f,0.0f);
+		scaled_draw_string_shadowed(x, 2 + base_y_start, (unsigned char*)str, 1,1.0f, 0.5f, 0.5f,0.0f,0.0f,0.0f);
 	if (mouse_over)
 	{
 		char *use_str = ((mode_coundown) ?countdown_str:stopwatch_str);
-		draw_string_small_shadowed(-(int)(SMALL_FONT_X_LEN*(strlen(use_str)+0.5)), base_y_start, (unsigned char*)use_str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
+		scaled_draw_string_small_shadowed(-UI_SCALED_VALUE(SMALL_FONT_X_LEN*(strlen(use_str)+0.5)), base_y_start, (unsigned char*)use_str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
 		mouse_over = false;
 	}
 	return height;
