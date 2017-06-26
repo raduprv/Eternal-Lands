@@ -6,6 +6,7 @@
 #include "asc.h"
 #include "cursors.h"
 #include "context_menu.h"
+#include "elconfig.h"
 #include "elwindows.h"
 #include "gamewin.h"
 #include "gl_init.h"
@@ -289,11 +290,12 @@ typedef struct {
 int clear_mouseover=0;
 int cast_mouseover=0;
 mqbdata * mqb_data[MAX_QUICKBAR_SLOTS+1]={NULL};//mqb_data will hold the magic quickbar name, image, pos.
-int quickspell_size=20;//size of displayed icons in pixels
-int quickspell_x_len=26;
-int quickspell_x=60;
-int quickspell_y=64;
-int quickspells_loaded = 0;
+static int quickspell_size = -1;	//size of displayed icons in pixels
+static int quickspell_x_len = -1;
+int quickspell_x = -1;
+int quickspell_y = -1;
+static int quickbar_y_space = -1;
+static int quickspells_loaded = 0;
 
 
 int cast_handler();
@@ -1940,7 +1942,7 @@ int quickspell_over=-1;
 // get the quickbar length - it depends on the numbe rof slots active
 int get_quickspell_y_len(void)
 {
-	return num_quickbar_slots*30;
+	return num_quickbar_slots * quickbar_y_space;
 }
 
 /*	returns the y coord position of the active base
@@ -1957,7 +1959,7 @@ int get_quickspell_y_base()
 	for (i = num_quickbar_slots; i > 0; i--)
 	{
 		if (mqb_data[i] == NULL)
-			active_len -= 30;
+			active_len -= quickbar_y_space;
 		else
 			break;
 	}
@@ -1992,7 +1994,7 @@ CHECK_GL_ERRORS();
 	for(i=1;i<num_quickbar_slots+1;i++) {
 		if(mqb_data[i] && mqb_data[i]->spell_name[0]){
 			x=quickspell_size/2;
-			y=(i-1)*30+15;
+			y=(i-1) * quickbar_y_space + UI_SCALED_VALUE(15);
 			width=quickspell_size/2;
 			
 			if(quickspell_over==i){	//highlight if we are hovering over
@@ -2010,7 +2012,7 @@ CHECK_GL_ERRORS();
 	glDisable(GL_ALPHA_TEST);
 
 	if(quickspell_over!=-1 && mqb_data[quickspell_over])
-		show_help(mqb_data[quickspell_over]->spell_name,-10-strlen(mqb_data[quickspell_over]->spell_name)*8,(quickspell_over-1)*30+10);
+		scaled_show_help(mqb_data[quickspell_over]->spell_name, -UI_SCALED_VALUE(10)-UI_SCALED_VALUE(strlen(mqb_data[quickspell_over]->spell_name)*SMALL_FONT_X_LEN), (quickspell_over-1)*quickbar_y_space + UI_SCALED_VALUE(10));
 	quickspell_over=-1;
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -2023,7 +2025,7 @@ int mouseover_quickspell_handler(window_info *win, int mx, int my)
 {
 	int pos;
 
-	pos=my/30+1;
+	pos=my/quickbar_y_space+1;
 	if(pos<num_quickbar_slots+1 && pos>=1 && mqb_data[pos] && mqb_data[pos]->spell_name[0]) {
 		quickspell_over=pos;
 		elwin_mouse=CURSOR_WAND;
@@ -2036,7 +2038,7 @@ int click_quickspell_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int pos;
 
-	pos=my/30+1;
+	pos=my/quickbar_y_space+1;
 
 	if(pos<num_quickbar_slots+1 && pos>=1 && mqb_data[pos])
 	{
@@ -2066,7 +2068,7 @@ int click_quickspell_handler(window_info *win, int mx, int my, Uint32 flags)
 
 static int context_quickspell_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
-	int pos=my/30+1;
+	int pos=my/quickbar_y_space+1;
 	if(pos<num_quickbar_slots+1 && pos>=1 && mqb_data[pos])
 	{
 		switch (option)
@@ -2087,7 +2089,7 @@ void cm_update_quickspells(void)
 	for (i = num_quickbar_slots; i > 0; i--)
 	{
 		if (mqb_data[i] != NULL)
-			active_y_len += 30;
+			active_y_len += quickbar_y_space;
 	}
 	cm_remove_regions(quickspell_win);
 	cm_add_region(cm_quickspells_id, quickspell_win, 0, 0, quickspell_x_len, active_y_len);
@@ -2095,17 +2097,30 @@ void cm_update_quickspells(void)
 
 void init_quickspell()
 {
+	static float last_ui_scale = 0.0;
+
+	if (ui_scale != last_ui_scale)
+	{
+		quickspell_size = UI_SCALED_VALUE(20);
+		quickspell_x_len = UI_SCALED_VALUE(26);
+		quickspell_x = UI_SCALED_VALUE(60);
+		quickspell_y = UI_SCALED_VALUE(64);
+		quickbar_y_space = UI_SCALED_VALUE(30);
+		last_ui_scale = ui_scale;
+	}
+
 	if (quickspell_win < 0){
 		quickspell_win = create_window ("Quickspell", -1, 0, window_width - quickspell_x, quickspell_y, quickspell_x_len, get_quickspell_y_len(), ELW_CLICK_TRANSPARENT|ELW_TITLE_NONE|ELW_SHOW_LAST);
 		set_window_handler(quickspell_win, ELW_HANDLER_DISPLAY, &display_quickspell_handler);
 		set_window_handler(quickspell_win, ELW_HANDLER_CLICK, &click_quickspell_handler);
 		set_window_handler(quickspell_win, ELW_HANDLER_MOUSEOVER, &mouseover_quickspell_handler );
 		cm_quickspells_id = cm_create(cm_quickspell_menu_str, &context_quickspell_handler);
-		cm_update_quickspells();
 	} else {
+		resize_window(quickspell_win, quickspell_x_len, get_quickspell_y_len());
 		show_window (quickspell_win);
 		move_window (quickspell_win, -1, 0, window_width - quickspell_x, quickspell_y);
 	}
+	cm_update_quickspells();
 }
 // Quickspells end
 

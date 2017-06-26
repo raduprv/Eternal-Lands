@@ -1184,7 +1184,11 @@ static int calc_statbar_start_y(int base_y_start, int win_y_len)
 		int last_display = num_disp_stat;
 		num_disp_stat = (NUM_WATCH_STAT-1) - (winoverlap + stats_bar_height-1)/stats_bar_height;
 		if (last_display != num_disp_stat)
+		{
 			init_misc_display(HUD_INTERFACE_LAST);
+			init_quickbar();
+			init_quickspell();
+		}
 		statbar_start_y = base_y_start - stats_bar_height*num_disp_stat;
 		if ((first_disp_stat + num_disp_stat) > (NUM_WATCH_STAT-1))
 			first_disp_stat = (NUM_WATCH_STAT-1) - num_disp_stat;
@@ -1575,14 +1579,14 @@ int mouseover_misc_handler(window_info *win, int mx, int my)
 }
 
 /* #define as these numbers are used many times */
-#define DEF_QUICKBAR_X_LEN 30
-#define DEF_QUICKBAR_Y_LEN 30
-#define DEF_QUICKBAR_X (DEF_QUICKBAR_X_LEN+4)
-#define DEF_QUICKBAR_Y 64
+static int DEF_QUICKBAR_X_LEN = -1;
+static int DEF_QUICKBAR_Y_LEN = -1;
+static int DEF_QUICKBAR_X = -1;
+static int DEF_QUICKBAR_Y = -1;
 
-int quickbar_x_len = DEF_QUICKBAR_X_LEN;
-int quickbar_x = DEF_QUICKBAR_X;
-int quickbar_y = DEF_QUICKBAR_Y;
+int quickbar_x_len = 0;
+int quickbar_x = 0;
+int quickbar_y = 0;
 int quickbar_draggable=0;
 int quickbar_dir=VERTICAL;
 int quickbar_relocatable=0;
@@ -1627,7 +1631,20 @@ int get_quickbar_y_base()
 void init_quickbar ()
 {
 	Uint32 flags = ELW_USE_BACKGROUND | ELW_USE_BORDER;
-	
+	static int last_ui_scale = 0;
+
+	if (last_ui_scale != ui_scale)
+	{
+		DEF_QUICKBAR_X_LEN = UI_SCALED_VALUE(30);
+		DEF_QUICKBAR_Y_LEN = UI_SCALED_VALUE(30);
+		DEF_QUICKBAR_X = UI_SCALED_VALUE(30+4);
+		DEF_QUICKBAR_Y = UI_SCALED_VALUE(64);
+		quickbar_x_len = DEF_QUICKBAR_X_LEN;
+		quickbar_x = DEF_QUICKBAR_X;
+		quickbar_y = DEF_QUICKBAR_Y;
+		last_ui_scale = ui_scale;
+	}
+
 	quickbar_x_len = DEF_QUICKBAR_X_LEN;
 	
 	if (!quickbar_relocatable)
@@ -1663,12 +1680,16 @@ void init_quickbar ()
 		}
 		else if (quickbar_y > window_height || quickbar_x > window_width) 
 		{
-			move_window (quickbar_win, -1, 0, 200, 64); // The player has done something stupid... let him/her correct it
+			move_window (quickbar_win, -1, 0, 200, 64); // Correct invalid position
 		}
 		else
 		{
 			move_window (quickbar_win, -1, 0, window_width - quickbar_x, quickbar_y);
 		}
+		if (quickbar_dir == VERTICAL)
+			resize_window(quickbar_win, quickbar_x_len, get_quickbar_y_len());
+		else
+			resize_window(quickbar_win, get_quickbar_y_len(), quickbar_x_len);
 	}
 }
 
@@ -1710,10 +1731,10 @@ int	display_quickbar_handler(window_info *win)
 			//get the x and y
 			cur_pos=item_list[i].pos;
 					
-			x_start= 2;
-			x_end= x_start+27;
-			y_start= DEF_QUICKBAR_Y_LEN*(cur_pos%num_quickbar_slots)+2;
-			y_end= y_start+27;
+			x_start= UI_SCALED_VALUE(2);
+			x_end= x_start+UI_SCALED_VALUE(27);
+			y_start= DEF_QUICKBAR_Y_LEN*(cur_pos%num_quickbar_slots)+UI_SCALED_VALUE(2);
+			y_end= y_start+UI_SCALED_VALUE(27);
 
 			if(quickbar_dir != VERTICAL)
 			{
@@ -1848,14 +1869,14 @@ static void quickbar_item_description_help(window_info *win, int pos, int slot)
 		if (str != NULL)
 		{
 			int xpos = 0, ypos = 0;
-			int len_str = (strlen(str) + 1) * SMALL_FONT_X_LEN;
+			int len_str = UI_SCALED_VALUE((strlen(str) + 1) * SMALL_FONT_X_LEN);
 			/* vertical place right (or left) and aligned with slot */
 			if (quickbar_dir==VERTICAL)
 			{
 				xpos = win->len_x + 5;
 				if ((xpos + len_str + win->cur_x) > window_width)
 					xpos = -len_str;
-				ypos = slot * DEF_QUICKBAR_Y_LEN + (DEF_QUICKBAR_Y_LEN - SMALL_FONT_Y_LEN) / 2;
+				ypos = slot * DEF_QUICKBAR_Y_LEN + (DEF_QUICKBAR_Y_LEN - UI_SCALED_VALUE(SMALL_FONT_Y_LEN)) / 2;
 			}
 			/* horizontal place right at bottom (or top) of window */
 			else
@@ -1866,10 +1887,10 @@ static void quickbar_item_description_help(window_info *win, int pos, int slot)
 					xpos = window_width - win->cur_x - len_str;
 				if ((xpos + win->cur_x) < 0)
 					xpos = -win->cur_x + 5;
-				if ((ypos + SMALL_FONT_Y_LEN + win->cur_y) > window_height)
-					ypos = -(5 + SMALL_FONT_Y_LEN + (quickbar_draggable * ELW_TITLE_HEIGHT));
+				if ((ypos + UI_SCALED_VALUE(SMALL_FONT_Y_LEN) + win->cur_y) > window_height)
+					ypos = -(5 + UI_SCALED_VALUE(SMALL_FONT_Y_LEN) + (quickbar_draggable * ELW_TITLE_HEIGHT));
 			}
-			show_help(str, xpos, ypos);
+			scaled_show_help(str, xpos, ypos);
 		}
 	}
 }
@@ -2153,7 +2174,7 @@ void reset_quickbar()
 	//Re-set  Flags
 	change_flags(quickbar_win, ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST);   
 	//NEED x_offset
-	move_window(quickbar_win, -1, 0, window_width-quickbar_x, 64);
+	move_window(quickbar_win, -1, 0, window_width-quickbar_x, DEF_QUICKBAR_Y);
 }
 
 void build_levels_table()
