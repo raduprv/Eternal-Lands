@@ -1172,6 +1172,7 @@ static int get_max_quick_y(void)
 static int calc_statbar_start_y(int base_y_start, int win_y_len)
 {
 	int winoverlap = 0;
+	int last_display = num_disp_stat;
 
 	statbar_start_y = base_y_start - stats_bar_height*(NUM_WATCH_STAT-1);
 	
@@ -1181,14 +1182,7 @@ static int calc_statbar_start_y(int base_y_start, int win_y_len)
 	/* if they overlap, only display some skills and allow to scroll */
 	if (winoverlap > 0)
 	{
-		int last_display = num_disp_stat;
 		num_disp_stat = (NUM_WATCH_STAT-1) - (winoverlap + stats_bar_height-1)/stats_bar_height;
-		if (last_display != num_disp_stat)
-		{
-			init_misc_display(HUD_INTERFACE_LAST);
-			init_quickbar();
-			init_quickspell();
-		}
 		statbar_start_y = base_y_start - stats_bar_height*num_disp_stat;
 		if ((first_disp_stat + num_disp_stat) > (NUM_WATCH_STAT-1))
 			first_disp_stat = (NUM_WATCH_STAT-1) - num_disp_stat;
@@ -1199,7 +1193,15 @@ static int calc_statbar_start_y(int base_y_start, int win_y_len)
 		first_disp_stat = 0;
 		num_disp_stat = (NUM_WATCH_STAT-1);
 	}
-	
+
+	/* if the number of stats displayed has changed, resize other hud elements */
+	if (last_display != num_disp_stat)
+	{
+		init_misc_display(HUD_INTERFACE_LAST);
+		init_quickbar();
+		init_quickspell();
+	}
+
 	/* return start y position in window */
 	return statbar_start_y;
 }
