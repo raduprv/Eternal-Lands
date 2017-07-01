@@ -1642,8 +1642,11 @@ void init_quickbar ()
 		DEF_QUICKBAR_X = UI_SCALED_VALUE(30+4);
 		DEF_QUICKBAR_Y = UI_SCALED_VALUE(64);
 		quickbar_x_len = DEF_QUICKBAR_X_LEN;
-		quickbar_x = DEF_QUICKBAR_X;
-		quickbar_y = DEF_QUICKBAR_Y;
+		if ((!quickbar_relocatable) || (quickbar_x < 0) || (quickbar_y < 0))
+		{
+			quickbar_x = DEF_QUICKBAR_X;
+			quickbar_y = DEF_QUICKBAR_Y;
+		}
 		last_ui_scale = ui_scale;
 	}
 
@@ -1812,17 +1815,17 @@ int	display_quickbar_handler(window_info *win)
 				int lenstr = strlen(str);
 				lenstr *= ((mouseover_quickbar_item_pos == i) && enlarge_text()) ?DEFAULT_FONT_X_LEN :SMALL_FONT_X_LEN;
 				xpos = ((x_start + lenstr + win->cur_x) > window_width) ?window_width - win->cur_x - lenstr :x_start;
-				ypos = y_end-15;
+				ypos = y_end-UI_SCALED_VALUE(15);
 			}
 			else
 			{
 				xpos = x_start;
-				ypos = (i&1)?(y_end-15):(y_end-25);
+				ypos = (i&1)?(y_end-UI_SCALED_VALUE(15)):(y_end-UI_SCALED_VALUE(25));
 			}
 			if ((mouseover_quickbar_item_pos == i) && enlarge_text())
-				draw_string_shadowed(xpos,ypos,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
+				scaled_draw_string_shadowed(xpos,ypos,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
 			else
-				draw_string_small_shadowed(xpos,ypos,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
+				scaled_draw_string_small_shadowed(xpos,ypos,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
 		}
 	}
 	mouseover_quickbar_item_pos = -1;
@@ -2177,6 +2180,7 @@ void reset_quickbar()
 	change_flags(quickbar_win, ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST);   
 	//NEED x_offset
 	move_window(quickbar_win, -1, 0, window_width-quickbar_x, DEF_QUICKBAR_Y);
+	quickbar_relocatable = 0;
 }
 
 void build_levels_table()
