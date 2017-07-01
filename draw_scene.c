@@ -120,12 +120,13 @@ void draw_scene()
 
 	if (!have_display)
 	{
-		new_zoom_level = zoom_level;	// No scrolling when switching modes...
-		if (quickbar_relocatable && quickbar_win >= 0) // Hack 
-		{
-			if (get_show_window (quickbar_win) && windows_list.window[quickbar_win].cur_x < window_width - hud_x && window_height - windows_list.window[quickbar_win].cur_y > hud_y)
-				hide_window (quickbar_win);
-		}
+		// No scrolling when switching modes...
+		new_zoom_level = zoom_level;
+		// Hide the quickbar if it is not on the bottom or side hud bar
+		if (get_show_window (quickbar_win)
+				&& windows_list.window[quickbar_win].cur_x < window_width - HUD_MARGIN_X
+				&& window_height - windows_list.window[quickbar_win].cur_y > HUD_MARGIN_Y)
+			hide_window (quickbar_win);
 	}
 
 	glLoadIdentity ();	// Reset The Matrix
