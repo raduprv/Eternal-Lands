@@ -1632,7 +1632,7 @@ int get_quickbar_y_base()
 //quickbar section
 void init_quickbar ()
 {
-	Uint32 flags = ELW_USE_BACKGROUND | ELW_USE_BORDER;
+	Uint32 flags = ELW_USE_UISCALE | ELW_USE_BACKGROUND | ELW_USE_BORDER;
 	static int last_ui_scale = 0;
 
 	if (last_ui_scale != ui_scale)
@@ -2177,7 +2177,7 @@ void reset_quickbar()
 	quickbar_draggable=0;
 	init_window(quickbar_win, -1, 0, quickbar_x, quickbar_y, quickbar_x_len, get_quickbar_y_len());
 	//Re-set  Flags
-	change_flags(quickbar_win, ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST);   
+	change_flags(quickbar_win, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST);
 	//NEED x_offset
 	move_window(quickbar_win, -1, 0, window_width-quickbar_x, DEF_QUICKBAR_Y);
 	quickbar_relocatable = 0;

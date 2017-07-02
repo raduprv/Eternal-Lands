@@ -309,7 +309,7 @@ namespace Indicators
 
 		if (indicators_win < 0)
 		{
-			indicators_win = create_window("Indicators", -1, 0, loc.first, loc.second, x_len, y_len, ELW_SHOW|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE);
+			indicators_win = create_window("Indicators", -1, 0, loc.first, loc.second, x_len, y_len, ELW_USE_UISCALE|ELW_SHOW|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE);
 			if (indicators_win < 0)
 			{
 				LOG_ERROR("%s: Failed to create indicators window\n", __FILE__ );

@@ -1082,7 +1082,7 @@ static void open_npc_filter_window(void)
 {
 	if (npc_filter_win < 0)
 	{
-		npc_filter_win = create_window(questlog_npc_filter_title_str, questlog_win, 0, 0, 0, 0, 0, ELW_SCROLLABLE|ELW_RESIZEABLE|ELW_WIN_DEFAULT);
+		npc_filter_win = create_window(questlog_npc_filter_title_str, questlog_win, 0, 0, 0, 0, 0, ELW_USE_UISCALE|ELW_SCROLLABLE|ELW_RESIZEABLE|ELW_WIN_DEFAULT);
 		set_window_handler(npc_filter_win, ELW_HANDLER_DISPLAY, (int (*)())&display_npc_filter_handler );
 		set_window_handler(npc_filter_win, ELW_HANDLER_CLICK, (int (*)())&click_npc_filter_handler );
 		set_window_handler(npc_filter_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_npc_filter_handler );
@@ -1296,7 +1296,7 @@ void Quest_List::resize(void)
 			int min_size_y = 5 * linesep;
 			int size_y = (list_left_of_entries) ?linesep * static_cast<int>(parent_win->len_y / linesep) : min_size_y;
 			int pos_x = (list_left_of_entries) ?-(max_size_x + win_space) :(parent_win->len_x - max_size_x) / 2;
-			int pos_y = (list_left_of_entries) ?0 : parent_win->len_y + font_y + win_space + title_height;
+			int pos_y = (list_left_of_entries) ?0 : parent_win->len_y + font_y + win_space + parent_win->title_height;
 			resize_window(win_id, max_size_x, size_y);
 			move_window(win_id, list_win->pos_id, list_win->pos_loc, parent_win->pos_x + pos_x, parent_win->pos_y + pos_y);
 			set_window_min_size(win_id, min_size_x, min_size_y);
@@ -1311,7 +1311,7 @@ void Quest_List::open_window(void)
 {
 	if (win_id < 0)
 	{
-		win_id = create_window(questlist_filter_title_str, questlog_win, 0, 0, 0, 0, 0, ELW_WIN_DEFAULT|ELW_RESIZEABLE);
+		win_id = create_window(questlist_filter_title_str, questlog_win, 0, 0, 0, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT|ELW_RESIZEABLE);
 		set_window_handler(win_id, ELW_HANDLER_DISPLAY, (int (*)())&display_questlist_handler );
 		set_window_handler(win_id, ELW_HANDLER_CLICK, (int (*)())&click_questlist_handler );
 		set_window_handler(win_id, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_questlist_handler );
@@ -1937,7 +1937,7 @@ extern "C" void display_questlog()
 			our_root_win = game_root_win;
 		}
 		update_scalable_values(1.0);
-		questlog_win = create_window(tab_questlog,our_root_win, 0, questlog_menu_x, questlog_menu_y, qlwinwidth, qlwinheight, ELW_WIN_DEFAULT);
+		questlog_win = create_window(tab_questlog,our_root_win, 0, questlog_menu_x, questlog_menu_y, qlwinwidth, qlwinheight, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 
 		set_window_handler(questlog_win, ELW_HANDLER_DISPLAY, (int (*)())display_questlog_handler);
 		set_window_handler(questlog_win, ELW_HANDLER_CLICK, (int (*)())questlog_click);
