@@ -962,6 +962,11 @@ int vscrollbar_draw(widget_list *W)
 {
 	int drawn_bar_len = 0;
 	vscrollbar *c = (vscrollbar *)W->widget_info;
+	float scale = (float)W->len_x / (float)ELW_BOX_SIZE;
+	int arrow_size = (int)(0.5 + ELW_BOX_SIZE/4.0 * scale);
+	int bar_x_space = (int)(0.5 + (ELW_BOX_SIZE/4.0 + 2.0) * scale);
+	int bar_y_space = (int)(0.5 + (6.0*ELW_BOX_SIZE/4.0 + ELW_BOX_SIZE) * scale);
+
 	glDisable(GL_TEXTURE_2D);
 	if(W->r!=-1.0)
 		glColor3f(W->r, W->g, W->b);
@@ -976,14 +981,14 @@ int vscrollbar_draw(widget_list *W)
 
 	// scrollbar arrows
 	glBegin (GL_LINES);
-	glVertex3i(W->pos_x + 5 + gx_adjust, W->pos_y + 10 + gy_adjust,0);
-	glVertex3i(W->pos_x + 10 + gx_adjust, W->pos_y + 5 + gy_adjust,0);
-	glVertex3i(W->pos_x + 10 + gx_adjust, W->pos_y + 5 + gy_adjust,0);
-	glVertex3i(W->pos_x + 15 + gx_adjust, W->pos_y + 10 + gy_adjust,0);
-	glVertex3i(W->pos_x + 5 + gx_adjust, W->pos_y + W->len_y - 10 + gy_adjust,0);
-	glVertex3i(W->pos_x + 10 + gx_adjust, W->pos_y + W->len_y - 5 + gy_adjust,0);
-	glVertex3i(W->pos_x + 10 + gx_adjust, W->pos_y + W->len_y - 5 + gy_adjust,0);
-	glVertex3i(W->pos_x + 15 + gx_adjust, W->pos_y + W->len_y - 10 + gy_adjust,0);
+	glVertex3i(W->pos_x + arrow_size + gx_adjust, W->pos_y + 2*arrow_size + gy_adjust,0);
+	glVertex3i(W->pos_x + 2*arrow_size + gx_adjust, W->pos_y + arrow_size + gy_adjust,0);
+	glVertex3i(W->pos_x + 2*arrow_size + gx_adjust, W->pos_y + arrow_size + gy_adjust,0);
+	glVertex3i(W->pos_x + 3*arrow_size + gx_adjust, W->pos_y + 2*arrow_size + gy_adjust,0);
+	glVertex3i(W->pos_x + arrow_size + gx_adjust, W->pos_y + W->len_y - 2*arrow_size + gy_adjust,0);
+	glVertex3i(W->pos_x + 2*arrow_size + gx_adjust, W->pos_y + W->len_y - arrow_size + gy_adjust,0);
+	glVertex3i(W->pos_x + 2*arrow_size + gx_adjust, W->pos_y + W->len_y - arrow_size + gy_adjust,0);
+	glVertex3i(W->pos_x + 3*arrow_size + gx_adjust, W->pos_y + W->len_y - 2*arrow_size + gy_adjust,0);
 	glEnd();
 
 	if (c->bar_len > 0)
@@ -995,10 +1000,10 @@ int vscrollbar_draw(widget_list *W)
 			glColor3f(W->r/3, W->g/3, W->b/3);
 	}
 	glBegin(GL_QUADS);
-	glVertex3i(W->pos_x + 7 + gx_adjust, W->pos_y + 15 + (c->pos*((float)(W->len_y-50)/drawn_bar_len)) + gy_adjust, 0);
-	glVertex3i(W->pos_x + W->len_x - 7 + gx_adjust, W->pos_y +  15 + (c->pos*((float)(W->len_y-50)/drawn_bar_len)) + gy_adjust, 0);
-	glVertex3i(W->pos_x + W->len_x - 7 + gx_adjust, W->pos_y + 35 + (c->pos*((float)(W->len_y-50)/drawn_bar_len)) + gy_adjust, 0);
-	glVertex3i(W->pos_x + 7 + gx_adjust, W->pos_y + 35 + (c->pos*((float)(W->len_y-50)/drawn_bar_len)) + gy_adjust, 0);
+	glVertex3i(W->pos_x + bar_x_space + gx_adjust, W->pos_y + 3*arrow_size + (c->pos*((float)(W->len_y-bar_y_space)/drawn_bar_len)) + gy_adjust, 0);
+	glVertex3i(W->pos_x + W->len_x - bar_x_space + gx_adjust, W->pos_y + 3*arrow_size + (c->pos*((float)(W->len_y-bar_y_space)/drawn_bar_len)) + gy_adjust, 0);
+	glVertex3i(W->pos_x + W->len_x - bar_x_space + gx_adjust, W->pos_y + 7*arrow_size + (c->pos*((float)(W->len_y-bar_y_space)/drawn_bar_len)) + gy_adjust, 0);
+	glVertex3i(W->pos_x + bar_x_space + gx_adjust, W->pos_y + 7*arrow_size + (c->pos*((float)(W->len_y-bar_y_space)/drawn_bar_len)) + gy_adjust, 0);
 	glEnd();
 
 	glEnable(GL_TEXTURE_2D);
@@ -1010,18 +1015,21 @@ CHECK_GL_ERRORS();
 
 int vscrollbar_click(widget_list *W, int mx, int my, Uint32 flags)
 {
+	float scale = (float)W->len_x / (float)ELW_BOX_SIZE;
+	int arrow_size = (int)(0.5 + ELW_BOX_SIZE/4.0 * scale);
+	int bar_y_space = (int)(0.5 + (6*ELW_BOX_SIZE/4.0 + ELW_BOX_SIZE) * scale);
 	vscrollbar *b = (vscrollbar *)W->widget_info;
-	if ( my < 15 || (flags & ELW_WHEEL_UP) )
+	if ( my < 3*arrow_size || (flags & ELW_WHEEL_UP) )
 	{
 		b->pos -= b->pos_inc;
 	}
-	else if (my > W->len_y - 15 || (flags & ELW_WHEEL_DOWN) )
+	else if (my > W->len_y - 3*arrow_size || (flags & ELW_WHEEL_DOWN) )
 	{
 		b->pos += b->pos_inc;
 	}
 	else
 	{
-		b->pos = (my - 25)/((float)(W->len_y-50)/b->bar_len);
+		b->pos = (my - 5*arrow_size)/((float)(W->len_y-bar_y_space)/b->bar_len);
 	}
 
 	if (b->pos < 0) b->pos = 0;
