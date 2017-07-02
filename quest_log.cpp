@@ -1209,7 +1209,7 @@ static int click_questlist_handler(window_info *win, int mx, int my, Uint32 flag
 //
 static int mouseover_questlist_handler(window_info *win, int mx, int my)
 {
-	if (my>=0)
+	if ((my>=0) && (mx<win->len_x-box_size))
 		questlist.set_mouseover_y(my);
 	return 0;
 }
