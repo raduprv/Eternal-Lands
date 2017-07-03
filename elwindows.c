@@ -54,6 +54,10 @@ static void update_window_scale(window_info *win, float scale_factor)
 		win->current_scale = scale_factor;
 		win->box_size = (int)(0.5 + win->current_scale * ELW_BOX_SIZE);
 		win->title_height = (int)(0.5 + win->current_scale * ELW_TITLE_HEIGHT);
+		win->small_font_len_x = (int)(0.5 + win->current_scale * SMALL_FONT_X_LEN);
+		win->small_font_len_y = (int)(0.5 + win->current_scale * SMALL_FONT_Y_LEN);
+		win->default_font_len_x = (int)(0.5 + win->current_scale * DEFAULT_FONT_X_LEN);
+		win->default_font_len_y = (int)(0.5 + win->current_scale * DEFAULT_FONT_Y_LEN);
 	}
 	else
 	{
@@ -61,6 +65,10 @@ static void update_window_scale(window_info *win, float scale_factor)
 		win->current_scale = 1.0;
 		win->box_size = ELW_BOX_SIZE;
 		win->title_height = ELW_TITLE_HEIGHT;
+		win->small_font_len_x = (int)(0.5 + SMALL_FONT_X_LEN);
+		win->small_font_len_y = (int)(0.5 + SMALL_FONT_Y_LEN);
+		win->default_font_len_x = (int)(0.5 + DEFAULT_FONT_X_LEN);
+		win->default_font_len_y = (int)(0.5 + DEFAULT_FONT_Y_LEN);
 	}
 }
 
@@ -70,9 +78,11 @@ void update_windows_scale(float scale_factor)
 	int win_id;
 	for (win_id=0; win_id < windows_list.num_windows; win_id++)
 	{
+		window_info *win = &windows_list.window[win_id];
 		if(windows_list.window[win_id].window_id != win_id)
 			continue;
-		update_window_scale(&windows_list.window[win_id], scale_factor);
+		update_window_scale(win, scale_factor);
+		if (win->ui_scale_handler) (*win->ui_scale_handler)(win);
 	}
 }
 
@@ -787,6 +797,7 @@ int	create_window(const char *name, int pos_id, Uint32 pos_loc, int pos_x, int p
 		win->show_handler = NULL;
 		win->after_show_handler = NULL;
 		win->hide_handler = NULL;
+		win->ui_scale_handler = NULL;
 		
 		win->widgetlist = NULL;
 		
@@ -1858,6 +1869,10 @@ void	*set_window_handler(int win_id, int handler_id, int (*handler)() )
 		case	ELW_HANDLER_HIDE:
 			old_handler= (void *)windows_list.window[win_id].hide_handler;
 			windows_list.window[win_id].hide_handler=handler;
+			break;
+		case	ELW_HANDLER_UI_SCALE:
+			old_handler= (void *)windows_list.window[win_id].ui_scale_handler;
+			windows_list.window[win_id].ui_scale_handler=handler;
 			break;
 		default:
 			old_handler=NULL;

@@ -66,6 +66,10 @@ typedef	struct	{
 	float current_scale;
 	int box_size;
 	int title_height;
+	int small_font_len_x;
+	int small_font_len_y;
+	int default_font_len_x;
+	int default_font_len_y;
 
 	/*!
 	 * \name the handlers
@@ -84,6 +88,7 @@ typedef	struct	{
 	int (*show_handler)();		/*!< executed before the window is shown */
 	int (*after_show_handler)();		/*!< executed after the window is shown */
 	int (*hide_handler)();		/*!< executed after the window is hidden */
+	int (*ui_scale_handler)();	/*!< executed if the glabal scale ui_scale is changed */
 	/*! @} */
 
 	/*
@@ -210,6 +215,7 @@ typedef	struct	{
 #define	ELW_HANDLER_HIDE	10
 #define	ELW_HANDLER_AFTER_SHOW	11
 #define	ELW_HANDLER_PRE_DISPLAY	12
+#define ELW_HANDLER_UI_SCALE 13
 /*! @} */
 
 /*!
