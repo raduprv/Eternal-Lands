@@ -464,6 +464,11 @@ void show_sized_help_coloured(const char *help_message, int x, int y, float r, f
 		y_font_len = UI_SCALED_VALUE(SMALL_FONT_Y_LEN);
 		len = strlen(help_message) * UI_SCALED_VALUE(SMALL_FONT_X_LEN) + 1;
 	}
+	else if (size_mode == SHOW_BIG_SCALED_HELP)
+	{
+		y_font_len = UI_SCALED_VALUE(DEFAULT_FONT_Y_LEN);
+		len = strlen(help_message) * UI_SCALED_VALUE(DEFAULT_FONT_X_LEN) + 1;
+	}
 	else
 	{
 		y_font_len = SMALL_FONT_Y_LEN;
@@ -491,6 +496,8 @@ void show_sized_help_coloured(const char *help_message, int x, int y, float r, f
 		draw_string(x, y, (unsigned char*)help_message, 1);
 	else if (size_mode == SHOW_SCALED_HELP)
 		scaled_draw_string_small(x, y, (unsigned char*)help_message, 1);
+	else if (size_mode == SHOW_BIG_SCALED_HELP)
+		scaled_draw_string(x, y, (unsigned char*)help_message, 1);
 	else
 		draw_string_small(x, y, (unsigned char*)help_message, 1);
 #ifdef OPENGL_TRACE

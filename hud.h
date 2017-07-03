@@ -38,7 +38,8 @@ typedef enum
 {
 	SHOW_SMALL_HELP = 0,
 	SHOW_BIG_HELP,
-	SHOW_SCALED_HELP
+	SHOW_SCALED_HELP,
+	SHOW_BIG_SCALED_HELP
 } show_help_modes;
 
 extern int qb_action_mode; /*!< flag indicating whether we are in quickbar action mode or not */
