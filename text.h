@@ -343,6 +343,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
  * \todo Fix documentation
  */
 void put_small_text_in_box (const Uint8 *text_to_add, int len, int pixels_limit, char *buffer);
+void scaled_put_small_text_in_box (const Uint8 *text_to_add, int len, int pixels_limit, char *buffer);
 
 /*!
  * \ingroup text_font

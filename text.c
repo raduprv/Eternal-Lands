@@ -79,7 +79,7 @@ int afk_snd_warning = 0;
 #endif
 
 /* forward declaration */
-void put_small_colored_text_in_box (Uint8 color, const Uint8 *text_to_add, int len, int pixels_limit, char *buffer);
+static void scaled_put_small_colored_text_in_box (Uint8 color, const Uint8 *text_to_add, int len, int pixels_limit, char *buffer, float scale);
 
 void alloc_text_message_data (text_message *msg, int size)
 {
@@ -1126,12 +1126,22 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 	return;
 }
 
+void scaled_put_small_text_in_box (const Uint8 *text_to_add, int len, int pixels_limit, char *buffer)
+{
+	scaled_put_small_colored_text_in_box (c_grey1, text_to_add, len, pixels_limit, buffer, ui_scale);
+}
+
 void put_small_text_in_box (const Uint8 *text_to_add, int len, int pixels_limit, char *buffer)
 {
-	put_small_colored_text_in_box (c_grey1, text_to_add, len, pixels_limit, buffer);
+	scaled_put_small_colored_text_in_box (c_grey1, text_to_add, len, pixels_limit, buffer, 1.0);
 }
 
 void put_small_colored_text_in_box (Uint8 color, const Uint8 *text_to_add, int len, int pixels_limit, char *buffer)
+{
+	scaled_put_small_colored_text_in_box(color, text_to_add, len, pixels_limit, buffer, 1.0);
+}
+
+static void scaled_put_small_colored_text_in_box (Uint8 color, const Uint8 *text_to_add, int len, int pixels_limit, char *buffer, float scale)
 {
 	int i;
 	Uint8 cur_char;
@@ -1143,7 +1153,7 @@ void put_small_colored_text_in_box (Uint8 color, const Uint8 *text_to_add, int l
 		buffer[last_text++] = to_color_char (color);
 
 	//see if the text fits on the screen
-	x_chars_limit = pixels_limit / 8;
+	x_chars_limit = (int)(0.5 + pixels_limit / (SMALL_FONT_X_LEN * scale));
 	if (len <= x_chars_limit)
 	{
 		for (i = 0; i < len; i++)
