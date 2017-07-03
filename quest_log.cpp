@@ -1664,9 +1664,9 @@ static bool update_scalable_values(float new_scale)
 		box_size = static_cast<int>(0.5 + ELW_BOX_SIZE * new_scale);
 		qlwinheight = static_cast<int>(0.5 + 350 * new_scale);
 		linesep = font_y + 2 * spacer;
-		npc_name_space = 3 * new_scale;
-		npc_name_border = 5 * new_scale;
-		npc_name_box_size = 12 * new_scale;
+		npc_name_space = static_cast<int>(0.5 + 3 * new_scale);
+		npc_name_border = static_cast<int>(0.5 + 5 * new_scale);
+		npc_name_box_size = static_cast<int>(0.5 + 12 * new_scale);
 		max_npc_name_x = npc_name_space * 3 + npc_name_box_size + (MAX_USERNAME_LENGTH) * font_x;
 		max_npc_name_y = font_y + 2 * npc_name_space;
 		if (qlwinwidth == 0)
