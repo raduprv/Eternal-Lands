@@ -979,8 +979,8 @@ static int print_to_console = 0;
 int display_range_handler(window_info *win)
 {
 	char str[50];
-	const int margin = 5;
-	const int step_y = (int)(SMALL_FONT_Y_LEN+0.5);
+	const int margin = 5 * win->current_scale;
+	const int step_y = win->small_font_len_y;
 	const int pos_x = margin;
 	int pos_y = margin;
 	int max_width = 0;
@@ -993,19 +993,19 @@ int display_range_handler(window_info *win)
 	safe_snprintf(str, sizeof(str), ranging_total_shots_str, range_total_shots);
 	if (print_to_console) LOG_TO_CONSOLE(c_green1, str);
 	if (max_width < strlen(str)) max_width = strlen(str);
-	draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
+	scaled_draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
 	pos_y += step_y;
 
 	safe_snprintf(str, sizeof(str), ranging_sucessful_shots_str, range_success_hits);
 	if (print_to_console) LOG_TO_CONSOLE(c_green1, str);
 	if (max_width < strlen(str)) max_width = strlen(str);
-	draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
+	scaled_draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
 	pos_y += step_y;
 
 	safe_snprintf(str, sizeof(str), ranging_missed_shots_str, range_total_shots - range_success_hits);
 	if (print_to_console) LOG_TO_CONSOLE(c_green1, str);
 	if (max_width < strlen(str)) max_width = strlen(str);
-	draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
+	scaled_draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
 	pos_y += 2*step_y;
 
 	if(range_success_hits > 0)
@@ -1014,7 +1014,7 @@ int display_range_handler(window_info *win)
 		safe_snprintf(str, sizeof(str), ranging_success_rate_str, 0.0);
 	if (print_to_console) LOG_TO_CONSOLE(c_green1, str);
 	if (max_width < strlen(str)) max_width = strlen(str);
-	draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
+	scaled_draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
 	pos_y += step_y;
 
 	if(range_critical_hits > 0)
@@ -1023,7 +1023,7 @@ int display_range_handler(window_info *win)
 		safe_snprintf(str, sizeof(str), ranging_critical_rate_str, 0.0);
 	if (print_to_console) LOG_TO_CONSOLE(c_green1, str);
 	if (max_width < strlen(str)) max_width = strlen(str);
-	draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
+	scaled_draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
 	pos_y += 2*step_y;
 
 	if(range_total_shots > 0)
@@ -1032,10 +1032,10 @@ int display_range_handler(window_info *win)
 		safe_snprintf(str, sizeof(str), ranging_exp_per_arrow_str, 0.0);
 	if (print_to_console) LOG_TO_CONSOLE(c_green1, str);
 	if (max_width < strlen(str)) max_width = strlen(str);
-	draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
+	scaled_draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
 	pos_y += step_y;
 
-	len_x = (max_width * SMALL_FONT_X_LEN) + 2*margin + ELW_BOX_SIZE;
+	len_x = (max_width * win->small_font_len_x) + 2*margin + win->box_size;
 	if (len_x != win->len_x)
 		resize = 1;
 
@@ -1068,7 +1068,7 @@ void display_range_win(void)
 		if (!windows_on_top) {
 			our_root_win = game_root_win;
 		}
-		range_win = create_window(ranging_win_title_str, our_root_win, 0, ranging_win_x, ranging_win_y, range_win_x_len, range_win_y_len, ELW_WIN_DEFAULT);
+		range_win = create_window(ranging_win_title_str, our_root_win, 0, ranging_win_x, ranging_win_y, range_win_x_len, range_win_y_len, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 		set_window_handler(range_win, ELW_HANDLER_DISPLAY, &display_range_handler );
 		cm_add(windows_list.window[range_win].cm_id, cm_ranging_menu_str, cm_ranging_handler);
 	} else {
