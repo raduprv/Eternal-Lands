@@ -530,10 +530,10 @@ int display_storage_handler(window_info * win)
 			safe_snprintf(str, sizeof(str), "%d",storage_items[cur_item_over].quantity);
 			if (enlarge_text())
 				show_sized_help(str, mouse_x - win->pos_x - strlen(str) * win->default_font_len_x / 2,
-					mouse_y - win->pos_y - win->default_font_len_y/2, SHOW_BIG_SCALED_HELP);
+					mouse_y - win->pos_y - win->default_font_len_y, SHOW_BIG_SCALED_HELP);
 			else
 				show_sized_help(str, mouse_x - win->pos_x - strlen(str) * win->small_font_len_x / 2,
-					mouse_y - win->pos_y - win->small_font_len_y/2, SHOW_SCALED_HELP);
+					mouse_y - win->pos_y - win->small_font_len_y, SHOW_SCALED_HELP);
 		}
 	}
 	
