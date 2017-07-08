@@ -51,6 +51,7 @@ namespace ItemLists
 {
 	static void quantity_input_handler(const char *input_text, void *);
 	static int display_itemlist_handler(window_info *win);
+	static int ui_scale_itemlist_handler(window_info *win);
 	static int click_itemlist_handler(window_info *win, int mx, int my, Uint32 flags);
 	static int mouseover_itemlist_handler(window_info *win, int mx, int my);
 	static int hide_itemlist_handler(window_info *win);
@@ -198,19 +199,24 @@ namespace ItemLists
 		public:
 			List_Window(void) :
 				cm_selected_item_menu(CM_INIT_VALUE), cm_names_menu(CM_INIT_VALUE),
-				num_show_names_list(6), names_list_height(SMALL_FONT_Y_LEN),
-				win_id(-1), selected_item_number(static_cast<size_t>(-1)),
-				name_under_mouse(static_cast<size_t>(-1)), clicked(false),
-				mouse_over_add_button(false), resizing(false),
+				grid_pixel_size(0), ui_control_space(0), num_show_names_list(6),
+				names_list_height(0), win_id(-1), selected_item_number(static_cast<size_t>(-1)),
+				name_under_mouse(static_cast<size_t>(-1)), mouse_over_item(static_cast<size_t>(-1)),
+				clicked(false), mouse_over_add_button(false), resizing(false),
 				last_quantity_selected(0), num_grid_rows(min_grid_rows()),
 				last_key_time(0), last_items_list_on_left(-1), desc_str(0),
 				pickup_fail_time(0) {}
 			int get_id(void) const { return win_id; }
 			size_t get_grid_cm(void) const { return cm_selected_item_menu; }
-			static int get_grid_size(void) { return 33; };
-			static int get_list_gap(void) { return 3; };
-			static int min_grid_rows(void) { return 3; };
+			int get_grid_size(void) const { return grid_pixel_size; }
+			static int get_list_gap(void) { return 3; }
+			static int num_grid_cols(void) { return 6; }
+			static int min_grid_rows(void) { return 3; }
+			static int min_names(void) { return 6; }
 			void show(window_info *win);
+			void update_min_window_size(window_info *win);
+			void set_num_grid_rows(window_info *win, int num);
+			int ui_scale_handler(window_info *win);
 			int draw(window_info *win);
 			void new_or_rename_list(bool is_new);
 			int mouseover(window_info *win, int mx, int my);
@@ -225,19 +231,22 @@ namespace ItemLists
 			void resized_name_panel(window_info *win);
 			void reset_pickup_fail_time(void) { pickup_fail_time = SDL_GetTicks(); }
 		private:
-			void calc_num_show_names(int win_len_y);
+			void calc_num_show_names(window_info *win);
 			int get_window_pos_x(window_info *parent_win) const;
-			int get_size_x(void) const { return get_grid_size()*6 + ELW_BOX_SIZE + get_list_gap(); }
+			int get_size_x(void) const { return get_grid_size()*num_grid_cols() + ui_control_space + get_list_gap(); }
 			int get_size_y(void) const { return get_grid_size()*num_grid_rows + get_names_size_y(); }
 			int get_names_size_y(void) const
 				{ return static_cast<int>(num_show_names_list * (get_list_gap() + names_list_height) + get_list_gap()); }
 			size_t cm_selected_item_menu;
 			size_t cm_names_menu;
+			int grid_pixel_size;
+			int ui_control_space;
 			int num_show_names_list;
 			float names_list_height;
 			int win_id;
 			size_t selected_item_number;
 			size_t name_under_mouse;
+			size_t mouse_over_item;
 			bool clicked;
 			bool mouse_over_add_button;
 			int add_button_x;
@@ -795,22 +804,20 @@ namespace ItemLists
 	}
 
 
-	//	Calculate the number of item list names show - depends on window height
+	//	Calculate the number of item list names shown - depends on window height
 	//	and number of grid rows shown
 	//
-	void List_Window::calc_num_show_names(int win_len_y = -1)
+	void List_Window::calc_num_show_names(window_info *win)
 	{
-		// get the actual window height if not specfified
-		if (win_len_y < 0)
-		{
-			if ((win_id < 0) || (win_id >= windows_list.num_windows))
-				return;
-			win_len_y = (&windows_list.window[win_id])->len_y;
-		}
-		if (win_len_y > window_height-HUD_MARGIN_Y)
-			win_len_y = window_height-HUD_MARGIN_Y;
+		int target_len_y = win->len_y;
+		if ((target_len_y <= 0) && (win->pos_id >= 0) && (win->pos_id < windows_list.num_windows))
+			target_len_y = windows_list.window[win->pos_id].len_y;
+		if (target_len_y > (window_height - HUD_MARGIN_Y - win->title_height))
+			target_len_y = window_height - HUD_MARGIN_Y - win->title_height;
 		num_show_names_list = static_cast<int>
-			((win_len_y - get_grid_size()*num_grid_rows) / (get_list_gap() + names_list_height));
+			((target_len_y - get_grid_size()*num_grid_rows) / (get_list_gap() + names_list_height));
+		if (num_show_names_list < min_names())
+			num_show_names_list = min_names();
 	}
 
 
@@ -818,13 +825,54 @@ namespace ItemLists
 	//
 	void List_Window::resized_name_panel(window_info *win)
 	{
-		calc_num_show_names();
+		calc_num_show_names(win);
 		cm_remove_regions(win_id);
 		cm_add_region(cm_names_menu, win_id, 0, get_size_y()-get_names_size_y(), get_size_y(), get_names_size_y());
-		widget_resize(win_id, names_scroll_id, ELW_BOX_SIZE, get_names_size_y()-ELW_BOX_SIZE);
-		widget_move(win_id, names_scroll_id, win->len_x-ELW_BOX_SIZE, get_grid_size()*num_grid_rows);
+		widget_resize(win_id, names_scroll_id, win->box_size, get_names_size_y()- win->box_size);
+		widget_move(win_id, names_scroll_id, win->len_x-win->box_size, get_grid_size()*num_grid_rows);
 		make_active_visable();
 		update_scroll_len();
+	}
+
+
+	//	Update the number of displayed grid rows, and adjust the rest of the window
+	//
+	void List_Window::set_num_grid_rows(window_info *win, int num)
+	{
+		num_grid_rows = num;
+		update_min_window_size(win);
+		calc_num_show_names(win);
+		resize_window (win->window_id, get_size_x(), get_size_y());
+	}
+
+
+	//	Called when the UI scalling value changes
+	//
+	int List_Window::ui_scale_handler(window_info *win)
+	{
+		names_list_height = win->small_font_len_y;
+		grid_pixel_size = static_cast<int>(0.5 + 33 * win->current_scale);
+		ui_control_space = win->box_size;
+		add_button_x = static_cast<int>(get_size_x() - win->default_font_len_x * 2);
+		add_button_y = get_grid_size();
+		update_min_window_size(win);
+		if (win->len_y <= 0)
+			calc_num_show_names(win);
+		int last_num_show_names_list = num_show_names_list;
+		resize_window (win->window_id, get_size_x(), get_size_y());
+		if (last_num_show_names_list != num_show_names_list)
+			resize_window (win->window_id, get_size_x(), get_size_y());
+		return 1;
+	}
+
+
+	//	Set the minumum window size
+	//
+	void List_Window::update_min_window_size(window_info *win)
+	{
+		int min_x = static_cast<int>(0.5 + get_grid_size() * num_grid_cols() + win->box_size + get_list_gap());
+		int min_y = static_cast<int>(0.5 + get_grid_size() * num_grid_rows + min_names() * (get_list_gap() + names_list_height) + get_list_gap());
+		set_window_min_size(win->window_id, min_x, min_y);
 	}
 
 
@@ -838,39 +886,33 @@ namespace ItemLists
 			ItemLists::Vars::cat_maps()->load();
 			filter[0] = '\0';
 
-			calc_num_show_names(get_grid_size()*6+110);
-			add_button_x = static_cast<int>(get_size_x() - DEFAULT_FONT_X_LEN*2);
-			add_button_y = get_grid_size();
-
-			win_id = create_window(item_list_preview_title, win->window_id, 0, get_window_pos_x(win), 0, get_size_x(), get_size_y(), ELW_WIN_DEFAULT|ELW_RESIZEABLE);
+			win_id = create_window(item_list_preview_title, win->window_id, 0, get_window_pos_x(win), 0, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT|ELW_RESIZEABLE);
 			set_window_handler(win_id, ELW_HANDLER_DISPLAY, (int (*)())&display_itemlist_handler );
 			set_window_handler(win_id, ELW_HANDLER_CLICK, (int (*)())&click_itemlist_handler );
 			set_window_handler(win_id, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_itemlist_handler );
 			set_window_handler(win_id, ELW_HANDLER_HIDE, (int (*)())&hide_itemlist_handler );
 			set_window_handler(win_id, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_itemlist_handler );
 			set_window_handler(win_id, ELW_HANDLER_RESIZE, (int (*)())&resize_itemlist_handler );
-			set_window_min_size(win_id, get_size_x(), get_size_y());
+			set_window_handler(win_id, ELW_HANDLER_UI_SCALE, (int (*)())&ui_scale_itemlist_handler );
 
 			cm_selected_item_menu = cm_create(cm_item_list_selected_str, cm_selected_item_handler);
 			cm_names_menu = cm_create(cm_item_list_names_str, cm_names_handler);
 			cm_set_pre_show_handler(cm_names_menu, cm_names_pre_show_handler);
-			cm_add_region(cm_names_menu, win_id, 0, get_size_y()-get_names_size_y(), get_size_y(), get_names_size_y());
 
-			names_scroll_id = vscrollbar_add_extended(win_id, 1, NULL,
-				get_size_x()-ELW_BOX_SIZE, get_grid_size()*num_grid_rows, ELW_BOX_SIZE, get_names_size_y()-ELW_BOX_SIZE, 0,
+			names_scroll_id = vscrollbar_add_extended(win_id, 1, NULL, 0, 0, 0, 0, 0,
 				1.0, 0.77f, 0.57f, 0.39f, 0, 1, Vars::lists()->size()-num_show_names_list);
 
 			init_ipu(&ipu_item_list_name, -1, -1, -1, 1, 1, NULL, NULL);
-			
-			make_active_visable();
 		}
 		else
 		{
 			toggle_window(win_id);
-			make_active_visable();
 			close_ipu(&ipu_item_list_name);
 			Vars::quantity_input()->close();
 		}
+
+		if (win_id >= 0)
+			ui_scale_handler(&windows_list.window[win_id]);
 	}
 
 
@@ -886,7 +928,7 @@ namespace ItemLists
 		// once we stop, snap the window size to fix nicely
 		else if (resizing)
 		{
-			calc_num_show_names(win->len_y);
+			calc_num_show_names(win);
 			resizing = false;
 			resize_window (win->window_id, get_size_x(), get_size_y());
 		}
@@ -894,12 +936,9 @@ namespace ItemLists
 		// check if we need to change the number of grid rows shown
 		int new_num_grid_rows = min_grid_rows();
 		if (Vars::lists()->valid_active_list())
-			new_num_grid_rows = std::max(static_cast<size_t>(new_num_grid_rows), (Vars::lists()->get_list().get_num_items() +5) / 6);
+			new_num_grid_rows = std::max(static_cast<size_t>(new_num_grid_rows), (Vars::lists()->get_list().get_num_items() + num_grid_cols()-1) / num_grid_cols());
 		if (num_grid_rows != new_num_grid_rows)
-		{
-			num_grid_rows = new_num_grid_rows;
-			resized_name_panel(win);
-		}
+			set_num_grid_rows(win, new_num_grid_rows);
 
 		// if the left/right position flag has changed, restore the window to its default location
 		if (last_items_list_on_left != items_list_on_left)
@@ -915,11 +954,11 @@ namespace ItemLists
 		if (Vars::lists()->valid_active_list())
 		{
 			glColor3f(1.0f,1.0f,1.0f);
-			for(size_t i=0; i<Vars::lists()->get_list().get_num_items() && i<static_cast<size_t>(6*num_grid_rows); i++)
+			for(size_t i=0; i<Vars::lists()->get_list().get_num_items() && i<static_cast<size_t>(num_grid_cols()*num_grid_rows); i++)
 			{
 				int x_start, y_start;
-				x_start = get_grid_size() * (i%6) + 1;
-				y_start = get_grid_size() * (i/6);
+				x_start = get_grid_size() * (i%num_grid_cols()) + 1;
+				y_start = get_grid_size() * (i/num_grid_cols());
 				draw_item(Vars::lists()->get_list().get_image_id(i), x_start, y_start, get_grid_size());
 			}
 		}
@@ -928,7 +967,7 @@ namespace ItemLists
 
 		if (desc_str)
 		{
-			show_help(desc_str, 0, static_cast<int>(0.5 + win->len_y + 10 + SMALL_FONT_Y_LEN * help_lines_shown++));
+			show_sized_help(desc_str, 0, static_cast<int>(0.5 + win->len_y + 10 + win->small_font_len_y * help_lines_shown++), SHOW_SCALED_HELP);
 			desc_str = 0;
 		}
 
@@ -943,7 +982,7 @@ namespace ItemLists
 			else
 			{
 				std::string tmp = std::string(item_list_find_str) + std::string("[") + std::string(filter) + std::string("]");
-				show_help(tmp.c_str(), 0, static_cast<int>(0.5 + win->len_y + 10 + SMALL_FONT_Y_LEN * help_lines_shown++));
+				show_sized_help(tmp.c_str(), 0, static_cast<int>(0.5 + win->len_y + 10 + win->small_font_len_y * help_lines_shown++), SHOW_SCALED_HELP);
 			}
 		}
 
@@ -952,7 +991,7 @@ namespace ItemLists
 		{
 			if (!resizing)
 				for (size_t i=0; i<help_str.size(); ++i)
-					show_help(help_str[i], 0, static_cast<int>(0.5 + win->len_y + 10 + SMALL_FONT_Y_LEN * help_lines_shown++));
+					show_sized_help(help_str[i], 0, static_cast<int>(0.5 + win->len_y + 10 + win->small_font_len_y * help_lines_shown++), SHOW_SCALED_HELP);
 			help_str.clear();
 		}
 
@@ -960,13 +999,13 @@ namespace ItemLists
 
 		// draw the item grid
 		glColor3f(0.77f,0.57f,0.39f);
-		rendergrid(6, num_grid_rows, 0, 0, get_grid_size(), get_grid_size());
+		rendergrid(num_grid_cols(), num_grid_rows, 0, 0, get_grid_size(), get_grid_size());
 
 		// if an object is selected, draw a green grid around it
 		if (Vars::lists()->valid_active_list() && (quantities.selected == ITEM_EDIT_QUANT) && (selected_item_number < Vars::lists()->get_list().get_num_items()))
 		{
-			int x_start = selected_item_number%6 * get_grid_size();
-			int y_start = static_cast<int>(selected_item_number/6) * get_grid_size();
+			int x_start = selected_item_number%num_grid_cols() * get_grid_size();
+			int y_start = static_cast<int>(selected_item_number/num_grid_cols()) * get_grid_size();
 			if ((SDL_GetTicks() - pickup_fail_time) < 250)
 				glColor3f(0.8f,0.2f,0.2f);
 			else
@@ -982,15 +1021,17 @@ namespace ItemLists
 		{
 			glColor3f(1.0f,1.0f,1.0f);
 			char str[80];
-			for(size_t i=0; i<Vars::lists()->get_list().get_num_items() && i<static_cast<size_t>(6*num_grid_rows); i++)
+			for(size_t i=0; i<Vars::lists()->get_list().get_num_items() && i<static_cast<size_t>(num_grid_cols()*num_grid_rows); i++)
 			{
-				int x_start, y_start, y_end;
-				x_start = get_grid_size() * (i%6) + 1;
-				y_start = get_grid_size() * (i/6);
-				y_end = y_start + get_grid_size() - 1;
+				int x_start, y_start;
+				x_start = get_grid_size() * (i%num_grid_cols()) + 1;
+				y_start = get_grid_size() * (i/num_grid_cols()) + ((i&1) ?1 :(get_grid_size() - win->small_font_len_y));
 				safe_snprintf(str, sizeof(str), "%i", Vars::lists()->get_list().get_quantity(i));
-				draw_string_small_shadowed(x_start, (i&1)?(y_end-15):(y_end-27), (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);
-			}
+				if ((mouse_over_item == i) && enlarge_text())
+					scaled_draw_string_shadowed(x_start, y_start, (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);
+				else
+					scaled_draw_string_small_shadowed(x_start, y_start, (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);
+				}
 		}
 
 		// Drawn the new list button (+) with highlight when mouse over
@@ -998,7 +1039,7 @@ namespace ItemLists
 			glColor3f(0.99f,0.77f,0.55f);
 		else
 			glColor3f(0.77f,0.57f,0.39f);
-		draw_string_zoomed(add_button_x, add_button_y, (unsigned const char*)"+", 1, 2.0);
+		draw_string_zoomed(add_button_x, add_button_y, (unsigned const char*)"+", 1, win->current_scale * 2.0);
 
 		// draw the item list names
 		glColor3f(1.0f,1.0f,1.0f);
@@ -1006,9 +1047,9 @@ namespace ItemLists
 		int num_shown = 0;
 		const int top_entry = vscrollbar_get_pos (win_id, names_scroll_id);
 		const std::vector<List> lists = Vars::lists()->get_lists();
-		const int hl_width = static_cast<int>(win->len_x-ELW_BOX_SIZE-3);
+		const int hl_width = static_cast<int>(win->len_x-win->box_size-3);
 		const int hl_height = static_cast<int>(names_list_height + get_list_gap());
-		const size_t disp_chars = static_cast<size_t>((win->len_x-ELW_BOX_SIZE-2*get_list_gap()) / SMALL_FONT_X_LEN);
+		const size_t disp_chars = static_cast<size_t>((win->len_x-win->box_size-2*get_list_gap()) / win->small_font_len_x);
 		for (size_t i = top_entry; i<lists.size() && num_shown<num_show_names_list; ++i)
 		{
 			if (i==Vars::lists()->get_active())
@@ -1019,12 +1060,12 @@ namespace ItemLists
 			if (lists[i].get_name().size() > disp_chars)
 			{
 				std::string todisp = lists[i].get_name().substr(0,disp_chars);
-				draw_string_small(get_list_gap(), pos_y, reinterpret_cast<const unsigned char*>(todisp.c_str()), 1);
+				scaled_draw_string_small(get_list_gap(), pos_y, reinterpret_cast<const unsigned char*>(todisp.c_str()), 1);
 				if (i==name_under_mouse)
-					show_help(lists[i].get_name().c_str(), 0, static_cast<int>(0.5 + win->len_y + 10 + SMALL_FONT_Y_LEN * help_lines_shown));
+					show_sized_help(lists[i].get_name().c_str(), 0, static_cast<int>(0.5 + win->len_y + 10 + win->small_font_len_y * help_lines_shown), SHOW_SCALED_HELP);
 			}
 			else
-				draw_string_small(get_list_gap(), pos_y, reinterpret_cast<const unsigned char*>(lists[i].get_name().c_str()), 1);
+				scaled_draw_string_small(get_list_gap(), pos_y, reinterpret_cast<const unsigned char*>(lists[i].get_name().c_str()), 1);
 			pos_y += static_cast<int>(names_list_height + get_list_gap());
 			num_shown++;
 		}
@@ -1040,7 +1081,7 @@ namespace ItemLists
 			do_click_sound();
 			new_or_rename_list(true);
 		}
-		name_under_mouse = static_cast<size_t>(-1);
+		mouse_over_item = name_under_mouse = static_cast<size_t>(-1);
 		mouse_over_add_button = clicked = false;
 
 #ifdef OPENGL_TRACE
@@ -1075,13 +1116,13 @@ CHECK_GL_ERRORS();
 			return 0;
 
 		if (Vars::lists()->valid_active_list() &&
-			mx>=0 && mx<(get_grid_size()*6) && my>=0 && my<(get_grid_size()*num_grid_rows))
+			mx>=0 && mx<(get_grid_size()*num_grid_cols()) && my>=0 && my<(get_grid_size()*num_grid_rows))
 		{
-			size_t item_number = get_item_number(mx, my);
-			if (item_number < Vars::lists()->get_list().get_num_items())
+			mouse_over_item = get_item_number(mx, my);
+			if (mouse_over_item < Vars::lists()->get_list().get_num_items())
 			{
-				Uint16 item_id = Vars::lists()->get_list().get_item_id(item_number);
-				int image_id = Vars::lists()->get_list().get_image_id(item_number);
+				Uint16 item_id = Vars::lists()->get_list().get_item_id(mouse_over_item);
+				int image_id = Vars::lists()->get_list().get_image_id(mouse_over_item);
 				if (show_item_desc_text && item_info_available() && (get_item_count(item_id, image_id) == 1))
 					desc_str = get_item_description(item_id, image_id);
 				help_str.push_back(item_list_pickup_help_str);
@@ -1095,7 +1136,7 @@ CHECK_GL_ERRORS();
 		}
 
 		// check if over the add list button
-		if (my>add_button_y && my<(add_button_y+2*DEFAULT_FONT_Y_LEN) && mx>add_button_x && mx<win->len_x)
+		if (my>add_button_y && my<(add_button_y+2*win->default_font_len_y) && mx>add_button_x && mx<win->len_x)
 		{
 			help_str.push_back(item_list_create_help_str);
 			mouse_over_add_button = true;
@@ -1126,9 +1167,9 @@ CHECK_GL_ERRORS();
 		if (!Vars::lists()->valid_active_list())
 			return 0;
 		size_t num_items = Vars::lists()->get_list().get_num_items();
-		if ((my >= get_grid_size()*num_grid_rows) || (mx >= get_grid_size()*6))
+		if ((my >= get_grid_size()*num_grid_rows) || (mx >= get_grid_size()*num_grid_cols()))
 			return num_items;
-		size_t list_index = 6 * static_cast<int>(my/get_grid_size()) + mx/get_grid_size();
+		size_t list_index = num_grid_cols() * static_cast<int>(my/get_grid_size()) + mx/get_grid_size();
 		if (list_index < num_items)
 			return list_index;
 		return num_items;
@@ -1449,6 +1490,14 @@ CHECK_GL_ERRORS();
 	static int display_itemlist_handler(window_info *win)
 	{
 		return Vars::win()->draw(win);
+	}
+
+
+	//  Called when the UI scale is changed
+	//
+	static int ui_scale_itemlist_handler(window_info *win)
+	{
+		return Vars::win()->ui_scale_handler(win);
 	}
 
 
