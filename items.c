@@ -51,9 +51,7 @@ int item_action_mode=ACTION_WALK;
 int items_win= -1;
 int items_menu_x=10;
 int items_menu_y=20;
-int items_grid_size=51;//Changes depending on the size of the root window (is 51 > 640x480 and 33 in 640x480).
-int items_menu_x_len=6*51+110;
-int items_menu_y_len=6*51+90;
+static int items_grid_size=0;
 
 int items_text[MAX_ITEMS_TEXTURES];
 
@@ -61,15 +59,18 @@ static char items_string[350]={0};
 static size_t last_items_string_id = 0;
 int item_dragged=-1;
 int item_quantity=1;
-int quantity_width=0;
+static int quantity_width=0;
+static int quantity_height = 0;
+static int text_y_offset = 0;
 int allow_equip_swap=0;
 int use_item=-1;
 
-int wear_items_x_offset=6*51+20;
-int wear_items_y_offset=30;
+static int wear_grid_size = 0;
+static int wear_items_x_offset=0;
+static int wear_items_y_offset=0;
 
-int quantity_x_offset=6*51+20;
-int quantity_y_offset=185;
+static int quantity_x_offset=0;
+static int quantity_y_offset=0;
 
 int use_small_items_window = 0;
 int manual_size_items_window = 0;
@@ -78,12 +79,11 @@ int items_mod_click_any_cursor = 1;
 int item_uid_enabled = 0;
 const Uint16 unset_item_uid = (Uint16)-1;
 
-#define NUMBUT 4
-#define XLENBUT 29
-#define YLENBUT 33
-#undef NUMBUT
 #define NUMBUT 5
-static int but_y_off[NUMBUT] = { 0, YLENBUT, YLENBUT*2, YLENBUT*3, YLENBUT*4 };
+static int but_len_x = 0;
+static int but_len_y = 0;
+static int but_x_offset = 0;
+static int but_y_off[NUMBUT] = { 0, 0, 0, 0, 0 };
 enum { BUT_STORE, BUT_GET, BUT_DROP, BUT_MIX, BUT_ITEM_LIST };
 int items_mix_but_all = 0;
 int items_stoall_nofirstrow = 0;
@@ -122,9 +122,9 @@ void set_shown_string(char colour_code, const char *the_text)
 /* return index of button or -1 if mouse not over a button */
 static int over_button(window_info *win, int mx, int my)
 {
-	if (mx>(win->len_x-(XLENBUT+3)) && mx<win->len_x-3 && my>wear_items_y_offset
-		&& my<wear_items_y_offset+but_y_off[NUMBUT-1]+YLENBUT) {
-		return (my - wear_items_y_offset) / YLENBUT;
+	if (mx>(but_x_offset) && mx<win->len_x-3 && my>wear_items_y_offset
+		&& my<wear_items_y_offset+but_y_off[NUMBUT-1]+but_len_y) {
+		return (my - wear_items_y_offset) / but_len_y;
 	}
 	return -1;
 }
@@ -239,6 +239,7 @@ void drag_item(int item, int storage, int mini)
 	float u_start,v_start,u_end,v_end;
 	int cur_item,this_texture;
 	int cur_item_img;
+	int offset = (mini) ? items_grid_size/3 : items_grid_size/2;
 
 	int quantity=item_quantity;
 	char str[20];
@@ -278,15 +279,12 @@ void drag_item(int item, int storage, int mini)
 
 	bind_texture(this_texture);
 	glBegin(GL_QUADS);
-	if(mini)
-		draw_2d_thing(u_start,v_start,u_end,v_end,mouse_x-16,mouse_y-16,mouse_x+16,mouse_y+16);
-	else
-		draw_2d_thing(u_start,v_start,u_end,v_end,mouse_x-25,mouse_y-25,mouse_x+24,mouse_y+24);
+	draw_2d_thing(u_start, v_start, u_end, v_end, mouse_x - offset, mouse_y - offset, mouse_x + offset, mouse_y + offset);
 	glEnd();
 	
 	if(!mini && quantity!=-1){
 		safe_snprintf(str,sizeof(str),"%i",quantity);
-		draw_string_small(mouse_x-25, mouse_y+10, (unsigned char*)str, 1);
+		scaled_draw_string_small(mouse_x-offset, mouse_y+offset-UI_SCALED_VALUE(SMALL_FONT_Y_LEN), (unsigned char*)str, 1);
 	}
 }
 
@@ -498,29 +496,31 @@ int display_items_handler(window_info *win)
 	// draw the button labels
 	but_labels[BUT_MIX] = (items_mix_but_all) ?mix_all_str :mix_one_str;
 	for (i=0; i<NUMBUT; i++) {
+		int text_x_offset = (int)(0.5 + ((but_len_x - (float)(3 * win->small_font_len_x)) / 2.0)) + gx_adjust - 1;
+		int text_y_offset = (int)(0.5 + ((but_len_y - (float)(2 * win->small_font_len_y)) / 2.0)) + gy_adjust;
 		strap_word(but_labels[i],my_str);
 		glColor3f(0.77f,0.57f,0.39f);
-		draw_string_small(win->len_x+gx_adjust-XLENBUT, wear_items_y_offset+but_y_off[i]+2+gy_adjust, (unsigned char*)my_str, 2);
+		scaled_draw_string_small(but_x_offset+text_x_offset, wear_items_y_offset+but_y_off[i]+text_y_offset, (unsigned char*)my_str, 2);
 	}
 
 	x=quantity_x_offset+quantity_width/2;
-	y=quantity_y_offset+3;
+	y=quantity_y_offset + (quantity_height - win->small_font_len_y) / 2;
 	glColor3f(0.3f,0.5f,1.0f);
 	for(i=0;i<ITEM_EDIT_QUANT;x+=quantity_width,++i){
 		if(i==edit_quantity){
 			glColor3f(1.0f, 0.0f, 0.3f);
-			draw_string_small(1+gx_adjust+x-strlen(quantities.quantity[i].str)*4, y+gy_adjust, (unsigned char*)quantities.quantity[i].str, 1);
+			scaled_draw_string_small(1+gx_adjust+x-strlen(quantities.quantity[i].str)*win->small_font_len_x/2, y+gy_adjust, (unsigned char*)quantities.quantity[i].str, 1);
 			glColor3f(0.3f, 0.5f, 1.0f);
 		} else if(i==quantities.selected){
 			glColor3f(0.0f, 1.0f, 0.3f);
-			draw_string_small(1+gx_adjust+x-strlen(quantities.quantity[i].str)*4, y+gy_adjust, (unsigned char*)quantities.quantity[i].str, 1);
+			scaled_draw_string_small(1+gx_adjust+x-strlen(quantities.quantity[i].str)*win->small_font_len_x/2, y+gy_adjust, (unsigned char*)quantities.quantity[i].str, 1);
 			glColor3f(0.3f, 0.5f, 1.0f);
-		} else draw_string_small(1+gx_adjust+x-strlen(quantities.quantity[i].str)*4, y+gy_adjust, (unsigned char*)quantities.quantity[i].str, 1);
+		} else scaled_draw_string_small(1+gx_adjust+x-strlen(quantities.quantity[i].str)*win->small_font_len_x/2, y+gy_adjust, (unsigned char*)quantities.quantity[i].str, 1);
 	}
-	draw_string_small(win->len_x-strlen(quantity_str)*8-5, quantity_y_offset-19, (unsigned char*)quantity_str, 1);
+	scaled_draw_string_small(win->len_x-strlen(quantity_str)*win->small_font_len_x-5, quantity_y_offset-quantity_height-1, (unsigned char*)quantity_str, 1);
 
 	glColor3f(0.57f,0.67f,0.49f);
-	draw_string_small (wear_items_x_offset + 33 - (8 * strlen(equip_str))/2, wear_items_y_offset-18, (unsigned char*)equip_str, 1);
+	scaled_draw_string_small (wear_items_x_offset + wear_grid_size - (win->small_font_len_x * strlen(equip_str))/2, wear_items_y_offset-win->small_font_len_y-3, (unsigned char*)equip_str, 1);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
@@ -534,11 +534,11 @@ int display_items_handler(window_info *win)
 			if(cur_pos>=ITEM_WEAR_START){//the items we 'wear' are smaller
 				cur_pos-=ITEM_WEAR_START;
 				item_is_weared=1;
-				x_start=wear_items_x_offset+33*(cur_pos%2)+1;
-				x_end=x_start+32-1;
-				y_start=wear_items_y_offset+33*(cur_pos/2);
-				y_end=y_start+32-1;
-				draw_item(item_list[i].image_id,x_start,y_start,32);
+				x_start=wear_items_x_offset+wear_grid_size*(cur_pos%2)+1;
+				x_end=x_start+wear_grid_size-1;
+				y_start=wear_items_y_offset+wear_grid_size*(cur_pos/2);
+				y_end=y_start+wear_grid_size-1;
+				draw_item(item_list[i].image_id,x_start,y_start,wear_grid_size-1);
 			} else {
 				item_is_weared=0;
 				x_start=items_grid_size*(cur_pos%6)+1;
@@ -607,11 +607,13 @@ int display_items_handler(window_info *win)
 			}
 			
 			if(!item_is_weared){
+				int use_large = (mouseover_item_pos == i) && enlarge_text();
 				safe_snprintf(str, sizeof(str), "%i", item_list[i].quantity);
-				if ((mouseover_item_pos == i) && enlarge_text())
-					draw_string_shadowed(x_start, (i&1)?(y_end-15):(y_end-25), (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);
+				y_end -= (i&1) ?items_grid_size-1 : ((use_large) ?win->default_font_len_y :win->small_font_len_y);
+				if (use_large)
+					scaled_draw_string_shadowed(x_start, y_end, (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);
 				else
-					draw_string_small_shadowed(x_start, (i&1)?(y_end-15):(y_end-25), (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);
+					scaled_draw_string_small_shadowed(x_start, y_end, (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);
 			}
 		}
 	}
@@ -620,26 +622,16 @@ int display_items_handler(window_info *win)
 	glColor3f(1.0f,1.0f,1.0f);
 
 	//draw the load string
-	if (!use_small_items_window)
-	{
-		safe_snprintf(str, sizeof(str),"%s:", attributes.carry_capacity.shortname);
-		draw_string_small(items_grid_size*6+6, items_grid_size*6-SMALL_FONT_Y_LEN*2, (unsigned char*)str, 1);
-		safe_snprintf(str, sizeof(str), "%i/%i", your_info.carry_capacity.cur, your_info.carry_capacity.base);
-		draw_string_small(items_grid_size*6+6, items_grid_size*6-SMALL_FONT_Y_LEN, (unsigned char*)str, 1);
-	}
-	else
-	{
-		safe_snprintf(str, sizeof(str), "%s: %i/%i", attributes.carry_capacity.shortname, your_info.carry_capacity.cur, your_info.carry_capacity.base);
-		draw_string_small(2, quantity_y_offset-19, (unsigned char*)str, 1);
-	}
+	safe_snprintf(str, sizeof(str), "%s: %i/%i", attributes.carry_capacity.shortname, your_info.carry_capacity.cur, your_info.carry_capacity.base);
+	scaled_draw_string_small(2, quantity_y_offset-quantity_height-1, (unsigned char*)str, 1);
 
 	//now, draw the inventory text, if any.
 	if (last_items_string_id != inventory_item_string_id)
-	{		
-		put_small_text_in_box((unsigned char*)inventory_item_string, strlen(inventory_item_string), win->len_x-10, items_string);
+	{
+		scaled_put_small_text_in_box((unsigned char*)inventory_item_string, strlen(inventory_item_string), win->len_x-10, items_string);
 		last_items_string_id = inventory_item_string_id;
 	}
-	draw_string_small(4, win->len_y - (use_small_items_window?105:85), (unsigned char*)items_string, 4);
+	scaled_draw_string_small(4, win->len_y - text_y_offset, (unsigned char*)items_string, 4);
 	
 	// Render the grid *after* the images. It seems impossible to code
 	// it such that images are rendered exactly within the boxes on all 
@@ -651,16 +643,16 @@ int display_items_handler(window_info *win)
 	rendergrid(6, 6, 0, 0, items_grid_size, items_grid_size);
 	
 	glColor3f(0.57f,0.67f,0.49f);
-	rendergrid(2, 4, wear_items_x_offset, wear_items_y_offset, 33, 33);
+	rendergrid(2, 4, wear_items_x_offset, wear_items_y_offset, wear_grid_size, wear_grid_size);
 	
 	// draw the button boxes
 	glColor3f(0.77f,0.57f,0.39f);
 	for (i=0; i<NUMBUT; i++) {
 		glBegin(GL_LINE_LOOP);
 			glVertex3i(win->len_x-3, wear_items_y_offset+but_y_off[i],0);
-			glVertex3i(win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[i],0);
-			glVertex3i(win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[i]+YLENBUT,0);
-			glVertex3i(win->len_x-3, wear_items_y_offset+but_y_off[i]+YLENBUT,0);
+			glVertex3i(but_x_offset, wear_items_y_offset+but_y_off[i],0);
+			glVertex3i(but_x_offset, wear_items_y_offset+but_y_off[i]+but_len_y,0);
+			glVertex3i(win->len_x-3, wear_items_y_offset+but_y_off[i]+but_len_y,0);
 		glEnd();
 	}
 	
@@ -670,33 +662,33 @@ int display_items_handler(window_info *win)
 		glColor3f(0.99f,0.77f,0.55f);
 		glBegin(GL_LINE_LOOP);
 			glVertex3i(win->len_x-2, wear_items_y_offset+but_y_off[mouse_over_but]-1,0);
-			glVertex3i(win->len_x-(XLENBUT+4), wear_items_y_offset+but_y_off[mouse_over_but]-1,0);
-			glVertex3i(win->len_x-(XLENBUT+4), wear_items_y_offset+but_y_off[mouse_over_but]+YLENBUT+1,0);
-			glVertex3i(win->len_x-2, wear_items_y_offset+but_y_off[mouse_over_but]+YLENBUT+1,0);
+			glVertex3i(but_x_offset-1, wear_items_y_offset+but_y_off[mouse_over_but]-1,0);
+			glVertex3i(but_x_offset-1, wear_items_y_offset+but_y_off[mouse_over_but]+but_len_y+1,0);
+			glVertex3i(win->len_x-2, wear_items_y_offset+but_y_off[mouse_over_but]+but_len_y+1,0);
 		glEnd();
 	}
 
 	//now, draw the quantity boxes
 	glColor3f(0.3f,0.5f,1.0f);
-	rendergrid(ITEM_EDIT_QUANT, 1, quantity_x_offset, quantity_y_offset, quantity_width, 20);
+	rendergrid(ITEM_EDIT_QUANT, 1, quantity_x_offset, quantity_y_offset, quantity_width, quantity_height);
 	
 	glEnable(GL_TEXTURE_2D);
 	
 	// display help text for button if mouse over one
 	if ((mouse_over_but != -1) && show_help_text) {
 		char *helpstr[NUMBUT] = { stoall_help_str, getall_help_str, ((disable_double_click) ?drpall_help_str :dcdrpall_help_str), mixoneall_help_str, itmlst_help_str };
-		show_help(helpstr[mouse_over_but], 0, win->len_y+10);
-		show_help(cm_help_options_str, 0, win->len_y+10+SMALL_FONT_Y_LEN);
+		scaled_show_help(helpstr[mouse_over_but], 0, win->len_y+10);
+		scaled_show_help(cm_help_options_str, 0, win->len_y+10+win->small_font_len_y);
 	}
 	// show help set in the mouse_over handler
 	else {
 		int offset = 10;
 		if (show_help_text && (item_help_str != NULL)) {
-			show_help(item_help_str, 0, win->len_y+offset);
-			offset += SMALL_FONT_Y_LEN;
+			scaled_show_help(item_help_str, 0, win->len_y+offset);
+			offset += win->small_font_len_y;
 		}
 		if (item_desc_str != NULL)
-			show_help(item_desc_str, 0, win->len_y+offset);
+			scaled_show_help(item_desc_str, 0, win->len_y+offset);
 		item_help_str = NULL;
 		item_desc_str = NULL;
 	}
@@ -806,7 +798,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			return 1;
 		}
 		
-		if(mx>=wear_items_x_offset && mx<wear_items_x_offset+66 && my>=wear_items_y_offset && my<wear_items_y_offset+133) {
+		if(mx>=wear_items_x_offset && mx<wear_items_x_offset+wear_grid_size*2 && my>=wear_items_y_offset && my<wear_items_y_offset+wear_grid_size*4+1) {
 			switch(item_action_mode){
 				case ACTION_WALK:
 					item_action_mode=ACTION_LOOK;
@@ -816,7 +808,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 					item_action_mode=ACTION_WALK;
 			}
 			return 1;
-		} else if(mx>=quantity_x_offset && mx<quantity_x_offset+ITEM_EDIT_QUANT*quantity_width && my>=quantity_y_offset && my<quantity_y_offset+20){
+		} else if(mx>=quantity_x_offset && mx<quantity_x_offset+ITEM_EDIT_QUANT*quantity_width && my>=quantity_y_offset && my<quantity_y_offset+quantity_height){
 			//fall through...
 		} else {
 			switch(item_action_mode) {
@@ -843,8 +835,8 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	//see if we changed the quantity
 	if(mx>=quantity_x_offset && mx<quantity_x_offset+ITEM_EDIT_QUANT*quantity_width
-			&& my>=quantity_y_offset && my<quantity_y_offset+20) {
-		int pos=get_mouse_pos_in_grid(mx, my, ITEM_EDIT_QUANT, 1, quantity_x_offset, quantity_y_offset, quantity_width, 20);
+			&& my>=quantity_y_offset && my<quantity_y_offset+quantity_height) {
+		int pos=get_mouse_pos_in_grid(mx, my, ITEM_EDIT_QUANT, 1, quantity_x_offset, quantity_y_offset, quantity_width, quantity_height);
 
 		if(pos==-1){
 		} else if(flags & ELW_LEFT_MOUSE){
@@ -1044,9 +1036,9 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 		toggle_items_list_window(win);
 
 	//see if we clicked on any item in the wear category
-	else if(mx>wear_items_x_offset && mx<wear_items_x_offset+2*33 &&
-				my>wear_items_y_offset && my<wear_items_y_offset+4*33){
-		int pos=36+get_mouse_pos_in_grid(mx, my, 2, 4, wear_items_x_offset, wear_items_y_offset, 32, 32);
+	else if(mx>wear_items_x_offset && mx<wear_items_x_offset+2*wear_grid_size &&
+				my>wear_items_y_offset && my<wear_items_y_offset+4*wear_grid_size){
+		int pos=36+get_mouse_pos_in_grid(mx, my, 2, 4, wear_items_x_offset, wear_items_y_offset, wear_grid_size, wear_grid_size);
 		
 		if(pos<36) {
 		} else if(item_list[pos].quantity){
@@ -1077,7 +1069,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	}
 
 	// clear the message area if double-clicked
-	else if (my > (win->len_y - (use_small_items_window?105:85))) {
+	else if (my > (win->len_y - text_y_offset)) {
 		static Uint32 last_click = 0;
 		if (safe_button_click(&last_click)) {
 			set_shown_string(0,"");
@@ -1126,9 +1118,9 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 			
 			return 1;
 		}
-	} else if(mx>wear_items_x_offset && mx<wear_items_x_offset+2*33 &&
-				my>wear_items_y_offset && my<wear_items_y_offset+4*33) {
-		pos=36+get_mouse_pos_in_grid(mx, my, 2, 4, wear_items_x_offset, wear_items_y_offset, 33, 33);
+	} else if(mx>wear_items_x_offset && mx<wear_items_x_offset+2*wear_grid_size &&
+				my>wear_items_y_offset && my<wear_items_y_offset+4*wear_grid_size) {
+		pos=36+get_mouse_pos_in_grid(mx, my, 2, 4, wear_items_x_offset, wear_items_y_offset, wear_grid_size, wear_grid_size);
 		item_help_str = equip_here_str;
 		if(pos==-1) {
 		} else if(item_list[pos].quantity){
@@ -1145,9 +1137,9 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 			return 1;
 		}
 	} else if(show_help_text && mx>quantity_x_offset && mx<quantity_x_offset+ITEM_EDIT_QUANT*quantity_width &&
-			my>quantity_y_offset && my<quantity_y_offset+6*20){
+			my>quantity_y_offset && my<quantity_y_offset+6*quantity_height){
 		item_help_str = quantity_edit_str;
-	} else if (show_help_text && *inventory_item_string && (my > (win->len_y - (use_small_items_window?105:85)))) {
+	} else if (show_help_text && *inventory_item_string && (my > (win->len_y - text_y_offset))) {
 		item_help_str = (disable_double_click)?click_clear_str :double_click_clear_str;
 	}
 	
@@ -1223,33 +1215,45 @@ static void drop_all_handler ()
 
 int show_items_handler(window_info * win)
 {
+	int i, win_x_len, win_y_len;
+	int seperator = (int)(0.5 + win->current_scale * 5);
+
 	if (!manual_size_items_window)
 		use_small_items_window = ((window_height<=600) || (window_width<=800));
 
-	if(!use_small_items_window) {
-		items_grid_size=51;
-		wear_items_y_offset=50;
-		win->len_y=6*items_grid_size+90;
-		quantity_width=69;
-	} else {
-		items_grid_size=33;
-		wear_items_y_offset=33;
-		win->len_y=6*items_grid_size+110;
-		quantity_width=51;
-	}
-	
-	win->len_x=6*items_grid_size+110;
-	quantity_y_offset=win->len_y-21;
-	quantity_x_offset=1;
-	wear_items_x_offset=6*items_grid_size+6;
-	item_quantity=quantities.quantity[quantities.selected].val;
+	items_grid_size = (int)(0.5 + win->current_scale * ((use_small_items_window) ?33: 50));
+	wear_grid_size = (int)(0.5 + win->current_scale * 33);
+
+	wear_items_y_offset = items_grid_size;
+	wear_items_x_offset = items_grid_size * 6 + seperator;
+
+	but_len_x = (int)(0.5 + win->current_scale * 31);
+	but_x_offset = wear_items_x_offset + 2 * wear_grid_size + seperator;
+
+	win_x_len = but_x_offset + but_len_x;
+
+	text_y_offset = (int)(0.5 + 7 * win->small_font_len_y);
+
+	win_y_len = 6 * items_grid_size + text_y_offset + seperator;
+
+	quantity_width = (int)((win_x_len - 2) / 6.0);
+	quantity_height = win->small_font_len_y + seperator;
+	quantity_y_offset = win_y_len - quantity_height - 1;
+	quantity_x_offset = 1;
+	item_quantity = quantities.quantity[quantities.selected].val;
+
+	but_len_y = wear_grid_size;
+	for (i=0; i<NUMBUT; i++)
+		but_y_off[i] = but_len_y*i;
+
+	resize_window(win->window_id, win_x_len, win_y_len);
 
 	cm_remove_regions(items_win);
-	cm_add_region(cm_stoall_but, items_win, win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[0], XLENBUT, YLENBUT);
-	cm_add_region(cm_getall_but, items_win, win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[1], XLENBUT, YLENBUT);
-	cm_add_region(cm_dropall_but, items_win, win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[2], XLENBUT, YLENBUT);
-	cm_add_region(cm_mix_but, items_win, win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[3], XLENBUT, YLENBUT);
-	cm_add_region(cm_itemlist_but, items_win, win->len_x-(XLENBUT+3), wear_items_y_offset+but_y_off[4], XLENBUT, YLENBUT);
+	cm_add_region(cm_stoall_but, items_win, but_x_offset, wear_items_y_offset+but_y_off[0], but_len_x, but_len_y);
+	cm_add_region(cm_getall_but, items_win, but_x_offset, wear_items_y_offset+but_y_off[1], but_len_x, but_len_y);
+	cm_add_region(cm_dropall_but, items_win, but_x_offset, wear_items_y_offset+but_y_off[2], but_len_x, but_len_y);
+	cm_add_region(cm_mix_but, items_win, but_x_offset, wear_items_y_offset+but_y_off[3], but_len_x, but_len_y);
+	cm_add_region(cm_itemlist_but, items_win, but_x_offset, wear_items_y_offset+but_y_off[4], but_len_x, but_len_y);
 
 	/* make sure we redraw any string */
 	last_items_string_id = 0;
@@ -1277,16 +1281,14 @@ void display_items_menu()
 		if (!windows_on_top) {
 			our_root_win = game_root_win;
 		}
-		if (!manual_size_items_window)
-			use_small_items_window = ((window_height<=600) || (window_width<=800));
-		
-		items_win= create_window(win_inventory, our_root_win, 0, items_menu_x, items_menu_y, items_menu_x_len, items_menu_y_len, ELW_WIN_DEFAULT);
+		items_win= create_window(win_inventory, our_root_win, 0, items_menu_x, items_menu_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 
 		set_window_handler(items_win, ELW_HANDLER_DISPLAY, &display_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_CLICK, &click_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_MOUSEOVER, &mouseover_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_KEYPRESS, &keypress_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_SHOW, &show_items_handler );
+		set_window_handler(items_win, ELW_HANDLER_UI_SCALE, &show_items_handler );
 		
 		cm_add(windows_list.window[items_win].cm_id, cm_items_menu_str, context_items_handler);
 		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+1, &use_small_items_window, NULL);
