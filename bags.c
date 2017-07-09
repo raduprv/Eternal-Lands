@@ -5,6 +5,7 @@
 #include "3d_objects.h"
 #include "asc.h"
 #include "cursors.h"
+#include "elconfig.h"
 #include "elwindows.h"
 #include "errors.h"
 #include "gamewin.h"
@@ -29,13 +30,13 @@
 ground_item ground_item_list[ITEMS_PER_BAG];
 bag bag_list[NUM_BAGS];
 
-#define GRIDSIZE 33
+static int GRIDSIZE = 33;
 
 int ground_items_win= -1;
-int ground_items_menu_x=6*51+100+20;
+int ground_items_menu_x=400;
 int ground_items_menu_y=20;
-int ground_items_menu_x_len=6*GRIDSIZE;
-int ground_items_menu_y_len=10*GRIDSIZE;
+int ground_items_menu_x_len=0;
+int ground_items_menu_y_len=0;
 Uint32 ground_items_empty_next_bag=0;
 
 static int ground_items_grid_rows = 10;
@@ -422,7 +423,7 @@ int pre_display_ground_items_handler(window_info *win)
 	glEnable(GL_TEXTURE_2D);
 	if (item_desc_str != NULL)
 	{
-		show_help(item_desc_str, 0, win->len_y+10);
+		scaled_show_help(item_desc_str, 0, win->len_y+10);
 		item_desc_str = NULL;
 	}
 	return 1;
@@ -435,6 +436,7 @@ int display_ground_items_handler(window_info *win)
 	int i;
 	static Uint8 resizing = 0;
 	int yoffset = get_window_scroll_pos(win->window_id);
+	int but_text_x, but_text_y;
 
 	/* if resizing wait until we stop */
 	if (win->resized)
@@ -455,7 +457,9 @@ int display_ground_items_handler(window_info *win)
 	// write "get all" in the "get all" box :)
 	strap_word(get_all_str,my_str);
 	glColor3f(0.77f,0.57f,0.39f);
-	draw_string_small(win->len_x-(GRIDSIZE-5), ELW_BOX_SIZE+3+yoffset, (unsigned char*)my_str, 2);
+	but_text_x = (int)(0.5 + ((GRIDSIZE - (float)(3 * win->small_font_len_x)) / 2.0));
+	but_text_y = (int)(0.5 + ((GRIDSIZE - (float)(2 * win->small_font_len_y)) / 2.0));
+	scaled_draw_string_small(win->len_x+but_text_x-GRIDSIZE, win->box_size+but_text_y+yoffset, (unsigned char*)my_str, 2);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
@@ -464,6 +468,7 @@ int display_ground_items_handler(window_info *win)
 			float u_start,v_start,u_end,v_end;
 			int this_texture,cur_item,cur_pos;
 			int x_start,x_end,y_start,y_end;
+			int use_large = (mouseover_ground_item_pos == i) && enlarge_text();
 
 			//get the UV coordinates.
 			cur_item=ground_item_list[i].image_id%25;
@@ -472,9 +477,9 @@ int display_ground_items_handler(window_info *win)
 			//get the x and y
 			cur_pos=i;
 			x_start=GRIDSIZE*(cur_pos%ground_items_grid_cols)+1;
-			x_end=x_start+32;
+			x_end=x_start+GRIDSIZE-1;
 			y_start=GRIDSIZE*(cur_pos/ground_items_grid_cols);
-			y_end=y_start+32;
+			y_end=y_start+GRIDSIZE-1;
 
 			//get the texture this item belongs to
 			this_texture=get_items_texture(ground_item_list[i].image_id/25);
@@ -485,10 +490,11 @@ int display_ground_items_handler(window_info *win)
 			glEnd();
 
 			safe_snprintf(str,sizeof(str),"%i",ground_item_list[i].quantity);
-			if ((mouseover_ground_item_pos == i) && enlarge_text())
-				draw_string_shadowed(x_start,y_end-(i&1?22:12),(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
+			y_end -= -3 + ((i&1) ?GRIDSIZE-1 : ((use_large) ?win->default_font_len_y :win->small_font_len_y));
+			if (use_large)
+				scaled_draw_string_shadowed(x_start,y_end,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
 			else
-				draw_string_small_shadowed(x_start,y_end-(i&1?22:12),(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
+				scaled_draw_string_small_shadowed(x_start,y_end,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
 		}
 	}
 	mouseover_ground_item_pos = -1;
@@ -513,10 +519,10 @@ int display_ground_items_handler(window_info *win)
 	glBegin(GL_LINE_LOOP);
 
 		// draw the "get all" box
-		glVertex2i(win->len_x, ELW_BOX_SIZE+yoffset);
-		glVertex2i(win->len_x-GRIDSIZE, ELW_BOX_SIZE+yoffset);
-		glVertex2i(win->len_x-GRIDSIZE, ELW_BOX_SIZE+GRIDSIZE+yoffset);
-		glVertex2i(win->len_x, ELW_BOX_SIZE+GRIDSIZE+yoffset);
+		glVertex2i(win->len_x, win->box_size + yoffset);
+		glVertex2i(win->len_x - GRIDSIZE, win->box_size + yoffset);
+		glVertex2i(win->len_x - GRIDSIZE, win->box_size + GRIDSIZE + yoffset);
+		glVertex2i(win->len_x, win->box_size + GRIDSIZE + yoffset);
 
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
@@ -552,7 +558,7 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	}
 
 	// see if we clicked on the "Get All" box
-	if(mx>(win->len_x-GRIDSIZE) && mx<win->len_x && my>ELW_BOX_SIZE && my<GRIDSIZE+ELW_BOX_SIZE){
+	if(mx>(win->len_x-GRIDSIZE) && mx<win->len_x && my>win->box_size && my<GRIDSIZE+win->box_size){
 		pick_up_all_items();
 		do_get_item_sound();
 		return 1;
@@ -633,6 +639,19 @@ static int resize_ground_items_handler(window_info *win)
 		return 0;
 }
 
+static int ui_scale_ground_items_handler(window_info * win)
+{
+	int current_rows = (win->len_y+GRIDSIZE/2)/GRIDSIZE;
+	int current_scroll_pos = get_window_scroll_pos(win->window_id) / (GRIDSIZE/3);
+	GRIDSIZE = (int)(0.5 + 33 * win->current_scale);
+	set_window_min_size(win->window_id, (min_grid_cols+1)*GRIDSIZE, min_grid_rows*GRIDSIZE);
+	set_window_scroll_inc(win->window_id, GRIDSIZE/3);
+	set_window_scroll_yoffset(win->window_id, GRIDSIZE);
+	set_window_scroll_pos(win->window_id, current_scroll_pos * GRIDSIZE/3);
+	resize_window(win->window_id, (ground_items_grid_cols+1)*GRIDSIZE, current_rows*GRIDSIZE);
+	return 1;
+}
+
 void draw_pick_up_menu()
 {
 	if(ground_items_win < 0){
@@ -640,6 +659,7 @@ void draw_pick_up_menu()
 		if (!windows_on_top) {
 			our_root_win = game_root_win;
 		}
+		GRIDSIZE = UI_SCALED_VALUE(33);
 		if (ground_items_menu_x_len < (min_grid_cols+1)*GRIDSIZE || ground_items_menu_x_len >= window_width ||
 			ground_items_menu_y_len < min_grid_rows*GRIDSIZE || ground_items_menu_y_len >= window_height)
 		{
@@ -647,7 +667,7 @@ void draw_pick_up_menu()
 			ground_items_menu_y_len=10*GRIDSIZE;
 		}
 		ground_items_win= create_window(win_bag, our_root_win, 0, ground_items_menu_x, ground_items_menu_y,
-			ground_items_menu_x_len, ground_items_menu_y_len, ELW_SCROLLABLE|ELW_RESIZEABLE|ELW_WIN_DEFAULT);
+			ground_items_menu_x_len, ground_items_menu_y_len, ELW_USE_UISCALE|ELW_SCROLLABLE|ELW_RESIZEABLE|ELW_WIN_DEFAULT);
 
 		set_window_handler(ground_items_win, ELW_HANDLER_DISPLAY, &display_ground_items_handler );
 		set_window_handler(ground_items_win, ELW_HANDLER_PRE_DISPLAY, &pre_display_ground_items_handler );
@@ -655,6 +675,8 @@ void draw_pick_up_menu()
 		set_window_handler(ground_items_win, ELW_HANDLER_MOUSEOVER, &mouseover_ground_items_handler );
 		set_window_handler(ground_items_win, ELW_HANDLER_RESIZE, &resize_ground_items_handler );
 		set_window_handler(ground_items_win, ELW_HANDLER_CLOSE, &clear_groundlist );
+		set_window_handler(ground_items_win, ELW_HANDLER_UI_SCALE, &ui_scale_ground_items_handler );
+
 		set_window_min_size(ground_items_win, (min_grid_cols+1)*GRIDSIZE, min_grid_rows*GRIDSIZE);
 		set_window_scroll_inc(ground_items_win, GRIDSIZE/3);
 		set_window_scroll_yoffset(ground_items_win, GRIDSIZE);
