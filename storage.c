@@ -635,13 +635,15 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 		return 0;
 	}
 	else {
-	if((my > cat_string_top_offset) && (my < (cat_string_top_offset + STORAGE_CATEGORIES_DISPLAY * cat_name_seperation))){
+		if((my > cat_string_top_offset) && (my < (cat_string_top_offset + STORAGE_CATEGORIES_DISPLAY * cat_name_seperation))){
 			if(mx>border_size && mx<cat_right_offset){
 				int cat=-1;
 				cat=(my - cat_string_left_offset) / cat_name_seperation + vscrollbar_get_pos(storage_win, STORAGE_SCROLLBAR_CATEGORIES);
 				move_to_category(cat);
 				do_click_sound();
-			} else if(mx>item_grid_left_offset && mx<item_right_offset){
+			}
+		}
+		if ((my > border_size) && (my<bottom_offset) && (mx > item_grid_left_offset) && (mx < item_right_offset)) {
 				if(view_only_storage && item_dragged!=-1 && left_click){
 					drop_fail_time = SDL_GetTicks();
 					do_alert1_sound();
@@ -676,7 +678,6 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 					active_storage_item=storage_items[cur_item_over].pos;
 					do_drag_item_sound();
 				}
-			}
 		}
 	}
 
@@ -711,10 +712,11 @@ int mouseover_storage_handler(window_info *win, int mx, int my)
 			}
 			
 			return 0;
-		} else if (mx>item_grid_left_offset && mx<item_right_offset){
-			cur_item_over = get_mouse_pos_in_grid(mx, my, item_grid_size, item_grid_size, item_grid_left_offset, border_size, item_box_size, item_box_size)+vscrollbar_get_pos(storage_win, STORAGE_SCROLLBAR_ITEMS)*item_grid_size;
-			if(cur_item_over>=no_storage||cur_item_over<0||!storage_items[cur_item_over].quantity) cur_item_over=-1;
 		}
+	}
+	if ((my > border_size) && (my<bottom_offset) && (mx > item_grid_left_offset) && (mx < item_right_offset)) {
+		cur_item_over = get_mouse_pos_in_grid(mx, my, item_grid_size, item_grid_size, item_grid_left_offset, border_size, item_box_size, item_box_size)+vscrollbar_get_pos(storage_win, STORAGE_SCROLLBAR_ITEMS)*item_grid_size;
+		if(cur_item_over>=no_storage||cur_item_over<0||!storage_items[cur_item_over].quantity) cur_item_over=-1;
 	}
 	
 	last_category = last_pos+vscrollbar_get_pos(storage_win,STORAGE_SCROLLBAR_CATEGORIES);
