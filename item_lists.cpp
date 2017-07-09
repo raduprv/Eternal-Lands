@@ -202,7 +202,7 @@ namespace ItemLists
 				grid_pixel_size(0), ui_control_space(0), num_show_names_list(6),
 				names_list_height(0), win_id(-1), selected_item_number(static_cast<size_t>(-1)),
 				name_under_mouse(static_cast<size_t>(-1)), mouse_over_item(static_cast<size_t>(-1)),
-				clicked(false), mouse_over_add_button(false), resizing(false),
+				clicked(false), mouse_over_add_button(false), resizing(false), last_saved_y(0),
 				last_quantity_selected(0), num_grid_rows(min_grid_rows()),
 				last_key_time(0), last_items_list_on_left(-1), desc_str(0),
 				pickup_fail_time(0) {}
@@ -252,6 +252,7 @@ namespace ItemLists
 			int add_button_x;
 			int add_button_y;
 			bool resizing;
+			int last_saved_y;
 			int last_quantity_selected;
 			INPUT_POPUP ipu_item_list_name;
 			int names_scroll_id;
@@ -809,7 +810,7 @@ namespace ItemLists
 	//
 	void List_Window::calc_num_show_names(window_info *win)
 	{
-		int target_len_y = win->len_y;
+		int target_len_y = (resizing) ?win->len_y: last_saved_y;
 		if ((target_len_y <= 0) && (win->pos_id >= 0) && (win->pos_id < windows_list.num_windows))
 			target_len_y = windows_list.window[win->pos_id].len_y;
 		if (target_len_y > (window_height - HUD_MARGIN_Y - win->title_height))
@@ -850,6 +851,7 @@ namespace ItemLists
 	//
 	int List_Window::ui_scale_handler(window_info *win)
 	{
+		resizing = true;
 		names_list_height = win->small_font_len_y;
 		grid_pixel_size = static_cast<int>(0.5 + 33 * win->current_scale);
 		ui_control_space = win->box_size;
@@ -863,6 +865,8 @@ namespace ItemLists
 		if (last_num_show_names_list != num_show_names_list)
 			resize_window (win->window_id, get_size_x(), get_size_y());
 		reset_position();
+		last_saved_y = get_size_y();
+		resizing = false;
 		return 1;
 	}
 
@@ -931,6 +935,7 @@ namespace ItemLists
 		{
 			calc_num_show_names(win);
 			resizing = false;
+			last_saved_y = get_size_y();
 			resize_window (win->window_id, get_size_x(), get_size_y());
 		}
 
