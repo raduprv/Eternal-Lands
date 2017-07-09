@@ -862,6 +862,7 @@ namespace ItemLists
 		resize_window (win->window_id, get_size_x(), get_size_y());
 		if (last_num_show_names_list != num_show_names_list)
 			resize_window (win->window_id, get_size_x(), get_size_y());
+		reset_position();
 		return 1;
 	}
 
