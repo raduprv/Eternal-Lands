@@ -151,8 +151,8 @@ namespace UserMenus
 			int win_y_pos;
 			std::vector<Menu *> menus;
 			CommandQueue::Queue command_queue;
-			static const int name_sep;
-			static const int window_pad;
+			int name_sep;
+			int window_pad;
 
 			void reload(void);
 			void recalc_win_width(void);
@@ -160,17 +160,19 @@ namespace UserMenus
 			int action(size_t active_menu, int option);
 			void pre_show(window_info *win, int widget_id, int mx, int my, window_info *cm_win);
 			int click(window_info *win, int mx, Uint32 flags);
+			int ui_scale_changed(window_info *win);
 			size_t get_mouse_over_menu(int mx);
 			void delete_menus(void);
 			int context(window_info *win, int widget_id, int mx, int my, int option);
 			void set_win_flag(Uint32 *flags, Uint32 flag, int state);
 			void mouseover(int mx) { mouse_over_window = true; current_mouseover_menu = get_mouse_over_menu(mx); }
-			int get_height(void) const { return static_cast<int>(((use_small_font)?SMALL_FONT_Y_LEN:DEFAULT_FONT_Y_LEN)+2*window_pad +0.5); }
-			int calc_actual_width(int width) const { return static_cast<int>(0.5 + ((use_small_font)?DEFAULT_SMALL_RATIO:1) * width); }
+			int get_height(void) const { return UI_SCALED_VALUE(((use_small_font)?SMALL_FONT_Y_LEN:DEFAULT_FONT_Y_LEN))+2*window_pad; }
+			int calc_actual_width(int width) const { return UI_SCALED_VALUE(((use_small_font)?DEFAULT_SMALL_RATIO:1) * width); }
 
 			static int display_handler(window_info *win) { return get_instance()->display(win); }
 			static int mouseover_handler(window_info *win, int mx, int my) { get_instance()->mouseover(mx); return 0; }
 			static int click_handler(window_info *win, int mx, int my, Uint32 flags) { return get_instance()->click(win, mx, flags); }
+			static int ui_scale_handler(window_info *win) { return get_instance()->ui_scale_changed(win); }
 			static int context_handler(window_info *win, int widget_id, int mx, int my, int option){ return get_instance()->context(win, widget_id, mx, my, option); }
 	};
 
@@ -234,18 +236,13 @@ namespace UserMenus
 	}
 
 
-	//	pixels between menu text
-	const int Container::name_sep = 10;
-
-	// 	pixels around the window edge
-	const int Container::window_pad = 4;
-
 	//
 	//	constructor for Container, just initialises attributes
 	//
 	Container::Container(void) : win_id(-1), win_width(0), current_mouseover_menu(0), mouse_over_window(false), 
 		reload_menus(false), context_id(CM_INIT_VALUE), window_used(false), title_on(1),
-		border_on(1), use_small_font(0), include_datadir(1), just_echo(0), win_x_pos(100), win_y_pos(100)
+		border_on(1), use_small_font(0), include_datadir(1), just_echo(0), win_x_pos(100),
+		win_y_pos(100), name_sep(4), window_pad(10)
 	{
 	}
 
@@ -274,7 +271,7 @@ namespace UserMenus
 			return;
 		}
 
-		Uint32 win_flags = ELW_SHOW_LAST|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE;
+		Uint32 win_flags = ELW_USE_UISCALE|ELW_SHOW_LAST|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE;
 		
 		set_win_flag(&win_flags, ELW_TITLE_BAR, title_on);
 		set_win_flag(&win_flags, ELW_USE_BORDER, border_on);
@@ -288,6 +285,7 @@ namespace UserMenus
 		set_window_handler(win_id, ELW_HANDLER_DISPLAY, (int (*)())&display_handler );
 		set_window_handler(win_id, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_handler );
 		set_window_handler(win_id, ELW_HANDLER_CLICK, (int (*)())&click_handler );
+		set_window_handler(win_id, ELW_HANDLER_UI_SCALE, (int (*)())&ui_scale_handler );
 
 		// the build-in context menu is only available if we have a title so always recreate
 
@@ -308,6 +306,9 @@ namespace UserMenus
 		cm_bool_line(context_id, ELW_CM_MENU_LEN+3, &use_small_font, NULL);
 		cm_bool_line(context_id, ELW_CM_MENU_LEN+4, &include_datadir, NULL);
 		cm_bool_line(context_id, ELW_CM_MENU_LEN+6, &just_echo, NULL);
+
+		if (win_id >= 0)
+			ui_scale_changed(&windows_list.window[win_id]);
 
 	} // Container::open_window()
 
@@ -366,7 +367,10 @@ namespace UserMenus
 
 		// a reload may have changed the window size
 		if ((win_width != win->len_x) || (get_height() != win->len_y))
+		{
+			recalc_win_width();
 			resize_window (win->window_id, win_width, get_height());
+		}
 
 		// enable the title bar if the window ends up off screen - resolution change perhaps
 		if ((win->cur_x + 20 > window_width) || (win->cur_y + 10 > window_height))
@@ -385,9 +389,9 @@ namespace UserMenus
 			else
 				glColor3f(0.40f,0.30f,0.20f);
 			if (use_small_font)
-				draw_string_small(curr_x, window_pad, (const unsigned char *)um_no_menus_str, 1 );
+				scaled_draw_string_small(curr_x, window_pad, (const unsigned char *)um_no_menus_str, 1 );
 			else
-				draw_string(curr_x, window_pad, (const unsigned char *)um_no_menus_str, 1 );
+				scaled_draw_string(curr_x, window_pad, (const unsigned char *)um_no_menus_str, 1 );
 			mouse_over_window = false;
 			return 1;
 		}
@@ -412,9 +416,9 @@ namespace UserMenus
 			else
 				glColor3f(0.40f,0.30f,0.20f);
 			if (use_small_font)
-				draw_string_small(curr_x, window_pad, (const unsigned char *)menus[i]->get_name().c_str(), 1);
+				scaled_draw_string_small(curr_x, window_pad, (const unsigned char *)menus[i]->get_name().c_str(), 1);
 			else
-				draw_string(curr_x, window_pad, (const unsigned char *)menus[i]->get_name().c_str(), 1);
+				scaled_draw_string(curr_x, window_pad, (const unsigned char *)menus[i]->get_name().c_str(), 1);
 			curr_x += calc_actual_width(menus[i]->get_name_width()) + name_sep;
 		}
 
@@ -442,6 +446,19 @@ namespace UserMenus
 		return 0;
 	}
 
+
+	//
+	// Called when the UI is scaled
+	//
+	int Container::ui_scale_changed(window_info *win)
+	{
+		window_pad = static_cast<int>(0.5 + 4 * win->current_scale);
+		name_sep = static_cast<int>(0.5 + 10 * win->current_scale);
+		recalc_win_width();
+		return 1;
+	}
+
+
 	//
 	// common callback fuction for context menu, line selection
 	//
@@ -467,7 +484,7 @@ namespace UserMenus
 		}
 
 		// get the menu name x offset in the menu window
-		int x_offset = window_pad;				
+		int x_offset = window_pad;
 		for (size_t i=0; i<curr_menu && i<menus.size(); i++)
 			x_offset += calc_actual_width(menus[i]->get_name_width()) + name_sep;
 		
@@ -670,10 +687,10 @@ namespace UserMenus
 			case ELW_CM_MENU_LEN+1:
 			{
 				set_win_flag(&win->flags, ELW_TITLE_BAR, title_on);
-				if (win->cur_y == ELW_TITLE_HEIGHT)
+				if (win->cur_y == win->title_height)
 					move_window(win->window_id, -1, 0, win->cur_x, 0);
 				else if (win->cur_y == 0)
-					move_window(win->window_id, -1, 0, win->cur_x, ELW_TITLE_HEIGHT);
+					move_window(win->window_id, -1, 0, win->cur_x, win->title_height);
 				break;
 			}
 			case ELW_CM_MENU_LEN+2: set_win_flag(&win->flags, ELW_USE_BORDER, border_on); break;
