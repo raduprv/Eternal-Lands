@@ -1398,12 +1398,12 @@ void	toggle_window(int win_id)
 static void resize_scrollbar(window_info *win)
 {
 	int sblen = win->len_y - win->scroll_yoffset;
+	int width = (win->flags&ELW_USE_UISCALE) ?win->box_size :widget_get_width(win->window_id, win->scroll_id);
 	if (win->flags&ELW_CLOSE_BOX)
 		sblen -= win->box_size;
 	if (win->flags&ELW_RESIZEABLE)
 		sblen -= win->box_size;
-	widget_resize(win->window_id, win->scroll_id,
-		widget_get_width(win->window_id, win->scroll_id), sblen);
+	widget_resize(win->window_id, win->scroll_id, width, sblen);
 }
 
 void resize_window (int win_id, int new_width, int new_height)
