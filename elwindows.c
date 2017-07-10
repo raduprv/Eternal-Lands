@@ -76,12 +76,19 @@ static void update_window_scale(window_info *win, float scale_factor)
 void update_windows_scale(float scale_factor)
 {
 	int win_id;
+	// to avoid getting out of step, scale all the variables first, then call the handers
 	for (win_id=0; win_id < windows_list.num_windows; win_id++)
 	{
 		window_info *win = &windows_list.window[win_id];
 		if(windows_list.window[win_id].window_id != win_id)
 			continue;
 		update_window_scale(win, scale_factor);
+	}
+	for (win_id=0; win_id < windows_list.num_windows; win_id++)
+	{
+		window_info *win = &windows_list.window[win_id];
+		if(windows_list.window[win_id].window_id != win_id)
+			continue;
 		if (win->ui_scale_handler) (*win->ui_scale_handler)(win);
 	}
 }
