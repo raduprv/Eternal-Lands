@@ -455,6 +455,7 @@ namespace UserMenus
 		window_pad = static_cast<int>(0.5 + 4 * win->current_scale);
 		name_sep = static_cast<int>(0.5 + 10 * win->current_scale);
 		recalc_win_width();
+		resize_window(win->window_id, win_width, get_height());
 		return 1;
 	}
 
