@@ -35,7 +35,7 @@ float ground_plane[4]={0,0,1,0};
 float sun_position[4]={400.0, 400.0, 500.0, 0.0};
 double light_view_mat[16],light_proj_mat[16],shadow_texgen_mat[16];
 int shadows_on=0;
-int is_day=1;
+int is_day=0;
 int use_shadow_mapping=1;
 
 //TODO: Would like to use TEXTURE_RECTANGLE for cards that support it, but for some reason it doesn't work??
