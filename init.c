@@ -441,41 +441,7 @@ void save_bin_cfg()
 
 	cfg_mem.cfg_version_num=CFG_VERSION;	// set the version number
 	//good, retrive the data
-	/*
 	// TODO: move window save/restore into the window handler
-	cfg_mem.items_menu_x=items_menu_x;
-	cfg_mem.items_menu_y=items_menu_y;
-
-	cfg_mem.ground_items_menu_x=ground_items_menu_x;
-	cfg_mem.ground_items_menu_y=ground_items_menu_y;
-
-	cfg_mem.trade_menu_x=trade_menu_x;
-	cfg_mem.trade_menu_y=trade_menu_y;
-
-	cfg_mem.sigil_menu_x=sigil_menu_x;
-	cfg_mem.sigil_menu_y=sigil_menu_y;
-
-	cfg_mem.dialogue_menu_x=dialogue_menu_x;
-	cfg_mem.dialogue_menu_y=dialogue_menu_y;
-
-	cfg_mem.manufacture_menu_x=manufacture_menu_x;
-	cfg_mem.manufacture_menu_y=manufacture_menu_y;
-
-	cfg_mem.attrib_menu_x=attrib_menu_x;
-	cfg_mem.attrib_menu_y=attrib_menu_y;
-
-	cfg_mem.elconfig_menu_x=elconfig_menu_x;
-	cfg_mem.elconfig_menu_y=elconfig_menu_y;
-
-	cfg_mem.knowledge_menu_x=knowledge_menu_x;
-	cfg_mem.knowledge_menu_y=knowledge_menu_y;
-
-	cfg_mem.encyclopedia_menu_x=encyclopedia_menu_x;
-	cfg_mem.encyclopedia_menu_y=encyclopedia_menu_y;
-
-	cfg_mem.questlog_menu_x=questlog_menu_x;
-	cfg_mem.questlog_menu_y=questlog_menu_y;
-*/
 	if(range_win >= 0) {
 		cfg_mem.ranging_win_x=windows_list.window[range_win].cur_x;
 		cfg_mem.ranging_win_y=windows_list.window[range_win].cur_y;
