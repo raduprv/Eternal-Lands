@@ -1486,7 +1486,7 @@ void display_manufacture_menu()
 		set_window_handler(manufacture_win, ELW_HANDLER_CLICK, &click_manufacture_handler );
 		set_window_handler(manufacture_win, ELW_HANDLER_MOUSEOVER, &mouseover_manufacture_slot_handler );
 		set_window_handler(manufacture_win, ELW_HANDLER_KEYPRESS, &keypress_manufacture_handler );
-		set_window_handler(manufacture_win, ELW_HANDLER_UI_SCALE, (int (*)())&ui_scale_manufacture_handler );
+		set_window_handler(manufacture_win, ELW_HANDLER_UI_SCALE, &ui_scale_manufacture_handler );
 
 		mixone_button_id=button_add_extended(manufacture_win, mixone_button_id, NULL,
 			0, 0, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, ">");
