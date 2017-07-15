@@ -1285,6 +1285,7 @@ static int free_tab_collection(widget_list *widget)
 
 int tab_collection_draw (widget_list *w)
 {
+	window_info *win;
 	tab_collection *col;
 	int itab, ytagtop, ytagbot, xstart, xend, xmax;
 	int btn_size, arw_width;
@@ -1292,7 +1293,11 @@ int tab_collection_draw (widget_list *w)
 	int h;
 
 	if (!w) return 0;
-	
+	if ((w->window_id >= 0) && (w->window_id < windows_list.num_windows))
+		win = &windows_list.window[w->window_id];
+	else
+		return 0;
+
 	col = (tab_collection *) w->widget_info;
 	
 	h = col->tag_height;
@@ -1423,9 +1428,9 @@ int tab_collection_draw (widget_list *w)
 			glColor3f (col->tabs[itab].label_r, col->tabs[itab].label_g, col->tabs[itab].label_b); 
 			
 		if (col->tabs[itab].closable)
-			draw_string_zoomed (xstart+h+gx_adjust, ytagbot-SMALL_FONT_Y_LEN-2+gy_adjust, (unsigned char *)col->tabs[itab].label, 1, w->size);
+			draw_string_zoomed (xstart+win->small_font_len_x/2+h+gx_adjust, ytagbot-win->small_font_len_y-2+gy_adjust, (unsigned char *)col->tabs[itab].label, 1, win->current_scale * w->size);
 		else
-			draw_string_zoomed (xstart+4+gx_adjust, ytagbot-SMALL_FONT_Y_LEN-2+gy_adjust, (unsigned char *)col->tabs[itab].label, 1, w->size);
+			draw_string_zoomed (xstart+win->small_font_len_x/2+gx_adjust, ytagbot-win->small_font_len_y-2+gy_adjust, (unsigned char *)col->tabs[itab].label, 1, win->current_scale * w->size);
 		glDisable(GL_TEXTURE_2D);
 
 		xstart = xend;
@@ -1547,19 +1552,32 @@ static int tab_collection_click(widget_list *W, int x, int y, Uint32 flags)
 	return 0;
 }
 
-int tab_collection_resize (widget_list *W, Uint32 width, Uint32 height)
+int tab_collection_resize (widget_list *w, Uint32 width, Uint32 height, Uint32 tab_tag_height)
 {
-	Uint16 win_height;
+	window_info *win;
 	tab_collection *col;
 	int itab;
 
-	if (W == NULL || (col = (tab_collection *) W->widget_info) == NULL)
+	if (w == NULL || (col = (tab_collection *) w->widget_info) == NULL)
 		return 0;
-	
-	win_height = height > col->tag_height ? height - col->tag_height : 0;
+	if ((w->window_id >= 0) && (w->window_id < windows_list.num_windows))
+		win = &windows_list.window[w->window_id];
+	else
+		return 0;
+
+	col->tag_height = tab_tag_height;
+	col->button_size = (9 * tab_tag_height) / 10;
+
+	for (itab=0; itab<col->nr_tabs; itab++)
+	{
+		col->tabs[itab].tag_width = win->default_font_len_x + (win->current_scale * (float)w->size * (DEFAULT_FONT_X_LEN * (float)get_string_width((unsigned char*)col->tabs[itab].label)/12.0f));
+		if (col->tabs[itab].closable) 
+			col->tabs[itab].tag_width += col->tag_height;
+	}
+
 	for (itab = 0; itab < col->nr_tabs; itab++)
-		resize_window (col->tabs[itab].content_id, width, win_height);
-	
+		resize_window (col->tabs[itab].content_id, width, height);
+
 	return 1;
 }
 
@@ -1670,11 +1688,16 @@ int tab_collection_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint
 
 int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, int closable, Uint32 flags)
 {
+	window_info *win;
 	widget_list *w = widget_find(window_id, col_id);
 	tab_collection *col;
 	int nr;
 	
 	if (w == NULL || (col = (tab_collection *) w->widget_info) == NULL)
+		return 0;
+	if ((w->window_id >= 0) && (w->window_id < windows_list.num_windows))
+		win = &windows_list.window[w->window_id];
+	else
 		return 0;
 	
 	nr = col->nr_tabs++;
@@ -1702,7 +1725,7 @@ int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, 
 	else
 	{
 		// compute tag width from label width
-		col->tabs[nr].tag_width = 10 + ((float)w->size * (DEFAULT_FONT_X_LEN * (float)get_string_width((unsigned char*)col->tabs[nr].label)/12.0f));
+		col->tabs[nr].tag_width = win->default_font_len_x + (win->current_scale * (float)w->size * (DEFAULT_FONT_X_LEN * (float)get_string_width((unsigned char*)col->tabs[nr].label)/12.0f));
 		if (col->tabs[nr].closable) 
 			col->tabs[nr].tag_width += col->tag_height;
 	}

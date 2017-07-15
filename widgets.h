@@ -1235,10 +1235,11 @@ int tab_collection_draw (widget_list *W);
  * \param   	W The widget
  * \param   	w the new width
  * \param   	h the new height
+ * \param   	tab_tag_height the height of the tab tags
  * \retval int  	Returns 1 on success, 0 on failure
  * \callgraph
  */
-int tab_collection_resize (widget_list *W, Uint32 w, Uint32 h);
+int tab_collection_resize (widget_list *W, Uint32 w, Uint32 h, Uint32 tab_tag_height);
 
 /*!
  * \ingroup	tabs
