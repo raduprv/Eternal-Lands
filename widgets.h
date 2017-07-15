@@ -1242,6 +1242,20 @@ int tab_collection_resize (widget_list *W, Uint32 w, Uint32 h);
 
 /*!
  * \ingroup	tabs
+ * \brief 	Move the tabbed window collection widget tabs
+ *
+ * 		Move the tabbed window collection widget tabs
+ *
+ * \param   	W The widget
+ * \param   	pos_x the absolute x position
+ * \param   	pos_y the absolute y position
+ * \retval int  	Returns 1 on success, 0 on failure
+ * \callgraph
+ */
+int tab_collection_move (widget_list *W, Uint32 pos_x, Uint32 pos_y);
+
+/*!
+ * \ingroup	tabs
  * \brief 	Creates a new tabbed window
  *
  * 		Creates a new tabbed window 

@@ -1563,6 +1563,20 @@ int tab_collection_resize (widget_list *W, Uint32 width, Uint32 height)
 	return 1;
 }
 
+int tab_collection_move (widget_list *W, Uint32 pos_x, Uint32 pos_y)
+{
+	tab_collection *col;
+	int itab;
+
+	if (W == NULL || (col = (tab_collection *) W->widget_info) == NULL)
+		return 0;
+
+	for (itab = 0; itab < col->nr_tabs; itab++)
+		move_window(col->tabs[itab].content_id, W->window_id, 0, pos_x, pos_y);
+
+	return 1;
+}
+
 void _tab_collection_make_cur_visible (widget_list *W)
 {
 	tab_collection *col;
