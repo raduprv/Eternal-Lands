@@ -45,36 +45,32 @@
 #define INTERFACE_RULES 7
 
 /*Window*/
-int rules_win=-1;
-int rules_win_x=100;
-int rules_win_y=100;
-int rules_win_x_len=HELP_TAB_WIDTH-ELW_CLOSE_BOX;
-int rules_win_y_len=HELP_TAB_HEIGHT;
-int rules_scroll_id = 0;
+static int rules_win=-1;
+static int rules_scroll_id = 0;
 
 /*Shared*/
-int reached_end=0;
-int read_all_rules=0;
+static int reached_end=0;
+static int read_all_rules=0;
 int have_rules=0;
-rule_string * display_rules=NULL;
+static rule_string * display_rules=NULL;
 int last_display=-1;
 
 /* virtual window */
-int virt_win_len = 0;			/* length in pixels of all rules/info and current expanded rules */
-int virt_win_offset = 0;		/* virtual line number at top of displayed text */
-int recalc_virt_win_len = 1;	/* if true, force a virtual window recal before display */
-int set_rule_offset = -1;		/* if > 0, set the first displayed rule to this */
+static int virt_win_len = 0;			/* length in pixels of all rules/info and current expanded rules */
+static int virt_win_offset = 0;		/* virtual line number at top of displayed text */
+static int recalc_virt_win_len = 1;	/* if true, force a virtual window recal before display */
+static int set_rule_offset = -1;		/* if > 0, set the first displayed rule to this */
 
 /*Interface*/
 int countdown = 0;
 
-int rules_root_scroll_id = 0;
-int rules_root_accept_id = 0;
+static int rules_root_scroll_id = 0;
+static int rules_root_accept_id = 0;
 
-int next_win_id;
+static int next_win_id;
 
 /* Colors */
-const float rules_winRGB[8][3] = {{1.0f,0.6f,0.0f},{1.0f,0.0f,0.0f},{0.0f,0.7f,1.0f},{0.9f,0.9f,0.9f},{0.6f,1.0f,1.2f},{0.4f,0.8f,1.0f},{0.8f,0.0f,0.0f},{1.0f,1.0f,1.0f}};
+static const float rules_winRGB[8][3] = {{1.0f,0.6f,0.0f},{1.0f,0.0f,0.0f},{0.0f,0.7f,1.0f},{0.9f,0.9f,0.9f},{0.6f,1.0f,1.2f},{0.4f,0.8f,1.0f},{0.8f,0.0f,0.0f},{1.0f,1.0f,1.0f}};
 
 /* Rule parser */
 static struct rules_struct rules = {0,{{NULL,0,NULL,0,0}}};
@@ -160,7 +156,7 @@ int read_rules()
 
 /*Rules window interface*/
 
-int rules_scroll_handler ()
+int rules_scroll_handler (void)
 {
 	virt_win_offset = vscrollbar_get_pos (rules_win, rules_scroll_id);
 	return 1;
@@ -172,11 +168,11 @@ int click_rules_handler (window_info *win, int mx, int my, Uint32 flags)
 	int i;
 
 	if(flags&ELW_WHEEL_UP) {
-		vscrollbar_scroll_up(rules_win, rules_scroll_id);
+		vscrollbar_scroll_up(win->window_id, rules_scroll_id);
 		rules_scroll_handler();
 		return 1;
 	} else if(flags&ELW_WHEEL_DOWN) {
-		vscrollbar_scroll_down(rules_win, rules_scroll_id);
+		vscrollbar_scroll_down(win->window_id, rules_scroll_id);
 		rules_scroll_handler();
 		return 1;
 	} else {
@@ -217,32 +213,44 @@ int mouseover_rules_handler (window_info *win, int mx, int my)
 int display_rules_handler(window_info *win)
 {
 	if (virt_win_offset < 0) virt_win_offset=0;
-	draw_rules(display_rules, 0, 18*0.8, win->len_x, win->len_y-18*0.8, 0.8f, rules_winRGB);
+	draw_rules(display_rules, 0, win->small_font_len_y*0.8, win->len_x, win->len_y-win->small_font_len_y*0.8, win->current_scale*0.8f, rules_winRGB);
 	return 1;
 }
 
-void fill_rules_window()
+int resize_rules_handler(window_info *win, int new_width, int new_height)
 {
-	rules_scroll_id = vscrollbar_add_extended (rules_win, rules_scroll_id, NULL, HELP_TAB_WIDTH - 20, 0, 20, HELP_TAB_HEIGHT, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 3, rules.no-1);
-
-	widget_set_OnClick (rules_win, rules_scroll_id, rules_scroll_handler);
-	widget_set_OnDrag (rules_win, rules_scroll_id, rules_scroll_handler);
+	widget_resize(win->window_id, rules_scroll_id, win->box_size, win->len_y);
+	widget_move(win->window_id, rules_scroll_id, win->len_x - win->box_size, 0);
+	vscrollbar_set_pos(win->window_id, rules_scroll_id, 0);
 
 	if(display_rules)free_rules(display_rules);
-	display_rules=get_interface_rules((float)(rules_win_x_len-70)/(12*0.8f)-1);
+	display_rules=get_interface_rules((float)(win->len_x-(win->current_scale*70))/(win->current_scale*12*0.8f)-1);
 
-	set_window_handler(rules_win, ELW_HANDLER_DISPLAY, &display_rules_handler);
-	set_window_handler(rules_win, ELW_HANDLER_MOUSEOVER, &mouseover_rules_handler);
-	set_window_handler(rules_win, ELW_HANDLER_CLICK, &click_rules_handler);
+	return 0;
+}
+
+void fill_rules_window(int window_id)
+{
+	window_info *win = &windows_list.window[window_id];
+	rules_win = window_id;
+
+	rules_scroll_id = vscrollbar_add_extended (window_id, rules_scroll_id, NULL,
+		HELP_TAB_WIDTH-win->box_size, 0, win->box_size, HELP_TAB_HEIGHT, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 3, rules.no-1);
+
+	widget_set_OnClick (window_id, rules_scroll_id, rules_scroll_handler);
+	widget_set_OnDrag (window_id, rules_scroll_id, rules_scroll_handler);
+
+	if(display_rules)free_rules(display_rules);
+	display_rules=get_interface_rules((float)(win->len_x-(win->current_scale*70))/(win->current_scale*12*0.8f)-1);
+
+	set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_rules_handler);
+	set_window_handler(window_id, ELW_HANDLER_MOUSEOVER, &mouseover_rules_handler);
+	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_rules_handler);
+	set_window_handler(window_id, ELW_HANDLER_RESIZE, &resize_rules_handler);
 }
 
 void toggle_rules_window()
 {
-	if(last_display<=0||display_rules==NULL){
-		if(display_rules)free_rules(display_rules);
-		display_rules=get_interface_rules((float)(rules_win_x_len-70)/(12*0.8f)-1);
-	}
-
 	// Stop the window from closing if already open
 	if (!get_show_window (tab_help_win) || tab_collection_get_tab (tab_help_win, tab_help_collection_id) != HELP_TAB_RULES) {
 		view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_RULES);

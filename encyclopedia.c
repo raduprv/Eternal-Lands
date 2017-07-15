@@ -22,18 +22,16 @@
 #include "translate.h"
 #include "text.h"
 
+#define ENCYC_OFFSET	40
 
-int encyclopedia_win=-1;
-int encyclopedia_menu_x=100;
-int encyclopedia_menu_y=20;
-int encyclopedia_menu_x_len=500;
-int encyclopedia_menu_y_len=350;
-//int encyclopedia_menu_dragged=0;
-int encyclopedia_scroll_id=0;
+static int encyclopedia_win=-1;
+static int encyclopedia_menu_y_len=350;
+static int encyclopedia_scroll_id=1;
 
 _Category Category[100];
 _Page Page[MAX_ENC_PAGES];
-int num_category=0,numpage=-1,numtext,x,y,numimage,id,color,size,ref,currentpage=0,isize,tsize,tid,ssize,mouseover=0,xposupdate,yposupdate,lastextlen=0;
+int num_category=0,numpage=-1,numtext,x,y,numimage,id,color,size,ref=0,isize,tsize,tid,ssize,mouseover=0,xposupdate,yposupdate,lastextlen=0;
+static size_t currentpage = 0;
 float u,v,uend,vend,xend,yend,r,g,b;
 char *s,*ss;
 
@@ -46,21 +44,25 @@ static int show_cm_help = 0;
 /* move to translate */
 static const char* cm_encycl_help_str = "Right-click for search and bookmark options";
 
-int display_encyclopedia_handler(window_info *win)
-{
-	_Text *t=Page[currentpage].T.Next;
-	_Image *i=Page[currentpage].I.Next;
-	int j;
 
-	j=vscrollbar_get_pos(encyclopedia_win, encyclopedia_scroll_id);
+int common_encyclopedia_display_handler(window_info *win, size_t the_page, int the_scroll_id)
+{
+	_Text *t=Page[the_page].T.Next;
+	_Image *i=Page[the_page].I.Next;
+	int j = vscrollbar_get_pos(win->window_id, the_scroll_id);
 
 	while(t)
 	{
-		int ylen=(t->size)?18:15;
-		int xlen=strlen(t->text)*((t->size)?11:8);
+		int ylen=(t->size)?win->default_font_len_y:win->small_font_len_y;
+		int xlen=strlen(t->text)*((t->size)?win->default_font_len_x:win->small_font_len_x);
 
-		// Bounds Check the Text
-		if((t->y-j > 0) && (t->y-j < encyclopedia_menu_y_len-20 ))
+		// scale then scale the positions, restoring later
+		int sx = t->x, sy = t->y, sj = j;
+		t->x *= win->current_scale;
+		t->y *= win->current_scale;
+		j *= win->current_scale;
+
+		if((t->y-j > 0) && (t->y+ylen-j < win->len_y ))
 		{
 			if(t->ref)
 				{
@@ -82,7 +84,7 @@ CHECK_GL_ERRORS();
 					glColor3f(0.3,0.6,1.0);
 					else
 					glColor3f(t->r,t->g,t->b);
-					draw_string(t->x,t->y-j,(unsigned char*)t->text,1);
+					scaled_draw_string(t->x,t->y-j,(unsigned char*)t->text,1);
 				}
 			else
 				{
@@ -90,32 +92,40 @@ CHECK_GL_ERRORS();
 					glColor3f(0.3,0.6,1.0);
 					else
 					glColor3f(t->r,t->g,t->b);
-					draw_string_small(t->x,t->y-j,(unsigned char*)t->text,1);
+					scaled_draw_string_small(t->x,t->y-j,(unsigned char*)t->text,1);
 				}
 		}
-		// No next line?
-		if(!t->Next)
-			break;
-
+		t->x = sx; t->y = sy; j = sj;
 		t=t->Next;
 	}
 
 	glColor3f(1.0f,1.0f,1.0f);
-	while(i){
-		// Bounds Check the Text
-		if((i->y-j > 0) && (i->yend-j < encyclopedia_menu_y_len-40 ))
+	while(i)
+	{
+		int sx = i->x, sy = i->y, sxend = i->xend, syend = i->yend, sj = j;
+		i->x *= win->current_scale;
+		i->y *= win->current_scale;
+		i->xend *= win->current_scale;
+		i->yend *= win->current_scale;
+		j *= win->current_scale;
+
+		if((i->y-j > 0) && (i->yend-j < win->len_y ))
 		{
 			if(i->mouseover==1)
 			{
+				i->x = sx; i->y = sy; i->xend = sxend; i->yend = syend; j = sj;
 				i=i->Next;
 				continue;
 			}
-			if(mouse_x>(i->x+win->cur_x) && mouse_x<(win->cur_x+i->xend) && mouse_y>(i->y+win->cur_y-j) && mouse_y<(win->cur_y-j+i->yend))
+			if(mouse_x>(i->x+win->cur_x) && mouse_x<(win->cur_x+i->xend) && mouse_y>(i->y+win->cur_y-j) && mouse_y<(win->cur_y+i->yend-j))
 			{
 				if(i->Next!=NULL)
 				{
 					if(i->Next->mouseover==1)
+					{
+						i->x = sx; i->y = sy; i->xend = sxend; i->yend = syend; j = sj;
 						i=i->Next;
+					}
 				}
 			}
 			bind_texture(i->id);
@@ -123,10 +133,18 @@ CHECK_GL_ERRORS();
 			draw_2d_thing(i->u, i->v, i->uend, i->vend,i->x, i->y-j,i->xend,i->yend-j);
 			glEnd();
 		}
+		i->x = sx; i->y = sy; i->xend = sxend; i->yend = syend; j = sj;
 		i=i->Next;
 
 	}
 
+	return 1;
+}
+
+int display_encyclopedia_handler(window_info *win)
+{
+	common_encyclopedia_display_handler(win, currentpage, encyclopedia_scroll_id);
+	
 	if (repeat_search && last_search != NULL)
 	{
 		find_page(last_search, NULL);
@@ -141,20 +159,25 @@ CHECK_GL_ERRORS();
 	return 1;
 }
 
-int click_encyclopedia_handler(window_info *win, int mx, int my, Uint32 flags)
+
+int common_encyclopedia_click_handler(window_info *win, int mx, int my, Uint32 flags, size_t *the_page, int the_scroll_id)
 {
-	_Text *t=Page[currentpage].T.Next;
+	_Text *t=Page[*the_page].T.Next;
 	
 	if(flags&ELW_WHEEL_UP) {
-		vscrollbar_scroll_up(encyclopedia_win, encyclopedia_scroll_id);
+		vscrollbar_scroll_up(win->window_id, the_scroll_id);
 	} else if(flags&ELW_WHEEL_DOWN) {
-		vscrollbar_scroll_down(encyclopedia_win, encyclopedia_scroll_id);
+		vscrollbar_scroll_down(win->window_id, the_scroll_id);
 	} else {
-		int j = vscrollbar_get_pos(encyclopedia_win, encyclopedia_scroll_id);
+		int j = vscrollbar_get_pos(win->window_id, the_scroll_id);
 
 		while(t){
-			int xlen=strlen(t->text)*((t->size)?11:8),ylen=(t->size)?18:15;
-			if(t->ref && mx>(t->x) && mx<(t->x+xlen) && my>(t->y-j) && my<(t->y+ylen-j)){
+			int xlen=strlen(t->text)*((t->size)?win->default_font_len_x:win->small_font_len_x),
+				ylen=(t->size)?win->default_font_len_y:win->small_font_len_y;
+			if(t->ref && mx>(t->x*win->current_scale) &&
+				mx<(t->x*win->current_scale+xlen) &&
+				my>(t->y*win->current_scale-j*win->current_scale) &&
+				my<(t->y*win->current_scale+ylen-j*win->current_scale)){
 				// check if its a webpage
 				if (!strncasecmp(t->ref, "http://", 7)) {
 					open_web_link(t->ref);
@@ -163,9 +186,9 @@ int click_encyclopedia_handler(window_info *win, int mx, int my, Uint32 flags)
 					int i;
 					for(i=0;i<numpage+1;i++){
 						if(!xmlStrcasecmp((xmlChar*)Page[i].Name,(xmlChar*)t->ref)){
-							currentpage=i;
-							vscrollbar_set_pos(encyclopedia_win, encyclopedia_scroll_id, 0);
-							vscrollbar_set_bar_len(encyclopedia_win, encyclopedia_scroll_id, Page[currentpage].max_y);
+							*the_page = i;
+							vscrollbar_set_pos(win->window_id, the_scroll_id, 0);
+							vscrollbar_set_bar_len(win->window_id, the_scroll_id, Page[*the_page].max_y);
 							break;
 						}
 					}
@@ -177,6 +200,11 @@ int click_encyclopedia_handler(window_info *win, int mx, int my, Uint32 flags)
 	}
 
 	return 1;
+}
+
+int click_encyclopedia_handler(window_info *win, int mx, int my, Uint32 flags)
+{
+	return common_encyclopedia_click_handler(win, mx, my, flags, &currentpage, encyclopedia_scroll_id);
 }
 
 void GetColorFromName (const xmlChar *t)
@@ -704,7 +732,7 @@ void ReadXML(const char *filename)
 	}
 }
 
-void FreeXML()
+void FreeXML(void)
 {
 	int i;
 	//free categories
@@ -1102,12 +1130,12 @@ static int cm_encycl_handler(window_info *win, int widget_id, int mx, int my, in
 	{
 		case CM_ENCYCL_INDEX:
 			currentpage = page_index[ENCYCLT_ENCYC];
-			vscrollbar_set_pos(encyclopedia_win, encyclopedia_scroll_id, 0);
-			vscrollbar_set_bar_len(encyclopedia_win, encyclopedia_scroll_id, Page[currentpage].max_y);
+			vscrollbar_set_pos(win->window_id, encyclopedia_scroll_id, 0);
+			vscrollbar_set_bar_len(win->window_id, encyclopedia_scroll_id, Page[currentpage].max_y);
 			break;
 		case CM_ENCYCL_SEARCH:
 			close_ipu(&ipu_encycl);
-			init_ipu(&ipu_encycl, encyclopedia_win, DEFAULT_FONT_X_LEN * 20, -1, 40, 1, NULL, find_page_callback);
+			init_ipu(&ipu_encycl, win->window_id, DEFAULT_FONT_X_LEN * 20, -1, 40, 1, NULL, find_page_callback);
 			ipu_encycl.x = mx; ipu_encycl.y = my;
 			display_popup_win(&ipu_encycl, encycl_search_prompt_str);
 			if (ipu_encycl.popup_win >=0 && ipu_encycl.popup_win<windows_list.num_windows)
@@ -1189,13 +1217,24 @@ int keypress_encyclopedia_handler(window_info *win, int mx, int my, Uint32 key, 
 	return 0;
 }
 
-
-void fill_encyclopedia_win ()
+int resize_encyclopedia_handler(window_info *win, int new_width, int new_height)
 {
-	set_window_handler (encyclopedia_win, ELW_HANDLER_DISPLAY, &display_encyclopedia_handler);
-	set_window_handler (encyclopedia_win, ELW_HANDLER_CLICK, &click_encyclopedia_handler);
+	widget_resize(win->window_id, encyclopedia_scroll_id, win->box_size, win->len_y);
+	widget_move(win->window_id, encyclopedia_scroll_id, win->len_x - win->box_size, 0);
+	return 0;
+}
 
-	encyclopedia_scroll_id = vscrollbar_add_extended(encyclopedia_win, encyclopedia_scroll_id, NULL, encyclopedia_menu_x_len-20, 0, 20, encyclopedia_menu_y_len, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 30, Page[currentpage].max_y);
+void fill_encyclopedia_win (int window_id)
+{
+	window_info *win = &windows_list.window[window_id];
+	encyclopedia_win = window_id;
+
+	set_window_handler (window_id, ELW_HANDLER_DISPLAY, &display_encyclopedia_handler);
+	set_window_handler (window_id, ELW_HANDLER_CLICK, &click_encyclopedia_handler);
+	set_window_handler (window_id, ELW_HANDLER_RESIZE, &resize_encyclopedia_handler);
+
+	encyclopedia_scroll_id = vscrollbar_add_extended(window_id, encyclopedia_scroll_id, NULL,
+		HELP_TAB_WIDTH-win->box_size, 0, win->box_size, HELP_TAB_HEIGHT, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 30, Page[currentpage].max_y);
 
 	if (numpage<=0)
 	{
@@ -1203,14 +1242,14 @@ void fill_encyclopedia_win ()
 		return;
 	}
 
-	set_window_handler(encyclopedia_win, ELW_HANDLER_MOUSEOVER, &mouseover_encyclopedia_handler);
-	set_window_handler(encyclopedia_win, ELW_HANDLER_KEYPRESS, &keypress_encyclopedia_handler);
+	set_window_handler(window_id, ELW_HANDLER_MOUSEOVER, &mouseover_encyclopedia_handler);
+	set_window_handler(window_id, ELW_HANDLER_KEYPRESS, &keypress_encyclopedia_handler);
 
 	if (!cm_valid(cm_encycl))
 	{
 		cm_encycl = cm_create(cm_encycl_base_str, cm_encycl_handler);
 		cm_set_pre_show_handler(cm_encycl, cm_encycl_pre_show_handler);
-		cm_add_window(cm_encycl, encyclopedia_win);
+		cm_add_window(cm_encycl, window_id);
 		init_ipu(&ipu_encycl, -1, -1, -1, 1, 1, NULL, NULL);
 		find_base_pages();
 		process_encycl_links();

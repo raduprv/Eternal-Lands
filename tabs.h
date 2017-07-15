@@ -14,8 +14,8 @@ extern "C" {
  * @{ */
 #define STATS_TAB_WIDTH  580 /*!< width of the statistics tabbed windows */
 #define STATS_TAB_HEIGHT 350 /*!< height of the statistics tab windows */
-#define HELP_TAB_WIDTH   500 /*!< width of the help tabbed windows */
-#define HELP_TAB_HEIGHT  350 /*!< height of the help tabbed windows */
+extern int HELP_TAB_WIDTH; /*!< width of the help tabbed windows */
+extern int HELP_TAB_HEIGHT; /*!< height of the help tabbed windows */
 #define INFO_TAB_WIDTH   580 /*!< width of the info tabbed windows */
 #define INFO_TAB_HEIGHT  350 /*!< height of the info tabbed windows */
 #define TAB_TAG_HEIGHT   25  /*!< the height of the tab at the top of the window */

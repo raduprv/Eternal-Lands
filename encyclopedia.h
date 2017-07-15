@@ -9,12 +9,11 @@
 #include <SDL_types.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
+#include "elwindows.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define ENCYC_OFFSET	40
 
 /*!
  * defines the categories used in the encyclopedia
@@ -57,16 +56,6 @@ typedef struct
 	int max_y; /*!< the full page length */
 }_Page;
 
-/*!
- * \name windows handlers
- */
-/*! @{ */
-extern int encyclopedia_win; /*!< encyclopedia windows handler */
-/*! @} */
-
-extern int encyclopedia_menu_x;
-extern int encyclopedia_menu_y;
-
 #define	MAX_ENC_PAGES	1000
 extern _Page Page[MAX_ENC_PAGES]; /*!< fixed array of pages for the encyclopedia */
 extern int numpage;
@@ -79,7 +68,27 @@ extern int numpage;
  *
  * \return None
  */
-void fill_encyclopedia_win ();
+void fill_encyclopedia_win (int window_id);
+
+/*!
+ * \ingroup encyclopedia_window
+ * \brief A common display handler for encyclopedia information
+ *
+ *      A common display handler for encyclopedia information
+ *
+ * \return 1 for success
+ */
+int common_encyclopedia_display_handler(window_info *win, size_t the_page, int the_scroll_id);
+
+/*!
+ * \ingroup encyclopedia_window
+ * \brief A common click handler for encyclopedia information
+ *
+ *      A common click handler for encyclopedia information
+ *
+ * \return 1 for success
+ */
+int common_encyclopedia_click_handler(window_info *win, int mx, int my, Uint32 flags, size_t *the_page, int the_scroll_id);
 
 /*!
  * \ingroup xml_utils
@@ -101,7 +110,7 @@ void ReadXML(const char *filename);
  *
  * \sa start_rendering
  */
-void FreeXML();
+void FreeXML(void);
 
 #ifdef __cplusplus
 } // extern "C"
