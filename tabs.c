@@ -25,8 +25,6 @@ int tab_help_win = -1;
 int tab_help_collection_id = 17;
 int tab_help_x = 150;
 int tab_help_y = 70;
-int HELP_TAB_WIDTH = 0;
-int HELP_TAB_HEIGHT = 0;
 
 int tab_info_win = -1;
 int tab_info_collection_id = 18;
@@ -69,15 +67,14 @@ void display_tab_stats ()
 static int ui_scale_help_handler(window_info *win)
 {
 	int tab_tag_height = (int)(0.5 + win->current_scale * 25);
+	int new_width = (int)(0.5 + win->current_scale * 500);
+	int new_height = (int)(0.5 + win->current_scale * 350);
 	widget_list *w = widget_find (win->window_id, tab_help_collection_id);
 
-	HELP_TAB_WIDTH = (int)(0.5 + win->current_scale * 500);
-	HELP_TAB_HEIGHT = (int)(0.5 + win->current_scale * 350);
+	resize_window(win->window_id, new_width + 2*TAB_MARGIN, new_height + tab_tag_height + 2*TAB_MARGIN);
+	widget_resize(win->window_id, tab_help_collection_id, new_width, new_height + tab_tag_height);
 
-	resize_window(win->window_id, HELP_TAB_WIDTH + 2*TAB_MARGIN, HELP_TAB_HEIGHT + tab_tag_height + 2*TAB_MARGIN);
-	widget_resize(win->window_id, tab_help_collection_id, HELP_TAB_WIDTH, HELP_TAB_HEIGHT + tab_tag_height);
-
-	tab_collection_resize(w, HELP_TAB_WIDTH, HELP_TAB_HEIGHT, tab_tag_height);
+	tab_collection_resize(w, new_width, new_height, tab_tag_height);
 	tab_collection_move(w, win->pos_x + TAB_MARGIN, win->pos_y + tab_tag_height + TAB_MARGIN);
 
 	return 1;
@@ -91,13 +88,14 @@ void display_tab_help ()
 		tab_help_win = create_window (win_help, -1, 0, tab_help_x, tab_help_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 		set_window_handler(tab_help_win, ELW_HANDLER_UI_SCALE, &ui_scale_help_handler );
 		tab_help_collection_id = tab_collection_add_extended (tab_help_win, tab_help_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, 0, 0, 0, 0.7, 0.77f, 0.57f, 0.39f, 3, TAB_TAG_HEIGHT);
-		if ((tab_help_win > -1) && (tab_help_win < windows_list.num_windows))
-			ui_scale_help_handler(&windows_list.window[tab_help_win]);
 
 		fill_help_win (tab_add (tab_help_win, tab_help_collection_id, tab_help, 0, 0, ELW_USE_UISCALE));
 		fill_skills_win (tab_add (tab_help_win, tab_help_collection_id, tab_skills, 0, 0, ELW_USE_UISCALE));
 		fill_encyclopedia_win (tab_add (tab_help_win, tab_help_collection_id, tab_encyclopedia, 0, 0, ELW_USE_UISCALE));
 		fill_rules_window(tab_add(tab_help_win, tab_help_collection_id, tab_rules, 0, 0, ELW_USE_UISCALE));
+
+		if ((tab_help_win > -1) && (tab_help_win < windows_list.num_windows))
+			ui_scale_help_handler(&windows_list.window[tab_help_win]);
 
 		tab_collection_select_tab (tab_help_win, tab_help_collection_id, (tab_selected >> 4) & 0xf);
 	}

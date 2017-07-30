@@ -1226,7 +1226,6 @@ int resize_encyclopedia_handler(window_info *win, int new_width, int new_height)
 
 void fill_encyclopedia_win (int window_id)
 {
-	window_info *win = &windows_list.window[window_id];
 	encyclopedia_win = window_id;
 
 	set_window_handler (window_id, ELW_HANDLER_DISPLAY, &display_encyclopedia_handler);
@@ -1234,7 +1233,7 @@ void fill_encyclopedia_win (int window_id)
 	set_window_handler (window_id, ELW_HANDLER_RESIZE, &resize_encyclopedia_handler);
 
 	encyclopedia_scroll_id = vscrollbar_add_extended(window_id, encyclopedia_scroll_id, NULL,
-		HELP_TAB_WIDTH-win->box_size, 0, win->box_size, HELP_TAB_HEIGHT, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 30, Page[currentpage].max_y);
+		0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 30, Page[currentpage].max_y);
 
 	if (numpage<=0)
 	{

@@ -231,17 +231,13 @@ int resize_rules_handler(window_info *win, int new_width, int new_height)
 
 void fill_rules_window(int window_id)
 {
-	window_info *win = &windows_list.window[window_id];
 	rules_win = window_id;
 
 	rules_scroll_id = vscrollbar_add_extended (window_id, rules_scroll_id, NULL,
-		HELP_TAB_WIDTH-win->box_size, 0, win->box_size, HELP_TAB_HEIGHT, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 3, rules.no-1);
+		0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 3, rules.no-1);
 
 	widget_set_OnClick (window_id, rules_scroll_id, rules_scroll_handler);
 	widget_set_OnDrag (window_id, rules_scroll_id, rules_scroll_handler);
-
-	if(display_rules)free_rules(display_rules);
-	display_rules=get_interface_rules((float)(win->len_x-(win->current_scale*70))/(win->current_scale*12*0.8f)-1);
 
 	set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_rules_handler);
 	set_window_handler(window_id, ELW_HANDLER_MOUSEOVER, &mouseover_rules_handler);
