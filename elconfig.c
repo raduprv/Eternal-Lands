@@ -1141,8 +1141,7 @@ void change_note_zoom (float *dest, float *value)
 	if (*value < 0.0f)
 		return;
 	*dest = *value;
-	if (notepad_win >= 0)
-		notepad_win_update_zoom ();
+	notepad_win_close_tabs ();
 }
 
 #endif
