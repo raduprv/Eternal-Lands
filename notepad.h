@@ -12,11 +12,8 @@
 extern "C" {
 #endif
 
-extern int notepad_win;    /*!< ID of the notepad window */
 extern int popup_win;      /*!< ID of the popup window */
 extern int notepad_loaded; /*!< boolean flag, indicating whether the notepad was loaded before. */
-extern int notepad_win_x;  /*!< x-coordinate of the notepad position */
-extern int notepad_win_y;  /*!< y-coordinate of the notepad position */
 extern float note_zoom;    /*!< Size of the text in the note pad */
 
 /* state structure for an input popup window */
@@ -92,7 +89,7 @@ void display_popup_win (INPUT_POPUP *ipu, const char* label);
  *
  * \callgraph
  */
-void fill_notepad_window(void);
+void fill_notepad_window(int window_id);
 
 /*!
  * \ingroup notepad_window
@@ -106,11 +103,11 @@ int notepad_save_file(void);
 
 /*!
  * \ingroup notepad_window
- * \brief   Update the size of the text in the notepad text fields
+ * \brief   Close all but the main notepad tab
  *
- * Update the size of the text in the notepad text fields
+ * Close all but the main notepad tab
  */
-void notepad_win_update_zoom ();
+void notepad_win_close_tabs (void);
 
 #ifdef __cplusplus
 } // extern "C"

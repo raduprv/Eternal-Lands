@@ -64,7 +64,7 @@ void find_all_url(const char *source_string, const int len);
  * \brief   Displays the window of stored URLs.
  *
  */
-void fill_url_window(void);
+void fill_url_window(int window_id);
 
 /*!
  * \ingroup url
@@ -74,9 +74,6 @@ void fill_url_window(void);
 void open_web_link(const char * url);
 
 extern char browser_name[120];	/*!< a buffer that contains the name of the browser we should use */
-extern int url_win_x; 			/*!< the current x coordinate value of the url window */
-extern int url_win_y; 			/*!< the current y coordinate value of the url window */
-extern int url_win; 			/*!< the id of the url window */
 extern char LOGO_URL_LINK[128];		/*!< the link clicking the EL logo sends you to */
 
 #ifdef __cplusplus

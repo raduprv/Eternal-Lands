@@ -32,8 +32,6 @@ int tab_info_win = -1;
 int tab_info_collection_id = 18;
 int tab_info_x = 150;
 int tab_info_y = 70;
-Uint16 tab_info_len_x = INFO_TAB_WIDTH + 2*TAB_MARGIN;
-Uint16 tab_info_len_y = INFO_TAB_HEIGHT + TAB_TAG_HEIGHT + 2*TAB_MARGIN;
 
 void display_tab_stats ()
 {
@@ -110,6 +108,23 @@ void display_tab_help ()
 	}
 }
 
+static int ui_scale_info_handler(window_info *win)
+{
+	int tab_tag_height = (int)(0.5 + win->current_scale * 25);
+	widget_list *w = widget_find (win->window_id, tab_info_collection_id);
+
+	int new_width = (int)(0.5 + win->current_scale * 500);
+	int new_height = (int)(0.5 + win->current_scale * 350);
+
+	resize_window(win->window_id, new_width + 2*TAB_MARGIN, new_height + tab_tag_height + 2*TAB_MARGIN);
+	widget_resize(win->window_id, tab_info_collection_id, new_width, new_height + tab_tag_height);
+
+	tab_collection_resize(w, new_width, new_height, tab_tag_height);
+	tab_collection_move(w, win->pos_x + TAB_MARGIN, win->pos_y + tab_tag_height + TAB_MARGIN);
+
+	return 1;
+}
+
 void display_tab_info()
 {
 	if (tab_info_win < 0)
@@ -117,15 +132,16 @@ void display_tab_info()
 		int our_root_win = -1;
 		if (!windows_on_top)
 			our_root_win = game_root_win;
-		tab_info_win = create_window (tt_info, our_root_win, 0, tab_info_x, tab_info_y, tab_info_len_x, tab_info_len_y, ELW_WIN_DEFAULT);
 
-		tab_info_collection_id = tab_collection_add_extended (tab_info_win, tab_info_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, INFO_TAB_WIDTH, INFO_TAB_HEIGHT+TAB_TAG_HEIGHT, 0, 0.7, 0.77f, 0.57f, 0.39f, 3, TAB_TAG_HEIGHT);
+		tab_info_win = create_window (tt_info, our_root_win, 0, tab_info_x, tab_info_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+		set_window_handler(tab_info_win, ELW_HANDLER_UI_SCALE, &ui_scale_info_handler );
+		tab_info_collection_id = tab_collection_add_extended (tab_info_win, tab_info_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, 0, 0, 0, 0.7, 0.77f, 0.57f, 0.39f, 3, TAB_TAG_HEIGHT);
 
-		notepad_win = tab_add(tab_info_win, tab_info_collection_id, win_notepad, 0, 0, 0);
-		fill_notepad_window();
+		fill_notepad_window(tab_add(tab_info_win, tab_info_collection_id, win_notepad, 0, 0, ELW_USE_UISCALE));
+		fill_url_window(tab_add(tab_info_win, tab_info_collection_id, win_url_str, 0, 0, ELW_USE_UISCALE));
 
-		url_win = tab_add(tab_info_win, tab_info_collection_id, win_url_str, 0, 0, 0);
-		fill_url_window();
+		if ((tab_info_win > -1) && (tab_info_win < windows_list.num_windows))
+			ui_scale_info_handler(&windows_list.window[tab_info_win]);
 
 		tab_collection_select_tab (tab_info_win, tab_info_collection_id, (tab_selected >> 8) & 0xf);
 	}

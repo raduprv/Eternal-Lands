@@ -41,23 +41,17 @@
 #include "sound.h"
 
 char browser_name[120];
-int url_win_x = 100;
-int url_win_y = 50;
-int url_win = -1;
-
-static const Uint32 url_win_sep = 5;
-static const float url_win_text_zoom = 1.0;
+static Uint32 url_win_sep = 0;
+static float url_win_text_zoom = 1.0;
 static const int max_url_count = 100;
-
+static int clear_all_button = 101;
 static int url_scroll_id = 0;
 static int url_win_top_line = 0;
-static int url_win_x_len = 0;
-static int url_win_y_len = 0;
 static Uint32 url_win_max_string_width = 0;
 static int url_win_help_x = 0;
 static int url_win_text_len_y = 0;
 static int url_win_text_start_y = 0;
-static int url_win_url_y_start = 0;
+static int url_win_full_url_y_start = 0;
 static int url_win_full_url_y_len = 0;
 static int url_win_line_step = 0;
 static Uint32 url_win_clicktime = 0;
@@ -430,10 +424,6 @@ CHECK_GL_ERRORS();
 
 	url_win_hover_url = NULL;
 	
-	/* save current position so K_WINDOWS_ON_TOP restores to where its been moved */
-	url_win_x = win->cur_x;
-	url_win_y = win->cur_y;
- 
 	glEnable(GL_TEXTURE_2D);
 	set_font(0);
 	
@@ -444,9 +434,9 @@ CHECK_GL_ERRORS();
 	if (url_win_status)
 	{
 		char *message[] = { urlcmd_none_str, urlwin_clear_str, urlwin_open_str };
-		int y_start = (url_win_text_start_y - 0.75 * url_win_text_zoom * DEFAULT_FONT_Y_LEN)/2;
+		int y_start = (url_win_text_start_y - 0.75 * win->default_font_len_y) / 2;
 		glColor3f(1.0f,1.0f,1.0f);
-		draw_string_zoomed(url_win_help_x, y_start, (unsigned char *)message[url_win_status-1], 1, 0.75 * url_win_text_zoom);
+		draw_string_zoomed(url_win_help_x, y_start, (unsigned char *)message[url_win_status-1], 1, 0.75 * win->current_scale);
 		url_win_status = (have_url_count) ?0 :URLW_EMPTY;
 	}
 	
@@ -574,9 +564,10 @@ CHECK_GL_ERRORS();
 				thetext = full_help_text;
 				dsp_string_len = 0;
 				string_width = 0;
+				glColor3f(1.0f,1.0f,1.0f);
 				while(*thetext != '\0')
 				{
-					float char_width = get_char_width(*thetext++) * SMALL_FONT_X_LEN / 12.0;
+					float char_width = get_char_width(*thetext++) * win->small_font_len_x / 12.0;
 					if (((string_width+char_width) > (win->len_x - 2*url_win_sep)) || (*thetext == '\0'))
 					{
 						if (*thetext == '\0') /* catch the last line */
@@ -590,7 +581,7 @@ CHECK_GL_ERRORS();
 						}
 						strncpy(help_substring, &full_help_text[dsp_start], dsp_string_len);
 						help_substring[dsp_string_len] = '\0';
-						show_help(help_substring, url_win_sep, (url_win_y_len - url_win_full_url_y_len) + helpline++ * SMALL_FONT_Y_LEN);
+						scaled_draw_string_small(url_win_sep, url_win_full_url_y_start + url_win_sep + helpline++ * win->small_font_len_y, (const unsigned char*)help_substring, 1);
 						dsp_start += dsp_string_len;
 						dsp_string_len = 0;
 						string_width = 0;
@@ -610,7 +601,7 @@ CHECK_GL_ERRORS();
 		}
 				
 		/* set the number of steps for the scroll bar */
-		vscrollbar_set_bar_len(url_win, url_scroll_id, have_url_count - num_url_displayed);
+		vscrollbar_set_bar_len(win->window_id, url_scroll_id, have_url_count - num_url_displayed);
 
 	} /* end if have url */
 	
@@ -618,8 +609,8 @@ CHECK_GL_ERRORS();
 	glColor3f(0.77f,0.59f,0.39f);
 	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_LINES);
-	glVertex2i(0, url_win_url_y_start);
-	glVertex2i(url_win_x_len+1, url_win_url_y_start);
+	glVertex2i(0, url_win_full_url_y_start);
+	glVertex2i(win->len_x, url_win_full_url_y_start);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 
@@ -710,9 +701,9 @@ static int click_url_handler(window_info *win, int mx, int my, Uint32 flags)
 	static size_t cm_id = CM_INIT_VALUE;
 
 	if (flags & ELW_WHEEL_UP)
-		vscrollbar_scroll_up(url_win, url_scroll_id);
+		vscrollbar_scroll_up(win->window_id, url_scroll_id);
 	else if (flags & ELW_WHEEL_DOWN)
-		vscrollbar_scroll_down(url_win, url_scroll_id);
+		vscrollbar_scroll_down(win->window_id, url_scroll_id);
 	else if (have_url_count && url_win_hover_url != NULL)
 	{
 		if (flags & ELW_CTRL)
@@ -744,7 +735,7 @@ static int click_url_handler(window_info *win, int mx, int my, Uint32 flags)
 			}
 		}
 	}
-	url_win_top_line = vscrollbar_get_pos(url_win, url_scroll_id);
+	url_win_top_line = vscrollbar_get_pos(win->window_id, url_scroll_id);
 	return 0;
 }
 
@@ -765,7 +756,7 @@ static int url_win_mouseover_clear_all(widget_list *widget, int mx, int my)
 
 static int url_win_scroll_click(widget_list *widget, int mx, int my, Uint32 flags)
 {
-	url_win_top_line = vscrollbar_get_pos(url_win, url_scroll_id);
+	url_win_top_line = vscrollbar_get_pos(widget->window_id, url_scroll_id);
 	return 1;
 }
 
@@ -776,43 +767,51 @@ static int url_win_scroll_drag(widget_list *widget, int mx, int my, Uint32 flags
 }
 
 
-/* fill the URL window created as a tab. */
-void fill_url_window(void)
+static int resize_url_handler(window_info *win, int new_width, int new_height)
 {
-	const Uint32 scroll_width = 20;
-	const Uint32 cross_height = 20;
-	int clear_all_button = 101;
-	widget_list *widget;
+	widget_list *widget = widget_find(win->window_id, clear_all_button);
 
-	/* create the main window */
-	url_win_x_len = INFO_TAB_WIDTH;
-	url_win_y_len = INFO_TAB_HEIGHT;
-	url_win_max_string_width = url_win_x_len - (2*url_win_sep + scroll_width);
-	set_window_handler(url_win, ELW_HANDLER_DISPLAY, &display_url_handler );
-	set_window_handler(url_win, ELW_HANDLER_CLICK, &click_url_handler );
+	url_win_text_zoom = 1.0 * win->current_scale;
+	url_win_sep = (int)(0.5 + 5 * win->current_scale);
+
+	button_resize(win->window_id, clear_all_button, 0, 0, win->current_scale * 0.75);
+	widget_move(win->window_id, clear_all_button, url_win_sep, url_win_sep);
+
+	url_win_help_x = widget->len_x + 2 * url_win_sep;
+	url_win_max_string_width = win->len_x - (2*url_win_sep + win->box_size);
+
+	url_win_line_step = (int)(3 + DEFAULT_FONT_Y_LEN * url_win_text_zoom);
+	url_win_full_url_y_len = 2*url_win_sep + 4 * win->small_font_len_y;
+
+	url_win_text_start_y = 2*url_win_sep + widget->len_y;
+
+	url_win_text_len_y = url_win_line_step * (int)((win->len_y - url_win_text_start_y - url_win_full_url_y_len) / url_win_line_step);
+	url_win_full_url_y_start = url_win_text_start_y + url_win_text_len_y;
+
+	widget_resize(win->window_id, url_scroll_id, win->box_size, url_win_text_len_y);
+	widget_move(win->window_id, url_scroll_id, win->len_x - win->box_size, url_win_text_start_y);
+
+	return 0;
+}
+
+
+/* fill the URL window created as a tab. */
+void fill_url_window(int window_id)
+{
+	set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_url_handler );
+	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_url_handler );
+	set_window_handler(window_id, ELW_HANDLER_RESIZE, &resize_url_handler );
 
 	/* create the clear all button */
-	clear_all_button = button_add_extended (url_win, clear_all_button, NULL,
-		url_win_sep, url_win_sep, 0, 0, 0, 0.75, 0.77f, 0.57f, 0.39f, "CLEAR ALL ");
-	widget_set_OnClick(url_win, clear_all_button, url_win_click_clear_all);
-	widget = widget_find(url_win, clear_all_button);
-	widget_set_OnMouseover(url_win, clear_all_button, url_win_mouseover_clear_all);
-	
-	/* calc text and help postions from size of other stuff */
-	url_win_text_start_y = 2*url_win_sep + ((widget->len_y > cross_height) ?widget->len_y :cross_height);
-	url_win_line_step = (int)(3 + DEFAULT_FONT_Y_LEN * url_win_text_zoom);
-	url_win_text_len_y = 12 * url_win_line_step;
-	url_win_full_url_y_len = url_win_sep + 3 * SMALL_FONT_Y_LEN;
-	url_win_y_len = url_win_text_start_y + url_win_text_len_y + url_win_sep + url_win_full_url_y_len;
-	url_win_help_x = widget->len_x + 2 * url_win_sep;
-	url_win_url_y_start = url_win_y_len - url_win_full_url_y_len - url_win_sep/2;
-	resize_window (url_win, url_win_x_len, url_win_y_len);
-	
+	clear_all_button = button_add_extended (window_id, clear_all_button, NULL,
+		0, 0, 0, 0, 0, 0, 0.77f, 0.57f, 0.39f, "Clear All");
+	widget_set_OnClick(window_id, clear_all_button, url_win_click_clear_all);
+	widget_set_OnMouseover(window_id, clear_all_button, url_win_mouseover_clear_all);
+
 	/* create the scroll bar */
-	url_scroll_id = vscrollbar_add_extended(url_win, url_scroll_id, NULL, 
-		url_win_x_len - scroll_width, url_win_text_start_y, scroll_width,
-		url_win_text_len_y, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, have_url_count);
-	widget_set_OnDrag(url_win, url_scroll_id, url_win_scroll_drag);
-	widget_set_OnClick(url_win, url_scroll_id, url_win_scroll_click);
+	url_scroll_id = vscrollbar_add_extended(window_id, url_scroll_id, NULL, 
+		0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, have_url_count);
+	widget_set_OnDrag(window_id, url_scroll_id, url_win_scroll_drag);
+	widget_set_OnClick(window_id, url_scroll_id, url_win_scroll_click);
 }
 
