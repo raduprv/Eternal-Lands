@@ -811,6 +811,20 @@ int button_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Ui
 	return widget_add (window_id, wid, OnInit, x, y, len_x, len_y, Flags, size, r, g, b, type, T, NULL);
 }
 
+int button_resize(int window_id, Uint32 wid, Uint16 lx, Uint16 ly, float size)
+{
+	widget_list *w = widget_find(window_id, wid);
+	if (w)
+	{
+		button *l = (button *)w->widget_info;
+		Uint16 len_x = lx > 0 ? lx : (Uint16)(strlen(l->text) * DEFAULT_FONT_X_LEN * size) + 2 * BUTTONRADIUS * size;
+		Uint16 len_y = ly > 0 ? ly : (Uint16)(DEFAULT_FONT_Y_LEN * size) + (DEFAULT_FONT_X_LEN+1) * size;
+		w->size = size;
+		return widget_resize(window_id, wid, len_x, len_y);
+	}
+	return 0;
+}
+
 int button_add(int window_id, int (*OnInit)(), const char *text, Uint16 x, Uint16 y)
 {
 	return button_add_extended(window_id, widget_id++, NULL, x, y, 0, 0, 0, 1.0, -1.0, -1.0, -1.0, text);
@@ -2835,7 +2849,7 @@ int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 
 	T->next_blink = TF_BLINK_DELAY;
 	if (Flags & TEXT_FIELD_SCROLLBAR)
 	{
-		T->scrollbar_width = ELW_BOX_SIZE;
+		T->scrollbar_width = ((window_id >= 0) && (window_id < windows_list.num_windows)) ?windows_list.window[window_id].box_size : ELW_BOX_SIZE;
 		T->scroll_id = vscrollbar_add_extended (window_id, widget_id++, NULL, x + lx-T->scrollbar_width, y, T->scrollbar_width, ly, 0, size, r, g, b, 0, 1, 1);		
 	}
 	else

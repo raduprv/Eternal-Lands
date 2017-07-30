@@ -792,6 +792,23 @@ int button_add(int window_id, int (*OnInit)(), const char *text, Uint16 x, Uint1
 
 /*!
  * \ingroup	buttons
+ * \brief 	Resize a button widget
+ *
+ * 		Resize a button widget using the specified scale. If x or y length ar zero, calculate them.
+ *
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param   	lx The x length
+ * \param   	ly The y length
+ * \param   	size the new font and button size
+ * \retval int  	Returns the new widgets unique ID
+ *
+ * \sa button_add_extended
+ */
+int button_resize(int window_id, Uint32 wid, Uint16 lx, Uint16 ly, float size);
+
+
+/*!
+ * \ingroup	buttons
  * \brief 	Draws a smooth button
  *
  * 		Draws the smooth button widget pointed to by W.
