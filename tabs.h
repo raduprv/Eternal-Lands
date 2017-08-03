@@ -12,8 +12,6 @@ extern "C" {
 
 /*! \name Sizes for tabbed windows
  * @{ */
-#define STATS_TAB_WIDTH  580 /*!< width of the statistics tabbed windows */
-#define STATS_TAB_HEIGHT 350 /*!< height of the statistics tab windows */
 #define TAB_TAG_HEIGHT   25  /*!< the height of the tab at the top of the window */
 #define TAB_MARGIN       5   /*!< margin used for the tabbed window */
 #define DEFAULT_TAB_RADIUS 8 /*!< the radius used for rounded tabs*/

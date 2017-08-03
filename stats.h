@@ -19,13 +19,6 @@ extern "C" {
 #define FLOATINGMESSAGE_MIDDLE  5
 
 /*!
- * \name Windows handlers
- */
-/*! @{ */
-extern int	stats_win; /*!< handle for the stats window */
-/*! @} */
-
-/*!
  * The names structure is used for all sort of attributes, skill, nexi to give them a long and a short name.
  */
 typedef struct
@@ -235,9 +228,6 @@ extern Uint32 last_exp[];
 #define	NUM_WATCH_STAT	14	/*!< allow watching stats 0-13 */
 #define MAX_WATCH_STATS	5	/*!< max number of stats watchable in hud */
 
-extern int attrib_menu_x;
-extern int attrib_menu_y;
-
 extern int have_stats; /*!< indicator for whether or not the stats have been send to us yet*/
 
 extern player_attribs your_info; /*!< the players attributes */
@@ -280,9 +270,11 @@ void init_attribf(void);
  *
  *      Sets the window handler functions for the statistics window
  *
+ * \param window_id	id of window created for tab
+ * 
  * \callgraph
  */
-void fill_stats_win ();
+void fill_stats_win (int window_id);
 
 extern int floatingmessages_enabled;
 void drawactor_floatingmessages(int actor_id, float healthbar_z);

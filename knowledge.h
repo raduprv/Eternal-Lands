@@ -26,32 +26,9 @@ typedef struct
 	Uint8 has_book; /*!< flag, indicating whether the knowledge item has an assosiated book */
 }knowledge;
 
-/*!
- * \name windows handlers
- */
-/*! @{ */
-extern int knowledge_win; /*!< knowledge window handler */
-/*! @} */
-
-extern int knowledge_menu_x;
-extern int knowledge_menu_y;
-
 extern knowledge knowledge_list[KNOWLEDGE_LIST_SIZE]; /*!< global array of knowledgeable items */
 extern char knowledge_string[400];
 extern int	knowledge_count;
-
-/*!
- * \ingroup knowledge_window
- * \brief   Displays the knowledge window
- *
- *      Displays the knowledge window. If \ref knowledge_win is less than 0, this function creates and fills the knowledge window first, else it simply selects and shows the already created window.
- *
- * \callgraph
- */
-void display_knowledge();
-
-//int knowledge_mouse_over();
-//int check_knowledge_interface();
 
 /*!
  * \ingroup knowledge_window
@@ -84,9 +61,11 @@ void get_new_knowledge(Uint16 idx);
  *
  * 	Sets the \ref ELW_HANDLER_DISPLAY, \ref ELW_HANDLER_CLICK and \ref ELW_HANDLER_MOUSEOVER event handler functions for the knowledge window.
  *
+ * \param window_id	id of window created for tab
+ * 
  * \callgraph
  */
-void fill_knowledge_win ();
+void fill_knowledge_win (int window_id);
 
 /*! 
  * \ingroup knowledge_window
@@ -94,7 +73,7 @@ void fill_knowledge_win ();
  *
  * \callgraph
  */
-void check_book_known();
+void check_book_known(void);
 
 /*! 
  * \ingroup knowledge_window

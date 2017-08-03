@@ -5,10 +5,9 @@
 extern "C" {
 #endif
 
-extern int session_win;
 extern int exp_log_threshold;
 
-void fill_session_win(void);
+void fill_session_win(int window_id);
 void init_session(void);
 int session_reset_handler(void);
 int get_session_exp_ranging(void);
