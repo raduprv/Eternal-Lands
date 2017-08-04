@@ -57,10 +57,10 @@ void display_tab_stats ()
 		set_window_handler(tab_stats_win, ELW_HANDLER_UI_SCALE, &ui_scale_stats_handler );
 		tab_stats_collection_id = tab_collection_add_extended (tab_stats_win, tab_stats_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, 0, 0, 0, 0.7, 0.77f, 0.57f, 0.39f, 3, TAB_TAG_HEIGHT);
 
-		fill_session_win(tab_add(tab_stats_win, tab_stats_collection_id, tab_session, 0, 0, ELW_USE_UISCALE));
 		fill_stats_win (tab_add (tab_stats_win, tab_stats_collection_id, tab_statistics, 0, 0, ELW_USE_UISCALE));
 		fill_knowledge_win (tab_add (tab_stats_win, tab_stats_collection_id, tab_knowledge, 0, 0, ELW_USE_UISCALE));
 		fill_counters_win(tab_add(tab_stats_win, tab_stats_collection_id, tab_counters, 0, 0, ELW_USE_UISCALE));
+		fill_session_win(tab_add(tab_stats_win, tab_stats_collection_id, tab_session, 0, 0, ELW_USE_UISCALE));
 
 		if ((tab_stats_win > -1) && (tab_stats_win < windows_list.num_windows))
 			ui_scale_stats_handler(&windows_list.window[tab_stats_win]);
