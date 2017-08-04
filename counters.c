@@ -87,6 +87,7 @@ static int name_x_start = 0;
 static int name_x_end = 0;
 static int session_x_start = 0;
 static int session_x_end = 0;
+static int session_x_num_start = 0;
 static int total_x_start = 0;
 static int total_x_num_start = 0;
 static int total_x_end = 0;
@@ -389,7 +390,7 @@ void increment_counter(int counter_id, const char *name, int quantity, int extra
 	int i, j;
 	int new_entry = 1;
 
-	//printf("%s: counter_id=%d name=[%s] quantity=%d extra=%d\n", __FUNCTION__, counter_id, name, quantity, extra);
+	//printf("%s: counter_id=%u name=[%s] quantity=%u extra=%d\n", __FUNCTION__, counter_id, name, quantity, extra);
 
 	if(name == 0 || strlen(name)<1 || strlen(name)>100){
 		//doesn't seem to have a real name, so no point saving it
@@ -424,7 +425,7 @@ void increment_counter(int counter_id, const char *name, int quantity, int extra
 	if (floating_session_counters && (floating_counter_flags & (1 << i)))
 	{
 		char str[128];
-		safe_snprintf(str, sizeof(str), "%s: %d", name, counters[i][j].n_session);
+		safe_snprintf(str, sizeof(str), "%s: %u", name, counters[i][j].n_session);
 		add_floating_message(yourself, str, FLOATINGMESSAGE_NORTH, 0.3, 0.3, 1.0, 1500);
 	}
 
@@ -504,11 +505,11 @@ static void print_category(size_t cat, int just_session)
 		{
 			if (counters[cat][i].n_session <= 0)
 				continue;
-			safe_snprintf(buf, sizeof(buf), "%12d %12d  %s",
+			safe_snprintf(buf, sizeof(buf), "%11u %11u  %s",
 				counters[cat][i].n_session, counters[cat][i].n_total, counters[cat][i].name);
 		}
 		else
-			safe_snprintf(buf, sizeof(buf), "%12d  %s", counters[cat][i].n_total, counters[cat][i].name);
+			safe_snprintf(buf, sizeof(buf), "%11u  %s", counters[cat][i].n_total, counters[cat][i].name);
 		LOG_TO_CONSOLE(c_grey1,buf);
 	}
 }
@@ -617,15 +618,20 @@ static int resize_counters_handler(window_info *win, int new_width, int new_heig
 	int i;
 	int current_selected;
 	int butt_y[14] = {0, 25, 125, 150, 175, 200, 225, 250, 275, 300, 50, 100, 325, 75 };
+	int gap_x = (int)(0.5 + win->current_scale * 10);
 
 	left_panel_width = (int)(0.5 + win->current_scale * 120);
-	name_x_start = left_panel_width + (int)(0.5 + win->current_scale * 10);
+	name_x_start = left_panel_width + gap_x;
 	name_x_end = name_x_start + (int)(0.5 + win->small_font_len_x * (float)strlen(name_str));
-	session_x_start = name_x_start + (int)(0.5 + win->current_scale * 200);
-	session_x_end = session_x_start + (int)(0.5 + win->small_font_len_x * (float)strlen(session_str));
-	total_x_start = name_x_start + (int)(0.5 + win->current_scale * 370);
-	total_x_end = total_x_start + (int)(0.5 + win->small_font_len_x * (float)strlen(total_str));
-	total_x_num_start = total_x_end - (int)(0.5 + win->small_font_len_x * 12);
+
+	total_x_end = win->len_x - win->box_size - gap_x;
+	total_x_start = total_x_end - (int)(0.5 + win->small_font_len_x * (float)strlen(total_str));
+	total_x_num_start = total_x_end - (int)(0.5 + win->small_font_len_x * 11);
+
+	session_x_end = total_x_num_start - (int)(0.5 + win->small_font_len_x);
+	session_x_start = session_x_end - (int)(0.5 + win->small_font_len_x * (float)strlen(session_str));
+	session_x_num_start = session_x_end - (int)(0.5 + win->small_font_len_x * 11);
+
 	margin_y_len = (int)(0.5 + win->current_scale * 25);
 	space_y = (int)(0.5 + win->current_scale * 5);
 	step_y = (int)(0.5 + win->current_scale * 16);
@@ -758,15 +764,15 @@ int display_counters_handler(window_info *win)
 			glColor3f(1.0f, 1.0f, 1.0f);
 
 		/* draw first so left padding does not overwrite name */
-		safe_snprintf(buffer, sizeof(buffer), "%12d", counters[i][j].n_session);
-		scaled_draw_string_small(session_x_start, y, (unsigned char*)buffer, 1);
-		safe_snprintf(buffer, sizeof(buffer), "%12d", counters[i][j].n_total);
+		safe_snprintf(buffer, sizeof(buffer), "%11u", counters[i][j].n_session);
+		scaled_draw_string_small(session_x_num_start, y, (unsigned char*)buffer, 1);
+		safe_snprintf(buffer, sizeof(buffer), "%11u", counters[i][j].n_total);
 		scaled_draw_string_small(total_x_num_start, y, (unsigned char*)buffer, 1);
 
 		if (counters[i][j].name) {
 			float max_name_x;
 			float font_ratio = win->small_font_len_x/12.0;
-			safe_snprintf(buffer, sizeof(buffer), "%d", counters[i][j].n_session);
+			safe_snprintf(buffer, sizeof(buffer), "%u", counters[i][j].n_session);
 			max_name_x = session_x_end - name_x_start - (get_string_width((unsigned char*)buffer) * font_ratio);
 			/* if the name would overlap the session total, truncate it */
 			if ((get_string_width((unsigned char*)counters[i][j].name) * font_ratio) > max_name_x) {
@@ -802,10 +808,10 @@ int display_counters_handler(window_info *win)
 		session_total += counters[i][j].n_session;
 	}
 
-	safe_snprintf(buffer, sizeof(buffer), "%12d", session_total);
-	scaled_draw_string_small(session_x_start, win->len_y - (margin_y_len - space_y), (unsigned char*)buffer, 1);
+	safe_snprintf(buffer, sizeof(buffer), "%11u", session_total);
+	scaled_draw_string_small(session_x_num_start, win->len_y - (margin_y_len - space_y), (unsigned char*)buffer, 1);
 
-	safe_snprintf(buffer, sizeof(buffer), "%12d", total);
+	safe_snprintf(buffer, sizeof(buffer), "%11u", total);
 	scaled_draw_string_small(total_x_num_start, win->len_y - (margin_y_len - space_y), (unsigned char*)buffer, 1);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
