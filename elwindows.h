@@ -34,7 +34,6 @@ typedef	struct	{
 	int	pos_loc;	/*!< where is it compared to the pos id?	NOT SUPPORTED YET */
 	int	pos_x, pos_y;	/*!< logical location on screen */
 	int	len_x, len_y;	/*!< the size of the window in pixels */
-	int	orig_len_x, orig_len_y;	/*!< the size of the original window in pixels */
 	int	min_len_x, min_len_y;	/*!< for resizable windows, the minimum width and height */
 	int	cur_x, cur_y;	/*!< current location on screen */
 	int scroll_id;		/*!< id of the scroll widget, if window is scrollable */

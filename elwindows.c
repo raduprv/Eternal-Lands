@@ -895,8 +895,6 @@ int	init_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, in
 	// memorize the size
 	windows_list.window[win_id].len_x= size_x;
 	windows_list.window[win_id].len_y= size_y;
-	windows_list.window[win_id].orig_len_x= size_x; //for self-resizing windows
-	windows_list.window[win_id].orig_len_y= size_y; //for self-resizing windows
 	// initialize min_len_x and min_len_y to zero. 
 	windows_list.window[win_id].min_len_x= 0;
 	windows_list.window[win_id].min_len_y= 0;

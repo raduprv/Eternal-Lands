@@ -868,14 +868,12 @@ int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 				return 1;
 			if (thing_under_the_mouse == UNDER_MOUSE_PLAYER || thing_under_the_mouse == UNDER_MOUSE_NPC || thing_under_the_mouse == UNDER_MOUSE_ANIMAL)
 			{
-				int i;
 				str[0] = TOUCH_PLAYER;
 				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
 				my_tcp_send (my_socket, str, 5);
 
 				// clear the previous dialogue entries, so we won't have a left over from some other NPC
-				for (i=0; i<MAX_RESPONSES; i++)
-					dialogue_responces[i].in_use = 0;
+				clear_dialogue_responses();
 				return 1;
 			}
 			

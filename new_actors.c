@@ -70,7 +70,6 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	int x, y;
 #endif
 
-	no_bounding_box=1;
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
@@ -179,7 +178,6 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 
 	if(i >= max_actors) max_actors = i+1;
 
-	no_bounding_box=0;
 	//Actors list will be unlocked later
 
 	return i;

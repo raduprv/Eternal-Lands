@@ -1465,8 +1465,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  LOG_WARNING("CAUTION: Possibly forged NPC_TEXT packet received.\n");
 				  break;
 				}
-				put_small_text_in_box(&in_data[3], data_length-3, dialogue_menu_x_len-70, (char*)dialogue_string);
-				display_dialogue();
+				display_dialogue(&in_data[3], data_length-3);
 				if (is_color (in_data[3]) && is_color (in_data[4]))
 				{
 					// double color code, this text

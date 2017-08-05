@@ -899,18 +899,10 @@ void init_stuff()
 			items_text[i] = load_texture_cached(buffer, tt_gui);
 		}
 	}
+
 	update_loading_win("init portraits", 5);
+	load_dialogue_portraits();
 
-	for(i=0; i<MAX_PORTRAITS_TEXTURES; i++){
-		char	buffer[256];
-
-		safe_snprintf(buffer, sizeof(buffer), "textures/portraits%d.dds", i+1);
-
-		if (check_image_name(buffer, sizeof(buffer), buffer) != 0)
-		{
-			portraits_tex[i] = load_texture_cached(buffer, tt_gui);
-		}
-	}
 	update_loading_win("init textures", 5);
 
 #ifdef NEW_CURSOR
