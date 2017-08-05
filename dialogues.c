@@ -26,16 +26,10 @@
 typedef struct{
 	char text[200]; /*!< text of the response */
 
-    /*! \name response coordinates @{ */
-	int x_start;
-	int y_start;
-	int x_len;
-	int y_len;
-	// orig_* is the unadulterated information from the server to save repeatedly recalculating
-	int orig_x_start;
-	int orig_y_start;
-	int orig_x_len;
-	int orig_y_len;
+	int width_in_char;  /*!< the length of the respon option in characters */
+
+    /*! \name calculate response coordinates @{ */
+    int pos_x, pos_y, width;
     /*! @} */
 
 	int to_actor; /*!< id of the actor to which this response is directed */
@@ -67,7 +61,8 @@ static int available_text_width = 0;
 static int available_dialogue_width = 0;
 static int bot_line_height = 0;
 
-int show_keypress_letters=0;
+static int show_keypress_letters = 0;
+static int recalc_option_positions = 1;
 int autoclose_storage_dialogue=0;
 int auto_select_storage_option=0;
 int dialogue_copy_excludes_responses=0;
@@ -78,11 +73,13 @@ static Uint32 repeat_end_highlight_time = 0;
 static int close_str_width = -1;
 static int copy_str_width = -1;
 static int repeat_str_width = -1;
+static int close_pos_x = 0;
+static int copy_pos_x = 0;
+static int repeat_pos_x = 0;
 static int highlight_close = 0;
 static int highlight_copy = 0;
 static int highlight_repeat = 0;
 static int mouse_over_name = 0;
-static const int str_edge = 5;
 static int response_y_offset = 0;
 static size_t cm_npcname_id = CM_INIT_VALUE;
 static size_t cm_dialog_copy_id = CM_INIT_VALUE;
@@ -120,63 +117,29 @@ void clear_dialogue_responses(void)
 
 void build_response_entries (const Uint8 *data, int total_length)
 {
-	int i;
-	int len;
-	int orig_len;
+	int i = 0;
+	int len = 0;
 	int last_index=0;
-	int x_start,y_start;
-	int orig_x_start,orig_y_start;
-
-	x_start=0;
-	y_start=0;
-	orig_x_start=0;
-	orig_y_start=0;
 
 	//first, clear the previous dialogue entries
 	clear_dialogue_responses();
 
-	i=0;
-	for(i=0;i<MAX_RESPONSES;i++)
+	for(i=0; i < MAX_RESPONSES;i++)
 	{
 		// break if we don't have a length field
 		if (last_index + 3 > total_length)
 			break;
-		orig_len=len=SDL_SwapLE16(*((Uint16 *)(data+last_index)));
-		
+		len = SDL_SwapLE16(*((Uint16 *)(data + last_index)));
 		// break if we don't have a complete response
 		if (last_index + 3 + len + 2 + 2 > total_length)
 			break;
-		dialogue_responces[i].in_use=1;
-		my_strncp(dialogue_responces[i].text,(char*)&data[last_index+2], len);
-		dialogue_responces[i].response_id=SDL_SwapLE16(*((Uint16 *)(data+last_index+2+len)));
-		dialogue_responces[i].to_actor=SDL_SwapLE16(*((Uint16 *)(data+last_index+2+2+len)));
-		last_index+=len+2+2+2;//why not len+6?
-		dialogue_responces[i].orig_x_len=orig_len*SMALL_FONT_X_LEN;
-		dialogue_responces[i].orig_y_len=SMALL_FONT_Y_LEN;
-		if(i<36) // [1-0, a-z] [']'] [space] eg 1] Physique 2] Coordination 3] Will
-		{
-		    len+=3;
-		}
-		dialogue_responces[i].x_len=len*SMALL_FONT_X_LEN;
-		dialogue_responces[i].y_len=SMALL_FONT_Y_LEN;
 
-		if(orig_x_start+orig_len*SMALL_FONT_X_LEN>available_dialogue_width)
-		{
-			orig_x_start=0;
-			orig_y_start+=SMALL_FONT_Y_LEN;
-		}
-		dialogue_responces[i].orig_x_start=orig_x_start;
-		dialogue_responces[i].orig_y_start=orig_y_start;
-
-		if(x_start+len*SMALL_FONT_X_LEN>available_dialogue_width)
-		{
-			x_start=0;
-			y_start+=SMALL_FONT_Y_LEN;
-		}
-		dialogue_responces[i].x_start=x_start;
-		dialogue_responces[i].y_start=y_start;
-		x_start+=(len+2)*SMALL_FONT_X_LEN;
-		orig_x_start+=(orig_len+2)*SMALL_FONT_X_LEN;
+		dialogue_responces[i].in_use = 1;
+		my_strncp(dialogue_responces[i].text, (char*)&data[last_index + 2], len);
+		dialogue_responces[i].response_id = SDL_SwapLE16(*((Uint16 *)(data + last_index + 2 + len)));
+		dialogue_responces[i].to_actor = SDL_SwapLE16(*((Uint16 *)(data + last_index + 2 + 2 + len)));
+		dialogue_responces[i].width_in_char = len;
+		last_index += len + 3 * 2;
 	}
 
 	/* remove any previous saved responses */
@@ -190,12 +153,36 @@ void build_response_entries (const Uint8 *data, int total_length)
 			}
 }
 
-static int	display_dialogue_handler(window_info *win)
+static void calculate_option_positions(window_info *win)
 {
+	int i = 0;
+	int start_x = border_space;
+	int start_y = response_y_offset;
+	int width = 0;
+	int width_extra = (show_keypress_letters) ?3: 0; // e.g "1] "
+	for(i=0; i < MAX_RESPONSES;i++)
+	{
+		if (!dialogue_responces[i].in_use)
+			break;
+		width = (dialogue_responces[i].width_in_char + ((i<36) ?width_extra: 0)) * win->small_font_len_x;
+		if ((start_x + width) > (win->len_x - 2 * border_space))
+		{
+			start_x = border_space;
+			start_y += win->small_font_len_y;
+		}
+		dialogue_responces[i].pos_x = start_x;
+		dialogue_responces[i].pos_y = start_y;
+		dialogue_responces[i].width = width;
+		start_x += width + 2 * win->small_font_len_x;
+	}
+	recalc_option_positions = 0;
+}
+
+static int display_dialogue_handler(window_info *win)
+{
+	static int last_show_keypress_letters = -1;
 	int i;
-	float u_start,v_start,u_end,v_end;
-	int this_texture;
-	int x_start,x_end,y_start,y_end;
+	int last_pos_y = 0;
 	unsigned char str[128];
 
 	// auto select storage option
@@ -209,6 +196,14 @@ static int	display_dialogue_handler(window_info *win)
 				break;
 			}
 	}
+
+	if (last_show_keypress_letters != show_keypress_letters)
+	{
+		last_show_keypress_letters = show_keypress_letters;
+		recalc_option_positions = 1;
+	}
+	if (recalc_option_positions)
+		calculate_option_positions(win);
 
 	//calculate the npc_name_x_start (to have it centered on the screen)
 	npc_name_len = strlen((char*)npc_name);
@@ -229,6 +224,10 @@ static int	display_dialogue_handler(window_info *win)
 	//ok, now let's draw the portrait
 	if(cur_portrait!=-1)
 	{
+		float u_start,v_start,u_end,v_end;
+		int x_start,x_end,y_start,y_end;
+		int this_texture;
+
 		//get the UV coordinates.
 		u_start = 0.25f * (cur_portrait % 4);
 		u_end = u_start + 0.25f;
@@ -254,8 +253,6 @@ static int	display_dialogue_handler(window_info *win)
 	//draw the main text
 	scaled_draw_string_small(char_frame_size + border_space, border_space, dialogue_string, MAX_MESS_LINES);
 
-	y_start = 0;
-
 	//ok, now draw the responses
 	for(i=0;i<MAX_RESPONSES;i++)
 	{
@@ -265,9 +262,7 @@ static int	display_dialogue_handler(window_info *win)
 				glColor3f(1.0f,0.5f,0.0f);
 			else
 				glColor3f(1.0f,1.0f,0.0f);
-			if(mouse_x<win->pos_x || mouse_x>win->pos_x+win->len_x || mouse_y<win->pos_y || mouse_y>win->pos_y+win->len_y)
-				show_keypress_letters=0;
-			if(use_keypress_dialogue_boxes && show_keypress_letters)
+			if(show_keypress_letters)
 			{
 				if(i>=0 && i<=8) // 1-9
 					safe_snprintf((char*)str,sizeof(str),"%c] %s",49+i,(unsigned char*)dialogue_responces[i].text);
@@ -277,24 +272,20 @@ static int	display_dialogue_handler(window_info *win)
 					safe_snprintf((char*)str,sizeof(str),"%c] %s",55+i, (unsigned char*)dialogue_responces[i].text);
 				else // too many dialogue options, you have to click these
 					 safe_snprintf((char*)str,sizeof(str),"%s",(unsigned char*)dialogue_responces[i].text);
-				scaled_draw_string_small(dialogue_responces[i].x_start * win->current_scale + border_space,
-					dialogue_responces[i].y_start * win->current_scale + response_y_offset, str, 1);
-				y_start = (dialogue_responces[i].y_start * win->current_scale + response_y_offset) + win->small_font_len_y * 2 + 1;
 			}
 			else
-			{
 				safe_snprintf((char*)str,sizeof(str),"%s",(unsigned char*)dialogue_responces[i].text);
-				scaled_draw_string_small(dialogue_responces[i].orig_x_start * win->current_scale + border_space,
-					dialogue_responces[i].orig_y_start * win->current_scale + response_y_offset, str, 1);
-				y_start = (dialogue_responces[i].orig_y_start * win->current_scale + response_y_offset) + win->small_font_len_y * 2 + 1;
-			}
+			last_pos_y = dialogue_responces[i].pos_y;
+			scaled_draw_string_small(dialogue_responces[i].pos_x, last_pos_y, str, 1);
 		}
+		else
+			break;
 	}
 
 	// automatically resize window if there are more options than space
-	if (y_start > win->len_y)
+	if ((last_pos_y + 3 * win->small_font_len_y + 1) > win->len_y)
 	{
-		resize_window(win->window_id, win->len_x, y_start + win->small_font_len_y);
+		resize_window(win->window_id, win->len_x, last_pos_y + 3 * win->small_font_len_y + 1);
 		new_dialogue = 1;
 	}
 
@@ -306,7 +297,7 @@ static int	display_dialogue_handler(window_info *win)
 		glColor3f(1.0f,0.5f,0.0f);
 	else
 		glColor3f(1.0f,1.0f,1.0f);
-	scaled_draw_string_small(win->len_x - (str_edge + close_str_width), win->len_y - bot_line_height, (unsigned char*)close_str, 1);
+	scaled_draw_string_small(close_pos_x, win->len_y - bot_line_height, (unsigned char*)close_str, 1);
 
 	if (copy_end_highlight_time > SDL_GetTicks())
 		glColor3f(1.0f,0.25f,0.0f);
@@ -314,7 +305,7 @@ static int	display_dialogue_handler(window_info *win)
 		glColor3f(1.0f,0.5f,0.0f);
 	else
 		glColor3f(1.0f,1.0f,1.0f);
-	scaled_draw_string_small(str_edge, win->len_y - bot_line_height, (unsigned char*)dialogue_copy_str, 1);
+	scaled_draw_string_small(copy_pos_x, win->len_y - bot_line_height, (unsigned char*)dialogue_copy_str, 1);
 
 	if (!saved_response_init)
 		glColor3f(0.5f,0.5f,0.5f);
@@ -324,13 +315,13 @@ static int	display_dialogue_handler(window_info *win)
 		glColor3f(1.0f,0.5f,0.0f);
 	else
 		glColor3f(1.0f,1.0f,1.0f);
-	scaled_draw_string_small(border_space * str_edge + copy_str_width, win->len_y - bot_line_height, (unsigned char*)dialogue_repeat_str, 1);
+	scaled_draw_string_small(repeat_pos_x, win->len_y - bot_line_height, (unsigned char*)dialogue_repeat_str, 1);
 
 	// display help text if appropriate
 	if ((show_help_text) && (highlight_repeat || highlight_copy || mouse_over_name))
 			scaled_show_help(cm_help_options_str, 0, win->len_y+10);
 
-	highlight_close = highlight_copy = highlight_repeat = mouse_over_name = 0;
+	show_keypress_letters = highlight_close = highlight_copy = highlight_repeat = mouse_over_name = 0;
 
 	// if this is the first time we displayed this dialogue, do first time stuff
 	if (new_dialogue)
@@ -340,9 +331,9 @@ static int	display_dialogue_handler(window_info *win)
 		cm_remove_regions(win->window_id);
 		cm_add_region(cm_npcname_id, win->window_id, npc_name_x_start,
 			win->len_y - bot_line_height, npc_name_len * win->small_font_len_x, win->small_font_len_y);
-		cm_add_region(cm_dialog_copy_id, win->window_id, str_edge,
+		cm_add_region(cm_dialog_copy_id, win->window_id, copy_pos_x,
 			win->len_y - bot_line_height, copy_str_width, win->small_font_len_y);
-		cm_add_region(cm_dialog_repeat_id, win->window_id, 4*str_edge+copy_str_width,
+		cm_add_region(cm_dialog_repeat_id, win->window_id, repeat_pos_x,
 			win->len_y - bot_line_height, repeat_str_width, win->small_font_len_y);
 	}
 
@@ -364,19 +355,18 @@ static int mouseover_dialogue_handler(window_info *win, int mx, int my)
 {
 	int i;
 
-	show_keypress_letters=0;
+	show_keypress_letters = 0;
 	if(use_keypress_dialogue_boxes)
 	{
 	 	if(use_full_dialogue_window || ((mx >= 0 && mx <= char_size) && (my >= 0 && my <= char_size)))
-			show_keypress_letters=1;
+			show_keypress_letters = 1;
 	}
 
-	if(mx >= (win->len_x - (str_edge + close_str_width)) && mx < (win->len_x - str_edge) && my >= (win->len_y - bot_line_height))
+	if(mx >= close_pos_x && mx < (close_pos_x + close_str_width) && my >= (win->len_y - bot_line_height))
 		highlight_close = 1;
-	if(mx > str_edge && mx < (str_edge + copy_str_width) && my >= (win->len_y - bot_line_height))
+	if(mx > copy_pos_x && mx < (copy_pos_x + copy_str_width) && my >= (win->len_y - bot_line_height))
 		highlight_copy = 1;
-	if(mx > (border_space * str_edge + copy_str_width) &&
-		mx < (border_space * str_edge + copy_str_width + repeat_str_width) && my >= (win->len_y - bot_line_height))
+	if(mx > repeat_pos_x && mx < (repeat_pos_x + repeat_str_width) &&  my >= (win->len_y - bot_line_height))
 		highlight_repeat = 1;
 	if (mx > npc_name_x_start && mx < (npc_name_x_start + npc_name_len * win->small_font_len_x) && my >= (win->len_y - bot_line_height))
 		mouse_over_name = 1;
@@ -389,27 +379,15 @@ static int mouseover_dialogue_handler(window_info *win, int mx, int my)
 	{
 		if(dialogue_responces[i].in_use)
 		{
-			int x_start, y_start, x_len, y_len;
-			if(show_keypress_letters)
-			{
-				x_start = border_space + (int)(win->current_scale * (float)dialogue_responces[i].x_start);
-				y_start = response_y_offset + (int)(win->current_scale * (float)dialogue_responces[i].y_start);
-				x_len = (int)(win->current_scale * (float)dialogue_responces[i].x_len);
-				y_len = (int)(win->current_scale * (float)dialogue_responces[i].y_len);
-			}
-			else
-			{
-				x_start = border_space + (int)(win->current_scale * (float)dialogue_responces[i].orig_x_start);
-				y_start = response_y_offset + (int)(win->current_scale * (float)dialogue_responces[i].orig_y_start);
-				x_len = (int)(win->current_scale * (float)dialogue_responces[i].orig_x_len);
-				y_len = (int)(win->current_scale * (float)dialogue_responces[i].orig_y_len);
-			}
-			if (mx >= x_start && mx <= x_start + x_len && my >= y_start && my <= y_start + y_len)
+			if (mx >= dialogue_responces[i].pos_x && mx <= (dialogue_responces[i].pos_x + dialogue_responces[i].width) &&
+				my >= dialogue_responces[i].pos_y && my <= (dialogue_responces[i].pos_y + win->small_font_len_y))
 			{
 				dialogue_responces[i].mouse_over=1;
 				return 0;
 			}
 		}
+		else
+			break;
 	}
 	return 0;
 }
@@ -574,19 +552,18 @@ static int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags
 					return 1;
 				}
 		}
-	if(mx >= (win->len_x - (str_edge + close_str_width)) && mx < (win->len_x - str_edge) && my >= (win->len_y - bot_line_height))
+	if(mx >= close_pos_x && mx < (close_pos_x + close_str_width) && my >= (win->len_y - bot_line_height))
 		{
 			do_window_close_sound();
 			hide_window(win->window_id);
 			return 1;
 		}
-	if((flags & ELW_LEFT_MOUSE) && mx > str_edge && mx < (str_edge + copy_str_width) && my >= (win->len_y - bot_line_height))
+	if((flags & ELW_LEFT_MOUSE) && mx > copy_pos_x && mx < (copy_pos_x + copy_str_width) && my >= (win->len_y - bot_line_height))
 		{
 			do_copy();
 			return 1;
 		}
-	if((flags & ELW_LEFT_MOUSE) && mx > (border_space * str_edge + copy_str_width) &&
-			mx < (border_space * str_edge + copy_str_width + repeat_str_width) && my >= (win->len_y - bot_line_height))
+	if((flags & ELW_LEFT_MOUSE) && mx > repeat_pos_x && mx < (repeat_pos_x + repeat_str_width) && my >= (win->len_y - bot_line_height))
 		{
 			send_repeat(win);
 			return 1;
@@ -711,12 +688,15 @@ int ui_scale_dialogue_handler(window_info *win)
 	available_dialogue_width = (int)((float)(dialogue_menu_x_len - 2 * border_space)  / win->current_scale);
 	bot_line_height = win->small_font_len_y + 1;
 
+	copy_pos_x = border_space;
 	copy_str_width = get_string_width((unsigned char*)dialogue_copy_str) * win->small_font_len_x / 12.0;
 	close_str_width = get_string_width((unsigned char*)close_str) * win->small_font_len_x / 12.0;
+	close_pos_x = dialogue_menu_x_len - close_str_width - border_space;
 	repeat_str_width = get_string_width((unsigned char*)dialogue_repeat_str) * win->small_font_len_x / 12.0;
+	repeat_pos_x = copy_pos_x + close_str_width + 2 * border_space;
 
 	resize_window(win->window_id, dialogue_menu_x_len, dialogue_menu_y_len);
-	new_dialogue = 1;
+	recalc_option_positions = new_dialogue = 1;
 
 	return 1;
 }
@@ -760,6 +740,6 @@ void display_dialogue(const Uint8 *in_data, int data_length)
 		ui_scale_dialogue_handler(&windows_list.window[dialogue_win]);
 
 	put_small_text_in_box(in_data, data_length, available_text_width, (char*)dialogue_string);
-	new_dialogue = 1;
+	recalc_option_positions = new_dialogue = 1;
 }
 
