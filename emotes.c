@@ -260,7 +260,6 @@ int ui_scale_emotes_handler(window_info *win)
 	emotes_rect_x2 = 2 * inbox_space + box_width;
 	emotes_rect_y2 = 2 * inbox_space + category_y_step * EMOTES_SHOWN;
 	help_width_in_char = (int)(0.5 + (float)(emotes_rect_x2 + win->box_size) / win->small_font_len_x);
-	printf("%d\n", help_width_in_char);
 
 	resize_window(win->window_id, emotes_rect_x2 + win->box_size + 2 * border_space,
 		top_border + emotes_rect_y + box_sep + emotes_rect_y2 + 3 * win->small_font_len_y + 2 * border_space);
