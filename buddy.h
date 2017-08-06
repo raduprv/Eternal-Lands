@@ -5,23 +5,11 @@
  */
 #ifndef __BUDDY_H__
 #define __BUDDY_H__
-#include <time.h>
-#include "queue.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define	MAX_BUDDY	100
-
-/*!
- * The buddy structure containing the name and the type.
- */
-typedef struct
-{
-   char name[32]; /*!< name of your buddy */
-   unsigned char type;
-}_buddy;
 
 /*!
  * \name windows handlers
@@ -41,7 +29,7 @@ extern int buddy_menu_y;
  *
  * \sa init_stuff
  */
-void init_buddy();
+void init_buddy(void);
 
 /*!
  * \ingroup	buddy_window
@@ -51,7 +39,7 @@ void init_buddy();
  *
  * \callgraph
  */
-void display_buddy();
+void display_buddy(void);
 
 /*!
  * \ingroup	network_text
@@ -86,15 +74,15 @@ void del_buddy (const char *name, int len);
  *
  * 		Clears the buddy list
  */
-void clear_buddy();
+void clear_buddy(void);
 
 void add_buddy_confirmation(char *name);
 
 int is_in_buddylist(const char *name);
 
-extern queue_t *buddy_request_queue;
+int accept_buddy_console_command(const char *name);
 
-extern _buddy buddy_list[];
+void destroy_buddy_queue(void);
 
 #ifdef __cplusplus
 } // extern "C"

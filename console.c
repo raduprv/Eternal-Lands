@@ -1402,20 +1402,9 @@ int command_accept_buddy(char *text, int len)
 	/* This command is here to make sure the requests queue is up to date */
 	text = getparams(text);
 	/* Make sure a name is given */
-	if(*text && !queue_isempty(buddy_request_queue)) {
-		node_t *node = queue_front_node(buddy_request_queue);
-
-		/* Search for the node in the queue */
-		while(node != NULL) {
-			if(strcasecmp(text, node->data) == 0) {
-				/* This is the node we're looking for, delete it */
-				queue_delete_node(buddy_request_queue, node);
-				break;
-			}
-			node = node->next;
-		}
-	}
-	return 0;
+	if(*text)
+		accept_buddy_console_command(text);
+	return 0; // also pass to server
 }
 
 

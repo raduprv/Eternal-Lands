@@ -9,6 +9,7 @@
 #include "asc.h"
 #include "chat.h"
 #include "console.h"
+#include "elconfig.h"
 #include "elwindows.h"
 #include "gamewin.h"
 #include "icon_window.h"
@@ -21,30 +22,40 @@
 #include "gl_init.h"
 #endif
 
+#define	MAX_BUDDY 100
 #define MAX_ACCEPT_BUDDY_WINDOWS MAX_BUDDY
 
+typedef struct
+{
+   char name[32]; // name of your buddy
+   unsigned char type;
+}_buddy;
+
 int buddy_win=-1;
-int buddy_scroll_id = 0;
-int buddy_button_id = 1;
 int buddy_menu_x=150;
 int buddy_menu_y=70;
-int buddy_menu_x_len=150;
-int buddy_menu_y_len=220;
 
-int buddy_add_win = -1;
-int buddy_name_input_id = 0;
-int buddy_add_button_id = -1;
-int buddy_add_x_len = 290;
-int buddy_add_y_len = 97;
+static int buddy_scroll_id = 0;
+static int buddy_button_id = 1;
+static int buddy_menu_x_len=0;
+static int buddy_menu_y_len=0;
+static int buddy_name_step_y = 0;
+static int request_box_start_x = 0;
+static int list_border_space = 0;
+static const int num_displayed_buddies = 16;
+static int buddy_add_win = -1;
+static int buddy_name_input_id = 0;
+static int buddy_add_button_id = -1;
+static int buddy_add_x_len = 290;
+static int buddy_add_y_len = 97;
 
-int buddy_change_win = -1;
-int buddy_change_x_len = 290;
-int buddy_change_y_len = 255;
-int buddy_type_input_id = -1;
-int buddy_change_button_id = -1;
-int buddy_delete = 0; //For the checkbox
-char *buddy_to_change = NULL;
-
+static int buddy_change_win = -1;
+static int buddy_change_x_len = 290;
+static int buddy_change_y_len = 255;
+static int buddy_type_input_id = -1;
+static int buddy_change_button_id = -1;
+static int buddy_delete = 0; //For the checkbox
+static char *buddy_to_change = NULL;
 
 struct accept_window {
 	int window_id; //Window ID
@@ -52,17 +63,41 @@ struct accept_window {
 	char *text; //Buffer for the text to display
 	int checkbox; //Checkbox widget id
 } accept_windows[MAX_ACCEPT_BUDDY_WINDOWS];
-int buddy_accept_x_len = 400;
-int buddy_accept_y_len = 130;
-queue_t *buddy_request_queue;
+static int buddy_accept_x_len = 400;
+static int buddy_accept_y_len = 130;
+static queue_t *buddy_request_queue;
 
-unsigned char buddy_name_buffer[MAX_USERNAME_LENGTH] = {0};
-char description_buffer[255] = {0};
-_buddy buddy_list[MAX_BUDDY];
+static unsigned char buddy_name_buffer[MAX_USERNAME_LENGTH] = {0};
+static char description_buffer[255] = {0};
+static _buddy buddy_list[MAX_BUDDY];
 
-int create_buddy_interface_win(const char *title, void *argument);
+static int create_buddy_interface_win(const char *title, void *argument);
 
-int buddy_list_name_cmp( const void *arg1, const void *arg2)
+void destroy_buddy_queue(void)
+{
+	queue_destroy(buddy_request_queue);
+}
+
+int accept_buddy_console_command(const char *name)
+{
+	if (!queue_isempty(buddy_request_queue))
+	{
+		node_t *node = queue_front_node(buddy_request_queue);
+
+		/* Search for the node in the queue */
+		while(node != NULL) {
+			if(strcasecmp(name, node->data) == 0) {
+				/* This is the node we're looking for, delete it */
+				queue_delete_node(buddy_request_queue, node);
+				return 1;
+			}
+			node = node->next;
+		}
+	}
+	return 0;
+}
+
+static int buddy_list_name_cmp( const void *arg1, const void *arg2)
 {
 	const _buddy *b1=arg1, *b2=arg2;
 	if(b1->type==b2->type)
@@ -71,19 +106,20 @@ int buddy_list_name_cmp( const void *arg1, const void *arg2)
 		return b1->type-b2->type;
 }
 
-int display_buddy_handler(window_info *win)
+static int display_buddy_handler(window_info *win)
 {
-	int i=0,x=2,y=2;
+	int i=0;
+	int y=list_border_space;
 	int offset;
-	
+
 	glEnable(GL_TEXTURE_2D);
 	// Draw buddies
 	qsort(buddy_list,MAX_BUDDY,sizeof(_buddy),buddy_list_name_cmp);
-	
-	offset = vscrollbar_get_pos (buddy_win,buddy_scroll_id);
+
+	offset = vscrollbar_get_pos (win->window_id, buddy_scroll_id);
 	if (offset >= 0)
 	{
-		for (i = offset; i < offset + 19; i++)
+		for (i = offset; i < offset + num_displayed_buddies; i++)
 		{
 			switch(buddy_list[i].type){
 				case 0:glColor3f(1.0,1.0,1.0);break;
@@ -94,8 +130,8 @@ int display_buddy_handler(window_info *win)
 				case 0xFE:glColor3f(0.5,0.55,0.60);break;
 				default:glColor3f(1.0,1.0,1.0);//invalid number? make it white
 			}
-			draw_string_zoomed(x,y,(unsigned char*)buddy_list[i].name,1,0.7);
-			y+=10;
+			scaled_draw_string_small(list_border_space, y, (unsigned char*)buddy_list[i].name, 1);
+			y += buddy_name_step_y;
 		}
 	}
 	//Draw a button for the requests
@@ -104,13 +140,13 @@ int display_buddy_handler(window_info *win)
 		//glColor3f(0.77f, 0.59f, 0.39f);
 		glColor3f(0.3, 1, 0.3);
 		glBegin(GL_LINE_LOOP);
-			glVertex2i(win->len_x/3, 0);
-			glVertex2i(win->len_x/3+10, 16);
-			glVertex2i(win->len_x-20, 16);
-			glVertex2i(win->len_x-20, 0);
+			glVertex2i(request_box_start_x - win->small_font_len_x, 0);
+			glVertex2i(request_box_start_x, win->small_font_len_y + 1);
+			glVertex2i(win->len_x - win->box_size - 1, win->small_font_len_y + 1);
+			glVertex2i(win->len_x - win->box_size - 1, 0);
 		glEnd();
 		glEnable(GL_TEXTURE_2D);
-		draw_string_zoomed(win->len_x/3+10,1,(unsigned char*)buddy_request_str,1,0.7);
+		scaled_draw_string_small(request_box_start_x + win->small_font_len_x + gx_adjust, 2 + gy_adjust, (unsigned char*)buddy_request_str, 1);
 	}
 	glColor3f(0.77f, 0.57f, 0.39f);
 #ifdef OPENGL_TRACE
@@ -119,9 +155,9 @@ CHECK_GL_ERRORS();
 	return 1;
 }
 
-int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
+static int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 {
-	int x=mx,y=my;
+	int x=mx,y=my-list_border_space;
 	char str[50];
 
 	// scroll the winow with the mouse wheel
@@ -137,10 +173,10 @@ int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 	if ( (flags & ELW_MOUSE_BUTTON) == 0)
 		return 0;
 
-	if(x>win->len_x-20) {
+	if(x > (win->len_x - win->box_size)) {
 		//Clicked on the scrollbar. Let it fall through.
 		return 0;
-	} else if(!queue_isempty(buddy_request_queue) && mx > win->len_x/3 && y < 16) {
+	} else if(!queue_isempty(buddy_request_queue) && mx > (request_box_start_x - win->small_font_len_x) && y < (win->small_font_len_y + 1)) {
 		//Clicked on the requests button
 		while(!queue_isempty(buddy_request_queue)) {
 			char *name = queue_pop(buddy_request_queue);
@@ -151,7 +187,9 @@ int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 	}
 	
 	// clicked on a buddy's name
-	y /= 10;
+	y /= buddy_name_step_y;
+	if (y >= num_displayed_buddies)
+		return 0;
 	y += vscrollbar_get_pos(buddy_win,buddy_scroll_id);
 	if((strlen(buddy_list[y].name) == 0)||(buddy_list[y].type > 0xFE)) {
 		//There's no name. Fall through.
@@ -180,7 +218,7 @@ int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-void init_buddy()
+void init_buddy(void)
 {
 	int i;
 
@@ -197,19 +235,7 @@ void init_buddy()
 	queue_initialise(&buddy_request_queue);
 }
 
-/*
-int clika(widget_list *w){
-	w->pos_x+=10;
-	return 0;
-}
-int clikaa(widget_list *w){
-	progressbar *b = (progressbar *)w->widget_info;
-	b->progress++;
-	return 0;
-}
-*/
-
-int click_add_buddy_handler(widget_list *w, int mx, int my, Uint32 flags)
+static int click_add_buddy_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
 	if(strlen((char*)buddy_name_buffer) == 0) {
 		return 1;
@@ -226,7 +252,7 @@ int click_add_buddy_handler(widget_list *w, int mx, int my, Uint32 flags)
 	}
 }
 
-int click_change_buddy_handler(widget_list *w, int mx, int my, Uint32 flags)
+static int click_change_buddy_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
 	char string[255];
 	int send_message = 1;
@@ -248,7 +274,7 @@ int click_change_buddy_handler(widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int display_add_buddy_handler(window_info *win)
+static int display_add_buddy_handler(window_info *win)
 {
 	/* Draw description_buffer and the separator */
 	glColor3f(0.77f, 0.57f, 0.39f);
@@ -264,26 +290,29 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 	return 1;
 }
-int name_onmouseover_handler(widget_list *widget, int mx, int my)
+
+static int name_onmouseover_handler(widget_list *widget, int mx, int my)
 {
 	put_small_colored_text_in_box(c_orange1, (unsigned char*)buddy_long_name_str, strlen(buddy_long_name_str),
                                buddy_add_x_len-10, (char*)description_buffer);
 	return 1;
 }
-int type_onmouseover_handler(widget_list *widget, int mx, int my)
+
+static int type_onmouseover_handler(widget_list *widget, int mx, int my)
 {
 	put_small_colored_text_in_box(c_orange1, (unsigned char*)buddy_long_type_str, strlen(buddy_long_type_str),
                                buddy_add_x_len-10, (char*)description_buffer);
 	return 1;
 }
-int delete_onmouseover_handler(widget_list *widget, int mx, int my)
+
+static int delete_onmouseover_handler(widget_list *widget, int mx, int my)
 {
 	put_small_colored_text_in_box(c_orange1, (unsigned char*)buddy_long_delete_str, strlen(buddy_long_delete_str), 
 							buddy_change_x_len-10, (char*)description_buffer);
 	return 1;
 }
 
-int display_accept_buddy_handler(window_info *win)
+static int display_accept_buddy_handler(window_info *win)
 {
 	if(win != NULL) {
 		int i;
@@ -301,7 +330,7 @@ int display_accept_buddy_handler(window_info *win)
 	}
 }
 
-int name_input_keypress_handler(widget_list *widget, int mx, int my, Uint32 key, Uint32 unikey)
+static int name_input_keypress_handler(widget_list *widget, int mx, int my, Uint32 key, Uint32 unikey)
 {
 	if(unikey == '\r' && strlen((char*)buddy_name_buffer) > 0) {
 		return click_add_buddy_handler(widget, mx, my, ELW_LEFT_MOUSE);
@@ -310,7 +339,7 @@ int name_input_keypress_handler(widget_list *widget, int mx, int my, Uint32 key,
 	}
 }
 
-int click_accept_yes(widget_list *w, int mx, int my, Uint32 flags)
+static int click_accept_yes(widget_list *w, int mx, int my, Uint32 flags)
 {
 	char string[255];
 	int window_id = w->window_id;
@@ -345,7 +374,7 @@ int click_accept_yes(widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int click_accept_no(widget_list *w, int mx, int my, Uint32 flags)
+static int click_accept_no(widget_list *w, int mx, int my, Uint32 flags)
 {
 	int i;
 	int window_id = w->window_id;
@@ -371,13 +400,13 @@ int click_accept_no(widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int click_delete_checkbox_label(widget_list *w, int mx, int my, Uint32 flags)
+static int click_delete_checkbox_label(widget_list *w, int mx, int my, Uint32 flags)
 {
 	buddy_delete = !buddy_delete;
 	return 1;
 }
 
-int create_buddy_interface_win(const char *title, void *argument)
+static int create_buddy_interface_win(const char *title, void *argument)
 {
 	int label_id = 10; //temporary variable
 	int string_width;
@@ -527,7 +556,7 @@ int create_buddy_interface_win(const char *title, void *argument)
 	}
 }
 
-int click_buddy_button_handler(widget_list *w, int mx, int my, Uint32 flags)
+static int click_buddy_button_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
 	if(buddy_add_win < 0) {
 		buddy_add_win = create_buddy_interface_win(buddy_add_str, NULL);
@@ -537,7 +566,39 @@ int click_buddy_button_handler(widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-void display_buddy()
+static void set_scrollbar_len(void)
+{
+	int i;
+	int num_buddies = 0;
+	for (i = 0; i < MAX_BUDDY; i++)
+		if (buddy_list[i].type != 0xff)
+			num_buddies++;
+	vscrollbar_set_bar_len(buddy_win, buddy_scroll_id, num_buddies - num_displayed_buddies);
+}
+
+static int ui_scale_buddy_handler(window_info *win)
+{
+	int button_len_y = (int)(0.5 + win->current_scale * 20);
+	list_border_space = (int)(0.5 + win->current_scale * 5);
+	buddy_name_step_y = (int)(0.5 + win->current_scale * 12);
+
+	buddy_menu_x_len = win->box_size + MAX_USERNAME_LENGTH * win->small_font_len_x + 2 * list_border_space;
+	buddy_menu_y_len = button_len_y + 2* list_border_space + num_displayed_buddies * buddy_name_step_y;
+
+	request_box_start_x = buddy_menu_x_len - win->box_size - (int)(0.5 + (strlen(buddy_request_str) + 2) * win->small_font_len_x);
+
+	resize_window(win->window_id, buddy_menu_x_len, buddy_menu_y_len);
+
+	button_resize(win->window_id, buddy_button_id, buddy_menu_x_len, button_len_y, win->current_scale);
+	widget_move(win->window_id, buddy_button_id, 0, buddy_menu_y_len - button_len_y);
+
+	widget_resize(win->window_id, buddy_scroll_id, win->box_size, buddy_menu_y_len - win->box_size - button_len_y);
+	widget_move(win->window_id, buddy_scroll_id, buddy_menu_x_len - win->box_size, win->box_size);
+
+	return 1;
+}
+
+void display_buddy(void)
 {
 	if(buddy_win < 0)
 		{
@@ -545,14 +606,18 @@ void display_buddy()
 			if (!windows_on_top) {
 				our_root_win = game_root_win;
 			}
-			buddy_win = create_window(win_buddy, our_root_win, 0, buddy_menu_x, buddy_menu_y, buddy_menu_x_len, buddy_menu_y_len, ELW_WIN_DEFAULT);
+			buddy_win = create_window(win_buddy, our_root_win, 0, buddy_menu_x, buddy_menu_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 
 			set_window_handler(buddy_win, ELW_HANDLER_DISPLAY, &display_buddy_handler );
 			set_window_handler(buddy_win, ELW_HANDLER_CLICK, &click_buddy_handler );
+			set_window_handler(buddy_win, ELW_HANDLER_UI_SCALE, &ui_scale_buddy_handler );
 
-			buddy_scroll_id = vscrollbar_add_extended (buddy_win, buddy_scroll_id, NULL, 130, 20, 20, 180, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, MAX_BUDDY-19);
-			buddy_button_id = button_add_extended(buddy_win, buddy_button_id, NULL, 0, buddy_menu_y_len-20, buddy_menu_x_len, 20, BUTTON_SQUARE, 1.0, -1.0, -1.0, -1.0, buddy_add_str);
+			buddy_scroll_id = vscrollbar_add_extended (buddy_win, buddy_scroll_id, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 0);
+			buddy_button_id = button_add_extended(buddy_win, buddy_button_id, NULL, 0, 0, 0, 0, BUTTON_SQUARE, 1.0, 0.77f, 0.57f, 0.39f, buddy_add_str);
 			widget_set_OnClick(buddy_win, buddy_button_id, click_buddy_button_handler);
+
+			if (buddy_win >=0 && buddy_win < windows_list.num_windows)
+				ui_scale_buddy_handler(&windows_list.window[buddy_win]);
 		}
 	else
 		{
@@ -610,6 +675,7 @@ void add_buddy (const char *name, int type, int len)
 			}
 		}
 	}
+	set_scrollbar_len();
 }
 
 void del_buddy (const char *name, int len)
@@ -626,15 +692,17 @@ void del_buddy (const char *name, int len)
 			break;
 		}
 	}
+	set_scrollbar_len();
 }
 
-void clear_buddy()
+void clear_buddy(void)
 {
 	int i;
 	for(i=0; i<MAX_BUDDY; i++){
 		buddy_list[i].type= 0xff;
 		buddy_list[i].name[0]=0;
 	}
+	set_scrollbar_len();
 }
 
 int is_in_buddylist(const char *name)

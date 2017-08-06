@@ -98,7 +98,7 @@ void cleanup_mem(void)
 	destroy_url_list();
 	history_destroy();
 	command_cleanup();
-	queue_destroy(buddy_request_queue);
+	destroy_buddy_queue();
 	cleanup_manufacture();
 	cleanup_text_buffers();
 	cleanup_fonts();
