@@ -818,7 +818,7 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 	return nlines;
 }
 
-static void draw_string_small_scaled(int x, int y,const unsigned char * our_string,int max_lines, float scale_factor)
+void draw_string_small_scaled(int x, int y,const unsigned char * our_string,int max_lines, float scale_factor)
 {
 	//int displayed_font_x_size=SMALL_FONT_X_LEN;
 	//int displayed_font_y_size=SMALL_FONT_Y_LEN;
