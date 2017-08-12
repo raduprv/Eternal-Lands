@@ -620,7 +620,7 @@ static int resize_counters_handler(window_info *win, int new_width, int new_heig
 	int butt_y[14] = {0, 25, 125, 150, 175, 200, 225, 250, 275, 300, 50, 100, 325, 75 };
 	int gap_x = (int)(0.5 + win->current_scale * 10);
 
-	left_panel_width = (int)(0.5 + win->current_scale * 120);
+	left_panel_width = (int)(0.5 + win->current_scale * 125);
 	name_x_start = left_panel_width + gap_x;
 	name_x_end = name_x_start + (int)(0.5 + win->small_font_len_x * (float)strlen(name_str));
 
@@ -652,7 +652,7 @@ static int resize_counters_handler(window_info *win, int new_width, int new_heig
 	else
 		current_selected = 0;
 
-	multiselect_id = multiselect_add(win->window_id, NULL, 8, 2, 104 * win->current_scale);
+	multiselect_id = multiselect_add(win->window_id, NULL, gap_x/2, 2, 115 * win->current_scale);
 	for (i=0; i<14; i++)
 		multiselect_button_add_extended(win->window_id, multiselect_id,
 			0, butt_y[i] * win->current_scale, 0, cat_str[i], DEFAULT_SMALL_RATIO * win->current_scale, i==0);
