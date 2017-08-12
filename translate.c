@@ -1577,7 +1577,7 @@ void init_help()
 	add_xml_identifier(buddy, "name", buddy_name_str, "Name:", sizeof(buddy_name_str));
 	add_xml_identifier(buddy, "name_desc", buddy_long_name_str, "The name of your buddy", sizeof(buddy_long_name_str));
 	add_xml_identifier(buddy, "color", buddy_type_str, "Color:", sizeof(buddy_type_str));
-	add_xml_identifier(buddy, "color_desc", buddy_long_type_str, "The color you want your buddy to appear in in the list", sizeof(buddy_long_type_str));
+	add_xml_identifier(buddy, "color_desc", buddy_long_type_str, "The color you want your buddy to appear in the list", sizeof(buddy_long_type_str));
 	add_xml_identifier(buddy, "add", buddy_add_str, "Add buddy", sizeof(buddy_add_str));
 	add_xml_identifier(buddy, "change", buddy_change_str, "Change buddy", sizeof(buddy_change_str));
 	add_xml_identifier(buddy, "accept", buddy_accept_str, "Accept buddy", sizeof(buddy_accept_str));
