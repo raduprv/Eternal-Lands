@@ -78,9 +78,6 @@ ec_reference harvesting_effect_reference = NULL;
 int afk_snd_warning = 0;
 #endif
 
-/* forward declaration */
-static void scaled_put_small_colored_text_in_box (Uint8 color, const Uint8 *text_to_add, int len, int pixels_limit, char *buffer, float scale);
-
 void alloc_text_message_data (text_message *msg, int size)
 {
 	msg->data = size > 0 ? calloc (size, 1) : NULL;
@@ -1141,7 +1138,7 @@ void put_small_colored_text_in_box (Uint8 color, const Uint8 *text_to_add, int l
 	scaled_put_small_colored_text_in_box(color, text_to_add, len, pixels_limit, buffer, 1.0);
 }
 
-static void scaled_put_small_colored_text_in_box (Uint8 color, const Uint8 *text_to_add, int len, int pixels_limit, char *buffer, float scale)
+void scaled_put_small_colored_text_in_box (Uint8 color, const Uint8 *text_to_add, int len, int pixels_limit, char *buffer, float scale)
 {
 	int i;
 	Uint8 cur_char;

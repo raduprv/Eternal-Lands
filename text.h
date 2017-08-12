@@ -362,6 +362,7 @@ void scaled_put_small_text_in_box (const Uint8 *text_to_add, int len, int pixels
  * \todo Fix documentation
  */
 void put_small_colored_text_in_box (Uint8 color, const Uint8 *text_to_add, int len, int pixels_limit, char *buffer);
+void scaled_put_small_colored_text_in_box (Uint8 color, const Uint8 *text_to_add, int len, int pixels_limit, char *buffer, float scale);
 
 /*!
  * \ingroup text_font
