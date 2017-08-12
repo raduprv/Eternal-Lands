@@ -503,7 +503,10 @@ void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, 
 	int xstr=0;
 	
 	if(str){
-		xstr=x+radius+(w-(get_string_width((unsigned char*)str)*width_ratio))/2.0f;
+		int label_width = get_string_width((unsigned char*)str)*width_ratio;
+		if (label_width + 2 * radius <= w)
+			w -= 2 * radius;
+		xstr=x+radius+(w-(label_width))/2.0f;
 	}
 
 	glDisable(GL_TEXTURE_2D);
