@@ -60,6 +60,7 @@ typedef struct {
 	Uint16 x;
 	Uint16 y;
 	int width;
+	int height;
 	int value;
 }multiselect_button;
 
@@ -80,7 +81,6 @@ typedef struct {
 }multiselect;
 
 Uint32 widget_id = 0x0000FFFF;
-static const int multiselect_button_height = 22;
 
 int ReadXMLWindow(xmlNode * a_node);
 int ParseWindow (xmlNode *node);
@@ -614,8 +614,8 @@ int widget_handle_keypress (widget_list *widget, int mx, int my, Uint32 key, Uin
 // Label
 int label_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint32 Flags, float size, float r, float g, float b, const char *text)
 {
-	Uint16 len_x = (Uint16)(strlen (text) * 11 * 1.0);
-	Uint16 len_y = (Uint16)(18 * 1.0);
+	Uint16 len_x = (Uint16)(strlen (text) * DEFAULT_FONT_X_LEN * size);
+	Uint16 len_y = (Uint16)(DEFAULT_FONT_Y_LEN * size);
 
 	label *T = (label *) calloc (1, sizeof(label));
 	safe_snprintf (T->text, sizeof(T->text), "%s", text);
@@ -801,8 +801,8 @@ int safe_button_click(Uint32 *last_click)
 
 int button_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, const char *text)
 {
-	Uint16 len_x = lx > 0 ? lx : (Uint16)(strlen(text) * 11 * size) + 2*BUTTONRADIUS*size;
-	Uint16 len_y = ly > 0 ? ly : (Uint16)(18 * size) + 12*size;
+	Uint16 len_x = lx > 0 ? lx : (Uint16)(strlen(text) * DEFAULT_FONT_X_LEN * size) + 2*BUTTONRADIUS*size;
+	Uint16 len_y = ly > 0 ? ly : (Uint16)(DEFAULT_FONT_Y_LEN * size) + 12*size;
 	const struct WIDGET_TYPE *type = (Flags & BUTTON_SQUARE) ? &square_button_type : &round_button_type;
 
 	button *T = calloc (1, sizeof(button));
@@ -3287,10 +3287,10 @@ static int multiselect_click(widget_list *widget, int mx, int my, Uint32 flags)
 	for(i = top_but; i < M->nr_buttons; i++)
 	{
 		button_y = M->buttons[i].y - start_y;
-		if (button_y > widget->len_y-multiselect_button_height)
+		if (button_y > widget->len_y - M->buttons[i].height)
 			break;
 		if((flags&ELW_LEFT_MOUSE || flags&ELW_RIGHT_MOUSE) && 
-			my > button_y && my < button_y+multiselect_button_height && mx > M->buttons[i].x && mx < M->buttons[i].x+M->buttons[i].width) {
+			my > button_y && my < button_y + M->buttons[i].height && mx > M->buttons[i].x && mx < M->buttons[i].x+M->buttons[i].width) {
 				M->selected_button = i;
 			do_click_sound();
 			return 1;
@@ -3323,9 +3323,9 @@ static int multiselect_draw(widget_list *widget)
 		for(i = top_but; i < M->nr_buttons; i++) {
 			button_y = M->buttons[i].y - start_y;
 			/* Check if the button can be fully drawn */
-			if(button_y > widget->len_y-multiselect_button_height)
+			if(button_y > widget->len_y - M->buttons[i].height)
 				break;
-			draw_smooth_button(M->buttons[i].text, widget->size, widget->pos_x+M->buttons[i].x, widget->pos_y+button_y, M->buttons[i].width-22, 1, r, g, b, (i == M->selected_button), hr, hg, hb, 0.5f);
+			draw_smooth_button(M->buttons[i].text, widget->size, widget->pos_x+M->buttons[i].x, widget->pos_y+button_y, M->buttons[i].width, 1, r, g, b, (i == M->selected_button), hr, hg, hb, 0.5f);
 		}
 	}
 	return 1;
@@ -3341,20 +3341,21 @@ int multiselect_button_add_extended(int window_id, Uint32 multiselect_id, Uint16
 	widget_list *widget = widget_find(window_id, multiselect_id);
 	multiselect *M = widget->widget_info;
 	int current_button = M->nr_buttons;
-	
+	int button_height = (int)(0.5 + 2.0 * BUTTONRADIUS * size);
+
 	if (text==NULL || strlen(text)==0) {
 		M->next_value++;
 		return current_button;
 	}
 
-	if(y+multiselect_button_height > widget->len_y && (!M->max_height || widget->len_y != M->max_height)) {
-		widget->len_y = y+multiselect_button_height;
+	if(y+button_height > widget->len_y && (!M->max_height || widget->len_y != M->max_height)) {
+		widget->len_y = y+button_height;
 	}
 
 	widget->size=size;
 
-	if (M->max_height && y+multiselect_button_height > M->actual_height) {
-		M->actual_height = y+multiselect_button_height;
+	if (M->max_height && y+button_height > M->actual_height) {
+		M->actual_height = y+button_height;
 	}
 	if(M->max_buttons == M->nr_buttons) {
 		/*Allocate space for more buttons*/
@@ -3369,6 +3370,7 @@ int multiselect_button_add_extended(int window_id, Uint32 multiselect_id, Uint16
 	M->buttons[current_button].x = x;
 	M->buttons[current_button].y = y;
 	M->buttons[current_button].width = (width == 0) ? widget->len_x : width;
+	M->buttons[current_button].height = button_height;
 	
 	M->nr_buttons++;
 	if(M->max_height && M->scrollbar == -1 && M->max_height < y) {
@@ -3376,18 +3378,18 @@ int multiselect_button_add_extended(int window_id, Uint32 multiselect_id, Uint16
 
 		/* Add scrollbar */
 		M->scrollbar = vscrollbar_add_extended(window_id, widget_id++, NULL, widget->pos_x+widget->len_x-ELW_BOX_SIZE, widget->pos_y, ELW_BOX_SIZE, M->max_height, 0, 1.0, widget->r, widget->g, widget->b, 0, 1, M->max_height);
-		widget->len_x -= ELW_BOX_SIZE;
+		widget->len_x -= ELW_BOX_SIZE + 2;
 		widget->len_y = M->max_height;
 		/* We don't want things to look ugly. */
 		for(i = 0; i < M->nr_buttons; i++) {
 			if(M->buttons[i].width > widget->len_x) {
-				M->buttons[i].width -= ELW_BOX_SIZE;
+				M->buttons[i].width -= ELW_BOX_SIZE + 2;
 			}
 		}
 	}
 	
 	if (M->scrollbar != -1)
-		vscrollbar_set_bar_len(window_id, M->scrollbar, M->nr_buttons-widget->len_y/multiselect_button_height);
+		vscrollbar_set_bar_len(window_id, M->scrollbar, M->nr_buttons-widget->len_y/button_height);
 	
 	return current_button;
 }
