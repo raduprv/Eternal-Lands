@@ -26,6 +26,7 @@
 #include "sound.h"
 
 static size_t cm_edit_id = CM_INIT_VALUE;
+#define DEFAULT_TAB_RADIUS 8 //* the radius used for rounded tabs
 
 typedef struct {
 	char text[256];
@@ -1213,6 +1214,11 @@ int tab_collection_get_nr_tabs (int window_id, Uint32 widget_id)
 	return -1;
 }
 
+int tab_collection_calc_tab_height(float size)
+{
+	return (int)(0.5 + DEFAULT_FONT_Y_LEN * 2.0 * size);
+}
+
 int tab_set_label_color_by_id (int window_id, Uint32 col_id, int tab_id, float r, float g, float b)
 {
 	widget_list *w = widget_find (window_id, col_id);
@@ -1299,7 +1305,6 @@ static int free_tab_collection(widget_list *widget)
 
 int tab_collection_draw (widget_list *w)
 {
-	window_info *win;
 	tab_collection *col;
 	int itab, ytagtop, ytagbot, xstart, xend, xmax;
 	int btn_size, arw_width;
@@ -1307,10 +1312,6 @@ int tab_collection_draw (widget_list *w)
 	int h;
 
 	if (!w) return 0;
-	if ((w->window_id >= 0) && (w->window_id < windows_list.num_windows))
-		win = &windows_list.window[w->window_id];
-	else
-		return 0;
 
 	col = (tab_collection *) w->widget_info;
 	
@@ -1442,9 +1443,11 @@ int tab_collection_draw (widget_list *w)
 			glColor3f (col->tabs[itab].label_r, col->tabs[itab].label_g, col->tabs[itab].label_b); 
 			
 		if (col->tabs[itab].closable)
-			draw_string_zoomed (xstart+win->small_font_len_x/2+h+gx_adjust, ytagbot-win->small_font_len_y-2+gy_adjust, (unsigned char *)col->tabs[itab].label, 1, win->current_scale * w->size);
+			draw_string_zoomed (xstart + (w->size * DEFAULT_FONT_X_LEN) / 2 + h + gx_adjust,
+				ytagtop + (h - (w->size * DEFAULT_FONT_Y_LEN)) / 2 + gy_adjust, (unsigned char *)col->tabs[itab].label, 1, w->size);
 		else
-			draw_string_zoomed (xstart+win->small_font_len_x/2+gx_adjust, ytagbot-win->small_font_len_y-2+gy_adjust, (unsigned char *)col->tabs[itab].label, 1, win->current_scale * w->size);
+			draw_string_zoomed (xstart + (w->size * DEFAULT_FONT_X_LEN) / 2 + gx_adjust,
+				ytagtop + (h - (w->size * DEFAULT_FONT_Y_LEN)) / 2 + gy_adjust, (unsigned char *)col->tabs[itab].label, 1, w->size);
 		glDisable(GL_TEXTURE_2D);
 
 		xstart = xend;
@@ -1566,25 +1569,20 @@ static int tab_collection_click(widget_list *W, int x, int y, Uint32 flags)
 	return 0;
 }
 
-int tab_collection_resize (widget_list *w, Uint32 width, Uint32 height, Uint32 tab_tag_height)
+int tab_collection_resize (widget_list *w, Uint32 width, Uint32 height)
 {
-	window_info *win;
 	tab_collection *col;
 	int itab;
 
 	if (w == NULL || (col = (tab_collection *) w->widget_info) == NULL)
 		return 0;
-	if ((w->window_id >= 0) && (w->window_id < windows_list.num_windows))
-		win = &windows_list.window[w->window_id];
-	else
-		return 0;
 
-	col->tag_height = tab_tag_height;
-	col->button_size = (9 * tab_tag_height) / 10;
+	col->tag_height = tab_collection_calc_tab_height(w->size);
+	col->button_size = (9 * col->tag_height) / 10;
 
 	for (itab=0; itab<col->nr_tabs; itab++)
 	{
-		col->tabs[itab].tag_width = win->default_font_len_x + (win->current_scale * (float)w->size * (DEFAULT_FONT_X_LEN * (float)get_string_width((unsigned char*)col->tabs[itab].label)/12.0f));
+		col->tabs[itab].tag_width = w->size * DEFAULT_FONT_X_LEN + (w->size * DEFAULT_FONT_X_LEN * (float)get_string_width((unsigned char*)col->tabs[itab].label) / 12.0f);
 		if (col->tabs[itab].closable) 
 			col->tabs[itab].tag_width += col->tag_height;
 	}
@@ -1676,7 +1674,7 @@ static int tab_collection_keypress(widget_list *W, int mx, int my, Uint32 key, U
 	return 0;	
 }
 
-int tab_collection_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int max_tabs, Uint16 tag_height)
+int tab_collection_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int max_tabs)
 {
 	int itab;
 	tab_collection *T = calloc (1, sizeof (tab_collection));
@@ -1686,8 +1684,8 @@ int tab_collection_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uin
 	for (itab = 0; itab < T->max_tabs; itab++)
 		T->tabs[itab].content_id = -1;
 	T->nr_tabs = 0;
-	T->tag_height = tag_height;
-	T->button_size = (9 * tag_height) / 10;
+	T->tag_height = tab_collection_calc_tab_height(size);
+	T->button_size = (9 * T->tag_height) / 10;
 	T->cur_tab = 0;
 	T->tab_offset = 0;
 	T->tab_last_visible = 0;
@@ -1695,25 +1693,20 @@ int tab_collection_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uin
 	return widget_add (window_id, wid, OnInit, x, y, lx, ly, Flags, size, r, g, b, &tab_collection_type, T, NULL);
 }
 
-int tab_collection_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint16 tag_height)
+int tab_collection_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly)
 {
-	return tab_collection_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, 0, tag_height);
+	return tab_collection_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, 0);
 }
 
 int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, int closable, Uint32 flags)
 {
-	window_info *win;
 	widget_list *w = widget_find(window_id, col_id);
 	tab_collection *col;
 	int nr;
-	
+
 	if (w == NULL || (col = (tab_collection *) w->widget_info) == NULL)
 		return 0;
-	if ((w->window_id >= 0) && (w->window_id < windows_list.num_windows))
-		win = &windows_list.window[w->window_id];
-	else
-		return 0;
-	
+
 	nr = col->nr_tabs++;
 	if (nr >= col->max_tabs)
 	{		
@@ -1739,7 +1732,7 @@ int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, 
 	else
 	{
 		// compute tag width from label width
-		col->tabs[nr].tag_width = win->default_font_len_x + (win->current_scale * (float)w->size * (DEFAULT_FONT_X_LEN * (float)get_string_width((unsigned char*)col->tabs[nr].label)/12.0f));
+		col->tabs[nr].tag_width = w->size * DEFAULT_FONT_X_LEN + (w->size * DEFAULT_FONT_X_LEN * (float)get_string_width((unsigned char*)col->tabs[nr].label) / 12.0f);
 		if (col->tabs[nr].closable) 
 			col->tabs[nr].tag_width += col->tag_height;
 	}

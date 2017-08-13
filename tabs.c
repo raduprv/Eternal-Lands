@@ -2,6 +2,7 @@
 #include "tabs.h"
 #include "elwindows.h"
 #include "encyclopedia.h"
+#include "font.h"
 #include "gamewin.h"
 #include "help.h"
 #include "knowledge.h"
@@ -31,15 +32,17 @@ int tab_info_y = 70;
 
 static int ui_scale_stats_handler(window_info *win)
 {
-	int tab_tag_height = (int)(0.5 + win->current_scale * 25);
+	int tab_tag_height = 0;
 	int new_width = (int)(0.5 + win->current_scale * 580);
 	int new_height = (int)(0.5 + win->current_scale * 350);
 	widget_list *w = widget_find (win->window_id, tab_stats_collection_id);
 
+	widget_set_size(win->window_id, tab_stats_collection_id, win->current_scale * DEFAULT_SMALL_RATIO);
+	tab_tag_height = tab_collection_calc_tab_height(win->current_scale * DEFAULT_SMALL_RATIO);
 	resize_window(win->window_id, new_width + 2*TAB_MARGIN, new_height + tab_tag_height + 2*TAB_MARGIN);
 	widget_resize(win->window_id, tab_stats_collection_id, new_width, new_height + tab_tag_height);
 
-	tab_collection_resize(w, new_width, new_height, tab_tag_height);
+	tab_collection_resize(w, new_width, new_height);
 	tab_collection_move(w, win->pos_x + TAB_MARGIN, win->pos_y + tab_tag_height + TAB_MARGIN);
 
 	return 1;
@@ -55,7 +58,7 @@ void display_tab_stats ()
 		}
 		tab_stats_win = create_window (win_statistics, our_root_win, 0, tab_stats_x, tab_stats_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 		set_window_handler(tab_stats_win, ELW_HANDLER_UI_SCALE, &ui_scale_stats_handler );
-		tab_stats_collection_id = tab_collection_add_extended (tab_stats_win, tab_stats_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, 0, 0, 0, 0.7, 0.77f, 0.57f, 0.39f, 3, TAB_TAG_HEIGHT);
+		tab_stats_collection_id = tab_collection_add_extended (tab_stats_win, tab_stats_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, 0, 0, 0, DEFAULT_SMALL_RATIO, 0.77f, 0.57f, 0.39f, 3);
 
 		fill_stats_win (tab_add (tab_stats_win, tab_stats_collection_id, tab_statistics, 0, 0, ELW_USE_UISCALE));
 		fill_knowledge_win (tab_add (tab_stats_win, tab_stats_collection_id, tab_knowledge, 0, 0, ELW_USE_UISCALE));
@@ -76,15 +79,17 @@ void display_tab_stats ()
 
 static int ui_scale_help_handler(window_info *win)
 {
-	int tab_tag_height = (int)(0.5 + win->current_scale * 25);
+	int tab_tag_height = 0;
 	int new_width = (int)(0.5 + win->current_scale * 500);
 	int new_height = (int)(0.5 + win->current_scale * 350);
 	widget_list *w = widget_find (win->window_id, tab_help_collection_id);
 
+	widget_set_size(win->window_id, tab_help_collection_id, win->current_scale * DEFAULT_SMALL_RATIO);
+	tab_tag_height = tab_collection_calc_tab_height(win->current_scale * DEFAULT_SMALL_RATIO);
 	resize_window(win->window_id, new_width + 2*TAB_MARGIN, new_height + tab_tag_height + 2*TAB_MARGIN);
 	widget_resize(win->window_id, tab_help_collection_id, new_width, new_height + tab_tag_height);
 
-	tab_collection_resize(w, new_width, new_height, tab_tag_height);
+	tab_collection_resize(w, new_width, new_height);
 	tab_collection_move(w, win->pos_x + TAB_MARGIN, win->pos_y + tab_tag_height + TAB_MARGIN);
 
 	return 1;
@@ -97,7 +102,7 @@ void display_tab_help ()
 	{
 		tab_help_win = create_window (win_help, -1, 0, tab_help_x, tab_help_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 		set_window_handler(tab_help_win, ELW_HANDLER_UI_SCALE, &ui_scale_help_handler );
-		tab_help_collection_id = tab_collection_add_extended (tab_help_win, tab_help_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, 0, 0, 0, 0.7, 0.77f, 0.57f, 0.39f, 3, TAB_TAG_HEIGHT);
+		tab_help_collection_id = tab_collection_add_extended (tab_help_win, tab_help_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, 0, 0, 0, DEFAULT_SMALL_RATIO, 0.77f, 0.57f, 0.39f, 3);
 
 		fill_help_win (tab_add (tab_help_win, tab_help_collection_id, tab_help, 0, 0, ELW_USE_UISCALE));
 		fill_skills_win (tab_add (tab_help_win, tab_help_collection_id, tab_skills, 0, 0, ELW_USE_UISCALE));
@@ -118,15 +123,17 @@ void display_tab_help ()
 
 static int ui_scale_info_handler(window_info *win)
 {
-	int tab_tag_height = (int)(0.5 + win->current_scale * 25);
+	int tab_tag_height = 0;
 	int new_width = (int)(0.5 + win->current_scale * 500);
 	int new_height = (int)(0.5 + win->current_scale * 350);
 	widget_list *w = widget_find (win->window_id, tab_info_collection_id);
 
+	widget_set_size(win->window_id, tab_info_collection_id, win->current_scale * DEFAULT_SMALL_RATIO);
+	tab_tag_height = tab_collection_calc_tab_height(win->current_scale * DEFAULT_SMALL_RATIO);
 	resize_window(win->window_id, new_width + 2*TAB_MARGIN, new_height + tab_tag_height + 2*TAB_MARGIN);
 	widget_resize(win->window_id, tab_info_collection_id, new_width, new_height + tab_tag_height);
 
-	tab_collection_resize(w, new_width, new_height, tab_tag_height);
+	tab_collection_resize(w, new_width, new_height);
 	tab_collection_move(w, win->pos_x + TAB_MARGIN, win->pos_y + tab_tag_height + TAB_MARGIN);
 
 	return 1;
@@ -142,7 +149,7 @@ void display_tab_info()
 
 		tab_info_win = create_window (tt_info, our_root_win, 0, tab_info_x, tab_info_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 		set_window_handler(tab_info_win, ELW_HANDLER_UI_SCALE, &ui_scale_info_handler );
-		tab_info_collection_id = tab_collection_add_extended (tab_info_win, tab_info_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, 0, 0, 0, 0.7, 0.77f, 0.57f, 0.39f, 3, TAB_TAG_HEIGHT);
+		tab_info_collection_id = tab_collection_add_extended (tab_info_win, tab_info_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, 0, 0, 0, DEFAULT_SMALL_RATIO, 0.77f, 0.57f, 0.39f, 3);
 
 		fill_notepad_window(tab_add(tab_info_win, tab_info_collection_id, win_notepad, 0, 0, ELW_USE_UISCALE));
 		fill_url_window(tab_add(tab_info_win, tab_info_collection_id, win_url_str, 0, 0, ELW_USE_UISCALE));

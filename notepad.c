@@ -297,6 +297,7 @@ static int note_button_scroll_id = -1;
 
 int notepad_loaded = 0;
 float note_zoom = 0.8f;
+static const float note_tab_zoom = DEFAULT_SMALL_RATIO * 0.9;
 static float note_button_zoom = 0;
 static int note_widget_id = 0;
 static INPUT_POPUP popup_str;
@@ -306,10 +307,11 @@ static unsigned short nr_notes = 0;
 static int widget_space = 0;
 
 // Note selection button parameters
-static int note_button_max_rows = 0;
+static const int note_button_max_rows = 10;
 static int note_button_y_offset = 0;
 static int note_button_width = 0;
 static int note_button_height = 0;
+static int note_button_space = 0;
 
 // Help message
 static const char* note_message;
@@ -327,7 +329,7 @@ void note_button_set_pos (int id)
 	else
 	{
 		int x = widget_space + (id % 2) * (note_button_width + widget_space);
-		int y = note_button_y_offset + (note_button_height + widget_space) * row;
+		int y = note_button_y_offset + (note_button_height + note_button_space) * row;
 
 		widget_unset_flags (main_note_tab_id, note_list[id].button_id, WIDGET_INVISIBLE);
 		widget_move (main_note_tab_id, note_list[id].button_id, x, y);
@@ -349,7 +351,7 @@ static void scroll_to_note_button(int nr)
 	int pos = vscrollbar_get_pos (main_note_tab_id, note_button_scroll_id);
 	int row = nr / 2;
 
-	if (row < pos)
+	if (row <= pos)
 	{
 		vscrollbar_set_pos (main_note_tab_id, note_button_scroll_id, row);
 		note_button_scroll_handler ();
@@ -367,13 +369,11 @@ static void update_note_button_scrollbar(int nr)
 
 	if (nr_rows <= note_button_max_rows)
 	{
-		widget_set_flags (main_note_tab_id, note_button_scroll_id, WIDGET_INVISIBLE|WIDGET_DISABLED);
 		vscrollbar_set_bar_len (main_note_tab_id, note_button_scroll_id, 0);
 		scroll_to_note_button (0);
 	}
 	else
 	{
-		widget_unset_flags (main_note_tab_id, note_button_scroll_id, WIDGET_INVISIBLE|WIDGET_DISABLED);
 		vscrollbar_set_bar_len (main_note_tab_id, note_button_scroll_id, nr_rows - note_button_max_rows);
 		scroll_to_note_button (nr);
 	}
@@ -774,20 +774,23 @@ static int click_buttonwin_handler(window_info* UNUSED(win),
 
 static int resize_buttonwin_handler(window_info *win, int new_width, int new_height)
 {
-	int tmp = (win->len_x - win->box_size)/2;
+	widget_list *scroll_w = widget_find(win->window_id, note_button_scroll_id);
+	int but_space = (win->len_x - win->box_size - widget_space * 3) / 2;
 	widget_list *wnew = widget_find(main_note_tab_id, new_note_button_id);
 	widget_list *wsave = widget_find(main_note_tab_id, save_notes_button_id);
-	widget_list *tab_w = widget_find (win->pos_id, note_tabcollection_id);
-	tab_collection *col = (tab_collection *) tab_w->widget_info;
+	int tab_tag_height = tab_collection_calc_tab_height(win->current_scale * note_tab_zoom);
 	int nr;
+
+	if ((scroll_w == NULL) || (scroll_w->Flags & WIDGET_INVISIBLE))
+		but_space += (win->box_size + widget_space) / 2;
 
 	button_resize(main_note_tab_id, new_note_button_id, 0, 0, win->current_scale);
 	button_resize(main_note_tab_id, save_notes_button_id, 0, 0, win->current_scale);
-	widget_move(main_note_tab_id, new_note_button_id, (tmp - wnew->len_x)/2, 2*widget_space);
-	widget_move(main_note_tab_id, save_notes_button_id, tmp + (tmp - wsave->len_x)/2, 2*widget_space);
+	widget_move(main_note_tab_id, new_note_button_id, (but_space - wnew->len_x)/2, 2*widget_space);
+	widget_move(main_note_tab_id, save_notes_button_id, but_space + (but_space - wsave->len_x)/2, 2*widget_space);
 
 	note_button_zoom = win->current_scale * 0.8;
-	note_button_width = (win->len_x - win->box_size - widget_space * 4) / 2;
+	note_button_width = but_space;
 	note_button_y_offset = (int)(0.5 + 3 * widget_space + wnew->len_y);
 
 	for(nr = 0; nr < nr_notes; nr++)
@@ -800,11 +803,9 @@ static int resize_buttonwin_handler(window_info *win, int new_width, int new_hei
 	else
 		note_button_height = (int)(0.5 + win->current_scale * 22);
 
-	note_button_max_rows = (int)(0.5 +
-		(float)(win->len_y - note_button_y_offset - col->tag_height) /
-		(float)(note_button_height + widget_space) );
+	note_button_space = (int)((float)(win->len_y - note_button_y_offset - tab_tag_height) / (float)note_button_max_rows) - note_button_height;
 
-	widget_resize(win->window_id, note_button_scroll_id, win->box_size, note_button_max_rows * (note_button_height + widget_space) - widget_space);
+	widget_resize(win->window_id, note_button_scroll_id, win->box_size, note_button_max_rows * (note_button_height + note_button_space) - widget_space);
 	widget_move(win->window_id, note_button_scroll_id, win->len_x - win->box_size - widget_space, note_button_y_offset);
 
 	for(nr = 0; nr < nr_notes; nr++)
@@ -816,17 +817,19 @@ static int resize_buttonwin_handler(window_info *win, int new_width, int new_hei
 static int resize_notepad_handler(window_info *win, int new_width, int new_height)
 {
 	widget_list *w = widget_find (win->window_id, note_tabcollection_id);
-	int new_tag_height = (int)(0.5 + 20 * win->current_scale);
+	int tab_tag_height = 0;
 
 	notepad_win_close_tabs();
 
 	widget_space = (int)(0.5 + win->current_scale * 5);
+	widget_set_size(win->window_id, note_tabcollection_id, win->current_scale * note_tab_zoom);
+	tab_tag_height = tab_collection_calc_tab_height(win->current_scale * note_tab_zoom);
 
 	widget_resize(win->window_id, note_tabcollection_id, new_width, new_height - widget_space);
 	widget_move(win->window_id, note_tabcollection_id, 0, widget_space);
 
-	tab_collection_resize(w, new_width, new_height - widget_space, new_tag_height);
-	tab_collection_move(w, win->pos_x, win->pos_y + new_tag_height);
+	tab_collection_resize(w, new_width, new_height - widget_space);
+	tab_collection_move(w, win->pos_x, win->pos_y + tab_tag_height);
 
 	close_ipu(&popup_str);
 	init_ipu (&popup_str, main_note_tab_id, NOTE_NAME_LEN*DEFAULT_FONT_X_LEN, 100, NOTE_NAME_LEN, 1, NULL, notepad_add_continued);
@@ -846,8 +849,7 @@ void fill_notepad_window(int window_id)
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_buttonwin_handler);
 	set_window_handler(window_id, ELW_HANDLER_RESIZE, &resize_notepad_handler );
 
-	note_tabcollection_id = tab_collection_add (window_id, NULL, 0, 0, 0, 0, 0);
-	widget_set_size (window_id, note_tabcollection_id, 0.7);
+	note_tabcollection_id = tab_collection_add (window_id, NULL, 0, 0, 0, 0);
 	widget_set_color (window_id, note_tabcollection_id, 0.77f, 0.57f, 0.39f);
 	main_note_tab_id = tab_add (window_id, note_tabcollection_id, tab_main, 0, 0, ELW_USE_UISCALE);
 	widget_set_color (window_id, main_note_tab_id, 0.77f, 0.57f, 0.39f);
@@ -865,6 +867,7 @@ void fill_notepad_window(int window_id)
 	widget_set_color(main_note_tab_id, save_notes_button_id, 0.77f, 0.57f, 0.39f);
 
 	note_button_scroll_id = vscrollbar_add (main_note_tab_id, NULL, 0, 0, 0, 0);
+	widget_set_color(main_note_tab_id, note_button_scroll_id, 0.77f, 0.57f, 0.39f);
 	widget_set_OnClick (main_note_tab_id, note_button_scroll_id, note_button_scroll_handler);
 	widget_set_OnDrag (main_note_tab_id, note_button_scroll_id, note_button_scroll_handler);
 

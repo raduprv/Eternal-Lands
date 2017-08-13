@@ -1183,6 +1183,19 @@ int tab_collection_close_tab (int window_id, Uint32 widget_id, int tab);
 
 /*!
  * \ingroup	tabs
+ * \brief 	Calculate the tab tag height
+ *
+ * 		Calculate the tab tag height given the specified size.
+ *
+ * \param   	size the scale factor
+ * \retval int  	Returns the calculate tag tag height.
+ * \callgraph
+ */
+int tab_collection_calc_tab_height(float size);
+
+
+/*!
+ * \ingroup	tabs
  * \brief 	Creates a tabbed window collection
  *
  * 		Creates a tabbed window collection and adds it to the given window
@@ -1193,14 +1206,11 @@ int tab_collection_close_tab (int window_id, Uint32 widget_id, int tab);
  * \param   	y The y position
  * \param   	lx The width
  * \param   	ly The height
- * \param	tag_height The height of the tags
- * \param	tag_space The spacing between two neigboring tags
  * \retval int  	Returns the new widgets unique ID 
  *
  * \sa tab_collection_add_extended
  */
-int tab_collection_add (int window_id, int (*OnInit)(), Uint16 x, 
-Uint16 y, Uint16 lx, Uint16 ly, Uint16 tag_height);
+int tab_collection_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly);
 
 /*!
  * \ingroup	tabs
@@ -1221,15 +1231,13 @@ Uint16 y, Uint16 lx, Uint16 ly, Uint16 tag_height);
  * \param   	g (0<=g<=1)
  * \param   	b (0<=b<=1)
  * \param	max_tabs The largest number of tabs this collection will hold
- * \param	tag_height The height of the tags
- * \param	tag_space The spacing between two neigboring tags
  * \retval int  	Returns the new widgets unique ID 
  *
  * \sa tab_collection_add
  */
 int tab_collection_add_extended (int window_id, Uint32 wid, int 
 (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, 
-float size, float r, float g, float b, int max_tabs, Uint16 tag_height);
+float size, float r, float g, float b, int max_tabs);
 
 /*!
  * \ingroup	tabs
@@ -1256,7 +1264,7 @@ int tab_collection_draw (widget_list *W);
  * \retval int  	Returns 1 on success, 0 on failure
  * \callgraph
  */
-int tab_collection_resize (widget_list *W, Uint32 w, Uint32 h, Uint32 tab_tag_height);
+int tab_collection_resize (widget_list *W, Uint32 w, Uint32 h);
 
 /*!
  * \ingroup	tabs
