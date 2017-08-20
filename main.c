@@ -267,7 +267,7 @@ int start_rendering()
 	free_books();
 	free_vars();
 	cleanup_rules();
-	save_exploration_map();
+	//save_exploration_map();
 	cleanup_counters();
 	cleanup_chan_names();
 	cleanup_hud();
