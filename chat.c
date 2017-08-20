@@ -29,22 +29,59 @@
 #include "sound.h"
 
 int chat_win = -1;
-
-void remove_chat_tab (Uint8 channel);
-int add_chat_tab (int nlines, Uint8 channel);
-void update_chat_tab_idx (Uint8 old_ix, Uint8 new_idx);
-void remove_tab_button (Uint8 channel);
-int add_tab_button (Uint8 channel);
-void update_tab_button_idx (Uint8 old_idx, Uint8 new_idx);
-void convert_tabs (int new_wc);
-int display_channel_color_win(Uint32 channel_number);
-
-Uint32 active_channels[MAX_ACTIVE_CHANNELS];
-Uint8 current_channel = 0;
-queue_t *chan_name_queue;
-chan_name * pseudo_chans[SPEC_CHANS];
-
+static queue_t *chan_name_queue;
 widget_list *input_widget = NULL;
+
+static void remove_chat_tab (Uint8 channel);
+static int add_chat_tab (int nlines, Uint8 channel);
+static void update_chat_tab_idx (Uint8 old_ix, Uint8 new_idx);
+static void remove_tab_button (Uint8 channel);
+static int add_tab_button (Uint8 channel);
+static void update_tab_button_idx (Uint8 old_idx, Uint8 new_idx);
+static int resize_chat_handler(window_info *win, int width, int height);
+static void change_to_current_tab(const char *input);
+static int display_channel_color_win(Uint32 channel_number);
+
+#define MAX_CHANNEL_COLORS 64
+#define MAX_CHAT_TABS 12			/*!< Size of the \see channels array */
+#define MAX_ACTIVE_CHANNELS	10		/*!< Maximum number of channels in use */
+#define SPEC_CHANS 12				/*!< 11 are currently in use. read channels.xml for the list */
+
+typedef struct
+{
+	Uint32 nr;
+	int color;
+} channelcolor;
+
+typedef struct
+{
+	int tab_id;
+	int out_id;
+	Uint8 chan_nr;
+	int nr_lines;
+	char open, newchan, highlighted;
+} chat_channel;
+
+typedef struct 
+{
+	Uint8 channel;
+	int button;
+	char highlighted;
+	char * description;
+} chat_tab;
+
+typedef struct
+{
+	Uint32 channel;
+	char * name;
+	char * description;
+} chan_name;
+
+static chat_channel channels[MAX_CHAT_TABS]; /*!< Infos about a chat window tabs  */
+static channelcolor channel_colors[MAX_CHANNEL_COLORS];
+static Uint32 active_channels[MAX_ACTIVE_CHANNELS];
+static Uint8 current_channel = 0;
+static chan_name * pseudo_chans[SPEC_CHANS];
 
 void input_widget_move_to_win(int window_id)
 {
@@ -79,20 +116,20 @@ void input_widget_move_to_win(int window_id)
 	}
 }
 
-void add_tab (Uint8 channel)
+static void add_tab (Uint8 channel)
 {
 	if (tab_bar_win != -1) add_tab_button (channel);
 	if (chat_win != -1) add_chat_tab (0, channel);
 }
 
-void remove_tab (Uint8 channel)
+static void remove_tab (Uint8 channel)
 {
 	recolour_messages(display_text_buffer);
 	if (tab_bar_win != -1) remove_tab_button (channel);
 	if (chat_win != -1) remove_chat_tab (channel);
 }
 
-void update_tab_idx (Uint8 old_idx, Uint8 new_idx)
+static void update_tab_idx (Uint8 old_idx, Uint8 new_idx)
 {
 	// XXX: CAUTION
 	// Since this function simply replaces old_idx y new_idx, it could 
@@ -105,7 +142,7 @@ void update_tab_idx (Uint8 old_idx, Uint8 new_idx)
 	if (chat_win != -1) update_chat_tab_idx (old_idx, new_idx);
 }
 
-void set_channel_tabs (const Uint32 *chans)
+static void set_channel_tabs (const Uint32 *chans)
 {
 	int nmax = CHAT_CHANNEL3-CHAT_CHANNEL1+1;
 	Uint32 chan;
@@ -169,7 +206,7 @@ void set_active_channels (Uint8 active, const Uint32 *channels, int nchan)
 	current_channel = active;
 }
 
-void send_active_channel (Uint8 chan)
+static void send_active_channel (Uint8 chan)
 {
 	Uint8 msg[2];
 
@@ -191,12 +228,14 @@ Uint32 get_active_channel (Uint8 idx)
 }
 
 #define CHAT_WIN_SPACE		4
-#define CHAT_WIN_TAG_HEIGHT	20
 #define CHAT_WIN_TAG_SPACE	3
 #define CHAT_WIN_TEXT_WIDTH  	500
 #define CHAT_OUT_TEXT_HEIGHT 	(18*8)
 #define CHAT_IN_TEXT_HEIGHT 	(18*3)
-#define CHAT_WIN_SCROLL_WIDTH	20
+
+static int CHAT_WIN_TAG_HEIGHT = 20;
+static int CHAT_WIN_SCROLL_WIDTH = 20;
+static int CLOSE_SIZE = ELW_BOX_SIZE;
 
 int local_chat_separate = 0;
 int personal_chat_separate = 0;
@@ -210,30 +249,21 @@ int mod_chat_separate = 0;
  * use_windowed_chat == 2: chat window
  */
 int use_windowed_chat = 1;
-int highlight_tab_on_nick = 1;
+//int highlight_tab_on_nick = 1;
 
 ////////////////////////////////////////////////////////////////////////
 // Chat window variables
 
-int chat_scroll_id = 15;
-int chat_tabcollection_id = 20;
-int chat_out_start_id = 21;
-
-int chat_win_x = 0; // upper left corner by default
-int chat_win_y = 0;
-
-int chat_win_text_width = CHAT_WIN_TEXT_WIDTH;
-int chat_out_text_height = CHAT_OUT_TEXT_HEIGHT;
-
-int current_line = 0;
-int text_changed = 1;
-int nr_displayed_lines;
-
-chat_channel channels[MAX_CHAT_TABS];
-int active_tab = -1;
-
-chan_name *tab_label (Uint8 chan);//Forward declaration
-
+static int chat_scroll_id = 15;
+static int chat_tabcollection_id = 20;
+static int chat_out_start_id = 21;
+static int chat_win_text_width = CHAT_WIN_TEXT_WIDTH;
+static int chat_out_text_height = CHAT_OUT_TEXT_HEIGHT;
+static int current_line = 0;
+static int text_changed = 1;
+static int nr_displayed_lines;
+static int active_tab = -1;
+static chan_name *tab_label (Uint8 chan);//Forward declaration
 
 void clear_chat_wins (void)
 {
@@ -286,7 +316,7 @@ void clear_input_line(void)
 	history_reset();
 }
 
-int close_channel (window_info *win)
+static int close_channel (window_info *win)
 {
 	int id = win->window_id;
 	int ichan;
@@ -316,7 +346,7 @@ int close_channel (window_info *win)
 	return 0;
 }
 
-void remove_chat_tab (Uint8 channel)
+static void remove_chat_tab (Uint8 channel)
 {
 	int ichan;
 
@@ -339,7 +369,7 @@ void remove_chat_tab (Uint8 channel)
 	}
 }
 
-int add_chat_tab(int nlines, Uint8 channel)
+static int add_chat_tab(int nlines, Uint8 channel)
 {
 	int ichan;
 
@@ -380,7 +410,7 @@ int add_chat_tab(int nlines, Uint8 channel)
 	return -1;
 }
 
-void update_chat_tab_idx (Uint8 old_idx, Uint8 new_idx)
+static void update_chat_tab_idx (Uint8 old_idx, Uint8 new_idx)
 {
 	int itab;
 	
@@ -396,7 +426,7 @@ void update_chat_tab_idx (Uint8 old_idx, Uint8 new_idx)
 	}
 }
 
-Uint8 get_tab_channel (Uint8 channel)
+static Uint8 get_tab_channel (Uint8 channel)
 {
 	switch (channel)
 	{
@@ -423,7 +453,7 @@ Uint8 get_tab_channel (Uint8 channel)
 	return channel;
 }
 
-void update_chat_window (text_message *msg, char highlight)
+static void update_chat_window (text_message *msg, char highlight)
 {
 	int ichan, len, nlines, width, channel;
 	char found;
@@ -520,7 +550,7 @@ void update_chat_window (text_message *msg, char highlight)
 	}
 }
 
-int display_chat_handler (window_info *win)
+static int display_chat_handler (window_info *win)
 {
 	static int msg_start = 0, offset_start = 0;
 	if (text_changed)
@@ -538,7 +568,7 @@ int display_chat_handler (window_info *win)
 	return 1;
 }
 
-void switch_to_chat_tab(int id, char click)
+static void switch_to_chat_tab(int id, char click)
 {
 	if(!click)
 	{
@@ -588,7 +618,7 @@ void switch_to_chat_tab(int id, char click)
 	}
 }
 
-void change_to_current_chat_tab(const char *input)
+static void change_to_current_chat_tab(const char *input)
 {
 	Uint8 channel;
 	int ichan;
@@ -652,7 +682,7 @@ void change_to_current_chat_tab(const char *input)
 	}
 }
 
-int chat_tabs_click (widget_list *widget, int mx, int my, Uint32 flags)
+static int chat_tabs_click (widget_list *widget, int mx, int my, Uint32 flags)
 {
 	int id;
 	
@@ -682,7 +712,7 @@ int chat_tabs_click (widget_list *widget, int mx, int my, Uint32 flags)
 	return 0;
 }
 
-int chat_scroll_drag (widget_list *widget, int mx, int my, Uint32 flags, int dx, int dy)
+static int chat_scroll_drag (widget_list *widget, int mx, int my, Uint32 flags, int dx, int dy)
 {
 	int line = vscrollbar_get_pos (chat_win, widget->id);
 	if (line != current_line)
@@ -693,7 +723,7 @@ int chat_scroll_drag (widget_list *widget, int mx, int my, Uint32 flags, int dx,
         return 0;
 }
 
-int chat_scroll_click (widget_list *widget, int mx, int my, Uint32 flags)
+static int chat_scroll_click (widget_list *widget, int mx, int my, Uint32 flags)
 {
 	int line = vscrollbar_get_pos (chat_win, widget->id);
 	if (line != current_line)
@@ -733,11 +763,11 @@ int chat_input_key (widget_list *widget, int mx, int my, Uint32 key, Uint32 unik
 	return 1;
 }
 
-int resize_chat_handler(window_info *win, int width, int height)
+static int resize_chat_handler(window_info *win, int width, int height)
 {
 	int itab;
 	int scroll_x = width - CHAT_WIN_SCROLL_WIDTH;
-	int scroll_height = height - 2*ELW_BOX_SIZE;
+	int scroll_height = height - 2*CLOSE_SIZE;
 	int inout_width = width - CHAT_WIN_SCROLL_WIDTH - 2 * CHAT_WIN_SPACE;
 	int input_height = CHAT_IN_TEXT_HEIGHT + 2 * CHAT_WIN_SPACE;
 	int input_y = height - input_height - CHAT_WIN_SPACE;
@@ -764,7 +794,7 @@ int resize_chat_handler(window_info *win, int width, int height)
 	chat_out_text_height = output_height - 2 * CHAT_WIN_SPACE;
 	
 	widget_resize (chat_win, chat_scroll_id, CHAT_WIN_SCROLL_WIDTH, scroll_height);
-	widget_move (chat_win, chat_scroll_id, scroll_x, ELW_BOX_SIZE);
+	widget_move (chat_win, chat_scroll_id, scroll_x, CLOSE_SIZE);
 	
 	widget_resize (chat_win, chat_tabcollection_id, inout_width, tabcol_height);
 	
@@ -984,7 +1014,7 @@ void put_string_in_input_field(const Uint8 *text)
 	}
 }
 
-int close_chat_handler (window_info *win)
+static int close_chat_handler (window_info *win)
 {
 	// revert to using the tab bar
 	// call the config function to make sure it's done properly
@@ -994,7 +1024,26 @@ int close_chat_handler (window_info *win)
 	return 1;
 }
 
-void create_chat_window(void)
+static int ui_scale_chat_handler(window_info *win)
+{
+	int tab_tag_height = 0;
+	widget_list *w = widget_find (win->window_id, chat_tabcollection_id);
+	CHAT_WIN_TAG_HEIGHT = tab_collection_calc_tab_height(win->current_scale * DEFAULT_SMALL_RATIO);
+	CHAT_WIN_SCROLL_WIDTH = (int)(0.5 + win->current_scale * 20);
+	CLOSE_SIZE = win->box_size;
+
+	widget_set_size(win->window_id, chat_tabcollection_id, win->current_scale * DEFAULT_SMALL_RATIO);
+	tab_tag_height = tab_collection_calc_tab_height(win->current_scale * DEFAULT_SMALL_RATIO);
+
+	tab_collection_resize(w, win->len_x, win->len_y);
+	tab_collection_move(w, win->pos_x + CHAT_WIN_SPACE, win->pos_y + tab_tag_height + CHAT_WIN_SPACE);
+
+	resize_window(win->window_id, win->len_x, win->len_y);
+
+	return 1;
+}
+
+static void create_chat_window(void)
 {
 	int chat_win_width = CHAT_WIN_TEXT_WIDTH + 4 * CHAT_WIN_SPACE + CHAT_WIN_SCROLL_WIDTH;
 	int chat_win_height = CHAT_OUT_TEXT_HEIGHT + CHAT_IN_TEXT_HEIGHT + 7 * CHAT_WIN_SPACE + CHAT_WIN_TAG_HEIGHT;
@@ -1009,13 +1058,14 @@ void create_chat_window(void)
 	
 	nr_displayed_lines = (int) ((CHAT_OUT_TEXT_HEIGHT-1) / (18.0 * chat_zoom));
 			
-	chat_win = create_window ("Chat", game_root_win, 0, chat_win_x, chat_win_y, chat_win_width, chat_win_height, ELW_WIN_DEFAULT|ELW_RESIZEABLE|ELW_CLICK_TRANSPARENT);
+	chat_win = create_window ("Chat", game_root_win, 0, 0, 0, chat_win_width, chat_win_height, ELW_USE_UISCALE|ELW_WIN_DEFAULT|ELW_RESIZEABLE|ELW_CLICK_TRANSPARENT);
 	
 	set_window_handler (chat_win, ELW_HANDLER_DISPLAY, &display_chat_handler);
 	set_window_handler (chat_win, ELW_HANDLER_RESIZE, &resize_chat_handler);
+	set_window_handler (chat_win, ELW_HANDLER_UI_SCALE, &ui_scale_chat_handler);
 	set_window_handler (chat_win, ELW_HANDLER_CLOSE, &close_chat_handler);
 
-	chat_scroll_id = vscrollbar_add_extended (chat_win, chat_scroll_id, NULL, chat_win_width - CHAT_WIN_SCROLL_WIDTH, ELW_BOX_SIZE, CHAT_WIN_SCROLL_WIDTH, chat_win_height - 2*ELW_BOX_SIZE, 0, 1.0f, 0.77f, 0.57f, 0.39f, 0, 1, 0);
+	chat_scroll_id = vscrollbar_add_extended (chat_win, chat_scroll_id, NULL, chat_win_width - CHAT_WIN_SCROLL_WIDTH, CLOSE_SIZE, CHAT_WIN_SCROLL_WIDTH, chat_win_height - 2*CLOSE_SIZE, 0, 1.0f, 0.77f, 0.57f, 0.39f, 0, 1, 0);
 	widget_set_OnDrag (chat_win, chat_scroll_id, chat_scroll_drag);
 	widget_set_OnClick (chat_win, chat_scroll_id, chat_scroll_click);
 	
@@ -1077,15 +1127,17 @@ void chat_win_update_zoom(void)
 #define CS_MAX_DISPLAY_CHANS 10
 
 int tab_bar_win = -1;
-int chan_sel_win = -1;
-int chan_sel_scroll_id = -1;
-chat_tab tabs[MAX_CHAT_TABS];
-int cur_button_id = 0;
-int tabs_in_use = 0;
-int current_tab = 0;
-
-int tab_bar_width = 0;
-int tab_bar_height = 18;
+static int chan_sel_win = -1;
+static int chan_sel_scroll_id = -1;
+static int chan_sel_border = 5;
+static int chan_sel_sep_offset = 2;
+static chat_tab tabs[MAX_CHAT_TABS];
+static int cur_button_id = 0;
+static int tabs_in_use = 0;
+static int current_tab = 0;
+static int tab_bar_width = 0;
+static int tab_bar_height = DEFAULT_FONT_Y_LEN;
+static float tab_bar_zoom = 0.75;
 
 static chan_name *create_chan_name(int no, const char* name, const char* desc)
 {
@@ -1135,7 +1187,7 @@ static void add_spec_chan_name(int no, const char* name, const char* desc)
 		LOG_ERROR("Memory allocation error reading channel list");
 }
 
-void generic_chans(void)
+static void generic_chans(void)
 {	//the channel list file is missing. We'll use hard-coded values
 	//remake the queue, just in case we got half way through the file
 	queue_destroy(chan_name_queue);
@@ -1356,70 +1408,71 @@ void cleanup_chan_names(void)
 	queue_destroy(chan_name_queue);
 }
 
+// Not called from anywhere, I wonder what happened?  My may to restore one day.....
+//
+//int highlight_tab(const Uint8 channel)
+//{
+//	int i;
+//	
+//	if(!highlight_tab_on_nick || channel == CHAT_ALL)
+//	{
+//		//We don't want to highlight
+//		return 0;
+//	}
+//	switch(use_windowed_chat)
+//	{
+//		case 1:
+//			if (tab_bar_win < 0)
+//			{
+//				//it doesn't exist
+//				return 0;
+//			}
+//			if(tabs[current_tab].channel != CHAT_ALL) {
+//				/* If we're in the All tab, we have already seen this message */
+//				for (i = 0; i < tabs_in_use; i++)
+//				{
+//					if (tabs[i].channel == channel)
+//					{
+//						if (current_tab != i && !tabs[i].highlighted)
+//						{
+//							widget_set_color (tab_bar_win, tabs[i].button, 1.0f, 0.0f, 0.0f);
+//							tabs[i].highlighted = 1;
+//						}
+//						break;
+//					}
+//				}
+//			}
+//		break;
+//		case 2:
+//			if (chat_win < 0)
+//			{
+//				//it doesn't exist
+//				return 0;
+//			}
+//			if(channels[active_tab].chan_nr != CHAT_ALL) {
+//				/* If we're in the All tab, we have already seen this message */
+//				for (i = 0; i < MAX_CHAT_TABS; i++)
+//				{
+//					if (channels[i].open && channels[i].chan_nr == channel)
+//					{
+//						if (i != active_tab && !channels[i].highlighted)
+//						{
+//							tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[i].tab_id, 1.0, 0.0, 0.0);
+//							channels[i].highlighted = 1;
+//						}
+//						break;
+//					}
+//				}
+//			}
+//		break;
+//		default:
+//			return 0;
+//		break;
+//	}
+//	return 1;
+//}
 
-int highlight_tab(const Uint8 channel)
-{
-	int i;
-	
-	if(!highlight_tab_on_nick || channel == CHAT_ALL)
-	{
-		//We don't want to highlight
-		return 0;
-	}
-	switch(use_windowed_chat)
-	{
-		case 1:
-			if (tab_bar_win < 0)
-			{
-				//it doesn't exist
-				return 0;
-			}
-			if(tabs[current_tab].channel != CHAT_ALL) {
-				/* If we're in the All tab, we have already seen this message */
-				for (i = 0; i < tabs_in_use; i++)
-				{
-					if (tabs[i].channel == channel)
-					{
-						if (current_tab != i && !tabs[i].highlighted)
-						{
-							widget_set_color (tab_bar_win, tabs[i].button, 1.0f, 0.0f, 0.0f);
-							tabs[i].highlighted = 1;
-						}
-						break;
-					}
-				}
-			}
-		break;
-		case 2:
-			if (chat_win < 0)
-			{
-				//it doesn't exist
-				return 0;
-			}
-			if(channels[active_tab].chan_nr != CHAT_ALL) {
-				/* If we're in the All tab, we have already seen this message */
-				for (i = 0; i < MAX_CHAT_TABS; i++)
-				{
-					if (channels[i].open && channels[i].chan_nr == channel)
-					{
-						if (i != active_tab && !channels[i].highlighted)
-						{
-							tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[i].tab_id, 1.0, 0.0, 0.0);
-							channels[i].highlighted = 1;
-						}
-						break;
-					}
-				}
-			}
-		break;
-		default:
-			return 0;
-		break;
-	}
-	return 1;
-}
-
-void switch_to_tab(int id)
+static void switch_to_tab(int id)
 {
 	int i=2;
 	widget_set_color (tab_bar_win, tabs[current_tab].button, 0.77f, 0.57f, 0.39f);
@@ -1443,7 +1496,7 @@ void switch_to_tab(int id)
 	}
 }
 
-int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
+static int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
 {
 	int itab;
 	
@@ -1470,12 +1523,15 @@ int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
 		if(tabs[itab].channel == CHAT_CHANNEL1 || tabs[itab].channel == CHAT_CHANNEL2 ||
 		   tabs[itab].channel == CHAT_CHANNEL3)
 		{
-			int x = w->len_x - 6;
-			int y = 5;
+			window_info *win = &windows_list.window[w->window_id];
+			int x = w->len_x - (int)(0.5 + win->current_scale * 6);
+			int y = (int)(0.5 + win->current_scale * 5);
+			int l3 = (int)(0.5 + win->current_scale * 3);
+			int l4 = (int)(0.5 + win->current_scale * 4);
 			char str[256];
 
 			// 'x' was clicked?
-			if(mx > x-4 && mx < x+3 && my > y-4 && my < y+3)
+			if(mx > x-l4 && mx < x+l3 && my > y-l4 && my < y+l3)
 			{
 				// Drop this channel via #lc
 				safe_snprintf(str, sizeof(str), "%c#lc %d", RAW_TEXT, active_channels[tabs[itab].channel-CHAT_CHANNEL1]);
@@ -1510,7 +1566,7 @@ int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-chan_name *tab_label (Uint8 chan)
+static chan_name *tab_label (Uint8 chan)
 {
 	//return pointer after stepping through chan_name_queue
 	int cnr, steps=0;
@@ -1564,7 +1620,7 @@ chan_name *tab_label (Uint8 chan)
 	return res;
 }
 
-unsigned int chan_int_from_name(char * name, int * return_length)
+static unsigned int chan_int_from_name(char * name, int * return_length)
 {
 	node_t *step = queue_front_node(chan_name_queue);
 	char * cname = name;
@@ -1584,7 +1640,7 @@ unsigned int chan_int_from_name(char * name, int * return_length)
 	return 0;
 }
 
-void update_tab_button_idx (Uint8 old_idx, Uint8 new_idx)
+static void update_tab_button_idx (Uint8 old_idx, Uint8 new_idx)
 {
 	int itab;
 	
@@ -1600,23 +1656,23 @@ void update_tab_button_idx (Uint8 old_idx, Uint8 new_idx)
 	}
 }
 
-int chan_tab_mouseover_handler(widget_list *widget)
+static int chan_tab_mouseover_handler(widget_list *widget)
 {
 	int itab = 0;
 	if(!show_help_text){return 0;}
 	for (itab = 0; itab < tabs_in_use; itab++){
 		if ((tabs[itab].button) == (widget->id)){
-			show_help(tabs[itab].description, widget->pos_x,widget->pos_y+widget->len_y);
+			scaled_show_help(tabs[itab].description, widget->pos_x,widget->pos_y+widget->len_y+2);
 			return 1;
 		}
 	}
 	return 0;
 }
 
-int display_chan_sel_handler(window_info *win)
+static int display_chan_sel_handler(window_info *win)
 {
-	int i = 0, y = 5, x = 5, t = 0, num_lines = 0;
-	float local_zoom = 0.75f;
+	int i = 0, y = chan_sel_border, x = chan_sel_border, t = 0, num_lines = 0;
+	float local_zoom = win->current_scale * DEFAULT_SMALL_RATIO;
 	
 	node_t *step = queue_front_node(chan_name_queue);
 	if(mouse_x >= win->pos_x+win->len_x || mouse_y >= win->pos_y+win->len_y) {
@@ -1635,38 +1691,38 @@ int display_chan_sel_handler(window_info *win)
 	for (i = 0; i < CS_MAX_DISPLAY_CHANS; ++i) {//loathe not having auto-moving widgets...
 		glColor3f(0.5f, 0.75f, 1.0f);
 		draw_string_zoomed(x, y, (unsigned char*)((chan_name*)(step->data))->name, 1, local_zoom);
-		if(mouse_y > win->pos_y+y && mouse_y < win->pos_y+y+20 && mouse_x >= win->pos_x+5
-			&& mouse_x-5 <= win->pos_x + 8*((signed)strlen(((chan_name*)(step->data))->name))) {
-			show_help(((chan_name*)(step->data))->description, mouse_x-win->pos_x,mouse_y-win->pos_y-15);
+		if(mouse_y > win->pos_y+y && mouse_y < win->pos_y+y+win->small_font_len_y && mouse_x >= win->pos_x+chan_sel_border
+			&& mouse_x-chan_sel_border <= win->pos_x + win->small_font_len_x*((signed)strlen(((chan_name*)(step->data))->name))) {
+			scaled_show_help(((chan_name*)(step->data))->description, mouse_x-win->pos_x,mouse_y-win->pos_y-win->small_font_len_y);
 		}
-		y += 18;
+		y += win->default_font_len_y;
 		step = step->next;
 		if(step == NULL) {
-			y += (18*(10-i-1));
+			y += (win->default_font_len_y*(CS_MAX_DISPLAY_CHANS-i-1));
 			break;
 		}
 	}
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(0.77f, 0.57f, 0.39f);
 	glBegin(GL_LINES);
-		glVertex2i(1, y-2);
-		glVertex2i(win->len_x, y-2);
+		glVertex2i(0, y - chan_sel_sep_offset);
+		glVertex2i(win->len_x, y - chan_sel_sep_offset);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
-	num_lines = reset_soft_breaks(channel_help_str, strlen(channel_help_str), sizeof(channel_help_str), local_zoom, win->len_x - 5, NULL, NULL);
-	draw_string_zoomed(x, y+=5, (unsigned char*)channel_help_str, num_lines, local_zoom);
-	win->len_y = 187 + num_lines * DEFAULT_FONT_Y_LEN * local_zoom + 2;
+	num_lines = reset_soft_breaks(channel_help_str, strlen(channel_help_str), sizeof(channel_help_str), local_zoom, win->len_x - chan_sel_border * 2, NULL, NULL);
+	draw_string_zoomed(x, y+=chan_sel_border, (unsigned char*)channel_help_str, num_lines, local_zoom);
+	win->len_y = win->default_font_len_y * CS_MAX_DISPLAY_CHANS + chan_sel_border + num_lines * DEFAULT_FONT_Y_LEN * local_zoom + chan_sel_border - chan_sel_sep_offset;
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 	return 0;
 }
 
-int click_chan_sel_handler(window_info *win, int mx, int my, Uint32 flags)
+static int click_chan_sel_handler(window_info *win, int mx, int my, Uint32 flags)
 {
-	int i = 0, y = my-5;
+	int i = 0, y = my - chan_sel_border;
 	node_t *step = queue_front_node(chan_name_queue);
-	y /= 18;
+	y /= win->default_font_len_y;
 	i = vscrollbar_get_pos(chan_sel_win, chan_sel_scroll_id);
 	if(i>0){
 		y+=i;
@@ -1683,7 +1739,8 @@ int click_chan_sel_handler(window_info *win, int mx, int my, Uint32 flags)
 			}
 			step = step->next;
 		}
-		if(mouse_x >= win->pos_x+5 && mouse_x-5 <= win->pos_x + 8*((signed)strlen(((chan_name*)(step->data))->name))) {
+		if(mouse_x >= win->pos_x+chan_sel_border &&
+			mouse_x-chan_sel_border <= win->pos_x + win->small_font_len_x*((signed)strlen(((chan_name*)(step->data))->name))) {
 			char tmp[20];
 			safe_snprintf(tmp, sizeof(tmp), "#jc %d", ((chan_name*)(step->data))->channel);
 			send_input_text_line(tmp, strlen(tmp));
@@ -1693,7 +1750,19 @@ int click_chan_sel_handler(window_info *win, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int tab_special_click(widget_list *w, int mx, int my, Uint32 flags)
+static int ui_scale_chan_sel_handler(window_info *win)
+{
+	int len_x = (int)(0.5 + win->small_font_len_x * 20 + 2 * chan_sel_border + win->box_size);
+	int len_y = (int)(0.5 + win->default_font_len_y * CS_MAX_DISPLAY_CHANS + chan_sel_border);
+
+	resize_window(win->window_id, len_x, len_y);
+	widget_resize(win->window_id, chan_sel_scroll_id, win->box_size, len_y - win->box_size - chan_sel_sep_offset);
+	widget_move(win->window_id, chan_sel_scroll_id, len_x - win->box_size, win->box_size);
+
+	return 1;
+}
+
+static int tab_special_click(widget_list *w, int mx, int my, Uint32 flags)
 {
 	int itab = 0;
 	for (itab = 0; itab < tabs_in_use; itab++) {
@@ -1708,14 +1777,17 @@ int tab_special_click(widget_list *w, int mx, int my, Uint32 flags)
 					if(chan_sel_win >= 0) {
 						toggle_window(chan_sel_win);
 					} else {
-						chan_sel_win = create_window ("Channel Selection", tab_bar_win, 0, w->pos_x,w->pos_y+w->len_y+1, 185, 187, (ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_ALPHA_BORDER|ELW_CLOSE_BOX));
+						chan_sel_win = create_window ("Channel Selection", tab_bar_win, 0, w->pos_x,w->pos_y+w->len_y+1, 100, 0, (ELW_USE_UISCALE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_ALPHA_BORDER|ELW_CLOSE_BOX));
 						windows_list.window[chan_sel_win].back_color[3]= 0.25f;
 						set_window_handler (chan_sel_win, ELW_HANDLER_DISPLAY, &display_chan_sel_handler);
 						set_window_handler (chan_sel_win, ELW_HANDLER_CLICK, &click_chan_sel_handler);
+						set_window_handler (chan_sel_win, ELW_HANDLER_UI_SCALE, &ui_scale_chan_sel_handler);
 						if(chan_name_queue->nodes >= CS_MAX_DISPLAY_CHANS && chan_sel_scroll_id == -1) {
 							int len = chan_name_queue->nodes-CS_MAX_DISPLAY_CHANS;
-							chan_sel_scroll_id = vscrollbar_add_extended (chan_sel_win, 0, NULL, 165, 20, 20, 163, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, len);
+							chan_sel_scroll_id = vscrollbar_add_extended (chan_sel_win, 0, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, len);
 						}
+						if (chan_sel_win >= 0 && chan_sel_win < windows_list.num_windows)
+							ui_scale_chan_sel_handler(&windows_list.window[chan_sel_win]);
 					}
 					do_click_sound();
 					break;
@@ -1733,8 +1805,12 @@ int tab_special_click(widget_list *w, int mx, int my, Uint32 flags)
 
 static int draw_tab_details (widget_list *W)
 {
-	int x = W->pos_x + W->len_x - 6;
-	int y = W->pos_y+5;
+	window_info *win = &windows_list.window[W->window_id];
+	int x = W->pos_x + W->len_x - (int)(0.5 + win->current_scale * 6);
+	int y = W->pos_y + (int)(0.5 + win->current_scale * 5);
+	int l3 = (int)(0.5 + win->current_scale * 3);
+	int l4 = (int)(0.5 + win->current_scale * 4);
+	int l7 = (int)(0.5 + win->current_scale * 7);
 	int itab;
 
 	glColor3f(0.77f,0.57f,0.39f);
@@ -1745,8 +1821,8 @@ static int draw_tab_details (widget_list *W)
 	for (itab = 0; itab < tabs_in_use; itab++)
 		if ((tabs[itab].button == W->id) && (tabs[itab].channel == CHAT_CHANNEL1 + current_channel))
 		{
-			int x = W->pos_x+2;
-			int y = W->pos_y+1;
+			int x = W->pos_x + (int)(0.5 + win->current_scale * 2);
+			int y = W->pos_y + (int)(0.5 + win->current_scale * 1);
 			int i, color;
 			/* draw the "+" for the active channel */
 			for(i=0; i<MAX_CHANNEL_COLORS; i++)
@@ -1760,10 +1836,10 @@ static int draw_tab_details (widget_list *W)
 				glColor3ub(colors_list[color].r1, colors_list[color].g1, colors_list[color].b1);
 			}
 			glBegin(GL_LINES);
-				glVertex2i(x+gx_adjust,y+4);
-				glVertex2i(x+7+gx_adjust,y+4);
-				glVertex2i(x+3,y+gy_adjust);
-				glVertex2i(x+3,y+7+gy_adjust);
+				glVertex2i(x+gx_adjust,y+l4);
+				glVertex2i(x+l7+gx_adjust,y+l4);
+				glVertex2i(x+l3,y+gy_adjust);
+				glVertex2i(x+l3,y+l7+gy_adjust);
 			glEnd();
 			glColor3f(0.77f,0.57f,0.39f);
 			/* draw a dotted underline if input would go to this channel */
@@ -1774,8 +1850,8 @@ static int draw_tab_details (widget_list *W)
 				glLineStipple(1, 0xCCCC);
 				glLineWidth(3.0);
 				glBegin(GL_LINES);
-					glVertex2i(W->pos_x, W->pos_y + W->len_y + 4);
-					glVertex2i(W->pos_x + W->len_x, W->pos_y + W->len_y + 4);
+					glVertex2i(W->pos_x, W->pos_y + W->len_y + l4);
+					glVertex2i(W->pos_x + W->len_x, W->pos_y + W->len_y + l4);
 				glEnd();
 				glPopAttrib();
 			}
@@ -1784,11 +1860,11 @@ static int draw_tab_details (widget_list *W)
 
 	/* draw the closing x */
 	glBegin(GL_LINES);
-		glVertex2i(x-4,y-4);
-		glVertex2i(x+3,y+3);
+		glVertex2i(x-l4,y-l4);
+		glVertex2i(x+l3,y+l3);
 
-		glVertex2i(x-4,y+3);
-		glVertex2i(x+3,y-4);
+		glVertex2i(x-l4,y+l3);
+		glVertex2i(x+l3,y-l4);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 #ifdef OPENGL_TRACE
@@ -1798,7 +1874,7 @@ CHECK_GL_ERRORS();
 }
 
 
-int add_tab_button (Uint8 channel)
+static int add_tab_button (Uint8 channel)
 {
 	int itab;
 	const char *label;
@@ -1824,7 +1900,7 @@ int add_tab_button (Uint8 channel)
 	label = chan->name;
 	tabs[tabs_in_use].description = chan->description;
 
-	tabs[tabs_in_use].button = button_add_extended(tab_bar_win, cur_button_id++, NULL, tab_bar_width, 0, 0, tab_bar_height, BUTTON_SQUARE, 0.75, 0.77f, 0.57f, 0.39f, label);
+	tabs[tabs_in_use].button = button_add_extended(tab_bar_win, cur_button_id++, NULL, tab_bar_width, 0, 0, tab_bar_height, BUTTON_SQUARE, tab_bar_zoom, 0.77f, 0.57f, 0.39f, label);
 	if(channel == CHAT_HIST || channel == CHAT_LIST) {
 		//a couple of special cases
 		widget_set_OnClick (tab_bar_win, tabs[tabs_in_use].button, tab_special_click);
@@ -1848,7 +1924,7 @@ int add_tab_button (Uint8 channel)
 	return tabs_in_use - 1;
 }
 
-void remove_tab_button (Uint8 channel)
+static void remove_tab_button (Uint8 channel)
 {
 	int itab, w;
 
@@ -1872,7 +1948,7 @@ void remove_tab_button (Uint8 channel)
 	resize_window (tab_bar_win, tab_bar_width, tab_bar_height);
 }
 
-void update_tab_bar (text_message * msg)
+static void update_tab_bar (text_message * msg)
 {
 	int itab, new_button;
 	Uint8 channel;
@@ -1917,12 +1993,36 @@ void update_tab_bar (text_message * msg)
 	}
 }
 
-void create_tab_bar(void)
+static int ui_scale_tab_bar_handler(window_info *win)
+{
+	size_t i;
+
+	tab_bar_height = win->default_font_len_y;
+	tab_bar_zoom = win->current_scale * 0.75; 
+	tab_bar_width = 0;
+
+	for (i=0; i<tabs_in_use; i++)
+	{
+		button_resize(win->window_id, tabs[i].button, 0, tab_bar_height, tab_bar_zoom);
+		widget_move(win->window_id, tabs[i].button, tab_bar_width, 0);
+		tab_bar_width += 1 + widget_get_width(win->window_id, tabs[i].button);
+	}
+	resize_window(win->window_id, tab_bar_width, tab_bar_height);
+
+	move_window(chan_sel_win, win->pos_id, win->pos_loc, win->pos_x, win->pos_y + win->len_y + 1);
+
+	return 1;
+}
+
+static void create_tab_bar(void)
 {
 	int tab_bar_x = 10;
 	int tab_bar_y = 3;
 
-	tab_bar_win = create_window ("Tab bar", -1, 0, tab_bar_x, tab_bar_y, tab_bar_width < ELW_BOX_SIZE ? ELW_BOX_SIZE : tab_bar_width, tab_bar_height, ELW_USE_BACKGROUND|ELW_SHOW);
+	tab_bar_win = create_window ("Tab bar", -1, 0, tab_bar_x, tab_bar_y, 100, 0, ELW_USE_UISCALE|ELW_USE_BACKGROUND|ELW_SHOW);
+	set_window_handler(tab_bar_win, ELW_HANDLER_UI_SCALE, &ui_scale_tab_bar_handler );
+	if (tab_bar_win >= 0 && tab_bar_win < windows_list.num_windows)
+		ui_scale_tab_bar_handler(&windows_list.window[tab_bar_win]);
 
 	add_tab_button (CHAT_LIST);
 	add_tab_button (CHAT_HIST);
@@ -1946,7 +2046,7 @@ void display_tab_bar(void)
 	}
 }
 
-void change_to_current_tab(const char *input)
+static void change_to_current_tab(const char *input)
 {
 	Uint8 channel;
 	int itab;
@@ -2136,46 +2236,18 @@ int command_jlc(char * text, int len)
 ////////////////////////////////////////////////////////////////////////
 //  channel color stuff
 
-channelcolor channel_colors[MAX_CHANNEL_COLORS];
-char channel_number_buffer[10] = {0};
-Uint32 channel_to_change = 0;
-int selected_color = -1;
+#define COLROWS 7
+#define COLCOLS 4
+
+static Uint32 channel_to_change = 0;
+static int selected_color = -1;
 static int channel_colors_set = 0;
+static int channel_color_win = -1;
+static int color_set_button_id = COLROWS * COLCOLS;
+static int color_delete_button_id = COLROWS * COLCOLS + 1;
+static int color_label_id = COLROWS * COLCOLS + 2;
 
-int channel_color_win = -1;
-int color_button1_id = 0;
-int color_button2_id = 7;
-int color_button3_id = 14;
-int color_button4_id = 21;
-int color_button5_id = 1;
-int color_button6_id = 8;
-int color_button7_id = 15;
-int color_button8_id = 22;
-int color_button9_id = 2;
-int color_button10_id = 9;
-int color_button11_id = 16;
-int color_button12_id = 23;
-int color_button13_id = 3;
-int color_button14_id = 10;
-int color_button15_id = 17;
-int color_button16_id = 24;
-int color_button17_id = 4;
-int color_button18_id = 11;
-int color_button19_id = 18;
-int color_button20_id = 25;
-int color_button21_id = 5;
-int color_button22_id = 12;
-int color_button23_id = 19;
-int color_button24_id = 26;
-int color_button25_id = 6;
-int color_button26_id = 13;
-int color_button27_id = 20;
-int color_button28_id = 27;
-int color_set_button_id = 31;
-int color_delete_button_id = 32;
-int color_label_id = 41;
-
-int display_channel_color_handler(window_info *win)
+static int display_channel_color_handler(window_info *win)
 {
 	char string[50] = {0};
 
@@ -2184,10 +2256,22 @@ int display_channel_color_handler(window_info *win)
 	return 1;
 }
 
-int click_channel_color_handler(widget_list *w, int mx, int my, Uint32 flags)
+static void set_button_highlight(widget_list *w, int set_on)
 {
-	if(w->id >= color_button1_id && w->id <= color_button28_id)
+	if (w == NULL)
+		return;
+	if (set_on)
+		widget_set_flags(w->window_id, w->id, BUTTON_ACTIVE);
+	else
+		widget_unset_flags(w->window_id, w->id, BUTTON_ACTIVE);
+}
+
+static int click_channel_color_handler(widget_list *w, int mx, int my, Uint32 flags)
+{
+	if(w->id >= 0 && w->id < COLROWS * COLCOLS)
 	{
+		set_button_highlight(widget_find(w->window_id, selected_color), 0);
+		set_button_highlight(w, 1);
 		selected_color = w->id;
 		do_click_sound();
 		return 1;
@@ -2258,11 +2342,53 @@ int click_channel_color_handler(widget_list *w, int mx, int my, Uint32 flags)
 	return 0;
 }
 
-int display_channel_color_win(Uint32 channel_number)
+static int hide_channel_color_handler(window_info *win)
+{
+	set_button_highlight(widget_find(win->window_id, selected_color), 0);
+	return 1;
+}
+
+static int ui_scale_color_handler(window_info *win)
+{
+	int row, col;
+	int button_width = (int)(0.5 + 110 * win->current_scale);
+	int button_height = (int)(0.5 + 30 * win->current_scale);
+	int spacing = (int)(0.5 + win->current_scale * 10);
+	float label_size = 0.9 * win->current_scale;
+	int buttons_offset = 2 * spacing + label_size * DEFAULT_FONT_Y_LEN;
+	int len_x = 0;
+	int len_y = 0;
+
+	widget_set_size(win->window_id, color_label_id, 0.9 * win->current_scale);
+	widget_resize(win->window_id, color_label_id, widget_get_width(win->window_id, color_label_id) * win->current_scale, widget_get_height(win->window_id, color_label_id) * win->current_scale);
+	widget_move(win->window_id, color_label_id, spacing, spacing);
+
+	for (row = 0; row < COLROWS; row++)
+		for (col = 0; col < COLCOLS; col++)
+		{
+			button_resize(win->window_id, row + COLROWS * col, button_width, button_height, win->current_scale);
+			widget_move(win->window_id, row + COLROWS * col, spacing + col * (button_width + spacing), buttons_offset + row * (button_height + spacing));
+		}
+
+	button_resize(win->window_id, color_set_button_id, 0, 0, win->current_scale);
+	button_resize(win->window_id, color_delete_button_id, 0, 0, win->current_scale);
+
+	len_x = spacing * (COLCOLS + 1) + COLCOLS * button_width;
+	len_y = buttons_offset + COLROWS * (button_height + spacing) + widget_get_height(win->window_id, color_set_button_id) + spacing;
+
+	widget_move(win->window_id, color_set_button_id, (len_x/2 - widget_get_width(win->window_id, color_set_button_id)) / 2, len_y - spacing - widget_get_height(win->window_id, color_set_button_id));
+	widget_move(win->window_id, color_delete_button_id, len_x/2 + (len_x/2 - widget_get_width(win->window_id, color_delete_button_id)) / 2, len_y - spacing - widget_get_height(win->window_id, color_delete_button_id));
+
+	resize_window(win->window_id, len_x, len_y);
+	if (win->pos_y - win->title_height < get_tab_bar_y() * 1.25)
+		move_window(win->window_id, win->pos_id, win->pos_loc, win->pos_x, win->title_height + get_tab_bar_y() * 1.25);
+
+	return 1;
+}
+
+static int display_channel_color_win(Uint32 channel_number)
 {
 	int our_root_win = -1;
-	int x, y = 6;
-	int window_width = 470;
 
 	if(channel_number == 0){
 		return -1;
@@ -2276,120 +2402,72 @@ int display_channel_color_win(Uint32 channel_number)
 			our_root_win = game_root_win;
 		}
 		/* Create the window */
-		channel_color_win = create_window(channel_color_title_str, our_root_win, 0, 300, 40, window_width, 350, ELW_WIN_DEFAULT);
+		channel_color_win = create_window(channel_color_title_str, our_root_win, 0, 300, 0, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 		set_window_handler(channel_color_win, ELW_HANDLER_DISPLAY, &display_channel_color_handler);
+		set_window_handler(channel_color_win, ELW_HANDLER_HIDE, &hide_channel_color_handler);
+		set_window_handler(channel_color_win, ELW_HANDLER_UI_SCALE, &ui_scale_color_handler);
+
 		/* Add labels */
-		x = 10;
-		color_label_id = label_add_extended(channel_color_win, color_label_id, NULL, x, y, 0, 0.9f, 0.77f, 0.57f, 0.39f, channel_color_str);
+		color_label_id = label_add_extended(channel_color_win, color_label_id, NULL, 0, 0, 0, 0.9f, 0.77f, 0.57f, 0.39f, channel_color_str);
+
 		/* Add color buttons */
-		y += 24;
-		color_button1_id = button_add_extended(channel_color_win, color_button1_id, NULL, x, y, 107, 30, 0, 1.0, 1.0, 0.7, 0.76, "red1");
-		widget_set_OnClick(channel_color_win, color_button1_id, click_channel_color_handler);
-		x += 115;
-		color_button2_id = button_add_extended(channel_color_win, color_button2_id, NULL, x, y, 107, 30, 0, 1.0, 0.98, 0.35, 0.35, "red2");
-		widget_set_OnClick(channel_color_win, color_button2_id, click_channel_color_handler);
-		x += 115;
-		color_button3_id = button_add_extended(channel_color_win, color_button3_id, NULL, x, y, 107, 30, 0, 1.0, 0.87, 0.0, 0.0, "red3");
-		widget_set_OnClick(channel_color_win, color_button3_id, click_channel_color_handler);
-		x += 115;
-		color_button4_id = button_add_extended(channel_color_win, color_button4_id, NULL, x, y, 107, 30, 0, 1.0, 0.49, 0.01, 0.01, "red4");
-		widget_set_OnClick(channel_color_win, color_button4_id, click_channel_color_handler);
-		x = 10;
-		y += 39;
-		color_button5_id = button_add_extended(channel_color_win, color_button5_id, NULL, x, y, 107, 30, 0, 1.0, 0.97, 0.77, 0.62, "orange1");
-		widget_set_OnClick(channel_color_win, color_button5_id, click_channel_color_handler);
-		x += 115;
-		color_button6_id = button_add_extended(channel_color_win, color_button6_id, NULL, x, y, 107, 30, 0, 1.0, 0.99, 0.48, 0.23, "orange2");
-		widget_set_OnClick(channel_color_win, color_button6_id, click_channel_color_handler);
-		x += 115;
-		color_button7_id = button_add_extended(channel_color_win, color_button7_id, NULL, x, y, 107, 30, 0, 1.0, 0.75, 0.4, 0.06, "orange3");
-		widget_set_OnClick(channel_color_win, color_button7_id, click_channel_color_handler);
-		x += 115;
-		color_button8_id = button_add_extended(channel_color_win, color_button8_id, NULL, x, y, 107, 30, 0, 1.0, 0.51, 0.19, 0.01, "orange4");
-		widget_set_OnClick(channel_color_win, color_button8_id, click_channel_color_handler);
-		x = 10;
-		y += 39;
-		color_button9_id = button_add_extended(channel_color_win, color_button9_id, NULL, x, y, 107, 30, 0, 1.0, 0.98, 0.98, 0.75, "yellow1");
-		widget_set_OnClick(channel_color_win, color_button9_id, click_channel_color_handler);
-		x += 115;
-		color_button10_id = button_add_extended(channel_color_win, color_button10_id, NULL, x, y, 107, 30, 0, 1.0, 0.99, 0.93, 0.22, "yellow2");
-		widget_set_OnClick(channel_color_win, color_button10_id, click_channel_color_handler);
-		x += 115;
-		color_button11_id = button_add_extended(channel_color_win, color_button11_id, NULL, x, y, 107, 30, 0, 1.0, 0.91, 0.68, 0.08, "yellow3");
-		widget_set_OnClick(channel_color_win, color_button11_id, click_channel_color_handler);
-		x += 115;
-		color_button12_id = button_add_extended(channel_color_win, color_button12_id, NULL, x, y, 107, 30, 0, 1.0, 0.51, 0.44, 0.02, "yellow4");
-		widget_set_OnClick(channel_color_win, color_button12_id, click_channel_color_handler);
-		x = 10;
-		y += 39;
-		color_button13_id = button_add_extended(channel_color_win, color_button13_id, NULL, x, y, 107, 30, 0, 1.0, 0.79, 1.0, 0.8, "green1");
-		widget_set_OnClick(channel_color_win, color_button13_id, click_channel_color_handler);
-		x += 115;
-		color_button14_id = button_add_extended(channel_color_win, color_button14_id, NULL, x, y, 107, 30, 0, 1.0, 0.02, 0.98, 0.61, "green2");
-		widget_set_OnClick(channel_color_win, color_button14_id, click_channel_color_handler);
-		x += 115;
-		color_button15_id = button_add_extended(channel_color_win, color_button15_id, NULL, x, y, 107, 30, 0, 1.0, 0.15, 0.77, 0.0, "green3");
-		widget_set_OnClick(channel_color_win, color_button15_id, click_channel_color_handler);
-		x += 115;
-		color_button16_id = button_add_extended(channel_color_win, color_button16_id, NULL, x, y, 107, 30, 0, 1.0, 0.08, 0.58, 0.02, "green4");
-		widget_set_OnClick(channel_color_win, color_button16_id, click_channel_color_handler);
-		x = 10;
-		y += 39;
-		color_button17_id = button_add_extended(channel_color_win, color_button17_id, NULL, x, y, 107, 30, 0, 1.0, 0.66, 0.94, 0.98, "blue1");
-		widget_set_OnClick(channel_color_win, color_button17_id, click_channel_color_handler);
-		x += 115;
-		color_button18_id = button_add_extended(channel_color_win, color_button18_id, NULL, x, y, 107, 30, 0, 1.0, 0.46, 0.59, 0.97, "blue2");
-		widget_set_OnClick(channel_color_win, color_button18_id, click_channel_color_handler);
-		x += 115;
-		color_button19_id = button_add_extended(channel_color_win, color_button19_id, NULL, x, y, 107, 30, 0, 1.0, 0.27, 0.28, 0.82, "blue3");
-		widget_set_OnClick(channel_color_win, color_button19_id, click_channel_color_handler);
-		x += 115;
-		color_button20_id = button_add_extended(channel_color_win, color_button20_id, NULL, x, y, 107, 30, 0, 1.0, 0.06, 0.06, 0.73, "blue4");
-		widget_set_OnClick(channel_color_win, color_button20_id, click_channel_color_handler);
-		x = 10;
-		y += 39;
-		color_button21_id = button_add_extended(channel_color_win, color_button21_id, NULL, x, y, 107, 30, 0, 1.0, 0.82, 0.71, 0.98, "purple1");
-		widget_set_OnClick(channel_color_win, color_button21_id, click_channel_color_handler);
-		x += 115;
-		color_button22_id = button_add_extended(channel_color_win, color_button22_id, NULL, x, y, 107, 30, 0, 1.0, 0.85, 0.36, 0.96, "purple2");
-		widget_set_OnClick(channel_color_win, color_button22_id, click_channel_color_handler);
-		x += 115;
-		color_button23_id = button_add_extended(channel_color_win, color_button23_id, NULL, x, y, 107, 30, 0, 1.0, 0.51, 0.33, 0.96, "purple3");
-		widget_set_OnClick(channel_color_win, color_button23_id, click_channel_color_handler);
-		x += 115;
-		color_button24_id = button_add_extended(channel_color_win, color_button24_id, NULL, x, y, 107, 30, 0, 1.0, 0.42, 0.0, 0.67, "purple4");
-		widget_set_OnClick(channel_color_win, color_button24_id, click_channel_color_handler);
-		x = 10;
-		y += 39;
-		color_button25_id = button_add_extended(channel_color_win, color_button25_id, NULL, x, y, 107, 30, 0, 1.0, 1.0, 1.0, 1.0, "grey1");
-		widget_set_OnClick(channel_color_win, color_button25_id, click_channel_color_handler);
-		x += 115;
-		color_button26_id = button_add_extended(channel_color_win, color_button26_id, NULL, x, y, 107, 30, 0, 1.0, 0.6, 0.6, 0.6, "grey2");
-		widget_set_OnClick(channel_color_win, color_button26_id, click_channel_color_handler);
-		x += 115;
-		color_button27_id = button_add_extended(channel_color_win, color_button27_id, NULL, x, y, 107, 30, 0, 1.0, 0.62, 0.62, 0.62, "grey3");
-		widget_set_OnClick(channel_color_win, color_button27_id, click_channel_color_handler);
-		x += 115;
-		color_button28_id = button_add_extended(channel_color_win, color_button28_id, NULL, x, y, 107, 30, 0, 1.0, 0.16, 0.16, 0.16, "grey4");
-		widget_set_OnClick(channel_color_win, color_button28_id, click_channel_color_handler);
+		{
+			int row, col;
+			char *name[COLROWS][COLROWS] = {{"red1", "red2", "red3", "red4"},
+							    {"orange1", "orange2", "orange3", "orange4" },
+							    {"yellow1", "yellow2", "yellow3", "yellow5"},
+							    {"green1", "green2", "green3", "green4"},
+							    {"blue1", "blue2", "blue3", "blue4"},
+							    {"purple1", "purple2", "purple3", "purple4"},
+							    {"grey1", "grey3", "grey3", "grey4"}};
+			for (row = 0; row < COLROWS; row++)
+				for (col = 0; col < COLCOLS; col++)
+				{
+					size_t the_colour = row + COLROWS * col;
+					button_add_extended(channel_color_win, the_colour, NULL, 0, 0, 0, 0, 0, 1.0,
+						colors_list[the_colour].r1/256.0, colors_list[the_colour].g1/256.0, colors_list[the_colour].b1/256.0, name[row][col]);
+					widget_set_OnClick(channel_color_win, the_colour, click_channel_color_handler);
+				}
+		}
+
 		/* Add set/delete buttons */
-		x = (window_width - 100 - 110) /3;
-		y += 44;
-		color_set_button_id = button_add_extended(channel_color_win, color_set_button_id, NULL, x, y, 110, 30, 0, 1.0, 0.77f, 0.57f, 0.39f, channel_color_add_str);
+		color_set_button_id = button_add_extended(channel_color_win, color_set_button_id, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, channel_color_add_str);
 		widget_set_OnClick(channel_color_win, color_set_button_id, click_channel_color_handler);
-		x += x + 110;
-		color_delete_button_id = button_add_extended(channel_color_win, color_delete_button_id, NULL, x, y, 110, 30, 0, 1.0, 0.77f, 0.57f, 0.39f, channel_color_delete_str);
+		color_delete_button_id = button_add_extended(channel_color_win, color_delete_button_id, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, channel_color_delete_str);
 		widget_set_OnClick(channel_color_win, color_delete_button_id, click_channel_color_handler);
+
+		/* scale the window */
+		if (channel_color_win >= 0 && channel_color_win < windows_list.num_windows)
+			ui_scale_color_handler(&windows_list.window[channel_color_win]);
 	} 
 	else
 	{
 		toggle_window(channel_color_win);
 	}
 
+	/* highlight the button if there is an active colour */
+	if (get_show_window(channel_color_win))
+	{
+		int i;
+		for(i=0; i<MAX_CHANNEL_COLORS; i++)
+		{
+			if(channel_colors[i].nr == channel_to_change)
+			{
+				if (channel_colors[i].color >= 0)
+				{
+					selected_color = channel_colors[i].color;
+					set_button_highlight(widget_find(channel_color_win, selected_color), 1);
+				}
+				break;
+			}
+		}
+	}
+
 	return channel_color_win;
 }
 
-void load_channel_colors (){
+void load_channel_colors ()
+{
 	char fname[128];
 	FILE *fp;
 	int i;
@@ -2443,7 +2521,8 @@ void load_channel_colors (){
 	channel_colors_set = 1;
 }
 
-void save_channel_colors(){
+void save_channel_colors()
+{
 	char fname[128];
 	FILE *fp;
 
@@ -2481,4 +2560,210 @@ int command_channel_colors(char * text, int len)
 		}
 	}
 	return 1;
+}
+
+int get_tab_bar_x(void)
+{
+	if (use_windowed_chat == 1 && tab_bar_win >= 0 && tab_bar_win < windows_list.num_windows)
+		return windows_list.window[tab_bar_win].pos_x;
+	return 10;
+}
+
+int get_tab_bar_y(void)
+{
+	if (use_windowed_chat == 1 && tab_bar_win >= 0 && tab_bar_win < windows_list.num_windows)
+		return 4 + windows_list.window[tab_bar_win].pos_y + windows_list.window[tab_bar_win].len_y;
+	return 20;
+}
+
+void next_channel_tab(void)
+{
+	int next_tab;
+	widget_list *widget;
+	tab_collection *collection;
+	switch(use_windowed_chat)
+	{
+		case 1: //Tabs
+			if(current_tab == tabs_in_use-1)
+			{
+				next_tab = 2;
+			}
+			else
+			{
+				next_tab = current_tab + 1;
+			}
+			switch_to_tab(next_tab);
+		break;
+		case 2: //Window
+			widget = widget_find(chat_win, chat_tabcollection_id);
+			collection = widget->widget_info;
+			if(active_tab == collection->nr_tabs - 1)
+			{
+				next_tab = 2;
+			}
+			else
+			{
+				next_tab = active_tab + 1;
+			}
+			switch_to_chat_tab(channels[next_tab].tab_id, 0);
+		break;
+		default:
+			break;
+	}
+}
+
+void prev_channel_tab(void)
+{
+	int next_tab;
+	widget_list *widget;
+	tab_collection *collection;
+	switch(use_windowed_chat)
+	{
+		case 1: //Tab
+			if(current_tab == 2)
+			{
+				next_tab = tabs_in_use-1;
+			}
+			else
+			{
+				next_tab = current_tab-1;
+			}
+			switch_to_tab(next_tab);
+			break;
+		case 2: //Window
+			widget = widget_find(chat_win, chat_tabcollection_id);
+			collection = widget->widget_info;
+			if(active_tab == 2)
+			{
+				next_tab = collection->nr_tabs - 1;
+			}
+			else
+			{
+				next_tab = active_tab - 1;
+			}
+			switch_to_chat_tab(channels[next_tab].tab_id, 0);
+		break;
+		default:
+			break;
+	}
+}
+
+void update_text_windows (text_message * pmsg)
+{
+	if (console_root_win >= 0) update_console_win (pmsg);
+	switch (use_windowed_chat) {
+		case 0:
+			rewrap_message(pmsg, chat_zoom, get_console_text_width(), NULL);
+			lines_to_show += pmsg->wrap_lines;
+			if (lines_to_show > 10) lines_to_show = 10;
+			break;
+		case 1:
+			update_tab_bar (pmsg);
+			break;
+		case 2:
+			update_chat_window (pmsg, 1);
+			break;
+	}
+}
+
+void recolour_message(text_message *msg){
+	if (msg->chan_idx >= CHAT_CHANNEL1 && msg->chan_idx <= CHAT_CHANNEL3 && msg->len > 0 && msg->data[0] && !msg->deleted)
+	{
+		int i;
+		for(i=0; i< MAX_CHANNEL_COLORS; i++)
+		{
+			if(channel_colors[i].nr == msg->channel)
+				break;
+		}
+		if(i< MAX_CHANNEL_COLORS && channel_colors[i].color != -1) {
+			msg->data[0] = to_color_char (channel_colors[i].color);
+		} else if (active_channels[current_channel] != msg->channel){
+			msg->data[0] = to_color_char (c_grey2);
+		} else {
+			msg->data[0] = to_color_char (c_grey1);
+		}
+	}
+}
+
+void recolour_messages(text_message *msgs){
+	int i;
+	for(i=0;i<DISPLAY_TEXT_BUFFER_SIZE && msgs[i].data;++i){
+		recolour_message(&msgs[i]);
+	}
+}
+
+void reset_tab_channel_colours(void)
+{
+	int i;
+	for (i=0; i < MAX_CHAT_TABS; i++) {
+		if (channels[i].open) {
+			tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[i].tab_id, -1.0f, -1.0f, -1.0f);
+		}
+	}
+}
+
+
+int skip_message (const text_message *msg, Uint8 filter)
+{
+	int skip = 0;
+	int channel = msg->chan_idx;
+	if (filter == FILTER_ALL) return 0;
+	if (channel != filter)
+	{
+		switch (channel)
+		{
+			case CHAT_LOCAL:    skip = local_chat_separate;    break;
+			case CHAT_PERSONAL: skip = personal_chat_separate; break;
+			case CHAT_GM:       skip = guild_chat_separate;    break;
+			case CHAT_SERVER:   skip = server_chat_separate;   break;
+			case CHAT_MOD:      skip = mod_chat_separate;      break;
+			case CHAT_MODPM:    skip = 0;                      break;
+			default:            skip = 1;
+		}
+	}
+	switch (channel) {
+		case CHAT_CHANNEL1:
+		case CHAT_CHANNEL2:
+		case CHAT_CHANNEL3:
+			skip = (msg->channel != active_channels[filter - CHAT_CHANNEL1]);
+	}
+	return skip;
+}
+
+static node_t *p_channel_queue = NULL;
+
+void set_first_tab_channel(void)
+{
+	p_channel_queue = queue_front_node(chan_name_queue);
+}
+
+const char * get_tab_channel_name(void)
+{
+	if (p_channel_queue != NULL)
+		return ((chan_name*)(p_channel_queue->data))->name;
+	else
+		return NULL;
+}
+
+void set_next_tab_channel(void)
+{
+	if (p_channel_queue != NULL)
+		p_channel_queue = p_channel_queue->next;
+}
+
+void change_to_channel_tab(const char *line)
+{
+	switch(use_windowed_chat)
+	{
+		case 1:
+			if(tabs[current_tab].channel != CHAT_ALL) {
+				change_to_current_tab(line);
+			}
+		break;
+		case 2:
+			if(channels[active_tab].chan_nr != CHAT_ALL) {
+				change_to_current_chat_tab(line);
+			}
+		break;
+	}
 }
