@@ -309,19 +309,12 @@ static int click_console_handler(window_info *win, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-static int show_console_handler (window_info *win) {
-	int i;
-
-	for (i=0; i < MAX_CHAT_TABS; i++) {
-		if (channels[i].open) {
-			tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[i].tab_id, -1.0f, -1.0f, -1.0f);
-		}
-	}
-
+static int show_console_handler (window_info *win)
+{
+	reset_tab_channel_colours();
 	hide_window(book_win);
 	hide_window(paper_win);
 	hide_window(color_race_win);
-
 	if (use_windowed_chat == 1) {
 		display_tab_bar ();
 	}

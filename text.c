@@ -131,24 +131,6 @@ void cleanup_text_buffers(void)
 		free_text_message_data (display_text_buffer + i);
 }
 
-void update_text_windows (text_message * pmsg)
-{
-	if (console_root_win >= 0) update_console_win (pmsg);
-	switch (use_windowed_chat) {
-		case 0:
-			rewrap_message(pmsg, chat_zoom, get_console_text_width(), NULL);
-			lines_to_show += pmsg->wrap_lines;
-			if (lines_to_show > 10) lines_to_show = 10;
-			break;
-		case 1:
-			update_tab_bar (pmsg);
-			break;
-		case 2:
-			update_chat_window (pmsg, 1);
-			break;
-	}
-}
-
 void open_chat_log(){
 	char starttime[200], sttime[200];
 	struct tm *l_time; time_t c_time;
@@ -285,19 +267,7 @@ void send_input_text_line (char *line, int line_len)
 	int len;
 	Uint8 ch;
 
-	switch(use_windowed_chat)
-	{
-		case 1:
-			if(tabs[current_tab].channel != CHAT_ALL) {
-				change_to_current_tab(line);
-			}
-		break;
-		case 2:
-			if(channels[active_tab].chan_nr != CHAT_ALL) {
-				change_to_current_chat_tab(line);
-			}
-		break;
-	}
+	change_to_channel_tab(line);
 
 	if ( caps_filter && line_len > 4 && my_isupper (line, -1) )
 		my_tolower (line);

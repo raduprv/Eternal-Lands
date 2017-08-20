@@ -1526,16 +1526,6 @@ int widget_handle_keypress (widget_list *widget, int mx, int my, Uint32 key, Uin
  */
 int AddXMLWindow(char *fn);
 
-/*!
- * \brief checks if message fits the filter.
- *
- * \param[in] msg message to test.
- * \param[in] filter filter.
- *
- * \return 1 if message doesnt fit filter (should be skipped), 0 otherwise.
- */
-int skip_message (const text_message *msg, Uint8 filter);
-
 #ifdef __cplusplus
 } // extern "C"
 #endif

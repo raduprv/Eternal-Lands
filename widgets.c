@@ -1774,33 +1774,6 @@ void _text_field_set_nr_lines (widget_list *w, int nr_lines)
 	}
 }
 
-int skip_message (const text_message *msg, Uint8 filter)
-{
-	int skip = 0;
-	int channel = msg->chan_idx;
-	if (filter == FILTER_ALL) return 0;
-	if (channel != filter)
-	{
-		switch (channel)
-		{
-			case CHAT_LOCAL:    skip = local_chat_separate;    break;
-			case CHAT_PERSONAL: skip = personal_chat_separate; break;
-			case CHAT_GM:       skip = guild_chat_separate;    break;
-			case CHAT_SERVER:   skip = server_chat_separate;   break;
-			case CHAT_MOD:      skip = mod_chat_separate;      break;
-			case CHAT_MODPM:    skip = 0;                      break;
-			default:            skip = 1;
-		}
-	}
-	switch (channel) {
-		case CHAT_CHANNEL1:
-		case CHAT_CHANNEL2:
-		case CHAT_CHANNEL3:
-			skip = (msg->channel != active_channels[filter - CHAT_CHANNEL1]);
-	}
-	return skip;
-}
-
 void text_field_find_cursor_line(text_field* tf)
 {
 	int i, line = 0;

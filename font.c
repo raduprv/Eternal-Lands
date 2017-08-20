@@ -232,34 +232,6 @@ int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, float display
 	return(displayed_font_x_width);	// return how far to move for the next character
 }
 
-#ifndef MAP_EDITOR2
-void recolour_message(text_message *msg){
-	if (msg->chan_idx >= CHAT_CHANNEL1 && msg->chan_idx <= CHAT_CHANNEL3 && msg->len > 0 && msg->data[0] && !msg->deleted)
-	{
-		int i;
-		for(i=0; i< MAX_CHANNEL_COLORS; i++)
-		{
-			if(channel_colors[i].nr == msg->channel)
-				break;
-		}
-		if(i< MAX_CHANNEL_COLORS && channel_colors[i].color != -1) {
-			msg->data[0] = to_color_char (channel_colors[i].color);
-		} else if (active_channels[current_channel] != msg->channel){
-			msg->data[0] = to_color_char (c_grey2);
-		} else {
-			msg->data[0] = to_color_char (c_grey1);
-		}
-	}
-}
-#endif
-
-void recolour_messages(text_message *msgs){
-	int i;
-	for(i=0;i<DISPLAY_TEXT_BUFFER_SIZE && msgs[i].data;++i){
-		recolour_message(&msgs[i]);
-	}
-}
-
 void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filter, int msg_start, int offset_start, int cursor, int width, int height, float text_zoom, select_info* select)
 {
 	float displayed_font_x_size = DEFAULT_FONT_X_LEN * text_zoom;

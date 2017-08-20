@@ -1348,7 +1348,7 @@ int display_game_handler (window_info *win)
 		if (find_last_lines_time (&msg, &offset, filter, get_console_text_width()))
 		{
 			set_font(chat_font);	// switch to the chat font
-			draw_messages (10, use_windowed_chat == 1 ? 25 : 20, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, filter, msg, offset, -1, get_console_text_width(), (int) (1 + lines_to_show * 18 * chat_zoom), chat_zoom, NULL);
+			draw_messages (get_tab_bar_x(), get_tab_bar_y(), display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, filter, msg, offset, -1, get_console_text_width(), (int) (1 + lines_to_show * DEFAULT_FONT_Y_LEN * chat_zoom), chat_zoom, NULL);
 			set_font (0);	// switch to fixed
 		}
 	}
@@ -1949,75 +1949,11 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	}
 	else if(key == K_NEXT_CHAT_TAB)
 	{
-		int next_tab;
-		widget_list *widget;
-		tab_collection *collection;
-		switch(use_windowed_chat)
-		{
-			case 1: //Tabs
-				if(current_tab == tabs_in_use-1)
-				{
-					next_tab = 2;
-				}
-				else
-				{
-					next_tab = current_tab + 1;
-				}
-				switch_to_tab(next_tab);
-			break;
-			case 2: //Window
-				widget = widget_find(chat_win, chat_tabcollection_id);
-				collection = widget->widget_info;
-				if(active_tab == collection->nr_tabs - 1)
-				{
-					next_tab = 2;
-				}
-				else
-				{
-					next_tab = active_tab + 1;
-				}
-				switch_to_chat_tab(channels[next_tab].tab_id, 0);
-			break;
-			default:
-				return 0;
-			break;
-		}
+		next_channel_tab();
 	}
 	else if(key == K_PREV_CHAT_TAB)
 	{
-		int next_tab;
-		widget_list *widget;
-		tab_collection *collection;
-		switch(use_windowed_chat)
-		{
-			case 1: //Tab
-				if(current_tab == 2)
-				{
-					next_tab = tabs_in_use-1;
-				}
-				else
-				{
-					next_tab = current_tab-1;
-				}
-				switch_to_tab(next_tab);
-				break;
-			case 2: //Window
-				widget = widget_find(chat_win, chat_tabcollection_id);
-				collection = widget->widget_info;
-				if(active_tab == 2)
-				{
-					next_tab = collection->nr_tabs - 1;
-				}
-				else
-				{
-					next_tab = active_tab - 1;
-				}
-				switch_to_chat_tab(channels[next_tab].tab_id, 0);
-			break;
-			default:
-				return 0;
-			break;
-		}
+		prev_channel_tab();
 	}
 	else if (key == K_WINDOWS_ON_TOP)
 	{

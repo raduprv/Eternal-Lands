@@ -224,7 +224,6 @@ struct compl_str tab_complete(const text_message *input, unsigned int cursor_pos
 		const char *input_string = (char*)input->data;
 		int count;
 		short retries;
-		node_t *step;
 
 		if(!have_last_complete) {
 			if(cursor_pos > 0 &&
@@ -302,13 +301,13 @@ struct compl_str tab_complete(const text_message *input, unsigned int cursor_pos
 					}
 				break;
 				case CHANNEL:
-					for(step = queue_front_node(chan_name_queue), count = 0; step->next != NULL; step = step->next) {
-						if(strncasecmp(((chan_name*)(step->data))->name, last_complete, strlen(last_complete)) == 0) {
+					for(set_first_tab_channel(), count = 0; get_tab_channel_name() != NULL; set_next_tab_channel()) {
+						if(strncasecmp(get_tab_channel_name(), last_complete, strlen(last_complete)) == 0) {
 							/* Yay! The chan-name begins with the string we're searching for. */
 							if(count > last_str_count) {
 								/* We found something we haven't returned earlier, let's return it. */
 								last_str_count = count++;
-								return_value.str = ((chan_name*)(step->data))->name;
+								return_value.str = get_tab_channel_name();
 								break;
 							}
 							count++;

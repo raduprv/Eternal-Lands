@@ -33,10 +33,6 @@ extern "C" {
 extern int	chat_font; /*!< font size used for chat font */
 extern int	name_font; /*!< font size used for name font */
 
-void recolour_message(text_message *msg);
-
-void recolour_messages(text_message *msgs);
-
 
 /*!
  * \ingroup text_font
