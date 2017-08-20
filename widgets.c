@@ -859,7 +859,7 @@ int square_button_draw(widget_list *W)
 	glEnd();
 
 	glEnable(GL_TEXTURE_2D);
-	draw_string_zoomed(W->pos_x + 2 + extra_space + gx_adjust, W->pos_y + 2 + gy_adjust, (unsigned char *)l->text, 1, W->size);
+	draw_string_zoomed(W->pos_x + 2 + extra_space + gx_adjust, W->pos_y + (W->len_y - DEFAULT_FONT_Y_LEN * W->size) / 2 + 1 + gy_adjust, (unsigned char *)l->text, 1, W->size);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -3318,7 +3318,7 @@ static int multiselect_draw(widget_list *widget)
 			/* Check if the button can be fully drawn */
 			if(button_y > widget->len_y - M->buttons[i].height)
 				break;
-			draw_smooth_button(M->buttons[i].text, widget->size, widget->pos_x+M->buttons[i].x, widget->pos_y+button_y, M->buttons[i].width, 1, r, g, b, (i == M->selected_button), hr, hg, hb, 0.5f);
+			draw_smooth_button(M->buttons[i].text, widget->size, widget->pos_x+M->buttons[i].x, widget->pos_y+button_y, M->buttons[i].width-2*BUTTONRADIUS*widget->size, 1, r, g, b, (i == M->selected_button), hr, hg, hb, 0.5f);
 		}
 	}
 	return 1;

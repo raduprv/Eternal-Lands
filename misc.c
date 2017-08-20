@@ -504,8 +504,6 @@ void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, 
 	
 	if(str){
 		int label_width = get_string_width((unsigned char*)str)*width_ratio;
-		if (label_width + 2 * radius <= w)
-			w -= 2 * radius;
 		xstr=x+radius+(w-(label_width))/2.0f;
 	}
 
