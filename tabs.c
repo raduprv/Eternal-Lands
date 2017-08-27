@@ -33,8 +33,8 @@ int tab_info_y = 70;
 static int ui_scale_stats_handler(window_info *win)
 {
 	int tab_tag_height = 0;
-	int new_width = (int)(0.5 + win->current_scale * 580);
-	int new_height = (int)(0.5 + win->current_scale * 350);
+	int new_width = (int)(0.5 + win->small_font_len_x * 72);
+	int new_height = (int)(0.5 + win->small_font_len_y * 24);
 	widget_list *w = widget_find (win->window_id, tab_stats_collection_id);
 
 	widget_set_size(win->window_id, tab_stats_collection_id, win->current_scale * DEFAULT_SMALL_RATIO);
@@ -80,8 +80,8 @@ void display_tab_stats ()
 static int ui_scale_help_handler(window_info *win)
 {
 	int tab_tag_height = 0;
-	int new_width = (int)(0.5 + win->current_scale * 500);
-	int new_height = (int)(0.5 + win->current_scale * 350);
+	int new_width = (int)(0.5 + win->small_font_len_x * 63);
+	int new_height = (int)(0.5 + win->small_font_len_y * 24);
 	widget_list *w = widget_find (win->window_id, tab_help_collection_id);
 
 	widget_set_size(win->window_id, tab_help_collection_id, win->current_scale * DEFAULT_SMALL_RATIO);

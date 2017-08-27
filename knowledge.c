@@ -39,7 +39,8 @@ static int know_show_win_help = 0;
 static int mouse_over_progress_bar = 0;
 static int selected_book = -1;
 
-static int displayed_book_rows = 16;
+static const int displayed_book_rows = 16;
+static const int info_lines = 5;
 static int booklist_y_len = 0;
 static int booklist_y_step = 0;
 static int progressbox_y_len = 0;
@@ -47,6 +48,7 @@ static int progress_top_y = 0;
 static int progress_bot_y = 0;
 static int progress_right_x = 0;
 static int progress_left_x = 0;
+static int text_border = 0;
 
 static int add_knowledge_book_image(int window_id)
 {
@@ -152,7 +154,9 @@ char *get_research_eta_str(char *str, size_t size)
 
 int display_knowledge_handler(window_info *win)
 {
-	int i,x=2,y=2;
+	size_t i;
+	int x = text_border;
+	int y = text_border;
 	int scroll = vscrollbar_get_pos (win->window_id, knowledge_scroll_id);
 	char points_string[16];
 	char *research_string;
@@ -216,7 +220,7 @@ int display_knowledge_handler(window_info *win)
 	}
 	glEnable(GL_TEXTURE_2D);
 	//draw text
-	scaled_draw_string_small(4,booklist_y_len + win->small_font_len_y/2,(unsigned char*)knowledge_string,5);
+	scaled_draw_string_small(text_border,booklist_y_len + text_border,(unsigned char*)knowledge_string, info_lines);
 	glColor3f(1.0f,1.0f,1.0f);
 	scaled_draw_string_small(10,progress_top_y+3+gy_adjust,(unsigned char*)researching_str,1);
 	scaled_draw_string_small(10+(strlen(researching_str)+1)*win->small_font_len_x,progress_top_y+3+gy_adjust,(unsigned char*)research_string,1);
@@ -272,11 +276,11 @@ int display_knowledge_handler(window_info *win)
 		else
 			draw_string_zoomed(x,y,(unsigned char*)knowledge_list[i].name,1,font_ratio);
 
-		x += (win->len_x-win->box_size)/2;
+		x += (win->len_x-win->box_size-2*text_border)/2;
 		if (i % 2 == 1)
 		{
 			y += booklist_y_step;
-			x = 2;
+			x = text_border;
 		}
 	}
 	if (know_show_win_help)
@@ -433,11 +437,14 @@ static int cm_knowledge_handler(window_info *win, int widget_id, int mx, int my,
 static int resize_knowledge_handler(window_info *win, int new_width, int new_height)
 {
 	int gap_y;
-	int tmp;
+	int image_size = (int)(0.5 + win->current_scale * 50);
+	int label_width = 0;
+	int book_x_off = 0;
 
+	text_border = win->small_font_len_x / 2;
 	booklist_y_step = win->small_font_len_y - 2;
-	booklist_y_len = (int)(3.5 + booklist_y_step * displayed_book_rows);
-	progressbox_y_len = booklist_y_len + (int)(0.5 + win->small_font_len_y * 6);
+	booklist_y_len = 2 * text_border + (int)(0.5 + booklist_y_step * displayed_book_rows);
+	progressbox_y_len = booklist_y_len + 2 * text_border + (int)(0.5 + win->small_font_len_y * info_lines);
 
 	gap_y = (win->len_y - progressbox_y_len - win->small_font_len_y - 4) / 2;
 	progress_top_y = progressbox_y_len + gap_y;
@@ -448,13 +455,17 @@ static int resize_knowledge_handler(window_info *win, int new_width, int new_hei
 	widget_resize(win->window_id, knowledge_scroll_id, win->box_size, booklist_y_len);
 	widget_move(win->window_id, knowledge_scroll_id, win->len_x - win->box_size, 0);
 
-	tmp = (int)(0.5 + win->current_scale * 50);
-	gap_y = booklist_y_len + (progressbox_y_len - booklist_y_len - tmp)/ 2;
-	widget_resize(win->window_id, knowledge_book_image_id, tmp, tmp);
-	widget_move(win->window_id, knowledge_book_image_id, 500 * win->current_scale, gap_y);
-
 	widget_set_size(win->window_id, knowledge_book_label_id, win->current_scale * 0.8);
-	widget_move(win->window_id, knowledge_book_label_id, 485 * win->current_scale, gap_y - win->small_font_len_y);
+	widget_resize(win->window_id, knowledge_book_label_id, strlen(knowledge_read_book) * win->default_font_len_x * 0.8, win->default_font_len_y * 0.8);
+	widget_resize(win->window_id, knowledge_book_image_id, image_size, image_size);
+
+	label_width = widget_get_width(win->window_id, knowledge_book_label_id);
+	book_x_off = (label_width > image_size) ?label_width :image_size;
+	gap_y = booklist_y_len + (progressbox_y_len - booklist_y_len - image_size)/ 2;
+
+	widget_move(win->window_id, knowledge_book_label_id, progress_right_x - book_x_off/2 - label_width/2, gap_y - win->small_font_len_y);
+	widget_move(win->window_id, knowledge_book_image_id, progress_right_x - book_x_off/2 - image_size/2, gap_y);
+
 
 	return 0;
 }

@@ -648,30 +648,30 @@ void init_attribf()
 
 static void draw_stat(int x, int y, attrib_16 * var, names * name)
 {
-        char str[9];
-        safe_snprintf(str,sizeof(str),"%2i/%-2i",var->cur,var->base);
-        str[8]=0;
+        char str[10];
+        safe_snprintf(str,sizeof(str),"%3i/%-3i",var->cur,var->base);
+        str[9]=0;
         draw_stat_final(x,y,name->name,str);
 }
 
-static void draw_skill(int x, int y, attrib_16 * lvl, names * name, int exp, int exp_next)
+static void draw_skill(int x, int y, attrib_16 * lvl, names * name, Uint32 exp, Uint32 exp_next)
 {
         char str[37];
         char lvlstr[9];
         char expstr[25];
 
-        safe_snprintf(lvlstr, sizeof(lvlstr), "%2i/%-2i", lvl->cur, lvl->base);
-        safe_snprintf(expstr,sizeof(expstr),"[%2i/%-2i]", exp, exp_next);
+        safe_snprintf(lvlstr, sizeof(lvlstr), "%3i/%-3i", lvl->cur, lvl->base);
+        safe_snprintf(expstr,sizeof(expstr),"%10u/%-10u", exp, exp_next);
         safe_snprintf(str, sizeof(str), "%-7s %-22s", lvlstr, expstr);
         draw_stat_final(x, y, name->name, str);
 }
 
 static void draw_statf(int x, int y, attrib_16f * var, names * name)
 {
-        char str[9];
+        char str[10];
 
-        safe_snprintf(str,sizeof(str),"%2i/%-2i",var->cur(),var->base());
-        str[8]=0;
+        safe_snprintf(str,sizeof(str),"%3i/%-3i",var->cur(),var->base());
+        str[9]=0;
         draw_stat_final(x,y,name->name,str);
 }
 
@@ -679,7 +679,7 @@ static void draw_stat_final(int x, int y, const unsigned char * name, const char
 {
         char str[80];
 
-        safe_snprintf(str,sizeof(str),"%-14s %s",name,value);
+        safe_snprintf(str,sizeof(str),"%-15s %s",name,value);
         scaled_draw_string_small(x, y, (unsigned char*)str, 1);
 }
 
@@ -687,13 +687,13 @@ int display_stats_handler(window_info *win)
 {
         player_attribs cur_stats = your_info;
         char str[10];
-        int x = (int)(0.5 + win->current_scale * 5);
-        int c2_x_offset = (int)(0.5 + win->current_scale * 200);
-        int start_y = (int)(0.5 + win->current_scale * 5);
+        int x = (0.5 + win->small_font_len_x / 2);
+        int c2_x_offset = (int)(0.5 + win->small_font_len_x * 26);
+        int start_y = (int)(0.5 + win->small_font_len_y / 2);
         int y = start_y;
-        int y_gap_step = (int)(0.5 + win->current_scale * 20);
+        int y_gap_step = (int)(0.5 + win->small_font_len_y * 1.5 );
 
-        stats_y_step = (int)(0.5 + win->current_scale * 14);
+        stats_y_step = (int)(0.5 + win->small_font_len_y);
 
         scaled_draw_string_small(x,y,attributes.base,1);
         y+=stats_y_step;
@@ -746,16 +746,10 @@ int display_stats_handler(window_info *win)
         y+=stats_y_step;
         draw_statf(x,y,&(cur_stats.eth),&(attributes.eth));
 
+        // draw the point attributes
         glColor3f(0.5f,0.5f,1.0f);
-        y+=stats_y_step;  // blank lines for spacing
-        y+=stats_y_step;  // blank lines for spacing
 
-        //other attribs
         y+=y_gap_step;
-        safe_snprintf(str, sizeof(str), "%i",cur_stats.food_level);
-        draw_stat_final(x,y,attributes.food.name,str);
-
-        y+=stats_y_step;
         draw_stat(x,y,&(cur_stats.material_points),&(attributes.material_points));
 
         y+=stats_y_step;
@@ -765,7 +759,11 @@ int display_stats_handler(window_info *win)
         draw_stat(x,y,&(cur_stats.action_points),&(attributes.action_points));
 
         //other info
-        safe_snprintf(str, sizeof(str), "%i",cur_stats.overall_skill.base-cur_stats.overall_skill.cur);
+        y = win->len_y - win->small_font_len_y * 1.25;
+        safe_snprintf(str, sizeof(str), "%3i",cur_stats.food_level);
+        draw_stat_final(x,y,attributes.food.name,str);
+
+        safe_snprintf(str, sizeof(str), "%3i",cur_stats.overall_skill.base-cur_stats.overall_skill.cur);
         draw_stat_final(x+c2_x_offset,y,attributes.pickpoints,str);
 
         //nexuses here

@@ -22,7 +22,6 @@
 #include "translate.h"
 
 #define NUM_COUNTERS 14
-#define NUM_LINES 18
 #define MAX(a,b) (a > b ? a : b)
 
 /* Counter IDs */
@@ -66,6 +65,7 @@ static int sort_counter_id = KILLS;
 static int entries[NUM_COUNTERS];
 static int sort_by[NUM_COUNTERS];
 static int multiselect_id = -1;
+static int NUM_LINES = 0;
 
 static int mouseover_name = 0;
 static int mouseover_session = 0;
@@ -100,7 +100,7 @@ static const char *session_str = "This Session";
 static const char *total_str = "Total";
 static const char *totals_str = "Totals:";
 
-static const char *cat_str[NUM_COUNTERS] = { "Kills", "Deaths", "Harvests", "Alchemy", "Crafting", "Manufac.",
+static const char *cat_str[NUM_COUNTERS] = { "Kills", "Deaths", "Harvests", "Alchemy", "Crafting", "Manufacturing",
 	"Potions", "Spells", "Summons", "Engineering", "Breakages", "Events", "Tailoring", "Crit Fails" };
 
 static const char *temp_event_string[] =
@@ -615,12 +615,17 @@ static int cm_counters_handler(window_info *win, int widget_id, int mx, int my, 
 
 static int resize_counters_handler(window_info *win, int new_width, int new_height)
 {
-	int i;
+	size_t i;
+	int max_label_len = 0;
 	int current_selected;
-	int butt_y[14] = {0, 25, 125, 150, 175, 200, 225, 250, 275, 300, 50, 100, 325, 75 };
-	int gap_x = (int)(0.5 + win->current_scale * 10);
+	int butt_y[NUM_COUNTERS] = {0, 1, 5, 6, 7, 8, 9, 10, 11, 12, 2, 4, 13, 3 };
+	int gap_x = win->small_font_len_x / 2;
 
-	left_panel_width = (int)(0.5 + win->current_scale * 125);
+	for (i=0; i<NUM_COUNTERS; i++)
+		if (strlen(cat_str[i]) > max_label_len)
+			max_label_len = strlen(cat_str[i]);
+
+	left_panel_width = 2 * gap_x + max_label_len * win->small_font_len_x + 2 * (int)(DEFAULT_SMALL_RATIO * win->current_scale * BUTTONRADIUS);
 	name_x_start = left_panel_width + gap_x;
 	name_x_end = name_x_start + (int)(0.5 + win->small_font_len_x * (float)strlen(name_str));
 
@@ -632,30 +637,33 @@ static int resize_counters_handler(window_info *win, int new_width, int new_heig
 	session_x_start = session_x_end - (int)(0.5 + win->small_font_len_x * (float)strlen(session_str));
 	session_x_num_start = session_x_end - (int)(0.5 + win->small_font_len_x * 11);
 
-	margin_y_len = (int)(0.5 + win->current_scale * 25);
-	space_y = (int)(0.5 + win->current_scale * 5);
-	step_y = (int)(0.5 + win->current_scale * 16);
-
-	widget_resize(win->window_id, counters_scroll_id, win->box_size, win->len_y - 2 * margin_y_len);
-	widget_move(win->window_id, counters_scroll_id, win->len_x - win->box_size, margin_y_len);
-
-	cm_remove_regions(win->window_id);
-	cm_add_region(cm_counters, win->window_id, left_panel_width, (margin_y_len + space_y),
-		win->len_x - win->box_size - left_panel_width, NUM_LINES * step_y);
+	margin_y_len = win->small_font_len_y * 1.5;
+	space_y = win->small_font_len_y / 2;
+	step_y = win->small_font_len_y;
+	NUM_LINES = (int)((new_height - 2 * margin_y_len - 2 * space_y) / step_y);
 
 	// for now, destory then re-create the buttons as there is no clear way to resize them
 	if (multiselect_id >= 0)
 	{
 		current_selected = multiselect_get_selected(win->window_id, multiselect_id);
 		widget_destroy(win->window_id, multiselect_id);
+		multiselect_id = -1;
 	}
 	else
 		current_selected = 0;
 
-	multiselect_id = multiselect_add(win->window_id, NULL, gap_x/2, 2, 115 * win->current_scale);
-	for (i=0; i<14; i++)
+	widget_resize(win->window_id, counters_scroll_id, win->box_size, win->len_y - 2 * margin_y_len);
+	widget_move(win->window_id, counters_scroll_id, win->len_x - win->box_size, margin_y_len);
+	vscrollbar_set_bar_len(win->window_id, counters_scroll_id, MAX(0, entries[current_selected] - NUM_LINES));
+
+	cm_remove_regions(win->window_id);
+	cm_add_region(cm_counters, win->window_id, left_panel_width, (margin_y_len + space_y),
+		win->len_x - win->box_size - left_panel_width, NUM_LINES * step_y);
+
+	multiselect_id = multiselect_add(win->window_id, NULL, gap_x, gap_x, left_panel_width - 2 * gap_x);
+	for (i=0; i<NUM_COUNTERS; i++)
 		multiselect_button_add_extended(win->window_id, multiselect_id,
-			0, butt_y[i] * win->current_scale, 0, cat_str[i], DEFAULT_SMALL_RATIO * win->current_scale, i==0);
+			0, (int)((new_height - gap_x) / NUM_COUNTERS) * butt_y[i], 0, cat_str[i], DEFAULT_SMALL_RATIO * win->current_scale, i==0);
 
 	multiselect_set_selected(win->window_id, multiselect_id, current_selected);
 
@@ -664,15 +672,13 @@ static int resize_counters_handler(window_info *win, int new_width, int new_heig
 
 void fill_counters_win(int window_id)
 {
-	int idx = selected_counter_id > 0 ? selected_counter_id-1 : 0;
-
 	set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_counters_handler);
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_counters_handler);
 	set_window_handler(window_id, ELW_HANDLER_MOUSEOVER, &mouseover_counters_handler);
 	set_window_handler(window_id, ELW_HANDLER_RESIZE, &resize_counters_handler);
 
 	counters_scroll_id = vscrollbar_add_extended(window_id, counters_scroll_id, NULL, 0, 0, 0, 0, 0,
-		1.0f, 0.77f, 0.57f, 0.39f, 0, 1, MAX(0, entries[idx] - NUM_LINES));
+		1.0f, 0.77f, 0.57f, 0.39f, 0, 1, 0);
 
 	if (cm_counters == CM_INIT_VALUE)
 	{
