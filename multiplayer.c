@@ -1024,7 +1024,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  LOG_WARNING("CAUTION: Possibly forged SPELL_ITEM_TEXT packet received.\n");
 				  break;
 				}
-				put_small_text_in_box(in_data+3, data_length-3, 6*51+100, (char*)spell_text);
+				spell_text_from_server(in_data+3, data_length-3);
 				if(sigil_win==-1||!windows_list.window[sigil_win].displayed)
 					put_text_in_buffer (CHAT_SERVER, in_data+3, data_length-3);
 				have_error_message=1;
