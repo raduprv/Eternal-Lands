@@ -48,8 +48,6 @@ extern int sigil_menu_y;
 
 extern int sigils_text;
 
-extern Uint8 spell_text[256]; /*!< buffer for the spell text */
-
 extern int have_error_message; /*!< flag that indicates whether we got an error message */
 
 extern int spell_result;
@@ -182,6 +180,7 @@ void init_quickspell();
 void add_spell_to_quickbar();
 int get_quickspell_y_base();
 int we_are_poisoned();
+void spell_text_from_server(const Uint8 *in_data, int data_length);
 #ifdef NEW_SOUND
 void restart_active_spell_sounds(void);
 #endif
