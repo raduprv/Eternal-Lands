@@ -1120,7 +1120,7 @@ void scaled_put_small_colored_text_in_box (Uint8 color, const Uint8 *text_to_add
 		buffer[last_text++] = to_color_char (color);
 
 	//see if the text fits on the screen
-	x_chars_limit = (int)(0.5 + pixels_limit / (SMALL_FONT_X_LEN * scale));
+	x_chars_limit = pixels_limit / (int)(0.5 + SMALL_FONT_X_LEN * scale);
 	if (len <= x_chars_limit)
 	{
 		for (i = 0; i < len; i++)

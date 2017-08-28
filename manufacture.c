@@ -705,7 +705,7 @@ static int	display_manufacture_handler(window_info *win)
 	//now, draw the inventory text, if any.
 	if (last_items_string_id != inventory_item_string_id)
 	{
-		scaled_put_small_text_in_box((unsigned char*)inventory_item_string, strlen(inventory_item_string), win->len_x-4*win->small_font_len_x, items_string);
+		scaled_put_small_text_in_box((unsigned char*)inventory_item_string, strlen(inventory_item_string), win->len_x-2*win->small_font_len_x, items_string);
 		last_items_string_id = inventory_item_string_id;
 	}
 	scaled_draw_string_small(win->small_font_len_x,manufacture_menu_y_len-text_y_offset,(unsigned char *)items_string,4);

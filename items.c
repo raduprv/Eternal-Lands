@@ -628,7 +628,7 @@ int display_items_handler(window_info *win)
 	//now, draw the inventory text, if any.
 	if (last_items_string_id != inventory_item_string_id)
 	{
-		scaled_put_small_text_in_box((unsigned char*)inventory_item_string, strlen(inventory_item_string), win->len_x-10, items_string);
+		scaled_put_small_text_in_box((unsigned char*)inventory_item_string, strlen(inventory_item_string), win->len_x-8, items_string);
 		last_items_string_id = inventory_item_string_id;
 	}
 	scaled_draw_string_small(4, win->len_y - text_y_offset, (unsigned char*)items_string, 4);
