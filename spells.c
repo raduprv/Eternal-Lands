@@ -138,10 +138,9 @@ static int spell_icon_y = 0;
 static int cast_button_id = 100;
 static int clear_button_id = 101;
 //mini window
-int spell_mini_x_len=0;
-int spell_mini_y_len=0;
-int spell_mini_rows=0;
-
+static int spell_mini_rows=0;
+static int spell_mini_grid_size = 0;
+static int spell_mini_border = 0;
 
 /* spell duration state */
 static Uint16 requested_durations = 0;
@@ -979,8 +978,9 @@ void draw_spell_icon(int id,int x_start, int y_start, int gridsize, int alpha, i
 	
 }
 
-void draw_current_spell(int x, int y, int sigils_too){
+void draw_current_spell(window_info *win, int x, int y, int sigils_too, int grid_size){
 
+	int start_x = x;
 	glEnable(GL_TEXTURE_2D);
 	glColor3f(1.0f,1.0f,1.0f);
 	if(we_have_spell>=0){
@@ -988,60 +988,75 @@ void draw_current_spell(int x, int y, int sigils_too){
 		unsigned char str[4];
 		//we have a current spell (cliked or casted) !!mqb_data[0] can still be null!!
 		j=we_have_spell;
-		draw_spell_icon(spells_list[j].image,x,y,32,1,0);
+		draw_spell_icon(spells_list[j].image,x,y,grid_size-1,1,0);
 
 		if(sigils_too){
 			//draw sigils	
-			x+=33*2;
+			x+=grid_size*2;
 			for(i=0;i<MAX_SIGILS;i++){
 				if (spells_list[j].sigils[i]<0) break;				
-				draw_spell_icon(spells_list[j].sigils[i],x+33*i,y,32,0,spells_list[j].uncastable&UNCASTABLE_SIGILS);
-				if(spells_list[j].uncastable&UNCASTABLE_SIGILS&&!sigils_list[spells_list[j].sigils[i]].have_sigil) gray_out(x+33*i,y,32);
+				draw_spell_icon(spells_list[j].sigils[i],x+grid_size*i,y,grid_size-1,0,spells_list[j].uncastable&UNCASTABLE_SIGILS);
+				if(spells_list[j].uncastable&UNCASTABLE_SIGILS&&!sigils_list[spells_list[j].sigils[i]].have_sigil) gray_out(x+grid_size*i,y,grid_size-1);
 			}
 		}
 
 		//draw reagents
-		x+= (sigils_too) ? (33*MAX_SIGILS+33):(33+16);
+		x+= (sigils_too) ? (grid_size*MAX_SIGILS+grid_size):(grid_size*1.5);
 		for(i=0;spells_list[j].reagents_id[i]>0;i++) { 	
-			draw_item(spells_list[j].reagents_id[i],x+33*i,y,33);
+			draw_item(spells_list[j].reagents_id[i],x+grid_size*i,y,grid_size);
 			safe_snprintf((char *)str, sizeof(str), "%i",spells_list[j].reagents_qt[i]);
-			draw_string_small_shadowed(x+33*i, y+21, (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);
-			if(spells_list[j].uncastable&UNCASTABLE_REAGENTS) gray_out(x+33*i,y+1,32);
+			if (win->is_scalable)
+				scaled_draw_string_small_shadowed(x+grid_size*i, y+grid_size*0.5, (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);
+			else
+				draw_string_small_shadowed(x+grid_size*i, y+grid_size*0.5, (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);
+			if(spells_list[j].uncastable&UNCASTABLE_REAGENTS) gray_out(x+grid_size*i,y+1,grid_size-1);
 		}
 		//draw mana
-		x+=(sigils_too) ? (33*5):(33*4+17);
+		x+=(sigils_too) ? (grid_size*5):(grid_size*4+grid_size*0.5);
 		safe_snprintf((char *)str, sizeof(str), "%i",spells_list[j].mana);
 		if (spells_list[j].uncastable&UNCASTABLE_MANA) glColor3f(1.0f,0.0f,0.0f);
 		else glColor3f(0.0,1.0,0.0);
-		i=(33-get_string_width(str))/2;
-		j=(33-get_char_width(str[0]))/2;
-		draw_string(x+i,y+j,str,1);
+		i=(grid_size - win->current_scale * get_string_width(str))/2;
+		j=(grid_size - win->current_scale * get_char_width(str[0]))/2;
+		if (win->is_scalable)
+			scaled_draw_string(x+i,y+j,str,1);
+		else
+			draw_string(x+i,y+j,str,1);
 	}
 	
 	//draw strings	
-	x=20;
+	x=start_x;
 	glColor3f(0.77f,0.57f,0.39f);
 	if(sigils_too) { 
-		x+=33*2; 
-		draw_string_small(x,y-15,(unsigned char*)"Sigils",1);
-		x+=33*MAX_SIGILS+33;
-	} else x+=33+16;
+		x+=grid_size*2;
+		if (win->is_scalable)
+			scaled_draw_string_small(x, y - win->small_font_len_y, (unsigned char*)"Sigils", 1);
+		else
+			draw_string_small(x, y - win->small_font_len_y, (unsigned char*)"Sigils", 1);
+		x+=grid_size*MAX_SIGILS+grid_size;
+	} else x += grid_size * 1.5;
 
-	draw_string_small(x,y-15,(unsigned char*)"Reagents",1);
-	x+=33*4+((sigils_too) ? (33):(17));
-	draw_string_small(x,y-15,(unsigned char*)"Mana",1);
+	if (win->is_scalable)
+		scaled_draw_string_small(x, y - win->small_font_len_y, (unsigned char*)"Reagents", 1);
+	else
+		draw_string_small(x, y - win->small_font_len_y, (unsigned char*)"Reagents", 1);
+	x+=grid_size*4+((sigils_too) ? (grid_size):(grid_size*0.5));
+	if (win->is_scalable)
+		scaled_draw_string_small(x, y - win->small_font_len_y, (unsigned char*)"Mana", 1);
+	else
+		draw_string_small(x, y - win->small_font_len_y, (unsigned char*)"Mana", 1);
 
 	//draw grids
 	glDisable(GL_TEXTURE_2D);
-	x=20;
+	x=start_x;
 	if(sigils_too) { 
-		x+=33*2; 
-		rendergrid (MAX_SIGILS, 1, x, y, 33, 33);
-		x+=33*MAX_SIGILS+33;
-	} else x+=33+16;
-	rendergrid (4, 1, x, y, 33, 33);
-	x+=33*4+((sigils_too) ? (33):(17));
-	rendergrid (1, 1, x, y, 33, 33);
+		x+=grid_size*2;
+		rendergrid (MAX_SIGILS, 1, x, y, grid_size, grid_size);
+		x+=grid_size*MAX_SIGILS+grid_size;
+	} else x+=grid_size*1.5;
+	rendergrid (4, 1, x, y, grid_size, grid_size);
+	x+=grid_size*4+((sigils_too) ? (grid_size):(grid_size*0.5));
+	rendergrid (1, 1, x, y, grid_size, grid_size);
 }
 
 int display_sigils_handler(window_info *win)
@@ -1142,7 +1157,7 @@ int display_spells_handler(window_info *win){
 	draw_string_small(20,spell_y_len+5,spell_help,2);
 
 	//draw the bottom bar
-	draw_current_spell(20,spell_y_len-37,1);
+	draw_current_spell(win,20,spell_y_len-37,1,33);
 	if(we_have_spell>=0&&spells_list[we_have_spell].uncastable){
 		//not castable
 		glColor3f(1.0f,0.0f,0.0f);
@@ -1157,20 +1172,21 @@ CHECK_GL_ERRORS();
 }
 
 
-int display_spells_mini_handler(window_info *win){
-
-	int i,j,x,y,cg,cs;
+static int display_spells_mini_handler(window_info *win)
+{
+	int i,j,cg,cs;
+	int x = spell_mini_border;
+	int y = spell_mini_border;
 
 	draw_switcher(win);	
 
 	glEnable(GL_TEXTURE_2D);
-	x=20;y=10;
 	glColor3f(1.0f,1.0f,1.0f);
 	for (i=0,cs=0,cg=0;i<spell_mini_rows;i++)
 		for (j=0;j<SPELLS_ALIGN_X;j++){
 			if (cs==groups_list[cg].spells) {cs=0; cg++; break;}
 			draw_spell_icon(spells_list[groups_list[cg].spells_id[cs]].image,
-					x+j*33,y+33*i,32,
+					x + j * spell_mini_grid_size, y + spell_mini_grid_size * i, spell_mini_grid_size - 1,
 					0,spells_list[groups_list[i].spells_id[j]].uncastable);
 			cs++;
 		}
@@ -1178,30 +1194,32 @@ int display_spells_mini_handler(window_info *win){
 	//draw spell help
 	if(on_spell==-2) {
 		//mouse over the bottom-left selected spell icon, show uncastability
-		int l=(int)(get_string_width((unsigned char*)GET_UNCASTABLE_STR(spells_list[we_have_spell].uncastable))*(float)DEFAULT_SMALL_RATIO);
+		int l=(int)(get_string_width((unsigned char*)GET_UNCASTABLE_STR(spells_list[we_have_spell].uncastable))*(float)DEFAULT_SMALL_RATIO * win->current_scale);
 		SET_COLOR(c_red2);
-		draw_string_small(20+(33*SPELLS_ALIGN_X-l)/2,spell_mini_y_len-37-35,(unsigned char*)GET_UNCASTABLE_STR(spells_list[we_have_spell].uncastable),1);		
+		scaled_draw_string_small(spell_mini_border + (spell_mini_grid_size * SPELLS_ALIGN_X - l) / 2,
+			win->len_y - spell_mini_grid_size - spell_mini_border  - 2.5 * win->small_font_len_y,
+			(unsigned char*)GET_UNCASTABLE_STR(spells_list[we_have_spell].uncastable),1);
 	} else {
 		i=(on_spell>=0) ? (on_spell):(we_have_spell);
 		if(i>=0){
-			int l=(int)(get_string_width((unsigned char*)spells_list[i].name)*(float)DEFAULT_SMALL_RATIO);
+			int l=(int)(get_string_width((unsigned char*)spells_list[i].name) * (float)DEFAULT_SMALL_RATIO * win->current_scale);
 			if (on_spell>=0) SET_COLOR(c_grey1);
 			else SET_COLOR(c_green3);
-			draw_string_small(20+(33*SPELLS_ALIGN_X-l)/2,spell_mini_y_len-37-35,(unsigned char*)spells_list[i].name,1);
+			scaled_draw_string_small(spell_mini_border + (spell_mini_grid_size * SPELLS_ALIGN_X - l) / 2,
+				win->len_y - spell_mini_grid_size - spell_mini_border - 2.5 * win->small_font_len_y, (unsigned char*)spells_list[i].name, 1);
 		}
 	}
-	
 
 	//draw the current spell
-	draw_current_spell(x,spell_mini_y_len-37,0);
+	draw_current_spell(win, x, win->len_y - spell_mini_grid_size - spell_mini_border, 0, spell_mini_grid_size);
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(0.77f,0.57f,0.39f);
-	rendergrid(SPELLS_ALIGN_X,spell_mini_rows,x,y,33,33);
-	
+	rendergrid(SPELLS_ALIGN_X, spell_mini_rows, x, y, spell_mini_grid_size, spell_mini_grid_size);
+
 	if(we_have_spell>=0&&spells_list[we_have_spell].uncastable){
 		//not castable, red grid
 		glColor3f(1.0f,0.0f,0.0f);
-		rendergrid(1,1,20,spell_mini_y_len-37,33,33);
+		rendergrid(1, 1, spell_mini_border, win->len_y - spell_mini_grid_size - spell_mini_border, spell_mini_grid_size, spell_mini_grid_size);
 	}
 
 	glEnable(GL_TEXTURE_2D);
@@ -1337,15 +1355,17 @@ int click_spells_handler(window_info *win, int mx, int my, Uint32 flags){
 	last_clicked = SDL_GetTicks();	
 	return 0;
 }
-int click_spells_mini_handler(window_info *win, int mx, int my, Uint32 flags){
 
+
+static int click_spells_mini_handler(window_info *win, int mx, int my, Uint32 flags)
+{
 	int pos;
 	static int last_clicked=0;
 	static int last_pos=-1;
 
 	if (!(flags & ELW_MOUSE_BUTTON)) return 0;
 
-	pos=get_mouse_pos_in_grid(mx,my, SPELLS_ALIGN_X, spell_mini_rows, 20, 10, 33, 33);	
+	pos=get_mouse_pos_in_grid(mx,my, SPELLS_ALIGN_X, spell_mini_rows, spell_mini_border, spell_mini_border, spell_mini_grid_size, spell_mini_grid_size);
 	if (pos>=0){
 		int i,j,cs,cg,the_spell=-1,the_group=-1,the_pos=pos;		
 		//find the spell clicked
@@ -1367,7 +1387,8 @@ int click_spells_mini_handler(window_info *win, int mx, int my, Uint32 flags){
 		}
 	} else {
 		//check if clicked on the spell icon
-		if(we_have_spell>=0&&mx>=20&&mx<=53&&my>=spell_mini_y_len-37&&my<=spell_mini_y_len-4) {
+		if(we_have_spell>=0 && mx>=spell_mini_border && mx<=spell_mini_border+spell_mini_grid_size &&
+				my>=win->len_y-spell_mini_grid_size-spell_mini_border && my<=win->len_y-spell_mini_border) {
 			if(flags & ELW_LEFT_MOUSE) {
 				if (put_on_cast()) cast_handler();
 			} else if (flags & ELW_RIGHT_MOUSE) {
@@ -1492,9 +1513,11 @@ int mouseover_spells_handler(window_info *win, int mx, int my){
 	}
 	return 0;
 }
-int mouseover_spells_mini_handler(window_info *win, int mx, int my){
 
-	int pos=get_mouse_pos_in_grid(mx,my, SPELLS_ALIGN_X, spell_mini_rows, 20, 10, 33, 33);	
+
+static int mouseover_spells_mini_handler(window_info *win, int mx, int my)
+{
+	int pos=get_mouse_pos_in_grid(mx,my, SPELLS_ALIGN_X, spell_mini_rows, spell_mini_border, spell_mini_border, spell_mini_grid_size, spell_mini_grid_size);
 	on_spell=-1;
 	if (pos>=0){
 		int i,j,cs,cg,the_spell=-1,the_group=-1,the_pos=pos;		
@@ -1509,7 +1532,8 @@ int mouseover_spells_mini_handler(window_info *win, int mx, int my){
 			}
 		}
 		if(the_spell!=-1) on_spell=groups_list[the_group].spells_id[the_spell];
-	} else if(mx>20&&mx<53&&my>spell_mini_y_len-37&&my<spell_mini_y_len-4&&we_have_spell>=0) {
+	} else if(mx > spell_mini_border && mx < spell_mini_border + spell_mini_grid_size &&
+				my > win->len_y - spell_mini_grid_size - spell_mini_border && my < win->len_y - spell_mini_border && we_have_spell >= 0) {
 		//check spell icon
 		on_spell=-2; //draw uncastability reason
 	}
@@ -2264,12 +2288,10 @@ void calc_spell_windows(){
 	spell_mini_rows=0;
 	for(i=0;i<num_groups;i++)
 		spell_mini_rows+=groups_list[i].spells/(SPELLS_ALIGN_X+1)+1;
-	spell_mini_x_len=SPELLS_ALIGN_X*33+50;
-	spell_mini_y_len=10+33*spell_mini_rows+20+30+37;
 }
 
 
-int ui_scale_sigils_handler(window_info *win)
+static int ui_scale_sigils_handler(window_info *win)
 {
 	int but_space = 0;
 	int len_x, len_y;
@@ -2293,6 +2315,20 @@ int ui_scale_sigils_handler(window_info *win)
 
 	resize_window(win->window_id, len_x, len_y);
 
+	return 1;
+}
+
+
+static int ui_scale_spells_mini_handler(window_info *win)
+{
+	int len_x, len_y;
+
+	spell_mini_border = (int)(0.5 + win->current_scale * 5);
+	spell_mini_grid_size = (int)(0.5 + win->current_scale * 33);
+	len_x = SPELLS_ALIGN_X * spell_mini_grid_size + 2 * spell_mini_border + win->box_size;
+	len_y = spell_mini_border + spell_mini_grid_size * spell_mini_rows + 3 * win->small_font_len_y + spell_mini_grid_size + spell_mini_border;
+
+	resize_window(win->window_id, len_x, len_y);
 	return 1;
 }
 
@@ -2368,19 +2404,23 @@ void display_sigils_menu()
 	} 
 
 	if(spell_mini_win < 0){
-		//create mini spell win		
+		//create mini spell win
 		int our_root_win = -1;
 
 		if (!windows_on_top) {
 			our_root_win = game_root_win;
 		}
-		spell_mini_win= create_window("Spells", our_root_win, 0, sigil_menu_x, sigil_menu_y, spell_mini_x_len, spell_mini_y_len, ELW_WIN_DEFAULT);
+		spell_mini_win= create_window("Spells", our_root_win, 0, sigil_menu_x, sigil_menu_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 
 		set_window_handler(spell_mini_win, ELW_HANDLER_DISPLAY, &display_spells_mini_handler );
 		set_window_handler(spell_mini_win, ELW_HANDLER_CLICK, &click_spells_mini_handler );
 		set_window_handler(spell_mini_win, ELW_HANDLER_MOUSEOVER, &mouseover_spells_mini_handler );
+		set_window_handler(spell_mini_win, ELW_HANDLER_UI_SCALE, &ui_scale_spells_mini_handler );
 
-		hide_window(spell_mini_win);	
+		if (spell_mini_win >= 0 && spell_mini_win < windows_list.num_windows)
+			ui_scale_spells_mini_handler(&windows_list.window[spell_mini_win]);
+
+		hide_window(spell_mini_win);
 		if(start_mini_spells) sigil_win=spell_mini_win;
 	} 
 	check_castability();
