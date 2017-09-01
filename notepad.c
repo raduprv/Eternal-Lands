@@ -775,7 +775,7 @@ static int click_buttonwin_handler(window_info* UNUSED(win),
 static int resize_buttonwin_handler(window_info *win, int new_width, int new_height)
 {
 	widget_list *scroll_w = widget_find(win->window_id, note_button_scroll_id);
-	int but_space = (win->len_x - win->box_size - widget_space * 3) / 2;
+	int but_space = (win->len_x - win->box_size - widget_space * 4) / 2;
 	widget_list *wnew = widget_find(main_note_tab_id, new_note_button_id);
 	widget_list *wsave = widget_find(main_note_tab_id, save_notes_button_id);
 	int tab_tag_height = tab_collection_calc_tab_height(win->current_scale * note_tab_zoom);
