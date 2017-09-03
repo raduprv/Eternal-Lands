@@ -2,20 +2,16 @@
 #include <string.h>
 #include <errno.h>
 #include "spells.h"
-#include "actors.h"
 #include "asc.h"
 #include "cursors.h"
 #include "context_menu.h"
-#include "elconfig.h"
 #include "elwindows.h"
 #include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
-#include "init.h"
 #include "interface.h"
 #include "items.h"
 #include "item_info.h"
-#include "stats.h"
 #include "colors.h"
 #include "multiplayer.h"
 #include "named_colours.h"
@@ -2008,7 +2004,7 @@ int get_quickspell_y_base(void)
 
 static int display_quickspell_handler(window_info *win)
 {
-	int x,y,width,i;
+	int i;
 	static int last_num_quickbar_slots = -1;
 
 	// Check for a change of the number of quickbar slots
@@ -2032,17 +2028,12 @@ CHECK_GL_ERRORS();
 
 	for(i=1;i<num_quickbar_slots+1;i++) {
 		if(mqb_data[i] && mqb_data[i]->spell_name[0]){
-			x=quickspell_size/2;
-			y=(i-1) * quickbar_y_space + UI_SCALED_VALUE(15);
-			width=quickspell_size/2;
-			
 			if(quickspell_over==i){	//highlight if we are hovering over
 				glColor4f(1.0f,1.0f,1.0f,1.0f);
 			} else {	//otherwise shade it a bit
 				glColor4f(1.0f,1.0f,1.0f,0.6f);
 			}
-
-			draw_spell_icon(mqb_data[i]->spell_image,x-width,y-width,quickspell_size,0,0);
+			draw_spell_icon(mqb_data[i]->spell_image, 0, (i-1) * quickbar_y_space + (quickbar_y_space - quickspell_size) / 2, quickspell_size,0,0);
 		}
 	}
 
@@ -2051,7 +2042,9 @@ CHECK_GL_ERRORS();
 	glDisable(GL_ALPHA_TEST);
 
 	if(quickspell_over!=-1 && mqb_data[quickspell_over])
-		scaled_show_help(mqb_data[quickspell_over]->spell_name, -UI_SCALED_VALUE(10)-UI_SCALED_VALUE(strlen(mqb_data[quickspell_over]->spell_name)*SMALL_FONT_X_LEN), (quickspell_over-1)*quickbar_y_space + UI_SCALED_VALUE(10));
+		scaled_show_help(mqb_data[quickspell_over]->spell_name,
+			-((strlen(mqb_data[quickspell_over]->spell_name) + 1) * win->small_font_len_x),
+			(quickspell_over - 1) * quickbar_y_space + (quickbar_y_space - win->small_font_len_y) / 2);
 	quickspell_over=-1;
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -2134,30 +2127,35 @@ static void cm_update_quickspells(void)
 	cm_add_region(cm_quickspells_id, quickspell_win, 0, 0, quickspell_x_len, active_y_len);
 }
 
+static int ui_scale_quickspell_handler(window_info *win)
+{
+	quickspell_size = (int)(0.5 + win->current_scale * 20);
+	quickspell_x_len = (int)(0.5 + win->current_scale * 26);
+	quickspell_x = (int)(0.5 + win->current_scale * 60);
+	quickspell_y = (int)(0.5 + win->current_scale * 64);
+	quickbar_y_space = (int)(0.5 + win->current_scale * 30);
+	resize_window(win->window_id, quickspell_x_len, get_quickspell_y_len());
+	move_window (win->window_id, -1, 0, window_width - quickspell_x, quickspell_y);
+	return 1;
+}
+
 void init_quickspell(void)
 {
-	static float last_ui_scale = 0.0;
-
-	if (ui_scale != last_ui_scale)
-	{
-		quickspell_size = UI_SCALED_VALUE(20);
-		quickspell_x_len = UI_SCALED_VALUE(26);
-		quickspell_x = UI_SCALED_VALUE(60);
-		quickspell_y = UI_SCALED_VALUE(64);
-		quickbar_y_space = UI_SCALED_VALUE(30);
-		last_ui_scale = ui_scale;
-	}
-
 	if (quickspell_win < 0){
-		quickspell_win = create_window ("Quickspell", -1, 0, window_width - quickspell_x, quickspell_y, quickspell_x_len, get_quickspell_y_len(), ELW_CLICK_TRANSPARENT|ELW_TITLE_NONE|ELW_SHOW_LAST);
+		quickspell_win = create_window ("Quickspell", -1, 0, 0, 0, 0, 0, ELW_USE_UISCALE|ELW_CLICK_TRANSPARENT|ELW_TITLE_NONE|ELW_SHOW_LAST);
 		set_window_handler(quickspell_win, ELW_HANDLER_DISPLAY, &display_quickspell_handler);
 		set_window_handler(quickspell_win, ELW_HANDLER_CLICK, &click_quickspell_handler);
 		set_window_handler(quickspell_win, ELW_HANDLER_MOUSEOVER, &mouseover_quickspell_handler );
+		set_window_handler(quickspell_win, ELW_HANDLER_UI_SCALE, &ui_scale_quickspell_handler );
+
+		if (quickspell_win >= 0 && quickspell_win < windows_list.num_windows)
+			ui_scale_quickspell_handler(&windows_list.window[quickspell_win]);
+
 		cm_quickspells_id = cm_create(cm_quickspell_menu_str, &context_quickspell_handler);
 	} else {
-		resize_window(quickspell_win, quickspell_x_len, get_quickspell_y_len());
+		if (quickspell_win >= 0 && quickspell_win < windows_list.num_windows)
+			ui_scale_quickspell_handler(&windows_list.window[quickspell_win]);
 		show_window (quickspell_win);
-		move_window (quickspell_win, -1, 0, window_width - quickspell_x, quickspell_y);
 	}
 	cm_update_quickspells();
 }

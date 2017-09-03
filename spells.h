@@ -8,8 +8,6 @@
 
 #include <SDL_types.h>
 
-#include "eye_candy_wrapper.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
