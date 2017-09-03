@@ -60,10 +60,8 @@ typedef struct
 	int have_sigil;
 }sigil_def;
 
-sigil_def sigils_list[SIGILS_NO];
+static sigil_def sigils_list[SIGILS_NO];
 int sigils_text;
-int sigils_we_have;
-
 
 typedef struct {
 	int id;//The spell server id
@@ -81,19 +79,21 @@ typedef struct {
 	int uncastable; //0 if castable, otherwise if something missing
 } spell_info;
 
-spell_info spells_list[SPELLS_NO];
-int num_spells=0;
+Uint8 last_spell_str[20];
+static int last_spell_len= 0;
+int spell_result=0;
+int show_poison_count = 0; // elconfig variable
+static spell_info spells_list[SPELLS_NO];
+static int num_spells=0;
 static Uint8 raw_spell_text[TEXTBUFSIZE];
 static unsigned char spell_help[TEXTBUFSIZE];
-Sint8 on_cast[MAX_SIGILS];
-Uint8 last_spell_str[20];
-int last_spell_len= 0;
-int spell_result=0;
+static Sint8 on_cast[MAX_SIGILS];
 static int have_error_message=0;
-int we_have_spell=-1; //selected spell
-int on_spell=-1;//mouse over this spell
-int show_poison_count = 0; // elconfig variable
+static int we_have_spell=-1; //selected spell
+static int on_spell=-1;//mouse over this spell
 static int poison_drop_counter = 0;
+
+static void add_spell_to_quickbar(void);
 
 typedef struct {
 	unsigned char desc[120];
@@ -101,8 +101,8 @@ typedef struct {
 	int spells_id[SPELLS_NO];
 	int x,y;
 } group_def;
-int num_groups=0;
-group_def groups_list[GROUPS_NO];
+static int num_groups=0;
+static group_def groups_list[GROUPS_NO];
 
 typedef struct
 {
@@ -113,18 +113,18 @@ typedef struct
 	unsigned int sound;
 #endif
 } spell_def;
-spell_def active_spells[NUM_ACTIVE_SPELLS];
+static spell_def active_spells[NUM_ACTIVE_SPELLS];
 
 //windows related
 int sigil_win=-1; //this is referred externally so we will change it when we switch windows
-int sigils_win=-1;
-int spell_win=-1;
-int spell_mini_win=-1;
-int last_win=-1;
 int start_mini_spells=0; //do we start minimized?
-int init_ok=0;
 int sigil_menu_x=10;
 int sigil_menu_y=20;
+static int sigils_win=-1;
+static int spell_win=-1;
+static int spell_mini_win=-1;
+static int last_win=-1;
+static int init_ok=0;
 //big window
 static int spell_grid_size = 0;
 static int spell_border = 0;
@@ -138,6 +138,7 @@ static int spell_icon_x = 0;
 static int spell_icon_y = 0;
 static int cast_button_id = 100;
 static int clear_button_id = 101;
+static int show_last_spell_help=0;
 //mini window
 static int spell_mini_rows=0;
 static int spell_mini_grid_size = 0;
@@ -294,9 +295,7 @@ typedef struct {
 } mqbdata;
 
 //QUICKSPELLS
-int clear_mouseover=0;
-int cast_mouseover=0;
-mqbdata * mqb_data[MAX_QUICKBAR_SLOTS+1]={NULL};//mqb_data will hold the magic quickbar name, image, pos.
+static mqbdata * mqb_data[MAX_QUICKBAR_SLOTS+1]={NULL};//mqb_data will hold the magic quickbar name, image, pos.
 static int quickspell_size = -1;	//size of displayed icons in pixels
 static int quickspell_x_len = -1;
 int quickspell_x = -1;
@@ -305,23 +304,23 @@ static int quickbar_y_space = -1;
 static int quickspells_loaded = 0;
 
 
-int cast_handler();
-int prepare_for_cast();
-void draw_spell_icon(int id,int x_start, int y_start, int gridsize, int alpha, int grayed);
-void set_spell_help_text(int spell);
-void init_sigils();
+static int cast_handler(void);
+static int prepare_for_cast(void);
+static void draw_spell_icon(int id,int x_start, int y_start, int gridsize, int alpha, int grayed);
+static void set_spell_help_text(int spell);
+static void init_sigils(void);
 
-size_t cm_quickspells_id = CM_INIT_VALUE;
-void cm_update_quickspells(void);
+static size_t cm_quickspells_id = CM_INIT_VALUE;
+static void cm_update_quickspells(void);
 
 
-void repeat_spell(){
+void repeat_spell(void){
 	if(last_spell_len > 0)
 		my_tcp_send(my_socket, last_spell_str, last_spell_len);
 }
 
 //returns a node with tagname, starts searching from the_node
-xmlNode *get_XML_node(xmlNode *the_node, char *tagname){
+static xmlNode *get_XML_node(xmlNode *the_node, char *tagname){
 	xmlNode *node=the_node;
 
 	while(node) {
@@ -332,7 +331,7 @@ xmlNode *get_XML_node(xmlNode *the_node, char *tagname){
 }
 
 
-attrib_16 *get_skill_address(const char *skillname)
+static attrib_16 *get_skill_address(const char *skillname)
 {
 	if(strcmp(skillname,(char*)attributes.manufacturing_skill.shortname)==0) return &your_info.manufacturing_skill;
 	if(strcmp(skillname,(char*)attributes.alchemy_skill.shortname)==0) return &your_info.alchemy_skill;
@@ -350,7 +349,7 @@ attrib_16 *get_skill_address(const char *skillname)
 	return NULL;
 }
 
-int put_on_cast(){
+static int put_on_cast(void){
 	if(we_have_spell>=0){
 		int i;
 		for(i=0;i<MAX_SIGILS;i++)
@@ -367,7 +366,7 @@ int put_on_cast(){
 	return 0;
 }
 
-int init_spells ()
+int init_spells (void)
 {
 	int i,j;
 	xmlNode *root;
@@ -650,7 +649,7 @@ int init_spells ()
 	return ok;
 }
 
-void check_castability()
+void check_castability(void)
 {
 	int i,j,k,l;
 
@@ -806,7 +805,7 @@ void restart_active_spell_sounds(void)
 }
 #endif // NEW_SOUND
 
-int we_are_poisoned()
+int we_are_poisoned(void)
 {
 	Uint32 i;
 
@@ -820,7 +819,7 @@ int we_are_poisoned()
 	return 0;
 }
 
-void time_out(const float x_start, const float y_start, const float gridsize,
+static void time_out(const float x_start, const float y_start, const float gridsize,
 	const float progress)
 {
 	glDisable(GL_TEXTURE_2D);
@@ -839,7 +838,7 @@ void time_out(const float x_start, const float y_start, const float gridsize,
 	glColor3f(1.0f, 1.0f, 1.0f);
 }
 
-void display_spells_we_have()
+void display_spells_we_have(void)
 {
 	Uint32 i;
 	float scale, duration;
@@ -900,13 +899,11 @@ void display_spells_we_have()
 #endif //OPENGL_TRACE
 }
 
-int show_last_spell_help=0;
-
 
 
 //DISPLAY HANDLERS
 
-int draw_switcher(window_info *win){
+static int draw_switcher(window_info *win){
 
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(0.77f,0.57f,0.39f);
@@ -951,7 +948,7 @@ int draw_switcher(window_info *win){
 	return 1;
 }
 
-void draw_spell_icon(int id,int x_start, int y_start, int gridsize, int alpha, int grayed){
+static void draw_spell_icon(int id,int x_start, int y_start, int gridsize, int alpha, int grayed){
 
 	float u_start,v_start,u_end,v_end;
 
@@ -978,7 +975,7 @@ void draw_spell_icon(int id,int x_start, int y_start, int gridsize, int alpha, i
 	
 }
 
-void draw_current_spell(window_info *win, int x, int y, int sigils_too, int grid_size){
+static void draw_current_spell(window_info *win, int x, int y, int sigils_too, int grid_size){
 
 	int start_x = x;
 	glEnable(GL_TEXTURE_2D);
@@ -1059,7 +1056,7 @@ void draw_current_spell(window_info *win, int x, int y, int sigils_too, int grid
 	rendergrid (1, 1, x, y, grid_size, grid_size);
 }
 
-int display_sigils_handler(window_info *win)
+static int display_sigils_handler(window_info *win)
 {
 	int i;
 	int x_start,y_start;
@@ -1124,7 +1121,7 @@ CHECK_GL_ERRORS();
 
 
 
-int display_spells_handler(window_info *win){
+static int display_spells_handler(window_info *win){
 
 	int i,j,k,x,y;
 	Uint8 spell_text_buf[TEXTBUFSIZE];
@@ -1235,7 +1232,7 @@ CHECK_GL_ERRORS();
 
 
 //CLICK HANDLERS
-int switch_handler(int new_win){
+static int switch_handler(int new_win){
 	window_info *win;
 	int this_win;
 
@@ -1255,7 +1252,7 @@ int switch_handler(int new_win){
 }
 
 
-int click_switcher_handler(window_info *win, int mx, int my, Uint32 flags){
+static int click_switcher_handler(window_info *win, int mx, int my, Uint32 flags){
 
 	if (mx>=win->len_x-win->box_size&&my>=win->box_size&&my<=2*win->box_size) {
 		do_click_sound();
@@ -1270,7 +1267,7 @@ int click_switcher_handler(window_info *win, int mx, int my, Uint32 flags){
 }
 
 
-int click_sigils_handler(window_info *win, int mx, int my, Uint32 flags)
+static int click_sigils_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	// only handle real clicks, not scroll wheel moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0 ) {
@@ -1312,7 +1309,7 @@ int click_sigils_handler(window_info *win, int mx, int my, Uint32 flags)
 	return 0;
 }
 
-int click_spells_handler(window_info *win, int mx, int my, Uint32 flags){
+static int click_spells_handler(window_info *win, int mx, int my, Uint32 flags){
 	int pos,i,the_group=-1,the_spell=-1;
 	static int last_clicked=0;
 	static int last_pos=-1;	
@@ -1411,7 +1408,7 @@ static int click_spells_mini_handler(window_info *win, int mx, int my, Uint32 fl
 
 
 //MOUSEOVER HANDLERS
-int mouseover_sigils_handler(window_info *win, int mx, int my)
+static int mouseover_sigils_handler(window_info *win, int mx, int my)
 {
 	if(!have_error_message) {
 		raw_spell_text[0] = 0;
@@ -1455,7 +1452,7 @@ int mouseover_sigils_handler(window_info *win, int mx, int my)
 }
 
 
-void set_spell_help_text(int spell){
+static void set_spell_help_text(int spell){
 
 	char clr[4];
 
@@ -1488,7 +1485,7 @@ void set_spell_help_text(int spell){
 
 }
 
-int mouseover_spells_handler(window_info *win, int mx, int my){
+static int mouseover_spells_handler(window_info *win, int mx, int my){
 	int i,pos;
 	
 	if(!have_error_message) {
@@ -1570,7 +1567,7 @@ void get_sigils_we_have(Uint32 sigils_we_have, Uint32 sigils2)
 }
 
 
-int have_spell_name(int spell_id)
+static int have_spell_name(int spell_id)
 {
 	int i;
 
@@ -1688,7 +1685,7 @@ void process_network_spell (const char *data, int len)
 //Quickspell I/O start
 
 
-void add_spell_to_quickbar()
+static void add_spell_to_quickbar(void)
 {
 	int i;
 
@@ -1720,7 +1717,7 @@ void add_spell_to_quickbar()
 	cm_update_quickspells();
 }
 
-void remove_spell_from_quickbar (int pos)
+static void remove_spell_from_quickbar (int pos)
 {
 	int i;
 
@@ -1741,7 +1738,7 @@ void remove_spell_from_quickbar (int pos)
 }
 
 
-void move_spell_on_quickbar (int pos, int direction)
+static void move_spell_on_quickbar (int pos, int direction)
 {
 	int i=pos;
 	mqbdata * mqb_temp;
@@ -1835,7 +1832,7 @@ static mqbdata* build_quickspell_data(const Uint32 spell_id)
 	return result;
 }
 
-void load_quickspells ()
+void load_quickspells (void)
 {
 	char fname[128];
 	Uint8 num_spells;
@@ -1923,7 +1920,7 @@ void load_quickspells ()
 	LEAVE_DEBUG_MARK("load spells");
 }
 
-void save_quickspells()
+void save_quickspells(void)
 {
 	char fname[128];
 	FILE *fp;
@@ -1979,10 +1976,10 @@ void save_quickspells()
 
 // Quickspell window start
 
-int quickspell_over=-1;
+static int quickspell_over=-1;
 
 // get the quickbar length - it depends on the numbe rof slots active
-int get_quickspell_y_len(void)
+static int get_quickspell_y_len(void)
 {
 	return num_quickbar_slots * quickbar_y_space;
 }
@@ -1990,7 +1987,7 @@ int get_quickspell_y_len(void)
 /*	returns the y coord position of the active base
 	of the quickspell window.  If spell slots are unused
 	the base is higher */
-int get_quickspell_y_base()
+int get_quickspell_y_base(void)
 {
 	int active_len = quickspell_y + get_quickspell_y_len();
 	int i;
@@ -2009,7 +2006,7 @@ int get_quickspell_y_base()
 }
 
 
-int display_quickspell_handler(window_info *win)
+static int display_quickspell_handler(window_info *win)
 {
 	int x,y,width,i;
 	static int last_num_quickbar_slots = -1;
@@ -2063,7 +2060,7 @@ CHECK_GL_ERRORS();
 	return 1;
 }
 
-int mouseover_quickspell_handler(window_info *win, int mx, int my)
+static int mouseover_quickspell_handler(window_info *win, int mx, int my)
 {
 	int pos;
 
@@ -2076,7 +2073,7 @@ int mouseover_quickspell_handler(window_info *win, int mx, int my)
 	return 0;
 }
 
-int click_quickspell_handler(window_info *win, int mx, int my, Uint32 flags)
+static int click_quickspell_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int pos;
 
@@ -2123,7 +2120,7 @@ static int context_quickspell_handler(window_info *win, int widget_id, int mx, i
 	return 1;
 }
 
-void cm_update_quickspells(void)
+static void cm_update_quickspells(void)
 {
 	int active_y_len = 0, i;
 	if (quickspell_win < 0)
@@ -2137,7 +2134,7 @@ void cm_update_quickspells(void)
 	cm_add_region(cm_quickspells_id, quickspell_win, 0, 0, quickspell_x_len, active_y_len);
 }
 
-void init_quickspell()
+void init_quickspell(void)
 {
 	static float last_ui_scale = 0.0;
 
@@ -2169,7 +2166,7 @@ void init_quickspell()
 
 
 //CAST FUNCTIONS
-int spell_clear_handler()
+static int spell_clear_handler(void)
 {
 	int i;
 
@@ -2204,7 +2201,33 @@ int action_spell_keys(Uint32 key)
 	return 0;
 }
 
-int prepare_for_cast(){
+
+/* show the last spell name and message bytes */
+int command_show_spell(char *text, int len)
+{
+	int i;
+	char out_str[128];
+	char mess_str[64];
+	
+	/* trap if we have no last spell or other invalid strings */
+	if (!*last_spell_name || strlen(last_spell_name)>59 || last_spell_len>30 || last_spell_len<=0)
+	{
+		LOG_TO_CONSOLE(c_green2, no_spell_to_show_str);
+		return 1;
+	}
+	
+	/* create the message body string, each byte in hex */
+	for(i=0; i<last_spell_len; i++)
+		sprintf(&mess_str[2*i], "%02x", last_spell_str[i]);	
+	mess_str[last_spell_len*2] = 0;
+
+	safe_snprintf(out_str, sizeof(out_str), "%s %s", last_spell_name, mess_str );
+	LOG_TO_CONSOLE(c_green2, out_str);
+	
+	return 1;
+}
+
+static int prepare_for_cast(void){
 	Uint8 str[20];
 	int count=0;
 	int sigils_no=0;
@@ -2247,7 +2270,7 @@ int prepare_for_cast(){
 	return sigils_no;
 }
 
-int cast_handler()
+static int cast_handler(void)
 {
 	//Cast?
 
@@ -2446,7 +2469,7 @@ void display_sigils_menu()
 }
 
 
-void init_sigils(){
+static void init_sigils(void){
 	int i;
 
 	i=0;

@@ -1483,32 +1483,6 @@ static int command_cast_spell(char *text, int len)
 }
 
 
-/* show the last spell name and message bytes */
-static int command_show_spell(char *text, int len)
-{
-	int i;
-	char out_str[128];
-	char mess_str[64];
-	
-	/* trap if we have no last spell or other invalid strings */
-	if (!*last_spell_name || strlen(last_spell_name)>59 || last_spell_len>30 || last_spell_len<=0)
-	{
-		LOG_TO_CONSOLE(c_green2, no_spell_to_show_str);
-		return 1;
-	}
-	
-	/* create the message body string, each byte in hex */
-	for(i=0; i<last_spell_len; i++)
-		sprintf(&mess_str[2*i], "%02x", last_spell_str[i]);	
-	mess_str[last_spell_len*2] = 0;
-
-	safe_snprintf(out_str, sizeof(out_str), "%s %s", last_spell_name, mess_str );
-	LOG_TO_CONSOLE(c_green2, out_str);
-	
-	return 1;
-}
-
-
 /* display or test the md5sum of the current map or the specified file */
 int command_ckdata(char *text, int len)
 {
