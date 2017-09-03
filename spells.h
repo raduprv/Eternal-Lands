@@ -48,8 +48,6 @@ extern int sigil_menu_y;
 
 extern int sigils_text;
 
-extern int have_error_message; /*!< flag that indicates whether we got an error message */
-
 extern int spell_result;
 
 extern Uint8 last_spell_str[20];
