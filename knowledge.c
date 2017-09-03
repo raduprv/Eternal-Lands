@@ -30,7 +30,8 @@ int knowledge_book_id= 0;
 knowledge knowledge_list[KNOWLEDGE_LIST_SIZE];
 int knowledge_count= 0;
 
-char knowledge_string[400]="";
+#define TEXTBUFSIZE 400
+static char raw_knowledge_string[TEXTBUFSIZE]="";
 
 static size_t cm_know_id = CM_INIT_VALUE;
 static INPUT_POPUP ipu_know;
@@ -49,6 +50,7 @@ static int progress_bot_y = 0;
 static int progress_right_x = 0;
 static int progress_left_x = 0;
 static int text_border = 0;
+static int book_start_x = 0;
 
 static int add_knowledge_book_image(int window_id)
 {
@@ -164,6 +166,8 @@ int display_knowledge_handler(window_info *win)
 	float font_ratio = win->small_font_len_x/12.0;
 	float max_name_x = (win->len_x - win->box_size - 2*x)/2;
 	int is_researching = 1;
+	int text_width = win->len_x - 2 * text_border;
+	char knowledge_text_buf[TEXTBUFSIZE];
 
 	if(your_info.research_total && 
 	   (your_info.research_completed==your_info.research_total))
@@ -220,10 +224,13 @@ int display_knowledge_handler(window_info *win)
 	}
 	glEnable(GL_TEXTURE_2D);
 	//draw text
-	scaled_draw_string_small(text_border,booklist_y_len + text_border,(unsigned char*)knowledge_string, info_lines);
+	if (selected_book >= 0 && knowledge_list[selected_book].present && knowledge_list[selected_book].has_book)
+		text_width = book_start_x - 2 * text_border;
+	scaled_put_small_text_in_box((unsigned char *)raw_knowledge_string, strlen((char *)raw_knowledge_string), text_width, (char *)knowledge_text_buf);
+	scaled_draw_string_small(text_border,booklist_y_len + text_border,(unsigned char*)knowledge_text_buf, info_lines);
 	glColor3f(1.0f,1.0f,1.0f);
-	scaled_draw_string_small(10,progress_top_y+3+gy_adjust,(unsigned char*)researching_str,1);
-	scaled_draw_string_small(10+(strlen(researching_str)+1)*win->small_font_len_x,progress_top_y+3+gy_adjust,(unsigned char*)research_string,1);
+	scaled_draw_string_small(text_border,progress_top_y+3+gy_adjust,(unsigned char*)researching_str,1);
+	scaled_draw_string_small(text_border+(strlen(researching_str)+1)*win->small_font_len_x,progress_top_y+3+gy_adjust,(unsigned char*)research_string,1);
 	scaled_draw_string_small(progress_left_x+points_pos+gx_adjust,progress_top_y+3+gy_adjust,(unsigned char*)points_string,1);
 	if (is_researching && mouse_over_progress_bar)
 	{
@@ -231,7 +238,7 @@ int display_knowledge_handler(window_info *win)
 		int eta_pos;
 		get_research_eta_str(eta_string, sizeof(eta_string));
 		eta_pos = (int)(progress_right_x - progress_left_x - strlen(eta_string)*win->small_font_len_x) / 2;
-		scaled_draw_string_small(progress_left_x+eta_pos,progressbox_y_len - win->small_font_len_y,(unsigned char*)eta_string,1);
+		scaled_draw_string_small(progress_left_x + eta_pos, progress_top_y - win->small_font_len_y + 2, (unsigned char*)eta_string, 1);
 		mouse_over_progress_bar=0;
 	}
 	// Draw knowledges
@@ -347,6 +354,7 @@ int click_knowledge_handler(window_info *win, int mx, int my, Uint32 flags)
 				str[0] = GET_KNOWLEDGE_INFO;
 				*(Uint16 *)(str+1) = SDL_SwapLE16((short)idx);
 				my_tcp_send(my_socket,str,3);
+				raw_knowledge_string[0] = '\0';
 				// Check if we display the book image and label
 				knowledge_book_id = idx;
 				if (knowledge_list[idx].present && knowledge_list[idx].has_book) {
@@ -439,7 +447,10 @@ static int resize_knowledge_handler(window_info *win, int new_width, int new_hei
 	int gap_y;
 	int image_size = (int)(0.5 + win->current_scale * 50);
 	int label_width = 0;
+	int label_height = 0;
 	int book_x_off = 0;
+	int label_x_left = 0;
+	int book_x_left = 0;
 
 	text_border = win->small_font_len_x / 2;
 	booklist_y_step = win->small_font_len_y - 2;
@@ -460,11 +471,15 @@ static int resize_knowledge_handler(window_info *win, int new_width, int new_hei
 	widget_resize(win->window_id, knowledge_book_image_id, image_size, image_size);
 
 	label_width = widget_get_width(win->window_id, knowledge_book_label_id);
+	label_height = widget_get_height(win->window_id, knowledge_book_label_id);
 	book_x_off = (label_width > image_size) ?label_width :image_size;
-	gap_y = booklist_y_len + (progressbox_y_len - booklist_y_len - image_size)/ 2;
+	gap_y = booklist_y_len + (progressbox_y_len - booklist_y_len - image_size - label_height)/ 2;
+	label_x_left = progress_right_x - book_x_off/2 - label_width/2;
+	book_x_left = progress_right_x - book_x_off/2 - image_size/2;
+	book_start_x = (label_x_left < book_x_left) ?label_x_left :book_x_left;
 
-	widget_move(win->window_id, knowledge_book_label_id, progress_right_x - book_x_off/2 - label_width/2, gap_y - win->small_font_len_y);
-	widget_move(win->window_id, knowledge_book_image_id, progress_right_x - book_x_off/2 - image_size/2, gap_y);
+	widget_move(win->window_id, knowledge_book_label_id, label_x_left, gap_y);
+	widget_move(win->window_id, knowledge_book_image_id, book_x_left, gap_y + label_height);
 
 
 	return 0;
@@ -489,4 +504,9 @@ void fill_knowledge_win (int window_id)
 		cm_add_window(cm_know_id, window_id);
 		init_ipu(&ipu_know, -1, -1, -1, 1, 1, NULL, NULL);
 	}
+}
+
+void set_knowledge_string(const Uint8 *in_data, int data_length)
+{
+	safe_strncpy2(raw_knowledge_string, (const char *)in_data, TEXTBUFSIZE, data_length);
 }
