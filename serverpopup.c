@@ -33,6 +33,7 @@ may be do:
 
 #include "serverpopup.h"
 #include "asc.h"
+#include "chat.h"
 #include "elwindows.h"
 #include "gamewin.h"
 #include "gl_init.h"
@@ -45,7 +46,6 @@ int use_server_pop_win = 1;
 
 /* these are visible only to this code module but are needed by handlers for example */
 static const int sep = 5;
-static const int scroll_width = 20;
 /* initialised by initialise() */
 static int server_popup_win = -1;
 static int server_popup_win_x;
@@ -119,7 +119,7 @@ static int scroll_drag(widget_list *widget, int mx, int my, Uint32 flags, int dx
 
 
 /* if the mouse scroll wheel is used, move the scroll bar if we have one */
-int click_handler(window_info *win, int mx, int my, Uint32 flags)
+static int click_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	if (!actual_scroll_width){
 		return 1;
@@ -187,7 +187,7 @@ static int get_height(int num_lines)
 /* the window resize handler, keep things neat and add scroll bar if required */
 static int resize_handler(window_info *win, int width, int height)
 {
-	widget_list *button_widget;
+	widget_list *button_widget = widget_find(server_popup_win, buttonId);
  
 	/* ensure the minimum size, this function will get called
 		 again with the new size so exit after the call */
@@ -205,11 +205,6 @@ static int resize_handler(window_info *win, int width, int height)
 	/* make sure the text font is set so width calculations work properly */
 	set_font(chat_font);
 
-	/* get the ok button information and move it to the middle of the window bottom */
-	button_widget = widget_find(server_popup_win, buttonId);
-	widget_move(server_popup_win, buttonId, (width - button_widget->len_x)/2,
-		height - sep - button_widget->len_y);
-
 	/* if there is no text widget, we're done */
 	if (text_message_is_empty (&widget_text)) {
 		return 1;
@@ -224,7 +219,7 @@ static int resize_handler(window_info *win, int width, int height)
 	
 	/* only add a scroll bar if needed, i.e. more lines than we can display */
 	if (text_widget_height < (2*sep + num_text_lines * DEFAULT_FONT_Y_LEN * chat_zoom)){
-		actual_scroll_width = scroll_width;
+		actual_scroll_width = win->box_size;
 	}
 
 	/* set the text widget width, allowing for a scroll bar if required */
@@ -240,7 +235,7 @@ static int resize_handler(window_info *win, int width, int height)
 	if (!actual_scroll_width &&
 		(text_widget_height < (2*sep + num_text_lines * DEFAULT_FONT_Y_LEN * chat_zoom)))
 	{
-		actual_scroll_width = scroll_width;
+		actual_scroll_width = win->box_size;
 		text_widget_width = width - (2*sep + actual_scroll_width);
 		widget_resize(server_popup_win, textId, text_widget_width, text_widget_height);
 		/* rewrap the text again as the available width is now less */
@@ -249,19 +244,23 @@ static int resize_handler(window_info *win, int width, int height)
 	}
 
 	/* if the text widget is really short, the scroll bar can extent beyond the height */
-	/* could be considered a bug in the scroll widget - prevent for normal font sizes anyway */
-	if (actual_scroll_width && (height < get_height(3)))
+	/* could be considered a bug in the scroll widget - try to avoid anyway */
+	if (actual_scroll_width)
 	{
-		resize_window(server_popup_win, width, get_height(3));
-		return 1;
+		int local_min = (get_height(1) > 3 * win->box_size) ? get_height(1) : 3 * win->box_size;
+		if (height < local_min)
+		{
+			resize_window(server_popup_win, width, local_min);
+			return 1;
+		}
 	}
 
 	/* create the scroll bar reusing any existing scroll position */
 	if (actual_scroll_width)
 	{
 		scroll_id = vscrollbar_add_extended( server_popup_win, scroll_id, NULL,
-		width - (scroll_width + sep), sep, scroll_width, text_widget_height,
-		0, 1, 0.77f, 0.57f, 0.39f, scroll_line, 1, num_text_lines);
+			width - win->box_size, sep, win->box_size, text_widget_height,
+			0, 1, 0.77f, 0.57f, 0.39f, scroll_line, 1, num_text_lines);
 		widget_set_OnDrag(server_popup_win, scroll_id, scroll_drag);
 		widget_set_OnClick(server_popup_win, scroll_id, scroll_click);
 		set_text_line();
@@ -280,8 +279,20 @@ static int resize_handler(window_info *win, int width, int height)
 			win->flags ^= ELW_TITLE_BAR;
 	}
 	
+	/* move the ok button it to the middle of the window bottom */
+	widget_move(server_popup_win, buttonId, (win->len_x - button_widget->len_x - actual_scroll_width)/2,
+		win->len_y - sep - button_widget->len_y);
+
 	return 1;
 } /* end resize_handler */
+
+
+static int ui_scale_handler(window_info *win)
+{
+	button_resize(win->window_id, buttonId, 0, 0, win->current_scale);
+	resize_window(win->window_id, win->len_x, ((actual_scroll_width) ?win->len_y : get_height(num_text_lines) ));
+	return 1;
+}
 
 
 /*
@@ -289,12 +300,13 @@ static int resize_handler(window_info *win, int width, int height)
 */
 void display_server_popup_win(const char * const message)
 {		 
-	const int unusable_width = 75;
-	const int unusable_height = 75;
+	const int unusable_width = 2 * sep + HUD_MARGIN_X;
+	const int unusable_height = 2 * sep + HUD_MARGIN_Y;
 	int winWidth = 0;
 	int winHeight = 0;
 	widget_list *button_widget = NULL;
 	Uint32 win_property_flags;
+	window_info *win = NULL;
 	
 	/* exit now if message empty */
 	if (!strlen(message)){
@@ -306,11 +318,11 @@ void display_server_popup_win(const char * const message)
 	
 	/* if the window already exists, copy new message to end */
 	if (server_popup_win >= 0){
-		
-		window_info *win = &windows_list.window[server_popup_win];
 		char *sep_str = "\n\n";
+		win = &windows_list.window[server_popup_win];
 
 		/* resize to hold new message text + separator */
+		widget_set_size(server_popup_win, textId, chat_zoom);
 		resize_text_message_data (&widget_text, widget_text.len + 2*(strlen(message)+strlen(sep_str)));
 
 		/* copy the message text into the text buffer */
@@ -342,17 +354,23 @@ void display_server_popup_win(const char * const message)
 
 	if (server_popup_win < 0){
 		/* create the window with initial size and location */
-		win_property_flags = ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE;
+		win_property_flags = ELW_USE_UISCALE|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE;
 		server_popup_win = create_window( "", -1, 0,
 			server_popup_win_x, server_popup_win_y, winWidth, winHeight, win_property_flags);
 		set_window_handler( server_popup_win, ELW_HANDLER_RESIZE, &resize_handler);
 		set_window_handler( server_popup_win, ELW_HANDLER_CLICK, &click_handler);
-	
+		set_window_handler( server_popup_win, ELW_HANDLER_UI_SCALE, &ui_scale_handler);
+
+		if (server_popup_win >= 0 && server_popup_win < windows_list.num_windows)
+			win = &windows_list.window[server_popup_win];
+
 		/* create the OK button, setup its click handler and get its structure */
 		buttonId = button_add_extended (server_popup_win, buttonId, NULL, 0,
-			 0, 0, 0, 0, chat_zoom, 0.77f, 0.57f, 0.39f, "OK");
+			 0, 0, 0, 0, win->current_scale, 0.77f, 0.57f, 0.39f, "OK");
 		widget_set_OnClick(server_popup_win, buttonId, close_handler);
 	}
+	if (win == NULL)
+		return;
 
 	button_widget = widget_find(server_popup_win, buttonId);
 
@@ -376,15 +394,15 @@ void display_server_popup_win(const char * const message)
 		winHeight = min_height;
 	
 	/* but limit to a maximum */
-	if (winHeight > window_height - unusable_height)
+	if (winHeight > window_height - unusable_height - ((actual_scroll_width) ? win->title_height : 0))
 	{
-		winHeight = window_height - unusable_height;
+		winHeight = window_height - unusable_height - ((actual_scroll_width) ? win->title_height : 0);
 		text_widget_height = winHeight - 3*sep + button_widget->len_y;
 	}
 	
 	/* if we'll need a scroll bar allow for it in the width calulation */
 	if (!text_message_is_empty (&widget_text) && (text_widget_height < (2*sep + num_text_lines * DEFAULT_FONT_Y_LEN * chat_zoom))){
-		actual_scroll_width = scroll_width;
+		actual_scroll_width = win->box_size;
 	}
 
 	/* calc the require window width for the text size */
@@ -398,8 +416,8 @@ void display_server_popup_win(const char * const message)
 	
 	/* make sure we can always display at least the OK button
 		 Note, until Patch #1624 is applied, this will still draw the button off the window */
-	if (min_width < 2*sep + button_widget->len_x){
-		min_width = 2*sep + button_widget->len_x;
+	if (min_width < actual_scroll_width + 2*sep + button_widget->len_x){
+		min_width = actual_scroll_width + 2*sep + button_widget->len_x;
 	}
 	
 	/* insure a minimum width */
@@ -424,8 +442,8 @@ void display_server_popup_win(const char * const message)
 	resize_window(server_popup_win, winWidth, winHeight);
 	
 	/* calculate the best position then move the window */
-	server_popup_win_x = (window_width - unusable_width - winWidth)/2;
-	server_popup_win_y = (window_height - unusable_height - winHeight)/2;
+	server_popup_win_x = sep + (window_width - unusable_width - winWidth)/2;
+	server_popup_win_y = sep + (window_height - unusable_height - winHeight)/2;
 	move_window(server_popup_win, -1, 0, server_popup_win_x, server_popup_win_y);
 
 } /* end display_server_popup_win() */
