@@ -52,29 +52,34 @@ const float negative_bar_colors[12] =
 	0.690f, 0.173f, 0.294f  // bottomleft
 };
 
-#define progress_bar_width 135
-#define progress_bar_height 10
-
 int astrology_win_x = 10;
 int astrology_win_y = 20;
-int astrology_win_x_len = 330;
-int astrology_win_y_len = 198;
-
 int	astrology_win= -1;
-int ok_button_id=103;
 int always_show_astro_details = 0;
+
+static int astrology_win_x_len = 0;
+static int astrology_win_y_len = 0;
+static int bar_left_x = 0;
+static int bar_top_1 = 0;
+static int bar_top_2 = 0;
+static int bar_top_3 = 0;
+static int astro_border = 0;
+static int progress_bar_width = 0;
+static int progress_bar_height = 0;
+static int bar_space_y = 0;
+static int ok_button_id = 103;
 
 static char stone_name[50];
 static int value1,value2,value3;
 static char text_item1[50],text_item2[50],text_item3[50];
-ASTROLOGY_DISPLAY_TYPES astrology_display_type;
-ASTROLOGY_TYPES astrology_type;
+static ASTROLOGY_DISPLAY_TYPES astrology_display_type;
+static ASTROLOGY_TYPES astrology_type;
 static int capping_already_reported = 0;
 static char *last_astro_message = NULL;
 static size_t last_astro_message_len = 0;
 
 // forward declaration
-int display_astrology_handler (window_info *win);
+static int display_astrology_handler (window_info *win);
 
 int is_astrology_message (const char * RawText)
 {
@@ -254,26 +259,29 @@ int is_astrology_message (const char * RawText)
 	return 0;
 }
 
-int ok_handler()
+static int ok_handler()
 {
 	hide_window(astrology_win);
 	return 1;
 }
 
 //adjusts the astrology window size/widgets position, depending on what it displays (predictor or indicator)
-void adjust_astrology_window()
+static void adjust_astrology_window()
 {
+	int button_x = (astrology_win_x_len - widget_get_width(astrology_win, ok_button_id)) / 2;
+	int button_y = astrology_win_y_len - widget_get_height(astrology_win, ok_button_id) - 2 * astro_border;
+
 	switch(astrology_display_type)
 	{
 		case adtTwoProgressBars:
 		{
-			resize_window(astrology_win,astrology_win_x_len,astrology_win_y_len - 40);
-			widget_move(astrology_win,ok_button_id,(astrology_win_x_len >>1) - 40, astrology_win_y_len - 40 - 40);
+			resize_window(astrology_win, astrology_win_x_len,astrology_win_y_len - bar_space_y);
+			widget_move(astrology_win,ok_button_id, button_x, button_y - bar_space_y);
 		}break;
 		case adtThreeProgressBars:
 		{
-			resize_window(astrology_win,astrology_win_x_len,astrology_win_y_len);
-			widget_move(astrology_win,ok_button_id,(astrology_win_x_len >>1) - 40, astrology_win_y_len - 40);
+			resize_window(astrology_win, astrology_win_x_len, astrology_win_y_len);
+			widget_move(astrology_win, ok_button_id, button_x, button_y);
 		}break;
 	}
 }
@@ -296,6 +304,27 @@ static int cm_astro_handler(window_info *win, int widget_id, int mx, int my, int
 	return 1;
 }
 
+static int ui_scale_astrology_handler(window_info *win)
+{
+	astro_border = (int)(0.5 + win->current_scale * 5);
+	bar_left_x = (int)(0.5 + win->current_scale * 30);
+	progress_bar_width = (int)(0.5 + win->current_scale *  135);
+	progress_bar_height = (int)(0.5 + win->current_scale *  10);
+	bar_space_y = 2 * win->small_font_len_y + progress_bar_height;
+	bar_top_1 = 2 * astro_border + 2 * win->small_font_len_y;
+	bar_top_2 = bar_top_1 + bar_space_y;
+	bar_top_3 = bar_top_2 + bar_space_y;
+
+	button_resize(win->window_id, ok_button_id, 0, 0, win->current_scale);
+
+	astrology_win_x_len = bar_left_x * 2 + progress_bar_width * 2;
+	astrology_win_y_len = bar_top_3 + progress_bar_height + 4 * astro_border + widget_get_height(astrology_win, ok_button_id);
+
+	adjust_astrology_window();
+
+	return 1;
+}
+
 void display_astrology_window(const char * raw_text)
 {
 	if(astrology_win < 0)
@@ -305,14 +334,17 @@ void display_astrology_window(const char * raw_text)
 		if (!windows_on_top) {
 			our_root_win = game_root_win;
 		}
-		astrology_win= create_window(win_astrology, our_root_win, 0, astrology_win_x, astrology_win_y, astrology_win_x_len, astrology_win_y_len,
-			ELW_WIN_DEFAULT ^ ELW_CLOSE_BOX);
+		astrology_win= create_window(win_astrology, our_root_win, 0, astrology_win_x, astrology_win_y, 0, 0,
+			(ELW_USE_UISCALE|ELW_WIN_DEFAULT) ^ ELW_CLOSE_BOX);
 
 		set_window_handler(astrology_win, ELW_HANDLER_DISPLAY, &display_astrology_handler );
+		set_window_handler(astrology_win, ELW_HANDLER_UI_SCALE, &ui_scale_astrology_handler );
 
-		ok_button_id=button_add_extended(astrology_win, ok_button_id,
-			NULL, (astrology_win_x_len >>1) - 40, astrology_win_y_len-36, 80, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Ok");
+		ok_button_id=button_add_extended(astrology_win, ok_button_id, NULL, 0, 0, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Ok");
 		widget_set_OnClick(astrology_win, ok_button_id, ok_handler);
+
+		if (astrology_win >= 0 && astrology_win < windows_list.num_windows)
+			ui_scale_astrology_handler(&windows_list.window[astrology_win]);
 
 		cm_add(windows_list.window[astrology_win].cm_id, cm_astro_menu_str, cm_astro_handler);
 		cm_bool_line(windows_list.window[astrology_win].cm_id, ELW_CM_MENU_LEN+2, &always_show_astro_details, NULL );
@@ -345,7 +377,7 @@ void free_astro_buffer()
 	}
 }
 
-float calculate_width_coefficient(int amplitude,int value,int invert)
+static float calculate_width_coefficient(int amplitude,int value,int invert)
 {
 	int capped_result = 1;
 	float Result = ((float)value / (float)amplitude);
@@ -369,7 +401,7 @@ float calculate_width_coefficient(int amplitude,int value,int invert)
 		return - Result;
 }
 
-int display_astrology_handler(window_info *win)
+static int display_astrology_handler(window_info *win)
 {
 	float coefficient1 = 0.0,
 		  coefficient2 = 0.0,
@@ -417,19 +449,19 @@ int display_astrology_handler(window_info *win)
 			}
 
 			//draw the name of the stone
-			draw_string_small((win->len_x >> 1 ) - strlen(stone_name)*4, 5, (const unsigned char*)stone_name, 1);
+			scaled_draw_string_small((win->len_x - strlen(stone_name) * win->small_font_len_x) / 2, astro_border, (const unsigned char*)stone_name, 1);
 			
 			//draw the first indicator item
-			draw_string_small (30, 30, (const unsigned char*)text_item1, 1);
+			scaled_draw_string_small (bar_left_x, bar_top_1 - win->small_font_len_y, (const unsigned char*)text_item1, 1);
 			//draw the second indicator item
-			draw_string_small (30, 70, (const unsigned char*)text_item2, 1);
+			scaled_draw_string_small (bar_left_x, bar_top_2 - win->small_font_len_y, (const unsigned char*)text_item2, 1);
 
 			//draw the plus/minus
-			draw_string_small (15, 47, (const unsigned char*)"-", 1);
-			draw_string_small (15, 87, (const unsigned char*)"-", 1);
+			scaled_draw_string_small (bar_left_x - win->small_font_len_x - astro_border, bar_top_1 + (progress_bar_height - win->small_font_len_y) / 2, (const unsigned char*)"-", 1);
+			scaled_draw_string_small (bar_left_x - win->small_font_len_x - astro_border, bar_top_2 + (progress_bar_height - win->small_font_len_y) / 2, (const unsigned char*)"-", 1);
 
-			draw_string_small (305, 47, (const unsigned char*)"+", 1);
-			draw_string_small (305, 87, (const unsigned char*)"+", 1);
+			scaled_draw_string_small (bar_left_x + 2 * progress_bar_width + astro_border, bar_top_1 + (progress_bar_height - win->small_font_len_y) / 2, (const unsigned char*)"+", 1);
+			scaled_draw_string_small (bar_left_x + 2 * progress_bar_width + astro_border, bar_top_2 + (progress_bar_height - win->small_font_len_y) / 2, (const unsigned char*)"+", 1);
 		}break;
 		case adtThreeProgressBars:
 		{
@@ -496,23 +528,23 @@ int display_astrology_handler(window_info *win)
 			}
 
 			//draw the name of the predictor
-			draw_string_small((win->len_x >> 1 ) - strlen(stone_name)*4, 5, (const unsigned char*)stone_name, 1);
+			scaled_draw_string_small((win->len_x - strlen(stone_name) * win->small_font_len_x) / 2, 5, (const unsigned char*)stone_name, 1);
 			
 			//draw the prediction for 20 mins
-			draw_string_small (30, 30, (const unsigned char*)text_item1, 1);
+			scaled_draw_string_small (bar_left_x, bar_top_1 - win->small_font_len_y, (const unsigned char*)text_item1, 1);
 			//draw the prediction for 40 mins
-			draw_string_small (30, 70, (const unsigned char*)text_item2, 1);
+			scaled_draw_string_small (bar_left_x, bar_top_2 - win->small_font_len_y, (const unsigned char*)text_item2, 1);
 			//draw the prediction for 60 mins
-			draw_string_small (30, 110, (const unsigned char*)text_item3, 1);
+			scaled_draw_string_small (bar_left_x, bar_top_3 - win->small_font_len_y, (const unsigned char*)text_item3, 1);
 
 			//draw the plus/minus
-			draw_string_small (15, 47, (const unsigned char*)"-", 1);
-			draw_string_small (15, 87, (const unsigned char*)"-", 1);
-			draw_string_small (15, 127, (const unsigned char*)"-", 1);
+			scaled_draw_string_small (bar_left_x - win->small_font_len_x - astro_border, bar_top_1 + (progress_bar_height - win->small_font_len_y) / 2, (const unsigned char*)"-", 1);
+			scaled_draw_string_small (bar_left_x - win->small_font_len_x - astro_border, bar_top_2 + (progress_bar_height - win->small_font_len_y) / 2, (const unsigned char*)"-", 1);
+			scaled_draw_string_small (bar_left_x - win->small_font_len_x - astro_border, bar_top_3 + (progress_bar_height - win->small_font_len_y) / 2, (const unsigned char*)"-", 1);
 
-			draw_string_small (305, 47, (const unsigned char*)"+", 1);
-			draw_string_small (305, 87, (const unsigned char*)"+", 1);
-			draw_string_small (305, 127, (const unsigned char*)"+", 1);
+			scaled_draw_string_small (bar_left_x + 2 * progress_bar_width + astro_border, bar_top_1 + (progress_bar_height - win->small_font_len_y) / 2, (const unsigned char*)"+", 1);
+			scaled_draw_string_small (bar_left_x + 2 * progress_bar_width + astro_border, bar_top_2 + (progress_bar_height - win->small_font_len_y) / 2, (const unsigned char*)"+", 1);
+			scaled_draw_string_small (bar_left_x + 2 * progress_bar_width + astro_border, bar_top_3 + (progress_bar_height - win->small_font_len_y) / 2, (const unsigned char*)"+", 1);
 		}break;
 	}
 
@@ -523,67 +555,67 @@ int display_astrology_handler(window_info *win)
 	glLineWidth (2.0f);
 	glBegin(GL_LINES);
 	//negative progress 1
-		glVertex3i(30, 50,0);
-		glVertex3i(30 + progress_bar_width, 50,0);
-		glVertex3i(30, 50 + progress_bar_height,0);
-		glVertex3i(30 + progress_bar_width, 50 + progress_bar_height,0);
+		glVertex3i(bar_left_x, bar_top_1,0);
+		glVertex3i(bar_left_x + progress_bar_width, bar_top_1,0);
+		glVertex3i(bar_left_x, bar_top_1 + progress_bar_height,0);
+		glVertex3i(bar_left_x + progress_bar_width, bar_top_1 + progress_bar_height,0);
 
-		glVertex3i(30, 50,0);
-		glVertex3i(30, 50 + progress_bar_height,0);
-		glVertex3i(30 + progress_bar_width, 50,0);
-		glVertex3i(30 + progress_bar_width, 50 + progress_bar_height,0);
+		glVertex3i(bar_left_x, bar_top_1,0);
+		glVertex3i(bar_left_x, bar_top_1 + progress_bar_height,0);
+		glVertex3i(bar_left_x + progress_bar_width, bar_top_1,0);
+		glVertex3i(bar_left_x + progress_bar_width, bar_top_1 + progress_bar_height,0);
 	//positive progress 1
-		glVertex3i(30 + progress_bar_width, 50,0);
-		glVertex3i(30 + (progress_bar_width << 1), 50,0);
-		glVertex3i(30 + progress_bar_width, 50 + progress_bar_height,0);
-		glVertex3i(30 + (progress_bar_width << 1), 50 + progress_bar_height,0);
+		glVertex3i(bar_left_x + progress_bar_width, bar_top_1,0);
+		glVertex3i(bar_left_x + (progress_bar_width << 1), bar_top_1,0);
+		glVertex3i(bar_left_x + progress_bar_width, bar_top_1 + progress_bar_height,0);
+		glVertex3i(bar_left_x + (progress_bar_width << 1), bar_top_1 + progress_bar_height,0);
 
-		glVertex3i(30 + progress_bar_width, 50,0);
-		glVertex3i(30 + progress_bar_width, 50 + progress_bar_height,0);
-		glVertex3i(30 + (progress_bar_width << 1), 50,0);
-		glVertex3i(30 + (progress_bar_width << 1), 50 + progress_bar_height,0);
+		glVertex3i(bar_left_x + progress_bar_width, bar_top_1,0);
+		glVertex3i(bar_left_x + progress_bar_width, bar_top_1 + progress_bar_height,0);
+		glVertex3i(bar_left_x + (progress_bar_width << 1), bar_top_1,0);
+		glVertex3i(bar_left_x + (progress_bar_width << 1), bar_top_1 + progress_bar_height,0);
 	//negative progress 2
-		glVertex3i(30, 90,0);
-		glVertex3i(30 + progress_bar_width, 90,0);
-		glVertex3i(30, 90 + progress_bar_height,0);
-		glVertex3i(30 + progress_bar_width, 90 + progress_bar_height,0);
+		glVertex3i(bar_left_x, bar_top_2,0);
+		glVertex3i(bar_left_x + progress_bar_width, bar_top_2,0);
+		glVertex3i(bar_left_x, bar_top_2 + progress_bar_height,0);
+		glVertex3i(bar_left_x + progress_bar_width, bar_top_2 + progress_bar_height,0);
 
-		glVertex3i(30, 90,0);
-		glVertex3i(30, 90 + progress_bar_height,0);
-		glVertex3i(30 + progress_bar_width, 90,0);
-		glVertex3i(30 + progress_bar_width, 90 + progress_bar_height,0);
+		glVertex3i(bar_left_x, bar_top_2,0);
+		glVertex3i(bar_left_x, bar_top_2 + progress_bar_height,0);
+		glVertex3i(bar_left_x + progress_bar_width, bar_top_2,0);
+		glVertex3i(bar_left_x + progress_bar_width, bar_top_2 + progress_bar_height,0);
 	//positive progress 2
-		glVertex3i(30 + progress_bar_width, 90,0);
-		glVertex3i(30 + (progress_bar_width << 1), 90,0);
-		glVertex3i(30 + progress_bar_width, 90 + progress_bar_height,0);
-		glVertex3i(30 + (progress_bar_width << 1), 90 + progress_bar_height,0);
+		glVertex3i(bar_left_x + progress_bar_width, bar_top_2,0);
+		glVertex3i(bar_left_x + (progress_bar_width << 1), bar_top_2,0);
+		glVertex3i(bar_left_x + progress_bar_width, bar_top_2 + progress_bar_height,0);
+		glVertex3i(bar_left_x + (progress_bar_width << 1), bar_top_2 + progress_bar_height,0);
 
-		glVertex3i(30 + progress_bar_width, 90,0);
-		glVertex3i(30 + progress_bar_width, 90 + progress_bar_height,0);
-		glVertex3i(30 + (progress_bar_width << 1), 90,0);
-		glVertex3i(30 + (progress_bar_width << 1), 90 + progress_bar_height,0);
+		glVertex3i(bar_left_x + progress_bar_width, bar_top_2,0);
+		glVertex3i(bar_left_x + progress_bar_width, bar_top_2 + progress_bar_height,0);
+		glVertex3i(bar_left_x + (progress_bar_width << 1), bar_top_2,0);
+		glVertex3i(bar_left_x + (progress_bar_width << 1), bar_top_2 + progress_bar_height,0);
 		if(astrology_display_type == adtThreeProgressBars)
 		{
 		//negative progress 3
-			glVertex3i(30, 130,0);
-			glVertex3i(30 + progress_bar_width, 130,0);
-			glVertex3i(30, 130 + progress_bar_height,0);
-			glVertex3i(30 + progress_bar_width, 130 + progress_bar_height,0);
+			glVertex3i(bar_left_x, bar_top_3,0);
+			glVertex3i(bar_left_x + progress_bar_width, bar_top_3,0);
+			glVertex3i(bar_left_x, bar_top_3 + progress_bar_height,0);
+			glVertex3i(bar_left_x + progress_bar_width, bar_top_3 + progress_bar_height,0);
 
-			glVertex3i(30, 130,0);
-			glVertex3i(30, 130 + progress_bar_height,0);
-			glVertex3i(30 + progress_bar_width, 130,0);
-			glVertex3i(30 + progress_bar_width, 130 + progress_bar_height,0);
+			glVertex3i(bar_left_x, bar_top_3,0);
+			glVertex3i(bar_left_x, bar_top_3 + progress_bar_height,0);
+			glVertex3i(bar_left_x + progress_bar_width, bar_top_3,0);
+			glVertex3i(bar_left_x + progress_bar_width, bar_top_3 + progress_bar_height,0);
 		//positive progress 3
-			glVertex3i(30 + progress_bar_width, 130,0);
-			glVertex3i(30 + (progress_bar_width << 1), 130,0);
-			glVertex3i(30 + progress_bar_width, 130 + progress_bar_height,0);
-			glVertex3i(30 + (progress_bar_width << 1), 130 + progress_bar_height,0);
+			glVertex3i(bar_left_x + progress_bar_width, bar_top_3,0);
+			glVertex3i(bar_left_x + (progress_bar_width << 1), bar_top_3,0);
+			glVertex3i(bar_left_x + progress_bar_width, bar_top_3 + progress_bar_height,0);
+			glVertex3i(bar_left_x + (progress_bar_width << 1), bar_top_3 + progress_bar_height,0);
 
-			glVertex3i(30 + progress_bar_width, 130,0);
-			glVertex3i(30 + progress_bar_width, 130 + progress_bar_height,0);
-			glVertex3i(30 + (progress_bar_width << 1), 130,0);
-			glVertex3i(30 + (progress_bar_width << 1), 130 + progress_bar_height,0);
+			glVertex3i(bar_left_x + progress_bar_width, bar_top_3,0);
+			glVertex3i(bar_left_x + progress_bar_width, bar_top_3 + progress_bar_height,0);
+			glVertex3i(bar_left_x + (progress_bar_width << 1), bar_top_3,0);
+			glVertex3i(bar_left_x + (progress_bar_width << 1), bar_top_3 + progress_bar_height,0);
 		}
 	glEnd();
 	glLineWidth (1.0f);
@@ -598,13 +630,13 @@ int display_astrology_handler(window_info *win)
 				right_colors[i+3] = negative_bar_colors[i+6];
 			}
 			glColor3fv(&negative_bar_colors[0]);
-			glVertex3i(31 + (int)(progress_bar_width * (1.0f + coefficient1)), 50, 0);
+			glVertex3i(bar_left_x + 1 + (int)(progress_bar_width * (1.0f + coefficient1)), bar_top_1, 0);
 			glColor3fv(&right_colors[0]);
-			glVertex3i(29 + progress_bar_width,50,0);
+			glVertex3i(bar_left_x - 1 + progress_bar_width,bar_top_1,0);
 			glColor3fv(&right_colors[3]);
-			glVertex3i(29 + progress_bar_width, 50 + progress_bar_height, 0);
+			glVertex3i(bar_left_x - 1 + progress_bar_width, bar_top_1 + progress_bar_height, 0);
 			glColor3fv(&negative_bar_colors[9]);
-			glVertex3i(31 + (int)(progress_bar_width * (1 + coefficient1)), 50 + progress_bar_height, 0);
+			glVertex3i(bar_left_x + 1 + (int)(progress_bar_width * (1 + coefficient1)), bar_top_1 + progress_bar_height, 0);
 		}
 		else if(coefficient1 > 0)
 		{
@@ -614,13 +646,13 @@ int display_astrology_handler(window_info *win)
 				right_colors[i+3] = positive_bar_colors[i+6];
 			}
 			glColor3fv(&positive_bar_colors[0]);
-			glVertex3i(31 + progress_bar_width, 50, 0);
+			glVertex3i(bar_left_x + 1 + progress_bar_width, bar_top_1, 0);
 			glColor3fv(&right_colors[0]);
-			glVertex3i(29 + progress_bar_width + (int)(progress_bar_width * coefficient1), 50,0);
+			glVertex3i(bar_left_x - 1 + progress_bar_width + (int)(progress_bar_width * coefficient1), bar_top_1,0);
 			glColor3fv(&right_colors[3]);
-			glVertex3i(29 + progress_bar_width + (int)(progress_bar_width * coefficient1), 50 + progress_bar_height, 0);
+			glVertex3i(bar_left_x - 1 + progress_bar_width + (int)(progress_bar_width * coefficient1), bar_top_1 + progress_bar_height, 0);
 			glColor3fv(&positive_bar_colors[9]);
-			glVertex3i(31 + progress_bar_width, 50 + progress_bar_height, 0);
+			glVertex3i(bar_left_x + 1 + progress_bar_width, bar_top_1 + progress_bar_height, 0);
 		}
 	//progress 2
 		if(coefficient2 < 0)
@@ -631,13 +663,13 @@ int display_astrology_handler(window_info *win)
 				right_colors[i+3] = negative_bar_colors[i+6];
 			}
 			glColor3fv(&negative_bar_colors[0]);
-			glVertex3i(31 + (int)(progress_bar_width * (1 + coefficient2)), 90, 0);
+			glVertex3i(bar_left_x + 1 + (int)(progress_bar_width * (1 + coefficient2)), bar_top_2, 0);
 			glColor3fv(&right_colors[0]);
-			glVertex3i(29 + progress_bar_width,90,0);
+			glVertex3i(bar_left_x - 1 + progress_bar_width,bar_top_2,0);
 			glColor3fv(&right_colors[3]);
-			glVertex3i(29 + progress_bar_width, 90 + progress_bar_height, 0);
+			glVertex3i(bar_left_x - 1  + progress_bar_width, bar_top_2 + progress_bar_height, 0);
 			glColor3fv(&negative_bar_colors[9]);
-			glVertex3i(31 + (int)(progress_bar_width * (1 + coefficient2)), 90 + progress_bar_height, 0);
+			glVertex3i(bar_left_x + 1 + (int)(progress_bar_width * (1 + coefficient2)), bar_top_2 + progress_bar_height, 0);
 		}
 		else if(coefficient2 > 0)
 		{
@@ -647,13 +679,13 @@ int display_astrology_handler(window_info *win)
 				right_colors[i+3] = positive_bar_colors[i+6];
 			}
 			glColor3fv(&positive_bar_colors[0]);
-			glVertex3i(31 + progress_bar_width, 90, 0);
+			glVertex3i(bar_left_x + 1 + progress_bar_width, bar_top_2, 0);
 			glColor3fv(&right_colors[0]);
-			glVertex3i(29 + progress_bar_width + (int)(progress_bar_width * coefficient2), 90,0);
+			glVertex3i(bar_left_x - 1 + progress_bar_width + (int)(progress_bar_width * coefficient2), bar_top_2,0);
 			glColor3fv(&right_colors[3]);
-			glVertex3i(29 + progress_bar_width + (int)(progress_bar_width * coefficient2), 90 + progress_bar_height, 0);
+			glVertex3i(bar_left_x - 1 + progress_bar_width + (int)(progress_bar_width * coefficient2), bar_top_2 + progress_bar_height, 0);
 			glColor3fv(&positive_bar_colors[9]);
-			glVertex3i(31 + progress_bar_width, 90 + progress_bar_height, 0);
+			glVertex3i(bar_left_x + 1 + progress_bar_width, bar_top_2 + progress_bar_height, 0);
 		}
 		if(astrology_display_type == adtThreeProgressBars)
 		{
@@ -666,13 +698,13 @@ int display_astrology_handler(window_info *win)
 					right_colors[i+3] = negative_bar_colors[i+6];
 				}
 				glColor3fv(&negative_bar_colors[0]);
-				glVertex3i(31 + (int)(progress_bar_width * (1 + coefficient3)), 130, 0);
+				glVertex3i(bar_left_x + 1 + (int)(progress_bar_width * (1 + coefficient3)), bar_top_3, 0);
 				glColor3fv(&right_colors[0]);
-				glVertex3i(29 + progress_bar_width,130,0);
+				glVertex3i(bar_left_x - 1 + progress_bar_width,bar_top_3,0);
 				glColor3fv(&right_colors[3]);
-				glVertex3i(29 + progress_bar_width, 130 + progress_bar_height, 0);
+				glVertex3i(bar_left_x - 1 + progress_bar_width, bar_top_3 + progress_bar_height, 0);
 				glColor3fv(&negative_bar_colors[9]);
-				glVertex3i(31 + (int)(progress_bar_width * (1 + coefficient3)), 130 + progress_bar_height, 0);
+				glVertex3i(bar_left_x + 1 + (int)(progress_bar_width * (1 + coefficient3)), bar_top_3 + progress_bar_height, 0);
 			}
 			else if(coefficient3 > 0)
 			{
@@ -682,13 +714,13 @@ int display_astrology_handler(window_info *win)
 					right_colors[i+3] = positive_bar_colors[i+6];
 				}
 				glColor3fv(&positive_bar_colors[0]);
-				glVertex3i(31 + progress_bar_width, 130, 0);
+				glVertex3i(bar_left_x + 1 + progress_bar_width, bar_top_3, 0);
 				glColor3fv(&right_colors[0]);
-				glVertex3i(29 + progress_bar_width + (int)(progress_bar_width * coefficient3), 130,0);
+				glVertex3i(bar_left_x - 1 + progress_bar_width + (int)(progress_bar_width * coefficient3), bar_top_3,0);
 				glColor3fv(&right_colors[3]);
-				glVertex3i(29 + progress_bar_width + (int)(progress_bar_width * coefficient3), 130 + progress_bar_height, 0);
+				glVertex3i(bar_left_x - 1 + progress_bar_width + (int)(progress_bar_width * coefficient3), bar_top_3 + progress_bar_height, 0);
 				glColor3fv(&positive_bar_colors[9]);
-				glVertex3i(31 + progress_bar_width, 130 + progress_bar_height, 0);
+				glVertex3i(bar_left_x + 1 + progress_bar_width, bar_top_3 + progress_bar_height, 0);
 			}
 		}
 	glEnd();

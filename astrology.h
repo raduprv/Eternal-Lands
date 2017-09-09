@@ -1,18 +1,12 @@
 #ifndef __ASTROLOGY_H__
 #define __ASTROLOGY_H__
 
-#include "items.h"
-#include "elwindows.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 extern int astrology_win_x;
 extern int astrology_win_y;
-extern int astrology_win_x_len;
-extern int astrology_win_y_len;
-
 extern int astrology_win;
 extern int always_show_astro_details;
 
