@@ -255,6 +255,7 @@ static int start_y = 50;
 int display_advice_handler (window_info *win)
 {
 	static int lastw = -1, lasth = -1;
+	static float last_ui_scale = 0;
 	static Uint32 last_time = 0;
 	static int flash = 0;
 	static char *last_help = NULL;
@@ -263,22 +264,23 @@ int display_advice_handler (window_info *win)
 
 	// Resize and move the window on first use and if window size changed.
 	// Place centred, just down from the top of the screen.
-	if ((lastw!=window_width) || (lasth!=window_height))
+	if ((lastw!=window_width) || (lasth!=window_height) || (last_ui_scale != ui_scale))
 	{
-		int len_x = (int)(2*sep + strlen(newchar_warning) * DEFAULT_FONT_X_LEN);
-		int len_y = (int)(2*sep + DEFAULT_FONT_Y_LEN);
+		int len_x = (int)(2*sep + strlen(newchar_warning) * win->default_font_len_x);
+		int len_y = (int)(2*sep + win->default_font_len_y);
 		int pos_x = (int)((window_width - len_x - hud_x) / 2);
 		resize_window(win->window_id, len_x, len_y);
 		move_window(win->window_id, win->pos_id, win->pos_loc, pos_x, sep);
 		start_y = sep*6 + len_y;
 		lastw = window_width;
 		lasth = window_height;
+		last_ui_scale = ui_scale;
 	}
 
-	// Draw the waning text.
+	// Draw the warning text.
 	glEnable(GL_TEXTURE_2D);
 	glColor3f(1.0f,1.0f,1.0f);
-	draw_string(sep, sep, (const unsigned char *)newchar_warning, 1);
+	scaled_draw_string(sep, sep, (const unsigned char *)newchar_warning, 1);
 
 	// Give eye icon help, then credentials icon help then "done" help.
 	if (color_race_win < 0)
@@ -306,11 +308,11 @@ int display_advice_handler (window_info *win)
 	if (!flash || (flash & 3))
 	{
 		int len = strlen(help_str);
-		int x = (int)((win->len_x - len * SMALL_FONT_X_LEN)/2);
-		int y = window_height - HUD_MARGIN_Y - 2*sep - SMALL_FONT_Y_LEN;
+		int x = (int)((win->len_x - len * win->small_font_len_x)/2);
+		int y = window_height - HUD_MARGIN_Y - 2*sep - win->small_font_len_y;
 		if(x >= -win->cur_x) //Does everything fit in one line?
 		{
-			show_help(help_str, x, y);
+			scaled_show_help(help_str, x, y);
 		}
 		else
 		{
@@ -321,24 +323,24 @@ int display_advice_handler (window_info *win)
 					break;
 			}
 			help_str[i] = 0;
-			y -= 2 + SMALL_FONT_Y_LEN;
-			x = (win->len_x - i*SMALL_FONT_X_LEN)/2;
+			y -= 2 + win->small_font_len_y;
+			x = (win->len_x - i*win->small_font_len_x)/2;
 			glColor4f(0.0f,0.0f,0.0f,0.5f);
 			glDisable(GL_TEXTURE_2D);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glEnable(GL_BLEND);
 			glBegin(GL_QUADS);
-			glVertex3i(x - 1,y + 2 + 2*SMALL_FONT_Y_LEN, 0);
+			glVertex3i(x - 1,y + 2 + 2*win->small_font_len_y, 0);
 			glVertex3i(x - 1,y,0);
-			glVertex3i(x + i*SMALL_FONT_X_LEN, y, 0);
-			glVertex3i(x + i*SMALL_FONT_X_LEN, y + 2 + 2*SMALL_FONT_Y_LEN, 0);
+			glVertex3i(x + i*win->small_font_len_x, y, 0);
+			glVertex3i(x + i*win->small_font_len_x, y + 2 + 2*win->small_font_len_y, 0);
 			glEnd();
 			glDisable(GL_BLEND);
 			glEnable(GL_TEXTURE_2D);
 
 			glColor3f(1.0f,1.0f,1.0f);
-			draw_string_small(x, y, (unsigned char*)help_str, 1);
-			draw_string_small((win->len_x - (len - i - 1)*SMALL_FONT_X_LEN)/2, y + 2 + SMALL_FONT_Y_LEN, (unsigned char*)(help_str + i + 1), 1);
+			scaled_draw_string_small(x, y, (unsigned char*)help_str, 1);
+			scaled_draw_string_small((win->len_x - (len - i - 1)*win->small_font_len_x)/2, y + 2 + win->small_font_len_y, (unsigned char*)(help_str + i + 1), 1);
 			help_str[i] = ' ';
 		}
 	}
@@ -481,8 +483,12 @@ int display_newchar_handler (window_info *win)
 	}
 
 	glColor3f(251/255.0f, 250/255.0f, 190/255.0f);
-	draw_string_small(get_icons_win_active_len() + 2, win->len_y-hud_y+15, (unsigned char*)zoom_in_out, 1);
-	draw_string_small(get_icons_win_active_len() + 2, win->len_y-hud_y+32, (unsigned char*)rotate_camera, 1);
+	{
+		int y_off = win->len_y - HUD_MARGIN_Y + (HUD_MARGIN_Y - 2 * win->small_font_len_y) / 2;
+		scaled_draw_string_small(get_icons_win_active_len() + win->small_font_len_x, y_off, (unsigned char*)zoom_in_out, 1);
+		y_off += win->small_font_len_y;
+		scaled_draw_string_small(get_icons_win_active_len() + win->small_font_len_x, y_off, (unsigned char*)rotate_camera, 1);
+	}
 
 	Leave2DMode ();
 
@@ -646,7 +652,7 @@ void create_newchar_root_window (void)
 
 		change_map ("./maps/newcharactermap.elm");
 
-		newchar_root_win = create_window (win_newchar, -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
+		newchar_root_win = create_window (win_newchar, -1, -1, 0, 0, window_width, window_height, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
 
 		set_window_handler (newchar_root_win, ELW_HANDLER_DISPLAY, &display_newchar_handler);
 		set_window_handler (newchar_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_newchar_handler);
@@ -656,7 +662,7 @@ void create_newchar_root_window (void)
 		set_window_handler (newchar_root_win, ELW_HANDLER_AFTER_SHOW, &update_have_display);
 		set_window_handler (newchar_root_win, ELW_HANDLER_HIDE, &update_have_display);
 
-		newchar_advice_win = create_window ("Advice", newchar_root_win, 0, 100, 10, 200, 100, ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_ALPHA_BORDER);
+		newchar_advice_win = create_window ("Advice", newchar_root_win, 0, 100, 10, 200, 100, ELW_USE_UISCALE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_ALPHA_BORDER);
 		set_window_handler (newchar_advice_win, ELW_HANDLER_DISPLAY, &display_advice_handler);
 		create_newchar_hud_window();
 
