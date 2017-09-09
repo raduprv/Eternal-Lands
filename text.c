@@ -19,6 +19,7 @@
 #include "hud.h"
 #include "highlight.h"
 #include "init.h"
+#include "items.h"
 #include "lights.h"
 #include "misc.h"
 #include "multiplayer.h"
