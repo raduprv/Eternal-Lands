@@ -14,6 +14,7 @@
 #include "popup.h"
 #include "chat.h"
 #include "console.h"
+#include "elconfig.h"
 #include "elwindows.h"
 #include "gamewin.h"
 #include "init.h"
@@ -50,27 +51,42 @@
 
 static list_node_t *popup_list;
 
-static float popup_font_zoom = 0.8f;
-static int popup_position_x = 500/2;
-static int popup_position_y = 480/4;
-static int button_width = 70;
-static int button_height = 30;
-    
-/* Constant margins */
+/* scaled vars */
+static float popup_font_zoom = 0;
+static int popup_position_x = 0;
+static int popup_position_y = 0;
+static int button_width = 0;
+static int button_height = 0;
+static int POPUP_TOP_TEXT_LEFT_MARGIN  = 0;
+static int POPUP_TOP_TEXT_RIGHT_MARGIN = 0;
+static int POPUP_TOP_TEXT_TOP_MARGIN = 0;
+static int POPUP_TOP_TEXT_BOTTOM_MARGIN = 0;
+static int POPUP_OPTION_TEXT_LEFT_MARGIN = 0;
+static int POPUP_OPTION_TEXT_RIGHT_MARGIN = 0;
+static int POPUP_OPTION_TEXT_TOP_MARGIN = 0;
+static int POPUP_BOTTOM_MARGIN = 0;
+static int RADIO_OFFSET = 0;
+static int POPUP_TEXTENTRY_HEIGHT = 0;
 
-#define POPUP_TOP_TEXT_LEFT_MARGIN 10
-#define POPUP_TOP_TEXT_RIGHT_MARGIN 15
-#define POPUP_TOP_TEXT_TOP_MARGIN 10
-#define POPUP_TOP_TEXT_BOTTOM_MARGIN 0
+static void popup_scale_vars(void)
+{
+	popup_font_zoom = 0.8f * ui_scale;
+	popup_position_x = UI_SCALED_VALUE(500/2);
+	popup_position_y = UI_SCALED_VALUE(480/4);
+	button_width = UI_SCALED_VALUE(70);
+	button_height = UI_SCALED_VALUE(30);
+	POPUP_TOP_TEXT_LEFT_MARGIN = UI_SCALED_VALUE(10);
+	POPUP_TOP_TEXT_RIGHT_MARGIN = UI_SCALED_VALUE(15);
+	POPUP_TOP_TEXT_TOP_MARGIN = UI_SCALED_VALUE(10);
+	POPUP_TOP_TEXT_BOTTOM_MARGIN = UI_SCALED_VALUE(0);
+	POPUP_OPTION_TEXT_LEFT_MARGIN = UI_SCALED_VALUE(20);
+	POPUP_OPTION_TEXT_RIGHT_MARGIN = UI_SCALED_VALUE(20);
+	POPUP_OPTION_TEXT_TOP_MARGIN = UI_SCALED_VALUE(3);
+	POPUP_BOTTOM_MARGIN = UI_SCALED_VALUE(10);
+	RADIO_OFFSET = UI_SCALED_VALUE(16);
+	POPUP_TEXTENTRY_HEIGHT = UI_SCALED_VALUE(4 + (DEFAULT_FONT_Y_LEN*popup_font_zoom));
+}
 
-#define POPUP_OPTION_TEXT_LEFT_MARGIN 20
-#define POPUP_OPTION_TEXT_RIGHT_MARGIN 20
-#define POPUP_OPTION_TEXT_TOP_MARGIN 3
-
-#define POPUP_BOTTOM_MARGIN 10
-
-#define RADIO_OFFSET 16
-#define POPUP_TEXTENTRY_HEIGHT (4 + (DEFAULT_FONT_Y_LEN*popup_font_zoom))
 
 /* Maximum number of new lines that can be added to
  text while performing text flow */
@@ -225,7 +241,7 @@ popup_t *popup_allocate()
 		new_popup->button_widget_id = 0;
 
 		/* Hardcoded X size for now. Can be overriden using size_hints */
-		new_popup->width = 400;
+		new_popup->width = UI_SCALED_VALUE(400);
 
 	}
 	return new_popup;
@@ -256,7 +272,7 @@ static void flowing_text_free( flowing_text_t *text )
 static void popup_set_sizehint( popup_t *this_popup, unsigned int size )
 {
 	if (size>0)
-		this_popup->width = size;
+		this_popup->width = UI_SCALED_VALUE(size);
 }
 
 /*!
@@ -595,7 +611,8 @@ static void draw_circle_pure(float x, float y, float radius, int interval, int a
 
 static int popup_display_object( popup_t *this_popup, window_info *win )
 {
-	float half_text_height = 5;
+	float half_text_height = 5 * ui_scale;
+	float popup_radio_x = 10 * ui_scale;
     POPUP_FUNC_ENTER;
 
 	if ( this_popup->text.str ) {
@@ -676,13 +693,13 @@ static int popup_display_object( popup_t *this_popup, window_info *win )
 						glDisable(GL_TEXTURE_2D);
 
 						glBegin(GL_LINE_LOOP);
-						draw_circle_pure(10.0f, (float)this_option->computed_y_pos+half_text_height+1.0, half_text_height, 8,0,360);
+						draw_circle_pure(popup_radio_x, (float)this_option->computed_y_pos+half_text_height+1.0, half_text_height, 8,0,360);
 						glEnd();
 
 						/* If selected, draw the inner cicle */
 						if ( this_option->selected ) {
 							glBegin(GL_POLYGON);
-							draw_circle_pure(10.0f, (float)this_option->computed_y_pos+half_text_height+1.0, half_text_height-2.0f, 8,0,360);
+							draw_circle_pure(popup_radio_x, (float)this_option->computed_y_pos+half_text_height+1.0, half_text_height-2.0f, 8,0,360);
 							glEnd();
 						}
 						glEnable(GL_TEXTURE_2D);
@@ -771,21 +788,6 @@ static void popup_recompute_sizes( popup_t *this_popup )
 
 
 
-/*!
- * \brief Close the object
- * Callback when someone closes the popup. Frees up the associated structures.
- * \returns 1
- */
-
-static int popup_close_object( popup_node_t *this_popup_node )
-{
-	/* Destroy and remove from the list */
-	list_remove_node_and_free_data( &popup_list, this_popup_node, (list_free_func_t)&popup_free );
-
-	return 1;
-
-}
-
 static void popup_node_destroy( popup_node_t *this_popup_node )
 {
 	popup_t *this_popup = POPUP_NODE(this_popup_node);
@@ -862,17 +864,18 @@ static void popup_create_window(popup_t *this_popup)
                                     popup_position_y,
 									this_popup->width,
 									this_popup->height,
-									ELW_WIN_DEFAULT);
+									ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 
 	set_window_handler( this_popup->win, ELW_HANDLER_DISPLAY, &popup_display_handler);
 	set_window_handler( this_popup->win, ELW_HANDLER_CLOSE, &popup_close_handler);
 	set_window_handler( this_popup->win, ELW_HANDLER_CLICK, &popup_click_handler);
+	set_window_handler( this_popup->win, ELW_HANDLER_UI_SCALE, &popup_close_handler); /* just close if ui rescaled */
 
 	if (this_popup->has_send_button) {
 		this_popup->button_widget_id = button_add( this_popup->win, NULL, button_send,
 												  this_popup->width/2 - button_width/2,
 												  this_popup->height- button_height - POPUP_BOTTOM_MARGIN );
-
+		button_resize(this_popup->win, this_popup->button_widget_id, button_width, button_height, popup_font_zoom);
 		widget_set_OnClick(this_popup->win,
 						   this_popup->button_widget_id,
                            &popup_send_button_clicked
@@ -1048,9 +1051,9 @@ static int popup_close_handler(window_info *win)
 {
 	popup_node_t *the_popup_node = popup_node_find_by_window( win );
 	if (NULL!=the_popup_node) {
-		return popup_close_object( the_popup_node );
+		popup_node_destroy( the_popup_node );
 	}
-    return 0;
+    return 1;
 }
 
 /*!
@@ -1226,6 +1229,7 @@ void popup_create_from_network( const unsigned char *payload, size_t size )
 
 	POPUP_NETWORK_ASSERT( new_popup != NULL );
 
+	popup_scale_vars();
 	popup_set_text( new_popup, text );
 	popup_set_sizehint( new_popup, size_hint );
 
