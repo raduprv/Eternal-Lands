@@ -16,9 +16,6 @@ extern "C" {
  * \name Windows handlers
  */
 /*! @{ */
-extern int namepass_win;/*! The name & password window*/
-extern int color_race_win;/*! The color and race window*/
-extern int newchar_advice_win;/*! The char creaion warning warning window*/
 extern int newchar_root_win; /*!< window handler for the character creation interface root window. */
 /*! @} */
 
@@ -45,38 +42,6 @@ extern int book_draegoni;
  * \callgraph
  */
 void set_create_char_error (const char *msg, int len);
-
-/*!
- * \ingroup interface_newchar
- * \brief   Initializes the actor after changes
- *
- *      Initializes the actors data to reflect changes. Called from \ref click_newchar_handler. The current actor (if any) will get destroyed before the changes.
- *
- * \callgraph
- */
-void change_actor();
-
-/*!
- * \ingroup interface_newchar
- * \brief   Initializes and draws the New Character screen.
- *
- *      Initializes and draws the screen to create new characters.
- *
- * \callgraph
- */
-void draw_new_char_screen();
-
-/*!
- * \ingroup interface_newchar
- * \brief   Adds the char \a ch to the selected input box in the character creation interface.
- *
- *      The char \a ch will get added to either of the username, password or password confirmation input fields, depending on which input field is currently selected.
- *
- * \param ch    the char to add
- *
- * \callgraph
- */
-void add_char_to_new_character(unsigned char ch);
 
 /*!
  * \ingroup interface_newchar
@@ -109,6 +74,16 @@ void create_newchar_root_window (void);
  * \callgraph
  */
 void resize_newchar_hud_window(void);
+
+/*!
+ * \ingroup interface_newchar
+ * \brief   Destroy all the new character windows.
+ *
+ *      Destroy all the new character windows.
+ *
+ * \callgraph
+ */
+void destroy_new_character_interface(void);
 
 #ifdef __cplusplus
 } // extern "C"

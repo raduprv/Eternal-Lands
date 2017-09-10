@@ -357,7 +357,6 @@ int show_login_handler(window_info * win)
 {
 	hide_window(book_win);
 	hide_window(paper_win);
-	hide_window(color_race_win);
 	hide_window(elconfig_win);
 	hide_window(tab_help_win);
 	return 1;

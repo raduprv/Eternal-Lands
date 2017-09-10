@@ -251,7 +251,6 @@ int show_map_handler (window_info *win)
 {
 	hide_window(book_win);
 	hide_window(paper_win);
-	hide_window(color_race_win);
 	hide_window(tab_bar_win);
 	return 1;
 }

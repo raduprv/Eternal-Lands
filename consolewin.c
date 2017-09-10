@@ -330,7 +330,6 @@ static int show_console_handler (window_info *win)
 	reset_tab_channel_colours();
 	hide_window(book_win);
 	hide_window(paper_win);
-	hide_window(color_race_win);
 	if (use_windowed_chat == 1) {
 		display_tab_bar ();
 	}

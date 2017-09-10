@@ -797,10 +797,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				if (login_root_win >= 0) destroy_window (login_root_win);
 				login_root_win = -1;
 				if (newchar_root_win >= 0) {
-					destroy_window (newchar_root_win);
-					hide_window( namepass_win );
-					hide_window( color_race_win );
-					hide_window( newchar_advice_win );
+					destroy_new_character_interface();
 				}
 				newchar_root_win = -1;
 				if (!get_show_window(console_root_win))

@@ -97,7 +97,6 @@ int show_opening_handler (window_info *win) {
 #ifndef MAP_EDITOR2
 	hide_window(book_win);
 	hide_window(paper_win);
-	hide_window(color_race_win);
 #endif
 	hide_window(elconfig_win);
 	hide_window(tab_help_win);

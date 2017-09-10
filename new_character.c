@@ -41,22 +41,22 @@
 #include "widgets.h"
 #include "actor_init.h"
 
-void add_text_to_buffer(int color, char * text, int time_to_display);
+static void add_text_to_buffer(int color, char * text, int time_to_display);
 
 typedef int my_enum;//This enumeration will decrease, then wrap to top, increase and then wrap to bottom, when using the inc() and dec() functions. Special purpose though, since you have to have between 2 and 255 values in the enumeration and you have to have the same value in enum[0] as in enum[max] - otherwise we'll probably segfault...
 
-my_enum	normal_skin_enum[]	= { SKIN_BROWN, SKIN_NORMAL, SKIN_PALE, SKIN_TAN, SKIN_BROWN };
-my_enum	elf_skin_enum[]		= { SKIN_BROWN, SKIN_NORMAL, SKIN_PALE, SKIN_TAN, SKIN_DARK_BLUE, SKIN_BROWN };
-my_enum	draegoni_skin_enum[]	= { SKIN_BROWN, SKIN_NORMAL, SKIN_PALE, SKIN_TAN, SKIN_WHITE, SKIN_BROWN };
-my_enum	normal_hair_enum[]	= { HAIR_BLACK, HAIR_BLOND, HAIR_BROWN, HAIR_GRAY, HAIR_RED, HAIR_WHITE, HAIR_DARK_BROWN, HAIR_STRAWBERRY, HAIR_LIGHT_BLOND, HAIR_DIRTY_BLOND, HAIR_BROWN_GRAY, HAIR_DARK_GRAY, HAIR_DARK_RED, HAIR_BLACK };
-my_enum	draegoni_hair_enum[]	= { HAIR_BLACK, HAIR_BLOND, HAIR_BROWN, HAIR_GRAY, HAIR_RED, HAIR_WHITE, HAIR_DARK_BROWN, HAIR_STRAWBERRY, HAIR_LIGHT_BLOND, HAIR_DIRTY_BLOND, HAIR_BROWN_GRAY, HAIR_DARK_GRAY, HAIR_DARK_RED, HAIR_BLUE, HAIR_GREEN, HAIR_PURPLE, HAIR_BLACK };
-my_enum	eyes_enum[]		= { EYES_BROWN, EYES_DARK_BROWN, EYES_BROWN_RED, EYES_LIGHT_BLUE, EYES_BLUE, EYES_DARK_BLUE, EYES_LIGHT_GREEN, EYES_GREEN, EYES_DARK_GREEN, EYES_LAVENDER, EYES_VIOLET, EYES_GOLD, EYES_BROWN };
-my_enum	male_shirt_enum[]	= { SHIRT_BLACK, SHIRT_BLUE, SHIRT_BROWN, SHIRT_GREY, SHIRT_GREEN, SHIRT_LIGHTBROWN, SHIRT_ORANGE, SHIRT_PURPLE, SHIRT_RED, SHIRT_WHITE, SHIRT_YELLOW, SHIRT_BLACK };
-my_enum	normal_shirt_enum[]	= { SHIRT_BLACK, SHIRT_BLUE, SHIRT_BROWN, SHIRT_GREY, SHIRT_GREEN, SHIRT_LIGHTBROWN, SHIRT_ORANGE, SHIRT_PINK, SHIRT_PURPLE, SHIRT_RED, SHIRT_WHITE, SHIRT_YELLOW, SHIRT_BLACK };
-my_enum	normal_pants_enum[]	= { PANTS_BLACK, PANTS_BLUE, PANTS_BROWN, PANTS_DARKBROWN, PANTS_GREY, PANTS_GREEN, PANTS_LIGHTBROWN, PANTS_RED, PANTS_WHITE, PANTS_BLACK };
-my_enum	normal_boots_enum[]	= { BOOTS_BLACK, BOOTS_BROWN, BOOTS_DARKBROWN, BOOTS_DULLBROWN, BOOTS_LIGHTBROWN, BOOTS_ORANGE, BOOTS_BLACK };
-my_enum	normal_head_enum[]	= { HEAD_1, HEAD_2, HEAD_3, HEAD_4, HEAD_1 };
-my_enum	human_head_enum[]	= { HEAD_1, HEAD_2, HEAD_3, HEAD_4, HEAD_5, HEAD_1 };
+static my_enum	normal_skin_enum[]	= { SKIN_BROWN, SKIN_NORMAL, SKIN_PALE, SKIN_TAN, SKIN_BROWN };
+static my_enum	elf_skin_enum[]		= { SKIN_BROWN, SKIN_NORMAL, SKIN_PALE, SKIN_TAN, SKIN_DARK_BLUE, SKIN_BROWN };
+static my_enum	draegoni_skin_enum[]	= { SKIN_BROWN, SKIN_NORMAL, SKIN_PALE, SKIN_TAN, SKIN_WHITE, SKIN_BROWN };
+static my_enum	normal_hair_enum[]	= { HAIR_BLACK, HAIR_BLOND, HAIR_BROWN, HAIR_GRAY, HAIR_RED, HAIR_WHITE, HAIR_DARK_BROWN, HAIR_STRAWBERRY, HAIR_LIGHT_BLOND, HAIR_DIRTY_BLOND, HAIR_BROWN_GRAY, HAIR_DARK_GRAY, HAIR_DARK_RED, HAIR_BLACK };
+static my_enum	draegoni_hair_enum[]	= { HAIR_BLACK, HAIR_BLOND, HAIR_BROWN, HAIR_GRAY, HAIR_RED, HAIR_WHITE, HAIR_DARK_BROWN, HAIR_STRAWBERRY, HAIR_LIGHT_BLOND, HAIR_DIRTY_BLOND, HAIR_BROWN_GRAY, HAIR_DARK_GRAY, HAIR_DARK_RED, HAIR_BLUE, HAIR_GREEN, HAIR_PURPLE, HAIR_BLACK };
+static my_enum	eyes_enum[]		= { EYES_BROWN, EYES_DARK_BROWN, EYES_BROWN_RED, EYES_LIGHT_BLUE, EYES_BLUE, EYES_DARK_BLUE, EYES_LIGHT_GREEN, EYES_GREEN, EYES_DARK_GREEN, EYES_LAVENDER, EYES_VIOLET, EYES_GOLD, EYES_BROWN };
+static my_enum	male_shirt_enum[]	= { SHIRT_BLACK, SHIRT_BLUE, SHIRT_BROWN, SHIRT_GREY, SHIRT_GREEN, SHIRT_LIGHTBROWN, SHIRT_ORANGE, SHIRT_PURPLE, SHIRT_RED, SHIRT_WHITE, SHIRT_YELLOW, SHIRT_BLACK };
+static my_enum	normal_shirt_enum[]	= { SHIRT_BLACK, SHIRT_BLUE, SHIRT_BROWN, SHIRT_GREY, SHIRT_GREEN, SHIRT_LIGHTBROWN, SHIRT_ORANGE, SHIRT_PINK, SHIRT_PURPLE, SHIRT_RED, SHIRT_WHITE, SHIRT_YELLOW, SHIRT_BLACK };
+static my_enum	normal_pants_enum[]	= { PANTS_BLACK, PANTS_BLUE, PANTS_BROWN, PANTS_DARKBROWN, PANTS_GREY, PANTS_GREEN, PANTS_LIGHTBROWN, PANTS_RED, PANTS_WHITE, PANTS_BLACK };
+static my_enum	normal_boots_enum[]	= { BOOTS_BLACK, BOOTS_BROWN, BOOTS_DARKBROWN, BOOTS_DULLBROWN, BOOTS_LIGHTBROWN, BOOTS_ORANGE, BOOTS_BLACK };
+static my_enum	normal_head_enum[]	= { HEAD_1, HEAD_2, HEAD_3, HEAD_4, HEAD_1 };
+static my_enum	human_head_enum[]	= { HEAD_1, HEAD_2, HEAD_3, HEAD_4, HEAD_5, HEAD_1 };
 
 struct race_def {
 	int type;
@@ -104,7 +104,7 @@ struct char_def {
 
 //Enum handling
 
-int find_pos_in_enum(my_enum * def, int val)
+static int find_pos_in_enum(my_enum * def, int val)
 {
 	int i;
 
@@ -116,7 +116,7 @@ int find_pos_in_enum(my_enum * def, int val)
 	return 0;
 }
 
-int inc(my_enum * def, int val, int no_steps)
+static int inc(my_enum * def, int val, int no_steps)
 {
 	my_enum * here=&def[find_pos_in_enum(def, val)];
 
@@ -128,7 +128,7 @@ int inc(my_enum * def, int val, int no_steps)
 	return *here;
 }
 
-int dec(my_enum * def, int val, int no_steps)
+static int dec(my_enum * def, int val, int no_steps)
 {
 	my_enum * top=&def[find_pos_in_enum(def, def[0])];
 	my_enum * here=&def[find_pos_in_enum(def, val)];
@@ -156,7 +156,7 @@ struct input_text {
 	{"", 0}
 };
 
-int creating_char = 1;
+static int creating_char = 1;
 
 void set_create_char_error (const char *msg, int len)
 {
@@ -182,7 +182,7 @@ void set_create_char_error (const char *msg, int len)
 	creating_char=1;
 }
 
-void change_actor (void)
+static void change_actor (void)
 {
 	// We only need to reload the core model, and attach all the correct mesh types.
 	if (our_actor.our_model){
@@ -244,15 +244,14 @@ void change_actor (void)
 // New character window code below.
 
 int newchar_root_win = -1;
-int color_race_win = -1;
-int namepass_win = -1;
-int newchar_advice_win = -1;
-int newchar_hud_win = -1;
-static int start_y = 50;
+static int color_race_win = -1;
+static int namepass_win = -1;
+static int newchar_advice_win = -1;
+static int newchar_hud_win = -1;
 
 //	Display the "Character creation screen" and creation step help window.
 //
-int display_advice_handler (window_info *win)
+static int display_advice_handler (window_info *win)
 {
 	static int lastw = -1, lasth = -1;
 	static float last_ui_scale = 0;
@@ -271,7 +270,6 @@ int display_advice_handler (window_info *win)
 		int pos_x = (int)((window_width - len_x - hud_x) / 2);
 		resize_window(win->window_id, len_x, len_y);
 		move_window(win->window_id, win->pos_id, win->pos_loc, pos_x, sep);
-		start_y = sep*6 + len_y;
 		lastw = window_width;
 		lasth = window_height;
 		last_ui_scale = ui_scale;
@@ -352,7 +350,7 @@ CHECK_GL_ERRORS();
 }
 
 
-int display_newchar_handler (window_info *win)
+static int display_newchar_handler (window_info *win)
 {
 	int any_reflection;
 	static int main_count = 0;
@@ -503,12 +501,12 @@ CHECK_GL_ERRORS();
 	return 1;
 }
 
-int mouseover_newchar_handler (window_info *win, int mx, int my)
+static int mouseover_newchar_handler (window_info *win, int mx, int my)
 {
 	return 1;
 }
 
-int click_newchar_handler (window_info *win, int mx, int my, Uint32 flags)
+static int click_newchar_handler (window_info *win, int mx, int my, Uint32 flags)
 {
 	if (flags & ELW_WHEEL_UP) {
 		if (camera_zoom_dir == -1)
@@ -531,7 +529,7 @@ int click_newchar_handler (window_info *win, int mx, int my, Uint32 flags)
 	return 1; // we captured this mouseclick
 }
 
-int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+static int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
 	static int last_time=0;
 	int alt_on = key & ELW_ALT;
@@ -622,14 +620,14 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 }
 
 
-int show_newchar_handler (window_info *win) {
+static int show_newchar_handler (window_info *win) {
 	init_hud_interface (HUD_INTERFACE_NEW_CHAR);
 	show_hud_windows();
 
 	return 1;
 }
 
-void create_newchar_hud_window(void);
+static void create_newchar_hud_window(void);
 
 static int ui_scale_newchar_handler(window_info *win)
 {
@@ -690,12 +688,12 @@ void create_newchar_root_window (void)
 	use_windowed_chat = 0;
 }
 
-int active=0;
-int hidden=0;
-int are_you_sure=1;
-int numbers_in_name=0;
+static int active=0;
+static int hidden=0;
+static int are_you_sure=1;
+static int numbers_in_name=0;
 
-char * get_pass_str(int l)
+static char * get_pass_str(int l)
 {
 	static char str[20];
 
@@ -706,7 +704,7 @@ char * get_pass_str(int l)
 }
 
 //Returns 1 if it's valid, 0 if invalid and -1 if there's too many numbers in the name
-int check_character(int type, char ch)
+static int check_character(int type, char ch)
 {
 	int retval=0;
 
@@ -734,13 +732,13 @@ int check_character(int type, char ch)
 	return retval;
 }
 
-void add_text_to_buffer(int color, char * text, int time_to_display)
+static void add_text_to_buffer(int color, char * text, int time_to_display)
 {
 	put_small_colored_text_in_box(color, (unsigned char*)text, strlen(text), 200, create_char_error_str);
 	display_time=cur_time+time_to_display;
 }
 
-void create_character(void)
+static void create_character(void)
 {
 	if(!strncasecmp(inputs[1].str, actors_list[0]->actor_name, strlen(actors_list[0]->actor_name))){
 		add_text_to_buffer(c_red2, error_bad_pass, 6000);
@@ -792,7 +790,7 @@ void login_from_new_char(void)
 }
 
 //The character design window
-void change_race(int new_race)
+static void change_race(int new_race)
 {
 	if(our_actor.race_id==new_race)return;
 	destroy_all_actors();
@@ -812,9 +810,6 @@ void change_race(int new_race)
 	change_actor();
 }
 
-int race_help=0;
-int book_over=-1;
-
 int book_human=200000;
 int book_dwarf=200001;
 int book_elf=200002;
@@ -822,7 +817,7 @@ int book_gnome=200003;
 int book_orchan=200004;
 int book_draegoni=200005;
 
-void toggle_book(int id)
+static void toggle_book(int id)
 {
 	static int book_opened=-1;
 	if(book_opened==id && book_win && windows_list.window[book_win].displayed){
@@ -834,12 +829,13 @@ void toggle_book(int id)
 	}
 }
 
-int newchar_mouseover = 0; //book id if mouse is over a book 1 if mouse is over p2p race
-int newchar_mouseover_time = 0;
-char* tooltip;
-int tooltip_x, tooltip_y;
+static int newchar_mouseover = 0; //book id if mouse is over a book 1 if mouse is over p2p race
+static int newchar_mouseover_time = 0;
+static char* tooltip = NULL;
+static int tooltip_x = 0;
+static int tooltip_y = 0;
 
-int click_done_handler(widget_list *w, int mx, int my, Uint32 flags)
+static int click_done_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
 	if(w->window_id == color_race_win)
 	{
@@ -861,7 +857,7 @@ int click_done_handler(widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int click_back_handler(widget_list *w, int mx, int my, Uint32 flags)
+static int click_back_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
 	if(w->window_id == color_race_win)
 	{
@@ -881,25 +877,25 @@ int click_back_handler(widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int click_namepass_field(widget_list *w, int mx, int my, Uint32 flags)
+static int click_namepass_field(widget_list *w, int mx, int my, Uint32 flags)
 {
 	active = *(int*)w->spec;
 	return 1;
 }
 
-int errorbox_draw(widget_list *w)
+static int errorbox_draw(widget_list *w)
 {
 	scaled_draw_string_small(w->pos_x, w->pos_y, (unsigned char*)create_char_error_str, 8);
 	return 1;
 }
 
-int name_draw(widget_list *w)
+static int name_draw(widget_list *w)
 {
 	draw_smooth_button((char*)w->widget_info, w->size, w->pos_x, w->pos_y, w->len_x - 2*BUTTONRADIUS*w->size, 1, w->r, w->g, w->b, active == *(int*)w->spec, 0.32f, 0.23f, 0.15f, 0.0f);
 	return 1;
 }
 
-int password_draw(widget_list *w)
+static int password_draw(widget_list *w)
 {
 	if(!hidden)
 	{
@@ -912,7 +908,7 @@ int password_draw(widget_list *w)
 	return 1;
 }
 
-int keypress_namepass_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+static int keypress_namepass_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
 	Uint8 ch = key_to_char (unikey);
 	int ret=0;
@@ -980,12 +976,12 @@ int keypress_namepass_handler (window_info *win, int mx, int my, Uint32 key, Uin
 	return 1;
 }
 
-const struct WIDGET_TYPE name_type = {NULL, &name_draw, &click_namepass_field, NULL, NULL, NULL, NULL, NULL}; //custom widget for the name button
-const struct WIDGET_TYPE password_type = {NULL, &password_draw, &click_namepass_field, NULL, NULL, NULL, NULL, NULL}; //custom widget for the password buttons
-const struct WIDGET_TYPE errorbox_type = {NULL, &errorbox_draw, NULL, NULL, NULL, NULL, NULL, NULL}; //custom widget for displaying name/password errors
-int specs[3] = {0, 1, 2};
+static const struct WIDGET_TYPE name_type = {NULL, &name_draw, &click_namepass_field, NULL, NULL, NULL, NULL, NULL}; //custom widget for the name button
+static const struct WIDGET_TYPE password_type = {NULL, &password_draw, &click_namepass_field, NULL, NULL, NULL, NULL, NULL}; //custom widget for the password buttons
+static const struct WIDGET_TYPE errorbox_type = {NULL, &errorbox_draw, NULL, NULL, NULL, NULL, NULL, NULL}; //custom widget for displaying name/password errors
+static int specs[3] = {0, 1, 2};
 
-int init_namepass_handler(window_info * win)
+static int init_namepass_handler(window_info * win)
 {
 	float r = 0.77f, g = 0.57f, b = 0.39f; //widget color
 	float very_small = DEFAULT_SMALL_RATIO  * win->current_scale; //font sizes
@@ -1036,7 +1032,7 @@ int init_namepass_handler(window_info * win)
 	return 1;
 }
 
-int click_newchar_book_handler(widget_list *w, int mx, int my, Uint32 flags)
+static int click_newchar_book_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
 	image_set_uv(w->window_id, w->id, (float)32/256,1.0f-(float)64/256,(float)63/256,1.0f-(float)95/256);
@@ -1045,7 +1041,7 @@ int click_newchar_book_handler(widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int mouseover_newchar_book_handler(widget_list *w, int mx, int my)
+static int mouseover_newchar_book_handler(widget_list *w, int mx, int my)
 {
 	image_set_uv(w->window_id, w->id, (float)32/256,1.0f-(float)64/256,(float)63/256,1.0f-(float)95/256);
 	newchar_mouseover = w->id;
@@ -1067,7 +1063,7 @@ int mouseover_newchar_book_handler(widget_list *w, int mx, int my)
 	return 1;
 }
 
-int click_newchar_gender_handler(widget_list *w, int mx, int my, Uint32 flags)
+static int click_newchar_gender_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
 	int i = multiselect_get_selected(w->window_id, w->id);
 	switch(i)
@@ -1082,7 +1078,7 @@ int click_newchar_gender_handler(widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int mouseover_p2p_race_handler(widget_list *w, int mx, int my)
+static int mouseover_p2p_race_handler(widget_list *w, int mx, int my)
 {
 	window_info *win = &windows_list.window[w->window_id];
 	int size = (1 + strlen(p2p_race)) * win->small_font_len_x;
@@ -1094,7 +1090,7 @@ int mouseover_p2p_race_handler(widget_list *w, int mx, int my)
 	return 1;
 }
 
-int click_newchar_race_handler(widget_list *w, int mx, int my, Uint32 flags)
+static int click_newchar_race_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
 	int i = multiselect_get_selected(w->window_id, w->id);
 	switch(i)
@@ -1241,7 +1237,7 @@ static void update_boots(void)
 		our_actor.our_model->body_parts);
 }
 
-int head_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
+static int head_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
 	our_actor.head = dec(our_actor.def->head, our_actor.head, 1);
 
@@ -1250,7 +1246,7 @@ int head_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int head_inc_handler(widget_list *w, int mx, int my, Uint32 flags)
+static int head_inc_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
 	our_actor.head = inc(our_actor.def->head, our_actor.head, 1);
 
@@ -1259,7 +1255,7 @@ int head_inc_handler(widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int skin_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
+static int skin_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
 	our_actor.skin = dec(our_actor.def->skin, our_actor.skin, 1);
 
@@ -1268,7 +1264,7 @@ int skin_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int skin_inc_handler(widget_list *w, int mx, int my, Uint32 flags)
+static int skin_inc_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
 	our_actor.skin = inc(our_actor.def->skin, our_actor.skin, 1);
 
@@ -1277,7 +1273,7 @@ int skin_inc_handler(widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int hair_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
+static int hair_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
 	our_actor.hair = dec(our_actor.def->hair, our_actor.hair, 1);
 
@@ -1286,7 +1282,7 @@ int hair_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int hair_inc_handler(widget_list *w, int mx, int my, Uint32 flags)
+static int hair_inc_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
 	our_actor.hair = inc(our_actor.def->hair, our_actor.hair, 1);
 
@@ -1295,7 +1291,7 @@ int hair_inc_handler(widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int eyes_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
+static int eyes_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
 	our_actor.eyes = dec(our_actor.def->eyes, our_actor.eyes, 1);
 #ifdef NEW_EYES
@@ -1304,7 +1300,7 @@ int eyes_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int eyes_inc_handler(widget_list *w, int mx, int my, Uint32 flags)
+static int eyes_inc_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
 	our_actor.eyes = inc(our_actor.def->eyes, our_actor.eyes, 1);
 #ifdef NEW_EYES
@@ -1313,7 +1309,7 @@ int eyes_inc_handler(widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int shirt_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
+static int shirt_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
 	our_actor.shirt = dec(our_actor.def->shirts, our_actor.shirt, 1);
 
@@ -1322,7 +1318,7 @@ int shirt_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int shirt_inc_handler(widget_list *w, int mx, int my, Uint32 flags)
+static int shirt_inc_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
 	our_actor.shirt = inc(our_actor.def->shirts, our_actor.shirt, 1);
 
@@ -1331,7 +1327,7 @@ int shirt_inc_handler(widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int pants_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
+static int pants_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
 	our_actor.pants=dec(our_actor.def->pants, our_actor.pants, 1);
 
@@ -1340,7 +1336,7 @@ int pants_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int pants_inc_handler(widget_list *w, int mx, int my, Uint32 flags)
+static int pants_inc_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
 	our_actor.pants=inc(our_actor.def->pants, our_actor.pants, 1);
 
@@ -1349,7 +1345,7 @@ int pants_inc_handler(widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int boots_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
+static int boots_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
 	our_actor.boots = dec(our_actor.def->boots, our_actor.boots, 1);
 
@@ -1358,7 +1354,7 @@ int boots_dec_handler(widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int boots_inc_handler(widget_list *w, int mx, int my, Uint32 flags)
+static int boots_inc_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
 	our_actor.boots = inc(our_actor.def->boots, our_actor.boots, 1);
 
@@ -1367,7 +1363,7 @@ int boots_inc_handler(widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int mouseover_color_race_handler(window_info *win, int mx, int my)
+static int mouseover_color_race_handler(window_info *win, int mx, int my)
 {
 	if(!(newchar_mouseover == book_human)) image_set_uv(win->window_id, book_human, (float)0/256,1.0f-(float)64/256,(float)31/256,1.0f-(float)95/256);
 	if(!(newchar_mouseover == book_elf)) image_set_uv(win->window_id, book_elf, (float)0/256,1.0f-(float)64/256,(float)31/256,1.0f-(float)95/256);
@@ -1381,7 +1377,7 @@ int mouseover_color_race_handler(window_info *win, int mx, int my)
 	return 1;
 }
 
-int box_draw(widget_list *w)
+static int box_draw(widget_list *w)
 {
 	glColor3f(w->r, w->g, w->b); //draw a box
 	draw_box(w->widget_info, w->pos_x, w->pos_y, w->len_x, w->len_y, w->size, 0);
@@ -1391,9 +1387,9 @@ CHECK_GL_ERRORS();
 	return 1;
 }
 
-const struct WIDGET_TYPE box_type = {NULL, &box_draw, NULL, NULL, NULL, NULL, NULL, NULL}; //a custom box widget
+static const struct WIDGET_TYPE box_type = {NULL, &box_draw, NULL, NULL, NULL, NULL, NULL, NULL}; //a custom box widget
 
-int init_color_race_handler(window_info * win)
+static int init_color_race_handler(window_info * win)
 {
 	float r = 0.77f, g = 0.57f, b = 0.39f; //widget color
 	float rh = 0.32f, gh = 0.23f, bh = 0.15f; //highlighted color
@@ -1514,16 +1510,16 @@ int init_color_race_handler(window_info * win)
 	return 1;
 }
 
-int tooltip_win;
+static int tooltip_win;
 
-int display_tooltip_handler(window_info * win)
+static int display_tooltip_handler(window_info * win)
 {
 	if(newchar_mouseover_time == cur_time) //draw a help text if currently over something
 		scaled_show_help(tooltip, tooltip_x, tooltip_y);
 	return 1;
 }
 
-int display_newchar_hud_handler(window_info * win)
+static int display_newchar_hud_handler(window_info * win)
 {
 	glColor3f(0.0f, 0.0f, 0.0f); //Draw a black background
 	glBegin(GL_QUADS);
@@ -1539,7 +1535,7 @@ CHECK_GL_ERRORS();
 	return 1;
 }
 
-void create_newchar_hud_window(void)
+static void create_newchar_hud_window(void)
 {
 	if(newchar_hud_win != -1) return;
 
@@ -1572,4 +1568,15 @@ void resize_newchar_hud_window(void)
 		newchar_hud_win = -1;
 		create_newchar_hud_window();
 	}
+}
+
+void destroy_new_character_interface(void)
+{
+	destroy_window(color_race_win);
+	destroy_window(newchar_advice_win);
+	destroy_window(namepass_win);
+	destroy_window(newchar_hud_win);
+	destroy_window(tooltip_win);
+	destroy_window(newchar_root_win);
+	color_race_win = newchar_advice_win = namepass_win = newchar_hud_win = tooltip_win = newchar_root_win = -1;
 }
