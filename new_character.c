@@ -631,6 +631,13 @@ int show_newchar_handler (window_info *win) {
 
 void create_newchar_hud_window(void);
 
+static int ui_scale_newchar_handler(window_info *win)
+{
+	hud_x = (int)(0.5 + win->current_scale * 270);
+	resize_newchar_hud_window();
+	return 1;
+}
+
 void create_newchar_root_window (void)
 {
 	if (newchar_root_win < 0)
@@ -661,9 +668,14 @@ void create_newchar_root_window (void)
 		set_window_handler (newchar_root_win, ELW_HANDLER_SHOW, &show_newchar_handler);
 		set_window_handler (newchar_root_win, ELW_HANDLER_AFTER_SHOW, &update_have_display);
 		set_window_handler (newchar_root_win, ELW_HANDLER_HIDE, &update_have_display);
+		set_window_handler (newchar_root_win, ELW_HANDLER_UI_SCALE, &ui_scale_newchar_handler);
 
 		newchar_advice_win = create_window ("Advice", newchar_root_win, 0, 100, 10, 200, 100, ELW_USE_UISCALE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_ALPHA_BORDER);
 		set_window_handler (newchar_advice_win, ELW_HANDLER_DISPLAY, &display_advice_handler);
+
+		if (newchar_root_win >= 0 && newchar_root_win < windows_list.num_windows)
+			ui_scale_newchar_handler(&windows_list.window[newchar_root_win]);
+
 		create_newchar_hud_window();
 
 		LOG_TO_CONSOLE(c_green1, char_help);
@@ -877,7 +889,7 @@ int click_namepass_field(widget_list *w, int mx, int my, Uint32 flags)
 
 int errorbox_draw(widget_list *w)
 {
-	draw_string_small(w->pos_x, w->pos_y, (unsigned char*)create_char_error_str, 8);
+	scaled_draw_string_small(w->pos_x, w->pos_y, (unsigned char*)create_char_error_str, 8);
 	return 1;
 }
 
@@ -976,39 +988,51 @@ int specs[3] = {0, 1, 2};
 int init_namepass_handler(window_info * win)
 {
 	float r = 0.77f, g = 0.57f, b = 0.39f; //widget color
-	float very_small = DEFAULT_SMALL_RATIO; //font sizes
-	float bit_small = 0.9f;
-	float normal = 1.0f;
+	float very_small = DEFAULT_SMALL_RATIO  * win->current_scale; //font sizes
+	float bit_small = 0.9f * win->current_scale;
+	float normal = 1.0f * win->current_scale;
 	int free_widget_id = 8;
 	int widget_id;
-	int y = 0, size;
-	int center = 1;
-	int sep = 6;
+	int sep = (int)(0.5 + win->current_scale * 5);
+	int y = sep;
+	int x_off = 3 * sep;
+	int size = (int)(0.5 + win->current_scale * 15);
+	int input_len_x = (MAX_USERNAME_LENGTH - 1) * very_small * DEFAULT_FONT_X_LEN + 2 * BUTTONRADIUS * very_small;
+	int input_len_y = 2 * BUTTONRADIUS * very_small;
+	int input_off = strlen(login_username_str);
+	int center = (input_len_y - normal * DEFAULT_FONT_Y_LEN) / 2;
+
+	if (strlen(login_password_str) > input_off) input_off = strlen(login_password_str);
+	if (strlen(confirm_password) > input_off) input_off = strlen(confirm_password);
+	input_off = x_off + (input_off + 1) * normal * DEFAULT_FONT_X_LEN;
 
 	//Choose your name and password
-	label_add_extended(win->window_id, free_widget_id++, 0, (win->len_x - strlen((char*)win_name_pass)*DEFAULT_FONT_X_LEN*bit_small)/2, y, 0, bit_small, r, g, b, (char*)win_name_pass);
+	widget_id = label_add_extended(win->window_id, free_widget_id++, 0, (win->len_x - strlen((char*)win_name_pass)*DEFAULT_FONT_X_LEN*bit_small)/2, y, 0, bit_small, r, g, b, (char*)win_name_pass);
+	y += widget_get_height(win->window_id, widget_id) + 2*sep;
+	label_add_extended(win->window_id, free_widget_id++, 0, x_off, y + center, 0, normal, r, g, b, (char*)login_username_str);
+	widget_id = widget_add(win->window_id, free_widget_id++, 0, input_off, y, input_len_x, input_len_y, 0, very_small, r, g, b, &name_type, inputs[0].str, (void*)&specs[0]);
+	y += input_len_y + 2*sep;
+	label_add_extended(win->window_id, free_widget_id++, 0, x_off, y + center, 0, normal, r, g, b, (char*)login_password_str);
+	widget_id = widget_add(win->window_id, free_widget_id++, 0, input_off, y, input_len_x, input_len_y, 0, very_small, r, g, b, &password_type, inputs[1].str, (void*)&specs[1]);
+	y += input_len_y + 2*sep;
+	label_add_extended(win->window_id ,free_widget_id++, 0, x_off, y + center, 0, normal, r, g, b, (char*)confirm_password);
+	widget_id = widget_add(win->window_id, free_widget_id++, 0, input_off, y, input_len_x, input_len_y, 0, very_small, r, g, b, &password_type, inputs[2].str, (void*)&specs[2]);
+	y += input_len_y + 2*sep;
 
-	y += 15 + 2*sep;
-	label_add_extended(win->window_id, free_widget_id++, 0, 15, y + center, 0, normal, r, g, b, (char*)login_username_str);
-	widget_id = widget_add(win->window_id, free_widget_id++, 0, 115, y, 145, 20, 0, very_small, r, g, b, &name_type, inputs[0].str, (void*)&specs[0]);
-	y += 10 + 20 + 2*sep;
-	label_add_extended(win->window_id, free_widget_id++, 0, 15, y + center, 0, normal, r, g, b, (char*)login_password_str);
-	widget_id = widget_add(win->window_id, free_widget_id++, 0, 115, y, 145, 20, 0, very_small, r, g, b, &password_type, inputs[1].str, (void*)&specs[1]);
-	y += 20 + 2*sep;
-	label_add_extended(win->window_id ,free_widget_id++, 0, 15, y + center, 0, normal, r, g, b, (char*)confirm_password);
-	widget_id = widget_add(win->window_id, free_widget_id++, 0, 115, y, 145, 20, 0, very_small, r, g, b, &password_type, inputs[2].str, (void*)&specs[2]);
-	y += 20 + 2*sep;
-	size = 15;
-	label_add_extended(win->window_id, free_widget_id++, 0, win->len_x - 20 - size - strlen((char*)show_password)*DEFAULT_FONT_X_LEN*bit_small, y, 0, bit_small, r, g, b, (char*)show_password);
-	widget_id = checkbox_add_extended(win->window_id, free_widget_id++, 0, win->len_x - 10 - size, y, size, size, 0, bit_small, r, g, b, &hidden);
-	y += 20 + sep;
-	widget_add(win->window_id, free_widget_id++, 0, 35, y, 200, win->len_y - y, 0, very_small, r, g, b, &errorbox_type, NULL, NULL);
+	//Show password checkbox and error label
+	label_add_extended(win->window_id, free_widget_id++, 0, win->len_x - 4 * sep - size - strlen((char*)show_password)*DEFAULT_FONT_X_LEN*bit_small, y, 0, bit_small, r, g, b, (char*)show_password);
+	widget_id = checkbox_add_extended(win->window_id, free_widget_id++, 0, win->len_x - 2 * sep - size, y, size, size, 0, bit_small, r, g, b, &hidden);
+	y += DEFAULT_FONT_Y_LEN * bit_small + sep;
+	widget_add(win->window_id, free_widget_id++, 0, 2 * sep, y, win->len_x - 4 * sep, win->len_y - y, 0, very_small, r, g, b, &errorbox_type, NULL, NULL);
+
 	//Done and Back buttons
-	y = win->len_y -40;
-	widget_id = button_add_extended(win->window_id, free_widget_id++, 0, 40, y, 80, 20, 0, very_small, r, g, b, char_done);
+	widget_id = button_add_extended(win->window_id, free_widget_id++, 0, 0, 0, 0, 0, 0, very_small, r, g, b, char_done);
 	widget_set_OnClick(win->window_id, widget_id, &click_done_handler);
-	widget_id = button_add_extended(win->window_id, free_widget_id++, 0, 150, y, 80, 20, 0, very_small, r, g, b, char_back);
+	y = win->len_y - widget_get_height(win->window_id, widget_id) - sep;
+	widget_move(win->window_id, widget_id, (win->len_x / 2 - widget_get_width(win->window_id, widget_id)) / 2, y);
+	widget_id = button_add_extended(win->window_id, free_widget_id++, 0, 0, 0, 0, 0, 0, very_small, r, g, b, char_back);
 	widget_set_OnClick(win->window_id, widget_id, &click_back_handler);
+	widget_move(win->window_id, widget_id, win->len_x / 2 + (win->len_x / 2 - widget_get_width(win->window_id, widget_id)) / 2, y);
 	return 1;
 }
 
@@ -1035,9 +1059,10 @@ int mouseover_newchar_book_handler(widget_list *w, int mx, int my)
 	else return 1;
 	newchar_mouseover_time = cur_time; //we are currently over something
 	{
-		int size = strlen(tooltip)*SMALL_FONT_X_LEN;
-		tooltip_x = (mx + size <= 270) ? mx : 270 - size;
-		tooltip_y = my + 20;
+		window_info *win = &windows_list.window[w->window_id];
+		int size = (1 + strlen(tooltip)) * win->small_font_len_x;
+		tooltip_x = (mx + size <= hud_x) ? mx : hud_x - size;
+		tooltip_y = my + win->small_font_len_y;
 	}
 	return 1;
 }
@@ -1059,12 +1084,13 @@ int click_newchar_gender_handler(widget_list *w, int mx, int my, Uint32 flags)
 
 int mouseover_p2p_race_handler(widget_list *w, int mx, int my)
 {
-	int size = strlen(p2p_race)*SMALL_FONT_X_LEN;
+	window_info *win = &windows_list.window[w->window_id];
+	int size = (1 + strlen(p2p_race)) * win->small_font_len_x;
 	newchar_mouseover = 1; //we are over an p2p race
 	newchar_mouseover_time = cur_time; //we are currently over something
 	tooltip = p2p_race;
-	tooltip_x = (mx + size <= 270) ? mx : 270 - size;
-	tooltip_y = my + 20;
+	tooltip_x = (mx + size <= hud_x) ? mx : hud_x - size;
+	tooltip_y = my + win->small_font_len_y;
 	return 1;
 }
 
@@ -1358,7 +1384,7 @@ int mouseover_color_race_handler(window_info *win, int mx, int my)
 int box_draw(widget_list *w)
 {
 	glColor3f(w->r, w->g, w->b); //draw a box
-	draw_box(w->widget_info, w->pos_x, w->pos_y, w->len_x, w->len_y, 0);
+	draw_box(w->widget_info, w->pos_x, w->pos_y, w->len_x, w->len_y, w->size, 0);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -1371,90 +1397,120 @@ int init_color_race_handler(window_info * win)
 {
 	float r = 0.77f, g = 0.57f, b = 0.39f; //widget color
 	float rh = 0.32f, gh = 0.23f, bh = 0.15f; //highlighted color
-	float very_small = DEFAULT_SMALL_RATIO; //font sizes
-	float bit_small = 0.9f;
-	float normal = 1.0f;
+	float very_small = DEFAULT_SMALL_RATIO * win->current_scale; //font sizes
+	float bit_small = 0.9f * win->current_scale;
+	float normal = 1.0f * win->current_scale;
 	int free_widget_id = 8; //next free widget id
 	int widget_id;
-	int i, x, y = 20, size;
-	int sep = 6;
-	char* body_part_strs[7] = {head_str, skin_str, hair_str, eyes_str, shirt_str, pants_str, boots_str};
-	void* body_handlers_dec[7] = {&head_dec_handler, &skin_dec_handler, &hair_dec_handler, &eyes_dec_handler, &shirt_dec_handler, &pants_dec_handler, &boots_dec_handler};
-	void* body_handlers_inc[7] = {&head_inc_handler, &skin_inc_handler, &hair_inc_handler, &eyes_inc_handler, &shirt_inc_handler, &pants_inc_handler, &boots_inc_handler};
-	int book_ids[6] = {book_human, book_elf, book_dwarf, book_gnome, book_orchan, book_draegoni};
+	int sep = (int)(0.5 + win->current_scale * 5);
+	int y = sep;
 
 	//Design your character
-	label_add_extended(win->window_id, free_widget_id++, 0, (win->len_x - strlen((char*)win_design)*DEFAULT_FONT_X_LEN*bit_small)/2, 0, 0, bit_small, r, g, b, (char*)win_design);
+	widget_id = label_add_extended(win->window_id, free_widget_id++, 0, (win->len_x - strlen((char*)win_design)*DEFAULT_FONT_X_LEN*bit_small)/2, y, 0, bit_small, r, g, b, (char*)win_design);
+	y =+ widget_get_height(win->window_id, widget_id);
 
 	//Gender selection
-	y = DEFAULT_FONT_Y_LEN*bit_small + 8 + 2;
-	widget_add(win->window_id, free_widget_id++, 0, 10, y, win->len_x - 20, 20 + 4*sep, 0, normal, r, g, b, &box_type, gender_str, NULL);
-	y += 2*sep;
-	widget_id = multiselect_add_extended(win->window_id, free_widget_id++, 0, 20 , y, win->len_x - 40, 25, normal, r, g, b, rh, gh, bh, 2);
-	multiselect_button_add_extended(win->window_id, widget_id, 0, 0, 100, male_str, very_small, our_actor.male);
-	multiselect_button_add_extended(win->window_id, widget_id, win->len_x - 140, 0, 100, female_str, very_small, !our_actor.male);
-	widget_set_OnClick(win->window_id, widget_id, &click_newchar_gender_handler);
+	{
+		int box_label_height = very_small * DEFAULT_FONT_Y_LEN;
+		int button_height = 2 * very_small * BUTTONRADIUS;
+		int element_height = box_label_height + button_height;
+		int button_width = (int)(0.5 + win->current_scale * 100);
+		y += sep + box_label_height / 2;
+		widget_add(win->window_id, free_widget_id++, 0, sep, y, win->len_x - 2 * sep, element_height, 0, very_small, r, g, b, &box_type, gender_str, NULL);
+		widget_id = multiselect_add_extended(win->window_id, free_widget_id++, 0, 2 * sep, y + box_label_height / 2, win->len_x - 4 * sep, button_height, normal, r, g, b, rh, gh, bh, 2);
+		multiselect_button_add_extended(win->window_id, widget_id, 0, 0, button_width, male_str, very_small, our_actor.male);
+		multiselect_button_add_extended(win->window_id, widget_id, win->len_x - button_width - 4 * sep, 0, button_width, female_str, very_small, !our_actor.male);
+		widget_set_OnClick(win->window_id, widget_id, &click_newchar_gender_handler);
+		y += element_height;
+	}
 
 	//Races
-	y += 20 + 2*sep + 8;
-	widget_add(win->window_id, free_widget_id++, 0, 10, y, win->len_x - 20, 3*22 + 8 + 6*sep, 0, normal, r, g, b, &box_type, race_str, NULL);
-	widget_id = widget_add(win->window_id, free_widget_id++, 0, 136, y + 8, 120, 66 + 5*sep, 0, normal, 1.0f, 0.0f, 0.0f, &box_type, "P2P", NULL);
-	widget_set_OnMouseover(win->window_id, widget_id, &mouseover_p2p_race_handler);
-	y += 2*sep + 8;
-	widget_id = multiselect_add_extended(win->window_id, free_widget_id++, 0, 20, y, win->len_x-40 , 100, normal, r, g, b, rh, gh, bh, 6);
-	multiselect_button_add_extended(win->window_id, widget_id, 0, 0, 80, human_str, very_small, our_actor.race==human_female||our_actor.race==human_male);
-	multiselect_button_add_extended(win->window_id, widget_id, 0, 22 + sep, 80, elf_str, very_small, our_actor.race==elf_female||our_actor.race==elf_male);
-	multiselect_button_add_extended(win->window_id, widget_id, 0, 44 + 2*sep, 80, dwarf_str, very_small, our_actor.race==dwarf_female||our_actor.race==dwarf_male);
-	multiselect_button_add_extended(win->window_id, widget_id, 120, 0, 80, gnome_str, very_small, our_actor.race==dwarf_female||our_actor.race==dwarf_male);
-	multiselect_button_add_extended(win->window_id, widget_id, 120, 22 + sep, 80, orchan_str, very_small, our_actor.race==orchan_female||our_actor.race==orchan_male);
-	multiselect_button_add_extended(win->window_id, widget_id, 120, 44 + 2*sep, 80, draegoni_str, very_small, our_actor.race==draegoni_female||our_actor.race==draegoni_male);
-	widget_set_OnClick(win->window_id, widget_id, &click_newchar_race_handler);
+	{
+		int book_ids[6] = {book_human, book_elf, book_dwarf, book_gnome, book_orchan, book_draegoni};
+		int box_label_height = very_small * DEFAULT_FONT_Y_LEN;
+		int button_height = 2 * very_small * BUTTONRADIUS;
+		int button_width = (int)(0.5 + win->current_scale * 80);
+		int button_y_off = box_label_height;
+		int button_set_height = 3 * button_height + 2 * sep;
+		int button_set_width = win->len_x - 4 * sep;
+		int col_two_x_off = sep + button_set_width / 2;
+		int element_height = 2 * box_label_height + button_set_height;
+		size_t i;
+		y += sep + box_label_height / 2;
 
-	y--;
-	for(i = 0; i < 3; i++)
-	{
-		widget_id = image_add_extended(win->window_id, book_ids[i], 0, 110, y + (22 + sep)*i, 22, 22, 0, 1.0f, 1.0f, 1.0f, 1.0f, icons_text, (float)0/256,1.0f-(float)64/256,(float)31/256,1.0f-(float)95/256, -1);
-		widget_set_OnClick(win->window_id, widget_id, &click_newchar_book_handler);
-		widget_set_OnMouseover(win->window_id, widget_id, &mouseover_newchar_book_handler);
+		widget_add(win->window_id, free_widget_id++, 0, sep, y, win->len_x - 2 * sep, element_height, 0, very_small, r, g, b, &box_type, race_str, NULL);
+
+		widget_id = widget_add(win->window_id, free_widget_id++, 0, sep + col_two_x_off, y + box_label_height / 2 + 2,
+			3 * sep + button_width + button_height, button_set_height + box_label_height / 2 + sep, 0, very_small, 1.0f, 0.0f, 0.0f, &box_type, "P2P", NULL);
+		widget_set_OnMouseover(win->window_id, widget_id, &mouseover_p2p_race_handler);
+
+		widget_id = multiselect_add_extended(win->window_id, free_widget_id++, 0, 2 * sep, y + button_y_off , button_set_width, button_set_height, normal, r, g, b, rh, gh, bh, 6);
+		multiselect_button_add_extended(win->window_id, widget_id, 0, 0, button_width, human_str, very_small, our_actor.race==human_female||our_actor.race==human_male);
+		multiselect_button_add_extended(win->window_id, widget_id, 0, button_height + sep, button_width, elf_str, very_small, our_actor.race==elf_female||our_actor.race==elf_male);
+		multiselect_button_add_extended(win->window_id, widget_id, 0, 2 * (button_height + sep), button_width, dwarf_str, very_small, our_actor.race==dwarf_female||our_actor.race==dwarf_male);
+		multiselect_button_add_extended(win->window_id, widget_id, col_two_x_off, 0, button_width, gnome_str, very_small, our_actor.race==dwarf_female||our_actor.race==dwarf_male);
+		multiselect_button_add_extended(win->window_id, widget_id, col_two_x_off, button_height + sep, button_width, orchan_str, very_small, our_actor.race==orchan_female||our_actor.race==orchan_male);
+		multiselect_button_add_extended(win->window_id, widget_id, col_two_x_off, 2 * (button_height + sep), button_width, draegoni_str, very_small, our_actor.race==draegoni_female||our_actor.race==draegoni_male);
+		widget_set_OnClick(win->window_id, widget_id, &click_newchar_race_handler);
+
+		for(i = 0; i < 3; i++)
+		{
+			widget_id = image_add_extended(win->window_id, book_ids[i], 0, 2 * sep + button_width + sep, y + button_y_off + (button_height + sep)*i, button_height, button_height, 0, 1.0f, 1.0f, 1.0f, 1.0f, icons_text, (float)0/256,1.0f-(float)64/256,(float)31/256,1.0f-(float)95/256, -1);
+			widget_set_OnClick(win->window_id, widget_id, &click_newchar_book_handler);
+			widget_set_OnMouseover(win->window_id, widget_id, &mouseover_newchar_book_handler);
+		}
+		for(i = 0; i< 3; i++)
+		{
+			widget_id = image_add_extended(win->window_id, book_ids[i+3], 0, 3 * sep + col_two_x_off + button_width, y + button_y_off + (button_height + sep)*i, button_height, button_height, 0, 1.0f, 1.0f, 1.0f, 1.0f, icons_text, (float)0/256,1.0f-(float)64/256,(float)31/256,1.0f-(float)95/256, -1);
+			widget_set_OnClick(win->window_id, widget_id, &click_newchar_book_handler);
+			widget_set_OnMouseover(win->window_id, widget_id, &mouseover_newchar_book_handler);
+		}
+		y += element_height;
 	}
-	for(i = 0; i< 3; i++)
-	{
-		widget_id = image_add_extended(win->window_id, book_ids[i+3], 0, 230, y + (22 + sep)*i, 22, 22, 0, 1.0f, 1.0f, 1.0f, 1.0f, icons_text, (float)0/256,1.0f-(float)64/256,(float)31/256,1.0f-(float)95/256, -1);
-		widget_set_OnClick(win->window_id, widget_id, &click_newchar_book_handler);
-		widget_set_OnMouseover(win->window_id, widget_id, &mouseover_newchar_book_handler);
-	}
-	y++;
 
 	//Appereance
-	size = 2*DEFAULT_FONT_X_LEN*bit_small;
-	y += 3*22 + 8 + 4*sep;
-	widget_add(win->window_id, free_widget_id++, 0, 10, y, win->len_x - 20, 4*DEFAULT_FONT_Y_LEN*bit_small + 6*sep, 0, normal, r, g, b, &box_type, appearance_str, NULL);
-	y += 2*sep;
-	for(i = 0; i < 4; i++)//Head, Skin, Hair and Eyes
 	{
-		widget_id = label_add_extended(win->window_id, free_widget_id++, 0, 20, y+(DEFAULT_FONT_Y_LEN*bit_small+sep)*i, 0, bit_small, r, g, b, "<<");
-		widget_set_OnClick(win->window_id, widget_id, body_handlers_dec[i]);
-		x = 20 + size + (win->len_x/2 - 30 - 2*size - strlen((char*)body_part_strs[i])*DEFAULT_FONT_X_LEN*bit_small)/2;
-		label_add_extended(win->window_id, free_widget_id++, 0, x, y+(DEFAULT_FONT_Y_LEN*bit_small+sep)*i, 0, bit_small, r, g, b, (char*)body_part_strs[i]);
-		widget_id = label_add_extended(win->window_id, free_widget_id++, 0, win->len_x/2-10-size, y+(DEFAULT_FONT_Y_LEN*bit_small+sep)*i, 0, bit_small, r, g, b, ">>");
-		widget_set_OnClick(win->window_id, widget_id, body_handlers_inc[i]);
+		char* body_part_strs[7] = {head_str, skin_str, hair_str, eyes_str, shirt_str, pants_str, boots_str};
+		void* body_handlers_dec[7] = {&head_dec_handler, &skin_dec_handler, &hair_dec_handler, &eyes_dec_handler, &shirt_dec_handler, &pants_dec_handler, &boots_dec_handler};
+		void* body_handlers_inc[7] = {&head_inc_handler, &skin_inc_handler, &hair_inc_handler, &eyes_inc_handler, &shirt_inc_handler, &pants_inc_handler, &boots_inc_handler};
+		int box_label_height = very_small * DEFAULT_FONT_Y_LEN;
+		int changer_height = DEFAULT_FONT_Y_LEN * bit_small;
+		int element_height = box_label_height + 4 * changer_height + 3 * sep;
+		int size = 2 * DEFAULT_FONT_X_LEN * bit_small;
+		int x;
+		size_t i;
+		y += sep + box_label_height / 2;
+		widget_add(win->window_id, free_widget_id++, 0, sep, y, win->len_x - 2 * sep, element_height, 0, very_small, r, g, b, &box_type, appearance_str, NULL);
+		y += box_label_height / 2;
+		for(i = 0; i < 4; i++)//Head, Skin, Hair and Eyes
+		{
+			widget_id = label_add_extended(win->window_id, free_widget_id++, 0, 2 * sep, y+(DEFAULT_FONT_Y_LEN*bit_small+sep)*i, 0, bit_small, r, g, b, "<<");
+			widget_set_OnClick(win->window_id, widget_id, body_handlers_dec[i]);
+			x = 2 * sep + size + (win->len_x/2 - 3 * sep - 2*size - strlen((char*)body_part_strs[i])*DEFAULT_FONT_X_LEN*bit_small)/2;
+			label_add_extended(win->window_id, free_widget_id++, 0, x, y+(DEFAULT_FONT_Y_LEN*bit_small+sep)*i, 0, bit_small, r, g, b, (char*)body_part_strs[i]);
+			widget_id = label_add_extended(win->window_id, free_widget_id++, 0, win->len_x/2-sep-size, y+(DEFAULT_FONT_Y_LEN*bit_small+sep)*i, 0, bit_small, r, g, b, ">>");
+			widget_set_OnClick(win->window_id, widget_id, body_handlers_inc[i]);
+		}
+		for(i = 4; i < 7; i++)//Shirt, Pants and Boots
+		{
+			widget_id = label_add_extended(win->window_id, free_widget_id++, 0, win->len_x/2+sep, y+(DEFAULT_FONT_Y_LEN*bit_small+sep)*(i-4), 0, bit_small, r, g, b, "<<");
+			widget_set_OnClick(win->window_id, widget_id, body_handlers_dec[i]);
+			x = win->len_x/2 + sep + size + (win->len_x/2 - 3 * sep - 2*size - strlen((char*)body_part_strs[i])*DEFAULT_FONT_X_LEN*bit_small)/2;
+			label_add_extended(win->window_id, free_widget_id++, 0, x, y+(DEFAULT_FONT_Y_LEN*bit_small+sep)*(i-4), 0, bit_small, r, g, b, (char*)body_part_strs[i]);
+			widget_id = label_add_extended(win->window_id, free_widget_id++, 0, win->len_x-2 * sep-size, y+(DEFAULT_FONT_Y_LEN*bit_small+sep)*(i-4), 0, bit_small, r, g, b, ">>");
+			widget_set_OnClick(win->window_id, widget_id, body_handlers_inc[i]);
+		}
 	}
-	for(i = 4; i < 7; i++)//Shirt, Pants and Boots
-	{
-		widget_id = label_add_extended(win->window_id, free_widget_id++, 0, win->len_x/2+10, y+(DEFAULT_FONT_Y_LEN*bit_small+sep)*(i-4), 0, bit_small, r, g, b, "<<");
-		widget_set_OnClick(win->window_id, widget_id, body_handlers_dec[i]);
-		x = win->len_x/2 + 10 + size + (win->len_x/2 - 30 - 2*size - strlen((char*)body_part_strs[i])*DEFAULT_FONT_X_LEN*bit_small)/2;
-		label_add_extended(win->window_id, free_widget_id++, 0, x, y+(DEFAULT_FONT_Y_LEN*bit_small+sep)*(i-4), 0, bit_small, r, g, b, (char*)body_part_strs[i]);
-		widget_id = label_add_extended(win->window_id, free_widget_id++, 0, win->len_x-20-size, y+(DEFAULT_FONT_Y_LEN*bit_small+sep)*(i-4), 0, bit_small, r, g, b, ">>");
-		widget_set_OnClick(win->window_id, widget_id, body_handlers_inc[i]);
-	}
-	y = win->len_y -40;
 
 	//Done and Back
-	widget_id = button_add_extended(win->window_id, free_widget_id++, 0, 40, y, 80, 20, 0, very_small, r, g, b, char_done);
+	widget_id = button_add_extended(win->window_id, free_widget_id++, 0, 0, 0, 0, 0, 0, very_small, r, g, b, char_done);
 	widget_set_OnClick(win->window_id, widget_id, &click_done_handler);
-	widget_id = button_add_extended(win->window_id, free_widget_id++, 0, 150, y, 80, 20, 0, very_small, r, g, b, char_back);
+	y = win->len_y - widget_get_height(win->window_id, widget_id) - sep;
+	widget_move(win->window_id, widget_id, (win->len_x / 2 - widget_get_width(win->window_id, widget_id)) / 2, y);
+	widget_id = button_add_extended(win->window_id, free_widget_id++, 0, 0, 0, 0, 0, 0, very_small, r, g, b, char_back);
 	widget_set_OnClick(win->window_id, widget_id, &click_back_handler);
+	widget_move(win->window_id, widget_id, win->len_x / 2 + (win->len_x / 2 - widget_get_width(win->window_id, widget_id)) / 2, y);
+
 	return 1;
 }
 
@@ -1463,7 +1519,7 @@ int tooltip_win;
 int display_tooltip_handler(window_info * win)
 {
 	if(newchar_mouseover_time == cur_time) //draw a help text if currently over something
-		show_help(tooltip, tooltip_x, tooltip_y);
+		scaled_show_help(tooltip, tooltip_x, tooltip_y);
 	return 1;
 }
 
@@ -1486,18 +1542,22 @@ CHECK_GL_ERRORS();
 void create_newchar_hud_window(void)
 {
 	if(newchar_hud_win != -1) return;
-	newchar_hud_win = create_window("Newchar_Hud", newchar_root_win, 0, window_width - 270, 0, 270, window_height - hud_y, ELW_USE_BORDER|ELW_SHOW|ELW_SHOW_LAST);
+
+	newchar_hud_win = create_window("Newchar_Hud", newchar_root_win, 0, window_width - hud_x, 0, hud_x, window_height - hud_y, ELW_USE_UISCALE|ELW_USE_BORDER|ELW_SHOW|ELW_SHOW_LAST);
 	set_window_handler(newchar_hud_win, ELW_HANDLER_DISPLAY, &display_newchar_hud_handler);
-	tooltip_win = create_window("Help Text", newchar_hud_win, 0, 0, 0, 0, 0, ELW_SHOW);
+
+	tooltip_win = create_window("Help Text", newchar_hud_win, 0, 0, 0, 0, 0, ELW_USE_UISCALE|ELW_SHOW);
 	set_window_handler(tooltip_win, ELW_HANDLER_DISPLAY, &display_tooltip_handler);
-	color_race_win = create_window(win_design, newchar_hud_win, 0, 0, 10, 270, window_height - hud_y - 10, ELW_SHOW|ELW_SHOW_LAST); //Design your character
+
+	color_race_win = create_window(win_design, newchar_hud_win, 0, 0, 0, hud_x, window_height - hud_y, ELW_USE_UISCALE|ELW_SHOW|ELW_SHOW_LAST); //Design your character
 	set_window_handler(color_race_win, ELW_HANDLER_INIT, &init_color_race_handler);
 	set_window_handler(color_race_win, ELW_HANDLER_MOUSEOVER, &mouseover_color_race_handler);
-	init_window(color_race_win, newchar_hud_win, 0, 0, 10, 270, window_height - hud_y - 10);
-	namepass_win = create_window(win_name_pass, newchar_hud_win, 0, 0, 10, 270, window_height - hud_y - 10, ELW_SHOW_LAST); //Choose name and password
+	init_window(color_race_win, newchar_hud_win, 0, 0, 0, hud_x, window_height - hud_y);
+
+	namepass_win = create_window(win_name_pass, newchar_hud_win, 0, 0, 0, hud_x, window_height - hud_y, ELW_USE_UISCALE|ELW_SHOW_LAST); //Choose name and password
 	set_window_handler(namepass_win, ELW_HANDLER_INIT, &init_namepass_handler);
 	set_window_handler(namepass_win, ELW_HANDLER_KEYPRESS, &keypress_namepass_handler);
-	init_window(namepass_win, newchar_hud_win, 0, 0, 10, 270, window_height - hud_y - 10);
+	init_window(namepass_win, newchar_hud_win, 0, 0, 0, hud_x, window_height - hud_y);
 }
 
 void resize_newchar_hud_window(void)

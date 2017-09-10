@@ -161,7 +161,7 @@ void draw_circle(int x, int y, int radius, int interval);
  * \param h The height
  * \param rad The radius in the rounded corners - note that they are optional
  */
-void draw_box(char * name, int x, int y, int w, int h, int rad);
+void draw_box(char * name, int x, int y, int w, int h, float size, int rad);
 
 /*!
  * \ingroup misc_utils

@@ -455,13 +455,13 @@ void draw_circle(int x, int y, int radius, int interval)
 	draw_circle_ext(x, y, radius, interval, 0, 360);
 }
 
-void draw_box(char * name, int x, int y, int w, int h, int rad)
+void draw_box(char * name, int x, int y, int w, int h, float size, int rad)
 {
 	int l=0;
 
 	if(name){
-		l=(w-10-(get_string_width((unsigned char*)name)*8.0f/12.0f))/2.0f;
-		draw_string_small(x+l+5, y-6, (unsigned char*)name, 1);
+		l=(w-10-(size*get_string_width((unsigned char*)name)*DEFAULT_FONT_X_LEN/12.0f))/2.0f;
+		draw_string_zoomed(x+l+5, y-size*DEFAULT_FONT_Y_LEN/2, (unsigned char*)name, 1, size);
 	}
 
 	glDisable(GL_TEXTURE_2D);

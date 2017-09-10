@@ -165,7 +165,7 @@ void init_hud_interface (hud_interface type)
 
 	if (type == HUD_INTERFACE_NEW_CHAR)
 	{
-		hud_x=270;
+		hud_x = UI_SCALED_VALUE(270);
 		resize_root_window();
 		init_icon_window (NEW_CHARACTER_ICONS);
 	}
