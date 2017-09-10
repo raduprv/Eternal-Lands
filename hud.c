@@ -606,8 +606,8 @@ static int calc_stats_bar_len(int num_exp)
 	// constrain the maximum and minimum length of the skills bars to reasonable size
 	if (prosed_len < 50)
 		prosed_len = 50;
-	else if (prosed_len > 100)
-		prosed_len = 100;
+	else if (prosed_len > UI_SCALED_VALUE(100))
+		prosed_len = UI_SCALED_VALUE(100);
 
 	return prosed_len;
 }
