@@ -236,7 +236,7 @@ static int display_trade_handler(window_info *win)
 
 	if (tool_tip_str != NULL)
 	{
-		show_help(tool_tip_str, 0, win->len_y+10);
+		scaled_show_help(tool_tip_str, 0, win->len_y+10);
 		tool_tip_str = NULL;
 	}
 
