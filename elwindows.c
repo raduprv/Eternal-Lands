@@ -968,13 +968,13 @@ int	move_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y)
 	if (pos_id < 0 || windows_list.window[pos_id].order < 0) {
 		// check for the window actually being on the screen, if not, move it
 		if(win->cur_y < ((win->flags&ELW_TITLE_BAR)?win->title_height:0))
-			win->cur_y= (win->flags&ELW_TITLE_BAR)?win->title_height:0;
+			win->pos_y = win->cur_y = (win->flags&ELW_TITLE_BAR)?win->title_height:0;
 		if(win->cur_y >= window_height)
-			win->cur_y= window_height;	// had -32, but do we want that?
+			win->pos_y = win->cur_y = window_height;	// had -32, but do we want that?
 		if(win->cur_x+win->len_x < win->box_size)
-			win->cur_x= 0-win->len_x+win->box_size;
+			win->pos_x = win->cur_x = 0-win->len_x+win->box_size;
 		if(win->cur_x > window_width-win->box_size)
-			win->cur_x= window_width-win->box_size;
+			win->pos_x = win->cur_x = window_width-win->box_size;
 	}
 
 	// move child windows, if any
