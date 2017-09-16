@@ -57,8 +57,7 @@ int dialogue_menu_y=1;
 static int char_frame_size = 0;
 static int char_size = 0;
 static int border_space = 0;
-static int available_text_width = 0;
-static int available_dialogue_width = 0;
+static const int available_text_width = 70;
 static int bot_line_height = 0;
 
 static int show_keypress_letters = 0;
@@ -123,6 +122,7 @@ void build_response_entries (const Uint8 *data, int total_length)
 
 	//first, clear the previous dialogue entries
 	clear_dialogue_responses();
+	recalc_option_positions = new_dialogue = 1;
 
 	for(i=0; i < MAX_RESPONSES;i++)
 	{
@@ -678,14 +678,13 @@ static int cm_npcname_handler(window_info *win, int widget_id, int mx, int my, i
 
 int ui_scale_dialogue_handler(window_info *win)
 {
-	int dialogue_menu_x_len = (int)(0.5 + win->current_scale * 638);
+	int dialogue_menu_x_len = (int)(0.5 + available_text_width * win->small_font_len_x);
 	int dialogue_menu_y_len = (int)(0.5 + win->current_scale * 220);
-	char_frame_size = (int)(0.5 + win->current_scale * 66);
 	char_size = (int)(0.5 + win->current_scale * 64);
+	char_frame_size = char_size + 2;
 	border_space = (int)(0.5 + win->current_scale * 5);
+	dialogue_menu_x_len += 2 * border_space + char_frame_size;
 	response_y_offset = 2 * border_space + MAX_MESS_LINES * win->small_font_len_y;
-	available_text_width = (int)((float)(dialogue_menu_x_len - char_frame_size - 2 * border_space)  / win->current_scale);
-	available_dialogue_width = (int)((float)(dialogue_menu_x_len - 2 * border_space)  / win->current_scale);
 	bot_line_height = win->small_font_len_y + 1;
 
 	copy_pos_x = border_space;
@@ -739,7 +738,7 @@ void display_dialogue(const Uint8 *in_data, int data_length)
 	if (dialogue_win >=0 && dialogue_win < windows_list.num_windows)
 		ui_scale_dialogue_handler(&windows_list.window[dialogue_win]);
 
-	put_small_text_in_box(in_data, data_length, available_text_width, (char*)dialogue_string);
+	put_small_text_in_box(in_data, data_length, available_text_width * SMALL_FONT_X_LEN, (char*)dialogue_string);
 	recalc_option_positions = new_dialogue = 1;
 }
 
