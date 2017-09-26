@@ -118,11 +118,15 @@ typedef	int (*int_min_max_func)();
  #define MAX_TABS	10
 #endif
 
-#define CHECKBOX_SIZE		15
-#define SPACING			5	//Space between widgets and labels and lines
-#define LONG_DESC_SPACE		50	//Space to give to the long descriptions
+static int CHECKBOX_SIZE = 0;
+static int SPACING = 0;			//Space between widgets and labels and lines
 #define MAX_LONG_DESC_LINES	3	//How many lines of text we can fit in LONG_DESC_SPACE
-#define TAB_TAG_HEIGHT   	25  	// the height of the tab at the top of the window
+static int LONG_DESC_SPACE = 0;	//Space to give to the long descriptions
+static int TAB_TAG_HEIGHT = 0;	// the height of the tab at the top of the window
+// The config window is special, it is scaled on creation then frozen.
+// This is because its too complex to resize and cannot simpely be destroyed and re-created.
+static float elconf_scale = 0;
+#define ELCONFIG_SCALED_VALUE(BASE) ((int)(0.5 + ((BASE) * elconf_scale)))
 
 typedef char input_line[256];
 
@@ -174,8 +178,8 @@ struct {
 
 int elconfig_menu_x= 10;
 int elconfig_menu_y= 10;
-int elconfig_menu_x_len= 620;
-int elconfig_menu_y_len= 430;
+static int elconfig_menu_x_len= 0;
+static int elconfig_menu_y_len= 0;
 
 int windows_on_top= 0;
 static int options_set= 0;
@@ -1882,7 +1886,7 @@ static void init_ELC_vars(void)
 
 
 	// HUD TAB
-	add_var(OPT_FLOAT,"ui_scale","ui_scale",&ui_scale,change_ui_scale,1,"User interface scaling factor","Under development: Scale user interface by this factor, useful for high DPI displays.  This feature is not yet implemented throughout the client.",HUD,0.75,3.0,0.01);
+	add_var(OPT_FLOAT,"ui_scale","ui_scale",&ui_scale,change_ui_scale,1,"User interface scaling factor","Under development: Scale user interface by this factor, useful for high DPI displays.  Note: the options window will be rescaled on the next restart.",HUD,0.75,3.0,0.01);
 	add_var(OPT_BOOL,"show_fps","fps",&show_fps,change_var,1,"Show FPS","Show the current frames per second in the corner of the window",HUD);
 	add_var(OPT_BOOL,"view_analog_clock","analog",&view_analog_clock,change_var,1,"Analog Clock","Toggle the analog clock",HUD);
 	add_var(OPT_BOOL,"view_digital_clock","digit",&view_digital_clock,change_var,1,"Digital Clock","Toggle the digital clock",HUD);
@@ -2399,7 +2403,7 @@ int display_elconfig_handler(window_info *win)
 	}
 
 	// Draw the long description of an option
-	draw_string_small(TAB_MARGIN, elconfig_menu_y_len-LONG_DESC_SPACE, elconf_description_buffer, MAX_LONG_DESC_LINES);
+	draw_string_zoomed(TAB_MARGIN, elconfig_menu_y_len-LONG_DESC_SPACE, elconf_description_buffer, MAX_LONG_DESC_LINES, DEFAULT_SMALL_RATIO*elconf_scale);
 	return 1;
 }
 
@@ -2484,8 +2488,8 @@ int mouseover_option_handler(widget_list *widget, int mx, int my)
 		//We didn't find anything, abort
 		return 0;
 	}
-	put_small_text_in_box(our_vars.var[i]->display.desc, strlen((char*)our_vars.var[i]->display.desc),
-								elconfig_menu_x_len-TAB_MARGIN*2, (char*)elconf_description_buffer);
+	scaled_put_small_colored_text_in_box(c_grey1, our_vars.var[i]->display.desc, strlen((char*)our_vars.var[i]->display.desc),
+								elconfig_menu_x_len-TAB_MARGIN*2, (char*)elconf_description_buffer, elconf_scale);
 	return 1;
 }
 
@@ -2601,10 +2605,13 @@ void elconfig_populate_tabs(void)
 				continue;
 			case OPT_BOOL:
 				//Add checkbox
-				widget_id= checkbox_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
-											elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, CHECKBOX_SIZE, CHECKBOX_SIZE, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var);
+				widget_id = checkbox_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
+					elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, CHECKBOX_SIZE, CHECKBOX_SIZE,
+					0, elconf_scale, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var);
 				//Add label for the checkbox
-				label_id= label_add(elconfig_tabs[tab_id].tab, NULL, (char*)our_vars.var[i]->display.str, elconfig_tabs[tab_id].x+CHECKBOX_SIZE+SPACING, elconfig_tabs[tab_id].y);
+				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
+					elconfig_tabs[tab_id].x+CHECKBOX_SIZE+SPACING, elconfig_tabs[tab_id].y,
+					0, elconf_scale, -1.0, -1.0, -1.0, (char*)our_vars.var[i]->display.str);
 				//Set handlers
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, label_id, onclick_label_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, onclick_checkbox_handler);
@@ -2614,8 +2621,11 @@ void elconfig_populate_tabs(void)
 				max= queue_pop(our_vars.var[i]->queue);
 				/* interval is always 1 */
 
-				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
-				widget_id= spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/4*3, elconfig_tabs[tab_id].y, 100, 20, SPIN_INT, our_vars.var[i]->var, *(int *)min, *(int *)max, 1.0);
+				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
+					elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
+				widget_id = spinbutton_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
+					elconfig_menu_x_len/4*3, elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(100), ELCONFIG_SCALED_VALUE(20),
+					SPIN_INT, our_vars.var[i]->var, *(int *)min, *(int *)max, 1.0, elconf_scale, -1, -1, -1);
 				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onkey_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
 				free(min);
@@ -2628,9 +2638,13 @@ void elconfig_populate_tabs(void)
 				max= queue_pop(our_vars.var[i]->queue);
 				interval= (float *)queue_pop(our_vars.var[i]->queue);
 
-				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
+				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
+					elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y,
+					0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
 
-				widget_id= spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/4*3, elconfig_tabs[tab_id].y, 100, 20, SPIN_FLOAT, our_vars.var[i]->var, *(float *)min, *(float *)max, *interval);
+				widget_id = spinbutton_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
+					elconfig_menu_x_len/4*3, elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(100), ELCONFIG_SCALED_VALUE(20),
+					SPIN_FLOAT, our_vars.var[i]->var, *(float *)min, *(float *)max, *interval, elconf_scale, -1, -1, -1);
 				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onkey_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
 				free(min);
@@ -2641,8 +2655,12 @@ void elconfig_populate_tabs(void)
 			break;
 			case OPT_STRING:
 
-				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
-				widget_id= pword_field_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_menu_x_len/5*2, elconfig_tabs[tab_id].y, 332, 20, P_TEXT, 1.0f, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var, our_vars.var[i]->len);
+				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
+					elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y,
+					0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
+				widget_id = pword_field_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
+					elconfig_menu_x_len/5*2, elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(332), ELCONFIG_SCALED_VALUE(20),
+					P_TEXT, elconf_scale, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var, our_vars.var[i]->len);
 				widget_set_OnKey (elconfig_tabs[tab_id].tab, widget_id, string_onkey_handler);
 			break;
 			case OPT_PASSWORD:
@@ -2653,13 +2671,18 @@ void elconfig_populate_tabs(void)
 				continue;
 			case OPT_MULTI:
 
-				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
-				widget_id= multiselect_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x+SPACING+get_string_width(our_vars.var[i]->display.str), elconfig_tabs[tab_id].y, 250, 80, 1.0f, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
+				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
+					elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, elconf_scale,
+					0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
+				widget_id = multiselect_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
+					elconfig_tabs[tab_id].x+SPACING+elconf_scale*get_string_width(our_vars.var[i]->display.str), elconfig_tabs[tab_id].y,
+					ELCONFIG_SCALED_VALUE(250), ELCONFIG_SCALED_VALUE(80), elconf_scale, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
 				for(y= 0; !queue_isempty(our_vars.var[i]->queue); y++) {
 					char *label= queue_pop(our_vars.var[i]->queue);
 					int width= strlen(label) > 0 ? 0 : -1;
 
-					multiselect_button_add_extended(elconfig_tabs[tab_id].tab, widget_id, 0, y*(22+SPACING), width, label, DEFAULT_SMALL_RATIO, y == *(int *)our_vars.var[i]->var);
+					multiselect_button_add_extended(elconfig_tabs[tab_id].tab, widget_id,
+						0, y*(ELCONFIG_SCALED_VALUE(22)+SPACING), width, label, DEFAULT_SMALL_RATIO*elconf_scale, y == *(int *)our_vars.var[i]->var);
 					if(strlen(label) == 0) {
 						y--;
 					}
@@ -2673,9 +2696,13 @@ void elconfig_populate_tabs(void)
 				f_max_func = queue_pop(our_vars.var[i]->queue);
 				interval= (float *)queue_pop(our_vars.var[i]->queue);
 
-				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
+				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
+					elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y,
+					0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
 
-				widget_id= spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/4*3, elconfig_tabs[tab_id].y, 100, 20, SPIN_FLOAT, our_vars.var[i]->var, (*f_min_func)(), (*f_max_func)(), *interval);
+				widget_id = spinbutton_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
+					elconfig_menu_x_len/4*3, elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(100), ELCONFIG_SCALED_VALUE(20),
+					SPIN_FLOAT, our_vars.var[i]->var, (*f_min_func)(), (*f_max_func)(), *interval, elconf_scale, -1, -1, -1);
 				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onkey_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
 				free(f_min_func);
@@ -2689,8 +2716,12 @@ void elconfig_populate_tabs(void)
 				i_max_func = queue_pop(our_vars.var[i]->queue);
 				/* interval is always 1 */
 
-				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
-				widget_id= spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/4*3, elconfig_tabs[tab_id].y, 100, 20, SPIN_INT, our_vars.var[i]->var, (*i_min_func)(), (*i_max_func)(), 1.0);
+				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
+					elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y,
+					0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
+				widget_id = spinbutton_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
+					elconfig_menu_x_len/4*3, elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(100), ELCONFIG_SCALED_VALUE(20),
+					SPIN_INT, our_vars.var[i]->var, (*i_min_func)(), (*i_max_func)(), 1.0, elconf_scale, -1, -1, -1);
 				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onkey_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
 				free(i_min_func);
@@ -2700,19 +2731,20 @@ void elconfig_populate_tabs(void)
 			break;
 			case OPT_MULTI_H:
 
-				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
-				widget_id= multiselect_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x+SPACING+get_string_width(our_vars.var[i]->display.str), elconfig_tabs[tab_id].y, 350, 80, 1.0f, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
+				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
+				widget_id= multiselect_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x+SPACING+elconf_scale*get_string_width(our_vars.var[i]->display.str), elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(350), ELCONFIG_SCALED_VALUE(80), elconf_scale, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
 				x = 0;
 				for(y= 0; !queue_isempty(our_vars.var[i]->queue); y++) {
 					char *label= queue_pop(our_vars.var[i]->queue);
 
-					int radius = BUTTONRADIUS;
-					float width_ratio = DEFAULT_FONT_X_LEN/12.0f;
+					int radius = elconf_scale*BUTTONRADIUS;
+					float width_ratio = elconf_scale*DEFAULT_FONT_X_LEN/12.0f;
 					int width=0;
 	
 					width = 2 * radius+(get_string_width((unsigned char*)label)*width_ratio);
 
-					multiselect_button_add_extended(elconfig_tabs[tab_id].tab, widget_id, x, 0, width, label, DEFAULT_SMALL_RATIO, y == *(int *)our_vars.var[i]->var);
+					multiselect_button_add_extended(elconfig_tabs[tab_id].tab, widget_id, x, 0, width, label,
+						DEFAULT_SMALL_RATIO * elconf_scale, y == *(int *)our_vars.var[i]->var);
 					if (strlen(label) == 0)
 					{
 						y--;
@@ -2769,6 +2801,13 @@ int show_elconfig_handler(window_info * win) {
 	return 1;
 }
 
+static int ui_scale_elconfig_handler(window_info *win)
+{
+	// keep the scale at the original value
+	update_window_scale(win, elconf_scale);
+	return 1;
+}
+
 void display_elconfig_win(void)
 {
 	if(elconfig_win < 0) {
@@ -2779,28 +2818,41 @@ void display_elconfig_win(void)
 			our_root_win= game_root_win;
 		}
 
+		elconf_scale = ui_scale;
+		CHECKBOX_SIZE = ELCONFIG_SCALED_VALUE(15);
+		SPACING = ELCONFIG_SCALED_VALUE(5);
+		LONG_DESC_SPACE = SPACING + ELCONFIG_SCALED_VALUE(MAX_LONG_DESC_LINES * SMALL_FONT_Y_LEN);
+		TAB_TAG_HEIGHT = ELCONFIG_SCALED_VALUE(25);
+		elconfig_menu_x_len = 4 * TAB_MARGIN + 4 * SPACING + CHECKBOX_SIZE +
+			50 * ELCONFIG_SCALED_VALUE(DEFAULT_FONT_X_LEN) + ELCONFIG_SCALED_VALUE(ELW_BOX_SIZE);
+		elconfig_menu_y_len = ELCONFIG_SCALED_VALUE(440);
+
 		/* Set up the window */
-		elconfig_win= create_window(win_configuration, our_root_win, 0, elconfig_menu_x, elconfig_menu_y, elconfig_menu_x_len, elconfig_menu_y_len, ELW_WIN_DEFAULT);
+		elconfig_win= create_window(win_configuration, our_root_win, 0, elconfig_menu_x, elconfig_menu_y,
+			elconfig_menu_x_len, elconfig_menu_y_len, ELW_WIN_DEFAULT|ELW_USE_UISCALE);
 		set_window_color(elconfig_win, ELW_COLOR_BORDER, 0.77f, 0.59f, 0.39f, 0.0f);
 		set_window_handler(elconfig_win, ELW_HANDLER_DISPLAY, &display_elconfig_handler );
+		set_window_handler(elconfig_win, ELW_HANDLER_UI_SCALE, &ui_scale_elconfig_handler );
 		// TODO: replace this hack by something clean.
 		set_window_handler(elconfig_win, ELW_HANDLER_SHOW, &show_elconfig_handler);
 		/* Create tabs */
-		elconfig_tab_collection_id= tab_collection_add_extended (elconfig_win, elconfig_tab_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, elconfig_menu_x_len-TAB_MARGIN*2, elconfig_menu_y_len-TAB_MARGIN*2-LONG_DESC_SPACE, 0, DEFAULT_SMALL_RATIO, 0.77f, 0.57f, 0.39f, MAX_TABS);
+		elconfig_tab_collection_id= tab_collection_add_extended (elconfig_win, elconfig_tab_collection_id, NULL,
+			TAB_MARGIN, TAB_MARGIN, elconfig_menu_x_len-TAB_MARGIN*2, elconfig_menu_y_len-TAB_MARGIN*2-LONG_DESC_SPACE,
+			0, DEFAULT_SMALL_RATIO * elconf_scale, 0.77f, 0.57f, 0.39f, MAX_TABS);
 		/* Pass ELW_SCROLLABLE as the final argument to tab_add() if you want
 		 * to put more widgets in the tab than the size of the window allows.*/
-		elconfig_tabs[CONTROLS].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_controls, 0, 0, ELW_SCROLLABLE);
-		elconfig_tabs[HUD].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_hud, 0, 0, ELW_SCROLLABLE);
-		elconfig_tabs[CHAT].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_chat, 0, 0, ELW_SCROLLABLE);
-		elconfig_tabs[FONT].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_font, 0, 0, ELW_SCROLLABLE);
-		elconfig_tabs[SERVER].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_server, 0, 0, ELW_SCROLLABLE);
-		elconfig_tabs[AUDIO].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_audio, 0, 0, ELW_SCROLLABLE);
-		elconfig_tabs[VIDEO].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_video, 0, 0, ELW_SCROLLABLE);
-		elconfig_tabs[GFX].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_gfx, 0, 0, ELW_SCROLLABLE);
-		elconfig_tabs[CAMERA].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_camera, 0, 0, ELW_SCROLLABLE);
-		elconfig_tabs[TROUBLESHOOT].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_troubleshoot, 0, 0, ELW_SCROLLABLE);
+		elconfig_tabs[CONTROLS].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_controls, 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);
+		elconfig_tabs[HUD].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_hud, 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);
+		elconfig_tabs[CHAT].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_chat, 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);
+		elconfig_tabs[FONT].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_font, 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);
+		elconfig_tabs[SERVER].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_server, 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);
+		elconfig_tabs[AUDIO].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_audio, 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);
+		elconfig_tabs[VIDEO].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_video, 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);
+		elconfig_tabs[GFX].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_gfx, 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);
+		elconfig_tabs[CAMERA].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_camera, 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);
+		elconfig_tabs[TROUBLESHOOT].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_troubleshoot, 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);
 #ifdef DEBUG
-		elconfig_tabs[DEBUGTAB].tab= tab_add(elconfig_win, elconfig_tab_collection_id, "Debug", 0, 0, ELW_SCROLLABLE);
+		elconfig_tabs[DEBUGTAB].tab= tab_add(elconfig_win, elconfig_tab_collection_id, "Debug", 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);
 #endif
 		elconfig_populate_tabs();
 
