@@ -266,6 +266,18 @@ void update_windows_scale(float scale_factor);
 
 /*!
  * \ingroup elwindows
+ * \brief   Update scale settings for specific windows
+ *
+ *      Update scale settings for all windows
+ *
+ * \param win              pointer to window structure
+ * \param scale_factor     the scaling factor
+ * \callgraph
+ */
+void update_window_scale(window_info *win, float scale_factor);
+
+/*!
+ * \ingroup elwindows
  * \brief   Displays all active windows
  *
  *      Displays all active windows

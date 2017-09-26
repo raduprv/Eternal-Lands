@@ -44,7 +44,7 @@ int	keypress_in_window(int win_id, int x, int y, Uint32 key, Uint32 unikey);	// 
  *
  */
 
-static void update_window_scale(window_info *win, float scale_factor)
+void update_window_scale(window_info *win, float scale_factor)
 {
 	if (win == NULL)
 		return;
@@ -1093,14 +1093,8 @@ int	draw_window_title(window_info *win)
 	// draw the name of the window
 	if(win->flags&ELW_TITLE_NAME)
 		{
-			int	len=(get_string_width((unsigned char*)win->window_name)*8)/12;
+			int	len=(win->current_scale*get_string_width((unsigned char*)win->window_name)*8)/12;
 			int	x_pos=(win->len_x-len)/2;
-
-			if (win->is_scalable)
-			{
-				len=UI_SCALED_VALUE((get_string_width((unsigned char*)win->window_name)*8)/12);
-				x_pos=(win->len_x-len)/2;
-			}
 
 			glColor4f(0.0f,0.0f,0.0f,1.0f);
 			glBegin(GL_QUADS);
@@ -1122,10 +1116,7 @@ int	draw_window_title(window_info *win)
 			glEnable(GL_TEXTURE_2D);
 			glColor3f(win->border_color[0],win->border_color[1],win->border_color[2]);
 			// center text
-			if (win->is_scalable)
-				scaled_draw_string_small((win->len_x-len)/2, 1-win->title_height, (unsigned char*)win->window_name, 1);
-			else
-				draw_string_small((win->len_x-len)/2, 1-win->title_height, (unsigned char*)win->window_name, 1);
+			draw_string_zoomed((win->len_x-len)/2, 1-win->title_height, (unsigned char*)win->window_name, 1, DEFAULT_SMALL_RATIO*win->current_scale);
 		}
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -1273,7 +1264,7 @@ CHECK_GL_ERRORS();
 		int pos = vscrollbar_get_pos(win->window_id, win->scroll_id);
 		int offset = win->scroll_yoffset + ((win->flags&ELW_CLOSE_BOX) ? win->box_size : 0);
 
-		widget_move(win->window_id, win->scroll_id, win->len_x-win->box_size, pos+offset);
+		widget_move(win->window_id, win->scroll_id, win->len_x - widget_get_width(win->window_id, win->scroll_id), pos+offset);
 		/* Cut away what we've scrolled past, */
 		glEnable(GL_SCISSOR_TEST);
 		glScissor(win->cur_x+gx_adjust, window_height-win->cur_y-win->len_y-gy_adjust, win->len_x+1, win->len_y+1);
