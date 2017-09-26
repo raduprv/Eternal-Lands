@@ -75,6 +75,7 @@ typedef struct {
 	Uint16 max_height;
 	Uint16 actual_height;
 	Uint32 scrollbar;
+	int scrollbar_width;
 	int win_id;
 	float highlighted_red;
 	float highlighted_green;
@@ -3343,13 +3344,14 @@ int multiselect_button_add_extended(int window_id, Uint32 multiselect_id, Uint16
 		int i;
 
 		/* Add scrollbar */
-		M->scrollbar = vscrollbar_add_extended(window_id, widget_id++, NULL, widget->pos_x+widget->len_x-ELW_BOX_SIZE, widget->pos_y, ELW_BOX_SIZE, M->max_height, 0, 1.0, widget->r, widget->g, widget->b, 0, 1, M->max_height);
-		widget->len_x -= ELW_BOX_SIZE + 2;
+		M->scrollbar = vscrollbar_add_extended(window_id, widget_id++, NULL, widget->pos_x+widget->len_x-M->scrollbar_width,
+			widget->pos_y, M->scrollbar_width, M->max_height, 0, 1.0, widget->r, widget->g, widget->b, 0, 1, M->max_height);
+		widget->len_x -= M->scrollbar_width + 2;
 		widget->len_y = M->max_height;
 		/* We don't want things to look ugly. */
 		for(i = 0; i < M->nr_buttons; i++) {
 			if(M->buttons[i].width > widget->len_x) {
-				M->buttons[i].width -= ELW_BOX_SIZE + 2;
+				M->buttons[i].width -= M->scrollbar_width + 2;
 			}
 		}
 	}
@@ -3361,19 +3363,20 @@ int multiselect_button_add_extended(int window_id, Uint32 multiselect_id, Uint16
 }
 
 int multiselect_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, int width, Uint16 max_height, float size, float r, float g, float b, float hr, float hg, float hb, int max_buttons)
-  {
- 	multiselect *T = calloc (1, sizeof (multiselect));
-  	//Save info
- 	T->max_buttons = max_buttons > 0 ? max_buttons : 2;
- 	T->selected_button = 0;
+{
+	multiselect *T = calloc (1, sizeof (multiselect));
+	//Save info
+	T->max_buttons = max_buttons > 0 ? max_buttons : 2;
+	T->selected_button = 0;
 	T->next_value = 0;
- 	T->nr_buttons = 0;
- 	T->buttons = malloc(sizeof(*T->buttons) * T->max_buttons);
+	T->nr_buttons = 0;
+	T->buttons = malloc(sizeof(*T->buttons) * T->max_buttons);
 	T->max_height = max_height;
- 	T->scrollbar = -1;
- 	T->win_id = window_id;
- 	T->highlighted_red = hr;
- 	T->highlighted_green = hg;
+	T->scrollbar = -1;
+	T->scrollbar_width = ELW_BOX_SIZE * size;
+	T->win_id = window_id;
+	T->highlighted_red = hr;
+	T->highlighted_green = hg;
 	T->highlighted_blue = hb;
  
  	return widget_add (window_id, wid, OnInit, x, y, width, 0, 0, size, r, g, b, &multiselect_type, T, NULL);
