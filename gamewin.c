@@ -1292,26 +1292,25 @@ int display_game_handler (window_info *win)
 	if (show_fps)
 	{
 #ifdef	DEBUG
+		int y_cnt = 10;
 		actor *me = get_our_actor ();
 
 		glColor3f (1.0f, 1.0f, 1.0f);
 		if(me){
  			safe_snprintf((char*)str,sizeof(str),"Busy: %i",me->busy);
-	 		draw_string (400, 4, str, 1);
+	 		draw_string_zoomed (0, win->len_y - hud_y - (y_cnt--) * win->default_font_len_y, str, 1, win->current_scale);
 			safe_snprintf((char*)str,sizeof(str),"Command: %i",me->last_command);
- 			draw_string (400, 20, str, 1);
+ 			draw_string_zoomed (0, win->len_y - hud_y - (y_cnt--) * win->default_font_len_y, str, 1, win->current_scale);
 			safe_snprintf((char*)str,sizeof(str),"Coords: %-3i %3i",me->x_tile_pos, me->y_tile_pos);
- 			draw_string (550, 4, str, 1);
+ 			draw_string_zoomed (0, win->len_y - hud_y - (y_cnt--) * win->default_font_len_y, str, 1, win->current_scale);
 			safe_snprintf((char*)str,sizeof(str),"Coords: %.3g %.3g",me->x_pos, me->y_pos);
- 			draw_string (550, 20, str, 1);
+ 			draw_string_zoomed (0, win->len_y - hud_y - (y_cnt--) * win->default_font_len_y, str, 1, win->current_scale);
 		}
-		safe_snprintf ((char*)str, sizeof(str),"Lights: %i", show_lights);
-		draw_string (win->len_x-hud_x-105, 32, str, 1);
 
 		safe_snprintf((char*)str, sizeof(str), "lights: ambient=(%.2f,%.2f,%.2f,%.2f) diffuse=(%.2f,%.2f,%.2f,%.2f)",
 					  ambient_light[0], ambient_light[1], ambient_light[2], ambient_light[3],
 					  diffuse_light[0], diffuse_light[1], diffuse_light[2], diffuse_light[3]);
-		draw_string (0, win->len_y - hud_y - 65, str, 1);
+		draw_string_zoomed (0, win->len_y - hud_y - (y_cnt--) * win->default_font_len_y, str, 1, win->current_scale);
 		safe_snprintf((char*)str, sizeof(str), "weather: drops=%d/%d/%d/%d/%d/%d, int=%f, dty=%f, fog=%f",
 					  weather_get_drops_count(1),
 					  weather_get_drops_count(2),
@@ -1322,20 +1321,20 @@ int display_game_handler (window_info *win)
 					  weather_get_intensity(),
 					  weather_get_density(),
 					  skybox_fog_density);
-		draw_string (0, win->len_y - hud_y - 40, str, 1);
+		draw_string_zoomed (0, win->len_y - hud_y - (y_cnt--) * win->default_font_len_y, str, 1, win->current_scale);
+		//LRNR: stats testing
+		safe_snprintf ((char*)str, sizeof(str),"Lights: %i", show_lights);
+		draw_string_zoomed (0, win->len_y - hud_y - (y_cnt--) * win->default_font_len_y, str, 1, win->current_scale);
+		safe_snprintf((char*)str, sizeof(str), "E3D:%3d TOT:%3d", e3d_count, e3d_total);
+		draw_string_zoomed (0, win->len_y - hud_y - (y_cnt--) * win->default_font_len_y, str, 1, win->current_scale);
+		e3d_count= e3d_total= 0;
 #else	//DEBUG
 		glColor3f (1.0f, 1.0f, 1.0f);
 #endif	//DEBUG
 		safe_snprintf ((char*)str, sizeof(str), "FPS: %i", fps[0]);
-		draw_string (win->len_x-hud_x-95, 4, str, 1);
+		draw_string_zoomed (win->len_x - hud_x - 9 * win->default_font_len_x, 4 * win->current_scale, str, 1, win->current_scale);
 		safe_snprintf((char*)str, sizeof(str), "UVP: %d", use_animation_program);
-		draw_string (win->len_x-hud_x-95, 19, str, 1);
-#ifdef DEBUG
-		//LRNR: stats testing
-		safe_snprintf((char*)str, sizeof(str), "E3D:%3d TOT:%3d", e3d_count, e3d_total);
-		draw_string (win->len_x-hud_x-183, 49, str, 1);
-		e3d_count= e3d_total= 0;
-#endif //DEBUG
+		draw_string_zoomed (win->len_x - hud_x - 9 * win->default_font_len_x, 19 * win->current_scale, str, 1, win->current_scale);
 	}
 	draw_spell_icon_strings();
 
@@ -2277,7 +2276,7 @@ void create_game_root_window (int width, int height)
 {
 	if (game_root_win < 0)
 	{
-		game_root_win = create_window ("Game", -1, -1, 0, 0, width, height, ELW_TITLE_NONE|ELW_SHOW_LAST);
+		game_root_win = create_window ("Game", -1, -1, 0, 0, width, height, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
 		
 		set_window_handler (game_root_win, ELW_HANDLER_DISPLAY, &display_game_handler);
 		set_window_handler (game_root_win, ELW_HANDLER_CLICK, &click_game_handler);
