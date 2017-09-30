@@ -88,14 +88,14 @@ typedef struct _book {
 	struct _book * next;
 } book;
 
-book * books=NULL;
+static book * books=NULL;
 
-void add_book(book *bs);
-void display_book_window(book *b);
+static void add_book(book *bs);
+static void display_book_window(book *b);
 
 /*Memory handling etc.*/
 
-page * add_page(book * b)
+static page * add_page(book * b)
 {
 	page *p;
 	
@@ -112,7 +112,7 @@ page * add_page(book * b)
 	return p;
 }
 
-book *create_book (const char* title, int type, int id)
+static book *create_book (const char* title, int type, int id)
 {
 	book *b=(book*)calloc(1,sizeof(book));
 	
@@ -138,7 +138,7 @@ book *create_book (const char* title, int type, int id)
 	return b;
 }
 
-_image *create_image (const char* file, int x, int y, int w, int h, float u_start, float v_start, float u_end, float v_end)
+static _image *create_image (const char* file, int x, int y, int w, int h, float u_start, float v_start, float u_end, float v_end)
 {
 	_image *img=(_image *)calloc(1,sizeof(_image));
 	
@@ -160,7 +160,7 @@ _image *create_image (const char* file, int x, int y, int w, int h, float u_star
 	return img;
 }
 
-void free_page(page * p)
+static void free_page(page * p)
 {
 	char **l=p->lines;
 	
@@ -170,7 +170,7 @@ void free_page(page * p)
 	free(p);
 }
 
-void free_book(book * b)
+static void free_book(book * b)
 {
 	int i;
 	page **p;
@@ -183,7 +183,7 @@ void free_book(book * b)
 
 /*Multiple book handling*/
 
-book * get_book(int id)
+static book * get_book(int id)
 {
 	book *b;
 	
@@ -194,7 +194,7 @@ book * get_book(int id)
 	return b;
 }
 
-void add_book(book *bs)
+static void add_book(book *bs)
 {
 	book *b=books;
 	if(b) {
@@ -207,7 +207,7 @@ void add_book(book *bs)
 
 /*Book parser*/
 
-page * add_str_to_page(char * str, int type, book *b, page *p)
+static page * add_str_to_page(char * str, int type, book *b, page *p)
 {
 	char ** lines=NULL;
 	char ** newlines=NULL;
@@ -265,7 +265,7 @@ page * add_str_to_page(char * str, int type, book *b, page *p)
 	return p;
 }
 
-char * wrap_line_around_image(char * line, int w, int x, int max_width, char * last)
+static char * wrap_line_around_image(char * line, int w, int x, int max_width, char * last)
 {
 	int i,j;
 	if(last){
@@ -300,7 +300,7 @@ char * wrap_line_around_image(char * line, int w, int x, int max_width, char * l
 	return last;
 }
 
-page * add_image_to_page(char * in_text, _image *img, book * b, page * p)
+static page * add_image_to_page(char * in_text, _image *img, book * b, page * p)
 {
 	char **line;
 	char *last_ptr;
@@ -357,7 +357,7 @@ page * add_image_to_page(char * in_text, _image *img, book * b, page * p)
 
 /*XML-parser*/
 
-void add_xml_image_to_page(xmlNode * cur, book * b, page *p)
+static void add_xml_image_to_page(xmlNode * cur, book * b, page *p)
 {
 	char *image_path;
 	int x,y,w,h;
@@ -397,7 +397,7 @@ void add_xml_image_to_page(xmlNode * cur, book * b, page *p)
 		free(text);
 }
 
-void add_xml_str_to_page(xmlNode * cur, int type, book * b, page *p)
+static void add_xml_str_to_page(xmlNode * cur, int type, book * b, page *p)
 {
 	char * string=NULL;
 	if(cur->children && cur->children->content && MY_XMLSTRCPY(&string, (char*)cur->children->content)!=-1){
@@ -412,7 +412,7 @@ void add_xml_str_to_page(xmlNode * cur, int type, book * b, page *p)
 	free(string);
 }
 
-void add_xml_page(xmlNode *cur, book * b)
+static void add_xml_page(xmlNode *cur, book * b)
 {
 	page *p=add_page(b);
 	for(;cur;cur=cur->next){
@@ -430,7 +430,7 @@ void add_xml_page(xmlNode *cur, book * b)
 	}
 }
 
-book * parse_book(xmlNode *in, char * title, int type, int id)
+static book * parse_book(xmlNode *in, char * title, int type, int id)
 {
 	xmlNode * cur;
 	book * b=create_book(title, type, id);
@@ -446,7 +446,7 @@ book * parse_book(xmlNode *in, char * title, int type, int id)
 	return b;
 }
 
-book * read_book(char * file, int type, int id)
+static book * read_book(char * file, int type, int id)
 {
 	xmlDoc * doc;
 	xmlNode * root=NULL;
@@ -484,7 +484,7 @@ book * read_book(char * file, int type, int id)
 	return b;
 }
 
-void parse_knowledge_item(xmlNode *in)
+static void parse_knowledge_item(xmlNode *in)
 {
 	xmlNode * cur;
 	int id = -1;
@@ -520,7 +520,7 @@ void parse_knowledge_item(xmlNode *in)
 	return;
 }
 
-void read_knowledge_book_index()
+static void read_knowledge_book_index(void)
 {
 	xmlDoc * doc;
 	xmlNode * root=NULL;
@@ -541,7 +541,7 @@ void read_knowledge_book_index()
 	return;
 }
 
-void init_books()
+void init_books(void)
 {
 	paper1_text = load_texture_cached ("textures/paper1.dds", tt_image);
 	book1_text = load_texture_cached ("textures/book1.dds", tt_image);
@@ -575,7 +575,7 @@ void open_book(int id)
 	}
 }
 
-void read_local_book (const char *data, int len)
+static void read_local_book (const char *data, int len)
 {
 	char file_name[200];
 	book *b;
@@ -598,7 +598,7 @@ void read_local_book (const char *data, int len)
 	display_book_window (b); // Otherwise there's no point...
 }
 
-page * add_image_from_server(char *data, book *b, page *p)
+static page * add_image_from_server(char *data, book *b, page *p)
 {
 	int x, y;
 	int w, h;
@@ -639,7 +639,7 @@ page * add_image_from_server(char *data, book *b, page *p)
 	return p;
 }
 
-void read_server_book (const char *data, int len)
+static void read_server_book (const char *data, int len)
 {
 	char buffer[8192];
 	book *b;
@@ -714,7 +714,7 @@ void read_network_book (const char *in_data, int data_length)
 
 /*Generic display*/
 
-void display_image(_image *i)
+static void display_image(_image *i)
 {
 	glColor4f(1.0f,1.0f,1.0f,0.5f);
 	bind_texture(i->texture);
@@ -732,7 +732,7 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-void display_page(window_info* win, book * b, page * p)
+static void display_page(window_info* win, book * b, page * p)
 {
 	char ** l;
 	int i;
@@ -762,7 +762,7 @@ void display_page(window_info* win, book * b, page * p)
 	set_font(0);
 }
 
-void display_book(window_info* win, book * b, int type)
+static void display_book(window_info* win, book * b, int type)
 {
 	page ** p=&b->pages[b->active_page];
 	int x=0;
@@ -793,13 +793,13 @@ CHECK_GL_ERRORS();
 
 int book_win=-1;
 int paper_win=-1;
-int book_win_x=100;
-int book_win_y=100;
+static int book_win_x=100;
+static int book_win_y=100;
 
-int book_mouse_x=0;
-int book_mouse_y=0;
+static int book_mouse_x=0;
+static int book_mouse_y=0;
 
-int display_book_handler(window_info *win)
+static int display_book_handler(window_info *win)
 {
 	char str[20];
 	book *b=win->data;
@@ -910,7 +910,7 @@ CHECK_GL_ERRORS();
 	return 1;
 }
 
-int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
+static int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	book *b=win->data;
 	int margin_x = (int)(0.5 + win->current_scale * 10);
@@ -988,7 +988,7 @@ int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int mouseover_book_handler(window_info * win, int mx, int my)
+static int mouseover_book_handler(window_info * win, int mx, int my)
 {
 	//Save for later
 	book_mouse_x=mx;
@@ -1005,7 +1005,7 @@ static int ui_scale_book_handler(window_info *win)
 	return 1;
 }
 
-void display_book_window(book *b)
+static void display_book_window(book *b)
 {
 	int *p;
 
@@ -1069,7 +1069,7 @@ void close_book(int book_id)
 	book_opened=-1;
 }
 
-void free_books()
+void free_books(void)
 {
 	book *b,*l=NULL;
 	for(b=books;b;l=b){

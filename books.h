@@ -20,25 +20,12 @@ extern int paper_win;
 extern int book_opened;
 
 /*!
- * \ingroup	network_books
- * \brief	Opens a local book.
- *
- * 		Opens a local book - if it resides in memory already it will not be reloaded, but just redisplayed.
- *
- * \param	data The data from the server
- * \param	len The length of the data
- *
- * \callgraph
- */
-void read_local_book (const char * data, int len);
-
-/*!
  * \ingroup	books_window
  * \brief	Reads some books that will not be asked for server-side
  *
  * 		Reads a few local books that we will not ask the server about...
  */
-void init_books();
+void init_books(void);
 
 /*!
  * \ingroup	books_window
@@ -46,7 +33,7 @@ void init_books();
  *
  * 		Frees the memory allocated for books
  */
-void free_books();
+void free_books(void);
 
 /*!
  * \ingroup	network_books
