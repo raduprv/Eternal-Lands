@@ -6,6 +6,7 @@
 #ifndef __KEYS_H__
 #define __KEYS_H__
 
+#include <stddef.h>
 #include <SDL_types.h>
 
 #ifdef __cplusplus
@@ -134,7 +135,7 @@ extern Uint32 K_SPELL12;
  *
  * \callgraph
  */
-void read_key_config();
+void read_key_config(void);
 
 
 /*!

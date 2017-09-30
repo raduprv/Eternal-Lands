@@ -483,7 +483,7 @@ static void parse_key_line(const char *line)
 }
 
 // load the dynamic definitions for keys
-void read_key_config()
+void read_key_config(void)
 {
 	char line[512];
 	el_file_ptr f;
