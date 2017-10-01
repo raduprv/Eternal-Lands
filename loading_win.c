@@ -14,8 +14,6 @@
 #include "textures.h"
 #include "widgets.h"
 
-#define PROGRESSBAR_LEN    300
-#define PROGRESSBAR_HEIGHT  20
 #define PROGRESSBAR_ID       1
 
 const float load_bar_colors[12] = {
@@ -36,19 +34,19 @@ const float load_bar_colors[12] = {
 };
 
 Uint32 loading_win = -1;
-Uint32 loading_win_progress_bar = -1;
+static Uint32 loading_win_progress_bar = -1;
 static float total_progress = 0;
-GLuint loading_texture = 0;
-float frac_x, frac_y;
-Uint32 loading_texture_handle;
-Uint32 use_snapshot = 0;
+static GLuint loading_texture = 0;
+static float frac_x, frac_y;
+static Uint32 loading_texture_handle;
+static Uint32 use_snapshot = 0;
+static unsigned char text_buffer[255] = {0};
+static char version_str[250] = {0};
+static int version_width;
+static int progressbar_len = 0;
+static int progressbar_height = 0;
 
-unsigned char text_buffer[255] = {0};
-
-char version_str[250] = {0};
-int version_width;
-
-int display_loading_win_handler(window_info *win)
+static int display_loading_win_handler(window_info *win)
 {
 	if (use_snapshot == 0)
 	{
@@ -95,8 +93,9 @@ int display_loading_win_handler(window_info *win)
 	// the last texture, so that the font will be loaded
 	last_texture = -1;
 	glColor3f (1.0, 1.0, 1.0);
-	draw_string ((win->len_x - version_width) / 2, (win->len_y * 2) / 3 - 20, (unsigned char*)version_str, 1);
-	draw_string_small((win->len_x - (get_string_width(text_buffer)*SMALL_FONT_X_LEN)/12)/2, (win->len_y*2)/3 + PROGRESSBAR_HEIGHT + 2, text_buffer, 1);
+	draw_string_zoomed((win->len_x - version_width) / 2, (win->len_y * 2) / 3 - win->default_font_len_y - 2, (unsigned char*)version_str, 1, win->current_scale);
+	draw_string_zoomed((win->len_x - (get_string_width(text_buffer)*win->small_font_len_x)/12)/2,
+		(win->len_y*2)/3 + progressbar_height + 2, text_buffer, 1, win->current_scale * DEFAULT_SMALL_RATIO);
 
 	glDisable(GL_TEXTURE_2D);
 #ifdef OPENGL_TRACE
@@ -105,7 +104,7 @@ int display_loading_win_handler(window_info *win)
 	return 1;
 }
 
-void take_snapshot (int width, int height)
+static void take_snapshot (int width, int height)
 {
 	int bg_width = 1024;
 	int bg_height = 512;
@@ -166,10 +165,17 @@ int create_loading_win (int width, int height, int snapshot)
 
 	if (loading_win == -1)// Make sure we only have one loading window
 	{
-		loading_win = create_window("Loading window", -1, -1, 0, 0, width, height, ELW_TITLE_NONE|ELW_SHOW);
+		window_info * win = NULL;
+		loading_win = create_window("Loading window", -1, -1, 0, 0, width, height, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW);
 		set_window_handler(loading_win, ELW_HANDLER_DISPLAY, &display_loading_win_handler);
-		loading_win_progress_bar = progressbar_add_extended(loading_win, PROGRESSBAR_ID, NULL, (width - PROGRESSBAR_LEN)/2, (height*2)/3,
-				PROGRESSBAR_LEN, PROGRESSBAR_HEIGHT, 0, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, load_bar_colors);
+		if (loading_win >= 0 && loading_win < windows_list.num_windows)
+			win = &windows_list.window[loading_win];
+		else
+			return -1;
+		progressbar_len = (int)(0.5 + win->current_scale * 300);
+		progressbar_height = (int)(0.5 + win->current_scale * 20);
+		loading_win_progress_bar = progressbar_add_extended(loading_win, PROGRESSBAR_ID, NULL, (width - progressbar_len)/2, (height*2)/3,
+				progressbar_len, progressbar_height, 0, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, load_bar_colors);
 		if (!snapshot)
 		{
 			loading_texture_handle = load_texture_cached("./textures/login_back", tt_image);
@@ -177,7 +183,7 @@ int create_loading_win (int width, int height, int snapshot)
 			use_snapshot = 0;
 
 			print_version_string (version_str, sizeof (version_str));
-			version_width = (get_string_width ((unsigned char*)version_str) * DEFAULT_FONT_X_LEN) / 12;
+			version_width = (get_string_width ((unsigned char*)version_str) * win->default_font_len_x) / 12;
 		}
 	}
 
