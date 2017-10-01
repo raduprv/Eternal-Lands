@@ -24,7 +24,7 @@ extern char password_box_selected; /*!< true, if the cursor is currently in the 
  *
  * \callgraph
  */
-void init_login_screen ();
+void init_login_screen (void);
 
 /*!
  * \ingroup interface_login
