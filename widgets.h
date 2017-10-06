@@ -40,6 +40,7 @@ struct WIDGET_TYPE {
 	int (*resize)();
 	int (*key)();
 	int (*destroy)();
+	int (*move)();
     // We can conceivably store other generic info here too
 } ;
 
@@ -479,8 +480,6 @@ int widget_get_height (int window_id, Uint32 widget_id);
  * \param   	OnInit The function used for initiating the label
  * \param   	x The x location
  * \param   	y The y location
- * \param   	lx The width 
- * \param   	ly The height
  * \param   	Flags The flags
  * \param   	size The text size
  * \param   	r (0<=r<=1)

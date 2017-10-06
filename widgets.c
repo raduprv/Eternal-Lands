@@ -92,6 +92,7 @@ int GetWidgetType (const char *w);
 int disable_double_click = 0;
 
 // Forward declarations for widget types;
+static int label_resize (widget_list *w, int width, int height);
 static int free_widget_info (widget_list *widget);
 static int checkbox_click(widget_list *W, int mx, int my, Uint32 flags);
 static int vscrollbar_click(widget_list *W, int mx, int my, Uint32 flags);
@@ -103,6 +104,7 @@ static int text_field_click(widget_list *w, int mx, int my, Uint32 flags);
 static int text_field_drag(widget_list *w, int mx, int my, Uint32 flags, int dx, int dy);
 static int text_field_resize (widget_list *w, int width, int height);
 static int text_field_destroy(widget_list *w);
+static int text_field_move(widget_list *w, int pos_x, int pos_y);
 static int pword_field_draw(widget_list *w);
 static int multiselect_draw(widget_list *widget);
 static int multiselect_click(widget_list *widget, int mx, int my, Uint32 flags);
@@ -111,18 +113,18 @@ static int spinbutton_draw(widget_list *widget);
 static int spinbutton_click(widget_list *widget, int mx, int my, Uint32 flags);
 static int spinbutton_keypress(widget_list *widget, int mx, int my, Uint32 key, Uint32 unikey);
 
-static const struct WIDGET_TYPE label_type = { NULL, label_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info };
-static const struct WIDGET_TYPE image_type = { NULL, image_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info };
-static const struct WIDGET_TYPE checkbox_type = { NULL, checkbox_draw, checkbox_click, NULL, NULL, NULL, NULL, free_widget_info };
-static const struct WIDGET_TYPE round_button_type = { NULL, button_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info };
-static const struct WIDGET_TYPE square_button_type = { NULL, square_button_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info };
-static const struct WIDGET_TYPE progressbar_type = { NULL, progressbar_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info };
-static const struct WIDGET_TYPE vscrollbar_type = { NULL, vscrollbar_draw, vscrollbar_click, vscrollbar_drag, NULL, NULL, NULL, free_widget_info };
-static const struct WIDGET_TYPE tab_collection_type = { NULL, tab_collection_draw, tab_collection_click, NULL, NULL, tab_collection_resize, tab_collection_keypress, free_tab_collection };
-static const struct WIDGET_TYPE text_field_type = { NULL, text_field_draw, text_field_click, text_field_drag, NULL, text_field_resize, text_field_keypress, text_field_destroy };
-static const struct WIDGET_TYPE pword_field_type = { NULL, pword_field_draw, pword_field_click, NULL, NULL, NULL, pword_keypress, free_widget_info };
-static const struct WIDGET_TYPE multiselect_type = { NULL, multiselect_draw, multiselect_click, NULL, NULL, NULL, NULL, free_multiselect };
-static const struct WIDGET_TYPE spinbutton_type = { NULL, spinbutton_draw, spinbutton_click, spinbutton_click, NULL, NULL, spinbutton_keypress, free_multiselect };
+static const struct WIDGET_TYPE label_type = { NULL, label_draw, NULL, NULL, NULL, label_resize, NULL, free_widget_info, NULL };
+static const struct WIDGET_TYPE image_type = { NULL, image_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL };
+static const struct WIDGET_TYPE checkbox_type = { NULL, checkbox_draw, checkbox_click, NULL, NULL, NULL, NULL, free_widget_info, NULL };
+static const struct WIDGET_TYPE round_button_type = { NULL, button_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL };
+static const struct WIDGET_TYPE square_button_type = { NULL, square_button_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL };
+static const struct WIDGET_TYPE progressbar_type = { NULL, progressbar_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL };
+static const struct WIDGET_TYPE vscrollbar_type = { NULL, vscrollbar_draw, vscrollbar_click, vscrollbar_drag, NULL, NULL, NULL, free_widget_info, NULL };
+static const struct WIDGET_TYPE tab_collection_type = { NULL, tab_collection_draw, tab_collection_click, NULL, NULL, tab_collection_resize, tab_collection_keypress, free_tab_collection, NULL };
+static const struct WIDGET_TYPE text_field_type = { NULL, text_field_draw, text_field_click, text_field_drag, NULL, text_field_resize, text_field_keypress, text_field_destroy, text_field_move };
+static const struct WIDGET_TYPE pword_field_type = { NULL, pword_field_draw, pword_field_click, NULL, NULL, NULL, pword_keypress, free_widget_info, NULL };
+static const struct WIDGET_TYPE multiselect_type = { NULL, multiselect_draw, multiselect_click, NULL, NULL, NULL, NULL, free_multiselect, NULL };
+static const struct WIDGET_TYPE spinbutton_type = { NULL, spinbutton_draw, spinbutton_click, spinbutton_click, NULL, NULL, spinbutton_keypress, free_multiselect, NULL };
 
 // <--- Common widget functions ---
 widget_list * widget_find(int window_id, Uint32 widget_id)
@@ -278,9 +280,13 @@ int widget_move(int window_id, Uint32 widget_id, Uint16 x, Uint16 y)
 {
 	widget_list *w = widget_find(window_id, widget_id);
 	if(w){
+		int res = 1;
 		w->pos_x = x;
 		w->pos_y = y;
-		return 1;
+		if (w->type != NULL)
+			if (w->type->move != NULL)
+				res = w->type->move (w, x, y);
+		return res;
 	}
 	return 0;
 }
@@ -637,6 +643,18 @@ int label_draw(widget_list *W)
 		glColor3f(W->r,W->g,W->b);
 	}
 	draw_string_zoomed(W->pos_x,W->pos_y,(unsigned char *)l->text,1,W->size);
+	return 1;
+}
+
+static int label_resize (widget_list *w, int width, int height)
+{
+	if(w){
+		label *l = (label *)w->widget_info;
+		if (l) {
+			w->len_x = (width > 0) ?width :(Uint16)(strlen (l->text) * DEFAULT_FONT_X_LEN * w->size);
+			w->len_y = (height > 0) ?width :(Uint16)(DEFAULT_FONT_Y_LEN * w->size);
+		}
+	}
 	return 1;
 }
 
@@ -2288,8 +2306,9 @@ static int text_field_resize (widget_list *w, int width, int height)
 	{
 		if (tf->scroll_id != -1)
 		{
-			widget_move (w->window_id, tf->scroll_id, w->pos_x + width - tf->scrollbar_width, w->pos_y);
+			tf->scrollbar_width = w->size * ELW_BOX_SIZE;
 			widget_resize (w->window_id, tf->scroll_id, tf->scrollbar_width, height);
+			widget_move (w->window_id, tf->scroll_id, w->pos_x + width - tf->scrollbar_width, w->pos_y);
 		}
 		if (tf->buffer != NULL)
 		{
@@ -2313,6 +2332,18 @@ static int text_field_resize (widget_list *w, int width, int height)
 
 	return 1;
 }
+
+static int text_field_move(widget_list *w, int pos_x, int pos_y)
+{
+	if (w)
+	{
+		text_field *tf = w->widget_info;
+		if (tf && tf->scroll_id != -1)
+			widget_move (w->window_id, tf->scroll_id, w->pos_x + w->len_x - tf->scrollbar_width, w->pos_y);
+	}
+	return 1;
+}
+
 
 static int insert_window_id = -1;
 static int insert_widget_id = -1;
@@ -2816,7 +2847,7 @@ int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 
 	T->next_blink = TF_BLINK_DELAY;
 	if (Flags & TEXT_FIELD_SCROLLBAR)
 	{
-		T->scrollbar_width = ((window_id >= 0) && (window_id < windows_list.num_windows)) ?windows_list.window[window_id].box_size : ELW_BOX_SIZE;
+		T->scrollbar_width = size * ELW_BOX_SIZE;
 		T->scroll_id = vscrollbar_add_extended (window_id, widget_id++, NULL, x + lx-T->scrollbar_width, y, T->scrollbar_width, ly, 0, size, r, g, b, 0, 1, 1);		
 	}
 	else
