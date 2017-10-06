@@ -205,48 +205,93 @@ static int popup_keypress_handler(window_info *win,
 	return 0;
 }
 
+static int popup_ui_scale_handler(window_info *win)
+{
+	int seperator = (int)(0.5 + win->current_scale * 5);
+	int y_len = seperator;
+	int max_x = 0;
+	int ok_w = 0;
+	int no_w = 0;
+	int tmp = 0;
+	INPUT_POPUP *ipu = ipu_from_window(win);
+	if (ipu == NULL) return 0;
+
+	widget_set_size(win->window_id, ipu->popup_label, win->current_scale);
+	widget_resize(win->window_id, ipu->popup_label, 0, 0);
+	max_x = 2 * seperator + widget_get_width(win->window_id, ipu->popup_label);
+
+	widget_set_size(win->window_id, ipu->popup_field, win->current_scale);
+	widget_resize(win->window_id, ipu->popup_field, ipu->popup_x_len * win->current_scale - 2 * seperator, 1 + ipu->rows * win->default_font_len_y + 2 * 5 );
+	// hack - the text feld scrollbar does not function correct until the next resize, so do it twice for now
+	widget_resize(win->window_id, ipu->popup_field, ipu->popup_x_len * win->current_scale - 2 * seperator, 1 + ipu->rows * win->default_font_len_y + 2 * 5 );
+	max_x = (2 * seperator + widget_get_width(win->window_id, ipu->popup_field) > max_x) ?2 * seperator + widget_get_width(win->window_id, ipu->popup_field) :max_x;
+
+	button_resize(win->window_id, ipu->popup_ok, 0, 0, win->current_scale);
+	button_resize(win->window_id, ipu->popup_no, 0, 0, win->current_scale);
+
+	ok_w = widget_get_width(win->window_id, ipu->popup_ok);
+	no_w = widget_get_width(win->window_id, ipu->popup_no);
+	max_x = ((ok_w + no_w + 3 * seperator) > max_x) ?ok_w + no_w + 3 * seperator: max_x;
+	tmp = (max_x - ok_w - no_w) / 3;
+
+	widget_move(win->window_id, ipu->popup_label, (max_x - widget_get_width(win->window_id, ipu->popup_label)) / 2, y_len);
+	y_len += widget_get_height(win->window_id, ipu->popup_label) + seperator;
+
+	widget_move(win->window_id, ipu->popup_field, (max_x - widget_get_width(win->window_id, ipu->popup_field)) / 2, y_len);
+	y_len += widget_get_height(win->window_id, ipu->popup_field) + seperator;
+
+	widget_move(win->window_id, ipu->popup_ok, tmp, y_len);
+	widget_move(win->window_id, ipu->popup_no, 2 * tmp + ok_w, y_len);
+	y_len += widget_get_height(win->window_id, ipu->popup_ok) + seperator;
+
+	resize_window(win->window_id, max_x, y_len);
+
+	return 1;
+}
+
+
 void display_popup_win (INPUT_POPUP *ipu, const char* label)
 {
-	widget_list *wok;
-	widget_list *wno;
-
 	if(ipu->popup_win < 0)
 	{
-		Uint32 flags = ELW_WIN_DEFAULT & ~ELW_CLOSE_BOX;
+		window_info *win = NULL;
+		int widget_id = 100;
+
+		Uint32 flags = (ELW_USE_UISCALE|ELW_WIN_DEFAULT) & ~ELW_CLOSE_BOX;
 		ipu->popup_win = create_window (win_prompt, ipu->parent, 0, ipu->x, ipu->y, ipu->popup_x_len, ipu->popup_y_len, flags);
+
+		if (ipu->popup_win >= 0 && ipu->popup_win < windows_list.num_windows)
+			win = &windows_list.window[ipu->popup_win];
+		else
+		{
+			ipu->popup_win = -1;
+			return;
+		}
 
 		// clear the buffer
 		init_text_message (&ipu->popup_text, ipu->maxlen);
 		set_text_message_color (&ipu->popup_text, 0.77f, 0.57f, 0.39f);
 
 		// Label
-		ipu->popup_label = label_add (ipu->popup_win, NULL, label, 5, 5);
-		widget_set_color (ipu->popup_win, ipu->popup_label, 0.77f, 0.57f, 0.39f);
+		ipu->popup_label = label_add_extended(ipu->popup_win, widget_id++, NULL, 0, 0, 0, win->current_scale, 0.77f, 0.57f, 0.39f, label);
 
 		// Input
-		ipu->popup_field = text_field_add_extended (ipu->popup_win, 101, NULL, 5, 28, ipu->popup_x_len - 10, 28*ipu->rows, ipu->text_flags, 1.0f, 0.77f, 0.57f, 0.39f, &ipu->popup_text, 1, FILTER_ALL, 5, 5);
-		widget_set_color (ipu->popup_win, ipu->popup_field, 0.77f, 0.57f, 0.39f);
+		ipu->popup_field = text_field_add_extended (ipu->popup_win, widget_id++, NULL, 0, 0, 0, 0,
+			ipu->text_flags, 1.0, 0.77f, 0.57f, 0.39f, &ipu->popup_text, 1, FILTER_ALL, 5, 5);
 
 		// Accept
-		ipu->popup_ok = button_add (ipu->popup_win, NULL, button_okay, 0, 0);
+		ipu->popup_ok = button_add_extended (ipu->popup_win, widget_id++, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, button_okay);
 		widget_set_OnClick (ipu->popup_win, ipu->popup_ok, popup_ok_button_handler);
-		widget_set_color (ipu->popup_win, ipu->popup_ok, 0.77f, 0.57f, 0.39f);
 
 		// Reject
-		ipu->popup_no = button_add (ipu->popup_win, NULL, button_cancel, 0, 0);
+		ipu->popup_no = button_add_extended (ipu->popup_win, widget_id++, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, button_cancel);
 		widget_set_OnClick (ipu->popup_win, ipu->popup_no, popup_cancel_button_handler);
-		widget_set_color (ipu->popup_win, ipu->popup_no, 0.77f, 0.57f, 0.39f);
-
-		// align the buttons
-		wok = widget_find(ipu->popup_win, ipu->popup_ok);
-		wno = widget_find(ipu->popup_win, ipu->popup_no);
-		widget_move(ipu->popup_win, ipu->popup_ok, (ipu->popup_x_len - wok->len_x - wno->len_x)/3, ipu->popup_y_len - (wok->len_y + 5));
-		widget_move(ipu->popup_win, ipu->popup_no, wok->len_x + 2*(ipu->popup_x_len - wok->len_x - wno->len_x)/3, ipu->popup_y_len - (wno->len_y + 5));
 
 		set_window_handler (ipu->popup_win, ELW_HANDLER_KEYPRESS, popup_keypress_handler);
+		set_window_handler (ipu->popup_win, ELW_HANDLER_UI_SCALE, popup_ui_scale_handler);
 
-		if ((ipu->popup_win > -1) && (ipu->popup_win < windows_list.num_windows))
-			windows_list.window[ipu->popup_win].data = ipu;
+		win->data = ipu;
+		popup_ui_scale_handler(win);
 	}
 	else
 	{
@@ -259,6 +304,7 @@ void display_popup_win (INPUT_POPUP *ipu, const char* label)
 		label_set_text (ipu->popup_win, ipu->popup_label, label);
 		show_window (ipu->popup_win);
 		select_window (ipu->popup_win);
+		popup_ui_scale_handler(&windows_list.window[ipu->popup_win]);
 	}
 }
 
