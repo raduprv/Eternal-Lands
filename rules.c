@@ -605,6 +605,11 @@ int has_accepted=0;
 
 /*Root window*/
 
+static int text_box_width = 0;
+static int text_box_height = 0;
+static int box_border_x = 0;
+static int ui_seperator_y = 0;
+
 void init_rules_interface(float text_size, int count, int len_x, int len_y)
 {
 	if(rules.no)
@@ -614,7 +619,7 @@ void init_rules_interface(float text_size, int count, int len_x, int len_y)
 			//We need to format the rules again..
 			if (display_rules)
 				free_rules (display_rules);
-			display_rules = get_interface_rules ((float)(len_y - 120 * len_y / 480.0f) / (12 * text_size) - 1);
+			display_rules = get_interface_rules (text_box_width / (12 * text_size) - 1);
 		}
 		countdown = count;	// Countdown in 0.5 seconds...
 	}
@@ -624,11 +629,9 @@ void init_rules_interface(float text_size, int count, int len_x, int len_y)
 
 }
 
-void draw_rules_interface (int len_x, int len_y)
+void draw_rules_interface (window_info * win)
 {
 	char str[200];
-	float diff = (float) (len_x - len_y) / 2;
-	float window_ratio = (float) len_y / 480.0f;
 	float string_width, string_zoom;
 
 	if ((countdown <= 0) && (read_all_rules))
@@ -639,12 +642,12 @@ void draw_rules_interface (int len_x, int len_y)
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(0.77f,0.57f,0.39f);
 	glBegin(GL_LINES);
-	glVertex3i(diff + 30 * window_ratio, 50 * window_ratio, 0);
-	glVertex3i(len_x - (diff + 30 * window_ratio) - 20, 50 * window_ratio, 0);
-	glVertex3i(diff + 30 * window_ratio, 50 * window_ratio, 0);
-	glVertex3i(diff + 30 * window_ratio, 370 * window_ratio, 0);
-	glVertex3i(diff + 30 * window_ratio, 370 * window_ratio, 0);
-	glVertex3i(len_x - (diff + 30 * window_ratio) - 20, 370 * window_ratio, 0);
+	glVertex3i(box_border_x, ui_seperator_y, 0);
+	glVertex3i(box_border_x + text_box_width, ui_seperator_y, 0);
+	glVertex3i(box_border_x, ui_seperator_y + text_box_height, 0);
+	glVertex3i(box_border_x + text_box_width, ui_seperator_y + text_box_height, 0);
+	glVertex3i(box_border_x, ui_seperator_y, 0);
+	glVertex3i(box_border_x, ui_seperator_y + text_box_height, 0);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 
@@ -656,17 +659,18 @@ void draw_rules_interface (int len_x, int len_y)
 		safe_strncpy (str, accepted_rules, sizeof(str));
 
 	/* scale the string if it is too wide for the screen */
-	string_width = strlen (str) * DEFAULT_FONT_X_LEN;
-	string_zoom = 1;
-	if (string_width > len_x)
+	string_width = strlen (str) * win->default_font_len_x;
+	string_zoom = win->current_scale;
+	if (string_width > win->len_x)
 	{
-		string_zoom = len_x/string_width;
-		string_width *= string_zoom;
+		string_zoom = (float)win->len_x/((float)strlen (str) * DEFAULT_FONT_X_LEN);
+		string_width = strlen (str) * DEFAULT_FONT_X_LEN * string_zoom;
 	}
-	draw_string_zoomed ((len_x - string_width) / 2, len_y - 40 * window_ratio, (unsigned char*)str, 0, string_zoom);
+	draw_string_zoomed ((win->len_x - string_width) / 2, win->len_y - ui_seperator_y - win->default_font_len_y, (unsigned char*)str, 0, string_zoom);
 
 	set_font(3);
-	draw_rules (display_rules, diff + 30 * window_ratio, 60 * window_ratio, len_y + diff / 2 - 50, 360 * window_ratio, 1.0f, rules_winRGB);
+	draw_rules (display_rules, box_border_x, ui_seperator_y + win->default_font_len_y / 2,
+		box_border_x + text_box_width, text_box_height, win->current_scale, rules_winRGB);
 	set_font(0);
 
 	glDisable (GL_ALPHA_TEST);
@@ -683,7 +687,7 @@ int display_rules_root_handler (window_info *win)
 	{
 		if(virt_win_offset < 0) virt_win_offset=0;
 		draw_console_pic (cons_text);
-		draw_rules_interface (win->len_x, win->len_y);
+		draw_rules_interface (win);
 		CHECK_GL_ERRORS();
 	}
 
@@ -793,9 +797,37 @@ int keypress_rules_root_handler (window_info *win, int mx, int my, Uint32 key, U
 	return 1;
 }
 
+static void adjust_ui_elements(window_info *win, int scroll_id, int accept_id)
+{
+	int char_per_line = 65;
+	if ((char_per_line * win->default_font_len_x) > (win->len_x - 3 * win->box_size))
+		char_per_line = (int)((float)(win->len_x - 3 * win->box_size) / (float)win->default_font_len_x);
+
+	button_resize(win->window_id, accept_id, (strlen(accept_label) * win->default_font_len_x) + 40, (int)(0.5 + win->current_scale * 32), win->current_scale);
+
+	text_box_width = char_per_line * win->default_font_len_x;
+	box_border_x = (win->len_x - text_box_width - win->box_size) / 2;
+
+	text_box_height = 0.75 * (win->len_y - widget_get_height(win->window_id, accept_id) - win->default_font_len_y);
+	ui_seperator_y = (win->len_y - widget_get_height(win->window_id, accept_id) - win->default_font_len_y - text_box_height) / 4;
+
+	widget_resize(win->window_id, scroll_id, win->box_size, text_box_height);
+
+	widget_move(win->window_id, scroll_id, box_border_x + text_box_width, ui_seperator_y);
+	widget_move(win->window_id, accept_id, (win->len_x - widget_get_width(win->window_id, accept_id)) / 2, text_box_height + 2 * ui_seperator_y);
+}
+
 int resize_rules_root_handler (window_info *win, Uint32 w, Uint32 h)
 {
-	init_rules_interface (1.0, countdown, w, h);
+	last_display = 1;
+	adjust_ui_elements(win, rules_root_scroll_id, rules_root_accept_id);
+	init_rules_interface (win->current_scale, countdown, w, h);
+	return 1;
+}
+
+static int ui_scale_rules_root_handler(window_info *win)
+{
+	resize_window(win->window_id, win->len_x, win->len_y);
 	return 1;
 }
 
@@ -803,26 +835,30 @@ void create_rules_root_window (int width, int height, int next, int time)
 {
 	if (rules_root_win < 0)
 	{
-		float diff = (float) (width - height) / 2;
-		float window_ratio = (float) height / 480.0f;
-		int accept_width = (strlen(accept_label) * 11) + 40;
-		int accept_height = 32;
+		window_info *win = NULL;
 
-		rules_root_win = create_window (win_rules, -1, -1, 0, 0, width, height, ELW_TITLE_NONE|ELW_SHOW_LAST);
+		rules_root_win = create_window (win_rules, -1, -1, 0, 0, width, height, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
+		if (rules_root_win >= 0 && rules_root_win < windows_list.num_windows)
+			win = &windows_list.window[rules_root_win];
+		else
+			return;
 
-		rules_root_scroll_id = vscrollbar_add_extended (rules_root_win, rules_root_scroll_id, NULL, width - (diff + 30 * window_ratio) - 20, 50 * window_ratio, 20, 320 * window_ratio, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 3, rules.no-1);
-		rules_root_accept_id = button_add_extended (rules_root_win, rules_root_scroll_id + 1, NULL, (width - accept_width) /2, height - 80 * window_ratio, accept_width, accept_height, WIDGET_DISABLED, 1.0f, 1.0f, 1.0f, 1.0f, accept_label);
+		rules_root_scroll_id = vscrollbar_add_extended (rules_root_win, rules_root_scroll_id, NULL, 0, 0, 0, 0, 0, win->current_scale, 0.77f, 0.57f, 0.39f, 0, 3, rules.no-1);
+		rules_root_accept_id = button_add_extended (rules_root_win, rules_root_scroll_id + 1, NULL, 0, 0, 0, 0, WIDGET_DISABLED, win->current_scale, 1.0f, 1.0f, 1.0f, accept_label);
+
+		adjust_ui_elements(win, rules_root_scroll_id, rules_root_accept_id);
 
 		set_window_handler (rules_root_win, ELW_HANDLER_DISPLAY, &display_rules_root_handler);
 		set_window_handler (rules_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_rules_root_handler);
 		set_window_handler (rules_root_win, ELW_HANDLER_CLICK, &click_rules_root_handler);
 		set_window_handler (rules_root_win, ELW_HANDLER_KEYPRESS, &keypress_rules_root_handler);
 		set_window_handler (rules_root_win, ELW_HANDLER_RESIZE, &resize_rules_root_handler);
+		set_window_handler (rules_root_win, ELW_HANDLER_UI_SCALE, &ui_scale_rules_root_handler);
 		widget_set_OnClick (rules_root_win, rules_root_scroll_id, rules_root_scroll_handler);
 		widget_set_OnDrag (rules_root_win, rules_root_scroll_id, rules_root_scroll_handler);
 		widget_set_OnClick(rules_root_win, rules_root_accept_id, &click_rules_root_accept);
 	}
 
-	init_rules_interface (1.0, 2*time, width, height);
+	init_rules_interface (windows_list.window[rules_root_win].current_scale, 2*time, width, height);
 	next_win_id = next;
 }

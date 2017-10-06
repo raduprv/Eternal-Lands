@@ -72,19 +72,6 @@ extern int rules_root_win;
 int read_rules(void);
 
 /*!
- * \ingroup interface_rules
- * \brief Draws the interface to show up the rules
- *
- *      Draws the interface to show up the rules at the start of the game
- *
- * \param len_x The width of the rules window
- * \param len_y The height of the rules window
- *
- * \callgraph
- */
-void draw_rules_interface (int len_x, int len_y);
-
-/*!
  * \ingroup rules_window
  * \brief Fills the rules tab
  *
