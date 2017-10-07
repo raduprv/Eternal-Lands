@@ -129,6 +129,7 @@ namespace Indicators
 			int cm_handler(window_info *win, int widget_id, int mx, int my, int option);
 			void set_settings(unsigned int opts, unsigned int pos) { option_settings = opts; position_settings = pos; have_settings = true;}
 			void get_settings(unsigned int *opts, unsigned int *pos);
+			void ui_scale_handler(window_info *win) { x_len = 0; y_len = 0; }
 			~Indicators_Container(void) { destroy(); }
 		private:
 			void set_win_flag(Uint32 flag, int state);
@@ -255,6 +256,7 @@ namespace Indicators
 	//
 	static int display_indicators_handler(window_info *win) { container.draw(); return 1; }
 	static int mouseover_indicators_handler(window_info *win, int mx, int my) { if (my>=0) container.show_tooltip(win, mx); return 0; }
+	static int ui_scale_indicators_handler(window_info *win) { container.ui_scale_handler(win); return 1; }
 	static int click_indicators_handler(window_info *win, int mx, int my, Uint32 flags) { if (my>=0) container.click(mx, flags); return 1; }
 	static int cm_indicators_handler(window_info *win, int widget_id, int mx, int my, int option) { return container.cm_handler(win, widget_id, mx, my, option); }
 
@@ -277,7 +279,7 @@ namespace Indicators
 
 		x_len = static_cast<int>(Vars::font_x() * indicators.size() * Vars::zoom() +
 			2 * Vars::border() + 2 * Vars::space() * indicators.size() + 0.5);
-		y_len = static_cast<int>(Vars::border() + Vars::zoom() * Vars::font_y() + 0.5);
+		y_len = Vars::y_len();
 
 		if (indicators_win < 0)
 		{
@@ -318,6 +320,7 @@ namespace Indicators
 			set_window_handler(indicators_win, ELW_HANDLER_DISPLAY, (int (*)())&display_indicators_handler);
 			set_window_handler(indicators_win, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_indicators_handler);
 			set_window_handler(indicators_win, ELW_HANDLER_CLICK, (int (*)())&click_indicators_handler);
+			set_window_handler(indicators_win, ELW_HANDLER_UI_SCALE, (int (*)())&ui_scale_indicators_handler);
 
 			background_on = ((option_settings >> 25) & 1);
 			border_on = ((option_settings >> 26) & 1);
@@ -413,6 +416,7 @@ namespace Indicators
 		if (new_x_len != x_len)
 		{
 			x_len = new_x_len;
+			y_len = Vars::y_len();
 			resize_window (indicators_win, x_len, y_len);
 			if (default_location)
 			{
@@ -454,7 +458,7 @@ namespace Indicators
 		{
 			std::string tooltip("");
 			(*i)->get_tooltip(tooltip);
-			int x_offset = -static_cast<int>(Vars::border() + UI_SCALED_VALUE(SMALL_FONT_X_LEN) * (1 + tooltip.size()) + 0.5);
+			int x_offset = -static_cast<int>(Vars::border() + win->small_font_len_x * (1 + tooltip.size()) + 0.5);
 			if ((win->cur_x + x_offset) < 0)
 				x_offset = win->len_x;
 			scaled_show_help(tooltip.c_str(), x_offset, Vars::border());
