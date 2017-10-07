@@ -90,7 +90,6 @@ int items_stoall_nofirstrow = 0;
 int items_stoall_nolastrow = 0;
 int items_dropall_nofirstrow = 0;
 int items_dropall_nolastrow = 0;
-int items_auto_get_all = 0;
 int items_list_on_left = 0;
 static const char *item_help_str = NULL;
 static const char *item_desc_str = NULL;
@@ -971,30 +970,12 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	// Get All button
 	else if(over_button(win, mx, my)==BUT_GET){
-
 		int x,y;
 		me = get_our_actor ();
 		if(!me)return(1);
 		x=me->x_tile_pos;
 		y=me->y_tile_pos;
-
-		for(pos=0;pos<NUM_BAGS;pos++){
-			if(bag_list[pos].x != 0 && bag_list[pos].y != 0 &&
-				bag_list[pos].x == x && bag_list[pos].y == y)
-			{
-				if(get_show_window(ground_items_win))
-					pick_up_all_items();
-				else {
-					// if auto empty bags enable, set the open timer
-					if (items_auto_get_all)
-						ground_items_empty_next_bag = SDL_GetTicks();
-					else
-						ground_items_empty_next_bag = 0;
-					open_bag(bag_list[pos].obj_3d_id);
-				}
-				break; //we should only stand on one bag
-			}
-		}
+		items_get_bag(x,y);
 	}
 
 	// Sto All button

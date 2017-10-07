@@ -16,44 +16,49 @@
 #include "item_info.h"
 #include "md5.h"
 #include "multiplayer.h"
-#include "particles.h"
 #include "textures.h"
-#include "tiles.h"
-#include "translate.h"
 #include "eye_candy_wrapper.h"
-#include "gl_init.h"
-#ifdef NEW_SOUND
-#include "actors.h"
-#endif // NEW_SOUND
 #include "sound.h"
 
-ground_item ground_item_list[ITEMS_PER_BAG];
-bag bag_list[NUM_BAGS];
+#define NUM_BAGS 200
+#define ITEMS_PER_BAG 50
 
-static int GRIDSIZE = 33;
+typedef struct
+{
+	int x;
+	int y;
+	int obj_3d_id;
+#ifdef ONGOING_BAG_EFFECT
+	ec_reference ongoing_bag_effect_reference;
+#endif // ONGOING_BAG_EFFECT
+} bag;
 
 int ground_items_win= -1;
 int ground_items_menu_x=400;
 int ground_items_menu_y=20;
 int ground_items_visible_grid_rows = 10;
 int ground_items_visible_grid_cols = 5;
-Uint32 ground_items_empty_next_bag=0;
+int items_auto_get_all = 0;
+int view_ground_items=0;
 
+static ground_item ground_item_list[ITEMS_PER_BAG];
+static bag bag_list[NUM_BAGS];
+static int GRIDSIZE = 33;
 static int ground_items_grid_rows = 10;
 static int ground_items_grid_cols = 5;
 static const int min_grid_rows = 4;
 static const int min_grid_cols = 2;
 static const char *item_desc_str = NULL;
 static int mouseover_ground_item_pos = -1;
+static Uint32 ground_items_empty_next_bag=0;
 
-int view_ground_items=0;
 
 // forward declarations
-void draw_pick_up_menu();
+static void draw_pick_up_menu(void);
 // float get_bag_offset_x(float pos_x, float pos_y, int bag_id, int map_x, int map_y);
 // float get_bag_offset_y(float pos_x, float pos_y, int bag_id, int map_x, int map_y);
-float get_bag_rotation(float pos_x, float pos_y, int bag_id, int map_x, int map_y);
-float get_bag_tilt(float pos_x, float pos_y, int bag_id, int map_x, int map_y);
+static float get_bag_rotation(float pos_x, float pos_y, int bag_id, int map_x, int map_y);
+static float get_bag_tilt(float pos_x, float pos_y, int bag_id, int map_x, int map_y);
 
 void strap_word(char * in, char * out)
 {
@@ -106,7 +111,7 @@ void strap_word(char * in, char * out)
 		(float) digest[5])) / 80.0f * ((((int) abs(digest[6])) % 3 == 0) ? 1.0f : -1.0f);
 }*/
 
-float get_bag_rotation(float pos_x, float pos_y, int bag_id, int map_x, int map_y)
+static float get_bag_rotation(float pos_x, float pos_y, int bag_id, int map_x, int map_y)
 {
 	char str[64];
 	MD5 md5;
@@ -124,7 +129,7 @@ float get_bag_rotation(float pos_x, float pos_y, int bag_id, int map_x, int map_
 		digest[5]) + sinf(digest[6])) / 10.0f) * 360;
 }
 
-float get_bag_tilt(float pos_x, float pos_y, int bag_id, int map_x, int map_y)
+static float get_bag_tilt(float pos_x, float pos_y, int bag_id, int map_x, int map_y)
 {
 	char str[64];
 	MD5 md5;
@@ -313,7 +318,7 @@ void remove_bag(int bag_id)
 	bag_list[bag_id].obj_3d_id=-1;
 }
 
-void remove_all_bags(){
+void remove_all_bags(void){
 	int i;
 
 	for(i=0; i<NUM_BAGS; i++){    // clear bags list!!!!
@@ -322,7 +327,7 @@ void remove_all_bags(){
 }
 
 
-int clear_groundlist(void)
+static int clear_groundlist(void)
 {
 	int i;
 	for(i = 0; i < ITEMS_PER_BAG; i++) {
@@ -361,7 +366,7 @@ void get_bag_item (const Uint8 *data)
 }
 
 
-void pick_up_all_items(void)
+static void pick_up_all_items(void)
 {
 	Uint8 str[20];
 	int itempos;
@@ -375,6 +380,29 @@ void pick_up_all_items(void)
 	}
 }
 
+void items_get_bag(int x, int y)
+{
+	int pos;
+	for(pos=0;pos<NUM_BAGS;pos++)
+	{
+		if(bag_list[pos].x != 0 && bag_list[pos].y != 0 &&
+			bag_list[pos].x == x && bag_list[pos].y == y)
+		{
+			if(get_show_window(ground_items_win))
+				pick_up_all_items();
+			else
+			{
+				// if auto empty bags enable, set the open timer
+				if (items_auto_get_all)
+					ground_items_empty_next_bag = SDL_GetTicks();
+				else
+					ground_items_empty_next_bag = 0;
+				open_bag(bag_list[pos].obj_3d_id);
+			}
+			break; //we should only stand on one bag
+		}
+	}
+}
 
 //put the flags later on
 void get_bags_items_list (const Uint8 *data)
@@ -418,7 +446,7 @@ void get_bags_items_list (const Uint8 *data)
 	}
 }
 
-int pre_display_ground_items_handler(window_info *win)
+static int pre_display_ground_items_handler(window_info *win)
 {
 	glEnable(GL_TEXTURE_2D);
 	if (item_desc_str != NULL)
@@ -429,7 +457,7 @@ int pre_display_ground_items_handler(window_info *win)
 	return 1;
 }
 
-int display_ground_items_handler(window_info *win)
+static int display_ground_items_handler(window_info *win)
 {
 	char str[80];
 	char my_str[10];
@@ -533,7 +561,7 @@ CHECK_GL_ERRORS();
 }
 
 
-int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
+static int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int pos;
 	Uint8 str[10];
@@ -596,7 +624,7 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 }
 
 
-int mouseover_ground_items_handler(window_info *win, int mx, int my) {
+static int mouseover_ground_items_handler(window_info *win, int mx, int my) {
 	int yoffset = get_window_scroll_pos(win->window_id);
 	int pos = (yoffset>my) ?-1 :get_mouse_pos_in_grid(mx, my+1, ground_items_grid_cols, ground_items_grid_rows, 0, 0, GRIDSIZE, GRIDSIZE);
 
@@ -660,7 +688,7 @@ static int ui_scale_ground_items_handler(window_info * win)
 	return 1;
 }
 
-void draw_pick_up_menu()
+static void draw_pick_up_menu(void)
 {
 	if(ground_items_win < 0){
 		int our_root_win = -1;
