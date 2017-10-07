@@ -1558,7 +1558,7 @@ static void create_newchar_hud_window(void)
 
 void resize_newchar_hud_window(void)
 {
-	if(get_show_window(newchar_hud_win)) //Simply destroy and recreate everything
+	if(newchar_hud_win >= 0) //Simply destroy and recreate everything
 	{
 		destroy_window(color_race_win);
 		destroy_window(namepass_win);
