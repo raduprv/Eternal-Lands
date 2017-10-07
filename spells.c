@@ -139,6 +139,9 @@ static int show_last_spell_help=0;
 static int spell_mini_rows=0;
 static int spell_mini_grid_size = 0;
 static int spell_mini_border = 0;
+//active icons
+static int active_spells_size = 32;
+static int active_spells_offset = 64;
 
 /* spell duration state */
 static Uint16 requested_durations = 0;
@@ -696,11 +699,18 @@ void increment_poison_incidence(void)
 }
 
 /* called from display_game_handler() so we are in a position to draw text */
-void draw_spell_icon_strings(void)
+void draw_spell_icon_strings(window_info *win)
 {
 	size_t i;
 	int x_start = 0;
-	int y_start = window_height-hud_y-64-SMALL_FONT_Y_LEN;
+	int x_sep = (int)(0.5 + win->current_scale * 33);
+	int y_start = 0;
+
+	// these are used when drawing the ative icons too
+	active_spells_size = (int)(0.5 + win->current_scale * 32);
+	active_spells_offset = (int)(0.5 + win->current_scale * 64);
+
+	y_start = window_height - hud_y - active_spells_offset - win->small_font_len_y;
 
 	for (i = 0; i < NUM_ACTIVE_SPELLS; i++)
 	{
@@ -709,10 +719,10 @@ void draw_spell_icon_strings(void)
 		if ((poison_drop_counter > 0) && (active_spells[i].spell == 2) && show_poison_count)
 		{
 			safe_snprintf((char*)str, sizeof(str), "%d", poison_drop_counter );
-			draw_string_small_shadowed(x_start+(33-strlen((char *)str)*SMALL_FONT_X_LEN)/2, y_start, str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
+			scaled_draw_string_small_shadowed(x_start+(x_sep-strlen((char *)str)*win->small_font_len_x)/2, y_start, str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
 		}
 		/* other strings on spell icons, timers perhaps .....*/
-		x_start += 33;
+		x_start += x_sep;
 	}
 
 }
@@ -870,8 +880,8 @@ void display_spells_we_have(void)
 			//get the x and y
 			cur_pos=i;
 
-			x_start=33*cur_pos;
-			y_start=window_height-hud_y-64;
+			x_start = (active_spells_size + 1) * cur_pos;
+			y_start = window_height - hud_y - active_spells_offset;
 
 			duration = active_spells[i].duration;
 
@@ -881,12 +891,12 @@ void display_spells_we_have(void)
 
 				if ((scale >= 0.0) && (scale <= 1.0))
 				{
-					time_out(x_start, y_start, 32, scale);
+					time_out(x_start, y_start, active_spells_size, scale);
 				}
 			}
 
 			glEnable(GL_BLEND);
-			draw_spell_icon(cur_spell,x_start,y_start,32,0,0);
+			draw_spell_icon(cur_spell, x_start, y_start, active_spells_size, 0, 0);
 			glDisable(GL_BLEND);
 		}
 	}
@@ -998,10 +1008,7 @@ static void draw_current_spell(window_info *win, int x, int y, int sigils_too, i
 		for(i=0;spells_list[j].reagents_id[i]>0;i++) { 	
 			draw_item(spells_list[j].reagents_id[i],x+grid_size*i,y,grid_size);
 			safe_snprintf((char *)str, sizeof(str), "%i",spells_list[j].reagents_qt[i]);
-			if (win->is_scalable)
-				scaled_draw_string_small_shadowed(x+grid_size*i, y+grid_size*0.5, (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);
-			else
-				draw_string_small_shadowed(x+grid_size*i, y+grid_size*0.5, (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);
+			scaled_draw_string_small_shadowed(x+grid_size*i, y+grid_size*0.5, (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);
 			if(spells_list[j].uncastable&UNCASTABLE_REAGENTS) gray_out(x+grid_size*i,y+1,grid_size-1);
 		}
 		//draw mana
@@ -1011,10 +1018,7 @@ static void draw_current_spell(window_info *win, int x, int y, int sigils_too, i
 		else glColor3f(0.0,1.0,0.0);
 		i=(grid_size - win->current_scale * get_string_width(str))/2;
 		j=(grid_size - win->current_scale * get_char_width(str[0]))/2;
-		if (win->is_scalable)
-			scaled_draw_string(x+i,y+j,str,1);
-		else
-			draw_string(x+i,y+j,str,1);
+		scaled_draw_string(x+i,y+j,str,1);
 	}
 	
 	//draw strings	
@@ -1022,22 +1026,13 @@ static void draw_current_spell(window_info *win, int x, int y, int sigils_too, i
 	glColor3f(0.77f,0.57f,0.39f);
 	if(sigils_too) { 
 		x+=grid_size*2;
-		if (win->is_scalable)
-			scaled_draw_string_small(x, y - win->small_font_len_y, (unsigned char*)"Sigils", 1);
-		else
-			draw_string_small(x, y - win->small_font_len_y, (unsigned char*)"Sigils", 1);
+		scaled_draw_string_small(x, y - win->small_font_len_y, (unsigned char*)"Sigils", 1);
 		x+=grid_size*MAX_SIGILS+grid_size;
 	} else x += grid_size * 1.5;
 
-	if (win->is_scalable)
-		scaled_draw_string_small(x, y - win->small_font_len_y, (unsigned char*)"Reagents", 1);
-	else
-		draw_string_small(x, y - win->small_font_len_y, (unsigned char*)"Reagents", 1);
+	scaled_draw_string_small(x, y - win->small_font_len_y, (unsigned char*)"Reagents", 1);
 	x+=grid_size*4+((sigils_too) ? (grid_size):(grid_size*0.5));
-	if (win->is_scalable)
-		scaled_draw_string_small(x, y - win->small_font_len_y, (unsigned char*)"Mana", 1);
-	else
-		draw_string_small(x, y - win->small_font_len_y, (unsigned char*)"Mana", 1);
+	scaled_draw_string_small(x, y - win->small_font_len_y, (unsigned char*)"Mana", 1);
 
 	//draw grids
 	glDisable(GL_TEXTURE_2D);

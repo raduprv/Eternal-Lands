@@ -1336,7 +1336,7 @@ int display_game_handler (window_info *win)
 		safe_snprintf((char*)str, sizeof(str), "UVP: %d", use_animation_program);
 		draw_string_zoomed (win->len_x - hud_x - 9 * win->default_font_len_x, 19 * win->current_scale, str, 1, win->current_scale);
 	}
-	draw_spell_icon_strings();
+	draw_spell_icon_strings(win);
 
 	CHECK_GL_ERRORS ();
 	/* Draw the chat text */

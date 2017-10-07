@@ -7,6 +7,7 @@
 #define __SPELLS_H__
 
 #include <SDL_types.h>
+#include "elwindows.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -175,7 +176,7 @@ void spell_text_from_server(const Uint8 *in_data, int data_length);
 void restart_active_spell_sounds(void);
 #endif
 void increment_poison_incidence(void);
-void draw_spell_icon_strings(void);
+void draw_spell_icon_strings(window_info *win);
 int command_show_spell(char *text, int len);
 
 //#define BUFF_DURATION_DEBUG
