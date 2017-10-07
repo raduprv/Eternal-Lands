@@ -1135,7 +1135,7 @@ static int cm_encycl_handler(window_info *win, int widget_id, int mx, int my, in
 			break;
 		case CM_ENCYCL_SEARCH:
 			close_ipu(&ipu_encycl);
-			init_ipu(&ipu_encycl, win->window_id, DEFAULT_FONT_X_LEN * 20, -1, 40, 1, NULL, find_page_callback);
+			init_ipu(&ipu_encycl, win->window_id, 21, 1, 22, NULL, find_page_callback);
 			ipu_encycl.x = mx; ipu_encycl.y = my;
 			display_popup_win(&ipu_encycl, encycl_search_prompt_str);
 			if (ipu_encycl.popup_win >=0 && ipu_encycl.popup_win<windows_list.num_windows)
@@ -1249,7 +1249,7 @@ void fill_encyclopedia_win (int window_id)
 		cm_encycl = cm_create(cm_encycl_base_str, cm_encycl_handler);
 		cm_set_pre_show_handler(cm_encycl, cm_encycl_pre_show_handler);
 		cm_add_window(cm_encycl, window_id);
-		init_ipu(&ipu_encycl, -1, -1, -1, 1, 1, NULL, NULL);
+		init_ipu(&ipu_encycl, -1, 1, 1, 1, NULL, NULL);
 		find_base_pages();
 		process_encycl_links();
 	}

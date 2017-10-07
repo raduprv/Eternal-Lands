@@ -19,9 +19,9 @@ extern float note_zoom;    /*!< Size of the text in the note pad */
 /* state structure for an input popup window */
 typedef struct
 {
-	int popup_win, popup_field, popup_label, popup_ok, popup_no;
-	int popup_x_len, popup_y_len, parent, x, y;
-	int maxlen, rows, accept_do_not_close, allow_nonprint_chars;
+	int popup_win, parent, popup_field, popup_label, popup_ok, popup_no;
+	int maxlen, cols, rows, x, y;
+	int accept_do_not_close, allow_nonprint_chars;
 	void (*popup_cancel)(void *);
 	void (*popup_input)(const char *, void *);
 	Uint32 text_flags;
@@ -37,15 +37,14 @@ typedef struct
  *
  * \param ipu    	pointer to the input popup window state structure
  * \param parent    id of the parent window
- * \param x_len     width of the window in pixels
- * \param y_len     base height of the window if rows is 1
  * \param maxlen    the maximum length of the popup window text.
  * \param rows      number of rows for the text widget
+ * \param cols      number of chars columns for the text widget
  * \param cancel	callback function if the window is cancelled (or NULL)
  * \param input		callback function to pass entered text (or (unusefully) NULL)
  * \callgraph
  */
-void init_ipu (INPUT_POPUP *ipu, int parent, int x_len, int y_len, int maxlen, int rows, void cancel(void *), void input(const char *, void *));
+void init_ipu (INPUT_POPUP *ipu, int parent, int maxlen, int rows, int cols, void cancel(void *), void input(const char *, void *));
 
 /*!
  * \ingroup notepad_window
@@ -80,6 +79,17 @@ void close_ipu (INPUT_POPUP *ipu);
  * \callgraph
  */
 void display_popup_win (INPUT_POPUP *ipu, const char* label);
+
+/*!
+ * \ingroup notepad_window
+ * \brief   Centres the popup window to parent window 
+ *
+ *      Centres the popup window to parent window.
+ *
+ * \param ipu    	pointer to the input popup window state structure
+ * \callgraph
+ */
+void centre_popup_window (INPUT_POPUP *ipu);
 
 /*!
  * \ingroup notepad_window

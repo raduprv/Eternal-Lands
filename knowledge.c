@@ -418,7 +418,7 @@ static int cm_knowledge_handler(window_info *win, int widget_id, int mx, int my,
 	{
 		case 0:
 			close_ipu(&ipu_know);
-			init_ipu(&ipu_know, win->window_id, DEFAULT_FONT_X_LEN * 20, -1, 40, 1, NULL, set_hightlight_callback);
+			init_ipu(&ipu_know, win->window_id, 21, 1, 22, NULL, set_hightlight_callback);
 			ipu_know.x = mx; ipu_know.y = my;
 			display_popup_win(&ipu_know, know_highlight_prompt_str);
 			if (ipu_know.popup_win >=0 && ipu_know.popup_win<windows_list.num_windows)
@@ -502,7 +502,7 @@ void fill_knowledge_win (int window_id)
 	{
 		cm_know_id = cm_create(know_highlight_cm_str, cm_knowledge_handler);
 		cm_add_window(cm_know_id, window_id);
-		init_ipu(&ipu_know, -1, -1, -1, 1, 1, NULL, NULL);
+		init_ipu(&ipu_know, -1, 1, 1, 1, NULL, NULL);
 	}
 }
 

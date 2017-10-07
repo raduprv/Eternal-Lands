@@ -143,9 +143,7 @@ namespace CommandQueue
 	//
 	Queue::Queue(void) : last_time(0)
 	{
-		init_ipu(&ipu, -1, 300, 100, MAX_TEXT_MESSAGE_LENGTH, 3, cancel_handler, input_handler);
-		ipu.x = (window_width - ipu.popup_x_len) / 2;
-		ipu.y = (window_height - ipu.popup_y_len) / 2;
+		init_ipu(&ipu, -1, MAX_TEXT_MESSAGE_LENGTH, 3, 30, cancel_handler, input_handler);
 		ipu.data = static_cast<void *>(this);
 	}
 
@@ -178,6 +176,7 @@ namespace CommandQueue
 				return;
 			// open the input window and continue waiting for input
 			display_popup_win(&ipu, commands.front().get_prompts()[params.size()].c_str());
+			centre_popup_window(&ipu);
 			return;
 		}
 

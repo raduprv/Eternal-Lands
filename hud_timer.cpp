@@ -16,6 +16,7 @@
 #include "context_menu.h"
 #include "elconfig.h"
 #include "font.h"
+#include "gl_init.h"
 #include "hud.h"
 #include "hud_timer.h"
 #include "notepad.h"
@@ -165,10 +166,13 @@ int Hud_Timer::cm_handler(window_info *win, int option)
 					input = new INPUT_POPUP;
 				else
 					close_ipu(input);
-				init_ipu(input, win->window_id, 220, -1, 4, 1, 0, set_timer_time);
-				input->x = -230;
-				input->y = last_base_y_start;
+				init_ipu(input, -1, 4, 1, 5, 0, set_timer_time);
 				display_popup_win(input, hud_timer_popup_title_str);
+				if (input->popup_win >= 0 && input->popup_win < windows_list.num_windows)
+				{
+					window_info *win = &windows_list.window[input->popup_win];
+					move_window(win->window_id, win->pos_id, win->pos_loc, window_width - hud_x - win->len_x - 10, window_height - hud_y - win->len_y - 10);
+				}
 			}
 			break;
 		case CMHT_RESET: reset(); break;

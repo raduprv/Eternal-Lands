@@ -14,6 +14,7 @@
 #include "elwindows.h"
 #include "errors.h"
 #include "gamewin.h"
+#include "gl_init.h"
 #include "init.h"
 #include "hud.h"
 #include "notepad.h"
@@ -26,24 +27,13 @@
  *             Popup Section              *
  ******************************************/
 
-void init_ipu (INPUT_POPUP *ipu, int parent, int x_len, int y_len, int maxlen, int rows, void cancel(void *), void input(const char *, void *))
+void init_ipu (INPUT_POPUP *ipu, int parent, int maxlen, int rows, int cols, void cancel(void *), void input(const char *, void *))
 {
 	ipu->text_flags = TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS|TEXT_FIELD_MOUSE_EDITABLE;
 	ipu->text_flags |= (rows>1) ?TEXT_FIELD_SCROLLBAR :0;
 
-	ipu->popup_win = ipu->popup_field = ipu->popup_label = ipu->popup_ok =
-		ipu->popup_no = ipu->x = ipu->y = -1;
-
-	if (x_len == -1)
-		ipu->popup_x_len = DEFAULT_FONT_X_LEN * maxlen + 20;
-	else
-		ipu->popup_x_len = x_len;
-
-	if (y_len == -1)
-		ipu->popup_y_len = 100;
-	else
-		ipu->popup_y_len = y_len;
-	ipu->popup_y_len += ((rows>1) ?(rows-1)*28 :0);
+	ipu->popup_win = ipu->popup_field = ipu->popup_label = ipu->popup_ok = ipu->popup_no = -1;
+	ipu->x = ipu->y = 0;
 
 	ipu->popup_cancel = cancel;
 	ipu->popup_input = input;
@@ -52,6 +42,7 @@ void init_ipu (INPUT_POPUP *ipu, int parent, int x_len, int y_len, int maxlen, i
 	ipu->parent = parent;
 	ipu->maxlen = maxlen;
 	ipu->rows = rows;
+	ipu->cols = cols;
 	ipu->accept_do_not_close = ipu->allow_nonprint_chars = 0;
 }
 
@@ -68,7 +59,7 @@ void close_ipu (INPUT_POPUP *ipu)
 		destroy_window(ipu->popup_win);
 		clear_text_message_data (&ipu->popup_text);
 		free_text_message_data (&ipu->popup_text);
-		init_ipu(ipu, -1, 200, 100, 10, 1, NULL, NULL);
+		init_ipu(ipu, -1, 1, 1, 1, NULL, NULL);
 	}
 }
 
@@ -207,7 +198,7 @@ static int popup_keypress_handler(window_info *win,
 
 static int popup_ui_scale_handler(window_info *win)
 {
-	int seperator = (int)(0.5 + win->current_scale * 5);
+	int seperator = (int)(0.5 + win->current_scale * 10);
 	int y_len = seperator;
 	int max_x = 0;
 	int ok_w = 0;
@@ -221,9 +212,9 @@ static int popup_ui_scale_handler(window_info *win)
 	max_x = 2 * seperator + widget_get_width(win->window_id, ipu->popup_label);
 
 	widget_set_size(win->window_id, ipu->popup_field, win->current_scale);
-	widget_resize(win->window_id, ipu->popup_field, ipu->popup_x_len * win->current_scale - 2 * seperator, 1 + ipu->rows * win->default_font_len_y + 2 * 5 );
+	widget_resize(win->window_id, ipu->popup_field, ipu->cols * win->default_font_len_x + 2 * seperator + 2 * 5, 1 + ipu->rows * win->default_font_len_y + 2 * 5 );
 	// hack - the text feld scrollbar does not function correct until the next resize, so do it twice for now
-	widget_resize(win->window_id, ipu->popup_field, ipu->popup_x_len * win->current_scale - 2 * seperator, 1 + ipu->rows * win->default_font_len_y + 2 * 5 );
+	widget_resize(win->window_id, ipu->popup_field, ipu->cols * win->default_font_len_x + 2 * seperator + 2 * 5, 1 + ipu->rows * win->default_font_len_y + 2 * 5 );
 	max_x = (2 * seperator + widget_get_width(win->window_id, ipu->popup_field) > max_x) ?2 * seperator + widget_get_width(win->window_id, ipu->popup_field) :max_x;
 
 	button_resize(win->window_id, ipu->popup_ok, 0, 0, win->current_scale);
@@ -249,6 +240,25 @@ static int popup_ui_scale_handler(window_info *win)
 	return 1;
 }
 
+void centre_popup_window(INPUT_POPUP *ipu)
+{
+	window_info *win = NULL;
+	if (ipu == NULL) return;
+	if (ipu->popup_win < 0 || ipu->popup_win >= windows_list.num_windows) return;
+
+	win = &windows_list.window[ipu->popup_win];
+
+	if ((ipu->parent > -1) && (ipu->parent < windows_list.num_windows))
+	{
+		window_info *pwin = &windows_list.window[ipu->parent];
+		move_window(win->window_id, win->pos_id,win->pos_loc, win->pos_x + (pwin->len_x - win->len_x) / 2, win->pos_y + (pwin->len_y - win->len_y) / 2);
+	}
+	else
+	{
+		move_window(win->window_id, win->pos_id,win->pos_loc, (window_width - win->len_x) / 2, (window_height - win->len_y) / 2);
+	}
+}
+
 
 void display_popup_win (INPUT_POPUP *ipu, const char* label)
 {
@@ -258,7 +268,7 @@ void display_popup_win (INPUT_POPUP *ipu, const char* label)
 		int widget_id = 100;
 
 		Uint32 flags = (ELW_USE_UISCALE|ELW_WIN_DEFAULT) & ~ELW_CLOSE_BOX;
-		ipu->popup_win = create_window (win_prompt, ipu->parent, 0, ipu->x, ipu->y, ipu->popup_x_len, ipu->popup_y_len, flags);
+		ipu->popup_win = create_window (win_prompt, ipu->parent, 0, ipu->x, ipu->y, 0, 0, flags);
 
 		if (ipu->popup_win >= 0 && ipu->popup_win < windows_list.num_windows)
 			win = &windows_list.window[ipu->popup_win];
@@ -778,6 +788,7 @@ static int notepad_add_category(widget_list* UNUSED(w),
 		increase_note_storage();
 
 	display_popup_win (&popup_str, label_note_name);
+	centre_popup_window (&popup_str);
 	return 1;
 }
 
@@ -878,9 +889,7 @@ static int resize_notepad_handler(window_info *win, int new_width, int new_heigh
 	tab_collection_move(w, win->pos_x, win->pos_y + tab_tag_height);
 
 	close_ipu(&popup_str);
-	init_ipu (&popup_str, main_note_tab_id, NOTE_NAME_LEN*DEFAULT_FONT_X_LEN, 100, NOTE_NAME_LEN, 1, NULL, notepad_add_continued);
-	popup_str.x = (win->len_x - popup_str.popup_x_len) / 2;
-	popup_str.y = (win->len_y - popup_str.popup_y_len) / 2;
+	init_ipu (&popup_str, main_note_tab_id, NOTE_NAME_LEN+1, 1, NOTE_NAME_LEN+2, NULL, notepad_add_continued);
 
 	update_note_button_scrollbar (0);
 

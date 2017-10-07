@@ -155,7 +155,7 @@ namespace ItemLists
 	class Quantity_Input
 	{
 		public:
-			Quantity_Input(void) { init_ipu(&ipu, -1, 200, -1, 10, 1, NULL, quantity_input_handler); }
+			Quantity_Input(void) { init_ipu(&ipu, -1, 10, 1, 11, NULL, quantity_input_handler); }
 			size_t get_list(void) const { return list; };
 			size_t get_item(void) const { return item; };
 			void open(int parent_id, int mx, int my, size_t list, size_t item);
@@ -907,7 +907,7 @@ namespace ItemLists
 			names_scroll_id = vscrollbar_add_extended(win_id, 1, NULL, 0, 0, 0, 0, 0,
 				1.0, 0.77f, 0.57f, 0.39f, 0, 1, Vars::lists()->size()-num_show_names_list);
 
-			init_ipu(&ipu_item_list_name, -1, -1, -1, 1, 1, NULL, NULL);
+			init_ipu(&ipu_item_list_name, -1, 1, 1, 1, NULL, NULL);
 		}
 		else
 		{
@@ -1103,12 +1103,10 @@ CHECK_GL_ERRORS();
 	{
 		if ((win_id < 0) || (win_id >= windows_list.num_windows))
 			return;
-		window_info *win = &windows_list.window[win_id];
 		close_ipu(&ipu_item_list_name);
-		init_ipu(&ipu_item_list_name, win_id, -1, -1, 41, 1, NULL, (is_new) ?new_list_handler :rename_list_handler);
-		ipu_item_list_name.x = (win->len_x - ipu_item_list_name.popup_x_len) / 2;
-		ipu_item_list_name.y = (get_grid_size()*num_grid_rows - ipu_item_list_name.popup_y_len) / 2;
+		init_ipu(&ipu_item_list_name, win_id, 41, 1, 42, NULL, (is_new) ?new_list_handler :rename_list_handler);
 		display_popup_win(&ipu_item_list_name, (is_new) ?item_list_name_str : item_list_rename_str );
+		centre_popup_window(&ipu_item_list_name);
 		if (!is_new && Vars::lists()->valid_active_list())
 			set_text_message_data(&ipu_item_list_name.popup_text, Vars::lists()->get_active_name().c_str());
 	}
