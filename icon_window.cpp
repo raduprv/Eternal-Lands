@@ -13,25 +13,18 @@
 #include <algorithm>
 
 #include "asc.h"
-#include "actors.h"
-#include "chat.h"
+#include "command_queue.hpp"
 #include "context_menu.h"
-#include "elconfig.h"
 #include "elwindows.h"
 #include "elloggingwrapper.h"
 #include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
 #include "interface.h"
-#include "io/elfilewrapper.h"
-#include "multiplayer.h"
-#include "new_character.h"
 #include "icon_window.h"
-#include "init.h"
 #include "textures.h"
 #include "translate.h"
 #include "sound.h"
-#include "command_queue.hpp"
 
 /*
  * TODO		Add icon window position code - allowing the window to be repositioned
@@ -258,7 +251,8 @@ namespace IconWindow
 	class Container
 	{
 		public:
-			Container(void) : mouse_over_icon(-1), display_icon_size(32), icon_spacing(0) {}
+			Container(void) : mouse_over_icon(-1), display_icon_size(def_icon_size), unscale_display_icon_size(def_icon_size),
+				icon_spacing(0), unscaled_icon_spacing(0) {}
 			~Container(void) { free_icons(); }
 			size_t get_num_icons(void) const { return icon_list.size(); }
 			bool empty(void) const { return icon_list.empty(); }
@@ -267,12 +261,18 @@ namespace IconWindow
 			void default_icons(icon_window_mode icon_mode);
 			Virtual_Icon * icon_xml_factory(const xmlNodePtr cur);
 			bool read_xml(icon_window_mode icon_mode);
-			int get_icon_size(void) const { return UI_SCALED_VALUE(display_icon_size); }
-			int get_icon_spacing(void) const { return UI_SCALED_VALUE(icon_spacing); }
+			int get_icon_size(void) const { return display_icon_size; }
+			int get_icon_spacing(void) const { return icon_spacing; }
 			int get_icon_slot_width(void) const { return  get_icon_spacing() + get_icon_size(); }
 			int get_icons_win_width(void) const { return  get_icon_slot_width() * get_num_icons() - get_icon_spacing(); }
-			void set_icon_size(int icon_size) { display_icon_size = icon_size; update_window(); }
-			void set_icon_spacing(int icon_spacing) { this->icon_spacing = icon_spacing; update_window(); }
+			void set_icon_size(int icon_size) { unscale_display_icon_size = icon_size; ui_scale_handler(); }
+			void set_icon_spacing(int icon_spacing) { unscaled_icon_spacing = icon_spacing; ui_scale_handler(); }
+			void ui_scale_handler(void)
+			{
+				display_icon_size = scale_value(unscale_display_icon_size);
+				icon_spacing = scale_value(unscaled_icon_spacing);
+				update_window();
+			}
 			static int cm_generic_handler(window_info *win, int widget_id, int mx, int my, int option)
 			{
 				Busy dummy;
@@ -327,19 +327,29 @@ namespace IconWindow
 			{
 				if(icons_win < 0)
 					return;
-				move_window(icons_win, -1, 0, 0, window_height-get_icon_size());
 				resize_window(icons_win, get_icons_win_width(), get_icon_size());
+				move_window(icons_win, -1, 0, 0, window_height-get_icon_size());
 			}
+			int scale_value(int value) const
+			{
+				if (icons_win >= 0 && icons_win < windows_list.num_windows)
+					value = (int)(0.5 + windows_list.window[icons_win].current_scale * value);
+				return value;
+			}
+			static const int def_icon_size;
 		private:
 			class Busy { public: Busy(void) { busy = true; } ~Busy(void) { busy = false; } };
 			std::vector <Virtual_Icon *> icon_list;
 			int mouse_over_icon;
 			static bool busy;
 			int display_icon_size;
+			int unscale_display_icon_size;
 			int icon_spacing;
+			int unscaled_icon_spacing;
 	};
 
 	bool Container::busy = false;
+	const int Container::def_icon_size = 32;
 
 	// Constucture basic icon object
 	//
@@ -579,9 +589,9 @@ namespace IconWindow
 			}
 			else if (!xmlStrcasecmp(cur->name, (const xmlChar *)"image_settings"))
 			{
-				int temp_size = display_icon_size;
+				int temp_size = def_icon_size;
 				get_xml_field_int(&temp_size, "display_size", cur);
-				if (temp_size != display_icon_size)
+				if (temp_size != def_icon_size)
 					LOG_ERROR("Setting the icon size from the XML file is no longer supported.");
 			}
 		}
@@ -639,6 +649,13 @@ static IconWindow::Container action_icons;
 int	icons_win = -1;
 static int reload_flag = false;
 static icon_window_mode last_mode = (icon_window_mode)0;
+
+//	Window callback for ui_scale
+static int ui_scale_icons_handler(window_info *win)
+{
+	action_icons.ui_scale_handler();
+	return 1;
+}
 
 //	Window callback for mouse over
 static int mouseover_icons_handler(window_info *win, int mx, int my)
@@ -725,11 +742,12 @@ extern "C" void init_icon_window(icon_window_mode icon_mode)
 
 	if(icons_win < 0)
 	{
-		icons_win= create_window("Icons", -1, 0, 0, window_height-action_icons.get_icon_size(), window_width-hud_x, action_icons.get_icon_size(), ELW_TITLE_NONE|ELW_SHOW_LAST);
+		icons_win= create_window("Icons", -1, 0, 0, 0, 0, 0, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
 		set_window_handler(icons_win, ELW_HANDLER_DISPLAY, (int (*)())&display_icons_handler);
 		set_window_handler(icons_win, ELW_HANDLER_CLICK, (int (*)())&click_icons_handler);
 		set_window_handler(icons_win, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_icons_handler);
+		set_window_handler(icons_win, ELW_HANDLER_UI_SCALE, (int (*)())&ui_scale_icons_handler);
 	}
 
-	action_icons.update_window();
+	action_icons.ui_scale_handler();
 }
