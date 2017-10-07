@@ -35,8 +35,8 @@ static int GRIDSIZE = 33;
 int ground_items_win= -1;
 int ground_items_menu_x=400;
 int ground_items_menu_y=20;
-int ground_items_menu_x_len=0;
-int ground_items_menu_y_len=0;
+int ground_items_visible_grid_rows = 10;
+int ground_items_visible_grid_cols = 5;
 Uint32 ground_items_empty_next_bag=0;
 
 static int ground_items_grid_rows = 10;
@@ -618,37 +618,45 @@ int mouseover_ground_items_handler(window_info *win, int mx, int my) {
 }
 
 /* dynamically adjust the grid and the scroll bar when the window resizes */
-static int resize_ground_items_handler(window_info *win)
+static int resize_ground_items_handler(window_info *win, int width, int height)
 {
-		/* let the width lead */
-		ground_items_grid_cols = (win->len_x / GRIDSIZE) - 1;
-		if (ground_items_grid_cols < min_grid_cols)
-			ground_items_grid_cols = min_grid_cols;
+	ground_items_visible_grid_cols = (win->len_x / GRIDSIZE) - 1;
+	ground_items_visible_grid_rows = (win->len_y / GRIDSIZE);
 
-		/* but maintain a minimum height */
-		ground_items_grid_rows = (ITEMS_PER_BAG + ground_items_grid_cols - 1) / ground_items_grid_cols;
-		if (ground_items_grid_rows <= min_grid_rows)
-		{
-			ground_items_grid_rows = min_grid_rows;
-			ground_items_grid_cols = min_grid_cols;
-			while (ground_items_grid_cols*ground_items_grid_rows < ITEMS_PER_BAG)
-				ground_items_grid_cols++;
-		}
+	/* let the width lead */
+	ground_items_grid_cols = ground_items_visible_grid_cols;
+	if (ground_items_grid_cols < min_grid_cols)
+		ground_items_grid_cols = min_grid_cols;
 
-		set_window_scroll_len(win->window_id, ground_items_grid_rows*GRIDSIZE-win->len_y);
-		return 0;
+	/* but maintain a minimum height */
+	ground_items_grid_rows = (ITEMS_PER_BAG + ground_items_grid_cols - 1) / ground_items_grid_cols;
+	if (ground_items_grid_rows <= min_grid_rows)
+	{
+		ground_items_grid_rows = min_grid_rows;
+		ground_items_grid_cols = min_grid_cols;
+		while (ground_items_grid_cols*ground_items_grid_rows < ITEMS_PER_BAG)
+			ground_items_grid_cols++;
+	}
+
+	set_window_scroll_len(win->window_id, ground_items_grid_rows*GRIDSIZE-win->len_y);
+	return 0;
 }
 
 static int ui_scale_ground_items_handler(window_info * win)
 {
-	int current_rows = (win->len_y+GRIDSIZE/2)/GRIDSIZE;
 	int current_scroll_pos = get_window_scroll_pos(win->window_id) / (GRIDSIZE/3);
+	if (ground_items_visible_grid_cols < min_grid_cols || ground_items_visible_grid_cols >= ITEMS_PER_BAG ||
+		ground_items_visible_grid_rows < min_grid_rows || ground_items_visible_grid_rows >= ITEMS_PER_BAG)
+	{
+		ground_items_visible_grid_cols = 5;
+		ground_items_visible_grid_rows = 10;
+	}
 	GRIDSIZE = (int)(0.5 + 33 * win->current_scale);
 	set_window_min_size(win->window_id, (min_grid_cols+1)*GRIDSIZE, min_grid_rows*GRIDSIZE);
 	set_window_scroll_inc(win->window_id, GRIDSIZE/3);
 	set_window_scroll_yoffset(win->window_id, GRIDSIZE);
 	set_window_scroll_pos(win->window_id, current_scroll_pos * GRIDSIZE/3);
-	resize_window(win->window_id, (ground_items_grid_cols+1)*GRIDSIZE, current_rows*GRIDSIZE);
+	resize_window(win->window_id, (ground_items_visible_grid_cols+1)*GRIDSIZE, ground_items_visible_grid_rows*GRIDSIZE);
 	return 1;
 }
 
@@ -659,15 +667,8 @@ void draw_pick_up_menu()
 		if (!windows_on_top) {
 			our_root_win = game_root_win;
 		}
-		GRIDSIZE = UI_SCALED_VALUE(33);
-		if (ground_items_menu_x_len < (min_grid_cols+1)*GRIDSIZE || ground_items_menu_x_len >= window_width ||
-			ground_items_menu_y_len < min_grid_rows*GRIDSIZE || ground_items_menu_y_len >= window_height)
-		{
-			ground_items_menu_x_len=6*GRIDSIZE;
-			ground_items_menu_y_len=10*GRIDSIZE;
-		}
 		ground_items_win= create_window(win_bag, our_root_win, 0, ground_items_menu_x, ground_items_menu_y,
-			ground_items_menu_x_len, ground_items_menu_y_len, ELW_USE_UISCALE|ELW_SCROLLABLE|ELW_RESIZEABLE|ELW_WIN_DEFAULT);
+			0, 0, ELW_USE_UISCALE|ELW_SCROLLABLE|ELW_RESIZEABLE|ELW_WIN_DEFAULT);
 
 		set_window_handler(ground_items_win, ELW_HANDLER_DISPLAY, &display_ground_items_handler );
 		set_window_handler(ground_items_win, ELW_HANDLER_PRE_DISPLAY, &pre_display_ground_items_handler );
@@ -677,10 +678,11 @@ void draw_pick_up_menu()
 		set_window_handler(ground_items_win, ELW_HANDLER_CLOSE, &clear_groundlist );
 		set_window_handler(ground_items_win, ELW_HANDLER_UI_SCALE, &ui_scale_ground_items_handler );
 
-		set_window_min_size(ground_items_win, (min_grid_cols+1)*GRIDSIZE, min_grid_rows*GRIDSIZE);
-		set_window_scroll_inc(ground_items_win, GRIDSIZE/3);
-		set_window_scroll_yoffset(ground_items_win, GRIDSIZE);
-		resize_ground_items_handler(&windows_list.window[ground_items_win]);
+		if (ground_items_win >=0 && ground_items_win < windows_list.num_windows)
+			ui_scale_ground_items_handler(&windows_list.window[ground_items_win]);
+		else
+			return;
+
 	} else {
 		show_window(ground_items_win);
 		select_window(ground_items_win);

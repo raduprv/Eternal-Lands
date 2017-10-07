@@ -36,8 +36,8 @@ extern int view_ground_items; /*!< flag that indicates whether we should display
 
 extern int ground_items_menu_x;
 extern int ground_items_menu_y;
-extern int ground_items_menu_x_len;
-extern int ground_items_menu_y_len;
+extern int ground_items_visible_grid_cols;
+extern int ground_items_visible_grid_rows;
 extern Uint32 ground_items_empty_next_bag;
 
 /*!
