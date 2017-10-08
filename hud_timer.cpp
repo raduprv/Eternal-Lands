@@ -33,7 +33,7 @@ class Hud_Timer
 	public:
 		Hud_Timer(void) : running(false), use_tick(false), current_value(90),
 			start_value(90), mode_coundown(true), mouse_over(false),
-			max_value(9*60+59), height(DEFAULT_FONT_Y_LEN), cm_id(CM_INIT_VALUE),
+			max_value(9*60+59), height(0), cm_id(CM_INIT_VALUE),
 			last_base_y_start(-1), input(0) {}
 		~Hud_Timer(void) { destroy(); }
 		int get_height(void) const { return (view_hud_timer) ?height :0; }
