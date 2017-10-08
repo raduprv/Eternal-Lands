@@ -124,7 +124,6 @@ int display_map_handler (window_info * win)
 		Leave2DMode ();
 		if(reload_tab_map && map_root_win >= 0 && windows_list.window[map_root_win].displayed){
 			//need to reload the BMP
-			switch_from_game_map();
 			switch_to_game_map();
 		}
 		draw_game_map (!showing_continent, mouse_over_minimap);
@@ -133,24 +132,7 @@ int display_map_handler (window_info * win)
 		reload_tab_map = 0;
 	}	
 
-	if(special_effects){
-		display_special_effects(0);
-	}
-
-	// remember the time stamp to improve FPS quality when switching modes
-	next_fps_time=cur_time+1000;
-	last_count=0;
-
-	ec_idle();
-
-
-	missiles_update();
-    update_camera();
-
-	draw_delay = 20;
-
-	if ((input_widget!= NULL) && (input_widget->window_id != win->window_id))
-		input_widget_move_to_win(win->window_id);
+	display_handling_common(win);
 
 	return 1;
 }
@@ -212,17 +194,7 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 	}
 	else if (key == K_MAP)
 	{
-		if (keep_grabbing_mouse)
-		{
-			toggle_have_mouse();
-			keep_grabbing_mouse=0;
-		}
-		switch_from_game_map ();
-		hide_window (map_root_win);
-		show_window (game_root_win);
-		// Undo stupid quickbar hack
-		if ( !get_show_window (quickbar_win) )
-			show_window (quickbar_win);
+		return_to_gamewin_common();
 	}
 	else if (mark_filter_active && !adding_mark)
 	{
@@ -233,7 +205,6 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 		reset_tab_completer();
 		if (ch == '`' || key == K_CONSOLE)
 		{
-			switch_from_game_map ();
 			hide_window (map_root_win);
 			show_window (console_root_win);
 		}

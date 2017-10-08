@@ -7,6 +7,7 @@
 #define __GAMEWIN_H__
 
 #include <SDL_types.h>
+#include "elwindows.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -14,25 +15,25 @@ extern "C" {
 
 extern int HUD_MARGIN_X;
 extern int HUD_MARGIN_Y;
+extern int have_mouse;
+#ifndef MAP_EDITOR
+extern float fps_average;
+#endif //!MAP_EDITOR
 
 /*! \name windows handlers 
  * @{ */
 extern int game_root_win; /*!< the root (game) window */
 /*! @} */
+
+/*! \name configuration options 
+ * @{ */
 extern int use_old_clicker;
-extern Uint32 next_fps_time;
-extern int last_count;
-extern float fps_average;
 extern int include_use_cursor_on_animals;
-extern int have_mouse;
-extern int keep_grabbing_mouse;
-extern int just_released_mouse;
-#ifdef NEW_CURSOR
-extern int cursors_tex;
-#endif // NEW_CURSOR
 extern int cm_banner_disabled;
 extern int logo_click_to_url;
+extern char LOGO_URL_LINK[128];		/*!< the link clicking the EL logo sends you to */
 extern int auto_disable_ranging_lock;
+/*! @} */
 
 /*!
  * \brief Return the true if the ranging lock is on.
@@ -104,8 +105,8 @@ int string_input(char *text, size_t maxlen, char ch);
  * \retval int
  * \callgraph
  */
-
 int check_quit_or_fullscreen (Uint32 key);
+
 /*!
  * \ingroup events
  * \brief Common handler for normal character input
@@ -131,6 +132,25 @@ int text_input_handler (Uint32 key, Uint32 unikey);
  * \callgraph
  */
 int keypress_root_common (Uint32 key, Uint32 unikey);
+
+/*!
+ * \brief Handles common functions for root window display
+ *
+ *      Handles common functions for root window display
+ *
+ * \param win	pointer to the window structure
+ * \callgraph
+ */
+void display_handling_common(window_info *win);
+
+/*!
+ * \brief Handles common setup when retuening to the game window.
+ *
+ *      Handles common setup when retuening to the game window.
+ *
+ * \callgraph
+ */
+void return_to_gamewin_common(void);
 
 /*!
  * \ingroup events

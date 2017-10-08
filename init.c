@@ -898,13 +898,6 @@ void init_stuff()
 
 	update_loading_win("init textures", 5);
 
-#ifdef NEW_CURSOR
-	cursors_tex = load_texture_cached("textures/cursors2.dds", tt_gui);
-
-	//Emajekral's hi-color & big cursor code
-	if (!sdl_cursors) SDL_ShowCursor(0);
-#endif // NEW_CURSOR
-
 	//Load the map legend and continent map
 	legend_text = load_texture_cached("maps/legend.dds", tt_gui);
 

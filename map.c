@@ -253,7 +253,6 @@ void change_map (const char *mapname)
 	if ( get_show_window (map_root_win) )
 	{
 		hide_window(map_root_win);
-		switch_from_game_map ();
 		show_window(game_root_win);
 	}
 #else // !MAP_EDITOR2

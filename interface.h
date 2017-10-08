@@ -289,15 +289,6 @@ int switch_to_game_map();
 
 /*!
  * \ingroup interface_map
- * \brief   Switches back from map interface to game interface.
- *
- *      Switches back from map interface to game interface, by deleting the texture in \ref map_text.
- *
- */
-void switch_from_game_map();
-
-/*!
- * \ingroup interface_map
  * \brief   Draws the map interface.
  *
  *      Draws the map interface. Also responsible for drawing the user defined markings on a map as well as the current position of the actor.

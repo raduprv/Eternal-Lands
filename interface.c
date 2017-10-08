@@ -639,10 +639,6 @@ int switch_to_game_map()
 	return 1;
 }
 
-void switch_from_game_map()
-{
-}
-
 static void draw_mark_filter(void)
 {
 	int screen_x=0;

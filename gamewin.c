@@ -1,16 +1,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <SDL/SDL_keysym.h>
+
 #include "gamewin.h"
-#include "2d_objects.h"
-#include "3d_objects.h"
+#include "actor_init.h"
 #include "actor_scripts.h"
 #include "achievements.h"
 #include "asc.h"
-#include "bags.h"
-#include "books.h"
 #include "buddy.h"
-#include "chat.h"
 #ifdef CLUSTER_INSIDES
 #include "cluster.h"
 #endif // CLUSTER_INSIDES
@@ -19,83 +16,72 @@
 #include "context_menu.h"
 #include "cursors.h"
 #include "dialogues.h"
-#include "draw_scene.h"
-#include "e3d.h"
 #include "elconfig.h"
+#include "emotes.h"
 #include "events.h"
-#include "filter.h"
-#include "gl_init.h"
-#include "global.h"
-#include "highlight.h"
-#include "hud.h"
-#include "icon_window.h"
-#include "init.h"
-#include "interface.h"
-#include "items.h"
-#include "lights.h"
-#include "manufacture.h"
-#include "map.h"
-#include "mapwin.h"
-#include "multiplayer.h"
-#include "particles.h"
-#include "paste.h"
-#include "pathfinder.h"
-#include "pm_log.h"
-#include "questlog.h"
-#include "reflection.h"
-#include "serverpopup.h"
-#include "shadows.h"
-#include "spells.h"
-#include "storage.h"
-#include "tabs.h"
-#include "textures.h"
-#include "tiles.h"
-#include "trade.h"
-#include "translate.h"
-#include "url.h"
-#include "weather.h"
-#ifdef DEBUG
-#include "sound.h"
-#include "special_effects.h"
-#endif
-#include "special_effects.h"
-#include "eye_candy_wrapper.h"
-#include "minimap.h"
-#ifdef PAWN
-#include "pawn/elpawn.h"
-#endif
-#include "sky.h"
-#include "missiles.h"
 #ifdef ECDEBUGWIN
 #include "eye_candy_debugwin.h"
 #endif
-#include "actor_init.h"
-#include "emotes.h"
+#include "eye_candy_wrapper.h"
+#include "gl_init.h"
+#include "highlight.h"
+#include "hud.h"
+#include "init.h"
+#include "interface.h"
+#include "manufacture.h"
+#include "map.h"
+#include "minimap.h"
+#include "missiles.h"
+#include "multiplayer.h"
+#include "paste.h"
+#include "pathfinder.h"
+#ifdef PAWN
+#include "pawn/elpawn.h"
+#endif
+#include "pm_log.h"
+#include "questlog.h"
+#include "reflection.h"
+#include "shadows.h"
+#include "special_effects.h"
+#include "spells.h"
+#include "sky.h"
+#ifdef DEBUG
+#include "sound.h"
+#endif
+#include "storage.h"
+#include "tabs.h"
+#include "textures.h"
+#include "trade.h"
+#include "url.h"
+#include "weather.h"
 
+// exported
 int HUD_MARGIN_X = 64;
 int HUD_MARGIN_Y = 49;
-
-int game_root_win = -1;
-int gamewin_in_id = 4442;
-int use_old_clicker=0;
 float fps_average = 100.0;
+int have_mouse = 0;
+int game_root_win = -1;
+
+// configuration options exported
+int use_old_clicker=0;
 int include_use_cursor_on_animals = 0;
+int cm_banner_disabled = 0;
 int logo_click_to_url = 1;
 char LOGO_URL_LINK[128] = "http://www.eternal-lands.com";
-int have_mouse = 0;
-int just_released_mouse = 0;
-int keep_grabbing_mouse = 0;
-#ifdef NEW_CURSOR
-int cursors_tex;
-#endif // NEW_CURSOR
+int auto_disable_ranging_lock = 1;
+
 #ifdef  DEBUG
 extern int e3d_count, e3d_total;    // LRNR:stats testing only
 #endif  //DEBUG
-int cm_banner_disabled = 0;
 
-int auto_disable_ranging_lock = 1;
-
+static Uint32 next_fps_time = 0;
+static int last_count = 0;
+static int keep_grabbing_mouse = 0;
 static int ranging_lock = 0;
+static int mouse_over_logo = 0;
+#ifdef NEW_CURSOR
+static int cursors_tex;
+#endif // NEW_CURSOR
 
 int ranging_lock_is_on(void)
 {
@@ -180,7 +166,7 @@ void draw_special_cursors(void)
 	{
 #ifdef NEW_CURSOR
 		glColor4f(1,1,1,1);
-		get_and_set_texture_id(cursors_tex);
+		bind_texture(cursors_tex);
 		if (big_cursors /* && !sdl_cursors */) {
 			float x = (current_cursor%8)/8.0;
 			float y = (1-current_cursor/8 + 5)/8.0;
@@ -316,7 +302,7 @@ void draw_special_cursors(void)
 		}
 
 		glColor4f(1,1,1,1);
-		get_and_set_texture_id(cursors_tex);
+		bind_texture(cursors_tex);
 		if(big_cursors){
 			float x = (current_cursor%8)/8.0;
 			float y = (1-current_cursor/8 + 5)/8.0;
@@ -363,7 +349,7 @@ void toggle_have_mouse(void)
 	}
 }
 
-void toggle_first_person()
+static void toggle_first_person()
 {
 	if (first_person == 0){
 		//rotate camera where actor is looking at
@@ -383,8 +369,17 @@ void toggle_first_person()
 }
 
 // This is the main part of the old check_cursor_change ()
-int mouseover_game_handler (window_info *win, int mx, int my)
+static int mouseover_game_handler (window_info *win, int mx, int my)
 {
+	// some pixels dead space to try to prevent accidental misclicks
+	mouse_over_logo = 0;
+	if (hud_x && mx > win->len_x - win->current_scale * 54 && my < win->current_scale * 54)
+	{
+		elwin_mouse = CURSOR_USE;
+		mouse_over_logo = 1;
+		return 1;
+	}
+
 	if(object_under_mouse == -1)
 	{
 		if(spell_result==2){
@@ -521,7 +516,7 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 }
 
 // this is the main part of the old check_mouse_click ()
-int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
+static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int flag_alt = flags & ELW_ALT;
 	int flag_ctrl = flags & ELW_CTRL;
@@ -556,7 +551,8 @@ int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 		return 1;
 	}
 
-	if (mx > win->len_x - UI_SCALED_VALUE(64) && my < UI_SCALED_VALUE(54) ) // 10 pixels dead space to try to prevent accidental misclicks
+	// some pixels dead space to try to prevent accidental misclicks
+	if (mouse_over_logo)
 	{
 		if (logo_click_to_url)
 			open_web_link(LOGO_URL_LINK);
@@ -998,9 +994,48 @@ int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-Uint32 next_fps_time = 0;	// made global so the other modes can keep it from goin stale
-int last_count = 0;
-int display_game_handler (window_info *win)
+// common to console and map windows
+void display_handling_common(window_info *win)
+{
+	if(special_effects){
+		display_special_effects(0);
+	}
+
+	// remember the time stamp to improve FPS quality when switching modes
+	next_fps_time=cur_time+1000;
+	last_count=0;
+
+	ec_idle();
+
+	missiles_update();
+	update_camera();
+
+	draw_delay = 20;
+
+	if ((input_widget!= NULL) && (input_widget->window_id != win->window_id))
+		input_widget_move_to_win(win->window_id);
+}
+
+
+// common to console and map windows
+void return_to_gamewin_common(void)
+{
+	if (keep_grabbing_mouse)
+	{
+		toggle_have_mouse();
+		keep_grabbing_mouse=0;
+	}
+	hide_window (map_root_win);
+	hide_window (console_root_win);
+	show_window (game_root_win);
+	// Undo stupid quickbar hack
+	if ( !get_show_window (quickbar_win) )
+		show_window (quickbar_win);
+	if ( !get_show_window (quickspell_win) )
+		show_window (quickspell_win);
+}
+
+static int display_game_handler (window_info *win)
 {
 	static int main_count = 0;
 	static int times_FPS_below_3 = 0;
@@ -2033,7 +2068,7 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 	return 1;
 }
 
-int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+static int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
 	Uint16 keysym = key & 0xffff;
 
@@ -2264,7 +2299,7 @@ void do_keypress(Uint32 key)
 	}
 }
 
-int show_game_handler (window_info *win) {
+static int show_game_handler (window_info *win) {
 	init_hud_interface (HUD_INTERFACE_GAME);
 	show_hud_windows();
 	if (use_windowed_chat == 1)
@@ -2303,5 +2338,11 @@ void create_game_root_window (int width, int height)
 			widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_DISABLED);
 		}
 		resize_root_window();
+
+#ifdef NEW_CURSOR
+		cursors_tex = load_texture_cached("textures/cursors2.dds", tt_gui);
+		//Emajekral's hi-color & big cursor code
+		if (!sdl_cursors) SDL_ShowCursor(0);
+#endif // NEW_CURSOR
 	}
 }

@@ -114,24 +114,7 @@ static int display_console_handler (window_info *win)
 		set_font (0);	// switch to fixed
 	}
 
-	if(special_effects){
-		display_special_effects(0);
-	}
-
-	// remember the time stamp to improve FPS quality when switching modes
-	next_fps_time=cur_time+1000;
-	last_count=0;
-
-	ec_idle();
-
-
-	missiles_update();
-    update_camera();
-
-	draw_delay = 20;
-
-	if ((input_widget!= NULL) && (input_widget->window_id != win->window_id))
-		input_widget_move_to_win(win->window_id);
+	display_handling_common(win);
 
 	return 1;
 }
@@ -207,18 +190,7 @@ static int keypress_console_handler (window_info *win, int mx, int my, Uint32 ke
 		reset_tab_completer();
 		if ((ch == '`' || key == K_CONSOLE) && !locked_to_console)
 		{
-			if (keep_grabbing_mouse)
-			{
-				toggle_have_mouse();
-				keep_grabbing_mouse=0;
-			}
-			hide_window (console_root_win);
-			show_window (game_root_win);
-			// Undo stupid quickbar hack
-			if ( !get_show_window (quickbar_win) )
-				show_window (quickbar_win);
-			if ( !get_show_window (quickspell_win) )
-				show_window (quickspell_win);
+			return_to_gamewin_common();
 		}
 		else if ( !text_input_handler (key, unikey) )
 		{
