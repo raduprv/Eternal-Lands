@@ -1082,6 +1082,12 @@ static void context_hud_pre_show_handler(window_info *win, int widget_id, int mx
 	cm_rangstats_shown = get_show_window(range_win);
 }
 
+static int ui_scale_misc_handler(window_info *win)
+{
+	ui_scale_timer(win);
+	return 1;
+}
+
 void init_misc_display(hud_interface type)
 {
 	int y_len = 2 * UI_SCALED_VALUE(64) + UI_SCALED_VALUE(DEFAULT_FONT_Y_LEN) + knowledge_bar_height + get_height_of_timer() + num_disp_stat * UI_SCALED_VALUE(SMALL_FONT_Y_LEN);
@@ -1089,10 +1095,14 @@ void init_misc_display(hud_interface type)
 	//create the misc window
 	if(misc_win < 0)
 		{
-			misc_win= create_window("Misc", -1, 0, window_width-HUD_MARGIN_X, window_height-y_len, HUD_MARGIN_X, y_len, ELW_TITLE_NONE|ELW_SHOW_LAST);
+			misc_win= create_window("Misc", -1, 0, window_width-HUD_MARGIN_X, window_height-y_len, HUD_MARGIN_X, y_len, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
+			if (misc_win < 0 || misc_win >= windows_list.num_windows)
+				return;
 			set_window_handler(misc_win, ELW_HANDLER_DISPLAY, &display_misc_handler);
 			set_window_handler(misc_win, ELW_HANDLER_CLICK, &click_misc_handler);
 			set_window_handler(misc_win, ELW_HANDLER_MOUSEOVER, &mouseover_misc_handler );
+			set_window_handler(misc_win, ELW_HANDLER_UI_SCALE, &ui_scale_misc_handler );
+			ui_scale_misc_handler(&windows_list.window[misc_win]);
 			cm_hud_id = cm_create(cm_hud_menu_str, context_hud_handler);
 			cm_bool_line(cm_hud_id, CMH_STATS, &show_stats_in_hud, "show_stats_in_hud");
 			cm_bool_line(cm_hud_id, CMH_STATBARS, &show_statbars_in_hud, "show_statbars_in_hud");
