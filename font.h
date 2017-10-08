@@ -72,10 +72,12 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
  * \callgraph
  */
 int draw_string(int x, int y, const unsigned char * our_string, int max_lines);
-int scaled_draw_string (int x, int y, const unsigned char * our_string, int max_lines);
 int draw_string_shadowed (int x, int y, const unsigned char * our_string, int max_lines, float fr,float fg,float fb, float br,float bg,float bb);
-int scaled_draw_string_shadowed (int x, int y, const unsigned char * our_string, int max_lines, float fr,float fg,float fb, float br,float bg,float bb);
 int draw_string_shadowed_width (int x, int y, const unsigned char * our_string, int max_width, int max_lines, float fr,float fg,float fb, float br,float bg,float bb);
+/* temporary functions during ui scaling changes */
+int scaled_draw_string (int x, int y, const unsigned char * our_string, int max_lines);
+int scaled_draw_string_shadowed (int x, int y, const unsigned char * our_string, int max_lines, float fr,float fg,float fb, float br,float bg,float bb);
+
 /*!
  * \ingroup text_font
  * \brief   draws the given string \a our_string at the desired position (\a x, \a y) with a zoom factor of \a text_zoom.
@@ -91,9 +93,10 @@ int draw_string_shadowed_width (int x, int y, const unsigned char * our_string, 
  * \callgraph
  */
 int draw_string_zoomed (int x, int y,const unsigned char * our_string,int max_lines, float text_zoom);
-
+int draw_string_shadowed_zoomed (int x, int y, const unsigned char * our_string, int max_lines, float fr,float fg,float fb, float br,float bg,float bb, float zoom);
 int draw_string_zoomed_width (int x, int y, const unsigned char * our_string, int max_width, int max_lines, float text_zoom);
 int draw_string_width(int x, int y, const unsigned char * our_string, int max_width, int max_lines);
+
 /*!
  * \ingroup text_font
  * \brief   draws the given string \a our_string at the desired position (\a x, \a y).

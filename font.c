@@ -451,7 +451,7 @@ int scaled_draw_string (int x, int y, const unsigned char * our_string, int max_
 	return draw_string_zoomed_width (x, y, our_string, window_width, max_lines, ui_scale);
 }
 
-static int draw_string_shadowed_zoomed (int x, int y, const unsigned char * our_string, int max_lines, float fr,float fg,float fb, float br,float bg,float bb, float zoom)
+int draw_string_shadowed_zoomed (int x, int y, const unsigned char * our_string, int max_lines, float fr,float fg,float fb, float br,float bg,float bb, float zoom)
 {
 	int px,py,r;
 	//set shadow colour
