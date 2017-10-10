@@ -158,7 +158,7 @@ class Quest_List
 			selected_id(Quest::UNSET_ID), highlighted_id(Quest::UNSET_ID),
 			win_id(-1), scroll_id(0), mouseover_y(-1), clicked(false), cm_id(CM_INIT_VALUE),
 			no_auto_open(0), hide_completed(0), list_left_of_entries(0), quest_completed(0), number_shown(0),
-			spacer(0), linesep(0) {}
+			spacer(0), linesep(0), next_entry_quest_id(Quest::UNSET_ID) {}
 		void add(Uint16 id);
 		void set_requested_title(const char* title);
 		void load(void);
@@ -185,6 +185,10 @@ class Quest_List
 		void click_handler(window_info *win, Uint32 flags);
 		void cm_handler(int option);
 		void resize_handler(window_info *win);
+		Uint16 get_next_id(void) const { return next_entry_quest_id; }
+		void set_next_id(Uint16 id) { next_entry_quest_id = id; }
+		void clear_next_id(void) { next_entry_quest_id = Quest::UNSET_ID; }
+		int waiting_for_entry(void) { return (next_entry_quest_id != Quest::UNSET_ID) ?1 :0; }
 	private:
 		int get_scroll_id(void) const  { return scroll_id; }
 		void showall(void);
@@ -221,6 +225,7 @@ class Quest_List
 		size_t number_shown;
 		int spacer = 0;
 		int linesep = 0;
+		Uint16 next_entry_quest_id;
 		enum {	CMQL_COMPLETED=0, CMQL_ADDSEL, CMQL_S11, CMQL_HIDECOMPLETED, CMQL_NOAUTOOPEN,  CMQL_LISTLEFTOFENTRIES };
 };
 
@@ -534,17 +539,37 @@ class Shown_Entry
 };
 
 
+//	Container class for quest log
+//
+class Questlog_Container
+{
+	public:
+		Questlog_Container(void) : need_to_save(false) {}
+		void add_entry(char *t, int len);
+		void load(void);
+		void save(void);
+		void show_all_entries(void);
+		void rebuild_active_entries(size_t desired_top_entry);
+		void set_save(void) { need_to_save = true; }
+		bool save_needed(void) const { return need_to_save; }
+	private:
+		void add_line(const char *t, const char *npcprefix);
+		std::string filename;
+		bool need_to_save;
+};
+
+static Questlog_Container questlog_container;
+
 static std::vector<Quest_Entry> quest_entries;
 static std::vector<size_t> active_entries;
 static std::set<size_t> selected_entries;
 static std::vector<Shown_Entry> shown_entries;
-static std::string filename;
-static bool need_to_save = false;
-static Uint16 next_entry_quest_id = Quest::UNSET_ID;
 static Quest_List questlist;
 static enum { QLFLT_NONE=0, QLFLT_QUEST, QLFLT_NPC, QLFLT_SEL } active_filter = QLFLT_NONE;
 
 
+//	Class for main questlog window
+//
 class Questlog_Window
 {
 	public:
@@ -833,7 +858,7 @@ void Quest_Entry::set(const std::string & the_text_const)
 			the_text.erase(0, id_end+1);
 		}
 		// make sure we save to the new format
-		need_to_save = true;
+		questlog_container.set_save();
 	}
 
 	// find and npc name
@@ -878,7 +903,7 @@ bool Quest_Entry::contains_string(const char *text_to_find) const
 
 //	When entries are added or the filter changes, recreate the active entry list.
 //
-static void rebuild_active_entries(size_t desired_top_entry)
+void Questlog_Container::rebuild_active_entries(size_t desired_top_entry)
 {
 	size_t new_current_line = 0;
 	active_entries.clear();
@@ -911,7 +936,7 @@ static void rebuild_active_entries(size_t desired_top_entry)
 
 //	If needed, save the complete questlog.
 //
-static void save_questlog(void)
+void Questlog_Container::save(void)
 {
 	if (!need_to_save)
 		return;
@@ -934,7 +959,7 @@ static void save_questlog(void)
 
 //	Reset the filters and active lists so that all entries are shown.
 //
-void show_all_entries(void)
+void Questlog_Container::show_all_entries(void)
 {
 	active_filter = QLFLT_NONE;
 	// set all NPC entries
@@ -1125,7 +1150,7 @@ int NPC_Filter::click_handler(window_info *win, int mx, int my, Uint32 flags)
 			i->second ^= 1;
 			active_filter = QLFLT_NPC;
 			questlist.set_selected(Quest::UNSET_ID);
-			rebuild_active_entries(questlog_window.get_current_entry());
+			questlog_container.rebuild_active_entries(questlog_window.get_current_entry());
 			break;
 		}
 	return 1;
@@ -1246,14 +1271,14 @@ void Quest_List::display_handler(window_info *win)
 			{
 				if (thequest->get_id() == Quest::UNSET_ID)
 				{
-					show_all_entries();
+					questlog_container.show_all_entries();
 					active_filter = QLFLT_QUEST;
 				}
 				else
 				{
 					active_filter = QLFLT_QUEST;
 					set_selected(thequest->get_id());
-					rebuild_active_entries(quest_entries.size()-1);
+					questlog_container.rebuild_active_entries(quest_entries.size()-1);
 				}
 				do_click_sound();
 			}
@@ -1319,8 +1344,8 @@ void Quest_List::cm_handler(int option)
 		case CMQL_ADDSEL:
 			for (std::set<size_t>::const_iterator i=selected_entries.begin(); i!=selected_entries.end(); ++i)
 				quest_entries[*i].set_id(get_highlighted());
-			need_to_save = true;
-			rebuild_active_entries(questlog_window.get_current_entry());
+			questlog_container.set_save();
+			questlog_container.rebuild_active_entries(questlog_window.get_current_entry());
 			break;
 		case CMQL_HIDECOMPLETED: recalc_num_shown(); break;
 	}
@@ -1504,9 +1529,9 @@ void Questlog_Window::add_text_input_handler(const char *input_text, void *data)
 	Quest_Entry ne;
 	std::vector<Quest_Entry>::iterator e = quest_entries.insert(quest_entries.begin() + adding_insert_pos, ne);
 	e->set(static_cast<char>(to_color_char(c_grey1)) + std::string(input_text), adding_npc);
-	need_to_save = true;
+	questlog_container.set_save();
 	questlist.set_selected(Quest::UNSET_ID);
-	rebuild_active_entries(adding_insert_pos);
+	questlog_container.rebuild_active_entries(adding_insert_pos);
 }
 
 
@@ -1551,7 +1576,7 @@ void Questlog_Window::find_in_entry(window_info *win)
 void Questlog_Window::undelete_entry(size_t entry)
 {
 	quest_entries[active_entries[entry]].set_deleted(false);
-	need_to_save = true;
+	questlog_container.set_save();
 }
 
 
@@ -1560,7 +1585,7 @@ void Questlog_Window::undelete_entry(size_t entry)
 void Questlog_Window::delete_entry(size_t entry)
 {
 	quest_entries[active_entries[entry]].set_deleted(true);
-	need_to_save = true;
+	questlog_container.set_save();
 }
 
 //	Look for matching entries and delete (mark as deleted) all but first
@@ -1592,7 +1617,7 @@ void Questlog_Window::delete_duplicates(void)
 					if (iter->second == the_text)
 					{
 						entry->set_deleted(true);
-						need_to_save = true;
+						questlog_container.set_save();
 						deleted_count++;
 						break;
 					}
@@ -1645,7 +1670,7 @@ void Questlog_Window::cm_preshow_handler(int my)
 	cm_grey_line(cm_questlog_id, CMQL_DELETE, (is_over_entry && !is_deleted) ?0 :1);
 	cm_grey_line(cm_questlog_id, CMQL_UNDEL, (is_over_entry && is_deleted) ?0 :1);
 	cm_grey_line(cm_questlog_id, CMQL_DEDUPE, quest_entries.empty() ?1 :0);
-	cm_grey_line(cm_questlog_id, CMQL_SAVE, (need_to_save) ?0 :1);
+	cm_grey_line(cm_questlog_id, CMQL_SAVE, (questlog_container.save_needed()) ?0 :1);
 }
 
 
@@ -1662,7 +1687,7 @@ void Questlog_Window::cm_handler(window_info *win, int my, int option)
 		}
 	switch (option)
 	{
-		case CMQL_SHOWALL: show_all_entries(); break;
+		case CMQL_SHOWALL: questlog_container.show_all_entries(); break;
 		case CMQL_QUESTFILTER: questlist.open_window(); break;
 		case CMQL_NPCFILTER: npc_filter.open_window(); break;
 		case CMQL_JUSTTHISQUEST:
@@ -1673,7 +1698,7 @@ void Questlog_Window::cm_handler(window_info *win, int my, int option)
 				{
 					active_filter = QLFLT_QUEST;
 					questlist.set_selected(the_id);
-					rebuild_active_entries(quest_entries.size()-1);
+					questlog_container.rebuild_active_entries(quest_entries.size()-1);
 					questlist.scroll_to_selected();
 				}
 			}
@@ -1685,7 +1710,7 @@ void Questlog_Window::cm_handler(window_info *win, int my, int option)
 			npc_filter.unset_all();
 			if (option == CMQL_JUSTTHISNPC)
 				npc_filter.set(quest_entries[active_entries[over_entry]].get_npc());
-			rebuild_active_entries(get_current_entry());
+			questlog_container.rebuild_active_entries(get_current_entry());
 			npc_filter.open_window();
 			break;
 		case CMQL_COPY: if (over_entry < active_entries.size()) copy_entry(over_entry); break;
@@ -1700,17 +1725,17 @@ void Questlog_Window::cm_handler(window_info *win, int my, int option)
 			break;
 		case CMQL_UNSELALL:
 			if (active_filter == QLFLT_SEL)
-				show_all_entries();
+				questlog_container.show_all_entries();
 			selected_entries.clear();
 			break;
 		case CMQL_SHOWSEL:
 			active_filter = QLFLT_SEL;
-			rebuild_active_entries(get_current_entry());
+			questlog_container.rebuild_active_entries(get_current_entry());
 			break;
 		case CMQL_DELETE: if (over_entry < active_entries.size()) delete_entry(over_entry); break;
 		case CMQL_UNDEL: if (over_entry < active_entries.size()) undelete_entry(over_entry); break;
 		case CMQL_DEDUPE: delete_duplicates(); break;
-		case CMQL_SAVE: save_questlog(); break;
+		case CMQL_SAVE: questlog_container.save(); break;
 	}
 }
 
@@ -1847,7 +1872,7 @@ void Questlog_Window::mouseover_handler(int my)
 //  Note:
 //	Rebuilding the active_entry list must be done by the caller after this.
 //
-static void add_questlog_line(const char *t, const char *npcprefix)
+void Questlog_Container::add_line(const char *t, const char *npcprefix)
 {
 	quest_entries.push_back(Quest_Entry());
 	if (strlen(npcprefix))
@@ -1872,15 +1897,15 @@ void Questlog_Window::goto_entry(int ln)
 //	Called when a new quest entry is received from the server.  Add to
 //	the end of the entries and append to the questlog file immediately.
 //
-extern "C" void add_questlog (char *t, int len)
+void Questlog_Container::add_entry(char *t, int len)
 {
 	t[len] = '\0';
-	add_questlog_line(t, (const char*)npc_name);
+	add_line(t, (const char*)npc_name);
 
-	if (waiting_for_questlog_entry())
+	if (questlist.waiting_for_entry())
 	{
-		quest_entries.back().set_id(next_entry_quest_id);
-		clear_waiting_for_questlog_entry();
+		quest_entries.back().set_id(questlist.get_next_id());
+		questlist.clear_next_id();
 	}
 
 	if ((active_filter == QLFLT_QUEST) && (questlist.get_selected() != Quest::UNSET_ID))
@@ -1899,12 +1924,17 @@ extern "C" void add_questlog (char *t, int len)
     flash_icon(tt_questlog, 5);
 }
 
+extern "C" void add_questlog (char *t, int len)
+{
+	questlog_container.add_entry(t, len);
+}
+
 
 //	Load the questlog, use the playname tag file but fall back to the
 //	old file name if the new does not exist.  If reading from an old
 //	named file, write the new file as we go.
 //
-extern "C" void load_questlog()
+void Questlog_Container::load(void)
 {
 	questlist.load();
 
@@ -1912,7 +1942,7 @@ extern "C" void load_questlog()
 	// This will take place when relogging after disconnection.
 	if (!quest_entries.empty())
 	{
-		save_questlog();
+		save();
 		return;
 	}
 
@@ -1936,7 +1966,7 @@ extern "C" void load_questlog()
 	{
 		if (!line.empty())
 		{
-			add_questlog_line(line.c_str(), "");
+			add_line(line.c_str(), "");
 			if (out)
 				quest_entries.back().save(out);
 		}
@@ -1947,12 +1977,17 @@ extern "C" void load_questlog()
 	rebuild_active_entries(quest_entries.size()-1);
 }
 
+extern "C" void load_questlog(void)
+{
+	questlog_container.load();
+}
+
 
 //	The questlog will only need saving if we add, delete or undelete.
 //
 extern "C" void unload_questlog()
 {
-	save_questlog();
+	questlog_container.save();
 	questlist.save();
 }
 
@@ -2015,7 +2050,7 @@ extern "C" void set_next_quest_entry_id(Uint16 id)
 	//LOG_TO_CONSOLE(c_green1, buf);
 	//if (waiting_for_questlog_entry())
 	//	LOG_TO_CONSOLE(c_red2, "Previous NEXT_NPC_MESSAGE_IS_QUEST was unused");
-	next_entry_quest_id = id;
+	questlist.set_next_id(id);
 	questlist.add(id);
 }
 
@@ -2025,10 +2060,7 @@ extern "C" void set_next_quest_entry_id(Uint16 id)
 //
 extern "C" int waiting_for_questlog_entry(void)
 {
-	if (next_entry_quest_id != Quest::UNSET_ID)
-		return 1;
-	else
-		return 0;
+	return questlist.waiting_for_entry();
 }
 
 
@@ -2036,7 +2068,7 @@ extern "C" int waiting_for_questlog_entry(void)
 //
 extern "C" void clear_waiting_for_questlog_entry(void)
 {
-	next_entry_quest_id = Quest::UNSET_ID;
+	questlist.clear_next_id();
 }
 
 
