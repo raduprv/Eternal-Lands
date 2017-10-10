@@ -534,7 +534,6 @@ static std::vector<Quest_Entry> quest_entries;
 static std::vector<size_t> active_entries;
 static std::set<size_t> selected_entries;
 static std::vector<Shown_Entry> shown_entries;
-static std::map<std::string, int> npc_filter_map;
 static int quest_scroll_id = 14;
 static std::string filename;
 static size_t current_line = 0;
@@ -564,6 +563,68 @@ static int qlborder = 0;
 static int spacer = 0;
 static int win_space = 0;
 static int linesep = 0;
+
+
+// A class to impliment the NPC filter window
+//
+class NPC_Filter
+{
+	public:
+		NPC_Filter(void) : npc_name_space(0), npc_name_border(0), npc_name_box_size(0), max_npc_name_x(0), max_npc_name_y(0),
+			min_npc_name_cols(1), min_npc_name_rows(10), npc_name_cols(0), npc_name_rows(0),
+			npc_filter_active_npc_name(static_cast<size_t>(-1)), npc_filter_win(-1) {}
+		void open_window(void);
+		void resize_handler(window_info *win);
+		void ui_scale_handler(window_info *win);
+		void display_handler(window_info *win);
+		int click_handler(window_info *win, int mx, int my, Uint32 flags);
+#ifdef ANDROID
+		int keypress_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey, Uint16 mods);
+#else
+		int keypress_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey);
+#endif
+		void mouseover_handler(window_info *win, int mx, int my);
+		int get_win_id(void) const { return npc_filter_win; }
+		bool is_set(std::string npc) { return (npc_filter_map[npc] == 1); }
+		void set(std::string npc) { npc_filter_map[npc] = 1; }
+		void set_all(void) { for (std::map<std::string,int>::iterator i = npc_filter_map.begin(); i != npc_filter_map.end(); ++i) i->second = 1; }
+		void unset_all(void) { for (std::map<std::string,int>::iterator i = npc_filter_map.begin(); i != npc_filter_map.end(); ++i) i->second = 0; }
+	private:
+		// scaled
+		int npc_name_space;
+		int npc_name_border;
+		int npc_name_box_size;
+		float max_npc_name_x;
+		float max_npc_name_y;
+		// other
+		const unsigned int min_npc_name_cols;
+		const unsigned int min_npc_name_rows;
+		unsigned int npc_name_cols;
+		unsigned int npc_name_rows;
+		size_t npc_filter_active_npc_name;
+		int npc_filter_win;
+		std::map<std::string, int> npc_filter_map;
+};
+
+static NPC_Filter npc_filter;
+
+static int resize_npc_filter_handler(window_info *win, int new_width, int new_height)
+	{ npc_filter.resize_handler(win); return 0; }
+static int ui_scale_npc_filter_handler(window_info *win)
+	{ npc_filter.ui_scale_handler(win); return 1; }
+static int display_npc_filter_handler(window_info *win)
+	{ npc_filter.display_handler(win); return 1; }
+static int click_npc_filter_handler(window_info *win, int mx, int my, Uint32 flags)
+	{ return npc_filter.click_handler(win, mx, my, flags); }
+#ifdef ANDROID
+static int keypress_npc_filter_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey, Uint16 mods)
+	{ return npc_filter.keypress_handler(win, mx, my, key, unikey, mods); }
+#else
+static int keypress_npc_filter_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+	{ return npc_filter.keypress_handler(win, mx, my, key, unikey); }
+#endif
+static int mouseover_npc_filter_handler(window_info *win, int mx, int my)
+	{ npc_filter.mouseover_handler(win, mx, my); return 0; }
 
 
 //	Return the lines of an entry.
@@ -672,8 +733,8 @@ void Quest_Entry::set_lines(const std::string & the_text)
 
 	update_displayed_npc_name();
 
-	// make sure latest entry is not filtered - shouldn't really use global !
-	npc_filter_map[npc] = 1;
+	// make sure latest entry is not filtered
+	npc_filter.set(npc);
 }
 
 
@@ -750,16 +811,6 @@ bool Quest_Entry::contains_string(const char *text_to_find) const
 
 
 
-//	Set the length of the scrollbar depending on number entries given current filter.
-//
-static void set_scrollbar_len(void)
-{
-	if (questlog_win >= 0)
-		vscrollbar_set_bar_len (questlog_win, quest_scroll_id,
-			(active_entries.empty()) ?0 :active_entries.size()-1);
-}
-
-
 //	When entries are added or the filter changes, recreate the active entry list.
 //
 static void rebuild_active_entries(size_t desired_top_entry)
@@ -774,7 +825,7 @@ static void rebuild_active_entries(size_t desired_top_entry)
 		switch (active_filter)
 		{
 			case QLFLT_NONE: useit = true; break;
-			case QLFLT_NPC: if (npc_filter_map[quest_entries[entry].get_npc()]) useit = true; break;
+			case QLFLT_NPC: if (npc_filter.is_set(quest_entries[entry].get_npc())) useit = true; break;
 			case QLFLT_QUEST:
 				if ((questlist.get_selected() == Quest::UNSET_ID) ||
 					(questlist.get_selected() == quest_entries[entry].get_id()))
@@ -788,7 +839,8 @@ static void rebuild_active_entries(size_t desired_top_entry)
 		if (useit)
 			active_entries.push_back(entry);
 	}
-	set_scrollbar_len();
+	if (questlog_win >= 0)
+		vscrollbar_set_bar_len (questlog_win, quest_scroll_id, (active_entries.empty()) ?0 :active_entries.size()-1);
 	goto_questlog_entry(new_current_line);
 }
 
@@ -822,8 +874,7 @@ void show_all_entries(void)
 {
 	active_filter = QLFLT_NONE;
 	// set all NPC entries
-	for (std::map<std::string,int>::iterator i = npc_filter_map.begin(); i != npc_filter_map.end(); ++i)
-		i->second = 1;
+	npc_filter.set_all();
 	// clean a quest filter
 	questlist.set_selected(Quest::UNSET_ID);
 	rebuild_active_entries((current_line < active_entries.size()) ?active_entries[current_line] :0);
@@ -871,46 +922,30 @@ CHECK_GL_ERRORS();
 }
 
 
-// npc filter window vars automatically scaled
-static int npc_name_space = 0;
-static int npc_name_border = 0;
-static int npc_name_box_size = 0;
-static float max_npc_name_x = 0;
-static float max_npc_name_y = 0;
-// npc filter window vars
-static const unsigned int min_npc_name_cols = 1;
-static const unsigned int min_npc_name_rows = 10;
-static unsigned int npc_name_cols = 0;
-static unsigned int npc_name_rows = 0;
-static size_t npc_filter_active_npc_name = static_cast<size_t>(-1);
-static int npc_filter_win = -1;
-
-
 //	Make sure the window size is fits the rows/cols nicely.
 //
-static int resize_npc_filter_handler(window_info *win, int new_width, int new_height)
+void NPC_Filter::resize_handler(window_info *win)
 {
-		// let the width lead
-		npc_name_cols = static_cast<int>(win->len_x / max_npc_name_x);
-		if (npc_name_cols < min_npc_name_cols)
-			npc_name_cols = min_npc_name_cols;
-		// but maintain a minimum height
-		npc_name_rows = (npc_filter_map.size() + npc_name_cols - 1) / npc_name_cols;
-		if (npc_name_rows <= min_npc_name_rows)
-		{
-			npc_name_rows = min_npc_name_rows;
-			npc_name_cols = min_npc_name_cols;
-			while (npc_name_cols*npc_name_rows < npc_filter_map.size())
-				npc_name_cols++;
-		}
-		set_window_scroll_len(win->window_id, static_cast<int>(npc_name_rows*max_npc_name_y-win->len_y));
-		return 0;
+	// let the width lead
+	npc_name_cols = static_cast<int>(win->len_x / max_npc_name_x);
+	if (npc_name_cols < min_npc_name_cols)
+		npc_name_cols = min_npc_name_cols;
+	// but maintain a minimum height
+	npc_name_rows = (npc_filter_map.size() + npc_name_cols - 1) / npc_name_cols;
+	if (npc_name_rows <= min_npc_name_rows)
+	{
+		npc_name_rows = min_npc_name_rows;
+		npc_name_cols = min_npc_name_cols;
+		while (npc_name_cols*npc_name_rows < npc_filter_map.size())
+			npc_name_cols++;
+	}
+	set_window_scroll_len(win->window_id, static_cast<int>(npc_name_rows*max_npc_name_y-win->len_y));
 }
 
 
 //	Called on creation and when scaling changes, set the starting size and position fo npc filter window
 //
-static int ui_scale_npc_filter_handler(window_info *win)
+void NPC_Filter::ui_scale_handler(window_info *win)
 {
 	npc_name_space = static_cast<int>(0.5 + 3 * win->current_scale);
 	npc_name_border = static_cast<int>(0.5 + 5 * win->current_scale);
@@ -930,13 +965,12 @@ static int ui_scale_npc_filter_handler(window_info *win)
 		move_window(win->window_id, win->pos_id, win->pos_loc, parent_win->pos_x + pos_x, parent_win->pos_y + pos_y);
 		set_window_min_size(win->window_id, min_size_x, min_size_y);
 	}
-	return 1;
 }
 
 
 //	Display handler for the quest log filter.
 //
-static int display_npc_filter_handler(window_info *win)
+void NPC_Filter::display_handler(window_info *win)
 {
 	static Uint8 resizing = 0;
 	static size_t last_filter_size = static_cast<size_t>(-1);
@@ -1006,13 +1040,12 @@ static int display_npc_filter_handler(window_info *win)
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
-	return 1;
 }
 
 
 //	When a npc name is mouse clicked, toggle the filter value.
 //
-static int click_npc_filter_handler(window_info *win, int mx, int my, Uint32 flags)
+int NPC_Filter::click_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	if ((my < 0) || (flags & ELW_WHEEL))
 		return 0;
@@ -1038,9 +1071,9 @@ static int click_npc_filter_handler(window_info *win, int mx, int my, Uint32 fla
 //	Move the window scroll position to match the key pressed with the first character of the npc name.
 //
 #ifdef ANDROID
-static int keypress_npc_filter_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey, Uint16 mods)
+int NPC_Filter::keypress_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey, Uint16 mods)
 #else
-static int keypress_npc_filter_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+int NPC_Filter::keypress_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 #endif
 {
 	char keychar = tolower(static_cast<char>(unikey));
@@ -1065,19 +1098,18 @@ static int keypress_npc_filter_handler(window_info *win, int mx, int my, Uint32 
 
 //	Record which name the mouse is over so it can be highlighted.
 //
-static int mouseover_npc_filter_handler(window_info *win, int mx, int my)
+void NPC_Filter::mouseover_handler(window_info *win, int mx, int my)
 {
 	mx -= npc_name_border;
 	int yoffset = get_window_scroll_pos(win->window_id);
 	if ((my >= yoffset) && (mx >= 0) && (mx < (npc_name_cols * max_npc_name_x)))
 		npc_filter_active_npc_name = static_cast<int>(my / max_npc_name_y) * npc_name_cols + static_cast<int>(mx / max_npc_name_x);
-	return 0; // make sure we get a arrow cursor
 }
 
 
 //	Open/Create the npc filter window.
 //
-static void open_npc_filter_window(void)
+void NPC_Filter::open_window(void)
 {
 	if (npc_filter_win < 0)
 	{
@@ -1542,7 +1574,7 @@ static void cm_questlog_pre_show_handler(window_info *win, int widget_id, int mx
 	bool is_over_entry = (cm_questlog_over_entry < active_entries.size());
 	bool is_deleted = is_over_entry && quest_entries[active_entries[cm_questlog_over_entry]].get_deleted();
 	bool qlw_open = get_show_window(questlist.get_win_id());
-	bool nfw_open = get_show_window(npc_filter_win);
+	bool nfw_open = get_show_window(npc_filter.get_win_id());
 	bool is_selected = is_over_entry && (selected_entries.find(active_entries[cm_questlog_over_entry]) != selected_entries.end());
 	cm_grey_line(cm_questlog_id, CMQL_SHOWALL, quest_entries.empty() ?1 :0);
 	cm_grey_line(cm_questlog_id, CMQL_QUESTFILTER, (qlw_open || quest_entries.empty()) ?1 :0);
@@ -1581,7 +1613,7 @@ static int cm_quest_handler(window_info *win, int widget_id, int mx, int my, int
 	{
 		case CMQL_SHOWALL: show_all_entries(); break;
 		case CMQL_QUESTFILTER: questlist.open_window(); break;
-		case CMQL_NPCFILTER: open_npc_filter_window(); break;
+		case CMQL_NPCFILTER: npc_filter.open_window(); break;
 		case CMQL_JUSTTHISQUEST:
 			if (over_entry < active_entries.size())
 			{
@@ -1599,14 +1631,11 @@ static int cm_quest_handler(window_info *win, int widget_id, int mx, int my, int
 		case CMQL_NPCSHOWNONE:
 			questlist.set_selected(Quest::UNSET_ID);
 			active_filter = QLFLT_NPC;
-			for (std::map<std::string,int>::iterator i = npc_filter_map.begin(); i != npc_filter_map.end(); ++i)
-			{
-				i->second = 0;
-				if ((option == CMQL_JUSTTHISNPC) && (i->first == quest_entries[active_entries[over_entry]].get_npc()))
-					i->second = 1;
-			}
+			npc_filter.unset_all();
+			if (option == CMQL_JUSTTHISNPC)
+				npc_filter.set(quest_entries[active_entries[over_entry]].get_npc());
 			rebuild_active_entries((current_line < active_entries.size()) ?active_entries[current_line] :0);
-			open_npc_filter_window();
+			npc_filter.open_window();
 			break;
 		case CMQL_COPY: if (over_entry < active_entries.size()) copy_entry(over_entry); break;
 		case CMQL_COPYALL: copy_all_entries(); break;
@@ -1654,8 +1683,8 @@ static int ui_scale_questlog_handler(window_info *win)
 	if (questlist.get_win_id() >= 0 && questlist.get_win_id() < windows_list.num_windows)
 		questlist.ui_scale_handler(&windows_list.window[questlist.get_win_id()]);
 
-	if (npc_filter_win >= 0 && npc_filter_win < windows_list.num_windows)
-		ui_scale_npc_filter_handler(&windows_list.window[npc_filter_win]);
+	if (npc_filter.get_win_id() >= 0 && npc_filter.get_win_id() < windows_list.num_windows)
+		ui_scale_npc_filter_handler(&windows_list.window[npc_filter.get_win_id()]);
 
 	return 1;
 }
