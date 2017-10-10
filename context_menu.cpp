@@ -48,7 +48,7 @@ namespace cm
 			void show_lines(size_t my_id);
 			void set_data(void *data) { data_ptr = data; }
 			void *get_data(void) const { return data_ptr; }
-			float scaled_value(float val) const { return val * ui_scale * zoom; }
+			float scaled_value(float val) const;
 
 		private:
 			int resize(void);
@@ -124,6 +124,7 @@ namespace cm
 			void showinfo(void);
 			void *get_data(size_t cm_id) const { if (!valid(cm_id)) return 0; return menus[cm_id]->get_data(); }
 			void set_data(size_t cm_id, void *data) { if (valid(cm_id)) menus[cm_id]->set_data(data); }
+			float get_current_scale(void) const { return windows_list.window[cm_window_id].current_scale; }
 
 		private:
 			class Region	//  Wrapper for window region activation area.
@@ -199,7 +200,7 @@ namespace cm
 		assert(instance_count++==0);
 		menus.resize(20,0);
 		if ((cm_window_id = create_window("Context Menu", -1, 0, 0, 0, 0, 0,
-				ELW_SWITCHABLE_OPAQUE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_ALPHA_BORDER)) == -1)
+				ELW_USE_UISCALE|ELW_SWITCHABLE_OPAQUE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_ALPHA_BORDER)) == -1)
 			return;
 		set_window_handler(cm_window_id, ELW_HANDLER_DISPLAY, (int (*)())&display_context_handler );
 		set_window_handler(cm_window_id, ELW_HANDLER_CLICK, (int (*)())&click_context_handler );
@@ -805,7 +806,13 @@ namespace cm
 				  << " " << ((menu_lines[i].is_separator) ?"separator":"normal") << std::endl;
 		}
 	}
-	
+
+	// calculate a scaled value
+	float Menu::scaled_value(float val) const
+	{
+		return val * container.get_current_scale() * zoom;
+	}
+
 
 } // end cm namespace
 
