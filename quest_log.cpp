@@ -157,7 +157,8 @@ class Quest_List
 		Quest_List(void) : save_needed(false), iter_set(false), max_title(0),
 			selected_id(Quest::UNSET_ID), highlighted_id(Quest::UNSET_ID),
 			win_id(-1), scroll_id(0), mouseover_y(-1), clicked(false), cm_id(CM_INIT_VALUE),
-			no_auto_open(0), hide_completed(0), list_left_of_entries(0), quest_completed(0), number_shown(0) {}
+			no_auto_open(0), hide_completed(0), list_left_of_entries(0), quest_completed(0), number_shown(0),
+			spacer(0), linesep(0) {}
 		void add(Uint16 id);
 		void set_requested_title(const char* title);
 		void load(void);
@@ -218,6 +219,9 @@ class Quest_List
 		int list_left_of_entries;
 		int quest_completed;
 		size_t number_shown;
+		int spacer = 0;
+		int linesep = 0;
+		enum {	CMQL_COMPLETED=0, CMQL_ADDSEL, CMQL_S11, CMQL_HIDECOMPLETED, CMQL_NOAUTOOPEN,  CMQL_LISTLEFTOFENTRIES };
 };
 
 
@@ -470,7 +474,7 @@ void Quest_List::check_title_requests(void)
 class Quest_Entry
 {
 	public:
-		Quest_Entry(void) : deleted(false), quest_id(Quest::UNSET_ID) {}
+		Quest_Entry(void) : deleted(false), quest_id(Quest::UNSET_ID), NPC_NAME_COLOUR(c_blue2) {}
 		void set(const std::string & the_text);
 		void set(const std::string & the_text, const std::string & the_npc);
 		const std::vector<std::string> & get_lines(void) const;
@@ -495,6 +499,7 @@ class Quest_Entry
 		std::string disp_npc;
 		Uint16 quest_id;
 		Uint16 charsum;
+		char NPC_NAME_COLOUR;
 };
 
 std::vector<std::string> Quest_Entry::deleted_line;
@@ -529,40 +534,100 @@ class Shown_Entry
 };
 
 
-static const char NPC_NAME_COLOUR = c_blue2;
 static std::vector<Quest_Entry> quest_entries;
 static std::vector<size_t> active_entries;
 static std::set<size_t> selected_entries;
 static std::vector<Shown_Entry> shown_entries;
-static int quest_scroll_id = 14;
 static std::string filename;
-static size_t current_line = 0;
 static bool need_to_save = false;
-static bool mouse_over_questlog = false;
 static Uint16 next_entry_quest_id = Quest::UNSET_ID;
 static Quest_List questlist;
 static enum { QLFLT_NONE=0, QLFLT_QUEST, QLFLT_NPC, QLFLT_SEL } active_filter = QLFLT_NONE;
-static size_t cm_questlog_id = CM_INIT_VALUE;
-static size_t cm_questlog_over_entry = static_cast<size_t>(-1);
-enum {	CMQL_SHOWALL=0, CMQL_QUESTFILTER, CMQL_NPCFILTER, CMQL_NPCSHOWNONE,
-		CMQL_JUSTTHISNPC, CMQL_JUSTTHISQUEST, CMQL_S01,
-		CMQL_COPY, CMQL_COPYALL, CMQL_FIND, CMQL_ADD, CMQL_S02,
-		CMQL_SEL, CMQL_UNSEL, CMQL_SELALL, CMQL_UNSELALL, CMQL_SHOWSEL, CMQL_S03,
-		CMQL_DELETE, CMQL_UNDEL, CMQL_S04, CMQL_DEDUPE, CMQL_S05, CMQL_SAVE };
-enum {	CMQL_COMPLETED=0, CMQL_ADDSEL, CMQL_S11, CMQL_HIDECOMPLETED, CMQL_NOAUTOOPEN,  CMQL_LISTLEFTOFENTRIES };
-static std::string adding_npc;
-static size_t adding_insert_pos = 0;
-static bool prompt_for_add_text = false;
-static INPUT_POPUP ipu_questlog;
-static int current_action = -1;
 
-// these are all set in ui_scale_questlog_handler()
-static int qlwinwidth = 0;
-static int qlwinheight = 0;
-static int qlborder = 0;
-static int spacer = 0;
-static int win_space = 0;
-static int linesep = 0;
+
+class Questlog_Window
+{
+	public:
+		Questlog_Window(void) : qlwinwidth(0), qlwinheight(0), qlborder(0), spacer(0), win_space(0), linesep(0),
+		mouse_over_questlog(false), quest_scroll_id(14), current_action(-1), prompt_for_add_text(false),
+		adding_insert_pos(0), cm_questlog_id(CM_INIT_VALUE), cm_questlog_over_entry(static_cast<size_t>(-1)),
+		current_line(0) {}
+		void open(void);
+		int display_handler(window_info *win);
+		int click_handler(window_info *win, Uint32 flags);
+		int keypress_handler(window_info *win, Uint32 key, Uint32 unikey);
+		void mouseover_handler(int my);
+		void ui_scale_handler(window_info *win);
+		void scroll_click_handler(widget_list *widget);
+		void scroll_drag_handler(widget_list *widget);
+		void cm_handler(window_info *win, int my, int option);
+		void cm_preshow_handler(int my);
+		int get_win_space(void) const { return win_space; }
+		void update_scrollbar_len(void)
+			{ if (questlog_win >= 0) vscrollbar_set_bar_len (questlog_win, quest_scroll_id, (active_entries.empty()) ?0 :active_entries.size()-1); }
+		void add_npc_input_handler(const char *input_text, void *data);
+		void add_text_input_handler(const char *input_text, void *data);
+		void cancel_action(void) { current_action = -1; }
+		void find_input_handler(const char *input_text, void *data);
+		void goto_entry(int ln);
+		size_t get_current_entry(void) const { return (current_line < active_entries.size()) ?active_entries[current_line] :0; }
+	private:
+		void find_in_entry(window_info *win);
+		void delete_entry(size_t entry);
+		void undelete_entry(size_t entry);
+		void delete_duplicates(void);
+		void copy_entry(size_t entry);
+		void copy_all_entries(void);
+		void copy_one_entry(std::string &copy_str, size_t entry);
+		void add_entry(window_info *win, size_t entry);
+		void add_text_input(window_info *win);
+		void draw_underline(int startx, int starty, int endx, int endy);
+		// set in ui_scale_handler()
+		int qlwinwidth = 0;
+		int qlwinheight = 0;
+		int qlborder = 0;
+		int spacer = 0;
+		int win_space = 0;
+		int linesep = 0;
+		// others
+		bool mouse_over_questlog;
+		int quest_scroll_id;
+		int current_action;
+		bool prompt_for_add_text;
+		size_t adding_insert_pos;
+		std::string adding_npc;
+		INPUT_POPUP ipu_questlog;
+		size_t cm_questlog_id;
+		size_t cm_questlog_over_entry;
+		size_t current_line;
+		enum {	CMQL_SHOWALL=0, CMQL_QUESTFILTER, CMQL_NPCFILTER, CMQL_NPCSHOWNONE,
+				CMQL_JUSTTHISNPC, CMQL_JUSTTHISQUEST, CMQL_S01,
+				CMQL_COPY, CMQL_COPYALL, CMQL_FIND, CMQL_ADD, CMQL_S02,
+				CMQL_SEL, CMQL_UNSEL, CMQL_SELALL, CMQL_UNSELALL, CMQL_SHOWSEL, CMQL_S03,
+				CMQL_DELETE, CMQL_UNDEL, CMQL_S04, CMQL_DEDUPE, CMQL_S05, CMQL_SAVE };
+};
+
+static Questlog_Window questlog_window;
+
+static int display_questlog_handler(window_info *win) { return questlog_window.display_handler(win); }
+static int questlog_click(window_info *win, int mx, int my, Uint32 flags) { return questlog_window.click_handler(win, flags); }
+#ifdef ANDROID
+static int keypress_questlog_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey, Uint16 mods)
+#else
+static int keypress_questlog_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+#endif
+	{ return questlog_window.keypress_handler(win, key, unikey); }
+static int mouseover_questlog_handler(window_info *win, int mx, int my) { questlog_window.mouseover_handler(my); return 0; }
+static int show_questlog_handler(window_info *win) { questlist.check_auto_open(); return 0; }
+static int ui_scale_questlog_handler(window_info *win) { questlog_window.ui_scale_handler(win); return 1; }
+static int questlog_scroll_click (widget_list *widget, int mx, int my, Uint32 flags) { questlog_window.scroll_click_handler(widget); return 1; }
+static int questlog_scroll_drag (widget_list *widget, int mx, int my, Uint32 flags, int dx, int dy) { questlog_window.scroll_drag_handler(widget); return 1; }
+static int cm_quest_handler(window_info *win, int widget_id, int mx, int my, int option) { questlog_window.cm_handler(win, my, option); return 1; }
+static void cm_questlog_pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win) { questlog_window.cm_preshow_handler(my); }
+static void questlog_input_cancel_handler(void *data) { questlog_window.cancel_action(); }
+static void questlog_add_npc_input_handler(const char *input_text, void *data) { questlog_window.add_text_input_handler(input_text, data); }
+static void questlog_add_text_input_handler(const char *input_text, void *data) { questlog_window.add_text_input_handler(input_text, data); }
+static void questlog_find_input_handler(const char *input_text, void *data) { questlog_window.find_input_handler(input_text, data); }
 
 
 // A class to impliment the NPC filter window
@@ -839,9 +904,8 @@ static void rebuild_active_entries(size_t desired_top_entry)
 		if (useit)
 			active_entries.push_back(entry);
 	}
-	if (questlog_win >= 0)
-		vscrollbar_set_bar_len (questlog_win, quest_scroll_id, (active_entries.empty()) ?0 :active_entries.size()-1);
-	goto_questlog_entry(new_current_line);
+	questlog_window.update_scrollbar_len();
+	questlog_window.goto_entry(new_current_line);
 }
 
 
@@ -877,13 +941,13 @@ void show_all_entries(void)
 	npc_filter.set_all();
 	// clean a quest filter
 	questlist.set_selected(Quest::UNSET_ID);
-	rebuild_active_entries((current_line < active_entries.size()) ?active_entries[current_line] :0);
+	rebuild_active_entries(questlog_window.get_current_entry());
 }
 
 
 //	Draw a simple line
 //
-static void draw_underline(int startx, int starty, int endx, int endy)
+void Questlog_Window::draw_underline(int startx, int starty, int endx, int endy)
 {
 	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_LINES);
@@ -959,7 +1023,7 @@ void NPC_Filter::ui_scale_handler(window_info *win)
 		int size_y = static_cast<int>(static_cast<int>(parent_win->len_y/max_npc_name_y) * max_npc_name_y);
 		int min_size_x = static_cast<int>(2*npc_name_border + min_npc_name_cols * max_npc_name_x + win->box_size);
 		int min_size_y = static_cast<int>(min_npc_name_rows * max_npc_name_y);
-		int pos_x = parent_win->len_x + win_space;
+		int pos_x = parent_win->len_x + questlog_window.get_win_space();
 		int pos_y = 0;
 		resize_window(win->window_id, size_x, size_y);
 		move_window(win->window_id, win->pos_id, win->pos_loc, parent_win->pos_x + pos_x, parent_win->pos_y + pos_y);
@@ -1061,7 +1125,7 @@ int NPC_Filter::click_handler(window_info *win, int mx, int my, Uint32 flags)
 			i->second ^= 1;
 			active_filter = QLFLT_NPC;
 			questlist.set_selected(Quest::UNSET_ID);
-			rebuild_active_entries((current_line < active_entries.size()) ?active_entries[current_line] :0);
+			rebuild_active_entries(questlog_window.get_current_entry());
 			break;
 		}
 	return 1;
@@ -1159,7 +1223,7 @@ void Quest_List::display_handler(window_info *win)
 	{
 		clear_highlighted();
 		if (show_help_text && has_mouseover())
-			scaled_show_help(questlog_cm_help_str, 0, win->len_y + win_space);
+			scaled_show_help(questlog_cm_help_str, 0, win->len_y + questlog_window.get_win_space());
 	}
 
 	// get the top line and then loop drawing all quests we can display
@@ -1256,7 +1320,7 @@ void Quest_List::cm_handler(int option)
 			for (std::set<size_t>::const_iterator i=selected_entries.begin(); i!=selected_entries.end(); ++i)
 				quest_entries[*i].set_id(get_highlighted());
 			need_to_save = true;
-			rebuild_active_entries((current_line < active_entries.size()) ?active_entries[current_line] :0);
+			rebuild_active_entries(questlog_window.get_current_entry());
 			break;
 		case CMQL_HIDECOMPLETED: recalc_num_shown(); break;
 	}
@@ -1296,6 +1360,8 @@ void Quest_List::scroll_to_selected(void)
 //
 void Quest_List::ui_scale_handler(window_info *win)
 {
+	spacer = static_cast<int>(0.5 + 3 * win->current_scale);
+	linesep = win->small_font_len_y + 2 * spacer;
 	if ((win->pos_id >= 0) && (win->pos_id<windows_list.num_windows))
 	{
 		window_info *parent_win = &windows_list.window[win->pos_id];
@@ -1303,8 +1369,8 @@ void Quest_List::ui_scale_handler(window_info *win)
 		int min_size_x = win->small_font_len_x * 15 + win->box_size + 4 * spacer;
 		int min_size_y = 5 * linesep;
 		int size_y = (list_left_of_entries) ?linesep * static_cast<int>(parent_win->len_y / linesep) : min_size_y;
-		int pos_x = (list_left_of_entries) ?-(max_size_x + win_space) :(parent_win->len_x - max_size_x) / 2;
-		int pos_y = (list_left_of_entries) ?0 : parent_win->len_y + win->small_font_len_y + win_space + parent_win->title_height;
+		int pos_x = (list_left_of_entries) ?-(max_size_x + questlog_window.get_win_space()) :(parent_win->len_x - max_size_x) / 2;
+		int pos_y = (list_left_of_entries) ?0 : parent_win->len_y + win->small_font_len_y + questlog_window.get_win_space() + parent_win->title_height;
 		resize_window(win_id, max_size_x, size_y);
 		move_window(win_id, win->pos_id, win->pos_loc, parent_win->pos_x + pos_x, parent_win->pos_y + pos_y);
 		set_window_min_size(win_id, min_size_x, min_size_y);
@@ -1359,7 +1425,7 @@ void Quest_List::open_window(void)
 
 //	Copy an entry to a string, stripped of special characters.
 //
-static void copy_one_entry(std::string &copy_str, size_t entry)
+void Questlog_Window::copy_one_entry(std::string &copy_str, size_t entry)
 {
 	for (std::vector<std::string>::const_iterator line = quest_entries[active_entries[entry]].get_lines().begin(); line != quest_entries[active_entries[entry]].get_lines().end(); ++line)
 	{
@@ -1376,7 +1442,7 @@ static void copy_one_entry(std::string &copy_str, size_t entry)
 
 //	Copy all shown enties to the clipboard, stripped of special characters.
 //
-static void copy_all_entries(void)
+void Questlog_Window::copy_all_entries(void)
 {
 	std::string copy_str;
 	for (std::vector<size_t>::size_type i=0; i<active_entries.size(); ++i)
@@ -1387,31 +1453,16 @@ static void copy_all_entries(void)
 
 //	Copy an entry to the clipboard, stripped of special characters.
 //
-static void copy_entry(size_t entry)
+void Questlog_Window::copy_entry(size_t entry)
 {
 	std::string copy_str;
 	copy_one_entry(copy_str, entry);
 	copy_to_clipboard(copy_str.c_str());
 }
 
-
-//	The input operation was cancalled, clear the busy flag.
-//
-static void questlog_input_cancel_handler(void *data)
-{
-	current_action = -1;
-}
-
-
-//  Prototypes for inputting a new entry - so we can order in sequence.
-static void add_entry(window_info *win, size_t entry);
-static void questlog_add_npc_input_handler(const char *input_text, void *data);
-static void questlog_add_text_input(window_info *win);
-static void questlog_add_text_input_handler(const char *input_text, void *data);
-
 //	Start inputting a new entry, part 1 prompt for npc name.
 //
-static void add_entry(window_info *win, size_t entry)
+void Questlog_Window::add_entry(window_info *win, size_t entry)
 {
 	if (current_action != -1)
 		return;
@@ -1427,7 +1478,7 @@ static void add_entry(window_info *win, size_t entry)
 //	for the body.  Can't call directly as reusing ipu_questlog and it
 //	would get cleared on return from this function!
 //
-static void questlog_add_npc_input_handler(const char *input_text, void *data)
+void Questlog_Window::add_npc_input_handler(const char *input_text, void *data)
 {
 	adding_npc = std::string(input_text);
 	prompt_for_add_text = true;
@@ -1435,7 +1486,7 @@ static void questlog_add_npc_input_handler(const char *input_text, void *data)
 
 //	Continue inputting a new entry, part 3 prompt for entry main text.
 //
-static void questlog_add_text_input(window_info *win)
+void Questlog_Window::add_text_input(window_info *win)
 {
 	prompt_for_add_text = false;
 	close_ipu(&ipu_questlog);
@@ -1447,7 +1498,7 @@ static void questlog_add_text_input(window_info *win)
 
 //	Continue inputting a new entry, part 4 insert the entry.
 //
-static void questlog_add_text_input_handler(const char *input_text, void *data)
+void Questlog_Window::add_text_input_handler(const char *input_text, void *data)
 {
 	current_action = -1;
 	Quest_Entry ne;
@@ -1462,18 +1513,18 @@ static void questlog_add_text_input_handler(const char *input_text, void *data)
 //	Find, searching from next entry to end then back to current.  Done
 //	like this so we find multiple entries each time we hit ok.
 //
-static void questlog_find_input_handler(const char *input_text, void *data)
+void Questlog_Window::find_input_handler(const char *input_text, void *data)
 {
 	for (std::vector<Quest_Entry>::size_type entry = current_line+1; entry<active_entries.size(); entry++)
 		if (quest_entries[active_entries[entry]].contains_string(input_text))
 		{
-			goto_questlog_entry(entry);
+			goto_entry(entry);
 			return;
 		}
 	for (std::vector<Quest_Entry>::size_type entry = 0; entry<=current_line && entry<active_entries.size(); entry++)
 		if (quest_entries[active_entries[entry]].contains_string(input_text))
 		{
-			goto_questlog_entry(entry);
+			goto_entry(entry);
 			return;
 		}
 	do_alert1_sound();
@@ -1482,7 +1533,7 @@ static void questlog_find_input_handler(const char *input_text, void *data)
 //	Prompt for text to find.  The dialogue will not close when "OK"
 //	pressed but will call the callback.  Use "Cancel" to close.
 //
-static void find_in_entry(window_info *win)
+void Questlog_Window::find_in_entry(window_info *win)
 {
 	if (current_action != -1)
 		return;
@@ -1497,7 +1548,7 @@ static void find_in_entry(window_info *win)
 
 //	Mark the current entry as deleted.
 //
-static void undelete_entry(size_t entry)
+void Questlog_Window::undelete_entry(size_t entry)
 {
 	quest_entries[active_entries[entry]].set_deleted(false);
 	need_to_save = true;
@@ -1506,7 +1557,7 @@ static void undelete_entry(size_t entry)
 
 //	Mark the current entry as not deleted.
 //
-static void delete_entry(size_t entry)
+void Questlog_Window::delete_entry(size_t entry)
 {
 	quest_entries[active_entries[entry]].set_deleted(true);
 	need_to_save = true;
@@ -1514,7 +1565,7 @@ static void delete_entry(size_t entry)
 
 //	Look for matching entries and delete (mark as deleted) all but first
 //
-void delete_duplicates(void)
+void Questlog_Window::delete_duplicates(void)
 {
 	int deleted_count = 0;
 	LOG_TO_CONSOLE(c_green1, questlog_deldupe_start_str);
@@ -1562,7 +1613,7 @@ void delete_duplicates(void)
 
 //	Enable/disable menu options as required....
 //
-static void cm_questlog_pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win)
+void Questlog_Window::cm_preshow_handler(int my)
 {
 	cm_questlog_over_entry = active_entries.size();
 	for (std::vector<Shown_Entry>::const_iterator i=shown_entries.begin(); i!=shown_entries.end(); ++i)
@@ -1600,7 +1651,7 @@ static void cm_questlog_pre_show_handler(window_info *win, int widget_id, int mx
 
 //	Call options selected from the context menu.
 //
-static int cm_quest_handler(window_info *win, int widget_id, int mx, int my, int option)
+void Questlog_Window::cm_handler(window_info *win, int my, int option)
 {
 	size_t over_entry = active_entries.size();
 	for (std::vector<Shown_Entry>::const_iterator i=shown_entries.begin(); i!=shown_entries.end(); ++i)
@@ -1634,7 +1685,7 @@ static int cm_quest_handler(window_info *win, int widget_id, int mx, int my, int
 			npc_filter.unset_all();
 			if (option == CMQL_JUSTTHISNPC)
 				npc_filter.set(quest_entries[active_entries[over_entry]].get_npc());
-			rebuild_active_entries((current_line < active_entries.size()) ?active_entries[current_line] :0);
+			rebuild_active_entries(get_current_entry());
 			npc_filter.open_window();
 			break;
 		case CMQL_COPY: if (over_entry < active_entries.size()) copy_entry(over_entry); break;
@@ -1654,20 +1705,19 @@ static int cm_quest_handler(window_info *win, int widget_id, int mx, int my, int
 			break;
 		case CMQL_SHOWSEL:
 			active_filter = QLFLT_SEL;
-			rebuild_active_entries((current_line < active_entries.size()) ?active_entries[current_line] :0);
+			rebuild_active_entries(get_current_entry());
 			break;
 		case CMQL_DELETE: if (over_entry < active_entries.size()) delete_entry(over_entry); break;
 		case CMQL_UNDEL: if (over_entry < active_entries.size()) undelete_entry(over_entry); break;
 		case CMQL_DEDUPE: delete_duplicates(); break;
 		case CMQL_SAVE: save_questlog(); break;
 	}
-	return 1;
 }
 
 
 //	Update values that change with ui scaling
 //
-static int ui_scale_questlog_handler(window_info *win)
+void Questlog_Window::ui_scale_handler(window_info *win)
 {
 	qlborder = static_cast<int>(0.5 + 5 * win->current_scale);
 	spacer = static_cast<int>(0.5 + 3 * win->current_scale);
@@ -1685,18 +1735,16 @@ static int ui_scale_questlog_handler(window_info *win)
 
 	if (npc_filter.get_win_id() >= 0 && npc_filter.get_win_id() < windows_list.num_windows)
 		ui_scale_npc_filter_handler(&windows_list.window[npc_filter.get_win_id()]);
-
-	return 1;
 }
 
 
 //	Draw the window contents.
 //
-static int display_questlog_handler(window_info *win)
+int Questlog_Window::display_handler(window_info *win)
 {
 	// If required, call the next stage of a entry input.
 	if (prompt_for_add_text)
-		questlog_add_text_input(win);
+		add_text_input(win);
 
 	questlist.check_title_requests();
 
@@ -1744,31 +1792,29 @@ static int display_questlog_handler(window_info *win)
 }
 
 
-static int questlog_scroll_click (widget_list *widget, int mx, int my, Uint32 flags)
+void Questlog_Window::scroll_click_handler(widget_list *widget)
 {
 	int scroll = vscrollbar_get_pos (questlog_win, widget->id);
-	goto_questlog_entry (scroll);
-	return 1;
+	goto_entry(scroll);
 }
 
 
-static int questlog_scroll_drag (widget_list *widget, int mx, int my, Uint32 flags, int dx, int dy)
+void Questlog_Window::scroll_drag_handler(widget_list *widget)
 {
 	int scroll = vscrollbar_get_pos (questlog_win, widget->id);
-	goto_questlog_entry (scroll);
-	return 1;
+	goto_entry(scroll);
 }
 
 
-static int questlog_click(window_info *win, int mx, int my, Uint32 flags)
+int Questlog_Window::click_handler(window_info *win, Uint32 flags)
 {
 	if(flags&ELW_WHEEL_UP) {
 		vscrollbar_scroll_up(questlog_win, quest_scroll_id);
-		goto_questlog_entry(vscrollbar_get_pos(questlog_win, quest_scroll_id));
+		goto_entry(vscrollbar_get_pos(questlog_win, quest_scroll_id));
 		return 1;
 	} else if(flags&ELW_WHEEL_DOWN) {
 		vscrollbar_scroll_down(questlog_win, quest_scroll_id);
-		goto_questlog_entry(vscrollbar_get_pos(questlog_win, quest_scroll_id));
+		goto_entry(vscrollbar_get_pos(questlog_win, quest_scroll_id));
 		return 1;
 	} else {
 		return 0;
@@ -1776,11 +1822,7 @@ static int questlog_click(window_info *win, int mx, int my, Uint32 flags)
 }
 
 
-#ifdef ANDROID
-static int keypress_questlog_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey, Uint16 mods)
-#else
-static int keypress_questlog_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
-#endif
+int Questlog_Window::keypress_handler(window_info *win, Uint32 key, Uint32 unikey)
 {
 	char keychar = tolower(static_cast<char>(unikey));
 	if ((key == K_MARKFILTER) || (keychar=='/'))
@@ -1792,19 +1834,12 @@ static int keypress_questlog_handler(window_info *win, int mx, int my, Uint32 ke
 }
 
 
-static int mouseover_questlog_handler(window_info *win, int mx, int my)
+void Questlog_Window::mouseover_handler(int my)
 {
 	if (my>=0)
 		mouse_over_questlog = true;
-	return 0;
 }
 
-
-static int show_questlog_handler(window_info *win)
-{
-	questlist.check_auto_open();
-	return 0;
-}
 
 
 //	Add a new entry to the end of the quest log.  The entry will either
@@ -1822,7 +1857,7 @@ static void add_questlog_line(const char *t, const char *npcprefix)
 }
 
 
-extern "C" void goto_questlog_entry(int ln)
+void Questlog_Window::goto_entry(int ln)
 {
 	if(ln <= 0)
 		current_line = 0;
@@ -1924,7 +1959,7 @@ extern "C" void unload_questlog()
 
 //	Create (or show existing) a stand alone quest log window.
 //
-extern "C" void display_questlog()
+void Questlog_Window::open(void)
 {
 	if (questlog_win < 0)
 	{
@@ -1947,7 +1982,7 @@ extern "C" void display_questlog()
 
 		size_t last_entry = active_entries.size()-1;
 		quest_scroll_id = vscrollbar_add_extended (questlog_win, quest_scroll_id, NULL, qlwinwidth - win->box_size, win->box_size, win->box_size, qlwinheight - win->box_size, 0, 1.0, 0.77f, 0.57f, 0.39f, last_entry, 1, last_entry);
-		goto_questlog_entry(last_entry);
+		goto_entry(last_entry);
 
 		widget_set_OnClick (questlog_win, quest_scroll_id, (int (*)())questlog_scroll_click);
 		widget_set_OnDrag (questlog_win, quest_scroll_id, (int (*)())questlog_scroll_drag);
@@ -1964,6 +1999,12 @@ extern "C" void display_questlog()
 		show_window(questlog_win);
 
 	questlist.check_auto_open();
+}
+
+
+extern "C" void display_questlog(void)
+{
+	questlog_window.open();
 }
 
 
