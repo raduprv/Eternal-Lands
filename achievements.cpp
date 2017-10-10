@@ -169,13 +169,15 @@ class Achievements_System
 		int texture(size_t index) const;
 		bool hide_all(void) const;
 		int get_size(void) const { return size; }
-		int get_font_x(void) const { return static_cast<int>(0.5 + SMALL_FONT_X_LEN * ui_scale); }
-		int get_font_y(void) const { return static_cast<int>(0.5 + SMALL_FONT_Y_LEN * ui_scale); }
-		int get_display(void) const { return static_cast<int>(0.5 + display * ui_scale); }
-		int get_y_win_offset(void) const { return static_cast<int>(0.5 + y_win_offset * ui_scale); }
+		void set_current_scale(float scale) { current_scale = scale; }
+		float get_current_scale(void) const { return current_scale; }
+		int get_font_x(void) const { return static_cast<int>(0.5 + SMALL_FONT_X_LEN * current_scale); }
+		int get_font_y(void) const { return static_cast<int>(0.5 + SMALL_FONT_Y_LEN * current_scale); }
+		int get_display(void) const { return static_cast<int>(0.5 + display * current_scale); }
+		int get_y_win_offset(void) const { return static_cast<int>(0.5 + y_win_offset * current_scale); }
 		int get_per_row(void) const { return per_row; }
 		int get_max_rows(void) const { return max_rows; }
-		int get_border(void) const { return static_cast<int>(0.5 + border * ui_scale); }
+		int get_border(void) const { return static_cast<int>(0.5 + border * current_scale); }
 		int main_win_x(void) const { return per_row * get_display() + 3 * get_border(); }
 		int get_child_win_x(void) const;
 		int get_child_win_y(void) const { return get_font_y() * (1 + max_detail_lines) + 2 * get_border(); }
@@ -204,6 +206,7 @@ class Achievements_System
 		size_t max_windows;
 		int win_pos_x, win_pos_y;
 		bool control_used;
+		float current_scale;
 };
 
 
@@ -263,7 +266,7 @@ Achievements_System::Achievements_System(void)
 	next_help("Next page"),
 	prev_help("Previous page"),
 	max_title_len(0),
-	max_detail_lines(2), max_windows(15), win_pos_x(100), win_pos_y(50), control_used(false)
+	max_detail_lines(2), max_windows(15), win_pos_x(100), win_pos_y(50), control_used(false), current_scale(1.0)
 {
 	xmlDocPtr doc;
 	xmlNodePtr cur;
@@ -612,13 +615,13 @@ static int achievements_child_display_handler(window_info *win)
 		int title_x = (win->len_x - achievement->get_title().size() * as->get_font_x()) / 2;
 
 		glColor3f(0.77f, 0.57f, 0.39f);
-		scaled_draw_string_small(title_x + gx_adjust, as->get_border() + gy_adjust,
-			reinterpret_cast<const unsigned char *>(achievement->get_title().c_str()), 1);
+		draw_string_small_scaled(title_x + gx_adjust, as->get_border() + gy_adjust,
+			reinterpret_cast<const unsigned char *>(achievement->get_title().c_str()), 1, as->get_current_scale());
 
 		glColor3f(1.0f, 1.0f, 1.0f);
 		for (size_t i=0; i<achievement->get_text().size(); ++i)
-			scaled_draw_string_small(as->get_border() + gx_adjust, (i + 1) * as->get_font_y() + gy_adjust,
-				reinterpret_cast<const unsigned char *>(achievement->get_text()[i].c_str()), 1);
+			draw_string_small_scaled(as->get_border() + gx_adjust, (i + 1) * as->get_font_y() + gy_adjust,
+				reinterpret_cast<const unsigned char *>(achievement->get_text()[i].c_str()), 1, as->get_current_scale());
 	}
 	else
 	{
@@ -626,7 +629,8 @@ static int achievements_child_display_handler(window_info *win)
 		std::ostringstream buf;
 		buf << "Undefined " << index;
 		int title_x = (win->len_x - buf.str().size() * as->get_font_x()) / 2;
-		scaled_draw_string_small(title_x + gx_adjust, as->get_border() + gy_adjust, reinterpret_cast<const unsigned char *>(buf.str().c_str()), 1);
+		draw_string_small_scaled(title_x + gx_adjust, as->get_border() + gy_adjust,
+			reinterpret_cast<const unsigned char *>(buf.str().c_str()), 1, as->get_current_scale());
 	}
 
 	return 1;
@@ -756,16 +760,16 @@ int Achievements_Window::display_handler(window_info *win)
 	float mouse_over_colour[3] = { 1.0f, 0.5f, 0.0f };
 
 	glColor3fv((first) ?((over_prev) ?mouse_over_colour :active_colour) :inactive_colour);
-	scaled_draw_string_small(prev_start, gy_adjust + win->len_y - (as->get_font_y() + as->get_border()),
-		reinterpret_cast<const unsigned char *>(as->get_prev().c_str()), 1);
+	draw_string_small_scaled(prev_start, gy_adjust + win->len_y - (as->get_font_y() + as->get_border()),
+		reinterpret_cast<const unsigned char *>(as->get_prev().c_str()), 1, as->get_current_scale());
 
 	glColor3fv((another_page) ?((over_next) ?mouse_over_colour :active_colour) :inactive_colour);
-	scaled_draw_string_small(next_start, gy_adjust + win->len_y - (as->get_font_y() + as->get_border()),
-		reinterpret_cast<const unsigned char *>(as->get_next().c_str()), 1);
+	draw_string_small_scaled(next_start, gy_adjust + win->len_y - (as->get_font_y() + as->get_border()),
+		reinterpret_cast<const unsigned char *>(as->get_next().c_str()), 1, as->get_current_scale());
 
 	glColor3fv((over_close) ?mouse_over_colour :active_colour);
-	scaled_draw_string_small(close_start, gy_adjust + win->len_y - (as->get_font_y() + as->get_border()),
-		reinterpret_cast<const unsigned char *>(as->get_close().c_str()), 1);
+	draw_string_small_scaled(close_start, gy_adjust + win->len_y - (as->get_font_y() + as->get_border()),
+		reinterpret_cast<const unsigned char *>(as->get_close().c_str()), 1, as->get_current_scale());
 
 	if (over_close && ctrl_clicked)
 		as->hide_all();
@@ -907,10 +911,8 @@ void Achievements_Window::open(int win_pos_x, int win_pos_y)
 
 	logical_rows = (their_achievements.size() + (as->get_per_row() - 1)) / as->get_per_row();
 	physical_rows = (logical_rows > as->get_max_rows()) ?as->get_max_rows() :logical_rows;
-	int win_x = as->main_win_x();
-	int win_y = physical_rows * as->get_display() + as->get_font_y() + 2 * as->get_border();
 
-	main_win_id = create_window(their_name.c_str(), -1, 0, win_pos_x, win_pos_y, win_x, win_y,
+	main_win_id = create_window(their_name.c_str(), -1, 0, win_pos_x, win_pos_y, 0, 0,
 		ELW_USE_UISCALE|ELW_TITLE_BAR|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE);
 	set_window_handler(main_win_id, ELW_HANDLER_DISPLAY, (int (*)())&achievements_display_handler );
 	set_window_handler(main_win_id, ELW_HANDLER_CLICK, (int (*)())&achievements_click_handler );
@@ -919,6 +921,9 @@ void Achievements_Window::open(int win_pos_x, int win_pos_y)
 
 	window_info *win = &windows_list.window[main_win_id];
 	win->data = reinterpret_cast<void *>(this);
+
+	as->set_current_scale(win->current_scale);
+	resize_window(main_win_id, as->main_win_x(), physical_rows * as->get_display() + as->get_font_y() + 2 * as->get_border());
 }
 
 int achievements_ctrl_click = 0;
