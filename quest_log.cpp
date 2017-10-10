@@ -75,6 +75,28 @@ class Quest
 		std::string title;
 };
 
+const Uint16 Quest::UNSET_ID = static_cast<Uint16>(-1);
+
+
+//	Construct a quest object from a string - probably read from a file.
+//
+Quest::Quest(const std::string & line)
+{
+	std::istringstream ss(line);
+	id = Quest::UNSET_ID;
+	is_completed = false;
+	ss >> id;
+	ss >> is_completed;
+	getline(ss, title);
+	// trim any leading or trailing space from title
+	std::string::size_type start = title.find_first_not_of(' ');
+	std::string::size_type end = title.find_last_not_of(' ');
+	if (start == std::string::npos)
+		title = "";
+	else
+		title = title.substr(start,end-start+1);
+}
+
 
 //	Used to track requests for a quest title from the server
 //
@@ -91,6 +113,24 @@ class Quest_Title_Request
 		Uint32 request_time;
 		bool requested;
 };
+
+
+//	Ask the server for the title this quest.
+//
+void Quest_Title_Request::request(void)
+{
+	if (requested)
+		return;
+	Uint8 str[10];
+	//char buf [80];
+	//safe_snprintf(buf, 80, "Sending WHAT_QUEST_IS_THIS_ID with id=%d", id);
+	//LOG_TO_CONSOLE(c_green2,buf);
+	str[0]=WHAT_QUEST_IS_THIS_ID;
+	*((Uint16 *)(str+1)) = SDL_SwapLE16((Uint16)id);
+	my_tcp_send (my_socket, str, 3);
+	request_time = SDL_GetTicks();
+	requested = true;
+}
 
 
 //	Needed to sort quests with "Show all" first.
@@ -120,29 +160,15 @@ class Quest_List
 			no_auto_open(0), hide_completed(0), list_left_of_entries(0), quest_completed(0), number_shown(0) {}
 		void add(Uint16 id);
 		void set_requested_title(const char* title);
-		void showall(void);
 		void load(void);
 		void save(void);
 		void set_completed(Uint16 id, bool is_complete);
-		bool get_completed(Uint16 id) const;
-		void toggle_completed(Uint16 id) { set_completed(id, !get_completed(id)); }
-		size_t num_shown(void) const { return number_shown; }
-		const Quest * get_first_quest(int offset);
-		const Quest * get_next_quest(void);
 		void set_selected(Uint16 id) { selected_id = id; }
 		Uint16 get_selected(void) const { return selected_id; }
-		size_t get_max_title(void) const { return max_title; }
 		void open_window(void);
 		int get_win_id(void) const { return win_id; }
-		int get_scroll_id(void) const  { return scroll_id; }
 		void scroll_to_selected(void);
-		int get_mouseover_y(void) const { return mouseover_y; }
 		void set_mouseover_y(int val) { mouseover_y = val; }
-		bool has_mouseover(void) const { return mouseover_y != -1; }
-		void clear_mouseover(void) { mouseover_y = -1; }
-		bool was_clicked(void) const { return clicked; }
-		bool set_clicked(bool val) { return clicked = val; }
-		bool auto_open_window(void) const { return !no_auto_open; }
 		void recalc_num_shown(void);
 		unsigned int get_options(void) const;
 		void set_options(unsigned int options);
@@ -152,9 +178,26 @@ class Quest_List
 		void cm_pre_show_handler(void);
 		bool cm_active(void) const { return ((cm_id != CM_INIT_VALUE) && (cm_window_shown() == cm_id)); }
 		void check_title_requests(void);
-		void resize(void);
-		void check_auto_open(void) { if (auto_open_window() && !get_show_window(get_win_id())) open_window(); }
+		void ui_scale_handler(window_info *win);
+		void check_auto_open(void) { if (!no_auto_open && !get_show_window(get_win_id())) open_window(); }
+		void display_handler(window_info *win);
+		void click_handler(window_info *win, Uint32 flags);
+		void cm_handler(int option);
+		void resize_handler(window_info *win);
 	private:
+		int get_scroll_id(void) const  { return scroll_id; }
+		void showall(void);
+		bool get_completed(Uint16 id) const;
+		void toggle_completed(Uint16 id) { set_completed(id, !get_completed(id)); }
+		size_t num_shown(void) const { return number_shown; }
+		const Quest * get_first_quest(int offset);
+		const Quest * get_next_quest(void);
+		size_t get_max_title(void) const { return max_title; }
+		int get_mouseover_y(void) const { return mouseover_y; }
+		bool has_mouseover(void) const { return mouseover_y != -1; }
+		void clear_mouseover(void) { mouseover_y = -1; }
+		bool was_clicked(void) const { return clicked; }
+		bool set_clicked(bool val) { return clicked = val; }
 		std::map <Uint16,Quest,QuestCompare> quests;
 		std::queue <Quest_Title_Request> title_requests;
 		bool save_needed;
@@ -176,30 +219,6 @@ class Quest_List
 		int quest_completed;
 		size_t number_shown;
 };
-
-
-const Uint16 Quest::UNSET_ID = static_cast<Uint16>(-1);
-
-
-//	Construct a quest object from a string - probably read from a file.
-//
-Quest::Quest(const std::string & line)
-{
-	std::istringstream ss(line);
-	id = Quest::UNSET_ID;
-	is_completed = false;
-	ss >> id;
-	ss >> is_completed;
-	getline(ss, title);
-	// trim any leading or trailing space from title
-	std::string::size_type start = title.find_first_not_of(' ');
-	std::string::size_type end = title.find_last_not_of(' ');
-	if (start == std::string::npos)
-		title = "";
-	else
-		title = title.substr(start,end-start+1);
-}
-
 
 
 //	Add any new quest object to the list and request the title.
@@ -447,25 +466,6 @@ void Quest_List::check_title_requests(void)
 }
 
 
-//	Ask the server for the title this quest.
-//
-void Quest_Title_Request::request(void)
-{
-	if (requested)
-		return;
-	Uint8 str[10];
-	//char buf [80];
-	//safe_snprintf(buf, 80, "Sending WHAT_QUEST_IS_THIS_ID with id=%d", id);
-	//LOG_TO_CONSOLE(c_green2,buf);
-	str[0]=WHAT_QUEST_IS_THIS_ID;
-	*((Uint16 *)(str+1)) = SDL_SwapLE16((Uint16)id);
-	my_tcp_send (my_socket, str, 3);
-	request_time = SDL_GetTicks();
-	requested = true;
-}
-
-
-
 //	A single entry for the questlog.
 class Quest_Entry
 {
@@ -483,6 +483,7 @@ class Quest_Entry
 		void set_deleted(bool is_deleted) { deleted = is_deleted; update_displayed_npc_name(); }
 		bool get_deleted(void) const { return deleted; }
 		const std::string & get_disp_npc(void) const { return disp_npc; };
+		static const int chars_per_line;
 	private:
 		void set_lines(const std::string & the_text);
 		void update_displayed_npc_name(void);
@@ -495,6 +496,24 @@ class Quest_Entry
 		Uint16 quest_id;
 		Uint16 charsum;
 };
+
+std::vector<std::string> Quest_Entry::deleted_line;
+const std::string Quest_Entry::npc_spacer = ": ";
+const int Quest_Entry::chars_per_line = 70;
+
+
+//	Create a fixed vector to use if deleted and a raw npc name / deleted string.
+//
+void Quest_Entry::update_displayed_npc_name(void)
+{
+	if (deleted_line.empty())
+		deleted_line.push_back(static_cast<char>(to_color_char(c_grey2)) + std::string(questlog_deleted_str));
+	if (deleted)
+		disp_npc = std::string(questlog_deleted_str);
+	else
+		disp_npc = std::string(npc + npc_spacer.substr(0, npc_spacer.size()-1));
+}
+
 
 //	Holds and tests position information for a shown entry.
 class Shown_Entry
@@ -538,34 +557,13 @@ static bool prompt_for_add_text = false;
 static INPUT_POPUP ipu_questlog;
 static int current_action = -1;
 
-std::vector<std::string> Quest_Entry::deleted_line;
-const std::string Quest_Entry::npc_spacer = ": ";
-
-// these are all set in update_scalable_values()
-static int font_x = 0;
-static int font_y = 0;
-static int box_size = 0;
+// these are all set in ui_scale_questlog_handler()
 static int qlwinwidth = 0;
 static int qlwinheight = 0;
 static int qlborder = 0;
 static int spacer = 0;
 static int win_space = 0;
-static int title_height = 0;
 static int linesep = 0;
-static int chars_per_line = 0;
-
-
-//	Create a fixed vector to use if deleted and a raw npc name / deleted string.
-//
-void Quest_Entry::update_displayed_npc_name(void)
-{
-	if (deleted_line.empty())
-		deleted_line.push_back(static_cast<char>(to_color_char(c_grey2)) + std::string(questlog_deleted_str));
-	if (deleted)
-		disp_npc = std::string(questlog_deleted_str);
-	else
-		disp_npc = std::string(npc + npc_spacer.substr(0, npc_spacer.size()-1));
-}
 
 
 //	Return the lines of an entry.
@@ -912,27 +910,28 @@ static int resize_npc_filter_handler(window_info *win, int new_width, int new_he
 
 //	Called on creation and when scaling changes, set the starting size and position fo npc filter window
 //
-static void npclist_resize(void)
+static int ui_scale_npc_filter_handler(window_info *win)
 {
-	if ((npc_filter_win >= 0) && (npc_filter_win<windows_list.num_windows))
+	npc_name_space = static_cast<int>(0.5 + 3 * win->current_scale);
+	npc_name_border = static_cast<int>(0.5 + 5 * win->current_scale);
+	npc_name_box_size = static_cast<int>(0.5 + 12 * win->current_scale);
+	max_npc_name_x = npc_name_space * 3 + npc_name_box_size + (MAX_USERNAME_LENGTH) * win->small_font_len_x;
+	max_npc_name_y = win->small_font_len_y + 2 * npc_name_space;
+	if ((win->pos_id >= 0) && (win->pos_id<windows_list.num_windows))
 	{
-		window_info *npc_win = &windows_list.window[npc_filter_win];
-		if ((npc_win->pos_id >= 0) && (npc_win->pos_id<windows_list.num_windows))
-		{
-			window_info *parent_win = &windows_list.window[npc_win->pos_id];
-			int size_x = static_cast<int>(2*npc_name_border + min_npc_name_cols * max_npc_name_x + box_size);
-			int size_y = static_cast<int>(static_cast<int>(parent_win->len_y/max_npc_name_y)*max_npc_name_y);
-			int min_size_x = static_cast<int>(2*npc_name_border + min_npc_name_cols * max_npc_name_x + box_size);
-			int min_size_y = static_cast<int>(min_npc_name_rows * max_npc_name_y);
-			int pos_x = parent_win->len_x + win_space;
-			int pos_y = 0;
-			resize_window(npc_filter_win, size_x, size_y);
-			move_window(npc_filter_win, npc_win->pos_id, npc_win->pos_loc, parent_win->pos_x + pos_x, parent_win->pos_y + pos_y);
-			set_window_min_size(npc_filter_win, min_size_x, min_size_y);
-		}
+		window_info *parent_win = &windows_list.window[win->pos_id];
+		int size_x = static_cast<int>(2*npc_name_border + min_npc_name_cols * max_npc_name_x + win->box_size);
+		int size_y = static_cast<int>(static_cast<int>(parent_win->len_y/max_npc_name_y) * max_npc_name_y);
+		int min_size_x = static_cast<int>(2*npc_name_border + min_npc_name_cols * max_npc_name_x + win->box_size);
+		int min_size_y = static_cast<int>(min_npc_name_rows * max_npc_name_y);
+		int pos_x = parent_win->len_x + win_space;
+		int pos_y = 0;
+		resize_window(win->window_id, size_x, size_y);
+		move_window(win->window_id, win->pos_id, win->pos_loc, parent_win->pos_x + pos_x, parent_win->pos_y + pos_y);
+		set_window_min_size(win->window_id, min_size_x, min_size_y);
 	}
+	return 1;
 }
-
 
 
 //	Display handler for the quest log filter.
@@ -949,7 +948,7 @@ static int display_npc_filter_handler(window_info *win)
 	// once we stop, snap the window to the new grid size
 	else if (resizing)
 	{
-		int new_width = static_cast<int>(2*npc_name_border + npc_name_cols * max_npc_name_x + box_size);
+		int new_width = static_cast<int>(2*npc_name_border + npc_name_cols * max_npc_name_x + win->box_size);
 		int new_rows = static_cast<int>((win->len_y+max_npc_name_y/2)/max_npc_name_y);
 		int max_rows = static_cast<int>((npc_filter_map.size() + npc_name_cols - 1) / npc_name_cols);
 		resizing = 0;
@@ -1083,13 +1082,16 @@ static void open_npc_filter_window(void)
 	if (npc_filter_win < 0)
 	{
 		npc_filter_win = create_window(questlog_npc_filter_title_str, questlog_win, 0, 0, 0, 0, 0, ELW_USE_UISCALE|ELW_SCROLLABLE|ELW_RESIZEABLE|ELW_WIN_DEFAULT);
+		if (npc_filter_win < 0 && npc_filter_win >=  windows_list.num_windows)
+			return;
 		set_window_handler(npc_filter_win, ELW_HANDLER_DISPLAY, (int (*)())&display_npc_filter_handler );
 		set_window_handler(npc_filter_win, ELW_HANDLER_CLICK, (int (*)())&click_npc_filter_handler );
 		set_window_handler(npc_filter_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_npc_filter_handler );
 		set_window_handler(npc_filter_win, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_npc_filter_handler );
 		set_window_handler(npc_filter_win, ELW_HANDLER_RESIZE, (int (*)())&resize_npc_filter_handler );
+		set_window_handler(npc_filter_win, ELW_HANDLER_UI_SCALE, (int (*)())&ui_scale_npc_filter_handler );
 		set_window_scroll_inc(npc_filter_win, static_cast<int>(max_npc_name_y));
-		npclist_resize();
+		ui_scale_npc_filter_handler(&windows_list.window[npc_filter_win]);
 	}
 	else
 		show_window(npc_filter_win);
@@ -1099,11 +1101,11 @@ static void open_npc_filter_window(void)
 
 //	Display the quest list, highlighing any selected and one with mouse over.
 //
-static int display_questlist_handler(window_info *win)
+void Quest_List::display_handler(window_info *win)
 {
-	const size_t used_x = 4*spacer + box_size;
+	const size_t used_x = 4*spacer + win->box_size;
 	const size_t disp_lines = win->len_y / linesep;
-	const size_t disp_chars = (win->len_x - used_x) / font_x;
+	const size_t disp_chars = (win->len_x - used_x) / win->small_font_len_x;
 
 	// if resizing wait until we stop
 	static Uint8 resizing = 0;
@@ -1112,10 +1114,10 @@ static int display_questlist_handler(window_info *win)
 	// once we stop, snap the window size to fix nicely
 	else if (resizing)
 	{
-		size_t to_show = (disp_lines>questlist.num_shown()) ?questlist.num_shown() :disp_lines;
+		size_t to_show = (disp_lines>num_shown()) ?num_shown() :disp_lines;
 		size_t newy = static_cast<size_t>(to_show * linesep);
-		to_show = (disp_chars>questlist.get_max_title()) ?questlist.get_max_title() :disp_chars;
-		size_t newx = static_cast<size_t>(font_x * to_show + used_x);
+		to_show = (disp_chars>get_max_title()) ?get_max_title() :disp_chars;
+		size_t newx = static_cast<size_t>(win->small_font_len_x * to_show + used_x);
 		resizing = 0;
 		resize_window (win->window_id, newx, newy);
 	}
@@ -1123,28 +1125,28 @@ static int display_questlist_handler(window_info *win)
 	// only show help and clear the highlighted quest if the context window is closed
 	if (cm_window_shown() == CM_INIT_VALUE)
 	{
-		questlist.clear_highlighted();
-		if (show_help_text && questlist.has_mouseover())
+		clear_highlighted();
+		if (show_help_text && has_mouseover())
 			scaled_show_help(questlog_cm_help_str, 0, win->len_y + win_space);
 	}
 
 	// get the top line and then loop drawing all quests we can display
-	vscrollbar_set_bar_len(win->window_id, questlist.get_scroll_id(), (questlist.num_shown()>disp_lines) ?questlist.num_shown()-disp_lines :0);
-	int offset = (questlist.num_shown()>disp_lines) ?vscrollbar_get_pos(win->window_id, questlist.get_scroll_id()) :0;
-	const Quest* thequest  = questlist.get_first_quest(offset);
+	vscrollbar_set_bar_len(win->window_id, get_scroll_id(), (num_shown()>disp_lines) ?num_shown()-disp_lines :0);
+	int offset = (num_shown()>disp_lines) ?vscrollbar_get_pos(win->window_id, get_scroll_id()) :0;
+	const Quest* thequest = get_first_quest(offset);
 	int posy = spacer;
 	while ((thequest != 0) && (posy+linesep-spacer <= win->len_y))
 	{
-		const int hl_x = win->len_x - 2*spacer - box_size;
+		const int hl_x = win->len_x - 2*spacer - win->box_size;
 		// is this the quest the mouse is over?
-		if (questlist.has_mouseover() && (cm_window_shown() == CM_INIT_VALUE) &&
-			(posy+linesep-spacer > questlist.get_mouseover_y()))
+		if (has_mouseover() && (cm_window_shown() == CM_INIT_VALUE) &&
+			(posy+linesep-spacer > get_mouseover_y()))
 		{
-			questlist.set_highlighted(thequest->get_id());
+			set_highlighted(thequest->get_id());
 			// draw highlight over active name
 			draw_highlight(spacer, posy-spacer, hl_x, linesep, 0);
 			// if clicked, update the filter
-			if (questlist.was_clicked())
+			if (was_clicked())
 			{
 				if (thequest->get_id() == Quest::UNSET_ID)
 				{
@@ -1154,17 +1156,17 @@ static int display_questlist_handler(window_info *win)
 				else
 				{
 					active_filter = QLFLT_QUEST;
-					questlist.set_selected(thequest->get_id());
+					set_selected(thequest->get_id());
 					rebuild_active_entries(quest_entries.size()-1);
 				}
 				do_click_sound();
 			}
-			questlist.clear_mouseover();
+			clear_mouseover();
 		}
 		// is this the selected title?
-		if ((active_filter == QLFLT_QUEST) && (thequest->get_id() == questlist.get_selected()))
+		if ((active_filter == QLFLT_QUEST) && (thequest->get_id() == get_selected()))
 			draw_highlight(spacer, posy-spacer, hl_x, linesep, 1);
-		if (questlist.cm_active() && (questlist.get_highlighted() == thequest->get_id()))
+		if (cm_active() && (get_highlighted() == thequest->get_id()))
 			glColor3f(0.77f, 0.57f, 0.39f);
 		// display comleted quests less prominently
 		else if (thequest->get_completed())
@@ -1181,65 +1183,51 @@ static int display_questlist_handler(window_info *win)
 			scaled_draw_string_small(2*spacer, posy, (const unsigned char*)"???", 1);
 		else
 			scaled_draw_string_small(2*spacer, posy, (const unsigned char*)thequest->get_title().c_str(), 1);
-		thequest = questlist.get_next_quest();
+		thequest = get_next_quest();
 		posy += linesep;
 	}
 	// reset mouse over and clicked
-	questlist.clear_mouseover();
-	questlist.set_clicked(false);
-	return 1;
+	clear_mouseover();
+	set_clicked(false);
 }
 
 
 //	Mouse left-click select an quest, mouse wheel scroll window.
 //
-static int click_questlist_handler(window_info *win, int mx, int my, Uint32 flags)
+void Quest_List::click_handler(window_info *win, Uint32 flags)
 {
 	if (flags&ELW_WHEEL_UP)
-		vscrollbar_scroll_up(win->window_id, questlist.get_scroll_id());
+		vscrollbar_scroll_up(win->window_id, get_scroll_id());
 	else if(flags&ELW_WHEEL_DOWN)
-		vscrollbar_scroll_down(win->window_id, questlist.get_scroll_id());
+		vscrollbar_scroll_down(win->window_id, get_scroll_id());
 	else if(flags&ELW_LEFT_MOUSE)
-		questlist.set_clicked(true);
-	return 1;
-}
-
-
-//	Save the y position so the display handler knows which to highlight/select.
-//
-static int mouseover_questlist_handler(window_info *win, int mx, int my)
-{
-	if ((my>=0) && (mx<win->len_x-box_size))
-		questlist.set_mouseover_y(my);
-	return 0;
+		set_clicked(true);
 }
 
 
 //	Handle window resize, keeping the scroll handler in place.
 //
-static int resize_questlist_handler(window_info *win, int new_width, int new_height)
+void Quest_List::resize_handler(window_info *win)
 {
-	widget_move(win->window_id, questlist.get_scroll_id(), win->len_x-box_size, box_size);
-	widget_resize(win->window_id, questlist.get_scroll_id(), box_size, win->len_y-2*box_size);
-	return 0;
+	widget_move(win->window_id, get_scroll_id(), win->len_x-win->box_size, win->box_size);
+	widget_resize(win->window_id, get_scroll_id(), win->box_size, win->len_y-2*win->box_size);
 }
 
 
 //	Handle option selection for the quest list context menu
-static int cm_questlist_handler(window_info *win, int widget_id, int mx, int my, int option)
+void Quest_List::cm_handler(int option)
 {
 	switch (option)
 	{
-		case CMQL_COMPLETED: questlist.toggle_completed(questlist.get_highlighted()); break;
+		case CMQL_COMPLETED: toggle_completed(get_highlighted()); break;
 		case CMQL_ADDSEL:
 			for (std::set<size_t>::const_iterator i=selected_entries.begin(); i!=selected_entries.end(); ++i)
-				quest_entries[*i].set_id(questlist.get_highlighted());
+				quest_entries[*i].set_id(get_highlighted());
 			need_to_save = true;
 			rebuild_active_entries((current_line < active_entries.size()) ?active_entries[current_line] :0);
 			break;
-		case CMQL_HIDECOMPLETED: questlist.recalc_num_shown(); break;
+		case CMQL_HIDECOMPLETED: recalc_num_shown(); break;
 	}
-	return 1;
 }
 
 
@@ -1252,15 +1240,6 @@ void Quest_List::cm_pre_show_handler(void)
 	cm_grey_line(cm_id, CMQL_ADDSEL, selected_entries.empty() ?1 :0);
 }
 
-
-//	Adjust things just before the quest list context menu is opened
-//
-static void cm_questlist_pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win)
-{
-	questlist.cm_pre_show_handler();
-}
-
-
 //	Scroll to show the currently selected quest in the quest list window.
 //
 void Quest_List::scroll_to_selected(void)
@@ -1268,12 +1247,12 @@ void Quest_List::scroll_to_selected(void)
 	Uint16 setected_id = questlist.get_selected();
 	if (setected_id == Quest::UNSET_ID)
 		return;
-	const Quest* thequest = questlist.get_first_quest(0);
+	const Quest* thequest = get_first_quest(0);
 	for (int line_num = 0; thequest != 0; line_num++)
 	{
 		if (thequest->get_id() == setected_id)
 		{
-			vscrollbar_set_pos(questlist.get_win_id(), questlist.get_scroll_id(), line_num);
+			vscrollbar_set_pos(get_win_id(), get_scroll_id(), line_num);
 			break;
 		}
 		thequest = questlist.get_next_quest();
@@ -1283,27 +1262,37 @@ void Quest_List::scroll_to_selected(void)
 
 //	Resize the quest list window.
 //
-void Quest_List::resize(void)
+void Quest_List::ui_scale_handler(window_info *win)
 {
-	if ((win_id >= 0) && (win_id<windows_list.num_windows))
+	if ((win->pos_id >= 0) && (win->pos_id<windows_list.num_windows))
 	{
-		window_info *list_win = &windows_list.window[win_id];
-		if ((list_win->pos_id >= 0) && (list_win->pos_id<windows_list.num_windows))
-		{
-			window_info *parent_win = &windows_list.window[list_win->pos_id];
-			int max_size_x = font_x * get_max_title() + box_size + 4 * spacer;
-			int min_size_x = font_x * 15 + box_size + 4 * spacer;
-			int min_size_y = 5 * linesep;
-			int size_y = (list_left_of_entries) ?linesep * static_cast<int>(parent_win->len_y / linesep) : min_size_y;
-			int pos_x = (list_left_of_entries) ?-(max_size_x + win_space) :(parent_win->len_x - max_size_x) / 2;
-			int pos_y = (list_left_of_entries) ?0 : parent_win->len_y + font_y + win_space + parent_win->title_height;
-			resize_window(win_id, max_size_x, size_y);
-			move_window(win_id, list_win->pos_id, list_win->pos_loc, parent_win->pos_x + pos_x, parent_win->pos_y + pos_y);
-			set_window_min_size(win_id, min_size_x, min_size_y);
-		}
+		window_info *parent_win = &windows_list.window[win->pos_id];
+		int max_size_x = win->small_font_len_x * get_max_title() + win->box_size + 4 * spacer;
+		int min_size_x = win->small_font_len_x * 15 + win->box_size + 4 * spacer;
+		int min_size_y = 5 * linesep;
+		int size_y = (list_left_of_entries) ?linesep * static_cast<int>(parent_win->len_y / linesep) : min_size_y;
+		int pos_x = (list_left_of_entries) ?-(max_size_x + win_space) :(parent_win->len_x - max_size_x) / 2;
+		int pos_y = (list_left_of_entries) ?0 : parent_win->len_y + win->small_font_len_y + win_space + parent_win->title_height;
+		resize_window(win_id, max_size_x, size_y);
+		move_window(win_id, win->pos_id, win->pos_loc, parent_win->pos_x + pos_x, parent_win->pos_y + pos_y);
+		set_window_min_size(win_id, min_size_x, min_size_y);
 	}
 }
 
+static int display_questlist_handler(window_info *win)
+	{ questlist.display_handler(win); return 1; }
+static int click_questlist_handler(window_info *win, int mx, int my, Uint32 flags)
+	{ questlist.click_handler(win, flags); return 1; }
+static int resize_questlist_handler(window_info *win, int new_width, int new_height)
+	{ questlist.resize_handler(win); return 0; }
+static int mouseover_questlist_handler(window_info *win, int mx, int my)
+	{ if ((my>=0) && (mx<win->len_x-win->box_size)) questlist.set_mouseover_y(my); return 0; }
+static int ui_scale_questlist_handler(window_info *win)
+	{ questlist.ui_scale_handler(win); return 1; }
+static int cm_questlist_handler(window_info *win, int widget_id, int mx, int my, int option)
+	{ questlist.cm_handler(option); return 1; }
+static void cm_questlist_pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win)
+	{ questlist.cm_pre_show_handler(); }
 
 //	Create or open the quest list window.
 //
@@ -1312,12 +1301,15 @@ void Quest_List::open_window(void)
 	if (win_id < 0)
 	{
 		win_id = create_window(questlist_filter_title_str, questlog_win, 0, 0, 0, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT|ELW_RESIZEABLE);
+		if (win_id < 0 || win_id >= windows_list.num_windows)
+			return;
 		set_window_handler(win_id, ELW_HANDLER_DISPLAY, (int (*)())&display_questlist_handler );
 		set_window_handler(win_id, ELW_HANDLER_CLICK, (int (*)())&click_questlist_handler );
 		set_window_handler(win_id, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_questlist_handler );
 		set_window_handler(win_id, ELW_HANDLER_RESIZE, (int (*)())&resize_questlist_handler );
+		set_window_handler(win_id, ELW_HANDLER_UI_SCALE, (int (*)())&ui_scale_questlist_handler );
 		scroll_id = vscrollbar_add_extended(win_id, scroll_id, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, quests.size()-1);
-		resize();
+		ui_scale_handler(&windows_list.window[win_id]);
 
 		cm_id = cm_create(cm_questlist_menu_str, cm_questlist_handler);
 		cm_set_pre_show_handler(cm_id, cm_questlist_pre_show_handler);
@@ -1646,38 +1638,26 @@ static int cm_quest_handler(window_info *win, int widget_id, int mx, int my, int
 
 //	Update values that change with ui scaling
 //
-static bool update_scalable_values(float new_scale)
+static int ui_scale_questlog_handler(window_info *win)
 {
-	static float last_scale = 0;
-	if (last_scale != new_scale)
-	{
-		last_scale = new_scale;
-		qlborder = static_cast<int>(0.5 + 5 * new_scale);
-		spacer = static_cast<int>(0.5 + 3 * new_scale);
-		win_space = static_cast<int>(0.5 + 10 * new_scale);
-		title_height = static_cast<int>(0.5 + ELW_TITLE_HEIGHT * new_scale);
-		font_x = static_cast<int>(0.5 + SMALL_FONT_X_LEN * new_scale);
-		font_y = static_cast<int>(0.5 + SMALL_FONT_Y_LEN * new_scale);
-		box_size = static_cast<int>(0.5 + ELW_BOX_SIZE * new_scale);
-		qlwinheight = static_cast<int>(0.5 + 350 * new_scale);
-		linesep = font_y + 2 * spacer;
-		npc_name_space = static_cast<int>(0.5 + 3 * new_scale);
-		npc_name_border = static_cast<int>(0.5 + 5 * new_scale);
-		npc_name_box_size = static_cast<int>(0.5 + 12 * new_scale);
-		max_npc_name_x = npc_name_space * 3 + npc_name_box_size + (MAX_USERNAME_LENGTH) * font_x;
-		max_npc_name_y = font_y + 2 * npc_name_space;
-		if (qlwinwidth == 0)
-		{
-			// chars_per_line is constant based on initial window size
-			qlwinwidth = 580;
-			chars_per_line = static_cast<int>((qlwinwidth - 2 * qlborder - box_size) / font_x);
-		}
-		else
-			qlwinwidth = chars_per_line * font_x + 2 * qlborder + box_size;
-		return true;
-	}
-	else
-		return false;
+	qlborder = static_cast<int>(0.5 + 5 * win->current_scale);
+	spacer = static_cast<int>(0.5 + 3 * win->current_scale);
+	win_space = static_cast<int>(0.5 + 10 * win->current_scale);
+	linesep = win->small_font_len_y + 2 * spacer;
+	qlwinwidth = Quest_Entry::chars_per_line * win->small_font_len_x + 2 * qlborder + win->box_size;
+	qlwinheight = 16 * linesep;
+
+	widget_resize(questlog_win, quest_scroll_id, win->box_size, qlwinheight - win->box_size);
+	widget_move(questlog_win, quest_scroll_id, qlwinwidth - win->box_size, win->box_size);
+	resize_window(questlog_win, qlwinwidth, qlwinheight);
+
+	if (questlist.get_win_id() >= 0 && questlist.get_win_id() < windows_list.num_windows)
+		questlist.ui_scale_handler(&windows_list.window[questlist.get_win_id()]);
+
+	if (npc_filter_win >= 0 && npc_filter_win < windows_list.num_windows)
+		ui_scale_npc_filter_handler(&windows_list.window[npc_filter_win]);
+
+	return 1;
 }
 
 
@@ -1685,15 +1665,6 @@ static bool update_scalable_values(float new_scale)
 //
 static int display_questlog_handler(window_info *win)
 {
-	if (update_scalable_values(ui_scale))
-	{
-		widget_resize(questlog_win, quest_scroll_id, box_size, qlwinheight - box_size);
-		widget_move(questlog_win, quest_scroll_id, qlwinwidth - box_size, box_size);
-		resize_window(questlog_win, qlwinwidth, qlwinheight);
-		questlist.resize();
-		npclist_resize();
-	}
-
 	// If required, call the next stage of a entry input.
 	if (prompt_for_add_text)
 		questlog_add_text_input(win);
@@ -1720,8 +1691,8 @@ static int display_questlog_handler(window_info *win)
 		for (std::vector<std::string>::const_iterator line = lines.begin(); line != lines.end(); ++line)
 		{
 			scaled_draw_string_small(qlborder+gx_adjust, questlog_y+gy_adjust, reinterpret_cast<const unsigned char *>(line->c_str()), 1);
-			questlog_y += font_y;
-			if (questlog_y+qlborder > qlwinheight - font_y)
+			questlog_y += win->small_font_len_y;
+			if (questlog_y+qlborder > qlwinheight - win->small_font_len_y)
 				break;
 		}
 		glColor3f(0.7f, 0.7f, 1.0f);
@@ -1732,12 +1703,12 @@ static int display_questlog_handler(window_info *win)
 				reinterpret_cast<const unsigned char *>(quest_entries[active_entries[entry]].get_disp_npc().c_str()), 1);
 		}
 		if (selected_entries.find(active_entries[entry]) != selected_entries.end())
-			draw_underline(qlborder, start_y + font_y,
-				qlborder + static_cast<int>(quest_entries[active_entries[entry]].get_disp_npc().size() * font_x),
-				start_y + font_y);
+			draw_underline(qlborder, start_y + win->small_font_len_y,
+				qlborder + static_cast<int>(quest_entries[active_entries[entry]].get_disp_npc().size() * win->small_font_len_x),
+				start_y + win->small_font_len_y);
 		shown_entries.push_back(Shown_Entry(entry, start_y, questlog_y));
 		questlog_y += qlborder;
-		if (questlog_y+qlborder > qlwinheight - font_y)
+		if (questlog_y+qlborder > qlwinheight - win->small_font_len_y)
 			return 1;
 	}
 	return 1;
@@ -1871,7 +1842,6 @@ extern "C" void add_questlog (char *t, int len)
 //
 extern "C" void load_questlog()
 {
-	update_scalable_values(1.0);
 	questlist.load();
 
 	// If the quest log is already loaded, just make sure we're saved.
@@ -1933,17 +1903,21 @@ extern "C" void display_questlog()
 		if (!windows_on_top) {
 			our_root_win = game_root_win;
 		}
-		update_scalable_values(1.0);
-		questlog_win = create_window(tab_questlog,our_root_win, 0, questlog_menu_x, questlog_menu_y, qlwinwidth, qlwinheight, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
-
+		questlog_win = create_window(tab_questlog,our_root_win, 0, questlog_menu_x, questlog_menu_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+		if (questlog_win < 0 || questlog_win >= windows_list.num_windows)
+			return;
 		set_window_handler(questlog_win, ELW_HANDLER_DISPLAY, (int (*)())display_questlog_handler);
 		set_window_handler(questlog_win, ELW_HANDLER_CLICK, (int (*)())questlog_click);
 		set_window_handler(questlog_win, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_questlog_handler );
 		set_window_handler(questlog_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_questlog_handler );
 		set_window_handler(questlog_win, ELW_HANDLER_SHOW, (int (*)())&show_questlog_handler );
+		set_window_handler(questlog_win, ELW_HANDLER_UI_SCALE, (int (*)())&ui_scale_questlog_handler );
+
+		window_info *win = &windows_list.window[questlog_win];
+		ui_scale_questlog_handler(win);
 
 		size_t last_entry = active_entries.size()-1;
-		quest_scroll_id = vscrollbar_add_extended (questlog_win, quest_scroll_id, NULL, qlwinwidth - box_size, box_size, box_size, qlwinheight - box_size, 0, 1.0, 0.77f, 0.57f, 0.39f, last_entry, 1, last_entry);
+		quest_scroll_id = vscrollbar_add_extended (questlog_win, quest_scroll_id, NULL, qlwinwidth - win->box_size, win->box_size, win->box_size, qlwinheight - win->box_size, 0, 1.0, 0.77f, 0.57f, 0.39f, last_entry, 1, last_entry);
 		goto_questlog_entry(last_entry);
 
 		widget_set_OnClick (questlog_win, quest_scroll_id, (int (*)())questlog_scroll_click);
