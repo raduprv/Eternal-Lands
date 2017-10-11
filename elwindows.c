@@ -50,7 +50,6 @@ void update_window_scale(window_info *win, float scale_factor)
 		return;
 	if (win->flags & ELW_USE_UISCALE)
 	{
-		win->is_scalable = 1;
 		win->current_scale = scale_factor;
 		win->box_size = (int)(0.5 + win->current_scale * ELW_BOX_SIZE);
 		win->title_height = (int)(0.5 + win->current_scale * ELW_TITLE_HEIGHT);
@@ -61,7 +60,6 @@ void update_window_scale(window_info *win, float scale_factor)
 	}
 	else
 	{
-		win->is_scalable = 0;
 		win->current_scale = 1.0;
 		win->box_size = ELW_BOX_SIZE;
 		win->title_height = ELW_TITLE_HEIGHT;
@@ -1012,12 +1010,7 @@ int	draw_window_title(window_info *win)
 	if (show_help_text && cm_valid(win->cm_id) && (cm_window_shown() == CM_INIT_VALUE) &&
 		mouse_x > win->cur_x && mouse_x < win->cur_x+win->len_x &&
 		mouse_y > win->cur_y-win->title_height && mouse_y < win->cur_y)
-	{
-		if (win->is_scalable)
-			scaled_show_help(cm_title_help_str, 0, win->len_y+10);
-		else
-			show_help(cm_title_help_str, 0, win->len_y+10);
-	}
+		show_help(cm_title_help_str, 0, win->len_y+10, win->current_scale);
 	
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now draw that shit...

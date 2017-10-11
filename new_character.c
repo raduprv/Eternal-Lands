@@ -310,7 +310,7 @@ static int display_advice_handler (window_info *win)
 		int y = window_height - HUD_MARGIN_Y - 2*sep - win->small_font_len_y;
 		if(x >= -win->cur_x) //Does everything fit in one line?
 		{
-			scaled_show_help(help_str, x, y);
+			show_help(help_str, x, y, win->current_scale);
 		}
 		else
 		{
@@ -1515,7 +1515,7 @@ static int tooltip_win;
 static int display_tooltip_handler(window_info * win)
 {
 	if(newchar_mouseover_time == cur_time) //draw a help text if currently over something
-		scaled_show_help(tooltip, tooltip_x, tooltip_y);
+		show_help(tooltip, tooltip_x, tooltip_y, win->current_scale);
 	return 1;
 }
 

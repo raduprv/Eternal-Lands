@@ -38,8 +38,6 @@ typedef enum
 {
 	SHOW_SMALL_HELP = 0,
 	SHOW_BIG_HELP,
-	SHOW_SCALED_HELP,
-	SHOW_BIG_SCALED_HELP
 } show_help_modes;
 
 extern int qb_action_mode; /*!< flag indicating whether we are in quickbar action mode or not */
@@ -249,67 +247,32 @@ void view_map_win(int *win, int id);
  * \ingroup windows
  * \brief Shows the \a message at the given position (\a x, \a y).
  *
- *      Shows the \a message at the given position (\a x, \a y).
+ *      Shows the \a message at the given position (\a x, \a y) using the small font.
  *
  * \param message   the help message to show
  * \param x         the x coordinate of the position to draw the help message
  * \param y         the y coordinate of the position to draw the help message
+ * \param scale     the multiplier for the text size
  *
  * \callgraph
  */
-void show_help(const char *message, int x, int y);
-void scaled_show_help(const char *message, int x, int y); /* temporary function during ui scaling changes */
+void show_help(const char *message, int x, int y, float scale);
+
 
 /*!
  * \ingroup windows
  * \brief Shows the \a message at the given position (\a x, \a y).
  *
- *      Shows the \a message at the given position (\a x, \a y).
+ *      Shows the \a message at the given position (\a x, \a y) using the default font.
  *
  * \param message   the help message to show
  * \param x         the x coordinate of the position to draw the help message
  * \param y         the y coordinate of the position to draw the help message
- * \param size_mode one of the show_help_modes values
+ * \param scale     the multiplier for the text size
  *
  * \callgraph
  */
-void show_sized_help(const char *message, int x, int y, show_help_modes size_mode);
-
-/*!
- * \ingroup windows
- * \brief Shows the \a message at the given position and colour (\a x, \a y).
- *
- *      Shows the \a message at the given position and colour (\a x, \a y).
- *
- * \param message   the help message to show
- * \param x         the x coordinate of the position to draw the help message
- * \param y         the y coordinate of the position to draw the help message
- * \param r         the red RGB value for text
- * \param g         the green RGB value for text
- * \param b         the blue RGB value for text
- *
- * \callgraph
- */
-void show_help_coloured(const char *help_message, int x, int y, float r, float g, float b);
-
-
-/*!
- * \ingroup windows
- * \brief Shows the \a message at the given position and colour (\a x, \a y).
- *
- *      Shows the \a message at the given position and colour (\a x, \a y).
- *
- * \param message   the help message to show
- * \param x         the x coordinate of the position to draw the help message
- * \param y         the y coordinate of the position to draw the help message
- * \param r         the red RGB value for text
- * \param g         the green RGB value for text
- * \param b         the blue RGB value for text
- * \param size_mode one of the show_help_modes values
- *
- * \callgraph
- */
-void show_sized_help_coloured(const char *help_message, int x, int y, float r, float g, float b, show_help_modes size_mode);
+void show_help_big(const char *message, int x, int y, float scale);
 
 /*!
  * \ingroup windows

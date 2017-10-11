@@ -1100,8 +1100,8 @@ static int display_sigils_handler(window_info *win)
 	glEnable(GL_TEXTURE_2D);
 
 	if (show_last_spell_help && mqb_data[0] && mqb_data[0]->spell_id!=-1)
-		scaled_show_help(mqb_data[0]->spell_name,
-			spell_icon_x - win->small_font_len_x * strlen(mqb_data[0]->spell_name) , spell_icon_y + (sigil_grid_size - win->small_font_len_y) / 2);
+		show_help(mqb_data[0]->spell_name, spell_icon_x - win->small_font_len_x * strlen(mqb_data[0]->spell_name),
+			spell_icon_y + (sigil_grid_size - win->small_font_len_y) / 2, win->current_scale);
 	show_last_spell_help=0;
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -2037,9 +2037,9 @@ CHECK_GL_ERRORS();
 	glDisable(GL_ALPHA_TEST);
 
 	if(quickspell_over!=-1 && mqb_data[quickspell_over])
-		scaled_show_help(mqb_data[quickspell_over]->spell_name,
+		show_help(mqb_data[quickspell_over]->spell_name,
 			-((strlen(mqb_data[quickspell_over]->spell_name) + 1) * win->small_font_len_x),
-			(quickspell_over - 1) * quickbar_y_space + (quickbar_y_space - win->small_font_len_y) / 2);
+			(quickspell_over - 1) * quickbar_y_space + (quickbar_y_space - win->small_font_len_y) / 2, win->current_scale);
 	quickspell_over=-1;
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();

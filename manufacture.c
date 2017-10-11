@@ -783,7 +783,7 @@ static int recipe_dropdown_draw(window_info *win){
 	{
 		draw_production_pipe(win,0,SLOT_SIZE*relative_cur,cur_recipe);
 		if ((cur_recipe < num_recipe_entries) && (recipes_store[cur_recipe].name != NULL))
-			scaled_show_help(recipes_store[cur_recipe].name, win->len_x+5, SLOT_SIZE*relative_cur+(SLOT_SIZE-win->small_font_len_y)/2);
+			show_help(recipes_store[cur_recipe].name, win->len_x+5, SLOT_SIZE*relative_cur+(SLOT_SIZE-win->small_font_len_y)/2, win->current_scale);
 	}
 
 	/* display any name search text */
@@ -795,7 +795,7 @@ static int recipe_dropdown_draw(window_info *win){
 		{
 			static char tmp[30];
 			safe_snprintf(tmp, sizeof(tmp), "%s[%s]", item_list_find_str, recipe_name_filter);
-			scaled_show_help(tmp, 0, win->len_y + 10 + win->small_font_len_y*help_line++);
+			show_help(tmp, 0, win->len_y + 10 + win->small_font_len_y*help_line++, win->current_scale);
 			find_active = 1;
 		}
 	}
@@ -807,14 +807,14 @@ static int recipe_dropdown_draw(window_info *win){
 		if ((actual_recipe != cur_recipe) &&
 			(actual_recipe < num_recipe_entries) &&
 			(recipes_store[actual_recipe].name != NULL))
-			scaled_show_help(recipes_store[actual_recipe].name, win->len_x+5,
-				SLOT_SIZE*mouse_over_recipe+(SLOT_SIZE-win->small_font_len_y)/2);
+			show_help(recipes_store[actual_recipe].name, win->len_x+5,
+				SLOT_SIZE*mouse_over_recipe+(SLOT_SIZE-win->small_font_len_y)/2, win->current_scale);
 		if (show_help_text)
 		{
-			scaled_show_help(cm_help_options_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++);
-			scaled_show_help(recipe_select_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++);
-			scaled_show_help(recipe_load_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++);
-			scaled_show_help(find_active?recipe_during_find_str:recipe_find_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++);
+			show_help(cm_help_options_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++, win->current_scale);
+			show_help(recipe_select_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++, win->current_scale);
+			show_help(recipe_load_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++, win->current_scale);
+			show_help(find_active?recipe_during_find_str:recipe_find_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++, win->current_scale);
 		}
 	}
 	mouse_over_recipe = -1;
@@ -1221,11 +1221,11 @@ static int recipe_controls_mouseover_handler(window_info *win, int mx, int my, i
 
 	if (mx>wpx && mx<wpx+lpx && my>wpy+lpy-control_elem_size*2 && my<wpy+lpy){
 		//on arrow
-		scaled_show_help(recipe_show_hide_str, 0, win->len_y + 10 + win->small_font_len_y*(*help_line)++);
+		show_help(recipe_show_hide_str, 0, win->len_y + 10 + win->small_font_len_y*(*help_line)++, win->current_scale);
 	} else
 	if (mx>wpx+win->small_font_len_x/2 && mx<wpx+lpx-win->small_font_len_x/2 && my>wpy && my<wpy+win->small_font_len_y){
 		//on + button
-		scaled_show_help(recipe_save_str, 0, win->len_y + 10 + win->small_font_len_y*(*help_line)++);
+		show_help(recipe_save_str, 0, win->len_y + 10 + win->small_font_len_y*(*help_line)++, win->current_scale);
 	}
 	return 0;
 }
@@ -1244,15 +1244,15 @@ static int mouseover_manufacture_slot_handler(window_info *win, int mx, int my)
 
 	/* See if we're over a message - and offer clear help if so */
 	if (show_help_text && *inventory_item_string && (my > manufacture_menu_y_len-text_y_offset) && my < (manufacture_menu_y_len-recipe_y_offset)) {
-		scaled_show_help((disable_double_click)
-			?click_clear_str :double_click_clear_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++);
+		show_help((disable_double_click)
+			?click_clear_str :double_click_clear_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++, win->current_scale);
 	}
 
 	/* see if we're over an item in the main category */
 	pos=get_mouse_pos_in_grid(mx, my, GRID_COLS, GRID_ROWS, 0, 0, SLOT_SIZE, SLOT_SIZE);
 	if (pos >= 0 && manufacture_list[pos].quantity > 0){
 		if (show_help_text)
-			scaled_show_help(manu_add_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++);
+			show_help(manu_add_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++, win->current_scale);
 		if (show_item_desc_text && item_info_available()
 			&& (get_item_count(manufacture_list[pos].id, manufacture_list[pos].image_id) == 1))
 			descp_str = get_item_description(manufacture_list[pos].id, manufacture_list[pos].image_id);
@@ -1266,12 +1266,12 @@ static int mouseover_manufacture_slot_handler(window_info *win, int mx, int my)
 	if (pos >= 0) {
 		if (manufacture_list[MIX_SLOT_OFFSET+pos].quantity > 0){
 			if (show_help_text)
-				scaled_show_help(manu_remove_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++);
+				show_help(manu_remove_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++, win->current_scale);
 			check_for_eye = 1;
 			mouse_over_pipe_pos = pos;
 		}
 		else if (pos != last_changed_slot)
-			scaled_show_help(recipe_show_hide_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++);
+			show_help(recipe_show_hide_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++, win->current_scale);
 	}
 
 	/*check recipe controls*/
@@ -1280,11 +1280,11 @@ static int mouseover_manufacture_slot_handler(window_info *win, int mx, int my)
 
 	// show the recipe search help
 	if (show_help_text && !recipes_shown && !disable_manuwin_keypress)
-		scaled_show_help(recipe_find_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++);
+		show_help(recipe_find_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++, win->current_scale);
 
 	/* if set, show the description last */
 	if (descp_str != NULL)
-		scaled_show_help(descp_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++);
+		show_help(descp_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++, win->current_scale);
 
 	/* if we're over an occupied slot and the eye cursor function is active, show the eye cursor */
 	if (check_for_eye){
@@ -1302,8 +1302,9 @@ static int mouseover_mixone_handler(widget_list *widget, int mx, int my)
 {
 	if (show_help_text && widget)
 	{
-		int str_off = strlen(mix_str) * windows_list.window[widget->window_id].small_font_len_x / 2;
-		scaled_show_help(mix_str, (widget->pos_x + widget->len_x/2) - str_off, manufacture_menu_y_len+10);
+		window_info *win = &windows_list.window[widget->window_id];
+		int str_off = strlen(mix_str) * win->small_font_len_x / 2;
+		show_help(mix_str, (widget->pos_x + widget->len_x/2) - str_off, win->len_y+10, win->current_scale);
 	}
 	return 0;
 }
@@ -1313,8 +1314,9 @@ static int mouseover_mixall_handler(widget_list *widget, int mx, int my)
 {
 	if (show_help_text && widget)
 	{
-		int str_off = strlen(mixall_str) * windows_list.window[widget->window_id].small_font_len_x / 2;
-		scaled_show_help(mixall_str, (widget->pos_x + widget->len_x/2) - str_off, manufacture_menu_y_len+10);
+		window_info *win = &windows_list.window[widget->window_id];
+		int str_off = strlen(mixall_str) * win->small_font_len_x / 2;
+		show_help(mixall_str, (widget->pos_x + widget->len_x/2) - str_off, win->len_y+10, win->current_scale);
 	}
 	return 0;
 }

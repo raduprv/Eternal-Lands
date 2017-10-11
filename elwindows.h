@@ -61,7 +61,6 @@ typedef	struct	{
 	 * \name scalable elements
 	 */
 	/*! @{ */
-	int is_scalable;
 	float current_scale;
 	int box_size;
 	int title_height;

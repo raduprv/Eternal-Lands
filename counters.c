@@ -788,8 +788,8 @@ int display_counters_handler(window_info *win)
 				truncated_string(used_name, counters[i][j].name, dest_max_len, append_str, max_name_x, font_ratio);
 				scaled_draw_string_small(x, y, (unsigned char*)used_name, 1);
 				/* if the mouse is over this line and its truncated, tooltip to full name */
-				if (mouseover_entry_y >= y && mouseover_entry_y < y+16) {
-					scaled_show_help(counters[i][j].name, -TAB_MARGIN, win->len_y+10+TAB_MARGIN);
+				if (mouseover_entry_y >= y && mouseover_entry_y < y+step_y) {
+					show_help(counters[i][j].name, -TAB_MARGIN, win->len_y+10+TAB_MARGIN, win->current_scale);
 					counters_show_win_help = 0;
 				}
 				free(used_name);
@@ -801,7 +801,7 @@ int display_counters_handler(window_info *win)
 	}
 
 	if (counters_show_win_help) {
-		scaled_show_help(cm_help_options_str, -TAB_MARGIN, win->len_y+10+TAB_MARGIN);
+		show_help(cm_help_options_str, -TAB_MARGIN, win->len_y+10+TAB_MARGIN, win->current_scale);
 		counters_show_win_help = 0;
 	}
 

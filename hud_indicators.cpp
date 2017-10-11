@@ -467,7 +467,7 @@ namespace Indicators
 			int x_offset = -static_cast<int>(Vars::border() + win->small_font_len_x * (1 + tooltip.size()) + 0.5);
 			if ((win->cur_x + x_offset) < 0)
 				x_offset = win->len_x;
-			scaled_show_help(tooltip.c_str(), x_offset, Vars::border());
+			show_help(tooltip.c_str(), x_offset, Vars::border(), win->current_scale);
 		}
 	}
 

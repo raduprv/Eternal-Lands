@@ -1662,7 +1662,8 @@ static int chan_tab_mouseover_handler(widget_list *widget)
 	if(!show_help_text){return 0;}
 	for (itab = 0; itab < tabs_in_use; itab++){
 		if ((tabs[itab].button) == (widget->id)){
-			scaled_show_help(tabs[itab].description, widget->pos_x,widget->pos_y+widget->len_y+2);
+			window_info *win = &windows_list.window[widget->window_id];
+			show_help(tabs[itab].description, widget->pos_x,widget->pos_y+widget->len_y+2, win->current_scale);
 			return 1;
 		}
 	}
@@ -1693,7 +1694,7 @@ static int display_chan_sel_handler(window_info *win)
 		draw_string_zoomed(x, y, (unsigned char*)((chan_name*)(step->data))->name, 1, local_zoom);
 		if(mouse_y > win->pos_y+y && mouse_y < win->pos_y+y+win->small_font_len_y && mouse_x >= win->pos_x+chan_sel_border
 			&& mouse_x-chan_sel_border <= win->pos_x + win->small_font_len_x*((signed)strlen(((chan_name*)(step->data))->name))) {
-			scaled_show_help(((chan_name*)(step->data))->description, mouse_x-win->pos_x,mouse_y-win->pos_y-win->small_font_len_y);
+			show_help(((chan_name*)(step->data))->description, mouse_x-win->pos_x,mouse_y-win->pos_y-win->small_font_len_y, win->current_scale);
 		}
 		y += win->default_font_len_y;
 		step = step->next;

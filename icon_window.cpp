@@ -257,7 +257,7 @@ namespace IconWindow
 			size_t get_num_icons(void) const { return icon_list.size(); }
 			bool empty(void) const { return icon_list.empty(); }
 			void mouse_over(size_t icon_number) { if (icon_number < icon_list.size()) mouse_over_icon = icon_number; }
-			void draw_icons(void);
+			void draw_icons(window_info *win);
 			void default_icons(icon_window_mode icon_mode);
 			Virtual_Icon * icon_xml_factory(const xmlNodePtr cur);
 			bool read_xml(icon_window_mode icon_mode);
@@ -398,7 +398,7 @@ namespace IconWindow
 
 	//	Draw the icons into the window
 	//
-	void Container::draw_icons(void)
+	void Container::draw_icons(window_info *win)
 	{
 		Busy dummy;
 		for (size_t i=0; i<icon_list.size(); ++i)
@@ -417,7 +417,7 @@ namespace IconWindow
 		}
 		glEnd();
 		if (show_help_text && (mouse_over_icon >= 0) && ((size_t)mouse_over_icon < icon_list.size()))
-			scaled_show_help(icon_list[mouse_over_icon]->get_help_message(), get_icon_slot_width()*(mouse_over_icon+1)+2, 10);
+			show_help(icon_list[mouse_over_icon]->get_help_message(), get_icon_slot_width()*(mouse_over_icon+1)+2, 10, win->current_scale);
 		mouse_over_icon = -1;
 	}
 
@@ -673,7 +673,7 @@ static int display_icons_handler(window_info *win)
 		init_icon_window(last_mode);
 		reload_flag = false;
 	}
-	action_icons.draw_icons();
+	action_icons.draw_icons(win);
 	return 1;
 }
 

@@ -407,51 +407,21 @@ int enlarge_text(void)
 	return ((SDL_GetModState() & (KMOD_CTRL|KMOD_ALT)));
 }
 
-void show_help(const char *help_message, int x, int y)
+static void show_help_coloured_scaled(const char *help_message, int x, int y, float r, float g, float b, int use_big_font, float size)
 {
-	show_sized_help_coloured(help_message, x, y, 1.0f, 1.0f, 1.0f, SHOW_SMALL_HELP);
-}
-
-void scaled_show_help(const char *help_message, int x, int y)
-{
-	show_sized_help_coloured(help_message, x, y, 1.0f, 1.0f, 1.0f, SHOW_SCALED_HELP);
-}
-
-void show_sized_help(const char *help_message, int x, int y, show_help_modes size_mode)
-{
-	show_sized_help_coloured(help_message, x, y, 1.0f, 1.0f, 1.0f, size_mode);
-}
-
-void show_help_coloured(const char *help_message, int x, int y, float r, float g, float b)
-{
-	show_sized_help_coloured(help_message, x, y, r, g, b, SHOW_SMALL_HELP);
-}
-
-void show_sized_help_coloured(const char *help_message, int x, int y, float r, float g, float b, show_help_modes size_mode)
-{
-	float y_font_len = 0;
+	int y_font_len = 0;
 	int len = 0;
 	int width=window_width-80;
 
-	if (size_mode == SHOW_BIG_HELP)
+	if (use_big_font)
 	{
-		y_font_len = DEFAULT_FONT_Y_LEN;
-		len = strlen(help_message) * DEFAULT_FONT_X_LEN + 1;
-	}
-	else if (size_mode == SHOW_SCALED_HELP)
-	{
-		y_font_len = UI_SCALED_VALUE(SMALL_FONT_Y_LEN);
-		len = strlen(help_message) * UI_SCALED_VALUE(SMALL_FONT_X_LEN) + 1;
-	}
-	else if (size_mode == SHOW_BIG_SCALED_HELP)
-	{
-		y_font_len = UI_SCALED_VALUE(DEFAULT_FONT_Y_LEN);
-		len = strlen(help_message) * UI_SCALED_VALUE(DEFAULT_FONT_X_LEN) + 1;
+		y_font_len = (int)(0.5 + DEFAULT_FONT_Y_LEN * size);
+		len = strlen(help_message) * (int)(0.5 + DEFAULT_FONT_X_LEN * size) + 1;
 	}
 	else
 	{
-		y_font_len = SMALL_FONT_Y_LEN;
-		len = strlen(help_message) * SMALL_FONT_X_LEN + 1;
+		y_font_len = (int)(0.5 + SMALL_FONT_Y_LEN * size);
+		len = strlen(help_message) * (int)(0.5 + SMALL_FONT_X_LEN * size) + 1;
 	}
 
 	if(x+len>width) x-=(x+len)-width;
@@ -471,18 +441,25 @@ void show_sized_help_coloured(const char *help_message, int x, int y, float r, f
 	glEnable(GL_TEXTURE_2D);
 
 	glColor3f(r,g,b);
-	if (size_mode == SHOW_BIG_HELP)
-		draw_string(x, y, (unsigned char*)help_message, 1);
-	else if (size_mode == SHOW_SCALED_HELP)
-		scaled_draw_string_small(x, y, (unsigned char*)help_message, 1);
-	else if (size_mode == SHOW_BIG_SCALED_HELP)
-		scaled_draw_string(x, y, (unsigned char*)help_message, 1);
+	if (use_big_font)
+		draw_string_zoomed(x, y, (unsigned char*)help_message, 1, size);
 	else
-		draw_string_small(x, y, (unsigned char*)help_message, 1);
+		draw_string_small_scaled(x, y, (unsigned char*)help_message, 1, size);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
+
+void show_help(const char *help_message, int x, int y, float scale)
+{
+	show_help_coloured_scaled(help_message, x, y, 1.0f, 1.0f, 1.0f, 0, scale);
+}
+
+void show_help_big(const char *help_message, int x, int y, float scale)
+{
+	show_help_coloured_scaled(help_message, x, y, 1.0f, 1.0f, 1.0f, 1, scale);
+}
+
 
 // Stats bars in the bottom HUD .....
 
@@ -722,7 +699,7 @@ void init_stats_display()
 	if(stats_bar_win < 0)
 	{
 		static size_t cm_id_ap = CM_INIT_VALUE;
-		stats_bar_win= create_window("Stats Bar", -1, 0, 0, stats_y_pos, stats_width, stats_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
+		stats_bar_win= create_window("Stats Bar", -1, 0, 0, stats_y_pos, stats_width, stats_height, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
 		set_window_handler(stats_bar_win, ELW_HANDLER_DISPLAY, &display_stats_bar_handler);
 		set_window_handler(stats_bar_win, ELW_HANDLER_MOUSEOVER, &mouseover_stats_bar_handler);
 
@@ -897,7 +874,7 @@ void set_last_heal(int quantity)
 }
 
 /* draws damage and heal above the health bar */
-static void draw_last_health_change(void)
+static void draw_last_health_change(window_info *win)
 {
 	char str[20];
 	static const Uint32 timeoutms = 2*60*1000;
@@ -910,7 +887,7 @@ static void draw_last_health_change(void)
 		else
 		{
 			safe_snprintf(str, sizeof(str), " %d ", my_last_health.d);
-			show_sized_help_coloured(str, health_bar_start_x+stats_bar_len/2-strlen(str)*UI_SCALED_VALUE(SMALL_FONT_X_LEN)-2, yoff, 1.0f, 0.0f, 0.0f, SHOW_SCALED_HELP);
+			show_help_coloured_scaled(str, health_bar_start_x+stats_bar_len/2-strlen(str)*UI_SCALED_VALUE(SMALL_FONT_X_LEN)-2, yoff, 1.0f, 0.0f, 0.0f, 0, win->current_scale);
 		}
 	}
 	/* heal in green */
@@ -921,7 +898,7 @@ static void draw_last_health_change(void)
 		else
 		{
 			safe_snprintf(str, sizeof(str), " %d ", my_last_health.h);
-			show_sized_help_coloured(str, health_bar_start_x+stats_bar_len/2+2, yoff, 0.0f, 1.0f, 0.0f, SHOW_SCALED_HELP);
+			show_help_coloured_scaled(str, health_bar_start_x+stats_bar_len/2+2, yoff, 0.0f, 1.0f, 0.0f, 0, win->current_scale);
 		}
 	}
 }
@@ -995,15 +972,15 @@ int	display_stats_bar_handler(window_info *win)
 
 	if(show_help_text && statbar_cursor_x>=0)
 	{
-		if(over_health_bar) scaled_show_help((char*)attributes.material_points.name,health_bar_start_x+stats_bar_len+10,-3);
-		else if(statbar_cursor_x>food_bar_start_x && statbar_cursor_x < food_bar_start_x+stats_bar_len) scaled_show_help((char*)attributes.food.name,food_bar_start_x+stats_bar_len+10,-3);
-		else if(statbar_cursor_x>mana_bar_start_x && statbar_cursor_x < mana_bar_start_x+stats_bar_len) scaled_show_help((char*)attributes.ethereal_points.name,mana_bar_start_x+stats_bar_len+10,-3);
-		else if(statbar_cursor_x>load_bar_start_x && statbar_cursor_x < load_bar_start_x+stats_bar_len) scaled_show_help((char*)attributes.carry_capacity.name,load_bar_start_x+stats_bar_len+10,-3);
-		else if(show_action_bar && statbar_cursor_x>action_bar_start_x && statbar_cursor_x < action_bar_start_x+stats_bar_len) scaled_show_help((char*)attributes.action_points.name,action_bar_start_x+stats_bar_len+10,-3);
+		if(over_health_bar) show_help((char*)attributes.material_points.name,health_bar_start_x+stats_bar_len+10,-3, win->current_scale);
+		else if(statbar_cursor_x>food_bar_start_x && statbar_cursor_x < food_bar_start_x+stats_bar_len) show_help((char*)attributes.food.name,food_bar_start_x+stats_bar_len+10,-3, win->current_scale);
+		else if(statbar_cursor_x>mana_bar_start_x && statbar_cursor_x < mana_bar_start_x+stats_bar_len) show_help((char*)attributes.ethereal_points.name,mana_bar_start_x+stats_bar_len+10,-3, win->current_scale);
+		else if(statbar_cursor_x>load_bar_start_x && statbar_cursor_x < load_bar_start_x+stats_bar_len) show_help((char*)attributes.carry_capacity.name,load_bar_start_x+stats_bar_len+10,-3, win->current_scale);
+		else if(show_action_bar && statbar_cursor_x>action_bar_start_x && statbar_cursor_x < action_bar_start_x+stats_bar_len) show_help((char*)attributes.action_points.name,action_bar_start_x+stats_bar_len+10,-3, win->current_scale);
 	}
 
 	if (over_health_bar)
-		draw_last_health_change();
+		draw_last_health_change(win);
 
 	statbar_cursor_x = -1;
 
@@ -1541,7 +1518,7 @@ int mouseover_misc_handler(window_info *win, int mx, int my)
 	/* Optionally display scrolling help if statsbar is active and restricted in size */
 	if (show_help_text && show_stats_in_hud && (num_disp_stat < NUM_WATCH_STAT-1) &&
 		(my - statbar_start_y >= 0) && (my - statbar_start_y < num_disp_stat*stats_bar_height))
-		scaled_show_help(stats_scroll_help_str, -10-UI_SCALED_VALUE(strlen(stats_scroll_help_str)*SMALL_FONT_X_LEN), win->len_y-UI_SCALED_VALUE(70));
+		show_help(stats_scroll_help_str, -10-UI_SCALED_VALUE(strlen(stats_scroll_help_str)*SMALL_FONT_X_LEN), win->len_y-UI_SCALED_VALUE(70), win->current_scale);
 
 	/* stat hover experience left */
 	if (show_stats_in_hud && have_stats && (my - statbar_start_y >= 0) && (my - statbar_start_y < num_disp_stat*stats_bar_height))
@@ -1891,7 +1868,7 @@ static void quickbar_item_description_help(window_info *win, int pos, int slot)
 				if ((ypos + UI_SCALED_VALUE(SMALL_FONT_Y_LEN) + win->cur_y) > window_height)
 					ypos = -(5 + UI_SCALED_VALUE(SMALL_FONT_Y_LEN) + (quickbar_draggable * ELW_TITLE_HEIGHT));
 			}
-			scaled_show_help(str, xpos, ypos);
+			show_help(str, xpos, ypos, win->current_scale);
 		}
 	}
 }

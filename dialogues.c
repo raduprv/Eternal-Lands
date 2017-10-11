@@ -319,7 +319,7 @@ static int display_dialogue_handler(window_info *win)
 
 	// display help text if appropriate
 	if ((show_help_text) && (highlight_repeat || highlight_copy || mouse_over_name))
-			scaled_show_help(cm_help_options_str, 0, win->len_y+10);
+		show_help(cm_help_options_str, 0, win->len_y+10, win->current_scale);
 
 	show_keypress_letters = highlight_close = highlight_copy = highlight_repeat = mouse_over_name = 0;
 

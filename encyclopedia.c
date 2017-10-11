@@ -152,7 +152,7 @@ int display_encyclopedia_handler(window_info *win)
 	}
 	if (show_cm_help)
 	{
-		scaled_show_help(cm_encycl_help_str, 0, win->len_y+10);
+		show_help(cm_encycl_help_str, 0, win->len_y+10, win->current_scale);
 		show_cm_help = 0;
 	}
 

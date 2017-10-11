@@ -775,7 +775,7 @@ void Quest_List::display_handler(window_info *win)
 	{
 		clear_highlighted();
 		if (show_help_text && has_mouseover())
-			scaled_show_help(questlog_cm_help_str, 0, win->len_y + questlog_window.get_win_space());
+			show_help(questlog_cm_help_str, 0, win->len_y + questlog_window.get_win_space(), win->current_scale);
 	}
 
 	// get the top line and then loop drawing all quests we can display
@@ -1717,7 +1717,7 @@ int Questlog_Window::display_handler(window_info *win)
 		cm_questlog_over_entry = active_entries.size();
 		if (show_help_text && mouse_over_questlog && (current_action == -1))
 		{
-			scaled_show_help(questlog_cm_help_str, 0, win->len_y + win_space);
+			show_help(questlog_cm_help_str, 0, win->len_y + win_space, win->current_scale);
 			mouse_over_questlog = false;
 		}
 	}

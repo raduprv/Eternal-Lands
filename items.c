@@ -676,18 +676,18 @@ int display_items_handler(window_info *win)
 	// display help text for button if mouse over one
 	if ((mouse_over_but != -1) && show_help_text) {
 		char *helpstr[NUMBUT] = { stoall_help_str, getall_help_str, ((disable_double_click) ?drpall_help_str :dcdrpall_help_str), mixoneall_help_str, itmlst_help_str };
-		scaled_show_help(helpstr[mouse_over_but], 0, win->len_y+10);
-		scaled_show_help(cm_help_options_str, 0, win->len_y+10+win->small_font_len_y);
+		show_help(helpstr[mouse_over_but], 0, win->len_y+10, win->current_scale);
+		show_help(cm_help_options_str, 0, win->len_y+10+win->small_font_len_y, win->current_scale);
 	}
 	// show help set in the mouse_over handler
 	else {
 		int offset = 10;
 		if (show_help_text && (item_help_str != NULL)) {
-			scaled_show_help(item_help_str, 0, win->len_y+offset);
+			show_help(item_help_str, 0, win->len_y+offset, win->current_scale);
 			offset += win->small_font_len_y;
 		}
 		if (item_desc_str != NULL)
-			scaled_show_help(item_desc_str, 0, win->len_y+offset);
+			show_help(item_desc_str, 0, win->len_y+offset, win->current_scale);
 		item_help_str = NULL;
 		item_desc_str = NULL;
 	}

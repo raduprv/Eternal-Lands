@@ -787,11 +787,11 @@ int Achievements_Window::display_handler(window_info *win)
 	if (over_controls && show_help_text)
 	{
 		if (over_close)
-			scaled_show_help(as->get_close_help(), 0, win->len_y + as->get_y_win_offset());
+			show_help(as->get_close_help(), 0, win->len_y + as->get_y_win_offset(), win->current_scale);
 		else if (over_prev)
-			scaled_show_help((first)?as->get_prev_help() :as->get_no_prev_help(), 0, win->len_y + as->get_y_win_offset());
+			show_help((first)?as->get_prev_help() :as->get_no_prev_help(), 0, win->len_y + as->get_y_win_offset(), win->current_scale);
 		else if (over_next)
-			scaled_show_help((another_page)?as->get_next_help() :as->get_no_next_help(), 0, win->len_y + as->get_y_win_offset());
+			show_help((another_page)?as->get_next_help() :as->get_no_next_help(), 0, win->len_y + as->get_y_win_offset(), win->current_scale);
 	}
 
 	win_mouse_x = win_mouse_y = -1;

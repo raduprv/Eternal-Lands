@@ -275,7 +275,7 @@ int display_knowledge_handler(window_info *win)
 			/* if the mouse is over this line and its truncated, tooltip to full name */
 			if (knowledge_list[i].mouse_over)
 			{
-				scaled_show_help(knowledge_list[i].name, -TAB_MARGIN, win->len_y+10+TAB_MARGIN);
+				show_help(knowledge_list[i].name, -TAB_MARGIN, win->len_y+10+TAB_MARGIN, win->current_scale);
 				know_show_win_help = 0;
 			}
 			free(used_name);
@@ -292,7 +292,7 @@ int display_knowledge_handler(window_info *win)
 	}
 	if (know_show_win_help)
 	{
-		scaled_show_help(cm_help_options_str, -TAB_MARGIN, win->len_y+10+TAB_MARGIN);
+		show_help(cm_help_options_str, -TAB_MARGIN, win->len_y+10+TAB_MARGIN, win->current_scale);
 		know_show_win_help = 0;
 	}
 #ifdef OPENGL_TRACE

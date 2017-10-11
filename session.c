@@ -198,7 +198,7 @@ int display_session_handler(window_info *win)
 
 	if (show_reset_help)
 	{
-		scaled_show_help(session_reset_help, -TAB_MARGIN, win->len_y+10+TAB_MARGIN);
+		show_help(session_reset_help, -TAB_MARGIN, win->len_y+10+TAB_MARGIN, win->current_scale);
 		show_reset_help = 0;
 	}
 	

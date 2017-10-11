@@ -973,7 +973,7 @@ namespace ItemLists
 
 		if (desc_str)
 		{
-			show_sized_help(desc_str, 0, static_cast<int>(0.5 + win->len_y + 10 + win->small_font_len_y * help_lines_shown++), SHOW_SCALED_HELP);
+			show_help(desc_str, 0, static_cast<int>(0.5 + win->len_y + 10 + win->small_font_len_y * help_lines_shown++), win->current_scale);
 			desc_str = 0;
 		}
 
@@ -988,7 +988,7 @@ namespace ItemLists
 			else
 			{
 				std::string tmp = std::string(item_list_find_str) + std::string("[") + std::string(filter) + std::string("]");
-				show_sized_help(tmp.c_str(), 0, static_cast<int>(0.5 + win->len_y + 10 + win->small_font_len_y * help_lines_shown++), SHOW_SCALED_HELP);
+				show_help(tmp.c_str(), 0, static_cast<int>(0.5 + win->len_y + 10 + win->small_font_len_y * help_lines_shown++), win->current_scale);
 			}
 		}
 
@@ -997,7 +997,7 @@ namespace ItemLists
 		{
 			if (!resizing)
 				for (size_t i=0; i<help_str.size(); ++i)
-					show_sized_help(help_str[i], 0, static_cast<int>(0.5 + win->len_y + 10 + win->small_font_len_y * help_lines_shown++), SHOW_SCALED_HELP);
+					show_help(help_str[i], 0, static_cast<int>(0.5 + win->len_y + 10 + win->small_font_len_y * help_lines_shown++), win->current_scale);
 			help_str.clear();
 		}
 
@@ -1068,7 +1068,7 @@ namespace ItemLists
 				std::string todisp = lists[i].get_name().substr(0,disp_chars);
 				scaled_draw_string_small(get_list_gap(), pos_y, reinterpret_cast<const unsigned char*>(todisp.c_str()), 1);
 				if (i==name_under_mouse)
-					show_sized_help(lists[i].get_name().c_str(), 0, static_cast<int>(0.5 + win->len_y + 10 + win->small_font_len_y * help_lines_shown), SHOW_SCALED_HELP);
+					show_help(lists[i].get_name().c_str(), 0, static_cast<int>(0.5 + win->len_y + 10 + win->small_font_len_y * help_lines_shown), win->current_scale);
 			}
 			else
 				scaled_draw_string_small(get_list_gap(), pos_y, reinterpret_cast<const unsigned char*>(lists[i].get_name().c_str()), 1);

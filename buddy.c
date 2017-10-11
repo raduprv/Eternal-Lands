@@ -292,13 +292,13 @@ void split_long_show_help(window_info *win, const char *str, int x, int y)
 			tmp_str[last_space_out_index] = '\0';
 			in_index = last_space_in_index;
 			last_space_out_index = out_index = 0;
-			scaled_show_help(tmp_str, x, y + num_lines++ * win->small_font_len_y);
+			show_help(tmp_str, x, y + num_lines++ * win->small_font_len_y, win->current_scale);
 		}
 		in_index++;
 	}
 
 	tmp_str[out_index] = '\0';
-	scaled_show_help(tmp_str, x, y + num_lines++ * win->small_font_len_y);
+	show_help(tmp_str, x, y + num_lines++ * win->small_font_len_y, win->current_scale);
 	free(tmp_str);
 }
 

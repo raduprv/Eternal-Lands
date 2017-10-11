@@ -796,7 +796,7 @@ static int display_notepad_handler(window_info *win)
 {
 	if (note_message && *note_message)
 	{
-		scaled_show_help(note_message, 0, win->len_y+10);
+		show_help(note_message, 0, win->len_y+10, win->current_scale);
 		note_message = note_static_message = NULL;
 	}
 	else if (note_static_message && *note_static_message)
@@ -804,7 +804,7 @@ static int display_notepad_handler(window_info *win)
 		if (tab_collection_get_tab(notepad_win, note_tabcollection_id) != 0)
 			note_static_message = NULL;
 		else
-			scaled_show_help(note_static_message, 0, win->len_y+10);
+			show_help(note_static_message, 0, win->len_y+10, win->current_scale);
 	}
 
 	return 1;

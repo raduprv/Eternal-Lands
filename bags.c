@@ -451,7 +451,7 @@ static int pre_display_ground_items_handler(window_info *win)
 	glEnable(GL_TEXTURE_2D);
 	if (item_desc_str != NULL)
 	{
-		scaled_show_help(item_desc_str, 0, win->len_y+10);
+		show_help(item_desc_str, 0, win->len_y+10, win->current_scale);
 		item_desc_str = NULL;
 	}
 	return 1;

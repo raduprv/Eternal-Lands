@@ -220,9 +220,9 @@ static int display_trade_handler(window_info *win)
 	
 	//Draw the help text
 	if(show_help_text && show_abort_help)
-		scaled_show_help(abort_str,
+		show_help(abort_str,
 			win->len_x - (win->box_size - win->box_size / 5) / 2 - (win->small_font_len_x * strlen(abort_str)) / 2,
-			win->box_size + win->box_size/5);
+			win->box_size + win->box_size/5, win->current_scale);
 
 	glEnable(GL_TEXTURE_2D);
 	
@@ -236,7 +236,7 @@ static int display_trade_handler(window_info *win)
 
 	if (tool_tip_str != NULL)
 	{
-		scaled_show_help(tool_tip_str, 0, win->len_y+10);
+		show_help(tool_tip_str, 0, win->len_y+10, win->current_scale);
 		tool_tip_str = NULL;
 	}
 
