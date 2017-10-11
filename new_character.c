@@ -254,7 +254,7 @@ static int newchar_hud_win = -1;
 static int display_advice_handler (window_info *win)
 {
 	static int lastw = -1, lasth = -1;
-	static float last_ui_scale = 0;
+	static float last_scale = 0;
 	static Uint32 last_time = 0;
 	static int flash = 0;
 	static char *last_help = NULL;
@@ -263,7 +263,7 @@ static int display_advice_handler (window_info *win)
 
 	// Resize and move the window on first use and if window size changed.
 	// Place centred, just down from the top of the screen.
-	if ((lastw!=window_width) || (lasth!=window_height) || (last_ui_scale != ui_scale))
+	if ((lastw!=window_width) || (lasth!=window_height) || (last_scale != win->current_scale))
 	{
 		int len_x = (int)(2*sep + strlen(newchar_warning) * win->default_font_len_x);
 		int len_y = (int)(2*sep + win->default_font_len_y);
@@ -272,7 +272,7 @@ static int display_advice_handler (window_info *win)
 		move_window(win->window_id, win->pos_id, win->pos_loc, pos_x, sep);
 		lastw = window_width;
 		lasth = window_height;
-		last_ui_scale = ui_scale;
+		last_scale = win->current_scale;
 	}
 
 	// Draw the warning text.
