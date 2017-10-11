@@ -129,6 +129,7 @@ class Achievements_Window
 		void open(int win_pos_x, int win_pos_y);
 		void open_child(void);
 		int display_handler(window_info *win);
+		void ui_scale_handler(window_info *win);
 		bool shown(void) const { return get_show_window(main_win_id); }
 		void hide(void) const { hide_window(main_win_id); }
 		void set_mouse_over(int mx, int my) { win_mouse_x = mx; win_mouse_y = my; }
@@ -606,8 +607,6 @@ static int achievements_child_display_handler(window_info *win)
 	Achievements_System *as = Achievements_System::get_instance();
 
 	as->prepare_details(index);
-	if (as->get_child_win_y() != win->len_y)
-		resize_window(win->window_id, as->get_child_win_x(), as->get_child_win_y());
 
 	const Achievement * achievement = as->achievement(index);
 	if (achievement)
@@ -644,20 +643,20 @@ void Achievements_Window::open_child(void)
 	window_info *parent = &windows_list.window[main_win_id];
 	if (child_win_id < 0)
 	{
-		Achievements_System *as = Achievements_System::get_instance();
-		int win_x = as->get_child_win_x();
-		int win_y = as->get_child_win_y();
-		window_info *parent = &windows_list.window[main_win_id];
-		child_win_id = create_window("child", parent->window_id, 0,
-			(parent->len_x - win_x) / 2, parent->len_y + as->get_y_win_offset(), win_x, win_y,
+		child_win_id = create_window("child", parent->window_id, 0, 0, 0, 0, 0,
 			ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE);
 		set_window_handler(child_win_id, ELW_HANDLER_DISPLAY, (int (*)())&achievements_child_display_handler );
 	}
 	else
 		show_window(child_win_id);
+
+	Achievements_System *as = Achievements_System::get_instance();
 	window_info *win = &windows_list.window[child_win_id];
 	win->data = reinterpret_cast<void *>(&last_over);
 	win->opaque = parent->opaque;
+	resize_window(win->window_id, as->get_child_win_x(), as->get_child_win_y());
+	move_window(win->window_id, parent->window_id, 0,
+		parent->pos_x + (parent->len_x - as->get_child_win_x()) / 2, parent->pos_y  + parent->len_y + as->get_y_win_offset());
 }
 
 
@@ -713,10 +712,10 @@ int Achievements_Window::display_handler(window_info *win)
 		else
 		{
 			int pos_x = as->get_border() + (shown_num % as->get_per_row()) * as->get_display()
-				+ (as->get_display() - static_cast<int>(DEFAULT_FONT_X_LEN)) / 2;
+				+ (as->get_display() - win->default_font_len_x) / 2;
 			int pos_y = as->get_border() + (shown_num / as->get_per_row()) * as->get_display()
-				+ (as->get_display() - static_cast<int>(DEFAULT_FONT_Y_LEN)) / 2;
-			draw_string(pos_x+gx_adjust, pos_y+gy_adjust, (const unsigned char *)"?", 1);
+				+ (as->get_display() - win->default_font_len_y) / 2;
+			draw_string_zoomed(pos_x+gx_adjust, pos_y+gy_adjust, (const unsigned char *)"?", 1, win->current_scale);
 		}
 	}
 
@@ -863,6 +862,21 @@ static int achievements_click_handler(window_info *win, int mx, int my, Uint32 f
 }
 
 
+//	Called when UI scaling changes
+void Achievements_Window::ui_scale_handler(window_info *win)
+{
+	Achievements_System *as = Achievements_System::get_instance();
+	as->set_current_scale(win->current_scale);
+	resize_window(win->window_id, as->main_win_x(), physical_rows * as->get_display() + as->get_font_y() + 2 * as->get_border());
+}
+static int achievements_ui_scale_handler(window_info *win)
+{
+	Achievements_Window *object = reinterpret_cast<Achievements_Window *>(win->data);
+	object->ui_scale_handler(win);
+	return 1;
+}
+
+
 //	When creating a new window, strip any guild from the playe name.
 //
 void Achievements_Window::set_name(const std::string & name)
@@ -918,17 +932,16 @@ void Achievements_Window::open(int win_pos_x, int win_pos_y)
 	set_window_handler(main_win_id, ELW_HANDLER_CLICK, (int (*)())&achievements_click_handler );
 	set_window_handler(main_win_id, ELW_HANDLER_MOUSEOVER, (int (*)())&achievements_mouseover_handler );
 	set_window_handler(main_win_id, ELW_HANDLER_KEYPRESS, (int (*)())&achievements_keypress_handler );
+	set_window_handler(main_win_id, ELW_HANDLER_UI_SCALE, (int (*)())&achievements_ui_scale_handler );
 
 	window_info *win = &windows_list.window[main_win_id];
 	win->data = reinterpret_cast<void *>(this);
-
-	as->set_current_scale(win->current_scale);
-	resize_window(main_win_id, as->main_win_x(), physical_rows * as->get_display() + as->get_font_y() + 2 * as->get_border());
+	ui_scale_handler(win);
 }
 
 int achievements_ctrl_click = 0;
 
-//	We have a new player name form the server.
+//	We have a new player name from the server.
 //
 extern "C" void achievements_player_name(const char *name, int len)
 {

@@ -485,7 +485,6 @@ void change_ui_scale(float *var, float *value)
 	{
 		init_hud_interface (HUD_INTERFACE_LAST);
 		resize_all_root_windows (window_width, window_height);
-		achievements_close_all();
 	}
 
 	update_windows_scale(*var);
