@@ -683,6 +683,8 @@ void init_stuff()
 		LOG_ERROR("%s() chdir(\"%s\") failed: %s\n", __FUNCTION__, datadir, strerror(errno));
 	}
 
+	last_save_time = time(NULL);
+
 	init_crc_tables();
 	init_zip_archives();
 
