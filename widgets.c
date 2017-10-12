@@ -652,7 +652,7 @@ static int label_resize (widget_list *w, int width, int height)
 		label *l = (label *)w->widget_info;
 		if (l) {
 			w->len_x = (width > 0) ?width :(Uint16)(strlen (l->text) * DEFAULT_FONT_X_LEN * w->size);
-			w->len_y = (height > 0) ?width :(Uint16)(DEFAULT_FONT_Y_LEN * w->size);
+			w->len_y = (height > 0) ?height :(Uint16)(DEFAULT_FONT_Y_LEN * w->size);
 		}
 	}
 	return 1;
