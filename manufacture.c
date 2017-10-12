@@ -1085,10 +1085,10 @@ static int click_manufacture_handler(window_info *win, int mx, int my, Uint32 fl
 		//handle the mouse wheel
 		if (recipes_loaded && (pos!=last_changed_slot))
 		{
-			if ((flags&ELW_WHEEL_UP)||(flags&ELW_WHEEL_DOWN)) {
+			if (((flags&ELW_WHEEL_UP)||(flags&ELW_WHEEL_DOWN)) && recipe_win >= 0 && recipe_win < windows_list.num_windows) {
 				//simulate a click on the dropdown
 				last_changed_slot=-1;
-				recipe_dropdown_click_handler(win,0,0,flags);
+				recipe_dropdown_click_handler(&windows_list.window[recipe_win],0,0,flags);
 				use_recipe(cur_recipe);
 				build_manufacture_list();
 			} else {
