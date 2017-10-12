@@ -373,7 +373,7 @@ static int mouseover_game_handler (window_info *win, int mx, int my)
 {
 	// some pixels dead space to try to prevent accidental misclicks
 	mouse_over_logo = 0;
-	if (hud_x && mx > win->len_x - win->current_scale * 54 && my < win->current_scale * 54)
+	if (logo_click_to_url && hud_x && mx > win->len_x - (hud_x - win->current_scale * 10) && my < hud_x - win->current_scale * 10)
 	{
 		elwin_mouse = CURSOR_USE;
 		mouse_over_logo = 1;
