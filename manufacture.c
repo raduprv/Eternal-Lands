@@ -1449,17 +1449,13 @@ static int ui_scale_manufacture_handler(window_info *win)
 
 	resize_window(win->window_id, manufacture_menu_x_len, manufacture_menu_y_len);
 
+	button_resize(win->window_id, mixone_button_id, mbw, 0,  win->current_scale);
+	button_resize(win->window_id, mixall_button_id, mbw, 0,  win->current_scale);
+	button_resize(win->window_id, clear_button_id, cbw, 0,  win->current_scale);
+
 	widget_move(win->window_id, mixone_button_id, manufacture_menu_x_len-2*(mbw+space), manufacture_menu_y_len - recipe_y_offset);
 	widget_move(win->window_id, mixall_button_id, manufacture_menu_x_len-(mbw+space), manufacture_menu_y_len - recipe_y_offset);
 	widget_move(win->window_id, clear_button_id, space, manufacture_menu_y_len - recipe_y_offset);
-
-	widget_set_size(win->window_id, mixone_button_id, win->current_scale);
-	widget_set_size(win->window_id, mixall_button_id, win->current_scale);
-	widget_set_size(win->window_id, clear_button_id, win->current_scale);
-
-	widget_resize(win->window_id, mixone_button_id, mbw, widget_get_height(win->window_id, mixone_button_id));
-	widget_resize(win->window_id, mixall_button_id, mbw, widget_get_height(win->window_id, mixall_button_id));
-	widget_resize(win->window_id, clear_button_id, cbw, widget_get_height(win->window_id, clear_button_id));
 
 	if ((recipe_win > -1) && (recipe_win < windows_list.num_windows))
 	{
