@@ -282,8 +282,8 @@ class Quest_List
 		int list_left_of_entries;
 		int quest_completed;
 		size_t number_shown;
-		int spacer = 0;
-		int linesep = 0;
+		int spacer;
+		int linesep;
 		Uint16 next_entry_quest_id;
 		enum {	CMQL_COMPLETED=0, CMQL_ADDSEL, CMQL_S11, CMQL_HIDECOMPLETED, CMQL_NOAUTOOPEN,  CMQL_LISTLEFTOFENTRIES };
 };
@@ -368,12 +368,12 @@ class Questlog_Window
 		void add_text_input(window_info *win);
 		void draw_underline(int startx, int starty, int endx, int endy);
 		// set in ui_scale_handler()
-		int qlwinwidth = 0;
-		int qlwinheight = 0;
-		int qlborder = 0;
-		int spacer = 0;
-		int win_space = 0;
-		int linesep = 0;
+		int qlwinwidth;
+		int qlwinheight;
+		int qlborder;
+		int spacer;
+		int win_space;
+		int linesep;
 		// others
 		bool mouse_over_questlog;
 		int quest_scroll_id;
