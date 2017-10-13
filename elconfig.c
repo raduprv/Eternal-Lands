@@ -2402,7 +2402,7 @@ int display_elconfig_handler(window_info *win)
 	}
 
 	// Draw the long description of an option
-	draw_string_zoomed(TAB_MARGIN, elconfig_menu_y_len-LONG_DESC_SPACE, elconf_description_buffer, MAX_LONG_DESC_LINES, DEFAULT_SMALL_RATIO*elconf_scale);
+	draw_string_small_zoomed(TAB_MARGIN, elconfig_menu_y_len-LONG_DESC_SPACE, elconf_description_buffer, MAX_LONG_DESC_LINES, elconf_scale);
 	return 1;
 }
 

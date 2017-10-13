@@ -94,8 +94,8 @@ static int display_loading_win_handler(window_info *win)
 	last_texture = -1;
 	glColor3f (1.0, 1.0, 1.0);
 	draw_string_zoomed((win->len_x - version_width) / 2, (win->len_y * 2) / 3 - win->default_font_len_y - 2, (unsigned char*)version_str, 1, win->current_scale);
-	draw_string_zoomed((win->len_x - (get_string_width(text_buffer)*win->small_font_len_x)/12)/2,
-		(win->len_y*2)/3 + progressbar_height + 2, text_buffer, 1, win->current_scale * DEFAULT_SMALL_RATIO);
+	draw_string_small_zoomed((win->len_x - (get_string_width(text_buffer)*win->small_font_len_x)/12)/2,
+		(win->len_y*2)/3 + progressbar_height + 2, text_buffer, 1, win->current_scale);
 
 	glDisable(GL_TEXTURE_2D);
 #ifdef OPENGL_TRACE

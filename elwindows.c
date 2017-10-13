@@ -1109,7 +1109,7 @@ int	draw_window_title(window_info *win)
 			glEnable(GL_TEXTURE_2D);
 			glColor3f(win->border_color[0],win->border_color[1],win->border_color[2]);
 			// center text
-			draw_string_zoomed((win->len_x-len)/2, 1-win->title_height, (unsigned char*)win->window_name, 1, DEFAULT_SMALL_RATIO*win->current_scale);
+			draw_string_small_zoomed((win->len_x-len)/2, 1-win->title_height, (unsigned char*)win->window_name, 1, win->current_scale);
 		}
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
