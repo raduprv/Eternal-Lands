@@ -92,7 +92,7 @@ static int display_trade_handler(window_info *win)
 	scaled_draw_string_small(x_off, trade_grid_start_y - win->small_font_len_y, (unsigned char*)other_player_trade_name, 1);
 
 	//Draw the X for aborting the trade
-	scaled_draw_string(win->len_x - (win->box_size - win->box_size/5), win->box_size/10, (unsigned char*)"X", 1);
+	draw_string_zoomed(win->len_x - (win->box_size - win->box_size/5), win->box_size/10, (unsigned char*)"X", 1, win->current_scale);
 	
 	glColor3f(1.0f,1.0f,1.0f);
 	
@@ -127,7 +127,7 @@ static int display_trade_handler(window_info *win)
 			safe_snprintf(str, sizeof(str), "%i",your_trade_list[i].quantity);
 			y_end -= (i&1) ?trade_gridsize * 2/3 : trade_gridsize * 1/3;
 			if (use_large)
-				scaled_draw_string_shadowed(x_start, y_end, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
+				draw_string_shadowed_zoomed(x_start, y_end, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
 			else
 				scaled_draw_string_small_shadowed(x_start, y_end, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
 			//by doing the images in reverse, you can't cover up the digits>4
@@ -172,7 +172,7 @@ static int display_trade_handler(window_info *win)
 			safe_snprintf(str, sizeof(str), "%i",others_trade_list[i].quantity);
 			y_end -= (i&1) ?trade_gridsize * 2/3 : trade_gridsize * 1/3;
 			if (use_large)
-				scaled_draw_string_shadowed(x_start, y_end, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
+				draw_string_shadowed_zoomed(x_start, y_end, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
 			else
 				scaled_draw_string_small_shadowed(x_start, y_end, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
 

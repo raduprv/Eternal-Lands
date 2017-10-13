@@ -520,7 +520,7 @@ static int display_ground_items_handler(window_info *win)
 			safe_snprintf(str,sizeof(str),"%i",ground_item_list[i].quantity);
 			y_end -= -3 + ((i&1) ?GRIDSIZE-1 : ((use_large) ?win->default_font_len_y :win->small_font_len_y));
 			if (use_large)
-				scaled_draw_string_shadowed(x_start,y_end,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
+				draw_string_shadowed_zoomed(x_start,y_end,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
 			else
 				scaled_draw_string_small_shadowed(x_start,y_end,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
 		}

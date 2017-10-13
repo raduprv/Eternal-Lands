@@ -1796,7 +1796,7 @@ int	display_quickbar_handler(window_info *win)
 				ypos = (i&1)?(y_end-UI_SCALED_VALUE(15)):(y_end-UI_SCALED_VALUE(25));
 			}
 			if ((mouseover_quickbar_item_pos == i) && enlarge_text())
-				scaled_draw_string_shadowed(xpos,ypos,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
+				draw_string_shadowed_zoomed(xpos,ypos,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
 			else
 				scaled_draw_string_small_shadowed(xpos,ypos,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
 		}

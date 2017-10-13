@@ -391,7 +391,7 @@ namespace UserMenus
 			if (use_small_font)
 				scaled_draw_string_small(curr_x, window_pad, (const unsigned char *)um_no_menus_str, 1 );
 			else
-				scaled_draw_string(curr_x, window_pad, (const unsigned char *)um_no_menus_str, 1 );
+				draw_string_zoomed(curr_x, window_pad, (const unsigned char *)um_no_menus_str, 1, win->current_scale );
 			mouse_over_window = false;
 			return 1;
 		}
@@ -418,7 +418,7 @@ namespace UserMenus
 			if (use_small_font)
 				scaled_draw_string_small(curr_x, window_pad, (const unsigned char *)menus[i]->get_name().c_str(), 1);
 			else
-				scaled_draw_string(curr_x, window_pad, (const unsigned char *)menus[i]->get_name().c_str(), 1);
+				draw_string_zoomed(curr_x, window_pad, (const unsigned char *)menus[i]->get_name().c_str(), 1, win->current_scale);
 			curr_x += calc_actual_width(win, menus[i]->get_name_width()) + name_sep;
 		}
 

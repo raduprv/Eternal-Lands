@@ -446,11 +446,6 @@ int draw_string (int x, int y, const unsigned char * our_string, int max_lines)
 	return draw_string_zoomed_width (x, y, our_string, window_width, max_lines, 1.0f);
 }
 
-int scaled_draw_string (int x, int y, const unsigned char * our_string, int max_lines)
-{
-	return draw_string_zoomed_width (x, y, our_string, window_width, max_lines, ui_scale);
-}
-
 int draw_string_shadowed_zoomed (int x, int y, const unsigned char * our_string, int max_lines, float fr,float fg,float fb, float br,float bg,float bb, float zoom)
 {
 	int px,py,r;
@@ -471,15 +466,10 @@ int draw_string_shadowed (int x, int y, const unsigned char * our_string, int ma
 	return draw_string_shadowed_zoomed(x, y, our_string, max_lines, fr, fg, fb, br, bg, bb, 1.0);
 }
 
-int scaled_draw_string_shadowed (int x, int y, const unsigned char * our_string, int max_lines, float fr,float fg,float fb, float br,float bg,float bb)
-{
-	return draw_string_shadowed_zoomed(x, y, our_string, max_lines, fr, fg, fb, br, bg, bb, ui_scale);
-}
-
 int draw_string_shadowed_width (int x, int y, const unsigned char * our_string, int max_width, int max_lines, float fr,float fg,float fb, float br,float bg,float bb)
 {
  	 int px,py,r;
-	 float zoom = ((float)max_width*12.0)/((float)get_string_width(our_string)*11.0);
+	 float zoom = ((float)max_width*12.0)/((float)get_string_width(our_string)*DEFAULT_FONT_X_LEN);
  	 //set shadow colour
 	 glColor3f(br, bg, bb);
 	 for(px=-1;px<2;px++)
@@ -504,8 +494,8 @@ int draw_string_zoomed (int x, int y, const unsigned char * our_string, int max_
 
 int draw_string_zoomed_width (int x, int y, const unsigned char * our_string, int max_width, int max_lines, float text_zoom)
 {
-	float displayed_font_x_size= 11.0*text_zoom;
-	float displayed_font_y_size= 18.0*text_zoom;
+	float displayed_font_x_size= DEFAULT_FONT_X_LEN*text_zoom;
+	float displayed_font_y_size= DEFAULT_FONT_Y_LEN*text_zoom;
 
 	unsigned char cur_char;
 	int i;
@@ -726,7 +716,7 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 				local_max_line_width = line_width;
 			line_width = 0;
 		} else {
-			font_bit_width = (int) (0.5f + get_char_width (str[isrc]) * 11.0f * zoom / 12.0f);
+			font_bit_width = (int) (0.5f + get_char_width (str[isrc]) * DEFAULT_FONT_X_LEN * zoom / 12.0f);
 			if (line_width + font_bit_width >= width)
 			{
 				// search back for a space

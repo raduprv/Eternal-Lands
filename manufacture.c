@@ -640,7 +640,7 @@ static int draw_production_pipe(window_info *win, int x, int y, int recipe_num){
 			safe_snprintf((char *)str, sizeof(str), "%i", the_list[i].quantity);
 
 			if (use_large)
-				scaled_draw_string_shadowed(x_start, y_start+y_offset, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
+				draw_string_shadowed_zoomed(x_start, y_start+y_offset, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
 			else
 				scaled_draw_string_small_shadowed(x_start, y_start+y_offset, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
 
@@ -693,7 +693,7 @@ static int	display_manufacture_handler(window_info *win)
 			safe_snprintf((char *)str, sizeof(str), "%i",manufacture_list[i].quantity);
 			y_start += (i&1) ? 2 : SLOT_SIZE - ((use_large) ?win->default_font_len_y :win->small_font_len_y);
 			if (use_large)
-				scaled_draw_string_shadowed(x_start, y_start, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
+				draw_string_shadowed_zoomed(x_start, y_start, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
 			else
 				scaled_draw_string_small_shadowed(x_start, y_start, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
 		}

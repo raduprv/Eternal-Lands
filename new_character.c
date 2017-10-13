@@ -278,7 +278,7 @@ static int display_advice_handler (window_info *win)
 	// Draw the warning text.
 	glEnable(GL_TEXTURE_2D);
 	glColor3f(1.0f,1.0f,1.0f);
-	scaled_draw_string(sep, sep, (const unsigned char *)newchar_warning, 1);
+	draw_string_zoomed(sep, sep, (const unsigned char *)newchar_warning, 1, win->current_scale);
 
 	// Give eye icon help, then credentials icon help then "done" help.
 	if (color_race_win < 0)

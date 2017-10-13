@@ -1018,7 +1018,7 @@ static void draw_current_spell(window_info *win, int x, int y, int sigils_too, i
 		else glColor3f(0.0,1.0,0.0);
 		i=(grid_size - win->current_scale * get_string_width(str))/2;
 		j=(grid_size - win->current_scale * get_char_width(str[0]))/2;
-		scaled_draw_string(x+i,y+j,str,1);
+		draw_string_zoomed(x+i,y+j,str,1, win->current_scale);
 	}
 	
 	//draw strings	
