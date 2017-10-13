@@ -444,7 +444,7 @@ static void show_help_coloured_scaled(const char *help_message, int x, int y, fl
 	if (use_big_font)
 		draw_string_zoomed(x, y, (unsigned char*)help_message, 1, size);
 	else
-		draw_string_small_scaled(x, y, (unsigned char*)help_message, 1, size);
+		draw_string_small_zoomed(x, y, (unsigned char*)help_message, 1, size);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE

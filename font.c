@@ -780,7 +780,7 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 	return nlines;
 }
 
-void draw_string_small_scaled(int x, int y,const unsigned char * our_string,int max_lines, float scale_factor)
+void draw_string_small_zoomed(int x, int y,const unsigned char * our_string,int max_lines, float text_zoom)
 {
 	//int displayed_font_x_size=SMALL_FONT_X_LEN;
 	//int displayed_font_y_size=SMALL_FONT_Y_LEN;
@@ -810,7 +810,7 @@ CHECK_GL_ERRORS();
 				}
 			else if(cur_char=='\n')
 				{
-					cur_y+=0.5+SMALL_FONT_Y_LEN*scale_factor;
+					cur_y+=0.5+SMALL_FONT_Y_LEN*text_zoom;
 					cur_x=x;
 					i++;
 					current_lines++;
@@ -818,7 +818,7 @@ CHECK_GL_ERRORS();
 					continue;
 				}
 
-			cur_x+=draw_char_scaled(cur_char, cur_x, cur_y, SMALL_FONT_X_LEN*scale_factor, SMALL_FONT_Y_LEN*scale_factor);
+			cur_x+=draw_char_scaled(cur_char, cur_x, cur_y, SMALL_FONT_X_LEN*text_zoom, SMALL_FONT_Y_LEN*text_zoom);
 
 			i++;
 		}
@@ -833,16 +833,16 @@ CHECK_GL_ERRORS();
 
 static void draw_string_small_shadowed_scaled(int x, int y,const unsigned char * our_string,int max_lines, float fr, float fg, float fb, float br, float bg, float bb, float scale_factor)
 {
- 	 int px,py;
- 	 //set shadow colour
-	 glColor4f(br, bg, bb, 0.25f);
-	 for(px=-1;px<2;px++)
-  	     for(py=-1;py<2;py++)
-  	         if(px!=0 || py!=0)
-  	             draw_string_small_scaled(x+px, y+py, our_string, max_lines, scale_factor);
- 	 //set foreground colour
-	 glColor4f(fr, fg, fb, 1.0f);
-     draw_string_small_scaled(x, y, our_string, max_lines, scale_factor);
+	int px,py;
+	//set shadow colour
+	glColor4f(br, bg, bb, 0.25f);
+	for(px=-1;px<2;px++)
+		for(py=-1;py<2;py++)
+			if(px!=0 || py!=0)
+				draw_string_small_zoomed(x+px, y+py, our_string, max_lines, scale_factor);
+	//set foreground colour
+	glColor4f(fr, fg, fb, 1.0f);
+	draw_string_small_zoomed(x, y, our_string, max_lines, scale_factor);
 }
 
 void draw_string_small_shadowed(int x, int y,const unsigned char * our_string,int max_lines, float fr, float fg, float fb, float br, float bg, float bb)
@@ -857,12 +857,12 @@ void scaled_draw_string_small_shadowed(int x, int y,const unsigned char * our_st
 
 void draw_string_small(int x, int y,const unsigned char * our_string,int max_lines)
 {
-	draw_string_small_scaled(x, y, our_string, max_lines, 1.0);
+	draw_string_small_zoomed(x, y, our_string, max_lines, 1.0);
 }
 
 void scaled_draw_string_small(int x, int y,const unsigned char * our_string,int max_lines)
 {
-	draw_string_small_scaled(x, y, our_string, max_lines, ui_scale);
+	draw_string_small_zoomed(x, y, our_string, max_lines, ui_scale);
 }
 
 
