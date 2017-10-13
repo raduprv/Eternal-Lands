@@ -831,7 +831,7 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-static void draw_string_small_shadowed_scaled(int x, int y,const unsigned char * our_string,int max_lines, float fr, float fg, float fb, float br, float bg, float bb, float scale_factor)
+void draw_string_small_shadowed_zoomed(int x, int y,const unsigned char * our_string,int max_lines, float fr, float fg, float fb, float br, float bg, float bb, float text_zoom)
 {
 	int px,py;
 	//set shadow colour
@@ -839,20 +839,20 @@ static void draw_string_small_shadowed_scaled(int x, int y,const unsigned char *
 	for(px=-1;px<2;px++)
 		for(py=-1;py<2;py++)
 			if(px!=0 || py!=0)
-				draw_string_small_zoomed(x+px, y+py, our_string, max_lines, scale_factor);
+				draw_string_small_zoomed(x+px, y+py, our_string, max_lines, text_zoom);
 	//set foreground colour
 	glColor4f(fr, fg, fb, 1.0f);
-	draw_string_small_zoomed(x, y, our_string, max_lines, scale_factor);
+	draw_string_small_zoomed(x, y, our_string, max_lines, text_zoom);
 }
 
 void draw_string_small_shadowed(int x, int y,const unsigned char * our_string,int max_lines, float fr, float fg, float fb, float br, float bg, float bb)
 {
-	draw_string_small_shadowed_scaled(x, y, our_string, max_lines, fr, fg, fb, br, bg, bb, 1.0);
+	draw_string_small_shadowed_zoomed(x, y, our_string, max_lines, fr, fg, fb, br, bg, bb, 1.0);
 }
 
 void scaled_draw_string_small_shadowed(int x, int y,const unsigned char * our_string,int max_lines, float fr, float fg, float fb, float br, float bg, float bb)
 {
-	draw_string_small_shadowed_scaled(x, y, our_string, max_lines, fr, fg, fb, br, bg, bb, ui_scale);
+	draw_string_small_shadowed_zoomed(x, y, our_string, max_lines, fr, fg, fb, br, bg, bb, ui_scale);
 }
 
 void draw_string_small(int x, int y,const unsigned char * our_string,int max_lines)
