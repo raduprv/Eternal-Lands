@@ -642,7 +642,7 @@ static int draw_production_pipe(window_info *win, int x, int y, int recipe_num){
 			if (use_large)
 				draw_string_shadowed_zoomed(x_start, y_start+y_offset, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
 			else
-				scaled_draw_string_small_shadowed(x_start, y_start+y_offset, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
+				draw_string_small_shadowed_zoomed(x_start, y_start+y_offset, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
 
 			if (!valid)
 				gray_out(x_start,y_start,SLOT_SIZE);
@@ -695,7 +695,7 @@ static int	display_manufacture_handler(window_info *win)
 			if (use_large)
 				draw_string_shadowed_zoomed(x_start, y_start, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
 			else
-				scaled_draw_string_small_shadowed(x_start, y_start, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
+				draw_string_small_shadowed_zoomed(x_start, y_start, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
 		}
 	}
 

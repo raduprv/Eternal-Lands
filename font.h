@@ -170,7 +170,6 @@ void draw_string_small_shadowed(int x, int y,const unsigned char * our_string,in
 void draw_string_small_shadowed_zoomed(int x, int y,const unsigned char * our_string,int max_lines, float fr, float fg, float fb, float br, float bg, float bb, float text_zoom);
 /* temporary functions during ui scaling changes */
 void scaled_draw_string_small(int x, int y,const unsigned char * our_string,int max_lines);
-void scaled_draw_string_small_shadowed(int x, int y,const unsigned char * our_string,int max_lines, float fr, float fg, float fb, float br, float bg, float bb);
 
 #ifdef	ELC
 /*!

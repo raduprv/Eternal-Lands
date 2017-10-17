@@ -129,7 +129,7 @@ static int display_trade_handler(window_info *win)
 			if (use_large)
 				draw_string_shadowed_zoomed(x_start, y_end, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
 			else
-				scaled_draw_string_small_shadowed(x_start, y_end, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
+				draw_string_small_shadowed_zoomed(x_start, y_end, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
 			//by doing the images in reverse, you can't cover up the digits>4
 			//also, by offsetting each one, numbers don't overwrite each other:
 			//before: 123456 in one box and 56 in the other could allow
@@ -174,14 +174,14 @@ static int display_trade_handler(window_info *win)
 			if (use_large)
 				draw_string_shadowed_zoomed(x_start, y_end, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
 			else
-				scaled_draw_string_small_shadowed(x_start, y_end, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
+				draw_string_small_shadowed_zoomed(x_start, y_end, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
 
 			if(storage_available && others_trade_list[i].type==ITEM_BANK){
 				str[0]='s';
 				str[1]='t';
 				str[2]='o';
 				str[3]=0;
-				scaled_draw_string_small_shadowed(x_start,y_start-1,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
+				draw_string_small_shadowed_zoomed(x_start,y_start-1,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
 			}
 		}
 	}

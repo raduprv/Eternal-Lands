@@ -1036,7 +1036,7 @@ namespace ItemLists
 				if ((mouse_over_item == i) && enlarge_text())
 					draw_string_shadowed_zoomed(x_start, y_start, (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
 				else
-					scaled_draw_string_small_shadowed(x_start, y_start, (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);
+					draw_string_small_shadowed_zoomed(x_start, y_start, (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
 				}
 		}
 

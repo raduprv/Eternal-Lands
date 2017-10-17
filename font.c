@@ -850,11 +850,6 @@ void draw_string_small_shadowed(int x, int y,const unsigned char * our_string,in
 	draw_string_small_shadowed_zoomed(x, y, our_string, max_lines, fr, fg, fb, br, bg, bb, 1.0);
 }
 
-void scaled_draw_string_small_shadowed(int x, int y,const unsigned char * our_string,int max_lines, float fr, float fg, float fb, float br, float bg, float bb)
-{
-	draw_string_small_shadowed_zoomed(x, y, our_string, max_lines, fr, fg, fb, br, bg, bb, ui_scale);
-}
-
 void draw_string_small(int x, int y,const unsigned char * our_string,int max_lines)
 {
 	draw_string_small_zoomed(x, y, our_string, max_lines, 1.0);

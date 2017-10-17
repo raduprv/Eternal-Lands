@@ -67,7 +67,7 @@ int	mouseover_quickbar_handler(window_info *win, int mx, int my);
 int	mouseover_stats_bar_handler(window_info *win, int mx, int my);
 void init_hud_frame();
 void init_stats_display();
-void draw_exp_display();
+static void draw_exp_display(window_info *win);
 void draw_stats();
 void init_misc_display(hud_interface type);
 void init_quickbar();
@@ -769,11 +769,11 @@ void init_stats_display()
 	reset_statsbar_exp_cm_regions();
 }
 
-static void draw_stats_bar(int x, int y, int val, int len, float r, float g, float b, float r2, float g2, float b2)
+static void draw_stats_bar(window_info *win, int x, int y, int val, int len, float r, float g, float b, float r2, float g2, float b2)
 {
 	char buf[32];
 	int i; // i deals with massive bars by trimming at 110%
-	int bar_height = UI_SCALED_VALUE(player_statsbar_bar_height);
+	int bar_height = (int)(0.5 + win->current_scale * player_statsbar_bar_height);
 	
 	if(len>stats_bar_len*1.1)
 		i=stats_bar_len*1.1;
@@ -807,7 +807,7 @@ static void draw_stats_bar(int x, int y, int val, int len, float r, float g, flo
 	// handle the text
 	safe_snprintf(buf, sizeof(buf), "%d", val);
 	//glColor3f(0.8f, 0.8f, 0.8f); moved to next line
-	scaled_draw_string_small_shadowed(x-(1+UI_SCALED_VALUE(SMALL_FONT_X_LEN)*strlen(buf))-1, y-2, (unsigned char*)buf, 1,0.8f, 0.8f, 0.8f,0.0f,0.0f,0.0f);
+	draw_string_small_shadowed_zoomed(x-(1+win->small_font_len_x*strlen(buf))-1, y-2, (unsigned char*)buf, 1,0.8f, 0.8f, 0.8f,0.0f,0.0f,0.0f, win->current_scale);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -957,18 +957,18 @@ int	display_stats_bar_handler(window_info *win)
 	else
 		action_adjusted_x_len=stats_bar_len/((float)your_info.action_points.base/(float)your_info.action_points.cur);
 
-	draw_stats_bar(health_bar_start_x, health_bar_start_y, your_info.material_points.cur, health_adjusted_x_len, 1.0f, 0.2f, 0.2f, 0.5f, 0.2f, 0.2f);
+	draw_stats_bar(win, health_bar_start_x, health_bar_start_y, your_info.material_points.cur, health_adjusted_x_len, 1.0f, 0.2f, 0.2f, 0.5f, 0.2f, 0.2f);
 
 	if (your_info.food_level<=max_food_level) //yellow
-		draw_stats_bar(food_bar_start_x, food_bar_start_y, your_info.food_level, food_adjusted_x_len, 1.0f, 1.0f, 0.2f, 0.5f, 0.5f, 0.2f);
-	else draw_stats_bar(food_bar_start_x, food_bar_start_y, your_info.food_level, food_adjusted_x_len, 1.0f, 0.5f, 0.0f, 0.7f, 0.3f, 0.0f); //orange
+		draw_stats_bar(win, food_bar_start_x, food_bar_start_y, your_info.food_level, food_adjusted_x_len, 1.0f, 1.0f, 0.2f, 0.5f, 0.5f, 0.2f);
+	else draw_stats_bar(win, food_bar_start_x, food_bar_start_y, your_info.food_level, food_adjusted_x_len, 1.0f, 0.5f, 0.0f, 0.7f, 0.3f, 0.0f); //orange
 
-	draw_stats_bar(mana_bar_start_x, mana_bar_start_y, your_info.ethereal_points.cur, mana_adjusted_x_len, 0.2f, 0.2f, 1.0f, 0.2f, 0.2f, 0.5f);
-	draw_stats_bar(load_bar_start_x, load_bar_start_y, your_info.carry_capacity.base-your_info.carry_capacity.cur, load_adjusted_x_len, 0.6f, 0.4f, 0.4f, 0.4f, 0.2f, 0.2f);
+	draw_stats_bar(win, mana_bar_start_x, mana_bar_start_y, your_info.ethereal_points.cur, mana_adjusted_x_len, 0.2f, 0.2f, 1.0f, 0.2f, 0.2f, 0.5f);
+	draw_stats_bar(win, load_bar_start_x, load_bar_start_y, your_info.carry_capacity.base-your_info.carry_capacity.cur, load_adjusted_x_len, 0.6f, 0.4f, 0.4f, 0.4f, 0.2f, 0.2f);
 	if (show_action_bar)
-		draw_stats_bar(action_bar_start_x, action_bar_start_y, your_info.action_points.cur, action_adjusted_x_len, 0.8f, 0.3f, 0.8f, 0.5f, 0.1f, 0.5f);
+		draw_stats_bar(win, action_bar_start_x, action_bar_start_y, your_info.action_points.cur, action_adjusted_x_len, 0.8f, 0.3f, 0.8f, 0.5f, 0.1f, 0.5f);
 
-	draw_exp_display();
+	draw_exp_display(win);
 
 	if(show_help_text && statbar_cursor_x>=0)
 	{
@@ -1260,11 +1260,11 @@ CHECK_GL_ERRORS();
 		int centre_y =  (view_analog_clock) ?win->len_y-UI_SCALED_VALUE(96) : base_y_start + UI_SCALED_VALUE(DEFAULT_FONT_Y_LEN/2);
 
 		safe_snprintf(str, sizeof(str), "%1d:%02d:%02d", real_game_minute/60, real_game_minute%60, real_game_second);
-		scaled_draw_string_small_shadowed(-UI_SCALED_VALUE(SMALL_FONT_X_LEN*(strlen(str)+0.5)), centre_y-UI_SCALED_VALUE(SMALL_FONT_Y_LEN), (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
+		draw_string_small_shadowed_zoomed(-win->small_font_len_x*(strlen(str)+0.5), centre_y-win->small_font_len_y, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
 		if (the_date != NULL)
 		{
 			safe_snprintf(str, sizeof(str), "%s", the_date);
-			scaled_draw_string_small_shadowed(-UI_SCALED_VALUE(SMALL_FONT_X_LEN*(strlen(str)+0.5)), centre_y, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
+			draw_string_small_shadowed_zoomed(-win->small_font_len_x*(strlen(str)+0.5), centre_y, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
 		}
 		mouse_over_clock = 0;
 	}
@@ -1277,7 +1277,7 @@ CHECK_GL_ERRORS();
 		if (me != NULL)
 		{
 			safe_snprintf(str, sizeof(str), "%d,%d", me->x_tile_pos, me->y_tile_pos);
-			scaled_draw_string_small_shadowed(-UI_SCALED_VALUE(SMALL_FONT_X_LEN*(strlen(str)+0.5)), win->len_y-UI_SCALED_VALUE(64), (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
+			draw_string_small_shadowed_zoomed(-win->small_font_len_x*(strlen(str)+0.5), win->len_y-UI_SCALED_VALUE(64), (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
 		}
 		mouse_over_compass = 0;
 	}
@@ -1300,12 +1300,12 @@ CHECK_GL_ERRORS();
 		}
 		off = (UI_SCALED_VALUE(58 - SMALL_FONT_X_LEN * strlen(use_str)) / 2);
 		draw_side_stats_bar( x, y, 0, percentage_done, 100, 1);
-		scaled_draw_string_small_shadowed(x+off+gx_adjust, y+gy_adjust, (unsigned char *)use_str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
+		draw_string_small_shadowed_zoomed(x+off+gx_adjust, y+gy_adjust, (unsigned char *)use_str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
 
 		if (mouse_over_knowledge_bar)
 		{
 			use_str = (is_researching()) ?get_research_eta_str(str, sizeof(str)) : not_researching_str;
-			scaled_draw_string_small_shadowed(-UI_SCALED_VALUE(SMALL_FONT_X_LEN*(strlen(use_str)+0.5)), y+gy_adjust, (unsigned char*)use_str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
+			draw_string_small_shadowed_zoomed(-win->small_font_len_x* (strlen(str)+0.5), y+gy_adjust, (unsigned char*)use_str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
 			mouse_over_knowledge_bar = 0;
 		}
 
@@ -1366,9 +1366,9 @@ CHECK_GL_ERRORS();
 				statsinfo[thestat].skillnames->shortname,
 				statsinfo[thestat].skillattr->base );
 			if (statsinfo[thestat].is_selected == 1)
-				scaled_draw_string_small_shadowed(text_x+gx_adjust, y+gy_adjust, (unsigned char*)str, 1,0.77f, 0.57f, 0.39f,0.0f,0.0f,0.0f);
+				draw_string_small_shadowed_zoomed(text_x+gx_adjust, y+gy_adjust, (unsigned char*)str, 1,0.77f, 0.57f, 0.39f,0.0f,0.0f,0.0f, win->current_scale);
 			else
-				scaled_draw_string_small_shadowed(text_x+gx_adjust, y+gy_adjust, (unsigned char*)str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
+				draw_string_small_shadowed_zoomed(text_x+gx_adjust, y+gy_adjust, (unsigned char*)str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
 			
 			if((thestat!=NUM_WATCH_STAT-2) && floatingmessages_enabled &&
 				(skill_modifier = statsinfo[thestat].skillattr->cur -
@@ -1376,9 +1376,9 @@ CHECK_GL_ERRORS();
 				safe_snprintf(str,sizeof(str),"%+i",skill_modifier);
 				hover_offset = strlen(str)+1;
 				if(skill_modifier > 0){
-					scaled_draw_string_small_shadowed(-(int)(SMALL_FONT_X_LEN*(strlen(str)+0.5)), y+gy_adjust, (unsigned char*)str, 1,0.3f, 1.0f, 0.3f,0.0f,0.0f,0.0f);
+					draw_string_small_shadowed_zoomed(-win->small_font_len_x * (strlen(str)+0.5), y+gy_adjust, (unsigned char*)str, 1,0.3f, 1.0f, 0.3f,0.0f,0.0f,0.0f, win->current_scale);
 				} else {
-					scaled_draw_string_small_shadowed(-(int)(SMALL_FONT_X_LEN*(strlen(str)+0.5)), y+gy_adjust, (unsigned char*)str, 1,1.0f, 0.1f, 0.2f,0.0f,0.0f,0.0f);
+					draw_string_small_shadowed_zoomed(-win->small_font_len_x * (strlen(str)+0.5), y+gy_adjust, (unsigned char*)str, 1,1.0f, 0.1f, 0.2f,0.0f,0.0f,0.0f, win->current_scale);
 				}
 			}
 
@@ -1386,7 +1386,7 @@ CHECK_GL_ERRORS();
 			if (stat_mouse_is_over == thestat)
 			{
 				safe_snprintf(str,sizeof(str),"%li",(*statsinfo[thestat].next_lev - *statsinfo[thestat].exp));
-				scaled_draw_string_small_shadowed(-UI_SCALED_VALUE(SMALL_FONT_X_LEN*(strlen(str)+0.5+hover_offset)), y+gy_adjust, (unsigned char*)str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
+				draw_string_small_shadowed_zoomed(-win->small_font_len_x*(strlen(str)+0.5+hover_offset), y+gy_adjust, (unsigned char*)str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
 				stat_mouse_is_over = -1;
 			}
 
@@ -1798,7 +1798,7 @@ int	display_quickbar_handler(window_info *win)
 			if ((mouseover_quickbar_item_pos == i) && enlarge_text())
 				draw_string_shadowed_zoomed(xpos,ypos,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
 			else
-				scaled_draw_string_small_shadowed(xpos,ypos,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
+				draw_string_small_shadowed_zoomed(xpos,ypos,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
 		}
 	}
 	mouseover_quickbar_item_pos = -1;
@@ -2178,7 +2178,7 @@ void build_levels_table()
 	}
 }
 
-void draw_exp_display()
+static void draw_exp_display(window_info *win)
 {
 	size_t i;
 	int my_exp_bar_start_x = exp_bar_start_x;
@@ -2227,8 +2227,8 @@ void draw_exp_display()
 				name_y = (int)(0.5 + (player_statsbar_y_offset + UI_SCALED_VALUE(player_statsbar_bar_height) - UI_SCALED_VALUE(SMALL_FONT_Y_LEN)) / 2) - 1;
 			}
 
-			draw_stats_bar(my_exp_bar_start_x, exp_bar_start_y, nl_exp - cur_exp, exp_adjusted_x_len, 0.1f, 0.8f, 0.1f, 0.1f, 0.4f, 0.1f);
-			scaled_draw_string_small_shadowed(name_x, name_y, name, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
+			draw_stats_bar(win, my_exp_bar_start_x, exp_bar_start_y, nl_exp - cur_exp, exp_adjusted_x_len, 0.1f, 0.8f, 0.1f, 0.1f, 0.4f, 0.1f);
+			draw_string_small_shadowed_zoomed(name_x, name_y, name, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
 
 			my_exp_bar_start_x += stats_bar_len+exp_bar_text_len;
 		}

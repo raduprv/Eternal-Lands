@@ -719,7 +719,7 @@ void draw_spell_icon_strings(window_info *win)
 		if ((poison_drop_counter > 0) && (active_spells[i].spell == 2) && show_poison_count)
 		{
 			safe_snprintf((char*)str, sizeof(str), "%d", poison_drop_counter );
-			scaled_draw_string_small_shadowed(x_start+(x_sep-strlen((char *)str)*win->small_font_len_x)/2, y_start, str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
+			draw_string_small_shadowed_zoomed(x_start+(x_sep-strlen((char *)str)*win->small_font_len_x)/2, y_start, str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
 		}
 		/* other strings on spell icons, timers perhaps .....*/
 		x_start += x_sep;
@@ -1008,7 +1008,7 @@ static void draw_current_spell(window_info *win, int x, int y, int sigils_too, i
 		for(i=0;spells_list[j].reagents_id[i]>0;i++) { 	
 			draw_item(spells_list[j].reagents_id[i],x+grid_size*i,y,grid_size);
 			safe_snprintf((char *)str, sizeof(str), "%i",spells_list[j].reagents_qt[i]);
-			scaled_draw_string_small_shadowed(x+grid_size*i, y+grid_size*0.5, (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);
+			draw_string_small_shadowed_zoomed(x+grid_size*i, y+grid_size*0.5, (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
 			if(spells_list[j].uncastable&UNCASTABLE_REAGENTS) gray_out(x+grid_size*i,y+1,grid_size-1);
 		}
 		//draw mana
