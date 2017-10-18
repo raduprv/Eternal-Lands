@@ -160,13 +160,13 @@ static int display_emotes_handler(window_info *win)
 	glEnable(GL_TEXTURE_2D);
 	
 	SET_COLOR(c_orange1);
-	scaled_draw_string_small(border_space, top_border - win->small_font_len_y, (unsigned char*)"Categories",1);
-	scaled_draw_string_small(border_space, top_border + emotes_rect_y + box_sep  - win->small_font_len_y, (unsigned char*)"Emotes",1);
+	draw_string_small_zoomed(border_space, top_border - win->small_font_len_y, (unsigned char*)"Categories",1, win->current_scale);
+	draw_string_small_zoomed(border_space, top_border + emotes_rect_y + box_sep  - win->small_font_len_y, (unsigned char*)"Emotes",1, win->current_scale);
 
 	for(i=0;i<EMOTES_CATEGORIES;i++){
 		if(cur_cat==i) SET_COLOR(c_blue2);
 		else glColor3f(1.0f, 1.0f, 1.0f);
-		scaled_draw_string_small(border_space + inbox_space, top_border + inbox_space + category_y_step * i, (unsigned char*)emote_cats[i],1);
+		draw_string_small_zoomed(border_space + inbox_space, top_border + inbox_space + category_y_step * i, (unsigned char*)emote_cats[i],1, win->current_scale);
 	}
 
 	for(i=0;i<EMOTES_SHOWN;i++){
@@ -174,7 +174,7 @@ static int display_emotes_handler(window_info *win)
 		else glColor3f(1.0f, 1.0f, 1.0f);
 		if(cur_cat&&act&&selectables[i]==act->poses[cur_cat-1]) SET_COLOR(c_green1);
 		if(selectables[i])
-			scaled_draw_string_small(border_space + inbox_space, top_border + emotes_rect_y + box_sep + inbox_space + category_y_step * i, (unsigned char*)selectables[i]->name,1);
+			draw_string_small_zoomed(border_space + inbox_space, top_border + emotes_rect_y + box_sep + inbox_space + category_y_step * i, (unsigned char*)selectables[i]->name,1, win->current_scale);
 	}
 	glColor3f(0.77f, 0.57f, 0.39f);
 	//do grids
@@ -187,8 +187,8 @@ static int display_emotes_handler(window_info *win)
 
 	//draw description
 	if(emote_sel[cur_cat]){
-		scaled_draw_string_small(border_space, win->len_y - border_space - (3 * win->small_font_len_y), emote_str1,2);
-		scaled_draw_string_small(border_space, win->len_y - border_space - (1 * win->small_font_len_y), emote_str2,1);
+		draw_string_small_zoomed(border_space, win->len_y - border_space - (3 * win->small_font_len_y), emote_str1,2, win->current_scale);
+		draw_string_small_zoomed(border_space, win->len_y - border_space - (1 * win->small_font_len_y), emote_str2,1, win->current_scale);
 	}
 
 #ifdef OPENGL_TRACE

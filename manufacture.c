@@ -708,7 +708,7 @@ static int	display_manufacture_handler(window_info *win)
 		scaled_put_small_text_in_box((unsigned char*)inventory_item_string, strlen(inventory_item_string), win->len_x-2*win->small_font_len_x, items_string);
 		last_items_string_id = inventory_item_string_id;
 	}
-	scaled_draw_string_small(win->small_font_len_x,manufacture_menu_y_len-text_y_offset,(unsigned char *)items_string,4);
+	draw_string_small_zoomed(win->small_font_len_x,manufacture_menu_y_len-text_y_offset,(unsigned char *)items_string,4, win->current_scale);
 
 	// Render the grid *after* the images. It seems impossible to code
 	// it such that images are rendered exactly within the boxes on all

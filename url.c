@@ -581,7 +581,7 @@ CHECK_GL_ERRORS();
 						}
 						strncpy(help_substring, &full_help_text[dsp_start], dsp_string_len);
 						help_substring[dsp_string_len] = '\0';
-						scaled_draw_string_small(url_win_sep, url_win_full_url_y_start + url_win_sep + helpline++ * win->small_font_len_y, (const unsigned char*)help_substring, 1);
+						draw_string_small_zoomed(url_win_sep, url_win_full_url_y_start + url_win_sep + helpline++ * win->small_font_len_y, (const unsigned char*)help_substring, 1, win->current_scale);
 						dsp_start += dsp_string_len;
 						dsp_string_len = 0;
 						string_width = 0;

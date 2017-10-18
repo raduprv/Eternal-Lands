@@ -337,8 +337,8 @@ static int display_advice_handler (window_info *win)
 			glEnable(GL_TEXTURE_2D);
 
 			glColor3f(1.0f,1.0f,1.0f);
-			scaled_draw_string_small(x, y, (unsigned char*)help_str, 1);
-			scaled_draw_string_small((win->len_x - (len - i - 1)*win->small_font_len_x)/2, y + 2 + win->small_font_len_y, (unsigned char*)(help_str + i + 1), 1);
+			draw_string_small_zoomed(x, y, (unsigned char*)help_str, 1, win->current_scale);
+			draw_string_small_zoomed((win->len_x - (len - i - 1)*win->small_font_len_x)/2, y + 2 + win->small_font_len_y, (unsigned char*)(help_str + i + 1), 1, win->current_scale);
 			help_str[i] = ' ';
 		}
 	}
@@ -483,9 +483,9 @@ static int display_newchar_handler (window_info *win)
 	glColor3f(251/255.0f, 250/255.0f, 190/255.0f);
 	{
 		int y_off = win->len_y - HUD_MARGIN_Y + (HUD_MARGIN_Y - 2 * win->small_font_len_y) / 2;
-		scaled_draw_string_small(get_icons_win_active_len() + win->small_font_len_x, y_off, (unsigned char*)zoom_in_out, 1);
+		draw_string_small_zoomed(get_icons_win_active_len() + win->small_font_len_x, y_off, (unsigned char*)zoom_in_out, 1, win->current_scale);
 		y_off += win->small_font_len_y;
-		scaled_draw_string_small(get_icons_win_active_len() + win->small_font_len_x, y_off, (unsigned char*)rotate_camera, 1);
+		draw_string_small_zoomed(get_icons_win_active_len() + win->small_font_len_x, y_off, (unsigned char*)rotate_camera, 1, win->current_scale);
 	}
 
 	Leave2DMode ();
@@ -885,7 +885,8 @@ static int click_namepass_field(widget_list *w, int mx, int my, Uint32 flags)
 
 static int errorbox_draw(widget_list *w)
 {
-	scaled_draw_string_small(w->pos_x, w->pos_y, (unsigned char*)create_char_error_str, 8);
+	if (w->window_id >= 0 && w->window_id < windows_list.num_windows)
+		draw_string_small_zoomed(w->pos_x, w->pos_y, (unsigned char*)create_char_error_str, 8, windows_list.window[w->window_id].current_scale);
 	return 1;
 }
 

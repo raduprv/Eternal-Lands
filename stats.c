@@ -46,7 +46,7 @@ int floatingmessages_enabled = 1;
 void floatingmessages_add_level(int actor_id, int level, const unsigned char * skillname);
 void floatingmessages_compare_stat(int actor_id, int value, int new_value, const unsigned char *skillname);
 
-static void draw_stat_final(int x, int y, const unsigned char * name, const char * value);
+static void draw_stat_final(window_info *win, int x, int y, const unsigned char * name, const char * value);
 
 
 void get_the_stats(Sint16 *stats, size_t len_in_bytes)
@@ -646,15 +646,15 @@ void init_attribf()
         your_info.eth.cur=get_cur_eth;
 }
 
-static void draw_stat(int x, int y, attrib_16 * var, names * name)
+static void draw_stat(window_info *win, int x, int y, attrib_16 * var, names * name)
 {
         char str[10];
         safe_snprintf(str,sizeof(str),"%3i/%-3i",var->cur,var->base);
         str[9]=0;
-        draw_stat_final(x,y,name->name,str);
+        draw_stat_final(win, x, y, name->name, str);
 }
 
-static void draw_skill(int x, int y, attrib_16 * lvl, names * name, Uint32 exp, Uint32 exp_next)
+static void draw_skill(window_info *win, int x, int y, attrib_16 * lvl, names * name, Uint32 exp, Uint32 exp_next)
 {
         char str[37];
         char lvlstr[9];
@@ -663,24 +663,24 @@ static void draw_skill(int x, int y, attrib_16 * lvl, names * name, Uint32 exp, 
         safe_snprintf(lvlstr, sizeof(lvlstr), "%3i/%-3i", lvl->cur, lvl->base);
         safe_snprintf(expstr,sizeof(expstr),"%10u/%-10u", exp, exp_next);
         safe_snprintf(str, sizeof(str), "%-7s %-22s", lvlstr, expstr);
-        draw_stat_final(x, y, name->name, str);
+        draw_stat_final(win, x, y, name->name, str);
 }
 
-static void draw_statf(int x, int y, attrib_16f * var, names * name)
+static void draw_statf(window_info *win, int x, int y, attrib_16f * var, names * name)
 {
         char str[10];
 
         safe_snprintf(str,sizeof(str),"%3i/%-3i",var->cur(),var->base());
         str[9]=0;
-        draw_stat_final(x,y,name->name,str);
+        draw_stat_final(win, x, y, name->name, str);
 }
 
-static void draw_stat_final(int x, int y, const unsigned char * name, const char * value)
+static void draw_stat_final(window_info *win, int x, int y, const unsigned char * name, const char * value)
 {
         char str[80];
 
         safe_snprintf(str,sizeof(str),"%-15s %s",name,value);
-        scaled_draw_string_small(x, y, (unsigned char*)str, 1);
+        draw_string_small_zoomed(x, y, (unsigned char*)str, 1, win->current_scale);
 }
 
 int display_stats_handler(window_info *win)
@@ -695,106 +695,106 @@ int display_stats_handler(window_info *win)
 
         stats_y_step = (int)(0.5 + win->small_font_len_y);
 
-        scaled_draw_string_small(x,y,attributes.base,1);
+        draw_string_small_zoomed(x,y,attributes.base,1, win->current_scale);
         y+=stats_y_step;
-        draw_stat(x,y,&(cur_stats.phy),&(attributes.phy));
+        draw_stat(win,x,y,&(cur_stats.phy),&(attributes.phy));
 
         y+=stats_y_step;
-        draw_stat(x,y,&(cur_stats.coo),&(attributes.coo));
+        draw_stat(win,x,y,&(cur_stats.coo),&(attributes.coo));
 
         y+=stats_y_step;
-        draw_stat(x,y,&(cur_stats.rea),&(attributes.rea));
+        draw_stat(win,x,y,&(cur_stats.rea),&(attributes.rea));
 
         y+=stats_y_step;
-        draw_stat(x,y,&(cur_stats.wil),&(attributes.wil));
+        draw_stat(win,x,y,&(cur_stats.wil),&(attributes.wil));
 
         y+=stats_y_step;
-        draw_stat(x,y,&(cur_stats.ins),&(attributes.ins));
+        draw_stat(win,x,y,&(cur_stats.ins),&(attributes.ins));
 
         y+=stats_y_step;
-        draw_stat(x,y,&(cur_stats.vit),&(attributes.vit));
+        draw_stat(win,x,y,&(cur_stats.vit),&(attributes.vit));
 
         //cross attributes
         glColor3f(1.0f,1.0f,0.0f);
         y+=y_gap_step;
 
-        scaled_draw_string_small(x,y,attributes.cross,1);
+        draw_string_small_zoomed(x,y,attributes.cross,1, win->current_scale);
         y+=stats_y_step;
-        draw_statf(x,y,&(cur_stats.might),&(attributes.might));
+        draw_statf(win,x,y,&(cur_stats.might),&(attributes.might));
 
         y+=stats_y_step;
-        draw_statf(x,y,&(cur_stats.matter),&(attributes.matter));
+        draw_statf(win,x,y,&(cur_stats.matter),&(attributes.matter));
 
         y+=stats_y_step;
-        draw_statf(x,y,&(cur_stats.tough),&(attributes.tough));
+        draw_statf(win,x,y,&(cur_stats.tough),&(attributes.tough));
 
         y+=stats_y_step;
-        draw_statf(x,y,&(cur_stats.charm),&(attributes.charm));
+        draw_statf(win,x,y,&(cur_stats.charm),&(attributes.charm));
 
         y+=stats_y_step;
-        draw_statf(x,y,&(cur_stats.react),&(attributes.react));
+        draw_statf(win,x,y,&(cur_stats.react),&(attributes.react));
 
         y+=stats_y_step;
-        draw_statf(x,y,&(cur_stats.perc),&(attributes.perc));
+        draw_statf(win,x,y,&(cur_stats.perc),&(attributes.perc));
 
         y+=stats_y_step;
-        draw_statf(x,y,&(cur_stats.ration),&(attributes.ration));
+        draw_statf(win,x,y,&(cur_stats.ration),&(attributes.ration));
 
         y+=stats_y_step;
-        draw_statf(x,y,&(cur_stats.dext),&(attributes.dext));
+        draw_statf(win,x,y,&(cur_stats.dext),&(attributes.dext));
 
         y+=stats_y_step;
-        draw_statf(x,y,&(cur_stats.eth),&(attributes.eth));
+        draw_statf(win,x,y,&(cur_stats.eth),&(attributes.eth));
 
         // draw the point attributes
         glColor3f(0.5f,0.5f,1.0f);
 
         y+=y_gap_step;
-        draw_stat(x,y,&(cur_stats.material_points),&(attributes.material_points));
+        draw_stat(win,x,y,&(cur_stats.material_points),&(attributes.material_points));
 
         y+=stats_y_step;
-        draw_stat(x,y,&(cur_stats.ethereal_points),&(attributes.ethereal_points));
+        draw_stat(win,x,y,&(cur_stats.ethereal_points),&(attributes.ethereal_points));
 
         y+=stats_y_step;
-        draw_stat(x,y,&(cur_stats.action_points),&(attributes.action_points));
+        draw_stat(win,x,y,&(cur_stats.action_points),&(attributes.action_points));
 
         //other info
         y = win->len_y - win->small_font_len_y * 1.25;
         safe_snprintf(str, sizeof(str), "%3i",cur_stats.food_level);
-        draw_stat_final(x,y,attributes.food.name,str);
+        draw_stat_final(win,x,y,attributes.food.name,str);
 
         safe_snprintf(str, sizeof(str), "%3i",cur_stats.overall_skill.base-cur_stats.overall_skill.cur);
-        draw_stat_final(x+c2_x_offset,y,attributes.pickpoints,str);
+        draw_stat_final(win,x+c2_x_offset,y,attributes.pickpoints,str);
 
         //nexuses here
         glColor3f(1.0f,1.0f,1.0f);
         x+=c2_x_offset;
         y=start_y;
 
-        scaled_draw_string_small(x,y,attributes.nexus,1);
+        draw_string_small_zoomed(x,y,attributes.nexus,1, win->current_scale);
 
         y+=stats_y_step;
-        draw_stat(x,y,&(cur_stats.human_nex),&(attributes.human_nex));
+        draw_stat(win,x,y,&(cur_stats.human_nex),&(attributes.human_nex));
 
         y+=stats_y_step;
-        draw_stat(x,y,&(cur_stats.animal_nex),&(attributes.animal_nex));
+        draw_stat(win,x,y,&(cur_stats.animal_nex),&(attributes.animal_nex));
 
         y+=stats_y_step;
-        draw_stat(x,y,&(cur_stats.vegetal_nex),&(attributes.vegetal_nex));
+        draw_stat(win,x,y,&(cur_stats.vegetal_nex),&(attributes.vegetal_nex));
 
         y+=stats_y_step;
-        draw_stat(x,y,&(cur_stats.inorganic_nex),&(attributes.inorganic_nex));
+        draw_stat(win,x,y,&(cur_stats.inorganic_nex),&(attributes.inorganic_nex));
 
         y+=stats_y_step;
-        draw_stat(x,y,&(cur_stats.artificial_nex),&(attributes.artificial_nex));
+        draw_stat(win,x,y,&(cur_stats.artificial_nex),&(attributes.artificial_nex));
 
         y+=stats_y_step;
-        draw_stat(x,y,&(cur_stats.magic_nex),&(attributes.magic_nex));
+        draw_stat(win,x,y,&(cur_stats.magic_nex),&(attributes.magic_nex));
 
         y+=y_gap_step;
         //skills
         glColor3f(1.0f,0.5f,0.2f);
-        scaled_draw_string_small(x,y,attributes.skills,1);
+        draw_string_small_zoomed(x,y,attributes.skills,1, win->current_scale);
 
         y+=stats_y_step;
 
@@ -802,55 +802,55 @@ int display_stats_handler(window_info *win)
         check_grid_y_top=y;
 
         statsinfo[0].is_selected==1?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
-        draw_skill(x,y,&(cur_stats.attack_skill),&(attributes.attack_skill),cur_stats.attack_exp,cur_stats.attack_exp_next_lev);
+        draw_skill(win,x,y,&(cur_stats.attack_skill),&(attributes.attack_skill),cur_stats.attack_exp,cur_stats.attack_exp_next_lev);
 
         y+=stats_y_step;
         statsinfo[1].is_selected==1?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
-        draw_skill(x,y,&(cur_stats.defense_skill),&(attributes.defense_skill),cur_stats.defense_exp,cur_stats.defense_exp_next_lev);
+        draw_skill(win,x,y,&(cur_stats.defense_skill),&(attributes.defense_skill),cur_stats.defense_exp,cur_stats.defense_exp_next_lev);
 
         y+=stats_y_step;
         statsinfo[2].is_selected==1?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
-        draw_skill(x,y,&(cur_stats.harvesting_skill),&(attributes.harvesting_skill),cur_stats.harvesting_exp,cur_stats.harvesting_exp_next_lev);
+        draw_skill(win,x,y,&(cur_stats.harvesting_skill),&(attributes.harvesting_skill),cur_stats.harvesting_exp,cur_stats.harvesting_exp_next_lev);
 
         y+=stats_y_step;
         statsinfo[3].is_selected==1?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
-        draw_skill(x,y,&(cur_stats.alchemy_skill),&(attributes.alchemy_skill),cur_stats.alchemy_exp,cur_stats.alchemy_exp_next_lev);
+        draw_skill(win,x,y,&(cur_stats.alchemy_skill),&(attributes.alchemy_skill),cur_stats.alchemy_exp,cur_stats.alchemy_exp_next_lev);
 
         y+=stats_y_step;
         statsinfo[4].is_selected==1?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
-        draw_skill(x,y,&(cur_stats.magic_skill),&(attributes.magic_skill),cur_stats.magic_exp,cur_stats.magic_exp_next_lev);
+        draw_skill(win,x,y,&(cur_stats.magic_skill),&(attributes.magic_skill),cur_stats.magic_exp,cur_stats.magic_exp_next_lev);
 
         y+=stats_y_step;
         statsinfo[5].is_selected==1?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
-        draw_skill(x,y,&(cur_stats.potion_skill),&(attributes.potion_skill),cur_stats.potion_exp,cur_stats.potion_exp_next_lev);
+        draw_skill(win,x,y,&(cur_stats.potion_skill),&(attributes.potion_skill),cur_stats.potion_exp,cur_stats.potion_exp_next_lev);
 
         y+=stats_y_step;
         statsinfo[6].is_selected==1?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
-        draw_skill(x,y,&(cur_stats.summoning_skill),&(attributes.summoning_skill),cur_stats.summoning_exp,cur_stats.summoning_exp_next_lev);
+        draw_skill(win,x,y,&(cur_stats.summoning_skill),&(attributes.summoning_skill),cur_stats.summoning_exp,cur_stats.summoning_exp_next_lev);
 
         y+=stats_y_step;
         statsinfo[7].is_selected==1?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
-        draw_skill(x,y,&(cur_stats.manufacturing_skill),&(attributes.manufacturing_skill),cur_stats.manufacturing_exp,cur_stats.manufacturing_exp_next_lev);
+        draw_skill(win,x,y,&(cur_stats.manufacturing_skill),&(attributes.manufacturing_skill),cur_stats.manufacturing_exp,cur_stats.manufacturing_exp_next_lev);
 
         y+=stats_y_step;
         statsinfo[8].is_selected==1?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
-        draw_skill(x,y,&(cur_stats.crafting_skill),&(attributes.crafting_skill),cur_stats.crafting_exp,cur_stats.crafting_exp_next_lev);
+        draw_skill(win,x,y,&(cur_stats.crafting_skill),&(attributes.crafting_skill),cur_stats.crafting_exp,cur_stats.crafting_exp_next_lev);
 
         y+=stats_y_step;
         statsinfo[9].is_selected==1?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
-        draw_skill(x,y,&(cur_stats.engineering_skill),&(attributes.engineering_skill),cur_stats.engineering_exp,cur_stats.engineering_exp_next_lev);
+        draw_skill(win,x,y,&(cur_stats.engineering_skill),&(attributes.engineering_skill),cur_stats.engineering_exp,cur_stats.engineering_exp_next_lev);
 
         y+=stats_y_step;
         statsinfo[10].is_selected==1?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
-        draw_skill(x,y,&(cur_stats.tailoring_skill),&(attributes.tailoring_skill),cur_stats.tailoring_exp,cur_stats.tailoring_exp_next_lev);
+        draw_skill(win,x,y,&(cur_stats.tailoring_skill),&(attributes.tailoring_skill),cur_stats.tailoring_exp,cur_stats.tailoring_exp_next_lev);
 
         y+=stats_y_step;
         statsinfo[11].is_selected==1?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
-        draw_skill(x,y,&(cur_stats.ranging_skill),&(attributes.ranging_skill),cur_stats.ranging_exp,cur_stats.ranging_exp_next_lev);
+        draw_skill(win,x,y,&(cur_stats.ranging_skill),&(attributes.ranging_skill),cur_stats.ranging_exp,cur_stats.ranging_exp_next_lev);
 
         y+=stats_y_step;
         statsinfo[12].is_selected==1?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
-        draw_skill(x,y,&(cur_stats.overall_skill),&(attributes.overall_skill),cur_stats.overall_exp,cur_stats.overall_exp_next_lev);
+        draw_skill(win,x,y,&(cur_stats.overall_skill),&(attributes.overall_skill),cur_stats.overall_exp,cur_stats.overall_exp_next_lev);
 
         return 1;
 }

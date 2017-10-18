@@ -825,12 +825,12 @@ void Quest_List::display_handler(window_info *win)
 		if (thequest->get_title().size() > disp_chars)
 		{
 			std::string todisp = thequest->get_title().substr(0,disp_chars);
-			scaled_draw_string_small(2*spacer, posy, (const unsigned char*)todisp.c_str(), 1);
+			draw_string_small_zoomed(2*spacer, posy, (const unsigned char*)todisp.c_str(), 1, win->current_scale);
 		}
 		else if (thequest->get_title().empty())
-			scaled_draw_string_small(2*spacer, posy, (const unsigned char*)"???", 1);
+			draw_string_small_zoomed(2*spacer, posy, (const unsigned char*)"???", 1, win->current_scale);
 		else
-			scaled_draw_string_small(2*spacer, posy, (const unsigned char*)thequest->get_title().c_str(), 1);
+			draw_string_small_zoomed(2*spacer, posy, (const unsigned char*)thequest->get_title().c_str(), 1, win->current_scale);
 		thequest = get_next_quest();
 		posy += linesep;
 	}
@@ -1257,7 +1257,7 @@ void NPC_Filter::display_handler(window_info *win)
 		glEnable(GL_TEXTURE_2D);
 
 		// draw the string
-		scaled_draw_string_small(posx + npc_name_box_size + npc_name_space, posy, (unsigned char*)i->first.c_str(), 1);
+		draw_string_small_zoomed(posx + npc_name_box_size + npc_name_space, posy, (unsigned char*)i->first.c_str(), 1, win->current_scale);
 
 		// control row and col values
 		col++;
@@ -1731,7 +1731,7 @@ int Questlog_Window::display_handler(window_info *win)
 		glColor3f(1.0f, 1.0f, 1.0f);
 		for (std::vector<std::string>::const_iterator line = lines.begin(); line != lines.end(); ++line)
 		{
-			scaled_draw_string_small(qlborder+gx_adjust, questlog_y+gy_adjust, reinterpret_cast<const unsigned char *>(line->c_str()), 1);
+			draw_string_small_zoomed(qlborder+gx_adjust, questlog_y+gy_adjust, reinterpret_cast<const unsigned char *>(line->c_str()), 1, win->current_scale);
 			questlog_y += win->small_font_len_y;
 			if (questlog_y+qlborder > qlwinheight - win->small_font_len_y)
 				break;
@@ -1740,8 +1740,8 @@ int Questlog_Window::display_handler(window_info *win)
 		if ((cm_questlog_over_entry < active_entries.size()) && (entry == cm_questlog_over_entry))
 		{
 			glColor3f(0.77f, 0.57f, 0.39f);
-			scaled_draw_string_small(qlborder+gx_adjust, start_y+gy_adjust,
-				reinterpret_cast<const unsigned char *>(quest_entries[active_entries[entry]].get_disp_npc().c_str()), 1);
+			draw_string_small_zoomed(qlborder+gx_adjust, start_y+gy_adjust,
+				reinterpret_cast<const unsigned char *>(quest_entries[active_entries[entry]].get_disp_npc().c_str()), 1, win->current_scale);
 		}
 		if (selected_entries.find(active_entries[entry]) != selected_entries.end())
 			draw_underline(qlborder, start_y + win->small_font_len_y,

@@ -1066,12 +1066,12 @@ namespace ItemLists
 			if (lists[i].get_name().size() > disp_chars)
 			{
 				std::string todisp = lists[i].get_name().substr(0,disp_chars);
-				scaled_draw_string_small(get_list_gap(), pos_y, reinterpret_cast<const unsigned char*>(todisp.c_str()), 1);
+				draw_string_small_zoomed(get_list_gap(), pos_y, reinterpret_cast<const unsigned char*>(todisp.c_str()), 1, win->current_scale);
 				if (i==name_under_mouse)
 					show_help(lists[i].get_name().c_str(), 0, static_cast<int>(0.5 + win->len_y + 10 + win->small_font_len_y * help_lines_shown), win->current_scale);
 			}
 			else
-				scaled_draw_string_small(get_list_gap(), pos_y, reinterpret_cast<const unsigned char*>(lists[i].get_name().c_str()), 1);
+				draw_string_small_zoomed(get_list_gap(), pos_y, reinterpret_cast<const unsigned char*>(lists[i].get_name().c_str()), 1, win->current_scale);
 			pos_y += static_cast<int>(names_list_height + get_list_gap());
 			num_shown++;
 		}

@@ -728,15 +728,15 @@ int display_counters_handler(window_info *win)
 
 	if (mouseover_name) glColor3f(0.6f, 0.6f, 0.6f);
 	else glColor3f(1.0f, 1.0f, 1.0f);
-	scaled_draw_string_small(x, y, (unsigned char*)name_str, 1);
+	draw_string_small_zoomed(x, y, (unsigned char*)name_str, 1, win->current_scale);
 
 	if (mouseover_session) glColor3f(0.6f, 0.6f, 0.6f);
 	else glColor3f(1.0f, 1.0f, 1.0f);
-	scaled_draw_string_small(session_x_start, y, (unsigned char*)session_str, 1);
+	draw_string_small_zoomed(session_x_start, y, (unsigned char*)session_str, 1, win->current_scale);
 
 	if (mouseover_total) glColor3f(0.6f, 0.6f, 0.6f);
 	else glColor3f(1.0f, 1.0f, 1.0f);
-	scaled_draw_string_small(total_x_start, y, (unsigned char*)total_str, 1);
+	draw_string_small_zoomed(total_x_start, y, (unsigned char*)total_str, 1, win->current_scale);
 
 	if (counters_scroll_id != -1) {
 		scroll = vscrollbar_get_pos(win->window_id, counters_scroll_id);
@@ -771,9 +771,9 @@ int display_counters_handler(window_info *win)
 
 		/* draw first so left padding does not overwrite name */
 		safe_snprintf(buffer, sizeof(buffer), "%11u", counters[i][j].n_session);
-		scaled_draw_string_small(session_x_num_start, y, (unsigned char*)buffer, 1);
+		draw_string_small_zoomed(session_x_num_start, y, (unsigned char*)buffer, 1, win->current_scale);
 		safe_snprintf(buffer, sizeof(buffer), "%11u", counters[i][j].n_total);
-		scaled_draw_string_small(total_x_num_start, y, (unsigned char*)buffer, 1);
+		draw_string_small_zoomed(total_x_num_start, y, (unsigned char*)buffer, 1, win->current_scale);
 
 		if (counters[i][j].name) {
 			float max_name_x;
@@ -786,7 +786,7 @@ int display_counters_handler(window_info *win)
 				size_t dest_max_len = strlen(counters[i][j].name) + strlen(append_str) + 1;
 				char *used_name = (char *)malloc(dest_max_len);
 				truncated_string(used_name, counters[i][j].name, dest_max_len, append_str, max_name_x, font_ratio);
-				scaled_draw_string_small(x, y, (unsigned char*)used_name, 1);
+				draw_string_small_zoomed(x, y, (unsigned char*)used_name, 1, win->current_scale);
 				/* if the mouse is over this line and its truncated, tooltip to full name */
 				if (mouseover_entry_y >= y && mouseover_entry_y < y+step_y) {
 					show_help(counters[i][j].name, -TAB_MARGIN, win->len_y+10+TAB_MARGIN, win->current_scale);
@@ -795,7 +795,7 @@ int display_counters_handler(window_info *win)
 				free(used_name);
 			}
 			else
-				scaled_draw_string_small(x, y, (unsigned char*)counters[i][j].name, 1);
+				draw_string_small_zoomed(x, y, (unsigned char*)counters[i][j].name, 1, win->current_scale);
 		}
 		y += step_y;
 	}
@@ -807,7 +807,7 @@ int display_counters_handler(window_info *win)
 
 	glColor3f(1.0f, 1.0f, 1.0f);
 
-	scaled_draw_string_small(x, win->len_y - (margin_y_len - space_y), (unsigned char*)totals_str, 1);
+	draw_string_small_zoomed(x, win->len_y - (margin_y_len - space_y), (unsigned char*)totals_str, 1, win->current_scale);
 
 	for (j = 0, total = 0, session_total = 0; j < entries[i]; j++) {
 		total += counters[i][j].n_total;
@@ -815,10 +815,10 @@ int display_counters_handler(window_info *win)
 	}
 
 	safe_snprintf(buffer, sizeof(buffer), "%11u", session_total);
-	scaled_draw_string_small(session_x_num_start, win->len_y - (margin_y_len - space_y), (unsigned char*)buffer, 1);
+	draw_string_small_zoomed(session_x_num_start, win->len_y - (margin_y_len - space_y), (unsigned char*)buffer, 1, win->current_scale);
 
 	safe_snprintf(buffer, sizeof(buffer), "%11u", total);
-	scaled_draw_string_small(total_x_num_start, win->len_y - (margin_y_len - space_y), (unsigned char*)buffer, 1);
+	draw_string_small_zoomed(total_x_num_start, win->len_y - (margin_y_len - space_y), (unsigned char*)buffer, 1, win->current_scale);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE

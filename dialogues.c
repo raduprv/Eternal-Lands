@@ -251,7 +251,7 @@ static int display_dialogue_handler(window_info *win)
 	}
 
 	//draw the main text
-	scaled_draw_string_small(char_frame_size + border_space, border_space, dialogue_string, MAX_MESS_LINES);
+	draw_string_small_zoomed(char_frame_size + border_space, border_space, dialogue_string, MAX_MESS_LINES, win->current_scale);
 
 	//ok, now draw the responses
 	for(i=0;i<MAX_RESPONSES;i++)
@@ -276,7 +276,7 @@ static int display_dialogue_handler(window_info *win)
 			else
 				safe_snprintf((char*)str,sizeof(str),"%s",(unsigned char*)dialogue_responces[i].text);
 			last_pos_y = dialogue_responces[i].pos_y;
-			scaled_draw_string_small(dialogue_responces[i].pos_x, last_pos_y, str, 1);
+			draw_string_small_zoomed(dialogue_responces[i].pos_x, last_pos_y, str, 1, win->current_scale);
 		}
 		else
 			break;
@@ -291,13 +291,13 @@ static int display_dialogue_handler(window_info *win)
 
 	//now, draw the character name
 	glColor3f(1.0f,1.0f,1.0f);
-	scaled_draw_string_small(npc_name_x_start, win->len_y - bot_line_height, npc_name, 1);
+	draw_string_small_zoomed(npc_name_x_start, win->len_y - bot_line_height, npc_name, 1, win->current_scale);
 
 	if (highlight_close)
 		glColor3f(1.0f,0.5f,0.0f);
 	else
 		glColor3f(1.0f,1.0f,1.0f);
-	scaled_draw_string_small(close_pos_x, win->len_y - bot_line_height, (unsigned char*)close_str, 1);
+	draw_string_small_zoomed(close_pos_x, win->len_y - bot_line_height, (unsigned char*)close_str, 1, win->current_scale);
 
 	if (copy_end_highlight_time > SDL_GetTicks())
 		glColor3f(1.0f,0.25f,0.0f);
@@ -305,7 +305,7 @@ static int display_dialogue_handler(window_info *win)
 		glColor3f(1.0f,0.5f,0.0f);
 	else
 		glColor3f(1.0f,1.0f,1.0f);
-	scaled_draw_string_small(copy_pos_x, win->len_y - bot_line_height, (unsigned char*)dialogue_copy_str, 1);
+	draw_string_small_zoomed(copy_pos_x, win->len_y - bot_line_height, (unsigned char*)dialogue_copy_str, 1, win->current_scale);
 
 	if (!saved_response_init)
 		glColor3f(0.5f,0.5f,0.5f);
@@ -315,7 +315,7 @@ static int display_dialogue_handler(window_info *win)
 		glColor3f(1.0f,0.5f,0.0f);
 	else
 		glColor3f(1.0f,1.0f,1.0f);
-	scaled_draw_string_small(repeat_pos_x, win->len_y - bot_line_height, (unsigned char*)dialogue_repeat_str, 1);
+	draw_string_small_zoomed(repeat_pos_x, win->len_y - bot_line_height, (unsigned char*)dialogue_repeat_str, 1, win->current_scale);
 
 	// display help text if appropriate
 	if ((show_help_text) && (highlight_repeat || highlight_copy || mouse_over_name))

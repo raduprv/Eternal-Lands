@@ -855,14 +855,6 @@ void draw_string_small(int x, int y,const unsigned char * our_string,int max_lin
 	draw_string_small_zoomed(x, y, our_string, max_lines, 1.0);
 }
 
-void scaled_draw_string_small(int x, int y,const unsigned char * our_string,int max_lines)
-{
-	draw_string_small_zoomed(x, y, our_string, max_lines, ui_scale);
-}
-
-
-
-
 #ifdef	ELC
 #ifndef MAP_EDITOR2
 

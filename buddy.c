@@ -123,7 +123,7 @@ static int display_buddy_handler(window_info *win)
 				case 0xFE:glColor3f(0.5,0.55,0.60);break;
 				default:glColor3f(1.0,1.0,1.0);//invalid number? make it white
 			}
-			scaled_draw_string_small(buddy_border_space, y, (unsigned char*)buddy_list[i].name, 1);
+			draw_string_small_zoomed(buddy_border_space, y, (unsigned char*)buddy_list[i].name, 1, win->current_scale);
 			y += buddy_name_step_y;
 		}
 	}
@@ -139,7 +139,7 @@ static int display_buddy_handler(window_info *win)
 			glVertex2i(win->len_x - win->box_size - 1, 0);
 		glEnd();
 		glEnable(GL_TEXTURE_2D);
-		scaled_draw_string_small(request_box_start_x + win->small_font_len_x + gx_adjust, 2 + gy_adjust, (unsigned char*)buddy_request_str, 1);
+		draw_string_small_zoomed(request_box_start_x + win->small_font_len_x + gx_adjust, 2 + gy_adjust, (unsigned char*)buddy_request_str, 1, win->current_scale);
 	}
 	glColor3f(0.77f, 0.57f, 0.39f);
 #ifdef OPENGL_TRACE
@@ -332,7 +332,7 @@ static int display_accept_buddy_handler(window_info *win)
 		glColor3f(0.77f, 0.57f, 0.39f);
 		for(i = 0; i < MAX_ACCEPT_BUDDY_WINDOWS; i++) {
 			if(accept_windows[i].window_id == win->window_id) {
-				scaled_draw_string_small(buddy_border_space, buddy_border_space, (unsigned char*)accept_windows[i].text, 2);
+				draw_string_small_zoomed(buddy_border_space, buddy_border_space, (unsigned char*)accept_windows[i].text, 2, win->current_scale);
 				break;
 			}
 		}

@@ -487,7 +487,7 @@ static int display_ground_items_handler(window_info *win)
 	glColor3f(0.77f,0.57f,0.39f);
 	but_text_x = (int)(0.5 + ((GRIDSIZE - (float)(3 * win->small_font_len_x)) / 2.0));
 	but_text_y = (int)(0.5 + ((GRIDSIZE - (float)(2 * win->small_font_len_y)) / 2.0));
-	scaled_draw_string_small(win->len_x+but_text_x-GRIDSIZE, win->box_size+but_text_y+yoffset, (unsigned char*)my_str, 2);
+	draw_string_small_zoomed(win->len_x+but_text_x-GRIDSIZE, win->box_size+but_text_y+yoffset, (unsigned char*)my_str, 2, win->current_scale);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...

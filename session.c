@@ -144,7 +144,7 @@ int display_session_handler(window_info *win)
 	glColor3f(1.0f, 1.0f, 1.0f);
 	safe_snprintf(buffer, sizeof(buffer), "%-20s%-17s%-17s%-17s",
 		"Skill", "Total Exp", "Max Exp", "Last Exp" );
-	scaled_draw_string_small(x, y, (unsigned char*)buffer, 1);
+	draw_string_small_zoomed(x, y, (unsigned char*)buffer, 1, win->current_scale);
 
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(0.77f, 0.57f, 0.39f);
@@ -167,7 +167,7 @@ int display_session_handler(window_info *win)
 			glColor3f(1.0f, 1.0f, 1.0f);
 		safe_snprintf(buffer, sizeof(buffer), "%-20s%-17u%-17u%-17u",
 			statsinfo[i].skillnames->name, *(statsinfo[i].exp) - session_exp[i], max_exp[i], last_exp[i]);
-		scaled_draw_string_small(x, y, (unsigned char*)buffer, 1);
+		draw_string_small_zoomed(x, y, (unsigned char*)buffer, 1, win->current_scale);
 		y += y_step;
 		if(i < NUM_SKILLS-1)
 			oa_exp += *(statsinfo[i].exp) - session_exp[i];
@@ -176,25 +176,25 @@ int display_session_handler(window_info *win)
 	y += y_step;
 
 	glColor3f(1.0f, 1.0f, 1.0f);
-	scaled_draw_string_small(x, y, (unsigned char*)"Session Time", 1);
+	draw_string_small_zoomed(x, y, (unsigned char*)"Session Time", 1, win->current_scale);
 	timediff = cur_time - session_start_time;
 	safe_snprintf(buffer, sizeof(buffer), "%02d:%02d:%02d", timediff/3600000, (timediff/60000)%60, (timediff/1000)%60);
-	scaled_draw_string_small(x + extra_x_offset, y, (unsigned char*)buffer, 1);
+	draw_string_small_zoomed(x + extra_x_offset, y, (unsigned char*)buffer, 1, win->current_scale);
 
 	y += y_step;
 
-	scaled_draw_string_small(x, y, (unsigned char*)"Exp/Min", 1);
+	draw_string_small_zoomed(x, y, (unsigned char*)"Exp/Min", 1, win->current_scale);
 	
 	if(timediff<=0){
 		timediff=1;
 	}
 	safe_snprintf(buffer, sizeof(buffer), "%2.2f", oa_exp/((float)timediff/60000.0f));
-	scaled_draw_string_small(x + extra_x_offset, y, (unsigned char*)buffer, 1);
+	draw_string_small_zoomed(x + extra_x_offset, y, (unsigned char*)buffer, 1, win->current_scale);
 
 	y += y_step;
-	scaled_draw_string_small(x, y, (unsigned char*)"Distance", 1);
+	draw_string_small_zoomed(x, y, (unsigned char*)"Distance", 1, win->current_scale);
 	safe_snprintf(buffer, sizeof(buffer), "%d", (distance_moved<0) ?0: distance_moved);
-	scaled_draw_string_small(x + extra_x_offset, y, (unsigned char*)buffer, 1);
+	draw_string_small_zoomed(x + extra_x_offset, y, (unsigned char*)buffer, 1, win->current_scale);
 
 	if (show_reset_help)
 	{

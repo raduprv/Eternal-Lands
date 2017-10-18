@@ -1026,13 +1026,13 @@ static void draw_current_spell(window_info *win, int x, int y, int sigils_too, i
 	glColor3f(0.77f,0.57f,0.39f);
 	if(sigils_too) { 
 		x+=grid_size*2;
-		scaled_draw_string_small(x, y - win->small_font_len_y, (unsigned char*)"Sigils", 1);
+		draw_string_small_zoomed(x, y - win->small_font_len_y, (unsigned char*)"Sigils", 1, win->current_scale);
 		x+=grid_size*MAX_SIGILS+grid_size;
 	} else x += grid_size * 1.5;
 
-	scaled_draw_string_small(x, y - win->small_font_len_y, (unsigned char*)"Reagents", 1);
+	draw_string_small_zoomed(x, y - win->small_font_len_y, (unsigned char*)"Reagents", 1, win->current_scale);
 	x+=grid_size*4+((sigils_too) ? (grid_size):(grid_size*0.5));
-	scaled_draw_string_small(x, y - win->small_font_len_y, (unsigned char*)"Mana", 1);
+	draw_string_small_zoomed(x, y - win->small_font_len_y, (unsigned char*)"Mana", 1, win->current_scale);
 
 	//draw grids
 	glDisable(GL_TEXTURE_2D);
@@ -1086,7 +1086,7 @@ static int display_sigils_handler(window_info *win)
 
 	//now, draw the inventory text, if any.
 	scaled_put_small_text_in_box(raw_spell_text, strlen((char *)raw_spell_text), win->len_x-2*sigil_border, (char *)spell_text_buf);
-	scaled_draw_string_small(sigil_border, NUM_SIGILS_ROW * sigil_grid_size + win->small_font_len_y / 2, spell_text_buf, 4);
+	draw_string_small_zoomed(sigil_border, NUM_SIGILS_ROW * sigil_grid_size + win->small_font_len_y / 2, spell_text_buf, 4, win->current_scale);
 
 	// Render the grid *after* the images. It seems impossible to code
 	// it such that images are rendered exactly within the boxes on all
@@ -1125,7 +1125,7 @@ static int display_spells_handler(window_info *win){
 		y=groups_list[i].y;
 		glEnable(GL_TEXTURE_2D);
 		glColor3f(1.0f,1.0f,1.0f);
-		scaled_draw_string_small(x, y-win->small_font_len_y, groups_list[i].desc, 1);
+		draw_string_small_zoomed(x, y-win->small_font_len_y, groups_list[i].desc, 1, win->current_scale);
 		for(k=0,j=0;j<groups_list[i].spells;j++){
 			draw_spell_icon(spells_list[groups_list[i].spells_id[j]].image,
 					x+spell_grid_size*(k%SPELLS_ALIGN_X),
@@ -1143,8 +1143,8 @@ static int display_spells_handler(window_info *win){
 	//draw spell text & help
 	glColor3f(1.0f,1.0f,1.0f);
 	scaled_put_small_text_in_box(raw_spell_text, strlen((char *)raw_spell_text), win->len_x-2*spell_border, (char *)spell_text_buf);
-	scaled_draw_string_small(spell_border, spell_text_y, spell_text_buf, 3);
-	scaled_draw_string_small(spell_border, spell_engred_y + spell_grid_size + spell_border, spell_help, 2);
+	draw_string_small_zoomed(spell_border, spell_text_y, spell_text_buf, 3, win->current_scale);
+	draw_string_small_zoomed(spell_border, spell_engred_y + spell_grid_size + spell_border, spell_help, 2, win->current_scale);
 
 	//draw the bottom bar
 	draw_current_spell(win, spell_border, spell_engred_y, 1, spell_grid_size);
@@ -1185,17 +1185,18 @@ static int display_spells_mini_handler(window_info *win)
 		//mouse over the bottom-left selected spell icon, show uncastability
 		int l=(int)(get_string_width((unsigned char*)GET_UNCASTABLE_STR(spells_list[we_have_spell].uncastable))*(float)DEFAULT_SMALL_RATIO * win->current_scale);
 		SET_COLOR(c_red2);
-		scaled_draw_string_small(spell_mini_border + (spell_mini_grid_size * SPELLS_ALIGN_X - l) / 2,
+		draw_string_small_zoomed(spell_mini_border + (spell_mini_grid_size * SPELLS_ALIGN_X - l) / 2,
 			win->len_y - spell_mini_grid_size - spell_mini_border  - 2.5 * win->small_font_len_y,
-			(unsigned char*)GET_UNCASTABLE_STR(spells_list[we_have_spell].uncastable),1);
+			(unsigned char*)GET_UNCASTABLE_STR(spells_list[we_have_spell].uncastable),1, win->current_scale);
 	} else {
 		i=(on_spell>=0) ? (on_spell):(we_have_spell);
 		if(i>=0){
 			int l=(int)(get_string_width((unsigned char*)spells_list[i].name) * (float)DEFAULT_SMALL_RATIO * win->current_scale);
 			if (on_spell>=0) SET_COLOR(c_grey1);
 			else SET_COLOR(c_green3);
-			scaled_draw_string_small(spell_mini_border + (spell_mini_grid_size * SPELLS_ALIGN_X - l) / 2,
-				win->len_y - spell_mini_grid_size - spell_mini_border - 2.5 * win->small_font_len_y, (unsigned char*)spells_list[i].name, 1);
+			draw_string_small_zoomed(spell_mini_border + (spell_mini_grid_size * SPELLS_ALIGN_X - l) / 2,
+				win->len_y - spell_mini_grid_size - spell_mini_border - 2.5 * win->small_font_len_y,
+				(unsigned char*)spells_list[i].name, 1, win->current_scale);
 		}
 	}
 

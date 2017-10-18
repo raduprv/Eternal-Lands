@@ -283,7 +283,7 @@ void drag_item(int item, int storage, int mini)
 	
 	if(!mini && quantity!=-1){
 		safe_snprintf(str,sizeof(str),"%i",quantity);
-		scaled_draw_string_small(mouse_x-offset, mouse_y+offset-UI_SCALED_VALUE(SMALL_FONT_Y_LEN), (unsigned char*)str, 1);
+		draw_string_small_zoomed(mouse_x-offset, mouse_y+offset-UI_SCALED_VALUE(SMALL_FONT_Y_LEN), (unsigned char*)str, 1, ui_scale);
 	}
 }
 
@@ -499,7 +499,7 @@ int display_items_handler(window_info *win)
 		int text_y_offset = (int)(0.5 + ((but_len_y - (float)(2 * win->small_font_len_y)) / 2.0)) + gy_adjust;
 		strap_word(but_labels[i],my_str);
 		glColor3f(0.77f,0.57f,0.39f);
-		scaled_draw_string_small(but_x_offset+text_x_offset, wear_items_y_offset+but_y_off[i]+text_y_offset, (unsigned char*)my_str, 2);
+		draw_string_small_zoomed(but_x_offset+text_x_offset, wear_items_y_offset+but_y_off[i]+text_y_offset, (unsigned char*)my_str, 2, win->current_scale);
 	}
 
 	x=quantity_x_offset+quantity_width/2;
@@ -508,18 +508,18 @@ int display_items_handler(window_info *win)
 	for(i=0;i<ITEM_EDIT_QUANT;x+=quantity_width,++i){
 		if(i==edit_quantity){
 			glColor3f(1.0f, 0.0f, 0.3f);
-			scaled_draw_string_small(1+gx_adjust+x-strlen(quantities.quantity[i].str)*win->small_font_len_x/2, y+gy_adjust, (unsigned char*)quantities.quantity[i].str, 1);
+			draw_string_small_zoomed(1+gx_adjust+x-strlen(quantities.quantity[i].str)*win->small_font_len_x/2, y+gy_adjust, (unsigned char*)quantities.quantity[i].str, 1, win->current_scale);
 			glColor3f(0.3f, 0.5f, 1.0f);
 		} else if(i==quantities.selected){
 			glColor3f(0.0f, 1.0f, 0.3f);
-			scaled_draw_string_small(1+gx_adjust+x-strlen(quantities.quantity[i].str)*win->small_font_len_x/2, y+gy_adjust, (unsigned char*)quantities.quantity[i].str, 1);
+			draw_string_small_zoomed(1+gx_adjust+x-strlen(quantities.quantity[i].str)*win->small_font_len_x/2, y+gy_adjust, (unsigned char*)quantities.quantity[i].str, 1, win->current_scale);
 			glColor3f(0.3f, 0.5f, 1.0f);
-		} else scaled_draw_string_small(1+gx_adjust+x-strlen(quantities.quantity[i].str)*win->small_font_len_x/2, y+gy_adjust, (unsigned char*)quantities.quantity[i].str, 1);
+		} else draw_string_small_zoomed(1+gx_adjust+x-strlen(quantities.quantity[i].str)*win->small_font_len_x/2, y+gy_adjust, (unsigned char*)quantities.quantity[i].str, 1, win->current_scale);
 	}
-	scaled_draw_string_small(win->len_x-strlen(quantity_str)*win->small_font_len_x-5, quantity_y_offset-quantity_height-1, (unsigned char*)quantity_str, 1);
+	draw_string_small_zoomed(win->len_x-strlen(quantity_str)*win->small_font_len_x-5, quantity_y_offset-quantity_height-1, (unsigned char*)quantity_str, 1, win->current_scale);
 
 	glColor3f(0.57f,0.67f,0.49f);
-	scaled_draw_string_small (wear_items_x_offset + wear_grid_size - (win->small_font_len_x * strlen(equip_str))/2, wear_items_y_offset-win->small_font_len_y-3, (unsigned char*)equip_str, 1);
+	draw_string_small_zoomed (wear_items_x_offset + wear_grid_size - (win->small_font_len_x * strlen(equip_str))/2, wear_items_y_offset-win->small_font_len_y-3, (unsigned char*)equip_str, 1, win->current_scale);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
@@ -622,7 +622,7 @@ int display_items_handler(window_info *win)
 
 	//draw the load string
 	safe_snprintf(str, sizeof(str), "%s: %i/%i", attributes.carry_capacity.shortname, your_info.carry_capacity.cur, your_info.carry_capacity.base);
-	scaled_draw_string_small(2, quantity_y_offset-quantity_height-1, (unsigned char*)str, 1);
+	draw_string_small_zoomed(2, quantity_y_offset-quantity_height-1, (unsigned char*)str, 1, win->current_scale);
 
 	//now, draw the inventory text, if any.
 	if (last_items_string_id != inventory_item_string_id)
@@ -630,7 +630,7 @@ int display_items_handler(window_info *win)
 		scaled_put_small_text_in_box((unsigned char*)inventory_item_string, strlen(inventory_item_string), win->len_x-8, items_string);
 		last_items_string_id = inventory_item_string_id;
 	}
-	scaled_draw_string_small(4, win->len_y - text_y_offset, (unsigned char*)items_string, 4);
+	draw_string_small_zoomed(4, win->len_y - text_y_offset, (unsigned char*)items_string, 4, win->current_scale);
 	
 	// Render the grid *after* the images. It seems impossible to code
 	// it such that images are rendered exactly within the boxes on all 

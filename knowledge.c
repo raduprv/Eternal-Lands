@@ -227,18 +227,18 @@ int display_knowledge_handler(window_info *win)
 	if (selected_book >= 0 && knowledge_list[selected_book].present && knowledge_list[selected_book].has_book)
 		text_width = book_start_x - 2 * text_border;
 	scaled_put_small_text_in_box((unsigned char *)raw_knowledge_string, strlen((char *)raw_knowledge_string), text_width, (char *)knowledge_text_buf);
-	scaled_draw_string_small(text_border,booklist_y_len + text_border,(unsigned char*)knowledge_text_buf, info_lines);
+	draw_string_small_zoomed(text_border,booklist_y_len + text_border,(unsigned char*)knowledge_text_buf, info_lines, win->current_scale);
 	glColor3f(1.0f,1.0f,1.0f);
-	scaled_draw_string_small(text_border,progress_top_y+3+gy_adjust,(unsigned char*)researching_str,1);
-	scaled_draw_string_small(text_border+(strlen(researching_str)+1)*win->small_font_len_x,progress_top_y+3+gy_adjust,(unsigned char*)research_string,1);
-	scaled_draw_string_small(progress_left_x+points_pos+gx_adjust,progress_top_y+3+gy_adjust,(unsigned char*)points_string,1);
+	draw_string_small_zoomed(text_border,progress_top_y+3+gy_adjust,(unsigned char*)researching_str,1, win->current_scale);
+	draw_string_small_zoomed(text_border+(strlen(researching_str)+1)*win->small_font_len_x,progress_top_y+3+gy_adjust,(unsigned char*)research_string,1, win->current_scale);
+	draw_string_small_zoomed(progress_left_x+points_pos+gx_adjust,progress_top_y+3+gy_adjust,(unsigned char*)points_string,1, win->current_scale);
 	if (is_researching && mouse_over_progress_bar)
 	{
 		char eta_string[20];
 		int eta_pos;
 		get_research_eta_str(eta_string, sizeof(eta_string));
 		eta_pos = (int)(progress_right_x - progress_left_x - strlen(eta_string)*win->small_font_len_x) / 2;
-		scaled_draw_string_small(progress_left_x + eta_pos, progress_top_y - win->small_font_len_y + 2, (unsigned char*)eta_string, 1);
+		draw_string_small_zoomed(progress_left_x + eta_pos, progress_top_y - win->small_font_len_y + 2, (unsigned char*)eta_string, 1, win->current_scale);
 		mouse_over_progress_bar=0;
 	}
 	// Draw knowledges

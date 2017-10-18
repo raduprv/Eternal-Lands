@@ -993,19 +993,19 @@ int display_range_handler(window_info *win)
 	safe_snprintf(str, sizeof(str), ranging_total_shots_str, range_total_shots);
 	if (print_to_console) LOG_TO_CONSOLE(c_green1, str);
 	if (max_width < strlen(str)) max_width = strlen(str);
-	scaled_draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
+	draw_string_small_zoomed(pos_x, pos_y, (unsigned char*)str,2, win->current_scale);
 	pos_y += step_y;
 
 	safe_snprintf(str, sizeof(str), ranging_sucessful_shots_str, range_success_hits);
 	if (print_to_console) LOG_TO_CONSOLE(c_green1, str);
 	if (max_width < strlen(str)) max_width = strlen(str);
-	scaled_draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
+	draw_string_small_zoomed(pos_x, pos_y, (unsigned char*)str,2, win->current_scale);
 	pos_y += step_y;
 
 	safe_snprintf(str, sizeof(str), ranging_missed_shots_str, range_total_shots - range_success_hits);
 	if (print_to_console) LOG_TO_CONSOLE(c_green1, str);
 	if (max_width < strlen(str)) max_width = strlen(str);
-	scaled_draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
+	draw_string_small_zoomed(pos_x, pos_y, (unsigned char*)str,2, win->current_scale);
 	pos_y += 2*step_y;
 
 	if(range_success_hits > 0)
@@ -1014,7 +1014,7 @@ int display_range_handler(window_info *win)
 		safe_snprintf(str, sizeof(str), ranging_success_rate_str, 0.0);
 	if (print_to_console) LOG_TO_CONSOLE(c_green1, str);
 	if (max_width < strlen(str)) max_width = strlen(str);
-	scaled_draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
+	draw_string_small_zoomed(pos_x, pos_y, (unsigned char*)str,2, win->current_scale);
 	pos_y += step_y;
 
 	if(range_critical_hits > 0)
@@ -1023,7 +1023,7 @@ int display_range_handler(window_info *win)
 		safe_snprintf(str, sizeof(str), ranging_critical_rate_str, 0.0);
 	if (print_to_console) LOG_TO_CONSOLE(c_green1, str);
 	if (max_width < strlen(str)) max_width = strlen(str);
-	scaled_draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
+	draw_string_small_zoomed(pos_x, pos_y, (unsigned char*)str,2, win->current_scale);
 	pos_y += 2*step_y;
 
 	if(range_total_shots > 0)
@@ -1032,7 +1032,7 @@ int display_range_handler(window_info *win)
 		safe_snprintf(str, sizeof(str), ranging_exp_per_arrow_str, 0.0);
 	if (print_to_console) LOG_TO_CONSOLE(c_green1, str);
 	if (max_width < strlen(str)) max_width = strlen(str);
-	scaled_draw_string_small(pos_x, pos_y, (unsigned char*)str,2);
+	draw_string_small_zoomed(pos_x, pos_y, (unsigned char*)str,2, win->current_scale);
 	pos_y += step_y;
 
 	len_x = (max_width * win->small_font_len_x) + 2*margin + win->box_size;

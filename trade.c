@@ -70,7 +70,7 @@ static int display_trade_handler(window_info *win)
 	}
 	
 	x_off = trade_border + ITEM_COLS / 2 * trade_gridsize - (strlen(accept_str) * win->small_font_len_x) / 2;
-	scaled_draw_string_small(x_off, button_y_bot - win->default_font_len_y * 0.9, (unsigned char*)accept_str, 1);
+	draw_string_small_zoomed(x_off, button_y_bot - win->default_font_len_y * 0.9, (unsigned char*)accept_str, 1, win->current_scale);
 
 	if(trade_other_accepted<=0){    // RED
 		glColor3f(1.0f,0.0f,0.0f);
@@ -81,15 +81,15 @@ static int display_trade_handler(window_info *win)
 	}
 	
 	x_off = trade_border + (ITEM_COLS + 1) * trade_gridsize + ITEM_COLS / 2 * trade_gridsize - (strlen(accept_str) * win->small_font_len_x) / 2;
-	scaled_draw_string_small(x_off, button_y_bot - win->default_font_len_y * 0.9, (unsigned char*)accept_str, 1);
+	draw_string_small_zoomed(x_off, button_y_bot - win->default_font_len_y * 0.9, (unsigned char*)accept_str, 1, win->current_scale);
 	
 	glColor3f(0.77f,0.57f,0.39f);	
 	
 	//Draw the trade session names
 	x_off = trade_border + ITEM_COLS / 2 * trade_gridsize - (strlen(you_str) * win->small_font_len_x) / 2;
-	scaled_draw_string_small(x_off, trade_grid_start_y - win->small_font_len_y, (unsigned char*)you_str, 1);
+	draw_string_small_zoomed(x_off, trade_grid_start_y - win->small_font_len_y, (unsigned char*)you_str, 1, win->current_scale);
 	x_off = trade_border + (ITEM_COLS + 1) * trade_gridsize + ITEM_COLS / 2 * trade_gridsize - (strlen(other_player_trade_name) * win->small_font_len_x) / 2;
-	scaled_draw_string_small(x_off, trade_grid_start_y - win->small_font_len_y, (unsigned char*)other_player_trade_name, 1);
+	draw_string_small_zoomed(x_off, trade_grid_start_y - win->small_font_len_y, (unsigned char*)other_player_trade_name, 1, win->current_scale);
 
 	//Draw the X for aborting the trade
 	draw_string_zoomed(win->len_x - (win->box_size - win->box_size/5), win->box_size/10, (unsigned char*)"X", 1, win->current_scale);
@@ -232,7 +232,7 @@ static int display_trade_handler(window_info *win)
 		scaled_put_small_text_in_box((unsigned char*)inventory_item_string, strlen(inventory_item_string), win->len_x - trade_border, items_string);
 		last_items_string_id = inventory_item_string_id;
 	}
-	scaled_draw_string_small(trade_border/2, button_y_bot + trade_border, (unsigned char*)items_string, ITEM_INFO_ROWS);
+	draw_string_small_zoomed(trade_border/2, button_y_bot + trade_border, (unsigned char*)items_string, ITEM_INFO_ROWS, win->current_scale);
 
 	if (tool_tip_str != NULL)
 	{

@@ -92,7 +92,7 @@ CHECK_GL_ERRORS();
 					glColor3f(0.3,0.6,1.0);
 					else
 					glColor3f(t->r,t->g,t->b);
-					scaled_draw_string_small(t->x,t->y-j,(unsigned char*)t->text,1);
+					draw_string_small_zoomed(t->x,t->y-j,(unsigned char*)t->text,1, win->current_scale);
 				}
 		}
 		t->x = sx; t->y = sy; j = sj;

@@ -477,7 +477,7 @@ int display_storage_handler(window_info * win)
 			elglColourI(c_highlighted);
 		else
 			offset = 0;
-		scaled_draw_string_small(cat_string_left_offset, cat_string_top_offset + n * cat_name_seperation, (unsigned char*)&storage_categories[i].name[offset],1);
+		draw_string_small_zoomed(cat_string_left_offset, cat_string_top_offset + n * cat_name_seperation, (unsigned char*)&storage_categories[i].name[offset],1, win->current_scale);
 	}
 	glColor3f(0.77f, 0.57f, 0.39f);
 	if(storage_text[0]){
@@ -485,7 +485,7 @@ int display_storage_handler(window_info * win)
 			safe_strncpy(last_storage_text, storage_text, sizeof(last_storage_text));
 			scaled_put_small_text_in_box ((Uint8 *)storage_text, strlen(storage_text), win->len_x - 4 * border_size, wrapped_storage_text);
 		}
-		scaled_draw_string_small(desc_string_left_offset, desc_string_top_offset, (unsigned char*)wrapped_storage_text, 2);
+		draw_string_small_zoomed(desc_string_left_offset, desc_string_top_offset, (unsigned char*)wrapped_storage_text, 2, win->current_scale);
 	}
 
 	glColor3f(1.0f,1.0f,1.0f);
