@@ -332,9 +332,9 @@ static int langsel_display_error_handler(window_info *win)
 		return 1;
 	}
 
-	draw_string_small(10, 10, (unsigned char *)message, 6);
-	draw_string_small(10, 10 + SMALL_FONT_Y_LEN * 6,
-		(unsigned char *)((langsel_list_error) ?langsel_list_error : "Unknown error"), 1);
+	draw_string_small_zoomed(10, 10, (unsigned char *)message, 6, 1.0);
+	draw_string_small_zoomed(10, 10 + SMALL_FONT_Y_LEN * 6,
+		(unsigned char *)((langsel_list_error) ?langsel_list_error : "Unknown error"), 1, 1.0);
 
 	return 1;
 }
@@ -344,6 +344,7 @@ static int langsel_display_error_handler(window_info *win)
 static int display_langsel_handler(window_info *win)
 {
 	static float font_zoom = 1.5;
+	static float text_zoom = 1.0;
 	static int num_lang_lines = 0;
 	static float max_str_width = 0;
 	static float line_step = DEFAULT_FONT_Y_LEN;
@@ -357,13 +358,13 @@ static int display_langsel_handler(window_info *win)
 	static int winwidth = 0;
 	static int winheight = 0;
 	static char *langwin_save_note = NULL;
+	static float note_height = 0;
+	static int scroll_width = 0;
 	
 	const float winsep = 15;
-	const int scroll_width = 20;
 	list_node_t *local_head = NULL;
 	int current_y = 0;
 	int lang_line_num = 0;
-	float note_height = SMALL_FONT_Y_LEN * langsel_num_note_lines;
 	
 	set_font(0);
 	
@@ -374,7 +375,9 @@ static int display_langsel_handler(window_info *win)
 		char *longest_string = NULL;
 		int non_line_height = 0;
 		float sizefrac = 0.80;
-		
+
+		font_zoom *= win->current_scale;
+
 		/* count the number of language lines and find the widest line and the first line
 		   - font_zoom unknow as yet */
 		for (local_head = langsel_list; local_head; local_head = local_head->next)
@@ -395,6 +398,10 @@ static int display_langsel_handler(window_info *win)
 		if ((font_zoom * max_str_width) > (sizefrac * window_width))
 			font_zoom = sizefrac * window_width / max_str_width;
 
+		text_zoom = font_zoom / 1.5;
+		note_height = SMALL_FONT_Y_LEN * text_zoom * langsel_num_note_lines;
+		scroll_width = ELW_BOX_SIZE * text_zoom;
+
 		/* number of pixels used per language line drawn */		
 		line_step = 3 + line_step * font_zoom;
 		
@@ -408,7 +415,7 @@ static int display_langsel_handler(window_info *win)
 		winwidth = max_str_width + 2 * winsep;
 		
 		/* to set the height, we need to know button sizes so create a temporary button */
-		save_button = button_add_extended(langsel_win, 100, NULL, 0, 0, 0, 0, WIDGET_INVISIBLE, 1.0f, 0, 0, 0, "Temp");
+		save_button = button_add_extended(langsel_win, 100, NULL, 0, 0, 0, 0, WIDGET_INVISIBLE, text_zoom, 0, 0, 0, "Temp");
 		save_widget = widget_find(langsel_win, save_button);
 		
 		/* calculate the window height assuming we can display all languages without a scroll bar */
@@ -456,7 +463,7 @@ static int display_langsel_handler(window_info *win)
 		if (save_button > 0)
 			widget_destroy(langsel_win, save_button);
 		save_button = button_add_extended(langsel_win, 100, NULL, 0, 0,
-			0, 0, 0, 1.0f, langsel_winRGB[3][0], langsel_winRGB[3][1], langsel_winRGB[3][2], save);
+			0, 0, 0, text_zoom, langsel_winRGB[3][0], langsel_winRGB[3][1], langsel_winRGB[3][2], save);
 		save_widget = widget_find(langsel_win, save_button);
 		widget_move(langsel_win, save_button, winwidth - (winsep + save_widget->len_x), winheight - winsep - save_widget->len_y);
 		widget_set_OnClick(langsel_win, save_button, langsel_save_handler);
@@ -473,8 +480,8 @@ static int display_langsel_handler(window_info *win)
 		if (langwin_save_note)
 		{
 			langsel_save_note_boxed = (char *)realloc(langsel_save_note_boxed, strlen(langwin_save_note)*2);
-			put_small_colored_text_in_box(c_grey1, (const Uint8 *)langwin_save_note,
-				strlen(langwin_save_note), winwidth - (2 * winsep + save_widget->len_x), langsel_save_note_boxed);
+			scaled_put_small_colored_text_in_box(c_grey1, (const Uint8 *)langwin_save_note,
+				strlen(langwin_save_note), winwidth - (2 * winsep + save_widget->len_x), langsel_save_note_boxed, text_zoom);
 		}
 		
 		if (add_scroll_bar)
@@ -493,7 +500,7 @@ static int display_langsel_handler(window_info *win)
 	
 	/* if we have note text, display it */
 	if (langwin_save_note)
-		draw_string_small(winsep, winheight - winsep - note_height, (unsigned char *)langsel_save_note_boxed, langsel_num_note_lines);
+		draw_string_small_zoomed(winsep, winheight - winsep - note_height, (unsigned char *)langsel_save_note_boxed, langsel_num_note_lines, text_zoom );
 
 	/* draw a line under the language list */
 	glColor3f(langsel_winRGB[3][0], langsel_winRGB[3][1], langsel_winRGB[3][2]);
@@ -559,7 +566,7 @@ int display_langsel_win(void)
 	
 	/* create and show the language selection window */
 	langsel_win = create_window("", langsel_rootwin, -1, (window_width-400)/2, (window_height-400/1.62)/2,
-		400, 400/1.62, ELW_WIN_DEFAULT^(ELW_CLOSE_BOX|ELW_TITLE_BAR));
+		400, 400/1.62, (ELW_USE_UISCALE|ELW_WIN_DEFAULT)^(ELW_CLOSE_BOX|ELW_TITLE_BAR));
 	set_window_handler(langsel_win, ELW_HANDLER_CLICK, &click_langsel_handler );
 	set_window_handler(langsel_win, ELW_HANDLER_KEYPRESS, &langsel_keypress_handler);
 	
