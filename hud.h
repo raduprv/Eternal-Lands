@@ -34,16 +34,7 @@ typedef enum
 	HUD_INTERFACE_LAST      /*!< the last interface used */
 } hud_interface;
 
-typedef enum
-{
-	SHOW_SMALL_HELP = 0,
-	SHOW_BIG_HELP,
-} show_help_modes;
-
-extern int qb_action_mode; /*!< flag indicating whether we are in quickbar action mode or not */
-
-extern int show_stats_in_hud;
-extern int show_statbars_in_hud;
+extern Uint32 exp_lev[200];
 extern int show_action_bar; /*!< saved in the el.ini file, the action points stats bar is display when true */
 extern int stats_bar_win; /*!< the window id for the stats bar of the bottom HUD */
 extern int watch_this_stats[]; /*!< used for displaying more than 1 stat in the hud */
@@ -53,10 +44,29 @@ extern int max_food_level; /*!< normally 45 but can be set from options for peop
  * \name windows handlers
  */
 /*! @{ */
-extern int	quickbar_win; /*!< quickbar windows handler */
+extern int quickbar_win; /*!< quickbar windows handler */
+extern int quickbar_x;
+extern int quickbar_y;
+extern int quickbar_dir;
+extern int quickbar_draggable;
+extern int num_quickbar_slots;
+extern int quickbar_relocatable; /*!< flag that indicates whether the quickbar is relocatable. */
+extern int qb_action_mode; /*!< flag indicating whether we are in quickbar action mode or not */
+extern int cm_quickbar_enabled;
 /*! @} */
 
-extern int 	quickbar_relocatable; /*!< flag that indicates whether the quickbar is relocatable. */
+
+extern int hud_text;
+extern int hud_x;
+extern int hud_y;
+
+extern int copy_next_LOCATE_ME;
+extern int show_help_text;
+extern int always_enlarge_text;
+
+void switch_action_mode(int * mode, int id);
+int get_max_quick_y(void);
+void handle_stats_selection(int stat, Uint32 flags);
 
 /*!
  * \ingroup display_2d
@@ -64,32 +74,7 @@ extern int 	quickbar_relocatable; /*!< flag that indicates whether the quickbar 
  *
  *      Initializes the quickbar, it's event handlers and shows it. If the quickbar has been moved by the player it will be drawn in its new position.
  */
-void init_quickbar();
-
-void switch_action_mode(int * mode, int id);
-int get_player_statsbar_active_height(void);
-
-extern int hud_text;
-extern int hud_x;
-extern int hud_y;
-
-extern int view_analog_clock;
-extern int view_digital_clock;
-extern int view_knowledge_bar;
-extern int view_hud_timer;
-
-extern int quickbar_x;
-extern int quickbar_y;
-extern int quickbar_dir;
-extern int quickbar_draggable;
-extern int num_quickbar_slots;
-
-extern int copy_next_LOCATE_ME;
-
-extern int show_help_text;
-extern int always_enlarge_text;
-
-// the main hud handling
+void init_quickbar(void);
 
 /*!
  * \ingroup other
@@ -152,17 +137,6 @@ void hide_hud_windows ();
 void draw_hud_interface();
 
 /*!
- * \ingroup windows
- * \brief Checks whether a mouse click occurred in the hud.
- *
- *      Checks whether a mouse click occurred in the hud. Only used in non-standard (for example map) modes.
- *
- * \retval int  the return value of \ref click_in_windows
- * \callgraph
- */
-int check_hud_interface();
-
-/*!
  * \ingroup display_2d
  * \brief Draws the hud frame.
  *
@@ -182,10 +156,7 @@ void draw_hud_frame();
  * 
  * \callgraph
  */
- int* get_winid(const char *name);
-
-
-//Functions for the function pointers
+int* get_winid(const char *name);
 
 /*!
  * \ingroup windows
@@ -219,32 +190,6 @@ void view_tab (int *window, int *col_id, int tab);
 
 /*!
  * \ingroup windows
- * \brief   Views the console window (i.e. switch to console mode)
- *
- *      This is not handled by the window manager, so we have to call this function
- *
- * \param win   unused
- * \param id    unused
- *
- * \callgraph
- */
-void view_console_win(int * win, int id);
-
-/*!
- * \ingroup windows
- * \brief Views the map window (i.e. switch to map mode)
- *
- *      Shows or hides the map window depending on which mode is currently active.
- *
- * \param win   unused
- * \param id    unused
- *
- * \callgraph
- */
-void view_map_win(int *win, int id);
-
-/*!
- * \ingroup windows
  * \brief Shows the \a message at the given position (\a x, \a y).
  *
  *      Shows the \a message at the given position (\a x, \a y) using the small font.
@@ -257,7 +202,6 @@ void view_map_win(int *win, int id);
  * \callgraph
  */
 void show_help(const char *message, int x, int y, float scale);
-
 
 /*!
  * \ingroup windows
@@ -288,9 +232,6 @@ void show_help_big(const char *message, int x, int y, float scale);
  */
 int enlarge_text(void);
 
-
-//stats/health section
-
 /*!
  * \ingroup other
  * \brief   	Initialise the stat bars, (size, position and number), for in the bottom HUB.
@@ -306,7 +247,6 @@ void init_stats_display(void);
  * \callgraph
  */
 void set_last_damage(int quantity);
-
 
 /*!
  * \ingroup other
@@ -329,26 +269,6 @@ void set_last_heal(int quantity);
 void build_levels_table();
 
 /*!
- * \ingroup windows
- * \brief	Sets the flag of the given window
- *
- * 	Sets the flag of the given window
- *
- * \sa get_flags
- */
-void change_flags(int win_id, Uint32 flags);
-
-/*!
- * \ingroup windows
- * \brief Gets the flags of the given window 
- *
- * 	Gets the flag of the given window
- *
- * \sa change_flags
- */
-Uint32 get_flags(int win_id);
-
-/*!
  * \ingroup other
  * \brief   	The #exp command, show current exp levels in console.
  * \retval	1, so command not passed to server
@@ -359,6 +279,5 @@ int show_exp(char *text, int len);
 } // extern "C"
 #endif
 
-extern Uint32 exp_lev[200];
 
 #endif	//__HUD_H

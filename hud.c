@@ -7,130 +7,74 @@
 #include "consolewin.h"
 #include "context_menu.h"
 #include "cursors.h"
-#include "draw_scene.h"
 #include "elconfig.h"
 #include "elwindows.h"
 #include "events.h"
 #include "gamewin.h"
 #include "gl_init.h"
-#include "global.h"
 #include "hud_indicators.h"
-#include "hud_timer.h"
+#include "hud_misc_window.h"
 #include "icon_window.h"
-#include "init.h"
 #include "interface.h"
-#include "items.h"
 #include "item_info.h"
-#include "keys.h" //Avoid problems with SHIFT, ALT, CTRL
-#include "knowledge.h"
 #include "manufacture.h"
 #include "mapwin.h"
 #include "minimap.h"
 #include "missiles.h"
 #include "multiplayer.h"
-#include "new_character.h"
-#include "notepad.h"
-#include "platform.h"
 #include "questlog.h"
 #include "sound.h"
 #include "spells.h"
-#include "stats.h"
 #include "storage.h"
 #include "tabs.h"
 #include "textures.h"
 #include "trade.h"
-#include "translate.h"
 #ifdef ECDEBUGWIN
 #include "eye_candy_debugwin.h"
 #endif
 #include "user_menus.h"
-#include "url.h"
 #include "emotes.h"
-
-#define WALK 0
-#define SIT 1
-#define LOOK 2
-#define TRADE 3
-#define ATTACK 4
-#define USE 5
 
 #define UI_SCALED_VALUE(BASE) ((int)(0.5 + ((BASE) * get_global_scale())))
 
 Uint32 exp_lev[200];
+int cm_quickbar_enabled = 0;
 hud_interface last_interface = HUD_INTERFACE_NEW_CHAR; //Current interface (game or new character)
 
-int	display_stats_bar_handler(window_info *win);
-int	display_misc_handler(window_info *win);
-int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags);
-int	mouseover_misc_handler(window_info *win, int mx, int my);
-int	display_quickbar_handler(window_info *win);
-int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags);
-int	mouseover_quickbar_handler(window_info *win, int mx, int my);
-int	mouseover_stats_bar_handler(window_info *win, int mx, int my);
-void init_hud_frame();
-void init_stats_display();
+static int display_stats_bar_handler(window_info *win);
+static int display_quickbar_handler(window_info *win);
+static int click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags);
+static int mouseover_quickbar_handler(window_info *win, int mx, int my);
+static int mouseover_stats_bar_handler(window_info *win, int mx, int my);
+static void init_hud_frame();
 static void draw_exp_display(window_info *win);
-void draw_stats();
-void init_misc_display(hud_interface type);
-void init_quickbar();
-void toggle_quickbar_draggable();
-void flip_quickbar();
-void reset_quickbar();
-void change_flags(int win_id, Uint32 flags);
-Uint32 get_flags(int win_id);
-int get_quickbar_y_base();
+static void toggle_quickbar_draggable();
+static void flip_quickbar();
+static void reset_quickbar();
+static void change_flags(int win_id, Uint32 flags);
+static Uint32 get_flags(int win_id);
+static int get_quickbar_y_base();
 
-static int context_hud_handler(window_info *win, int widget_id, int mx, int my, int option);
-static size_t cm_hud_id = CM_INIT_VALUE;
 static size_t cm_quickbar_id = CM_INIT_VALUE;
 static size_t cm_id = CM_INIT_VALUE;
-static int cm_quickbar_enabled = 0;
-static int cm_sound_enabled = 0;
-static int cm_music_enabled = 0;
-static int cm_minimap_shown = 0;
-static int cm_rangstats_shown = 0;
-enum {	CMH_STATS=0, CMH_STATBARS, CMH_KNOWBAR, CMH_TIMER, CMH_DIGCLOCK, CMH_ANACLOCK,
-		CMH_SECONDS, CMH_FPS, CMH_INDICATORS, CMH_QUICKBM, CMH_SEP1, CMH_MINIMAP, CMH_RANGSTATS,
-		CMH_SEP2, CMH_SOUND, CMH_MUSIC, CMH_SEP3, CMH_LOCATION };
 enum {	CMQB_RELOC=0, CMQB_DRAG, CMQB_RESET, CMQB_FLIP, CMQB_ENABLE };
 
 int hud_x= 64;
 int hud_y= 48;
 int hud_text;
-int view_analog_clock= 1;
-int view_digital_clock= 0;
-int view_knowledge_bar = 1;
-int view_hud_timer = 1;
 int copy_next_LOCATE_ME = 0;
 int	stats_bar_win= -1;
-int	misc_win= -1;
 int	quickbar_win= -1;
 int	quickspell_win= -1;
 int show_help_text=1;
 int always_enlarge_text=1;
-
 int qb_action_mode=ACTION_USE;
-
-int show_stats_in_hud=0;
-int show_statbars_in_hud=0;
-
-static int first_disp_stat = 0;					/* first skill that will be display */
-static int num_disp_stat = NUM_WATCH_STAT-1;		/* number of skills to be displayed */
-static int statbar_start_y = 0;					/* y coord in window of top if stats bar */
-static int stat_mouse_is_over = -1;				/* set to stat of the is mouse over that bar */
-static int mouse_over_clock = 0;					/* 1 if mouse is over digital or analogue clock */
-static int mouse_over_compass = 0;					/* 1 if mouse is over the compass */
-static int mouse_over_knowledge_bar = 0;			/* 1 if mouse is over the knowledge bar */
-
-static int knowledge_bar_height = SMALL_FONT_Y_LEN + 6;
-static int side_stats_bar_height = SMALL_FONT_Y_LEN;
 
 static int mouseover_quickbar_item_pos = -1;
 
 /* called on client exit to free resources */
 void cleanup_hud(void)
 {
-	destroy_timer();
 	destroy_hud_indicators();
 	destroy_window(misc_win);
 	destroy_window(stats_bar_win);
@@ -218,34 +162,27 @@ void draw_hud_interface()
 	draw_hud_frame();
 }
 
-// check to see if a mouse click was on the hud
-// used in non-standard modes
-int check_hud_interface()
-{
-	return click_in_windows(mouse_x, mouse_y, 0);	// temporarily here for testing
-}
-
 // hud frame section
-float vertical_bar_u_start = (float)192/256;
-float vertical_bar_u_end = 1.0f;
-float vertical_bar_v_end = 0.0f;
-float vertical_bar_v_start = 0.0f;
+static float vertical_bar_u_start = (float)192/256;
+static float vertical_bar_u_end = 1.0f;
+static float vertical_bar_v_end = 0.0f;
+static float vertical_bar_v_start = 0.0f;
 
-float horizontal_bar_u_start = (float)144/256;
-float horizontal_bar_u_end = (float)191/256;
-float horizontal_bar_v_start = 0.0f;
-float horizontal_bar_v_end = 0.0f;
+static float horizontal_bar_u_start = (float)144/256;
+static float horizontal_bar_u_end = (float)191/256;
+static float horizontal_bar_v_start = 0.0f;
+static float horizontal_bar_v_end = 0.0f;
 
-void init_hud_frame()
+static void init_hud_frame()
 {
 	vertical_bar_v_end = (float)window_height/256;
 	horizontal_bar_v_start = (float)(window_width-hud_x)/256;
 }
 
-float logo_u_start = (float)64/256;
-float logo_v_start = (float)128/256;
-float logo_u_end = (float)127/256;
-float logo_v_end = (float)191/256;
+static float logo_u_start = (float)64/256;
+static float logo_v_start = (float)128/256;
+static float logo_u_end = (float)127/256;
+static float logo_v_end = (float)191/256;
 
 void draw_hud_frame()
 {
@@ -272,7 +209,7 @@ void switch_action_mode(int * mode, int id)
 	item_action_mode=qb_action_mode=action_mode=*mode;
 }
 
-void view_console_win (int *win, int id)
+static void view_console_win (int *win, int id)
 {
 	if ( get_show_window (console_root_win) && !locked_to_console )
 		return_to_gamewin_common();
@@ -286,7 +223,7 @@ void view_console_win (int *win, int id)
 	}
 }
 
-void view_map_win (int * win, int id)
+static void view_map_win (int * win, int id)
 {
 	if ( get_show_window (map_root_win) && !locked_to_console )
 		return_to_gamewin_common();
@@ -601,7 +538,7 @@ static int exp_bar_start_y;
 static int player_statsbar_y_offset = 4;
 static int player_statsbar_bar_height = 8;
 
-int get_player_statsbar_active_height(void)
+static int get_player_statsbar_active_height(void)
 {
 	return player_statsbar_y_offset + UI_SCALED_VALUE(player_statsbar_bar_height);
 }
@@ -815,49 +752,24 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-static void draw_side_stats_bar(window_info *win, const int x, const int y, const int baselev, const int cur_exp, const int nl_exp, size_t colour)
+
+/*	Get the longest of the active quickspells and the
+	quickbar (if its in default place)
+*/
+int get_max_quick_y(void)
 {
-	const int max_len = win->len_x - (int)(0.5 + win->current_scale * 6);
-	const int bar_height = win->small_font_len_y - (int)(0.5 + win->current_scale * 2);
-	int len = max_len - (float)max_len/(float)((float)(nl_exp-exp_lev[baselev])/(float)(nl_exp-cur_exp));
-
-	GLfloat colours[2][2][3] = { { {0.11f, 0.11f, 0.11f}, {0.3f, 0.5f, 0.2f} },
-								 { {0.10f,0.10f,0.80f}, {0.40f,0.40f,1.00f} } };
-
-	if (colour > 1)
-		colour = 0;
-
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
-	glDisable(GL_TEXTURE_2D);
-	if(len >= 0){
-		glBegin(GL_QUADS);
-		//draw the colored section
-		glColor3fv(colours[colour][0]);
-		glVertex3i(x, y+bar_height, 0);
-		glColor3fv(colours[colour][1]);
-		glVertex3i(x, y, 0);
-		glColor3fv(colours[colour][1]);
-		glVertex3i(x+len, y, 0);
-		glColor3fv(colours[colour][0]);
-		glVertex3i(x+len, y+bar_height, 0);
-		glEnd();
-	}
+	int quickspell_base = get_quickspell_y_base();
+	int quickbar_base = get_quickbar_y_base();
+	int max_quick_y = window_height;
 	
-	// draw the bar frame
-	glColor3f(0.77f, 0.57f, 0.39f);
-	glBegin(GL_LINE_LOOP);
-	glVertex3i(x, y, 0);
-	glVertex3i(x+max_len, y, 0);
-	glVertex3i(x+max_len, y+bar_height, 0);
-	glVertex3i(x, y+bar_height, 0);
-	glEnd();
-	glEnable(GL_TEXTURE_2D);
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
+	if (quickspell_base > quickbar_base)
+		max_quick_y -= quickspell_base;
+	else
+		max_quick_y -= quickbar_base;
+
+	return max_quick_y;
 }
+
 
 static struct { int d; int h; Uint32 dt; Uint32 ht; } my_last_health = { 0, 0, 0, 0 };
 
@@ -905,7 +817,7 @@ static void draw_last_health_change(window_info *win)
 	}
 }
 
-int	display_stats_bar_handler(window_info *win)
+static int	display_stats_bar_handler(window_info *win)
 {
 	static Uint32 last_time = 0;
 	float health_adjusted_x_len;
@@ -989,55 +901,10 @@ int	display_stats_bar_handler(window_info *win)
 	return 1;
 }
 
-int mouseover_stats_bar_handler(window_info *win, int mx, int my)
+static int mouseover_stats_bar_handler(window_info *win, int mx, int my)
 {
 	statbar_cursor_x=mx;
 	return 0;
-}
-
-// the misc section (compass, clock, ?)
-float compass_u_start = (float)32/256;
-float compass_v_start = (float)193/256;
-
-float compass_u_end = (float)95/256;
-float compass_v_end = 1.0f;
-
-float clock_u_start = 0.0f;
-float clock_v_start = (float)128/256;
-
-float clock_u_end = (float)63/256;
-float clock_v_end = (float)191/256;
-
-float needle_u_start = (float)4/256;
-float needle_v_start = (float)201/256;
-
-float needle_u_end = (float)14/256;
-float needle_v_end = (float)247/256;
-
-float clock_needle_u_start = (float)21/256;
-float clock_needle_v_start = (float)193/256;
-
-float clock_needle_u_end = (float)31/256;
-float clock_needle_v_end = (float)223/256;
-
-static int context_hud_handler(window_info *win, int widget_id, int mx, int my, int option)
-{
-	unsigned char protocol_name;
-	switch (option)
-	{
-		case CMH_MINIMAP: view_window(&minimap_win, 0); break;
-		case CMH_RANGSTATS: view_window(&range_win, 0); break;
-#ifdef NEW_SOUND
-		case CMH_SOUND: toggle_sounds(&sound_on); set_var_unsaved("enable_sound", INI_FILE_VAR); break;
-		case CMH_MUSIC: toggle_music(&music_on); set_var_unsaved("enable_music", INI_FILE_VAR); break;
-#endif // NEW_SOUND
-		case CMH_LOCATION:
-			copy_next_LOCATE_ME = 1;
-			protocol_name= LOCATE_ME;
-			my_tcp_send(my_socket,&protocol_name,1);
-			break;
-	}
-	return 1;
 }
 
 static int context_quickbar_handler(window_info *win, int widget_id, int mx, int my, int option)
@@ -1051,524 +918,13 @@ static int context_quickbar_handler(window_info *win, int widget_id, int mx, int
 	return 1;
 }
 
-static void context_hud_pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win)
-{
-#ifdef NEW_SOUND
-	cm_sound_enabled = sound_on;
-	cm_music_enabled = music_on;
-#endif // NEW_SOUND
-	cm_minimap_shown = get_show_window(minimap_win);
-	cm_rangstats_shown = get_show_window(range_win);
-}
-
-static int ui_scale_misc_handler(window_info *win)
-{
-	int y_len = 0;
-	knowledge_bar_height = win->small_font_len_y + 6;
-	side_stats_bar_height = win->small_font_len_y;
-	ui_scale_timer(win);
-	y_len = 2 * win->current_scale * 64 + win->default_font_len_y + knowledge_bar_height + get_height_of_timer() + num_disp_stat * side_stats_bar_height;
-	resize_window(misc_win, HUD_MARGIN_X, y_len);
-	move_window(misc_win, -1, 0, window_width-HUD_MARGIN_X, window_height-y_len);
-	return 1;
-}
-
-void init_misc_display(hud_interface type)
-{
-	int i;
-
-	//create the misc window
-	if(misc_win < 0)
-		{
-			misc_win= create_window("Misc", -1, 0, 0, 0, 0, 0, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
-			if (misc_win < 0 || misc_win >= windows_list.num_windows)
-				return;
-			set_window_handler(misc_win, ELW_HANDLER_DISPLAY, &display_misc_handler);
-			set_window_handler(misc_win, ELW_HANDLER_CLICK, &click_misc_handler);
-			set_window_handler(misc_win, ELW_HANDLER_MOUSEOVER, &mouseover_misc_handler );
-			set_window_handler(misc_win, ELW_HANDLER_UI_SCALE, &ui_scale_misc_handler );
-			cm_hud_id = cm_create(cm_hud_menu_str, context_hud_handler);
-			cm_bool_line(cm_hud_id, CMH_STATS, &show_stats_in_hud, "show_stats_in_hud");
-			cm_bool_line(cm_hud_id, CMH_STATBARS, &show_statbars_in_hud, "show_statbars_in_hud");
-			cm_bool_line(cm_hud_id, CMH_KNOWBAR, &view_knowledge_bar, "view_knowledge_bar");
-			cm_bool_line(cm_hud_id, CMH_TIMER, &view_hud_timer, "view_hud_timer");
-			cm_bool_line(cm_hud_id, CMH_DIGCLOCK, &view_digital_clock, "view_digital_clock");
-			cm_bool_line(cm_hud_id, CMH_ANACLOCK, &view_analog_clock, "view_analog_clock");
-			cm_bool_line(cm_hud_id, CMH_SECONDS, &show_game_seconds, "show_game_seconds");
-			cm_bool_line(cm_hud_id, CMH_FPS, &show_fps, "show_fps");
-			cm_bool_line(cm_hud_id, CMH_INDICATORS, &show_hud_indicators, "show_indicators");
-			cm_bool_line(cm_hud_id, CMH_MINIMAP, &cm_minimap_shown, NULL);
-			cm_bool_line(cm_hud_id, CMH_RANGSTATS, &cm_rangstats_shown, NULL);
-			cm_bool_line(cm_hud_id, CMH_QUICKBM, &cm_quickbar_enabled, NULL);
-			cm_bool_line(cm_hud_id, CMH_SOUND, &cm_sound_enabled, NULL);
-			cm_bool_line(cm_hud_id, CMH_MUSIC, &cm_music_enabled, NULL);
-			cm_add_window(cm_hud_id, misc_win);
-			cm_set_pre_show_handler(cm_hud_id, context_hud_pre_show_handler);
-		}
-
-	ui_scale_misc_handler(&windows_list.window[misc_win]);
-
-	cm_grey_line(cm_hud_id, CMH_STATS, (type == HUD_INTERFACE_NEW_CHAR));
-	cm_grey_line(cm_hud_id, CMH_STATBARS, (type == HUD_INTERFACE_NEW_CHAR));
-	cm_grey_line(cm_hud_id, CMH_FPS, (type == HUD_INTERFACE_NEW_CHAR));
-	cm_grey_line(cm_hud_id, CMH_INDICATORS, (type == HUD_INTERFACE_NEW_CHAR));
-	cm_grey_line(cm_hud_id, CMH_MINIMAP, (type == HUD_INTERFACE_NEW_CHAR));
-	cm_grey_line(cm_hud_id, CMH_RANGSTATS, (type == HUD_INTERFACE_NEW_CHAR));
-	cm_grey_line(cm_hud_id, CMH_QUICKBM, (type == HUD_INTERFACE_NEW_CHAR));
-	cm_grey_line(cm_hud_id, CMH_LOCATION, (type == HUD_INTERFACE_NEW_CHAR));
-
-	for (i=0; i<MAX_WATCH_STATS; i++)
-	{
-		if (watch_this_stats[i] > 0)
-			statsinfo[watch_this_stats[i]-1].is_selected = 1;
-	}
-}
-
-
-/*	Get the longest of the active quickspells and the
-	quickbar (if its in default place)
-*/
-static int get_max_quick_y(void)
-{
-	int quickspell_base = get_quickspell_y_base();
-	int quickbar_base = get_quickbar_y_base();
-	int max_quick_y = window_height;
-	
-	if (quickspell_base > quickbar_base)
-		max_quick_y -= quickspell_base;
-	else
-		max_quick_y -= quickbar_base;
-
-	return max_quick_y;
-}
-
-
-/*	Calculate the start y coord for the statsbar.
-	Also calculates statbar_start_y, num_disp_stat and first_disp_stat
-*/
-static int calc_statbar_start_y(int base_y_start, int win_y_len)
-{
-	int winoverlap = 0;
-	int last_display = num_disp_stat;
-
-	statbar_start_y = base_y_start - side_stats_bar_height*(NUM_WATCH_STAT-1);
-	
-	/* calculate the overlap between the longest of the quickspell/bar and the statsbar */
-	winoverlap = (win_y_len - statbar_start_y) - get_max_quick_y();
-
-	/* if they overlap, only display some skills and allow to scroll */
-	if (winoverlap > 0)
-	{
-		num_disp_stat = (NUM_WATCH_STAT-1) - (winoverlap + side_stats_bar_height-1)/side_stats_bar_height;
-		statbar_start_y = base_y_start - side_stats_bar_height*num_disp_stat;
-		if ((first_disp_stat + num_disp_stat) > (NUM_WATCH_STAT-1))
-			first_disp_stat = (NUM_WATCH_STAT-1) - num_disp_stat;
-	}
-	/* else display them all */
-	else
-	{
-		first_disp_stat = 0;
-		num_disp_stat = (NUM_WATCH_STAT-1);
-	}
-
-	/* if the number of stats displayed has changed, resize other hud elements */
-	if (last_display != num_disp_stat)
-	{
-		init_misc_display(HUD_INTERFACE_LAST);
-		init_quickbar();
-		init_quickspell();
-	}
-
-	/* return start y position in window */
-	return statbar_start_y;
-}
-
-
-
-int display_misc_handler(window_info *win)
-{
-	const int scaled_4 = (int)(0.5 + win->current_scale * 4);
-	const int scaled_5 = (int)(0.5 + win->current_scale * 5);
-	const int scaled_6 = (int)(0.5 + win->current_scale * 6);
-	const int scaled_28 = (int)(0.5 + win->current_scale * 28);
-	const int scaled_32 = (int)(0.5 + win->current_scale * 32);
-	const int scaled_64 = (int)(0.5 + win->current_scale * 64);
-	const int scaled_96 = (int)(0.5 + win->current_scale * 96);
-	const int scaled_128 = (int)(0.5 + win->current_scale * 128);
-	int base_y_start = win->len_y - ((view_analog_clock)?scaled_128:scaled_64) - (view_digital_clock?win->default_font_len_y:0);
-
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
-
-	bind_texture(hud_text);
-
-	// allow for transparency
-	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
-	glAlphaFunc(GL_GREATER, 0.09f);
-	
-	glBegin(GL_QUADS);
-
-	//draw the compass
-	draw_2d_thing(compass_u_start, compass_v_start, compass_u_end, compass_v_end, 0,win->len_y-scaled_64,scaled_64,win->len_y);
-	if(view_analog_clock > 0){
-		//draw the clock
-		draw_2d_thing(clock_u_start, clock_v_start, clock_u_end, clock_v_end,0, win->len_y-scaled_128, scaled_64, win->len_y-scaled_64);
-	}
-	glEnd();
-
-	//draw the compass needle
-	glPushMatrix();
-	glTranslatef(scaled_32, win->len_y-scaled_32, 0);
-	glRotatef(rz, 0.0f, 0.0f, 1.0f);
-
-	glBegin(GL_QUADS);
-	draw_2d_thing(needle_u_start, needle_v_start, needle_u_end, needle_v_end,-scaled_5, -scaled_28, scaled_5, scaled_28);
-	glEnd();
-	glPopMatrix();
-
-	if(view_analog_clock > 0){
-		//draw the clock needle
-		const int scaled_24 = (int)(0.5 + win->current_scale * 24);
-		glAlphaFunc(GL_GREATER, 0.05f);
-		glPushMatrix();
-		glTranslatef(scaled_32, win->len_y-scaled_96, 0);
-		glRotatef(real_game_minute, 0.0f, 0.0f, 1.0f);
-		glBegin(GL_QUADS);
-		draw_2d_thing(clock_needle_u_start, clock_needle_v_start, clock_needle_u_end, clock_needle_v_end, -scaled_4, -scaled_24, scaled_6, scaled_6);
-		glEnd();
-		glPopMatrix();
-		glDisable(GL_ALPHA_TEST);
-	}
-
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
-	//Digital Clock
-	if(view_digital_clock > 0){
-		char str[10];
-		//glColor3f(0.77f, 0.57f, 0.39f); // useless
-		if (show_game_seconds)
-			safe_snprintf(str, sizeof(str), "%1d:%02d:%02d", real_game_minute/60, real_game_minute%60, real_game_second);
-		else
-			safe_snprintf(str, sizeof(str), " %1d:%02d ", real_game_minute/60, real_game_minute%60);
-		draw_string_shadowed_width(scaled_6/2, scaled_6/2 + base_y_start, (unsigned char*)str, win->len_x-scaled_6, 1,0.77f, 0.57f, 0.39f,0.0f,0.0f,0.0f);
-	}
-
-	/* if mouse over the either of the clocks - display the time & date */
-	if (mouse_over_clock)
-	{
-		char str[20];
-		const char *the_date = get_date(NULL);
-		int centre_y =  (view_analog_clock) ?win->len_y-scaled_96 : base_y_start + win->default_font_len_y/2;
-
-		safe_snprintf(str, sizeof(str), "%1d:%02d:%02d", real_game_minute/60, real_game_minute%60, real_game_second);
-		draw_string_small_shadowed_zoomed(-win->small_font_len_x*(strlen(str)+0.5), centre_y-win->small_font_len_y, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
-		if (the_date != NULL)
-		{
-			safe_snprintf(str, sizeof(str), "%s", the_date);
-			draw_string_small_shadowed_zoomed(-win->small_font_len_x*(strlen(str)+0.5), centre_y, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
-		}
-		mouse_over_clock = 0;
-	}
-
-	/* if mouse over the compass - display the coords */
-	if (mouse_over_compass)
-	{
-		char str[12];
-		actor *me = get_our_actor ();
-		if (me != NULL)
-		{
-			safe_snprintf(str, sizeof(str), "%d,%d", me->x_tile_pos, me->y_tile_pos);
-			draw_string_small_shadowed_zoomed(-win->small_font_len_x*(strlen(str)+0.5), win->len_y-scaled_64, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
-		}
-		mouse_over_compass = 0;
-	}
-
-	/* if the knowledge bar is enabled, show progress in bar and ETA as hover over */
-	if (view_knowledge_bar)
-	{
-		char str[20];
-		char *use_str = idle_str;
-		int percentage_done = 0;
-		int x = (int)(0.5 + win->current_scale * 4);
-		int y = base_y_start - side_stats_bar_height - ((knowledge_bar_height - side_stats_bar_height) / 2);
-		int off = 0;
-		
-		if (is_researching())
-		{
-			percentage_done = (int)(100 * get_research_fraction());
-			safe_snprintf(str, sizeof(str), "%d%%", percentage_done);
-			use_str = str;
-		}
-		off = (win->len_x - (int)(0.5 + win->current_scale * 6) - win->small_font_len_x * strlen(use_str)) / 2;
-		draw_side_stats_bar(win, x, y, 0, percentage_done, 100, 1);
-		draw_string_small_shadowed_zoomed(x+off+gx_adjust, y+gy_adjust, (unsigned char *)use_str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
-
-		if (mouse_over_knowledge_bar)
-		{
-			use_str = (is_researching()) ?get_research_eta_str(str, sizeof(str)) : not_researching_str;
-			draw_string_small_shadowed_zoomed(-win->small_font_len_x* (strlen(str)+0.5), y+gy_adjust, (unsigned char*)use_str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
-			mouse_over_knowledge_bar = 0;
-		}
-
-		base_y_start -= knowledge_bar_height;
-	}
-
-	/* if the timer is visible, draw it */
-	base_y_start -= display_timer(win, base_y_start);
-
-	// Trade the number of quickbar slots if too much is displayed (not considering stats yet)
-	while (((win->len_y - base_y_start) - get_max_quick_y()) > 0)
-	{
-		num_quickbar_slots--;
-		set_var_OPT_INT("num_quickbar_slots", num_quickbar_slots);
-	}
-
-	/*	Optionally display the stats bar.  If the current window size does not
-		provide enough room, display only some skills and allow scrolling to view
-		the rest */
-	if(show_stats_in_hud && have_stats)
-	{
-		char str[20];
-		int box_x = scaled_4;
-		int text_x = scaled_6;
-		int thestat;
-		int y = calc_statbar_start_y(base_y_start, win->len_y);
-		int skill_modifier;
-
-		// trade the number of quickbar slots if there is not enough space
-		while ((num_disp_stat < 5) && (num_quickbar_slots > 1))
-		{
-			num_quickbar_slots--;
-			set_var_OPT_INT("num_quickbar_slots", num_quickbar_slots);
-			y = calc_statbar_start_y(base_y_start, win->len_y);
-		}
-
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
-		
-		for (thestat=0; thestat<NUM_WATCH_STAT-1; thestat++)
-		{
-			int hover_offset = 0;
-			
-			/* skill skills until we have the skill displayed first */
-			if (thestat < first_disp_stat)
-				continue;
-				
-			/* end now if we have display all we can */
-			if (thestat > (first_disp_stat+num_disp_stat-1))
-				break;
-		
-			if (show_statbars_in_hud)
-				draw_side_stats_bar(win, box_x, y+1, statsinfo[thestat].skillattr->base,
-					*statsinfo[thestat].exp, *statsinfo[thestat].next_lev, 0);
-		
-			safe_snprintf(str,sizeof(str),"%-3s %3i",
-				statsinfo[thestat].skillnames->shortname,
-				statsinfo[thestat].skillattr->base );
-			if (statsinfo[thestat].is_selected == 1)
-				draw_string_small_shadowed_zoomed(text_x+gx_adjust, y+gy_adjust, (unsigned char*)str, 1,0.77f, 0.57f, 0.39f,0.0f,0.0f,0.0f, win->current_scale);
-			else
-				draw_string_small_shadowed_zoomed(text_x+gx_adjust, y+gy_adjust, (unsigned char*)str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
-			
-			if((thestat!=NUM_WATCH_STAT-2) && floatingmessages_enabled &&
-				(skill_modifier = statsinfo[thestat].skillattr->cur -
-				 	statsinfo[thestat].skillattr->base) != 0){
-				safe_snprintf(str,sizeof(str),"%+i",skill_modifier);
-				hover_offset = strlen(str)+1;
-				if(skill_modifier > 0){
-					draw_string_small_shadowed_zoomed(-win->small_font_len_x * (strlen(str)+0.5), y+gy_adjust, (unsigned char*)str, 1,0.3f, 1.0f, 0.3f,0.0f,0.0f,0.0f, win->current_scale);
-				} else {
-					draw_string_small_shadowed_zoomed(-win->small_font_len_x * (strlen(str)+0.5), y+gy_adjust, (unsigned char*)str, 1,1.0f, 0.1f, 0.2f,0.0f,0.0f,0.0f, win->current_scale);
-				}
-			}
-
-			/* if the mouse is over the stat bar, draw the XP remaining */
-			if (stat_mouse_is_over == thestat)
-			{
-				safe_snprintf(str,sizeof(str),"%li",(*statsinfo[thestat].next_lev - *statsinfo[thestat].exp));
-				draw_string_small_shadowed_zoomed(-win->small_font_len_x*(strlen(str)+0.5+hover_offset), y+gy_adjust, (unsigned char*)str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
-				stat_mouse_is_over = -1;
-			}
-
-			y+=side_stats_bar_height;
-		}
-	}
-
-	{
-		static int last_window_width = -1;
-		static int last_window_height = -1;
-
-		if (window_width != last_window_width || window_height != last_window_height)
-		{
-			cm_remove_regions(game_root_win);
-			cm_remove_regions(map_root_win);
-			cm_remove_regions(console_root_win);
-			cm_remove_regions(newchar_root_win);
-			cm_add_region(cm_hud_id, game_root_win, window_width-hud_x, 0, hud_x, window_height);
-			cm_add_region(cm_hud_id, map_root_win, window_width-hud_x, 0, hud_x, window_height);
-			cm_add_region(cm_hud_id, console_root_win, window_width-hud_x, 0, hud_x, window_height);
-			cm_add_region(cm_hud_id, newchar_root_win, window_width-hud_x, 0, hud_x, window_height);
-			last_window_width = window_width;
-			last_window_height = window_height;
-		}
-	}
-	
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
-	return	1;
-}
-
-static int mouse_is_over_knowedge_bar(window_info *win, int mx, int my)
-{
-	if (view_knowledge_bar)
-	{
-		int scaled_64 = (int)(0.5 + win->current_scale * 64);
-		int bar_y_pos = win->len_y - scaled_64;
-		if (view_analog_clock) bar_y_pos -= scaled_64;
-		if (view_digital_clock) bar_y_pos -= win->default_font_len_y;
-		if (my>bar_y_pos-knowledge_bar_height && my<bar_y_pos)
-			return 1;
-	}
-	return 0;
-}
-
-
-int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
-{
-	int clockheight = 0;
-	int in_stats_bar = 0;
-	int scaled_64 = (int)(0.5 + win->current_scale * 64);
-
-	// handle scrolling the stats bars if not all displayed
-	if (show_stats_in_hud && (my - statbar_start_y >= 0) && (my - statbar_start_y < num_disp_stat*side_stats_bar_height))
-	{
-		in_stats_bar = 1;
-
-		if ((first_disp_stat > 0) && ((flags & ELW_WHEEL_UP) ||
-			((flags & ELW_LEFT_MOUSE) && (flags & ELW_CTRL))))
-		{
-			first_disp_stat--;
-			return 1;
-		}
-		else if ((first_disp_stat + num_disp_stat < NUM_WATCH_STAT-1) &&
-				 ((flags & ELW_WHEEL_DOWN) || ((flags & ELW_RIGHT_MOUSE) && (flags & ELW_CTRL))))
-		{
-			first_disp_stat++;
-			return 1;
-		}
-	}
-
-	if (mouse_is_over_timer(win, mx, my))
-		return mouse_click_timer(flags);
-
-	// only handle mouse button clicks, not scroll wheels moves
-	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
-
-	// reserve CTRL clicks for scrolling
-	if (flags & ELW_CTRL) return 0;
-
-	//check to see if we clicked on the clock
-	if(view_digital_clock>0){
-		clockheight += win->default_font_len_y;
-	}
-	if(view_analog_clock>0){
-		clockheight += scaled_64;
-	}
-	if(my > (win->len_y - scaled_64 - clockheight) && my < (win->len_y - scaled_64))
-	{
-		unsigned char protocol_name;
-		do_click_sound();
-		protocol_name= GET_TIME;
-		my_tcp_send(my_socket,&protocol_name,1);
-		return 1;
-	}
-
-	/* show research if click on the knowledge bar */
-	if (mouse_is_over_knowedge_bar(win, mx, my))
-	{
-		do_click_sound();
-		send_input_text_line("#research", 9);
-		return 1;
-	}
-
-	//check to see if we clicked on the compass
-	if(my > (win->len_y - scaled_64) && my < win->len_y)
-	{
-		unsigned char protocol_name;
-		do_click_sound();
-		protocol_name= LOCATE_ME;
-		if (flags & ELW_SHIFT)
-		{
-			copy_next_LOCATE_ME = 2;
-		}
-		my_tcp_send(my_socket,&protocol_name,1);
-		return 1;
-	}
-	//check to see if we clicked on the stats
-	if (in_stats_bar)
-	{
-		handle_stats_selection(first_disp_stat + ((my - statbar_start_y ) / side_stats_bar_height) + 1, flags);
-		return 1;
-	}
-
-	return 0;
-}
-
-int mouseover_misc_handler(window_info *win, int mx, int my)
-{
-	int scaled_64 = (int)(0.5 + win->current_scale * 64);
-	int scaled_128 = (int)(0.5 + win->current_scale * 128);
-
-	/* Optionally display scrolling help if statsbar is active and restricted in size */
-	if (show_help_text && show_stats_in_hud && (num_disp_stat < NUM_WATCH_STAT-1) &&
-		(my - statbar_start_y >= 0) && (my - statbar_start_y < num_disp_stat*side_stats_bar_height))
-		show_help(stats_scroll_help_str, -10-strlen(stats_scroll_help_str)*win->small_font_len_x,
-			win->len_y - HUD_MARGIN_Y - win->small_font_len_y, win->current_scale);
-
-	/* stat hover experience left */
-	if (show_stats_in_hud && have_stats && (my - statbar_start_y >= 0) && (my - statbar_start_y < num_disp_stat*side_stats_bar_height))
-		stat_mouse_is_over = first_disp_stat + ((my - statbar_start_y ) / side_stats_bar_height);
-
-	/* if the mouse is over either clock - display the date and time */
-	if (view_analog_clock)
-	{
-		if (my>win->len_y-scaled_128 && my<win->len_y-scaled_64)
-			mouse_over_clock = 1;
-	}
-	if (view_digital_clock && !mouse_over_clock)
-	{
-		int digital_clock_y_pos = win->len_y-scaled_64;
-		if (view_analog_clock) digital_clock_y_pos-=scaled_64;
-		if (my>digital_clock_y_pos-win->default_font_len_y && my<digital_clock_y_pos)
-			mouse_over_clock = 1;
-	}
-
-	/* check if over the knowledge bar */
-	if (mouse_is_over_knowedge_bar(win, mx, my))
-		mouse_over_knowledge_bar = 1;
-
-	/* check if over the timer */
-	if (mouse_is_over_timer(win, mx, my))
-		set_mouse_over_timer();
-
-	/* if mouse over the compass - display the coords */
-	if(my>win->len_y-scaled_64 && my<win->len_y)
-		mouse_over_compass = 1;
-
-	return 0;
-}
-
 /* #define as these numbers are used many times */
 static int DEF_QUICKBAR_X_LEN = -1;
 static int DEF_QUICKBAR_Y_LEN = -1;
 static int DEF_QUICKBAR_X = -1;
 static int DEF_QUICKBAR_Y = -1;
 
-int quickbar_x_len = 0;
+static int quickbar_x_len = 0;
 int quickbar_x = 0;
 int quickbar_y = 0;
 int quickbar_draggable=0;
@@ -1578,7 +934,7 @@ int num_quickbar_slots = 6;
 static int last_num_quickbar_slots = 6;
 
 // return the window y len based on the number of slots
-int get_quickbar_y_len(void)
+static int get_quickbar_y_len(void)
 {
 	return num_quickbar_slots * DEF_QUICKBAR_Y_LEN + 1;
 }
@@ -1601,7 +957,7 @@ int action_item_keys(Uint32 key)
 
 /* get the base y coord of the quick bar if its in 
    it's default place, otherwise return where the top would be */
-int get_quickbar_y_base()
+static int get_quickbar_y_base(void)
 {
 	if ((quickbar_draggable) || (quickbar_dir!=VERTICAL) ||
 		(quickbar_x_len != DEF_QUICKBAR_X_LEN) || 
@@ -1612,7 +968,7 @@ int get_quickbar_y_base()
 }
 
 //quickbar section
-void init_quickbar ()
+void init_quickbar (void)
 {
 	Uint32 flags = ELW_USE_UISCALE | ELW_USE_BACKGROUND | ELW_USE_BORDER;
 	static int last_ui_scale = 0;
@@ -1680,7 +1036,7 @@ void init_quickbar ()
 	}
 }
 
-int	display_quickbar_handler(window_info *win)
+static int	display_quickbar_handler(window_info *win)
 {
 	char str[80];
 	int y, i;
@@ -1844,8 +1200,6 @@ CHECK_GL_ERRORS();
 	return 1;
 }
 
-int last_type=0;
-
 static void quickbar_item_description_help(window_info *win, int pos, int slot)
 {
 	Uint16 item_id = item_list[pos].id;
@@ -1882,7 +1236,7 @@ static void quickbar_item_description_help(window_info *win, int pos, int slot)
 	}
 }
 
-int mouseover_quickbar_handler(window_info *win, int mx, int my) {
+static int mouseover_quickbar_handler(window_info *win, int mx, int my) {
 	int y,i=0;
 	int x_screen,y_screen;
 	for(y=0;y<num_quickbar_slots;y++)
@@ -1921,7 +1275,7 @@ int mouseover_quickbar_handler(window_info *win, int mx, int my) {
 	return 0;
 }
 
-int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
+static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int i,y;
 	int x_screen,y_screen;
@@ -2110,7 +1464,7 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 }
 
 /*Enable/disable quickbar title bar and dragability*/
-void toggle_quickbar_draggable()
+static void toggle_quickbar_draggable()
 {
 	Uint32 flags = get_flags(quickbar_win);
 	if (!quickbar_draggable)
@@ -2132,7 +1486,7 @@ void toggle_quickbar_draggable()
 }
 
 /*Change the quickbar from vertical to horizontal, or vice versa*/
-void flip_quickbar() 
+static void flip_quickbar() 
 {
 	if (quickbar_dir==VERTICAL) 
 		{
@@ -2148,7 +1502,7 @@ void flip_quickbar()
 
 
 /*Return the quickbar to it's Built-in position*/
-void reset_quickbar() 
+static void reset_quickbar() 
 {
 	//Necessary Variables
 	quickbar_x_len= DEF_QUICKBAR_X_LEN;
@@ -2312,7 +1666,7 @@ void handle_stats_selection(int stat, Uint32 flags)
 }
 
 /*Change flags*/
-void change_flags(int win_id, Uint32 flags)
+static void change_flags(int win_id, Uint32 flags)
 {
 	int order = windows_list.window[win_id].order;
 	
@@ -2322,7 +1676,7 @@ void change_flags(int win_id, Uint32 flags)
 }
 
 /*Return flags*/
-Uint32 get_flags(int win_id) {
+static Uint32 get_flags(int win_id) {
 	return windows_list.window[win_id].flags;
 }
 

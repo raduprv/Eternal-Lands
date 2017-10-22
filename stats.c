@@ -7,6 +7,7 @@
 #include "errors.h"
 #include "gl_init.h"
 #include "global.h"
+#include "hud.h"
 #include "init.h"
 #include "knowledge.h"
 #include "session.h"

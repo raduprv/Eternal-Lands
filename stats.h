@@ -281,12 +281,6 @@ void drawactor_floatingmessages(int actor_id, float healthbar_z);
 void add_floating_message(int actor_id, char * str, int direction, float r, float g, float b, int active_time);
 void init_statsinfo_array(void);
 
-/*
- * decide if/where to display the given stat in the hud
- * uses the flags of the calling window to check for ALT- or SHIFT-key
- */
-extern void handle_stats_selection(int stat, Uint32 flags);
-
 #ifdef __cplusplus
 } // extern "C"
 #endif
