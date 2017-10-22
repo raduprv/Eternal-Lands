@@ -36,7 +36,7 @@ class Hud_Timer
 			max_value(9*60+59), height(0), cm_id(CM_INIT_VALUE),
 			last_base_y_start(-1), input(0) {}
 		~Hud_Timer(void) { destroy(); }
-		int get_height(void) const { return (view_hud_timer) ?height :0; }
+		int get_height(void) const { return height; }
 		void set_mouse_over(void) { mouse_over = true; }
 		void update(void);
 		void set_start(int new_start_value);
