@@ -60,23 +60,6 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 
 /*!
  * \ingroup text_font
- * \brief   draws the given string \a our_string at the desired position (\a x, \a y).
- *
- *      Draws the given string \a our_string at the desired position (\a x, \a y).
- *
- * \param x             x coordinate of the position to draw the string
- * \param y             y coordinate of the position to draw the string
- * \param our_string    the string to draw
- * \param max_lines
- *
- * \callgraph
- */
-int draw_string(int x, int y, const unsigned char * our_string, int max_lines);
-int draw_string_shadowed (int x, int y, const unsigned char * our_string, int max_lines, float fr,float fg,float fb, float br,float bg,float bb);
-int draw_string_shadowed_width (int x, int y, const unsigned char * our_string, int max_width, int max_lines, float fr,float fg,float fb, float br,float bg,float bb);
-
-/*!
- * \ingroup text_font
  * \brief   draws the given string \a our_string at the desired position (\a x, \a y) with a zoom factor of \a text_zoom.
  *
  *      Draws the given string \a our_string at the desired position (\a x, \a y) with a zoom factor of \a text_zoom.
@@ -90,9 +73,9 @@ int draw_string_shadowed_width (int x, int y, const unsigned char * our_string, 
  * \callgraph
  */
 int draw_string_zoomed (int x, int y,const unsigned char * our_string,int max_lines, float text_zoom);
-int draw_string_shadowed_zoomed (int x, int y, const unsigned char * our_string, int max_lines, float fr,float fg,float fb, float br,float bg,float bb, float zoom);
 int draw_string_zoomed_width (int x, int y, const unsigned char * our_string, int max_width, int max_lines, float text_zoom);
-int draw_string_width(int x, int y, const unsigned char * our_string, int max_width, int max_lines);
+int draw_string_shadowed_zoomed (int x, int y, const unsigned char * our_string, int max_lines, float fr,float fg,float fb, float br,float bg,float bb, float zoom);
+int draw_string_shadowed_width (int x, int y, const unsigned char * our_string, int max_width, int max_lines, float fr,float fg,float fb, float br,float bg,float bb);
 
 /*!
  * \ingroup text_font
@@ -128,10 +111,6 @@ void draw_string_clipped(int x, int y, const unsigned char * our_string, int wid
  */
 void draw_string_zoomed_clipped(int x, int y, const unsigned char * our_string, int cursor_pos, int width, int height, float text_zoom);
 
-/*
-void draw_window_string (int x, int y, const unsigned char *str, int width, int height, float text_zoom);
-*/
-
 /*!
  * \ingroup text_font
  * \brief   recompute where the line breaks in a string should occur
@@ -161,12 +140,11 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
  * \param y             y coordinate of the position to draw the string
  * \param our_string    the string to draw
  * \param max_lines
+ * \param text_zoom     the zoom factor to use
  *
  * \callgraph
  */
-void draw_string_small(int x, int y,const unsigned char * our_string,int max_lines);
 void draw_string_small_zoomed(int x, int y,const unsigned char * our_string,int max_lines, float text_zoom);
-void draw_string_small_shadowed(int x, int y,const unsigned char * our_string,int max_lines, float fr, float fg, float fb, float br, float bg, float bb);
 void draw_string_small_shadowed_zoomed(int x, int y,const unsigned char * our_string,int max_lines, float fr, float fg, float fb, float br, float bg, float bb, float text_zoom);
 
 #ifdef	ELC

@@ -441,11 +441,6 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-int draw_string (int x, int y, const unsigned char * our_string, int max_lines)
-{
-	return draw_string_zoomed_width (x, y, our_string, window_width, max_lines, 1.0f);
-}
-
 int draw_string_shadowed_zoomed (int x, int y, const unsigned char * our_string, int max_lines, float fr,float fg,float fb, float br,float bg,float bb, float zoom)
 {
 	int px,py,r;
@@ -459,11 +454,6 @@ int draw_string_shadowed_zoomed (int x, int y, const unsigned char * our_string,
 	glColor3f(fr, fg, fb);
 	r=draw_string_zoomed(x, y, our_string, max_lines, zoom);
 	return r;
-}
-
-int draw_string_shadowed (int x, int y, const unsigned char * our_string, int max_lines, float fr,float fg,float fb, float br,float bg,float bb)
-{
-	return draw_string_shadowed_zoomed(x, y, our_string, max_lines, fr, fg, fb, br, bg, bb, 1.0);
 }
 
 int draw_string_shadowed_width (int x, int y, const unsigned char * our_string, int max_width, int max_lines, float fr,float fg,float fb, float br,float bg,float bb)
@@ -480,11 +470,6 @@ int draw_string_shadowed_width (int x, int y, const unsigned char * our_string, 
 	 glColor3f(fr, fg, fb);
      r=draw_string_zoomed(x, y, our_string, max_lines, zoom);
      return r;
-}
-
-int draw_string_width(int x, int y, const unsigned char * our_string, int max_width, int max_lines)
-{
-	return draw_string_zoomed_width (x, y, our_string, max_width, max_lines, 1.0f);
 }
 
 int draw_string_zoomed (int x, int y, const unsigned char * our_string, int max_lines, float text_zoom)
@@ -843,16 +828,6 @@ void draw_string_small_shadowed_zoomed(int x, int y,const unsigned char * our_st
 	//set foreground colour
 	glColor4f(fr, fg, fb, 1.0f);
 	draw_string_small_zoomed(x, y, our_string, max_lines, text_zoom);
-}
-
-void draw_string_small_shadowed(int x, int y,const unsigned char * our_string,int max_lines, float fr, float fg, float fb, float br, float bg, float bb)
-{
-	draw_string_small_shadowed_zoomed(x, y, our_string, max_lines, fr, fg, fb, br, bg, bb, 1.0);
-}
-
-void draw_string_small(int x, int y,const unsigned char * our_string,int max_lines)
-{
-	draw_string_small_zoomed(x, y, our_string, max_lines, 1.0);
 }
 
 #ifdef	ELC
