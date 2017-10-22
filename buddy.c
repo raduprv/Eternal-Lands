@@ -577,7 +577,7 @@ static int ui_scale_accept_handler(window_info *win)
 		return 0;
 
 	safe_snprintf(string, sizeof(string), buddy_wants_to_add_str, accept_windows[current_window].name);
-	scaled_put_small_colored_text_in_box(c_blue1, (unsigned char*)string, strlen(string),
+	put_small_colored_text_in_box_zoomed(c_blue1, (unsigned char*)string, strlen(string),
 		win_width - 2 * buddy_border_space, accept_windows[current_window].text, win->current_scale);
 
 	widget_resize(win->window_id, accept_windows[current_window].checkbox, win->small_font_len_y, win->small_font_len_y);

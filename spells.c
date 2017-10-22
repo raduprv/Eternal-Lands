@@ -1085,7 +1085,7 @@ static int display_sigils_handler(window_info *win)
 	}
 
 	//now, draw the inventory text, if any.
-	scaled_put_small_text_in_box(raw_spell_text, strlen((char *)raw_spell_text), win->len_x-2*sigil_border, (char *)spell_text_buf);
+	put_small_text_in_box_zoomed(raw_spell_text, strlen((char *)raw_spell_text), win->len_x-2*sigil_border, (char *)spell_text_buf, win->current_scale);
 	draw_string_small_zoomed(sigil_border, NUM_SIGILS_ROW * sigil_grid_size + win->small_font_len_y / 2, spell_text_buf, 4, win->current_scale);
 
 	// Render the grid *after* the images. It seems impossible to code
@@ -1142,7 +1142,7 @@ static int display_spells_handler(window_info *win){
 
 	//draw spell text & help
 	glColor3f(1.0f,1.0f,1.0f);
-	scaled_put_small_text_in_box(raw_spell_text, strlen((char *)raw_spell_text), win->len_x-2*spell_border, (char *)spell_text_buf);
+	put_small_text_in_box_zoomed(raw_spell_text, strlen((char *)raw_spell_text), win->len_x-2*spell_border, (char *)spell_text_buf, win->current_scale);
 	draw_string_small_zoomed(spell_border, spell_text_y, spell_text_buf, 3, win->current_scale);
 	draw_string_small_zoomed(spell_border, spell_engred_y + spell_grid_size + spell_border, spell_help, 2, win->current_scale);
 

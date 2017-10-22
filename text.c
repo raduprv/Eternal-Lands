@@ -1094,22 +1094,12 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 	return;
 }
 
-void scaled_put_small_text_in_box (const Uint8 *text_to_add, int len, int pixels_limit, char *buffer)
+void put_small_text_in_box_zoomed (const Uint8 *text_to_add, int len, int pixels_limit, char *buffer, float text_zoom)
 {
-	scaled_put_small_colored_text_in_box (c_grey1, text_to_add, len, pixels_limit, buffer, ui_scale);
+	put_small_colored_text_in_box_zoomed (c_grey1, text_to_add, len, pixels_limit, buffer, text_zoom);
 }
 
-void put_small_text_in_box (const Uint8 *text_to_add, int len, int pixels_limit, char *buffer)
-{
-	scaled_put_small_colored_text_in_box (c_grey1, text_to_add, len, pixels_limit, buffer, 1.0);
-}
-
-void put_small_colored_text_in_box (Uint8 color, const Uint8 *text_to_add, int len, int pixels_limit, char *buffer)
-{
-	scaled_put_small_colored_text_in_box(color, text_to_add, len, pixels_limit, buffer, 1.0);
-}
-
-void scaled_put_small_colored_text_in_box (Uint8 color, const Uint8 *text_to_add, int len, int pixels_limit, char *buffer, float scale)
+void put_small_colored_text_in_box_zoomed (Uint8 color, const Uint8 *text_to_add, int len, int pixels_limit, char *buffer, float text_zoom)
 {
 	int i;
 	Uint8 cur_char;
@@ -1121,7 +1111,7 @@ void scaled_put_small_colored_text_in_box (Uint8 color, const Uint8 *text_to_add
 		buffer[last_text++] = to_color_char (color);
 
 	//see if the text fits on the screen
-	x_chars_limit = pixels_limit / (int)(0.5 + SMALL_FONT_X_LEN * scale);
+	x_chars_limit = pixels_limit / (int)(0.5 + SMALL_FONT_X_LEN * text_zoom);
 	if (len <= x_chars_limit)
 	{
 		for (i = 0; i < len; i++)

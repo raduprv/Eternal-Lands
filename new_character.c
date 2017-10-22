@@ -41,7 +41,7 @@
 #include "widgets.h"
 #include "actor_init.h"
 
-static void add_text_to_buffer(int color, char * text, int time_to_display);
+static void add_text_to_buffer(int color, const char * text, int time_to_display);
 
 typedef int my_enum;//This enumeration will decrease, then wrap to top, increase and then wrap to bottom, when using the inc() and dec() functions. Special purpose though, since you have to have between 2 and 255 values in the enumeration and you have to have the same value in enum[0] as in enum[max] - otherwise we'll probably segfault...
 
@@ -165,19 +165,17 @@ void set_create_char_error (const char *msg, int len)
 	if (len <= 0)
 	{
 		// server didn't send a message, use the default
-		safe_snprintf (create_char_error_str, sizeof(create_char_error_str), "%s: %s", reg_error_str, char_name_in_use);
+		safe_snprintf (buf, sizeof(buf), "%s: %s", reg_error_str, char_name_in_use);
 	}
 	else
 	{
-		safe_snprintf (create_char_error_str, sizeof (create_char_error_str), "%s: %.*s", reg_error_str, len, msg);
-		reset_soft_breaks (create_char_error_str, strlen (create_char_error_str), sizeof (create_char_error_str), 1.0, window_width - 20, NULL, NULL);
+		safe_snprintf (buf, sizeof (buf), "%s: %.*s", reg_error_str, len, msg);
+		reset_soft_breaks (buf, strlen (buf), sizeof (create_char_error_str), 1.0, window_width - 20, NULL, NULL);
 	}
 
-	LOG_TO_CONSOLE(c_red1, create_char_error_str);
+	LOG_TO_CONSOLE(c_red1, buf);
 
-	put_small_colored_text_in_box(c_red1, (unsigned char*)create_char_error_str, strlen(create_char_error_str), 200, buf);
-	safe_snprintf(create_char_error_str, sizeof(create_char_error_str), "%s", buf);
-	display_time=cur_time+6000;
+	add_text_to_buffer(c_red1, msg, 6000);
 
 	creating_char=1;
 }
@@ -248,6 +246,7 @@ static int color_race_win = -1;
 static int namepass_win = -1;
 static int newchar_advice_win = -1;
 static int newchar_hud_win = -1;
+static int error_widget_id = -1;
 
 //	Display the "Character creation screen" and creation step help window.
 //
@@ -732,9 +731,12 @@ static int check_character(int type, char ch)
 	return retval;
 }
 
-static void add_text_to_buffer(int color, char * text, int time_to_display)
+static void add_text_to_buffer(int color, const char * text, int time_to_display)
 {
-	put_small_colored_text_in_box(color, (unsigned char*)text, strlen(text), 200, create_char_error_str);
+	if (namepass_win < 0 || namepass_win >= windows_list.num_windows)
+		return;
+	put_small_colored_text_in_box_zoomed(color, (unsigned char*)text, strlen(text),
+		widget_get_width(namepass_win, error_widget_id), create_char_error_str, windows_list.window[namepass_win].current_scale);
 	display_time=cur_time+time_to_display;
 }
 
@@ -1020,7 +1022,7 @@ static int init_namepass_handler(window_info * win)
 	label_add_extended(win->window_id, free_widget_id++, 0, win->len_x - 4 * sep - size - strlen((char*)show_password)*DEFAULT_FONT_X_LEN*bit_small, y, 0, bit_small, r, g, b, (char*)show_password);
 	widget_id = checkbox_add_extended(win->window_id, free_widget_id++, 0, win->len_x - 2 * sep - size, y, size, size, 0, bit_small, r, g, b, &hidden);
 	y += DEFAULT_FONT_Y_LEN * bit_small + sep;
-	widget_add(win->window_id, free_widget_id++, 0, 2 * sep, y, win->len_x - 4 * sep, win->len_y - y, 0, very_small, r, g, b, &errorbox_type, NULL, NULL);
+	error_widget_id = widget_add(win->window_id, free_widget_id++, 0, 2 * sep, y, win->len_x - 4 * sep, win->len_y - y, 0, very_small, r, g, b, &errorbox_type, NULL, NULL);
 
 	//Done and Back buttons
 	widget_id = button_add_extended(win->window_id, free_widget_id++, 0, 0, 0, 0, 0, 0, very_small, r, g, b, char_done);

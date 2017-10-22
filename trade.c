@@ -229,7 +229,7 @@ static int display_trade_handler(window_info *win)
 	//now, draw the inventory text, if any.
 	if (last_items_string_id != inventory_item_string_id)
 	{		
-		scaled_put_small_text_in_box((unsigned char*)inventory_item_string, strlen(inventory_item_string), win->len_x - trade_border, items_string);
+		put_small_text_in_box_zoomed((unsigned char*)inventory_item_string, strlen(inventory_item_string), win->len_x - trade_border, items_string, win->current_scale);
 		last_items_string_id = inventory_item_string_id;
 	}
 	draw_string_small_zoomed(trade_border/2, button_y_bot + trade_border, (unsigned char*)items_string, ITEM_INFO_ROWS, win->current_scale);

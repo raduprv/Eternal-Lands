@@ -2487,7 +2487,7 @@ int mouseover_option_handler(widget_list *widget, int mx, int my)
 		//We didn't find anything, abort
 		return 0;
 	}
-	scaled_put_small_colored_text_in_box(c_grey1, our_vars.var[i]->display.desc, strlen((char*)our_vars.var[i]->display.desc),
+	put_small_text_in_box_zoomed(our_vars.var[i]->display.desc, strlen((char*)our_vars.var[i]->display.desc),
 								elconfig_menu_x_len-TAB_MARGIN*2, (char*)elconf_description_buffer, elconf_scale);
 	return 1;
 }

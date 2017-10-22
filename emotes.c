@@ -118,8 +118,9 @@ static void update_selectables(void)
 	if(emote_sel[cur_cat]){
 		emote_dict *emd;
 
-		put_small_colored_text_in_box(c_orange2, (const unsigned char*)emote_sel[cur_cat]->desc,
-			strlen(emote_sel[cur_cat]->desc), help_width_in_char * SMALL_FONT_X_LEN, (char*)emote_str1);
+		// the window width is maintained during scaling so that the box is always help_width_in_char wide
+		put_small_colored_text_in_box_zoomed(c_orange2, (const unsigned char*)emote_sel[cur_cat]->desc,
+			strlen(emote_sel[cur_cat]->desc), help_width_in_char * SMALL_FONT_X_LEN, (char*)emote_str1, 1.0);
 		hash_start_iterator(emote_cmds);
 		while((he=hash_get_next(emote_cmds))){
 			emd = (emote_dict*)he->item;

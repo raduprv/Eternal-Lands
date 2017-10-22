@@ -483,7 +483,7 @@ int display_storage_handler(window_info * win)
 	if(storage_text[0]){
 		if (strcmp(storage_text, last_storage_text) != 0) {
 			safe_strncpy(last_storage_text, storage_text, sizeof(last_storage_text));
-			scaled_put_small_text_in_box ((Uint8 *)storage_text, strlen(storage_text), win->len_x - 4 * border_size, wrapped_storage_text);
+			put_small_text_in_box_zoomed ((Uint8 *)storage_text, strlen(storage_text), win->len_x - 4 * border_size, wrapped_storage_text, win->current_scale);
 		}
 		draw_string_small_zoomed(desc_string_left_offset, desc_string_top_offset, (unsigned char*)wrapped_storage_text, 2, win->current_scale);
 	}

@@ -337,13 +337,13 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
  * \param len           the length of text_to_add
  * \param pixels_limit
  * \param buffer
+ * \param text_zoom
  *
  * \callgraph
  *
  * \todo Fix documentation
  */
-void put_small_text_in_box (const Uint8 *text_to_add, int len, int pixels_limit, char *buffer);
-void scaled_put_small_text_in_box (const Uint8 *text_to_add, int len, int pixels_limit, char *buffer);
+void put_small_text_in_box_zoomed (const Uint8 *text_to_add, int len, int pixels_limit, char *buffer, float text_zoom);
 
 /*!
  * \ingroup text_font
@@ -356,13 +356,13 @@ void scaled_put_small_text_in_box (const Uint8 *text_to_add, int len, int pixels
  * \param len           the length of text_to_add
  * \param pixels_limit
  * \param buffer
+ * \param text_zoom
  *
  * \callgraph
  *
  * \todo Fix documentation
  */
-void put_small_colored_text_in_box (Uint8 color, const Uint8 *text_to_add, int len, int pixels_limit, char *buffer);
-void scaled_put_small_colored_text_in_box (Uint8 color, const Uint8 *text_to_add, int len, int pixels_limit, char *buffer, float scale);
+void put_small_colored_text_in_box_zoomed (Uint8 color, const Uint8 *text_to_add, int len, int pixels_limit, char *buffer, float text_zoom);
 
 /*!
  * \ingroup text_font

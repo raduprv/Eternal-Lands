@@ -738,7 +738,8 @@ void display_dialogue(const Uint8 *in_data, int data_length)
 	if (dialogue_win >=0 && dialogue_win < windows_list.num_windows)
 		ui_scale_dialogue_handler(&windows_list.window[dialogue_win]);
 
-	put_small_text_in_box(in_data, data_length, available_text_width * SMALL_FONT_X_LEN, (char*)dialogue_string);
+	// the window width is maintained during scaling so that the box is always available_text_width wide
+	put_small_text_in_box_zoomed(in_data, data_length, available_text_width * SMALL_FONT_X_LEN, (char*)dialogue_string, 1.0);
 	recalc_option_positions = new_dialogue = 1;
 }
 

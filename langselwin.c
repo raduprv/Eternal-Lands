@@ -480,7 +480,7 @@ static int display_langsel_handler(window_info *win)
 		if (langwin_save_note)
 		{
 			langsel_save_note_boxed = (char *)realloc(langsel_save_note_boxed, strlen(langwin_save_note)*2);
-			scaled_put_small_colored_text_in_box(c_grey1, (const Uint8 *)langwin_save_note,
+			put_small_text_in_box_zoomed((const Uint8 *)langwin_save_note,
 				strlen(langwin_save_note), winwidth - (2 * winsep + save_widget->len_x), langsel_save_note_boxed, text_zoom);
 		}
 		

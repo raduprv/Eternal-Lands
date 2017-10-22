@@ -205,7 +205,8 @@ void update_loading_win (char *text, float progress_increase)
 
 		if (text != NULL && strlen(text) <= 255)
 		{
-			put_small_text_in_box((unsigned char*)text, strlen(text), window_width, (char*)text_buffer);
+			if (loading_win >= 0 && loading_win < windows_list.num_windows)
+				put_small_text_in_box_zoomed((unsigned char*)text, strlen(text), window_width, (char*)text_buffer, windows_list.window[loading_win].current_scale);
 		}
 		// The loading window is supposed to display stuff while
 		// loading maps when the draw_scene loop is held up. Hence

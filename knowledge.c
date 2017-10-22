@@ -226,7 +226,7 @@ int display_knowledge_handler(window_info *win)
 	//draw text
 	if (selected_book >= 0 && knowledge_list[selected_book].present && knowledge_list[selected_book].has_book)
 		text_width = book_start_x - 2 * text_border;
-	scaled_put_small_text_in_box((unsigned char *)raw_knowledge_string, strlen((char *)raw_knowledge_string), text_width, (char *)knowledge_text_buf);
+	put_small_text_in_box_zoomed((unsigned char *)raw_knowledge_string, strlen((char *)raw_knowledge_string), text_width, (char *)knowledge_text_buf, win->current_scale);
 	draw_string_small_zoomed(text_border,booklist_y_len + text_border,(unsigned char*)knowledge_text_buf, info_lines, win->current_scale);
 	glColor3f(1.0f,1.0f,1.0f);
 	draw_string_small_zoomed(text_border,progress_top_y+3+gy_adjust,(unsigned char*)researching_str,1, win->current_scale);
