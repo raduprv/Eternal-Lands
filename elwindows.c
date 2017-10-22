@@ -787,7 +787,7 @@ int	create_window(const char *name, int pos_id, Uint32 pos_loc, int pos_x, int p
 		win->line_color[2] = 0.39f;
 		win->line_color[3] = 0.0f;
 
-		update_window_scale(win, ui_scale);
+		update_window_scale(win, get_global_scale());
 
 		win->init_handler = NULL;
 		win->display_handler = NULL;

@@ -50,11 +50,11 @@
 #endif /* POPUP_DEBUG */
 
 static list_node_t *popup_list;
+static int popup_position_x = 500/2;
+static int popup_position_y = 480/4;
 
 /* scaled vars */
 static float popup_font_zoom = 0;
-static int popup_position_x = 0;
-static int popup_position_y = 0;
 static int button_width = 0;
 static int button_height = 0;
 static int POPUP_TOP_TEXT_LEFT_MARGIN  = 0;
@@ -67,24 +67,24 @@ static int POPUP_OPTION_TEXT_TOP_MARGIN = 0;
 static int POPUP_BOTTOM_MARGIN = 0;
 static int RADIO_OFFSET = 0;
 static int POPUP_TEXTENTRY_HEIGHT = 0;
+static float window_scale = 0;
 
 static void popup_scale_vars(void)
 {
-	popup_font_zoom = 0.8f * ui_scale;
-	popup_position_x = UI_SCALED_VALUE(500/2);
-	popup_position_y = UI_SCALED_VALUE(480/4);
-	button_width = UI_SCALED_VALUE(70);
-	button_height = UI_SCALED_VALUE(30);
-	POPUP_TOP_TEXT_LEFT_MARGIN = UI_SCALED_VALUE(10);
-	POPUP_TOP_TEXT_RIGHT_MARGIN = UI_SCALED_VALUE(15);
-	POPUP_TOP_TEXT_TOP_MARGIN = UI_SCALED_VALUE(10);
-	POPUP_TOP_TEXT_BOTTOM_MARGIN = UI_SCALED_VALUE(0);
-	POPUP_OPTION_TEXT_LEFT_MARGIN = UI_SCALED_VALUE(20);
-	POPUP_OPTION_TEXT_RIGHT_MARGIN = UI_SCALED_VALUE(20);
-	POPUP_OPTION_TEXT_TOP_MARGIN = UI_SCALED_VALUE(3);
-	POPUP_BOTTOM_MARGIN = UI_SCALED_VALUE(10);
-	RADIO_OFFSET = UI_SCALED_VALUE(16);
-	POPUP_TEXTENTRY_HEIGHT = UI_SCALED_VALUE(4 + (DEFAULT_FONT_Y_LEN*popup_font_zoom));
+	window_scale = get_global_scale();
+	popup_font_zoom = 0.8f * window_scale;
+	button_width = (int)(0.5 + window_scale * 70);
+	button_height = (int)(0.5 + window_scale * 30);
+	POPUP_TOP_TEXT_LEFT_MARGIN = (int)(0.5 + window_scale * 10);
+	POPUP_TOP_TEXT_RIGHT_MARGIN = (int)(0.5 + window_scale * 15);
+	POPUP_TOP_TEXT_TOP_MARGIN = (int)(0.5 + window_scale * 10);
+	POPUP_TOP_TEXT_BOTTOM_MARGIN = (int)(0.5 + window_scale * 0);
+	POPUP_OPTION_TEXT_LEFT_MARGIN = (int)(0.5 + window_scale * 20);
+	POPUP_OPTION_TEXT_RIGHT_MARGIN = (int)(0.5 + window_scale * 20);
+	POPUP_OPTION_TEXT_TOP_MARGIN = (int)(0.5 + window_scale * 3);
+	POPUP_BOTTOM_MARGIN = (int)(0.5 + window_scale * 10);
+	RADIO_OFFSET = (int)(0.5 + window_scale * 16);
+	POPUP_TEXTENTRY_HEIGHT = (int)(0.5 + window_scale * 4 + (DEFAULT_FONT_Y_LEN*popup_font_zoom));
 }
 
 
@@ -241,7 +241,7 @@ popup_t *popup_allocate()
 		new_popup->button_widget_id = 0;
 
 		/* Hardcoded X size for now. Can be overriden using size_hints */
-		new_popup->width = UI_SCALED_VALUE(400);
+		new_popup->width = (int)(0.5 + window_scale * 400);
 
 	}
 	return new_popup;
@@ -272,7 +272,7 @@ static void flowing_text_free( flowing_text_t *text )
 static void popup_set_sizehint( popup_t *this_popup, unsigned int size )
 {
 	if (size>0)
-		this_popup->width = UI_SCALED_VALUE(size);
+		this_popup->width = (int)(0.5 + window_scale * size);
 }
 
 /*!
@@ -611,8 +611,8 @@ static void draw_circle_pure(float x, float y, float radius, int interval, int a
 
 static int popup_display_object( popup_t *this_popup, window_info *win )
 {
-	float half_text_height = 5 * ui_scale;
-	float popup_radio_x = 10 * ui_scale;
+	float half_text_height = (int)(0.5 + window_scale * 5);
+	float popup_radio_x = (int)(0.5 + window_scale * 10);
     POPUP_FUNC_ENTER;
 
 	if ( this_popup->text.str ) {

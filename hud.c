@@ -54,6 +54,8 @@
 #define ATTACK 4
 #define USE 5
 
+#define UI_SCALED_VALUE(BASE) ((int)(0.5 + ((BASE) * get_global_scale())))
+
 Uint32 exp_lev[200];
 hud_interface last_interface = HUD_INTERFACE_NEW_CHAR; //Current interface (game or new character)
 
@@ -1187,12 +1189,12 @@ int display_misc_handler(window_info *win)
 	int base_y_start = win->len_y - ((view_analog_clock)?UI_SCALED_VALUE(128):scaled_64) - (view_digital_clock?UI_SCALED_VALUE(DEFAULT_FONT_Y_LEN):0);
 	static float last_ui_scale = 0.0;
 	
-	if (ui_scale != last_ui_scale)
+	if (get_global_scale() != last_ui_scale)
 	{
 		knowledge_bar_height = UI_SCALED_VALUE(SMALL_FONT_Y_LEN) + 6;
 		stats_bar_height = UI_SCALED_VALUE(SMALL_FONT_Y_LEN);
 		init_misc_display(HUD_INTERFACE_LAST);
-		last_ui_scale = ui_scale;
+		last_ui_scale = get_global_scale();
 	}
 
 #ifdef OPENGL_TRACE
@@ -1608,7 +1610,7 @@ void init_quickbar ()
 	Uint32 flags = ELW_USE_UISCALE | ELW_USE_BACKGROUND | ELW_USE_BORDER;
 	static int last_ui_scale = 0;
 
-	if (last_ui_scale != ui_scale)
+	if (last_ui_scale != get_global_scale())
 	{
 		DEF_QUICKBAR_X_LEN = UI_SCALED_VALUE(30);
 		DEF_QUICKBAR_Y_LEN = UI_SCALED_VALUE(30);
@@ -1620,7 +1622,7 @@ void init_quickbar ()
 			quickbar_x = DEF_QUICKBAR_X;
 			quickbar_y = DEF_QUICKBAR_Y;
 		}
-		last_ui_scale = ui_scale;
+		last_ui_scale = get_global_scale();
 	}
 
 	quickbar_x_len = DEF_QUICKBAR_X_LEN;

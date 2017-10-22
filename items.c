@@ -283,7 +283,7 @@ void drag_item(int item, int storage, int mini)
 	
 	if(!mini && quantity!=-1){
 		safe_snprintf(str,sizeof(str),"%i",quantity);
-		draw_string_small_zoomed(mouse_x-offset, mouse_y+offset-UI_SCALED_VALUE(SMALL_FONT_Y_LEN), (unsigned char*)str, 1, ui_scale);
+		draw_string_small_zoomed(mouse_x-offset, mouse_y + offset - get_global_scale() * SMALL_FONT_Y_LEN, (unsigned char*)str, 1, get_global_scale());
 	}
 }
 

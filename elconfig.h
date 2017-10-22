@@ -13,9 +13,6 @@
 extern "C" {
 #endif
 
-extern float ui_scale;
-#define UI_SCALED_VALUE(BASE) ((int)(0.5 + ((BASE) * ui_scale)))
-
 extern int elconfig_win;
 extern int elconfig_menu_x;
 extern int elconfig_menu_y;
@@ -70,6 +67,8 @@ void display_elconfig_win(void);
 int get_rotate_chat_log(void);
 
 void change_language(const char *new_lang);
+
+extern float get_global_scale(void);
 
 /*!
  * \ingroup config

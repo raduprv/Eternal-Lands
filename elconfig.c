@@ -188,7 +188,8 @@ int shadow_map_size_multi= 0;
  int fsaa_index = 0;
 #endif	/* FSAA */
 
-float ui_scale = 1.0;
+static float ui_scale = 1.0;
+float get_global_scale(void) { return ui_scale; }
 
 /* temporary variables for fine graphic positions asjustmeet */
 int gx_adjust = 0;
@@ -474,10 +475,10 @@ void change_string(char * var, char * str, int len)
 void change_ui_scale(float *var, float *value)
 {
 	*var= *value;
-	HUD_MARGIN_X = UI_SCALED_VALUE(64);
+	HUD_MARGIN_X = (int)(0.5 + *var * 64);
 	if (hud_x != 0)
 		hud_x = HUD_MARGIN_X;
-	HUD_MARGIN_Y = 5 + UI_SCALED_VALUE(44);
+	HUD_MARGIN_Y = 5 + (int)(0.5 + *var * 44);
 	if (hud_y != 0)
 		hud_y = HUD_MARGIN_Y;
 
