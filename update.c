@@ -25,39 +25,43 @@
 #include "gl_init.h"
 #include "init.h"
 #include "interface.h"
-#include "misc.h"
 #include "translate.h"
 #include "io/elpathwrapper.h"
 #include "threads.h"
 
-void create_update_root_window (int width, int height, int time);		// Pre-declare this
+void create_update_root_window (int width, int height, int time);
+static void do_updates(void);
+static void http_threaded_get_file(char *server, char *path, FILE *fp, Uint8 *md5, Uint32 event);
+static int do_threaded_update(void *ptr);
+static int http_get_file_thread_handler(void *specs);
+static int http_get_file(char *server, char *path, FILE *fp);
 
-int update_attempt_count;   // count how many update attempts have been tried (hopefully diff servers)
-int temp_counter;           // collision prevention during downloads just incase more then one ever starts
-int update_busy;            // state & lockout control to prevent two updates running at the same time
-char    update_server[128]; // the current server we are getting updates from
-unsigned int num_update_servers;
-char *update_servers[32];	// we cant handle more then 32 different servers
-int is_this_files_lst= 0;	// files.lst changes its name if it is a custom update
-char files_lst[256]= {0};
+static int update_attempt_count;   // count how many update attempts have been tried (hopefully diff servers)
+static int temp_counter;           // collision prevention during downloads just incase more then one ever starts
+static int update_busy;            // state & lockout control to prevent two updates running at the same time
+static char    update_server[128]; // the current server we are getting updates from
+static unsigned int num_update_servers;
+static char *update_servers[32];	// we cant handle more then 32 different servers
+static int is_this_files_lst= 0;	// files.lst changes its name if it is a custom update
+static char files_lst[256]= {0};
 
 // we need a simple queue system so that the MD5 processing is in parallel with downloading
 #define	MAX_UPDATE_QUEUE_SIZE	32768
-SDL_mutex *download_mutex;
-int download_queue_size;
-char    *download_queue[MAX_UPDATE_QUEUE_SIZE];
-char    *download_cur_file;
-char    download_temp_file[1024];
-Uint8	*download_MD5s[MAX_UPDATE_QUEUE_SIZE];
-Uint8	*download_cur_md5;
-int doing_custom = 0;
+static SDL_mutex *download_mutex;
+static int download_queue_size;
+static char    *download_queue[MAX_UPDATE_QUEUE_SIZE];
+static char    *download_cur_file;
+static char    download_temp_file[1024];
+static Uint8	*download_MD5s[MAX_UPDATE_QUEUE_SIZE];
+static Uint8	*download_cur_md5;
+static int doing_custom = 0;
 
 // keep a track of download threads so we can wait for there completion hence freeing resources
 #define MAX_THREADS 5
-SDL_Thread *thread_list[MAX_THREADS] = {NULL, NULL, NULL, NULL, NULL};
+static SDL_Thread *thread_list[MAX_THREADS] = {NULL, NULL, NULL, NULL, NULL};
 
 // initialize the auto update system, start the downloading
-void    init_update()
+void init_update()
 {
 	FILE    *fp;
 
@@ -247,7 +251,7 @@ void handle_update_download(struct http_get_struct *get)
 }
 
 // start the background checking of updates
-void    do_updates()
+static void do_updates(void)
 {
 	if(update_busy++ > 1){    // dont double process
 		return;
@@ -257,7 +261,7 @@ void    do_updates()
 }
 
 
-int    do_threaded_update(void *ptr)
+static int do_threaded_update(void *ptr)
 {
 	char    buffer[1024];
 	char	*buf;
@@ -372,7 +376,7 @@ void add_to_download(const char *filename, const Uint8 *md5)
 }
 
 // finish up on one file that just downloaded
-void    handle_file_download(struct http_get_struct *get)
+void handle_file_download(struct http_get_struct *get)
 {
 	int sts;
 
@@ -460,7 +464,7 @@ void    handle_file_download(struct http_get_struct *get)
 
 
 // start a download in another thread, return an even when complete
-void http_threaded_get_file(char *server, char *path, FILE *fp, Uint8 *md5, Uint32 event)
+static void http_threaded_get_file(char *server, char *path, FILE *fp, Uint8 *md5, Uint32 event)
 {
 	struct http_get_struct  *spec;
 
@@ -495,7 +499,7 @@ void http_threaded_get_file(char *server, char *path, FILE *fp, Uint8 *md5, Uint
 
 
 // the actual background downloader
-int http_get_file_thread_handler(void *specs){
+static int http_get_file_thread_handler(void *specs){
 	struct http_get_struct *spec= (struct http_get_struct *) specs;
 	SDL_Event event;
 
@@ -537,7 +541,7 @@ int http_get_file_thread_handler(void *specs){
 
 
 // the http downloader that can be used in the foreground or background
-int http_get_file(char *server, char *path, FILE *fp)
+static int http_get_file(char *server, char *path, FILE *fp)
 {
 	IPaddress http_ip;
 	TCPsocket http_sock;
@@ -624,21 +628,14 @@ int http_get_file(char *server, char *path, FILE *fp)
 
 /* Update window code */
 int update_root_win = -1;
-int update_root_restart_id = 0;
 int update_countdown = 0;
 
-void init_update_interface(float text_size, int count, int len_x, int len_y)
-{
-	update_countdown = count;
-}
-
-void draw_update_interface (int len_x, int len_y)
+static void draw_update_interface (window_info *win)
 {
 	char str[200];
-//	float diff = (float) (len_x - len_y) / 2;
-	float window_ratio = (float) len_y / 480.0f;
+	float window_ratio = (float) win->len_y / 480.0f;
 
-	draw_string ((len_x - (strlen(update_complete_str) * 11)) / 2, 200 * window_ratio, (unsigned char*)update_complete_str, 0);
+	draw_string_zoomed ((win->len_x - (strlen(update_complete_str) * win->default_font_len_x)) / 2, 200 * window_ratio, (unsigned char*)update_complete_str, 0, win->current_scale);
 
 /*	Possibly use this box to display the list of files updated?
 	
@@ -665,7 +662,7 @@ void draw_update_interface (int len_x, int len_y)
 		exit_now = 1;
 	}
 		
-	draw_string ((len_x - (strlen (str) * 11)) / 2, len_y - (200 * window_ratio), (unsigned char*)str, 0);
+	draw_string_zoomed ((win->len_x - (strlen (str) * win->default_font_len_x)) / 2, win->len_y - (200 * window_ratio), (unsigned char*)str, 0, win->current_scale);
 	
 	glDisable (GL_ALPHA_TEST);
 #ifdef OPENGL_TRACE
@@ -673,12 +670,12 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-int display_update_root_handler (window_info *win)
+static int display_update_root_handler (window_info *win)
 {
 	if (SDL_GetAppState () & SDL_APPACTIVE)
 	{	
 		draw_console_pic (cons_text);
-		draw_update_interface (win->len_x, win->len_y);
+		draw_update_interface (win);
 		CHECK_GL_ERRORS();
 	}
 	
@@ -686,18 +683,13 @@ int display_update_root_handler (window_info *win)
 	return 1;
 }
 
-int click_update_root_restart ()
+static int click_update_root_restart ()
 {
 	exit_now = 1;
 	return 1;
 }
 
-int click_update_root_handler (window_info *win, int mx, int my, Uint32 flags)
-{
-	return 0;
-}
-
-int keypress_update_root_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+static int keypress_update_root_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
 	Uint16 keysym = key & 0xffff;
 
@@ -715,7 +707,7 @@ int keypress_update_root_handler (window_info *win, int mx, int my, Uint32 key, 
 	return 1;
 }
 
-int show_update_handler (window_info *win) {
+static int show_update_handler (window_info *win) {
 	hide_all_root_windows();
 	return 1;
 }
@@ -724,20 +716,24 @@ void create_update_root_window (int width, int height, int time)
 {
 	if (update_root_win < 0)
 	{
-		float window_ratio = (float) height / 480.0f;
-		int restart_width = (strlen(restart_now_label) * 11) + 40;
-		int restart_height = 32;
-		
-		update_root_win = create_window ("Update", -1, -1, 0, 0, width, height, ELW_TITLE_NONE|ELW_SHOW_LAST);
+		window_info *win = NULL;
+		int update_root_restart_id = 0;
 
-		update_root_restart_id = button_add_extended (update_root_win, update_root_restart_id, NULL, (width - restart_width) /2, height - (160 * window_ratio), restart_width, restart_height, 0, 1.0f, 1.0f, 1.0f, 1.0f, restart_now_label);
+		update_root_win = create_window ("Update", -1, -1, 0, 0, width, height, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
+		if (update_root_win < 0 || update_root_win >= windows_list.num_windows)
+			return;
+		win = &windows_list.window[update_root_win];
+
+		update_root_restart_id = button_add_extended (update_root_win, update_root_restart_id, NULL, 0, 0, 0, 0, 0, win->current_scale, 1.0f, 1.0f, 1.0f, restart_now_label);
+		widget_move(update_root_win, update_root_restart_id,
+			(width - widget_get_width(update_root_win, update_root_restart_id)) /2,
+			height - 2 * widget_get_height(update_root_win, update_root_restart_id));
 
 		set_window_handler (update_root_win, ELW_HANDLER_DISPLAY, &display_update_root_handler);
-		set_window_handler (update_root_win, ELW_HANDLER_CLICK, &click_update_root_handler);
 		set_window_handler (update_root_win, ELW_HANDLER_KEYPRESS, &keypress_update_root_handler);
 		set_window_handler (update_root_win, ELW_HANDLER_SHOW, &show_update_handler);
 		widget_set_OnClick(update_root_win, update_root_restart_id, &click_update_root_restart);
 	}
 	
-	init_update_interface (1.0, time, width, height);
+	update_countdown = time;
 }
