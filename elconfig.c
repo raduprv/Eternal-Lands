@@ -37,6 +37,7 @@
  #include "hud.h"
  #include "hud_indicators.h"
  #include "hud_misc_window.h"
+ #include "hud_quickbar_window.h"
  #include "icon_window.h"
  #include "init.h"
  #include "interface.h"

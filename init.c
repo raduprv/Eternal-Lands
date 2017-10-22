@@ -34,6 +34,7 @@
 #include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
+#include "hud_quickbar_window.h"
 #include "hud_indicators.h"
 #include "hud_timer.h"
 #include "items.h"

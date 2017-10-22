@@ -9,6 +9,7 @@
 #include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
+#include "hud_quickbar_window.h"
 #include "interface.h"
 #include "items.h"
 #include "item_info.h"

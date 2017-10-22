@@ -11,6 +11,7 @@
 #include "gl_init.h"
 #include "global.h"
 #include "hud.h"
+#include "hud_quickbar_window.h"
 #include "hud_timer.h"
 #include "interface.h"
 #include "items.h"

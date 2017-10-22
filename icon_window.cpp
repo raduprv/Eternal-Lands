@@ -20,6 +20,7 @@
 #include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
+#include "hud_quickbar_window.h"
 #include "interface.h"
 #include "icon_window.h"
 #include "textures.h"
