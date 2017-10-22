@@ -238,7 +238,8 @@ void drag_item(int item, int storage, int mini)
 	float u_start,v_start,u_end,v_end;
 	int cur_item,this_texture;
 	int cur_item_img;
-	int offset = (mini) ? items_grid_size/3 : items_grid_size/2;
+	int my_items_grid_size = (int)(0.5 + get_global_scale() * ((use_small_items_window) ?33: 50));
+	int offset = (mini) ? my_items_grid_size/3 : my_items_grid_size/2;
 
 	int quantity=item_quantity;
 	char str[20];
