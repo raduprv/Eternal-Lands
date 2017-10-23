@@ -267,16 +267,6 @@ void draw_2d_thing_r(float u_start,float v_start,float u_end,float v_end,int x_s
 int y_start,int x_end,int y_end);
 
 /*!
- * \ingroup interfaces
- * \brief   Draws the in-game interface.
- *
- *      Draws the in-game interface by calling \ref draw_hud_frame and \ref display_spells_we_have. If a bag is currently being closed, this function will send an \ref S_CLOSE_BAG command to the server before actually drawing anything.
- *
- * \callgraph
- */
-void draw_ingame_interface();
-
-/*!
  * \ingroup interface_map
  * \brief   Switches to the map interface.
  *

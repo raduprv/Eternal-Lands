@@ -13,6 +13,7 @@
 #endif
 #include "gamewin.h"
 #include "gl_init.h"
+#include "hud.h"
 #include "hud_indicators.h"
 #include "hud_misc_window.h"
 #include "hud_quickbar_window.h"
@@ -23,6 +24,7 @@
 #include "mapwin.h"
 #include "minimap.h"
 #include "missiles.h"
+#include "new_character.h"
 #include "questlog.h"
 #include "spells.h"
 #include "storage.h"
@@ -31,7 +33,6 @@
 #include "trade.h"
 #include "user_menus.h"
 
-#define UI_SCALED_VALUE(BASE) ((int)(0.5 + ((BASE) * get_global_scale())))
 
 int hud_x= 64;
 int hud_y= 48;
@@ -39,9 +40,7 @@ int hud_text;
 int show_help_text=1;
 int always_enlarge_text=1;
 Uint32 exp_lev[200];
-hud_interface last_interface = HUD_INTERFACE_NEW_CHAR; //Current interface (game or new character)
-
-static void init_hud_frame(void);
+static hud_interface last_interface = HUD_INTERFACE_NEW_CHAR; //Current interface (game or new character)
 
 
 /* called on client exit to free resources */
@@ -77,15 +76,14 @@ void init_hud_interface (hud_interface type)
 	if (type == HUD_INTERFACE_LAST)
 		type = last_interface;
 
-	init_hud_frame ();
-	if(type == HUD_INTERFACE_GAME)
-		init_misc_display (type);
-
 	if (type == HUD_INTERFACE_NEW_CHAR)
 	{
-		hud_x = UI_SCALED_VALUE(270);
-		resize_root_window();
-		init_icon_window (NEW_CHARACTER_ICONS);
+		if (newchar_root_win >= 0 && newchar_root_win < windows_list.num_windows)
+		{
+			hud_x = (int)(0.5 + windows_list.window[newchar_root_win].current_scale * 270);
+			resize_root_window();
+			init_icon_window (NEW_CHARACTER_ICONS);
+		}
 	}
 	else
 	{
@@ -94,6 +92,7 @@ void init_hud_interface (hud_interface type)
 		resize_root_window();
 		init_icon_window (MAIN_WINDOW_ICONS);
 		init_stats_display ();
+		init_misc_display ();
 		init_quickbar ();
 		init_quickspell ();
 		init_hud_indicators (); 
@@ -127,40 +126,25 @@ void hide_hud_windows (void)
 	hide_hud_indicators_window();
 }
 
-// draw everything related to the hud
-void draw_hud_interface(void)
+void draw_hud_interface(window_info *win)
 {
-	glColor3f(1.0f, 1.0f, 1.0f);
-	draw_hud_frame();
-}
+	const float vertical_bar_u_start = (float)192/256;
+	const float vertical_bar_u_end = 1.0f;
+	const float vertical_bar_v_start = 0.0f;
+	const float horizontal_bar_u_start = (float)144/256;
+	const float horizontal_bar_u_end = (float)191/256;
+	const float horizontal_bar_v_end = 0.0f;
+	const float logo_u_start = (float)64/256;
+	const float logo_v_start = (float)128/256;
+	const float logo_u_end = (float)127/256;
+	const float logo_v_end = (float)191/256;
+	float vertical_bar_v_end = (float)window_height/256;
+	float horizontal_bar_v_start = (float)(window_width-hud_x)/256;
 
-// hud frame section
-static float vertical_bar_u_start = (float)192/256;
-static float vertical_bar_u_end = 1.0f;
-static float vertical_bar_v_end = 0.0f;
-static float vertical_bar_v_start = 0.0f;
-
-static float horizontal_bar_u_start = (float)144/256;
-static float horizontal_bar_u_end = (float)191/256;
-static float horizontal_bar_v_start = 0.0f;
-static float horizontal_bar_v_end = 0.0f;
-
-static void init_hud_frame(void)
-{
-	vertical_bar_v_end = (float)window_height/256;
-	horizontal_bar_v_start = (float)(window_width-hud_x)/256;
-}
-
-static float logo_u_start = (float)64/256;
-static float logo_v_start = (float)128/256;
-static float logo_u_end = (float)127/256;
-static float logo_v_end = (float)191/256;
-
-void draw_hud_frame(void)
-{
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
+	glColor3f(1.0f, 1.0f, 1.0f);
 	bind_texture(hud_text);
 	glBegin(GL_QUADS);
 	draw_2d_thing_r(horizontal_bar_u_start, horizontal_bar_v_start, horizontal_bar_u_end, horizontal_bar_v_end,0,window_height,window_width, window_height-hud_y);
@@ -168,7 +152,7 @@ CHECK_GL_ERRORS();
 	{
 		draw_2d_thing(vertical_bar_u_start, vertical_bar_v_start, vertical_bar_u_end, vertical_bar_v_end,window_width-hud_x, 0, window_width, window_height);
 		//draw the logo
-		draw_2d_thing(logo_u_start, logo_v_start, logo_u_end, logo_v_end,window_width-hud_x, 0, window_width, UI_SCALED_VALUE(64));
+		draw_2d_thing(logo_u_start, logo_v_start, logo_u_end, logo_v_end,window_width-hud_x, 0, window_width, (int)(0.5 + win->current_scale * 64));
 	}
 	glEnd();
 #ifdef OPENGL_TRACE

@@ -226,7 +226,6 @@ extern Uint32 last_exp[];
 
 #define NUM_SKILLS 13		/*!< the number of skills */
 #define	NUM_WATCH_STAT	14	/*!< allow watching stats 0-13 */
-#define MAX_WATCH_STATS	5	/*!< max number of stats watchable in hud */
 
 extern int have_stats; /*!< indicator for whether or not the stats have been send to us yet*/
 

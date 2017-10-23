@@ -1,6 +1,8 @@
 #ifndef	__HUD_STATSBAR_WINDOW_H
 #define	__HUD_STATSBAR_WINDOW_H
 
+#include <SDL_types.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -8,7 +10,6 @@ extern "C" {
 extern int stats_bar_win; /*!< the window id for the stats bar of the bottom HUD */
 extern int show_action_bar; /*!< saved in the el.ini file, the action points stats bar is display when true */
 extern int max_food_level; /*!< normally 45 but can be set from options for people with diffent values (big belly) */
-extern int watch_this_stats[]; /*!< used for displaying more than 1 stat in the hud */
 
 /*!
  * \ingroup statsbar
@@ -50,6 +51,25 @@ void set_last_damage(int quantity);
  */
 void set_last_heal(int quantity);
 
+/*!
+ * \ingroup statsbar
+ * \brief Set the watched stats bars.
+ *
+ *      Set the watched stats bars, read from the config file.
+ *
+ * \callgraph
+ */
+
+void set_statsbar_watched_stats(int *cfg_watch_this_stats);
+/*!
+ * \ingroup statsbar
+ * \brief Get the watched stats bar infomation.
+ *
+ *      Get the watched stats bar infomation, so it can be saved to the config file.
+ *
+ * \callgraph
+ */
+void get_statsbar_watched_stats(int *cfg_watch_this_stats);
 
 #ifdef __cplusplus
 } // extern "C"

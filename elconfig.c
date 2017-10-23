@@ -34,6 +34,7 @@
  #include "filter.h"
  #include "gamewin.h"
  #include "gl_init.h"
+ #include "hud.h"
  #include "hud_statsbar_window.h"
  #include "hud_indicators.h"
  #include "hud_misc_window.h"

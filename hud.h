@@ -7,6 +7,7 @@
 #define	__HUD_H
 
 #include <SDL_types.h>
+#include "elwindows.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -80,21 +81,11 @@ void hide_hud_windows (void);
  * \ingroup display_2d
  * \brief Draws the hud interface related items.
  *
- *      Draws the hud related items by setting the background color before calling \ref draw_hud_frame.
+ *      Draws the hud interface related items.
  *
  * \callgraph
  */
-void draw_hud_interface(void);
-
-/*!
- * \ingroup display_2d
- * \brief Draws the hud frame.
- *
- *      Draws the hud frame, by setting the texture, then draws the horizontal and vertical bar of the hud and finally the EL logo.
- *
- * \callgraph
- */
-void draw_hud_frame(void);
+void draw_hud_interface(window_info *win);
 
 /*!
  * \ingroup windows

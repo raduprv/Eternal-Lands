@@ -169,7 +169,7 @@ static int calc_statbar_start_y(int base_y_start, int win_y_len)
 	/* if the number of stats displayed has changed, resize other hud elements */
 	if (last_display != num_disp_stat)
 	{
-		init_misc_display(HUD_INTERFACE_LAST);
+		init_misc_display();
 		init_quickbar();
 		init_quickspell();
 	}
@@ -596,10 +596,8 @@ static int ui_scale_misc_handler(window_info *win)
 }
 
 
-void init_misc_display(hud_interface type)
+void init_misc_display(void)
 {
-	int i;
-
 	//create the misc window
 	if(misc_win < 0)
 		{
@@ -629,21 +627,5 @@ void init_misc_display(hud_interface type)
 			cm_add_window(cm_hud_id, misc_win);
 			cm_set_pre_show_handler(cm_hud_id, context_hud_pre_show_handler);
 		}
-
 	ui_scale_misc_handler(&windows_list.window[misc_win]);
-
-	cm_grey_line(cm_hud_id, CMH_STATS, (type == HUD_INTERFACE_NEW_CHAR));
-	cm_grey_line(cm_hud_id, CMH_STATBARS, (type == HUD_INTERFACE_NEW_CHAR));
-	cm_grey_line(cm_hud_id, CMH_FPS, (type == HUD_INTERFACE_NEW_CHAR));
-	cm_grey_line(cm_hud_id, CMH_INDICATORS, (type == HUD_INTERFACE_NEW_CHAR));
-	cm_grey_line(cm_hud_id, CMH_MINIMAP, (type == HUD_INTERFACE_NEW_CHAR));
-	cm_grey_line(cm_hud_id, CMH_RANGSTATS, (type == HUD_INTERFACE_NEW_CHAR));
-	cm_grey_line(cm_hud_id, CMH_QUICKBM, (type == HUD_INTERFACE_NEW_CHAR));
-	cm_grey_line(cm_hud_id, CMH_LOCATION, (type == HUD_INTERFACE_NEW_CHAR));
-
-	for (i=0; i<MAX_WATCH_STATS; i++)
-	{
-		if (watch_this_stats[i] > 0)
-			statsinfo[watch_this_stats[i]-1].is_selected = 1;
-	}
 }

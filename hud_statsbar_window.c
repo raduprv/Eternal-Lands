@@ -15,7 +15,8 @@
 int stats_bar_win= -1;
 int show_action_bar = 0;
 int max_food_level = 45;
-int watch_this_stats[MAX_WATCH_STATS]={NUM_WATCH_STAT -1, 0, 0, 0, 0};  // default to only watching overall
+
+#define MAX_WATCH_STATS	5	/*!< max number of stats watchable in hud */
 
 static int max_disp_stats=1;
 static int exp_bar_text_len = 0;
@@ -39,6 +40,7 @@ static int player_statsbar_bar_height = 8;
 static int stats_bar_len;
 static int health_bar_start_x;
 static struct { int d; int h; Uint32 dt; Uint32 ht; } my_last_health = { 0, 0, 0, 0 };
+static int watch_this_stats[MAX_WATCH_STATS]={NUM_WATCH_STAT -1, 0, 0, 0, 0};  // default to only watching overall
 
 #define UI_SCALED_VALUE(BASE) ((int)(0.5 + ((BASE) * get_global_scale())))
 
@@ -479,6 +481,7 @@ static int mouseover_stats_bar_handler(window_info *win, int mx, int my)
 // the stats display
 void init_stats_display(void)
 {
+	int i;
 	int num_exp = get_num_statsbar_exp();
 	int actual_num_exp = 0;
 	int stats_height = get_player_statsbar_active_height();
@@ -557,6 +560,12 @@ void init_stats_display(void)
 		cm_set_pre_show_handler(cm_id,cm_statsbar_pre_show_handler);
 	}
 	reset_statsbar_exp_cm_regions();
+
+	for (i=0; i<MAX_WATCH_STATS; i++)
+	{
+		if (watch_this_stats[i] > 0)
+			statsinfo[watch_this_stats[i]-1].is_selected = 1;
+	}
 }
 
 
@@ -638,4 +647,28 @@ void set_last_heal(int quantity)
 {
 	my_last_health.h = quantity;
 	my_last_health.ht = SDL_GetTicks();
+}
+
+
+void set_statsbar_watched_stats(int *cfg_watch_this_stats)
+{
+	int i;
+#if MAX_WATCH_STATS != 5
+#error You cannot just go around changing MAX_WATCH_STATS as its used by the el.cfg file so change init.h too.
+#endif
+	for(i=0;i<MAX_WATCH_STATS;i++)
+	{
+		watch_this_stats[i] = cfg_watch_this_stats[i];
+		if (watch_this_stats[i]<0 || watch_this_stats[i]>=NUM_WATCH_STAT)
+			watch_this_stats[i]=0;
+	}
+	if(watch_this_stats[0]<1 || watch_this_stats[0]>=NUM_WATCH_STAT)
+		watch_this_stats[0]=NUM_WATCH_STAT-1;
+}
+
+void get_statsbar_watched_stats(int *cfg_watch_this_stats)
+{
+	int i;
+	for(i=0;i<MAX_WATCH_STATS;i++)
+		cfg_watch_this_stats[i]=watch_this_stats[i];
 }

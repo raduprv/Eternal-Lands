@@ -110,7 +110,7 @@ static int display_console_handler (window_info *win)
 		//if they want it filtered, then more work can be done until it works properly
 		//((text_field*)((widget_find(console_root_win, console_out_id))->widget_info))->chan_nr = current_filter;
 
-		draw_hud_interface ();
+		draw_hud_interface (win);
 		set_font (0);	// switch to fixed
 	}
 

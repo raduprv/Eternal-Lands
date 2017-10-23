@@ -5,6 +5,7 @@
 #include "elwindows.h"
 #include "font.h"
 #include "gl_init.h"
+#include "hud.h"
 #include "hud_misc_window.h"
 #include "hud_quickbar_window.h"
 #include "interface.h"

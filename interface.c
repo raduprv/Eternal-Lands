@@ -470,39 +470,6 @@ void add_char_to_password(unsigned char ch)
 	}
 }
 
-void draw_ingame_interface()
-{
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
-#ifdef	OLD_CLOSE_BAG
-	// watch for closing a bag
-	if(ground_items_win >= 0)
-		{
-			int	old_view= view_ground_items;
-
-			view_ground_items= get_show_window(ground_items_win);
-			// watch for telling the server we need to close the bag
-			if(old_view && !view_ground_items)
-				{
-					unsigned char protocol_name;
-
-					protocol_name= S_CLOSE_BAG;
-					my_tcp_send(my_socket,&protocol_name,1);
-				}
-		}
-#endif	//OLD_CLOSE_BAG
-
-	glColor3f(1.0f, 1.0f, 1.0f);
-	draw_hud_frame();
-
-	//draw_hud_interface();
-	display_spells_we_have();
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
-}
-
 GLuint map_text;
 static int cont_text = -1; // index in texture cache for continent map
 

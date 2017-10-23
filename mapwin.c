@@ -120,7 +120,7 @@ int display_map_handler (window_info * win)
 	// are we actively drawing things?
 	if (SDL_GetAppState () & SDL_APPACTIVE)
 	{
-		draw_hud_interface ();
+		draw_hud_interface (win);
 		Leave2DMode ();
 		if(reload_tab_map && map_root_win >= 0 && windows_list.window[map_root_win].displayed){
 			//need to reload the BMP
@@ -236,7 +236,7 @@ void create_map_root_window (int width, int height)
 {
 	if (map_root_win < 0)
 	{
-		map_root_win = create_window ("Map", -1, -1, 0, 0, width, height, ELW_TITLE_NONE|ELW_SHOW_LAST);
+		map_root_win = create_window ("Map", -1, -1, 0, 0, width, height, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
 	
 		set_window_handler (map_root_win, ELW_HANDLER_DISPLAY, &display_map_handler);
 		set_window_handler (map_root_win, ELW_HANDLER_KEYPRESS, &keypress_map_handler);

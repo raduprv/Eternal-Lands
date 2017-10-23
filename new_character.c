@@ -464,9 +464,7 @@ static int display_newchar_handler (window_info *win)
 
 	Enter2DMode ();
 
-	glColor3f(1.0f,1.0f,1.0f);
-
-	draw_hud_frame();
+	draw_hud_interface(win)
 
 	CHECK_GL_ERRORS ();
 

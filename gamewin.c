@@ -1036,6 +1036,38 @@ void return_to_gamewin_common(void)
 		show_window (quickspell_win);
 }
 
+static void draw_ingame_interface(window_info *win)
+{
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
+#ifdef	OLD_CLOSE_BAG
+	// watch for closing a bag
+	if(ground_items_win >= 0)
+		{
+			int	old_view= view_ground_items;
+
+			view_ground_items= get_show_window(ground_items_win);
+			// watch for telling the server we need to close the bag
+			if(old_view && !view_ground_items)
+				{
+					unsigned char protocol_name;
+
+					protocol_name= S_CLOSE_BAG;
+					my_tcp_send(my_socket,&protocol_name,1);
+				}
+		}
+#endif	//OLD_CLOSE_BAG
+
+	draw_hud_interface(win);
+	display_spells_we_have();
+
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
+}
+
+
 static int display_game_handler (window_info *win)
 {
 	static int main_count = 0;
@@ -1391,7 +1423,7 @@ static int display_game_handler (window_info *win)
 	anything_under_the_mouse (0, UNDER_MOUSE_NO_CHANGE);
 	CHECK_GL_ERRORS ();
 
-	draw_ingame_interface ();
+	draw_ingame_interface (win);
 	
 	CHECK_GL_ERRORS ();
 

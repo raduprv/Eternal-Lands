@@ -357,16 +357,7 @@ void read_bin_cfg()
 			if((quickbar_draggable=(cfg_mem.quickbar_flags&0xFF00)>>8)!=1)quickbar_draggable=0;
 		}
 
-#if MAX_WATCH_STATS != 5
-#error You cannot just go around changing MAX_WATCH_STATS as its used by the el.cfg file!
-#endif
-	for(i=0;i<MAX_WATCH_STATS;i++){
-		watch_this_stats[i]=cfg_mem.watch_this_stats[i];
-		if (watch_this_stats[i]<0 || watch_this_stats[i]>=NUM_WATCH_STAT)
-			watch_this_stats[i]=0;
-	}
-	if(watch_this_stats[0]<1 || watch_this_stats[0]>=NUM_WATCH_STAT)
-		watch_this_stats[0]=NUM_WATCH_STAT-1;
+	set_statsbar_watched_stats(cfg_mem.watch_this_stats);
 
 	has_accepted=cfg_mem.has_accepted_rules;
 
@@ -603,9 +594,7 @@ void save_bin_cfg()
 			}
 		}
 
-	for(i=0;i<MAX_WATCH_STATS;i++){
-		cfg_mem.watch_this_stats[i]=watch_this_stats[i];
-	}
+	get_statsbar_watched_stats(cfg_mem.watch_this_stats);
 
 	cfg_mem.has_accepted_rules=has_accepted;
 
