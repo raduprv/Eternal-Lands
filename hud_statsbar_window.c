@@ -12,11 +12,10 @@
 #include "icon_window.h"
 #include "sound.h"
 
-int	stats_bar_win= -1;
-int	quickspell_win= -1;
+int stats_bar_win= -1;
 int show_action_bar = 0;
+int max_food_level = 45;
 int watch_this_stats[MAX_WATCH_STATS]={NUM_WATCH_STAT -1, 0, 0, 0, 0};  // default to only watching overall
-int max_food_level=45;
 
 static int max_disp_stats=1;
 static int exp_bar_text_len = 0;

@@ -76,6 +76,7 @@ typedef struct {
 	int uncastable; //0 if castable, otherwise if something missing
 } spell_info;
 
+int quickspell_win = -1;
 Uint8 last_spell_str[20];
 static int last_spell_len= 0;
 int spell_result=0;
