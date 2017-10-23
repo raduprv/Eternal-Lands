@@ -1888,7 +1888,6 @@ static void init_ELC_vars(void)
 
 
 	// HUD TAB
-	add_var(OPT_FLOAT,"ui_scale","ui_scale",&ui_scale,change_ui_scale,1,"User interface scaling factor","Under development: Scale user interface by this factor, useful for high DPI displays.  Note: the options window will be rescaled on the next restart.",HUD,0.75,3.0,0.01);
 	add_var(OPT_BOOL,"show_fps","fps",&show_fps,change_var,1,"Show FPS","Show the current frames per second in the corner of the window",HUD);
 	add_var(OPT_BOOL,"view_analog_clock","analog",&view_analog_clock,change_var,1,"Analog Clock","Toggle the analog clock",HUD);
 	add_var(OPT_BOOL,"view_digital_clock","digit",&view_digital_clock,change_var,1,"Digital Clock","Toggle the digital clock",HUD);
@@ -1983,6 +1982,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_FLOAT,"mapmark_text_size", "marksize", &mapmark_zoom, change_float, 0.3, "Mapmark Text Size","Sets the size of the mapmark text", FONT, 0.0, FLT_MAX, 0.01);
 	add_var(OPT_MULTI,"name_font","nfont",&name_font,change_int,0,"Name Font","Change the type of font used for the name",FONT, NULL);
 	add_var(OPT_MULTI,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT, NULL);
+	add_var(OPT_FLOAT,"ui_scale","ui_scale",&ui_scale,change_ui_scale,1,"User interface scaling factor","Under development: Scale user interface by this factor, useful for high DPI displays.  Note: the options window will be rescaled on the next restart.",FONT,0.75,3.0,0.01);
 	// FONT TAB
 
 
