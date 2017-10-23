@@ -20,20 +20,11 @@ typedef enum
 } hud_interface;
 
 extern Uint32 exp_lev[200];
-extern int show_action_bar; /*!< saved in the el.ini file, the action points stats bar is display when true */
-extern int stats_bar_win; /*!< the window id for the stats bar of the bottom HUD */
-extern int watch_this_stats[]; /*!< used for displaying more than 1 stat in the hud */
-extern int max_food_level; /*!< normally 45 but can be set from options for people with diffent values (big belly) */
-
 extern int hud_text;
 extern int hud_x;
 extern int hud_y;
-
-extern int copy_next_LOCATE_ME;
 extern int show_help_text;
 extern int always_enlarge_text;
-
-void handle_stats_selection(int stat, Uint32 flags);
 
 /*!
  * \ingroup other
@@ -72,7 +63,7 @@ void cleanup_hud(void);
  *
  * \callgraph
  */
-void show_hud_windows ();
+void show_hud_windows (void);
 
 /*!
  * \ingroup other
@@ -83,7 +74,7 @@ void show_hud_windows ();
  * \pre If none of \ref icons_win, \ref stats_bar_win, \ref misc_win and \ref quickbar_win is >= 0 (i.e. created before and visible) no action will be performed.
  * \callgraph
  */
-void hide_hud_windows ();
+void hide_hud_windows (void);
 
 /*!
  * \ingroup display_2d
@@ -93,7 +84,7 @@ void hide_hud_windows ();
  *
  * \callgraph
  */
-void draw_hud_interface();
+void draw_hud_interface(void);
 
 /*!
  * \ingroup display_2d
@@ -103,7 +94,7 @@ void draw_hud_interface();
  *
  * \callgraph
  */
-void draw_hud_frame();
+void draw_hud_frame(void);
 
 /*!
  * \ingroup windows
@@ -176,6 +167,7 @@ void show_help(const char *message, int x, int y, float scale);
  * \callgraph
  */
 void show_help_big(const char *message, int x, int y, float scale);
+void show_help_coloured_scaled(const char *help_message, int x, int y, float r, float g, float b, int use_big_font, float size);
 
 /*!
  * \ingroup windows
@@ -190,32 +182,6 @@ void show_help_big(const char *message, int x, int y, float scale);
  * \callgraph
  */
 int enlarge_text(void);
-
-/*!
- * \ingroup other
- * \brief   	Initialise the stat bars, (size, position and number), for in the bottom HUB.
- */
-void init_stats_display(void);
-
-/*!
- * \ingroup other
- * \brief Update displayed damage value.
- *
- *      The last damage is drawn as a hover over the health bar.
- *
- * \callgraph
- */
-void set_last_damage(int quantity);
-
-/*!
- * \ingroup other
- * \brief Update displayed heal value.
- *
- *      The last heal is drawn as a hover over the health bar.
- *
- * \callgraph
- */
-void set_last_heal(int quantity);
 
 /*!
  * \ingroup other

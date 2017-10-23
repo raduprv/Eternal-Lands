@@ -12,7 +12,7 @@
 #include "errors.h"
 #include "gamewin.h"
 #include "global.h"
-#include "hud.h"
+#include "hud_statsbar_window.h"
 #include "init.h"
 #include "interface.h"
 #include "missiles.h"

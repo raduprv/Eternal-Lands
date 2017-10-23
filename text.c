@@ -16,7 +16,7 @@
 #include "filter.h"
 #include "gl_init.h"
 #include "global.h"
-#include "hud.h"
+#include "hud_misc_window.h"
 #include "highlight.h"
 #include "init.h"
 #include "items.h"

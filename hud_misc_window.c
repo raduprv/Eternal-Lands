@@ -14,6 +14,7 @@
 #include "hud_indicators.h"
 #include "hud_misc_window.h"
 #include "hud_quickbar_window.h"
+#include "hud_statsbar_window.h"
 #include "hud_timer.h"
 #include "init.h"
 #include "interface.h"
@@ -36,6 +37,7 @@ int view_knowledge_bar = 1;
 int view_hud_timer = 1;
 int show_stats_in_hud = 0;
 int show_statbars_in_hud = 0;
+int copy_next_LOCATE_ME = 0;
 
 
 static size_t cm_hud_id = CM_INIT_VALUE;

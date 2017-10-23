@@ -37,8 +37,8 @@ COBJS=2d_objects.o 3d_objects.o \
 	cache.o cal.o calc.o chat.o cluster.o colors.o console.o consolewin.o \
 	counters.o cursors.o dds.o ddsimage.o dialogues.o draw_scene.o eye_candy_debugwin.o \
 	el_memory.o elconfig.o elwindows.o encyclopedia.o errors.o events.o	\
-	filter.o font.o framebuffer.o frustum.o	\
-	gamewin.o gl_init.o hud.o hud_misc_window.o hud_quickbar_window.o help.o highlight.o	\
+	filter.o font.o framebuffer.o frustum.o gamewin.o gl_init.o 	\
+	hud.o hud_misc_window.o hud_quickbar_window.o hud_statsbar_window.o help.o highlight.o	\
 	ignore.o image_loading.o init.o interface.o items.o io/fileutil.o	\
 	io/e3d_io.o io/elc_io.o	io/map_io.o io/elpathwrapper.o io/xmlcallbacks.o \
 	io/half.o io/normal.o io/elfilewrapper.o io/unzip.o io/ioapi.o io/zip.o io/ziputil.o	\

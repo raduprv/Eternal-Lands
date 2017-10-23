@@ -50,8 +50,8 @@ COBJS=2d_objects.o 3d_objects.o	\
 	cache.o cal.o calc.o chat.o cluster.o colors.o console.o consolewin.o \
 	counters.o cursors.o dialogues.o draw_scene.o	\
 	elconfig.o elmemory.o elwindows.o encyclopedia.o errors.o events.o	\
-	framebuffer.o filter.o font.o frustum.o	\
-	gamewin.o gl_init.o hud.o hud_misc_window.o hud_quickbar_window.o help.o highlight.o	\
+	framebuffer.o filter.o font.o frustum.o gamewin.o gl_init.o gamewin.o gl_init.o	\
+	hud.o hud_misc_window.o hud_quickbar_window.o hud_statsbar_window.o help.o highlight.o	\
 	ignore.o init.o interface.o items.o	\
 	keys.o knowledge.o langselwin.o lights.o lispsm.o list.o loginwin.o loading_win.o	\
 	main.o manufacture.o map_io.o mapwin.o	\
