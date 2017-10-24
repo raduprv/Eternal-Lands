@@ -35,14 +35,12 @@ static int load_bar_start_x;
 static int load_bar_start_y;
 static int action_bar_start_x;
 static int action_bar_start_y;
-static int player_statsbar_y_offset = 4;
-static int player_statsbar_bar_height = 8;
+static const int player_statsbar_y_offset = 4;
+static int player_statsbar_bar_height = 0;
 static int stats_bar_len;
 static int health_bar_start_x;
 static struct { int d; int h; Uint32 dt; Uint32 ht; } my_last_health = { 0, 0, 0, 0 };
 static int watch_this_stats[MAX_WATCH_STATS]={NUM_WATCH_STAT -1, 0, 0, 0, 0};  // default to only watching overall
-
-#define UI_SCALED_VALUE(BASE) ((int)(0.5 + ((BASE) * get_global_scale())))
 
 
 // return the number of watched stat bars, the number displayed in the botton HUD
@@ -58,9 +56,10 @@ static int get_num_statsbar_exp(void)
 
 
 // return the optimal length for stat bars for the botton HUD
-static int calc_stats_bar_len(int num_exp)
+static int calc_stats_bar_len(window_info *win, int num_exp)
 {
 	// calculate the maximum length for stats bars given the current number of both bar types
+	int max_len = (int)(0.5 + win->current_scale * 100);
 	int num_stat = (show_action_bar) ?5: 4;
 	int prosed_len = (window_width-HUD_MARGIN_X-1) - (num_stat * stats_bar_text_len) - (num_exp * exp_bar_text_len);
 	prosed_len /= num_stat + num_exp;
@@ -68,8 +67,8 @@ static int calc_stats_bar_len(int num_exp)
 	// constrain the maximum and minimum length of the skills bars to reasonable size
 	if (prosed_len < 50)
 		prosed_len = 50;
-	else if (prosed_len > UI_SCALED_VALUE(100))
-		prosed_len = UI_SCALED_VALUE(100);
+	else if (prosed_len > max_len)
+		prosed_len = max_len;
 
 	return prosed_len;
 }
@@ -91,7 +90,7 @@ static void draw_last_health_change(window_info *win)
 {
 	char str[20];
 	static const Uint32 timeoutms = 2*60*1000;
-	const int yoff = (int)(-UI_SCALED_VALUE(SMALL_FONT_Y_LEN+5));
+	const int yoff = -(HUD_MARGIN_Y + win->small_font_len_y + 1 - (window_height - win->cur_y));
 	/* damage in red */
 	if (my_last_health.d != 0)
 	{
@@ -100,7 +99,7 @@ static void draw_last_health_change(window_info *win)
 		else
 		{
 			safe_snprintf(str, sizeof(str), " %d ", my_last_health.d);
-			show_help_coloured_scaled(str, health_bar_start_x+stats_bar_len/2-strlen(str)*UI_SCALED_VALUE(SMALL_FONT_X_LEN)-2, yoff, 1.0f, 0.0f, 0.0f, 0, win->current_scale);
+			show_help_coloured_scaled(str, health_bar_start_x+stats_bar_len/2-strlen(str)*win->small_font_len_x-2, yoff, 1.0f, 0.0f, 0.0f, 0, win->current_scale);
 		}
 	}
 	/* heal in green */
@@ -119,7 +118,7 @@ static void draw_last_health_change(window_info *win)
 
 static int get_player_statsbar_active_height(void)
 {
-	return player_statsbar_y_offset + UI_SCALED_VALUE(player_statsbar_bar_height);
+	return player_statsbar_y_offset + player_statsbar_bar_height;
 }
 
 
@@ -170,7 +169,7 @@ static int cm_statsbar_handler(window_info *win, int widget_id, int mx, int my, 
 	// if we want another bar, assigning it to the first unwatched stat
 	if (add_bar)
 	{
-		int proposed_max_disp_stats = calc_max_disp_stats(calc_stats_bar_len(get_num_statsbar_exp()+1));
+		int proposed_max_disp_stats = calc_max_disp_stats(calc_stats_bar_len(win, get_num_statsbar_exp()+1));
 		int next_free = -1;
 		for (i=0; i<NUM_WATCH_STAT-1; i++)
 			if (statsinfo[i].is_selected == 0)
@@ -211,7 +210,7 @@ static Uint32 Uint32_digits(Uint32 number)
 static void cm_statsbar_pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win)
 {
 	size_t i;
-	int proposed_max_disp_stats = calc_max_disp_stats(calc_stats_bar_len(get_num_statsbar_exp()+1));
+	int proposed_max_disp_stats = calc_max_disp_stats(calc_stats_bar_len(win, get_num_statsbar_exp()+1));
 	for (i=0; i<NUM_WATCH_STAT-1; i++)
 		cm_grey_line(cm_id, i, 0);
 	for (i=0; i<max_disp_stats; i++)
@@ -226,7 +225,7 @@ static void draw_stats_bar(window_info *win, int x, int y, int val, int len, flo
 {
 	char buf[32];
 	int i; // i deals with massive bars by trimming at 110%
-	int bar_height = (int)(0.5 + win->current_scale * player_statsbar_bar_height);
+	int bar_height = player_statsbar_bar_height;
 	
 	if(len>stats_bar_len*1.1)
 		i=stats_bar_len*1.1;
@@ -268,7 +267,7 @@ CHECK_GL_ERRORS();
 
 
 // check if we need to adjust exp_bar_text_len due to an exp change
-static int recalc_exp_bar_text_len(void)
+static int recalc_exp_bar_text_len(window_info *win)
 {
 	static int init_flag = 1;
 	static Uint32 last_exp[NUM_WATCH_STAT-1];
@@ -318,7 +317,7 @@ static int recalc_exp_bar_text_len(void)
 			if ((watch_this_stats[i] > 0) && statsinfo[watch_this_stats[i]-1].is_selected &&
 					(last_to_go_len[watch_this_stats[i]-1] > max_len))
 				max_len = last_to_go_len[watch_this_stats[i]-1];
-		return UI_SCALED_VALUE(SMALL_FONT_X_LEN)*(max_len+1.5);
+		return win->small_font_len_x*(max_len+1.5);
 	}
 	else
 		return exp_bar_text_len;
@@ -343,7 +342,7 @@ static void draw_exp_display(window_info *win)
 		if (watch_this_stats[i] > 0)
 		{
 			int name_x;
-			int name_y = exp_bar_start_y + 2 + UI_SCALED_VALUE(player_statsbar_bar_height);
+			int name_y = exp_bar_start_y + 2 + player_statsbar_bar_height;
 			int icon_x = get_icons_win_active_len();
 			int cur_exp = *statsinfo[watch_this_stats[i]-1].exp;
 			int nl_exp = *statsinfo[watch_this_stats[i]-1].next_lev;
@@ -365,13 +364,13 @@ static void draw_exp_display(window_info *win)
 			else
 				exp_adjusted_x_len= stats_bar_len-(float)stats_bar_len/(float)((float)delta_exp/(float)(nl_exp-cur_exp));
 
-			name_x = my_exp_bar_start_x + stats_bar_len - strlen((char *)name) * UI_SCALED_VALUE(SMALL_FONT_X_LEN);
+			name_x = my_exp_bar_start_x + stats_bar_len - strlen((char *)name) * win->small_font_len_x;
 			// the the name would overlap with the icons...
 			if (name_x < icon_x)
 			{
 				name = statsinfo[watch_this_stats[i]-1].skillnames->shortname;
-				name_x = my_exp_bar_start_x + stats_bar_len - strlen((char *)name) * UI_SCALED_VALUE(SMALL_FONT_X_LEN) - 3;
-				name_y = (int)(0.5 + (player_statsbar_y_offset + UI_SCALED_VALUE(player_statsbar_bar_height) - UI_SCALED_VALUE(SMALL_FONT_Y_LEN)) / 2) - 1;
+				name_x = my_exp_bar_start_x + stats_bar_len - strlen((char *)name) * win->small_font_len_x - 3;
+				name_y = (int)(0.5 + (player_statsbar_y_offset + player_statsbar_bar_height - win->small_font_len_y) / 2) - 1;
 			}
 
 			draw_stats_bar(win, my_exp_bar_start_x, exp_bar_start_y, nl_exp - cur_exp, exp_adjusted_x_len, 0.1f, 0.8f, 0.1f, 0.1f, 0.4f, 0.1f);
@@ -401,8 +400,8 @@ static int	display_stats_bar_handler(window_info *win)
 	if ((SDL_GetTicks()-last_time) > 250)
 	{
 		int proposed_len = 0;
-		stats_bar_text_len = 4.5 * UI_SCALED_VALUE(SMALL_FONT_X_LEN);
-		if ((proposed_len = recalc_exp_bar_text_len()) != exp_bar_text_len) // it will very rarely change
+		stats_bar_text_len = 4.5 * win->small_font_len_x;
+		if ((proposed_len = recalc_exp_bar_text_len(win)) != exp_bar_text_len) // it will very rarely change
 		{
 			exp_bar_text_len = proposed_len;
 			init_stats_display();
@@ -479,43 +478,32 @@ static int mouseover_stats_bar_handler(window_info *win, int mx, int my)
 
 
 // the stats display
-void init_stats_display(void)
+static int ui_scale_stats_bar_handler(window_info *win)
 {
 	int i;
 	int num_exp = get_num_statsbar_exp();
 	int actual_num_exp = 0;
-	int stats_height = get_player_statsbar_active_height();
+	int stats_height = 0;
 	int stats_width = window_width - HUD_MARGIN_X;
 	int stats_y_pos = window_height - (HUD_MARGIN_Y - player_statsbar_y_offset);
 
-	//create the stats bar window
-	if(stats_bar_win < 0)
-	{
-		static size_t cm_id_ap = CM_INIT_VALUE;
-		stats_bar_win= create_window("Stats Bar", -1, 0, 0, stats_y_pos, stats_width, stats_height, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
-		set_window_handler(stats_bar_win, ELW_HANDLER_DISPLAY, &display_stats_bar_handler);
-		set_window_handler(stats_bar_win, ELW_HANDLER_MOUSEOVER, &mouseover_stats_bar_handler);
+	player_statsbar_bar_height = (int)(0.5 + win->current_scale * 8);
+	stats_height = get_player_statsbar_active_height();
 
-		// context menu to enable/disable the action points bar
-		cm_id_ap = cm_create(cm_action_points_str, NULL);
-		cm_add_window(cm_id_ap, stats_bar_win);
-		cm_bool_line(cm_id_ap, 0, &show_action_bar, "show_action_bar");
-	}
-	else
-		init_window(stats_bar_win, -1, 0, 0, stats_y_pos, stats_width, stats_height);
+	init_window(stats_bar_win, -1, 0, 0, stats_y_pos, stats_width, stats_height);
 
 	/* use a fixed width for user attrib stat bar text */
-	stats_bar_text_len = 4.5 * UI_SCALED_VALUE(SMALL_FONT_X_LEN);
+	stats_bar_text_len = 4.5 * win->small_font_len_x;
 
 	// calculate the statsbar len given curent config
-	stats_bar_len = calc_stats_bar_len(num_exp);
+	stats_bar_len = calc_stats_bar_len(win, num_exp);
 
 	// calculate the maximum number of exp bars we can have
 	max_disp_stats = calc_max_disp_stats(stats_bar_len);
 
 	// if we need to reduce the number of bars, recalculate the optimum stats bar len
 	if (num_exp > max_disp_stats)
-		stats_bar_len = calc_stats_bar_len(max_disp_stats);
+		stats_bar_len = calc_stats_bar_len(win, max_disp_stats);
 
 	// all the bars are at the top of the window
 	mana_bar_start_y = food_bar_start_y = health_bar_start_y = load_bar_start_y = action_bar_start_y = exp_bar_start_y = 0;
@@ -566,14 +554,42 @@ void init_stats_display(void)
 		if (watch_this_stats[i] > 0)
 			statsinfo[watch_this_stats[i]-1].is_selected = 1;
 	}
+
+	return 1;
+}
+
+
+//create the stats bar window
+void init_stats_display(void)
+{
+	if(stats_bar_win < 0)
+	{
+		static size_t cm_id_ap = CM_INIT_VALUE;
+		stats_bar_win= create_window("Stats Bar", -1, 0, 0, 0, 0, 0, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
+		set_window_handler(stats_bar_win, ELW_HANDLER_DISPLAY, &display_stats_bar_handler);
+		set_window_handler(stats_bar_win, ELW_HANDLER_MOUSEOVER, &mouseover_stats_bar_handler);
+		set_window_handler(stats_bar_win, ELW_HANDLER_UI_SCALE, &ui_scale_stats_bar_handler);
+
+		// context menu to enable/disable the action points bar
+		cm_id_ap = cm_create(cm_action_points_str, NULL);
+		cm_add_window(cm_id_ap, stats_bar_win);
+		cm_bool_line(cm_id_ap, 0, &show_action_bar, "show_action_bar");
+	}
+	if (stats_bar_win >= 0 && stats_bar_win < windows_list.num_windows)
+		ui_scale_stats_bar_handler(&windows_list.window[stats_bar_win]);
 }
 
 
 void handle_stats_selection(int stat, Uint32 flags)
 {
+	window_info *win = NULL;
+	int proposed_max_disp_stats = 0;
 	int i;
 
-	int proposed_max_disp_stats = calc_max_disp_stats(calc_stats_bar_len(get_num_statsbar_exp()+1));
+	if (stats_bar_win < 0 || stats_bar_win >= windows_list.num_windows)
+		return;
+	win = &windows_list.window[stats_bar_win];
+	proposed_max_disp_stats = calc_max_disp_stats(calc_stats_bar_len(win, get_num_statsbar_exp()+1));
 
 	if (((flags & ELW_ALT) || (flags & ELW_SHIFT)) && (max_disp_stats > 1))
 	{

@@ -486,10 +486,7 @@ void change_ui_scale(float *var, float *value)
 		hud_y = HUD_MARGIN_Y;
 
 	if ((game_root_win >= 0) || (newchar_root_win >= 0))
-	{
-		init_hud_interface (HUD_INTERFACE_LAST);
 		resize_all_root_windows (window_width, window_height);
-	}
 
 	update_windows_scale(*var);
 }
