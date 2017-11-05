@@ -371,6 +371,12 @@ void toggle_console_scrollbar(int *enable)
 	}
 }
 
+static int ui_scale_console_handler(window_info *win)
+{
+	resize_window(win->window_id, win->len_x, win->len_y);
+	return 1;
+}
+
 void create_console_root_window (int width, int height)
 {
 	if (console_root_win < 0)
@@ -394,6 +400,7 @@ void create_console_root_window (int width, int height)
 		set_window_handler (console_root_win, ELW_HANDLER_RESIZE, &resize_console_handler);
 		set_window_handler (console_root_win, ELW_HANDLER_CLICK, &click_console_handler);
 		set_window_handler (console_root_win, ELW_HANDLER_SHOW, &show_console_handler);
+		set_window_handler (console_root_win, ELW_HANDLER_UI_SCALE, &ui_scale_console_handler);
 
 		console_out_id = text_field_add_extended (console_root_win, console_out_id, NULL,
 			CONSOLE_TEXT_X_BORDER, CONSOLE_Y_OFFSET,

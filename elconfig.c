@@ -485,10 +485,10 @@ void change_ui_scale(float *var, float *value)
 	if (hud_y != 0)
 		hud_y = HUD_MARGIN_Y;
 
-	if ((game_root_win >= 0) || (newchar_root_win >= 0))
-		resize_all_root_windows (window_width, window_height);
-
 	update_windows_scale(*var);
+
+	if (input_widget != NULL)
+		input_widget_move_to_win(input_widget->window_id);
 }
 
 /*
