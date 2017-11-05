@@ -128,8 +128,10 @@ static void reset_quickbar()
 	//Re-set  Flags
 	change_flags(quickbar_win, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST);
 	//NEED x_offset
-	move_window(quickbar_win, -1, 0, window_width-quickbar_x, DEF_QUICKBAR_Y);
+	move_window(quickbar_win, -1, 0, window_width - quickbar_x_len - 1, quickbar_y);
+	//clear the relocation flag
 	quickbar_relocatable = 0;
+	set_var_unsaved("relocate_quickbar", INI_FILE_VAR);
 }
 
 
@@ -621,7 +623,7 @@ void init_quickbar (void)
 			return;
 
 		ui_scale_quickbar_handler(&windows_list.window[quickbar_win]);
-		move_window(quickbar_win, -1, 0, window_width - quickbar_x - 1, quickbar_y);
+		move_window(quickbar_win, -1, 0, window_width - quickbar_x_len - 1, quickbar_y);
 
 		last_num_quickbar_slots = num_quickbar_slots;
 
