@@ -5,6 +5,7 @@
 #include "consolewin.h"
 #include "draw_scene.h"
 #include "elconfig.h"
+#include "font.h"
 #include "gamewin.h"
 #include "gl_init.h"
 #include "init.h"
@@ -25,7 +26,7 @@ int opening_win_text_width = -1;
 int opening_win_text_height = -1;
 
 void opening_win_update_zoom () {
-	nr_opening_lines = opening_win_text_height / (18 * chat_zoom);
+	nr_opening_lines = opening_win_text_height / (DEFAULT_FONT_Y_LEN * chat_zoom);
 	widget_set_size(opening_root_win, opening_out_id, chat_zoom);
 }
 
@@ -116,7 +117,7 @@ void create_opening_root_window (int width, int height)
 		
 		opening_out_id = text_field_add_extended (opening_root_win, opening_out_id, NULL, 0, 0, width, height, 0, chat_zoom, -1.0f, -1.0f, -1.0f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, FILTER_ALL, 0, 0);
 		
-		nr_opening_lines = height / (18 * chat_zoom);
+		nr_opening_lines = height / (DEFAULT_FONT_Y_LEN * chat_zoom);
 		opening_win_text_width = width;
 		opening_win_text_height = height;
 	}
