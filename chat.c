@@ -230,8 +230,8 @@ Uint32 get_active_channel (Uint8 idx)
 #define CHAT_WIN_SPACE		4
 #define CHAT_WIN_TAG_SPACE	3
 #define CHAT_WIN_TEXT_WIDTH  	500
-#define CHAT_OUT_TEXT_HEIGHT 	(18*8)
-#define CHAT_IN_TEXT_HEIGHT 	(18*3)
+#define CHAT_OUT_TEXT_HEIGHT 	(DEFAULT_FONT_Y_LEN*8)
+#define CHAT_IN_TEXT_HEIGHT 	(DEFAULT_FONT_Y_LEN*3)
 
 static int CHAT_WIN_TAG_HEIGHT = 20;
 static int CHAT_WIN_SCROLL_WIDTH = 20;
@@ -829,7 +829,7 @@ void update_chat_win_buffers(void)
 	}
 	
 	// adjust the text position and scroll bar
-	nr_displayed_lines = (int) (chat_out_text_height / (18.0f * chat_zoom));
+	nr_displayed_lines = (int) (chat_out_text_height / (DEFAULT_FONT_Y_LEN * chat_zoom));
 	current_line = channels[active_tab].nr_lines - nr_displayed_lines;
 	if (current_line < 0)
 		current_line = 0;
@@ -1054,12 +1054,14 @@ static void create_chat_window(void)
 	int input_height = CHAT_IN_TEXT_HEIGHT + 2 * CHAT_WIN_SPACE;
 	
 	int min_width = CHAT_WIN_SCROLL_WIDTH + 2 * CHAT_WIN_SPACE + (int)(CHAT_WIN_TEXT_WIDTH * chat_zoom);
-	int min_height = 7 * CHAT_WIN_SPACE + CHAT_WIN_TAG_HEIGHT + (int) ((2+5) * 18.0 * chat_zoom);
+	int min_height = 7 * CHAT_WIN_SPACE + CHAT_WIN_TAG_HEIGHT + (int) ((2+5) * DEFAULT_FONT_Y_LEN * chat_zoom);
 	
-	nr_displayed_lines = (int) ((CHAT_OUT_TEXT_HEIGHT-1) / (18.0 * chat_zoom));
+	nr_displayed_lines = (int) ((CHAT_OUT_TEXT_HEIGHT-1) / (DEFAULT_FONT_Y_LEN * chat_zoom));
 			
 	chat_win = create_window ("Chat", game_root_win, 0, 0, 0, chat_win_width, chat_win_height, ELW_USE_UISCALE|ELW_WIN_DEFAULT|ELW_RESIZEABLE|ELW_CLICK_TRANSPARENT);
-	
+	if (chat_win < 0 || chat_win >= windows_list.num_windows)
+		return;
+
 	set_window_handler (chat_win, ELW_HANDLER_DISPLAY, &display_chat_handler);
 	set_window_handler (chat_win, ELW_HANDLER_RESIZE, &resize_chat_handler);
 	set_window_handler (chat_win, ELW_HANDLER_UI_SCALE, &ui_scale_chat_handler);
@@ -1090,6 +1092,7 @@ static void create_chat_window(void)
 		input_widget = widget_find(chat_win, id);
 	}
 	set_window_min_size (chat_win, min_width, min_height);
+	ui_scale_chat_handler(&windows_list.window[chat_win]);
 }
 
 void display_chat(void)
