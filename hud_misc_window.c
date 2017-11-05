@@ -63,7 +63,7 @@ enum {	CMH_STATS=0, CMH_STATBARS, CMH_KNOWBAR, CMH_TIMER, CMH_DIGCLOCK, CMH_ANAC
 
 static void draw_side_stats_bar(window_info *win, const int x, const int y, const int baselev, const int cur_exp, const int nl_exp, size_t colour)
 {
-	const int max_len = win->len_x - (int)(0.5 + win->current_scale * 6);
+	const int max_len = win->len_x - x - 1;
 	const int bar_height = win->small_font_len_y - (int)(0.5 + win->current_scale * 2);
 	int len = max_len - (float)max_len/(float)((float)(nl_exp-exp_lev[baselev])/(float)(nl_exp-cur_exp));
 
@@ -302,7 +302,7 @@ CHECK_GL_ERRORS();
 		char str[20];
 		char *use_str = idle_str;
 		int percentage_done = 0;
-		int x = (int)(0.5 + win->current_scale * 4);
+		int x = (int)(0.5 + win->current_scale * 3);
 		int y = base_y_start - side_stats_bar_height - ((knowledge_bar_height - side_stats_bar_height) / 2);
 		int off = 0;
 		
@@ -312,7 +312,7 @@ CHECK_GL_ERRORS();
 			safe_snprintf(str, sizeof(str), "%d%%", percentage_done);
 			use_str = str;
 		}
-		off = (win->len_x - (int)(0.5 + win->current_scale * 6) - win->small_font_len_x * strlen(use_str)) / 2;
+		off = ((win->len_x - x - 1) - (win->small_font_len_x * strlen(use_str))) / 2;
 		draw_side_stats_bar(win, x, y, 0, percentage_done, 100, 1);
 		draw_string_small_shadowed_zoomed(x+off+gx_adjust, y+gy_adjust, (unsigned char *)use_str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
 
@@ -342,8 +342,8 @@ CHECK_GL_ERRORS();
 	if(show_stats_in_hud && have_stats)
 	{
 		char str[20];
-		int box_x = scaled_4;
-		int text_x = scaled_6;
+		int box_x = (int)(0.5 + win->current_scale * 3);
+		int text_x = box_x + ((win->len_x - box_x - 1) - (7 * win->small_font_len_x))/2;
 		int thestat;
 		int y = calc_statbar_start_y(base_y_start, win->len_y);
 		int skill_modifier;
