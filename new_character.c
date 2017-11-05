@@ -628,7 +628,7 @@ static void create_newchar_hud_window(void);
 
 static int ui_scale_newchar_handler(window_info *win)
 {
-	hud_x = (int)(0.5 + win->current_scale * 270);
+	hud_x = (int)(0.5 + win->current_scale * NEW_CHARACTER_BASE_HUD_X);
 	resize_newchar_hud_window();
 	return 1;
 }

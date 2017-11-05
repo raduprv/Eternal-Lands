@@ -80,7 +80,7 @@ void init_hud_interface (hud_interface type)
 	{
 		if (newchar_root_win >= 0 && newchar_root_win < windows_list.num_windows)
 		{
-			hud_x = (int)(0.5 + windows_list.window[newchar_root_win].current_scale * 270);
+			hud_x = (int)(0.5 + windows_list.window[newchar_root_win].current_scale * NEW_CHARACTER_BASE_HUD_X);
 			resize_root_window();
 			init_icon_window (NEW_CHARACTER_ICONS);
 		}

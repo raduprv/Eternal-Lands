@@ -10,6 +10,7 @@
 extern "C" {
 #endif
 
+#define NEW_CHARACTER_BASE_HUD_X 270
 #define RAND(min,max) (min + rand () % (max - min + 1))
 
 /*!
