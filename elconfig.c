@@ -478,7 +478,7 @@ void change_string(char * var, char * str, int len)
 void change_ui_scale(float *var, float *value)
 {
 	*var= *value;
-	HUD_MARGIN_X = (int)ceilf(*var * 70.0);
+	HUD_MARGIN_X = (int)ceilf(*var * 64.0);
 	if (hud_x != 0)
 		hud_x = HUD_MARGIN_X;
 	HUD_MARGIN_Y = (int)ceilf(*var * 49.0);

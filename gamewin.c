@@ -57,7 +57,7 @@
 #include "weather.h"
 
 // exported
-int HUD_MARGIN_X = 70;
+int HUD_MARGIN_X = 64;
 int HUD_MARGIN_Y = 49;
 float fps_average = 100.0;
 int have_mouse = 0;
