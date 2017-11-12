@@ -29,14 +29,6 @@ extern int always_enlarge_text;
 
 /*!
  * \ingroup other
- * \brief Checks if the keypress is an item use
- *
- *	returns 1 if the key is a item keypress, otherwise 0.
- */
-int action_item_keys(Uint32 key);
-
-/*!
- * \ingroup other
  * \brief Initializes anything hud related
  *
  *      Initializes anything related to the hud, i.e. the hud frame, icons, stats display, quickbar and misc. items like compass and clock.

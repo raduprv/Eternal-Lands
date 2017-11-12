@@ -6,11 +6,11 @@
 #include "font.h"
 #include "gl_init.h"
 #include "hud.h"
-#include "hud_misc_window.h"
 #include "hud_quickbar_window.h"
 #include "interface.h"
 #include "item_info.h"
 #include "items.h"
+#include "keys.h"
 #include "multiplayer.h"
 #include "sound.h"
 #include "spells.h"
@@ -28,7 +28,7 @@ int cm_quickbar_enabled = 0;
 
 static size_t cm_quickbar_id = CM_INIT_VALUE;
 static int mouseover_quickbar_item_pos = -1;
-static int last_num_quickbar_slots = 6;
+static int last_shown_quickbar_slots = 6;
 static int DEF_QUICKBAR_X_LEN = -1;
 static int DEF_QUICKBAR_Y_LEN = -1;
 static int DEF_QUICKBAR_X = -1;
@@ -54,17 +54,21 @@ static Uint32 get_flags(int win_id) {
 	return windows_list.window[win_id].flags;
 }
 
+static int get_shown_quickbar_slots(void)
+{
+	return num_quickbar_slots;
+}
 
 // return the window y len based on the number of slots
 static int get_quickbar_y_len(void)
 {
-	return num_quickbar_slots * DEF_QUICKBAR_Y_LEN + 1;
+	return get_shown_quickbar_slots() * DEF_QUICKBAR_Y_LEN + 1;
 }
 
 
 /* get the base y coord of the quick bar if its in 
    it's default place, otherwise return where the top would be */
-static int get_quickbar_y_base(void)
+int get_quickbar_y_base(void)
 {
 	if ((quickbar_draggable) || (quickbar_dir!=VERTICAL) ||
 		(quickbar_x_len != DEF_QUICKBAR_X_LEN) || 
@@ -187,7 +191,7 @@ static void quickbar_item_description_help(window_info *win, int pos, int slot)
 static int mouseover_quickbar_handler(window_info *win, int mx, int my) {
 	int y,i=0;
 	int x_screen,y_screen;
-	for(y=0;y<num_quickbar_slots;y++)
+	for(y=0;y<get_shown_quickbar_slots();y++)
 		{
 			if(quickbar_dir==VERTICAL)
 				{
@@ -267,7 +271,7 @@ static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags
 
 	// no in window check needed, already done
 	//see if we clicked on any item in the main category
-	for(y=0;y<num_quickbar_slots;y++)
+	for(y=0;y<get_shown_quickbar_slots();y++)
 		{
 			if(quickbar_dir==VERTICAL)
 				{
@@ -285,24 +289,22 @@ static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags
 					if(item_dragged!=-1)//we have to drop this item
 						{
 							int any_item=0;
-						        if(item_dragged == y) 
-						        {		        
-							
-								 //let's try auto equip
-								 int i;
-								 for(i = ITEM_WEAR_START; i<ITEM_WEAR_START+8;i++)
-								 {
-								       if(item_list[i].quantity<1)
-								       {
-								              move_item(y,i);
-								              break;
-								       }								     
-								  }								
-							     
-						                  item_dragged = -1;
-						                  return 1;
-						        }
-						   	for(i=0;i<num_quickbar_slots;i++)
+							if(item_dragged == y)
+								{
+									//let's try auto equip
+									int i;
+									for(i = ITEM_WEAR_START; i<ITEM_WEAR_START+8;i++)
+										{
+											if(item_list[i].quantity<1)
+											{
+												move_item(y,i);
+												break;
+											}
+										}
+									item_dragged = -1;
+									return 1;
+								}
+							for(i=0;i<get_shown_quickbar_slots();i++)
 								{
 									if(item_list[i].quantity && item_list[i].pos==y)
 										{
@@ -344,7 +346,7 @@ static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags
 								}
 						}
 					//see if there is any item there
-					for(i=0;i<num_quickbar_slots;i++)
+					for(i=0;i<get_shown_quickbar_slots();i++)
 						{
 							//should we get the info for it?
 							if(item_list[i].quantity && item_list[i].pos==y)
@@ -425,11 +427,11 @@ static int	display_quickbar_handler(window_info *win)
 	const int scaled_27 = (int)(0.5 + win->current_scale * 27);
 
 	// check if the number of slots has changes and adjust if needed
-	if (last_num_quickbar_slots == -1)
-		last_num_quickbar_slots = num_quickbar_slots;
-	else if (last_num_quickbar_slots != num_quickbar_slots)
+	if (last_shown_quickbar_slots == -1)
+		last_shown_quickbar_slots = get_shown_quickbar_slots();
+	else if (last_shown_quickbar_slots != get_shown_quickbar_slots())
 	{
-		last_num_quickbar_slots = num_quickbar_slots;
+		last_shown_quickbar_slots = get_shown_quickbar_slots();
 		if (quickbar_dir==VERTICAL) 
 			init_window(win->window_id, -1, 0, win->cur_x, win->cur_y, quickbar_x_len, get_quickbar_y_len());
 		else
@@ -439,7 +441,7 @@ static int	display_quickbar_handler(window_info *win)
 	glEnable(GL_TEXTURE_2D);
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
-	for(i=num_quickbar_slots-1;i>=0;i--)
+	for(i=get_shown_quickbar_slots()-1;i>=0;i--)
 	{
 		if(item_list[i].quantity > 0)
 		{
@@ -457,7 +459,7 @@ static int	display_quickbar_handler(window_info *win)
 
 			x_start = scaled_2;
 			x_end = x_start + scaled_27;
-			y_start = DEF_QUICKBAR_Y_LEN * (cur_pos % num_quickbar_slots) + scaled_2;
+			y_start = DEF_QUICKBAR_Y_LEN * (cur_pos % get_shown_quickbar_slots()) + scaled_2;
 			y_end = y_start + scaled_27;
 
 			if(quickbar_dir != VERTICAL)
@@ -558,7 +560,7 @@ static int	display_quickbar_handler(window_info *win)
 	//draw the grid
 	if(quickbar_dir==VERTICAL)
 		{
-			for(y=1;y<num_quickbar_slots;y++)
+			for(y=1;y<get_shown_quickbar_slots();y++)
 				{
 					glVertex3i(0, y*DEF_QUICKBAR_Y_LEN+1, 0);
 					glVertex3i(quickbar_x_len, y*DEF_QUICKBAR_Y_LEN+1, 0);
@@ -566,7 +568,7 @@ static int	display_quickbar_handler(window_info *win)
 		}
 	else
 		{
-			for(y=1;y<num_quickbar_slots;y++)
+			for(y=1;y<get_shown_quickbar_slots();y++)
 				{
 					glVertex3i(y*DEF_QUICKBAR_Y_LEN+1, 0, 0);
 					glVertex3i(y*DEF_QUICKBAR_Y_LEN+1, quickbar_x_len, 0);
@@ -625,7 +627,7 @@ void init_quickbar (void)
 		ui_scale_quickbar_handler(&windows_list.window[quickbar_win]);
 		move_window(quickbar_win, -1, 0, window_width - quickbar_x_len - 1, quickbar_y);
 
-		last_num_quickbar_slots = num_quickbar_slots;
+		last_shown_quickbar_slots = get_shown_quickbar_slots();
 
 		set_window_handler(quickbar_win, ELW_HANDLER_DISPLAY, &display_quickbar_handler);
 		set_window_handler(quickbar_win, ELW_HANDLER_CLICK, &click_quickbar_handler);
@@ -666,19 +668,39 @@ void switch_action_mode(int * mode, int id)
 }
 
 
-/*	Get the longest of the active quickspells and the
-	quickbar (if its in default place)
-*/
-int get_max_quick_y(void)
+static void quick_use(int use_id)
 {
-	int quickspell_base = get_quickspell_y_base();
-	int quickbar_base = get_quickbar_y_base();
-	int max_quick_y = window_height;
-	
-	if (quickspell_base > quickbar_base)
-		max_quick_y -= quickspell_base;
-	else
-		max_quick_y -= quickbar_base;
+	Uint8 quick_use_str[3];
+	int	i;
 
-	return max_quick_y;
+	for(i=0; i<ITEM_NUM_ITEMS; i++){
+		if(item_list[i].pos==use_id &&
+			item_list[i].quantity &&
+			item_list[i].use_with_inventory){
+				quick_use_str[0]= USE_INVENTORY_ITEM;
+				quick_use_str[1]= use_id;
+				quick_use_str[2]= i;
+				my_tcp_send(my_socket,quick_use_str,2);
+#ifdef NEW_SOUND
+				item_list[i].action = USE_INVENTORY_ITEM;
+#endif // NEW_SOUND
+				break;
+		}
+	}
+}
+
+
+// check if key is one of the item keys and use it if so.
+int action_item_keys(Uint32 key)
+{
+	size_t i;
+	Uint32 keys[] = {K_ITEM1, K_ITEM2, K_ITEM3, K_ITEM4, K_ITEM5, K_ITEM6,
+					 K_ITEM7, K_ITEM8, K_ITEM9, K_ITEM10, K_ITEM11, K_ITEM12 };
+	for (i=0; (i<sizeof(keys)/sizeof(Uint32)) && (i < get_shown_quickbar_slots()); i++)
+		if(key == keys[i])
+		{
+			quick_use (i);
+			return 1;
+		}
+	return 0;
 }

@@ -43,16 +43,6 @@ extern int osx_right_mouse_cam; /*!< flag indication whether the right mouse but
 
 /*!
  * \ingroup event_handle
- * \brief   gets called when a use mouse click occurs in the quickbar.
- *
- *      Gets called when a use mouse click occurs in the quickbar.
- *
- * \param use_id    the id of the item to use
- */
-void	quick_use(int use_id);
-
-/*!
- * \ingroup event_handle
  * \brief       main event handling routine
  *
  *      Main event handling routine.

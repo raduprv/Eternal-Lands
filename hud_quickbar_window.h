@@ -37,15 +37,23 @@ extern int cm_quickbar_enabled;
 
 
 /*!
- * \ingroup display_2d
+ * \ingroup hud_quickbar
  * \brief Initializes the quickbar
  *
  *      Initializes the quickbar, it's event handlers and shows it. If the quickbar has been moved by the player it will be drawn in its new position.
  */
 void init_quickbar(void);
 
+/*!
+ * \ingroup hud_quickbar
+ * \brief Checks if the keypress is an item use
+ *
+ *	returns 1 if the key is a item keypress, otherwise 0.
+ */
+int action_item_keys(Uint32 key);
+
 void switch_action_mode(int * mode, int id);
-int get_max_quick_y(void);
+int get_quickbar_y_base(void);
 
 #ifdef __cplusplus
 } // extern "C"

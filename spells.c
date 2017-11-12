@@ -91,7 +91,7 @@ static int we_have_spell=-1; //selected spell
 static int on_spell=-1;//mouse over this spell
 static int poison_drop_counter = 0;
 
-static void add_spell_to_quickbar(void);
+static void add_quickspell(void);
 
 typedef struct {
 	unsigned char desc[120];
@@ -296,12 +296,15 @@ typedef struct {
 } mqbdata;
 
 //QUICKSPELLS
-static mqbdata * mqb_data[MAX_QUICKBAR_SLOTS+1]={NULL};//mqb_data will hold the magic quickbar name, image, pos.
+
+#define MAX_QUICKSPELL_SLOTS MAX_QUICKBAR_SLOTS
+
+static mqbdata * mqb_data[MAX_QUICKSPELL_SLOTS+1]={NULL};//mqb_data will hold the magic quickspells name, image, pos.
 static int quickspell_size = -1;	//size of displayed icons in pixels
 static int quickspell_x_len = -1;
 int quickspell_x = -1;
 int quickspell_y = -1;
-static int quickbar_y_space = -1;
+static int quickspell_y_space = -1;
 static int quickspells_loaded = 0;
 
 
@@ -1268,7 +1271,7 @@ static int click_sigils_handler(window_info *win, int mx, int my, Uint32 flags)
 		return 0;
 	} else if(mx>=spell_icon_x && mx<=spell_icon_x+sigil_grid_size &&
 			my>=spell_icon_y && my<=spell_icon_y+sigil_grid_size && mqb_data[0] && mqb_data[0]->spell_id!=-1) {
-		add_spell_to_quickbar();
+		add_quickspell();
 		return 1;
 	} else if(mx>0 && mx<NUM_SIGILS_LINE*sigil_grid_size && my>0 && my<NUM_SIGILS_ROW*sigil_grid_size) {
 		int pos=get_mouse_pos_in_grid(mx,my, NUM_SIGILS_LINE, NUM_SIGILS_ROW, 0, 0, sigil_grid_size, sigil_grid_size);
@@ -1338,10 +1341,10 @@ static int click_spells_handler(window_info *win, int mx, int my, Uint32 flags){
 				//cast spell
 				if (put_on_cast()) cast_handler();
 			} else if (flags & ELW_RIGHT_MOUSE) {
-				//add to quickbar
+				//add to quickspells
 				if(put_on_cast()) {
 					prepare_for_cast();
-					add_spell_to_quickbar();
+					add_quickspell();
 				}
 			}
 		} else click_switcher_handler(win,mx,my,flags);
@@ -1386,10 +1389,10 @@ static int click_spells_mini_handler(window_info *win, int mx, int my, Uint32 fl
 			if(flags & ELW_LEFT_MOUSE) {
 				if (put_on_cast()) cast_handler();
 			} else if (flags & ELW_RIGHT_MOUSE) {
-				//add to quickbar
+				//add to quickspells
 				if(put_on_cast()){
 					prepare_for_cast();
-					add_spell_to_quickbar();
+					add_quickspell();
 				}
 			}
 		} else click_switcher_handler(win,mx,my,flags);
@@ -1438,7 +1441,7 @@ static int mouseover_sigils_handler(window_info *win, int mx, int my)
 
 	if(mx>=spell_icon_x && mx<=spell_icon_x+sigil_grid_size &&
 		my>=spell_icon_y && my<=spell_icon_y+sigil_grid_size && mqb_data[0] && mqb_data[0]->spell_id != -1) {
-		safe_snprintf((char*)raw_spell_text, sizeof(raw_spell_text), "Click to add the spell to the quickbar");
+		safe_snprintf((char*)raw_spell_text, sizeof(raw_spell_text), "Click to add the quick spells bar");
 		return 0;
 	}
 
@@ -1500,7 +1503,7 @@ static int mouseover_spells_handler(window_info *win, int mx, int my){
 	//check spell icon
 	if(mx > spell_border && mx < spell_border + spell_grid_size &&
 			my > spell_engred_y && my < spell_engred_y + spell_grid_size && we_have_spell >= 0) {
-		safe_snprintf((char*)raw_spell_text, sizeof(raw_spell_text), "Left click to cast\nRight click to add the spell to the quickbar");
+		safe_snprintf((char*)raw_spell_text, sizeof(raw_spell_text), "Left click to cast\nRight click to add the quick spells bar");
 		have_error_message=0;
 	}
 	return 0;
@@ -1565,7 +1568,7 @@ static int have_spell_name(int spell_id)
 {
 	int i;
 
-	for(i=1;i<MAX_QUICKBAR_SLOTS+1;i++){
+	for(i=1;i<MAX_QUICKSPELL_SLOTS+1;i++){
 		if(mqb_data[i] && mqb_data[i]->spell_id==spell_id && mqb_data[i]->spell_name[0]){
 			if(mqb_data[0])
 				safe_snprintf(mqb_data[0]->spell_name, sizeof(mqb_data[0]->spell_name), "%s", mqb_data[i]->spell_name);
@@ -1584,7 +1587,7 @@ void set_spell_name (int id, const char *data, int len)
 
 	counters_set_spell_name(id, (char *)data, len);
 
-	for (i = 0; i < MAX_QUICKBAR_SLOTS+1; i++)
+	for (i = 0; i < MAX_QUICKSPELL_SLOTS+1; i++)
 	{
 		if (mqb_data[i] != NULL && mqb_data[i]->spell_id==id)
 		{
@@ -1678,21 +1681,25 @@ void process_network_spell (const char *data, int len)
 
 //Quickspell I/O start
 
+static int get_shown_quickspell_slots(void)
+{
+	return num_quickbar_slots;
+}
 
-static void add_spell_to_quickbar(void)
+static void add_quickspell(void)
 {
 	int i;
 
 	if(!mqb_data[0])
 		return;
 
-	for(i=1;i<num_quickbar_slots+1;i++) {
+	for(i=1;i<get_shown_quickspell_slots()+1;i++) {
 		if(mqb_data[i] && mqb_data[0]->spell_id==mqb_data[i]->spell_id) {
 			return;
 		}
 	}
 
-	for (i = 1; i < num_quickbar_slots+1; i++)
+	for (i = 1; i < get_shown_quickspell_slots()+1; i++)
 	{
 		if (mqb_data[i] == NULL)
 		{
@@ -1702,20 +1709,20 @@ static void add_spell_to_quickbar(void)
 		}
 	}
 
-	if (i >= num_quickbar_slots+1)
+	if (i >= get_shown_quickspell_slots()+1)
 		// No free slot, overwrite the last entry
-		i = num_quickbar_slots;
+		i = get_shown_quickspell_slots();
 
 	memcpy (mqb_data[i], mqb_data[0], sizeof (mqbdata));
 	save_quickspells();
 	cm_update_quickspells();
 }
 
-static void remove_spell_from_quickbar (int pos)
+static void remove_quickspell (int pos)
 {
 	int i;
 
-	if (pos < 1 || pos > num_quickbar_slots || mqb_data[pos] == NULL) {
+	if (pos < 1 || pos > get_shown_quickspell_slots() || mqb_data[pos] == NULL) {
 		return;
 	}
 
@@ -1723,21 +1730,21 @@ static void remove_spell_from_quickbar (int pos)
 	free (mqb_data[pos]);
 
 	// move the other spells one up
-	for (i = pos; i < MAX_QUICKBAR_SLOTS; i++) {
+	for (i = pos; i < MAX_QUICKSPELL_SLOTS; i++) {
 		mqb_data[i] = mqb_data[i+1];
 	}
-	mqb_data[MAX_QUICKBAR_SLOTS] = NULL;
+	mqb_data[MAX_QUICKSPELL_SLOTS] = NULL;
 	save_quickspells();
 	cm_update_quickspells();
 }
 
 
-static void move_spell_on_quickbar (int pos, int direction)
+static void move_quickspell (int pos, int direction)
 {
 	int i=pos;
 	mqbdata * mqb_temp;
-	if (pos < 1 || pos > num_quickbar_slots || mqb_data[pos] == NULL) return;
-	if ((pos ==1 && direction==0)||(pos==num_quickbar_slots && direction==1)) return;
+	if (pos < 1 || pos > get_shown_quickspell_slots() || mqb_data[pos] == NULL) return;
+	if ((pos ==1 && direction==0)||(pos==get_shown_quickspell_slots() && direction==1)) return;
 	if (direction==0){
 		mqb_temp=mqb_data[i-1];
 		mqb_data[i-1]=mqb_data[i]; //move it up
@@ -1870,12 +1877,12 @@ void load_quickspells (void)
 		num_spells--;
 	}
 
-	if (num_spells > MAX_QUICKBAR_SLOTS)
+	if (num_spells > MAX_QUICKSPELL_SLOTS)
 	{
 		LOG_WARNING("Too many spells (%d), only %d spells allowed",
-			num_spells, MAX_QUICKBAR_SLOTS);
+			num_spells, MAX_QUICKSPELL_SLOTS);
 
-		num_spells = MAX_QUICKBAR_SLOTS;
+		num_spells = MAX_QUICKSPELL_SLOTS;
 	}
 
 	memset(mqb_data, 0, sizeof (mqb_data));
@@ -1932,7 +1939,7 @@ void save_quickspells(void)
 		return;
 	}
 
-	for (i = 1; i < MAX_QUICKBAR_SLOTS+1; i++)
+	for (i = 1; i < MAX_QUICKSPELL_SLOTS+1; i++)
 	{
 		if (mqb_data[i] == NULL)
 			break;
@@ -1945,7 +1952,7 @@ void save_quickspells(void)
 
 	LOG_DEBUG("Writing %d spells to file '%s'", i, fname);
 
-	for (i = 1; i < (MAX_QUICKBAR_SLOTS + 1); i++)
+	for (i = 1; i < (MAX_QUICKSPELL_SLOTS + 1); i++)
 	{
 		if (mqb_data[i] == 0)
 		{
@@ -1972,10 +1979,10 @@ void save_quickspells(void)
 
 static int quickspell_over=-1;
 
-// get the quickbar length - it depends on the numbe rof slots active
+// get the quickspell window length - it depends on the numbe rof slots active
 static int get_quickspell_y_len(void)
 {
-	return num_quickbar_slots * quickbar_y_space;
+	return get_shown_quickspell_slots() * quickspell_y_space;
 }
 
 /*	returns the y coord position of the active base
@@ -1989,10 +1996,10 @@ int get_quickspell_y_base(void)
 	if (!quickspells_loaded)
 		return quickspell_y;
 
-	for (i = num_quickbar_slots; i > 0; i--)
+	for (i = get_shown_quickspell_slots(); i > 0; i--)
 	{
 		if (mqb_data[i] == NULL)
-			active_len -= quickbar_y_space;
+			active_len -= quickspell_y_space;
 		else
 			break;
 	}
@@ -2003,14 +2010,14 @@ int get_quickspell_y_base(void)
 static int display_quickspell_handler(window_info *win)
 {
 	int i;
-	static int last_num_quickbar_slots = -1;
+	static int last_shown_quickspell_slots = -1;
 
-	// Check for a change of the number of quickbar slots
-	if (last_num_quickbar_slots == -1)
-		last_num_quickbar_slots = num_quickbar_slots;
-	else if (last_num_quickbar_slots != num_quickbar_slots)
+	// Check for a change of the number of quickspells slots
+	if (last_shown_quickspell_slots == -1)
+		last_shown_quickspell_slots = get_shown_quickspell_slots();
+	else if (last_shown_quickspell_slots != get_shown_quickspell_slots())
 	{
-		last_num_quickbar_slots = num_quickbar_slots;
+		last_shown_quickspell_slots = get_shown_quickspell_slots();
 		init_window(win->window_id, -1, 0, win->cur_x, win->cur_y, win->len_x, get_quickspell_y_len());
 		cm_update_quickspells();
 	}
@@ -2024,14 +2031,14 @@ CHECK_GL_ERRORS();
 	glEnable(GL_BLEND);	// Turn Blending On
 	glBlendFunc(GL_SRC_ALPHA,GL_DST_ALPHA);
 
-	for(i=1;i<num_quickbar_slots+1;i++) {
+	for(i=1;i<get_shown_quickspell_slots()+1;i++) {
 		if(mqb_data[i] && mqb_data[i]->spell_name[0]){
 			if(quickspell_over==i){	//highlight if we are hovering over
 				glColor4f(1.0f,1.0f,1.0f,1.0f);
 			} else {	//otherwise shade it a bit
 				glColor4f(1.0f,1.0f,1.0f,0.6f);
 			}
-			draw_spell_icon(mqb_data[i]->spell_image, 0, (i-1) * quickbar_y_space + (quickbar_y_space - quickspell_size) / 2, quickspell_size,0,0);
+			draw_spell_icon(mqb_data[i]->spell_image, 0, (i-1) * quickspell_y_space + (quickspell_y_space - quickspell_size) / 2, quickspell_size,0,0);
 		}
 	}
 
@@ -2042,7 +2049,7 @@ CHECK_GL_ERRORS();
 	if(quickspell_over!=-1 && mqb_data[quickspell_over])
 		show_help(mqb_data[quickspell_over]->spell_name,
 			-((strlen(mqb_data[quickspell_over]->spell_name) + 1) * win->small_font_len_x),
-			(quickspell_over - 1) * quickbar_y_space + (quickbar_y_space - win->small_font_len_y) / 2, win->current_scale);
+			(quickspell_over - 1) * quickspell_y_space + (quickspell_y_space - win->small_font_len_y) / 2, win->current_scale);
 	quickspell_over=-1;
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -2055,8 +2062,8 @@ static int mouseover_quickspell_handler(window_info *win, int mx, int my)
 {
 	int pos;
 
-	pos=my/quickbar_y_space+1;
-	if(pos<num_quickbar_slots+1 && pos>=1 && mqb_data[pos] && mqb_data[pos]->spell_name[0]) {
+	pos=my/quickspell_y_space+1;
+	if(pos<get_shown_quickspell_slots()+1 && pos>=1 && mqb_data[pos] && mqb_data[pos]->spell_name[0]) {
 		quickspell_over=pos;
 		elwin_mouse=CURSOR_WAND;
 		return 1;
@@ -2068,18 +2075,18 @@ static int click_quickspell_handler(window_info *win, int mx, int my, Uint32 fla
 {
 	int pos;
 
-	pos=my/quickbar_y_space+1;
+	pos=my/quickspell_y_space+1;
 
-	if(pos<num_quickbar_slots+1 && pos>=1 && mqb_data[pos])
+	if(pos<get_shown_quickspell_slots()+1 && pos>=1 && mqb_data[pos])
 	{
 		if ((flags & ELW_LEFT_MOUSE)&&(flags & ELW_SHIFT))
 		{
-			move_spell_on_quickbar (pos,0);
+			move_quickspell (pos,0);
 			return 1;
 		}
 		else if ((flags & ELW_RIGHT_MOUSE)&&(flags & ELW_SHIFT))
 		{
-			move_spell_on_quickbar (pos,1);
+			move_quickspell (pos,1);
 			return 1;
 		}
 		else if (flags & ELW_LEFT_MOUSE && mqb_data[pos]->spell_str[0])
@@ -2089,7 +2096,7 @@ static int click_quickspell_handler(window_info *win, int mx, int my, Uint32 fla
 		}
 		else if ((flags & ELW_RIGHT_MOUSE)&&(flags & ELW_CTRL))
 		{
-			remove_spell_from_quickbar (pos);
+			remove_quickspell (pos);
 			return 1;
 		}
 	}
@@ -2098,14 +2105,14 @@ static int click_quickspell_handler(window_info *win, int mx, int my, Uint32 fla
 
 static int context_quickspell_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
-	int pos=my/quickbar_y_space+1;
-	if(pos<num_quickbar_slots+1 && pos>=1 && mqb_data[pos])
+	int pos=my/quickspell_y_space+1;
+	if(pos<get_shown_quickspell_slots()+1 && pos>=1 && mqb_data[pos])
 	{
 		switch (option)
 		{
-			case 0: move_spell_on_quickbar (pos,0); break;
-			case 1: move_spell_on_quickbar (pos,1); break;
-			case 2: remove_spell_from_quickbar (pos); break;
+			case 0: move_quickspell (pos,0); break;
+			case 1: move_quickspell (pos,1); break;
+			case 2: remove_quickspell (pos); break;
 		}
 	}
 	return 1;
@@ -2116,10 +2123,10 @@ static void cm_update_quickspells(void)
 	int active_y_len = 0, i;
 	if (quickspell_win < 0)
 		return;
-	for (i = num_quickbar_slots; i > 0; i--)
+	for (i = get_shown_quickspell_slots(); i > 0; i--)
 	{
 		if (mqb_data[i] != NULL)
-			active_y_len += quickbar_y_space;
+			active_y_len += quickspell_y_space;
 	}
 	cm_remove_regions(quickspell_win);
 	cm_add_region(cm_quickspells_id, quickspell_win, 0, 0, quickspell_x_len, active_y_len);
@@ -2131,7 +2138,7 @@ static int ui_scale_quickspell_handler(window_info *win)
 	quickspell_x_len = (int)(0.5 + win->current_scale * 26);
 	quickspell_x = (int)(0.5 + win->current_scale * 60);
 	quickspell_y = (int)(0.5 + win->current_scale * 64);
-	quickbar_y_space = (int)(0.5 + win->current_scale * 30);
+	quickspell_y_space = (int)(0.5 + win->current_scale * 30);
 	resize_window(win->window_id, quickspell_x_len, get_quickspell_y_len());
 	move_window (win->window_id, -1, 0, window_width - quickspell_x, quickspell_y);
 	return 1;
@@ -2187,7 +2194,7 @@ int action_spell_keys(Uint32 key)
 	size_t i;
 	Uint32 keys[] = {K_SPELL1, K_SPELL2, K_SPELL3, K_SPELL4, K_SPELL5, K_SPELL6,
 					 K_SPELL7, K_SPELL8, K_SPELL9, K_SPELL10, K_SPELL11, K_SPELL12 };
-	for (i=0; (i<sizeof(keys)/sizeof(Uint32)) & (i < num_quickbar_slots); i++)
+	for (i=0; (i<sizeof(keys)/sizeof(Uint32)) & (i < get_shown_quickspell_slots()); i++)
 		if(key == keys[i])
 		{
 			if(mqb_data[i+1] && mqb_data[i+1]->spell_str[0])

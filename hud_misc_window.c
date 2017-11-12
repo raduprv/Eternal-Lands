@@ -138,6 +138,24 @@ static void context_hud_pre_show_handler(window_info *win, int widget_id, int mx
 }
 
 
+/*	Get the longest of the active quickspells and the
+	quickbar (if its in default place)
+*/
+static int get_max_quick_y(void)
+{
+	int quickspell_base = get_quickspell_y_base();
+	int quickbar_base = get_quickbar_y_base();
+	int max_quick_y = window_height;
+
+	if (quickspell_base > quickbar_base)
+		max_quick_y -= quickspell_base;
+	else
+		max_quick_y -= quickbar_base;
+
+	return max_quick_y;
+}
+
+
 /*	Calculate the start y coord for the statsbar.
 	Also calculates statbar_start_y, num_disp_stat and first_disp_stat
 */
@@ -330,7 +348,7 @@ CHECK_GL_ERRORS();
 	base_y_start -= display_timer(win, base_y_start);
 
 	// Trade the number of quickbar slots if too much is displayed (not considering stats yet)
-	while (((win->len_y - base_y_start) - get_max_quick_y()) > 0)
+	while ((((win->len_y - base_y_start) - get_max_quick_y()) > 0) && (num_quickbar_slots > 1))
 	{
 		num_quickbar_slots--;
 		set_var_OPT_INT("num_quickbar_slots", num_quickbar_slots);

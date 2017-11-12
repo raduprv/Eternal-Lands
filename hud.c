@@ -7,7 +7,6 @@
 #include "consolewin.h"
 #include "elconfig.h"
 #include "emotes.h"
-#include "events.h"
 #ifdef ECDEBUGWIN
 #include "eye_candy_debugwin.h"
 #endif
@@ -348,21 +347,6 @@ void show_help(const char *help_message, int x, int y, float scale)
 void show_help_big(const char *help_message, int x, int y, float scale)
 {
 	show_help_coloured_scaled(help_message, x, y, 1.0f, 1.0f, 1.0f, 1, scale);
-}
-
-// check if key is one of the item keys and use it if so.
-int action_item_keys(Uint32 key)
-{
-	size_t i;
-	Uint32 keys[] = {K_ITEM1, K_ITEM2, K_ITEM3, K_ITEM4, K_ITEM5, K_ITEM6,
-					 K_ITEM7, K_ITEM8, K_ITEM9, K_ITEM10, K_ITEM11, K_ITEM12 };
-	for (i=0; (i<sizeof(keys)/sizeof(Uint32)) & (i < num_quickbar_slots); i++)
-		if(key == keys[i])
-		{
-			quick_use (i);
-			return 1;
-		}
-	return 0;
 }
 
 void build_levels_table()
