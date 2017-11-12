@@ -122,6 +122,8 @@ static int context_hud_handler(window_info *win, int widget_id, int mx, int my, 
 			protocol_name= LOCATE_ME;
 			my_tcp_send(my_socket,&protocol_name,1);
 			break;
+		default:
+			init_misc_display();
 	}
 	return 1;
 }
@@ -138,24 +140,6 @@ static void context_hud_pre_show_handler(window_info *win, int widget_id, int mx
 }
 
 
-/*	Get the longest of the active quickspells and the
-	quickbar (if its in default place)
-*/
-static int get_max_quick_y(void)
-{
-	int quickspell_base = get_quickspell_y_base();
-	int quickbar_base = get_quickbar_y_base();
-	int max_quick_y = window_height;
-
-	if (quickspell_base > quickbar_base)
-		max_quick_y -= quickspell_base;
-	else
-		max_quick_y -= quickbar_base;
-
-	return max_quick_y;
-}
-
-
 /*	Calculate the start y coord for the statsbar.
 	Also calculates statbar_start_y, num_disp_stat and first_disp_stat
 */
@@ -163,11 +147,13 @@ static int calc_statbar_start_y(int base_y_start, int win_y_len)
 {
 	int winoverlap = 0;
 	int last_display = num_disp_stat;
+	int quickspell_base = get_quickspell_y_base();
+	int quickbar_base = get_quickbar_y_base();
 
 	statbar_start_y = base_y_start - side_stats_bar_height*(NUM_WATCH_STAT-1);
 	
 	/* calculate the overlap between the longest of the quickspell/bar and the statsbar */
-	winoverlap = (win_y_len - statbar_start_y) - get_max_quick_y();
+	winoverlap = (win_y_len - statbar_start_y) - (window_height - ((quickspell_base > quickbar_base) ?quickspell_base :quickbar_base));
 
 	/* if they overlap, only display some skills and allow to scroll */
 	if (winoverlap > 0)
@@ -184,13 +170,9 @@ static int calc_statbar_start_y(int base_y_start, int win_y_len)
 		num_disp_stat = (NUM_WATCH_STAT-1);
 	}
 
-	/* if the number of stats displayed has changed, resize other hud elements */
+	/* if the number of stats displayed has changed, resize the window */
 	if (last_display != num_disp_stat)
-	{
 		init_misc_display();
-		init_quickbar();
-		init_quickspell();
-	}
 
 	/* return start y position in window */
 	return statbar_start_y;
@@ -348,11 +330,12 @@ CHECK_GL_ERRORS();
 	base_y_start -= display_timer(win, base_y_start);
 
 	// Trade the number of quickbar slots if too much is displayed (not considering stats yet)
-	while ((((win->len_y - base_y_start) - get_max_quick_y()) > 0) && (num_quickbar_slots > 1))
-	{
-		num_quickbar_slots--;
-		set_var_OPT_INT("num_quickbar_slots", num_quickbar_slots);
-	}
+	while (win->len_y - base_y_start - window_height + get_quickbar_y_base() > 0)
+		if (!shorten_quickbar())
+			break;
+	while (win->len_y - base_y_start - window_height + get_quickspell_y_base() > 0)
+		if (!shorten_quickspell())
+			break;
 
 	/*	Optionally display the stats bar.  If the current window size does not
 		provide enough room, display only some skills and allow scrolling to view
@@ -366,11 +349,18 @@ CHECK_GL_ERRORS();
 		int y = calc_statbar_start_y(base_y_start, win->len_y);
 		int skill_modifier;
 
-		// trade the number of quickbar slots if there is not enough space
-		while ((num_disp_stat < 5) && (num_quickbar_slots > 1))
+		// trade the number of quickbar slots if there is not enough space for the minimum stats
+		while (num_disp_stat < 5)
 		{
-			num_quickbar_slots--;
-			set_var_OPT_INT("num_quickbar_slots", num_quickbar_slots);
+			int made_space = 0;
+			if (get_quickbar_y_base() > get_quickspell_y_base())
+				made_space = shorten_quickbar();
+			else if (get_quickbar_y_base() < get_quickspell_y_base())
+				made_space = shorten_quickspell();
+			else
+				made_space = shorten_quickbar() + shorten_quickspell();
+			if (!made_space)
+				break;
 			y = calc_statbar_start_y(base_y_start, win->len_y);
 		}
 
@@ -607,7 +597,17 @@ static int ui_scale_misc_handler(window_info *win)
 	knowledge_bar_height = win->small_font_len_y + 6;
 	side_stats_bar_height = win->small_font_len_y;
 	ui_scale_timer(win);
-	y_len = 2 * win->current_scale * 64 + win->default_font_len_y + knowledge_bar_height + get_height_of_timer() + num_disp_stat * side_stats_bar_height;
+	y_len = win->current_scale * 64;
+	if (view_hud_timer)
+		y_len += get_height_of_timer();
+	if (view_analog_clock)
+		y_len += win->current_scale * 64;
+	if (view_digital_clock)
+		y_len += win->default_font_len_y;
+	if (view_knowledge_bar)
+		y_len += knowledge_bar_height;
+	if (show_stats_in_hud && have_stats)
+		y_len += num_disp_stat * side_stats_bar_height;
 	resize_window(misc_win, HUD_MARGIN_X, y_len);
 	move_window(misc_win, -1, 0, window_width-HUD_MARGIN_X, window_height-y_len);
 	return 1;

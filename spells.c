@@ -5,11 +5,11 @@
 #include "asc.h"
 #include "cursors.h"
 #include "context_menu.h"
+#include "elconfig.h"
 #include "elwindows.h"
 #include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
-#include "hud_quickbar_window.h"
 #include "interface.h"
 #include "items.h"
 #include "item_info.h"
@@ -77,6 +77,7 @@ typedef struct {
 } spell_info;
 
 int quickspell_win = -1;
+int num_quickspell_slots = 6;
 Uint8 last_spell_str[20];
 static int last_spell_len= 0;
 int spell_result=0;
@@ -296,8 +297,6 @@ typedef struct {
 } mqbdata;
 
 //QUICKSPELLS
-
-#define MAX_QUICKSPELL_SLOTS MAX_QUICKBAR_SLOTS
 
 static mqbdata * mqb_data[MAX_QUICKSPELL_SLOTS+1]={NULL};//mqb_data will hold the magic quickspells name, image, pos.
 static int quickspell_size = -1;	//size of displayed icons in pixels
@@ -1683,8 +1682,21 @@ void process_network_spell (const char *data, int len)
 
 static int get_shown_quickspell_slots(void)
 {
-	return num_quickbar_slots;
+	return num_quickspell_slots;
 }
+
+int shorten_quickspell(void)
+{
+	if (num_quickspell_slots > 1)
+	{
+		num_quickspell_slots--;
+		set_var_OPT_INT("num_quickspell_slots", num_quickspell_slots);
+		return 1;
+	}
+	else
+		return 0;
+}
+
 
 static void add_quickspell(void)
 {
@@ -1982,7 +1994,7 @@ static int quickspell_over=-1;
 // get the quickspell window length - it depends on the numbe rof slots active
 static int get_quickspell_y_len(void)
 {
-	return get_shown_quickspell_slots() * quickspell_y_space;
+	return get_shown_quickspell_slots() * quickspell_y_space + 1;
 }
 
 /*	returns the y coord position of the active base

@@ -14,6 +14,7 @@ extern "C" {
 #endif
 
 #define NUM_ACTIVE_SPELLS 10
+#define MAX_QUICKSPELL_SLOTS 12
 
 /*!
  * \name Server spell messages
@@ -39,6 +40,7 @@ extern int start_mini_spells; /*!< do we start minimized? */
 extern int quickspell_win; /*!< quickbar windows handler */
 extern int quickspell_x;
 extern int quickspell_y;
+extern int num_quickspell_slots;
 extern int sigil_menu_x;
 extern int sigil_menu_y;
 extern int sigils_text; /*!< texture for spell/sigil icons */
@@ -170,6 +172,7 @@ void load_quickspells(void);
 void save_quickspells(void);
 void init_quickspell(void);
 int get_quickspell_y_base(void);
+int shorten_quickspell(void);
 int we_are_poisoned(void);
 void spell_text_from_server(const Uint8 *in_data, int data_length);
 #ifdef NEW_SOUND

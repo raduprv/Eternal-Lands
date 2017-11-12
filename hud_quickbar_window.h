@@ -54,6 +54,7 @@ int action_item_keys(Uint32 key);
 
 void switch_action_mode(int * mode, int id);
 int get_quickbar_y_base(void);
+int shorten_quickbar(void);
 
 #ifdef __cplusplus
 } // extern "C"
