@@ -47,7 +47,6 @@ static int cm_minimap_shown = 0;
 static int cm_rangstats_shown = 0;
 static int first_disp_stat = 0;					/* first skill that will be display */
 static int num_disp_stat = NUM_WATCH_STAT-1;		/* number of skills to be displayed */
-static int statbar_start_y = 0;					/* y coord in window of top if stats bar */
 static int stat_mouse_is_over = -1;				/* set to stat of the is mouse over that bar */
 static int mouse_over_clock = 0;					/* 1 if mouse is over digital or analogue clock */
 static int mouse_over_compass = 0;					/* 1 if mouse is over the compass */
@@ -140,26 +139,22 @@ static void context_hud_pre_show_handler(window_info *win, int widget_id, int mx
 }
 
 
-/*	Calculate the start y coord for the statsbar.
-	Also calculates statbar_start_y, num_disp_stat and first_disp_stat
+/*	Calculate num_disp_stat and first_disp_stat
 */
-static int calc_statbar_start_y(int base_y_start, int win_y_len)
+static void calc_statbar_shown(int base_y_pos)
 {
-	int winoverlap = 0;
 	int last_display = num_disp_stat;
 	int quickspell_base = get_quickspell_y_base();
 	int quickbar_base = get_quickbar_y_base();
+	int highest_win_pos_y = base_y_pos - side_stats_bar_height*(NUM_WATCH_STAT-1);
 
-	statbar_start_y = base_y_start - side_stats_bar_height*(NUM_WATCH_STAT-1);
-	
 	/* calculate the overlap between the longest of the quickspell/bar and the statsbar */
-	winoverlap = (win_y_len - statbar_start_y) - (window_height - ((quickspell_base > quickbar_base) ?quickspell_base :quickbar_base));
+	int winoverlap = ((quickspell_base > quickbar_base) ?quickspell_base :quickbar_base) - highest_win_pos_y;
 
 	/* if they overlap, only display some skills and allow to scroll */
 	if (winoverlap > 0)
 	{
 		num_disp_stat = (NUM_WATCH_STAT-1) - (winoverlap + side_stats_bar_height-1)/side_stats_bar_height;
-		statbar_start_y = base_y_start - side_stats_bar_height*num_disp_stat;
 		if ((first_disp_stat + num_disp_stat) > (NUM_WATCH_STAT-1))
 			first_disp_stat = (NUM_WATCH_STAT-1) - num_disp_stat;
 	}
@@ -173,40 +168,38 @@ static int calc_statbar_start_y(int base_y_start, int win_y_len)
 	/* if the number of stats displayed has changed, resize the window */
 	if (last_display != num_disp_stat)
 		init_misc_display();
+}
 
-	/* return start y position in window */
-	return statbar_start_y;
+
+static void reset_cm_regions(void)
+{
+	cm_remove_regions(game_root_win);
+	cm_remove_regions(map_root_win);
+	cm_remove_regions(console_root_win);
+	cm_remove_regions(newchar_root_win);
+	cm_add_region(cm_hud_id, game_root_win, window_width-hud_x, 0, hud_x, window_height);
+	cm_add_region(cm_hud_id, map_root_win, window_width-hud_x, 0, hud_x, window_height);
+	cm_add_region(cm_hud_id, console_root_win, window_width-hud_x, 0, hud_x, window_height);
+	cm_add_region(cm_hud_id, newchar_root_win, window_width-hud_x, 0, hud_x, window_height);
 }
 
 
 static int display_misc_handler(window_info *win)
 {
-	const int scaled_4 = (int)(0.5 + win->current_scale * 4);
 	const int scaled_5 = (int)(0.5 + win->current_scale * 5);
-	const int scaled_6 = (int)(0.5 + win->current_scale * 6);
 	const int scaled_28 = (int)(0.5 + win->current_scale * 28);
 	const int scaled_32 = (int)(0.5 + win->current_scale * 32);
 	const int scaled_64 = (int)(0.5 + win->current_scale * 64);
-	const int scaled_96 = (int)(0.5 + win->current_scale * 96);
-	const int scaled_128 = (int)(0.5 + win->current_scale * 128);
-	int base_y_start = win->len_y - ((view_analog_clock)?scaled_128:scaled_64) - (view_digital_clock?win->default_font_len_y:0);
+	int base_y_start = win->len_y;
 
 	const float compass_u_start = (float)32/256;
 	const float compass_v_start = (float)193/256;
 	const float compass_u_end = (float)95/256;
 	const float compass_v_end = 1.0f;
-	const float clock_u_start = 0.0f;
-	const float clock_v_start = (float)128/256;
-	const float clock_u_end = (float)63/256;
-	const float clock_v_end = (float)191/256;
 	const float needle_u_start = (float)4/256;
 	const float needle_v_start = (float)201/256;
 	const float needle_u_end = (float)14/256;
 	const float needle_v_end = (float)247/256;
-	const float clock_needle_u_start = (float)21/256;
-	const float clock_needle_v_start = (float)193/256;
-	const float clock_needle_u_end = (float)31/256;
-	const float clock_needle_v_end = (float)223/256;
 
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -218,32 +211,44 @@ CHECK_GL_ERRORS();
 	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER, 0.09f);
 	
-	glBegin(GL_QUADS);
-
 	//draw the compass
-	draw_2d_thing(compass_u_start, compass_v_start, compass_u_end, compass_v_end, 0,win->len_y-scaled_64,scaled_64,win->len_y);
-	if(view_analog_clock > 0){
-		//draw the clock
-		draw_2d_thing(clock_u_start, clock_v_start, clock_u_end, clock_v_end,0, win->len_y-scaled_128, scaled_64, win->len_y-scaled_64);
-	}
+	base_y_start -= scaled_64;
+	glBegin(GL_QUADS);
+	draw_2d_thing(compass_u_start, compass_v_start, compass_u_end, compass_v_end, 0, base_y_start, scaled_64, base_y_start + scaled_64);
 	glEnd();
 
 	//draw the compass needle
 	glPushMatrix();
-	glTranslatef(scaled_32, win->len_y-scaled_32, 0);
+	glTranslatef(scaled_32, base_y_start + scaled_32, 0);
 	glRotatef(rz, 0.0f, 0.0f, 1.0f);
-
 	glBegin(GL_QUADS);
-	draw_2d_thing(needle_u_start, needle_v_start, needle_u_end, needle_v_end,-scaled_5, -scaled_28, scaled_5, scaled_28);
+	draw_2d_thing(needle_u_start, needle_v_start, needle_u_end, needle_v_end, -scaled_5, -scaled_28, scaled_5, scaled_28);
 	glEnd();
 	glPopMatrix();
 
-	if(view_analog_clock > 0){
-		//draw the clock needle
+	//draw the clock
+	if(view_analog_clock > 0)
+	{
+		const int scaled_4 = (int)(0.5 + win->current_scale * 4);
+		const int scaled_6 = (int)(0.5 + win->current_scale * 6);
+		const float clock_u_start = 0.0f;
+		const float clock_v_start = (float)128/256;
+		const float clock_u_end = (float)63/256;
+		const float clock_v_end = (float)191/256;
+		const float clock_needle_u_start = (float)21/256;
+		const float clock_needle_v_start = (float)193/256;
+		const float clock_needle_u_end = (float)31/256;
+		const float clock_needle_v_end = (float)223/256;
 		const int scaled_24 = (int)(0.5 + win->current_scale * 24);
+		base_y_start -= scaled_64;
+		// draw the clock face
+		glBegin(GL_QUADS);
+		draw_2d_thing(clock_u_start, clock_v_start, clock_u_end, clock_v_end,0, base_y_start, scaled_64, base_y_start + scaled_64);
+		glEnd();
+		//draw the clock needle
 		glAlphaFunc(GL_GREATER, 0.05f);
 		glPushMatrix();
-		glTranslatef(scaled_32, win->len_y-scaled_96, 0);
+		glTranslatef(scaled_32, base_y_start + scaled_32, 0);
 		glRotatef(real_game_minute, 0.0f, 0.0f, 1.0f);
 		glBegin(GL_QUADS);
 		draw_2d_thing(clock_needle_u_start, clock_needle_v_start, clock_needle_u_end, clock_needle_v_end, -scaled_4, -scaled_24, scaled_6, scaled_6);
@@ -255,20 +260,24 @@ CHECK_GL_ERRORS();
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
+
 	//Digital Clock
-	if(view_digital_clock > 0){
+	if(view_digital_clock > 0)
+	{
+		const int scaled_6 = (int)(0.5 + win->current_scale * 6);
 		char str[10];
-		//glColor3f(0.77f, 0.57f, 0.39f); // useless
 		if (show_game_seconds)
 			safe_snprintf(str, sizeof(str), "%1d:%02d:%02d", real_game_minute/60, real_game_minute%60, real_game_second);
 		else
 			safe_snprintf(str, sizeof(str), " %1d:%02d ", real_game_minute/60, real_game_minute%60);
-		draw_string_shadowed_width(scaled_6/2, scaled_6/2 + base_y_start, (unsigned char*)str, win->len_x-scaled_6, 1,0.77f, 0.57f, 0.39f,0.0f,0.0f,0.0f);
+ 		base_y_start -= win->default_font_len_y;
+ 		draw_string_shadowed_width(scaled_6/2, scaled_6/2 + base_y_start, (unsigned char*)str, win->len_x-scaled_6, 1,0.77f, 0.57f, 0.39f,0.0f,0.0f,0.0f);
 	}
 
 	/* if mouse over the either of the clocks - display the time & date */
 	if (mouse_over_clock)
 	{
+		const int scaled_96 = (int)(0.5 + win->current_scale * 96);
 		char str[20];
 		const char *the_date = get_date(NULL);
 		int centre_y =  (view_analog_clock) ?win->len_y-scaled_96 : base_y_start + win->default_font_len_y/2;
@@ -330,10 +339,10 @@ CHECK_GL_ERRORS();
 	base_y_start -= display_timer(win, base_y_start);
 
 	// Trade the number of quickbar slots if too much is displayed (not considering stats yet)
-	while (win->len_y - base_y_start - window_height + get_quickbar_y_base() > 0)
+	while (win->pos_y + base_y_start <= get_quickbar_y_base())
 		if (!shorten_quickbar())
 			break;
-	while (win->len_y - base_y_start - window_height + get_quickspell_y_base() > 0)
+	while (win->pos_y + base_y_start <= get_quickspell_y_base())
 		if (!shorten_quickspell())
 			break;
 
@@ -346,10 +355,11 @@ CHECK_GL_ERRORS();
 		int box_x = (int)(0.5 + win->current_scale * 3);
 		int text_x = box_x + ((win->len_x - box_x - 1) - (7 * win->small_font_len_x))/2;
 		int thestat;
-		int y = calc_statbar_start_y(base_y_start, win->len_y);
+		int y = 0;
 		int skill_modifier;
 
 		// trade the number of quickbar slots if there is not enough space for the minimum stats
+		calc_statbar_shown(base_y_start + win->pos_y);
 		while (num_disp_stat < 5)
 		{
 			int made_space = 0;
@@ -361,7 +371,7 @@ CHECK_GL_ERRORS();
 				made_space = shorten_quickbar() + shorten_quickspell();
 			if (!made_space)
 				break;
-			y = calc_statbar_start_y(base_y_start, win->len_y);
+			calc_statbar_shown(base_y_start + win->pos_y);
 		}
 
 #ifdef OPENGL_TRACE
@@ -414,22 +424,20 @@ CHECK_GL_ERRORS();
 
 			y+=side_stats_bar_height;
 		}
+
+		base_y_start -= y;
 	}
+
+	// check if we need to resize the window
+	if (base_y_start != 0)
+		init_misc_display();
 
 	{
 		static int last_window_width = -1;
 		static int last_window_height = -1;
-
 		if (window_width != last_window_width || window_height != last_window_height)
 		{
-			cm_remove_regions(game_root_win);
-			cm_remove_regions(map_root_win);
-			cm_remove_regions(console_root_win);
-			cm_remove_regions(newchar_root_win);
-			cm_add_region(cm_hud_id, game_root_win, window_width-hud_x, 0, hud_x, window_height);
-			cm_add_region(cm_hud_id, map_root_win, window_width-hud_x, 0, hud_x, window_height);
-			cm_add_region(cm_hud_id, console_root_win, window_width-hud_x, 0, hud_x, window_height);
-			cm_add_region(cm_hud_id, newchar_root_win, window_width-hud_x, 0, hud_x, window_height);
+			reset_cm_regions();
 			last_window_width = window_width;
 			last_window_height = window_height;
 		}
@@ -464,7 +472,7 @@ static int click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 	int scaled_64 = (int)(0.5 + win->current_scale * 64);
 
 	// handle scrolling the stats bars if not all displayed
-	if (show_stats_in_hud && (my - statbar_start_y >= 0) && (my - statbar_start_y < num_disp_stat*side_stats_bar_height))
+	if (show_stats_in_hud && (my >= 0) && (my < num_disp_stat*side_stats_bar_height))
 	{
 		in_stats_bar = 1;
 
@@ -531,7 +539,7 @@ static int click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 	//check to see if we clicked on the stats
 	if (in_stats_bar)
 	{
-		handle_stats_selection(first_disp_stat + ((my - statbar_start_y ) / side_stats_bar_height) + 1, flags);
+		handle_stats_selection(first_disp_stat + (my / side_stats_bar_height) + 1, flags);
 		return 1;
 	}
 
@@ -546,13 +554,13 @@ static int mouseover_misc_handler(window_info *win, int mx, int my)
 
 	/* Optionally display scrolling help if statsbar is active and restricted in size */
 	if (show_help_text && show_stats_in_hud && (num_disp_stat < NUM_WATCH_STAT-1) &&
-		(my - statbar_start_y >= 0) && (my - statbar_start_y < num_disp_stat*side_stats_bar_height))
+		(my >= 0) && (my < num_disp_stat*side_stats_bar_height))
 		show_help(stats_scroll_help_str, -10-strlen(stats_scroll_help_str)*win->small_font_len_x,
 			win->len_y - HUD_MARGIN_Y - win->small_font_len_y, win->current_scale);
 
 	/* stat hover experience left */
-	if (show_stats_in_hud && have_stats && (my - statbar_start_y >= 0) && (my - statbar_start_y < num_disp_stat*side_stats_bar_height))
-		stat_mouse_is_over = first_disp_stat + ((my - statbar_start_y ) / side_stats_bar_height);
+	if (show_stats_in_hud && have_stats && (my >= 0) && (my < num_disp_stat*side_stats_bar_height))
+		stat_mouse_is_over = first_disp_stat + (my / side_stats_bar_height);
 
 	/* if the mouse is over either clock - display the date and time */
 	if (view_analog_clock)
@@ -610,6 +618,7 @@ static int ui_scale_misc_handler(window_info *win)
 		y_len += num_disp_stat * side_stats_bar_height;
 	resize_window(misc_win, HUD_MARGIN_X, y_len);
 	move_window(misc_win, -1, 0, window_width-HUD_MARGIN_X, window_height-y_len);
+	reset_cm_regions();
 	return 1;
 }
 
