@@ -349,13 +349,17 @@ void read_bin_cfg()
 	tab_info_x=cfg_mem.tab_info_x;
 	tab_info_y=cfg_mem.tab_info_y;
 
-	if(quickbar_relocatable>0)
-		{
-			if((quickbar_x=cfg_mem.quickbar_x)>window_width||quickbar_x<=0)quickbar_x=34;
-			if((quickbar_y=cfg_mem.quickbar_y)>window_height||quickbar_y<=0)quickbar_y=64;
-			if((quickbar_dir=cfg_mem.quickbar_flags&0xFF)!=HORIZONTAL)quickbar_dir=VERTICAL;
-			if((quickbar_draggable=(cfg_mem.quickbar_flags&0xFF00)>>8)!=1)quickbar_draggable=0;
-		}
+	if(quickbar_relocatable > 0)
+	{
+		quickbar_x = cfg_mem.quickbar_x;
+		quickbar_y = cfg_mem.quickbar_y;
+		quickbar_dir = cfg_mem.quickbar_flags & 0xFF;
+		quickbar_draggable = (cfg_mem.quickbar_flags & 0xFF00) >> 8;
+		if (quickbar_dir != HORIZONTAL)
+			quickbar_dir = VERTICAL;
+		if(quickbar_draggable != 1)
+			quickbar_draggable = 0;
+	}
 
 	set_statsbar_watched_stats(cfg_mem.watch_this_stats);
 
@@ -581,18 +585,12 @@ void save_bin_cfg()
 
 	cfg_mem.quantity_selected=(quantities.selected<ITEM_EDIT_QUANT)?quantities.selected :0;
 
-	if(quickbar_relocatable>0)
-		{
-			if(quickbar_win >= 0){
-				cfg_mem.quickbar_x=window_width-windows_list.window[quickbar_win].cur_x;
-				cfg_mem.quickbar_y=windows_list.window[quickbar_win].cur_y;
-				cfg_mem.quickbar_flags=quickbar_dir|(quickbar_draggable<<8);
-			} else {
-				cfg_mem.quickbar_x=quickbar_x;
-				cfg_mem.quickbar_y=quickbar_y;
-				cfg_mem.quickbar_flags=VERTICAL;
-			}
-		}
+	if (quickbar_win >= 0 && quickbar_relocatable > 0)
+	{
+		cfg_mem.quickbar_x = windows_list.window[quickbar_win].cur_x;
+		cfg_mem.quickbar_y = windows_list.window[quickbar_win].cur_y;
+		cfg_mem.quickbar_flags = quickbar_dir | (quickbar_draggable<<8);
+	}
 
 	get_statsbar_watched_stats(cfg_mem.watch_this_stats);
 
