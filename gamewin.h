@@ -122,6 +122,17 @@ int text_input_handler (Uint32 key, Uint32 unikey);
 
 /*!
  * \ingroup events
+ * \brief Changes the global action mode
+ *
+ *      Changes the global action mode
+ *
+ * \param mode the new action more
+ * \callgraph
+ */
+void switch_action_mode(int mode);
+
+/*!
+ * \ingroup events
  * \brief Handles common keyboard events for the root window
  *
  *      Handles common keyboard events for the root window

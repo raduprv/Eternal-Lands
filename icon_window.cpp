@@ -20,7 +20,6 @@
 #include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
-#include "hud_quickbar_window.h"
 #include "interface.h"
 #include "icon_window.h"
 #include "textures.h"
@@ -203,7 +202,7 @@ namespace IconWindow
 			}
 			void action(void)
 			{
-				switch_action_mode(&the_action_mode, 0);
+				switch_action_mode(the_action_mode);
 				Basic_Icon::action();
 			}
 		private:

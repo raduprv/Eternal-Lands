@@ -634,12 +634,6 @@ void init_quickbar (void)
 }
 
 
-void switch_action_mode(int * mode, int id)
-{
-	item_action_mode=qb_action_mode=action_mode=*mode;
-}
-
-
 static void quick_use(int use_id)
 {
 	Uint8 quick_use_str[3];

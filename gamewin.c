@@ -1686,6 +1686,12 @@ static void toggle_sit_stand()
 	my_tcp_send(my_socket,str,2);
 }
 
+void switch_action_mode(int mode)
+{
+	item_action_mode = qb_action_mode = action_mode = mode;
+}
+
+
 // keypress handler common to all in-game root windows (game_root_win, 
 // console_root_win, and map_root_win)
 int keypress_root_common (Uint32 key, Uint32 unikey)
@@ -1972,15 +1978,15 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	// set action modes
 	else if (key == K_WALK)
 	{
-		item_action_mode = qb_action_mode = action_mode = ACTION_WALK;
+		switch_action_mode(ACTION_WALK);
 	}
 	else if (key == K_LOOK)
 	{
-		item_action_mode = qb_action_mode = action_mode = ACTION_LOOK;
+		switch_action_mode(ACTION_LOOK);
 	}
 	else if (key == K_USE)
 	{
-		item_action_mode = qb_action_mode = action_mode = ACTION_USE;
+		switch_action_mode(ACTION_USE);
 	}
 	else if (key == K_AFK)
 	{

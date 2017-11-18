@@ -37,7 +37,7 @@ extern int cm_quickbar_enabled;
 
 
 /*!
- * \ingroup hud_quickbar
+ * \ingroup items_quickbar
  * \brief Initializes the quickbar
  *
  *      Initializes the quickbar, it's event handlers and shows it. If the quickbar has been moved by the player it will be drawn in its new position.
@@ -45,15 +45,27 @@ extern int cm_quickbar_enabled;
 void init_quickbar(void);
 
 /*!
- * \ingroup hud_quickbar
+ * \ingroup items_quickbar
  * \brief Checks if the keypress is an item use
  *
  *	returns 1 if the key is a item keypress, otherwise 0.
  */
 int action_item_keys(Uint32 key);
 
-void switch_action_mode(int * mode, int id);
+/*!
+ * \ingroup items_quickbar
+ * \brief Get the window bottom y position if docked, or the default top.
+ *
+ *	returns y position.
+ */
 int get_quickbar_y_base(void);
+
+/*!
+ * \ingroup items_quickbar
+ * \brief Try to reduce the number of item quickbar slots.
+ *
+ *	returns 1 if changed, otherwise 0.
+ */
 int shorten_quickbar(void);
 
 #ifdef __cplusplus
