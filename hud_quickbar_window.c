@@ -134,6 +134,13 @@ static void reset_quickbar()
 }
 
 
+void cm_quickbar_pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win)
+{
+	cm_grey_line(cm_quickbar_id, CMQB_DRAG, (quickbar_relocatable) ?0 :1);
+	cm_grey_line(cm_quickbar_id, CMQB_FLIP, (quickbar_relocatable) ?0 :1);
+}
+
+
 static int context_quickbar_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
 	switch (option)
@@ -621,6 +628,7 @@ void init_quickbar (void)
 		set_window_handler(quickbar_win, ELW_HANDLER_UI_SCALE, &ui_scale_quickbar_handler );
 
 		cm_quickbar_id = cm_create(cm_quickbar_menu_str, context_quickbar_handler);
+		cm_set_pre_show_handler(cm_quickbar_id, cm_quickbar_pre_show_handler);
 		cm_bool_line(cm_quickbar_id, CMQB_RELOC, &quickbar_relocatable, "relocate_quickbar");
 		cm_bool_line(cm_quickbar_id, CMQB_DRAG, &quickbar_draggable, NULL);
 		cm_bool_line(cm_quickbar_id, CMQB_ENABLE, &cm_quickbar_enabled, NULL);
