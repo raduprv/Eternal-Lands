@@ -60,14 +60,6 @@ int action_item_keys(Uint32 key);
  */
 int get_quickbar_y_base(void);
 
-/*!
- * \ingroup items_quickbar
- * \brief Try to reduce the number of item quickbar slots.
- *
- *	returns 1 if changed, otherwise 0.
- */
-int shorten_quickbar(void);
-
 #ifdef __cplusplus
 } // extern "C"
 #endif

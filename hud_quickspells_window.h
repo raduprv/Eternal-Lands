@@ -25,7 +25,6 @@ void load_quickspells(void);
 void save_quickspells(void);
 void init_quickspell(void);
 int get_quickspell_y_base(void);
-int shorten_quickspell(void);
 void add_quickspell(void);
 
 #ifdef __cplusplus

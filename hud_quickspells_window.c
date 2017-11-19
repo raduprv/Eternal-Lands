@@ -396,18 +396,6 @@ void save_quickspells(void)
 }
 
 
-int shorten_quickspell(void)
-{
-	if (shown_quickspell_slots > 1)
-	{
-		shown_quickspell_slots--;
-		return 1;
-	}
-	else
-		return 0;
-}
-
-
 int action_spell_keys(Uint32 key)
 {
 	size_t i;

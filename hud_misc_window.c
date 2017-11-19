@@ -338,14 +338,6 @@ CHECK_GL_ERRORS();
 	/* if the timer is visible, draw it */
 	base_y_start -= display_timer(win, base_y_start);
 
-	// Trade the number of quickbar slots if too much is displayed (not considering stats yet)
-	while (win->pos_y + base_y_start <= get_quickbar_y_base())
-		if (!shorten_quickbar())
-			break;
-	while (win->pos_y + base_y_start <= get_quickspell_y_base())
-		if (!shorten_quickspell())
-			break;
-
 	/*	Optionally display the stats bar.  If the current window size does not
 		provide enough room, display only some skills and allow scrolling to view
 		the rest */
@@ -360,19 +352,6 @@ CHECK_GL_ERRORS();
 
 		// trade the number of quickbar slots if there is not enough space for the minimum stats
 		calc_statbar_shown(base_y_start + win->pos_y);
-		while (num_disp_stat < min_side_stats_bar)
-		{
-			int made_space = 0;
-			if (get_quickbar_y_base() > get_quickspell_y_base())
-				made_space = shorten_quickbar();
-			else if (get_quickbar_y_base() < get_quickspell_y_base())
-				made_space = shorten_quickspell();
-			else
-				made_space = shorten_quickbar() + shorten_quickspell();
-			if (!made_space)
-				break;
-			calc_statbar_shown(base_y_start + win->pos_y);
-		}
 
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();

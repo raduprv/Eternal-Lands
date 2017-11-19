@@ -706,14 +706,3 @@ int action_item_keys(Uint32 key)
 		}
 	return 0;
 }
-
-int shorten_quickbar(void)
-{
-	if ((get_quickbar_y_base() != default_item_quickbar_y) && (get_shown_quickbar_slots() > 1))
-	{
-		show_quickbar_slots--;
-		return 1;
-	}
-	else
-		return 0;
-}
