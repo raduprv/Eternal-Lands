@@ -11,9 +11,11 @@
 #include "gl_init.h"
 #include "hud.h"
 #include "hud_quickspells_window.h"
+#include "hud_misc_window.h"
 #include "interface.h"
 #include "io/elpathwrapper.h"
 #include "spells.h"
+#include "sound.h"
 
 int quickspell_win = -1;
 int num_quickspell_slots = 6;
@@ -27,11 +29,30 @@ static int quickspell_size = -1;
 static int quickspell_x_len = -1;
 static size_t cm_quickspells_id = CM_INIT_VALUE;
 static int quickspell_over=-1;
+static int shown_quickspell_slots = -1;
 
 
 static int get_shown_quickspell_slots(void)
 {
-	return num_quickspell_slots;
+	int max_slots = (window_height - get_min_hud_misc_len_y() - quickspell_y - 1) / quickspell_y_space;
+	int last_active = 0;
+	size_t i;
+
+	for(i = 1; i < MAX_QUICKSPELL_SLOTS+1; i++)
+		if (mqb_data[i] && mqb_data[i]->spell_name[0])
+			last_active = i;
+
+	if (last_active > num_quickspell_slots)
+		last_active = num_quickspell_slots;
+
+	if (max_slots > last_active)
+		shown_quickspell_slots = last_active;
+	else if (max_slots < 1)
+		shown_quickspell_slots = 1;
+	else
+		shown_quickspell_slots = max_slots;
+
+	return shown_quickspell_slots;
 }
 
 
@@ -39,21 +60,6 @@ static int get_shown_quickspell_slots(void)
 static int get_quickspell_y_len(void)
 {
 	return get_shown_quickspell_slots() * quickspell_y_space + 1;
-}
-
-
-static void cm_update_quickspells(void)
-{
-	int active_y_len = 0, i;
-	if (quickspell_win < 0)
-		return;
-	for (i = get_shown_quickspell_slots(); i > 0; i--)
-	{
-		if (mqb_data[i] != NULL)
-			active_y_len += quickspell_y_space;
-	}
-	cm_remove_regions(quickspell_win);
-	cm_add_region(cm_quickspells_id, quickspell_win, 0, 0, quickspell_x_len, active_y_len);
 }
 
 
@@ -74,7 +80,6 @@ static void remove_quickspell (int pos)
 	}
 	mqb_data[MAX_QUICKSPELL_SLOTS] = NULL;
 	save_quickspells();
-	cm_update_quickspells();
 }
 
 
@@ -82,8 +87,9 @@ static void move_quickspell (int pos, int direction)
 {
 	int i=pos;
 	mqbdata * mqb_temp;
-	if (pos < 1 || pos > get_shown_quickspell_slots() || mqb_data[pos] == NULL) return;
-	if ((pos ==1 && direction==0)||(pos==get_shown_quickspell_slots() && direction==1)) return;
+	int shown_slots = get_shown_quickspell_slots();
+	if (pos < 1 || pos > shown_slots || mqb_data[pos] == NULL) return;
+	if ((pos ==1 && direction==0)||(pos==shown_slots && direction==1)) return;
 	if (direction==0){
 		mqb_temp=mqb_data[i-1];
 		mqb_data[i-1]=mqb_data[i]; //move it up
@@ -102,17 +108,15 @@ static void move_quickspell (int pos, int direction)
 
 static int display_quickspell_handler(window_info *win)
 {
-	int i;
 	static int last_shown_quickspell_slots = -1;
+	int shown_slots = get_shown_quickspell_slots();
+	int i;
 
 	// Check for a change of the number of quickspells slots
-	if (last_shown_quickspell_slots == -1)
-		last_shown_quickspell_slots = get_shown_quickspell_slots();
-	else if (last_shown_quickspell_slots != get_shown_quickspell_slots())
+	if (last_shown_quickspell_slots != shown_slots)
 	{
-		last_shown_quickspell_slots = get_shown_quickspell_slots();
-		init_window(win->window_id, -1, 0, win->cur_x, win->cur_y, win->len_x, get_quickspell_y_len());
-		cm_update_quickspells();
+		last_shown_quickspell_slots = shown_slots;
+		resize_window(win->window_id, win->len_x, get_quickspell_y_len());
 	}
 
 #ifdef OPENGL_TRACE
@@ -124,7 +128,7 @@ CHECK_GL_ERRORS();
 	glEnable(GL_BLEND);	// Turn Blending On
 	glBlendFunc(GL_SRC_ALPHA,GL_DST_ALPHA);
 
-	for(i=1;i<get_shown_quickspell_slots()+1;i++) {
+	for(i=1;i<shown_slots+1;i++) {
 		if(mqb_data[i] && mqb_data[i]->spell_name[0]){
 			if(quickspell_over==i){	//highlight if we are hovering over
 				glColor4f(1.0f,1.0f,1.0f,1.0f);
@@ -241,12 +245,12 @@ void init_quickspell(void)
 			ui_scale_quickspell_handler(&windows_list.window[quickspell_win]);
 
 		cm_quickspells_id = cm_create(cm_quickspell_menu_str, &context_quickspell_handler);
+		cm_add_window(cm_quickspells_id, quickspell_win);
 	} else {
 		if (quickspell_win >= 0 && quickspell_win < windows_list.num_windows)
 			ui_scale_quickspell_handler(&windows_list.window[quickspell_win]);
 		show_window (quickspell_win);
 	}
-	cm_update_quickspells();
 }
 
 
@@ -333,8 +337,6 @@ void load_quickspells (void)
 	}
 	fclose (fp);
 
-	cm_update_quickspells();
-
 	LEAVE_DEBUG_MARK("load spells");
 }
 
@@ -396,10 +398,9 @@ void save_quickspells(void)
 
 int shorten_quickspell(void)
 {
-	if (num_quickspell_slots > 1)
+	if (shown_quickspell_slots > 1)
 	{
-		num_quickspell_slots--;
-		set_var_OPT_INT("num_quickspell_slots", num_quickspell_slots);
+		shown_quickspell_slots--;
 		return 1;
 	}
 	else
@@ -412,7 +413,7 @@ int action_spell_keys(Uint32 key)
 	size_t i;
 	Uint32 keys[] = {K_SPELL1, K_SPELL2, K_SPELL3, K_SPELL4, K_SPELL5, K_SPELL6,
 					 K_SPELL7, K_SPELL8, K_SPELL9, K_SPELL10, K_SPELL11, K_SPELL12 };
-	for (i=0; (i<sizeof(keys)/sizeof(Uint32)) & (i < get_shown_quickspell_slots()); i++)
+	for (i=0; (i<sizeof(keys)/sizeof(Uint32)) & (i < num_quickspell_slots); i++)
 		if(key == keys[i])
 		{
 			if(mqb_data[i+1] && mqb_data[i+1]->spell_str[0])
@@ -452,13 +453,16 @@ void add_quickspell(void)
 	if(!mqb_data[0])
 		return;
 
-	for(i=1;i<get_shown_quickspell_slots()+1;i++) {
+	for(i=1;i<num_quickspell_slots+1;i++) {
 		if(mqb_data[i] && mqb_data[0]->spell_id==mqb_data[i]->spell_id) {
+			do_alert1_sound();
 			return;
 		}
 	}
 
-	for (i = 1; i < get_shown_quickspell_slots()+1; i++)
+	do_click_sound();
+
+	for (i = 1; i < num_quickspell_slots+1; i++)
 	{
 		if (mqb_data[i] == NULL)
 		{
@@ -468,12 +472,11 @@ void add_quickspell(void)
 		}
 	}
 
-	if (i >= get_shown_quickspell_slots()+1)
+	if (i >= num_quickspell_slots+1)
 		// No free slot, overwrite the last entry
-		i = get_shown_quickspell_slots();
+		i = num_quickspell_slots;
 
 	memcpy (mqb_data[i], mqb_data[0], sizeof (mqbdata));
 	save_quickspells();
-	cm_update_quickspells();
 }
 
