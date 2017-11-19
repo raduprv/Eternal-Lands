@@ -30,8 +30,6 @@ extern int game_root_win; /*!< the root (game) window */
 extern int use_old_clicker;
 extern int include_use_cursor_on_animals;
 extern int cm_banner_disabled;
-extern int logo_click_to_url;
-extern char LOGO_URL_LINK[128];		/*!< the link clicking the EL logo sends you to */
 extern int auto_disable_ranging_lock;
 /*! @} */
 

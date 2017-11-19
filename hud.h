@@ -26,6 +26,8 @@ extern int hud_x;
 extern int hud_y;
 extern int show_help_text;
 extern int always_enlarge_text;
+extern int logo_click_to_url;
+extern char LOGO_URL_LINK[128];		/*!< the link clicking the EL logo sends you to */
 
 /*!
  * \ingroup other
@@ -78,6 +80,33 @@ void hide_hud_windows (void);
  * \callgraph
  */
 void draw_hud_interface(window_info *win);
+
+/*!
+ * \ingroup hud
+ * \brief check if mouse over.
+ *
+ * \retval	1, if mouse over relavant hud element
+ * \callgraph
+ */
+int hud_mouse_over(window_info *win, int mx, int my);
+
+/*!
+ * \ingroup hud
+ * \brief check if mouse click in hud
+ *
+ * \retval	1, if mouse click used
+ * \callgraph
+ */
+int hud_click(window_info *win, int mx, int my, Uint32 flags);
+
+/*!
+ * \ingroup hud
+ * \brief get the size of the hud logo, its square
+ *
+ * \retval	the size in pixels
+ * \callgraph
+ */
+int get_hud_logo_size(void);
 
 /*!
  * \ingroup windows

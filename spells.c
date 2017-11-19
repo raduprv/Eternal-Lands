@@ -2149,7 +2149,7 @@ static int ui_scale_quickspell_handler(window_info *win)
 	quickspell_size = (int)(0.5 + win->current_scale * 20);
 	quickspell_x_len = (int)(0.5 + win->current_scale * 26);
 	quickspell_x = (int)(0.5 + win->current_scale * 60);
-	quickspell_y = (int)(0.5 + win->current_scale * 64);
+	quickspell_y = get_hud_logo_size();
 	quickspell_y_space = (int)(0.5 + win->current_scale * 30);
 	resize_window(win->window_id, quickspell_x_len, get_quickspell_y_len());
 	move_window (win->window_id, -1, 0, window_width - quickspell_x, quickspell_y);

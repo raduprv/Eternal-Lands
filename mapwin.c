@@ -52,6 +52,9 @@ int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 	Uint32 right_click = flags & ELW_RIGHT_MOUSE;
 	float scale = (float) (win->len_x-hud_x) / 300.0f;
 
+	if (hud_click(win, mx, my, flags))
+		return 1;
+
 	if (left_click && mx > 0 && mx < 50*scale && my > 0 && my < 55*scale)
 	{
 		showing_continent = !showing_continent;
@@ -140,6 +143,9 @@ int display_map_handler (window_info * win)
 int mouseover_map_handler (window_info *win, int mx, int my)
 {
 	float scale = (float) (win->len_x-hud_x) / 300.0f;
+
+	if (hud_mouse_over(win, mx, my))
+		return 1;
 
 	if (mx > 0 && mx < 50*scale && my > 0 && my < 55*scale)
 	{

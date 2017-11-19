@@ -268,8 +268,18 @@ static void create_console_scrollbar(window_info *win)
 	widget_set_OnClick(win->window_id, console_scrollbar_id, console_scroll_click);
 }
 
+static int mouseover_console_handler(window_info *win, int mx, int my)
+{
+	if (hud_mouse_over(win, mx, my))
+		return 1;
+	return 1;
+}
+
 static int click_console_handler(window_info *win, int mx, int my, Uint32 flags)
 {
+	if (hud_click(win, mx, my, flags))
+		return 1;
+
 #if !defined OSX && !defined WINDOWS
 #ifdef MIDDLE_MOUSE_PASTE
 	if ( (flags & ELW_MID_MOUSE) )
@@ -399,6 +409,7 @@ void create_console_root_window (int width, int height)
 		set_window_handler (console_root_win, ELW_HANDLER_KEYPRESS, &keypress_console_handler);
 		set_window_handler (console_root_win, ELW_HANDLER_RESIZE, &resize_console_handler);
 		set_window_handler (console_root_win, ELW_HANDLER_CLICK, &click_console_handler);
+		set_window_handler (console_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_console_handler);
 		set_window_handler (console_root_win, ELW_HANDLER_SHOW, &show_console_handler);
 		set_window_handler (console_root_win, ELW_HANDLER_UI_SCALE, &ui_scale_console_handler);
 

@@ -587,7 +587,7 @@ static int ui_scale_quickbar_handler(window_info *win)
 {
 	item_quickbar_slot_size = (int)(0.5 + win->current_scale * 30);
 	default_item_quickbar_x = window_width - item_quickbar_slot_size - 1;
-	default_item_quickbar_y = (int)(0.5 + win->current_scale * 64);
+	default_item_quickbar_y = get_hud_logo_size();
 	if (!quickbar_relocatable)
 		reset_quickbar();
 	else

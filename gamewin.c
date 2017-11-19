@@ -67,8 +67,6 @@ int game_root_win = -1;
 int use_old_clicker=0;
 int include_use_cursor_on_animals = 0;
 int cm_banner_disabled = 0;
-int logo_click_to_url = 1;
-char LOGO_URL_LINK[128] = "http://www.eternal-lands.com";
 int auto_disable_ranging_lock = 1;
 
 #ifdef  DEBUG
@@ -79,7 +77,6 @@ static Uint32 next_fps_time = 0;
 static int last_count = 0;
 static int keep_grabbing_mouse = 0;
 static int ranging_lock = 0;
-static int mouse_over_logo = 0;
 #ifdef NEW_CURSOR
 static int cursors_tex;
 #endif // NEW_CURSOR
@@ -372,14 +369,8 @@ static void toggle_first_person()
 // This is the main part of the old check_cursor_change ()
 static int mouseover_game_handler (window_info *win, int mx, int my)
 {
-	// some pixels dead space to try to prevent accidental misclicks
-	mouse_over_logo = 0;
-	if (logo_click_to_url && hud_x && mx > win->len_x - (hud_x - win->current_scale * 10) && my < hud_x - win->current_scale * 10)
-	{
-		elwin_mouse = CURSOR_USE;
-		mouse_over_logo = 1;
+	if (hud_mouse_over(win, mx, my))
 		return 1;
-	}
 
 	if(object_under_mouse == -1)
 	{
@@ -552,13 +543,8 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 		return 1;
 	}
 
-	// some pixels dead space to try to prevent accidental misclicks
-	if (mouse_over_logo)
-	{
-		if (logo_click_to_url)
-			open_web_link(LOGO_URL_LINK);
+	if (hud_click(win, mx, my, flags))
 		return 1;
-	}
 
 	LOCK_ACTORS_LISTS();
 	range_weapon_equipped = (your_actor &&
