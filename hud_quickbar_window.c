@@ -7,6 +7,7 @@
 #include "gl_init.h"
 #include "hud.h"
 #include "hud_quickbar_window.h"
+#include "hud_misc_window.h"
 #include "interface.h"
 #include "item_info.h"
 #include "items.h"
@@ -29,10 +30,10 @@ int cm_quickbar_enabled = 0;
 
 static size_t cm_quickbar_id = CM_INIT_VALUE;
 static int mouseover_quickbar_item_pos = -1;
-static int last_shown_quickbar_slots = 6;
 static int item_quickbar_slot_size = -1;
 static int default_item_quickbar_x = -1;
 static int default_item_quickbar_y = -1;
+static int show_quickbar_slots = -1;
 
 enum {	CMQB_RELOC=0, CMQB_DRAG, CMQB_RESET, CMQB_FLIP, CMQB_ENABLE };
 
@@ -54,10 +55,40 @@ static Uint32 get_flags(int win_id)
 	return windows_list.window[win_id].flags;
 }
 
+
+// returns try if the window is not in the default place, false if it is, even if it can be relocated
+static int is_relocated(void)
+{
+	window_info *win = NULL;
+	if (quickbar_win < 0 || quickbar_win > windows_list.num_windows)
+		return 1;
+	win = &windows_list.window[quickbar_win];
+	if ((quickbar_draggable) || (quickbar_dir != VERTICAL) ||
+		(win->cur_x != default_item_quickbar_x) || (win->cur_y != default_item_quickbar_y))
+		return 1;
+	else
+		return 0;
+}
+
+
+// return the number of shown slots, increasing to the oprions value if appropriate
 static int get_shown_quickbar_slots(void)
 {
-	return num_quickbar_slots;
+	if (quickbar_relocatable && is_relocated())
+		show_quickbar_slots = num_quickbar_slots;
+	else
+	{
+		int max_slots = (window_height - get_min_hud_misc_len_y() - default_item_quickbar_y - 1) / item_quickbar_slot_size;
+		if (max_slots > num_quickbar_slots)
+			show_quickbar_slots = num_quickbar_slots;
+		else if (max_slots < 1)
+			show_quickbar_slots = 1;
+		else
+			show_quickbar_slots = max_slots;
+	}
+	return show_quickbar_slots;
 }
+
 
 // return the window y len based on the number of slots
 static int get_quickbar_y_len(void)
@@ -70,12 +101,7 @@ static int get_quickbar_y_len(void)
    it's default place, otherwise return where the top would be */
 int get_quickbar_y_base(void)
 {
-	window_info *win = NULL;
-	if (quickbar_win < 0 || quickbar_win > windows_list.num_windows)
-		return default_item_quickbar_y;
-	win = &windows_list.window[quickbar_win];
-	if ((quickbar_draggable) || (quickbar_dir != VERTICAL) ||
-		(win->cur_x != default_item_quickbar_x) || (win->cur_y != default_item_quickbar_y))
+	if (is_relocated())
 		return default_item_quickbar_y;
 	else
 		return default_item_quickbar_y + get_quickbar_y_len();
@@ -102,6 +128,8 @@ static void toggle_quickbar_draggable(void)
 	}
 }
 
+
+// common function to resize window depending on orientation
 static void resize_item_quickbar_window(int window_id)
 {
 	if (quickbar_dir==VERTICAL)
@@ -134,7 +162,7 @@ static void reset_quickbar()
 }
 
 
-void cm_quickbar_pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win)
+static void cm_quickbar_pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win)
 {
 	cm_grey_line(cm_quickbar_id, CMQB_DRAG, (quickbar_relocatable) ?0 :1);
 	cm_grey_line(cm_quickbar_id, CMQB_FLIP, (quickbar_relocatable) ?0 :1);
@@ -193,7 +221,8 @@ static void quickbar_item_description_help(window_info *win, int pos, int slot)
 static int mouseover_quickbar_handler(window_info *win, int mx, int my) {
 	int y,i=0;
 	int x_screen,y_screen;
-	for(y=0;y<get_shown_quickbar_slots();y++)
+	int shown_slots = get_shown_quickbar_slots();
+	for(y=0;y<shown_slots;y++)
 		{
 			if(quickbar_dir==VERTICAL)
 				{
@@ -239,6 +268,7 @@ static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags
 	int right_click = flags & ELW_RIGHT_MOUSE;
 	int ctrl_on = flags & ELW_CTRL;
 	int shift_on = flags & ELW_SHIFT;
+	int shown_slots = get_shown_quickbar_slots();
 
 	// only handle mouse button clicks, not scroll wheels moves or clicks
 	if (( (flags & ELW_MOUSE_BUTTON) == 0) || ( (flags & ELW_MID_MOUSE) != 0)) return 0;
@@ -273,7 +303,7 @@ static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags
 
 	// no in window check needed, already done
 	//see if we clicked on any item in the main category
-	for(y=0;y<get_shown_quickbar_slots();y++)
+	for(y=0;y<shown_slots;y++)
 		{
 			if(quickbar_dir==VERTICAL)
 				{
@@ -306,7 +336,7 @@ static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags
 									item_dragged = -1;
 									return 1;
 								}
-							for(i=0;i<get_shown_quickbar_slots();i++)
+							for(i=0;i<shown_slots;i++)
 								{
 									if(item_list[i].quantity && item_list[i].pos==y)
 										{
@@ -348,7 +378,7 @@ static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags
 								}
 						}
 					//see if there is any item there
-					for(i=0;i<get_shown_quickbar_slots();i++)
+					for(i=0;i<shown_slots;i++)
 						{
 							//should we get the info for it?
 							if(item_list[i].quantity && item_list[i].pos==y)
@@ -419,6 +449,7 @@ static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags
 
 static int	display_quickbar_handler(window_info *win)
 {
+	static int last_shown_quickbar_slots = -1;
 	char str[80];
 	int y, i;
 	Uint32 _cur_time = SDL_GetTicks(); /* grab a snapshot of current time */
@@ -427,20 +458,19 @@ static int	display_quickbar_handler(window_info *win)
 	const int scaled_15 = (int)(0.5 + win->current_scale * 15);
 	const int scaled_25 = (int)(0.5 + win->current_scale * 25);
 	const int scaled_27 = (int)(0.5 + win->current_scale * 27);
+	int show_slots = get_shown_quickbar_slots();
 
 	// check if the number of slots has changes and adjust if needed
-	if (last_shown_quickbar_slots == -1)
-		last_shown_quickbar_slots = get_shown_quickbar_slots();
-	else if (last_shown_quickbar_slots != get_shown_quickbar_slots())
+	if (last_shown_quickbar_slots != show_slots)
 	{
-		last_shown_quickbar_slots = get_shown_quickbar_slots();
+		last_shown_quickbar_slots = show_slots;
 		resize_item_quickbar_window(win->window_id);
 	}
 
 	glEnable(GL_TEXTURE_2D);
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
-	for(i=get_shown_quickbar_slots()-1;i>=0;i--)
+	for(i=show_slots-1;i>=0;i--)
 	{
 		if(item_list[i].quantity > 0)
 		{
@@ -458,7 +488,7 @@ static int	display_quickbar_handler(window_info *win)
 
 			x_start = scaled_2;
 			x_end = x_start + scaled_27;
-			y_start = item_quickbar_slot_size * (cur_pos % get_shown_quickbar_slots()) + scaled_2;
+			y_start = item_quickbar_slot_size * (cur_pos % show_slots) + scaled_2;
 			y_end = y_start + scaled_27;
 
 			if(quickbar_dir != VERTICAL)
@@ -559,7 +589,7 @@ static int	display_quickbar_handler(window_info *win)
 	//draw the grid
 	if(quickbar_dir==VERTICAL)
 		{
-			for(y=1;y<get_shown_quickbar_slots();y++)
+			for(y=1;y<show_slots;y++)
 				{
 					glVertex3i(0, y*item_quickbar_slot_size+1, 0);
 					glVertex3i(item_quickbar_slot_size, y*item_quickbar_slot_size+1, 0);
@@ -567,7 +597,7 @@ static int	display_quickbar_handler(window_info *win)
 		}
 	else
 		{
-			for(y=1;y<get_shown_quickbar_slots();y++)
+			for(y=1;y<show_slots;y++)
 				{
 					glVertex3i(y*item_quickbar_slot_size+1, 0, 0);
 					glVertex3i(y*item_quickbar_slot_size+1, item_quickbar_slot_size, 0);
@@ -619,8 +649,6 @@ void init_quickbar (void)
 			return;
 
 		ui_scale_quickbar_handler(&windows_list.window[quickbar_win]);
-
-		last_shown_quickbar_slots = get_shown_quickbar_slots();
 
 		set_window_handler(quickbar_win, ELW_HANDLER_DISPLAY, &display_quickbar_handler);
 		set_window_handler(quickbar_win, ELW_HANDLER_CLICK, &click_quickbar_handler);
@@ -681,10 +709,9 @@ int action_item_keys(Uint32 key)
 
 int shorten_quickbar(void)
 {
-	if ((get_quickbar_y_base() != default_item_quickbar_y) && (num_quickbar_slots > 1))
+	if ((get_quickbar_y_base() != default_item_quickbar_y) && (get_shown_quickbar_slots() > 1))
 	{
-		num_quickbar_slots--;
-		set_var_OPT_INT("num_quickbar_slots", num_quickbar_slots);
+		show_quickbar_slots--;
 		return 1;
 	}
 	else
