@@ -15,6 +15,7 @@ extern int show_statbars_in_hud;
 extern int copy_next_LOCATE_ME;
 
 void init_misc_display(void);
+int get_min_hud_misc_len_y(void);
 
 #ifdef __cplusplus
 } // extern "C"

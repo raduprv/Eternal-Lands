@@ -56,6 +56,7 @@ static int side_stats_bar_height = 0;
 static int digital_clock_height = 0;
 static int analog_clock_size = 0;
 static int compass_size = 0;
+static const int min_side_stats_bar = 5;
 
 
 enum {	CMH_STATS=0, CMH_STATBARS, CMH_KNOWBAR, CMH_TIMER, CMH_DIGCLOCK, CMH_ANACLOCK,
@@ -358,7 +359,7 @@ CHECK_GL_ERRORS();
 
 		// trade the number of quickbar slots if there is not enough space for the minimum stats
 		calc_statbar_shown(base_y_start + win->pos_y);
-		while (num_disp_stat < 5)
+		while (num_disp_stat < min_side_stats_bar)
 		{
 			int made_space = 0;
 			if (get_quickbar_y_base() > get_quickspell_y_base())
@@ -614,10 +615,24 @@ static int ui_scale_misc_handler(window_info *win)
 		y_len += knowledge_bar_height;
 	if (show_stats_in_hud && have_stats)
 		y_len += num_disp_stat * side_stats_bar_height;
-	resize_window(misc_win, HUD_MARGIN_X, y_len);
-	move_window(misc_win, -1, 0, window_width-HUD_MARGIN_X, window_height-y_len);
+	resize_window(win->window_id, HUD_MARGIN_X, y_len);
+	move_window(win->window_id, -1, 0, window_width-HUD_MARGIN_X, window_height-y_len);
 	reset_cm_regions();
 	return 1;
+}
+
+int get_min_hud_misc_len_y(void)
+{
+	int min_len_y = 0;
+	if (misc_win < 0 || misc_win > windows_list.num_windows)
+		return min_len_y;
+	min_len_y = windows_list.window[misc_win].len_y;
+	if (show_stats_in_hud)
+	{
+		min_len_y -= num_disp_stat * side_stats_bar_height;
+		min_len_y += min_side_stats_bar * side_stats_bar_height;
+	}
+	return min_len_y;
 }
 
 
