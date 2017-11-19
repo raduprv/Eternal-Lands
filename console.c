@@ -16,6 +16,7 @@
 #include "gamewin.h"
 #include "global.h"
 #include "hud.h"
+#include "hud_quickspells_window.h"
 #include "ignore.h"
 #include "icon_window.h"
 #include "init.h"

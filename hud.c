@@ -17,6 +17,7 @@
 #include "hud_indicators.h"
 #include "hud_misc_window.h"
 #include "hud_quickbar_window.h"
+#include "hud_quickspells_window.h"
 #include "hud_statsbar_window.h"
 #include "icon_window.h"
 #include "interface.h"

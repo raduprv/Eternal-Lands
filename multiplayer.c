@@ -21,6 +21,7 @@
 #include "gamewin.h"
 #include "global.h"
 #include "hud.h"
+#include "hud_quickspells_window.h"
 #include "init.h"
 #include "interface.h"
 #include "knowledge.h"

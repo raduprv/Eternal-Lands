@@ -27,6 +27,7 @@
 #include "highlight.h"
 #include "hud.h"
 #include "hud_quickbar_window.h"
+#include "hud_quickspells_window.h"
 #include "init.h"
 #include "interface.h"
 #include "manufacture.h"

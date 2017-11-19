@@ -38,8 +38,8 @@ COBJS=2d_objects.o 3d_objects.o \
 	counters.o cursors.o dds.o ddsimage.o dialogues.o draw_scene.o eye_candy_debugwin.o \
 	el_memory.o elconfig.o elwindows.o encyclopedia.o errors.o events.o	\
 	filter.o font.o framebuffer.o frustum.o gamewin.o gl_init.o 	\
-	hud.o hud_misc_window.o hud_quickbar_window.o hud_statsbar_window.o help.o highlight.o	\
-	ignore.o image_loading.o init.o interface.o items.o io/fileutil.o	\
+	hud.o hud_misc_window.o hud_quickbar_window.o hud_statsbar_window.o hud_quickspells_window.o	\
+	help.o highlight.o ignore.o image_loading.o init.o interface.o items.o io/fileutil.o	\
 	io/e3d_io.o io/elc_io.o	io/map_io.o io/elpathwrapper.o io/xmlcallbacks.o \
 	io/half.o io/normal.o io/elfilewrapper.o io/unzip.o io/ioapi.o io/zip.o io/ziputil.o	\
 	keys.o knowledge.o langselwin.o lights.o list.o load_gl_extensions.o loginwin.o loading_win.o	\
@@ -65,8 +65,8 @@ CXXOBJS=achievements.o actor_init.o cal3d_wrapper.o command_queue.o \
 	hud_indicators.o hud_timer.o icon_window.o io/cal3d_io_wrapper.o item_info.o item_lists.o named_colours.o \
 	optimizer.o quest_log.o select.o sendvideoinfo.o trade_log.o user_menus.o \
 	xml/xmlhelper.o eye_candy_wrapper.o \
-	eye_candy/eye_candy.o eye_candy/math_cache.o eye_candy/effect_lamp.o \
 	engine/hardwarebuffer.o \
+	eye_candy/eye_candy.o eye_candy/math_cache.o eye_candy/effect_lamp.o \
 	eye_candy/effect_candle.o \
 	eye_candy/effect_campfire.o eye_candy/effect_fountain.o \
 	eye_candy/effect_teleporter.o eye_candy/effect_firefly.o \

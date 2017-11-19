@@ -8,13 +8,13 @@
 
 #include <SDL_types.h>
 #include "elwindows.h"
+#include "hud_quickspells_window.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #define NUM_ACTIVE_SPELLS 10
-#define MAX_QUICKSPELL_SLOTS 12
 
 /*!
  * \name Server spell messages
@@ -37,10 +37,6 @@ typedef enum {
 /*! @{ */
 extern int sigil_win; /*!< handle for the sigil (spell) window */
 extern int start_mini_spells; /*!< do we start minimized? */
-extern int quickspell_win; /*!< quickbar windows handler */
-extern int quickspell_x;
-extern int quickspell_y;
-extern int num_quickspell_slots;
 extern int sigil_menu_x;
 extern int sigil_menu_y;
 extern int sigils_text; /*!< texture for spell/sigil icons */
@@ -159,20 +155,6 @@ void process_network_spell (const char * data, int len);
  */
 void send_spell(Uint8 *str, int len);
 
-/*!
- * \ingroup other
- * \brief Check if a keypress is a quick spell
- *
- * 	returns 1 if it is a quickspell, otherwise 0.
- *
- */
-int action_spell_keys(Uint32 key);
-
-void load_quickspells(void);
-void save_quickspells(void);
-void init_quickspell(void);
-int get_quickspell_y_base(void);
-int shorten_quickspell(void);
 int we_are_poisoned(void);
 void spell_text_from_server(const Uint8 *in_data, int data_length);
 #ifdef NEW_SOUND
@@ -181,6 +163,8 @@ void restart_active_spell_sounds(void);
 void increment_poison_incidence(void);
 void draw_spell_icon_strings(window_info *win);
 int command_show_spell(char *text, int len);
+void draw_spell_icon(int id,int x_start, int y_start, int gridsize, int alpha, int grayed);
+mqbdata* build_quickspell_data(const Uint32 spell_id);
 
 //#define BUFF_DURATION_DEBUG
 void here_is_a_buff_duration(Uint8 duration);
