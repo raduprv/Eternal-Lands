@@ -53,6 +53,9 @@ static int mouse_over_compass = 0;					/* 1 if mouse is over the compass */
 static int mouse_over_knowledge_bar = 0;			/* 1 if mouse is over the knowledge bar */
 static int knowledge_bar_height = 0;
 static int side_stats_bar_height = 0;
+static int digital_clock_height = 0;
+static int analog_clock_size = 0;
+static int compass_size = 0;
 
 
 enum {	CMH_STATS=0, CMH_STATBARS, CMH_KNOWBAR, CMH_TIMER, CMH_DIGCLOCK, CMH_ANACLOCK,
@@ -176,11 +179,9 @@ static void reset_cm_regions(void)
 	cm_remove_regions(game_root_win);
 	cm_remove_regions(map_root_win);
 	cm_remove_regions(console_root_win);
-	cm_remove_regions(newchar_root_win);
 	cm_add_region(cm_hud_id, game_root_win, window_width-hud_x, 0, hud_x, window_height);
 	cm_add_region(cm_hud_id, map_root_win, window_width-hud_x, 0, hud_x, window_height);
 	cm_add_region(cm_hud_id, console_root_win, window_width-hud_x, 0, hud_x, window_height);
-	cm_add_region(cm_hud_id, newchar_root_win, window_width-hud_x, 0, hud_x, window_height);
 }
 
 
@@ -188,8 +189,6 @@ static int display_misc_handler(window_info *win)
 {
 	const int scaled_5 = (int)(0.5 + win->current_scale * 5);
 	const int scaled_28 = (int)(0.5 + win->current_scale * 28);
-	const int scaled_32 = (int)(0.5 + win->current_scale * 32);
-	const int scaled_64 = (int)(0.5 + win->current_scale * 64);
 	int base_y_start = win->len_y;
 
 	const float compass_u_start = (float)32/256;
@@ -212,14 +211,14 @@ CHECK_GL_ERRORS();
 	glAlphaFunc(GL_GREATER, 0.09f);
 	
 	//draw the compass
-	base_y_start -= scaled_64;
+	base_y_start -= compass_size;
 	glBegin(GL_QUADS);
-	draw_2d_thing(compass_u_start, compass_v_start, compass_u_end, compass_v_end, 0, base_y_start, scaled_64, base_y_start + scaled_64);
+	draw_2d_thing(compass_u_start, compass_v_start, compass_u_end, compass_v_end, 0, base_y_start, compass_size, base_y_start + compass_size);
 	glEnd();
 
 	//draw the compass needle
 	glPushMatrix();
-	glTranslatef(scaled_32, base_y_start + scaled_32, 0);
+	glTranslatef(compass_size/2, base_y_start + compass_size/2, 0);
 	glRotatef(rz, 0.0f, 0.0f, 1.0f);
 	glBegin(GL_QUADS);
 	draw_2d_thing(needle_u_start, needle_v_start, needle_u_end, needle_v_end, -scaled_5, -scaled_28, scaled_5, scaled_28);
@@ -240,15 +239,15 @@ CHECK_GL_ERRORS();
 		const float clock_needle_u_end = (float)31/256;
 		const float clock_needle_v_end = (float)223/256;
 		const int scaled_24 = (int)(0.5 + win->current_scale * 24);
-		base_y_start -= scaled_64;
+		base_y_start -= analog_clock_size;
 		// draw the clock face
 		glBegin(GL_QUADS);
-		draw_2d_thing(clock_u_start, clock_v_start, clock_u_end, clock_v_end,0, base_y_start, scaled_64, base_y_start + scaled_64);
+		draw_2d_thing(clock_u_start, clock_v_start, clock_u_end, clock_v_end,0, base_y_start, analog_clock_size, base_y_start + analog_clock_size);
 		glEnd();
 		//draw the clock needle
 		glAlphaFunc(GL_GREATER, 0.05f);
 		glPushMatrix();
-		glTranslatef(scaled_32, base_y_start + scaled_32, 0);
+		glTranslatef(analog_clock_size/2, base_y_start + analog_clock_size/2, 0);
 		glRotatef(real_game_minute, 0.0f, 0.0f, 1.0f);
 		glBegin(GL_QUADS);
 		draw_2d_thing(clock_needle_u_start, clock_needle_v_start, clock_needle_u_end, clock_needle_v_end, -scaled_4, -scaled_24, scaled_6, scaled_6);
@@ -270,17 +269,16 @@ CHECK_GL_ERRORS();
 			safe_snprintf(str, sizeof(str), "%1d:%02d:%02d", real_game_minute/60, real_game_minute%60, real_game_second);
 		else
 			safe_snprintf(str, sizeof(str), " %1d:%02d ", real_game_minute/60, real_game_minute%60);
- 		base_y_start -= win->default_font_len_y;
+ 		base_y_start -= digital_clock_height;
  		draw_string_shadowed_width(scaled_6/2, scaled_6/2 + base_y_start, (unsigned char*)str, win->len_x-scaled_6, 1,0.77f, 0.57f, 0.39f,0.0f,0.0f,0.0f);
 	}
 
 	/* if mouse over the either of the clocks - display the time & date */
 	if (mouse_over_clock)
 	{
-		const int scaled_96 = (int)(0.5 + win->current_scale * 96);
 		char str[20];
 		const char *the_date = get_date(NULL);
-		int centre_y =  (view_analog_clock) ?win->len_y-scaled_96 : base_y_start + win->default_font_len_y/2;
+		int centre_y =  (view_analog_clock) ?win->len_y - compass_size - analog_clock_size/2 : base_y_start + digital_clock_height/2;
 
 		safe_snprintf(str, sizeof(str), "%1d:%02d:%02d", real_game_minute/60, real_game_minute%60, real_game_second);
 		draw_string_small_shadowed_zoomed(-win->small_font_len_x*(strlen(str)+0.5), centre_y-win->small_font_len_y, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
@@ -300,7 +298,7 @@ CHECK_GL_ERRORS();
 		if (me != NULL)
 		{
 			safe_snprintf(str, sizeof(str), "%d,%d", me->x_tile_pos, me->y_tile_pos);
-			draw_string_small_shadowed_zoomed(-win->small_font_len_x*(strlen(str)+0.5), win->len_y-scaled_64, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
+			draw_string_small_shadowed_zoomed(-win->small_font_len_x*(strlen(str)+0.5), win->len_y-compass_size, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
 		}
 		mouse_over_compass = 0;
 	}
@@ -435,11 +433,13 @@ CHECK_GL_ERRORS();
 	{
 		static int last_window_width = -1;
 		static int last_window_height = -1;
-		if (window_width != last_window_width || window_height != last_window_height)
+		static int last_hud_x = -1;
+		if (window_width != last_window_width || window_height != last_window_height || last_hud_x != hud_x)
 		{
 			reset_cm_regions();
 			last_window_width = window_width;
 			last_window_height = window_height;
+			last_hud_x = hud_x;
 		}
 	}
 	
@@ -454,10 +454,9 @@ static int mouse_is_over_knowedge_bar(window_info *win, int mx, int my)
 {
 	if (view_knowledge_bar)
 	{
-		int scaled_64 = (int)(0.5 + win->current_scale * 64);
-		int bar_y_pos = win->len_y - scaled_64;
-		if (view_analog_clock) bar_y_pos -= scaled_64;
-		if (view_digital_clock) bar_y_pos -= win->default_font_len_y;
+		int bar_y_pos = win->len_y - compass_size;
+		if (view_analog_clock) bar_y_pos -= analog_clock_size;
+		if (view_digital_clock) bar_y_pos -= digital_clock_height;
 		if (my>bar_y_pos-knowledge_bar_height && my<bar_y_pos)
 			return 1;
 	}
@@ -469,7 +468,6 @@ static int click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int clockheight = 0;
 	int in_stats_bar = 0;
-	int scaled_64 = (int)(0.5 + win->current_scale * 64);
 
 	// handle scrolling the stats bars if not all displayed
 	if (show_stats_in_hud && (my >= 0) && (my < num_disp_stat*side_stats_bar_height))
@@ -501,12 +499,12 @@ static int click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	//check to see if we clicked on the clock
 	if(view_digital_clock>0){
-		clockheight += win->default_font_len_y;
+		clockheight += digital_clock_height;
 	}
 	if(view_analog_clock>0){
-		clockheight += scaled_64;
+		clockheight += analog_clock_size;
 	}
-	if(my > (win->len_y - scaled_64 - clockheight) && my < (win->len_y - scaled_64))
+	if(my > (win->len_y - compass_size - clockheight) && my < (win->len_y - compass_size))
 	{
 		unsigned char protocol_name;
 		do_click_sound();
@@ -524,7 +522,7 @@ static int click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 	}
 
 	//check to see if we clicked on the compass
-	if(my > (win->len_y - scaled_64) && my < win->len_y)
+	if(my > (win->len_y - compass_size) && my < win->len_y)
 	{
 		unsigned char protocol_name;
 		do_click_sound();
@@ -549,9 +547,6 @@ static int click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 
 static int mouseover_misc_handler(window_info *win, int mx, int my)
 {
-	int scaled_64 = (int)(0.5 + win->current_scale * 64);
-	int scaled_128 = (int)(0.5 + win->current_scale * 128);
-
 	/* Optionally display scrolling help if statsbar is active and restricted in size */
 	if (show_help_text && show_stats_in_hud && (num_disp_stat < NUM_WATCH_STAT-1) &&
 		(my >= 0) && (my < num_disp_stat*side_stats_bar_height))
@@ -565,14 +560,14 @@ static int mouseover_misc_handler(window_info *win, int mx, int my)
 	/* if the mouse is over either clock - display the date and time */
 	if (view_analog_clock)
 	{
-		if (my>win->len_y-scaled_128 && my<win->len_y-scaled_64)
+		if (my>win->len_y - compass_size - analog_clock_size && my < win->len_y - compass_size)
 			mouse_over_clock = 1;
 	}
 	if (view_digital_clock && !mouse_over_clock)
 	{
-		int digital_clock_y_pos = win->len_y-scaled_64;
-		if (view_analog_clock) digital_clock_y_pos-=scaled_64;
-		if (my>digital_clock_y_pos-win->default_font_len_y && my<digital_clock_y_pos)
+		int digital_clock_y_pos = win->len_y - compass_size;
+		if (view_analog_clock) digital_clock_y_pos -= analog_clock_size;
+		if (my > digital_clock_y_pos - digital_clock_height && my < digital_clock_y_pos)
 			mouse_over_clock = 1;
 	}
 
@@ -585,7 +580,7 @@ static int mouseover_misc_handler(window_info *win, int mx, int my)
 		set_mouse_over_timer();
 
 	/* if mouse over the compass - display the coords */
-	if(my>win->len_y-scaled_64 && my<win->len_y)
+	if(my>win->len_y - compass_size && my < win->len_y)
 		mouse_over_compass = 1;
 
 	return 0;
@@ -602,16 +597,19 @@ static int destroy_misc_handler(window_info *win)
 static int ui_scale_misc_handler(window_info *win)
 {
 	int y_len = 0;
+	analog_clock_size = (int)(0.5 + win->current_scale * 64);
+	compass_size = (int)(0.5 + win->current_scale * 64);
 	knowledge_bar_height = win->small_font_len_y + 6;
 	side_stats_bar_height = win->small_font_len_y;
+	digital_clock_height = win->default_font_len_y;
 	ui_scale_timer(win);
-	y_len = win->current_scale * 64;
+	y_len = compass_size;
 	if (view_hud_timer)
 		y_len += get_height_of_timer();
 	if (view_analog_clock)
-		y_len += win->current_scale * 64;
+		y_len += analog_clock_size;
 	if (view_digital_clock)
-		y_len += win->default_font_len_y;
+		y_len += digital_clock_height;
 	if (view_knowledge_bar)
 		y_len += knowledge_bar_height;
 	if (show_stats_in_hud && have_stats)
