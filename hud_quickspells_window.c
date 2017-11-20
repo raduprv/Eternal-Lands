@@ -32,8 +32,16 @@ static int quickspell_over=-1;
 static int shown_quickspell_slots = -1;
 
 
-static int get_shown_quickspell_slots(void)
+// get the quickspell window length - it depends on the number of slots active
+static int get_quickspell_y_len(void)
 {
+	return shown_quickspell_slots * quickspell_y_space + 1;
+}
+
+
+static void update_shown_quickspell_slots(window_info *win)
+{
+	int last_shown_slots = shown_quickspell_slots;
 	int max_slots = (window_height - get_min_hud_misc_len_y() - quickspell_y - 1) / quickspell_y_space;
 	int last_active = 0;
 	size_t i;
@@ -52,14 +60,8 @@ static int get_shown_quickspell_slots(void)
 	else
 		shown_quickspell_slots = max_slots;
 
-	return shown_quickspell_slots;
-}
-
-
-// get the quickspell window length - it depends on the number of slots active
-static int get_quickspell_y_len(void)
-{
-	return get_shown_quickspell_slots() * quickspell_y_space + 1;
+	if (last_shown_slots != shown_quickspell_slots)
+		resize_window(win->window_id, win->len_x, get_quickspell_y_len());
 }
 
 
@@ -67,7 +69,7 @@ static void remove_quickspell (int pos)
 {
 	int i;
 
-	if (pos < 1 || pos > get_shown_quickspell_slots() || mqb_data[pos] == NULL) {
+	if (pos < 1 || pos > shown_quickspell_slots || mqb_data[pos] == NULL) {
 		return;
 	}
 
@@ -87,9 +89,8 @@ static void move_quickspell (int pos, int direction)
 {
 	int i=pos;
 	mqbdata * mqb_temp;
-	int shown_slots = get_shown_quickspell_slots();
-	if (pos < 1 || pos > shown_slots || mqb_data[pos] == NULL) return;
-	if ((pos ==1 && direction==0)||(pos==shown_slots && direction==1)) return;
+	if (pos < 1 || pos > shown_quickspell_slots || mqb_data[pos] == NULL) return;
+	if ((pos ==1 && direction==0)||(pos==shown_quickspell_slots && direction==1)) return;
 	if (direction==0){
 		mqb_temp=mqb_data[i-1];
 		mqb_data[i-1]=mqb_data[i]; //move it up
@@ -108,16 +109,9 @@ static void move_quickspell (int pos, int direction)
 
 static int display_quickspell_handler(window_info *win)
 {
-	static int last_shown_quickspell_slots = -1;
-	int shown_slots = get_shown_quickspell_slots();
 	int i;
 
-	// Check for a change of the number of quickspells slots
-	if (last_shown_quickspell_slots != shown_slots)
-	{
-		last_shown_quickspell_slots = shown_slots;
-		resize_window(win->window_id, win->len_x, get_quickspell_y_len());
-	}
+	update_shown_quickspell_slots(win);
 
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -128,7 +122,7 @@ CHECK_GL_ERRORS();
 	glEnable(GL_BLEND);	// Turn Blending On
 	glBlendFunc(GL_SRC_ALPHA,GL_DST_ALPHA);
 
-	for(i=1;i<shown_slots+1;i++) {
+	for(i=1;i<shown_quickspell_slots+1;i++) {
 		if(mqb_data[i] && mqb_data[i]->spell_name[0]){
 			if(quickspell_over==i){	//highlight if we are hovering over
 				glColor4f(1.0f,1.0f,1.0f,1.0f);
@@ -161,7 +155,7 @@ static int mouseover_quickspell_handler(window_info *win, int mx, int my)
 	int pos;
 
 	pos=my/quickspell_y_space+1;
-	if(pos<get_shown_quickspell_slots()+1 && pos>=1 && mqb_data[pos] && mqb_data[pos]->spell_name[0]) {
+	if(pos<shown_quickspell_slots+1 && pos>=1 && mqb_data[pos] && mqb_data[pos]->spell_name[0]) {
 		quickspell_over=pos;
 		elwin_mouse=CURSOR_WAND;
 		return 1;
@@ -176,7 +170,7 @@ static int click_quickspell_handler(window_info *win, int mx, int my, Uint32 fla
 
 	pos=my/quickspell_y_space+1;
 
-	if(pos<get_shown_quickspell_slots()+1 && pos>=1 && mqb_data[pos])
+	if(pos<shown_quickspell_slots+1 && pos>=1 && mqb_data[pos])
 	{
 		if ((flags & ELW_LEFT_MOUSE)&&(flags & ELW_SHIFT))
 		{
@@ -206,7 +200,7 @@ static int click_quickspell_handler(window_info *win, int mx, int my, Uint32 fla
 static int context_quickspell_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
 	int pos=my/quickspell_y_space+1;
-	if(pos<get_shown_quickspell_slots()+1 && pos>=1 && mqb_data[pos])
+	if(pos<shown_quickspell_slots+1 && pos>=1 && mqb_data[pos])
 	{
 		switch (option)
 		{
@@ -228,6 +222,7 @@ static int ui_scale_quickspell_handler(window_info *win)
 	quickspell_y_space = (int)(0.5 + win->current_scale * 30);
 	resize_window(win->window_id, quickspell_x_len, get_quickspell_y_len());
 	move_window (win->window_id, -1, 0, window_width - quickspell_x, quickspell_y);
+	update_shown_quickspell_slots(win);
 	return 1;
 }
 
@@ -423,7 +418,7 @@ int get_quickspell_y_base(void)
 	if (!quickspells_loaded)
 		return quickspell_y;
 
-	for (i = get_shown_quickspell_slots(); i > 0; i--)
+	for (i = shown_quickspell_slots; i > 0; i--)
 	{
 		if (mqb_data[i] == NULL)
 			active_len -= quickspell_y_space;
