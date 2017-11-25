@@ -276,9 +276,10 @@ void read_bin_cfg()
 	const char *fname = "el.cfg";
 	size_t ret;
 
+	memset(&cfg_mem, 0, sizeof(cfg_mem));	// make sure its clean
+
 	f=open_file_config_no_local(fname,"rb");
 	if(f == NULL)return;//no config file, use defaults
-	memset(&cfg_mem, 0, sizeof(cfg_mem));	// make sure its clean
 
 	ret = fread(&cfg_mem,1,sizeof(cfg_mem),f);
 	fclose(f);
