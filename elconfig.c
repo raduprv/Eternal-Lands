@@ -26,6 +26,7 @@
  #include "buddy.h"
  #include "chat.h"
  #include "console.h"
+ #include "context_menu.h"
  #include "counters.h"
  #include "dialogues.h"
  #include "draw_scene.h"
@@ -146,6 +147,8 @@ typedef struct
 	int 	snlen; /*!< length of the \a shortname */
 	void 	(*func)(); /*!< routine to execute when this variable is selected. */
 	void 	*var; /*!< data for this variable */
+	float	default_val; /*!< the default value before the config file is read */
+	float	config_file_val; /*!< the value after the config file is read */
 	int 	len; /*!< length of the variable */
 	int	saved;
 //	char 	*message; /*!< In case you want a message to be written when a setting is changed */
@@ -173,6 +176,7 @@ int elconfig_win= -1;
 int force_elconfig_win_ontop = 0;
 int elconfig_tab_collection_id= 1;
 int elconfig_free_widget_id= 2;
+static int is_mouse_over_option = 0;
 unsigned char elconf_description_buffer[400]= {0};
 struct {
 	Uint32	tab;
@@ -1488,18 +1492,18 @@ int toggle_OPT_BOOL_by_name(const char *str)
 }
 
 #ifdef	ELC
-// Find an OPT_INT widget and set its's value
-// Other types might be useful but I just needed an OPT_INT this time.
+// find an OPT_INT ot OPT_INT_F widget and set its's value
 int set_var_OPT_INT(const char *str, int new_value)
 {
 	int var_index = find_var(str, INI_FILE_VAR);
 
-	if ((var_index != -1) && (our_vars.var[var_index]->type == OPT_INT))
+	if ((var_index != -1) && ((our_vars.var[var_index]->type == OPT_INT) || (our_vars.var[var_index]->type == OPT_INT_F)))
 	{
 		int tab_win_id = elconfig_tabs[our_vars.var[var_index]->widgets.tab_id].tab;
 		int widget_id = our_vars.var[var_index]->widgets.widget_id;
 		// This bit belongs in the widgets module
 		widget_list *widget = widget_find(tab_win_id, widget_id);
+		our_vars.var[var_index]->func(our_vars.var[var_index]->var, &new_value);
 		our_vars.var[var_index]->saved = 0;
 		if(widget != NULL && widget->widget_info != NULL)
 		{
@@ -1514,6 +1518,120 @@ int set_var_OPT_INT(const char *str, int new_value)
 
 	LOG_ERROR("Can't find var '%s', type 'OPT_INT'", str);
 	return 0;
+}
+
+// find an OPT_FLOAT widget and set its's value
+static int set_var_OPT_FLOAT(const char *str, float new_value)
+{
+	int var_index = find_var(str, INI_FILE_VAR);
+
+	if ((var_index != -1) && (our_vars.var[var_index]->type == OPT_FLOAT))
+	{
+		int tab_win_id = elconfig_tabs[our_vars.var[var_index]->widgets.tab_id].tab;
+		int widget_id = our_vars.var[var_index]->widgets.widget_id;
+		// This bit belongs in the widgets module
+		widget_list *widget = widget_find(tab_win_id, widget_id);
+		our_vars.var[var_index]->func(our_vars.var[var_index]->var, &new_value);
+		our_vars.var[var_index]->saved = 0;
+		if(widget != NULL && widget->widget_info != NULL)
+		{
+			spinbutton *button = widget->widget_info;
+			*(float *)button->data = new_value;
+			safe_snprintf(button->input_buffer, sizeof(button->input_buffer), "%.2f", *(float *)button->data);
+			return 1;
+		}
+
+		return 0;
+	}
+
+	LOG_ERROR("Can't find var '%s', type 'OPT_FLOAT'", str);
+	return 0;
+}
+
+static size_t cm_id = CM_INIT_VALUE;
+
+// set the new value form the label option's context menu
+static int context_option_handler(window_info *win, int widget_id, int mx, int my, int menu_option)
+{
+	int int_value;
+	float new_value = 0;
+	var_struct *option = (var_struct *)cm_get_data(cm_id);
+	if (menu_option == 1)
+		new_value = option->default_val;
+	else if (menu_option == 2)
+		new_value = option->config_file_val;
+	else
+		return 1;
+
+	switch (option->type)
+	{
+		case OPT_INT:
+		case OPT_INT_F:
+			int_value = (int)new_value;
+			set_var_OPT_INT(option->name, int_value);
+			break;
+		case OPT_MULTI:
+		case OPT_MULTI_H:
+			int_value = (int)new_value;
+			option->func(option->var, int_value);
+			option->saved = 0;
+			break;
+		case OPT_BOOL:
+			int_value = (int)new_value;
+			if (*(int *)option->var != int_value)
+			{
+				*(int *)option->var = !int_value;
+				option->func(option->var);
+				option->saved = 0;
+			}
+			break;
+		case OPT_FLOAT:
+			set_var_OPT_FLOAT(option->name, new_value);
+			break;
+		default:
+			break;
+	}
+	return 1;
+}
+
+// add a named preset value to the option's label context menu 
+static void add_cm_option_line(const char *prefix, var_struct *option, float value)
+{
+	char menu_text[256];
+	switch (option->type)
+	{
+		case OPT_INT:
+		case OPT_INT_F:
+		case OPT_MULTI:
+		case OPT_MULTI_H:
+			sprintf(menu_text, "\n%s: %d\n", prefix, (int)value);
+			break;
+		case OPT_BOOL:
+			sprintf(menu_text, "\n%s: %s\n", prefix, ((int)value) ?"true": "false");
+			break;
+		case OPT_FLOAT:
+			sprintf(menu_text, "\n%s: %.2f\n", prefix, value);
+			break;
+		default:
+			return;
+	}
+	cm_add(cm_id, menu_text, NULL);
+}
+
+// create the context menu when we right click an option label
+static void call_option_menu(var_struct *option)
+{
+	if (cm_id == CM_INIT_VALUE)
+	{
+		cm_id = cm_create(NULL, NULL);
+	}
+	cm_set_colour(cm_id, CM_GREY, 201.0/256.0, 254.0/256.0, 203.0/256.0);
+	cm_set(cm_id, option->name, context_option_handler);
+	cm_grey_line(cm_id, 0, 1);
+	add_cm_option_line("Set to default value", option, option->default_val);
+	add_cm_option_line("Set to initial value", option, option->config_file_val);
+	cm_set_data(cm_id, (void *)option);
+	cm_show_direct(cm_id, -1, -1);
 }
 #endif
 
@@ -1666,8 +1784,12 @@ int check_var (char *str, var_name_type type)
 		case OPT_MULTI:
 		case OPT_MULTI_H:
 		case OPT_INT_F:
+		{
+			int new_val = atoi (ptr);
 			our_vars.var[i]->func ( our_vars.var[i]->var, atoi (ptr) );
+			our_vars.var[i]->config_file_val = (float)new_val;
 			return 1;
+		}
 		case OPT_BOOL_INI:
 			// Needed, because var is never changed through widget
 			our_vars.var[i]->saved= 0;
@@ -1681,6 +1803,7 @@ int check_var (char *str, var_name_type type)
 				new_val = atoi (ptr);
 			if ((new_val>0) != *p)
 				our_vars.var[i]->func (our_vars.var[i]->var); //only call if value has changed
+			our_vars.var[i]->config_file_val = (float)new_val;
 			return 1;
 		}
 		case OPT_STRING:
@@ -1691,6 +1814,7 @@ int check_var (char *str, var_name_type type)
 		case OPT_FLOAT_F:
 			foo= atof (ptr);
 			our_vars.var[i]->func (our_vars.var[i]->var, &foo);
+			our_vars.var[i]->config_file_val = foo;
 			return 1;
 	}
 	return -1;
@@ -1826,6 +1950,7 @@ void add_var(option_type type, char * name, char * shortname, void * var, void *
 			break;
 	}
 	our_vars.var[no]->var=var;
+	our_vars.var[no]->config_file_val = our_vars.var[no]->default_val = def;
 	our_vars.var[no]->func=func;
 	our_vars.var[no]->name=name;
 	our_vars.var[no]->shortname=shortname;
@@ -2406,6 +2531,12 @@ int display_elconfig_handler(window_info *win)
 
 	// Draw the long description of an option
 	draw_string_small_zoomed(TAB_MARGIN, elconfig_menu_y_len-LONG_DESC_SPACE, elconf_description_buffer, MAX_LONG_DESC_LINES, elconf_scale);
+
+	// Show the context menu help message
+	if (is_mouse_over_option)
+		show_help(cm_help_options_str, 0, win->len_y + 10, win->current_scale);
+	is_mouse_over_option = 0;
+
 	return 1;
 }
 
@@ -2495,6 +2626,12 @@ int mouseover_option_handler(widget_list *widget, int mx, int my)
 	return 1;
 }
 
+static int mouseover_option_label_handler(widget_list *widget, int mx, int my)
+{
+	is_mouse_over_option = 1;
+	return mouseover_option_handler(widget, mx, my);
+}
+
 int onclick_label_handler(widget_list *widget, int mx, int my, Uint32 flags)
 {
 	int i;
@@ -2516,13 +2653,19 @@ int onclick_label_handler(widget_list *widget, int mx, int my, Uint32 flags)
 		return 0;
 	}
 
+	if (flags&ELW_RIGHT_MOUSE)
+	{
+		call_option_menu(option);
+		return 1;
+	}
+
 	if (option->type == OPT_BOOL)
 	{
 		option->func(option->var);
 		option->saved= 0;
+		do_click_sound();
 	}
 
-	do_click_sound();
 	return 1;
 }
 
@@ -2615,7 +2758,6 @@ void elconfig_populate_tabs(void)
 					elconfig_tabs[tab_id].x+CHECKBOX_SIZE+SPACING, elconfig_tabs[tab_id].y,
 					0, elconf_scale, -1.0, -1.0, -1.0, (char*)our_vars.var[i]->display.str);
 				//Set handlers
-				widget_set_OnClick(elconfig_tabs[tab_id].tab, label_id, onclick_label_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, onclick_checkbox_handler);
 			break;
 			case OPT_INT:
@@ -2770,8 +2912,10 @@ void elconfig_populate_tabs(void)
 		our_vars.var[i]->widgets.label_id= label_id;
 		our_vars.var[i]->widgets.widget_id= widget_id;
 		//Make the description print when the mouse is over a widget
-		widget_set_OnMouseover(elconfig_tabs[tab_id].tab, label_id, mouseover_option_handler);
+		widget_set_OnMouseover(elconfig_tabs[tab_id].tab, label_id, mouseover_option_label_handler);
 		widget_set_OnMouseover(elconfig_tabs[tab_id].tab, widget_id, mouseover_option_handler);
+		//left click used only to tolle BOOL, right click to open context menu
+		widget_set_OnClick(elconfig_tabs[tab_id].tab, label_id, onclick_label_handler);
 	}
 }
 
