@@ -35,7 +35,7 @@ static int default_item_quickbar_x = -1;
 static int default_item_quickbar_y = -1;
 static int shown_quickbar_slots = -1;
 
-enum {	CMQB_RELOC=0, CMQB_DRAG, CMQB_RESET, CMQB_FLIP, CMQB_ENABLE };
+enum { CMQB_ENABLE=0, CMQB_SEP1, CMQB_RELOC, CMQB_DRAG, CMQB_FLIP, CMQB_SEP2, CMQB_RESET };
 
 
 /*Change flags*/
@@ -177,6 +177,7 @@ static int context_quickbar_handler(window_info *win, int widget_id, int mx, int
 {
 	switch (option)
 	{
+		case CMQB_RELOC: if (quickbar_relocatable) toggle_quickbar_draggable(); break;
 		case CMQB_DRAG: quickbar_draggable ^= 1; toggle_quickbar_draggable(); break;
 		case CMQB_RESET: reset_quickbar(); break;
 		case CMQB_FLIP: flip_quickbar(win->window_id); break;
