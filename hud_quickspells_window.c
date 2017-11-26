@@ -48,10 +48,13 @@ static int get_quickspell_y_len(void)
 // change window flags
 static void change_flags(int win_id, Uint32 flags)
 {
-	int order = windows_list.window[win_id].order;
-	windows_list.window[win_id].flags = flags;
-	if ( (order > 0 && (flags & ELW_SHOW_LAST)) || (order < 0 && !(flags & ELW_SHOW_LAST)) )
-		windows_list.window[win_id].order = -order;
+	if (win_id >= 0 && win_id < windows_list.num_windows)
+	{
+		int order = windows_list.window[win_id].order;
+		windows_list.window[win_id].flags = flags;
+		if ( (order > 0 && (flags & ELW_SHOW_LAST)) || (order < 0 && !(flags & ELW_SHOW_LAST)) )
+			windows_list.window[win_id].order = -order;
+	}
 }
 
 
@@ -66,7 +69,7 @@ static Uint32 get_flags(int win_id)
 static int is_relocated(void)
 {
 	window_info *win = NULL;
-	if (quickspell_win < 0 || quickspell_win > windows_list.num_windows)
+	if (quickspell_win < 0 || quickspell_win >= windows_list.num_windows)
 		return 1;
 	win = &windows_list.window[quickspell_win];
 	if ((quickspells_moveable) || (quickspells_dir != VERTICAL) ||
@@ -108,8 +111,11 @@ static void reset_quickspells()
 		quickspells_relocatable = 0;
 		set_var_unsaved("relocate_quickspells", INI_FILE_VAR);
 	}
-	change_flags(quickspell_win, ELW_USE_UISCALE|ELW_CLICK_TRANSPARENT|ELW_TITLE_NONE|ELW_SHOW_LAST);
-	init_window(quickspell_win, -1, 0, default_quickspells_x, default_quickspells_y, quickspell_x_len, get_quickspell_y_len());
+	if (quickspell_win >= 0 && quickspell_win < windows_list.num_windows)
+	{
+		change_flags(quickspell_win, ELW_USE_UISCALE|ELW_CLICK_TRANSPARENT|ELW_TITLE_NONE|ELW_SHOW_LAST);
+		init_window(quickspell_win, -1, 0, default_quickspells_x, default_quickspells_y, quickspell_x_len, get_quickspell_y_len());
+	}
 }
 
 
