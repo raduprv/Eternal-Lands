@@ -523,12 +523,12 @@ namespace Indicators
 					cm_relocatable = 1;
 					default_location = false;
 					if (win->cur_y == 0)
-						move_window(win->window_id, -1, 0, win->cur_x, ELW_TITLE_HEIGHT);
+						move_window(win->window_id, -1, 0, win->cur_x, win->title_height);
 				}
-				if (win->cur_y == ELW_TITLE_HEIGHT)
+				if (win->cur_y == win->title_height)
 					move_window(win->window_id, -1, 0, win->cur_x, 0);
 				else if (win->cur_y == 0)
-					move_window(win->window_id, -1, 0, win->cur_x, ELW_TITLE_HEIGHT);
+					move_window(win->window_id, -1, 0, win->cur_x, win->title_height);
 				break;
 			case CMHI_BACKGROUND: set_background(background_on); break;
 			case CMHI_BORDER: set_border(border_on); break;

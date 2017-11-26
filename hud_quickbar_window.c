@@ -214,7 +214,7 @@ static void quickbar_item_description_help(window_info *win, int pos, int slot)
 				if ((xpos + win->cur_x) < 0)
 					xpos = -win->cur_x + 5;
 				if ((ypos + win->small_font_len_y + win->cur_y) > window_height)
-					ypos = -(5 + win->small_font_len_y + (quickbar_draggable * ELW_TITLE_HEIGHT));
+					ypos = -(5 + win->small_font_len_y + (quickbar_draggable * win->title_height));
 			}
 			show_help(str, xpos, ypos, win->current_scale);
 		}
