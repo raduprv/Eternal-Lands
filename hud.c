@@ -111,14 +111,19 @@ void init_hud_interface (hud_interface type)
 	last_interface = type;
 }
 
+void show_moveable_hud_windows(void)
+{
+	if (quickbar_win >= 0) show_window (quickbar_win);
+	if (quickspell_win >= 0) show_window (quickspell_win);
+	show_hud_indicators_window();
+}
+
 void show_hud_windows (void)
 {
 	if (icons_win >= 0) show_window (icons_win);
 	if (stats_bar_win >= 0) show_window (stats_bar_win);
 	if (misc_win >= 0) show_window (misc_win);
-	if (quickbar_win >= 0) show_window (quickbar_win);
-	if (quickspell_win >= 0) show_window (quickspell_win);
-	show_hud_indicators_window();
+	show_moveable_hud_windows();
 }
 
 void hide_hud_windows (void)
@@ -129,6 +134,19 @@ void hide_hud_windows (void)
 	if (quickbar_win >= 0) hide_window (quickbar_win);
 	if (quickspell_win >= 0) hide_window (quickspell_win);
 	hide_hud_indicators_window();
+}
+
+void hide_moved_hud_windows(void)
+{
+	size_t i;
+	int list_of_windows[2] = { quickbar_win, quickspell_win };
+	for (i=0; i<2; i++)
+	{
+		if (get_show_window (list_of_windows[i])
+				&& windows_list.window[list_of_windows[i]].cur_x < window_width - HUD_MARGIN_X
+				&& window_height - windows_list.window[list_of_windows[i]].cur_y > HUD_MARGIN_Y)
+			hide_window (list_of_windows[i]);
+	}
 }
 
 int hud_mouse_over(window_info *win, int mx, int my)

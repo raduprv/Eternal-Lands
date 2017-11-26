@@ -11,7 +11,6 @@
 #include "gl_init.h"
 #include "global.h"
 #include "hud.h"
-#include "hud_quickbar_window.h"
 #include "hud_timer.h"
 #include "interface.h"
 #include "items.h"
@@ -123,11 +122,8 @@ void draw_scene()
 	{
 		// No scrolling when switching modes...
 		new_zoom_level = zoom_level;
-		// Hide the quickbar if it is not on the bottom or side hud bar
-		if (get_show_window (quickbar_win)
-				&& windows_list.window[quickbar_win].cur_x < window_width - HUD_MARGIN_X
-				&& window_height - windows_list.window[quickbar_win].cur_y > HUD_MARGIN_Y)
-			hide_window (quickbar_win);
+		// Hide the moveable hud windows if they are not on the bottom or side hud bar
+		hide_moved_hud_windows();
 	}
 
 	glLoadIdentity ();	// Reset The Matrix

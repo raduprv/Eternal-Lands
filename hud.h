@@ -13,6 +13,14 @@
 extern "C" {
 #endif
 
+/*!
+ * \name quick window orientation constants
+ */
+/*! @{ */
+#define HORIZONTAL 2
+#define VERTICAL 1
+/*! @} */
+
 typedef enum
 {
 	HUD_INTERFACE_NEW_CHAR, /*!< the interface for the character creation screen */
@@ -62,6 +70,14 @@ void show_hud_windows (void);
 
 /*!
  * \ingroup other
+ * \brief Shows specifically hud windows that are relocatable and so may have been hidden when changing game/map/console modes.
+ *
+ * \callgraph
+ */
+void show_moveable_hud_windows(void);
+
+/*!
+ * \ingroup other
  * \brief Hides the different hud related windows, if they are visible.
  *
  *      Hides the different hud related windows, i.e. the icons, the stats bar, the miscellaneous (compass and clock) and the quickbar window if they are visible. If none of them is visible nothing will be done.
@@ -70,6 +86,14 @@ void show_hud_windows (void);
  * \callgraph
  */
 void hide_hud_windows (void);
+
+/*!
+ * \ingroup other
+ * \brief Hide specifically hud windows that are currently relocated off the hud bars.
+ *
+ * \callgraph
+ */
+void hide_moved_hud_windows(void);
 
 /*!
  * \ingroup display_2d

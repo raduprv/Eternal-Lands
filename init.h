@@ -223,6 +223,17 @@ typedef struct
 	int ranging_win_x;
 	int ranging_win_y;
 	/*! @} */
+
+	// the following additions are backwards compatible to previous files and have the same version number
+
+	/*!
+	 * \name quick spell window position and options
+	 */
+	/*! @{ */
+	unsigned int quickspell_win_position;
+	unsigned int quickspell_win_options;
+	/*! @} */
+
 }bin_cfg;
 
 extern int auto_update; /*!<this flags signals whether or not autoupdates are performed at startup, or not. It requires a restart to have an effect. */

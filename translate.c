@@ -348,7 +348,7 @@ char
 	client_restarting_str[20],
 	restart_now_label[20],
 	/* context menu strings */
-	cm_quickspell_menu_str[50],
+	cm_quickspell_menu_str[150],
 	cm_textedit_menu_str[100],
 	cm_quickbar_menu_str[150],
 	cm_hud_menu_str[270],
@@ -1604,7 +1604,7 @@ void init_help()
 	add_xml_identifier(misc, "restart", restart_now_label, "Restart now", sizeof(restart_now_label));
 	
 	/* strings for context menus */
-	add_xml_identifier(misc, "cm_quickspell_menu", cm_quickspell_menu_str, "Move Up\nMove Down\nRemove\n", sizeof(cm_quickspell_menu_str));
+	add_xml_identifier(misc, "cm_quickspell_menu", cm_quickspell_menu_str, "Move Spell Up/Left\nMove Spell Down/Right\nRemove Spell\n--\nRelocatable Window\nMoveable Window\nRotate Window\n--\nReset Position", sizeof(cm_quickspell_menu_str));
 	add_xml_identifier(misc, "cm_textedit_menu", cm_textedit_menu_str, "Cut\nCopy\nPaste\n--\nDate\nTime\nCoords", sizeof(cm_textedit_menu_str));
 	add_xml_identifier(misc, "cm_quickbar_menu", cm_quickbar_menu_str, "Quickbar Relocatable\nQuickbar Draggable\nReset Quickbar Position\nFlip Quickbar\nEnable Quickbar Menu\n", sizeof(cm_quickbar_menu_str));
 	add_xml_identifier(misc, "cm_hud_menu", cm_hud_menu_str, "Show Stats\nShow Stats Bars\nShow Knowledge Bar\nShow Timer\nShow Digital Clock\nShow Analogue Clock\nShow Seconds\nShow FPS\nShow Indicators\nEnable Quickbar Menu\n--\nShow Minimap\nShow Ranging Stats\n--\nEnable Sound Effects\nEnable Music\n--\nCopy Location", sizeof(cm_hud_menu_str));

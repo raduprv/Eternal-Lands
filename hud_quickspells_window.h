@@ -18,6 +18,7 @@ typedef struct {
 
 extern int quickspell_win; /*!< quickbar windows handler */
 extern int num_quickspell_slots;
+extern int quickspells_relocatable;
 extern mqbdata * mqb_data[MAX_QUICKSPELL_SLOTS+1];
 
 int action_spell_keys(Uint32 key);
@@ -26,6 +27,8 @@ void save_quickspells(void);
 void init_quickspell(void);
 int get_quickspell_y_base(void);
 void add_quickspell(void);
+void get_quickspell_options(unsigned int *options, unsigned int *position);
+void set_quickspell_options(unsigned int options, unsigned int position);
 
 #ifdef __cplusplus
 } // extern "C"

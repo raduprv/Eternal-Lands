@@ -483,7 +483,7 @@ extern char
 		client_restarting_str[20],
 		restart_now_label[20],
 		/* context menu strings */
-		cm_quickspell_menu_str[50],
+		cm_quickspell_menu_str[150],
 		cm_textedit_menu_str[100],
 		cm_quickbar_menu_str[150],
 		cm_hud_menu_str[270],

@@ -6,14 +6,6 @@ extern "C" {
 #endif
 
 /*!
- * \name orientation constants
- */
-/*! @{ */
-#define HORIZONTAL 2
-#define VERTICAL 1
-/*! @} */
-
-/*!
  * \name Quickbar defines
  */
 /*! @{ */

@@ -275,15 +275,23 @@ void read_bin_cfg()
 	int i;
 	const char *fname = "el.cfg";
 	size_t ret;
+	int have_additions = 1;
 
 	memset(&cfg_mem, 0, sizeof(cfg_mem));	// make sure its clean
 
 	f=open_file_config_no_local(fname,"rb");
 	if(f == NULL)return;//no config file, use defaults
-
 	ret = fread(&cfg_mem,1,sizeof(cfg_mem),f);
 	fclose(f);
-	if (ret != sizeof(cfg_mem))
+
+	// If more options are added to the end of the structure, we can maintain backwards compatibility.
+	// If have_additions is not true, those options will remain set to zero as the file does not include them.
+	// We only need to change the version number if we alter/remove older options.
+	// We still need to check the size is what is expected.
+
+	if (ret == sizeof(cfg_mem) - 2 * sizeof(unsigned int))
+		have_additions = 0;
+	else if (ret != sizeof(cfg_mem))
 	{
 		LOG_ERROR("%s() failed to read %s\n", __FUNCTION__, fname);
 		return;
@@ -422,6 +430,9 @@ void read_bin_cfg()
 	set_options_questlog(cfg_mem.questlog_flags);
 
 	set_settings_hud_indicators(cfg_mem.hud_indicators_options, cfg_mem.hud_indicators_position);
+
+	if (have_additions)
+		set_quickspell_options(cfg_mem.quickspell_win_options, cfg_mem.quickspell_win_position);
 }
 
 void save_bin_cfg()
@@ -638,6 +649,8 @@ void save_bin_cfg()
 	cfg_mem.questlog_flags = get_options_questlog();
 
 	get_settings_hud_indicators(&cfg_mem.hud_indicators_options, &cfg_mem.hud_indicators_position);
+
+	get_quickspell_options(&cfg_mem.quickspell_win_options, &cfg_mem.quickspell_win_position);
 
 	fwrite(&cfg_mem,sizeof(cfg_mem),1,f);
 	fclose(f);

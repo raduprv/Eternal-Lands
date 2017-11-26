@@ -1016,11 +1016,7 @@ void return_to_gamewin_common(void)
 	hide_window (map_root_win);
 	hide_window (console_root_win);
 	show_window (game_root_win);
-	// Undo stupid quickbar hack
-	if ( !get_show_window (quickbar_win) )
-		show_window (quickbar_win);
-	if ( !get_show_window (quickspell_win) )
-		show_window (quickspell_win);
+	show_hud_windows();
 }
 
 static void draw_ingame_interface(window_info *win)
@@ -1083,8 +1079,6 @@ static int display_game_handler (window_info *win)
 
 	main_count++;
 	last_count++;
-
-	//if (quickbar_win>0) windows_list.window[quickbar_win].displayed=1;
 
 	if (fps[0] < 5)
 	{
