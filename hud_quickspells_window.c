@@ -137,29 +137,28 @@ static void flip_quickspells(int window_id)
 static void update_shown_quickspell_slots(window_info *win)
 {
 	int last_shown_slots = shown_quickspell_slots;
+	int max_slots = 0;
+	int last_active = 0;
+	size_t i;
 
 	if (quickspells_relocatable && is_relocated())
-		shown_quickspell_slots = num_quickspell_slots;
+		max_slots = num_quickspell_slots;
 	else
-	{
-		int max_slots = (window_height - get_min_hud_misc_len_y() - win->cur_y - 1) / quickspell_y_space;
-		int last_active = 0;
-		size_t i;
+		max_slots = (window_height - get_min_hud_misc_len_y() - win->cur_y - 1) / quickspell_y_space;
 
-		for(i = 1; i < MAX_QUICKSPELL_SLOTS+1; i++)
-			if (mqb_data[i] && mqb_data[i]->spell_name[0])
-				last_active = i;
+	for(i = 1; i < MAX_QUICKSPELL_SLOTS+1; i++)
+		if (mqb_data[i] && mqb_data[i]->spell_name[0])
+			last_active = i;
 
-		if (last_active > num_quickspell_slots)
-			last_active = num_quickspell_slots;
+	if (last_active > num_quickspell_slots)
+		last_active = num_quickspell_slots;
 
-		if (max_slots > last_active)
-			shown_quickspell_slots = last_active;
-		else if (max_slots < 1)
-			shown_quickspell_slots = 1;
-		else
-			shown_quickspell_slots = max_slots;
-	}
+	if (max_slots > last_active)
+		shown_quickspell_slots = last_active;
+	else if (max_slots < 1)
+		shown_quickspell_slots = 1;
+	else
+		shown_quickspell_slots = max_slots;
 
 	if (last_shown_slots != shown_quickspell_slots)
 		resize_quickspells_window(win->window_id);
