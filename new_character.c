@@ -1404,7 +1404,7 @@ static int init_color_race_handler(window_info * win)
 
 	//Design your character
 	widget_id = label_add_extended(win->window_id, free_widget_id++, 0, (win->len_x - strlen((char*)win_design)*DEFAULT_FONT_X_LEN*bit_small)/2, y, 0, bit_small, r, g, b, (char*)win_design);
-	y =+ widget_get_height(win->window_id, widget_id);
+	y += widget_get_height(win->window_id, widget_id);
 
 	//Gender selection
 	{
