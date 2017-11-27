@@ -253,7 +253,7 @@ namespace IconWindow
 		public:
 			Container(void) : mouse_over_icon(-1), display_icon_size(def_icon_size), unscale_display_icon_size(def_icon_size),
 				icon_spacing(0), unscaled_icon_spacing(0) {}
-			~Container(void) { free_icons(); }
+			void destroy(void) { free_icons(); }
 			size_t get_num_icons(void) const { return icon_list.size(); }
 			bool empty(void) const { return icon_list.empty(); }
 			void mouse_over(size_t icon_number) { if (icon_number < icon_list.size()) mouse_over_icon = icon_number; }
@@ -751,3 +751,5 @@ extern "C" void init_icon_window(icon_window_mode icon_mode)
 
 	action_icons.ui_scale_handler();
 }
+
+extern "C" void destroy_icon_window(void) { action_icons.destroy(); }

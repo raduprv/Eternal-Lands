@@ -97,6 +97,14 @@ void set_icon_size(int icon_size);
 void set_icon_spacing(int icon_spacing);
 
 
+/*!
+ * \ingroup windows
+ * \brief Destroy the icon window.
+ * \callgraph
+ */
+void destroy_icon_window(void);
+
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

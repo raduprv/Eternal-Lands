@@ -90,7 +90,7 @@ namespace Trade_Log
 	{
 		public:
 			State(void) : your_stuff(0), their_stuff(0), the_state(TLS_INIT) {}
-			~State(void);
+			void destroy(void);
 			void accepted(const char *name, const trade_item *yours, const trade_item *others, int max_items);
 			void completed(void);
 			void exit(void) { if (the_state == TLS_ACCEPT) the_state = TLS_EXIT; else init(); }
@@ -106,7 +106,7 @@ namespace Trade_Log
 
 	//	Make sure we free the memory.
 	//
-	State::~State(void)
+	void State::destroy(void)
 	{
 		if (your_stuff)
 			delete your_stuff;
@@ -202,4 +202,5 @@ extern "C"
 	void trade_aborted(const char *message) { if (enable_local_debug) printf("%s\n", __FUNCTION__); the_log.aborted(); }
 	void trade_post_storage(void) { if (enable_local_debug) printf("%s\n", __FUNCTION__); the_log.completed(); }
 	void trade_post_inventory(void) { if (enable_local_debug) printf("%s\n", __FUNCTION__); the_log.completed(); }
+	void destroy_trade_log(void) { if (enable_local_debug) printf("%s\n", __FUNCTION__); the_log.destroy(); }
 }

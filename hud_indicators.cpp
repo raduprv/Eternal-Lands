@@ -135,7 +135,6 @@ namespace Indicators
 			void set_settings(unsigned int opts, unsigned int pos) { option_settings = opts; position_settings = pos; have_settings = true;}
 			void get_settings(unsigned int *opts, unsigned int *pos);
 			void ui_scale_handler(window_info *win) { x_len = 0; y_len = 0; Vars::set_scale(win->current_scale); }
-			~Indicators_Container(void) { destroy(); }
 		private:
 			void set_win_flag(Uint32 flag, int state);
 			void set_background(bool on) { background_on = on; set_win_flag(ELW_USE_BACKGROUND, background_on); }

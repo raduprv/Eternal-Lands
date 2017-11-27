@@ -124,7 +124,7 @@ namespace UserMenus
 	class Container
 	{
 		public:
-			~Container(void);
+			void destroy(void);
 			void open_window(void);
 			void close_window(void) { command_queue.clear(); if (win_id >= 0) hide_window(win_id); }
 			void set_options(int win_x, int win_y, int options);
@@ -251,11 +251,12 @@ namespace UserMenus
 	//
 	//	destroy the window, menus and lines
 	//
-	Container::~Container(void)
+	void Container::destroy(void)
 	{
 		delete_menus();
 		if (cm_valid(context_id))
 			cm_destroy(context_id);
+		context_id = CM_INIT_VALUE;
 		destroy_window(win_id);
 	}
 
@@ -741,4 +742,6 @@ extern "C"
 		if (ready_for_user_menus)
 			UserMenus::Container::get_instance()->open_window();
 	}
+
+	void destroy_user_menus(void) { UserMenus::Container::get_instance()->destroy(); }
 }

@@ -56,6 +56,14 @@ void trade_post_storage(void);
  */
 void trade_post_inventory(void);
 
+/**
+ * @ingroup trade_log
+ * @brief Free tradelog memory.
+ *
+ * @callgraph
+ */
+void destroy_trade_log(void);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

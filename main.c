@@ -59,10 +59,12 @@
 #include "sound.h"
 #include "text.h"
 #include "timers.h"
+#include "trade_log.h"
 #include "translate.h"
 #include "textures.h"
 #include "update.h"
 #include "url.h"
+#include "user_menus.h"
 #include "weather.h"
 #ifdef MEMORY_DEBUG
 #include "elmemory.h"
@@ -271,6 +273,8 @@ int start_rendering()
 	cleanup_counters();
 	cleanup_chan_names();
 	cleanup_hud();
+	destroy_trade_log();
+	destroy_user_menus();
 	destroy_all_root_windows();
 	SDL_RemoveTimer(draw_scene_timer);
 	SDL_RemoveTimer(misc_timer);

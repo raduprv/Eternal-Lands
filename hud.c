@@ -52,6 +52,7 @@ static hud_interface last_interface = HUD_INTERFACE_NEW_CHAR; //Current interfac
 void cleanup_hud(void)
 {
 	destroy_hud_indicators();
+	destroy_icon_window();
 	destroy_window(misc_win);
 	destroy_window(stats_bar_win);
 	destroy_window(quickbar_win);
