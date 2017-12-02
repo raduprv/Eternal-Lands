@@ -33,7 +33,7 @@ const float load_bar_colors[12] = {
 	0.294f, 0.173f, 0.690f  // bottomleft
 };
 
-Uint32 loading_win = -1;
+int loading_win = -1;
 static Uint32 loading_win_progress_bar = -1;
 static float total_progress = 0;
 static GLuint loading_texture = 0;

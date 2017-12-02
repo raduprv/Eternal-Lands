@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-extern Uint32 loading_win;
+extern int loading_win;
 
 int create_loading_win(int width, int height, int snapshot);
 void update_loading_win(char *text, float progress_increase);
