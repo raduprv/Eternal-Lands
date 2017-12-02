@@ -485,7 +485,7 @@ void update_camera()
 					new_zoom_level = 1.0;
 					camera_tilt_duration = camera_zoom_duration = 0;
 					camera_tilt_speed = 0.0;
-					if (fabsf(tz + camera_z + 0.2) < fabsf(vect[2]) - 0.01)
+					if (fabsf(tz + camera_z + 0.2f) < fabsf(vect[2]) - 0.01)
 						rx = -90.0 + 180.0 * asinf((tz + camera_z + 0.2) / vect[2]) / M_PI;
 				}
 				else if (new_zoom_level > old_zoom_level)
@@ -500,7 +500,7 @@ void update_camera()
 				new_zoom_level = old_zoom_level;
 				camera_tilt_duration = camera_zoom_duration = 0;
 				camera_tilt_speed = 0.0;
-				if (fabsf(tz + camera_z + 0.2) < fabsf(vect[2]) - 0.01)
+				if (fabsf(tz + camera_z + 0.2f) < fabsf(vect[2]) - 0.01)
 					rx = -90.0 + 180.0 * asinf((tz + camera_z + 0.2) / vect[2]) / M_PI;
 			}
 		}

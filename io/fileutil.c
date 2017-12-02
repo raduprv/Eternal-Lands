@@ -3,8 +3,8 @@
 #include "../xz/7zCrc.h"
 #include "../xz/XzCrc64.h"
 
-static void *SzAlloc(void *p, size_t size) { p = p; return malloc(size); }
-static void SzFree(void *p, void *address) { p = p; free(address); }
+static void *SzAlloc(void *p, size_t size) { return malloc(size); }
+static void SzFree(void *p, void *address) { free(address); }
 static ISzAlloc lzmaAlloc = { SzAlloc, SzFree };
 
 void init_crc_tables()

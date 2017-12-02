@@ -244,8 +244,8 @@ static __inline__ void calc_particle_random_min_max(float f1, float f2, float* v
 
 static __inline__ void calc_particle_random2_min_max(float f1, float f2, float* v_min, float* v_max)
 {	
-	*v_min = (f1+f2)*0.5f-abs(f2-f1);
-	*v_max = (f1+f2)*0.5f+abs(f2-f1);
+	*v_min = (f1+f2)*0.5f-fabsf(f2-f1);
+	*v_max = (f1+f2)*0.5f+fabsf(f2-f1);
 }
 
 void calc_bounding_box_for_particle_sys(AABBOX* bbox, particle_sys *system_id)

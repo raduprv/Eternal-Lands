@@ -2961,9 +2961,9 @@ int parse_actor_skin (actor_types *act, const xmlNode *cfg, const xmlNode *defau
 		const xmlNode *default_node= get_default_node(cfg, defaults);
 
 		if(default_node){
-			if(skin->hands_name==NULL || *skin->hands_name=='\0')
+			if(*skin->hands_name=='\0')
 				get_item_string_value(skin->hands_name, sizeof(skin->hands_name), default_node, (xmlChar*)"hands");
-			if(skin->head_name==NULL || *skin->head_name=='\0')
+			if(*skin->head_name=='\0')
 				get_item_string_value(skin->head_name, sizeof(skin->head_name), default_node, (xmlChar*)"head");
 		}
 	}
@@ -3307,10 +3307,10 @@ int parse_actor_weapon(actor_types *act, const xmlNode *cfg, const xmlNode *defa
 		const xmlNode *default_node= get_default_node(cfg, defaults);
 
 		if(default_node){
-			if(weapon->skin_name==NULL || *weapon->skin_name=='\0')
+			if(*weapon->skin_name=='\0')
 				get_item_string_value(weapon->skin_name, sizeof(weapon->skin_name), default_node, (xmlChar*)"skin");
 			if(type_idx!=GLOVE_FUR && type_idx!=GLOVE_LEATHER){ // these dont have meshes
-				if(weapon->model_name==NULL || *weapon->model_name=='\0'){
+				if(*weapon->model_name=='\0'){
 					get_item_string_value(weapon->model_name, sizeof(weapon->model_name), default_node, (xmlChar*)"mesh");
 					weapon->mesh_index= cal_load_weapon_mesh(act, weapon->model_name, "weapon");
 				}
@@ -3365,11 +3365,11 @@ int parse_actor_body_part (actor_types *act, body_part *part, const xmlNode *cfg
 
 	// check for default entries, if found, use them to fill in missing data
 	if(default_node){
-		if(part->skin_name==NULL || *part->skin_name=='\0')
+		if(*part->skin_name=='\0')
 			if(strcmp(part_name, "head")){ // heads don't have separate skins here
 				get_item_string_value(part->skin_name, sizeof(part->skin_name), default_node, (xmlChar*)"skin");
 			}
-		if(part->model_name==NULL || *part->model_name=='\0'){
+		if(*part->model_name=='\0'){
 			get_item_string_value(part->model_name, sizeof(part->model_name), default_node, (xmlChar*)"mesh");
 			if(strcmp("shield",part_name)==0)
 				part->mesh_index= cal_load_weapon_mesh(act, part->model_name, part_name);
@@ -3603,7 +3603,7 @@ int parse_actor_shield_part (actor_types *act, shield_part *part, const xmlNode 
 
 	// check for default entries, if found, use them to fill in missing data
 	if(default_node){
-		if(part->model_name==NULL || *part->model_name=='\0'){
+		if(*part->model_name=='\0'){
 			get_item_string_value(part->model_name, sizeof(part->model_name), default_node, (xmlChar*)"mesh");
 			part->mesh_index= cal_load_weapon_mesh(act, part->model_name, "shield");
 		}

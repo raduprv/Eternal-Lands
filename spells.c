@@ -1426,7 +1426,7 @@ static int mouseover_sigils_handler(window_info *win, int mx, int my)
 
 static void set_spell_help_text(int spell){
 
-	char clr[4];
+	unsigned char clr[4];
 
 	if (spell<0) {
 		spell_help[0]=0;
@@ -1446,13 +1446,13 @@ static void set_spell_help_text(int spell){
 		clr[0]=127+c_red2;
 		clr[1]=clr[2]=' ';
 		clr[3]=0;
-		safe_strcat((char*)spell_help,clr,sizeof(spell_help));		
+		safe_strcat((char*)spell_help,(char*)clr,sizeof(spell_help));
 		safe_strcat((char*)spell_help,GET_UNCASTABLE_STR(spells_list[spell].uncastable),sizeof(spell_help));
 	}
 	safe_strcat((char*)spell_help,"\n",sizeof(spell_help));
 	clr[0]=127+c_grey1;
 	clr[1]=0;
-	safe_strcat((char*)spell_help,clr,sizeof(spell_help));
+	safe_strcat((char*)spell_help,(char*)clr,sizeof(spell_help));
 	safe_strcat((char*)spell_help,spells_list[spell].desc,sizeof(spell_help));
 
 }

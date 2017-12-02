@@ -2272,7 +2272,7 @@ static void set_button_highlight(widget_list *w, int set_on)
 
 static int click_channel_color_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
-	if(w->id >= 0 && w->id < COLROWS * COLCOLS)
+	if(w->id < COLROWS * COLCOLS)
 	{
 		set_button_highlight(widget_find(w->window_id, selected_color), 0);
 		set_button_highlight(w, 1);

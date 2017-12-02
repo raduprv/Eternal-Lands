@@ -14,12 +14,12 @@
 
 #include "XzEnc.h"
 
-static void *SzBigAlloc(void *p, size_t size) { p = p; return BigAlloc(size); }
-static void SzBigFree(void *p, void *address) { p = p; BigFree(address); }
+static void *SzBigAlloc(void *p, size_t size) { return BigAlloc(size); }
+static void SzBigFree(void *p, void *address) { BigFree(address); }
 static ISzAlloc g_BigAlloc = { SzBigAlloc, SzBigFree };
 
-static void *SzAlloc(void *p, size_t size) { p = p; return MyAlloc(size); }
-static void SzFree(void *p, void *address) { p = p; MyFree(address); }
+static void *SzAlloc(void *p, size_t size) { return MyAlloc(size); }
+static void SzFree(void *p, void *address) { MyFree(address); }
 static ISzAlloc g_Alloc = { SzAlloc, SzFree };
 
 #define XzBlock_ClearFlags(p)       (p)->flags = 0;

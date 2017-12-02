@@ -566,7 +566,7 @@ void popup_add_option_displaytext(popup_t *this_popup,
 								  popup_option_group_t group_id,
 								  const char *const text)
 {
-	popup_option_value_t dummy_value;
+	popup_option_value_t dummy_value = (popup_option_value_t){0};
 	popup_add_option_extended( this_popup, group_id, text, dummy_value, OPTION_TYPE_DISPLAYTEXT );
 }
 
