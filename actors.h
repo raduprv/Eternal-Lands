@@ -796,6 +796,20 @@ void end_actors_lists(void);
 int on_the_move (const actor *act);
 
 /*!
+ * \ingroup display_actors
+ * \brief   Return actor close clicked coords.
+ *
+ * \param tile_x the x coord of the clicked tile
+ * \param tile_y the y coord of the clicked tile
+ * \param max_distance the maximum distance between the clicked coord and the actor
+ *
+ * \callgraph
+ * \retval the actor id or -1 for no actor
+ *
+ */
+int get_closest_actor(int tile_x, int tile_y, float max_distance);
+
+/*!
  * \ingroup	display_actors
  * \brief	Return a pointer to your own character, if available
  *

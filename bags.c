@@ -336,6 +336,39 @@ static int clear_groundlist(void)
 	return 1;
 }
 
+int find_and_open_closest_bag(int tile_x, int tile_y, float max_distance)
+{
+	int i;
+	int found_bag = -1;
+	float x = tile_x;
+	float y = tile_y;
+
+	float distance;
+	float min_distance_found = 50;
+
+	for(i=0; i<NUM_BAGS; i++)
+		if(bag_list[i].obj_3d_id != -1)
+		{
+			distance = sqrt(((float)bag_list[i].x - x) * ((float)bag_list[i].x - x) + ((float)bag_list[i].y - y) * ((float)bag_list[i].y - y));
+			if (distance < max_distance)
+				if (distance < min_distance_found)
+				{
+					found_bag = i;
+					min_distance_found = distance;
+				}
+		}
+
+	if (found_bag != -1)
+	{
+		Uint8 str[4];
+		str[0]= INSPECT_BAG;
+		str[1]= found_bag;
+		my_tcp_send(my_socket,str, 2);
+		return 1;
+	}
+
+	return 0;
+}
 
 void open_bag(int object_id)
 {

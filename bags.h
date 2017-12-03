@@ -158,6 +158,20 @@ void items_get_bag(int x, int y);
  */
 void strap_word(char * in, char * out);
 
+/*!
+ * \ingroup item
+ * \brief   Open close clicked bag .
+ *
+ * \param tile_x the x coord of the clicked tile
+ * \param tile_y the y coord of the clicked tile
+ * \param max_distance the maximum distance between the clicked coord and the bag
+ *
+ * \callgraph
+ * \retval int 0 for off, non-zero on
+ *
+ */
+int find_and_open_closest_bag(int tile_x, int tile_y, float max_distance);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

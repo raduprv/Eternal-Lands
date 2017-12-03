@@ -64,6 +64,41 @@ Uint32 have_actors_lock = 0;
 
 int cm_mouse_over_banner = 0;		/* use to trigger banner context menu */
 
+int get_closest_actor(int tile_x, int tile_y, float max_distance)
+{
+	int i;
+	int found_actor = -1;
+	float x=tile_x / 2.0f;
+	float y=tile_y / 2.0f;
+	float distance;
+	float min_distance_found = 50;
+
+	// check if too far
+	actor *me = get_our_actor();
+	if (me)
+	{
+		distance = sqrt((me->x_pos - x) * (me->x_pos - x) + (me->y_pos - y) * (me->y_pos - y));
+		if (distance > 6)
+			return -1;
+	}
+
+	for (i=0; i<max_actors; i++)
+		if (actors_list[i])
+			if (!actors_list[i]->dead)
+				if (actors_list[i]->kind_of_actor != NPC && actors_list[i]->kind_of_actor != HUMAN && actors_list[i]->kind_of_actor != COMPUTER_CONTROLLED_HUMAN)
+				{
+					distance = sqrt((actors_list[i]->x_pos - x) * (actors_list[i]->x_pos - x) + (actors_list[i]->y_pos - y ) * (actors_list[i]->y_pos - y));
+					if (distance < max_distance)
+						if (distance < min_distance_found)
+						{
+							found_actor = actors_list[i]->actor_id;
+							min_distance_found = distance;
+						}
+				}
+
+	return found_actor;
+}
+
 //Threading support for actors_lists
 void init_actors_lists()
 {

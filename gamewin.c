@@ -69,6 +69,8 @@ int use_old_clicker=0;
 int include_use_cursor_on_animals = 0;
 int cm_banner_disabled = 0;
 int auto_disable_ranging_lock = 1;
+int attack_close_clicked_creature = 1;
+int open_close_clicked_bag = 1;
 
 #ifdef  DEBUG
 extern int e3d_count, e3d_total;    // LRNR:stats testing only
@@ -941,6 +943,36 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 
 			// check to see if the coordinates are OUTSIDE the map
 			if (y < 0 || x < 0 || x >= tile_map_size_x*6 || y >= tile_map_size_y*6)
+				return 1;
+
+			if (attack_close_clicked_creature)
+			{
+				int closest_actor = get_closest_actor(x, y, 0.8f);
+				if (closest_actor != -1)
+				{
+					actor *this_actor = NULL;
+
+					if (you_sit && sit_lock && !flag_ctrl)
+					{
+						if(your_actor != NULL)
+							add_highlight(your_actor->x_tile_pos, your_actor->y_tile_pos, HIGHLIGHT_TYPE_LOCK);
+						return 1;
+					}
+
+					this_actor = get_actor_ptr_from_id(closest_actor);
+					if (this_actor != NULL)
+					{
+						Uint8 str[10];
+						add_highlight(this_actor->x_tile_pos, this_actor->y_tile_pos, HIGHLIGHT_TYPE_ATTACK_TARGET);
+						str[0] = ATTACK_SOMEONE;
+						*((int *)(str+1)) = SDL_SwapLE32((int)closest_actor);
+						my_tcp_send (my_socket, str, 5);
+						return 1;
+					}
+				}
+			}
+
+			if (open_close_clicked_bag && find_and_open_closest_bag(x, y, 0.8f))
 				return 1;
 			
 			add_highlight(x, y, HIGHLIGHT_TYPE_WALKING_DESTINATION);
