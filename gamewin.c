@@ -48,6 +48,7 @@
 #include "spells.h"
 #include "sky.h"
 #ifdef DEBUG
+#include "filter.h"
 #include "sound.h"
 #endif
 #include "storage.h"
@@ -978,32 +979,34 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 			add_highlight(x, y, HIGHLIGHT_TYPE_WALKING_DESTINATION);
 		
 #ifdef DEBUG // FOR DEBUG ONLY!
-            if (enable_client_aiming) {
-                if (flag_ctrl) {
-                    float target[3];
+			if (enable_client_aiming) {
+				if (flag_ctrl) {
+					float target[3];
                     
-                    target[0] = x * 0.5 + 0.25;
-                    target[1] = y * 0.5 + 0.25;
-                    target[2] = get_tile_height(x, y) + 1.2f;
+					target[0] = x * 0.5 + 0.25;
+					target[1] = y * 0.5 + 0.25;
+					target[2] = get_tile_height(x, y) + 1.2f;
                     
 					missiles_aim_at_xyz(yourself, target);
 					add_command_to_actor(yourself, aim_mode_reload);
 					missiles_fire_a_to_xyz(yourself, target);
-                }
-                else {
-                    char in_aim_mode;
-                    actor *cur_actor = get_actor_ptr_from_id(yourself);
-                    LOCK_ACTORS_LISTS();
-                    in_aim_mode = cur_actor->in_aim_mode;
-                    UNLOCK_ACTORS_LISTS();
-                    if (in_aim_mode == 1)
-                        add_command_to_actor(yourself, leave_aim_mode);
-                    move_to(x, y, 1);
-                }
-            }
-            else
-#endif // DEBUG
+				}
+				else {
+					char in_aim_mode;
+					actor *cur_actor = get_actor_ptr_from_id(yourself);
+					LOCK_ACTORS_LISTS();
+					in_aim_mode = cur_actor->in_aim_mode;
+					UNLOCK_ACTORS_LISTS();
+					if (in_aim_mode == 1)
+						add_command_to_actor(yourself, leave_aim_mode);
+					move_to(x, y, 1);
+				}
+			}
+			else
+				move_to (x, y, 1);
+#else
 			move_to (x, y, 1);
+#endif // DEBUG
 
 			return 1;
 		}

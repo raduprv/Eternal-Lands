@@ -522,9 +522,6 @@ void cal_render_bones(actor *act)
 		glColor4f(1.0, 0.0, 1.0, 1.0);
 		
 		for (currPoint = nrPoints; currPoint--;) {
-			struct CalBone *bone;
-			bone = CalSkeleton_GetBone(skel, currPoint);
-			
 			sprintf((char*)buf, "%d", currPoint);
 			gluProject(points[currPoint][0], points[currPoint][1], points[currPoint][2], model, proj, view, &px, &py, &pz);
 			draw_ortho_ingame_string(px, py, pz, buf, 1, font_size_x, font_size_y);
