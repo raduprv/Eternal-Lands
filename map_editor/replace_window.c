@@ -325,7 +325,7 @@ int check_replace_window_interface(window_info *win, int _x, int _y)
 
 						particles_list[i]->ttl = def->ttl;
 
-						memset (particles_list[i]->particles, 0, MAX_PARTICLES);
+						memset (particles_list[i]->particles, 0, sizeof(particle) * MAX_PARTICLES);
 
 						for (j = 0; j < def->total_particle_no; j++)
 
