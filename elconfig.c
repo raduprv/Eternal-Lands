@@ -123,6 +123,7 @@ typedef	int (*int_min_max_func)();
  #define MAX_TABS	10
 #endif
 
+#ifdef ELC
 static int CHECKBOX_SIZE = 0;
 static int SPACING = 0;			//Space between widgets and labels and lines
 #define MAX_LONG_DESC_LINES	3	//How many lines of text we can fit in LONG_DESC_SPACE
@@ -132,6 +133,7 @@ static int TAB_TAG_HEIGHT = 0;	// the height of the tab at the top of the window
 // This is because its too complex to resize and cannot simpely be destroyed and re-created.
 static float elconf_scale = 0;
 #define ELCONFIG_SCALED_VALUE(BASE) ((int)(0.5 + ((BASE) * elconf_scale)))
+#endif
 
 typedef char input_line[256];
 
@@ -176,7 +178,6 @@ int elconfig_win= -1;
 int force_elconfig_win_ontop = 0;
 int elconfig_tab_collection_id= 1;
 int elconfig_free_widget_id= 2;
-static int is_mouse_over_option = 0;
 unsigned char elconf_description_buffer[400]= {0};
 struct {
 	Uint32	tab;
@@ -186,8 +187,6 @@ struct {
 
 int elconfig_menu_x= 10;
 int elconfig_menu_y= 10;
-static int elconfig_menu_x_len= 0;
-static int elconfig_menu_y_len= 0;
 
 int windows_on_top= 0;
 static int options_set= 0;
@@ -234,6 +233,9 @@ int video_info_sent = 0;
 
 #ifdef ELC
 static void consolidate_rotate_chat_log_status(void);
+static int elconfig_menu_x_len= 0;
+static int elconfig_menu_y_len= 0;
+static int is_mouse_over_option = 0;
 #endif
 
 void options_loaded(void)
