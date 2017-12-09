@@ -12,18 +12,29 @@
 #endif
 
 #define OBJ_NAME_SIZE           80
-#define MAX_CURSORS		20
+#define MAX_CURSORS		(CURSOR_TEXT + 1)
 #define MAX_HARVESTABLE_OBJECTS 300
 #define MAX_ENTRABLE_OBJECTS    300
 
 actor *actor_under_mouse;
 int object_under_mouse;
 int thing_under_the_mouse;
-int current_cursor;
+int current_cursor = -1;
 int read_mouse_now=0;
 int elwin_mouse=-1;
+int cursor_scale_factor = 1;
 
-struct cursors_struct cursors_array[MAX_CURSORS];
+/*!
+ * A cursors_struct contains a Hot Spot and a pointer to the actual cursor.
+ */
+struct cursors_struct
+{
+	int hot_x; /*!< x coordinate of the hot spot point. */
+	int hot_y; /*!< y coordinate of the hot spot point. */
+	Uint8 *cursor_pointer; /*!< pointer to the actual cursor */
+};
+
+static struct cursors_struct cursors_array[MAX_CURSORS];
 
 #ifdef FASTER_MAP_LOAD
 static char harvestable_objects[MAX_HARVESTABLE_OBJECTS][OBJ_NAME_SIZE];
@@ -35,9 +46,9 @@ char harvestable_objects[300][80];
 char entrable_objects[300][80];
 #endif
 
-Uint8 *cursors_mem = NULL;
-int cursors_x_length;
-int cursors_y_length;
+static Uint8 *cursors_mem = NULL;
+static int cursors_x_length;
+static int cursors_y_length;
 
 #ifdef FASTER_MAP_LOAD
 void load_harvestable_list()
@@ -79,7 +90,15 @@ int is_harvestable(const char* fname)
 		OBJ_NAME_SIZE, (int(*)(const void*,const void*))strcmp) != NULL;
 }
 
-void load_entrable_list()
+static void cursors_init(void)
+{
+	size_t i;
+	for (i=0; i<MAX_CURSORS; i++)
+		cursors_array[i].cursor_pointer = NULL;
+	cursors_mem = NULL;
+}
+
+void load_entrable_list(void)
 {
 	FILE *f = NULL;
 	char strLine[255];
@@ -119,7 +138,7 @@ int is_entrable(const char* fname)
 }
 #endif // FASTER_MAP_LOAD
 
-void load_cursors()
+void load_cursors(void)
 {
 	int cursors_colors_no, x, y, i;
 	Uint8 * cursors_mem_bmp;
@@ -151,6 +170,7 @@ void load_cursors()
 
 	//ok, now transform the bitmap in cursors info
 	if(cursors_mem) free(cursors_mem);
+	cursors_init();
 	cursors_mem = calloc (cursors_x_length*cursors_y_length*2, sizeof(Uint8));
 
 	for(y=cursors_y_length-1;y>=0;y--)
@@ -194,33 +214,46 @@ void cursors_cleanup(void)
 	if(cursors_mem != NULL) {
 		free(cursors_mem);
 	}
+	cursors_init();
 }
 
-void assign_cursor(int cursor_id)
+static void assign_cursor(int cursor_id)
 {
 	int hot_x,hot_y,x,y,i,cur_color,cur_byte,cur_bit;
+	int cursor_bmp_size = 16;
+	int cursor_size = cursor_scale_factor * cursor_bmp_size;
+	int cursor_mem_size = cursor_size * cursor_size;
 	Uint8 cur_mask=0;
-	Uint8 cursor_data[16*16/8];
-	Uint8 cursor_mask[16*16/8];
+	Uint8 cursor_data[cursor_mem_size / 8];
+	Uint8 cursor_mask[cursor_mem_size / 8];
 	Uint8 *cur_cursor_mem;
-	//clear the data and mask
-	for(i=0;i<16*16/8;i++)cursor_data[i]=0;
-	for(i=0;i<16*16/8;i++)cursor_mask[i]=0;
 
-	cur_cursor_mem = calloc(16*16*2, sizeof(Uint8));
+	//clear the data and mask
+	for(i=0; i<cursor_mem_size /8; i++) cursor_data[i] = 0;
+	for(i=0; i<cursor_mem_size /8; i++) cursor_mask[i] = 0;
+
+	cur_cursor_mem = calloc(cursor_mem_size * 2, sizeof(Uint8));
 
 	i=0;
-	for(y=0;y<cursors_y_length;y++)
-		for(x=cursor_id*16;x<cursor_id*16+16;x++)
+	for(y=0; y<cursors_y_length; y++)
+		{
+		for(x=cursor_id * cursor_bmp_size; x<(cursor_id * cursor_bmp_size + cursor_bmp_size); x++)
 			{
-				cur_color=*(cursors_mem+(y*cursors_x_length+x)*2);
-				*(cur_cursor_mem+i)=cur_color;//data
-				cur_color=*(cursors_mem+(y*cursors_x_length+x)*2+1);
-				*(cur_cursor_mem+i+256)=cur_color;//mask
-				i++;
+				int pr, pc;
+				cur_color = *(cursors_mem + (y * cursors_x_length + x) * 2);
+				for (pr=0; pr<cursor_scale_factor; pr++)
+					for (pc=0; pc<cursor_scale_factor; pc++)
+						*(cur_cursor_mem + i + pc + pr * cursor_size) = cur_color;//data
+				cur_color = *(cursors_mem + (y * cursors_x_length + x) * 2 + 1);
+				for (pr=0; pr<cursor_scale_factor; pr++)
+					for (pc=0; pc<cursor_scale_factor; pc++)
+						*(cur_cursor_mem + i + +cursor_mem_size + pc + pr * cursor_size) = cur_color;//data
+				i += cursor_scale_factor;
 			}
+			i += (cursor_scale_factor -1 ) * cursor_size;
+		}
 	//ok, now put the data into the bit data and bit mask
-	for(i=0;i<16*16;i++)
+	for(i=0; i<cursor_mem_size; i++)
 		{
 			cur_color=*(cur_cursor_mem+i);
 			cur_byte=i/8;
@@ -249,9 +282,9 @@ void assign_cursor(int cursor_id)
 				}
 
 		}
-	for(i=0;i<16*16;i++)
+	for(i=0;i<cursor_mem_size;i++)
 		{
-			cur_color=*(cur_cursor_mem+i+256);
+			cur_color = *(cur_cursor_mem + i + cursor_mem_size);
 			cur_byte=i/8;
 			cur_bit=i%8;
 			if(cur_color)//if it is 0, let it alone, no point in setting it
@@ -270,67 +303,31 @@ void assign_cursor(int cursor_id)
 
 	hot_x=cursors_array[cursor_id].hot_x;
 	hot_y=cursors_array[cursor_id].hot_y;
-	cursors_array[cursor_id].cursor_pointer=(Uint8 *)SDL_CreateCursor(cursor_data,cursor_mask,16,16,hot_x,hot_y);
+	if (cursors_array[cursor_id].cursor_pointer != NULL)
+		SDL_FreeCursor((SDL_Cursor*)cursors_array[cursor_id].cursor_pointer);
+	cursors_array[cursor_id].cursor_pointer=(Uint8 *)SDL_CreateCursor(cursor_data, cursor_mask, cursor_size, cursor_size, hot_x, hot_y);
     free(cur_cursor_mem);
 }
 
 void change_cursor(int cursor_id)
 {
-	SDL_SetCursor((SDL_Cursor*)cursors_array[cursor_id].cursor_pointer);
-	current_cursor=cursor_id;
+	if ((cursor_id >= 0) && (cursor_id < MAX_CURSORS))
+	{
+		SDL_SetCursor((SDL_Cursor*)cursors_array[cursor_id].cursor_pointer);
+		current_cursor=cursor_id;
+	}
 }
 
-void build_cursors()
+void build_cursors(void)
 {
-	cursors_array[CURSOR_EYE].hot_x=3;
-	cursors_array[CURSOR_EYE].hot_y=0;
-	assign_cursor(CURSOR_EYE);
+	int hot_x[MAX_CURSORS] = {3, 3, 3, 3, 3, 3, 3, 5, 3, 3, 3, 3, 3};
+	int hot_y[MAX_CURSORS] = {0, 0, 0, 0, 15, 0, 0, 0, 0, 0, 0, 3, 3};
+	size_t i;
 
-	cursors_array[CURSOR_TALK].hot_x=3;
-	cursors_array[CURSOR_TALK].hot_y=0;
-	assign_cursor(CURSOR_TALK);
-
-	cursors_array[CURSOR_ATTACK].hot_x=3;
-	cursors_array[CURSOR_ATTACK].hot_y=0;
-	assign_cursor(CURSOR_ATTACK);
-
-	cursors_array[CURSOR_ENTER].hot_x=3;
-	cursors_array[CURSOR_ENTER].hot_y=0;
-	assign_cursor(CURSOR_ENTER);
-
-	cursors_array[CURSOR_PICK].hot_x=3;
-	cursors_array[CURSOR_PICK].hot_y=15;
-	assign_cursor(CURSOR_PICK);
-
-	cursors_array[CURSOR_HARVEST].hot_x=3;
-	cursors_array[CURSOR_HARVEST].hot_y=0;
-	assign_cursor(CURSOR_HARVEST);
-
-	cursors_array[CURSOR_WALK].hot_x=3;
-	cursors_array[CURSOR_WALK].hot_y=0;
-	assign_cursor(CURSOR_WALK);
-
-	cursors_array[CURSOR_ARROW].hot_x=3;
-	cursors_array[CURSOR_ARROW].hot_y=0;
-	assign_cursor(CURSOR_ARROW);
-
-	cursors_array[CURSOR_TRADE].hot_x=3;
-	cursors_array[CURSOR_TRADE].hot_y=0;
-	assign_cursor(CURSOR_TRADE);
-
-	cursors_array[CURSOR_USE_WITEM].hot_x=3;
-	cursors_array[CURSOR_USE_WITEM].hot_y=0;
-	assign_cursor(CURSOR_USE_WITEM);
-
-	cursors_array[CURSOR_USE].hot_x=3;
-	cursors_array[CURSOR_USE].hot_y=0;
-	assign_cursor(CURSOR_USE);
-
-	cursors_array[CURSOR_WAND].hot_x=3;
-	cursors_array[CURSOR_WAND].hot_y=3;
-	assign_cursor(CURSOR_WAND);
-
-	cursors_array[CURSOR_TEXT].hot_x=3;
-	cursors_array[CURSOR_TEXT].hot_y=3;
-	assign_cursor(CURSOR_TEXT);
+	for (i=0; i<MAX_CURSORS; i++)
+	{
+		cursors_array[i].hot_x = cursor_scale_factor * hot_x[i];
+		cursors_array[i].hot_y = cursor_scale_factor * hot_y[i];
+		assign_cursor(i);
+	}
 }

@@ -53,16 +53,7 @@ extern int object_under_mouse;
 extern int thing_under_the_mouse;
 extern int current_cursor;
 extern int elwin_mouse;
-
-/*!
- * A cursors_struct contains a Hot Spot and a pointer to the actual cursor.
- */
-struct cursors_struct
-{
-	int hot_x; /*!< x coordinate of the hot spot point. */
-	int hot_y; /*!< y coordinate of the hot spot point. */
-	Uint8 *cursor_pointer; /*!< pointer to the actual cursor */
-};
+extern int cursor_scale_factor;
 
 #ifndef FASTER_MAP_LOAD
 /*!
@@ -119,7 +110,7 @@ int is_entrable(const char* fname);
  *      Loads and initializes the \see cursors_array global variable
  *
  */
-void load_cursors();
+void load_cursors(void);
 
 /*!
  * \ingroup display_2d
@@ -139,7 +130,7 @@ void change_cursor(int cursor_id);
  *
  * \callgraph
  */
-void build_cursors();
+void build_cursors(void);
 
 /*!
  * \ingroup display_2d
@@ -149,8 +140,14 @@ void build_cursors();
  *
  * \callgraph
  */
-void check_cursor_change();
+void check_cursor_change(void);
 
+/*!
+ * \ingroup cursors
+ * \brief Free SDL cursors and other cursor memory.
+ *
+ * \callgraph
+ */
 void cursors_cleanup(void);
 
 #ifdef __cplusplus
