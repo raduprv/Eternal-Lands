@@ -311,10 +311,10 @@ int start_rendering()
 	cursors_cleanup();
 
 	printf("doing SDL_Quit\n");
-	fflush(stderr);
+	fflush(stdout);
 	SDL_Quit( );
 	printf("done SDL_Quit\n");
-	fflush(stderr);
+	fflush(stdout);
 	cleanup_mem();
 	xmlCleanupParser();
 	FreeXML();
