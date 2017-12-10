@@ -23,6 +23,11 @@ int current_cursor = -1;
 int read_mouse_now=0;
 int elwin_mouse=-1;
 int cursor_scale_factor = 1;
+// max_cursor_scale_factor
+// works OK on Linux 1.2.15 SDL up to 4 then flickers for larger values
+// does not work above 2 on windows build that is using 1.2.8 SDL, crashing in SDL_SetCursor
+// if I can find a solution or a reliable way to limit, I will do so.... pjbroad
+int max_cursor_scale_factor = 2;
 
 /*!
  * A cursors_struct contains a Hot Spot and a pointer to the actual cursor.
@@ -224,15 +229,9 @@ static void assign_cursor(int cursor_id)
 	int cursor_size = cursor_scale_factor * cursor_bmp_size;
 	int cursor_mem_size = cursor_size * cursor_size;
 	Uint8 cur_mask=0;
-	Uint8 cursor_data[cursor_mem_size / 8];
-	Uint8 cursor_mask[cursor_mem_size / 8];
-	Uint8 *cur_cursor_mem;
-
-	//clear the data and mask
-	for(i=0; i<cursor_mem_size /8; i++) cursor_data[i] = 0;
-	for(i=0; i<cursor_mem_size /8; i++) cursor_mask[i] = 0;
-
-	cur_cursor_mem = calloc(cursor_mem_size * 2, sizeof(Uint8));
+	Uint8 *cursor_data = calloc(cursor_mem_size / 8, sizeof(Uint8));
+	Uint8 *cursor_mask = calloc(cursor_mem_size / 8, sizeof(Uint8));
+	Uint8 *cur_cursor_mem = calloc(cursor_mem_size * 2, sizeof(Uint8));
 
 	i=0;
 	for(y=0; y<cursors_y_length; y++)
@@ -307,11 +306,13 @@ static void assign_cursor(int cursor_id)
 		SDL_FreeCursor((SDL_Cursor*)cursors_array[cursor_id].cursor_pointer);
 	cursors_array[cursor_id].cursor_pointer=(Uint8 *)SDL_CreateCursor(cursor_data, cursor_mask, cursor_size, cursor_size, hot_x, hot_y);
     free(cur_cursor_mem);
+    free(cursor_mask);
+    free(cursor_data);
 }
 
 void change_cursor(int cursor_id)
 {
-	if ((cursor_id >= 0) && (cursor_id < MAX_CURSORS))
+	if ((cursor_id >= 0) && (cursor_id < MAX_CURSORS) && cursors_array[cursor_id].cursor_pointer != NULL)
 	{
 		SDL_SetCursor((SDL_Cursor*)cursors_array[cursor_id].cursor_pointer);
 		current_cursor=cursor_id;
@@ -320,8 +321,8 @@ void change_cursor(int cursor_id)
 
 void build_cursors(void)
 {
-	int hot_x[MAX_CURSORS] = {3, 3, 3, 3, 3, 3, 3, 5, 3, 3, 3, 3, 3};
-	int hot_y[MAX_CURSORS] = {0, 0, 0, 0, 15, 0, 0, 0, 0, 0, 0, 3, 3};
+	int hot_x[MAX_CURSORS] = {3, 3, 3, 3, 3, 3, 3, 4, 3, 3, 3, 3, 3};
+	int hot_y[MAX_CURSORS] = {0, 0, 0, 0, 15, 0, 0, 1, 0, 0, 0, 3, 3};
 	size_t i;
 
 	for (i=0; i<MAX_CURSORS; i++)

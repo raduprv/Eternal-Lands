@@ -54,6 +54,7 @@ extern int thing_under_the_mouse;
 extern int current_cursor;
 extern int elwin_mouse;
 extern int cursor_scale_factor;
+extern int max_cursor_scale_factor;
 
 #ifndef FASTER_MAP_LOAD
 /*!

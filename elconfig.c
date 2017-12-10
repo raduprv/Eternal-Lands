@@ -346,7 +346,8 @@ void change_var(int * var)
 #ifndef MAP_EDITOR
 void change_cursor_scale_factor(int * var, int value)
 {
-	if(value > 0)
+	// check the range, an invalid setting in the el.ini file bypasses the bound checking of that var
+	if ((value > 0) && (value <= max_cursor_scale_factor))
 	{
 		*var= value;
 		if (current_cursor >= 0)
@@ -2136,7 +2137,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_MULTI,"name_font","nfont",&name_font,change_int,0,"Name Font","Change the type of font used for the name",FONT, NULL);
 	add_var(OPT_MULTI,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT, NULL);
 	add_var(OPT_FLOAT,"ui_scale","ui_scale",&ui_scale,change_ui_scale,1,"User interface scaling factor","Under development: Scale user interface by this factor, useful for high DPI displays.  Note: the options window will be rescaled on the next restart.",FONT,0.75,3.0,0.01);
-	add_var(OPT_INT,"cursor_scale_factor","cursor_scale_factor",&cursor_scale_factor ,change_cursor_scale_factor,cursor_scale_factor,"Set mouse pointer scaling factor","The size of the mouse pointer is scaled by this factor",FONT, 1, 4);
+	add_var(OPT_INT,"cursor_scale_factor","cursor_scale_factor",&cursor_scale_factor ,change_cursor_scale_factor,cursor_scale_factor,"Set mouse pointer scaling factor","The size of the mouse pointer is scaled by this factor",FONT, 1, max_cursor_scale_factor);
 	// FONT TAB
 
 
