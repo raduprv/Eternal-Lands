@@ -445,6 +445,46 @@ static int ui_scale_storage_handler(window_info *win)
 int cur_item_over=-1;
 int storage_item_dragged=-1;
 
+static int post_display_storage_handler(window_info * win)
+{
+	if(cur_item_over!=-1 && mouse_in_window(win->window_id, mouse_x, mouse_y) == 1){
+		char str[20];
+		if (active_storage_item!=storage_items[cur_item_over].pos) {
+			safe_snprintf(str, sizeof(str), "%d",storage_items[cur_item_over].quantity);
+			if (enlarge_text())
+				show_help_big(str, mouse_x - win->pos_x - strlen(str) * win->default_font_len_x / 2,
+					mouse_y - win->pos_y - win->default_font_len_y, win->current_scale);
+			else
+				show_help(str, mouse_x - win->pos_x - strlen(str) * win->small_font_len_x / 2,
+					mouse_y - win->pos_y - win->small_font_len_y, win->current_scale);
+		}
+	}
+
+	if(active_storage_item >= 0) {
+		int i, pos;
+		/* Draw the active item's quantity on top of everything else. */
+		for(i = pos = item_grid_size * vscrollbar_get_pos(storage_win, STORAGE_SCROLLBAR_ITEMS); i < pos + item_grid_size*item_grid_size && i < no_storage; i++) {
+			if(storage_items[i].pos == active_storage_item) {
+				if (storage_items[i].quantity) {
+					char str[20];
+					int x = (i%item_grid_size) * item_box_size + item_grid_left_offset + 1;
+
+					safe_snprintf(str, sizeof(str), "%d", storage_items[i].quantity);
+					if(x > (item_right_offset + 1)) {
+						x = item_right_offset - item_box_size + 1;
+					}
+					if ((mouse_in_window(win->window_id, mouse_x, mouse_y) == 1) && enlarge_text())
+						show_help_big(str, x, ((i-pos)/item_grid_size) * item_box_size + border_size + (item_box_size - win->default_font_len_y)/2, win->current_scale);
+					else
+						show_help(str, x, ((i-pos)/item_grid_size) * item_box_size + border_size + (item_box_size - win->small_font_len_y)/2, win->current_scale);
+				}
+				break;
+			}
+		}
+	}
+	return 1;
+}
+
 int display_storage_handler(window_info * win)
 {
 	int i;
@@ -520,21 +560,10 @@ int display_storage_handler(window_info * win)
 	}
 
 	if(cur_item_over!=-1 && mouse_in_window(win->window_id, mouse_x, mouse_y) == 1){
-		char str[20];
 		Uint16 item_id = storage_items[cur_item_over].id;
 		int image_id = storage_items[cur_item_over].image_id;
 		if (show_item_desc_text && item_info_available() && (get_item_count(item_id, image_id) == 1))
 			show_help(get_item_description(item_id, image_id), 0, win->len_y + 10 + (help_text_line++) * win->small_font_len_y, win->current_scale);
-
-		if (active_storage_item!=storage_items[cur_item_over].pos) {
-			safe_snprintf(str, sizeof(str), "%d",storage_items[cur_item_over].quantity);
-			if (enlarge_text())
-				show_help_big(str, mouse_x - win->pos_x - strlen(str) * win->default_font_len_x / 2,
-					mouse_y - win->pos_y - win->default_font_len_y, win->current_scale);
-			else
-				show_help(str, mouse_x - win->pos_x - strlen(str) * win->small_font_len_x / 2,
-					mouse_y - win->pos_y - win->small_font_len_y, win->current_scale);
-		}
 	}
 	
 	// Render the grid *after* the images. It seems impossible to code
@@ -573,28 +602,6 @@ int display_storage_handler(window_info * win)
 	glEnable(GL_TEXTURE_2D);
 
 	glColor3f(1.0f,1.0f,1.0f);
-	if(active_storage_item >= 0) {
-		/* Draw the active item's quantity on top of everything else. */
-		for(i = pos = item_grid_size * vscrollbar_get_pos(storage_win, STORAGE_SCROLLBAR_ITEMS); i < pos + item_grid_size*item_grid_size && i < no_storage; i++) {
-			if(storage_items[i].pos == active_storage_item) {
-				if (storage_items[i].quantity) {
-					char str[20];
-					int x = (i%item_grid_size) * item_box_size + item_grid_left_offset + 1;
-
-					safe_snprintf(str, sizeof(str), "%d", storage_items[i].quantity);
-					if(x > (item_right_offset + 1)) {
-						x = item_right_offset - item_box_size + 1;
-					}
-					if ((mouse_in_window(win->window_id, mouse_x, mouse_y) == 1) && enlarge_text())
-						show_help_big(str, x, ((i-pos)/item_grid_size) * item_box_size + border_size + (item_box_size - win->default_font_len_y)/2, win->current_scale);
-					else
-						show_help(str, x, ((i-pos)/item_grid_size) * item_box_size + border_size + (item_box_size - win->small_font_len_y)/2, win->current_scale);
-				}
-				break;
-			}
-		}
-	}
-	
 	if (!disable_storage_filter && !mouse_over_titlebar)
 	{
 		if(filter_item_text_size > 0)
@@ -814,6 +821,7 @@ void display_storage_menu()
 		}
 		storage_win=create_window(win_storage, our_root_win, 0, storage_win_x, storage_win_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT|ELW_TITLE_NAME);
 		set_window_handler(storage_win, ELW_HANDLER_DISPLAY, &display_storage_handler);
+		set_window_handler(storage_win, ELW_HANDLER_POST_DISPLAY, &post_display_storage_handler);
 		set_window_handler(storage_win, ELW_HANDLER_CLICK, &click_storage_handler);
 		set_window_handler(storage_win, ELW_HANDLER_MOUSEOVER, &mouseover_storage_handler);
 		set_window_handler(storage_win, ELW_HANDLER_KEYPRESS, &keypress_storage_handler );

@@ -792,6 +792,7 @@ int	create_window(const char *name, int pos_id, Uint32 pos_loc, int pos_x, int p
 		win->init_handler = NULL;
 		win->display_handler = NULL;
 		win->pre_display_handler = NULL;
+		win->post_display_handler = NULL;
 		win->click_handler = NULL;
 		win->drag_handler = NULL;
 		win->mouseover_handler = NULL;
@@ -1299,6 +1300,8 @@ CHECK_GL_ERRORS();
 	if(win->flags&ELW_SCROLLABLE) {
 		glDisable(GL_SCISSOR_TEST);
 	}
+	if(win->post_display_handler)
+		(*win->post_display_handler)(win);
 	glPopMatrix();
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -1818,6 +1821,10 @@ void	*set_window_handler(int win_id, int handler_id, int (*handler)() )
 		case	ELW_HANDLER_PRE_DISPLAY:
 			old_handler= (void *)windows_list.window[win_id].pre_display_handler;
 			windows_list.window[win_id].pre_display_handler=handler;
+			break;
+		case	ELW_HANDLER_POST_DISPLAY:
+			old_handler= (void *)windows_list.window[win_id].post_display_handler;
+			windows_list.window[win_id].post_display_handler=handler;
 			break;
 		case	ELW_HANDLER_CLICK:
 			old_handler= (void *)windows_list.window[win_id].click_handler;
