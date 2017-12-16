@@ -944,11 +944,9 @@ void set_3d_object (Uint8 display, const void *ptr, int len)
 		{
 			int obj_id = SDL_SwapLE32(id_ptr[idx]);
 			if (obj_id < next_obj_3d && objects_list[obj_id])
-			{
 				objects_list[obj_id]->display = display;
-				idx++;
-				len -= sizeof (*id_ptr);
-			}
+			idx++;
+			len -= sizeof (*id_ptr);
 		}
 	}
 }
@@ -976,11 +974,9 @@ void state_3d_object (Uint8 state, const void *ptr, int len)
 		{
 			int obj_id = SDL_SwapLE32(id_ptr[idx]);
 			if (obj_id < next_obj_3d && objects_list[obj_id])
-			{
 				objects_list[obj_id]->state = state;
-				idx++;
-				len -= sizeof (*id_ptr);
-			}
+			idx++;
+			len -= sizeof (*id_ptr);
 		}
 	}
 }
