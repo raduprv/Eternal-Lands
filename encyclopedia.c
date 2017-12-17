@@ -41,6 +41,8 @@ static void encycl_nav_free(void);
 static char * last_search = NULL;
 static int repeat_search = 0;
 static int show_cm_help = 0;
+static _Text *mouseover_text = NULL;
+static _Image *mouseover_image = NULL;
 /* move to translate */
 static const char* cm_encycl_help_str = "Right-click for search and bookmark options";
 
@@ -51,6 +53,9 @@ int common_encyclopedia_display_handler(window_info *win, size_t the_page, int t
 	_Image *i=Page[the_page].I.Next;
 	int j = vscrollbar_get_pos(win->window_id, the_scroll_id);
 
+	mouseover_text = NULL;
+	mouseover_image = NULL;
+
 	while(t)
 	{
 		int ylen=(t->size)?win->default_font_len_y:win->small_font_len_y;
@@ -58,9 +63,9 @@ int common_encyclopedia_display_handler(window_info *win, size_t the_page, int t
 
 		// scale then scale the positions, restoring later
 		int sx = t->x, sy = t->y, sj = j;
-		t->x *= win->current_scale;
-		t->y *= win->current_scale;
-		j *= win->current_scale;
+		t->x *= ((t->size) ?(win->default_font_len_x / DEFAULT_FONT_X_LEN) :(win->small_font_len_x / SMALL_FONT_X_LEN));
+		t->y *= ((t->size) ?(win->default_font_len_y / DEFAULT_FONT_Y_LEN) :(win->small_font_len_y / SMALL_FONT_Y_LEN));
+		j *= ((t->size) ?(win->default_font_len_y / DEFAULT_FONT_Y_LEN) :(win->small_font_len_y / SMALL_FONT_Y_LEN));
 
 		if((t->y-j > 0) && (t->y+ylen-j < win->len_y ))
 		{
@@ -81,17 +86,23 @@ CHECK_GL_ERRORS();
 			if(t->size)
 				{
 					if(t->ref && mouse_x>(t->x+win->cur_x) && mouse_x<(t->x+xlen+win->cur_x) && mouse_y>(t->y+win->cur_y-j) && mouse_y<(t->y+ylen+win->cur_y-j))
-					glColor3f(0.3,0.6,1.0);
+					{
+						mouseover_text = t;
+						glColor3f(0.3,0.6,1.0);
+					}
 					else
-					glColor3f(t->r,t->g,t->b);
+						glColor3f(t->r,t->g,t->b);
 					draw_string_zoomed(t->x,t->y-j,(unsigned char*)t->text,1, win->current_scale);
 				}
 			else
 				{
 					if(t->ref && mouse_x>(t->x+win->cur_x) && mouse_x<(t->x+xlen+win->cur_x) && mouse_y>(t->y+win->cur_y-j) && mouse_y<(t->y+ylen+win->cur_y-j))
-					glColor3f(0.3,0.6,1.0);
+					{
+						mouseover_text = t;
+						glColor3f(0.3,0.6,1.0);
+					}
 					else
-					glColor3f(t->r,t->g,t->b);
+						glColor3f(t->r,t->g,t->b);
 					draw_string_small_zoomed(t->x,t->y-j,(unsigned char*)t->text,1, win->current_scale);
 				}
 		}
@@ -103,11 +114,11 @@ CHECK_GL_ERRORS();
 	while(i)
 	{
 		int sx = i->x, sy = i->y, sxend = i->xend, syend = i->yend, sj = j;
-		i->x *= win->current_scale;
-		i->y *= win->current_scale;
-		i->xend *= win->current_scale;
-		i->yend *= win->current_scale;
-		j *= win->current_scale;
+		i->x *= win->default_font_len_x / DEFAULT_FONT_X_LEN;
+		i->y *= win->default_font_len_y / DEFAULT_FONT_Y_LEN;
+		i->xend *= win->default_font_len_x / DEFAULT_FONT_X_LEN;
+		i->yend *= win->default_font_len_y / DEFAULT_FONT_Y_LEN;
+		j *= win->default_font_len_y / DEFAULT_FONT_Y_LEN;
 
 		if((i->y-j > 0) && (i->yend-j < win->len_y ))
 		{
@@ -162,22 +173,16 @@ int display_encyclopedia_handler(window_info *win)
 
 int common_encyclopedia_click_handler(window_info *win, int mx, int my, Uint32 flags, size_t *the_page, int the_scroll_id)
 {
-	_Text *t=Page[*the_page].T.Next;
-	
 	if(flags&ELW_WHEEL_UP) {
 		vscrollbar_scroll_up(win->window_id, the_scroll_id);
 	} else if(flags&ELW_WHEEL_DOWN) {
 		vscrollbar_scroll_down(win->window_id, the_scroll_id);
 	} else {
-		int j = vscrollbar_get_pos(win->window_id, the_scroll_id);
-
-		while(t){
-			int xlen=strlen(t->text)*((t->size)?win->default_font_len_x:win->small_font_len_x),
-				ylen=(t->size)?win->default_font_len_y:win->small_font_len_y;
-			if(t->ref && mx>(t->x*win->current_scale) &&
-				mx<(t->x*win->current_scale+xlen) &&
-				my>(t->y*win->current_scale-j*win->current_scale) &&
-				my<(t->y*win->current_scale+ylen-j*win->current_scale)){
+		if (mouseover_text != NULL)
+		{
+			_Text *t = mouseover_text;
+			if(t->ref)
+			{
 				// check if its a webpage
 				if (!strncasecmp(t->ref, "http://", 7)) {
 					open_web_link(t->ref);
@@ -193,9 +198,7 @@ int common_encyclopedia_click_handler(window_info *win, int mx, int my, Uint32 f
 						}
 					}
 				}
-				break;
 			}
-			t=t->Next;
 		}
 	}
 
