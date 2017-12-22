@@ -619,8 +619,8 @@ static int display_accept_buddy(char *name)
 
 	safe_snprintf(accept_windows[current_window].name, sizeof (accept_windows[current_window].name), "%s", name);
 
-	accept_windows[current_window].window_id = create_window(buddy_accept_str, game_root_win,
-		0, 200, 200, 0, 0, ELW_USE_UISCALE|ELW_TITLE_BAR|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER);
+	accept_windows[current_window].window_id = create_window(buddy_accept_str, buddy_win, 0,
+		buddy_menu_x_len/2, buddy_menu_y_len/4, 0, 0, (ELW_USE_UISCALE|ELW_WIN_DEFAULT) ^ ELW_CLOSE_BOX);
 	set_window_handler(accept_windows[current_window].window_id, ELW_HANDLER_DISPLAY, &display_accept_buddy_handler);
 	set_window_handler(accept_windows[current_window].window_id, ELW_HANDLER_UI_SCALE, &ui_scale_accept_handler );
 	if (accept_windows[current_window].window_id <=0 || accept_windows[current_window].window_id >= windows_list.num_windows)
