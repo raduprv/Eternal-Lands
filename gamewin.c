@@ -2278,6 +2278,22 @@ static int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, 
 		}
 	}
 #endif
+
+	else if (keysym == SDLK_F8)
+	{
+		static int ison = 0;
+		if (ison)
+		{
+			weather_set_area(1, -camera_x, -camera_y, 100.0, 2, 0, 10);
+			ison = 0;
+		}
+		else
+		{
+			weather_set_area(1, -camera_x, -camera_y, 100.0, 2, 1.0, 10);
+			ison = 1;
+		}
+	}
+
 	else if (keysym == SDLK_F9)
 	{
 		actor *me = get_actor_ptr_from_id (yourself);
