@@ -2282,7 +2282,7 @@ static int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, 
 	else if (keysym == SDLK_F8)
 	{
 		static int ison = 0;
-		if (ison)
+		if ((ison) && (weather_get_intensity() > 0.01))
 		{
 			weather_set_area(1, -camera_x, -camera_y, 100.0, 2, 0, 10);
 			ison = 0;
