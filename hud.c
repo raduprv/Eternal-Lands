@@ -162,6 +162,11 @@ int hud_mouse_over(window_info *win, int mx, int my)
 		mouse_over_logo = 1;
 		return 1;
 	}
+	if (hud_x && hud_y && ((mx > win->len_x - hud_x) || (my > win->len_y - hud_y)))
+	{
+		elwin_mouse = CURSOR_ARROW;
+		return 1;
+	}
 	return 0;
 }
 

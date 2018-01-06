@@ -7,6 +7,7 @@
 #include "books.h"
 #include "chat.h"
 #include "console.h"
+#include "cursors.h"
 #include "draw_scene.h"
 #include "elwindows.h"
 #include "gamewin.h"
@@ -272,6 +273,7 @@ static int mouseover_console_handler(window_info *win, int mx, int my)
 {
 	if (hud_mouse_over(win, mx, my))
 		return 1;
+	elwin_mouse = CURSOR_ARROW;
 	return 1;
 }
 
