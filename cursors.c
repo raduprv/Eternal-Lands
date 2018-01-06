@@ -321,8 +321,8 @@ void change_cursor(int cursor_id)
 
 void build_cursors(void)
 {
-	int hot_x[MAX_CURSORS] = {3, 3, 3, 3, 3, 3, 3, 4, 3, 3, 3, 3, 3};
-	int hot_y[MAX_CURSORS] = {0, 0, 0, 0, 15, 0, 0, 1, 0, 0, 0, 3, 3};
+	int hot_x[MAX_CURSORS] = {7, 7, 3, 8, 2, 4, 7, 3, 7, 7, 1, 3, 8};
+	int hot_y[MAX_CURSORS] = {7, 7, 4, 7, 15, 4, 7, 0, 7, 7, 5, 4, 7};
 	size_t i;
 
 	for (i=0; i<MAX_CURSORS; i++)
