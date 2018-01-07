@@ -70,7 +70,7 @@ int use_old_clicker=0;
 int include_use_cursor_on_animals = 0;
 int cm_banner_disabled = 0;
 int auto_disable_ranging_lock = 1;
-int attack_close_clicked_creature = 1;
+int target_close_clicked_creature = 1;
 int open_close_clicked_bag = 1;
 
 #ifdef  DEBUG
@@ -511,6 +511,22 @@ static int mouseover_game_handler (window_info *win, int mx, int my)
 	return 1;
 }
 
+static void attack_someone(int who_to_attack)
+{
+	Uint8 str[10];
+	str[0] = ATTACK_SOMEONE;
+	*((int *)(str+1)) = SDL_SwapLE32(who_to_attack);
+	my_tcp_send (my_socket, str, 5);
+}
+
+static void touch_player(int player_to_touch)
+{
+	Uint8 str[10];
+	str[0] = TOUCH_PLAYER;
+	*((int *)(str+1)) = SDL_SwapLE32(player_to_touch);
+	my_tcp_send (my_socket, str, 5);
+}
+
 // this is the main part of the old check_mouse_click ()
 static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 {
@@ -772,8 +788,6 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 			}
 			else if (spell_result==3)
 			{
-				Uint8 str[10];
-				
 				if (object_under_mouse >= 0 &&
 					(thing_under_the_mouse == UNDER_MOUSE_ANIMAL ||
 					 thing_under_the_mouse == UNDER_MOUSE_PLAYER))
@@ -782,10 +796,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 					if(this_actor != NULL)
 					{
 						add_highlight(this_actor->x_tile_pos,this_actor->y_tile_pos, HIGHLIGHT_TYPE_SPELL_TARGET);
-
-						str[0] = TOUCH_PLAYER;
-						*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
-						my_tcp_send (my_socket, str, 5);
+						touch_player((int)object_under_mouse);
 					}
 				}
 			}
@@ -811,8 +822,6 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 
 		case CURSOR_ATTACK:
 		{
-			Uint8 str[10];
-
 			if (object_under_mouse == -1)
 				return 1;
 			if (you_sit && sit_lock && !flag_ctrl){
@@ -827,14 +836,12 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 					if(this_actor != NULL)
 						add_highlight(this_actor->x_tile_pos,this_actor->y_tile_pos, HIGHLIGHT_TYPE_ATTACK_TARGET);
 				}
-
-				str[0] = ATTACK_SOMEONE;
-				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
-				my_tcp_send (my_socket, str, 5);
+				attack_someone((int)object_under_mouse);
 				return 1;
 			}
 			else if (range_weapon_equipped && thing_under_the_mouse == UNDER_MOUSE_3D_OBJ)
 			{
+				Uint8 str[10];
 				str[0] = FIRE_MISSILE_AT_OBJECT;
 				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
 				my_tcp_send(my_socket, str, 5);
@@ -855,10 +862,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 				return 1;
 			if (thing_under_the_mouse == UNDER_MOUSE_PLAYER || thing_under_the_mouse == UNDER_MOUSE_NPC || thing_under_the_mouse == UNDER_MOUSE_ANIMAL)
 			{
-				str[0] = TOUCH_PLAYER;
-				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
-				my_tcp_send (my_socket, str, 5);
-
+				touch_player((int)object_under_mouse);
 				// clear the previous dialogue entries, so we won't have a left over from some other NPC
 				clear_dialogue_responses();
 				return 1;
@@ -918,24 +922,22 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 		case CURSOR_WALK:
 		default:
 		{
+			int is_ranging_locked = 0;
+			int is_sit_locked = 0;
 			short x, y;
-			
+
 			/* if outside the main window, on the hud, don't walk */
 			if ((mx >= window_width-hud_x) || (my >= window_height-hud_y))
-				return 1;				
+				return 1;
 
 			if (flag_alt && range_weapon_equipped)
 				return 1;
-			if (ranging_lock_is_on() && range_weapon_equipped){
-				if(your_actor != NULL)
-					add_highlight(your_actor->x_tile_pos,your_actor->y_tile_pos, HIGHLIGHT_TYPE_LOCK);
-				return 1;
-			}
-			if (you_sit && sit_lock && !flag_ctrl){
-				if(your_actor != NULL)
-					add_highlight(your_actor->x_tile_pos,your_actor->y_tile_pos, HIGHLIGHT_TYPE_LOCK);
-				return 1;
-			}
+
+			if (ranging_lock_is_on() && range_weapon_equipped)
+				is_ranging_locked = 1;
+
+			if (you_sit && sit_lock && !flag_ctrl)
+				is_sit_locked = 1;
 
 			if(use_old_clicker)
 				get_old_world_x_y (&x, &y);
@@ -946,38 +948,42 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 			if (y < 0 || x < 0 || x >= tile_map_size_x*6 || y >= tile_map_size_y*6)
 				return 1;
 
-			if (attack_close_clicked_creature)
+			if (target_close_clicked_creature)
 			{
 				int closest_actor = get_closest_actor(x, y, 0.8f);
 				if (closest_actor != -1)
 				{
-					actor *this_actor = NULL;
-
-					if (you_sit && sit_lock && !flag_ctrl)
-					{
-						if(your_actor != NULL)
-							add_highlight(your_actor->x_tile_pos, your_actor->y_tile_pos, HIGHLIGHT_TYPE_LOCK);
-						return 1;
-					}
-
-					this_actor = get_actor_ptr_from_id(closest_actor);
+					actor *this_actor = get_actor_ptr_from_id(closest_actor);
 					if (this_actor != NULL)
 					{
-						Uint8 str[10];
-						add_highlight(this_actor->x_tile_pos, this_actor->y_tile_pos, HIGHLIGHT_TYPE_ATTACK_TARGET);
-						str[0] = ATTACK_SOMEONE;
-						*((int *)(str+1)) = SDL_SwapLE32((int)closest_actor);
-						my_tcp_send (my_socket, str, 5);
-						return 1;
+						if (spell_result == 3)
+						{
+							add_highlight(this_actor->x_tile_pos,this_actor->y_tile_pos, HIGHLIGHT_TYPE_SPELL_TARGET);
+							touch_player(closest_actor);
+							return 1;
+						}
+						else if (!is_ranging_locked && !is_sit_locked)
+						{
+							add_highlight(this_actor->x_tile_pos, this_actor->y_tile_pos, HIGHLIGHT_TYPE_ATTACK_TARGET);
+							attack_someone(closest_actor);
+							return 1;
+						}
 					}
 				}
 			}
 
+			if (is_ranging_locked || is_sit_locked)
+			{
+				if(your_actor != NULL)
+					add_highlight(your_actor->x_tile_pos,your_actor->y_tile_pos, HIGHLIGHT_TYPE_LOCK);
+				return 1;
+			}
+
 			if (open_close_clicked_bag && find_and_open_closest_bag(x, y, 0.8f))
 				return 1;
-			
+
 			add_highlight(x, y, HIGHLIGHT_TYPE_WALKING_DESTINATION);
-		
+
 #ifdef DEBUG // FOR DEBUG ONLY!
 			if (enable_client_aiming) {
 				if (flag_ctrl) {

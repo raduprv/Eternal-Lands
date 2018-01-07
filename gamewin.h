@@ -31,7 +31,7 @@ extern int use_old_clicker;
 extern int include_use_cursor_on_animals;
 extern int cm_banner_disabled;
 extern int auto_disable_ranging_lock;
-extern int attack_close_clicked_creature;
+extern int target_close_clicked_creature;
 extern int open_close_clicked_bag;
 /*! @} */
 
