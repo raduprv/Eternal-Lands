@@ -608,7 +608,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				health_str_x_len = (float)get_string_width(hp)*(ALT_INGAME_FONT_X_LEN*name_zoom*font_scale);
 				//do the same with mana if we want to display it
 				if (display_ether || display_ether_bar) {
-					sprintf((char*)mana,"%u/%u", your_info.ethereal_points.cur, your_info.ethereal_points.base);
+					sprintf((char*)mana,"%d/%d", your_info.ethereal_points.cur, your_info.ethereal_points.base);
 					ether_str_x_len=(float)get_string_width(mana)*(ALT_INGAME_FONT_X_LEN*name_zoom*font_scale);
 				}
 				//set bar length to longer one (mana or health) - not really clean solution
@@ -738,8 +738,8 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	if (display_ether_bar && display_ether_line) {
 		float percentage = (float)your_info.ethereal_points.cur / (float)your_info.ethereal_points.base;
 		float off;
-		if(percentage>110.0f) //deal with massive bars by trimming at 110%
-			percentage = 110.0f;
+		if(percentage>1.1f) // limit bar length to +10%
+			percentage = 1.1f;
 		if (display_ether){
 			off = bar_x_len + 5.0f;
 		} else {
