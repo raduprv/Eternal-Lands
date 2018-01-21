@@ -205,7 +205,7 @@ void weather_set_area(int area, float x, float y, float radius, int type, float 
 	weather_areas[area].x_pos = x;
 	weather_areas[area].y_pos = y;
 	weather_areas[area].radius = radius;
-	weather_areas[area].intensity_change_duration = change_duration * 1000;
+	weather_areas[area].intensity_change_duration = 1 + change_duration * 1000;
 	weather_areas[area].intensity_change_speed = (intensity - weather_areas[area].intensity) / weather_areas[area].intensity_change_duration;
 
 #ifdef DEBUG
