@@ -37,6 +37,7 @@
  #include "io/elfilewrapper.h"
 #include "3d_objects.h"
 #include "image_loading.h"
+#include "weather.h"
 
 #define DEFAULT_CONTMAPS_SIZE 20
 
@@ -510,12 +511,15 @@ void read_mapinfo ()
 	} else {
 		while (fgets (line, sizeof (line), fin) != NULL)
 		{
+			char weather_name[11] = "";
+
 			// strip comments
 			cmt_pos = strchr (line, '#');
 			if (cmt_pos != NULL)
 				*cmt_pos = '\0';
 
-			if (sscanf (line, "%63s %hu %hu %hu %hu %127s ", cont_name, &x_start, &y_start, &x_end, &y_end, map_name) != 6)
+			// weather_name is optional so a valid line is 6 or more parameters read
+			if (sscanf (line, "%63s %hu %hu %hu %hu %127s %10s", cont_name, &x_start, &y_start, &x_end, &y_end, map_name, weather_name) < 6)
 				// not a valid line
 				continue;
 
@@ -540,6 +544,7 @@ void read_mapinfo ()
 			continent_maps[imap].x_end = x_end;
 			continent_maps[imap].y_end = y_end;
 			continent_maps[imap].name = malloc ((strlen (map_name) + 1) * sizeof (char));
+			continent_maps[imap].weather = get_weather_type_from_string(weather_name);
 			strcpy(continent_maps[imap].name, map_name);
 			imap++;
 		}
@@ -553,6 +558,7 @@ void read_mapinfo ()
 	continent_maps[imap].x_end = 0;
 	continent_maps[imap].y_end = 0;
 	continent_maps[imap].name = NULL;
+	continent_maps[imap].weather = 0;
 }
 
 int switch_to_game_map()

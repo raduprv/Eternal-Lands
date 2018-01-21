@@ -8,6 +8,7 @@
 #include "draw_scene.h"
 #include "elconfig.h"
 #include "global.h"
+#include "interface.h"
 #include "map.h"
 #include "misc.h"
 #include "particles.h"
@@ -130,6 +131,26 @@ static __inline__ float next_random_number()
 }
 
 int weather_read_defs(const char *file_name);
+
+weather_type get_weather_type_for_map(void)
+{
+	if ((cur_map < 0) || (continent_maps[cur_map].weather == 0))
+		return weather_effect_rain;
+	return continent_maps[cur_map].weather;
+}
+
+weather_type get_weather_type_from_string(const char *weather_name)
+{
+	size_t i;
+	const weather_type w_types[] = {weather_effect_rain, weather_effect_snow, weather_effect_hail,
+		weather_effect_sand, weather_effect_dust, weather_effect_lava };
+	const char* const w_names[] = { "rain", "snow", "hail", "sand", "dust", "lava" };
+	if (strlen(weather_name) > 0)
+		for (i=0; i<6; i++)
+			if (strcasecmp(w_names[i], weather_name) == 0)
+				return w_types[i];
+	return 0;
+}
 
 void weather_init()
 {
@@ -619,7 +640,9 @@ float weather_get_density()
 
 void weather_add_lightning(int type, float x, float y)
 {
-	if (thunders_count < MAX_THUNDERS && lightnings_defs_count > 0)
+	weather_type map_weather_type = get_weather_type_for_map();
+	if (thunders_count < MAX_THUNDERS && lightnings_defs_count > 0 &&
+		((map_weather_type == weather_effect_rain) || (map_weather_type == weather_effect_hail)))
 	{
 		// store the thunder
 		thunders[thunders_count].type = type;
@@ -966,15 +989,3 @@ int weather_read_defs(const char *file_name)
 	xmlFreeDoc(doc);
 	return ok;
 }
-
-
-
-
-
-
-
-
-
-
-
-

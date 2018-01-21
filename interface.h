@@ -7,6 +7,7 @@
 #define __INTERFACE_H__
 
 #include "platform.h"
+#include "client_serv.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -108,6 +109,7 @@ struct draw_map
 	unsigned short x_end;
 	unsigned short y_end;       
 	char *name;
+	weather_type weather;
 };
 
 extern int cur_map; /*!< id of the map we are currently on */

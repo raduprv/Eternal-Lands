@@ -1217,7 +1217,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				}
 				if (show_weather)
 				{
-					weather_set_area(0, tile_map_size_x*1.5, tile_map_size_y*1.5, 100000.0, 1, severity, in_data[3]);
+					weather_set_area(0, tile_map_size_x*1.5, tile_map_size_y*1.5, 100000.0, get_weather_type_for_map(), severity, in_data[3]);
 				}
 			}
 			break;
@@ -1233,7 +1233,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					break;
 				}
 
-				weather_set_area(0, tile_map_size_x*1.5, tile_map_size_y*1.5, 100000.0, 1, 0.0, in_data[3]);
+				weather_set_area(0, tile_map_size_x*1.5, tile_map_size_y*1.5, 100000.0, get_weather_type_for_map(), 0.0, in_data[3]);
 			}
 			break;
 
