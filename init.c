@@ -475,8 +475,13 @@ void save_bin_cfg()
 		cfg_mem.items_menu_y=items_menu_y;
 	}
 
-	cfg_mem.ground_items_menu_x = ground_items_menu_x;
-	cfg_mem.ground_items_menu_y = ground_items_menu_y;
+	if(ground_items_win >= 0) {
+		cfg_mem.ground_items_menu_x = windows_list.window[ground_items_win].cur_x;
+		cfg_mem.ground_items_menu_y = windows_list.window[ground_items_win].cur_y;
+	} else {
+		cfg_mem.ground_items_menu_x = ground_items_menu_x;
+		cfg_mem.ground_items_menu_y = ground_items_menu_y;
+	}
 	cfg_mem.ground_items_menu_x |= ground_items_visible_grid_cols << 16;
 	cfg_mem.ground_items_menu_y |= ground_items_visible_grid_rows << 16;
 
