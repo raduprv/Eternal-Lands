@@ -1201,7 +1201,9 @@ namespace ec
 
 		const coord_t exp = std::pow(exp_base, flare_exp);
 		const coord_t flare_val = 1.0 / (exp + 0.00001);
-		if (flare_val > flare_max)
+		if (!std::isfinite(flare_val))
+			return 1.0;
+		else if (flare_val > flare_max)
 			return flare_max;
 		else
 			return flare_val;
