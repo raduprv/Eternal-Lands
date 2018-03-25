@@ -1006,12 +1006,12 @@ void init_stuff()
 #ifdef NEW_SOUND
 	// Try to turn the sound on now so we have it for the login window
 	if (have_sound_config)
-		turn_sound_on();
-	else
 	{
-		sound_on = 0;
-		turn_sound_off();
+		if (sound_on)
+			turn_sound_on();
 	}
+	else
+		turn_sound_off();
 #endif // NEW_SOUND
 
 	// display something
