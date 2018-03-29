@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <SDL_timer.h>
 
 #include "asc.h"
 #include "context_menu.h"
