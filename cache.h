@@ -39,9 +39,7 @@ typedef struct
 #endif
 	Sint32	num_allocated;	/*!< the allocated space for the list */
 	Uint32	LRU_time;		/*!< last time LRU processing done */
-	Uint32	total_size;		/*!< total size currently allocated */
 	Uint32	time_limit;		/*!< limit on LRU time before forcing a scan */
-	Uint32	size_limit;		/*!< limit on size before forcing a scan */
 	void	(*free_item)();	/*!< routine to call to free an item */
 	Uint32	(*compact_item)();	/*!< routine to call to reduce memory usage without freeing */
 } cache_struct;
@@ -133,28 +131,6 @@ void cache_set_time_limit(cache_struct *cache, Uint32 time_limit);
 
 /*!
  * \ingroup cache
- * \brief   sets a \a size_limit for items in \a cache.
- *
- *      Sets a \a size_limit in bytes for items in the given \a cache.
- *
- * \param cache         the cache for which the size limit should be set.
- * \param size_limit    the max. size for items in \a cache (in bytes).
- */
-void cache_set_size_limit(cache_struct *cache, Uint32 size_limit);
-
-/*!
- * \ingroup cache
- * \brief   sets the function to free items
- *
- *      Sets the function to apply to each item before it is evicted from the
- *      cache.
- *
- * \param free_item     pointer to the free function
- */
-void cache_set_free(cache_struct *cache, void (*free_item)());
-
-/*!
- * \ingroup cache
  * \brief adds the given \a item to \a cache with the given \a name.
  *
  *      Adds the given \a item to \a cache with the given \a name. The parameter \a size determines the maximum size of items in \a cache.
@@ -168,20 +144,6 @@ void cache_set_free(cache_struct *cache, void (*free_item)());
  */
 cache_item_struct *cache_add_item(cache_struct *cache, const char* name,
 	void *item, Uint32 size);
-
-/*!
- * \ingroup cache
- * \brief   sets the \a name of the given \a item in \a cache.
- *
- *      Sets the \a name of the given \a item in \a cache.
- *
- * \param cache     the cache which contains the \a item to change the \a name
- * \param name      the new name of \a item in \a cache
- * \param item      a pointer to the item which \a name should get changed.
- *
- * \callgraph
- */
-void cache_set_name(cache_struct *cache, const char* name, void *item);
 
 /*!
  * \ingroup cache
