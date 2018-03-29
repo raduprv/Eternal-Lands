@@ -2865,11 +2865,14 @@ void update_sound(int ms)
 {
 	int i = 0, error = AL_NO_ERROR;
 	source_data *pSource;
+#ifdef USE_ALGETSOURCEI_AL_BUFFER
 	sound_sample *pSample;
+	ALuint deadBuffer;
+	ALint numProcessed, buffer;
+#endif
 	sound_type *pSoundType;
 	sound_variants *pVariant;
-	ALuint deadBuffer;
-	ALint numProcessed, buffer, state;
+	ALint state;
 
 	int source;
 	int x, y, distanceSq, maxDistSq;
@@ -3070,7 +3073,9 @@ void update_sound(int ms)
 
 		pSoundType = &sound_type_data[sounds_list[pSource->loaded_sound].sound];
 		pVariant = &pSoundType->variant[sounds_list[pSource->loaded_sound].variant];
+#ifdef USE_ALGETSOURCEI_AL_BUFFER
 		pSample = &sound_sample_data[pVariant->part[pSource->current_stage]->sample_num];
+#endif
 
 		// Is this source still playing?
 		alGetSourcei(pSource->source, AL_SOURCE_STATE, &state);
@@ -3084,6 +3089,15 @@ void update_sound(int ms)
 		}
 		else
 		{
+			//	TBD - Fix properly
+			//	Newer versions of openal do not suppport using alGetSourcei() in this way.
+			//	Older versions appear to have always returned (buffer == pSample->buffer) so fall to the else block.
+			//	Newer versions always return buffer == 0 so the if block is always called, resulting in most sounds never playing.
+			//	The else catches completed sounds anyway so just force the older behavour for now.
+			//	The links below cover the openal library change and suggested way to achieve the same behavout ... TDB....
+			//	https://github.com/kcat/openal-soft/issues/126
+			//	https://github.com/kcat/openal-soft/commit/5c859af24ea44dabbbb31631309bb08a858a523e
+#ifdef USE_ALGETSOURCEI_AL_BUFFER // exclude block
 			// Find which buffer is playing
 			alGetSourcei(pSource->source, AL_BUFFER, &buffer);
 			if (buffer != pSample->buffer)
@@ -3159,6 +3173,7 @@ void update_sound(int ms)
 				}
 			}
 			else
+#endif // end USE_ALGETSOURCEI_AL_BUFFER exclude block
 			{
 				if (pSoundType->loops != 0)
 				{
