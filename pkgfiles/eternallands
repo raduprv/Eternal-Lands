@@ -26,9 +26,9 @@ show_error()
 	zenity)
 		zenity --error --text="$1"
 		;;
-    kdialog)
-        kdialog --error "$1"
-        ;;
+	kdialog)
+		kdialog --error "$1"
+		;;
 	dialog)
 		dialog --msgbox "$1" 0 0
 		;;
@@ -43,9 +43,9 @@ show_info()
 	zenity)
 		zenity --info --text="$1"
 		;;
-    kdialog)
-        kdialog --msgbox "$1"
-        ;;
+	kdialog)
+		kdialog --msgbox "$1"
+		;;
 	dialog)
 		dialog --msgbox "$1" 0 0
 		;;
@@ -62,9 +62,9 @@ show_text_info()
 	zenity)
 		zenity --text-info --width=500 --height=300 --title "$1" --filename="$2"
 		;;
-    kdialog)
-        kdialog --title "$1" --textbox "$2" 500 300
-        ;;
+	kdialog)
+		kdialog --title "$1" --textbox "$2" 500 300
+		;;
 	dialog)
 		# Ugh, we have the error string in a temporary file, but dialog's textbox
 		# doesn't fold the lines automatically. So try to do it ourselves by
@@ -90,9 +90,9 @@ yes_no()
 	zenity)
 		zenity --question --text="$1"
 		;;
-    kdialog)
-        kdialog --yesno "$1"
-        ;;
+	kdialog)
+		kdialog --yesno "$1"
+		;;
 	dialog)
 		dialog --yesno "$1" 0 0
 		;;
@@ -139,7 +139,7 @@ getconfig()
 			--column "Directory" \
 			--text "${title}"
 		;;
-    kdialog)
+	kdialog)
 		sort -u $serverfile | tr -d '\015' | grep -v -e ^$ -e ^# | \
 		while read name dir server port description
 		do
