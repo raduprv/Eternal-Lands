@@ -18,35 +18,159 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #
 
+# Show an error message, and exit the script
+show_error()
+{
+	echo -e $1
+	case $dialog in
+	zenity)
+		zenity --error --no-wrap --text="$1"
+		;;
+	kdialog)
+		kdialog --error "$1"
+		;;
+	dialog)
+		dialog --msgbox "$1" 0 0
+		;;
+	esac
+	exit 1
+}
+
+# Show an information message
+show_info()
+{
+	case $dialog in
+	zenity)
+		zenity --info --no-wrap --text="$1"
+		;;
+	kdialog)
+		kdialog --msgbox "$1"
+		;;
+	dialog)
+		dialog --msgbox "$1" 0 0
+		;;
+	*)
+		echo -e $1
+		;;
+	esac
+}
+
+# Show a (large) text box with the contents of a file
+show_text_info()
+{
+	case $dialog in
+	zenity)
+		zenity --text-info --width=500 --height=300 --title "$1" --filename="$2"
+		;;
+	kdialog)
+		kdialog --title "$1" --textbox "$2" 500 300
+		;;
+	dialog)
+		# Ugh, we have the error string in a temporary file, but dialog's textbox
+		# doesn't fold the lines automatically. So try to do it ourselves by
+		# wrapping to the terminal width, minus a bit for the textbox borders,
+		# and write to a second temp file.
+		fold_fname=$(mktemp)
+		columns=$(expr $(tput cols || echo 80) - 5)
+		cat "$2" | fold -w "$columns" -s > "$fold_fname"
+		dialog --title "$1" --textbox "$fold_fname" 0 0
+		rm -f $fold_fname
+		;;
+	*)
+		cat "$2"
+		;;
+	esac
+}
+
+# Show a confirmation dialog. Returns 0 if the user answers "yes" to the
+# question posed, 1 otherwise.
+yes_no()
+{
+	case $dialog in
+	zenity)
+		zenity --question --no-wrap --text="$1"
+		;;
+	kdialog)
+		kdialog --yesno "$1"
+		;;
+	dialog)
+		dialog --yesno "$1" 0 0
+		;;
+	*)
+		while true
+		do
+			read -p "$1 [y/n] " ans
+			case $ans in
+			[Yy]*)
+				return 0
+				;;
+			[Nn]*)
+				return 1
+				;;
+			*)
+				echo "Please answer yes or no."
+				;;
+			esac
+		done
+	esac
+}
+
 # get users choice from the $serverfile
 getconfig()
 {
-	sort -u $serverfile | tr -d '\015' | grep -v -e ^$ -e ^# | \
-	while read name dir server port description
-	do
-		echo $name
-		echo $description
-		echo $server
-		echo $port
-		echo $dir
-	done | \
-	zenity --title="Eternal Lands Launcher${non_standard}" --width=450 --height=280 \
-		--list \
-		--column "Name" \
-		--column "Description" \
-		--column "Server" \
-		--column "Port" \
-		--column "Directory" \
-		--text "Choose the Server/Configuration - main is the standard"
+	title="Choose the Server/Configuration - main is the standard"
+	case $dialog in
+	zenity)
+		sort -u $serverfile | tr -d '\015' | grep -v -e ^$ -e ^# | \
+		while read name dir server port description
+		do
+			echo $name
+			echo $description
+			echo $server
+			echo $port
+			echo $dir
+		done | \
+		zenity --title="Eternal Lands Launcher${non_standard}" --width=450 --height=280 \
+			--list \
+			--column "Name" \
+			--column "Description" \
+			--column "Server" \
+			--column "Port" \
+			--column "Directory" \
+			--text "${title}"
+		;;
+	kdialog)
+		sort -u $serverfile | tr -d '\015' | grep -v -e ^$ -e ^# | \
+		while read name dir server port description
+		do
+			printf "${name}\0${dir}\t${server}\t${port}\t${description}\0"
+		done | \
+		xargs -0 kdialog --menu "${title}"
+		;;
+	dialog)
+		sort -u $serverfile | tr -d '\015' | grep -v -e ^$ -e ^# | \
+		while read name dir server port description
+		do
+			printf "${name}\0${dir}|${server}|${port}|${description}\0"
+		done | \
+		xargs -0 dialog --stdout --column-separator '|' \
+			--menu "${title}" 0 0 10
+		;;
+	*)
+		show_error "No method found to show the server selection screen\n"
+		;;
+	esac
 }
+
+# check which dialog method to use
+for dialog in zenity kdialog dialog none; do
+	command -v $dialog > /dev/null 2>&1 && break
+done
 
 # don't run as root
 if [ "$(id -u)" = "0" ]
 then
-	text="Don't run as the root/adminstration user.\n\nJust don't!"
-	echo -e $text
-	zenity --error --text="$text"
-	exit 1
+	show_error "Don't run as the root/administration user.\n\nJust don't!"
 fi
 
 # check the minimum packages are installed OK
@@ -57,8 +181,7 @@ then
 	[ -z "$(dpkg --list eternallands-data | grep ^ii)" ] && installedOK=false
 	if ! $installedOK
 	then
-		zenity --error --text "Eternal Lands is not completely installed. As root or using sudo, please run \"dpkg --configure -a\" to complete the install."
-		exit 1
+		show_error "Eternal Lands is not completely installed. As root or using sudo, please run \"dpkg --configure -a\" to complete the install."
 	fi
 fi
 
@@ -82,7 +205,7 @@ then
 	then
 		non_standard=" (non-standard)"
 		el_client="$tmp_el_client"
-	fi	
+	fi
 fi
 
 # if no command line options specified, see if we want to use the config selection window
@@ -110,13 +233,13 @@ then
 	# if not already configured, choose if to use the server/configuration selection window
 	if [ ! -r $showsel ]
 	then
-		if zenity --question --text="Do you want to choose each time you run the game?"
+		if yes_no "Do you want to choose each time you run the game?"
 		then
 			echo "yes" > $showsel
 		else
 			echo "$config" > $showsel
 		fi
-		zenity --info --text="To change this option, edit or remove the file:\n $showsel"
+		show_info "To change this option, edit or remove the file:\n $showsel"
 	fi
 else
 	config="$1"
@@ -141,7 +264,7 @@ then
 	show_suppression=false
 	if [ "$(grep -a ^#data_dir $inifile | tail -1 | grep -a '^#data_dir = /usr/share/games/EternalLands$')" = "" ]
 	then
-		if zenity --question --text="Warning: $inifile does not use installed game data, shall I fix this problem?"
+		if yes_no "Warning: $inifile does not use installed game data, shall I fix this problem?"
 		then
 			sed -i 's/^#data_dir.*$/#data_dir = \/usr\/share\/games\/EternalLands/g' $inifile
 		else
@@ -150,14 +273,15 @@ then
 	fi
 	if $show_suppression
 	then
-		zenity --info --text="To surpress these warnings, create the file:\n $HOME/.elc/no.el.ini.check"
+		show_info "To surpress these warnings, create the file:\n $HOME/.elc/no.el.ini.check"
 	fi
 fi
 
 # run the client, display error log if it crashes
 if ! $el_client $config $* &> ~/.elc/terminal_log.txt
 then
-	cat | zenity --text-info --width=500 --height=300 --title "Eternal Lands Crashed, this is the Error log." << EOT
+	fout=$(mktemp)
+	cat > $fout << EOT
 Oh my, Eternal Lands Crashed - Don't Panic!
 
 A few of things you can try:
@@ -186,6 +310,8 @@ A search through dmesg output:
 $(dmesg | grep $(basename $el_client))
 
 EOT
+	show_text_info "Eternal Lands Crashed, this is the Error log." $fout
+	rm -f $fout
 	exit 1
 fi
 exit 0

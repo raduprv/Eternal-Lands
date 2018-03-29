@@ -22,16 +22,6 @@ static void cache_remove(cache_struct *cache, cache_item_struct *item);
 static void cache_remove_all(cache_struct *cache);
 
 #ifdef FASTER_MAP_LOAD
-// Compare two cache items by name. NULL pointer always go beyond "real" items.
-static int cache_item_cmp(const void* i, const void *j)
-{
-	const cache_item_struct *item = *((const cache_item_struct **)i);
-	const cache_item_struct *jtem = *((const cache_item_struct **)j);
-	if (!item) return jtem ? 1 : 0;
-	if (!jtem) return -1;
-	return strcmp(item->name, jtem->name);
-}
-
 // Compare string \a str with the name of item \a iptr.
 static int cache_item_cmp_str(const void* str, const void *iptr)
 {
@@ -188,7 +178,6 @@ cache_struct *cache_init(const char* name, Uint32 max_items,
 	cache->num_allocated = max_items;
 	cache->LRU_time = cur_time;
 	cache->time_limit = 0;	// 0 == no time based LRU check
-	cache->size_limit = 0;	// 0 == no space based LRU check
 	cache->free_item = free_item;
 	cache->compact_item = NULL;
 	if (cache_system)
@@ -206,8 +195,6 @@ void cache_delete(cache_struct *cache)
 	static int cache_delete_loop_block = 0;
 
 	if (!cache) return;
-	if (cache != cache_system)
-		cache_adj_size(cache_system, -cache->total_size, cache);
 	if (cache->cached_items)
 	{
 		cache_remove_all(cache);
@@ -236,16 +223,6 @@ void cache_set_compact(cache_struct *cache, Uint32 (*compact_item)())
 void cache_set_time_limit(cache_struct *cache, Uint32 time_limit)
 {
 	cache->time_limit=time_limit;
-}
-
-void cache_set_size_limit(cache_struct *cache, Uint32 size_limit)
-{
-	cache->size_limit=size_limit;
-}
-
-void cache_set_free(cache_struct *cache, void (*free_item)())
-{
-	cache->free_item = free_item;
 }
 
 static Uint32 cache_clean(cache_struct *cache)
@@ -462,7 +439,6 @@ cache_item_struct *cache_add_item(cache_struct *cache, const char* name,
 	}
 	cache->recent_item = cache->cached_items[i] = new_item;
 	cache->num_items++;
-	cache->total_size += size;
 
 	if (cache != cache_system)
 		cache_adj_size(cache_system, size, cache);
@@ -502,7 +478,6 @@ cache_item_struct *cache_add_item(cache_struct *cache, const char* name,
 	cache->cached_items[i]->access_time=cur_time;
 	cache->cached_items[i]->access_count=1;	//start at 0 or 1? Is this a usage
 	cache->num_items++;
-	cache->total_size+=size;
 	if(cache != cache_system) cache_adj_size(cache_system, size, cache);
 	//return the pointer to the detailed item
 	cache->recent_item = cache->cached_items[i];
@@ -510,35 +485,15 @@ cache_item_struct *cache_add_item(cache_struct *cache, const char* name,
 #endif
 }
 
-void cache_set_name(cache_struct *cache, const char* name, void *item)
-{
-	cache_item_struct *item_ptr = cache_find_ptr(cache, item);
-	if (item_ptr)
-	{
-		item_ptr->name = name;
-#ifdef FASTER_MAP_LOAD
-		qsort(cache->cached_items, cache->num_items, sizeof(item_ptr),
-			cache_item_cmp);
-#endif
-	}
-}
-
 void cache_adj_size(cache_struct *cache, Uint32 size, void *item)
 {
 	cache_item_struct *item_ptr = cache_find_ptr(cache, item);
 	if (item_ptr)
 	{
-		// adjust the current size
-		//if(item_ptr->size != size)
-		//{
-			cache->total_size += size;
-			if (cache != cache_system)
-				cache_adj_size(cache_system, size, cache);
-		//}
+        if (cache != cache_system)
+            cache_adj_size(cache_system, size, cache);
 		item_ptr->size += size;
 		cache_use(item_ptr);
-		//item_ptr->access_time=cur_time;
-		//item_ptr->access_count++;
 	}
 }
 
@@ -550,7 +505,6 @@ static void cache_remove(cache_struct *cache, cache_item_struct *item)
 		cache_adj_size(cache_system, -item->size, cache);
 	if (item->cache_item && cache->free_item)
 		(*cache->free_item)(item->cache_item);
-	cache->total_size -= item->size;
 	cache->num_items--;
 	cache->recent_item = NULL;	//forget where we are just incase
 

@@ -1,7 +1,7 @@
 #ifndef __HASH__
 #define __HASH__
 
-#include <SDL.h>
+#include <SDL_types.h>
 
 typedef struct _hash_entry{
 	void *key;
@@ -16,15 +16,15 @@ typedef struct _hash_table{
 
 	hash_entry *cur;
 	int where;
-	
+
 	unsigned long int (*hash_fun)(void *);
 	int (*key_cmp)(void *, void *);
 	void (*free_fun)(void *);
 } hash_table;
 
 
-hash_table *create_hash_table(int size, 
-			     unsigned long int (*hashfn)(void *), 
+hash_table *create_hash_table(int size,
+			     unsigned long int (*hashfn)(void *),
 			     int (*keyfn)(void *, void*),
 			     void (*freefn)(void *)
 );
