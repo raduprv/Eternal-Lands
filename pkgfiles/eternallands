@@ -24,7 +24,7 @@ show_error()
 	echo -e $1
 	case $dialog in
 	zenity)
-		zenity --error --text="$1"
+		zenity --error --no-wrap --text="$1"
 		;;
 	kdialog)
 		kdialog --error "$1"
@@ -41,7 +41,7 @@ show_info()
 {
 	case $dialog in
 	zenity)
-		zenity --info --text="$1"
+		zenity --info --no-wrap --text="$1"
 		;;
 	kdialog)
 		kdialog --msgbox "$1"
@@ -88,7 +88,7 @@ yes_no()
 {
 	case $dialog in
 	zenity)
-		zenity --question --text="$1"
+		zenity --question --no-wrap --text="$1"
 		;;
 	kdialog)
 		kdialog --yesno "$1"
