@@ -23,6 +23,7 @@
 #include "elwindows.h"
 #include "gamewin.h"
 #include "gl_init.h"
+#include "hud.h"
 #include "init.h"
 #include "interface.h"
 #include "translate.h"
@@ -709,6 +710,7 @@ static int keypress_update_root_handler (window_info *win, int mx, int my, Uint3
 
 static int show_update_handler (window_info *win) {
 	hide_all_root_windows();
+	hide_hud_windows();
 	return 1;
 }
 
