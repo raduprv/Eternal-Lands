@@ -106,8 +106,8 @@ void build_glow_color_table();
  * \sa		client_serv.h
  * \callgraph
  */
-actor * add_actor_interface(float x, float y, float z_rot, float scale, int actor_type, short skin, short hair, short eyes,
-							short shirt, short pants, short boots, short head);
+actor * add_actor_interface(float x, float y, float z_rot, float scale, int actor_type, const char *playername, short skin,
+		short hair, short eyes, short shirt, short pants, short boots, short head);
 
 #ifdef __cplusplus
 } // extern "C"

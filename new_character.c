@@ -146,6 +146,7 @@ static int dec(my_enum * def, int val, int no_steps)
 static char create_char_error_str[520] = {0};
 static int old_use_windowed_chat;
 static int display_time=0;
+static const int DEF_MESSAGE_TIMEOUT = 3000;
 
 struct input_text {
 	char str[40];
@@ -155,6 +156,8 @@ struct input_text {
 	{"", 0},
 	{"", 0}
 };
+
+static int clear_player_name = 1;
 
 static int creating_char = 1;
 
@@ -175,7 +178,7 @@ void set_create_char_error (const char *msg, int len)
 
 	LOG_TO_CONSOLE(c_red1, buf);
 
-	add_text_to_buffer(c_red1, msg, 6000);
+	add_text_to_buffer(c_red1, msg, DEF_MESSAGE_TIMEOUT);
 
 	creating_char=1;
 }
@@ -354,6 +357,12 @@ static int display_newchar_handler (window_info *win)
 	int any_reflection;
 	static int main_count = 0;
 
+	if (display_time && cur_time > display_time)
+	{
+		create_char_error_str[0] = '\0';
+		display_time = 0;
+	}
+
 	if(disconnected)
 	{
 		static int nested_flag = 0;
@@ -371,7 +380,8 @@ static int display_newchar_handler (window_info *win)
 	//see if we have to load a model (male or female)
 	if (creating_char && !our_actor.our_model){
 		move_camera();//Make sure we lag a little...
-		our_actor.our_model = add_actor_interface (our_actor.def->x, our_actor.def->y, our_actor.def->z_rot, 1.0f, our_actor.race, our_actor.skin, our_actor.hair, our_actor.eyes, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head);
+		our_actor.our_model = add_actor_interface (our_actor.def->x, our_actor.def->y, our_actor.def->z_rot, 1.0f, our_actor.race,
+			inputs[0].str, our_actor.skin, our_actor.hair, our_actor.eyes, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head);
 		yourself = 0;
 		LOCK_ACTORS_LISTS();
 		set_our_actor (our_actor.our_model);
@@ -720,7 +730,7 @@ static int check_character(int type, char ch)
 			retval=1;
 		} else if ((ch>= 33 && ch<=47)||(ch>=58 && ch<=64)||(ch>=91&&ch<=96)||(ch>=122 && ch<=126)){
 			// not permitted in a name
-			retval=-1;
+			retval=-2;
 		}
 	} else {	// password
 		if(ch>=33 && ch<126) retval=1;
@@ -740,17 +750,17 @@ static void add_text_to_buffer(int color, const char * text, int time_to_display
 
 static void create_character(void)
 {
-	if(!strncasecmp(inputs[1].str, actors_list[0]->actor_name, strlen(actors_list[0]->actor_name))){
-		add_text_to_buffer(c_red2, error_bad_pass, 6000);
-		return;
-	} else if(strcmp(inputs[1].str, inputs[2].str)){
-		add_text_to_buffer(c_red2, error_pass_no_match, 6000);
-		return;
-	} else if(inputs[0].pos<3){
-		add_text_to_buffer(c_red2, error_username_length, 6000);
+	if(inputs[0].pos<3){
+		add_text_to_buffer(c_red2, error_username_length, DEF_MESSAGE_TIMEOUT);
 		return;
 	} else if(inputs[1].pos<4){
-		add_text_to_buffer(c_red2, error_password_length, 6000);
+		add_text_to_buffer(c_red2, error_password_length, DEF_MESSAGE_TIMEOUT);
+		return;
+	} else if(!strncasecmp(inputs[1].str, actors_list[0]->actor_name, strlen(actors_list[0]->actor_name))){
+		add_text_to_buffer(c_red2, error_bad_pass, DEF_MESSAGE_TIMEOUT);
+		return;
+	} else if(strcmp(inputs[1].str, inputs[2].str)){
+		add_text_to_buffer(c_red2, error_pass_no_match, DEF_MESSAGE_TIMEOUT);
 		return;
 	}
 
@@ -762,7 +772,7 @@ static void create_character(void)
 	} else {
 		are_you_sure=1;
 
-		add_text_to_buffer(c_orange3, error_confirm_create_char, 6000);
+		add_text_to_buffer(c_orange3, error_confirm_create_char, DEF_MESSAGE_TIMEOUT);
 		LOG_TO_CONSOLE(c_green2, "\n");
 		LOG_TO_CONSOLE(c_green2, remember_change_appearance);
 	}
@@ -851,7 +861,7 @@ static int click_done_handler(widget_list *w, int mx, int my, Uint32 flags)
 		else
 		{
 			w->Flags = BUTTON_ACTIVE;
-			add_text_to_buffer(c_orange3, error_confirm_create_char, 6000);
+			add_text_to_buffer(c_orange3, error_confirm_create_char, DEF_MESSAGE_TIMEOUT);
 		}
 	}
 	return 1;
@@ -915,20 +925,29 @@ static int keypress_namepass_handler (window_info *win, int mx, int my, Uint32 k
 	int ret=0;
 	struct input_text * t=&inputs[active];
 
+	if (clear_player_name)
+	{
+		clear_player_name = 0;
+		inputs[0].pos = 0;
+		inputs[0].str[0] = 0;
+	}
+
 	if ((ret=check_character (active > 0, ch)))
 	{
 		if (ret==-1)
 		{
-			add_text_to_buffer (c_red1, error_max_digits, 6000);
+			add_text_to_buffer (c_red2, error_max_digits, DEF_MESSAGE_TIMEOUT);
+		}
+		else if (ret==-2)
+		{
+			add_text_to_buffer (c_red2, error_illegal_character, DEF_MESSAGE_TIMEOUT);
 		}
 		else if (t->pos + 1 > MAX_USERNAME_LENGTH - 1)		// MAX_USERNAME_LENGTH includes the null terminator and t->pos counts from 0
 		{
-			add_text_to_buffer (c_red2, error_length, 6000);
+			add_text_to_buffer (c_red2, error_length, DEF_MESSAGE_TIMEOUT);
 		}
 		else
 		{
-			// don't allow a character to start with player
-			if(active == 0 && !strcasecmp(t->str, "player")) t->pos= 0;
 			// add the character to the buffer
 			t->str[t->pos++]=ch;
 			t->str[t->pos]=0;
@@ -941,33 +960,37 @@ static int keypress_namepass_handler (window_info *win, int mx, int my, Uint32 k
 		if(active>2) active=0;
 	}
 #ifndef OSX
-	else if (unikey == SDLK_BACKSPACE && t->pos>0)
+	else if (unikey == SDLK_BACKSPACE)
 #else
-        else if (key == SDLK_BACKSPACE && t->pos>0)
+	else if (key == SDLK_BACKSPACE)
 #endif
 	{
-		t->pos--;
-		if (isdigit (t->str[t->pos])) numbers_in_name--;
-		t->str[t->pos] = 0;
-		ret = 1;	// Reused to show that a letter has been removed
+		if (t->pos>0)
+		{
+			t->pos--;
+			if ((active == 0) && isdigit (t->str[t->pos]))
+				numbers_in_name--;
+			t->str[t->pos] = 0;
+			ret = 1;	// Reused to show that a letter has been removed
+		}
 	}
 	else
 	{
 		//only send error messages on non-null characters
 		if(ch != 0){
-			add_text_to_buffer (c_red2, error_illegal_character, 6000);
+			add_text_to_buffer (c_red2, error_illegal_character, DEF_MESSAGE_TIMEOUT);
 		}
 	}
 
 	if(active>0){
 		//Password/confirm
-		if(ret){
+		if((inputs[1].pos > 0) && (inputs[2].pos > 0) && ret){
 			if(!strncasecmp(inputs[1].str, actors_list[0]->actor_name, strlen(actors_list[0]->actor_name))){
-				add_text_to_buffer(c_red2, error_bad_pass, 6000);
+				add_text_to_buffer(c_red2, error_bad_pass, DEF_MESSAGE_TIMEOUT);
 			} else if(strcmp(inputs[1].str, inputs[2].str)){
-				add_text_to_buffer(c_red2, error_pass_no_match, 6000);
+				add_text_to_buffer(c_red2, error_pass_no_match, DEF_MESSAGE_TIMEOUT);
 			} else {
-				add_text_to_buffer(c_green1, passwords_match, 6000);
+				add_text_to_buffer(c_green1, passwords_match, DEF_MESSAGE_TIMEOUT);
 			}
 		}
 	} else {

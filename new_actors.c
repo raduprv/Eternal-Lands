@@ -1221,8 +1221,8 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 #endif
 }
 
-actor * add_actor_interface(float x, float y, float z_rot, float scale, int actor_type, short skin, short hair, short eyes,
-				short shirt, short pants, short boots, short head)
+actor * add_actor_interface(float x, float y, float z_rot, float scale, int actor_type, const char *playername,
+		short skin, short hair, short eyes, short shirt, short pants, short boots, short head)
 {
 	enhanced_actor * this_actor=calloc(1,sizeof(enhanced_actor));
 	actor * a;
@@ -1255,7 +1255,7 @@ actor * add_actor_interface(float x, float y, float z_rot, float scale, int acto
 	a->stop_animation=1;//helps when the actor is dead...
 	a->kind_of_actor=HUMAN;
 
-	safe_snprintf(a->actor_name, sizeof(a->actor_name), "Player");
+	safe_snprintf(a->actor_name, sizeof(a->actor_name), playername);
 
 	if (actors_defs[actor_type].coremodel!=NULL) {
 		a->calmodel=model_new(actors_defs[actor_type].coremodel);
