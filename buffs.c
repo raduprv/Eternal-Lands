@@ -128,12 +128,14 @@ void update_buff_eye_candy(int actor_id) {
 	act = get_actor_ptr_from_id(actor_id);
 	if (act) {
 		int i = 0; // loop index
-        // turn on eye candy effects
-		if (act->buffs & BUFF_SHIELD && act->ec_buff_reference[((Uint32)(log(BUFF_SHIELD)/log(2)))] == NULL) {
-			act->ec_buff_reference[((Uint32)(log(BUFF_SHIELD)/log(2)))] = ec_create_ongoing_shield2(act, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
+		// turn on eye candy effects
+		Uint32 buff_index = (Uint32)(0.5 + log(BUFF_SHIELD)/log(2));
+		if (act->buffs & BUFF_SHIELD && act->ec_buff_reference[buff_index] == NULL) {
+			act->ec_buff_reference[buff_index] = ec_create_ongoing_shield2(act, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
 		}
-		if (act->buffs & BUFF_MAGIC_PROTECTION && act->ec_buff_reference[((Uint32)(log(BUFF_MAGIC_PROTECTION)/log(2)))] == NULL) {
-			act->ec_buff_reference[((Uint32)(log(BUFF_MAGIC_PROTECTION)/log(2)))] = ec_create_ongoing_magic_protection2(act, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
+		buff_index = (Uint32)(0.5 + log(BUFF_MAGIC_PROTECTION)/log(2));
+		if (act->buffs & BUFF_MAGIC_PROTECTION && act->ec_buff_reference[buff_index] == NULL) {
+			act->ec_buff_reference[buff_index] = ec_create_ongoing_magic_protection2(act, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
 		}
 /*
  * not yet implemented
@@ -147,7 +149,7 @@ void update_buff_eye_candy(int actor_id) {
 //		}
 		// turn off effects
 		for (i = 0; i < NUM_BUFFS; i++) {
-			if (act->ec_buff_reference[i] != NULL && !(act->buffs & ((Uint32)pow(2, i)))) {
+			if (act->ec_buff_reference[i] != NULL && !(act->buffs & ((Uint32)(0.5 + pow(2, i))))) {
 				ec_recall_effect(act->ec_buff_reference[i]);
 				act->ec_buff_reference[i] = NULL;
 			}
