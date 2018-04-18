@@ -18,7 +18,7 @@ int ecdebug_win = -1;
 int ecdebug_win_x = 0;
 int ecdebug_win_y = 0;
 int ecdebug_win_width = 512;
-int ecdebug_win_height = 196;
+int ecdebug_win_height = 214;
 
 int ecdw_tab_collection = -1;
 
