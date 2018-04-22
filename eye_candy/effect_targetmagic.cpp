@@ -752,7 +752,7 @@ namespace ec
 		{
 			case TargetMagicEffect::REMOTE_HEAL:
 			{
-				for (int i = 0; i < 20 * LOD; i++)
+				for (int i = 0; i < 3 * LOD; i++)
 				{
 					Vec3 coords = spawner->get_new_coords() * 0.05;
 					Vec3 velocity = -coords * 30;
@@ -766,7 +766,7 @@ namespace ec
 			}
 			case TargetMagicEffect::POISON:
 			{
-				for (int i = 0; i < 6 * LOD; i++)
+				for (int i = 0; i < 3 * LOD; i++)
 				{
 					Vec3 velocity;
 					velocity.randomize(0.2);
@@ -786,7 +786,7 @@ namespace ec
 				center = *(effect->targets[0]);
 				const float sqrt_LOD= std::sqrt(LOD);
 				const coord_t size_scalar = 15 / (LOD + 5);
-				for (int i = 0; i < LOD * 10; i++)
+				for (int i = 0; i < LOD * 3; i++)
 				{
 					const Vec3 coords = spawner->get_new_coords() + center
 						+ Vec3(0.0, randcoord() * randcoord() * 8.0 * sqrt_LOD, 0.0);
@@ -817,7 +817,7 @@ namespace ec
 				center = *(effect->targets[0]);
 				motion_blur_points = 3;
 				motion_blur_fade_rate = 0.0001;
-				for (int i = 0; i < 5 * LOD; i++)
+				for (int i = 0; i < 3 * LOD; i++)
 				{
 					Vec3 coords = spawner->get_new_coords() * 1.2;
 					Vec3 velocity(randcoord(1.0), (-70.0 + randcoord(10.0)) * 10.0 / LOD, randcoord(1.0));
@@ -836,7 +836,7 @@ namespace ec
 			case TargetMagicEffect::LIFE_DRAIN:
 			{
 				center = *(effect->targets[0]);
-				for (int i = 0; i < 20 * LOD; i++)
+				for (int i = 0; i < 3 * LOD; i++)
 				{
 					Vec3 coords = spawner->get_new_coords() * 0.05;
 					Vec3 velocity = coords * 30;
@@ -850,7 +850,7 @@ namespace ec
 			}
 			case TargetMagicEffect::HEAL_SUMMONED:
 			{
-				for (int i = 0; i < 10 * LOD; i++)
+				for (int i = 0; i < 3 * LOD; i++)
 				{
 					Vec3 coords = spawner->get_new_coords() * 0.05;
 					Vec3 velocity = coords * 30;
@@ -886,7 +886,7 @@ namespace ec
 			case TargetMagicEffect::DRAIN_MANA:
 			{
 				center = *(effect->targets[0]);
-				for (int i = 0; i < 20 * LOD; i++)
+				for (int i = 0; i < 3 * LOD; i++)
 				{
 					Vec3 coords = spawner->get_new_coords() * 0.05;
 					Vec3 velocity = coords * 20;
