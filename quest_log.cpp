@@ -1173,6 +1173,7 @@ void NPC_Filter::resize_handler(window_info *win)
 		while (npc_name_cols*npc_name_rows < npc_filter_map.size())
 			npc_name_cols++;
 	}
+	set_window_scroll_inc(win->window_id, static_cast<int>(max_npc_name_y));
 	set_window_scroll_len(win->window_id, static_cast<int>(npc_name_rows*max_npc_name_y-win->len_y));
 }
 
@@ -1356,7 +1357,6 @@ void NPC_Filter::open_window(void)
 		set_window_handler(npc_filter_win, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_npc_filter_handler );
 		set_window_handler(npc_filter_win, ELW_HANDLER_RESIZE, (int (*)())&resize_npc_filter_handler );
 		set_window_handler(npc_filter_win, ELW_HANDLER_UI_SCALE, (int (*)())&ui_scale_npc_filter_handler );
-		set_window_scroll_inc(npc_filter_win, static_cast<int>(max_npc_name_y));
 		ui_scale_npc_filter_handler(&windows_list.window[npc_filter_win]);
 	}
 	else
