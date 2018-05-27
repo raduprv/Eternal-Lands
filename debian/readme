@@ -1,66 +1,53 @@
-How to build a package:
+# How to build a package:
+# Read the guides or at least install the necessary packages as detailed here:
+# http://www.debian.org/doc/maint-guide/index.en.html
+# https://wiki.ubuntu.com/PackagingGuide/Complete
 
-Read the guides or at least install the necessary packages as detailed here:
+# Set-up your ~/.bachrc so the package scripts known who you are:
+# e.g.
+# export DEBFULLNAME='Paul Broadhead'
+# export DEBEMAIL='pjbroad@twinmoons.org.uk'
 
-http://www.debian.org/doc/maint-guide/index.en.html
-https://wiki.ubuntu.com/PackagingGuide/Complete
+# If you're going to sign the package make sure you have keys set-up:
+# https://help.ubuntu.com/community/GnuPrivacyGuardHowto
 
+# Now we're ready:
 
-Set-up your ~/.bachrc so the package scripts known who you are:
-e.g. 
-export DEBFULLNAME='Paul Broadhead' 
-export DEBEMAIL='pjbroad@twinmoons.org.uk'
+# Checkout or update the client
+git clone https://github.com/raduprv/Eternal-Lands.git Eternal-Lands
 
+# Set the version number
+elver="1.9.5.0"
+packagename="eternallands"
 
-If you're going to sign the package make sure you have keys set-up:
-https://help.ubuntu.com/community/GnuPrivacyGuardHowto
+# Make an original source tar ball:
+cd <the repo diretory>
+make -f Makefile.linux gen_git_version
+bash pkgfiles/maketarball ${packagename} ${elver}
+cd pkgfiles/debs
+mkdir -p tmp
+cd tmp
 
+# Make a destination directory
+tmpdir=${packagename}-${elver}-$(date +"%s")
+mkdir $tmpdir
+cd $tmpdir
 
-Now we're ready:
+# Unpack the tarball then rename it as the original:
+mv ../../../../../${packagename}-${elver}.tar.gz .
+mv ../../../../../${packagename}-debian-${elver}.tar.gz .
+tar xfz ${packagename}-${elver}.tar.gz
+mv ${packagename}-${elver}.tar.gz ${packagename}_${elver}.orig.tar.gz
 
-Set the version number
+# Move into package directory:
+cd ${packagename}-${elver}/
 
-	elver="1.9.4"
-	packagename="eternallands"
+# Unpack the debian files
+tar xfz ../${packagename}-debian-${elver}.tar.gz
 
-Checkout or update the client
+# Make any modifications required then update the changelog:
+dch --release --force-save-on-release
 
-	git clone git://github.com/raduprv/Eternal-Lands.git elc
-
-Make an original source tar ball:
-
-	cd elc
-	make -f Makefile.linux gen_git_version
-	bash pkgfiles/maketarball ${packagename} ${elver}
-
-	cd ..
-
-Setup a temp directory for the build:
-
-	tmpdir=${packagename}-${elver}-$(date +"%s")
-	mkdir $tmpdir
-	mv ${packagename}-${elver}.tar.gz $tmpdir
-	mv ${packagename}-debian-${elver}.tar.gz $tmpdir
-	cd $tmpdir
-
-Unpack the tarball then rename it as the original:
-
-	tar xfz ${packagename}-${elver}.tar.gz
-	mv ${packagename}-${elver}.tar.gz ${packagename}_${elver}.orig.tar.gz
-
-Move into package directory:
-
-	cd ${packagename}-${elver}/
-
-Unpack the debian files
-
-	tar xfz ../${packagename}-debian-${elver}.tar.gz
-
-Make any modifications required then update the changelog:
-
-	dch --release --force-save-on-release
-
-Build the package:
-
-	debuild
-	debuild -S -sa
+# Build the package:
+debuild
+debuild -S -sa
