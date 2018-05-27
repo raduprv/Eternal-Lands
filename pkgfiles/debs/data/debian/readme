@@ -25,7 +25,7 @@ mkdir -p tmp
 cd tmp
 
 # Make a destination directory
-tmpdir=${packagename}-${olver}-$(date +"%s")
+tmpdir=${packagename}-${elver}-$(date +"%s")
 mkdir $tmpdir
 cd $tmpdir
 mkdir ${packagename}-${elver}
