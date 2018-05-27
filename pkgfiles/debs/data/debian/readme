@@ -1,58 +1,51 @@
-How to build a package:
+# How to build a package:
+# Read the guides or at least install the necessary packages as detailed here:
+# http://www.debian.org/doc/maint-guide/index.en.html
+# https://wiki.ubuntu.com/PackagingGuide/Complete
 
-Read the guides or at least install the necessary packages as detailed here:
+# Set-up your ~/.bachrc so the package scripts known who you are:
+# e.g.
+# export DEBFULLNAME='Paul Broadhead'
+# export DEBEMAIL='pjbroad@twinmoons.org.uk'
 
-http://www.debian.org/doc/maint-guide/index.en.html
-https://wiki.ubuntu.com/PackagingGuide/Complete
+# If you're going to sign the package make sure you have keys set-up:
+# https://help.ubuntu.com/community/GnuPrivacyGuardHowto
 
+# Now we're ready:
 
-Set-up your ~/.bachrc so the package scripts known who you are:
-e.g. 
-export DEBFULLNAME='Paul Broadhead' 
-export DEBEMAIL='pjbroad@twinmoons.org.uk'
+# Set the version number
+elver="1.9.5.0"
+packagename="eternallands-data"
+debdir="data"
 
+# start in the correct location
+cd <the repo diretory>
+cd pkgfiles/debs
+mkdir -p tmp
+cd tmp
 
-If you're going to sign the package make sure you have keys set-up:
-https://help.ubuntu.com/community/GnuPrivacyGuardHowto
+# Make a destination directory
+tmpdir=${packagename}-${olver}-$(date +"%s")
+mkdir $tmpdir
+cd $tmpdir
+mkdir ${packagename}-${elver}
 
+# Copy packaging files:
+cp -a ../../$debdir/debian/ ${packagename}-${elver}/
 
-Now we're ready:
+# Append the licence file and clean up:
+wget -O - http://www.eternal-lands.com/page/license.txt | fmt -w 79 >> ${packagename}-${elver}/debian/copyright
+less ${packagename}-${elver}/debian/copyright
 
-Set the version number
+# Save the source archive:
+tar cfz ${packagename}_${elver}.orig.tar.gz ${packagename}-${elver}
 
-	elver="1.9.4"
-	packagename="eternallands-data"
-	srcdir=$(pwd)
+# Move into package directory:
+cd ${packagename}-${elver}/
 
-Make a destination directory:
+# Make any modifications required then update the changelog:
+dch --release --force-save-on-release
 
-	cd <some place else>
-	mkdir ${packagename}-${elver}
-
-Copy packaging files:
-
-	rm -rf ${packagename}-${elver}/debian
-	cp -a ${srcdir}/data/debian/ ${packagename}-${elver}/
-
-Append the licence file and clean up:
-
-	wget -O - http://www.eternal-lands.com/page/license.txt | fmt -w 79 >> ${packagename}-${elver}/debian/copyright
-	gedit ${packagename}-${elver}/debian/copyright
-
-Save the source archive:
-
-	tar cfz ${packagename}_${elver}.orig.tar.gz ${packagename}-${elver}
-
-Move into package directory:
-
-	cd ${packagename}-${elver}/
-
-Make any modifications required then update the changelog:
-
-	dch --release --force-save-on-release
-
-Build the package:
-
-	debuild
-	debuild -S -sa
-
+# Build the package:
+debuild
+debuild -S -sa

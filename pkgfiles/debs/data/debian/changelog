@@ -1,6 +1,6 @@
-eternallands-data (1.9.4-0ubuntu1) precise; urgency=low
+eternallands-data (1.9.5.0-0ubuntu1) trusty; urgency=low
 
-  * 1.9.4 release, see CHANGES file at
+  * 1.9.5 release, see CHANGES file at
       https://github.com/raduprv/Eternal-Lands/blob/master/CHANGES
 
- -- Paul Broadhead <pjbroad@twinmoons.org.uk>  Mon, 20 Apr 2015 19:09:55 +0100
+ -- Paul Broadhead <pjbroad@twinmoons.org.uk>  Sun, 27 May 2018 15:53:56 +0100

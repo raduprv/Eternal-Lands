@@ -23,12 +23,12 @@ case "$1" in
 	
 	TARGETDIR="/usr/share/games/EternalLands"
 	CACHEDIR="/var/cache/eternallands"
-	DOWNLOADURL="http://twinmoons.org.uk/el/rel/194"
-	DOWNLOADMAIN="eternallands-data_1.9.4-1.zip"
-	MD5SUMMAIN="5980492e7abdd1e1a7adebf0db1c1f6b"
+	DOWNLOADURL="http://twinmoons.org.uk/el/rel/195"
+	DOWNLOADMAIN="el_195_data_files.zip"
+	MD5SUMMAIN="2481a8deb744341ec0c5e051e49fa4c5"
 	# post release updates
-	DOWNLOADUPDATE2="el_data_update_1.9.4-2.zip"
-	MD5SUMUPDATE2="8d4fcd4fc36ac76b09171e861e3f88ca"
+	#DOWNLOADUPDATE1=""
+	#MD5SUMUPDATE1=""
 
 	[ -f ~paul/el/installpkg/localdownload ] && DOWNLOADURL="https://harry/~paul/el"
 
@@ -39,12 +39,13 @@ case "$1" in
 	rm -f el_170_linux.zip* el_190_rc2_extra.zip* el_190_rc2.zip* el_update_180.zip* \
 		el_update_191_rc*.zip* EternalLands-update_191_2.zip* el_192_rc2.zip \
 		el_linux_193.zip el_linux_190_update.zip el_linux_update_191.zip \
-		el_linux_update_192.zip el_linux_update_193*.zip EL-1.9.4-all-datafiles.zip
+		el_linux_update_192.zip el_linux_update_193*.zip EL-1.9.4-all-datafiles.zip \
+		el_data_update_1.9.4-2.zip eternallands-data_1.9.4-1.zip
 
 	# if we already have an archive check the md5sum is ok and remove if not
 	[ ! -f "$DOWNLOADMAIN" ] || echo "$MD5SUMMAIN  $DOWNLOADMAIN" | md5sum -c - || rm -fv $DOWNLOADMAIN
 	# post release updates
-	[ ! -f "$DOWNLOADUPDATE2" ] || echo "$MD5SUMUPDATE2  $DOWNLOADUPDATE2" | md5sum -c - || rm -fv $DOWNLOADUPDATE2
+	#[ ! -f "$DOWNLOADUPDATE1" ] || echo "$MD5SUMUPDATE1  $DOWNLOADUPDATE1" | md5sum -c - || rm -fv $DOWNLOADUPDATE1
 	
 	
 	# Use existing file or download it 
@@ -54,23 +55,22 @@ case "$1" in
 		echo "$MD5SUMMAIN  $DOWNLOADMAIN" | md5sum -c -
 	fi
 	# post release updates
-	if [ ! -f "$DOWNLOADUPDATE2" ]
-	then
-		wget -P "." -v --progress="dot:mega" --no-check-certificate $DOWNLOADURL/$DOWNLOADUPDATE2
-		echo "$MD5SUMUPDATE2  $DOWNLOADUPDATE2" | md5sum -c -
-	fi
+	#if [ ! -f "$DOWNLOADUPDATE1" ]
+	#then
+	#	wget -P "." -v --progress="dot:mega" --no-check-certificate $DOWNLOADURL/$DOWNLOADUPDATE1
+	#	echo "$MD5SUMUPDATE1  $DOWNLOADUPDATE1" | md5sum -c -
+	#fi
 
 	# unnpack the archive
 	UNPACKDIR="`mktemp -d /tmp/eternallands-data.XXXXXXXXXX`"
 	cd $UNPACKDIR
 	unzip -q $CACHEDIR/$DOWNLOADMAIN
-	mv EL-1.9.4-datafiles el_install
 	# post release updates
-	cd el_install
-	unzip -q -o $CACHEDIR/$DOWNLOADUPDATE2
+	#cd el_data
+	#unzip -q -o $CACHEDIR/$DOWNLOADUPDATE1
 
 	# fix el.ini and server.lst, remove unneeded files and set the permissions
-	cd $UNPACKDIR/el_install
+	cd $UNPACKDIR/el_data
 	rm -f *.dll *.exe el.*.bin
 	sed -i 's/^#data_dir.*$/#data_dir = \/usr\/share\/games\/EternalLands/g' el.ini
 	sed -i 's/^#browser.*$/#browser = x-www-browser/g' el.ini
@@ -90,7 +90,7 @@ case "$1" in
 	[ ! -s $FILELIST ] || cat $FILELIST | xargs rm -f || true
 	[ ! -s $DIRLIST ] || cat $DIRLIST | xargs rmdir --ignore-fail-on-non-empty > /dev/null 2>&1 || true
 	chmod -R +w .
-	cp --remove-destination -rpf $UNPACKDIR/el_install/* .
+	cp --remove-destination -rpf $UNPACKDIR/el_data/* .
 	
 	rm -rf $UNPACKDIR
 	

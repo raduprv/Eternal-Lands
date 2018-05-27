@@ -8,7 +8,7 @@ Homepage: http://www.eternal-lands.com
 
 Package: eternallands-data
 Architecture: all
-Depends: ${misc:Depends}, wget (>>1), unzip (>>2), findutils (>>4), eternallands (>=1.9.4)
+Depends: ${misc:Depends}, wget (>>1), unzip (>>2), findutils (>>4), eternallands (>=1.9.5.0)
 Recommends: eternallands-sound (>=1.6.0)
 Suggests: eternallands-music (>=1.6.0)
 Description: data package for Eternal Lands, a free MMORPG
