@@ -344,7 +344,7 @@ Achievements_System::Achievements_System(void)
 		else if (!xmlStrcasecmp(cur->name, (const xmlChar *)"image_settings"))
 		{
 			int *props_p[2] = { &size, &display };
-			const char *(props_s[2]) =  { "size", "display" };
+			const char * props_s[2] =  { "size", "display" };
 			get_int_props(cur, props_p, props_s, 2);
 		}
 		else if (!xmlStrcasecmp(cur->name, (const xmlChar *)"window_settings"))
