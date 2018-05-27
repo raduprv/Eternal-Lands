@@ -220,6 +220,17 @@
 		1FF1FAA00D1AE4940002D512 /* SDL_image.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1FF1FA990D1AE4940002D512 /* SDL_image.framework */; };
 		1FF1FAA10D1AE4940002D512 /* SDL_net.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1FF1FA9A0D1AE4940002D512 /* SDL_net.framework */; };
 		1FF1FAA20D1AE4940002D512 /* vorbis.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1FF1FA9B0D1AE4940002D512 /* vorbis.framework */; };
+		7B467C1720A9F7530048718D /* command_queue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B467C0020A9F7530048718D /* command_queue.cpp */; };
+		7B467C1820A9F7530048718D /* hud_indicators.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B467C0320A9F7530048718D /* hud_indicators.cpp */; };
+		7B467C1920A9F7530048718D /* hud_misc_window.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B467C0520A9F7530048718D /* hud_misc_window.c */; };
+		7B467C1A20A9F7530048718D /* hud_quickbar_window.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B467C0720A9F7530048718D /* hud_quickbar_window.c */; };
+		7B467C1B20A9F7530048718D /* hud_quickspells_window.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B467C0920A9F7530048718D /* hud_quickspells_window.c */; };
+		7B467C1C20A9F7530048718D /* hud_statsbar_window.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B467C0B20A9F7530048718D /* hud_statsbar_window.c */; };
+		7B467C1D20A9F7530048718D /* hud_timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B467C0D20A9F7530048718D /* hud_timer.cpp */; };
+		7B467C1E20A9F7530048718D /* icon_window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B467C0F20A9F7530048718D /* icon_window.cpp */; };
+		7B467C1F20A9F7530048718D /* item_info.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B467C1120A9F7530048718D /* item_info.cpp */; };
+		7B467C2020A9F7530048718D /* named_colours.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B467C1320A9F7530048718D /* named_colours.cpp */; };
+		7B467C2120A9F7530048718D /* trade_log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B467C1520A9F7530048718D /* trade_log.cpp */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		E18287A10EFFFC320046818E /* buffs.c in Sources */ = {isa = PBXBuildFile; fileRef = E182879E0EFFFC320046818E /* buffs.c */; };
 		E1914A6A1305B1A8004CD9C1 /* image.c in Sources */ = {isa = PBXBuildFile; fileRef = E1914A661305B1A8004CD9C1 /* image.c */; };
@@ -1018,6 +1029,29 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		32CA4F630368D1EE00C91783 /* EternalLands_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EternalLands_Prefix.pch; sourceTree = "<group>"; };
+		7B467C0020A9F7530048718D /* command_queue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = command_queue.cpp; path = ../command_queue.cpp; sourceTree = SOURCE_ROOT; };
+		7B467C0120A9F7530048718D /* command_queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = command_queue.h; path = ../command_queue.h; sourceTree = SOURCE_ROOT; };
+		7B467C0220A9F7530048718D /* command_queue.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = command_queue.hpp; path = ../command_queue.hpp; sourceTree = SOURCE_ROOT; };
+		7B467C0320A9F7530048718D /* hud_indicators.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hud_indicators.cpp; path = ../hud_indicators.cpp; sourceTree = SOURCE_ROOT; };
+		7B467C0420A9F7530048718D /* hud_indicators.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hud_indicators.h; path = ../hud_indicators.h; sourceTree = SOURCE_ROOT; };
+		7B467C0520A9F7530048718D /* hud_misc_window.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = hud_misc_window.c; path = ../hud_misc_window.c; sourceTree = SOURCE_ROOT; };
+		7B467C0620A9F7530048718D /* hud_misc_window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hud_misc_window.h; path = ../hud_misc_window.h; sourceTree = SOURCE_ROOT; };
+		7B467C0720A9F7530048718D /* hud_quickbar_window.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = hud_quickbar_window.c; path = ../hud_quickbar_window.c; sourceTree = SOURCE_ROOT; };
+		7B467C0820A9F7530048718D /* hud_quickbar_window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hud_quickbar_window.h; path = ../hud_quickbar_window.h; sourceTree = SOURCE_ROOT; };
+		7B467C0920A9F7530048718D /* hud_quickspells_window.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = hud_quickspells_window.c; path = ../hud_quickspells_window.c; sourceTree = SOURCE_ROOT; };
+		7B467C0A20A9F7530048718D /* hud_quickspells_window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hud_quickspells_window.h; path = ../hud_quickspells_window.h; sourceTree = SOURCE_ROOT; };
+		7B467C0B20A9F7530048718D /* hud_statsbar_window.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = hud_statsbar_window.c; path = ../hud_statsbar_window.c; sourceTree = SOURCE_ROOT; };
+		7B467C0C20A9F7530048718D /* hud_statsbar_window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hud_statsbar_window.h; path = ../hud_statsbar_window.h; sourceTree = SOURCE_ROOT; };
+		7B467C0D20A9F7530048718D /* hud_timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hud_timer.cpp; path = ../hud_timer.cpp; sourceTree = SOURCE_ROOT; };
+		7B467C0E20A9F7530048718D /* hud_timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hud_timer.h; path = ../hud_timer.h; sourceTree = SOURCE_ROOT; };
+		7B467C0F20A9F7530048718D /* icon_window.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = icon_window.cpp; path = ../icon_window.cpp; sourceTree = SOURCE_ROOT; };
+		7B467C1020A9F7530048718D /* icon_window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = icon_window.h; path = ../icon_window.h; sourceTree = SOURCE_ROOT; };
+		7B467C1120A9F7530048718D /* item_info.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = item_info.cpp; path = ../item_info.cpp; sourceTree = SOURCE_ROOT; };
+		7B467C1220A9F7530048718D /* item_info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = item_info.h; path = ../item_info.h; sourceTree = SOURCE_ROOT; };
+		7B467C1320A9F7530048718D /* named_colours.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = named_colours.cpp; path = ../named_colours.cpp; sourceTree = SOURCE_ROOT; };
+		7B467C1420A9F7530048718D /* named_colours.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = named_colours.h; path = ../named_colours.h; sourceTree = SOURCE_ROOT; };
+		7B467C1520A9F7530048718D /* trade_log.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = trade_log.cpp; path = ../trade_log.cpp; sourceTree = SOURCE_ROOT; };
+		7B467C1620A9F7530048718D /* trade_log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = trade_log.h; path = ../trade_log.h; sourceTree = SOURCE_ROOT; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* EternalLands.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EternalLands.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E182879E0EFFFC320046818E /* buffs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = buffs.c; path = ../buffs.c; sourceTree = SOURCE_ROOT; };
@@ -1115,6 +1149,29 @@
 		1F8128D90D033520008792A7 /* elc */ = {
 			isa = PBXGroup;
 			children = (
+				7B467C0020A9F7530048718D /* command_queue.cpp */,
+				7B467C0120A9F7530048718D /* command_queue.h */,
+				7B467C0220A9F7530048718D /* command_queue.hpp */,
+				7B467C0320A9F7530048718D /* hud_indicators.cpp */,
+				7B467C0420A9F7530048718D /* hud_indicators.h */,
+				7B467C0520A9F7530048718D /* hud_misc_window.c */,
+				7B467C0620A9F7530048718D /* hud_misc_window.h */,
+				7B467C0720A9F7530048718D /* hud_quickbar_window.c */,
+				7B467C0820A9F7530048718D /* hud_quickbar_window.h */,
+				7B467C0920A9F7530048718D /* hud_quickspells_window.c */,
+				7B467C0A20A9F7530048718D /* hud_quickspells_window.h */,
+				7B467C0B20A9F7530048718D /* hud_statsbar_window.c */,
+				7B467C0C20A9F7530048718D /* hud_statsbar_window.h */,
+				7B467C0D20A9F7530048718D /* hud_timer.cpp */,
+				7B467C0E20A9F7530048718D /* hud_timer.h */,
+				7B467C0F20A9F7530048718D /* icon_window.cpp */,
+				7B467C1020A9F7530048718D /* icon_window.h */,
+				7B467C1120A9F7530048718D /* item_info.cpp */,
+				7B467C1220A9F7530048718D /* item_info.h */,
+				7B467C1320A9F7530048718D /* named_colours.cpp */,
+				7B467C1420A9F7530048718D /* named_colours.h */,
+				7B467C1520A9F7530048718D /* trade_log.cpp */,
+				7B467C1620A9F7530048718D /* trade_log.h */,
 				1FB7E416143560EA002C4FEA /* xz */,
 				1FB7E40F143560DE002C4FEA /* engine */,
 				1FB7E409143560CB002C4FEA /* elloggingwrapper.cpp */,
@@ -2284,6 +2341,7 @@
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "EternalLands" */;
 			compatibilityVersion = "Xcode 3.0";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				English,
@@ -2511,6 +2569,17 @@
 				1FB7E44A143560EA002C4FEA /* XzDec.c in Sources */,
 				1FB7E44B143560EA002C4FEA /* XzEnc.c in Sources */,
 				1FB7E44E14356236002C4FEA /* fileutil.c in Sources */,
+				7B467C1720A9F7530048718D /* command_queue.cpp in Sources */,
+				7B467C1820A9F7530048718D /* hud_indicators.cpp in Sources */,
+				7B467C1920A9F7530048718D /* hud_misc_window.c in Sources */,
+				7B467C1A20A9F7530048718D /* hud_quickbar_window.c in Sources */,
+				7B467C1B20A9F7530048718D /* hud_quickspells_window.c in Sources */,
+				7B467C1C20A9F7530048718D /* hud_statsbar_window.c in Sources */,
+				7B467C1D20A9F7530048718D /* hud_timer.cpp in Sources */,
+				7B467C1E20A9F7530048718D /* icon_window.cpp in Sources */,
+				7B467C1F20A9F7530048718D /* item_info.cpp in Sources */,
+				7B467C2020A9F7530048718D /* named_colours.cpp in Sources */,
+				7B467C2120A9F7530048718D /* trade_log.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2611,9 +2680,9 @@
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1)";
-				ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1 = "ppc i386";
-				CURRENT_PROJECT_VERSION = 1.9.4;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
+				CURRENT_PROJECT_VERSION = 1.9.5;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(EL_FRAMEWORKS_DIR)",
 					"$(HOME)/Library/Frameworks",
@@ -2663,17 +2732,17 @@
 					"-liconv",
 				);
 				PREBINDING = NO;
-				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.4u.sdk";
+				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
 			};
 			name = Debug;
 		};
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1)";
-				ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1 = "ppc i386";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1.9.4;
+				CURRENT_PROJECT_VERSION = 1.9.5;
 				DEPLOYMENT_LOCATION = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(EL_FRAMEWORKS_DIR)",
@@ -2726,7 +2795,7 @@
 					"-liconv",
 				);
 				PREBINDING = NO;
-				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.4u.sdk";
+				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
 				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = Release;
