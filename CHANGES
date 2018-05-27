@@ -1,3 +1,35 @@
+2018-May-27: Release 1.9.5
+Client Improvements and New Features:
+* Added delete recipe option.
+* Added skill experience related operators to #calc.
+* Added context menu to control indicators. Added PM/ModPM count indicator, click to clear.
+* Added ranging lock indicator.
+* Added option for the "click close to attack" and "click close to open bag" changes from the Android client.
+* Large refactoring of the client to support UI scaling for high DPI displays.
+* Improved performance of targeted eye candy effects like mana drain to prevent the drop in FPS.
+* Improve error checking for new character player name and password entry.
+* Enabled snow on selected maps.
+* Many minor improvement, many done during UI scaling changes.....
+Client Bug fixes:
+* Fix saving options that are on multiple tabs.
+* Fix writing new options values from the context menu.
+* Fix storage window quantity text appearing under the scrollbar.
+* Fix for a possible client hang on start-up loading objects.
+* Fix for when the accept buddy window did not show in console mode.
+* Fix overhead mana display size; forum #60952.
+* Fix weather effects not starting on login or map change.
+* Fix when sound effects option changed incorrectly at start-up depending on other options state; issue #49.
+* Fix a possible crash in eye candy effects; issue #45.
+* Fix broken sound effects for newer openal versions; issue #50.
+* Fix missing on-going eye candy effects for some windows build using older compiler (the last release).
+* Many minor fixes.....
+Map changes summary, there's much more:
+* Extensive general cleanup and bugs fixed on almost every map.
+* Zirakgunda fully remade, with many changes to Zirakinbar to go along with it.
+* Lots of new buildings and changes to Idaloran.
+* Several other maps have new general insides, and a few new secrets added.
+* "location info" now available everywhere (the text when you click the compass)
+
 2015-Apr-07: Release 1.9.4
 From http://www.eternal-lands.com/forum/index.php?showtopic=59112
 
