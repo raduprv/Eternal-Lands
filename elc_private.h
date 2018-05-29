@@ -9,7 +9,7 @@
 #define VER_MAJOR	1
 #define VER_MINOR	9
 #define VER_RELEASE	5
-#define VER_BUILD	0
+#define VER_BUILD	1
 #define COMPANY_NAME	""
 #define FILE_VERSION	"1.9.5"
 #define FILE_DESCRIPTION	"Eternal-Lands Client"
