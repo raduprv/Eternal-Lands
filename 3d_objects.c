@@ -433,15 +433,19 @@ static e3d_object *load_e3d_cache(const char* file_name)
 	// and fill in the data
 	my_strncp(e3d_id->file_name, file_name, sizeof(e3d_id->file_name));
 
-	e3d_id->cache_ptr = cache_add_item(cache_e3d, e3d_id->file_name,
-		e3d_id, sizeof(*e3d_id));
-
 	e3d_id = load_e3d_detail(e3d_id);
 	if (!e3d_id)
 	{
 		LOG_ERROR("Can't load file \"%s\"!", file_name);
 		return NULL;
 	}
+
+	// Note, doing this after load_e3d_detail() means the cache size is not calculated correctly
+	// but doing it before load_e3d_detail() puts invalid objects into the cache if they fail to load.
+	// This needs fixing properly, but for now this works without other issues.
+	// see https://github.com/raduprv/Eternal-Lands/commit/1796c7944f4b11f67595e84ba42fa8e036621de5
+	e3d_id->cache_ptr = cache_add_item(cache_e3d, e3d_id->file_name,
+		e3d_id, sizeof(*e3d_id));
 
 	return e3d_id;
 }
@@ -489,13 +493,8 @@ int add_e3d_at_id(int id, const char* file_name,
 	{
 		LOG_ERROR(nasty_error_str, fname);
 		//replace it with the null object, to avoid object IDs corruption
-#ifdef OLD_MISC_OBJ_DIR
-		returned_e3d = load_e3d_cache("./3dobjects/misc_objects/badobject.e3d");
-		my_strncp(fname, "./3dobjects/misc_objects/badobject.e3d", sizeof(fname));
-#else
-		returned_e3d = load_e3d_cache("./3dobjects/badobject.e3d");
 		my_strncp(fname, "./3dobjects/badobject.e3d", sizeof(fname));
-#endif
+		returned_e3d = load_e3d_cache(fname);
 		if (!returned_e3d)
 			return -1; // umm, not even found the place holder, this is teh SUCK!!!
 	}
