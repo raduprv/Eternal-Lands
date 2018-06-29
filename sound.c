@@ -4212,22 +4212,22 @@ void final_sound_exit(void)
 {
 	SDL_DestroyMutex(sound_list_mutex);
 	sound_list_mutex = NULL;
-	free(streams);
-	free(sounds_list);
-	free(sound_source_data);
-	free(sound_type_data);
-	free(sound_sample_data);
-	free(sound_files);
-	free(sound_background_defaults);
-	free(sound_map_data);
-	free(sound_effect_data);
-	free(sound_particle_data);
-	free(sound_item_data);
-	free(sound_tile_data);
-	free(server_sound);
-	free(sound_spell_data);
-	free(warnings_list);
-	free(playlist);
+	free(streams); streams = NULL;
+	free(sounds_list); sounds_list = NULL;
+	free(sound_source_data); sound_source_data = NULL;
+	free(sound_type_data); sound_type_data = NULL;
+	free(sound_sample_data); sound_sample_data = NULL;
+	free(sound_files); sound_files = NULL;
+	free(sound_background_defaults); sound_background_defaults = NULL;
+	free(sound_map_data); sound_map_data = NULL;
+	free(sound_effect_data); sound_effect_data = NULL;
+	free(sound_particle_data); sound_particle_data = NULL;
+	free(sound_item_data); sound_item_data = NULL;
+	free(sound_tile_data); sound_tile_data = NULL;
+	free(server_sound); server_sound = NULL;
+	free(sound_spell_data); sound_spell_data = NULL;
+	free(warnings_list); warnings_list = NULL;
+	free(playlist); playlist = NULL;
 }
 
 void init_sound()
