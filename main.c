@@ -348,10 +348,6 @@ int start_rendering()
 	}
 #endif  //WINDOWS
 */
-#ifdef NEW_SOUND
-	LOG_INFO("final_sound_exit()");
-	final_sound_exit();
-#endif
 
 #ifdef	CUSTOM_UPDATE
 	LOG_INFO("stopp_custom_update()");
@@ -382,6 +378,11 @@ int start_rendering()
 	xmlCleanupParser();
 	LOG_INFO("FreeXML()");
 	FreeXML();
+
+#ifdef NEW_SOUND
+	LOG_INFO("final_sound_exit()");
+	final_sound_exit();
+#endif
 
 	LOG_INFO("exit_logging()");
 	exit_logging();
