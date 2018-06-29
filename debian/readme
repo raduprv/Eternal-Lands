@@ -17,12 +17,13 @@
 git clone https://github.com/raduprv/Eternal-Lands.git Eternal-Lands
 
 # Set the version number
-elver="1.9.5.1"
+elver="1.9.5.2"
 packagename="eternallands"
 
 # Make an original source tar ball:
 cd <the repo diretory>
-make -f Makefile.linux gen_git_version
+# optionally using git versioning
+# make -f Makefile.linux gen_git_version
 bash pkgfiles/maketarball ${packagename} ${elver}
 cd pkgfiles/debs
 mkdir -p tmp
