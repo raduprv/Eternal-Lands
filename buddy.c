@@ -51,13 +51,13 @@ static int buddy_type_input_id = -1;
 static int buddy_delete = 0; //For the checkbox
 static char *buddy_to_change = NULL;
 
-struct accept_window {
+static struct accept_window {
 	int window_id; //Window ID
 	char name[32]; //Name of the buddy to accept
 	char *text; //Buffer for the text to display
 	int checkbox; //Checkbox widget id
 } accept_windows[MAX_ACCEPT_BUDDY_WINDOWS];
-static queue_t *buddy_request_queue;
+static queue_t *buddy_request_queue = NULL;
 
 static unsigned char buddy_name_buffer[MAX_USERNAME_LENGTH] = {0};
 static char description_buffer[255] = {0};
