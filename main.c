@@ -97,43 +97,64 @@ void cleanup_mem(void)
 {
 	int i;
 
+	LOG_INFO("destroy_url_list()");
 	destroy_url_list();
+	LOG_INFO("history_destroy()");
 	history_destroy();
+	LOG_INFO("command_cleanup()");
 	command_cleanup();
+	LOG_INFO("destroy_buddy_queue()");
 	destroy_buddy_queue();
+	LOG_INFO("cleanup_manufacture()");
 	cleanup_manufacture();
+	LOG_INFO("cleanup_text_buffers()");
 	cleanup_text_buffers();
+	LOG_INFO("cleanup_fonts()");
 	cleanup_fonts();
+	LOG_INFO("destroy_all_actors()");
 	destroy_all_actors();
+	LOG_INFO("end_actors_lists()");
 	end_actors_lists();
+	LOG_INFO("cleanup_lights()");
 	cleanup_lights();
 	/* 2d objects */
+	LOG_INFO("destroy_all_2d_objects()");
 	destroy_all_2d_objects();
+	LOG_INFO("destroy_all_2d_object_defs()");
 	destroy_all_2d_object_defs();
 	/* 3d objects */
+	LOG_INFO("destroy_all_3d_objects()");
 	destroy_all_3d_objects();
 	/* caches */
 	cache_e3d->free_item = &destroy_e3d;
+	LOG_INFO("cache_delete()");
 	cache_delete(cache_e3d);
 	cache_e3d = NULL;
+	LOG_INFO("free_texture_cache()");
 	free_texture_cache();
 	// This should be fixed now  Sir_Odie
+	LOG_INFO("cache_delete()");
 	cache_delete(cache_system);
 	cache_system = NULL;
 	/* map location information */
+	LOG_INFO("continent_maps[]");
 	for (i = 0; continent_maps[i].name; i++)
 	{
 	    free(continent_maps[i].name);
 	}
+	LOG_INFO("continent_maps");
 	free (continent_maps);
 
+	LOG_INFO("destroy_hash_table()");
 	destroy_hash_table(server_marks);
 	
+	LOG_INFO("video_modes[]");
 	for (i = 0; i < video_modes_count; i++)
 	{
 		if (video_modes[i].name)
 			free(video_modes[i].name);
 	}
+	LOG_INFO("free_shaders()");
 	free_shaders();
 }
 
@@ -240,52 +261,84 @@ int start_rendering()
 	if(!done) {
 		done = 1;
 	}
-	LOG_INFO("Client closed");
+	LOG_INFO("Client closing");
+	LOG_INFO("SDL_WaitThread(network_thread)");
 	SDL_WaitThread(network_thread,&done);
+	LOG_INFO("queue_destroy()");
 	queue_destroy(message_queue);
+	LOG_INFO("free_pm_log()");
 	free_pm_log();
 
 	//save all local data
+	LOG_INFO("save_local_date()");
 	save_local_data(NULL, 0);
 
 #ifdef PAWN
+	LOG_INFO("cleanup_pawn()");
 	cleanup_pawn ();
 #endif
 
 #ifdef NEW_SOUND
+	LOG_INFO("destroy_sound()");
 	destroy_sound();		// Cleans up physical elements of the sound system and the streams thread
+	LOG_INFO("clear_sound_data()");
 	clear_sound_data();		// Cleans up the config data
 #endif // NEW_SOUND
+	LOG_INFO("ec_destroy_all_effects()");
 	ec_destroy_all_effects();
 	if (have_a_map)
 	{
+		LOG_INFO("destroy_map()");
 		destroy_map();
+		LOG_INFO("free_buffers()");
 		free_buffers();
 	}
+	LOG_INFO("unload_questlog()");
 	unload_questlog();
+	LOG_INFO("save_item_lists()");
 	save_item_lists();
+	LOG_INFO("free_emotes()");
 	free_emotes();
+	LOG_INFO("free_actor_defs()");
 	free_actor_defs();
+	LOG_INFO("free_books()");
 	free_books();
+	LOG_INFO("free_vars()");
 	free_vars();
+	LOG_INFO("cleanup_rules()");
 	cleanup_rules();
 	//save_exploration_map();
+	LOG_INFO("cleanup_counters()");
 	cleanup_counters();
+	LOG_INFO("cleanup_chan_names()");
 	cleanup_chan_names();
+	LOG_INFO("cleanup_hud()");
 	cleanup_hud();
+	LOG_INFO("destroy_trade_log()");
 	destroy_trade_log();
+	LOG_INFO("destroy_user_menus()");
 	destroy_user_menus();
+	LOG_INFO("destroy_all_root_windows()");
 	destroy_all_root_windows();
+	LOG_INFO("SDL_RemoveTimer()");
 	SDL_RemoveTimer(draw_scene_timer);
+	LOG_INFO("SDL_RemoveTimer()");
 	SDL_RemoveTimer(misc_timer);
+	LOG_INFO("end_particles()");
 	end_particles ();
+	LOG_INFO("free_bbox_tree()");
 	free_bbox_tree(main_bbox_tree);
 	main_bbox_tree = NULL;
+	LOG_INFO("free_astro_buffer()");
 	free_astro_buffer();
+	LOG_INFO("free_translations()");
 	free_translations();
+	LOG_INFO("free_skybox()");
 	free_skybox();
 	/* Destroy our GL context, etc. */
+	LOG_INFO("SDL_QuitSubSystem(SDL_INIT_AUDIO)");
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
+	LOG_INFO("SDL_QuitSubSystem(SDL_INIT_TIMER)");
 	SDL_QuitSubSystem(SDL_INIT_TIMER);
 /*#ifdef WINDOWS
 	// attempt to restart if requested
@@ -296,30 +349,45 @@ int start_rendering()
 #endif  //WINDOWS
 */
 #ifdef NEW_SOUND
+	LOG_INFO("final_sound_exit()");
 	final_sound_exit();
 #endif
+
 #ifdef	CUSTOM_UPDATE
+	LOG_INFO("stopp_custom_update()");
 	stopp_custom_update();
 #endif	/* CUSTOM_UPDATE */
+	LOG_INFO("clear_zip_archives()");
 	clear_zip_archives();
+	LOG_INFO("clean_update()");
 	clean_update();
 
+	LOG_INFO("cleanup_tcp()");
 	cleanup_tcp();
 
-	if (use_frame_buffer) free_reflection_framebuffer();
+	if (use_frame_buffer)
+	{
+		LOG_INFO("free_reflection_framebuffer()");
+		free_reflection_framebuffer();
+	}
 
+	LOG_INFO("cursors_cleanup()");
 	cursors_cleanup();
 
-	printf("doing SDL_Quit\n");
-	fflush(stdout);
-	SDL_Quit( );
-	printf("done SDL_Quit\n");
-	fflush(stdout);
+	LOG_INFO("SDL_Quit()");
+	SDL_Quit();
+	LOG_INFO("cleanup_mem()");
 	cleanup_mem();
+	LOG_INFO("xmlCleanupParser()");
 	xmlCleanupParser();
+	LOG_INFO("FreeXML()");
 	FreeXML();
 
+	LOG_INFO("exit_logging()");
 	exit_logging();
+
+	printf("Exit Complete\n"); fflush(stdout);
+	fflush(stdout);
 
 	return(0);
 }
