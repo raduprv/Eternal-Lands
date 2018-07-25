@@ -1,0 +1,24 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Eternal Lands (snap)
+Comment=Play the massively-multi-player online role-playing game
+Exec=eternallands.client
+Icon=${SNAP}/meta/gui/icon.svg
+StartupNotify=true
+Terminal=false
+Type=Application
+Categories=Game;AdventureGame;
+
+Actions=Main;Test;PK;
+
+[Desktop Action Main]
+Name=Main server
+Exec=eternallands.client main
+
+[Desktop Action Test]
+Name=Test server
+Exec=eternallands.client test
+
+[Desktop Action PK]
+Name=PK server
+Exec=eternallands.client pk

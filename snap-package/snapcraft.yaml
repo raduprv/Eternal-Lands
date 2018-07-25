@@ -1,0 +1,93 @@
+name: eternallands
+version: '1.9.5.p2'
+summary: client snap package for Eternal Lands, a free MMORPG
+description: |
+  Eternal Lands is a free to play, graphical MMORPG (massively-multi-player
+  online role-playing game).  Different from other role-playing games, there are
+  no fixed classes so you can improve any of the many skills.  There is a choice
+  of several character races but all are equal.
+  See http://www.eternal-lands.com/
+grade: devel # must be 'stable' to release into candidate/stable channels
+confinement: strict
+type: app
+icon: eternallands.svg
+architectures: [amd64]
+
+parts:
+  client:
+    source: https://github.com/raduprv/Eternal-Lands/archive/1.9.5.2.zip
+    build-packages: [build-essential, libcal3d12-dev, libsdl-image1.2-dev, libsdl-net1.2-dev, libxml2-dev, libopenal-dev, libvorbis-dev]
+    plugin: make
+    source-subdir: "Eternal-Lands-1.9.5.2"
+    makefile: Makefile.linux
+    make-parameters: ["release"]
+    override-pull: |
+      snapcraftctl pull
+      sed -i 's|^PLATFORM=.*$|#PLATFORM=""|g' Eternal-Lands-1.9.5.2/make.defaults
+    artifacts: ["el.x86.linux.bin"]
+    stage-packages:
+      - libglib2.0-0
+      - libsdl-net1.2
+      - libxml2
+      - libogg0
+      - libvorbis0a
+      - libvorbisfile3
+      - libopenal1
+      - libcal3d12v5
+      - libsdl-image1.2
+      - libxrandr2
+      - zlib1g
+      - libpng16-16
+      - libegl1-mesa
+      - libglu1-mesa
+      - libgl1-mesa-dri
+      - libgl1-mesa-glx
+      - libglapi-mesa
+      - libgles2-mesa
+      - libosmesa6
+      - mesa-utils
+      - mesa-va-drivers
+      - mesa-vdpau-drivers
+      - mesa-vulkan-drivers
+    after:
+      - desktop-glib-only
+
+  data:
+    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.2/el_195_1_data_files.zip
+    plugin: dump
+    organize:
+      el_data/ : data/
+    override-build: |
+      snapcraftctl build
+      sed -i 's|^#browser.*$|#browser = x-www-browser|g' $SNAPCRAFT_PART_INSTALL/el_data/el.ini
+      sed -i 's|^#use_new_selection.*$|#use_new_selection = 1|g' $SNAPCRAFT_PART_INSTALL/el_data/el.ini
+
+  sound:
+    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.2/eternallands-sound_1.9.4.zip
+    plugin: dump
+    organize:
+      '*' : data/
+
+  music:
+    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.2/music_full.zip
+    plugin: dump
+    organize:
+      '*' : data/music/
+
+  launcher:
+    plugin: nil
+    override-build: |
+      mkdir -p $SNAPCRAFT_PART_INSTALL/bin/
+      cp -p launcher.sh $SNAPCRAFT_PART_INSTALL/bin/
+      cp -p eternallands.desktop $SNAPCRAFT_PART_INSTALL/bin/
+
+apps:
+  client:
+    plugs:
+      - x11
+      - opengl
+      - alsa
+      - network
+      - pulseaudio
+    desktop: bin/eternallands.desktop
+    command: desktop-launch $SNAP/bin/launcher.sh $*
