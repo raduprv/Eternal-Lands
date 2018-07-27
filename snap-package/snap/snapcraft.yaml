@@ -44,7 +44,6 @@ parts:
       - libglapi-mesa
       - libgles2-mesa
       - libosmesa6
-      - mesa-utils
       - mesa-va-drivers
       - mesa-vdpau-drivers
       - mesa-vulkan-drivers
@@ -85,7 +84,6 @@ apps:
     plugs:
       - x11
       - opengl
-      - alsa
       - network
       - pulseaudio
     desktop: bin/eternallands.desktop
