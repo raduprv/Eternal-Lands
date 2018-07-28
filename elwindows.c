@@ -950,7 +950,7 @@ int	move_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y)
 	win->pos_id = pos_id;
 	win->pos_loc= pos_loc;	//NOT SUPPORTED YET
 	//TODO: calc win->cur_[xy] based on pos_id & pos_loc
-	if(win->flags&ELW_TITLE_BAR || win->owner_drawn_title_bar){
+	if(win->len_x > 0 && win->len_y > 0 && (win->flags&ELW_TITLE_BAR || win->owner_drawn_title_bar)){
 		int xbound = (win->len_x < 50) ? win->len_x : 50;
 		int ybound = (win->len_y < 50) ? win->len_y : 50;
 		win->pos_x = win->cur_x = clampi(pos_x, xbound - win->len_x, window_width - xbound);
@@ -970,7 +970,7 @@ int	move_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y)
 			win->pos_y = win->cur_y = (win->flags&ELW_TITLE_BAR)?win->title_height:0;
 		if(win->cur_y >= window_height)
 			win->pos_y = win->cur_y = window_height;	// had -32, but do we want that?
-		if(win->cur_x+win->len_x < win->box_size)
+		if(win->len_x > 0 && (win->cur_x+win->len_x < win->box_size))
 			win->pos_x = win->cur_x = 0-win->len_x+win->box_size;
 		if(win->cur_x > window_width-win->box_size)
 			win->pos_x = win->cur_x = window_width-win->box_size;
