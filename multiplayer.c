@@ -965,14 +965,11 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				safe_strncpy2(inventory_item_string, (const char *)&in_data[3], sizeof(inventory_item_string)-1, data_length - 3);
 				inventory_item_string[sizeof(inventory_item_string)-1] = 0;
 				inventory_item_string_id++;
-				if(!(mixed_message_filter||get_show_window(items_win)||get_show_window(manufacture_win)||get_show_window(trade_win)))
-					{
-						put_text_in_buffer(CHAT_SERVER, &in_data[3], data_length-3);
-					}
 				// Start a new block, since C doesn't like variables declared in the middle of a block.
 				{
 					char *teststring = "You successfully created ";
 					int testlen = strlen(teststring);
+					int is_created_message = 0;
 					if ( (data_length > testlen+4) && (!strncmp((char*)in_data+4, teststring, testlen)) )
 					{
 						char *restofstring = malloc(data_length - 4 - testlen + 1);
@@ -990,10 +987,13 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 							}
 						}
 						free(restofstring);
+						is_created_message = 1;
 					}
 					// if we don't get the product name, make sure we don't just count it as the last item.
 					else
 						counters_set_product_info("",0);
+					if(!((is_created_message&&mixed_message_filter)||get_show_window(items_win)||get_show_window(manufacture_win)||get_show_window(trade_win)))
+						put_text_in_buffer(CHAT_SERVER, &in_data[3], data_length-3);
 				}  // End successs counters block
 				/* You failed to create a[n] ..., and lost the ingredients */
 				if (my_strncompare(inventory_item_string+1, "You failed to create a[n] ", 26))
