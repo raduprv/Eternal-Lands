@@ -86,5 +86,6 @@ apps:
       - opengl
       - network
       - pulseaudio
+      - desktop
     desktop: bin/eternallands.desktop
     command: desktop-launch $SNAP/bin/launcher.sh $*

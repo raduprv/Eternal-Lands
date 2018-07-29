@@ -38,5 +38,10 @@ then
 	#echo "[$(grep ^#data_dir $userdir/$config/$inifile)]"
 fi
 
+if [ "$(grep ^#browser $userdir/$config/$inifile)" != "#browser = xdg-open" ]
+then
+	sed -i "s|^#browser.*$|#browser = xdg-open|g" $userdir/$config/$inifile || exit
+	#echo "[$(grep ^#browser $userdir/$config/$inifile)]"
+fi
 
 exec "$exename" "$config"
