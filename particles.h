@@ -193,10 +193,11 @@ void destroy_all_particles();
  * \param kind		the kind of fire (1: small, 2: big)
  * \param x_tile	the x value of the tile
  * \param y_tile	the y value of the tile
+ * \param z			the hight of the tile
  *
  * \callgraph
  */
-void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile);
+void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile, float z);
 
 /*!
  * \ingroup other
