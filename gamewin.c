@@ -2303,7 +2303,10 @@ static int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, 
 	else if (keysym == SDLK_F9)
 	{
 		actor *me = get_actor_ptr_from_id (yourself);
-		ec_create_campfire(me->x_pos + 0.25f, me->y_pos + 0.25f, get_tile_height(me->x_tile_pos, me->y_tile_pos), 0.0, 1.0, (poor_man ? 6 : 10), 0.7);
+		if (key & ELW_SHIFT)
+			remove_fire_at_tile(me->x_pos * 2, me->y_pos * 2);
+		else
+			add_fire_at_tile(1, me->x_pos * 2, me->y_pos * 2, get_tile_height(me->x_tile_pos, me->y_tile_pos));
 	}
 #ifdef DEBUG
 	else if (keysym == SDLK_F10)
