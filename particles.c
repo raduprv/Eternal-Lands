@@ -137,7 +137,6 @@ particle_sys_def *load_particle_def(const char *filename)
 	if (!fscanf_error && fscanf(f,"%i\n",&def->part_sys_type) != 1) fscanf_error = 2;
 	if (!fscanf_error && fscanf(f,"%x,%x\n",&def->sblend,&def->dblend) != 2) fscanf_error = 3;
 	if (!fscanf_error && fscanf(f,"%i\n",&def->total_particle_no) != 1) fscanf_error = 4;
-	def->total_particle_no*=(float)particles_percentage/100.0;
 	if (!fscanf_error && fscanf(f,"%i\n",&def->ttl) != 1) fscanf_error = 5;
 	if (!fscanf_error && fscanf(f,"%i\n",&def->part_texture) != 1) fscanf_error = 6;
 	if (!fscanf_error && fscanf(f,"%f\n",&def->part_size) != 1) fscanf_error = 7;
@@ -561,11 +560,10 @@ void destroy_all_particles()
 
 }
 #ifndef MAP_EDITOR
-void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
+void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile, float z)
 {
 	float x = 0.5f * x_tile + 0.25f;
 	float y = 0.5f * y_tile + 0.25f;
-	float z = 0.0;
 #ifdef NEW_SOUND
 	int snd;
 #endif // NEW_SOUND
@@ -573,14 +571,20 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 	switch (kind)
 	{
 		case 2:
-			ec_create_campfire(x, y, z, 0.0, 1.0, (poor_man ? 6 : 10), 3.1);
+			if (use_eye_candy)
+				ec_create_campfire(x, y, z, 0.0, 1.0, (poor_man ? 6 : 10), 3.1);
+			else
+				real_add_particle_sys ("./particles/fire_big.part", x, y, z, 1);
 #ifdef NEW_SOUND
 			snd = get_sound_index_for_particle_file_name("./particles/fire_big.part");
 #endif // NEW_SOUND
 			break;
 		case 1:
 		default:
-			ec_create_campfire(x, y, z, 0.0, 1.0, (poor_man ? 6 : 10), 2.4);
+			if (use_eye_candy)
+				ec_create_campfire(x, y, z, 0.0, 1.0, (poor_man ? 6 : 10), 2.4);
+			else
+				real_add_particle_sys ("./particles/fire_small.part", x, y, z, 1);
 #ifdef NEW_SOUND
 			snd = get_sound_index_for_particle_file_name("./particles/fire_small.part");
 #endif // NEW_SOUND
@@ -596,10 +600,20 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 
 void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
 {
+	size_t i;
 	float x = 0.5f * x_tile + 0.25f;
 	float y = 0.5f * y_tile + 0.25f;
 	
 	ec_delete_effect_loc_type(x, y, EC_CAMPFIRE);
+	LOCK_PARTICLES_LIST();
+	for (i = 0; i < MAX_PARTICLE_SYSTEMS; i++)
+	{
+		particle_sys *sys = particles_list[i];
+		if (particles_list[i] && strncmp (sys->def->file_name, "./particles/fire_", 17) == 0 && sys->x_pos == x && sys->y_pos == y)
+			destroy_partice_sys_without_lock(i);
+	}
+	UNLOCK_PARTICLES_LIST();
+
 #ifdef NEW_SOUND
 	stop_sound_at_location(x_tile, y_tile);
 #endif // NEW_SOUND
@@ -1161,6 +1175,12 @@ void display_particles()
 /******************************************************************************
  *                           UPDATE FUNCTIONS                                 *
  ******************************************************************************/
+
+static int get_particles_to_add(int total_particles, int particles_count)
+{
+	return (((float)particles_percentage / 100.0) * total_particles) - particles_count;
+}
+
 void update_fountain_sys(particle_sys *system_id) {
 	int i,j;
 	int total_particle_no;
@@ -1172,7 +1192,7 @@ void update_fountain_sys(particle_sys *system_id) {
 	//see if we need to add new particles
 	LOCK_PARTICLES_LIST();
 	if(system_id->ttl)
-		particles_to_add=total_particle_no-system_id->particle_count;
+		particles_to_add = get_particles_to_add(total_particle_no, system_id->particle_count);
 
 	if(particles_to_add) {
 		for(j=i=0;i<particles_to_add;i++)
@@ -1280,7 +1300,7 @@ void update_fire_sys(particle_sys *system_id)
 	LOCK_PARTICLES_LIST();
 
 	if(system_id->ttl)
-		particles_to_add=total_particle_no-system_id->particle_count;
+		particles_to_add = get_particles_to_add(total_particle_no, system_id->particle_count);
 
 	for(j=i=0;i<particles_to_add;i++)
 		{
@@ -1336,7 +1356,7 @@ void update_teleporter_sys(particle_sys *system_id)
 	LOCK_PARTICLES_LIST();
 
 	if(system_id->ttl)
-		particles_to_add=total_particle_no-system_id->particle_count;
+		particles_to_add = get_particles_to_add(total_particle_no, system_id->particle_count);
 	for(j=i=0;i<particles_to_add;i++)
 		{
 			//find a free space
@@ -1391,7 +1411,7 @@ void update_teleport_sys(particle_sys *system_id)
 	//see if we need to add new particles
 	LOCK_PARTICLES_LIST();
 	if(system_id->ttl)
-		particles_to_add=total_particle_no-system_id->particle_count;
+		particles_to_add = get_particles_to_add(total_particle_no, system_id->particle_count);
 	for(j=i=0;i<particles_to_add;i++)
 		{
 			//find a free space
@@ -1447,7 +1467,7 @@ void update_bag_part_sys(particle_sys *system_id)
 	//see if we need to add new particles
 	LOCK_PARTICLES_LIST();
 	if(system_id->ttl)
-		particles_to_add=total_particle_no-system_id->particle_count;
+		particles_to_add = get_particles_to_add(total_particle_no, system_id->particle_count);
 	for(j=i=0;i<particles_to_add;i++)
 		{
 			//find a free space
