@@ -16,6 +16,7 @@
 #include "item_info.h"
 #include "md5.h"
 #include "multiplayer.h"
+#include "particles.h"
 #include "textures.h"
 #include "eye_candy_wrapper.h"
 #include "sound.h"
@@ -184,6 +185,8 @@ void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
 		bag_list[bag_id].ongoing_bag_effect_reference = ec_create_lamp(x, y, z, 0.0, 1.0, 0.75, (poor_man ? 6 : 10));
 #endif // ONGOING_BAG_EFFECT
 	}
+	else
+		add_particle_sys_at_tile("./particles/bag_in.part", bag_x, bag_y, 1);
 #ifdef NEW_SOUND
 	if (your_actor && bag_x == your_actor->x_pos * 2 && bag_y == your_actor->y_pos * 2)
 	{
@@ -303,6 +306,8 @@ void remove_bag(int bag_id)
 		}
 #endif // ONGOING_BAG_EFFECT
 	}
+	else
+		add_particle_sys_at_tile ("./particles/bag_out.part", bag_list[bag_id].x, bag_list[bag_id].y, 1);
 #ifdef NEW_SOUND
 	if (your_actor && bag_list[bag_id].x == your_actor->x_pos * 2 && bag_list[bag_id].y == your_actor->y_pos * 2)
 	{
