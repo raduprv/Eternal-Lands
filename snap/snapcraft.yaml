@@ -1,5 +1,5 @@
 name: eternallands
-version: '1.9.5.p2'
+version: '1.9.5.git'
 summary: Eternal Lands is a free to play, graphical MMORPG
 description: |
   Eternal Lands is a free to play, graphical MMORPG (massively-multi-player
@@ -10,19 +10,20 @@ description: |
 grade: stable
 confinement: strict
 type: app
-icon: eternallands.svg
+icon: pkgfiles/snap-package/eternallands.svg
 
 parts:
   client:
-    source: https://github.com/raduprv/Eternal-Lands/archive/1.9.5.2.zip
+    source: https://github.com/raduprv/Eternal-Lands/archive/master.zip
     build-packages: [build-essential, libcal3d12-dev, libsdl-image1.2-dev, libsdl-net1.2-dev, libxml2-dev, libopenal-dev, libvorbis-dev]
     plugin: make
-    source-subdir: "Eternal-Lands-1.9.5.2"
+    source-subdir: "Eternal-Lands-master"
     makefile: Makefile.linux
     make-parameters: ["release"]
     override-pull: |
       snapcraftctl pull
-      sed -i 's|^PLATFORM=.*$|#PLATFORM=""|g' Eternal-Lands-1.9.5.2/make.defaults
+      sed -i 's|^PLATFORM=.*$|#PLATFORM=""|g' Eternal-Lands-master/make.defaults
+      cd Eternal-Lands-master/ && echo "1.9.5.git-`date +"%Y%m%d%H%M"`" > git_version
     artifacts: ["el.x86.linux.bin"]
     stage-packages:
       - libglib2.0-0
@@ -76,8 +77,8 @@ parts:
     plugin: nil
     override-build: |
       mkdir -p $SNAPCRAFT_PART_INSTALL/bin/
-      cp -p launcher.sh $SNAPCRAFT_PART_INSTALL/bin/
-      cp -p eternallands.desktop $SNAPCRAFT_PART_INSTALL/bin/
+      cp -p pkgfiles/snap-package/launcher.sh $SNAPCRAFT_PART_INSTALL/bin/
+      cp -p pkgfiles/snap-package/eternallands.desktop $SNAPCRAFT_PART_INSTALL/bin/
 
 apps:
   client:
