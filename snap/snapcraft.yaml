@@ -10,7 +10,7 @@ description: |
 grade: stable
 confinement: strict
 type: app
-icon: pkgfiles/snap-package/eternallands.svg
+icon: pkgfiles/snap-package/eternallands.png
 
 parts:
   client:
