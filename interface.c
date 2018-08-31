@@ -1136,6 +1136,11 @@ void delete_mark_on_map_on_mouse_position()
 		int distance, dx, dy;
 		marking * const mark = &marks[i]; 
 
+		// skip marks not shown due to filter
+		if (mark_filter_active
+			  && (get_string_occurance(mark_filter_text, mark->text, strlen(mark->text), 1) == -1))
+			continue;
+
 		// skip masked marks
 		if (mark->x < 0 || mark->server_side) continue;
 		// get mark to cursor distance (squared)
