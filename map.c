@@ -352,12 +352,13 @@ void add_server_markers(){
 			marks[l].x=sm->x;
 			marks[l].y=sm->y;
 			marks[l].server_side=1;
+			marks[l].server_side_id=sm->id;
 			safe_strncpy(marks[l].text, sm->text, sizeof(marks[l].text));
 			l++;
 		}
 		//remove server side markings if necessary
 		for(i=l+1;i<max_mark;i++)
-			if(marks[i].server_side) {marks[i].server_side=0;marks[i].x=marks[i].y=-1;}
+			if(marks[i].server_side) {marks[i].server_side=0;marks[i].server_side_id=marks[i].x=marks[i].y=-1;}
 	}
 }
 
@@ -387,6 +388,7 @@ void load_marks_to_buffer(char* mapname, marking* buffer, int* max)
 				g=255;
 			}
 			buffer[*max].server_side=0;
+			buffer[*max].server_side_id=-1;
 			text[strlen(text)-1] = '\0'; //remove the newline
 			if ((strstr(text, " ") == NULL) || (strstr(strstr(text, " ")+1, " ") == NULL)) {
  				LOG_ERROR("Bad map mark file=[%s] text=[%s]", marks_file, text);

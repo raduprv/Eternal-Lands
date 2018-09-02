@@ -838,10 +838,15 @@ int command_unmark_special(char *text, int len, int do_log)
 	if(*text) {
 		for (i = 0; i < max_mark; i ++)
 		{
-			if (my_strcompare(marks[i].text, text) && (marks[i].x != -1) && !marks[i].server_side)
+			if (my_strcompare(marks[i].text, text) && (marks[i].x != -1))
 			{
 				char str[512];
 				marks[i].x = marks[i].y = -1;
+				if (marks[i].server_side)
+				{
+					hash_delete(server_marks,(NULL+marks[i].server_side_id));
+					save_server_markings();
+				}
 				if (do_log)
 				{
 					safe_snprintf(str, sizeof(str), unmarked_str, marks[i].text);

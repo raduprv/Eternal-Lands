@@ -28,6 +28,7 @@ typedef struct
     /*! @} */
     char text[512]; /*!< text of the marking */
     char server_side;
+    int server_side_id;
     int r,g,b; //color of the marker
 }marking;
 
