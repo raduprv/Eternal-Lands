@@ -19,12 +19,11 @@ parts:
     plugin: make
     source-subdir: "Eternal-Lands-master"
     makefile: Makefile.linux
-    make-parameters: ["release"]
+    make-parameters: ["release", "PLATFORM=''", "EXE=el.linux.bin"]
     override-pull: |
       snapcraftctl pull
-      sed -i 's|^PLATFORM=.*$|#PLATFORM=""|g' Eternal-Lands-master/make.defaults
       cd Eternal-Lands-master/ && echo "1.9.5.git-`date +"%Y%m%d%H%M"`" > git_version
-    artifacts: ["el.x86.linux.bin"]
+    artifacts: ["el.linux.bin"]
     stage-packages:
       - libglib2.0-0
       - libsdl-net1.2
