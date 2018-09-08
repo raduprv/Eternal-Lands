@@ -15,6 +15,8 @@ unsigned int item_lists_get_active(void);
 void item_lists_set_active(unsigned int active_list);
 void item_lists_reset_pickup_fail_time(void);
 
+extern int items_list_disable_find_list;
+
 #ifdef __cplusplus
 }
 #endif
