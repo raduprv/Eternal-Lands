@@ -56,6 +56,58 @@ int show_timestamp = 0;
 
 int dark_channeltext = 0;
 
+/* Impliment the glow perk hud indicator state. */
+static int glow_perk_check_state = 0;
+static int glow_perk_active = 0;
+static int glow_perk_unavailable = 1;
+static Uint32 glow_perk_timer = 0;
+
+void check_glow_perk(void) { glow_perk_check_state = 3; }
+int glow_perk_is_active(void) { return glow_perk_active; };
+
+/*
+ * Called each frame by the hud indicator code if the glow perk indcator is enabled.
+*/
+int glow_perk_is_unavailable(void)
+{
+	/*
+	 * The first #glow will be sent when a new login happens.  When the
+	 * message text arrives, another #glow will be sent after a timeout.
+	 * By togginging twice, we get the starting state and preserve it.
+	*/
+	if (glow_perk_check_state == 3)
+	{
+		send_input_text_line("#glow", 5);
+		glow_perk_unavailable = 1;
+		glow_perk_check_state--;
+	}
+	else if (glow_perk_timer && ((SDL_GetTicks()-glow_perk_timer) > 1500))
+	{
+		send_input_text_line("#glow", 5);
+		glow_perk_timer = 0;
+	}
+	return glow_perk_unavailable;
+};
+
+/*
+ * Called when we receive #glow command text.
+*/
+static int set_glow_status(int value)
+{
+	glow_perk_active = value;
+	if (glow_perk_check_state)
+	{
+		if (--glow_perk_check_state)
+			glow_perk_timer = SDL_GetTicks();
+		else
+			glow_perk_unavailable = 0;
+		return 1;
+	}
+	glow_perk_unavailable = 0;
+	return 0;
+}
+/* End glow perk hud indicator state. */
+
 static int is_special_day = 0;
 int today_is_special_day(void) { return is_special_day; };
 void set_today_is_special_day(void) { is_special_day = 1; };
@@ -531,6 +583,25 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			((my_strncompare(text_to_add+1, "You need to have a ", 19) && strstr(text_to_add, "order to harvest") != NULL)))
 		{
 			clear_now_harvesting();
+		}
+		else if (my_strncompare(text_to_add+1, "Glow on!", 8))
+		{
+			if (set_glow_status(1))
+				return 0;
+		}
+		else if (my_strncompare(text_to_add+1, "Glow off!", 9))
+		{
+			if (set_glow_status(0))
+				return 0;
+		}
+		else if (my_strncompare(text_to_add+1, "You need the I glow in the dark perk in order to use this.", 58))
+		{
+			glow_perk_unavailable = 1;
+			if (glow_perk_check_state)
+			{
+				glow_perk_check_state = 0;
+				return 0;
+			}
 		}
 		else if (is_death_message(text_to_add+1)) {
 			// nothing to be done here cause all is done in the test function

@@ -327,6 +327,7 @@ extern char
 		poison_indicator_str[60],
 		messages_indicator_str[60],
 		ranginglock_indicator_str[70],
+		glowperk_indicator_str[100],
 		/*ignore.c*/
 		no_ignores_str[50],
 		ignores_str[50],

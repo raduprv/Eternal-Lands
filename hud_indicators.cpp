@@ -291,12 +291,13 @@ namespace Indicators
 
 		if (indicators.empty())
 		{
-			indicators.reserve(5);
+			indicators.reserve(6);
 			indicators.push_back(new Parse_Action_Indicator(day_indicator_str, today_is_special_day, 0, indicators.size(), "#day"));
 			indicators.push_back(new Basic_Indicator(harvest_indicator_str, now_harvesting, 0, indicators.size()));
 			indicators.push_back(new Basic_Indicator(poison_indicator_str, we_are_poisoned, 0, indicators.size()));
 			indicators.push_back(new Value_Indicator(messages_indicator_str, get_seen_pm_count, 0, indicators.size(), clear_seen_pm_count));
 			indicators.push_back(new Parse_Action_Indicator(ranginglock_indicator_str, ranging_lock_is_on, 0, indicators.size(), "#keypress #K_RANGINGLOCK"));
+			indicators.push_back(new Parse_Action_Indicator(glowperk_indicator_str, glow_perk_is_active, glow_perk_is_unavailable, indicators.size(), "#glow"));
 		}
 
 		x_len = static_cast<int>(Vars::font_x() * indicators.size() * Vars::zoom() +

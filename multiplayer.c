@@ -820,6 +820,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				load_counters();
 				load_channel_colors();
 				send_video_info();
+				check_glow_perk();
 				previously_logged_in=1;
 				last_save_time= time(NULL);
 
