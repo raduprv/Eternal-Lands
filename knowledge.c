@@ -211,7 +211,7 @@ int display_knowledge_handler(window_info *win)
 	//progress bar
 	if (is_researching)
 	{
-		int progress = 125*get_research_fraction();
+		int progress = (progress_right_x - progress_left_x - 1) * get_research_fraction();
 		glBegin(GL_QUADS);
 		glColor3f(0.40f,0.40f,1.00f);
 		glVertex3i(progress_left_x+1+gx_adjust,progress_top_y+gy_adjust,0);
