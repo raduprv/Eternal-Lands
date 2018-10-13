@@ -221,7 +221,7 @@ static __inline__ void draw_actor_points(window_info *win, float zoom_multip, fl
 				glDisable(GL_TEXTURE_2D);
 				rotate_actor_points(zoom_multip,px,py);
 				glBegin(GL_LINES);
-				glColor3f(1.0f,0.0f,1.0f); //purple
+				elglColourN("minimap.cross");
 				glVertex2f(x-diff, y-diff);
 				glVertex2f(x+diff, y+diff);
 				glVertex2f(x-diff, y+diff);
