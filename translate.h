@@ -810,6 +810,7 @@ extern char	reg_error_str[15],
 		fatal_data_error[120],
 		cant_load_encycl[70],
 		warn_currently_ignoring[50],
+		invalidnpcmark_str[50],
 		dc_note_remove[50],
 		note_saved[50],
 		note_save_failed[50];

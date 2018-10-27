@@ -730,6 +730,7 @@ char	reg_error_str[15],
 	/* encyclopedia */
 	cant_load_encycl[70],
 	/* text.c */
+	invalidnpcmark_str[50],
 	warn_currently_ignoring[50];
 #else
 	;
@@ -1238,6 +1239,7 @@ void init_errors()
 	add_xml_identifier (misc, "noanimation", no_animation_err_str, "No animation: %s!\n", sizeof(no_animation_err_str));
 	add_xml_identifier (misc, "invalid_location", invalid_location_str, "Invalid location %d,%d", sizeof(invalid_location_str));
 	add_xml_identifier (misc, "warn_currently_ignoring", warn_currently_ignoring, "Warning: %s is on your #ignore list", sizeof(warn_currently_ignoring));
+	add_xml_identifier (misc, "invalidnpcmark", invalidnpcmark_str, "Invalid string for NPC map mark.", sizeof(invalidnpcmark_str));
 
 	//XML errors. should these have their own group?
 	add_xml_identifier (misc, "badnode", xml_bad_node, "There is something wrong with one of a node's fields.", sizeof(xml_bad_node));
