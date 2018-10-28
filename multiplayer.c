@@ -299,7 +299,8 @@ static int my_locked_tcp_flush(TCPsocket my_socket)
 
 int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len)
 {
-	Uint8 new_str[1024];	//should be enough
+	Uint8 *new_str = NULL;
+	int ret_status = 0;
 
 	CHECK_AND_LOCK_MUTEX(tcp_out_data_mutex);
 
@@ -410,15 +411,19 @@ int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len)
 
 	CHECK_AND_UNLOCK_MUTEX(tcp_out_data_mutex);
 
+	if ((new_str = (Uint8 *)malloc(3 + len - 1)) == NULL)
+		return 0;
 	new_str[0] = str[0];	//copy the protocol byte
 	*((short *)(new_str+1)) = SDL_SwapLE16((Uint16)len);//the data length
 	// copy the rest of the data
 	memcpy(&new_str[3], &str[1], len-1);
 #ifdef	OLC
-	return olc_tcp_send(my_socket, new_str, len+2);
+	ret_status = olc_tcp_send(my_socket, new_str, len+2);
 #else	//OLC
-	return SDLNet_TCP_Send(my_socket, new_str, len+2);
+	ret_status = SDLNet_TCP_Send(my_socket, new_str, len+2);
 #endif	//OLC
+	free(new_str);
+	return ret_status;
 }
 
 int my_tcp_flush(TCPsocket my_socket)
