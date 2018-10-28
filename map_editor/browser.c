@@ -20,7 +20,7 @@ int dc=-1,cd=-1,cp=0,cc=-1,mc=1,ccat=0;
 int setobject(int n, char *fn,float xrot, float yrot, float zrot)
 {
 	object3d *our_object=&o3d[n];
-	snprintf(our_object->file_name,80,"%s",fn);
+	snprintf(our_object->file_name,sizeof(our_object->file_name),"%s",fn);
 	
 	our_object->e3d_data = NULL;
 	our_object->e3d_data=load_e3d_cache(fn);

@@ -298,7 +298,7 @@ void draw_toolbar()
 
 void draw_3d_obj_info()
 {
-	unsigned char str[128];
+	unsigned char str[200];
 	int x_menu,y_menu;
 	if (cur_mode!=mode_3d || selected_3d_object==-1 || objects_list[selected_3d_object] == NULL)
 		return;

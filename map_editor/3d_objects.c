@@ -213,7 +213,7 @@ e3d_object * load_e3d_cache(char * file_name)
 
 int add_e3d_at_id (int id, char * file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot, char self_lit, char blended, float r, float g, float b)
 {
-	char fname[128];
+	char fname[80];
 	e3d_object *returned_e3d;
 	object3d *our_object;
 	
@@ -227,7 +227,7 @@ int add_e3d_at_id (int id, char * file_name, float x_pos, float y_pos, float z_p
 	returned_e3d=load_e3d_cache(fname);
 	if(returned_e3d==NULL)
 	{
-		char str[120];
+		char str[200];
 		sprintf (str, "Error: Something nasty happened while trying to process: %s\n", fname);
 		LOG_ERROR(str);
 
@@ -241,7 +241,7 @@ int add_e3d_at_id (int id, char * file_name, float x_pos, float y_pos, float z_p
 	our_object = calloc (1, sizeof(object3d));
 
 	// and fill it in
-	snprintf (our_object->file_name, 80, "%s", fname);
+	snprintf (our_object->file_name, sizeof(our_object->file_name), "%s", fname);
 	our_object->x_pos = x_pos;
 	our_object->y_pos = y_pos;
 	our_object->z_pos = z_pos;
