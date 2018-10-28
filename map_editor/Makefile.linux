@@ -77,6 +77,17 @@ ELC_XZ_CCOBJS = 7zCrc.o 7zCrcOpt.o Alloc.o Bra86.o Bra.o BraIA64.o \
 OBJS = $(COBJS) $(CXXOBJS) $(ELC_COBJS) $(ELC_CXXOBJS) $(ELC_IO_COBJS) $(ELC_IO_CXXOBJS) \
 	$(ELC_EC_CXXOBJS) $(ELC_EXCEPTION_CXXOBJS) 	$(ELC_ENGINE_CXXOBJS) $(ELC_XZ_CCOBJS)
 
+DEP_FILES=$(foreach OBJ, $(COBJS), .deps/$(OBJ).P) \
+	$(foreach OBJ, $(CXXOBJS), .deps/$(OBJ).P) \
+	$(foreach OBJ, $(ELC_COBJS), .deps/$(OBJ).P) \
+	$(foreach OBJ, $(ELC_IO_COBJS), .deps/$(OBJ).P) \
+	$(foreach OBJ, $(ELC_IO_CXXOBJS), .deps/$(OBJ).P) \
+	$(foreach OBJ, $(ELC_EXCEPTION_CXXOBJS), .deps/$(OBJ).P) \
+	$(foreach OBJ, $(ELC_CXXOBJS), .deps/$(OBJ).P) \
+	$(foreach OBJ, $(ELC_EC_CXXOBJS), .deps/$(OBJ).P) \
+	$(foreach OBJ, $(ELC_ENGINE_CXXOBJS), .deps/$(OBJ).P) \
+	$(foreach OBJ, $(ELC_XZ_CCOBJS), .deps/$(OBJ).P)
+
 EXE=mapedit.x86.linux.bin
 
 GENDEP=Makefile.linux
@@ -90,51 +101,87 @@ $(EXE): $(OBJS)
 release:
 	make -f Makefile.linux 'CFLAGS=$(_CFLAGS)'
 
+DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
+
 gtk: 
 	make -f Makefile.linux 'GTK2_CFLAGS=$(GTK_CFLAGS)' 'GTK2_LIBS=$(GTK_LIBS)'
 
 $(COBJS): %.o: %.c $(GENDEP)
 	@echo "  CC   $@"
-	@$(CC) $(CFLAGS) -c -o $@ $<
+	@if $(CC) $(CFLAGS) -MT '$@' -MD -MP -MF '.deps/$@.pp' -c $< -o $@; then \
+		mv ".deps/$@.pp" ".deps/$@.P"; \
+	else rm -f ".deps/$@.pp"; exit 1; \
+	fi
 
 $(CXXOBJS): %.o : %.cpp $(GENDEP)
 	@echo "  CXX   $@"
-	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+	@if $(CXX) $(CXXFLAGS) -MT '$@' -MD -MP -MF '.deps/$@.pp' -c $< -o $@; then \
+		mv ".deps/$@.pp" ".deps/$@.P"; \
+	else rm -f ".deps/$@.pp"; exit 1; \
+	fi
 
 $(ELC_COBJS): %.o : ../%.c $(GENDEP)
 	@echo "  ELC CC   $@"
-	@$(CC) $(CFLAGS) -c -o $@ $<
+	@if $(CC) $(CFLAGS) -MT '$@' -MD -MP -MF '.deps/$@.pp' -c $< -o $@; then \
+		mv ".deps/$@.pp" ".deps/$@.P"; \
+	else rm -f ".deps/$@.pp"; exit 1; \
+	fi
 
 $(ELC_IO_COBJS): %.o : ../io/%.c $(GENDEP)
 	@echo "  ELC IO CC   $@"
-	@$(CC) $(CFLAGS) -c -o $@ $<
+	@if $(CC) $(CFLAGS) -MT '$@' -MD -MP -MF '.deps/$@.pp' -c $< -o $@; then \
+		mv ".deps/$@.pp" ".deps/$@.P"; \
+	else rm -f ".deps/$@.pp"; exit 1; \
+	fi
 
 $(ELC_IO_CXXOBJS): %.o : ../io/%.cpp $(GENDEP)
 	@echo "  ELC IO CXX   $@"
-	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+	@if $(CXX) $(CXXFLAGS) -MT '$@' -MD -MP -MF '.deps/$@.pp' -c $< -o $@; then \
+		mv ".deps/$@.pp" ".deps/$@.P"; \
+	else rm -f ".deps/$@.pp"; exit 1; \
+	fi
 
 $(ELC_EXCEPTION_CXXOBJS): %.o : ../exceptions/%.cpp $(GENDEP)
 	@echo "  ELC EXC CXX   $@"
-	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+	@if $(CXX) $(CXXFLAGS) -MT '$@' -MD -MP -MF '.deps/$@.pp' -c $< -o $@; then \
+		mv ".deps/$@.pp" ".deps/$@.P"; \
+	else rm -f ".deps/$@.pp"; exit 1; \
+	fi
 
 $(ELC_CXXOBJS): %.o : ../%.cpp $(GENDEP)
 	@echo "  ELC CXX   $@"
-	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+	@if $(CXX) $(CXXFLAGS) -MT '$@' -MD -MP -MF '.deps/$@.pp' -c $< -o $@; then \
+		mv ".deps/$@.pp" ".deps/$@.P"; \
+	else rm -f ".deps/$@.pp"; exit 1; \
+	fi
 
 $(ELC_EC_CXXOBJS): %.o : ../eye_candy/%.cpp $(GENDEP)
 	@echo "  ELC EC CXX   $@"
-	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+	@if $(CXX) $(CXXFLAGS) -MT '$@' -MD -MP -MF '.deps/$@.pp' -c $< -o $@; then \
+		mv ".deps/$@.pp" ".deps/$@.P"; \
+	else rm -f ".deps/$@.pp"; exit 1; \
+	fi
 
 $(ELC_ENGINE_CXXOBJS): %.o : ../engine/%.cpp $(GENDEP)
 	@echo "  ELC ENG CXX   $@"
-	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+	@if $(CXX) $(CXXFLAGS) -MT '$@' -MD -MP -MF '.deps/$@.pp' -c $< -o $@; then \
+		mv ".deps/$@.pp" ".deps/$@.P"; \
+	else rm -f ".deps/$@.pp"; exit 1; \
+	fi
 
 $(ELC_XZ_CCOBJS): %.o : ../xz/%.c $(GENDEP)
 	@echo "  ELC XZ CC   $@"
-	@$(CC) $(CFLAGS) -c -o $@ $<
+	@if $(CC) $(CFLAGS) -MT '$@' -MD -MP -MF '.deps/$@.pp' -c $< -o $@; then \
+		mv ".deps/$@.pp" ".deps/$@.P"; \
+	else rm -f ".deps/$@.pp"; exit 1; \
+	fi
 
 clean:
 	-rm -f $(OBJS) $(EXE)
+
+.depend: $(foreach HEADER_DIR, $(HEADER_DIRS), $(wildcard $(HEADER_DIR)/*.h))
+	$(CC) $(CFLAGS) -MM $(patsubst %.o, %.c, $(COBJS)) >.depend
+	$(CXX) $(CXXFLAGS) -MM $(patsubst %.o, %.cpp, $(CXXOBJS)) >>.depend
 
 # Based on the main client static build, this works on Ubuntu 8.04 (LTS) at least
 # Its only a little bit static but it may work
@@ -154,3 +201,5 @@ STATICLIBS=$(LIBD)/libSDL_net.a $(LIBD)/libSDL.a $(LIBD)/libSDL_image.a \
 
 static: $(OBJS)
 	@$(MAKE) -f Makefile.linux 'LIBS=$(STATICLIBS)'
+
+-include $(DEP_FILES)
