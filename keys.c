@@ -116,6 +116,7 @@ Uint32 K_ECDEBUGWIN=ALT|CTRL|'c';
 #endif
 Uint32 K_EMOTES=CTRL|'j';
 Uint32 K_RANGINGWIN=CTRL|'t';
+Uint32 K_TARGET_CLOSE=ALT|'t';
 
 // Remaining keys are not assigned to the keyboard but
 // can be redefined or used by the #keypress command.
@@ -221,6 +222,7 @@ static key_store_entry key_store[] =
 #endif
 	{ "#K_EMOTES", &K_EMOTES },
 	{ "#K_RANGINGWIN", &K_RANGINGWIN },
+	{ "#K_TARGET_CLOSE", &K_TARGET_CLOSE },
 	{ "#K_COUNTERS", &K_COUNTERS },
 	{ "#K_HELPSKILLS", &K_HELPSKILLS }
 };

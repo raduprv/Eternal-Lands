@@ -310,6 +310,8 @@ extern char
 		/*gamewin.c*/
 		ranginglock_enabled_str[100],
 		ranginglock_disabled_str[50],
+		close_click_targetting_on_str[50],
+		close_click_targetting_off_str[50],
 		/*gl_init.c*/
 		window_size_adjusted_str[50],
 		/*hud.c*/

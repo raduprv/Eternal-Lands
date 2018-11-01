@@ -184,6 +184,8 @@ char
 	/*gamewin.c*/
 	ranginglock_enabled_str[100],
 	ranginglock_disabled_str[50],
+	close_click_targetting_on_str[50],
+	close_click_targetting_off_str[50],
 	/*gl_init.c*/
 	window_size_adjusted_str[50],
 	/*hud.c*/
@@ -1488,6 +1490,8 @@ void init_help()
 	add_xml_identifier(misc,"note_save_failed",note_save_failed,"Failed to save your notes!",sizeof(note_save_failed));
 	add_xml_identifier(misc,"ranginglock_enabled",ranginglock_enabled_str,"Ranging-Lock is now enabled. Disable it or unequip ranging weapon before walking.",sizeof(ranginglock_enabled_str));
 	add_xml_identifier(misc,"ranginglock_disabled",ranginglock_disabled_str,"Ranging-Lock is now disabled.",sizeof(ranginglock_disabled_str));
+	add_xml_identifier(misc,"close_click_targetting_on",close_click_targetting_on_str,"Close-click targetting on.",sizeof(close_click_targetting_on_str));
+	add_xml_identifier(misc,"close_click_targetting_off",close_click_targetting_off_str,"Close-click targetting off.",sizeof(close_click_targetting_off_str));
 	add_xml_identifier(misc,"video_restart", video_restart_str, "Video change will take effect at next restart.", sizeof(video_restart_str));
 	add_xml_identifier(misc,"rotate_chat_log_restart", rotate_chat_log_restart_str, "Rotate chat log change will take effect at next restart.", sizeof(rotate_chat_log_restart_str));
 	add_xml_identifier(misc,"ranging_win_title", ranging_win_title_str, "Ranging", sizeof(ranging_win_title_str));
