@@ -122,6 +122,12 @@ void hide_open_win(GtkWidget * widget, GtkWidget * win)
 	gtk_widget_hide(win);
 }
 
+static void check_escape(GtkWidget *widget, GdkEventKey *event, gpointer data)
+{
+	if (gtk_open_win && event->keyval == GDK_KEY_Escape)
+		gtk_widget_hide(gtk_open_win);
+}
+
 void show_open_window(char * name, char * folder, GtkFileFilter * filter)
 {
 	if(!gtk_open_win) {
@@ -139,6 +145,7 @@ void show_open_window(char * name, char * folder, GtkFileFilter * filter)
 
 		g_signal_connect ((gpointer) cancel, "clicked", G_CALLBACK (hide_open_win), gtk_open_win);
 		g_signal_connect ((gpointer) ok_button, "clicked", G_CALLBACK (open_button_clicked), NULL);
+		g_signal_connect(gtk_open_win, "key_press_event", G_CALLBACK(check_escape), NULL);
 		
 		gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(gtk_open_win), e3d_filter);
 		gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(gtk_open_win), e2d_filter);
