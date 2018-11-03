@@ -10,23 +10,38 @@ FEATURES += NEW_LIGHT_FORMAT
 FEATURES += ZLIB
 FEATURES += ZLIBW
 
-WARN = -Wall -Wdeclaration-after-statement # -W -Werror
-CXXWARN = -Wall # -W -Werror
-OPTIONS = -DLINUX -DMAP_EDITOR $(foreach FEATURE, $(FEATURES), -D$(FEATURE)) -D_7ZIP_ST
-OPTIONS += -DGL_GLEXT_PROTOTYPES # needed in my SDL_opengl.h for some function declarations
+PLATFORM=-march=native
+CWARN=-Wall -Wdeclaration-after-statement
+CXXWARN=-Wall 
+EXTRA_INCLUDES=
 
-GTK_CFLAGS = $(shell gtk-config --cflags) #If you wish to use the old gtk, compile with "make gtk"
-GTK2_CFLAGS = $(shell pkg-config gtk+-2.0 --cflags) -DGTK2
+OPTIONS = -DLINUX -DMAP_EDITOR $(foreach FEATURE, $(FEATURES), -D$(FEATURE)) -D_7ZIP_ST \
+	$(shell pkg-config gtk+-2.0 --cflags) -DGTK2 \
+	$(shell pkg-config sdl --cflags) \
+	$(shell pkg-config SDL_image --cflags) \
+	$(shell pkg-config libxml-2.0 --cflags) \
+	$(shell pkg-config cal3d --cflags) \
+	$(shell pkg-config gl --cflags) \
+	$(shell pkg-config glu --cflags) \
+	$(shell pkg-config zlib --cflags)
 
-CFLAGS=$(OPTIONS) $(GTK2_CFLAGS) $(shell sdl-config --cflags)  $(shell xml2-config --cflags) -g $(WARN)
-_CFLAGS=$(OPTIONS) -mcpu=i686 -O3 -fomit-frame-pointer -ffast-math -pipe $(GTK_CFLAGS) $(shell sdl-config --cflags) $(shell sdl-config --cflags)  $(shell xml2-config --cflags)
-CXXFLAGS=$(OPTIONS) $(GTK2_CFLAGS) $(shell sdl-config --cflags)  $(shell xml2-config --cflags) -g $(CXXWARN)
-_CXXFLAGS=$(OPTIONS) -mcpu=i686 -O3 -fomit-frame-pointer -ffast-math -pipe $(GTK_CFLAGS) $(shell sdl-config --cflags) $(shell sdl-config --cflags)  $(shell xml2-config --cflags)
+CFLAGS=$(PLATFORM) $(CWARN) -O0 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
 
-GTK_LIBS =  $(shell gtk-config --libs) 
-GTK2_LIBS = $(shell pkg-config gtk+-2.0 --libs)
+CXXFLAGS=$(PLATFORM) $(CXXWARN) -O0 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
 
-LIBS=$(shell sdl-config --libs) -lGL -lGLU $(shell xml2-config --libs) -lcal3d -lSDL_image -lz
+LDFLAGS=$(shell pkg-config sdl --libs) \
+	$(shell pkg-config gtk+-2.0 --libs) \
+	$(shell pkg-config libxml-2.0 --libs) \
+	$(shell pkg-config SDL_image --libs) \
+	$(shell pkg-config cal3d --libs) \
+	$(shell pkg-config gl --libs) \
+	$(shell pkg-config glu --libs) \
+	$(shell pkg-config zlib --libs) \
+	$(shell pkg-config x11 --libs) -lm -lstdc++
+
+_CFLAGS=$(PLATFORM) -O2 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
+_LDFLAGS=$(XDIR) -lGL -lpthread -lstdc++
+_CXXFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
 
 COBJS=2d_objects.o 3d_objects.o	\
 	browser.o draw_scene.o	\
@@ -96,15 +111,12 @@ all: $(EXE)
 
 $(EXE): $(OBJS)
 	@echo "  LINK $(EXE)"
-	@$(LINK) $(CFLAGS) -o $@ $^ $(LIBS) $(GTK2_LIBS)
+	@$(LINK) $(CFLAGS) -o $(EXE) $(OBJS) $(LDFLAGS)
 
 release:
-	make -f Makefile.linux 'CFLAGS=$(_CFLAGS)'
+	@$(MAKE) -f Makefile.linux 'CFLAGS=$(_CFLAGS)' 'CXXFLAGS=$(_CXXFLAGS)'
 
 DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
-
-gtk: 
-	make -f Makefile.linux 'GTK2_CFLAGS=$(GTK_CFLAGS)' 'GTK2_LIBS=$(GTK_LIBS)'
 
 $(COBJS): %.o: %.c $(GENDEP)
 	@echo "  CC   $@"

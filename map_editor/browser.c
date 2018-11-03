@@ -362,7 +362,11 @@ void init_browser()
 	}
 	line = 1;
 	while(!feof(fp)){
-		fgets(temp,511,fp);
+		if (fgets(temp,511,fp) == NULL)
+		{
+			log_error(__FILE__, __LINE__, "browser.lst red error");
+			return;
+		}
 		if(!strncmp(temp,"Category",8)){
 			cc++;
 			strcpy(Cat[cc].Name,&temp[9]);		

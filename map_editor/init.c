@@ -70,8 +70,12 @@ void init_stuff()
 	int i;
 	int seed;
 
-	chdir(DATA_DIR);
-	
+	if (chdir(DATA_DIR) != 0)
+	{
+		LOG_ERROR("Failed to set directory [%s]", DATA_DIR);
+		exit (1);
+	}
+
 #ifndef WINDOWS
 	setlocale(LC_NUMERIC,"en_US");
 #endif
