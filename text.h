@@ -500,6 +500,10 @@ void set_today_is_special_day(void);
  */
 void clear_today_is_special_day(void);
 
+/* hud indicator glow perk functions */
+int glow_perk_is_active(void);
+int glow_perk_is_unavailable(void);
+void check_glow_perk(void);
 
 #define LOG_TO_CONSOLE(color,buffer)	put_colored_text_in_buffer(color,CHAT_SERVER,(const Uint8*)buffer,-1) /*!< logs the text in buffer with the specified color to the console. */
 

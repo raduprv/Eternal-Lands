@@ -10,23 +10,38 @@ FEATURES += NEW_LIGHT_FORMAT
 FEATURES += ZLIB
 FEATURES += ZLIBW
 
-WARN = -Wall -Wdeclaration-after-statement # -W -Werror
-CXXWARN = -Wall # -W -Werror
-OPTIONS = -DLINUX -DMAP_EDITOR $(foreach FEATURE, $(FEATURES), -D$(FEATURE)) -D_7ZIP_ST
-OPTIONS += -DGL_GLEXT_PROTOTYPES # needed in my SDL_opengl.h for some function declarations
+PLATFORM=-march=native
+CWARN=-Wall -Wdeclaration-after-statement
+CXXWARN=-Wall 
+EXTRA_INCLUDES=
 
-GTK_CFLAGS = $(shell gtk-config --cflags) #If you wish to use the old gtk, compile with "make gtk"
-GTK2_CFLAGS = $(shell pkg-config gtk+-2.0 --cflags) -DGTK2
+OPTIONS = -DLINUX -DMAP_EDITOR $(foreach FEATURE, $(FEATURES), -D$(FEATURE)) -D_7ZIP_ST \
+	$(shell pkg-config gtk+-2.0 --cflags) -DGTK2 \
+	$(shell pkg-config sdl --cflags) \
+	$(shell pkg-config SDL_image --cflags) \
+	$(shell pkg-config libxml-2.0 --cflags) \
+	$(shell pkg-config cal3d --cflags) \
+	$(shell pkg-config gl --cflags) \
+	$(shell pkg-config glu --cflags) \
+	$(shell pkg-config zlib --cflags)
 
-CFLAGS=$(OPTIONS) $(GTK2_CFLAGS) $(shell sdl-config --cflags)  $(shell xml2-config --cflags) -g $(WARN)
-_CFLAGS=$(OPTIONS) -mcpu=i686 -O3 -fomit-frame-pointer -ffast-math -pipe $(GTK_CFLAGS) $(shell sdl-config --cflags) $(shell sdl-config --cflags)  $(shell xml2-config --cflags)
-CXXFLAGS=$(OPTIONS) $(GTK2_CFLAGS) $(shell sdl-config --cflags)  $(shell xml2-config --cflags) -g $(CXXWARN)
-_CXXFLAGS=$(OPTIONS) -mcpu=i686 -O3 -fomit-frame-pointer -ffast-math -pipe $(GTK_CFLAGS) $(shell sdl-config --cflags) $(shell sdl-config --cflags)  $(shell xml2-config --cflags)
+CFLAGS=$(PLATFORM) $(CWARN) -O0 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
 
-GTK_LIBS =  $(shell gtk-config --libs) 
-GTK2_LIBS = $(shell pkg-config gtk+-2.0 --libs)
+CXXFLAGS=$(PLATFORM) $(CXXWARN) -O0 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
 
-LIBS=$(shell sdl-config --libs) -lGL -lGLU $(shell xml2-config --libs) -lcal3d -lSDL_image -lz
+LDFLAGS=$(shell pkg-config sdl --libs) \
+	$(shell pkg-config gtk+-2.0 --libs) \
+	$(shell pkg-config libxml-2.0 --libs) \
+	$(shell pkg-config SDL_image --libs) \
+	$(shell pkg-config cal3d --libs) \
+	$(shell pkg-config gl --libs) \
+	$(shell pkg-config glu --libs) \
+	$(shell pkg-config zlib --libs) \
+	$(shell pkg-config x11 --libs) -lm -lstdc++
+
+_CFLAGS=$(PLATFORM) -O2 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
+_LDFLAGS=$(XDIR) -lGL -lpthread -lstdc++
+_CXXFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
 
 COBJS=2d_objects.o 3d_objects.o	\
 	browser.o draw_scene.o	\
@@ -77,6 +92,17 @@ ELC_XZ_CCOBJS = 7zCrc.o 7zCrcOpt.o Alloc.o Bra86.o Bra.o BraIA64.o \
 OBJS = $(COBJS) $(CXXOBJS) $(ELC_COBJS) $(ELC_CXXOBJS) $(ELC_IO_COBJS) $(ELC_IO_CXXOBJS) \
 	$(ELC_EC_CXXOBJS) $(ELC_EXCEPTION_CXXOBJS) 	$(ELC_ENGINE_CXXOBJS) $(ELC_XZ_CCOBJS)
 
+DEP_FILES=$(foreach OBJ, $(COBJS), .deps/$(OBJ).P) \
+	$(foreach OBJ, $(CXXOBJS), .deps/$(OBJ).P) \
+	$(foreach OBJ, $(ELC_COBJS), .deps/$(OBJ).P) \
+	$(foreach OBJ, $(ELC_IO_COBJS), .deps/$(OBJ).P) \
+	$(foreach OBJ, $(ELC_IO_CXXOBJS), .deps/$(OBJ).P) \
+	$(foreach OBJ, $(ELC_EXCEPTION_CXXOBJS), .deps/$(OBJ).P) \
+	$(foreach OBJ, $(ELC_CXXOBJS), .deps/$(OBJ).P) \
+	$(foreach OBJ, $(ELC_EC_CXXOBJS), .deps/$(OBJ).P) \
+	$(foreach OBJ, $(ELC_ENGINE_CXXOBJS), .deps/$(OBJ).P) \
+	$(foreach OBJ, $(ELC_XZ_CCOBJS), .deps/$(OBJ).P)
+
 EXE=mapedit.x86.linux.bin
 
 GENDEP=Makefile.linux
@@ -85,56 +111,89 @@ all: $(EXE)
 
 $(EXE): $(OBJS)
 	@echo "  LINK $(EXE)"
-	@$(LINK) $(CFLAGS) -o $@ $^ $(LIBS) $(GTK2_LIBS)
+	@$(LINK) $(CFLAGS) -o $(EXE) $(OBJS) $(LDFLAGS)
 
 release:
-	make -f Makefile.linux 'CFLAGS=$(_CFLAGS)'
+	@$(MAKE) -f Makefile.linux 'CFLAGS=$(_CFLAGS)' 'CXXFLAGS=$(_CXXFLAGS)'
 
-gtk: 
-	make -f Makefile.linux 'GTK2_CFLAGS=$(GTK_CFLAGS)' 'GTK2_LIBS=$(GTK_LIBS)'
+DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
 
 $(COBJS): %.o: %.c $(GENDEP)
 	@echo "  CC   $@"
-	@$(CC) $(CFLAGS) -c -o $@ $<
+	@if $(CC) $(CFLAGS) -MT '$@' -MD -MP -MF '.deps/$@.pp' -c $< -o $@; then \
+		mv ".deps/$@.pp" ".deps/$@.P"; \
+	else rm -f ".deps/$@.pp"; exit 1; \
+	fi
 
 $(CXXOBJS): %.o : %.cpp $(GENDEP)
 	@echo "  CXX   $@"
-	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+	@if $(CXX) $(CXXFLAGS) -MT '$@' -MD -MP -MF '.deps/$@.pp' -c $< -o $@; then \
+		mv ".deps/$@.pp" ".deps/$@.P"; \
+	else rm -f ".deps/$@.pp"; exit 1; \
+	fi
 
 $(ELC_COBJS): %.o : ../%.c $(GENDEP)
 	@echo "  ELC CC   $@"
-	@$(CC) $(CFLAGS) -c -o $@ $<
+	@if $(CC) $(CFLAGS) -MT '$@' -MD -MP -MF '.deps/$@.pp' -c $< -o $@; then \
+		mv ".deps/$@.pp" ".deps/$@.P"; \
+	else rm -f ".deps/$@.pp"; exit 1; \
+	fi
 
 $(ELC_IO_COBJS): %.o : ../io/%.c $(GENDEP)
 	@echo "  ELC IO CC   $@"
-	@$(CC) $(CFLAGS) -c -o $@ $<
+	@if $(CC) $(CFLAGS) -MT '$@' -MD -MP -MF '.deps/$@.pp' -c $< -o $@; then \
+		mv ".deps/$@.pp" ".deps/$@.P"; \
+	else rm -f ".deps/$@.pp"; exit 1; \
+	fi
 
 $(ELC_IO_CXXOBJS): %.o : ../io/%.cpp $(GENDEP)
 	@echo "  ELC IO CXX   $@"
-	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+	@if $(CXX) $(CXXFLAGS) -MT '$@' -MD -MP -MF '.deps/$@.pp' -c $< -o $@; then \
+		mv ".deps/$@.pp" ".deps/$@.P"; \
+	else rm -f ".deps/$@.pp"; exit 1; \
+	fi
 
 $(ELC_EXCEPTION_CXXOBJS): %.o : ../exceptions/%.cpp $(GENDEP)
 	@echo "  ELC EXC CXX   $@"
-	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+	@if $(CXX) $(CXXFLAGS) -MT '$@' -MD -MP -MF '.deps/$@.pp' -c $< -o $@; then \
+		mv ".deps/$@.pp" ".deps/$@.P"; \
+	else rm -f ".deps/$@.pp"; exit 1; \
+	fi
 
 $(ELC_CXXOBJS): %.o : ../%.cpp $(GENDEP)
 	@echo "  ELC CXX   $@"
-	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+	@if $(CXX) $(CXXFLAGS) -MT '$@' -MD -MP -MF '.deps/$@.pp' -c $< -o $@; then \
+		mv ".deps/$@.pp" ".deps/$@.P"; \
+	else rm -f ".deps/$@.pp"; exit 1; \
+	fi
 
 $(ELC_EC_CXXOBJS): %.o : ../eye_candy/%.cpp $(GENDEP)
 	@echo "  ELC EC CXX   $@"
-	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+	@if $(CXX) $(CXXFLAGS) -MT '$@' -MD -MP -MF '.deps/$@.pp' -c $< -o $@; then \
+		mv ".deps/$@.pp" ".deps/$@.P"; \
+	else rm -f ".deps/$@.pp"; exit 1; \
+	fi
 
 $(ELC_ENGINE_CXXOBJS): %.o : ../engine/%.cpp $(GENDEP)
 	@echo "  ELC ENG CXX   $@"
-	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+	@if $(CXX) $(CXXFLAGS) -MT '$@' -MD -MP -MF '.deps/$@.pp' -c $< -o $@; then \
+		mv ".deps/$@.pp" ".deps/$@.P"; \
+	else rm -f ".deps/$@.pp"; exit 1; \
+	fi
 
 $(ELC_XZ_CCOBJS): %.o : ../xz/%.c $(GENDEP)
 	@echo "  ELC XZ CC   $@"
-	@$(CC) $(CFLAGS) -c -o $@ $<
+	@if $(CC) $(CFLAGS) -MT '$@' -MD -MP -MF '.deps/$@.pp' -c $< -o $@; then \
+		mv ".deps/$@.pp" ".deps/$@.P"; \
+	else rm -f ".deps/$@.pp"; exit 1; \
+	fi
 
 clean:
 	-rm -f $(OBJS) $(EXE)
+
+.depend: $(foreach HEADER_DIR, $(HEADER_DIRS), $(wildcard $(HEADER_DIR)/*.h))
+	$(CC) $(CFLAGS) -MM $(patsubst %.o, %.c, $(COBJS)) >.depend
+	$(CXX) $(CXXFLAGS) -MM $(patsubst %.o, %.cpp, $(CXXOBJS)) >>.depend
 
 # Based on the main client static build, this works on Ubuntu 8.04 (LTS) at least
 # Its only a little bit static but it may work
@@ -154,3 +213,5 @@ STATICLIBS=$(LIBD)/libSDL_net.a $(LIBD)/libSDL.a $(LIBD)/libSDL_image.a \
 
 static: $(OBJS)
 	@$(MAKE) -f Makefile.linux 'LIBS=$(STATICLIBS)'
+
+-include $(DEP_FILES)

@@ -2,19 +2,42 @@
 
 -include make.conf
 
-# basic compiling and linking - rarely changed
-OPTIONS = -DLINUX -DELC $(foreach FEATURE, $(FEATURES), -D$(FEATURE)) -D_7ZIP_ST $(GIT_VERSION)
-CFLAGS=$(PLATFORM) $(CWARN) -O0 -ggdb -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags) -fno-strict-aliasing $(EXTRA_INCLUDES)
-_CFLAGS=$(PLATFORM) -O2 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags) -fno-strict-aliasing $(EXTRA_INCLUDES)
-CXXFLAGS=$(PLATFORM) $(CXXWARN) -O0 -ggdb -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags) -fno-strict-aliasing $(EXTRA_INCLUDES)
-_CXXFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags) -fno-strict-aliasing $(EXTRA_INCLUDES)
+PNG_SCREENSHOT_LIBS = $(shell pkg-config libpng --libs)
 
-PNG_SCREENSHOT_LIBS = -lpng
-LDFLAGS=$(shell sdl-config --libs) $(shell xml2-config --libs) -lSDL_net \
-	-lSDL_image -lopenal $(XDIR) -lGL -lGLU -lcal3d -lm $(EXTRA_LIBS) \
-	-lz -lpng -lvorbis -lvorbisfile -lstdc++ -lX11 \
-	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_LIBS))
+OPTIONS = -DLINUX -DELC $(foreach FEATURE, $(FEATURES), -D$(FEATURE)) -D_7ZIP_ST $(GIT_VERSION) \
+	$(shell pkg-config sdl --cflags) \
+	$(shell pkg-config SDL_net --cflags) \
+	$(shell pkg-config SDL_image --cflags) \
+	$(shell pkg-config libxml-2.0 --cflags) \
+	$(shell pkg-config cal3d --cflags) \
+	$(shell pkg-config gl --cflags) \
+	$(shell pkg-config glu --cflags) \
+	$(shell pkg-config openal --cflags) \
+	$(shell pkg-config vorbis --cflags) \
+	$(shell pkg-config vorbisfile --cflags) \
+	$(shell pkg-config zlib --cflags)
+
+CFLAGS=$(PLATFORM) $(CWARN) -O0 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
+
+CXXFLAGS=$(PLATFORM) $(CXXWARN) -O0 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
+
+LDFLAGS=$(shell pkg-config sdl --libs) \
+	$(shell pkg-config libxml-2.0 --libs) \
+	$(shell pkg-config SDL_net --libs) \
+	$(shell pkg-config SDL_image --libs) \
+	$(shell pkg-config cal3d --libs) \
+	$(shell pkg-config gl --libs) \
+	$(shell pkg-config glu --libs) \
+	$(shell pkg-config openal --libs) \
+	$(shell pkg-config vorbis --libs) \
+	$(shell pkg-config vorbisfile --libs) \
+	$(shell pkg-config zlib --libs) \
+	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_LIBS)) \
+	$(shell pkg-config x11 --libs) -lm -lstdc++
+
+_CFLAGS=$(PLATFORM) -O2 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
 _LDFLAGS=$(XDIR) -lGL -lpthread -lstdc++
+_CXXFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
 
 # This works on Ubuntu 8.04 (LTS) at least
 # Install these packages in addition to those required for a standard build
@@ -59,7 +82,7 @@ COBJS=2d_objects.o 3d_objects.o \
 	xz/LzmaDec.o xz/LzmaEnc.o xz/Sha256.o xz/Xz.o xz/XzCrc64.o xz/XzDec.o	\
 	xz/XzEnc.o	\
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_COBJ))
-	
+
 CXXOBJS=achievements.o actor_init.o cal3d_wrapper.o command_queue.o \
 	context_menu.o elloggingwrapper.o engine/logging.o exceptions/extendedexception.o \
 	hud_indicators.o hud_timer.o icon_window.o io/cal3d_io_wrapper.o item_info.o item_lists.o named_colours.o \
@@ -133,9 +156,9 @@ static:
 	@$(MAKE) -f Makefile.linux 'CFLAGS=$(_CFLAGS)' 'CXXFLAGS=$(_CXXFLAGS)' 'LDFLAGS=$(_LDFLAGS)' 'OBJS=$(OBJS) $(STATICLIBS)'
 
 clean:
-	rm -f $(OBJS) $(EXE) 
+	rm -f $(OBJS) $(EXE)
 
-docs:	
+docs:
 	cd docs && doxygen Doxyfile
 
 # define GIT_VERSION if we have a version file
@@ -149,7 +172,7 @@ VERSION = $(shell git describe --abbrev=4 --dirty --always)
 gen_git_version:
 	@echo -n "$(VERSION)" > git_version
 	@echo "New version file: $(VERSION)"
-	@rm -f console.o $(EXE) 
+	@rm -f console.o $(EXE)
 
 .depend: $(foreach HEADER_DIR, $(HEADER_DIRS), $(wildcard $(HEADER_DIR)/*.h))
 	$(CC) $(CFLAGS) -MM $(patsubst %.o, %.c, $(COBJS)) >.depend

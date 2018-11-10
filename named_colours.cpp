@@ -180,6 +180,7 @@ namespace ELGL_Colour
 		add("minimap.mine", Colour_Tuple(0.15f, 0.65f, 0.45f));
 		add("minimap.servermark", Colour_Tuple(0.33f,0.6f,1.0f));
 		add("minimap.otherplayer", Colour_Tuple(1.0f, 1.0f, 1.0f));
+		add("minimap.cross", Colour_Tuple(1.0f, 0.0f, 1.0f));
 		add("global.mousehighlight", Colour_Tuple(0.5f, 0.5f, 1.0f));
 		add("global.mouseselected", Colour_Tuple(0.4f, 0.8f, 1.0f));
 		add("buff.duration.background", Colour_Tuple(0.1f, 0.3f, 1.0f, 0.7f));

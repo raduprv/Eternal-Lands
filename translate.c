@@ -184,6 +184,8 @@ char
 	/*gamewin.c*/
 	ranginglock_enabled_str[100],
 	ranginglock_disabled_str[50],
+	close_click_targetting_on_str[50],
+	close_click_targetting_off_str[50],
 	/*gl_init.c*/
 	window_size_adjusted_str[50],
 	/*hud.c*/
@@ -201,6 +203,7 @@ char
 	poison_indicator_str[60],
 	messages_indicator_str[60],
 	ranginglock_indicator_str[70],
+	glowperk_indicator_str[100],
 	/*loginwin.c*/
 	login_username_str[20],
 	login_password_str[20],
@@ -369,7 +372,7 @@ char
 	cm_minimap_menu_str[60],
 	cm_user_menu_str[150],
 	cm_item_list_selected_str[40],
-	cm_item_list_names_str[100],
+	cm_item_list_names_str[120],
 	cm_stats_bar_base_str[30],
 	cm_recipe_menu_str[100],
 	cm_manuwin_menu_str[50],
@@ -402,7 +405,8 @@ char
 	item_list_create_help_str[40],
 	item_list_magic_str[80],
 	item_list_find_str[20],
-	item_list_find_help_str[40];
+	item_list_find_help_str[40],
+	item_list_find_help_disabled_str[40];
 #endif
 /*! \} */
 
@@ -728,6 +732,7 @@ char	reg_error_str[15],
 	/* encyclopedia */
 	cant_load_encycl[70],
 	/* text.c */
+	invalidnpcmark_str[50],
 	warn_currently_ignoring[50];
 #else
 	;
@@ -1236,6 +1241,7 @@ void init_errors()
 	add_xml_identifier (misc, "noanimation", no_animation_err_str, "No animation: %s!\n", sizeof(no_animation_err_str));
 	add_xml_identifier (misc, "invalid_location", invalid_location_str, "Invalid location %d,%d", sizeof(invalid_location_str));
 	add_xml_identifier (misc, "warn_currently_ignoring", warn_currently_ignoring, "Warning: %s is on your #ignore list", sizeof(warn_currently_ignoring));
+	add_xml_identifier (misc, "invalidnpcmark", invalidnpcmark_str, "Invalid string for NPC map mark.", sizeof(invalidnpcmark_str));
 
 	//XML errors. should these have their own group?
 	add_xml_identifier (misc, "badnode", xml_bad_node, "There is something wrong with one of a node's fields.", sizeof(xml_bad_node));
@@ -1478,11 +1484,14 @@ void init_help()
 	add_xml_identifier(misc,"poison_indicator",poison_indicator_str,"P||Poisoned||Not Poisoned||Poison Status",sizeof(poison_indicator_str));
 	add_xml_identifier(misc,"messages_indicator",messages_indicator_str,"M||Recent Messages||No Messages||Message Count",sizeof(messages_indicator_str));
 	add_xml_identifier(misc,"ranginglock_indicator",ranginglock_indicator_str,"R||Ranging Lock On||Ranging Lock Off||Ranging Lock Status",sizeof(ranginglock_indicator_str));
+	add_xml_identifier(misc,"glowperk_indicator",glowperk_indicator_str,"G||Glow Perk On||Glow Perk Off||Glow Perk Status||You do not have the Glow In The Dark perk",sizeof(glowperk_indicator_str));
 	add_xml_identifier(misc,"dc_note_rm",dc_note_remove,"Double-click to remove this category",sizeof(dc_note_remove));
 	add_xml_identifier(misc,"note_saved",note_saved,"Your notes have been saved",sizeof(note_saved));
 	add_xml_identifier(misc,"note_save_failed",note_save_failed,"Failed to save your notes!",sizeof(note_save_failed));
 	add_xml_identifier(misc,"ranginglock_enabled",ranginglock_enabled_str,"Ranging-Lock is now enabled. Disable it or unequip ranging weapon before walking.",sizeof(ranginglock_enabled_str));
 	add_xml_identifier(misc,"ranginglock_disabled",ranginglock_disabled_str,"Ranging-Lock is now disabled.",sizeof(ranginglock_disabled_str));
+	add_xml_identifier(misc,"close_click_targetting_on",close_click_targetting_on_str,"Close-click targetting on.",sizeof(close_click_targetting_on_str));
+	add_xml_identifier(misc,"close_click_targetting_off",close_click_targetting_off_str,"Close-click targetting off.",sizeof(close_click_targetting_off_str));
 	add_xml_identifier(misc,"video_restart", video_restart_str, "Video change will take effect at next restart.", sizeof(video_restart_str));
 	add_xml_identifier(misc,"rotate_chat_log_restart", rotate_chat_log_restart_str, "Rotate chat log change will take effect at next restart.", sizeof(rotate_chat_log_restart_str));
 	add_xml_identifier(misc,"ranging_win_title", ranging_win_title_str, "Ranging", sizeof(ranging_win_title_str));
@@ -1623,9 +1632,9 @@ void init_help()
 	add_xml_identifier(misc, "cm_npcname_menu", cm_npcname_menu_str, "Copy NPC Name\nSet Map Mark", sizeof(cm_npcname_menu_str));
 	add_xml_identifier(misc, "cm_dialog_copy_menu", cm_dialog_copy_menu_str, "Exclude Responses\nRemove Newlines", sizeof(cm_dialog_copy_menu_str));
 	add_xml_identifier(misc, "cm_minimap_menu", cm_minimap_menu_str, "--\nRotate Minimap\nPin Minimap\nOpen On Start", sizeof(cm_minimap_menu_str));
-	add_xml_identifier(misc, "cm_user_menu", cm_user_menu_str, "--\nMovable Window\nBorder On\nSmall Font\nStandard Menus\n--\nShow Commands\n--\nReload Menus\nDisable Menus", sizeof(cm_user_menu_str));
+	add_xml_identifier(misc, "cm_user_menu", cm_user_menu_str, "--\nMovable Window\nBackground On\nBorder On\nSmall Font\nStandard Menus\n--\nShow Commands\n--\nReload Menus\nDisable Menus", sizeof(cm_user_menu_str));
 	add_xml_identifier(misc, "cm_item_list_selected", cm_item_list_selected_str, "Edit quantity\n--\nDelete", sizeof(cm_item_list_selected_str));
-	add_xml_identifier(misc, "cm_item_list_names", cm_item_list_names_str, "Create new list\nRename active list\n--\nDelete active list\n--\nReload from file", sizeof(cm_item_list_names_str));
+	add_xml_identifier(misc, "cm_item_list_names", cm_item_list_names_str, "Create new list\nRename active list\n--\nDelete active list\n--\nDisable find list\n--\nReload from file", sizeof(cm_item_list_names_str));
 	add_xml_identifier(misc, "cm_stats_bar_base", cm_stats_bar_base_str, "--\nAdd Bar\nRemove Bar", sizeof(cm_stats_bar_base_str));
 	add_xml_identifier(misc, "cm_recipe_menu", cm_recipe_menu_str, "Add additional recipe row\nClear selected recipe\nDelete selected recipe\nSort recipes by name", sizeof(cm_recipe_menu_str));
 	add_xml_identifier(misc, "cm_manuwin_menu", cm_manuwin_menu_str, "\n--\nDisable key presses for window", sizeof(cm_manuwin_menu_str));
@@ -1668,6 +1677,7 @@ void init_help()
 	add_xml_identifier(misc, "item_list_magic", item_list_magic_str, "Magical interference caused the list window to close O.O", sizeof(item_list_magic_str));	
 	add_xml_identifier(misc, "item_list_find", item_list_find_str, "Find: ", sizeof(item_list_find_str));
 	add_xml_identifier(misc, "item_list_find_help", item_list_find_help_str, "Find list - type text", sizeof(item_list_find_help_str));
+	add_xml_identifier(misc, "item_list_find_help_disabled", item_list_find_help_disabled_str, "Find list - (disabled)", sizeof(item_list_find_help_disabled_str));
 }
 #endif
 

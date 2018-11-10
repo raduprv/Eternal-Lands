@@ -902,6 +902,7 @@ namespace ItemLists
 
 			cm_selected_item_menu = cm_create(cm_item_list_selected_str, cm_selected_item_handler);
 			cm_names_menu = cm_create(cm_item_list_names_str, cm_names_handler);
+			cm_bool_line(cm_names_menu, 5, &items_list_disable_find_list, 0);
 			cm_set_pre_show_handler(cm_names_menu, cm_names_pre_show_handler);
 
 			names_scroll_id = vscrollbar_add_extended(win_id, 1, NULL, 0, 0, 0, 0, 0,
@@ -1157,7 +1158,7 @@ CHECK_GL_ERRORS();
 		{
 			help_str.push_back(cm_help_options_str);
 			if (!strlen(filter))
-				help_str.push_back(item_list_find_help_str);
+				help_str.push_back((items_list_disable_find_list) ?item_list_find_help_disabled_str :item_list_find_help_str);
 		}
 
 		return 0;
@@ -1422,7 +1423,7 @@ CHECK_GL_ERRORS();
 					ItemLists::Vars::win()->update_scroll_len();
 				}
 				break;
-			case 5:
+			case 7:
 				Vars::lists()->load();
 				ItemLists::Vars::win()->update_scroll_len();
 				ItemLists::Vars::win()->make_active_visable();
@@ -1533,7 +1534,7 @@ CHECK_GL_ERRORS();
 	static int keypress_itemlist_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 	{
 		char keychar = tolower(key_to_char(unikey));
-		if ((keychar == '`') || (key & ELW_CTRL) || (key & ELW_ALT))
+		if ((keychar == '`') || (key & ELW_CTRL) || (key & ELW_ALT) || items_list_disable_find_list)
 			return 0;
 		return Vars::win()->keypress(keychar);
 	}
@@ -1553,6 +1554,8 @@ CHECK_GL_ERRORS();
 //
 extern "C"
 {
+	int items_list_disable_find_list = 0;
+
 	void toggle_items_list_window(window_info *win)
 		{ ItemLists::Vars::win()->show(win); }
 

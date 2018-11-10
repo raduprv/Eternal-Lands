@@ -211,7 +211,7 @@ int display_knowledge_handler(window_info *win)
 	//progress bar
 	if (is_researching)
 	{
-		int progress = 125*get_research_fraction();
+		int progress = (progress_right_x - progress_left_x - 1) * get_research_fraction();
 		glBegin(GL_QUADS);
 		glColor3f(0.40f,0.40f,1.00f);
 		glVertex3i(progress_left_x+1+gx_adjust,progress_top_y+gy_adjust,0);
@@ -492,7 +492,7 @@ void fill_knowledge_win (int window_id)
 	set_window_handler(window_id, ELW_HANDLER_MOUSEOVER, &mouseover_knowledge_handler );
 	set_window_handler(window_id, ELW_HANDLER_RESIZE, &resize_knowledge_handler );
 
-	knowledge_scroll_id = vscrollbar_add_extended (window_id, knowledge_scroll_id, NULL, 0,  0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, (knowledge_count+2)/2-displayed_book_rows-1);
+	knowledge_scroll_id = vscrollbar_add_extended (window_id, knowledge_scroll_id, NULL, 0,  0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, (knowledge_count+1)/2-displayed_book_rows);
 	knowledge_book_image_id = add_knowledge_book_image(window_id);
 	widget_set_OnClick(window_id, knowledge_book_image_id, &handle_knowledge_book);
 	knowledge_book_label_id = label_add_extended(window_id, knowledge_book_image_id + 1, NULL, 0, 0, WIDGET_DISABLED, 0.8, 1.0, 1.0, 1.0, knowledge_read_book);

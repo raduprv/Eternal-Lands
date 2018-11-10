@@ -419,7 +419,7 @@ int get_2d_bbox (int id, AABBOX* box)
 int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot)
 {
 	size_t i;
-	char fname[128];
+	char fname[80];
 	obj_2d_def *returned_obj_2d_def;
 	obj_2d *our_object;
 	short sector;
@@ -440,7 +440,7 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos, float x_
 	returned_obj_2d_def=load_obj_2d_def_cache(fname);
 	if(!returned_obj_2d_def)
 	   {
-            char str[120];
+            char str[200];
             sprintf(str,"Error: Can't load 2d object: %s\n",fname);
             log_error(__FILE__, __LINE__, str);
 	        return 0;

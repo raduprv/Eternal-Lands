@@ -91,6 +91,7 @@ extern Uint32 K_ECDEBUGWIN;         /*!< open Eye Candy debug window */
 #endif /* ECDEBUGWIN */
 extern Uint32 K_EMOTES;             /*!< key used to toggle display of \ref emotes_window */
 extern Uint32 K_RANGINGWIN;         /*!< key used to toggle display of ranging win */
+extern Uint32 K_TARGET_CLOSE;       /*!< toggle target_close_clicked_creature option */
 extern Uint32 K_COUNTERS;           /*!< key used to toggle display of counters window  */
 extern Uint32 K_HELPSKILLS;         /*!< key used to toggle display of help window skills tab  */
 /*! @} */

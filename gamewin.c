@@ -54,6 +54,7 @@
 #include "storage.h"
 #include "tabs.h"
 #include "textures.h"
+#include "translate.h"
 #include "trade.h"
 #include "url.h"
 #include "weather.h"
@@ -103,6 +104,15 @@ void check_to_auto_disable_ranging_lock(void)
 {
 	if(ranging_lock && auto_disable_ranging_lock)
 		toggle_ranging_lock();
+}
+
+static void toggle_target_close_clicked_creature(void)
+{
+	toggle_OPT_BOOL_by_name("target_close_clicked_creature");
+	if (target_close_clicked_creature)
+		LOG_TO_CONSOLE(c_green1, close_click_targetting_on_str);
+	else
+		LOG_TO_CONSOLE(c_green1, close_click_targetting_off_str);
 }
 
 void draw_special_cursors(void)
@@ -2025,6 +2035,10 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	else if(key == K_RANGINGWIN)
 	{
 		view_window(&range_win, -1);
+	}
+	else if(key == K_TARGET_CLOSE)
+	{
+		toggle_target_close_clicked_creature();
 	}
 	else if (key == K_SIT)
 	{

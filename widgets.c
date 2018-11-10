@@ -996,10 +996,7 @@ int vscrollbar_draw(widget_list *W)
 {
 	int drawn_bar_len = 0;
 	vscrollbar *c = (vscrollbar *)W->widget_info;
-	float scale = (float)W->len_x / (float)ELW_BOX_SIZE;
-	int arrow_size = (int)(0.5 + ELW_BOX_SIZE/4.0 * scale);
-	int bar_x_space = (int)(0.5 + (ELW_BOX_SIZE/4.0 + 2.0) * scale);
-	int bar_y_space = (int)(0.5 + (6.0*ELW_BOX_SIZE/4.0 + ELW_BOX_SIZE) * scale);
+	int arrow_size = (int)(0.5 + (float)(W->len_x) / 4.0f);
 
 	glDisable(GL_TEXTURE_2D);
 	if(W->r!=-1.0)
@@ -1034,10 +1031,10 @@ int vscrollbar_draw(widget_list *W)
 			glColor3f(W->r/3, W->g/3, W->b/3);
 	}
 	glBegin(GL_QUADS);
-	glVertex3i(W->pos_x + bar_x_space + gx_adjust, W->pos_y + 3*arrow_size + (c->pos*((float)(W->len_y-bar_y_space)/drawn_bar_len)) + gy_adjust, 0);
-	glVertex3i(W->pos_x + W->len_x - bar_x_space + gx_adjust, W->pos_y + 3*arrow_size + (c->pos*((float)(W->len_y-bar_y_space)/drawn_bar_len)) + gy_adjust, 0);
-	glVertex3i(W->pos_x + W->len_x - bar_x_space + gx_adjust, W->pos_y + 7*arrow_size + (c->pos*((float)(W->len_y-bar_y_space)/drawn_bar_len)) + gy_adjust, 0);
-	glVertex3i(W->pos_x + bar_x_space + gx_adjust, W->pos_y + 7*arrow_size + (c->pos*((float)(W->len_y-bar_y_space)/drawn_bar_len)) + gy_adjust, 0);
+	glVertex3i(W->pos_x + 2*arrow_size - (int)(0.5 + (float)arrow_size/1.5f) + gx_adjust, W->pos_y + 3*arrow_size + (c->pos*((float)(W->len_y-11*arrow_size)/drawn_bar_len)) + gy_adjust, 0);
+	glVertex3i(W->pos_x + 2*arrow_size + (int)(0.5 + (float)arrow_size/1.5f) + gx_adjust, W->pos_y + 3*arrow_size + (c->pos*((float)(W->len_y-11*arrow_size)/drawn_bar_len)) + gy_adjust, 0);
+	glVertex3i(W->pos_x + 2*arrow_size + (int)(0.5 + (float)arrow_size/1.5f) + gx_adjust, W->pos_y + 8*arrow_size + (c->pos*((float)(W->len_y-11*arrow_size)/drawn_bar_len)) + gy_adjust, 0);
+	glVertex3i(W->pos_x + 2*arrow_size - (int)(0.5 + (float)arrow_size/1.5f) + gx_adjust, W->pos_y + 8*arrow_size + (c->pos*((float)(W->len_y-11*arrow_size)/drawn_bar_len)) + gy_adjust, 0);
 	glEnd();
 
 	glEnable(GL_TEXTURE_2D);
@@ -1049,9 +1046,7 @@ CHECK_GL_ERRORS();
 
 int vscrollbar_click(widget_list *W, int mx, int my, Uint32 flags)
 {
-	float scale = (float)W->len_x / (float)ELW_BOX_SIZE;
-	int arrow_size = (int)(0.5 + ELW_BOX_SIZE/4.0 * scale);
-	int bar_y_space = (int)(0.5 + (6*ELW_BOX_SIZE/4.0 + ELW_BOX_SIZE) * scale);
+	int arrow_size = (int)(0.5 + (float)(W->len_x) / 4.0f);
 	vscrollbar *b = (vscrollbar *)W->widget_info;
 	if ( my < 3*arrow_size || (flags & ELW_WHEEL_UP) )
 	{
@@ -1063,7 +1058,7 @@ int vscrollbar_click(widget_list *W, int mx, int my, Uint32 flags)
 	}
 	else
 	{
-		b->pos = (my - 5*arrow_size)/((float)(W->len_y-bar_y_space)/b->bar_len);
+		b->pos = (my - 5*arrow_size)/((float)(W->len_y-11*arrow_size)/b->bar_len);
 	}
 
 	if (b->pos < 0) b->pos = 0;

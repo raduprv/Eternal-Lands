@@ -1077,6 +1077,7 @@ int put_mark_on_position(int map_x, int map_y, const char * name)
 		marks[max_mark].text[strlen(marks[max_mark].text)]=0;
 
 		marks[max_mark].server_side=0;
+		marks[max_mark].server_side_id=-1;
 
 		marks[max_mark].r=curmark_r;
 		marks[max_mark].g=curmark_g;
@@ -1136,8 +1137,15 @@ void delete_mark_on_map_on_mouse_position()
 		int distance, dx, dy;
 		marking * const mark = &marks[i]; 
 
+		// skip marks not shown due to filter
+		if (mark_filter_active
+			  && (get_string_occurance(mark_filter_text, mark->text, strlen(mark->text), 1) == -1))
+			continue;
+
 		// skip masked marks
-		if (mark->x < 0 || mark->server_side) continue;
+		if (mark->x < 0)
+			continue;
+
 		// get mark to cursor distance (squared)
 		dx = mark->x - mx;
 		dy = mark->y - my;
@@ -1155,6 +1163,10 @@ void delete_mark_on_map_on_mouse_position()
 		// we found a close mark
 		closest_mark->x =  -1 ;
 		closest_mark->y =  -1 ;
+		if (closest_mark->server_side) {
+			hash_delete(server_marks,(NULL+closest_mark->server_side_id));
+			save_server_markings();
+		}
 	}
 
 	save_markings();

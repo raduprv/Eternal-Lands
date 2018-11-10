@@ -1,5 +1,5 @@
 name: eternallands
-version: '1.9.5.p2'
+version: '1.9.5.p3'
 summary: Eternal Lands is a free to play, graphical MMORPG
 description: |
   Eternal Lands is a free to play, graphical MMORPG (massively-multi-player
@@ -14,17 +14,17 @@ icon: pkgfiles/snap-package/eternallands.png
 
 parts:
   client:
-    source: https://github.com/raduprv/Eternal-Lands/archive/1.9.5.2.zip
-    source-checksum: md5/34ce0d84d6404359b2aabbe50d8dbf8d
+    source: https://github.com/raduprv/Eternal-Lands
+    source-type: git
+    source-tag: 1.9.5.3
     build-packages: [build-essential, libcal3d12-dev, libsdl-image1.2-dev, libsdl-net1.2-dev, libxml2-dev, libopenal-dev, libvorbis-dev]
     plugin: make
-    source-subdir: "Eternal-Lands-1.9.5.2"
     makefile: Makefile.linux
-    make-parameters: ["release"]
+    make-parameters: ["release", "PLATFORM=''", "EXE=el.linux.bin"]
     override-pull: |
       snapcraftctl pull
-      sed -i 's|^PLATFORM=.*$|#PLATFORM=""|g' Eternal-Lands-1.9.5.2/make.defaults
-    artifacts: ["el.x86.linux.bin"]
+      sed -i 's|^PLATFORM=.*$|#PLATFORM=""|g' make.defaults
+    artifacts: ["el.linux.bin"]
     stage-packages:
       - libglib2.0-0
       - libsdl-net1.2

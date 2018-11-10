@@ -59,10 +59,10 @@ namespace Indicators
 	class Basic_Indicator
 	{
 		public:
-			Basic_Indicator(const char *the_strings, int (*ctrl)(void), int no);
+			Basic_Indicator(const char *the_strings, int (*ctrl)(void), int (*unavailable)(void), int no);
 			virtual void do_draw(int x_pos);
 			virtual void do_action(void) const { do_alert1_sound(); }
-			virtual void get_tooltip(std::string & tooltip) const { tooltip = ((cntr_func && cntr_func()) ?on_tooltip : off_tooltip); }
+			virtual void get_tooltip(std::string & tooltip) const;
 			virtual const std::string & get_context_menu_str(void) const { return context_menu_str; }
 			virtual int *get_active_var(void) { return &is_active; }
 			virtual void set_active(bool new_active) { is_active = (new_active) ?1 :0; }
@@ -73,7 +73,9 @@ namespace Indicators
 		protected:
 			std::string on_tooltip;
 			std::string off_tooltip;
+			std::string unavailable_tooltip;
 			int (*cntr_func)(void);
+			int (*unavailable_func)(void);
 		private:
 			std::string indicator_text;
 			std::string context_menu_str;
@@ -88,8 +90,8 @@ namespace Indicators
 	class Parse_Action_Indicator: public Basic_Indicator
 	{
 		public:
-			Parse_Action_Indicator(const char *the_strings, int (*ctrl)(void), int no, const char *the_action)
-				: Basic_Indicator(the_strings, ctrl, no), action(the_action) {}
+			Parse_Action_Indicator(const char *the_strings, int (*ctrl)(void), int (*unavailable)(void), int no, const char *the_action)
+				: Basic_Indicator(the_strings, ctrl, unavailable, no), action(the_action) {}
 			virtual void do_action(void) const;
 			virtual ~Parse_Action_Indicator(void) { }
 		private:
@@ -103,8 +105,8 @@ namespace Indicators
 	class Value_Indicator : public Basic_Indicator
 	{
 		public:
-			Value_Indicator(const char *the_strings, int (*ctrl)(void), int no, void (*action)(void))
-				: Basic_Indicator(the_strings, ctrl, no), action_function(action) {}
+			Value_Indicator(const char *the_strings, int (*ctrl)(void), int (*unavailable)(void), int no, void (*action)(void))
+				: Basic_Indicator(the_strings, ctrl, unavailable, no), action_function(action) {}
 			virtual void do_action(void) const;
 			virtual void get_tooltip(std::string & tooltip) const;
 			virtual ~Value_Indicator(void) { }
@@ -161,8 +163,8 @@ namespace Indicators
 
 	//	Construct the indicator deriving the strings from the "||" separated string passed.
 	//
-	Basic_Indicator::Basic_Indicator(const char *the_strings, int (*ctrl)(void), int no)
-		: on_tooltip("Unset"), off_tooltip("Unset"), cntr_func(ctrl),
+	Basic_Indicator::Basic_Indicator(const char *the_strings, int (*ctrl)(void), int (*unavailable)(void), int no)
+		: on_tooltip("Unset"), off_tooltip("Unset"), unavailable_tooltip("Unset"), cntr_func(ctrl), unavailable_func(unavailable),
 			indicator_text("*"), is_active(1), mouse_over(false)
 	{
 		if (the_strings)
@@ -181,12 +183,14 @@ namespace Indicators
 			}
 			if ((len = line_text.size()-from_index) > 0)
 				fields.push_back(line_text.substr(from_index, len));
-			if (fields.size() == 4)
+			if (fields.size() >= 4)
 			{
 				indicator_text = fields[0];
 				on_tooltip = fields[1];
 				off_tooltip = fields[2];
 				context_menu_str = fields[3];
+				if (fields.size() == 5)
+					unavailable_tooltip = fields[4];
 			}
 		}
 	}
@@ -198,6 +202,8 @@ namespace Indicators
 	{
 		if (mouse_over)
 			glColor3f(1.0f,1.0f,1.0f);
+		else if (unavailable_func && unavailable_func())
+			glColor3f(0.20f,0.15f,0.10f);
 		else if (cntr_func && cntr_func())
 			glColor3f(0.99f,0.87f,0.65f);
 		else
@@ -206,6 +212,13 @@ namespace Indicators
 		mouse_over = false;
 	}
 
+	void Basic_Indicator::get_tooltip(std::string & tooltip) const
+	{
+		if (unavailable_func && unavailable_func())
+			tooltip = unavailable_tooltip;
+		else
+			tooltip = ((cntr_func && cntr_func()) ?on_tooltip : off_tooltip);
+	}
 
 	//	If an action string is defined, execute using the standard command line parser.
 	//
@@ -242,6 +255,11 @@ namespace Indicators
 	//
 	void Value_Indicator::get_tooltip(std::string & tooltip) const
 	{
+		if (unavailable_func && unavailable_func())
+		{
+			tooltip = unavailable_tooltip;
+			return;
+		}
 		std::ostringstream ss("");
 		int value = (cntr_func) ?cntr_func() :0;
 		if (value > 0)
@@ -273,12 +291,13 @@ namespace Indicators
 
 		if (indicators.empty())
 		{
-			indicators.reserve(5);
-			indicators.push_back(new Parse_Action_Indicator(day_indicator_str, today_is_special_day, indicators.size(), "#day"));
-			indicators.push_back(new Basic_Indicator(harvest_indicator_str, now_harvesting, indicators.size()));
-			indicators.push_back(new Basic_Indicator(poison_indicator_str, we_are_poisoned, indicators.size()));
-			indicators.push_back(new Value_Indicator(messages_indicator_str, get_seen_pm_count, indicators.size(), clear_seen_pm_count));
-			indicators.push_back(new Parse_Action_Indicator(ranginglock_indicator_str, ranging_lock_is_on, indicators.size(), "#keypress #K_RANGINGLOCK"));
+			indicators.reserve(6);
+			indicators.push_back(new Parse_Action_Indicator(day_indicator_str, today_is_special_day, 0, indicators.size(), "#day"));
+			indicators.push_back(new Basic_Indicator(harvest_indicator_str, now_harvesting, 0, indicators.size()));
+			indicators.push_back(new Basic_Indicator(poison_indicator_str, we_are_poisoned, 0, indicators.size()));
+			indicators.push_back(new Value_Indicator(messages_indicator_str, get_seen_pm_count, 0, indicators.size(), clear_seen_pm_count));
+			indicators.push_back(new Parse_Action_Indicator(ranginglock_indicator_str, ranging_lock_is_on, 0, indicators.size(), "#keypress #K_RANGINGLOCK"));
+			indicators.push_back(new Parse_Action_Indicator(glowperk_indicator_str, glow_perk_is_active, glow_perk_is_unavailable, indicators.size(), "#glow"));
 		}
 
 		x_len = static_cast<int>(Vars::font_x() * indicators.size() * Vars::zoom() +

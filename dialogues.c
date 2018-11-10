@@ -666,10 +666,36 @@ static int cm_npcname_handler(window_info *win, int widget_id, int mx, int my, i
 		copy_to_clipboard((const char *)npc_name);
 	else if (option == 1)
 	{
-		char str[80];
-		safe_snprintf(str, sizeof(str), npc_mark_str, npc_name);
+		char *str = NULL, *del_pos = NULL;
+		const char *delim = "%s";
+		size_t delim_len = strlen(delim);
+		size_t npc_name_len = 0, start_len = 0, end_len = 0, str_len = 0;
+
+		if (npc_mark_str == NULL || npc_name == NULL || !strlen(npc_mark_str) ||
+			!(npc_name_len = strlen((char *)npc_name)) ||
+			((del_pos = strstr(npc_mark_str, delim)) == NULL))
+		{
+			LOG_TO_CONSOLE(c_red1, invalidnpcmark_str);
+			return 0;
+		}
+
+		start_len = del_pos - npc_mark_str;
+		end_len = strlen(&npc_mark_str[start_len + delim_len]);
+		str_len = start_len + npc_name_len + end_len + 1;
+
+		if ((str = (char *)malloc(str_len)) == NULL)
+			return 0;
+
+		// previously used sprintf() but its unsafe to use a user specified target string
+		safe_strncpy2(str, npc_mark_str, str_len, start_len);
+		str[start_len] = 0;
+		safe_strcat(str, (char *)npc_name, str_len);
+		safe_strcat(str, &npc_mark_str[start_len + delim_len], str_len);
+
 		command_unmark_special(str, strlen(str), 0);
 		command_mark(str, strlen(str));
+
+		free(str);
 	}
 	else
 		return 0;
