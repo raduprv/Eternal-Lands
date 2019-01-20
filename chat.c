@@ -2419,11 +2419,11 @@ static int display_channel_color_win(Uint32 channel_number)
 			int row, col;
 			char *name[COLROWS][COLROWS] = {{"red1", "red2", "red3", "red4"},
 							    {"orange1", "orange2", "orange3", "orange4" },
-							    {"yellow1", "yellow2", "yellow3", "yellow5"},
+							    {"yellow1", "yellow2", "yellow3", "yellow4"},
 							    {"green1", "green2", "green3", "green4"},
 							    {"blue1", "blue2", "blue3", "blue4"},
 							    {"purple1", "purple2", "purple3", "purple4"},
-							    {"grey1", "grey3", "grey3", "grey4"}};
+							    {"grey1", "grey2", "grey3", "grey4"}};
 			for (row = 0; row < COLROWS; row++)
 				for (col = 0; col < COLCOLS; col++)
 				{
