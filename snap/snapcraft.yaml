@@ -1,5 +1,5 @@
 name: eternallands
-version: '1.9.5.p3'
+version: '1.9.5.git'
 summary: Eternal Lands is a free to play, graphical MMORPG
 description: |
   Eternal Lands is a free to play, graphical MMORPG (massively-multi-player
@@ -16,7 +16,8 @@ parts:
   client:
     source: https://github.com/raduprv/Eternal-Lands
     source-type: git
-    source-tag: 1.9.5.3
+    # Include for stable release, comment out for git build
+    #source-tag: 1.9.5.3
     build-packages: [build-essential, libcal3d12-dev, libsdl-image1.2-dev, libsdl-net1.2-dev, libxml2-dev, libopenal-dev, libvorbis-dev]
     plugin: make
     makefile: Makefile.linux
@@ -24,6 +25,8 @@ parts:
     override-pull: |
       snapcraftctl pull
       sed -i 's|^PLATFORM=.*$|#PLATFORM=""|g' make.defaults
+      # Remove for stable release, uncomment for git release
+      echo "1.9.5.git-`date +"%Y%m%d.%H%M"`" > git_version
     artifacts: ["el.linux.bin"]
     stage-packages:
       - libglib2.0-0
