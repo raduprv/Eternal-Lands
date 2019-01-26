@@ -3,6 +3,7 @@
 #include <SDL_syswm.h>
 #include "paste.h"
 #include "chat.h"
+#include "text.h"
 #include "translate.h"
 
 void do_paste(const Uint8* buffer)
@@ -107,14 +108,26 @@ void start_paste(widget_list *widget)
 	if (OpenClipboard(NULL))
 	{
 		HANDLE hText = GetClipboardData (CF_TEXT);
-		char* text = GlobalLock (hText);
-		if (widget == NULL)
-			do_paste(text);
+		if (hText != NULL)
+		{
+			char* text = GlobalLock (hText);
+			if (text != NULL)
+			{
+				if (widget == NULL)
+					do_paste(text);
+				else
+					do_paste_to_text_field(widget, text);
+			}
+			else
+				LOG_TO_CONSOLE(c_red3, "Paste error: GlobalLock()");
+			GlobalUnlock (hText);
+		}
 		else
-			do_paste_to_text_field(widget, text);
-		GlobalUnlock (hText);
+			LOG_TO_CONSOLE(c_red3, "Paste error: GetClipboardData()");
 		CloseClipboard ();
 	}
+	else
+		LOG_TO_CONSOLE(c_red3, "Paste error: OpenClipboard()");
 }
 
 void copy_to_clipboard(const char* text)
