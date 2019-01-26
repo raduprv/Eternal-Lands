@@ -99,7 +99,7 @@ all: $(EXE);
 # work around command line length restriction
 $(TMP_LIB): $(OBJS)
 	rm -f $@
-	ar q $@ $(filter 2%, $(OBJS))
+	ar cq $@ $(filter 2%, $(OBJS))
 	ar q $@ $(filter 3%, $(OBJS))
 	ar q $@ $(filter a%, $(OBJS))
 	ar q $@ $(filter b%, $(OBJS))
