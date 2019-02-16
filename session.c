@@ -128,7 +128,8 @@ void update_session_distance(void)
 
 int display_session_handler(window_info *win)
 {
-	int i, timediff;
+	int i;
+	Uint32 timediff;
 	char buffer[128];
 	float oa_exp;
 	int y_step = (int)(0.5 + win->current_scale * 16);
