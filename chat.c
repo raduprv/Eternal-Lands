@@ -16,6 +16,7 @@
 #include "hud.h"
 #include "init.h"
 #include "interface.h"
+#include "loginwin.h"
 #include "mapwin.h"
 #include "multiplayer.h"
 #include "queue.h"
@@ -2492,8 +2493,7 @@ void load_channel_colors ()
 		channel_colors[i].color = -1;
 	}
 
-	safe_snprintf(fname, sizeof(fname), "channel_colors_%s.dat",username_str);
-	my_tolower(fname);
+	safe_snprintf(fname, sizeof(fname), "channel_colors_%s.dat",get_lowercase_username());
 
 	/* sliently ignore non existing file */
 	if (file_exists_config(fname)!=1)
@@ -2533,8 +2533,7 @@ void save_channel_colors()
 	if (!channel_colors_set)
 		return;
 
-	safe_snprintf(fname, sizeof(fname), "channel_colors_%s.dat",username_str);
-	my_tolower(fname);
+	safe_snprintf(fname, sizeof(fname), "channel_colors_%s.dat",get_lowercase_username());
 	fp=open_file_config(fname,"wb");
 	if(fp == NULL){
 		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, fname, strerror(errno));

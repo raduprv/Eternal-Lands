@@ -48,6 +48,7 @@
  #include "interface.h"
  #include "items.h"
  #include "item_info.h"
+ #include "loginwin.h"
  #include "manufacture.h"
  #include "map.h"
  #include "mapwin.h"
@@ -56,6 +57,7 @@
  #include "new_character.h"
  #include "openingwin.h"
  #include "particles.h"
+ #include "password_manager.h"
  #include "pm_log.h"
  #include "questlog.h"
  #include "reflection.h"
@@ -588,23 +590,6 @@ void change_sound_level(float *var, float * value)
 		*var= (float)*value;
 	} else {
 		*var=0;
-	}
-}
-
-void change_password(char * passwd)
-{
-	int i= 0;
-	char *str= password_str;
-
-	while(*passwd) {
-		*str++= *passwd++;
-	}
-	*str= 0;
-	if(password_str[0]){	//We have a password
-		for(; i < str-password_str; i++) {
-			display_password_str[i]= '*';
-		}
-		display_password_str[i]=0;
 	}
 }
 
@@ -2143,8 +2128,9 @@ static void init_ELC_vars(void)
 
 
 	// SERVER TAB
-	add_var(OPT_STRING,"username","u",username_str,change_string,MAX_USERNAME_LENGTH,"Username","Your user name here",SERVER);
-	add_var(OPT_PASSWORD,"password","p",password_str,change_string,MAX_USERNAME_LENGTH,"Password","Put your password here",SERVER);
+	add_var(OPT_STRING,"username","u",active_username_str,change_string,MAX_USERNAME_LENGTH,"Username","Your user name here",SERVER);
+	add_var(OPT_PASSWORD,"password","p",active_password_str,change_string,MAX_USERNAME_LENGTH,"Password","Put your password here",SERVER);
+	add_var(OPT_BOOL,"passmngr_enabled","pme",&passmngr_enabled,change_var,0,"Enable Password Manager", "If enabled, user names and passwords are saved locally by the built-in password manager.  Multiple sets of details can be saved.  You can choose which details to use at the login screen.",SERVER);
 	add_var(OPT_MULTI,"log_chat","log",&log_chat,change_int,LOG_SERVER,"Log Messages","Log messages from the server (chat, harvesting events, GMs, etc)",SERVER,"Do not log chat", "Log chat only", "Log server messages", "Log server to srv_log.txt", NULL);
 	add_var(OPT_BOOL,"rotate_chat_log","rclog",&rotate_chat_log_config_var,change_rotate_chat_log,0,"Rotate Chat Log File","Tag the chat/server message log files with year and month. You will still need to manage deletion of the old files. Requires a client restart.",SERVER);
 	add_var(OPT_BOOL,"buddy_log_notice", "buddy_log_notice", &buddy_log_notice, change_var, 1, "Log Buddy Sign On/Off", "Toggle whether to display notices when people on your buddy list log on or off", SERVER);
@@ -2829,7 +2815,9 @@ void elconfig_populate_tabs(void)
 				our_vars.var[i]->queue= NULL;
 			break;
 			case OPT_STRING:
-
+				// don't display the username, if it is changed after login, any name tagged files will be saved using the new name
+				if (strcmp(our_vars.var[i]->name, "username") == 0)
+					continue;
 				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
 					elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y,
 					0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);

@@ -12,7 +12,7 @@
 #include "hud.h"
 #include "hud_quickspells_window.h"
 #include "hud_misc_window.h"
-#include "interface.h"
+#include "loginwin.h"
 #include "io/elpathwrapper.h"
 #include "spells.h"
 #include "sound.h"
@@ -445,8 +445,7 @@ void load_quickspells (void)
 	quickspells_loaded = 1;
 
 	//open the data file
-	safe_snprintf(fname, sizeof(fname), "spells_%s.dat",username_str);
-	my_tolower(fname);
+	safe_snprintf(fname, sizeof(fname), "spells_%s.dat",get_lowercase_username());
 
 	/* sliently ignore non existing file */
 	if (file_exists_config(fname)!=1)
@@ -528,8 +527,7 @@ void save_quickspells(void)
 		return;
 
 	//write to the data file, to ensure data integrity, we will write all the information
-	safe_snprintf(fname, sizeof(fname), "spells_%s.dat",username_str);
-	my_tolower(fname);
+	safe_snprintf(fname, sizeof(fname), "spells_%s.dat",get_lowercase_username());
 	fp=open_file_config(fname,"wb");
 	if(fp == NULL){
 		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, fname, strerror(errno));

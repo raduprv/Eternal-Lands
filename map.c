@@ -18,6 +18,7 @@
 #include "interface.h"
 #include "lights.h"
 #include "loading_win.h"
+#include "loginwin.h"
 #include "mapwin.h"
 #include "missiles.h"
 #include "multiplayer.h"
@@ -455,8 +456,7 @@ void load_server_markings(){
 	init_server_markers();
 	
 	//open server markings file
-	safe_snprintf(fname, sizeof(fname), "servermarks_%s.dat",username_str);
-	my_tolower(fname);
+	safe_snprintf(fname, sizeof(fname), "servermarks_%s.dat",get_lowercase_username());
 
 	/* sliently ignore non existing file */
 	if (file_exists_config(fname)!=1)
@@ -491,8 +491,7 @@ void save_server_markings(){
 	if(!server_marks) return;
 
 	//open server markings file
-	safe_snprintf(fname, sizeof(fname), "servermarks_%s.dat",username_str);
-	my_tolower(fname);
+	safe_snprintf(fname, sizeof(fname), "servermarks_%s.dat",get_lowercase_username());
 	fp = open_file_config(fname,"w");
 	if(fp == NULL){
 		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, fname, strerror(errno));

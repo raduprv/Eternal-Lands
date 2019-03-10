@@ -13,10 +13,9 @@
 #include "interface.h"
 #include "multiplayer.h"
 #include "new_character.h"
+#include "password_manager.h"
 #include "rules.h"
-#ifdef NEW_SOUND
 #include "sound.h"
-#endif // NEW_SOUND
 #include "tabs.h"
 #include "textures.h"
 #include "translate.h"
@@ -24,9 +23,10 @@
 int login_root_win = -1;
 int login_text = -1;
 
-char username_box_selected = 1;
-char password_box_selected = 0;
+static char username_box_selected = 1;
+static char password_box_selected = 0;
 
+static int game_buttons;
 static int login_screen_menus;
 
 static char log_in_error_str[520] = {0};
@@ -47,6 +47,11 @@ static int password_bar_y;
 static int password_bar_x_len = 0;
 static int password_bar_y_len = 0;
 
+static int passmngr_button_mouse_over = 0;
+static int passmngr_button_x = 0;
+static int passmngr_button_y = 0;
+static int passmngr_button_size = 0;
+
 static int log_in_x;
 static int log_in_y;
 static int log_in_x_len = 0;
@@ -62,16 +67,49 @@ static int settings_y;
 static int settings_x_len = 0;
 static int settings_y_len = 0;
 
+static int num_rules_lines = 0;
+
 static char log_in_button_selected = 0;
 static char new_char_button_selected = 0;
 static char settings_button_selected = 0;
 
+char active_username_str[MAX_USERNAME_LENGTH]={0};
+char active_password_str[MAX_USERNAME_LENGTH]={0};
+
+static char input_username_str[MAX_USERNAME_LENGTH]={0};
+static char input_password_str[MAX_USERNAME_LENGTH]={0};
+static char lower_username_str[MAX_USERNAME_LENGTH]={0};
+static char display_password_str[MAX_USERNAME_LENGTH]={0};
+static int username_text_length=0;
+static int password_text_length=0;
+
+#define SELBOX_X_LEN 174
+#define SELBOX_Y_LEN 28
+#define UNSELBOX_X_LEN 170
+#define UNSELBOX_Y_LEN 23
+#define LOGIN_BUTTON_X_LEN 87
+#define SETTINGS_BUTTON_X_LEN 87
+#define NEW_CHAR_BUTTON_X_LEN 138
+#define BUTTON_Y_LEN 35
+
 void init_login_screen (void)
 {
 	CHECK_GL_ERRORS();
+	game_buttons = load_texture_cached("textures/gamebuttons.dds", tt_image);
 	login_screen_menus = load_texture_cached("textures/login_menu.dds", tt_image);
 	login_text = load_texture_cached("textures/login_back.dds", tt_image);
 	CHECK_GL_ERRORS();
+
+	set_username(active_username_str);
+	set_password(active_password_str);
+	passmngr_init();
+	passmngr_set_login();
+
+	if (strlen(get_username()) && !strlen(get_password()))
+	{
+		username_box_selected = 0;
+		password_box_selected = 1;
+	}
 }
 
 void set_login_error (const char *msg, int len, int print_err)
@@ -101,49 +139,43 @@ void set_login_error (const char *msg, int len, int print_err)
 
 static int resize_login_handler (window_info *win, Uint32 w, Uint32 h)
 {
-	int s130 = (int)(0.5 + win->current_scale * 130);
-	int s100 = (int)(0.5 + win->current_scale * 100);
-	int s50 = (int)(0.5 + win->current_scale * 50);
-	int s20 = (int)(0.5 + win->current_scale * 20);
-	int s16 = (int)(0.5 + win->current_scale * 16);
-	int s10 = (int)(0.5 + win->current_scale * 10);
-	int s7 = (int)(0.5 + win->current_scale * 7);
+	int box_y_offset = (int)(0.5 + win->current_scale * 7);
+	int button_y_len = (int)(0.5 + win->current_scale * BUTTON_Y_LEN);
 	int half_screen_x = w / 2;
 	int half_screen_y = h / 2;
-	int len1 = strlen (login_username_str);
-	int len2 = strlen (login_password_str);
-	int offset = s20 + (len1 > len2 ? (len1+1) * s16 : (len2+1) * s16);
+	int username_str_len_x = (int)(0.5 + win->current_scale * DEFAULT_FONT_X_LEN * strlen (login_username_str));
+	int password_str_len_x = (int)(0.5 + win->current_scale * DEFAULT_FONT_X_LEN * strlen (login_password_str));
+	int max_login_str = max2i(username_str_len_x, password_str_len_x);
+	int height = 0, max_width = 0, login_sep_x = 0, button_sep_x = 0;
 
-	username_text_x = half_screen_x - offset;
-	username_text_y = half_screen_y - s130;
+	username_bar_x_len = password_bar_x_len = MAX_USERNAME_LENGTH * win->default_font_len_x;
+	username_bar_y_len = password_bar_y_len = 1.5 * win->default_font_len_y;
+	log_in_y_len = new_char_y_len = settings_y_len = button_y_len;
+	passmngr_button_size = (int)(0.5 + win->current_scale * 32);
 
-	password_text_x = half_screen_x - offset;
-	password_text_y = half_screen_y - s100;
+	log_in_x_len = (int)(0.5 + win->current_scale * LOGIN_BUTTON_X_LEN);
+	new_char_x_len = (int)(0.5 + win->current_scale * NEW_CHAR_BUTTON_X_LEN);
+	settings_x_len = (int)(0.5 + win->current_scale * SETTINGS_BUTTON_X_LEN);
 
-	username_bar_x_len = MAX_USERNAME_LENGTH * win->default_font_len_x;
-	username_bar_y_len = win->default_font_len_y + s10;
-	username_bar_x = half_screen_x;
-	username_bar_y = username_text_y - s7;
+	max_width = max2i(max_login_str + username_bar_x_len + passmngr_button_size, log_in_x_len + new_char_x_len + settings_x_len) + 3 * win->default_font_len_x;
+	login_sep_x = (max_width - max_login_str - username_bar_x_len - passmngr_button_size) / 2;
+	button_sep_x = (max_width - log_in_x_len - new_char_x_len - settings_x_len) / 2;
 
-	password_bar_x_len = MAX_USERNAME_LENGTH * win->default_font_len_x;;
-	password_bar_y_len = win->default_font_len_y + s10;
-	password_bar_x = half_screen_x;
-	password_bar_y = password_text_y - s7;
-
+	username_text_x = password_text_x = half_screen_x - max_width / 2;
+	username_bar_x = password_bar_x = username_text_x + max_login_str + login_sep_x;
+	passmngr_button_x = username_bar_x + username_bar_x_len + login_sep_x;
 	log_in_x = username_text_x;
-	log_in_y = half_screen_y - s50;
-	log_in_x_len = (int)(0.5 + win->current_scale * 87);
-	log_in_y_len = (int)(0.5 + win->current_scale * 35);
+	new_char_x = log_in_x + log_in_x_len + button_sep_x;
+	settings_x = new_char_x + new_char_x_len + button_sep_x;
 
-	settings_x_len = (int)(0.5 + win->current_scale * 87);
-	settings_y_len = (int)(0.5 + win->current_scale * 35);
-	settings_x = username_bar_x + username_bar_x_len - settings_x_len;
-	settings_y = half_screen_y - s50;
+	num_rules_lines = reset_soft_breaks(login_rules_str, strlen(login_rules_str), sizeof(login_rules_str), win->current_scale, max_width, NULL, NULL);
 
-	new_char_x_len = (int)(0.5 + win->current_scale * 138);
-	new_char_y_len = (int)(0.5 + win->current_scale * 35);
-	new_char_x = log_in_x + ((settings_x + settings_x_len) - log_in_x)/2 - new_char_x_len/2;
-	new_char_y = half_screen_y - s50;
+	height = username_bar_y_len + password_bar_y_len + button_y_len + (3 + num_rules_lines) * win->default_font_len_y;
+	username_bar_y = passmngr_button_y = half_screen_y - height / 2;
+	username_text_y = username_bar_y + box_y_offset;
+	password_bar_y = username_bar_y + username_bar_y_len + win->default_font_len_y;
+	password_text_y = password_bar_y + box_y_offset;
+	log_in_y = settings_y = new_char_y = password_bar_y + username_bar_y_len + win->default_font_len_y;
 
 	return 1;
 }
@@ -155,54 +187,57 @@ static int resize_login_handler (window_info *win, Uint32 w, Uint32 h)
 // bit excessive.
 static int display_login_handler (window_info *win)
 {
-	int num_lines;
 	float selected_bar_u_start = (float)0/256;
 	float selected_bar_v_start = (float)0/256;
 
-	float selected_bar_u_end = (float)174/256;
-	float selected_bar_v_end = (float)28/256;
+	float selected_bar_u_end = (float)SELBOX_X_LEN/256;
+	float selected_bar_v_end = (float)SELBOX_Y_LEN/256;
 
 	float unselected_bar_u_start = (float)0/256;
 	float unselected_bar_v_start = (float)40/256;
 
-	float unselected_bar_u_end = (float)170/256;
-	float unselected_bar_v_end = (float)63/256;
+	float unselected_bar_u_end = (float)UNSELBOX_X_LEN/256;
+	float unselected_bar_v_end = (float)(40+UNSELBOX_Y_LEN)/256;
 	/////////////////////////
 	float log_in_unselected_start_u = (float)0/256;
 	float log_in_unselected_start_v = (float)80/256;
 
-	float log_in_unselected_end_u = (float)87/256;
-	float log_in_unselected_end_v = (float)115/256;
+	float log_in_unselected_end_u = (float)LOGIN_BUTTON_X_LEN/256;
+	float log_in_unselected_end_v = (float)(80+BUTTON_Y_LEN)/256;
 
 	float log_in_selected_start_u = (float)0/256;
 	float log_in_selected_start_v = (float)120/256;
 
-	float log_in_selected_end_u = (float)87/256;
-	float log_in_selected_end_v = (float)155/256;
+	float log_in_selected_end_u = (float)LOGIN_BUTTON_X_LEN/256;
+	float log_in_selected_end_v = (float)(120+BUTTON_Y_LEN)/256;
 	/////////////////////////
 	float new_char_unselected_start_u = (float)100/256;
 	float new_char_unselected_start_v = (float)80/256;
 
-	float new_char_unselected_end_u = (float)238/256;
-	float new_char_unselected_end_v = (float)115/256;
+	float new_char_unselected_end_u = (float)(100+NEW_CHAR_BUTTON_X_LEN)/256;
+	float new_char_unselected_end_v = (float)(80+BUTTON_Y_LEN)/256;
 
 	float new_char_selected_start_u = (float)100/256;
 	float new_char_selected_start_v = (float)120/256;
 
-	float new_char_selected_end_u = (float)238/256;
-	float new_char_selected_end_v = (float)155/256;
+	float new_char_selected_end_u = (float)(100+NEW_CHAR_BUTTON_X_LEN)/256;
+	float new_char_selected_end_v = (float)(120+BUTTON_Y_LEN)/256;
 	/////////////////////////
 	float settings_unselected_start_u = (float)0/256;
 	float settings_unselected_start_v = (float)160/256;
 
-	float settings_unselected_end_u = (float)87/256;
-	float settings_unselected_end_v = (float)195/256;
+	float settings_unselected_end_u = (float)SETTINGS_BUTTON_X_LEN/256;
+	float settings_unselected_end_v = (float)(160+BUTTON_Y_LEN)/256;
 
 	float settings_selected_start_u = (float)0/256;
 	float settings_selected_start_v = (float)200/256;
 
-	float settings_selected_end_u = (float)87/256;
-	float settings_selected_end_v = (float)235/256;
+	float settings_selected_end_u = (float)SETTINGS_BUTTON_X_LEN/256;
+	float settings_selected_end_v = (float)(200+BUTTON_Y_LEN)/256;
+
+	float select_uoffset = 31.0/256.0, select_voffset = 31.0/256.0;
+	float select_u[2] = {32.0 * (float)(10 % 8)/256.0, 32.0 * (float)(24 % 8)/256.0 };
+	float select_v[2] = {32.0 * (float)(10 >> 3)/256.0, select_v[1] = 32.0 * (float)(24 >> 3)/256.0 };
 
 	draw_console_pic(login_text);
 
@@ -210,8 +245,23 @@ static int display_login_handler (window_info *win)
 	draw_string_zoomed (username_text_x, username_text_y, (unsigned char*)login_username_str, 1, win->current_scale);
 	draw_string_zoomed (password_text_x, password_text_y, (unsigned char*)login_password_str, 1, win->current_scale);
 
-	num_lines = reset_soft_breaks(login_rules_str, strlen(login_rules_str), sizeof(login_rules_str), win->current_scale, settings_x + settings_x_len - username_text_x, NULL, NULL);
-	draw_string_zoomed(username_text_x, log_in_y + log_in_y_len + win->default_font_len_y + 2, (unsigned char*)login_rules_str, num_lines, win->current_scale);
+	draw_string_zoomed(username_text_x, log_in_y + log_in_y_len + win->default_font_len_y, (unsigned char*)login_rules_str, num_rules_lines, win->current_scale);
+
+	bind_texture(game_buttons);
+	glColor3f (1.0f,1.0f,1.0f);
+	glBegin (GL_QUADS);
+	if (passmngr_button_mouse_over)
+		draw_2d_thing( select_u[1], select_v[1], select_u[1]+select_uoffset, select_v[1]+select_voffset, passmngr_button_x, passmngr_button_y, passmngr_button_x + passmngr_button_size, passmngr_button_y + passmngr_button_size);
+	else
+		draw_2d_thing( select_u[0], select_v[0], select_u[0]+select_uoffset, select_v[0]+select_voffset, passmngr_button_x, passmngr_button_y, passmngr_button_x + passmngr_button_size, passmngr_button_y + passmngr_button_size);
+	glEnd();
+	if (passmngr_button_mouse_over)
+	{
+		if (passmngr_enabled)
+			draw_string_zoomed ((win->len_x - strlen(passmngr_enabled_str) * win->default_font_len_x)/2, passmngr_button_y - 1.25 * win->default_font_len_y, (unsigned char*)passmngr_enabled_str, 1, win->current_scale);
+		else
+			draw_string_zoomed ((win->len_x - strlen(passmngr_disabled_str) * win->default_font_len_x)/2, passmngr_button_y - 1.25 * win->default_font_len_y, (unsigned char*)passmngr_disabled_str, 1, win->current_scale);
+	}
 
 	// start drawing the actual interface pieces
 	bind_texture(login_screen_menus);
@@ -251,15 +301,17 @@ static int display_login_handler (window_info *win)
 	glEnd();
 
 	glColor3f (0.0f, 0.9f, 1.0f);
-	draw_string_zoomed (username_bar_x + win->default_font_len_x / 2, username_text_y, (unsigned char*)username_str, 1, win->current_scale);
+	draw_string_zoomed (username_bar_x + win->default_font_len_x / 2, username_text_y, (unsigned char*)input_username_str, 1, win->current_scale);
 	draw_string_zoomed (password_bar_x + win->default_font_len_x / 2, password_text_y, (unsigned char*)display_password_str, 1, win->current_scale);
 
 	// print the current error, if any
 	if (strlen (log_in_error_str))
 	{
+		int max_win_width = window_width - 2 * win->default_font_len_x;
+		float max_line_width = 0;
+		int num_lines = reset_soft_breaks (log_in_error_str, strlen (log_in_error_str), sizeof (log_in_error_str), win->current_scale, max_win_width, NULL, &max_line_width);
 		glColor3f (1.0f, 0.0f, 0.0f);
-		num_lines = reset_soft_breaks (log_in_error_str, strlen (log_in_error_str), sizeof (log_in_error_str), win->current_scale, window_width - 2 * win->default_font_len_x, NULL, NULL);
-		draw_string_zoomed (win->default_font_len_x, log_in_y + log_in_y_len + 2, (unsigned char*)log_in_error_str, num_lines, win->current_scale);
+		draw_string_zoomed (win->default_font_len_x + (max_win_width - max_line_width) / 2, username_bar_y - (num_lines + 2) * win->default_font_len_y, (unsigned char*)log_in_error_str, num_lines, win->current_scale);
 	}
 	
 	CHECK_GL_ERRORS ();
@@ -270,7 +322,7 @@ static int display_login_handler (window_info *win)
 static int mouseover_login_handler (window_info *win, int mx, int my)
 {
 	// check to see if the log in button is active, or not
-	if (mx >= log_in_x && mx <= log_in_x + log_in_x_len && my >= log_in_y && my <= log_in_y + log_in_y_len && username_str[0] && password_str[0])
+	if (mx >= log_in_x && mx <= log_in_x + log_in_x_len && my >= log_in_y && my <= log_in_y + log_in_y_len && input_username_str[0] && input_password_str[0])
 		log_in_button_selected = 1;
 	else
 		log_in_button_selected = 0;
@@ -286,6 +338,11 @@ static int mouseover_login_handler (window_info *win, int mx, int my)
 		settings_button_selected = 1;
 	else
 		settings_button_selected = 0;
+
+	if (mx >= passmngr_button_x && mx <= passmngr_button_x + passmngr_button_size && my >= passmngr_button_y && my <= passmngr_button_y + passmngr_button_size)
+		passmngr_button_mouse_over = 1;
+	else
+		passmngr_button_mouse_over = 0;
 
 	return 1;
 }
@@ -310,10 +367,25 @@ static int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 		username_box_selected = 0;
 		password_box_selected = 1;
 	}
+	// check to see if we clicked login select button
+	else if (mx >= passmngr_button_x && mx <= passmngr_button_x + passmngr_button_size && my >= passmngr_button_y && my <= passmngr_button_y + passmngr_button_size)
+	{
+		log_in_error_str[0] = '\0';
+		if (passmngr_enabled)
+		{
+			do_click_sound();
+			passmngr_open_window();
+		}
+		else
+			do_alert1_sound();
+	}
 	// check to see if we clicked on the ACTIVE Log In button
 	if (log_in_button_selected)
 	{
 		log_in_error_str[0] = '\0';
+		set_username(input_username_str);
+		set_password(input_password_str);
+		passmngr_destroy_window();
 		send_login_info ();
 	}
 	//check to see if we clicked on the ACTIVE New Char button
@@ -323,6 +395,7 @@ static int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 		// click the back button
 		hide_window (login_root_win);
 		create_newchar_root_window ();
+		passmngr_destroy_window();
 		if (last_display == -1)
 		{
 			create_rules_root_window (win->len_x, win->len_y, newchar_root_win, 15);
@@ -342,6 +415,46 @@ static int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 	return 1;
 }
 
+static void add_char_to_username(unsigned char ch)
+{
+	if (((ch>=48 && ch<=57) || (ch>=65 && ch<=90) || (ch>=97 && ch<=122) || (ch=='_'))
+		&& username_text_length < MAX_USERNAME_LENGTH - 1)		// MAX_USERNAME_LENGTH includes the null terminator
+	{
+		input_username_str[username_text_length]=ch;
+		input_username_str[username_text_length+1]=0;
+		username_text_length++;
+	}
+	if(ch==SDLK_DELETE || ch==SDLK_BACKSPACE)
+	{
+		if (username_text_length > 0)
+			username_text_length--;
+		else
+			username_text_length = 0;
+		input_username_str[username_text_length] = '\0';
+	}
+}
+
+static void add_char_to_password(unsigned char ch)
+{
+	if (VALID_PASSWORD_CHAR(ch) && password_text_length < MAX_USERNAME_LENGTH - 1)		// MAX_USERNAME_LENGTH includes the null terminator
+	{
+		input_password_str[password_text_length]=ch;
+		display_password_str[password_text_length]='*';
+		input_password_str[password_text_length+1]=0;
+		display_password_str[password_text_length+1]=0;
+		password_text_length++;
+	}
+	if (ch==SDLK_DELETE || ch==SDLK_BACKSPACE)
+	{
+		if (password_text_length > 0)
+			password_text_length--;
+		else
+			password_text_length = 0;
+		display_password_str[password_text_length] = '\0';
+		input_password_str[password_text_length] = '\0';
+	}
+}
+
 static int keypress_login_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
 	Uint8 ch = key_to_char (unikey);
@@ -352,9 +465,12 @@ static int keypress_login_handler (window_info *win, int mx, int my, Uint32 key,
 	{
 		return 1;
 	}	
-	else if (ch == SDLK_RETURN && username_str[0] && password_str[0])
+	else if (ch == SDLK_RETURN && input_username_str[0] && input_password_str[0])
 	{
 		log_in_error_str[0] = '\0';
+		set_username(input_username_str);
+		set_password(input_password_str);
+		passmngr_destroy_window();
 		send_login_info();
 	}
 	else if (ch == SDLK_TAB)
@@ -407,4 +523,78 @@ void create_login_root_window (int width, int height)
 		
 		resize_window (login_root_win, width, height);	
 	}
+}
+
+const char * get_username(void)
+{
+	return active_username_str;
+}
+
+const char * get_lowercase_username(void)
+{
+	return lower_username_str;
+}
+
+const char * get_password(void)
+{
+	return active_password_str;
+}
+
+void set_username(const char * new_username)
+{
+	if (strcmp(active_username_str, new_username) != 0)
+	{
+		safe_strncpy(active_username_str, new_username, MAX_USERNAME_LENGTH);
+		if (passmngr_enabled)
+			set_var_unsaved("username", INI_FILE_VAR);
+	}
+	if (strcmp(input_username_str, new_username) != 0)
+		safe_strncpy(input_username_str, new_username, MAX_USERNAME_LENGTH);
+	if (strcmp(lower_username_str, new_username) != 0)
+	{
+		safe_strncpy(lower_username_str, new_username, MAX_USERNAME_LENGTH);
+		my_tolower(lower_username_str);
+	}
+	username_text_length = 0;
+}
+
+void set_password(const char * new_password)
+{
+	if (strcmp(active_password_str, new_password) != 0)
+		safe_strncpy(active_password_str, new_password, MAX_USERNAME_LENGTH);
+	if (strcmp(input_password_str, new_password) != 0)
+	{
+		char all_stars[MAX_USERNAME_LENGTH] = "***************";
+		safe_strncpy(input_password_str, new_password, MAX_USERNAME_LENGTH);
+		safe_strncpy2(display_password_str, all_stars, MAX_USERNAME_LENGTH, strlen(new_password));
+	}
+	password_text_length = 0;
+}
+
+int valid_username_pasword(void)
+{
+	int i, username_len, password_len;
+
+	username_len = strlen(get_username());
+	if (username_len < 3)
+	{
+		set_login_error (error_username_length, strlen (error_username_length), 1);
+		return 0;
+	}
+
+	password_len = strlen(get_password());
+	if (password_len < 4)
+	{
+		set_login_error (error_password_length, strlen (error_password_length), 1);
+		return 0;
+	}
+
+	for (i=0; i<strlen(active_password_str); i++)
+		if (!(VALID_PASSWORD_CHAR(active_password_str[i])))
+		{
+			set_login_error (error_bad_pass, strlen (error_bad_pass), 1);
+			return 0;
+		}
+
+	return 1;
 }

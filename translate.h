@@ -337,6 +337,10 @@ extern char
 		login_username_str[20],
 		login_password_str[20],
 		login_rules_str[120],
+		passmngr_enabled_str[70],
+		passmngr_disabled_str[70],
+		show_passwords_str[30],
+		login_select_window_str[30],
 		/*items.c*/
 		sto_all_str[8],
 		get_all_str[8],

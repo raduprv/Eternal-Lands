@@ -6,7 +6,7 @@
 #include "actors.h"
 #include "asc.h"
 #include "init.h"
-#include "interface.h"
+#include "loginwin.h"
 #include "multiplayer.h"
 #include "translate.h"
 #include "url.h"
@@ -217,9 +217,8 @@ int my_namecmp(char *check)
 {
 	int i=0;
 	char username[32];
-	safe_strncpy(username, username_str, sizeof(username));
-	my_tolower(username);
-	
+	safe_strncpy(username, get_lowercase_username(), sizeof(username));
+
 	for(;i<20 && username[i] && check[i]==username[i];i++);
 	if(check[i]==username[i]||((check[i]==' '||!isalpha((unsigned char)check[i])) && !username[i])) return 0;
 	return 1;

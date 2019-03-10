@@ -29,6 +29,7 @@
 #include "misc.h"
 #include "multiplayer.h"
 #include "notepad.h"
+#include "password_manager.h"
 #include "pm_log.h"
 #include "platform.h"
 #include "questlog.h"
@@ -1630,6 +1631,12 @@ static int command_relogin(char *text, int len)
 	return 1;
 }
 
+static int command_change_pass(char *text, int len)
+{
+	passmngr_pending_pw_change(getparams(text));
+	return 0;
+}
+
 
 #ifdef CONTEXT_MENUS_TEST
 int cm_test_window(char *text, int len);
@@ -1748,6 +1755,7 @@ add_command("horse", &horse_cmd);
 	add_command(cmd_keypress, &command_keypress);
 	add_command(cmd_user_menu_wait_time_ms, &command_set_user_menu_wait_time_ms);
 	add_command("relogin", &command_relogin);
+	add_command("change_pass", &command_change_pass);
 	command_buffer_offset = NULL;
 }
 

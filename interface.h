@@ -13,9 +13,6 @@
 extern "C" {
 #endif
 
-// How long a username is allowed to be. This define allows for the trailing NULL
-#define MAX_USERNAME_LENGTH (15 + 1)
-
 extern int have_a_map;  /*!< flag indicating whether a map is available or not */
 
 /*! \name Action types */
@@ -62,10 +59,6 @@ extern int im_other_player_view_hp; /*!< indicates whether health numbers of  ot
 extern int im_other_player_view_hp_bar; /*!< indicates whether health bars of  other players should be displayed or not in instance mode*/
 extern int im_other_player_banner_bg; /*!< indicates whether other players banners background should be displayed or not in instance mode*/
 extern int im_other_player_show_banner_on_damage;  /*!< indicates whether  other players name and hp should appear for a while if player gets damage in instance mode*/
-
-extern char username_str[20]; /*!< the username of the actor */
-extern char password_str[20]; /*!< the password of the actor */
-extern char display_password_str[20]; /*!< a string that will be displayed when entering a password */
 
 extern int cons_text;
 extern int icons_text;
@@ -210,26 +203,6 @@ void build_video_mode_array();
  * \callgraph
  */
 void draw_console_pic(int which_texture);
-
-/*!
- * \ingroup interfaces
- * \brief   Adds the char \a ch to the \ref username_str.
- *
- *      Adds the char \a ch to the \ref username_str. If \a ch is either of delete or backspace key, the last char in \ref username_str will get deleted.
- *
- * \param ch    the char to add to \ref username_str
- */
-void add_char_to_username(unsigned char ch);
-
-/*!
- * \ingroup interface
- * \brief   Adds the char \a ch to the \ref password_str.
- *
- *      Adds the char \a ch to the \ref password_str. If \a ch is either of delete or backspace key, the last char in \ref password_str will get deleted.
- *
- * \param ch    the char to add to \ref password_str
- */
-void add_char_to_password(unsigned char ch);
 
 /*!
  * \ingroup display_2d

@@ -8,7 +8,7 @@
 #include "errors.h"
 #include "hud.h"
 #include "init.h"
-#include "interface.h"
+#include "loginwin.h"
 #include "manufacture.h"
 #include "multiplayer.h"
 #include "named_colours.h"
@@ -203,15 +203,9 @@ void sort_counter(int counter_id)
 
 FILE *open_counters_file(char *mode)
 {
-	char filename[256], username[16];
-	int i;
-	
-	safe_strncpy(username, username_str, sizeof(username));
-	for (i = 0; username[i]; i++) {
-		username[i] = tolower(username[i]);
-	}
+	char filename[256];
 
-	safe_snprintf(filename, sizeof(filename), "counters_%s.dat", username);
+	safe_snprintf(filename, sizeof(filename), "counters_%s.dat", get_lowercase_username());
 
 	LOG_DEBUG("Open counters file '%s'", filename);
 
@@ -251,9 +245,9 @@ void load_counters(void)
 	search_len = malloc (sizeof (size_t) * num_search_str);
 	for (i=0; i<num_search_str; i++)
 	{
-		size_t max_len = strlen (username_str) + strlen (temp_event_string[i]) + 1;
+		size_t max_len = strlen (get_username()) + strlen (temp_event_string[i]) + 1;
 		search_str[i] = malloc (max_len);
-		safe_snprintf (search_str[i], max_len, temp_event_string[i], username_str);
+		safe_snprintf (search_str[i], max_len, temp_event_string[i], get_username());
 		search_len[i] = strlen (search_str[i]);
 	}
 
@@ -1172,11 +1166,11 @@ void increment_summon_manu_counter(void)
 
 void increment_summon_counter(char *string)
 {
-	if (strncmp(string, username_str, strlen(username_str))) {
+	if (strncmp(string, get_username(), strlen(get_username()))) {
 		return;
 	}
 
-	string += strlen(username_str);
+	string += strlen(get_username());
 
 	if (strncmp(string, " summoned a ", 12)) {
 		return;

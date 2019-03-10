@@ -48,6 +48,7 @@
 #include "minimap.h"
 #include "multiplayer.h"
 #include "particles.h"
+#include "password_manager.h"
 #include "pm_log.h"
 #include "questlog.h"
 #include "queue.h"
@@ -293,6 +294,8 @@ int start_rendering()
 		LOG_INFO("free_buffers()");
 		free_buffers();
 	}
+	LOG_INFO("passmngr_destroy()");
+	passmngr_destroy();
 	LOG_INFO("unload_questlog()");
 	unload_questlog();
 	LOG_INFO("save_item_lists()");

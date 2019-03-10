@@ -45,7 +45,6 @@
 #include "langselwin.h"
 #include "lights.h"
 #include "loading_win.h"
-#include "loginwin.h"
 #include "multiplayer.h"
 #include "manufacture.h"
 #include "astrology.h"
@@ -252,20 +251,6 @@ void read_config()
 		LOG_ERROR("%s() chdir(\"%s\") failed: %s\n", __FUNCTION__, datadir, strerror(errno));
 	}
 #endif //!WINDOWS
-
-	if(password_str[0])//We have a password
-	{
-		size_t k;
-
-		for (k=0; k < strlen (password_str); k++)
-			display_password_str[k] = '*';
-		display_password_str[k] = 0;
-	}
-	else if (username_str[0]) //We have a username but not a password...
-	{
-		username_box_selected = 0;
-		password_box_selected = 1;
-	}
 }
 
 void read_bin_cfg()

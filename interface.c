@@ -47,12 +47,6 @@ int right_click = 0;
 int middle_click = 0;
 int left_click = 0;
 
-char username_str[20]={0};
-char password_str[20]={0};
-char display_password_str[20]={0};
-int username_text_length=0;
-int password_text_length=0;
-
 int have_a_map=0;
 int view_health_bar=1;
 int view_ether_bar=0;
@@ -429,46 +423,6 @@ void draw_2d_thing_r(float u_start,float v_start,float u_end,float v_end,int x_s
 
 	glTexCoord2f(u_start,v_end);
 	glVertex3i(x_end,y_end,0);
-}
-
-void add_char_to_username(unsigned char ch)
-{
-	if (((ch>=48 && ch<=57) || (ch>=65 && ch<=90) || (ch>=97 && ch<=122) || (ch=='_'))
-		&& username_text_length < MAX_USERNAME_LENGTH - 1)		// MAX_USERNAME_LENGTH includes the null terminator
-	{
-		username_str[username_text_length]=ch;
-		username_str[username_text_length+1]=0;
-		username_text_length++;
-	}
-	if(ch==SDLK_DELETE || ch==SDLK_BACKSPACE)
-	{
-		if (username_text_length > 0)
-			username_text_length--;
-		else
-			username_text_length = 0;
-		username_str[username_text_length] = '\0';
-	}
-}
-
-void add_char_to_password(unsigned char ch)
-{
-	if ((ch>=32 && ch<=126) && password_text_length < MAX_USERNAME_LENGTH - 1)		// MAX_USERNAME_LENGTH includes the null terminator
-	{
-		password_str[password_text_length]=ch;
-		display_password_str[password_text_length]='*';
-		password_str[password_text_length+1]=0;
-		display_password_str[password_text_length+1]=0;
-		password_text_length++;
-	}
-	if (ch==SDLK_DELETE || ch==SDLK_BACKSPACE)
-	{
-		if (password_text_length > 0)
-			password_text_length--;
-		else
-			password_text_length = 0;
-		display_password_str[password_text_length] = '\0';
-		password_str[password_text_length] = '\0';
-	}
 }
 
 GLuint map_text;
