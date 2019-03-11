@@ -580,6 +580,9 @@ void send_login_info()
 	username_len = strlen(local_username_str);
 	password_len = strlen(local_password_str);
 
+	if (disconnected)
+		connect_to_server();
+
 	//join the username and password, and send them to the server
 	str[0]= LOG_IN;
 	if(caps_filter && my_isupper(local_username_str, username_len))
