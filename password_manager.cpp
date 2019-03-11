@@ -19,7 +19,6 @@
 #include "elwindows.h"
 #include "font.h"
 #include "gl_init.h"
-#include "init.h"
 #include "loginwin.h"
 #include "multiplayer.h"
 #include "named_colours.h"
@@ -319,11 +318,7 @@ namespace Password_Manaager
 					do_click_sound();
 					hide_window(window_id);
 					if (flags & ELW_LEFT_MOUSE)
-					{
-						if (disconnected)
-							connect_to_server();
 						send_login_info();
-					}
 					return 1;
 				}
 			}
