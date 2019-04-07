@@ -615,7 +615,7 @@ extern "C"
 	int show_hud_indicators = 1;
 	void init_hud_indicators(void) { if (show_hud_indicators) Indicators::container.init(); }
 	void destroy_hud_indicators(void) { Indicators::container.destroy(); }
-	void show_hud_indicators_window(void) { Indicators::container.show(); }
+	void show_hud_indicators_window(void) { if (show_hud_indicators) Indicators::container.show(); }
 	void hide_hud_indicators_window(void) { Indicators::container.hide(); }
 	void toggle_hud_indicators_window(int *show) { *show = !*show; Indicators::container.toggle(*show); }
 	void set_settings_hud_indicators(unsigned int opts, unsigned int pos) { return Indicators::container.set_settings(opts, pos); }
