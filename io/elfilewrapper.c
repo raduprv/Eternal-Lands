@@ -1027,6 +1027,19 @@ int el_custom_file_exists(const char* file_name)
 	return result;
 }
 
+int el_file_exists_config(const char* file_name)
+{
+	int result;
+
+	ENTER_DEBUG_MARK("file exists");
+
+	result = file_exists_path(file_name, get_path_config());
+
+	LEAVE_DEBUG_MARK("file exists");
+
+	return result;
+}
+
 int el_file_exists_anywhere(const char* file_name)
 {
 	int result;

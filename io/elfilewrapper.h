@@ -185,6 +185,16 @@ void* el_get_pointer(el_file_ptr file);
 int el_file_exists(const char* file_name);
 
 /*!
+ * \brief Check if a file exists in config dir.
+ *
+ * Check if the given file exists in the config directory.
+ * This function is thread save.
+ * \param file_name The name of the file.
+ * \return Returns true if the file exists, else false.
+ */
+int el_file_exists_config(const char* file_name);
+
+/*!
  * \brief Check if a file exists.
  *
  * Check if the given file exists somewhere in the data, update or custom
