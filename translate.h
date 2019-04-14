@@ -818,6 +818,10 @@ extern char	reg_error_str[15],
 		warn_currently_ignoring[50],
 		invalidnpcmark_str[50],
 		dc_note_remove[50],
+		character_notes_saved_str[70],
+		notes_save_tooltip_str[40],
+		using_character_notes_str[60],
+		cm_use_character_notepad_str[60],
 		note_saved[50],
 		note_save_failed[50];
 #else

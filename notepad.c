@@ -11,12 +11,15 @@
 #include <ctype.h>
 #include <SDL.h>
 #include "asc.h"
+#include "context_menu.h"
 #include "elwindows.h"
 #include "errors.h"
+#include "io/elfilewrapper.h"
 #include "gamewin.h"
 #include "gl_init.h"
 #include "init.h"
 #include "hud.h"
+#include "loginwin.h"
 #include "notepad.h"
 #include "tabs.h"
 #include "text.h"
@@ -342,6 +345,11 @@ typedef struct
 
 static note *note_list = 0;
 static int note_list_size = 0;
+static const char* default_file_name = "notes.xml";
+static const char* character_file_name = "notes_%s.xml";
+static char notes_file_name[128] = { 0 };
+static int using_named_notes = 0;
+static size_t cm_save_id = CM_INIT_VALUE;
 
 // Widgets and Windows
 int notepad_win = -1;
@@ -371,7 +379,8 @@ static int note_button_space = 0;
 
 // Help message
 static const char* note_message;
-static const char* note_static_message;
+static const char* timed_note_message;
+static Uint32 note_message_timer = 0;
 
 void note_button_set_pos (int id)
 {
@@ -476,7 +485,16 @@ static int notepad_load_file()
 
 	notepad_loaded = 1;
 
-	doc = xmlParseFile ("notes.xml");
+	safe_snprintf(notes_file_name, sizeof(notes_file_name), character_file_name, get_lowercase_username());
+	if (el_file_exists_config(notes_file_name))
+		using_named_notes = 1;
+	else
+	{
+		using_named_notes = 0;
+		safe_snprintf(notes_file_name, sizeof(notes_file_name), default_file_name);
+	}
+
+	doc = xmlParseFile (notes_file_name);
 	if (doc == NULL)
 	{
 		LOG_ERROR (cant_parse_notes);
@@ -540,11 +558,39 @@ static int click_save_handler(widget_list *w, int UNUSED(mx), int UNUSED(my),
 	if ( (flags & ELW_MOUSE_BUTTON) == 0 && w != NULL) return 0;
 
 	if (notepad_save_file())
-		note_static_message = note_saved;
+	{
+		if (using_named_notes)
+			timed_note_message = character_notes_saved_str;
+		else
+			timed_note_message = note_saved;
+	}
 	else
-		note_static_message = note_save_failed;
+		timed_note_message = note_save_failed;
+	note_message_timer  = SDL_GetTicks();
 
 	return 1;
+}
+
+static int mouseover_save_handler(widget_list *widget, int mx, int my)
+{
+	note_message = notes_save_tooltip_str;
+	return 1;
+}
+
+static int cm_set_file_name_handler(window_info *win, int widget_id, int mx, int my, int option)
+{
+	if (option == 0)
+	{
+		cm_grey_line(cm_save_id, 0, 1);
+		safe_snprintf(notes_file_name, sizeof(notes_file_name), character_file_name, get_lowercase_username());
+		timed_note_message = using_character_notes_str;
+		note_message_timer  = SDL_GetTicks();
+		using_named_notes = 1;
+		cm_grey_line(cm_save_id, 0, 1);
+		return 1;
+	}
+	else
+		return 0;
 }
 
 int notepad_save_file()
@@ -554,7 +600,7 @@ int notepad_save_file()
 	xmlDocPtr doc = NULL;                      // document pointer
 	xmlNodePtr root_node = NULL, node = NULL;  // node pointers
 
-	safe_snprintf (file, sizeof (file), "%snotes.xml", configdir);
+	safe_snprintf (file, sizeof (file), "%s%s", configdir, notes_file_name);
 
 	doc = xmlNewDoc (BAD_CAST "1.0");
 	root_node = xmlNewNode (NULL, BAD_CAST "PAD");
@@ -581,7 +627,7 @@ int notepad_save_file()
 	{
 #ifndef WINDOWS
 		// error writing. try the data directory
-		safe_snprintf (file, sizeof (file), "%s/%s", datadir, "notes.xml");
+		safe_snprintf (file, sizeof (file), "%s/%s", datadir, notes_file_name);
 		if (xmlSaveFormatFileEnc(file, doc, "UTF-8", 1) < 0)
 		{
 			LOG_ERROR(cant_save_notes, file);
@@ -794,17 +840,20 @@ static int notepad_add_category(widget_list* UNUSED(w),
 
 static int display_notepad_handler(window_info *win)
 {
-	if (note_message && *note_message)
+	if (timed_note_message && *timed_note_message)
+	{
+		if ((tab_collection_get_tab(notepad_win, note_tabcollection_id) != 0) || (SDL_GetTicks() - note_message_timer > 5000))
+		{
+			timed_note_message = NULL;
+			note_message_timer = 0;
+		}
+		else
+			show_help(timed_note_message, 0, win->len_y+10, win->current_scale);
+	}
+	else if (note_message && *note_message)
 	{
 		show_help(note_message, 0, win->len_y+10, win->current_scale);
-		note_message = note_static_message = NULL;
-	}
-	else if (note_static_message && *note_static_message)
-	{
-		if (tab_collection_get_tab(notepad_win, note_tabcollection_id) != 0)
-			note_static_message = NULL;
-		else
-			show_help(note_static_message, 0, win->len_y+10, win->current_scale);
+		note_message = NULL;
 	}
 
 	return 1;
@@ -921,6 +970,10 @@ void fill_notepad_window(int window_id)
 	widget_set_OnClick(main_note_tab_id, save_notes_button_id, click_save_handler);
 	widget_set_color(main_note_tab_id, save_notes_button_id, 0.77f, 0.57f, 0.39f);
 
+	cm_save_id = cm_create(cm_use_character_notepad_str, cm_set_file_name_handler);
+	cm_add_widget(cm_save_id, main_note_tab_id, save_notes_button_id);
+	widget_set_OnMouseover(main_note_tab_id, save_notes_button_id, mouseover_save_handler);
+
 	note_button_scroll_id = vscrollbar_add (main_note_tab_id, NULL, 0, 0, 0, 0);
 	widget_set_color(main_note_tab_id, note_button_scroll_id, 0.77f, 0.57f, 0.39f);
 	widget_set_OnClick (main_note_tab_id, note_button_scroll_id, note_button_scroll_handler);
@@ -930,6 +983,9 @@ void fill_notepad_window(int window_id)
 	// Add the note selection buttons
 	for(i = 0; i < nr_notes; i++)
 		note_button_add (i, i);
+
+	if (using_named_notes)
+		cm_grey_line(cm_save_id, 0, 1);
 }
 
 void notepad_win_close_tabs(void)

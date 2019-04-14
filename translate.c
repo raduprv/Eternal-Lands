@@ -731,6 +731,10 @@ char	reg_error_str[15],
 	user_no_more_note_tabs[100],
 	fatal_data_error[120],
 	dc_note_remove[50],
+	character_notes_saved_str[70],
+	notes_save_tooltip_str[40],
+	using_character_notes_str[60],
+	cm_use_character_notepad_str[60],
 	note_saved[50],
 	note_save_failed[50],
 	/* encyclopedia */
@@ -1494,6 +1498,10 @@ void init_help()
 	add_xml_identifier(misc,"ranginglock_indicator",ranginglock_indicator_str,"R||Ranging Lock On||Ranging Lock Off||Ranging Lock Status",sizeof(ranginglock_indicator_str));
 	add_xml_identifier(misc,"glowperk_indicator",glowperk_indicator_str,"G||Glow Perk On||Glow Perk Off||Glow Perk Status||You do not have the Glow In The Dark perk",sizeof(glowperk_indicator_str));
 	add_xml_identifier(misc,"dc_note_rm",dc_note_remove,"Double-click to remove this category",sizeof(dc_note_remove));
+	add_xml_identifier(misc,"character_notes_saved",character_notes_saved_str,"Your notes for this character have been saved",sizeof(character_notes_saved_str));
+	add_xml_identifier(misc,"notes_save_tooltip",notes_save_tooltip_str,"Right-click for save option",sizeof(notes_save_tooltip_str));
+	add_xml_identifier(misc,"using_character_notes",using_character_notes_str,"Now the notepad is just for this character",sizeof(using_character_notes_str));
+	add_xml_identifier(misc,"cm_use_character_notepad",cm_use_character_notepad_str,"Use notepad just for this character",sizeof(cm_use_character_notepad_str));
 	add_xml_identifier(misc,"note_saved",note_saved,"Your notes have been saved",sizeof(note_saved));
 	add_xml_identifier(misc,"note_save_failed",note_save_failed,"Failed to save your notes!",sizeof(note_save_failed));
 	add_xml_identifier(misc,"ranginglock_enabled",ranginglock_enabled_str,"Ranging-Lock is now enabled. Disable it or unequip ranging weapon before walking.",sizeof(ranginglock_enabled_str));
