@@ -1912,6 +1912,14 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		view_health_bar = !view_health_bar;
 	}
+	else if (key == K_VIEWETHER)
+	{
+		view_ether_bar = !view_ether_bar;
+	}
+	else if (key == K_ETHERBARS)
+	{
+		view_ether = !view_ether;
+	}
 	else if (key == K_VIEWTEXTASOVERTEXT)
 	{
 		view_chat_text_as_overtext = !view_chat_text_as_overtext;
