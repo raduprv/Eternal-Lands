@@ -534,7 +534,7 @@ extern char
 		questlog_deleted_str[20],
 		/* item lists */
 		cm_item_list_selected_str[40],
-		cm_item_list_names_str[120],
+		cm_item_list_names_str[160],
 		item_list_use_help_str[40],
 		item_list_pickup_help_str[40],
 		item_list_edit_help_str[40],
