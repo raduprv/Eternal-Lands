@@ -441,13 +441,92 @@ int cur_map;  //Is there a better way to do this?
 int cur_tab_map = -1;
 #endif // DEBUG_MAP_SOUND
 
-static const char* cont_map_file_names[] =
+typedef struct
 {
-	"./maps/seridia",
-	"./maps/irilion"
-};
-static const int nr_continents = sizeof (cont_map_file_names) / sizeof (const char *);
+	char* name;
+	char* file_name;
+} cont_overview_maps_t;
+static cont_overview_maps_t * cont_overview_maps = NULL;
+static int nr_continents = 0;
 struct draw_map *continent_maps = NULL;
+
+/*	Free allocated memory during exit
+*/
+void cleanup_mapinfo(void)
+{
+	size_t i;
+
+	LOG_INFO("cont_overview_maps[]");
+	for (i = 0; i < nr_continents; i++)
+	{
+		free(cont_overview_maps[i].name);
+		free(cont_overview_maps[i].file_name);
+	}
+	LOG_INFO("cont_overview_maps");
+	free(cont_overview_maps);
+	cont_overview_maps = NULL;
+	nr_continents = 0;
+
+	LOG_INFO("continent_maps[]");
+	for (i = 0; continent_maps[i].name; i++)
+		free(continent_maps[i].name);
+	LOG_INFO("continent_maps");
+	free (continent_maps);
+	continent_maps = NULL;
+}
+
+//	Read the list of continent maps from file or fallback to original hardwired list.
+//
+static void read_cont_info(void)
+{
+	FILE *fin;
+	char line[256];
+
+	fin = open_file_data ("continfo.lst", "r");
+
+	// if the file does not exist, fall back to hardwired continents
+	if (fin == NULL)
+	{
+		size_t i;
+		cont_overview_maps_t tmp_cont_maps[] = { { "Seridia", "./maps/seridia" }, { "Irilion", "./maps/irilion" } };
+		nr_continents = sizeof(tmp_cont_maps) / sizeof(cont_overview_maps_t);
+		cont_overview_maps = malloc(nr_continents * sizeof(cont_overview_maps_t));
+		for (i = 0; i < nr_continents; i++)
+		{
+			cont_overview_maps[i].name = malloc(strlen(tmp_cont_maps[i].name) + 1);
+			strcpy(cont_overview_maps[i].name, tmp_cont_maps[i].name);
+			cont_overview_maps[i].file_name = malloc(strlen(tmp_cont_maps[i].file_name) + 1);
+			strcpy(cont_overview_maps[i].file_name, tmp_cont_maps[i].file_name);
+		}
+		LOG_INFO("Using hardwired continent overview maps: %d", nr_continents);
+	}
+
+	// else, if the file exists read one contenent definition per line, "<continent name> <map image file name>"
+	else
+	{
+		char name[256], file_name[256], tmp[1];
+		nr_continents = 0;
+		while (fgets (line, sizeof (line), fin) != NULL)
+		{
+			// strip comments, the # and anything after is ignored
+			char *cmt_pos = strchr(line, '#');
+			if (cmt_pos != NULL)
+				*cmt_pos = '\0';
+			// only use lines with exactly 2 strings, both stripped of leading and trailing space
+			if (sscanf (line, "%s %s %s", name, file_name, tmp) != 2)
+				continue;
+			cont_overview_maps = realloc(cont_overview_maps, (nr_continents + 1) * sizeof(cont_overview_maps_t));
+			cont_overview_maps[nr_continents].name = malloc(strlen(name) + 1);
+			strcpy(cont_overview_maps[nr_continents].name, name);
+			cont_overview_maps[nr_continents].file_name = malloc(strlen(file_name) + 1);
+			strcpy(cont_overview_maps[nr_continents].file_name, file_name);
+			//printf("%d: name=[%s] file_name=[%s]\n", nr_continents, cont_overview_maps[nr_continents].name, cont_overview_maps[nr_continents].file_name);
+			nr_continents++;
+		}
+		fclose (fin);
+		LOG_INFO("Using file defined continent overview maps: count %d", nr_continents);
+	}
+}
 
 void read_mapinfo ()
 {
@@ -463,12 +542,15 @@ void read_mapinfo ()
 	continent_maps = calloc (maps_size, sizeof (struct draw_map));
 	imap = 0;
 	
+	read_cont_info();
 	fin = open_file_data ("mapinfo.lst", "r");
 	if (fin == NULL){
 		LOG_ERROR("%s: %s \"mapinfo.lst\": %s\n", reg_error_str, cant_open_file, strerror(errno));
 	} else {
 		while (fgets (line, sizeof (line), fin) != NULL)
 		{
+			size_t i;
+			int cont_found = 0;
 			char weather_name[11] = "";
 
 			// strip comments
@@ -481,11 +563,17 @@ void read_mapinfo ()
 				// not a valid line
 				continue;
 
-			if (strcasecmp (cont_name, "Seridia") == 0)
-				continent = 0;
-			else if (strcasecmp (cont_name, "Irilion") == 0)
-				continent = 1;
-			else
+			cont_found = 0;
+			for (i = 0; i < nr_continents; ++i)
+			{
+				if (strcasecmp(cont_name, cont_overview_maps[i].name) == 0)
+				{
+					continent = i;
+					cont_found = 1;
+					break;
+				}
+			}
+			if (!cont_found)
 				// not a valid continent
 				continue;
 
@@ -556,7 +644,7 @@ int switch_to_game_map()
 	}
 	if (cur_cont != old_cont && cur_cont >= 0 && cur_cont < nr_continents)
 	{
-		cont_text = load_texture_cached (cont_map_file_names[cur_cont], tt_image);
+		cont_text = load_texture_cached (cont_overview_maps[cur_cont].file_name, tt_image);
 		old_cont = cur_cont;
 	}
 #ifdef DEBUG_MAP_SOUND

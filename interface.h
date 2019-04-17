@@ -361,6 +361,14 @@ void hide_all_root_windows ();
  */
 void resize_all_root_windows (Uint32 w, Uint32 h);
 
+/*!
+ * \ingroup interfaces
+ * \brief   Free allocalted memory for map info.
+ *
+ * \callgraph
+ */
+void cleanup_mapinfo(void);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

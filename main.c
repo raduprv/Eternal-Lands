@@ -138,13 +138,8 @@ void cleanup_mem(void)
 	cache_delete(cache_system);
 	cache_system = NULL;
 	/* map location information */
-	LOG_INFO("continent_maps[]");
-	for (i = 0; continent_maps[i].name; i++)
-	{
-	    free(continent_maps[i].name);
-	}
-	LOG_INFO("continent_maps");
-	free (continent_maps);
+	LOG_INFO("cleanup_mapinfo()");
+	cleanup_mapinfo();
 
 	LOG_INFO("destroy_hash_table()");
 	destroy_hash_table(server_marks);
