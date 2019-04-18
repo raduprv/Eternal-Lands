@@ -289,7 +289,7 @@ extern int video_mode_set;
  *
  * \pre If el.cfg could be opened for writing, the function returns without performing any actions.
  */
-void save_bin_cfg();
+void save_bin_cfg(void);
 
 /*!
  * \ingroup init
@@ -303,7 +303,7 @@ void save_bin_cfg();
  *
  * \note If SDLNet_Init fails the function will terminate the program with an exit code of 2. If the SDL timer subsystem initialization fails, it will terminate with an exit code of 1.
  */
-void init_stuff();
+void init_stuff(void);
 
 #ifdef __cplusplus
 } // extern "C"
