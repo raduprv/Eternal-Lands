@@ -188,38 +188,6 @@ static void load_entrable_list(void)
 }
 #endif // FASTER_MAP_LOAD
 
-static void load_knowledge_list(void)
-{
-	FILE *f = NULL;
-	int i=0;
-	char strLine[255];
-	char *out;
-
-	memset(knowledge_list, 0, sizeof(knowledge_list));
-	i= 0;
-	knowledge_count= 0;
-	// try the language specific knowledge list
-	f=open_file_lang("knowledge.lst", "rb");
-	if(f == NULL){
-		LOG_ERROR("%s: %s \"knowledge.lst\": %s\n", reg_error_str, cant_open_file, strerror(errno));
-		return;
-	}
-	while(1)
-		{
-			if(!fgets(strLine, sizeof(strLine), f)) {
-				break;
-			}
-			out = knowledge_list[i].name;
-			my_xmlStrncopy(&out, strLine, sizeof(knowledge_list[i].name)-1);
-			i++;
-		}
-	// memorize the count
-	knowledge_count= i;
-	// close the file
-	fclose(f);
-}
-
-
 static void read_config(void)
 {
 	// Set our configdir
