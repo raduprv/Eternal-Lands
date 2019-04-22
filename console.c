@@ -1500,6 +1500,12 @@ int command_ckdata(char *text, int len)
 	char result_str[256];
 	char filename[256];
 
+	if ((cur_map < 0)  || (continent_maps[cur_map].name == NULL))
+	{
+		LOG_TO_CONSOLE(c_red1, "Invalid current map");
+		return 1;
+	}
+
 	/* paramters are optional, first is expected checksum value, second is filename */
 	/* if only a filename is specfied, we display checksum rather than do match */
 	filename[0] = digest_str[0] = expected_digest_str[0] = '\0';
