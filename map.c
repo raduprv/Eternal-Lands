@@ -367,15 +367,16 @@ void load_marks_to_buffer(char* mapname, marking* buffer, int* max)
 { 
 	FILE * fp = NULL;
 	char marks_file[256] = {0}, text[600] = {0};
-	
+
 	if(mapname == NULL) {
 		//Oops
 		return;
 	}
-	safe_snprintf (marks_file, sizeof (marks_file), "%s.txt", mapname + 1);
+	safe_snprintf (marks_file, sizeof (marks_file), "%s.txt", mapname);
+	//LOG_TO_CONSOLE(c_red2, marks_file);
 	fp = open_file_config(marks_file, "r");
 	*max = 0;
-	
+
 	if (fp == NULL) return;
 
 	//load user markers
@@ -423,12 +424,12 @@ void load_map_marks()
 
 void save_markings()
 {
-      FILE * fp;
-      char marks_file[256];
-      int i;
+	FILE * fp;
+	char marks_file[256];
+	int i;
 
-	safe_snprintf (marks_file, sizeof (marks_file), "maps/%s.txt", strrchr (map_file_name,'/') + 1);
-
+	safe_snprintf (marks_file, sizeof (marks_file), "%s.txt", map_file_name);
+	//LOG_TO_CONSOLE(c_red2, marks_file);
 	fp = open_file_config(marks_file,"w");
 	if ( fp == NULL ){
 		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, marks_file, strerror(errno));
