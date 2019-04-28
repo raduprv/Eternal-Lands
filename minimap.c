@@ -451,10 +451,14 @@ static int display_minimap_handler(window_info *win)
 	float x,y;
 	int i;
 
-	if(win->pos_x > window_width - 50)
-		move_window(minimap_win,win->pos_id,win->pos_loc,window_width-minimap_size,win->pos_y);
-	if(win->pos_y > window_height - 50)
-		move_window(minimap_win,win->pos_id,win->pos_loc,win->pos_x,window_height-minimap_size);
+	if (win->pos_x + win->len_x/2 < 0)
+		move_window(minimap_win, win->pos_id, win->pos_loc, -win->len_x/2, win->pos_y);
+	else if (win->pos_x > window_width - win->len_x/2)
+		move_window(minimap_win, win->pos_id, win->pos_loc, window_width - win->len_x/2, win->pos_y);
+	if (win->pos_y < 0)
+		move_window(minimap_win, win->pos_id, win->pos_loc, win->pos_x, win->title_height);
+	else if (win->pos_y > window_height - win->title_height)
+		move_window(minimap_win, win->pos_id, win->pos_loc, win->pos_x, window_height - win->title_height);
 
 	if (enable_controls)
 	{
