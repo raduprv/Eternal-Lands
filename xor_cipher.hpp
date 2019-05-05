@@ -18,7 +18,6 @@ namespace XOR_Cipher
 			bool get_status_ok(void) const { return status_ok; }
 			void set_status_ok(void) { status_ok = true; }
 		private:
-			size_t key_size;
 			std::string key_file_name;
 			bool status_ok;
 			std::vector<unsigned char> key;
