@@ -510,7 +510,7 @@ extern char
 		cm_dialog_copy_menu_str[50],
 		cm_minimap_menu_str[60],
 		cm_user_menu_str[150],
-		cm_stats_bar_base_str[30],
+		cm_stats_bar_base_str[70],
 		cm_recipe_menu_str[100],
 		cm_manuwin_menu_str[50],
 		cm_encycl_base_str[150],

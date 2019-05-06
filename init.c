@@ -372,6 +372,7 @@ static void read_bin_cfg(void)
 	disable_storage_filter = (cfg_mem.misc_bool_options >> 19) & 1;
 	hud_timer_keep_state = (cfg_mem.misc_bool_options >> 20) & 1;
 	items_list_disable_find_list = (cfg_mem.misc_bool_options >> 21) & 1;
+	lock_skills_selection = (cfg_mem.misc_bool_options >> 22) & 1;
 
 	set_options_user_menus(cfg_mem.user_menu_win_x, cfg_mem.user_menu_win_y, cfg_mem.user_menu_options);
 
@@ -597,6 +598,7 @@ void save_bin_cfg(void)
 	cfg_mem.misc_bool_options |= disable_storage_filter << 19;
 	cfg_mem.misc_bool_options |= hud_timer_keep_state << 20;
 	cfg_mem.misc_bool_options |= items_list_disable_find_list << 21;
+	cfg_mem.misc_bool_options |= lock_skills_selection << 22;
 
 	get_options_user_menus(&cfg_mem.user_menu_win_x, &cfg_mem.user_menu_win_y, &cfg_mem.user_menu_options);
 
