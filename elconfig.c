@@ -1732,6 +1732,7 @@ int check_var (char *str, var_name_type type)
 	int i, *p;
 	char *ptr= str;
 	float foo;
+	input_line our_string;
 
 	i= find_var (str, type);
 	if (i < 0)
@@ -1769,7 +1770,6 @@ int check_var (char *str, var_name_type type)
 	else
 	{
 		// Strip it
-		char our_string[200];
 		char *tptr= our_string;
 		while (*ptr && *ptr != 0x0a && *ptr != 0x0d)
 		{
