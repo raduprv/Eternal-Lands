@@ -105,7 +105,7 @@ int check_var(char * str, var_name_type type);
  *
  * \callgraph
  */
-void init_vars();
+void init_vars(void);
 
 /*!
  * \ingroup other
@@ -115,7 +115,7 @@ void init_vars();
  *
  * \sa start_rendering
  */
-void free_vars();
+void free_vars(void);
 
 /*!
  * \ingroup config
@@ -126,7 +126,7 @@ void free_vars();
  * \retval int      0 if reading fails, 1 if successful
  *
  */
-int read_el_ini ();
+int read_el_ini(void);
 
 /*!
  * \ingroup config
@@ -137,7 +137,7 @@ int read_el_ini ();
  * \retval int      0 if writing fails, 1 if successful
  *
  */
-int write_el_ini ();
+int write_el_ini(void);
 
 /*!
  * \ingroup other
@@ -147,7 +147,7 @@ int write_el_ini ();
  *
  * \callgraph
  */
-void check_options();
+void check_options(void);
 
 /*!
  * \ingroup other
