@@ -194,6 +194,7 @@ int elconfig_menu_y= 10;
 
 int windows_on_top= 0;
 static int options_set= 0;
+static int delay_poor_man = 1;
 int shadow_map_size_multi= 0;
 #ifdef	FSAA
  int fsaa_index = 0;
@@ -616,33 +617,6 @@ void update_max_actor_texture_handles()
 		{
 			max_actor_texture_handles = 32;
 		}
-	}
-}
-
-void change_poor_man(int *poor_man)
-{
-	*poor_man= !*poor_man;
-	unload_texture_cache();
-	update_max_actor_texture_handles();
-	if(*poor_man) {
-		show_reflection= 0;
-		shadows_on= 0;
-		clouds_shadows= 0;
-		use_shadow_mapping= 0;
-#ifndef MAP_EDITOR2
-		special_effects= 0;
-		use_eye_candy = 0;
-		use_fog= 0;
-		show_weather = 0;
-#endif
-#ifndef MAP_EDITOR
-		use_frame_buffer= 0;
-#endif
-		update_fbos();
-		skybox_show_clouds = 0;
-		skybox_show_sun = 0;
-		skybox_show_moons = 0;
-		skybox_show_stars = 0;
 	}
 }
 
@@ -1560,6 +1534,77 @@ static int set_var_OPT_FLOAT(const char *str, float new_value)
 	return 0;
 }
 
+static float get_option_initial_value(const char *longname)
+{
+	int var_index = find_var(longname, COMMAND_LINE_LONG_VAR);
+	if (var_index == -1)
+	{
+		LOG_ERROR("Can't find longname var '%s'", longname);
+		return -1;
+	}
+	return our_vars.var[var_index]->config_file_val;
+}
+
+static void action_poor_man(int *poor_man)
+{
+	unload_texture_cache();
+	update_max_actor_texture_handles();
+	if(*poor_man) {
+		show_reflection= 0;
+		shadows_on= 0;
+		clouds_shadows= 0;
+		use_shadow_mapping= 0;
+#ifndef MAP_EDITOR2
+		special_effects= 0;
+		use_eye_candy = 0;
+		use_fog= 0;
+		show_weather = 0;
+#endif
+#ifndef MAP_EDITOR
+		use_frame_buffer= 0;
+#endif
+		skybox_show_clouds = 0;
+		skybox_show_sun = 0;
+		skybox_show_moons = 0;
+		skybox_show_stars = 0;
+		if (far_plane > 50)
+		{
+			far_plane = 50;
+			change_projection_float(&far_plane, &far_plane);
+		}
+	}
+	else
+	{
+		show_reflection = get_option_initial_value("show_reflection");
+		shadows_on= get_option_initial_value("shadows_on");
+		clouds_shadows= get_option_initial_value("clouds_shadows");
+		use_shadow_mapping= get_option_initial_value("use_shadow_mapping");
+#ifndef MAP_EDITOR2
+		special_effects= get_option_initial_value("special_effects");
+		use_eye_candy = get_option_initial_value("use_eye_candy");
+		use_fog= get_option_initial_value("render_fog");
+		show_weather = get_option_initial_value("show_weather");
+#endif
+#ifndef MAP_EDITOR
+		use_frame_buffer= get_option_initial_value("use_frame_buffer");
+#endif
+		skybox_show_clouds = get_option_initial_value("skybox_show_clouds");
+		skybox_show_sun = get_option_initial_value("skybox_show_sun");
+		skybox_show_moons = get_option_initial_value("skybox_show_moons");
+		skybox_show_stars = get_option_initial_value("skybox_show_stars");
+		far_plane = get_option_initial_value("far_plane");
+		change_projection_float(&far_plane, &far_plane);
+	}
+	update_fbos();
+}
+
+static void change_poor_man(int *poor_man)
+{
+	*poor_man= !*poor_man;
+	if (!delay_poor_man)
+		action_poor_man(poor_man);
+}
+
 static size_t cm_id = CM_INIT_VALUE;
 
 // set the new value form the label option's context menu
@@ -2210,7 +2255,7 @@ static void init_ELC_vars(void)
 	// GFX TAB
 	add_var(OPT_BOOL,"shadows_on","shad",&shadows_on,change_shadows,0,"Shadows","Toggles the shadows", GFX);
 	add_var(OPT_BOOL,"use_shadow_mapping", "sm", &use_shadow_mapping, change_shadow_mapping, 0, "Shadow Mapping", "If you want to use some better quality shadows, enable this. It will use more resources, but look prettier.", GFX);
-	add_var(OPT_MULTI,"shadow_map_size","smsize",&shadow_map_size_multi,change_shadow_map_size,1024,"Shadow Map Size","This parameter determines the quality of the shadow maps. You should as minimum set it to 512.",GFX,"256","512","768","1024","1280","1536","1792","2048","3072","4096",NULL);
+	add_var(OPT_MULTI,"shadow_map_size","smsize",&shadow_map_size_multi,change_shadow_map_size,3,"Shadow Map Size","This parameter determines the quality of the shadow maps. You should as minimum set it to 512.",GFX,"256","512","768","1024","1280","1536","1792","2048","3072","4096",NULL);
 	add_var(OPT_BOOL,"no_adjust_shadows","noadj",&no_adjust_shadows,change_var,0,"Don't Adjust Shadows","If enabled, tell the engine not to disable the shadows if the frame rate is too low.",GFX);
 	add_var(OPT_BOOL,"clouds_shadows","cshad",&clouds_shadows,change_clouds_shadows,1,"Cloud Shadows","The clouds shadows are projected on the ground, and the game looks nicer with them on.",GFX);
 	add_var(OPT_BOOL,"show_reflection","refl",&show_reflection,change_reflection,1,"Show Reflections","Toggle the reflections",GFX);
@@ -2400,12 +2445,15 @@ int read_el_ini ()
 		return 0;
 	}
 
-
+	delay_poor_man = 1;
 	while ( fgets (line, sizeof (input_line), fin) )
 	{
 		if (line[0] == '#')
 			check_var (&(line[1]), INI_FILE_VAR);	//check only for the long strings
 	}
+	// we have to delay the poor man setting as its action can be over written depending on the ini file order
+	delay_poor_man = 0;
+	action_poor_man(&poor_man);
 
 	fclose (fin);
 	return 1;
