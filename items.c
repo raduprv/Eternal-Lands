@@ -398,8 +398,84 @@ void update_item_sound(int interval)
 }
 #endif // NEW_SOUND
 
+static int used_item_counter_initialised = 0;
+static int used_item_counter_queue[ITEM_NUM_ITEMS];
+static Uint32 used_item_counter_queue_time[ITEM_NUM_ITEMS];
+
+void used_item_counter_init(void)
+{
+	size_t i;
+	for (i=0; i<ITEM_NUM_ITEMS; i++)
+	{
+		used_item_counter_queue[i] = 0;
+		used_item_counter_queue_time[i] = 0;
+	}
+	used_item_counter_initialised = 1;
+	//printf("Used item counter code initialised\n");
+}
+
+void used_item_counter_timer(void)
+{
+	if (!used_item_counter_initialised)
+		used_item_counter_init();
+	else
+	{
+		size_t i;
+		for (i=0; i<ITEM_NUM_ITEMS; i++)
+		{
+			/* The timeout value is need in the absence of a server change that would give feedback to
+			use actions. Too short, and we will miss a valid counter event due to server lag. Too
+			long, and we will interpret a single dropped item as use of an item that has actually
+			failed. Hopefully, the server lag will not be as high as the timeout, and a player will
+			not switch from failed ACTION_USE to dropping an item in less than the timeout. */
+			if (used_item_counter_queue_time[i] && (SDL_GetTicks() - used_item_counter_queue_time[i]) > 1000u)
+			{
+				used_item_counter_queue[i] = 0;
+				used_item_counter_queue_time[i] = 0;
+				//printf("Used item counter pos %lu, confirmation timed out\n", i);
+			}
+		}
+	}
+}
+
+void used_item_counter_action_use(int pos)
+{
+	if (!used_item_counter_initialised)
+		used_item_counter_init();
+	if ((pos < 0) || !(pos < ITEM_NUM_ITEMS))
+		return;
+	used_item_counter_queue[pos]++;
+	used_item_counter_queue_time[pos] = SDL_GetTicks();
+	//printf("Used item counter pos %d, waiting for confirmation pending %d\n", pos, used_item_counter_queue[pos]);
+}
+
+
+static void used_item_counter_check_confirmation(int pos, int new_quanity)
+{
+	if (!used_item_counter_initialised)
+		used_item_counter_init();
+	if ((pos < 0) || !(pos < ITEM_NUM_ITEMS))
+		return;
+	if (used_item_counter_queue[pos])
+	{
+		if ((item_list[pos].quantity > 0) && (new_quanity < item_list[pos].quantity))
+		{
+			used_item_counter_queue[pos]--;
+			if (!used_item_counter_queue[pos])
+				used_item_counter_queue_time[pos] = 0;
+			increment_used_item_counter(get_item_description(item_list[pos].id, item_list[pos].image_id), item_list[pos].quantity - new_quanity);
+			//printf("Used item counter confirmed pos %d - item removed [%s] quanity %d\n", pos, get_item_description(item_list[pos].id, item_list[pos].image_id), item_list[pos].quantity - new_quanity);
+		}
+		//else
+		//	printf("Used item counter pos %d issue with quanity\n", pos);
+	}
+	//else
+	//	printf("Used item counter pos %d - not due to use action\n", pos);
+}
+
 void remove_item_from_inventory(int pos)
 {
+	used_item_counter_check_confirmation(pos, 0);
 	item_list[pos].quantity=0;
 	
 #ifdef NEW_SOUND
@@ -428,6 +504,7 @@ void get_new_inventory_item (const Uint8 *data)
 	image_id=SDL_SwapLE16(*((Uint16 *)(data)));
 	quantity=SDL_SwapLE32(*((Uint32 *)(data+2)));
 
+	used_item_counter_check_confirmation(pos, quantity);
 	if (now_harvesting() && (quantity >= item_list[pos].quantity) ) {	//some harvests, eg hydrogenium and wolfram, also decrease an item number. only count what goes up
 		increment_harvest_counter(item_list[pos].quantity > 0 ? quantity - item_list[pos].quantity : quantity);
 	}
@@ -937,6 +1014,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 					str[0]=USE_INVENTORY_ITEM;
 					str[1]=item_list[pos].pos;
 					my_tcp_send(my_socket,str,2);
+					used_item_counter_action_use(pos);
 #ifdef NEW_SOUND
 					item_list[pos].action = USE_INVENTORY_ITEM;
 #ifdef _EXTRA_SOUND_DEBUG
@@ -950,6 +1028,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 					str[1]=item_list[use_item].pos;
 					str[2]=item_list[pos].pos;
 					my_tcp_send(my_socket,str,3);
+					used_item_counter_action_use(use_item);
 #ifdef NEW_SOUND
 					item_list[use_item].action = ITEM_ON_ITEM;
 					item_list[pos].action = ITEM_ON_ITEM;

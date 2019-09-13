@@ -177,6 +177,8 @@ void draw_scene()
 			check_then_do_buff_duration_request();
 			/* check if we are doing a server connection test */
 			check_if_testing_server_connection();
+			/* check if used item counter confirmation has expired */
+			used_item_counter_timer();
 			/* until next time */
 			last_half_second_timer = current_time;
 		}

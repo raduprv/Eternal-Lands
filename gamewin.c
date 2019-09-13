@@ -882,6 +882,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 			*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
 			if (use_item != -1 && current_cursor == CURSOR_USE_WITEM)
 			{
+				used_item_counter_action_use(use_item);
 				*((int *)(str+5)) = SDL_SwapLE32((int)item_list[use_item].pos);
 				if (!shift_on)
 				{

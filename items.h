@@ -128,6 +128,8 @@ int move_item(int item_pos_to_mov, int destination_pos);
 
 void draw_item(int id, int x_start, int y_start, int gridsize);
 void gray_out(int x_start, int y_start, int gridsize);
+void used_item_counter_timer(void);
+void used_item_counter_action_use(int pos);
 
 
 /*!
