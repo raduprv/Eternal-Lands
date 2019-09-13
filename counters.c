@@ -285,6 +285,11 @@ void load_counters(void)
 		}
 
 		i = io_counter_id - 1;
+		if (i >= NUM_COUNTERS)
+		{
+			LOG_ERROR("Counter ID %d out of bounds. NUM_COUNTERS %d", io_counter_id, NUM_COUNTERS);
+			break;
+		}
 		j = entries[i]++;
 		counters[i] = realloc(counters[i], entries[i] * sizeof(struct Counter));
 		counters[i][j].name = strdup(io_name);
@@ -392,6 +397,11 @@ void increment_counter(int counter_id, const char *name, int quantity, int extra
 	}
 
 	i = counter_id - 1;
+	if (i >= NUM_COUNTERS)
+	{
+		LOG_ERROR("Counter ID %d out of bounds. NUM_COUNTERS %d", counter_id, NUM_COUNTERS);
+		return;
+	}
 	
 	/* Look for an existing entry. */
 	for (j = 0; j < entries[i]; j++) {
