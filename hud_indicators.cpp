@@ -137,6 +137,7 @@ namespace Indicators
 			void set_settings(unsigned int opts, unsigned int pos) { option_settings = opts; position_settings = pos; have_settings = true;}
 			void get_settings(unsigned int *opts, unsigned int *pos);
 			void ui_scale_handler(window_info *win) { x_len = 0; y_len = 0; Vars::set_scale(win->current_scale); }
+			int get_default_width(void);
 		private:
 			void set_win_flag(Uint32 flag, int state);
 			void set_background(bool on) { background_on = on; set_win_flag(ELW_USE_BACKGROUND, background_on); }
@@ -568,6 +569,16 @@ namespace Indicators
 	}
 
 
+	//	Get the width of the indicators window if enabled and in the default location, otherwise 0.
+	//
+	int Indicators_Container::get_default_width(void)
+	{
+		if (!get_show_window(indicators_win) || !default_location || indicators_win < 0)
+			return 0;
+		return windows_list.window[indicators_win].len_x;
+	}
+
+
 	//	Get the x,y location, nice and snug against the bottom and right border
 	//
 	std::pair<int,int> Indicators_Container::get_default_location(void)
@@ -620,4 +631,5 @@ extern "C"
 	void toggle_hud_indicators_window(int *show) { *show = !*show; Indicators::container.toggle(*show); }
 	void set_settings_hud_indicators(unsigned int opts, unsigned int pos) { return Indicators::container.set_settings(opts, pos); }
 	void get_settings_hud_indicators(unsigned int *opts, unsigned int *pos) { Indicators::container.get_settings(opts, pos); }
+	int get_hud_indicators_default_width(void) { if (show_hud_indicators) return Indicators::container.get_default_width(); else return 0; }
 }
