@@ -84,6 +84,13 @@ static Uint32 active_channels[MAX_ACTIVE_CHANNELS];
 static Uint8 current_channel = 0;
 static chan_name * pseudo_chans[SPEC_CHANS];
 
+int get_tabbed_chat_end_x(void)
+{
+	if ((tab_bar_win < 0) || (use_windowed_chat != 1))
+		return 0;
+	return windows_list.window[tab_bar_win].cur_x + windows_list.window[tab_bar_win].len_x;
+}
+
 void input_widget_move_to_win(int window_id)
 {
 	window_info *win = NULL;

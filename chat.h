@@ -252,6 +252,7 @@ const char * get_tab_channel_name(void);
 void set_next_tab_channel(void);
 int get_tab_bar_x(void);
 int get_tab_bar_y(void);
+int get_tabbed_chat_end_x(void);
 
 #ifdef __cplusplus
 } // extern "C"
