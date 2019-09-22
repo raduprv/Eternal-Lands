@@ -185,6 +185,13 @@ void do_keypress(Uint32 key);
  */
 void create_game_root_window (int width, int height);
 
+/*!
+ * \brief Return width of the fps text or 0 if disabled.
+ *
+ * \callgraph
+ */
+int get_fps_default_width(void);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

@@ -86,6 +86,12 @@ static int ranging_lock = 0;
 #ifdef NEW_CURSOR
 static int cursors_tex;
 #endif // NEW_CURSOR
+static int fps_default_width = 0;
+
+int get_fps_default_width(void)
+{
+	return fps_default_width;
+}
 
 int ranging_lock_is_on(void)
 {
@@ -1433,11 +1439,14 @@ static int display_game_handler (window_info *win)
 #else	//DEBUG
 		glColor3f (1.0f, 1.0f, 1.0f);
 #endif	//DEBUG
+		fps_default_width = 9 * win->default_font_len_x;
 		safe_snprintf ((char*)str, sizeof(str), "FPS: %i", fps[0]);
-		draw_string_zoomed (win->len_x - hud_x - 9 * win->default_font_len_x, 4 * win->current_scale, str, 1, win->current_scale);
+		draw_string_zoomed (win->len_x - hud_x - fps_default_width, 4 * win->current_scale, str, 1, win->current_scale);
 		safe_snprintf((char*)str, sizeof(str), "UVP: %d", use_animation_program);
-		draw_string_zoomed (win->len_x - hud_x - 9 * win->default_font_len_x, 19 * win->current_scale, str, 1, win->current_scale);
+		draw_string_zoomed (win->len_x - hud_x - fps_default_width, (4 + SMALL_FONT_Y_LEN) * win->current_scale, str, 1, win->current_scale);
 	}
+	else
+		fps_default_width = 0;
 	draw_spell_icon_strings(win);
 
 	CHECK_GL_ERRORS ();
