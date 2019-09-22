@@ -82,13 +82,18 @@ BBC News||#open_url http://news.bbc.co.uk/
 #include <SDL.h>
 #include <SDL_thread.h>
 
+#include "chat.h"
 #include "command_queue.hpp"
 #include "context_menu.h"
 #include "elconfig.h"
 #include "elwindows.h"
 #include "errors.h"
 #include "font.h"
+#include "gamewin.h"
 #include "gl_init.h"
+#include "hud.h"
+#include "hud_indicators.h"
+#include "icon_window.h"
 #include "init.h"
 #include "io/elpathwrapper.h"
 #include "translate.h"
@@ -154,7 +159,10 @@ namespace UserMenus
 			CommandQueue::Queue command_queue;
 			int name_sep;
 			int window_x_pad, window_y_pad;
+			int standard_window_position;
 
+			void update_standard_window_position(window_info *win);
+			void set_title_state(window_info *win, bool title_state) { title_on = (title_state) ?1:0; set_win_flag(&win->flags, ELW_TITLE_BAR, title_on); }
 			void reload(window_info *win);
 			void recalc_win_width(window_info *win);
 			int display(window_info *win);
@@ -176,6 +184,9 @@ namespace UserMenus
 			static int click_handler(window_info *win, int mx, int my, Uint32 flags) { return get_instance()->click(win, mx, flags); }
 			static int ui_scale_handler(window_info *win) { return get_instance()->ui_scale_changed(win); }
 			static int context_handler(window_info *win, int widget_id, int mx, int my, int option){ return get_instance()->context(win, widget_id, mx, my, option); }
+
+			enum { STND_POS_NONE = 0, STND_POS_TOP_LEFT, STND_POS_TOP_CENTRE, STND_POS_TOP_RIGHT, STND_POS_BOTTOM_LEFT, STND_POS_BOTTOM_CENTRE, STND_POS_BOTTON_RIGHT, STND_POS_LAST };
+			enum { CM_MOVEWIN=1, CM_FIXPOS, CM_CHANGEPOS, CM_BACKGND, CM_BORDER, CM_FONT, CM_STANDMENU, CM_SEP1, CM_SHOWCMD, CM_SEP2, CM_RELOAD, CM_DISABLE };
 	};
 
 
@@ -244,7 +255,7 @@ namespace UserMenus
 	Container::Container(void) : win_id(-1), win_width(0), current_mouseover_menu(0), mouse_over_window(false), 
 		reload_menus(false), context_id(CM_INIT_VALUE), window_used(false), title_on(1), background_on(1),
 		border_on(1), use_small_font(0), include_datadir(1), just_echo(0), win_x_pos(100),
-		win_y_pos(100), name_sep(10), window_x_pad(8), window_y_pad(2)
+		win_y_pos(100), name_sep(10), window_x_pad(8), window_y_pad(2), standard_window_position(STND_POS_NONE)
 	{
 	}
 
@@ -304,12 +315,13 @@ namespace UserMenus
 		cm_add(context_id, cm_user_menu_str, context_handler);
 		cm_add_window(context_id, win_id);
 
-		cm_bool_line(context_id, ELW_CM_MENU_LEN+1, &title_on, NULL);
-		cm_bool_line(context_id, ELW_CM_MENU_LEN+2, &background_on, NULL);
-		cm_bool_line(context_id, ELW_CM_MENU_LEN+3, &border_on, NULL);
-		cm_bool_line(context_id, ELW_CM_MENU_LEN+4, &use_small_font, NULL);
-		cm_bool_line(context_id, ELW_CM_MENU_LEN+5, &include_datadir, NULL);
-		cm_bool_line(context_id, ELW_CM_MENU_LEN+7, &just_echo, NULL);
+		cm_bool_line(context_id, ELW_CM_MENU_LEN+CM_MOVEWIN, &title_on, NULL);
+		cm_bool_line(context_id, ELW_CM_MENU_LEN+CM_FIXPOS, &standard_window_position, NULL);
+		cm_bool_line(context_id, ELW_CM_MENU_LEN+CM_BACKGND, &background_on, NULL);
+		cm_bool_line(context_id, ELW_CM_MENU_LEN+CM_BORDER, &border_on, NULL);
+		cm_bool_line(context_id, ELW_CM_MENU_LEN+CM_FONT, &use_small_font, NULL);
+		cm_bool_line(context_id, ELW_CM_MENU_LEN+CM_STANDMENU, &include_datadir, NULL);
+		cm_bool_line(context_id, ELW_CM_MENU_LEN+CM_SHOWCMD, &just_echo, NULL);
 
 		ui_scale_changed(&windows_list.window[win_id]);
 		reload(&windows_list.window[win_id]);
@@ -338,6 +350,7 @@ namespace UserMenus
 		*options |= use_small_font << 3;
 		*options |= include_datadir << 4;
 		*options |= (background_on ^ 1) << 5; // added later so will not get set for existing users but we want it on by default
+		*options |= standard_window_position << 6; // three bits
 	}
 
 
@@ -353,6 +366,7 @@ namespace UserMenus
 			use_small_font = (options >> 3) & 1;
 			include_datadir = (options >> 4) & 1;
 			background_on = ((options >> 5) & 1) ^ 1;
+			standard_window_position = (options >> 6) & 7; // three bits
 			win_x_pos = win_x;
 			win_y_pos = win_y;
 		}
@@ -378,12 +392,11 @@ namespace UserMenus
 			resize_window (win->window_id, win_width, get_height(win));
 		}
 
+		update_standard_window_position(win);
+
 		// enable the title bar if the window ends up off screen - resolution change perhaps
 		if ((win->cur_x + 20 > window_width) || (win->cur_y + 10 > window_height))
-		{
-			win->flags |= ELW_TITLE_BAR;
-			title_on = 1;
-		}
+			set_title_state(win, true);
 
 		int curr_x = window_x_pad;
 
@@ -683,6 +696,64 @@ namespace UserMenus
 
 
 	//
+	//	Handle possitioning the window in one of the fixed locations.
+	//
+	void Container::update_standard_window_position(window_info *win)
+	{
+		if (title_on)
+		{
+			if (standard_window_position != STND_POS_NONE)
+				standard_window_position = STND_POS_NONE;
+			return;
+		}
+
+		int wanted_x = 0, wanted_y = 0, tmp_end = 0;
+
+		switch (standard_window_position)
+		{
+			case STND_POS_TOP_LEFT:
+				wanted_x = get_tabbed_chat_end_x() + window_x_pad;
+				wanted_y = 0;
+				break;
+			case STND_POS_TOP_CENTRE:
+				tmp_end = get_tabbed_chat_end_x();
+				wanted_x = tmp_end + ( window_width - hud_x - get_fps_default_width() - tmp_end - win->len_x) / 2;
+				wanted_y = 0;
+				break;
+			case STND_POS_TOP_RIGHT:
+				wanted_x = window_width - hud_x - get_fps_default_width() - win->len_x - window_x_pad;
+				wanted_y = 0;
+				break;
+			case STND_POS_BOTTOM_LEFT:
+				wanted_x = window_x_pad + get_icons_win_active_len();
+				wanted_y = window_height - win->len_y;
+				break;
+			case STND_POS_BOTTOM_CENTRE:
+				tmp_end = get_icons_win_active_len();
+				wanted_x = tmp_end + (window_width - hud_x - get_hud_indicators_default_width() - tmp_end - win->len_x) / 2;
+				wanted_y = window_height - win->len_y;
+				break;
+			case STND_POS_BOTTON_RIGHT:
+				wanted_x = window_width - hud_x - get_hud_indicators_default_width() - win->len_x - window_x_pad;
+				wanted_y = window_height - win->len_y;
+				break;
+			default:
+				return;
+		}
+
+		if ((win->cur_x != wanted_x) || (win->cur_y != wanted_y))
+		{
+			move_window(win->window_id, -1, 0, wanted_x, wanted_y);
+			if ((win->cur_x != wanted_x) || (win->cur_y != wanted_y))
+			{
+				set_title_state(win, true);
+				standard_window_position = STND_POS_NONE;
+			}
+		}
+	}
+
+
+	//
 	//	handler window content menu options
 	//
 	int Container::context(window_info *win, int widget_id, int mx, int my, int option)
@@ -692,7 +763,7 @@ namespace UserMenus
 
 		switch (option)
 		{
-			case ELW_CM_MENU_LEN+1:
+			case ELW_CM_MENU_LEN+CM_MOVEWIN:
 			{
 				set_win_flag(&win->flags, ELW_TITLE_BAR, title_on);
 				if (win->cur_y == win->title_height)
@@ -701,11 +772,23 @@ namespace UserMenus
 					move_window(win->window_id, -1, 0, win->cur_x, win->title_height);
 				break;
 			}
-			case ELW_CM_MENU_LEN+2: set_win_flag(&win->flags, ELW_USE_BACKGROUND, background_on); break;
-			case ELW_CM_MENU_LEN+3: set_win_flag(&win->flags, ELW_USE_BORDER, border_on); break;
-			case ELW_CM_MENU_LEN+4: recalc_win_width(win); break;
-			case ELW_CM_MENU_LEN+5: case ELW_CM_MENU_LEN+9: reload(win); break;
-			case ELW_CM_MENU_LEN+10: toggle_user_menus(&enable_user_menus); break;
+			case ELW_CM_MENU_LEN+CM_FIXPOS:
+				if (standard_window_position != STND_POS_NONE)
+				{
+					set_title_state(win, false);
+					update_standard_window_position(win);
+				}
+				break;
+			case ELW_CM_MENU_LEN+CM_CHANGEPOS:
+				set_title_state(win, false);
+				if (++standard_window_position >= STND_POS_LAST)
+					standard_window_position = STND_POS_TOP_LEFT;
+				break;
+			case ELW_CM_MENU_LEN+CM_BACKGND: set_win_flag(&win->flags, ELW_USE_BACKGROUND, background_on); break;
+			case ELW_CM_MENU_LEN+CM_BORDER: set_win_flag(&win->flags, ELW_USE_BORDER, border_on); break;
+			case ELW_CM_MENU_LEN+CM_FONT: recalc_win_width(win); break;
+			case ELW_CM_MENU_LEN+CM_STANDMENU: case ELW_CM_MENU_LEN+CM_RELOAD: reload(win); break;
+			case ELW_CM_MENU_LEN+CM_DISABLE: toggle_user_menus(&enable_user_menus); break;
 		}
 
 		return 1;
