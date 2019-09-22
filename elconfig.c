@@ -215,7 +215,6 @@ int you_sit= 0;
 int sit_lock= 0;
 int use_keypress_dialogue_boxes = 0, use_full_dialogue_window = 0;
 int use_alpha_banner = 0;
-int show_fps= 1;
 int render_skeleton= 0;
 int render_mesh= 1;
 int render_bones_id = 0;

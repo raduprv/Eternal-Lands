@@ -250,7 +250,6 @@ extern int anti_alias; /*!< flag indicating whether anti-aliasing should be enab
 extern int special_effects; /*!< flag indicating whether pretty spell effects should be enabled */
 extern int isometric; /*!< use isometric instead of perspective view */
 extern int mouse_limit;
-extern int show_fps; /*!< flag that indicates whether to display FPS or not */
 #ifdef OSX
 extern int square_buttons; /* flag to overcome intel opengl issues on early MacBooks*/
 extern int emulate3buttonmouse;

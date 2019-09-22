@@ -33,6 +33,7 @@ extern int cm_banner_disabled;
 extern int auto_disable_ranging_lock;
 extern int target_close_clicked_creature;
 extern int open_close_clicked_bag;
+extern int show_fps; /*!< flag that indicates whether to display FPS or not */
 /*! @} */
 
 /*!
