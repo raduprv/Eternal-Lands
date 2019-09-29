@@ -226,6 +226,11 @@ if (NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE release)
 endif()
 
+# include version number if specified
+if (ELC_VERSION)
+	set_property(SOURCE ${SD}console.c APPEND PROPERTY COMPILE_DEFINITIONS GIT_VERSION="${ELC_VERSION}" )
+endif()
+
 # build
 
 add_executable(${EXEC} ${SOURCES})
