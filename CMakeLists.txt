@@ -227,9 +227,7 @@ if (NOT CMAKE_BUILD_TYPE)
 endif()
 
 # include version number if specified
-if (ELC_VERSION)
-	set_property(SOURCE ${SD}console.c APPEND PROPERTY COMPILE_DEFINITIONS GIT_VERSION="${ELC_VERSION}" )
-endif()
+include(git_version.cmake OPTIONAL)
 
 # build
 
