@@ -20,11 +20,8 @@ parts:
     #source-tag: 1.9.5.3
     build-packages: [build-essential, libcal3d12-dev, libsdl-image1.2-dev, libsdl-net1.2-dev, libxml2-dev, libopenal-dev, libvorbis-dev]
     plugin: cmake
-    configflags:  ["-DCMAKE_BUILD_TYPE=release", "-DEXEC=el.linux.bin"]
-    # remove override-pull for stable build as version tagged in source
-    override-pull: |
-      snapcraftctl pull
-      echo "set_property(SOURCE ${SD}console.c APPEND PROPERTY COMPILE_DEFINITIONS GIT_VERSION=\"1.9.5.git-`date +"%Y%m%d.%H%M"`\")" > git_version.cmake
+    # remove DVERSION_PREFIX for stable release
+    configflags:  ["-DCMAKE_BUILD_TYPE=release", "-DEXEC=el.linux.bin", "-DVERSION_PREFIX=1.9.5.git"]
     artifacts: ["el.linux.bin"]
     stage-packages:
       - libglib2.0-0
