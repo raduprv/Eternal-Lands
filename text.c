@@ -1045,6 +1045,8 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 		text_color = c_grey2;
 	else if (dark_channeltext==2)
 		text_color = c_grey4;
+	else
+		text_color = c_red1; // unexpected
 
 	if (ibreak >= len)
 	{
