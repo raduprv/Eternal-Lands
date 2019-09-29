@@ -179,19 +179,27 @@ endif()
 
 # if enabled, build a exec optomised for the hosts CPU architecture, this is not portable
 if (MARCHNATIVE)
-	set(PLATFORM "${PLATFORM} -march=native")
+	set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -march=native")
+	set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -march=native")
 endif()
 
 # if enabled, include the gcc address sanitisation options, please report andthing you find
 if (ADDRSANITISER)
-	set(PLATFORM "${PLATFORM} -fsanitize=address")
+	set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -fsanitize=address")
+	set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -fsanitize=address")
+	set(EXTRA_LD_FLAGS "${EXTRA_LD_FLAGS} -fsanitize=address")
 endif()
 
+# clean up extra strings to avoid policy CMP0004
+string(STRIP "${EXTRA_C_FLAGS}" EXTRA_C_FLAGS)
+string(STRIP "${EXTRA_CXX_FLAGS}" EXTRA_CXX_FLAGS)
+string(STRIP "${EXTRA_LD_FLAGS}" EXTRA_LD_FLAGS)
+
 # set the compiler flags for DEBUG and RELEASE builds
-set(CMAKE_C_FLAGS "${PLATFORM} -Wall -Wdeclaration-after-statement")
+set(CMAKE_C_FLAGS "${EXTRA_C_FLAGS} -Wall -Wdeclaration-after-statement")
 set(CMAKE_C_FLAGS_DEBUG "-O0 -ggdb -pipe -fno-strict-aliasing")
 set(CMAKE_C_FLAGS_RELEASE "-O2 -fomit-frame-pointer -ffast-math -pipe -fno-strict-aliasing")
-set(CMAKE_CXX_FLAGS "${PLATFORM} -Wall")
+set(CMAKE_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wall")
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -ggdb -pipe -fno-strict-aliasing")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fomit-frame-pointer -ffast-math -pipe -fno-strict-aliasing")
 
@@ -223,6 +231,7 @@ endif()
 add_executable(${EXEC} ${SOURCES})
 
 target_link_libraries(${EXEC}
+	${EXTRA_LD_FLAGS}
 	${SDL_LIBRARY} ${SDL_LIBRARIES}
 	${LIBXML2_LIBRARY} ${LIBXML2_LIBRARIES}
 	${CAL3D_LIBRARY} ${CAL3D_LIBRARIES}
