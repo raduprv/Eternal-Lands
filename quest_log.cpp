@@ -119,7 +119,7 @@ class Quest_Title_Request
 class Quest_Entry
 {
 	public:
-		Quest_Entry(void) : deleted(false), quest_id(Quest::UNSET_ID), NPC_NAME_COLOUR(c_blue2) {}
+		Quest_Entry(void) : deleted(false), quest_id(Quest::UNSET_ID), charsum(0), NPC_NAME_COLOUR(c_blue2) {}
 		void set(const std::string & the_text);
 		void set(const std::string & the_text, const std::string & the_npc);
 		const std::vector<std::string> & get_lines(void) const;
