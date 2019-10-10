@@ -2222,7 +2222,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"anti_alias", "aa", &anti_alias, change_aa, 0, "Toggle Anti-Aliasing", "Anti-aliasing makes edges look smoother", VIDEO);
 #endif //ANTI_ALIAS
 #ifdef	FSAA
-	add_var(OPT_MULTI_H, "anti_aliasing", "fsaa", &fsaa_index, change_fsaa, 0, "Anti-Aliasing", "Full Scene Anti-Aliasing", VIDEO, get_fsaa_mode_str(0), 0);
+	add_var(OPT_MULTI_H, "anti_aliasing", "fsaa", &fsaa_index, change_fsaa, 0, "Anti-Aliasing", "Full Scene Anti-Aliasing", VIDEO, get_fsaa_mode_str(0), NULL);
 	for (i = 1; i < get_fsaa_mode_count(); i++)
 	{
 		if (get_fsaa_mode(i) == 1)
