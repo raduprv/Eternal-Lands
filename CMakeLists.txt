@@ -30,7 +30,7 @@ add_definitions(
 	-DCLUSTER_INSIDES				# Group objects into separate clusters for clipping on inside maps
 	-DCUSTOM_LOOK					# allows you to customize your look.
 	-DFUZZY_PATHS					# Makes Tab Map walking not always follow exaclty the same path
-	#-DNEW_SOUND						# Enables extended sound effects system
+	-DNEW_SOUND						# Enables extended sound effects system
 	-DPNG_SCREENSHOT				# make screenshots in W3C's PNG format in game, requires libpng
 	-DUSE_INLINE					# enable some optimizations to use inline functions instead of pure function calls
 	# new for 1.9.0 release
