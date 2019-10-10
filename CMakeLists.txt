@@ -30,7 +30,7 @@ add_definitions(
 	-DCLUSTER_INSIDES				# Group objects into separate clusters for clipping on inside maps
 	-DCUSTOM_LOOK					# allows you to customize your look.
 	-DFUZZY_PATHS					# Makes Tab Map walking not always follow exaclty the same path
-	-DNEW_SOUND						# Enables extended sound effects system
+	#-DNEW_SOUND						# Enables extended sound effects system
 	-DPNG_SCREENSHOT				# make screenshots in W3C's PNG format in game, requires libpng
 	-DUSE_INLINE					# enable some optimizations to use inline functions instead of pure function calls
 	# new for 1.9.0 release
@@ -98,20 +98,37 @@ add_definitions(
 set(SD "")
 
 # Get compiler flags for used libraries
-include(FindSDL)
-include(FindLibXml2)
-include(FindSDL_image)
-include(FindSDL_net)
-set(OpenGL_GL_PREFERENCE GLVND)
-include(FindOpenGL)
-include(FindOpenAL)
-include(FindZLIB)
-include(FindPNG)
-include(FindX11)
-# these definitions were re-used from Xapher's opengl client
-include(cmake/FindVorbis.cmake)
-include(cmake/FindVorbisFile.cmake)
-include(cmake/FindCal3d.cmake)
+include(FindPkgConfig)
+if (PKG_CONFIG_FOUND)
+	pkg_check_modules(SDL sdl)
+	pkg_check_modules(LIBXML2 libxml-2.0)
+	pkg_check_modules(SDL_IMAGE SDL_image)
+	pkg_check_modules(SDL_NET SDL_net)
+	pkg_check_modules(GLU glu)
+	pkg_check_modules(OPENAL openal)
+	pkg_check_modules(ZLIB zlib)
+	pkg_check_modules(PNG libpng)
+	pkg_check_modules(VORBIS vorbis)
+	pkg_check_modules(VORBISFILE vorbisfile)
+	pkg_check_modules(CAL3D cal3d)
+	pkg_check_modules(X11 x11)
+else()
+	include(FindSDL)
+	include(FindLibXml2)
+	include(FindSDL_image)
+	include(FindSDL_net)
+	set(OpenGL_GL_PREFERENCE GLVND)
+	include(FindOpenGL)
+	include(FindOpenAL)
+	include(FindZLIB)
+	include(FindPNG)
+	include(FindX11)
+	include(FindIconv)
+	# these definitions were re-used from Xapher's opengl client
+	include(cmake/FindVorbis.cmake)
+	include(cmake/FindVorbisFile.cmake)
+	include(cmake/FindCal3d.cmake)
+endif()
 
 # set the paths to header files
 include_directories(${SD} ${SD}io ${SD}shader ${SD}xz ${SD}engine ${SD}exceptions ${SD}xml ${SD}eye_candy)
@@ -211,9 +228,9 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
 	add_definitions(-DLINUX)
 elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	if (NOT EXEC)
-		set(EXEC "el.exe")
+		set(EXEC "el")
 	endif()
-	add_definitions(-DWINDOWS -DWINVER=0x500 -mwindows)
+	add_definitions(-DWINDOWS -DWINVER=0x500 -mwindows -DNDEBUG)
 else()
 	message( FATAL_ERROR "Unknown platform [${CMAKE_SYSTEM_NAME}]" )
 endif()
@@ -251,6 +268,8 @@ target_link_libraries(${EXEC}
 	${ZLIB_LIBRARY} ${ZLIB_LIBRARIES}
 	${PNG_LIBRARY} ${PNG_LIBRARIES}
 	${X11_LIBRARY} ${X11_LIBRARIES}
+	${GLU_LIBRARY} ${GLU_LIBRARIES}
+	${Iconv_LIBRARY} ${Iconv_LIBRARIES}
 )
 
 target_include_directories(${EXEC} PUBLIC
@@ -266,6 +285,8 @@ target_include_directories(${EXEC} PUBLIC
 	${ZLIB_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIR}
 	${PNG_INCLUDE_DIRS} ${PNG_INCLUDE_DIR}
 	${X11_INCLUDE_DIRS} ${X11_INCLUDE_DIR}
+	${GLU_INCLUDE_DIRS} ${GLU_INCLUDE_DIR}
+	${Iconv_INCLUDE_DIRS} ${Iconv_INCLUDE_DIR}
 )
 
 target_compile_options(${EXEC} PUBLIC
@@ -281,4 +302,6 @@ target_compile_options(${EXEC} PUBLIC
 	${ZLIB_CFLAGS}
 	${PNG_CFLAGS}
 	${X11_CFLAGS}
+	${GLU_CFLAGS}
+	${Iconv_CFLAGS}
 )
