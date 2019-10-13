@@ -114,7 +114,7 @@ void start_paste(widget_list *widget)
 			if (text != NULL)
 			{
 				if (widget == NULL)
-					do_paste(text);
+					do_paste((Uint8 *)text);
 				else
 					do_paste_to_text_field(widget, text);
 			}

@@ -1036,7 +1036,7 @@ static void display_book_window(book *b)
 		set_window_handler(*p, ELW_HANDLER_UI_SCALE, &ui_scale_book_handler);
 		windows_list.window[*p].data=b;
 	} else {
-		if((point)windows_list.window[*p].data!=(point)b) {
+		if((uintptr_t)windows_list.window[*p].data!=(uintptr_t)b) {
 			safe_snprintf(windows_list.window[*p].window_name, sizeof(windows_list.window[*p].window_name), "%s", b->title);
 			windows_list.window[*p].data=b;
 			if(!get_show_window(*p))
@@ -1056,12 +1056,12 @@ void close_book(int book_id)
 	if(!b)
 		return;
 	if(book_win!=-1) {
-		if((point)windows_list.window[book_win].data==(point)b) {
+		if((uintptr_t)windows_list.window[book_win].data==(uintptr_t)b) {
 			hide_window(book_win);
 		}
 	}
 	if(paper_win!=-1) {
-		if((point)windows_list.window[paper_win].data == (point)b) {
+		if((uintptr_t)windows_list.window[paper_win].data == (uintptr_t)b) {
 			hide_window(paper_win);
 		}
 	}

@@ -1210,7 +1210,7 @@ void delete_mark_on_map_on_mouse_position()
 		closest_mark->x =  -1 ;
 		closest_mark->y =  -1 ;
 		if (closest_mark->server_side) {
-			hash_delete(server_marks,(NULL+closest_mark->server_side_id));
+			hash_delete(server_marks,(void *)(uintptr_t)(closest_mark->server_side_id));
 			save_server_markings();
 		}
 	}

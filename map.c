@@ -472,7 +472,7 @@ void load_server_markings(){
 	while((rf=fscanf(fp,"%d %d %d %s %[^\n]s\n",&sm.id,&sm.x,&sm.y,sm.map_name,sm.text))==5){		
 		server_mark *nm = calloc(1,sizeof(server_mark));
 		memcpy(nm,&sm,sizeof(server_mark));
-		hash_add(server_marks,(NULL+sm.id),(void*) nm);
+		hash_add(server_marks,(void *)(uintptr_t)sm.id,(void*) nm);
 	}
 	
 	fclose (fp);

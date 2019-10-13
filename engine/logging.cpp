@@ -15,6 +15,7 @@
 #include <vector>
 #include <map>
 #include <cstdio>
+#include <algorithm>
 #include <fcntl.h>
 #include <unistd.h>
 #include <dirent.h>

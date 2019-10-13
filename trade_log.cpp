@@ -15,6 +15,7 @@
 #include <string>
 #include <time.h>
 #include <algorithm>
+#include <functional>
 
 #include "client_serv.h"
 #include "elconfig.h"

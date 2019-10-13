@@ -156,7 +156,7 @@ void cal_actor_set_emote_anim(actor *pActor, emote_frame *anims){
 
 	for(i=0;i<anims->nframes;i++) {
 		//printf("adding frame %i: %i\n",i,anims->ids[i]);
-		he=hash_get(actors_defs[pActor->actor_type].emote_frames,(void*)(NULL+anims->ids[i]));
+		he=hash_get(actors_defs[pActor->actor_type].emote_frames, (void *)(uintptr_t)anims->ids[i]);
 		if(!he) continue;
 		action = (struct cal_anim*) he->item;
 		//printf("duration scale %f\n",action->duration_scale);

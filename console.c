@@ -845,7 +845,7 @@ int command_unmark_special(char *text, int len, int do_log)
 				marks[i].x = marks[i].y = -1;
 				if (marks[i].server_side)
 				{
-					hash_delete(server_marks,(NULL+marks[i].server_side_id));
+					hash_delete(server_marks,(void *)(uintptr_t)(marks[i].server_side_id));
 					save_server_markings();
 				}
 				if (do_log)

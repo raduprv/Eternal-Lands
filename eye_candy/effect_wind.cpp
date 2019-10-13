@@ -364,7 +364,7 @@ namespace ec
 		const float time_offset = (float)((unsigned short)(get_time() / 10000))
 			* PI / 2000.0; // Translation: Convert to milliseconds, truncate the higher-order digits, convert to a float, make it wraparound in radians, and scale it down some.
 		const unsigned short individual_offset =
-			(unsigned short)(long)(void*)(this); // Based on the memory address in order to give each particle a unique bias.
+			(unsigned short)(uintptr_t)(void*)(this); // Based on the memory address in order to give each particle a unique bias.
 		srand(individual_offset);
 		const float offset= randfloat() * 0.5;
 

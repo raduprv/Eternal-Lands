@@ -1901,7 +1901,7 @@ static void add_var(option_type type, char * name, char * shortname, void * var,
 	int no=our_vars.no++;
 	char *pointer;
 	float *tmp_f;
-	point *tmp_i;
+	uintptr_t *tmp_i;
 	int_min_max_func *i_func;
 	float_min_max_func *f_func;
 	va_list ap;
@@ -1925,11 +1925,11 @@ static void add_var(option_type type, char * name, char * shortname, void * var,
 			va_start(ap, tab_id);
 			//Min
 			tmp_i= calloc(1,sizeof(*tmp_i));
-			*tmp_i= va_arg(ap, point);
+			*tmp_i= va_arg(ap, uintptr_t);
 			queue_push(our_vars.var[no]->queue, tmp_i);
 			//Max
 			tmp_i= calloc(1,sizeof(*tmp_i));
-			*tmp_i= va_arg(ap, point);
+			*tmp_i= va_arg(ap, uintptr_t);
 			queue_push(our_vars.var[no]->queue, tmp_i);
 			va_end(ap);
 			*integer= (int)def;

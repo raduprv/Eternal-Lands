@@ -2167,8 +2167,8 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			}
 			//printf("ADD MARKER: %i %i %i %s %s\n",sm->id,sm->x,sm->y,sm->map_name,sm->text);
 			if(!server_marks) init_server_markers();
-			hash_delete(server_marks,(NULL+sm->id)); //remove old marker if present
-			hash_add(server_marks,(NULL+sm->id),(void*)sm);
+			hash_delete(server_marks, (void *)(uintptr_t)sm->id); //remove old marker if present
+			hash_add(server_marks, (void *)(uintptr_t)sm->id,(void*)sm);
 			save_server_markings();
 			load_map_marks();//load again, so the new marker is added correctly.
 			break;
@@ -2182,8 +2182,8 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  break;
 				}
 			id=SDL_SwapLE16(*((short *)(in_data+3)));
-			hash_delete(server_marks,(NULL+id)); //remove marker if present
-			save_server_markings();			
+			hash_delete(server_marks,(void *)(uintptr_t)id); //remove marker if present
+			save_server_markings();
 			load_map_marks();//load again, so the new marker is removed correctly.
 			break;
 			}

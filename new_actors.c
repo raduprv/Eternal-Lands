@@ -715,7 +715,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 		if(frame>=frame_poses_start&&frame<=frame_poses_end) {
 			//we have a pose, get it! (frame is the emote_id)
 			hash_entry *he;
-			he=hash_get(emotes,(void*)(NULL+frame));
+			he=hash_get(emotes,(void*)(uintptr_t)frame);
 			if(!he) LOG_ERROR("unknown pose %d", frame);
 			else pose = he->item;
 			break;

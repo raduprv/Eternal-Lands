@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
+#include <stdint.h>
 
 hash_table *create_hash_table(int size, 
 			     unsigned long int (*hashfn)(void *), 
@@ -146,7 +146,7 @@ hash_entry *hash_get_next(hash_table *table){
 
 //HASH AND COMPARE FNs
 unsigned long int hash_fn_int(void *key){
-	return (unsigned long int) key;
+	return (unsigned long int)(uintptr_t) key;
 }
 int cmp_fn_int(void *key1, void *key2){
 	return key1==key2;
