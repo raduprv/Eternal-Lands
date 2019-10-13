@@ -16,6 +16,9 @@
 #   mkdir -p build && cd build
 #   cmake -DCMAKE_BUILD_TYPE=debug -DEXEC=el.$(uname -m).linux.bin -DMARCHNATIVE=1 -DADDRSANITISER=1 ..
 #   make
+#
+# Example for windows using msys2
+#   cmake -G "MSYS Makefiles" -DCMAKE_INCLUDE_PATH="/mingw64/local/include" -DCMAKE_LIBRARY_PATH="/mingw64/local/lib" ..
 
 cmake_minimum_required(VERSION 3.0.2)
 
@@ -30,7 +33,7 @@ add_definitions(
 	-DCLUSTER_INSIDES				# Group objects into separate clusters for clipping on inside maps
 	-DCUSTOM_LOOK					# allows you to customize your look.
 	-DFUZZY_PATHS					# Makes Tab Map walking not always follow exaclty the same path
-	-DNEW_SOUND						# Enables extended sound effects system
+	-DNEW_SOUND					# Enables extended sound effects system
 	-DPNG_SCREENSHOT				# make screenshots in W3C's PNG format in game, requires libpng
 	-DUSE_INLINE					# enable some optimizations to use inline functions instead of pure function calls
 	# new for 1.9.0 release
@@ -98,37 +101,23 @@ add_definitions(
 set(SD "")
 
 # Get compiler flags for used libraries
-include(FindPkgConfig)
-if (PKG_CONFIG_FOUND)
-	pkg_check_modules(SDL sdl)
-	pkg_check_modules(LIBXML2 libxml-2.0)
-	pkg_check_modules(SDL_IMAGE SDL_image)
-	pkg_check_modules(SDL_NET SDL_net)
-	pkg_check_modules(GLU glu)
-	pkg_check_modules(OPENAL openal)
-	pkg_check_modules(ZLIB zlib)
-	pkg_check_modules(PNG libpng)
-	pkg_check_modules(VORBIS vorbis)
-	pkg_check_modules(VORBISFILE vorbisfile)
-	pkg_check_modules(CAL3D cal3d)
-	pkg_check_modules(X11 x11)
-else()
-	include(FindSDL)
-	include(FindLibXml2)
-	include(FindSDL_image)
-	include(FindSDL_net)
-	set(OpenGL_GL_PREFERENCE GLVND)
-	include(FindOpenGL)
-	include(FindOpenAL)
-	include(FindZLIB)
-	include(FindPNG)
-	include(FindX11)
+include(FindSDL)
+include(FindLibXml2)
+include(FindSDL_image)
+include(FindSDL_net)
+set(OpenGL_GL_PREFERENCE GLVND)
+include(FindOpenGL)
+include(FindOpenAL)
+include(FindZLIB)
+include(FindPNG)
+include(FindX11)
+if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	include(FindIconv)
-	# these definitions were re-used from Xapher's opengl client
-	include(cmake/FindVorbis.cmake)
-	include(cmake/FindVorbisFile.cmake)
-	include(cmake/FindCal3d.cmake)
 endif()
+# these definitions were re-used from Xapher's opengl client
+include(cmake/FindVorbis.cmake)
+include(cmake/FindVorbisFile.cmake)
+include(cmake/FindCal3d.cmake)
 
 # set the paths to header files
 include_directories(${SD} ${SD}io ${SD}shader ${SD}xz ${SD}engine ${SD}exceptions ${SD}xml ${SD}eye_candy)
@@ -213,10 +202,10 @@ string(STRIP "${EXTRA_CXX_FLAGS}" EXTRA_CXX_FLAGS)
 string(STRIP "${EXTRA_LD_FLAGS}" EXTRA_LD_FLAGS)
 
 # set the compiler flags for DEBUG and RELEASE builds
-set(CMAKE_C_FLAGS "${EXTRA_C_FLAGS} -Wall -Wdeclaration-after-statement")
+set(CMAKE_C_FLAGS "${EXTRA_C_FLAGS} -Wall -Wdeclaration-after-statement -D_GNU_SOURCE=1 -D_REENTRANT")
 set(CMAKE_C_FLAGS_DEBUG "-O0 -ggdb -pipe -fno-strict-aliasing")
 set(CMAKE_C_FLAGS_RELEASE "-O2 -fomit-frame-pointer -ffast-math -pipe -fno-strict-aliasing")
-set(CMAKE_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wall")
+set(CMAKE_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wall -D_GNU_SOURCE=1 -D_REENTRANT")
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -ggdb -pipe -fno-strict-aliasing")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fomit-frame-pointer -ffast-math -pipe -fno-strict-aliasing")
 
@@ -256,52 +245,34 @@ add_executable(${EXEC} ${SOURCES})
 
 target_link_libraries(${EXEC}
 	${EXTRA_LD_FLAGS}
-	${SDL_LIBRARY} ${SDL_LIBRARIES}
-	${LIBXML2_LIBRARY} ${LIBXML2_LIBRARIES}
-	${CAL3D_LIBRARY} ${CAL3D_LIBRARIES}
-	${SDL_NET_LIBRARY} ${SDL_NET_LIBRARIES}
-	${SDL_IMAGE_LIBRARY} ${SDL_IMAGE_LIBRARIES}
-	${OPENGL_LIBRARY} ${OPENGL_LIBRARIES}
-	${OPENAL_LIBRARY} ${OPENAL_LIBRARIES}
-	${VORBIS_LIBRARY} ${VORBIS_LIBRARIES}
-	${VORBISFILE_LIBRARY} ${VORBISFILE_LIBRARIES}
-	${ZLIB_LIBRARY} ${ZLIB_LIBRARIES}
-	${PNG_LIBRARY} ${PNG_LIBRARIES}
-	${X11_LIBRARY} ${X11_LIBRARIES}
-	${GLU_LIBRARY} ${GLU_LIBRARIES}
-	${Iconv_LIBRARY} ${Iconv_LIBRARIES}
+	${SDL_LIBRARY}
+	${LIBXML2_LIBRARIES}
+	${CAL3D_LIBRARIES}
+	${SDL_NET_LIBRARIES}
+	${SDL_IMAGE_LIBRARIES}
+	${OPENGL_LIBRARIES}
+	${OPENAL_LIBRARY}
+	${VORBIS_LIBRARIES}
+	${VORBISFILE_LIBRARIES}
+	${PNG_LIBRARIES}
+	${X11_LIBRARIES}
+	${Iconv_LIBRARIES}
+	${OPENGL_gl_LIBRARY}
+	${OPENGL_glu_LIBRARY}
 )
 
 target_include_directories(${EXEC} PUBLIC
-	${SDL_INCLUDE_DIRS} ${SDL_INCLUDE_DIR}
-	${LIBXML2_INCLUDE_DIRS} ${LIBXML2_INCLUDE_DIR}
-	${CAL3D_INCLUDE_DIRS} ${CAL3D_INCLUDE_DIR}
-	${SDL_NET_INCLUDE_DIRS} ${SDL_NET_INCLUDE_DIR}
-	${SDL_IMAGE_INCLUDE_DIRS} ${SDL_IMAGE_INCLUDE_DIR}
-	${OPENGL_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR}
-	${OPENAL_INCLUDE_DIRS} ${OPENAL_INCLUDE_DIR}
-	${VORBIS_INCLUDE_DIRS} ${VORBIS_INCLUDE_DIR}
-	${VORBISFILE_INCLUDE_DIRS} ${VORBISFILE_INCLUDE_DIR}
-	${ZLIB_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIR}
-	${PNG_INCLUDE_DIRS} ${PNG_INCLUDE_DIR}
-	${X11_INCLUDE_DIRS} ${X11_INCLUDE_DIR}
-	${GLU_INCLUDE_DIRS} ${GLU_INCLUDE_DIR}
-	${Iconv_INCLUDE_DIRS} ${Iconv_INCLUDE_DIR}
-)
-
-target_compile_options(${EXEC} PUBLIC
-	${SDL_CFLAGS}
-	${LIBXML2_CFALGS}
-	${CAL3D_CFLAGS}
-	${SDL_NET_CFLAGS}
-	${SDL_IMAGE_CFLAGS}
-	${OPENGL_CFLAGS}
-	${OPENAL_CFLAGS}
-	${VORBIS_CFLAGS}
-	${VORBISFILE_CFLAGS}
-	${ZLIB_CFLAGS}
-	${PNG_CFLAGS}
-	${X11_CFLAGS}
-	${GLU_CFLAGS}
-	${Iconv_CFLAGS}
+	${SDL_INCLUDE_DIR}
+	${LIBXML2_INCLUDE_DIR}
+	${CAL3D_INCLUDE_DIR}
+	${SDL_NET_INCLUDE_DIRS}
+	${SDL_IMAGE_INCLUDE_DIRS}
+	${OPENGL_INCLUDE_DIR}
+	${OPENAL_INCLUDE_DIR}
+	${VORBIS_INCLUDE_DIR}
+	${VORBISFILE_INCLUDE_DIRS}
+	${ZLIB_INCLUDE_DIRS}
+	${PNG_INCLUDE_DIRS}
+	${X11_INCLUDE_DIR}
+	${Iconv_INCLUDE_DIRS}
 )
