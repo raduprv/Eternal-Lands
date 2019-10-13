@@ -73,7 +73,7 @@ int cm_banner_disabled = 0;
 int auto_disable_ranging_lock = 1;
 int target_close_clicked_creature = 1;
 int open_close_clicked_bag = 1;
-int show_fps;
+int show_fps = 0;
 
 #ifdef  DEBUG
 extern int e3d_count, e3d_total;    // LRNR:stats testing only
