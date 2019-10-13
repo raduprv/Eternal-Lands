@@ -261,7 +261,7 @@ target_link_libraries(${EXEC}
 	${OPENGL_glu_LIBRARY}
 )
 
-target_include_directories(${EXEC} PUBLIC
+target_include_directories(${EXEC} SYSTEM PUBLIC
 	${SDL_INCLUDE_DIR}
 	${LIBXML2_INCLUDE_DIR}
 	${CAL3D_INCLUDE_DIR}
