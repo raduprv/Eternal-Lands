@@ -7,14 +7,16 @@
 #define __DIALOGUES_H__
 
 #include <SDL_types.h>
+#include "loginwin.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern unsigned char npc_name[20]; /*!< buffer for the NPCs name */
+#define NPC_NAME_BUF_LEN (MAX_USERNAME_LENGTH + 10)
+extern unsigned char npc_name[NPC_NAME_BUF_LEN]; /*!< buffer for the NPCs name */
 extern int cur_portrait; /*!< pointer to the portrait used by a particular NPC */
-extern char npc_mark_str[20]; /*!< npc location in map mark - the template (print format) string used */
+extern char npc_mark_str[NPC_NAME_BUF_LEN]; /*!< npc location in map mark - the template (print format) string used */
 
 /*! \name windows handlers 
  * @{ */
@@ -77,6 +79,12 @@ void display_dialogue(const Uint8 *in_data, int data_length);
  * \sa close_window
  */
 void close_dialogue(void);
+
+/*!
+ * \brief       Frees memory allocated for dialogue functions
+ *
+ */
+void cleanup_dialogues(void);
 
 #ifdef __cplusplus
 } // extern "C"

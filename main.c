@@ -28,6 +28,7 @@
 #include "console.h"
 #include "counters.h"
 #include "cursors.h"
+#include "dialogues.h"
 #include "draw_scene.h"
 #include "e3d.h"
 #include "elc_private.h"
@@ -289,6 +290,8 @@ int start_rendering()
 		LOG_INFO("free_buffers()");
 		free_buffers();
 	}
+	LOG_INFO("cleanup_dialogues()");
+	cleanup_dialogues();
 	LOG_INFO("passmngr_destroy()");
 	passmngr_destroy();
 	LOG_INFO("unload_questlog()");
