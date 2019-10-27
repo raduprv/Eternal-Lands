@@ -207,20 +207,20 @@ static void text_log_add_new_npc(const char *the_name)
 static void text_log_load_npc_list(void)
 {
 	FILE *fp = NULL;
+	char *line = NULL;
+	const size_t line_len = 256;
 	if (text_log_table != NULL)
 		return;
 	text_log_table_size = 0;
 	if ((fp = open_file_config(text_log_filename, "r")) == NULL)
 		return;
+	line = malloc(line_len);
 	while (!feof(fp))
 	{
-		char *line = NULL;
-		size_t line_len = 0;
-		ssize_t num_read = getline(&line, &line_len, fp);
-		if ((num_read > 0) && (num_read < NPC_NAME_BUF_LEN))
+		if ((fgets(line, line_len, fp) != NULL) && (strlen(line) > 0) && (strlen(line) < NPC_NAME_BUF_LEN))
 		{
 			size_t i;
-			for (i=0; i<num_read; i++)
+			for (i=0; i<strlen(line); i++)
 				if ((line[i] == '\n') || (line[i] == '\r'))
 				{
 					line[i] = '\0';
@@ -228,10 +228,9 @@ static void text_log_load_npc_list(void)
 				}
 			text_log_add_new_npc(line);
 		}
-		if (line != NULL)
-			free(line);
 	}
 	fclose(fp);
+	free(line);
 }
 
 static void text_log_get_npc_setting(void)
@@ -250,9 +249,9 @@ static void text_log_get_npc_setting(void)
 
 static void text_log_write(void)
 {
-	size_t str_len = NPC_NAME_BUF_LEN + 3;
+	const size_t str_len = NPC_NAME_BUF_LEN + 3;
 	char * str = malloc(str_len);
-	size_t to_str_max = MAX_DIALOGUE_TEXT * 1.5;
+	const size_t to_str_max = MAX_DIALOGUE_TEXT * 1.5;
 	char *to_str = (char *)malloc(to_str_max);
 	safe_snprintf(str, str_len, "%s: %c", npc_name, to_color_char(c_grey1));
 	strip_dialogue_text(to_str, to_str_max, str, 1);
