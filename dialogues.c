@@ -718,7 +718,7 @@ int ui_scale_dialogue_handler(window_info *win)
 	close_str_width = get_string_width((unsigned char*)close_str) * win->small_font_len_x / 12.0;
 	close_pos_x = dialogue_menu_x_len - close_str_width - border_space;
 	repeat_str_width = get_string_width((unsigned char*)dialogue_repeat_str) * win->small_font_len_x / 12.0;
-	repeat_pos_x = copy_pos_x + close_str_width + 2 * border_space;
+	repeat_pos_x = copy_pos_x + copy_str_width + 2 * border_space;
 
 	resize_window(win->window_id, dialogue_menu_x_len, dialogue_menu_y_len);
 	recalc_option_positions = new_dialogue = 1;
