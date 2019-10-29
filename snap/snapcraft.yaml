@@ -51,7 +51,7 @@ parts:
 
   data:
     source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.4/el_195_p4_data_files.zip
-    source-checksum: md5/e42ebe628e704c8f7e0b21e3340f475d
+    source-checksum: md5/468dca610695271f0356e91c6e2f9f08
     plugin: dump
     organize:
       el_data/ : data/
