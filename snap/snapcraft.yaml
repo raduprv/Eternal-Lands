@@ -1,5 +1,6 @@
 name: eternallands
-version: '1.9.5.git'
+# Set to x.y.z.git for dev build
+version: '1.9.5.4'
 summary: Eternal Lands is a free to play, graphical MMORPG
 description: |
   Eternal Lands is a free to play, graphical MMORPG (massively-multi-player
@@ -20,7 +21,7 @@ parts:
     source-tag: 1.9.5.4
     build-packages: [build-essential, libcal3d12-dev, libsdl-image1.2-dev, libsdl-net1.2-dev, libxml2-dev, libopenal-dev, libvorbis-dev]
     plugin: cmake
-    # Add DVERSION_PREFIX for dev release
+    # Add -DVERSION_PREFIX=x.y.z for dev build
     configflags:  ["-DCMAKE_BUILD_TYPE=release", "-DEXEC=el.linux.bin"]
     artifacts: ["el.linux.bin"]
     stage-packages:
