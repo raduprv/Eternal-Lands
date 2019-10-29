@@ -16,12 +16,12 @@ parts:
   client:
     source: https://github.com/raduprv/Eternal-Lands
     source-type: git
-    # Include for stable release, comment out for git build
-    #source-tag: 1.9.5.3
+    # Include for stable release, comment out for dev build
+    source-tag: 1.9.5.4
     build-packages: [build-essential, libcal3d12-dev, libsdl-image1.2-dev, libsdl-net1.2-dev, libxml2-dev, libopenal-dev, libvorbis-dev]
     plugin: cmake
-    # remove DVERSION_PREFIX for stable release
-    configflags:  ["-DCMAKE_BUILD_TYPE=release", "-DEXEC=el.linux.bin", "-DVERSION_PREFIX=1.9.5.git"]
+    # Add DVERSION_PREFIX for dev release
+    configflags:  ["-DCMAKE_BUILD_TYPE=release", "-DEXEC=el.linux.bin"]
     artifacts: ["el.linux.bin"]
     stage-packages:
       - libglib2.0-0
@@ -50,7 +50,7 @@ parts:
       - desktop-glib-only
 
   data:
-    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.2/el_195_1_data_files.zip
+    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.4/el_195_p4_data_files.zip
     source-checksum: md5/e42ebe628e704c8f7e0b21e3340f475d
     plugin: dump
     organize:
