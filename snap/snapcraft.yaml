@@ -1,6 +1,6 @@
 name: eternallands
 # Set to x.y.z.git for dev build
-version: '1.9.5.4'
+version: '1.9.5p4'
 summary: Eternal Lands is a free to play, graphical MMORPG
 description: |
   Eternal Lands is a free to play, graphical MMORPG (massively-multi-player
