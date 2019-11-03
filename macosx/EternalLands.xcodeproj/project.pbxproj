@@ -216,6 +216,8 @@
 		7B0B8CB716CA78C000D75AD9 /* trade_log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0B8CB616CA78C000D75AD9 /* trade_log.cpp */; };
 		7B0B8CBA16CA78E800D75AD9 /* item_info.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0B8CB916CA78E800D75AD9 /* item_info.cpp */; };
 		7B0B8F1A1794171B00D75AD9 /* named_colours.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0B8F191794171B00D75AD9 /* named_colours.cpp */; };
+		7B0C5B50224007C900BCFE13 /* password_manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0C5B4E224007C900BCFE13 /* password_manager.cpp */; };
+		7B0C5B51224007C900BCFE13 /* xor_cipher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0C5B4F224007C900BCFE13 /* xor_cipher.cpp */; };
 		7B57366820C80E4000C41C6E /* hud_misc_window.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B57366020C80E4000C41C6E /* hud_misc_window.c */; };
 		7B57366920C80E4000C41C6E /* hud_quickbar_window.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B57366220C80E4000C41C6E /* hud_quickbar_window.c */; };
 		7B57366A20C80E4000C41C6E /* hud_quickspells_window.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B57366420C80E4000C41C6E /* hud_quickspells_window.c */; };
@@ -674,6 +676,8 @@
 		7B0B8CB616CA78C000D75AD9 /* trade_log.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = trade_log.cpp; path = ../trade_log.cpp; sourceTree = SOURCE_ROOT; };
 		7B0B8CB916CA78E800D75AD9 /* item_info.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = item_info.cpp; path = ../item_info.cpp; sourceTree = SOURCE_ROOT; };
 		7B0B8F191794171B00D75AD9 /* named_colours.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = named_colours.cpp; path = ../named_colours.cpp; sourceTree = SOURCE_ROOT; };
+		7B0C5B4E224007C900BCFE13 /* password_manager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = password_manager.cpp; path = ../password_manager.cpp; sourceTree = SOURCE_ROOT; };
+		7B0C5B4F224007C900BCFE13 /* xor_cipher.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = xor_cipher.cpp; path = ../xor_cipher.cpp; sourceTree = SOURCE_ROOT; };
 		7B57365D20C80E4000C41C6E /* command_queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = command_queue.h; path = ../command_queue.h; sourceTree = SOURCE_ROOT; };
 		7B57365E20C80E4000C41C6E /* command_queue.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = command_queue.hpp; path = ../command_queue.hpp; sourceTree = SOURCE_ROOT; };
 		7B57365F20C80E4000C41C6E /* hud_indicators.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hud_indicators.h; path = ../hud_indicators.h; sourceTree = SOURCE_ROOT; };
@@ -786,6 +790,8 @@
 		1F8128D90D033520008792A7 /* elc */ = {
 			isa = PBXGroup;
 			children = (
+				7B0C5B4E224007C900BCFE13 /* password_manager.cpp */,
+				7B0C5B4F224007C900BCFE13 /* xor_cipher.cpp */,
 				7BDF3E1820D009CA007BE401 /* el_memory.c */,
 				7BDF3E1920D009CA007BE401 /* el_memory.h */,
 				7B57365D20C80E4000C41C6E /* command_queue.h */,
@@ -1609,6 +1615,8 @@
 				7B57366A20C80E4000C41C6E /* hud_quickspells_window.c in Sources */,
 				7B57366B20C80E4000C41C6E /* hud_statsbar_window.c in Sources */,
 				7BDF3E1A20D009CA007BE401 /* el_memory.c in Sources */,
+				7B0C5B50224007C900BCFE13 /* password_manager.cpp in Sources */,
+				7B0C5B51224007C900BCFE13 /* xor_cipher.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

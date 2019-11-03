@@ -7,6 +7,7 @@
 #define __IGNORE_H__
 
 #include "interface.h"
+#include "loginwin.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -15,7 +15,7 @@
 #include "hud.h"
 #include "icon_window.h"
 #include "init.h"
-#include "interface.h"
+#include "loginwin.h"
 #include "multiplayer.h"
 #include "queue.h"
 #include "translate.h"

@@ -38,6 +38,8 @@ extern Uint32 K_ADVANCE;        /*!< key used to move one step (tile) forward */
 extern Uint32 K_HEALTHBAR;      /*!< key used to toggle display of the healthbar */
 extern Uint32 K_VIEWNAMES;      /*!< key used to toggle display of names */
 extern Uint32 K_VIEWHP;         /*!< key used to toggle display of hitpoints (material points) */
+extern Uint32 K_VIEWETHER;      /*!< key used to toggle display of ether pointer */
+extern Uint32 K_ETHERBARS;      /*!< key used to toggle display of ether bar */
 extern Uint32 K_STATS;          /*!< key to toggle display of \ref stats_window */
 extern Uint32 K_QUESTLOG;       /*!< key to toggle display of \ref questlog_window */
 extern Uint32 K_SESSION;        /*!< key to toggle display of session tab in stats_window */

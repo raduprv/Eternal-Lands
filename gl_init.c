@@ -379,8 +379,8 @@ void init_video()
             LOG_TO_CONSOLE(c_red1,"glGetString(GL_RENDERER) failed");
             LOG_ERROR("%s\n","glGetString(GL_RENDERER) failed");
         } else {
-            len=strlen(my_string);
-            have_hardware=get_string_occurance("gdi generic",my_string,len,0);
+            len=strlen((const char *)my_string);
+            have_hardware=get_string_occurance("gdi generic",(const char *)my_string,len,0);
         }
         if(have_hardware != -1) {
 			//let the user know there is a problem
@@ -406,8 +406,8 @@ void init_video()
                 LOG_TO_CONSOLE(c_red1,"glGetString(GL_RENDERER) failed");
                 LOG_ERROR("%s\n","glGetString(GL_RENDERER) failed");
             } else {
-                len=strlen(my_string);
-                have_hardware=get_string_occurance("gdi generic",my_string,len,0);
+                len=strlen((const char *)my_string);
+                have_hardware=get_string_occurance("gdi generic",(const char *)my_string,len,0);
             }
 			if(have_hardware != -1) {
 				//wtf, this really shouldn't happen....
@@ -436,8 +436,8 @@ void init_video()
                     LOG_TO_CONSOLE(c_red1,"glGetString(GL_RENDERER) failed");
                     LOG_ERROR("%s\n","glGetString(GL_RENDERER) failed");
                 } else {
-                    len=strlen(my_string);
-                    have_hardware=get_string_occurance("gdi generic",my_string,len,0);
+                    len=strlen((const char *)my_string);
+                    have_hardware=get_string_occurance("gdi generic",(const char *)my_string,len,0);
                 }
 				if(have_hardware != -1) {
 					//wtf, this really shouldn't happen....

@@ -208,6 +208,10 @@ char
 	login_username_str[20],
 	login_password_str[20],
 	login_rules_str[120],
+	passmngr_enabled_str[70],
+	passmngr_disabled_str[70],
+	show_passwords_str[30],
+	login_select_window_str[30],
 	/*items.c*/
 	sto_all_str[8],
 	get_all_str[8],
@@ -370,10 +374,10 @@ char
 	cm_npcname_menu_str[60],
 	cm_dialog_copy_menu_str[50],
 	cm_minimap_menu_str[60],
-	cm_user_menu_str[150],
+	cm_user_menu_str[200],
 	cm_item_list_selected_str[40],
-	cm_item_list_names_str[120],
-	cm_stats_bar_base_str[30],
+	cm_item_list_names_str[160],
+	cm_stats_bar_base_str[70],
 	cm_recipe_menu_str[100],
 	cm_manuwin_menu_str[50],
 	cm_encycl_base_str[150],
@@ -727,6 +731,10 @@ char	reg_error_str[15],
 	user_no_more_note_tabs[100],
 	fatal_data_error[120],
 	dc_note_remove[50],
+	character_notes_saved_str[70],
+	notes_save_tooltip_str[40],
+	using_character_notes_str[60],
+	cm_use_character_notepad_str[60],
 	note_saved[50],
 	note_save_failed[50],
 	/* encyclopedia */
@@ -1380,6 +1388,10 @@ void init_help()
 	add_xml_identifier(misc,"trade",no_open_on_trade,"You can't open this window while on trade.",sizeof(no_open_on_trade));
 	add_xml_identifier(misc,"user",login_username_str,"Username:",sizeof(login_username_str));
 	add_xml_identifier(misc,"pass",login_password_str,"Password:",sizeof(login_password_str));
+	add_xml_identifier(misc,"passmngr_enabled",passmngr_enabled_str,"Open/close password manager window.",sizeof(passmngr_enabled_str));
+	add_xml_identifier(misc,"passmngr_disabled",passmngr_disabled_str,"Password manager is disabled, see server tab in settings.",sizeof(passmngr_disabled_str));
+	add_xml_identifier(misc,"show_passwords",show_passwords_str,"Show Passwords",sizeof(show_passwords_str));
+	add_xml_identifier(misc,"login_select_window",login_select_window_str,"Select Login",sizeof(login_select_window_str));
 	add_xml_identifier(misc,"login_rules",login_rules_str,"If you log into this game, you accept the rules of Eternal Lands. Press F5 to read them in game.",sizeof(login_rules_str));
 	add_xml_identifier(misc,"stoall",sto_all_str,"Sto All",sizeof(sto_all_str));
 	add_xml_identifier(misc,"getall",get_all_str,"Get All",sizeof(get_all_str));
@@ -1486,6 +1498,10 @@ void init_help()
 	add_xml_identifier(misc,"ranginglock_indicator",ranginglock_indicator_str,"R||Ranging Lock On||Ranging Lock Off||Ranging Lock Status",sizeof(ranginglock_indicator_str));
 	add_xml_identifier(misc,"glowperk_indicator",glowperk_indicator_str,"G||Glow Perk On||Glow Perk Off||Glow Perk Status||You do not have the Glow In The Dark perk",sizeof(glowperk_indicator_str));
 	add_xml_identifier(misc,"dc_note_rm",dc_note_remove,"Double-click to remove this category",sizeof(dc_note_remove));
+	add_xml_identifier(misc,"character_notes_saved",character_notes_saved_str,"Your notes for this character have been saved",sizeof(character_notes_saved_str));
+	add_xml_identifier(misc,"notes_save_tooltip",notes_save_tooltip_str,"Right-click for save option",sizeof(notes_save_tooltip_str));
+	add_xml_identifier(misc,"using_character_notes",using_character_notes_str,"Now the notepad is just for this character",sizeof(using_character_notes_str));
+	add_xml_identifier(misc,"cm_use_character_notepad",cm_use_character_notepad_str,"Use notepad just for this character",sizeof(cm_use_character_notepad_str));
 	add_xml_identifier(misc,"note_saved",note_saved,"Your notes have been saved",sizeof(note_saved));
 	add_xml_identifier(misc,"note_save_failed",note_save_failed,"Failed to save your notes!",sizeof(note_save_failed));
 	add_xml_identifier(misc,"ranginglock_enabled",ranginglock_enabled_str,"Ranging-Lock is now enabled. Disable it or unequip ranging weapon before walking.",sizeof(ranginglock_enabled_str));
@@ -1629,13 +1645,13 @@ void init_help()
 	add_xml_identifier(misc, "cm_url_menu", cm_url_menu_str, "Open\nFind In Console\nMark Visited\nMark Unvisited\n--\nDelete\n--\nDelete All", sizeof(cm_url_menu_str));	
 	add_xml_identifier(misc, "cm_counters_menu", cm_counters_menu_str, "Delete Entry\n--\nReset Session Total\n--\nEnable Floating Messages For Category\n--\nPrint Category\nPrint All Categories\nPrint Just Session Information", sizeof(cm_counters_menu_str));
 	add_xml_identifier(misc, "cm_help_options", cm_help_options_str, "Right-click for options.", sizeof(cm_help_options_str));
-	add_xml_identifier(misc, "cm_npcname_menu", cm_npcname_menu_str, "Copy NPC Name\nSet Map Mark", sizeof(cm_npcname_menu_str));
+	add_xml_identifier(misc, "cm_npcname_menu", cm_npcname_menu_str, "Copy NPC Name\nSet Map Mark\nWrite text to console", sizeof(cm_npcname_menu_str));
 	add_xml_identifier(misc, "cm_dialog_copy_menu", cm_dialog_copy_menu_str, "Exclude Responses\nRemove Newlines", sizeof(cm_dialog_copy_menu_str));
 	add_xml_identifier(misc, "cm_minimap_menu", cm_minimap_menu_str, "--\nRotate Minimap\nPin Minimap\nOpen On Start", sizeof(cm_minimap_menu_str));
-	add_xml_identifier(misc, "cm_user_menu", cm_user_menu_str, "--\nMovable Window\nBackground On\nBorder On\nSmall Font\nStandard Menus\n--\nShow Commands\n--\nReload Menus\nDisable Menus", sizeof(cm_user_menu_str));
+	add_xml_identifier(misc, "cm_user_menu", cm_user_menu_str, "--\nMovable Window\nLock In Standard Position\nChange Standard Position\nBackground On\nBorder On\nSmall Font\nStandard Menus\n--\nShow Commands\n--\nReload Menus\nDisable Menus", sizeof(cm_user_menu_str));
 	add_xml_identifier(misc, "cm_item_list_selected", cm_item_list_selected_str, "Edit quantity\n--\nDelete", sizeof(cm_item_list_selected_str));
-	add_xml_identifier(misc, "cm_item_list_names", cm_item_list_names_str, "Create new list\nRename active list\n--\nDelete active list\n--\nDisable find list\n--\nReload from file", sizeof(cm_item_list_names_str));
-	add_xml_identifier(misc, "cm_stats_bar_base", cm_stats_bar_base_str, "--\nAdd Bar\nRemove Bar", sizeof(cm_stats_bar_base_str));
+	add_xml_identifier(misc, "cm_item_list_names", cm_item_list_names_str, "Create new list\nRename active list\n--\nDelete active list\n--\nDisable find list\n--\nReload from file\n--\nUse lists just for this character", sizeof(cm_item_list_names_str));
+	add_xml_identifier(misc, "cm_stats_bar_base", cm_stats_bar_base_str, "--\nAdd Bar\nRemove Bar\nClick Lock", sizeof(cm_stats_bar_base_str));
 	add_xml_identifier(misc, "cm_recipe_menu", cm_recipe_menu_str, "Add additional recipe row\nClear selected recipe\nDelete selected recipe\nSort recipes by name", sizeof(cm_recipe_menu_str));
 	add_xml_identifier(misc, "cm_manuwin_menu", cm_manuwin_menu_str, "\n--\nDisable key presses for window", sizeof(cm_manuwin_menu_str));
 	add_xml_identifier(misc, "cm_encycl_base", cm_encycl_base_str, "Encyclopedia Index\nSearch Encyclopedia Titles\nRepeat Last Search\nBookmark This Page\nUnbookmark This Page\nClear Bookmarks", sizeof(cm_encycl_base_str));

@@ -1,0 +1,30 @@
+# - Find cal3d
+# Find the native cal3d includes and library
+#
+#  CAL3D_INCLUDE_DIR - where to find cal3d.h, etc.
+#  CAL3D_LIBRARIES   - List of libraries when using cal3d.
+#  CAL3D_FOUND       - True if cal3d found.
+
+
+IF (CAL3D_INCLUDE_DIR)
+  # Already in cache, be silent
+  SET(CAL3D_FIND_QUIETLY TRUE)
+ENDIF (CAL3D_INCLUDE_DIR)
+
+FIND_PATH(CAL3D_INCLUDE_DIR cal3d/cal3d.h)
+
+SET(CAL3D_NAMES cal3d)
+FIND_LIBRARY(CAL3D_LIBRARY NAMES ${CAL3D_NAMES} )
+
+# handle the QUIETLY and REQUIRED arguments and set CAL3D_FOUND to TRUE if 
+# all listed variables are TRUE
+INCLUDE(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(CAL3D DEFAULT_MSG CAL3D_LIBRARY CAL3D_INCLUDE_DIR)
+
+IF(CAL3D_FOUND)
+  SET( CAL3D_LIBRARIES ${CAL3D_LIBRARY} )
+ELSE(CAL3D_FOUND)
+  SET( CAL3D_LIBRARIES )
+ENDIF(CAL3D_FOUND)
+
+MARK_AS_ADVANCED( CAL3D_LIBRARY CAL3D_INCLUDE_DIR )

@@ -73,6 +73,7 @@ int cm_banner_disabled = 0;
 int auto_disable_ranging_lock = 1;
 int target_close_clicked_creature = 1;
 int open_close_clicked_bag = 1;
+int show_fps = 0;
 
 #ifdef  DEBUG
 extern int e3d_count, e3d_total;    // LRNR:stats testing only
@@ -85,6 +86,12 @@ static int ranging_lock = 0;
 #ifdef NEW_CURSOR
 static int cursors_tex;
 #endif // NEW_CURSOR
+static int fps_default_width = 0;
+
+int get_fps_default_width(void)
+{
+	return fps_default_width;
+}
 
 int ranging_lock_is_on(void)
 {
@@ -882,6 +889,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 			*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
 			if (use_item != -1 && current_cursor == CURSOR_USE_WITEM)
 			{
+				used_item_counter_action_use(use_item);
 				*((int *)(str+5)) = SDL_SwapLE32((int)item_list[use_item].pos);
 				if (!shift_on)
 				{
@@ -1431,11 +1439,14 @@ static int display_game_handler (window_info *win)
 #else	//DEBUG
 		glColor3f (1.0f, 1.0f, 1.0f);
 #endif	//DEBUG
+		fps_default_width = 9 * win->default_font_len_x;
 		safe_snprintf ((char*)str, sizeof(str), "FPS: %i", fps[0]);
-		draw_string_zoomed (win->len_x - hud_x - 9 * win->default_font_len_x, 4 * win->current_scale, str, 1, win->current_scale);
+		draw_string_zoomed (win->len_x - hud_x - fps_default_width, 4 * win->current_scale, str, 1, win->current_scale);
 		safe_snprintf((char*)str, sizeof(str), "UVP: %d", use_animation_program);
-		draw_string_zoomed (win->len_x - hud_x - 9 * win->default_font_len_x, 19 * win->current_scale, str, 1, win->current_scale);
+		draw_string_zoomed (win->len_x - hud_x - fps_default_width, (4 + SMALL_FONT_Y_LEN) * win->current_scale, str, 1, win->current_scale);
 	}
+	else
+		fps_default_width = 0;
 	draw_spell_icon_strings(win);
 
 	CHECK_GL_ERRORS ();
@@ -1911,6 +1922,14 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	else if (key == K_HEALTHBAR)
 	{
 		view_health_bar = !view_health_bar;
+	}
+	else if (key == K_VIEWETHER)
+	{
+		view_ether_bar = !view_ether_bar;
+	}
+	else if (key == K_ETHERBARS)
+	{
+		view_ether = !view_ether;
 	}
 	else if (key == K_VIEWTEXTASOVERTEXT)
 	{

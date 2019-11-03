@@ -222,7 +222,7 @@ void cursors_cleanup(void)
 	cursors_init();
 }
 
-static void assign_cursor(int cursor_id)
+static void assign_cursor(size_t cursor_id)
 {
 	int hot_x,hot_y,x,y,i,cur_color,cur_byte,cur_bit;
 	int cursor_bmp_size = 16;

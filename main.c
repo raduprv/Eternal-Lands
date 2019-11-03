@@ -28,6 +28,7 @@
 #include "console.h"
 #include "counters.h"
 #include "cursors.h"
+#include "dialogues.h"
 #include "draw_scene.h"
 #include "e3d.h"
 #include "elc_private.h"
@@ -48,6 +49,7 @@
 #include "minimap.h"
 #include "multiplayer.h"
 #include "particles.h"
+#include "password_manager.h"
 #include "pm_log.h"
 #include "questlog.h"
 #include "queue.h"
@@ -137,13 +139,8 @@ void cleanup_mem(void)
 	cache_delete(cache_system);
 	cache_system = NULL;
 	/* map location information */
-	LOG_INFO("continent_maps[]");
-	for (i = 0; continent_maps[i].name; i++)
-	{
-	    free(continent_maps[i].name);
-	}
-	LOG_INFO("continent_maps");
-	free (continent_maps);
+	LOG_INFO("cleanup_mapinfo()");
+	cleanup_mapinfo();
 
 	LOG_INFO("destroy_hash_table()");
 	destroy_hash_table(server_marks);
@@ -293,6 +290,10 @@ int start_rendering()
 		LOG_INFO("free_buffers()");
 		free_buffers();
 	}
+	LOG_INFO("cleanup_dialogues()");
+	cleanup_dialogues();
+	LOG_INFO("passmngr_destroy()");
+	passmngr_destroy();
 	LOG_INFO("unload_questlog()");
 	unload_questlog();
 	LOG_INFO("save_item_lists()");

@@ -38,9 +38,11 @@
 #include "hud.h"
 #include "init.h"
 #include "io/elpathwrapper.h"
+#include "io/elfilewrapper.h"
 #include "items.h"
 #include "item_info.h"
 #include "item_lists.h"
+#include "loginwin.h"
 #include "questlog.h"
 #include "sound.h"
 #include "storage.h"
@@ -108,7 +110,7 @@ namespace ItemLists
 	class List_Container
 	{
 		public:
-			List_Container(void) : active_list(0), initial_active_list(0), last_mod_time(0), loaded(false) {}
+			List_Container(void) : active_list(0), initial_active_list(0), last_mod_time(0), loaded(false), using_named_lists(false) {}
 			void load(void);
 			void save(void);
 			bool add(const char *name);
@@ -138,14 +140,18 @@ namespace ItemLists
 			void sort_list(void)
 				{ std::sort( saved_item_lists.begin(), saved_item_lists.end(), List_Container::sort_compare); };
 			void check_and_timed_save(bool force);
+			bool is_using_named_lists(void) const { return using_named_lists; }
+			void switch_to_named_lists(void) { using_named_lists = true; set_named_list_file_name(); }
 		private:
+			void set_named_list_file_name(void) { lists_file_name = "item_lists_" + std::string(get_lowercase_username()) +  ".txt"; }
 			std::vector<List> saved_item_lists;
 			static int FILE_REVISION;
 			size_t active_list;
 			size_t initial_active_list;
 			Uint32 last_mod_time;
 			bool loaded;
-			static const char * filename;
+			std::string lists_file_name;
+			bool using_named_lists;
 			static bool sort_compare(const List &a, const List &b);
 	};
 
@@ -645,7 +651,6 @@ namespace ItemLists
 
 
 	int List_Container::FILE_REVISION = 2;
-	const char * List_Container::filename = "item_lists.txt";
 
 	//  Save the item lists to a file in players config directory
 	//
@@ -653,7 +658,7 @@ namespace ItemLists
 	{
 		if (!loaded || saved_item_lists.empty())
 			return;
-		std::string fullpath = get_path_config() + std::string(filename);
+		std::string fullpath = get_path_config() + lists_file_name;
 		std::ofstream out(fullpath.c_str());
 		if (!out)
 		{
@@ -678,7 +683,15 @@ namespace ItemLists
 	{
 		loaded = true;
 		saved_item_lists.clear();
-		std::string fullpath = get_path_config() + std::string(filename);
+		set_named_list_file_name();
+		if (el_file_exists_config(lists_file_name.c_str()))
+			using_named_lists = true;
+		else
+		{
+			lists_file_name = "item_lists.txt";
+			using_named_lists = false;
+		}
+		std::string fullpath = get_path_config() + lists_file_name;
 		std::ifstream in(fullpath.c_str());
 		if (!in)
 			return;
@@ -1392,6 +1405,7 @@ CHECK_GL_ERRORS();
 		int no_active = (Vars::lists()->valid_active_list()) ?0 :1;
 		cm_grey_line(cm_names_menu, 1, no_active);
 		cm_grey_line(cm_names_menu, 3, no_active);
+		cm_grey_line(cm_names_menu, 9, (Vars::lists()->is_using_named_lists()) ?1 :0);
 	}
 
 
@@ -1427,6 +1441,9 @@ CHECK_GL_ERRORS();
 				Vars::lists()->load();
 				ItemLists::Vars::win()->update_scroll_len();
 				ItemLists::Vars::win()->make_active_visable();
+				break;
+			case 9:
+				Vars::lists()->switch_to_named_lists();
 				break;
 			default:
 				return 0;

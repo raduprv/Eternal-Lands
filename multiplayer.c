@@ -31,6 +31,7 @@
 #include "map.h"
 #include "new_actors.h"
 #include "new_character.h"
+#include "password_manager.h"
 #include "particles.h"
 #include "pathfinder.h"
 #include "questlog.h"
@@ -81,8 +82,6 @@ int mixed_message_filter = 0;
 char inventory_item_string[300] = {0};
 size_t inventory_item_string_id = 0;
 
-char our_name[20];
-char our_password[20];
 int log_conn_data= 0;
 
 int this_version_is_invalid= 0;
@@ -568,31 +567,39 @@ void connect_to_server()
 
 void send_login_info()
 {
-	int i,j,len;
+	int i,j,username_len,password_len,joint_len;
 	unsigned char str[40];
+	const char * local_username_str;
+	const char * local_password_str;
 
-	len= strlen(username_str);
-	//check for the username length
-	if (len < 3)
-	{
-		set_login_error (error_username_length, strlen (error_username_length), 1);
+	if (!valid_username_pasword())
 		return;
-	}
+
+	local_username_str = get_username();
+	local_password_str = get_password();
+	username_len = strlen(local_username_str);
+	password_len = strlen(local_password_str);
+
+	if (disconnected)
+		connect_to_server();
 
 	//join the username and password, and send them to the server
 	str[0]= LOG_IN;
-
-	if(caps_filter && my_isupper(username_str, len)) my_tolower(username_str);
-	for(i=0; i<len; i++) str[i+1]= username_str[i];
+	if(caps_filter && my_isupper(local_username_str, username_len))
+	{
+		set_username(get_lowercase_username());
+		local_username_str = get_username();
+		username_len = strlen(local_username_str);
+	}
+	for(i=0; i<username_len; i++) str[i+1]= local_username_str[i];
 	str[i+1]= ' ';
 	i++;
-	len= strlen(password_str);
-	for(j=0; j<len; j++) str[i+j+1]= password_str[j];
+	for(j=0; j<password_len; j++) str[i+j+1]= local_password_str[j];
 	str[i+j+1]= 0;
 
-	len = strlen((char*)str);
-	len++;//send the last 0 too
-	if(my_tcp_send(my_socket, str, len)<len)
+	joint_len = strlen((char*)str);
+	joint_len++;//send the last 0 too
+	if(my_tcp_send(my_socket, str, joint_len)<joint_len)
 		{
 			//we got a nasty error, log it
 		}
@@ -809,7 +816,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				if (!get_show_window(console_root_win))
 					show_window (game_root_win);
 
-				safe_snprintf(str,sizeof(str),"(%s on %s) %s",username_str,get_server_name(),win_principal);
+				safe_snprintf(str,sizeof(str),"(%s on %s) %s",get_username(),get_server_name(),win_principal);
 				SDL_WM_SetCaption(str, "eternallands" );
 
 #if defined NEW_SOUND
@@ -818,6 +825,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					turn_music_on();
 #endif // NEW_SOUND
 
+				passmngr_save_login();
 				load_quickspells();
 				load_recipes();
 				load_server_markings();
@@ -2159,8 +2167,8 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			}
 			//printf("ADD MARKER: %i %i %i %s %s\n",sm->id,sm->x,sm->y,sm->map_name,sm->text);
 			if(!server_marks) init_server_markers();
-			hash_delete(server_marks,(NULL+sm->id)); //remove old marker if present
-			hash_add(server_marks,(NULL+sm->id),(void*)sm);
+			hash_delete(server_marks, (void *)(uintptr_t)sm->id); //remove old marker if present
+			hash_add(server_marks, (void *)(uintptr_t)sm->id,(void*)sm);
 			save_server_markings();
 			load_map_marks();//load again, so the new marker is added correctly.
 			break;
@@ -2174,8 +2182,8 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  break;
 				}
 			id=SDL_SwapLE16(*((short *)(in_data+3)));
-			hash_delete(server_marks,(NULL+id)); //remove marker if present
-			save_server_markings();			
+			hash_delete(server_marks,(void *)(uintptr_t)id); //remove marker if present
+			save_server_markings();
 			load_map_marks();//load again, so the new marker is removed correctly.
 			break;
 			}

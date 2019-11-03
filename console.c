@@ -29,6 +29,7 @@
 #include "misc.h"
 #include "multiplayer.h"
 #include "notepad.h"
+#include "password_manager.h"
 #include "pm_log.h"
 #include "platform.h"
 #include "questlog.h"
@@ -844,7 +845,7 @@ int command_unmark_special(char *text, int len, int do_log)
 				marks[i].x = marks[i].y = -1;
 				if (marks[i].server_side)
 				{
-					hash_delete(server_marks,(NULL+marks[i].server_side_id));
+					hash_delete(server_marks,(void *)(uintptr_t)(marks[i].server_side_id));
 					save_server_markings();
 				}
 				if (do_log)
@@ -1499,6 +1500,12 @@ int command_ckdata(char *text, int len)
 	char result_str[256];
 	char filename[256];
 
+	if ((cur_map < 0)  || (continent_maps[cur_map].name == NULL))
+	{
+		LOG_TO_CONSOLE(c_red1, "Invalid current map");
+		return 1;
+	}
+
 	/* paramters are optional, first is expected checksum value, second is filename */
 	/* if only a filename is specfied, we display checksum rather than do match */
 	filename[0] = digest_str[0] = expected_digest_str[0] = '\0';
@@ -1630,6 +1637,12 @@ static int command_relogin(char *text, int len)
 	return 1;
 }
 
+static int command_change_pass(char *text, int len)
+{
+	passmngr_pending_pw_change(getparams(text));
+	return 0;
+}
+
 
 #ifdef CONTEXT_MENUS_TEST
 int cm_test_window(char *text, int len);
@@ -1748,6 +1761,7 @@ add_command("horse", &horse_cmd);
 	add_command(cmd_keypress, &command_keypress);
 	add_command(cmd_user_menu_wait_time_ms, &command_set_user_menu_wait_time_ms);
 	add_command("relogin", &command_relogin);
+	add_command("change_pass", &command_change_pass);
 	command_buffer_offset = NULL;
 }
 

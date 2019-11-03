@@ -17,7 +17,7 @@
 git clone https://github.com/raduprv/Eternal-Lands.git Eternal-Lands
 
 # Set the version number
-elver="1.9.5.2"
+elver="1.9.5.3"
 packagename="eternallands"
 
 # Make an original source tar ball:
@@ -35,8 +35,8 @@ mkdir $tmpdir
 cd $tmpdir
 
 # Unpack the tarball then rename it as the original:
-mv ../../${packagename}-${elver}.tar.gz .
-mv ../../${packagename}-debian-${elver}.tar.gz .
+mv ../../../../../${packagename}-${elver}.tar.gz .
+mv ../../../../../${packagename}-debian-${elver}.tar.gz .
 tar xfz ${packagename}-${elver}.tar.gz
 mv ${packagename}-${elver}.tar.gz ${packagename}_${elver}.orig.tar.gz
 

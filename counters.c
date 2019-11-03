@@ -8,7 +8,7 @@
 #include "errors.h"
 #include "hud.h"
 #include "init.h"
-#include "interface.h"
+#include "loginwin.h"
 #include "manufacture.h"
 #include "multiplayer.h"
 #include "named_colours.h"
@@ -21,7 +21,7 @@
 #endif
 #include "translate.h"
 
-#define NUM_COUNTERS 14
+#define NUM_COUNTERS 15
 #define MAX(a,b) (a > b ? a : b)
 
 /* Counter IDs */
@@ -39,7 +39,8 @@ enum {
 	BREAKS,
 	MISC_EVENTS,
 	TAILORING,
-	CRIT_FAILS
+	CRIT_FAILS,
+	USED_ITEMS
 };
 
 /* Columns IDs */
@@ -101,7 +102,7 @@ static const char *total_str = "Total";
 static const char *totals_str = "Totals:";
 
 static const char *cat_str[NUM_COUNTERS] = { "Kills", "Deaths", "Harvests", "Alchemy", "Crafting", "Manufacturing",
-	"Potions", "Spells", "Summons", "Engineering", "Breakages", "Events", "Tailoring", "Crit Fails" };
+	"Potions", "Spells", "Summons", "Engineering", "Breakages", "Events", "Tailoring", "Crit Fails", "Used Items" };
 
 static const char *temp_event_string[] =
 	{	"%s found a", /* keep this one first in the list as its different from the rest*/
@@ -162,6 +163,7 @@ static int cm_entry_count = -1;
 static int cm_floating_flag = 0;
 unsigned int floating_counter_flags = 0;		/* persisted in el.cfg file */
 int floating_session_counters = 0;				/* persisted in el.ini */
+int enable_used_item_counter = 0;				/* persisted in el.ini */
 
 int sort_counter_func(const void *a, const void *b)
 {
@@ -203,15 +205,9 @@ void sort_counter(int counter_id)
 
 FILE *open_counters_file(char *mode)
 {
-	char filename[256], username[16];
-	int i;
-	
-	safe_strncpy(username, username_str, sizeof(username));
-	for (i = 0; username[i]; i++) {
-		username[i] = tolower(username[i]);
-	}
+	char filename[256];
 
-	safe_snprintf(filename, sizeof(filename), "counters_%s.dat", username);
+	safe_snprintf(filename, sizeof(filename), "counters_%s.dat", get_lowercase_username());
 
 	LOG_DEBUG("Open counters file '%s'", filename);
 
@@ -251,9 +247,9 @@ void load_counters(void)
 	search_len = malloc (sizeof (size_t) * num_search_str);
 	for (i=0; i<num_search_str; i++)
 	{
-		size_t max_len = strlen (username_str) + strlen (temp_event_string[i]) + 1;
+		size_t max_len = strlen (get_username()) + strlen (temp_event_string[i]) + 1;
 		search_str[i] = malloc (max_len);
-		safe_snprintf (search_str[i], max_len, temp_event_string[i], username_str);
+		safe_snprintf (search_str[i], max_len, temp_event_string[i], get_username());
 		search_len[i] = strlen (search_str[i]);
 	}
 
@@ -291,6 +287,11 @@ void load_counters(void)
 		}
 
 		i = io_counter_id - 1;
+		if (i >= NUM_COUNTERS)
+		{
+			LOG_ERROR("Counter ID %d out of bounds. NUM_COUNTERS %d", io_counter_id, NUM_COUNTERS);
+			break;
+		}
 		j = entries[i]++;
 		counters[i] = realloc(counters[i], entries[i] * sizeof(struct Counter));
 		counters[i][j].name = strdup(io_name);
@@ -328,6 +329,9 @@ void flush_counters(void)
 
 	for (i = 0; i < NUM_COUNTERS; i++) {
 		io_counter_id = i + 1;
+
+		if (!enable_used_item_counter && io_counter_id == USED_ITEMS)
+			break;
 
 		for (j = 0; j < entries[i]; j++) {
 			io_name_len = strlen(counters[i][j].name);
@@ -398,6 +402,11 @@ void increment_counter(int counter_id, const char *name, int quantity, int extra
 	}
 
 	i = counter_id - 1;
+	if (i >= NUM_COUNTERS)
+	{
+		LOG_ERROR("Counter ID %d out of bounds. NUM_COUNTERS %d", counter_id, NUM_COUNTERS);
+		return;
+	}
 	
 	/* Look for an existing entry. */
 	for (j = 0; j < entries[i]; j++) {
@@ -618,7 +627,7 @@ static int resize_counters_handler(window_info *win, int new_width, int new_heig
 	size_t i;
 	int max_label_len = 0;
 	int current_selected;
-	int butt_y[NUM_COUNTERS] = {0, 1, 5, 6, 7, 8, 9, 10, 11, 12, 2, 4, 13, 3 };
+	int butt_y[NUM_COUNTERS] = {0, 1, 6, 7, 8, 9, 10, 11, 12, 13, 2, 5, 14, 3, 4 };
 	int gap_x = win->small_font_len_x / 2;
 
 	for (i=0; i<NUM_COUNTERS; i++)
@@ -769,6 +778,9 @@ int display_counters_handler(window_info *win)
 		else
 			glColor3f(1.0f, 1.0f, 1.0f);
 
+		if (!enable_used_item_counter && selected_counter_id == USED_ITEMS)
+			glColor3f(0.25f, 0.25f, 0.25f);
+
 		/* draw first so left padding does not overwrite name */
 		safe_snprintf(buffer, sizeof(buffer), "%11u", counters[i][j].n_session);
 		draw_string_small_zoomed(session_x_num_start, y, (unsigned char*)buffer, 1, win->current_scale);
@@ -802,6 +814,8 @@ int display_counters_handler(window_info *win)
 
 	if (counters_show_win_help) {
 		show_help(cm_help_options_str, -TAB_MARGIN, win->len_y+10+TAB_MARGIN, win->current_scale);
+		if (!enable_used_item_counter && selected_counter_id == USED_ITEMS)
+			show_help("Saving used item counters is disabled, see Options->Controls to enable.", -TAB_MARGIN, win->len_y+10+TAB_MARGIN+win->small_font_len_y, win->current_scale);
 		counters_show_win_help = 0;
 	}
 
@@ -1105,9 +1119,14 @@ void increment_manufacturing_counter(void)
 	increment_product_counter(MANUFACTURING, product_name, product_count, 0);
 }
 
-void increment_critfail_counter(char *name)
+void increment_critfail_counter(const char *name)
 {
 	increment_counter(CRIT_FAILS, name, 1, 0);
+}
+
+void increment_used_item_counter(const char *name, int quantity)
+{
+	increment_counter(USED_ITEMS, name, quantity, 0);
 }
 
 void increment_harvest_counter(int quantity)
@@ -1172,11 +1191,11 @@ void increment_summon_manu_counter(void)
 
 void increment_summon_counter(char *string)
 {
-	if (strncmp(string, username_str, strlen(username_str))) {
+	if (strncmp(string, get_username(), strlen(get_username()))) {
 		return;
 	}
 
-	string += strlen(username_str);
+	string += strlen(get_username());
 
 	if (strncmp(string, " summoned a ", 12)) {
 		return;

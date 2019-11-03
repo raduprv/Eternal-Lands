@@ -33,6 +33,7 @@ extern int cm_banner_disabled;
 extern int auto_disable_ranging_lock;
 extern int target_close_clicked_creature;
 extern int open_close_clicked_bag;
+extern int show_fps; /*!< flag that indicates whether to display FPS or not */
 /*! @} */
 
 /*!
@@ -183,6 +184,13 @@ void do_keypress(Uint32 key);
  * \callgraph
  */
 void create_game_root_window (int width, int height);
+
+/*!
+ * \brief Return width of the fps text or 0 if disabled.
+ *
+ * \callgraph
+ */
+int get_fps_default_width(void);
 
 #ifdef __cplusplus
 } // extern "C"

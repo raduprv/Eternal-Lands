@@ -18,6 +18,7 @@
 #include "interface.h"
 #include "lights.h"
 #include "loading_win.h"
+#include "loginwin.h"
 #include "mapwin.h"
 #include "missiles.h"
 #include "multiplayer.h"
@@ -366,15 +367,16 @@ void load_marks_to_buffer(char* mapname, marking* buffer, int* max)
 { 
 	FILE * fp = NULL;
 	char marks_file[256] = {0}, text[600] = {0};
-	
+
 	if(mapname == NULL) {
 		//Oops
 		return;
 	}
-	safe_snprintf (marks_file, sizeof (marks_file), "%s.txt", mapname + 1);
+	safe_snprintf (marks_file, sizeof (marks_file), "%s.txt", mapname);
+	//LOG_TO_CONSOLE(c_red2, marks_file);
 	fp = open_file_config(marks_file, "r");
 	*max = 0;
-	
+
 	if (fp == NULL) return;
 
 	//load user markers
@@ -422,12 +424,12 @@ void load_map_marks()
 
 void save_markings()
 {
-      FILE * fp;
-      char marks_file[256];
-      int i;
+	FILE * fp;
+	char marks_file[256];
+	int i;
 
-	safe_snprintf (marks_file, sizeof (marks_file), "maps/%s.txt", strrchr (map_file_name,'/') + 1);
-
+	safe_snprintf (marks_file, sizeof (marks_file), "%s.txt", map_file_name);
+	//LOG_TO_CONSOLE(c_red2, marks_file);
 	fp = open_file_config(marks_file,"w");
 	if ( fp == NULL ){
 		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, marks_file, strerror(errno));
@@ -455,8 +457,7 @@ void load_server_markings(){
 	init_server_markers();
 	
 	//open server markings file
-	safe_snprintf(fname, sizeof(fname), "servermarks_%s.dat",username_str);
-	my_tolower(fname);
+	safe_snprintf(fname, sizeof(fname), "servermarks_%s.dat",get_lowercase_username());
 
 	/* sliently ignore non existing file */
 	if (file_exists_config(fname)!=1)
@@ -471,7 +472,7 @@ void load_server_markings(){
 	while((rf=fscanf(fp,"%d %d %d %s %[^\n]s\n",&sm.id,&sm.x,&sm.y,sm.map_name,sm.text))==5){		
 		server_mark *nm = calloc(1,sizeof(server_mark));
 		memcpy(nm,&sm,sizeof(server_mark));
-		hash_add(server_marks,(NULL+sm.id),(void*) nm);
+		hash_add(server_marks,(void *)(uintptr_t)sm.id,(void*) nm);
 	}
 	
 	fclose (fp);
@@ -491,8 +492,7 @@ void save_server_markings(){
 	if(!server_marks) return;
 
 	//open server markings file
-	safe_snprintf(fname, sizeof(fname), "servermarks_%s.dat",username_str);
-	my_tolower(fname);
+	safe_snprintf(fname, sizeof(fname), "servermarks_%s.dat",get_lowercase_username());
 	fp = open_file_config(fname,"w");
 	if(fp == NULL){
 		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, fname, strerror(errno));

@@ -79,7 +79,7 @@ static GLuint build_texture(image_t* image, const Uint32 wrap_mode_repeat,
 {
 	void* ptr;
 	GLuint id;
-	GLenum src_format, type, internal_format;
+	GLenum src_format=0, type=0, internal_format;
 	Uint32 compressed, compression, width, height, i;
 
 	compressed = 0;

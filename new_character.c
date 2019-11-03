@@ -733,7 +733,7 @@ static int check_character(int type, char ch)
 			retval=-2;
 		}
 	} else {	// password
-		if(ch>=33 && ch<126) retval=1;
+		if (VALID_PASSWORD_CHAR(ch)) retval=1;
 	}
 
 	return retval;
@@ -780,8 +780,8 @@ static void create_character(void)
 
 void login_from_new_char(void)
 {
-	safe_snprintf(username_str, sizeof(username_str), "%s", inputs[0].str);
-	safe_snprintf(password_str, sizeof(password_str), "%s", inputs[1].str);
+	set_username(inputs[0].str);
+	set_password(inputs[1].str);
 
 	// now destroy reference to ourself, otherwise we'll mess up the ID's
 	destroy_all_actors();

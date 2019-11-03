@@ -45,7 +45,6 @@
 #include "langselwin.h"
 #include "lights.h"
 #include "loading_win.h"
-#include "loginwin.h"
 #include "multiplayer.h"
 #include "manufacture.h"
 #include "astrology.h"
@@ -137,7 +136,7 @@ int emulate3buttonmouse=0;
 void read_command_line(); //from main.c
 
 #ifndef FASTER_MAP_LOAD
-static void load_harvestable_list()
+static void load_harvestable_list(void)
 {
 	FILE *f = NULL;
 	int i = 0;
@@ -163,7 +162,7 @@ static void load_harvestable_list()
 	fclose(f);
 }
 
-static void load_entrable_list()
+static void load_entrable_list(void)
 {
 	FILE *f = NULL;
 	int i=0;
@@ -189,39 +188,7 @@ static void load_entrable_list()
 }
 #endif // FASTER_MAP_LOAD
 
-void load_knowledge_list()
-{
-	FILE *f = NULL;
-	int i=0;
-	char strLine[255];
-	char *out;
-
-	memset(knowledge_list, 0, sizeof(knowledge_list));
-	i= 0;
-	knowledge_count= 0;
-	// try the language specific knowledge list
-	f=open_file_lang("knowledge.lst", "rb");
-	if(f == NULL){
-		LOG_ERROR("%s: %s \"knowledge.lst\": %s\n", reg_error_str, cant_open_file, strerror(errno));
-		return;
-	}
-	while(1)
-		{
-			if(!fgets(strLine, sizeof(strLine), f)) {
-				break;
-			}
-			out = knowledge_list[i].name;
-			my_xmlStrncopy(&out, strLine, sizeof(knowledge_list[i].name)-1);
-			i++;
-		}
-	// memorize the count
-	knowledge_count= i;
-	// close the file
-	fclose(f);
-}
-
-
-void read_config()
+static void read_config(void)
 {
 	// Set our configdir
 	const char * tcfg = get_path_config();
@@ -237,7 +204,10 @@ void read_config()
 		SDL_Quit ();
 		exit (1);
 	}
+}
 
+static void check_language(void)
+{
 	/* if language is not set, default to "en" but use the language selection window */
 	if (strlen(lang) == 0)
 	{
@@ -245,30 +215,9 @@ void read_config()
 		safe_strncpy(lang, "en", sizeof(lang));
 		LOG_INFO("No language set so defaulting to [%s] and using language selection window", lang );
 	}
-
-#ifndef WINDOWS
-	if (chdir(datadir) != 0)
-	{
-		LOG_ERROR("%s() chdir(\"%s\") failed: %s\n", __FUNCTION__, datadir, strerror(errno));
-	}
-#endif //!WINDOWS
-
-	if(password_str[0])//We have a password
-	{
-		size_t k;
-
-		for (k=0; k < strlen (password_str); k++)
-			display_password_str[k] = '*';
-		display_password_str[k] = 0;
-	}
-	else if (username_str[0]) //We have a username but not a password...
-	{
-		username_box_selected = 0;
-		password_box_selected = 1;
-	}
 }
 
-void read_bin_cfg()
+static void read_bin_cfg(void)
 {
 	FILE *f = NULL;
 	bin_cfg cfg_mem;
@@ -423,6 +372,7 @@ void read_bin_cfg()
 	disable_storage_filter = (cfg_mem.misc_bool_options >> 19) & 1;
 	hud_timer_keep_state = (cfg_mem.misc_bool_options >> 20) & 1;
 	items_list_disable_find_list = (cfg_mem.misc_bool_options >> 21) & 1;
+	lock_skills_selection = (cfg_mem.misc_bool_options >> 22) & 1;
 
 	set_options_user_menus(cfg_mem.user_menu_win_x, cfg_mem.user_menu_win_y, cfg_mem.user_menu_options);
 
@@ -436,7 +386,7 @@ void read_bin_cfg()
 		set_quickspell_options(cfg_mem.quickspell_win_options, cfg_mem.quickspell_win_position);
 }
 
-void save_bin_cfg()
+void save_bin_cfg(void)
 {
 	FILE *f = NULL;
 	bin_cfg cfg_mem;
@@ -648,6 +598,7 @@ void save_bin_cfg()
 	cfg_mem.misc_bool_options |= disable_storage_filter << 19;
 	cfg_mem.misc_bool_options |= hud_timer_keep_state << 20;
 	cfg_mem.misc_bool_options |= items_list_disable_find_list << 21;
+	cfg_mem.misc_bool_options |= lock_skills_selection << 22;
 
 	get_options_user_menus(&cfg_mem.user_menu_win_x, &cfg_mem.user_menu_win_y, &cfg_mem.user_menu_options);
 
@@ -664,7 +615,7 @@ void save_bin_cfg()
 
 }
 
-void init_e3d_cache()
+void init_e3d_cache(void)
 {
 	//cache_e3d= cache_init(1000, &destroy_e3d);	//TODO: autofree the name as well
 	cache_e3d = cache_init("E3d cache", 1500, NULL);	//no aut- free permitted
@@ -673,13 +624,13 @@ void init_e3d_cache()
 }
 
 #ifndef FASTER_MAP_LOAD
-void init_2d_obj_cache()
+void init_2d_obj_cache(void)
 {
 	memset(obj_2d_def_cache, 0, sizeof(obj_2d_def_cache));
 }
 #endif
 
-void init_stuff()
+void init_stuff(void)
 {
 	int seed;
 	char file_name[250];
@@ -712,6 +663,9 @@ void init_stuff()
 
 	// Parse command line options
 	read_command_line();
+
+	// check language is set or default and select
+	check_language();
 
 	// all options loaded
 	options_loaded();

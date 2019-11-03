@@ -11,6 +11,7 @@
 #include "image.h"
 #include "misc.h"
 #include "el_memory.h"
+#include "io/elfilewrapper.h"
 #include <assert.h>
 
 static Uint32 decompression_needed(const DdsHeader *header,
@@ -738,7 +739,7 @@ static void* unpack_dds(el_file_ptr file, DdsHeader *header,
 
 	dest = malloc_aligned(size, 16);
 
-	fast_unpack(el_get_pointer(file) + sizeof(DdsHeader) + offset + 4, size / bpp,
+	fast_unpack((const Uint8 *)el_get_pointer(file) + (uintptr_t)(sizeof(DdsHeader) + offset + 4), size / bpp,
 		header->m_pixel_format.m_red_mask,
 		header->m_pixel_format.m_green_mask,
 		header->m_pixel_format.m_blue_mask,
@@ -758,7 +759,7 @@ static void* read_dds(el_file_ptr file, DdsHeader *header,
 
 	dst = malloc_aligned(size, 16);
 
-	memcpy(dst, el_get_pointer(file) + sizeof(DdsHeader) + offset + 4, size);
+	memcpy(dst, (const Uint8 *)el_get_pointer(file) + (uintptr_t)(sizeof(DdsHeader) + offset + 4), size);
 
 	return dst;
 }

@@ -110,6 +110,7 @@
 #include <time.h>
 #endif
 
+#include <algorithm>
 #include <string>
 #include <vector>
 #include <map>

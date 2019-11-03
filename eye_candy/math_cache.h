@@ -30,6 +30,7 @@
 #endif
 
 #include <SDL.h>
+#include <algorithm>
 
 #include "types.h"
 

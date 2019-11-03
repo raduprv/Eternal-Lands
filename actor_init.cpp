@@ -1,4 +1,5 @@
 #include <limits>
+#include <algorithm>
 #include "actor_init.h"
 #include "load_gl_extensions.h"
 #include <cal3d/cal3d.h>

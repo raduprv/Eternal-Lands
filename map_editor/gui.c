@@ -95,17 +95,17 @@ void open_button_clicked()
 	selected_file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(gtk_open_win));
 	if(selected_file){
 		//What should we do next...
-		if((point)filter==(point)map_filter){
+		if((uintptr_t)filter==(uintptr_t)map_filter){
 			strcpy(map_file_name, selected_file);
 			copy_folder(map_folder, selected_file);
 			open_map_file_continued();
-		} else if((point)filter==(point)e3d_filter){
+		} else if((uintptr_t)filter==(uintptr_t)e3d_filter){
 			copy_folder(obj_3d_folder, selected_file);
 			open_3d_obj_continued();
-		} else if((point)filter==(point)e2d_filter){
+		} else if((uintptr_t)filter==(uintptr_t)e2d_filter){
 			copy_folder(obj_2d_folder, selected_file);
 			open_2d_obj_continued();
-		} else if((point)filter==(point)part_filter){
+		} else if((uintptr_t)filter==(uintptr_t)part_filter){
 			strcpy(particle_file_name, selected_file);
 			copy_folder(particles_folder, selected_file);
 			open_particles_obj_continued();
@@ -174,10 +174,10 @@ void save_button_clicked(GtkWidget * widget, void ** filter)
 	selected_file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(gtk_save_win));
 	if(selected_file){
 		//What should we do next...
-		if((point)*filter==(point)map_filter){
+		if((uintptr_t)*filter==(uintptr_t)map_filter){
 			strcpy(map_file_name, selected_file);
 			save_map_file_continued();
-		} else if((point)*filter==(point)part_filter){
+		} else if((uintptr_t)*filter==(uintptr_t)part_filter){
 			strcpy(particle_file_name, selected_file);
 			save_particle_def_file_continued();
 		}

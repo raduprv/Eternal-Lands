@@ -21,6 +21,7 @@
 #include <sstream>
 #include <vector>
 #include <map>
+#include <functional>
 #include <algorithm>
 
 #include <SDL/SDL_types.h>

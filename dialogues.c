@@ -7,6 +7,7 @@
 #include "dialogues.h"
 #include "asc.h"
 #include "elwindows.h"
+#include "io/elpathwrapper.h"
 #include "gamewin.h"
 #include "init.h"
 #include "hud.h"
@@ -42,10 +43,11 @@ typedef struct{
 #define	MAX_PORTRAITS_TEXTURES	16
 #define MAX_MESS_LINES 9
 #define MAX_SAVED_RESPONSES 8
+#define MAX_DIALOGUE_TEXT 2048
 
-static unsigned char dialogue_string[2048];
-unsigned char npc_name[20] = "";
-char npc_mark_str[20] = "%s (npc)";
+static unsigned char dialogue_string[MAX_DIALOGUE_TEXT];
+unsigned char npc_name[NPC_NAME_BUF_LEN] = "";
+char npc_mark_str[NPC_NAME_BUF_LEN] = "%s (npc)";
 int cur_portrait=8;
 int portraits_tex[MAX_PORTRAITS_TEXTURES];
 
@@ -94,6 +96,25 @@ static response saved_responses[MAX_SAVED_RESPONSES];
 static int cm_dialogue_repeat_handler(window_info *win, int widget_id, int mx, int my, int option);
 static void send_response(window_info *win, const response *the_response);
 
+typedef struct
+{
+	char name[NPC_NAME_BUF_LEN];
+	int do_logging;
+} text_log_table_type;
+
+static text_log_table_type * text_log_table = NULL;
+static size_t text_log_table_size = 0;
+static int text_log_enabled = 0;
+static const char text_log_filename[] = "npc_log_list.txt";
+
+void cleanup_dialogues(void)
+{
+	if (text_log_table != NULL)
+	{
+		free(text_log_table);
+		text_log_table = NULL;
+	}
+}
 
 void load_dialogue_portraits(void)
 {
@@ -151,6 +172,121 @@ void build_response_entries (const Uint8 *data, int total_length)
 				cm_set(cm_dialog_repeat_id, "--\n", NULL);
 				break;
 			}
+}
+
+static void strip_dialogue_text(char *to_str, size_t to_str_max, const char *prefix, int excludes_newlines)
+{
+	size_t from_str_len = strlen((char *)dialogue_string);
+	int from_index = 0;
+	int to_index = 0;
+	if (prefix != NULL && strlen(prefix))
+	{
+		safe_strncpy2(to_str, prefix, to_str_max, strlen(prefix));
+		to_index += strlen(prefix);
+	}
+	while(from_index<from_str_len && to_index<to_str_max-1)
+	{
+		if (!is_color (dialogue_string[from_index]) && dialogue_string[from_index] != '\r' &&
+			(!excludes_newlines || dialogue_string[from_index] != '\n'))
+			to_str[to_index++] = dialogue_string[from_index];
+		from_index++;
+	}
+	to_str[to_index] = '\0';
+}
+
+static void text_log_add_new_npc(const char *the_name)
+{
+	if (the_name == NULL || (strlen(the_name) < 1) || (strlen(the_name) >= NPC_NAME_BUF_LEN))
+		return;
+	text_log_table = realloc(text_log_table, (text_log_table_size + 1) * sizeof(text_log_table_type));
+	safe_strncpy(text_log_table[text_log_table_size].name, the_name, NPC_NAME_BUF_LEN);
+	text_log_table[text_log_table_size].do_logging = 1;
+	text_log_table_size++;
+}
+
+static void text_log_load_npc_list(void)
+{
+	FILE *fp = NULL;
+	char *line = NULL;
+	const size_t line_len = 256;
+	if (text_log_table != NULL)
+		return;
+	text_log_table_size = 0;
+	if ((fp = open_file_config(text_log_filename, "r")) == NULL)
+		return;
+	line = malloc(line_len);
+	while (!feof(fp))
+	{
+		if ((fgets(line, line_len, fp) != NULL) && (strlen(line) > 0) && (strlen(line) < NPC_NAME_BUF_LEN))
+		{
+			size_t i;
+			for (i=0; i<strlen(line); i++)
+				if ((line[i] == '\n') || (line[i] == '\r'))
+				{
+					line[i] = '\0';
+					break;
+				}
+			text_log_add_new_npc(line);
+		}
+	}
+	fclose(fp);
+	free(line);
+}
+
+static void text_log_get_npc_setting(void)
+{
+	int i;
+	text_log_enabled = 0;
+	if (text_log_table == NULL)
+		text_log_load_npc_list();
+	for (i=0; i<text_log_table_size; i++)
+		if (strcmp((const char *)npc_name, text_log_table[i].name) == 0)
+		{
+			text_log_enabled = text_log_table[i].do_logging;
+			break;
+		}
+}
+
+static void text_log_write(void)
+{
+	const size_t str_len = NPC_NAME_BUF_LEN + 3;
+	char * str = malloc(str_len);
+	const size_t to_str_max = MAX_DIALOGUE_TEXT * 1.5;
+	char *to_str = (char *)malloc(to_str_max);
+	safe_snprintf(str, str_len, "%s: %c", npc_name, to_color_char(c_grey1));
+	strip_dialogue_text(to_str, to_str_max, str, 1);
+	LOG_TO_CONSOLE(c_blue1, to_str);
+	free(to_str);
+	free(str);
+}
+
+static void text_log_modify_npc_setting(void)
+{
+	FILE *fp = NULL;
+	int found = 0;
+	int i;
+	for (i=0; i<text_log_table_size; i++)
+		if (strcmp((const char *)npc_name, text_log_table[i].name) == 0)
+		{
+			text_log_table[i].do_logging = text_log_enabled;
+			found = 1;
+			break;
+		}
+	if (text_log_enabled)
+		text_log_write();
+	if (!found && text_log_enabled)
+		text_log_add_new_npc((const char *)npc_name);
+	if ((fp = open_file_config(text_log_filename, "w")) == NULL)
+		return;
+	for (i=0; i<text_log_table_size; i++)
+	{
+		if (text_log_table[i].do_logging)
+		{
+			fputs(text_log_table[i].name, fp);
+			fputs("\n", fp);
+		}
+	}
+	fclose(fp);
 }
 
 static void calculate_option_positions(window_info *win)
@@ -335,6 +471,8 @@ static int display_dialogue_handler(window_info *win)
 			win->len_y - bot_line_height, copy_str_width, win->small_font_len_y);
 		cm_add_region(cm_dialog_repeat_id, win->window_id, repeat_pos_x,
 			win->len_y - bot_line_height, repeat_str_width, win->small_font_len_y);
+		if (text_log_enabled)
+			text_log_write();
 	}
 
 #ifdef OPENGL_TRACE
@@ -474,28 +612,17 @@ static void send_response(window_info *win, const response *the_response)
 
 static void copy_dialogue_text(void)
 {
-	size_t to_str_max = 2048 + 1024;
+	size_t to_str_max = MAX_DIALOGUE_TEXT * 1.5;
 	char *to_str = (char *)malloc(to_str_max);
-	size_t response_str_len = 128;
-	char *response_str = (char *)malloc(response_str_len);
-	size_t from_str_len = strlen((char *)dialogue_string);
-	int response_num = 1;
-	int from_index = 0;
-	int to_index = 0;
-	int i;
 
-	// copy the body of text stripped of any colour, soft wrapping and optionally, newlines characters
-	while(from_index<from_str_len && to_index<to_str_max-1)
-	{
-		if (!is_color (dialogue_string[from_index]) && dialogue_string[from_index] != '\r' &&
-			(!dialogue_copy_excludes_newlines || dialogue_string[from_index] != '\n'))
-			to_str[to_index++] = dialogue_string[from_index];
-		from_index++;
-	}
-	to_str[to_index] = '\0';
+	strip_dialogue_text(to_str, to_str_max, NULL, dialogue_copy_excludes_newlines);
 
 	if (!dialogue_copy_excludes_responses)
 	{
+		size_t response_str_len = 128;
+		char *response_str = (char *)malloc(response_str_len);
+		int response_num = 1;
+		int i;
 		// if there are responses, add some new lines between the text.
 		for(i=0;i<MAX_RESPONSES;i++)
 			if(dialogue_responces[i].in_use)
@@ -503,7 +630,6 @@ static void copy_dialogue_text(void)
 				safe_strcat(to_str, "\n\n", to_str_max);
 				break;
 			}
-	
 		// add the numbered response strings, one per line
 		for(i=0;i<MAX_RESPONSES;i++)
 		{
@@ -513,10 +639,10 @@ static void copy_dialogue_text(void)
 				safe_strcat(to_str, response_str, to_str_max);
 			}
 		}
+		free(response_str);
 	}
 
 	copy_to_clipboard(to_str);
-	free(response_str);
 	free(to_str);
 }
 
@@ -697,6 +823,8 @@ static int cm_npcname_handler(window_info *win, int widget_id, int mx, int my, i
 
 		free(str);
 	}
+	else if (option == 2)
+		text_log_modify_npc_setting();
 	else
 		return 0;
 	return 1;
@@ -718,7 +846,7 @@ int ui_scale_dialogue_handler(window_info *win)
 	close_str_width = get_string_width((unsigned char*)close_str) * win->small_font_len_x / 12.0;
 	close_pos_x = dialogue_menu_x_len - close_str_width - border_space;
 	repeat_str_width = get_string_width((unsigned char*)dialogue_repeat_str) * win->small_font_len_x / 12.0;
-	repeat_pos_x = copy_pos_x + close_str_width + 2 * border_space;
+	repeat_pos_x = copy_pos_x + copy_str_width + 2 * border_space;
 
 	resize_window(win->window_id, dialogue_menu_x_len, dialogue_menu_y_len);
 	recalc_option_positions = new_dialogue = 1;
@@ -750,6 +878,7 @@ void display_dialogue(const Uint8 *in_data, int data_length)
 
 		cm_npcname_id = cm_create(cm_npcname_menu_str, cm_npcname_handler);
 		cm_dialog_copy_id = cm_create(cm_dialog_copy_menu_str, NULL);
+		cm_bool_line(cm_npcname_id, 2, &text_log_enabled, NULL);
 		cm_dialog_repeat_id = cm_create("--\n", cm_dialogue_repeat_handler);
 		cm_bool_line(cm_dialog_copy_id, 0, &dialogue_copy_excludes_responses, NULL);
 		cm_bool_line(cm_dialog_copy_id, 1, &dialogue_copy_excludes_newlines, NULL);
@@ -761,6 +890,7 @@ void display_dialogue(const Uint8 *in_data, int data_length)
 		select_window(dialogue_win);
 	}
 
+	text_log_get_npc_setting();
 	if (dialogue_win >=0 && dialogue_win < windows_list.num_windows)
 		ui_scale_dialogue_handler(&windows_list.window[dialogue_win]);
 

@@ -23,6 +23,7 @@
 #include "lights.h"
 #include "misc.h"
 #include "multiplayer.h"
+#include "password_manager.h"
 #include "paste.h"
 #include "pm_log.h"
 #include "translate.h"
@@ -584,6 +585,10 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		{
 			clear_now_harvesting();
 		}
+		else if (my_strncompare(text_to_add+1, "Great, you changed your password!", 33))
+		{
+			passmngr_confirm_pw_change();
+		}
 		else if (my_strncompare(text_to_add+1, "Glow on!", 8))
 		{
 			if (set_glow_status(1))
@@ -681,8 +686,8 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		}
 
 	} else if (channel == CHAT_LOCAL) {
-		if (now_harvesting() && my_strncompare(text_to_add+1, username_str, strlen(username_str))) {
-			char *ptr = text_to_add+1+strlen(username_str);
+		if (now_harvesting() && my_strncompare(text_to_add+1, get_username(), strlen(get_username()))) {
+			char *ptr = text_to_add+1+strlen(get_username());
 			if (my_strncompare(ptr, " found a ", 9)) {
 				ptr += 9;
 				if (my_strncompare(ptr, "bag of gold, getting ", 21)) {
@@ -1040,6 +1045,8 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 		text_color = c_grey2;
 	else if (dark_channeltext==2)
 		text_color = c_grey4;
+	else
+		text_color = c_red1; // unexpected
 
 	if (ibreak >= len)
 	{

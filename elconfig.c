@@ -48,6 +48,7 @@
  #include "interface.h"
  #include "items.h"
  #include "item_info.h"
+ #include "loginwin.h"
  #include "manufacture.h"
  #include "map.h"
  #include "mapwin.h"
@@ -56,6 +57,7 @@
  #include "new_character.h"
  #include "openingwin.h"
  #include "particles.h"
+ #include "password_manager.h"
  #include "pm_log.h"
  #include "questlog.h"
  #include "reflection.h"
@@ -178,9 +180,11 @@ int write_ini_on_exit= 1;
 // Window Handling
 int elconfig_win= -1;
 int force_elconfig_win_ontop = 0;
-int elconfig_tab_collection_id= 1;
-int elconfig_free_widget_id= 2;
-unsigned char elconf_description_buffer[400]= {0};
+#ifdef ELC
+static int elconfig_tab_collection_id= 1;
+static int elconfig_free_widget_id= 2;
+static unsigned char elconf_description_buffer[400]= {0};
+#endif
 struct {
 	Uint32	tab;
 	Uint16	x;
@@ -192,9 +196,12 @@ int elconfig_menu_y= 10;
 
 int windows_on_top= 0;
 static int options_set= 0;
-int shadow_map_size_multi= 0;
+static int delay_poor_man = 1;
+#ifdef ELC
+static int shadow_map_size_multi= 0;
+#endif
 #ifdef	FSAA
- int fsaa_index = 0;
+static int fsaa_index = 0;
 #endif	/* FSAA */
 
 static float ui_scale = 1.0;
@@ -208,7 +215,6 @@ int you_sit= 0;
 int sit_lock= 0;
 int use_keypress_dialogue_boxes = 0, use_full_dialogue_window = 0;
 int use_alpha_banner = 0;
-int show_fps= 1;
 int render_skeleton= 0;
 int render_mesh= 1;
 int render_bones_id = 0;
@@ -225,7 +231,6 @@ int skybox_local_weather = 0;
 #ifdef OSX	// for probelem with rounded buttons on Intel graphics
  int square_buttons = 0;
 #endif
-int small_actor_texture_cache = 0;
 
 int video_info_sent = 0;
 
@@ -234,6 +239,7 @@ int video_info_sent = 0;
 #endif // DEBUG
 
 #ifdef ELC
+static int small_actor_texture_cache = 0;
 static void consolidate_rotate_chat_log_status(void);
 static int elconfig_menu_x_len= 0;
 static int elconfig_menu_y_len= 0;
@@ -254,30 +260,16 @@ void options_loaded(void)
 #endif
 }
 
-
-int int_zero_func()
+#ifdef ELC
+static int int_zero_func(void)
 {
 	return 0;
 }
-
-float float_zero_func()
-{
-	return 0.0f;
-}
-
-int int_one_func()
-{
-	return 1;
-}
-
-float float_one_func()
-{
-	return 1.0f;
-}
+#endif
 
 static __inline__ void check_option_var(char* name);
 
-static __inline__ void destroy_shadow_mapping()
+static __inline__ void destroy_shadow_mapping(void)
 {
 	if (gl_extensions_loaded)
 	{
@@ -300,7 +292,7 @@ static __inline__ void destroy_shadow_mapping()
 	}
 }
 
-static __inline__ void destroy_fbos()
+static __inline__ void destroy_fbos(void)
 {
 	if (gl_extensions_loaded)
 	{
@@ -316,7 +308,7 @@ static __inline__ void destroy_fbos()
 	}
 }
 
-static __inline__ void build_fbos()
+static __inline__ void build_fbos(void)
 {
 	if (gl_extensions_loaded)
 	{
@@ -333,19 +325,19 @@ static __inline__ void build_fbos()
 	}
 }
 
-static __inline__ void update_fbos()
+static __inline__ void update_fbos(void)
 {
 	destroy_fbos();
 	build_fbos();
 }
 
-void change_var(int * var)
+static void change_var(int * var)
 {
 	*var= !*var;
 }
 
 #ifndef MAP_EDITOR
-void change_cursor_scale_factor(int * var, int value)
+static void change_cursor_scale_factor(int * var, int value)
 {
 	// check the range, an invalid setting in the el.ini file bypasses the bound checking of that var
 	if ((value > 0) && (value <= max_cursor_scale_factor))
@@ -366,7 +358,7 @@ static void change_show_action_bar(int * var)
 		init_stats_display();
 }
 
-void change_minimap_scale(float * var, float * value)
+static void change_minimap_scale(float * var, float * value)
 {
 	int shown = 0;
 	*var= *value;
@@ -382,13 +374,13 @@ void change_minimap_scale(float * var, float * value)
 		display_minimap();
 }
 
-void change_sky_var(int * var)
+static void change_sky_var(int * var)
 {
 	*var= !*var;
 	skybox_update_colors();
 }
 
-void change_use_animation_program(int * var)
+static void change_use_animation_program(int * var)
 {
 	if (*var)
 	{
@@ -429,7 +421,7 @@ void change_use_animation_program(int * var)
 #endif //MAP_EDITOR
 
 #ifndef MAP_EDITOR
-void change_min_ec_framerate(float * var, float * value)
+static void change_min_ec_framerate(float * var, float * value)
 {
 	if(*value >= 0) {
 		if (*value < max_ec_framerate) {
@@ -444,7 +436,7 @@ void change_min_ec_framerate(float * var, float * value)
 	}
 }
 
-void change_max_ec_framerate(float * var, float * value)
+static void change_max_ec_framerate(float * var, float * value)
 {
 	if(*value >= 1) {
 		if (*value > min_ec_framerate) {
@@ -460,25 +452,25 @@ void change_max_ec_framerate(float * var, float * value)
 }
 #endif //!MAP_EDITOR
 
-void change_int(int * var, int value)
+static void change_int(int * var, int value)
 {
 	if(value>=0) *var= value;
 }
 
-void change_signed_int(int * var, int value)
+#ifdef ELC
+
+static void change_signed_int(int * var, int value)
 {
 	*var= value;
 }
 
-void change_float(float * var, float * value)
+static void change_float(float * var, float * value)
 {
-#ifdef	ELC
 	if(var == &name_zoom){
 		if(*value > 2.0){
 			*value= 2.0;
 		}
 	}
-#endif	//ELC
 	/* Commented by Schmurk: if we can define bounds for parameters, why testing
 	 * if the value is over 0 here? */
 	//if(*value >= 0) {
@@ -488,7 +480,7 @@ void change_float(float * var, float * value)
 	//}
 }
 
-void change_string(char * var, char * str, int len)
+static void change_string(char * var, char * str, int len)
 {
 	while(*str && len--){
 		*var++= *str++;
@@ -496,9 +488,7 @@ void change_string(char * var, char * str, int len)
 	*var= 0;
 }
 
-#ifdef ELC
-
-void change_ui_scale(float *var, float *value)
+static void change_ui_scale(float *var, float *value)
 {
 	*var= *value;
 	HUD_MARGIN_X = (int)ceilf(*var * 64.0);
@@ -582,7 +572,7 @@ static void consolidate_rotate_chat_log_status(void)
 	}
 }
 
-void change_sound_level(float *var, float * value)
+static void change_sound_level(float *var, float * value)
 {
 	if(*value >= 0.0f && *value <= 1.0f+0.00001) {
 		*var= (float)*value;
@@ -591,24 +581,7 @@ void change_sound_level(float *var, float * value)
 	}
 }
 
-void change_password(char * passwd)
-{
-	int i= 0;
-	char *str= password_str;
-
-	while(*passwd) {
-		*str++= *passwd++;
-	}
-	*str= 0;
-	if(password_str[0]){	//We have a password
-		for(; i < str-password_str; i++) {
-			display_password_str[i]= '*';
-		}
-		display_password_str[i]=0;
-	}
-}
-
-void update_max_actor_texture_handles()
+static void update_max_actor_texture_handles(void)
 {
 	if (poor_man == 1)
 	{
@@ -634,34 +607,7 @@ void update_max_actor_texture_handles()
 	}
 }
 
-void change_poor_man(int *poor_man)
-{
-	*poor_man= !*poor_man;
-	unload_texture_cache();
-	update_max_actor_texture_handles();
-	if(*poor_man) {
-		show_reflection= 0;
-		shadows_on= 0;
-		clouds_shadows= 0;
-		use_shadow_mapping= 0;
-#ifndef MAP_EDITOR2
-		special_effects= 0;
-		use_eye_candy = 0;
-		use_fog= 0;
-		show_weather = 0;
-#endif
-#ifndef MAP_EDITOR
-		use_frame_buffer= 0;
-#endif
-		update_fbos();
-		skybox_show_clouds = 0;
-		skybox_show_sun = 0;
-		skybox_show_moons = 0;
-		skybox_show_stars = 0;
-	}
-}
-
-void change_compiled_vertex_array(int *value)
+static void change_compiled_vertex_array(int *value)
 {
 	if (*value) {
 		*value= 0;
@@ -675,7 +621,7 @@ void change_compiled_vertex_array(int *value)
 	else LOG_TO_CONSOLE(c_green2,disabled_compiled_vertex_arrays);
 }
 
-void change_vertex_buffers(int *value)
+static void change_vertex_buffers(int *value)
 {
 	if (*value) {
 		*value= 0;
@@ -689,7 +635,7 @@ void change_vertex_buffers(int *value)
 //	else LOG_TO_CONSOLE(c_green2,disabled_vertex_buffers);
 }
 
-void change_clouds_shadows(int *value)
+static void change_clouds_shadows(int *value)
 {
 	if (*value) {
 		*value= 0;
@@ -703,7 +649,7 @@ void change_clouds_shadows(int *value)
 //	else LOG_TO_CONSOLE(c_green2,disabled_clouds_shadows);
 }
 
-void change_small_actor_texture_cache(int *value)
+static void change_small_actor_texture_cache(int *value)
 {
 	if (*value)
 	{
@@ -717,7 +663,7 @@ void change_small_actor_texture_cache(int *value)
 	update_max_actor_texture_handles();
 }
 
-void change_eye_candy(int *value)
+static void change_eye_candy(int *value)
 {
 	if (*value)
 	{
@@ -732,7 +678,7 @@ void change_eye_candy(int *value)
 	}
 }
 
-void change_point_particles(int *value)
+static void change_point_particles(int *value)
 {
 	if (*value) {
 		*value= 0;
@@ -749,7 +695,7 @@ void change_point_particles(int *value)
 	}
 }
 
-void change_particles_percentage(int *pointer, int value)
+static void change_particles_percentage(int *pointer, int value)
 {
 	if(value>0 && value <=100) {
 		particles_percentage= value;
@@ -761,7 +707,7 @@ void change_particles_percentage(int *pointer, int value)
 	}
 }
 
-void change_new_selection(int *value)
+static void change_new_selection(int *value)
 {
 	if (*value)
 	{
@@ -835,7 +781,8 @@ int switch_video(int mode, int full_screen)
 	build_fbos();
 	return 1;
 }
-void switch_vidmode(int *pointer, int mode)
+
+static void switch_vidmode(int *pointer, int mode)
 {
 	if(!video_mode_set) {
 		/* Video isn't ready yet, just remember the mode */
@@ -845,7 +792,7 @@ void switch_vidmode(int *pointer, int mode)
 	}
 }
 
-void toggle_full_screen_mode(int * fs)
+static void toggle_full_screen_mode(int * fs)
 {
 	if(!video_mode_set) {
 		*fs= !*fs;
@@ -855,7 +802,7 @@ void toggle_full_screen_mode(int * fs)
 }
 
 #ifdef NEW_CURSOR
-void change_sdl_cursor(int * fs)
+static void change_sdl_cursor(int * fs)
 {
 	if(!*fs) {
 		SDL_ShowCursor(1);
@@ -876,7 +823,7 @@ void toggle_follow_cam(int * fc)
 	change_var(fc);
 }
 
-void toggle_follow_cam_behind(int * fc)
+static void toggle_follow_cam_behind(int * fc)
 {
 	if (*fc)
 	{
@@ -904,14 +851,14 @@ void toggle_ext_cam(int * ec)
 	}
 }
 
-void change_tilt_float(float * var, float * value)
+static void change_tilt_float(float * var, float * value)
 {
 	*var= *value;
     if (rx > -min_tilt_angle) rx = -min_tilt_angle;
     else if (rx < -max_tilt_angle) rx = -max_tilt_angle;
 }
 
-void change_shadow_map_size(int *pointer, int value)
+static void change_shadow_map_size(int *pointer, int value)
 {
 	const int array[10]= {256, 512, 768, 1024, 1280, 1536, 1792, 2048, 3072, 4096};
 	int index, size, i, max_size, error;
@@ -1008,7 +955,7 @@ void change_shadow_map_size(int *pointer, int value)
 }
 
 #ifdef	FSAA
-void change_fsaa(int *pointer, int value)
+static void change_fsaa(int *pointer, int value)
 {
 	unsigned int i, index, fsaa_value;
 
@@ -1043,7 +990,7 @@ void change_fsaa(int *pointer, int value)
 #endif	/* FSAA */
 
 #ifdef CUSTOM_UPDATE
-void change_custom_update(int *var)
+static void change_custom_update(int *var)
 {
 	*var = !*var;
 
@@ -1053,7 +1000,7 @@ void change_custom_update(int *var)
 	}
 }
 
-void change_custom_clothing(int *var)
+static void change_custom_clothing(int *var)
 {
 	*var = !*var;
 	unload_actor_texture_cache();
@@ -1061,7 +1008,7 @@ void change_custom_clothing(int *var)
 #endif    //CUSTOM_UPDATE
 
 #ifndef MAP_EDITOR2
-void set_afk_time(int *pointer, int time)
+static void set_afk_time(int *pointer, int time)
 {
 	if(time > 0) {
 		afk_time= time*60000;
@@ -1072,7 +1019,7 @@ void set_afk_time(int *pointer, int time)
 	}
 }
 
-void set_buff_icon_size(int *pointer, int value)
+static void set_buff_icon_size(int *pointer, int value)
 {
 	/* The value is actually set in the widget code so attempting so controlling the
 		range here does not work.  Instead, use the built in max/min code of the widget.
@@ -1082,7 +1029,7 @@ void set_buff_icon_size(int *pointer, int value)
 	view_buffs = (value < 5) ?0: 1;
 }
 
-void change_dark_channeltext(int *dct, int value)
+static void change_dark_channeltext(int *dct, int value)
 {
 	*dct = value;
 	if (*dct == 1)
@@ -1128,8 +1075,7 @@ void change_windowed_chat (int *wc, int val)
 	}
 }
 
-
-void change_quickbar_relocatable (int *rel)
+static void change_quickbar_relocatable (int *rel)
 {
 	*rel= !*rel;
 	if (quickbar_win >= 0)
@@ -1138,7 +1084,7 @@ void change_quickbar_relocatable (int *rel)
 	}
 }
 
-void change_quickspells_relocatable (int *rel)
+static void change_quickspells_relocatable (int *rel)
 {
 	*rel= !*rel;
 	if (quickspell_win >= 0)
@@ -1147,7 +1093,7 @@ void change_quickspells_relocatable (int *rel)
 	}
 }
 
-void change_chat_zoom(float *dest, float *value)
+static void change_chat_zoom(float *dest, float *value)
 {
 	if (*value < 0.0f) {
 		return;
@@ -1173,7 +1119,7 @@ void change_chat_zoom(float *dest, float *value)
 	}
 }
 
-void change_note_zoom (float *dest, float *value)
+static void change_note_zoom (float *dest, float *value)
 {
 	if (*value < 0.0f)
 		return;
@@ -1184,7 +1130,7 @@ void change_note_zoom (float *dest, float *value)
 #endif
 #endif // def ELC
 
-void change_dir_name (char *var, const char *str, int len)
+static void change_dir_name (char *var, const char *str, int len)
 {
 	int idx;
 
@@ -1198,7 +1144,7 @@ void change_dir_name (char *var, const char *str, int len)
 }
 
 #ifdef ANTI_ALIAS
-void change_aa(int *pointer) {
+static void change_aa(int *pointer) {
 	change_var(pointer);
 	if (anti_alias) {
 		glHint(GL_POINT_SMOOTH_HINT,   GL_NICEST);
@@ -1222,15 +1168,15 @@ CHECK_GL_ERRORS();
 #endif // ANTI_ALIAS
 #ifdef ELC
 #ifdef OSX
-void change_projection_float_init(float * var, float * value) {
+static void change_projection_float_init(float * var, float * value) {
 	change_float(var, value);
 }
 
-void change_projection_bool_init(int *pointer) {
+static void change_projection_bool_init(int *pointer) {
 	change_var(pointer);
 }
 #endif //OSX
-void change_projection_float(float * var, float * value) {
+static void change_projection_float(float * var, float * value) {
 	change_float(var, value);
 	if (video_mode_set)
 	{
@@ -1239,7 +1185,7 @@ void change_projection_float(float * var, float * value) {
 	}
 }
 
-void change_projection_bool(int *pointer) {
+static void change_projection_bool(int *pointer) {
 	change_var(pointer);
 	if (video_mode_set)
 	{
@@ -1249,7 +1195,7 @@ void change_projection_bool(int *pointer) {
 	}
 }
 
-void change_gamma(float *pointer, float *value)
+static void change_gamma(float *pointer, float *value)
 {
 	*pointer= *value;
 	if(video_mode_set && !disable_gamma_adjust) {
@@ -1300,7 +1246,7 @@ void change_windows_on_top(int *var)
 #endif
 
 #ifndef MAP_EDITOR2
-void change_separate_flag(int * pointer) {
+static void change_separate_flag(int * pointer) {
 	change_var(pointer);
 
 	if (chat_win >= 0) {
@@ -1309,7 +1255,7 @@ void change_separate_flag(int * pointer) {
 }
 #endif
 
-void change_shadow_mapping (int *sm)
+static void change_shadow_mapping (int *sm)
 {
 	if (*sm)
 	{
@@ -1333,7 +1279,7 @@ void change_shadow_mapping (int *sm)
 }
 
 #ifndef MAP_EDITOR2
-void change_global_filters (int *use)
+static void change_global_filters (int *use)
 {
 	*use= !*use;
 	// load global filters when new value is true, but only when changed
@@ -1346,14 +1292,14 @@ void change_global_filters (int *use)
 
 #endif // ELC
 
-void change_reflection(int *rf)
+#ifndef MAP_EDITOR
+static void change_reflection(int *rf)
 {
 	*rf= !*rf;
 	update_fbos();
 }
 
-#ifndef MAP_EDITOR
-void change_frame_buffer(int *fb)
+static void change_frame_buffer(int *fb)
 {
 	if (*fb)
 	{
@@ -1374,14 +1320,14 @@ void change_frame_buffer(int *fb)
 }
 #endif
 
-void change_shadows(int *sh)
+#ifndef MAP_EDITOR
+static void change_shadows(int *sh)
 {
 	*sh= !*sh;
 	update_fbos();
 }
 
-#ifndef MAP_EDITOR
-int int_max_water_shader_quality()
+static int int_max_water_shader_quality(void)
 {
 	if (gl_extensions_loaded)
 	{
@@ -1393,7 +1339,7 @@ int int_max_water_shader_quality()
 	}
 }
 
-void change_water_shader_quality(int *wsq, int value)
+static void change_water_shader_quality(int *wsq, int value)
 {
 	if (gl_extensions_loaded)
 	{
@@ -1409,7 +1355,7 @@ void change_water_shader_quality(int *wsq, int value)
 
 #ifdef MAP_EDITOR
 
-void set_auto_save_interval (int *save_time, int time)
+static void set_auto_save_interval (int *save_time, int time)
 {
 	if(time>0) {
 		*save_time= time*60000;
@@ -1418,7 +1364,7 @@ void set_auto_save_interval (int *save_time, int time)
 	}
 }
 
-void switch_vidmode(int *pointer, int mode)
+static void switch_vidmode(int *pointer, int mode)
 {
 	switch(mode)
 		{
@@ -1454,7 +1400,7 @@ void switch_vidmode(int *pointer, int mode)
 
 #endif
 
-int find_var (const char *str, var_name_type type)
+static int find_var (const char *str, var_name_type type)
 {
 	size_t i, isvar;
 
@@ -1573,6 +1519,77 @@ static int set_var_OPT_FLOAT(const char *str, float new_value)
 
 	LOG_ERROR("Can't find var '%s', type 'OPT_FLOAT'", str);
 	return 0;
+}
+
+static float get_option_initial_value(const char *longname)
+{
+	int var_index = find_var(longname, COMMAND_LINE_LONG_VAR);
+	if (var_index == -1)
+	{
+		LOG_ERROR("Can't find longname var '%s'", longname);
+		return -1;
+	}
+	return our_vars.var[var_index]->config_file_val;
+}
+
+static void action_poor_man(int *poor_man)
+{
+	unload_texture_cache();
+	update_max_actor_texture_handles();
+	if(*poor_man) {
+		show_reflection= 0;
+		shadows_on= 0;
+		clouds_shadows= 0;
+		use_shadow_mapping= 0;
+#ifndef MAP_EDITOR2
+		special_effects= 0;
+		use_eye_candy = 0;
+		use_fog= 0;
+		show_weather = 0;
+#endif
+#ifndef MAP_EDITOR
+		use_frame_buffer= 0;
+#endif
+		skybox_show_clouds = 0;
+		skybox_show_sun = 0;
+		skybox_show_moons = 0;
+		skybox_show_stars = 0;
+		if (far_plane > 50)
+		{
+			far_plane = 50;
+			change_projection_float(&far_plane, &far_plane);
+		}
+	}
+	else
+	{
+		show_reflection = get_option_initial_value("show_reflection");
+		shadows_on= get_option_initial_value("shadows_on");
+		clouds_shadows= get_option_initial_value("clouds_shadows");
+		use_shadow_mapping= get_option_initial_value("use_shadow_mapping");
+#ifndef MAP_EDITOR2
+		special_effects= get_option_initial_value("special_effects");
+		use_eye_candy = get_option_initial_value("use_eye_candy");
+		use_fog= get_option_initial_value("render_fog");
+		show_weather = get_option_initial_value("show_weather");
+#endif
+#ifndef MAP_EDITOR
+		use_frame_buffer= get_option_initial_value("use_frame_buffer");
+#endif
+		skybox_show_clouds = get_option_initial_value("skybox_show_clouds");
+		skybox_show_sun = get_option_initial_value("skybox_show_sun");
+		skybox_show_moons = get_option_initial_value("skybox_show_moons");
+		skybox_show_stars = get_option_initial_value("skybox_show_stars");
+		far_plane = get_option_initial_value("far_plane");
+		change_projection_float(&far_plane, &far_plane);
+	}
+	update_fbos();
+}
+
+static void change_poor_man(int *poor_man)
+{
+	*poor_man= !*poor_man;
+	if (!delay_poor_man)
+		action_poor_man(poor_man);
 }
 
 static size_t cm_id = CM_INIT_VALUE;
@@ -1727,7 +1744,7 @@ static __inline__ void check_option_var(char* name)
 	}
 }
 
-void check_options()
+void check_options(void)
 {
 	check_option_var("use_compiled_vertex_array");
 	check_option_var("use_vertex_buffers");
@@ -1747,6 +1764,7 @@ int check_var (char *str, var_name_type type)
 	int i, *p;
 	char *ptr= str;
 	float foo;
+	input_line our_string;
 
 	i= find_var (str, type);
 	if (i < 0)
@@ -1784,7 +1802,6 @@ int check_var (char *str, var_name_type type)
 	else
 	{
 		// Strip it
-		char our_string[200];
 		char *tptr= our_string;
 		while (*ptr && *ptr != 0x0a && *ptr != 0x0d)
 		{
@@ -1847,7 +1864,7 @@ int check_var (char *str, var_name_type type)
 	return -1;
 }
 
-void free_vars()
+void free_vars(void)
 {
 	int i;
 	for(i= 0; i < our_vars.no; i++)
@@ -1877,14 +1894,14 @@ void free_vars()
 	our_vars.no=0;
 }
 
-void add_var(option_type type, char * name, char * shortname, void * var, void * func, float def, char * short_desc, char * long_desc, int tab_id, ...)
+static void add_var(option_type type, char * name, char * shortname, void * var, void * func, float def, char * short_desc, char * long_desc, int tab_id, ...)
 {
 	int *integer=var;
 	float *f=var;
 	int no=our_vars.no++;
 	char *pointer;
 	float *tmp_f;
-	point *tmp_i;
+	uintptr_t *tmp_i;
 	int_min_max_func *i_func;
 	float_min_max_func *f_func;
 	va_list ap;
@@ -1908,11 +1925,11 @@ void add_var(option_type type, char * name, char * shortname, void * var, void *
 			va_start(ap, tab_id);
 			//Min
 			tmp_i= calloc(1,sizeof(*tmp_i));
-			*tmp_i= va_arg(ap, point);
+			*tmp_i= va_arg(ap, uintptr_t);
 			queue_push(our_vars.var[no]->queue, tmp_i);
 			//Max
 			tmp_i= calloc(1,sizeof(*tmp_i));
-			*tmp_i= va_arg(ap, point);
+			*tmp_i= va_arg(ap, uintptr_t);
 			queue_push(our_vars.var[no]->queue, tmp_i);
 			va_end(ap);
 			*integer= (int)def;
@@ -2020,6 +2037,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"open_close_clicked_bag", "openupcloseclickedbag", &open_close_clicked_bag, change_var, 1, "Open a bag if you click close to it", "When enabled, if you click close to a bag that is in range, you will open it.", CONTROLS);
 	add_var(OPT_BOOL,"use_floating_messages", "floating", &floatingmessages_enabled, change_var, 1, "Floating Messages", "Toggles the use of floating experience messages and other graphical enhancements", CONTROLS);
 	add_var(OPT_BOOL,"floating_session_counters", "floatingsessioncounters", &floating_session_counters, change_var, 0, "Floating Session Counters", "Toggles the display of floating session counters.  Configure each type using the context menu of the counter category.", CONTROLS);
+	add_var(OPT_BOOL,"enable_used_item_counter", "enable_used_item_counter", &enable_used_item_counter, change_var, 0, "Enable Used Item Counter", "WARNING: If enabled, saved counters will not be compatible with previous versions of the client.  Previous versions of the client may crash when loading counters.  If disabled, Used Item counts will not be saved.", CONTROLS);
 	add_var(OPT_BOOL,"use_keypress_dialog_boxes", "keypressdialogues", &use_keypress_dialogue_boxes, change_var, 0, "Keypresses in dialogue boxes", "Toggles the ability to press a key to select a menu option in dialogue boxes (eg The Wraith)", CONTROLS);
 	add_var(OPT_BOOL,"use_full_dialogue_window", "keypressdialoguesfullwindow", &use_full_dialogue_window, change_var, 0, "Keypresses allowed anywhere in dialogue boxes", "If set, the above will work anywhere in the Dialogue Window, if unset only on the NPC's face", CONTROLS);
 	add_var(OPT_BOOL,"use_cursor_on_animal", "useanimal", &include_use_cursor_on_animals, change_var, 0, "For animals, right click includes use cursor", "Toggles inclusion of the use cursor when right clicking on animals, useful for your summoned creatures.  Even when this option is off, you can still click the use icon.", CONTROLS);
@@ -2143,8 +2161,9 @@ static void init_ELC_vars(void)
 
 
 	// SERVER TAB
-	add_var(OPT_STRING,"username","u",username_str,change_string,MAX_USERNAME_LENGTH,"Username","Your user name here",SERVER);
-	add_var(OPT_PASSWORD,"password","p",password_str,change_string,MAX_USERNAME_LENGTH,"Password","Put your password here",SERVER);
+	add_var(OPT_STRING,"username","u",active_username_str,change_string,MAX_USERNAME_LENGTH,"Username","Your user name here",SERVER);
+	add_var(OPT_PASSWORD,"password","p",active_password_str,change_string,MAX_USERNAME_LENGTH,"Password","Put your password here",SERVER);
+	add_var(OPT_BOOL,"passmngr_enabled","pme",&passmngr_enabled,change_var,0,"Enable Password Manager", "If enabled, user names and passwords are saved locally by the built-in password manager.  Multiple sets of details can be saved.  You can choose which details to use at the login screen.",SERVER);
 	add_var(OPT_MULTI,"log_chat","log",&log_chat,change_int,LOG_SERVER,"Log Messages","Log messages from the server (chat, harvesting events, GMs, etc)",SERVER,"Do not log chat", "Log chat only", "Log server messages", "Log server to srv_log.txt", NULL);
 	add_var(OPT_BOOL,"rotate_chat_log","rclog",&rotate_chat_log_config_var,change_rotate_chat_log,0,"Rotate Chat Log File","Tag the chat/server message log files with year and month. You will still need to manage deletion of the old files. Requires a client restart.",SERVER);
 	add_var(OPT_BOOL,"buddy_log_notice", "buddy_log_notice", &buddy_log_notice, change_var, 1, "Log Buddy Sign On/Off", "Toggle whether to display notices when people on your buddy list log on or off", SERVER);
@@ -2203,7 +2222,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"anti_alias", "aa", &anti_alias, change_aa, 0, "Toggle Anti-Aliasing", "Anti-aliasing makes edges look smoother", VIDEO);
 #endif //ANTI_ALIAS
 #ifdef	FSAA
-	add_var(OPT_MULTI_H, "anti_aliasing", "fsaa", &fsaa_index, change_fsaa, 0, "Anti-Aliasing", "Full Scene Anti-Aliasing", VIDEO, get_fsaa_mode_str(0), 0);
+	add_var(OPT_MULTI_H, "anti_aliasing", "fsaa", &fsaa_index, change_fsaa, 0, "Anti-Aliasing", "Full Scene Anti-Aliasing", VIDEO, get_fsaa_mode_str(0), NULL);
 	for (i = 1; i < get_fsaa_mode_count(); i++)
 	{
 		if (get_fsaa_mode(i) == 1)
@@ -2224,7 +2243,7 @@ static void init_ELC_vars(void)
 	// GFX TAB
 	add_var(OPT_BOOL,"shadows_on","shad",&shadows_on,change_shadows,0,"Shadows","Toggles the shadows", GFX);
 	add_var(OPT_BOOL,"use_shadow_mapping", "sm", &use_shadow_mapping, change_shadow_mapping, 0, "Shadow Mapping", "If you want to use some better quality shadows, enable this. It will use more resources, but look prettier.", GFX);
-	add_var(OPT_MULTI,"shadow_map_size","smsize",&shadow_map_size_multi,change_shadow_map_size,1024,"Shadow Map Size","This parameter determines the quality of the shadow maps. You should as minimum set it to 512.",GFX,"256","512","768","1024","1280","1536","1792","2048","3072","4096",NULL);
+	add_var(OPT_MULTI,"shadow_map_size","smsize",&shadow_map_size_multi,change_shadow_map_size,3,"Shadow Map Size","This parameter determines the quality of the shadow maps. You should as minimum set it to 512.",GFX,"256","512","768","1024","1280","1536","1792","2048","3072","4096",NULL);
 	add_var(OPT_BOOL,"no_adjust_shadows","noadj",&no_adjust_shadows,change_var,0,"Don't Adjust Shadows","If enabled, tell the engine not to disable the shadows if the frame rate is too low.",GFX);
 	add_var(OPT_BOOL,"clouds_shadows","cshad",&clouds_shadows,change_clouds_shadows,1,"Cloud Shadows","The clouds shadows are projected on the ground, and the game looks nicer with them on.",GFX);
 	add_var(OPT_BOOL,"show_reflection","refl",&show_reflection,change_reflection,1,"Show Reflections","Toggle the reflections",GFX);
@@ -2324,7 +2343,7 @@ static void init_ELC_vars(void)
 
 
 
-void init_vars()
+void init_vars(void)
 {
 #ifdef ELC
 	init_ELC_vars();
@@ -2357,7 +2376,7 @@ void init_vars()
 
 }
 
-void write_var (FILE *fout, int ivar)
+static void write_var (FILE *fout, int ivar)
 {
 	if (fout == NULL) return;
 
@@ -2400,7 +2419,7 @@ void write_var (FILE *fout, int ivar)
 }
 
 
-int read_el_ini ()
+int read_el_ini (void)
 {
 	input_line line;
 #ifdef MAP_EDITOR
@@ -2414,18 +2433,23 @@ int read_el_ini ()
 		return 0;
 	}
 
-
+	delay_poor_man = 1;
 	while ( fgets (line, sizeof (input_line), fin) )
 	{
 		if (line[0] == '#')
 			check_var (&(line[1]), INI_FILE_VAR);	//check only for the long strings
 	}
+	// we have to delay the poor man setting as its action can be over written depending on the ini file order
+	delay_poor_man = 0;
+#ifdef	ELC
+	action_poor_man(&poor_man);
+#endif
 
 	fclose (fin);
 	return 1;
 }
 
-int write_el_ini ()
+int write_el_ini (void)
 {
 #if !defined(WINDOWS)
 	int fd;
@@ -2547,7 +2571,7 @@ int write_el_ini ()
 
 /* ------ ELConfig Window functions start here ------ */
 #ifdef ELC
-int display_elconfig_handler(window_info *win)
+static int display_elconfig_handler(window_info *win)
 {
 	int i;
 
@@ -2571,7 +2595,7 @@ int display_elconfig_handler(window_info *win)
 	return 1;
 }
 
-int spinbutton_onkey_handler(widget_list *widget, int mx, int my, Uint32 key, Uint32 unikey)
+static int spinbutton_onkey_handler(widget_list *widget, int mx, int my, Uint32 key, Uint32 unikey)
 {
 	if(widget != NULL) {
 		int i;
@@ -2598,7 +2622,7 @@ int spinbutton_onkey_handler(widget_list *widget, int mx, int my, Uint32 key, Ui
 	return 0;
 }
 
-int spinbutton_onclick_handler(widget_list *widget, int mx, int my, Uint32 flags)
+static int spinbutton_onclick_handler(widget_list *widget, int mx, int my, Uint32 flags)
 {
 	if(widget != NULL) {
 		int i;
@@ -2623,7 +2647,7 @@ int spinbutton_onclick_handler(widget_list *widget, int mx, int my, Uint32 flags
 	return 0;
 }
 
-int multiselect_click_handler(widget_list *widget, int mx, int my, Uint32 flags)
+static int multiselect_click_handler(widget_list *widget, int mx, int my, Uint32 flags)
 {
 	int i;
 	if(flags&ELW_LEFT_MOUSE || flags&ELW_RIGHT_MOUSE) {
@@ -2638,7 +2662,7 @@ int multiselect_click_handler(widget_list *widget, int mx, int my, Uint32 flags)
 	return 0;
 }
 
-int mouseover_option_handler(widget_list *widget, int mx, int my)
+static int mouseover_option_handler(widget_list *widget, int mx, int my)
 {
 	int i;
 
@@ -2663,7 +2687,7 @@ static int mouseover_option_label_handler(widget_list *widget, int mx, int my)
 	return mouseover_option_handler(widget, mx, my);
 }
 
-int onclick_label_handler(widget_list *widget, int mx, int my, Uint32 flags)
+static int onclick_label_handler(widget_list *widget, int mx, int my, Uint32 flags)
 {
 	int i;
 	var_struct *option= NULL;
@@ -2700,7 +2724,7 @@ int onclick_label_handler(widget_list *widget, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int onclick_checkbox_handler(widget_list *widget, int mx, int my, Uint32 flags)
+static int onclick_checkbox_handler(widget_list *widget, int mx, int my, Uint32 flags)
 {
 	int i;
 	var_struct *option= NULL;
@@ -2727,7 +2751,7 @@ int onclick_checkbox_handler(widget_list *widget, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int string_onkey_handler(widget_list *widget)
+static int string_onkey_handler(widget_list *widget)
 {
 	// dummy key handler that marks the appropriate variable as changed
 	if(widget != NULL)
@@ -2747,7 +2771,7 @@ int string_onkey_handler(widget_list *widget)
 	return 0;
 }
 
-void elconfig_populate_tabs(void)
+static void elconfig_populate_tabs(void)
 {
 	int i;
 	int tab_id; //temporary storage for the tab id
@@ -2829,7 +2853,9 @@ void elconfig_populate_tabs(void)
 				our_vars.var[i]->queue= NULL;
 			break;
 			case OPT_STRING:
-
+				// don't display the username, if it is changed after login, any name tagged files will be saved using the new name
+				if (strcmp(our_vars.var[i]->name, "username") == 0)
+					continue;
 				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
 					elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y,
 					0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
@@ -2951,7 +2977,7 @@ void elconfig_populate_tabs(void)
 }
 
 // TODO: replace this hack by something clean.
-int show_elconfig_handler(window_info * win) {
+static int show_elconfig_handler(window_info * win) {
 	int pwinx, pwiny; window_info *pwin;
 
 	if (win->pos_id != -1) {

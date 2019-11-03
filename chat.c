@@ -16,6 +16,7 @@
 #include "hud.h"
 #include "init.h"
 #include "interface.h"
+#include "loginwin.h"
 #include "mapwin.h"
 #include "multiplayer.h"
 #include "queue.h"
@@ -82,6 +83,13 @@ static channelcolor channel_colors[MAX_CHANNEL_COLORS];
 static Uint32 active_channels[MAX_ACTIVE_CHANNELS];
 static Uint8 current_channel = 0;
 static chan_name * pseudo_chans[SPEC_CHANS];
+
+int get_tabbed_chat_end_x(void)
+{
+	if ((tab_bar_win < 0) || (use_windowed_chat != 1))
+		return 0;
+	return windows_list.window[tab_bar_win].cur_x + windows_list.window[tab_bar_win].len_x;
+}
 
 void input_widget_move_to_win(int window_id)
 {
@@ -2419,11 +2427,11 @@ static int display_channel_color_win(Uint32 channel_number)
 			int row, col;
 			char *name[COLROWS][COLROWS] = {{"red1", "red2", "red3", "red4"},
 							    {"orange1", "orange2", "orange3", "orange4" },
-							    {"yellow1", "yellow2", "yellow3", "yellow5"},
+							    {"yellow1", "yellow2", "yellow3", "yellow4"},
 							    {"green1", "green2", "green3", "green4"},
 							    {"blue1", "blue2", "blue3", "blue4"},
 							    {"purple1", "purple2", "purple3", "purple4"},
-							    {"grey1", "grey3", "grey3", "grey4"}};
+							    {"grey1", "grey2", "grey3", "grey4"}};
 			for (row = 0; row < COLROWS; row++)
 				for (col = 0; col < COLCOLS; col++)
 				{
@@ -2492,8 +2500,7 @@ void load_channel_colors ()
 		channel_colors[i].color = -1;
 	}
 
-	safe_snprintf(fname, sizeof(fname), "channel_colors_%s.dat",username_str);
-	my_tolower(fname);
+	safe_snprintf(fname, sizeof(fname), "channel_colors_%s.dat",get_lowercase_username());
 
 	/* sliently ignore non existing file */
 	if (file_exists_config(fname)!=1)
@@ -2533,8 +2540,7 @@ void save_channel_colors()
 	if (!channel_colors_set)
 		return;
 
-	safe_snprintf(fname, sizeof(fname), "channel_colors_%s.dat",username_str);
-	my_tolower(fname);
+	safe_snprintf(fname, sizeof(fname), "channel_colors_%s.dat",get_lowercase_username());
 	fp=open_file_config(fname,"wb");
 	if(fp == NULL){
 		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, fname, strerror(errno));

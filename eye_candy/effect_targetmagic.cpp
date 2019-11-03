@@ -574,7 +574,7 @@ namespace ec
 		if (mover2)
 			delete mover2;
 		for (size_t i = 0; i < capless_cylinders.size(); i++)
-			delete capless_cylinders[i];
+			delete reinterpret_cast<CaplessCylinder *>(capless_cylinders[i]);
 		capless_cylinders.clear();
 		if (EC_DEBUG)
 			std::cout << "TargetMagicEffect (" << this << ") destroyed."

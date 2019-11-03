@@ -1,5 +1,6 @@
 name: eternallands
-version: '1.9.5.p3'
+# Set to x.y.z.git for dev build
+version: '1.9.5p4'
 summary: Eternal Lands is a free to play, graphical MMORPG
 description: |
   Eternal Lands is a free to play, graphical MMORPG (massively-multi-player
@@ -16,14 +17,12 @@ parts:
   client:
     source: https://github.com/raduprv/Eternal-Lands
     source-type: git
-    source-tag: 1.9.5.3
+    # Include for stable release, comment out for dev build
+    source-tag: 1.9.5.4
     build-packages: [build-essential, libcal3d12-dev, libsdl-image1.2-dev, libsdl-net1.2-dev, libxml2-dev, libopenal-dev, libvorbis-dev]
-    plugin: make
-    makefile: Makefile.linux
-    make-parameters: ["release", "PLATFORM=''", "EXE=el.linux.bin"]
-    override-pull: |
-      snapcraftctl pull
-      sed -i 's|^PLATFORM=.*$|#PLATFORM=""|g' make.defaults
+    plugin: cmake
+    # Add -DVERSION_PREFIX=x.y.z for dev build
+    configflags:  ["-DCMAKE_BUILD_TYPE=release", "-DEXEC=el.linux.bin"]
     artifacts: ["el.linux.bin"]
     stage-packages:
       - libglib2.0-0
@@ -52,8 +51,8 @@ parts:
       - desktop-glib-only
 
   data:
-    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.2/el_195_1_data_files.zip
-    source-checksum: md5/e42ebe628e704c8f7e0b21e3340f475d
+    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.4/el_195_p4_data_files.zip
+    source-checksum: md5/468dca610695271f0356e91c6e2f9f08
     plugin: dump
     organize:
       el_data/ : data/

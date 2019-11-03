@@ -14,6 +14,7 @@
 #include "init.h"
 #include "interface.h"
 #include "item_info.h"
+#include "loginwin.h"
 #include "multiplayer.h"
 #include "textures.h"
 #include "translate.h"
@@ -142,8 +143,7 @@ static void save_recipe_names(void)
 	if (!recipe_names_changed)
 		return;
 
-	safe_snprintf(fname, sizeof(fname), "recipes_%s.names",username_str);
-	my_tolower(fname);
+	safe_snprintf(fname, sizeof(fname), "recipes_%s.names",get_lowercase_username());
 	fp = open_file_config(fname,"w");
 	if(fp == NULL)
 	{
@@ -184,8 +184,7 @@ static void load_recipe_names(void)
 
 	recipe_names_changed = 0;
 
-	safe_snprintf(fname, sizeof(fname), "recipes_%s.names",username_str);
-	my_tolower(fname);
+	safe_snprintf(fname, sizeof(fname), "recipes_%s.names",get_lowercase_username());
 
 	/* sliently ignore non existing file */
 	if (file_exists_config(fname)!=1)
@@ -375,8 +374,7 @@ void load_recipes (){
 		return;
 	}
 
-	safe_snprintf(fname, sizeof(fname), "recipes_%s.dat",username_str);
-	my_tolower(fname);
+	safe_snprintf(fname, sizeof(fname), "recipes_%s.dat",get_lowercase_username());
 
 	/* get file length, if a valid length adjust the number of recipe slots if required */
 	file_size = get_file_size_config(fname);
@@ -459,8 +457,7 @@ void save_recipes(){
 
 	save_recipe_names();
 
-	safe_snprintf(fname, sizeof(fname), "recipes_%s.dat",username_str);
-	my_tolower(fname);
+	safe_snprintf(fname, sizeof(fname), "recipes_%s.dat",get_lowercase_username());
 	fp=open_file_config(fname,"wb");
 	if(fp == NULL){
 		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, fname, strerror(errno));

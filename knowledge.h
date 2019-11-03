@@ -27,7 +27,6 @@ typedef struct
 }knowledge;
 
 extern knowledge knowledge_list[KNOWLEDGE_LIST_SIZE]; /*!< global array of knowledgeable items */
-extern int	knowledge_count;
 
 /*!
  * \ingroup knowledge_window
@@ -116,6 +115,14 @@ void update_research_rate(void);
  * \callgraph
  */
 void set_knowledge_string(const Uint8 *in_data, int data_length);
+
+/*!
+ * \ingroup knowledge_window
+ * \brief Read the knowledge list from file.
+ *
+ * \callgraph
+ */
+void load_knowledge_list(void);
 
 #ifdef __cplusplus
 } // extern "C"

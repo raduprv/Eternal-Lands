@@ -16,6 +16,7 @@
 int stats_bar_win= -1;
 int show_action_bar = 0;
 int max_food_level = 45;
+int lock_skills_selection = 0;
 
 #define MAX_WATCH_STATS	5	/*!< max number of stats watchable in hud */
 
@@ -157,7 +158,7 @@ static int cm_statsbar_handler(window_info *win, int widget_id, int mx, int my, 
 			}
 			else if (option == NUM_WATCH_STAT)
 				add_bar = 1;
-			else
+			else if (option < NUM_WATCH_STAT)
 			{
 				statsinfo[watch_this_stats[i]-1].is_selected=0;
 				watch_this_stats[i] = option+1;
@@ -546,6 +547,7 @@ static int ui_scale_stats_bar_handler(window_info *win)
 		for (thestat=0; thestat<NUM_WATCH_STAT-1; thestat++)
 			cm_add(cm_id, (char *)statsinfo[thestat].skillnames->name, NULL);
 		cm_add(cm_id, cm_stats_bar_base_str, NULL);
+		cm_bool_line(cm_id, NUM_WATCH_STAT+2, &lock_skills_selection, NULL);
 		cm_set_pre_show_handler(cm_id,cm_statsbar_pre_show_handler);
 	}
 	reset_statsbar_exp_cm_regions();
@@ -587,8 +589,11 @@ void handle_stats_selection(int stat, Uint32 flags)
 	int proposed_max_disp_stats = 0;
 	int i;
 
-	if (stats_bar_win < 0 || stats_bar_win >= windows_list.num_windows)
+	if (lock_skills_selection || stats_bar_win < 0 || stats_bar_win >= windows_list.num_windows)
+	{
+		do_alert1_sound();
 		return;
+	}
 	win = &windows_list.window[stats_bar_win];
 	proposed_max_disp_stats = calc_max_disp_stats(calc_stats_bar_len(win, get_num_statsbar_exp()+1));
 

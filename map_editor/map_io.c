@@ -242,7 +242,8 @@ int save_map (const char* file_name)
 #endif	//ZLIBW
 
 #ifdef CLUSTER_INSIDES
-				update_occupied_with_3d (occupied, i);
+				if (cur_3d_obj_io.blended != 20)
+					update_occupied_with_3d (occupied, i);
 #endif
 
 				j++;

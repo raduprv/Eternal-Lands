@@ -135,12 +135,6 @@
 extern "C" {
 #endif
 
-#ifdef X86_64
-typedef long int point;
-#else
-typedef int point;
-#endif
-
 /*!
  * \ingroup platform
  * \brief Swaps a float properly

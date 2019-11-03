@@ -15,11 +15,12 @@
 #include <string>
 #include <time.h>
 #include <algorithm>
+#include <functional>
 
 #include "client_serv.h"
 #include "elconfig.h"
 #include "elloggingwrapper.h"
-#include "interface.h"
+#include "loginwin.h"
 #include "io/elpathwrapper.h"
 #include "item_info.h"
 #include "text.h"
@@ -124,8 +125,7 @@ namespace Trade_Log
 		if (their_stuff)
 			delete their_stuff;
 
-		std::string you = std::string(username_str);
-		your_stuff = new List(you.c_str(), yours, max_items);
+		your_stuff = new List(get_username(), yours, max_items);
 		their_stuff = new List(name, others, max_items);
 
 		the_state = TLS_ACCEPT;
@@ -169,11 +169,7 @@ namespace Trade_Log
 		if ((trade_log_mode == TRADE_LOG_FILE) || (trade_log_mode == TRADE_LOG_BOTH))
 		{
 			if (filename.empty())
-			{
-				std::string username = std::string(username_str);
-				std::transform(username.begin(), username.end(), username.begin(), tolower);
-				filename = std::string(get_path_config()) + "trade_" + username + ".log";
-			}
+				filename = std::string(get_path_config()) + "trade_" + std::string(get_lowercase_username()) + ".log";
 			std::ofstream out(filename.c_str(), std::ios_base::out | std::ios_base::binary | std::ios_base::app);
 			if (!out)
 			{

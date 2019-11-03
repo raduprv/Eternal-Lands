@@ -26,7 +26,7 @@
 #include "hud.h"
 #include "icon_window.h"
 #include "init.h"
-#include "interface.h"
+#include "loginwin.h"
 #include "io/elpathwrapper.h"
 #include "multiplayer.h"
 #include "notepad.h"
@@ -119,7 +119,7 @@ class Quest_Title_Request
 class Quest_Entry
 {
 	public:
-		Quest_Entry(void) : deleted(false), quest_id(Quest::UNSET_ID), NPC_NAME_COLOUR(c_blue2) {}
+		Quest_Entry(void) : deleted(false), quest_id(Quest::UNSET_ID), charsum(0), NPC_NAME_COLOUR(c_blue2) {}
 		void set(const std::string & the_text);
 		void set(const std::string & the_text, const std::string & the_npc);
 		const std::vector<std::string> & get_lines(void) const;
@@ -589,9 +589,7 @@ void Quest_List::load(void)
 	quests.insert( std::make_pair( Quest::UNSET_ID, showall) );
 	max_title = showall.get_title().size();
 
-	std::string username = std::string(username_str);
-	std::transform(username.begin(), username.end(), username.begin(), tolower);
-	list_filename = std::string(get_path_config()) + "quest_" + username + ".list";
+	list_filename = std::string(get_path_config()) + "quest_" + std::string(get_lowercase_username()) + ".list";
 	recalc_num_shown();
 
 	std::ifstream in(list_filename.c_str());
@@ -1999,9 +1997,7 @@ void Questlog_Container::load(void)
 		return;
 	}
 
-	std::string username = std::string(username_str);
-	std::transform(username.begin(), username.end(), username.begin(), tolower);
-	filename = std::string(get_path_config()) + "quest_" + username + ".log";
+	filename = std::string(get_path_config()) + "quest_" + std::string(get_lowercase_username()) + ".log";
 
 	std::ifstream in(filename.c_str(), std::ios_base::in | std::ios_base::binary);
 	std::ofstream out;

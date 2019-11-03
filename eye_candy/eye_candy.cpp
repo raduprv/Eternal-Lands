@@ -1188,7 +1188,7 @@ namespace ec
 #endif
 		assert(pos.is_valid());
 
-		const short offset = (short)long(&alpha); //Unique to the particle.
+		const short offset = (short)uintptr_t(&alpha); //Unique to the particle.
 
 		tmp = offset;
 

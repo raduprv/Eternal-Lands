@@ -55,11 +55,6 @@ int water_shader_quality = 0;
 
 int get_max_supported_water_shader_quality()
 {
-	if (!use_frame_buffer)
-	{
-		return 0;
-	}
-
 	if (get_shader(st_water, sst_shadow_receiver, sft_disabled, 0) == 0)
 	{
 		return 0;

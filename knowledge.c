@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include "knowledge.h"
@@ -5,6 +6,8 @@
 #include "books.h"
 #include "context_menu.h"
 #include "elconfig.h"
+#include "elloggingwrapper.h"
+#include "io/elpathwrapper.h"
 #include "elwindows.h"
 #include "gamewin.h"
 #include "hud.h"
@@ -22,13 +25,13 @@
 #include "gl_init.h"
 #endif
 
-int knowledge_scroll_id= 13;
-int knowledge_book_image_id;
-int knowledge_book_label_id;
-int knowledge_book_id= 0;
+static int knowledge_scroll_id= 13;
+static int knowledge_book_image_id;
+static int knowledge_book_label_id;
+static int knowledge_book_id= 0;
 
 knowledge knowledge_list[KNOWLEDGE_LIST_SIZE];
-int knowledge_count= 0;
+static int knowledge_count= 0;
 
 #define TEXTBUFSIZE 400
 static char raw_knowledge_string[TEXTBUFSIZE]="";
@@ -509,4 +512,36 @@ void fill_knowledge_win (int window_id)
 void set_knowledge_string(const Uint8 *in_data, int data_length)
 {
 	safe_strncpy2(raw_knowledge_string, (const char *)in_data, TEXTBUFSIZE, data_length);
+}
+
+
+void load_knowledge_list(void)
+{
+	FILE *f = NULL;
+	int i=0;
+	char strLine[255];
+	char *out;
+
+	memset(knowledge_list, 0, sizeof(knowledge_list));
+	i= 0;
+	knowledge_count= 0;
+	// try the language specific knowledge list
+	f=open_file_lang("knowledge.lst", "rb");
+	if(f == NULL){
+		LOG_ERROR("%s: %s \"knowledge.lst\": %s\n", reg_error_str, cant_open_file, strerror(errno));
+		return;
+	}
+	while(1)
+		{
+			if(!fgets(strLine, sizeof(strLine), f)) {
+				break;
+			}
+			out = knowledge_list[i].name;
+			my_xmlStrncopy(&out, strLine, sizeof(knowledge_list[i].name)-1);
+			i++;
+		}
+	// memorize the count
+	knowledge_count= i;
+	// close the file
+	fclose(f);
 }
