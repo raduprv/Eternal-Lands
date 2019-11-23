@@ -143,7 +143,8 @@ static int dec(my_enum * def, int val, int no_steps)
 
 //New char interface
 
-static char create_char_error_str[520] = {0};
+#define ERR_STR_LEN 520
+static char create_char_error_str[ERR_STR_LEN] = {0};
 static int old_use_windowed_chat;
 static int display_time=0;
 static const int DEF_MESSAGE_TIMEOUT = 3000;
@@ -163,7 +164,7 @@ static int creating_char = 1;
 
 void set_create_char_error (const char *msg, int len)
 {
-	char buf[512];
+	char buf[ERR_STR_LEN];
 
 	if (len <= 0)
 	{
