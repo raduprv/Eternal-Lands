@@ -71,7 +71,7 @@ Uint32 diff_game_time_sec(Uint32 ref_time);
  * \param	A message string, or NULL
  * 
 */
-void enter_disconnected_state(char *message);
+void enter_disconnected_state(const char *message);
 
 /*!
  * \brief	Called from the main thread 500 ms timer, check if testing server connection.

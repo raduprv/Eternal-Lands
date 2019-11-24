@@ -101,10 +101,10 @@ add_definitions(
 set(SD "")
 
 # Get compiler flags for used libraries
-include(FindSDL)
+include(cmake/FindSDL2.cmake)
 include(FindLibXml2)
-include(FindSDL_image)
-include(FindSDL_net)
+include(cmake/FindSDL2_image.cmake)
+include(cmake/FindSDL2_net.cmake)
 set(OpenGL_GL_PREFERENCE GLVND)
 include(FindOpenGL)
 include(FindOpenAL)
@@ -247,11 +247,11 @@ add_executable(${EXEC} ${SOURCES})
 
 target_link_libraries(${EXEC}
 	${EXTRA_LD_FLAGS}
-	${SDL_LIBRARY}
+	${SDL2_LIBRARY}
 	${LIBXML2_LIBRARIES}
 	${CAL3D_LIBRARIES}
-	${SDL_NET_LIBRARIES}
-	${SDL_IMAGE_LIBRARIES}
+	${SDL2_NET_LIBRARY}
+	${SDL2_IMAGE_LIBRARY}
 	${OPENGL_LIBRARIES}
 	${OPENAL_LIBRARY}
 	${VORBIS_LIBRARIES}
@@ -264,11 +264,11 @@ target_link_libraries(${EXEC}
 )
 
 target_include_directories(${EXEC} SYSTEM PUBLIC
-	${SDL_INCLUDE_DIR}
+	${SDL2_INCLUDE_DIR}
 	${LIBXML2_INCLUDE_DIR}
 	${CAL3D_INCLUDE_DIR}
-	${SDL_NET_INCLUDE_DIRS}
-	${SDL_IMAGE_INCLUDE_DIRS}
+	${SDL2_NET_INCLUDE_DIR}
+	${SDL2_IMAGE_INCLUDE_DIR}
 	${OPENGL_INCLUDE_DIR}
 	${OPENAL_INCLUDE_DIR}
 	${VORBIS_INCLUDE_DIR}

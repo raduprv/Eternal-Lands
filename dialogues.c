@@ -698,11 +698,11 @@ static int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags
 	return 0;
 }
 
-static int keypress_dialogue_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+static int keypress_dialogue_handler (window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
 	Uint8 ch;
 
-	if ((key & 0xffff) == SDLK_ESCAPE) // close window if Escape pressed
+	if (key_code == SDLK_ESCAPE) // close window if Escape pressed
 	{
 		do_window_close_sound();
 		hide_window(win->window_id);
@@ -719,7 +719,7 @@ static int keypress_dialogue_handler (window_info *win, int mx, int my, Uint32 k
 		return 0;
 	}
 
-	ch = key_to_char (unikey);
+	ch = key_to_char (key_unicode);
 
 	if(ch<'0' || ch>'z') // do not send special keys
 	{
@@ -739,7 +739,7 @@ static int keypress_dialogue_handler (window_info *win, int mx, int my, Uint32 k
 	}
 	
 	// if not being used for responses, check for other use
-	if ((key & ELW_ALT) && ((MAX_RESPONSES-1<ch) || (dialogue_responces[ch].in_use == 0)))
+	if ((key_mod & KMOD_ALT) && ((MAX_RESPONSES-1<ch) || (dialogue_responces[ch].in_use == 0)))
 	{
 		if ((strlen(dialogue_repeat_str)>1) && (ch == (Uint8)dialogue_repeat_str[1]-87))
 		{
@@ -753,7 +753,7 @@ static int keypress_dialogue_handler (window_info *win, int mx, int my, Uint32 k
 		}
 	}
 
-	if((key & ELW_ALT) || (key & ELW_CTRL)) //Do not process Ctrl or Alt keypresses
+	if((key_mod & KMOD_ALT) || (key_mod & KMOD_CTRL)) //Do not process Ctrl or Alt keypresses
 	{
 		return 0;
 	}
@@ -865,7 +865,7 @@ void display_dialogue(const Uint8 *in_data, int data_length)
 
 		set_window_handler(dialogue_win, ELW_HANDLER_DISPLAY, &display_dialogue_handler );
 		set_window_handler(dialogue_win, ELW_HANDLER_MOUSEOVER, &mouseover_dialogue_handler );
-		set_window_handler(dialogue_win, ELW_HANDLER_KEYPRESS, &keypress_dialogue_handler );
+		set_window_handler(dialogue_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_dialogue_handler );
 		set_window_handler(dialogue_win, ELW_HANDLER_CLICK, &click_dialogue_handler );
 		set_window_handler(dialogue_win, ELW_HANDLER_UI_SCALE, &ui_scale_dialogue_handler );
 

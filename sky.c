@@ -4,7 +4,6 @@
 #include <string.h>
 #include <limits.h>
 #include <SDL.h>
-#include <SDL_active.h>
 #include "asc.h"
 #include "sky.h"
 #include "draw_scene.h"

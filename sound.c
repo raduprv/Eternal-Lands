@@ -4376,7 +4376,7 @@ void init_sound()
 
 	// Initialise streams thread
 	if (sound_streams_thread == NULL) {
-		sound_streams_thread = SDL_CreateThread(update_streams, 0);
+		sound_streams_thread = SDL_CreateThread(update_streams, "SoundThread", 0);
 	}
 
 	if (num_types == 0)

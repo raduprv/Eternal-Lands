@@ -57,7 +57,7 @@ namespace ItemLists
 	static int click_itemlist_handler(window_info *win, int mx, int my, Uint32 flags);
 	static int mouseover_itemlist_handler(window_info *win, int mx, int my);
 	static int hide_itemlist_handler(window_info *win);
-	static int keypress_itemlist_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey);
+	static int keypress_itemlist_handler(window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
 	static int resize_itemlist_handler(window_info *win, int new_width, int new_height);
 	static void new_list_handler(const char *input_text, void *data);
 	static void rename_list_handler(const char *input_text, void *data);
@@ -233,7 +233,7 @@ namespace ItemLists
 			void reset_position(void);
 			void make_active_visable(void);
 			void cm_names_pre_show(void);
-			int keypress(char the_key);
+			int keypress(SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
 			void resized_name_panel(window_info *win);
 			void reset_pickup_fail_time(void) { pickup_fail_time = SDL_GetTicks(); }
 		private:
@@ -1215,7 +1215,7 @@ CHECK_GL_ERRORS();
 		size_t over_item_number = Vars::win()->get_item_number(mx, my);
 
 		// If dragging item and ctrl+left-click on window, add item to list
-		if ((flags & ELW_LEFT_MOUSE) && (flags & ELW_CTRL) && was_dragging)
+		if ((flags & ELW_LEFT_MOUSE) && (flags & KMOD_CTRL) && was_dragging)
 		{
 			if (storage_item_dragged != -1)
 				Vars::lists()->add_item(over_item_number, storage_items[storage_item_dragged].image_id, storage_items[storage_item_dragged].id, item_quantity);
@@ -1225,7 +1225,7 @@ CHECK_GL_ERRORS();
 		}
 
 		// ctrl+right-click on a selected item opens the edit menu
-		if ((flags & ELW_RIGHT_MOUSE) && (flags & ELW_CTRL) && (over_item_number<num_items))
+		if ((flags & ELW_RIGHT_MOUSE) && (flags & KMOD_CTRL) && (over_item_number<num_items))
 		{
 			cm_show_direct(Vars::win()->get_grid_cm(), win->window_id, -1);
 			storage_item_dragged = item_dragged = -1;
@@ -1376,16 +1376,16 @@ CHECK_GL_ERRORS();
 
 	//	Key presses in the window used for a search string
 	//
-	int List_Window::keypress(char the_key)
+	int List_Window::keypress(SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 	{
 		last_key_time = SDL_GetTicks();
-		if (the_key == SDLK_ESCAPE)
+		if (key_code == SDLK_ESCAPE)
 		{
 			filter[0] = '\0';
 			last_key_time = 0;
 			return 1;
 		}
-		if (string_input(filter, sizeof(filter), the_key) || (the_key == SDLK_RETURN))
+		if (string_input(filter, sizeof(filter), key_code, key_unicode, key_mod) || (key_code == SDLK_RETURN))
 		{
 			if (strlen(filter))
 			{
@@ -1548,12 +1548,12 @@ CHECK_GL_ERRORS();
 		return 1;
 	}
 
-	static int keypress_itemlist_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+	static int keypress_itemlist_handler(window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 	{
-		char keychar = tolower(key_to_char(unikey));
-		if ((keychar == '`') || (key & ELW_CTRL) || (key & ELW_ALT) || items_list_disable_find_list)
+		char keychar = tolower(key_to_char(key_unicode));
+		if ((keychar == '`') || (key_mod & KMOD_CTRL) || (key_mod & KMOD_ALT) || items_list_disable_find_list)
 			return 0;
-		return Vars::win()->keypress(keychar);
+		return Vars::win()->keypress(key_code, key_unicode, key_mod);
 	}
 
 	static int resize_itemlist_handler(window_info *win, int new_width, int new_height)

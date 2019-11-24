@@ -372,8 +372,7 @@ static void init_threads(download_files_thread_data_t *data, const Uint32 count,
 
 	for (i = 0; i < UPDATE_DOWNLOAD_THREAD_COUNT; i++)
 	{
-		data->threads[i] = SDL_CreateThread(download_files_thread,
-			data);
+		data->threads[i] = SDL_CreateThread(download_files_thread, "NewupdateThread", data);
 	}
 }
 

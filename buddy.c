@@ -190,7 +190,7 @@ static int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 		return 0;
 	}
 	if(flags&ELW_RIGHT_MOUSE) {
-		if(flags&ELW_CTRL) {
+		if(flags & KMOD_CTRL) {
 			//CTRL + right click, delete buddy.
 			safe_snprintf(str, sizeof(str), "%c#del_buddy %s", RAW_TEXT, buddy_list[y].name);
 			my_tcp_send(my_socket, (Uint8*)str, strlen(str+1)+1);
@@ -342,9 +342,9 @@ static int display_accept_buddy_handler(window_info *win)
 	}
 }
 
-static int name_input_keypress_handler(widget_list *widget, int mx, int my, Uint32 key, Uint32 unikey)
+static int name_input_keypress_handler(widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
-	if(unikey == '\r' && strlen((char*)buddy_name_buffer) > 0) {
+	if(key_code == SDLK_RETURN && strlen((char*)buddy_name_buffer) > 0) {
 		return click_add_buddy_handler(widget, mx, my, ELW_LEFT_MOUSE);
 	} else {
 		return 0;
@@ -444,7 +444,7 @@ int display_buddy_add(void)
 			P_TEXT, win->current_scale, 0.77f, 0.57f, 0.39f, buddy_name_buffer, MAX_USERNAME_LENGTH);
 		widget_set_OnMouseover(buddy_add_win, label_id, name_onmouseover_handler);
 		widget_set_OnMouseover(buddy_add_win, input_id, name_onmouseover_handler);
-		widget_set_OnKey(buddy_add_win, input_id, name_input_keypress_handler);
+		widget_set_OnKey(buddy_add_win, input_id, (int (*)())name_input_keypress_handler);
 
 		/* Add "Add buddy" button */
 		button_id = button_add_extended(buddy_add_win, button_id, NULL, 0, 0, 0, 0, 0, win->current_scale, 0.77f, 0.57f, 0.39f, buddy_add_str);

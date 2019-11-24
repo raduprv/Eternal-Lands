@@ -597,7 +597,7 @@ void handle_stats_selection(int stat, Uint32 flags)
 	win = &windows_list.window[stats_bar_win];
 	proposed_max_disp_stats = calc_max_disp_stats(calc_stats_bar_len(win, get_num_statsbar_exp()+1));
 
-	if (((flags & ELW_ALT) || (flags & ELW_SHIFT)) && (max_disp_stats > 1))
+	if (((flags & KMOD_ALT) || (flags & KMOD_SHIFT)) && (max_disp_stats > 1))
 	{
 		for (i=0;i<proposed_max_disp_stats;i++)
 		{

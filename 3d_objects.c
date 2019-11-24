@@ -9,6 +9,7 @@
 #include "draw_scene.h"
 #include "e3d.h"
 #include "errors.h"
+#include "events.h"
 #include "global.h"
 #include "init.h"
 #include "map.h"
@@ -274,7 +275,7 @@ void draw_3d_objects(unsigned int object_type)
 	}
 
 	// reduce CPU usage while minimized
-	if(!(SDL_GetAppState()&SDL_APPACTIVE)){
+	if(!el_active){
 		// not actually drawing, fake it
 		// now loop through each object
 		for (i=start; i<stop; i++)

@@ -832,23 +832,22 @@ static void select_recipe(int the_recipe)
 }
 
 /* key presses in the window used for a recipe name search string */
-static int keypress_recipe_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+static int keypress_recipe_handler(window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
-	char keychar = tolower(key_to_char(unikey));
 	last_recipe_key_time = SDL_GetTicks();
-	if ((keychar == SDLK_RETURN) && (key & ELW_CTRL))
+	if ((key_code == SDLK_RETURN) && (key_mod & KMOD_CTRL))
 	{
 		select_recipe(cur_recipe);
 		return 1;
 	}
-	if ((keychar == '`') || (key & ELW_CTRL) || (key & ELW_ALT))
+	if ((key_unicode == '`') || (key_mod & KMOD_CTRL) || (key_mod & KMOD_ALT))
 		return 0;
-	if (keychar == SDLK_ESCAPE)
+	if (key_code == SDLK_ESCAPE)
 	{
 		clear_recipe_filter();
 		return 1;
 	}
-	if (string_input(recipe_name_filter, sizeof(recipe_name_filter), keychar) || (keychar == SDLK_RETURN))
+	if (string_input(recipe_name_filter, sizeof(recipe_name_filter), key_code, key_unicode, key_mod) || (key_code == SDLK_RETURN))
 	{
 		if (strlen(recipe_name_filter))
 		{
@@ -882,13 +881,13 @@ static int keypress_recipe_handler(window_info *win, int mx, int my, Uint32 key,
 
 
 /* keypress in main window is passed to recipe window search */
-static int keypress_manufacture_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+static int keypress_manufacture_handler(window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
 	if (!disable_manuwin_keypress && (recipe_win > -1) && (recipe_win < windows_list.num_windows))
 	{
 		window_info *win_recp = &windows_list.window[recipe_win];
 		int current_recipes_shown = recipes_shown; // so we don't undo keypress_recipe_handler() work
-		if (win_recp != NULL && keypress_recipe_handler(win_recp, mx, my, key, unikey))
+		if (win_recp != NULL && keypress_recipe_handler(win_recp, mx, my, key_code, key_unicode, key_mod))
 		{
 			if (!recipes_shown && (current_recipes_shown == recipes_shown))
 			    toggle_recipe_window();
@@ -983,7 +982,7 @@ static int click_manufacture_handler(window_info *win, int mx, int my, Uint32 fl
 
 	int quantitytomove=1;
 
-	if ((flags & ELW_CTRL) || (flags & ELW_SHIFT) || (flags & ELW_ALT))
+	if ((flags & KMOD_CTRL) || (flags & KMOD_SHIFT) || (flags & KMOD_ALT))
 		quantitytomove = 10;
 
 	/* if the eye cursor is active and we right click, change to standard walk */
@@ -1480,7 +1479,7 @@ void display_manufacture_menu()
 		set_window_handler(manufacture_win, ELW_HANDLER_DISPLAY, &display_manufacture_handler );
 		set_window_handler(manufacture_win, ELW_HANDLER_CLICK, &click_manufacture_handler );
 		set_window_handler(manufacture_win, ELW_HANDLER_MOUSEOVER, &mouseover_manufacture_slot_handler );
-		set_window_handler(manufacture_win, ELW_HANDLER_KEYPRESS, &keypress_manufacture_handler );
+		set_window_handler(manufacture_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_manufacture_handler );
 		set_window_handler(manufacture_win, ELW_HANDLER_UI_SCALE, &ui_scale_manufacture_handler );
 
 		mixone_button_id=button_add_extended(manufacture_win, mixone_button_id, NULL,
@@ -1510,7 +1509,7 @@ void display_manufacture_menu()
 		set_window_handler(recipe_win, ELW_HANDLER_CLICK, &recipe_dropdown_click_handler );
 		set_window_handler(recipe_win, ELW_HANDLER_MOUSEOVER, &mouseover_recipe_handler );
 		set_window_handler(recipe_win, ELW_HANDLER_RESIZE, &resize_recipe_handler );
-		set_window_handler(recipe_win, ELW_HANDLER_KEYPRESS, keypress_recipe_handler );
+		set_window_handler(recipe_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_recipe_handler );
 
 		recipe_win_scroll_id = vscrollbar_add_extended(recipe_win, 1, NULL, 0,
 			0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, num_recipe_entries-num_displayed_recipes);

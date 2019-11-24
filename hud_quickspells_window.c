@@ -312,12 +312,12 @@ static int click_quickspell_handler(window_info *win, int mx, int my, Uint32 fla
 
 	if(pos<shown_quickspell_slots+1 && pos>=1 && mqb_data[pos])
 	{
-		if ((flags & ELW_LEFT_MOUSE)&&(flags & ELW_SHIFT))
+		if ((flags & ELW_LEFT_MOUSE)&&(flags & KMOD_SHIFT))
 		{
 			move_quickspell (pos,0);
 			return 1;
 		}
-		else if ((flags & ELW_RIGHT_MOUSE)&&(flags & ELW_SHIFT))
+		else if ((flags & ELW_RIGHT_MOUSE)&&(flags & KMOD_SHIFT))
 		{
 			move_quickspell (pos,1);
 			return 1;
@@ -327,7 +327,7 @@ static int click_quickspell_handler(window_info *win, int mx, int my, Uint32 fla
 			send_spell(mqb_data[pos]->spell_str, mqb_data[pos]->spell_str[1]+2);
 			return 1;
 		}
-		else if ((flags & ELW_RIGHT_MOUSE)&&(flags & ELW_CTRL))
+		else if ((flags & ELW_RIGHT_MOUSE)&&(flags & KMOD_CTRL))
 		{
 			remove_quickspell (pos);
 			return 1;
@@ -571,13 +571,13 @@ void save_quickspells(void)
 }
 
 
-int action_spell_keys(Uint32 key)
+int action_spell_keys(SDL_Keycode key_code, Uint16 key_mod)
 {
 	size_t i;
-	Uint32 keys[] = {K_SPELL1, K_SPELL2, K_SPELL3, K_SPELL4, K_SPELL5, K_SPELL6,
+	el_key_def keys[] = {K_SPELL1, K_SPELL2, K_SPELL3, K_SPELL4, K_SPELL5, K_SPELL6,
 					 K_SPELL7, K_SPELL8, K_SPELL9, K_SPELL10, K_SPELL11, K_SPELL12 };
-	for (i=0; (i<sizeof(keys)/sizeof(Uint32)) & (i < num_quickspell_slots); i++)
-		if(key == keys[i])
+	for (i=0; (i<sizeof(keys)/sizeof(el_key_def)) & (i < num_quickspell_slots); i++)
+		if(KEY_DEF_CMP(keys[i], key_code, key_mod))
 		{
 			if(mqb_data[i+1] && mqb_data[i+1]->spell_str[0])
 				send_spell(mqb_data[i+1]->spell_str, mqb_data[i+1]->spell_str[1]+2);

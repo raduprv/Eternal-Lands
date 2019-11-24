@@ -44,8 +44,6 @@ extern marking marks[MAX_MARKINGS]; /*!< a global array of marks */
 extern marking temp_marks[MAX_USER_MARKS]; /*!< a global array of temporary marks */
 extern int curmark_r,curmark_g,curmark_b; //current mark color
 
-extern int reload_tab_map; /*!< flag that indicates the tabmap needs to be reloaded */
-
 /*!
  * \ingroup interface_map
  * \brief Creates the map window

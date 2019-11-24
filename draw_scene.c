@@ -150,7 +150,7 @@ void draw_scene()
 		elwin_mouse = -1;
 	}
 	
-	SDL_GL_SwapBuffers();
+	SDL_GL_SwapWindow(el_gl_window);
 	CHECK_GL_ERRORS();
 
 	/* stuff to do not every frame, twice a second is fine */

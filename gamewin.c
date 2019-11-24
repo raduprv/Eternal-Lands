@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
-#include <SDL/SDL_keysym.h>
-
+#include <SDL_keycode.h>
 #include "gamewin.h"
 #include "actor_init.h"
 #include "actor_scripts.h"
@@ -138,7 +137,7 @@ void draw_special_cursors(void)
 	if (!have_mouse) return;
 #endif // NEW_CURSOR
 
-	if(!(SDL_GetAppState() & SDL_APPMOUSEFOCUS)) return;
+	if(!(SDL_GetWindowFlags(el_gl_window) & SDL_WINDOW_MOUSE_FOCUS)) return;
 
 	switch (current_cursor){
 	case (CURSOR_ATTACK):
@@ -351,7 +350,7 @@ void toggle_have_mouse(void)
 {
 	have_mouse = !have_mouse;
 	if(have_mouse){
-		SDL_WM_GrabInput(SDL_GRAB_ON);
+		SDL_SetWindowGrab(el_gl_window, SDL_TRUE);
 #ifdef NEW_CURSOR
 		if (sdl_cursors)
 #endif // NEW_CURSOR
@@ -359,7 +358,7 @@ void toggle_have_mouse(void)
 		if (fol_cam) toggle_follow_cam(&fol_cam);
 		LOG_TO_CONSOLE (c_red1, "Grab mode: press alt+g again to enter Normal mode.");
 	} else {
-		SDL_WM_GrabInput(SDL_GRAB_OFF);
+		SDL_SetWindowGrab(el_gl_window, SDL_FALSE);
 #ifdef NEW_CURSOR
 		if (sdl_cursors)
 #endif // NEW_CURSOR
@@ -547,11 +546,11 @@ static void touch_player(int player_to_touch)
 // this is the main part of the old check_mouse_click ()
 static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 {
-	int flag_alt = flags & ELW_ALT;
-	int flag_ctrl = flags & ELW_CTRL;
+	int flag_alt = flags & KMOD_ALT;
+	int flag_ctrl = flags & KMOD_CTRL;
 	int flag_right = flags & ELW_RIGHT_MOUSE;
 	int force_walk = (flag_ctrl && flag_right && !flag_alt);
-	int shift_on = flags & ELW_SHIFT;
+	int shift_on = flags & KMOD_SHIFT;
 	int range_weapon_equipped;
 
 	if ((flags & ELW_MOUSE_BUTTON_WHEEL) == ELW_MID_MOUSE)
@@ -1205,7 +1204,7 @@ static int display_game_handler (window_info *win)
 	reset_under_the_mouse();
 
 	// are we actively drawing things?
-	if (SDL_GetAppState() & SDL_APPACTIVE)
+	if (el_active)
 	{
 
 		if (!dungeon){
@@ -1308,7 +1307,7 @@ static int display_game_handler (window_info *win)
 
 	CHECK_GL_ERRORS();
 	// if not active, dont bother drawing any more
-	if (!(SDL_GetAppState () & SDL_APPACTIVE))
+	if (!el_active)
 	{
 		// remember the time stamp to improve FPS quality when switching modes
 		next_fps_time=cur_time+1000;
@@ -1492,17 +1491,14 @@ CHECK_GL_ERRORS();
 	return 1;
 }
 
-int check_quit_or_fullscreen (Uint32 key)
+int check_quit_or_fullscreen (SDL_Keycode key_code, Uint16 key_mod)
 {
-	int alt_on = key & ELW_ALT;
-	Uint16 keysym = key & 0xffff;
-
 	// first, try to see if we pressed Alt+x or Ctrl+q, to quit.
-	if (key == K_QUIT || key == K_QUIT_ALT) 
+	if (KEY_DEF_CMP(K_QUIT, key_code, key_mod) || KEY_DEF_CMP(K_QUIT_ALT, key_code, key_mod))
 	{
 		exit_now = 1;
 	}
-	else if (keysym == SDLK_RETURN && alt_on)
+	else if (key_code == SDLK_RETURN && key_mod & KMOD_ALT)
 	{
 		toggle_full_screen ();
 	}
@@ -1516,55 +1512,27 @@ int check_quit_or_fullscreen (Uint32 key)
 
 Uint8 key_to_char (Uint32 unikey)
 {
-	// convert keypad values (numlock on)
-	if (unikey >= SDLK_KP0 && unikey <= SDLK_KP_EQUALS)
-	{
-		switch (unikey)
-		{
-			case SDLK_KP_PERIOD:
-				return SDLK_PERIOD;
-			case SDLK_KP_DIVIDE:
-				return SDLK_SLASH;
-			case SDLK_KP_MULTIPLY:
-				return SDLK_ASTERISK;
-			case SDLK_KP_MINUS:
-				return SDLK_MINUS;
-			case SDLK_KP_PLUS:
-				return SDLK_PLUS;
-			case SDLK_KP_ENTER:
-				return SDLK_RETURN;
-			case SDLK_KP_EQUALS:
-				return SDLK_EQUALS;
-			default:
-				return (unikey-SDLK_WORLD_48)&0xff;
-		}
-	}
-
-	// catch stupid windows problem if control+enter pressed (that 10 is retuned not 13)
-	if (unikey == 10)
-		return SDLK_RETURN;
-
-	return unikey & 0xff;
+	return (Uint8)unikey;
 }
 
-int string_input(char *text, size_t maxlen, char ch)
+int string_input(char *text, size_t maxlen, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
 	size_t len = strlen(text);
 #ifndef OSX
-	if (ch == SDLK_BACKSPACE)
+	if (key_code == SDLK_BACKSPACE)
 #else
-	if ((ch == SDLK_BACKSPACE) || (ch == 127))
+	if ((key_code == SDLK_BACKSPACE) || (key_unicode == 127))
 #endif
 	{
 		if (len > 0)
 			text[len-1] = '\0';
 		return 1;
 	}
-	if (is_printable (ch))
+	if (is_printable (key_unicode))
 	{
 		if (len < (maxlen-1))
 		{
-			text[len] = ch;
+			text[len] = key_unicode;
 			text[len+1] = '\0';
 		}
 		return 1;
@@ -1737,25 +1705,25 @@ void switch_action_mode(int mode)
 
 // keypress handler common to all in-game root windows (game_root_win, 
 // console_root_win, and map_root_win)
-int keypress_root_common (Uint32 key, Uint32 unikey)
+int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
-	int alt_on = key & ELW_ALT;
-	int ctrl_on = key & ELW_CTRL;
-	Uint16 keysym = key & 0xffff;
+	Uint16 alt_on = key_mod & KMOD_ALT;
+	Uint16 ctrl_on = key_mod & KMOD_CTRL;
 #ifdef DEBUG
 	int i;
 	Uint32 _cur_time= SDL_GetTicks();
+	Uint16 shift_on = key_mod & KMOD_SHIFT;
 #endif
 	
-	if(check_quit_or_fullscreen(key))
+	if(check_quit_or_fullscreen(key_code, key_mod))
 	{
 		return 1;
 	}
-	else if((keysym == SDLK_UP || keysym == SDLK_DOWN) && ctrl_on)
+	else if((key_code == SDLK_UP || key_code == SDLK_DOWN) && ctrl_on)
 	{
 		char *line;
 
-		if(keysym == SDLK_UP)
+		if(key_code == SDLK_UP)
 		{
 			line = history_get_line_up();
 		}
@@ -1772,59 +1740,59 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		connect_to_server();
 	}
-	else if (key == K_PASTE)
+	else if (KEY_DEF_CMP(K_PASTE, key_code, key_mod))
 	{
 		start_paste(NULL);
 	}
 #ifdef DEBUG
-	else if((keysym == SDLK_LEFT) && shift_on && ctrl_on && !alt_on)
+	else if((key_code == SDLK_LEFT) && shift_on && ctrl_on && !alt_on)
 	{
 		for (i=0; i<ITEM_WEAR_START;i++) {
 			item_list[i].cooldown_rate = 60000;
 			item_list[i].cooldown_time = _cur_time + 60000;
 		}
 	}
-	else if((keysym == SDLK_DOWN) && shift_on && ctrl_on && !alt_on)
+	else if((key_code == SDLK_DOWN) && shift_on && ctrl_on && !alt_on)
 	{
 		for(i=0; i<ITEM_WEAR_START;i++) {
 			item_list[i].cooldown_time -= 1000;
 		}
 	}
-	else if((keysym == SDLK_UP) && shift_on && ctrl_on && !alt_on)
+	else if((key_code == SDLK_UP) && shift_on && ctrl_on && !alt_on)
 	{
 		for(i=0; i<ITEM_WEAR_START;i++) {
 			item_list[i].cooldown_time += 1000;
 		}
 	}
-	else if((keysym == SDLK_t) && shift_on && ctrl_on && !alt_on)
+	else if((key_code == SDLK_t) && shift_on && ctrl_on && !alt_on)
 	{
 		weather_add_lightning(rand()%5, -camera_x-100+rand()%200, -camera_y-100+rand()%200);
 	}
-	else if((keysym == SDLK_w) && shift_on && ctrl_on && alt_on)
+	else if((key_code == SDLK_w) && shift_on && ctrl_on && alt_on)
 	{
 		if(real_game_minute >= 355) real_game_minute -=355; else real_game_minute +=  5;
 		new_minute();
 	}
-	else if((keysym == SDLK_q) && shift_on && ctrl_on && alt_on)
+	else if((key_code == SDLK_q) && shift_on && ctrl_on && alt_on)
 	{
 		if(real_game_minute < 5) real_game_minute +=355; else real_game_minute -=  5;
 		new_minute();
 	}
-	else if((keysym == SDLK_w) && !shift_on && ctrl_on && alt_on)
+	else if((key_code == SDLK_w) && !shift_on && ctrl_on && alt_on)
 	{
 		if(real_game_minute >= 359) real_game_minute -=359; else real_game_minute +=  1;
 		new_minute();
 	}
-	else if((keysym == SDLK_q) && !shift_on && ctrl_on && alt_on)
+	else if((key_code == SDLK_q) && !shift_on && ctrl_on && alt_on)
 	{
 		if(real_game_minute < 1) real_game_minute +=359; else real_game_minute -=  1;
 		new_minute();
 	}
-	else if((keysym == SDLK_s) && shift_on && ctrl_on && alt_on)
+	else if((key_code == SDLK_s) && shift_on && ctrl_on && alt_on)
 	{
 		skybox_init_defs(NULL);
 	}
-	else if((keysym == SDLK_f) && shift_on && ctrl_on && alt_on)
+	else if((key_code == SDLK_f) && shift_on && ctrl_on && alt_on)
 	{
 		freeze_time = !freeze_time;
 		if (freeze_time)
@@ -1836,66 +1804,66 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 			new_second();
 		}
 	}
-	else if((keysym == SDLK_HOME) && shift_on && ctrl_on && !alt_on)
+	else if((key_code == SDLK_HOME) && shift_on && ctrl_on && !alt_on)
 	{
 		weather_set_area(0, -camera_x, -camera_y, 100.0, 1, 1.0, 10);
 	}
-	else if ((keysym == SDLK_END) && shift_on && ctrl_on && !alt_on)
+	else if ((key_code == SDLK_END) && shift_on && ctrl_on && !alt_on)
 	{
 		weather_set_area(1, -camera_x, -camera_y, 100.0, 2, 1.0, 10);
 	}
-	else if((keysym == SDLK_z) && shift_on && ctrl_on && !alt_on)
+	else if((key_code == SDLK_z) && shift_on && ctrl_on && !alt_on)
 	{
 		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_SMALL_MINE, (poor_man ? 6 : 10));
 	}
-	else if((keysym == SDLK_x) && shift_on && ctrl_on && !alt_on)
+	else if((key_code == SDLK_x) && shift_on && ctrl_on && !alt_on)
 	{
 		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_MEDIUM_MINE, (poor_man ? 6 : 10));
 	}
-	else if((keysym == SDLK_c) && shift_on && ctrl_on && !alt_on)
+	else if((key_code == SDLK_c) && shift_on && ctrl_on && !alt_on)
 	{
 		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_HIGH_EXPLOSIVE_MINE, (poor_man ? 6 : 10));
 	}
-	else if((keysym == SDLK_v) && shift_on && ctrl_on && !alt_on)
+	else if((key_code == SDLK_v) && shift_on && ctrl_on && !alt_on)
 	{
 		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_TRAP, (poor_man ? 6 : 10));
 	}
-	else if((keysym == SDLK_b) && shift_on && ctrl_on && !alt_on)
+	else if((key_code == SDLK_b) && shift_on && ctrl_on && !alt_on)
 	{
 		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_CALTROP, (poor_man ? 6 : 10));
 	}
-	else if((keysym == SDLK_n) && shift_on && ctrl_on && !alt_on)
+	else if((key_code == SDLK_n) && shift_on && ctrl_on && !alt_on)
 	{
 		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_POISONED_CALTROP, (poor_man ? 6 : 10));
 	}
-	else if((keysym == SDLK_m) && shift_on && ctrl_on && !alt_on)
+	else if((key_code == SDLK_m) && shift_on && ctrl_on && !alt_on)
 	{
 		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_MANA_BURNER, (poor_man ? 6 : 10));
 	}
-	else if((keysym == SDLK_j) && shift_on && ctrl_on && !alt_on)
+	else if((key_code == SDLK_j) && shift_on && ctrl_on && !alt_on)
 	{
 		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_MANA_DRAINER, (poor_man ? 6 : 10));
 	}
-	else if((keysym == SDLK_k) && shift_on && ctrl_on && !alt_on)
+	else if((key_code == SDLK_k) && shift_on && ctrl_on && !alt_on)
 	{
 		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_UNINVIZIBILIZER, (poor_man ? 6 : 10));
 	}
-	else if((keysym == SDLK_l) && shift_on && ctrl_on && !alt_on)
+	else if((key_code == SDLK_l) && shift_on && ctrl_on && !alt_on)
 	{
 		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_MAGIC_IMMUNITY_REMOVAL, (poor_man ? 6 : 10));
 	}
 #endif
 #ifdef DEBUG
     // scale the current actor
-	else if((keysym == SDLK_p) && shift_on && ctrl_on && !alt_on)
+	else if((key_code == SDLK_p) && shift_on && ctrl_on && !alt_on)
 	{
 		get_our_actor()->scale *= 1.05;
 	}
-	else if((keysym == SDLK_o) && shift_on && ctrl_on && !alt_on)
+	else if((key_code == SDLK_o) && shift_on && ctrl_on && !alt_on)
 	{
 		get_our_actor()->scale /= 1.05;
 	}
-	else if((keysym == SDLK_h) && shift_on && ctrl_on && !alt_on)
+	else if((key_code == SDLK_h) && shift_on && ctrl_on && !alt_on)
 	{
         if (get_our_actor())
         {
@@ -1907,139 +1875,139 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	}
 #endif // DEBUG
 	// use quickbar items & spells
-	else if (action_item_keys(key))
+	else if (action_item_keys(key_code, key_mod))
 	{
 	}
-	else if (action_spell_keys(key))
+	else if (action_spell_keys(key_code, key_mod))
 	{
 	}
 	// hide all windows
-	else if(key==K_HIDEWINS)
+	else if (KEY_DEF_CMP(K_HIDEWINS, key_code, key_mod))
 	{
 		hide_all_windows();
 	}
 	// toggle options
-	else if (key == K_HEALTHBAR)
+	else if (KEY_DEF_CMP(K_HEALTHBAR, key_code, key_mod))
 	{
 		view_health_bar = !view_health_bar;
 	}
-	else if (key == K_VIEWETHER)
-	{
-		view_ether_bar = !view_ether_bar;
-	}
-	else if (key == K_ETHERBARS)
+	else if (KEY_DEF_CMP(K_VIEWETHER, key_code, key_mod))
 	{
 		view_ether = !view_ether;
 	}
-	else if (key == K_VIEWTEXTASOVERTEXT)
+	else if (KEY_DEF_CMP(K_ETHERBARS, key_code, key_mod))
+	{
+		view_ether_bar = !view_ether_bar;
+	}
+	else if (KEY_DEF_CMP(K_VIEWTEXTASOVERTEXT, key_code, key_mod))
 	{
 		view_chat_text_as_overtext = !view_chat_text_as_overtext;
 	}
-	else if (key == K_VIEWNAMES)
+	else if (KEY_DEF_CMP(K_VIEWNAMES, key_code, key_mod))
 	{
 		view_names = !view_names;
 	}
-	else if (key == K_VIEWHP)
+	else if (KEY_DEF_CMP(K_VIEWHP, key_code, key_mod))
 	{
 		view_hp = !view_hp;
 	}
-	else if (key == K_SHADOWS)
+	else if (KEY_DEF_CMP(K_SHADOWS, key_code, key_mod))
 	{
 		clouds_shadows = !clouds_shadows;
 	}
-	else if (key == K_RANGINGLOCK)
+	else if (KEY_DEF_CMP(K_RANGINGLOCK, key_code, key_mod))
 	{
 		toggle_ranging_lock();
 	}
 	// open or close windows
-	else if (key == K_STATS)
+	else if (KEY_DEF_CMP(K_STATS, key_code, key_mod))
 	{
 		view_tab (&tab_stats_win, &tab_stats_collection_id, STATS_TAB_STATS);
 	}
-	else if (key == K_QUESTLOG)
+	else if (KEY_DEF_CMP(K_QUESTLOG, key_code, key_mod))
 	{
 		view_window (&questlog_win, 0);
 	}
-	else if (key == K_SESSION)
+	else if (KEY_DEF_CMP(K_SESSION, key_code, key_mod))
 	{
 		view_tab (&tab_stats_win, &tab_stats_collection_id, STATS_TAB_SESSION);
 	}
-	else if (key == K_COUNTERS)
+	else if (KEY_DEF_CMP(K_COUNTERS, key_code, key_mod))
 	{
 		view_tab (&tab_stats_win, &tab_stats_collection_id, STATS_TAB_COUNTERS);
 	}
-	else if (key == K_OPTIONS)
+	else if (KEY_DEF_CMP(K_OPTIONS, key_code, key_mod))
 	{
 		view_window (&elconfig_win, 0);
 	}
-	else if (key == K_KNOWLEDGE)
+	else if (KEY_DEF_CMP(K_KNOWLEDGE, key_code, key_mod))
 	{
 		view_tab (&tab_stats_win, &tab_stats_collection_id, STATS_TAB_KNOWLEDGE);
 	}
-	else if (key == K_ENCYCLOPEDIA)
+	else if (KEY_DEF_CMP(K_ENCYCLOPEDIA, key_code, key_mod))
 	{
 		view_tab (&tab_help_win, &tab_help_collection_id, HELP_TAB_ENCYCLOPEDIA);
 	}
-	else if (key == K_HELP)
+	else if (KEY_DEF_CMP(K_HELP, key_code, key_mod))
 	{
 		view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_HELP);
 	}
-	else if (key == K_HELPSKILLS)
+	else if (KEY_DEF_CMP(K_HELPSKILLS, key_code, key_mod))
 	{
 		view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_SKILLS);
 	}
-	else if (key == K_RULES)
+	else if (KEY_DEF_CMP(K_RULES, key_code, key_mod))
 	{
 		view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_RULES);
 	}
-	else if (key == K_NOTEPAD)
+	else if (KEY_DEF_CMP(K_NOTEPAD, key_code, key_mod))
 	{
 		view_tab(&tab_info_win, &tab_info_collection_id, INFO_TAB_NOTEPAD);
 	}
-	else if(key == K_MINIMAP)
+	else if (KEY_DEF_CMP(K_MINIMAP, key_code, key_mod))
 	{
 		view_window (&minimap_win, 0);
 	}
 #ifdef ECDEBUGWIN
-	else if(key == K_ECDEBUGWIN)
+	else if (KEY_DEF_CMP(K_ECDEBUGWIN, key_code, key_mod))
 	{
 		view_window (&ecdebug_win, 0);
 	}
 #endif // ECDEBUGWIN
-	else if (key == K_SIGILS)
+	else if (KEY_DEF_CMP(K_SIGILS, key_code, key_mod))
 	{
 		view_window (&sigil_win, -1);
 	}
-	else if (key == K_EMOTES)
+	else if (KEY_DEF_CMP(K_EMOTES, key_code, key_mod))
 	{
 		view_window (&emotes_win, -1);
 	}
-	else if (key == K_MANUFACTURE)
+	else if (KEY_DEF_CMP(K_MANUFACTURE, key_code, key_mod))
 	{
 		view_window (&manufacture_win, -1);
 	}
-	else if(key == K_ITEMS)
+	else if (KEY_DEF_CMP(K_ITEMS, key_code, key_mod))
 	{
 		view_window (&items_win, -1);
 	}
-	else if(key == K_BUDDY)
+	else if (KEY_DEF_CMP(K_BUDDY, key_code, key_mod))
 	{
 		display_buddy();
 	}
 	// set action modes
-	else if (key == K_WALK)
+	else if (KEY_DEF_CMP(K_WALK, key_code, key_mod))
 	{
 		switch_action_mode(ACTION_WALK);
 	}
-	else if (key == K_LOOK)
+	else if (KEY_DEF_CMP(K_LOOK, key_code, key_mod))
 	{
 		switch_action_mode(ACTION_LOOK);
 	}
-	else if (key == K_USE)
+	else if (KEY_DEF_CMP(K_USE, key_code, key_mod))
 	{
 		switch_action_mode(ACTION_USE);
 	}
-	else if (key == K_AFK)
+	else if (KEY_DEF_CMP(K_AFK, key_code, key_mod))
 	{
 		if (!afk) 
 		{
@@ -2051,54 +2019,54 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 			go_ifk ();
 		}
 	}
-	else if(key == K_RANGINGWIN)
+	else if (KEY_DEF_CMP(K_RANGINGWIN, key_code, key_mod))
 	{
 		view_window(&range_win, -1);
 	}
-	else if(key == K_TARGET_CLOSE)
+	else if (KEY_DEF_CMP(K_TARGET_CLOSE, key_code, key_mod))
 	{
 		toggle_target_close_clicked_creature();
 	}
-	else if (key == K_SIT)
+	else if (KEY_DEF_CMP(K_SIT, key_code, key_mod))
 	{
 		toggle_sit_stand ();
 	}
-	else if (key == K_BROWSER)
+	else if (KEY_DEF_CMP(K_BROWSER, key_code, key_mod))
 	{
 		open_last_seen_url();
 	}
-	else if (key == K_BROWSERWIN)
+	else if (KEY_DEF_CMP(K_BROWSERWIN, key_code, key_mod))
 	{
 		view_tab(&tab_info_win, &tab_info_collection_id, INFO_TAB_URLWIN);
 	}
-	else if (keysym == SDLK_ESCAPE)
+	else if (key_code == SDLK_ESCAPE)
 	{
-		root_key_to_input_field (key, unikey);
+		root_key_to_input_field (key_code, key_unicode, key_mod);
 	}
-	else if(key == K_NEXT_CHAT_TAB)
+	else if (KEY_DEF_CMP(K_NEXT_CHAT_TAB, key_code, key_mod))
 	{
 		next_channel_tab();
 	}
-	else if(key == K_PREV_CHAT_TAB)
+	else if (KEY_DEF_CMP(K_PREV_CHAT_TAB, key_code, key_mod))
 	{
 		prev_channel_tab();
 	}
-	else if (key == K_WINDOWS_ON_TOP)
+	else if (KEY_DEF_CMP(K_WINDOWS_ON_TOP, key_code, key_mod))
 	{
 		change_windows_on_top(&windows_on_top);
 	}
 #ifdef PNG_SCREENSHOT
-	else if (key == K_SCREENSHOT)
+	else if (KEY_DEF_CMP(K_SCREENSHOT, key_code, key_mod))
 	{
 		makeScreenShot();
 	}
 #endif
-	else if (key == K_OPAQUEWIN)
+	else if (KEY_DEF_CMP(K_OPAQUEWIN, key_code, key_mod))
 	{
 		if (top_SWITCHABLE_OPAQUE_window_drawn != -1)
 			windows_list.window[top_SWITCHABLE_OPAQUE_window_drawn].opaque ^= 1;
 	}
-	else if (key == K_REPEATSPELL)	// REPEAT spell command
+	else if (KEY_DEF_CMP(K_REPEATSPELL, key_code, key_mod))	// REPEAT spell command
 	{
 		if ( !get_show_window (trade_win) )
 		{
@@ -2113,11 +2081,11 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	return 1; // we handled it
 }
 
-int text_input_handler (Uint32 key, Uint32 unikey)
+int text_input_handler (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
-	Uint8 ch = key_to_char (unikey);
+	Uint8 ch = key_to_char (key_unicode);
 
-	if (root_key_to_input_field(key, unikey))
+	if (root_key_to_input_field(key_code, key_unicode, key_mod))
 	{
 		return 1;
 	}
@@ -2136,9 +2104,9 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 		}
 	}
 #ifndef OSX
-	else if (ch == SDLK_BACKSPACE && input_text_line.len > 0)
+	else if (key_code == SDLK_BACKSPACE && input_text_line.len > 0)
 #else
-	else if (((ch == SDLK_BACKSPACE) || (ch == 127)) && input_text_line.len > 0)
+	else if (((key_code == SDLK_BACKSPACE) || (ch == 127)) && input_text_line.len > 0)
 #endif
 	{
 		input_text_line.len--;
@@ -2148,7 +2116,7 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 		}
 		input_text_line.data[input_text_line.len] = '\0';
 	}
-	else if (ch == SDLK_RETURN && input_text_line.len > 0)
+	else if (key_code == SDLK_RETURN && input_text_line.len > 0)
 	{
 		parse_input(input_text_line.data, input_text_line.len);
 		add_line_to_history(input_text_line.data, input_text_line.len);
@@ -2162,37 +2130,35 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 	return 1;
 }
 
-static int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+static int keypress_game_handler (window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
-	Uint16 keysym = key & 0xffff;
-
 	// first try the keypress handler for all root windows
-	if ( keypress_root_common (key, unikey) )
+	if ( keypress_root_common (key_code, key_unicode, key_mod) )
 	{
 		return 1;
 	}
-	else if (key == K_TABCOMPLETE && input_text_line.len > 0)
+	else if (KEY_DEF_CMP(K_TABCOMPLETE, key_code, key_mod) && input_text_line.len > 0)
 	{
 		do_tab_complete(&input_text_line);
 	}
-	else if (key == K_TURNLEFT)
+	else if (KEY_DEF_CMP(K_TURNLEFT, key_code, key_mod))
 	{
 		//Moved delay to my_tcp_send
 		Uint8 str[2];
 		str[0] = TURN_LEFT;
 		my_tcp_send (my_socket, str, 1);
 	}
-	else if (key == K_TURNRIGHT)
+	else if (KEY_DEF_CMP(K_TURNRIGHT, key_code, key_mod))
 	{
 		Uint8 str[2];
 		str[0] = TURN_RIGHT;
 		my_tcp_send (my_socket, str, 1);
 	}
-	else if (key==K_ADVANCE)
+	else if (KEY_DEF_CMP(K_ADVANCE, key_code, key_mod))
 	{
 		move_self_forward();
 	}
-	else if (key == K_ROTATELEFT)
+	else if (KEY_DEF_CMP(K_ROTATELEFT, key_code, key_mod))
 	{
 		camera_rotation_speed = (first_person?-1:1)*normal_camera_rotation_speed / 800.0;
 		camera_rotation_deceleration = normal_camera_deceleration*0.5E-3;
@@ -2203,7 +2169,7 @@ static int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, 
 			last_kludge = camera_kludge;
 		}
 	}
-	else if (key == K_FROTATELEFT)
+	else if (KEY_DEF_CMP(K_FROTATELEFT, key_code, key_mod))
 	{
 		camera_rotation_speed = (first_person?-1:1)*fine_camera_rotation_speed / 200.0;
 		camera_rotation_speed /= 4.0;
@@ -2215,7 +2181,7 @@ static int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, 
 			last_kludge = camera_kludge;
 		}
 	}
-	else if (key == K_ROTATERIGHT)
+	else if (KEY_DEF_CMP(K_ROTATERIGHT, key_code, key_mod))
 	{
 		camera_rotation_speed = (first_person?1:-1)*normal_camera_rotation_speed / 800.0;
 		camera_rotation_deceleration = normal_camera_deceleration*0.5E-3;
@@ -2226,7 +2192,7 @@ static int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, 
 			last_kludge = camera_kludge;
 		}
 	}
-	else if (key == K_FROTATERIGHT)
+	else if (KEY_DEF_CMP(K_FROTATERIGHT, key_code, key_mod))
 	{
 		camera_rotation_speed = (first_person?1:-1)*fine_camera_rotation_speed / 200.0;
 		camera_rotation_speed /= 4.0;
@@ -2238,19 +2204,19 @@ static int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, 
 			last_kludge = camera_kludge;
 		}
 	}
-	else if (key == K_CAMERAUP)
+	else if (KEY_DEF_CMP(K_CAMERAUP, key_code, key_mod))
 	{
 		camera_tilt_speed = -normal_camera_rotation_speed * 0.0005;
 		camera_tilt_duration += 100;
 		camera_tilt_deceleration = normal_camera_deceleration*0.5E-3;
 	}
-	else if (key == K_CAMERADOWN)
+	else if (KEY_DEF_CMP(K_CAMERADOWN, key_code, key_mod))
 	{
 		camera_tilt_speed = normal_camera_rotation_speed * 0.0005;
 		camera_tilt_duration += 100;
 		camera_tilt_deceleration = normal_camera_deceleration*0.5E-3;
 	}
-	else if (key == K_ZOOMIN)
+	else if (KEY_DEF_CMP(K_ZOOMIN, key_code, key_mod))
 	{
 		if (camera_zoom_dir == -1)
 			camera_zoom_duration += 100;
@@ -2258,7 +2224,7 @@ static int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, 
 			camera_zoom_duration = 100;
 		camera_zoom_dir = -1;
 	}
-	else if (key == K_ZOOMOUT)
+	if (KEY_DEF_CMP(K_ZOOMOUT, key_code, key_mod))
 	{
 		if (camera_zoom_dir == 1)
 			camera_zoom_duration += 100;
@@ -2266,10 +2232,10 @@ static int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, 
 			camera_zoom_duration = 100;
 		camera_zoom_dir = 1;
 	}
-	else if ((key == K_MAP) || (key == K_MARKFILTER))
+	else if ((KEY_DEF_CMP(K_MAP, key_code, key_mod)) || (KEY_DEF_CMP(K_MARKFILTER, key_code, key_mod)))
 	{
 		// if K_MARKFILTER pressed, open the map window with the filter active
-		if (key == K_MARKFILTER)
+		if (KEY_DEF_CMP(K_MARKFILTER, key_code, key_mod))
 			mark_filter_active = 1;
 		if ( switch_to_game_map () )
 		{
@@ -2278,7 +2244,7 @@ static int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, 
 			show_window (map_root_win);
 		}
 	}
-	else if (keysym == SDLK_F6)
+	else if (key_code == SDLK_F6)
 	{
 		if(!hud_x)
 		{
@@ -2292,20 +2258,20 @@ static int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, 
 		}
 		resize_root_window ();
 	}
-	else if (key == K_FIRST_PERSON)
+	else if (KEY_DEF_CMP(K_FIRST_PERSON, key_code, key_mod))
 	{
 		toggle_first_person();
 	}
-	else if (key == K_GRAB_MOUSE)
+	else if (KEY_DEF_CMP(K_GRAB_MOUSE, key_code, key_mod))
 	{
 		toggle_have_mouse();
 	}
-	else if (key == K_EXTEND_CAM)
+	else if (KEY_DEF_CMP(K_EXTEND_CAM, key_code, key_mod))
 	{
 		toggle_ext_cam(&ext_cam);
 	}
 #ifdef PAWN
-	else if (keysym == SDLK_F8)
+	else if (key_code == SDLK_F8)
 	{
 		if (object_under_mouse != -1 && thing_under_the_mouse == UNDER_MOUSE_3D_OBJ && objects_list[object_under_mouse])
 		{
@@ -2318,7 +2284,7 @@ static int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, 
 	}
 #endif
 
-	else if (keysym == SDLK_F8)
+	else if (key_code == SDLK_F8)
 	{
 		static int ison = 0;
 		if ((ison) && (weather_get_intensity() > 0.01))
@@ -2333,18 +2299,18 @@ static int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, 
 		}
 	}
 
-	else if (keysym == SDLK_F9)
+	else if (key_code == SDLK_F9)
 	{
 		actor *me = get_actor_ptr_from_id (yourself);
-		if (key & ELW_SHIFT)
+		if (key_mod & KMOD_SHIFT)
 			remove_fire_at_tile(me->x_pos * 2, me->y_pos * 2);
 		else
 			add_fire_at_tile(1, me->x_pos * 2, me->y_pos * 2, get_tile_height(me->x_tile_pos, me->y_tile_pos));
 	}
 #ifdef DEBUG
-	else if (keysym == SDLK_F10)
+	else if (key_code == SDLK_F10)
 	{
-		if (key & ELW_SHIFT)
+		if (key_mod & KMOD_SHIFT)
 		{
 #ifdef NEW_SOUND
 			print_sound_types();
@@ -2353,7 +2319,7 @@ static int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, 
 			print_sound_sources();
 #endif //!NEW_SOUND
 		}
-		else if (key & ELW_ALT)
+		else if (key_mod & KMOD_ALT)
 		{
 			print_filter_list ();
 		}
@@ -2369,11 +2335,11 @@ static int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, 
 			}
 		}
 	}
-	else if (keysym == SDLK_F11)
+	else if (key_code == SDLK_F11)
 	{
 		unload_texture_cache();
 	}
-	else if (keysym == SDLK_F12)
+	else if (key_code == SDLK_F12)
 	{
 		dump_texture_cache();
 	}
@@ -2381,17 +2347,17 @@ static int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, 
 	// END OF TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	else
 	{
-		Uint8 ch = key_to_char (unikey);
+		Uint8 ch = key_to_char (key_unicode);
 
 		reset_tab_completer();
-		if (ch == '`' || key == K_CONSOLE)
+		if (ch == '`' || KEY_DEF_CMP(K_CONSOLE, key_code, key_mod))
 		{
 			if (have_mouse) {toggle_have_mouse(); keep_grabbing_mouse=1;}
 			hide_window (game_root_win);
 			show_window (console_root_win);
 		}
 		// see if the common text handler can deal with it
-		else if ( !text_input_handler (key, unikey) )
+		else if ( !text_input_handler (key_code, key_unicode, key_mod) )
 		{
 			// nothing we can handle
 			return 0;
@@ -2402,13 +2368,13 @@ static int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, 
 	return 1;
 }
 
-void do_keypress(Uint32 key)
+void do_keypress(el_key_def key)
 {
 	if (game_root_win >= 0)
 	{
 		window_info *win = &windows_list.window[game_root_win];
 		if (win != NULL)
-			keypress_game_handler(win, 0, 0, key, 0);
+			keypress_game_handler(win, 0, 0, key.key_code, 0, key.key_mod);
 	}
 }
 
@@ -2417,6 +2383,13 @@ static int show_game_handler (window_info *win) {
 	show_hud_windows();
 	if (use_windowed_chat == 1)
 		display_tab_bar();
+	return 1;
+}
+
+static int resize_game_root_handler(window_info *win, int width, int height)
+{
+	if (get_show_window(win->window_id))
+		init_hud_interface (HUD_INTERFACE_GAME);
 	return 1;
 }
 
@@ -2429,10 +2402,11 @@ void create_game_root_window (int width, int height)
 		set_window_handler (game_root_win, ELW_HANDLER_DISPLAY, &display_game_handler);
 		set_window_handler (game_root_win, ELW_HANDLER_CLICK, &click_game_handler);
 		set_window_handler (game_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_game_handler);
-		set_window_handler (game_root_win, ELW_HANDLER_KEYPRESS, &keypress_game_handler);
+		set_window_handler (game_root_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_game_handler);
 		set_window_handler (game_root_win, ELW_HANDLER_SHOW, &show_game_handler);
 		set_window_handler (game_root_win, ELW_HANDLER_AFTER_SHOW, &update_have_display);
 		set_window_handler (game_root_win, ELW_HANDLER_HIDE, &update_have_display);
+		set_window_handler (game_root_win, ELW_HANDLER_RESIZE, &resize_game_root_handler);
 
 		if(input_widget == NULL) {
 			Uint32 id;
@@ -2446,7 +2420,7 @@ void create_game_root_window (int width, int height)
 			input_widget = widget_find(game_root_win, id);
 			input_widget->OnResize = input_field_resize;
 		}
-		widget_set_OnKey(input_widget->window_id, input_widget->id, chat_input_key);
+		widget_set_OnKey(input_widget->window_id, input_widget->id, (int (*)())chat_input_key);
 		if(input_text_line.len > 0) {
 			widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_DISABLED);
 		}

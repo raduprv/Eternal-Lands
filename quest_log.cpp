@@ -340,7 +340,7 @@ class Questlog_Window
 		void open(void);
 		int display_handler(window_info *win);
 		int click_handler(window_info *win, Uint32 flags);
-		int keypress_handler(window_info *win, Uint32 key, Uint32 unikey);
+		int keypress_handler(window_info *win, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
 		void mouseover_handler(int my);
 		void ui_scale_handler(window_info *win);
 		void scroll_click_handler(widget_list *widget);
@@ -396,12 +396,8 @@ static Questlog_Window questlog_window;
 
 static int display_questlog_handler(window_info *win) { return questlog_window.display_handler(win); }
 static int questlog_click(window_info *win, int mx, int my, Uint32 flags) { return questlog_window.click_handler(win, flags); }
-#ifdef ANDROID
-static int keypress_questlog_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey, Uint16 mods)
-#else
-static int keypress_questlog_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
-#endif
-	{ return questlog_window.keypress_handler(win, key, unikey); }
+static int keypress_questlog_handler(window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
+	{ return questlog_window.keypress_handler(win, key_code, key_unicode, key_mod); }
 static int mouseover_questlog_handler(window_info *win, int mx, int my) { questlog_window.mouseover_handler(my); return 0; }
 static int show_questlog_handler(window_info *win) { questlist.check_auto_open(); return 0; }
 static int ui_scale_questlog_handler(window_info *win) { questlog_window.ui_scale_handler(win); return 1; }
@@ -428,11 +424,7 @@ class NPC_Filter
 		void ui_scale_handler(window_info *win);
 		void display_handler(window_info *win);
 		int click_handler(window_info *win, int mx, int my, Uint32 flags);
-#ifdef ANDROID
-		int keypress_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey, Uint16 mods);
-#else
-		int keypress_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey);
-#endif
+		int keypress_handler(window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
 		void mouseover_handler(window_info *win, int mx, int my);
 		int get_win_id(void) const { return npc_filter_win; }
 		bool is_set(std::string npc) { return (npc_filter_map[npc] == 1); }
@@ -466,13 +458,8 @@ static int display_npc_filter_handler(window_info *win)
 	{ npc_filter.display_handler(win); return 1; }
 static int click_npc_filter_handler(window_info *win, int mx, int my, Uint32 flags)
 	{ return npc_filter.click_handler(win, mx, my, flags); }
-#ifdef ANDROID
-static int keypress_npc_filter_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey, Uint16 mods)
-	{ return npc_filter.keypress_handler(win, mx, my, key, unikey, mods); }
-#else
-static int keypress_npc_filter_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
-	{ return npc_filter.keypress_handler(win, mx, my, key, unikey); }
-#endif
+static int keypress_npc_filter_handler(window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
+	{ return npc_filter.keypress_handler(win, mx, my, key_code, key_unicode, key_mod); }
 static int mouseover_npc_filter_handler(window_info *win, int mx, int my)
 	{ npc_filter.mouseover_handler(win, mx, my); return 0; }
 
@@ -1303,18 +1290,10 @@ int NPC_Filter::click_handler(window_info *win, int mx, int my, Uint32 flags)
 
 //	Move the window scroll position to match the key pressed with the first character of the npc name.
 //
-#ifdef ANDROID
-int NPC_Filter::keypress_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey, Uint16 mods)
-#else
-int NPC_Filter::keypress_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
-#endif
+int NPC_Filter::keypress_handler(window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
-	char keychar = tolower(static_cast<char>(unikey));
-#ifdef ANDROID
-	if ((mods & KMOD_CTRL) || (mods & KMOD_ALT) || (keychar<'a') || (keychar>'z'))
-#else
-	if ((key & ELW_CTRL) || (key & ELW_ALT) || (keychar<'a') || (keychar>'z'))
-#endif
+	char keychar = tolower(static_cast<char>(key_unicode));
+	if ((key_mod & KMOD_CTRL) || (key_mod & KMOD_ALT) || (keychar<'a') || (keychar>'z'))
 		return 0;
 	size_t line = 0;
 	for (std::map<std::string,int>::iterator i = npc_filter_map.begin(); i != npc_filter_map.end(); ++i, line++)
@@ -1788,10 +1767,10 @@ int Questlog_Window::click_handler(window_info *win, Uint32 flags)
 
 
 // Keypress in window, check for find key
-int Questlog_Window::keypress_handler(window_info *win, Uint32 key, Uint32 unikey)
+int Questlog_Window::keypress_handler(window_info *win, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
-	char keychar = tolower(static_cast<char>(unikey));
-	if ((key == K_MARKFILTER) || (keychar=='/'))
+	char keychar = tolower(static_cast<char>(key_unicode));
+	if (KEY_DEF_CMP(K_MARKFILTER, key_code, key_mod) || (keychar=='/'))
 	{
 		find_in_entry(win);
 		return 1;

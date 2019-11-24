@@ -5,6 +5,7 @@
 #include "consolewin.h"
 #include "draw_scene.h"
 #include "elconfig.h"
+#include "events.h"
 #include "font.h"
 #include "gamewin.h"
 #include "gl_init.h"
@@ -32,7 +33,7 @@ void opening_win_update_zoom () {
 
 int display_opening_handler ()
 {
-	if (SDL_GetAppState () & SDL_APPACTIVE)
+	if (el_active)
 	{
 		int msg, offset, iline;
 		
@@ -69,14 +70,14 @@ int click_opening_handler ()
 	return 1;
 }
 
-int keypress_opening_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+int keypress_opening_handler (window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
 #ifndef MAP_EDITOR2
-	int alt_on = key & ELW_ALT;
-	int ctrl_on = key & ELW_CTRL;
+	int alt_on = key_mod & KMOD_ALT;
+	int ctrl_on = key_mod & KMOD_CTRL;
 #endif
 
-	if(check_quit_or_fullscreen(key))
+	if(check_quit_or_fullscreen(key_code, key_mod))
 	{
 		return 1;
 	}
@@ -90,7 +91,8 @@ int keypress_opening_handler (window_info *win, int mx, int my, Uint32 key, Uint
 		connect_to_server();
 	}
 #endif
-	
+	else
+		return 0;
 	return 1;
 }
 
@@ -111,7 +113,7 @@ void create_opening_root_window (int width, int height)
 		opening_root_win = create_window ("Opening", -1, -1, 0, 0, width, height, ELW_TITLE_NONE|ELW_SHOW_LAST);
 
 		set_window_handler (opening_root_win, ELW_HANDLER_DISPLAY, &display_opening_handler);
-		set_window_handler (opening_root_win, ELW_HANDLER_KEYPRESS, &keypress_opening_handler);
+		set_window_handler (opening_root_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_opening_handler);
 		set_window_handler (opening_root_win, ELW_HANDLER_CLICK, &click_opening_handler);
 		set_window_handler (opening_root_win, ELW_HANDLER_SHOW, &show_opening_handler);
 		

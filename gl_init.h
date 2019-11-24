@@ -6,6 +6,7 @@
 #ifndef __GL_INIT_H__
 #define __GL_INIT_H__
 
+#include <SDL.h>
 #include "load_gl_extensions.h"
 
 #ifdef __cplusplus
@@ -17,6 +18,8 @@ extern "C" {
 extern int window_width; /*!< width of the window */
 extern int window_height; /*!< height of the window */
 /*! @} */
+
+extern SDL_Window *el_gl_window; /*!< the sdl window */
 
 extern int bpp; /*!< color depth to use */
 extern int video_mode; /*!< currently selected video mode */
@@ -95,19 +98,6 @@ void init_gl_extensions();
  *
  */
 void resize_root_window();
-
-/*!
- * \ingroup video
- * \brief   sets \a mode to be the new video mode. If \a fs is 0, the new mode will be fullscreen, else it will be a windowed mode.
- *
- *      Sets \a mode to be the new video mode. If \a fs is 0, the new mode will be fullscreen, else it will be a windowed mode.
- *
- * \param fs        flag, indicating whether \a mode will be in fullscreen or in windowed mode.
- * \param mode      the new video mode to use.
- *
- * \callgraph
- */
-void set_new_video_mode(int fs,int mode);
 
 /*!
  * \ingroup video

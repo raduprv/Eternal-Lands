@@ -169,8 +169,8 @@ namespace IconWindow
 			{
 				if (!key_name.empty())
 				{
-					Uint32 value = get_key_value(key_name.c_str());
-					if (value)
+					el_key_def value = get_key_value(key_name.c_str());
+					if (value.key_code != SDLK_UNKNOWN)
 						do_keypress(value);
 				}
 				Basic_Icon::action();

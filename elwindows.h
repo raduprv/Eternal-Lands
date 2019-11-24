@@ -6,6 +6,7 @@
 #ifndef	__EL_WINDOWS_H
 #define	__EL_WINDOWS_H
 
+#include <SDL_keycode.h>
 #include "keys.h"
 #include "widgets.h"
 
@@ -222,10 +223,6 @@ typedef	struct	{
  * \name mouse click flags - first ones from events
  */
 /*! @{ */
-#define	ELW_SHIFT		SHIFT
-#define	ELW_CTRL		CTRL
-#define	ELW_ALT			ALT
-#define ELW_META		KMOD_LMETA
 #define ELW_RIGHT_MOUSE		(1<<28)
 #define ELW_MID_MOUSE		(1<<27)	// future expansion
 #define ELW_LEFT_MOUSE		(1<<26)
@@ -341,12 +338,13 @@ int		drag_windows(int mx, int my, int dx, int dy);
  *
  * \param x         x coordinate of the mouse position where the click occurred
  * \param y         y coordinate of the mouse position where the click occurred
- * \param key       the key or key combination that is pressed
- * \param unikey    the unicode value of \a key
+ * \param	key_code the SDL key code
+ * \param	key_unicode the unicode representation of the key pressed
+ * \param	key_mod the status bitmask for mod keys
  * \retval int
  * \callgraph
  */
-int		keypress_in_windows(int x, int y, Uint32 key, Uint32 unikey);
+int		keypress_in_windows(int x, int y, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
 
 /*!
  * \ingroup elwindows

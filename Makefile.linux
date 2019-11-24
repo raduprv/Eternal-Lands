@@ -5,9 +5,9 @@
 PNG_SCREENSHOT_LIBS = $(shell pkg-config libpng --libs)
 
 OPTIONS = -DLINUX -DELC $(foreach FEATURE, $(FEATURES), -D$(FEATURE)) -D_7ZIP_ST $(GIT_VERSION) \
-	$(shell pkg-config sdl --cflags) \
-	$(shell pkg-config SDL_net --cflags) \
-	$(shell pkg-config SDL_image --cflags) \
+	$(shell pkg-config sdl2 --cflags) \
+	$(shell pkg-config SDL2_net --cflags) \
+	$(shell pkg-config SDL2_image --cflags) \
 	$(shell pkg-config libxml-2.0 --cflags) \
 	$(shell pkg-config cal3d --cflags) \
 	$(shell pkg-config gl --cflags) \
@@ -21,10 +21,10 @@ CFLAGS=$(PLATFORM) $(CWARN) -O0 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EX
 
 CXXFLAGS=$(PLATFORM) $(CXXWARN) -O0 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
 
-LDFLAGS=$(shell pkg-config sdl --libs) \
+LDFLAGS=$(shell pkg-config sdl2 --libs) \
 	$(shell pkg-config libxml-2.0 --libs) \
-	$(shell pkg-config SDL_net --libs) \
-	$(shell pkg-config SDL_image --libs) \
+	$(shell pkg-config SDL2_net --libs) \
+	$(shell pkg-config SDL2_image --libs) \
 	$(shell pkg-config cal3d --libs) \
 	$(shell pkg-config gl --libs) \
 	$(shell pkg-config glu --libs) \
