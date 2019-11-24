@@ -2,7 +2,6 @@
 #include <string.h>
 #include <math.h>
 #include <SDL.h>
-#include <SDL_active.h>
 #include "shadows.h"
 #include "2d_objects.h"
 #include "3d_objects.h"
@@ -11,6 +10,7 @@
 #include "cursors.h"
 #include "draw_scene.h"
 #include "e3d.h"
+#include "events.h"
 #include "framebuffer.h"
 #include "global.h"
 #include "init.h"
@@ -218,7 +218,7 @@ void draw_3d_object_shadows(unsigned int object_type)
 		return;
 	}
 	// reduce CPU usage while minimized
-	if(!(SDL_GetAppState()&SDL_APPACTIVE)){
+	if(!el_active){
 		// not actually drawing, fake it
 		// now loop through each object
 		for (i=start; i<stop; i++)

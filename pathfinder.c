@@ -15,7 +15,7 @@ int pf_follow_path = 0;
 static PF_OPEN_LIST pf_open;
 static PF_TILE *pf_src_tile, *pf_cur_tile;
 static int pf_visited_squares[20];
-static SDL_TimerID pf_movement_timer = NULL;
+static SDL_TimerID pf_movement_timer = 0;
 
 #define PF_DIFF(a, b) ((a > b) ? a - b : b - a)
 #define PF_HEUR(a, b) pf_heuristic(a->x-b->x, a->y-b->y);
@@ -220,7 +220,7 @@ void pf_destroy_path()
 	if (pf_movement_timer)
 	{
 		SDL_RemoveTimer(pf_movement_timer);
-		pf_movement_timer = NULL;
+		pf_movement_timer = 0;
 	}
 	pf_follow_path = 0;
 	for (i = 0; i < 20; i++)

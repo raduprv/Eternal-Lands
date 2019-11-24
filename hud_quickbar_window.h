@@ -42,7 +42,7 @@ void init_quickbar(void);
  *
  *	returns 1 if the key is a item keypress, otherwise 0.
  */
-int action_item_keys(Uint32 key);
+int action_item_keys(SDL_Keycode key_code, Uint16 key_mod);
 
 /*!
  * \ingroup items_quickbar

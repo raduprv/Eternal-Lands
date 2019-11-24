@@ -2241,7 +2241,7 @@ void init_texture_cache()
 	for (i = 0; i < ACTOR_TEXTURE_THREAD_COUNT; i++)
 	{
 		actor_texture_threads[i] = SDL_CreateThread(
-			load_enhanced_actor_thread, &actor_texture_threads_done);
+			load_enhanced_actor_thread, "TextureThread", &actor_texture_threads_done);
 	}
 #endif	/* ELC */
 }

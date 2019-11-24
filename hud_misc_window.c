@@ -456,13 +456,13 @@ static int click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 		in_stats_bar = 1;
 
 		if ((first_disp_stat > 0) && ((flags & ELW_WHEEL_UP) ||
-			((flags & ELW_LEFT_MOUSE) && (flags & ELW_CTRL))))
+			((flags & ELW_LEFT_MOUSE) && (flags & KMOD_CTRL))))
 		{
 			first_disp_stat--;
 			return 1;
 		}
 		else if ((first_disp_stat + num_disp_stat < NUM_WATCH_STAT-1) &&
-				 ((flags & ELW_WHEEL_DOWN) || ((flags & ELW_RIGHT_MOUSE) && (flags & ELW_CTRL))))
+				 ((flags & ELW_WHEEL_DOWN) || ((flags & ELW_RIGHT_MOUSE) && (flags & KMOD_CTRL))))
 		{
 			first_disp_stat++;
 			return 1;
@@ -476,7 +476,7 @@ static int click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
 
 	// reserve CTRL clicks for scrolling
-	if (flags & ELW_CTRL) return 0;
+	if (flags & KMOD_CTRL) return 0;
 
 	//check to see if we clicked on the clock
 	if(view_digital_clock>0){
@@ -508,7 +508,7 @@ static int click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 		unsigned char protocol_name;
 		do_click_sound();
 		protocol_name= LOCATE_ME;
-		if (flags & ELW_SHIFT)
+		if (flags & KMOD_SHIFT)
 		{
 			copy_next_LOCATE_ME = 2;
 		}

@@ -533,7 +533,7 @@ namespace UserMenus
 	Container * Container::get_instance(void)
 	{
 		static Container um;
-		static Uint32 creation_thread = SDL_ThreadID();
+		static SDL_threadID creation_thread = SDL_ThreadID();
 		if (SDL_ThreadID() != creation_thread)
 			std::cerr << __FUNCTION__ << ": Danger W.R.! User menus call by non-creator thread." << std::endl;
 		return &um;

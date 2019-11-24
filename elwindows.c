@@ -34,7 +34,7 @@ static int last_opaque_window_backgrounds = 0;
 int display_window(int win_id);
 int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy);
 int	mouseover_window(int win_id, int x, int y);	// do mouseover processing for a window
-int	keypress_in_window(int win_id, int x, int y, Uint32 key, Uint32 unikey);	// keypress in the window
+int	keypress_in_window(int win_id, int x, int y, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);	// keypress in the window
 
 /*
  * The intent of the windows system is to create the window once
@@ -544,7 +544,7 @@ int drag_windows (int mx, int my, int dx, int dy)
 	return drag_id;
 }
 
-int	keypress_in_windows(int x, int y, Uint32 key, Uint32 unikey)
+int	keypress_in_windows(int x, int y, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
 	int	done= 0;
 	int	id;
@@ -566,7 +566,7 @@ int	keypress_in_windows(int x, int y, Uint32 key, Uint32 unikey)
 					// at this level?
 					if(windows_list.window[i].order == id)
 					{
-						done = keypress_in_window (i, x, y, key, unikey);
+						done = keypress_in_window (i, x, y, key_code, key_unicode, key_mod);
 						if(done > 0)
 						{
 							if (windows_list.window[i].displayed > 0)
@@ -601,7 +601,7 @@ int	keypress_in_windows(int x, int y, Uint32 key, Uint32 unikey)
 				// at this level?
 				if(windows_list.window[i].order == id)
 				{
-					done = keypress_in_window(i, x, y, key, unikey);
+					done = keypress_in_window(i, x, y, key_code, key_unicode, key_mod);
 					if(done > 0)
 					{
 						//select_window(i);	// these never get selected
@@ -1729,7 +1729,7 @@ CHECK_GL_ERRORS();
 	return 0;
 }
 
-int	keypress_in_window(int win_id, int x, int y, Uint32 key, Uint32 unikey)
+int	keypress_in_window(int win_id, int x, int y, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
 	window_info *win;
 	int	mx, my;
@@ -1763,7 +1763,7 @@ int	keypress_in_window(int win_id, int x, int y, Uint32 key, Uint32 unikey)
 			if (mx > W->pos_x && mx <= W->pos_x + W->len_x && my > W->pos_y && my <= W->pos_y+W->len_y)
 			{
 				if (!(W->Flags&WIDGET_DISABLED)) {
-					if ( widget_handle_keypress (W, mx - W->pos_x, my - W->pos_y, key, unikey) )
+					if ( widget_handle_keypress (W, mx - W->pos_x, my - W->pos_y, key_code, key_unicode, key_mod) )
 					{
 						// widget handled it 
 						glPopMatrix ();
@@ -1785,7 +1785,7 @@ CHECK_GL_ERRORS();
 			
 			glPushMatrix();
 			glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
-			ret_val = (*win->keypress_handler) (win, mx, my, key, unikey);
+			ret_val = (*win->keypress_handler) (win, mx, my, key_code, key_unicode, key_mod);
 			glPopMatrix();
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();

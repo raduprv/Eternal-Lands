@@ -273,16 +273,16 @@ int Hud_Timer::mouse_click(Uint32 flags)
 		int step = 5;
 		if (!mode_coundown)
 			return 1;
-		if (flags & ELW_CTRL)
+		if (flags & KMOD_CTRL)
 			step = 1;
-		else if (flags & ELW_ALT)
+		else if (flags & KMOD_ALT)
 			step = 30;
 		if ((flags & ELW_WHEEL_UP)!=0)
 			step *= -1;
 		set_start(start_value + step);
 	}
 	// control mode
-	else if (flags & ELW_SHIFT)
+	else if (flags & KMOD_SHIFT)
 	{
 		toggle_mode();
 		do_window_close_sound();

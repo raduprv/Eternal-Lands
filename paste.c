@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <SDL_syswm.h>
+#include "gl_init.h"
 #include "paste.h"
 #include "chat.h"
 #include "text.h"
@@ -138,9 +139,9 @@ void copy_to_clipboard(const char* text)
 		return;
 
 	SDL_VERSION (&info.version);
-	if (SDL_GetWMInfo (&info))
+	if (SDL_GetWindowWMInfo (el_gl_window, &info))
 	{
-		if (OpenClipboard (info.window))
+		if (OpenClipboard (info.info.win.window))
 		{
 			HGLOBAL hCopy = GlobalAlloc (GMEM_MOVEABLE, 1+strlen (text));
 			char* copy = GlobalLock (hCopy);
@@ -207,10 +208,8 @@ static void start_paste_from_target(widget_list *widget, int clipboard)
 	Atom property;
 
 	SDL_VERSION(&wminfo.version);
-	if (SDL_GetWMInfo(&wminfo) && wminfo.subsystem == SDL_SYSWM_X11)
+	if (SDL_GetWindowWMInfo(el_gl_window, &wminfo) && wminfo.subsystem == SDL_SYSWM_X11)
 	{
-		wminfo.info.x11.lock_func();
-
 		dpy = wminfo.info.x11.display;
 		window = wminfo.info.x11.window;
 
@@ -238,7 +237,6 @@ static void start_paste_from_target(widget_list *widget, int clipboard)
 		// //if(clipboard) {
 		//	processpaste(dpy, window, property);
 		//}
-		wminfo.info.x11.unlock_func();
 	}
 }
 
@@ -260,10 +258,8 @@ static void copy_to_clipboard_target(const char* text, int clipboard)
 	Atom selection;
 
 	SDL_VERSION(&wminfo.version);
-	if (SDL_GetWMInfo(&wminfo) && (wminfo.subsystem == SDL_SYSWM_X11))
+	if (SDL_GetWindowWMInfo(el_gl_window, &wminfo) && wminfo.subsystem == SDL_SYSWM_X11)
 	{
-		wminfo.info.x11.lock_func();
-
 		dpy = wminfo.info.x11.display;
 		window = wminfo.info.x11.window;
 
@@ -284,7 +280,6 @@ static void copy_to_clipboard_target(const char* text, int clipboard)
 		}
 		//property = XInternAtom(dpy, "PASTE", 0);
 		XSetSelectionOwner(dpy, selection, window, CurrentTime);
-		wminfo.info.x11.unlock_func();
 	}
 }
 
@@ -345,10 +340,8 @@ void finishpaste(XSelectionEvent event)
 	SDL_SysWMinfo wminfo;
 
 	SDL_VERSION(&wminfo.version);
-	if (SDL_GetWMInfo(&wminfo) && wminfo.subsystem==SDL_SYSWM_X11)
+	if (SDL_GetWindowWMInfo(el_gl_window, &wminfo) && wminfo.subsystem == SDL_SYSWM_X11)
 	{
-		wminfo.info.x11.lock_func();
-
 		dpy=wminfo.info.x11.display;
 		window=wminfo.info.x11.window;
 
@@ -358,7 +351,6 @@ void finishpaste(XSelectionEvent event)
 			return;
 		}
 		processpaste(dpy, window, event.property);
-		wminfo.info.x11.unlock_func();
 	}
 }
 

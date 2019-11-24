@@ -18,6 +18,7 @@
 #include "draw_scene.h"
 #include "elwindows.h"
 #include "errors.h"
+#include "events.h"
 #include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
@@ -724,7 +725,7 @@ int rules_root_win = -1;
 
 static int display_rules_root_handler (window_info *win)
 {
-	if (SDL_GetAppState () & SDL_APPACTIVE)
+	if (el_active)
 	{
 		if(virt_win_offset < 0) virt_win_offset=0;
 		draw_console_pic (cons_text);
@@ -801,39 +802,39 @@ static int click_rules_root_handler (window_info *win, int mx, int my, Uint32 fl
 	return 0;
 }
 
-static int keypress_rules_root_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+static int keypress_rules_root_handler (window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
-	Uint16 keysym = key & 0xffff;
-
 	// first, try to see if we pressed Alt+x, to quit.
-	if ( check_quit_or_fullscreen (key) )
+	if ( check_quit_or_fullscreen (key_unicode, key_mod) )
 	{
 		return 1;
 	}
-	else if (keysym == SDLK_DOWN)
+	else if (key_code == SDLK_DOWN)
 	{
 		vscrollbar_scroll_down(rules_root_win, rules_root_scroll_id);
 		rules_root_scroll_handler();
 	}
-	else if (keysym == SDLK_UP)
+	else if (key_code == SDLK_UP)
 	{
 		vscrollbar_scroll_up(rules_root_win, rules_root_scroll_id);
 		rules_root_scroll_handler();
 	}
-	else if (keysym == SDLK_PAGEUP)
+	else if (key_code == SDLK_PAGEUP)
 	{
 		vscrollbar_scroll_up(rules_root_win, rules_root_scroll_id);
 		rules_root_scroll_handler();
 	}
-	else if (keysym == SDLK_PAGEDOWN)
+	else if (key_code == SDLK_PAGEDOWN)
 	{
 		vscrollbar_scroll_down(rules_root_win, rules_root_scroll_id);
 		rules_root_scroll_handler();
 	}
-	else if (keysym == SDLK_RETURN && countdown <= 0 && (read_all_rules))
+	else if (key_code == SDLK_RETURN && countdown <= 0 && (read_all_rules))
 	{
 		switch_rules_to_next ();
 	}
+	else
+		return 0;
 
 	return 1;
 }
@@ -892,7 +893,7 @@ void create_rules_root_window (int width, int height, int next, int time)
 		set_window_handler (rules_root_win, ELW_HANDLER_DISPLAY, &display_rules_root_handler);
 		set_window_handler (rules_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_rules_root_handler);
 		set_window_handler (rules_root_win, ELW_HANDLER_CLICK, &click_rules_root_handler);
-		set_window_handler (rules_root_win, ELW_HANDLER_KEYPRESS, &keypress_rules_root_handler);
+		set_window_handler (rules_root_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_rules_root_handler);
 		set_window_handler (rules_root_win, ELW_HANDLER_RESIZE, &resize_rules_root_handler);
 		set_window_handler (rules_root_win, ELW_HANDLER_UI_SCALE, &ui_scale_rules_root_handler);
 		widget_set_OnClick (rules_root_win, rules_root_scroll_id, rules_root_scroll_handler);

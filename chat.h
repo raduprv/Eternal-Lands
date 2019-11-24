@@ -137,7 +137,7 @@ void clear_input_line (void);
  * \retval int 1 if handled, 0 otherwise
  * \callgraph
  */
-int root_key_to_input_field (Uint32 key, Uint32 unikey);
+int root_key_to_input_field (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
 
 /*!
  * \ingroup chat_window
@@ -237,7 +237,7 @@ int skip_message (const text_message *msg, Uint8 filter);
 int command_jlc(char * text, int len);
 void update_chat_win_buffers(void);
 void cleanup_chan_names(void);
-int chat_input_key(widget_list *widget, int mx, int my, Uint32 key, Uint32 unikey);
+int chat_input_key(widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
 void load_channel_colors();
 void save_channel_colors();
 int command_channel_colors(char * text, int len);

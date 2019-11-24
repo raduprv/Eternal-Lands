@@ -158,17 +158,17 @@ static int popup_ok_button_handler(widget_list *w,
 }
 
 static int popup_keypress_handler(window_info *win,
-	int UNUSED(mx), int UNUSED(my), Uint32 key, Uint32 unikey)
+	int UNUSED(mx), int UNUSED(my), SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
 	INPUT_POPUP *ipu = ipu_from_window(win);
 	if (ipu == NULL) return 0;
 
-	if (key == SDLK_RETURN)
+	if (key_code == SDLK_RETURN)
 	{
 		accept_popup_window (ipu);
 		return 1;
 	}
-	else if (key == SDLK_ESCAPE)
+	else if (key_code == SDLK_ESCAPE)
 	{
 		if (ipu->popup_cancel != NULL)
 			(*ipu->popup_cancel) (ipu->data);
@@ -189,7 +189,7 @@ static int popup_keypress_handler(window_info *win,
 			// set the flag again.
 			int res;
 			tfw->Flags &= ~TEXT_FIELD_NO_KEYPRESS;
-			res = widget_handle_keypress (tfw, mx - tfw->pos_x, my - tfw->pos_y, key, unikey);
+			res = widget_handle_keypress (tfw, mx - tfw->pos_x, my - tfw->pos_y, key_code, key_unicode, key_mod);
 			tfw->Flags |= TEXT_FIELD_NO_KEYPRESS;
 			return res;
 		}
@@ -300,7 +300,7 @@ void display_popup_win (INPUT_POPUP *ipu, const char* label)
 		ipu->popup_no = button_add_extended (ipu->popup_win, widget_id++, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, button_cancel);
 		widget_set_OnClick (ipu->popup_win, ipu->popup_no, popup_cancel_button_handler);
 
-		set_window_handler (ipu->popup_win, ELW_HANDLER_KEYPRESS, popup_keypress_handler);
+		set_window_handler (ipu->popup_win, ELW_HANDLER_KEYPRESS, (int (*)())&popup_keypress_handler);
 		set_window_handler (ipu->popup_win, ELW_HANDLER_UI_SCALE, popup_ui_scale_handler);
 
 		win->data = ipu;

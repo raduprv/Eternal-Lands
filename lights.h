@@ -141,7 +141,6 @@ void update_scene_lights();
  *      Initializes the default lights and enables lighting.
  *
  * \sa init_stuff
- * \sa set_new_video_mode
  */
 void init_lights();
 

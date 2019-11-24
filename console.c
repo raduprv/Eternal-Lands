@@ -1574,8 +1574,8 @@ int command_keypress(char *text, int len)
 	text = getparams(text);
 	if (*text)
 	{
-		Uint32 value = get_key_value(text);
-		if (value)
+		el_key_def value = get_key_value(text);
+		if (value.key_code != SDLK_UNKNOWN)
 			do_keypress(value);
 	}
 	return 1;

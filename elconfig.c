@@ -731,63 +731,13 @@ static void change_new_selection(int *value)
 	}
 }
 
-int switch_video(int mode, int full_screen)
-{
-	int win_width,
-		win_height,
-		win_bpp;
-
-	int index = mode - 1;
-
-	int flags = SDL_OPENGL;
-	if (full_screen)
-		flags |= SDL_FULLSCREEN;
-
-	if(mode == 0 && !full_screen) {
-		win_width = video_user_width;
-		win_height = video_user_height;
-		win_bpp = bpp;
-	} else if(index < 0 || index >= video_modes_count) {
-		//warn about this error
-		LOG_TO_CONSOLE(c_red2,invalid_video_mode);
-		return 0;
-	} else {
-		/* Check if the video mode is supported. */
-		win_width = video_modes[index].width;
-		win_height = video_modes[index].height;
-		win_bpp = video_modes[index].bpp;
-	}
-
-#ifndef LINUX
-	LOG_TO_CONSOLE(c_green2, video_restart_str);
-	video_mode=mode;
-	set_var_unsaved("video_mode", INI_FILE_VAR);
-	return 1;
-#endif
-
-	destroy_fbos();
-
-	if (!SDL_VideoModeOK(win_width, win_height, win_bpp, flags)) {
-		LOG_TO_CONSOLE(c_red2, invalid_video_mode);
-		return 0;
-	} else {
-		set_new_video_mode(full_screen, mode);
-#ifndef MAP_EDITOR2
-		if(items_win >= 0) {
-			windows_list.window[items_win].show_handler(&windows_list.window[items_win]);
-		}
-#endif
-	}
-	build_fbos();
-	return 1;
-}
-
 static void switch_vidmode(int *pointer, int mode)
 {
 	if(!video_mode_set) {
 		/* Video isn't ready yet, just remember the mode */
 		video_mode= mode;
 	} else {
+		full_screen = 0;
 		switch_video(mode, full_screen);
 	}
 }
@@ -1199,7 +1149,7 @@ static void change_gamma(float *pointer, float *value)
 {
 	*pointer= *value;
 	if(video_mode_set && !disable_gamma_adjust) {
-		SDL_SetGamma(*value, *value, *value);
+		SDL_SetWindowBrightness(el_gl_window, *value);
 	}
 }
 
@@ -2595,13 +2545,13 @@ static int display_elconfig_handler(window_info *win)
 	return 1;
 }
 
-static int spinbutton_onkey_handler(widget_list *widget, int mx, int my, Uint32 key, Uint32 unikey)
+static int spinbutton_onkey_handler(widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
 	if(widget != NULL) {
 		int i;
 		spinbutton *button;
 
-		if (!(key&ELW_ALT) && !(key&ELW_CTRL)) {
+		if (!(key_mod & KMOD_ALT) && !(key_mod & KMOD_CTRL)) {
 			for(i= 0; i < our_vars.no; i++) {
 				if(our_vars.var[i]->widgets.widget_id == widget->id) {
 					button= widget->widget_info;
@@ -2763,7 +2713,7 @@ static int string_onkey_handler(widget_list *widget)
 			if(our_vars.var[i]->widgets.widget_id == widget->id)
 			{
 				our_vars.var[i]->saved= 0;
-				return 1;
+				return 0;
 			}
 		}
 	}
@@ -2825,7 +2775,7 @@ static void elconfig_populate_tabs(void)
 				widget_id = spinbutton_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
 					elconfig_menu_x_len/4*3, elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(100), ELCONFIG_SCALED_VALUE(20),
 					SPIN_INT, our_vars.var[i]->var, *(int *)min, *(int *)max, 1.0, elconf_scale, -1, -1, -1);
-				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onkey_handler);
+				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, (int (*)())spinbutton_onkey_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
 				free(min);
 				free(max);
@@ -2844,7 +2794,7 @@ static void elconfig_populate_tabs(void)
 				widget_id = spinbutton_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
 					elconfig_menu_x_len/4*3, elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(100), ELCONFIG_SCALED_VALUE(20),
 					SPIN_FLOAT, our_vars.var[i]->var, *(float *)min, *(float *)max, *interval, elconf_scale, -1, -1, -1);
-				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onkey_handler);
+				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, (int (*)())spinbutton_onkey_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
 				free(min);
 				free(max);
@@ -2862,7 +2812,7 @@ static void elconfig_populate_tabs(void)
 				widget_id = pword_field_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
 					elconfig_menu_x_len/5*2, elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(332), ELCONFIG_SCALED_VALUE(20),
 					P_TEXT, elconf_scale, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var, our_vars.var[i]->len);
-				widget_set_OnKey (elconfig_tabs[tab_id].tab, widget_id, string_onkey_handler);
+				widget_set_OnKey (elconfig_tabs[tab_id].tab, widget_id, (int (*)())string_onkey_handler);
 			break;
 			case OPT_PASSWORD:
 				// Grum: the client shouldn't store the password, so let's not add it to the configuration window
@@ -2904,7 +2854,7 @@ static void elconfig_populate_tabs(void)
 				widget_id = spinbutton_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
 					elconfig_menu_x_len/4*3, elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(100), ELCONFIG_SCALED_VALUE(20),
 					SPIN_FLOAT, our_vars.var[i]->var, (*f_min_func)(), (*f_max_func)(), *interval, elconf_scale, -1, -1, -1);
-				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onkey_handler);
+				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, (int (*)())spinbutton_onkey_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
 				free(f_min_func);
 				free(f_max_func);
@@ -2923,7 +2873,7 @@ static void elconfig_populate_tabs(void)
 				widget_id = spinbutton_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
 					elconfig_menu_x_len/4*3, elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(100), ELCONFIG_SCALED_VALUE(20),
 					SPIN_INT, our_vars.var[i]->var, (*i_min_func)(), (*i_max_func)(), 1.0, elconf_scale, -1, -1, -1);
-				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onkey_handler);
+				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, (int (*)())spinbutton_onkey_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
 				free(i_min_func);
 				free(i_max_func);

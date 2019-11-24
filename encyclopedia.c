@@ -1209,10 +1209,10 @@ int mouseover_encyclopedia_handler(window_info *win, int mx, int my)
 
 /*	Add shortcut keypresses for search
 */
-int keypress_encyclopedia_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+static int keypress_encyclopedia_handler(window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
-	char keychar = tolower(key_to_char(unikey));
-	if ((key == K_MARKFILTER) || (keychar=='/'))
+	char keychar = tolower(key_to_char(key_unicode));
+	if (KEY_DEF_CMP(K_MARKFILTER, key_code, key_mod) || (keychar=='/'))
 	{
 		cm_encycl_handler(win, -1, mx, my, CM_ENCYCL_SEARCH);
 		return 1;
@@ -1245,7 +1245,7 @@ void fill_encyclopedia_win (int window_id)
 	}
 
 	set_window_handler(window_id, ELW_HANDLER_MOUSEOVER, &mouseover_encyclopedia_handler);
-	set_window_handler(window_id, ELW_HANDLER_KEYPRESS, &keypress_encyclopedia_handler);
+	set_window_handler(window_id, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_encyclopedia_handler);
 
 	if (!cm_valid(cm_encycl))
 	{

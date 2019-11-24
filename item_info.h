@@ -5,7 +5,6 @@
 extern "C" {
 #endif
 
-#include <SDL/SDL_types.h>
 #include "bags.h"
 
 /* if true, items descrtion tooltips are enabled in the GUI */

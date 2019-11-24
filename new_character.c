@@ -16,6 +16,7 @@
 #include "cursors.h"
 #include "draw_scene.h"
 #include "elconfig.h"
+#include "events.h"
 #include "gamewin.h"
 #include "gl_init.h"
 #include "global.h"
@@ -414,7 +415,7 @@ static int display_newchar_handler (window_info *win)
 
 	reset_under_the_mouse();
 
-	if (SDL_GetAppState() & SDL_APPACTIVE)
+	if (el_active)
 	{
 
 		draw_global_light ();
@@ -537,45 +538,43 @@ static int click_newchar_handler (window_info *win, int mx, int my, Uint32 flags
 	return 1; // we captured this mouseclick
 }
 
-static int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+static int keypress_newchar_handler (window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
 	static int last_time=0;
-	int alt_on = key & ELW_ALT;
-	int ctrl_on = key & ELW_CTRL;
 
-	if ( check_quit_or_fullscreen (key) ) {
+	if ( check_quit_or_fullscreen (key_code, key_mod) ) {
 		return 1;
-	} else if(disconnected && !alt_on && !ctrl_on){
+	} else if(disconnected && !(key_mod & KMOD_ALT) && !(key_mod & KMOD_CTRL)){
 		connect_to_server();
-	} else if (key == K_CAMERAUP) {
+	} else if (KEY_DEF_CMP(K_CAMERAUP, key_code, key_mod)) {
 		camera_tilt_speed = -normal_camera_rotation_speed * 0.0005;
 		camera_tilt_duration += 100;
         camera_tilt_deceleration = normal_camera_deceleration*0.5E-3;
-	} else if (key == K_CAMERADOWN) {
+	} else if (KEY_DEF_CMP(K_CAMERADOWN, key_code, key_mod)) {
 		camera_tilt_speed = normal_camera_rotation_speed * 0.0005;
 		camera_tilt_duration += 100;
         camera_tilt_deceleration = normal_camera_deceleration*0.5E-3;
-	} else if (key == K_ZOOMIN) {
+	} else if (KEY_DEF_CMP(K_ZOOMIN, key_code, key_mod)) {
 		if (camera_zoom_dir == -1)
 			camera_zoom_duration += 100;
 		else
 			camera_zoom_duration = 100;
 		camera_zoom_dir = -1;
-	} else if (key == K_ZOOMOUT) {
+	} else if (KEY_DEF_CMP(K_ZOOMOUT, key_code, key_mod)) {
 		if (camera_zoom_dir == 1)
 			camera_zoom_duration += 100;
 		else
 			camera_zoom_duration = 100;
 		camera_zoom_dir = 1;
-	} else if(key==K_OPTIONS){
+	} else if(KEY_DEF_CMP(K_OPTIONS, key_code, key_mod)){
 		view_window(&elconfig_win, 0);
-	} else if(key==K_ENCYCLOPEDIA){
+	} else if(KEY_DEF_CMP(K_ENCYCLOPEDIA, key_code, key_mod)){
 		view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_ENCYCLOPEDIA);
-	} else if(key==K_HELP) {
+	} else if(KEY_DEF_CMP(K_HELP, key_code, key_mod)) {
 		view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_HELP);
-	} else if (key == K_RULES) {
+	} else if (KEY_DEF_CMP(K_RULES, key_code, key_mod)) {
 		view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_RULES);
-	} else if (key == K_ROTATELEFT) {
+	} else if (KEY_DEF_CMP(K_ROTATELEFT, key_code, key_mod)) {
 		camera_rotation_speed = normal_camera_rotation_speed / 800.0;
 		camera_rotation_duration = 800;
         camera_rotation_deceleration = normal_camera_deceleration*0.5E-3;
@@ -584,7 +583,7 @@ static int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 ke
 			hold_camera += camera_kludge - last_kludge;
 			last_kludge = camera_kludge;
 		}
-	} else if (key == K_FROTATELEFT) {
+	} else if (KEY_DEF_CMP(K_FROTATELEFT, key_code, key_mod)) {
 		camera_rotation_speed = fine_camera_rotation_speed / 200.0;
 		camera_rotation_duration = 200;
 		camera_rotation_speed /= 4.0;
@@ -594,7 +593,7 @@ static int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 ke
 			hold_camera += camera_kludge - last_kludge;
 			last_kludge = camera_kludge;
 		}
-	} else if (key == K_ROTATERIGHT) {
+	} else if (KEY_DEF_CMP(K_ROTATERIGHT, key_code, key_mod)) {
 		camera_rotation_speed = -normal_camera_rotation_speed / 800.0;
 		camera_rotation_duration = 800;
         camera_rotation_deceleration = normal_camera_deceleration*0.5E-3;
@@ -603,7 +602,7 @@ static int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 ke
 			hold_camera += camera_kludge - last_kludge;
 			last_kludge = camera_kludge;
 		}
-	} else if (key == K_FROTATERIGHT) {
+	} else if (KEY_DEF_CMP(K_FROTATERIGHT, key_code, key_mod)) {
 		camera_rotation_speed = -fine_camera_rotation_speed / 200.0;
 		camera_rotation_duration = 200;
 		camera_rotation_speed /= 4.0;
@@ -613,17 +612,19 @@ static int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 ke
 			hold_camera += camera_kludge - last_kludge;
 			last_kludge = camera_kludge;
 		}
-	} else if(key==K_TURNLEFT){
+	} else if(KEY_DEF_CMP(K_TURNLEFT, key_code, key_mod)){
 		if(last_time+666<cur_time){
 			add_command_to_actor(0, turn_left);
 			last_time=cur_time;
 		}
-	} else if(key==K_TURNRIGHT){
+	} else if(KEY_DEF_CMP(K_TURNRIGHT, key_code, key_mod)){
 		if(last_time+666<cur_time){
 			add_command_to_actor(0, turn_right);
 			last_time=cur_time;
 		}
 	}
+	else
+		return 0;
 	return 1;
 }
 
@@ -641,6 +642,13 @@ static int ui_scale_newchar_handler(window_info *win)
 {
 	hud_x = (int)(0.5 + win->current_scale * NEW_CHARACTER_BASE_HUD_X);
 	resize_newchar_hud_window();
+	return 1;
+}
+
+static int ui_resize_newchar_handler(window_info *win)
+{
+	if (get_show_window(win->window_id))
+		init_hud_interface (HUD_INTERFACE_NEW_CHAR);
 	return 1;
 }
 
@@ -670,11 +678,12 @@ void create_newchar_root_window (void)
 		set_window_handler (newchar_root_win, ELW_HANDLER_DISPLAY, &display_newchar_handler);
 		set_window_handler (newchar_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_newchar_handler);
 		set_window_handler (newchar_root_win, ELW_HANDLER_CLICK, &click_newchar_handler);
-		set_window_handler (newchar_root_win, ELW_HANDLER_KEYPRESS, &keypress_newchar_handler);
+		set_window_handler (newchar_root_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_newchar_handler);
 		set_window_handler (newchar_root_win, ELW_HANDLER_SHOW, &show_newchar_handler);
 		set_window_handler (newchar_root_win, ELW_HANDLER_AFTER_SHOW, &update_have_display);
 		set_window_handler (newchar_root_win, ELW_HANDLER_HIDE, &update_have_display);
 		set_window_handler (newchar_root_win, ELW_HANDLER_UI_SCALE, &ui_scale_newchar_handler);
+		set_window_handler (newchar_root_win, ELW_HANDLER_RESIZE, &ui_resize_newchar_handler);
 
 		newchar_advice_win = create_window ("Advice", newchar_root_win, 0, 100, 10, 200, 100, ELW_USE_UISCALE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_ALPHA_BORDER);
 		set_window_handler (newchar_advice_win, ELW_HANDLER_DISPLAY, &display_advice_handler);
@@ -920,9 +929,9 @@ static int password_draw(widget_list *w)
 	return 1;
 }
 
-static int keypress_namepass_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+static int keypress_namepass_handler (window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
-	Uint8 ch = key_to_char (unikey);
+	Uint8 ch = key_to_char (key_unicode);
 	int ret=0;
 	struct input_text * t=&inputs[active];
 
@@ -955,16 +964,12 @@ static int keypress_namepass_handler (window_info *win, int mx, int my, Uint32 k
 			ret=1;	//Reused to show that a letter has been added
 		}
 	}
-	else if (unikey == SDLK_TAB || unikey == SDLK_RETURN)
+	else if (key_code == SDLK_TAB || key_code == SDLK_RETURN)
 	{
 		active++;
 		if(active>2) active=0;
 	}
-#ifndef OSX
-	else if (unikey == SDLK_BACKSPACE)
-#else
-	else if (key == SDLK_BACKSPACE)
-#endif
+	else if (key_code == SDLK_BACKSPACE)
 	{
 		if (t->pos>0)
 		{
@@ -998,7 +1003,7 @@ static int keypress_namepass_handler (window_info *win, int mx, int my, Uint32 k
 		safe_snprintf(actors_list[0]->actor_name, sizeof(actors_list[0]->actor_name), "%s", inputs[0].str);
 	}
 
-	return 1;
+	return ret;
 }
 
 static const struct WIDGET_TYPE name_type = {NULL, &name_draw, &click_namepass_field, NULL, NULL, NULL, NULL, NULL}; //custom widget for the name button
@@ -1577,7 +1582,7 @@ static void create_newchar_hud_window(void)
 
 	namepass_win = create_window(win_name_pass, newchar_hud_win, 0, 0, 0, hud_x, window_height - hud_y, ELW_USE_UISCALE|ELW_SHOW_LAST); //Choose name and password
 	set_window_handler(namepass_win, ELW_HANDLER_INIT, &init_namepass_handler);
-	set_window_handler(namepass_win, ELW_HANDLER_KEYPRESS, &keypress_namepass_handler);
+	set_window_handler(namepass_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_namepass_handler);
 	init_window(namepass_win, newchar_hud_win, 0, 0, 0, hud_x, window_height - hud_y);
 }
 

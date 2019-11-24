@@ -78,7 +78,7 @@ CXXWARN=-Wall
 
 ## These 2 lines should be uncommented if you used Emajekral's Windows compilation how-to (adjust them if required)
 #EXTRA_LIBS=-lstdc++
-#EXTRA_INCLUDES=-IC:\\Dev-Cpp\\Include\\SDL
+#EXTRA_INCLUDES=-IC:\\Dev-Cpp\\Include\\SDL2
 
 ## These are the originally listed settings, uncomment them if you need them
 #EXTRA_INCLUDES=-IC:\\Programme\\Dev-Cpp\\Include

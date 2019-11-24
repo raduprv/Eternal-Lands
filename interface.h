@@ -64,15 +64,6 @@ extern int cons_text;
 extern int icons_text;
 
 /*!
- * A flag for a mode, that show whether a mode is supported and/or selected.
- */
-typedef struct
-{
-	int supported; /*!< 0 if this mode is supported, else != 0 */
-	int selected; /*!< 0 if this mode is selected, else != 0 */
-}mode_flag;
-
-/*!
  * Defintions for the video modes
  */
 typedef struct
@@ -81,7 +72,6 @@ typedef struct
 	int height;
 	int bpp;
 	char *name;
-	mode_flag flags;
 } video_mode_t;
 
 extern video_mode_t video_modes[]; /*!< global array of available video modes */
@@ -181,16 +171,6 @@ void Enter2DModeExtended(int width, int height);
  *
  */
 void Leave2DMode();
-
-/*!
- * \ingroup other
- * \brief   Checks the available video modes and initializes the \ref video_modes array.
- *
- *      Checks the available video modes and initializes the \ref video_modes array accordingly.
- *
- * \sa init_video
- */
-void build_video_mode_array();
 
 /*!
  * \ingroup interfaces

@@ -258,7 +258,7 @@ static void do_updates(void)
 		return;
 	}
 	// start the background process
-	SDL_CreateThread(&do_threaded_update, NULL);
+	SDL_CreateThread(&do_threaded_update, "UpdatecheckThread", NULL);
 }
 
 
@@ -495,7 +495,7 @@ static void http_threaded_get_file(char *server, char *path, FILE *fp, Uint8 *md
 	// NOTE: it is up to the EVENT handler to close the handle & free the spec pointer in data1
 
 	// start the download in the background
-	thread_list[spec->thread_index] = SDL_CreateThread(&http_get_file_thread_handler, (void *) spec);
+	thread_list[spec->thread_index] = SDL_CreateThread(&http_get_file_thread_handler, "DownloadThread", (void *) spec);
 }
 
 
@@ -673,7 +673,7 @@ CHECK_GL_ERRORS();
 
 static int display_update_root_handler (window_info *win)
 {
-	if (SDL_GetAppState () & SDL_APPACTIVE)
+	if (el_active)
 	{	
 		draw_console_pic (cons_text);
 		draw_update_interface (win);
@@ -690,22 +690,19 @@ static int click_update_root_restart ()
 	return 1;
 }
 
-static int keypress_update_root_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+static int keypress_update_root_handler (window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
-	Uint16 keysym = key & 0xffff;
-
 	// first, try to see if we pressed Alt+x, to quit.
-	if ( check_quit_or_fullscreen (key) )
+	if ( check_quit_or_fullscreen (key_code, key_mod) )
 	{
 		return 1;
 	}
-	else if (keysym == SDLK_RETURN)
+	else if (key_code == SDLK_RETURN)
 	{
 		exit_now = 1;
 		return 1;
 	}
-	
-	return 1;
+	return 0;
 }
 
 static int show_update_handler (window_info *win) {
@@ -732,7 +729,7 @@ void create_update_root_window (int width, int height, int time)
 			height - 2 * widget_get_height(update_root_win, update_root_restart_id));
 
 		set_window_handler (update_root_win, ELW_HANDLER_DISPLAY, &display_update_root_handler);
-		set_window_handler (update_root_win, ELW_HANDLER_KEYPRESS, &keypress_update_root_handler);
+		set_window_handler (update_root_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_update_root_handler);
 		set_window_handler (update_root_win, ELW_HANDLER_SHOW, &show_update_handler);
 		widget_set_OnClick(update_root_win, update_root_restart_id, &click_update_root_restart);
 	}

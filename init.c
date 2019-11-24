@@ -702,8 +702,7 @@ void init_stuff(void)
 	//Good, we should be in the right working directory - load all translatables from their files
 	load_translatables();
 
-	//if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE | SDL_INIT_EVENTTHREAD) == -1)	// experimental
-	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1)
+	if(SDL_Init(SDL_INIT_VIDEO) == -1)
 		{
 			LOG_ERROR("%s: %s\n", no_sdl_str, SDL_GetError());
 			fprintf(stderr, "%s: %s\n", no_sdl_str, SDL_GetError());
@@ -715,7 +714,7 @@ void init_stuff(void)
 #ifdef MAP_EDITOR2
 	SDL_WM_SetCaption( "Map Editor", "mapeditor" );
 #else
-	SDL_WM_SetCaption( win_principal, "eternallands" );
+	SDL_SetWindowTitle( el_gl_window, win_principal );
 #endif
 
 #ifdef OSX
@@ -933,7 +932,7 @@ void init_stuff(void)
 
 	update_loading_win(init_display_str, 5);
 	if (!disable_gamma_adjust)
-		SDL_SetGamma(gamma_var, gamma_var, gamma_var);
+		SDL_SetWindowBrightness(el_gl_window, gamma_var);
 
 	draw_scene_timer= SDL_AddTimer (1000/(18*4), my_timer, NULL);
 	misc_timer= SDL_AddTimer (500, check_misc, NULL);
