@@ -335,7 +335,9 @@ void init_video()
 	SDL_GetWindowSize(el_gl_window, &window_width, &window_height);
 
 	SDL_SetWindowMinimumSize(el_gl_window, 640,  480);
+#if SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL) >= 2005
 	SDL_SetWindowResizable(el_gl_window, SDL_TRUE);
+#endif
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -926,7 +928,9 @@ int switch_video(int mode, int full_screen)
 		SDL_SetWindowFullscreen(el_gl_window, 0);
 		SDL_SetWindowSize(el_gl_window, window_width, window_height);
 		SDL_SetWindowMinimumSize(el_gl_window, 640,  480);
+#if SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL) >= 2005
 		SDL_SetWindowResizable(el_gl_window, SDL_TRUE);
+#endif
 	}
 	resize_all_root_windows(window_width, window_height);
 	return 1;
