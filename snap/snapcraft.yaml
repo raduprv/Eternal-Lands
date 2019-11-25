@@ -36,7 +36,6 @@ parts:
       - libsdl2-image-2.0-0
       - libxrandr2
       - zlib1g
-      - libpng12-12
       - libpng16-16
       - libegl1-mesa
       - libglu1-mesa
