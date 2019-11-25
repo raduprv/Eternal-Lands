@@ -19,21 +19,21 @@ parts:
     source-type: git
     # Include for stable release, comment out for dev build
     #source-tag: 1.9.5.5
-    build-packages: [build-essential, libcal3d12-dev, libsdl-image1.2-dev, libsdl-net1.2-dev, libxml2-dev, libopenal-dev, libvorbis-dev]
+    build-packages: [build-essential, libcal3d12-dev, libsdl2-image-dev, libsdl2-net-dev, libxml2-dev, libopenal-dev, libvorbis-dev]
     plugin: cmake
     # Add -DVERSION_PREFIX=x.y.z for dev build
     configflags:  ["-DCMAKE_BUILD_TYPE=release", "-DEXEC=el.linux.bin", -DVERSION_PREFIX=1.9.5]
     artifacts: ["el.linux.bin"]
     stage-packages:
       - libglib2.0-0
-      - libsdl-net1.2
+      - libsdl2-net-2.0-0
       - libxml2
       - libogg0
       - libvorbis0a
       - libvorbisfile3
       - libopenal1
       - libcal3d12v5
-      - libsdl-image1.2
+      - libsdl2-image-2.0-0
       - libxrandr2
       - zlib1g
       - libpng16-16

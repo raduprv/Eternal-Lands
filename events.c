@@ -160,8 +160,8 @@ static Uint8 utf8_to_unicode(const char text[32])
 int HandleEvent (SDL_Event *event)
 {
 	int done = 0;
-	int mouse_delta_x;
-	int mouse_delta_y;
+	int mouse_delta_x = 0;
+	int mouse_delta_y = 0;
 	Uint32 flags = KMOD_NONE;
 	Uint8 unicode = '\0';
 	static Uint32 last_loss = 0;
