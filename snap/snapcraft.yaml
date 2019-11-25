@@ -19,7 +19,7 @@ parts:
     source-type: git
     # Include for stable release, comment out for dev build
     #source-tag: 1.9.5.5
-    build-packages: [build-essential, libcal3d12-dev, libsdl2-image-dev, libsdl2-net-dev, libxml2-dev, libopenal-dev, libvorbis-dev]
+    build-packages: [build-essential, libcal3d12-dev, libsdl2-image-dev, libsdl2-net-dev, libxml2-dev, libopenal-dev, libvorbis-dev libpng-dev]
     plugin: cmake
     # Add -DVERSION_PREFIX=x.y.z for dev build
     configflags:  ["-DCMAKE_BUILD_TYPE=release", "-DEXEC=el.linux.bin", -DVERSION_PREFIX=1.9.5]
@@ -36,6 +36,7 @@ parts:
       - libsdl2-image-2.0-0
       - libxrandr2
       - zlib1g
+      - libpng12-12
       - libpng16-16
       - libegl1-mesa
       - libglu1-mesa
