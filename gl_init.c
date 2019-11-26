@@ -35,6 +35,7 @@ int window_height=480;
 SDL_Window *el_gl_window = NULL;
 static SDL_GLContext el_gl_context = NULL;
 static SDL_Surface *icon_bmp = NULL;
+static SDL_version el_gl_linked;
 
 int desktop_width;
 int desktop_height;
@@ -208,6 +209,8 @@ void init_video()
 	char str[400];
 	int rgb_size[3];
 
+	SDL_GetVersion(&el_gl_linked);
+
 	setup_video_mode(full_screen, video_mode);
 
 	/* Detect the display depth */
@@ -335,8 +338,9 @@ void init_video()
 	SDL_GetWindowSize(el_gl_window, &window_width, &window_height);
 
 	SDL_SetWindowMinimumSize(el_gl_window, 640,  480);
-#if SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL) >= 2005
-	SDL_SetWindowResizable(el_gl_window, SDL_TRUE);
+#if SDL_VERSION_ATLEAST(2, 0, 5)
+	if (SDL_VERSIONNUM(el_gl_linked.major, el_gl_linked.minor, el_gl_linked.patch) >= 2005)
+		SDL_SetWindowResizable(el_gl_window, SDL_TRUE);
 #endif
 
 	glEnable(GL_DEPTH_TEST);
@@ -928,8 +932,9 @@ int switch_video(int mode, int full_screen)
 		SDL_SetWindowFullscreen(el_gl_window, 0);
 		SDL_SetWindowSize(el_gl_window, window_width, window_height);
 		SDL_SetWindowMinimumSize(el_gl_window, 640,  480);
-#if SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL) >= 2005
-		SDL_SetWindowResizable(el_gl_window, SDL_TRUE);
+#if SDL_VERSION_ATLEAST(2, 0, 5)
+		if (SDL_VERSIONNUM(el_gl_linked.major, el_gl_linked.minor, el_gl_linked.patch) >= 2005)
+			SDL_SetWindowResizable(el_gl_window, SDL_TRUE);
 #endif
 	}
 	resize_all_root_windows(window_width, window_height);

@@ -554,6 +554,15 @@ static int display_langsel_handler(window_info *win)
 	
 } /* end display_langsel_handler() */
 
+static int langsel_rootwin_resize_handler(window_info *win, int width, int height)
+{
+	if (langsel_win >=0 && langsel_win < windows_list.num_windows)
+	{
+		window_info *lwin = &windows_list.window[langsel_win];
+		move_window(lwin->window_id, lwin->pos_id, lwin->pos_loc, (width-lwin->len_x)/2, (height-lwin->len_y)/2);
+	}
+	return 1;
+}
 
 /* load the language list and create the windows */
 int display_langsel_win(void)
@@ -564,6 +573,7 @@ int display_langsel_win(void)
 	/* create and show the root window */
 	langsel_rootwin = create_window("", -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
 	set_window_handler(langsel_rootwin, ELW_HANDLER_DISPLAY, &langsel_display_root_handler );
+	set_window_handler(langsel_rootwin, ELW_HANDLER_RESIZE, &langsel_rootwin_resize_handler);
 	show_window(langsel_rootwin);
 	
 	/* create and show the language selection window */

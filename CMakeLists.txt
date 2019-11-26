@@ -196,11 +196,6 @@ if (ADDRSANITISER)
 	set(EXTRA_LD_FLAGS "${EXTRA_LD_FLAGS} -fsanitize=address")
 endif()
 
-# clean up extra strings to avoid policy CMP0004
-string(STRIP "${EXTRA_C_FLAGS}" EXTRA_C_FLAGS)
-string(STRIP "${EXTRA_CXX_FLAGS}" EXTRA_CXX_FLAGS)
-string(STRIP "${EXTRA_LD_FLAGS}" EXTRA_LD_FLAGS)
-
 # set the compiler flags for DEBUG and RELEASE builds
 set(CMAKE_C_FLAGS "${EXTRA_C_FLAGS} -Wall -Wdeclaration-after-statement -D_GNU_SOURCE=1 -D_REENTRANT")
 set(CMAKE_C_FLAGS_DEBUG "-O0 -ggdb -pipe -fno-strict-aliasing")
@@ -220,6 +215,7 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		set(EXEC "el")
 	endif()
 	add_definitions(-DWINDOWS -DWINVER=0x500 -mwindows -DNDEBUG)
+	set(EXTRA_LD_FLAGS "${EXTRA_LD_FLAGS} -mwindows")
 	set(SOURCES ${SOURCES} ${SD}elc_private.rc)
 	set(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> -i <SOURCE> -o <OBJECT>")
 else()
@@ -240,6 +236,11 @@ if (VERSION_PREFIX)
 	string(STRIP "${VERSION_PREFIX}-${VERSION_DATE}" FULL_VERSION)
 	set_property(SOURCE ${SD}console.c APPEND PROPERTY COMPILE_DEFINITIONS GIT_VERSION="${FULL_VERSION}")
 endif()
+
+# clean up extra strings to avoid policy CMP0004
+string(STRIP "${EXTRA_C_FLAGS}" EXTRA_C_FLAGS)
+string(STRIP "${EXTRA_CXX_FLAGS}" EXTRA_CXX_FLAGS)
+string(STRIP "${EXTRA_LD_FLAGS}" EXTRA_LD_FLAGS)
 
 # build
 
