@@ -8,6 +8,7 @@
 
 #include <stddef.h>
 #include <SDL_types.h>
+#include <SDL_keycode.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,7 +31,8 @@ typedef struct
  * \name Macro to compare a #K_xx definition with supplied SDL_Keymod and SDL_Keymod values, true if they match.
  */
 /*! @{ */
-#define KEY_DEF_CMP(key_def, key_code, key_mod) ((key_def.key_code == key_code) && (key_def.key_mod == key_mod))
+#define KEY_DEF_CMP(key_def, key_code, key_mod) ((key_def.key_code == key_code) && \
+	(key_def.key_mod == (key_mod & (KMOD_CTRL | KMOD_SHIFT | KMOD_ALT | KMOD_GUI | KMOD_MODE))))
 /*! @} */
 
 /*!

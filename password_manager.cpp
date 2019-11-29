@@ -221,6 +221,7 @@ namespace Password_Manaager
 			int mouseover(Logins *logins, window_info *win, int mx, int my);
 			int ui_scale(Logins *logins, window_info *win);
 			void toggle_show_password(Logins *logins, widget_list *w);
+			void resize(Logins *logins) { ui_scale(logins, &windows_list.window[window_id]); }
 		private:
 			void destroy(void);
 			int border_x, border_y, username_sep_y;
@@ -433,6 +434,17 @@ extern "C"
 			return;
 		passmngr_init();
 		logins->set_details();
+	}
+
+	void passmngr_resize(void)
+	{
+		if (!passmngr_enabled)
+			return;
+		if (pm_window)
+		{
+			passmngr_init();
+			pm_window->resize(logins);
+		}
 	}
 
 	void passmngr_pending_pw_change(const char * old_and_new_password)

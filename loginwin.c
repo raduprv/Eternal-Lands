@@ -177,6 +177,8 @@ static int resize_login_handler (window_info *win, Uint32 w, Uint32 h)
 	password_text_y = password_bar_y + box_y_offset;
 	log_in_y = settings_y = new_char_y = password_bar_y + username_bar_y_len + win->default_font_len_y;
 
+	passmngr_resize();
+
 	return 1;
 }
 
