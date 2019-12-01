@@ -128,9 +128,13 @@ char view_tiles_list=0;
 float x_tile_menu_offset=64;
 float y_tile_menu_offset=128;
 char view_new_map_menu=0;
-char view_grid=0;
+int view_grid=0;
 
+#if defined(SDL2)
+Uint16 mod_key_status;
+#else
 SDLMod mod_key_status;
+#endif
 char shift_on=0;
 char ctrl_on=0;
 char alt_on=0;

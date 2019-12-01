@@ -964,7 +964,7 @@ static int keypress_namepass_handler (window_info *win, int mx, int my, SDL_Keyc
 			ret=1;	//Reused to show that a letter has been added
 		}
 	}
-	else if (key_code == SDLK_TAB || key_code == SDLK_RETURN)
+	else if (key_code == SDLK_TAB || key_code == SDLK_RETURN || key_code == SDLK_KP_ENTER)
 	{
 		active++;
 		if(active>2) active=0;

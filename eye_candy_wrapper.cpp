@@ -6,7 +6,9 @@
 #include "client_serv.h" // For mine_type defines
 #include "draw_scene.h"
 #include "errors.h"
+#if !defined(MAP_EDITOR)
 #include "gamewin.h"
+#endif
 #include "gl_init.h"
 #include "init.h"
 #include "map.h"

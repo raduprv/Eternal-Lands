@@ -21,7 +21,7 @@ build-stamp: configure-stamp
 	mkdir -p build && \
 		cd build && \
 		cmake -DEXEC=el.x86.linux.bin -DVERSION_PREFIX=1.9.5 .. && \
-		make -j $(nproc 2> /dev/null || echo 2)
+		make
 	touch $@
 
 clean:

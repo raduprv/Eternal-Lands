@@ -8,7 +8,9 @@
 #include "asc.h"
 #include "draw_scene.h"
 #include "errors.h"
+#ifdef OPENGL_TRACE
 #include "gl_init.h"
+#endif
 #include "init.h"
 #include "pathfinder.h"
 #include "string.h"
@@ -976,7 +978,9 @@ void draw_text_particle_sys(particle_sys *system_id)
 
 	LOCK_PARTICLES_LIST();	//lock it to avoid timing issues
 
+#ifdef OPENGL_TRACE
 	CHECK_GL_ERRORS();
+#endif
 	bind_texture(particle_textures[system_id->def->part_texture]);
 
 	for(i=0,p=&system_id->particles[0];i<system_id->def->total_particle_no;i=i+5,p=p+5)
@@ -1005,7 +1009,9 @@ void draw_text_particle_sys(particle_sys *system_id)
 				}
 		}
 	UNLOCK_PARTICLES_LIST();	// release now that we are done
+#ifdef OPENGL_TRACE
 	CHECK_GL_ERRORS();
+#endif
 }
 
 void draw_point_particle_sys(particle_sys *system_id)
@@ -1023,7 +1029,9 @@ void draw_point_particle_sys(particle_sys *system_id)
 	if (local_zoom_level > 4.0)
 		local_zoom_level = 4.0;
 
+#ifdef OPENGL_TRACE
 	CHECK_GL_ERRORS();
+#endif
 	glEnable(GL_POINT_SPRITE_NV);
 	glTexEnvf(GL_POINT_SPRITE_NV,GL_COORD_REPLACE_NV,GL_TRUE);
 	glPointSize(system_id->def->part_size*(5.5f-local_zoom_level)*4.4f);
@@ -1064,7 +1072,9 @@ void draw_point_particle_sys(particle_sys *system_id)
 	glEnd();
  }
 	glDisable(GL_POINT_SPRITE_NV);
+#ifdef OPENGL_TRACE
 	CHECK_GL_ERRORS();
+#endif
 #endif
 }
 
@@ -1097,7 +1107,9 @@ void display_particles()
 	y=-camera_y;
 #endif  //SIMPLE_LOD || MAP_EDITOR
 
+#ifdef OPENGL_TRACE
 	CHECK_GL_ERRORS();
+#endif
 	glPushAttrib(GL_ENABLE_BIT|GL_DEPTH_BUFFER_BIT);
 	glDepthMask(GL_FALSE);
 	glEnable(GL_BLEND);
@@ -1169,7 +1181,9 @@ void display_particles()
 	UNLOCK_PARTICLES_LIST();
 	glDisable(GL_CULL_FACE); //Intel fix
 	glPopAttrib();
+#ifdef OPENGL_TRACE
 	CHECK_GL_ERRORS();
+#endif
 }
 
 /******************************************************************************

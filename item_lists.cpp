@@ -1385,7 +1385,7 @@ CHECK_GL_ERRORS();
 			last_key_time = 0;
 			return 1;
 		}
-		if (string_input(filter, sizeof(filter), key_code, key_unicode, key_mod) || (key_code == SDLK_RETURN))
+		if (string_input(filter, sizeof(filter), key_code, key_unicode, key_mod) || (key_code == SDLK_RETURN) || (key_code == SDLK_KP_ENTER))
 		{
 			if (strlen(filter))
 			{

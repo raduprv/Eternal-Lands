@@ -28,6 +28,7 @@
 #include <SDL_endian.h>
 
 //#ifdef LINUX
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #include <gtk/gtk.h>
 #include "gui.h"
 #include "gui_callbacks.h"

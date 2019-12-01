@@ -166,7 +166,7 @@ static int mouseover_map_handler (window_info *win, int mx, int my)
 
 static int keypress_map_handler (window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
-	if (key_code == SDLK_RETURN && adding_mark && input_text_line.len > 0)
+	if ((key_code == SDLK_RETURN || key_code == SDLK_KP_ENTER) && adding_mark && input_text_line.len > 0)
 	{
 		int i;
 

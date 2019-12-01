@@ -1,8 +1,13 @@
 #ifndef __GL_INIT_H__
 #define __GL_INIT_H__
 
+#include <SDL.h>
 #include "../platform.h"
 #include "../load_gl_extensions.h"
+
+#if defined(SDL2)
+extern SDL_Window *el_gl_window; /*!< the sdl window */
+#endif
 
 void init_gl(void);
 void handle_window_resize(void);

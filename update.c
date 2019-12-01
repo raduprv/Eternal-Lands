@@ -697,7 +697,7 @@ static int keypress_update_root_handler (window_info *win, int mx, int my, SDL_K
 	{
 		return 1;
 	}
-	else if (key_code == SDLK_RETURN)
+	else if (key_code == SDLK_RETURN || key_code == SDLK_KP_ENTER)
 	{
 		exit_now = 1;
 		return 1;

@@ -913,7 +913,7 @@ int root_key_to_input_field (SDL_Keycode key_code, Uint32 key_unicode, Uint16 ke
 	{
 		clear_input_line();
 	}
-	else if (key_code == SDLK_RETURN && msg->len > 0)
+	else if ((key_code == SDLK_RETURN || key_code == SDLK_KP_ENTER) && msg->len > 0)
 	{
 		parse_input(msg->data, msg->len);
 		add_line_to_history((char*)msg->data, msg->len);

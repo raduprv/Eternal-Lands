@@ -470,7 +470,7 @@ static int keypress_login_handler (window_info *win, int mx, int my, SDL_Keycode
 	// don't make sense at this point, but it should be harmless.
 	if ( keypress_root_common (key_code, key_unicode, key_mod) )
 		return 1;
-	else if (key_code == SDLK_RETURN && input_username_str[0] && input_password_str[0])
+	else if ((key_code == SDLK_RETURN || key_code == SDLK_KP_ENTER) && input_username_str[0] && input_password_str[0])
 	{
 		log_in_error_str[0] = '\0';
 		set_username(input_username_str);

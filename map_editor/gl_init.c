@@ -1,5 +1,12 @@
+#include <SDL.h>
 #include "global.h"
 #include "../asc.h"
+
+#if defined(SDL2)
+SDL_Window *el_gl_window = NULL;
+static SDL_GLContext el_gl_context = NULL;
+static SDL_version el_gl_linked;
+#endif
 
 int use_vertex_buffers=0;
 int have_vertex_buffers=0;
@@ -47,6 +54,52 @@ void init_gl_extensions()
 
 void init_gl()
 {
+#if defined(SDL2)
+	if(SDL_Init(SDL_INIT_VIDEO) == -1)
+	{
+		fprintf(stderr, "%s: %s\n", "SDL_Init() failed", SDL_GetError());
+		SDL_Quit();
+		exit(1);
+	}
+
+	el_gl_window = SDL_CreateWindow("Eternal Lands Editor", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, window_width, window_height, SDL_WINDOW_OPENGL);
+	if (el_gl_window == NULL)
+	{
+		fprintf(stderr, "%s: %s\n", "SDL_CreateWindow() failed", SDL_GetError());
+		SDL_Quit();
+		exit(1);
+	}
+
+	el_gl_context = SDL_GL_CreateContext(el_gl_window);
+	if (el_gl_context == NULL)
+	{
+		LOG_ERROR("%s: %s\n", "SDL_GL_CreateContext() Failed", SDL_GetError());
+		SDL_Quit();
+		exit(1);
+	}
+
+	SDL_GetVersion(&el_gl_linked);
+
+	SDL_GetWindowSize(el_gl_window, &window_width, &window_height);
+
+	SDL_SetWindowMinimumSize(el_gl_window, 640,  480);
+#if SDL_VERSION_ATLEAST(2, 0, 5)
+	if (SDL_VERSIONNUM(el_gl_linked.major, el_gl_linked.minor, el_gl_linked.patch) >= 2005)
+	{
+		SDL_SetWindowResizable(el_gl_window, SDL_TRUE);
+		SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
+	}
+#endif
+
+//	SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 1 );
+	SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 16 );
+	SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 8 );
+	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+
+	/* Set the window icon */
+	SDL_SetWindowIcon(el_gl_window, SDL_LoadBMP("mapeditor.ico"));
+
+#else
     int rgb_size[3];
 #ifdef DEBUG
     if( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE) == -1 )
@@ -106,6 +159,7 @@ void init_gl()
 	/* Set the window manager title bar */
 	SDL_WM_SetCaption( "Eternal Lands Editor", "testgl" );
 	SDL_WM_SetIcon(SDL_LoadBMP("mapeditor.ico"), NULL);
+#endif
 }
 
 void handle_window_resize()
@@ -129,8 +183,10 @@ void handle_window_resize()
 	glEnable(GL_NORMALIZE);
 	glClearColor( 0.0, 0.0, 0.0, 0.0 );
 	glClearStencil(0);
+#if !defined(SDL2)
 	SDL_EnableKeyRepeat (200, 100);
 	SDL_EnableUNICODE(1);
+#endif
 
 	map_has_changed=1;
 	reset_material();

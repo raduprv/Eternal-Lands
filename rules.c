@@ -829,7 +829,7 @@ static int keypress_rules_root_handler (window_info *win, int mx, int my, SDL_Ke
 		vscrollbar_scroll_down(rules_root_win, rules_root_scroll_id);
 		rules_root_scroll_handler();
 	}
-	else if (key_code == SDLK_RETURN && countdown <= 0 && (read_all_rules))
+	else if ((key_code == SDLK_RETURN || key_code == SDLK_KP_ENTER) && countdown <= 0 && (read_all_rules))
 	{
 		switch_rules_to_next ();
 	}

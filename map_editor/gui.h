@@ -12,6 +12,7 @@
 
 extern char* selected_file;
 
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #include <gtk/gtk.h>
 
 #ifdef GTK2

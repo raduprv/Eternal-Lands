@@ -19,7 +19,9 @@ extern int window_width; /*!< width of the window */
 extern int window_height; /*!< height of the window */
 /*! @} */
 
+#if !defined(MAP_EDITOR)
 extern SDL_Window *el_gl_window; /*!< the sdl window */
+#endif
 
 extern int bpp; /*!< color depth to use */
 extern int video_mode; /*!< currently selected video mode */

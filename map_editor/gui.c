@@ -1,5 +1,6 @@
 #ifdef GTK2
 
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 #include "../platform.h"

@@ -3,8 +3,10 @@
 #include "cache.h"
 #include "2d_objects.h"
 #include "asc.h"
+#if !defined(MAP_EDITOR)
 #include "elwindows.h"
 #include "gamewin.h"
+#endif
 #include "global.h"
 #include "text.h"
 #include "textures.h"

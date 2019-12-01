@@ -835,7 +835,7 @@ static void select_recipe(int the_recipe)
 static int keypress_recipe_handler(window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
 	last_recipe_key_time = SDL_GetTicks();
-	if ((key_code == SDLK_RETURN) && (key_mod & KMOD_CTRL))
+	if ((key_code == SDLK_RETURN || key_code == SDLK_KP_ENTER) && (key_mod & KMOD_CTRL))
 	{
 		select_recipe(cur_recipe);
 		return 1;
@@ -847,7 +847,7 @@ static int keypress_recipe_handler(window_info *win, int mx, int my, SDL_Keycode
 		clear_recipe_filter();
 		return 1;
 	}
-	if (string_input(recipe_name_filter, sizeof(recipe_name_filter), key_code, key_unicode, key_mod) || (key_code == SDLK_RETURN))
+	if (string_input(recipe_name_filter, sizeof(recipe_name_filter), key_code, key_unicode, key_mod) || (key_code == SDLK_RETURN) || (key_code == SDLK_KP_ENTER))
 	{
 		if (strlen(recipe_name_filter))
 		{

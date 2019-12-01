@@ -344,7 +344,7 @@ static int display_accept_buddy_handler(window_info *win)
 
 static int name_input_keypress_handler(widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
-	if(key_code == SDLK_RETURN && strlen((char*)buddy_name_buffer) > 0) {
+	if((key_code == SDLK_RETURN || key_code == SDLK_KP_ENTER) && strlen((char*)buddy_name_buffer) > 0) {
 		return click_add_buddy_handler(widget, mx, my, ELW_LEFT_MOUSE);
 	} else {
 		return 0;

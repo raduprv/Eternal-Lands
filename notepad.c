@@ -163,7 +163,7 @@ static int popup_keypress_handler(window_info *win,
 	INPUT_POPUP *ipu = ipu_from_window(win);
 	if (ipu == NULL) return 0;
 
-	if (key_code == SDLK_RETURN)
+	if (key_code == SDLK_RETURN || key_code == SDLK_KP_ENTER)
 	{
 		accept_popup_window (ipu);
 		return 1;

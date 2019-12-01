@@ -2229,7 +2229,7 @@ void _text_field_insert_char (widget_list *w, SDL_Keycode key_code, Uint32 key_u
 	
 	msg = &(tf->buffer[tf->msg]);
 	
-	if (key_code == SDLK_RETURN)
+	if (key_code == SDLK_RETURN || key_code == SDLK_KP_ENTER)
 		ch = '\n';
 
 	// keep one position free, so that we can always introduce a
@@ -2606,7 +2606,7 @@ int text_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_code, Ui
 		return 1;
 	}
 	else if (!alt_on && !ctrl_on && ( is_printable (ch)
-			|| (key_code == SDLK_RETURN && !(w->Flags&TEXT_FIELD_IGNORE_RETURN)) ) && ch != '`' )
+			|| ((key_code == SDLK_RETURN || key_code == SDLK_KP_ENTER) && !(w->Flags&TEXT_FIELD_IGNORE_RETURN)) ) && ch != '`' )
 	{
 		if (!TEXT_FIELD_SELECTION_EMPTY(&tf->select))
 		{

@@ -6,7 +6,9 @@
 #include "cal.h"
 #include "console.h"
 #include "cursors.h"
+#if !defined(MAP_EDITOR)
 #include "elwindows.h"
+#endif
 #include "gamewin.h"
 #include "gl_init.h"
 #include "global.h"
@@ -580,9 +582,11 @@ void update_camera()
 	last_update = cur_time;
 }
 
+#if !defined(MAP_EDITOR)
 int update_have_display(window_info * win)
 {
 	// if the calling window is shown, we have a display, else check all 3d windows
 	have_display = (win->displayed || get_show_window(game_root_win) || get_show_window(newchar_root_win));
 	return 0;
 }
+#endif

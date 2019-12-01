@@ -1498,7 +1498,7 @@ int check_quit_or_fullscreen (SDL_Keycode key_code, Uint16 key_mod)
 	{
 		exit_now = 1;
 	}
-	else if (key_code == SDLK_RETURN && key_mod & KMOD_ALT)
+	else if ((key_code == SDLK_RETURN || key_code == SDLK_KP_ENTER) && key_mod & KMOD_ALT)
 	{
 		toggle_full_screen ();
 	}
@@ -2116,7 +2116,7 @@ int text_input_handler (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod
 		}
 		input_text_line.data[input_text_line.len] = '\0';
 	}
-	else if (key_code == SDLK_RETURN && input_text_line.len > 0)
+	else if ((key_code == SDLK_RETURN || key_code == SDLK_KP_ENTER) && input_text_line.len > 0)
 	{
 		parse_input(input_text_line.data, input_text_line.len);
 		add_line_to_history(input_text_line.data, input_text_line.len);

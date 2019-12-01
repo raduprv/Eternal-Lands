@@ -90,7 +90,9 @@
 #include "consolewin.h"
 #include "queue.h"
 #include "url.h"
+#if !defined(MAP_EDITOR)
 #include "widgets.h"
+#endif
 
 #include "eye_candy_wrapper.h"
 #include "sendvideoinfo.h"
