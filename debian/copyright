@@ -1,16 +1,16 @@
 This package was debianized by Paul Broadhead <pjbroad@twinmoons.org.uk>
 on Sun, 06 Jun 2008 23:32:09 +0100.
 
-It was downloaded from: <http://developer.berlios.de/projects/elc/>.
+It was downloaded from: <https://github.com/raduprv/Eternal-Lands/>.
 
 Upstream Author:
 		Radu Privantu
 
 Copyright:
-		Copyright (C) 2003, Radu Privantu and Maura Privantu.
+		Copyright (C) 2003-2019, Radu Privantu and Maura Privantu.
 
 Packaging:
-		Copyright (C) 2008, Paul Broadhead <pjbroad@twinmoons.org.uk>
+		Copyright (C) 2008-2019, Paul Broadhead <pjbroad@twinmoons.org.uk>
 		released under the GPL, see `/usr/share/common-licenses/GPL-2'.
 
 Licence:

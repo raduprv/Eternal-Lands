@@ -10,6 +10,9 @@
 #include "errors.h"
 #include "gamewin.h"
 #include "hud.h"
+#ifdef OPENGL_TRACE
+#include "gl_init.h"
+#endif
 #include "init.h"
 #include "interface.h"
 #include "items.h"

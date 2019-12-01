@@ -262,6 +262,11 @@ static void check_for_problem_drivers()
 
 
 	my_string = (const char*) glGetString (GL_VENDOR);
+	if (my_string == NULL)
+	{
+		LOG_ERROR("%s:%d glGetString() returned NULL", __FUNCTION__, __LINE__);
+		return;
+	}
 	if(strstr(my_string,"Intel"))is_intel=1;
 	else
 	if(strstr(my_string,"SiS"))
@@ -1150,6 +1155,11 @@ void init_opengl_extensions()
 	}
 
 	extensions_string = (char*)glGetString(GL_EXTENSIONS);
+	if (extensions_string == NULL)
+	{
+		LOG_ERROR("%s:%d glGetString() returned NULL", __FUNCTION__, __LINE__);
+		return;
+	}
 
 /*	GL_ARB_multitexture			*/
 	texture_units = 1;

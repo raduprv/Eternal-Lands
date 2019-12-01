@@ -1,8 +1,5 @@
-eternallands (1.9.5.2-0ubuntu1) trusty; urgency=low
+eternallands (1.9.5.6-0ubuntu1) trusty; urgency=low
 
-  * 1.9.5 release, see CHANGES file at
-      https://github.com/raduprv/Eternal-Lands/blob/master/CHANGES
-  * 1.9.5.2 updates
-      https://github.com/raduprv/Eternal-Lands/releases/tag/1.9.5.2
+  * 1.9.5 test release, SDL2 port
 
- -- Paul Broadhead <pjbroad@twinmoons.org.uk>  Sun, 27 May 2018 15:53:11 +0100
+ -- Paul Broadhead <pjbroad@twinmoons.org.uk>  Sat, 30 Nov 2019 23:48:37 +0000

@@ -335,12 +335,22 @@ void init_video()
 	}
 
 	el_gl_context = SDL_GL_CreateContext(el_gl_window);
+	if (el_gl_context == NULL)
+	{
+		LOG_ERROR("%s: %s\n", "SDL_GL_CreateContext() Failed", SDL_GetError());
+		SDL_Quit();
+		exit(1);
+	}
+
 	SDL_GetWindowSize(el_gl_window, &window_width, &window_height);
 
 	SDL_SetWindowMinimumSize(el_gl_window, 640,  480);
 #if SDL_VERSION_ATLEAST(2, 0, 5)
 	if (SDL_VERSIONNUM(el_gl_linked.major, el_gl_linked.minor, el_gl_linked.patch) >= 2005)
+	{
 		SDL_SetWindowResizable(el_gl_window, SDL_TRUE);
+		SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
+	}
 #endif
 
 	glEnable(GL_DEPTH_TEST);

@@ -85,6 +85,12 @@ namespace eternal_lands
 	{
 		xmlNodePtr cur_node;
 
+		if (!extensions)
+		{
+			LOG_ERROR("%s:%d glGetString() returned NULL", __FUNCTION__, __LINE__);
+			return;
+		}
+
 		NODE_NAME_CHECK(extensions_element, "extentions");
 
 		for (cur_node = get_node_element_children(extensions_element); cur_node != 0;

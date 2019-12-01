@@ -202,12 +202,18 @@ int HandleEvent (SDL_Event *event)
 			switch (event->window.event) {
 				case SDL_WINDOWEVENT_HIDDEN:
 				case SDL_WINDOWEVENT_MINIMIZED:
+					last_loss = SDL_GetTicks();
 					el_active = 0;
 					break;
 				case SDL_WINDOWEVENT_SHOWN:
 				case SDL_WINDOWEVENT_EXPOSED:
 				case SDL_WINDOWEVENT_MAXIMIZED:
 				case SDL_WINDOWEVENT_RESTORED:
+					if (last_loss && ((SDL_GetTicks() - last_loss) > 250))
+					{
+						last_loss = 0;
+						SDL_SetModState(KMOD_NONE);
+					}
 					el_active = 1;
 					break;
 				case SDL_WINDOWEVENT_LEAVE:

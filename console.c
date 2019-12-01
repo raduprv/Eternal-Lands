@@ -1168,6 +1168,13 @@ int command_glinfo (const char *text, int len)
 	char* this_string = calloc (size, 1);
 
 	my_string = (const char*) glGetString (GL_RENDERER);
+	if (my_string == NULL)
+	{
+		LOG_ERROR("%s:%d glGetString() returned NULL", __FUNCTION__, __LINE__);
+		LOG_TO_CONSOLE (c_red2, "Error getting glinfo");
+		return 1;
+	}
+
 	minlen = strlen (video_card_str) + strlen (my_string) + 3;
 	if (size < minlen)
 	{
