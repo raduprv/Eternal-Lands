@@ -198,10 +198,10 @@ endif()
 
 # set the compiler flags for DEBUG and RELEASE builds
 set(CMAKE_C_FLAGS "${EXTRA_C_FLAGS} -Wall -Wdeclaration-after-statement -D_GNU_SOURCE=1 -D_REENTRANT")
-set(CMAKE_C_FLAGS_DEBUG "-O0 -ggdb -pipe -fno-strict-aliasing")
-set(CMAKE_C_FLAGS_RELEASE "-O2 -fomit-frame-pointer -ffast-math -pipe -fno-strict-aliasing")
+set(CMAKE_C_FLAGS_DEBUG "-Og -ggdb -pipe -fno-strict-aliasing")
+set(CMAKE_C_FLAGS_RELEASE "-O3 -fomit-frame-pointer -ffast-math -pipe -fno-strict-aliasing")
 set(CMAKE_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wall -D_GNU_SOURCE=1 -D_REENTRANT")
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -ggdb -pipe -fno-strict-aliasing")
+set(CMAKE_CXX_FLAGS_DEBUG "-Og -ggdb -pipe -fno-strict-aliasing")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fomit-frame-pointer -ffast-math -pipe -fno-strict-aliasing")
 
 # set the OS level defines and default executable names

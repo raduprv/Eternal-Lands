@@ -189,6 +189,11 @@ void setup_video_mode(int fs, int mode)
 #endif
 }
 
+static void fatal_error(const char *message)
+{
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Eternal Lands - Fatal Error", message, NULL);
+}
+
 static void load_window_icon(void)
 {
 	char *icon_name = "icon.bmp";
@@ -287,7 +292,7 @@ void init_video()
 	}
 #endif	/* FSAA */
 
-	flags = SDL_WINDOW_OPENGL;
+	flags = SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE;
 	if(full_screen) {
 		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 	}
@@ -328,6 +333,7 @@ void init_video()
 			{
 				LOG_ERROR("%s: %s\n", fail_opengl_mode, SDL_GetError());
 				SDL_Quit();
+				fatal_error("Failed to create game window, going to exit.");
 				exit(1);
 			}
 			have_stencil=0;
@@ -339,6 +345,7 @@ void init_video()
 	{
 		LOG_ERROR("%s: %s\n", "SDL_GL_CreateContext() Failed", SDL_GetError());
 		SDL_Quit();
+		fatal_error("Failed to create game GL context, going to exit.");
 		exit(1);
 	}
 
@@ -347,10 +354,7 @@ void init_video()
 	SDL_SetWindowMinimumSize(el_gl_window, 640,  480);
 #if SDL_VERSION_ATLEAST(2, 0, 5)
 	if (SDL_VERSIONNUM(el_gl_linked.major, el_gl_linked.minor, el_gl_linked.patch) >= 2005)
-	{
-		SDL_SetWindowResizable(el_gl_window, SDL_TRUE);
 		SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
-	}
 #endif
 
 	glEnable(GL_DEPTH_TEST);

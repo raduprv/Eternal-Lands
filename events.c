@@ -20,12 +20,6 @@
 #endif
 #include "textures.h"
 
-SDL_Keymod  mod_key_status;
-
-int shift_on;
-int alt_on;
-int ctrl_on;
-int meta_on;
 #ifdef OSX
 int osx_right_mouse_cam = 0;
 #endif
@@ -163,6 +157,7 @@ int HandleEvent (SDL_Event *event)
 	int mouse_delta_x = 0;
 	int mouse_delta_y = 0;
 	Uint32 flags = KMOD_NONE;
+	SDL_Keymod  mod_key_status = 0;
 	Uint8 unicode = '\0';
 	static Uint32 last_loss = 0;
 	static Uint32 last_SDL_KEYDOWN_timestamp = 0;
@@ -171,20 +166,7 @@ int HandleEvent (SDL_Event *event)
 	if (event->type == SDL_FIRSTEVENT) return 0;
 
 	mod_key_status = SDL_GetModState();
-
-	if (mod_key_status & KMOD_SHIFT) shift_on = 1;
-	else shift_on = 0;
-
-	//AltGR users still do not have AltGr working properly. Currently we have to accept only the left ALT key
-	//if (mod_key_status & KMOD_ALT && !(mod_key_status & KMOD_MODE)) alt_on = 1;
-	if (mod_key_status & KMOD_LALT) alt_on = 1;
-	else alt_on = 0;
-
-	if (mod_key_status & KMOD_CTRL) ctrl_on = 1;
-	else ctrl_on = 0;
-
-	if (mod_key_status & KMOD_GUI) meta_on = 1;
-	else meta_on = 0;
+	flags |= (mod_key_status & KMOD_SHIFT) | (mod_key_status & KMOD_ALT) | (mod_key_status & KMOD_CTRL);
 
 	switch( event->type )
 	{
@@ -371,7 +353,7 @@ int HandleEvent (SDL_Event *event)
 #endif
 				}
 
-				if (event->type == SDL_MOUSEMOTION && ((event->motion.state & SDL_BUTTON_MMASK) || meta_on))
+				if (event->type == SDL_MOUSEMOTION && ((event->motion.state & SDL_BUTTON_MMASK) || (mod_key_status & KMOD_GUI)))
 				{
 					middle_click++;
 				}
@@ -403,11 +385,8 @@ int HandleEvent (SDL_Event *event)
 				}
 			}
 
-			if (shift_on) flags |= KMOD_SHIFT;
-			if (alt_on) flags |= KMOD_ALT;
-			if (ctrl_on) flags |= KMOD_CTRL;
 			if (left_click) flags |= ELW_LEFT_MOUSE;
-			if (middle_click || meta_on) flags |= ELW_MID_MOUSE;
+			if (middle_click || (mod_key_status & KMOD_GUI)) flags |= ELW_MID_MOUSE;
 			if (right_click) flags |= ELW_RIGHT_MOUSE;
 			if (event->type == SDL_MOUSEWHEEL)
 			{

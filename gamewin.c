@@ -389,6 +389,8 @@ static void toggle_first_person()
 // This is the main part of the old check_cursor_change ()
 static int mouseover_game_handler (window_info *win, int mx, int my)
 {
+	SDL_Keymod mod_key_status = SDL_GetModState();
+
 	if (hud_mouse_over(win, mx, my))
 		return 1;
 
@@ -427,7 +429,7 @@ static int mouseover_game_handler (window_info *win, int mx, int my)
 		}
 		// allow to shoot at 3D objects
 		else if (range_weapon_equipped &&
-                 (action_mode == ACTION_ATTACK || (alt_on && ctrl_on)))
+                 (action_mode == ACTION_ATTACK || ((mod_key_status & KMOD_ALT) && (mod_key_status & KMOD_CTRL))))
 		{
 			elwin_mouse = CURSOR_ATTACK;
 		}
@@ -476,7 +478,7 @@ static int mouseover_game_handler (window_info *win, int mx, int my)
 		{
 			elwin_mouse = CURSOR_TRADE;
 		}
-		else if(alt_on || action_mode==ACTION_ATTACK)
+		else if((mod_key_status & KMOD_ALT) || action_mode==ACTION_ATTACK)
 		{
 			elwin_mouse = CURSOR_ATTACK;
 		}
@@ -500,7 +502,7 @@ static int mouseover_game_handler (window_info *win, int mx, int my)
 		{
 			elwin_mouse = CURSOR_EYE;
 		}
-		else if(shift_on)
+		else if(mod_key_status & KMOD_SHIFT)
 		{
 			elwin_mouse = CURSOR_EYE;
 		}
@@ -508,7 +510,7 @@ static int mouseover_game_handler (window_info *win, int mx, int my)
 		{
 			elwin_mouse = CURSOR_WAND;
 		}
-		else if(alt_on || action_mode==ACTION_ATTACK || (actor_under_mouse && !actor_under_mouse->dead))
+		else if((mod_key_status & KMOD_ALT) || action_mode==ACTION_ATTACK || (actor_under_mouse && !actor_under_mouse->dead))
 		{
 			elwin_mouse = CURSOR_ATTACK;
 		}
