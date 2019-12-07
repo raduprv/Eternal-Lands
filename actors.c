@@ -13,7 +13,6 @@
 #include "errors.h"
 #include "events.h"
 #include "gl_init.h"
-#include "global.h"
 #include "interface.h"
 #include "load_gl_extensions.h"
 #include "map.h"
@@ -60,7 +59,7 @@ float distanceSq_to_near_enhanced_actors;
 near_actor near_actors[MAX_ACTORS];
 
 #ifdef MUTEX_DEBUG
-Uint32 have_actors_lock = 0;
+SDL_threadID have_actors_lock = 0;
 #endif
 
 int cm_mouse_over_banner = 0;		/* use to trigger banner context menu */

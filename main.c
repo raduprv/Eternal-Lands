@@ -81,15 +81,10 @@
 #include "fsaa/fsaa.h"
 #endif	/* FSAA */
 
+int exit_now=0;
+int restart_required=0;
 Uint32 cur_time=0, last_time=0;//for FPS
 
-char version_string[]=VER_STRING;
-int	client_version_major=VER_MAJOR;
-int client_version_minor=VER_MINOR;
-int client_version_release=VER_RELEASE;
-int	client_version_patch=VER_BUILD;
-int version_first_digit=10;	//protocol/game version sent to server
-int version_second_digit=28;
 
 int gargc;
 char **  gargv;
@@ -394,7 +389,7 @@ int start_rendering()
 	return(0);
 }
 
-void	read_command_line()
+void	read_command_line(void)
 {
 	int i=1;
 	if(gargc<2)return;

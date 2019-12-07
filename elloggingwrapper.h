@@ -65,6 +65,16 @@ void log_error(const char* file, const Uint32 line, const char* message, ...);
 /**
  * @ingroup logging
  *
+ * Logs the given error to a simple SDL window.
+ * @param file File of the error.
+ * @param line Line of the error.
+ * @param message Error message.
+ */
+void fatal_error_window(const char* file, const Uint32 line, const char* message, ...);
+
+/**
+ * @ingroup logging
+ *
  * Logs the given warning.
  * @param file File of the warning.
  * @param line Line of the warning.
@@ -136,6 +146,7 @@ int command_log_level(char *text, int len);
 
 void init_thread_log(const char* name);
 
+#define FATAL_ERROR_WINDOW(msg, ...) fatal_error_window(__FILE__, __LINE__, msg, ##__VA_ARGS__)
 #define LOG_ERROR(msg, ...) log_error(__FILE__, __LINE__, msg, ##__VA_ARGS__)
 #define LOG_WARNING(msg, ...) log_warning(__FILE__, __LINE__, msg, ##__VA_ARGS__)
 #define LOG_INFO(msg, ...) log_info(__FILE__, __LINE__, msg, ##__VA_ARGS__)

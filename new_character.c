@@ -19,7 +19,6 @@
 #include "events.h"
 #include "gamewin.h"
 #include "gl_init.h"
-#include "global.h"
 #include "hud.h"
 #include "icon_window.h"
 #include "init.h"
@@ -648,7 +647,10 @@ static int ui_scale_newchar_handler(window_info *win)
 static int ui_resize_newchar_handler(window_info *win)
 {
 	if (get_show_window(win->window_id))
+	{
 		init_hud_interface (HUD_INTERFACE_NEW_CHAR);
+		set_all_intersect_update_needed(main_bbox_tree); // redraw the scene
+	}
 	return 1;
 }
 

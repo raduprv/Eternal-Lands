@@ -234,7 +234,7 @@ endif()
 if (VERSION_PREFIX)
 	execute_process(COMMAND bash -c "date +'%Y%m%d.%H%M'" OUTPUT_VARIABLE VERSION_DATE)
 	string(STRIP "${VERSION_PREFIX}-${VERSION_DATE}" FULL_VERSION)
-	set_property(SOURCE ${SD}console.c APPEND PROPERTY COMPILE_DEFINITIONS GIT_VERSION="${FULL_VERSION}")
+	set_property(SOURCE ${SD}multiplayer.c APPEND PROPERTY COMPILE_DEFINITIONS GIT_VERSION="${FULL_VERSION}")
 endif()
 
 # clean up extra strings to avoid policy CMP0004

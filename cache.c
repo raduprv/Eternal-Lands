@@ -7,7 +7,7 @@
 #include "elwindows.h"
 #include "gamewin.h"
 #endif
-#include "global.h"
+#include "main.h"
 #include "text.h"
 #include "textures.h"
 #include "translate.h"

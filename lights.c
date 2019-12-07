@@ -641,7 +641,7 @@ void new_second()
 #include <sys/time.h>
 #endif
 
-void light_idle()
+void light_idle(void)
 {
 	Uint64 new_time;
 #ifdef WINDOWS

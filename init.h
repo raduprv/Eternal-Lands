@@ -236,49 +236,8 @@ typedef struct
 
 }bin_cfg;
 
-extern int auto_update; /*!<this flags signals whether or not autoupdates are performed at startup, or not. It requires a restart to have an effect. */
-#ifdef  CUSTOM_UPDATE
-extern int custom_update; /*!<this flags signals whether or not autoupdates of custom looks is permitted. */
-extern int custom_clothing; /*!<this flags signals whether or not custom is displayed. */
-#endif  //CUSTOM_UPDATE
-
-extern int poor_man; /*!< this flag, if set to true, indicates we are running on a really poor machine */
-extern int show_reflection; /*!< flag that indicates whether to display reflections or not */
-#ifdef ANTI_ALIAS
-extern int anti_alias; /*!< flag indicating whether anti-aliasing should be enabled */
-#endif
-extern int special_effects; /*!< flag indicating whether pretty spell effects should be enabled */
-extern int isometric; /*!< use isometric instead of perspective view */
-extern int mouse_limit;
-#ifdef OSX
-extern int square_buttons; /* flag to overcome intel opengl issues on early MacBooks*/
-extern int emulate3buttonmouse;
-#endif
-#ifdef DEBUG
-extern int render_skeleton;
-extern int render_mesh;
-extern int render_bones_id;
-extern int render_bones_orientation;
-#endif
-extern int limit_fps; /*!< contains the max FPS number we should use. If this is 0, the highest possible number will be used. */
-extern int item_window_on_drop;
-extern int no_adjust_shadows;
-extern int clouds_shadows; /*!< flag that indicates whether the shadows of clouds should be displayed or not */
-extern int buddy_log_notice; /*!< whether to log buddy logged on/off notices to screen */
 extern char configdir[256]; /*!< the default directory where we look for configuration files */
 extern char datadir[256]; /*!< the default directory where we look for data files (aka installation dir) */
-#if !defined(WINDOWS) && !defined(OSX)
-extern int use_clipboard; /*!< whether to use CLIPBOARD or PRIMARY for pasting */
-#endif
-
-extern int disconnected; /*!< indicates whether we are currently connected or not */
-extern int exit_now; /*!< a flag that indicates we should exit the programm immediately */
-extern int restart_required; /*!< a flag that the exit should attempt to restart, not just exit */
-extern int allow_restart; /*!< a flag that indicates if restarting after download is permitted */
-
-extern char lang[10]; /*!< contains the identifier for the current language. \todo Shouldn't this go into translate.h? */
-
-extern int video_mode_set;
 
 /*!
  * \ingroup loadsave

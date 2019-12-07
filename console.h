@@ -28,17 +28,6 @@ extern int time_warn_s;	/*!< How many minutes before sunrise/sunset to give a wa
 extern int time_warn_d;	/*!< How many minutes before the new day to give a warning */
 
 /*!
- * \brief Print the Eternal Lands version number
- *
- *	Print the Eternal Lands version in string \a str.
- *
- * \param str	the character buffer in which the string is placed
- * \param len	the size of the buffer
- * \callgraph
- */
-void print_version_string (char *buf, size_t len);
-
-/*!
  * \brief checks whether a console command is waiting and executes it if necessary.
  *
  *      Checks whether a console command is waiting in the que and executes it if necessary.

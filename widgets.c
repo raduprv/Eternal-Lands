@@ -12,7 +12,6 @@
 #include "elconfig.h"
 #include "elwindows.h"
 #include "gamewin.h"
-#include "global.h"
 #include "interface.h"
 #include "misc.h"
 #include "multiplayer.h"

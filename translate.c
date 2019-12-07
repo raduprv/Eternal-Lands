@@ -6,8 +6,8 @@
 #include <stdarg.h>
 #include "translate.h"
 #include "asc.h"
+#include "elconfig.h"
 #include "errors.h"
-#include "init.h"
 
 #define GROUP 0
 #define DIGROUP 1

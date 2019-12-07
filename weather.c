@@ -7,7 +7,6 @@
 #include "client_serv.h"
 #include "draw_scene.h"
 #include "elconfig.h"
-#include "global.h"
 #include "interface.h"
 #include "map.h"
 #include "misc.h"

@@ -189,11 +189,6 @@ void setup_video_mode(int fs, int mode)
 #endif
 }
 
-static void fatal_error(const char *message)
-{
-	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Eternal Lands - Fatal Error", message, NULL);
-}
-
 static void load_window_icon(void)
 {
 	char *icon_name = "icon.bmp";
@@ -213,6 +208,18 @@ void init_video()
 {
 	char str[400];
 	int rgb_size[3];
+
+	//OK, we have the video mode settings...
+	setup_video_mode(full_screen,video_mode);
+
+	if(SDL_Init(SDL_INIT_VIDEO) == -1)
+		{
+			LOG_ERROR("%s: %s\n", no_sdl_str, SDL_GetError());
+			fprintf(stderr, "%s: %s\n", no_sdl_str, SDL_GetError());
+			SDL_Quit();
+			FATAL_ERROR_WINDOW("Failed to initialise SDL, going to exit.");
+			exit(1);
+		}
 
 	SDL_GetVersion(&el_gl_linked);
 
@@ -333,7 +340,7 @@ void init_video()
 			{
 				LOG_ERROR("%s: %s\n", fail_opengl_mode, SDL_GetError());
 				SDL_Quit();
-				fatal_error("Failed to create game window, going to exit.");
+				FATAL_ERROR_WINDOW("Failed to create game window, going to exit.");
 				exit(1);
 			}
 			have_stencil=0;
@@ -345,7 +352,7 @@ void init_video()
 	{
 		LOG_ERROR("%s: %s\n", "SDL_GL_CreateContext() Failed", SDL_GetError());
 		SDL_Quit();
-		fatal_error("Failed to create game GL context, going to exit.");
+		FATAL_ERROR_WINDOW("Failed to create game GL context, going to exit.");
 		exit(1);
 	}
 
@@ -355,6 +362,16 @@ void init_video()
 #if SDL_VERSION_ATLEAST(2, 0, 5)
 	if (SDL_VERSIONNUM(el_gl_linked.major, el_gl_linked.minor, el_gl_linked.patch) >= 2005)
 		SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
+#endif
+
+	if (!disable_gamma_adjust)
+		SDL_SetWindowBrightness(el_gl_window, gamma_var);
+
+	SDL_SetWindowTitle( el_gl_window, win_principal );
+
+#ifdef OSX
+	// don't emulate a 3 button mouse except you still have a 1 button mouse, ALT+leftclick doesn't work with the emulation
+	if (!emulate3buttonmouse) SDL_putenv("SDL_HAS3BUTTONMOUSE=1");
 #endif
 
 	glEnable(GL_DEPTH_TEST);
@@ -384,14 +401,15 @@ void init_video()
 		glDisable(GL_POLYGON_SMOOTH);
 	}
 #endif
-	last_texture=-1;	//no active texture
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
+
+	last_texture = -1;		//no active texture
+	video_mode_set = 1;		//now you may set the video mode using the %<foo> in-game
 
 	load_window_icon();
 
 	check_options();
+
+	DO_CHECK_GL_ERRORS();
 }
 
 #ifdef	GL_EXTENSION_CHECK
@@ -963,18 +981,12 @@ void toggle_full_screen()
 
 int print_gl_errors(const char *file, int line)
 {
-	int	glErr, anyErr=GL_NO_ERROR;
+	GLenum	glErr, anyErr=GL_NO_ERROR;
 
 	while ((glErr=glGetError()) != GL_NO_ERROR )
 	 {
 		anyErr=glErr;
-//#ifdef	GLUT
-//FIXME: this appears to be a GLU call, not GLUT, and we link with GLU normally...
-//unless this causes an error on some other compiler, the commented parts should be removed
 		log_error(file, line, "OpenGL %s", gluErrorString(glErr));
-//#else
-//		log_error_detailed("OpenGL error %d", file, func, line, glErr);
-//#endif // GLUT
 	}
 	return anyErr;
 }

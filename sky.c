@@ -10,7 +10,6 @@
 #include "elconfig.h"
 #include "errors.h"
 #include "gl_init.h"
-#include "global.h"
 #include "lights.h"
 #include "map.h"
 #include "multiplayer.h"

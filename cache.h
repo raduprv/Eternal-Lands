@@ -170,7 +170,7 @@ void cache_adj_size(cache_struct *cache, Uint32 size, void *item);
 #ifndef	USE_INLINE
 void cache_use(cache_item_struct *item);
 #else	//USE_INLINE
-#include "global.h"
+#include "main.h"
 
 static __inline__ void	cache_use(cache_item_struct *item_ptr)
 {

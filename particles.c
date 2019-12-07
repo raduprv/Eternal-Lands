@@ -7,11 +7,11 @@
 #include "particles.h"
 #include "asc.h"
 #include "draw_scene.h"
+#include "elconfig.h"
 #include "errors.h"
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
-#include "init.h"
 #include "pathfinder.h"
 #include "string.h"
 #include "sound.h"

@@ -218,6 +218,9 @@ void new_second();
 
 void cleanup_lights(void);
 
+#ifdef DEBUG_TIME
+void light_idle(void);
+#endif
 
 #ifdef __cplusplus
 } // extern "C"

@@ -11,7 +11,6 @@
 #endif
 #include "gamewin.h"
 #include "gl_init.h"
-#include "global.h"
 #include "hud.h"
 #include "hud_timer.h"
 #include "interface.h"

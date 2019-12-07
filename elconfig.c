@@ -230,15 +230,38 @@ float water_tiles_extension = 200.0;
 int show_game_seconds = 0;
 int skybox_update_delay = 10;
 int skybox_local_weather = 0;
+
 #ifdef OSX	// for probelem with rounded buttons on Intel graphics
- int square_buttons = 0;
+int emulate3buttonmouse=0;
+int square_buttons = 0;
 #endif
 
+int buddy_log_notice=1;
+int video_mode_set=0;
 int video_info_sent = 0;
+int no_adjust_shadows=0;
+int clouds_shadows=1;
+int item_window_on_drop=1;
+int mouse_limit=15;
+int isometric=1;
+int poor_man=0;
+int limit_fps=0;
+int special_effects=0;
+char lang[10] = "en";
+int auto_update= 1;
+
+#ifdef  CUSTOM_UPDATE
+int custom_update= 1;
+int custom_clothing= 1;
+#endif  //CUSTOM_UPDATE
 
 #ifdef DEBUG
  int enable_client_aiming = 0;
 #endif // DEBUG
+
+#ifdef ANTI_ALIAS
+int anti_alias=0;
+#endif  //ANTI_ALIAS
 
 #ifdef ELC
 static int small_actor_texture_cache = 0;

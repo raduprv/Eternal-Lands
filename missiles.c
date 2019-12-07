@@ -5,13 +5,15 @@
 #include "cal3d_wrapper.h"
 #include "context_menu.h"
 #include "e3d.h"
+#include "elconfig.h"
 #include "elwindows.h"
 #include "errors.h"
 #include "eye_candy_wrapper.h"
 #include "gamewin.h"
 #include "gl_init.h"
-#include "global.h"
+#ifdef MISSILES_DEBUG
 #include "init.h"
+#endif
 #include "missiles.h"
 #include "skeletons.h"
 #include "stats.h"

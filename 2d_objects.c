@@ -8,7 +8,7 @@
 #include "draw_scene.h"
 #include "elmemory.h"
 #include "errors.h"
-#include "init.h"
+#include "elconfig.h"
 #include "load_gl_extensions.h"
 #include "map.h"
 #include "platform.h"

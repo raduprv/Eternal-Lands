@@ -2,9 +2,8 @@
 #include <math.h>
 #include "special_effects.h"
 #include "asc.h"
-#include "global.h"
+#include "elconfig.h"
 #include "highlight.h"
-#include "init.h"
 #ifdef NEW_SOUND
 #include "sound.h"
 #endif // NEW_SOUND

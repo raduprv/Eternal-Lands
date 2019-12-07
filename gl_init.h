@@ -47,8 +47,18 @@ extern int use_mipmaps; /*!< indicates whether we use mipmaps or not */
 extern int use_frame_buffer; /*!< specifies if we use frame buffer or not */
 extern int use_draw_range_elements;  /*!< specifies if we use glDrawRangeElements or glDrawElements */
 /*! @} */
+
 extern float anisotropic_filter;
-extern int gl_extensions_loaded; /*< specifies if the OpenGL extensions were loaded or not */
+extern int gl_extensions_loaded; /*!< specifies if the OpenGL extensions were loaded or not */
+
+#ifdef OSX
+extern int emulate3buttonmouse;
+#endif
+
+#ifdef ANTI_ALIAS
+extern int anti_alias; /*!< flag indicating whether anti-aliasing should be enabled */
+#endif
+
 /*!
  * \ingroup video
  * \brief   initializes the selected video mode
@@ -125,7 +135,7 @@ void toggle_full_screen();
 int print_gl_errors(const char *file, int line);
 
 /*!
- * \name CHECK_GL_ERRORS macro
+ * \name CHECK_GL_ERRORS macro - only done if DEBUG or OPENGL_TRACE defined
  */
 /*! @{ */
 #if defined DEBUG || defined OPENGL_TRACE
@@ -133,6 +143,17 @@ int print_gl_errors(const char *file, int line);
 #else	//DEBUG
 #define CHECK_GL_ERRORS()	/*!< NOP */
 #endif	//DEBUG
+/*! @} */
+
+/*!
+ * \name DO_CHECK_GL_ERRORS macro - always done for client
+ */
+/*! @{ */
+#ifdef ELC
+#define DO_CHECK_GL_ERRORS()	print_gl_errors(__FILE__, __LINE__)
+#else
+#define DO_CHECK_GL_ERRORS()	/*!< NOP */
+#endif
 /*! @} */
 
 #ifdef __cplusplus

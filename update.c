@@ -24,8 +24,8 @@
 #include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
-#include "init.h"
 #include "interface.h"
+#include "main.h"
 #include "translate.h"
 #include "io/elpathwrapper.h"
 #include "threads.h"
@@ -45,6 +45,7 @@ static unsigned int num_update_servers;
 static char *update_servers[32];	// we cant handle more then 32 different servers
 static int is_this_files_lst= 0;	// files.lst changes its name if it is a custom update
 static char files_lst[256]= {0};
+static int allow_restart=1;
 
 // we need a simple queue system so that the MD5 processing is in parallel with downloading
 #define	MAX_UPDATE_QUEUE_SIZE	32768

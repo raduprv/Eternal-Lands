@@ -22,7 +22,6 @@
 #include "cluster.h"
 #endif
 #include "shadows.h"
-#include "global.h"
 #include "shader/shader.h"
 #include "sky.h"
 #ifdef FSAA

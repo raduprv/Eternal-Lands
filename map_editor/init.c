@@ -14,8 +14,6 @@
 #include "../io/elfilewrapper.h"
 #include "../io/fileutil.h"
 
-char lang[10]={"en"};
-
 char datadir[256]={"./"};
 char configdir[256]={"./"};
 

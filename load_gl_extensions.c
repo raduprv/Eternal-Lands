@@ -6,6 +6,7 @@
 #include "client_serv.h"
 #include "text.h"
 #include "errors.h"
+#include "gl_init.h"
 
 const char* gl_versions_str[] = { "1.1", "1.2", "1.3", "1.4", "1.5", "2.0", "2.1" };
 const Uint16 gl_versions[] = { 0x0101, 0x0102, 0x0103, 0x0104, 0x0105, 0x0200, 0x0201 };
@@ -264,8 +265,12 @@ static void check_for_problem_drivers()
 	my_string = (const char*) glGetString (GL_VENDOR);
 	if (my_string == NULL)
 	{
-		LOG_ERROR("%s:%d glGetString() returned NULL", __FUNCTION__, __LINE__);
-		return;
+		const char *error_str = "glGetString() returned NULL for GL_VENDOR=0x%x";
+		DO_CHECK_GL_ERRORS();
+		LOG_ERROR(error_str, GL_VENDOR);
+		SDL_Quit();
+		FATAL_ERROR_WINDOW(error_str, GL_VENDOR);
+		exit(1);
 	}
 	if(strstr(my_string,"Intel"))is_intel=1;
 	else
@@ -1157,8 +1162,12 @@ void init_opengl_extensions()
 	extensions_string = (char*)glGetString(GL_EXTENSIONS);
 	if (extensions_string == NULL)
 	{
-		LOG_ERROR("%s:%d glGetString() returned NULL", __FUNCTION__, __LINE__);
-		return;
+		const char *error_str = "glGetString() returned NULL for GL_EXTENSIONS=0x%x";
+		DO_CHECK_GL_ERRORS();
+		LOG_ERROR(error_str, GL_EXTENSIONS);
+		SDL_Quit();
+		FATAL_ERROR_WINDOW(error_str, GL_EXTENSIONS);
+		exit(1);
 	}
 
 /*	GL_ARB_multitexture			*/

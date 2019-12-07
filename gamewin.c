@@ -27,9 +27,9 @@
 #include "hud.h"
 #include "hud_quickbar_window.h"
 #include "hud_quickspells_window.h"
-#include "init.h"
 #include "interface.h"
 #include "manufacture.h"
+#include "main.h"
 #include "map.h"
 #include "minimap.h"
 #include "missiles.h"
@@ -2385,13 +2385,17 @@ static int show_game_handler (window_info *win) {
 	show_hud_windows();
 	if (use_windowed_chat == 1)
 		display_tab_bar();
+	set_all_intersect_update_needed(main_bbox_tree); // redraw the scene
 	return 1;
 }
 
 static int resize_game_root_handler(window_info *win, int width, int height)
 {
 	if (get_show_window(win->window_id))
+	{
 		init_hud_interface (HUD_INTERFACE_GAME);
+		set_all_intersect_update_needed(main_bbox_tree); // redraw the scene
+	}
 	return 1;
 }
 

@@ -3,9 +3,9 @@
 #include <ctype.h>
 #include "encyclopedia.h"
 #include "asc.h"
+#include "elconfig.h"
 #include "elwindows.h"
 #include "errors.h"
-#include "init.h"
 #include "interface.h"
 #include "misc.h"
 #include "platform.h"

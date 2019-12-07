@@ -5,11 +5,15 @@
  * Copyright: See COPYING file that comes with this distribution
  ****************************************************************************/
 
+#include <cassert>
+#include <sstream>
+#ifdef ELC
+#include <SDL_messagebox.h>
+#endif
 #include "elloggingwrapper.h"
 #include "engine/logging.hpp"
 #include "io/elpathwrapper.h"
 #include "asc.h"
-#include <cassert>
 
 namespace el = eternal_lands;
 
@@ -36,6 +40,39 @@ extern "C" void set_log_level(const LogLevelType log_level)
 {
 	el::set_log_level(static_cast<el::LogLevelType>(log_level));
 }
+
+#ifdef ELC
+extern "C" void fatal_error_window(const char* file, const Uint32 line,
+	const char* message, ...)
+{
+	va_list ap;
+	char err_msg[512];
+
+	assert(message != 0);
+	assert(strlen(message) > 0);
+
+	if (el::get_log_level() < el::llt_error)
+	{
+		return;
+	}
+
+	memset(err_msg, 0, sizeof(err_msg));
+
+	if (message != 0)
+	{
+		va_start(ap, message);
+
+        	vsnprintf(err_msg, sizeof(err_msg), message, ap);
+        	err_msg[sizeof(err_msg) - 1] = '\0';
+
+		va_end(ap);
+	}
+
+	std::stringstream str, log_stream;
+	str << "[" << file << ":" << line << "] " << err_msg;
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Eternal Lands - Fatal Error", str.str().c_str() , NULL);
+}
+#endif
 
 extern "C" void log_error(const char* file, const Uint32 line,
 	const char* message, ...)

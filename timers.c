@@ -5,7 +5,6 @@
 #include "actor_scripts.h"
 #include "draw_scene.h"
 #include "events.h"
-#include "global.h"
 #include "init.h"
 #include "interface.h"
 #include "map.h"

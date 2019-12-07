@@ -5,7 +5,6 @@
 #include "draw_scene.h"
 #include "errors.h"
 #include "font.h"
-#include "global.h"
 #include "load_gl_extensions.h"
 #include "missiles.h"
 #include "shadows.h"
@@ -16,7 +15,7 @@
 #include "tiles.h"
 #endif /* NEW_SOUND */
 #ifdef DEBUG
-#include "init.h"
+#include "elconfig.h"
 #endif /* DEBUG */
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
