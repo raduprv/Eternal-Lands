@@ -269,7 +269,9 @@ static void check_for_problem_drivers()
 		DO_CHECK_GL_ERRORS();
 		LOG_ERROR(error_str, GL_VENDOR);
 		SDL_Quit();
+#ifdef ELC
 		FATAL_ERROR_WINDOW(error_str, GL_VENDOR);
+#endif
 		exit(1);
 	}
 	if(strstr(my_string,"Intel"))is_intel=1;
@@ -1166,7 +1168,9 @@ void init_opengl_extensions()
 		DO_CHECK_GL_ERRORS();
 		LOG_ERROR(error_str, GL_EXTENSIONS);
 		SDL_Quit();
+#ifdef ELC
 		FATAL_ERROR_WINDOW(error_str, GL_EXTENSIONS);
+#endif
 		exit(1);
 	}
 
