@@ -185,7 +185,7 @@ void init_video(void)
 
 	setup_video_mode(full_screen, video_mode);
 
-	if (SDL_Init(SDL_INIT_VIDEO) == -1)
+	if (SDL_InitSubSystem(SDL_INIT_VIDEO|SDL_INIT_EVENTS) < 0)
 	{
 		LOG_ERROR("%s: %s\n", no_sdl_str, SDL_GetError());
 		fprintf(stderr, "%s: %s\n", no_sdl_str, SDL_GetError());
