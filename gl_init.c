@@ -3,50 +3,36 @@
 #include <SDL.h>
 #include "gl_init.h"
 #include "asc.h"
-#include "bbox_tree.h"
-#include "cursors.h"
-#include "draw_scene.h"
-#include "e3d.h"
 #include "elconfig.h"
 #include "errors.h"
-#include "framebuffer.h"
 #include "hud.h"
 #include "init.h"
 #include "interface.h"
-#include "lights.h"
-#include "mapwin.h"
 #include "textures.h"
 #include "translate.h"
-#include "io/e3d_io.h"
-#include "eye_candy_wrapper.h"
-#include "minimap.h"
 #include "sky.h"
 #include "shader/shader.h"
-#include "actor_init.h"
 #ifdef	FSAA
 #include "fsaa/fsaa.h"
 #endif	/* FSAA */
 
-Uint32 flags;
-
-int window_width=640;
-int window_height=480;
+int window_width = 640;
+int window_height = 480;
 
 SDL_Window *el_gl_window = NULL;
 static SDL_GLContext el_gl_context = NULL;
 static SDL_Surface *icon_bmp = NULL;
 static SDL_version el_gl_linked;
 
-int desktop_width;
-int desktop_height;
-
-int bpp=0;
-int have_stencil=1;
-int video_mode;
-int video_user_width;
-int video_user_height;
-int disable_window_adjustment;
-int full_screen;
+int bpp = 0;
+int have_stencil = 1;
+int video_mode = 0;
+int video_user_width = 640;
+int video_user_height = 480;
+#ifdef WINDOWS
+int disable_window_adjustment = 0;
+#endif
+int full_screen = 0;
 
 int use_compiled_vertex_array = 0;
 int use_vertex_buffers = 0;
@@ -62,17 +48,7 @@ float far_plane = 100.0;   // LOD helper. Cull distant objects. Lower value == h
 float far_reflection_plane = 100.0;   // LOD helper. Cull distant reflected objects. Lower value == higher framerates.
 int gl_extensions_loaded = 0;
 
-struct list {
-	int i;
-	struct list * next;
-} * list;
-
-void APIENTRY Emul_glDrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices)
-{
-	glDrawElements(mode, count, type, indices);
-}
-
-void setup_video_mode(int fs, int mode)
+static void setup_video_mode(int fs, int mode)
 {
 	/* Video mode 0 is user defined size (via video_user_width and video_user_height)
 	 * Video mode 1 and above are defined in the video_modes array where mode 1 is at position 0
@@ -110,9 +86,9 @@ void setup_video_mode(int fs, int mode)
 			new_width = video_user_width;
 			new_height = video_user_height;
 		} 
+#ifdef WINDOWS
 		else if (!disable_window_adjustment)
 		{
-#ifdef WINDOWS
 			// Window size magic:
 			// Try to get the work area and adjust the window to that size minus the border size
 
@@ -164,11 +140,8 @@ void setup_video_mode(int fs, int mode)
 			// Adjust the window size to fit into the border and title bar
 			new_width -= 2 * GetSystemMetrics(SM_CXFIXEDFRAME);
 			new_height -= 2 * GetSystemMetrics(SM_CYFIXEDFRAME) + GetSystemMetrics(SM_CYCAPTION);
-#else
-			new_width -= 10;
-			new_height -= 55;
-#endif
 		}
+#endif
 
 		if (window_width != new_width || window_height != new_height)
 		{
@@ -204,54 +177,52 @@ static void load_window_icon(void)
 	free(str_buf);
 }
 
-void init_video()
+void init_video(void)
 {
 	char str[400];
 	int rgb_size[3];
-
-	//OK, we have the video mode settings...
-	setup_video_mode(full_screen,video_mode);
-
-	if(SDL_Init(SDL_INIT_VIDEO) == -1)
-		{
-			LOG_ERROR("%s: %s\n", no_sdl_str, SDL_GetError());
-			fprintf(stderr, "%s: %s\n", no_sdl_str, SDL_GetError());
-			SDL_Quit();
-			FATAL_ERROR_WINDOW("Failed to initialise SDL, going to exit.");
-			exit(1);
-		}
-
-	SDL_GetVersion(&el_gl_linked);
+	Uint32 flags;
 
 	setup_video_mode(full_screen, video_mode);
 
-	/* Detect the display depth */
-	if(!bpp)
-		{
-			SDL_DisplayMode current;
-			SDL_GetCurrentDisplayMode(0, &current);
-			if ( SDL_BITSPERPIXEL(current.format) <= 8 )
-				{
-					bpp = 8;
-				}
-			else
-				if ( SDL_BITSPERPIXEL(current.format) <= 16 )
-					{
-						bpp = 16;  /* More doesn't seem to work */
-					}
-				else bpp=32;
-		}
+	if (SDL_Init(SDL_INIT_VIDEO) == -1)
+	{
+		LOG_ERROR("%s: %s\n", no_sdl_str, SDL_GetError());
+		fprintf(stderr, "%s: %s\n", no_sdl_str, SDL_GetError());
+		SDL_Quit();
+		FATAL_ERROR_WINDOW("Failed to initialise SDL, going to exit.");
+		exit(1);
+	}
 
-	//adjust the video mode accordingly
+	SDL_GetVersion(&el_gl_linked);
+
+	/* Detect the display depth */
+	if (!bpp)
+	{
+		SDL_DisplayMode current;
+		SDL_GetCurrentDisplayMode(0, &current);
+		if ( SDL_BITSPERPIXEL(current.format) <= 8 )
+			bpp = 8;
+		else if ( SDL_BITSPERPIXEL(current.format) <= 16 )
+			bpp = 16;
+		else
+			bpp = 32;
+	}
+
+	// adjust the video mode depending on the BITSPERPIXEL available
 	if (video_mode == 0)
 	{
-		//do nothing
-	} else if(bpp==16) {
-		if(!(video_mode%2))
-			video_mode-=1;
-	} else {
-		if(video_mode%2)
-			video_mode+=1;
+		// do nothing user defined
+	}
+	else if (bpp == 16)
+	{
+		if (!(video_mode%2))
+			video_mode -= 1;
+	}
+	else
+	{
+		if (video_mode%2)
+			video_mode += 1;
 	}
 
 	/* Initialize the display */
@@ -274,21 +245,21 @@ void init_video()
 		break;
 	}
 
-	//    Mac OS X will always use 8-8-8-8 ARGB for 32-bit screens and 5-5-5 RGB for 16-bit screens
+	// Mac OS X will always use 8-8-8-8 ARGB for 32-bit screens and 5-5-5 RGB for 16-bit screens
 #ifndef OSX
 	SDL_GL_SetAttribute( SDL_GL_RED_SIZE, rgb_size[0] );
 	SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, rgb_size[1] );
 	SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, rgb_size[2] );
 #endif
 
-	// enable V-SYNC, choosing active as a preference
-	if (SDL_GL_SetSwapInterval(-1) < 0)
-		SDL_GL_SetSwapInterval(1);
-
 	SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 0 );
 	SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 24 );
 	SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 8);
 	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+
+	flags = SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE;
+	if(full_screen)
+		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 
 #ifdef	FSAA
 	if (fsaa > 1)
@@ -296,17 +267,7 @@ void init_video()
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, fsaa);
 		glDisable(GL_MULTISAMPLE);
-	}
-#endif	/* FSAA */
 
-	flags = SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE;
-	if(full_screen) {
-		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-	}
-
-#ifdef	FSAA
-	if (fsaa > 1)
-	{
 		el_gl_window = SDL_CreateWindow("Eternal Lands", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, (full_screen)?0:window_width, (full_screen)?0:window_height, flags);
 		if (el_gl_window == NULL)
 		{
@@ -320,7 +281,7 @@ void init_video()
 	}
 #endif	/* FSAA */
 
-	//try to find a stencil buffer (it doesn't always work on Linux)
+	//try to find a stencil buffer
 	if (el_gl_window == NULL)
 	{
 		el_gl_window = SDL_CreateWindow("Eternal Lands", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, (full_screen)?0:window_width, (full_screen)?0:window_height, flags);
@@ -356,17 +317,40 @@ void init_video()
 		exit(1);
 	}
 
+	// check we have a working GL context, we will only fail later if we do not.
+	{
+		const GLubyte* test_string = glGetString(GL_VENDOR);
+		if (test_string == NULL)
+		{
+			const char* error_str = "glGetString(GL_VENDOR) failed, going to exit.";
+			DO_CHECK_GL_ERRORS();
+			SDL_Quit();
+			FATAL_ERROR_WINDOW(error_str);
+			exit(1);
+		}
+	}
+
+	// get the windos size, these variables are used globaly
 	SDL_GetWindowSize(el_gl_window, &window_width, &window_height);
 
+	// enable V-SYNC, choosing active as a preference
+	if (SDL_GL_SetSwapInterval(-1) < 0)
+		SDL_GL_SetSwapInterval(1);
+
+	// set the minimum size for the window, this is too small perhaps but a config option
 	SDL_SetWindowMinimumSize(el_gl_window, 640,  480);
+
+	// set the hint that clicks that focus the window, pass through for action too
 #if SDL_VERSION_ATLEAST(2, 0, 5)
 	if (SDL_VERSIONNUM(el_gl_linked.major, el_gl_linked.minor, el_gl_linked.patch) >= 2005)
 		SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
 #endif
 
+	// set the gamma of we are controlling it
 	if (!disable_gamma_adjust)
 		SDL_SetWindowBrightness(el_gl_window, gamma_var);
 
+	// set the initial window title, though it will change once we are logged in
 	SDL_SetWindowTitle( el_gl_window, win_principal );
 
 #ifdef OSX
@@ -413,7 +397,7 @@ void init_video()
 }
 
 #ifdef	GL_EXTENSION_CHECK
-void evaluate_extension()
+static void evaluate_extension(void)
 {
 	char str[1024];
 	int has_arb_texture_env_add;
@@ -514,7 +498,7 @@ void evaluate_extension()
 }
 #endif	//GL_EXTENSION_CHECK
 
-void init_gl_extensions()
+void init_gl_extensions(void)
 {
 	char str[1024];
 
@@ -900,7 +884,7 @@ void init_gl_extensions()
 	CHECK_GL_ERRORS();
 }
 
-void resize_root_window()
+void resize_root_window(void)
 {
 	float window_ratio;
 	//float hud_x_adjust=0;
@@ -963,17 +947,13 @@ int switch_video(int mode, int full_screen)
 	{
 		SDL_SetWindowFullscreen(el_gl_window, 0);
 		SDL_SetWindowSize(el_gl_window, window_width, window_height);
-		SDL_SetWindowMinimumSize(el_gl_window, 640,  480);
-#if SDL_VERSION_ATLEAST(2, 0, 5)
-		if (SDL_VERSIONNUM(el_gl_linked.major, el_gl_linked.minor, el_gl_linked.patch) >= 2005)
-			SDL_SetWindowResizable(el_gl_window, SDL_TRUE);
-#endif
 	}
+	SDL_GetWindowSize(el_gl_window, &window_width, &window_height);
 	resize_all_root_windows(window_width, window_height);
 	return 1;
 }
 
-void toggle_full_screen()
+void toggle_full_screen(void)
 {
 	full_screen=!full_screen;
 	switch_video(video_mode, full_screen);

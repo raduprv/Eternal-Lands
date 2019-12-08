@@ -27,7 +27,9 @@ extern int bpp; /*!< color depth to use */
 extern int video_mode; /*!< currently selected video mode */
 extern int video_user_width; /*!< userdefined window width */
 extern int video_user_height; /*!< userdefined window height */
+#ifdef WINDOWS
 extern int disable_window_adjustment; /*<! Switch off window size adjustment for window borders, task bar and the like */
+#endif
 extern int full_screen; /*!< flag that inidicates whether we are in fullscreen or windowed mode */
 extern int disable_gamma_adjust;
 extern float gamma_var; /*!< The current gamma value */
@@ -61,20 +63,6 @@ extern int anti_alias; /*!< flag indicating whether anti-aliasing should be enab
 
 /*!
  * \ingroup video
- * \brief   initializes the selected video mode
- *
- *      Initializes and sets up the selected video mode
- *
- * \param fs 0 for windowed mode, non-zero for fullscreen
- * \param mode the number of the video mode
- *
- * \sa init_stuff
- * \sa init_video
- */
-void setup_video_mode(int fs, int mode);
-
-/*!
- * \ingroup video
  * \brief   Switch to a different video mode or switch fullscreen state
  *
  * \return  False if the mode is not supported
@@ -90,7 +78,7 @@ int switch_video(int mode, int full_screen);
  *
  * \callgraph
  */
-void init_video();
+void init_video(void);
 
 /*!
  * \ingroup video
@@ -100,7 +88,7 @@ void init_video();
  *
  * \callgraph
  */
-void init_gl_extensions();
+void init_gl_extensions(void);
 
 /*!
  * \ingroup video
@@ -109,7 +97,7 @@ void init_gl_extensions();
  *      Resizes the window, after selecting a new video mode.
  *
  */
-void resize_root_window();
+void resize_root_window(void);
 
 /*!
  * \ingroup video
@@ -119,7 +107,7 @@ void resize_root_window();
  *
  * \callgraph
  */
-void toggle_full_screen();
+void toggle_full_screen(void);
 
 /*!
  * \ingroup video

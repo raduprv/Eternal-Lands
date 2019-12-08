@@ -959,8 +959,6 @@ static void change_fsaa(int *pointer, int value)
 	{
 		*pointer = index;
 	}
-
-	LOG_TO_CONSOLE(c_green2, video_restart_str);
 }
 #endif	/* FSAA */
 
@@ -2187,7 +2185,9 @@ static void init_ELC_vars(void)
 		video_modes[i].name = strdup(str);
 		add_multi_option("video_mode", video_modes[i].name);
 	}
+#ifdef WINDOWS
 	add_var(OPT_BOOL, "disable_window_adjustment", "nowindowadjustment", &disable_window_adjustment, change_var, 0, "Disable window size adjustment","Disables the window size adjustment on video mode changes in windowed mode.", VIDEO);
+#endif
 	add_var(OPT_INT,"video_width","width",&video_user_width,change_int, 640,"Userdefined width","Userdefined window width",VIDEO, 640,INT_MAX);
 	add_var(OPT_INT,"video_height","height",&video_user_height,change_int, 480,"Userdefined height","Userdefined window height",VIDEO, 480,INT_MAX);
 	add_var(OPT_INT,"limit_fps","lfps",&limit_fps,change_int,0,"Limit FPS","Limit the frame rate to reduce load on the system",VIDEO,0,INT_MAX);
