@@ -505,14 +505,6 @@ int Main(int argc, char **argv)
 int main(int argc, char **argv)
 #endif
 {
-	if (SDL_Init(0) == -1)
-	{
-		fprintf(stderr, "%s:%d Failed to initialise SDL : Error=[%s]\n", __FUNCTION__, __LINE__, SDL_GetError());
-		SDL_Quit();
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Eternal Lands - Fatal Error", "Failed to initialise SDL, going to exit." , NULL);
-		exit(1);
-	}
-
 #ifdef MEMORY_DEBUG
 	elm_init();
 #endif //MEMORY_DEBUG
