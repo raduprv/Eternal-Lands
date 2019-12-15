@@ -230,9 +230,6 @@ int HandleEvent (SDL_Event *event)
 			break;
 
 		case SDL_TEXTINPUT:
-			if(!el_input_focus){
-				break;  //don't have focus, so we shouldn't be getting keystrokes
-			}
 			unicode = utf8_to_unicode(event->text.text);
 			//printf("SDL_TEXTINPUT text=[%s] len=%lu,%lu timestamp=%u\n", (unsigned char *)event->text.text, sizeof(event->text.text), strlen(event->text.text), event->key.timestamp);
 			//printf("UTF-8 udf8=(%x,%x) unicode=%x\n", event->text.text[0], event->text.text[1], unicode);
@@ -244,9 +241,6 @@ int HandleEvent (SDL_Event *event)
 			break;
 
 		case SDL_KEYDOWN:
-			if(!el_input_focus){
-				break;  //don't have focus, so we shouldn't be getting keystrokes
-			}
 			if (afk_time) 
 				last_action_time = cur_time;	// Set the latest event... Don't let the modifiers ALT, CTRL and SHIFT change the state
 			cm_post_show_check(1); /* any keypress forces any context menu to close */
