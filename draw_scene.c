@@ -9,6 +9,7 @@
 #if !defined(MAP_EDITOR)
 #include "elwindows.h"
 #endif
+#include "events.h"
 #include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
@@ -180,6 +181,8 @@ void draw_scene()
 			check_if_testing_server_connection();
 			/* check if used item counter confirmation has expired */
 			used_item_counter_timer();
+			/* make sure minimised or restored window is noticed */
+			check_minimised_or_restore_window();
 			/* until next time */
 			last_half_second_timer = current_time;
 		}

@@ -245,7 +245,7 @@ int item_window_on_drop=1;
 int mouse_limit=15;
 int isometric=1;
 int poor_man=0;
-int limit_fps=0;
+int max_fps = 0, limit_fps=0;
 int special_effects=0;
 char lang[10] = "en";
 int auto_update= 1;
@@ -718,6 +718,11 @@ static void change_point_particles(int *value)
 	{
 		LOG_TO_CONSOLE(c_green2, disabled_point_particles);
 	}
+}
+
+static void change_fps(int * var, int value)
+{
+	if(value>=0) max_fps = *var = value;
 }
 
 static void change_particles_percentage(int *pointer, int value)
@@ -2190,7 +2195,7 @@ static void init_ELC_vars(void)
 #endif
 	add_var(OPT_INT,"video_width","width",&video_user_width,change_int, 640,"Userdefined width","Userdefined window width",VIDEO, 640,INT_MAX);
 	add_var(OPT_INT,"video_height","height",&video_user_height,change_int, 480,"Userdefined height","Userdefined window height",VIDEO, 480,INT_MAX);
-	add_var(OPT_INT,"limit_fps","lfps",&limit_fps,change_int,0,"Limit FPS","Limit the frame rate to reduce load on the system",VIDEO,0,INT_MAX);
+	add_var(OPT_INT,"limit_fps","lfps",&limit_fps,change_fps,0,"Limit FPS","Limit the frame rate to reduce load on the system",VIDEO,0,INT_MAX);
 	add_var(OPT_FLOAT,"gamma","g",&gamma_var,change_gamma,1,"Gamma","How bright your display should be.",VIDEO,0.10,3.00,0.05);
 	add_var(OPT_BOOL,"disable_gamma_adjust","dga",&disable_gamma_adjust,change_var,0,"Disable Gamma Adjustment","Stop the client from adjusting the display gamma.",VIDEO);
 #ifdef ANTI_ALIAS

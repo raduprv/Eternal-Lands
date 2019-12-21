@@ -34,7 +34,6 @@ enum {
 #ifdef OSX
 extern int osx_right_mouse_cam; /*!< flag indication whether the right mouse button should enable camera rotation */
 #endif
-extern int el_active; /*!< flag indicating whether EL is active (not minimized). */
 
 /*!
  * \ingroup event_handle
@@ -47,6 +46,14 @@ extern int el_active; /*!< flag indicating whether EL is active (not minimized).
  * \callgraph
  */
 int HandleEvent(SDL_Event *event);
+
+/*!
+ * \ingroup event_handle
+ * \brief       Make sure minimised and restored window state is noticed
+ *
+ * \callgraph
+ */
+void check_minimised_or_restore_window(void);
 
 #ifdef __cplusplus
 } // extern "C"

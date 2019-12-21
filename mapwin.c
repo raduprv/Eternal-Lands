@@ -125,20 +125,16 @@ static int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 
 static int display_map_handler (window_info * win)
 {
-	// are we actively drawing things?
-	if (el_active)
-	{
-		draw_hud_interface (win);
-		Leave2DMode ();
-		if(reload_tab_map && map_root_win >= 0 && windows_list.window[map_root_win].displayed){
-			//need to reload the BMP
-			switch_to_game_map();
-		}
-		draw_game_map (!showing_continent, mouse_over_minimap);
-		Enter2DMode ();
-		CHECK_GL_ERRORS ();
-		reload_tab_map = 0;
-	}	
+	draw_hud_interface (win);
+	Leave2DMode ();
+	if(reload_tab_map && map_root_win >= 0 && windows_list.window[map_root_win].displayed){
+		//need to reload the BMP
+		switch_to_game_map();
+	}
+	draw_game_map (!showing_continent, mouse_over_minimap);
+	Enter2DMode ();
+	CHECK_GL_ERRORS ();
+	reload_tab_map = 0;
 
 	display_handling_common(win);
 

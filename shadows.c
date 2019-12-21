@@ -216,20 +216,6 @@ void draw_3d_object_shadows(unsigned int object_type)
 	if(start >= stop){
 		return;
 	}
-	// reduce CPU usage while minimized
-	if(!el_active){
-		// not actually drawing, fake it
-		// now loop through each object
-		for (i=start; i<stop; i++)
-		{
-			l = get_intersect_item_ID(main_bbox_tree, i);
-			if (objects_list[l] == NULL) continue;
-			//track the usage
-			cache_use(objects_list[l]->e3d_data->cache_ptr);
-		}
-		// and all done
-		return;
-	}
 
 	// find the modes we need
 	is_transparent= is_alpha_3d_object(object_type);

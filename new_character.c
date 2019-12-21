@@ -398,7 +398,7 @@ static int display_newchar_handler (window_info *win)
 	Leave2DMode ();
 	glPushMatrix ();
 
-    update_camera();
+	update_camera();
 
 	if (new_zoom_level != zoom_level) {
 		zoom_level = new_zoom_level;
@@ -414,60 +414,56 @@ static int display_newchar_handler (window_info *win)
 
 	reset_under_the_mouse();
 
-	if (el_active)
+	draw_global_light ();
+
+	if (skybox_show_sky)
 	{
+		if (skybox_update_delay < 1)
+			skybox_update_colors();
+		skybox_compute_z_position();
+		glPushMatrix();
+		glTranslatef(0.0, 0.0, skybox_get_z_position());
+		skybox_display();
+		glPopMatrix();
+	}
 
-		draw_global_light ();
+	update_scene_lights();
+	draw_lights();
+	CHECK_GL_ERRORS ();
 
-		if (skybox_show_sky)
-        {
-			if (skybox_update_delay < 1)
-				skybox_update_colors();
-            skybox_compute_z_position();
-            glPushMatrix();
-            glTranslatef(0.0, 0.0, skybox_get_z_position());
-			skybox_display();
-            glPopMatrix();
-        }
-
-		update_scene_lights();
-		draw_lights();
-		CHECK_GL_ERRORS ();
-
-		if (shadows_on && is_day) {
-			render_light_view();
-			CHECK_GL_ERRORS ();
-		}
-
-		if (use_fog)
-			weather_render_fog();
-		if (any_reflection > 1) {
-			draw_sky_background ();
-			CHECK_GL_ERRORS ();
-			if (show_reflection) display_3d_reflection ();
-		}
-
-		CHECK_GL_ERRORS ();
-
-		if (shadows_on && is_day) {
-			draw_sun_shadowed_scene (any_reflection);
-		} else {
-			glNormal3f (0.0f,0.0f,1.0f);
-			if (any_reflection) draw_lake_tiles ();
-			draw_tile_map ();
-			CHECK_GL_ERRORS ();
-			display_2d_objects ();
-			CHECK_GL_ERRORS ();
-			anything_under_the_mouse (0, UNDER_MOUSE_NOTHING);
-			display_objects ();
-			display_ground_objects();
-			display_actors (1, DEFAULT_RENDER_PASS);
-			display_alpha_objects();
-			display_blended_objects();
-		}
-
+	if (shadows_on && is_day) {
+		render_light_view();
 		CHECK_GL_ERRORS ();
 	}
+
+	if (use_fog)
+		weather_render_fog();
+	if (any_reflection > 1) {
+		draw_sky_background ();
+		CHECK_GL_ERRORS ();
+		if (show_reflection) display_3d_reflection ();
+	}
+
+	CHECK_GL_ERRORS ();
+
+	if (shadows_on && is_day) {
+		draw_sun_shadowed_scene (any_reflection);
+	} else {
+		glNormal3f (0.0f,0.0f,1.0f);
+		if (any_reflection) draw_lake_tiles ();
+		draw_tile_map ();
+		CHECK_GL_ERRORS ();
+		display_2d_objects ();
+		CHECK_GL_ERRORS ();
+		anything_under_the_mouse (0, UNDER_MOUSE_NOTHING);
+		display_objects ();
+		display_ground_objects();
+		display_actors (1, DEFAULT_RENDER_PASS);
+		display_alpha_objects();
+		display_blended_objects();
+	}
+
+	CHECK_GL_ERRORS ();
 
 	//particles should be last, we have no Z writting
 	display_particles ();

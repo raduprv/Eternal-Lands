@@ -725,13 +725,10 @@ int rules_root_win = -1;
 
 static int display_rules_root_handler (window_info *win)
 {
-	if (el_active)
-	{
-		if(virt_win_offset < 0) virt_win_offset=0;
-		draw_console_pic (cons_text);
-		draw_rules_interface (win);
-		CHECK_GL_ERRORS();
-	}
+	if(virt_win_offset < 0) virt_win_offset=0;
+	draw_console_pic (cons_text);
+	draw_rules_interface (win);
+	CHECK_GL_ERRORS();
 
 	draw_delay = 20;
 	return 1;

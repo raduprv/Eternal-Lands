@@ -85,35 +85,31 @@ static int display_console_handler (window_info *win)
 		resize_window(win->window_id, win->len_x, win->len_y);
 	}
 
-	// are we actively drawing things?
-	if (el_active)
+	set_font(chat_font);	// switch to the chat font
+	if (console_text_changed)
 	{
-		set_font(chat_font);	// switch to the chat font
-		if (console_text_changed)
-		{
-			find_line_nr (total_nr_lines, total_nr_lines - nr_console_lines - scroll_up_lines, FILTER_ALL, &msg, &offset, chat_zoom, console_text_width);
-			text_field_set_buf_pos (console_root_win, console_out_id, msg, offset);
-			update_console_scrollbar();
-			console_text_changed = 0;
-		}
-
-		draw_console_pic (cons_text);
-		if (scroll_up_lines != 0)
-		{
-			const unsigned char *sep_string = (unsigned char*)"^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^";
-			glColor3f (1.0, 1.0, 1.0);
-			draw_string_clipped (CONSOLE_TEXT_X_BORDER,
-				win->len_y - input_widget->len_y - CONSOLE_SEP_HEIGHT - HUD_MARGIN_Y + DEFAULT_FONT_Y_LEN/2,
-				sep_string, console_text_width, CONSOLE_SEP_HEIGHT);
-		}
-		//ttlanhil: disabled, until the scrolling in console is adusted to work with filtering properly
-		//if the users prefer that console not be filtered, the following line can be removed.
-		//if they want it filtered, then more work can be done until it works properly
-		//((text_field*)((widget_find(console_root_win, console_out_id))->widget_info))->chan_nr = current_filter;
-
-		draw_hud_interface (win);
-		set_font (0);	// switch to fixed
+		find_line_nr (total_nr_lines, total_nr_lines - nr_console_lines - scroll_up_lines, FILTER_ALL, &msg, &offset, chat_zoom, console_text_width);
+		text_field_set_buf_pos (console_root_win, console_out_id, msg, offset);
+		update_console_scrollbar();
+		console_text_changed = 0;
 	}
+
+	draw_console_pic (cons_text);
+	if (scroll_up_lines != 0)
+	{
+		const unsigned char *sep_string = (unsigned char*)"^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^";
+		glColor3f (1.0, 1.0, 1.0);
+		draw_string_clipped (CONSOLE_TEXT_X_BORDER,
+			win->len_y - input_widget->len_y - CONSOLE_SEP_HEIGHT - HUD_MARGIN_Y + DEFAULT_FONT_Y_LEN/2,
+			sep_string, console_text_width, CONSOLE_SEP_HEIGHT);
+	}
+	//ttlanhil: disabled, until the scrolling in console is adusted to work with filtering properly
+	//if the users prefer that console not be filtered, the following line can be removed.
+	//if they want it filtered, then more work can be done until it works properly
+	//((text_field*)((widget_find(console_root_win, console_out_id))->widget_info))->chan_nr = current_filter;
+
+	draw_hud_interface (win);
+	set_font (0);	// switch to fixed
 
 	display_handling_common(win);
 

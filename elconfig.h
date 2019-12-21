@@ -39,7 +39,8 @@ extern int item_window_on_drop;
 extern int mouse_limit;
 extern int isometric; /*!< use isometric instead of perspective view */
 extern int poor_man; /*!< this flag, if set to true, indicates we are running on a really poor machine */
-extern int limit_fps; /*!< contains the max FPS number we should use. If this is 0, the highest possible number will be used. */
+extern int limit_fps; /*!< the configured max FPS number we should use. If this is 0, the highest possible number will be used. */
+extern int max_fps; /*!< the current max fps to use, normally the same as limit_fps, set low when window is not active to reduce processing */
 extern int special_effects; /*!< flag indicating whether pretty spell effects should be enabled */
 extern int show_reflection; /*!< flag that indicates whether to display reflections or not */
 extern char lang[10]; /*!< contains the identifier for the current language. \todo Shouldn't this go into translate.h? */

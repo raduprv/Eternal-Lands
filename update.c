@@ -674,13 +674,10 @@ CHECK_GL_ERRORS();
 
 static int display_update_root_handler (window_info *win)
 {
-	if (el_active)
-	{	
-		draw_console_pic (cons_text);
-		draw_update_interface (win);
-		CHECK_GL_ERRORS();
-	}
-	
+	draw_console_pic (cons_text);
+	draw_update_interface (win);
+	CHECK_GL_ERRORS();
+
 	draw_delay = 20;
 	return 1;
 }

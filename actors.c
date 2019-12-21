@@ -883,7 +883,6 @@ void draw_actor_overtext( actor* actor_ptr )
 
 	//-- decrease display time
 	actor_ptr->current_displayed_text_time_left -= (cur_time-last_time);
-	if(!el_active) return;	// not actually drawing, fake it
 
 	textwidth = ((float)get_string_width((unsigned char*)(actor_ptr->current_displayed_text))*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/12.0;
 	textheight = (0.06f*zoom_level/3.0)*4;
@@ -1394,7 +1393,7 @@ void display_actors(int banner, int render_pass)
 		disable_actor_animation_program();
 	}
 
-	if (banner && el_active)
+	if (banner)
 	{
 		if (use_shadow_mapping)
 		{

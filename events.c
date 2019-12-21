@@ -5,6 +5,7 @@
 #include <SDL_syswm.h>
 #endif
 
+#include "elconfig.h"
 #include "events.h"
 #include "context_menu.h"
 #include "gamewin.h"
@@ -23,8 +24,6 @@
 #ifdef OSX
 int osx_right_mouse_cam = 0;
 #endif
-int el_active = 1;
-int el_input_focus = 1;
 
 // Convert from utf-8 to unicode, generated from the table here:
 // https://www.utf8-chartable.de/unicode-utf8-table.pl?htmlent=1
@@ -151,6 +150,24 @@ static Uint8 utf8_to_unicode(const char text[32])
 		return 0;
 }
 
+// Make sure minimised and restored window state is noticed
+// On windows as least, the minimise event is sometimes not seen
+// Called from the 500 ms timer in draw_scene()
+void check_minimised_or_restore_window(void)
+{
+	Uint32 flags = SDL_GetWindowFlags(el_gl_window);
+	if (flags & (SDL_WINDOW_HIDDEN | SDL_WINDOW_MINIMIZED))
+	{
+		if (max_fps != 1)
+			max_fps = 1;
+	}
+	else if (flags & (SDL_WINDOW_SHOWN | SDL_WINDOW_MAXIMIZED))
+	{
+		if (max_fps != limit_fps)
+			max_fps = limit_fps;
+	}
+}
+
 int HandleEvent (SDL_Event *event)
 {
 	int done = 0;
@@ -162,6 +179,7 @@ int HandleEvent (SDL_Event *event)
 	static Uint32 last_loss = 0;
 	static Uint32 last_SDL_KEYDOWN_timestamp = 0;
 	static Uint32 last_SDL_KEYDOWN_return_value = 0;
+	static int el_input_focus = 1;
 
 	if (event->type == SDL_FIRSTEVENT) return 0;
 
@@ -185,7 +203,7 @@ int HandleEvent (SDL_Event *event)
 				case SDL_WINDOWEVENT_HIDDEN:
 				case SDL_WINDOWEVENT_MINIMIZED:
 					last_loss = SDL_GetTicks();
-					el_active = 0;
+					max_fps = 1;
 					break;
 				case SDL_WINDOWEVENT_SHOWN:
 				case SDL_WINDOWEVENT_EXPOSED:
@@ -196,7 +214,7 @@ int HandleEvent (SDL_Event *event)
 						last_loss = 0;
 						SDL_SetModState(KMOD_NONE);
 					}
-					el_active = 1;
+					max_fps = limit_fps;
 					break;
 				case SDL_WINDOWEVENT_LEAVE:
 				case SDL_WINDOWEVENT_FOCUS_LOST:
@@ -243,7 +261,8 @@ int HandleEvent (SDL_Event *event)
 		case SDL_KEYDOWN:
 			if (afk_time) 
 				last_action_time = cur_time;	// Set the latest event... Don't let the modifiers ALT, CTRL and SHIFT change the state
-			cm_post_show_check(1); /* any keypress forces any context menu to close */
+			if (event->key.keysym.mod == KMOD_NONE)
+				cm_post_show_check(1); /* any non-mod keypress forces any context menu to close */
 			//printf("SDL_KEYDOWN keycode=%u,[%s] mod=%u timestamp=%u\n", event->key.keysym.sym, SDL_GetKeyName(event->key.keysym.sym), event->key.keysym.mod, event->key.timestamp);
 			last_SDL_KEYDOWN_timestamp = event->key.timestamp;
 			last_SDL_KEYDOWN_return_value = keypress_in_windows (mouse_x, mouse_y, event->key.keysym.sym, 0, event->key.keysym.mod);

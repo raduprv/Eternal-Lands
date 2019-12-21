@@ -1205,102 +1205,93 @@ static int display_game_handler (window_info *win)
 
 	reset_under_the_mouse();
 
-	// are we actively drawing things?
-	if (el_active)
+	if (!dungeon){
+		draw_global_light ();
+	} else {
+		draw_dungeon_light ();
+	}
+
+	if (skybox_update_delay < 1)
+		skybox_update_colors();
+	if (skybox_show_sky)
 	{
-
-		if (!dungeon){
-			draw_global_light ();
-		} else {
-			draw_dungeon_light ();
-		}
-
-		if (skybox_update_delay < 1)
-			skybox_update_colors();
-		if (skybox_show_sky)
-        {
-			skybox_compute_z_position();
-            glPushMatrix();
-            glTranslatef(0.0, 0.0, skybox_get_z_position());
-			skybox_display();
-            glPopMatrix();
-        }
-	
-		if (use_fog)
-			weather_render_fog();
-
-		// only draw scene lights if inside or it is night
-		if (dungeon || !is_day)
-		{
-			update_scene_lights ();
-			draw_lights ();
-		}
-		CHECK_GL_ERRORS ();
-
-		if (!dungeon && shadows_on && (is_day || lightning_falling))
-		{
-			render_light_view();
-			CHECK_GL_ERRORS ();
-		}
-
-		if (any_reflection > 1) // there are water tiles to display
-		{
-			draw_water_background();
-			CHECK_GL_ERRORS ();
-			if (show_reflection) display_3d_reflection ();
-		}
-		CHECK_GL_ERRORS ();
-		glClear(GL_DEPTH_BUFFER_BIT);
-
-		missiles_update();
-	
-		if (!is_day)
-			weather_init_lightning_light();
-
-		if (!dungeon && shadows_on && (is_day || lightning_falling))
-		{
-			glNormal3f(0.0f,0.0f,1.0f);
-			if (use_fog && any_reflection) blend_reflection_fog();
-			draw_sun_shadowed_scene (any_reflection);
-		}
-		else 
-		{
-			glNormal3f (0.0f,0.0f,1.0f);
-			if (any_reflection) {
-				blend_reflection_fog();
-				draw_lake_tiles ();
-			}
-			
-			draw_tile_map();
-			CHECK_GL_ERRORS ();
-			display_2d_objects();
-			CHECK_GL_ERRORS();
-			anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
-			display_objects();
-			display_ground_objects();	
-			display_actors(1, DEFAULT_RENDER_PASS);
-			display_alpha_objects();
-			display_blended_objects();
-		}
-
-		glMatrixMode(GL_PROJECTION);
+		skybox_compute_z_position();
 		glPushMatrix();
-		glLoadMatrixd(skybox_view);
-		glMatrixMode(GL_MODELVIEW);
-
-		weather_render_lightning();
-
-		glMatrixMode(GL_PROJECTION);
+		glTranslatef(0.0, 0.0, skybox_get_z_position());
+		skybox_display();
 		glPopMatrix();
-		glMatrixMode(GL_MODELVIEW);
+	}
 
-		CHECK_GL_ERRORS ();
-	}	// end of active display check
-	else 
+	if (use_fog)
+		weather_render_fog();
+
+	// only draw scene lights if inside or it is night
+	if (dungeon || !is_day)
 	{
-		display_actors (1, DEFAULT_RENDER_PASS);	// we need to 'touch' all the actors even if not drawing to avoid problems
+		update_scene_lights ();
+		draw_lights ();
 	}
 	CHECK_GL_ERRORS ();
+
+	if (!dungeon && shadows_on && (is_day || lightning_falling))
+	{
+		render_light_view();
+		CHECK_GL_ERRORS ();
+	}
+
+	if (any_reflection > 1) // there are water tiles to display
+	{
+		draw_water_background();
+		CHECK_GL_ERRORS ();
+		if (show_reflection) display_3d_reflection ();
+	}
+	CHECK_GL_ERRORS ();
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+	missiles_update();
+
+	if (!is_day)
+		weather_init_lightning_light();
+
+	if (!dungeon && shadows_on && (is_day || lightning_falling))
+	{
+		glNormal3f(0.0f,0.0f,1.0f);
+		if (use_fog && any_reflection) blend_reflection_fog();
+		draw_sun_shadowed_scene (any_reflection);
+	}
+	else 
+	{
+		glNormal3f (0.0f,0.0f,1.0f);
+		if (any_reflection) {
+			blend_reflection_fog();
+			draw_lake_tiles ();
+		}
+
+		draw_tile_map();
+		CHECK_GL_ERRORS ();
+		display_2d_objects();
+		CHECK_GL_ERRORS();
+		anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
+		display_objects();
+		display_ground_objects();
+		display_actors(1, DEFAULT_RENDER_PASS);
+		display_alpha_objects();
+		display_blended_objects();
+	}
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadMatrixd(skybox_view);
+	glMatrixMode(GL_MODELVIEW);
+
+	weather_render_lightning();
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+
+	CHECK_GL_ERRORS ();
+
 #ifdef DEBUG_TIME
 	light_idle();
 #endif // DEBUG_TIME
@@ -1308,18 +1299,6 @@ static int display_game_handler (window_info *win)
 	ec_idle();
 
 	CHECK_GL_ERRORS();
-	// if not active, dont bother drawing any more
-	if (!el_active)
-	{
-		// remember the time stamp to improve FPS quality when switching modes
-		next_fps_time=cur_time+1000;
-		last_count=0;
-		draw_delay = 20;
-		// Return to 2D mode to draw the other windows
-		glPopMatrix (); // restore the state
-		Enter2DMode ();
-		return 1;
-	}
 
 	if (show_weather){
 		weather_render();
@@ -1363,13 +1342,13 @@ static int display_game_handler (window_info *win)
 
 	if (!no_adjust_shadows)
 	{
-		if (fps_average < 5.0f)
+		if ((fps_average < 5.0f) || (max_fps != limit_fps))
 		{
 			times_FPS_below_3++;
-			if (times_FPS_below_3 > 10 && (shadows_on
-					|| use_eye_candy
-					)){
-				put_colored_text_in_buffer (c_red1, CHAT_SERVER, (unsigned char*)low_framerate_str, -1);
+			if (((times_FPS_below_3 > 10) || (max_fps != limit_fps)) && (shadows_on || use_eye_candy ))
+			{
+				if (max_fps == limit_fps)
+					LOG_TO_CONSOLE(c_red1, (unsigned char*)low_framerate_str);
 				times_FPS_below_3 = 0;
 				if (shadows_on)
 				{
@@ -1441,7 +1420,10 @@ static int display_game_handler (window_info *win)
 		glColor3f (1.0f, 1.0f, 1.0f);
 #endif	//DEBUG
 		fps_default_width = 9 * win->default_font_len_x;
-		safe_snprintf ((char*)str, sizeof(str), "FPS: %i", fps[0]);
+		if (max_fps != limit_fps)
+			safe_snprintf ((char*)str, sizeof(str), "FPS: -");
+		else
+			safe_snprintf ((char*)str, sizeof(str), "FPS: %i", fps[0]);
 		draw_string_zoomed (win->len_x - hud_x - fps_default_width, 4 * win->current_scale, str, 1, win->current_scale);
 		safe_snprintf((char*)str, sizeof(str), "UVP: %d", use_animation_program);
 		draw_string_zoomed (win->len_x - hud_x - fps_default_width, (4 + SMALL_FONT_Y_LEN) * win->current_scale, str, 1, win->current_scale);
