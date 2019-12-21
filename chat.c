@@ -2726,6 +2726,7 @@ int skip_message (const text_message *msg, Uint8 filter)
 			case CHAT_MODPM:    skip = 0;                      break;
 			default:            skip = 1;
 		}
+		return skip;
 	}
 	switch (channel) {
 		case CHAT_CHANNEL1:
