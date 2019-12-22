@@ -317,7 +317,6 @@ extern char
 		/*hud.c*/
 		no_open_on_trade[100], 
 		stats_scroll_help_str[100],
-		remove_bar_message_str[50],
 		cm_action_points_str[30],
 		hud_timer_cm_str[100],
 		hud_timer_popup_title_str[25],
