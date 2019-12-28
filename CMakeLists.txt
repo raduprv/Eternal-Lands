@@ -262,6 +262,7 @@ target_link_libraries(${EXEC}
 	${Iconv_LIBRARIES}
 	${OPENGL_gl_LIBRARY}
 	${OPENGL_glu_LIBRARY}
+	${STATIC_LIBRARIES}
 )
 
 target_include_directories(${EXEC} SYSTEM PUBLIC

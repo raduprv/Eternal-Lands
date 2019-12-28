@@ -250,7 +250,7 @@ static void png_user_error(png_structp ctx, png_const_charp str)
 	LOG_ERROR("libpng: %s\n", str);
 }
 
-int IMG_SavePNG_RW (SDL_Surface *face, SDL_RWops *src)
+static int IMG_SavePNG_RW (SDL_Surface *face, SDL_RWops *src)
 {
 	png_structp png_ptr = 0;
 	png_infop info_ptr = NULL;
@@ -335,7 +335,7 @@ done:
 	return result;
 }
 
-int IMG_SavePNG (SDL_Surface *surface, const char *file)
+static int IMG_SavePNG (SDL_Surface *surface, const char *file)
 {
 	SDL_RWops *out = SDL_RWFromFile (file, "wb");
 	int ret;

@@ -324,6 +324,7 @@ void init_video(void)
 		{
 			const char* error_str = "glGetString(GL_VENDOR) failed, going to exit.";
 			DO_CHECK_GL_ERRORS();
+			LOG_ERROR("%s: %s\n", error_str, SDL_GetError());
 			SDL_Quit();
 			FATAL_ERROR_WINDOW(error_str);
 			exit(1);
