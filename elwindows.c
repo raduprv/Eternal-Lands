@@ -1004,6 +1004,8 @@ int	draw_window_title(window_info *win)
 	float v_last_start = (float)160/255;
 	float v_last_end = (float)175/255;
 
+	int bar_end_x_width = (int)(0.5 + win->current_scale * 32);
+
 	if((win->flags&ELW_TITLE_BAR) == ELW_TITLE_NONE)	return 0;
 
 	/* draw the help text if the mouse is over the title bar */
@@ -1020,31 +1022,31 @@ int	draw_window_title(window_info *win)
 	glAlphaFunc(GL_GREATER,0.03f);
 	glBegin(GL_QUADS);
 
-	if (win->len_x > 64) 
+	if (win->len_x > 2 * bar_end_x_width) 
 	{
 		glTexCoord2f(u_first_end, v_first_start);
 		glVertex3i(0, -win->title_height, 0);
 		glTexCoord2f(u_first_end, v_first_end);
 		glVertex3i(0, 0, 0);
 		glTexCoord2f(u_first_start, v_first_end);
-		glVertex3i(32, 0, 0);
+		glVertex3i(bar_end_x_width, 0, 0);
 		glTexCoord2f(u_first_start, v_first_start);
-		glVertex3i(32, -win->title_height, 0);
+		glVertex3i(bar_end_x_width, -win->title_height, 0);
 
 		// draw one streched out cell to the proper size
 		glTexCoord2f(u_middle_end, v_middle_start);
-		glVertex3i(32, -win->title_height, 0);
+		glVertex3i(bar_end_x_width, -win->title_height, 0);
 		glTexCoord2f(u_middle_end, v_middle_end);
-		glVertex3i(32, 0, 0);
+		glVertex3i(bar_end_x_width, 0, 0);
 		glTexCoord2f(u_middle_start, v_middle_end);
-		glVertex3i(win->len_x-32, 0, 0);
+		glVertex3i(win->len_x-bar_end_x_width, 0, 0);
 		glTexCoord2f(u_middle_start, v_middle_start);
-		glVertex3i(win->len_x-32, -win->title_height, 0);
+		glVertex3i(win->len_x-bar_end_x_width, -win->title_height, 0);
 
 		glTexCoord2f(u_last_end, v_last_start);
-		glVertex3i(win->len_x-32, -win->title_height, 0);
+		glVertex3i(win->len_x-bar_end_x_width, -win->title_height, 0);
 		glTexCoord2f(u_last_end, v_last_end);
-		glVertex3i(win->len_x-32, 0, 0);
+		glVertex3i(win->len_x-bar_end_x_width, 0, 0);
 		glTexCoord2f(u_last_start, v_last_end);
 		glVertex3i(win->len_x, 0, 0);
 		glTexCoord2f(u_last_start, v_last_start);
@@ -1178,6 +1180,8 @@ int	draw_window_border(window_info *win)
 	
 	if(win->flags&ELW_CLOSE_BOX)
 	{
+		int cross_gap = (int)(0.5 + win->current_scale * 3);
+
 		//draw the corner, with the X in
 		glColor3f(win->border_color[0],win->border_color[1],win->border_color[2]);
 		glBegin(GL_LINE_STRIP);
@@ -1189,11 +1193,11 @@ int	draw_window_border(window_info *win)
 		glLineWidth(2.0f);
 
 		glBegin(GL_LINES);
-			glVertex2i(win->len_x-win->box_size+3, 3);
-			glVertex2i(win->len_x-3, win->box_size-3);
+			glVertex2i(win->len_x-win->box_size+cross_gap, cross_gap);
+			glVertex2i(win->len_x-cross_gap, win->box_size-cross_gap);
 		
-			glVertex2i(win->len_x-3, 3);
-			glVertex2i(win->len_x-win->box_size+3, win->box_size-3);
+			glVertex2i(win->len_x-cross_gap, cross_gap);
+			glVertex2i(win->len_x-win->box_size+cross_gap, win->box_size-cross_gap);
 		glEnd();
 
 		glLineWidth(1.0f);
