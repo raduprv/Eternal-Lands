@@ -36,7 +36,7 @@
 #include "image_loading.h"
 
 #ifdef NEW_SOUND
-int real_add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos, unsigned int dynamic);
+static int real_add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos, unsigned int dynamic);
 #endif // NEW_SOUND
 
 #define TELEPORTER_PARTICLE_SYS 0
@@ -566,38 +566,17 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile, float z)
 {
 	float x = 0.5f * x_tile + 0.25f;
 	float y = 0.5f * y_tile + 0.25f;
-#ifdef NEW_SOUND
-	int snd;
-#endif // NEW_SOUND
 
 	switch (kind)
 	{
 		case 2:
-			if (use_eye_candy)
-				ec_create_campfire(x, y, z, 0.0, 1.0, (poor_man ? 6 : 10), 3.1);
-			else
-				real_add_particle_sys ("./particles/fire_big.part", x, y, z, 1);
-#ifdef NEW_SOUND
-			snd = get_sound_index_for_particle_file_name("./particles/fire_big.part");
-#endif // NEW_SOUND
+			add_particle_sys ("./particles/fire_big.part", x, y, z, 1);
 			break;
 		case 1:
 		default:
-			if (use_eye_candy)
-				ec_create_campfire(x, y, z, 0.0, 1.0, (poor_man ? 6 : 10), 2.4);
-			else
-				real_add_particle_sys ("./particles/fire_small.part", x, y, z, 1);
-#ifdef NEW_SOUND
-			snd = get_sound_index_for_particle_file_name("./particles/fire_small.part");
-#endif // NEW_SOUND
+			add_particle_sys ("./particles/fire_small.part", x, y, z, 1);
 			break;
 	}
-#ifdef NEW_SOUND
-	if (sound_on && snd >= 0)
-	{
-		add_particle_sound(snd, x_tile, y_tile);
-	}
-#endif // NEW_SOUND
 }
 
 void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
@@ -738,7 +717,7 @@ int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_p
 	return real_add_particle_sys(file_name, x_pos, y_pos, z_pos, dynamic);
 }
 
-int real_add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos, unsigned int dynamic)
+static int real_add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos, unsigned int dynamic)
 #else
 int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos, unsigned int dynamic)
 #endif // NEW_SOUND

@@ -597,6 +597,7 @@ static void consolidate_rotate_chat_log_status(void)
 	}
 }
 
+#ifdef NEW_SOUND
 static void change_sound_level(float *var, float * value)
 {
 	if(*value >= 0.0f && *value <= 1.0f+0.00001) {
@@ -605,6 +606,7 @@ static void change_sound_level(float *var, float * value)
 		*var=0;
 	}
 }
+#endif
 
 static void update_max_actor_texture_handles(void)
 {
