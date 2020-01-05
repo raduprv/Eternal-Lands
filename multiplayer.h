@@ -15,18 +15,12 @@ extern "C" {
 
 extern int port; /*!< the server port we use */
 extern unsigned char server_address[60]; /*!< the server address we use */
+extern int disconnected; /*!< indicates whether we are currently connected or not */
 
 extern TCPsocket my_socket; /*!< our TCP socket to communiate with the server */
 
 /*! \name Version information 
  * @{ */
-extern char version_string[]; /*!< a buffer for the complete version string */
-extern int client_version_major; /*!< The clients Major version number */
-extern int client_version_minor; /*!< The clients Minor version number */
-extern int client_version_release; /*!< The clients Release version number */
-extern int client_version_patch; /*!< The clients Patchlevel number */
-extern int version_first_digit; /*!< the first digit of the version */
-extern int version_second_digit; /*!< the second digit of the version */
 extern int always_pathfinding; /*!< use pathfinding for walk click on far visible tiles of the 3d map */
 extern int mixed_message_filter; /*!< If true, do not display console messages for mixed items when other windows are closed */
 /*! @} */
@@ -35,6 +29,17 @@ extern int mixed_message_filter; /*!< If true, do not display console messages f
 extern Uint32 next_second_time; /*!< the time of the next second */
 extern short real_game_minute; /*!< the real game minute */
 extern short real_game_second; /*!< the real game second */
+
+/*!
+ * \brief Get the Eternal Lands version number
+ *
+ *	Print the Eternal Lands version in string \a str.
+ *
+ * \param str	the character buffer in which the string is placed
+ * \param len	the size of the buffer
+ * \callgraph
+ */
+void get_version_string (char *buf, size_t len);
 
 /*!
  * \brief	check validity of game seconds
@@ -71,7 +76,7 @@ Uint32 diff_game_time_sec(Uint32 ref_time);
  * \param	A message string, or NULL
  * 
 */
-void enter_disconnected_state(char *message);
+void enter_disconnected_state(const char *message);
 
 /*!
  * \brief	Called from the main thread 500 ms timer, check if testing server connection.

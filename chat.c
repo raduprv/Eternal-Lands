@@ -12,7 +12,6 @@
 #include "elconfig.h"
 #include "errors.h"
 #include "gamewin.h"
-#include "global.h"
 #include "hud.h"
 #include "init.h"
 #include "interface.h"
@@ -742,9 +741,8 @@ static int chat_scroll_click (widget_list *widget, int mx, int my, Uint32 flags)
         return 0;
 }
 
-int chat_input_key (widget_list *widget, int mx, int my, Uint32 key, Uint32 unikey)
+int chat_input_key (widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
-	Uint16 keysym = key & 0xffff;
 	text_field *tf;
 	text_message *msg;
 
@@ -754,12 +752,12 @@ int chat_input_key (widget_list *widget, int mx, int my, Uint32 key, Uint32 unik
 	tf = (text_field *) widget->widget_info;
 	msg = tf->buffer;
 
-	if ( (!(key & ELW_CTRL) && ( (keysym == SDLK_UP) || (keysym == SDLK_DOWN) ) ) ||
-		(keysym == SDLK_LEFT) || (keysym == SDLK_RIGHT) || (keysym == SDLK_HOME) ||
-		(keysym == SDLK_END) || (keysym == SDLK_DELETE && tf->cursor < msg->len) ) {
+	if ( (!(key_mod & KMOD_CTRL) && ( (key_code == SDLK_UP) || (key_code == SDLK_DOWN) ) ) ||
+		(key_code == SDLK_LEFT) || (key_code == SDLK_RIGHT) || (key_code == SDLK_HOME) ||
+		(key_code == SDLK_END) || (key_code == SDLK_DELETE && tf->cursor < msg->len) ) {
 		//pass it along. the defaults are good enough
 		widget->Flags &= ~TEXT_FIELD_NO_KEYPRESS;
-		text_field_keypress (widget, mx, my, key, unikey);
+		text_field_keypress (widget, mx, my, key_code, key_unicode, key_mod);
 		widget->Flags |= TEXT_FIELD_NO_KEYPRESS;
 	}
 	else
@@ -896,13 +894,12 @@ void parse_input(char *data, int len)
 }
 
 
-int root_key_to_input_field (Uint32 key, Uint32 unikey)
+int root_key_to_input_field (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
-	Uint16 keysym = key & 0xffff;
-	Uint8 ch = key_to_char (unikey);
+	Uint8 ch = key_to_char (key_unicode);
 	text_field *tf;
 	text_message *msg;
-	int alt_on = key & ELW_ALT, ctrl_on = key & ELW_CTRL;
+	int alt_on = key_mod & KMOD_ALT, ctrl_on = key_mod & KMOD_CTRL;
 
 	if(input_widget == NULL || (input_widget->Flags & TEXT_FIELD_EDITABLE) == 0) {
 		return 0;
@@ -911,11 +908,11 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 	tf = input_widget->widget_info;
 	msg = &(tf->buffer[tf->msg]);
 
-	if (keysym == SDLK_ESCAPE)
+	if (key_code == SDLK_ESCAPE)
 	{
 		clear_input_line();
 	}
-	else if (ch == SDLK_RETURN && msg->len > 0)
+	else if ((key_code == SDLK_RETURN || key_code == SDLK_KP_ENTER) && msg->len > 0)
 	{
 		parse_input(msg->data, msg->len);
 		add_line_to_history((char*)msg->data, msg->len);
@@ -933,12 +930,11 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 		msg->wrap_width = 0;
 		tf->nr_lines = rewrap_message (msg, input_widget->size, input_widget->len_x - 2 * tf->x_space, &tf->cursor);
 	}
-	else if (ch == SDLK_BACKSPACE || ch == SDLK_DELETE
+	else if (key_code == SDLK_BACKSPACE || key_code == SDLK_DELETE
 #ifdef OSX
-	             || ch == 127
+		|| ch == 127
 #endif
-	             || (!alt_on && !ctrl_on && is_printable (ch) && ch != '`')
-	        )
+		|| (!alt_on && !ctrl_on && is_printable (ch) && ch != '`'))
 	{
 		if (is_printable (ch) && !get_show_window(map_root_win)) {
 			//Make sure the widget is visible.
@@ -951,16 +947,16 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 		// we do want to call it directly. So we clear the flag,
 		// and reset it afterwards.
 		input_widget->Flags &= ~TEXT_FIELD_NO_KEYPRESS;
-		text_field_keypress (input_widget, 0, 0, key, unikey);
+		text_field_keypress (input_widget, 0, 0, key_code, key_unicode, key_mod);
 		input_widget->Flags |= TEXT_FIELD_NO_KEYPRESS;
 	}
-	else if (key == K_TABCOMPLETE && input_text_line.len > 0)
+	else if (KEY_DEF_CMP(K_TABCOMPLETE, key_code, key_mod) && input_text_line.len > 0)
 	{
 		do_tab_complete(&input_text_line);
 	}
 	else if (get_show_window(console_root_win))
 	{
-		if (!chat_input_key (input_widget, 0, 0, key, unikey))
+		if (!chat_input_key (input_widget, 0, 0, key_code, key_unicode, key_mod))
 			return 0;
 	}
 	else
@@ -1096,7 +1092,7 @@ static void create_chat_window(void)
 		Uint32 id;
 		set_text_message_color (&input_text_line, 1.0f, 1.0f, 1.0f);
 		id = text_field_add_extended (chat_win, 19, NULL, CHAT_WIN_SPACE, input_y, inout_width, input_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL, CHAT_WIN_SPACE, CHAT_WIN_SPACE);
-		widget_set_OnKey (chat_win, id, chat_input_key);
+		widget_set_OnKey (chat_win, id, (int (*)())chat_input_key);
 		input_widget = widget_find(chat_win, id);
 	}
 	set_window_min_size (chat_win, min_width, min_height);
@@ -2730,6 +2726,7 @@ int skip_message (const text_message *msg, Uint8 filter)
 			case CHAT_MODPM:    skip = 0;                      break;
 			default:            skip = 1;
 		}
+		return skip;
 	}
 	switch (channel) {
 		case CHAT_CHANNEL1:

@@ -317,7 +317,6 @@ extern char
 		/*hud.c*/
 		no_open_on_trade[100], 
 		stats_scroll_help_str[100],
-		remove_bar_message_str[50],
 		cm_action_points_str[30],
 		hud_timer_cm_str[100],
 		hud_timer_popup_title_str[25],
@@ -484,7 +483,6 @@ extern char
 		accept_str[12],
 		/*update.c*/
 		update_complete_str[40],
-		video_restart_str[80],
 		rotate_chat_log_restart_str[80],
 		client_restart_countdown_str[40],
 		client_restarting_str[20],

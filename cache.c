@@ -3,9 +3,11 @@
 #include "cache.h"
 #include "2d_objects.h"
 #include "asc.h"
+#if !defined(MAP_EDITOR)
 #include "elwindows.h"
 #include "gamewin.h"
-#include "global.h"
+#endif
+#include "main.h"
 #include "text.h"
 #include "textures.h"
 #include "translate.h"

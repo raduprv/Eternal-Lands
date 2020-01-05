@@ -10,6 +10,9 @@
 #include "errors.h"
 #include "gamewin.h"
 #include "hud.h"
+#ifdef OPENGL_TRACE
+#include "gl_init.h"
+#endif
 #include "init.h"
 #include "interface.h"
 #include "items.h"
@@ -604,7 +607,7 @@ static int click_ground_items_handler(window_info *win, int mx, int my, Uint32 f
 	int pos;
 	Uint8 str[10];
 	int right_click = flags & ELW_RIGHT_MOUSE;
-	int ctrl_on = flags & ELW_CTRL;
+	int ctrl_on = flags & KMOD_CTRL;
 	int yoffset = get_window_scroll_pos(win->window_id);
 
 	// only handle mouse button clicks, not scroll wheels moves

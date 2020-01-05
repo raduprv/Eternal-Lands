@@ -1,11 +1,18 @@
 #ifndef	__DRAW_SCENE_H
 #define	__DRAW_SCENE_H
 
+#include <SDL_timer.h>
+
 void draw_scene();
 void Move();
 void update_camera();
 
+#if defined(SDL2)
+extern SDL_TimerID my_timer_id;
+Uint32 my_timer (Uint32 interval, void *param);
+#else
 Uint32 my_timer (Uint32 interval);
+#endif
 
 extern float camera_x,camera_y,camera_z;
 extern float rx,ry,rz;

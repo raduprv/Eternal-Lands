@@ -736,19 +736,18 @@ int mouseover_storage_handler(window_info *win, int mx, int my)
 }
 
 
-static int keypress_storage_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+static int keypress_storage_handler(window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
-	char keychar = tolower(key_to_char(unikey));
-	if (disable_storage_filter || (keychar == '`') || (key & ELW_CTRL) || (key & ELW_ALT))
+	if (disable_storage_filter || (key_unicode == '`') || (key_mod & KMOD_CTRL) || (key_mod & KMOD_ALT))
 		return 0;
-	if (keychar == SDLK_ESCAPE)
+	if (key_code == SDLK_ESCAPE)
 	{
 		filter_item_text[0] = '\0';
 		filter_item_text_size = 0;
 		return 1;
 	}
 	item_info_help_if_needed();
-	if (string_input(filter_item_text, sizeof(filter_item_text), keychar))
+	if (string_input(filter_item_text, sizeof(filter_item_text), key_code, key_unicode, key_mod))
 	{
 		filter_item_text_size = strlen(filter_item_text);
 		if (filter_item_text_size > 0)
@@ -824,7 +823,7 @@ void display_storage_menu()
 		set_window_handler(storage_win, ELW_HANDLER_POST_DISPLAY, &post_display_storage_handler);
 		set_window_handler(storage_win, ELW_HANDLER_CLICK, &click_storage_handler);
 		set_window_handler(storage_win, ELW_HANDLER_MOUSEOVER, &mouseover_storage_handler);
-		set_window_handler(storage_win, ELW_HANDLER_KEYPRESS, &keypress_storage_handler );
+		set_window_handler(storage_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_storage_handler );
 		set_window_handler(storage_win, ELW_HANDLER_UI_SCALE, &ui_scale_storage_handler );
 
 		cat_scrollbar_id = vscrollbar_add_extended(storage_win, STORAGE_SCROLLBAR_CATEGORIES, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 

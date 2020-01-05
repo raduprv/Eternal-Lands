@@ -68,8 +68,6 @@ int im_other_player_view_hp_bar = 0;
 int im_other_player_banner_bg = 0;
 int im_other_player_show_banner_on_damage = 0;
 
-int limit_fps=0;
-
 int action_mode=ACTION_WALK;
 
 Uint32 click_time=0;
@@ -303,73 +301,42 @@ CHECK_GL_ERRORS();
 
 /* The video modes start with index 1. So field 0 stands for video mode 1 */
 video_mode_t video_modes[] = {
-	{ 640,  480, 16, NULL, { 0, 0}}, /*  1 */
-	{ 640,  480, 32, NULL, { 0, 0}}, /*  2 */
-	{ 800,  600, 16, NULL, { 0, 0}}, /*  3 */
-	{ 800,  600, 32, NULL, { 0, 0}}, /*  4 */
-	{1024,  768, 16, NULL, { 0, 0}}, /*  5 */
-	{1024,  768, 32, NULL, { 0, 0}}, /*  6 */
-	{1152,  864, 16, NULL, { 0, 0}}, /*  7 */
-	{1152,  864, 32, NULL, { 0, 0}}, /*  8 */
-	{1280, 1024, 16, NULL, { 0, 0}}, /*  9 */
-	{1280, 1024, 32, NULL, { 0, 0}}, /* 10 */
-	{1600, 1200, 16, NULL, { 0, 0}}, /* 11 */
-	{1600, 1200, 32, NULL, { 0, 0}}, /* 12 */
-	{1280,  800, 16, NULL, { 0, 0}}, /* 13 */
-	{1280,  800, 32, NULL, { 0, 0}}, /* 14 */
-	{1440,  900, 16, NULL, { 0, 0}}, /* 15 */
-	{1440,  900, 32, NULL, { 0, 0}}, /* 16 */
-	{1680, 1050, 16, NULL, { 0, 0}}, /* 17 */
-	{1680, 1050, 32, NULL, { 0, 0}}, /* 18 */
-	{1400, 1050, 16, NULL, { 0, 0}}, /* 19 */
-	{1400, 1050, 32, NULL, { 0, 0}}, /* 20 */
-	{ 800,  480, 16, NULL, { 0, 0}}, /* 21 */
-	{ 800,  480, 32, NULL, { 0, 0}}, /* 22 */
-	{1920, 1200, 16, NULL, { 0, 0}}, /* 23 */
-	{1920, 1200, 32, NULL, { 0, 0}}, /* 24 */
-	{1024,  600, 16, NULL, { 0, 0}}, /* 25 */
-	{1024,  600, 32, NULL, { 0, 0}}, /* 26 */
-	{1920, 1080, 16, NULL, { 0, 0}}, /* 27 */
-	{1920, 1080, 32, NULL, { 0, 0}}, /* 28 */
-	{1366, 768, 16, NULL, { 0, 0}}, /* 29 */
-	{1366, 768, 32, NULL, { 0, 0}}, /* 30 */
-	{2560, 1440, 16, NULL, { 0, 0}}, /* 31 */
-	{2560, 1440, 32, NULL, { 0, 0}}, /* 32 */
-	{3840, 2160, 16, NULL, { 0, 0}}, /* 33 */
-	{3840, 2160, 32, NULL, { 0, 0}}, /* 34 */
+	{ 640,  480, 16, NULL}, /*  1 */
+	{ 640,  480, 32, NULL}, /*  2 */
+	{ 800,  600, 16, NULL}, /*  3 */
+	{ 800,  600, 32, NULL}, /*  4 */
+	{1024,  768, 16, NULL}, /*  5 */
+	{1024,  768, 32, NULL}, /*  6 */
+	{1152,  864, 16, NULL}, /*  7 */
+	{1152,  864, 32, NULL}, /*  8 */
+	{1280, 1024, 16, NULL}, /*  9 */
+	{1280, 1024, 32, NULL}, /* 10 */
+	{1600, 1200, 16, NULL}, /* 11 */
+	{1600, 1200, 32, NULL}, /* 12 */
+	{1280,  800, 16, NULL}, /* 13 */
+	{1280,  800, 32, NULL}, /* 14 */
+	{1440,  900, 16, NULL}, /* 15 */
+	{1440,  900, 32, NULL}, /* 16 */
+	{1680, 1050, 16, NULL}, /* 17 */
+	{1680, 1050, 32, NULL}, /* 18 */
+	{1400, 1050, 16, NULL}, /* 19 */
+	{1400, 1050, 32, NULL}, /* 20 */
+	{ 800,  480, 16, NULL}, /* 21 */
+	{ 800,  480, 32, NULL}, /* 22 */
+	{1920, 1200, 16, NULL}, /* 23 */
+	{1920, 1200, 32, NULL}, /* 24 */
+	{1024,  600, 16, NULL}, /* 25 */
+	{1024,  600, 32, NULL}, /* 26 */
+	{1920, 1080, 16, NULL}, /* 27 */
+	{1920, 1080, 32, NULL}, /* 28 */
+	{1366, 768, 16, NULL}, /* 29 */
+	{1366, 768, 32, NULL}, /* 30 */
+	{2560, 1440, 16, NULL}, /* 31 */
+	{2560, 1440, 32, NULL}, /* 32 */
+	{3840, 2160, 16, NULL}, /* 33 */
+	{3840, 2160, 32, NULL}, /* 34 */
 };
 const int video_modes_count = sizeof(video_modes)/sizeof(*video_modes);
-
-void build_video_mode_array()
-{
-	int i;
-	int flags;
-
-	if (full_screen)
-		flags=SDL_OPENGL|SDL_FULLSCREEN;
-	else
-		flags=SDL_OPENGL;
-
-	for(i = 0; i < video_modes_count; i++)
-	{
-		video_modes[i].flags.selected = 0;
-		video_modes[i].flags.supported = 0;
-
-
-		if(bpp == video_modes[i].bpp 
-#ifdef WINDOWS
-			|| full_screen
-#endif
-			) 
-		{
-			if (SDL_VideoModeOK(video_modes[i].width, video_modes[i].height, video_modes[i].bpp, flags))
-				video_modes[i].flags.supported = 1;
-		}
-
-	}
-	if (video_mode > 0)
-		video_modes[video_mode-1].flags.selected=1;
-}
 
 void draw_console_pic(int which_texture)
 {
@@ -1256,6 +1223,7 @@ void resize_all_root_windows (Uint32 w, Uint32 h)
 	if (opening_root_win >= 0) resize_window (opening_root_win, w, h);
 	if (newchar_root_win >= 0) resize_window (newchar_root_win, w, h);
 	if (update_root_win >= 0) resize_window (update_root_win, w, h);
+	if (langsel_rootwin >= 0) resize_window (langsel_rootwin, w, h);
 	if ((input_widget != NULL) && (input_widget->window_id != chat_win)) {
 		widget_resize (input_widget->window_id, input_widget->id, w-HUD_MARGIN_X, input_widget->len_y);
 		widget_move (input_widget->window_id, input_widget->id, 0, h-input_widget->len_y-HUD_MARGIN_Y);

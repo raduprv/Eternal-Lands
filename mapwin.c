@@ -9,9 +9,9 @@
 #include "chat.h"
 #include "draw_scene.h"
 #include "elwindows.h"
+#include "events.h"
 #include "gamewin.h"
 #include "gl_init.h"
-#include "global.h"
 #include "hud.h"
 #include "init.h"
 #include "interface.h"
@@ -25,14 +25,19 @@
 
 
 int map_root_win = -1;
-int showing_continent = 0;
+static int showing_continent = 0;
 #ifdef DEBUG_MAP_SOUND
 extern int cur_tab_map;
 #endif // DEBUG_MAP_SOUND
 
-int mouse_over_minimap = 0;
+int adding_mark = 0;
+int mark_x , mark_y;
+int max_mark = 0;
+marking marks[MAX_MARKINGS];
 
-int reload_tab_map = 0;
+static int mouse_over_minimap = 0;
+
+static int reload_tab_map = 0;
 
 int temp_tile_map_size_x = 0;
 int temp_tile_map_size_y = 0;
@@ -45,9 +50,9 @@ char mark_filter_text[MARK_FILTER_MAX_LEN] = "";
 
 int curmark_r=0,curmark_g=255,curmark_b=0;
 
-int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
+static int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 {
-	Uint32 ctrl_on = flags & ELW_CTRL;
+	Uint32 ctrl_on = flags & KMOD_CTRL;
 	Uint32 left_click = flags & ELW_LEFT_MOUSE;
 	Uint32 right_click = flags & ELW_RIGHT_MOUSE;
 	float scale = (float) (win->len_x-hud_x) / 300.0f;
@@ -118,29 +123,25 @@ int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int display_map_handler (window_info * win)
+static int display_map_handler (window_info * win)
 {
-	// are we actively drawing things?
-	if (SDL_GetAppState () & SDL_APPACTIVE)
-	{
-		draw_hud_interface (win);
-		Leave2DMode ();
-		if(reload_tab_map && map_root_win >= 0 && windows_list.window[map_root_win].displayed){
-			//need to reload the BMP
-			switch_to_game_map();
-		}
-		draw_game_map (!showing_continent, mouse_over_minimap);
-		Enter2DMode ();
-		CHECK_GL_ERRORS ();
-		reload_tab_map = 0;
-	}	
+	draw_hud_interface (win);
+	Leave2DMode ();
+	if(reload_tab_map && map_root_win >= 0 && windows_list.window[map_root_win].displayed){
+		//need to reload the BMP
+		switch_to_game_map();
+	}
+	draw_game_map (!showing_continent, mouse_over_minimap);
+	Enter2DMode ();
+	CHECK_GL_ERRORS ();
+	reload_tab_map = 0;
 
 	display_handling_common(win);
 
 	return 1;
 }
 
-int mouseover_map_handler (window_info *win, int mx, int my)
+static int mouseover_map_handler (window_info *win, int mx, int my)
 {
 	float scale = (float) (win->len_x-hud_x) / 300.0f;
 
@@ -158,11 +159,9 @@ int mouseover_map_handler (window_info *win, int mx, int my)
 	return mouse_over_minimap;
 }	
 
-int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+static int keypress_map_handler (window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
-	Uint8 ch = key_to_char (unikey);
-
-	if (ch == SDLK_RETURN && adding_mark && input_text_line.len > 0)
+	if ((key_code == SDLK_RETURN || key_code == SDLK_KP_ENTER) && adding_mark && input_text_line.len > 0)
 	{
 		int i;
 
@@ -181,40 +180,40 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 		clear_input_line ();
 	}
 	// does the user want to cancel a mapmark?
-	else if (ch == SDLK_ESCAPE && adding_mark)
+	else if (key_code == SDLK_ESCAPE && adding_mark)
 	{
 		adding_mark = 0;
 		clear_input_line ();
 	}
 	// enable, disable or reset the mark filter
-	else if ((key == K_MARKFILTER) || (mark_filter_active && (ch == SDLK_ESCAPE)))
+	else if (KEY_DEF_CMP(K_MARKFILTER, key_code, key_mod) || (mark_filter_active && (key_code == SDLK_ESCAPE)))
 	{
-		if (!mark_filter_active || (ch == SDLK_ESCAPE))
+		if (!mark_filter_active || (key_code == SDLK_ESCAPE))
 			mark_filter_active ^= 1;
 		memset(mark_filter_text, 0, sizeof(char)*MARK_FILTER_MAX_LEN);
 	}
 	// now try the keypress handler for all root windows
-	else if ( keypress_root_common (key, unikey) )
+	else if ( keypress_root_common (key_code, key_unicode, key_mod) )
 	{
 		return 1;
 	}
-	else if (key == K_MAP)
+	else if (KEY_DEF_CMP(K_MAP, key_code, key_mod))
 	{
 		return_to_gamewin_common();
 	}
 	else if (mark_filter_active && !adding_mark)
 	{
-		string_input(mark_filter_text, MARK_FILTER_MAX_LEN, ch);
+		return string_input(mark_filter_text, MARK_FILTER_MAX_LEN, key_code, key_unicode, key_mod);
 	}
 	else
 	{
 		reset_tab_completer();
-		if (ch == '`' || key == K_CONSOLE)
+		if (key_unicode == '`' || KEY_DEF_CMP(K_CONSOLE, key_code, key_mod))
 		{
 			hide_window (map_root_win);
 			show_window (console_root_win);
 		}
-		else if ( !text_input_handler (key, unikey) )
+		else if ( !text_input_handler (key_code, key_unicode, key_mod) )
 		{
 			// nothing we can handle
 			return 0;
@@ -224,7 +223,7 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 	return 1;
 }
 
-int show_map_handler (window_info *win)
+static int show_map_handler (window_info *win)
 {
 	hide_window(book_win);
 	hide_window(paper_win);
@@ -232,7 +231,14 @@ int show_map_handler (window_info *win)
 	return 1;
 }
 
-int hide_map_handler (window_info * win)
+static int resize_map_root_handler(window_info *win, int width, int height)
+{
+	if (get_show_window(win->window_id))
+		init_hud_interface (HUD_INTERFACE_GAME);
+	return 1;
+}
+
+static int hide_map_handler (window_info * win)
 {
 	widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_INVISIBLE);
 	return 1;
@@ -245,11 +251,12 @@ void create_map_root_window (int width, int height)
 		map_root_win = create_window ("Map", -1, -1, 0, 0, width, height, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
 	
 		set_window_handler (map_root_win, ELW_HANDLER_DISPLAY, &display_map_handler);
-		set_window_handler (map_root_win, ELW_HANDLER_KEYPRESS, &keypress_map_handler);
+		set_window_handler (map_root_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_map_handler);
 		set_window_handler (map_root_win, ELW_HANDLER_CLICK, &click_map_handler);
 		set_window_handler (map_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_map_handler);
 		set_window_handler (map_root_win, ELW_HANDLER_SHOW, &show_map_handler);
 		set_window_handler (map_root_win, ELW_HANDLER_HIDE, &hide_map_handler);
+		set_window_handler (map_root_win, ELW_HANDLER_RESIZE, &resize_map_root_handler);
 	}
 }
 

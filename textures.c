@@ -3,9 +3,9 @@
 #include "textures.h"
 #include "asc.h"
 #include "draw_scene.h"
+#include "elconfig.h"
 #include "errors.h"
 #include "gl_init.h"
-#include "init.h"
 #include "load_gl_extensions.h"
 #include "map.h"
 #include "image.h"
@@ -1630,7 +1630,7 @@ Uint32 load_enhanced_actor(const enhanced_actor* actor, const char* name)
 {
 	enhanced_actor_images_t files;
 	char str[MAX_ACTOR_NAME];
-	Uint32 i, handle, hash, access_time;
+	Uint32 i, handle, hash, access_time = 0;
 
 	memset(str, 0, sizeof(str));
 
@@ -2241,7 +2241,7 @@ void init_texture_cache()
 	for (i = 0; i < ACTOR_TEXTURE_THREAD_COUNT; i++)
 	{
 		actor_texture_threads[i] = SDL_CreateThread(
-			load_enhanced_actor_thread, &actor_texture_threads_done);
+			load_enhanced_actor_thread, "TextureThread", &actor_texture_threads_done);
 	}
 #endif	/* ELC */
 }

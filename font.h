@@ -7,7 +7,9 @@
 #define __FONT_H__
 
 #include "text.h"
+#if !defined(MAP_EDITOR)
 #include "widgets.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,6 +36,7 @@ extern int	chat_font; /*!< font size used for chat font */
 extern int	name_font; /*!< font size used for name font */
 
 
+#if !defined(MAP_EDITOR)
 /*!
  * \ingroup text_font
  * \brief  draws messages in a buffer to the screen
@@ -57,6 +60,7 @@ extern int	name_font; /*!< font size used for name font */
  * \callgraph
  */
 void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filter, int nr_start, int offset_start, int cursor, int width, int height, float text_zoom, select_info* select);
+#endif
 
 /*!
  * \ingroup text_font

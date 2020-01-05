@@ -1,8 +1,8 @@
 #ifndef	_THREADS_H_
 #define	_THREADS_H_
 
-#include <SDL/SDL_error.h>
-#include <SDL/SDL_mutex.h>
+#include <SDL_error.h>
+#include <SDL_mutex.h>
 
 #define CHECK_AND_LOCK_MUTEX(mutex)	\
 do	\

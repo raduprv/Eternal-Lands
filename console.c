@@ -14,7 +14,7 @@
 #include "elconfig.h"
 #include "filter.h"
 #include "gamewin.h"
-#include "global.h"
+#include "gl_init.h"
 #include "hud.h"
 #include "hud_quickspells_window.h"
 #include "ignore.h"
@@ -957,7 +957,7 @@ int command_ver(char *text, int len)
 {
 	char str[250];
 
-	print_version_string(str, sizeof(str));
+	get_version_string(str, sizeof(str));
 	LOG_TO_CONSOLE(c_green1, str);
 	return 1;
 }
@@ -1168,6 +1168,15 @@ int command_glinfo (const char *text, int len)
 	char* this_string = calloc (size, 1);
 
 	my_string = (const char*) glGetString (GL_RENDERER);
+	if (my_string == NULL)
+	{
+		const char *error_str = "glGetString() returned NULL for GL_RENDERER=0x%x";
+		DO_CHECK_GL_ERRORS();
+		LOG_ERROR(error_str, GL_RENDERER);
+		LOG_TO_CONSOLE (c_red2, "Error getting glinfo");
+		return 1;
+	}
+
 	minlen = strlen (video_card_str) + strlen (my_string) + 3;
 	if (size < minlen)
 	{
@@ -1574,8 +1583,8 @@ int command_keypress(char *text, int len)
 	text = getparams(text);
 	if (*text)
 	{
-		Uint32 value = get_key_value(text);
-		if (value)
+		el_key_def value = get_key_value(text);
+		if (value.key_code != SDLK_UNKNOWN)
 			do_keypress(value);
 	}
 	return 1;
@@ -1765,27 +1774,6 @@ add_command("horse", &horse_cmd);
 	command_buffer_offset = NULL;
 }
 
-
-// NOTE: Len = length of the buffer, not the string (Verified)
-
-void print_version_string (char *buf, size_t len)
-{
-#ifdef GIT_VERSION
-	safe_snprintf (buf, len, "%s %s", game_version_prefix_str, GIT_VERSION);
-#else
-	char extra[100];
-	
-	if (client_version_patch > 0)
-	{
-		safe_snprintf (extra, sizeof(extra), "p%d %s", client_version_patch, DEF_INFO);
-	}
-	else
-	{
-		safe_snprintf (extra, sizeof(extra), " %s", DEF_INFO);
-	}
-	safe_snprintf (buf, len, game_version_str, client_version_major, client_version_minor, client_version_release, extra);
-#endif
-}
 
 void new_minute_console(void){
 	if(!(real_game_minute%60)){

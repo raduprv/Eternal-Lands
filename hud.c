@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <SDL_keysym.h>
 #include <SDL_keyboard.h>
 
 #include "asc.h"

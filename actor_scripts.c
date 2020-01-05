@@ -9,11 +9,10 @@
 #include "counters.h"
 #include "cursors.h"
 #include "draw_scene.h"
+#include "elconfig.h"
 #include "errors.h"
 #include "gamewin.h"
-#include "global.h"
 #include "hud_statsbar_window.h"
-#include "init.h"
 #include "interface.h"
 #include "missiles.h"
 #include "new_actors.h"
@@ -3249,6 +3248,19 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, const xmlN
 						, get_int_property(item, "duration")
 						);
 				}
+#ifndef NEW_SOUND
+				else if (!strcmp(name, "snd_attack_up1") || !strcmp(name, "snd_attack_up2") ||
+					!strcmp(name, "snd_attack_up3") || !strcmp(name, "snd_attack_up4") ||
+					!strcmp(name, "snd_attack_up5") || !strcmp(name, "snd_attack_up6") ||
+					!strcmp(name, "snd_attack_up7") || !strcmp(name, "snd_attack_up8") ||
+					!strcmp(name, "snd_attack_up9") || !strcmp(name, "snd_attack_up10") ||
+					!strcmp(name, "snd_attack_down1") || !strcmp(name, "snd_attack_down2") ||
+					!strcmp(name, "snd_attack_down3") || !strcmp(name, "snd_attack_down4") ||
+					!strcmp(name, "snd_attack_down5") || !strcmp(name, "snd_attack_down6") ||
+					!strcmp(name, "snd_attack_down7") || !strcmp(name, "snd_attack_down8") ||
+					!strcmp(name, "snd_attack_down9") || !strcmp(name, "snd_attack_down10"))
+				{ /* ignore */ }
+#endif
 				else
 				{
 					LOG_ERROR("unknown weapon property \"%s\"", item->name);
@@ -4383,8 +4395,8 @@ int parse_actor_nodes(actor_types *act, const xmlNode *cfg, const xmlNode *defau
 				ok &= parse_actor_helmet(act, item, defaults);
 			} else if (!strcmp(name, "neck")) {
 				ok &= parse_actor_neck(act, item, defaults);
-#ifdef NEW_SOUND
 			} else if (!strcmp(name, "sounds")) {
+#ifdef NEW_SOUND
 				ok &= parse_actor_sounds(act, item->children);
 #endif	//NEW_SOUND
 			} else if (!strcmp(name, "actor_attachment")) {

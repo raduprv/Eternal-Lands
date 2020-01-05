@@ -14,8 +14,6 @@
 #include "../io/elfilewrapper.h"
 #include "../io/fileutil.h"
 
-char lang[10]={"en"};
-
 char datadir[256]={"./"};
 char configdir[256]={"./"};
 
@@ -121,7 +119,9 @@ void init_stuff()
 	glClearColor( 0.0, 0.0, 0.0, 0.0 );
 	glClearStencil(0);
 
+#if !defined(SDL2)
 	SDL_EnableKeyRepeat (200, 100);
+#endif
 
 	seed = time (NULL);
   	srand (seed);
@@ -182,9 +182,13 @@ void init_stuff()
 	    exit(1);
     }
 
+#if defined(SDL2)
+	my_timer_id = SDL_AddTimer (1000/(18*4), my_timer, NULL);
+#else
 	SDL_SetTimer (1000/(18*4), my_timer);
 
 	SDL_EnableUNICODE(1);
+#endif
 
     //we might want to do this later.
 

@@ -8,6 +8,7 @@
 
 #include <SDL_types.h>
 #include "elwindows.h"
+#include "keys.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -94,7 +95,7 @@ Uint8 key_to_char (Uint32 unikey);
  * \retval int 1 if key used, 0 if not used
  *
  */
-int string_input(char *text, size_t maxlen, char ch);
+int string_input(char *text, size_t maxlen, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
 
 /*!
  * \ingroup events
@@ -102,11 +103,10 @@ int string_input(char *text, size_t maxlen, char ch);
  *
  *      Checks if a keypress is for quitting the game or toggling the full screen mode.
  *
- * \param key
  * \retval int
  * \callgraph
  */
-int check_quit_or_fullscreen (Uint32 key);
+int check_quit_or_fullscreen (SDL_Keycode key_code, Uint16 key_mod);
 
 /*!
  * \ingroup events
@@ -119,7 +119,7 @@ int check_quit_or_fullscreen (Uint32 key);
  * \retval int
  * \callgraph
  */
-int text_input_handler (Uint32 key, Uint32 unikey);
+int text_input_handler (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
 
 /*!
  * \ingroup events
@@ -143,7 +143,7 @@ void switch_action_mode(int mode);
  * \retval int
  * \callgraph
  */
-int keypress_root_common (Uint32 key, Uint32 unikey);
+int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
 
 /*!
  * \brief Handles common functions for root window display
@@ -171,7 +171,7 @@ void return_to_gamewin_common(void);
  * \param key
  * \callgraph
  */
-void do_keypress(Uint32 key);
+void do_keypress(el_key_def);
 
 /*!
  * \ingroup root_window

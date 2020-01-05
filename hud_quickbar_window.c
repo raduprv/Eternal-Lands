@@ -269,10 +269,10 @@ static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags
 	int i,y;
 	int x_screen,y_screen;
 	Uint8 str[100];
-	int trigger=ELW_LEFT_MOUSE|ELW_CTRL|ELW_SHIFT;//flags we'll use for the quickbar relocation handling
+	int trigger=ELW_LEFT_MOUSE|KMOD_CTRL|KMOD_SHIFT;//flags we'll use for the quickbar relocation handling
 	int right_click = flags & ELW_RIGHT_MOUSE;
-	int ctrl_on = flags & ELW_CTRL;
-	int shift_on = flags & ELW_SHIFT;
+	int ctrl_on = flags & KMOD_CTRL;
+	int shift_on = flags & KMOD_SHIFT;
 
 	// only handle mouse button clicks, not scroll wheels moves or clicks
 	if (( (flags & ELW_MOUSE_BUTTON) == 0) || ( (flags & ELW_MID_MOUSE) != 0)) return 0;
@@ -365,12 +365,12 @@ static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags
 						}
 					if(quickbar_relocatable>0)
 						{
-							if((flags&trigger)==(ELW_LEFT_MOUSE|ELW_CTRL))
+							if((flags&trigger)==(ELW_LEFT_MOUSE|KMOD_CTRL))
 							{
 								//toggle draggable
 								toggle_quickbar_draggable();
 							}
-							else if ( (flags & trigger)== (ELW_LEFT_MOUSE | ELW_SHIFT) && (get_flags (quickbar_win) & (ELW_TITLE_BAR | ELW_DRAGGABLE)) == (ELW_TITLE_BAR | ELW_DRAGGABLE) )
+							else if ( (flags & trigger)== (ELW_LEFT_MOUSE | KMOD_SHIFT) && (get_flags (quickbar_win) & (ELW_TITLE_BAR | ELW_DRAGGABLE)) == (ELW_TITLE_BAR | ELW_DRAGGABLE) )
 							{
 								//toggle vertical/horisontal
 								flip_quickbar(win->window_id);
@@ -695,13 +695,13 @@ static void quick_use(int use_id)
 
 
 // check if key is one of the item keys and use it if so.
-int action_item_keys(Uint32 key)
+int action_item_keys(SDL_Keycode key_code, Uint16 key_mod)
 {
 	size_t i;
-	Uint32 keys[] = {K_ITEM1, K_ITEM2, K_ITEM3, K_ITEM4, K_ITEM5, K_ITEM6,
+	el_key_def keys[] = {K_ITEM1, K_ITEM2, K_ITEM3, K_ITEM4, K_ITEM5, K_ITEM6,
 					 K_ITEM7, K_ITEM8, K_ITEM9, K_ITEM10, K_ITEM11, K_ITEM12 };
-	for (i=0; (i<sizeof(keys)/sizeof(Uint32)) && (i < shown_quickbar_slots); i++)
-		if(key == keys[i])
+	for (i=0; (i<sizeof(keys)/sizeof(el_key_def)) && (i < shown_quickbar_slots); i++)
+		if(KEY_DEF_CMP(keys[i], key_code, key_mod))
 		{
 			quick_use (i);
 			return 1;

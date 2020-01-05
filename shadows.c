@@ -2,7 +2,6 @@
 #include <string.h>
 #include <math.h>
 #include <SDL.h>
-#include <SDL_active.h>
 #include "shadows.h"
 #include "2d_objects.h"
 #include "3d_objects.h"
@@ -11,9 +10,9 @@
 #include "cursors.h"
 #include "draw_scene.h"
 #include "e3d.h"
+#include "elconfig.h"
+#include "events.h"
 #include "framebuffer.h"
-#include "global.h"
-#include "init.h"
 #include "lights.h"
 #include "map.h"
 #include "new_actors.h"
@@ -215,20 +214,6 @@ void draw_3d_object_shadows(unsigned int object_type)
 	get_intersect_start_stop(main_bbox_tree, object_type, &start, &stop);
 	// nothing to draw?
 	if(start >= stop){
-		return;
-	}
-	// reduce CPU usage while minimized
-	if(!(SDL_GetAppState()&SDL_APPACTIVE)){
-		// not actually drawing, fake it
-		// now loop through each object
-		for (i=start; i<stop; i++)
-		{
-			l = get_intersect_item_ID(main_bbox_tree, i);
-			if (objects_list[l] == NULL) continue;
-			//track the usage
-			cache_use(objects_list[l]->e3d_data->cache_ptr);
-		}
-		// and all done
 		return;
 	}
 

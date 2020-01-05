@@ -24,10 +24,10 @@
 #include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
-#include "init.h"
 #include "interface.h"
 #include "list.h"
 #include "loginwin.h"
+#include "main.h"
 #include "multiplayer.h"
 #include "openingwin.h"
 #include "rules.h"
@@ -280,16 +280,18 @@ static int click_langsel_handler(window_info *win, int mx, int my, Uint32 flags)
 }
 
 
-static int langsel_keypress_handler(window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+static int langsel_keypress_handler(window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
-	if (check_quit_or_fullscreen(key))
+	if (check_quit_or_fullscreen(key_code, key_mod))
 	{
 		return 1;
 	}
-	else if (key == K_OPAQUEWIN)
+	else if (KEY_DEF_CMP(K_OPAQUEWIN, key_code, key_mod))
 	{
 		win->opaque ^= 1;
-	}	
+	}
+	else
+		return 0;
 	return 1;
 }
 
@@ -552,6 +554,15 @@ static int display_langsel_handler(window_info *win)
 	
 } /* end display_langsel_handler() */
 
+static int langsel_rootwin_resize_handler(window_info *win, int width, int height)
+{
+	if (langsel_win >=0 && langsel_win < windows_list.num_windows)
+	{
+		window_info *lwin = &windows_list.window[langsel_win];
+		move_window(lwin->window_id, lwin->pos_id, lwin->pos_loc, (width-lwin->len_x)/2, (height-lwin->len_y)/2);
+	}
+	return 1;
+}
 
 /* load the language list and create the windows */
 int display_langsel_win(void)
@@ -562,13 +573,14 @@ int display_langsel_win(void)
 	/* create and show the root window */
 	langsel_rootwin = create_window("", -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
 	set_window_handler(langsel_rootwin, ELW_HANDLER_DISPLAY, &langsel_display_root_handler );
+	set_window_handler(langsel_rootwin, ELW_HANDLER_RESIZE, &langsel_rootwin_resize_handler);
 	show_window(langsel_rootwin);
 	
 	/* create and show the language selection window */
 	langsel_win = create_window("", langsel_rootwin, -1, (window_width-400)/2, (window_height-400/1.62)/2,
 		400, 400/1.62, (ELW_USE_UISCALE|ELW_WIN_DEFAULT)^(ELW_CLOSE_BOX|ELW_TITLE_BAR));
 	set_window_handler(langsel_win, ELW_HANDLER_CLICK, &click_langsel_handler );
-	set_window_handler(langsel_win, ELW_HANDLER_KEYPRESS, &langsel_keypress_handler);
+	set_window_handler(langsel_win, ELW_HANDLER_KEYPRESS, (int (*)())&langsel_keypress_handler);
 	
 	/* use the error window if the list could not be read */
 	if (loaded_lang_list)

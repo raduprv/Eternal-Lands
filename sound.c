@@ -7,11 +7,14 @@
 #include "sound.h"
 #include "asc.h"
 #include "draw_scene.h"
+#include "elconfig.h"
 #include "errors.h"
 #include "init.h"
 #include "lights.h"
+#include "main.h"
 #include "map.h"
 #include "misc.h"
+#include "multiplayer.h"
 #include "translate.h"
 #include "weather.h"
 #include "2d_objects.h"
@@ -2883,7 +2886,7 @@ void update_sound(int ms)
 	ALfloat listenerVel[3] = {0.0f, 0.0f, 0.0f};
 	ALfloat listenerOri[6] = {0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f};
 #ifdef _EXTRA_SOUND_DEBUG
-	int j, k;
+	int j;
 #endif // _EXTRA_SOUND_DEBUG
 	int l;
 
@@ -4376,7 +4379,7 @@ void init_sound()
 
 	// Initialise streams thread
 	if (sound_streams_thread == NULL) {
-		sound_streams_thread = SDL_CreateThread(update_streams, 0);
+		sound_streams_thread = SDL_CreateThread(update_streams, "SoundThread", 0);
 	}
 
 	if (num_types == 0)

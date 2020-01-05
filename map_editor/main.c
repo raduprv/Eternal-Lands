@@ -5,21 +5,21 @@
 
 int start_rendering()
 {
-    int done = 0;
-    Uint32 last_save_time=0;
+	int done = 0;
+	Uint32 last_save_time=0;
 	/* Loop until done. */
 	while( !done ) {
 		SDL_Event event;
-		
-    		cur_time = SDL_GetTicks();
+
+		cur_time = SDL_GetTicks();
+
 		/* Check if there's a pending event. */
-		
-		while( SDL_PollEvent( &event ) )
-        		{
+		while( SDL_PollEvent( &event ) && !done )
+			{
 				done = HandleEvent(&event);
 			}
 
-    		get_world_x_y();
+		get_world_x_y();
 		
 		if(!limit_fps || ((cur_time - last_time) && (800/(cur_time-last_time) < (Uint32)limit_fps)))
 			{
@@ -37,12 +37,16 @@ int start_rendering()
 #ifdef LINUX
 		while (gtk_events_pending())
 			gtk_main_iteration();
-#endif		
+#endif
 	}
 
 	/* Destroy our GL context, etc. */ 
 	destroy_map_tiles();
+#if defined(SDL2)
+	SDL_RemoveTimer(my_timer_id);
+#else
 	SDL_SetTimer(0,NULL);
+#endif
 	end_particles ();
 	SDL_Quit( );
 	return(0);

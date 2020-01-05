@@ -141,7 +141,6 @@ void update_scene_lights();
  *      Initializes the default lights and enables lighting.
  *
  * \sa init_stuff
- * \sa set_new_video_mode
  */
 void init_lights();
 
@@ -219,6 +218,9 @@ void new_second();
 
 void cleanup_lights(void);
 
+#ifdef DEBUG_TIME
+void light_idle(void);
+#endif
 
 #ifdef __cplusplus
 } // extern "C"

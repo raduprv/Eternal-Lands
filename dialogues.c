@@ -698,11 +698,11 @@ static int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags
 	return 0;
 }
 
-static int keypress_dialogue_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+static int keypress_dialogue_handler (window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
 	Uint8 ch;
 
-	if ((key & 0xffff) == SDLK_ESCAPE) // close window if Escape pressed
+	if (key_code == SDLK_ESCAPE) // close window if Escape pressed
 	{
 		do_window_close_sound();
 		hide_window(win->window_id);
@@ -719,7 +719,26 @@ static int keypress_dialogue_handler (window_info *win, int mx, int my, Uint32 k
 		return 0;
 	}
 
-	ch = key_to_char (unikey);
+	if (key_mod & KMOD_ALT)
+	{
+		if ((strlen(dialogue_repeat_str)>1) && (key_code == (Uint8)tolower(dialogue_repeat_str[1])))
+		{
+			send_repeat(win);
+			return 1;
+		}
+		if ((strlen(dialogue_copy_str)>1) && (key_code == (Uint8)tolower(dialogue_copy_str[1])))
+		{
+			do_copy();
+			return 1;
+		}
+	}
+
+	if((key_mod & KMOD_ALT) || (key_mod & KMOD_CTRL)) //Do not process Ctrl or Alt keypresses
+	{
+		return 0;
+	}
+
+	ch = key_to_char (key_unicode);
 
 	if(ch<'0' || ch>'z') // do not send special keys
 	{
@@ -734,26 +753,6 @@ static int keypress_dialogue_handler (window_info *win, int mx, int my, Uint32 k
 	else if(ch=='0') //0->9
 		ch=9;
 	else //out of range
-	{
-		return 0;
-	}
-	
-	// if not being used for responses, check for other use
-	if ((key & ELW_ALT) && ((MAX_RESPONSES-1<ch) || (dialogue_responces[ch].in_use == 0)))
-	{
-		if ((strlen(dialogue_repeat_str)>1) && (ch == (Uint8)dialogue_repeat_str[1]-87))
-		{
-			send_repeat(win);
-			return 1;
-		}
-		if ((strlen(dialogue_copy_str)>1) && (ch == (Uint8)dialogue_copy_str[1]-87))
-		{
-			do_copy();
-			return 1;
-		}
-	}
-
-	if((key & ELW_ALT) || (key & ELW_CTRL)) //Do not process Ctrl or Alt keypresses
 	{
 		return 0;
 	}
@@ -797,7 +796,7 @@ static int cm_npcname_handler(window_info *win, int widget_id, int mx, int my, i
 		size_t delim_len = strlen(delim);
 		size_t npc_name_len = 0, start_len = 0, end_len = 0, str_len = 0;
 
-		if (npc_mark_str == NULL || npc_name == NULL || !strlen(npc_mark_str) ||
+		if (!strlen(npc_mark_str) ||
 			!(npc_name_len = strlen((char *)npc_name)) ||
 			((del_pos = strstr(npc_mark_str, delim)) == NULL))
 		{
@@ -865,7 +864,7 @@ void display_dialogue(const Uint8 *in_data, int data_length)
 
 		set_window_handler(dialogue_win, ELW_HANDLER_DISPLAY, &display_dialogue_handler );
 		set_window_handler(dialogue_win, ELW_HANDLER_MOUSEOVER, &mouseover_dialogue_handler );
-		set_window_handler(dialogue_win, ELW_HANDLER_KEYPRESS, &keypress_dialogue_handler );
+		set_window_handler(dialogue_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_dialogue_handler );
 		set_window_handler(dialogue_win, ELW_HANDLER_CLICK, &click_dialogue_handler );
 		set_window_handler(dialogue_win, ELW_HANDLER_UI_SCALE, &ui_scale_dialogue_handler );
 

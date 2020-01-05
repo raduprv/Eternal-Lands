@@ -10,7 +10,6 @@
 #include "asc.h"
 #include "cursors.h"
 #include "gl_init.h"
-#include "global.h"
 #include "interface.h"
 #include "keys.h"
 #include "misc.h"
@@ -34,7 +33,7 @@ static int last_opaque_window_backgrounds = 0;
 int display_window(int win_id);
 int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy);
 int	mouseover_window(int win_id, int x, int y);	// do mouseover processing for a window
-int	keypress_in_window(int win_id, int x, int y, Uint32 key, Uint32 unikey);	// keypress in the window
+int	keypress_in_window(int win_id, int x, int y, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);	// keypress in the window
 
 /*
  * The intent of the windows system is to create the window once
@@ -544,7 +543,7 @@ int drag_windows (int mx, int my, int dx, int dy)
 	return drag_id;
 }
 
-int	keypress_in_windows(int x, int y, Uint32 key, Uint32 unikey)
+int	keypress_in_windows(int x, int y, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
 	int	done= 0;
 	int	id;
@@ -566,7 +565,7 @@ int	keypress_in_windows(int x, int y, Uint32 key, Uint32 unikey)
 					// at this level?
 					if(windows_list.window[i].order == id)
 					{
-						done = keypress_in_window (i, x, y, key, unikey);
+						done = keypress_in_window (i, x, y, key_code, key_unicode, key_mod);
 						if(done > 0)
 						{
 							if (windows_list.window[i].displayed > 0)
@@ -601,7 +600,7 @@ int	keypress_in_windows(int x, int y, Uint32 key, Uint32 unikey)
 				// at this level?
 				if(windows_list.window[i].order == id)
 				{
-					done = keypress_in_window(i, x, y, key, unikey);
+					done = keypress_in_window(i, x, y, key_code, key_unicode, key_mod);
 					if(done > 0)
 					{
 						//select_window(i);	// these never get selected
@@ -1005,6 +1004,8 @@ int	draw_window_title(window_info *win)
 	float v_last_start = (float)160/255;
 	float v_last_end = (float)175/255;
 
+	int bar_end_x_width = (int)(0.5 + win->current_scale * 32);
+
 	if((win->flags&ELW_TITLE_BAR) == ELW_TITLE_NONE)	return 0;
 
 	/* draw the help text if the mouse is over the title bar */
@@ -1021,31 +1022,31 @@ int	draw_window_title(window_info *win)
 	glAlphaFunc(GL_GREATER,0.03f);
 	glBegin(GL_QUADS);
 
-	if (win->len_x > 64) 
+	if (win->len_x > 2 * bar_end_x_width) 
 	{
 		glTexCoord2f(u_first_end, v_first_start);
 		glVertex3i(0, -win->title_height, 0);
 		glTexCoord2f(u_first_end, v_first_end);
 		glVertex3i(0, 0, 0);
 		glTexCoord2f(u_first_start, v_first_end);
-		glVertex3i(32, 0, 0);
+		glVertex3i(bar_end_x_width, 0, 0);
 		glTexCoord2f(u_first_start, v_first_start);
-		glVertex3i(32, -win->title_height, 0);
+		glVertex3i(bar_end_x_width, -win->title_height, 0);
 
 		// draw one streched out cell to the proper size
 		glTexCoord2f(u_middle_end, v_middle_start);
-		glVertex3i(32, -win->title_height, 0);
+		glVertex3i(bar_end_x_width, -win->title_height, 0);
 		glTexCoord2f(u_middle_end, v_middle_end);
-		glVertex3i(32, 0, 0);
+		glVertex3i(bar_end_x_width, 0, 0);
 		glTexCoord2f(u_middle_start, v_middle_end);
-		glVertex3i(win->len_x-32, 0, 0);
+		glVertex3i(win->len_x-bar_end_x_width, 0, 0);
 		glTexCoord2f(u_middle_start, v_middle_start);
-		glVertex3i(win->len_x-32, -win->title_height, 0);
+		glVertex3i(win->len_x-bar_end_x_width, -win->title_height, 0);
 
 		glTexCoord2f(u_last_end, v_last_start);
-		glVertex3i(win->len_x-32, -win->title_height, 0);
+		glVertex3i(win->len_x-bar_end_x_width, -win->title_height, 0);
 		glTexCoord2f(u_last_end, v_last_end);
-		glVertex3i(win->len_x-32, 0, 0);
+		glVertex3i(win->len_x-bar_end_x_width, 0, 0);
 		glTexCoord2f(u_last_start, v_last_end);
 		glVertex3i(win->len_x, 0, 0);
 		glTexCoord2f(u_last_start, v_last_start);
@@ -1179,6 +1180,8 @@ int	draw_window_border(window_info *win)
 	
 	if(win->flags&ELW_CLOSE_BOX)
 	{
+		int cross_gap = (int)(0.5 + win->current_scale * 3);
+
 		//draw the corner, with the X in
 		glColor3f(win->border_color[0],win->border_color[1],win->border_color[2]);
 		glBegin(GL_LINE_STRIP);
@@ -1190,11 +1193,11 @@ int	draw_window_border(window_info *win)
 		glLineWidth(2.0f);
 
 		glBegin(GL_LINES);
-			glVertex2i(win->len_x-win->box_size+3, 3);
-			glVertex2i(win->len_x-3, win->box_size-3);
+			glVertex2i(win->len_x-win->box_size+cross_gap, cross_gap);
+			glVertex2i(win->len_x-cross_gap, win->box_size-cross_gap);
 		
-			glVertex2i(win->len_x-3, 3);
-			glVertex2i(win->len_x-win->box_size+3, win->box_size-3);
+			glVertex2i(win->len_x-cross_gap, cross_gap);
+			glVertex2i(win->len_x-win->box_size+cross_gap, win->box_size-cross_gap);
 		glEnd();
 
 		glLineWidth(1.0f);
@@ -1729,7 +1732,7 @@ CHECK_GL_ERRORS();
 	return 0;
 }
 
-int	keypress_in_window(int win_id, int x, int y, Uint32 key, Uint32 unikey)
+int	keypress_in_window(int win_id, int x, int y, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
 	window_info *win;
 	int	mx, my;
@@ -1763,7 +1766,7 @@ int	keypress_in_window(int win_id, int x, int y, Uint32 key, Uint32 unikey)
 			if (mx > W->pos_x && mx <= W->pos_x + W->len_x && my > W->pos_y && my <= W->pos_y+W->len_y)
 			{
 				if (!(W->Flags&WIDGET_DISABLED)) {
-					if ( widget_handle_keypress (W, mx - W->pos_x, my - W->pos_y, key, unikey) )
+					if ( widget_handle_keypress (W, mx - W->pos_x, my - W->pos_y, key_code, key_unicode, key_mod) )
 					{
 						// widget handled it 
 						glPopMatrix ();
@@ -1785,7 +1788,7 @@ CHECK_GL_ERRORS();
 			
 			glPushMatrix();
 			glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
-			ret_val = (*win->keypress_handler) (win, mx, my, key, unikey);
+			ret_val = (*win->keypress_handler) (win, mx, my, key_code, key_unicode, key_mod);
 			glPopMatrix();
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();

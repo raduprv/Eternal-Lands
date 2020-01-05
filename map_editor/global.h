@@ -28,6 +28,7 @@
 #include <SDL_endian.h>
 
 //#ifdef LINUX
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #include <gtk/gtk.h>
 #include "gui.h"
 #include "gui_callbacks.h"
@@ -99,20 +100,17 @@ extern  Uint8 *handle_e3d_file_mem;
 extern int have_multitexture;
 extern int have_arb_compression;
 extern int have_s3_compression;
-extern int poor_man;
 extern int ground_detail_text;
 
 extern float clouds_movement_u;
 extern float clouds_movement_v;
 extern Uint32 last_clear_clouds;
 extern float texture_scale;
-extern int clouds_shadows;
 
 extern int icons_text;
 
 extern int video_mode;
 extern int auto_save_time;
-extern int limit_fps;
 
 #ifndef LINUX //extensions
 extern PFNGLMULTITEXCOORD2FARBPROC		glMultiTexCoord2fARB;

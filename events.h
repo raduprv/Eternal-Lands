@@ -3,8 +3,6 @@
  * \ingroup event_handle
  * \brief global event handling.
  *
- * \note Struct marking, and the variables adding_mark, mark_x, mark_y, max_mark and marks have been
- *       moved to mapwin.h
  */
 #ifndef __EVENTS_H__
 #define __EVENTS_H__
@@ -33,11 +31,7 @@ enum {
 };
 /*! @} */
 
-extern int shift_on; /*!< flag indicating whether the Shift key is pressed. */
-extern int alt_on; /*!< flag indicating whether the Alt key is pressed. */
-extern int ctrl_on; /*!< flag indicating whether the Ctrl key is pressd. */
 #ifdef OSX
-extern int meta_on; /*!< flag indicating whether the Apple/Command  key is pressed. */
 extern int osx_right_mouse_cam; /*!< flag indication whether the right mouse button should enable camera rotation */
 #endif
 
@@ -52,6 +46,14 @@ extern int osx_right_mouse_cam; /*!< flag indication whether the right mouse but
  * \callgraph
  */
 int HandleEvent(SDL_Event *event);
+
+/*!
+ * \ingroup event_handle
+ * \brief       Make sure minimised and restored window state is noticed
+ *
+ * \callgraph
+ */
+void check_minimised_or_restore_window(void);
 
 #ifdef __cplusplus
 } // extern "C"

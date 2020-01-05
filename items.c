@@ -12,7 +12,6 @@
 #include "errors.h"
 #include "gamewin.h"
 #include "gl_init.h"
-#include "global.h"
 #include "hud.h"
 #include "init.h"
 #include "interface.h"
@@ -851,9 +850,9 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 {	
 	Uint8 str[100];
 	int right_click = flags & ELW_RIGHT_MOUSE;
-	int ctrl_on = flags & ELW_CTRL;
-	int shift_on = flags & ELW_SHIFT;
-	int alt_on = flags & ELW_ALT;
+	int ctrl_on = flags & KMOD_CTRL;
+	int shift_on = flags & KMOD_SHIFT;
+	int alt_on = flags & KMOD_ALT;
 	int pos;
 	actor *me;
 
@@ -1207,25 +1206,25 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 	return 0;
 }
 
-int keypress_items_handler(window_info * win, int x, int y, Uint32 key, Uint32 keysym)
+int keypress_items_handler(window_info * win, int x, int y, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
 	if(edit_quantity!=-1){
 		char * str=quantities.quantity[edit_quantity].str;
 		int * len=&quantities.quantity[edit_quantity].len;
 		int * val=&quantities.quantity[edit_quantity].val;
 
-		if(key==SDLK_DELETE){
+		if(key_code == SDLK_DELETE){
 			reset_quantity(edit_quantity);
 			edit_quantity=-1;
 			return 1;
-		} else if(key==SDLK_BACKSPACE){
+		} else if(key_code == SDLK_BACKSPACE){
 			if(*len>0){
 				(*len)--;
 				str[*len]=0;
 				*val=atoi(str);
 			}
 			return 1;
-		} else if(keysym=='\r'){
+		} else if(key_code == SDLK_RETURN || key_code == SDLK_KP_ENTER){
 			if(!*val){
 				reset_quantity(edit_quantity);
 			}
@@ -1233,12 +1232,18 @@ int keypress_items_handler(window_info * win, int x, int y, Uint32 key, Uint32 k
 			quantities.selected=edit_quantity;
 			edit_quantity=-1;
 			return 1;
-		} else if(keysym>='0' && keysym<='9' && *len<5){
-			str[*len]=keysym;
-			(*len)++;
-			str[*len]=0;
-			
-			*val=atoi(str);
+		} else if(key_code == SDLK_ESCAPE){
+			reset_quantity(edit_quantity);
+			edit_quantity=-1;
+			return 1;
+		} else if(key_unicode >= '0' && key_unicode <= '9'){
+			if (*len<5)
+			{
+				str[*len]=key_unicode;
+				(*len)++;
+				str[*len]=0;
+				*val=atoi(str);
+			}
 			return 1;
 		}
 	}
@@ -1347,7 +1352,7 @@ void display_items_menu()
 		set_window_handler(items_win, ELW_HANDLER_DISPLAY, &display_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_CLICK, &click_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_MOUSEOVER, &mouseover_items_handler );
-		set_window_handler(items_win, ELW_HANDLER_KEYPRESS, &keypress_items_handler );
+		set_window_handler(items_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_SHOW, &show_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_UI_SCALE, &show_items_handler );
 		

@@ -603,18 +603,16 @@ static int click_minimap_handler(window_info * win, int mx, int my, Uint32 flags
 	return 0;
 }
 
-static int keypress_minimap_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+static int keypress_minimap_handler (window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
-	Uint16 keysym = key & 0xffff;
-
 	if (is_within_radius(mx,my-win->title_height,float_minimap_size/2,float_minimap_size/2,float_minimap_size/2))
 	{
-		if((keysym == SDLK_KP_PLUS) || (keysym == SDLK_PAGEUP))
+		if((key_code == SDLK_KP_PLUS) || (key_code == SDLK_PAGEUP))
 		{
 			increase_zoom();
 			return 1;
 		}
-		else if ((keysym == SDLK_KP_MINUS) ||  (keysym == SDLK_PAGEDOWN))
+		else if ((key_code == SDLK_KP_MINUS) ||  (key_code == SDLK_PAGEDOWN))
 		{
 			decrease_zoom();
 			return 1;
@@ -788,7 +786,7 @@ void display_minimap(void)
 		set_window_handler(minimap_win, ELW_HANDLER_DISPLAY, &display_minimap_handler);	
 		set_window_handler(minimap_win, ELW_HANDLER_CLICK, &click_minimap_handler);	
 		set_window_handler(minimap_win, ELW_HANDLER_MOUSEOVER, &mouseover_minimap_handler);	
-		set_window_handler(minimap_win, ELW_HANDLER_KEYPRESS, &keypress_minimap_handler );
+		set_window_handler(minimap_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_minimap_handler );
 		set_window_handler(minimap_win, ELW_HANDLER_UI_SCALE, &ui_scale_minimap_handler);
 		win = &(windows_list.window[minimap_win]);
 		win->owner_drawn_title_bar = 1;

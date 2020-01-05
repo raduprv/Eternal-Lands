@@ -76,7 +76,11 @@ void draw_scene()
         Enter2DMode();
         draw_minimap();
         Leave2DMode();
+#if defined(SDL2)
+        SDL_GL_SwapWindow(el_gl_window);
+#else
         SDL_GL_SwapBuffers();
+#endif
         return;
     }
 
@@ -215,7 +219,11 @@ void draw_scene()
 
     Leave2DMode();
     glEnable(GL_LIGHTING);
+#if defined(SDL2)
+    SDL_GL_SwapWindow(el_gl_window);
+#else
     SDL_GL_SwapBuffers();
+#endif
 }
 
 void Move()
@@ -229,7 +237,12 @@ void Move()
 int my_timer_clock=0;
 int normal_animation_timer=0;
 
+#if defined(SDL2)
+SDL_TimerID my_timer_id = 0;
+Uint32 my_timer (Uint32 interval, void *param)
+#else
 Uint32 my_timer (Uint32 interval)
+#endif
 {
     int new_time;
     SDL_Event e;

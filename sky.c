@@ -4,14 +4,12 @@
 #include <string.h>
 #include <limits.h>
 #include <SDL.h>
-#include <SDL_active.h>
 #include "asc.h"
 #include "sky.h"
 #include "draw_scene.h"
 #include "elconfig.h"
 #include "errors.h"
 #include "gl_init.h"
-#include "global.h"
 #include "lights.h"
 #include "map.h"
 #include "multiplayer.h"

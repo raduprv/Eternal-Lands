@@ -177,6 +177,8 @@ static int resize_login_handler (window_info *win, Uint32 w, Uint32 h)
 	password_text_y = password_bar_y + box_y_offset;
 	log_in_y = settings_y = new_char_y = password_bar_y + username_bar_y_len + win->default_font_len_y;
 
+	passmngr_resize();
+
 	return 1;
 }
 
@@ -415,8 +417,9 @@ static int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-static void add_char_to_username(unsigned char ch)
+static int add_char_to_username(SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
+	Uint8 ch = key_to_char(key_unicode);
 	if (((ch>=48 && ch<=57) || (ch>=65 && ch<=90) || (ch>=97 && ch<=122) || (ch=='_'))
 		&& username_text_length < MAX_USERNAME_LENGTH - 1)		// MAX_USERNAME_LENGTH includes the null terminator
 	{
@@ -424,7 +427,7 @@ static void add_char_to_username(unsigned char ch)
 		input_username_str[username_text_length+1]=0;
 		username_text_length++;
 	}
-	if(ch==SDLK_DELETE || ch==SDLK_BACKSPACE)
+	else if(key_code == SDLK_DELETE || key_code == SDLK_BACKSPACE)
 	{
 		if (username_text_length > 0)
 			username_text_length--;
@@ -432,19 +435,22 @@ static void add_char_to_username(unsigned char ch)
 			username_text_length = 0;
 		input_username_str[username_text_length] = '\0';
 	}
+	else
+		return 0;
+	return 1;
 }
 
-static void add_char_to_password(unsigned char ch)
+static int add_char_to_password(SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
-	if (VALID_PASSWORD_CHAR(ch) && password_text_length < MAX_USERNAME_LENGTH - 1)		// MAX_USERNAME_LENGTH includes the null terminator
+	if (VALID_PASSWORD_CHAR(key_unicode) && password_text_length < MAX_USERNAME_LENGTH - 1)		// MAX_USERNAME_LENGTH includes the null terminator
 	{
-		input_password_str[password_text_length]=ch;
+		input_password_str[password_text_length]=key_to_char(key_unicode);
 		display_password_str[password_text_length]='*';
 		input_password_str[password_text_length+1]=0;
 		display_password_str[password_text_length+1]=0;
 		password_text_length++;
 	}
-	if (ch==SDLK_DELETE || ch==SDLK_BACKSPACE)
+	else if (key_code == SDLK_DELETE || key_code == SDLK_BACKSPACE)
 	{
 		if (password_text_length > 0)
 			password_text_length--;
@@ -453,43 +459,45 @@ static void add_char_to_password(unsigned char ch)
 		display_password_str[password_text_length] = '\0';
 		input_password_str[password_text_length] = '\0';
 	}
+	else
+		return 0;
+	return 1;
 }
 
-static int keypress_login_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
-{
-	Uint8 ch = key_to_char (unikey);
-	
+static int keypress_login_handler (window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
+{	
 	// First check key presses common to all root windows. Many of these
 	// don't make sense at this point, but it should be harmless.
-	if ( keypress_root_common (key, unikey) )
-	{
+	if ( keypress_root_common (key_code, key_unicode, key_mod) )
 		return 1;
-	}	
-	else if (ch == SDLK_RETURN && input_username_str[0] && input_password_str[0])
+	else if ((key_code == SDLK_RETURN || key_code == SDLK_KP_ENTER) && input_username_str[0] && input_password_str[0])
 	{
 		log_in_error_str[0] = '\0';
 		set_username(input_username_str);
 		set_password(input_password_str);
 		passmngr_destroy_window();
 		send_login_info();
+		return 1;
 	}
-	else if (ch == SDLK_TAB)
+	else if (key_code == SDLK_TAB)
 	{
 		username_box_selected = !username_box_selected;
 		password_box_selected = !password_box_selected;
+		return 1;
 	}
 	else if (username_box_selected)
 	{
-		add_char_to_username (ch);
 		log_in_error_str[0] = '\0';
+		if (add_char_to_username (key_code, key_unicode, key_mod))
+			return 1;
 	} 
 	else
 	{
-		add_char_to_password (ch);
 		log_in_error_str[0] = '\0';
+		if (add_char_to_password (key_code, key_unicode, key_mod))
+			return 1;
 	}
-	
-	return 1;
+	return 0;
 }
 
 static int show_login_handler(window_info * win)
@@ -516,7 +524,7 @@ void create_login_root_window (int width, int height)
 		set_window_handler (login_root_win, ELW_HANDLER_DISPLAY, &display_login_handler);		
 		set_window_handler (login_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_login_handler);		
 		set_window_handler (login_root_win, ELW_HANDLER_CLICK, &click_login_handler);		
-		set_window_handler (login_root_win, ELW_HANDLER_KEYPRESS, &keypress_login_handler);
+		set_window_handler (login_root_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_login_handler);
 		set_window_handler (login_root_win, ELW_HANDLER_RESIZE, &resize_login_handler);
 		set_window_handler (login_root_win, ELW_HANDLER_SHOW, &show_login_handler);
 		set_window_handler (login_root_win, ELW_HANDLER_UI_SCALE, &ui_scale_login_handler);

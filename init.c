@@ -84,6 +84,7 @@
 #include "user_menus.h"
 #include "emotes.h"
 #include "image_loading.h"
+#include "main.h"
 #include "io/fileutil.h"
 #ifdef  CUSTOM_UPDATE
 #include "custom_update.h"
@@ -91,32 +92,6 @@
 
 #define	CFG_VERSION 7	// change this when critical changes to el.cfg are made that will break it
 
-int ini_file_size=0;
-
-int disconnected= 1;
-int auto_update= 1;
-#ifdef  CUSTOM_UPDATE
-int custom_update= 1;
-int custom_clothing= 1;
-#endif  //CUSTOM_UPDATE
-
-int exit_now=0;
-int restart_required=0;
-int allow_restart=1;
-int poor_man=0;
-
-#ifdef ANTI_ALIAS
-int anti_alias=0;
-#endif  //ANTI_ALIAS
-
-int special_effects=0;
-
-int isometric=1;
-int mouse_limit=15;
-int no_adjust_shadows=0;
-int clouds_shadows=1;
-int item_window_on_drop=1;
-int buddy_log_notice=1;
 char configdir[256]="./";
 #ifdef DATA_DIR
 char datadir[256]=DATA_DIR;
@@ -124,16 +99,7 @@ char datadir[256]=DATA_DIR;
 char datadir[256]="./";
 #endif //DATA_DIR
 
-char lang[10] = "en";
 static int no_lang_in_config = 0;
-
-int video_mode_set=0;
-
-#ifdef OSX
-int emulate3buttonmouse=0;
-#endif
-
-void read_command_line(); //from main.c
 
 #ifndef FASTER_MAP_LOAD
 static void load_harvestable_list(void)
@@ -202,6 +168,7 @@ static void read_config(void)
 		fprintf(stderr, "%s\n", err_stg);
 		LOG_ERROR(err_stg);
 		SDL_Quit ();
+		FATAL_ERROR_WINDOW(err_stg);
 		exit (1);
 	}
 }
@@ -694,34 +661,11 @@ void init_stuff(void)
 	// because the messages need the font widths.
 	init_fonts();
 
-	//OK, we have the video mode settings...
-	setup_video_mode(full_screen,video_mode);
-	//now you may set the video mode using the %<foo> in-game
-	video_mode_set=1;
-
 	//Good, we should be in the right working directory - load all translatables from their files
 	load_translatables();
 
-	//if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE | SDL_INIT_EVENTTHREAD) == -1)	// experimental
-	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1)
-		{
-			LOG_ERROR("%s: %s\n", no_sdl_str, SDL_GetError());
-			fprintf(stderr, "%s: %s\n", no_sdl_str, SDL_GetError());
-			SDL_Quit();
-			exit(1);
-		}
+	//Initialise the SDL window and the GL context
 	init_video();
-
-#ifdef MAP_EDITOR2
-	SDL_WM_SetCaption( "Map Editor", "mapeditor" );
-#else
-	SDL_WM_SetCaption( win_principal, "eternallands" );
-#endif
-
-#ifdef OSX
-	// don't emulate a 3 button mouse except you still have a 1 button mouse, ALT+leftclick doesn't work with the emulation
-	if (!emulate3buttonmouse) SDL_putenv("SDL_HAS3BUTTONMOUSE=1");
-#endif
 
 	//Init the caches here, as the loading window needs them
 	cache_system_init(MAX_CACHE_SYSTEM);
@@ -736,9 +680,9 @@ void init_stuff(void)
 		LOG_ERROR("%s\n", fatal_data_error);
 		fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, fatal_data_error);
 		SDL_Quit();
+		FATAL_ERROR_WINDOW(fatal_data_error);
 		exit(1);
 	}
-	CHECK_GL_ERRORS();
 
 	// read the continent map info
 	read_mapinfo();
@@ -867,7 +811,6 @@ void init_stuff(void)
 	legend_text = load_texture_cached("maps/legend.dds", tt_gui);
 
 	ground_detail_text = load_texture_cached("textures/ground_detail.dds", tt_gui);
-	CHECK_GL_ERRORS();
 	init_login_screen ();
 	init_spells ();
 
@@ -882,6 +825,7 @@ void init_stuff(void)
 		fprintf(stderr, "%s: %s\n", failed_sdl_net_init, SDLNet_GetError());
 		SDLNet_Quit();
 		SDL_Quit();
+		FATAL_ERROR_WINDOW(failed_sdl_net_init);
 		exit(2);
 	}
 	update_loading_win(init_timers_str, 5);
@@ -890,6 +834,7 @@ void init_stuff(void)
 		LOG_ERROR("%s: %s\n", failed_sdl_timer_init, SDL_GetError());
 		fprintf(stderr, "%s: %s\n", failed_sdl_timer_init, SDL_GetError());
 		SDL_Quit();
+		FATAL_ERROR_WINDOW(failed_sdl_timer_init);
 	 	exit(1);
 	}
 	update_loading_win(load_encyc_str, 5);
@@ -920,6 +865,7 @@ void init_stuff(void)
 		LOG_ERROR(rules_not_found);
 		fprintf(stderr, "%s\n", rules_not_found);
 		SDL_Quit();
+		FATAL_ERROR_WINDOW(rules_not_found);
 		exit(3);
 	}
 
@@ -932,8 +878,6 @@ void init_stuff(void)
 	init_books();
 
 	update_loading_win(init_display_str, 5);
-	if (!disable_gamma_adjust)
-		SDL_SetGamma(gamma_var, gamma_var, gamma_var);
 
 	draw_scene_timer= SDL_AddTimer (1000/(18*4), my_timer, NULL);
 	misc_timer= SDL_AddTimer (500, check_misc, NULL);
@@ -991,5 +935,6 @@ void init_stuff(void)
 	skybox_init_gl();
 	popup_init();
 
+	DO_CHECK_GL_ERRORS();
 	LOG_DEBUG("Init done!");
 }

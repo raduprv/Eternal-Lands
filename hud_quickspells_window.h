@@ -21,7 +21,7 @@ extern int num_quickspell_slots;
 extern int quickspells_relocatable;
 extern mqbdata * mqb_data[MAX_QUICKSPELL_SLOTS+1];
 
-int action_spell_keys(Uint32 key);
+int action_spell_keys(SDL_Keycode key_code, Uint16 key_mod);
 void load_quickspells(void);
 void save_quickspells(void);
 void init_quickspell(void);

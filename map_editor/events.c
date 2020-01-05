@@ -8,6 +8,11 @@ int undo_tile_height;
 int undo_tile = -1;
 int calhm = 0;
 
+#if defined(SDL2)
+int el_active = 1;
+int el_input_focus = 1;
+#endif
+
 #define ROT_LSPEED    1.0f 
 #define ROT_HSPEED   10.0f
 #define ROT_DELTA(flag) (flag ? ROT_LSPEED : ROT_HSPEED)
@@ -27,6 +32,9 @@ int HandleEvent(SDL_Event *event)
 {
 	int done=0;
 	Uint8 ch=0;
+#if defined(SDL2)
+	static Uint32 last_loss = 0;
+#endif
 
     mod_key_status=SDL_GetModState();
 
@@ -280,12 +288,18 @@ int HandleEvent(SDL_Event *event)
             
             } //switch(event->key.keysym.sym)  
 
+#if defined(SDL2)
+            break;
+
+	case SDL_TEXTINPUT:
 
 
-
+            ch = (Uint8)event->text.text[0];
+#else
             //see if we get any text
             if ((event->key.keysym.unicode & 0xFF80)==0)
                 ch = event->key.keysym.unicode & 0x7F;
+#endif
             
             //check wehter we should switch shadows on/off
             if((ch=='s' || ch=='S') && alt_on)
@@ -378,6 +392,57 @@ int HandleEvent(SDL_Event *event)
 
             break;
 
+#if defined(SDL2)
+		case SDL_WINDOWEVENT:
+			switch (event->window.event) {
+				case SDL_WINDOWEVENT_HIDDEN:
+				case SDL_WINDOWEVENT_MINIMIZED:
+					last_loss = SDL_GetTicks();
+					el_active = 0;
+					break;
+				case SDL_WINDOWEVENT_SHOWN:
+				case SDL_WINDOWEVENT_EXPOSED:
+				case SDL_WINDOWEVENT_MAXIMIZED:
+				case SDL_WINDOWEVENT_RESTORED:
+					if (last_loss && ((SDL_GetTicks() - last_loss) > 250))
+					{
+						last_loss = 0;
+						SDL_SetModState(KMOD_NONE);
+					}
+					el_active = 1;
+					break;
+				case SDL_WINDOWEVENT_LEAVE:
+				case SDL_WINDOWEVENT_FOCUS_LOST:
+					last_loss = SDL_GetTicks();
+					el_input_focus = 0;
+					break;
+				case SDL_WINDOWEVENT_ENTER:
+				case SDL_WINDOWEVENT_FOCUS_GAINED:
+					if (last_loss && ((SDL_GetTicks() - last_loss) > 250))
+					{
+						last_loss = 0;
+						SDL_SetModState(KMOD_NONE);
+					}
+					el_input_focus = 1;
+					break;
+				case SDL_WINDOWEVENT_RESIZED:
+					//printf("SDL_WINDOWEVENT_RESIZED\n");
+				 	window_width = event->window.data1;
+					window_height = event->window.data2;
+#ifdef LINUX
+					window_resize();
+#else
+					handle_window_resize();
+#endif
+					break;
+				default:
+					//printf("untrapped SDL_WINDOWEVENT %x\n", event->window.event);
+					break;
+					
+			}
+			break;
+#else
+
         case SDL_VIDEORESIZE:
             window_width = event->resize.w;
             window_height = event->resize.h;
@@ -388,6 +453,7 @@ int HandleEvent(SDL_Event *event)
             handle_window_resize();
 #endif
             break;
+#endif
 
         case SDL_USEREVENT:
             switch(event->user.code){
@@ -403,6 +469,25 @@ int HandleEvent(SDL_Event *event)
     }
 
 	// zooming with mousewheel...
+#if defined(SDL2)
+	if(event->type==SDL_MOUSEWHEEL)
+	{
+		if (event->wheel.y > 0)
+		{
+			if(view_particles_window)
+				particles_win_zoomin();
+			else
+				zoomin();
+		}
+		if (event->wheel.y < 0)
+		{
+			if(view_particles_window)
+				particles_win_zoomout();
+			else
+			zoomout();
+		}
+	}
+#else
 	if(event->type==SDL_MOUSEBUTTONDOWN){
 	  if(event->button.button == SDL_BUTTON_WHEELUP){
 	    if(view_particles_window)particles_win_zoomin();
@@ -414,6 +499,7 @@ int HandleEvent(SDL_Event *event)
 	  }
 	} // *
 
+#endif
     if(event->type==SDL_MOUSEMOTION)
 				{
 					mouse_x= event->motion.x;

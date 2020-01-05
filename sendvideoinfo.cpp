@@ -7,6 +7,7 @@
 #include "client_serv.h"
 #include "init.h"
 #include "errors.h"
+#include "gl_init.h"
 #include "sendvideoinfo.h"
 #include "io/elfilewrapper.h"
 
@@ -85,6 +86,13 @@ namespace eternal_lands
 	{
 		xmlNodePtr cur_node;
 
+		if (!extensions)
+		{
+			DO_CHECK_GL_ERRORS();
+			LOG_ERROR("glGetString() returned NULL GL_EXTENSIONS=0x%x", GL_EXTENSIONS);
+			return;
+		}
+
 		NODE_NAME_CHECK(extensions_element, "extentions");
 
 		for (cur_node = get_node_element_children(extensions_element); cur_node != 0;
@@ -139,7 +147,6 @@ namespace eternal_lands
 		xmlNodePtr root_element;
 		xmlDoc *document;
 		GLint i;
-
 		if (video_info_sent == 0)
 		{
 			memset(caps, 0, sizeof(caps));

@@ -738,7 +738,7 @@ void add_actor_from_server (const char * in_data, int len);
 extern void	init_actors_lists();
 
 #ifdef MUTEX_DEBUG
-extern Uint32 have_actors_lock;
+extern SDL_threadID have_actors_lock;
 /*!
  * \ingroup mutex
  * \name Actor list thread synchronization

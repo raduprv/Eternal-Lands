@@ -1,6 +1,7 @@
 #include "../platform.h"
 #include "elpathwrapper.h"
 #include "../asc.h"
+#include "../elconfig.h"
 #include "../elc_private.h"
 #include "../errors.h"
 #include "../init.h"

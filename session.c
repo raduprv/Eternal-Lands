@@ -6,7 +6,6 @@
 #include "asc.h"
 #include "elwindows.h"
 #include "init.h"
-#include "global.h"
 #include "hud.h"
 #include "missiles.h"
 #include "multiplayer.h"

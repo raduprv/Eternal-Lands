@@ -294,7 +294,7 @@ void init_custom_update()
 		update_thread_data[i].running = 1;
 		update_thread_data[i].error = 0;
 		update_thread_data[i].thread = SDL_CreateThread(
-			custom_update_thread, &update_thread_data[i]);
+			custom_update_thread, "CustomupdateThread", &update_thread_data[i]);
 	}
 	free(str);
 }

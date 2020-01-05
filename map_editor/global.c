@@ -17,7 +17,6 @@ Uint32 cur_time=0, last_time=0;//for FPS
 char exec_path[256];
 
 int video_mode=2;
-int limit_fps=60;
 int auto_save_time=0;
 
 float camera_x_end_point;
@@ -128,9 +127,13 @@ char view_tiles_list=0;
 float x_tile_menu_offset=64;
 float y_tile_menu_offset=128;
 char view_new_map_menu=0;
-char view_grid=0;
+int view_grid=0;
 
+#if defined(SDL2)
+Uint16 mod_key_status;
+#else
 SDLMod mod_key_status;
+#endif
 char shift_on=0;
 char ctrl_on=0;
 char alt_on=0;
@@ -169,13 +172,11 @@ PFNGLACTIVETEXTUREARBPROC		glActiveTextureARB		= NULL;
 PFNGLCLIENTACTIVETEXTUREARBPROC	glClientActiveTextureARB= NULL;
 #endif
 int have_multitexture;
-int poor_man=0;
 int ground_detail_text;
 
 float clouds_movement_u=-8;
 float clouds_movement_v=-3;
 Uint32 last_clear_clouds=0;
 float texture_scale=12.0;
-int clouds_shadows=1;
 int use_mipmaps=0;
 

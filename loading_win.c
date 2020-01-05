@@ -4,13 +4,13 @@
 #include <string.h>
 #include <SDL_video.h>
 #include "loading_win.h"
-#include "console.h"
 #include "draw_scene.h"
 #include "elwindows.h"
 #include "errors.h"
 #include "font.h"
 #include "gl_init.h"
 #include "interface.h"
+#include "multiplayer.h"
 #include "textures.h"
 #include "widgets.h"
 
@@ -182,7 +182,7 @@ int create_loading_win (int width, int height, int snapshot)
 			frac_x = frac_y = 1.0f;
 			use_snapshot = 0;
 
-			print_version_string (version_str, sizeof (version_str));
+			get_version_string (version_str, sizeof (version_str));
 			version_width = (get_string_width ((unsigned char*)version_str) * win->default_font_len_x) / 12;
 		}
 	}
@@ -217,7 +217,7 @@ void update_loading_win (char *text, float progress_increase)
 		Enter2DMode ();
 		display_window (loading_win);
 		Leave2DMode ();
-		SDL_GL_SwapBuffers ();
+		SDL_GL_SwapWindow(el_gl_window);
 	}
 }
 

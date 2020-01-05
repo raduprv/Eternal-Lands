@@ -24,8 +24,8 @@
 #include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
-#include "init.h"
 #include "interface.h"
+#include "main.h"
 #include "translate.h"
 #include "io/elpathwrapper.h"
 #include "threads.h"
@@ -45,6 +45,7 @@ static unsigned int num_update_servers;
 static char *update_servers[32];	// we cant handle more then 32 different servers
 static int is_this_files_lst= 0;	// files.lst changes its name if it is a custom update
 static char files_lst[256]= {0};
+static int allow_restart=1;
 
 // we need a simple queue system so that the MD5 processing is in parallel with downloading
 #define	MAX_UPDATE_QUEUE_SIZE	32768
@@ -258,7 +259,7 @@ static void do_updates(void)
 		return;
 	}
 	// start the background process
-	SDL_CreateThread(&do_threaded_update, NULL);
+	SDL_CreateThread(&do_threaded_update, "UpdatecheckThread", NULL);
 }
 
 
@@ -495,7 +496,7 @@ static void http_threaded_get_file(char *server, char *path, FILE *fp, Uint8 *md
 	// NOTE: it is up to the EVENT handler to close the handle & free the spec pointer in data1
 
 	// start the download in the background
-	thread_list[spec->thread_index] = SDL_CreateThread(&http_get_file_thread_handler, (void *) spec);
+	thread_list[spec->thread_index] = SDL_CreateThread(&http_get_file_thread_handler, "DownloadThread", (void *) spec);
 }
 
 
@@ -673,13 +674,10 @@ CHECK_GL_ERRORS();
 
 static int display_update_root_handler (window_info *win)
 {
-	if (SDL_GetAppState () & SDL_APPACTIVE)
-	{	
-		draw_console_pic (cons_text);
-		draw_update_interface (win);
-		CHECK_GL_ERRORS();
-	}
-	
+	draw_console_pic (cons_text);
+	draw_update_interface (win);
+	CHECK_GL_ERRORS();
+
 	draw_delay = 20;
 	return 1;
 }
@@ -690,22 +688,19 @@ static int click_update_root_restart ()
 	return 1;
 }
 
-static int keypress_update_root_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+static int keypress_update_root_handler (window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
-	Uint16 keysym = key & 0xffff;
-
 	// first, try to see if we pressed Alt+x, to quit.
-	if ( check_quit_or_fullscreen (key) )
+	if ( check_quit_or_fullscreen (key_code, key_mod) )
 	{
 		return 1;
 	}
-	else if (keysym == SDLK_RETURN)
+	else if (key_code == SDLK_RETURN || key_code == SDLK_KP_ENTER)
 	{
 		exit_now = 1;
 		return 1;
 	}
-	
-	return 1;
+	return 0;
 }
 
 static int show_update_handler (window_info *win) {
@@ -732,7 +727,7 @@ void create_update_root_window (int width, int height, int time)
 			height - 2 * widget_get_height(update_root_win, update_root_restart_id));
 
 		set_window_handler (update_root_win, ELW_HANDLER_DISPLAY, &display_update_root_handler);
-		set_window_handler (update_root_win, ELW_HANDLER_KEYPRESS, &keypress_update_root_handler);
+		set_window_handler (update_root_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_update_root_handler);
 		set_window_handler (update_root_win, ELW_HANDLER_SHOW, &show_update_handler);
 		widget_set_OnClick(update_root_win, update_root_restart_id, &click_update_root_restart);
 	}

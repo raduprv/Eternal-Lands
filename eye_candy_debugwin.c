@@ -9,7 +9,7 @@
 #include "elwindows.h"
 #include "gamewin.h"
 #include "hud.h"
-#include "init.h"
+#include "elconfig.h"
 #include "mines.h"
 #include "missiles.h"
 #include "skeletons.h"

@@ -10,9 +10,9 @@
 #include "cursors.h"
 #include "draw_scene.h"
 #include "elwindows.h"
+#include "events.h"
 #include "gamewin.h"
 #include "gl_init.h"
-#include "global.h"
 #include "hud.h"
 #include "init.h"
 #include "interface.h"
@@ -85,51 +85,45 @@ static int display_console_handler (window_info *win)
 		resize_window(win->window_id, win->len_x, win->len_y);
 	}
 
-	// are we actively drawing things?
-	if (SDL_GetAppState () & SDL_APPACTIVE)
+	set_font(chat_font);	// switch to the chat font
+	if (console_text_changed)
 	{
-		set_font(chat_font);	// switch to the chat font
-		if (console_text_changed)
-		{
-			find_line_nr (total_nr_lines, total_nr_lines - nr_console_lines - scroll_up_lines, FILTER_ALL, &msg, &offset, chat_zoom, console_text_width);
-			text_field_set_buf_pos (console_root_win, console_out_id, msg, offset);
-			update_console_scrollbar();
-			console_text_changed = 0;
-		}
-
-		draw_console_pic (cons_text);
-		if (scroll_up_lines != 0)
-		{
-			const unsigned char *sep_string = (unsigned char*)"^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^";
-			glColor3f (1.0, 1.0, 1.0);
-			draw_string_clipped (CONSOLE_TEXT_X_BORDER,
-				win->len_y - input_widget->len_y - CONSOLE_SEP_HEIGHT - HUD_MARGIN_Y + DEFAULT_FONT_Y_LEN/2,
-				sep_string, console_text_width, CONSOLE_SEP_HEIGHT);
-		}
-		//ttlanhil: disabled, until the scrolling in console is adusted to work with filtering properly
-		//if the users prefer that console not be filtered, the following line can be removed.
-		//if they want it filtered, then more work can be done until it works properly
-		//((text_field*)((widget_find(console_root_win, console_out_id))->widget_info))->chan_nr = current_filter;
-
-		draw_hud_interface (win);
-		set_font (0);	// switch to fixed
+		find_line_nr (total_nr_lines, total_nr_lines - nr_console_lines - scroll_up_lines, FILTER_ALL, &msg, &offset, chat_zoom, console_text_width);
+		text_field_set_buf_pos (console_root_win, console_out_id, msg, offset);
+		update_console_scrollbar();
+		console_text_changed = 0;
 	}
+
+	draw_console_pic (cons_text);
+	if (scroll_up_lines != 0)
+	{
+		const unsigned char *sep_string = (unsigned char*)"^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^";
+		glColor3f (1.0, 1.0, 1.0);
+		draw_string_clipped (CONSOLE_TEXT_X_BORDER,
+			win->len_y - input_widget->len_y - CONSOLE_SEP_HEIGHT - HUD_MARGIN_Y + DEFAULT_FONT_Y_LEN/2,
+			sep_string, console_text_width, CONSOLE_SEP_HEIGHT);
+	}
+	//ttlanhil: disabled, until the scrolling in console is adusted to work with filtering properly
+	//if the users prefer that console not be filtered, the following line can be removed.
+	//if they want it filtered, then more work can be done until it works properly
+	//((text_field*)((widget_find(console_root_win, console_out_id))->widget_info))->chan_nr = current_filter;
+
+	draw_hud_interface (win);
+	set_font (0);	// switch to fixed
 
 	display_handling_common(win);
 
 	return 1;
 }
 
-static int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+static int keypress_console_handler (window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
-	Uint16 keysym = key & 0xffff;
-
 	// first try the keypress handler for all root windows
-	if ( keypress_root_common (key, unikey) )
+	if ( keypress_root_common (key_code, key_unicode, key_mod) )
 	{
 		return 1;
 	}
-	else if(keysym == SDLK_UP)
+	else if(key_code == SDLK_UP)
  	{
 		if (total_nr_lines > nr_console_lines + scroll_up_lines)
 		{
@@ -137,7 +131,7 @@ static int keypress_console_handler (window_info *win, int mx, int my, Uint32 ke
 			console_text_changed = 1;
 		}
  	}
-	else if (keysym == SDLK_DOWN)
+	else if (key_code == SDLK_DOWN)
  	{
 		if(scroll_up_lines > 0)
 		{
@@ -145,40 +139,40 @@ static int keypress_console_handler (window_info *win, int mx, int my, Uint32 ke
 			console_text_changed = 1;
 		}
 	}
-	else if (key == K_TABCOMPLETE && input_text_line.len > 0)
+	else if (KEY_DEF_CMP(K_TABCOMPLETE, key_code, key_mod) && input_text_line.len > 0)
 	{
 		do_tab_complete(&input_text_line);
 	}
-	else if (key&ELW_ALT && keysym == SDLK_PAGEUP && total_nr_lines > nr_console_lines + scroll_up_lines)
+	else if (key_mod & KMOD_ALT && key_code == SDLK_PAGEUP && total_nr_lines > nr_console_lines + scroll_up_lines)
 	{
 		scroll_up_lines = total_nr_lines - nr_console_lines;
 		console_text_changed = 1;
 	}
-	else if (key&ELW_ALT && keysym == SDLK_PAGEDOWN && scroll_up_lines > 0)
+	else if (key_mod & KMOD_ALT && key_code == SDLK_PAGEDOWN && scroll_up_lines > 0)
 	{
 		scroll_up_lines = 0;
 		console_text_changed = 1;
 	}
-	else if (keysym == SDLK_PAGEUP && total_nr_lines > nr_console_lines + scroll_up_lines)
+	else if (key_code == SDLK_PAGEUP && total_nr_lines > nr_console_lines + scroll_up_lines)
 	{
 		scroll_up_lines += nr_console_lines - 1;
 		if (nr_console_lines + scroll_up_lines > total_nr_lines)
 			scroll_up_lines = total_nr_lines - nr_console_lines;
 		console_text_changed = 1;
 	}
-	else if (keysym == SDLK_PAGEDOWN && scroll_up_lines > 0)
+	else if (key_code == SDLK_PAGEDOWN && scroll_up_lines > 0)
 	{
 		scroll_up_lines -= nr_console_lines - 1;
 		if (scroll_up_lines < 0)
 			scroll_up_lines = 0;
 		console_text_changed = 1;
 	}
-	else if ((key == K_MAP) || (key == K_MARKFILTER))
+	else if (KEY_DEF_CMP(K_MAP, key_code, key_mod) || KEY_DEF_CMP(K_MARKFILTER, key_code, key_mod))
 	{
 		if (!locked_to_console && switch_to_game_map())
 		{
 			// if K_MARKFILTER pressed, open the map window with the filter active
-			if (key == K_MARKFILTER)
+			if (KEY_DEF_CMP(K_MARKFILTER, key_code, key_mod))
 				mark_filter_active = 1;
 			hide_window (console_root_win);
 			show_window (map_root_win);
@@ -186,14 +180,14 @@ static int keypress_console_handler (window_info *win, int mx, int my, Uint32 ke
 	}
 	else
 	{
-		Uint8 ch = key_to_char (unikey);
+		Uint8 ch = key_to_char (key_unicode);
 
 		reset_tab_completer();
-		if ((ch == '`' || key == K_CONSOLE) && !locked_to_console)
+		if ((ch == '`' || KEY_DEF_CMP(K_CONSOLE, key_code, key_mod)) && !locked_to_console)
 		{
 			return_to_gamewin_common();
 		}
-		else if ( !text_input_handler (key, unikey) )
+		else if ( !text_input_handler (key_code, key_unicode, key_mod) )
 		{
 			// nothing we can handle
 			return 0;
@@ -239,6 +233,9 @@ static int resize_console_handler (window_info *win, int width, int height)
 	/* making the font smaller can leave the scroll position invalid */
 	if (scroll_up_lines && (total_nr_lines <= nr_console_lines))
 		scroll_up_lines = 0;
+
+	if (get_show_window(win->window_id))
+		init_hud_interface (HUD_INTERFACE_GAME);
 
 	return 1;
 }
@@ -408,7 +405,7 @@ void create_console_root_window (int width, int height)
 		console_text_width = (int) (console_active_width - 2*CONSOLE_TEXT_X_BORDER - scrollbar_x_adjust);
 
 		set_window_handler (console_root_win, ELW_HANDLER_DISPLAY, &display_console_handler);
-		set_window_handler (console_root_win, ELW_HANDLER_KEYPRESS, &keypress_console_handler);
+		set_window_handler (console_root_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_console_handler);
 		set_window_handler (console_root_win, ELW_HANDLER_RESIZE, &resize_console_handler);
 		set_window_handler (console_root_win, ELW_HANDLER_CLICK, &click_console_handler);
 		set_window_handler (console_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_console_handler);
@@ -431,7 +428,7 @@ void create_console_root_window (int width, int height)
 			input_widget = widget_find(console_root_win, id);
 			input_widget->OnResize = input_field_resize;
 		}
-		widget_set_OnKey(input_widget->window_id, input_widget->id, chat_input_key);
+		widget_set_OnKey(input_widget->window_id, input_widget->id, (int (*)())chat_input_key);
 
 		nr_console_lines = (int) (console_active_height - input_widget->len_y -  CONSOLE_SEP_HEIGHT - CONSOLE_Y_OFFSET) / (DEFAULT_FONT_Y_LEN * chat_zoom);
 

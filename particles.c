@@ -7,9 +7,11 @@
 #include "particles.h"
 #include "asc.h"
 #include "draw_scene.h"
+#include "elconfig.h"
 #include "errors.h"
+#ifdef OPENGL_TRACE
 #include "gl_init.h"
-#include "init.h"
+#endif
 #include "pathfinder.h"
 #include "string.h"
 #include "sound.h"
@@ -34,7 +36,7 @@
 #include "image_loading.h"
 
 #ifdef NEW_SOUND
-int real_add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos, unsigned int dynamic);
+static int real_add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos, unsigned int dynamic);
 #endif // NEW_SOUND
 
 #define TELEPORTER_PARTICLE_SYS 0
@@ -564,38 +566,17 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile, float z)
 {
 	float x = 0.5f * x_tile + 0.25f;
 	float y = 0.5f * y_tile + 0.25f;
-#ifdef NEW_SOUND
-	int snd;
-#endif // NEW_SOUND
 
 	switch (kind)
 	{
 		case 2:
-			if (use_eye_candy)
-				ec_create_campfire(x, y, z, 0.0, 1.0, (poor_man ? 6 : 10), 3.1);
-			else
-				real_add_particle_sys ("./particles/fire_big.part", x, y, z, 1);
-#ifdef NEW_SOUND
-			snd = get_sound_index_for_particle_file_name("./particles/fire_big.part");
-#endif // NEW_SOUND
+			add_particle_sys ("./particles/fire_big.part", x, y, z, 1);
 			break;
 		case 1:
 		default:
-			if (use_eye_candy)
-				ec_create_campfire(x, y, z, 0.0, 1.0, (poor_man ? 6 : 10), 2.4);
-			else
-				real_add_particle_sys ("./particles/fire_small.part", x, y, z, 1);
-#ifdef NEW_SOUND
-			snd = get_sound_index_for_particle_file_name("./particles/fire_small.part");
-#endif // NEW_SOUND
+			add_particle_sys ("./particles/fire_small.part", x, y, z, 1);
 			break;
 	}
-#ifdef NEW_SOUND
-	if (sound_on && snd >= 0)
-	{
-		add_particle_sound(snd, x_tile, y_tile);
-	}
-#endif // NEW_SOUND
 }
 
 void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
@@ -736,7 +717,7 @@ int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_p
 	return real_add_particle_sys(file_name, x_pos, y_pos, z_pos, dynamic);
 }
 
-int real_add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos, unsigned int dynamic)
+static int real_add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos, unsigned int dynamic)
 #else
 int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos, unsigned int dynamic)
 #endif // NEW_SOUND
@@ -976,7 +957,9 @@ void draw_text_particle_sys(particle_sys *system_id)
 
 	LOCK_PARTICLES_LIST();	//lock it to avoid timing issues
 
+#ifdef OPENGL_TRACE
 	CHECK_GL_ERRORS();
+#endif
 	bind_texture(particle_textures[system_id->def->part_texture]);
 
 	for(i=0,p=&system_id->particles[0];i<system_id->def->total_particle_no;i=i+5,p=p+5)
@@ -1005,7 +988,9 @@ void draw_text_particle_sys(particle_sys *system_id)
 				}
 		}
 	UNLOCK_PARTICLES_LIST();	// release now that we are done
+#ifdef OPENGL_TRACE
 	CHECK_GL_ERRORS();
+#endif
 }
 
 void draw_point_particle_sys(particle_sys *system_id)
@@ -1023,7 +1008,9 @@ void draw_point_particle_sys(particle_sys *system_id)
 	if (local_zoom_level > 4.0)
 		local_zoom_level = 4.0;
 
+#ifdef OPENGL_TRACE
 	CHECK_GL_ERRORS();
+#endif
 	glEnable(GL_POINT_SPRITE_NV);
 	glTexEnvf(GL_POINT_SPRITE_NV,GL_COORD_REPLACE_NV,GL_TRUE);
 	glPointSize(system_id->def->part_size*(5.5f-local_zoom_level)*4.4f);
@@ -1064,7 +1051,9 @@ void draw_point_particle_sys(particle_sys *system_id)
 	glEnd();
  }
 	glDisable(GL_POINT_SPRITE_NV);
+#ifdef OPENGL_TRACE
 	CHECK_GL_ERRORS();
+#endif
 #endif
 }
 
@@ -1097,7 +1086,9 @@ void display_particles()
 	y=-camera_y;
 #endif  //SIMPLE_LOD || MAP_EDITOR
 
+#ifdef OPENGL_TRACE
 	CHECK_GL_ERRORS();
+#endif
 	glPushAttrib(GL_ENABLE_BIT|GL_DEPTH_BUFFER_BIT);
 	glDepthMask(GL_FALSE);
 	glEnable(GL_BLEND);
@@ -1169,7 +1160,9 @@ void display_particles()
 	UNLOCK_PARTICLES_LIST();
 	glDisable(GL_CULL_FACE); //Intel fix
 	glPopAttrib();
+#ifdef OPENGL_TRACE
 	CHECK_GL_ERRORS();
+#endif
 }
 
 /******************************************************************************

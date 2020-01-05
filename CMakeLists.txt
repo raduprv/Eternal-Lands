@@ -101,11 +101,11 @@ add_definitions(
 set(SD "")
 
 # Get compiler flags for used libraries
-include(FindSDL)
+include(cmake/FindSDL2.cmake)
 include(FindLibXml2)
-include(FindSDL_image)
-include(FindSDL_net)
-set(OpenGL_GL_PREFERENCE GLVND)
+include(cmake/FindSDL2_image.cmake)
+include(cmake/FindSDL2_net.cmake)
+set(OpenGL_GL_PREFERENCE LEGACY)
 include(FindOpenGL)
 include(FindOpenAL)
 include(FindZLIB)
@@ -196,17 +196,12 @@ if (ADDRSANITISER)
 	set(EXTRA_LD_FLAGS "${EXTRA_LD_FLAGS} -fsanitize=address")
 endif()
 
-# clean up extra strings to avoid policy CMP0004
-string(STRIP "${EXTRA_C_FLAGS}" EXTRA_C_FLAGS)
-string(STRIP "${EXTRA_CXX_FLAGS}" EXTRA_CXX_FLAGS)
-string(STRIP "${EXTRA_LD_FLAGS}" EXTRA_LD_FLAGS)
-
 # set the compiler flags for DEBUG and RELEASE builds
 set(CMAKE_C_FLAGS "${EXTRA_C_FLAGS} -Wall -Wdeclaration-after-statement -D_GNU_SOURCE=1 -D_REENTRANT")
-set(CMAKE_C_FLAGS_DEBUG "-O0 -ggdb -pipe -fno-strict-aliasing")
-set(CMAKE_C_FLAGS_RELEASE "-O2 -fomit-frame-pointer -ffast-math -pipe -fno-strict-aliasing")
+set(CMAKE_C_FLAGS_DEBUG "-Og -ggdb -pipe -fno-strict-aliasing")
+set(CMAKE_C_FLAGS_RELEASE "-O3 -fomit-frame-pointer -ffast-math -pipe -fno-strict-aliasing")
 set(CMAKE_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wall -D_GNU_SOURCE=1 -D_REENTRANT")
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -ggdb -pipe -fno-strict-aliasing")
+set(CMAKE_CXX_FLAGS_DEBUG "-Og -ggdb -pipe -fno-strict-aliasing")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fomit-frame-pointer -ffast-math -pipe -fno-strict-aliasing")
 
 # set the OS level defines and default executable names
@@ -220,6 +215,7 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		set(EXEC "el")
 	endif()
 	add_definitions(-DWINDOWS -DWINVER=0x500 -mwindows -DNDEBUG)
+	set(EXTRA_LD_FLAGS "${EXTRA_LD_FLAGS} -mwindows")
 	set(SOURCES ${SOURCES} ${SD}elc_private.rc)
 	set(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> -i <SOURCE> -o <OBJECT>")
 else()
@@ -238,8 +234,13 @@ endif()
 if (VERSION_PREFIX)
 	execute_process(COMMAND bash -c "date +'%Y%m%d.%H%M'" OUTPUT_VARIABLE VERSION_DATE)
 	string(STRIP "${VERSION_PREFIX}-${VERSION_DATE}" FULL_VERSION)
-	set_property(SOURCE ${SD}console.c APPEND PROPERTY COMPILE_DEFINITIONS GIT_VERSION="${FULL_VERSION}")
+	set_property(SOURCE ${SD}multiplayer.c APPEND PROPERTY COMPILE_DEFINITIONS GIT_VERSION="${FULL_VERSION}")
 endif()
+
+# clean up extra strings to avoid policy CMP0004
+string(STRIP "${EXTRA_C_FLAGS}" EXTRA_C_FLAGS)
+string(STRIP "${EXTRA_CXX_FLAGS}" EXTRA_CXX_FLAGS)
+string(STRIP "${EXTRA_LD_FLAGS}" EXTRA_LD_FLAGS)
 
 # build
 
@@ -247,11 +248,11 @@ add_executable(${EXEC} ${SOURCES})
 
 target_link_libraries(${EXEC}
 	${EXTRA_LD_FLAGS}
-	${SDL_LIBRARY}
+	${SDL2_LIBRARY}
 	${LIBXML2_LIBRARIES}
 	${CAL3D_LIBRARIES}
-	${SDL_NET_LIBRARIES}
-	${SDL_IMAGE_LIBRARIES}
+	${SDL2_NET_LIBRARY}
+	${SDL2_IMAGE_LIBRARY}
 	${OPENGL_LIBRARIES}
 	${OPENAL_LIBRARY}
 	${VORBIS_LIBRARIES}
@@ -261,14 +262,15 @@ target_link_libraries(${EXEC}
 	${Iconv_LIBRARIES}
 	${OPENGL_gl_LIBRARY}
 	${OPENGL_glu_LIBRARY}
+	${STATIC_LIBRARIES}
 )
 
 target_include_directories(${EXEC} SYSTEM PUBLIC
-	${SDL_INCLUDE_DIR}
+	${SDL2_INCLUDE_DIR}
 	${LIBXML2_INCLUDE_DIR}
 	${CAL3D_INCLUDE_DIR}
-	${SDL_NET_INCLUDE_DIRS}
-	${SDL_IMAGE_INCLUDE_DIRS}
+	${SDL2_NET_INCLUDE_DIR}
+	${SDL2_IMAGE_INCLUDE_DIR}
 	${OPENGL_INCLUDE_DIR}
 	${OPENAL_INCLUDE_DIR}
 	${VORBIS_INCLUDE_DIR}

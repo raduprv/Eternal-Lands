@@ -6,8 +6,8 @@
 #include <stdarg.h>
 #include "translate.h"
 #include "asc.h"
+#include "elconfig.h"
 #include "errors.h"
-#include "init.h"
 
 #define GROUP 0
 #define DIGROUP 1
@@ -191,7 +191,6 @@ char
 	/*hud.c*/
 	no_open_on_trade[100],
 	stats_scroll_help_str[100],
-	remove_bar_message_str[50],
 	cm_action_points_str[30],
 	hud_timer_cm_str[100],
 	hud_timer_popup_title_str[25],
@@ -349,7 +348,6 @@ char
 	accept_str[12],
 	/*update.c*/
 	update_complete_str[40],
-	video_restart_str[80],
 	rotate_chat_log_restart_str[80],
 	client_restart_countdown_str[40],
 	client_restarting_str[20],
@@ -1485,7 +1483,6 @@ void init_help()
 	add_xml_identifier(misc,"channel_color_add",channel_color_add_str,"Set",sizeof(channel_color_add_str));
 	add_xml_identifier(misc,"channel_color_delete",channel_color_delete_str,"Delete",sizeof(channel_color_delete_str));
 	add_xml_identifier(misc,"stats_scroll_help",stats_scroll_help_str,"Scroll Up/Down using CTRL+left/CTRL+right click or scrollwheel.",sizeof(stats_scroll_help_str));
-	add_xml_identifier(misc,"remove_bar_message",remove_bar_message_str,"Removed exp bar as space is limited.",sizeof(remove_bar_message_str));
 	add_xml_identifier(misc,"cm_action_points",cm_action_points_str,"Show Action Points Bar",sizeof(cm_action_points_str));
 	add_xml_identifier(misc,"hud_timer_cm",hud_timer_cm_str,"Change Mode\nKeep State\n--\nStart/Stop\nSet Time\nReset Time\n--\nShow Help",sizeof(hud_timer_cm_str));
 	add_xml_identifier(misc,"hud_timer_popup_title",hud_timer_popup_title_str,"Time (in seconds)",sizeof(hud_timer_popup_title_str));
@@ -1508,7 +1505,6 @@ void init_help()
 	add_xml_identifier(misc,"ranginglock_disabled",ranginglock_disabled_str,"Ranging-Lock is now disabled.",sizeof(ranginglock_disabled_str));
 	add_xml_identifier(misc,"close_click_targetting_on",close_click_targetting_on_str,"Close-click targetting on.",sizeof(close_click_targetting_on_str));
 	add_xml_identifier(misc,"close_click_targetting_off",close_click_targetting_off_str,"Close-click targetting off.",sizeof(close_click_targetting_off_str));
-	add_xml_identifier(misc,"video_restart", video_restart_str, "Video change will take effect at next restart.", sizeof(video_restart_str));
 	add_xml_identifier(misc,"rotate_chat_log_restart", rotate_chat_log_restart_str, "Rotate chat log change will take effect at next restart.", sizeof(rotate_chat_log_restart_str));
 	add_xml_identifier(misc,"ranging_win_title", ranging_win_title_str, "Ranging", sizeof(ranging_win_title_str));
 	add_xml_identifier(misc,"ranging_total_shots", ranging_total_shots_str, "Total shots      %d", sizeof(ranging_total_shots_str));

@@ -1,12 +1,13 @@
 #include <stdlib.h>
+#include <math.h>
+#include <SDL_types.h>
 #include "highlight.h"
-#include "global.h"
+#include "main.h"
 #include "platform.h"
 #include "tiles.h"
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
-#include <math.h>
 
 #define HIGHLIGHT_MARKER_LIFESPAN	(500)
 #define NUMBER_OF_HIGHLIGHT_MARKERS	(10)

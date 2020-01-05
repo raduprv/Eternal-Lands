@@ -1,7 +1,11 @@
 #ifndef __INTERFACE_H__
 #define __INTERFACE_H__
 
+#if defined(SDL2)
+#include <SDL_keycode.h>
+#else
 #include <SDL_keysym.h>
+#endif
 #include "../platform.h"
 
 //modes
@@ -62,7 +66,11 @@ extern float x_tile_menu_offset;
 extern float y_tile_menu_offset;
 
 
+#if defined(SDL2)
+extern Uint16 mod_key_status;
+#else
 extern SDLMod mod_key_status;
+#endif
 extern char shift_on;
 extern char ctrl_on;
 extern char alt_on;

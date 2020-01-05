@@ -18,8 +18,10 @@ build-stamp: configure-stamp
 	dh_testdir
 
 	# Commands to compile the package.
-	$(MAKE) -f Makefile.linux release PLATFORM=""
-
+	mkdir -p build && \
+		cd build && \
+		cmake -DEXEC=el.x86.linux.bin -DVERSION_PREFIX=1.9.5 .. && \
+		make
 	touch $@
 
 clean:
@@ -28,15 +30,14 @@ clean:
 	rm -f build-stamp configure-stamp
 
 	# Commands to clean up after the build process.
-	$(MAKE) -f Makefile.linux clean
-	rm -f .depend el.x86.linux.bin glinfo make.conf
+	rm -rf build
 
 	dh_clean 
 
 install: build
 	dh_testdir
 	dh_testroot
-	dh_clean -k 
+	dh_prep
 	dh_installdirs
 
 # Build architecture-independent files here.

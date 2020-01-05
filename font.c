@@ -15,7 +15,6 @@
 #include "errors.h"
 #include "init.h"
 #include "gl_init.h"
-#include "global.h"
 #include "interface.h"
 #include "misc.h"
 #include "textures.h"
@@ -28,6 +27,10 @@
 #define	FONT_X_SPACING	18
 #define	FONT_Y_SPACING	21
 #define FONTS_ARRAY_SIZE	10
+
+#ifdef SKY_FPV_OPTIONAL
+#define font_scale 10.0f
+#endif // SKY_FPV_OPTIONAL
 
 typedef struct	{
 	int	spacing;

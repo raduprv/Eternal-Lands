@@ -11,7 +11,7 @@
 #include "eye_candy_wrapper.h"
 #include "font.h" // for ALT_INGAME_FONT_X_LEN
 #include "gl_init.h"
-#include "init.h" // for poor_man
+#include "elconfig.h" // for poor_man
 #include "interface.h" // for view_names
 #include "platform.h"
 #include "spells.h" // for the sigils texture

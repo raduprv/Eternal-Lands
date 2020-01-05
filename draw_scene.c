@@ -6,10 +6,12 @@
 #include "cal.h"
 #include "console.h"
 #include "cursors.h"
+#if !defined(MAP_EDITOR)
 #include "elwindows.h"
+#endif
+#include "events.h"
 #include "gamewin.h"
 #include "gl_init.h"
-#include "global.h"
 #include "hud.h"
 #include "hud_timer.h"
 #include "interface.h"
@@ -150,7 +152,7 @@ void draw_scene()
 		elwin_mouse = -1;
 	}
 	
-	SDL_GL_SwapBuffers();
+	SDL_GL_SwapWindow(el_gl_window);
 	CHECK_GL_ERRORS();
 
 	/* stuff to do not every frame, twice a second is fine */
@@ -179,6 +181,8 @@ void draw_scene()
 			check_if_testing_server_connection();
 			/* check if used item counter confirmation has expired */
 			used_item_counter_timer();
+			/* make sure minimised or restored window is noticed */
+			check_minimised_or_restore_window();
 			/* until next time */
 			last_half_second_timer = current_time;
 		}
@@ -580,9 +584,11 @@ void update_camera()
 	last_update = cur_time;
 }
 
+#if !defined(MAP_EDITOR)
 int update_have_display(window_info * win)
 {
 	// if the calling window is shown, we have a display, else check all 3d windows
 	have_display = (win->displayed || get_show_window(game_root_win) || get_show_window(newchar_root_win));
 	return 0;
 }
+#endif

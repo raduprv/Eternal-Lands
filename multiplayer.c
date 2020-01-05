@@ -15,14 +15,15 @@
 #include "consolewin.h"
 #include "dialogues.h"
 #include "draw_scene.h"
+#include "elc_private.h"
+#include "elconfig.h"
 #include "elwindows.h"
 #include "errors.h"
 #include "filter.h"
 #include "gamewin.h"
-#include "global.h"
+#include "gl_init.h"
 #include "hud.h"
 #include "hud_quickspells_window.h"
-#include "init.h"
 #include "interface.h"
 #include "knowledge.h"
 #include "lights.h"
@@ -63,6 +64,13 @@
  */
 SDL_mutex* tcp_out_data_mutex = 0;
 
+static int client_version_major=VER_MAJOR;
+static int client_version_minor=VER_MINOR;
+static int client_version_release=VER_RELEASE;
+static int client_version_patch=VER_BUILD;
+static int version_first_digit=10;	//protocol/game version sent to server
+static int version_second_digit=28;
+
 const char * web_update_address= "http://www.eternal-lands.com/index.php?content=update";
 int icon_in_spellbar= -1;
 int port= 2000;
@@ -75,6 +83,7 @@ Uint8 tcp_out_data[MAX_TCP_BUFFER];
 int in_data_used=0;
 int tcp_out_loc= 0;
 int previously_logged_in= 0;
+int disconnected= 1;
 time_t last_heart_beat;
 time_t last_save_time;
 int always_pathfinding = 0;
@@ -100,8 +109,8 @@ static Uint32 testing_server_connection_time = 0;
 
 int yourself= -1;
 
-int last_sit= 0;
-int last_turn_around = 0;
+static int last_sit= 0;
+static int last_turn_around = 0;
 
 Uint32 next_second_time = 0;
 short real_game_minute = 0;
@@ -127,6 +136,25 @@ Uint32 diff_game_time_sec(Uint32 ref_time)
 	return curr_game_time - ref_time;
 }
 
+// NOTE: Len = length of the buffer, not the string (Verified)
+void get_version_string (char *buf, size_t len)
+{
+#ifdef GIT_VERSION
+	safe_snprintf (buf, len, "%s %s", game_version_prefix_str, GIT_VERSION);
+#else
+	char extra[100];
+	
+	if (client_version_patch > 0)
+	{
+		safe_snprintf (extra, sizeof(extra), "p%d %s", client_version_patch, DEF_INFO);
+	}
+	else
+	{
+		safe_snprintf (extra, sizeof(extra), " %s", DEF_INFO);
+	}
+	safe_snprintf (buf, len, game_version_str, client_version_major, client_version_minor, client_version_release, extra);
+#endif
+}
 
 /*
  *	Date handling code:
@@ -817,7 +845,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					show_window (game_root_win);
 
 				safe_snprintf(str,sizeof(str),"(%s on %s) %s",get_username(),get_server_name(),win_principal);
-				SDL_WM_SetCaption(str, "eternallands" );
+				SDL_SetWindowTitle(el_gl_window, str);
 
 #if defined NEW_SOUND
 				// Try to turn on the music as it isn't needed up until now
@@ -2256,7 +2284,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 
 /* Set the state to *disconnected from the server*, showing messages and recording time. */
-void enter_disconnected_state(char *message)
+void enter_disconnected_state(const char *message)
 {
 	char str[256];
 	short tgm = real_game_minute;

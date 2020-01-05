@@ -13,6 +13,7 @@ void passmngr_open_window(void);
 void passmngr_destroy_window(void);
 void passmngr_save_login(void);
 void passmngr_set_login(void);
+void passmngr_resize(void);
 void passmngr_init(void);
 void passmngr_destroy(void);
 void passmngr_pending_pw_change(const char * old_and_new_password);

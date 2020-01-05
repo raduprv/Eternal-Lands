@@ -8,9 +8,9 @@
 #include "cursors.h"
 #include "draw_scene.h"
 #include "e3d.h"
+#include "elconfig.h"
 #include "errors.h"
-#include "global.h"
-#include "init.h"
+#include "events.h"
 #include "map.h"
 #include "particles.h"
 #include "platform.h"
@@ -270,24 +270,6 @@ void draw_3d_objects(unsigned int object_type)
 	get_intersect_start_stop(main_bbox_tree, object_type, &start, &stop);
 	// nothing to draw?
 	if(start >= stop){
-		return;
-	}
-
-	// reduce CPU usage while minimized
-	if(!(SDL_GetAppState()&SDL_APPACTIVE)){
-		// not actually drawing, fake it
-		// now loop through each object
-		for (i=start; i<stop; i++)
-		{
-			int	j;
-
-			j = get_intersect_item_ID(main_bbox_tree, i);
-			l = get_3dobject_index(j);
-			if (objects_list[l] == NULL) continue;
-			//track the usage
-			cache_use(objects_list[l]->e3d_data->cache_ptr);
-		}
-		// and all done
 		return;
 	}
 

@@ -3,7 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <SDL.h>
-#include <SDL_keysym.h>
+#include <SDL_keycode.h>
 #include "widgets.h"
 #include "asc.h"
 #include "chat.h"
@@ -12,7 +12,6 @@
 #include "elconfig.h"
 #include "elwindows.h"
 #include "gamewin.h"
-#include "global.h"
 #include "interface.h"
 #include "misc.h"
 #include "multiplayer.h"
@@ -98,7 +97,7 @@ static int checkbox_click(widget_list *W, int mx, int my, Uint32 flags);
 static int vscrollbar_click(widget_list *W, int mx, int my, Uint32 flags);
 static int vscrollbar_drag(widget_list *W, int x, int y, Uint32 flags, int dx, int dy);
 static int tab_collection_click(widget_list *W, int x, int y, Uint32 flags);
-static int tab_collection_keypress(widget_list *W, int mx, int my, Uint32 key, Uint32 unikey);
+static int tab_collection_keypress(widget_list *W, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
 static int free_tab_collection(widget_list *widget);
 static int text_field_click(widget_list *w, int mx, int my, Uint32 flags);
 static int text_field_drag(widget_list *w, int mx, int my, Uint32 flags, int dx, int dy);
@@ -111,7 +110,7 @@ static int multiselect_click(widget_list *widget, int mx, int my, Uint32 flags);
 static int free_multiselect(widget_list *widget);
 static int spinbutton_draw(widget_list *widget);
 static int spinbutton_click(widget_list *widget, int mx, int my, Uint32 flags);
-static int spinbutton_keypress(widget_list *widget, int mx, int my, Uint32 key, Uint32 unikey);
+static int spinbutton_keypress(widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
 
 static const struct WIDGET_TYPE label_type = { NULL, label_draw, NULL, NULL, NULL, label_resize, NULL, free_widget_info, NULL };
 static const struct WIDGET_TYPE image_type = { NULL, image_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL };
@@ -120,11 +119,11 @@ static const struct WIDGET_TYPE round_button_type = { NULL, button_draw, NULL, N
 static const struct WIDGET_TYPE square_button_type = { NULL, square_button_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL };
 static const struct WIDGET_TYPE progressbar_type = { NULL, progressbar_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL };
 static const struct WIDGET_TYPE vscrollbar_type = { NULL, vscrollbar_draw, vscrollbar_click, vscrollbar_drag, NULL, NULL, NULL, free_widget_info, NULL };
-static const struct WIDGET_TYPE tab_collection_type = { NULL, tab_collection_draw, tab_collection_click, NULL, NULL, tab_collection_resize, tab_collection_keypress, free_tab_collection, NULL };
-static const struct WIDGET_TYPE text_field_type = { NULL, text_field_draw, text_field_click, text_field_drag, NULL, text_field_resize, text_field_keypress, text_field_destroy, text_field_move };
-static const struct WIDGET_TYPE pword_field_type = { NULL, pword_field_draw, pword_field_click, NULL, NULL, NULL, pword_keypress, free_widget_info, NULL };
+static const struct WIDGET_TYPE tab_collection_type = { NULL, tab_collection_draw, tab_collection_click, NULL, NULL, tab_collection_resize, (int (*)())tab_collection_keypress, free_tab_collection, NULL };
+static const struct WIDGET_TYPE text_field_type = { NULL, text_field_draw, text_field_click, text_field_drag, NULL, text_field_resize, (int (*)())text_field_keypress, text_field_destroy, text_field_move };
+static const struct WIDGET_TYPE pword_field_type = { NULL, pword_field_draw, pword_field_click, NULL, NULL, NULL, (int (*)())pword_keypress, free_widget_info, NULL };
 static const struct WIDGET_TYPE multiselect_type = { NULL, multiselect_draw, multiselect_click, NULL, NULL, NULL, NULL, free_multiselect, NULL };
-static const struct WIDGET_TYPE spinbutton_type = { NULL, spinbutton_draw, spinbutton_click, spinbutton_click, NULL, NULL, spinbutton_keypress, free_multiselect, NULL };
+static const struct WIDGET_TYPE spinbutton_type = { NULL, spinbutton_draw, spinbutton_click, spinbutton_click, NULL, NULL, (int (*)())spinbutton_keypress, free_multiselect, NULL };
 
 // <--- Common widget functions ---
 widget_list * widget_find(int window_id, Uint32 widget_id)
@@ -596,22 +595,22 @@ int widget_handle_drag (widget_list *widget, int mx, int my, Uint32 flags, int d
 	return res > -1 ? res : 0;
 }
 
-int widget_handle_keypress (widget_list *widget, int mx, int my, Uint32 key, Uint32 unikey)
+int widget_handle_keypress (widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
 	int res = 0;
 
 	if (widget->type != NULL) {
 		if (widget->type->key != NULL) {
-			res = widget->type->key (widget, mx, my, key, unikey);
+			res = widget->type->key (widget, mx, my, key_code, key_unicode, key_mod);
 		}
 	}
 
 	if (widget->OnKey != NULL && res != -1)
 	{
 		if(widget->spec != NULL) {
-			res |= widget->OnKey (widget, mx, my, key, unikey, widget->spec);
+			res |= widget->OnKey (widget, mx, my, key_code, key_unicode, key_mod, widget->spec);
 		} else {
-			res |= widget->OnKey (widget, mx, my, key, unikey);
+			res |= widget->OnKey (widget, mx, my, key_code, key_unicode, key_mod);
 		}
 	}
 	return res > -1 ? res : 0;
@@ -1658,15 +1657,14 @@ void _tab_collection_make_cur_visible (widget_list *W)
 	}
 }
 
-static int tab_collection_keypress(widget_list *W, int mx, int my, Uint32 key, Uint32 unikey)
+static int tab_collection_keypress(widget_list *W, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
-	int shift_on = key & ELW_SHIFT;
-	Uint16 keysym = key & 0xffff;
+	int shift_on = key_mod & KMOD_SHIFT;
 	tab_collection *col = (tab_collection *) W->widget_info;
 	
 	if (col->nr_tabs <= 0) return 0;
 	
-	if (shift_on && keysym == K_ROTATERIGHT)
+	if (shift_on && KEY_DEF_CMP(K_ROTATERIGHT, key_code, key_mod))
 	{
 		if (col->nr_tabs == 1) return 1;
 		hide_window (col->tabs[col->cur_tab].content_id);
@@ -1675,7 +1673,7 @@ static int tab_collection_keypress(widget_list *W, int mx, int my, Uint32 key, U
 		_tab_collection_make_cur_visible (W);
 		return 1;
 	}
-	else if (shift_on && keysym == K_ROTATELEFT)
+	else if (shift_on && KEY_DEF_CMP(K_ROTATELEFT, key_code, key_mod))
 	{
 		if (col->nr_tabs == 1) return 1;
 		hide_window (col->tabs[col->cur_tab].content_id);
@@ -2218,8 +2216,9 @@ void _text_field_delete_forward (widget_list *w)
 	// cursor position doesn't change, so no need to update it here
 }
 
-void _text_field_insert_char (widget_list *w, char ch)
+void _text_field_insert_char (widget_list *w, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
+	Uint8 ch = key_to_char (key_unicode);
 	text_field *tf = w->widget_info;
 	text_message *msg;
 	int nr_lines, old_cursor;
@@ -2229,7 +2228,7 @@ void _text_field_insert_char (widget_list *w, char ch)
 	
 	msg = &(tf->buffer[tf->msg]);
 	
-	if (ch == SDLK_RETURN)
+	if (key_code == SDLK_RETURN || key_code == SDLK_KP_ENTER)
 		ch = '\n';
 
 	// keep one position free, so that we can always introduce a
@@ -2377,10 +2376,10 @@ static int context_edit_handler(window_info *win, int widget_id, int mx, int my,
 		w->Flags &= ~TEXT_FIELD_NO_KEYPRESS;
 	switch (option)
 	{
-		case 0: text_field_keypress(w, 0, 0, K_CUT, 24); break;
-		case 1: text_field_keypress(w, 0, 0, K_COPY, 3); break;
+		case 0: text_field_keypress(w, 0, 0, K_CUT.key_code, 0, K_CUT.key_mod); break;
+		case 1: text_field_keypress(w, 0, 0, K_COPY.key_code, 0, K_COPY.key_mod); break;
 		case 2:
-			if (!text_field_keypress(w, 0, 0, K_PASTE, 22))
+			if (!text_field_keypress(w, 0, 0, K_PASTE.key_code, 0, K_PASTE.key_mod))
 				start_paste(NULL);
 			break;
 		case 4:
@@ -2443,19 +2442,18 @@ static void context_edit_pre_show_handler(window_info *win, int widget_id, int m
 	cm_grey_line(cm_edit_id, 6, is_grey);
 }
 
-int text_field_keypress(widget_list *w, int mx, int my, Uint32 key, Uint32 unikey)
+int text_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
-	Uint16 keysym = key & 0xffff;
-	Uint8 ch = key_to_char(unikey);
+	Uint8 ch = key_to_char(key_unicode);
 	text_field *tf;
 	text_message *msg;
-	int alt_on = key & ELW_ALT, ctrl_on = key & ELW_CTRL;
-	int shift_on = key & ELW_SHIFT;
+	int alt_on = key_mod & KMOD_ALT, ctrl_on = key_mod & KMOD_CTRL;
+	int shift_on = key_mod & KMOD_SHIFT;
 
 	if (w == NULL) return 0;
 	tf = w->widget_info;
 
-	if (key == K_COPY || key == K_COPY_ALT)
+	if (KEY_DEF_CMP(K_COPY, key_code, key_mod) || KEY_DEF_CMP(K_COPY_ALT, key_code, key_mod))
 	{
 		_text_field_copy_to_clipboard (tf);
 		return 1;
@@ -2466,11 +2464,11 @@ int text_field_keypress(widget_list *w, int mx, int my, Uint32 key, Uint32 unike
 
 	msg = &(tf->buffer[tf->msg]);
 
-	if (is_printable (ch) || keysym == SDLK_UP || keysym == SDLK_DOWN ||
-		keysym == SDLK_LEFT || keysym == SDLK_RIGHT || keysym == SDLK_HOME ||
-		keysym == SDLK_END || ch == SDLK_BACKSPACE || ch == SDLK_DELETE
+	if (is_printable (ch) || key_code == SDLK_UP || key_code == SDLK_DOWN ||
+		key_code == SDLK_LEFT || key_code == SDLK_RIGHT || key_code == SDLK_HOME ||
+		key_code == SDLK_END || key_code == SDLK_BACKSPACE || key_code == SDLK_DELETE
 #ifdef OSX
-		|| keysym == 127
+		|| unikey == 127
 #endif
 		)
 		{
@@ -2478,8 +2476,8 @@ int text_field_keypress(widget_list *w, int mx, int my, Uint32 key, Uint32 unike
 		tf->next_blink = cur_time + TF_BLINK_DELAY;
 	}
 
-	if ((keysym == SDLK_LEFT) || (keysym == SDLK_RIGHT) || (keysym == SDLK_UP) || (keysym == SDLK_DOWN) ||
-		(keysym == SDLK_HOME) || (keysym == SDLK_END))
+	if ((key_code == SDLK_LEFT) || (key_code == SDLK_RIGHT) || (key_code == SDLK_UP) || (key_code == SDLK_DOWN) ||
+		(key_code == SDLK_HOME) || (key_code == SDLK_END))
 	{
 		if (shift_on)
 		{
@@ -2492,31 +2490,31 @@ int text_field_keypress(widget_list *w, int mx, int my, Uint32 key, Uint32 unike
 		}
 	}
 
-	if (keysym == SDLK_LEFT)
+	if (key_code == SDLK_LEFT)
 	{
 		_text_field_cursor_left (w, ctrl_on);
 		if (shift_on) update_cursor_selection(w, 1);
 		return 1;
 	}
-	else if (keysym == SDLK_RIGHT)
+	else if (key_code == SDLK_RIGHT)
 	{
 		_text_field_cursor_right (w, ctrl_on);
 		if (shift_on) update_cursor_selection(w, 1);
 		return 1;
 	}
-	else if (keysym == SDLK_UP && !ctrl_on && !alt_on && tf->cursor >= 0)
+	else if (key_code == SDLK_UP && !ctrl_on && !alt_on && tf->cursor >= 0)
 	{
 		_text_field_cursor_up (w);
 		if (shift_on) update_cursor_selection(w, 1);
 		return 1;
 	}
-	else if (keysym == SDLK_DOWN && !ctrl_on && !alt_on && tf->cursor >= 0)
+	else if (key_code == SDLK_DOWN && !ctrl_on && !alt_on && tf->cursor >= 0)
 	{
 		_text_field_cursor_down (w);
 		if (shift_on) update_cursor_selection(w, 1);
 		return 1;
 	}
-	else if (keysym == SDLK_HOME)
+	else if (key_code == SDLK_HOME)
 	{
 		if (ctrl_on)
 		{
@@ -2532,7 +2530,7 @@ int text_field_keypress(widget_list *w, int mx, int my, Uint32 key, Uint32 unike
 		if (shift_on) update_cursor_selection(w, 1);
 		return 1;
 	}
-	else if (keysym == SDLK_END)
+	else if (key_code == SDLK_END)
 	{
 		if (ctrl_on)
 		{
@@ -2548,19 +2546,19 @@ int text_field_keypress(widget_list *w, int mx, int my, Uint32 key, Uint32 unike
 		if (shift_on) update_cursor_selection(w, 1);
 		return 1;
 	}
-	else if (keysym == SDLK_PAGEUP)
+	else if (key_code == SDLK_PAGEUP)
 	{
 		_text_field_cursor_page_up (w);
 		if (shift_on) update_cursor_selection(w, 1);
 		return 1;
 	}
-	else if (keysym == SDLK_PAGEDOWN)
+	else if (key_code == SDLK_PAGEDOWN)
 	{
 		_text_field_cursor_page_down (w);
 		if (shift_on) update_cursor_selection(w, 1);
 		return 1;
 	}
-	else if ((ch == SDLK_BACKSPACE || ch == SDLK_DELETE
+	else if ((key_code == SDLK_BACKSPACE || key_code == SDLK_DELETE
 #ifdef OSX
 	          || ch == 127
 #endif
@@ -2571,22 +2569,22 @@ int text_field_keypress(widget_list *w, int mx, int my, Uint32 key, Uint32 unike
 		return 1;
 	}
 #ifdef OSX
-        else if (ch == SDLK_BACKSPACE || ch == 127)
+        else if (key_code == SDLK_BACKSPACE || ch == 127)
 #else
-        else if (ch == SDLK_BACKSPACE)
+        else if (key_code == SDLK_BACKSPACE)
 #endif
 	{
 		if (tf->cursor > 0)
 			_text_field_delete_backward (w);
 		return 1;
 	}
-	else if (ch == SDLK_DELETE)
+	else if (key_code == SDLK_DELETE)
 	{
 		if (tf->cursor < msg->len)
 			_text_field_delete_forward (w);
 		return 1;
 	}
-	else if (key == K_CUT)
+	else if (KEY_DEF_CMP(K_CUT, key_code, key_mod))
 	{
 		_text_field_copy_to_clipboard(tf);
 		if (!TEXT_FIELD_SELECTION_EMPTY(&tf->select))
@@ -2596,7 +2594,7 @@ int text_field_keypress(widget_list *w, int mx, int my, Uint32 key, Uint32 unike
 		}
 		return 1;
 	}
-	else if (key == K_PASTE || key == K_PASTE_ALT)
+	else if (KEY_DEF_CMP(K_PASTE, key_code, key_mod) || KEY_DEF_CMP(K_PASTE_ALT, key_code, key_mod))
 	{
 		if (!TEXT_FIELD_SELECTION_EMPTY(&tf->select))
 		{
@@ -2607,14 +2605,14 @@ int text_field_keypress(widget_list *w, int mx, int my, Uint32 key, Uint32 unike
 		return 1;
 	}
 	else if (!alt_on && !ctrl_on && ( is_printable (ch)
-			|| (ch == SDLK_RETURN && !(w->Flags&TEXT_FIELD_IGNORE_RETURN)) ) && ch != '`' )
+			|| ((key_code == SDLK_RETURN || key_code == SDLK_KP_ENTER) && !(w->Flags&TEXT_FIELD_IGNORE_RETURN)) ) && ch != '`' )
 	{
 		if (!TEXT_FIELD_SELECTION_EMPTY(&tf->select))
 		{
 			text_field_remove_selection(tf);
 			TEXT_FIELD_CLEAR_SELECTION(&tf->select);		
 		}
-		_text_field_insert_char (w, ch);
+		_text_field_insert_char (w, key_code, key_unicode, key_mod);
 		return 1;
 	}
 	return 0;
@@ -3073,12 +3071,12 @@ int text_field_clear (int window_id, Uint32 widget_id)
 
 //password entry field. We act like a restricted text entry with multiple modes
 // quite straightforward - we just add or remove from the end
-int pword_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unikey)
+int pword_keypress (widget_list *w, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
-	Uint8 ch = key_to_char(unikey);
+	Uint8 ch = key_to_char(key_unicode);
 	password_entry *pword;
-	int alt_on = key & ELW_ALT,
-	    ctrl_on = key & ELW_CTRL;
+	int alt_on = key_mod & KMOD_ALT,
+	    ctrl_on = key_mod & KMOD_CTRL;
 
 	if (w == NULL) {
 		return 0;
@@ -3089,7 +3087,7 @@ int pword_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unikey)
 		return -1;
 	}
 
-	if (ch == SDLK_BACKSPACE) {
+	if (key_code == SDLK_BACKSPACE) {
 		int i = 0;
 		while(pword->password[i] != '\0' && i < pword->max_chars)
 			i++;
@@ -3414,14 +3412,14 @@ int multiselect_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, int widt
 }
 
 // Spinbutton
-static int spinbutton_keypress(widget_list *widget, int mx, int my, Uint32 key, Uint32 unikey)
+static int spinbutton_keypress(widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
 	spinbutton *button;
 	int i;
 	int i_tmp;
 
-	if(widget != NULL && (button = widget->widget_info) != NULL &&  !(key&ELW_ALT) && !(key&ELW_CTRL)) {
-		char ch = key_to_char(unikey);
+	if(widget != NULL && (button = widget->widget_info) != NULL &&  !(key_mod & KMOD_ALT) && !(key_mod & KMOD_CTRL)) {
+		char ch = key_to_char(key_unicode);
 
 		switch(button->type) {
 			case SPIN_INT:
@@ -3447,7 +3445,7 @@ static int spinbutton_keypress(widget_list *widget, int mx, int my, Uint32 key, 
 						}
 					}
 					return 1;
-				} else if (ch == SDLK_BACKSPACE) {
+				} else if (key_code == SDLK_BACKSPACE) {
 					if(strlen(button->input_buffer) > 0) {
 						button->input_buffer[strlen(button->input_buffer)-1] = '\0';
 					}
@@ -3480,7 +3478,7 @@ static int spinbutton_keypress(widget_list *widget, int mx, int my, Uint32 key, 
 						*(float *)button->data = atof(button->input_buffer);
 					}
 					return 1;
-				} else if (ch == SDLK_BACKSPACE) {
+				} else if (key_code == SDLK_BACKSPACE) {
 					if(strlen(button->input_buffer) > 0) {
 						button->input_buffer[strlen(button->input_buffer)-1] = '\0';
 					}
