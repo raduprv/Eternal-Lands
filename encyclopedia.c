@@ -490,7 +490,7 @@ void ReadCategoryXML(xmlNode * a_node)
 				if (cur_node->children != NULL)
 				{
 					MY_XMLSTRCPY (&T->text, (char*)cur_node->children->content);
-					lastextlen = strlen (T->text) * ((T->size) ? 11 : 8);
+					lastextlen = strlen (T->text) * ((T->size) ? DEFAULT_FONT_X_LEN : SMALL_FONT_X_LEN);
 					x += lastextlen;
 				}
 				while (t->Next != NULL)
@@ -501,12 +501,12 @@ void ReadCategoryXML(xmlNode * a_node)
 			//<nl>
 			if(!xmlStrcasecmp(cur_node->name,(xmlChar*)"nl")){
 				x=2;
-				y+=(size)?18:15;
+				y+=(size)?DEFAULT_FONT_Y_LEN:SMALL_FONT_Y_LEN;
 			}
 			
 			//<nlkx>
 			if(!xmlStrcasecmp(cur_node->name,(xmlChar*)"nlkx")){
-				y+=(size)?18:15;
+				y+=(size)?DEFAULT_FONT_Y_LEN:SMALL_FONT_Y_LEN;
 				x-=lastextlen;
 			}
 
@@ -530,7 +530,7 @@ void ReadCategoryXML(xmlNode * a_node)
 					if(xposupdate)
 						x+=xend;
 					if(yposupdate)
-						y+=yend-((size)?18:15);
+						y+=yend-((size)?DEFAULT_FONT_Y_LEN:SMALL_FONT_Y_LEN);
 					
 				}else{
 					I->x=i->x;
@@ -577,7 +577,7 @@ void ReadCategoryXML(xmlNode * a_node)
 					if(xposupdate)
 						x+=(tsize*((float)ssize/100));
 					if(yposupdate)
-						y+=(tsize*((float)ssize/100))-((size)?18:15);
+						y+=(tsize*((float)ssize/100))-((size)?DEFAULT_FONT_Y_LEN:SMALL_FONT_Y_LEN);
 				}else{
 					I->x=i->x;
 					I->y=i->y;
@@ -626,7 +626,7 @@ void ReadCategoryXML(xmlNode * a_node)
 					if(xposupdate)
 						x+=(tsize*((float)ssize/100));
 					if(yposupdate)
-						y+=(tsize*((float)ssize/100))-((size)?18:15);
+						y+=(tsize*((float)ssize/100))-((size)?DEFAULT_FONT_Y_LEN:SMALL_FONT_Y_LEN);
 				}else{
 					I->x=i->x;
 					I->y=i->y;
@@ -663,8 +663,8 @@ void ReadCategoryXML(xmlNode * a_node)
 				MY_XMLSTRCPY(&T->ref, ss);
 				while(t->Next!=NULL)t=t->Next;
 				t->Next=T;
-				x+=strlen(T->text)*((T->size)?11:8);
-				lastextlen=strlen(T->text)*((T->size)?11:8);
+				x+=strlen(T->text)*((T->size)?DEFAULT_FONT_X_LEN:SMALL_FONT_X_LEN);
+				lastextlen=strlen(T->text)*((T->size)?DEFAULT_FONT_X_LEN:SMALL_FONT_X_LEN);
 				save_raw_page_link(T->ref, T->text, numpage);
 			}
 			// See if this is the new maximum length.
