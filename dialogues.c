@@ -797,7 +797,7 @@ static int cm_npcname_handler(window_info *win, int widget_id, int mx, int my, i
 		size_t delim_len = strlen(delim);
 		size_t npc_name_len = 0, start_len = 0, end_len = 0, str_len = 0;
 
-		if (npc_mark_str == NULL || npc_name == NULL || !strlen(npc_mark_str) ||
+		if (!strlen(npc_mark_str) ||
 			!(npc_name_len = strlen((char *)npc_name)) ||
 			((del_pos = strstr(npc_mark_str, delim)) == NULL))
 		{
