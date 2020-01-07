@@ -2153,7 +2153,7 @@ void parse_groups(xmlNode * in, void * gPtr, int size, int type)
 #ifdef ELC
 	group_stat * stat=gPtr;
 #endif
-	int i;
+	size_t i;
 	xmlNode * cur = in->children?in->children:in;
 	for(;cur;cur=cur->next) {
 		if(cur->type==XML_ELEMENT_NODE) {
