@@ -1,4 +1,4 @@
-eternallands (1.9.5.6-1ubuntu1) trusty; urgency=low
+eternallands (1.9.5.6-1ubuntu1) xenial; urgency=low
 
   * 1.9.5 p6 release, SDL2 port
 
