@@ -43,13 +43,25 @@ int	keypress_in_window(int win_id, int x, int y, SDL_Keycode key_code, Uint32 ke
  *
  */
 
+ void set_window_scale_factor(int win_id, float new_scale)
+{
+	window_info *win = NULL;
+	if (win_id < 0 || win_id > windows_list.num_windows)
+		return;
+	win = &windows_list.window[win_id];
+	win->window_specific_scale_factor = new_scale;
+	update_window_scale(win, get_global_scale());
+	if (win->ui_scale_handler)
+		(*win->ui_scale_handler)(win);
+}
+
 void update_window_scale(window_info *win, float scale_factor)
 {
 	if (win == NULL)
 		return;
 	if (win->flags & ELW_USE_UISCALE)
 	{
-		win->current_scale = scale_factor;
+		win->current_scale = scale_factor * win->window_specific_scale_factor;
 		win->box_size = (int)(0.5 + win->current_scale * ELW_BOX_SIZE);
 		win->title_height = (int)(0.5 + win->current_scale * ELW_TITLE_HEIGHT);
 		win->small_font_len_x = (int)(0.5 + win->current_scale * SMALL_FONT_X_LEN);
@@ -786,6 +798,7 @@ int	create_window(const char *name, int pos_id, Uint32 pos_loc, int pos_x, int p
 		win->line_color[2] = 0.39f;
 		win->line_color[3] = 0.0f;
 
+		win->window_specific_scale_factor = 1.0f;
 		update_window_scale(win, get_global_scale());
 
 		win->init_handler = NULL;

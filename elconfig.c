@@ -529,6 +529,12 @@ static void change_ui_scale(float *var, float *value)
 		input_widget_move_to_win(input_widget->window_id);
 }
 
+static void change_items_win_scale_factor(float *var, float *value)
+{
+	*var= *value;
+	set_window_scale_factor(items_win, *value);
+}
+
 /*
  * The chat logs are created very early on in the client start up, before the
  * el.ini file is read at least. Because of this, a simple el.ini file variable
@@ -2137,6 +2143,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_MULTI,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT, NULL);
 	add_var(OPT_FLOAT,"ui_scale","ui_scale",&ui_scale,change_ui_scale,1,"User interface scaling factor","Under development: Scale user interface by this factor, useful for high DPI displays.  Note: the options window will be rescaled on the next restart.",FONT,0.75,3.0,0.01);
 	add_var(OPT_INT,"cursor_scale_factor","cursor_scale_factor",&cursor_scale_factor ,change_cursor_scale_factor,cursor_scale_factor,"Set mouse pointer scaling factor","The size of the mouse pointer is scaled by this factor",FONT, 1, max_cursor_scale_factor);
+	add_var(OPT_FLOAT,"itemwinscale","itemwinscale",&items_win_scale_factor,change_items_win_scale_factor,1.0f,"Inventory window scaling factor","Additional scaling factor for inventory window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
 	// FONT TAB
 
 

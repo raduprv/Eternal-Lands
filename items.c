@@ -48,6 +48,7 @@ int edit_quantity=-1;
 int item_action_mode=ACTION_WALK;
 
 int items_win= -1;
+float items_win_scale_factor = 1.0f;
 int items_menu_x=10;
 int items_menu_y=20;
 static int items_grid_size=0;
@@ -1379,6 +1380,8 @@ void display_items_menu()
 
 		cm_itemlist_but = cm_create(item_list_but_str, NULL);
 		cm_bool_line(cm_itemlist_but, 0, &items_list_on_left, NULL);
+
+		set_window_scale_factor(items_win, items_win_scale_factor);
 
 		show_items_handler(&windows_list.window[items_win]);
 

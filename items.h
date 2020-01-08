@@ -82,6 +82,8 @@ extern int item_action_mode;
 /*! \name windows handlers */
 /*! @{ */
 extern int items_win; /*!< inventory windows handler */
+extern float items_win_scale_factor; /*!< additional scale factor for window */
+
 /*! @} */
 
 extern int items_menu_x;

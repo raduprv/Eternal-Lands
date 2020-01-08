@@ -63,6 +63,7 @@ typedef	struct	{
 	 */
 	/*! @{ */
 	float current_scale;
+	float window_specific_scale_factor;
 	int box_size;
 	int title_height;
 	int small_font_len_x;
@@ -250,6 +251,19 @@ extern int top_SWITCHABLE_OPAQUE_window_drawn; /*!< the id of the top opaque swi
 extern int opaque_window_backgrounds;
 
 // windows manager function
+
+/*!
+ * \ingroup elwindows
+ * \brief   Set the window specific scale factor
+ *
+ *      This value is multipled by the global scale value to
+ * determine the specific scale used for this window.
+ *
+ * \param win_id    the id of the window to select
+ * \param scale_factor     the scaling factor
+ * \callgraph
+ */
+void set_window_scale_factor(int win_id, float new_scale);
 
 /*!
  * \ingroup elwindows
