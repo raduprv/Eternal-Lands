@@ -103,6 +103,8 @@ int get_rotate_chat_log(void);
 
 void change_language(const char *new_lang);
 
+void check_for_config_window_scale(void);
+
 extern float get_global_scale(void);
 
 /*!
