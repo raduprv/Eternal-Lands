@@ -180,8 +180,8 @@ typedef struct
 struct variables
 {
 	int no; /*!< current number of allocated \see var_struct in \a var */
-	var_struct * var[300]; /*!< fixed array of \a no \see var_struct structures */
-} our_vars= {0,{NULL}};
+	var_struct * * var; /*!< fixed array of \a no \see var_struct structures */
+} our_vars= {0,NULL};
 
 int write_ini_on_exit= 1;
 // Window Handling
@@ -1880,6 +1880,11 @@ void free_vars(void)
 		}
 		free(our_vars.var[i]);
 	}
+	if (our_vars.var != NULL)
+	{
+		free(our_vars.var);
+		our_vars.var = NULL;
+	}
 	our_vars.no=0;
 }
 
@@ -1887,9 +1892,11 @@ static void add_var(option_type type, char * name, char * shortname, void * var,
 {
 	int *integer=var;
 	float *f=var;
-	int no=our_vars.no++;
+	int no=our_vars.no;
 	char *pointer;
 	va_list ap;
+
+	our_vars.var = realloc(our_vars.var, ++our_vars.no * sizeof(var_struct *));
 
 	our_vars.var[no]=(var_struct*)calloc(1,sizeof(var_struct));
 	switch(our_vars.var[no]->type=type)
@@ -2120,8 +2127,8 @@ static void init_ELC_vars(void)
 	add_var(OPT_FLOAT,"storage_win_scale","storagewinscale",&custom_scale_factors.storage,change_win_scale_factor,1.0f,"Storage window scaling factor","Additional scaling factor for the storage window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
 	add_var(OPT_FLOAT,"manu_win_scale","manuwinscale",&custom_scale_factors.manufacture,change_win_scale_factor,1.0f,"Manufacturing window scaling factor","Additional scaling factor for the manufacturing window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
 	add_var(OPT_FLOAT,"emote_win_scale","emotewinscale",&custom_scale_factors.emote,change_win_scale_factor,1.0f,"Emote window scaling factor","Additional scaling factor for the emote window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
-	add_var(OPT_FLOAT,"questlog_win_scale","questlogwinscale",&custom_scale_factors.questlog,change_win_scale_factor,1.0f,"Questlog window scaling factor","Additional scaling factor for the questlog window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
-	add_var(OPT_FLOAT,"note_url_win_scale","noteurlwinscale",&custom_scale_factors.info,change_win_scale_factor,1.0f,"Notepad/URL window scaling factor","Additional scaling factor for the notepad/url window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
+	add_var(OPT_FLOAT,"questlog_win_scale","questlogwinscale",&custom_scale_factors.questlog,change_win_scale_factor,1.0f,"Quest log window scaling factor","Additional scaling factor for the quest log window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
+	add_var(OPT_FLOAT,"note_url_win_scale","noteurlwinscale",&custom_scale_factors.info,change_win_scale_factor,1.0f,"Notepad/URL window scaling factor","Additional scaling factor for the notepad/URL window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
 	add_var(OPT_FLOAT,"buddy_win_scale","buddywinscale",&custom_scale_factors.buddy,change_win_scale_factor,1.0f,"Buddy window scaling factor","Additional scaling factor for the buddy window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
 	add_var(OPT_FLOAT,"stats_win_scale","statswinscale",&custom_scale_factors.stats,change_win_scale_factor,1.0f,"Stats window scaling factor","Additional scaling factor for the stats window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
 	add_var(OPT_FLOAT,"help_win_scale","helpwinscale",&custom_scale_factors.help,change_win_scale_factor,1.0f,"Help window scaling factor","Additional scaling factor for the help window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
@@ -2941,7 +2948,8 @@ static int show_elconfig_handler(window_info * win) {
 // keep the scale at the original value until we can recreate.
 static int ui_scale_elconfig_handler(window_info *win)
 {
-	recheck_window_scale = 1;
+	update_window_scale(win, elconf_scale); // stop scale change impacting immediately
+	recheck_window_scale = 1; // check later of can now rescale
 	return 1;
 }
 
