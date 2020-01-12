@@ -177,6 +177,7 @@ int HandleEvent (SDL_Event *event)
 	SDL_Keymod  mod_key_status = 0;
 	Uint8 unicode = '\0';
 	static Uint32 last_loss = 0;
+	static Uint32 last_gain = 0;
 	static Uint32 last_SDL_KEYDOWN_timestamp = 0;
 	static Uint32 last_SDL_KEYDOWN_return_value = 0;
 	static int el_input_focus = 1;
@@ -214,6 +215,7 @@ int HandleEvent (SDL_Event *event)
 						last_loss = 0;
 						SDL_SetModState(KMOD_NONE);
 					}
+					last_gain = SDL_GetTicks();
 					max_fps = limit_fps;
 					break;
 				case SDL_WINDOWEVENT_LEAVE:
@@ -228,6 +230,7 @@ int HandleEvent (SDL_Event *event)
 						last_loss = 0;
 						SDL_SetModState(KMOD_NONE);
 					}
+					last_gain = SDL_GetTicks();
 					el_input_focus = 1;
 					break;
 				case SDL_WINDOWEVENT_RESIZED:
@@ -259,10 +262,16 @@ int HandleEvent (SDL_Event *event)
 			break;
 
 		case SDL_KEYDOWN:
-			if (afk_time) 
-				last_action_time = cur_time;	// Set the latest event... Don't let the modifiers ALT, CTRL and SHIFT change the state
+			// Don't let the modifiers ALT, CTRL and SHIFT change the state
 			if (event->key.keysym.mod == KMOD_NONE)
-				cm_post_show_check(1); /* any non-mod keypress forces any context menu to close */
+			{
+				if (afk_time)
+					last_action_time = cur_time;
+				cm_post_show_check(1); // forces any context menu to close
+			}
+			// Don't use a TAB key dangling from system window switching.  By default this would toggle the map window.
+			if ((event->key.keysym.sym == SDLK_TAB) && (last_gain && ((SDL_GetTicks() - last_gain) < 1000)))
+				break;
 			//printf("SDL_KEYDOWN keycode=%u,[%s] mod=%u timestamp=%u\n", event->key.keysym.sym, SDL_GetKeyName(event->key.keysym.sym), event->key.keysym.mod, event->key.timestamp);
 			last_SDL_KEYDOWN_timestamp = event->key.timestamp;
 			last_SDL_KEYDOWN_return_value = keypress_in_windows (mouse_x, mouse_y, event->key.keysym.sym, 0, event->key.keysym.mod);
