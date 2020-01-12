@@ -681,6 +681,7 @@ static int resize_counters_handler(window_info *win, int new_width, int new_heig
 
 void fill_counters_win(int window_id)
 {
+	set_window_custom_scale(window_id, &custom_scale_factors.stats);
 	set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_counters_handler);
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_counters_handler);
 	set_window_handler(window_id, ELW_HANDLER_MOUSEOVER, &mouseover_counters_handler);

@@ -862,6 +862,7 @@ void display_dialogue(const Uint8 *in_data, int data_length)
 	{
 		dialogue_win= create_window("Dialogue", game_root_win, 0, dialogue_menu_x, dialogue_menu_y, 0, 0, (ELW_USE_UISCALE|ELW_WIN_DEFAULT)^ELW_CLOSE_BOX);
 
+		set_window_custom_scale(dialogue_win, &custom_scale_factors.dialogue);
 		set_window_handler(dialogue_win, ELW_HANDLER_DISPLAY, &display_dialogue_handler );
 		set_window_handler(dialogue_win, ELW_HANDLER_MOUSEOVER, &mouseover_dialogue_handler );
 		set_window_handler(dialogue_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_dialogue_handler );

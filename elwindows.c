@@ -22,6 +22,25 @@
 
 #define ELW_WIN_MAX 128
 
+custom_scale_factors_def custom_scale_factors =
+{
+	.trade = 1.0f,
+	.items = 1.0f,
+	.bags = 1.0f,
+	.spells = 1.0f,
+	.storage = 1.0f,
+	.manufacture = 1.0f,
+	.emote = 1.0f,
+	.questlog = 1.0f,
+	.info = 1.0f,
+	.buddy = 1.0f,
+	.stats = 1.0f,
+	.help = 1.0f,
+	.ranging = 1.0f,
+	.achievements = 1.0f,
+	.dialogue = 1.0f,
+};
+
 windows_info	windows_list;	// the master list of windows
 
 static window_info *cur_drag_window = NULL;
@@ -43,13 +62,28 @@ int	keypress_in_window(int win_id, int x, int y, SDL_Keycode key_code, Uint32 ke
  *
  */
 
- void set_window_scale_factor(int win_id, float new_scale)
+void update_windows_custom_scale(float *changed_window_custom_scale)
+{
+	size_t win_id;
+	for (win_id=0; win_id < windows_list.num_windows; win_id++)
+	{
+		window_info *win = &windows_list.window[win_id];
+		if ((win->custom_scale != NULL) && (win->custom_scale == changed_window_custom_scale))
+		{
+			update_window_scale(win, get_global_scale());
+			if (win->ui_scale_handler)
+				(*win->ui_scale_handler)(win);
+		}
+	}
+}
+
+void set_window_custom_scale(int win_id, float *new_scale)
 {
 	window_info *win = NULL;
 	if (win_id < 0 || win_id > windows_list.num_windows)
 		return;
 	win = &windows_list.window[win_id];
-	win->window_specific_scale_factor = new_scale;
+	win->custom_scale = new_scale;
 	update_window_scale(win, get_global_scale());
 	if (win->ui_scale_handler)
 		(*win->ui_scale_handler)(win);
@@ -61,7 +95,7 @@ void update_window_scale(window_info *win, float scale_factor)
 		return;
 	if (win->flags & ELW_USE_UISCALE)
 	{
-		win->current_scale = scale_factor * win->window_specific_scale_factor;
+		win->current_scale = scale_factor * ((win->custom_scale == NULL) ?1.0f : *win->custom_scale);
 		win->box_size = (int)(0.5 + win->current_scale * ELW_BOX_SIZE);
 		win->title_height = (int)(0.5 + win->current_scale * ELW_TITLE_HEIGHT);
 		win->small_font_len_x = (int)(0.5 + win->current_scale * SMALL_FONT_X_LEN);
@@ -798,7 +832,7 @@ int	create_window(const char *name, int pos_id, Uint32 pos_loc, int pos_x, int p
 		win->line_color[2] = 0.39f;
 		win->line_color[3] = 0.0f;
 
-		win->window_specific_scale_factor = 1.0f;
+		win->custom_scale = NULL;
 		update_window_scale(win, get_global_scale());
 
 		win->init_handler = NULL;

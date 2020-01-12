@@ -433,6 +433,7 @@ int display_buddy_add(void)
 		if (buddy_add_win <=0 || buddy_add_win >= windows_list.num_windows)
 			return -1;
 		win = &windows_list.window[buddy_add_win];
+		set_window_custom_scale(buddy_add_win, &custom_scale_factors.buddy);
 
 		/* Add name input and label */
 		label_id = label_add_extended(buddy_add_win, label_id, NULL,
@@ -486,6 +487,7 @@ static int display_buddy_change(_buddy *buddy)
 	if (buddy_change_win <=0 || buddy_change_win >= windows_list.num_windows)
 		return -1;
 	win = &windows_list.window[buddy_change_win];
+	set_window_custom_scale(buddy_change_win, &custom_scale_factors.buddy);
 
 	/* Add name label and name */
 	label_id = label_add_extended(buddy_change_win, label_id, NULL,
@@ -712,6 +714,7 @@ void display_buddy(void)
 			}
 			buddy_win = create_window(win_buddy, our_root_win, 0, buddy_menu_x, buddy_menu_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 
+			set_window_custom_scale(buddy_win, &custom_scale_factors.buddy);
 			set_window_handler(buddy_win, ELW_HANDLER_DISPLAY, &display_buddy_handler );
 			set_window_handler(buddy_win, ELW_HANDLER_CLICK, &click_buddy_handler );
 			set_window_handler(buddy_win, ELW_HANDLER_UI_SCALE, &ui_scale_buddy_handler );

@@ -274,6 +274,7 @@ static int resize_rules_handler(window_info *win, int new_width, int new_height)
 void fill_rules_window(int window_id)
 {
 	rules_win = window_id;
+	set_window_custom_scale(window_id, &custom_scale_factors.help);
 
 	rules_scroll_id = vscrollbar_add_extended (window_id, rules_scroll_id, NULL,
 		0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 3, rules.no-1);

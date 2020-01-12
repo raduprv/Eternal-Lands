@@ -134,6 +134,8 @@ static int TAB_TAG_HEIGHT = 0;	// the height of the tab at the top of the window
 // The config window is special, it is scaled on creation then frozen.
 // This is because its too complex to resize and cannot simpely be destroyed and re-created.
 static float elconf_scale = 0;
+static float elconf_custom_scale = 1.0f;
+static int recheck_window_scale = 0;
 #define ELCONFIG_SCALED_VALUE(BASE) ((int)(0.5 + ((BASE) * elconf_scale)))
 #endif
 
@@ -178,7 +180,7 @@ typedef struct
 struct variables
 {
 	int no; /*!< current number of allocated \see var_struct in \a var */
-	var_struct * var[200]; /*!< fixed array of \a no \see var_struct structures */
+	var_struct * var[300]; /*!< fixed array of \a no \see var_struct structures */
 } our_vars= {0,{NULL}};
 
 int write_ini_on_exit= 1;
@@ -532,10 +534,16 @@ static void change_ui_scale(float *var, float *value)
 		input_widget_move_to_win(input_widget->window_id);
 }
 
-static void change_items_win_scale_factor(float *var, float *value)
+static void change_elconf_win_scale_factor(float *var, float *value)
 {
 	*var= *value;
-	set_window_scale_factor(items_win, *value);
+	recheck_window_scale = 1;
+}
+
+static void change_win_scale_factor(float *var, float *value)
+{
+	*var= *value;
+	update_windows_custom_scale(var);
 }
 
 /*
@@ -2104,8 +2112,23 @@ static void init_ELC_vars(void)
 	add_var(OPT_MULTI,"name_font","nfont",&name_font,change_int,0,"Name Font","Change the type of font used for the name",FONT, NULL);
 	add_var(OPT_MULTI,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT, NULL);
 	add_var(OPT_FLOAT,"ui_scale","ui_scale",&ui_scale,change_ui_scale,1,"User interface scaling factor","Scale user interface by this factor, useful for high DPI displays.  Note: the options window will be rescaled after reopening.",FONT,0.75,3.0,0.01);
-	add_var(OPT_INT,"cursor_scale_factor","cursor_scale_factor",&cursor_scale_factor ,change_cursor_scale_factor,cursor_scale_factor,"Set mouse pointer scaling factor","The size of the mouse pointer is scaled by this factor",FONT, 1, max_cursor_scale_factor);
-	add_var(OPT_FLOAT,"itemwinscale","itemwinscale",&items_win_scale_factor,change_items_win_scale_factor,1.0f,"Inventory window scaling factor","Additional scaling factor for inventory window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
+	add_var(OPT_INT,"cursor_scale_factor","cursor_scale_factor",&cursor_scale_factor ,change_cursor_scale_factor,cursor_scale_factor,"Mouse pointer scaling factor","The size of the mouse pointer is scaled by this factor",FONT, 1, max_cursor_scale_factor);
+	add_var(OPT_FLOAT,"trade_win_scale","tradewinscale",&custom_scale_factors.trade,change_win_scale_factor,1.0f,"Trade window scaling factor","Additional scaling factor for the trade window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
+	add_var(OPT_FLOAT,"item_win_scale","itemwinscale",&custom_scale_factors.items,change_win_scale_factor,1.0f,"Inventory window scaling factor","Additional scaling factor for the inventory window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
+	add_var(OPT_FLOAT,"bags_win_scale","bagswinscale",&custom_scale_factors.bags,change_win_scale_factor,1.0f,"Ground bag window scaling factor","Additional scaling factor for the ground bag window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
+	add_var(OPT_FLOAT,"spells_win_scale","spellswinscale",&custom_scale_factors.spells,change_win_scale_factor,1.0f,"Spells window scaling factor","Additional scaling factor for the spells window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
+	add_var(OPT_FLOAT,"storage_win_scale","storagewinscale",&custom_scale_factors.storage,change_win_scale_factor,1.0f,"Storage window scaling factor","Additional scaling factor for the storage window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
+	add_var(OPT_FLOAT,"manu_win_scale","manuwinscale",&custom_scale_factors.manufacture,change_win_scale_factor,1.0f,"Manufacturing window scaling factor","Additional scaling factor for the manufacturing window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
+	add_var(OPT_FLOAT,"emote_win_scale","emotewinscale",&custom_scale_factors.emote,change_win_scale_factor,1.0f,"Emote window scaling factor","Additional scaling factor for the emote window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
+	add_var(OPT_FLOAT,"questlog_win_scale","questlogwinscale",&custom_scale_factors.questlog,change_win_scale_factor,1.0f,"Questlog window scaling factor","Additional scaling factor for the questlog window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
+	add_var(OPT_FLOAT,"note_url_win_scale","noteurlwinscale",&custom_scale_factors.info,change_win_scale_factor,1.0f,"Notepad/URL window scaling factor","Additional scaling factor for the notepad/url window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
+	add_var(OPT_FLOAT,"buddy_win_scale","buddywinscale",&custom_scale_factors.buddy,change_win_scale_factor,1.0f,"Buddy window scaling factor","Additional scaling factor for the buddy window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
+	add_var(OPT_FLOAT,"stats_win_scale","statswinscale",&custom_scale_factors.stats,change_win_scale_factor,1.0f,"Stats window scaling factor","Additional scaling factor for the stats window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
+	add_var(OPT_FLOAT,"help_win_scale","helpwinscale",&custom_scale_factors.help,change_win_scale_factor,1.0f,"Help window scaling factor","Additional scaling factor for the help window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
+	add_var(OPT_FLOAT,"ranging_win_scale","rangingwinscale",&custom_scale_factors.ranging,change_win_scale_factor,1.0f,"Ranging window scaling factor","Additional scaling factor for the ranging window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
+	add_var(OPT_FLOAT,"options_win_scale","optionswinscale",&elconf_custom_scale,change_elconf_win_scale_factor,1.0f,"Options window scaling factor","Additional scaling factor for the options window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
+	add_var(OPT_FLOAT,"achievements_win_scale","achievementswinscale",&custom_scale_factors.achievements,change_win_scale_factor,1.0f,"Achievements window scaling factor","Additional scaling factor for the achievements windows, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
+	add_var(OPT_FLOAT,"dialogue_win_scale","dialoguewinscale",&custom_scale_factors.dialogue,change_win_scale_factor,1.0f,"Dialogue window scaling factor","Additional scaling factor for the dialogue window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
 	// FONT TAB
 
 
@@ -2914,13 +2937,10 @@ static int show_elconfig_handler(window_info * win) {
 	return 1;
 }
 
-static int recheck_window_scale = 0;
-
 // It would be messy to resize the window each time the scale option is changed so
 // keep the scale at the original value until we can recreate.
 static int ui_scale_elconfig_handler(window_info *win)
 {
-	update_window_scale(win, elconf_scale);
 	recheck_window_scale = 1;
 	return 1;
 }
@@ -2950,7 +2970,7 @@ void display_elconfig_win(void)
 			our_root_win= game_root_win;
 		}
 
-		elconf_scale = ui_scale;
+		elconf_scale = ui_scale * elconf_custom_scale;
 		CHECKBOX_SIZE = ELCONFIG_SCALED_VALUE(15);
 		SPACING = ELCONFIG_SCALED_VALUE(5);
 		LONG_DESC_SPACE = SPACING + ELCONFIG_SCALED_VALUE(MAX_LONG_DESC_LINES * SMALL_FONT_Y_LEN);
@@ -2962,6 +2982,8 @@ void display_elconfig_win(void)
 		/* Set up the window */
 		elconfig_win= create_window(win_configuration, our_root_win, 0, elconfig_menu_x, elconfig_menu_y,
 			elconfig_menu_x_len, elconfig_menu_y_len, ELW_WIN_DEFAULT|ELW_USE_UISCALE);
+		if (elconfig_win >=0 && elconfig_win < windows_list.num_windows)
+			update_window_scale(&windows_list.window[elconfig_win], elconf_scale);
 		set_window_color(elconfig_win, ELW_COLOR_BORDER, 0.77f, 0.59f, 0.39f, 0.0f);
 		set_window_handler(elconfig_win, ELW_HANDLER_DISPLAY, &display_elconfig_handler );
 		set_window_handler(elconfig_win, ELW_HANDLER_UI_SCALE, &ui_scale_elconfig_handler );
