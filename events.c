@@ -270,8 +270,9 @@ int HandleEvent (SDL_Event *event)
 				cm_post_show_check(1); // forces any context menu to close
 			}
 			// Don't use a TAB key dangling from system window switching.  By default this would toggle the map window.
-			if ((event->key.keysym.sym == SDLK_TAB) && (last_gain && ((SDL_GetTicks() - last_gain) < 1000)))
+			if (last_gain && (event->key.keysym.sym == SDLK_TAB) && ((SDL_GetTicks() - last_gain) < 50))
 				break;
+			last_gain = 0;
 			//printf("SDL_KEYDOWN keycode=%u,[%s] mod=%u timestamp=%u\n", event->key.keysym.sym, SDL_GetKeyName(event->key.keysym.sym), event->key.keysym.mod, event->key.timestamp);
 			last_SDL_KEYDOWN_timestamp = event->key.timestamp;
 			last_SDL_KEYDOWN_return_value = keypress_in_windows (mouse_x, mouse_y, event->key.keysym.sym, 0, event->key.keysym.mod);
