@@ -700,7 +700,7 @@ int action_item_keys(SDL_Keycode key_code, Uint16 key_mod)
 	size_t i;
 	el_key_def keys[] = {K_ITEM1, K_ITEM2, K_ITEM3, K_ITEM4, K_ITEM5, K_ITEM6,
 					 K_ITEM7, K_ITEM8, K_ITEM9, K_ITEM10, K_ITEM11, K_ITEM12 };
-	for (i=0; (i<sizeof(keys)/sizeof(el_key_def)) && (i < shown_quickbar_slots); i++)
+	for (i=0; i<sizeof(keys)/sizeof(el_key_def); i++)
 		if(KEY_DEF_CMP(keys[i], key_code, key_mod))
 		{
 			quick_use (i);
