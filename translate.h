@@ -352,6 +352,7 @@ extern char
 		inv_keeprow_str[30],
 		quantity_edit_str[100],
 		equip_here_str[100],
+		items_text_toggle_help_str[50],
 		equip_str[20],
 		mod_click_item_help_str[50],
 		multiuse_item_help_str[50],

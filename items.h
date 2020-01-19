@@ -114,6 +114,7 @@ extern int items_stoall_nofirstrow;
 extern int items_stoall_nolastrow;
 extern int items_dropall_nofirstrow;
 extern int items_dropall_nolastrow;
+extern int items_disable_text_block;
 
 extern int items_list_on_left;
 

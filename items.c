@@ -99,8 +99,15 @@ static size_t cm_mix_but = CM_INIT_VALUE;
 static size_t cm_getall_but = CM_INIT_VALUE;
 static size_t cm_itemlist_but = CM_INIT_VALUE;
 static int mouseover_item_pos = -1;
+int items_disable_text_block = 0;
+static int text_arrow_x = 0;
+static int text_arrow_y = 0;
+static int text_arrow_width = 0;
+static int text_arrow_height = 0;
+static int mouse_over_text_arrow = 0;
 
-static void drop_all_handler();
+static int show_items_handler(window_info * win);
+static void drop_all_handler(void);
 
 void set_shown_string(char colour_code, const char *the_text)
 {
@@ -702,17 +709,45 @@ int display_items_handler(window_info *win)
 	draw_string_small_zoomed(2, quantity_y_offset-quantity_height-1, (unsigned char*)str, 1, win->current_scale);
 
 	//now, draw the inventory text, if any.
-	if (last_items_string_id != inventory_item_string_id)
+	if (!items_disable_text_block)
 	{
-		put_small_text_in_box_zoomed((unsigned char*)inventory_item_string, strlen(inventory_item_string), win->len_x-8, items_string, win->current_scale);
-		last_items_string_id = inventory_item_string_id;
+		if (last_items_string_id != inventory_item_string_id)
+		{
+			put_small_text_in_box_zoomed((unsigned char*)inventory_item_string, strlen(inventory_item_string), win->len_x-8, items_string, win->current_scale);
+			last_items_string_id = inventory_item_string_id;
+		}
+		draw_string_small_zoomed(4, win->len_y - text_y_offset, (unsigned char*)items_string, 4, win->current_scale);
 	}
-	draw_string_small_zoomed(4, win->len_y - text_y_offset, (unsigned char*)items_string, 4, win->current_scale);
-	
+
+	glDisable(GL_TEXTURE_2D);
+
+	if (mouse_over_text_arrow)
+		glColor3f(0.99f,0.77f,0.55f);
+	else
+		glColor3f(0.77f,0.57f,0.39f);
+	mouse_over_text_arrow = 0;
+	if (items_disable_text_block)
+	{
+		glBegin(GL_LINES); /* Dn arrow */
+			glVertex3i(text_arrow_x, text_arrow_y - text_arrow_height, 0);
+			glVertex3i(text_arrow_x + text_arrow_width/2, text_arrow_y, 0);
+			glVertex3i(text_arrow_x + text_arrow_width/2, text_arrow_y, 0);
+			glVertex3i(text_arrow_x + text_arrow_width, text_arrow_y - text_arrow_height, 0);
+		glEnd();
+	}
+	else
+	{
+		glBegin(GL_LINES); /* Up arrow */
+			glVertex3i(text_arrow_x, text_arrow_y, 0);
+			glVertex3i(text_arrow_x + text_arrow_width/2, text_arrow_y - text_arrow_height, 0);
+			glVertex3i(text_arrow_x + text_arrow_width/2, text_arrow_y - text_arrow_height, 0);
+			glVertex3i(text_arrow_x + text_arrow_width, text_arrow_y, 0);
+		glEnd();
+	}
+
 	// Render the grid *after* the images. It seems impossible to code
 	// it such that images are rendered exactly within the boxes on all 
 	// cards
-	glDisable(GL_TEXTURE_2D);
 	glColor3f(0.77f,0.57f,0.39f);
 
 	//draw the grids
@@ -864,6 +899,14 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	if (!right_click && over_button(win, mx, my) != -1)
 		do_click_sound();
+
+	if ((flags & ELW_LEFT_MOUSE) && (mx > text_arrow_x) && (mx < text_arrow_x + text_arrow_width) &&
+			(my < text_arrow_y) && (my > text_arrow_y - text_arrow_height))
+	{
+		items_disable_text_block ^= 1;
+		show_items_handler(win);
+		return 1;
+	}
 
 	if(right_click) {
 		if(item_dragged!=-1 || use_item!=-1 || storage_item_dragged!=-1){
@@ -1154,7 +1197,16 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 	// check and record if mouse if over a button
 	if ((mouse_over_but = over_button(win, mx, my)) != -1)
 		return 0; // keep standard cursor
-	
+
+	if ((mx > text_arrow_x) && (mx < text_arrow_x + text_arrow_width) &&
+			(my < text_arrow_y) && (my > text_arrow_y - text_arrow_height))
+	{
+		item_help_str = items_text_toggle_help_str;
+		mouse_over_text_arrow = 1;
+		return 0;
+	}
+
+
 	if(mx>0&&mx<6*items_grid_size&&my>0&&my<6*items_grid_size){
 		pos=get_mouse_pos_in_grid(mx, my, 6, 6, 0, 0, items_grid_size, items_grid_size);
 
@@ -1251,7 +1303,7 @@ int keypress_items_handler(window_info * win, int x, int y, SDL_Keycode key_code
 	return 0;
 }
 
-static void drop_all_handler ()
+static void drop_all_handler (void)
 {
 	Uint8 str[6] = {0};
 	int i;
@@ -1279,7 +1331,7 @@ static void drop_all_handler ()
 	}
 }
 
-int show_items_handler(window_info * win)
+static int show_items_handler(window_info * win)
 {
 	int i, win_x_len, win_y_len;
 	int seperator = (int)(0.5 + win->current_scale * 5);
@@ -1293,12 +1345,17 @@ int show_items_handler(window_info * win)
 	wear_items_y_offset = items_grid_size;
 	wear_items_x_offset = items_grid_size * 6 + seperator;
 
+	text_arrow_width = wear_grid_size * 0.4;
+	text_arrow_height = wear_grid_size * 0.4;
+	text_arrow_x = wear_items_x_offset;
+	text_arrow_y = items_grid_size * 6;
+
 	but_len_x = (int)(0.5 + win->current_scale * 31);
 	but_x_offset = wear_items_x_offset + 2 * wear_grid_size + seperator;
 
 	win_x_len = but_x_offset + but_len_x;
 
-	text_y_offset = (int)(0.5 + 7 * win->small_font_len_y);
+	text_y_offset = (int)(0.5 + ((items_disable_text_block) ?3 : 7) * win->small_font_len_y);
 
 	win_y_len = 6 * items_grid_size + text_y_offset + seperator;
 
