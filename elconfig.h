@@ -46,6 +46,7 @@ extern int show_reflection; /*!< flag that indicates whether to display reflecti
 extern char lang[10]; /*!< contains the identifier for the current language. \todo Shouldn't this go into translate.h? */
 extern int auto_update; /*!<this flags signals whether or not autoupdates are performed at startup, or not. It requires a restart to have an effect. */
 extern int buddy_log_notice; /*!< whether to log buddy logged on/off notices to screen */
+extern int clear_mod_keys_on_focus; /*!< trouble shooting option to force mod keys up when gaining focus */
 
 #if !defined(WINDOWS) && !defined(OSX)
 extern int use_clipboard; /*!< whether to use CLIPBOARD or PRIMARY for pasting */

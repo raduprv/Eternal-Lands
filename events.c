@@ -203,7 +203,8 @@ int HandleEvent (SDL_Event *event)
 			switch (event->window.event) {
 				case SDL_WINDOWEVENT_HIDDEN:
 				case SDL_WINDOWEVENT_MINIMIZED:
-					last_loss = SDL_GetTicks();
+					if (clear_mod_keys_on_focus)
+						last_loss = SDL_GetTicks();
 					max_fps = 1;
 					break;
 				case SDL_WINDOWEVENT_SHOWN:
@@ -220,7 +221,8 @@ int HandleEvent (SDL_Event *event)
 					break;
 				case SDL_WINDOWEVENT_LEAVE:
 				case SDL_WINDOWEVENT_FOCUS_LOST:
-					last_loss = SDL_GetTicks();
+					if (clear_mod_keys_on_focus)
+						last_loss = SDL_GetTicks();
 					el_input_focus = 0;
 					break;
 				case SDL_WINDOWEVENT_ENTER:

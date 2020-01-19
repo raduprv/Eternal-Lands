@@ -254,6 +254,7 @@ int max_fps = 0, limit_fps=0;
 int special_effects=0;
 char lang[10] = "en";
 int auto_update= 1;
+int clear_mod_keys_on_focus=1;
 
 #ifdef  CUSTOM_UPDATE
 int custom_update= 1;
@@ -2336,6 +2337,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"ati_click_workaround", "atibug", &ati_click_workaround, change_var, 0, "ATI Bug", "If you are using an ATI graphics card and don't move when you click, try this option to work around a bug in their drivers.", TROUBLESHOOT);
 	add_var (OPT_BOOL,"use_old_clicker", "oldmclick", &use_old_clicker, change_var, 0, "Mouse Bug", "Unrelated to ATI graphics cards, if clicking to walk doesn't move you, try toggling this option.", TROUBLESHOOT);
 	add_var(OPT_BOOL,"use_new_selection", "uns", &use_new_selection, change_new_selection, 1, "New selection", "Using new selection can give you a higher framerate.  However, if your cursor does not change when over characters or items, try disabling this option.", TROUBLESHOOT);
+	add_var(OPT_BOOL,"clear_mod_keys_on_focus", "clear_mod_keys_on_focus", &clear_mod_keys_on_focus, change_var, 0, "Clear modifier keys when window focused","If you have trouble with modifier keys (shift/ctrl/alt etc) when keyboard focus returns, enable this option to force all modifier keys up.", TROUBLESHOOT);
 	add_var(OPT_BOOL,"use_compiled_vertex_array","cva",&use_compiled_vertex_array,change_compiled_vertex_array,1,"Compiled Vertex Array","Some systems will not support the new compiled vertex array in EL. Disable this if some 3D objects do not display correctly.",TROUBLESHOOT);
 	add_var(OPT_BOOL,"use_draw_range_elements","dre",&use_draw_range_elements,change_var,1,"Draw Range Elements","Disable this if objects appear partially stretched.",TROUBLESHOOT);
 	add_var(OPT_BOOL,"use_point_particles","upp",&use_point_particles,change_point_particles,1,"Point Particles","Some systems will not support the new point based particles in EL. Disable this if your client complains about not having the point based particles extension.",TROUBLESHOOT);
