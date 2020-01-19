@@ -105,6 +105,10 @@ void change_language(const char *new_lang);
 
 void check_for_config_window_scale(void);
 
+void step_win_scale_factor(int increase, float *changed_window_custom_scale);
+
+void reset_win_scale_factor(int set_default, float *changed_window_custom_scale);
+
 extern float get_global_scale(void);
 
 /*!

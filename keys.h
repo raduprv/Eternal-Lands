@@ -109,6 +109,10 @@ extern el_key_def K_RANGINGWIN;         /*!< key used to toggle display of rangi
 extern el_key_def K_TARGET_CLOSE;       /*!< toggle target_close_clicked_creature option */
 extern el_key_def K_COUNTERS;           /*!< key used to toggle display of counters window  */
 extern el_key_def K_HELPSKILLS;         /*!< key used to toggle display of help window skills tab  */
+extern el_key_def K_WINSCALEUP;         /*!< key used to increase custom window scale factor */
+extern el_key_def K_WINSCALEDOWN;       /*!< key used to decrease custom window scale factor */
+extern el_key_def K_WINSCALEDEF;        /*!< key used to reset custom window scale factor to default */
+extern el_key_def K_WINSCALEINIT;       /*!< key used to reset custom window scale factor to initial value */
 /*! @} */
 
 /*! \name Quickbar access keys */

@@ -115,6 +115,10 @@ el_key_def K_ECDEBUGWIN = { SDLK_c, KMOD_LALT|KMOD_LCTRL, "#K_ECDEBUGWIN"};
 el_key_def K_EMOTES = {SDLK_j, KMOD_LCTRL, "#K_EMOTES"};
 el_key_def K_RANGINGWIN = {SDLK_t, KMOD_LCTRL, "#K_RANGINGWIN"};
 el_key_def K_TARGET_CLOSE = {SDLK_t, KMOD_LALT, "#K_TARGET_CLOSE"};
+el_key_def K_WINSCALEUP = {SDLK_UP, KMOD_LCTRL, "#K_WINSCALEUP"};
+el_key_def K_WINSCALEDOWN = {SDLK_DOWN, KMOD_LCTRL, "#K_WINSCALEDOWN"};
+el_key_def K_WINSCALEDEF = {SDLK_HOME, KMOD_LCTRL, "#K_WINSCALEDEF"};
+el_key_def K_WINSCALEINIT = {SDLK_END, KMOD_LCTRL, "#K_WINSCALEINIT"};
 
 // Remaining keys are not assigned to the keyboard but
 // can be redefined or used by the #keypress command.

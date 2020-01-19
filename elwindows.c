@@ -1575,6 +1575,11 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 			/* Clicked on the resize-corner. */
 			return 1;
 		}
+		if ((win->custom_scale != NULL) && (flags & KMOD_CTRL) && ((flags & ELW_WHEEL_DOWN) || (flags & ELW_WHEEL_UP)))
+		{
+			step_win_scale_factor((flags & ELW_WHEEL_UP) ? 1 : 0, win->custom_scale);
+			return 1;
+		}
 		if(win->flags&ELW_SCROLLABLE) {
 			/* Adjust mouse y coordinates according to the scrollbar position */
 			scroll_pos = vscrollbar_get_pos(win->window_id, win->scroll_id);
@@ -1795,6 +1800,23 @@ int	keypress_in_window(int win_id, int x, int y, SDL_Keycode key_code, Uint32 ke
 
 	if (mouse_in_window (win_id, x, y) > 0)
 	{
+		if (win->custom_scale != NULL)
+		{
+			int actioned = 1;
+			if (KEY_DEF_CMP(K_WINSCALEUP, key_code, key_mod))
+				step_win_scale_factor(1, win->custom_scale);
+			else if (KEY_DEF_CMP(K_WINSCALEDOWN, key_code, key_mod))
+				step_win_scale_factor(0, win->custom_scale);
+			else if (KEY_DEF_CMP(K_WINSCALEDEF, key_code, key_mod))
+				reset_win_scale_factor(1, win->custom_scale);
+			else if (KEY_DEF_CMP(K_WINSCALEINIT, key_code, key_mod))
+				reset_win_scale_factor(0, win->custom_scale);
+			else
+				actioned = 0;
+			if (actioned)
+				return 1;
+		}
+
 		mx = x - win->cur_x;
 		my = y - win->cur_y;
 

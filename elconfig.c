@@ -546,6 +546,50 @@ static void change_win_scale_factor(float *var, float *value)
 	update_windows_custom_scale(var);
 }
 
+static const float win_scale_min = 0.25f;
+static const float win_scale_max = 3.0f;
+static const float win_scale_step = 0.01f;
+
+void step_win_scale_factor(int increase, float *changed_window_custom_scale)
+{
+	if (changed_window_custom_scale != NULL)
+	{
+		size_t i;
+		float new_value = *changed_window_custom_scale + ((increase) ? win_scale_step : -win_scale_step);
+		if (new_value >= win_scale_min && new_value <= win_scale_max)
+		{
+			*changed_window_custom_scale = new_value;
+			update_windows_custom_scale(changed_window_custom_scale);
+		}
+		for (i = 0; i < our_vars.no; i++)
+		{
+			if (our_vars.var[i]->var == changed_window_custom_scale)
+			{
+				our_vars.var[i]->saved = 0;
+				break;
+			}
+		}
+	}
+}
+
+void reset_win_scale_factor(int set_default, float *changed_window_custom_scale)
+{
+	if (changed_window_custom_scale != NULL)
+	{
+		size_t i;
+		for (i = 0; i < our_vars.no; i++)
+		{
+			if (our_vars.var[i]->var == changed_window_custom_scale)
+			{
+				*changed_window_custom_scale = (set_default) ? our_vars.var[i]->default_val : our_vars.var[i]->config_file_val;
+				update_windows_custom_scale(changed_window_custom_scale);
+				our_vars.var[i]->saved = 0;
+				break;
+			}
+		}
+	}
+}
+
 /*
  * The chat logs are created very early on in the client start up, before the
  * el.ini file is read at least. Because of this, a simple el.ini file variable
@@ -1992,6 +2036,7 @@ void add_multi_option(char * name, char * str)
 static void init_ELC_vars(void)
 {
 	int i;
+	char * win_scale_description = "Multiplied by the user interface scaling factor. With the mouse over the window: change ctrl+mousewheel up/down or ctrl+cursor up/down, set default ctrl+HOME, set initial ctrl+END.";
 
 	// CONTROLS TAB
 	add_var(OPT_BOOL,"sit_lock","sl",&sit_lock,change_var,0,"Sit Lock","Enable this to prevent your character from moving by accident when you are sitting.",CONTROLS);
@@ -2120,22 +2165,22 @@ static void init_ELC_vars(void)
 	add_var(OPT_MULTI,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT, NULL);
 	add_var(OPT_FLOAT,"ui_scale","ui_scale",&ui_scale,change_ui_scale,1,"User interface scaling factor","Scale user interface by this factor, useful for high DPI displays.  Note: the options window will be rescaled after reopening.",FONT,0.75,3.0,0.01);
 	add_var(OPT_INT,"cursor_scale_factor","cursor_scale_factor",&cursor_scale_factor ,change_cursor_scale_factor,cursor_scale_factor,"Mouse pointer scaling factor","The size of the mouse pointer is scaled by this factor",FONT, 1, max_cursor_scale_factor);
-	add_var(OPT_FLOAT,"trade_win_scale","tradewinscale",&custom_scale_factors.trade,change_win_scale_factor,1.0f,"Trade window scaling factor","Additional scaling factor for the trade window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
-	add_var(OPT_FLOAT,"item_win_scale","itemwinscale",&custom_scale_factors.items,change_win_scale_factor,1.0f,"Inventory window scaling factor","Additional scaling factor for the inventory window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
-	add_var(OPT_FLOAT,"bags_win_scale","bagswinscale",&custom_scale_factors.bags,change_win_scale_factor,1.0f,"Ground bag window scaling factor","Additional scaling factor for the ground bag window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
-	add_var(OPT_FLOAT,"spells_win_scale","spellswinscale",&custom_scale_factors.spells,change_win_scale_factor,1.0f,"Spells window scaling factor","Additional scaling factor for the spells window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
-	add_var(OPT_FLOAT,"storage_win_scale","storagewinscale",&custom_scale_factors.storage,change_win_scale_factor,1.0f,"Storage window scaling factor","Additional scaling factor for the storage window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
-	add_var(OPT_FLOAT,"manu_win_scale","manuwinscale",&custom_scale_factors.manufacture,change_win_scale_factor,1.0f,"Manufacturing window scaling factor","Additional scaling factor for the manufacturing window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
-	add_var(OPT_FLOAT,"emote_win_scale","emotewinscale",&custom_scale_factors.emote,change_win_scale_factor,1.0f,"Emote window scaling factor","Additional scaling factor for the emote window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
-	add_var(OPT_FLOAT,"questlog_win_scale","questlogwinscale",&custom_scale_factors.questlog,change_win_scale_factor,1.0f,"Quest log window scaling factor","Additional scaling factor for the quest log window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
-	add_var(OPT_FLOAT,"note_url_win_scale","noteurlwinscale",&custom_scale_factors.info,change_win_scale_factor,1.0f,"Notepad/URL window scaling factor","Additional scaling factor for the notepad/URL window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
-	add_var(OPT_FLOAT,"buddy_win_scale","buddywinscale",&custom_scale_factors.buddy,change_win_scale_factor,1.0f,"Buddy window scaling factor","Additional scaling factor for the buddy window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
-	add_var(OPT_FLOAT,"stats_win_scale","statswinscale",&custom_scale_factors.stats,change_win_scale_factor,1.0f,"Stats window scaling factor","Additional scaling factor for the stats window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
-	add_var(OPT_FLOAT,"help_win_scale","helpwinscale",&custom_scale_factors.help,change_win_scale_factor,1.0f,"Help window scaling factor","Additional scaling factor for the help window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
-	add_var(OPT_FLOAT,"ranging_win_scale","rangingwinscale",&custom_scale_factors.ranging,change_win_scale_factor,1.0f,"Ranging window scaling factor","Additional scaling factor for the ranging window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
-	add_var(OPT_FLOAT,"options_win_scale","optionswinscale",&elconf_custom_scale,change_elconf_win_scale_factor,1.0f,"Options window scaling factor","Additional scaling factor for the options window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
-	add_var(OPT_FLOAT,"achievements_win_scale","achievementswinscale",&custom_scale_factors.achievements,change_win_scale_factor,1.0f,"Achievements window scaling factor","Additional scaling factor for the achievements windows, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
-	add_var(OPT_FLOAT,"dialogue_win_scale","dialoguewinscale",&custom_scale_factors.dialogue,change_win_scale_factor,1.0f,"Dialogue window scaling factor","Additional scaling factor for the dialogue window, multiplied by the user interface scaling factor.",FONT,0.25f,3.0f,0.01f);
+	add_var(OPT_FLOAT,"trade_win_scale","tradewinscale",&custom_scale_factors.trade,change_win_scale_factor,1.0f,"Trade window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"item_win_scale","itemwinscale",&custom_scale_factors.items,change_win_scale_factor,1.0f,"Inventory window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"bags_win_scale","bagswinscale",&custom_scale_factors.bags,change_win_scale_factor,1.0f,"Ground bag window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"spells_win_scale","spellswinscale",&custom_scale_factors.spells,change_win_scale_factor,1.0f,"Spells window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"storage_win_scale","storagewinscale",&custom_scale_factors.storage,change_win_scale_factor,1.0f,"Storage window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"manu_win_scale","manuwinscale",&custom_scale_factors.manufacture,change_win_scale_factor,1.0f,"Manufacturing window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"emote_win_scale","emotewinscale",&custom_scale_factors.emote,change_win_scale_factor,1.0f,"Emote window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"questlog_win_scale","questlogwinscale",&custom_scale_factors.questlog,change_win_scale_factor,1.0f,"Quest log window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"note_url_win_scale","noteurlwinscale",&custom_scale_factors.info,change_win_scale_factor,1.0f,"Notepad/URL window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"buddy_win_scale","buddywinscale",&custom_scale_factors.buddy,change_win_scale_factor,1.0f,"Buddy window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"stats_win_scale","statswinscale",&custom_scale_factors.stats,change_win_scale_factor,1.0f,"Stats window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"help_win_scale","helpwinscale",&custom_scale_factors.help,change_win_scale_factor,1.0f,"Help window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"ranging_win_scale","rangingwinscale",&custom_scale_factors.ranging,change_win_scale_factor,1.0f,"Ranging window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"options_win_scale","optionswinscale",&elconf_custom_scale,change_elconf_win_scale_factor,1.0f,"Options window scaling factor","Multiplied by the user interface scaling factor. Change will take effect after closing then reopening the window.",FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"achievements_win_scale","achievementswinscale",&custom_scale_factors.achievements,change_win_scale_factor,1.0f,"Achievements window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"dialogue_win_scale","dialoguewinscale",&custom_scale_factors.dialogue,change_win_scale_factor,1.0f,"Dialogue window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
 	// FONT TAB
 
 
