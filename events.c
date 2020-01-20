@@ -253,6 +253,9 @@ int HandleEvent (SDL_Event *event)
 			break;
 
 		case SDL_TEXTINPUT:
+			if (afk_time) // if enabled...
+				last_action_time = cur_time;  // reset the AFK timer
+			cm_post_show_check(1); // forces any context menu to close
 			unicode = utf8_to_unicode(event->text.text);
 			//printf("SDL_TEXTINPUT text=[%s] len=%lu,%lu timestamp=%u\n", (unsigned char *)event->text.text, sizeof(event->text.text), strlen(event->text.text), event->key.timestamp);
 			//printf("UTF-8 udf8=(%x,%x) unicode=%x\n", event->text.text[0], event->text.text[1], unicode);
@@ -264,13 +267,9 @@ int HandleEvent (SDL_Event *event)
 			break;
 
 		case SDL_KEYDOWN:
-			// Don't let the modifiers ALT, CTRL and SHIFT change the state
-			if (event->key.keysym.mod == KMOD_NONE)
-			{
-				if (afk_time)
-					last_action_time = cur_time;
-				cm_post_show_check(1); // forces any context menu to close
-			}
+			if (afk_time) // if enabled...
+				last_action_time = cur_time;  // reset the AFK timer
+			cm_post_show_check(1); // forces any context menu to close
 			// Don't use a TAB key dangling from system window switching.  By default this would toggle the map window.
 			if (last_gain && (event->key.keysym.sym == SDLK_TAB) && ((SDL_GetTicks() - last_gain) < 50))
 				break;
