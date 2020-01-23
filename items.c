@@ -105,6 +105,7 @@ static int text_arrow_y = 0;
 static int text_arrow_width = 0;
 static int text_arrow_height = 0;
 static int mouse_over_text_arrow = 0;
+static struct { int last_dest; int move_to; int move_from; size_t string_id; Uint32 start_time; } swap_complete = {-1, -1, -1, 0, 0};
 
 static int show_items_handler(window_info * win);
 static void drop_all_handler(void);
@@ -483,6 +484,9 @@ void remove_item_from_inventory(int pos)
 {
 	used_item_counter_check_confirmation(pos, 0);
 	item_list[pos].quantity=0;
+
+	if (pos == swap_complete.move_from)
+		swap_complete.move_to = swap_complete.move_from = -1;
 	
 #ifdef NEW_SOUND
 	check_for_item_sound(pos);
@@ -535,6 +539,18 @@ void get_new_inventory_item (const Uint8 *data)
 	
 	build_manufacture_list();
 	check_castability();
+
+	// if we can, complete a swap of equipment by moving the removed item to the slot left by the new
+	if (pos == swap_complete.move_to)
+	{
+		if (item_list[swap_complete.move_from].quantity)
+		{
+			if (!move_item(swap_complete.move_from, swap_complete.move_to))
+				swap_complete.move_from = swap_complete.move_to = -1;
+		}
+		else
+			swap_complete.move_from = swap_complete.move_to = -1;
+	}
 }
 
 
@@ -568,6 +584,15 @@ int display_items_handler(window_info *win)
 	char *but_labels[NUMBUT] = { sto_all_str, get_all_str, drp_all_str, NULL, itm_lst_str };
 
 	glEnable(GL_TEXTURE_2D);
+
+	// stop expecting swap completion if we get a message, or we timeout (catch all)
+	if (swap_complete.move_from != -1)
+	{
+		if (swap_complete.string_id != inventory_item_string_id)
+			swap_complete.move_from = swap_complete.move_to = -1;
+		if (SDL_GetTicks() > swap_complete.start_time + 2000)
+			swap_complete.move_from = swap_complete.move_to = -1;
+	}
 
 	/* 
 	* Labrat: I never realised that a store all patch had been posted to Berlios by Awn in February '07
@@ -611,6 +636,10 @@ int display_items_handler(window_info *win)
 		if(item_list[i].quantity){
 			int cur_pos;
 			int x_start,x_end,y_start,y_end;
+
+			// don't display an item that is in the proces of being moved after equipment swap
+			if (i == swap_complete.move_from)
+				continue;
 
 			//get the x and y
 			cur_pos=i;
@@ -818,6 +847,7 @@ CHECK_GL_ERRORS();
 int move_item(int item_pos_to_mov, int destination_pos)
 {
 	int drop_on_stack = 0;
+	swap_complete.last_dest = -1;
 	/* if the dragged item is equipped and the destintion is occupied, try to find another slot */
 	if ((item_pos_to_mov >= ITEM_WEAR_START) && (item_list[destination_pos].quantity)){
 		int i;
@@ -864,6 +894,7 @@ int move_item(int item_pos_to_mov, int destination_pos)
 		str[1]=item_list[item_pos_to_mov].pos;
 		str[2]=destination_pos;
 		my_tcp_send(my_socket,str,3);
+		swap_complete.last_dest = destination_pos;
 		return 1;
 	}
 	else
@@ -1157,6 +1188,13 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 				int can_move = (item_dragged == pos) || allow_equip_swap;
 				if (can_move && move_item(pos, 0)) {
 					equip_item(item_dragged, pos);
+					if (item_dragged != pos) // start to process to move removed item to the vacated slot
+					{
+						swap_complete.move_from = swap_complete.last_dest;
+						swap_complete.move_to = item_dragged;
+						swap_complete.string_id = inventory_item_string_id;
+						swap_complete.start_time = SDL_GetTicks();
+					}
 					do_get_item_sound();
 				}
 				else {
