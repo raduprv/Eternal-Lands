@@ -267,9 +267,16 @@ int HandleEvent (SDL_Event *event)
 			break;
 
 		case SDL_KEYDOWN:
-			if (afk_time) // if enabled...
-				last_action_time = cur_time;  // reset the AFK timer
-			cm_post_show_check(1); // forces any context menu to close
+			// Don't let the modifiers GUI, ALT, CTRL and SHIFT change the state if only the key pressed
+			if ((event->key.keysym.sym != SDLK_LSHIFT) && (event->key.keysym.sym != SDLK_RSHIFT) &&
+				(event->key.keysym.sym != SDLK_LCTRL) && (event->key.keysym.sym != SDLK_RCTRL) &&
+				(event->key.keysym.sym != SDLK_LALT) && (event->key.keysym.sym != SDLK_RALT) &&
+				(event->key.keysym.sym != SDLK_LGUI) && (event->key.keysym.sym != SDLK_RGUI))
+			{
+				if (afk_time) // if enabled...
+					last_action_time = cur_time;  // reset the AFK timer
+				cm_post_show_check(1); // forces any context menu to close
+			}
 			// Don't use a TAB key dangling from system window switching.  By default this would toggle the map window.
 			if (last_gain && (event->key.keysym.sym == SDLK_TAB) && ((SDL_GetTicks() - last_gain) < 50))
 				break;
