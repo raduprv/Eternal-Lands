@@ -331,15 +331,26 @@ void init_video(void)
 		}
 	}
 
+	// set the minimum size for the window, this is too small perhaps but a config option
+	SDL_SetWindowMinimumSize(el_gl_window, 640,  480);
+
+	// read events for a few milliseconds, this will catch window size changes made by the window manger
+	{
+		SDL_Event event;
+		Uint32 start_wait = SDL_GetTicks();
+		while((SDL_GetTicks() < (start_wait + 100)))
+		{
+			SDL_PollEvent(&event);
+			SDL_Delay(1);
+		}
+	}
+
 	// get the windos size, these variables are used globaly
 	SDL_GetWindowSize(el_gl_window, &window_width, &window_height);
 
 	// enable V-SYNC, choosing active as a preference
 	if (SDL_GL_SetSwapInterval(-1) < 0)
 		SDL_GL_SetSwapInterval(1);
-
-	// set the minimum size for the window, this is too small perhaps but a config option
-	SDL_SetWindowMinimumSize(el_gl_window, 640,  480);
 
 	// set the hint that clicks that focus the window, pass through for action too
 #if SDL_VERSION_ATLEAST(2, 0, 5)
