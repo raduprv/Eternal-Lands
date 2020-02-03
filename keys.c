@@ -189,11 +189,26 @@ static Uint32 CRC32(const char *data, int len)
 	return ~result;
 }
 
+// Using the key names from https://wiki.libsdl.org/SDL_Keycode,
+// we can convert a specified input from the key.ini (or defaults)
+// to the actual key code to use.
 static void add_to_key_def(el_key_def *key_def, char *name)
 {
-	SDL_Keycode key_code = SDL_GetKeyFromName(name);
+	SDL_Keycode key_code;
+	size_t i;
+
+	// the key names can contain spaces so we replace space with underscore
+	// when defining keys and convert them to real key name, here.
+	for (i=0; i<strlen(name); i++)
+		if (name[i] == '_')
+			name[i] = ' ';
+
+	// the key code is found from the key name...
+	key_code = SDL_GetKeyFromName(name);
 	if (key_code != SDLK_UNKNOWN)
 		key_def->key_code = key_code;
+
+	// ...any modifiers from this hash version of the string.
 	else
 	{
 		int len = strlen(name);
@@ -213,7 +228,7 @@ static void add_to_key_def(el_key_def *key_def, char *name)
 
 static void parse_key_line(const char *line)
 {
-	char kstr[100], t1[100], t2[100], t3[100], t4[100];
+	char kstr[100]="", t1[100]="", t2[100]="", t3[100]="", t4[100]="";
 	el_key_def key_def = {SDLK_UNKNOWN, KMOD_NONE, "Unassigned"};
 	int nkey = sscanf(line, " #K_%99s = %99s %99s %99s %99s", kstr, t1, t2, t3, t4);
 	size_t num_keys = sizeof(key_def_store)/sizeof(el_key_def *);
