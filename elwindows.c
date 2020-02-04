@@ -65,15 +65,18 @@ int	keypress_in_window(int win_id, int x, int y, SDL_Keycode key_code, Uint32 ke
 void update_windows_custom_scale(float *changed_window_custom_scale)
 {
 	size_t win_id;
+	// to avoid getting out of step, scale all the variables first, then call the handers
 	for (win_id=0; win_id < windows_list.num_windows; win_id++)
 	{
 		window_info *win = &windows_list.window[win_id];
 		if ((win->custom_scale != NULL) && (win->custom_scale == changed_window_custom_scale))
-		{
 			update_window_scale(win, get_global_scale());
-			if (win->ui_scale_handler)
-				(*win->ui_scale_handler)(win);
-		}
+	}
+	for (win_id=0; win_id < windows_list.num_windows; win_id++)
+	{
+		window_info *win = &windows_list.window[win_id];
+		if ((win->custom_scale != NULL) && (win->custom_scale == changed_window_custom_scale) && (win->ui_scale_handler != NULL))
+			(*win->ui_scale_handler)(win);
 	}
 }
 
