@@ -234,6 +234,7 @@ char
 	itmlst_help_str[50],
 	mixoneall_help_str[50],
 	items_stack_str[100],
+	items_cannot_equip_str[100],
 	mixbut_empty_str[80],
 	mix_empty_str[50],
 	click_clear_str[50],
@@ -1453,6 +1454,7 @@ void init_help()
 	add_xml_identifier(misc,"mixoneall_help",mixoneall_help_str,"Mix current manufacture recipe.",sizeof(mixoneall_help_str));
 	add_xml_identifier(misc,"itmlst_help",itmlst_help_str,"Show/hide item lists window.",sizeof(itmlst_help_str));
 	add_xml_identifier(misc,"items_stack",items_stack_str,"Client can't choose between multiple stacks, make a free slot and let the server do it!",sizeof(items_stack_str));
+	add_xml_identifier(misc,"items_cannot_equip",items_cannot_equip_str,"Cannot equip the item!",sizeof(items_cannot_equip_str));
 	add_xml_identifier(misc,"mixbut_empty",mixbut_empty_str,"Nothing to mix, add some items using the manufacture window.",sizeof(mixbut_empty_str));
 	add_xml_identifier(misc,"mix_empty_str",mix_empty_str,"Nothing to mix, add some items.",sizeof(mix_empty_str));
 	add_xml_identifier(misc,"click_clear",click_clear_str,"Click to clear message.",sizeof(click_clear_str));

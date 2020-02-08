@@ -333,7 +333,7 @@ static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags
 										{
 											if(item_list[i].quantity<1)
 											{
-												move_item(y,i);
+												move_item(y, i, -1);
 												break;
 											}
 										}

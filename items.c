@@ -545,7 +545,7 @@ void get_new_inventory_item (const Uint8 *data)
 	{
 		if (item_list[swap_complete.move_from].quantity)
 		{
-			if (!move_item(swap_complete.move_from, swap_complete.move_to))
+			if (!move_item(swap_complete.move_from, swap_complete.move_to, -1))
 				swap_complete.move_from = swap_complete.move_to = -1;
 		}
 		else
@@ -844,7 +844,7 @@ CHECK_GL_ERRORS();
 
 
 /* return 1 if sent the move command */
-int move_item(int item_pos_to_mov, int destination_pos)
+int move_item(int item_pos_to_mov, int destination_pos, int avoid_pos)
 {
 	int drop_on_stack = 0;
 	swap_complete.last_dest = -1;
@@ -854,7 +854,7 @@ int move_item(int item_pos_to_mov, int destination_pos)
 		int have_free_pos = 0;
 		/* find first free slot, use a free slot in preference to a stack as the server does the stacking */
 		for (i = 0; i < ITEM_WEAR_START; i++){
-			if (!item_list[i].quantity){
+			if (!item_list[i].quantity && i != avoid_pos){
 				destination_pos = i;
 				have_free_pos = 1;
 				break;
@@ -911,6 +911,64 @@ static void equip_item(int item_pos_to_equip, int destination_pos)
 	my_tcp_send(my_socket,str,3);
 }
 
+// If we double-click an equipable item, and one of that type is already equipped, swap them.
+//
+static int swap_equivalent_equipped_item(int from_pos)
+{
+	size_t i, j;
+	enum EQUIP_TYPE from_equip_type = get_item_equip_type(item_list[from_pos].id, item_list[from_pos].image_id);
+
+	if (from_equip_type == EQUIP_NONE)
+		return 0;
+
+	for(i = ITEM_WEAR_START; i<ITEM_WEAR_START + 8; i++)
+	{
+		// We can swap types of the same type, a single handed item for a two handed, or a two handed item for a single handed
+		if (item_list[i].quantity &&
+			((from_equip_type == get_item_equip_type(item_list[i].id, item_list[i].image_id)) ||
+			 (from_equip_type == EQUIP_RIGHT_HAND && get_item_equip_type(item_list[i].id, item_list[i].image_id) == EQUIP_BOTH_HANDS) ||
+			 (from_equip_type == EQUIP_BOTH_HANDS && get_item_equip_type(item_list[i].id, item_list[i].image_id) == EQUIP_RIGHT_HAND)))
+		{
+			// clear any previous "avoid destination" there may have been
+			swap_complete.last_dest = -1;
+
+			// swapping a two handed item for a right handed is a special case, we need to remove any equipped left handed item first
+			if (from_equip_type == EQUIP_BOTH_HANDS && get_item_equip_type(item_list[i].id, item_list[i].image_id) == EQUIP_RIGHT_HAND)
+				for(j = ITEM_WEAR_START; j < ITEM_WEAR_START + 8; j++)
+					if (item_list[j].quantity && get_item_equip_type(item_list[j].id, item_list[j].image_id) == EQUIP_LEFT_HAND)
+					{
+						// swap_complete.last_dest will be set the the new slot for the remove item
+						if (move_item(j, 0, -1))
+							break;
+						else
+						{
+							do_alert1_sound();
+							set_shown_string(c_red2, items_cannot_equip_str);
+						}
+					}
+
+			// now swap the items, avoiding where we put any removed left handled item
+			if (move_item(i, 0, swap_complete.last_dest))
+			{
+				equip_item(from_pos, i);
+				swap_complete.move_from = swap_complete.last_dest;
+				swap_complete.move_to = item_dragged;
+				swap_complete.string_id = inventory_item_string_id;
+				swap_complete.start_time = SDL_GetTicks();
+				do_get_item_sound();
+				item_dragged = -1;
+			}
+			else
+			{
+				do_alert1_sound();
+				set_shown_string(c_red2, items_cannot_equip_str);
+			}
+
+			return 1; // there was something to swap, and we tried, don't try other stuff
+		}
+	}
+	return 0; // there was nothing to swap, try other stuff
+}
 
 int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 {	
@@ -1030,15 +1088,23 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 		} else if(item_dragged!=-1){
 			if(item_dragged == pos){ //let's try auto equip
 				int i;
-				for(i = ITEM_WEAR_START; i<ITEM_WEAR_START+8;i++) {
-					if(item_list[i].quantity<1) {
-						move_item(pos,i);
-						item_dragged=-1;
-						break;
+				if (allow_equip_swap && swap_equivalent_equipped_item(item_dragged)) {
+					// all done, don't try direct equip
+				} else {
+					for(i = ITEM_WEAR_START; i<ITEM_WEAR_START+8;i++) {
+						if(item_list[i].quantity<1) {
+							if (!move_item(pos, i, -1))
+							{
+								do_alert1_sound();
+								set_shown_string(c_red2, items_cannot_equip_str);
+							}
+							item_dragged=-1;
+							break;
+						}
 					}
 				}
 			} else {
-				if (move_item(item_dragged, pos)){
+				if (move_item(item_dragged, pos, -1)){
 					do_drop_item_sound();
 				}
 				else {
@@ -1186,7 +1252,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			}
 			else if(item_dragged!=-1 && left_click) {
 				int can_move = (item_dragged == pos) || allow_equip_swap;
-				if (can_move && move_item(pos, 0)) {
+				if (can_move && move_item(pos, 0, -1)) {
 					equip_item(item_dragged, pos);
 					if (item_dragged != pos) // start to process to move removed item to the vacated slot
 					{
@@ -1199,6 +1265,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 				}
 				else {
 					do_alert1_sound();
+					set_shown_string(c_red2, items_cannot_equip_str);
 				}
 				item_dragged=-1;
 			}

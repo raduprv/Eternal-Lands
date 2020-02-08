@@ -125,7 +125,7 @@ extern const Uint16 unset_item_uid;
 void update_item_sound(int interval);
 #endif // NEW_SOUND
 
-int move_item(int item_pos_to_mov, int destination_pos);
+int move_item(int item_pos_to_mov, int destination_pos, int avoid_pos);
 
 
 void draw_item(int id, int x_start, int y_start, int gridsize);

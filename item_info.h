@@ -7,6 +7,10 @@ extern "C" {
 
 #include "bags.h"
 
+/* used to enable equip swapping of equlivalent items by clicking twice */
+enum EQUIP_TYPE { EQUIP_NONE = 0, EQUIP_HEAD, EQUIP_BODY, EQUIP_LEGS, EQUIP_FEET, EQUIP_NECK,
+	EQUIP_RIGHT_HAND, EQUIP_LEFT_HAND, EQUIP_BOTH_HANDS, EQUIP_CLOAK };
+
 /* if true, items descrtion tooltips are enabled in the GUI */
 extern int show_item_desc_text;
 
@@ -31,6 +35,17 @@ const char *get_item_description(Uint16 item_id, int image_id);
  * @callgraph
  */
 int get_item_emu(Uint16 item_id, int image_id);
+
+/**
+ * @ingroup item_info
+ * @brief get the item equipment type from the lookup table
+ *
+ * @param item_id the item unique id
+ * @param image_id the item image id
+ * @return Returns the item equipment type, one of EQUIP_TYPE
+ * @callgraph
+ */
+enum EQUIP_TYPE get_item_equip_type(Uint16 item_id, int image_id);
 
 /**
  * @ingroup item_info

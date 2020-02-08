@@ -363,6 +363,7 @@ extern char
 		mixoneall_help_str[50],
 		itmlst_help_str[50],
 		items_stack_str[100],
+		items_cannot_equip_str[100],
 		mixbut_empty_str[80],
 		mix_empty_str[50],
 		click_clear_str[50],
