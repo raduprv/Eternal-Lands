@@ -911,62 +911,90 @@ static void equip_item(int item_pos_to_equip, int destination_pos)
 	my_tcp_send(my_socket,str,3);
 }
 
+static void prep_move_to_vacated_slot(int destination)
+{
+	swap_complete.move_from = swap_complete.last_dest;
+	swap_complete.move_to = destination;
+	swap_complete.string_id = inventory_item_string_id;
+	swap_complete.start_time = SDL_GetTicks();
+}
+
 // If we double-click an equipable item, and one of that type is already equipped, swap them.
 //
 static int swap_equivalent_equipped_item(int from_pos)
 {
-	size_t i, j;
+	size_t i;
 	enum EQUIP_TYPE from_equip_type = get_item_equip_type(item_list[from_pos].id, item_list[from_pos].image_id);
+	int same_pos = -1, left_hand_pos = -1, right_hand_pos = -1, both_hands_pos = -1;
+	int item_to_swap = -1, extra_item = -1;
 
+	// stop now if we don't know about the item type
 	if (from_equip_type == EQUIP_NONE)
 		return 0;
 
+	// clear any previous "avoid destination" there may have been
+	swap_complete.last_dest = -1;
+
+	// there are several rules about swapping left and right handed items with both handed items
+	// find each of the types
 	for(i = ITEM_WEAR_START; i<ITEM_WEAR_START + 8; i++)
-	{
-		// We can swap types of the same type, a single handed item for a two handed, or a two handed item for a single handed
-		if (item_list[i].quantity &&
-			((from_equip_type == get_item_equip_type(item_list[i].id, item_list[i].image_id)) ||
-			 (from_equip_type == EQUIP_RIGHT_HAND && get_item_equip_type(item_list[i].id, item_list[i].image_id) == EQUIP_BOTH_HANDS) ||
-			 (from_equip_type == EQUIP_BOTH_HANDS && get_item_equip_type(item_list[i].id, item_list[i].image_id) == EQUIP_RIGHT_HAND)))
+		if (item_list[i].quantity > 0)
 		{
-			// clear any previous "avoid destination" there may have been
-			swap_complete.last_dest = -1;
-
-			// swapping a two handed item for a right handed is a special case, we need to remove any equipped left handed item first
-			if (from_equip_type == EQUIP_BOTH_HANDS && get_item_equip_type(item_list[i].id, item_list[i].image_id) == EQUIP_RIGHT_HAND)
-				for(j = ITEM_WEAR_START; j < ITEM_WEAR_START + 8; j++)
-					if (item_list[j].quantity && get_item_equip_type(item_list[j].id, item_list[j].image_id) == EQUIP_LEFT_HAND)
-					{
-						// swap_complete.last_dest will be set the the new slot for the remove item
-						if (move_item(j, 0, -1))
-							break;
-						else
-						{
-							do_alert1_sound();
-							set_shown_string(c_red2, items_cannot_equip_str);
-						}
-					}
-
-			// now swap the items, avoiding where we put any removed left handled item
-			if (move_item(i, 0, swap_complete.last_dest))
-			{
-				equip_item(from_pos, i);
-				swap_complete.move_from = swap_complete.last_dest;
-				swap_complete.move_to = item_dragged;
-				swap_complete.string_id = inventory_item_string_id;
-				swap_complete.start_time = SDL_GetTicks();
-				do_get_item_sound();
-				item_dragged = -1;
-			}
-			else
-			{
-				do_alert1_sound();
-				set_shown_string(c_red2, items_cannot_equip_str);
-			}
-
-			return 1; // there was something to swap, and we tried, don't try other stuff
+			enum EQUIP_TYPE the_type = get_item_equip_type(item_list[i].id, item_list[i].image_id);
+			if (the_type == from_equip_type)
+				same_pos = i;
+			else if (the_type == EQUIP_LEFT_HAND)
+				left_hand_pos = i;
+			else if (the_type == EQUIP_RIGHT_HAND)
+				right_hand_pos = i;
+			else if (the_type == EQUIP_BOTH_HANDS)
+				both_hands_pos = i;
 		}
+
+	// if a simple, same item type swap
+	if (same_pos != -1)
+		item_to_swap = same_pos;
+	// if equipping a both hands item, swap a right hand item first, any left hand as the extra
+	else if (from_equip_type == EQUIP_BOTH_HANDS && right_hand_pos != -1)
+	{
+		item_to_swap = right_hand_pos;
+		if (left_hand_pos != -1)
+			extra_item = left_hand_pos;
 	}
+	// equipping a both hands item, no right hand but swap any left hand item
+	else if (from_equip_type == EQUIP_BOTH_HANDS && left_hand_pos != -1)
+		item_to_swap = left_hand_pos;
+	// if theres an equipped both hands item, allow a right or left hand item to be swapped with it
+	else if (both_hands_pos != -1 && (from_equip_type == EQUIP_RIGHT_HAND || from_equip_type == EQUIP_LEFT_HAND))
+		item_to_swap = both_hands_pos;
+
+	// remove any extra item, swap_complete.last_dest will be set the the new slot for the remove item
+	if ((extra_item != -1) && !move_item(extra_item, 0, -1))
+	{
+		do_alert1_sound();
+		set_shown_string(c_red2, items_cannot_equip_str);
+		return 1;
+	}
+
+	// do the swap if any
+	if (item_to_swap != -1)
+	{
+		// avoid moving to where we put any removed extra item
+		if (move_item(item_to_swap, 0, swap_complete.last_dest))
+		{
+			equip_item(from_pos, item_to_swap);
+			prep_move_to_vacated_slot(from_pos);
+			do_get_item_sound();
+			item_dragged = -1;
+		}
+		else
+		{
+			do_alert1_sound();
+			set_shown_string(c_red2, items_cannot_equip_str);
+		}
+		return 1; // there was something to swap, and we tried, don't try other stuff
+	}
+
 	return 0; // there was nothing to swap, try other stuff
 }
 
@@ -1254,13 +1282,8 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 				int can_move = (item_dragged == pos) || allow_equip_swap;
 				if (can_move && move_item(pos, 0, -1)) {
 					equip_item(item_dragged, pos);
-					if (item_dragged != pos) // start to process to move removed item to the vacated slot
-					{
-						swap_complete.move_from = swap_complete.last_dest;
-						swap_complete.move_to = item_dragged;
-						swap_complete.string_id = inventory_item_string_id;
-						swap_complete.start_time = SDL_GetTicks();
-					}
+					if (item_dragged != pos)
+						prep_move_to_vacated_slot(item_dragged);
 					do_get_item_sound();
 				}
 				else {
