@@ -573,8 +573,7 @@ void draw_item(int id, int x_start, int y_start, int gridsize){
 	glEnd();
 }
 
-
-int display_items_handler(window_info *win)
+static int display_items_handler(window_info *win)
 {
 	char str[80];
 	char my_str[10];
@@ -585,14 +584,7 @@ int display_items_handler(window_info *win)
 
 	glEnable(GL_TEXTURE_2D);
 
-	// stop expecting swap completion if we get a message, or we timeout (catch all)
-	if (swap_complete.move_from != -1)
-	{
-		if (swap_complete.string_id != inventory_item_string_id)
-			swap_complete.move_from = swap_complete.move_to = -1;
-		if (SDL_GetTicks() > swap_complete.start_time + 2000)
-			swap_complete.move_from = swap_complete.move_to = -1;
-	}
+	check_for_swap_completion();
 
 	/* 
 	* Labrat: I never realised that a store all patch had been posted to Berlios by Awn in February '07
@@ -638,7 +630,7 @@ int display_items_handler(window_info *win)
 			int x_start,x_end,y_start,y_end;
 
 			// don't display an item that is in the proces of being moved after equipment swap
-			if (i == swap_complete.move_from)
+			if (item_swap_in_progress(i))
 				continue;
 
 			//get the x and y
@@ -919,6 +911,23 @@ static void prep_move_to_vacated_slot(int destination)
 	swap_complete.start_time = SDL_GetTicks();
 }
 
+// stop expecting swap completion if we get a message, or we timeout (catch all)
+void check_for_swap_completion(void)
+{
+	if (swap_complete.move_from != -1)
+	{
+		if (swap_complete.string_id != inventory_item_string_id)
+			swap_complete.move_from = swap_complete.move_to = -1;
+		if (SDL_GetTicks() > swap_complete.start_time + 2000)
+			swap_complete.move_from = swap_complete.move_to = -1;
+	}
+}
+
+int item_swap_in_progress(int item_pos)
+{
+	return (item_pos == swap_complete.move_from) ?1: 0;
+}
+
 // If we double-click an equipable item, and one of that type is already equipped, swap them.
 //
 static int swap_equivalent_equipped_item(int from_pos)
@@ -937,7 +946,7 @@ static int swap_equivalent_equipped_item(int from_pos)
 
 	// there are several rules about swapping left and right handed items with both handed items
 	// find each of the types
-	for(i = ITEM_WEAR_START; i<ITEM_WEAR_START + 8; i++)
+	for(i = ITEM_WEAR_START; i<ITEM_WEAR_START + ITEM_NUM_WEAR; i++)
 		if (item_list[i].quantity > 0)
 		{
 			enum EQUIP_TYPE the_type = get_item_equip_type(item_list[i].id, item_list[i].image_id);
@@ -998,7 +1007,28 @@ static int swap_equivalent_equipped_item(int from_pos)
 	return 0; // there was nothing to swap, try other stuff
 }
 
-int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
+// common function for aut equip used by inventory and quickbar
+void try_auto_equip(int from_item)
+{
+	if (allow_equip_swap && swap_equivalent_equipped_item(from_item)) {
+		// all done, don't try direct equip
+	} else {
+		size_t i;
+		for(i = ITEM_WEAR_START; i < ITEM_WEAR_START + ITEM_NUM_WEAR; i++) {
+			if(item_list[i].quantity<1) {
+				if (!move_item(from_item, i, -1))
+				{
+					do_alert1_sound();
+					set_shown_string(c_red2, items_cannot_equip_str);
+				}
+				item_dragged=-1;
+				break;
+			}
+		}
+	}
+}
+
+static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 {	
 	Uint8 str[100];
 	int right_click = flags & ELW_RIGHT_MOUSE;
@@ -1114,23 +1144,8 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 #endif // NEW_SOUND
 		if(pos==-1) {
 		} else if(item_dragged!=-1){
-			if(item_dragged == pos){ //let's try auto equip
-				int i;
-				if (allow_equip_swap && swap_equivalent_equipped_item(item_dragged)) {
-					// all done, don't try direct equip
-				} else {
-					for(i = ITEM_WEAR_START; i<ITEM_WEAR_START+8;i++) {
-						if(item_list[i].quantity<1) {
-							if (!move_item(pos, i, -1))
-							{
-								do_alert1_sound();
-								set_shown_string(c_red2, items_cannot_equip_str);
-							}
-							item_dragged=-1;
-							break;
-						}
-					}
-				}
+			if(item_dragged == pos){
+				try_auto_equip(item_dragged);
 			} else {
 				if (move_item(item_dragged, pos, -1)){
 					do_drop_item_sound();
@@ -1311,7 +1326,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-void set_description_help(int pos)
+static void set_description_help(int pos)
 {
 	Uint16 item_id = item_list[pos].id;
 	int image_id = item_list[pos].image_id;
@@ -1319,7 +1334,7 @@ void set_description_help(int pos)
 		item_desc_str = get_item_description(item_id, image_id);
 }
 
-int mouseover_items_handler(window_info *win, int mx, int my) {
+static int mouseover_items_handler(window_info *win, int mx, int my) {
 	int pos;
 	
 	// check and record if mouse if over a button
@@ -1386,7 +1401,7 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 	return 0;
 }
 
-int keypress_items_handler(window_info * win, int x, int y, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
+static int keypress_items_handler(window_info * win, int x, int y, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
 	if(edit_quantity!=-1){
 		char * str=quantities.quantity[edit_quantity].str;

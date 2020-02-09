@@ -73,20 +73,25 @@ struct quantities {
 	} quantity[ITEM_EDIT_QUANT+1];
 };
 
-extern item item_list[ITEM_NUM_ITEMS]; /*!< global list of items */
-
-extern struct quantities quantities; /*!< Quantities displayed in the items window*/
-
-extern int item_action_mode;
-
-/*! \name windows handlers */
+/*! \name item relates vars used globally */
 /*! @{ */
-extern int items_win; /*!< inventory windows handler */
-
+extern struct quantities quantities; 		/*!< Quantities displayed in the items window*/
+extern item item_list[ITEM_NUM_ITEMS]; 		/*!< global list of items */
+extern int item_dragged;					/*!< the position of any currently dragged item, or -1 */
+extern int item_quantity;					/*!< the number of items for and any currently dragged item */
+extern int use_item;						/*!< the position of any current items used */
+extern int item_action_mode;				/*!< the current cursor mode for the items window */
+extern int item_uid_enabled;				/*!< true if item ids are enable */
+extern const Uint16 unset_item_uid;			/*!< a value to compare with an itemd id to check if its set */
 /*! @} */
 
-extern int items_menu_x;
+
+/*! \name item window vars */
+/*! @{ */
+extern int items_win; 						/*!< inventory windows id */
+extern int items_menu_x;					/*!< position of the window saved in the config file */
 extern int items_menu_y;
+/*! @} */
 
 /*! \name Text fields for items */
 /*! @{ */
@@ -94,45 +99,109 @@ extern int items_menu_y;
 extern int items_text[MAX_ITEMS_TEXTURES];
 /*! @} */
 
-extern int item_dragged;
-
-extern int use_item;
-
-extern int item_quantity;
-
+/*! \name Options flags for items, saved in config file */
+/*! @{ */
 extern int use_small_items_window;
-
 extern int manual_size_items_window;
-
 extern int items_mod_click_any_cursor;
-
 extern int allow_equip_swap;
-
 extern int items_mix_but_all;
-
 extern int items_stoall_nofirstrow;
 extern int items_stoall_nolastrow;
 extern int items_dropall_nofirstrow;
 extern int items_dropall_nolastrow;
 extern int items_disable_text_block;
-
 extern int items_list_on_left;
+/*! @} */
 
-extern int item_uid_enabled;
-extern const Uint16 unset_item_uid;
-
+/*!
+ * \ingroup items_window
+ * \brief  Check for out of date item actions.
+ *
+ * \callgraph
+ */
 #ifdef NEW_SOUND
 void update_item_sound(int interval);
 #endif // NEW_SOUND
 
+/*!
+ * \ingroup items_window
+ * \brief  Common function between QuickBar and Inventroy to move items.
+ *
+ * The funciton will try to us ethe suggest items slot but look for another
+ * if that is not free. It will also try to find a stack of items to use.
+ *
+ * \param item_pos_to_mov	the position of the item to move
+ * \param destination_pos	the desired destination
+ * \param avoid_pos			if > 0 then avoid this slot for the destinaiton
+ * 
+ * \retval int      return true if the move command is sent to the server
+ * 
+ * \callgraph
+ */
 int move_item(int item_pos_to_mov, int destination_pos, int avoid_pos);
 
-
+/*!
+ * \ingroup items_window
+ * \brief  Common function to draw an item image in a grid.
+ *
+ * \callgraph
+ */
 void draw_item(int id, int x_start, int y_start, int gridsize);
+
+/*!
+ * \ingroup items_window
+ * \brief  Common function grey out an item image in a grid.
+ *
+ * \callgraph
+ */
 void gray_out(int x_start, int y_start, int gridsize);
+
+/*!
+ * \ingroup items_window
+ * \brief  The callback timer to impliment the use item counter.
+ *
+ * \callgraph
+ */
 void used_item_counter_timer(void);
+
+/*!
+ * \ingroup items_window
+ * \brief  Common function between QuickBar and Inventroy to enable counting item use.
+ *
+ * \param item_pos   the position in the items array, to check
+ * 
+ * \callgraph
+ */
 void used_item_counter_action_use(int pos);
 
+/*!
+ * \ingroup items_window
+ * \brief  Common function between QuickBar and Inventroy to auto equip/swap items.
+ *
+ * \callgraph
+ */
+void try_auto_equip(int from_item);
+
+/*!
+ * \ingroup items_window
+ * \brief  Common function between QuickBar and Inventroy to complete item swap.
+ *
+ * \callgraph
+ */
+void check_for_swap_completion(void);
+
+/*!
+ * \ingroup items_window
+ * \brief  Common function between QuickBar and Inventroy to check if swapping so can hide moves.
+ *
+ * \param item_pos   the position in the items array, to check
+ *
+ * \retval int      return true if swap of this item is in progress
+  *
+* \callgraph
+ */
+int item_swap_in_progress(int item_pos);
 
 /*!
  * \ingroup display_utils

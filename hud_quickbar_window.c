@@ -327,17 +327,7 @@ static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags
 							int any_item=0;
 							if(item_dragged == y)
 								{
-									//let's try auto equip
-									int i;
-									for(i = ITEM_WEAR_START; i<ITEM_WEAR_START+8;i++)
-										{
-											if(item_list[i].quantity<1)
-											{
-												move_item(y, i, -1);
-												break;
-											}
-										}
-									item_dragged = -1;
+									try_auto_equip(item_dragged);
 									return 1;
 								}
 							for(i=0;i<shown_quickbar_slots;i++)
@@ -465,6 +455,7 @@ static int	display_quickbar_handler(window_info *win)
 	const int scaled_27 = (int)(0.5 + win->current_scale * 27);
 
 	update_shown_quickbar_slots(win);
+	check_for_swap_completion();
 
 	glEnable(GL_TEXTURE_2D);
 	glColor3f(1.0f,1.0f,1.0f);
@@ -476,6 +467,10 @@ static int	display_quickbar_handler(window_info *win)
 			float u_start,v_start,u_end,v_end;
 			int this_texture,cur_item,cur_pos;
 			int x_start,x_end,y_start,y_end, itmp;
+
+			// don't display an item that is in the proces of being moved after equipment swap
+			if (item_swap_in_progress(i))
+				continue;
 
 			//get the UV coordinates.
 			cur_item=item_list[i].image_id%25;
