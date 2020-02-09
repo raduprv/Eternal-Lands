@@ -101,7 +101,11 @@ add_definitions(
 set(SD "")
 
 # Get compiler flags for used libraries
-include(cmake/FindSDL2.cmake)
+include(FindPkgConfig)
+pkg_check_modules(SDL2 sdl2)
+if (NOT SDL2_INCLUDE_DIRS)
+	include(cmake/FindSDL2.cmake)
+endif()
 include(FindLibXml2)
 include(cmake/FindSDL2_image.cmake)
 include(cmake/FindSDL2_net.cmake)
@@ -248,7 +252,7 @@ add_executable(${EXEC} ${SOURCES})
 
 target_link_libraries(${EXEC}
 	${EXTRA_LD_FLAGS}
-	${SDL2_LIBRARY}
+	${SDL2_LIBRARY} ${SDL2_LIBRARIES}
 	${LIBXML2_LIBRARIES}
 	${CAL3D_LIBRARIES}
 	${SDL2_NET_LIBRARY}
@@ -266,7 +270,7 @@ target_link_libraries(${EXEC}
 )
 
 target_include_directories(${EXEC} SYSTEM PUBLIC
-	${SDL2_INCLUDE_DIR}
+	${SDL2_INCLUDE_DIR} ${SDL2_INCLUDE_DIRS}
 	${LIBXML2_INCLUDE_DIR}
 	${CAL3D_INCLUDE_DIR}
 	${SDL2_NET_INCLUDE_DIR}
