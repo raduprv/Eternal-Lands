@@ -53,7 +53,7 @@ char storage_text[MAX_DESCR_LEN]={0};
 static char last_storage_text[MAX_DESCR_LEN]={0};
 static char wrapped_storage_text[MAX_DESCR_LEN+10]={0};
 
-static int print_quanities[STORAGE_ITEMS_SIZE];
+static struct { int quantity; int id; int image_id; } print_info[STORAGE_ITEMS_SIZE];
 static int number_to_print = 0;
 static int next_item_to_print = 0;
 static int printing_category = -1;
@@ -169,10 +169,12 @@ void get_storage_text (const Uint8 *in_data, int len)
 		char the_text[MAX_DESCR_LEN+20];
 		if (!next_item_to_print)
 		{
-			safe_snprintf(the_text, sizeof(the_text), "%s:", &storage_categories[printing_category].name[1] );
+			safe_snprintf(the_text, sizeof(the_text), "%s: [Quantity Description (Id/Image ID)]", &storage_categories[printing_category].name[1] );
 			LOG_TO_CONSOLE(c_green2, the_text);
 		}
-		safe_snprintf(the_text, sizeof(the_text), "%d %s", print_quanities[next_item_to_print++], &storage_text[1] );
+		safe_snprintf(the_text, sizeof(the_text), "%d %s (%d/%d)", print_info[next_item_to_print].quantity,
+			&storage_text[1], print_info[next_item_to_print].id, print_info[next_item_to_print].image_id );
+		next_item_to_print++;
 		LOG_TO_CONSOLE(c_grey1, the_text);
 		storage_text[0] = '\0';
 	}
@@ -778,7 +780,10 @@ void print_items(void)
 		if (storage_items[i].quantity)
 		{		
 			Uint8 str[3];
-			print_quanities[number_to_print++] = storage_items[i].quantity;
+			print_info[number_to_print].quantity = storage_items[i].quantity;
+			print_info[number_to_print].id = storage_items[i].id;
+			print_info[number_to_print].image_id = storage_items[i].image_id;
+			number_to_print++;
 			str[0]=LOOK_AT_STORAGE_ITEM;
 			*((Uint16*)(str+1))=SDL_SwapLE16(storage_items[i].pos);
 			my_tcp_send(my_socket, str, 3);
