@@ -668,7 +668,7 @@ void load_all_tiles()
 
 	for(i = 0; i < 255; i++)
 	{
-		sprintf(str, "./3dobjects/tile%i.dds", i);
+		snprintf(str, sizeof(str), "./3dobjects/tile%i.dds", i);
 
 		tiles_no = i;
 
@@ -1235,13 +1235,13 @@ void save_map_file()
   ofn.hwndOwner = 0;
   ofn.lpstrFile = szFileName;
   ofn.nMaxFile = MAX_PATH;
-#ifdef	LIBZW
+#ifdef	ZLIBW
   ofn.lpstrFilter = "Compressed Map (*.elm.gz)\0*.elm.gz\0\0";
   ofn.lpstrDefExt = "elm.gz";
-#else	//LIBZW
+#else	//ZLIBW
   ofn.lpstrFilter = "Eternal Lands Map (*.elm)\0*.elm\0\0";
   ofn.lpstrDefExt = "elm";
-#endif	//LIBZW
+#endif	//ZLIBW
   strcpy(temp,exec_path);
   strcat(temp,"\\maps\\");
   ofn.lpstrInitialDir = temp;
@@ -1519,7 +1519,7 @@ void save_particle_def_file()
 void save_particle_def_file_continued()
 {
 	if(!selected_file)return;
-	strncpy(def.file_name,selected_file,80);
+	strncpy(def.file_name,selected_file,sizeof(def.file_name)-1);
 	save_particle_def(&def);
 }
 

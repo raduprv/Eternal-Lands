@@ -13,6 +13,7 @@ class EffectDefinition
 {
 public:
   EffectDefinition()
+    : effect(0), hue(0), saturation(0), scale(0), density(0), base_height(0), angle(0)
   {
     position = ec::Vec3(-1.0, -1.0, 0.0);
     reference = NULL;

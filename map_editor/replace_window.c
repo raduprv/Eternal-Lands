@@ -16,12 +16,12 @@ int replace_window_y_len=90;
 int replace_window_win=0;
 
 #ifdef X86_64
-typedef long int INT;
+typedef int64_t L_INT;
 #else
-typedef int INT;
+typedef int32_t L_INT;
 #endif
 
-INT oid=-1,nid=-1, mode=1;
+L_INT oid=-1,nid=-1, mode=1;
 char cOid[100],cNid[100];
 float new_object_red = 0.0f, new_object_green = 0.0f, new_object_blue = 0.0f;
 
@@ -205,7 +205,7 @@ int check_replace_window_interface(window_info *win, int _x, int _y)
 
 		{
 
-			oid = (INT) particles_list[selected_particles_object]->def;
+			oid = (L_INT) particles_list[selected_particles_object]->def;
 
 		}
 
@@ -213,7 +213,7 @@ int check_replace_window_interface(window_info *win, int _x, int _y)
 
 		{
 
-			oid = (INT) objects_list[selected_3d_object]->e3d_data;
+			oid = (L_INT) objects_list[selected_3d_object]->e3d_data;
 
 			strcpy (cOid, objects_list[selected_3d_object]->file_name);
 
@@ -223,7 +223,7 @@ int check_replace_window_interface(window_info *win, int _x, int _y)
 
 		{
 
-			oid = (INT) obj_2d_list[selected_2d_object]->obj_pointer;
+			oid = (L_INT) obj_2d_list[selected_2d_object]->obj_pointer;
 
 			strcpy (cOid, obj_2d_list[selected_2d_object]->file_name);
 
@@ -249,7 +249,7 @@ int check_replace_window_interface(window_info *win, int _x, int _y)
 
 		{
 
-			nid = (INT) particles_list[selected_particles_object]->def;
+			nid = (L_INT) particles_list[selected_particles_object]->def;
 
 		}
 
@@ -257,7 +257,7 @@ int check_replace_window_interface(window_info *win, int _x, int _y)
 
 		{
 
-			nid = (INT)objects_list[selected_3d_object]->e3d_data;
+			nid = (L_INT)objects_list[selected_3d_object]->e3d_data;
 
 			strcpy (cNid, objects_list[selected_3d_object]->file_name);
 
@@ -273,7 +273,7 @@ int check_replace_window_interface(window_info *win, int _x, int _y)
 
 		{
 
-			nid = (INT) obj_2d_list[selected_2d_object]->obj_pointer;
+			nid = (L_INT) obj_2d_list[selected_2d_object]->obj_pointer;
 
 			strcpy (cNid, obj_2d_list[selected_2d_object]->file_name);
 
@@ -311,7 +311,7 @@ int check_replace_window_interface(window_info *win, int _x, int _y)
 
 				{
 
-					if ((INT)particles_list[i]->def == oid)
+					if ((L_INT)particles_list[i]->def == oid)
 
 					{
 
@@ -353,7 +353,7 @@ int check_replace_window_interface(window_info *win, int _x, int _y)
 
 				{
 
-					if ((INT)objects_list[i]->e3d_data == oid)
+					if ((L_INT)objects_list[i]->e3d_data == oid)
 
 					{
 
@@ -387,7 +387,7 @@ int check_replace_window_interface(window_info *win, int _x, int _y)
 
 				{
 
-					if ((INT)obj_2d_list[i]->obj_pointer == oid)
+					if ((L_INT)obj_2d_list[i]->obj_pointer == oid)
 
 					{
 

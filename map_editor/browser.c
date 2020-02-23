@@ -17,7 +17,7 @@ _Cat Cat[44];
 
 int dc=-1,cd=-1,cp=0,cc=-1,mc=1,ccat=0;
 
-int setobject(int n, char *fn,float xrot, float yrot, float zrot)
+static int setobject(int n, char *fn,float xrot, float yrot, float zrot)
 {
 	object3d *our_object=&o3d[n];
 	snprintf(our_object->file_name,sizeof(our_object->file_name),"%s",fn);
@@ -218,7 +218,7 @@ int display_browser_handler(window_info *win)
    }else{ // display specified dir
 		int i=cp,valid_object=0;
 		float tz=zoom_level;
-		char fn[256];
+		char fn[80];
 		
 		// Prepare to render
 		Leave2DMode();
@@ -245,12 +245,12 @@ int display_browser_handler(window_info *win)
 		glClearStencil(0);
 		glClear (GL_DEPTH_BUFFER_BIT);
 #ifdef LINUX
-		strcpy(fn,exec_path);
+		safe_strncpy(fn, exec_path, sizeof(fn));
 #else
 		//Fedora: don't ask me why, if you use exec_path, e3d files are not found
-		strcpy(fn,"."/*exec_path*/);
+		safe_strncpy(fn, "."/*exec_path*/, sizeof(fn));
 #endif
-		strcat(fn,Dir[cd].Files[i]);
+		strncat(fn, Dir[cd].Files[i], sizeof(fn)-1);
 		valid_object=setobject(0,fn,Dir[cd].xrot[i],Dir[cd].yrot[i],Dir[cd].zrot[i]);
 		if(valid_object){
 			glPushMatrix();
