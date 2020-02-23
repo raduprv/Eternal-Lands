@@ -2,6 +2,7 @@
 #include "global.h"
 #include "eye_candy_window.h"
 #include <math.h>
+#include "../asc.h"
 
 int show_position_on_minimap=0;
 

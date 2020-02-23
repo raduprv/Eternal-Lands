@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "tiles.h"
 #include "global.h"
+#include "../asc.h"
 
 void destroy_map_tiles()
 {
