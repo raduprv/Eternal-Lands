@@ -1638,6 +1638,12 @@ static int session_counters(char *text, int len)
 	return 1;
 }
 
+/* the #disco or #disconnect command forces a server logout */
+static int command_disconnect(char *text, int len)
+{
+	force_server_disconnect(user_disconnect_str);
+	return 1;
+}
 
 /* initilates a test for server connection, the client will enter the disconnected state if needed */
 static int command_relogin(char *text, int len)
@@ -1769,7 +1775,9 @@ add_command("horse", &horse_cmd);
 	add_command(cmd_cast_spell, &command_cast_spell);
 	add_command(cmd_keypress, &command_keypress);
 	add_command(cmd_user_menu_wait_time_ms, &command_set_user_menu_wait_time_ms);
-	add_command("relogin", &command_relogin);
+	add_command(cmd_relogin, &command_relogin);
+	add_command(cmd_disconnect, &command_disconnect);
+	add_command(cmd_disco, &command_disconnect);
 	add_command("change_pass", &command_change_pass);
 	command_buffer_offset = NULL;
 }

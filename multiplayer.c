@@ -2300,6 +2300,14 @@ void enter_disconnected_state(const char *message)
 	disconnect_time = SDL_GetTicks();
 }
 
+/* for a disconnect from the server and the normal reconnect on keypress */
+void force_server_disconnect(const char *message)
+{
+	disconnected = 1;
+	SDLNet_TCP_Close(my_socket);
+	my_socket = 0;
+	enter_disconnected_state(message);
+}
 
 /* Initiates a test for server connection, the client will enter the disconnected state if needed */
 void start_testing_server_connection(void)

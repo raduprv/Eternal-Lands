@@ -496,7 +496,10 @@ char	name_too_long[75],
 	cmd_show_spell[20],
 	cmd_cast_spell[20],
 	cmd_reload_icons[20],
-	cmd_session_counters[20];
+	cmd_session_counters[20],
+	cmd_relogin[20],
+	cmd_disconnect[20],
+	cmd_disco[20];
 #endif
 
 /*! \name Errors */
@@ -642,6 +645,7 @@ char	reg_error_str[15],
 	client_ver_not_supported[100],
 	packet_overrun[50],
 	disconnected_from_server[100],
+	user_disconnect_str[20],
 	cant_change_map[100],
 	empty_map_str[100],
 	no_nomap_str[150],
@@ -1155,6 +1159,9 @@ void init_console()
 	add_xml_identifier(cmd_grp,"cast_spell",cmd_cast_spell,"cast_spell",sizeof(cmd_cast_spell));
 	add_xml_identifier(cmd_grp,"session_counters",cmd_session_counters,"session_counters",sizeof(cmd_session_counters));
 	add_xml_identifier(cmd_grp,"reload_icons",cmd_reload_icons,"reload_icons",sizeof(cmd_reload_icons));
+	add_xml_identifier(cmd_grp,"relogin",cmd_relogin,"relogin",sizeof(cmd_relogin));
+	add_xml_identifier(cmd_grp,"disconnect",cmd_disconnect,"disconnect",sizeof(cmd_disconnect));
+	add_xml_identifier(cmd_grp,"disco",cmd_disco,"disco",sizeof(cmd_disco));
 }
 #endif
 
@@ -1235,6 +1242,7 @@ void init_errors()
 	add_xml_identifier(misc,"notsup",client_ver_not_supported,"This version is no longer supported, please update!",sizeof(client_ver_not_supported));
 	add_xml_identifier(misc,"packets",packet_overrun,"Packet overrun...data lost!",sizeof(packet_overrun));
 	add_xml_identifier(misc,"disconnect",disconnected_from_server,"Disconnected from server!",sizeof(disconnected_from_server));
+	add_xml_identifier(misc,"user_disconnect",user_disconnect_str,"Using #disconnect",sizeof(user_disconnect_str));
 	add_xml_identifier(misc,"stat",stat_no_invalid,"Server sent invalid stat number",sizeof(stat_no_invalid));
 	add_xml_identifier(misc,"ascii",not_ascii,"Not ASCII",sizeof(not_ascii));
 	add_xml_identifier(misc,"timer_lag",timer_lagging_behind,"The %s timer was lagging severely behind or had stopped, restarted it", sizeof(timer_lagging_behind));
