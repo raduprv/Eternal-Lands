@@ -123,13 +123,13 @@ void hide_open_win(GtkWidget * widget, GtkWidget * win)
 	gtk_widget_hide(win);
 }
 
-static void check_escape(GtkWidget *widget, GdkEventKey *event, gpointer data)
+static void open_check_escape(GtkWidget *widget, GdkEventKey *event, gpointer data)
 {
 	if (gtk_open_win && event->keyval == GDK_KEY_Escape)
 		gtk_widget_hide(gtk_open_win);
 }
 
-static void kill_window(GtkWidget *widget, GdkEvent *event, gpointer data)
+static void open_kill_window(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
 	if (gtk_open_win)
 		gtk_widget_hide(gtk_open_win);
@@ -152,8 +152,8 @@ void show_open_window(char * name, char * folder, GtkFileFilter * filter)
 
 		g_signal_connect ((gpointer) cancel, "clicked", G_CALLBACK (hide_open_win), gtk_open_win);
 		g_signal_connect ((gpointer) ok_button, "clicked", G_CALLBACK (open_button_clicked), NULL);
-		g_signal_connect(gtk_open_win, "key_press_event", G_CALLBACK(check_escape), NULL);
-		g_signal_connect(gtk_open_win, "delete_event", G_CALLBACK(kill_window), NULL);
+		g_signal_connect(gtk_open_win, "key_press_event", G_CALLBACK(open_check_escape), NULL);
+		g_signal_connect(gtk_open_win, "delete_event", G_CALLBACK(open_kill_window), NULL);
 		
 		gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(gtk_open_win), e3d_filter);
 		gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(gtk_open_win), e2d_filter);
@@ -190,6 +190,18 @@ void save_button_clicked(GtkWidget * widget, void ** filter)
 	gtk_widget_hide(gtk_save_win);
 }
 
+static void save_check_escape(GtkWidget *widget, GdkEventKey *event, gpointer data)
+{
+	if (gtk_save_win && event->keyval == GDK_KEY_Escape)
+		gtk_widget_hide(gtk_save_win);
+}
+
+static void save_kill_window(GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+	if (gtk_save_win)
+		gtk_widget_hide(gtk_save_win);
+}
+
 void show_save_window(char * name, char * folder, char * select, GtkFileFilter * filter)
 {
 	static void * cur_filter;
@@ -211,6 +223,8 @@ void show_save_window(char * name, char * folder, char * select, GtkFileFilter *
 
 		g_signal_connect ((gpointer) cancel, "clicked", G_CALLBACK (hide_open_win), gtk_save_win);
 		g_signal_connect ((gpointer) ok_button, "clicked", G_CALLBACK (save_button_clicked), &cur_filter);
+		g_signal_connect(gtk_save_win, "key_press_event", G_CALLBACK(save_check_escape), NULL);
+		g_signal_connect(gtk_save_win, "delete_event", G_CALLBACK(save_kill_window), NULL);
 	} else {
 		gtk_window_set_title(GTK_WINDOW(gtk_save_win), name);
 	}
