@@ -15,7 +15,7 @@ extern "C" {
 
 extern int port; /*!< the server port we use */
 extern unsigned char server_address[60]; /*!< the server address we use */
-extern int disconnected; /*!< indicates whether we are currently connected or not */
+extern volatile int disconnected; /*!< indicates whether we are currently connected or not */
 
 extern TCPsocket my_socket; /*!< our TCP socket to communiate with the server */
 
