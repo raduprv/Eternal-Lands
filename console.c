@@ -1641,6 +1641,7 @@ static int session_counters(char *text, int len)
 /* the #disco or #disconnect command forces a server logout */
 static int command_disconnect(char *text, int len)
 {
+	save_local_data(NULL, 0);
 	force_server_disconnect(user_disconnect_str);
 	return 1;
 }
