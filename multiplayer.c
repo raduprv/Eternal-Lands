@@ -2300,6 +2300,7 @@ void enter_disconnected_state(const char *message)
 	do_disconnect_sound();
 #endif // NEW_SOUND
 	disconnect_time = SDL_GetTicks();
+	clear_now_harvesting();
 }
 
 /* for a disconnect from the server and the normal reconnect on keypress */

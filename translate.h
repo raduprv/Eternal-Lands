@@ -250,7 +250,8 @@ extern char
 		channel_color_add_str[20],
 		channel_color_delete_str[20],
 		/*console.c*/
-		local_save_str[80],
+		full_save_str[80],
+		local_only_save_str[40],
 		logconn_str[50],
 		time_warn_hour_str[75],
 		time_warn_sunrise_str[100],
