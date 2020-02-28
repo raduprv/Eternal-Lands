@@ -1219,7 +1219,8 @@ static void move_windows_proportionally(Uint32 old_w, Uint32 w, Uint32 old_h, Ui
 	for (win_id=0; win_id < windows_list.num_windows; win_id++)
 	{
 		window_info *win = &windows_list.window[win_id];
-		if ((win->flags & ELW_TITLE_BAR) && ((win->pos_id == game_root_win) || (win->pos_id == newchar_root_win) || (win->pos_id == -1)))
+		if (win->owner_drawn_title_bar || ((win->flags & ELW_TITLE_BAR) &&
+			((win->pos_id == game_root_win) || (win->pos_id == newchar_root_win) || (win->pos_id == -1))))
 		{
 			int new_x = (int)(0.5 + (float)w * ((float)win->cur_x + (float)win->len_x / 2.0f) / (float)old_w - (float)win->len_x / 2.0f);
 			int new_y = (int)(0.5 + (float)h * ((float)win->cur_y + (float)win->len_y / 2.0f) / (float)old_h - (float)win->len_y / 2.0f);
