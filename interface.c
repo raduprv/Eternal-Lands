@@ -1213,8 +1213,25 @@ void hide_all_root_windows ()
 	if (langsel_rootwin >= 0) hide_window (langsel_rootwin);
 }
 
-void resize_all_root_windows (Uint32 w, Uint32 h)
+static void move_windows_proportionally(Uint32 old_w, Uint32 w, Uint32 old_h, Uint32 h)
 {
+	size_t win_id;
+	for (win_id=0; win_id < windows_list.num_windows; win_id++)
+	{
+		window_info *win = &windows_list.window[win_id];
+		if ((win->flags & ELW_TITLE_BAR) && ((win->pos_id == game_root_win) || (win->pos_id == newchar_root_win) || (win->pos_id == -1)))
+		{
+			int new_x = (int)(0.5 + (float)w * ((float)win->cur_x + (float)win->len_x / 2.0f) / (float)old_w - (float)win->len_x / 2.0f);
+			int new_y = (int)(0.5 + (float)h * ((float)win->cur_y + (float)win->len_y / 2.0f) / (float)old_h - (float)win->len_y / 2.0f);
+			//printf("moving %s %d/%d -> %d/%d\n", win->window_name, win->cur_x, win->cur_y, new_x, new_y);
+			move_window(win->window_id, win->pos_id, win->pos_loc, new_x, new_y);
+		}
+	}
+}
+
+void resize_all_root_windows (Uint32 ow, Uint32 w, Uint32 oh, Uint32 h)
+{
+	move_windows_proportionally(ow, w, oh, h);
 	if (game_root_win >= 0) resize_window (game_root_win, w, h);
 	if (console_root_win >= 0) resize_window (console_root_win, w, h);
 	if (map_root_win >= 0) resize_window (map_root_win, w, h);

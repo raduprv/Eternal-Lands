@@ -339,7 +339,8 @@ void hide_all_root_windows ();
  *
  * \callgraph
  */
-void resize_all_root_windows (Uint32 w, Uint32 h);
+void resize_all_root_windows (Uint32 ow, Uint32 w, Uint32 oh, Uint32 h);
+
 
 /*!
  * \ingroup interfaces

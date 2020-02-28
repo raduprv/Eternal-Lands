@@ -236,11 +236,14 @@ int HandleEvent (SDL_Event *event)
 					el_input_focus = 1;
 					break;
 				case SDL_WINDOWEVENT_RESIZED:
+				{
+					Uint32 old_window_width = window_width, old_window_height = window_height;
 					//printf("SDL_WINDOWEVENT_RESIZED\n");
 				 	window_width = event->window.data1;
 					window_height = event->window.data2;
-					resize_all_root_windows(window_width, window_height);
+					resize_all_root_windows(old_window_width, window_width, old_window_height, window_height);
 					break;
+				}
 				default:
 					//printf("untrapped SDL_WINDOWEVENT %x\n", event->window.event);
 					break;
