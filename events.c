@@ -21,9 +21,26 @@
 #endif
 #include "textures.h"
 
+#include "actor_scripts.h"
+
 #ifdef OSX
 int osx_right_mouse_cam = 0;
 #endif
+
+static const int min_fps = 3;
+
+static void enter_minimised_state(void)
+{
+	max_fps = min_fps;
+	//printf("entered minimised\n");
+}
+
+static void leave_minimised_state(void)
+{
+	max_fps = limit_fps;
+	update_all_actors(0);
+	//printf("left minimised\n");
+}
 
 // Convert from utf-8 to unicode, generated from the table here:
 // https://www.utf8-chartable.de/unicode-utf8-table.pl?htmlent=1
@@ -158,13 +175,13 @@ void check_minimised_or_restore_window(void)
 	Uint32 flags = SDL_GetWindowFlags(el_gl_window);
 	if (flags & (SDL_WINDOW_HIDDEN | SDL_WINDOW_MINIMIZED))
 	{
-		if (max_fps != 1)
-			max_fps = 1;
+		if (max_fps != min_fps)
+			enter_minimised_state();
 	}
 	else if (flags & (SDL_WINDOW_SHOWN | SDL_WINDOW_MAXIMIZED))
 	{
 		if (max_fps != limit_fps)
-			max_fps = limit_fps;
+			leave_minimised_state();
 	}
 }
 
@@ -205,7 +222,8 @@ int HandleEvent (SDL_Event *event)
 				case SDL_WINDOWEVENT_MINIMIZED:
 					if (clear_mod_keys_on_focus)
 						last_loss = SDL_GetTicks();
-					max_fps = 1;
+					if (max_fps != min_fps)
+						enter_minimised_state();
 					break;
 				case SDL_WINDOWEVENT_SHOWN:
 				case SDL_WINDOWEVENT_EXPOSED:
@@ -217,7 +235,8 @@ int HandleEvent (SDL_Event *event)
 						SDL_SetModState(KMOD_NONE);
 					}
 					last_gain = SDL_GetTicks();
-					max_fps = limit_fps;
+					if (max_fps != limit_fps)
+						leave_minimised_state();
 					break;
 				case SDL_WINDOWEVENT_LEAVE:
 				case SDL_WINDOWEVENT_FOCUS_LOST:

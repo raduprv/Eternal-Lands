@@ -1800,12 +1800,13 @@ void destroy_all_actors()
 
 
 
-void update_all_actors()
+void update_all_actors(int log_the_update)
 {
  	Uint8 str[40];
 
 	//we got a nasty error, log it
-	LOG_TO_CONSOLE(c_red2,resync_server);
+	if (log_the_update)
+		LOG_TO_CONSOLE(c_red2,resync_server);
 
 	destroy_all_actors();
 	str[0]=SEND_ME_MY_ACTORS;
@@ -2174,7 +2175,8 @@ void add_command_to_actor(int actor_id, unsigned char command)
 		if(k>MAX_CMD_QUEUE-2){
 			int i;
 			int k;
-			LOG_ERROR("Too much commands in the queue for actor %d (%s) => skip emotes!",
+			if (max_fps == limit_fps)
+				LOG_ERROR("Too much commands in the queue for actor %d (%s) => skip emotes!",
 					  act->actor_id, act->actor_name);
 			for(i=MAX_CMD_QUEUE-1;i>=0;i--) {
 				if(act->que[i]>=emote_cmd&&act->que[i]<wait_cmd) {
@@ -2192,14 +2194,17 @@ void add_command_to_actor(int actor_id, unsigned char command)
 				}
 			}
 			//if we are here no emotes have been skipped
-			LOG_ERROR("Too much commands in the queue for actor %d (%s) => resync!\n",
-					  act->actor_id, act->actor_name);
+			if (max_fps == limit_fps)
+			{
+				LOG_ERROR("Too much commands in the queue for actor %d (%s) => resync!\n",
+					act->actor_id, act->actor_name);
 #ifdef	ANIMATION_SCALING
-			LOG_ERROR("animation_scale: %f\n", act->animation_scale);
+				LOG_ERROR("animation_scale: %f\n", act->animation_scale);
 #endif	/* ANIMATION_SCALING */
-			for (i = 0; i < MAX_CMD_QUEUE; ++i)
-				LOG_ERROR("%dth command in the queue: %d\n", i, (int)act->que[i]);
-			update_all_actors();
+				for (i = 0; i < MAX_CMD_QUEUE; ++i)
+					LOG_ERROR("%dth command in the queue: %d\n", i, (int)act->que[i]);
+			}
+			update_all_actors(max_fps == limit_fps);
 		}
 	}
 	UNLOCK_ACTORS_LISTS();
