@@ -38,7 +38,11 @@ static void enter_minimised_state(void)
 static void leave_minimised_state(void)
 {
 	max_fps = limit_fps;
-	update_all_actors(0);
+	// disable update_all_actors() temporaility as it exposes an existing bug
+	// where special effects on an actor are used after a the actor has been deleted
+	// we a can enable or do something similar after that nasy bug is fixed....
+	// use after free special_effects.c:439
+	//update_all_actors(0);
 	//printf("left minimised\n");
 }
 
