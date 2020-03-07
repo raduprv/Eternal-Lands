@@ -20,6 +20,7 @@
 #include "new_actors.h"
 #include "platform.h"
 #include "shadows.h"
+#include "special_effects.h"
 #include "textures.h"
 #include "translate.h"
 #include "vmath.h"
@@ -351,6 +352,7 @@ void remove_actor_attachment(int actor_id)
 			actors_list[i]->attachment_shift[0] = 0.0;
 			actors_list[i]->attachment_shift[1] = 0.0;
 			actors_list[i]->attachment_shift[2] = 0.0;
+			free_actor_special_effect(actors_list[att]->actor_id);
 			free_actor_data(att);
 			free(actors_list[att]);
 			actors_list[att]=NULL;

@@ -22,6 +22,7 @@
 #include "pathfinder.h"
 #include "platform.h"
 #include "skeletons.h"
+#include "special_effects.h"
 #ifdef NEW_SOUND
 #include "sound.h"
 #endif // NEW_SOUND
@@ -1725,6 +1726,17 @@ void free_actor_data(int actor_index)
     ec_actor_delete(act);
 }
 
+//  Assumed LOCK_ACTORS_LISTS mutex already held
+static void destroy_actor_common(size_t actor_list_index)
+{
+	if ((actor_list_index >= max_actors) || (actors_list[actor_list_index] == NULL))
+		return; // return of not valid actor
+	free_actor_special_effect(actors_list[actor_list_index]->actor_id);
+	free_actor_data(actor_list_index);
+	free(actors_list[actor_list_index]);
+	actors_list[actor_list_index]=NULL;
+}
+
 void destroy_actor(int actor_id)
 {
 	int i;
@@ -1741,9 +1753,7 @@ void destroy_actor(int actor_id)
 
 				if (actor_id == yourself)
 					set_our_actor (NULL);
-                free_actor_data(i);
-				free(actors_list[i]);
-				actors_list[i]=NULL;
+				destroy_actor_common(i);
 				if(i==max_actors-1)max_actors--;
 				else {
 					//copy the last one down and fill in the hole
@@ -1757,9 +1767,7 @@ void destroy_actor(int actor_id)
 
                 if (attached_actor >= 0)
                 {
-                    free_actor_data(attached_actor);
-                    free(actors_list[attached_actor]);
-                    actors_list[attached_actor]=NULL;
+                    destroy_actor_common(attached_actor);
                     if(attached_actor==max_actors-1)max_actors--;
                     else {
                         //copy the last one down and fill in the hole
@@ -1785,9 +1793,7 @@ void destroy_all_actors()
 	set_our_actor (NULL);
 	for(i=0;i<max_actors;i++) {
 		if(actors_list[i]){
-            free_actor_data(i);
-			free(actors_list[i]);
-			actors_list[i]=NULL;
+			destroy_actor_common(i);
 		}
 	}
 	max_actors= 0;

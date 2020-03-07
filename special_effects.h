@@ -10,6 +10,7 @@ extern "C" {
 
 void display_special_effects(int do_render);
 void parse_special_effect(special_effect_enum sfx, const Uint16 *data);
+void free_actor_special_effect(int actor_id);
 
 #ifdef __cplusplus
 } // extern "C"
