@@ -882,7 +882,8 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 			{
 				touch_player((int)object_under_mouse);
 				// clear the previous dialogue entries, so we won't have a left over from some other NPC
-				clear_dialogue_responses();
+				if (thing_under_the_mouse == UNDER_MOUSE_NPC)
+					clear_dialogue_responses();
 				return 1;
 			}
 			
