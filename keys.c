@@ -119,6 +119,7 @@ el_key_def K_WINSCALEUP = {SDLK_UP, KMOD_LCTRL, "#K_WINSCALEUP"};
 el_key_def K_WINSCALEDOWN = {SDLK_DOWN, KMOD_LCTRL, "#K_WINSCALEDOWN"};
 el_key_def K_WINSCALEDEF = {SDLK_HOME, KMOD_LCTRL, "#K_WINSCALEDEF"};
 el_key_def K_WINSCALEINIT = {SDLK_END, KMOD_LCTRL, "#K_WINSCALEINIT"};
+el_key_def K_SUMMONINGMENU = {SDLK_u, KMOD_LCTRL, "#K_SUMMONINGMENU"};
 
 // Remaining keys are not assigned to the keyboard but
 // can be redefined or used by the #keypress command.

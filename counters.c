@@ -2,6 +2,7 @@
 #include <ctype.h>
 #include "counters.h"
 #include "context_menu.h"
+#include "actors.h"
 #include "asc.h"
 #include "elconfig.h"
 #include "elwindows.h"
@@ -1203,6 +1204,8 @@ void increment_summon_counter(char *string)
 	}
 
 	string += 12;
+
+	remember_new_summoned(string);
 
 	increment_counter(SUMMONS, string, 1, 0);
 	check_for_recipe_name(string);

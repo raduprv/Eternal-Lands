@@ -1214,6 +1214,9 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
         reset_camera_at_next_update = 1;
     }
 	update_actor_buffs(actor_id, buffs);
+
+	check_if_new_actor_last_summoned(actors_list[i]);
+
 	UNLOCK_ACTORS_LISTS();  //unlock it
 #ifdef EXTRA_DEBUG
 	ERR();
