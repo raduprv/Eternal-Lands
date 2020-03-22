@@ -4,6 +4,8 @@
 #include <limits.h>
 #include "items.h"
 #include "asc.h"
+#include "colors.h"
+#include "client_serv.h"
 #include "cursors.h"
 #include "context_menu.h"
 #include "text.h"
@@ -734,7 +736,6 @@ static int display_items_handler(window_info *win)
 			last_items_string_id = inventory_item_string_id;
 		}
 		draw_string_small_zoomed(message_box.pos_x, message_box.pos_y, (unsigned char*)items_string, message_box.rows, win->current_scale);
-
 	}
 
 	glDisable(GL_TEXTURE_2D);
@@ -752,6 +753,24 @@ static int display_items_handler(window_info *win)
 			glVertex3i(text_arrow.pos_x + text_arrow.len_x/2, text_arrow.pos_y, 0);
 			glVertex3i(text_arrow.pos_x + text_arrow.len_x, text_arrow.pos_y - text_arrow.len_y, 0);
 		glEnd();
+		// if we have a coloured message, draw a small dot at the top of the arrow to indicate so, using the colour of the message
+		if ((strlen(inventory_item_string) > 0) && is_color(inventory_item_string[0]))
+		{
+			size_t colour = from_color_char (inventory_item_string[0]);
+			if ((colour >= c_lbound) && (colour <= c_ubound))
+			{
+				glColor4f((float) colors_list[colour].r1 / 255.0f, (float) colors_list[colour].g1 / 255.0f, (float) colors_list[colour].b1 / 255.0f, 1.0f);
+				glEnable( GL_POINT_SMOOTH );
+				glEnable( GL_BLEND );
+				glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+				glPointSize(text_arrow.len_x/3);
+				glBegin(GL_POINTS);
+				glVertex2f(text_arrow.pos_x + text_arrow.len_x/2, text_arrow.pos_y - text_arrow.len_y + text_arrow.len_y/6);
+				glEnd();
+				glDisable(GL_BLEND);
+				glDisable(GL_POINT_SMOOTH);
+			}
+		}
 	}
 	else
 	{
