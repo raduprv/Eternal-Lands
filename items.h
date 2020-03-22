@@ -105,6 +105,8 @@ extern int use_small_items_window;
 extern int manual_size_items_window;
 extern int items_mod_click_any_cursor;
 extern int allow_equip_swap;
+extern int items_buttons_on_left;
+extern int items_equip_grid_on_left;
 extern int items_mix_but_all;
 extern int items_stoall_nofirstrow;
 extern int items_stoall_nolastrow;

@@ -501,7 +501,7 @@ extern char
 		cm_banner_menu_str[240],
 		cm_title_menu_str[150],
 		cm_title_help_str[50],
-		cm_items_menu_str[150],
+		cm_items_menu_str[190],
 		cm_storage_menu_str[90],
 		cm_astro_menu_str[80],
 		cm_ranging_menu_str[50],
