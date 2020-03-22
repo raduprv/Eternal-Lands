@@ -81,6 +81,7 @@ static struct win_component items_grid = {0,0,0,0,-1,0,0,0,0};
 static struct win_component equip_grid = {0,0,0,0,-1,0,0,0,0};
 static struct win_component buttons_grid = {0,0,0,0,-1,0,0,0,0};
 static struct win_component text_arrow = {0,0,0,0,-1,0,0,0,0};
+static struct win_component unequip_arrow = {0,0,0,0,-1,0,0,0,0};
 static struct win_component message_box = {0,0,0,0,-1,0,0,0,0};
 static struct win_component labels_box = {0,0,0,0,-1,0,0,0,0};
 static struct win_component quantity_grid = {0,0,0,0,-1,0,0,0,0};
@@ -762,6 +763,30 @@ static int display_items_handler(window_info *win)
 		glEnd();
 	}
 
+	if (unequip_arrow.mouse_over != -1)
+		glColor3f(0.99f,0.77f,0.55f);
+	else
+		glColor3f(0.77f,0.57f,0.39f);
+	unequip_arrow.mouse_over = -1;
+	if (items_equip_grid_on_left)
+	{
+		glBegin(GL_LINES); /* right arrow */
+			glVertex3i(unequip_arrow.pos_x, unequip_arrow.pos_y, 0);
+			glVertex3i(unequip_arrow.pos_x + unequip_arrow.len_x, unequip_arrow.pos_y + unequip_arrow.len_y/2, 0);
+			glVertex3i(unequip_arrow.pos_x + unequip_arrow.len_x, unequip_arrow.pos_y + unequip_arrow.len_y/2, 0);
+			glVertex3i(unequip_arrow.pos_x, unequip_arrow.pos_y + unequip_arrow.len_y, 0);
+		glEnd();
+	}
+	else
+	{
+		glBegin(GL_LINES); /* left arrow */
+			glVertex3i(unequip_arrow.pos_x + unequip_arrow.len_x, unequip_arrow.pos_y, 0);
+			glVertex3i(unequip_arrow.pos_x, unequip_arrow.pos_y + unequip_arrow.len_y/2, 0);
+			glVertex3i(unequip_arrow.pos_x, unequip_arrow.pos_y + unequip_arrow.len_y/2, 0);
+			glVertex3i(unequip_arrow.pos_x + unequip_arrow.len_x, unequip_arrow.pos_y + unequip_arrow.len_y, 0);
+		glEnd();
+	}
+
 	// Render the grid *after* the images. It seems impossible to code
 	// it such that images are rendered exactly within the boxes on all 
 	// cards
@@ -1049,6 +1074,51 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 		items_disable_text_block ^= 1;
 		show_items_handler(win);
 		do_click_sound();
+		return 1;
+	}
+
+	if ((flags & ELW_LEFT_MOUSE) && (mx > unequip_arrow.pos_x) && (mx < unequip_arrow.pos_x + unequip_arrow.len_x) &&
+		(my > unequip_arrow.pos_y) && (my < unequip_arrow.pos_y + unequip_arrow.len_y))
+	{
+		size_t i;
+		int last_pos = 0;
+		int success = 1;
+		for(i = ITEM_WEAR_START; i < ITEM_WEAR_START + ITEM_NUM_WEAR; i++)
+		{
+			if(item_list[i].quantity>0)
+			{
+				size_t j;
+				int found_slot = 0;
+				if (item_list[i].is_stackable)
+				{
+					for (j=0; j<ITEM_WEAR_START; j++)
+						if ((item_list[j].quantity>0) && (item_list[i].id == item_list[j].id) && (item_list[i].image_id == item_list[j].image_id))
+						{
+							if (move_item(i, j, -1))
+								found_slot = 1;
+							break;
+						}
+				}
+				if (!found_slot)
+					for (j=last_pos; j<ITEM_WEAR_START; j++)
+					{
+						if (item_list[j].quantity<1)
+						{
+							if (move_item(i, j, -1))
+								found_slot = 1;
+							last_pos = j + 1;
+							break;
+						}
+					}
+				if (!found_slot)
+					success = 0;
+			}
+		}
+		if (success)
+			do_get_item_sound();
+		else
+			do_alert1_sound();
+		item_dragged=-1;
 		return 1;
 	}
 
@@ -1349,6 +1419,13 @@ static int mouseover_items_handler(window_info *win, int mx, int my) {
 		return 0;
 	}
 
+	if ((mx > unequip_arrow.pos_x) && (mx < unequip_arrow.pos_x + unequip_arrow.len_x) &&
+			(my > unequip_arrow.pos_y) && (my < unequip_arrow.pos_y + unequip_arrow.len_y))
+	{
+		item_help_str = items_unequip_all_help_str;
+		unequip_arrow.mouse_over = 1;
+		return 0;
+	}
 
 	if((mx > items_grid.pos_x) && (mx < items_grid.pos_x + items_grid.len_x) && (my > 0) && (my < items_grid.len_y)) {
 		pos = get_mouse_pos_in_grid(mx, my, items_grid.cols, items_grid.rows, items_grid.pos_x, items_grid.pos_y, items_grid.width, items_grid.height);
@@ -1543,15 +1620,17 @@ static int show_items_handler(window_info * win)
 		buttons_grid.pos_y = items_grid.height;
 	}
 
-	text_arrow.len_x = equip_grid.width * 0.4;
-	text_arrow.len_y = equip_grid.height * 0.4;
+	text_arrow.len_x = unequip_arrow.len_x = equip_grid.width * 0.4;
+	text_arrow.len_y = unequip_arrow.len_y = equip_grid.height * 0.4;
+	unequip_arrow.pos_x = equip_grid.pos_x + ((items_equip_grid_on_left) ?equip_grid.width :0) + (equip_grid.width - unequip_arrow.len_x) / 2;
+	unequip_arrow.pos_y = equip_grid.pos_y + equip_grid.len_y + (equip_grid.height - unequip_arrow.len_y) / 2;
 
-	/* we can finally calculate the maximum y value so far */
+	/* we can finally calculate the maximum y value so far .... */
 	win_y_len = ((items_grid.pos_y + items_grid.len_y) > (equip_grid.pos_y + equip_grid.len_y + text_arrow.len_y + seperator)) ?(items_grid.pos_y + items_grid.len_y) : (equip_grid.pos_y + equip_grid.len_y + text_arrow.len_y + seperator);
 	win_y_len = ((buttons_grid.pos_y + buttons_grid.len_y) > win_y_len) ?(buttons_grid.pos_y + buttons_grid.len_y) :win_y_len;
 
-	/* we can finally poistion the message box arrow */
-	text_arrow.pos_x = equip_grid.pos_x + (equip_grid.width - text_arrow.len_x) / 2;
+	/* then we can finally poistion the message box arrow */
+	text_arrow.pos_x = equip_grid.pos_x + ((items_equip_grid_on_left) ?0 :equip_grid.width) + (equip_grid.width - text_arrow.len_x) / 2;
 	text_arrow.pos_y = win_y_len;
 
 	/* calculate the window width needed for all the components */

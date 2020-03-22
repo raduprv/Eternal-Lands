@@ -224,6 +224,7 @@ char
 	quantity_edit_str[100],
 	equip_here_str[100],
 	items_text_toggle_help_str[50],
+	items_unequip_all_help_str[30],
 	equip_str[20],
 	mod_click_item_help_str[50],
 	multiuse_item_help_str[50],
@@ -1454,6 +1455,7 @@ void init_help()
 	add_xml_identifier(misc,"edit_quantity",quantity_edit_str,"Right-click on the quantity you wish to edit",sizeof(quantity_edit_str));
 	add_xml_identifier(misc,"equip_here",equip_here_str,"Place an item in these boxes to equip it",sizeof(equip_here_str));
 	add_xml_identifier(misc,"items_text_toggle_help",items_text_toggle_help_str,"Show/hide the text message panel",sizeof(items_text_toggle_help_str));
+	add_xml_identifier(misc,"items_unequip_all_help",items_unequip_all_help_str,"Unequip all items",sizeof(items_unequip_all_help_str));
 	add_xml_identifier(misc,"mod_click_item_help",mod_click_item_help_str,"Left-click +ctrl/+alt to drop/store all",sizeof(mod_click_item_help_str));
 	add_xml_identifier(misc,"multiuse_item_help",multiuse_item_help_str,"Left-click to use (+shift to use again)",sizeof(multiuse_item_help_str));
 	add_xml_identifier(misc,"equipment",equip_str,"Equipment",sizeof(equip_str));
