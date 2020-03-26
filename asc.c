@@ -742,3 +742,21 @@ char *truncated_string(char *dest, const char *source, size_t dest_max_len, cons
 	*dest_p = '\0';
 	return dest;
 }
+
+
+/* Remove whte space from the end of the supplied string.
+ * The string must be writable.
+ * Return the pointer to the string.
+ */
+char * rtrim_string(char *the_string)
+{
+	if (the_string != NULL)
+	{
+		size_t i = strlen(the_string);
+		while ((i > 0) && isspace(the_string[i-1]))
+			--i;
+		the_string[i] = '\0';
+
+	}
+	return the_string;
+}
