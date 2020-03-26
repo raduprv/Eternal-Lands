@@ -32,7 +32,6 @@ typedef struct
 #endif // NEW_SOUND
 	Uint32 cooldown_time; /*!< time when cooldown shall reach zero */
 	Uint32 cooldown_rate; /*!< time that the item would need to cool down from full heat */
-	Uint32 slot_busy_start; /*!< start time for busy slot warning */
 } item;
 
 /*!
