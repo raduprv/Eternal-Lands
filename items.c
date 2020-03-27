@@ -32,6 +32,7 @@
 #include "spells.h"
 
 item item_list[ITEM_NUM_ITEMS];
+item_extra item_list_extra[ITEM_NUM_ITEMS];
 
 struct quantities quantities = {
 	0,
@@ -311,6 +312,7 @@ void get_your_items (const Uint8 *data)
 	//clear the items first
 	for(i=0;i<ITEM_NUM_ITEMS;i++){
 		item_list[i].quantity=0;
+		item_list_extra[i].slot_busy_start = 0;
 	}
 	
 	for(i=0;i<total_items;i++){
@@ -649,7 +651,8 @@ static int display_items_handler(window_info *win)
 				y_end = y_start + items_grid.height - 1;
 				draw_item(item_list[i].image_id, x_start, y_start, items_grid.width - 1);
 			}
-
+			if ((_cur_time - item_list_extra[i].slot_busy_start) < 250)
+				gray_out(x_start, y_start, items_grid.width);
 
 			if (item_list[i].cooldown_time > _cur_time)
 			{

@@ -35,6 +35,16 @@ typedef struct
 } item;
 
 /*!
+ * Extra features for items.
+ * We can't change the item struct as it used to read/write the manufacture pipeline file.
+ * Until that is changed, put other stuff here.
+ */
+typedef struct
+{
+	Uint32 slot_busy_start;
+} item_extra;
+
+/*!
  * \name Item definition flags
  */
 /*! @{ */
@@ -77,6 +87,7 @@ struct quantities {
 /*! @{ */
 extern struct quantities quantities; 		/*!< Quantities displayed in the items window*/
 extern item item_list[ITEM_NUM_ITEMS]; 		/*!< global list of items */
+extern item_extra item_list_extra[ITEM_NUM_ITEMS]; /*!< global list of items extra properties - use with care this is temporary */
 extern int item_dragged;					/*!< the position of any currently dragged item, or -1 */
 extern int item_quantity;					/*!< the number of items for and any currently dragged item */
 extern int use_item;						/*!< the position of any current items used */
