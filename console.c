@@ -1591,7 +1591,8 @@ int command_keypress(char *text, int len)
 }
 
 
-int save_local_data(char * text, int len){
+void save_local_data(void)
+{
 	save_bin_cfg();
 	//Save the quickbar spells
 	save_quickspells();
@@ -1608,8 +1609,6 @@ int save_local_data(char * text, int len){
 	unload_questlog();
 	save_item_lists();
 	save_channel_colors();
-	LOG_TO_CONSOLE(c_green1, local_save_str);
-	return 0;
 }
 
 
@@ -1624,7 +1623,8 @@ void auto_save_local_and_server(void)
 	if(!disconnected && me && !me->fighting && ((last_save_time + time_delta) <= time(NULL)))
 	{
 		last_save_time = time(NULL);
-		save_local_data(NULL, 0);
+		save_local_data();
+		LOG_TO_CONSOLE(c_green1, full_save_str);
 		send_input_text_line("#save", 5);
 	}
 }
@@ -1638,6 +1638,22 @@ static int session_counters(char *text, int len)
 	return 1;
 }
 
+/* the #save command, save local file then pass to server to save there too */
+static int command_save(char *text, int len)
+{
+	save_local_data();
+	LOG_TO_CONSOLE(c_green1, full_save_str);
+	return 0; // pass onto server
+}
+
+/* the #disco or #disconnect command forces a server logout */
+static int command_disconnect(char *text, int len)
+{
+	save_local_data();
+	LOG_TO_CONSOLE(c_green1, local_only_save_str);
+	force_server_disconnect(user_disconnect_str);
+	return 1;
+}
 
 /* initilates a test for server connection, the client will enter the disconnected state if needed */
 static int command_relogin(char *text, int len)
@@ -1748,7 +1764,7 @@ add_command("horse", &horse_cmd);
 	add_command("current_song", &display_song_name);
 #endif // NEW_SOUND
 	add_command("find", &history_grep);
-	add_command("save", &save_local_data);
+	add_command("save", &command_save);
 	add_command("url", &url_command);
 	add_command("chat_to_counters", &chat_to_counters_command);
 	add_command(cmd_session_counters, &session_counters);
@@ -1769,7 +1785,9 @@ add_command("horse", &horse_cmd);
 	add_command(cmd_cast_spell, &command_cast_spell);
 	add_command(cmd_keypress, &command_keypress);
 	add_command(cmd_user_menu_wait_time_ms, &command_set_user_menu_wait_time_ms);
-	add_command("relogin", &command_relogin);
+	add_command(cmd_relogin, &command_relogin);
+	add_command(cmd_disconnect, &command_disconnect);
+	add_command(cmd_disco, &command_disconnect);
 	add_command("change_pass", &command_change_pass);
 	command_buffer_offset = NULL;
 }

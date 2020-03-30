@@ -83,7 +83,7 @@ Uint8 tcp_out_data[MAX_TCP_BUFFER];
 int in_data_used=0;
 int tcp_out_loc= 0;
 int previously_logged_in= 0;
-int disconnected= 1;
+volatile int disconnected= 1;
 time_t last_heart_beat;
 time_t last_save_time;
 int always_pathfinding = 0;
@@ -2288,18 +2288,28 @@ void enter_disconnected_state(const char *message)
 {
 	char str[256];
 	short tgm = real_game_minute;
+	if (disconnected)
+		return;
+	disconnected = 1;
 	safe_snprintf(str, sizeof(str), "<%1d:%02d>: %s [%s]", tgm/60, tgm%60,
 		disconnected_from_server, (message != NULL) ?message : "Grue?");
 	LOG_TO_CONSOLE(c_red2, str);
 	LOG_TO_CONSOLE(c_red2, alt_x_quit);
-	disconnected = 1;
 #ifdef NEW_SOUND
 	stop_all_sounds();
 	do_disconnect_sound();
 #endif // NEW_SOUND
 	disconnect_time = SDL_GetTicks();
+	clear_now_harvesting();
 }
 
+/* for a disconnect from the server and the normal reconnect on keypress */
+void force_server_disconnect(const char *message)
+{
+	enter_disconnected_state(message);
+	SDLNet_TCP_Close(my_socket);
+	my_socket = 0;
+}
 
 /* Initiates a test for server connection, the client will enter the disconnected state if needed */
 void start_testing_server_connection(void)

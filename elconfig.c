@@ -88,7 +88,6 @@
 #include "elconfig.h"
 #include "text.h"
 #include "consolewin.h"
-#include "queue.h"
 #include "url.h"
 #if !defined(MAP_EDITOR)
 #include "widgets.h"
@@ -105,9 +104,6 @@
 #ifdef	CUSTOM_UPDATE
  #include "custom_update.h"
 #endif	/* CUSTOM_UPDATE */
-
-typedef	float (*float_min_max_func)();
-typedef	int (*int_min_max_func)();
 
 // Defines for config variables
 #define CONTROLS	0
@@ -138,6 +134,8 @@ static int TAB_TAG_HEIGHT = 0;	// the height of the tab at the top of the window
 // The config window is special, it is scaled on creation then frozen.
 // This is because its too complex to resize and cannot simpely be destroyed and re-created.
 static float elconf_scale = 0;
+static float elconf_custom_scale = 1.0f;
+static int recheck_window_scale = 0;
 #define ELCONFIG_SCALED_VALUE(BASE) ((int)(0.5 + ((BASE) * elconf_scale)))
 #endif
 
@@ -166,7 +164,14 @@ typedef struct
 		int label_id; /*!< The label ID associated with this option */
 		int widget_id; /*!< Widget ID for things like checkboxes */
 	} widgets;
-	queue_t *queue; /*!< Queue that holds info for certain widget types. */
+	union
+	{
+		struct { int min; int max; } imm;
+		struct { int (*min)(); int (*max)(); } immf;
+		struct { float min; float max; float interval; } fmmi;
+		struct { float (*min)(); float (*max)(); float interval; } fmmif;
+		struct { char **strings; size_t count; } multi;
+	} args; /*!< The various versions of additional arguments used by configuration variables  */
 } var_struct;
 
 /*!
@@ -175,8 +180,8 @@ typedef struct
 struct variables
 {
 	int no; /*!< current number of allocated \see var_struct in \a var */
-	var_struct * var[200]; /*!< fixed array of \a no \see var_struct structures */
-} our_vars= {0,{NULL}};
+	var_struct * * var; /*!< fixed array of \a no \see var_struct structures */
+} our_vars= {0,NULL};
 
 int write_ini_on_exit= 1;
 // Window Handling
@@ -249,6 +254,7 @@ int max_fps = 0, limit_fps=0;
 int special_effects=0;
 char lang[10] = "en";
 int auto_update= 1;
+int clear_mod_keys_on_focus=1;
 
 #ifdef  CUSTOM_UPDATE
 int custom_update= 1;
@@ -527,6 +533,62 @@ static void change_ui_scale(float *var, float *value)
 
 	if (input_widget != NULL)
 		input_widget_move_to_win(input_widget->window_id);
+}
+
+static void change_elconf_win_scale_factor(float *var, float *value)
+{
+	*var= *value;
+	recheck_window_scale = 1;
+}
+
+static void change_win_scale_factor(float *var, float *value)
+{
+	*var= *value;
+	update_windows_custom_scale(var);
+}
+
+static const float win_scale_min = 0.25f;
+static const float win_scale_max = 3.0f;
+static const float win_scale_step = 0.01f;
+
+void step_win_scale_factor(int increase, float *changed_window_custom_scale)
+{
+	if (changed_window_custom_scale != NULL)
+	{
+		size_t i;
+		float new_value = *changed_window_custom_scale + ((increase) ? win_scale_step : -win_scale_step);
+		if (new_value >= win_scale_min && new_value <= win_scale_max)
+		{
+			*changed_window_custom_scale = new_value;
+			update_windows_custom_scale(changed_window_custom_scale);
+		}
+		for (i = 0; i < our_vars.no; i++)
+		{
+			if (our_vars.var[i]->var == changed_window_custom_scale)
+			{
+				our_vars.var[i]->saved = 0;
+				break;
+			}
+		}
+	}
+}
+
+void reset_win_scale_factor(int set_default, float *changed_window_custom_scale)
+{
+	if (changed_window_custom_scale != NULL)
+	{
+		size_t i;
+		for (i = 0; i < our_vars.no; i++)
+		{
+			if (our_vars.var[i]->var == changed_window_custom_scale)
+			{
+				*changed_window_custom_scale = (set_default) ? our_vars.var[i]->default_val : our_vars.var[i]->config_file_val;
+				update_windows_custom_scale(changed_window_custom_scale);
+				our_vars.var[i]->saved = 0;
+				break;
+			}
+		}
+	}
 }
 
 /*
@@ -1850,26 +1912,23 @@ void free_vars(void)
 	for(i= 0; i < our_vars.no; i++)
 	{
 		switch(our_vars.var[i]->type) {
-			case OPT_INT:
-			case OPT_FLOAT:
-			case OPT_FLOAT_F:
-			case OPT_INT_F:
-				queue_destroy(our_vars.var[i]->queue);
-				break;
 			case OPT_MULTI:
 			case OPT_MULTI_H:
-				if(our_vars.var[i]->queue != NULL) {
-					while(!queue_isempty(our_vars.var[i]->queue)) {
-						//We don't free() because it's not allocated.
-						queue_pop(our_vars.var[i]->queue);
-					}
-					queue_destroy(our_vars.var[i]->queue);
+				if (our_vars.var[i]->args.multi.count && our_vars.var[i]->args.multi.strings)
+				{
+					free(our_vars.var[i]->args.multi.strings);
+					our_vars.var[i]->args.multi.count = 0;
 				}
 				break;
 			default:
 				/* do nothing */ ;
 		}
 		free(our_vars.var[i]);
+	}
+	if (our_vars.var != NULL)
+	{
+		free(our_vars.var);
+		our_vars.var = NULL;
 	}
 	our_vars.no=0;
 }
@@ -1878,39 +1937,33 @@ static void add_var(option_type type, char * name, char * shortname, void * var,
 {
 	int *integer=var;
 	float *f=var;
-	int no=our_vars.no++;
+	int no=our_vars.no;
 	char *pointer;
-	float *tmp_f;
-	uintptr_t *tmp_i;
-	int_min_max_func *i_func;
-	float_min_max_func *f_func;
 	va_list ap;
+
+	our_vars.var = realloc(our_vars.var, ++our_vars.no * sizeof(var_struct *));
 
 	our_vars.var[no]=(var_struct*)calloc(1,sizeof(var_struct));
 	switch(our_vars.var[no]->type=type)
 	{
 		case OPT_MULTI:
 		case OPT_MULTI_H:
-			queue_initialise(&our_vars.var[no]->queue);
+			our_vars.var[no]->args.multi.strings = NULL;
+			our_vars.var[no]->args.multi.count = 0;
 			va_start(ap, tab_id);
 			while((pointer= va_arg(ap, char *)) != NULL) {
-				queue_push(our_vars.var[no]->queue, pointer);
+				our_vars.var[no]->args.multi.strings = realloc(our_vars.var[no]->args.multi.strings, sizeof(char *) * (our_vars.var[no]->args.multi.count + 1));
+				our_vars.var[no]->args.multi.strings[our_vars.var[no]->args.multi.count] = pointer;
+				our_vars.var[no]->args.multi.count++;
 			}
 			va_end(ap);
 			*integer= (int)def;
 		break;
 		case OPT_INT:
 		case OPT_INT_INI:
-			queue_initialise(&our_vars.var[no]->queue);
 			va_start(ap, tab_id);
-			//Min
-			tmp_i= calloc(1,sizeof(*tmp_i));
-			*tmp_i= va_arg(ap, uintptr_t);
-			queue_push(our_vars.var[no]->queue, tmp_i);
-			//Max
-			tmp_i= calloc(1,sizeof(*tmp_i));
-			*tmp_i= va_arg(ap, uintptr_t);
-			queue_push(our_vars.var[no]->queue, tmp_i);
+			our_vars.var[no]->args.imm.min = va_arg(ap, uintptr_t);
+			our_vars.var[no]->args.imm.max = va_arg(ap, uintptr_t);
 			va_end(ap);
 			*integer= (int)def;
 		break;
@@ -1923,52 +1976,25 @@ static void add_var(option_type type, char * name, char * shortname, void * var,
 			our_vars.var[no]->len=(int)def;
 			break;
 		case OPT_FLOAT:
-			queue_initialise(&our_vars.var[no]->queue);
 			va_start(ap, tab_id);
-			//Min
-			tmp_f= calloc(1,sizeof(*tmp_f));
-			*tmp_f= va_arg(ap, double);
-			queue_push(our_vars.var[no]->queue, (void *)tmp_f);
-			//Max
-			tmp_f= calloc(1,sizeof(*tmp_f));
-			*tmp_f= va_arg(ap, double);
-			queue_push(our_vars.var[no]->queue, (void *)tmp_f);
-			//Interval
-			tmp_f= calloc(1,sizeof(*tmp_f));
-			*tmp_f= va_arg(ap, double);
-			queue_push(our_vars.var[no]->queue, (void *)tmp_f);
+			our_vars.var[no]->args.fmmi.min = va_arg(ap, double);
+			our_vars.var[no]->args.fmmi.max = va_arg(ap, double);
+			our_vars.var[no]->args.fmmi.interval = va_arg(ap, double);
 			va_end(ap);
 			*f=def;
 			break;
 		case OPT_FLOAT_F:
-			queue_initialise(&our_vars.var[no]->queue);
 			va_start(ap, tab_id);
-			//Min
-			f_func = calloc(1, sizeof(*f_func));
-			*f_func = va_arg(ap, float_min_max_func);
-			queue_push(our_vars.var[no]->queue, f_func);
-			//Max
-			f_func = calloc(1, sizeof(*f_func));
-			*f_func = va_arg(ap, float_min_max_func);
-			queue_push(our_vars.var[no]->queue, f_func);
-			//Interval
-			tmp_f = calloc(1,sizeof(*tmp_f));
-			*tmp_f = va_arg(ap, double);
-			queue_push(our_vars.var[no]->queue, (void *)tmp_f);
+			our_vars.var[no]->args.fmmif.min = va_arg(ap, float (*)());
+			our_vars.var[no]->args.fmmif.max = va_arg(ap, float (*)());
+			our_vars.var[no]->args.fmmif.interval = va_arg(ap, double);
 			va_end(ap);
 			*f = def;
 			break;
 		case OPT_INT_F:
-			queue_initialise(&our_vars.var[no]->queue);
 			va_start(ap, tab_id);
-			//Min
-			i_func = calloc(1, sizeof(*i_func));
-			*i_func = va_arg(ap, int_min_max_func);
-			queue_push(our_vars.var[no]->queue, i_func);
-			//Max
-			i_func = calloc(1, sizeof(*i_func));
-			*i_func = va_arg(ap, int_min_max_func);
-			queue_push(our_vars.var[no]->queue, i_func);
+			our_vars.var[no]->args.immf.min = va_arg(ap, int (*)());
+			our_vars.var[no]->args.immf.max = va_arg(ap, int (*)());
 			va_end(ap);
 			*integer = (int)def;
 			break;
@@ -1999,7 +2025,9 @@ void add_multi_option(char * name, char * str)
 	}
 	else
 	{
-		queue_push(our_vars.var[var_index]->queue, str);
+		our_vars.var[var_index]->args.multi.strings = realloc(our_vars.var[var_index]->args.multi.strings, sizeof(char *) * (our_vars.var[var_index]->args.multi.count + 1));
+		our_vars.var[var_index]->args.multi.strings[our_vars.var[var_index]->args.multi.count] = str;
+		our_vars.var[var_index]->args.multi.count++;
 	}
 }
 
@@ -2009,6 +2037,7 @@ void add_multi_option(char * name, char * str)
 static void init_ELC_vars(void)
 {
 	int i;
+	char * win_scale_description = "Multiplied by the user interface scaling factor. With the mouse over the window: change ctrl+mousewheel up/down or ctrl+cursor up/down, set default ctrl+HOME, set initial ctrl+END.";
 
 	// CONTROLS TAB
 	add_var(OPT_BOOL,"sit_lock","sl",&sit_lock,change_var,0,"Sit Lock","Enable this to prevent your character from moving by accident when you are sitting.",CONTROLS);
@@ -2135,8 +2164,24 @@ static void init_ELC_vars(void)
 	add_var(OPT_FLOAT,"mapmark_text_size", "marksize", &mapmark_zoom, change_float, 0.3, "Mapmark Text Size","Sets the size of the mapmark text", FONT, 0.0, FLT_MAX, 0.01);
 	add_var(OPT_MULTI,"name_font","nfont",&name_font,change_int,0,"Name Font","Change the type of font used for the name",FONT, NULL);
 	add_var(OPT_MULTI,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT, NULL);
-	add_var(OPT_FLOAT,"ui_scale","ui_scale",&ui_scale,change_ui_scale,1,"User interface scaling factor","Under development: Scale user interface by this factor, useful for high DPI displays.  Note: the options window will be rescaled on the next restart.",FONT,0.75,3.0,0.01);
-	add_var(OPT_INT,"cursor_scale_factor","cursor_scale_factor",&cursor_scale_factor ,change_cursor_scale_factor,cursor_scale_factor,"Set mouse pointer scaling factor","The size of the mouse pointer is scaled by this factor",FONT, 1, max_cursor_scale_factor);
+	add_var(OPT_FLOAT,"ui_scale","ui_scale",&ui_scale,change_ui_scale,1,"User interface scaling factor","Scale user interface by this factor, useful for high DPI displays.  Note: the options window will be rescaled after reopening.",FONT,0.75,3.0,0.01);
+	add_var(OPT_INT,"cursor_scale_factor","cursor_scale_factor",&cursor_scale_factor ,change_cursor_scale_factor,cursor_scale_factor,"Mouse pointer scaling factor","The size of the mouse pointer is scaled by this factor",FONT, 1, max_cursor_scale_factor);
+	add_var(OPT_FLOAT,"trade_win_scale","tradewinscale",&custom_scale_factors.trade,change_win_scale_factor,1.0f,"Trade window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"item_win_scale","itemwinscale",&custom_scale_factors.items,change_win_scale_factor,1.0f,"Inventory window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"bags_win_scale","bagswinscale",&custom_scale_factors.bags,change_win_scale_factor,1.0f,"Ground bag window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"spells_win_scale","spellswinscale",&custom_scale_factors.spells,change_win_scale_factor,1.0f,"Spells window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"storage_win_scale","storagewinscale",&custom_scale_factors.storage,change_win_scale_factor,1.0f,"Storage window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"manu_win_scale","manuwinscale",&custom_scale_factors.manufacture,change_win_scale_factor,1.0f,"Manufacturing window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"emote_win_scale","emotewinscale",&custom_scale_factors.emote,change_win_scale_factor,1.0f,"Emote window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"questlog_win_scale","questlogwinscale",&custom_scale_factors.questlog,change_win_scale_factor,1.0f,"Quest log window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"note_url_win_scale","noteurlwinscale",&custom_scale_factors.info,change_win_scale_factor,1.0f,"Notepad/URL window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"buddy_win_scale","buddywinscale",&custom_scale_factors.buddy,change_win_scale_factor,1.0f,"Buddy window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"stats_win_scale","statswinscale",&custom_scale_factors.stats,change_win_scale_factor,1.0f,"Stats window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"help_win_scale","helpwinscale",&custom_scale_factors.help,change_win_scale_factor,1.0f,"Help window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"ranging_win_scale","rangingwinscale",&custom_scale_factors.ranging,change_win_scale_factor,1.0f,"Ranging window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"options_win_scale","optionswinscale",&elconf_custom_scale,change_elconf_win_scale_factor,1.0f,"Options window scaling factor","Multiplied by the user interface scaling factor. Change will take effect after closing then reopening the window.",FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"achievements_win_scale","achievementswinscale",&custom_scale_factors.achievements,change_win_scale_factor,1.0f,"Achievements window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"dialogue_win_scale","dialoguewinscale",&custom_scale_factors.dialogue,change_win_scale_factor,1.0f,"Dialogue window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
 	// FONT TAB
 
 
@@ -2292,6 +2337,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"ati_click_workaround", "atibug", &ati_click_workaround, change_var, 0, "ATI Bug", "If you are using an ATI graphics card and don't move when you click, try this option to work around a bug in their drivers.", TROUBLESHOOT);
 	add_var (OPT_BOOL,"use_old_clicker", "oldmclick", &use_old_clicker, change_var, 0, "Mouse Bug", "Unrelated to ATI graphics cards, if clicking to walk doesn't move you, try toggling this option.", TROUBLESHOOT);
 	add_var(OPT_BOOL,"use_new_selection", "uns", &use_new_selection, change_new_selection, 1, "New selection", "Using new selection can give you a higher framerate.  However, if your cursor does not change when over characters or items, try disabling this option.", TROUBLESHOOT);
+	add_var(OPT_BOOL,"clear_mod_keys_on_focus", "clear_mod_keys_on_focus", &clear_mod_keys_on_focus, change_var, 0, "Clear modifier keys when window focused","If you have trouble with modifier keys (shift/ctrl/alt etc) when keyboard focus returns, enable this option to force all modifier keys up.", TROUBLESHOOT);
 	add_var(OPT_BOOL,"use_compiled_vertex_array","cva",&use_compiled_vertex_array,change_compiled_vertex_array,1,"Compiled Vertex Array","Some systems will not support the new compiled vertex array in EL. Disable this if some 3D objects do not display correctly.",TROUBLESHOOT);
 	add_var(OPT_BOOL,"use_draw_range_elements","dre",&use_draw_range_elements,change_var,1,"Draw Range Elements","Disable this if objects appear partially stretched.",TROUBLESHOOT);
 	add_var(OPT_BOOL,"use_point_particles","upp",&use_point_particles,change_point_particles,1,"Point Particles","Some systems will not support the new point based particles in EL. Disable this if your client complains about not having the point based particles extension.",TROUBLESHOOT);
@@ -2762,12 +2808,6 @@ static void elconfig_populate_tabs(void)
 	int widget_height, label_height; //Used to calculate the y pos of the next option
 	int y; //Used for the position of multiselect buttons
 	int x; //Used for the position of multiselect buttons
-	void *min, *max; //For the spinbuttons
-	float *interval;
-	int_min_max_func *i_min_func;
-	int_min_max_func *i_max_func;
-	float_min_max_func *f_min_func;
-	float_min_max_func *f_max_func;
 
 	for(i= 0; i < MAX_TABS; i++) {
 		//Set default values
@@ -2798,41 +2838,26 @@ static void elconfig_populate_tabs(void)
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, onclick_checkbox_handler);
 			break;
 			case OPT_INT:
-				min= queue_pop(our_vars.var[i]->queue);
-				max= queue_pop(our_vars.var[i]->queue);
 				/* interval is always 1 */
-
 				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
 					elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
 				widget_id = spinbutton_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
 					elconfig_menu_x_len/4*3, elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(100), ELCONFIG_SCALED_VALUE(20),
-					SPIN_INT, our_vars.var[i]->var, *(int *)min, *(int *)max, 1.0, elconf_scale, -1, -1, -1);
+					SPIN_INT, our_vars.var[i]->var, our_vars.var[i]->args.imm.min,
+					our_vars.var[i]->args.imm.max, 1.0, elconf_scale, -1, -1, -1);
 				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, (int (*)())spinbutton_onkey_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
-				free(min);
-				free(max);
-				queue_destroy(our_vars.var[i]->queue);
-				our_vars.var[i]->queue= NULL;
 			break;
 			case OPT_FLOAT:
-				min= queue_pop(our_vars.var[i]->queue);
-				max= queue_pop(our_vars.var[i]->queue);
-				interval= (float *)queue_pop(our_vars.var[i]->queue);
-
 				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
 					elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y,
 					0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
-
 				widget_id = spinbutton_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
 					elconfig_menu_x_len/4*3, elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(100), ELCONFIG_SCALED_VALUE(20),
-					SPIN_FLOAT, our_vars.var[i]->var, *(float *)min, *(float *)max, *interval, elconf_scale, -1, -1, -1);
+					SPIN_FLOAT, our_vars.var[i]->var, our_vars.var[i]->args.fmmi.min, our_vars.var[i]->args.fmmi.max,
+					our_vars.var[i]->args.fmmi.interval, elconf_scale, -1, -1, -1);
 				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, (int (*)())spinbutton_onkey_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
-				free(min);
-				free(max);
-				free(interval);
-				queue_destroy(our_vars.var[i]->queue);
-				our_vars.var[i]->queue= NULL;
 			break;
 			case OPT_STRING:
 				// don't display the username, if it is changed after login, any name tagged files will be saved using the new name
@@ -2860,8 +2885,8 @@ static void elconfig_populate_tabs(void)
 				widget_id = multiselect_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
 					elconfig_tabs[tab_id].x+SPACING+elconf_scale*get_string_width(our_vars.var[i]->display.str), elconfig_tabs[tab_id].y,
 					ELCONFIG_SCALED_VALUE(250), ELCONFIG_SCALED_VALUE(80), elconf_scale, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
-				for(y= 0; !queue_isempty(our_vars.var[i]->queue); y++) {
-					char *label= queue_pop(our_vars.var[i]->queue);
+				for(y= 0; y<our_vars.var[i]->args.multi.count; y++) {
+					char *label= our_vars.var[i]->args.multi.strings[y];
 					int width= strlen(label) > 0 ? 0 : -1;
 
 					multiselect_button_add_extended(elconfig_tabs[tab_id].tab, widget_id,
@@ -2871,54 +2896,36 @@ static void elconfig_populate_tabs(void)
 					}
 				}
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, multiselect_click_handler);
-				queue_destroy(our_vars.var[i]->queue);
-				our_vars.var[i]->queue= NULL;
 			break;
 			case OPT_FLOAT_F:
-				f_min_func = queue_pop(our_vars.var[i]->queue);
-				f_max_func = queue_pop(our_vars.var[i]->queue);
-				interval= (float *)queue_pop(our_vars.var[i]->queue);
-
 				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
 					elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y,
 					0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
-
 				widget_id = spinbutton_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
 					elconfig_menu_x_len/4*3, elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(100), ELCONFIG_SCALED_VALUE(20),
-					SPIN_FLOAT, our_vars.var[i]->var, (*f_min_func)(), (*f_max_func)(), *interval, elconf_scale, -1, -1, -1);
+					SPIN_FLOAT, our_vars.var[i]->var, our_vars.var[i]->args.fmmif.min(), our_vars.var[i]->args.fmmif.max(),
+					our_vars.var[i]->args.fmmif.interval, elconf_scale, -1, -1, -1);
 				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, (int (*)())spinbutton_onkey_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
-				free(f_min_func);
-				free(f_max_func);
-				free(interval);
-				queue_destroy(our_vars.var[i]->queue);
-				our_vars.var[i]->queue= NULL;
 			break;
 			case OPT_INT_F:
-				i_min_func = queue_pop(our_vars.var[i]->queue);
-				i_max_func = queue_pop(our_vars.var[i]->queue);
 				/* interval is always 1 */
-
 				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
 					elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y,
 					0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
 				widget_id = spinbutton_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
 					elconfig_menu_x_len/4*3, elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(100), ELCONFIG_SCALED_VALUE(20),
-					SPIN_INT, our_vars.var[i]->var, (*i_min_func)(), (*i_max_func)(), 1.0, elconf_scale, -1, -1, -1);
+					SPIN_INT, our_vars.var[i]->var, our_vars.var[i]->args.immf.min(), our_vars.var[i]->args.immf.max(), 1.0, elconf_scale, -1, -1, -1);
 				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, (int (*)())spinbutton_onkey_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
-				free(i_min_func);
-				free(i_max_func);
-				queue_destroy(our_vars.var[i]->queue);
-				our_vars.var[i]->queue= NULL;
 			break;
 			case OPT_MULTI_H:
 
 				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
 				widget_id= multiselect_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x+SPACING+elconf_scale*get_string_width(our_vars.var[i]->display.str), elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(350), ELCONFIG_SCALED_VALUE(80), elconf_scale, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
 				x = 0;
-				for(y= 0; !queue_isempty(our_vars.var[i]->queue); y++) {
-					char *label= queue_pop(our_vars.var[i]->queue);
+				for(y= 0; y<our_vars.var[i]->args.multi.count; y++) {
+					char *label= our_vars.var[i]->args.multi.strings[y];
 
 					int radius = elconf_scale*BUTTONRADIUS;
 					float width_ratio = elconf_scale*DEFAULT_FONT_X_LEN/12.0f;
@@ -2938,8 +2945,6 @@ static void elconfig_populate_tabs(void)
 					}
 				}
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, multiselect_click_handler);
-				queue_destroy(our_vars.var[i]->queue);
-				our_vars.var[i]->queue= NULL;
 			break;
 		}
 
@@ -2986,11 +2991,28 @@ static int show_elconfig_handler(window_info * win) {
 	return 1;
 }
 
+// It would be messy to resize the window each time the scale option is changed so
+// keep the scale at the original value until we can recreate.
 static int ui_scale_elconfig_handler(window_info *win)
 {
-	// keep the scale at the original value
-	update_window_scale(win, elconf_scale);
+	update_window_scale(win, elconf_scale); // stop scale change impacting immediately
+	recheck_window_scale = 1; // check later of can now rescale
 	return 1;
+}
+
+//  Called from the low freqency timer as we can't initiate distorying a window in from one of its call backs.
+//  If the scale has changed and the window is hidden, destroy it, it will be re-create with the new scale
+void check_for_config_window_scale(void)
+{
+	if (recheck_window_scale && (elconfig_win >= 0) && !get_show_window(elconfig_win))
+	{
+		size_t i;
+		for (i=MAX_TABS; i>0; i--)
+			tab_collection_close_tab(elconfig_win, elconfig_tab_collection_id, i-1);
+		destroy_window(elconfig_win);
+		elconfig_win = -1;
+		recheck_window_scale = 0;
+	}
 }
 
 void display_elconfig_win(void)
@@ -3003,7 +3025,7 @@ void display_elconfig_win(void)
 			our_root_win= game_root_win;
 		}
 
-		elconf_scale = ui_scale;
+		elconf_scale = ui_scale * elconf_custom_scale;
 		CHECKBOX_SIZE = ELCONFIG_SCALED_VALUE(15);
 		SPACING = ELCONFIG_SCALED_VALUE(5);
 		LONG_DESC_SPACE = SPACING + ELCONFIG_SCALED_VALUE(MAX_LONG_DESC_LINES * SMALL_FONT_Y_LEN);
@@ -3015,6 +3037,8 @@ void display_elconfig_win(void)
 		/* Set up the window */
 		elconfig_win= create_window(win_configuration, our_root_win, 0, elconfig_menu_x, elconfig_menu_y,
 			elconfig_menu_x_len, elconfig_menu_y_len, ELW_WIN_DEFAULT|ELW_USE_UISCALE);
+		if (elconfig_win >=0 && elconfig_win < windows_list.num_windows)
+			update_window_scale(&windows_list.window[elconfig_win], elconf_scale);
 		set_window_color(elconfig_win, ELW_COLOR_BORDER, 0.77f, 0.59f, 0.39f, 0.0f);
 		set_window_handler(elconfig_win, ELW_HANDLER_DISPLAY, &display_elconfig_handler );
 		set_window_handler(elconfig_win, ELW_HANDLER_UI_SCALE, &ui_scale_elconfig_handler );

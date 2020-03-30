@@ -924,6 +924,7 @@ void Quest_List::open_window(void)
 		win_id = create_window(questlist_filter_title_str, questlog_win, 0, 0, 0, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT|ELW_RESIZEABLE);
 		if (win_id < 0 || win_id >= windows_list.num_windows)
 			return;
+		set_window_custom_scale(win_id, &custom_scale_factors.questlog);
 		set_window_handler(win_id, ELW_HANDLER_DISPLAY, (int (*)())&display_questlist_handler );
 		set_window_handler(win_id, ELW_HANDLER_CLICK, (int (*)())&click_questlist_handler );
 		set_window_handler(win_id, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_questlist_handler );
@@ -1328,6 +1329,7 @@ void NPC_Filter::open_window(void)
 		npc_filter_win = create_window(questlog_npc_filter_title_str, questlog_win, 0, 0, 0, 0, 0, ELW_USE_UISCALE|ELW_SCROLLABLE|ELW_RESIZEABLE|ELW_WIN_DEFAULT);
 		if (npc_filter_win < 0 && npc_filter_win >=  windows_list.num_windows)
 			return;
+		set_window_custom_scale(npc_filter_win, &custom_scale_factors.questlog);
 		set_window_handler(npc_filter_win, ELW_HANDLER_DISPLAY, (int (*)())&display_npc_filter_handler );
 		set_window_handler(npc_filter_win, ELW_HANDLER_CLICK, (int (*)())&click_npc_filter_handler );
 		set_window_handler(npc_filter_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_npc_filter_handler );
@@ -1813,6 +1815,7 @@ void Questlog_Window::open(void)
 		questlog_win = create_window(tab_questlog,our_root_win, 0, questlog_menu_x, questlog_menu_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 		if (questlog_win < 0 || questlog_win >= windows_list.num_windows)
 			return;
+		set_window_custom_scale(questlog_win, &custom_scale_factors.questlog);
 		set_window_handler(questlog_win, ELW_HANDLER_DISPLAY, (int (*)())display_questlog_handler);
 		set_window_handler(questlog_win, ELW_HANDLER_CLICK, (int (*)())questlog_click);
 		set_window_handler(questlog_win, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_questlog_handler );

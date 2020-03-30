@@ -410,10 +410,6 @@ char* fromUTF8 (const xmlChar* str, int len);
  */
 char *substitute_char_with_string(const char *str, char **out_str, char to_sub, const char* with_sub);
 
-
-
-
-
 /*!
  * \brief Get a copy of a string truncated to be no wider than specified.
  *
@@ -431,6 +427,22 @@ char *substitute_char_with_string(const char *str, char **out_str, char to_sub, 
  * \return a pointer to the destination string
  */
 char *truncated_string(char *dest, const char *source, size_t dest_max_len, const char *append_str, float max_len_x, float font_ratio);
+
+
+/*!
+ * \brief Remove white space from the end of the supplied string.
+ *
+ * Remove white space from the end of the supplied string.  This function
+ * uses the isspace() function.  From the man page:
+ * In the "C" and "POSIX" locales, these are: space, form-feed
+ * ('\f'), newline ('\n'), carriage return ('\r'), horizontal tab ('\t'), and vertical tab ('\v').
+ *
+ * \note The string must be writable.
+ *
+ * \param the_string The string to be converted.
+ * \return return the pointer to the string.
+ */
+char * rtrim_string(char *the_string);
 
 #ifdef __cplusplus
 } // extern "C"

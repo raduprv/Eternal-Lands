@@ -1,5 +1,6 @@
-eternallands (1.9.5.6-1ubuntu1) trusty; urgency=low
+eternallands (1.9.5.7-0ubuntu1) xenial; urgency=low
 
-  * 1.9.5 p6 release, SDL2 port
+  * 1.9.5 p7 release see:
+  * https://github.com/raduprv/Eternal-Lands/releases/tag/1.9.5.7
 
- -- Paul Broadhead <pjbroad@twinmoons.org.uk>  Sun, 05 Jan 2020 19:23:22 +0000
+ -- Paul Broadhead <pjbroad@twinmoons.org.uk>  Mon, 30 Mar 2020 21:56:45 +0100

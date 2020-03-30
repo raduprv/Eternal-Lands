@@ -6,6 +6,7 @@
 #include "cal.h"
 #include "console.h"
 #include "cursors.h"
+#include "elconfig.h"
 #if !defined(MAP_EDITOR)
 #include "elwindows.h"
 #endif
@@ -183,6 +184,8 @@ void draw_scene()
 			used_item_counter_timer();
 			/* make sure minimised or restored window is noticed */
 			check_minimised_or_restore_window();
+			/* check if we need to action a scale change for the config window */
+			check_for_config_window_scale();
 			/* until next time */
 			last_half_second_timer = current_time;
 		}

@@ -13,9 +13,15 @@
 <colour name="minimap.servermark" r="0.33" g="0.6" b="1.0"/>
 <colour name="minimap.otherplayer" r="1.0" g="1.0" b="1.0"/>
 <colour name="minimap.cross" r="1.0" g="0.0" b="1.0"/>
+
 <colour name="global.mousehighlight" r="0.5" g="0.5" b="1.0"/>
 <colour name="global.mouseselected" r="0.4" g="0.8" b="1.0"/>
+
 <colour name="buff.duration.background" r="0.1" g="0.3" b="1.0" a="0.7"/>
+
+<colour name="popup.normaltext" r="0.3" g="0.6" b="1.0" a="1.0"/>
+<colour name="popup.optiontext" r="0.6" g="0.3" b="1.0" a="1.0"/>
+<colour name="popup.optiontextmouseover" r="1.0" g="1.0" b="1.0" a="1.0"/>
 
 <!-- Alpha can be specified too
 <colour name="test" r="1.0" g="1.0" b="1.0" a="1.0"/>

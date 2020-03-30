@@ -882,7 +882,8 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 			{
 				touch_player((int)object_under_mouse);
 				// clear the previous dialogue entries, so we won't have a left over from some other NPC
-				clear_dialogue_responses();
+				if (thing_under_the_mouse == UNDER_MOUSE_NPC)
+					clear_dialogue_responses();
 				return 1;
 			}
 			
@@ -1864,6 +1865,12 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 	}
 	else if (action_spell_keys(key_code, key_mod))
 	{
+	}
+	else if (KEY_DEF_CMP(K_SUMMONINGMENU, key_code, key_mod))
+	{
+		int actor_to_touch = get_id_last_summoned();
+		if (actor_to_touch >= 0)
+			touch_player(actor_to_touch);
 	}
 	// hide all windows
 	else if (KEY_DEF_CMP(K_HIDEWINS, key_code, key_mod))

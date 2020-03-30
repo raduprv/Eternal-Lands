@@ -57,6 +57,7 @@ void display_tab_stats ()
 			our_root_win = game_root_win;
 		}
 		tab_stats_win = create_window (win_statistics, our_root_win, 0, tab_stats_x, tab_stats_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+		set_window_custom_scale(tab_stats_win, &custom_scale_factors.stats);
 		set_window_handler(tab_stats_win, ELW_HANDLER_UI_SCALE, &ui_scale_stats_handler );
 		tab_stats_collection_id = tab_collection_add_extended (tab_stats_win, tab_stats_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, 0, 0, 0, DEFAULT_SMALL_RATIO, 0.77f, 0.57f, 0.39f, 3);
 
@@ -106,6 +107,7 @@ void display_tab_help ()
 	if (tab_help_win < 0)
 	{
 		tab_help_win = create_window (win_help, -1, 0, tab_help_x, tab_help_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+		set_window_custom_scale(tab_help_win, &custom_scale_factors.help);
 		set_window_handler(tab_help_win, ELW_HANDLER_UI_SCALE, &ui_scale_help_handler );
 		tab_help_collection_id = tab_collection_add_extended (tab_help_win, tab_help_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, 0, 0, 0, DEFAULT_SMALL_RATIO, 0.77f, 0.57f, 0.39f, 3);
 
@@ -153,6 +155,7 @@ void display_tab_info()
 			our_root_win = game_root_win;
 
 		tab_info_win = create_window (tt_info, our_root_win, 0, tab_info_x, tab_info_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+		set_window_custom_scale(tab_info_win, &custom_scale_factors.info);
 		set_window_handler(tab_info_win, ELW_HANDLER_UI_SCALE, &ui_scale_info_handler );
 		tab_info_collection_id = tab_collection_add_extended (tab_info_win, tab_info_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, 0, 0, 0, DEFAULT_SMALL_RATIO, 0.77f, 0.57f, 0.39f, 3);
 

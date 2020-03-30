@@ -63,6 +63,7 @@ typedef	struct	{
 	 */
 	/*! @{ */
 	float current_scale;
+	float *custom_scale;
 	int box_size;
 	int title_height;
 	int small_font_len_x;
@@ -244,12 +245,56 @@ typedef	struct	{
 	int	display_level;
 } windows_info;
 
+/*!
+ * set of window custom scale factors
+ */
+typedef struct {
+	float trade;
+	float items;
+	float bags;
+	float spells;
+	float storage;
+	float manufacture;
+	float emote;
+	float questlog;
+	float info;
+	float buddy;
+	float stats;
+	float help;
+	float ranging;
+	float achievements;
+	float dialogue;
+} custom_scale_factors_def;
+
+extern custom_scale_factors_def custom_scale_factors; /*!<* window custom scale factors */
 extern	windows_info	windows_list; /*!< global variable defining the list of windows */
 extern int windows_on_top; /*!< global variable for whether windows appear on top of the console */
 extern int top_SWITCHABLE_OPAQUE_window_drawn; /*!< the id of the top opaque switchable window */
 extern int opaque_window_backgrounds;
 
 // windows manager function
+
+/*!
+ * \ingroup elwindows
+ * \brief   Set the window custom scale factor
+ *
+ *      This value is multipled by the global scale value to
+ * determine the specific scale used for this window.
+ *
+ * \param win_id    the id of the window to select
+ * \param scale_factor     pointer to the scaling factor
+ * \callgraph
+ */
+void set_window_custom_scale(int win_id, float *new_scale);
+
+/*!
+ * \ingroup elwindows
+ * \brief   For each window using the specifed scale, update scaling.
+ *
+ * changed_window_custom_scale	pointer to the variable from custom_scale_factors_def
+ * \callgraph
+ */
+void update_windows_custom_scale(float *changed_window_custom_scale);
 
 /*!
  * \ingroup elwindows

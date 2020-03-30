@@ -25,7 +25,9 @@
 #include <algorithm>
 
 #include "client_serv.h"
+#include "elloggingwrapper.h"
 #include "init.h"
+#include "item_info.h"
 #include "items.h"
 #include "io/elpathwrapper.h"
 #include "text.h"
@@ -43,20 +45,33 @@ namespace Item_Info
 			bool is_valid(void) const { return valid; }
 			const std::string &get_description(void) const { return description; }
 			int get_emu(void) const { return emu; }
+			enum EQUIP_TYPE get_equip_type(void) const { return equip_type; }
+			void set_equip_type(std::string &text);
 			const bool compare(Uint16 the_item_id, int the_image_id) const;
 		private:
+			static void trim_text(std::string &text);
 			Uint16 item_id;
 			int image_id;
 			int emu;
 			std::string description;
 			bool valid;
+			enum EQUIP_TYPE equip_type;
 	};
+
+
+	//	Helper function to trim text
+	void Item::trim_text(std::string &the_string)
+	{
+		// thanks http://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring
+		the_string.erase(the_string.begin(), std::find_if(the_string.begin(), the_string.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+		the_string.erase(std::find_if(the_string.rbegin(), the_string.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), the_string.end());
+	}
 
 
 	//	Construct the item by parsing the line from the item_info.txt file
 	//
 	Item::Item(const std::string &text)
-		: valid(false)
+		: valid(false), equip_type(EQUIP_NONE)
 	{
 		std::stringstream ss(text);
 		std::vector<std::string> fields;
@@ -69,9 +84,7 @@ namespace Item_Info
 		image_id = atoi(fields[1].c_str());
 		emu = atoi(fields[2].c_str());
 		description = fields[3];
-		// thanks http://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring
-		description.erase(description.begin(), std::find_if(description.begin(), description.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
-		description.erase(std::find_if(description.rbegin(), description.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), description.end());
+		trim_text(description);
 		if (description.empty())
 			return;
 		valid = true;
@@ -90,6 +103,28 @@ namespace Item_Info
 	}
 
 
+	//	Set the item equipment type, converting the string to the EQUIP_TYPE type
+	//
+	void Item::set_equip_type(std::string &type_text)
+	{
+		typedef struct { const char *str; enum EQUIP_TYPE equip_type; } string_to_type;
+		string_to_type table[] =
+			{	{"HEAD", EQUIP_HEAD}, {"BODY", EQUIP_BODY}, {"LEGS", EQUIP_LEGS},
+				{"FEET", EQUIP_FEET}, {"NECK", EQUIP_NECK}, {"RIGHT_HAND", EQUIP_RIGHT_HAND},
+				{"LEFT_HAND", EQUIP_LEFT_HAND}, {"BOTH_HANDS", EQUIP_BOTH_HANDS}, {"CLOAK", EQUIP_CLOAK} };
+		trim_text(type_text);
+		std::transform(type_text.begin(), type_text.end(), type_text.begin(), toupper);
+		if (type_text.empty())
+			return;
+		for (size_t i = 0; i < sizeof(table)/sizeof(string_to_type); i++)
+			if (std::string(table[i].str) == type_text)
+			{
+				equip_type = table[i]. equip_type;
+				return;
+			}
+	}
+
+
 	//	Class to hold the list of items
 	//
 	class List
@@ -99,16 +134,20 @@ namespace Item_Info
 			~List(void);
 			const std::string &get_description(Uint16 item_id, int image_id);
 			int get_emu(Uint16 item_id, int image_id);
+			enum EQUIP_TYPE get_equip_type(Uint16 item_id, int image_id);
 			int get_count(Uint16 item_id, int image_id);
 			bool info_available(void) { if (!load_tried) load(); return !the_list.empty(); }
 			void help_if_needed(void);
 			void filter_by_description(Uint8 *storage_items_filter, const ground_item *storage_items, const char *filter_item_text, int no_storage);
 		private:
 			Item *get_item(Uint16 item_id, int image_id);
+			void open_file(std::ifstream &in, std::string &filename);
 			void load(void);
+			void load_extra(void);
 			std::vector<Item *> the_list;
 			static std::string empty_str;
 			static std::string item_info_filename;
+			static std::string item_extra_info_filename;
 			bool load_tried, shown_help;
 			Item *last_item;
 			class Count
@@ -130,6 +169,7 @@ namespace Item_Info
 
 	std::string List::empty_str;
 	std::string List::item_info_filename = "item_info.txt";
+	std::string List::item_extra_info_filename = "item_extra_info.txt";
 
 
 	//	Clean up memory on exit
@@ -181,6 +221,17 @@ namespace Item_Info
 	}
 
 
+	//	Get the equipment type for the specified ids, or return EQUIP_NONE
+	//
+	enum EQUIP_TYPE List::get_equip_type(Uint16 item_id, int image_id)
+	{
+		Item *matching_item = get_item(item_id, image_id);
+		if (matching_item)
+			return matching_item->get_equip_type();
+		return EQUIP_NONE;
+	}
+
+
 	//	Return the number of unique items matching the ids
 	//
 	int List::get_count(Uint16 item_id, int image_id)
@@ -225,16 +276,9 @@ namespace Item_Info
 	{
 		load_tried = true;
 		std::ifstream in;
-		std::string fname = std::string(get_path_updates()) + item_info_filename;
-		in.open(fname.c_str());
+		open_file(in, item_info_filename);
 		if (!in)
-		{
-			fname = std::string(datadir) + item_info_filename;
-			in.clear();
-			in.open(fname.c_str());
-			if (!in)
-				return;
-		}
+			return;
 		std::string line;
 		while (std::getline(in, line))
 		{
@@ -243,6 +287,64 @@ namespace Item_Info
 				the_list.push_back(new_item);
 			else
 				delete new_item;
+		}
+		load_extra();
+	}
+
+
+	//	Read lines from the item_extra_info.txt file and set objects accordingly.
+	//
+	void List::load_extra(void)
+	{
+		std::ifstream in;
+		open_file(in, item_extra_info_filename);
+		if (!in)
+			return;
+		std::string line;
+		bool version_checked = false;
+		while (std::getline(in, line))
+		{
+			if (!version_checked)
+			{
+				std::stringstream ss(line);
+				int value = 0;
+				ss >> value;
+				if (value != 1)
+				{
+					LOG_ERROR("invalid version number [%d] for [%s]\n", value, item_extra_info_filename.c_str());
+					return;
+				}
+				version_checked = true;
+			}
+			if (line.size() && line[0] == '#')
+				continue;
+			std::stringstream ss(line);
+			std::vector<std::string> fields;
+			std::string field;
+			while(std::getline(ss, field, '|'))
+				fields.push_back(field);
+			if (fields.size() != 4)
+				continue;
+			Uint16 item_id = atoi(fields[0].c_str());
+			int image_id = atoi(fields[1].c_str());
+			Item *matching_item = get_item(item_id, image_id);
+			if (matching_item)
+				matching_item->set_equip_type(fields[2]);
+		}
+	}
+
+
+	//	Helper function to open a file from update or data directory
+	//
+	void List::open_file(std::ifstream &in, std::string &filename)
+	{
+		std::string fname = std::string(get_path_updates()) + filename;
+		in.open(fname.c_str());
+		if (!in)
+		{
+			fname = std::string(datadir) + filename;
+			in.clear();
+			in.open(fname.c_str());
 		}
 	}
 
@@ -276,6 +378,7 @@ extern "C"
 	void filter_items_by_description(Uint8 *storage_items_filter, const ground_item *storage_items, const char *filter_item_text, int no_storage)
 		{ the_list.filter_by_description(storage_items_filter, storage_items, filter_item_text, no_storage); }
 	int get_item_emu(Uint16 item_id, int image_id) { return the_list.get_emu(item_id, image_id); }
+	enum EQUIP_TYPE get_item_equip_type(Uint16 item_id, int image_id) { return the_list.get_equip_type(item_id, image_id); }
 	int get_item_count(Uint16 item_id, int image_id) { return the_list.get_count(item_id, image_id); }
 	int item_info_available(void) { return ((the_list.info_available()) ?1: 0); }
 	void item_info_help_if_needed(void) { the_list.help_if_needed(); }

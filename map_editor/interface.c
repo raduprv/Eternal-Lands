@@ -2,6 +2,7 @@
 #include "global.h"
 #include "eye_candy_window.h"
 #include <math.h>
+#include "../asc.h"
 
 int show_position_on_minimap=0;
 
@@ -379,7 +380,7 @@ void draw_3d_obj_info()
 
 	y_menu+=17;
 	x_menu-=12*12*3;
-	sprintf((char *)str, "FN: %s",objects_list[selected_3d_object]->file_name);
+	snprintf((char *)str, sizeof(str), "FN: %s",objects_list[selected_3d_object]->file_name);
 	draw_string(x_menu,y_menu,str,1);
 }
 
@@ -437,7 +438,7 @@ void draw_2d_obj_info()
 
 	y_menu+=17;
 	x_menu-=12*12;
-	sprintf((char *)str, "FN: %s",obj_2d_list[selected_2d_object]->file_name);
+	snprintf((char *)str, sizeof(str), "FN: %s",obj_2d_list[selected_2d_object]->file_name);
 	draw_string(x_menu,y_menu,str,1);
 
 }

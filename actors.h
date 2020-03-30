@@ -28,6 +28,7 @@ extern "C" {
 #define	MAX_FILE_PATH	128	// the max chars allowed int a path/filename for actor textures/masks
 #define MAX_ACTOR_DEFS  256
 #define MAX_ACTORS      1000    /*!< The maximum number of actors the client can hold */
+#define ACTOR_DEF_NAME_SIZE 256
 
 extern int yourself; 	/*!< This variable holds the actor_id (as the server sees it, not the position in the actors_list) of your character.*/
 extern int you_sit; 	/*!< Specifies if you are currently sitting down.*/
@@ -584,7 +585,7 @@ typedef struct
 	char remapped_colors;	/*!< If the actors colours are remapped it will holds the texture in actor->texture_id*/
 	GLuint texture_id;			/*!< Sets the texture ID, if the remapped_colors==1 - remember to glDeleteTextures*/
 	char skin_name[256];	/*!< Sets the skin name*/
-	char actor_name[256];	/*!< Sets the actors name - holds the guild name as well after a special 127+color character*/
+	char actor_name[ACTOR_DEF_NAME_SIZE];	/*!< Sets the actors name - holds the guild name as well after a special 127+color character*/
 	/*! \} */
 
 	/*! \name Command queue and current animations*/
@@ -875,6 +876,27 @@ void get_actor_rotation_matrix(actor *in_act, float *out_rot);
 void transform_actor_local_position_to_absolute(actor *in_act, float *in_local_pos, float *in_act_rot, float *out_pos);
 
 void draw_actor_without_banner(actor * actor_id, Uint32 use_lightning, Uint32 use_textures, Uint32 use_glow);
+
+/*!
+ * \brief Remember this last summoned creature.
+ *
+ * \param The name of the summoned creature
+ */
+void remember_new_summoned(const char *summoned_name);
+
+/*!
+ * \brief Check if a new actor is the last summoned by the player.  The actor mutex must be already held.
+ *
+ * \param Pointer to the new actors
+ */
+void check_if_new_actor_last_summoned(actor *new_actor);
+
+/*!
+ * \brief Get the actor ID of the last summoned creature
+ *
+ * \return The id or -1 of none remembered or no longer present.
+ */
+int get_id_last_summoned(void);
 
 static __inline__ int is_actor_held(actor *act)
 {

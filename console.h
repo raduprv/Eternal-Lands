@@ -55,7 +55,7 @@ void do_tab_complete(text_message *input);
 void reset_tab_completer(void);
 
 void auto_save_local_and_server(void);
-int save_local_data(char * text, int len);
+void save_local_data(void);
 
 int command_time(char *text, int len);
 int command_date(char *text, int len);

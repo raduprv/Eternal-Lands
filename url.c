@@ -798,6 +798,7 @@ static int resize_url_handler(window_info *win, int new_width, int new_height)
 /* fill the URL window created as a tab. */
 void fill_url_window(int window_id)
 {
+	set_window_custom_scale(window_id, &custom_scale_factors.info);
 	set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_url_handler );
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_url_handler );
 	set_window_handler(window_id, ELW_HANDLER_RESIZE, &resize_url_handler );

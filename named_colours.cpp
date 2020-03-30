@@ -184,6 +184,9 @@ namespace ELGL_Colour
 		add("global.mousehighlight", Colour_Tuple(0.5f, 0.5f, 1.0f));
 		add("global.mouseselected", Colour_Tuple(0.4f, 0.8f, 1.0f));
 		add("buff.duration.background", Colour_Tuple(0.1f, 0.3f, 1.0f, 0.7f));
+		add("popup.normaltext", Colour_Tuple(0.3f, 0.6f, 1.0f, 1.0f));
+		add("popup.optiontext", Colour_Tuple(0.6f, 0.3f, 1.0f, 1.0f));
+		add("popup.optiontextmouseover", Colour_Tuple(1.0f, 1.0f, 1.0f, 1.0f));
 	}
 
 } // end namespace

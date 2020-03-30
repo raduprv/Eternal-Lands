@@ -2,6 +2,7 @@
 #include <ctype.h>
 #include "counters.h"
 #include "context_menu.h"
+#include "actors.h"
 #include "asc.h"
 #include "elconfig.h"
 #include "elwindows.h"
@@ -681,6 +682,7 @@ static int resize_counters_handler(window_info *win, int new_width, int new_heig
 
 void fill_counters_win(int window_id)
 {
+	set_window_custom_scale(window_id, &custom_scale_factors.stats);
 	set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_counters_handler);
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_counters_handler);
 	set_window_handler(window_id, ELW_HANDLER_MOUSEOVER, &mouseover_counters_handler);
@@ -1202,6 +1204,8 @@ void increment_summon_counter(char *string)
 	}
 
 	string += 12;
+
+	remember_new_summoned(string);
 
 	increment_counter(SUMMONS, string, 1, 0);
 	check_for_recipe_name(string);

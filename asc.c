@@ -15,11 +15,7 @@
 # include "misc.h"
 #endif //MAP_EDITOR
 
-#ifndef LINUX
-int my_UTF8Toisolat1(char **dest, size_t * lu, const char **src, size_t * len);
-#else
 int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * len);
-#endif
 
 // find the first occurance of needle in haystack, and return the distance to 
 // that string. If beggining is 1, it returns the offset to the beginning of 
@@ -392,11 +388,7 @@ int my_xmlStrncopy(char ** out, const char * in, int len)
 		l1=lin;
 		l2=lout;
 
-#ifndef LINUX
-		if(my_UTF8Toisolat1(&outbuf2,&lout,(const char **)&inbuf2,&lin)<0) {
-#else
 		if(my_UTF8Toisolat1(&outbuf2,&lout,&inbuf2,&lin)<0) {
-#endif
 			retval=-1;
 		}
 
@@ -415,11 +407,7 @@ int my_xmlStrncopy(char ** out, const char * in, int len)
 	} else return -1;
 }
 
-#ifndef LINUX
-int my_UTF8Toisolat1(char **dest, size_t * lu, const char **src, size_t * l)
-#else
 int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * l)
-#endif
 {
 	iconv_t t=iconv_open("ISO_8859-1","UTF-8");
 
@@ -753,4 +741,22 @@ char *truncated_string(char *dest, const char *source, size_t dest_max_len, cons
 
 	*dest_p = '\0';
 	return dest;
+}
+
+
+/* Remove whte space from the end of the supplied string.
+ * The string must be writable.
+ * Return the pointer to the string.
+ */
+char * rtrim_string(char *the_string)
+{
+	if (the_string != NULL)
+	{
+		size_t i = strlen(the_string);
+		while ((i > 0) && isspace(the_string[i-1]))
+			--i;
+		the_string[i] = '\0';
+
+	}
+	return the_string;
 }

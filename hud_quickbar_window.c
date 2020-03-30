@@ -327,17 +327,7 @@ static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags
 							int any_item=0;
 							if(item_dragged == y)
 								{
-									//let's try auto equip
-									int i;
-									for(i = ITEM_WEAR_START; i<ITEM_WEAR_START+8;i++)
-										{
-											if(item_list[i].quantity<1)
-											{
-												move_item(y,i);
-												break;
-											}
-										}
-									item_dragged = -1;
+									try_auto_equip(item_dragged);
 									return 1;
 								}
 							for(i=0;i<shown_quickbar_slots;i++)
@@ -465,6 +455,7 @@ static int	display_quickbar_handler(window_info *win)
 	const int scaled_27 = (int)(0.5 + win->current_scale * 27);
 
 	update_shown_quickbar_slots(win);
+	check_for_swap_completion();
 
 	glEnable(GL_TEXTURE_2D);
 	glColor3f(1.0f,1.0f,1.0f);
@@ -476,6 +467,10 @@ static int	display_quickbar_handler(window_info *win)
 			float u_start,v_start,u_end,v_end;
 			int this_texture,cur_item,cur_pos;
 			int x_start,x_end,y_start,y_end, itmp;
+
+			// don't display an item that is in the proces of being moved after equipment swap
+			if (item_swap_in_progress(i))
+				continue;
 
 			//get the UV coordinates.
 			cur_item=item_list[i].image_id%25;
@@ -503,7 +498,10 @@ static int	display_quickbar_handler(window_info *win)
 			glBegin(GL_QUADS);
 				draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 			glEnd();
-			
+
+			if ((_cur_time - item_list_extra[i].slot_busy_start) < 250)
+				gray_out(x_start,y_start,item_quickbar_slot_size);
+
 			if (item_list[i].cooldown_time > _cur_time)
 			{
 				float cooldown = ((float)(item_list[i].cooldown_time - _cur_time)) / ((float)item_list[i].cooldown_rate);
@@ -671,24 +669,45 @@ void init_quickbar (void)
 }
 
 
-static void quick_use(int use_id)
+// try to use or auto equip the item in the slot
+static void quick_use(int use_id, size_t *timer)
 {
 	Uint8 quick_use_str[3];
 	int	i;
 
-	for(i=0; i<ITEM_NUM_ITEMS; i++){
-		if(item_list[i].pos==use_id &&
-			item_list[i].quantity &&
-			item_list[i].use_with_inventory){
-				quick_use_str[0]= USE_INVENTORY_ITEM;
-				quick_use_str[1]= use_id;
-				quick_use_str[2]= i;
-				my_tcp_send(my_socket,quick_use_str,2);
-				used_item_counter_action_use(i);
+	for(i=0; i<ITEM_NUM_ITEMS; i++)
+	{
+		if (item_list[i].pos==use_id)
+		{
+			if (item_list[i].quantity)
+			{
+				// its a usabale item so try to use it
+				if (item_list[i].use_with_inventory)
+				{
+					quick_use_str[0]= USE_INVENTORY_ITEM;
+					quick_use_str[1]= use_id;
+					quick_use_str[2]= i;
+					my_tcp_send(my_socket,quick_use_str,2);
+					used_item_counter_action_use(i);
 #ifdef NEW_SOUND
-				item_list[i].action = USE_INVENTORY_ITEM;
+					item_list[i].action = USE_INVENTORY_ITEM;
 #endif // NEW_SOUND
-				break;
+				}
+				// this else catches all other item types, but is not used if we have recenly use the slot
+				// if the item type is not equipable, the server will tell us like it normally does
+				else if (!item_swap_in_progress(i) && ((SDL_GetTicks() - *timer) > 500))
+				{
+					*timer = SDL_GetTicks();
+					try_auto_equip(i);
+				}
+				// the slot will shown as busy for sort while
+				else
+				{
+					item_list_extra[i].slot_busy_start = SDL_GetTicks();
+					do_alert1_sound();
+				}
+			}
+			return;
 		}
 	}
 }
@@ -700,10 +719,11 @@ int action_item_keys(SDL_Keycode key_code, Uint16 key_mod)
 	size_t i;
 	el_key_def keys[] = {K_ITEM1, K_ITEM2, K_ITEM3, K_ITEM4, K_ITEM5, K_ITEM6,
 					 K_ITEM7, K_ITEM8, K_ITEM9, K_ITEM10, K_ITEM11, K_ITEM12 };
-	for (i=0; (i<sizeof(keys)/sizeof(el_key_def)) && (i < shown_quickbar_slots); i++)
+	static size_t timers[sizeof(keys)/sizeof(el_key_def)] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	for (i=0; i<sizeof(keys)/sizeof(el_key_def); i++)
 		if(KEY_DEF_CMP(keys[i], key_code, key_mod))
 		{
-			quick_use (i);
+			quick_use (i, &timers[i]);
 			return 1;
 		}
 	return 0;
