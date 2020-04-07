@@ -32,6 +32,10 @@ extern "C" {
 #define DEFAULT_SMALL_RATIO (SMALL_FONT_X_LEN/DEFAULT_FONT_X_LEN)
 /*! @} */
 
+#ifdef TTF
+extern int use_ttf;    /*!< Whether to use True Type fonts for font rendering */
+#endif
+
 extern int	chat_font; /*!< font size used for chat font */
 extern int	name_font; /*!< font size used for name font */
 
@@ -235,6 +239,10 @@ int load_font_textures ();
 void cleanup_fonts(void);
 
 int get_font_char(unsigned char cur_char);
+
+#ifdef TTF
+int build_ttf_texture_atlas(int font_num, const char* file_name);
+#endif
 
 #ifdef __cplusplus
 } // extern "C"

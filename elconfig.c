@@ -1680,7 +1680,7 @@ static int context_option_handler(window_info *win, int widget_id, int mx, int m
 	return 1;
 }
 
-// add a named preset value to the option's label context menu 
+// add a named preset value to the option's label context menu
 static void add_cm_option_line(const char *prefix, var_struct *option, float value)
 {
 	char menu_text[256];
@@ -2158,6 +2158,9 @@ static void init_ELC_vars(void)
 
 
 	// FONT TAB
+#ifdef TTF
+	add_var(OPT_BOOL, "use_ttf", "ttf", &use_ttf, change_var, 1, "Use TTF", "Toggle the use of True Type fonts for text rendering", FONT);
+#endif
 	add_var(OPT_FLOAT,"name_text_size","nsize",&name_zoom,change_float,1,"Name Text Size","Set the size of the players name text",FONT,0.0,2.0,0.01);
 	add_var(OPT_FLOAT,"chat_text_size","csize",&chat_zoom,change_chat_zoom,1,"Chat Text Size","Sets the size of the normal text",FONT,0.0,FLT_MAX,0.01);
 	add_var(OPT_FLOAT,"note_text_size", "notesize", &note_zoom, change_note_zoom, 0.8, "Notepad Text Size","Sets the size of the text in the notepad", FONT, 0.0, FLT_MAX, 0.01);
@@ -2375,7 +2378,7 @@ void init_vars(void)
 {
 #ifdef ELC
 	init_ELC_vars();
-	
+
 #else
 	// NOTE !!!!
 	// some repeated in init_ELC_vars() so that we can control the order showin in the tabs
@@ -2930,7 +2933,7 @@ static void elconfig_populate_tabs(void)
 					int radius = elconf_scale*BUTTONRADIUS;
 					float width_ratio = elconf_scale*DEFAULT_FONT_X_LEN/12.0f;
 					int width=0;
-	
+
 					width = 2 * radius+(get_string_width((unsigned char*)label)*width_ratio);
 
 					multiselect_button_add_extended(elconfig_tabs[tab_id].tab, widget_id, x, 0, width, label,

@@ -9,6 +9,9 @@
 #include <errno.h>
 #include <ctype.h>
 #include <time.h>
+#ifdef TTF
+#include <SDL2/SDL_ttf.h>
+#endif
 #include "astrology.h"
 #include "init.h"
 #include "2d_objects.h"
@@ -314,9 +317,9 @@ static void read_bin_cfg(void)
 	}
 
 	if(zoom_level != 0.0f) resize_root_window();
-	
+
 	have_saved_langsel = cfg_mem.have_saved_langsel;
-	
+
 	use_small_items_window = cfg_mem.misc_bool_options & 1;
 	manual_size_items_window = (cfg_mem.misc_bool_options >> 1) & 1;
 	allow_equip_swap = (cfg_mem.misc_bool_options >> 2) & 1;
@@ -542,9 +545,9 @@ void save_bin_cfg(void)
 	for(i=0;i<ITEM_EDIT_QUANT;i++){
 		cfg_mem.quantity[i]=quantities.quantity[i].val;
 	}
-	
+
 	cfg_mem.have_saved_langsel = have_saved_langsel;
-	
+
 	cfg_mem.misc_bool_options = 0;
 	cfg_mem.misc_bool_options |= use_small_items_window;
 	cfg_mem.misc_bool_options |= manual_size_items_window << 1;
@@ -600,6 +603,26 @@ void init_e3d_cache(void)
 void init_2d_obj_cache(void)
 {
 	memset(obj_2d_def_cache, 0, sizeof(obj_2d_def_cache));
+}
+#endif
+
+#ifdef TTF
+// Needs to run AFTER OPenGL has been initialized, as it possibly creates one
+// or more textures.
+void init_ttf()
+{
+	if (use_ttf)
+	{
+		if (TTF_Init() < 0)
+		{
+			LOG_ERROR("Failed to initialize True Type fonts: %s", TTF_GetError());
+			use_ttf = 0;
+		}
+		else
+		{
+			build_ttf_texture_atlas(0, "/usr/share/fonts/TTF/DejaVuSans.ttf");
+		}
+	}
 }
 #endif
 
@@ -680,6 +703,7 @@ void init_stuff(void)
 #ifndef FASTER_MAP_LOAD
 	init_2d_obj_cache();
 #endif
+
 	//now load the font textures
 	if (load_font_textures () != 1)
 	{
@@ -689,6 +713,9 @@ void init_stuff(void)
 		FATAL_ERROR_WINDOW(fatal_data_error);
 		exit(1);
 	}
+#ifdef TTF
+	init_ttf();
+#endif
 
 	// read the continent map info
 	read_mapinfo();
