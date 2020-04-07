@@ -1846,7 +1846,7 @@ char* text_field_get_selected_text (const text_field* tf)
 			{
 				append_char(&text, '\n', &len, &max_len);
 			}
-			else if (get_font_char(ch) >= 0)
+			else if (is_printable(ch))
 			{
 				append_char(&text, ch, &len, &max_len);
 			}

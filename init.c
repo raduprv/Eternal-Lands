@@ -620,7 +620,7 @@ void init_ttf()
 		}
 		else
 		{
-			build_ttf_texture_atlas(0, "/usr/share/fonts/TTF/DejaVuSans.ttf");
+			build_ttf_texture_atlas("/usr/share/fonts/TTF/DejaVuSans.ttf");
 		}
 	}
 }

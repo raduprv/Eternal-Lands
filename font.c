@@ -56,7 +56,7 @@ int use_ttf = 0;
 int	cur_font_num=0;
 int	max_fonts=0;
 font_info *fonts[FONTS_ARRAY_SIZE];
-char font_names[FONTS_ARRAY_SIZE][30];
+char font_names[FONTS_ARRAY_SIZE][30] = { 0 };
 int	chat_font=0;
 int	name_font=0;
 int	book_font=0;
@@ -184,7 +184,7 @@ int get_font_char(unsigned char cur_char)
 }
 
 // converts a character into which entry in font.bmp to use, negative on error or no output
-int find_font_char (unsigned char cur_char)
+static int find_font_char (unsigned char cur_char)
 {
 	if (is_color (cur_char))
 	{
@@ -1324,13 +1324,16 @@ int load_font_textures ()
 	}
 
 	fonts[0]->texture_id = load_texture_cached("textures/font.dds", tt_font);
-	i = 1;
 	// Force the selection of the base font.
-	add_multi_option("chat_font", "Type 1");
-	add_multi_option("name_font", "Type 1");
+	safe_strncpy(font_names[0], "Type 1", sizeof(font_names[0]));
+	add_multi_option("chat_font", font_names[0]);
+	add_multi_option("name_font", font_names[0]);
+
 	// Find what font's exist and load them
 	glob_pattern = malloc(strlen(datadir)+sizeof(texture_dir)+10+1); //+10 = font*.bmp*
 	sprintf(glob_pattern, "%s%sfont*.dds", datadir, texture_dir);
+
+	i = 1;
 #ifdef WINDOWS
 	if( (hFile = _findfirst( glob_pattern, &c_file )) == -1L ){
 		free(glob_pattern);
@@ -1342,19 +1345,22 @@ int load_font_textures ()
 		safe_strncpy(file, c_file.name, sizeof(file));
 #else //!WINDOWS
 	ret = glob(glob_pattern, 0, NULL, &glob_res);
-	if(ret != 0) {
+	if (ret != 0)
+	{
 		LOG_ERROR("Unable to find any font textures\n");
 		free(glob_pattern);
 		return 0;
 	}
 	j = 0;
-	while (j < glob_res.gl_pathc && i < FONTS_ARRAY_SIZE) {
+	while (j < glob_res.gl_pathc && i < FONTS_ARRAY_SIZE)
+	{
 		int	len;
 
 		safe_strncpy(file, glob_res.gl_pathv[j]+sizeof(texture_dir)-1+strlen(datadir), sizeof(file));
 #endif //WINDOWS
 		len= strlen(file);
-		if (((len + sizeof(texture_dir) - 1) < sizeof(str)) && !strncasecmp(file, "font", 4)
+		if (((len + sizeof(texture_dir) - 1) < sizeof(str))
+			&& !strncasecmp(file, "font", 4)
 			&& has_suffix(file, len, ".dds", 4))
 		{
 			safe_snprintf(str, sizeof(str), "./textures/%s", file); //Use a relative path here, load_texture_cache_deferred() is using the path wrappers.
@@ -1573,7 +1579,7 @@ static int find_point_size(const char* file_name)
 }
 
 #include <SDL2/SDL_image.h>
-int build_ttf_texture_atlas(int font_num, const char* file_name)
+int build_ttf_texture_atlas(const char* file_name)
 {
 	static const Uint16 glyphs[] = {
 		' ', '!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-',
@@ -1597,10 +1603,17 @@ int build_ttf_texture_atlas(int font_num, const char* file_name)
 	SDL_Surface *image;
 	GLuint texture_id;
 	int pt_size;
+	int font_num;
+	const char* name;
 
-	if (font_num < 0 || font_num >= FONTS_ARRAY_SIZE)
+	for (font_num = 0; font_num < FONTS_ARRAY_SIZE; ++font_num)
 	{
-		LOG_ERROR("Invalid font number %d when building TTF texture atlas", font_num);
+		if (!font_names[font_num][0])
+			break;
+	}
+	if (font_num >= FONTS_ARRAY_SIZE)
+	{
+		LOG_ERROR("No space to store new font", font_num);
 		return 0;
 	}
 
@@ -1662,8 +1675,6 @@ int build_ttf_texture_atlas(int font_num, const char* file_name)
 		info->char_widths[i_glyph] = w;
 	}
 
-	TTF_CloseFont(font);
-
 	glGenTextures(1, &texture_id);
 	bind_texture_id(texture_id);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -1679,8 +1690,14 @@ int build_ttf_texture_atlas(int font_num, const char* file_name)
 	info->texture_height = height;
 	info->block_width = size;
 	info->block_height = size;
-
 	fonts[font_num] = info;
+
+	name = TTF_FontFaceFamilyName(font);
+	safe_strncpy(font_names[font_num], name, sizeof(font_names[font_num]));
+	add_multi_option("chat_font", font_names[font_num]);
+	add_multi_option("name_font", font_names[font_num]);
+
+	TTF_CloseFont(font);
 
 	return 0;
 }
