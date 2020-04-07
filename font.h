@@ -238,8 +238,6 @@ int load_font_textures ();
 
 void cleanup_fonts(void);
 
-int get_font_char(unsigned char cur_char);
-
 #ifdef TTF
 int build_ttf_texture_atlas(const char* file_name);
 #endif

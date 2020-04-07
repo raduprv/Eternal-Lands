@@ -193,17 +193,6 @@ static void set_color(int color)
 	glColor4f(r, g, b, 1.0);
 }
 
-// converts a character into which entry in font.bmp to use, negative on error or no output
-static int find_font_char (unsigned char cur_char)
-{
-	if (is_color(cur_char))
-	{
-		set_color(from_color_char(cur_char));
-		return -1; // nothing to do
-	}
-	return(get_font_char(cur_char));
-}
-
 static void get_texture_coordinates(const font_info *info, int chr,
 	float *u_start, float *u_end, float *v_start, float *v_end)
 {
@@ -339,7 +328,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 			ch = msgs[imsg].data[i];
 			if (is_color (ch))
 			{
-				find_font_char (ch);
+				set_color(from_color_char(ch));
 				last_color_char = ch;
 				break;
 			}
@@ -432,11 +421,11 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 			if (in_select)
 			{
 				if (last_color_char)
-					find_font_char (last_color_char);
+					set_color(from_color_char(last_color_char));
 				else if (msgs[imsg].r < 0)
-					find_font_char (to_color_char (c_grey1));
+					set_color(c_grey1);
 				else
-					glColor3f (msgs[imsg].r, msgs[imsg].g, msgs[imsg].b);
+					glColor3f(msgs[imsg].r, msgs[imsg].g, msgs[imsg].b);
 
 				in_select = 0;
 			}
