@@ -1430,6 +1430,11 @@ static int find_point_size(const char* file_name)
 		? min_pt_size : max_pt_size;
 }
 
+int has_glyph(unsigned char c)
+{
+	return get_font_char(c) >= 0;
+}
+
 #include <SDL2/SDL_image.h>
 int build_ttf_texture_atlas(const char* file_name)
 {

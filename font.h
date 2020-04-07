@@ -236,6 +236,18 @@ int init_fonts();
  */
 int load_font_textures ();
 
+/*!
+ * \ingroup text_font
+ *
+ * \brief Check if a character \a c has a glyph.
+ *
+ * Check if a glyph is defined for a character \a c, i.e. if it can be printed.
+ *
+ * \param c The character to check
+ * \return 1 if the character is printable, 0 otherwise
+ */
+int has_glyph(unsigned char c);
+
 void cleanup_fonts(void);
 
 #ifdef TTF
