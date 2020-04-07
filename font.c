@@ -81,106 +81,28 @@ int pos_selected(int msg, int ichar, select_info* select)
 	return 1;
 }
 
-static int get_font_char(unsigned char cur_char)
+static int get_font_char(unsigned char c)
 {
-	if(cur_char<FONT_START_CHAR)	//null or invalid character
-		{
-			return -1;
-		}
-	else if(cur_char>=127)
-		{
-			if(cur_char<=127+c_ubound)
-				{
-					//color, won't show
-					return -1;
-				}
-			else
-				{
-					switch(cur_char) {
-					case 193:
-						cur_char=AACCENT;break;
-					case 196:
-						cur_char=AUMLAUT;break;
-					case 197:
-						cur_char=ARING;break;
-					case 198:
-						cur_char=AELIG;break;
-					case 201:
-						cur_char=EACCENT;break;
-					case 205:
-						cur_char=IACCENT;break;
-					case 209:
-						cur_char=ENYE;break;
-					case 211:
-						cur_char=OACCENT;break;
-					case 214:
-						cur_char=OUMLAUT;break;
-					case 216:
-						cur_char=OSLASH;break;
-					case 218:
-						cur_char=UACCENT;break;
-					case 220:
-						cur_char=UUMLAUT;break;
-					case 223:
-						cur_char=DOUBLES;break;
-					case 224:
-						cur_char=AGRAVE;break;
-					case 225:
-						cur_char=aACCENT;break;
-					case 226:
-						cur_char=ACIRC;break;
-					case 228:
-						cur_char=aUMLAUT;break;
-					case 229:
-						cur_char=aRING;break;
-					case 230:
-						cur_char=aELIG;break;
-					case 231:
-						cur_char=CCEDIL;break;
-					case 232:
-						cur_char=EGRAVE;break;
-					case 233:
-						cur_char=EACUTE;break;
-					case 234:
-						cur_char=ECIRC;break;
-					case 235:
-						cur_char=EUML;break;
-					case 236:
-					case 237:
-						cur_char=iACCENT;break;
-					case 239:
-						cur_char=IUML;break;
-					case 241:
-						cur_char=EnyE;break;
-					case 242:
-					case 243:
-						cur_char=oACCENT;break;
-					case 244:
-						cur_char=OCIRC;break;
-					case 246:
-						cur_char=oUMLAUT;break;
-					case 248:
-						cur_char=oSLASH;break;
-					case 249:
-						cur_char=uGRAVE;break;
-					case 250:
-						cur_char=uACCENT;break;
-					case 252:
-						cur_char=uUMLAUT;break;
-					default:
-						return -1;	//ignore it
-					}
-					if(cur_char>=SPECIALCHAR_LBOUND && cur_char<=SPECIALCHAR_UBOUND)
-					{
-						cur_char-=(SPECIALCHAR_LBOUND-127);
-					}
-				}
-		}
+	static const int pos_table[256] = {
+		-1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
+		-1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
+		 0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,  14,  15,
+		16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,  30,  31,
+		32,  33,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,  45,  46,  47,
+		48,  49,  50,  51,  52,  53,  54,  55,  56,  57,  58,  59,  60,  61,  62,  63,
+		64,  65,  66,  67,  68,  69,  70,  71,  72,  73,  74,  75,  76,  77,  78,  79,
+		80,  81,  82,  83,  84,  85,  86,  87,  88,  89,  90,  91,  92,  93,  94,  -1,
+		-1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
+		-1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
+		-1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
+		-1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
+		-1, 122,  -1,  -1, 109, 118, 116,  -1,  -1, 123,  -1,  -1,  -1, 125,  -1,  -1,
+		-1, 120,  -1, 127,  -1,  -1, 110,  -1, 117,  -1, 129,  -1, 111,  -1,  -1, 112,
+		98, 121,  97,  -1, 106, 115, 113,  99, 102,  96, 100, 101, 124, 124,  -1, 103,
+		-1, 119, 126, 126, 104,  -1, 107,  -1, 114, 105, 128,  -1, 108,  -1,  -1,  -1
+	};
 
-	// finally, adjust for the missing lead characters
-	cur_char-=FONT_START_CHAR;
-
-	return((int)cur_char);
+	return pos_table[c];
 }
 
 static void set_color(int color)
