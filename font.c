@@ -81,7 +81,7 @@ int pos_selected(int msg, int ichar, select_info* select)
 	return 1;
 }
 
-int get_font_char(unsigned char cur_char)
+static int get_font_char(unsigned char cur_char)
 {
 	if(cur_char<FONT_START_CHAR)	//null or invalid character
 		{
@@ -183,68 +183,78 @@ int get_font_char(unsigned char cur_char)
 	return((int)cur_char);
 }
 
+static void set_color(int color)
+{
+	float r = (float) colors_list[color].r1 / 255.0f;
+	float g = (float) colors_list[color].g1 / 255.0f;
+	float b = (float) colors_list[color].b1 / 255.0f;
+	//This fixes missing letters in the font on some clients
+	//No idea why going from 3f to 4f helps, but it does
+	glColor4f(r, g, b, 1.0);
+}
+
 // converts a character into which entry in font.bmp to use, negative on error or no output
 static int find_font_char (unsigned char cur_char)
 {
-	if (is_color (cur_char))
+	if (is_color(cur_char))
 	{
-		float r,g,b;
-		//must be a color
-		int color = from_color_char (cur_char);
-		r = (float) colors_list[color].r1 / 255.0f;
-		g = (float) colors_list[color].g1 / 255.0f;
-		b = (float) colors_list[color].b1 / 255.0f;
-		//This fixes missing letters in the font on some clients
-		//No idea why going from 3f to 4f helps, but it does
-		glColor4f(r,g,b,1.0);
-		return(-1);	// nothing to do
+		set_color(from_color_char(cur_char));
+		return -1; // nothing to do
 	}
 	return(get_font_char(cur_char));
 }
 
-// returns how far to move for the next char, or negative on error
-static int draw_char_scaled(unsigned char cur_char, int x, int y, float zoom)
+static void get_texture_coordinates(const font_info *info, int chr,
+	float *u_start, float *u_end, float *v_start, float *v_end)
 {
-	const font_info *info = fonts[cur_font_num];
-	float u_start, u_end, v_start, v_end;
-	int chr, col, row;
-	int cw, bw, bh;
-	int char_width, char_height;
+	int row, col;
+	int bw, bh, cw;
 
-	chr = find_font_char(cur_char);
+	row = chr / FONT_CHARS_PER_LINE;
+	col = chr % FONT_CHARS_PER_LINE;
+
+	bw = info->block_width;
+	bh = info->block_height;
+	cw = info->char_widths[chr];
+
+	*u_start = (float)(col * bw) / info->texture_width;
+	*u_end = (float)(col * bw + cw) / info->texture_width;
+	*v_start = (float)(1 + row * bh) / info->texture_height;
+	*v_end = (float)(row * bh + bh - 1) / info->texture_height;
+}
+
+// returns how far to move for the next char, or negative on error
+static int draw_char_scaled(const font_info *info, unsigned char cur_char,
+	int x, int y, float zoom)
+{
+	float u_start, u_end, v_start, v_end;
+	int chr;
+	int char_width, char_height;
+	int cw;
+
+	if (is_color(cur_char))
+	{
+		set_color(from_color_char(cur_char));
+		return 0;
+	}
+
+	chr = get_font_char(cur_char);
 	if (chr < 0) // watch for illegal/non-display characters
 	{
 		return 0;
 	}
 
-	// first, see where that char is, in the font.bmp
-	row = chr / FONT_CHARS_PER_LINE;
-	col = chr % FONT_CHARS_PER_LINE;
-
 	cw = info->char_widths[chr];
-	bw = info->block_width;
-	bh = info->block_height;
 	char_width = (int)(zoom * cw + 0.5);
-	char_height = (int)(zoom * bw + 0.5);
+	char_height = (int)(zoom * info->block_height + 0.5);
 
-	//now get the texture coordinates
-	u_start = (float)(col * bw) / info->texture_width;
-	u_end = (float)(col * bw + cw) / info->texture_width;
-	v_start = (float)(1 + row * bh) / info->texture_height;
-	v_end = (float)(row * bh + bh - 1) / info->texture_height;
+	get_texture_coordinates(info, chr, &u_start, &u_end, &v_start, &v_end);
 
 	// and place the text from the graphics on the map
-	glTexCoord2f(u_start, v_start);
-	glVertex3i(x, y, 0);
-
-	glTexCoord2f(u_start, v_end);
-	glVertex3i(x, y + char_height, 0);
-
-	glTexCoord2f(u_end,v_end);
-	glVertex3i(x + char_width, y + char_height, 0);
-
-	glTexCoord2f(u_end, v_start);
-	glVertex3i(x + char_width, y, 0);
+	glTexCoord2f(u_start, v_start); glVertex3i(x, y, 0);
+	glTexCoord2f(u_start, v_end);   glVertex3i(x, y + char_height, 0);
+	glTexCoord2f(u_end,   v_end);   glVertex3i(x + char_width, y + char_height, 0);
+	glTexCoord2f(u_end,   v_start); glVertex3i(x + char_width, y, 0);
 
 	return (int)(zoom * (cw + info->spacing) + 0.5);
 }
@@ -444,7 +454,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 			}
 		}
 
-		cur_x += draw_char_scaled(cur_char, cur_x, cur_y, text_zoom);
+		cur_x += draw_char_scaled(info, cur_char, cur_x, cur_y, text_zoom);
 		cur_col++;
 
 		ichar++;
@@ -468,7 +478,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 
 	if (cursor_x >= x && cursor_y >= y && cursor_y - y <= height - displayed_font_y_size)
 	{
-		draw_char_scaled ('_', cursor_x, cursor_y, text_zoom);
+		draw_char_scaled(info, '_', cursor_x, cursor_y, text_zoom);
 	}
 
 	glEnd();
@@ -561,7 +571,7 @@ CHECK_GL_ERRORS();
 				if(current_lines>max_lines)break;
 			}
 
-			cur_x += draw_char_scaled(cur_char, cur_x, cur_y, text_zoom);
+			cur_x += draw_char_scaled(info, cur_char, cur_x, cur_y, text_zoom);
 
 			i++;
 		}
@@ -579,7 +589,7 @@ void draw_string_clipped(int x, int y, const unsigned char * our_string, int wid
 	draw_string_zoomed_clipped (x, y, our_string, -1, width, height, 1.0f);
 }
 
-void draw_string_zoomed_clipped (int x, int y, const unsigned char* our_string, int cursor_pos, int width, int height, float text_zoom)
+void draw_string_zoomed_clipped(int x, int y, const unsigned char* our_string, int cursor_pos, int width, int height, float text_zoom)
 {
 	font_info *info = fonts[cur_font_num];
 	float displayed_font_x_size = text_zoom * info->block_width;
@@ -633,7 +643,7 @@ void draw_string_zoomed_clipped (int x, int y, const unsigned char* our_string, 
 			continue;
 		}
 
-		cur_x += draw_char_scaled(cur_char, cur_x, cur_y, text_zoom);
+		cur_x += draw_char_scaled(info, cur_char, cur_x, cur_y, text_zoom);
 
 		i++;
 		if (cur_x - x > width - displayed_font_x_size)
@@ -645,7 +655,7 @@ void draw_string_zoomed_clipped (int x, int y, const unsigned char* our_string, 
 
 	if (cursor_x >= x && cursor_y >= y && cursor_y - y <= height - displayed_font_y_size)
 	{
-		draw_char_scaled('_', cursor_x, cursor_y, text_zoom);
+		draw_char_scaled(info, '_', cursor_x, cursor_y, text_zoom);
 	}
 
 	glEnd();
@@ -845,7 +855,8 @@ CHECK_GL_ERRORS();
 		}
 		else
 		{
-			cur_x += draw_char_scaled(cur_char, cur_x, cur_y, DEFAULT_SMALL_RATIO * text_zoom);
+			cur_x += draw_char_scaled(info, cur_char, cur_x, cur_y,
+				DEFAULT_SMALL_RATIO * text_zoom);
 			i++;
 		}
 	}
@@ -875,42 +886,24 @@ void draw_string_small_shadowed_zoomed(int x, int y,const unsigned char * our_st
 #ifdef	ELC
 #ifndef MAP_EDITOR2
 
-void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * our_string,
-						int max_lines, float font_x_scale, float font_y_scale)
+void draw_ortho_ingame_string(float x, float y,float z,
+	const unsigned char * our_string, int max_lines,
+	float font_x_scale, float font_y_scale)
 {
+	font_info *info = fonts[cur_font_num];
 	float u_start,u_end,v_start,v_end;
-	int col,row;
 	float displayed_font_x_size;
 	float displayed_font_y_size;
 
 	float displayed_font_x_width;
-#ifndef SKY_FPV_OPTIONAL
-	int font_x_size=FONT_X_SPACING;
-	int font_y_size=FONT_Y_SPACING;
-#endif // not SKY_FPV_OPTIONAL
-	int	font_bit_width, ignored_bits;
+	int	font_bit_width;
 
 	unsigned char cur_char;
 	int chr;
 	int i;
 	float cur_x,cur_y;
 	int current_lines=0;
-	font_info *info = fonts[cur_font_num];
 
-#ifndef SKY_FPV_OPTIONAL
-	/*
-	if(big)
-		{
-			displayed_font_x_size=0.17*zoom_level*name_zoom/3.0;
-			displayed_font_y_size=0.25*zoom_level*name_zoom/3.0;
-		}
-	else
-		{
-			displayed_font_x_size=SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0;
-			displayed_font_y_size=SMALL_INGAME_FONT_Y_LEN*zoom_level*name_zoom/3.0;
-		}
-	*/
-#endif // not SKY_FPV_OPTIONAL
 	displayed_font_x_size=font_x_scale*name_zoom*12.0;
 	displayed_font_y_size=font_y_scale*name_zoom*12.0;
 
@@ -918,143 +911,70 @@ void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * ou
 	glAlphaFunc(GL_GREATER,0.1f);
 	bind_font_texture();
 
-	i=0;
-	cur_x=x;
-	cur_y=y;
+	cur_x = x;
+	cur_y = y;
 	glBegin(GL_QUADS);
-#ifndef SKY_FPV_OPTIONAL
-	while(1)
+
+	for (i = 0; our_string[i]; ++i)
+	{
+		cur_char = our_string[i];
+		if (!cur_char)
 		{
-			cur_char=our_string[i];
-			if(!cur_char)
-				{
-					break;
-				}
-			else if(cur_char=='\n')
-				{
-					cur_y+=displayed_font_y_size;
-					cur_x=x;
-					i++;
-					current_lines++;
-					if(current_lines>=max_lines)break;
-					continue;
-				}
-			else if (is_color (cur_char))
-				{
-					glEnd();	//Ooops - NV bug fix!!
-				}
-			chr=find_font_char(cur_char);
-			if(chr >= 0)
-				{
-					col=chr/FONT_CHARS_PER_LINE;
-					row=chr%FONT_CHARS_PER_LINE;
-
-
-					font_bit_width=get_font_width(chr);
-					displayed_font_x_width=((float)font_bit_width)*displayed_font_x_size/12.0;
-					ignored_bits=(12-font_bit_width)/2;	// how many bits on each side of the char are ignored?
-					if(ignored_bits < 0)ignored_bits=0;
-
-					//now get the texture coordinates
-					u_start=(float)(row*font_x_size+ignored_bits) / info->texture_width;
-					u_end=(float)(row*font_x_size+font_x_size-7-ignored_bits) / info->texture_width;
-					v_start=(float)(1+col*font_y_size) / info->texture_height;
-					v_end=(float)(col*font_y_size+font_y_size-1) / info->texture_height;
-
-					glTexCoord2f(u_start,v_start);
-					glVertex3f(cur_x,cur_y+displayed_font_y_size,z);
-
-					glTexCoord2f(u_start,v_end);
-					glVertex3f(cur_x,cur_y,z);
-
-					glTexCoord2f(u_end,v_end);
-					glVertex3f(cur_x+displayed_font_x_width,cur_y,z);
-
-					glTexCoord2f(u_end,v_start);
-					glVertex3f(cur_x+displayed_font_x_width,cur_y+displayed_font_y_size,z);
-
-					cur_x+=displayed_font_x_width;
-				}
-			else if (is_color (cur_char))
-				{
-					glBegin(GL_QUADS);	//Ooops - NV bug fix!!
-				}
-
-#else // SKY_FPV_OPTIONAL
-	while(1){
-		cur_char=our_string[i];
-		if(!cur_char){
 			break;
-		} else if(cur_char=='\n'){
-			cur_y+=displayed_font_y_size;
-			cur_x=x;
-#endif // SKY_FPV_OPTIONAL
-			i++;
-#ifdef SKY_FPV_OPTIONAL
-			current_lines++;
-			if(current_lines>=max_lines)break;
-			continue;
-		} else if (is_color (cur_char)){
-			glEnd();	//Ooops - NV bug fix!!
+		}
+		else if (cur_char=='\n')
+		{
+			cur_y += displayed_font_y_size;
+			cur_x = x;
+			if (++current_lines >= max_lines)
+				break;
+		}
+		else if (is_color(cur_char))
+		{
+			glEnd(); // Ooops - NV bug fix!!
+			set_color(from_color_char(cur_char));
 			glBegin(GL_QUADS);
 		}
-		chr=find_font_char(cur_char);
-		if(chr >= 0){
-			col=chr/FONT_CHARS_PER_LINE;
-			row=chr%FONT_CHARS_PER_LINE;
+		else
+		{
+			chr = get_font_char(cur_char);
+			if (chr >= 0)
+			{
+				font_bit_width = get_font_width(chr);
+				displayed_font_x_width = ((float)font_bit_width)*displayed_font_x_size/12.0;
+				get_texture_coordinates(info, chr, &u_start, &u_end, &v_start, &v_end);
 
-			font_bit_width=get_font_width(chr);
-			displayed_font_x_width=((float)font_bit_width)*displayed_font_x_size/12.0;
-			ignored_bits=(12-font_bit_width)/2;	// how many bits on each side of the char are ignored?
-			if(ignored_bits < 0)ignored_bits=0;
+				glTexCoord2f(u_start,v_start);
+				glVertex3f(cur_x,cur_y+displayed_font_y_size,z);
 
-			//now get the texture coordinates
-			u_start=(float)(row*FONT_X_SPACING+ignored_bits)/256.0f;
-			u_end=(float)(row*FONT_X_SPACING+FONT_X_SPACING-7-ignored_bits)/256.0f;
-			v_start=(float)(1+col*FONT_Y_SPACING)/256.0f;
-			v_end=(float)(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
+				glTexCoord2f(u_start,v_end);
+				glVertex3f(cur_x,cur_y,z);
 
-			glTexCoord2f(u_start,v_start);
-			glVertex3f(cur_x,cur_y+displayed_font_y_size,z);
+				glTexCoord2f(u_end,v_end);
+				glVertex3f(cur_x+displayed_font_x_width,cur_y,z);
 
-			glTexCoord2f(u_start,v_end);
-			glVertex3f(cur_x,cur_y,z);
+				glTexCoord2f(u_end,v_start);
+				glVertex3f(cur_x+displayed_font_x_width,cur_y+displayed_font_y_size,z);
 
-			glTexCoord2f(u_end,v_end);
-			glVertex3f(cur_x+displayed_font_x_width,cur_y,z);
-
-			glTexCoord2f(u_end,v_start);
-			glVertex3f(cur_x+displayed_font_x_width,cur_y+displayed_font_y_size,z);
-
-			cur_x+=displayed_font_x_width;
-		} else if(is_color (cur_char)){
-			glEnd();	//Ooops - NV bug fix!!
-			glBegin(GL_QUADS);
-#endif // SKY_FPV_OPTIONAL
+				cur_x+=displayed_font_x_width;
+			}
 		}
-#ifdef SKY_FPV_OPTIONAL
-	i++;
 	}
-#endif // SKY_FPV_OPTIONAL
 
 	glEnd();
 	glDisable(GL_ALPHA_TEST);
 }
 
-void draw_ingame_string(float x, float y, const unsigned char * our_string,
-						int max_lines, float font_x_scale, float font_y_scale)
+void draw_ingame_string(float x, float y, const unsigned char *our_string,
+	int max_lines, float font_x_scale, float font_y_scale)
 {
+	font_info *info = fonts[cur_font_num];
 	float u_start,u_end,v_start,v_end;
-	int col,row;
 	float displayed_font_x_size;
 	float displayed_font_y_size;
 
 	float displayed_font_x_width;
-#ifndef SKY_FPV_OPTIONAL
-	//int font_x_size=FONT_X_SPACING;
-	//int font_y_size=FONT_Y_SPACING;
-#endif // not SKY_FPV_OPTIONAL
-	int	font_bit_width, ignored_bits;
+	int	font_bit_width;
 
 	unsigned char cur_char;
 	int chr;
@@ -1078,9 +998,7 @@ void draw_ingame_string(float x, float y, const unsigned char * our_string,
 	glPushMatrix();
 	glLoadIdentity();
 	glOrtho(view[0],view[2]+view[0],view[1],view[3]+view[1],0.0f,-1.0f);
-#endif // SKY_FPV_OPTIONAL
-
-#ifndef SKY_FPV_OPTIONAL
+#else // SKY_FPV_OPTIONAL
 	displayed_font_x_size=font_x_scale*zoom_level*name_zoom/3.0;
 	displayed_font_y_size=font_y_scale*zoom_level*name_zoom/3.0;
 #endif // not SKY_FPV_OPTIONAL
@@ -1090,139 +1008,84 @@ void draw_ingame_string(float x, float y, const unsigned char * our_string,
 	bind_font_texture();
 
 	i=0;
-#ifndef SKY_FPV_OPTIONAL
-	cur_x=x;
-	cur_y=y;
+#ifdef SKY_FPV_OPTIONAL
+	cur_x = hx;
+	cur_y = hy;
 #else // SKY_FPV_OPTIONAL
-	cur_x=hx;
-	cur_y=hy;
+	cur_x = x;
+	cur_y = y;
 #endif // SKY_FPV_OPTIONAL
+
 	glBegin(GL_QUADS);
-#ifndef SKY_FPV_OPTIONAL
-	while(1)
+	for (i = 0; our_string[i]; ++i)
+	{
+		cur_char = our_string[i];
+		if (!cur_char)
 		{
-			cur_char=our_string[i];
-			if(!cur_char)
-				{
-					break;
-				}
-			else if(cur_char=='\n')
-				{
-					cur_y+=displayed_font_y_size;
-					cur_x=x;
-					i++;
-					current_lines++;
-					if(current_lines>=max_lines)break;
-					continue;
-				}
-			else if(is_color (cur_char))
-				{
-					glEnd();	//Ooops - NV bug fix!!
-				}
-			chr=find_font_char(cur_char);
-			if(chr >= 0)
-				{
-					col=chr/FONT_CHARS_PER_LINE;
-					row=chr%FONT_CHARS_PER_LINE;
-
-					font_bit_width=get_font_width(chr);
-					displayed_font_x_width=((float)font_bit_width)*displayed_font_x_size/12.0;
-					ignored_bits=(12-font_bit_width)/2;	// how many bits on each side of the char are ignored?
-					if(ignored_bits < 0)ignored_bits=0;
-
-					//now get the texture coordinates
-					u_start=(float)(row*FONT_X_SPACING+ignored_bits)/256.0f;
-					u_end=(float)(row*FONT_X_SPACING+FONT_X_SPACING-7-ignored_bits)/256.0f;
-					v_start=(float)(1+col*FONT_Y_SPACING)/256.0f;
-					v_end=(float)(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
-
-					glTexCoord2f(u_start,v_start);
-					glVertex3f(cur_x,0,cur_y+displayed_font_y_size);
-
-					glTexCoord2f(u_start,v_end);
-					glVertex3f(cur_x,0,cur_y);
-
-					glTexCoord2f(u_end,v_end);
-					glVertex3f(cur_x+displayed_font_x_width,0,cur_y);
-
-					glTexCoord2f(u_end,v_start);
-					glVertex3f(cur_x+displayed_font_x_width,0,cur_y+displayed_font_y_size);
-
-					cur_x+=displayed_font_x_width;
-				}
-			else if (is_color (cur_char))
-				{
-					glBegin(GL_QUADS);	//Ooops - NV bug fix!!
-				}
-#else // SKY_FPV_OPTIONAL
-	while(1){
-		cur_char=our_string[i];
-		if(!cur_char){
 			break;
-		}else if(cur_char=='\n'){
-			cur_y+=displayed_font_y_size;
-			cur_x=hx;
-#endif // SKY_FPV_OPTIONAL
-			i++;
-#ifdef SKY_FPV_OPTIONAL
-			current_lines++;
-			if(current_lines>=max_lines)break;
-			continue;
 		}
-		else if (is_color (cur_char))
+		else if (cur_char == '\n')
 		{
-			glEnd();	//Ooops - NV bug fix!!
-			glBegin(GL_QUADS);
-		}
-		chr=find_font_char(cur_char);
-		if(chr >= 0){
-			col=chr/FONT_CHARS_PER_LINE;
-			row=chr%FONT_CHARS_PER_LINE;
-
-			font_bit_width=get_font_width(chr);
-			displayed_font_x_width=((float)font_bit_width)*displayed_font_x_size/12.0;
-			ignored_bits=(12-font_bit_width)/2;	// how many bits on each side of the char are ignored?
-			if(ignored_bits < 0)ignored_bits=0;
-
-			//now get the texture coordinates
-			u_start=(float)(row*FONT_X_SPACING+ignored_bits)/256.0f;
-			u_end=(float)(row*FONT_X_SPACING+FONT_X_SPACING-7-ignored_bits)/256.0f;
-			v_start=(float)(1+col*FONT_Y_SPACING)/256.0f;
-			v_end=(float)(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
-
-			glTexCoord2f(u_start,v_start);
-			glVertex3f(cur_x,cur_y+displayed_font_y_size,0);
-
-			glTexCoord2f(u_start,v_end);
-			glVertex3f(cur_x,cur_y,0);
-
-			glTexCoord2f(u_end,v_end);
-			glVertex3f(cur_x+displayed_font_x_width,cur_y,0);
-
-			glTexCoord2f(u_end,v_start);
-			glVertex3f(cur_x+displayed_font_x_width,cur_y+displayed_font_y_size,0);
-
-			cur_x+=displayed_font_x_width;
-		}
-		else if (is_color (cur_char))
-		{
-			glEnd();	//Ooops - NV bug fix!!
-			glBegin(GL_QUADS);
-#endif // SKY_FPV_OPTIONAL
-		}
+			cur_y += displayed_font_y_size;
 #ifdef SKY_FPV_OPTIONAL
-		i++;
+			cur_x = hx;
+#else
+			cur_x = x;
+#endif
+			if (++current_lines>=max_lines)
+				break;
+		}
+		else if (is_color(cur_char))
+		{
+			glEnd(); // Ooops - NV bug fix!!
+			set_color(from_color_char(cur_char));
+			glBegin(GL_QUADS); // Ooops - NV bug fix!!
+		}
+		else
+		{
+			chr = get_font_char(cur_char);
+			if (chr >= 0)
+			{
+				font_bit_width = get_font_width(chr);
+				displayed_font_x_width=((float)font_bit_width)*displayed_font_x_size/12.0;
+
+				get_texture_coordinates(info, chr, &u_start, &u_end, &v_start, &v_end);
+#ifdef SKY_FPV_OPTIONAL
+				glVertex3f(cur_x,cur_y+displayed_font_y_size,0);
+
+				glTexCoord2f(u_start, v_end);
+				glVertex3f(cur_x, cur_y, 0);
+
+				glTexCoord2f(u_end, v_end);
+				glVertex3f(cur_x+displayed_font_x_width, cur_y, 0);
+
+				glTexCoord2f(u_end, v_start);
+				glVertex3f(cur_x+displayed_font_x_width, cur_y+displayed_font_y_size, 0);
+#else // SKY_FPV_OPTIONAL
+				glTexCoord2f(u_start, v_start);
+				glVertex3f(cur_x, 0, cur_y+displayed_font_y_size);
+
+				glTexCoord2f(u_start, v_end);
+				glVertex3f(cur_x, 0, cur_y);
+
+				glTexCoord2f(u_end, v_end);
+				glVertex3f(cur_x+displayed_font_x_width, 0, cur_y);
+
+				glTexCoord2f(u_end, v_start);
+				glVertex3f(cur_x+displayed_font_x_width, 0, cur_y+displayed_font_y_size);
+#endif // SKY_FPV_OPTIONAL
+				cur_x += displayed_font_x_width;
+			}
+		}
 	}
-#endif // SKY_FPV_OPTIONAL
-
 	glEnd();
 	glDisable(GL_ALPHA_TEST);
+
 #ifdef SKY_FPV_OPTIONAL
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
-
 #endif // SKY_FPV_OPTIONAL
 }
 #endif //!MAP_EDITOR_2
