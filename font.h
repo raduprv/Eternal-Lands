@@ -103,24 +103,6 @@ void draw_string_clipped(int x, int y, const unsigned char * our_string, int wid
 
 /*!
  * \ingroup text_font
- * \brief   draws the given string \a our_string at the desired position (\a x, \a y) with a zoom factor of \a text_zoom.
- *
- *      Draws the given string \a our_string at the desired position (\a x, \a y) with a zoom factor of \a text_zoom, clipping characters that would be drawn to the right of \a width or below \a height.
- *
- * \param x             x coordinate of the position to draw the string
- * \param y             y coordinate of the position to draw the string
- * \param our_string    the string to draw
- * \param cursor_pos    if true, the string will be drawn at the current cursor position
- * \param width		the maximum width
- * \param height	the maximum height
- * \param text_zoom     the zoom factor to use
- *
- * \callgraph
- */
-void draw_string_zoomed_clipped(int x, int y, const unsigned char * our_string, int cursor_pos, int width, int height, float text_zoom);
-
-/*!
- * \ingroup text_font
  * \brief   recompute where the line breaks in a string should occur
  *
  *      Recomputes the positions in the string where line breaks should be placed so that the string fits into a window.
