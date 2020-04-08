@@ -18,7 +18,6 @@ extern "C" {
 #define MAX_TEXT_MESSAGE_LENGTH 160 /*!< The server will disconnect us when we send longer messages */
 
 #define INPUT_MARGIN 4
-#define INPUT_HEIGHT (DEFAULT_FONT_Y_LEN + 2*INPUT_MARGIN) /* 1 line, 2 margins at 4px*/
 #define INPUT_DEFAULT_FLAGS (TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS|WIDGET_CLICK_TRANSPARENT)
 
 extern widget_list *input_widget;
@@ -84,7 +83,7 @@ void clear_chat_wins (void);
  * \ingroup chat_window
  * \brief   Parse text as console input
  *
- *      A common routine to parse input.  Input can be local chat, 
+ *      A common routine to parse input.  Input can be local chat,
  * 	#commands, %options channel or personal chat.
  *
  * \param data       the input text
@@ -127,9 +126,9 @@ void clear_input_line (void);
 
 /*!
  * \ingroup chat_window
- * \brief   Handle a keypress of the root window 
+ * \brief   Handle a keypress of the root window
  *
- *      Handles a keypress in the root window as if it were pressed in the chat window input field. 
+ *      Handles a keypress in the root window as if it were pressed in the chat window input field.
  *
  * \param key
  * \param unikey
@@ -253,6 +252,8 @@ void set_next_tab_channel(void);
 int get_tab_bar_x(void);
 int get_tab_bar_y(void);
 int get_tabbed_chat_end_x(void);
+
+int get_input_height();
 
 #ifdef __cplusplus
 } // extern "C"

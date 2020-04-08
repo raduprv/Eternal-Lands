@@ -62,7 +62,7 @@ typedef struct
 	char open, newchan, highlighted;
 } chat_channel;
 
-typedef struct 
+typedef struct
 {
 	Uint8 channel;
 	int button;
@@ -105,6 +105,7 @@ void input_widget_move_to_win(int window_id)
 		resize_chat_handler(win, win->len_x, win->len_y);
 	} else {
 		text_field *tf = input_widget->widget_info;
+		int line_height = (int)(get_line_height(chat_font) * chat_zoom * input_widget->size + 0.5);
 		Uint32 flags;
 
 		input_widget->OnResize = input_field_resize;
@@ -118,7 +119,8 @@ void input_widget_move_to_win(int window_id)
 			flags = INPUT_DEFAULT_FLAGS;
 		}
 		widget_set_flags(input_widget->window_id, input_widget->id, flags);
-		widget_resize(input_widget->window_id, input_widget->id, win->len_x-HUD_MARGIN_X, tf->y_space*2+ceilf(DEFAULT_FONT_Y_LEN*input_widget->size*tf->nr_lines));
+		widget_resize(input_widget->window_id, input_widget->id,
+			win->len_x - HUD_MARGIN_X, 2 * tf->y_space + line_height * tf->nr_lines);
 		widget_move(input_widget->window_id, input_widget->id, 0, win->len_y-input_widget->len_y-HUD_MARGIN_Y);
 	}
 }
@@ -139,9 +141,9 @@ static void remove_tab (Uint8 channel)
 static void update_tab_idx (Uint8 old_idx, Uint8 new_idx)
 {
 	// XXX: CAUTION
-	// Since this function simply replaces old_idx y new_idx, it could 
-	// potentially cause trouble when new_idx is already in use by 
-	// another tab. However, as the code is now, successive calls to 
+	// Since this function simply replaces old_idx y new_idx, it could
+	// potentially cause trouble when new_idx is already in use by
+	// another tab. However, as the code is now, successive calls to
 	// update_tab_idx are in increasing order of old_idx, and new_idx
 	// is lower than old_idx, so we should be safe.
 
@@ -154,17 +156,17 @@ static void set_channel_tabs (const Uint32 *chans)
 	int nmax = CHAT_CHANNEL3-CHAT_CHANNEL1+1;
 	Uint32 chan;
 	Uint8 chan_nr, chan_nrp;
-	
+
 	for (chan_nr = 0; chan_nr < nmax; chan_nr++)
 	{
 		chan = chans[chan_nr];
 		if (chan == 0) continue;
-		
+
 		for (chan_nrp = 0; chan_nrp < nmax; chan_nrp++)
 		{
 			if (active_channels[chan_nrp] == chan) break;
 		}
-		
+
 		if (chan_nrp >= nmax)
 		{
 			// we left this channel
@@ -181,12 +183,12 @@ static void set_channel_tabs (const Uint32 *chans)
 		chan = active_channels[chan_nrp];
 
 		if (chan == 0) continue;
-		
+
 		for (chan_nr = 0; chan_nr < nmax; chan_nr++)
 		{
 			if (chans[chan_nr] == chan) break;
 		}
-		
+
 		if (chan_nr >= nmax)
 		{
 			// we have a new channel
@@ -199,7 +201,7 @@ void set_active_channels (Uint8 active, const Uint32 *channels, int nchan)
 {
 	Uint32 tmp[MAX_ACTIVE_CHANNELS];
 	int i;
-	
+
 	for (i = 0; i < MAX_ACTIVE_CHANNELS; i++)
 		tmp[i] = active_channels[i];
 
@@ -222,7 +224,7 @@ static void send_active_channel (Uint8 chan)
 		msg[0] = SET_ACTIVE_CHANNEL;
 		msg[1] = chan;
 		my_tcp_send (my_socket, msg, 2);
-		
+
 		current_channel = chan - CHAT_CHANNEL1;
 	}
 }
@@ -250,7 +252,7 @@ int guild_chat_separate = 1;
 int server_chat_separate = 0;
 int mod_chat_separate = 0;
 
-/* 
+/*
  * use_windowed_chat == 0: old behaviour, all text is printed
  * use_windowed_chat == 1: channel selection bar
  * use_windowed_chat == 2: chat window
@@ -291,7 +293,7 @@ void clear_chat_wins (void)
 void init_chat_channels(void)
 {
 	int itab;
-	
+
 	for (itab = 0; itab < MAX_CHAT_TABS; itab++)
 	{
 		channels[itab].tab_id = -1;
@@ -313,8 +315,11 @@ void clear_input_line(void)
 		field->cursor = 0;
 		field->cursor_line = 0;
 		field->nr_lines = 1;
-		if(use_windowed_chat != 2) {
-			widget_resize(input_widget->window_id, input_widget->id, input_widget->len_x, field->y_space*2+DEFAULT_FONT_Y_LEN*input_widget->size);
+		if (use_windowed_chat != 2)
+		{
+			int line_height = (int)(get_line_height(chat_font) * chat_zoom * input_widget->size + 0.5);
+			widget_resize(input_widget->window_id, input_widget->id,
+				input_widget->len_x, 2*field->y_space + line_height);
 		}
 		/* Hide the game win input widget */
 		if(input_widget->window_id == game_root_win)
@@ -333,7 +338,7 @@ static int close_channel (window_info *win)
 		if (channels[ichan].tab_id == id)
 		{
 			int idx = channels[ichan].chan_nr - CHAT_CHANNEL1;
-			
+
 			if (idx >= 0 && idx < MAX_ACTIVE_CHANNELS)
 			{
 				char str[256];
@@ -347,7 +352,7 @@ static int close_channel (window_info *win)
 			return 1;
 		}
 	}
-	
+
 	// we shouldn't get here
 	LOG_ERROR ("Trying to close non-existant channel\n");
 	return 0;
@@ -363,7 +368,7 @@ static void remove_chat_tab (Uint8 channel)
 		{
 			int nr = tab_collection_get_tab_nr (chat_win, chat_tabcollection_id, channels[ichan].tab_id);
 			tab_collection_close_tab (chat_win, chat_tabcollection_id, nr);
-			
+
 			channels[ichan].tab_id = -1;
 			channels[ichan].chan_nr = CHAT_ALL;
 			channels[ichan].nr_lines = 0;
@@ -396,20 +401,20 @@ static int add_chat_tab(int nlines, Uint8 channel)
 			channels[ichan].highlighted = 0;
 
 			my_strncp(title,(tab_label(channel))->name, sizeof(title));
-			
+
 			channels[ichan].tab_id = tab_add (chat_win, chat_tabcollection_id, title, 0, 1, 0);
 			set_window_flag (channels[ichan].tab_id, ELW_CLICK_TRANSPARENT);
-				
+
 			set_window_min_size (channels[ichan].tab_id, 0, 0);
 			channels[ichan].out_id = text_field_add_extended (channels[ichan].tab_id, channels[ichan].out_id, NULL, 0, 0, inout_width, output_height, 0, chat_zoom, 0.77f, 0.57f, 0.39f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, channel, CHAT_WIN_SPACE, CHAT_WIN_SPACE);
 
 			set_window_handler (channels[ichan].tab_id, ELW_HANDLER_DESTROY, close_channel);
-				
+
 			if(!channels[ichan].highlighted && channels[active_tab].chan_nr != CHAT_ALL)
 			{
 				tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[ichan].tab_id, 1.0, 1.0, 0.0);
 			}
-			
+
 			return ichan;
 		}
 	}
@@ -420,9 +425,9 @@ static int add_chat_tab(int nlines, Uint8 channel)
 static void update_chat_tab_idx (Uint8 old_idx, Uint8 new_idx)
 {
 	int itab;
-	
+
 	if (old_idx == new_idx) return;
-	
+
 	for (itab = 0; itab < MAX_CHAT_TABS; itab++)
 	{
 		if (channels[itab].chan_nr == old_idx && channels[itab].open)
@@ -456,7 +461,7 @@ static Uint8 get_tab_channel (Uint8 channel)
 			// always display moderator PMs in all tabs
 			return CHAT_ALL;
 	}
-	
+
 	return channel;
 }
 
@@ -471,7 +476,7 @@ static void update_chat_window (text_message *msg, char highlight)
 	// rewrap message to get correct # of lines
 	width = windows_list.window[chat_win].len_x;
 	nlines = rewrap_message(msg, chat_zoom, width, NULL);
-	
+
 	// first check if we need to display in all open channels
 	channel = get_tab_channel (msg->chan_idx);
 
@@ -487,7 +492,7 @@ static void update_chat_window (text_message *msg, char highlight)
 				}
 			}
 		}
-		
+
 		len = channels[active_tab].nr_lines - nr_displayed_lines;
 		if (len < 0) len = 0;
 		vscrollbar_set_bar_len (chat_win, chat_scroll_id, len);
@@ -515,7 +520,7 @@ static void update_chat_window (text_message *msg, char highlight)
 			{
 				len = channels[ichan].nr_lines - nr_displayed_lines;
 				if (len < 0) len = 0;
-					
+
 				vscrollbar_set_bar_len (chat_win, chat_scroll_id, len);
 				vscrollbar_set_pos (chat_win, chat_scroll_id, len);
 				current_line = channels[ichan].nr_lines;
@@ -538,13 +543,13 @@ static void update_chat_window (text_message *msg, char highlight)
 	{
 		// uh oh, no empty slot found. this shouldn't really be happening...
 		// log in general channel
-		channels[0].nr_lines += nlines;	
+		channels[0].nr_lines += nlines;
 		channels[0].newchan = 1;
 		if (0 == active_tab)
 		{
 			len = channels[0].nr_lines - nr_displayed_lines;
 			if (len < 0) len = 0;
-		
+
 			vscrollbar_set_bar_len (chat_win, chat_scroll_id, len);
 			vscrollbar_set_pos (chat_win, chat_scroll_id, len);
 			current_line = channels[active_tab].nr_lines;
@@ -692,7 +697,7 @@ static void change_to_current_chat_tab(const char *input)
 static int chat_tabs_click (widget_list *widget, int mx, int my, Uint32 flags)
 {
 	int id;
-	
+
 	id = tab_collection_get_tab_id (chat_win, widget->id);
 
 	if (flags&ELW_RIGHT_MOUSE)
@@ -780,7 +785,7 @@ static int resize_chat_handler(window_info *win, int width, int height)
 	int tabcol_height = input_y - 2 * CHAT_WIN_SPACE;
 	int output_height = tabcol_height - CHAT_WIN_TAG_HEIGHT;
 	int line_height = DEFAULT_FONT_Y_LEN*chat_zoom;
-	
+
 	if (output_height < 5*line_height + 2 * CHAT_WIN_SPACE && input_height > 3*line_height + 2 * CHAT_WIN_SPACE)
 	{
 		input_height -= 2*line_height;
@@ -795,24 +800,24 @@ static int resize_chat_handler(window_info *win, int width, int height)
 		output_height += line_height;
 		tabcol_height += line_height;
 	}
-	
+
 	chat_win_text_width = inout_width - 2 * CHAT_WIN_SPACE;
 	chat_out_text_height = output_height - 2 * CHAT_WIN_SPACE;
-	
+
 	widget_resize (chat_win, chat_scroll_id, CHAT_WIN_SCROLL_WIDTH, scroll_height);
 	widget_move (chat_win, chat_scroll_id, scroll_x, CLOSE_SIZE);
-	
+
 	widget_resize (chat_win, chat_tabcollection_id, inout_width, tabcol_height);
-	
+
 	for (itab = 0; itab < MAX_CHAT_TABS; itab++)
 		if (channels[itab].tab_id >= 0)
 			widget_resize (channels[itab].tab_id, channels[itab].out_id, inout_width, output_height);
-	
+
 	widget_resize (chat_win, input_widget->id, inout_width, input_height);
 	widget_move (chat_win, input_widget->id, CHAT_WIN_SPACE, input_y);
 
 	update_chat_win_buffers();
-	
+
 	return 0;
 }
 
@@ -833,7 +838,7 @@ void update_chat_win_buffers(void)
 		if (++imsg >= DISPLAY_TEXT_BUFFER_SIZE)
 			imsg = 0;
 	}
-	
+
 	// adjust the text position and scroll bar
 	nr_displayed_lines = (int) (chat_out_text_height / (DEFAULT_FONT_Y_LEN * chat_zoom));
 	current_line = channels[active_tab].nr_lines - nr_displayed_lines;
@@ -851,8 +856,8 @@ void parse_input(char *data, int len)
 		LOG_TO_CONSOLE(c_red2, command_too_long_str);
 		return;
 	}
-	
-	if (data[0] == '%' && len > 1) 
+
+	if (data[0] == '%' && len > 1)
 	{
 		if ( (check_var ((char*)&(data[1]), IN_GAME_VAR) ) < 0)
 		{
@@ -985,10 +990,10 @@ void paste_in_input_field (const Uint8 *text)
 	} else if (input_widget->window_id == game_root_win) {
 		widget_unset_flags (game_root_win, input_widget->id, WIDGET_DISABLED);
 	}
-	
+
 	tf = input_widget->widget_info;
 	msg = &(tf->buffer[tf->msg]);
-	
+
 	tf->cursor += put_string_in_buffer(msg, text, tf->cursor);
 
 	// set invalid width to force rewrap
@@ -1024,7 +1029,7 @@ static int close_chat_handler (window_info *win)
 	// call the config function to make sure it's done properly
 	change_windowed_chat(&use_windowed_chat, 1);
 	set_var_unsaved("windowed_chat", INI_FILE_VAR);
-	
+
 	return 1;
 }
 
@@ -1056,12 +1061,12 @@ static void create_chat_window(void)
 	int tabcol_height = output_height + CHAT_WIN_TAG_HEIGHT;
 	int input_y = tabcol_height + 2 * CHAT_WIN_SPACE;
 	int input_height = CHAT_IN_TEXT_HEIGHT + 2 * CHAT_WIN_SPACE;
-	
+
 	int min_width = CHAT_WIN_SCROLL_WIDTH + 2 * CHAT_WIN_SPACE + (int)(CHAT_WIN_TEXT_WIDTH * chat_zoom);
 	int min_height = 7 * CHAT_WIN_SPACE + CHAT_WIN_TAG_HEIGHT + (int) ((2+5) * DEFAULT_FONT_Y_LEN * chat_zoom);
-	
+
 	nr_displayed_lines = (int) ((CHAT_OUT_TEXT_HEIGHT-1) / (DEFAULT_FONT_Y_LEN * chat_zoom));
-			
+
 	chat_win = create_window ("Chat", game_root_win, 0, 0, 0, chat_win_width, chat_win_height, ELW_USE_UISCALE|ELW_WIN_DEFAULT|ELW_RESIZEABLE|ELW_CLICK_TRANSPARENT);
 	if (chat_win < 0 || chat_win >= windows_list.num_windows)
 		return;
@@ -1074,10 +1079,10 @@ static void create_chat_window(void)
 	chat_scroll_id = vscrollbar_add_extended (chat_win, chat_scroll_id, NULL, chat_win_width - CHAT_WIN_SCROLL_WIDTH, CLOSE_SIZE, CHAT_WIN_SCROLL_WIDTH, chat_win_height - 2*CLOSE_SIZE, 0, 1.0f, 0.77f, 0.57f, 0.39f, 0, 1, 0);
 	widget_set_OnDrag (chat_win, chat_scroll_id, chat_scroll_drag);
 	widget_set_OnClick (chat_win, chat_scroll_id, chat_scroll_click);
-	
+
 	chat_tabcollection_id = tab_collection_add_extended (chat_win, chat_tabcollection_id, NULL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, inout_width, tabcol_height, 0, DEFAULT_SMALL_RATIO, 0.77f, 0.57f, 0.39f, MAX_CHAT_TABS);
 	widget_set_OnClick (chat_win, chat_tabcollection_id, chat_tabs_click);
-	
+
 	channels[0].tab_id = tab_add (chat_win, chat_tabcollection_id, (tab_label(CHAT_ALL))->name, 0, 0, 0);
 	set_window_flag (channels[0].tab_id, ELW_CLICK_TRANSPARENT);
 	set_window_min_size (channels[0].tab_id, 0, 0);
@@ -1086,7 +1091,7 @@ static void create_chat_window(void)
 	channels[0].nr_lines = 0;
 	channels[0].open = 1;
 	channels[0].newchan = 0;
-	active_tab = 0;		
+	active_tab = 0;
 
 	if(input_widget == NULL) {
 		Uint32 id;
@@ -1420,7 +1425,7 @@ void cleanup_chan_names(void)
 //int highlight_tab(const Uint8 channel)
 //{
 //	int i;
-//	
+//
 //	if(!highlight_tab_on_nick || channel == CHAT_ALL)
 //	{
 //		//We don't want to highlight
@@ -1506,17 +1511,17 @@ static void switch_to_tab(int id)
 static int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
 {
 	int itab;
-	
+
 	for (itab = 0; itab < tabs_in_use; itab++)
 	{
 		if (w->id == tabs[itab].button)
 			break;
 	}
-	
+
 	if (itab >= tabs_in_use)
 		// shouldn't happen
 		return 0;
-	
+
 	if (flags&ELW_RIGHT_MOUSE)
 	{
 		display_channel_color_win(get_active_channel(tabs[itab].channel));
@@ -1650,9 +1655,9 @@ static unsigned int chan_int_from_name(char * name, int * return_length)
 static void update_tab_button_idx (Uint8 old_idx, Uint8 new_idx)
 {
 	int itab;
-	
+
 	if (old_idx == new_idx) return;
-	
+
 	for (itab = 0; itab < tabs_in_use; itab++)
 	{
 		if (tabs[itab].channel == old_idx)
@@ -1681,7 +1686,7 @@ static int display_chan_sel_handler(window_info *win)
 {
 	int i = 0, y = chan_sel_border, x = chan_sel_border, t = 0, num_lines = 0;
 	float local_zoom = win->current_scale * DEFAULT_SMALL_RATIO;
-	
+
 	node_t *step = queue_front_node(chan_name_queue);
 	if(mouse_x >= win->pos_x+win->len_x || mouse_y >= win->pos_y+win->len_y) {
 		win->displayed = 0;
@@ -1824,7 +1829,7 @@ static int draw_tab_details (widget_list *W)
 	glColor3f(0.77f,0.57f,0.39f);
 
 	glDisable(GL_TEXTURE_2D);
-	
+
 	/* check for an active "#jc" channel */
 	for (itab = 0; itab < tabs_in_use; itab++)
 		if ((tabs[itab].button == W->id) && (tabs[itab].channel == CHAT_CHANNEL1 + current_channel))
@@ -1942,7 +1947,7 @@ static void remove_tab_button (Uint8 channel)
 			break;
 	}
 	if (itab >= tabs_in_use) return;
-	
+
 	w = widget_get_width (tab_bar_win, tabs[itab].button)+1;
 	widget_destroy (tab_bar_win, tabs[itab].button);
 	for (++itab; itab < tabs_in_use; itab++)
@@ -1993,7 +1998,7 @@ static void update_tab_bar (text_message * msg)
 			return;
 		}
 	}
-	
+
 	// we need a new button
 	new_button = add_tab_button (channel);
 	if(tabs[current_tab].channel != CHAT_ALL) {
@@ -2006,7 +2011,7 @@ static int ui_scale_tab_bar_handler(window_info *win)
 	size_t i;
 
 	tab_bar_height = win->default_font_len_y;
-	tab_bar_zoom = win->current_scale * 0.75; 
+	tab_bar_zoom = win->current_scale * 0.75;
 	tab_bar_width = 0;
 
 	for (i=0; i<tabs_in_use; i++)
@@ -2146,10 +2151,10 @@ void convert_tabs (int new_wc)
 {
 	int iwc, ibc;
 	Uint8 chan;
-	
+
 	if (new_wc == 1)
 	{
-		// first close possible remaining tab buttons that are no 
+		// first close possible remaining tab buttons that are no
 		// longer active
 		for (ibc = 2; ibc < tabs_in_use; ibc++)
 		{
@@ -2159,11 +2164,11 @@ void convert_tabs (int new_wc)
 				if (channels[iwc].chan_nr == chan && channels[iwc].open)
 					break;
 			}
-			
+
 			if (iwc >= MAX_CHAT_TABS)
 				remove_tab_button (chan);
 		}
-		
+
 		// now add buttons for every tab that doesn't have a button yet
 		for (iwc = 2; iwc < MAX_CHAT_TABS; iwc++)
 		{
@@ -2175,7 +2180,7 @@ void convert_tabs (int new_wc)
 					if (tabs[ibc].channel == chan)
 						break;
 				}
-				
+
 				if (ibc >= tabs_in_use)
 				{
 					add_tab_button (chan);
@@ -2185,7 +2190,7 @@ void convert_tabs (int new_wc)
 	}
 	else if (new_wc == 2)
 	{
-		// first close possible remaining tabs that are no 
+		// first close possible remaining tabs that are no
 		// longer active
 		for (iwc = 2; iwc < MAX_CHAT_TABS; iwc++)
 		{
@@ -2197,7 +2202,7 @@ void convert_tabs (int new_wc)
 					if (tabs[ibc].channel == chan)
 						break;
 				}
-				
+
 				if (ibc >= tabs_in_use)
 				{
 					remove_chat_tab (chan);
@@ -2214,9 +2219,9 @@ void convert_tabs (int new_wc)
 				if (channels[iwc].chan_nr == chan && channels[iwc].open)
 					break;
 			}
-			
+
 			if (iwc >= MAX_CHAT_TABS)
-				// unfortunately we have no clue about the 
+				// unfortunately we have no clue about the
 				// number of lines written in this channel, so
 				// we won't see anything until new messages
 				// arrive. Oh well.
@@ -2309,7 +2314,7 @@ static int click_channel_color_handler(widget_list *w, int mx, int my, Uint32 fl
 				if(channel_colors[i].nr == 0)
 					break;
 			}
-			
+
 			if(i<MAX_CHANNEL_COLORS)
 			{
 				channel_colors[i].nr = channel_to_change;
@@ -2404,7 +2409,7 @@ static int display_channel_color_win(Uint32 channel_number)
 
 	channel_to_change = channel_number;
 
-	if(channel_color_win < 0) 
+	if(channel_color_win < 0)
 	{
 		if (!windows_on_top) {
 			our_root_win = game_root_win;
@@ -2447,7 +2452,7 @@ static int display_channel_color_win(Uint32 channel_number)
 		/* scale the window */
 		if (channel_color_win >= 0 && channel_color_win < windows_list.num_windows)
 			ui_scale_color_handler(&windows_list.window[channel_color_win]);
-	} 
+	}
 	else
 	{
 		toggle_window(channel_color_win);
@@ -2773,4 +2778,13 @@ void change_to_channel_tab(const char *line)
 			}
 		break;
 	}
+}
+
+int get_input_height()
+{
+#ifdef TTF
+	return (int)(get_line_height(chat_font) * chat_zoom + 2*INPUT_MARGIN + 0.5);
+#else
+	return (DEFAULT_FONT_Y_LEN + 2*INPUT_MARGIN);
+#endif
 }

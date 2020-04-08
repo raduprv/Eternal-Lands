@@ -78,6 +78,7 @@ static void update_console_scrollbar(void)
 static int display_console_handler (window_info *win)
 {
 	static int msg = 0, offset = 0;
+	int line_height = (int)ceilf(get_line_height(chat_font) * chat_zoom);
 
 	if (get_tab_bar_y() != CONSOLE_Y_OFFSET)
 	{
@@ -100,7 +101,7 @@ static int display_console_handler (window_info *win)
 		const unsigned char *sep_string = (unsigned char*)"^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^";
 		glColor3f (1.0, 1.0, 1.0);
 		draw_string_clipped (CONSOLE_TEXT_X_BORDER,
-			win->len_y - input_widget->len_y - CONSOLE_SEP_HEIGHT - HUD_MARGIN_Y + DEFAULT_FONT_Y_LEN/2,
+			win->len_y - input_widget->len_y - CONSOLE_SEP_HEIGHT - HUD_MARGIN_Y + line_height/2,
 			sep_string, console_text_width, CONSOLE_SEP_HEIGHT);
 	}
 	//ttlanhil: disabled, until the scrolling in console is adusted to work with filtering properly
@@ -213,6 +214,8 @@ static int resize_console_handler (window_info *win, int width, int height)
 	int console_active_width = width - HUD_MARGIN_X;
 	int console_active_height = height - HUD_MARGIN_Y;
 	int text_display_height = console_active_height - input_widget->len_y - CONSOLE_SEP_HEIGHT - CONSOLE_Y_OFFSET;
+	float line_height = get_line_height(chat_font) * chat_zoom;
+
 	console_text_width = (int) (console_active_width - 2*CONSOLE_TEXT_X_BORDER - scrollbar_x_adjust);
 
 	widget_resize (console_root_win, console_out_id, console_text_width, text_display_height);
@@ -220,7 +223,7 @@ static int resize_console_handler (window_info *win, int width, int height)
 	widget_resize (console_root_win, input_widget->id, console_active_width, input_widget->len_y);
 	widget_move (console_root_win, input_widget->id, 0, console_active_height - input_widget->len_y);
 
-	nr_console_lines = (int) (text_display_height / (DEFAULT_FONT_Y_LEN * chat_zoom));
+	nr_console_lines = (int)(text_display_height / line_height);
 	recalc_message_lines();
 
 	if (console_scrollbar_enabled)
@@ -330,7 +333,9 @@ int get_total_nr_lines(void)
 
 void console_font_resize(float font_size)
 {
-	nr_console_lines= (int) (window_height - input_widget->len_y - CONSOLE_SEP_HEIGHT - hud_y - CONSOLE_Y_OFFSET) / (DEFAULT_FONT_Y_LEN * chat_zoom);
+	float line_height = get_line_height(chat_font) * chat_zoom;
+
+	nr_console_lines= (int) (window_height - input_widget->len_y - CONSOLE_SEP_HEIGHT - hud_y - CONSOLE_Y_OFFSET) / line_height;
 	widget_set_size(console_root_win, console_out_id, font_size);
 	resize_console_handler (&windows_list.window[console_root_win], window_width, window_height);
 }
@@ -394,6 +399,8 @@ void create_console_root_window (int width, int height)
 		int scrollbar_x_adjust = 0;
 		int console_active_width = width - HUD_MARGIN_X;
 		int console_active_height = height - HUD_MARGIN_Y;
+		float line_height = get_line_height(chat_font) * chat_zoom;
+		int input_height = get_input_height();
 
 		console_root_win = create_window ("Console", -1, -1, 0, 0, width, height, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
 		if (console_root_win < 0 || console_root_win >= windows_list.num_windows)
@@ -414,7 +421,7 @@ void create_console_root_window (int width, int height)
 
 		console_out_id = text_field_add_extended (console_root_win, console_out_id, NULL,
 			CONSOLE_TEXT_X_BORDER, CONSOLE_Y_OFFSET,
-			console_text_width, console_active_height - INPUT_HEIGHT - CONSOLE_SEP_HEIGHT - CONSOLE_Y_OFFSET,
+			console_text_width, console_active_height - input_height - CONSOLE_SEP_HEIGHT - CONSOLE_Y_OFFSET,
 			0, chat_zoom, -1.0f, -1.0f, -1.0f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, CHAT_ALL, 0, 0);
 
 		recalc_message_lines();
@@ -422,7 +429,7 @@ void create_console_root_window (int width, int height)
 		if(input_widget == NULL) {
 			Uint32 id;
 			id = text_field_add_extended(console_root_win, console_in_id, NULL,
-				0, console_active_height - INPUT_HEIGHT, console_active_width, INPUT_HEIGHT,
+				0, console_active_height - input_height, console_active_width, input_height,
 				(INPUT_DEFAULT_FLAGS|TEXT_FIELD_BORDER)^WIDGET_CLICK_TRANSPARENT,
 				chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL, INPUT_MARGIN, INPUT_MARGIN);
 			input_widget = widget_find(console_root_win, id);
@@ -430,7 +437,7 @@ void create_console_root_window (int width, int height)
 		}
 		widget_set_OnKey(input_widget->window_id, input_widget->id, (int (*)())chat_input_key);
 
-		nr_console_lines = (int) (console_active_height - input_widget->len_y -  CONSOLE_SEP_HEIGHT - CONSOLE_Y_OFFSET) / (DEFAULT_FONT_Y_LEN * chat_zoom);
+		nr_console_lines = (int) (console_active_height - input_widget->len_y -  CONSOLE_SEP_HEIGHT - CONSOLE_Y_OFFSET) / line_height;
 
 		if (console_scrollbar_enabled && (console_root_win >= 0) && (console_root_win < windows_list.num_windows))
 		{
@@ -447,6 +454,7 @@ int input_field_resize(widget_list *w, Uint32 x, Uint32 y)
 	text_field *tf = w->widget_info;
 	text_message *msg = &(tf->buffer[tf->msg]);
 	int console_active_height;
+	float line_height = get_line_height(chat_font) * chat_zoom;
 
 	// set invalid width to force rewrap
 	msg->wrap_width = 0;
@@ -460,7 +468,7 @@ int input_field_resize(widget_list *w, Uint32 x, Uint32 y)
 	widget_resize(console_root_win, console_out_id, console_out_w->len_x, console_active_height);
 	if (console_scrollbar_enabled)
 		widget_resize(console_root_win, console_scrollbar_id, console_win->box_size, console_active_height);
-	nr_console_lines = (int) console_out_w->len_y / (DEFAULT_FONT_Y_LEN * chat_zoom);
+	nr_console_lines = (int) console_out_w->len_y / line_height;
 	console_text_changed = 1;
 	return 1;
 }
@@ -486,12 +494,12 @@ int history_grep (const char* text, int len)
 			if (--idx < 0)
 				break;
 		}
-		
+
 		if (i <= scroll_up_lines || display_text_buffer[idx].len < len)
-			// line is already visible, or the message is too 
+			// line is already visible, or the message is too
 			// short to contain the search term
 			continue;
-		
+
 		if (safe_strcasestr (display_text_buffer[idx].data, display_text_buffer[idx].len, text, len))
 		{
 			if(i > total_nr_lines - nr_console_lines)

@@ -252,6 +252,7 @@ void cleanup_fonts(void);
 
 #ifdef TTF
 int build_ttf_texture_atlas(const char* file_name);
+int get_line_height(int font_num);
 #endif
 
 #ifdef __cplusplus

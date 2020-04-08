@@ -185,9 +185,11 @@ static void bind_font_texture()
 #endif
 }
 
-void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filter, int msg_start, int offset_start, int cursor, int width, int height, float text_zoom, select_info* select)
+void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter,
+	int msg_start, int offset_start, int cursor, int width, int height,
+	float text_zoom, select_info* select)
 {
-	font_info *info;
+	font_info *info = fonts[cur_font_num];
 	float displayed_font_x_size;
 	float displayed_font_y_size;
 
@@ -206,18 +208,15 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 	unsigned char last_color_char = 0;
 	int in_select = 0;
 
-	info = fonts[cur_font_num];
 	displayed_font_x_size = text_zoom * info->block_width;
 	displayed_font_y_size = text_zoom * info->block_height;
-
-	imsg = msg_start;
-	ichar = offset_start;
-	if (msgs[imsg].data == NULL || msgs[imsg].deleted) return;
 
 	if (width < displayed_font_x_size || height < displayed_font_y_size)
 		// no point in trying
 		return;
 
+	imsg = msg_start;
+	ichar = offset_start;
 #ifndef MAP_EDITOR2
 	if (filter != FILTER_ALL)
 	{
@@ -228,7 +227,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 			{
 				ichar = 0;
 				if (++imsg >= msgs_size) imsg = 0;
-				if (msgs[imsg].data == NULL || imsg == msg_start || msgs[imsg].deleted)
+				if (imsg == msg_start || msgs[imsg].data == NULL || msgs[imsg].deleted)
 					// nothing to draw
 					return;
 			}
@@ -237,18 +236,18 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 				break;
 			}
 		}
-		if (msgs[imsg].data == NULL || msgs[imsg].deleted) return;
 	}
 #endif //! MAP_EDITOR2
+	if (msgs[imsg].data == NULL || msgs[imsg].deleted) return;
 
 	ch = msgs[imsg].data[ichar];
-	if (!is_color (ch))
+	if (!is_color(ch))
 	{
 		// search backwards for the last color
 		for (i = ichar-1; i >= 0; i--)
 		{
 			ch = msgs[imsg].data[i];
-			if (is_color (ch))
+			if (is_color(ch))
 			{
 				set_color(from_color_char(ch));
 				last_color_char = ch;
@@ -260,30 +259,29 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 		{
 			// no color character found, try the message color
 			if (msgs[imsg].r >= 0)
-				glColor3f (msgs[imsg].r, msgs[imsg].g, msgs[imsg].b);
+				glColor3f(msgs[imsg].r, msgs[imsg].g, msgs[imsg].b);
 		}
 	}
 
- 	glEnable (GL_ALPHA_TEST);	// enable alpha filtering, so we have some alpha key
-	glAlphaFunc (GL_GREATER, 0.1f);
+ 	glEnable(GL_ALPHA_TEST);	// enable alpha filtering, so we have some alpha key
+	glAlphaFunc(GL_GREATER, 0.1f);
 	bind_font_texture();
 
 	i = 0;
 	cur_x = x;
 	cur_y = y;
-	glBegin (GL_QUADS);
+	glBegin(GL_QUADS);
 	while (1)
 	{
 		if (i == cursor)
 		{
 			cursor_x = cur_x;
 			cursor_y = cur_y;
-			if (cursor_x - x > width - displayed_font_x_size)
+			if (cursor_x - x + displayed_font_x_size > width)
 			{
 				cursor_x = x;
 				cursor_y = cur_y + displayed_font_y_size;
 			}
-
 		}
 
 		cur_char = msgs[imsg].data[ichar];
@@ -291,22 +289,24 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 		if (cur_char == '\0')
 		{
 			// end of message
-			if (++imsg >= msgs_size) {
+			if (++imsg >= msgs_size)
+			{
 				imsg = 0;
 			}
 #ifndef MAP_EDITOR2
 			if (filter != FILTER_ALL)
 			{
 				// skip all messages of the wrong channel
-				while (skip_message (&msgs[imsg], filter))
+				while (skip_message(&msgs[imsg], filter))
 				{
 					if (++imsg >= msgs_size) imsg = 0;
 					if (msgs[imsg].data == NULL || imsg == msg_start) break;
 				}
 			}
 #endif
-			if (msgs[imsg].data == NULL || imsg == msg_start || msgs[imsg].deleted) break;
-			rewrap_message (&msgs[imsg], text_zoom, width, NULL);
+			if (imsg == msg_start || msgs[imsg].data == NULL || msgs[imsg].deleted) break;
+			// Grum 2020-04-07: why do we rewrap here? And not on the first message?
+			rewrap_message(&msgs[imsg], text_zoom, width, NULL);
 			ichar = 0;
 			last_color_char = 0;
 		}
@@ -321,7 +321,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 		{
 			// newline
 			cur_y += displayed_font_y_size;
-			if (cur_y - y > height - displayed_font_y_size) break;
+			if (cur_y - y + displayed_font_y_size > height) break;
 			cur_x = x;
 			if (cur_char != '\0') ichar++;
 			i++;
@@ -334,7 +334,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 		{
 			if (!in_select)
 			{
-				glColor3f (selection_red, selection_green, selection_blue);
+				glColor3f(selection_red, selection_green, selection_blue);
 				in_select = 1;
 			}
 		}
@@ -344,16 +344,16 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 			{
 				if (last_color_char)
 					set_color(from_color_char(last_color_char));
-				else if (msgs[imsg].r < 0)
-					set_color(c_grey1);
-				else
+				else if (msgs[imsg].r >= 0)
 					glColor3f(msgs[imsg].r, msgs[imsg].g, msgs[imsg].b);
+				else
+					set_color(c_grey1);
 
 				in_select = 0;
 			}
 		}
 
-		if (is_color (cur_char))
+		if (is_color(cur_char))
 		{
 			last_color_char = cur_char;
 			if (in_select)
@@ -370,7 +370,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 
 		ichar++;
 		i++;
-		if (cur_x - x > width - displayed_font_x_size)
+		if (cur_x - x + displayed_font_x_size > width)
 		{
 			// ignore rest of this line, but keep track of
 			// color characters
@@ -379,7 +379,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 				ch = msgs[imsg].data[ichar];
 				if (ch == '\0' || ch == '\n' || ch == '\r')
 					break;
-				if (is_color (ch))
+				if (is_color(ch))
 					last_color_char = ch;
 				ichar++;
 				i++;
@@ -387,7 +387,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 		}
 	}
 
-	if (cursor_x >= x && cursor_y >= y && cursor_y - y <= height - displayed_font_y_size)
+	if (cursor_x >= x && cursor_y >= y && cursor_y - y + displayed_font_y_size <= height)
 	{
 		draw_char_scaled(info, '_', cursor_x, cursor_y, text_zoom);
 	}
@@ -1481,3 +1481,14 @@ int build_ttf_texture_atlas(const char* file_name)
 	return 0;
 }
 #endif // TTF
+
+int get_line_height(int font_num)
+{
+#ifdef TTF
+	if (font_num < 0 || font_num >= FONTS_ARRAY_SIZE || !fonts[font_num])
+		return 0;
+	return fonts[font_num]->block_height;
+#else
+	return DEFAULT_FONT_Y_LEN;
+#endif
+}

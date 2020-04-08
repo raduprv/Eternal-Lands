@@ -165,7 +165,7 @@ void draw_special_cursors(void)
 		ret_color[2]=0.0f;
 		ret_color[3]=ret_alpha;
 	}
-	
+
 	glPushAttrib(GL_ENABLE_BIT);
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
@@ -210,53 +210,53 @@ void draw_special_cursors(void)
 
 		ret_x += ret_zoom;
 		glBegin(GL_TRIANGLES);
-		
+
 		glVertex2f(ret_x,ret_y);
 		glVertex2f(ret_x+RET_LEN,ret_y-RET_WID);
 		glVertex2f(ret_x+ret_out,ret_y);
-		
+
 		glVertex2f(ret_x,ret_y);
 		glVertex2f(ret_x+RET_LEN,ret_y+RET_WID);
 		glVertex2f(ret_x+ret_out,ret_y);
-		
+
 		ret_x -= ret_zoom*2;
-		
+
 		glVertex2f(ret_x,ret_y);
 		glVertex2f(ret_x-RET_LEN,ret_y-RET_WID);
 		glVertex2f(ret_x-ret_out,ret_y);
-		
+
 		glVertex2f(ret_x,ret_y);
 		glVertex2f(ret_x-RET_LEN,ret_y+RET_WID);
 		glVertex2f(ret_x-ret_out,ret_y);
-		
+
 		ret_x += ret_zoom;
 		ret_y -= ret_zoom;
-		
+
 		glVertex2f(ret_x,ret_y);
 		glVertex2f(ret_x-RET_WID,ret_y-RET_LEN);
 		glVertex2f(ret_x,ret_y-ret_out);
-		
+
 		glVertex2f(ret_x,ret_y);
 		glVertex2f(ret_x+RET_WID,ret_y-RET_LEN);
 		glVertex2f(ret_x,ret_y-ret_out);
-		
+
 		ret_y += ret_zoom*2;
-		
+
 		glVertex2f(ret_x,ret_y);
 		glVertex2f(ret_x-RET_WID,ret_y+RET_LEN);
 		glVertex2f(ret_x,ret_y+ret_out);
-		
+
 		glVertex2f(ret_x,ret_y);
 		glVertex2f(ret_x+RET_WID,ret_y+RET_LEN);
 		glVertex2f(ret_x,ret_y+ret_out);
-		
+
 		glEnd();
 		ret_y -= ret_zoom;
-		
+
 		glColor4f(0.0,0.0,0.0,ret_alpha);
-		
+
 		ret_x += ret_zoom;
-		glBegin(GL_LINE_LOOP);       
+		glBegin(GL_LINE_LOOP);
 		glVertex2f(ret_x,ret_y);
 		glVertex2f(ret_x+RET_LEN,ret_y-RET_WID);
 		glVertex2f(ret_x+ret_out,ret_y);
@@ -269,7 +269,7 @@ void draw_special_cursors(void)
 		glVertex2f(ret_x-ret_out,ret_y);
 		glVertex2f(ret_x-RET_LEN,ret_y+RET_WID);
 		glEnd();
-		
+
 		ret_x += ret_zoom;
 		ret_y -= ret_zoom;
 		glBegin(GL_LINE_LOOP);
@@ -278,9 +278,9 @@ void draw_special_cursors(void)
 		glVertex2f(ret_x,ret_y-ret_out);
 		glVertex2f(ret_x+RET_WID,ret_y-RET_LEN);
 		glEnd();
-		
+
 		ret_y += ret_zoom*2;
-		glBegin(GL_LINE_LOOP);       
+		glBegin(GL_LINE_LOOP);
 		glVertex2f(ret_x,ret_y);
 		glVertex2f(ret_x-RET_WID,ret_y+RET_LEN);
 		glVertex2f(ret_x,ret_y+7);
@@ -301,14 +301,14 @@ void draw_special_cursors(void)
 			glVertex2f(ret_x,ret_y);
 			glVertex2f(ret_x-RET_LEN,ret_y-RET_WID);
 			glVertex2f(ret_x-ret_out,ret_y);
-			
+
 			glVertex2f(ret_x,ret_y);
 			glVertex2f(ret_x-RET_LEN,ret_y+RET_WID);
 			glVertex2f(ret_x-ret_out,ret_y);
 			glEnd();
-			
+
 			glColor4f(0.0,0.0,0.0,ret_alpha);
-			
+
 			glBegin(GL_LINE_LOOP);
 			glVertex2f(ret_x,ret_y);
 			glVertex2f(ret_x-RET_LEN,ret_y-RET_WID);
@@ -378,7 +378,7 @@ static void toggle_first_person()
 		first_person = 1;
 		fol_cam = 0;
 	} else {
-		first_person = 0;    
+		first_person = 0;
 		if (rx < -90) {rx = -90;}
 	}
 	++adjust_view;
@@ -458,7 +458,7 @@ static int mouseover_game_handler (window_info *win, int mx, int my)
 		{
 			elwin_mouse = CURSOR_EYE;
 		}
-		else 
+		else
 		{
 			elwin_mouse = CURSOR_TALK;
 		}
@@ -486,7 +486,7 @@ static int mouseover_game_handler (window_info *win, int mx, int my)
 		{
 			elwin_mouse = CURSOR_WAND;
 		}
-		else 
+		else
 		{
 			elwin_mouse = CURSOR_EYE;
 		}
@@ -791,7 +791,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 			if (spell_result==2)
 			{
 				short x, y;
-		
+
 				if(use_old_clicker)
 					get_old_world_x_y (&x, &y);
 				else
@@ -800,7 +800,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 				// check to see if the coordinates are OUTSIDE the map
 				if (y < 0 || x < 0 || x >= tile_map_size_x*6 || y >= tile_map_size_y*6)
 					return 1;
-			
+
 				move_to(x,y,0);
 				return 1;
 			}
@@ -818,7 +818,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 					}
 				}
 			}
-			
+
 			break;
 		}
 
@@ -834,7 +834,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 			*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
 			my_tcp_send (my_socket, str, 5);
 			return 1;
-			
+
 			break;
 		}
 
@@ -886,7 +886,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 					clear_dialogue_responses();
 				return 1;
 			}
-			
+
 			str[0] = USE_MAP_OBJECT;
 			*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
 			if (use_item != -1 && current_cursor == CURSOR_USE_WITEM)
@@ -898,7 +898,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 					use_item = -1;
 					action_mode = ACTION_WALK;
 				}
-			} 
+			}
 			else
 			{
 				*((int *)(str+5)) = SDL_SwapLE32((int)-1);
@@ -1008,11 +1008,11 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 			if (enable_client_aiming) {
 				if (flag_ctrl) {
 					float target[3];
-                    
+
 					target[0] = x * 0.5 + 0.25;
 					target[1] = y * 0.5 + 0.25;
 					target[2] = get_tile_height(x, y) + 1.2f;
-                    
+
 					missiles_aim_at_xyz(yourself, target);
 					add_command_to_actor(yourself, aim_mode_reload);
 					missiles_fire_a_to_xyz(yourself, target);
@@ -1129,11 +1129,11 @@ static int display_game_handler (window_info *win)
 
 	for(i=0; i<max_actors; i++)
 	{
-        	if(actors_list[i] && actors_list[i]->actor_id == yourself) 
+        	if(actors_list[i] && actors_list[i]->actor_id == yourself)
 			break;
 	}
 	if(i > max_actors) return 1;//we still don't have ourselves
-	
+
 #ifdef CLUSTER_INSIDES
 	current_cluster = get_actor_cluster();
 #endif // CLUSTER_INSIDES
@@ -1181,7 +1181,7 @@ static int display_game_handler (window_info *win)
 	{
 		read_mouse_now = 0;
 	}
-	
+
 	// This window is a bit special since it's not fully 2D
 	Leave2DMode ();
 	glPushMatrix ();
@@ -1260,7 +1260,7 @@ static int display_game_handler (window_info *win)
 		if (use_fog && any_reflection) blend_reflection_fog();
 		draw_sun_shadowed_scene (any_reflection);
 	}
-	else 
+	else
 	{
 		glNormal3f (0.0f,0.0f,1.0f);
 		if (any_reflection) {
@@ -1363,10 +1363,10 @@ static int display_game_handler (window_info *win)
 				}
 			}
 		}
-		else 
+		else
 		{
 			times_FPS_below_3 = 0;
-			
+
 			if(shadows_were_disabled){
 				shadows_on = 1;
 				shadows_were_disabled=0;
@@ -1439,19 +1439,23 @@ static int display_game_handler (window_info *win)
 	{
 		int msg, offset, filter;
 		filter = use_windowed_chat == 1 ? current_filter : FILTER_ALL;
-		if (find_last_lines_time (&msg, &offset, filter, get_console_text_width()))
+		if (find_last_lines_time(&msg, &offset, filter, get_console_text_width()))
 		{
+			int line_height = (int)(get_line_height(chat_font) * chat_zoom + 0.5);
 			set_font(chat_font);	// switch to the chat font
-			draw_messages (get_tab_bar_x(), get_tab_bar_y(), display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, filter, msg, offset, -1, get_console_text_width(), (int) (1 + lines_to_show * DEFAULT_FONT_Y_LEN * chat_zoom), chat_zoom, NULL);
-			set_font (0);	// switch to fixed
+			draw_messages(get_tab_bar_x(), get_tab_bar_y(), display_text_buffer,
+				DISPLAY_TEXT_BUFFER_SIZE, filter, msg, offset, -1,
+				 get_console_text_width(), (int)(1 + lines_to_show * line_height),
+				chat_zoom, NULL);
+			set_font(0);	// switch to fixed
 		}
 	}
-	
+
 	anything_under_the_mouse (0, UNDER_MOUSE_NO_CHANGE);
 	CHECK_GL_ERRORS ();
 
 	draw_ingame_interface (win);
-	
+
 	CHECK_GL_ERRORS ();
 
 	Leave2DMode ();
@@ -1676,7 +1680,7 @@ void hide_all_windows(){
 static void toggle_sit_stand()
 {
 	Uint8 str[4];
-	//Send message to server...	
+	//Send message to server...
 	str[0]=SIT_DOWN;
 	str[1]=!you_sit;
 	my_tcp_send(my_socket,str,2);
@@ -1688,7 +1692,7 @@ void switch_action_mode(int mode)
 }
 
 
-// keypress handler common to all in-game root windows (game_root_win, 
+// keypress handler common to all in-game root windows (game_root_win,
 // console_root_win, and map_root_win)
 int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
@@ -1699,7 +1703,7 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 	Uint32 _cur_time= SDL_GetTicks();
 	Uint16 shift_on = key_mod & KMOD_SHIFT;
 #endif
-	
+
 	if(check_quit_or_fullscreen(key_code, key_mod))
 	{
 		return 1;
@@ -2000,7 +2004,7 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 	}
 	else if (KEY_DEF_CMP(K_AFK, key_code, key_mod))
 	{
-		if (!afk) 
+		if (!afk)
 		{
 			go_afk ();
 			last_action_time = cur_time - afk_time;
@@ -2080,7 +2084,7 @@ int text_input_handler (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod
 	{
 		return 1;
 	}
-	// The following should only be reached when we hit an invalid key 
+	// The following should only be reached when we hit an invalid key
 	// combo or for any reason we don't have a valid input_widget.
 	else if (is_printable (ch) && input_text_line.len < MAX_TEXT_MESSAGE_LENGTH)
 	{
@@ -2354,7 +2358,7 @@ static int keypress_game_handler (window_info *win, int mx, int my, SDL_Keycode 
 			return 0;
 		}
 	}
-	
+
 	// we handled it, return 1 to let the window manager know
 	return 1;
 }
@@ -2393,7 +2397,7 @@ void create_game_root_window (int width, int height)
 	if (game_root_win < 0)
 	{
 		game_root_win = create_window ("Game", -1, -1, 0, 0, width, height, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
-		
+
 		set_window_handler (game_root_win, ELW_HANDLER_DISPLAY, &display_game_handler);
 		set_window_handler (game_root_win, ELW_HANDLER_CLICK, &click_game_handler);
 		set_window_handler (game_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_game_handler);
@@ -2403,15 +2407,21 @@ void create_game_root_window (int width, int height)
 		set_window_handler (game_root_win, ELW_HANDLER_HIDE, &update_have_display);
 		set_window_handler (game_root_win, ELW_HANDLER_RESIZE, &resize_game_root_handler);
 
-		if(input_widget == NULL) {
+		if (input_widget == NULL)
+		{
+			int input_height = get_input_height();
 			Uint32 id;
+
 			if (dark_channeltext == 1)
 				set_text_message_color (&input_text_line, 0.6f, 0.6f, 0.6f);
 			else if (dark_channeltext == 2)
 				set_text_message_color (&input_text_line, 0.16f, 0.16f, 0.16f);
 			else
 				set_text_message_color (&input_text_line, 1.0f, 1.0f, 1.0f);
-			id = text_field_add_extended(game_root_win, 42, NULL, 0, height-INPUT_HEIGHT-hud_y, width-hud_x, INPUT_HEIGHT, INPUT_DEFAULT_FLAGS, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL, INPUT_MARGIN, INPUT_MARGIN);
+			id = text_field_add_extended(game_root_win, 42, NULL,
+				0, height-input_height-hud_y, width-hud_x, input_height,
+				INPUT_DEFAULT_FLAGS, chat_zoom, 0.77f, 0.57f, 0.39f,
+				&input_text_line, 1, FILTER_ALL, INPUT_MARGIN, INPUT_MARGIN);
 			input_widget = widget_find(game_root_win, id);
 			input_widget->OnResize = input_field_resize;
 		}
