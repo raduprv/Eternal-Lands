@@ -26,24 +26,36 @@
 #endif // SKY_FPV_OPTIONAL
 
 #define FONT_START_CHAR	32
-#define FONT_CHARS_PER_LINE	14
+#define FONT_CHARS_PER_LINE 14
+#define FONT_NR_LINES   10
 #define	FONT_X_SPACING	18
 #define	FONT_Y_SPACING	21
-#define FONTS_ARRAY_SIZE	10
+#define FONTS_ARRAY_INIT_SIZE 8
+#define NR_PREDEFINED_FONTS   7
 
 #ifdef SKY_FPV_OPTIONAL
 #define font_scale 10.0f
 #endif // SKY_FPV_OPTIONAL
 
+#define FONT_FLAG_IN_USE (1 << 0)
+#define FONT_FLAG_TTF    (1 << 1)
+
 typedef struct
 {
-	Uint32 texture_id;
+	char name[32];
+	Uint32 flags;
 #ifdef TTF
-	GLuint texture_id_gl;
+	union
+	{
+		Uint32 cache_id;
+		GLuint gl_id;
+	} texture_id;
+#else
+	Uint32 texture_id;
 #endif
 	int texture_width;
 	int texture_height;
-	int char_widths[FONTS_ARRAY_SIZE * FONT_CHARS_PER_LINE];
+	int char_widths[FONT_NR_LINES * FONT_CHARS_PER_LINE];
 	int block_width;
 	int block_height;
 	int spacing;
@@ -54,14 +66,12 @@ int use_ttf = 0;
 #endif
 
 int	cur_font_num=0;
-int	max_fonts=0;
-font_info *fonts[FONTS_ARRAY_SIZE];
-char font_names[FONTS_ARRAY_SIZE][30] = { 0 };
-int	chat_font=0;
-int	name_font=0;
-int	book_font=0;
-
-int set_font_parameters (int num);
+font_info *fonts_array = NULL;
+size_t fonts_array_size = 0;
+size_t fonts_array_used = 0;
+int chat_font=0;
+int name_font=0;
+int book_font=0;
 
 // CHECK
 int pos_selected(int msg, int ichar, select_info* select)
@@ -103,6 +113,12 @@ static int get_font_char(unsigned char c)
 	return pos_table[c];
 }
 
+static int is_valid_font(int font_num)
+{
+	return font_num >= 0 && font_num < fonts_array_used
+		&& (fonts_array[font_num].flags & FONT_FLAG_IN_USE);
+}
+
 static int get_font_width(const font_info *info, int pos)
 {
 	// ignore unknown characters
@@ -110,7 +126,7 @@ static int get_font_width(const font_info *info, int pos)
 		return 0;
 
 	// return width of character + spacing between chars (supports variable width fonts)
-	return (fonts[cur_font_num]->char_widths[pos] + fonts[cur_font_num]->spacing);
+	return (info->char_widths[pos] + info->spacing);
 }
 
 static int get_font_width_zoom(const font_info *info, int pos, float zoom)
@@ -188,26 +204,27 @@ static int draw_char_scaled(const font_info *info, unsigned char cur_char,
 	return get_font_width_zoom(info, pos, zoom);
 }
 
-static void bind_font_texture()
+static void bind_font_texture(const font_info *info)
 {
-	const font_info *info = fonts[cur_font_num];
-	if (info->texture_id != (Uint32)-1)
-	{
-		bind_texture(info->texture_id);
-	}
 #ifdef TTF
+	if (info->flags & FONT_FLAG_TTF)
+	{
+		bind_texture_id(info->texture_id.gl_id);
+	}
 	else
 	{
-		bind_texture_id(info->texture_id_gl);
+		bind_texture(info->texture_id.cache_id);
 	}
-#endif
+#else // TTF
+	bind_texture(info->texture_id);
+#endif // TTF
 }
 
 void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter,
 	int msg_start, int offset_start, int cursor, int width, int height,
 	float text_zoom, select_info* select)
 {
-	font_info *info = fonts[cur_font_num];
+	font_info *info = &fonts_array[cur_font_num];
 	float displayed_font_x_size;
 	float displayed_font_y_size;
 
@@ -283,7 +300,7 @@ void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter
 
  	glEnable(GL_ALPHA_TEST);	// enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER, 0.1f);
-	bind_font_texture();
+	bind_font_texture(info);
 
 	i = 0;
 	cur_x = x;
@@ -419,7 +436,7 @@ CHECK_GL_ERRORS();
 
 void draw_console_separator(int x_space, int y, int width, float zoom)
 {
-	font_info *info = fonts[cur_font_num];
+	font_info *info = &fonts_array[cur_font_num];
 	float u_start, u_end, v_start, v_end;
 	int caret;
 	int char_width, char_height;
@@ -435,7 +452,7 @@ void draw_console_separator(int x_space, int y, int width, float zoom)
 
 	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER,0.1f);
-	bind_font_texture();
+	bind_font_texture(info);
 
 	glBegin(GL_QUADS);
 	x = x_space;
@@ -507,7 +524,7 @@ int draw_string_zoomed(int x, int y, const unsigned char* our_string,
 int draw_string_zoomed_width(int x, int y, const unsigned char *our_string,
 	int max_width, int max_lines, float text_zoom)
 {
-	font_info *info = fonts[cur_font_num];
+	font_info *info = &fonts_array[cur_font_num];
 	float displayed_font_x_size = text_zoom * info->block_width;
 	float displayed_font_y_size = get_font_height_zoom(info, text_zoom);
 
@@ -521,7 +538,7 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER,0.1f);
-	bind_font_texture();
+	bind_font_texture(info);
 
 	i = 0;
 	cur_x = x;
@@ -562,7 +579,7 @@ CHECK_GL_ERRORS();
 static void draw_string_zoomed_clipped(int x, int y, const unsigned char* our_string,
 	int cursor_pos, int width, int height, float text_zoom)
 {
-	font_info *info = fonts[cur_font_num];
+	font_info *info = &fonts_array[cur_font_num];
 	float displayed_font_x_size = text_zoom * info->block_width;
 	float displayed_font_y_size = get_font_height_zoom(info, text_zoom);
 
@@ -577,7 +594,7 @@ static void draw_string_zoomed_clipped(int x, int y, const unsigned char* our_st
 
 	glEnable (GL_ALPHA_TEST);	// enable alpha filtering, so we have some alpha key
 	glAlphaFunc (GL_GREATER, 0.1f);
-	bind_font_texture();
+	bind_font_texture(info);
 
 	i = 0;
 	cur_x = x;
@@ -647,7 +664,7 @@ void draw_string_clipped(int x, int y, const unsigned char* our_string,
 int reset_soft_breaks(char *str, int len, int size, float zoom, int width,
 	int *cursor, float *max_line_width)
 {
-	font_info *info = fonts[cur_font_num];
+	font_info *info = &fonts_array[cur_font_num];
 	char *buf;
 	int ibuf;
 	int nchar;
@@ -802,7 +819,7 @@ void draw_ortho_ingame_string(float x, float y,float z,
 	const unsigned char * our_string, int max_lines,
 	float font_x_scale, float font_y_scale)
 {
-	const font_info *info = fonts[cur_font_num];
+	const font_info *info = &fonts_array[cur_font_num];
 	float zoom_x = font_x_scale * name_zoom;
 	float u_start,u_end,v_start,v_end;
 
@@ -814,7 +831,7 @@ void draw_ortho_ingame_string(float x, float y,float z,
 
 	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER,0.1f);
-	bind_font_texture();
+	bind_font_texture(info);
 
 	cur_x = x;
 	cur_y = y;
@@ -868,7 +885,7 @@ void draw_ortho_ingame_string(float x, float y,float z,
 void draw_ingame_string(float x, float y, const unsigned char *our_string,
 	int max_lines, float font_x_scale, float font_y_scale)
 {
-	font_info *info = fonts[cur_font_num];
+	font_info *info = &fonts_array[cur_font_num];
 	float u_start,u_end,v_start,v_end;
 	float displayed_font_x_size;
 	float displayed_font_y_size;
@@ -905,7 +922,7 @@ void draw_ingame_string(float x, float y, const unsigned char *our_string,
 
 	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER,0.1f);
-	bind_font_texture();
+	bind_font_texture(info);
 
 #ifdef SKY_FPV_OPTIONAL
 	cur_x = hx;
@@ -991,7 +1008,7 @@ void draw_ingame_string(float x, float y, const unsigned char *our_string,
 // font handling
 int get_char_width(unsigned char cur_char)
 {
-	font_info *info = fonts[cur_font_num];
+	font_info *info = &fonts_array[cur_font_num];
 	return get_font_width(info, get_font_char(cur_char));
 }
 
@@ -1004,17 +1021,127 @@ int get_string_width(const unsigned char* str)
 		width += get_char_width(*c);
 
 	// adjust to ignore the final spacing
-	return width - fonts[cur_font_num]->spacing;
+	return width - fonts_array[cur_font_num].spacing;
+}
+
+static int resize_fonts_array(size_t min_size)
+{
+	font_info *new_array;
+	size_t new_size = fonts_array_size;
+
+	if (new_size >= min_size)
+		return 1;
+
+	while (new_size < min_size)
+	{
+		new_size *= 2;
+	}
+	new_array = realloc(fonts_array, new_size * sizeof(font_info));
+	if (!new_array)
+	{
+		LOG_ERROR("Failed to reallocate fonts array");
+		return 0;
+	}
+
+	memset(new_array + fonts_array_size, 0, (new_size-fonts_array_size) * sizeof(font_info));
+
+	fonts_array = new_array;
+	fonts_array_size = new_size;
+
+	return 1;
+}
+
+static int set_font_parameters(int num)
+{
+	font_info *info;
+	int i;
+
+	// error checking
+	if (num < 0)
+		return -1;
+
+	// allocate space if needed
+	if (num >= fonts_array_size)
+	{
+		if (!resize_fonts_array(num + 1))
+			return -1;
+	}
+
+	// watch the highest font
+	if (num >= fonts_array_used)
+	{
+		fonts_array_used = num + 1;
+	}
+
+	// set default font info
+	info = &fonts_array[num];
+	info->texture_width = 256;
+	info->texture_height = 256;
+	info->spacing=0;
+	info->block_width = FONT_X_SPACING;
+	info->block_height = FONT_Y_SPACING;
+
+	// load font information
+	// TODO: write this and remove the hack!
+	for (i = 0; i < FONT_NR_LINES*FONT_CHARS_PER_LINE; i++)
+		info->char_widths[i] = 12;
+	if (num==1)
+	{
+		static int widths[] = {
+			 4,  2,  7, 11,  8, 12, 12,  2,  7,  7,  9, 10,  3,  8,
+			 2, 10, 10, 10,  8,  8, 10,  7,  9,  9,  9,  9,  3,  3,
+			10, 10, 10,  9, 12, 12,  9, 10, 10,  9,  9, 10,  9,  8,
+			 7, 11,  8, 11, 10, 11,  9, 11, 11,  9, 10,  9, 12, 12,
+			12, 12, 10,  6, 10,  6, 10, 12,  3, 11,  9,  9,  9,  9,
+			 8,  9,  9,  4,  6, 10,  4, 11,  9, 10,  9,  9,  8,  8,
+			 8,  9, 10, 12, 10, 10,  9,  8,  2,  8, 10,  8, 12, 12,
+			12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+			12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+			12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+		};
+		memcpy(info->char_widths, widths, sizeof(widths));
+		info->spacing = 4;
+	}
+	if (num==2)
+	{
+		static int widths[] = {
+			 8,  8,  8, 10,  8, 10, 10,  8,  8,  8,  8, 10,  8,  8,
+			 8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,
+			10, 10, 10,  8, 12, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+			10, 10, 10, 10, 10, 10, 10, 10,  8, 10, 10, 10, 10, 10,
+			10, 10, 10, 10, 10, 10, 10,  8,  8,  8,  8,  8,  8,  8,
+			10,  8,  8,  8,  8,  8,  8, 10,  8,  8,  8,  8,  8,  8,
+			 8,  8,  8, 10,  8,  8,  8, 10,  8, 10, 10,  8, 10,  8,
+			 8,  8, 10, 10, 10,  8, 10, 10,  8,  8,  8, 12, 12, 12,
+			10, 10, 12, 10, 12, 12, 12,
+		};
+		memcpy(info->char_widths, widths, sizeof(widths));
+		info->spacing = 2;
+	}
+
+	info->flags = FONT_FLAG_IN_USE;
+
+	//and return
+	return num;
 }
 
 int init_fonts()
 {
 	int i;
 
-	max_fonts = 0;
-	for (i = 0; i < FONTS_ARRAY_SIZE; i++)
+	fonts_array = calloc(FONTS_ARRAY_INIT_SIZE, sizeof(font_info));
+	if (!fonts_array)
 	{
-		fonts[i] = NULL;
+		LOG_ERROR("Failed to allocate fonts array");
+		return 0;
+	}
+	fonts_array_size = FONTS_ARRAY_INIT_SIZE;
+	fonts_array_used = 0;
+
+	// Due to Historical Reasons (TM), we will set font widths for the first
+	// seven entries in a hackabout way, and mark these as in use.
+	for (i = 0; i < NR_PREDEFINED_FONTS; i++)
+	{
 		if (set_font_parameters(i) < 0)
 			return 0;
 	}
@@ -1026,18 +1153,21 @@ int init_fonts()
 
 void cleanup_fonts(void)
 {
+#ifdef TTF
 	int i;
-
-	for(i = 0; i < FONTS_ARRAY_SIZE; i++)
+	for (i = 0; i < fonts_array_used; i++)
 	{
-		if (fonts[i] != NULL)
+		font_info *info = &fonts_array[i];
+		if ((info->flags & FONT_FLAG_IN_USE) && (info->flags & FONT_FLAG_TTF))
 		{
-			free(fonts[i]);
+			glDeleteTextures(1, &info->texture_id.gl_id);
 		}
 	}
+#endif
+	free(fonts_array);
 }
 
-int load_font_textures ()
+int load_font_textures()
 {
 	static const char texture_dir[] = "textures/";
 
@@ -1054,21 +1184,22 @@ int load_font_textures ()
 	char file[60] = "";
 	char str[60] = "";
 
-	if (fonts[0] == NULL || fonts[1] == NULL || fonts[2] == NULL || fonts[3]==NULL )
+	for (i = 0; i < 4; ++i)
 	{
-		for (i = 0; i < FONTS_ARRAY_SIZE; i++) {
-			if (fonts[i] != NULL)
-				free (fonts[i]);
-			fonts[i] = NULL;
-		}
-		if ( !init_fonts () ) return 0;
+		if (!(fonts_array[i].flags & FONT_FLAG_IN_USE))
+			break;
+	}
+	if (i < 4)
+	{
+		if (!init_fonts())
+			return 0;
 	}
 
-	fonts[0]->texture_id = load_texture_cached("textures/font.dds", tt_font);
+	fonts_array[0].texture_id.cache_id = load_texture_cached("textures/font.dds", tt_font);
 	// Force the selection of the base font.
-	safe_strncpy(font_names[0], "Type 1", sizeof(font_names[0]));
-	add_multi_option("chat_font", font_names[0]);
-	add_multi_option("name_font", font_names[0]);
+	safe_strncpy(fonts_array[0].name, "Type 1", sizeof(fonts_array[0].name));
+	add_multi_option("chat_font", fonts_array[0].name);
+	add_multi_option("name_font", fonts_array[0].name);
 
 	// Find what font's exist and load them
 	glob_pattern = malloc(strlen(datadir)+sizeof(texture_dir)+10+1); //+10 = font*.bmp*
@@ -1093,7 +1224,7 @@ int load_font_textures ()
 		return 0;
 	}
 	j = 0;
-	while (j < glob_res.gl_pathc && i < FONTS_ARRAY_SIZE)
+	while (j < glob_res.gl_pathc && i < fonts_array_size)
 	{
 		int	len;
 
@@ -1106,10 +1237,11 @@ int load_font_textures ()
 		{
 			safe_snprintf(str, sizeof(str), "./textures/%s", file); //Use a relative path here, load_texture_cache_deferred() is using the path wrappers.
 			file[len - 4] = 0;
-			fonts[i]->texture_id = load_texture_cached(str, tt_font);
-			safe_snprintf(font_names[i], sizeof(font_names[i]), "Type %i - %s", i + 1, file);
-			add_multi_option("chat_font", font_names[i]);
-			add_multi_option("name_font", font_names[i]);
+			fonts_array[i].texture_id.cache_id = load_texture_cached(str, tt_font);
+			safe_snprintf(fonts_array[i].name, sizeof(fonts_array[i].name),
+				"Type %i - %s", i + 1, file);
+			add_multi_option("chat_font", fonts_array[i].name);
+			add_multi_option("name_font", fonts_array[i].name);
 			i++;
 		}
 #ifndef WINDOWS
@@ -1130,84 +1262,10 @@ int load_font_textures ()
 	return 1;
 }
 
-int set_font_parameters(int num)
-{
-	int	i;
-
-	// error checking
-	if(num < 0 || num >= FONTS_ARRAY_SIZE)
-		{
-			return -1;
-		}
-	// allocate space if needed
-	if(fonts[num] == NULL)
-		{
-			fonts[num]=(font_info *)calloc(1, sizeof(font_info));
-			if(fonts[num] == NULL)
-				{
-					LOG_ERROR(cant_load_font);
-					return -1;
-				}
-		}
-	//watch the highest font
-	if(num >= max_fonts)
-		{
-			max_fonts=num+1;
-		}
-	// set default font info
-	fonts[num]->texture_width = 256;
-	fonts[num]->texture_height = 256;
-	fonts[num]->spacing=0;
-	fonts[num]->block_width = FONT_X_SPACING;
-	fonts[num]->block_height = FONT_Y_SPACING;
-
-	// load font information
-	// TODO: write this and remove the hack!
-	for(i=0; i<FONTS_ARRAY_SIZE*FONT_CHARS_PER_LINE; i++) fonts[num]->char_widths[i]=12;
-	if(num==1){
-		static int widths[]={
-			4,2,7,11,8,12,12,2,7,7,9,10,3,8,
-			2,10,10,10,8,8,10,7,9,9,9,9,3,3,
-			10,10,10,9,12,12,9,10,10,9,9,10,9,8,
-			7,11,8,11,10,11,9,11,11,9,10,9,12,12,
-			12,12,10,6,10,6,10,12,3,11,9,9,9,9,
-			8,9,9,4,6,10,4,11,9,10,9,9,8,8,
-			8,9,10,12,10,10,9,8,2,8,10,8,12,12,
-			12,12,12,12,12,12,12,12,12,12,12,12,12,12,
-			12,12,12,12,12,12,12,12,12,12,12,12,12,12,
-			12,12,12,12,12,12,12,12,12,12,12,12,12,12,
-		};
-		memcpy(fonts[num]->char_widths, widths, sizeof(widths));
-		fonts[num]->spacing=4;
-	}
-	if(num==2){
-		static int widths[]={
-			 8,  8,  8, 10,  8, 10, 10,  8,  8,  8,  8, 10,  8,  8,
-			 8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,
-			10, 10, 10,  8, 12, 10, 10, 10, 10, 10, 10, 10, 10, 10,
-			10, 10, 10, 10, 10, 10, 10, 10,  8, 10, 10, 10, 10, 10,
-			10, 10, 10, 10, 10, 10, 10,  8,  8,  8,  8,  8,  8,  8,
-			10,  8,  8,  8,  8,  8,  8, 10,  8,  8,  8,  8,  8,  8,
-			 8,  8,  8, 10,  8,  8,  8, 10,  8, 10, 10,  8, 10,  8,
-			 8,  8, 10, 10, 10,  8, 10, 10,  8,  8,  8, 12, 12, 12,
-			10, 10, 12, 10, 12, 12, 12,
-		};
-		memcpy(fonts[num]->char_widths, widths, sizeof(widths));
-		fonts[num]->spacing=2;
-	}
-
-	//and return
-	return num;
-}
-
-
 int	set_font(int num)
 {
-	if (num >= 0 && num < max_fonts && fonts[num] && fonts[num]->texture_id >= 0)
-	{
-		cur_font_num=num;
-	}
-
+	if (is_valid_font(num))
+		cur_font_num = num;
 	return cur_font_num;
 }
 
@@ -1351,23 +1409,20 @@ int build_ttf_texture_atlas(const char* file_name)
 	int font_num;
 	const char* name;
 
-	for (font_num = 0; font_num < FONTS_ARRAY_SIZE; ++font_num)
+	for (font_num = 0; font_num < fonts_array_size; ++font_num)
 	{
-		if (!font_names[font_num][0])
+		if (!(fonts_array[font_num].flags & FONT_FLAG_IN_USE))
 			break;
 	}
-	if (font_num >= FONTS_ARRAY_SIZE)
+	if (font_num >= fonts_array_size)
 	{
-		LOG_ERROR("No space to store new font", font_num);
-		return 0;
+		if (!resize_fonts_array(font_num + 1))
+			return 0;
 	}
 
-	info = calloc(1, sizeof(font_info));
-	if (!info)
-	{
-		LOG_ERROR("Failed to allocate font information");
-		return 0;
-	}
+	info = &fonts_array[font_num];
+	if (font_num >= fonts_array_used)
+		fonts_array_used = font_num + 1;
 
 	// Try to find a font size where the fot height is approximately equal to
 	// the nr of pixels used here. We could scale later, but using an appropriate
@@ -1429,18 +1484,17 @@ int build_ttf_texture_atlas(const char* file_name)
 
 	SDL_FreeSurface(image);
 	info->spacing = 0;
-	info->texture_id = (Uint32)-1;
-	info->texture_id_gl = texture_id;
+	info->texture_id.gl_id = texture_id;
 	info->texture_width = width;
 	info->texture_height = height;
 	info->block_width = size;
 	info->block_height = size;
-	fonts[font_num] = info;
+	info->flags = FONT_FLAG_IN_USE | FONT_FLAG_TTF;
 
 	name = TTF_FontFaceFamilyName(font);
-	safe_strncpy(font_names[font_num], name, sizeof(font_names[font_num]));
-	add_multi_option("chat_font", font_names[font_num]);
-	add_multi_option("name_font", font_names[font_num]);
+	safe_strncpy(fonts_array[font_num].name, name, sizeof(fonts_array[font_num].name));
+	add_multi_option("chat_font", fonts_array[font_num].name);
+	add_multi_option("name_font", fonts_array[font_num].name);
 
 	TTF_CloseFont(font);
 
@@ -1451,9 +1505,9 @@ int build_ttf_texture_atlas(const char* file_name)
 int get_line_height(int font_num, float zoom)
 {
 #ifdef TTF
-	if (font_num < 0 || font_num >= FONTS_ARRAY_SIZE || !fonts[font_num])
+	if (!is_valid_font(font_num))
 		return 0;
-	return get_font_height_zoom(fonts[font_num], zoom);
+	return get_font_height_zoom(&fonts_array[font_num], zoom);
 #else
 	return (int)(DEFAULT_FONT_Y_LEN * zoom);
 #endif
