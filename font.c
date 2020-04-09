@@ -103,7 +103,7 @@ static int get_font_char(unsigned char c)
 	return pos_table[c];
 }
 
-static int get_font_width(int pos)
+static int get_font_width(const font_info *info, int pos)
 {
 	// ignore unknown characters
 	if (pos < 0)
@@ -111,6 +111,11 @@ static int get_font_width(int pos)
 
 	// return width of character + spacing between chars (supports variable width fonts)
 	return (fonts[cur_font_num]->char_widths[pos] + fonts[cur_font_num]->spacing);
+}
+
+static int get_font_width_zoom(const font_info *info, int pos, float zoom)
+{
+	return (int)(get_font_width(info, pos) * zoom + 0.5);
 }
 
 static void set_color(int color)
@@ -138,8 +143,8 @@ static void get_texture_coordinates(const font_info *info, int chr,
 
 	*u_start = (float)(col * bw) / info->texture_width;
 	*u_end = (float)(col * bw + cw) / info->texture_width;
-	*v_start = (float)(1 + row * bh) / info->texture_height;
-	*v_end = (float)(row * bh + bh - 1) / info->texture_height;
+	*v_start = (float)(row * bh) / info->texture_height;
+	*v_end = (float)(row * bh + bh) / info->texture_height;
 }
 
 // returns how far to move for the next char, or negative on error
@@ -147,7 +152,7 @@ static int draw_char_scaled(const font_info *info, unsigned char cur_char,
 	int x, int y, float zoom)
 {
 	float u_start, u_end, v_start, v_end;
-	int chr;
+	int pos;
 	int char_width, char_height;
 	int cw;
 
@@ -157,17 +162,17 @@ static int draw_char_scaled(const font_info *info, unsigned char cur_char,
 		return 0;
 	}
 
-	chr = get_font_char(cur_char);
-	if (chr < 0) // watch for illegal/non-display characters
+	pos = get_font_char(cur_char);
+	if (pos < 0) // watch for illegal/non-display characters
 	{
 		return 0;
 	}
 
-	cw = info->char_widths[chr];
+	cw = info->char_widths[pos];
 	char_width = (int)(zoom * cw + 0.5);
 	char_height = (int)(zoom * info->block_height + 0.5);
 
-	get_texture_coordinates(info, chr, &u_start, &u_end, &v_start, &v_end);
+	get_texture_coordinates(info, pos, &u_start, &u_end, &v_start, &v_end);
 
 	// and place the text from the graphics on the map
 	glTexCoord2f(u_start, v_start); glVertex3i(x, y, 0);
@@ -175,7 +180,7 @@ static int draw_char_scaled(const font_info *info, unsigned char cur_char,
 	glTexCoord2f(u_end,   v_end);   glVertex3i(x + char_width, y + char_height, 0);
 	glTexCoord2f(u_end,   v_start); glVertex3i(x + char_width, y, 0);
 
-	return (int)(zoom * (cw + info->spacing) + 0.5);
+	return get_font_width_zoom(info, pos, zoom);
 }
 
 static void bind_font_texture()
@@ -419,7 +424,7 @@ void draw_console_separator(int x_space, int y, int width, float zoom)
 	cw = info->char_widths[caret];
 	char_width = (int)(zoom * cw + 0.5);
 	char_height = (int)(zoom * info->block_height + 0.5);
-	dx = (int)(zoom * (cw + info->spacing) + 0.5);
+	dx = get_font_width_zoom(info, caret, zoom);
 
 	get_texture_coordinates(info, caret, &u_start, &u_end, &v_start, &v_end);
 
@@ -634,8 +639,10 @@ void draw_string_clipped(int x, int y, const unsigned char* our_string,
 	draw_string_zoomed_clipped(x, y, our_string, -1, width, height, 1.0f);
 }
 
-int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int *cursor, float *max_line_width)
+int reset_soft_breaks(char *str, int len, int size, float zoom, int width,
+	int *cursor, float *max_line_width)
 {
+	font_info *info = fonts[cur_font_num];
 	char *buf;
 	int ibuf;
 	int nchar;
@@ -647,8 +654,8 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 	int dcursor = 0;
 	/* the generic special text window code needs to know the
 	   maximum line length in pixels.  This information is used
-	   but was previously throw away in this function.  Others
-	   may fine it useful for setting the winow size, so pass back
+	   but was previously thrown away in this function.  Others
+	   may find it useful for setting the window size, so pass back
 	   to the caller if they provide somewhere to store it. */
 	float local_max_line_width = 0;
 
@@ -678,7 +685,7 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 	   buffer was sometimes not big enough.  The code looked
 	   to attempt to cope but was floored.  When ever the wrap
 	   caused more characters to be in the output, some of the
-	   source would be lost.  This is still possable if the source
+	   source would be lost.  This is still possible if the source
 	   size cannot take the extra characters.  For example, try
 	   #glinfo and watch as the end characters are lost.  At least
 	   characters are no longer lost wrap process. If you make
@@ -695,17 +702,21 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 	while (isrc < len && str[isrc] != '\0')
 	{
 		// see if it's an explicit line break
-		if (str[isrc] == '\n') {
+		if (str[isrc] == '\n')
+		{
 			nlines++;
 			if (line_width > local_max_line_width)
 				local_max_line_width = line_width;
 			line_width = 0;
-		} else {
-			font_bit_width = (int) (0.5f + get_char_width (str[isrc]) * DEFAULT_FONT_X_LEN * zoom / 12.0f);
+		}
+		else
+		{
+			font_bit_width = get_font_width_zoom(info, get_font_char(str[isrc]), zoom);
 			if (line_width + font_bit_width >= width)
 			{
 				// search back for a space
-				for (nchar = 0; ibuf-nchar-1 > lastline; nchar++) {
+				for (nchar = 0; ibuf-nchar-1 > lastline; nchar++)
+				{
 					if (buf[ibuf-nchar-1] == ' ') {
 						break;
 					}
@@ -786,22 +797,15 @@ void draw_ortho_ingame_string(float x, float y,float z,
 	const unsigned char * our_string, int max_lines,
 	float font_x_scale, float font_y_scale)
 {
-	font_info *info = fonts[cur_font_num];
+	const font_info *info = fonts[cur_font_num];
+	float zoom_x = font_x_scale * name_zoom;
 	float u_start,u_end,v_start,v_end;
-	float displayed_font_x_size;
-	float displayed_font_y_size;
 
-	float displayed_font_x_width;
-	int	font_bit_width;
-
-	unsigned char cur_char;
-	int chr;
 	int i;
 	float cur_x,cur_y;
 	int current_lines=0;
 
-	displayed_font_x_size=font_x_scale*name_zoom*12.0;
-	displayed_font_y_size=font_y_scale*name_zoom*12.0;
+	float char_height = font_y_scale * name_zoom * info->block_height;
 
 	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER,0.1f);
@@ -813,10 +817,10 @@ void draw_ortho_ingame_string(float x, float y,float z,
 
 	for (i = 0; our_string[i]; ++i)
 	{
-		cur_char = our_string[i];
+		unsigned char cur_char = our_string[i];
 		if (cur_char=='\n')
 		{
-			cur_y += displayed_font_y_size;
+			cur_y += char_height;
 			cur_x = x;
 			if (++current_lines >= max_lines)
 				break;
@@ -829,26 +833,25 @@ void draw_ortho_ingame_string(float x, float y,float z,
 		}
 		else
 		{
-			chr = get_font_char(cur_char);
-			if (chr >= 0)
+			int pos = get_font_char(cur_char);
+			if (pos >= 0)
 			{
-				font_bit_width = get_font_width(chr);
-				displayed_font_x_width = ((float)font_bit_width)*displayed_font_x_size/12.0;
-				get_texture_coordinates(info, chr, &u_start, &u_end, &v_start, &v_end);
+				float char_width = floorf(zoom_x * info->char_widths[pos] + 0.5);
+				get_texture_coordinates(info, pos, &u_start, &u_end, &v_start, &v_end);
 
 				glTexCoord2f(u_start,v_start);
-				glVertex3f(cur_x,cur_y+displayed_font_y_size,z);
+				glVertex3f(cur_x,cur_y+char_height,z);
 
 				glTexCoord2f(u_start,v_end);
 				glVertex3f(cur_x,cur_y,z);
 
 				glTexCoord2f(u_end,v_end);
-				glVertex3f(cur_x+displayed_font_x_width,cur_y,z);
+				glVertex3f(cur_x+char_width,cur_y,z);
 
 				glTexCoord2f(u_end,v_start);
-				glVertex3f(cur_x+displayed_font_x_width,cur_y+displayed_font_y_size,z);
+				glVertex3f(cur_x+char_width, cur_y+char_height,z);
 
-				cur_x+=displayed_font_x_width;
+				cur_x += get_font_width_zoom(info, pos, zoom_x);
 			}
 		}
 	}
@@ -933,7 +936,7 @@ void draw_ingame_string(float x, float y, const unsigned char *our_string,
 			chr = get_font_char(cur_char);
 			if (chr >= 0)
 			{
-				font_bit_width = get_font_width(chr);
+				font_bit_width = get_font_width(info, chr);
 				displayed_font_x_width=((float)font_bit_width)*displayed_font_x_size/12.0;
 
 				get_texture_coordinates(info, chr, &u_start, &u_end, &v_start, &v_end);
@@ -983,7 +986,8 @@ void draw_ingame_string(float x, float y, const unsigned char *our_string,
 // font handling
 int get_char_width(unsigned char cur_char)
 {
-	return get_font_width(get_font_char(cur_char));
+	font_info *info = fonts[cur_font_num];
+	return get_font_width(info, get_font_char(cur_char));
 }
 
 int get_string_width(const unsigned char* str)

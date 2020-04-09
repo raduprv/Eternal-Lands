@@ -346,7 +346,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
                                 break;
                         }
                 case ACTION_POINTS_BASE:
-                        your_info.action_points.base=value;break;                
+                        your_info.action_points.base=value;break;
                 case FOOD_LEV:
                         your_info.food_level=value;break;
                 case MAN_EXP:
@@ -943,7 +943,7 @@ void draw_floatingmessage(floating_message *message, float healthbar_z) {
         glLoadIdentity();
         glOrtho(view[0],view[2]+view[0],view[1],view[3]+view[1],0.0f,-1.0f);
 
-        draw_ortho_ingame_string(x, y, 0, (unsigned char*)message->message, 1, INGAME_FONT_X_LEN*8.0, INGAME_FONT_Y_LEN*8.0);
+        draw_ortho_ingame_string(x, y, 0, (unsigned char*)message->message, 1, INGAME_FONT_X_LEN*8.0, INGAME_FONT_X_LEN*8.0);
 
         glMatrixMode(GL_PROJECTION);
         glPopMatrix();
