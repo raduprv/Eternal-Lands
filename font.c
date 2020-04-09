@@ -407,6 +407,54 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
+void draw_console_separator(int x_space, int y, int width, float zoom)
+{
+	font_info *info = fonts[cur_font_num];
+	float u_start, u_end, v_start, v_end;
+	int caret;
+	int char_width, char_height;
+	int cw, x, dx;
+
+	caret = get_font_char('^');
+	cw = info->char_widths[caret];
+	char_width = (int)(zoom * cw + 0.5);
+	char_height = (int)(zoom * info->block_height + 0.5);
+	dx = (int)(zoom * (cw + info->spacing) + 0.5);
+
+	get_texture_coordinates(info, caret, &u_start, &u_end, &v_start, &v_end);
+
+	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
+	glAlphaFunc(GL_GREATER,0.1f);
+	bind_font_texture();
+
+	glBegin(GL_QUADS);
+	x = x_space;
+	while (x + cw <= width)
+	{
+		glTexCoord2f(u_start, v_start); glVertex3i(x, y, 0);
+		glTexCoord2f(u_start, v_end);   glVertex3i(x, y + char_height, 0);
+		glTexCoord2f(u_end,   v_end);   glVertex3i(x + char_width, y + char_height, 0);
+		glTexCoord2f(u_end,   v_start); glVertex3i(x + char_width, y, 0);
+
+		x += dx;
+		if (x + cw > width)
+			break;
+
+		glTexCoord2f(u_start, v_start); glVertex3i(x, y, 0);
+		glTexCoord2f(u_start, v_end);   glVertex3i(x, y + char_height, 0);
+		glTexCoord2f(u_end,   v_end);   glVertex3i(x + char_width, y + char_height, 0);
+		glTexCoord2f(u_end,   v_start); glVertex3i(x + char_width, y, 0);
+
+		x += 2 * dx;
+	}
+	glEnd();
+
+	glDisable(GL_ALPHA_TEST);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
+}
+
 int draw_string_shadowed_zoomed(int x, int y, const unsigned char* our_string,
 	int max_lines, float fr, float fg, float fb, float br, float bg, float bb,
 	float zoom)

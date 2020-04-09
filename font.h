@@ -64,6 +64,7 @@ extern int	name_font; /*!< font size used for name font */
  * \callgraph
  */
 void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filter, int nr_start, int offset_start, int cursor, int width, int height, float text_zoom, select_info* select);
+void draw_console_separator(int x_space, int y, int width, float zoom);
 #endif
 
 /*!

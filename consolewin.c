@@ -78,7 +78,6 @@ static void update_console_scrollbar(void)
 static int display_console_handler (window_info *win)
 {
 	static int msg = 0, offset = 0;
-	int line_height = (int)ceilf(get_line_height(chat_font) * chat_zoom);
 
 	if (get_tab_bar_y() != CONSOLE_Y_OFFSET)
 	{
@@ -98,11 +97,10 @@ static int display_console_handler (window_info *win)
 	draw_console_pic (cons_text);
 	if (scroll_up_lines != 0)
 	{
-		const unsigned char *sep_string = (unsigned char*)"^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^";
 		glColor3f (1.0, 1.0, 1.0);
-		draw_string_clipped (CONSOLE_TEXT_X_BORDER,
-			win->len_y - input_widget->len_y - CONSOLE_SEP_HEIGHT - HUD_MARGIN_Y + line_height/2,
-			sep_string, console_text_width, CONSOLE_SEP_HEIGHT);
+		draw_console_separator(CONSOLE_TEXT_X_BORDER,
+			win->len_y - HUD_MARGIN_Y - input_widget->len_y - CONSOLE_SEP_HEIGHT,
+			console_text_width, chat_zoom);
 	}
 	//ttlanhil: disabled, until the scrolling in console is adusted to work with filtering properly
 	//if the users prefer that console not be filtered, the following line can be removed.
