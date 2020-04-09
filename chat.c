@@ -784,7 +784,7 @@ static int resize_chat_handler(window_info *win, int width, int height)
 	int input_y = height - input_height - CHAT_WIN_SPACE;
 	int tabcol_height = input_y - 2 * CHAT_WIN_SPACE;
 	int output_height = tabcol_height - CHAT_WIN_TAG_HEIGHT;
-	int line_height = DEFAULT_FONT_Y_LEN*chat_zoom;
+	int line_height = get_line_height(chat_font, chat_zoom);
 
 	if (output_height < 5*line_height + 2 * CHAT_WIN_SPACE && input_height > 3*line_height + 2 * CHAT_WIN_SPACE)
 	{
@@ -824,6 +824,7 @@ static int resize_chat_handler(window_info *win, int width, int height)
 
 void update_chat_win_buffers(void)
 {
+	int line_height = get_line_height(chat_font, chat_zoom);
 	int itab, imsg;
 	// recompute line breaks
 	for (itab = 0; itab < MAX_CHAT_TABS; itab++)
@@ -840,7 +841,7 @@ void update_chat_win_buffers(void)
 	}
 
 	// adjust the text position and scroll bar
-	nr_displayed_lines = (int) (chat_out_text_height / (DEFAULT_FONT_Y_LEN * chat_zoom));
+	nr_displayed_lines = chat_out_text_height / line_height;
 	current_line = channels[active_tab].nr_lines - nr_displayed_lines;
 	if (current_line < 0)
 		current_line = 0;
@@ -901,6 +902,7 @@ void parse_input(char *data, int len)
 
 int root_key_to_input_field (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
+	int line_height;
 	Uint8 ch = key_to_char (key_unicode);
 	text_field *tf;
 	text_message *msg;
@@ -968,10 +970,15 @@ int root_key_to_input_field (SDL_Keycode key_code, Uint32 key_unicode, Uint16 ke
 	{
 		return 0;
 	}
+
 	tf->next_blink = cur_time + TF_BLINK_DELAY;
-	if(input_widget->window_id != chat_win && tf->nr_lines != floorf((input_widget->len_y-2*tf->y_space)/(DEFAULT_FONT_Y_LEN*input_widget->size))) {
+	line_height = get_line_height(chat_font, input_widget->size);
+	if (input_widget->window_id != chat_win
+		&& tf->nr_lines != (input_widget->len_y-2*tf->y_space) / line_height)
+	{
 		/* Resize the input widget if needed */
-		widget_resize(input_widget->window_id, input_widget->id, input_widget->len_x, tf->y_space*2 + ceilf(DEFAULT_FONT_Y_LEN*input_widget->size*tf->nr_lines));
+		widget_resize(input_widget->window_id, input_widget->id,
+			input_widget->len_x, tf->y_space*2 + line_height * tf->nr_lines);
 	}
 	while(tf->buffer->data[tf->cursor] == '\r' && tf->cursor < tf->buffer->len)
 	{
@@ -999,8 +1006,11 @@ void paste_in_input_field (const Uint8 *text)
 	// set invalid width to force rewrap
 	msg->wrap_width = 0;
 	tf->nr_lines = rewrap_message(msg, input_widget->size, input_widget->len_x - 2 * tf->x_space, &tf->cursor);
-	if(use_windowed_chat != 2) {
-		widget_resize(input_widget->window_id, input_widget->id, input_widget->len_x, tf->y_space*2 + ceilf(DEFAULT_FONT_Y_LEN*input_widget->size*tf->nr_lines));
+	if (use_windowed_chat != 2)
+	{
+		int line_height = get_line_height(chat_font, input_widget->size);
+		widget_resize(input_widget->window_id, input_widget->id,
+			input_widget->len_x, tf->y_space*2 + line_height * tf->nr_lines);
 	}
 }
 
@@ -1014,8 +1024,11 @@ void put_string_in_input_field(const Uint8 *text)
 		// set invalid width to force rewrap
 		msg->wrap_width = 0;
 		tf->nr_lines = rewrap_message(msg, input_widget->size, input_widget->len_x - 2 * tf->x_space, &tf->cursor);
-		if(use_windowed_chat != 2) {
-			widget_resize(input_widget->window_id, input_widget->id, input_widget->len_x, tf->y_space*2 + ceilf(DEFAULT_FONT_Y_LEN*input_widget->size*tf->nr_lines));
+		if (use_windowed_chat != 2)
+		{
+			int line_height = get_line_height(chat_font, input_widget->size);
+			widget_resize(input_widget->window_id, input_widget->id,
+				input_widget->len_x, tf->y_space*2 + line_height * tf->nr_lines);
 		}
 		if(input_widget->window_id == game_root_win) {
 			widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_DISABLED);
@@ -1061,11 +1074,12 @@ static void create_chat_window(void)
 	int tabcol_height = output_height + CHAT_WIN_TAG_HEIGHT;
 	int input_y = tabcol_height + 2 * CHAT_WIN_SPACE;
 	int input_height = CHAT_IN_TEXT_HEIGHT + 2 * CHAT_WIN_SPACE;
+	int line_height = get_line_height(chat_font, chat_zoom);
 
 	int min_width = CHAT_WIN_SCROLL_WIDTH + 2 * CHAT_WIN_SPACE + (int)(CHAT_WIN_TEXT_WIDTH * chat_zoom);
-	int min_height = 7 * CHAT_WIN_SPACE + CHAT_WIN_TAG_HEIGHT + (int) ((2+5) * DEFAULT_FONT_Y_LEN * chat_zoom);
+	int min_height = 7 * CHAT_WIN_SPACE + CHAT_WIN_TAG_HEIGHT + (2+5) * line_height;
 
-	nr_displayed_lines = (int) ((CHAT_OUT_TEXT_HEIGHT-1) / (DEFAULT_FONT_Y_LEN * chat_zoom));
+	nr_displayed_lines = (CHAT_OUT_TEXT_HEIGHT-1) / line_height;
 
 	chat_win = create_window ("Chat", game_root_win, 0, 0, 0, chat_win_width, chat_win_height, ELW_USE_UISCALE|ELW_WIN_DEFAULT|ELW_RESIZEABLE|ELW_CLICK_TRANSPARENT);
 	if (chat_win < 0 || chat_win >= windows_list.num_windows)
@@ -1685,6 +1699,7 @@ static int chan_tab_mouseover_handler(widget_list *widget)
 static int display_chan_sel_handler(window_info *win)
 {
 	int i = 0, y = chan_sel_border, x = chan_sel_border, t = 0, num_lines = 0;
+	int line_height;
 	float local_zoom = win->current_scale * DEFAULT_SMALL_RATIO;
 
 	node_t *step = queue_front_node(chan_name_queue);
@@ -1722,9 +1737,17 @@ static int display_chan_sel_handler(window_info *win)
 		glVertex2i(win->len_x, y - chan_sel_sep_offset);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
-	num_lines = reset_soft_breaks(channel_help_str, strlen(channel_help_str), sizeof(channel_help_str), local_zoom, win->len_x - chan_sel_border * 2, NULL, NULL);
-	draw_string_zoomed(x, y+=chan_sel_border, (unsigned char*)channel_help_str, num_lines, local_zoom);
-	win->len_y = win->default_font_len_y * CS_MAX_DISPLAY_CHANS + chan_sel_border + num_lines * DEFAULT_FONT_Y_LEN * local_zoom + chan_sel_border - chan_sel_sep_offset;
+
+	line_height = get_line_height(chat_font, local_zoom);
+	num_lines = reset_soft_breaks(channel_help_str, strlen(channel_help_str),
+		sizeof(channel_help_str), local_zoom, win->len_x - chan_sel_border * 2,
+		NULL, NULL);
+	draw_string_zoomed(x, y+=chan_sel_border, (unsigned char*)channel_help_str,
+		num_lines, local_zoom);
+	win->len_y = win->default_font_len_y * CS_MAX_DISPLAY_CHANS
+		+ chan_sel_border
+		+ num_lines * line_height
+		+ chan_sel_border - chan_sel_sep_offset;
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
