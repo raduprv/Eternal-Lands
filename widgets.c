@@ -1764,9 +1764,8 @@ void _text_field_set_nr_visible_lines (widget_list *w)
 
 	if (tf != NULL/* && (w->Flags & TEXT_FIELD_EDITABLE)*/)
 	{
-		int line_height = get_line_height(chat_font);
-		float displayed_font_y_size = floor(line_height * tf->buffer[tf->msg].wrap_zoom);
-		tf->nr_visible_lines = (int) ((w->len_y - 2*tf->y_space) / displayed_font_y_size);
+		int line_height = get_line_height(chat_font, tf->buffer[tf->msg].wrap_zoom);
+		tf->nr_visible_lines = (w->len_y - 2*tf->y_space) / line_height;
 		if (tf->nr_visible_lines < 0)
 			tf->nr_visible_lines = 0;
 	}
@@ -2625,13 +2624,12 @@ void _set_edit_pos (text_field* tf, int x, int y)
 	unsigned int nrlines = 0, line = 0;
 	int px = 0;
 	text_message* msg = &(tf->buffer[tf->msg]);
-	int line_height = get_line_height(chat_font);
-	float displayed_font_y_size = floor(line_height * msg->wrap_zoom);
+	int line_height = get_line_height(chat_font, msg->wrap_zoom);
 
 	if (msg->len == 0)
 		return;	// nothing to do, there is no string
 
-	nrlines = (int) (y/displayed_font_y_size);
+	nrlines = y / line_height;
 	for (; line < nrlines && i < msg->len; i++) {
 		switch (msg->data[i]) {
 			case '\r':
@@ -2670,15 +2668,14 @@ void update_selection(int x, int y, widget_list* w, int drag)
 {
 	int line, col;
 	int cx = 0;
-	int line_height = get_line_height(chat_font);
-	float displayed_font_y_size = floorf(line_height * w->size);
+	int line_height = get_line_height(chat_font, w->size);
 	text_field* tf;
 	text_message* msg;
 
 	tf = w->widget_info;
 	if (tf == NULL) return;
 
-	line = y / displayed_font_y_size;
+	line = y / line_height;
 	if (line < 0 || line >= tf->nr_visible_lines || tf->select.lines[line].msg == -1)
 	{
 		// Invalid position, if we were dragging keep the selection

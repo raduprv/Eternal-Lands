@@ -118,6 +118,11 @@ static int get_font_width_zoom(const font_info *info, int pos, float zoom)
 	return (int)(get_font_width(info, pos) * zoom + 0.5);
 }
 
+static int get_font_height_zoom(const font_info *info, float zoom)
+{
+	return (int)(info->block_height * zoom + 0.5);
+}
+
 static void set_color(int color)
 {
 	float r = (float) colors_list[color].r1 / 255.0f;
@@ -170,7 +175,7 @@ static int draw_char_scaled(const font_info *info, unsigned char cur_char,
 
 	cw = info->char_widths[pos];
 	char_width = (int)(zoom * cw + 0.5);
-	char_height = (int)(zoom * info->block_height + 0.5);
+	char_height = get_font_height_zoom(info, zoom);
 
 	get_texture_coordinates(info, pos, &u_start, &u_end, &v_start, &v_end);
 
@@ -222,7 +227,7 @@ void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter
 	int in_select = 0;
 
 	displayed_font_x_size = text_zoom * info->block_width;
-	displayed_font_y_size = text_zoom * info->block_height;
+	displayed_font_y_size = get_font_height_zoom(info, text_zoom);
 
 	if (width < displayed_font_x_size || height < displayed_font_y_size)
 		// no point in trying
@@ -423,7 +428,7 @@ void draw_console_separator(int x_space, int y, int width, float zoom)
 	caret = get_font_char('^');
 	cw = info->char_widths[caret];
 	char_width = (int)(zoom * cw + 0.5);
-	char_height = (int)(zoom * info->block_height + 0.5);
+	char_height = get_font_height_zoom(info, zoom);
 	dx = get_font_width_zoom(info, caret, zoom);
 
 	get_texture_coordinates(info, caret, &u_start, &u_end, &v_start, &v_end);
@@ -504,7 +509,7 @@ int draw_string_zoomed_width(int x, int y, const unsigned char *our_string,
 {
 	font_info *info = fonts[cur_font_num];
 	float displayed_font_x_size = text_zoom * info->block_width;
-	float displayed_font_y_size = text_zoom * info->block_height;
+	float displayed_font_y_size = get_font_height_zoom(info, text_zoom);
 
 	unsigned char cur_char;
 	int i;
@@ -559,7 +564,7 @@ static void draw_string_zoomed_clipped(int x, int y, const unsigned char* our_st
 {
 	font_info *info = fonts[cur_font_num];
 	float displayed_font_x_size = text_zoom * info->block_width;
-	float displayed_font_y_size = text_zoom * info->block_height;
+	float displayed_font_y_size = get_font_height_zoom(info, text_zoom);
 
 	unsigned char cur_char;
 	int i;
@@ -805,7 +810,7 @@ void draw_ortho_ingame_string(float x, float y,float z,
 	float cur_x,cur_y;
 	int current_lines=0;
 
-	float char_height = font_y_scale * name_zoom * info->block_height;
+	float char_height = get_font_height_zoom(info, font_y_scale * name_zoom);
 
 	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER,0.1f);
@@ -1367,7 +1372,7 @@ int build_ttf_texture_atlas(const char* file_name)
 	// Try to find a font size where the fot height is approximately equal to
 	// the nr of pixels used here. We could scale later, but using an appropriate
 	// font size gives better looking results
-	pt_size = find_point_size(file_name);
+	pt_size = 32; //find_point_size(file_name);
 	if (pt_size == 0)
 		return 0;
 	font = TTF_OpenFont(file_name, pt_size);
@@ -1443,13 +1448,13 @@ int build_ttf_texture_atlas(const char* file_name)
 }
 #endif // TTF
 
-int get_line_height(int font_num)
+int get_line_height(int font_num, float zoom)
 {
 #ifdef TTF
 	if (font_num < 0 || font_num >= FONTS_ARRAY_SIZE || !fonts[font_num])
 		return 0;
-	return fonts[font_num]->block_height;
+	return get_font_height_zoom(fonts[font_num], zoom);
 #else
-	return DEFAULT_FONT_Y_LEN;
+	return (int)(DEFAULT_FONT_Y_LEN * zoom);
 #endif
 }

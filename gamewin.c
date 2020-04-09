@@ -1441,7 +1441,7 @@ static int display_game_handler (window_info *win)
 		filter = use_windowed_chat == 1 ? current_filter : FILTER_ALL;
 		if (find_last_lines_time(&msg, &offset, filter, get_console_text_width()))
 		{
-			int line_height = (int)(get_line_height(chat_font) * chat_zoom + 0.5);
+			int line_height = get_line_height(chat_font, chat_zoom);
 			set_font(chat_font);	// switch to the chat font
 			draw_messages(get_tab_bar_x(), get_tab_bar_y(), display_text_buffer,
 				DISPLAY_TEXT_BUFFER_SIZE, filter, msg, offset, -1,

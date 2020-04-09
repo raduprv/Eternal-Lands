@@ -105,7 +105,7 @@ void input_widget_move_to_win(int window_id)
 		resize_chat_handler(win, win->len_x, win->len_y);
 	} else {
 		text_field *tf = input_widget->widget_info;
-		int line_height = (int)(get_line_height(chat_font) * chat_zoom * input_widget->size + 0.5);
+		int line_height = get_line_height(chat_font, chat_zoom * input_widget->size);
 		Uint32 flags;
 
 		input_widget->OnResize = input_field_resize;
@@ -317,7 +317,7 @@ void clear_input_line(void)
 		field->nr_lines = 1;
 		if (use_windowed_chat != 2)
 		{
-			int line_height = (int)(get_line_height(chat_font) * chat_zoom * input_widget->size + 0.5);
+			int line_height = get_line_height(chat_font, chat_zoom * input_widget->size);
 			widget_resize(input_widget->window_id, input_widget->id,
 				input_widget->len_x, 2*field->y_space + line_height);
 		}
@@ -2783,7 +2783,7 @@ void change_to_channel_tab(const char *line)
 int get_input_height()
 {
 #ifdef TTF
-	return (int)(get_line_height(chat_font) * chat_zoom + 2*INPUT_MARGIN + 0.5);
+	return get_line_height(chat_font, chat_zoom) + 2*INPUT_MARGIN;
 #else
 	return (DEFAULT_FONT_Y_LEN + 2*INPUT_MARGIN);
 #endif
