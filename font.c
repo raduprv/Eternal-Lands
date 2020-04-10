@@ -1506,7 +1506,7 @@ int get_line_height(int font_num, float zoom)
 {
 #ifdef TTF
 	if (!is_valid_font(font_num))
-		return 0;
+		font_num = 0;
 	return get_font_height_zoom(&fonts_array[font_num], zoom);
 #else
 	return (int)(DEFAULT_FONT_Y_LEN * zoom);
