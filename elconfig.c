@@ -2159,7 +2159,10 @@ static void init_ELC_vars(void)
 
 	// FONT TAB
 #ifdef TTF
-	add_var(OPT_BOOL, "use_ttf", "ttf", &use_ttf, change_var, 1, "Use TTF", "Toggle the use of True Type fonts for text rendering", FONT);
+	add_var(OPT_BOOL, "use_ttf", "ttf", &use_ttf, change_var, 1, "Use TTF",
+			"Toggle the use of True Type fonts for text rendering", FONT);
+	add_var(OPT_STRING, "ttf_directory", "ttfdir", ttf_directory, change_string, TTF_DIR_SIZE,
+		"TTF directory", "The directory in which to look for True Type fonts", FONT);
 #endif
 	add_var(OPT_FLOAT,"name_text_size","nsize",&name_zoom,change_float,1,"Name Text Size","Set the size of the players name text",FONT,0.0,2.0,0.01);
 	add_var(OPT_FLOAT,"chat_text_size","csize",&chat_zoom,change_chat_zoom,1,"Chat Text Size","Sets the size of the normal text",FONT,0.0,FLT_MAX,0.01);

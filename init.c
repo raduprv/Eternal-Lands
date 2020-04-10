@@ -618,9 +618,9 @@ void init_ttf()
 			LOG_ERROR("Failed to initialize True Type fonts: %s", TTF_GetError());
 			use_ttf = 0;
 		}
-		else
+		else if (ttf_directory[0])
 		{
-			build_ttf_texture_atlas("/usr/share/fonts/TTF/DejaVuSans.ttf");
+			add_all_ttf_files(ttf_directory);
 		}
 	}
 }

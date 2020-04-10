@@ -33,7 +33,10 @@ extern "C" {
 /*! @} */
 
 #ifdef TTF
+#define TTF_DIR_SIZE 256
+
 extern int use_ttf;    /*!< Whether to use True Type fonts for font rendering */
+extern char ttf_directory[TTF_DIR_SIZE];
 #endif
 
 extern int	chat_font; /*!< font size used for chat font */
@@ -236,7 +239,7 @@ void cleanup_fonts(void);
 int get_line_height(int font_num, float zoom);
 
 #ifdef TTF
-int build_ttf_texture_atlas(const char* file_name);
+int add_all_ttf_files(const char* dir_name);
 #endif
 
 #ifdef __cplusplus

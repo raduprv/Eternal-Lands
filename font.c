@@ -42,7 +42,7 @@
 
 typedef struct
 {
-	char name[32];
+	char* name;
 	Uint32 flags;
 #ifdef TTF
 	union
@@ -63,6 +63,7 @@ typedef struct
 
 #ifdef TTF
 int use_ttf = 0;
+char ttf_directory[TTF_DIR_SIZE];
 #endif
 
 int	cur_font_num=0;
@@ -1158,9 +1159,13 @@ void cleanup_fonts(void)
 	for (i = 0; i < fonts_array_used; i++)
 	{
 		font_info *info = &fonts_array[i];
-		if ((info->flags & FONT_FLAG_IN_USE) && (info->flags & FONT_FLAG_TTF))
+		if (info->flags & FONT_FLAG_IN_USE)
 		{
-			glDeleteTextures(1, &info->texture_id.gl_id);
+			free(info->name);
+			if (info->flags & FONT_FLAG_TTF)
+			{
+				glDeleteTextures(1, &info->texture_id.gl_id);
+			}
 		}
 	}
 #endif
@@ -1197,7 +1202,7 @@ int load_font_textures()
 
 	fonts_array[0].texture_id.cache_id = load_texture_cached("textures/font.dds", tt_font);
 	// Force the selection of the base font.
-	safe_strncpy(fonts_array[0].name, "Type 1", sizeof(fonts_array[0].name));
+	fonts_array[0].name = strdup("Type 1");
 	add_multi_option("chat_font", fonts_array[0].name);
 	add_multi_option("name_font", fonts_array[0].name);
 
@@ -1235,11 +1240,17 @@ int load_font_textures()
 			&& !strncasecmp(file, "font", 4)
 			&& has_suffix(file, len, ".dds", 4))
 		{
+			size_t label_size;
+			char *label;
+
 			safe_snprintf(str, sizeof(str), "./textures/%s", file); //Use a relative path here, load_texture_cache_deferred() is using the path wrappers.
 			file[len - 4] = 0;
 			fonts_array[i].texture_id.cache_id = load_texture_cached(str, tt_font);
-			safe_snprintf(fonts_array[i].name, sizeof(fonts_array[i].name),
-				"Type %i - %s", i + 1, file);
+
+			label_size = strlen(file) + 20;
+			label = malloc(label_size);
+			safe_snprintf(label, label_size, "Type %i - %s", i + 1, file);
+			fonts_array[i].name = label;
 			add_multi_option("chat_font", fonts_array[i].name);
 			add_multi_option("name_font", fonts_array[i].name);
 			i++;
@@ -1382,7 +1393,7 @@ int has_glyph(unsigned char c)
 	return get_font_char(c) >= 0;
 }
 
-int build_ttf_texture_atlas(const char* file_name)
+static int build_ttf_texture_atlas(const char* file_name)
 {
 	static const Uint16 glyphs[] = {
 		' ', '!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-',
@@ -1407,7 +1418,9 @@ int build_ttf_texture_atlas(const char* file_name)
 	GLuint texture_id;
 	int pt_size;
 	int font_num;
-	const char* name;
+	const char* name, *style;
+	size_t label_size;
+	char *label;
 
 	for (font_num = 0; font_num < fonts_array_size; ++font_num)
 	{
@@ -1492,13 +1505,67 @@ int build_ttf_texture_atlas(const char* file_name)
 	info->flags = FONT_FLAG_IN_USE | FONT_FLAG_TTF;
 
 	name = TTF_FontFaceFamilyName(font);
-	safe_strncpy(fonts_array[font_num].name, name, sizeof(fonts_array[font_num].name));
+	style = TTF_FontFaceStyleName(font);
+	label_size = strlen(name) + strlen(style) + 2;
+	label = malloc(label_size);
+	safe_snprintf(label, label_size, "%s %s", name, style);
+	fonts_array[font_num].name = label;
 	add_multi_option("chat_font", fonts_array[font_num].name);
 	add_multi_option("name_font", fonts_array[font_num].name);
 
 	TTF_CloseFont(font);
 
 	return 0;
+}
+
+int add_all_ttf_files(const char* dir_name)
+{
+	char pattern[256];
+#ifdef WINDOWS
+	struct _finddata_t c_file;
+	long hFile;
+#else
+	glob_t glob_res;
+#endif
+
+	safe_snprintf(pattern, sizeof(pattern), "%s/*.ttf", dir_name);
+
+#ifdef WINDOWS
+	if ((hFile = _findfirst(pattern, &c_file)) == -1L)
+	{
+		return 0;
+	}
+	do
+	{
+		TF_Font *font = TTF_OpenFont(c_file, 16);
+		if (font)
+		{
+			TTF_CloseFont(font);
+			build_ttf_texture_atlas(glob_res.gl_pathv[i]);
+		}
+	}
+	while (_findnext(hFile, &c_file) == 0);
+	_findclose(hFile);
+#else // WINDOWS
+	if (glob(pattern, 0, NULL, &glob_res) != 0)
+	{
+		return 0;
+	}
+
+	for (size_t i = 0; i < glob_res.gl_pathc; i++)
+	{
+		TTF_Font *font = TTF_OpenFont(glob_res.gl_pathv[i], 16);
+		if (font)
+		{
+			TTF_CloseFont(font);
+			build_ttf_texture_atlas(glob_res.gl_pathv[i]);
+		}
+	}
+
+	globfree(&glob_res);
+#endif // WINDOWS
+
+	return 1;
 }
 #endif // TTF
 
