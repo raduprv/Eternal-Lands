@@ -159,6 +159,7 @@ typedef struct
 	Uint16 x_space, y_space;
 	Uint32 next_blink;
 	select_info select;
+	int font_num;
 } text_field;
 
 typedef struct {
@@ -185,7 +186,7 @@ typedef struct {
  * \param   OnInit The function used for initiating the label
  * \param   x The x location
  * \param   y The y location
- * \param   lx The width 
+ * \param   lx The width
  * \param   ly The height
  * \param   Flags The flags
  * \param   size The text size
@@ -195,7 +196,7 @@ typedef struct {
  * \param   type The widget type
  * \param   T Pointer to specific widget data
  * \param   S Pointer to specific implementation info
- * \retval int Returns the new widgets unique ID 
+ * \retval int Returns the new widgets unique ID
  */
 Uint32 widget_add (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y,
 	Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b,
@@ -487,7 +488,7 @@ int widget_get_height (int window_id, Uint32 widget_id);
  * \param   	g (0<=g<=1)
  * \param   	b (0<=b<=1)
  * \param   	text The text
- * \retval int  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID
  *
  * \sa lable_add
  */
@@ -504,7 +505,7 @@ int label_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uin
  * \param   	text The text
  * \param   	x The x position
  * \param   	y The y position
- * \retval int  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID
  *
  * \sa		label_add_extended
  */
@@ -530,7 +531,7 @@ int label_draw(widget_list *W);
  *
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The widget's unique ID
- * \param   	text The new text 
+ * \param   	text The new text
  * \retval int  	Returns 1 on succes, 0 on failure (if the widget is not found in the given window)
  *
  * \sa widget_find
@@ -565,7 +566,7 @@ int label_set_text(int window_id, Uint32 widget_id, const char *text);
  * \param   	u2 The end u texture coordinate
  * \param   	v2 The end v texture coordinate
  * \param   	alpha The alpha value for the image
- * \retval int  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID
  *
  * \sa image_add
  */
@@ -596,8 +597,8 @@ int image_add(int window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uint16
 
 /*!
  * \ingroup	images
- * \brief 	Draws the image widget 
- * 
+ * \brief 	Draws the image widget
+ *
  * 		Draws an image widget as given by the widget *.
  *
  * \param   	W A pointer to the widget that should be drawn
@@ -662,7 +663,7 @@ int image_set_uv(int window_id, Uint32 widget_id, float u1, float v1, float u2, 
  * \param   	g (0<=g<=1)
  * \param   	b (0<=b<=1)
  * \param   	checked Specifies if the widget is checked or not
- * \retval int  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID
  *
  * \sa checkbox_add
  */
@@ -744,7 +745,7 @@ extern int disable_double_click;
  *		tests that option and impliments the double click test if needed.
  *
  * \param last_click	The SDL_GetTicks() value from the last click
- * \retval int			Returns 1 if the button press should be actioned, else 0. 
+ * \retval int			Returns 1 if the button press should be actioned, else 0.
  */
 int safe_button_click(Uint32 *last_click);
 
@@ -767,7 +768,7 @@ int safe_button_click(Uint32 *last_click);
  * \param   	g (0<=g<=1)
  * \param   	b (0<=b<=1)
  * \param   	text The button label
- * \retval int  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID
  *
  * \sa button_add
  */
@@ -784,7 +785,7 @@ int button_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, U
  * \param   	text The button label
  * \param   	x The x position
  * \param   	y The y position
- * \retval int  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID
  *
  * \sa button_add_extended
  */
@@ -888,7 +889,7 @@ int progressbar_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 
  * \param   	y The y position
  * \param   	lx The width
  * \param   	ly The height
- * \retval int  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID
  *
  * \sa progressbar_add_extended
  */
@@ -960,7 +961,7 @@ int progressbar_set_progress(int window_id, Uint32 widget_id, float progress);
  * \param   	pos
  * \param   	pos_inc
  * \param		bar_len
- * \retval int  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID
  *
  * \sa vscrollbar_add
  */
@@ -978,7 +979,7 @@ int vscrollbar_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 
  * \param   	y The y position
  * \param   	lx The width
  * \param   	ly The height
- * \retval int  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID
  *
  * \sa vscrollbar_add_extended
  */
@@ -1091,7 +1092,7 @@ int vscrollbar_get_pos(int window_id, Uint32 widget_id);
  * \brief 	Returns the number of the currently selected tab
  *
  * 		Returns the number of the currently selected tab in a tabbed window collection. Numbers are in the range 0...nr_tabs-1.
- *		
+ *
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The unique widget ID of the tab collection
  * \retval int  	Returns the tab number on succes, -1 on failure
@@ -1105,7 +1106,7 @@ int tab_collection_get_tab (int window_id, Uint32 widget_id);
  * \brief 	Returns the window ID of the currently selected tab
  *
  * 		Returns the window ID of the currently selected tab in a tabbed window collection.
- *		
+ *
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The unique widget ID of the tab collection
  * \retval int  	Returns the tab's window ID number on succes, -1 on failure
@@ -1117,7 +1118,7 @@ int tab_collection_get_tab_id (int window_id, Uint32 widget_id);
  * \brief 	Returns the position of a tab in the collection from its window ID
  *
  * 		Returns the position of a tab in the collection from its window ID
- *		
+ *
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	col_id The unique widget ID of the tab collection
  * \param   	tab_id The tab's window ID
@@ -1130,7 +1131,7 @@ int tab_collection_get_tab_nr (int window_id, Uint32 col_id, int tab_id);
  * \brief 	Returns the number of tabs in this collection
  *
  * 		Returns the number of tabs in this collection
- *		
+ *
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The unique widget ID of the tab collection
  * \retval int  	Returns the number of tabs, or -1 on failure
@@ -1142,7 +1143,7 @@ int tab_collection_get_nr_tabs (int window_id, Uint32 widget_id);
  * \brief 	Sets the label color for a tab
  *
  * 		Sets the color with which the label of the tab belonging to the window with ID \a tab_id is drawn.
- *		
+ *
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	col_id The unique widget ID of the tab collection
  * \param	tab_id The window ID of the tab window
@@ -1206,7 +1207,7 @@ int tab_collection_calc_tab_height(float size);
  * \param   	y The y position
  * \param   	lx The width
  * \param   	ly The height
- * \retval int  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID
  *
  * \sa tab_collection_add_extended
  */
@@ -1231,12 +1232,12 @@ int tab_collection_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint
  * \param   	g (0<=g<=1)
  * \param   	b (0<=b<=1)
  * \param	max_tabs The largest number of tabs this collection will hold
- * \retval int  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID
  *
  * \sa tab_collection_add
  */
-int tab_collection_add_extended (int window_id, Uint32 wid, int 
-(*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, 
+int tab_collection_add_extended (int window_id, Uint32 wid, int
+(*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags,
 float size, float r, float g, float b, int max_tabs);
 
 /*!
@@ -1284,7 +1285,7 @@ int tab_collection_move (widget_list *W, Uint32 pos_x, Uint32 pos_y);
  * \ingroup	tabs
  * \brief 	Creates a new tabbed window
  *
- * 		Creates a new tabbed window 
+ * 		Creates a new tabbed window
  *
  * \param   	window_id The location of the parent window in the windows_list.window[] array
  * \param   	col_id The unique widget id of the tabbed window collection in which this tab is created
@@ -1313,7 +1314,7 @@ int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, 
  * \param 	buf_size the size of the message buffer
  * \param	x_space the number of pixels in the x-direction between the border and the text
  * \param	y_space the number of pixels in the y-direction between the border and the text
- * \retval int  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID
  *
  * \sa text_field_add_extended
  */
@@ -1333,6 +1334,7 @@ int text_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 l
  * \param   	lx The width
  * \param   	ly The height
  * \param   	Flags The flags
+ * \param		fint_num Number for the font of the text
  * \param   	size The text size
  * \param   	r (0<=r<=1)
  * \param   	g (0<=g<=1)
@@ -1342,11 +1344,14 @@ int text_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 l
  * \param	chan_filt the channel of which messages are drawn
  * \param	x_space the number of pixels in the x-direction between the border and the text
  * \param	y_space the number of pixels in the y-direction between the border and the text
- * \retval int  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID
  *
  * \sa text_field_add
  */
-int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, text_message *buf, int buf_size, Uint8 chan_filt, int x_space, int y_space);
+int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(),
+	Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, int font_num,
+	float size, float r, float g, float b, text_message *buf, int buf_size,
+	Uint8 chan_filt, int x_space, int y_space);
 
 /*!
  * \ingroup	textfields
@@ -1378,10 +1383,10 @@ int text_field_set_buf_pos (int window_id, Uint32 widget_id, int msg, int offset
 /*!
  * \ingroup	textfields
  * \brief       Clear an editable text field
- * 
+ *
  *              Clear an editable text field, erasing its current buffer and
  *              moving the cursor to the start
- * 
+ *
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param	widget_id The unique widget ID
  * \retval int  	Returns 1 on success, 0 on error

@@ -271,7 +271,7 @@ static void flowing_text_free( flowing_text_t *text )
  * \brief Set up the size hint for this popup.
  *  This must be called before the popup is realized.
  * \param this_popup The pointer to the popup structure
- * \returns 
+ * \returns
  */
 
 static void popup_set_sizehint( popup_t *this_popup, unsigned int size )
@@ -307,7 +307,7 @@ static void popup_option_free( popup_option_t *this_option )
 static void popup_grouped_option_free( popup_grouped_option_t *this_option_group )
 {
 	list_destroy_with_func( this_option_group->options, (list_free_func_t)popup_option_free );
-	
+
 	free(this_option_group);
 }
 
@@ -353,9 +353,11 @@ static void flowing_text_perform_flow( flowing_text_t *text, int max_length )
 {
 	float text_width;
 
+	// FIXME: using font 0, change when UI font is introduced.
 	text->lines = reset_soft_breaks (text->str,
 									 strlen(text->str),
 									 text->str_size_allocated,
+									 0,
 									 popup_font_zoom,
 									 max_length,
 									 NULL,
@@ -601,7 +603,7 @@ static void draw_circle_pure(float x, float y, float radius, int interval, int a
 			float rad=-mul*angle;
 			glVertex2f((float)x+cos(rad)*radius, (float)y+sin(rad)*radius);
 		}
-	} else { 
+	} else {
 		for(angle=angle_from;angle>angle_to;angle+=interval){
 			float rad=-mul*angle;
 			glVertex2f((float)x+cos(rad)*radius, (float)y+sin(rad)*radius);
@@ -660,7 +662,7 @@ static int popup_display_object( popup_t *this_popup, window_info *win )
 						this_group->type = OPTION_TYPE_RADIOOPTION;
                         this_option->type = OPTION_TYPE_RADIOOPTION;
 					}
-					
+
 					if ( this_group->type == OPTION_TYPE_RADIOOPTION ) {
 						offset_for_radio += RADIO_OFFSET;
 					}
@@ -947,7 +949,7 @@ int popup_click_object(popup_t *this_popup, window_info *win, int mx, int my, Ui
 	popup_option_node_t *this_option_node;
 	list_node_t *this_option_group_node;
 	int offset;
-	
+
 	if ( NULL == this_popup->grouped_options )
 		return 1;
 

@@ -114,6 +114,7 @@ void draw_string_clipped(int x, int y, const unsigned char * our_string, int wid
  * \param str		the string
  * \param len		the length of the string
  * \param size		the size of the string buffer
+ * \param font_num	the number of the font in which the text is to be rendered
  * \param zoom		the scale factor for the text
  * \param width		the width of the text window
  * \param cursor	pointer to the cursor position, or NULL if not used
@@ -122,7 +123,8 @@ void draw_string_clipped(int x, int y, const unsigned char * our_string, int wid
  * \retval int the number of window lines the string will use
  * \callgraph
  */
-int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int *cursor, float *max_line_width);
+int reset_soft_breaks (char *str, int len, int size, int font_num, float zoom,
+	int width, int *cursor, float *max_line_width);
 
 /*!
  * \ingroup text_font

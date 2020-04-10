@@ -1,9 +1,9 @@
 /*
 	Implements the "Generic special text window" feature.
 
-	Messages from server channel 255 are displayed in a text 
-	window that automatically pops up.  Each message is treaded 
-	as a new block of text to display.  Any existing pop up 
+	Messages from server channel 255 are displayed in a text
+	window that automatically pops up.  Each message is treaded
+	as a new block of text to display.  Any existing pop up
 	window will be closed and the text discarded.
 
 	The first line of the message is used as the widow title.
@@ -12,7 +12,7 @@
 	If all the lines can not be displayed on screen, a scroll bar
 	will be added.
 	An "OK" button is provided at the base of the window.
-	The use of this feature can be disabled via the Server tab 
+	The use of this feature can be disabled via the Server tab
 	in the game options window.
 	Great length have been taken to make sure this works with
 	different fonts and font sizes!
@@ -93,7 +93,7 @@ static int get_line_number_offset(int *line, const text_message * const wt)
 /* set the displayed start of the text_message to the current scroll line */
 static void set_text_line()
 {
-	int offset = get_line_number_offset(&scroll_line, &widget_text);  
+	int offset = get_line_number_offset(&scroll_line, &widget_text);
 	text_field_set_buf_pos( server_popup_win, textId, 0, offset );
 }
 
@@ -202,14 +202,14 @@ static int resize_handler(window_info *win, int width, int height)
 	if (text_message_is_empty (&widget_text)) {
 		return 1;
 	}
-	
+
 	/* set the text widget height */
 	text_widget_height = height - get_non_text_height();
 
 	/* remove any existing scroll bar */
 	widget_destroy(server_popup_win, scroll_id);
 	actual_scroll_width = 0;
-	
+
 	/* only add a scroll bar if needed, i.e. more lines than we can display */
 	if (text_widget_height < get_text_height(num_text_lines)){
 		actual_scroll_width = win->box_size;
@@ -217,11 +217,13 @@ static int resize_handler(window_info *win, int width, int height)
 
 	/* set the text widget width, allowing for a scroll bar if required */
 	text_widget_width = width - (2*sep + actual_scroll_width);
-	
+
 	/* resize the text widget and rewrap the text as the size will have changed */
 	widget_resize(server_popup_win, textId, text_widget_width, text_widget_height);
-	if (!text_message_is_empty (&widget_text)) {
-		num_text_lines = rewrap_message(&widget_text, chat_zoom, text_widget_width - 2*sep, NULL);
+	if (!text_message_is_empty (&widget_text))
+	{
+		num_text_lines = rewrap_message(&widget_text, chat_font, chat_zoom,
+			text_widget_width - 2*sep, NULL);
 	}
 
 	/* if we (only now) need a scroll bar, adjust again */
@@ -232,7 +234,10 @@ static int resize_handler(window_info *win, int width, int height)
 		widget_resize(server_popup_win, textId, text_widget_width, text_widget_height);
 		/* rewrap the text again as the available width is now less */
 		if (!text_message_is_empty (&widget_text))
-			num_text_lines = rewrap_message(&widget_text, chat_zoom, text_widget_width - 2*sep, NULL);
+		{
+			num_text_lines = rewrap_message(&widget_text, chat_font, chat_zoom,
+				text_widget_width - 2*sep, NULL);
+		}
 	}
 
 	/* if the text widget is really short, the scroll bar can extent beyond the height */
@@ -292,22 +297,22 @@ static int ui_scale_handler(window_info *win)
 	Create the server popup window, destroying an existing window first.
 */
 void display_server_popup_win(const char * const message)
-{		 
+{
 	const int unusable_width = 2 * sep + HUD_MARGIN_X;
 	const int unusable_height = 2 * sep + HUD_MARGIN_Y;
 	int winWidth = 0;
 	int winHeight = 0;
 	Uint32 win_property_flags;
 	window_info *win = NULL;
-	
+
 	/* exit now if message empty */
 	if (!strlen(message)){
 		return;
 	}
-	
+
 	/* write the message to the log file */
 	write_to_log (CHAT_SERVER, (unsigned char*)message, strlen(message));
-	
+
 	/* if the window already exists, copy new message to end */
 	if (server_popup_win >= 0){
 		char *sep_str = "\n\n";
@@ -337,11 +342,13 @@ void display_server_popup_win(const char * const message)
 
 	/* make sure the text font is set so width calculations work properly */
 	set_font(chat_font);
-	
+
 	/* do a pre-wrap of the text to the maximum screen width we can use
 		 this will avoid the later wrap (after the resize) changing the number of lines */
-	if (!text_message_is_empty (&widget_text)) {
-		num_text_lines = rewrap_message(&widget_text, chat_zoom, (window_width - unusable_width) - 4*sep, NULL);
+	if (!text_message_is_empty (&widget_text))
+	{
+		num_text_lines = rewrap_message(&widget_text, chat_font, chat_zoom,
+			(window_width - unusable_width) - 4*sep, NULL);
 	}
 
 	if (server_popup_win < 0){
@@ -380,7 +387,7 @@ void display_server_popup_win(const char * const message)
 		winHeight = window_height - unusable_height - ((actual_scroll_width) ? win->title_height : 0);
 		text_widget_height = winHeight - get_non_text_height();
 	}
-	
+
 	/* if we'll need a scroll bar allow for it in the width calulation */
 	if (!text_message_is_empty (&widget_text) && (text_widget_height < get_text_height(num_text_lines))){
 		actual_scroll_width = win->box_size;
@@ -399,12 +406,14 @@ void display_server_popup_win(const char * const message)
 	if (winWidth > window_width - unusable_width){
 		winWidth = window_width - unusable_width;
 	}
-	
+
 	/* create the text widget */
-	if ((!text_message_is_empty (&widget_text)) && (widget_find(server_popup_win, textId) == NULL)) {
-		textId = text_field_add_extended( server_popup_win, textId, NULL, sep, sep,
+	if ((!text_message_is_empty (&widget_text)) && (widget_find(server_popup_win, textId) == NULL))
+	{
+		textId = text_field_add_extended(server_popup_win, textId, NULL, sep, sep,
 			text_widget_width, text_widget_height, TEXT_FIELD_NO_KEYPRESS,
-			chat_zoom, 0.77f, 0.57f, 0.39f, &widget_text, 1, FILTER_NONE, sep, sep);
+			chat_font, chat_zoom, 0.77f, 0.57f, 0.39f, &widget_text, 1, FILTER_NONE,
+			sep, sep);
 	}
 
 	/* resize the window now we have the required size */

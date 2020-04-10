@@ -199,7 +199,7 @@ void open_chat_log(){
 		char logsuffix[7];
 		strftime(logsuffix, sizeof(logsuffix), "%Y%m", l_time);
 		safe_snprintf (chat_log_file, sizeof (chat_log_file),  "chat_log_%s.txt", logsuffix);
-		safe_snprintf (srv_log_file, sizeof (srv_log_file), "srv_log_%s.txt", logsuffix); 
+		safe_snprintf (srv_log_file, sizeof (srv_log_file), "srv_log_%s.txt", logsuffix);
 	}
 	else
 	{
@@ -361,9 +361,9 @@ int match_emote(emote_dict *command, actor *act, int send)
 {
 	hash_entry *match;
 
-	// Try to match the input against an emote command and actor type	
+	// Try to match the input against an emote command and actor type
 	match=hash_get(emote_cmds,(void*)command->command);
-	
+
 	if(match){
 		//printf("Emote <%s> sent (%p)\n",((emote_dict*)match->item)->command,((emote_dict*)match->item)->emote);
 		//SEND emote to server
@@ -382,7 +382,7 @@ int parse_text_for_emote_commands(const char *text, int len)
 	emote_dict emote_text;
 	actor *act;
 
-	
+
 	//printf("parsing local for emotes\n");
 	//extract name
 	while(text[i]&&i<20){
@@ -392,7 +392,7 @@ int parse_text_for_emote_commands(const char *text, int len)
 			name[j]=0;
 			if(text[i]==':') i++;
 			break;
-		} 
+		}
 		i++;j++;
 	}
 
@@ -408,11 +408,11 @@ int parse_text_for_emote_commands(const char *text, int len)
 		return 1;		// Eek! We don't have an actor match... o.O
 	}
 
-	if (!(!strncasecmp(act->actor_name, name, strlen(name)) && 
+	if (!(!strncasecmp(act->actor_name, name, strlen(name)) &&
 			(act->actor_name[strlen(name)] == ' ' ||
 			act->actor_name[strlen(name)] == '\0'))){
 		//we are not saying this text, return
-		//UNLOCK_ACTORS_LISTS();			
+		//UNLOCK_ACTORS_LISTS();
 		//return 0;
 			itsme=0;
 	} else itsme=1;
@@ -432,9 +432,9 @@ int parse_text_for_emote_commands(const char *text, int len)
 				emote_text.command[j]=text[i];
 			j++;
 		}
-	} while(text[i++]);	
+	} while(text[i++]);
 	//printf("ef=%i, wf=%i, filter=>%i\n",ef,wf,emote_filter);
-	UNLOCK_ACTORS_LISTS();			
+	UNLOCK_ACTORS_LISTS();
 
 	return  ((ef==wf) ? (emote_filter):(0));
 
@@ -460,7 +460,7 @@ void check_harvesting_effect(void)
 			harvesting_effect_reference = ec_create_ongoing_harvesting2(act, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
 		UNLOCK_ACTORS_LISTS();
 	}
-}	
+}
 
 
 int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
@@ -612,7 +612,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		}
 		else if (my_strncompare(text_to_add+1, "You found ", 10) && strstr(text_to_add+1, " coins.")) {
 			decrement_harvest_counter(atoi(text_to_add+11));
-		} 
+		}
 		else if (my_strncompare(text_to_add+1, "Send Item UIDs ", 15)) {
 			if (text_to_add[1+15] == '0')
 				item_uid_enabled = 0;
@@ -1284,11 +1284,13 @@ int find_last_lines_time (int *msg, int *offset, Uint8 filter, int width)
 	}
 	if (lines_to_show <= 0) return 0;
 
-	return find_line_nr (get_total_nr_lines(), get_total_nr_lines() - lines_to_show, filter, msg, offset, chat_zoom, width);
+	return find_line_nr(get_total_nr_lines(), get_total_nr_lines() - lines_to_show,
+		filter, msg, offset, chat_font, chat_zoom, width);
 }
 
 
-int find_line_nr (int nr_lines, int line, Uint8 filter, int *msg, int *offset, float zoom, int width)
+int find_line_nr(int nr_lines, int line, Uint8 filter, int *msg, int *offset,
+	int font_num, float zoom, int width)
 {
 	int line_count = 0, lines_no = nr_lines - line;
 	int imsg, ichar;
@@ -1321,7 +1323,7 @@ int find_line_nr (int nr_lines, int line, Uint8 filter, int *msg, int *offset, f
 				// happening.
 				break;
 
-			rewrap_message(&display_text_buffer[imsg], zoom, width, NULL);
+			rewrap_message(&display_text_buffer[imsg], font_num, zoom, width, NULL);
 
 			for (ichar = display_text_buffer[imsg].len - 1; ichar >= 0; ichar--)
 			{
@@ -1375,7 +1377,7 @@ void clear_display_text_buffer ()
 	}
 }
 
-int rewrap_message(text_message * msg, float zoom, int width, int * cursor)
+int rewrap_message(text_message * msg, int font_num, float zoom, int width, int *cursor)
 {
 	int nlines;
 	float max_line_width = 0;
@@ -1385,7 +1387,8 @@ int rewrap_message(text_message * msg, float zoom, int width, int * cursor)
 
 	if (msg->wrap_width != width || msg->wrap_zoom != zoom)
 	{
- 		nlines = reset_soft_breaks(msg->data, msg->len, msg->size, zoom, width, cursor, &max_line_width);
+ 		nlines = reset_soft_breaks(msg->data, msg->len, msg->size, font_num, zoom,
+			width, cursor, &max_line_width);
 		msg->len = strlen(msg->data);
 		msg->wrap_lines = nlines;
 		msg->wrap_width = width;

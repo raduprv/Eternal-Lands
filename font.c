@@ -342,7 +342,7 @@ void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter
 #endif
 			if (imsg == msg_start || msgs[imsg].data == NULL || msgs[imsg].deleted) break;
 			// Grum 2020-04-07: why do we rewrap here? And not on the first message?
-			rewrap_message(&msgs[imsg], text_zoom, width, NULL);
+			rewrap_message(&msgs[imsg], cur_font_num, text_zoom, width, NULL);
 			ichar = 0;
 			last_color_char = 0;
 		}
@@ -662,10 +662,10 @@ void draw_string_clipped(int x, int y, const unsigned char* our_string,
 	draw_string_zoomed_clipped(x, y, our_string, -1, width, height, 1.0f);
 }
 
-int reset_soft_breaks(char *str, int len, int size, float zoom, int width,
-	int *cursor, float *max_line_width)
+int reset_soft_breaks(char *str, int len, int size, int font_num, float zoom,
+	int width, int *cursor, float *max_line_width)
 {
-	font_info *info = &fonts_array[cur_font_num];
+	font_info *info = &fonts_array[font_num];
 	char *buf;
 	int ibuf;
 	int nchar;

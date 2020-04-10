@@ -174,7 +174,10 @@ void set_create_char_error (const char *msg, int len)
 	else
 	{
 		safe_snprintf (buf, sizeof (buf), "%s: %.*s", reg_error_str, len, msg);
-		reset_soft_breaks (buf, strlen (buf), sizeof (create_char_error_str), 1.0, window_width - 20, NULL, NULL);
+		// FIXME: using font nr 0 here. May be incorrect, and will certainly change
+		// when we introduce a UI font.
+		reset_soft_breaks(buf, strlen (buf), sizeof (create_char_error_str), 0, 1.0,
+			window_width - 20, NULL, NULL);
 	}
 
 	LOG_TO_CONSOLE(c_red1, buf);

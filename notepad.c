@@ -289,8 +289,10 @@ void display_popup_win (INPUT_POPUP *ipu, const char* label)
 		ipu->popup_label = label_add_extended(ipu->popup_win, widget_id++, NULL, 0, 0, 0, win->current_scale, 0.77f, 0.57f, 0.39f, label);
 
 		// Input
-		ipu->popup_field = text_field_add_extended (ipu->popup_win, widget_id++, NULL, 0, 0, 0, 0,
-			ipu->text_flags, 1.0, 0.77f, 0.57f, 0.39f, &ipu->popup_text, 1, FILTER_ALL, 5, 5);
+		// FIXME: using font 0, maybe separate Note font?
+		ipu->popup_field = text_field_add_extended(ipu->popup_win, widget_id++,
+			NULL, 0, 0, 0, 0, ipu->text_flags, 0, 1.0, 0.77f, 0.57f, 0.39f,
+			&ipu->popup_text, 1, FILTER_ALL, 5, 5);
 
 		// Accept
 		ipu->popup_ok = button_add_extended (ipu->popup_win, widget_id++, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, button_okay);
@@ -612,7 +614,7 @@ int notepad_save_file()
 
 		// libxml2 expects all data in UTF-8 encoding.
 		xmlChar* name = toUTF8 (note_list[i].name, strlen (note_list[i].name));
-		substitute_char_with_string (note_list[i].text.data, &subst_string, '&', "&amp;");		
+		substitute_char_with_string (note_list[i].text.data, &subst_string, '&', "&amp;");
 		data = toUTF8 (subst_string, strlen(subst_string));
 
 		node = xmlNewChild (root_node, NULL, BAD_CAST "NOTE", data);
@@ -743,10 +745,12 @@ static void open_note_tab_continued(int id)
 	tf_y = widget_space * 2 + remove_but->len_y;
 	tf_width = tab_win->len_x - 2 * widget_space;
 	tf_height = tab_win->len_y - widget_space * 3 - remove_but->len_y;
-	note_list[id].input = text_field_add_extended(note_list[id].window, note_widget_id++, NULL,
-		tf_x, tf_y, tf_width, tf_height,
+	// FIXME: using font 0, maybe separate Note font?
+	note_list[id].input = text_field_add_extended(note_list[id].window, note_widget_id++,
+		NULL, tf_x, tf_y, tf_width, tf_height,
 		TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_CAN_GROW|TEXT_FIELD_SCROLLBAR,
-		note_zoom * tab_win->current_scale, 0.77f, 0.57f, 0.39f, &note_list[id].text, 1, FILTER_ALL, widget_space, widget_space);
+		0, note_zoom * tab_win->current_scale, 0.77f, 0.57f, 0.39f, &note_list[id].text,
+		1, FILTER_ALL, widget_space, widget_space);
 
 	tab = tab_collection_get_tab_nr (notepad_win, note_tabcollection_id, note_list[id].window);
 	tab_collection_select_tab (notepad_win, note_tabcollection_id, tab);

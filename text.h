@@ -99,7 +99,7 @@ extern void clear_seen_pm_count(void);
 /*!
  * \brief Allocate the character buffer for a text_message
  *
- *	Allocates memory for the character buffer of text_message \a msg, 
+ *	Allocates memory for the character buffer of text_message \a msg,
  *	and initializes its size and used length.
  *
  * \param msg  The text_message for which to allocate a buffer
@@ -110,11 +110,11 @@ void alloc_text_message_data (text_message *msg, int size);
 /*!
  * \brief Resize the character buffer of a text_message
  *
- *	If necessary, resize the character buffer of text_message \a msg, 
- *	so that it can hold at least a (zero-terminated) string of \a len 
+ *	If necessary, resize the character buffer of text_message \a msg,
+ *	so that it can hold at least a (zero-terminated) string of \a len
  *	characters. If \a len is less than the current allocated size,
  *	nothing is done, otherwise the array is doubled in size until
- *	it is large enough. The existing data in the text_message's 
+ *	it is large enough. The existing data in the text_message's
  *	buffer is preserved.
  *
  * \param msg The text_message that should be resized
@@ -139,8 +139,8 @@ static __inline__ void clear_text_message_data (text_message *msg)
 /*!
  * \brief Copy a string into a text_message
  *
- *	Copy string \a data into the character buffer of text_message 
- *	\a msg. Note that if the current character buffer is too small 
+ *	Copy string \a data into the character buffer of text_message
+ *	\a msg. Note that if the current character buffer is too small
  *	to hold all of \a data, only the first part is copied.
  *
  * \param msg  The text_message to be updated
@@ -152,7 +152,7 @@ void set_text_message_data (text_message *msg, const char* data);
 /*!
  * \brief Free a text_message's character buffer
  *
- *	Free the memory allocated for the character buffer in 
+ *	Free the memory allocated for the character buffer in
  *	text_message \a msg.
  *
  * \param msg The text_message whose character buffer will be freed
@@ -170,14 +170,14 @@ static __inline__ void free_text_message_data (text_message *msg)
 /*!
  * \brief Set the color of a text_message
  *
- *	Set the color in which the text of text_message \a msg should 
+ *	Set the color in which the text of text_message \a msg should
  *	be drawn. Note that this color is inly used until the first
  *	color character in the text is encountered.
  *
  * \param msg The text message for which to set the color
- * \param r   The red component of the new text color 
- * \param g   The green component of the new text color 
- * \param b   The blue component of the new text color 
+ * \param r   The red component of the new text color
+ * \param g   The green component of the new text color
+ * \param b   The blue component of the new text color
  */
 static __inline__ void set_text_message_color (text_message *msg, float r, float g, float b)
 {
@@ -190,7 +190,7 @@ static __inline__ void set_text_message_color (text_message *msg, float r, float
  * \brief Initialize a text_message
  *
  *	Initialize text_message \a msg by allocating a character buffer
- *	of \a size bytes, and setting the other fields to default 
+ *	of \a size bytes, and setting the other fields to default
  *	values.
  *
  * \param msg  The text_message to be initialized
@@ -200,7 +200,7 @@ static __inline__ void init_text_message (text_message *msg, Uint16 size)
 {
 	msg->chan_idx = CHAT_NONE;
 	msg->channel = 0;
-	alloc_text_message_data (msg, size);		
+	alloc_text_message_data (msg, size);
 	msg->wrap_width = 0;
 	msg->wrap_zoom = 1.0f;
 	msg->wrap_lines = 0;
@@ -238,7 +238,7 @@ void timestamp_chat_log();
  * \ingroup text_font
  * \brief   Writes the given data up to a length of \a len to a logfile.
  *
- *      Writes the given data up to a length of \a len to a logfile. 
+ *      Writes the given data up to a length of \a len to a logfile.
  *
  * \param channel The channel index of the message
  * \param data    The data to write to the logfile
@@ -387,11 +387,13 @@ int find_last_lines_time (int *msg, int *offset, Uint8 filter, int width);
  * \param msg      The message in which the lines is located
  * \param channel  the channel in which to search for the line, or CHANNEL_ALL to search in all channels
  * \param offset   The offset in the message at which the line starts
+ * \param font_num the number of the font in which the line is rendered
  * \param zoom     the text zoom that is to be used for wrapping
  * \param width    the text width that is to be used for wrapping
  * \retval The position of the beginning of the line
  */
-int find_line_nr (int nr_lines, int line, Uint8 filter, int *msg, int *offset, float zoom, int width);
+int find_line_nr(int nr_lines, int line, Uint8 filter, int *msg, int *offset,
+	int font_num, float zoom, int width);
 
 /*!
  * \ingroup interface_console
@@ -452,12 +454,13 @@ void clear_display_text_buffer ();
  *      Rewraps a text buffer.
  *
  * \param msg    pointer to the message to rewrap
+ * \param font_num	the number of the font in which the text is to be rendered
  * \param zoom   the text zoom to use for wrapping
  * \param width  the max width of a line
  * \param cursor cursor passed to \sa reset_soft_breaks
  * \retval       the number of lines after wrapping
  */
-int rewrap_message(text_message * buf, float zoom, int width, int * cursor);
+int rewrap_message(text_message * buf, int font_num, float zoom, int width, int *cursor);
 
 void cleanup_text_buffers(void);
 

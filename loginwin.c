@@ -168,7 +168,9 @@ static int resize_login_handler (window_info *win, Uint32 w, Uint32 h)
 	new_char_x = log_in_x + log_in_x_len + button_sep_x;
 	settings_x = new_char_x + new_char_x_len + button_sep_x;
 
-	num_rules_lines = reset_soft_breaks(login_rules_str, strlen(login_rules_str), sizeof(login_rules_str), win->current_scale, max_width, NULL, NULL);
+	// FIXME: using font 0, change when UI font is introduced.
+	num_rules_lines = reset_soft_breaks(login_rules_str, strlen(login_rules_str),
+		sizeof(login_rules_str), 0, win->current_scale, max_width, NULL, NULL);
 
 	height = username_bar_y_len + password_bar_y_len + button_y_len + (3 + num_rules_lines) * win->default_font_len_y;
 	username_bar_y = passmngr_button_y = half_screen_y - height / 2;
@@ -185,7 +187,7 @@ static int resize_login_handler (window_info *win, Uint32 w, Uint32 h)
 // the code was removed from draw_login_screen () in interface.c since I don't
 // want to introduce new global variables, but the mouseover and click handlers
 // need to know the positions of the buttons and input fields. The other option
-// was to pass (a struct of) 24 integers to draw_login_screen, which seemed a 
+// was to pass (a struct of) 24 integers to draw_login_screen, which seemed a
 // bit excessive.
 static int display_login_handler (window_info *win)
 {
@@ -293,13 +295,13 @@ static int display_login_handler (window_info *win)
 		draw_2d_thing (new_char_selected_start_u, new_char_selected_start_v, new_char_selected_end_u, new_char_selected_end_v, new_char_x, new_char_y, new_char_x + new_char_x_len, new_char_y + new_char_y_len);
 	else
 		draw_2d_thing (new_char_unselected_start_u, new_char_unselected_start_v, new_char_unselected_end_u, new_char_unselected_end_v, new_char_x, new_char_y, new_char_x + new_char_x_len, new_char_y + new_char_y_len);
-		
+
 	// settings button
 	if (settings_button_selected)
 		draw_2d_thing (settings_selected_start_u, settings_selected_start_v, settings_selected_end_u, settings_selected_end_v, settings_x, settings_y, settings_x + settings_x_len, settings_y + settings_y_len);
 	else
 		draw_2d_thing (settings_unselected_start_u, settings_unselected_start_v, settings_unselected_end_u, settings_unselected_end_v, settings_x, settings_y, settings_x + settings_x_len, settings_y + settings_y_len);
-		
+
 	glEnd();
 
 	glColor3f (0.0f, 0.9f, 1.0f);
@@ -311,11 +313,14 @@ static int display_login_handler (window_info *win)
 	{
 		int max_win_width = window_width - 2 * win->default_font_len_x;
 		float max_line_width = 0;
-		int num_lines = reset_soft_breaks (log_in_error_str, strlen (log_in_error_str), sizeof (log_in_error_str), win->current_scale, max_win_width, NULL, &max_line_width);
+		// FIXME: using font 0, change when UI font is introduced.
+		int num_lines = reset_soft_breaks (log_in_error_str, strlen(log_in_error_str),
+			sizeof (log_in_error_str), 0, win->current_scale, max_win_width, NULL,
+			&max_line_width);
 		glColor3f (1.0f, 0.0f, 0.0f);
 		draw_string_zoomed (win->default_font_len_x + (max_win_width - max_line_width) / 2, username_bar_y - (num_lines + 2) * win->default_font_len_y, (unsigned char*)log_in_error_str, num_lines, win->current_scale);
 	}
-	
+
 	CHECK_GL_ERRORS ();
 	draw_delay = 20;
 	return 1;
@@ -328,7 +333,7 @@ static int mouseover_login_handler (window_info *win, int mx, int my)
 		log_in_button_selected = 1;
 	else
 		log_in_button_selected = 0;
-	
+
 	// check to see if the new char button is active, or not
 	if (mx >= new_char_x && mx <= new_char_x + new_char_x_len && my >= new_char_y && my <= new_char_y + new_char_y_len)
 		new_char_button_selected = 1;
@@ -354,7 +359,7 @@ static int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 	int left_click = flags & ELW_LEFT_MOUSE;
 	extern int force_elconfig_win_ontop;
 	force_elconfig_win_ontop = 0;
-	
+
 	if (left_click == 0) return 0;
 
 	// check to see if we clicked on the username box
@@ -393,7 +398,7 @@ static int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 	//check to see if we clicked on the ACTIVE New Char button
 	else if (new_char_button_selected)
 	{
-		// don't destroy the login window just yet, the user might 
+		// don't destroy the login window just yet, the user might
 		// click the back button
 		hide_window (login_root_win);
 		create_newchar_root_window ();
@@ -403,7 +408,7 @@ static int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 			create_rules_root_window (win->len_x, win->len_y, newchar_root_win, 15);
 			show_window (rules_root_win);
 		}
-		else 
+		else
 		{
 			show_window (newchar_root_win);
 		}
@@ -465,7 +470,7 @@ static int add_char_to_password(SDL_Keycode key_code, Uint32 key_unicode, Uint16
 }
 
 static int keypress_login_handler (window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
-{	
+{
 	// First check key presses common to all root windows. Many of these
 	// don't make sense at this point, but it should be harmless.
 	if ( keypress_root_common (key_code, key_unicode, key_mod) )
@@ -490,7 +495,7 @@ static int keypress_login_handler (window_info *win, int mx, int my, SDL_Keycode
 		log_in_error_str[0] = '\0';
 		if (add_char_to_username (key_code, key_unicode, key_mod))
 			return 1;
-	} 
+	}
 	else
 	{
 		log_in_error_str[0] = '\0';
@@ -521,15 +526,15 @@ void create_login_root_window (int width, int height)
 	{
 		login_root_win = create_window ("Login", -1, -1, 0, 0, width, height, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
 
-		set_window_handler (login_root_win, ELW_HANDLER_DISPLAY, &display_login_handler);		
-		set_window_handler (login_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_login_handler);		
-		set_window_handler (login_root_win, ELW_HANDLER_CLICK, &click_login_handler);		
+		set_window_handler (login_root_win, ELW_HANDLER_DISPLAY, &display_login_handler);
+		set_window_handler (login_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_login_handler);
+		set_window_handler (login_root_win, ELW_HANDLER_CLICK, &click_login_handler);
 		set_window_handler (login_root_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_login_handler);
 		set_window_handler (login_root_win, ELW_HANDLER_RESIZE, &resize_login_handler);
 		set_window_handler (login_root_win, ELW_HANDLER_SHOW, &show_login_handler);
 		set_window_handler (login_root_win, ELW_HANDLER_UI_SCALE, &ui_scale_login_handler);
-		
-		resize_window (login_root_win, width, height);	
+
+		resize_window (login_root_win, width, height);
 	}
 }
 

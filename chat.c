@@ -406,7 +406,10 @@ static int add_chat_tab(int nlines, Uint8 channel)
 			set_window_flag (channels[ichan].tab_id, ELW_CLICK_TRANSPARENT);
 
 			set_window_min_size (channels[ichan].tab_id, 0, 0);
-			channels[ichan].out_id = text_field_add_extended (channels[ichan].tab_id, channels[ichan].out_id, NULL, 0, 0, inout_width, output_height, 0, chat_zoom, 0.77f, 0.57f, 0.39f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, channel, CHAT_WIN_SPACE, CHAT_WIN_SPACE);
+			channels[ichan].out_id = text_field_add_extended (channels[ichan].tab_id,
+				channels[ichan].out_id, NULL, 0, 0, inout_width, output_height, 0,
+				0, chat_zoom, 0.77f, 0.57f, 0.39f, display_text_buffer,
+				DISPLAY_TEXT_BUFFER_SIZE, channel, CHAT_WIN_SPACE, CHAT_WIN_SPACE);
 
 			set_window_handler (channels[ichan].tab_id, ELW_HANDLER_DESTROY, close_channel);
 
@@ -475,7 +478,7 @@ static void update_chat_window (text_message *msg, char highlight)
 
 	// rewrap message to get correct # of lines
 	width = windows_list.window[chat_win].len_x;
-	nlines = rewrap_message(msg, chat_zoom, width, NULL);
+	nlines = rewrap_message(msg, chat_font, chat_zoom, width, NULL);
 
 	// first check if we need to display in all open channels
 	channel = get_tab_channel (msg->chan_idx);
@@ -569,7 +572,8 @@ static int display_chat_handler (window_info *win)
 	{
 		int line = vscrollbar_get_pos (chat_win, chat_scroll_id);
 
-		find_line_nr (channels[active_tab].nr_lines, line, channels[active_tab].chan_nr, &msg_start, &offset_start, chat_zoom, chat_win_text_width);
+		find_line_nr(channels[active_tab].nr_lines, line, channels[active_tab].chan_nr,
+			&msg_start, &offset_start, chat_font, chat_zoom, chat_win_text_width);
 		text_field_set_buf_pos (channels[active_tab].tab_id, channels[active_tab].out_id, msg_start, offset_start);
 		text_changed = 0;
 	}
@@ -935,7 +939,8 @@ int root_key_to_input_field (SDL_Keycode key_code, Uint32 key_unicode, Uint16 ke
 
 		// set invalid width to force rewrap
 		msg->wrap_width = 0;
-		tf->nr_lines = rewrap_message (msg, input_widget->size, input_widget->len_x - 2 * tf->x_space, &tf->cursor);
+		tf->nr_lines = rewrap_message(msg, tf->font_num, input_widget->size,
+			input_widget->len_x - 2 * tf->x_space, &tf->cursor);
 	}
 	else if (key_code == SDLK_BACKSPACE || key_code == SDLK_DELETE
 #ifdef OSX
@@ -1005,7 +1010,8 @@ void paste_in_input_field (const Uint8 *text)
 
 	// set invalid width to force rewrap
 	msg->wrap_width = 0;
-	tf->nr_lines = rewrap_message(msg, input_widget->size, input_widget->len_x - 2 * tf->x_space, &tf->cursor);
+	tf->nr_lines = rewrap_message(msg, tf->font_num, input_widget->size,
+		input_widget->len_x - 2 * tf->x_space, &tf->cursor);
 	if (use_windowed_chat != 2)
 	{
 		int line_height = get_line_height(chat_font, input_widget->size);
@@ -1023,7 +1029,8 @@ void put_string_in_input_field(const Uint8 *text)
 		tf->cursor = msg->len = safe_snprintf((char*)msg->data, msg->size, "%s", text);
 		// set invalid width to force rewrap
 		msg->wrap_width = 0;
-		tf->nr_lines = rewrap_message(msg, input_widget->size, input_widget->len_x - 2 * tf->x_space, &tf->cursor);
+		tf->nr_lines = rewrap_message(msg, tf->font_num, input_widget->size,
+			input_widget->len_x - 2 * tf->x_space, &tf->cursor);
 		if (use_windowed_chat != 2)
 		{
 			int line_height = get_line_height(chat_font, input_widget->size);
@@ -1100,7 +1107,9 @@ static void create_chat_window(void)
 	channels[0].tab_id = tab_add (chat_win, chat_tabcollection_id, (tab_label(CHAT_ALL))->name, 0, 0, 0);
 	set_window_flag (channels[0].tab_id, ELW_CLICK_TRANSPARENT);
 	set_window_min_size (channels[0].tab_id, 0, 0);
-	channels[0].out_id = text_field_add_extended (channels[0].tab_id, channels[0].out_id, NULL, 0, 0, inout_width, output_height, 0, chat_zoom, 0.77f, 0.57f, 0.39f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, FILTER_ALL, CHAT_WIN_SPACE, CHAT_WIN_SPACE);
+	channels[0].out_id = text_field_add_extended(channels[0].tab_id, channels[0].out_id,
+		NULL, 0, 0, inout_width, output_height, 0, chat_font, chat_zoom, 0.77f, 0.57f, 0.39f,
+		display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, FILTER_ALL, CHAT_WIN_SPACE, CHAT_WIN_SPACE);
 	channels[0].chan_nr = CHAT_ALL;
 	channels[0].nr_lines = 0;
 	channels[0].open = 1;
@@ -1110,7 +1119,10 @@ static void create_chat_window(void)
 	if(input_widget == NULL) {
 		Uint32 id;
 		set_text_message_color (&input_text_line, 1.0f, 1.0f, 1.0f);
-		id = text_field_add_extended (chat_win, 19, NULL, CHAT_WIN_SPACE, input_y, inout_width, input_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL, CHAT_WIN_SPACE, CHAT_WIN_SPACE);
+		id = text_field_add_extended (chat_win, 19, NULL, CHAT_WIN_SPACE, input_y,
+			inout_width, input_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS,
+			chat_font, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL,
+			CHAT_WIN_SPACE, CHAT_WIN_SPACE);
 		widget_set_OnKey (chat_win, id, (int (*)())chat_input_key);
 		input_widget = widget_find(chat_win, id);
 	}
@@ -1738,9 +1750,10 @@ static int display_chan_sel_handler(window_info *win)
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 
-	line_height = get_line_height(chat_font, local_zoom);
+	// FIXME: using font 0, change when UI font is introduced.
+	line_height = get_line_height(0, local_zoom);
 	num_lines = reset_soft_breaks(channel_help_str, strlen(channel_help_str),
-		sizeof(channel_help_str), local_zoom, win->len_x - chan_sel_border * 2,
+		sizeof(channel_help_str), 0, local_zoom, win->len_x - chan_sel_border * 2,
 		NULL, NULL);
 	draw_string_zoomed(x, y+=chan_sel_border, (unsigned char*)channel_help_str,
 		num_lines, local_zoom);
@@ -1998,13 +2011,15 @@ static void update_tab_bar (text_message * msg)
 	// Only update specific channels
 	channel = get_tab_channel (msg->chan_idx);
 	if (channel == CHAT_ALL || channel == CHAT_MODPM) {
-		lines_to_show += rewrap_message(msg, chat_zoom, get_console_text_width(), NULL);
+		lines_to_show += rewrap_message(msg, chat_font, chat_zoom,
+			get_console_text_width(), NULL);
 		if (lines_to_show >= 10) lines_to_show = 10;
 		return;
 	}
 
 	if (tabs[current_tab].channel == CHAT_ALL) {
-		lines_to_show += rewrap_message(msg, chat_zoom, get_console_text_width(), NULL);
+		lines_to_show += rewrap_message(msg, chat_font, chat_zoom,
+			get_console_text_width(), NULL);
 		if (lines_to_show >= 10) lines_to_show = 10;
 	}
 
@@ -2015,7 +2030,8 @@ static void update_tab_bar (text_message * msg)
 			if (current_tab != itab && !tabs[itab].highlighted && tabs[current_tab].channel != CHAT_ALL && !get_show_window(console_root_win))
 				widget_set_color (tab_bar_win, tabs[itab].button, 1.0f, 1.0f, 0.0f);
 			if (current_tab == itab) {
-				lines_to_show += rewrap_message(msg, chat_zoom, get_console_text_width(), NULL);
+				lines_to_show += rewrap_message(msg, chat_font, chat_zoom,
+					get_console_text_width(), NULL);
 				if (lines_to_show >= 10) lines_to_show = 10;
 			}
 			return;
@@ -2687,7 +2703,7 @@ void update_text_windows (text_message * pmsg)
 	if (console_root_win >= 0) update_console_win (pmsg);
 	switch (use_windowed_chat) {
 		case 0:
-			rewrap_message(pmsg, chat_zoom, get_console_text_width(), NULL);
+			rewrap_message(pmsg, chat_font, chat_zoom, get_console_text_width(), NULL);
 			lines_to_show += pmsg->wrap_lines;
 			if (lines_to_show > 10) lines_to_show = 10;
 			break;
