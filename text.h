@@ -6,10 +6,13 @@
 #ifndef __TEXT_H__
 #define __TEXT_H__
 
+typedef struct text_message text_message;
+
 #include <stdlib.h>
 #include <SDL_types.h>
 #include "platform.h"
 #include "eye_candy_wrapper.h"
+#include "font.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,7 +42,7 @@ extern "C" {
 #define LOG_SERVER				2
 #define LOG_SERVER_SEPERATE		3
 
-typedef struct
+struct text_message
 {
 	Uint8 chan_idx;
 	Uint32 channel;
@@ -51,7 +54,7 @@ typedef struct
 	Uint8 deleted;
 	float max_line_width;
 	float r, g, b;
-} text_message;
+};
 
 extern text_message display_text_buffer[DISPLAY_TEXT_BUFFER_SIZE];
 extern int last_message;
@@ -387,13 +390,13 @@ int find_last_lines_time (int *msg, int *offset, Uint8 filter, int width);
  * \param msg      The message in which the lines is located
  * \param channel  the channel in which to search for the line, or CHANNEL_ALL to search in all channels
  * \param offset   The offset in the message at which the line starts
- * \param font_num the number of the font in which the line is rendered
+ * \param font     the font category in which the line is rendered
  * \param zoom     the text zoom that is to be used for wrapping
  * \param width    the text width that is to be used for wrapping
  * \retval The position of the beginning of the line
  */
 int find_line_nr(int nr_lines, int line, Uint8 filter, int *msg, int *offset,
-	int font_num, float zoom, int width);
+	font_cat font, float zoom, int width);
 
 /*!
  * \ingroup interface_console
@@ -460,7 +463,7 @@ void clear_display_text_buffer ();
  * \param cursor cursor passed to \sa reset_soft_breaks
  * \retval       the number of lines after wrapping
  */
-int rewrap_message(text_message * buf, int font_num, float zoom, int width, int *cursor);
+int rewrap_message(text_message * buf, font_cat font, float zoom, int width, int *cursor);
 
 void cleanup_text_buffers(void);
 

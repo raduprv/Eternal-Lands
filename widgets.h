@@ -6,8 +6,11 @@
 #ifndef	__WIDGETS_H
 #define	__WIDGETS_H
 
+typedef struct select_info select_info;
+
 #include <SDL_types.h>
 #include <SDL_keycode.h>
+#include "font.h"
 #include "text.h"
 
 #ifdef __cplusplus
@@ -125,11 +128,11 @@ typedef struct
 /*!
  * Contains selection information for text_field.
  */
-typedef struct
+struct select_info
 {
 	text_field_line* lines;
 	int sm, sc, em, ec;
-} select_info;
+};
 
 /*!
  * Checks if selection is empty.
@@ -159,7 +162,7 @@ typedef struct
 	Uint16 x_space, y_space;
 	Uint32 next_blink;
 	select_info select;
-	int font_num;
+	font_cat font;
 } text_field;
 
 typedef struct {
@@ -1334,7 +1337,7 @@ int text_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 l
  * \param   	lx The width
  * \param   	ly The height
  * \param   	Flags The flags
- * \param		fint_num Number for the font of the text
+ * \param		font Font category for the text
  * \param   	size The text size
  * \param   	r (0<=r<=1)
  * \param   	g (0<=g<=1)
@@ -1349,7 +1352,7 @@ int text_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 l
  * \sa text_field_add
  */
 int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(),
-	Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, int font_num,
+	Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, font_cat font,
 	float size, float r, float g, float b, text_message *buf, int buf_size,
 	Uint8 chan_filt, int x_space, int y_space);
 

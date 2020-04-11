@@ -6,6 +6,40 @@
 #ifndef __FONT_H__
 #define __FONT_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/*!
+ * \ingroup text_font
+ * \brief  Enumeration forfont categories
+ *
+ *      This enumeration defines the different categories of fonts used in the
+ *      game. The actual enum values correspond to indices in the font_idxs array,
+ *      which holds the actual font numbers.
+ */
+typedef enum
+{
+	//! Index for the font used for drawing text in the user interface
+	UI_FONT,
+	//! Index for the font used for drawing text messages
+	CHAT_FONT,
+	//! Index for the font used for drawing names above the characters
+	NAME_FONT,
+	//! Index for the font used for drawing text in books
+	BOOK_FONT,
+	//! INdex for the font used to draw user notes
+	NOTE_FONT,
+	//! Index used for the font used to draw the rules
+	RULES_FONT,
+	//! Number of font categories
+	NR_FONT_CATS
+} font_cat;
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
 #include "text.h"
 #if !defined(MAP_EDITOR)
 #include "widgets.h"
@@ -39,6 +73,9 @@ extern int use_ttf;    /*!< Whether to use True Type fonts for font rendering */
 extern char ttf_directory[TTF_DIR_SIZE];
 #endif
 
+//! The font numbers for each font category
+extern int font_idxs[NR_FONT_CATS];
+
 extern int	chat_font; /*!< font size used for chat font */
 extern int	name_font; /*!< font size used for name font */
 
@@ -61,12 +98,15 @@ extern int	name_font; /*!< font size used for name font */
  * \param cursor	if >= 0, the position at which to draw the cursor
  * \param width		the width of the draw area
  * \param height	the height of the draw area
+ * \param font		the category of the font in which the text is drawn
  * \param text_zoom	the size of the text
  * \param[in,out]       select information about current selection. draw_messages fills select->lines array.
  *
  * \callgraph
  */
-void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filter, int nr_start, int offset_start, int cursor, int width, int height, float text_zoom, select_info* select);
+void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter,
+	int nr_start, int offset_start, int cursor, int width, int height,
+	font_cat font, float text_zoom, select_info* select);
 void draw_console_separator(int x_space, int y, int width, float zoom);
 #endif
 
@@ -123,7 +163,7 @@ void draw_string_clipped(int x, int y, const unsigned char * our_string, int wid
  * \retval int the number of window lines the string will use
  * \callgraph
  */
-int reset_soft_breaks (char *str, int len, int size, int font_num, float zoom,
+int reset_soft_breaks (char *str, int len, int size, font_cat font, float zoom,
 	int width, int *cursor, float *max_line_width);
 
 /*!
@@ -190,14 +230,14 @@ int get_string_width(const unsigned char *str);
 
 /*!
  * \ingroup text_font
- * \brief   sets the current font to the one given in \a num.
+ * \brief   sets the current font to the one given in \a cat.
  *
- *      Sets the current font to the one given in \a num.
+ *      Sets the current font to the one for category \a cat.
  *
- * \param num       the index in the \see fonts variable that defines the font to be used.
+ * \param cat  The font category to use
  * \retval int
  */
-int	set_font(int num);
+int	set_font(font_cat cat);
 
 /*!
  * \ingroup other
@@ -238,7 +278,7 @@ int has_glyph(unsigned char c);
 
 void cleanup_fonts(void);
 
-int get_line_height(int font_num, float zoom);
+int get_line_height(font_cat cat, float zoom);
 
 #ifdef TTF
 int add_all_ttf_files(const char* dir_name);

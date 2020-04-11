@@ -1764,7 +1764,7 @@ void _text_field_set_nr_visible_lines (widget_list *w)
 
 	if (tf != NULL/* && (w->Flags & TEXT_FIELD_EDITABLE)*/)
 	{
-		int line_height = get_line_height(tf->font_num, tf->buffer[tf->msg].wrap_zoom);
+		int line_height = get_line_height(tf->font, tf->buffer[tf->msg].wrap_zoom);
 		tf->nr_visible_lines = (w->len_y - 2*tf->y_space) / line_height;
 		if (tf->nr_visible_lines < 0)
 			tf->nr_visible_lines = 0;
@@ -2180,7 +2180,7 @@ void _text_field_delete_backward (widget_list * w)
 
 	// set invalid width to force rewrap
 	msg->wrap_width = 0;
-	nr_lines = rewrap_message(msg, tf->font_num, w->size,
+	nr_lines = rewrap_message(msg, tf->font, w->size,
 		w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
 	_text_field_set_nr_lines (w, nr_lines);
 
@@ -2211,7 +2211,7 @@ void _text_field_delete_forward (widget_list *w)
 	msg->len -= n;
 	// set invalid width to force rewrap
 	msg->wrap_width = 0;
-	nr_lines = rewrap_message(msg, tf->font_num, w->size,
+	nr_lines = rewrap_message(msg, tf->font, w->size,
 		w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
 	_text_field_set_nr_lines (w, nr_lines);
 
@@ -2254,7 +2254,7 @@ void _text_field_insert_char (widget_list *w, SDL_Keycode key_code, Uint32 key_u
 	// be the number of extra line breaks introduced before the
 	// cursor position
 	old_cursor = tf->cursor;
-	nr_lines = rewrap_message(msg, tf->font_num, w->size,
+	nr_lines = rewrap_message(msg, tf->font, w->size,
 		w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
 	tf->cursor_line += tf->cursor - old_cursor;
 	_text_field_set_nr_lines (w, nr_lines);
@@ -2319,7 +2319,7 @@ static int text_field_resize (widget_list *w, int width, int height)
 			for (i = 0; i < tf->buf_size; i++)
 			{
 				int *cursor = i == tf->msg ? &(tf->cursor) : NULL;
-				nr_lines += rewrap_message(tf->buffer+i, tf->font_num, w->size,
+				nr_lines += rewrap_message(tf->buffer+i, tf->font, w->size,
 					width - tf->scrollbar_width, cursor);
 			}
 			_text_field_set_nr_lines (w, nr_lines);
@@ -2628,7 +2628,7 @@ void _set_edit_pos (text_field* tf, int x, int y)
 	unsigned int nrlines = 0, line = 0;
 	int px = 0;
 	text_message* msg = &(tf->buffer[tf->msg]);
-	int line_height = get_line_height(tf->font_num, msg->wrap_zoom);
+	int line_height = get_line_height(tf->font, msg->wrap_zoom);
 
 	if (msg->len == 0)
 		return;	// nothing to do, there is no string
@@ -2679,7 +2679,7 @@ void update_selection(int x, int y, widget_list* w, int drag)
 	tf = w->widget_info;
 	if (tf == NULL) return;
 
-	line_height = get_line_height(tf->font_num, w->size);
+	line_height = get_line_height(tf->font, w->size);
 	line = y / line_height;
 	if (line < 0 || line >= tf->nr_visible_lines || tf->select.lines[line].msg == -1)
 	{
@@ -2828,7 +2828,7 @@ static int text_field_destroy(widget_list *w)
 }
 
 int text_field_add_extended(int window_id, Uint32 wid, int (*OnInit)(),
-		Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, int font_num,
+		Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, font_cat font,
 		float size, float r, float g, float b, text_message *buf, int buf_size,
 		Uint8 chan_filt, int x_space, int y_space)
 {
@@ -2846,7 +2846,7 @@ int text_field_add_extended(int window_id, Uint32 wid, int (*OnInit)(),
 	T->cursor = (Flags & TEXT_FIELD_EDITABLE) ? 0 : -1;
 	T->cursor_line = T->cursor;
 	T->next_blink = TF_BLINK_DELAY;
-	T->font_num = font_num;
+	T->font = font;
 	if (Flags & TEXT_FIELD_SCROLLBAR)
 	{
 		T->scrollbar_width = size * ELW_BOX_SIZE;
@@ -2868,7 +2868,7 @@ int text_field_add_extended(int window_id, Uint32 wid, int (*OnInit)(),
 		widget_list *w = widget_find (window_id, wid);
 		if (w != NULL)
 		{
-			int nr_lines = rewrap_message(buf, T->font_num, w->size,
+			int nr_lines = rewrap_message(buf, T->font, w->size,
 				lx - 2*x_space - T->scrollbar_width, &T->cursor);
 			_text_field_set_nr_visible_lines (w);
 			_text_field_set_nr_lines (w, nr_lines);
@@ -2924,7 +2924,7 @@ int text_field_draw (widget_list *w)
 			int nr_lines;
 			int old_cursor = tf->cursor;
 			tf->buffer[tf->msg].wrap_width = 0;
-			nr_lines = rewrap_message (&tf->buffer[tf->msg], tf->font_num, w->size,
+			nr_lines = rewrap_message (&tf->buffer[tf->msg], tf->font, w->size,
 				w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
 			tf->cursor_line += tf->cursor - old_cursor;
 			_text_field_set_nr_lines (w, nr_lines);
@@ -2992,14 +2992,14 @@ int text_field_draw (widget_list *w)
 	}
 
 	glEnable(GL_TEXTURE_2D);
-	set_font(tf->font_num);
+	set_font(tf->font);
 
 	for (i = 0; i < tf->nr_visible_lines; i++)
 		tf->select.lines[i].msg = -1;
 	draw_messages(w->pos_x + tf->x_space, w->pos_y + tf->y_space,
 		tf->buffer, tf->buf_size, tf->chan_nr, tf->msg, tf->offset, cursor,
 		w->len_x - 2*tf->x_space - tf->scrollbar_width, w->len_y - 2 * tf->y_space,
-		w->size, &tf->select);
+		tf->font, w->size, &tf->select);
 	if (tf->nr_visible_lines && tf->select.lines[0].msg == -1)
 	{
 		tf->select.lines[0].msg = tf->msg;
@@ -3013,7 +3013,7 @@ int text_field_draw (widget_list *w)
 			tf->select.lines[i].chr = tf->buffer[tf->select.lines[i].msg].len;
 		}
 	}
-	set_font (0);	// switch to fixed
+	set_font(UI_FONT);	// switch to fixed
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE

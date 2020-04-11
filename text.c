@@ -1285,12 +1285,12 @@ int find_last_lines_time (int *msg, int *offset, Uint8 filter, int width)
 	if (lines_to_show <= 0) return 0;
 
 	return find_line_nr(get_total_nr_lines(), get_total_nr_lines() - lines_to_show,
-		filter, msg, offset, chat_font, chat_zoom, width);
+		filter, msg, offset, CHAT_FONT, chat_zoom, width);
 }
 
 
 int find_line_nr(int nr_lines, int line, Uint8 filter, int *msg, int *offset,
-	int font_num, float zoom, int width)
+	font_cat font, float zoom, int width)
 {
 	int line_count = 0, lines_no = nr_lines - line;
 	int imsg, ichar;
@@ -1323,7 +1323,7 @@ int find_line_nr(int nr_lines, int line, Uint8 filter, int *msg, int *offset,
 				// happening.
 				break;
 
-			rewrap_message(&display_text_buffer[imsg], font_num, zoom, width, NULL);
+			rewrap_message(&display_text_buffer[imsg], font, zoom, width, NULL);
 
 			for (ichar = display_text_buffer[imsg].len - 1; ichar >= 0; ichar--)
 			{
@@ -1377,7 +1377,7 @@ void clear_display_text_buffer ()
 	}
 }
 
-int rewrap_message(text_message * msg, int font_num, float zoom, int width, int *cursor)
+int rewrap_message(text_message * msg, font_cat font, float zoom, int width, int *cursor)
 {
 	int nlines;
 	float max_line_width = 0;
@@ -1387,7 +1387,7 @@ int rewrap_message(text_message * msg, int font_num, float zoom, int width, int 
 
 	if (msg->wrap_width != width || msg->wrap_zoom != zoom)
 	{
- 		nlines = reset_soft_breaks(msg->data, msg->len, msg->size, font_num, zoom,
+ 		nlines = reset_soft_breaks(msg->data, msg->len, msg->size, font, zoom,
 			width, cursor, &max_line_width);
 		msg->len = strlen(msg->data);
 		msg->wrap_lines = nlines;

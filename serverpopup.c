@@ -196,7 +196,7 @@ static void set_min_window_size(window_info *win)
 static int resize_handler(window_info *win, int width, int height)
 {
 	/* make sure the text font is set so width calculations work properly */
-	set_font(chat_font);
+	set_font(CHAT_FONT);
 
 	/* if there is no text widget, we're done */
 	if (text_message_is_empty (&widget_text)) {
@@ -222,7 +222,7 @@ static int resize_handler(window_info *win, int width, int height)
 	widget_resize(server_popup_win, textId, text_widget_width, text_widget_height);
 	if (!text_message_is_empty (&widget_text))
 	{
-		num_text_lines = rewrap_message(&widget_text, chat_font, chat_zoom,
+		num_text_lines = rewrap_message(&widget_text, CHAT_FONT, chat_zoom,
 			text_widget_width - 2*sep, NULL);
 	}
 
@@ -235,7 +235,7 @@ static int resize_handler(window_info *win, int width, int height)
 		/* rewrap the text again as the available width is now less */
 		if (!text_message_is_empty (&widget_text))
 		{
-			num_text_lines = rewrap_message(&widget_text, chat_font, chat_zoom,
+			num_text_lines = rewrap_message(&widget_text, CHAT_FONT, chat_zoom,
 				text_widget_width - 2*sep, NULL);
 		}
 	}
@@ -341,13 +341,13 @@ void display_server_popup_win(const char * const message)
 	}
 
 	/* make sure the text font is set so width calculations work properly */
-	set_font(chat_font);
+	set_font(CHAT_FONT);
 
 	/* do a pre-wrap of the text to the maximum screen width we can use
 		 this will avoid the later wrap (after the resize) changing the number of lines */
 	if (!text_message_is_empty (&widget_text))
 	{
-		num_text_lines = rewrap_message(&widget_text, chat_font, chat_zoom,
+		num_text_lines = rewrap_message(&widget_text, CHAT_FONT, chat_zoom,
 			(window_width - unusable_width) - 4*sep, NULL);
 	}
 
@@ -412,7 +412,7 @@ void display_server_popup_win(const char * const message)
 	{
 		textId = text_field_add_extended(server_popup_win, textId, NULL, sep, sep,
 			text_widget_width, text_widget_height, TEXT_FIELD_NO_KEYPRESS,
-			chat_font, chat_zoom, 0.77f, 0.57f, 0.39f, &widget_text, 1, FILTER_NONE,
+			CHAT_FONT, chat_zoom, 0.77f, 0.57f, 0.39f, &widget_text, 1, FILTER_NONE,
 			sep, sep);
 	}
 

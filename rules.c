@@ -711,10 +711,10 @@ static void draw_rules_interface (window_info * win)
 	}
 	draw_string_zoomed ((win->len_x - string_width) / 2, win->len_y - ui_seperator_y - win->default_font_len_y, (unsigned char*)str, 0, string_zoom);
 
-	set_font(3);
+	set_font(RULES_FONT);
 	draw_rules (display_rules, box_border_x, ui_seperator_y + win->default_font_len_y / 2,
 		box_border_x + text_box_width, text_box_height, win->current_scale, rules_winRGB);
-	set_font(0);
+	set_font(UI_FONT);
 
 	glDisable (GL_ALPHA_TEST);
 #ifdef OPENGL_TRACE

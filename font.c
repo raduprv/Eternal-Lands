@@ -70,6 +70,9 @@ int	cur_font_num=0;
 font_info *fonts_array = NULL;
 size_t fonts_array_size = 0;
 size_t fonts_array_used = 0;
+
+int font_idxs[NR_FONT_CATS] = { 0, 0, 0, 2, 0, 3 };
+
 int chat_font=0;
 int name_font=0;
 int book_font=0;
@@ -223,9 +226,9 @@ static void bind_font_texture(const font_info *info)
 
 void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter,
 	int msg_start, int offset_start, int cursor, int width, int height,
-	float text_zoom, select_info* select)
+	font_cat font, float text_zoom, select_info* select)
 {
-	font_info *info = &fonts_array[cur_font_num];
+	font_info *info = &fonts_array[font_idxs[font]];
 	float displayed_font_x_size;
 	float displayed_font_y_size;
 
@@ -342,7 +345,7 @@ void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter
 #endif
 			if (imsg == msg_start || msgs[imsg].data == NULL || msgs[imsg].deleted) break;
 			// Grum 2020-04-07: why do we rewrap here? And not on the first message?
-			rewrap_message(&msgs[imsg], cur_font_num, text_zoom, width, NULL);
+			rewrap_message(&msgs[imsg], font, text_zoom, width, NULL);
 			ichar = 0;
 			last_color_char = 0;
 		}
@@ -665,7 +668,7 @@ void draw_string_clipped(int x, int y, const unsigned char* our_string,
 int reset_soft_breaks(char *str, int len, int size, int font_num, float zoom,
 	int width, int *cursor, float *max_line_width)
 {
-	font_info *info = &fonts_array[font_num];
+	font_info *info = &fonts_array[font_idxs[font]];
 	char *buf;
 	int ibuf;
 	int nchar;
@@ -1273,8 +1276,9 @@ int load_font_textures()
 	return 1;
 }
 
-int	set_font(int num)
+int	set_font(font_cat cat)
 {
+	int num = font_idxs[cat];
 	if (is_valid_font(num))
 		cur_font_num = num;
 	return cur_font_num;
@@ -1569,9 +1573,10 @@ int add_all_ttf_files(const char* dir_name)
 }
 #endif // TTF
 
-int get_line_height(int font_num, float zoom)
+int get_line_height(font_cat cat, float zoom)
 {
 #ifdef TTF
+	int font_num = font_idxs[cat];
 	if (!is_valid_font(font_num))
 		font_num = 0;
 	return get_font_height_zoom(&fonts_array[font_num], zoom);

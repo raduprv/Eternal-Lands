@@ -289,9 +289,9 @@ void display_popup_win (INPUT_POPUP *ipu, const char* label)
 		ipu->popup_label = label_add_extended(ipu->popup_win, widget_id++, NULL, 0, 0, 0, win->current_scale, 0.77f, 0.57f, 0.39f, label);
 
 		// Input
-		// FIXME: using font 0, maybe separate Note font?
+		// FIXME: which font to use for this?
 		ipu->popup_field = text_field_add_extended(ipu->popup_win, widget_id++,
-			NULL, 0, 0, 0, 0, ipu->text_flags, 0, 1.0, 0.77f, 0.57f, 0.39f,
+			NULL, 0, 0, 0, 0, ipu->text_flags, UI_FONT, 1.0, 0.77f, 0.57f, 0.39f,
 			&ipu->popup_text, 1, FILTER_ALL, 5, 5);
 
 		// Accept
@@ -745,11 +745,10 @@ static void open_note_tab_continued(int id)
 	tf_y = widget_space * 2 + remove_but->len_y;
 	tf_width = tab_win->len_x - 2 * widget_space;
 	tf_height = tab_win->len_y - widget_space * 3 - remove_but->len_y;
-	// FIXME: using font 0, maybe separate Note font?
 	note_list[id].input = text_field_add_extended(note_list[id].window, note_widget_id++,
 		NULL, tf_x, tf_y, tf_width, tf_height,
 		TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_CAN_GROW|TEXT_FIELD_SCROLLBAR,
-		0, note_zoom * tab_win->current_scale, 0.77f, 0.57f, 0.39f, &note_list[id].text,
+		NOTE_FONT, note_zoom * tab_win->current_scale, 0.77f, 0.57f, 0.39f, &note_list[id].text,
 		1, FILTER_ALL, widget_space, widget_space);
 
 	tab = tab_collection_get_tab_nr (notepad_win, note_tabcollection_id, note_list[id].window);

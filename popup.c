@@ -353,11 +353,10 @@ static void flowing_text_perform_flow( flowing_text_t *text, int max_length )
 {
 	float text_width;
 
-	// FIXME: using font 0, change when UI font is introduced.
 	text->lines = reset_soft_breaks (text->str,
 									 strlen(text->str),
 									 text->str_size_allocated,
-									 0,
+									 UI_FONT,
 									 popup_font_zoom,
 									 max_length,
 									 NULL,

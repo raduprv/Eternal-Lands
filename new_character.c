@@ -174,9 +174,7 @@ void set_create_char_error (const char *msg, int len)
 	else
 	{
 		safe_snprintf (buf, sizeof (buf), "%s: %.*s", reg_error_str, len, msg);
-		// FIXME: using font nr 0 here. May be incorrect, and will certainly change
-		// when we introduce a UI font.
-		reset_soft_breaks(buf, strlen (buf), sizeof (create_char_error_str), 0, 1.0,
+		reset_soft_breaks(buf, strlen(buf), sizeof (create_char_error_str), UI_FONT, 1.0,
 			window_width - 20, NULL, NULL);
 	}
 
@@ -480,10 +478,13 @@ static int display_newchar_handler (window_info *win)
 
 	{
 		int msg, offset;
-		if ( find_last_lines_time (&msg, &offset, current_filter, get_console_text_width()) ){
-			set_font(chat_font);    // switch to the chat font
-			draw_messages (10, 40, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, FILTER_ALL, msg, offset, -1, win->len_x - hud_x - 20, win->len_y, chat_zoom, NULL);
-			set_font (0);   // switch to fixed
+		if ( find_last_lines_time (&msg, &offset, current_filter, get_console_text_width()) )
+		{
+			set_font(CHAT_FONT);    // switch to the chat font
+			draw_messages (10, 40, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE,
+				FILTER_ALL, msg, offset, -1, win->len_x - hud_x - 20, win->len_y,
+				CHAT_FONT, chat_zoom, NULL);
+			set_font(UI_FONT);   // switch to fixed
 		}
 	}
 
