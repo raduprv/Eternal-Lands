@@ -10,6 +10,7 @@
 #include "hud.h"
 #include "init.h"
 #include "loginwin.h"
+#include "json_io.h"
 #include "manufacture.h"
 #include "multiplayer.h"
 #include "named_colours.h"
@@ -49,14 +50,6 @@ enum {
 	NAME = 1,
 	SESSION,
 	TOTAL
-};
-
-/* Counter structure */
-struct Counter {
-	char *name;
-	Uint32 n_session;
-	Uint32 n_total;
-	Uint32 extra;
 };
 
 static struct Counter *counters[NUM_COUNTERS];
@@ -204,17 +197,6 @@ void sort_counter(int counter_id)
 	}
 }
 
-FILE *open_counters_file(char *mode)
-{
-	char filename[256];
-
-	safe_snprintf(filename, sizeof(filename), "counters_%s.dat", get_lowercase_username());
-
-	LOG_DEBUG("Open counters file '%s'", filename);
-
-	return open_file_config(filename, mode);
-}
-
 void load_counters(void)
 {
 	FILE *f;
@@ -225,7 +207,8 @@ void load_counters(void)
 	Uint32 io_n_total;
 	char io_name[64];
 	int fread_ok = 1;
-	
+	char filename[256];
+
 	if (counters_initialized) {
 		/*
 		 * save eny existing counters before reloading
@@ -257,9 +240,21 @@ void load_counters(void)
 	if (!spell_names[0]) {
 		memset(&spell_names, 0, sizeof(spell_names));
 	}
-	
-	if (!(f = open_counters_file("rb"))) {
-		counters_initialized = 1;
+
+	counters_initialized = 1;
+
+	// try to load the counters json file
+	safe_snprintf(filename, sizeof(filename), "%scounters_%s.json", get_path_config(), get_lowercase_username());
+	if (json_load_counters(filename, cat_str, entries, NUM_COUNTERS, counters) >= 0)
+	{
+		LEAVE_DEBUG_MARK("load counters");
+		return;
+	}
+
+	// if there is no json file, try to load the old binary format
+	safe_snprintf(filename, sizeof(filename), "counters_%s.dat", get_lowercase_username());
+	LOG_DEBUG("Open counters file '%s'", filename);
+	if (!(f = open_file_config(filename, "rb"))) {
 
 		LEAVE_DEBUG_MARK("load counters");
 
@@ -305,8 +300,6 @@ void load_counters(void)
 		LOG_ERROR("%s error reading counters\n", __FUNCTION__);
 
 	fclose(f);
-	
-	counters_initialized = 1;
 
 	LEAVE_DEBUG_MARK("load counters");
 }
@@ -317,12 +310,28 @@ void flush_counters(void)
 	int i, j;
 	Uint8 io_counter_id;
 	Uint8 io_name_len;
+	char filename[256];
 	
 	if (!counters_initialized) {
 		return;
 	}
 
-	if (!(f = open_counters_file("wb"))) {
+	// save the json file
+	safe_snprintf(filename, sizeof(filename), "%scounters_%s.json", get_path_config(), get_lowercase_username());
+	if (json_save_counters(filename, cat_str, entries, NUM_COUNTERS, (const struct Counter **)counters) < 0)
+	{
+		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, filename);
+		return;
+	}
+
+	// we have written the json file, only write the binary file if one already exists
+	// this is to maintain backwards comatibility until the next forced version release
+	safe_snprintf(filename, sizeof(filename), "counters_%s.dat", get_lowercase_username());
+	if (file_exists_config(filename)!=1)
+		return;
+
+	LOG_DEBUG("Open counters file '%s'", filename);
+	if (!(f = open_file_config(filename, "wb"))) {
 		return;
 	}
 

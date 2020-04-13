@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 
+#include "counters.h"
 #include "manufacture.h"
 
 /*!
@@ -23,6 +24,15 @@ int json_save_recipes(const char *file_name, recipe_entry *recipes_store, size_t
 /*! @{ */
 int json_load_quickspells(const char *file_name, int *spell_ids, size_t max_num_spell_id);
 int json_save_quickspells(const char *file_name, Uint16 *spell_ids, size_t num_spell_id);
+/*! @} */
+
+
+/*!
+ * \name Functions to load and save the counters.
+ */
+/*! @{ */
+int json_load_counters(const char *file_name, const char **cat_str, int *entries, size_t num_categories, struct Counter **the_counters);
+int json_save_counters(const char *file_name, const char **cat_str, const int *entries, size_t num_categories, const struct Counter **the_counters);
 /*! @} */
 
 

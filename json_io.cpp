@@ -14,7 +14,9 @@
 #include <nlohmann/json.hpp>
 
 #include "elloggingwrapper.h"
+#include "counters.h"
 #include "manufacture.h"
+#include "text.h"
 
 //	Helper functions
 //
@@ -26,6 +28,10 @@ namespace JSON_IO
 		{ LOG_ERROR("%s:%ld %s", function, line, message.c_str()); return error_code; }
 	static void info_message(const char *function, size_t line, std::string message)
 		{ LOG_INFO("%s:%ld %s", function, line, message.c_str()); }
+	static void console_message(std::string file_type, std::string message)
+		{ std::string full_message = "Problem with " + file_type + ": " + message; LOG_TO_CONSOLE(c_red1, full_message.c_str()); }
+	static void file_format_error(std::string file_type)
+		{ console_message(file_type, "File format error. " + file_type + " will not be saved until this is corrected."); }
 }
 
 
@@ -67,6 +73,7 @@ namespace JSON_IO_Recipes
 		catch (json::exception& e)
 		{
 			parse_error = true;
+			JSON_IO::file_format_error("Recipes");
 			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, e.what(), -1);
 		}
 
@@ -224,6 +231,7 @@ namespace JSON_IO_Quickspells
 		catch (json::exception& e)
 		{
 			parse_error = true;
+			JSON_IO::file_format_error("Quickspells");
 			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, e.what(), -1);
 		}
 
@@ -267,11 +275,134 @@ namespace JSON_IO_Quickspells
 } // end JSON_IO_Quickspells namespace
 
 
+namespace JSON_IO_Counters
+{
+	using json = nlohmann::json;
+
+
+	//	A Class to load and save the counters in json format.
+	//
+	class Counters
+	{
+		public:
+			Counters(void) : parse_error(false) {}
+			int load(const char *file_name, const char **cat_str, int *entries, size_t num_categories, struct Counter **the_counters);
+			int save(const char *file_name, const char **cat_str, const int *entries, size_t num_categories, const struct Counter **the_counters);
+		private:
+			bool parse_error;		// there was an error populating the json object
+	};
+
+
+	//	Load the counters.
+	//	Memory allocated here, must be freed by the caller.
+	//	Return the number of categories actually read, or -1 on error.
+	//
+	int Counters::load(const char *file_name, const char **cat_str, int *entries, size_t num_categories, struct Counter **the_counters)
+	{
+		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + std::string(file_name) + "]");
+
+		std::ifstream in_file(file_name);
+		if (!in_file)
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Failed to open [" + std::string(file_name) + "]", -1);
+
+		json read_json;
+
+		try
+		{
+			in_file >> read_json;
+		}
+		catch (json::exception& e)
+		{
+			parse_error = true;
+			JSON_IO::file_format_error("Counters");
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, e.what(), -1);
+		}
+
+		if (!read_json["categories"].is_array())
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Missing categories[]", -1);
+
+		for (size_t i = 0; i < read_json["categories"].size() && i < num_categories; i++)
+		{
+			if (!read_json["categories"][i]["name"].is_string() || (read_json["categories"][i]["name"] != std::string(cat_str[i])))
+				continue;
+			json entries_list = read_json["categories"][i]["entries"];
+			if (!entries_list.is_array())
+				continue;
+			for (size_t j = 0; j < entries_list.size(); j++)
+			{
+				json entry = entries_list[j];
+				if (!entry["name"].is_string())
+					continue;
+				std::string name = entry["name"].get<std::string>();
+				if (name.empty())
+					continue;
+				entries[i]++;
+				the_counters[i] = (struct Counter *)realloc(the_counters[i], entries[i] * sizeof(struct Counter));
+				the_counters[i][j].name = static_cast<char *>(malloc(name.size() + 1));
+				strcpy(the_counters[i][j].name, name.c_str());
+				the_counters[i][j].n_session = 0;
+				the_counters[i][j].n_total = (entry["n_total"].is_number_unsigned()) ?entry["n_total"].get<Uint32>() :0;
+				the_counters[i][j].extra = (entry["extra"].is_number_unsigned()) ?entry["extra"].get<Uint32>() :0;
+			}
+		}
+
+		return (read_json["categories"].size() < num_categories) ?read_json["categories"].size() :num_categories;
+	}
+
+
+	//	Save the counters.
+	//	Return 0, or -1 on error.
+	//
+	int Counters::save(const char *file_name, const char **cat_str, const int *entries, size_t num_categories, const struct Counter **the_counters)
+	{
+		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + std::string(file_name) + "]");
+
+		if (parse_error)
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Not saving, because we had a load error.  Fix the problem first.", -1);
+
+		json categories_list = json::array();
+		for (size_t i = 0; i < num_categories; i++)
+		{
+			json category;
+			category["name"] = cat_str[i];
+			json entries_list = json::array();
+			for (int j = 0; j < entries[i]; j++)
+			{
+				json entry;
+				entry["name"] = the_counters[i][j].name;
+				entry["n_total"] = the_counters[i][j].n_total;
+				if (the_counters[i][j].extra > 0)
+					entry["extra"] = the_counters[i][j].extra;
+				entries_list.push_back(entry);
+			}
+			category["entries"] = entries_list;
+			categories_list.push_back(category);
+		}
+
+		json write_json;
+		write_json["categories"] = categories_list;
+
+		std::ofstream out_file(file_name);
+		if (out_file)
+		{
+			out_file << std::setw(JSON_IO::get_json_indent()) << write_json << std::endl;
+			return 0;
+		}
+		else
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Failed to write json [" + std::string(file_name) + "]", -1);
+	}
+
+} //end JSON_IO_Counters namespace
+
+
 //	The instance of the manufacture recipe object.
 static JSON_IO_Recipes::Recipes recipes;
 
 //	The instance of the quickspells object.
 static JSON_IO_Quickspells::Quickspells quickspells;
+
+//	The instance of the counters object.
+static JSON_IO_Counters::Counters counters;
 
 
 //	The C interface
@@ -291,4 +422,10 @@ extern "C"
 		{ return quickspells.load(file_name, spell_ids, max_num_spell_id); }
 	int json_save_quickspells(const char *file_name, Uint16 *spell_ids, size_t num_spell_id)
 		{ return quickspells.save(file_name, spell_ids, num_spell_id); }
+
+	// counters functions
+	int json_load_counters(const char *file_name, const char **cat_str, int *entries, size_t num_categories, struct Counter **the_counters)
+		{ return counters.load(file_name, cat_str, entries, num_categories, the_counters); }
+	int json_save_counters(const char *file_name, const char **cat_str, const int *entries, size_t num_categories, const struct Counter **the_counters)
+		{ return counters.save(file_name, cat_str, entries, num_categories, the_counters); }
 }
