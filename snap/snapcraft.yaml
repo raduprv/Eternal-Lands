@@ -1,6 +1,6 @@
 name: eternallands
 # Set to x.y.zpn / x.y.zpn-dev for stable / dev build
-version: '1.9.5p7'
+version: '1.9.5p8-dev'
 summary: Eternal Lands is a free to play, graphical MMORPG
 description: |
   Eternal Lands is a free to play, graphical MMORPG (massively-multi-player
@@ -9,6 +9,7 @@ description: |
   of several character races but all are equal.
   See http://www.eternal-lands.com/
 grade: stable
+base: core18
 confinement: strict
 type: app
 icon: pkgfiles/snap-package/eternallands.png
@@ -18,11 +19,11 @@ parts:
     source: https://github.com/raduprv/Eternal-Lands
     source-type: git
     # Include for stable release, comment out for dev build, comment out for latest commit dev release
-    source-tag: 1.9.5.7
+    # source-tag: 1.9.5.7
     build-packages: [build-essential, libcal3d12-dev, libsdl2-image-dev, libsdl2-net-dev, libxml2-dev, libopenal-dev, libvorbis-dev, libpng-dev]
     plugin: cmake
     # Add -DVERSION_PREFIX=x.y.z for dev build, remove for release
-    configflags:  ["-DCMAKE_BUILD_TYPE=release", "-DEXEC=el.linux.bin"]
+    configflags:  ["-DCMAKE_BUILD_TYPE=release", "-DEXEC=el.linux.bin", "-DVERSION_PREFIX=1.9.5"]
     artifacts: ["el.linux.bin"]
     stage-packages:
       - libglib2.0-0
