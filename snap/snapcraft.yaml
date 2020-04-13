@@ -21,6 +21,15 @@ parts:
     source-tag: v3.7.3
     plugin: cmake
 
+  desktop-glib-only:
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+    source-subdir: glib-only
+    plugin: make
+    build-packages:
+      - libglib2.0-dev
+    stage-packages:
+      - libglib2.0-bin
+
   client:
     source: https://github.com/raduprv/Eternal-Lands
     source-type: git
@@ -30,7 +39,6 @@ parts:
     plugin: cmake
     # Add -DVERSION_PREFIX=x.y.z for dev build, remove for release
     configflags:  ["-DCMAKE_BUILD_TYPE=release", "-DEXEC=el.linux.bin", "-DVERSION_PREFIX=1.9.5"]
-    artifacts: ["el.linux.bin"]
     stage-packages:
       - libglib2.0-0
       - libsdl2-net-2.0-0
@@ -87,8 +95,8 @@ parts:
     plugin: nil
     override-build: |
       mkdir -p $SNAPCRAFT_PART_INSTALL/bin/
-      cp -p pkgfiles/snap-package/launcher.sh $SNAPCRAFT_PART_INSTALL/bin/
-      cp -p pkgfiles/snap-package/eternallands.desktop $SNAPCRAFT_PART_INSTALL/bin/
+      cp -p ${SNAPCRAFT_PROJECT_DIR}/pkgfiles/snap-package/launcher.sh $SNAPCRAFT_PART_INSTALL/bin/
+      cp -p ${SNAPCRAFT_PROJECT_DIR}/pkgfiles/snap-package/eternallands.desktop $SNAPCRAFT_PART_INSTALL/bin/
 
 apps:
   client:

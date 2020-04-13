@@ -288,3 +288,7 @@ target_include_directories(${EXEC} SYSTEM PUBLIC
 	${Iconv_INCLUDE_DIRS}
 	nlohmann_json::nlohmann_json
 )
+
+install(
+	TARGETS ${EXEC} RUNTIME DESTINATION bin
+)
