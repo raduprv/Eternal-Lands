@@ -15,6 +15,12 @@ type: app
 icon: pkgfiles/snap-package/eternallands.png
 
 parts:
+  nlohmann:
+    source: https://github.com/nlohmann/json.git
+    source-type: git
+    source-tag: v3.7.3
+    plugin: cmake
+
   client:
     source: https://github.com/raduprv/Eternal-Lands
     source-type: git
@@ -50,6 +56,7 @@ parts:
       - mesa-vulkan-drivers
     after:
       - desktop-glib-only
+      - nlohmann
 
   data:
     source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.7/el_195_p7_data_files.zip
