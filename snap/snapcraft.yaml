@@ -16,9 +16,9 @@ icon: pkgfiles/snap-package/eternallands.png
 
 parts:
   nlohmann:
-    source: https://github.com/nlohmann/json.git
-    source-type: git
-    source-tag: v3.7.3
+    source: https://github.com/nlohmann/json/archive/v3.7.3.zip
+    source-checksum: sha256/e109cd4a9d1d463a62f0a81d7c6719ecd780a52fb80a22b901ed5b6fe43fb45b
+    source-subdir: json-3.7.3
     plugin: cmake
 
   desktop-glib-only:
