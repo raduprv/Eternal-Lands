@@ -60,8 +60,6 @@ extern text_message display_text_buffer[DISPLAY_TEXT_BUFFER_SIZE];
 extern int last_message;
 extern Uint8 current_filter;
 
-extern float chat_zoom; /*!< zoom factor for chat text */
-
 extern text_message input_text_line; /*!< user input text */
 
 extern char last_pm_from[32]; /*!< actor name from whom the last pm arrived */

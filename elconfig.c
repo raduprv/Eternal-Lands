@@ -497,18 +497,7 @@ static void change_signed_int(int * var, int value)
 
 static void change_float(float * var, float * value)
 {
-	if(var == &name_zoom){
-		if(*value > 2.0){
-			*value= 2.0;
-		}
-	}
-	/* Commented by Schmurk: if we can define bounds for parameters, why testing
-	 * if the value is over 0 here? */
-	//if(*value >= 0) {
 	*var= *value;
-	//} else {
-	// *var= 0;
-	//}
 }
 
 static void change_string(char * var, char * str, int len)
@@ -1155,6 +1144,7 @@ static void change_chat_zoom(float *dest, float *value)
 	if(input_widget != NULL) {
 		text_field *tf= input_widget->widget_info;
 		widget_set_size(input_widget->window_id, input_widget->id, *value);
+		// FIXME: proper line height
 		if(use_windowed_chat != 2) {
 			widget_resize(input_widget->window_id, input_widget->id, input_widget->len_x, tf->y_space*2 + ceilf(DEFAULT_FONT_Y_LEN*input_widget->size*tf->nr_lines));
 		}
@@ -2164,12 +2154,19 @@ static void init_ELC_vars(void)
 	add_var(OPT_STRING, "ttf_directory", "ttfdir", ttf_directory, change_string, TTF_DIR_SIZE,
 		"TTF directory", "The directory in which to look for True Type fonts", FONT);
 #endif
-	add_var(OPT_FLOAT,"name_text_size","nsize",&name_zoom,change_float,1,"Name Text Size","Set the size of the players name text",FONT,0.0,2.0,0.01);
-	add_var(OPT_FLOAT,"chat_text_size","csize",&chat_zoom,change_chat_zoom,1,"Chat Text Size","Sets the size of the normal text",FONT,0.0,FLT_MAX,0.01);
-	add_var(OPT_FLOAT,"note_text_size", "notesize", &note_zoom, change_note_zoom, 0.8, "Notepad Text Size","Sets the size of the text in the notepad", FONT, 0.0, FLT_MAX, 0.01);
+	add_var(OPT_FLOAT,"ui_text_size","uisize",&font_scales[UI_FONT],change_float,1,"UI Text Size","Set the size of the text in the user interface",FONT,0.1,FLT_MAX,0.01);
+	add_var(OPT_FLOAT,"name_text_size","nsize",&font_scales[NAME_FONT],change_float,1,"Name Text Size","Set the size of the players name text",FONT,0.1,2.0,0.01);
+	add_var(OPT_FLOAT,"chat_text_size","csize",&font_scales[CHAT_FONT],change_chat_zoom,1,"Chat Text Size","Sets the size of the normal text",FONT,0.1,FLT_MAX,0.01);
+	add_var(OPT_FLOAT,"book_text_size","bsize",&font_scales[BOOK_FONT],change_float,1,"Book Text Size","Set the size of the text in in-game books",FONT,0.1,FLT_MAX,0.01);
+	add_var(OPT_FLOAT,"note_text_size", "notesize", &note_zoom, change_note_zoom, 0.8, "Notepad Text Size","Sets the size of the text in the notepad", FONT, 0.1, FLT_MAX, 0.01);
+	add_var(OPT_FLOAT,"rules_text_size","rsize",&font_scales[RULES_FONT],change_float,1,"Rules Text Size","Set the size of the rules text",FONT,0.0,FLT_MAX,0.01);
 	add_var(OPT_FLOAT,"mapmark_text_size", "marksize", &mapmark_zoom, change_float, 0.3, "Mapmark Text Size","Sets the size of the mapmark text", FONT, 0.0, FLT_MAX, 0.01);
+	add_var(OPT_MULTI,"ui_font","uifont",&font_idxs[UI_FONT],change_int,0,"UI Font","Change the type of font used in the user interface",FONT, NULL);
 	add_var(OPT_MULTI,"name_font","nfont",&font_idxs[NAME_FONT],change_int,0,"Name Font","Change the type of font used for the name",FONT, NULL);
 	add_var(OPT_MULTI,"chat_font","cfont",&font_idxs[CHAT_FONT],change_int,0,"Chat Font","Set the type of font used for normal text",FONT, NULL);
+	add_var(OPT_MULTI,"book_font","bfont",&font_idxs[BOOK_FONT],change_int,0,"Book Font","Set the type of font used for text in in-game books",FONT, NULL);
+	add_var(OPT_MULTI,"note_font","nfont",&font_idxs[NOTE_FONT],change_int,0,"Note Font","Set the type of font used for text in user notes",FONT, NULL);
+	add_var(OPT_MULTI,"rules_font","nfont",&font_idxs[RULES_FONT],change_int,0,"Rules Font","Set the type of font used for drawing the game rules",FONT, NULL);
 	add_var(OPT_FLOAT,"ui_scale","ui_scale",&ui_scale,change_ui_scale,1,"User interface scaling factor","Scale user interface by this factor, useful for high DPI displays.  Note: the options window will be rescaled after reopening.",FONT,0.75,3.0,0.01);
 	add_var(OPT_INT,"cursor_scale_factor","cursor_scale_factor",&cursor_scale_factor ,change_cursor_scale_factor,cursor_scale_factor,"Mouse pointer scaling factor","The size of the mouse pointer is scaled by this factor",FONT, 1, max_cursor_scale_factor);
 	add_var(OPT_FLOAT,"trade_win_scale","tradewinscale",&custom_scale_factors.trade,change_win_scale_factor,1.0f,"Trade window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);

@@ -523,7 +523,7 @@ void cal_render_bones(actor *act)
 		for (currPoint = nrPoints; currPoint--;) {
 			sprintf((char*)buf, "%d", currPoint);
 			gluProject(points[currPoint][0], points[currPoint][1], points[currPoint][2], model, proj, view, &px, &py, &pz);
-			draw_ortho_ingame_string(px, py, pz, buf, 1, font_size_x, font_size_y);
+			draw_ortho_ingame_string(px, py, pz, buf, 1, UI_FONT, font_size_x, font_size_y);
 		}
 
 		glPopAttrib();

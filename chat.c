@@ -105,7 +105,7 @@ void input_widget_move_to_win(int window_id)
 		resize_chat_handler(win, win->len_x, win->len_y);
 	} else {
 		text_field *tf = input_widget->widget_info;
-		int line_height = get_line_height(CHAT_FONT, chat_zoom * input_widget->size);
+		int line_height = get_line_height(CHAT_FONT, 1.0 * input_widget->size);
 		Uint32 flags;
 
 		input_widget->OnResize = input_field_resize;
@@ -317,7 +317,7 @@ void clear_input_line(void)
 		field->nr_lines = 1;
 		if (use_windowed_chat != 2)
 		{
-			int line_height = get_line_height(CHAT_FONT, chat_zoom * input_widget->size);
+			int line_height = get_line_height(CHAT_FONT, input_widget->size);
 			widget_resize(input_widget->window_id, input_widget->id,
 				input_widget->len_x, 2*field->y_space + line_height);
 		}
@@ -408,7 +408,7 @@ static int add_chat_tab(int nlines, Uint8 channel)
 			set_window_min_size (channels[ichan].tab_id, 0, 0);
 			channels[ichan].out_id = text_field_add_extended(channels[ichan].tab_id,
 				channels[ichan].out_id, NULL, 0, 0, inout_width, output_height, 0,
-				CHAT_FONT, chat_zoom, 0.77f, 0.57f, 0.39f, display_text_buffer,
+				CHAT_FONT, 1.0, 0.77f, 0.57f, 0.39f, display_text_buffer,
 				DISPLAY_TEXT_BUFFER_SIZE, channel, CHAT_WIN_SPACE, CHAT_WIN_SPACE);
 
 			set_window_handler (channels[ichan].tab_id, ELW_HANDLER_DESTROY, close_channel);
@@ -478,7 +478,7 @@ static void update_chat_window (text_message *msg, char highlight)
 
 	// rewrap message to get correct # of lines
 	width = windows_list.window[chat_win].len_x;
-	nlines = rewrap_message(msg, CHAT_FONT, chat_zoom, width, NULL);
+	nlines = rewrap_message(msg, CHAT_FONT, 1.0, width, NULL);
 
 	// first check if we need to display in all open channels
 	channel = get_tab_channel (msg->chan_idx);
@@ -573,7 +573,7 @@ static int display_chat_handler (window_info *win)
 		int line = vscrollbar_get_pos (chat_win, chat_scroll_id);
 
 		find_line_nr(channels[active_tab].nr_lines, line, channels[active_tab].chan_nr,
-			&msg_start, &offset_start, CHAT_FONT, chat_zoom, chat_win_text_width);
+			&msg_start, &offset_start, CHAT_FONT, 1.0, chat_win_text_width);
 		text_field_set_buf_pos (channels[active_tab].tab_id, channels[active_tab].out_id, msg_start, offset_start);
 		text_changed = 0;
 	}
@@ -788,7 +788,7 @@ static int resize_chat_handler(window_info *win, int width, int height)
 	int input_y = height - input_height - CHAT_WIN_SPACE;
 	int tabcol_height = input_y - 2 * CHAT_WIN_SPACE;
 	int output_height = tabcol_height - CHAT_WIN_TAG_HEIGHT;
-	int line_height = get_line_height(CHAT_FONT, chat_zoom);
+	int line_height = get_line_height(CHAT_FONT, 1.0);
 
 	if (output_height < 5*line_height + 2 * CHAT_WIN_SPACE && input_height > 3*line_height + 2 * CHAT_WIN_SPACE)
 	{
@@ -828,7 +828,7 @@ static int resize_chat_handler(window_info *win, int width, int height)
 
 void update_chat_win_buffers(void)
 {
-	int line_height = get_line_height(CHAT_FONT, chat_zoom);
+	int line_height = get_line_height(CHAT_FONT, 1.0);
 	int itab, imsg;
 	// recompute line breaks
 	for (itab = 0; itab < MAX_CHAT_TABS; itab++)
@@ -1081,9 +1081,9 @@ static void create_chat_window(void)
 	int tabcol_height = output_height + CHAT_WIN_TAG_HEIGHT;
 	int input_y = tabcol_height + 2 * CHAT_WIN_SPACE;
 	int input_height = CHAT_IN_TEXT_HEIGHT + 2 * CHAT_WIN_SPACE;
-	int line_height = get_line_height(CHAT_FONT, chat_zoom);
+	int line_height = get_line_height(CHAT_FONT, 1.0);
 
-	int min_width = CHAT_WIN_SCROLL_WIDTH + 2 * CHAT_WIN_SPACE + (int)(CHAT_WIN_TEXT_WIDTH * chat_zoom);
+	int min_width = CHAT_WIN_SCROLL_WIDTH + 2 * CHAT_WIN_SPACE + (int)(CHAT_WIN_TEXT_WIDTH * font_scales[CHAT_FONT]);
 	int min_height = 7 * CHAT_WIN_SPACE + CHAT_WIN_TAG_HEIGHT + (2+5) * line_height;
 
 	nr_displayed_lines = (CHAT_OUT_TEXT_HEIGHT-1) / line_height;
@@ -1108,7 +1108,7 @@ static void create_chat_window(void)
 	set_window_flag (channels[0].tab_id, ELW_CLICK_TRANSPARENT);
 	set_window_min_size (channels[0].tab_id, 0, 0);
 	channels[0].out_id = text_field_add_extended(channels[0].tab_id, channels[0].out_id,
-		NULL, 0, 0, inout_width, output_height, 0, CHAT_FONT, chat_zoom, 0.77f, 0.57f, 0.39f,
+		NULL, 0, 0, inout_width, output_height, 0, CHAT_FONT, 1.0, 0.77f, 0.57f, 0.39f,
 		display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, FILTER_ALL, CHAT_WIN_SPACE, CHAT_WIN_SPACE);
 	channels[0].chan_nr = CHAT_ALL;
 	channels[0].nr_lines = 0;
@@ -1121,7 +1121,7 @@ static void create_chat_window(void)
 		set_text_message_color (&input_text_line, 1.0f, 1.0f, 1.0f);
 		id = text_field_add_extended (chat_win, 19, NULL, CHAT_WIN_SPACE, input_y,
 			inout_width, input_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS,
-			CHAT_FONT, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL,
+			CHAT_FONT, 1.0, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL,
 			CHAT_WIN_SPACE, CHAT_WIN_SPACE);
 		widget_set_OnKey (chat_win, id, (int (*)())chat_input_key);
 		input_widget = widget_find(chat_win, id);
@@ -1147,14 +1147,15 @@ void display_chat(void)
 	update_chat_win_buffers();
 }
 
+// FIXME: is this still useful?
 void chat_win_update_zoom(void)
 {
 	int itab;
 
-	widget_set_size(chat_win, input_widget->id, chat_zoom);
+	widget_set_size(chat_win, input_widget->id, 1.0);
 	for (itab = 0; itab < MAX_CHAT_TABS; itab++) {
 		if (channels[itab].open) {
-			widget_set_size(channels[itab].tab_id, channels[itab].out_id, chat_zoom);
+			widget_set_size(channels[itab].tab_id, channels[itab].out_id, 1.0);
 		}
 	}
 	text_changed = 1;
@@ -2010,14 +2011,14 @@ static void update_tab_bar (text_message * msg)
 	// Only update specific channels
 	channel = get_tab_channel (msg->chan_idx);
 	if (channel == CHAT_ALL || channel == CHAT_MODPM) {
-		lines_to_show += rewrap_message(msg, CHAT_FONT, chat_zoom,
+		lines_to_show += rewrap_message(msg, CHAT_FONT, 1.0,
 			get_console_text_width(), NULL);
 		if (lines_to_show >= 10) lines_to_show = 10;
 		return;
 	}
 
 	if (tabs[current_tab].channel == CHAT_ALL) {
-		lines_to_show += rewrap_message(msg, CHAT_FONT, chat_zoom,
+		lines_to_show += rewrap_message(msg, CHAT_FONT, 1.0,
 			get_console_text_width(), NULL);
 		if (lines_to_show >= 10) lines_to_show = 10;
 	}
@@ -2029,7 +2030,7 @@ static void update_tab_bar (text_message * msg)
 			if (current_tab != itab && !tabs[itab].highlighted && tabs[current_tab].channel != CHAT_ALL && !get_show_window(console_root_win))
 				widget_set_color (tab_bar_win, tabs[itab].button, 1.0f, 1.0f, 0.0f);
 			if (current_tab == itab) {
-				lines_to_show += rewrap_message(msg, CHAT_FONT, chat_zoom,
+				lines_to_show += rewrap_message(msg, CHAT_FONT, 1.0,
 					get_console_text_width(), NULL);
 				if (lines_to_show >= 10) lines_to_show = 10;
 			}
@@ -2702,7 +2703,7 @@ void update_text_windows (text_message * pmsg)
 	if (console_root_win >= 0) update_console_win (pmsg);
 	switch (use_windowed_chat) {
 		case 0:
-			rewrap_message(pmsg, CHAT_FONT, chat_zoom, get_console_text_width(), NULL);
+			rewrap_message(pmsg, CHAT_FONT, 1.0, get_console_text_width(), NULL);
 			lines_to_show += pmsg->wrap_lines;
 			if (lines_to_show > 10) lines_to_show = 10;
 			break;
@@ -2821,7 +2822,7 @@ void change_to_channel_tab(const char *line)
 int get_input_height()
 {
 #ifdef TTF
-	return get_line_height(CHAT_FONT, chat_zoom) + 2*INPUT_MARGIN;
+	return get_line_height(CHAT_FONT, 1.0) + 2*INPUT_MARGIN;
 #else
 	return (DEFAULT_FONT_Y_LEN + 2*INPUT_MARGIN);
 #endif

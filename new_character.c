@@ -480,11 +480,9 @@ static int display_newchar_handler (window_info *win)
 		int msg, offset;
 		if ( find_last_lines_time (&msg, &offset, current_filter, get_console_text_width()) )
 		{
-			set_font(CHAT_FONT);    // switch to the chat font
-			draw_messages (10, 40, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE,
+			draw_messages(10, 40, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE,
 				FILTER_ALL, msg, offset, -1, win->len_x - hud_x - 20, win->len_y,
-				CHAT_FONT, chat_zoom, NULL);
-			set_font(UI_FONT);   // switch to fixed
+				CHAT_FONT, 1.0, NULL);
 		}
 	}
 

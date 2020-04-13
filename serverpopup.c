@@ -163,7 +163,7 @@ static int close_handler(widget_list *widget, int mx, int my, Uint32 flags)
 static int get_text_height(int num_lines)
 {
 	if (num_lines > 0)
-		return (int)(1.0 + 2 * sep + num_lines * DEFAULT_FONT_Y_LEN * chat_zoom);
+		return 1 + 2 * sep + num_lines * get_line_height(CHAT_FONT, 1.0);
 	else
 		return 0;
 }
@@ -185,7 +185,7 @@ static void set_min_window_size(window_info *win)
 {
 	int min_height = get_height((text_message_is_empty (&widget_text)) ?0: 1);
 	int min_width = win->box_size + 2 * sep + widget_get_width(server_popup_win, buttonId);
-	int min_text_width = win->box_size + 2 * sep + (int)(5 * DEFAULT_FONT_X_LEN * chat_zoom);
+	int min_text_width = win->box_size + 2 * sep + (int)(5 * DEFAULT_FONT_X_LEN);
 	if (min_width < min_text_width)
 		min_width = min_text_width;
 	set_window_min_size (win->window_id, min_width, min_height);
@@ -195,9 +195,6 @@ static void set_min_window_size(window_info *win)
 /* the window resize handler, keep things neat and add scroll bar if required */
 static int resize_handler(window_info *win, int width, int height)
 {
-	/* make sure the text font is set so width calculations work properly */
-	set_font(CHAT_FONT);
-
 	/* if there is no text widget, we're done */
 	if (text_message_is_empty (&widget_text)) {
 		return 1;
@@ -222,7 +219,7 @@ static int resize_handler(window_info *win, int width, int height)
 	widget_resize(server_popup_win, textId, text_widget_width, text_widget_height);
 	if (!text_message_is_empty (&widget_text))
 	{
-		num_text_lines = rewrap_message(&widget_text, CHAT_FONT, chat_zoom,
+		num_text_lines = rewrap_message(&widget_text, CHAT_FONT, 1.0,
 			text_widget_width - 2*sep, NULL);
 	}
 
@@ -235,7 +232,7 @@ static int resize_handler(window_info *win, int width, int height)
 		/* rewrap the text again as the available width is now less */
 		if (!text_message_is_empty (&widget_text))
 		{
-			num_text_lines = rewrap_message(&widget_text, CHAT_FONT, chat_zoom,
+			num_text_lines = rewrap_message(&widget_text, CHAT_FONT, 1.0,
 				text_widget_width - 2*sep, NULL);
 		}
 	}
@@ -314,12 +311,13 @@ void display_server_popup_win(const char * const message)
 	write_to_log (CHAT_SERVER, (unsigned char*)message, strlen(message));
 
 	/* if the window already exists, copy new message to end */
-	if (server_popup_win >= 0){
+	if (server_popup_win >= 0)
+	{
 		char *sep_str = "\n\n";
 		win = &windows_list.window[server_popup_win];
 
 		/* resize to hold new message text + separator */
-		widget_set_size(server_popup_win, textId, chat_zoom);
+		widget_set_size(server_popup_win, textId, 1.0);
 		resize_text_message_data (&widget_text, widget_text.len + 3*(strlen(message)+strlen(sep_str)));
 
 		/* copy the message text into the text buffer */
@@ -347,7 +345,7 @@ void display_server_popup_win(const char * const message)
 		 this will avoid the later wrap (after the resize) changing the number of lines */
 	if (!text_message_is_empty (&widget_text))
 	{
-		num_text_lines = rewrap_message(&widget_text, CHAT_FONT, chat_zoom,
+		num_text_lines = rewrap_message(&widget_text, CHAT_FONT, 1.0,
 			(window_width - unusable_width) - 4*sep, NULL);
 	}
 
@@ -412,7 +410,7 @@ void display_server_popup_win(const char * const message)
 	{
 		textId = text_field_add_extended(server_popup_win, textId, NULL, sep, sep,
 			text_widget_width, text_widget_height, TEXT_FIELD_NO_KEYPRESS,
-			CHAT_FONT, chat_zoom, 0.77f, 0.57f, 0.39f, &widget_text, 1, FILTER_NONE,
+			CHAT_FONT, 1.0, 0.77f, 0.57f, 0.39f, &widget_text, 1, FILTER_NONE,
 			sep, sep);
 	}
 

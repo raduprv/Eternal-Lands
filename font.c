@@ -72,10 +72,7 @@ size_t fonts_array_size = 0;
 size_t fonts_array_used = 0;
 
 int font_idxs[NR_FONT_CATS] = { 0, 0, 0, 2, 0, 3 };
-
-int chat_font=0;
-int name_font=0;
-int book_font=0;
+float font_scales[NR_FONT_CATS] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 
 // CHECK
 int pos_selected(int msg, int ichar, select_info* select)
@@ -229,6 +226,8 @@ void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter
 	font_cat font, float text_zoom, select_info* select)
 {
 	font_info *info = &fonts_array[font_idxs[font]];
+
+	float zoom = font_scales[font] * text_zoom;
 	float displayed_font_x_size;
 	float displayed_font_y_size;
 
@@ -247,8 +246,8 @@ void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter
 	unsigned char last_color_char = 0;
 	int in_select = 0;
 
-	displayed_font_x_size = text_zoom * info->block_width;
-	displayed_font_y_size = get_font_height_zoom(info, text_zoom);
+	displayed_font_x_size = zoom * info->block_width;
+	displayed_font_y_size = get_font_height_zoom(info, zoom);
 
 	if (width < displayed_font_x_size || height < displayed_font_y_size)
 		// no point in trying
@@ -345,7 +344,7 @@ void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter
 #endif
 			if (imsg == msg_start || msgs[imsg].data == NULL || msgs[imsg].deleted) break;
 			// Grum 2020-04-07: why do we rewrap here? And not on the first message?
-			rewrap_message(&msgs[imsg], font, text_zoom, width, NULL);
+			rewrap_message(&msgs[imsg], font, zoom, width, NULL);
 			ichar = 0;
 			last_color_char = 0;
 		}
@@ -404,7 +403,7 @@ void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter
 			}
 		}
 
-		cur_x += draw_char_scaled(info, cur_char, cur_x, cur_y, text_zoom);
+		cur_x += draw_char_scaled(info, cur_char, cur_x, cur_y, zoom);
 		cur_col++;
 
 		ichar++;
@@ -428,7 +427,7 @@ void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter
 
 	if (cursor_x >= x && cursor_y >= y && cursor_y - y + displayed_font_y_size <= height)
 	{
-		draw_char_scaled(info, '_', cursor_x, cursor_y, text_zoom);
+		draw_char_scaled(info, '_', cursor_x, cursor_y, zoom);
 	}
 
 	glEnd();
@@ -440,7 +439,7 @@ CHECK_GL_ERRORS();
 
 void draw_console_separator(int x_space, int y, int width, float zoom)
 {
-	font_info *info = &fonts_array[cur_font_num];
+	font_info *info = &fonts_array[font_idxs[CHAT_FONT]];
 	float u_start, u_end, v_start, v_end;
 	int caret;
 	int char_width, char_height;
@@ -486,9 +485,9 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-int draw_string_shadowed_zoomed(int x, int y, const unsigned char* our_string,
+int draw_string_shadowed_zoomed_font(int x, int y, const unsigned char* our_string,
 	int max_lines, float fr, float fg, float fb, float br, float bg, float bb,
-	float zoom)
+	font_cat font, float text_zoom)
 {
 	int px, py;
 
@@ -500,37 +499,25 @@ int draw_string_shadowed_zoomed(int x, int y, const unsigned char* our_string,
 		{
 			if (px!=0 || py!=0)
 			{
-				draw_string_zoomed(x+px, y+py, our_string, max_lines, zoom);
+				draw_string_zoomed_width_font(x, y, our_string, window_width, max_lines,
+					font, text_zoom);
 			}
 		}
 	}
 
 	//set foreground colour
 	glColor3f(fr, fg, fb);
-	return draw_string_zoomed(x, y, our_string, max_lines, zoom);
+	return draw_string_zoomed_width_font(x, y, our_string, window_width, max_lines,
+		font, text_zoom);
 }
 
-int draw_string_shadowed_width(int x, int y, const unsigned char* our_string,
-	int max_width, int max_lines, float fr, float fg, float fb,
-	float br, float bg, float bb)
+int draw_string_zoomed_width_font(int x, int y, const unsigned char *our_string,
+	int max_width, int max_lines, font_cat font, float text_zoom)
 {
-	float zoom = (float)max_width / get_string_width(our_string);
-	return draw_string_shadowed_zoomed(x, y, our_string, max_lines, fr, fg, fb,
-		br, bg, bb, zoom);
-}
-
-int draw_string_zoomed(int x, int y, const unsigned char* our_string,
-	int max_lines, float text_zoom)
-{
-	return draw_string_zoomed_width(x, y, our_string, window_width, max_lines, text_zoom);
-}
-
-int draw_string_zoomed_width(int x, int y, const unsigned char *our_string,
-	int max_width, int max_lines, float text_zoom)
-{
-	font_info *info = &fonts_array[cur_font_num];
-	float displayed_font_x_size = text_zoom * info->block_width;
-	float displayed_font_y_size = get_font_height_zoom(info, text_zoom);
+	font_info *info = &fonts_array[font_idxs[font]];
+	float zoom = font_scales[font] * text_zoom;
+	float displayed_font_x_size = zoom * info->block_width;
+	float displayed_font_y_size = get_font_height_zoom(info, zoom);
 
 	unsigned char cur_char;
 	int i;
@@ -568,7 +555,7 @@ CHECK_GL_ERRORS();
 				if (++current_lines > max_lines)
 					break;
 			}
-			cur_x += draw_char_scaled(info, cur_char, cur_x, cur_y, text_zoom);
+			cur_x += draw_char_scaled(info, cur_char, cur_x, cur_y, zoom);
 		}
 	}
 
@@ -580,92 +567,26 @@ CHECK_GL_ERRORS();
 	return current_lines;
 }
 
-static void draw_string_zoomed_clipped(int x, int y, const unsigned char* our_string,
-	int cursor_pos, int width, int height, float text_zoom)
+static char *escape_string(const unsigned char* bytes)
 {
-	font_info *info = &fonts_array[cur_font_num];
-	float displayed_font_x_size = text_zoom * info->block_width;
-	float displayed_font_y_size = get_font_height_zoom(info, text_zoom);
+	char *res = malloc(strlen((const char*)bytes)+1);
+	char *d;
+	const unsigned char *s;
 
-	unsigned char cur_char;
-	int i;
-	int cur_x, cur_y;
-	int cursor_x = x-1, cursor_y = y-1;
-
-	if (width < displayed_font_x_size || height < displayed_font_y_size)
-		// no point in trying
-		return;
-
-	glEnable (GL_ALPHA_TEST);	// enable alpha filtering, so we have some alpha key
-	glAlphaFunc (GL_GREATER, 0.1f);
-	bind_font_texture(info);
-
-	i = 0;
-	cur_x = x;
-	cur_y = y;
-	glBegin (GL_QUADS);
-	while (1)
+	for (s = bytes, d = res; *s; ++s)
 	{
-		if (i == cursor_pos)
+		if (*s >= 32 && *s < 127)
 		{
-			cursor_x = cur_x;
-			cursor_y = cur_y;
-			if (cursor_x - x > width - displayed_font_x_size)
-			{
-				cursor_x = x;
-				cursor_y = cur_y + displayed_font_y_size;
-			}
-
-		}
-
-		cur_char = our_string[i];
-		// watch for special characters
-		if (!cur_char)
-		{
-			// end of string
-			break;
-		}
-		else if (cur_char == '\n' || cur_char == '\r')
-		{
-			// newline
-			cur_y += displayed_font_y_size;
-			if (cur_y - y + displayed_font_y_size > height) break;
-			cur_x = x;
-			i++;
-		}
-		else
-		{
-			cur_x += draw_char_scaled(info, cur_char, cur_x, cur_y, text_zoom);
-
-			i++;
-			if (cur_x - x + displayed_font_x_size > width)
-			{
-				// ignore rest of this line
-				// FIXME: color characters are also ignored
-				while (our_string[i] != '\0' && our_string[i] != '\n' && our_string[i] != '\r') i++;
-			}
+			*d = *s;
+			d++;
 		}
 	}
+	*d = 0;
 
-	if (cursor_x >= x && cursor_y >= y && cursor_y - y + displayed_font_y_size <= height)
-	{
-		draw_char_scaled(info, '_', cursor_x, cursor_y, text_zoom);
-	}
-
-	glEnd();
-	glDisable(GL_ALPHA_TEST);
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
+	return res;
 }
 
-void draw_string_clipped(int x, int y, const unsigned char* our_string,
-	int width, int height)
-{
-	draw_string_zoomed_clipped(x, y, our_string, -1, width, height, 1.0f);
-}
-
-int reset_soft_breaks(char *str, int len, int size, int font_num, float zoom,
+int reset_soft_breaks(char *str, int len, int size, font_cat font, float text_zoom,
 	int width, int *cursor, float *max_line_width)
 {
 	font_info *info = &fonts_array[font_idxs[font]];
@@ -684,6 +605,7 @@ int reset_soft_breaks(char *str, int len, int size, int font_num, float zoom,
 	   may find it useful for setting the window size, so pass back
 	   to the caller if they provide somewhere to store it. */
 	float local_max_line_width = 0;
+	float zoom = font_scales[font] * text_zoom;
 
 	// error checking
 	if (str == NULL || width <= 0 || size <= 0) {
@@ -802,36 +724,23 @@ int reset_soft_breaks(char *str, int len, int size, int font_num, float zoom,
 	return nlines;
 }
 
-void draw_string_small_zoomed(int x, int y, const unsigned char* our_string,
-	int max_lines, float zoom)
-{
-	draw_string_zoomed(x, y, our_string, max_lines, zoom * DEFAULT_SMALL_RATIO);
-}
-
-void draw_string_small_shadowed_zoomed(int x, int y, const unsigned char* our_string,
-	int max_lines, float fr, float fg, float fb, float br, float bg, float bb,
-	float zoom)
-{
-	draw_string_shadowed_zoomed(x, y, our_string, max_lines, fr, fg, fb, br, bg, bb,
-		zoom * DEFAULT_SMALL_RATIO);
-}
-
 #ifdef	ELC
 #ifndef MAP_EDITOR2
 
 void draw_ortho_ingame_string(float x, float y,float z,
 	const unsigned char * our_string, int max_lines,
-	float font_x_scale, float font_y_scale)
+	font_cat font, float font_x_scale, float font_y_scale)
 {
-	const font_info *info = &fonts_array[cur_font_num];
-	float zoom_x = font_x_scale * name_zoom;
+	const font_info *info = &fonts_array[font_idxs[font]];
+	float zoom_x = font_x_scale * font_scales[NAME_FONT];
+	float zoom_y = font_y_scale * font_scales[NAME_FONT];
 	float u_start,u_end,v_start,v_end;
 
 	int i;
 	float cur_x,cur_y;
 	int current_lines=0;
 
-	float char_height = get_font_height_zoom(info, font_y_scale * name_zoom);
+	float char_height = get_font_height_zoom(info, zoom_y);
 
 	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER,0.1f);
@@ -887,9 +796,9 @@ void draw_ortho_ingame_string(float x, float y,float z,
 }
 
 void draw_ingame_string(float x, float y, const unsigned char *our_string,
-	int max_lines, float font_x_scale, float font_y_scale)
+	int max_lines, font_cat font, float font_x_scale, float font_y_scale)
 {
-	font_info *info = &fonts_array[cur_font_num];
+	font_info *info = &fonts_array[font_idxs[font]];
 	float u_start,u_end,v_start,v_end;
 	float displayed_font_x_size;
 	float displayed_font_y_size;
@@ -906,8 +815,8 @@ void draw_ingame_string(float x, float y, const unsigned char *our_string,
 	double model[16], proj[16],hx,hy,hz;
 	int view[4];
 
-	displayed_font_x_size=font_x_scale*name_zoom*12.0*font_scale;
-	displayed_font_y_size=font_y_scale*name_zoom*12.0*font_scale;
+	displayed_font_x_size=font_x_scale*font_scales[font]*12.0*font_scale;
+	displayed_font_y_size=font_y_scale*font_scales[font]*12.0*font_scale;
 
 	glGetDoublev(GL_MODELVIEW_MATRIX, model);
 	glGetDoublev(GL_PROJECTION_MATRIX, proj);
@@ -920,8 +829,8 @@ void draw_ingame_string(float x, float y, const unsigned char *our_string,
 	glLoadIdentity();
 	glOrtho(view[0],view[2]+view[0],view[1],view[3]+view[1],0.0f,-1.0f);
 #else // SKY_FPV_OPTIONAL
-	displayed_font_x_size=font_x_scale*zoom_level*name_zoom/3.0;
-	displayed_font_y_size=font_y_scale*zoom_level*name_zoom/3.0;
+	displayed_font_x_size=font_x_scale*zoom_level*font_scales[font]/3.0;
+	displayed_font_y_size=font_y_scale*zoom_level*font_scales[font]/3.0;
 #endif // not SKY_FPV_OPTIONAL
 
 	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
@@ -1016,6 +925,7 @@ int get_char_width(unsigned char cur_char)
 	return get_font_width(info, get_font_char(cur_char));
 }
 
+// FIXME: font and zoom should be parameter to get_string_width
 int get_string_width(const unsigned char* str)
 {
 	int width = 0;
@@ -1206,8 +1116,12 @@ int load_font_textures()
 	fonts_array[0].texture_id.cache_id = load_texture_cached("textures/font.dds", tt_font);
 	// Force the selection of the base font.
 	fonts_array[0].name = strdup("Type 1");
+	add_multi_option("ui_font", fonts_array[0].name);
 	add_multi_option("chat_font", fonts_array[0].name);
 	add_multi_option("name_font", fonts_array[0].name);
+	add_multi_option("book_font", fonts_array[0].name);
+	add_multi_option("note_font", fonts_array[0].name);
+	add_multi_option("rules_font", fonts_array[0].name);
 
 	// Find what font's exist and load them
 	glob_pattern = malloc(strlen(datadir)+sizeof(texture_dir)+10+1); //+10 = font*.bmp*
@@ -1254,8 +1168,12 @@ int load_font_textures()
 			label = malloc(label_size);
 			safe_snprintf(label, label_size, "Type %i - %s", i + 1, file);
 			fonts_array[i].name = label;
+			add_multi_option("ui_font", fonts_array[i].name);
 			add_multi_option("chat_font", fonts_array[i].name);
 			add_multi_option("name_font", fonts_array[i].name);
+			add_multi_option("book_font", fonts_array[i].name);
+			add_multi_option("note_font", fonts_array[i].name);
+			add_multi_option("rules_font", fonts_array[i].name);
 			i++;
 		}
 #ifndef WINDOWS
@@ -1514,8 +1432,12 @@ static int build_ttf_texture_atlas(const char* file_name)
 	label = malloc(label_size);
 	safe_snprintf(label, label_size, "%s %s", name, style);
 	fonts_array[font_num].name = label;
+	add_multi_option("ui_font", fonts_array[font_num].name);
 	add_multi_option("chat_font", fonts_array[font_num].name);
 	add_multi_option("name_font", fonts_array[font_num].name);
+	add_multi_option("book_font", fonts_array[font_num].name);
+	add_multi_option("note_font", fonts_array[font_num].name);
+	add_multi_option("rules_font", fonts_array[font_num].name);
 
 	TTF_CloseFont(font);
 
@@ -1573,13 +1495,13 @@ int add_all_ttf_files(const char* dir_name)
 }
 #endif // TTF
 
-int get_line_height(font_cat cat, float zoom)
+int get_line_height(font_cat cat, float text_zoom)
 {
 #ifdef TTF
 	int font_num = font_idxs[cat];
 	if (!is_valid_font(font_num))
 		font_num = 0;
-	return get_font_height_zoom(&fonts_array[font_num], zoom);
+	return get_font_height_zoom(&fonts_array[font_num], font_scales[cat] * text_zoom);
 #else
 	return (int)(DEFAULT_FONT_Y_LEN * zoom);
 #endif

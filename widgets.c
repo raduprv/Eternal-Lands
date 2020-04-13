@@ -2992,7 +2992,6 @@ int text_field_draw (widget_list *w)
 	}
 
 	glEnable(GL_TEXTURE_2D);
-	set_font(tf->font);
 
 	for (i = 0; i < tf->nr_visible_lines; i++)
 		tf->select.lines[i].msg = -1;
@@ -3013,7 +3012,7 @@ int text_field_draw (widget_list *w)
 			tf->select.lines[i].chr = tf->buffer[tf->select.lines[i].msg].len;
 		}
 	}
-	set_font(UI_FONT);	// switch to fixed
+
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE

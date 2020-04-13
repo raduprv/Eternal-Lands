@@ -121,7 +121,6 @@ void clear_seen_pm_count(void) { seen_pm_count = 0; }
 
 int log_chat = LOG_SERVER;
 
-float	chat_zoom=1.0;
 FILE	*chat_log=NULL;
 FILE	*srv_log=NULL;
 
@@ -1285,7 +1284,7 @@ int find_last_lines_time (int *msg, int *offset, Uint8 filter, int width)
 	if (lines_to_show <= 0) return 0;
 
 	return find_line_nr(get_total_nr_lines(), get_total_nr_lines() - lines_to_show,
-		filter, msg, offset, CHAT_FONT, chat_zoom, width);
+		filter, msg, offset, CHAT_FONT, 1.0, width);
 }
 
 

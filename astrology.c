@@ -34,7 +34,7 @@ typedef enum
 	adtThreeProgressBars
 }ASTROLOGY_DISPLAY_TYPES;
 
-const float positive_bar_colors[12] = 
+const float positive_bar_colors[12] =
 {
 	//red    green   blue
 	0.086f, 0.988f, 0.659f, // topleft
@@ -43,7 +43,7 @@ const float positive_bar_colors[12] =
 	0.294f, 0.690f, 0.173f  // bottomleft
 };
 
-const float negative_bar_colors[12] = 
+const float negative_bar_colors[12] =
 {
 	//red    green   blue
 	0.988f, 0.659f, 0.086f, // topleft
@@ -130,7 +130,7 @@ int is_astrology_message (const char * RawText)
 		tmp1 = strstr(RawText,"60 Minutes: ") + strlen("60 Minutes: ");
 		value3 = atoi(tmp1);
 		safe_snprintf(text_item3,sizeof(text_item3),"60 Minutes: %d",value3);
-		
+
 		display_astrology_window(RawText);
 		return 1;
 	}
@@ -328,7 +328,7 @@ static int ui_scale_astrology_handler(window_info *win)
 void display_astrology_window(const char * raw_text)
 {
 	if(astrology_win < 0)
-	{		
+	{
 		int our_root_win = -1;
 
 		if (!windows_on_top) {
@@ -348,8 +348,8 @@ void display_astrology_window(const char * raw_text)
 
 		cm_add(windows_list.window[astrology_win].cm_id, cm_astro_menu_str, cm_astro_handler);
 		cm_bool_line(windows_list.window[astrology_win].cm_id, ELW_CM_MENU_LEN+2, &always_show_astro_details, NULL );
-	} 
-	else 
+	}
+	else
 	{
 		show_window(astrology_win);
 		select_window(astrology_win);
@@ -381,20 +381,20 @@ static float calculate_width_coefficient(int amplitude,int value,int invert)
 {
 	int capped_result = 1;
 	float Result = ((float)value / (float)amplitude);
-	
+
 	if (Result < -1.0)
 		Result = -1.0;
 	else if (Result > 1.0)
 		Result = 1.0;
 	else
 		capped_result = 0;
-	
+
 	if (capped_result && ! capping_already_reported)
 	{
 		LOG_WARNING("Capped astro for %s: amp=%d value=%d invert=%d\n", stone_name, amplitude, value, invert );
 		capping_already_reported = 1;
 	}
-	
+
 	if(!invert)
 		return Result;
 	else
@@ -410,7 +410,7 @@ static int display_astrology_handler(window_info *win)
 	int i;
 
 	glColor3f(0.77f,0.57f,0.39f);
-	
+
 	switch(astrology_display_type)
 	{
 		case adtTwoProgressBars:
@@ -450,7 +450,7 @@ static int display_astrology_handler(window_info *win)
 
 			//draw the name of the stone
 			draw_string_small_zoomed((win->len_x - strlen(stone_name) * win->small_font_len_x) / 2, astro_border, (const unsigned char*)stone_name, 1, win->current_scale);
-			
+
 			//draw the first indicator item
 			draw_string_small_zoomed (bar_left_x, bar_top_1 - win->small_font_len_y, (const unsigned char*)text_item1, 1, win->current_scale);
 			//draw the second indicator item
@@ -469,13 +469,13 @@ static int display_astrology_handler(window_info *win)
 			switch(astrology_type)
 			{
 				case atAccPredictor:
-				case atAttPredictor: 
+				case atAttPredictor:
 				{
 					coefficient1 = calculate_width_coefficient(your_info.attack_skill.base/20,value1,0);
 					coefficient2 = calculate_width_coefficient(your_info.attack_skill.base/20,value2,0);
 					coefficient3 = calculate_width_coefficient(your_info.attack_skill.base/20,value3,0);
 				}break;
-				case atDefPredictor: 
+				case atDefPredictor:
 				{
 					coefficient1 = calculate_width_coefficient(your_info.defense_skill.base/20,value1,0);
 					coefficient2 = calculate_width_coefficient(your_info.defense_skill.base/20,value2,0);
@@ -529,7 +529,7 @@ static int display_astrology_handler(window_info *win)
 
 			//draw the name of the predictor
 			draw_string_small_zoomed((win->len_x - strlen(stone_name) * win->small_font_len_x) / 2, 5, (const unsigned char*)stone_name, 1, win->current_scale);
-			
+
 			//draw the prediction for 20 mins
 			draw_string_small_zoomed (bar_left_x, bar_top_1 - win->small_font_len_y, (const unsigned char*)text_item1, 1, win->current_scale);
 			//draw the prediction for 40 mins
@@ -624,7 +624,7 @@ static int display_astrology_handler(window_info *win)
 	//progress 1
 		if(coefficient1 < 0)
 		{
-			for (i=0; i<3; i++) 
+			for (i=0; i<3; i++)
 			{
 				right_colors[i+0] = negative_bar_colors[i+3];
 				right_colors[i+3] = negative_bar_colors[i+6];
@@ -640,7 +640,7 @@ static int display_astrology_handler(window_info *win)
 		}
 		else if(coefficient1 > 0)
 		{
-			for (i=0; i<3; i++) 
+			for (i=0; i<3; i++)
 			{
 				right_colors[i+0] = positive_bar_colors[i+3];
 				right_colors[i+3] = positive_bar_colors[i+6];
@@ -657,7 +657,7 @@ static int display_astrology_handler(window_info *win)
 	//progress 2
 		if(coefficient2 < 0)
 		{
-			for (i=0; i<3; i++) 
+			for (i=0; i<3; i++)
 			{
 				right_colors[i+0] = negative_bar_colors[i+3];
 				right_colors[i+3] = negative_bar_colors[i+6];
@@ -673,7 +673,7 @@ static int display_astrology_handler(window_info *win)
 		}
 		else if(coefficient2 > 0)
 		{
-			for (i=0; i<3; i++) 
+			for (i=0; i<3; i++)
 			{
 				right_colors[i+0] = positive_bar_colors[i+3];
 				right_colors[i+3] = positive_bar_colors[i+6];
@@ -692,7 +692,7 @@ static int display_astrology_handler(window_info *win)
 	//progress 3
 			if(coefficient3 < 0)
 			{
-				for (i=0; i<3; i++) 
+				for (i=0; i<3; i++)
 				{
 					right_colors[i+0] = negative_bar_colors[i+3];
 					right_colors[i+3] = negative_bar_colors[i+6];
@@ -708,7 +708,7 @@ static int display_astrology_handler(window_info *win)
 			}
 			else if(coefficient3 > 0)
 			{
-				for (i=0; i<3; i++) 
+				for (i=0; i<3; i++)
 				{
 					right_colors[i+0] = positive_bar_colors[i+3];
 					right_colors[i+3] = positive_bar_colors[i+6];

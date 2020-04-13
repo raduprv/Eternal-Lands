@@ -1441,13 +1441,11 @@ static int display_game_handler (window_info *win)
 		filter = use_windowed_chat == 1 ? current_filter : FILTER_ALL;
 		if (find_last_lines_time(&msg, &offset, filter, get_console_text_width()))
 		{
-			int line_height = get_line_height(CHAT_FONT, chat_zoom);
-			set_font(CHAT_FONT);	// switch to the chat font
+			int line_height = get_line_height(CHAT_FONT, 1.0);
 			draw_messages(get_tab_bar_x(), get_tab_bar_y(), display_text_buffer,
 				DISPLAY_TEXT_BUFFER_SIZE, filter, msg, offset, -1,
 				get_console_text_width(), (int)(1 + lines_to_show * line_height),
-				CHAT_FONT, chat_zoom, NULL);
-			set_font(UI_FONT);	// switch to fixed
+				CHAT_FONT, 1.0, NULL);
 		}
 	}
 
@@ -2420,7 +2418,7 @@ void create_game_root_window (int width, int height)
 				set_text_message_color (&input_text_line, 1.0f, 1.0f, 1.0f);
 			id = text_field_add_extended(game_root_win, 42, NULL,
 				0, height-input_height-hud_y, width-hud_x, input_height,
-				INPUT_DEFAULT_FLAGS, CHAT_FONT, chat_zoom, 0.77f, 0.57f, 0.39f,
+				INPUT_DEFAULT_FLAGS, CHAT_FONT, 1.0, 0.77f, 0.57f, 0.39f,
 				&input_text_line, 1, FILTER_ALL, INPUT_MARGIN, INPUT_MARGIN);
 			input_widget = widget_find(game_root_win, id);
 			input_widget->OnResize = input_field_resize;

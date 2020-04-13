@@ -35,8 +35,8 @@
 #endif	/* FSAA */
 
 #ifdef ELC
-#define DRAW_ORTHO_INGAME_NORMAL(x, y, z, our_string, max_lines)	draw_ortho_ingame_string(x, y, z, (const Uint8*)our_string, max_lines, INGAME_FONT_X_LEN*10.0, INGAME_FONT_X_LEN*10.0)
-#define DRAW_INGAME_SMALL(x, y, our_string, max_lines)	draw_ingame_string(x, y, (const Uint8*)our_string, max_lines, SMALL_INGAME_FONT_X_LEN, SMALL_INGAME_FONT_Y_LEN)
+#define DRAW_ORTHO_INGAME_NORMAL(x, y, z, our_string, max_lines)	draw_ortho_ingame_string(x, y, z, (const Uint8*)our_string, max_lines, NAME_FONT, INGAME_FONT_X_LEN*10.0, INGAME_FONT_X_LEN*10.0)
+#define DRAW_INGAME_SMALL(x, y, our_string, max_lines)	draw_ingame_string(x, y, (const Uint8*)our_string, max_lines, NAME_FONT, SMALL_INGAME_FONT_X_LEN, SMALL_INGAME_FONT_Y_LEN)
 #endif
 
 actor *actors_list[MAX_ACTORS];
@@ -405,6 +405,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	GLint view[4];
 
 	GLdouble hx,hy,hz,a_bounce;
+	float name_zoom = font_scales[NAME_FONT];
 	float font_scale = 1.0f/ALT_INGAME_FONT_X_LEN;
 	double healthbar_x=0.0f;
 	double healthbar_y=0.0f;
@@ -529,13 +530,16 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				float x,y;
 				x = window_width/2.0 -(((float)get_string_width(str) * (font_scale*0.17*name_zoom)))*0.5f;
 				y = a_bounce + window_height/2.0-40.0;
-				draw_ortho_ingame_string(x, y, 0, str, 1, font_scale*.14, font_scale*.14);
+				draw_ortho_ingame_string(x, y, 0, str, 1, NAME_FONT, font_scale*.14, font_scale*.14);
 			}
 			else
 			{
 				float font_scale2 = font_scale*powf(1.0f+((float)abs(actor_id->damage)/2.0f)/1000.0f, 4.0);
-				draw_ortho_ingame_string(hx-(((float)get_string_width(str) * (font_scale2*0.17*name_zoom)))*0.5f, a_bounce+hy+10.0f, 0, str, 1, font_scale2*.14, font_scale2*.14);
-			}			glDisable(GL_BLEND);
+				draw_ortho_ingame_string(hx-(((float)get_string_width(str) * (font_scale2*0.17*name_zoom)))*0.5f,
+					a_bounce+hy+10.0f, 0, str, 1, NAME_FONT,
+					font_scale2*.14, font_scale2*.14);
+			}
+			glDisable(GL_BLEND);
 		}
 		else
 		{	//No floating messages
@@ -591,7 +595,8 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				}
 				safe_snprintf ((char*)temp, sizeof (temp), "%s", actor_id->actor_name);
 				banner_width = ((float)get_string_width((unsigned char*)actor_id->actor_name)*(font_size_x*name_zoom))/2.0;
-				draw_ortho_ingame_string(hx-banner_width, hy+bar_y_len/2.0f, hz, temp, 1, font_size_x, font_size_y);
+				draw_ortho_ingame_string(hx-banner_width, hy+bar_y_len/2.0f, hz, temp,
+					1, NAME_FONT, font_size_x, font_size_y);
 			}
 			if (view_buffs)
 			{
@@ -640,12 +645,16 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 					if (display_hp) {
 						//choose color for the health
 						set_health_color((float)actor_id->cur_health/(float)actor_id->max_health, 1.0f, 1.0f);
-						draw_ortho_ingame_string(hx-disp+hp_off, hy-bar_y_len/3.0f, hz, hp, 1, ALT_INGAME_FONT_X_LEN*font_scale, ALT_INGAME_FONT_X_LEN*font_scale);
+						draw_ortho_ingame_string(hx-disp+hp_off, hy-bar_y_len/3.0f,
+							hz, hp, 1, NAME_FONT, ALT_INGAME_FONT_X_LEN*font_scale,
+							ALT_INGAME_FONT_X_LEN*font_scale);
 					}
 
 					if (display_ether) {
 						set_mana_color((float)your_info.ethereal_points.cur / (float)your_info.ethereal_points.base, 1.0f, 1.0f);
-						draw_ortho_ingame_string(hx-disp+eth_off, ey-bar_y_len/3.0f, hz, mana, 1, ALT_INGAME_FONT_X_LEN*font_scale, ALT_INGAME_FONT_X_LEN*font_scale);
+						draw_ortho_ingame_string(hx-disp+eth_off, ey-bar_y_len/3.0f,
+							hz, mana, 1, NAME_FONT, ALT_INGAME_FONT_X_LEN*font_scale,
+							ALT_INGAME_FONT_X_LEN*font_scale);
 					}
 				}
 			}
@@ -884,7 +893,7 @@ void draw_actor_overtext( actor* actor_ptr )
 	//-- decrease display time
 	actor_ptr->current_displayed_text_time_left -= (cur_time-last_time);
 
-	textwidth = ((float)get_string_width((unsigned char*)(actor_ptr->current_displayed_text))*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/12.0;
+	textwidth = ((float)get_string_width((unsigned char*)(actor_ptr->current_displayed_text))*(SMALL_INGAME_FONT_X_LEN*zoom_level*font_scales[NAME_FONT]/3.0))/12.0;
 	textheight = (0.06f*zoom_level/3.0)*4;
 	margin = 0.02f*zoom_level;
 	z = 1.2f;// distance over the player
