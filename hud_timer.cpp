@@ -4,7 +4,7 @@
 // 	TODO
 // 		add #command start/stop/reset/mode/set
 // 		add to context menu, dynamic list of previous start values
-// 
+//
 //		Author bluap/pjbroad Aug/Dec 2013
 //
 
@@ -149,7 +149,7 @@ void Hud_Timer::toggle_mode(void)
 		reset();
 		running = false;
 	}
-		
+
 }
 
 
@@ -230,7 +230,7 @@ int Hud_Timer::display(window_info *win, int base_y_start)
 		return 0;
 	base_y_start -= height;
 	safe_snprintf(str, sizeof(str), "%c%1d:%02d", ((mode_coundown) ?countdown_str[0] :stopwatch_str[0]), current_value/60, current_value%60);
-	x = 3 + (win->len_x - get_string_width((unsigned char*)str) * win->default_font_len_x / 12) / 2;
+	x = 3 + (win->len_x - get_string_width_ui((unsigned char*)str, win->default_font_len_x / 12)) / 2;
 	if (running)
 		draw_string_shadowed_zoomed(x, 2 + base_y_start, (unsigned char*)str, 1,0.5f, 1.0f, 0.5f, 0.0f, 0.0f, 0.0f, win->current_scale);
 	else

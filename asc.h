@@ -423,10 +423,12 @@ char *substitute_char_with_string(const char *str, char **out_str, char to_sub, 
  * \param dest_max_len The maximum length of the destination string including the terminating '\0'
  * \param append_str The string to place on the end of the truncated copy, normally "... "
  * \param max_len_x The maximum x length in pixels of the truncated string including the appended string
+ * \param cat        The font category category of the rendered text
  * \param font_ratio The font zoom size of the text
  * \return a pointer to the destination string
  */
-char *truncated_string(char *dest, const char *source, size_t dest_max_len, const char *append_str, float max_len_x, float font_ratio);
+char *truncated_string(char *dest, const char *source, size_t dest_max_len, const char *append_str,
+	float max_len_x, font_cat cat, float font_ratio);
 
 
 /*!

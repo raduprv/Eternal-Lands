@@ -894,8 +894,8 @@ void draw_floatingmessage(floating_message *message, float healthbar_z) {
         cut=message->active_time/4000.0f;
         f = ((float)(message->active_time-(cur_time-message->first_time)))/message->active_time;
         glColor4f(message->color[0], message->color[1], message->color[2], f > cut ? 1.0f : (f / cut));
-		// FIXME: font and zoom should be parameter to get_string_width
-		width = (float)get_string_width((unsigned char*)message->message) * INGAME_FONT_X_LEN * font_scales[NAME_FONT] * 8.0;
+		width = (float)get_string_width_zoom((unsigned char*)message->message, NAME_FONT,
+			INGAME_FONT_X_LEN * 8.0);
 
         //Figure out where the point just above the actor's head is in the viewport
         glGetDoublev(GL_MODELVIEW_MATRIX, model);

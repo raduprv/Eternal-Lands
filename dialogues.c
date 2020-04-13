@@ -845,10 +845,11 @@ int ui_scale_dialogue_handler(window_info *win)
 	bot_line_height = win->small_font_len_y + 1;
 
 	copy_pos_x = border_space;
-	copy_str_width = get_string_width((unsigned char*)dialogue_copy_str) * win->small_font_len_x / 12.0;
-	close_str_width = get_string_width((unsigned char*)close_str) * win->small_font_len_x / 12.0;
+	copy_str_width = get_string_width_ui((unsigned char*)dialogue_copy_str,
+		win->small_font_len_x / 12.0);
+	close_str_width = get_string_width_ui((unsigned char*)close_str, win->small_font_len_x / 12.0);
 	close_pos_x = dialogue_menu_x_len - close_str_width - border_space;
-	repeat_str_width = get_string_width((unsigned char*)dialogue_repeat_str) * win->small_font_len_x / 12.0;
+	repeat_str_width = get_string_width_ui((unsigned char*)dialogue_repeat_str, win->small_font_len_x / 12.0);
 	repeat_pos_x = copy_pos_x + copy_str_width + 2 * border_space;
 
 	resize_window(win->window_id, dialogue_menu_x_len, dialogue_menu_y_len);
@@ -858,7 +859,7 @@ int ui_scale_dialogue_handler(window_info *win)
 }
 
 void display_dialogue(const Uint8 *in_data, int data_length)
-{	
+{
 	if (!get_show_window(dialogue_win))
 		do_icon_click_sound();
 

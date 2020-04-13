@@ -480,7 +480,7 @@ CHECK_GL_ERRORS();
 			/* calculate the length of string we can display */
 			while((*thetext != '\0') && (string_width < url_win_max_string_width))
 			{
-				float char_width = get_char_width(*thetext++) * url_win_text_zoom * DEFAULT_FONT_X_LEN / 12.0;
+				float char_width = get_char_width_ui(*thetext++, url_win_text_zoom);
 				if ((string_width+char_width) < url_win_max_string_width)
 				{
 					dsp_string_len++;
@@ -494,10 +494,7 @@ CHECK_GL_ERRORS();
 			/* otherwise, draw a truncated version with "..." at the end */
 			else
 			{
-				//float toobig_width = (get_char_width('-') + get_char_width('>'))
-				//	* url_win_text_zoom * DEFAULT_FONT_X_LEN / 12.0;
-				float toobig_width = (3*get_char_width('.'))
-					* url_win_text_zoom * DEFAULT_FONT_X_LEN / 12.0;
+				float toobig_width = 3*get_char_width_ui('.', url_win_text_zoom);
 				draw_string_zoomed_width(url_win_sep, currenty, (unsigned char *)((URLDATA *)local_head->data)->text,
 					url_win_sep + url_win_max_string_width - toobig_width, 1, url_win_text_zoom);
 				draw_string_zoomed(url_win_sep + url_win_max_string_width - toobig_width, currenty,
@@ -567,7 +564,7 @@ CHECK_GL_ERRORS();
 				glColor3f(1.0f,1.0f,1.0f);
 				while(*thetext != '\0')
 				{
-					float char_width = get_char_width(*thetext++) * win->small_font_len_x / 12.0;
+					float char_width = get_char_width_ui(*thetext++, win->small_font_len_x / 12.0);
 					if (((string_width+char_width) > (win->len_x - 2*url_win_sep)) || (*thetext == '\0'))
 					{
 						if (*thetext == '\0') /* catch the last line */

@@ -2886,7 +2886,7 @@ static void elconfig_populate_tabs(void)
 					elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, elconf_scale,
 					0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
 				widget_id = multiselect_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
-					elconfig_tabs[tab_id].x+SPACING+elconf_scale*get_string_width(our_vars.var[i]->display.str), elconfig_tabs[tab_id].y,
+					elconfig_tabs[tab_id].x+SPACING+get_string_width_ui(our_vars.var[i]->display.str, elconf_scale), elconfig_tabs[tab_id].y,
 					ELCONFIG_SCALED_VALUE(250), ELCONFIG_SCALED_VALUE(80), elconf_scale, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
 				for(y= 0; y<our_vars.var[i]->args.multi.count; y++) {
 					char *label= our_vars.var[i]->args.multi.strings[y];
@@ -2925,7 +2925,7 @@ static void elconfig_populate_tabs(void)
 			case OPT_MULTI_H:
 
 				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
-				widget_id= multiselect_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x+SPACING+elconf_scale*get_string_width(our_vars.var[i]->display.str), elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(350), ELCONFIG_SCALED_VALUE(80), elconf_scale, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
+				widget_id= multiselect_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x+SPACING+get_string_width_ui(our_vars.var[i]->display.str, elconf_scale), elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(350), ELCONFIG_SCALED_VALUE(80), elconf_scale, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
 				x = 0;
 				for(y= 0; y<our_vars.var[i]->args.multi.count; y++) {
 					char *label= our_vars.var[i]->args.multi.strings[y];
@@ -2934,7 +2934,7 @@ static void elconfig_populate_tabs(void)
 					float width_ratio = elconf_scale*DEFAULT_FONT_X_LEN/12.0f;
 					int width=0;
 
-					width = 2 * radius+(get_string_width((unsigned char*)label)*width_ratio);
+					width = 2 * radius + get_string_width_ui((unsigned char*)label, width_ratio);
 
 					multiselect_button_add_extended(elconfig_tabs[tab_id].tab, widget_id, x, 0, width, label,
 						DEFAULT_SMALL_RATIO * elconf_scale, y == *(int *)our_vars.var[i]->var);

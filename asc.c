@@ -17,8 +17,8 @@
 
 int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * len);
 
-// find the first occurance of needle in haystack, and return the distance to 
-// that string. If beggining is 1, it returns the offset to the beginning of 
+// find the first occurance of needle in haystack, and return the distance to
+// that string. If beggining is 1, it returns the offset to the beginning of
 // the string otherwise it returns the offset to the end of the string. Needle
 // must be null-terminated. hyastack need not be, but must be at least max_len
 // bytes long
@@ -58,20 +58,20 @@ Sint32 get_string_occurance (const char* needle, const char* haystack, const Uin
 }
 
 #ifndef FASTER_MAP_LOAD
-// This function returns an integer, after the needle in the haystack 
+// This function returns an integer, after the needle in the haystack
 // string. If the string is not found, after max_len, the function returns -1.
 // The function is NOT case sensitive
 Sint32 get_integer_after_string (const char *needle, const char *haystack, Uint32 max_len)
 {
 	Sint32 n_end = get_string_occurance (needle, haystack, max_len, 0);
 	Uint32 istart;
-	
+
 	if (n_end < 0)
 	{
 		// needle not found
 		return -1;
 	}
-	
+
 	istart = n_end;
 	while (istart < max_len)
 	{
@@ -89,25 +89,25 @@ Sint32 get_integer_after_string (const char *needle, const char *haystack, Uint3
 		}
 		istart++;
 	}
-	
+
 	// no integer after needle
 	return -1;
 }
 
-// This function returns a float, after the source string in the destination 
-// string. If the string is not found, after max_len, the function returns 
+// This function returns a float, after the source string in the destination
+// string. If the string is not found, after max_len, the function returns
 // -1.0f. The function is NOT case sensitive
 float get_float_after_string (const char *needle, const char *haystack, Uint32 max_len)
 {
 	Sint32 n_end = get_string_occurance (needle, haystack, max_len, 0);
 	Uint32 istart;
-	
+
 	if (n_end < 0)
 	{
 		// needle not found
 		return -1.0f;
 	}
-	
+
 	istart = n_end;
 	while (istart < max_len)
 	{
@@ -125,7 +125,7 @@ float get_float_after_string (const char *needle, const char *haystack, Uint32 m
 		}
 		istart++;
 	}
-	
+
 	// no number after needle
 	return -1.0f;
 }
@@ -207,7 +207,7 @@ char* safe_strcasestr (const char* haystack, size_t haystack_len, const char* ne
 		}
 	}
 
-	return NULL;	
+	return NULL;
 }
 
 void my_strcp(char *dest,const char * source)
@@ -263,7 +263,7 @@ Sint32 my_isupper(const char *src, int len)
 	while(*src && len > 0)
 		{
             if(isalpha((unsigned char)*src)) alpha++;
-            if((isdigit((unsigned char)*src)&&alpha<len/2) || *src != toupper(*src)) return 0;    //at least one lower			
+            if((isdigit((unsigned char)*src)&&alpha<len/2) || *src != toupper(*src)) return 0;    //at least one lower
             src++;
 			len--;
 		}
@@ -281,7 +281,7 @@ char *my_tolower (char *src)
 		*src = tolower (*src);
 		src++;
 	}
-	
+
 	return dest;
 }
 
@@ -297,7 +297,7 @@ char ** get_lines(char * str, int chars_per_line)
 		for(lines = 0; *str; lines++) {
 			my_str=(char **)realloc(my_str,(lines+2)*sizeof(char *));
 			cur=my_str[lines]=(char*)calloc(chars_per_line+3,sizeof(char));
-		
+
 			for(i = 0; i < chars_per_line && str[i]; i++){
 				if(str[i] == '\r') i++;
 				if (str[i] == '\n'){
@@ -372,14 +372,14 @@ int my_xmlStrncopy(char ** out, const char * in, int len)
 		char *inbuf2;
 		char *outbuf;
 		char *outbuf2;
-		
+
 		lin=strlen(in);
 		l2=xmlUTF8Strlen((xmlChar*)in);
-		
+
 		if(l2<0) lout=l1;
 		else if (len>0 && len<l2) lout=len;
 		else lout=l2;
-		
+
 		inbuf=inbuf2=(char *)malloc((lin+1)*sizeof(char));
 		outbuf=outbuf2=(char *)malloc((lout+1)*sizeof(char));
 
@@ -432,7 +432,7 @@ int get_file_digest(const char * filename, Uint8 digest[16])
 		LOG_ERROR("MD5Digest: Unable to open %s (%d)", filename, errno);
 		return 0;
 	}
-	
+
 	if (el_get_pointer(file) == NULL)
 	{
 		el_close(file);
@@ -444,7 +444,7 @@ int get_file_digest(const char * filename, Uint8 digest[16])
 	MD5Close(&md5, digest);
 
 	el_close(file);
-	
+
 	return 1;
 }
 
@@ -699,7 +699,7 @@ char *substitute_char_with_string(const char *str, char **out_str, char to_sub, 
 	alloc_len = strlen(str) + amp_count*(strlen(with_sub)-1) + 1;
 	*out_str = (char *)realloc(*out_str, alloc_len);
 	**out_str = '\0';
-	
+
 	for (start_ptr = str; (end_ptr = strchr(start_ptr, to_sub)) != NULL; )
 	{
 		while (start_ptr < end_ptr)
@@ -716,23 +716,24 @@ char *substitute_char_with_string(const char *str, char **out_str, char to_sub, 
 
 
 /* Return a copy of source truncated to be no longer than max_len_x including the append_str on the end. */
-char *truncated_string(char *dest, const char *source, size_t dest_max_len, const char *append_str, float max_len_x, float font_ratio)
+char *truncated_string(char *dest, const char *source, size_t dest_max_len,
+	const char *append_str, float max_len_x, font_cat cat, float font_ratio)
 {
 	float string_width = 0;
 	size_t dest_len = 0;
-	float append_len_x = get_string_width((unsigned char*)append_str) * font_ratio;
+	float append_len_x = get_string_width_zoom((unsigned char*)append_str, cat, font_ratio);
 	char *dest_p = dest;
-	
+
 	while ((*source != '\0') && (dest_len < dest_max_len-1))
 	{
-		float char_width = get_char_width(*source) * font_ratio;
+		float char_width = get_char_width_zoom(*source, cat, font_ratio);
 		if ((string_width + char_width) > (max_len_x - append_len_x))
 			break;
 		*dest_p++ = *source++;
 		dest_len++;
 		string_width += char_width;
 	}
-	
+
 	while ((*append_str != '\0') && (dest_len < dest_max_len-1))
 	{
 		*dest_p++ = *append_str++;

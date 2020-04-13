@@ -16,7 +16,7 @@
 //
 //  Implements a simple context menu system using the standard el windows.
 //  Intended to be a familiar GUI context menu activated via a right mouse click.
-//  At its simplest, the user code just needs create a new context object 
+//  At its simplest, the user code just needs create a new context object
 //  providing a callback function for when an option is selected or using boolean
 //	only options.  The Container class provides a creation/destruction/management/access
 //  wrapper.
@@ -248,7 +248,7 @@ namespace cm
 	{
 		if (!valid(cm_id))
 			return 0;
-		
+
 		bool found_entry = false;
 
 		// remove all full windows linked to this context menu
@@ -301,7 +301,7 @@ namespace cm
 		delete menus[cm_id];
 		menus[cm_id] = 0;
 		return 1;
-		
+
 	} // end Container::destroy()
 
 
@@ -342,7 +342,7 @@ namespace cm
 			if (y < 0 && valid(win->cm_id) &&  mouse_in_window(window_id, mouse_x, mouse_y))
 				return show_direct(win->cm_id, window_id, -1);
 		}
-	
+
 		// check we're in the specified window
 		if (mouse_in_window(window_id, mouse_x, mouse_y) < 1)
 			return 0;
@@ -384,7 +384,7 @@ namespace cm
 
 	} // end Container::show_if_active()
 
-	
+
 	// directly open the specified conetext menu, use specified window/widget id as if activated
 	int Container::show_direct(size_t cm_id, int window_id, int widget_id)
 	{
@@ -396,7 +396,7 @@ namespace cm
 		return menus[cm_id]->show(cm_window_id);
 	}
 
-	
+
 	// remove any activation for the specifed window/widget
 	int Container::remove_widget(int window_id, int widget_id)
 	{
@@ -423,7 +423,7 @@ namespace cm
 		Menu *current_menu = (Menu *)win->data;
 		for (size_t i=0; i<menus.size(); i++)
 			if (current_menu == menus[i])
-				return i;			
+				return i;
 		return CM_INIT_VALUE;
 	}
 
@@ -432,12 +432,12 @@ namespace cm
 	void Container::showinfo(void)
 	{
 		std::cout << "\nContext menu information:" << std::endl;
-		
+
 		std::cout << "\nMenus:-" << std::endl;
 		for (size_t i=0; i<menus.size(); ++i)
 			if (menus[i])
 				menus[i]->show_lines(i);
-		
+
 		std::cout << "\nFull Windows:-" << std::endl;
 		for (std::map<int, size_t>::iterator itp = full_windows.begin(); itp != full_windows.end(); ++itp)
 		{
@@ -445,7 +445,7 @@ namespace cm
 			std::cout << "  window_id=" << itp->first << " name=[" << ((win!=NULL)?win->window_name:"")
 					  << "] menu_id=" << itp->second << std::endl;
 		}
-		
+
 		std::cout << "\nWindow Regions:-" << std::endl;
 		for (REG_MM::iterator itp = window_regions.begin(); itp != window_regions.end(); ++itp)
 		{
@@ -454,7 +454,7 @@ namespace cm
 					  << "] region=(" << itp->second.pos_x << ", " << itp->second.pos_y << ", " << itp->second.len_x
 					  << ", " << itp->second.len_y << ")" << " menu_id=" << itp->second.cm_id << std::endl;
 		}
-		
+
 		std::cout << "\nWindow Widgets:-" << std::endl;
 		for (WID_MM::iterator itp = window_widgets.begin(); itp != window_widgets.end(); ++itp)
 		{
@@ -462,13 +462,13 @@ namespace cm
 			std::cout << "  window_id=" << itp->first << " name=[" << ((win!=NULL)?win->window_name:"")
 					  << "] widget=" << itp->second.widget_id << " menu_id=" << itp->second.cm_id << std::endl;
 		}
-		
+
 	} // end showinfo()
-	
-	
-	
-	
-	
+
+
+
+
+
 	// Constructor - set default values for new menu
 	Menu::Menu(const char *menu_list, int (*handler)(window_info *, int, int, int, int))
 		: border(5), text_border(5), line_sep(3), zoom(0.8), data_ptr(0), selection(-1), menu_has_bools(false)
@@ -569,7 +569,7 @@ namespace cm
 			int str_width = 0;
 			const char *thetext = menu_lines[i].text.c_str();
 			while(*thetext != '\0')
-				str_width += static_cast<int>(0.5 + get_char_width(*thetext++) * scale);
+				str_width += get_char_width_ui(*thetext++, scale);
 			if (str_width > fwidth)
 				fwidth = str_width;
 			if (menu_lines[i].is_separator)
@@ -664,18 +664,18 @@ namespace cm
 			{
 				glDisable(GL_TEXTURE_2D);
 				glBegin(GL_QUADS);
-				glColor3f(highlight_top.r, highlight_top.g, highlight_top.b);	
+				glColor3f(highlight_top.r, highlight_top.g, highlight_top.b);
 				glVertex3i(border, int(currenty + 0.5) - line_sep, 0);
 				glColor3f(highlight_bottom.r, highlight_bottom.g, highlight_bottom.b);
 				glVertex3i(border, int(currenty + line_step + 0.5) - line_sep, 0);
 				glVertex3i(border+width-2*border, int(currenty + line_step + 0.5) - line_sep, 0);
-				glColor3f(highlight_top.r, highlight_top.g, highlight_top.b);	
+				glColor3f(highlight_top.r, highlight_top.g, highlight_top.b);
 				glVertex3i(border+width-2*border, int(currenty + 0.5) - line_sep, 0);
 				glEnd();
 				glEnable(GL_TEXTURE_2D);
 				selection = i;
 			}
-			
+
 			// draw a separator ...
 			if (menu_lines[i].is_separator)
 			{
@@ -719,12 +719,12 @@ namespace cm
  				draw_string_zoomed(int(border+text_border+bool_tick_width+0.5), int(currenty+0.5), (unsigned char *)menu_lines[i].text.c_str(), 1, scaled_value(1.0));
 				currenty += line_step;
 			}
-			
+
 		} // end foir each line
-		
+
 		CHECK_GL_ERRORS();
 		return 1;
-		
+
 	} // end Menu::display()
 
 
@@ -748,7 +748,7 @@ namespace cm
 
 		if (!handler)
 			return 0;
-			
+
 		// if we have a parent window, the mouse position is the original position that opened the menu
 		window_info *parent_win = window_info_from_id(container.get_active_window_id());
 		if (parent_win != NULL)
@@ -771,7 +771,7 @@ namespace cm
 		this->zoom = zoom;
 		return resize();
 	}
-	
+
 	// set the named property colour
 	int Menu::set_colour(size_t cm_id, enum CM_COLOUR_NAME colour_name, float r, float g, float b)
 	{
@@ -786,8 +786,8 @@ namespace cm
 		}
 		return 1;
 	}
-	
-	
+
+
 	// show information about menu lines
 	void Menu::show_lines(size_t my_id)
 	{
@@ -965,7 +965,7 @@ extern "C" int cm_test_window(char *text, int len)
 	int cm_del_wid = -1;
 	int cm_info_but = -1;
 	int cm_dir_but = -1;
-	
+
 	if (cm_test_win == -1)
 	{
 		cm_test_win = create_window("Test Context Menu", -1, -1, 0, 0, 400, 400, ELW_WIN_DEFAULT);
@@ -980,7 +980,7 @@ extern "C" int cm_test_window(char *text, int len)
 		cm_info_but = button_add_extended(cm_test_win, 106, NULL, 200, 10, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Show Info");
 		cm_test_wid = button_add_extended(cm_test_win, 107, NULL, 200, 50, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Test Menu");
 		cm_dir_but = button_add_extended(cm_test_win, 108, NULL, 200, 200, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Direct Menu");
-		
+
 		widget_set_OnClick(cm_test_win, cm_add_win, (int (*)())&cm_add_win_handler);
 		widget_set_OnClick(cm_test_win, cm_del_win, (int (*)())&cm_del_win_handler);
 		widget_set_OnClick(cm_test_win, cm_add_reg, (int (*)())&cm_add_reg_handler);
@@ -989,14 +989,14 @@ extern "C" int cm_test_window(char *text, int len)
 		widget_set_OnClick(cm_test_win, cm_del_wid, (int (*)())&cm_del_wid_handler);
 		widget_set_OnClick(cm_test_win, cm_info_but, (int (*)())&cm_info_but_handler);
 		widget_set_OnClick(cm_test_win, cm_dir_but, (int (*)())&cm_dir_click_handler);
-		
+
 		cm_test_win_menu = cm_create("", NULL);
 		cm_test_reg_menu = cm_create("Region 1\nRegion 2\n", cm_test_menu_handler);
 		cm_test_wid_menu = cm_create("Widget 1\n--\nWidget 3\nWidget 4\nWidget 5\nWidget 6\n", cm_test_menu_handler);
 		cm_test_dir_menu = cm_create("Direct 1\nDirect 2\n", cm_test_menu_handler);
 		printf("Created menus window=%lu region=%lu widget=%lu direct=%lu\n",
 			cm_test_win_menu, cm_test_reg_menu, cm_test_wid_menu, cm_test_dir_menu);
-		
+
 		printf("Replacing window menu cm_set()=%d\n", cm_set(cm_test_win_menu, "Window 1\nWindow 2\n--\nGrey me...\nGrey above\n", cm_test_menu_handler));
 		printf("Set win menu cm_bool_line()=%d\n", cm_bool_line(cm_test_win_menu, 0, &cm_bool_var, NULL));
 		printf("Set win menu cm_bool_line()=%d\n", cm_bool_line(cm_test_win_menu, 1, &cm_bool_var, NULL));
@@ -1020,7 +1020,7 @@ extern "C" int cm_test_window(char *text, int len)
 		cm_test_win = -1;
 		cm_showinfo();
 	}
-	
+
 	return 1;
 }
 

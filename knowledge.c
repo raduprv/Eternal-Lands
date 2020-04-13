@@ -60,7 +60,7 @@ static int add_knowledge_book_image(int window_id)
 	// Book image
 	int isize, tsize, tid, picsperrow, xtile, ytile, id;
 	float ftsize, u, v, uend, vend;
-	
+
 	isize=256;
 	tsize=51;
 	tid=21;
@@ -73,7 +73,7 @@ static int add_knowledge_book_image(int window_id)
 	uend=u+ftsize;
 	vend=v-ftsize;
 	id = load_texture_cached("textures/items1", tt_gui);
-	return image_add_extended(window_id, 0, NULL, 0, 0, 0, 0, WIDGET_DISABLED, 1.0, 1.0, 1.0, 1.0, id, u, v, uend, vend, 0.05f); 
+	return image_add_extended(window_id, 0, NULL, 0, 0, 0, 0, WIDGET_DISABLED, 1.0, 1.0, 1.0, 1.0, id, u, v, uend, vend, 0.05f);
 }
 
 int handle_knowledge_book(void)
@@ -172,7 +172,7 @@ int display_knowledge_handler(window_info *win)
 	int text_width = win->len_x - 2 * text_border;
 	char knowledge_text_buf[TEXTBUFSIZE];
 
-	if(your_info.research_total && 
+	if(your_info.research_total &&
 	   (your_info.research_completed==your_info.research_total))
 		safe_snprintf(points_string, sizeof(points_string), "%s", completed_research);
 	else
@@ -268,12 +268,13 @@ int display_knowledge_handler(window_info *win)
 			glColor3f (1.0f*colour_brightness, 1.0f*colour_brightness, 1.0f*colour_brightness);
 
 		/* truncate the string if it is too long */
-		if ((get_string_width((unsigned char*)knowledge_list[i].name) * font_ratio) > max_name_x)
+		if (get_string_width_ui((unsigned char*)knowledge_list[i].name, font_ratio) > max_name_x)
 		{
 			const char *append_str = "... ";
 			size_t dest_max_len = strlen(knowledge_list[i].name)+strlen(append_str)+1;
 			char *used_name = (char *)malloc(dest_max_len);
-			truncated_string(used_name, knowledge_list[i].name, dest_max_len, append_str, max_name_x, font_ratio);
+			truncated_string(used_name, knowledge_list[i].name, dest_max_len, append_str,
+				max_name_x, UI_FONT, font_ratio);
 			draw_string_zoomed(x, y, (unsigned char*)used_name,1,font_ratio);
 			/* if the mouse is over this line and its truncated, tooltip to full name */
 			if (knowledge_list[i].mouse_over)
@@ -372,23 +373,23 @@ int click_knowledge_handler(window_info *win, int mx, int my, Uint32 flags)
 		do_click_sound();
 	}
 	return 1;
-} 
+}
 
 
 void get_knowledge_list (Uint16 size, const char *list)
 {
 	int i;
-	
+
 	// make sure the entire knowledge list is 0 incase of short data
 	for(i=0; i<KNOWLEDGE_LIST_SIZE; i++){
 		knowledge_list[i].present= 0;
 	}
-	
+
 	// watch for size being too large
 	if(size*8 > KNOWLEDGE_LIST_SIZE){
 		size= KNOWLEDGE_LIST_SIZE/8;
 	}
-	
+
 	// now copy the data
 	for(i=0; i<size; i++)
 	{

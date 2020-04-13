@@ -177,7 +177,7 @@ int sort_counter_func(const void *a, const void *b)
 		ca = a;
 		cb = b;
 	}
-	
+
 	switch (abs(sort_by[sort_counter_id-1])) {
 	case TOTAL:
 		if (ca->n_total < cb->n_total)
@@ -225,7 +225,7 @@ void load_counters(void)
 	Uint32 io_n_total;
 	char io_name[64];
 	int fread_ok = 1;
-	
+
 	if (counters_initialized) {
 		/*
 		 * save eny existing counters before reloading
@@ -242,7 +242,7 @@ void load_counters(void)
 		entries[i] = 0;
 		sort_by[i] = 0;
 	}
-	
+
 	/* allocate and set misc event matching strings */
 	search_str = malloc (sizeof (char *) * num_search_str);
 	search_len = malloc (sizeof (size_t) * num_search_str);
@@ -257,7 +257,7 @@ void load_counters(void)
 	if (!spell_names[0]) {
 		memset(&spell_names, 0, sizeof(spell_names));
 	}
-	
+
 	if (!(f = open_counters_file("rb"))) {
 		counters_initialized = 1;
 
@@ -305,7 +305,7 @@ void load_counters(void)
 		LOG_ERROR("%s error reading counters\n", __FUNCTION__);
 
 	fclose(f);
-	
+
 	counters_initialized = 1;
 
 	LEAVE_DEBUG_MARK("load counters");
@@ -317,7 +317,7 @@ void flush_counters(void)
 	int i, j;
 	Uint8 io_counter_id;
 	Uint8 io_name_len;
-	
+
 	if (!counters_initialized) {
 		return;
 	}
@@ -339,7 +339,7 @@ void flush_counters(void)
 
 			LOG_DEBUG("Writing counter '%s'",
 				counters[i][j].name);
-			
+
 			fwrite(&io_counter_id, sizeof(io_counter_id), 1, f);
 			fwrite(&io_name_len, sizeof(io_name_len), 1, f);
 			fwrite(counters[i][j].name, io_name_len, 1, f);
@@ -378,7 +378,7 @@ void cleanup_counters(void)
 		search_str = NULL;
 		search_len = NULL;
 	}
-	
+
 	clear_now_harvesting();
 	counters_initialized = 0;
 }
@@ -408,7 +408,7 @@ void increment_counter(int counter_id, const char *name, int quantity, int extra
 		LOG_ERROR("Counter ID %d out of bounds. NUM_COUNTERS %d", counter_id, NUM_COUNTERS);
 		return;
 	}
-	
+
 	/* Look for an existing entry. */
 	for (j = 0; j < entries[i]; j++) {
 		if ((name && strcasecmp(counters[i][j].name, name)) || counters[i][j].extra != extra) {
@@ -548,7 +548,7 @@ void print_session_counters(const char *category)
 static int cm_counters_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
 	struct Counter *the_entry = NULL;
-	
+
 	// if the number of entries has changed, we could be about to use the wrong entry, don't use it
 	// if a entry index is invalid, don't use it
 	if ((cm_entry_count == entries[cm_selected_id]) &&
@@ -562,7 +562,7 @@ static int cm_counters_handler(window_info *win, int widget_id, int mx, int my, 
 			{
 				int i;
 				if (the_entry->name != NULL)
-					free(the_entry->name);	
+					free(the_entry->name);
 				// move the entries up, replacing the deleted one
 				for (i=cm_selected_entry+1; i<entries[cm_selected_id]; i++)
 				{
@@ -718,17 +718,17 @@ int display_counters_handler(window_info *win)
 
 	x = left_panel_width;
 	y = (int)(0.5 + win->current_scale * 8);
-	
+
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(0.77f, 0.57f, 0.39f);
 	glBegin(GL_LINES);
-	
+
 	glVertex3i(x, 0, 0);
 	glVertex3i(x, win->len_y, 0);
-	
+
 	glVertex3i(x, margin_y_len, 0);
 	glVertex3i(win->len_x, margin_y_len, 0);
-	
+
 	glVertex3i(x, win->len_y-margin_y_len, 0);
 	glVertex3i(win->len_x, win->len_y-margin_y_len, 0);
 
@@ -757,7 +757,7 @@ int display_counters_handler(window_info *win)
 
 	if (cm_window_shown() != cm_counters)
 		cm_selected_entry = -1;
-	
+
 	for (j = scroll, n = 0, y = margin_y_len + space_y; j < entries[i]; j++, n++) {
 		int mouse_over_this_entry = ((mouseover_entry_y >= y) && (mouseover_entry_y < y+step_y));
 
@@ -793,13 +793,14 @@ int display_counters_handler(window_info *win)
 			float max_name_x;
 			float font_ratio = win->small_font_len_x/12.0;
 			safe_snprintf(buffer, sizeof(buffer), "%u", counters[i][j].n_session);
-			max_name_x = session_x_end - name_x_start - (get_string_width((unsigned char*)buffer) * font_ratio);
+			max_name_x = session_x_end - name_x_start - get_string_width_ui((unsigned char*)buffer, font_ratio);
 			/* if the name would overlap the session total, truncate it */
-			if ((get_string_width((unsigned char*)counters[i][j].name) * font_ratio) > max_name_x) {
+			if (get_string_width_ui((unsigned char*)counters[i][j].name, font_ratio) > max_name_x) {
 				const char *append_str = "... ";
 				size_t dest_max_len = strlen(counters[i][j].name) + strlen(append_str) + 1;
 				char *used_name = (char *)malloc(dest_max_len);
-				truncated_string(used_name, counters[i][j].name, dest_max_len, append_str, max_name_x, font_ratio);
+				truncated_string(used_name, counters[i][j].name, dest_max_len, append_str,
+					max_name_x, UI_FONT, font_ratio);
 				draw_string_small_zoomed(x, y, (unsigned char*)used_name, 1, win->current_scale);
 				/* if the mouse is over this line and its truncated, tooltip to full name */
 				if (mouseover_entry_y >= y && mouseover_entry_y < y+step_y) {
@@ -903,7 +904,7 @@ int mouseover_counters_handler(window_info *win, int mx, int my)
 		}
 		return 0;
 	}
-	
+
 	if (mx >= name_x_start && mx <= name_x_end) {
 		mouseover_name = 1;
 		return 0;
@@ -934,14 +935,14 @@ const char *strip_actor_name (const char *actor_name)
 	if (is_color (actor_name[0])) {
 		actor_name++;
 	}
-	
+
 	/* copy the name minus the guild tag */
 	for (i = 0; actor_name[i] && i < sizeof(buf); i++) {
 		if (is_color (actor_name[i]))
 			break;
 		buf[i] = actor_name[i];
 	}
-	
+
 	/* strip trailing spaces */
 	while (i>0 && buf[i-1] == ' ')
 		i--;
@@ -958,7 +959,7 @@ static void increment_kill_counter(actor *me, actor *them)
 {
 	int x1, y1, x2, y2;
 	static int face_offsets[8][2] = {{0,1},{1,1},{1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1}};
-	
+
 	if (!them->async_fighting || !me->async_fighting) {
 		return;
 	}
@@ -975,7 +976,7 @@ static void increment_kill_counter(actor *me, actor *them)
 	if ((them->async_x_tile_pos != x1 || them->async_y_tile_pos != y1) && (them->async_x_tile_pos != x2 || them->async_y_tile_pos != y1) && (them->async_x_tile_pos != x1 || them->async_y_tile_pos != y2) && (them->async_x_tile_pos != x2 || them->async_y_tile_pos != y2)) {
 		return;
 	}
-	
+
 	/* Now, we should always have non players actors here */
 /* 	increment_counter(KILLS, strip_actor_name(them->actor_name), 1,	(them->is_enhanced_model && (them->kind_of_actor == HUMAN || them->kind_of_actor == PKABLE_HUMAN))); */
 	increment_counter(KILLS, strip_actor_name(them->actor_name), 1,	0);
@@ -998,7 +999,7 @@ void increment_death_counter(actor *a)
 	if (!me) {
 		return;
 	}
-	
+
 	if (a == me) {
 		/* If we have intercepted a message from the server that telling us that
 		 * we have been killed by someone, the counter has already been incremented */
@@ -1028,32 +1029,32 @@ void increment_death_counter(actor *a)
 
 			for (i = 0; i < max_actors; i++) {
 				them = actors_list[i];
-				
+
 				if (!them->async_fighting ||
 					// PK deaths are handled with text messages from the server now
 					(them->is_enhanced_model && (them->kind_of_actor == HUMAN ||
 												 them->kind_of_actor == PKABLE_HUMAN))) {
 					continue;
 				}
-				
+
 				/* get the coords of the tile they're facing */
 				x1 = them->async_x_tile_pos + face_offsets[((int)them->async_z_rot)/45][0];
 				y1 = them->async_y_tile_pos + face_offsets[((int)them->async_z_rot)/45][1];
-				
+
 				/* get the coords of the next tile they're facing (necessary for Chimerans) */
 				x2 = x1 + face_offsets[((int)them->async_z_rot)/45][0];
 				y2 = y1 + face_offsets[((int)them->async_z_rot)/45][1];
-				
+
 				/* continue if our actor is not on one of these tiles */
 				if ((me->async_x_tile_pos != x1 || me->async_y_tile_pos != y1) && (me->async_x_tile_pos != x2 || me->async_y_tile_pos != y2)) {
 					continue;
 				}
-				
+
 				increment_counter(DEATHS, strip_actor_name(them->actor_name), 1, 0);
 				found_death_reason = 1;
 			}
 		}
-		
+
 		if (!found_death_reason) {
 			/* count deaths while we were poisoned - possibily in adition to another possible reason */
 			if (we_are_poisoned()) {
@@ -1145,7 +1146,7 @@ void counters_set_spell_name(int spell_id, char *name, int len)
 {
 	if (!spell_names[spell_id+1]) {
 		int i, j;
-		
+
 		spell_names[spell_id+1] = malloc(len+1);
 		safe_strncpy(spell_names[spell_id + 1], name, len + 1);
 
@@ -1226,12 +1227,12 @@ void reset_session_counters(void)
 void catch_counters_text(const char* text)
 {
 	size_t text_len = strlen(text);
-	
+
 	//printf("%s: [%s]\n", __FUNCTION__, text);
-	
+
 	if (!counters_initialized)
 		return;
-	
+
 	/* Your xxx ... */
 	if (my_strncompare(text, "Your ", 5))
 	{
@@ -1258,7 +1259,7 @@ void catch_counters_text(const char* text)
 		safe_strncpy2(to_count_name, item_string, sizeof(to_count_name), to_count_name_len);
 		increment_counter(BREAKS, to_count_name, 1, 0);
 	}
-	
+
 	/* "<user name> found a/an/a[n] " */
 	else if (my_strncompare(text, search_str[0], search_len[0]))
 	{
@@ -1267,7 +1268,7 @@ void catch_counters_text(const char* text)
 		while ((text_len > start_from) && (text[start_from] != ' '))
 			start_from++; /* move past the a/an/a[n] */
 		start_from++; /* move past the space */
-		
+
 		/* some death messages match so crudely exclude them but catch bags of gold */
 		if (strchr(&text[start_from], ',') != NULL)
 		{
@@ -1289,7 +1290,7 @@ void catch_counters_text(const char* text)
 			safe_strcat (to_count_name, " (lost)", sizeof(to_count_name));
 			increment_counter(MISC_EVENTS, to_count_name, 1, 0);
 		}
-		
+
 		/* otherwise, count the found thing */
 		else
 		{
@@ -1298,7 +1299,7 @@ void catch_counters_text(const char* text)
 			increment_counter(MISC_EVENTS, to_count_name, 1, 0);
 		}
 	}
-	
+
 	/* loose coin find */
 	else if (my_strncompare(text, "You found ", 10) && strstr(text, " coins."))
 	{
@@ -1306,7 +1307,7 @@ void catch_counters_text(const char* text)
 		increment_counter(MISC_EVENTS, "Total loose gold coin", quantity, 0);
 		increment_counter(MISC_EVENTS, "Loose gold coin", 1, 0);
 	}
-	
+
 	/* extra harvest exp */
 	else if (my_strncompare(text, "You gained ", 11) && strstr(text, " extra harvesting exp."))
 	{
@@ -1354,7 +1355,7 @@ int chat_to_counters_command(const char *text, int len)
 	int old_entries[] = {0, 0};
 	size_t types[] = {BREAKS-1, MISC_EVENTS-1 };
 	size_t type;
-	
+
 	/* get any parameter text */
 	while(*text && !isspace(*text))
 		text++;
@@ -1399,7 +1400,7 @@ int chat_to_counters_command(const char *text, int len)
 	}
 	fclose(fp);
 
-	/* restore the session totals and free the old memory */	
+	/* restore the session totals and free the old memory */
 	for (type=0; type<2; type++)
 	{
 		int i,j;
@@ -1414,7 +1415,7 @@ int chat_to_counters_command(const char *text, int len)
 						(strcmp(old_counters[type][j].name, counters[types[type]][i].name) == 0))
 						counters[types[type]][i].n_session = old_counters[type][j].n_session;
 		}
-		
+
 		/* free any old memory */
 		if(old_counters[type])
 		{
@@ -1423,7 +1424,7 @@ int chat_to_counters_command(const char *text, int len)
 			free(old_counters[type]);
 		}
 	}
-	
+
 	return 1;
 }
 

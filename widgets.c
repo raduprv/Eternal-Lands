@@ -859,7 +859,7 @@ int button_draw(widget_list *W)
 int square_button_draw(widget_list *W)
 {
 	button *l = (button *)W->widget_info;
-	float extra_space = (W->len_x - get_string_width((unsigned char*)l->text)*W->size*(0.11f/0.12f))/2.0f;
+	float extra_space = (W->len_x - get_string_width_ui((unsigned char*)l->text, W->size))/2.0f;
 	if(extra_space < 0) {
 		extra_space = 0;
 	}
@@ -1595,7 +1595,7 @@ int tab_collection_resize (widget_list *w, Uint32 width, Uint32 height)
 
 	for (itab=0; itab<col->nr_tabs; itab++)
 	{
-		col->tabs[itab].tag_width = w->size * DEFAULT_FONT_X_LEN + (w->size * DEFAULT_FONT_X_LEN * (float)get_string_width((unsigned char*)col->tabs[itab].label) / 12.0f);
+		col->tabs[itab].tag_width = w->size * DEFAULT_FONT_X_LEN + get_string_width_ui((unsigned char*)col->tabs[itab].label, w->size);
 		if (col->tabs[itab].closable)
 			col->tabs[itab].tag_width += col->tag_height;
 	}
@@ -1744,7 +1744,7 @@ int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, 
 	else
 	{
 		// compute tag width from label width
-		col->tabs[nr].tag_width = w->size * DEFAULT_FONT_X_LEN + (w->size * DEFAULT_FONT_X_LEN * (float)get_string_width((unsigned char*)col->tabs[nr].label) / 12.0f);
+		col->tabs[nr].tag_width = w->size * DEFAULT_FONT_X_LEN + get_string_width_ui((unsigned char*)col->tabs[nr].label, w->size);
 		if (col->tabs[nr].closable)
 			col->tabs[nr].tag_width += col->tag_height;
 	}
@@ -2656,8 +2656,7 @@ void _set_edit_pos (text_field* tf, int x, int y)
 				tf->cursor = i;
 				return;
 			default:
-				// lachesis: for formula see draw_char_scaled
-				px += (int) (0.5 + get_char_width(msg->data[i]) * msg->wrap_zoom * DEFAULT_FONT_X_LEN / 12.0);
+				px += get_char_width_zoom(msg->data[i], tf->font, msg->wrap_zoom);
 				if (px >= x)
 				{
 					tf->cursor = i;
@@ -2695,7 +2694,7 @@ void update_selection(int x, int y, widget_list* w, int drag)
 	{
 		if (msg->data[col] == '\r' || msg->data[col] == '\n' || msg->data[col] == '\0')
 			break;
-		cx += (0.5 + get_char_width(msg->data[col]) * w->size * DEFAULT_FONT_X_LEN / 12.0);
+		cx += get_char_width_zoom(msg->data[col], tf->font, w->size);
 		if (cx >= x)
 			break;
 	}
@@ -3145,7 +3144,7 @@ static int pword_field_draw(widget_list *w)
 		return 0;
 	}
 	pword = (password_entry*) w->widget_info;
-	difference = (get_string_width((unsigned char*)pword->password)*w->size - w->len_x)/12;
+	difference = (get_string_width_ui((unsigned char*)pword->password, w->size) - w->len_x)/12;
 
 	/*if you want the text cursor, uncomment the following... as clicking goes
 	to the end of the line, and you can't jump part way through, using the text

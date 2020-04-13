@@ -385,7 +385,7 @@ static int display_langsel_handler(window_info *win)
 		for (local_head = langsel_list; local_head; local_head = local_head->next)
 		{
 			LANGSEL_LIST_NODE *new_lang_node = (LANGSEL_LIST_NODE *)local_head->data;
-			float str_width = get_string_width((unsigned char*)new_lang_node->text);
+			float str_width = get_string_width_ui((unsigned char*)new_lang_node->text, 1.0);
 			if (str_width > max_str_width)
 			{
 				max_str_width = str_width;
@@ -411,7 +411,7 @@ static int display_langsel_handler(window_info *win)
 		   errors each time a char is printed - so we have to recalculate again! */
 		max_str_width = 0;
 		while (*longest_string != '\0')
-			max_str_width += (0.5 + get_char_width(*longest_string++) * font_zoom * DEFAULT_FONT_X_LEN / 12.0);
+			max_str_width += 0.5 + get_char_width_ui(*longest_string++, font_zoom);
 
 		/* set the window width now things about the width are known */
 		winwidth = max_str_width + 2 * winsep;

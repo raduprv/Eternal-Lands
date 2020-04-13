@@ -764,7 +764,7 @@ void display_map_markers() {
 		memcpy(tmpb,marks[i].text+MARK_CLIP_POS,4);
 		marks[i].text[MARK_CLIP_POS]=marks[i].text[MARK_CLIP_POS+1]=marks[i].text[MARK_CLIP_POS+2]='.';
 		marks[i].text[MARK_CLIP_POS+3]=0;
-		banner_width = ((float)get_string_width((unsigned char*)marks[i].text)*(font_size_x*font_scales[NAME_FONT]))/2.0;
+		banner_width = 0.5 * (float)get_string_width_zoom((unsigned char*)marks[i].text, NAME_FONT, font_size_x);
 		draw_ortho_ingame_string(hx-banner_width, hy, hz, (unsigned char*)marks[i].text,
 			4, NAME_FONT, font_size_x, font_size_y);
 		//restore text

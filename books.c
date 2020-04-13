@@ -749,6 +749,7 @@ static void display_page(window_info* win, book * b, page * p)
 
 	for(i=0, l=p->lines; *l; i++,l++){
 		glColor3f(0.34f,0.25f, 0.16f);
+		// FIXME: needs to pass FONT_BOOK category
 		draw_string_zoomed(10*win->current_scale, i * line_sep, (unsigned char*)*l, 0, win->current_scale);
 	}
 
@@ -801,12 +802,13 @@ static int book_mouse_y=0;
 
 static int display_book_handler(window_info *win)
 {
+	float text_zoom = win->default_font_len_x / 12.0f;
 	char str[20];
 	book *b=win->data;
 	int margin_x = (int)(0.5 + win->current_scale * 10);
-	int n_width = (int)(0.5 + win->default_font_len_x * get_string_width((unsigned char*)"->") / 12.0f);
-	int p_width = (int)(0.5 + win->default_font_len_x * get_string_width((unsigned char*)"<-") / 12.0f);
-	int c_width = (int)(0.5 + win->default_font_len_x * get_string_width((unsigned char*)"[X]") / 12.0f);
+	int n_width = get_string_width_ui((unsigned char*)"->", text_zoom);
+	int p_width = get_string_width_ui((unsigned char*)"<-", text_zoom);
+	int c_width = get_string_width_ui((unsigned char*)"[X]", text_zoom);
 
 	if(!b) {
 		toggle_window(book_win);
@@ -865,8 +867,9 @@ static int display_book_handler(window_info *win)
 			if(p >= 0 && p < b->no_pages)
 			{
 				safe_snprintf(str,sizeof(str),"%d",p+1);
-				if(book_mouse_y > 0 && book_mouse_y < win->default_font_len_y && book_mouse_x > x_off[i] &&
-						book_mouse_x < (x_off[i] + (int)(0.5 + win->default_font_len_x * get_string_width((unsigned char*)str) / 12.0f)))
+				if (book_mouse_y > 0
+					&& book_mouse_y < win->default_font_len_y && book_mouse_x > x_off[i]
+					&& book_mouse_x < x_off[i] + get_string_width_ui((unsigned char*)str, text_zoom))
 					glColor3f(0.95f, 0.76f, 0.52f);
 				else
 					glColor3f(0.77f,0.59f, 0.38f);
@@ -883,8 +886,9 @@ static int display_book_handler(window_info *win)
 				int p = b->active_page + sign[j] * i * b->type;
 				if (p >= 0 && p < b->no_pages) {
 					safe_snprintf(str,sizeof(str),"%d",p+1);
-					if(book_mouse_y > 0 && book_mouse_y < win->default_font_len_y && book_mouse_x > x_off[j] &&
-							book_mouse_x < (x_off[j] + (int)(0.5 + win->default_font_len_x * get_string_width((unsigned char*)str) / 12.0f)))
+					if (book_mouse_y > 0
+						&& book_mouse_y < win->default_font_len_y && book_mouse_x > x_off[j]
+						&& book_mouse_x < x_off[j] + get_string_width_ui((unsigned char*)str, text_zoom))
 						glColor3f(0.95f, 0.76f, 0.52f);
 					else
 						glColor3f(0.77f,0.59f, 0.38f);
@@ -912,11 +916,12 @@ CHECK_GL_ERRORS();
 
 static int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
 {
+	float text_zoom = win->default_font_len_x / 12.0f;
 	book *b=win->data;
 	int margin_x = (int)(0.5 + win->current_scale * 10);
-	int n_width = (int)(0.5 + win->default_font_len_x * get_string_width((unsigned char*)"->") / 12.0f);
-	int p_width = (int)(0.5 + win->default_font_len_x * get_string_width((unsigned char*)"<-") / 12.0f);
-	int c_width = (int)(0.5 + win->default_font_len_x * get_string_width((unsigned char*)"[X]") / 12.0f);
+	int n_width = get_string_width_ui((unsigned char*)"->", text_zoom);
+	int p_width = get_string_width_ui((unsigned char*)"<-", text_zoom);
+	int c_width = get_string_width_ui((unsigned char*)"[X]", text_zoom);
 	char str[20];
 
 	// only handle mouse button clicks, not scroll wheels moves
@@ -963,8 +968,11 @@ static int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
 				int p = b->active_page + p_inc[i];
 				if(p >= 0 && p < b->no_pages) {
 					safe_snprintf(str,sizeof(str),"%d",p+1);
-					if(mx > x_off[i] && mx < (x_off[i] + (int)(0.5 + win->default_font_len_x * get_string_width((unsigned char*)str) / 12.0f)))
+					if (mx > x_off[i]
+						&& mx < x_off[i] + get_string_width_ui((unsigned char*)str, text_zoom))
+					{
 						b->active_page += p_inc[i];
+					}
 				}
 			}
 		} else if(b->type==2) {
@@ -977,8 +985,11 @@ static int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
 					int p = b->active_page + sign[j] * i * b->type;
 					if (p >= 0 && p < b->no_pages) {
 						safe_snprintf(str,sizeof(str),"%d",p+1);
-						if(mx > x_off[j] && mx < (x_off[j] + (int)(0.5 + win->default_font_len_x * get_string_width((unsigned char*)str) / 12.0f)))
+						if (mx > x_off[j]
+							&& mx < x_off[j] + get_string_width_ui((unsigned char*)str, text_zoom))
+						{
 							b->active_page += + sign[j] * i * b->type;
+						}
 					}
 					x_off[j] += sign[j] * num_gap;
 				}

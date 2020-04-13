@@ -528,14 +528,14 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			 * an exit condition at the beginning of the function */
 			if ((first_person)&&(actor_id->actor_id==yourself)){
 				float x,y;
-				x = window_width/2.0 -(((float)get_string_width(str) * (font_scale*0.17*name_zoom)))*0.5f;
+				x = window_width / 2.0 - 0.5f * (float)get_string_width_zoom(str, NAME_FONT,  font_scale*0.17);
 				y = a_bounce + window_height/2.0-40.0;
 				draw_ortho_ingame_string(x, y, 0, str, 1, NAME_FONT, font_scale*.14, font_scale*.14);
 			}
 			else
 			{
 				float font_scale2 = font_scale*powf(1.0f+((float)abs(actor_id->damage)/2.0f)/1000.0f, 4.0);
-				draw_ortho_ingame_string(hx-(((float)get_string_width(str) * (font_scale2*0.17*name_zoom)))*0.5f,
+				draw_ortho_ingame_string(hx - 0.5f * (float)get_string_width_zoom(str, NAME_FONT, font_scale2*0.17),
 					a_bounce+hy+10.0f, 0, str, 1, NAME_FONT,
 					font_scale2*.14, font_scale2*.14);
 			}
@@ -594,7 +594,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 					glColor3f(1.0f,1.0f,0.0f);
 				}
 				safe_snprintf ((char*)temp, sizeof (temp), "%s", actor_id->actor_name);
-				banner_width = ((float)get_string_width((unsigned char*)actor_id->actor_name)*(font_size_x*name_zoom))/2.0;
+				banner_width = 0.5 * (float)get_string_width_zoom((unsigned char*)actor_id->actor_name, NAME_FONT, font_size_x);
 				draw_ortho_ingame_string(hx-banner_width, hy+bar_y_len/2.0f, hz, temp,
 					1, NAME_FONT, font_size_x, font_size_y);
 			}
@@ -610,11 +610,13 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				// make the heath bar the same length as the the health text so they are balanced
 				// use the same length health bar, even if not displaying the health text
 				sprintf((char*)hp,"%u/%u", actor_id->cur_health, actor_id->max_health);
-				health_str_x_len = (float)get_string_width(hp)*(ALT_INGAME_FONT_X_LEN*name_zoom*font_scale);
+				health_str_x_len = (float)get_string_width_zoom(hp, NAME_FONT,
+					ALT_INGAME_FONT_X_LEN * font_scale);
 				//do the same with mana if we want to display it
 				if (display_ether || display_ether_bar) {
 					sprintf((char*)mana,"%d/%d", your_info.ethereal_points.cur, your_info.ethereal_points.base);
-					ether_str_x_len=(float)get_string_width(mana)*(ALT_INGAME_FONT_X_LEN*name_zoom*font_scale);
+					ether_str_x_len=(float)get_string_width_zoom(mana, NAME_FONT,
+						ALT_INGAME_FONT_X_LEN * font_scale);
 				}
 				//set bar length to longer one (mana or health) - not really clean solution
 				if (ether_str_x_len > health_str_x_len) {
@@ -893,7 +895,8 @@ void draw_actor_overtext( actor* actor_ptr )
 	//-- decrease display time
 	actor_ptr->current_displayed_text_time_left -= (cur_time-last_time);
 
-	textwidth = ((float)get_string_width((unsigned char*)(actor_ptr->current_displayed_text))*(SMALL_INGAME_FONT_X_LEN*zoom_level*font_scales[NAME_FONT]/3.0))/12.0;
+	textwidth = ((float)get_string_width_zoom((unsigned char*)actor_ptr->current_displayed_text,
+		NAME_FONT, SMALL_INGAME_FONT_X_LEN * zoom_level / 3.0)) / 12.0;
 	textheight = (0.06f*zoom_level/3.0)*4;
 	margin = 0.02f*zoom_level;
 	z = 1.2f;// distance over the player

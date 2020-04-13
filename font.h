@@ -115,11 +115,17 @@ void draw_console_separator(int x_space, int y, int width, float zoom);
  *
  *      Returns the width of char \a cur_char
  *
- * \param cur_char  the char to get the width for
+ * \param c         the char to get the width for
+ * \param cat       the context in which the character is used
+ * \param text_zoom caller supplies zoom level
  * \retval int
  * \callgraph
  */
-int get_char_width(unsigned char cur_char);
+int get_char_width_zoom(unsigned char c, font_cat cat, float zoom);
+static __inline__ int get_char_width_ui(unsigned char c, float text_zoom)
+{
+	return get_char_width_zoom(c, UI_FONT, text_zoom);
+}
 
 /*!
  * \ingroup text_font
@@ -127,12 +133,18 @@ int get_char_width(unsigned char cur_char);
  *
  *      Returns the width of the string \a str
  *
- * \param str   the string which width to return
+ * \param str       the string which width to return
+ * \param cat       the context in which the character is used
+ * \param text_zoom caller supplies zoom level
  * \retval int
  * \sa get_nstring_width
  * \callgraph
  */
-int get_string_width(const unsigned char *str);
+int get_string_width_zoom(const unsigned char* str, font_cat cat, float text_zoom);
+static __inline__ int get_string_width_ui(const unsigned char* str, float text_zoom)
+{
+	return get_string_width_zoom(str, UI_FONT, text_zoom);
+}
 
 /*!
  * \ingroup text_font
@@ -177,9 +189,9 @@ static __inline__ int draw_string_shadowed_width(int x, int y,
 	const unsigned char* our_string, int max_width, int max_lines,
 	float fr, float fg, float fb, float br, float bg, float bb)
 {
-	float zoom = (float)max_width / get_string_width(our_string);
+	float text_zoom = (float)max_width / get_string_width_ui(our_string, 1.0);
 	return draw_string_shadowed_zoomed_font(x, y, our_string, max_lines, fr, fg, fb,
-		br, bg, bb, UI_FONT, zoom);
+		br, bg, bb, UI_FONT, text_zoom);
 }
 
 /*!
