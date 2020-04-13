@@ -22,10 +22,10 @@ namespace JSON_IO
 {
 	static size_t get_json_indent(void)
 		{ return 0; } // 0 is compact, non-zero give pretty output, 4 for example
-	static int exit_error(std::string message, int error_code)
-		{ LOG_ERROR(message.c_str()); return error_code; }
-	static void info_message(std::string message)
-		{ LOG_INFO(message.c_str()); }
+	static int exit_error(const char *function, size_t line, std::string message, int error_code)
+		{ LOG_ERROR("%s:%ld %s", function, line, message.c_str()); return error_code; }
+	static void info_message(const char *function, size_t line, std::string message)
+		{ LOG_INFO("%s:%ld %s", function, line, message.c_str()); }
 }
 
 
@@ -50,15 +50,15 @@ namespace JSON_IO_Recipes
 	};
 
 
-	//	Read the jsn from file and return the number of recipes, or -1 for error.
+	//	Read the json from file and return the number of recipes, or -1 for error.
 	//
 	int Recipes::open(const char *file_name)
 	{
-		JSON_IO::info_message(std::string(__FUNCTION__) + "(): " + std::string(file_name));
+		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + std::string(file_name) + "]");
 
 		std::ifstream in_file(file_name);
 		if (!in_file)
-			return JSON_IO::exit_error("File read error", -1);
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Failed to open [" + std::string(file_name) + "]", -1);
 
 		try
 		{
@@ -67,11 +67,11 @@ namespace JSON_IO_Recipes
 		catch (json::exception& e)
 		{
 			parse_error = true;
-			return JSON_IO::exit_error(e.what(), -1);
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, e.what(), -1);
 		}
 
 		if (!read_json["recipes"].is_array())
-			return JSON_IO::exit_error("Missing recipes[]", -1);
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Missing recipes[]", -1);
 
 		opened = true;
 		return read_json["recipes"].size();
@@ -86,13 +86,13 @@ namespace JSON_IO_Recipes
 	//
 	int Recipes::load(recipe_entry *recipes_store, size_t max_recipes)
 	{
-		JSON_IO::info_message(std::string(__FUNCTION__) + "()");
+		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, "");
 
 		if (!recipes_store)
-			return JSON_IO::exit_error("Recipe store is NULL", -1);
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Recipe store is NULL", -1);
 
 		if (!opened)
-			return JSON_IO::exit_error("JSON object not open()ed", -1);
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "JSON object not open()ed", -1);
 
 		size_t number_of_recipes = (read_json["recipes"].is_array()) ?read_json["recipes"].size() :0;
 		int cur_recipe = 0;
@@ -142,10 +142,10 @@ namespace JSON_IO_Recipes
 	//
 	int Recipes::save(const char *file_name, recipe_entry *recipes_store, size_t num_recipes, int current_recipe)
 	{
-		JSON_IO::info_message(std::string(__FUNCTION__) + "(): " + std::string(file_name));
+		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + std::string(file_name) + "]");
 
 		if (parse_error)
-			return JSON_IO::exit_error("Not saving, because we had a load error.  Fix the problem first.", -1);
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Not saving, because we had a load error.  Fix the problem first.", -1);
 
 		json write_json;
 
@@ -180,24 +180,115 @@ namespace JSON_IO_Recipes
 			return 0;
 		}
 		else
-			return JSON_IO::exit_error("Failed to write json", -1);
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Failed to write json [" + std::string(file_name) + "]", -1);
 	}
 
-} // end JSON_IO namespace
+} // end JSON_IO_Recipes namespace
+
+
+namespace JSON_IO_Quickspells
+{
+	using json = nlohmann::json;
+
+
+	//	A Class to load and save quickspells in json format.
+	//
+	class Quickspells
+	{
+		public:
+			Quickspells(void) : parse_error(false) {}
+			int load(const char *file_name, int *spell_ids, size_t max_num_spell_id);
+			int save(const char *file_name, Uint16 *spell_ids, size_t num_spell_id);
+		private:
+			bool parse_error;		// there was an error populating the json object
+	};
+
+
+	//	Load the quickspells ids up to the maximum.
+	//	Return the number read or -1 for an error.
+	//
+	int Quickspells::load(const char *file_name, int *spell_ids, size_t max_num_spell_id)
+	{
+		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + std::string(file_name) + "]");
+
+		std::ifstream in_file(file_name);
+		if (!in_file)
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Failed to open [" + std::string(file_name) + "]", -1);
+
+		json read_json;
+
+		try
+		{
+			in_file >> read_json;
+		}
+		catch (json::exception& e)
+		{
+			parse_error = true;
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, e.what(), -1);
+		}
+
+		if (!read_json["quickspells"].is_array())
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Missing quickspells[]", -1);
+
+		for (size_t i = 0; i < read_json["quickspells"].size() && i < max_num_spell_id; i++)
+			spell_ids[i] = (read_json["quickspells"][i].is_number_integer()) ?read_json["quickspells"][i].get<int>() :-1;
+
+		return (read_json["quickspells"].size() < max_num_spell_id) ?read_json["quickspells"].size() :max_num_spell_id;
+	}
+
+
+	//	Save the quickspells ids.
+	//	Return 0, or -1 on an error
+	//
+	int Quickspells::save(const char *file_name, Uint16 *spell_ids, size_t num_spell_id)
+	{
+		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + std::string(file_name) + "]");
+
+		if (parse_error)
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Not saving, because we had a load error.  Fix the problem first.", -1);
+
+		json write_json;
+
+		json quickspells_list = json::array();
+		for (size_t i = 0; i < num_spell_id; i++)
+			quickspells_list.push_back(spell_ids[i]);
+		write_json["quickspells"] = quickspells_list;
+
+		std::ofstream out_file(file_name);
+		if (out_file)
+		{
+			out_file << std::setw(JSON_IO::get_json_indent()) << write_json << std::endl;
+			return 0;
+		}
+		else
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Failed to write json [" + std::string(file_name) + "]", -1);
+	}
+
+} // end JSON_IO_Quickspells namespace
 
 
 //	The instance of the manufacture recipe object.
 static JSON_IO_Recipes::Recipes recipes;
+
+//	The instance of the quickspells object.
+static JSON_IO_Quickspells::Quickspells quickspells;
 
 
 //	The C interface
 //
 extern "C"
 {
+	// manufacture recipe functions
 	int json_open_recipes(const char *file_name)
 		{ return recipes.open(file_name); }
 	int json_load_recipes(recipe_entry *recipes_store, size_t max_recipes)
 		{ return recipes.load(recipes_store, max_recipes); }
 	int json_save_recipes(const char *file_name, recipe_entry *recipes_store, size_t num_recipes, int current_recipe)
 		{ return recipes.save(file_name, recipes_store, num_recipes, current_recipe); }
+
+	// quickspells funcitons
+	int json_load_quickspells(const char *file_name, int *spell_ids, size_t max_num_spell_id)
+		{ return quickspells.load(file_name, spell_ids, max_num_spell_id); }
+	int json_save_quickspells(const char *file_name, Uint16 *spell_ids, size_t num_spell_id)
+		{ return quickspells.save(file_name, spell_ids, num_spell_id); }
 }

@@ -12,6 +12,7 @@
 #include "hud.h"
 #include "hud_quickspells_window.h"
 #include "hud_misc_window.h"
+#include "json_io.h"
 #include "loginwin.h"
 #include "io/elpathwrapper.h"
 #include "spells.h"
@@ -437,12 +438,25 @@ void load_quickspells (void)
 	Uint8 num_spells;
 	FILE *fp;
 	Uint32 i, index;
+	int json_num_spells = 0;
+	int quickspell_ids[MAX_QUICKSPELL_SLOTS];
 
 	// Grum: move this over here instead of at the end of the function,
 	// so that quickspells are always saved when the player logs in.
 	// (We're only interested in if this function is called, not if it
 	// succeeds)
 	quickspells_loaded = 1;
+
+	safe_snprintf(fname, sizeof(fname), "%sspells_%s.json", get_path_config(), get_lowercase_username());
+	if ((json_num_spells = json_load_quickspells(fname, quickspell_ids, MAX_QUICKSPELL_SLOTS)) >= 0)
+	{
+		size_t i;
+		memset(mqb_data, 0, sizeof (mqb_data));
+		for (i = 0, index = 1; i < json_num_spells; i++)
+			if (quickspell_ids[i] >= 0)
+				mqb_data[index++] = build_quickspell_data(quickspell_ids[i]);
+		return;
+	}
 
 	//open the data file
 	safe_snprintf(fname, sizeof(fname), "spells_%s.dat",get_lowercase_username());
@@ -522,28 +536,51 @@ void save_quickspells(void)
 	char fname[128];
 	FILE *fp;
 	Uint8 i;
+	size_t num_spells_to_write = 0;
+	size_t index;
+	Uint16 *quickspell_ids = NULL;
 
 	if (!quickspells_loaded)
 		return;
 
-	//write to the data file, to ensure data integrity, we will write all the information
+	// get the number of quickspells
+	for (i = 1; i < MAX_QUICKSPELL_SLOTS+1; i++)
+	{
+		if (mqb_data[i] == NULL)
+			break;
+		num_spells_to_write++;
+	}
+
+	// save the quickspell to the json file
+	quickspell_ids = malloc(num_spells_to_write * sizeof(Uint16));
+	for (index = 0; index < num_spells_to_write; index++)
+		quickspell_ids[index] = mqb_data[index+1]->spell_id;
+	safe_snprintf(fname, sizeof(fname), "%sspells_%s.json", get_path_config(), get_lowercase_username());
+	if (json_save_quickspells(fname, quickspell_ids, num_spells_to_write) < 0)
+	{
+		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, fname);
+		return;
+	}
+	free(quickspell_ids);
+
+	// we have written the json file, only write the binary file if one already exists
+	// this is to maintain backwards comatibility until the next forced version release
 	safe_snprintf(fname, sizeof(fname), "spells_%s.dat",get_lowercase_username());
+	if (file_exists_config(fname)!=1)
+		return;
+
+	//write to the data file, for historical reasons, we will write all the information
 	fp=open_file_config(fname,"wb");
 	if(fp == NULL){
 		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, fname, strerror(errno));
 		return;
 	}
 
-	for (i = 1; i < MAX_QUICKSPELL_SLOTS+1; i++)
-	{
-		if (mqb_data[i] == NULL)
-			break;
-	}
-
 	ENTER_DEBUG_MARK("save spells");
 
 	// write the number of spells + 1
-	fwrite(&i, sizeof(i), 1, fp);
+	num_spells_to_write++;
+	fwrite(&num_spells_to_write, sizeof(i), 1, fp);
 
 	LOG_DEBUG("Writing %d spells to file '%s'", i, fname);
 
