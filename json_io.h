@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 
+#include "chat.h"
 #include "counters.h"
 #include "manufacture.h"
 
@@ -33,6 +34,15 @@ int json_save_quickspells(const char *file_name, Uint16 *spell_ids, size_t num_s
 /*! @{ */
 int json_load_counters(const char *file_name, const char **cat_str, int *entries, size_t num_categories, struct Counter **the_counters);
 int json_save_counters(const char *file_name, const char **cat_str, const int *entries, size_t num_categories, const struct Counter **the_counters);
+/*! @} */
+
+
+/*!
+ * \name Functions to load and save channel colours.
+ */
+/*! @{ */
+int json_load_channel_colours(const char *file_name, channelcolor *channel_colours, size_t max_channel_colours);
+int json_save_channel_colours(const char *file_name, const channelcolor *channel_colours, size_t max_channel_colours);
 /*! @} */
 
 

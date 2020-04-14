@@ -15,6 +15,7 @@
 #include "hud.h"
 #include "init.h"
 #include "interface.h"
+#include "json_io.h"
 #include "loginwin.h"
 #include "mapwin.h"
 #include "multiplayer.h"
@@ -46,12 +47,6 @@ static int display_channel_color_win(Uint32 channel_number);
 #define MAX_CHAT_TABS 12			/*!< Size of the \see channels array */
 #define MAX_ACTIVE_CHANNELS	10		/*!< Maximum number of channels in use */
 #define SPEC_CHANS 12				/*!< 11 are currently in use. read channels.xml for the list */
-
-typedef struct
-{
-	Uint32 nr;
-	int color;
-} channelcolor;
 
 typedef struct
 {
@@ -2496,9 +2491,17 @@ void load_channel_colors ()
 		channel_colors[i].color = -1;
 	}
 
+	channel_colors_set = 1;
+
+	// try to load the json file
+	safe_snprintf(fname, sizeof(fname), "%schannel_colors_%s.json", get_path_config(), get_lowercase_username());
+	if (json_load_channel_colours(fname, channel_colors, MAX_CHANNEL_COLORS) >= 0)
+		return;
+
+	// if there is no json file, try to load the old binary format
 	safe_snprintf(fname, sizeof(fname), "channel_colors_%s.dat",get_lowercase_username());
 
-	/* sliently ignore non existing file */
+	/* silently ignore non existing file */
 	if (file_exists_config(fname)!=1)
 		return;
 
@@ -2525,7 +2528,6 @@ void load_channel_colors ()
 	}
 
 	fclose (fp);
-	channel_colors_set = 1;
 }
 
 void save_channel_colors()
@@ -2536,7 +2538,20 @@ void save_channel_colors()
 	if (!channel_colors_set)
 		return;
 
+	// save the json file
+	safe_snprintf(fname, sizeof(fname), "%schannel_colors_%s.json", get_path_config(), get_lowercase_username());
+	if (json_save_channel_colours(fname, channel_colors, MAX_CHANNEL_COLORS) < 0)
+	{
+		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, fname);
+		return;
+	}
+
+	// we have written the json file, only write the binary file if one already exists
+	// this is to maintain backwards comatibility until the next forced version release
 	safe_snprintf(fname, sizeof(fname), "channel_colors_%s.dat",get_lowercase_username());
+	if (file_exists_config(fname)!=1)
+		return;
+
 	fp=open_file_config(fname,"wb");
 	if(fp == NULL){
 		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, fname, strerror(errno));

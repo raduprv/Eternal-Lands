@@ -13,6 +13,7 @@
 #include <iomanip>
 #include <nlohmann/json.hpp>
 
+#include "chat.h"
 #include "elloggingwrapper.h"
 #include "counters.h"
 #include "manufacture.h"
@@ -395,6 +396,102 @@ namespace JSON_IO_Counters
 } //end JSON_IO_Counters namespace
 
 
+namespace JSON_IO_Channel_Colours
+{
+	using json = nlohmann::json;
+
+
+	//	A Class to load and save the the channel colours in json format.
+	//
+	class Channel_Colours
+	{
+		public:
+			Channel_Colours(void) : parse_error(false) {}
+			int load(const char *file_name, channelcolor *the_channel_colours, size_t max_channel_colours);
+			int save(const char *file_name, const channelcolor *the_channel_colours, size_t max_channel_colours);
+		private:
+			bool parse_error;		// there was an error populating the json object
+	};
+
+
+	//	Load the channel colours.
+	//	Assumed that he channel colour arrar has been initialised.
+	//	Return the number of sets actually read, or -1 on error.
+	//
+	int Channel_Colours::load(const char *file_name, channelcolor *the_channel_colours, size_t max_channel_colours)
+	{
+		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + std::string(file_name) + "]");
+
+		std::ifstream in_file(file_name);
+		if (!in_file)
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Failed to open [" + std::string(file_name) + "]", -1);
+
+		json read_json;
+
+		try
+		{
+			in_file >> read_json;
+		}
+		catch (json::exception& e)
+		{
+			parse_error = true;
+			JSON_IO::file_format_error("Channel Colours");
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, e.what(), -1);
+		}
+
+		if (!read_json["channel_colours"].is_array())
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Missing channel_colours[]", -1);
+
+		for (size_t i = 0; i < read_json["channel_colours"].size() && i < max_channel_colours; i++)
+		{
+			json channel_colour_set = read_json["channel_colours"][i];
+			if (!channel_colour_set["channel"].is_number_unsigned() || !channel_colour_set["colour"].is_number_integer() ||
+					(channel_colour_set["colour"] < 0))
+				continue;
+			the_channel_colours[i].nr = channel_colour_set["channel"];
+			the_channel_colours[i].color = channel_colour_set["colour"];
+		}
+
+		return (read_json["channel_colours"].size() < max_channel_colours) ?read_json["channel_colours"].size() :max_channel_colours;
+	}
+
+
+	//	Save the channel colours.
+	//	Return 0, or -1 on error.
+	//
+	int Channel_Colours::save(const char *file_name, const channelcolor *the_channel_colours, size_t max_channel_colours)
+	{
+		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + std::string(file_name) + "]");
+
+		if (parse_error)
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Not saving, because we had a load error.  Fix the problem first.", -1);
+
+		json write_json;
+
+		json channel_colours_list = json::array();
+		for (size_t i = 0; i < max_channel_colours; i++)
+		{
+			if (the_channel_colours[i].color < 0)
+				continue;
+			json channel_colour_set;
+			channel_colour_set["channel"] = the_channel_colours[i].nr;
+			channel_colour_set["colour"] = the_channel_colours[i].color;
+			channel_colours_list.push_back(channel_colour_set);
+		}
+		write_json["channel_colours"] = channel_colours_list;
+
+		std::ofstream out_file(file_name);
+		if (out_file)
+		{
+			out_file << std::setw(JSON_IO::get_json_indent()) << write_json << std::endl;
+			return 0;
+		}
+		else
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Failed to write json [" + std::string(file_name) + "]", -1);
+	}
+}
+
+
 //	The instance of the manufacture recipe object.
 static JSON_IO_Recipes::Recipes recipes;
 
@@ -403,6 +500,9 @@ static JSON_IO_Quickspells::Quickspells quickspells;
 
 //	The instance of the counters object.
 static JSON_IO_Counters::Counters counters;
+
+//	The instance of the channel colours object.
+static JSON_IO_Channel_Colours::Channel_Colours channel_colours;
 
 
 //	The C interface
@@ -428,4 +528,10 @@ extern "C"
 		{ return counters.load(file_name, cat_str, entries, num_categories, the_counters); }
 	int json_save_counters(const char *file_name, const char **cat_str, const int *entries, size_t num_categories, const struct Counter **the_counters)
 		{ return counters.save(file_name, cat_str, entries, num_categories, the_counters); }
+
+	// channel colours
+	int json_load_channel_colours(const char *file_name, channelcolor *the_channel_colours, size_t max_channel_colours)
+		{ return channel_colours.load(file_name, the_channel_colours, max_channel_colours); }
+	int json_save_channel_colours(const char *file_name, const channelcolor *the_channel_colours, size_t max_channel_colours)
+		{ return channel_colours.save(file_name, the_channel_colours, max_channel_colours); }
 }
