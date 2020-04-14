@@ -343,7 +343,7 @@ void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter
 #endif
 			if (imsg == msg_start || msgs[imsg].data == NULL || msgs[imsg].deleted) break;
 			// Grum 2020-04-07: why do we rewrap here? And not on the first message?
-			rewrap_message(&msgs[imsg], font, zoom, width, NULL);
+			rewrap_message(&msgs[imsg], font, text_zoom, width, NULL);
 			ichar = 0;
 			last_color_char = 0;
 		}

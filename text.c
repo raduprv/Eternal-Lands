@@ -1376,7 +1376,7 @@ void clear_display_text_buffer ()
 	}
 }
 
-int rewrap_message(text_message * msg, font_cat font, float zoom, int width, int *cursor)
+int rewrap_message(text_message * msg, font_cat font, float text_zoom, int width, int *cursor)
 {
 	int nlines;
 	float max_line_width = 0;
@@ -1384,14 +1384,14 @@ int rewrap_message(text_message * msg, font_cat font, float zoom, int width, int
 	if (msg == NULL || msg->data == NULL || msg->deleted)
 		return 0;
 
-	if (msg->wrap_width != width || msg->wrap_zoom != zoom)
+	if (msg->wrap_width != width || msg->wrap_zoom != text_zoom)
 	{
- 		nlines = reset_soft_breaks(msg->data, msg->len, msg->size, font, zoom,
+ 		nlines = reset_soft_breaks(msg->data, msg->len, msg->size, font, text_zoom,
 			width, cursor, &max_line_width);
 		msg->len = strlen(msg->data);
 		msg->wrap_lines = nlines;
 		msg->wrap_width = width;
-		msg->wrap_zoom = zoom;
+		msg->wrap_zoom = text_zoom;
 		msg->max_line_width = max_line_width;
 	} else {
 		nlines = msg->wrap_lines;
