@@ -269,17 +269,6 @@ void draw_ortho_ingame_string(float x, float y, float z, const unsigned char* ou
 #endif	//ELC
 
 /*!
- * \ingroup text_font
- * \brief   sets the current font to the one given in \a cat.
- *
- *      Sets the current font to the one for category \a cat.
- *
- * \param cat  The font category to use
- * \retval int
- */
-int	set_font(font_cat cat);
-
-/*!
  * \ingroup other
  * \brief   intializes the font engine
  *

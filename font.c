@@ -67,7 +67,6 @@ int use_ttf = 0;
 char ttf_directory[TTF_DIR_SIZE];
 #endif
 
-int	cur_font_num=0;
 font_info *fonts_array = NULL;
 size_t fonts_array_size = 0;
 size_t fonts_array_used = 0;
@@ -1066,8 +1065,6 @@ int init_fonts()
 			return 0;
 	}
 
-	cur_font_num = 0;
-
 	return 1;
 }
 
@@ -1194,18 +1191,7 @@ int load_font_textures()
 #endif //WINDOWS
 	free(glob_pattern);
 
-	//set the default font
-	cur_font_num = 0;
-
 	return 1;
-}
-
-int	set_font(font_cat cat)
-{
-	int num = font_idxs[cat];
-	if (is_valid_font(num))
-		cur_font_num = num;
-	return cur_font_num;
 }
 
 #ifdef TTF

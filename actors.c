@@ -573,10 +573,10 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	// Schmurk: same here, we actually never reach this code
 	if (!((first_person)&&(actor_id->actor_id==yourself)))
 	{
-		if(actor_id->actor_name[0] && (display_names || display_health_line || display_ether_line)){
-			set_font(NAME_FONT);	// to variable length
-
-			if(display_names){
+		if(actor_id->actor_name[0] && (display_names || display_health_line || display_ether_line))
+		{
+			if (display_names)
+			{
 				float font_size_x=font_scale*SMALL_INGAME_FONT_X_LEN;
 				float font_size_y=font_scale*SMALL_INGAME_FONT_X_LEN;
 
@@ -660,8 +660,6 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 					}
 				}
 			}
-
-			set_font(UI_FONT);	// back to fixed pitch
 		}
 	}
 

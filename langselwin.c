@@ -368,8 +368,6 @@ static int display_langsel_handler(window_info *win)
 	int current_y = 0;
 	int lang_line_num = 0;
 
-	set_font(UI_FONT);
-
 	/* first time through, create additional widgets and resize everything */
 	if (first_time)
 	{

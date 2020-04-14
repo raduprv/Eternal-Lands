@@ -338,9 +338,6 @@ void display_server_popup_win(const char * const message)
 		set_text_message_data (&widget_text, message);
 	}
 
-	/* make sure the text font is set so width calculations work properly */
-	set_font(CHAT_FONT);
-
 	/* do a pre-wrap of the text to the maximum screen width we can use
 		 this will avoid the later wrap (after the resize) changing the number of lines */
 	if (!text_message_is_empty (&widget_text))

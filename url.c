@@ -425,7 +425,6 @@ CHECK_GL_ERRORS();
 	url_win_hover_url = NULL;
 
 	glEnable(GL_TEXTURE_2D);
-	set_font(UI_FONT);
 
 	/* check for external state change */
 	if (!have_url_count && !url_win_status)
