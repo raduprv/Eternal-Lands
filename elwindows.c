@@ -1139,8 +1139,8 @@ int	draw_window_title(window_info *win)
 	if(win->flags&ELW_TITLE_NAME)
 		{
 			int	len = get_string_width_ui((unsigned char*)win->window_name,
-				(win->current_scale*8) / 12);
-			int	x_pos=(win->len_x-len)/2;
+				win->current_scale*DEFAULT_SMALL_RATIO);
+			int	x_pos = (win->len_x-len)/2;
 
 			glColor4f(0.0f,0.0f,0.0f,1.0f);
 			glBegin(GL_QUADS);
@@ -1162,7 +1162,8 @@ int	draw_window_title(window_info *win)
 			glEnable(GL_TEXTURE_2D);
 			glColor3f(win->border_color[0],win->border_color[1],win->border_color[2]);
 			// center text
-			draw_string_small_zoomed((win->len_x-len)/2, 1-win->title_height, (unsigned char*)win->window_name, 1, win->current_scale);
+			draw_string_small_zoomed(x_pos, 1-win->title_height, (unsigned char*)win->window_name,
+				1, win->current_scale);
 		}
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
