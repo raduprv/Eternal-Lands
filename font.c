@@ -227,8 +227,8 @@ void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter
 	font_info *info = &fonts_array[font_idxs[font]];
 
 	float zoom = font_scales[font] * text_zoom;
-	float displayed_font_x_size;
-	float displayed_font_y_size;
+	float block_width;
+	float block_height;
 
 	float selection_red = 255 / 255.0f;
 	float selection_green = 162 / 255.0f;
@@ -245,10 +245,10 @@ void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter
 	unsigned char last_color_char = 0;
 	int in_select = 0;
 
-	displayed_font_x_size = zoom * info->scale * info->block_width;
-	displayed_font_y_size = get_font_height_zoom(info, zoom);
+	block_width = zoom * info->scale * info->block_width;
+	block_height = get_font_height_zoom(info, zoom);
 
-	if (width < displayed_font_x_size || height < displayed_font_y_size)
+	if (width < block_width || height < block_height)
 		// no point in trying
 		return;
 
@@ -314,10 +314,10 @@ void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter
 		{
 			cursor_x = cur_x;
 			cursor_y = cur_y;
-			if (cursor_x - x + displayed_font_x_size > width)
+			if (cursor_x - x + block_width > width)
 			{
 				cursor_x = x;
-				cursor_y = cur_y + displayed_font_y_size;
+				cursor_y = cur_y + block_height;
 			}
 		}
 
@@ -357,8 +357,8 @@ void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter
 		if (cur_char == '\n' || cur_char == '\r' || cur_char == '\0')
 		{
 			// newline
-			cur_y += displayed_font_y_size;
-			if (cur_y - y + displayed_font_y_size > height) break;
+			cur_y += block_height;
+			if (cur_y - y + block_height > height) break;
 			cur_x = x;
 			if (cur_char != '\0') ichar++;
 			i++;
@@ -407,7 +407,7 @@ void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter
 
 		ichar++;
 		i++;
-		if (cur_x - x + displayed_font_x_size > width)
+		if (cur_x - x + block_width > width)
 		{
 			// ignore rest of this line, but keep track of
 			// color characters
@@ -424,7 +424,7 @@ void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter
 		}
 	}
 
-	if (cursor_x >= x && cursor_y >= y && cursor_y - y + displayed_font_y_size <= height)
+	if (cursor_x >= x && cursor_y >= y && cursor_y - y + block_height <= height)
 	{
 		draw_char_scaled(info, '_', cursor_x, cursor_y, zoom);
 	}
@@ -603,6 +603,7 @@ int reset_soft_breaks(char *str, int len, int size, font_cat font, float text_zo
 	   to the caller if they provide somewhere to store it. */
 	float local_max_line_width = 0;
 	float zoom = font_scales[font] * text_zoom;
+	float block_width = zoom * info->scale * info->block_width;
 
 	// error checking
 	if (str == NULL || width <= 0 || size <= 0) {
@@ -657,7 +658,13 @@ int reset_soft_breaks(char *str, int len, int size, font_cat font, float text_zo
 		else
 		{
 			font_bit_width = get_font_width_zoom(info, get_font_char(str[isrc]), zoom);
-			if (line_width + font_bit_width >= width)
+			// Check here if the character fits using block_width instead of the
+			// actual glyph width font_bit_width. This is consistent with draw_messages(),
+			// which can't easily check the actual character width because it
+			// also has to take the cursor into account. Perhaps this can at
+			// some point be improved, but for now, rather be pessimistic and
+			// don't lose the last character in the line.
+			if (line_width + block_width >= width)
 			{
 				// search back for a space
 				for (nchar = 0; ibuf-nchar-1 > lastline; nchar++)
