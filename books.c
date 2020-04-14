@@ -742,15 +742,15 @@ static void display_page(window_info* win, book * b, page * p)
 	if(!p)
 		return;
 
-	set_font(BOOK_FONT);
 	if(p->image) {
 		display_image(p->image);
 	}
 
-	for(i=0, l=p->lines; *l; i++,l++){
+	for(i=0, l=p->lines; *l; i++,l++)
+	{
 		glColor3f(0.34f,0.25f, 0.16f);
-		// FIXME: needs to pass FONT_BOOK category
-		draw_string_zoomed(10*win->current_scale, i * line_sep, (unsigned char*)*l, 0, win->current_scale);
+		draw_string_zoomed_width_font(10*win->current_scale, i * line_sep,
+			(const unsigned char*)*l, window_width, 0, BOOK_FONT, win->current_scale);
 	}
 
 	glColor3f(0.385f,0.285f, 0.19f);
@@ -760,7 +760,6 @@ static void display_page(window_info* win, book * b, page * p)
 		draw_string_zoomed(140*win->current_scale, b->max_lines * line_sep + 2,(unsigned char*)str, 0, win->current_scale);
 	else if(b->type==2)
 		draw_string_zoomed(110*win->current_scale, b->max_lines * line_sep + 2,(unsigned char*)str, 0, win->current_scale);
-	set_font(UI_FONT);
 }
 
 static void display_book(window_info* win, book * b, int type)
