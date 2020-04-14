@@ -338,9 +338,8 @@ int get_total_nr_lines(void)
 void console_font_resize(float font_size)
 {
 	int line_height = get_line_height(CHAT_FONT, 1.0);
-
 	nr_console_lines= (window_height - input_widget->len_y - CONSOLE_SEP_HEIGHT - hud_y - CONSOLE_Y_OFFSET) / line_height;
-	widget_set_size(console_root_win, console_out_id, font_size);
+	// FIXME: resize necessary?
 	resize_console_handler (&windows_list.window[console_root_win], window_width, window_height);
 }
 

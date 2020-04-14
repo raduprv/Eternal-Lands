@@ -1147,17 +1147,8 @@ void display_chat(void)
 	update_chat_win_buffers();
 }
 
-// FIXME: is this still useful?
 void chat_win_update_zoom(void)
 {
-	int itab;
-
-	widget_set_size(chat_win, input_widget->id, 1.0);
-	for (itab = 0; itab < MAX_CHAT_TABS; itab++) {
-		if (channels[itab].open) {
-			widget_set_size(channels[itab].tab_id, channels[itab].out_id, 1.0);
-		}
-	}
 	text_changed = 1;
 }
 

@@ -29,8 +29,6 @@ int opening_win_text_height = -1;
 void opening_win_update_zoom()
 {
 	nr_opening_lines = opening_win_text_height / get_line_height(CHAT_FONT, 1.0);
-	// FIXME: is this useful?
-	widget_set_size(opening_root_win, opening_out_id, 1.0);
 }
 
 int display_opening_handler ()

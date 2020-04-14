@@ -1126,9 +1126,9 @@ static void change_quickspells_relocatable (int *rel)
 
 static void change_chat_zoom(float *dest, float *value)
 {
-	if (*value < 0.0f) {
+	if (*value < 0.0f)
 		return;
-	}
+
 	*dest= *value;
 	if (opening_root_win >= 0 || console_root_win >= 0 || chat_win >= 0 || game_root_win >= 0) {
 		if (opening_root_win >= 0) {
@@ -1141,12 +1141,15 @@ static void change_chat_zoom(float *dest, float *value)
 			chat_win_update_zoom();
 		}
 	}
-	if(input_widget != NULL) {
+
+	if (input_widget != NULL)
+	{
 		text_field *tf= input_widget->widget_info;
-		widget_set_size(input_widget->window_id, input_widget->id, *value);
-		// FIXME: proper line height
-		if(use_windowed_chat != 2) {
-			widget_resize(input_widget->window_id, input_widget->id, input_widget->len_x, tf->y_space*2 + ceilf(DEFAULT_FONT_Y_LEN*input_widget->size*tf->nr_lines));
+		if (use_windowed_chat != 2)
+		{
+			int line_height = get_line_height(CHAT_FONT, input_widget->size);
+			widget_resize(input_widget->window_id, input_widget->id,
+				input_widget->len_x, tf->y_space*2 + line_height * tf->nr_lines);
 		}
 	}
 }
