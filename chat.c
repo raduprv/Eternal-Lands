@@ -105,7 +105,7 @@ void input_widget_move_to_win(int window_id)
 		resize_chat_handler(win, win->len_x, win->len_y);
 	} else {
 		text_field *tf = input_widget->widget_info;
-		int line_height = get_line_height(CHAT_FONT, 1.0 * input_widget->size);
+		int line_height = get_line_height(CHAT_FONT, input_widget->size);
 		Uint32 flags;
 
 		input_widget->OnResize = input_field_resize;

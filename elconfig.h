@@ -210,7 +210,7 @@ void change_windows_on_top(int *var);
  * \param name       the name of the variable to add to
  * \param str      the text for the option
  */
-void add_multi_option(char * name, char * str);
+void add_multi_option(const char* name, const char* str);
 
 void change_windowed_chat (int *wc, int val);
 

@@ -1758,7 +1758,7 @@ int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, 
 }
 
 // text field
-void _text_field_set_nr_visible_lines (widget_list *w)
+static void _text_field_set_nr_visible_lines (widget_list *w)
 {
 	text_field* tf = w->widget_info;
 
@@ -1771,7 +1771,7 @@ void _text_field_set_nr_visible_lines (widget_list *w)
 	}
 }
 
-void _text_field_set_nr_lines (widget_list *w, int nr_lines)
+static void _text_field_set_nr_lines (widget_list *w, int nr_lines)
 {
 	text_field* tf = w->widget_info;
 	if (tf != NULL)

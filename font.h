@@ -97,7 +97,7 @@ extern float font_scales[NR_FONT_CATS];
  * \param cursor	if >= 0, the position at which to draw the cursor
  * \param width		the width of the draw area
  * \param height	the height of the draw area
- * \param font		the category of the font in which the text is drawn
+ * \param cat		the category of the font in which the text is drawn
  * \param text_zoom	the size of the text
  * \param[in,out]       select information about current selection. draw_messages fills select->lines array.
  *
@@ -105,7 +105,7 @@ extern float font_scales[NR_FONT_CATS];
  */
 void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter,
 	int nr_start, int offset_start, int cursor, int width, int height,
-	font_cat font, float text_zoom, select_info* select);
+	font_cat cat, float text_zoom, select_info* select);
 void draw_console_separator(int x_space, int y, int width, float zoom);
 #endif
 
