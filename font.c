@@ -435,12 +435,13 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-void draw_console_separator(int x_space, int y, int width, float zoom)
+void draw_console_separator(int x_space, int y, int width, float text_zoom)
 {
 	font_info *info = &fonts_array[font_idxs[CHAT_FONT]];
 	float u_start, u_end, v_start, v_end;
 	int pos, x, dx;
 	int char_width, char_height;
+	float zoom = font_scales[CHAT_FONT] * text_zoom;
 
 	pos = get_font_char('^');
 	char_width = (int)(info->char_widths[pos] * info->scale * zoom + 0.5);
