@@ -170,7 +170,7 @@ typedef struct
 		struct { int (*min)(); int (*max)(); } immf;
 		struct { float min; float max; float interval; } fmmi;
 		struct { float (*min)(); float (*max)(); float interval; } fmmif;
-		struct { char **strings; size_t count; } multi;
+		struct { const char **strings; size_t count; } multi;
 	} args; /*!< The various versions of additional arguments used by configuration variables  */
 } var_struct;
 
@@ -2006,7 +2006,7 @@ static void add_var(option_type type, char * name, char * shortname, void * var,
 	our_vars.var[no]->widgets.tab_id= tab_id;
 }
 
-void add_multi_option(char * name, char * str)
+void add_multi_option(const char* name, const char* str)
 {
 	int var_index;
 
@@ -2892,7 +2892,7 @@ static void elconfig_populate_tabs(void)
 					elconfig_tabs[tab_id].x+SPACING+get_string_width_ui(our_vars.var[i]->display.str, elconf_scale), elconfig_tabs[tab_id].y,
 					ELCONFIG_SCALED_VALUE(250), ELCONFIG_SCALED_VALUE(80), elconf_scale, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
 				for(y= 0; y<our_vars.var[i]->args.multi.count; y++) {
-					char *label= our_vars.var[i]->args.multi.strings[y];
+					const char *label = our_vars.var[i]->args.multi.strings[y];
 					int width= strlen(label) > 0 ? 0 : -1;
 
 					multiselect_button_add_extended(elconfig_tabs[tab_id].tab, widget_id,
@@ -2931,7 +2931,7 @@ static void elconfig_populate_tabs(void)
 				widget_id= multiselect_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x+SPACING+get_string_width_ui(our_vars.var[i]->display.str, elconf_scale), elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(350), ELCONFIG_SCALED_VALUE(80), elconf_scale, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
 				x = 0;
 				for(y= 0; y<our_vars.var[i]->args.multi.count; y++) {
-					char *label= our_vars.var[i]->args.multi.strings[y];
+					const char *label= our_vars.var[i]->args.multi.strings[y];
 
 					int radius = elconf_scale*BUTTONRADIUS;
 					float width_ratio = elconf_scale*DEFAULT_FONT_X_LEN/12.0f;
