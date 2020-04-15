@@ -2491,12 +2491,13 @@ void load_channel_colors ()
 		channel_colors[i].color = -1;
 	}
 
-	channel_colors_set = 1;
-
 	// try to load the json file
 	safe_snprintf(fname, sizeof(fname), "%schannel_colors_%s.json", get_path_config(), get_lowercase_username());
 	if (json_load_channel_colours(fname, channel_colors, MAX_CHANNEL_COLORS) >= 0)
+	{
+		channel_colors_set = 1;
 		return;
+	}
 
 	// if there is no json file, try to load the old binary format
 	safe_snprintf(fname, sizeof(fname), "channel_colors_%s.dat",get_lowercase_username());
@@ -2528,6 +2529,7 @@ void load_channel_colors ()
 	}
 
 	fclose (fp);
+	channel_colors_set = 1;
 }
 
 void save_channel_colors()
