@@ -141,6 +141,12 @@ static int recheck_window_scale = 0;
 
 typedef char input_line[256];
 
+typedef struct
+{
+	const char* label;
+	const char* id;
+} multi_element;
+
 /*!
  * var_struct stores the data for a single configuration entry.
  */
@@ -170,7 +176,7 @@ typedef struct
 		struct { int (*min)(); int (*max)(); } immf;
 		struct { float min; float max; float interval; } fmmi;
 		struct { float (*min)(); float (*max)(); float interval; } fmmif;
-		struct { const char **strings; size_t count; } multi;
+		struct { multi_element *elems; size_t count; } multi;
 	} args; /*!< The various versions of additional arguments used by configuration variables  */
 } var_struct;
 
@@ -1435,19 +1441,11 @@ static void switch_vidmode(int *pointer, int mode)
 
 #endif
 
-static int find_var (const char *str, var_name_type type)
+static int find_var(const char *str, var_name_type type)
 {
 	size_t i, len_to_check;
-	char c;
 
-	len_to_check = 0;
-	while ( (c = str[len_to_check]) )
-	{
-		if (c == ' ' || c == '=')
-			break;
-		++len_to_check;
-	}
-
+	len_to_check = strcspn(str, " =");
 	for (i = 0; i < our_vars.no; i++)
 	{
 		const var_struct *var = our_vars.var[i];
@@ -1791,14 +1789,70 @@ void check_options(void)
 	check_option_var("use_animation_program");
 }
 
-int check_var (char *str, var_name_type type)
+static int check_multi_select(const char* str, var_struct *var)
+{
+	int nr_conv;
+	int idx;
+	char id_buf[256] = { 0 };
+
+	nr_conv = sscanf(str, "%d (%255[^\r\n)])", &idx, id_buf);
+	if (nr_conv == 0)
+	{
+		// Unable to parse the value at all
+		return 0;
+	}
+
+	if (idx < 0 || idx >= var->args.multi.count)
+	{
+		LOG_ERROR("Invalid value %d for multiselect option %s", idx, var->name);
+		return 0;
+	}
+
+	if (nr_conv == 2)
+	{
+		// Got an ID. If it doesn't match the value at the index, find the option
+		// with the correct ID and update the index. If the option cannot be found,
+		// use the previous index value and hope for the best.
+		const char *id = var->args.multi.elems[idx].id;
+		if (!id || strcmp(id, id_buf) != 0)
+		{
+			int new_idx = idx;
+			for (new_idx = 0; new_idx < var->args.multi.count; ++new_idx)
+			{
+				id = var->args.multi.elems[new_idx].id;
+				if (id && strcmp(id, id_buf) == 0)
+				{
+					idx = new_idx;
+					break;
+				}
+			}
+
+			if (new_idx == idx)
+			{
+				LOG_ERROR("Failed to find ID %s in multiselect option %s, falling back on index %d",
+					id_buf, var->name, idx);
+			}
+		}
+else
+{
+printf("ID %s matches at index %d\n", id_buf, idx);
+}
+	}
+
+	var->func(var->var, idx);
+	var->config_file_val = (float)idx;
+
+	return 1;
+}
+
+int check_var(char *str, var_name_type type)
 {
 	int i, *p;
 	char *ptr= str;
 	float foo;
 	input_line our_string;
 
-	i= find_var (str, type);
+	i = find_var(str, type);
 	if (i < 0)
 	{
 		LOG_WARNING("Can't find var '%s', type %d", str, type);
@@ -1857,15 +1911,16 @@ int check_var (char *str, var_name_type type)
 			// Needed, because var is never changed through widget
 			our_vars.var[i]->saved= 0;
 		case OPT_INT:
-		case OPT_MULTI:
-		case OPT_MULTI_H:
 		case OPT_INT_F:
 		{
 			int new_val = atoi (ptr);
-			our_vars.var[i]->func ( our_vars.var[i]->var, atoi (ptr) );
+			our_vars.var[i]->func ( our_vars.var[i]->var, new_val);
 			our_vars.var[i]->config_file_val = (float)new_val;
 			return 1;
 		}
+		case OPT_MULTI:
+		case OPT_MULTI_H:
+			return check_multi_select(ptr, our_vars.var[i]);
 		case OPT_BOOL_INI:
 			// Needed, because var is never changed through widget
 			our_vars.var[i]->saved= 0;
@@ -1904,9 +1959,9 @@ void free_vars(void)
 		switch(our_vars.var[i]->type) {
 			case OPT_MULTI:
 			case OPT_MULTI_H:
-				if (our_vars.var[i]->args.multi.count && our_vars.var[i]->args.multi.strings)
+				if (our_vars.var[i]->args.multi.count > 0)
 				{
-					free(our_vars.var[i]->args.multi.strings);
+					free(our_vars.var[i]->args.multi.elems);
 					our_vars.var[i]->args.multi.count = 0;
 				}
 				break;
@@ -1923,12 +1978,28 @@ void free_vars(void)
 	our_vars.no=0;
 }
 
+static void add_multi_option_to_var(var_struct *var, const char* label, const char* id)
+{
+	// FIXME? reallocating on every addition
+	multi_element *new_elems = realloc(var->args.multi.elems, sizeof(multi_element) * (var->args.multi.count + 1));
+	if (!new_elems)
+	{
+		LOG_ERROR("Failed to reallocate elements fo variable %s", var->name);
+		return;
+	}
+
+	new_elems[var->args.multi.count].label = label;
+	new_elems[var->args.multi.count].id = id;
+	var->args.multi.elems = new_elems;
+	var->args.multi.count++;
+}
+
 static void add_var(option_type type, char * name, char * shortname, void * var, void * func, float def, char * short_desc, char * long_desc, int tab_id, ...)
 {
 	int *integer=var;
 	float *f=var;
 	int no=our_vars.no;
-	char *pointer;
+	const char *pointer;
 	va_list ap;
 
 	our_vars.var = realloc(our_vars.var, ++our_vars.no * sizeof(var_struct *));
@@ -1938,13 +2009,12 @@ static void add_var(option_type type, char * name, char * shortname, void * var,
 	{
 		case OPT_MULTI:
 		case OPT_MULTI_H:
-			our_vars.var[no]->args.multi.strings = NULL;
+			our_vars.var[no]->args.multi.elems = NULL;
 			our_vars.var[no]->args.multi.count = 0;
 			va_start(ap, tab_id);
-			while((pointer= va_arg(ap, char *)) != NULL) {
-				our_vars.var[no]->args.multi.strings = realloc(our_vars.var[no]->args.multi.strings, sizeof(char *) * (our_vars.var[no]->args.multi.count + 1));
-				our_vars.var[no]->args.multi.strings[our_vars.var[no]->args.multi.count] = pointer;
-				our_vars.var[no]->args.multi.count++;
+			while ((pointer = va_arg(ap, const char *)) != NULL)
+			{
+				add_multi_option_to_var(our_vars.var[no], pointer, NULL);
 			}
 			va_end(ap);
 			*integer= (int)def;
@@ -2003,7 +2073,7 @@ static void add_var(option_type type, char * name, char * shortname, void * var,
 	our_vars.var[no]->widgets.tab_id= tab_id;
 }
 
-void add_multi_option(const char* name, const char* str)
+void add_multi_option_with_id(const char* name, const char* str, const char* id)
 {
 	int var_index;
 
@@ -2015,12 +2085,9 @@ void add_multi_option(const char* name, const char* str)
 	}
 	else
 	{
-		our_vars.var[var_index]->args.multi.strings = realloc(our_vars.var[var_index]->args.multi.strings, sizeof(char *) * (our_vars.var[var_index]->args.multi.count + 1));
-		our_vars.var[var_index]->args.multi.strings[our_vars.var[var_index]->args.multi.count] = str;
-		our_vars.var[var_index]->args.multi.count++;
+		add_multi_option_to_var(our_vars.var[var_index], str, id);
 	}
 }
-
 
 //ELC specific variables
 #ifdef ELC
@@ -2407,46 +2474,58 @@ void init_vars(void)
 
 }
 
-static void write_var (FILE *fout, int ivar)
+static void write_var(FILE *fout, int ivar)
 {
+	var_struct *var;
+
 	if (fout == NULL) return;
 
-	switch (our_vars.var[ivar]->type)
+	var = our_vars.var[ivar];
+	switch (var->type)
 	{
 		case OPT_INT:
-		case OPT_MULTI:
-		case OPT_MULTI_H:
 		case OPT_BOOL:
 		case OPT_INT_F:
 		case OPT_BOOL_INI:
 		case OPT_INT_INI:
 		{
-			int *p= our_vars.var[ivar]->var;
-			fprintf (fout, "#%s= %d\n", our_vars.var[ivar]->name, *p);
+			int *p = var->var;
+			fprintf(fout, "#%s= %d\n", var->name, *p);
+			break;
+		}
+		case OPT_MULTI:
+		case OPT_MULTI_H:
+		{
+			int idx = *(const int*)var->var;
+			const char* id = var->args.multi.elems[idx].id;
+			if (id)
+				fprintf(fout, "#%s= %d(%s)\n", var->name, idx, id);
+			else
+				fprintf(fout, "#%s= %d\n", var->name, idx);
 			break;
 		}
 		case OPT_STRING:
-			if (strcmp (our_vars.var[ivar]->name, "password") == 0)
+			if (strcmp(var->name, "password") == 0)
 				// Do not write the password to the file. If the user really wants it
 				// s/he should edit the file.
-				fprintf (fout, "#%s= \"\"\n", our_vars.var[ivar]->name);
+				fprintf(fout, "#%s= \"\"\n", var->name);
 			else
-				fprintf (fout, "#%s= \"%s\"\n", our_vars.var[ivar]->name, (char *)our_vars.var[ivar]->var);
+				fprintf(fout, "#%s= \"%s\"\n", var->name, (const char *)var->var);
 			break;
 		case OPT_PASSWORD:
 			// Do not write the password to the file. If the user really wants it
 			// s/he should edit the file.
-			fprintf (fout, "#%s= \"\"\n", our_vars.var[ivar]->name);
+			fprintf(fout, "#%s= \"\"\n", var->name);
 			break;
 		case OPT_FLOAT:
 		case OPT_FLOAT_F:
 		{
-			float *g= our_vars.var[ivar]->var;
-			fprintf (fout, "#%s= %g\n", our_vars.var[ivar]->name, *g);
+			float *g = var->var;
+			fprintf(fout, "#%s= %g\n", var->name, *g);
 			break;
 		}
 	}
-	our_vars.var[ivar]->saved= 1;	// keep only one copy of this setting
+	var->saved= 1;	// keep only one copy of this setting
 }
 
 
@@ -2468,7 +2547,7 @@ int read_el_ini (void)
 	while ( fgets (line, sizeof (input_line), fin) )
 	{
 		if (line[0] == '#')
-			check_var (&(line[1]), INI_FILE_VAR);	//check only for the long strings
+			check_var(&(line[1]), INI_FILE_VAR);
 	}
 	// we have to delay the poor man setting as its action can be over written depending on the ini file order
 	delay_poor_man = 0;
@@ -2889,7 +2968,7 @@ static void elconfig_populate_tabs(void)
 					elconfig_tabs[tab_id].x+SPACING+get_string_width_ui(our_vars.var[i]->display.str, elconf_scale), elconfig_tabs[tab_id].y,
 					ELCONFIG_SCALED_VALUE(250), ELCONFIG_SCALED_VALUE(80), elconf_scale, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
 				for(y= 0; y<our_vars.var[i]->args.multi.count; y++) {
-					const char *label = our_vars.var[i]->args.multi.strings[y];
+					const char *label = our_vars.var[i]->args.multi.elems[y].label;
 					int width= strlen(label) > 0 ? 0 : -1;
 
 					multiselect_button_add_extended(elconfig_tabs[tab_id].tab, widget_id,
@@ -2928,7 +3007,7 @@ static void elconfig_populate_tabs(void)
 				widget_id= multiselect_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x+SPACING+get_string_width_ui(our_vars.var[i]->display.str, elconf_scale), elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(350), ELCONFIG_SCALED_VALUE(80), elconf_scale, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
 				x = 0;
 				for(y= 0; y<our_vars.var[i]->args.multi.count; y++) {
-					const char *label= our_vars.var[i]->args.multi.strings[y];
+					const char *label= our_vars.var[i]->args.multi.elems[y].label;
 
 					int radius = elconf_scale*BUTTONRADIUS;
 					float width_ratio = elconf_scale*DEFAULT_FONT_X_LEN/12.0f;
