@@ -606,11 +606,22 @@ void init_2d_obj_cache(void)
 }
 #endif
 
-#ifdef TTF
 // Needs to run AFTER OPenGL has been initialized, as it possibly creates one
 // or more textures.
-void init_ttf()
+static void init_font_textures()
 {
+	// Load textures for fonts bundled with the games
+	if (load_font_textures () != 1)
+	{
+		// If we can't load fonts, we cant communicate with the user. Give up.
+		LOG_ERROR("%s\n", fatal_data_error);
+		fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, fatal_data_error);
+		SDL_Quit();
+		FATAL_ERROR_WINDOW(fatal_data_error);
+		exit(1);
+	}
+
+#ifdef TTF
 	if (use_ttf)
 	{
 		if (TTF_Init() < 0)
@@ -623,8 +634,8 @@ void init_ttf()
 			add_all_ttf_files(ttf_directory);
 		}
 	}
-}
 #endif
+}
 
 void init_stuff(void)
 {
@@ -705,17 +716,7 @@ void init_stuff(void)
 #endif
 
 	//now load the font textures
-	if (load_font_textures () != 1)
-	{
-		LOG_ERROR("%s\n", fatal_data_error);
-		fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, fatal_data_error);
-		SDL_Quit();
-		FATAL_ERROR_WINDOW(fatal_data_error);
-		exit(1);
-	}
-#ifdef TTF
-	init_ttf();
-#endif
+	init_font_textures();
 
 	// read the continent map info
 	read_mapinfo();
@@ -749,6 +750,8 @@ void init_stuff(void)
 
 	// check for invalid combinations
 	check_options();
+	// Update values for multi-selects that weren't fully initialized yet
+	check_deferred_options();
 
 	update_loading_win(init_random_str, 4);
 	seed= time (NULL);

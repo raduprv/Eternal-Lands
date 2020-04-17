@@ -209,8 +209,13 @@ void change_windows_on_top(int *var);
  *
  * \param name       the name of the variable to add to
  * \param str      the text for the option
+ * \param id       an optional key for the option
  */
-void add_multi_option(const char* name, const char* str);
+void add_multi_option_with_id(const char* name, const char* str, const char* id);
+static __inline__ void add_multi_option(const char* name, const char* str)
+{
+	add_multi_option_with_id(name, str, NULL);
+}
 
 void change_windowed_chat (int *wc, int val);
 
@@ -245,6 +250,25 @@ int set_var_OPT_INT(const char *str, int new_value);
 void toggle_follow_cam(int * fc);
 void toggle_ext_cam(int * ec);
 void options_loaded(void);
+
+
+/*!
+ * \ingroup other
+ * Set previously stored multi-select variables.
+ *
+ * Some multi-select variables cannot be reliably set because they are not fully
+ * initialized before el.ini is read. The values for these variables are stored,
+ * and the variables are set to the correct option afterwards using this function.
+ * The initialization is done as follows:
+ * 1. if only an index is stored, and it is a valid index, that is used.
+ * 2. if both an index and a value are stored, the value overrides the index,
+ *    and the option with correct value is selected if it can be found.
+ * 3. if no valid value is found, or the value is empty and the index is invalid,
+ *    the option is left unchanged, and nothing is done.
+ * This function assumes all necessary initialization is done when it is called,
+ * and therefore deletes all deferred options.
+ */
+void check_deferred_options();
 
 #ifdef __cplusplus
 } // extern "C"

@@ -141,10 +141,19 @@ static int recheck_window_scale = 0;
 
 typedef char input_line[256];
 
+/*!
+ * Structure describing an option in a multi-elect widget. It contains the
+ * label, which is the text on the button presented to the user, and optionally a
+ * value. Using the value, options can also be sought by value rather than
+ * by index alone, and hence we don't have to rely on a particular ordering
+ * of elements, or on all elements being present.
+ */
 typedef struct
 {
+	//! The user-visible lable for the option
 	const char* label;
-	const char* id;
+	//! The optional value associated with this option
+	const char* value;
 } multi_element;
 
 /*!
@@ -188,6 +197,32 @@ struct variables
 	int no; /*!< current number of allocated \see var_struct in \a var */
 	var_struct * * var; /*!< fixed array of \a no \see var_struct structures */
 } our_vars= {0,NULL};
+
+/*!
+ * For some multi-select widgets (currently only the font selections, it seems),
+ * not all possible options are available at the time el.ini is read. Rather than
+ * blindly assuming the option will later be added, setting these options is
+ * deferred to a later stage after the widget has been fully initialized.
+ */
+typedef struct
+{
+	//! The index of the multiselect variable in \see our_vars.
+	int var_idx;
+	//! The previously stored index of the selected option.
+	int opt_idx;
+	//! The previously stored value of the selected option, or NULL if not present.
+	char* value;
+} deferred_option;
+
+//! The list of multi-select options that still need to be set
+static deferred_option *defers = NULL;
+//! The size of the \see defers array
+static int defers_size = 0;
+//! The number of elements currently used in the \see defers array
+static int defers_count = 0;
+//! Whether to still defer options
+static int do_defer = 1;
+
 
 int write_ini_on_exit= 1;
 // Window Handling
@@ -1789,60 +1824,208 @@ void check_options(void)
 	check_option_var("use_animation_program");
 }
 
-static int check_multi_select(const char* str, var_struct *var)
+/*!
+ * Find a multiselect option in variable \a var by value.
+ *
+ * \return The index of the value, if found, otherwise -1.
+ */
+static int find_multi_option_by_value(const var_struct *var, const char* value)
 {
-	int nr_conv;
-	int idx;
-	char id_buf[256] = { 0 };
+	int i;
 
-	nr_conv = sscanf(str, "%d (%255[^\r\n)])", &idx, id_buf);
+	if (!value)
+		return -1;
+
+	for (i = 0; i < var->args.multi.count; ++i)
+	{
+		const char *opt_value = var->args.multi.elems[i].value;
+		if (opt_value && !strcmp(opt_value, value))
+			return i;
+	}
+
+	return -1;
+}
+
+void check_deferred_options()
+{
+	int i;
+
+	for (i = 0; i < defers_count; ++i)
+	{
+		deferred_option *option = &defers[i];
+		var_struct *var = our_vars.var[option->var_idx];
+		const char* opt_val = option->value;
+		int opt_idx = option->opt_idx;
+		int opt_idx_ok = (opt_idx <= var->args.multi.count);
+
+		if (opt_val)
+		{
+			const char* value = opt_idx_ok ? var->args.multi.elems[opt_idx].value : NULL;
+			if (!value || strcmp(value, opt_val))
+			{
+				int new_idx = find_multi_option_by_value(var, opt_val);
+				if (new_idx >= 0)
+				{
+					opt_idx = new_idx;
+					opt_idx_ok = 1;
+				}
+				else
+				{
+					opt_idx_ok = 0;
+				}
+			}
+		}
+
+		if (opt_idx_ok)
+		{
+			var->func(var->var, opt_idx);
+			var->config_file_val = (float)opt_idx;
+		}
+		else
+		{
+			if (opt_val)
+			{
+				LOG_ERROR("Failed to find value '%s' in multiselect option '%s'",
+					opt_val, var->name);
+			}
+			else
+			{
+				LOG_ERROR("Failed to find index %d in multiselect option '%s'",
+					opt_idx, var->name);
+			}
+		}
+
+		free(option->value);
+	}
+
+	free(defers);
+	defers = NULL;
+	defers_size = 0;
+	defers_count = 0;
+
+	// Stop further deferrals
+	do_defer = 0;
+}
+
+/*!
+ * Defer setting multi-select variable.
+ *
+ * Some multi-select variables cannot be reliably set because they are not fully
+ * initialized before el.ini is read. This function stores the desired option
+ * for setting later.
+ * \param var_idx The index of the multi-select variable in \see our_vars.
+ * \param opt_idx The index of the desired option in the options list of the variable
+ * \param value   The value associated with the desired option.
+ * \return -1 if the option cannot be stored, 1 otherwise.
+ * \sa check_deferred_options()
+ */
+static int add_deferred_option(int var_idx, int opt_idx, const char* value)
+{
+	deferred_option *option;
+
+	if (defers_count >= defers_size)
+	{
+		int new_size = defers_size + 8;
+		deferred_option *new_defers = realloc(defers, new_size * sizeof(deferred_option));
+		if (!new_defers)
+			return -1;
+
+		defers = new_defers;
+		defers_size = new_size;
+	}
+
+	option = &defers[defers_count];
+	option->var_idx = var_idx;
+	option->opt_idx = opt_idx;
+	option->value = value ? strdup(value) : NULL;
+	++defers_count;
+
+	return 1;
+}
+
+/*!
+ * Set a the value of a multi-select variable.
+ *
+ * Set the value of the multiselect valuable at index \a var_idx in \see our_vars,
+ * to the option described by \a str (a line from el.ini). If the description
+ * contains both an index and a value, the value is preferred over the index,
+ * and the variable is set to the first option that has the same value. If the
+ * value cannot be found, or no value is set and the index is out of range,
+ * and \a do_defer is not zero, the desired option is stored for later
+ * processing.
+ *
+ * \param str      The description of the option to set
+ * \param var_idx  The index of the multi-select variable in which to select an option
+ * \return -1 is setting the option fails, 1 on success
+ *
+ * \sa check_deferred_options().
+ */
+static int check_multi_select(const char* str, int var_idx)
+{
+	var_struct *var = our_vars.var[var_idx];
+	int nr_conv, opt_idx, opt_idx_ok;
+	char value_buf[256] = { 0 };
+
+	nr_conv = sscanf(str, "%d (%255[^\r\n)])", &opt_idx, value_buf);
 	if (nr_conv == 0)
 	{
 		// Unable to parse the value at all
-		return 0;
+		return -1;
 	}
 
-	if (idx < 0 || idx >= var->args.multi.count)
+	if (opt_idx < 0)
 	{
-		LOG_ERROR("Invalid value %d for multiselect option %s", idx, var->name);
-		return 0;
+		LOG_ERROR("Invalid value %d for '%s'", opt_idx, var->name);
+		return -1;
 	}
+	opt_idx_ok = opt_idx <= var->args.multi.count;
 
 	if (nr_conv == 2)
 	{
-		// Got an ID. If it doesn't match the value at the index, find the option
-		// with the correct ID and update the index. If the option cannot be found,
-		// use the previous index value and hope for the best.
-		const char *id = var->args.multi.elems[idx].id;
-		if (!id || strcmp(id, id_buf) != 0)
+		// Got a value. If it doesn't match the value at the index, find the option
+		// with the correct value and update the index.
+		const char* opt_value = (opt_idx < var->args.multi.count)
+			? var->args.multi.elems[opt_idx].value : NULL;
+		opt_idx_ok = opt_value && !strcmp(opt_value, value_buf);
+		if (!opt_idx_ok)
 		{
-			int new_idx = idx;
-			for (new_idx = 0; new_idx < var->args.multi.count; ++new_idx)
+			int new_idx = find_multi_option_by_value(var, value_buf);
+			if (new_idx >= 0)
 			{
-				id = var->args.multi.elems[new_idx].id;
-				if (id && strcmp(id, id_buf) == 0)
-				{
-					idx = new_idx;
-					break;
-				}
-			}
-
-			if (new_idx == idx)
-			{
-				LOG_ERROR("Failed to find ID %s in multiselect option %s, falling back on index %d",
-					id_buf, var->name, idx);
+				opt_idx = new_idx;
+				opt_idx_ok = 1;
 			}
 		}
-else
-{
-printf("ID %s matches at index %d\n", id_buf, idx);
-}
 	}
 
-	var->func(var->var, idx);
-	var->config_file_val = (float)idx;
+	if (opt_idx_ok)
+	{
+		var->func(var->var, opt_idx);
+		var->config_file_val = (float)opt_idx;
+		return 1;
+	}
 
-	return 1;
+	// The index stored does not fit in the current range of the multiselect,
+	// or the value stored with the index does not match the value at this index.
+	// If do_defer is true, store the index and value to check again at a later
+	// point, otherwise give up.
+	if (do_defer)
+	{
+		char* value = *value_buf ? value_buf : NULL;
+		return add_deferred_option(var_idx, opt_idx, value);
+	}
+
+	if (*value_buf)
+	{
+		LOG_ERROR("Failed to find value '%s' in multiselect option '%s'",
+			value_buf, var->name);
+	}
+	else
+	{
+		LOG_ERROR("Failed to find index %d in multiselect option '%s'",
+			opt_idx, var->name);
+	}
+	return -1;
 }
 
 int check_var(char *str, var_name_type type)
@@ -1914,13 +2097,13 @@ int check_var(char *str, var_name_type type)
 		case OPT_INT_F:
 		{
 			int new_val = atoi (ptr);
-			our_vars.var[i]->func ( our_vars.var[i]->var, new_val);
+			our_vars.var[i]->func(our_vars.var[i]->var, new_val);
 			our_vars.var[i]->config_file_val = (float)new_val;
 			return 1;
 		}
 		case OPT_MULTI:
 		case OPT_MULTI_H:
-			return check_multi_select(ptr, our_vars.var[i]);
+			return check_multi_select(ptr, i);
 		case OPT_BOOL_INI:
 			// Needed, because var is never changed through widget
 			our_vars.var[i]->saved= 0;
@@ -1978,18 +2161,18 @@ void free_vars(void)
 	our_vars.no=0;
 }
 
-static void add_multi_option_to_var(var_struct *var, const char* label, const char* id)
+static void add_multi_option_to_var(var_struct *var, const char* label, const char* value)
 {
 	// FIXME? reallocating on every addition
 	multi_element *new_elems = realloc(var->args.multi.elems, sizeof(multi_element) * (var->args.multi.count + 1));
 	if (!new_elems)
 	{
-		LOG_ERROR("Failed to reallocate elements fo variable %s", var->name);
+		LOG_ERROR("Failed to reallocate elements for variable '%s'", var->name);
 		return;
 	}
 
 	new_elems[var->args.multi.count].label = label;
-	new_elems[var->args.multi.count].id = id;
+	new_elems[var->args.multi.count].value = value;
 	var->args.multi.elems = new_elems;
 	var->args.multi.count++;
 }
@@ -2497,9 +2680,9 @@ static void write_var(FILE *fout, int ivar)
 		case OPT_MULTI_H:
 		{
 			int idx = *(const int*)var->var;
-			const char* id = var->args.multi.elems[idx].id;
-			if (id)
-				fprintf(fout, "#%s= %d(%s)\n", var->name, idx, id);
+			const char* value = var->args.multi.elems[idx].value;
+			if (value)
+				fprintf(fout, "#%s= %d(%s)\n", var->name, idx, value);
 			else
 				fprintf(fout, "#%s= %d\n", var->name, idx);
 			break;

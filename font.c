@@ -52,7 +52,7 @@ typedef struct
 	char* font_name;
 	Uint32 flags;
 #ifdef TTF
-	char file_name[FONT_FILE_NAME_SIZE];
+	char *file_name;
 	union
 	{
 		Uint32 cache_id;
@@ -1134,14 +1134,14 @@ void cleanup_fonts(void)
 	free(fonts_array);
 }
 
-static void add_font_option(const char* font_name)
+static void add_font_option(const char* font_name, const char* file_name)
 {
-	add_multi_option("ui_font", font_name);
-	add_multi_option("chat_font", font_name);
-	add_multi_option("name_font", font_name);
-	add_multi_option("book_font", font_name);
-	add_multi_option("note_font", font_name);
-	add_multi_option("rules_font", font_name);
+	add_multi_option_with_id("ui_font", font_name, file_name);
+	add_multi_option_with_id("chat_font", font_name, file_name);
+	add_multi_option_with_id("name_font", font_name, file_name);
+	add_multi_option_with_id("book_font", font_name, file_name);
+	add_multi_option_with_id("note_font", font_name, file_name);
+	add_multi_option_with_id("rules_font", font_name, file_name);
 }
 
 int load_font_textures()
@@ -1175,7 +1175,8 @@ int load_font_textures()
 	fonts_array[0].texture_id.cache_id = load_texture_cached("textures/font.dds", tt_font);
 	// Force the selection of the base font.
 	fonts_array[0].font_name = strdup("Type 1");
-	add_font_option(fonts_array[0].font_name);
+	fonts_array[0].file_name = NULL;
+	add_font_option(fonts_array[0].font_name, NULL);
 
 	// Find what font's exist and load them
 	glob_pattern = malloc(strlen(datadir)+sizeof(texture_dir)+10+1); //+10 = font*.bmp*
@@ -1222,7 +1223,8 @@ int load_font_textures()
 			label = malloc(label_size);
 			safe_snprintf(label, label_size, "Type %i - %s", i + 1, file);
 			fonts_array[i].font_name = label;
-			add_font_option(fonts_array[i].font_name);
+			fonts_array[1].file_name = NULL;
+			add_font_option(fonts_array[i].font_name, NULL);
 			i++;
 		}
 #ifndef WINDOWS
@@ -1434,9 +1436,9 @@ int add_ttf_file(const char* file_name)
 	TTF_CloseFont(font);
 
 	info->flags = FONT_FLAG_IN_USE | FONT_FLAG_TTF;
-	safe_strncpy(info->file_name, file_name, FONT_FILE_NAME_SIZE);
+	info->file_name = strdup(file_name);
 	info->font_name = label;
-	add_font_option(info->font_name);
+	add_font_option(info->font_name, info->file_name);
 
 	return 1;
 }
