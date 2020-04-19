@@ -258,8 +258,7 @@ int HandleEvent (SDL_Event *event)
 				{
 					Uint32 old_window_width = window_width, old_window_height = window_height;
 					//printf("SDL_WINDOWEVENT_RESIZED\n");
-				 	window_width = event->window.data1;
-					window_height = event->window.data2;
+					update_window_size_and_scale();
 					resize_all_root_windows(old_window_width, window_width, old_window_height, window_height);
 					break;
 				}
@@ -334,21 +333,26 @@ int HandleEvent (SDL_Event *event)
 			{
 				mouse_x = window_width/2;
 				mouse_y = window_height/2;
+				highdpi_scale(&mouse_x, &mouse_y);
 
 				mouse_delta_x= event->motion.xrel;
 				mouse_delta_y= event->motion.yrel;
+				highdpi_scale(&mouse_delta_x, &mouse_delta_y);
 			}
 			else if(event->type==SDL_MOUSEMOTION)
 			{
 				mouse_x = event->motion.x;
 				mouse_y = event->motion.y;
+				highdpi_scale(&mouse_x, &mouse_y);
 
 				mouse_delta_x = event->motion.xrel;
 				mouse_delta_y = event->motion.yrel;
+				highdpi_scale(&mouse_delta_x, &mouse_delta_y);
 			}
 			else if(event->type==SDL_MOUSEWHEEL)
 			{
 				SDL_GetMouseState(&mouse_x, &mouse_y);
+				highdpi_scale(&mouse_x, &mouse_y);
 			}
 			else
 			{
@@ -358,6 +362,7 @@ int HandleEvent (SDL_Event *event)
 #endif // NEW_CURSOR
 					mouse_x= event->button.x;
 					mouse_y= event->button.y;
+					highdpi_scale(&mouse_x, &mouse_y);
 #ifdef NEW_CURSOR
 				}
 #endif // NEW_CURSOR
