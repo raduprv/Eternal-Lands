@@ -12,7 +12,9 @@
 #include "hud.h"
 #include "hud_quickspells_window.h"
 #include "hud_misc_window.h"
+#if defined JSON_FILES
 #include "json_io.h"
+#endif
 #include "loginwin.h"
 #include "io/elpathwrapper.h"
 #include "spells.h"
@@ -438,8 +440,10 @@ void load_quickspells (void)
 	Uint8 num_spells;
 	FILE *fp;
 	Uint32 i, index;
+#if defined JSON_FILES
 	int json_num_spells = 0;
 	int quickspell_ids[MAX_QUICKSPELL_SLOTS];
+#endif
 
 	// Grum: move this over here instead of at the end of the function,
 	// so that quickspells are always saved when the player logs in.
@@ -447,6 +451,7 @@ void load_quickspells (void)
 	// succeeds)
 	quickspells_loaded = 1;
 
+#if defined JSON_FILES
 	safe_snprintf(fname, sizeof(fname), "%sspells_%s.json", get_path_config(), get_lowercase_username());
 	if ((json_num_spells = json_load_quickspells(fname, quickspell_ids, MAX_QUICKSPELL_SLOTS)) >= 0)
 	{
@@ -457,6 +462,7 @@ void load_quickspells (void)
 				mqb_data[index++] = build_quickspell_data(quickspell_ids[i]);
 		return;
 	}
+#endif
 
 	//open the data file
 	safe_snprintf(fname, sizeof(fname), "spells_%s.dat",get_lowercase_username());
@@ -537,8 +543,10 @@ void save_quickspells(void)
 	FILE *fp;
 	Uint8 i;
 	size_t num_spells_to_write = 0;
+#if defined JSON_FILES
 	size_t index;
 	Uint16 *quickspell_ids = NULL;
+#endif
 
 	if (!quickspells_loaded)
 		return;
@@ -551,6 +559,7 @@ void save_quickspells(void)
 		num_spells_to_write++;
 	}
 
+#if defined JSON_FILES
 	// save the quickspell to the json file
 	quickspell_ids = malloc(num_spells_to_write * sizeof(Uint16));
 	for (index = 0; index < num_spells_to_write; index++)
@@ -568,6 +577,9 @@ void save_quickspells(void)
 	safe_snprintf(fname, sizeof(fname), "spells_%s.dat",get_lowercase_username());
 	if (file_exists_config(fname)!=1)
 		return;
+#else
+	safe_snprintf(fname, sizeof(fname), "spells_%s.dat",get_lowercase_username());
+#endif
 
 	//write to the data file, for historical reasons, we will write all the information
 	fp=open_file_config(fname,"wb");

@@ -14,7 +14,9 @@
 #include "init.h"
 #include "interface.h"
 #include "item_info.h"
+#if defined JSON_FILES
 #include "json_io.h"
+#endif
 #include "loginwin.h"
 #include "multiplayer.h"
 #include "textures.h"
@@ -382,7 +384,9 @@ void load_recipes (){
 	off_t file_size;
 	const size_t recipe_size = sizeof(item)*NUM_MIX_SLOTS;
 	int num_recipes_in_file = -1;
+#if defined JSON_FILES
 	int have_json_file = 0;
+#endif
 
 	if (recipes_loaded) {
 		/*
@@ -393,6 +397,7 @@ void load_recipes (){
 		return;
 	}
 
+#if defined JSON_FILES
 	/* try to use the json file first ... */
 	safe_snprintf(fname, sizeof(fname), "%srecipes_%s.json", get_path_config(), get_lowercase_username());
 	if ((num_recipes_in_file = json_open_recipes(fname)) >= 0)
@@ -400,12 +405,15 @@ void load_recipes (){
 	/* ... then try the old binary file if we fail */
 	else
 	{
+#endif
 		safe_snprintf(fname, sizeof(fname), "recipes_%s.dat",get_lowercase_username());
 		/* get file length, if a valid length */
 		file_size = get_file_size_config(fname);
 		if ((file_size > 0) && (file_size % recipe_size == 0))
 			num_recipes_in_file = file_size / recipe_size - 1; // -1 as last is current in pipline
+#if defined JSON_FILES
 	}
+#endif
 
 	/* adjust the number of recipe slots if required */
 	if ((num_recipes_in_file > wanted_num_recipe_entries) && (num_recipes_in_file < max_num_recipe_entries))
@@ -425,6 +433,7 @@ void load_recipes (){
 	recipes_loaded=1;
 	init_recipe_names();
 
+#if defined JSON_FILES
 	if (have_json_file)
 	{
 		cur_recipe = json_load_recipes(recipes_store, num_recipe_entries);
@@ -437,6 +446,7 @@ void load_recipes (){
 			cur_recipe = 0;
 		return;
 	}
+#endif
 
 	/* if the file exists but is not a valid size, don't use it */
 	if ((file_size > 0) && (file_size % recipe_size != 0))
@@ -500,6 +510,7 @@ void save_recipes(){
 	if (!recipes_loaded)
 		return;
 
+#if defined JSON_FILES
 	/* save in json format always */
 	safe_snprintf(fname, sizeof(fname), "%srecipes_%s.json",get_path_config(), get_lowercase_username());
 	if (json_save_recipes(fname, recipes_store, num_recipe_entries, cur_recipe) < 0)
@@ -512,9 +523,13 @@ void save_recipes(){
 	safe_snprintf(fname, sizeof(fname), "recipes_%s.dat",get_lowercase_username());
 	if (file_exists_config(fname)!=1)
 		return;
+#endif
 
 	save_recipe_names();
 
+#if !defined JSON_FILES
+	safe_snprintf(fname, sizeof(fname), "recipes_%s.dat",get_lowercase_username());
+#endif
 	fp=open_file_config(fname,"wb");
 	if(fp == NULL){
 		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, fname, strerror(errno));

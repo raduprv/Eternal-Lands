@@ -27,6 +27,7 @@ project (Eternal-Lands)
 # standard options that also set source files to build
 set(CUSTOM_UPDATE 1)			# allows autoupdating of custom look information
 set(FSAA 1)						# Adds support for full screen anti-aliasing using OpenGL multisampling.
+set(JSON_FILES 1)				# switch existing binary user config files to JSON format
 
 # standard options
 add_definitions(
@@ -123,7 +124,10 @@ include(cmake/FindVorbis.cmake)
 include(cmake/FindVorbisFile.cmake)
 include(cmake/FindCal3d.cmake)
 
-find_package(nlohmann_json 3.2.0 REQUIRED)
+# requird the nlohmann_json package if building for json files
+if (JSON_FILES EQUAL 1)
+	find_package(nlohmann_json 3.2.0 REQUIRED)
+endif()
 
 # set the paths to header files
 include_directories(${SD} ${SD}io ${SD}shader ${SD}xz ${SD}engine ${SD}exceptions ${SD}xml ${SD}eye_candy)
@@ -158,7 +162,7 @@ set(SOURCES
 set(SOURCES ${SOURCES}
 	${SD}achievements.cpp ${SD}actor_init.cpp ${SD}cal3d_wrapper.cpp ${SD}command_queue.cpp ${SD}context_menu.cpp
 	${SD}elloggingwrapper.cpp ${SD}hud_indicators.cpp ${SD}hud_timer.cpp ${SD}icon_window.cpp
-	${SD}io/cal3d_io_wrapper.cpp ${SD}item_info.cpp ${SD}item_lists.cpp ${SD}json_io.cpp ${SD}named_colours.cpp
+	${SD}io/cal3d_io_wrapper.cpp ${SD}item_info.cpp ${SD}item_lists.cpp ${SD}named_colours.cpp
 	${SD}optimizer.cpp ${SD}password_manager.cpp ${SD}quest_log.cpp ${SD}select.cpp ${SD}sendvideoinfo.cpp
 	${SD}trade_log.cpp ${SD}user_menus.cpp ${SD}xor_cipher.cpp ${SD}engine/hardwarebuffer.cpp ${SD}engine/logging.cpp
 	${SD}exceptions/extendedexception.cpp ${SD}eye_candy/effect_bag.cpp ${SD}eye_candy/effect_breath.cpp
@@ -177,6 +181,12 @@ set(SOURCES ${SOURCES}
 if (CUSTOM_UPDATE EQUAL 1)
 	add_definitions(-DCUSTOM_UPDATE)
 	set(SOURCES ${SOURCES} ${SD}custom_update.c ${SD}new_update.c)
+endif()
+
+# if JSON_FILES wanted add the define and additional source modules
+if (JSON_FILES EQUAL 1)
+	add_definitions(-DJSON_FILES)
+	set(SOURCES ${SOURCES} ${SD}json_io.cpp )
 endif()
 
 # if FSAA wanted add the define and additional source modules
@@ -252,6 +262,13 @@ string(STRIP "${EXTRA_LD_FLAGS}" EXTRA_LD_FLAGS)
 
 add_executable(${EXEC} ${SOURCES})
 
+# if JSON_FILES wanted define dependancies
+if (JSON_FILES EQUAL 1)
+	set(EXTRA_TARGET_INCLUDE nlohmann_json::nlohmann_json)
+else()
+	set(EXTRA_TARGET_INCLUDE "")
+endif()
+
 target_link_libraries(${EXEC}
 	${EXTRA_LD_FLAGS}
 	${SDL2_LIBRARY} ${SDL2_LIBRARIES}
@@ -269,7 +286,6 @@ target_link_libraries(${EXEC}
 	${OPENGL_gl_LIBRARY}
 	${OPENGL_glu_LIBRARY}
 	${STATIC_LIBRARIES}
-	nlohmann_json::nlohmann_json
 )
 
 target_include_directories(${EXEC} SYSTEM PUBLIC
@@ -286,8 +302,9 @@ target_include_directories(${EXEC} SYSTEM PUBLIC
 	${PNG_INCLUDE_DIRS}
 	${X11_INCLUDE_DIR}
 	${Iconv_INCLUDE_DIRS}
-	nlohmann_json::nlohmann_json
+	${EXTRA_TARGET_INCLUDE}
 )
+
 
 install(
 	TARGETS ${EXEC} RUNTIME DESTINATION bin

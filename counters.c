@@ -10,7 +10,9 @@
 #include "hud.h"
 #include "init.h"
 #include "loginwin.h"
+#if defined JSON_FILES
 #include "json_io.h"
+#endif
 #include "manufacture.h"
 #include "multiplayer.h"
 #include "named_colours.h"
@@ -243,6 +245,7 @@ void load_counters(void)
 
 	counters_initialized = 1;
 
+#if defined JSON_FILES
 	// try to load the counters json file
 	safe_snprintf(filename, sizeof(filename), "%scounters_%s.json", get_path_config(), get_lowercase_username());
 	if (json_load_counters(filename, cat_str, entries, NUM_COUNTERS, counters) >= 0)
@@ -250,6 +253,7 @@ void load_counters(void)
 		LEAVE_DEBUG_MARK("load counters");
 		return;
 	}
+#endif
 
 	// if there is no json file, try to load the old binary format
 	safe_snprintf(filename, sizeof(filename), "counters_%s.dat", get_lowercase_username());
@@ -316,6 +320,7 @@ void flush_counters(void)
 		return;
 	}
 
+#if defined JSON_FILES
 	// save the json file
 	safe_snprintf(filename, sizeof(filename), "%scounters_%s.json", get_path_config(), get_lowercase_username());
 	if (json_save_counters(filename, cat_str, entries, NUM_COUNTERS, (const struct Counter **)counters) < 0)
@@ -329,6 +334,9 @@ void flush_counters(void)
 	safe_snprintf(filename, sizeof(filename), "counters_%s.dat", get_lowercase_username());
 	if (file_exists_config(filename)!=1)
 		return;
+#else
+	safe_snprintf(filename, sizeof(filename), "counters_%s.dat", get_lowercase_username());
+#endif
 
 	LOG_DEBUG("Open counters file '%s'", filename);
 	if (!(f = open_file_config(filename, "wb"))) {
