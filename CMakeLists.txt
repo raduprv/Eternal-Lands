@@ -264,8 +264,10 @@ add_executable(${EXEC} ${SOURCES})
 
 # if JSON_FILES wanted define dependancies
 if (JSON_FILES EQUAL 1)
+	set(EXTRA_TARGET_LINK nlohmann_json::nlohmann_json)
 	set(EXTRA_TARGET_INCLUDE nlohmann_json::nlohmann_json)
 else()
+	set(EXTRA_TARGET_LINK "")
 	set(EXTRA_TARGET_INCLUDE "")
 endif()
 
@@ -286,6 +288,7 @@ target_link_libraries(${EXEC}
 	${OPENGL_gl_LIBRARY}
 	${OPENGL_glu_LIBRARY}
 	${STATIC_LIBRARIES}
+	${EXTRA_TARGET_LINK}
 )
 
 target_include_directories(${EXEC} SYSTEM PUBLIC
