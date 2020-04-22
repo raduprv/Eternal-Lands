@@ -11,7 +11,7 @@
 #include	<zlib.h>
 #ifdef PNG_SCREENSHOT
 	#ifdef OSX
-		#include <png/png.h>
+		#include <libpng.png/png.h>
 	#else
 		#include <png.h>
 	#endif

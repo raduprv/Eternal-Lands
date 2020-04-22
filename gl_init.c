@@ -367,11 +367,6 @@ void init_video(void)
 	// set the initial window title, though it will change once we are logged in
 	SDL_SetWindowTitle( el_gl_window, win_principal );
 
-#ifdef OSX
-	// don't emulate a 3 button mouse except you still have a 1 button mouse, ALT+leftclick doesn't work with the emulation
-	if (!emulate3buttonmouse) SDL_putenv("SDL_HAS3BUTTONMOUSE=1");
-#endif
-
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	//glDepthFunc(GL_LEQUAL);
