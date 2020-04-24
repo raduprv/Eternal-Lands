@@ -677,6 +677,8 @@ void init_stuff(void)
 		FATAL_ERROR_WINDOW(fatal_data_error);
 		exit(1);
 	}
+	// Update values for multi-selects that weren't fully initialized yet
+	check_deferred_options();
 
 	//Good, we should be in the right working directory - load all translatables from their files
 	load_translatables();
@@ -724,8 +726,6 @@ void init_stuff(void)
 
 	// check for invalid combinations
 	check_options();
-	// Update values for multi-selects that weren't fully initialized yet
-	check_deferred_options();
 
 	update_loading_win(init_random_str, 4);
 	seed= time (NULL);
