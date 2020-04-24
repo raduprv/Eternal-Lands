@@ -64,7 +64,7 @@ COBJS=2d_objects.o 3d_objects.o \
 	cache.o cal.o calc.o chat.o cluster.o colors.o console.o consolewin.o \
 	counters.o cursors.o dds.o ddsimage.o dialogues.o draw_scene.o eye_candy_debugwin.o \
 	el_memory.o elconfig.o elwindows.o encyclopedia.o errors.o events.o	\
-	filter.o font.o framebuffer.o frustum.o gamewin.o gl_init.o 	\
+	filter.o framebuffer.o frustum.o gamewin.o gl_init.o 	\
 	hud.o hud_misc_window.o hud_quickbar_window.o hud_statsbar_window.o hud_quickspells_window.o	\
 	help.o highlight.o ignore.o image_loading.o init.o interface.o items.o io/fileutil.o	\
 	io/e3d_io.o io/elc_io.o	io/map_io.o io/elpathwrapper.o io/xmlcallbacks.o \
@@ -89,7 +89,7 @@ COBJS=2d_objects.o 3d_objects.o \
 
 CXXOBJS=achievements.o actor_init.o cal3d_wrapper.o command_queue.o \
 	context_menu.o elloggingwrapper.o engine/logging.o exceptions/extendedexception.o \
-	hud_indicators.o hud_timer.o icon_window.o io/cal3d_io_wrapper.o item_info.o item_lists.o named_colours.o \
+	font.o hud_indicators.o hud_timer.o icon_window.o io/cal3d_io_wrapper.o item_info.o item_lists.o named_colours.o \
 	password_manager.o optimizer.o quest_log.o select.o sendvideoinfo.o trade_log.o user_menus.o \
 	xml/xmlhelper.o eye_candy_wrapper.o xor_cipher.o \
 	engine/hardwarebuffer.o \

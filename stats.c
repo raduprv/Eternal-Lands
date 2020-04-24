@@ -46,9 +46,6 @@ int floatingmessages_enabled = 1;
 void floatingmessages_add_level(int actor_id, int level, const unsigned char * skillname);
 void floatingmessages_compare_stat(int actor_id, int value, int new_value, const unsigned char *skillname);
 
-static void draw_stat_final(window_info *win, int x, int y, const unsigned char * name, const char * value);
-
-
 void get_the_stats(Sint16 *stats, size_t len_in_bytes)
 {
         have_stats=1;
@@ -646,41 +643,51 @@ void init_attribf()
         your_info.eth.cur=get_cur_eth;
 }
 
-static void draw_stat(window_info *win, int x, int y, attrib_16 * var, names * name)
+static void draw_stat(const window_info *win, int x, int y, const attrib_16 *var,
+	const names *name)
 {
-        char str[10];
-        safe_snprintf(str,sizeof(str),"%3i/%-3i",var->cur,var->base);
-        str[9]=0;
-        draw_stat_final(win, x, y, name->name, str);
+	int x_mid_var = x + (16+3) * win->small_font_len_x;
+	char buf[10];
+	draw_string_small_zoomed(x, y, name->name, 1, win->current_scale);
+	safe_snprintf(buf, sizeof(buf), "%3d / %d", var->cur, var->base);
+	draw_string_small_zoomed_centered_around(x_mid_var, y, (const unsigned char*)buf,
+		4, win->current_scale);
 }
 
-static void draw_skill(window_info *win, int x, int y, attrib_16 * lvl, names * name, Uint32 exp, Uint32 exp_next)
+static void draw_skill(const window_info *win, int x, int y, const attrib_16 *lvl,
+	const names *name, Uint32 exp, Uint32 exp_next)
 {
-        char str[37];
-        char lvlstr[9];
-        char expstr[25];
+	int x_mid_lvl = x + (16+3) * win->small_font_len_x;
+	int x_mid_exp = x + (16+8+10) * win->small_font_len_x;
+	char buf[25];
 
-        safe_snprintf(lvlstr, sizeof(lvlstr), "%3i/%-3i", lvl->cur, lvl->base);
-        safe_snprintf(expstr,sizeof(expstr),"%10u/%-10u", exp, exp_next);
-        safe_snprintf(str, sizeof(str), "%-7s %-22s", lvlstr, expstr);
-        draw_stat_final(win, x, y, name->name, str);
+	draw_string_small_zoomed(x, y, name->name, 1, win->current_scale);
+	safe_snprintf(buf, sizeof(buf), "%3d / %d", lvl->cur, lvl->base);
+	draw_string_small_zoomed_centered_around(x_mid_lvl, y, (const unsigned char*)buf,
+		4, win->current_scale);
+	safe_snprintf(buf, sizeof(buf), "%10u / %u", exp, exp_next);
+	draw_string_small_zoomed_centered_around(x_mid_exp, y, (const unsigned char*)buf,
+		11, win->current_scale);
 }
 
-static void draw_statf(window_info *win, int x, int y, attrib_16f * var, names * name)
+static void draw_statf(const window_info *win, int x, int y, const attrib_16f *var,
+	const names *name)
 {
-        char str[10];
+	int x_mid_var = x + (16+3) * win->small_font_len_x;
+	char buf[12];
 
-        safe_snprintf(str,sizeof(str),"%3i/%-3i",var->cur(),var->base());
-        str[9]=0;
-        draw_stat_final(win, x, y, name->name, str);
+	draw_string_small_zoomed(x, y, name->name, 1, win->current_scale);
+	safe_snprintf(buf, sizeof(buf),"%3d / %d", var->cur(), var->base());
+	draw_string_small_zoomed_centered_around(x_mid_var, y, (const unsigned char*)buf,
+		4, win->current_scale);
 }
 
-static void draw_stat_final(window_info *win, int x, int y, const unsigned char * name, const char * value)
+static void draw_stat_single(const window_info *win, int x, int y,
+	const unsigned char* name, const char* value)
 {
-        char str[80];
-
-        safe_snprintf(str,sizeof(str),"%-15s %s",name,value);
-        draw_string_small_zoomed(x, y, (unsigned char*)str, 1, win->current_scale);
+	int x_mid = x + (16+3) * win->small_font_len_x;
+	draw_string_small_zoomed(x, y, name, 1, win->current_scale);
+	draw_string_small_zoomed_centered(x_mid, y, (const unsigned char*) value, 1, win->current_scale);
 }
 
 int display_stats_handler(window_info *win)
@@ -761,10 +768,10 @@ int display_stats_handler(window_info *win)
         //other info
         y = win->len_y - win->small_font_len_y * 1.25;
         safe_snprintf(str, sizeof(str), "%3i",cur_stats.food_level);
-        draw_stat_final(win,x,y,attributes.food.name,str);
+        draw_stat_single(win,x,y,attributes.food.name,str);
 
         safe_snprintf(str, sizeof(str), "%3i",cur_stats.overall_skill.base-cur_stats.overall_skill.cur);
-        draw_stat_final(win,x+c2_x_offset,y,attributes.pickpoints,str);
+        draw_stat_single(win,x+c2_x_offset,y,attributes.pickpoints,str);
 
         //nexuses here
         glColor3f(1.0f,1.0f,1.0f);
@@ -945,7 +952,7 @@ void draw_floatingmessage(floating_message *message, float healthbar_z) {
         glOrtho(view[0],view[2]+view[0],view[1],view[3]+view[1],0.0f,-1.0f);
 
         draw_ortho_ingame_string(x, y, 0, (unsigned char*)message->message, 1,
-			NAME_FONT, INGAME_FONT_X_LEN*8.0, INGAME_FONT_X_LEN*8.0);
+			INGAME_FONT_X_LEN*8.0, INGAME_FONT_X_LEN*8.0);
 
         glMatrixMode(GL_PROJECTION);
         glPopMatrix();

@@ -606,37 +606,6 @@ void init_2d_obj_cache(void)
 }
 #endif
 
-// Needs to run AFTER OPenGL has been initialized, as it possibly creates one
-// or more textures.
-static void init_font_textures()
-{
-	// Load textures for fonts bundled with the games
-	if (load_font_textures () != 1)
-	{
-		// If we can't load fonts, we cant communicate with the user. Give up.
-		LOG_ERROR("%s\n", fatal_data_error);
-		fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, fatal_data_error);
-		SDL_Quit();
-		FATAL_ERROR_WINDOW(fatal_data_error);
-		exit(1);
-	}
-
-#ifdef TTF
-	if (use_ttf)
-	{
-		if (TTF_Init() < 0)
-		{
-			LOG_ERROR("Failed to initialize True Type fonts: %s", TTF_GetError());
-			use_ttf = 0;
-		}
-		else if (ttf_directory[0])
-		{
-			add_all_ttf_files(ttf_directory);
-		}
-	}
-#endif
-}
-
 void init_stuff(void)
 {
 	int seed;
@@ -699,7 +668,15 @@ void init_stuff(void)
 
 	// initialize the fonts, but don't load the textures yet. Do that here
 	// because the messages need the font widths.
-	init_fonts();
+	if (!initialize_fonts())
+	{
+		// If we can't load fonts, we cant communicate with the user. Give up.
+		LOG_ERROR("%s\n", fatal_data_error);
+		fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, fatal_data_error);
+		SDL_Quit();
+		FATAL_ERROR_WINDOW(fatal_data_error);
+		exit(1);
+	}
 
 	//Good, we should be in the right working directory - load all translatables from their files
 	load_translatables();
@@ -714,9 +691,6 @@ void init_stuff(void)
 #ifndef FASTER_MAP_LOAD
 	init_2d_obj_cache();
 #endif
-
-	//now load the font textures
-	init_font_textures();
 
 	// read the continent map info
 	read_mapinfo();

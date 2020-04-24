@@ -35,8 +35,8 @@
 #endif	/* FSAA */
 
 #ifdef ELC
-#define DRAW_ORTHO_INGAME_NORMAL(x, y, z, our_string, max_lines)	draw_ortho_ingame_string(x, y, z, (const Uint8*)our_string, max_lines, NAME_FONT, INGAME_FONT_X_LEN*10.0, INGAME_FONT_X_LEN*10.0)
-#define DRAW_INGAME_SMALL(x, y, our_string, max_lines)	draw_ingame_string(x, y, (const Uint8*)our_string, max_lines, NAME_FONT, SMALL_INGAME_FONT_X_LEN, SMALL_INGAME_FONT_Y_LEN)
+#define DRAW_ORTHO_INGAME_NORMAL(x, y, z, our_string, max_lines)	draw_ortho_ingame_string(x, y, z, (const Uint8*)our_string, max_lines, INGAME_FONT_X_LEN*10.0, INGAME_FONT_X_LEN*10.0)
+#define DRAW_INGAME_SMALL(x, y, our_string, max_lines)	draw_ingame_string(x, y, (const Uint8*)our_string, max_lines, SMALL_INGAME_FONT_X_LEN, SMALL_INGAME_FONT_Y_LEN)
 #endif
 
 actor *actors_list[MAX_ACTORS];
@@ -530,13 +530,13 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				float x,y;
 				x = window_width / 2.0 - 0.5f * (float)get_string_width_zoom(str, NAME_FONT,  font_scale*0.17);
 				y = a_bounce + window_height/2.0-40.0;
-				draw_ortho_ingame_string(x, y, 0, str, 1, NAME_FONT, font_scale*.14, font_scale*.14);
+				draw_ortho_ingame_string(x, y, 0, str, 1, font_scale*.14, font_scale*.14);
 			}
 			else
 			{
 				float font_scale2 = font_scale*powf(1.0f+((float)abs(actor_id->damage)/2.0f)/1000.0f, 4.0);
 				draw_ortho_ingame_string(hx - 0.5f * (float)get_string_width_zoom(str, NAME_FONT, font_scale2*0.17),
-					a_bounce+hy+10.0f, 0, str, 1, NAME_FONT,
+					a_bounce+hy+10.0f, 0, str, 1,
 					font_scale2*.14, font_scale2*.14);
 			}
 			glDisable(GL_BLEND);
@@ -596,7 +596,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				safe_snprintf ((char*)temp, sizeof (temp), "%s", actor_id->actor_name);
 				banner_width = 0.5 * (float)get_string_width_zoom((unsigned char*)actor_id->actor_name, NAME_FONT, font_size_x);
 				draw_ortho_ingame_string(hx-banner_width, hy+bar_y_len/2.0f, hz, temp,
-					1, NAME_FONT, font_size_x, font_size_y);
+					1, font_size_x, font_size_y);
 			}
 			if (view_buffs)
 			{
@@ -648,14 +648,14 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 						//choose color for the health
 						set_health_color((float)actor_id->cur_health/(float)actor_id->max_health, 1.0f, 1.0f);
 						draw_ortho_ingame_string(hx-disp+hp_off, hy-bar_y_len/3.0f,
-							hz, hp, 1, NAME_FONT, ALT_INGAME_FONT_X_LEN*font_scale,
+							hz, hp, 1, ALT_INGAME_FONT_X_LEN*font_scale,
 							ALT_INGAME_FONT_X_LEN*font_scale);
 					}
 
 					if (display_ether) {
 						set_mana_color((float)your_info.ethereal_points.cur / (float)your_info.ethereal_points.base, 1.0f, 1.0f);
 						draw_ortho_ingame_string(hx-disp+eth_off, ey-bar_y_len/3.0f,
-							hz, mana, 1, NAME_FONT, ALT_INGAME_FONT_X_LEN*font_scale,
+							hz, mana, 1, ALT_INGAME_FONT_X_LEN*font_scale,
 							ALT_INGAME_FONT_X_LEN*font_scale);
 					}
 				}
