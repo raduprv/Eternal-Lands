@@ -126,10 +126,29 @@ void update_session_distance(void)
 	}
 }
 
+static void draw_session_line(window_info *win, int x, int y, const char* skill,
+	const char* tot_exp, const char* max_exp, const char* last_exp)
+{
+	int cw = win->small_font_len_x;
+	float scale = win->current_scale;
+
+	int tot_exp_right = x + (10 + 17) * cw;
+	int max_exp_right = tot_exp_right + 17 * cw;
+	int last_exp_right = max_exp_right + 17 * cw;
+
+	draw_string_small_zoomed(x, y, (const unsigned char*)skill, 1, win->current_scale);
+	draw_string_small_zoomed_right(tot_exp_right, y, (const unsigned char*)tot_exp, 1, scale);
+	draw_string_small_zoomed_right(max_exp_right, y, (const unsigned char*)max_exp, 1, scale);
+	draw_string_small_zoomed_right(last_exp_right, y, (const unsigned char*)last_exp, 1, scale);
+}
+
 int display_session_handler(window_info *win)
 {
 	int i;
 	Uint32 timediff;
+	char tot_buf[32];
+	char max_buf[32];
+	char last_buf[32];
 	char buffer[128];
 	float oa_exp;
 	int y_step = (int)(0.5 + win->current_scale * 16);
@@ -143,9 +162,7 @@ int display_session_handler(window_info *win)
 	oa_exp = 0.0f;
 
 	glColor3f(1.0f, 1.0f, 1.0f);
-	safe_snprintf(buffer, sizeof(buffer), "%-20s%-17s%-17s%-17s",
-		"Skill", "Total Exp", "Max Exp", "Last Exp" );
-	draw_string_small_zoomed(x, y, (unsigned char*)buffer, 1, win->current_scale);
+	draw_session_line(win, x, y, "Skill", "Total Exp", "Max Exp", "Last Exp");
 
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(0.77f, 0.57f, 0.39f);
@@ -166,9 +183,11 @@ int display_session_handler(window_info *win)
 			elglColourN("global.mousehighlight");
 		else
 			glColor3f(1.0f, 1.0f, 1.0f);
-		safe_snprintf(buffer, sizeof(buffer), "%-20s%-17u%-17u%-17u",
-			statsinfo[i].skillnames->name, *(statsinfo[i].exp) - session_exp[i], max_exp[i], last_exp[i]);
-		draw_string_small_zoomed(x, y, (unsigned char*)buffer, 1, win->current_scale);
+		safe_snprintf(tot_buf, sizeof(tot_buf), "%u", *(statsinfo[i].exp) - session_exp[i]);
+		safe_snprintf(max_buf, sizeof(tot_buf), "%u", max_exp[i]);
+		safe_snprintf(last_buf, sizeof(tot_buf), "%u", last_exp[i]);
+		draw_session_line(win, x, y, (const char*)statsinfo[i].skillnames->name,
+			tot_buf, max_buf, last_buf);
 		y += y_step;
 		if(i < NUM_SKILLS-1)
 			oa_exp += *(statsinfo[i].exp) - session_exp[i];
@@ -185,7 +204,7 @@ int display_session_handler(window_info *win)
 	y += y_step;
 
 	draw_string_small_zoomed(x, y, (unsigned char*)"Exp/Min", 1, win->current_scale);
-	
+
 	if(timediff<=0){
 		timediff=1;
 	}
@@ -202,7 +221,7 @@ int display_session_handler(window_info *win)
 		show_help(session_reset_help, -TAB_MARGIN, win->len_y+10+TAB_MARGIN, win->current_scale);
 		show_reset_help = 0;
 	}
-	
+
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -227,7 +246,7 @@ void init_session(void)
 		else
 			save_server = 0;
 	}
-	
+
 	/* save the server info if first time or changed */
 	if (save_server)
 	{
