@@ -35,6 +35,7 @@ static int knowledge_count= 0;
 
 #define TEXTBUFSIZE 400
 static char raw_knowledge_string[TEXTBUFSIZE]="";
+static int rewrap_knowledge_now = 0;
 
 static size_t cm_know_id = CM_INIT_VALUE;
 static INPUT_POPUP ipu_know;
@@ -169,8 +170,6 @@ int display_knowledge_handler(window_info *win)
 	float font_ratio = win->small_font_len_x/12.0;
 	float max_name_x = (win->len_x - win->box_size - 2*x)/2;
 	int is_researching = 1;
-	int text_width = win->len_x - 2 * text_border;
-	char knowledge_text_buf[TEXTBUFSIZE];
 
 	if(your_info.research_total &&
 	   (your_info.research_completed==your_info.research_total))
@@ -226,11 +225,20 @@ int display_knowledge_handler(window_info *win)
 		glEnd();
 	}
 	glEnable(GL_TEXTURE_2D);
+
 	//draw text
-	if (selected_book >= 0 && knowledge_list[selected_book].present && knowledge_list[selected_book].has_book)
-		text_width = book_start_x - 2 * text_border;
-	put_small_text_in_box_zoomed((unsigned char *)raw_knowledge_string, strlen((char *)raw_knowledge_string), text_width, (char *)knowledge_text_buf, win->current_scale);
-	draw_string_small_zoomed(text_border,booklist_y_len + text_border,(unsigned char*)knowledge_text_buf, info_lines, win->current_scale);
+	if (rewrap_knowledge_now)
+	{
+		int text_width = win->len_x - 2 * text_border;
+		if (selected_book >= 0 && knowledge_list[selected_book].present && knowledge_list[selected_book].has_book)
+			text_width = book_start_x - 2 * text_border;
+		reset_soft_breaks(raw_knowledge_string, strlen(raw_knowledge_string),
+			sizeof(raw_knowledge_string), UI_FONT, win->current_scale * DEFAULT_SMALL_RATIO,
+			text_width, NULL, NULL);
+		rewrap_knowledge_now = 0;
+	}
+	draw_string_small_zoomed(text_border, booklist_y_len + text_border,
+		(unsigned char*)raw_knowledge_string, info_lines, win->current_scale);
 	glColor3f(1.0f,1.0f,1.0f);
 	draw_string_small_zoomed(text_border,progress_top_y+3+gy_adjust,(unsigned char*)researching_str,1, win->current_scale);
 	draw_string_small_zoomed(text_border+(strlen(researching_str)+1)*win->small_font_len_x,progress_top_y+3+gy_adjust,(unsigned char*)research_string,1, win->current_scale);
@@ -485,6 +493,7 @@ static int resize_knowledge_handler(window_info *win, int new_width, int new_hei
 	widget_move(win->window_id, knowledge_book_label_id, label_x_left, gap_y);
 	widget_move(win->window_id, knowledge_book_image_id, book_x_left, gap_y + label_height);
 
+	rewrap_knowledge_now = 1;
 
 	return 0;
 }
@@ -514,8 +523,8 @@ void fill_knowledge_win (int window_id)
 void set_knowledge_string(const Uint8 *in_data, int data_length)
 {
 	safe_strncpy2(raw_knowledge_string, (const char *)in_data, TEXTBUFSIZE, data_length);
+	rewrap_knowledge_now = 1;
 }
-
 
 void load_knowledge_list(void)
 {
