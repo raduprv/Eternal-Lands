@@ -283,6 +283,7 @@ static float local_ui_scale = 1.0f;
 static float local_name_zoom = 1.0f;
 static float local_chat_zoom = 1.0f;
 static float local_note_zoom = 0.8f;
+static float local_minimap_size_coefficient = 0.7f;
 #endif
 
 void options_loaded(void)
@@ -401,6 +402,7 @@ static void change_minimap_scale(float * var, float * value)
 {
 	int shown = 0;
 	*var= *value;
+	minimap_size_coefficient = ((disable_auto_highdpi_scale)) ? *var : get_highdpi_scale() * *var;
 	if (minimap_win>=0)
 	{
 		shown = get_show_window(minimap_win);
@@ -1184,6 +1186,7 @@ void update_highdpi_auto_scaling(void)
 	change_chat_zoom(&local_chat_zoom, &local_chat_zoom);
 	change_note_zoom(&local_note_zoom, &local_note_zoom);
 	change_ui_scale(&local_ui_scale, &local_ui_scale);
+	change_minimap_scale(&local_minimap_size_coefficient, &local_minimap_size_coefficient);
 }
 
 static void change_disable_auto_highdpi_scale(int * var)
@@ -2123,7 +2126,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_STRING,"npc_mark_template","npcmarktemplate",npc_mark_str,change_string,sizeof(npc_mark_str)-1,"NPC map mark template","The template used when setting a map mark from the NPC dialogue (right click name). The %s is substituted for the NPC name.",HUD);
 	add_var(OPT_BOOL,"3d_map_markers","3dmarks",&marks_3d,change_3d_marks,1,"Enable 3D Map Markers","Shows user map markers in the game window",HUD);
 	add_var(OPT_BOOL,"item_window_on_drop","itemdrop",&item_window_on_drop,change_var,1,"Item Window On Drop","Toggle whether the item window shows when you drop items",HUD);
-	add_var(OPT_FLOAT,"minimap_scale", "minimapscale", &minimap_size_coefficient, change_minimap_scale, 0.7, "Minimap Scale", "Adjust the overall size of the minimap", HUD, 0.5, 1.5, 0.1);
+	add_var(OPT_FLOAT,"minimap_scale", "minimapscale", &local_minimap_size_coefficient, change_minimap_scale, 0.7, "Minimap Scale", "Adjust the overall size of the minimap", HUD, 0.5, 1.5, 0.1);
 	add_var(OPT_BOOL,"rotate_minimap","rotateminimap",&rotate_minimap,change_var,1,"Rotate Minimap","Toggle whether the minimap should rotate.",HUD);
 	add_var(OPT_BOOL,"pin_minimap","pinminimap",&pin_minimap,change_var,0,"Pin Minimap","Toggle whether the minimap ignores close-all-windows.",HUD);
 	add_var(OPT_BOOL, "continent_map_boundaries", "cmb", &show_continent_map_boundaries, change_var, 1, "Map Boundaries On Continent Map", "Show map boundaries on the continent map", HUD);
