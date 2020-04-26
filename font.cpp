@@ -18,6 +18,7 @@
 namespace
 {
 
+#ifdef TTF
 int next_power_of_two(int n)
 {
 	int res = 1;
@@ -25,6 +26,7 @@ int next_power_of_two(int n)
 		res *= 2;
 	return res;
 }
+#endif
 
 size_t memcspn(const unsigned char* text, size_t len,
 	const unsigned char* reject, size_t len_reject)
@@ -409,7 +411,7 @@ bool Font::load_texture()
 		return true;
 	}
 #else
-	_texture_id = ::load_texture_cached(_file_name.c_str());
+	_texture_id = ::load_texture_cached(_file_name.c_str(), tt_font);
 	_flags |= Flags::HAS_TEXTURE;
 	return true;
 #endif
@@ -427,7 +429,7 @@ void Font::bind_texture() const
 		::bind_texture(_texture_id.cache_id);
 	}
 #else // TTF
-	bind_texture(_texture_id);
+	::bind_texture(_texture_id);
 #endif // TTF
 }
 
@@ -955,6 +957,7 @@ void Font::draw_ingame_string(const unsigned char* text, size_t len,
 #endif // !MAP_EDITOR_2
 #endif // ELC
 
+#ifdef TTF
 int Font::render_glyph(Uint16 glyph, int i, int j, int size,
 	TTF_Font *font, SDL_Surface *surface)
 {
@@ -1087,6 +1090,8 @@ bool Font::build_texture_atlas()
 
 	return true;
 }
+
+#endif // TTF
 
 void Font::add_select_options() const
 {

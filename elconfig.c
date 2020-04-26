@@ -1857,7 +1857,7 @@ void check_deferred_options()
 		var_struct *var = our_vars.var[option->var_idx];
 		const char* opt_val = option->value;
 		int opt_idx = option->opt_idx;
-		int opt_idx_ok = (opt_idx <= var->args.multi.count);
+		int opt_idx_ok = (opt_idx < var->args.multi.count);
 
 		if (opt_val)
 		{
