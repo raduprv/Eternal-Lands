@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <SDL_syswm.h>
+#include "elloggingwrapper.h"
 #include "gl_init.h"
 #include "paste.h"
 #include "chat.h"
@@ -352,6 +353,26 @@ void finishpaste(XSelectionEvent event)
 		}
 		processpaste(dpy, window, event.property);
 	}
+}
+
+//	On some configurations, X11 error are not caught and so stop the client
+//	We can catch them and just log the error
+//
+static int error_handler(Display *display, XErrorEvent *error)
+{
+	const size_t buf_len = 200;
+	char *buffer = calloc(buf_len + 1, sizeof(char));
+	if (buffer == NULL)
+		return 0;
+	XGetErrorText(display, error->error_code, buffer, buf_len);
+	LOG_ERROR("X11 error code (%d): [%s]", error->error_code, buffer);
+	free(buffer);
+	return 0;
+}
+
+void init_x11_copy_paste(void)
+{
+	XSetErrorHandler(error_handler);
 }
 
 #endif // def OSX / def WINDOWS / other
