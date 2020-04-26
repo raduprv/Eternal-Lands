@@ -8,6 +8,7 @@
 #include "hud.h"
 #include "init.h"
 #include "interface.h"
+#include "paste.h"
 #include "textures.h"
 #include "translate.h"
 #include "sky.h"
@@ -400,6 +401,10 @@ void init_video(void)
 
 	last_texture = -1;		//no active texture
 	video_mode_set = 1;		//now you may set the video mode using the %<foo> in-game
+
+#if !defined OSX && !defined WINDOWS
+	init_x11_copy_paste();
+#endif
 
 	load_window_icon();
 
