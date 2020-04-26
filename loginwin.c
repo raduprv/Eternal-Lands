@@ -168,8 +168,9 @@ static int resize_login_handler (window_info *win, Uint32 w, Uint32 h)
 	new_char_x = log_in_x + log_in_x_len + button_sep_x;
 	settings_x = new_char_x + new_char_x_len + button_sep_x;
 
-	num_rules_lines = reset_soft_breaks(login_rules_str, strlen(login_rules_str),
-		sizeof(login_rules_str), UI_FONT, win->current_scale, max_width, NULL, NULL);
+	num_rules_lines = reset_soft_breaks((unsigned char*)login_rules_str,
+		strlen(login_rules_str), sizeof(login_rules_str), UI_FONT, win->current_scale,
+		max_width, NULL, NULL);
 
 	height = username_bar_y_len + password_bar_y_len + button_y_len + (3 + num_rules_lines) * win->default_font_len_y;
 	username_bar_y = passmngr_button_y = half_screen_y - height / 2;
@@ -312,9 +313,9 @@ static int display_login_handler (window_info *win)
 	{
 		int max_win_width = window_width - 2 * win->default_font_len_x;
 		float max_line_width = 0;
-		int num_lines = reset_soft_breaks (log_in_error_str, strlen(log_in_error_str),
-			sizeof (log_in_error_str), UI_FONT, win->current_scale, max_win_width, NULL,
-			&max_line_width);
+		int num_lines = reset_soft_breaks((unsigned char*)log_in_error_str,
+			strlen(log_in_error_str), sizeof (log_in_error_str), UI_FONT,
+			win->current_scale, max_win_width, NULL, &max_line_width);
 		glColor3f (1.0f, 0.0f, 0.0f);
 		draw_string_zoomed (win->default_font_len_x + (max_win_width - max_line_width) / 2, username_bar_y - (num_lines + 2) * win->default_font_len_y, (unsigned char*)log_in_error_str, num_lines, win->current_scale);
 	}

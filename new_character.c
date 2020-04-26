@@ -144,7 +144,7 @@ static int dec(my_enum * def, int val, int no_steps)
 //New char interface
 
 #define ERR_STR_LEN 520
-static char create_char_error_str[ERR_STR_LEN] = {0};
+static unsigned char create_char_error_str[ERR_STR_LEN] = {0};
 static int old_use_windowed_chat;
 static int display_time=0;
 static const int DEF_MESSAGE_TIMEOUT = 3000;
@@ -173,9 +173,9 @@ void set_create_char_error (const char *msg, int len)
 	}
 	else
 	{
-		safe_snprintf (buf, sizeof (buf), "%s: %.*s", reg_error_str, len, msg);
-		reset_soft_breaks(buf, strlen(buf), sizeof (create_char_error_str), UI_FONT, 1.0,
-			window_width - 20, NULL, NULL);
+		safe_snprintf(buf, sizeof (buf), "%s: %.*s", reg_error_str, len, msg);
+		reset_soft_breaks((unsigned char*)buf, strlen(buf), sizeof(buf),
+			UI_FONT, 1.0, window_width - 20, NULL, NULL);
 	}
 
 	LOG_TO_CONSOLE(c_red1, buf);
@@ -906,7 +906,7 @@ static int click_namepass_field(widget_list *w, int mx, int my, Uint32 flags)
 static int errorbox_draw(widget_list *w)
 {
 	if (w->window_id >= 0 && w->window_id < windows_list.num_windows)
-		draw_string_small_zoomed(w->pos_x, w->pos_y, (unsigned char*)create_char_error_str, 8, windows_list.window[w->window_id].current_scale);
+		draw_string_small_zoomed(w->pos_x, w->pos_y, create_char_error_str, 8, windows_list.window[w->window_id].current_scale);
 	return 1;
 }
 

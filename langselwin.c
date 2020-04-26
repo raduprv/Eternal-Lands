@@ -41,7 +41,7 @@ static int langsel_win = -1;
 static int langsel_scroll_id = -1;
 static int langsel_first_lang_line = 0;
 static int langsel_num_note_lines = 4;
-static char *langsel_save_note_boxed = NULL;
+static unsigned char *langsel_save_note_boxed = NULL;
 static char *langsel_list_error = NULL;
 static list_node_t *langsel_list = NULL;
 static LANGSEL_LIST_NODE *langsel_default_node = NULL;
@@ -479,9 +479,11 @@ static int display_langsel_handler(window_info *win)
 		/* wrap the text so that it fits into the window space available */
 		if (langwin_save_note)
 		{
-			langsel_save_note_boxed = (char *)realloc(langsel_save_note_boxed, strlen(langwin_save_note)*2);
+			langsel_save_note_boxed = realloc(langsel_save_note_boxed,
+				strlen(langwin_save_note)*2);
 			put_small_text_in_box_zoomed((const Uint8 *)langwin_save_note,
-				strlen(langwin_save_note), winwidth - (2 * winsep + save_widget->len_x), langsel_save_note_boxed, text_zoom);
+				strlen(langwin_save_note), winwidth - (2 * winsep + save_widget->len_x),
+				langsel_save_note_boxed, text_zoom);
 		}
 
 		if (add_scroll_bar)
@@ -500,7 +502,10 @@ static int display_langsel_handler(window_info *win)
 
 	/* if we have note text, display it */
 	if (langwin_save_note)
-		draw_string_small_zoomed(winsep, winheight - winsep - note_height, (unsigned char *)langsel_save_note_boxed, langsel_num_note_lines, text_zoom );
+	{
+		draw_string_small_zoomed(winsep, winheight - winsep - note_height,
+			langsel_save_note_boxed, langsel_num_note_lines, text_zoom);
+	}
 
 	/* draw a line under the language list */
 	glColor3f(langsel_winRGB[3][0], langsel_winRGB[3][1], langsel_winRGB[3][2]);

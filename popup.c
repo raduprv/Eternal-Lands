@@ -353,7 +353,7 @@ static void flowing_text_perform_flow( flowing_text_t *text, int max_length )
 {
 	float text_width;
 
-	text->lines = reset_soft_breaks (text->str,
+	text->lines = reset_soft_breaks ((unsigned char*)text->str,
 									 strlen(text->str),
 									 text->str_size_allocated,
 									 UI_FONT,

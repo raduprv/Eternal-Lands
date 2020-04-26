@@ -1743,7 +1743,7 @@ static int display_chan_sel_handler(window_info *win)
 	glEnable(GL_TEXTURE_2D);
 
 	line_height = get_line_height(UI_FONT, local_zoom);
-	num_lines = reset_soft_breaks(channel_help_str, strlen(channel_help_str),
+	num_lines = reset_soft_breaks((unsigned char*)channel_help_str, strlen(channel_help_str),
 		sizeof(channel_help_str), UI_FONT, local_zoom, win->len_x - chan_sel_border * 2,
 		NULL, NULL);
 	draw_string_zoomed(x, y+=chan_sel_border, (unsigned char*)channel_help_str,

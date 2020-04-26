@@ -306,32 +306,14 @@ int Font::line_width_spacing(const unsigned char* str, size_t len, float zoom) c
 	return cur_width;
 }
 
-int Font::reset_soft_breaks(unsigned char *text, size_t text_size, size_t text_len,
-	float zoom, int max_width, int *cursor, float *max_line_width)
+ustring Font::reset_soft_breaks(const unsigned char *text, size_t text_size,
+	size_t text_len, float zoom, int max_width, int *cursor, float *max_line_width)
 {
 	int block_width = std::ceil(_block_width * _scale * zoom);
 	if (!text || text_size == 0 || max_width < block_width)
 		return 0;
 
-	// strip existing soft breaks before we start, to avoid complicated code later
-	size_t isrc, idst;
-	for (isrc = 0, idst = 0; isrc < text_len; ++isrc)
-	{
-		if (text[isrc] == '\r')
-		{
-			/* move the cursor back if after this point */
-			if (cursor && isrc < size_t(*cursor))
-				--*cursor;
-		}
-		else
-		{
-			text[idst++] = text[isrc];
-		}
-	}
-	text[idst] = '\0';
-	text_len = idst;
-
-	std::basic_string<unsigned char> buf;
+	std::basic_string<unsigned char> wrapped_text;
 	size_t start = 0, end, last_space = 0;
 	int nr_lines = 0;
 	int diff_cursor = 0;
@@ -341,14 +323,17 @@ int Font::reset_soft_breaks(unsigned char *text, size_t text_size, size_t text_l
 		for (end = start; end < text_len; ++end)
 		{
 			unsigned char c = text[end];
-
-			if (text[end] == '\n')
+			if (c == '\r')
+			{
+				continue;
+			}
+			if (c == '\n')
 			{
 				++end;
 				break;
 			}
 
-			if (text[end] == ' ')
+			if (c == ' ')
 				last_space = end;
 
 			// Check here if the character fits using block_width instead of the
@@ -372,11 +357,23 @@ int Font::reset_soft_breaks(unsigned char *text, size_t text_size, size_t text_l
 			}
 		}
 
-		buf.append(text + start, end - start);
+		for (size_t i = start; i < end; ++i)
+		{
+			if (text[i] == '\r')
+			{
+				if (cursor && i < size_t(*cursor))
+					--*cursor;
+			}
+			else
+			{
+				wrapped_text.push_back(text[i]);
+			}
+		}
+
 		++nr_lines;
 		if (end < text_len && text[end] != '\n')
 		{
-			buf.push_back('\r');
+			wrapped_text.push_back('\r');
 			if (cursor && end <= size_t(*cursor))
 				++diff_cursor;
 		}
@@ -390,15 +387,12 @@ int Font::reset_soft_breaks(unsigned char *text, size_t text_size, size_t text_l
 		start = end;
 	}
 
-	text_len = buf.copy(text, text_size-1);
-	text[text_len] = '\0';
-
 	if (cursor)
 	{
 		*cursor = std::min(*cursor + diff_cursor, int(text_size) - 1);
 	}
 
-	return nr_lines;
+	return wrapped_text;
 }
 
 bool Font::load_texture()
@@ -1225,12 +1219,40 @@ int get_line_height(font_cat cat, float text_zoom)
 	return font_manager.line_height(cat, text_zoom);
 }
 
-int reset_soft_breaks(char *str, int len, int size, font_cat cat, float text_zoom,
-	int width, int *cursor, float *max_line_width)
+int reset_soft_breaks(unsigned char *text, int len, int size, font_cat cat,
+	float text_zoom, int width, int *cursor, float *max_line_width)
 {
-	return font_manager.reset_soft_breaks(static_cast<FontManager::Category>(cat),
-		reinterpret_cast<unsigned char*>(str), size, len, text_zoom, width,
+	ustring wrapped_text = font_manager.reset_soft_breaks(
+		static_cast<FontManager::Category>(cat), text, size, len, text_zoom, width,
 		cursor, max_line_width);
+	size_t nr_lines = 1 + std::count_if(wrapped_text.begin(), wrapped_text.end(),
+		[](unsigned char c) { return c == '\r' || c == '\n'; });
+
+	size_t new_len = wrapped_text.copy(text, size_t(size)-1);
+	text[new_len] = '\0';
+
+	return int(nr_lines);
+}
+void put_small_colored_text_in_box_zoomed(unsigned char color,
+	const unsigned char* text, int len, int width,
+	unsigned char* buffer, float text_zoom)
+{
+	// FIXME: no size specified for either buffer. Pass unlimited size,
+	// and hope for the best...
+	size_t size = ustring::npos;
+	ustring wrapped_text = font_manager.reset_soft_breaks(
+		FontManager::Category::UI_FONT, text, size, len, text_zoom * DEFAULT_SMALL_RATIO,
+		width, 0, 0);
+	// If we don't end on a newline, add one.
+	// TODO: check if that's necessary.
+	if (wrapped_text.back() != '\n')
+		wrapped_text.push_back('\n');
+
+	size_t new_len = 0;
+	if (!is_color(wrapped_text.front()))
+		buffer[new_len++] = color;
+	new_len += wrapped_text.copy(buffer + new_len, size);
+	buffer[new_len] = '\0';
 }
 
 void draw_string_zoomed_width_font(int x, int y, const unsigned char *text,

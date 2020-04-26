@@ -1170,107 +1170,6 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 	return;
 }
 
-void put_small_text_in_box_zoomed (const Uint8 *text_to_add, int len, int pixels_limit, char *buffer, float text_zoom)
-{
-	put_small_colored_text_in_box_zoomed (c_grey1, text_to_add, len, pixels_limit, buffer, text_zoom);
-}
-
-void put_small_colored_text_in_box_zoomed (Uint8 color, const Uint8 *text_to_add, int len, int pixels_limit, char *buffer, float text_zoom)
-{
-	int i;
-	Uint8 cur_char;
-	int last_text = 0;
-	int x_chars_limit;
-
-	// force the color
-	if (!is_color (text_to_add[0]))
-		buffer[last_text++] = to_color_char (color);
-
-	//see if the text fits on the screen
-	x_chars_limit = pixels_limit / (int)(0.5 + SMALL_FONT_X_LEN * text_zoom);
-	if (len <= x_chars_limit)
-	{
-		for (i = 0; i < len; i++)
-		{
-			cur_char = text_to_add[i];
-
-			if (cur_char == '\0')
-				break;
-
-			buffer[last_text++] = cur_char;
-		}
-		if (last_text > 0 && buffer[last_text-1] != '\n')
-			buffer[last_text++] = '\n';
-		buffer[last_text] = '\0';
-	}
-	else //we have to add new lines to our text...
-	{
-		int k;
-		int new_line_pos = 0;
-		char semaphore = 0;
-		Uint8 current_color = to_color_char (color);
-
-		// go trought all the text
-		for (i = 0; i < len; i++)
-		{
-			if (!semaphore && new_line_pos + x_chars_limit < len) //don't go through the last line
-			{
-				//find the closest space from the end of this line
-				//if we have one really big word, then parse the string from the
-				//end of the line backwards, untill the beginning of the line +2
-				//the +2 is so we avoid parsing the ": " thing...
-				for (k = new_line_pos + x_chars_limit - 1; k > new_line_pos + 2; k--)
-				{
-					cur_char = text_to_add[k];
-					if (k > len) continue;
-					if (cur_char == ' ' || cur_char == '\n')
-					{
-						k++; // let the space on the previous line
-						break;
-					}
-				}
-				if (k == new_line_pos + 2)
-					new_line_pos += x_chars_limit;
-				else
-					new_line_pos = k;
-				semaphore = 1;
-			}
-
-			cur_char = text_to_add[i];
-			if (cur_char == '\0') break;
-
-			if (is_color (cur_char)) // we have a color, save it
-			{
-				current_color = cur_char;
-				if (last_text > 0 && is_color (buffer[last_text-1]))
-					last_text--;
-			}
-			else if (cur_char == '\n')
-			{
-				new_line_pos = i;
-			}
-
-			if (i == new_line_pos)
-			{
-				buffer[last_text++] = '\n';
-				// don't add color codes after the last newline
-				if (i < len-1)
-					buffer[last_text++] = current_color;
-				semaphore = 0;
-			}
-			//don't add another new line, if the current char is already a new line...
-			if (cur_char != '\n')
-				buffer[last_text++] = cur_char;
-
-		}
-		// don't add extra newlines if there already is one
-		if (last_text > 0 && buffer[last_text-1] != '\n')
-			buffer[last_text++] = '\n';
-		buffer[last_text] = '\0';
-	}
-}
-
-
 // find the last lines, according to the current time
 int find_last_lines_time (int *msg, int *offset, Uint8 filter, int width)
 {
@@ -1286,7 +1185,6 @@ int find_last_lines_time (int *msg, int *offset, Uint8 filter, int width)
 	return find_line_nr(get_total_nr_lines(), get_total_nr_lines() - lines_to_show,
 		filter, msg, offset, CHAT_FONT, 1.0, width);
 }
-
 
 int find_line_nr(int nr_lines, int line, Uint8 filter, int *msg, int *offset,
 	font_cat font, float zoom, int width)
@@ -1386,8 +1284,8 @@ int rewrap_message(text_message * msg, font_cat font, float text_zoom, int width
 
 	if (msg->wrap_width != width || msg->wrap_zoom != text_zoom)
 	{
- 		nlines = reset_soft_breaks(msg->data, msg->len, msg->size, font, text_zoom,
-			width, cursor, &max_line_width);
+ 		nlines = reset_soft_breaks((unsigned char*)msg->data, msg->len, msg->size,
+			font, text_zoom, width, cursor, &max_line_width);
 		msg->len = strlen(msg->data);
 		msg->wrap_lines = nlines;
 		msg->wrap_width = width;

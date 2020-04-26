@@ -51,7 +51,7 @@ int no_storage;
 #define MAX_DESCR_LEN 202
 char storage_text[MAX_DESCR_LEN]={0};
 static char last_storage_text[MAX_DESCR_LEN]={0};
-static char wrapped_storage_text[MAX_DESCR_LEN+10]={0};
+static unsigned char wrapped_storage_text[MAX_DESCR_LEN+10]={0};
 
 static struct { int quantity; int id; int image_id; } print_info[STORAGE_ITEMS_SIZE];
 static int number_to_print = 0;
@@ -71,7 +71,7 @@ static void select_item(int image_id, Uint16 item_id)
 {
 	int i;
 	int found_at = -1;
-	
+
 	for (i=0; i<no_storage; i++)
 	{
 		if ((item_id != unset_item_uid) && (storage_items[i].id != unset_item_uid) && (storage_items[i].quantity > 0))
@@ -149,7 +149,7 @@ void pickup_storage_item(int image_id, Uint16 item_id, int cat_id)
 	}
 	wanted_category = find_category(cat_id);
 	wanted_image_id = image_id;
-	wanted_item_id = item_id;	
+	wanted_item_id = item_id;
 	if (selected_category == wanted_category)
 	{
 		select_item(wanted_image_id, wanted_item_id);
@@ -255,10 +255,10 @@ void set_window_name(char *extra_sep, char *extra_name)
 void move_to_category(int cat)
 {
 	Uint8 str[4];
-	
+
 	if(cat<0||cat>=no_storage_categories) return;
 	storage_categories[cat].name[0] = to_color_char (c_red3);
-	if (selected_category!=-1 && cat!=selected_category) 
+	if (selected_category!=-1 && cat!=selected_category)
 		storage_categories[selected_category].name[0] = to_color_char (c_orange1);
 	set_window_name(" - ", storage_categories[cat].name+1);
 
@@ -297,7 +297,7 @@ void get_storage_items (const Uint8 *in_data, int len)
 		// It's just an update - make sure we're in the right category
 		idx = 2;
 		active_storage_item = SDL_SwapLE16(*((Uint16*)(&in_data[idx+6])));
-		
+
 		for (i = 0; i < STORAGE_ITEMS_SIZE; i++)
 		{
 			if ((storage_items[i].pos == SDL_SwapLE16(*((Uint16*)(&in_data[idx+6])))) && (storage_items[i].quantity > 0))
@@ -354,12 +354,12 @@ void get_storage_items (const Uint8 *in_data, int len)
 		else
 			storage_items[i].id = unset_item_uid;
 	}
-	
+
 	for ( ; i < STORAGE_ITEMS_SIZE; i++)
 	{
 		storage_items[i].quantity=0;
 	}
-	
+
 	vscrollbar_set_pos(storage_win, STORAGE_SCROLLBAR_ITEMS, 0);
 	pos = vscrollbar_get_pos(storage_win, STORAGE_SCROLLBAR_CATEGORIES);
 	if (cat < pos) {
@@ -509,7 +509,7 @@ int display_storage_handler(window_info * win)
 
 	glColor3f(0.77f, 0.57f, 0.39f);
 	glEnable(GL_TEXTURE_2D);
-	
+
 	for(i=pos=vscrollbar_get_pos(storage_win,STORAGE_SCROLLBAR_CATEGORIES); i<no_storage_categories && storage_categories[i].id!=-1 && i<pos+STORAGE_CATEGORIES_DISPLAY; i++,n++){
 		int the_colour = from_color_char(storage_categories[i].name[0]);
 		size_t offset = 1;
@@ -525,9 +525,11 @@ int display_storage_handler(window_info * win)
 	if(storage_text[0]){
 		if (strcmp(storage_text, last_storage_text) != 0) {
 			safe_strncpy(last_storage_text, storage_text, sizeof(last_storage_text));
-			put_small_text_in_box_zoomed ((Uint8 *)storage_text, strlen(storage_text), win->len_x - 4 * border_size, wrapped_storage_text, win->current_scale);
+			put_small_text_in_box_zoomed((Uint8 *)storage_text, strlen(storage_text),
+				win->len_x - 4 * border_size, wrapped_storage_text, win->current_scale);
 		}
-		draw_string_small_zoomed(desc_string_left_offset, desc_string_top_offset, (unsigned char*)wrapped_storage_text, 2, win->current_scale);
+		draw_string_small_zoomed(desc_string_left_offset, desc_string_top_offset,
+			wrapped_storage_text, 2, win->current_scale);
 	}
 
 	glColor3f(1.0f,1.0f,1.0f);
@@ -540,7 +542,7 @@ int display_storage_handler(window_info * win)
 		if(!storage_items[i].quantity)continue;
 		cur_item=storage_items[i].image_id%25;
 		get_item_uv(cur_item, &u_start, &v_start, &u_end, &v_end);
-		
+
 		this_texture=get_items_texture(storage_items[i].image_id/25);
 
 		if (this_texture != -1)
@@ -567,14 +569,14 @@ int display_storage_handler(window_info * win)
 		if (show_item_desc_text && item_info_available() && (get_item_count(item_id, image_id) == 1))
 			show_help(get_item_description(item_id, image_id), 0, win->len_y + 10 + (help_text_line++) * win->small_font_len_y, win->current_scale);
 	}
-	
+
 	// Render the grid *after* the images. It seems impossible to code
-	// it such that images are rendered exactly within the boxes on all 
+	// it such that images are rendered exactly within the boxes on all
 	// cards
 	glDisable(GL_TEXTURE_2D);
-	
+
 	glColor3f(0.77f, 0.57f, 0.39f);
-	
+
 	glBegin(GL_LINE_LOOP);
 		glVertex2i(border_size,  border_size);
 		glVertex2i(border_size,  bottom_offset);
@@ -588,7 +590,7 @@ int display_storage_handler(window_info * win)
 		glVertex2i(desc_box_right_offset, desc_box_botton_offset);
 		glVertex2i(desc_box_right_offset, desc_box_top_offset);
 	glEnd();
-	
+
 	if (view_only_storage)
 	{
 		Uint32 currentticktime = SDL_GetTicks();
@@ -676,9 +678,9 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 
 						str[0]=LOOK_AT_STORAGE_ITEM;
 						*((Uint16*)(str+1))=SDL_SwapLE16(storage_items[cur_item_over].pos);
-	
+
 						my_tcp_send(my_socket, str, 3);
-	
+
 						active_storage_item=storage_items[cur_item_over].pos;
 						do_click_sound();
 					}
@@ -719,7 +721,7 @@ int mouseover_storage_handler(window_info *win, int mx, int my)
 					storage_categories[i].name[0] = to_color_char (c_green2);
 				}
 			}
-			
+
 			return 0;
 		}
 	}
@@ -727,7 +729,7 @@ int mouseover_storage_handler(window_info *win, int mx, int my)
 		cur_item_over = get_mouse_pos_in_grid(mx, my, item_grid_size, item_grid_size, item_grid_left_offset, border_size, item_box_size, item_box_size)+vscrollbar_get_pos(storage_win, STORAGE_SCROLLBAR_ITEMS)*item_grid_size;
 		if(cur_item_over>=no_storage||cur_item_over<0||!storage_items[cur_item_over].quantity) cur_item_over=-1;
 	}
-	
+
 	last_category = last_pos+vscrollbar_get_pos(storage_win,STORAGE_SCROLLBAR_CATEGORIES);
 	if(last_pos>=0 && last_pos<STORAGE_CATEGORIES_DISPLAY && last_category != selected_category) {
 		storage_categories[last_category].name[0] = to_color_char (c_orange1);
@@ -771,14 +773,14 @@ void print_items(void)
 			LOG_TO_CONSOLE(c_red1, "You can't do this during combat!");
 			return;
 		}
-	
+
 	/* request the description for each item */
 	number_to_print = next_item_to_print = 0;
 	printing_category = selected_category;
 	for (i = 0; i < no_storage && i < STORAGE_ITEMS_SIZE; i++)
 	{
 		if (storage_items[i].quantity)
-		{		
+		{
 			Uint8 str[3];
 			print_info[number_to_print].quantity = storage_items[i].quantity;
 			print_info[number_to_print].id = storage_items[i].id;
@@ -832,10 +834,10 @@ void display_storage_menu()
 		set_window_handler(storage_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_storage_handler );
 		set_window_handler(storage_win, ELW_HANDLER_UI_SCALE, &ui_scale_storage_handler );
 
-		cat_scrollbar_id = vscrollbar_add_extended(storage_win, STORAGE_SCROLLBAR_CATEGORIES, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 
+		cat_scrollbar_id = vscrollbar_add_extended(storage_win, STORAGE_SCROLLBAR_CATEGORIES, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1,
 				max2i(no_storage_categories - STORAGE_CATEGORIES_DISPLAY, 0));
 		items_scrollbar_id = vscrollbar_add_extended(storage_win, STORAGE_SCROLLBAR_ITEMS, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 28);
-		
+
 		cm_add(windows_list.window[storage_win].cm_id, cm_storage_menu_str, context_storage_handler);
 		cm_add(windows_list.window[storage_win].cm_id, cm_dialog_options_str, context_storage_handler);
 		cm_bool_line(windows_list.window[storage_win].cm_id, ELW_CM_MENU_LEN+2, &sort_storage_categories, NULL);
@@ -844,7 +846,7 @@ void display_storage_menu()
 		cm_bool_line(windows_list.window[storage_win].cm_id, ELW_CM_MENU_LEN+5, &auto_select_storage_option, NULL);
 	} else {
 		no_storage=0;
-		
+
 		for(i = 0; i < no_storage_categories; i++)
 			storage_categories[i].name[0] = to_color_char (c_orange1);
 

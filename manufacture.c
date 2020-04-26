@@ -66,7 +66,7 @@ static int recipes_loaded=0;
 static int mouse_over_recipe = -1;
 static int mouse_over_main_pos = -1;
 static int mouse_over_pipe_pos = -1;
-static char items_string[350]={0};
+static unsigned char items_string[350]={0};
 static size_t last_items_string_id = (size_t)-1;
 static item last_mix[NUM_MIX_SLOTS];
 static int recipe_names_changed = 0;
@@ -702,10 +702,13 @@ static int	display_manufacture_handler(window_info *win)
 	//now, draw the inventory text, if any.
 	if (last_items_string_id != inventory_item_string_id)
 	{
-		put_small_text_in_box_zoomed((unsigned char*)inventory_item_string, strlen(inventory_item_string), win->len_x-2*win->small_font_len_x, items_string, win->current_scale);
+		put_small_text_in_box_zoomed((unsigned char*)inventory_item_string,
+			strlen(inventory_item_string), win->len_x-2*win->small_font_len_x,
+			items_string, win->current_scale);
 		last_items_string_id = inventory_item_string_id;
 	}
-	draw_string_small_zoomed(win->small_font_len_x,manufacture_menu_y_len-text_y_offset,(unsigned char *)items_string,4, win->current_scale);
+	draw_string_small_zoomed(win->small_font_len_x, manufacture_menu_y_len-text_y_offset,
+		items_string, 4, win->current_scale);
 
 	// Render the grid *after* the images. It seems impossible to code
 	// it such that images are rendered exactly within the boxes on all

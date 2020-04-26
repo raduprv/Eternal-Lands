@@ -2974,13 +2974,8 @@ static int mouseover_option_handler(widget_list *widget, int mx, int my)
 		// We're still on the same variable
 		return 1;
 
-	safe_strncpy((char *)elconf_description_buffer,
-		(const char*)our_vars.var[i]->display.desc,
-		sizeof(elconf_description_buffer));
-	reset_soft_breaks((char*)elconf_description_buffer,
-			strlen((const char*)elconf_description_buffer),
-			sizeof(elconf_description_buffer), UI_FONT, elconf_scale * DEFAULT_SMALL_RATIO,
-			elconfig_menu_x_len - 2*TAB_MARGIN, NULL, NULL);
+	put_small_text_in_box_zoomed(our_vars.var[i]->display.desc,
+		strlen((char*)our_vars.var[i]->display.desc), elconfig_menu_x_len - 2*TAB_MARGIN, elconf_description_buffer, elconf_scale);
 	last_description_idx = i;
 
 	return 1;

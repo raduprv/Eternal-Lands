@@ -69,7 +69,7 @@ void send_emote(int emote_id)
 	Uint8 str[4];
 
 	if(cur_time-last_emote_time>EMOTE_SPAM_TIME) {
-		//Send message to server...	
+		//Send message to server...
 		str[0]=DO_EMOTE;
 		str[1]=emote_id;
 		my_tcp_send(my_socket,str,2);
@@ -119,7 +119,8 @@ static void update_selectables(void)
 
 		// the window width is maintained during scaling so that the box is always help_width_in_char wide
 		put_small_colored_text_in_box_zoomed(c_orange2, (const unsigned char*)emote_sel[cur_cat]->desc,
-			strlen(emote_sel[cur_cat]->desc), help_width_in_char * SMALL_FONT_X_LEN, (char*)emote_str1, 1.0);
+			strlen(emote_sel[cur_cat]->desc), help_width_in_char * SMALL_FONT_X_LEN,
+			emote_str1, 1.0);
 		hash_start_iterator(emote_cmds);
 		while((he=hash_get_next(emote_cmds))){
 			emd = (emote_dict*)he->item;
@@ -139,7 +140,7 @@ static void update_selectables(void)
 			}
 		}
 	}
-	
+
 }
 
 static int display_emotes_handler(window_info *win)
@@ -158,7 +159,7 @@ static int display_emotes_handler(window_info *win)
 
 	//draw texts
 	glEnable(GL_TEXTURE_2D);
-	
+
 	SET_COLOR(c_orange1);
 	draw_string_small_zoomed(border_space, top_border - win->small_font_len_y, (unsigned char*)"Categories",1, win->current_scale);
 	draw_string_small_zoomed(border_space, top_border + emotes_rect_y + box_sep  - win->small_font_len_y, (unsigned char*)"Emotes",1, win->current_scale);
@@ -179,7 +180,7 @@ static int display_emotes_handler(window_info *win)
 	glColor3f(0.77f, 0.57f, 0.39f);
 	//do grids
 	glDisable(GL_TEXTURE_2D);
-		
+
 	rendergrid(1, 1, border_space, top_border, emotes_rect_x, emotes_rect_y);
 	rendergrid(1, 1, border_space, top_border + emotes_rect_y + box_sep, emotes_rect_x2, emotes_rect_y2);
 	glEnable(GL_TEXTURE_2D);
@@ -194,7 +195,7 @@ static int display_emotes_handler(window_info *win)
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
-	return 1;	
+	return 1;
 }
 
 static int click_emotes_handler(window_info *win, int mx, int my, Uint32 flags)

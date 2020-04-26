@@ -330,43 +330,6 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 
 /*!
  * \ingroup text_font
- * \brief put_small_text_in_box
- *
- *      put_small_text_in_box(unsigned char*,int,int,char*)
- *
- * \param text_to_add   the string to add
- * \param len           the length of text_to_add
- * \param pixels_limit
- * \param buffer
- * \param text_zoom
- *
- * \callgraph
- *
- * \todo Fix documentation
- */
-void put_small_text_in_box_zoomed (const Uint8 *text_to_add, int len, int pixels_limit, char *buffer, float text_zoom);
-
-/*!
- * \ingroup text_font
- * \brief put_small_colored_text_in_box
- *
- *      put_small_colored_text_in_box(unsigned char*,int,int,char*)
- *
- * \param color	the color
- * \param text_to_add   the string to add
- * \param len           the length of text_to_add
- * \param pixels_limit
- * \param buffer
- * \param text_zoom
- *
- * \callgraph
- *
- * \todo Fix documentation
- */
-void put_small_colored_text_in_box_zoomed (Uint8 color, const Uint8 *text_to_add, int len, int pixels_limit, char *buffer, float text_zoom);
-
-/*!
- * \ingroup text_font
  * \brief find_last_lines_time
  *
  *      find_last_lines_time(int *, int *, Uint8 filter, int width)

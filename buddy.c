@@ -179,7 +179,7 @@ static int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 		}
 		return 1;
 	}
-	
+
 	// clicked on a buddy's name
 	y /= buddy_name_step_y;
 	if (y >= num_displayed_buddies)
@@ -278,7 +278,7 @@ void split_long_show_help(window_info *win, const char *str, int x, int y)
 	size_t out_index = 0;
 	size_t num_lines = 0;
 	char *tmp_str = (char *)malloc(str_len + 1);
-	
+
 	while (in_index < str_len)
 	{
 		tmp_str[out_index] = str[in_index];
@@ -328,7 +328,7 @@ static int display_accept_buddy_handler(window_info *win)
 {
 	if(win != NULL) {
 		int i;
-		
+
 		glColor3f(0.77f, 0.57f, 0.39f);
 		for(i = 0; i < MAX_ACCEPT_BUDDY_WINDOWS; i++) {
 			if(accept_windows[i].window_id == win->window_id) {
@@ -579,8 +579,9 @@ static int ui_scale_accept_handler(window_info *win)
 		return 0;
 
 	safe_snprintf(string, sizeof(string), buddy_wants_to_add_str, accept_windows[current_window].name);
-	put_small_colored_text_in_box_zoomed(c_blue1, (unsigned char*)string, strlen(string),
-		win_width - 2 * buddy_border_space, accept_windows[current_window].text, win->current_scale);
+	put_small_colored_text_in_box_zoomed(c_blue1, (const unsigned char*)string, strlen(string),
+		win_width - 2 * buddy_border_space, (unsigned char*) accept_windows[current_window].text,
+		win->current_scale);
 
 	widget_resize(win->window_id, accept_windows[current_window].checkbox, win->small_font_len_y, win->small_font_len_y);
 	widget_move(win->window_id, accept_windows[current_window].checkbox, buddy_border_space, win_height);

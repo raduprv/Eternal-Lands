@@ -57,6 +57,11 @@ typedef enum
 namespace eternal_lands
 {
 
+/*!
+ * Type alias for a byte string, as used in many places in EL
+ */
+typedef std::basic_string<unsigned char> ustring;
+
 class TextDrawOptions
 {
 public:
@@ -260,9 +265,9 @@ public:
 	* \param cursor     pointer to the cursor position, or NULL if not used
 	* \param max_line_width pointer the maximum line length after wrapping, or NULL if not used
 	*
-	* \retval int the new number of lines in the string
+	* \return The wrapped text
 	*/
-	int reset_soft_breaks(unsigned char *text, size_t text_size, size_t text_len,
+	ustring reset_soft_breaks(const unsigned char *text, size_t text_size, size_t text_len,
 		float zoom, int max_width, int *cursor = 0, float *max_line_width = 0);
 
 	/*!
@@ -633,9 +638,9 @@ public:
 	* \param cursor     pointer to the cursor position, or NULL if not used
 	* \param max_line_width pointer the maximum line length after wrapping, or NULL if not used
 	*
-	* \retval int the new number of lines in the string
+	* \return The wrapped text
 	*/
-	int reset_soft_breaks(Category cat, unsigned char *text, size_t text_size,
+	ustring reset_soft_breaks(Category cat, const unsigned char *text, size_t text_size,
 		size_t text_len, float text_zoom, int max_width, int *cursor = 0,
 		float *max_line_width = 0)
 	{
@@ -774,8 +779,16 @@ static __inline__ int get_string_width_ui(const unsigned char* str, float text_z
 }
 int get_line_height(font_cat cat, float text_zoom);
 
-int reset_soft_breaks (char *str, int len, int size, font_cat cat, float text_zoom,
-	int width, int *cursor, float *max_line_width);
+int reset_soft_breaks(unsigned char *text, int len, int size, font_cat cat,
+	float text_zoom, int width, int *cursor, float *max_line_width);
+void put_small_colored_text_in_box_zoomed(unsigned char color,
+	const unsigned char* text, int len, int width,
+	unsigned char* buffer, float text_zoom);
+static __inline__ void put_small_text_in_box_zoomed (const unsigned char* text,
+	int len, int width, unsigned char* buffer, float text_zoom)
+{
+	put_small_colored_text_in_box_zoomed(c_grey1, text, len, width, buffer, text_zoom);
+}
 
 void draw_string_zoomed_width_font(int x, int y, const unsigned char *text,
 	int max_width, int max_lines, font_cat cat, float text_zoom);
