@@ -110,6 +110,15 @@ void resize_root_window(void);
 void toggle_full_screen(void);
 
 /*!
+ * \name Functions for window size and high-dpi scaling
+ */
+/*! @{ */
+float get_highdpi_scale(void);					/*!< return high-dpi scaling ration - SDL_GL_GetDrawableSize()/SDL_GetWindowSize() */
+void highdpi_scale(int *width, int *height);	/*!< multiple the provided values my their high-dpi scaling values */
+void update_window_size_and_scale(void);		/*!< sets window width, height and highdpi scale values */
+/*! @} */
+
+/*!
  * \ingroup video
  * \brief       prints OpenGL related errors
  *

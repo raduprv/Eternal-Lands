@@ -19,6 +19,25 @@ extern const int max_num_recipe_entries;  /*!< max number of recipe entries */
 extern int manufacture_menu_x;
 extern int manufacture_menu_y;
 
+#define NUM_MIX_SLOTS 6
+
+// we don't need the full item structure so
+// use a seperate subset to avoid misunderstanding
+// we can then safely save/load just the bits we need
+typedef struct
+{
+	Uint16 id;
+	int image_id;
+	int quantity;
+} recipe_item;
+
+typedef struct
+{
+	recipe_item items[NUM_MIX_SLOTS];
+	char *name;
+	int status;
+} recipe_entry;
+
 /*!
  * \name windows handlers
  */

@@ -20,6 +20,14 @@ extern "C" {
 #define INPUT_MARGIN 4
 #define INPUT_DEFAULT_FLAGS (TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS|WIDGET_CLICK_TRANSPARENT)
 
+#define MAX_CHANNEL_COLORS 64
+
+typedef struct
+{
+	Uint32 nr;
+	int color;
+} channelcolor;
+
 extern widget_list *input_widget;
 
 extern int use_windowed_chat;		/*!< flag indicating whether we use the channel selection bar, the chat window, or neither */

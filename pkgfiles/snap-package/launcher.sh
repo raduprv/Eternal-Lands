@@ -5,7 +5,7 @@ userdir=$SNAP_USER_COMMON/config
 userdirlink=$SNAP_USER_DATA/.elc
 serverfile=servers.lst
 inifile=el.ini
-exename=$SNAP/el.linux.bin
+exename=$SNAP/bin/el.linux.bin
 browser=xdg-open
 
 mkdir -p $userdir || exit

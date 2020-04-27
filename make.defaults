@@ -24,6 +24,9 @@ FEATURES += MIDDLE_MOUSE_PASTE	# Paste using the middle mouse button from the pr
 # new for 1.9.4 release
 FEATURES += NEW_EYES			# Support for different eye colors, needs new data files
 
+# Development options targetting a most 1.9.6
+FEATURES += JSON_FILES			# switch existing binary user config files to JSON format
+
 ### Testing options (these options are possible for the next release and should be tested) ###
 #FEATURES += ANTI_ALIAS			# allows to enable/disable anti-aliasing in el.ini
 #FEATURES += DYNAMIC_ANIMATIONS		# (appears broken) Synchronizes animation to FPS instead of a fixed timer
