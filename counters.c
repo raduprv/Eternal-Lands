@@ -84,18 +84,16 @@ static int name_x_start = 0;
 static int name_x_end = 0;
 static int session_x_start = 0;
 static int session_x_end = 0;
-static int session_x_num_start = 0;
 static int total_x_start = 0;
-static int total_x_num_start = 0;
 static int total_x_end = 0;
 static int space_y = 0;
 static int step_y = 0;
 
 // put these in translate module
-static const char *name_str = "Name";
-static const char *session_str = "This Session";
-static const char *total_str = "Total";
-static const char *totals_str = "Totals:";
+static const unsigned char *name_str = (const unsigned char*)"Name";
+static const unsigned char *session_str = (const unsigned char*)"This Session";
+static const unsigned char *total_str = (const unsigned char*)"Total";
+static const unsigned char *totals_str = (const unsigned char*)"Totals:";
 
 static const char *cat_str[NUM_COUNTERS] = { "Kills", "Deaths", "Harvests", "Alchemy", "Crafting", "Manufacturing",
 	"Potions", "Spells", "Summons", "Engineering", "Breakages", "Events", "Tailoring", "Crit Fails", "Used Items" };
@@ -647,6 +645,7 @@ static int resize_counters_handler(window_info *win, int new_width, int new_heig
 	int current_selected;
 	int butt_y[NUM_COUNTERS] = {0, 1, 6, 7, 8, 9, 10, 11, 12, 13, 2, 5, 14, 3, 4 };
 	int gap_x = win->small_font_len_x / 2;
+	float zoom = win->current_scale * DEFAULT_SMALL_RATIO;
 
 	for (i=0; i<NUM_COUNTERS; i++)
 		if (strlen(cat_str[i]) > max_label_len)
@@ -654,19 +653,17 @@ static int resize_counters_handler(window_info *win, int new_width, int new_heig
 
 	left_panel_width = 2 * gap_x + max_label_len * win->small_font_len_x + 2 * (int)(DEFAULT_SMALL_RATIO * win->current_scale * BUTTONRADIUS);
 	name_x_start = left_panel_width + gap_x;
-	name_x_end = name_x_start + (int)(0.5 + win->small_font_len_x * (float)strlen(name_str));
+	name_x_end = name_x_start + get_string_width_ui(name_str, zoom);
 
 	total_x_end = win->len_x - win->box_size - gap_x;
-	total_x_start = total_x_end - (int)(0.5 + win->small_font_len_x * (float)strlen(total_str));
-	total_x_num_start = total_x_end - (int)(0.5 + win->small_font_len_x * 11);
+	total_x_start = total_x_end - get_string_width_ui(total_str, zoom);
 
-	session_x_end = total_x_num_start - (int)(0.5 + win->small_font_len_x);
-	session_x_start = session_x_end - (int)(0.5 + win->small_font_len_x * (float)strlen(session_str));
-	session_x_num_start = session_x_end - (int)(0.5 + win->small_font_len_x * 11);
+	session_x_end = total_x_end - (int)(12 * win->small_font_len_x + 0.5);
+	session_x_start = session_x_end - get_string_width_ui(session_str, zoom);
 
-	margin_y_len = win->small_font_len_y * 1.5;
-	space_y = win->small_font_len_y / 2;
-	step_y = win->small_font_len_y;
+	step_y = get_line_height(UI_FONT, zoom);
+	margin_y_len = 1.5 * step_y;
+	space_y = 0.5 * step_y;
 	NUM_LINES = (int)((new_height - 2 * margin_y_len - 2 * space_y) / step_y);
 
 	// for now, destory then re-create the buttons as there is no clear way to resize them
@@ -721,7 +718,7 @@ int display_counters_handler(window_info *win)
 	int i, j, n, x, y;
 	int scroll;
 	int total, session_total;
-	char buffer[32];
+	unsigned char buffer[32];
 
 	i = multiselect_get_selected(win->window_id, multiselect_id);
 	selected_counter_id = i + 1;
@@ -756,15 +753,15 @@ int display_counters_handler(window_info *win)
 
 	if (mouseover_name) glColor3f(0.6f, 0.6f, 0.6f);
 	else glColor3f(1.0f, 1.0f, 1.0f);
-	draw_string_small_zoomed(x, y, (unsigned char*)name_str, 1, win->current_scale);
+	draw_string_small_zoomed(x, y, name_str, 1, win->current_scale);
 
 	if (mouseover_session) glColor3f(0.6f, 0.6f, 0.6f);
 	else glColor3f(1.0f, 1.0f, 1.0f);
-	draw_string_small_zoomed(session_x_start, y, (unsigned char*)session_str, 1, win->current_scale);
+	draw_string_small_zoomed_right(session_x_end, y, session_str, 1, win->current_scale);
 
 	if (mouseover_total) glColor3f(0.6f, 0.6f, 0.6f);
 	else glColor3f(1.0f, 1.0f, 1.0f);
-	draw_string_small_zoomed(total_x_start, y, (unsigned char*)total_str, 1, win->current_scale);
+	draw_string_small_zoomed_right(total_x_end, y, total_str, 1, win->current_scale);
 
 	if (counters_scroll_id != -1) {
 		scroll = vscrollbar_get_pos(win->window_id, counters_scroll_id);
@@ -801,23 +798,25 @@ int display_counters_handler(window_info *win)
 			glColor3f(0.25f, 0.25f, 0.25f);
 
 		/* draw first so left padding does not overwrite name */
-		safe_snprintf(buffer, sizeof(buffer), "%11u", counters[i][j].n_session);
-		draw_string_small_zoomed(session_x_num_start, y, (unsigned char*)buffer, 1, win->current_scale);
-		safe_snprintf(buffer, sizeof(buffer), "%11u", counters[i][j].n_total);
-		draw_string_small_zoomed(total_x_num_start, y, (unsigned char*)buffer, 1, win->current_scale);
+		safe_snprintf((char*)buffer, sizeof(buffer), "%u", counters[i][j].n_session);
+		draw_string_small_zoomed_right(session_x_end, y, buffer, 1, win->current_scale);
+		safe_snprintf((char*)buffer, sizeof(buffer), "%u", counters[i][j].n_total);
+		draw_string_small_zoomed_right(total_x_end, y, buffer, 1, win->current_scale);
 
-		if (counters[i][j].name) {
-			float max_name_x;
-			float font_ratio = win->small_font_len_x/12.0;
-			safe_snprintf(buffer, sizeof(buffer), "%u", counters[i][j].n_session);
-			max_name_x = session_x_end - name_x_start - get_string_width_ui((unsigned char*)buffer, font_ratio);
+		if (counters[i][j].name)
+		{
+			float max_width;
+			float zoom = win->current_scale * DEFAULT_SMALL_RATIO;
+			safe_snprintf((char*)buffer, sizeof(buffer), "%u", counters[i][j].n_session);
+			max_width = session_x_end - name_x_start - get_string_width_ui(buffer, zoom);
 			/* if the name would overlap the session total, truncate it */
-			if (get_string_width_ui((unsigned char*)counters[i][j].name, font_ratio) > max_name_x) {
+			if (get_string_width_ui((unsigned char*)counters[i][j].name, zoom) > max_width)
+			{
 				const char *append_str = "... ";
 				size_t dest_max_len = strlen(counters[i][j].name) + strlen(append_str) + 1;
-				char *used_name = (char *)malloc(dest_max_len);
+				char *used_name = malloc(dest_max_len);
 				truncated_string(used_name, counters[i][j].name, dest_max_len, append_str,
-					max_name_x, UI_FONT, font_ratio);
+					max_width, UI_FONT, zoom);
 				draw_string_small_zoomed(x, y, (unsigned char*)used_name, 1, win->current_scale);
 				/* if the mouse is over this line and its truncated, tooltip to full name */
 				if (mouseover_entry_y >= y && mouseover_entry_y < y+step_y) {
@@ -827,7 +826,9 @@ int display_counters_handler(window_info *win)
 				free(used_name);
 			}
 			else
+			{
 				draw_string_small_zoomed(x, y, (unsigned char*)counters[i][j].name, 1, win->current_scale);
+			}
 		}
 		y += step_y;
 	}
@@ -841,18 +842,21 @@ int display_counters_handler(window_info *win)
 
 	glColor3f(1.0f, 1.0f, 1.0f);
 
-	draw_string_small_zoomed(x, win->len_y - (margin_y_len - space_y), (unsigned char*)totals_str, 1, win->current_scale);
+	draw_string_small_zoomed(x, win->len_y - (margin_y_len - space_y), totals_str,
+		1, win->current_scale);
 
 	for (j = 0, total = 0, session_total = 0; j < entries[i]; j++) {
 		total += counters[i][j].n_total;
 		session_total += counters[i][j].n_session;
 	}
 
-	safe_snprintf(buffer, sizeof(buffer), "%11u", session_total);
-	draw_string_small_zoomed(session_x_num_start, win->len_y - (margin_y_len - space_y), (unsigned char*)buffer, 1, win->current_scale);
+	safe_snprintf((char*)buffer, sizeof(buffer), "%u", session_total);
+	draw_string_small_zoomed_right(session_x_end, win->len_y - (margin_y_len - space_y),
+		buffer, 1, win->current_scale);
 
-	safe_snprintf(buffer, sizeof(buffer), "%11u", total);
-	draw_string_small_zoomed(total_x_num_start, win->len_y - (margin_y_len - space_y), (unsigned char*)buffer, 1, win->current_scale);
+	safe_snprintf((char*)buffer, sizeof(buffer), "%u", total);
+	draw_string_small_zoomed_right(total_x_end, win->len_y - (margin_y_len - space_y),
+		buffer, 1, win->current_scale);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
