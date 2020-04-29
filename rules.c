@@ -460,8 +460,6 @@ static void set_rule(const char* desc, int width, float zoom,
 	{
 		size_t len = strlen(desc);
 		size_t size = len + max_nr_lines;
-		int str_width, str_height;
-
 		*str = malloc(size);
 		safe_strncpy((char*)*str, desc, size);
 		*nr_lines = reset_soft_breaks(*str, len, size, RULES_FONT, zoom, width, NULL, NULL);
