@@ -169,16 +169,6 @@ void paste_in_input_field (const Uint8 *text);
 void display_chat (void);
 
 /*!
- * \ingroup chat_window
- * \brief   Updates the chat window text zoom
- *
- *      Updates the chat window text zoom
- *
- * \callgraph
- */
-void chat_win_update_zoom (void);
-
-/*!
  * \ingroup chat_bar
  * \brief   Show the channel selection bar
  *

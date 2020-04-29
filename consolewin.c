@@ -322,7 +322,6 @@ static int show_console_handler (window_info *win)
 	return 1;
 }
 
-
 int get_console_text_width(void)
 {
 	return console_text_width;
@@ -331,14 +330,6 @@ int get_console_text_width(void)
 int get_total_nr_lines(void)
 {
 	return total_nr_lines;
-}
-
-void console_font_resize(float font_size)
-{
-	int line_height = get_line_height(CHAT_FONT, 1.0);
-	nr_console_lines= (window_height - input_widget->len_y - CONSOLE_SEP_HEIGHT - hud_y - CONSOLE_Y_OFFSET) / line_height;
-	// FIXME: resize necessary?
-	resize_console_handler (&windows_list.window[console_root_win], window_width, window_height);
 }
 
 void clear_console(){
@@ -392,6 +383,18 @@ static int ui_scale_console_handler(window_info *win)
 	return 1;
 }
 
+static int change_console_font_handler(window_info *win, font_cat cat)
+{
+	int line_height;
+	if (cat != CHAT_FONT)
+		return 0;
+
+	line_height = get_line_height(CHAT_FONT, 1.0);
+	nr_console_lines= (window_height - input_widget->len_y - CONSOLE_SEP_HEIGHT - hud_y - CONSOLE_Y_OFFSET) / line_height;
+	resize_console_handler(win, window_width, window_height);
+	return 1;
+}
+
 void create_console_root_window (int width, int height)
 {
 	if (console_root_win < 0)
@@ -419,6 +422,7 @@ void create_console_root_window (int width, int height)
 		set_window_handler (console_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_console_handler);
 		set_window_handler (console_root_win, ELW_HANDLER_SHOW, &show_console_handler);
 		set_window_handler (console_root_win, ELW_HANDLER_UI_SCALE, &ui_scale_console_handler);
+		set_window_handler(console_root_win, ELW_HANDLER_FONT_CHANGE, &change_console_font_handler);
 
 		console_out_id = text_field_add_extended(console_root_win, console_out_id, NULL,
 			CONSOLE_TEXT_X_BORDER, CONSOLE_Y_OFFSET, console_text_width,

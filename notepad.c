@@ -924,6 +924,31 @@ static int resize_buttonwin_handler(window_info *win, int new_width, int new_hei
 	return 0;
 }
 
+static void notepad_win_close_tabs(void)
+{
+	widget_list *wid = widget_find (notepad_win, note_tabcollection_id);
+	tab_collection *col = NULL;
+	int closed_a_tab = -1;
+
+	if ((wid == NULL) || ((col = (tab_collection *) wid->widget_info) == NULL))
+		return;
+
+	do
+	{
+		int i;
+		closed_a_tab = -1;
+		for(i = 0; i < col->nr_tabs; i++)
+		{
+			if (col->tabs[i].content_id != main_note_tab_id)
+			{
+				closed_a_tab = tab_collection_close_tab(notepad_win, note_tabcollection_id, i);
+				break;
+			}
+		}
+	}
+	while (closed_a_tab >= 0);
+}
+
 static int resize_notepad_handler(window_info *win, int new_width, int new_height)
 {
 	widget_list *w = widget_find (win->window_id, note_tabcollection_id);
@@ -949,6 +974,14 @@ static int resize_notepad_handler(window_info *win, int new_width, int new_heigh
 	return 0;
 }
 
+static int change_notepad_font_handler(window_info *win, font_cat cat)
+{
+	if (cat != NOTE_FONT)
+		return 0;
+	notepad_win_close_tabs();
+	return 1;
+}
+
 void fill_notepad_window(int window_id)
 {
 	int i;
@@ -957,6 +990,7 @@ void fill_notepad_window(int window_id)
 	set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_notepad_handler);
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_buttonwin_handler);
 	set_window_handler(window_id, ELW_HANDLER_RESIZE, &resize_notepad_handler );
+	set_window_handler(window_id, ELW_HANDLER_FONT_CHANGE, change_notepad_font_handler);
 
 	note_tabcollection_id = tab_collection_add (window_id, NULL, 0, 0, 0, 0);
 	widget_set_color (window_id, note_tabcollection_id, 0.77f, 0.57f, 0.39f);
@@ -992,29 +1026,4 @@ void fill_notepad_window(int window_id)
 
 	if (using_named_notes)
 		cm_grey_line(cm_save_id, 0, 1);
-}
-
-void notepad_win_close_tabs(void)
-{
-	widget_list *wid = widget_find (notepad_win, note_tabcollection_id);
-	tab_collection *col = NULL;
-	int closed_a_tab = -1;
-
-	if ((wid == NULL) || ((col = (tab_collection *) wid->widget_info) == NULL))
-		return;
-
-	do
-	{
-		int i;
-		closed_a_tab = -1;
-		for(i = 0; i < col->nr_tabs; i++)
-		{
-			if (col->tabs[i].content_id != main_note_tab_id)
-			{
-				closed_a_tab = tab_collection_close_tab(notepad_win, note_tabcollection_id, i);
-				break;
-			}
-		}
-	}
-	while (closed_a_tab >= 0);
 }

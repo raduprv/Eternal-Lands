@@ -25,7 +25,6 @@ extern int console_scrollbar_enabled;  /*!< config option, if true, a scroll bar
 
 void clear_console (void);
 void toggle_console_scrollbar(int *enable);
-void console_font_resize(float fond_size);
 int get_console_text_width(void);
 int get_total_nr_lines(void);
 

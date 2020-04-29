@@ -322,12 +322,7 @@ static int disable_auto_highdpi_scale = 0;
 static int delay_update_highdpi_auto_scaling = 0;
 // the elconfig local version of the font sizes, so we can auto scale if needed
 static float local_ui_scale = 1.0f;
-static float local_ui_zoom = 1.0f;
-static float local_name_zoom = 1.0f;
 static float local_chat_zoom = 1.0f;
-static float local_note_zoom = 0.8f;
-static float local_book_zoom = 1.0f;
-static float local_rules_zoom = 1.0f;
 static float local_minimap_size_coefficient = 0.7f;
 #endif
 
@@ -1195,21 +1190,26 @@ static void change_font(size_t *var, int value)
 	}
 }
 
-static void change_ui_zoom(float *var, float *value)
+static void change_text_zoom(float *var, const float *value)
 {
-	*var= *value;
-	font_scales[UI_FONT] = (disable_auto_highdpi_scale) ? *var : get_highdpi_scale() * *var;
-	change_windows_font(UI_FONT);
+	if (*value > 0.0)
+	{
+		*var = (disable_auto_highdpi_scale) ? *value : get_highdpi_scale() * *value;
+		// Yes, this is ugly. I just really did not want to introduce a ton of
+		// separate function for each font category.
+		if (var >= font_scales && var < font_scales + NR_FONT_CATS)
+		{
+			font_cat cat = var - font_scales;
+			change_windows_font(cat);
+		}
+	}
 }
 
-static void change_name_zoom(float * var, float * value)
+static void change_name_zoom(float *var, float *value)
 {
-	if(*value > 2.0){
-		*value= 2.0;
-	}
-	*var= *value;
-	font_scales[NAME_FONT] = (disable_auto_highdpi_scale) ? *var : get_highdpi_scale() * *var;
-	change_windows_font(NAME_FONT);
+	if (*value > 2.0)
+		*value = 2.0;
+	change_text_zoom(var, value);
 }
 
 static void change_chat_zoom(float *dest, float *value)
@@ -1221,18 +1221,6 @@ static void change_chat_zoom(float *dest, float *value)
 	font_scales[CHAT_FONT] = (disable_auto_highdpi_scale) ? *dest : get_highdpi_scale() * *dest;
 	change_windows_font(CHAT_FONT);
 	// FIXME?
-	if (opening_root_win >= 0 || console_root_win >= 0 || chat_win >= 0 || game_root_win >= 0) {
-		if (opening_root_win >= 0) {
-			opening_win_update_zoom();
-		}
-		if (console_root_win >= 0) {
-			console_font_resize(font_scales[CHAT_FONT]);
-		}
-		if (chat_win >= 0) {
-			chat_win_update_zoom();
-		}
-	}
-
 	if (input_widget != NULL)
 	{
 		text_field *tf= input_widget->widget_info;
@@ -1245,39 +1233,14 @@ static void change_chat_zoom(float *dest, float *value)
 	}
 }
 
-static void change_note_zoom (float *dest, float *value)
-{
-	if (*value < 0.0f)
-		return;
-	*dest = *value;
-	font_scales[NOTE_FONT] = (disable_auto_highdpi_scale) ? *dest : get_highdpi_scale() * *dest;
-	change_windows_font(NOTE_FONT);
-	// FIXME? move to handler
-	notepad_win_close_tabs ();
-}
-
-static void change_book_zoom(float *var, float *value)
-{
-	*var= *value;
-	font_scales[BOOK_FONT] = (disable_auto_highdpi_scale) ? *var : get_highdpi_scale() * *var;
-	change_windows_font(BOOK_FONT);
-}
-
-static void change_rules_zoom(float *var, float *value)
-{
-	*var= *value;
-	font_scales[RULES_FONT] = (disable_auto_highdpi_scale) ? *var : get_highdpi_scale() * *var;
-	change_windows_font(RULES_FONT);
-}
-
 void update_highdpi_auto_scaling(void)
 {
-	change_ui_zoom(&local_ui_zoom, &local_ui_zoom);
-	change_name_zoom(&local_name_zoom, &local_name_zoom);
+	change_text_zoom(&font_scales[UI_FONT], &font_scales[UI_FONT]);
+	change_text_zoom(&font_scales[NAME_FONT], &font_scales[NAME_FONT]);
 	change_chat_zoom(&local_chat_zoom, &local_chat_zoom);
-	change_note_zoom(&local_note_zoom, &local_note_zoom);
-	change_book_zoom(&local_book_zoom, &local_book_zoom);
-	change_rules_zoom(&local_rules_zoom, &local_rules_zoom);
+	change_text_zoom(&font_scales[NOTE_FONT], &font_scales[NOTE_FONT]);
+	change_text_zoom(&font_scales[BOOK_FONT], &font_scales[BOOK_FONT]);
+	change_text_zoom(&font_scales[RULES_FONT], &font_scales[RULES_FONT]);
 	change_ui_scale(&local_ui_scale, &local_ui_scale);
 	change_minimap_scale(&local_minimap_size_coefficient, &local_minimap_size_coefficient);
 }
@@ -2491,12 +2454,12 @@ static void init_ELC_vars(void)
 	add_var(OPT_STRING, "ttf_directory", "ttfdir", ttf_directory, change_string, TTF_DIR_SIZE,
 		"TTF directory", "The directory in which to look for True Type fonts", FONT);
 #endif
-	add_var(OPT_FLOAT,"ui_text_size","uisize",&local_ui_zoom,change_ui_zoom,1,"UI Text Size","Set the size of the text in the user interface",FONT,0.1,FLT_MAX,0.01);
-	add_var(OPT_FLOAT,"name_text_size","nsize",&local_name_zoom,change_name_zoom,1,"Name Text Size","Set the size of the players name text",FONT,0.1,2.0,0.01);
+	add_var(OPT_FLOAT,"ui_text_size","uisize",&font_scales[UI_FONT],change_text_zoom,1,"UI Text Size","Set the size of the text in the user interface",FONT,0.1,FLT_MAX,0.01);
+	add_var(OPT_FLOAT,"name_text_size","nsize",&font_scales[NAME_FONT],change_name_zoom,1,"Name Text Size","Set the size of the players name text",FONT,0.1,2.0,0.01);
 	add_var(OPT_FLOAT,"chat_text_size","csize",&local_chat_zoom,change_chat_zoom,1,"Chat Text Size","Sets the size of the normal text",FONT,0.1,FLT_MAX,0.01);
-	add_var(OPT_FLOAT,"book_text_size","bsize",&local_book_zoom,change_book_zoom,1,"Book Text Size","Set the size of the text in in-game books",FONT,0.1,FLT_MAX,0.01);
-	add_var(OPT_FLOAT,"note_text_size", "notesize", &local_note_zoom, change_note_zoom, 0.8, "Notepad Text Size","Sets the size of the text in the notepad", FONT, 0.1, FLT_MAX, 0.01);
-	add_var(OPT_FLOAT,"rules_text_size","rsize",&local_rules_zoom,change_rules_zoom,1,"Rules Text Size","Set the size of the rules text",FONT,0.0,FLT_MAX,0.01);
+	add_var(OPT_FLOAT,"book_text_size","bsize",&font_scales[BOOK_FONT],change_text_zoom,1,"Book Text Size","Set the size of the text in in-game books",FONT,0.1,FLT_MAX,0.01);
+	add_var(OPT_FLOAT,"note_text_size", "notesize", &font_scales[NOTE_FONT], change_text_zoom, 0.8, "Notepad Text Size","Sets the size of the text in the notepad", FONT, 0.1, FLT_MAX, 0.01);
+	add_var(OPT_FLOAT,"rules_text_size","rsize",&font_scales[RULES_FONT],change_text_zoom,1,"Rules Text Size","Set the size of the rules text",FONT,0.0,FLT_MAX,0.01);
 	add_var(OPT_FLOAT,"mapmark_text_size", "marksize", &mapmark_zoom, change_float, 0.3, "Mapmark Text Size","Sets the size of the mapmark text", FONT, 0.0, FLT_MAX, 0.01);
 	add_var(OPT_MULTI,"ui_font","uifont",&font_idxs[UI_FONT],change_font,0,"UI Font","Change the type of font used in the user interface",FONT, NULL);
 	add_var(OPT_MULTI,"name_font","nfont",&font_idxs[NAME_FONT],change_font,0,"Name Font","Change the type of font used for the name",FONT, NULL);

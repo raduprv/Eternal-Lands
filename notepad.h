@@ -82,7 +82,7 @@ void display_popup_win (INPUT_POPUP *ipu, const char* label);
 
 /*!
  * \ingroup notepad_window
- * \brief   Centres the popup window to parent window 
+ * \brief   Centres the popup window to parent window
  *
  *      Centres the popup window to parent window.
  *
@@ -110,14 +110,6 @@ void fill_notepad_window(int window_id);
  * \retval int  always 1
  */
 int notepad_save_file(void);
-
-/*!
- * \ingroup notepad_window
- * \brief   Close all but the main notepad tab
- *
- * Close all but the main notepad tab
- */
-void notepad_win_close_tabs (void);
 
 #ifdef __cplusplus
 } // extern "C"

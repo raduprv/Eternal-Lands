@@ -1069,6 +1069,14 @@ static int ui_scale_chat_handler(window_info *win)
 	return 1;
 }
 
+static int change_chat_font_handler(window_info* win, font_cat cat)
+{
+	if (cat != CHAT_FONT)
+		return 0;
+	text_changed = 1;
+	return 1;
+}
+
 static void create_chat_window(void)
 {
 	int chat_win_width = CHAT_WIN_TEXT_WIDTH + 4 * CHAT_WIN_SPACE + CHAT_WIN_SCROLL_WIDTH;
@@ -1093,6 +1101,7 @@ static void create_chat_window(void)
 	set_window_handler (chat_win, ELW_HANDLER_RESIZE, &resize_chat_handler);
 	set_window_handler (chat_win, ELW_HANDLER_UI_SCALE, &ui_scale_chat_handler);
 	set_window_handler (chat_win, ELW_HANDLER_CLOSE, &close_chat_handler);
+	set_window_handler(chat_win, ELW_HANDLER_FONT_CHANGE, &change_chat_font_handler);
 
 	chat_scroll_id = vscrollbar_add_extended (chat_win, chat_scroll_id, NULL, chat_win_width - CHAT_WIN_SCROLL_WIDTH, CLOSE_SIZE, CHAT_WIN_SCROLL_WIDTH, chat_win_height - 2*CLOSE_SIZE, 0, 1.0f, 0.77f, 0.57f, 0.39f, 0, 1, 0);
 	widget_set_OnDrag (chat_win, chat_scroll_id, chat_scroll_drag);
@@ -1142,11 +1151,6 @@ void display_chat(void)
 		select_window (chat_win);
 	}
 	update_chat_win_buffers();
-}
-
-void chat_win_update_zoom(void)
-{
-	text_changed = 1;
 }
 
 ////////////////////////////////////////////////////////////////////////

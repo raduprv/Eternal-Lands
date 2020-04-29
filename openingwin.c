@@ -26,11 +26,6 @@ int nr_opening_lines;
 int opening_win_text_width = -1;
 int opening_win_text_height = -1;
 
-void opening_win_update_zoom()
-{
-	nr_opening_lines = opening_win_text_height / get_line_height(CHAT_FONT, 1.0);
-}
-
 int display_opening_handler ()
 {
 	int msg, offset, iline;
@@ -104,6 +99,14 @@ int show_opening_handler (window_info *win) {
 	return 1;
 }
 
+static int change_opening_font_handler(window_info *win, font_cat cat)
+{
+	if (cat != CHAT_FONT)
+		return 0;
+	nr_opening_lines = opening_win_text_height / get_line_height(CHAT_FONT, 1.0);
+	return 1;
+}
+
 void create_opening_root_window (int width, int height)
 {
 	if (opening_root_win < 0)
@@ -114,6 +117,7 @@ void create_opening_root_window (int width, int height)
 		set_window_handler (opening_root_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_opening_handler);
 		set_window_handler (opening_root_win, ELW_HANDLER_CLICK, &click_opening_handler);
 		set_window_handler (opening_root_win, ELW_HANDLER_SHOW, &show_opening_handler);
+		set_window_handler(opening_root_win, ELW_HANDLER_FONT_CHANGE, &change_opening_font_handler);
 
 		opening_out_id = text_field_add_extended (opening_root_win, opening_out_id,
 			NULL, 0, 0, width, height, 0, CHAT_FONT, 1.0, -1.0f, -1.0f, -1.0f,
