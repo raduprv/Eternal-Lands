@@ -50,7 +50,6 @@ static int console_in_id = 41;
 static int console_scrollbar_id = 42;
 
 static int CONSOLE_Y_OFFSET = 25;
-static const int CONSOLE_SEP_HEIGHT = DEFAULT_FONT_Y_LEN;
 static const int CONSOLE_TEXT_X_BORDER = 10;
 
 static int nr_console_lines = 0;
@@ -58,6 +57,11 @@ static int total_nr_lines = 0;
 static int scroll_up_lines = 0;
 static int console_text_changed = 0;
 static int console_text_width = -1;
+
+static inline int get_console_sep_height(void)
+{
+	return (int)(0.5 + DEFAULT_FONT_Y_LEN * chat_zoom);
+}
 
 static void update_console_scrollbar(void)
 {
@@ -99,9 +103,9 @@ static int display_console_handler (window_info *win)
 	{
 		const unsigned char *sep_string = (unsigned char*)"^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^";
 		glColor3f (1.0, 1.0, 1.0);
-		draw_string_clipped (CONSOLE_TEXT_X_BORDER,
-			win->len_y - input_widget->len_y - CONSOLE_SEP_HEIGHT - HUD_MARGIN_Y + DEFAULT_FONT_Y_LEN/2,
-			sep_string, console_text_width, CONSOLE_SEP_HEIGHT);
+		draw_string_zoomed_clipped (CONSOLE_TEXT_X_BORDER,
+			(int)(0.5 + win->len_y - input_widget->len_y - get_console_sep_height() - HUD_MARGIN_Y + chat_zoom * DEFAULT_FONT_Y_LEN / 2.0f),
+			sep_string, -1, 1+console_text_width, 1+get_console_sep_height(), chat_zoom);
 	}
 	//ttlanhil: disabled, until the scrolling in console is adusted to work with filtering properly
 	//if the users prefer that console not be filtered, the following line can be removed.
@@ -212,7 +216,7 @@ static int resize_console_handler (window_info *win, int width, int height)
 	int scrollbar_x_adjust = (console_scrollbar_enabled) ?win->box_size :0;
 	int console_active_width = width - HUD_MARGIN_X;
 	int console_active_height = height - HUD_MARGIN_Y;
-	int text_display_height = console_active_height - input_widget->len_y - CONSOLE_SEP_HEIGHT - CONSOLE_Y_OFFSET;
+	int text_display_height = console_active_height - input_widget->len_y - get_console_sep_height() - CONSOLE_Y_OFFSET;
 	console_text_width = (int) (console_active_width - 2*CONSOLE_TEXT_X_BORDER - scrollbar_x_adjust);
 
 	widget_resize (console_root_win, console_out_id, console_text_width, text_display_height);
@@ -260,7 +264,7 @@ static void create_console_scrollbar(window_info *win)
 		return;
 	console_scrollbar_id = vscrollbar_add_extended(win->window_id, console_scrollbar_id, NULL,
 		console_active_width - win->box_size, CONSOLE_Y_OFFSET,
-		win->box_size, console_active_height - CONSOLE_SEP_HEIGHT - CONSOLE_Y_OFFSET - input_widget->len_y,
+		win->box_size, console_active_height - get_console_sep_height() - CONSOLE_Y_OFFSET - input_widget->len_y,
 		0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, total_nr_lines-nr_console_lines);
 	widget_set_OnDrag(win->window_id, console_scrollbar_id, console_scroll_drag);
 	widget_set_OnClick(win->window_id, console_scrollbar_id, console_scroll_click);
@@ -330,7 +334,7 @@ int get_total_nr_lines(void)
 
 void console_font_resize(float font_size)
 {
-	nr_console_lines= (int) (window_height - input_widget->len_y - CONSOLE_SEP_HEIGHT - hud_y - CONSOLE_Y_OFFSET) / (DEFAULT_FONT_Y_LEN * chat_zoom);
+	nr_console_lines= (int) (window_height - input_widget->len_y - get_console_sep_height() - hud_y - CONSOLE_Y_OFFSET) / (DEFAULT_FONT_Y_LEN * chat_zoom);
 	widget_set_size(console_root_win, console_out_id, font_size);
 	resize_console_handler (&windows_list.window[console_root_win], window_width, window_height);
 }
@@ -414,7 +418,7 @@ void create_console_root_window (int width, int height)
 
 		console_out_id = text_field_add_extended (console_root_win, console_out_id, NULL,
 			CONSOLE_TEXT_X_BORDER, CONSOLE_Y_OFFSET,
-			console_text_width, console_active_height - INPUT_HEIGHT - CONSOLE_SEP_HEIGHT - CONSOLE_Y_OFFSET,
+			console_text_width, console_active_height - INPUT_HEIGHT - get_console_sep_height() - CONSOLE_Y_OFFSET,
 			0, chat_zoom, -1.0f, -1.0f, -1.0f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, CHAT_ALL, 0, 0);
 
 		recalc_message_lines();
@@ -430,7 +434,7 @@ void create_console_root_window (int width, int height)
 		}
 		widget_set_OnKey(input_widget->window_id, input_widget->id, (int (*)())chat_input_key);
 
-		nr_console_lines = (int) (console_active_height - input_widget->len_y -  CONSOLE_SEP_HEIGHT - CONSOLE_Y_OFFSET) / (DEFAULT_FONT_Y_LEN * chat_zoom);
+		nr_console_lines = (int) (console_active_height - input_widget->len_y -  get_console_sep_height() - CONSOLE_Y_OFFSET) / (DEFAULT_FONT_Y_LEN * chat_zoom);
 
 		if (console_scrollbar_enabled && (console_root_win >= 0) && (console_root_win < windows_list.num_windows))
 		{
@@ -456,7 +460,7 @@ int input_field_resize(widget_list *w, Uint32 x, Uint32 y)
 		widget_move(input_widget->window_id, input_widget->id, 0, win->len_y - input_widget->len_y - HUD_MARGIN_Y);
 	}
 
-	console_active_height = console_win->len_y - HUD_MARGIN_Y - input_widget->len_y - CONSOLE_SEP_HEIGHT - CONSOLE_Y_OFFSET;
+	console_active_height = console_win->len_y - HUD_MARGIN_Y - input_widget->len_y - get_console_sep_height() - CONSOLE_Y_OFFSET;
 	widget_resize(console_root_win, console_out_id, console_out_w->len_x, console_active_height);
 	if (console_scrollbar_enabled)
 		widget_resize(console_root_win, console_scrollbar_id, console_win->box_size, console_active_height);

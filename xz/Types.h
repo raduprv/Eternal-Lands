@@ -58,12 +58,7 @@ typedef Sint16 Int16;
 typedef Uint16 UInt16;
 
 typedef Sint32 Int32;
-
-#ifdef	OSX
-typedef unsigned long UInt32;
-#else	/* OSX */
 typedef Uint32 UInt32;
-#endif	/* OSX */
 
 typedef Sint64 Int64;
 typedef Uint64 UInt64;

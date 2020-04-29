@@ -792,20 +792,36 @@ static int display_items_handler(window_info *win)
 	unequip_arrow.mouse_over = -1;
 	if (items_equip_grid_on_left)
 	{
+		int arrow_width = (disable_double_click) ?unequip_arrow.len_x : unequip_arrow.len_x/2;
 		glBegin(GL_LINES); /* right arrow */
 			glVertex3i(unequip_arrow.pos_x, unequip_arrow.pos_y, 0);
-			glVertex3i(unequip_arrow.pos_x + unequip_arrow.len_x, unequip_arrow.pos_y + unequip_arrow.len_y/2, 0);
-			glVertex3i(unequip_arrow.pos_x + unequip_arrow.len_x, unequip_arrow.pos_y + unequip_arrow.len_y/2, 0);
+			glVertex3i(unequip_arrow.pos_x + arrow_width, unequip_arrow.pos_y + unequip_arrow.len_y/2, 0);
+			glVertex3i(unequip_arrow.pos_x + arrow_width, unequip_arrow.pos_y + unequip_arrow.len_y/2, 0);
 			glVertex3i(unequip_arrow.pos_x, unequip_arrow.pos_y + unequip_arrow.len_y, 0);
+			if (!disable_double_click)
+			{
+				glVertex3i(unequip_arrow.pos_x + arrow_width, unequip_arrow.pos_y, 0);
+				glVertex3i(unequip_arrow.pos_x + unequip_arrow.len_x, unequip_arrow.pos_y + unequip_arrow.len_y/2, 0);
+				glVertex3i(unequip_arrow.pos_x + unequip_arrow.len_x, unequip_arrow.pos_y + unequip_arrow.len_y/2, 0);
+				glVertex3i(unequip_arrow.pos_x + arrow_width, unequip_arrow.pos_y + unequip_arrow.len_y, 0);
+			}
 		glEnd();
 	}
 	else
 	{
+		int arrow_width = (disable_double_click) ?unequip_arrow.len_x : unequip_arrow.len_x/2;
 		glBegin(GL_LINES); /* left arrow */
-			glVertex3i(unequip_arrow.pos_x + unequip_arrow.len_x, unequip_arrow.pos_y, 0);
+			glVertex3i(unequip_arrow.pos_x + arrow_width, unequip_arrow.pos_y, 0);
 			glVertex3i(unequip_arrow.pos_x, unequip_arrow.pos_y + unequip_arrow.len_y/2, 0);
 			glVertex3i(unequip_arrow.pos_x, unequip_arrow.pos_y + unequip_arrow.len_y/2, 0);
-			glVertex3i(unequip_arrow.pos_x + unequip_arrow.len_x, unequip_arrow.pos_y + unequip_arrow.len_y, 0);
+			glVertex3i(unequip_arrow.pos_x + arrow_width, unequip_arrow.pos_y + unequip_arrow.len_y, 0);
+			if (!disable_double_click)
+			{
+				glVertex3i(unequip_arrow.pos_x + unequip_arrow.len_x, unequip_arrow.pos_y, 0);
+				glVertex3i(unequip_arrow.pos_x + arrow_width, unequip_arrow.pos_y + unequip_arrow.len_y/2, 0);
+				glVertex3i(unequip_arrow.pos_x + arrow_width, unequip_arrow.pos_y + unequip_arrow.len_y/2, 0);
+				glVertex3i(unequip_arrow.pos_x + unequip_arrow.len_x, unequip_arrow.pos_y + unequip_arrow.len_y, 0);
+			}
 		glEnd();
 	}
 
@@ -1105,6 +1121,9 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 		size_t i;
 		int last_pos = 0;
 		int success = 1;
+		static Uint32 last_click = 0;
+		if (!safe_button_click(&last_click))
+			return 1;
 		for(i = ITEM_WEAR_START; i < ITEM_WEAR_START + ITEM_NUM_WEAR; i++)
 		{
 			if(item_list[i].quantity>0)
@@ -1444,7 +1463,7 @@ static int mouseover_items_handler(window_info *win, int mx, int my) {
 	if ((mx > unequip_arrow.pos_x) && (mx < unequip_arrow.pos_x + unequip_arrow.len_x) &&
 			(my > unequip_arrow.pos_y) && (my < unequip_arrow.pos_y + unequip_arrow.len_y))
 	{
-		item_help_str = items_unequip_all_help_str;
+		item_help_str = (disable_double_click) ?items_unequip_all_help_str :items_doubleclick_unequip_all_help_str;
 		unequip_arrow.mouse_over = 1;
 		return 0;
 	}

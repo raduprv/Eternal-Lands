@@ -2466,12 +2466,8 @@ int text_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_code, Ui
 
 	if (is_printable (ch) || key_code == SDLK_UP || key_code == SDLK_DOWN ||
 		key_code == SDLK_LEFT || key_code == SDLK_RIGHT || key_code == SDLK_HOME ||
-		key_code == SDLK_END || key_code == SDLK_BACKSPACE || key_code == SDLK_DELETE
-#ifdef OSX
-		|| unikey == 127
-#endif
-		)
-		{
+		key_code == SDLK_END || key_code == SDLK_BACKSPACE || key_code == SDLK_DELETE)
+	{
 		/* Stop blinking on input */
 		tf->next_blink = cur_time + TF_BLINK_DELAY;
 	}

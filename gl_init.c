@@ -19,6 +19,8 @@
 
 int window_width = 640;
 int window_height = 480;
+static float window_highdpi_scale_width = 1.0f;
+static float window_highdpi_scale_height = 1.0f;
 
 SDL_Window *el_gl_window = NULL;
 static SDL_GLContext el_gl_context = NULL;
@@ -258,7 +260,7 @@ void init_video(void)
 	SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 8);
 	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
 
-	flags = SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE;
+	flags = SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE|SDL_WINDOW_ALLOW_HIGHDPI;
 	if(full_screen)
 		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 
@@ -347,7 +349,7 @@ void init_video(void)
 	}
 
 	// get the windos size, these variables are used globaly
-	SDL_GetWindowSize(el_gl_window, &window_width, &window_height);
+	update_window_size_and_scale();
 
 	// enable V-SYNC, choosing active as a preference
 	if (SDL_GL_SetSwapInterval(-1) < 0)
@@ -365,11 +367,6 @@ void init_video(void)
 
 	// set the initial window title, though it will change once we are logged in
 	SDL_SetWindowTitle( el_gl_window, win_principal );
-
-#ifdef OSX
-	// don't emulate a 3 button mouse except you still have a 1 button mouse, ALT+leftclick doesn't work with the emulation
-	if (!emulate3buttonmouse) SDL_putenv("SDL_HAS3BUTTONMOUSE=1");
-#endif
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -966,9 +963,35 @@ int switch_video(int mode, int full_screen)
 		SDL_SetWindowFullscreen(el_gl_window, 0);
 		SDL_SetWindowSize(el_gl_window, window_width, window_height);
 	}
-	SDL_GetWindowSize(el_gl_window, &window_width, &window_height);
+	update_window_size_and_scale();
 	resize_all_root_windows(old_window_width, window_width, old_window_height, window_height);
 	return 1;
+}
+
+//	Get a single value for highhdpi scaling.
+float get_highdpi_scale(void)
+{
+	return (window_highdpi_scale_width > window_highdpi_scale_height) ?window_highdpi_scale_width :window_highdpi_scale_height;
+}
+
+//	Use the calulated values to scale mouse values.
+void highdpi_scale(int *width, int *height)
+{
+	*width = (int)((0.5 - (*width < 0)) + (float)*width * window_highdpi_scale_width);
+	*height = (int)((0.5 - (*height < 0)) + (float)*height * window_highdpi_scale_height);
+}
+
+//	For high DPI displays,  SDL_GetWindowSize() reports different values to SDL_GL_GetDrawableSize()
+//	You need the SDL_GL_GetDrawableSize() to enable use of the full window.
+//	You need to ration of SDL_GL_GetDrawableSize()/SDL_GetWindowSize() to scale the mouse location.
+void update_window_size_and_scale(void)
+{
+	int non_dpi_w, non_dpi_h;
+	SDL_GetWindowSize(el_gl_window, &non_dpi_w, &non_dpi_h);
+	SDL_GL_GetDrawableSize(el_gl_window, &window_width, &window_height);
+	window_highdpi_scale_width = (float)window_width / (float)non_dpi_w;
+	window_highdpi_scale_height = (float)window_height / (float)non_dpi_h;
+	update_highdpi_auto_scaling();
 }
 
 void toggle_full_screen(void)

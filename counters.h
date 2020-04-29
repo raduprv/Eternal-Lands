@@ -8,6 +8,14 @@
 extern "C" {
 #endif
 
+/* Counter structure */
+struct Counter {
+	char *name;
+	Uint32 n_session;
+	Uint32 n_total;
+	Uint32 extra;
+};
+
 int now_harvesting(void);
 void clear_now_harvesting(void);
 void set_now_harvesting(void);

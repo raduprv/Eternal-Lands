@@ -1,3 +1,6 @@
+#ifdef OSX
+#include <libgen.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -499,12 +502,29 @@ void check_log_level_on_command_line()
 	}
 }
 
+#ifdef OSX
+// we need to move to the Data directory so server.lst can be found
+void setupWorkingDirectory(const char *argv0, size_t len)
+{
+	char *path = malloc(len + 1);
+	strncpy(path, argv0, len);
+	if ( ! ((chdir(dirname(path)) == 0) &&
+		(chdir("../Resources/data") == 0)))
+		fprintf(stderr, "Failed to change to data directory path\n");
+	free(path);
+}
+#endif
+
 #ifdef WINDOWS
 int Main(int argc, char **argv)
 #else
 int main(int argc, char **argv)
 #endif
 {
+#ifdef OSX
+	if (argc > 0) // should always be true
+		setupWorkingDirectory(argv[0], strlen(argv[0]));
+#endif
 #ifdef MEMORY_DEBUG
 	elm_init();
 #endif //MEMORY_DEBUG

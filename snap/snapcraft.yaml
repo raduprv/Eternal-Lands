@@ -1,6 +1,6 @@
 name: eternallands
 # Set to x.y.zpn / x.y.zpn-dev for stable / dev build
-version: '1.9.5p7-1'
+version: '1.9.5p8'
 summary: Eternal Lands is a free to play, graphical MMORPG
 description: |
   Eternal Lands is a free to play, graphical MMORPG (massively-multi-player
@@ -9,21 +9,36 @@ description: |
   of several character races but all are equal.
   See http://www.eternal-lands.com/
 grade: stable
+base: core18
 confinement: strict
 type: app
 icon: pkgfiles/snap-package/eternallands.png
 
 parts:
+#  nlohmann:
+#    source: https://github.com/nlohmann/json/archive/v3.7.3.zip
+#    source-checksum: sha256/e109cd4a9d1d463a62f0a81d7c6719ecd780a52fb80a22b901ed5b6fe43fb45b
+#    source-subdir: json-3.7.3
+#    plugin: cmake
+
+  desktop-glib-only:
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+    source-subdir: glib-only
+    plugin: make
+    build-packages:
+      - libglib2.0-dev
+    stage-packages:
+      - libglib2.0-bin
+
   client:
     source: https://github.com/raduprv/Eternal-Lands
     source-type: git
     # Include for stable release, comment out for dev build, comment out for latest commit dev release
-    source-tag: 1.9.5.7-1
+    source-tag: 1.9.5.8
     build-packages: [build-essential, libcal3d12-dev, libsdl2-image-dev, libsdl2-net-dev, libxml2-dev, libopenal-dev, libvorbis-dev, libpng-dev]
     plugin: cmake
     # Add -DVERSION_PREFIX=x.y.z for dev build, remove for release
     configflags:  ["-DCMAKE_BUILD_TYPE=release", "-DEXEC=el.linux.bin"]
-    artifacts: ["el.linux.bin"]
     stage-packages:
       - libglib2.0-0
       - libsdl2-net-2.0-0
@@ -49,6 +64,7 @@ parts:
       - mesa-vulkan-drivers
     after:
       - desktop-glib-only
+#     - nlohmann
 
   data:
     source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.7/el_195_p7_data_files.zip
@@ -79,8 +95,8 @@ parts:
     plugin: nil
     override-build: |
       mkdir -p $SNAPCRAFT_PART_INSTALL/bin/
-      cp -p pkgfiles/snap-package/launcher.sh $SNAPCRAFT_PART_INSTALL/bin/
-      cp -p pkgfiles/snap-package/eternallands.desktop $SNAPCRAFT_PART_INSTALL/bin/
+      cp -p ${SNAPCRAFT_PROJECT_DIR}/pkgfiles/snap-package/launcher.sh $SNAPCRAFT_PART_INSTALL/bin/
+      cp -p ${SNAPCRAFT_PROJECT_DIR}/pkgfiles/snap-package/eternallands.desktop $SNAPCRAFT_PART_INSTALL/bin/
 
 apps:
   client:

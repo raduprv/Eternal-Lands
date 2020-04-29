@@ -1,4 +1,4 @@
-#include <stdlib.h>
+	#include <stdlib.h>
 #include <string.h>
 #include <SDL_keyboard.h>
 #ifndef WINDOWS
@@ -258,8 +258,7 @@ int HandleEvent (SDL_Event *event)
 				{
 					Uint32 old_window_width = window_width, old_window_height = window_height;
 					//printf("SDL_WINDOWEVENT_RESIZED\n");
-				 	window_width = event->window.data1;
-					window_height = event->window.data2;
+					update_window_size_and_scale();
 					resize_all_root_windows(old_window_width, window_width, old_window_height, window_height);
 					break;
 				}
@@ -283,7 +282,7 @@ int HandleEvent (SDL_Event *event)
 			//printf("UTF-8 udf8=(%x,%x) unicode=%x\n", event->text.text[0], event->text.text[1], unicode);
 			if (unicode)
 			{
-				if ((last_SDL_KEYDOWN_timestamp != event->key.timestamp) || (last_SDL_KEYDOWN_return_value == -1))
+				if (((event->key.timestamp - last_SDL_KEYDOWN_timestamp) > 10) || (last_SDL_KEYDOWN_return_value == -1))
 					keypress_in_windows (mouse_x, mouse_y, SDLK_UNKNOWN, unicode, KMOD_NONE);
 			}
 			break;
@@ -334,21 +333,26 @@ int HandleEvent (SDL_Event *event)
 			{
 				mouse_x = window_width/2;
 				mouse_y = window_height/2;
+				highdpi_scale(&mouse_x, &mouse_y);
 
 				mouse_delta_x= event->motion.xrel;
 				mouse_delta_y= event->motion.yrel;
+				highdpi_scale(&mouse_delta_x, &mouse_delta_y);
 			}
 			else if(event->type==SDL_MOUSEMOTION)
 			{
 				mouse_x = event->motion.x;
 				mouse_y = event->motion.y;
+				highdpi_scale(&mouse_x, &mouse_y);
 
 				mouse_delta_x = event->motion.xrel;
 				mouse_delta_y = event->motion.yrel;
+				highdpi_scale(&mouse_delta_x, &mouse_delta_y);
 			}
 			else if(event->type==SDL_MOUSEWHEEL)
 			{
 				SDL_GetMouseState(&mouse_x, &mouse_y);
+				highdpi_scale(&mouse_x, &mouse_y);
 			}
 			else
 			{
@@ -358,6 +362,7 @@ int HandleEvent (SDL_Event *event)
 #endif // NEW_CURSOR
 					mouse_x= event->button.x;
 					mouse_y= event->button.y;
+					highdpi_scale(&mouse_x, &mouse_y);
 #ifdef NEW_CURSOR
 				}
 #endif // NEW_CURSOR
