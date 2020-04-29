@@ -308,12 +308,29 @@ int Font::line_width_spacing(const unsigned char* str, size_t len, float zoom) c
 	return cur_width;
 }
 
-ustring Font::reset_soft_breaks(const unsigned char *text, size_t text_size,
-	size_t text_len, float zoom, int max_width, int *cursor, float *max_line_width)
+std::pair<int, int> Font::dimensions(const unsigned char* str, size_t len, float zoom) const
+{
+	int line_height = height(zoom);
+	int w = 0, h = 0;
+	size_t off = 0;
+	while (off < len)
+	{
+		size_t end = memcspn(str + off, len - off,
+			reinterpret_cast<const unsigned char*>("\r\n"), 2);
+		w = std::max(w, line_width(str + off, end, zoom));
+		h += line_height;
+		off += end + 1;
+	}
+	return std::make_pair(w, h);
+}
+
+std::pair<ustring, int> Font::reset_soft_breaks(const unsigned char *text,
+	size_t text_size, size_t text_len, float zoom, int max_width, int *cursor,
+	float *max_line_width)
 {
 	int block_width = std::ceil(_block_width * _scale * zoom);
 	if (!text || text_size == 0 || max_width < block_width)
-		return 0;
+		return std::make_pair(ustring(), 0);
 
 	std::basic_string<unsigned char> wrapped_text;
 	size_t start = 0, end, last_space = 0;
@@ -394,7 +411,7 @@ ustring Font::reset_soft_breaks(const unsigned char *text, size_t text_size,
 		*cursor = std::min(*cursor + diff_cursor, int(text_size) - 1);
 	}
 
-	return wrapped_text;
+	return std::make_pair(wrapped_text, nr_lines);
 }
 
 bool Font::load_texture()
@@ -1214,29 +1231,34 @@ int get_char_width_zoom(unsigned char c, font_cat cat, float zoom)
 {
 	return font_manager.width_spacing(cat, c, zoom);
 }
-int get_string_width_zoom(const unsigned char* str, font_cat cat, float zoom)
+int get_buf_width_zoom(const unsigned char* str, size_t len, font_cat cat, float zoom)
 {
-	return font_manager.line_width(static_cast<FontManager::Category>(cat), str,
-		strlen(reinterpret_cast<const char*>(str)), zoom);
+	return font_manager.line_width(static_cast<FontManager::Category>(cat),
+		str, len, zoom);
 }
 int get_line_height(font_cat cat, float text_zoom)
 {
 	return font_manager.line_height(cat, text_zoom);
 }
+void get_buf_dimensions(const unsigned char* str, size_t len, font_cat cat, float text_zoom,
+	int *width, int *height)
+{
+	auto dims = font_manager.dimensions(cat, str, len, text_zoom);
+	*width = dims.first;
+	*height = dims.second;
+}
 
 int reset_soft_breaks(unsigned char *text, int len, int size, font_cat cat,
 	float text_zoom, int width, int *cursor, float *max_line_width)
 {
-	ustring wrapped_text = font_manager.reset_soft_breaks(
+	auto res = font_manager.reset_soft_breaks(
 		static_cast<FontManager::Category>(cat), text, size, len, text_zoom, width,
 		cursor, max_line_width);
-	size_t nr_lines = 1 + std::count_if(wrapped_text.begin(), wrapped_text.end(),
-		[](unsigned char c) { return c == '\r' || c == '\n'; });
 
-	size_t new_len = wrapped_text.copy(text, size_t(size)-1);
+	size_t new_len = res.first.copy(text, size_t(size)-1);
 	text[new_len] = '\0';
 
-	return int(nr_lines);
+	return res.second;
 }
 void put_small_colored_text_in_box_zoomed(unsigned char color,
 	const unsigned char* text, int len, int width,
@@ -1245,18 +1267,17 @@ void put_small_colored_text_in_box_zoomed(unsigned char color,
 	// FIXME: no size specified for either buffer. Pass unlimited size,
 	// and hope for the best...
 	size_t size = ustring::npos;
-	ustring wrapped_text = font_manager.reset_soft_breaks(
-		FontManager::Category::UI_FONT, text, size, len, text_zoom * DEFAULT_SMALL_RATIO,
-		width, 0, 0);
+	auto res = font_manager.reset_soft_breaks(FontManager::Category::UI_FONT,
+		text, size, len, text_zoom * DEFAULT_SMALL_RATIO, width, 0, 0);
 	// If we don't end on a newline, add one.
 	// TODO: check if that's necessary.
-	if (wrapped_text.back() != '\n')
-		wrapped_text.push_back('\n');
+	if (res.first.back() != '\n')
+		res.first.push_back('\n');
 
 	size_t new_len = 0;
-	if (!is_color(wrapped_text.front()))
+	if (!is_color(res.first.front()))
 		buffer[new_len++] = color;
-	new_len += wrapped_text.copy(buffer + new_len, size);
+	new_len += res.first.copy(buffer + new_len, size);
 	buffer[new_len] = '\0';
 }
 

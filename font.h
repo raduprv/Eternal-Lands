@@ -243,7 +243,20 @@ public:
 	 * \param zoom The scale factor for the text
 	 * \return The width of the text in pixels
 	 */
-	int line_width_spacing(const unsigned char* str, size_t len, float zoom) const;
+	int line_width_spacing(const unsigned char* text, size_t len, float zoom) const;
+	/*!
+	 * Calculate the dimensions of a block of text
+	 *
+	 * Calculate the width and height of string \a text of length \a len bytes
+	 * when drawn in this font with scale factor \a zoom. The string may contain
+	 * multiple lines, the width returned is then the width of the widest line.
+	 *
+	 * \param text The string for which to compute the dimensions
+	 * \param len  The number of bytes in \a text
+	 * \param zoom The scale factor for the text
+	 * \return The width and height of the text
+	 */
+	std::pair<int, int> dimensions(const unsigned char* text, size_t len, float zoom) const;
 
 	/*!
 	* \ingroup text_font
@@ -265,10 +278,11 @@ public:
 	* \param cursor     pointer to the cursor position, or NULL if not used
 	* \param max_line_width pointer the maximum line length after wrapping, or NULL if not used
 	*
-	* \return The wrapped text
+	* \return The wrapped text, and the new number of lines in the text
 	*/
-	ustring reset_soft_breaks(const unsigned char *text, size_t text_size, size_t text_len,
-		float zoom, int max_width, int *cursor = 0, float *max_line_width = 0);
+	std::pair<ustring, int> reset_soft_breaks(const unsigned char *text,
+		size_t text_size, size_t text_len, float zoom, int max_width,
+		int *cursor = 0, float *max_line_width = 0);
 
 	/*!
 	 * Draw a text string
@@ -615,6 +629,25 @@ public:
 	{
 		return get(cat).height(text_zoom * font_scales[cat]);
 	}
+	/*!
+	 * Calculate the dimensions of a block of text
+	 *
+	 * Calculate the width and height of string \a text of length \a len bytes
+	 * when drawn in the font for category \a cat, with scale factor \a zoom.
+	 * The string may contain multiple lines, the width returned is then the
+	 * width of the widest line.
+	 *
+	 * \param cat       The font category for the font used
+	 * \param text      The string for which to compute the dimensions
+	 * \param len       The number of bytes in \a text
+	 * \param text_zoom The scale factor for the text
+	 * \return The width and height of the text
+	 */
+	std::pair<int, int> dimensions(Category cat, const unsigned char* text, size_t len,
+		float text_zoom)
+	{
+		return get(cat).dimensions(text, len, text_zoom * font_scales[cat]);
+	}
 
 	/*!
 	* \ingroup text_font
@@ -638,11 +671,11 @@ public:
 	* \param cursor     pointer to the cursor position, or NULL if not used
 	* \param max_line_width pointer the maximum line length after wrapping, or NULL if not used
 	*
-	* \return The wrapped text
+	* \return The wrapped text, and the new number of lines in the text
 	*/
-	ustring reset_soft_breaks(Category cat, const unsigned char *text, size_t text_size,
-		size_t text_len, float text_zoom, int max_width, int *cursor = 0,
-		float *max_line_width = 0)
+	std::pair<ustring, int> reset_soft_breaks(Category cat, const unsigned char *text,
+		size_t text_size, size_t text_len, float text_zoom, int max_width,
+		int *cursor = 0, float *max_line_width = 0)
 	{
 		float zoom = text_zoom * font_scales[cat];
 		return get(cat).reset_soft_breaks(text, text_size, text_len, zoom,
@@ -772,12 +805,23 @@ static __inline__ int get_char_width_ui(unsigned char c, float text_zoom)
 {
 	return get_char_width_zoom(c, UI_FONT, text_zoom);
 }
-int get_string_width_zoom(const unsigned char* str, font_cat cat, float text_zoom);
+int get_buf_width_zoom(const unsigned char* str, size_t len, font_cat cat, float text_zoom);
+static __inline__ int get_string_width_zoom(const unsigned char* str, font_cat cat,
+	float text_zoom)
+{
+	return get_buf_width_zoom(str, strlen((const char*)str), cat, text_zoom);
+}
+static __inline__ int get_buf_width_ui(const unsigned char* str, size_t len, float text_zoom)
+{
+	return get_buf_width_zoom(str, len, UI_FONT, text_zoom);
+}
 static __inline__ int get_string_width_ui(const unsigned char* str, float text_zoom)
 {
-	return get_string_width_zoom(str, UI_FONT, text_zoom);
+	return get_buf_width_zoom(str, strlen((const char*)str), UI_FONT, text_zoom);
 }
 int get_line_height(font_cat cat, float text_zoom);
+void get_buf_dimensions(const unsigned char* str, size_t len, font_cat cat, float text_zoom,
+	int *width, int *height);
 
 int reset_soft_breaks(unsigned char *text, int len, int size, font_cat cat,
 	float text_zoom, int width, int *cursor, float *max_line_width);
