@@ -90,6 +90,7 @@ typedef	struct	{
 	int (*after_show_handler)();		/*!< executed after the window is shown */
 	int (*hide_handler)();		/*!< executed after the window is hidden */
 	int (*ui_scale_handler)();	/*!< executed if the glabal scale ui_scale is changed */
+	int (*font_change_handler)(); /*!< executed when font settings are changed */
 	/*! @} */
 
 	/*
@@ -218,6 +219,7 @@ typedef	struct	{
 #define	ELW_HANDLER_PRE_DISPLAY	12
 #define	ELW_HANDLER_POST_DISPLAY	13
 #define ELW_HANDLER_UI_SCALE 14
+#define ELW_HANDLER_FONT_CHANGE 15
 /*! @} */
 
 /*!
@@ -302,7 +304,7 @@ void update_windows_custom_scale(float *changed_window_custom_scale);
  *
  *      Update scale settings for all windows
  *
- * \param scale_factor     the scaling factor 
+ * \param scale_factor     the scaling factor
  * \callgraph
  */
 void update_windows_scale(float scale_factor);
@@ -318,6 +320,16 @@ void update_windows_scale(float scale_factor);
  * \callgraph
  */
 void update_window_scale(window_info *win, float scale_factor);
+
+/*!
+ * \ingroup elwindows
+ * \brief Handle a change in fonts
+ *
+ * Handle a change in font or text size for font category \a cat, in all windows.
+ *
+ * \param cat The font category that was changed,
+ */
+void change_windows_font(font_cat cat);
 
 /*!
  * \ingroup elwindows
@@ -734,7 +746,7 @@ int		mouse_in_window(int win_id, int x, int y);	// is a coord in the window?
  * \param flags     the window flags of the window. They will be given to the \ref window_info::click_handler that handles the actual click event.
  * \retval int      -1, if either \a win_id < 0, or \a win_id is greater than \ref windows_info::num_windows,
  *                  of if \a win_id is not equal the \ref window_info::window_id of the given at index \a win_id into the \ref windows_list array.
- *                  1 (true), if the cursor is actualy inside the window, 
+ *                  1 (true), if the cursor is actualy inside the window,
  *                  else 0 (false).
  * \callgraph
  *
@@ -810,7 +822,7 @@ int get_window_scroll_pos(int win_id);
  *
  *      Called when an option is selected from the title context menu.  If
  *	the user window wants to use their own callback, they should still
- *  call this function to implement the title menu options. 
+ *  call this function to implement the title menu options.
  *
  * \param win    	Pointer to the windows structure
  * \param widget_id	The id of the widget clicked to open the menu or -1.

@@ -1180,10 +1180,26 @@ static void change_quickspells_relocatable (int *rel)
 	}
 }
 
+static void change_font(size_t *var, int value)
+{
+	if (value >= 0)
+	{
+		*var = value;
+		// Yes, this is ugly. I just really did not want to introduce a ton of
+		// separate function for each font category.
+		if (var >= font_idxs && var < font_idxs + NR_FONT_CATS)
+		{
+			font_cat cat = var - font_idxs;
+			change_windows_font(cat);
+		}
+	}
+}
+
 static void change_ui_zoom(float *var, float *value)
 {
 	*var= *value;
 	font_scales[UI_FONT] = (disable_auto_highdpi_scale) ? *var : get_highdpi_scale() * *var;
+	change_windows_font(UI_FONT);
 }
 
 static void change_name_zoom(float * var, float * value)
@@ -1193,6 +1209,7 @@ static void change_name_zoom(float * var, float * value)
 	}
 	*var= *value;
 	font_scales[NAME_FONT] = (disable_auto_highdpi_scale) ? *var : get_highdpi_scale() * *var;
+	change_windows_font(NAME_FONT);
 }
 
 static void change_chat_zoom(float *dest, float *value)
@@ -1202,6 +1219,8 @@ static void change_chat_zoom(float *dest, float *value)
 
 	*dest= *value;
 	font_scales[CHAT_FONT] = (disable_auto_highdpi_scale) ? *dest : get_highdpi_scale() * *dest;
+	change_windows_font(CHAT_FONT);
+	// FIXME?
 	if (opening_root_win >= 0 || console_root_win >= 0 || chat_win >= 0 || game_root_win >= 0) {
 		if (opening_root_win >= 0) {
 			opening_win_update_zoom();
@@ -1232,6 +1251,8 @@ static void change_note_zoom (float *dest, float *value)
 		return;
 	*dest = *value;
 	font_scales[NOTE_FONT] = (disable_auto_highdpi_scale) ? *dest : get_highdpi_scale() * *dest;
+	change_windows_font(NOTE_FONT);
+	// FIXME? move to handler
 	notepad_win_close_tabs ();
 }
 
@@ -1239,12 +1260,14 @@ static void change_book_zoom(float *var, float *value)
 {
 	*var= *value;
 	font_scales[BOOK_FONT] = (disable_auto_highdpi_scale) ? *var : get_highdpi_scale() * *var;
+	change_windows_font(BOOK_FONT);
 }
 
 static void change_rules_zoom(float *var, float *value)
 {
 	*var= *value;
 	font_scales[RULES_FONT] = (disable_auto_highdpi_scale) ? *var : get_highdpi_scale() * *var;
+	change_windows_font(RULES_FONT);
 }
 
 void update_highdpi_auto_scaling(void)
@@ -2475,12 +2498,12 @@ static void init_ELC_vars(void)
 	add_var(OPT_FLOAT,"note_text_size", "notesize", &local_note_zoom, change_note_zoom, 0.8, "Notepad Text Size","Sets the size of the text in the notepad", FONT, 0.1, FLT_MAX, 0.01);
 	add_var(OPT_FLOAT,"rules_text_size","rsize",&local_rules_zoom,change_rules_zoom,1,"Rules Text Size","Set the size of the rules text",FONT,0.0,FLT_MAX,0.01);
 	add_var(OPT_FLOAT,"mapmark_text_size", "marksize", &mapmark_zoom, change_float, 0.3, "Mapmark Text Size","Sets the size of the mapmark text", FONT, 0.0, FLT_MAX, 0.01);
-	add_var(OPT_MULTI,"ui_font","uifont",&font_idxs[UI_FONT],change_int,0,"UI Font","Change the type of font used in the user interface",FONT, NULL);
-	add_var(OPT_MULTI,"name_font","nfont",&font_idxs[NAME_FONT],change_int,0,"Name Font","Change the type of font used for the name",FONT, NULL);
-	add_var(OPT_MULTI,"chat_font","cfont",&font_idxs[CHAT_FONT],change_int,0,"Chat Font","Set the type of font used for normal text",FONT, NULL);
-	add_var(OPT_MULTI,"book_font","bfont",&font_idxs[BOOK_FONT],change_int,0,"Book Font","Set the type of font used for text in in-game books",FONT, NULL);
-	add_var(OPT_MULTI,"note_font","notefont",&font_idxs[NOTE_FONT],change_int,0,"Note Font","Set the type of font used for text in user notes",FONT, NULL);
-	add_var(OPT_MULTI,"rules_font","rfont",&font_idxs[RULES_FONT],change_int,0,"Rules Font","Set the type of font used for drawing the game rules",FONT, NULL);
+	add_var(OPT_MULTI,"ui_font","uifont",&font_idxs[UI_FONT],change_font,0,"UI Font","Change the type of font used in the user interface",FONT, NULL);
+	add_var(OPT_MULTI,"name_font","nfont",&font_idxs[NAME_FONT],change_font,0,"Name Font","Change the type of font used for the name",FONT, NULL);
+	add_var(OPT_MULTI,"chat_font","cfont",&font_idxs[CHAT_FONT],change_font,0,"Chat Font","Set the type of font used for normal text",FONT, NULL);
+	add_var(OPT_MULTI,"book_font","bfont",&font_idxs[BOOK_FONT],change_font,0,"Book Font","Set the type of font used for text in in-game books",FONT, NULL);
+	add_var(OPT_MULTI,"note_font","notefont",&font_idxs[NOTE_FONT],change_font,0,"Note Font","Set the type of font used for text in user notes",FONT, NULL);
+	add_var(OPT_MULTI,"rules_font","rfont",&font_idxs[RULES_FONT],change_font,0,"Rules Font","Set the type of font used for drawing the game rules",FONT, NULL);
 	add_var(OPT_FLOAT,"ui_scale","ui_scale",&local_ui_scale,change_ui_scale,1,"User interface scaling factor","Scale user interface by this factor, useful for high DPI displays.  Note: the options window will be rescaled after reopening.",FONT,0.75,3.0,0.01);
 	add_var(OPT_INT,"cursor_scale_factor","cursor_scale_factor",&cursor_scale_factor ,change_cursor_scale_factor,cursor_scale_factor,"Mouse pointer scaling factor","The size of the mouse pointer is scaled by this factor",FONT, 1, max_cursor_scale_factor);
 	add_var(OPT_FLOAT,"trade_win_scale","tradewinscale",&custom_scale_factors.trade,change_win_scale_factor,1.0f,"Trade window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);

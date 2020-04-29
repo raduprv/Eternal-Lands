@@ -139,6 +139,17 @@ void update_windows_scale(float scale_factor)
 	}
 }
 
+void change_windows_font(font_cat cat)
+{
+	int win_id;
+	for (win_id = 0; win_id < windows_list.num_windows; ++win_id)
+	{
+		window_info *win = &windows_list.window[win_id];
+		if (win->font_change_handler)
+			(*win->font_change_handler)(win, cat);
+	}
+}
+
 // general windows manager functions
 void	display_windows(int level)
 {
@@ -853,6 +864,7 @@ int	create_window(const char *name, int pos_id, Uint32 pos_loc, int pos_x, int p
 		win->after_show_handler = NULL;
 		win->hide_handler = NULL;
 		win->ui_scale_handler = NULL;
+		win->font_change_handler = NULL;
 
 		win->widgetlist = NULL;
 
@@ -1946,6 +1958,10 @@ void	*set_window_handler(int win_id, int handler_id, int (*handler)() )
 		case	ELW_HANDLER_UI_SCALE:
 			old_handler= (void *)windows_list.window[win_id].ui_scale_handler;
 			windows_list.window[win_id].ui_scale_handler=handler;
+			break;
+		case	ELW_HANDLER_FONT_CHANGE:
+			old_handler= (void *)windows_list.window[win_id].font_change_handler;
+			windows_list.window[win_id].font_change_handler=handler;
 			break;
 		default:
 			old_handler=NULL;

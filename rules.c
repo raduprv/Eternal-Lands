@@ -274,6 +274,14 @@ static int resize_rules_handler(window_info *win, int new_width, int new_height)
 	return 0;
 }
 
+static int change_rules_font_handler(window_info *win, font_cat cat)
+{
+	if (cat != RULES_FONT)
+		return 0;
+	resize_window(win->window_id, win->len_x, win->len_y);
+	return 1;
+}
+
 void fill_rules_window(int window_id)
 {
 	rules_win = window_id;
@@ -289,6 +297,7 @@ void fill_rules_window(int window_id)
 	set_window_handler(window_id, ELW_HANDLER_MOUSEOVER, &mouseover_rules_handler);
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_rules_handler);
 	set_window_handler(window_id, ELW_HANDLER_RESIZE, &resize_rules_handler);
+	set_window_handler(window_id, ELW_HANDLER_FONT_CHANGE, &change_rules_font_handler);
 }
 
 static void toggle_rules_window()
