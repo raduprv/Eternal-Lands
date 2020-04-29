@@ -25,7 +25,7 @@ FEATURES += MIDDLE_MOUSE_PASTE	# Paste using the middle mouse button from the pr
 FEATURES += NEW_EYES			# Support for different eye colors, needs new data files
 
 # Development options targetting at most 1.9.6
-#FEATURES += JSON_FILES			# switch existing binary user config files to JSON format
+FEATURES += JSON_FILES			# switch existing binary user config files to JSON format
 
 ### Testing options (these options are possible for the next release and should be tested) ###
 #FEATURES += ANTI_ALIAS			# allows to enable/disable anti-aliasing in el.ini

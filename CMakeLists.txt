@@ -27,7 +27,7 @@ project (Eternal-Lands)
 # standard options that also set source files to build
 set(CUSTOM_UPDATE 1)			# allows autoupdating of custom look information
 set(FSAA 1)						# Adds support for full screen anti-aliasing using OpenGL multisampling.
-set(JSON_FILES 0)				# switch existing binary user config files to JSON format
+set(JSON_FILES 1)				# switch existing binary user config files to JSON format
 
 # standard options
 add_definitions(
