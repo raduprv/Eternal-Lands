@@ -110,7 +110,8 @@ float FontManager::font_scales[NR_FONT_CATS] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 
 TextDrawOptions::TextDrawOptions(): _max_width(window_width), _max_lines(0),
 	_zoom(1.0), _alignment(LEFT), _shadow(false),
-	_fg_r(-1.0), _fg_g(-1.0), _fg_b(-1.0), _bg_r(-1.0), _bg_g(-1.0), _bg_b(-1.0) {}
+	_fg_r(-1.0), _fg_g(-1.0), _fg_b(-1.0), _bg_r(-1.0), _bg_g(-1.0), _bg_b(-1.0),
+	_ignore_color(false) {}
 
 void TextDrawOptions::use_background_color() const
 {
