@@ -73,31 +73,6 @@ bool pos_selected(const select_info *sel, size_t imsg, size_t ichar)
 		&& (imsg < end.first   || (imsg == end.first   && ichar <= end.second));
 }
 
-std::string escape_string(const unsigned char* bytes)
-{
-	std::string res;
-
-	for (const unsigned char *src = bytes; *src; ++src)
-	{
-		char c = char(*src);
-
-		if (c == '\r')
-		{
-			res.append("\\r");
-		}
-		else if (c == '\n')
-		{
-			res.append("\\n");
-		}
-		else if (c >= 32 && c < 127)
-		{
-			res.push_back(c);
-		}
-	}
-
-	return res;
-}
-
 } // namespace
 
 namespace eternal_lands
@@ -391,7 +366,7 @@ std::pair<ustring, int> Font::reset_soft_breaks(const unsigned char *text,
 		}
 
 		++nr_lines;
-		if (end < text_len && text[end] != '\n')
+		if (end < text_len && (wrapped_text.empty() || wrapped_text.back() != '\n'))
 		{
 			wrapped_text.push_back('\r');
 			if (cursor && end <= size_t(*cursor))
