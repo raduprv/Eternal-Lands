@@ -171,7 +171,7 @@ void Book::layout_text(ContentType content_type, const ustring& text,
 		x = page_width / 2;
 	}
 
-	Page* page = _pages.empty() ? add_page(page_width, page_height, zoom) : &_pages.back();
+	Page* page = text_page(page_width, page_height, zoom);
 	size_t offset = 0;
 	while (offset < lines.length())
 	{
@@ -179,7 +179,7 @@ void Book::layout_text(ContentType content_type, const ustring& text,
 		std::tie(y_begin, y_end) = page->find_free_range(line_h);
 		if (y_begin < 0)
 		{
-			page = add_page(page_width, page_height, zoom);
+			page = next_text_page(page_width, page_height, zoom);
 			std::tie(y_begin, y_end) = page->find_free_range(line_h);
 		}
 
@@ -378,7 +378,7 @@ void Book::layout_image(const Image &image, const ustring& caption,
 	}
 	y_end += margin;
 
-	Page *page = _pages.empty() ? add_page(page_width, page_height, zoom) : &_pages.back();
+	Page *page = last_page(page_width, page_height, zoom);
 	if (!page->has_free_range(y_begin, y_end))
 		page = add_page(page_width, page_height, zoom);
 
@@ -396,6 +396,8 @@ void Book::layout_image(const Image &image, const ustring& caption,
 void Book::layout(int page_width, int page_height, float zoom)
 {
 	_pages.clear();
+	_active_text_page = 0;
+
 	for (const BookItem& item: _items)
 	{
 		if (item.type() == IMAGE)
@@ -403,12 +405,14 @@ void Book::layout(int page_width, int page_height, float zoom)
 		else
 			layout_text(item.type(), item.text(), page_width, page_height, zoom);
 	}
+
+	if (active_page_nr() > nr_pages())
+		turn_to_page(nr_pages() - 1);
 	_laid_out = true;
 }
 
 Book Book::read_book(const std::string& file_name, PaperType paper_type, int id)
 {
-printf("reading %s\n", file_name.c_str());
 	std::string path = std::string("languages") + '/' + lang + '/' + file_name;
 	xmlDoc *doc = xmlReadFile(path.c_str(), 0, 0);
 	if (!doc)
@@ -542,6 +546,96 @@ void Book::add_xml_content(const xmlNode *node)
 	}
 }
 
+void Book::add_server_image(const unsigned char* data, size_t len)
+{
+	if (len < 2)
+	{
+		EXTENDED_EXCEPTION(ExtendedException::ec_invalid_parameter,
+			"Incomplete image file name length in server book");
+	}
+
+	size_t fname_len = size_t(data[0]) | size_t(data[1]) << 8;
+	if (len < 2 + fname_len)
+	{
+		EXTENDED_EXCEPTION(ExtendedException::ec_invalid_parameter,
+			"Incomplete image file name data in server book");
+	}
+	std::string file_name(data + 2, data + 2 + fname_len);
+
+	size_t off = 2 + fname_len;
+	if (len < off + 2)
+	{
+		EXTENDED_EXCEPTION(ExtendedException::ec_invalid_parameter,
+			"Incomplete caption length in server book");
+	}
+
+	size_t caption_len = size_t(data[off]) | size_t(data[off+1]) << 8;
+	if (len < off + 2 + caption_len)
+	{
+		EXTENDED_EXCEPTION(ExtendedException::ec_invalid_parameter,
+			"Incomplete image caption in server book");
+	}
+	ustring caption(data + off + 2, caption_len);
+
+	off += 2 + caption_len;
+	if (len < off + 12)
+	{
+		EXTENDED_EXCEPTION(ExtendedException::ec_invalid_parameter,
+			"Incomplete image coordinates in server book");
+	}
+
+	int x = int(data[off]) | int(data[off+1]) << 8;
+	int y = int(data[off+2]) | int(data[off+3]) << 8;
+	int width = int(data[off+4]) | int(data[off+5]) << 8;
+	int height = int(data[off+6]) | int(data[off+7]) << 8;
+
+	float u_start = data[off + 8];
+	float u_end = data[off + 9];
+	float v_start = data[off + 10];
+	float v_end = data[off + 11];
+
+	Image image(file_name, x, y, width, height, u_start, v_start, u_end, v_end);
+	add_item(std::move(image), caption);
+}
+
+void Book::add_server_content(const unsigned char* data, size_t len)
+{
+	size_t idx = 0;
+	while (idx < len)
+	{
+		size_t item_len = size_t(data[idx+1]) | size_t(data[idx+2]) << 8;
+		if (idx + item_len + 3 > len)
+		{
+			EXTENDED_EXCEPTION(ExtendedException::ec_invalid_parameter,
+				"Incomplete server book item");
+		}
+
+		switch (data[idx])
+		{
+			case 0:
+				add_item(TITLE, ustring(data + idx + 3, item_len));
+				break;
+			case 1:
+				add_item(AUTHOR, ustring(data + idx + 3, item_len));
+				break;
+			case 2:
+				add_item(TEXT, ustring(data + idx + 3, item_len));
+				break;
+			case 3:
+				add_server_image(data + idx + 3, item_len);
+				break;
+			case 6:
+				// New page. Ignored.
+				break;
+			default:
+				LOG_ERROR("Unknown book item type %d", int(data[idx]));
+		}
+		idx += item_len + 3;
+	}
+
+	_laid_out = false;
+}
+
 void Book::display(float zoom) const
 {
 	if (_active_page < 0 || size_t(_active_page) >= _pages.size())
@@ -565,6 +659,23 @@ void Book::display(float zoom) const
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
+}
+
+void Book::turn_to_page(int nr)
+{
+	if (_paper_type == BOOK)
+		nr = 2 * (nr / 2);
+	if (nr >= 0 && nr < nr_pages())
+		_active_page = nr;
+
+	if (last_page_visible()
+		&& server_book_incomplete()
+		&& !_waiting_on_server_page)
+	{
+		// Last page of server book is visible, request new page
+		_waiting_on_server_page = true;
+		BookCollection::request_server_page(_id, _nr_server_pages_obtained);
+	}
 }
 
 
@@ -705,48 +816,6 @@ int BookWindow::display_handler(window_info *win)
 		link.display();
 
 	return 1;
-
-// 	if(b->type==1) {
-// 		int x_off[4] = {50 * win->current_scale, 100 * win->current_scale, win->len_x - 120 * win->current_scale, win->len_x - 70 * win->current_scale};
-// 		int p_inc[4] = {-5, -2, 2, 5};
-// 		int i;
-// 		for (i=0; i<4; i++)
-// 		{
-// 			int p = b->active_page + p_inc[i];
-// 			if(p >= 0 && p < b->no_pages)
-// 			{
-// 				safe_snprintf(str,sizeof(str),"%d",p+1);
-// 				if (book_mouse_y > 0
-// 					&& book_mouse_y < win->default_font_len_y && book_mouse_x > x_off[i]
-// 					&& book_mouse_x < x_off[i] + get_string_width_ui((unsigned char*)str, text_zoom))
-// 					glColor3f(0.95f, 0.76f, 0.52f);
-// 				else
-// 					glColor3f(0.77f,0.59f, 0.38f);
-// 				draw_string_zoomed(x_off[i], 0, (unsigned char*)str, 0, win->current_scale);
-// 			}
-// 		}
-// 	} else if(b->type==2) {
-// 		int x_off[2] = { win->len_x / 2 - (int)(0.5 + win->current_scale * 60), win->len_x / 2 + (int)(0.5 + win->current_scale * 50)};
-// 		int num_gap = (int)(0.5 + win->current_scale * 40);
-// 		int sign[2] = {-1, 1};
-// 		int i,j;
-// 		for (j=0; j<2; j++) {
-// 			for(i=1; i<5; i++) {
-// 				int p = b->active_page + sign[j] * i * b->type;
-// 				if (p >= 0 && p < b->no_pages) {
-// 					safe_snprintf(str,sizeof(str),"%d",p+1);
-// 					if (book_mouse_y > 0
-// 						&& book_mouse_y < win->default_font_len_y && book_mouse_x > x_off[j]
-// 						&& book_mouse_x < x_off[j] + get_string_width_ui((unsigned char*)str, text_zoom))
-// 						glColor3f(0.95f, 0.76f, 0.52f);
-// 					else
-// 						glColor3f(0.77f,0.59f, 0.38f);
-// 					draw_string_zoomed(x_off[j], 0, (unsigned char*)str, 0, win->current_scale);
-// 				}
-// 				x_off[j] += sign[j] * num_gap;
-// 			}
-// 		}
-// 	}
 }
 
 int BookWindow::static_display_handler(window_info *win)
@@ -922,9 +991,8 @@ Book& BookCollection::get_book(int id)
 	}
 	catch (std::out_of_range&)
 	{
-		std::ostringstream os;
-		os << "Book with id " << id << " not found";
-		EXTENDED_EXCEPTION(ExtendedException::ec_item_not_found, os.str());
+		EXTENDED_EXCEPTION(ExtendedException::ec_item_not_found,
+			"Book with id " << id << " not found");
 	}
 }
 
@@ -1015,6 +1083,15 @@ void BookCollection::read_knowledge_book_index()
 	xmlFreeDoc(doc);
 }
 
+void BookCollection::request_server_page(int id, int page)
+{
+	unsigned char msg[] = { SEND_BOOK, static_cast<unsigned char>(id & 0xff),
+		static_cast<unsigned char>((id >> 8) & 0xff),
+		static_cast<unsigned char>(page & 0xff),
+		static_cast<unsigned char>((page >> 8) & 0xff) };
+	my_tcp_send(my_socket, msg, 5);
+}
+
 void BookCollection::open_book(int id)
 {
 	try
@@ -1024,9 +1101,7 @@ void BookCollection::open_book(int id)
 	}
 	catch (const ExtendedException&)
 	{
-		unsigned char msg[] = { SEND_BOOK, static_cast<unsigned char>(id & 0xff),
-			static_cast<unsigned char>((id >> 8) & 0xff), 0, 0 };
-		my_tcp_send(my_socket, msg, 5);
+		request_server_page(id, 0);
 	}
 }
 
@@ -1034,8 +1109,8 @@ void BookCollection::read_local_book(const unsigned char* data, size_t len)
 {
 	if (len < 3)
 	{
-		LOG_ERROR("Incomplete local book description from the server");
-		return;
+		EXTENDED_EXCEPTION(ExtendedException::ec_invalid_parameter,
+			"Incomplete local book description from the server");
 	}
 
 	int id = int(data[1]) | int(data[2]) << 8;
@@ -1046,21 +1121,47 @@ void BookCollection::read_local_book(const unsigned char* data, size_t len)
 	}
 	catch (const ExtendedException&)
 	{
-		Book::PaperType paper_type = data[1] == 1 ? Book::PAPER : Book::BOOK;
+		Book::PaperType paper_type = (data[0] == 1 ? Book::PAPER : Book::BOOK);
 		std::string file_name(data + 3, data + len);
-		try
-		{
-			add_book(Book::read_book(file_name, paper_type, id));
-			Book& book = get_book(id);
-			_window.display(book);
-		}
-		CATCH_AND_LOG_EXCEPTIONS
+		add_book(Book::read_book(file_name, paper_type, id));
+		Book& book = get_book(id);
+		_window.display(book);
 	}
 }
 
 void BookCollection::read_server_book(const unsigned char* data, size_t len)
 {
-	printf("server!\n");
+	if (len < 6)
+	{
+		LOG_ERROR("Incomplete server book description from the server");
+		return;
+	}
+
+	int id = int(data[1]) | int(data[2]) << 8;
+	size_t title_len = size_t(data[4]) | size_t(data[5]) << 8;
+
+	Book *book;
+	try
+	{
+		book = &get_book(id);
+	}
+	catch (const ExtendedException&)
+	{
+		Book::PaperType paper_type = (data[0] == 1 ? Book::PAPER : Book::BOOK);
+		if (title_len + 6 > len)
+		{
+			LOG_ERROR("Invalid title length in server book description");
+			return;
+		}
+		std::string title(data + 6, data + 6 + title_len);
+		add_book(Book(paper_type, title, id));
+		book = &get_book(id);
+	}
+
+	book->add_server_page(data[3]);
+	book->add_server_content(data + 6 + title_len, len - 6 - title_len);
+
+	_window.display(*book);
 }
 
 void BookCollection::read_network_book(const unsigned char* data, size_t len)
@@ -1068,17 +1169,22 @@ void BookCollection::read_network_book(const unsigned char* data, size_t len)
 	if (len < 1)
 		return;
 
-	switch (*data)
+	try
 	{
-		case LOCAL:
-			read_local_book(data + 1, len - 1);
-			break;
-		case SERVER:
-			read_server_book(data + 1, len - 1);
-			break;
-		default:
-			LOG_ERROR("Unknown book source ID %d", int(*data));
+		switch (*data)
+		{
+			case LOCAL:
+				read_local_book(data + 1, len - 1);
+				break;
+			case SERVER:
+				read_server_book(data + 1, len - 1);
+				break;
+			default:
+				EXTENDED_EXCEPTION(ExtendedException::ec_invalid_parameter,
+					"Unknown book source ID " << int(*data));
+		}
 	}
+	CATCH_AND_LOG_EXCEPTIONS
 }
 
 } // namespace eternal_lands

@@ -165,7 +165,8 @@ public:
 
 	Book(PaperType paper_type, const std::string& title, int id):
 		_items(), _paper_type(paper_type), _title(title), _id(id), _laid_out(false),
-		_pages(), _active_page(0) {}
+		_pages(), _nr_server_pages_total(0), _nr_server_pages_obtained(0),
+		_waiting_on_server_page(false), _active_text_page(0), _active_page(0) {}
 
 	PaperType paper_type() const { return _paper_type; }
 	const std::string& title() const { return _title; }
@@ -174,24 +175,25 @@ public:
 	int nr_pages() const { return _pages.size(); }
 	int page_delta() const { return _paper_type == BOOK ? 2 : 1; }
 	int active_page_nr() const { return _active_page; }
-
-	void add_item(ContentType type, const ustring& text) { _items.emplace_back(type, text); }
-	void add_item(Image&& image, const ustring& caption)
+	bool last_page_visible() const { return _active_page + page_delta() >= nr_pages(); }
+	bool server_book_incomplete() const
 	{
-		_items.emplace_back(std::move(image), caption);
+		return _nr_server_pages_total > 0 && _nr_server_pages_obtained < _nr_server_pages_total;
+	}
+
+	void add_server_content(const unsigned char* data, size_t len);
+	void add_server_page(int total)
+	{
+		_nr_server_pages_total = total;
+		++_nr_server_pages_obtained;
+		_waiting_on_server_page = false;
 	}
 
 	void layout(int page_width, int page_height, float zoom);
 
 	void display(float zoom) const;
 
-	void turn_to_page(int nr)
-	{
-		if (_paper_type == BOOK)
-			nr = 2 * (nr / 2);
-		if (nr >= 0 && nr < nr_pages())
-			_active_page = nr;
-	}
+	void turn_to_page(int nr);
 
 	static Book read_book(const std::string& file_name, PaperType type, int id);
 
@@ -204,6 +206,10 @@ private:
 	int _id;
 	bool _laid_out;
 	std::vector<Page> _pages;
+	int _nr_server_pages_total;
+	int _nr_server_pages_obtained;
+	bool _waiting_on_server_page;
+	int _active_text_page;
 	int _active_page;
 
 	int line_height(float zoom) const
@@ -212,11 +218,38 @@ private:
 	}
 
 	Page* add_page(int page_width, int page_height, float zoom);
+	Page* text_page(int page_width, int page_height, float zoom)
+	{
+		if (size_t(_active_text_page) >= _pages.size())
+			return add_page(page_width, page_height, zoom);
+		return &_pages[_active_text_page];
+	}
+	Page* next_text_page(int page_width, int page_height, float zoom)
+	{
+		if (size_t(++_active_text_page) >= _pages.size())
+			return add_page(page_width, page_height, zoom);
+		return &_pages[_active_text_page];
+	}
+	Page* last_page(int page_width, int page_height, float zoom)
+	{
+		if (_pages.empty())
+			return add_page(page_width, page_height, zoom);
+		return &_pages.back();
+	}
 
 	void layout_text(ContentType content_type, const ustring& text,
 		int page_width, int page_height, float zoom);
 	void layout_image(const Image &img, const ustring &text,
 		int page_width, int page_height, float zoom);
+
+	void add_item(ContentType type, const ustring& text)
+	{
+		_items.emplace_back(type, text);
+	}
+	void add_item(Image&& image, const ustring& caption)
+	{
+		_items.emplace_back(std::move(image), caption);
+	}
 
 	std::vector<std::pair<TextBlock, bool>> caption_text(const Image& image,
 		const ustring& text, int page_width,  int page_height, float zoom) const;
@@ -224,6 +257,7 @@ private:
 	void add_xml_text(ContentType type, const xmlNode *node);
 	void add_xml_page(const xmlNode *node);
 	void add_xml_content(const xmlNode *node);
+	void add_server_image(const unsigned char* data, size_t len);
 };
 
 
@@ -334,6 +368,8 @@ public:
 	void initialize();
 	void open_book(int id);
 	void read_network_book(const unsigned char* data, size_t len);
+
+	static void request_server_page(int id, int page);
 
 private:
 	static const int knowledge_book_offset = 10000;
