@@ -283,13 +283,15 @@ Uint32 clean_file_name (char *dest, const char *src, Uint32 max_len);
  * \ingroup	xml_utils
  * \brief	Finds the xml-attribute with the identifier p in the xmlNode and returns it as a floating point value
  *
- * 		Finds the xml-attribute with the identifier p in the xmlNode and returns it as a floating point value
+ * Finds the xml-attribute with the identifier \a p in xmlNode \a n and returns it as a floating
+ * point value. If the attribute is not found, \a def_val is returned.
  *
- * \param	n The xml-node you wish to search
- * \param	p The attribute name you wish to search for
- * \retval float	The floating point value of the string. Returns 0 on failure.
+ * \param n       The xml-node you wish to search
+ * \param p       The attribute name you wish to search for
+ * \param def_val The value to return in case the attribute is not found
+ * \retval float	The floating point value of the string, or \a def_val on failure.
  */
-float xmlGetFloat(xmlNode * n, xmlChar * p);
+float xmlGetFloat(const xmlNode *n, const char* p, float def_val);
 
 /*!
  * \ingroup	xml_utils
@@ -301,7 +303,7 @@ float xmlGetFloat(xmlNode * n, xmlChar * p);
  * \param	p The attribute name you wish to search for
  * \retval int	The integer value of the string. Returns 0 on failure.
  */
-int xmlGetInt(xmlNode *n, xmlChar *p);
+int xmlGetInt(const xmlNode *n, const char* p);
 
 /*!
  * \ingroup	xml_utils

@@ -365,20 +365,15 @@ static void add_xml_image_to_page(xmlNode * cur, book * b, page *p)
 	_image *img;
 	char *text=NULL;
 
-	x=xmlGetInt(cur,(xmlChar*)"x");
-	y=xmlGetInt(cur,(xmlChar*)"y");
-	w=xmlGetInt(cur,(xmlChar*)"w");
-	h=xmlGetInt(cur,(xmlChar*)"h");
+	x=xmlGetInt(cur,"x");
+	y=xmlGetInt(cur,"y");
+	w=xmlGetInt(cur,"w");
+	h=xmlGetInt(cur,"h");
 
-	u_start=xmlGetFloat(cur,(xmlChar*)"u_start");
-	u_end=xmlGetFloat(cur,(xmlChar*)"u_end");
-	if(!u_end)
-		u_end=1;
-
-	v_start=xmlGetFloat(cur,(xmlChar*)"v_start");
-	if(!v_start)
-		v_start=1;
-	v_end=xmlGetFloat(cur,(xmlChar*)"v_end");
+	u_start=xmlGetFloat(cur, "u_start", 0.0);
+	u_end=xmlGetFloat(cur, "u_end", 1.0);
+	v_start=xmlGetFloat(cur, "v_start", 1.0);
+	v_end=xmlGetFloat(cur, "v_end", 0.0);
 
 	image_path=(char*)xmlGetProp(cur,(xmlChar*)"src");
 	if(!image_path) return;
@@ -541,39 +536,39 @@ static void read_knowledge_book_index(void)
 	return;
 }
 
-void init_books(void)
-{
-	paper1_text = load_texture_cached ("textures/paper1.dds", tt_image);
-	book1_text = load_texture_cached ("textures/book1.dds", tt_image);
-
-	read_book("books/races/human.xml", 2, book_human);
-	read_book("books/races/dwarf.xml", 2, book_dwarf);
-	read_book("books/races/elf.xml", 2, book_elf);
-	read_book("books/races/gnome.xml", 2, book_gnome);
-	read_book("books/races/orchan.xml", 2, book_orchan);
-	read_book("books/races/draegoni.xml", 2, book_draegoni);
-
-	read_knowledge_book_index();
-}
+// void init_books(void)
+// {
+// 	paper1_text = load_texture_cached ("textures/paper1.dds", tt_image);
+// 	book1_text = load_texture_cached ("textures/book1.dds", tt_image);
+//
+// 	read_book("books/races/human.xml", 2, book_human);
+// 	read_book("books/races/dwarf.xml", 2, book_dwarf);
+// 	read_book("books/races/elf.xml", 2, book_elf);
+// 	read_book("books/races/gnome.xml", 2, book_gnome);
+// 	read_book("books/races/orchan.xml", 2, book_orchan);
+// 	read_book("books/races/draegoni.xml", 2, book_draegoni);
+//
+// 	read_knowledge_book_index();
+// }
 
 /*Network parser*/
 
-void open_book(int id)
-{
-	book *b=get_book(id);
-
-	if(!b) {
-		char str[5];
-
-		str[0]=SEND_BOOK;
-		*((Uint16*)(str+1))=SDL_SwapLE16((Uint16)id);
-		*((Uint16*)(str+3))=SDL_SwapLE16(0);
-
-		my_tcp_send(my_socket, (Uint8*)str, 5);
-	} else {
-		display_book_window(b);
-	}
-}
+// void open_book(int id)
+// {
+// 	book *b=get_book(id);
+//
+// 	if(!b) {
+// 		char str[5];
+//
+// 		str[0]=SEND_BOOK;
+// 		*((Uint16*)(str+1))=SDL_SwapLE16((Uint16)id);
+// 		*((Uint16*)(str+3))=SDL_SwapLE16(0);
+//
+// 		my_tcp_send(my_socket, (Uint8*)str, 5);
+// 	} else {
+// 		display_book_window(b);
+// 	}
+// }
 
 static void read_local_book (const char *data, int len)
 {

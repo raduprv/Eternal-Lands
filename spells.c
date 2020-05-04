@@ -406,7 +406,7 @@ int init_spells (void)
 		int actual_version = -1;
 		i = 0;
 
-		if ((actual_version = xmlGetInt(root,(xmlChar*)"version")) < expected_version)
+		if ((actual_version = xmlGetInt(root, "version")) < expected_version)
 		{
 			safe_snprintf(tmp, sizeof(tmp), "Warning: %s file is out of date expecting %d, actual %d.", fname, expected_version, actual_version);
 			LOG_TO_CONSOLE (c_red1, tmp);

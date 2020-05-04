@@ -78,8 +78,6 @@ bool pos_selected(const select_info *sel, size_t imsg, size_t ichar)
 namespace eternal_lands
 {
 
-static FontManager font_manager;
-
 size_t FontManager::font_idxs[NR_FONT_CATS] = { 0, 0, 0, 2, 0, 3 };
 float FontManager::font_scales[NR_FONT_CATS] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 
@@ -1200,26 +1198,26 @@ char ttf_directory[TTF_DIR_SIZE];
 
 int initialize_fonts()
 {
-	return font_manager.initialize();
+	return FontManager::get_instance().initialize();
 }
 
 int get_char_width_zoom(unsigned char c, font_cat cat, float zoom)
 {
-	return font_manager.width_spacing(cat, c, zoom);
+	return FontManager::get_instance().width_spacing(cat, c, zoom);
 }
 int get_buf_width_zoom(const unsigned char* str, size_t len, font_cat cat, float zoom)
 {
-	return font_manager.line_width(static_cast<FontManager::Category>(cat),
+	return FontManager::get_instance().line_width(static_cast<FontManager::Category>(cat),
 		str, len, zoom);
 }
 int get_line_height(font_cat cat, float text_zoom)
 {
-	return font_manager.line_height(cat, text_zoom);
+	return FontManager::get_instance().line_height(cat, text_zoom);
 }
 void get_buf_dimensions(const unsigned char* str, size_t len, font_cat cat, float text_zoom,
 	int *width, int *height)
 {
-	auto dims = font_manager.dimensions(cat, str, len, text_zoom);
+	auto dims = FontManager::get_instance().dimensions(cat, str, len, text_zoom);
 	*width = dims.first;
 	*height = dims.second;
 }
@@ -1227,7 +1225,7 @@ void get_buf_dimensions(const unsigned char* str, size_t len, font_cat cat, floa
 int reset_soft_breaks(unsigned char *text, int len, int size, font_cat cat,
 	float text_zoom, int width, int *cursor, float *max_line_width)
 {
-	auto res = font_manager.reset_soft_breaks(
+	auto res = FontManager::get_instance().reset_soft_breaks(
 		static_cast<FontManager::Category>(cat), text, size, len, text_zoom, width,
 		cursor, max_line_width);
 
@@ -1243,7 +1241,7 @@ void put_small_colored_text_in_box_zoomed(unsigned char color,
 	// FIXME: no size specified for either buffer. Pass unlimited size,
 	// and hope for the best...
 	size_t size = ustring::npos;
-	auto res = font_manager.reset_soft_breaks(FontManager::Category::UI_FONT,
+	auto res = FontManager::get_instance().reset_soft_breaks(FontManager::Category::UI_FONT,
 		text, size, len, text_zoom * DEFAULT_SMALL_RATIO, width, 0, 0);
 	// If we don't end on a newline, add one.
 	// TODO: check if that's necessary.
@@ -1262,7 +1260,7 @@ void draw_string_zoomed_width_font(int x, int y, const unsigned char *text,
 {
 	TextDrawOptions options = TextDrawOptions().set_max_width(max_width)
 		.set_max_lines(max_lines).set_zoom(zoom);
-	font_manager.draw(cat, text, strlen(reinterpret_cast<const char*>(text)),
+	FontManager::get_instance().draw(cat, text, strlen(reinterpret_cast<const char*>(text)),
 		x, y, options);
 }
 void draw_string_zoomed_width_font_right(int x, int y, const unsigned char *text,
@@ -1271,7 +1269,7 @@ void draw_string_zoomed_width_font_right(int x, int y, const unsigned char *text
 	TextDrawOptions options = TextDrawOptions().set_max_width(max_width)
 		.set_max_lines(max_lines).set_zoom(zoom)
 		.set_alignment(TextDrawOptions::Alignment::RIGHT);
-	font_manager.draw(cat, text, strlen(reinterpret_cast<const char*>(text)),
+	FontManager::get_instance().draw(cat, text, strlen(reinterpret_cast<const char*>(text)),
 		x, y, options);
 }
 void draw_string_zoomed_width_font_centered(int x, int y, const unsigned char *text,
@@ -1280,7 +1278,7 @@ void draw_string_zoomed_width_font_centered(int x, int y, const unsigned char *t
 	TextDrawOptions options = TextDrawOptions().set_max_width(max_width)
 		.set_max_lines(max_lines).set_zoom(zoom)
 		.set_alignment(TextDrawOptions::Alignment::CENTER);
-	font_manager.draw(cat, text, strlen(reinterpret_cast<const char*>(text)),
+	FontManager::get_instance().draw(cat, text, strlen(reinterpret_cast<const char*>(text)),
 		x, y, options);
 }
 void draw_string_zoomed_centered_around(int x, int y,
@@ -1290,13 +1288,13 @@ void draw_string_zoomed_centered_around(int x, int y,
 	size_t idx = center_idx;
 	TextDrawOptions options = TextDrawOptions().set_zoom(zoom)
 		.set_alignment(TextDrawOptions::Alignment::RIGHT);
-	font_manager.draw(FontManager::Category::UI_FONT, text, std::min(len, idx),
-		x, y, options);
+	FontManager::get_instance().draw(FontManager::Category::UI_FONT, text,
+		std::min(len, idx), x, y, options);
 	if (idx < len)
 	{
 		options.set_alignment(TextDrawOptions::Alignment::LEFT);
-		font_manager.draw(FontManager::Category::UI_FONT, text + idx, len - idx,
-			x, y, options);
+		FontManager::get_instance().draw(FontManager::Category::UI_FONT, text + idx,
+			len - idx, x, y, options);
 	}
 }
 void draw_string_shadowed_zoomed(int x, int y, const unsigned char* text,
@@ -1305,20 +1303,20 @@ void draw_string_shadowed_zoomed(int x, int y, const unsigned char* text,
 {
 	TextDrawOptions options = TextDrawOptions().set_max_lines(max_lines)
 		.set_foreground(fr, fg, fb).set_background(br, bg, bb).set_zoom(zoom);
-	font_manager.draw(FontManager::Category::UI_FONT, text,
+	FontManager::get_instance().draw(FontManager::Category::UI_FONT, text,
 		strlen(reinterpret_cast<const char*>(text)), x, y, options);
 }
 void draw_string_shadowed_width(int x, int y, const unsigned char* text,
 	int max_width, int max_lines, float fr, float fg, float fb,
 	float br, float bg, float bb)
 {
-	int text_width = font_manager.line_width(FontManager::Category::UI_FONT,
+	int text_width = FontManager::get_instance().line_width(FontManager::Category::UI_FONT,
 		text, strlen(reinterpret_cast<const char*>(text)));
 	TextDrawOptions options = TextDrawOptions().set_max_width(max_width)
 		.set_max_lines(max_lines).set_foreground(fr, fg, fb)
 		.set_background(br, bg, bb)
 		.set_zoom(float(max_width) / text_width);
-	font_manager.draw(FontManager::Category::UI_FONT, text,
+	FontManager::get_instance().draw(FontManager::Category::UI_FONT, text,
 		strlen(reinterpret_cast<const char*>(text)), x, y, options);
 }
 
@@ -1326,18 +1324,18 @@ void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter
 	int msg_start, int offset_start, int cursor, int width, int height,
 	font_cat cat, float text_zoom, select_info* select)
 {
-	int line_height = font_manager.line_height(cat, text_zoom);
+	int line_height = FontManager::get_instance().line_height(cat, text_zoom);
 	TextDrawOptions options = TextDrawOptions().set_max_width(width)
 		.set_max_lines(height / line_height)
 		.set_zoom(text_zoom);
-	font_manager.draw_messages(cat, msgs, msgs_size, x, y, filter,
+	FontManager::get_instance().draw_messages(cat, msgs, msgs_size, x, y, filter,
 		msg_start, offset_start, options, cursor, select);
 }
 
 void draw_console_separator(int x_space, int y, int width, float text_zoom)
 {
 	TextDrawOptions options = TextDrawOptions().set_max_width(width).set_zoom(text_zoom);
-	font_manager.draw_console_separator(CHAT_FONT, x_space, y, options);
+	FontManager::get_instance().draw_console_separator(CHAT_FONT, x_space, y, options);
 }
 
 #ifdef ELC
@@ -1345,13 +1343,15 @@ void draw_console_separator(int x_space, int y, int width, float text_zoom)
 void draw_ortho_ingame_string(float x, float y, float z,
 	const unsigned char *text, int max_lines, float zoom_x, float zoom_y)
 {
-	font_manager.draw_ortho_ingame_string(text, strlen(reinterpret_cast<const char*>(text)),
+	FontManager::get_instance().draw_ortho_ingame_string(text,
+		strlen(reinterpret_cast<const char*>(text)),
 		x, y, z, max_lines, zoom_x, zoom_y);
 }
 void draw_ingame_string(float x, float y, const unsigned char *text,
 	int max_lines, float zoom_x, float zoom_y)
 {
-	font_manager.draw_ingame_string(text, strlen(reinterpret_cast<const char*>(text)),
+	FontManager::get_instance().draw_ingame_string(text,
+			strlen(reinterpret_cast<const char*>(text)),
 			x, y, max_lines, zoom_x, zoom_y);
 }
 #endif // !MAP_EDITOR2

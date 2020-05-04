@@ -29,7 +29,7 @@ CUSTOM_UPDATE_COBJ = custom_update.o new_update.o
 FSAA_COBJ = fsaa/fsaa_glx.o fsaa/fsaa.o
 COBJS=2d_objects.o 3d_objects.o \
 	actor_scripts.o actors.o alphamap.o asc.o astrology.o \
-	bbox_tree.o books.o buddy.o buffs.o bags.o \
+	bbox_tree.o old_books.o buddy.o buffs.o bags.o \
 	cache.o cal.o calc.o chat.o cluster.o colors.o console.o consolewin.o \
 	counters.o cursors.o dds.o ddsimage.o dialogues.o draw_scene.o eye_candy_debugwin.o \
 	el_memory.o elconfig.o elwindows.o encyclopedia.o errors.o events.o	\
@@ -57,7 +57,7 @@ COBJS=2d_objects.o 3d_objects.o \
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_COBJ))
 
 JSON_FILES_CXXOBJ = json_io.o
-CXXOBJS=achievements.o actor_init.o cal3d_wrapper.o command_queue.o \
+CXXOBJS=achievements.o actor_init.o books.o cal3d_wrapper.o command_queue.o \
 	context_menu.o elloggingwrapper.o engine/logging.o exceptions/extendedexception.o \
 	font.o hud_indicators.o hud_timer.o icon_window.o io/cal3d_io_wrapper.o item_info.o item_lists.o \
 	named_colours.o password_manager.o optimizer.o quest_log.o select.o \

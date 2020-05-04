@@ -566,10 +566,11 @@ public:
 	//! The zoom factor for each font category
 	static float font_scales[NR_FONT_CATS];
 
-	/*!
-	 * Create a new font manager, without fonts to manage so far.
-	 */
-	FontManager(): _fonts() {}
+	static FontManager& get_instance()
+	{
+		static FontManager manager;
+		return manager;
+	}
 
 	/*!
 	 * Initialize the font managaer.
@@ -764,6 +765,14 @@ private:
 	std::vector<Font> _fonts;
 
 	/*!
+	 * Create a new font manager, without fonts to manage so far.
+	 */
+	FontManager(): _fonts() {}
+	// Disallow copying, since this is a singleton class
+	FontManager(const FontManager&) = delete;
+	FontManager& operator=(const FontManager&) = delete;
+
+	/*!
 	 * Load a font.
 	 *
 	 * Get the font for font category \a cat. If this font fails to load,
@@ -846,6 +855,18 @@ static __inline__ void draw_string_zoomed(int x, int y, const unsigned char* tex
 	int max_lines, float zoom)
 {
 	draw_string_zoomed_width_font(x, y, text, window_width, max_lines, UI_FONT, zoom);
+}
+static __inline__ void draw_string_zoomed_right(int x, int y, const unsigned char *text,
+	int max_lines, float text_zoom)
+{
+	draw_string_zoomed_width_font_right(x, y, text, window_width, max_lines,
+		UI_FONT, text_zoom);
+}
+static __inline__ void draw_string_zoomed_centered(int x, int y, const unsigned char *text,
+	int max_lines, float text_zoom)
+{
+	draw_string_zoomed_width_font_centered(x, y, text, window_width, max_lines,
+		UI_FONT, text_zoom);
 }
 static __inline__ void draw_string_zoomed_width(int x, int y, const unsigned char* text,
 	int max_width, int max_lines, float zoom)

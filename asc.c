@@ -344,18 +344,18 @@ Uint32 clean_file_name (char *dest, const char *src, Uint32 max_len)
 
 /*XML*/
 
-float xmlGetFloat(xmlNode * n, xmlChar * c)
+float xmlGetFloat(const xmlNode *n, const char* c, float def_val)
 {
-	char * t=(char*)xmlGetProp(n,c);
-	float f=t?atof(t):0.0f;
+	char* t = (char*)xmlGetProp(n, (const xmlChar*)c);
+	float f = t ? atof(t) : def_val;
 	xmlFree(t);
 	return f;
 }
 
-int xmlGetInt(xmlNode *n, xmlChar *c)
+int xmlGetInt(const xmlNode *n, const char* c)
 {
-	char *t=(char*)xmlGetProp(n,c);
-	int i=t?atoi(t):0;
+	char *t = (char*)xmlGetProp(n, (const xmlChar*)c);
+	int i = t ? atoi(t) : 0;
 	xmlFree(t);
 	return i;
 }
