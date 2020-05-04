@@ -317,6 +317,12 @@ private:
 class BookCollection
 {
 public:
+	enum BookSource
+	{
+		LOCAL,
+		SERVER
+	};
+
 	static BookCollection& get_instance()
 	{
 		static BookCollection collection;
@@ -327,6 +333,7 @@ public:
 
 	void initialize();
 	void open_book(int id);
+	void read_network_book(const unsigned char* data, size_t len);
 
 private:
 	static const int knowledge_book_offset = 10000;
@@ -342,6 +349,9 @@ private:
 
 	void parse_knowledge_item(const xmlNode *node);
 	void read_knowledge_book_index();
+
+	void read_local_book(const unsigned char* data, size_t len);
+	void read_server_book(const unsigned char* data, size_t len);
 };
 
 } // namespace eternal_lands
@@ -354,17 +364,38 @@ extern "C"
 #endif // __cplusplus
 
 /*!
- * \ingroup	network_books
- * \brief	Opens the book with the given ID
+ * \ingroup books
+ * \brief Reads client-side books.
  *
- * Opens the book with the given ID - if the book isnt found it will request the
- * book from the server.
+ * Reads the client-side books that will not be downloaded from the server.
+ */
+void init_books(void);
+/*!
+ * \ingroup	books
+ * \brief Opens the book with the given ID
  *
- * \param id The book ID
+ * Opens the book with the given ID - if the book is not found it will be
+ * requested from the server.
+ *
+ * \param id The IF of the book to open.
  *
  * \callgraph
  */
 void open_book(int id);
+/*!
+ * \ingroup network_books
+ * \brief Read a book from server data
+ *
+ * Read a book specified by the \a len bytes of data in \a data sent by the
+ * server. This can be either the file name of a client side book, or a
+ * book stored on the server transferred over the network.
+ *
+ * \param	data The network data
+ * \param	len  The number of bytes in \a data
+ *
+ * \callgraph
+ */
+void read_network_book(const unsigned char* data, size_t len);
 
 #ifdef __cplusplus
 } // extern "C"

@@ -1030,6 +1030,57 @@ void BookCollection::open_book(int id)
 	}
 }
 
+void BookCollection::read_local_book(const unsigned char* data, size_t len)
+{
+	if (len < 3)
+	{
+		LOG_ERROR("Incomplete local book description from the server");
+		return;
+	}
+
+	int id = int(data[1]) | int(data[2]) << 8;
+	try
+	{
+		Book& book = get_book(id);
+		_window.display(book);
+	}
+	catch (const ExtendedException&)
+	{
+		Book::PaperType paper_type = data[1] == 1 ? Book::PAPER : Book::BOOK;
+		std::string file_name(data + 3, data + len);
+		try
+		{
+			add_book(Book::read_book(file_name, paper_type, id));
+			Book& book = get_book(id);
+			_window.display(book);
+		}
+		CATCH_AND_LOG_EXCEPTIONS
+	}
+}
+
+void BookCollection::read_server_book(const unsigned char* data, size_t len)
+{
+	printf("server!\n");
+}
+
+void BookCollection::read_network_book(const unsigned char* data, size_t len)
+{
+	if (len < 1)
+		return;
+
+	switch (*data)
+	{
+		case LOCAL:
+			read_local_book(data + 1, len - 1);
+			break;
+		case SERVER:
+			read_server_book(data + 1, len - 1);
+			break;
+		default:
+			LOG_ERROR("Unknown book source ID %d", int(*data));
+	}
+}
+
 } // namespace eternal_lands
 
 extern "C"
@@ -1046,5 +1097,11 @@ void open_book(int id)
 {
 	BookCollection::get_instance().open_book(id);
 }
+
+void read_network_book(const unsigned char* data, size_t len)
+{
+	BookCollection::get_instance().read_network_book(data, len);
+}
+
 
 } // extern "C"

@@ -693,18 +693,18 @@ static void read_server_book (const char *data, int len)
 }
 
 
-void read_network_book (const char *in_data, int data_length)
-{
-	switch (*in_data)
-	{
-		case LOCAL:
-			read_local_book (&in_data[1], data_length-1);
-			break;
-		case SERVER:
-			read_server_book (&in_data[1], data_length-1);
-			break;
-	}
-}
+// void read_network_book (const char *in_data, int data_length)
+// {
+// 	switch (*in_data)
+// 	{
+// 		case LOCAL:
+// 			read_local_book (&in_data[1], data_length-1);
+// 			break;
+// 		case SERVER:
+// 			read_server_book (&in_data[1], data_length-1);
+// 			break;
+// 	}
+// }
 
 
 /*Generic display*/
