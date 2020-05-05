@@ -122,7 +122,7 @@ Font::Font(size_t i): _font_name(), _file_name(), _flags(0),
 	{
 		// Invalid number. Set font name so that the button can be shown, but
 		// set FAILED flag so that the font is never actually used.
-		os << "Type " << i;
+		os << "Type " << (i + 1);
 		_font_name = os.str();
 		_flags |= Flags::FAILED;
 
@@ -133,7 +133,7 @@ Font::Font(size_t i): _font_name(), _file_name(), _flags(0),
 		_file_name = file_names[i];
 		size_t begin = _file_name.find_last_of('/') + 1;
 		size_t end = _file_name.find_last_of('.');
-		os << "Type " << i << " - " << _file_name.substr(begin, end);
+		os << "Type " << (i + 1) << " - " << _file_name.substr(begin, end);
 		_font_name = os.str();
 	}
 
