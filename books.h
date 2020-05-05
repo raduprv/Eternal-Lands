@@ -318,6 +318,14 @@ public:
 
 	void display(Book& book);
 	Book* get_book();
+	void close_book(int id)
+	{
+		if (_book_id == id)
+		{
+			hide_window(_book_win);
+			hide_window(_paper_win);
+		}
+	}
 
 private:
 	static const int window_x = 100;
@@ -367,6 +375,7 @@ public:
 
 	void initialize();
 	void open_book(int id);
+	void close_book(int id) { _window.close_book(id); }
 	void read_network_book(const unsigned char* data, size_t len);
 
 	static void request_server_page(int id, int page);
@@ -432,6 +441,15 @@ void open_book(int id);
  * \callgraph
  */
 void read_network_book(const unsigned char* data, size_t len);
+/*!
+ * \ingroup books
+ * \brief Closes the book with the given id
+ *
+ * Close the book window if it currently contains the book with ID \a id.
+ *
+ * \param id The identifier for the book to close.
+ */
+void close_book(int book_id);
 
 #ifdef __cplusplus
 } // extern "C"

@@ -1204,6 +1204,11 @@ void open_book(int id)
 	BookCollection::get_instance().open_book(id);
 }
 
+void close_book(int id)
+{
+	BookCollection::get_instance().close_book(id);
+}
+
 void read_network_book(const unsigned char* data, size_t len)
 {
 	BookCollection::get_instance().read_network_book(data, len);
