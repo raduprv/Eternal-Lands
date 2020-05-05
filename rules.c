@@ -475,6 +475,9 @@ static void set_rule(const char* desc, int width, float zoom,
 	}
 }
 
+static const int short_rule_indent = 20;
+static const int long_rule_indent = 2 * short_rule_indent;
+
 static rule_string *get_interface_rules(int width, float zoom)
 {
 	int i;
@@ -485,8 +488,10 @@ static rule_string *get_interface_rules(int width, float zoom)
 		const struct rule_struct *rule = &rules.rule[i];
 		rule_string *rs = &_rules[i];
 		rs->type = rule->type;
-		set_rule(rule->short_desc, width, zoom, &rs->short_str, &rs->short_str_nr_lines);
-		set_rule(rule->long_desc, width, zoom, &rs->long_str, &rs->long_str_nr_lines);
+		set_rule(rule->short_desc, width - short_rule_indent * zoom, zoom,
+			&rs->short_str, &rs->short_str_nr_lines);
+		set_rule(rule->long_desc, width - long_rule_indent * zoom, zoom,
+			&rs->long_str, &rs->long_str_nr_lines);
 		if (rs->short_str)
 		{
 			size_t len = strlen((const char*)rs->short_str);
@@ -655,12 +660,12 @@ static int draw_rules(rule_string* rules_ptr, int x_in, int y_in, int lenx, int 
 				safe_snprintf((char*)nr_buf, sizeof(nr_buf), "%d: ", nr++);
 				nr_width = get_string_width_zoom(nr_buf, RULES_FONT, zoom);
 				ydiff = 20 * zoom;
-				x = x_in + x_margin;
+				x = x_in + short_rule_indent * zoom;
 				break;
 			case INFO:
 				color_idx = rules_ptr[i].mouseover ? 4 : 5;
 				ydiff = 20 * zoom;
-				x = x_in + x_margin;
+				x = x_in + short_rule_indent * zoom;
 				y_curr += 10 * zoom;
 				break;
 		}
@@ -678,8 +683,8 @@ static int draw_rules(rule_string* rules_ptr, int x_in, int y_in, int lenx, int 
 		{
 			color_idx = rules_ptr[i].highlight ? 6 : 7;
 			draw_rule_string(rule->long_str, rule->long_str_nr_lines,
-				x + x_margin, y_curr, y_in, leny, line_height, &rgb[color_idx][0],
-				NULL, 0, zoom);
+				x_in + long_rule_indent * zoom, y_curr, y_in, leny, line_height,
+				&rgb[color_idx][0], NULL, 0, zoom);
 			y_curr += (rule->long_str_nr_lines - 1) * line_height + ydiff;
 		}
 	}
