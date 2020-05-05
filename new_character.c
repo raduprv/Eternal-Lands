@@ -839,14 +839,10 @@ int book_draegoni=200005;
 
 static void toggle_book(int id)
 {
-	static int book_opened=-1;
-	if(book_opened==id && book_win && windows_list.window[book_win].displayed){
+	if (book_is_open(id))
 		close_book(id);
-		book_opened=-1;
-	} else {
+	else
 		open_book(id);
-		book_opened=id;
-	}
 }
 
 static int newchar_mouseover = 0; //book id if mouse is over a book 1 if mouse is over p2p race

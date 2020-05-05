@@ -1,5 +1,3 @@
-//FIXME: TODO: server books
-
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -13,8 +11,6 @@
 #include "multiplayer.h"
 #include "new_character.h"
 #include "textures.h"
-
-// FIXME: book_opened
 
 namespace eternal_lands
 {
@@ -925,7 +921,6 @@ void BookWindow::display(Book &book)
 			add_links(win);
 		}
 		show_window(win_id);
-		select_window(win_id);
 	}
 	else
 	{
@@ -953,6 +948,8 @@ void BookWindow::display(Book &book)
 		set_window_handler(win_id, ELW_HANDLER_CLICK, (int (*)())&static_click_handler);
 		set_window_handler(win_id, ELW_HANDLER_UI_SCALE, (int (*)())&static_ui_scale_handler);
 	}
+
+	select_window(win_id);
 }
 
 
@@ -1207,6 +1204,21 @@ void open_book(int id)
 void close_book(int id)
 {
 	BookCollection::get_instance().close_book(id);
+}
+
+int book_is_open(int id)
+{
+	return BookCollection::get_instance().book_is_open(id);
+}
+
+int book_window_is_open()
+{
+	return BookCollection::get_instance().window_is_open();
+}
+
+void close_book_window()
+{
+	BookCollection::get_instance().close_window();
 }
 
 void read_network_book(const unsigned char* data, size_t len)

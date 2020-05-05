@@ -298,8 +298,6 @@ int start_rendering()
 	free_emotes();
 	LOG_INFO("free_actor_defs()");
 	free_actor_defs();
-	LOG_INFO("free_books()");
-	free_books();
 	LOG_INFO("free_vars()");
 	free_vars();
 	LOG_INFO("cleanup_rules()");

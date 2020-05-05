@@ -506,8 +506,7 @@ static int keypress_login_handler (window_info *win, int mx, int my, SDL_Keycode
 
 static int show_login_handler(window_info * win)
 {
-	hide_window(book_win);
-	hide_window(paper_win);
+	close_book_window();
 	hide_window(elconfig_win);
 	hide_window(tab_help_win);
 	return 1;

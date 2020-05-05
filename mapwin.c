@@ -85,10 +85,10 @@ static int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 		{
 			int min_mouse_x = (window_width-hud_x)/6;
 			int min_mouse_y = 0;
-			
+
 			int max_mouse_x = min_mouse_x+((window_width-hud_x)/1.5);
 			int max_mouse_y = window_height - hud_y;
-			
+
 			int screen_map_width = max_mouse_x - min_mouse_x;
 			int screen_map_height = max_mouse_y - min_mouse_y;
 
@@ -119,7 +119,7 @@ static int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 			}
 		}
 	}
-	
+
 	return 1;
 }
 
@@ -157,7 +157,7 @@ static int mouseover_map_handler (window_info *win, int mx, int my)
 		mouse_over_minimap = 0;
 	}
 	return mouse_over_minimap;
-}	
+}
 
 static int keypress_map_handler (window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
@@ -166,9 +166,9 @@ static int keypress_map_handler (window_info *win, int mx, int my, SDL_Keycode k
 		int i;
 
 		// if text wrapping just keep the text until the wrap.
-		for (i = 0; i < input_text_line.len; i++) 
+		for (i = 0; i < input_text_line.len; i++)
 		{
-			if (input_text_line.data[i] == '\n') 
+			if (input_text_line.data[i] == '\n')
 			{
 				input_text_line.data[i] = '\0';
 				break;
@@ -225,8 +225,7 @@ static int keypress_map_handler (window_info *win, int mx, int my, SDL_Keycode k
 
 static int show_map_handler (window_info *win)
 {
-	hide_window(book_win);
-	hide_window(paper_win);
+	close_book_window();
 	hide_window(tab_bar_win);
 	return 1;
 }
@@ -249,7 +248,7 @@ void create_map_root_window (int width, int height)
 	if (map_root_win < 0)
 	{
 		map_root_win = create_window ("Map", -1, -1, 0, 0, width, height, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
-	
+
 		set_window_handler (map_root_win, ELW_HANDLER_DISPLAY, &display_map_handler);
 		set_window_handler (map_root_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_map_handler);
 		set_window_handler (map_root_win, ELW_HANDLER_CLICK, &click_map_handler);

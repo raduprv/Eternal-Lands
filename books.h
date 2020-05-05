@@ -1,7 +1,6 @@
 #ifndef BOOKS_H
 #define BOOKS_H
 
-#include "old_books.h"
 #include "elwindows.h"
 
 #ifdef __cplusplus
@@ -316,15 +315,20 @@ public:
 		_book_texture(Uint32(-1)), _paper_texture(Uint32(-1)),
 		_book_id(-1), _ui_margin(0), _ui_font_height(0) {}
 
+	bool is_open() const { return get_show_window(_book_win) || get_show_window(_paper_win); }
+	bool book_is_open(int id) const { return _book_id == id && is_open(); }
+
 	void display(Book& book);
 	Book* get_book();
+	void close()
+	{
+		hide_window(_book_win);
+		hide_window(_paper_win);
+	}
 	void close_book(int id)
 	{
 		if (_book_id == id)
-		{
-			hide_window(_book_win);
-			hide_window(_paper_win);
-		}
+			close();
 	}
 
 private:
@@ -376,6 +380,9 @@ public:
 	void initialize();
 	void open_book(int id);
 	void close_book(int id) { _window.close_book(id); }
+	bool book_is_open(int id) const { return _window.book_is_open(id); }
+	bool window_is_open() const { return _window.is_open(); }
+	void close_window() { _window.close(); }
 	void read_network_book(const unsigned char* data, size_t len);
 
 	static void request_server_page(int id, int page);
@@ -415,6 +422,7 @@ extern "C"
  * Reads the client-side books that will not be downloaded from the server.
  */
 void init_books(void);
+
 /*!
  * \ingroup	books
  * \brief Opens the book with the given ID
@@ -428,7 +436,38 @@ void init_books(void);
  */
 void open_book(int id);
 /*!
- * \ingroup network_books
+ * \ingroup books
+ * \brief Closes the book with the given id
+ *
+ * Close the book window if it currently contains the book with ID \a id.
+ *
+ * \param id The identifier for the book to close.
+ */
+void close_book(int book_id);
+/*!
+ * \ingroup books
+ * \brief Check if a specific book is currently open
+ *
+ * Check is the book window is currently open and showing the book with ID \a id.
+ *
+ * \param id The identifier of the book to check for.
+ * \return 1 if the book window is currently showing the book, 0 otherwise.
+ */
+int book_is_open(int id);
+/*!
+ * \ingroup books
+ * \brief Check if the book window is open
+ * \return 1 if the book window is currently open, 0 otherwise
+ */
+int book_window_is_open();
+/*!
+ * \ingroup books
+ * \brief Close the book window.
+ */
+void close_book_window();
+
+/*!
+ * \ingroup books
  * \brief Read a book from server data
  *
  * Read a book specified by the \a len bytes of data in \a data sent by the
@@ -441,15 +480,6 @@ void open_book(int id);
  * \callgraph
  */
 void read_network_book(const unsigned char* data, size_t len);
-/*!
- * \ingroup books
- * \brief Closes the book with the given id
- *
- * Close the book window if it currently contains the book with ID \a id.
- *
- * \param id The identifier for the book to close.
- */
-void close_book(int book_id);
 
 #ifdef __cplusplus
 } // extern "C"

@@ -625,7 +625,6 @@ static void draw_rule_string(const unsigned char* str, int nr_lines, int x, int 
 static int draw_rules(rule_string* rules_ptr, int x_in, int y_in, int lenx, int leny,
 	float zoom, const float rgb[8][3])
 {
-	static const int x_margin = 20;
 	int line_height = get_line_height(RULES_FONT, zoom);
 	int i;
 	int x=0, y_curr = y_in;

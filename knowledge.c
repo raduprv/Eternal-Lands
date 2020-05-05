@@ -80,8 +80,9 @@ static int add_knowledge_book_image(int window_id)
 int handle_knowledge_book(void)
 {
 	open_book(knowledge_book_id + 10000);
+	//FIXME!
 	// Bring the new window to the front               <----- Doesn't work. Is in front for the first usage, but not after that
-	select_window(book_win);
+// 	select_window(book_win);
 	return 1;
 }
 

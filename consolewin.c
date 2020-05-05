@@ -314,8 +314,7 @@ static int click_console_handler(window_info *win, int mx, int my, Uint32 flags)
 static int show_console_handler (window_info *win)
 {
 	reset_tab_channel_colours();
-	hide_window(book_win);
-	hide_window(paper_win);
+	close_book_window();
 	if (use_windowed_chat == 1) {
 		display_tab_bar ();
 	}

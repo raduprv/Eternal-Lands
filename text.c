@@ -658,7 +658,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			set_today_is_special_day();
 		}
 		else if (strstr(text_to_add+1, "You'd need a pair of binoculars to read the book from here - get closer!")) {
-			if (book_opened == -1)
+			if (!book_window_is_open())
 				return 0;
 		}
 		else {
