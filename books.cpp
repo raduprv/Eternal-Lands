@@ -629,7 +629,7 @@ void Book::add_server_content(const unsigned char* data, size_t len)
 		idx += item_len + 3;
 	}
 
-	_laid_out = false;
+	renew_layout();
 }
 
 void Book::display(float zoom) const
@@ -875,7 +875,7 @@ int BookWindow::static_click_handler(window_info *win, int mx, int my, Uint32 fl
 	return window->click_handler(win, mx, my, flags);
 }
 
-void BookWindow::ui_scale_handler(window_info *win)
+int BookWindow::ui_scale_handler(window_info *win)
 {
 	_ui_margin = std::round(win->current_scale * ui_margin);
 	_ui_font_height = FontManager::get_instance().line_height(UI_FONT, win->current_scale);
@@ -892,6 +892,7 @@ void BookWindow::ui_scale_handler(window_info *win)
 		int height = std::round(win->current_scale*paper_height + ui_height);
 		resize_window(_paper_win, width, height);
 	}
+	return 1;
 }
 
 int BookWindow::static_ui_scale_handler(window_info *win)
@@ -899,8 +900,36 @@ int BookWindow::static_ui_scale_handler(window_info *win)
 	BookWindow *window = reinterpret_cast<BookWindow*>(win->data);
 	if (!window)
 		return 0;
-	window->ui_scale_handler(win);
-	return 1;
+	return window->ui_scale_handler(win);
+}
+
+int BookWindow::font_change_handler(window_info *win, FontManager::Category cat)
+{
+	if (cat == FontManager::Category::UI_FONT)
+	{
+		// Resize the window
+		ui_scale_handler(win);
+		// Update the text links
+		add_links(win);
+		return 1;
+	}
+	if (cat == FontManager::Category::BOOK_FONT)
+	{
+		Book *book = get_book();
+		if (!book)
+			return 0;
+		book->renew_layout();
+		return 1;
+	}
+	return 0;
+}
+
+int BookWindow::static_font_change_handler(window_info *win, FontManager::Category cat)
+{
+	BookWindow *window = reinterpret_cast<BookWindow*>(win->data);
+	if (!window)
+		return 0;
+	return window->font_change_handler(win, cat);
 }
 
 void BookWindow::display(Book &book)
@@ -941,6 +970,7 @@ void BookWindow::display(Book &book)
 		set_window_handler(win_id, ELW_HANDLER_MOUSEOVER, (int (*)())&static_mouseover_handler);
 		set_window_handler(win_id, ELW_HANDLER_CLICK, (int (*)())&static_click_handler);
 		set_window_handler(win_id, ELW_HANDLER_UI_SCALE, (int (*)())&static_ui_scale_handler);
+		set_window_handler(win_id, ELW_HANDLER_FONT_CHANGE, (int (*)())&static_font_change_handler);
 	}
 
 	select_window(win_id);

@@ -189,6 +189,7 @@ public:
 		_waiting_on_server_page = false;
 	}
 
+	void renew_layout() { _laid_out = false; }
 	void layout(int page_width, int page_height, float zoom);
 
 	void display(float zoom) const;
@@ -356,8 +357,10 @@ private:
 	static int static_click_handler(window_info *win, int mx, int my, Uint32 flags);
 	int display_handler(window_info *win);
 	static int static_display_handler(window_info *win);
-	void ui_scale_handler(window_info *win);
+	int ui_scale_handler(window_info *win);
 	static int static_ui_scale_handler(window_info *win);
+	int font_change_handler(window_info *win, FontManager::Category cat);
+	static int static_font_change_handler(window_info *win, FontManager::Category cat);
 };
 
 
