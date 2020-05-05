@@ -880,17 +880,17 @@ void BookWindow::ui_scale_handler(window_info *win)
 	_ui_margin = std::round(win->current_scale * ui_margin);
 	_ui_font_height = FontManager::get_instance().line_height(UI_FONT, win->current_scale);
 	int ui_height = 2 * _ui_margin + _ui_font_height;
-	if (_book_win != -1)
+	if (win->window_id == _book_win)
 	{
 		int width = std::round(win->current_scale*book_width);
 		int height = std::round(win->current_scale*book_height + ui_height);
-		resize_window(win->window_id, width, height);
+		resize_window(_book_win, width, height);
 	}
-	if (_paper_win != -1)
+	else if (win->window_id == _paper_win)
 	{
 		int width = std::round(win->current_scale*paper_width);
 		int height = std::round(win->current_scale*paper_height + ui_height);
-		resize_window(win->window_id, width, height);
+		resize_window(_paper_win, width, height);
 	}
 }
 
@@ -910,6 +910,9 @@ void BookWindow::display(Book &book)
 	if (_paper_texture == Uint32(-1))
 		_paper_texture = load_texture_cached("textures/paper1.dds", tt_image);
 
+	// Close existing windows, to prevent opening both the book and paper window
+	close();
+
 	int &win_id = book.paper_type() == Book::BOOK ? _book_win : _paper_win;
 	if (win_id >= 0)
 	{
@@ -925,17 +928,8 @@ void BookWindow::display(Book &book)
 	else
 	{
 		_book_id = book.id();
-		if (book.paper_type() == Book::BOOK)
-		{
-			win_id = create_window(book.title().c_str(), -1, 0, window_x, window_y,
-				0, 0, (ELW_USE_UISCALE|ELW_WIN_DEFAULT)^ELW_CLOSE_BOX);
-		}
-		else
-		{
-			win_id = create_window(book.title().c_str(), -1, 0, window_x, window_y,
-				0, 0, (ELW_USE_UISCALE|ELW_WIN_DEFAULT)^ELW_CLOSE_BOX);
-		}
-
+		win_id = create_window(book.title().c_str(), -1, 0, window_x, window_y,
+			0, 0, (ELW_USE_UISCALE|ELW_WIN_DEFAULT)^ELW_CLOSE_BOX);
 		if (win_id >= 0 && win_id < windows_list.num_windows)
 		{
 			window_info *win = &windows_list.window[win_id];
