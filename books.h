@@ -303,7 +303,7 @@ public:
 	static const int page_width_book = std::round(0.38 * book_width);
 	static const int page_height_book = std::round(0.77 * book_height);
 	static const int page_width_paper = std::round(0.80 * paper_width);
-	static const int page_height_paper = std::round(0.80 * book_width);
+	static const int page_height_paper = std::round(0.80 * paper_height);
 
 	static const int x_offset_book = std::round(0.078 * book_width);
 	static const int y_offset_book = std::round(0.098 * book_height);
