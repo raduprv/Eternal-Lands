@@ -30,13 +30,13 @@ size_t find_line(const ustring& text, size_t n, size_t pos=0)
 	return pos;
 }
 
-Image::Image(const std::string& file_name, int x, int y, int width, int height,
+BookImage::BookImage(const std::string& file_name, int x, int y, int width, int height,
 	float u_start, float v_start, float u_end, float v_end):
 	_file_name(file_name), _x(x), _y(y), _width(width), _height(height),
 	_texture(load_texture_cached(_file_name.c_str(), tt_image)),
 	_u_start(u_start), _v_start(v_start), _u_end(u_end), _v_end(v_end) {}
 
-void Image::display() const
+void BookImage::display() const
 {
 	glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
 	bind_texture(_texture);
@@ -203,7 +203,7 @@ void Book::layout_text(ContentType content_type, const ustring& text,
 	}
 }
 
-std::vector<std::pair<TextBlock, bool>> Book::caption_text(const Image& image,
+std::vector<std::pair<TextBlock, bool>> Book::caption_text(const BookImage& image,
 	const ustring& text, int page_width, int page_height, float zoom) const
 {
 	std::vector<std::pair<TextBlock, bool>> res;
@@ -352,10 +352,10 @@ std::vector<std::pair<TextBlock, bool>> Book::caption_text(const Image& image,
 	return res;
 }
 
-void Book::layout_image(const Image &image, const ustring& caption,
+void Book::layout_image(const BookImage &image, const ustring& caption,
 	int page_width, int page_height, float zoom)
 {
-	Image scaled_img = image.scaled(zoom);
+	BookImage scaled_img = image.scaled(zoom);
 	bool image_fits = (scaled_img.y() + scaled_img.height() <= page_height
 		&& scaled_img.x() + scaled_img.width() <= page_width);
 	if (!image_fits && caption.empty())
@@ -473,7 +473,7 @@ void Book::add_xml_image(const xmlNode *node)
 	float v_start = xmlGetFloat(node, "v_start", 1.0);
 	float v_end = xmlGetFloat(node, "v_end", 0.0);
 
-	Image image(file_name, x, y, width, height, u_start, v_start, u_end, v_end);
+	BookImage image(file_name, x, y, width, height, u_start, v_start, u_end, v_end);
 
 	xmlFree(file_name);
 
@@ -590,7 +590,7 @@ void Book::add_server_image(const unsigned char* data, size_t len)
 	float v_start = data[off + 10];
 	float v_end = data[off + 11];
 
-	Image image(file_name, x, y, width, height, u_start, v_start, u_end, v_end);
+	BookImage image(file_name, x, y, width, height, u_start, v_start, u_end, v_end);
 	add_item(std::move(image), caption);
 }
 

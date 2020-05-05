@@ -22,9 +22,10 @@ enum ContentType
 class Image
 {
 public:
-	Image(): _file_name(), _x(0), _y(0), _width(0), _height(0), _texture(Uint32(-1)),
-		_u_start(0.0), _v_start(0.), _u_end(0.0), _v_end(0.0) {}
-	Image(const std::string& file_name, int x, int y, int width, int height,
+	//! Create a new empty image
+	BookImage(): _file_name(), _x(0), _y(0), _width(0), _height(0),
+		_texture(Uint32(-1)), _u_start(0.0), _v_start(0.0), _u_end(0.0), _v_end(0.0) {}
+	BookImage(const std::string& file_name, int x, int y, int width, int height,
 		float u_start, float v_start, float u_end, float v_end);
 
 	int x() const { return _x; }
@@ -34,9 +35,9 @@ public:
 
 	void display() const;
 
-	Image scaled(float zoom) const
+	BookImage scaled(float zoom) const
 	{
-		return Image(_file_name, _x * zoom, _y * zoom, _width * zoom, _height * zoom,
+		return BookImage(_file_name, _x * zoom, _y * zoom, _width * zoom, _height * zoom,
 			_u_start, _v_start, _u_end, _v_end);
 	}
 
@@ -111,7 +112,7 @@ public:
 		_texts.push_back(block);
 		occupy_range(y_begin, y_end);
 	}
-	void add_image(Image &&image, int y_begin, int y_end)
+	void add_image(BookImage &&image, int y_begin, int y_end)
 	{
 		_images.push_back(image);
 		occupy_range(y_begin, y_end);
@@ -127,7 +128,7 @@ public:
 
 private:
 	std::vector<TextBlock> _texts;
-	std::vector<Image> _images;
+	std::vector<BookImage> _images;
 	std::vector<std::pair<int, int>> _free_ranges;
 
 	void occupy_range(int y_begin, int y_end);
@@ -139,17 +140,17 @@ class BookItem
 public:
 	BookItem(ContentType type, const ustring& text):
 		_type(type), _text(text), _image() {}
-	BookItem(Image&& img, const ustring& caption):
+	BookItem(BookImage&& img, const ustring& caption):
 		_type(IMAGE), _text(caption), _image(img) {}
 
 	ContentType type() const { return _type; }
 	const ustring& text() const { return _text; }
-	const Image& image() const { return _image; }
+	const BookImage& image() const { return _image; }
 
 private:
 	ContentType _type;
 	ustring _text;
-	Image _image;
+	BookImage _image;
 };
 
 
@@ -238,19 +239,19 @@ private:
 
 	void layout_text(ContentType content_type, const ustring& text,
 		int page_width, int page_height, float zoom);
-	void layout_image(const Image &img, const ustring &text,
+	void layout_image(const BookImage &img, const ustring &text,
 		int page_width, int page_height, float zoom);
 
 	void add_item(ContentType type, const ustring& text)
 	{
 		_items.emplace_back(type, text);
 	}
-	void add_item(Image&& image, const ustring& caption)
+	void add_item(BookImage&& image, const ustring& caption)
 	{
 		_items.emplace_back(std::move(image), caption);
 	}
 
-	std::vector<std::pair<TextBlock, bool>> caption_text(const Image& image,
+	std::vector<std::pair<TextBlock, bool>> caption_text(const BookImage& image,
 		const ustring& text, int page_width,  int page_height, float zoom) const;
 	void add_xml_image(const xmlNode *node);
 	void add_xml_text(ContentType type, const xmlNode *node);
