@@ -108,7 +108,8 @@ Font::Font(size_t i): _font_name(), _file_name(), _flags(0),
 	_block_width(font_block_width), _block_height(font_block_height),
 	_spacing(0), _scale(1.0)
 {
-	static const std::array<const char*, 6> file_names = { {
+	static const std::array<const char*, 7> file_names = { {
+		"textures/font.dds",
 		"textures/font.dds",
 		"textures/font2.dds",
 		"textures/font3.dds",
