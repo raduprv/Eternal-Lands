@@ -219,6 +219,7 @@ Font::Font(const std::string& ttf_file_name): _font_name(), _file_name(), _flags
 	if (!TTF_GlyphIsProvided(font, ' '))
 	{
 		// Nope, can't render in this font
+		TTF_CloseFont(font);
 		EXTENDED_EXCEPTION(ExtendedException::ec_item_not_found,
 			"Unable to render text with TTF font file '" << ttf_file_name << "'");
 	}
