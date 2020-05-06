@@ -104,9 +104,11 @@ void TextDrawOptions::use_foreground_color() const
 
 
 Font::Font(size_t i): _font_name(), _file_name(), _flags(0),
-	_texture_width(256), _texture_height(256), _char_widths(),
+	_texture_width(256), _texture_height(256),
+	_char_widths(), _texture_coordinates(),
 	_block_width(font_block_width), _block_height(font_block_height),
-	_spacing(0), _scale(1.0)
+	_line_height(std::round(12.0 * default_line_height / 11)), _spacing(0),
+	_scale(11.0 / 12)
 {
 	static const std::array<const char*, 7> file_names = { {
 		"textures/font.dds",
@@ -129,12 +131,17 @@ Font::Font(size_t i): _font_name(), _file_name(), _flags(0),
 
 		LOG_ERROR("Invalid font number %zu", i);
 	}
+	else if (i == 0)
+	{
+		_file_name = file_names[i];
+		_font_name = "Type 1 (fixed)";
+	}
 	else
 	{
 		_file_name = file_names[i];
 		size_t begin = _file_name.find_last_of('/') + 1;
 		size_t end = _file_name.find_last_of('.');
-		os << "Type " << (i + 1) << " - " << _file_name.substr(begin, end);
+		os << "Type " << i << " - " << _file_name.substr(begin, end);
 		_font_name = os.str();
 	}
 
@@ -179,11 +186,26 @@ Font::Font(size_t i): _font_name(), _file_name(), _flags(0),
 	{
 		std::fill(_char_widths.begin(), _char_widths.end(), 12);
 	}
+
+	for (size_t pos = 0; pos < font_nr_lines * font_chars_per_line; ++pos)
+	{
+		int row = pos / font_chars_per_line;
+		int col = pos % font_chars_per_line;
+
+		int cw = _char_widths[pos] + _spacing;
+		int skip = (12 - cw) / 2;
+
+		_texture_coordinates[pos][0] = float(col * font_block_width + skip) / 256;
+		_texture_coordinates[pos][1] = float(row * font_block_height + 1) / 256;
+		_texture_coordinates[pos][2] = float((col+1) * font_block_width - 7 - skip) / 256;
+		_texture_coordinates[pos][3] = float((row+1) * font_block_height - 1) / 256;
+	}
 }
 
 #ifdef TTF
 Font::Font(const std::string& ttf_file_name): _font_name(), _file_name(), _flags(0),
-	_texture_width(0), _texture_height(0), _char_widths(),
+	_texture_width(0), _texture_height(0),
+	_char_widths(), _texture_coordinates(),
 	_block_width(0), _block_height(0), _spacing(0), _scale(1.0)
 {
 	TTF_Font *font = TTF_OpenFont(ttf_file_name.c_str(), ttf_point_size);
@@ -253,7 +275,7 @@ int Font::width_spacing(int pos, float zoom) const
 
 int Font::height(float zoom) const
 {
-	return std::round(_block_height * _scale * zoom);
+	return std::round(_line_height * _scale * zoom);
 }
 
 int Font::line_width(const unsigned char* str, size_t len, float zoom) const
@@ -428,13 +450,10 @@ void Font::bind_texture() const
 void Font::get_texture_coordinates(int pos,
 	float &u_start, float &u_end, float &v_start, float &v_end) const
 {
-	int row = pos / font_chars_per_line;
-	int col = pos % font_chars_per_line;
-
-	u_start = float(col * _block_width) / _texture_width;
-	u_end = float(col * _block_width + _char_widths[pos]) / _texture_width;
-	v_start = (float)(row * _block_height) / _texture_height;
-	v_end = (float)(row * _block_height + _block_height) / _texture_height;
+	u_start = _texture_coordinates[pos][0];
+	v_start = _texture_coordinates[pos][1];
+	u_end   = _texture_coordinates[pos][2];
+	v_end   = _texture_coordinates[pos][3];
 }
 
 void Font::set_color(int color)
@@ -462,7 +481,7 @@ int Font::draw_char(unsigned char c, int x, int y, float zoom, bool ignore_color
 		return 0;
 	}
 
-	int char_width = width(pos, zoom);
+	int char_width = width_spacing(pos, zoom);
 	int char_height = height(zoom);
 
 	float u_start, u_end, v_start, v_end;
@@ -474,7 +493,7 @@ int Font::draw_char(unsigned char c, int x, int y, float zoom, bool ignore_color
 	glTexCoord2f(u_end,   v_end);   glVertex3i(x + char_width, y + char_height, 0);
 	glTexCoord2f(u_end,   v_start); glVertex3i(x + char_width, y, 0);
 
-	return width_spacing(pos, zoom);
+	return char_width;
 }
 
 void Font::draw_line(const unsigned char* text, size_t len, int x, int y,
@@ -1058,7 +1077,12 @@ bool Font::build_texture_atlas()
 			_flags |= Flags::FAILED;
 			return false;
 		}
+
 		_char_widths[i_glyph] = w;
+		_texture_coordinates[i_glyph][0] = float(j * size) / width;
+		_texture_coordinates[i_glyph][1] = float(i * size) / height;
+		_texture_coordinates[i_glyph][2] = float(j * size + w) / width;
+		_texture_coordinates[i_glyph][3] = float(i * size + size) / height;
 	}
 
 	GLuint texture_id;
@@ -1075,6 +1099,7 @@ bool Font::build_texture_atlas()
 	_texture_height = height;
 	_block_width = size;
 	_block_height = size;
+	_line_height = _block_height;
 	_scale = float(font_block_height) / size;
 	_flags |= Flags::HAS_TEXTURE;
 

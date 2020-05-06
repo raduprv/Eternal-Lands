@@ -339,6 +339,7 @@ private:
 	static const size_t font_chars_per_line = 14;
 	static const int font_block_width = 18;
 	static const int font_block_height = 21;
+	static const int default_line_height = 18;
 	static const int ttf_point_size = 32;
 
 	enum Flags
@@ -360,10 +361,14 @@ private:
 	int _texture_height;
 	//! Width of each character in the texture, in pixels
 	std::array<int, font_nr_lines * font_chars_per_line> _char_widths;
+	//! Texture coordinates for each character in the texture
+	std::array<float[4], font_nr_lines * font_chars_per_line> _texture_coordinates;
 	//! Width reserved for a character in the texture
 	int _block_width;
-	//! Width reserved for a character in the texture
+	//! Height reserved for a character in the texture
 	int _block_height;
+	//! Height of a single character in pixels
+	int _line_height;
 	//! Distance between characters when drawn (at default zoom level)
 	int _spacing;
 	//! Scale factor that scales texture to default height
