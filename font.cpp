@@ -510,30 +510,36 @@ void Font::draw_line(const unsigned char* text, size_t len, int x, int y,
 {
 	if (options.shadow())
 	{
-		TextDrawOptions new_options = options;
-		new_options.set_shadow(false).set_ignore_color();
+		int delta = std::round(options.zoom());
+		if (delta > 0)
+		{
+			TextDrawOptions new_options = options;
+			new_options.set_shadow(false).set_ignore_color();
 
-		new_options.use_background_color();
-		draw_line(text, len, x-1, y-1, new_options);
-		draw_line(text, len, x-1, y,   new_options);
-		draw_line(text, len, x-1, y+1, new_options);
-		draw_line(text, len, x,   y+1, new_options);
-		draw_line(text, len, x+1, y+1, new_options);
-		draw_line(text, len, x+1, y,   new_options);
-		draw_line(text, len, x+1, y-1, new_options);
-		draw_line(text, len, x,   y-1, new_options);
+			new_options.use_background_color();
+			draw_line(text, len, x-delta, y-delta, new_options);
+			draw_line(text, len, x-delta, y,       new_options);
+			draw_line(text, len, x-delta, y+delta, new_options);
+			draw_line(text, len, x,       y+delta, new_options);
+			draw_line(text, len, x+delta, y+delta, new_options);
+			draw_line(text, len, x+delta, y,       new_options);
+			draw_line(text, len, x+delta, y-delta, new_options);
+			draw_line(text, len, x,       y-delta, new_options);
 
-		new_options.set_ignore_color(false);
-		draw_line(text, len, x,   y,   new_options);
+			new_options.set_ignore_color(false);
+			draw_line(text, len, x,       y,       new_options);
+		}
 	}
-
-	if (!options.ignore_color() && options.has_foreground_color())
-		options.use_foreground_color();
-
-	int cur_x = x;
-	for (size_t i = 0; i < len; ++i)
+	else
 	{
-		cur_x += draw_char(text[i], cur_x, y, options.zoom(), options.ignore_color());
+		if (!options.ignore_color() && options.has_foreground_color())
+			options.use_foreground_color();
+
+		int cur_x = x;
+		for (size_t i = 0; i < len; ++i)
+		{
+			cur_x += draw_char(text[i], cur_x, y, options.zoom(), options.ignore_color());
+		}
 	}
 }
 
