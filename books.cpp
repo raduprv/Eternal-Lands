@@ -57,8 +57,8 @@ CHECK_GL_ERRORS();
 
 void TextBlock::display() const
 {
-	// XXX FIXME: use fontmanager/textoptions directly
-	TextDrawOptions options = TextDrawOptions().set_zoom(_zoom);
+	TextDrawOptions options = TextDrawOptions().set_zoom(_zoom)
+		.set_line_spacing(_line_spacing);
 	switch (_type)
 	{
 		case TITLE:
@@ -143,7 +143,7 @@ void Book::layout_text(ContentType content_type, const ustring& text,
 	if (text.empty())
 		return;
 
-	int line_h = line_height(zoom);
+	int line_h = line_height(zoom, line_spacing);
 	if (line_h > page_height)
 		// Line is higher than a full page. Give up.
 		return;
@@ -195,7 +195,7 @@ void Book::layout_text(ContentType content_type, const ustring& text,
 
 		int height = nr_lines_this_page * line_h;
 		TextBlock block(lines.substr(offset, end - 1 - offset), content_type,
-			x, y_begin, page_width, height, zoom);
+			x, y_begin, page_width, height, zoom, line_spacing);
 		page->add_text_block(std::move(block), y_begin, y_begin + height);
 
 		offset = end;
@@ -227,7 +227,7 @@ std::vector<std::pair<TextBlock, bool>> Book::caption_text(const BookImage& imag
 	}
 
 	float caption_zoom = zoom * DEFAULT_SMALL_RATIO;
-	int caption_line_height = FontManager::get_instance().line_height(BOOK_FONT, caption_zoom);
+	int caption_line_height = line_height(caption_zoom);
 	ustring lines;
 	int nr_lines;
 	int nr_lines_side = (image.height() + caption_line_height - 1) / caption_line_height;

@@ -82,7 +82,7 @@ size_t FontManager::font_idxs[NR_FONT_CATS] = { 0, 0, 0, 2, 0, 3 };
 float FontManager::font_scales[NR_FONT_CATS] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 
 TextDrawOptions::TextDrawOptions(): _max_width(window_width), _max_lines(0),
-	_zoom(1.0), _alignment(LEFT), _shadow(false),
+	_zoom(1.0), _line_spacing(1.0), _alignment(LEFT), _shadow(false),
 	_fg_r(-1.0), _fg_g(-1.0), _fg_b(-1.0), _bg_r(-1.0), _bg_g(-1.0), _bg_b(-1.0),
 	_ignore_color(false) {}
 
@@ -489,6 +489,7 @@ int Font::draw_char(unsigned char c, int x, int y, float zoom, bool ignore_color
 	}
 
 	int char_width = width_spacing_pos(pos, zoom);
+// if (_font_name.substr(0,6) == "Type 2") printf("%c: %d+%d %d @ %f\n", c, _char_widths[pos], _spacing, char_width, zoom);
 	int char_height = height(zoom);
 
 	float u_start, u_end, v_start, v_end;
@@ -619,7 +620,7 @@ CHECK_GL_ERRORS();
 	bind_texture();
 
 	size_t start = 0;
-	int line_width, line_height = height(options.zoom());
+	int line_width, line_height = height(options.zoom() * options.line_spacing());
 	int nr_lines = 0;
 	unsigned char before_color, after_color;
 
@@ -674,7 +675,7 @@ void Font::draw_messages(const text_message *msgs, size_t msgs_size, int x, int 
 	static const float selection_green = 162 / 255.0f;
 	static const float selection_blue = 0.0f;
 	int block_width = std::ceil(_block_width * _scale * options.zoom());
-	int block_height = height(options.zoom());
+	int block_height = height(options.zoom() * options.line_spacing());
 	if (options.max_width() < block_width || options.max_lines() < 1)
 		// no point in trying
 		return;

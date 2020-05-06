@@ -77,6 +77,7 @@ public:
 	int max_width() const { return _max_width; }
 	int max_lines() const { return _max_lines; }
 	float zoom() const { return _zoom; }
+	float line_spacing() const { return _line_spacing; }
 	Alignment alignment() const { return _alignment; }
 	bool shadow() const { return _shadow; }
 	bool ignore_color() const { return _ignore_color; }
@@ -105,6 +106,12 @@ public:
 	TextDrawOptions& scale_zoom(float scale)
 	{
 		_zoom *= scale;
+		return *this;
+	}
+
+	TextDrawOptions& set_line_spacing(float scale)
+	{
+		_line_spacing = scale;
 		return *this;
 	}
 
@@ -149,6 +156,7 @@ private:
 	int _max_width;
 	int _max_lines;
 	float _zoom;
+	float _line_spacing;
 	Alignment _alignment;
 	bool _shadow;
 	float _fg_r, _fg_g, _fg_b;

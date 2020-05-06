@@ -152,9 +152,9 @@ public:
 	 * \param zoom   The scale factor for the text
 	 */
 	TextBlock(const ustring& text, ContentType type, int x, int y,
-		int width, int height, float zoom):
+		int width, int height, float zoom, float line_spacing=1.0):
 		_text(text), _type(type), _x(x), _y(y), _width(width), _height(height),
-		_zoom(zoom) {}
+		_zoom(zoom), _line_spacing(line_spacing) {}
 
 	//! Return the x-coordinate of the left side of the box
 	int x() const { return _x; }
@@ -187,6 +187,8 @@ private:
 	int _height;
 	//! The scale factor for the text
 	float _zoom;
+	//! Scale factor for sacing between two lines
+	float _line_spacing;
 };
 
 
@@ -504,6 +506,8 @@ public:
 private:
 	//! The (unscaled) number of pixels to keep free around an image
 	static const int image_margin = 10;
+	//! Reduced line spacing for regular text
+	static constexpr const float line_spacing = 0.9;
 
 	//! The unformatted contents of this book
 	std::vector<BookItem> _items;
@@ -534,12 +538,13 @@ private:
 	 * Return the height of a single line of text when drawing with the current
 	 * book font settings at zoom level \a zoom.
 	 *
-	 * \param zoom The scale factor for the text.
+	 * \param zoom    The scale factor for the text.
+	 * \param spacing The scale factor for sacing between two lines
 	 * \return The height of a line of text, in pixels.
 	 */
-	static int line_height(float zoom)
+	static int line_height(float zoom, float spacing=1.0)
 	{
-		return FontManager::get_instance().line_height(BOOK_FONT, zoom);
+		return FontManager::get_instance().line_height(BOOK_FONT, zoom * spacing);
 	}
 
 	//! Add a new, empty page to the book
@@ -747,16 +752,16 @@ public:
 	//! Unscaled width of the book background
 	static const int book_width = 530;
 	//! Unscaled height of the book background
-	static const int book_height = 320;
+	static const int book_height = 300;
 	//! Unscaled width of the paper background
 	static const int paper_width = 330;
 	//! Unscaled height of the paper background
 	static const int paper_height = 400;
 
 	//! Unscaled width of a single page of contents in a book
-	static const int page_width_book = std::round(0.38 * book_width);
+	static const int page_width_book = std::round(0.40 * book_width);
 	//! Unscaled height of a single page of contents in a book
-	static const int page_height_book = std::round(0.77 * book_height);
+	static const int page_height_book = std::round(0.80 * book_height);
 	//! Unscaled width of a single page of contents on paper
 	static const int page_width_paper = std::round(0.80 * paper_width);
 	//! Unscaled height of a single page of contents on paper
@@ -767,7 +772,7 @@ public:
 	//! Unscaled vertical offset at which to start drawing on a book
 	static const int y_offset_book = std::round(0.098 * book_height);
 	//! Unscaled distance between left an right pages in a book
-	static const int x_half_book = std::round(0.459 * book_width);
+	static const int x_half_book = std::round(0.46 * book_width);
 	//! Unscaled horizontal offset at which to start drawing on paper
 	static const int x_offset_paper = std::round(0.098 * paper_width);
 	//! Unscaled vertical offset at which to start drawing on paper
