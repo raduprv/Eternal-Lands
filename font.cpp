@@ -215,6 +215,14 @@ Font::Font(const std::string& ttf_file_name): _font_name(), _file_name(), _flags
 			"Failed to open TTF font file '" << ttf_file_name << "'");
 	}
 
+	// Quick check to see if the font is useful
+	if (!TTF_GlyphIsProvided(font, ' '))
+	{
+		// Nope, can't render in this font
+		EXTENDED_EXCEPTION(ExtendedException::ec_item_not_found,
+			"Unable to render text with TTF font file '" << ttf_file_name << "'");
+	}
+
 	std::string name = TTF_FontFaceFamilyName(font);
 	std::string style = TTF_FontFaceStyleName(font);
 
@@ -974,6 +982,13 @@ int Font::render_glyph(Uint16 glyph, int i, int j, int size,
 {
 	static const SDL_Color white = { r: 0xff, g: 0xff, b: 0xff, a: 0xff };
 	static const SDL_Color black = { r: 0x00, g: 0x00, b: 0x00, a: 0x10 };
+
+	if (!TTF_GlyphIsProvided(font, glyph))
+	{
+		LOG_ERROR("Font file does not provide glyph for code point '%d': %s", glyph,
+			TTF_GetError());
+		return 0;
+	}
 
 	SDL_Surface* glyph_surface = TTF_RenderGlyph_Shaded(font, glyph, white, black);
 	if (!glyph_surface)
