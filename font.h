@@ -914,6 +914,9 @@ static __inline__ void draw_string_zoomed_width(int x, int y, const unsigned cha
 void draw_string_shadowed_zoomed(int x, int y, const unsigned char* text,
 	int max_lines, float fr, float fg, float fb, float br, float bg, float bb,
 	float text_zoom);
+void draw_string_shadowed_zoomed_right(int x, int y, const unsigned char* text,
+	int max_lines, float fr, float fg, float fb, float br, float bg, float bb,
+	float text_zoom);
 void draw_string_shadowed_width(int x, int y, const unsigned char* text,
 	int max_width, int max_lines, float fr, float fg, float fb,
 	float br, float bg, float bb);
@@ -948,6 +951,13 @@ static __inline__ void draw_string_small_shadowed_zoomed(int x, int y,
 {
 	draw_string_shadowed_zoomed(x, y, text, max_lines, fr, fg, fb, br, bg, bb,
 		zoom * DEFAULT_SMALL_RATIO);
+}
+static __inline__ void draw_string_small_shadowed_zoomed_right(int x, int y,
+	const unsigned char* text, int max_lines, float fr, float fg, float fb,
+	float br, float bg, float bb, float zoom)
+{
+	draw_string_shadowed_zoomed_right(x, y, text, max_lines,
+		fr, fg, fb, br, bg, bb, zoom * DEFAULT_SMALL_RATIO);
 }
 
 void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter,

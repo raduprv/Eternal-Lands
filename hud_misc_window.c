@@ -94,7 +94,7 @@ CHECK_GL_ERRORS();
 		glVertex3i(x+len, y+bar_height, 0);
 		glEnd();
 	}
-	
+
 	// draw the bar frame
 	glColor3f(0.77f, 0.57f, 0.39f);
 	glBegin(GL_LINE_LOOP);
@@ -211,7 +211,7 @@ CHECK_GL_ERRORS();
 	// allow for transparency
 	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER, 0.09f);
-	
+
 	//draw the compass
 	base_y_start -= compass_size;
 	glBegin(GL_QUADS);
@@ -314,7 +314,7 @@ CHECK_GL_ERRORS();
 		int x = (int)(0.5 + win->current_scale * 3);
 		int y = base_y_start - side_stats_bar_height - ((knowledge_bar_height - side_stats_bar_height) / 2);
 		int off = 0;
-		
+
 		if (is_researching())
 		{
 			percentage_done = (int)(100 * get_research_fraction());
@@ -345,42 +345,61 @@ CHECK_GL_ERRORS();
 	{
 		char str[20];
 		int box_x = (int)(0.5 + win->current_scale * 3);
-		int text_x = box_x + ((win->len_x - box_x - 1) - (7 * win->small_font_len_x))/2;
+		int text_x_center = box_x + (win->len_x - box_x - 1) / 2;
+		int text_x_left, text_x_right;
 		int thestat;
 		int y = 0;
 		int skill_modifier;
+		int text_width = 0;
 
 		// trade the number of quickbar slots if there is not enough space for the minimum stats
 		calc_statbar_shown(base_y_start + win->pos_y);
 
+		for (thestat=0; thestat<NUM_WATCH_STAT-1; thestat++)
+		{
+			int width;
+			safe_snprintf(str, sizeof(str), "%-3s %3d",
+				statsinfo[thestat].skillnames->shortname, statsinfo[thestat].skillattr->base);
+			width = get_string_width_ui((const unsigned char*)str,
+				win->current_scale * DEFAULT_SMALL_RATIO);
+			if (width > text_width)
+				text_width = width;
+		}
+		text_x_left = text_x_center - text_width / 2;
+		text_x_right = text_x_left + text_width;
+
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
-		
+
 		for (thestat=0; thestat<NUM_WATCH_STAT-1; thestat++)
 		{
+			static const float lbl_color[6] = { 0.77f, 0.57f, 0.39f, 1.0f, 1.0f, 1.0f };
+
 			int hover_offset = 0;
-			
+			const float *col;
+
 			/* skill skills until we have the skill displayed first */
 			if (thestat < first_disp_stat)
 				continue;
-				
+
 			/* end now if we have display all we can */
 			if (thestat > (first_disp_stat+num_disp_stat-1))
 				break;
-		
+
 			if (show_statbars_in_hud)
 				draw_side_stats_bar(win, box_x, y+1, statsinfo[thestat].skillattr->base,
 					*statsinfo[thestat].exp, *statsinfo[thestat].next_lev, 0);
-		
-			safe_snprintf(str,sizeof(str),"%-3s %3i",
-				statsinfo[thestat].skillnames->shortname,
-				statsinfo[thestat].skillattr->base );
-			if (statsinfo[thestat].is_selected == 1)
-				draw_string_small_shadowed_zoomed(text_x+gx_adjust, y+gy_adjust, (unsigned char*)str, 1,0.77f, 0.57f, 0.39f,0.0f,0.0f,0.0f, win->current_scale);
-			else
-				draw_string_small_shadowed_zoomed(text_x+gx_adjust, y+gy_adjust, (unsigned char*)str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
-			
+
+			col = (statsinfo[thestat].is_selected == 1) ? lbl_color : lbl_color + 3;
+			draw_string_small_shadowed_zoomed(text_x_left, y + gy_adjust,
+				statsinfo[thestat].skillnames->shortname, 1, col[0], col[1], col[2],
+				0.0f, 0.0f, 0.0f, win->current_scale);
+			safe_snprintf(str, sizeof(str), "%3d", statsinfo[thestat].skillattr->base);
+			draw_string_small_shadowed_zoomed_right(text_x_right, y + gy_adjust,
+				(const unsigned char*)str, 1, col[0], col[1], col[2], 0.0f, 0.0f, 0.0f,
+				win->current_scale);
+
 			if((thestat!=NUM_WATCH_STAT-2) && floatingmessages_enabled &&
 				(skill_modifier = statsinfo[thestat].skillattr->cur -
 				 	statsinfo[thestat].skillattr->base) != 0){
@@ -423,7 +442,7 @@ CHECK_GL_ERRORS();
 			last_hud_x = hud_x;
 		}
 	}
-	
+
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
