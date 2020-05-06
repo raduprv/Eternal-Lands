@@ -266,14 +266,14 @@ int Font::get_position(unsigned char c)
 	return pos_table[c];
 }
 
-int Font::width(int pos, float zoom) const
+int Font::width_pos(int pos, float zoom) const
 {
 	if (pos < 0)
 		return 0;
 	return std::round(_char_widths[pos] * _scale * zoom);
 }
 
-int Font::width_spacing(int pos, float zoom) const
+int Font::width_spacing_pos(int pos, float zoom) const
 {
 	if (pos < 0)
 		return 0;
@@ -295,11 +295,11 @@ int Font::line_width(const unsigned char* str, size_t len, float zoom) const
 		int pos = get_position(str[i]);
 		if (pos >= 0)
 		{
-			cur_width += width_spacing(pos, zoom);
+			cur_width += width_spacing_pos(pos, zoom);
 			last_pos = pos;
 		}
 	}
-	cur_width -= width_spacing(last_pos, zoom) - width(last_pos, zoom);
+	cur_width -= width_spacing_pos(last_pos, zoom) - width_pos(last_pos, zoom);
 
 	return cur_width;
 }
@@ -308,7 +308,7 @@ int Font::line_width_spacing(const unsigned char* str, size_t len, float zoom) c
 {
 	int cur_width = 0;
 	for (size_t i = 0; i < len; ++i)
-		cur_width += width_spacing(get_position(str[i]), zoom);
+		cur_width += width_spacing(str[i], zoom);
 
 	return cur_width;
 }
@@ -368,8 +368,7 @@ std::pair<ustring, int> Font::reset_soft_breaks(const unsigned char *text,
 			// don't lose the last character in the line.
 			if (cur_width + block_width <= max_width)
 			{
-				int pos = get_position(c);
-				cur_width += width_spacing(pos, zoom);
+				cur_width += width_spacing(c, zoom);
 			}
 			else
 			{
@@ -489,7 +488,7 @@ int Font::draw_char(unsigned char c, int x, int y, float zoom, bool ignore_color
 		return 0;
 	}
 
-	int char_width = width_spacing(pos, zoom);
+	int char_width = width_spacing_pos(pos, zoom);
 	int char_height = height(zoom);
 
 	float u_start, u_end, v_start, v_end;
@@ -558,7 +557,7 @@ std::pair<size_t, size_t> Font::clip_line(const unsigned char *text, size_t len,
 				if (is_color(ch) && !after_color)
 					after_color = ch;
 				else
-					width -= width_spacing(get_position(ch), options.zoom());
+					width -= width_spacing(ch, options.zoom());
 			}
 			break;
 		}
@@ -570,7 +569,7 @@ std::pair<size_t, size_t> Font::clip_line(const unsigned char *text, size_t len,
 				if (is_color(ch))
 					before_color = ch;
 				else
-					width -= width_spacing(get_position(ch), options.zoom());
+					width -= width_spacing(ch, options.zoom());
 			}
 			break;
 		}
@@ -586,7 +585,7 @@ std::pair<size_t, size_t> Font::clip_line(const unsigned char *text, size_t len,
 					if (is_color(ch))
 						before_color = ch;
 					else
-						d_left += width_spacing(get_position(ch), options.zoom());
+						d_left += width_spacing(ch, options.zoom());
 				}
 				else
 				{
@@ -594,7 +593,7 @@ std::pair<size_t, size_t> Font::clip_line(const unsigned char *text, size_t len,
 					if (is_color(ch) && !after_color)
 						after_color = ch;
 					else
-						d_right += width_spacing(get_position(ch), options.zoom());
+						d_right += width_spacing(ch, options.zoom());
 				}
 			}
 			width -= d_left + d_right;
@@ -674,7 +673,6 @@ void Font::draw_messages(const text_message *msgs, size_t msgs_size, int x, int 
 	static const float selection_red = 255 / 255.0f;
 	static const float selection_green = 162 / 255.0f;
 	static const float selection_blue = 0.0f;
-
 	int block_width = std::ceil(_block_width * _scale * options.zoom());
 	int block_height = height(options.zoom());
 	if (options.max_width() < block_width || options.max_lines() < 1)
@@ -831,9 +829,9 @@ void Font::draw_console_separator(int x_space, int y,
 	const TextDrawOptions& options) const
 {
 	int pos = get_position('^');
-	int char_width = width(pos, options.zoom());
+	int char_width = width_pos(pos, options.zoom());
 	int char_height = height(options.zoom());
-	int dx = width_spacing(pos, options.zoom());
+	int dx = width_spacing_pos(pos, options.zoom());
 
 	float u_start, u_end, v_start, v_end;
 	get_texture_coordinates(pos, u_start, u_end, v_start, v_end);
@@ -906,7 +904,7 @@ void Font::draw_ortho_ingame_string(const unsigned char* text, size_t len,
 			int pos = get_position(ch);
 			if (pos >= 0)
 			{
-				float dx = width(pos, zoom_x);
+				float dx = width_pos(pos, zoom_x);
 				float u_start, u_end, v_start, v_end;
 				get_texture_coordinates(pos, u_start, u_end, v_start, v_end);
 
@@ -915,7 +913,7 @@ void Font::draw_ortho_ingame_string(const unsigned char* text, size_t len,
 				glTexCoord2f(u_end,   v_end);   glVertex3f(cur_x+dx, cur_y,    z);
 				glTexCoord2f(u_end,   v_start); glVertex3f(cur_x+dx, cur_y+dy, z);
 
-				cur_x += width_spacing(pos, zoom_x);
+				cur_x += width_spacing_pos(pos, zoom_x);
 			}
 		}
 	}
@@ -957,7 +955,7 @@ void Font::draw_ingame_string(const unsigned char* text, size_t len,
 			int pos = get_position(ch);
 			if (ch >= 0)
 			{
-				float dx = width(pos, 1.0) * zoom_x * zoom_level / (3.0 * 12.0);
+				float dx = width_pos(pos, 1.0) * zoom_x * zoom_level / (3.0 * 12.0);
 				float u_start, u_end, v_start, v_end;
 				get_texture_coordinates(pos, u_start, u_end, v_start, v_end);
 
@@ -966,7 +964,7 @@ void Font::draw_ingame_string(const unsigned char* text, size_t len,
 				glTexCoord2f(u_end,   v_end);   glVertex3f(cur_x+dx, 0, cur_y);
 				glTexCoord2f(u_end, v_start);   glVertex3f(cur_x+dx, 0, cur_y+dy);
 
-				cur_x += width_spacing(pos, 1.0) * zoom_x * zoom_level / (3.0 * 12.0);
+				cur_x += width_spacing_pos(pos, 1.0) * zoom_x * zoom_level / (3.0 * 12.0);
 			}
 		}
 	}

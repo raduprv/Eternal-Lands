@@ -214,6 +214,31 @@ public:
 	}
 
 	/*!
+	 * Get the width of a character
+	 *
+	 * Get the width of character \a c when drawn in this font at zoom level \a zoom.
+	 *
+	 * \param c    The character of which to determine the width
+	 * \param zoom The zoom factor for drawing the glyph
+	 */
+	int width(unsigned char c, float zoom=1.0) const
+	{
+		return width_pos(get_position(c), zoom);
+	}
+	/*!
+	 * Get the width of a character plus spacing
+	 *
+	 * Get the width of character \a c when drawn in this font at zoom level \a zoom,
+	 * plus the spacing between two characters.
+	 *
+	 * \param c    The character of which to determine the width
+	 * \param zoom The zoom factor for drawing the glyph
+	 */
+	int width_spacing(unsigned char c, float zoom=1.0) const
+	{
+		return width_spacing_pos(get_position(c), zoom);
+	}
+	/*!
 	 * Calculate the width of a string
 	 *
 	 * Calculate the width in pixels of the string \a text of length \a len
@@ -404,7 +429,7 @@ private:
 	 * \param pos  The position of the glyph in the texture
 	 * \param zoom The zoom factor for drawing the glyph
 	 */
-	int width(int pos, float zoom=1.0) const;
+	int width_pos(int pos, float zoom=1.0) const;
 	/*!
 	 * Get the width of a character plus spacing
 	 *
@@ -415,7 +440,7 @@ private:
 	 * \param pos  The position of the glyph in the texture
 	 * \param zoom The zoom factor for drawing the glyph
 	 */
-	int width_spacing(int pos, float zoom=1.0) const;
+	int width_spacing_pos(int pos, float zoom=1.0) const;
 	/*!
 	 * Get the height of a line.
 	 *
