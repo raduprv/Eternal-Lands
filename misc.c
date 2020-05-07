@@ -496,16 +496,10 @@ CHECK_GL_ERRORS();
 }
 
 
-void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, float r, float g, float b, int highlight, float hr, float hg, float hb, float ha)
+void draw_smooth_button(const char* str, float size, int x, int y, int w, int lines,
+	float r, float g, float b, int highlight, float hr, float hg, float hb, float ha)
 {
 	int radius=lines*BUTTONRADIUS*size;
-	float width_ratio=(size*DEFAULT_FONT_X_LEN)/12.0f;
-	int xstr=0;
-
-	if(str){
-		int label_width = get_string_width_ui((unsigned char*)str, width_ratio);
-		xstr=x+radius+(w-(label_width))/2.0f;
-	}
 
 	glDisable(GL_TEXTURE_2D);
 
@@ -557,8 +551,12 @@ void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, 
 		glColor3f(r, g, b);
 	}
 
-	if(str) {
-		draw_string_zoomed(xstr + gx_adjust, y+radius/2.0f + gy_adjust, (unsigned char*)str, lines, size);
+	if (str)
+	{
+		int text_height = lines * get_line_height(UI_FONT, size);
+		draw_string_zoomed_centered(x + radius + w/2 + gx_adjust,
+			y + radius - text_height / 2 + gy_adjust,
+			(const unsigned char*)str, lines, size);
 	}
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
