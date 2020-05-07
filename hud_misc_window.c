@@ -283,11 +283,14 @@ CHECK_GL_ERRORS();
 		int centre_y =  (view_analog_clock) ?win->len_y - compass_size - analog_clock_size/2 : base_y_start + digital_clock_height/2;
 
 		safe_snprintf(str, sizeof(str), "%1d:%02d:%02d", real_game_minute/60, real_game_minute%60, real_game_second);
-		draw_string_small_shadowed_zoomed(-win->small_font_len_x*(strlen(str)+0.5), centre_y-win->small_font_len_y, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
+		draw_string_small_shadowed_zoomed_right(0, centre_y-win->small_font_len_y,
+			(const unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+			win->current_scale);
 		if (the_date != NULL)
 		{
 			safe_snprintf(str, sizeof(str), "%s", the_date);
-			draw_string_small_shadowed_zoomed(-win->small_font_len_x*(strlen(str)+0.5), centre_y, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
+			draw_string_small_shadowed_zoomed_right(0, centre_y, (const unsigned char*)str,
+				1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
 		}
 		mouse_over_clock = 0;
 	}
@@ -300,7 +303,9 @@ CHECK_GL_ERRORS();
 		if (me != NULL)
 		{
 			safe_snprintf(str, sizeof(str), "%d,%d", me->x_tile_pos, me->y_tile_pos);
-			draw_string_small_shadowed_zoomed(-win->small_font_len_x*(strlen(str)+0.5), win->len_y-compass_size, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
+			draw_string_small_shadowed_zoomed_right(0, win->len_y-compass_size,
+				(unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+				win->current_scale);
 		}
 		mouse_over_compass = 0;
 	}
@@ -313,7 +318,6 @@ CHECK_GL_ERRORS();
 		int percentage_done = 0;
 		int x = (int)(0.5 + win->current_scale * 3);
 		int y = base_y_start - side_stats_bar_height - ((knowledge_bar_height - side_stats_bar_height) / 2);
-		int off = 0;
 
 		if (is_researching())
 		{
@@ -321,14 +325,17 @@ CHECK_GL_ERRORS();
 			safe_snprintf(str, sizeof(str), "%d%%", percentage_done);
 			use_str = str;
 		}
-		off = ((win->len_x - x - 1) - (win->small_font_len_x * strlen(use_str))) / 2;
 		draw_side_stats_bar(win, x, y, 0, percentage_done, 100, 1);
-		draw_string_small_shadowed_zoomed(x+off+gx_adjust, y+gy_adjust, (unsigned char *)use_str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
+		draw_string_small_shadowed_zoomed_centered((x + win->len_x - 1) / 2, y+gy_adjust,
+			(unsigned char *)use_str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f,
+			win->current_scale);
 
 		if (mouse_over_knowledge_bar)
 		{
 			use_str = (is_researching()) ?get_research_eta_str(str, sizeof(str)) : not_researching_str;
-			draw_string_small_shadowed_zoomed(-win->small_font_len_x* (strlen(use_str)+0.5), y+gy_adjust, (unsigned char*)use_str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
+			draw_string_small_shadowed_zoomed_right(0, y+gy_adjust,
+				(const unsigned char*)use_str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f,
+				win->current_scale);
 			mouse_over_knowledge_bar = 0;
 		}
 
@@ -402,13 +409,19 @@ CHECK_GL_ERRORS();
 
 			if((thestat!=NUM_WATCH_STAT-2) && floatingmessages_enabled &&
 				(skill_modifier = statsinfo[thestat].skillattr->cur -
-				 	statsinfo[thestat].skillattr->base) != 0){
+				 	statsinfo[thestat].skillattr->base) != 0)
+			{
 				safe_snprintf(str,sizeof(str),"%+i",skill_modifier);
-				hover_offset = strlen(str)+1;
+				hover_offset = get_string_width_ui((const unsigned char*)str,
+					win->current_scale * DEFAULT_SMALL_RATIO);
 				if(skill_modifier > 0){
-					draw_string_small_shadowed_zoomed(-win->small_font_len_x * (strlen(str)+0.5), y+gy_adjust, (unsigned char*)str, 1,0.3f, 1.0f, 0.3f,0.0f,0.0f,0.0f, win->current_scale);
+					draw_string_small_shadowed_zoomed_right(0, y+gy_adjust,
+						(const unsigned char*)str, 1,0.3f, 1.0f, 0.3f,0.0f,0.0f,0.0f,
+						win->current_scale);
 				} else {
-					draw_string_small_shadowed_zoomed(-win->small_font_len_x * (strlen(str)+0.5), y+gy_adjust, (unsigned char*)str, 1,1.0f, 0.1f, 0.2f,0.0f,0.0f,0.0f, win->current_scale);
+					draw_string_small_shadowed_zoomed_right(0, y+gy_adjust,
+						(const unsigned char*)str, 1,1.0f, 0.1f, 0.2f,0.0f,0.0f,0.0f,
+						win->current_scale);
 				}
 			}
 
@@ -416,7 +429,9 @@ CHECK_GL_ERRORS();
 			if (stat_mouse_is_over == thestat)
 			{
 				safe_snprintf(str,sizeof(str),"%li",(*statsinfo[thestat].next_lev - *statsinfo[thestat].exp));
-				draw_string_small_shadowed_zoomed(-win->small_font_len_x*(strlen(str)+0.5+hover_offset), y+gy_adjust, (unsigned char*)str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
+				draw_string_small_shadowed_zoomed_right(-hover_offset, y+gy_adjust,
+					(const unsigned char*)str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f,
+					win->current_scale);
 				stat_mouse_is_over = -1;
 			}
 
@@ -550,8 +565,12 @@ static int mouseover_misc_handler(window_info *win, int mx, int my)
 	/* Optionally display scrolling help if statsbar is active and restricted in size */
 	if (show_help_text && show_stats_in_hud && (num_disp_stat < NUM_WATCH_STAT-1) &&
 		(my >= 0) && (my < num_disp_stat*side_stats_bar_height))
-		show_help(stats_scroll_help_str, -10-strlen(stats_scroll_help_str)*win->small_font_len_x,
+	{
+		int width = get_string_width_ui((const unsigned char*)stats_scroll_help_str,
+			win->current_scale * DEFAULT_SMALL_RATIO);
+		show_help(stats_scroll_help_str, - 10 - width,
 			win->len_y - HUD_MARGIN_Y - win->small_font_len_y, win->current_scale);
+	}
 
 	/* stat hover experience left */
 	if (show_stats_in_hud && have_stats && (my >= 0) && (my < num_disp_stat*side_stats_bar_height))
