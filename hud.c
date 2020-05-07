@@ -102,7 +102,7 @@ void init_hud_interface (hud_interface type)
 		init_misc_display ();
 		init_quickbar ();
 		init_quickspell ();
-		init_hud_indicators (); 
+		init_hud_indicators ();
 		ready_for_user_menus = 1;
 		if (enable_user_menus)
 			display_user_menus();
@@ -299,7 +299,7 @@ void view_window(int * window, int id)
 		view_console_win(window, id);
 		return;
 	}
-	
+
 	if(window==&sigil_win||window==&manufacture_win)
 		{
 			if(get_show_window(trade_win))
@@ -365,17 +365,10 @@ void show_help_coloured_scaled(const char *help_message, int x, int y, float r, 
 	int y_font_len = 0;
 	int len = 0;
 	int width=window_width-80;
+	float zoom = use_big_font ? size : size * DEFAULT_SMALL_RATIO;
 
-	if (use_big_font)
-	{
-		y_font_len = (int)(0.5 + DEFAULT_FONT_Y_LEN * size);
-		len = strlen(help_message) * (int)(0.5 + DEFAULT_FONT_X_LEN * size) + 1;
-	}
-	else
-	{
-		y_font_len = (int)(0.5 + SMALL_FONT_Y_LEN * size);
-		len = strlen(help_message) * (int)(0.5 + SMALL_FONT_X_LEN * size) + 1;
-	}
+	y_font_len = get_line_height(UI_FONT, zoom);
+	len = get_string_width_ui((const unsigned char*)help_message, zoom) + 1;
 
 	if(x+len>width) x-=(x+len)-width;
 
@@ -394,10 +387,7 @@ void show_help_coloured_scaled(const char *help_message, int x, int y, float r, 
 	glEnable(GL_TEXTURE_2D);
 
 	glColor3f(r,g,b);
-	if (use_big_font)
-		draw_string_zoomed(x, y, (unsigned char*)help_message, 1, size);
-	else
-		draw_string_small_zoomed(x, y, (unsigned char*)help_message, 1, size);
+	draw_string_zoomed(x, y, (const unsigned char*)help_message, 1, zoom);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -428,7 +418,7 @@ void build_levels_table()
 		if(i<=30)exp+=exp*20/100;
 		else
 		if(i<=40)exp+=exp*14/100;
-		else 
+		else
 		if(i<=90)exp+=exp*7/100;
 		else exp+=exp*5/100;
 		exp_lev[i]=(Uint32)exp;
