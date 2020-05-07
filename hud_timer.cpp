@@ -238,7 +238,7 @@ int Hud_Timer::display(window_info *win, int base_y_start)
 	if (mouse_over)
 	{
 		char *use_str = ((mode_coundown) ?countdown_str:stopwatch_str);
-		draw_string_small_shadowed_zoomed(-(int)(win->small_font_len_x*(strlen(use_str)+0.5)), base_y_start, (unsigned char*)use_str,
+		draw_string_small_shadowed_zoomed_right(0, base_y_start, (unsigned char*)use_str,
 			1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
 		mouse_over = false;
 	}
