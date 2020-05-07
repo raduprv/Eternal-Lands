@@ -997,7 +997,7 @@ static void draw_current_spell(window_info *win, int x, int y, int sigils_too, i
 		if (spells_list[j].uncastable&UNCASTABLE_MANA) glColor3f(1.0f,0.0f,0.0f);
 		else glColor3f(0.0,1.0,0.0);
 		i = (grid_size - get_string_width_ui(str, win->current_scale))/2;
-		j = (grid_size - get_char_width_ui(str[0], win->current_scale))/2;
+		j = (grid_size - win->default_font_len_y)/2;
 		draw_string_zoomed(x+i,y+j,str,1, win->current_scale);
 	}
 
