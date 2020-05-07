@@ -96,8 +96,15 @@ namespace cm
 	class Container
 	{
 		public:
-			Container(void);
-			~Container(void);
+			~Container();
+
+			// Return the singleton instance of this container
+			static Container& get_instance()
+			{
+				static Container container;
+				return container;
+			}
+
 			size_t create(const char *menu_list, int (*handler)(window_info *, int, int, int, int ));
 			int destroy(size_t cm_id);
 			int pre_show_check(Uint32 flags);
@@ -127,6 +134,10 @@ namespace cm
 			float get_current_scale(void) const { return windows_list.window[cm_window_id].current_scale; }
 
 		private:
+			Container();
+			Container(const Container&) = delete;
+			Container& operator=(const Container&) = delete;
+
 			class Region	//  Wrapper for window region activation area.
 			{
 				public:
@@ -153,14 +164,7 @@ namespace cm
 			std::vector<Menu*> menus;
 			std::map<int, size_t> full_windows; // <window_id, cm_id>
 			bool menu_opened;
-			static int instance_count;
 	};
-
-
-	// The one and only instance of the context menu container class.
-	static Container container;
-	int Container::instance_count = 0;
-
 
 	// Generic el windows callback for clicks in a context menu.
 	extern "C" int click_context_handler(window_info *win, int mx, int my, Uint32 flags)
@@ -194,10 +198,9 @@ namespace cm
 
 
 	// constructor - create the context menu window and initialise containers
-	Container::Container(void)
+	Container::Container()
 		: cm_window_id(-1), active_window_id(-1), active_widget_id(-1), menu_opened(false)
 	{
-		assert(instance_count++==0);
 		menus.resize(20,0);
 		if ((cm_window_id = create_window("Context Menu", -1, 0, 0, 0, 0, 0,
 				ELW_USE_UISCALE|ELW_SWITCHABLE_OPAQUE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_ALPHA_BORDER)) == -1)
@@ -615,6 +618,7 @@ namespace cm
 		resize_window(cm_window_id, width, height);
 
 		// parent_win will be NULL if we don't have one
+		const Container& container = Container::get_instance();
 		window_info *parent_win = window_info_from_id(container.get_active_window_id());
 
 		// copy any parent window opacity to the context menu
@@ -632,7 +636,8 @@ namespace cm
 			{
 				int parent_win_x = opened_mouse_x - parent_win->cur_x;
 				int parent_win_y = opened_mouse_y - parent_win->cur_y;
-				(*pre_show_handler)(parent_win, container.get_active_widget_id(), parent_win_x, parent_win_y, window_info_from_id(cm_window_id));
+				(*pre_show_handler)(parent_win, container.get_active_widget_id(),
+					parent_win_x, parent_win_y, window_info_from_id(cm_window_id));
 			}
 			else
 				(*pre_show_handler)(NULL, 0, 0, 0, window_info_from_id(cm_window_id));
@@ -750,12 +755,14 @@ namespace cm
 			return 0;
 
 		// if we have a parent window, the mouse position is the original position that opened the menu
+		const Container& container = Container::get_instance();
 		window_info *parent_win = window_info_from_id(container.get_active_window_id());
 		if (parent_win != NULL)
 		{
 			int parent_win_x = opened_mouse_x - parent_win->cur_x;
 			int parent_win_y = opened_mouse_y - parent_win->cur_y;
-			return (*handler)(parent_win, container.get_active_widget_id(), parent_win_x, parent_win_y, selection);
+			return (*handler)(parent_win, container.get_active_widget_id(),
+				parent_win_x, parent_win_y, selection);
 		}
 		else
 			return (*handler)(NULL, 0, 0, 0, selection);
@@ -810,7 +817,7 @@ namespace cm
 	// calculate a scaled value
 	float Menu::scaled_value(float val) const
 	{
-		return val * container.get_current_scale() * zoom;
+		return val * Container::get_instance().get_current_scale() * zoom;
 	}
 
 
@@ -819,30 +826,30 @@ namespace cm
 
 
 // C wrapper functions
-extern "C" size_t cm_create(const char *menu_list, int (*handler)(window_info *, int, int, int, int )) { return cm::container.create(menu_list, handler); }
-extern "C" int cm_destroy(size_t cm_id) { return cm::container.destroy(cm_id); }
-extern "C" int cm_pre_show_check(Uint32 flags) { return cm::container.pre_show_check(flags); }
-extern "C" void cm_post_show_check(int force) { cm::container.post_show_check(force); }
-extern "C" int cm_show_if_active(int window_id) { return cm::container.show_if_active(window_id); }
-extern "C" int cm_show_direct(size_t cm_id, int window_id, int widget_id) { return cm::container.show_direct(cm_id, window_id, widget_id); }
-extern "C" int cm_bool_line(size_t cm_id, size_t line_index, int *control_var, const char *config_name) { return cm::container.bool_line(cm_id, line_index, control_var, config_name); }
-extern "C" int cm_grey_line(size_t cm_id, size_t line_index, int is_grey) { return cm::container.grey_line(cm_id, line_index, is_grey); }
-extern "C" int cm_set(size_t cm_id, const char *menu_list, int (*handler)(window_info *, int, int, int, int)) { return cm::container.set(cm_id, menu_list, handler); }
-extern "C" int cm_add(size_t cm_id, const char *menu_list, int (*handler)(window_info *, int, int, int, int)) { return cm::container.add(cm_id, menu_list, handler); }
-extern "C" int cm_set_pre_show_handler(size_t cm_id, void (*handler)(window_info *, int, int, int, window_info *)) { return cm::container.set_pre_show_handler(cm_id, handler); }
-extern "C" int cm_set_sizes(size_t cm_id, int border, int text_border, int line_sep, float zoom) { return cm::container.set_sizes(cm_id, border, text_border, line_sep, zoom); }
-extern "C" int cm_set_colour(size_t cm_id, enum CM_COLOUR_NAME colour_name, float r, float g, float b) { return cm::container.set_colour(cm_id, colour_name, r, g, b); }
-extern "C" int cm_add_window(size_t cm_id, int window_id) { return cm::container.add_window(cm_id, window_id); }
-extern "C" int cm_add_region(size_t cm_id, int window_id, int posx, int posy, int lenx, int leny) { return cm::container.add_region(cm_id, window_id, posx, posy, lenx, leny); }
-extern "C" int cm_add_widget(size_t cm_id, int window_id, int widget_id) { return cm::container.add_widget(cm_id, window_id, widget_id); }
-extern "C" int cm_remove_window(int window_id) { return cm::container.remove_window(window_id); }
-extern "C" int cm_remove_regions(int window_id) { return cm::container.remove_regions(window_id); }
-extern "C" int cm_remove_widget(int window_id, int widget_id) { return cm::container.remove_widget(window_id, widget_id); }
-extern "C" void cm_showinfo(void) { cm::container.showinfo(); }
-extern "C" int cm_valid(size_t cm_id) { if (cm::container.valid(cm_id)) return 1; else return 0; }
-extern "C" size_t cm_window_shown(void) { return cm::container.window_shown(); }
-extern "C" void *cm_get_data(size_t cm_id) { return cm::container.get_data(cm_id); }
-extern "C" void cm_set_data(size_t cm_id, void *data) { cm::container.set_data(cm_id, data); }
+extern "C" size_t cm_create(const char *menu_list, int (*handler)(window_info *, int, int, int, int )) { return cm::Container::get_instance().create(menu_list, handler); }
+extern "C" int cm_destroy(size_t cm_id) { return cm::Container::get_instance().destroy(cm_id); }
+extern "C" int cm_pre_show_check(Uint32 flags) { return cm::Container::get_instance().pre_show_check(flags); }
+extern "C" void cm_post_show_check(int force) { cm::Container::get_instance().post_show_check(force); }
+extern "C" int cm_show_if_active(int window_id) { return cm::Container::get_instance().show_if_active(window_id); }
+extern "C" int cm_show_direct(size_t cm_id, int window_id, int widget_id) { return cm::Container::get_instance().show_direct(cm_id, window_id, widget_id); }
+extern "C" int cm_bool_line(size_t cm_id, size_t line_index, int *control_var, const char *config_name) { return cm::Container::get_instance().bool_line(cm_id, line_index, control_var, config_name); }
+extern "C" int cm_grey_line(size_t cm_id, size_t line_index, int is_grey) { return cm::Container::get_instance().grey_line(cm_id, line_index, is_grey); }
+extern "C" int cm_set(size_t cm_id, const char *menu_list, int (*handler)(window_info *, int, int, int, int)) { return cm::Container::get_instance().set(cm_id, menu_list, handler); }
+extern "C" int cm_add(size_t cm_id, const char *menu_list, int (*handler)(window_info *, int, int, int, int)) { return cm::Container::get_instance().add(cm_id, menu_list, handler); }
+extern "C" int cm_set_pre_show_handler(size_t cm_id, void (*handler)(window_info *, int, int, int, window_info *)) { return cm::Container::get_instance().set_pre_show_handler(cm_id, handler); }
+extern "C" int cm_set_sizes(size_t cm_id, int border, int text_border, int line_sep, float zoom) { return cm::Container::get_instance().set_sizes(cm_id, border, text_border, line_sep, zoom); }
+extern "C" int cm_set_colour(size_t cm_id, enum CM_COLOUR_NAME colour_name, float r, float g, float b) { return cm::Container::get_instance().set_colour(cm_id, colour_name, r, g, b); }
+extern "C" int cm_add_window(size_t cm_id, int window_id) { return cm::Container::get_instance().add_window(cm_id, window_id); }
+extern "C" int cm_add_region(size_t cm_id, int window_id, int posx, int posy, int lenx, int leny) { return cm::Container::get_instance().add_region(cm_id, window_id, posx, posy, lenx, leny); }
+extern "C" int cm_add_widget(size_t cm_id, int window_id, int widget_id) { return cm::Container::get_instance().add_widget(cm_id, window_id, widget_id); }
+extern "C" int cm_remove_window(int window_id) { return cm::Container::get_instance().remove_window(window_id); }
+extern "C" int cm_remove_regions(int window_id) { return cm::Container::get_instance().remove_regions(window_id); }
+extern "C" int cm_remove_widget(int window_id, int widget_id) { return cm::Container::get_instance().remove_widget(window_id, widget_id); }
+extern "C" void cm_showinfo(void) { cm::Container::get_instance().showinfo(); }
+extern "C" int cm_valid(size_t cm_id) { if (cm::Container::get_instance().valid(cm_id)) return 1; else return 0; }
+extern "C" size_t cm_window_shown(void) { return cm::Container::get_instance().window_shown(); }
+extern "C" void *cm_get_data(size_t cm_id) { return cm::Container::get_instance().get_data(cm_id); }
+extern "C" void cm_set_data(size_t cm_id, void *data) { cm::Container::get_instance().set_data(cm_id, data); }
 
 
 
