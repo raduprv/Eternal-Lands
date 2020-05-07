@@ -161,13 +161,13 @@ char *get_research_eta_str(char *str, size_t size)
 
 int display_knowledge_handler(window_info *win)
 {
+	unsigned char buf[128];
 	size_t i;
 	int x = text_border;
 	int y = text_border;
 	int scroll = vscrollbar_get_pos (win->window_id, knowledge_scroll_id);
 	char points_string[16];
 	char *research_string;
-	int points_pos;
 	float font_ratio = win->small_font_len_x/12.0;
 	float max_name_x = (win->len_x - win->box_size - 2*x)/2;
 	int is_researching = 1;
@@ -191,7 +191,6 @@ int display_knowledge_handler(window_info *win)
 		points_string[0] = '\0';
 		is_researching = 0;
 	}
-	points_pos = (progress_right_x - progress_left_x - strlen(points_string) * win->small_font_len_x) / 2;
 
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(0.77f,0.57f,0.39f);
@@ -241,16 +240,19 @@ int display_knowledge_handler(window_info *win)
 	draw_string_small_zoomed(text_border, booklist_y_len + text_border,
 		raw_knowledge_string, info_lines, win->current_scale);
 	glColor3f(1.0f,1.0f,1.0f);
-	draw_string_small_zoomed(text_border,progress_top_y+3+gy_adjust,(unsigned char*)researching_str,1, win->current_scale);
-	draw_string_small_zoomed(text_border+(strlen(researching_str)+1)*win->small_font_len_x,progress_top_y+3+gy_adjust,(unsigned char*)research_string,1, win->current_scale);
-	draw_string_small_zoomed(progress_left_x+points_pos+gx_adjust,progress_top_y+3+gy_adjust,(unsigned char*)points_string,1, win->current_scale);
+	safe_snprintf((char *)buf, sizeof(buf), "%s %s", researching_str, research_string);
+	draw_string_small_zoomed(text_border, progress_top_y+3+gy_adjust, buf, 1, win->current_scale);
+	if (*points_string)
+		draw_string_small_zoomed_centered((progress_left_x + progress_right_x) / 2,
+			progress_top_y + 3 + gy_adjust, (const unsigned char*)points_string,
+			1, win->current_scale);
 	if (is_researching && mouse_over_progress_bar)
 	{
 		char eta_string[20];
-		int eta_pos;
 		get_research_eta_str(eta_string, sizeof(eta_string));
-		eta_pos = (int)(progress_right_x - progress_left_x - strlen(eta_string)*win->small_font_len_x) / 2;
-		draw_string_small_zoomed(progress_left_x + eta_pos, progress_top_y - win->small_font_len_y + 2, (unsigned char*)eta_string, 1, win->current_scale);
+		draw_string_small_zoomed_centered((progress_left_x + progress_right_x) / 2,
+			progress_top_y - win->small_font_len_y + 2, (const unsigned char*)eta_string,
+			1, win->current_scale);
 		mouse_over_progress_bar=0;
 	}
 	// Draw knowledges
@@ -459,8 +461,9 @@ static int resize_knowledge_handler(window_info *win, int new_width, int new_hei
 {
 	int gap_y;
 	int image_size = (int)(0.5 + win->current_scale * 50);
-	int label_width = 0;
-	int label_height = 0;
+	int label_width = get_string_width_ui((const unsigned char*)knowledge_read_book,
+		win->current_scale * 0.8);
+	int label_height = (int)(0.5 + win->default_font_len_y * win->current_scale * 0.8);
 	int book_x_off = 0;
 	int label_x_left = 0;
 	int book_x_left = 0;
@@ -480,11 +483,9 @@ static int resize_knowledge_handler(window_info *win, int new_width, int new_hei
 	widget_move(win->window_id, knowledge_scroll_id, win->len_x - win->box_size, 0);
 
 	widget_set_size(win->window_id, knowledge_book_label_id, win->current_scale * 0.8);
-	widget_resize(win->window_id, knowledge_book_label_id, strlen(knowledge_read_book) * win->default_font_len_x * 0.8, win->default_font_len_y * 0.8);
+	widget_resize(win->window_id, knowledge_book_label_id, label_width, label_height);
 	widget_resize(win->window_id, knowledge_book_image_id, image_size, image_size);
 
-	label_width = widget_get_width(win->window_id, knowledge_book_label_id);
-	label_height = widget_get_height(win->window_id, knowledge_book_label_id);
 	book_x_off = (label_width > image_size) ?label_width :image_size;
 	gap_y = booklist_y_len + (progressbox_y_len - booklist_y_len - image_size - label_height)/ 2;
 	label_x_left = progress_right_x - book_x_off/2 - label_width/2;
