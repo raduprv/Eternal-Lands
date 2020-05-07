@@ -154,7 +154,7 @@ static int cm_statsbar_handler(window_info *win, int widget_id, int mx, int my, 
 
 	// selecting the same stat more than once, removing the last bar
 	// or adding too many is not possible as options are greyed out.
-	
+
 	for (i=0; i<actual_num_disp_stats;i++)
 	{
 		if ((mx >= exp_bar_start_x+i*(stats_bar_len+exp_bar_text_len)) && (mx <= exp_bar_start_x+i*(stats_bar_len+exp_bar_text_len)+stats_bar_len))
@@ -237,13 +237,13 @@ static void draw_stats_bar(window_info *win, int x, int y, int val, int len, flo
 	char buf[32];
 	int i; // i deals with massive bars by trimming at 110%
 	int bar_height = player_statsbar_bar_height;
-	
+
 	if(len>stats_bar_len*1.1)
 		i=stats_bar_len*1.1;
 	else
 		i=len;
 	glDisable(GL_TEXTURE_2D);
-	
+
 	if(i >= 0){
 		glBegin(GL_QUADS);
 		//draw the colored section
@@ -266,11 +266,12 @@ static void draw_stats_bar(window_info *win, int x, int y, int val, int len, flo
 	glVertex3i(x, y+bar_height, 0);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
-	
+
 	// handle the text
 	safe_snprintf(buf, sizeof(buf), "%d", val);
 	//glColor3f(0.8f, 0.8f, 0.8f); moved to next line
-	draw_string_small_shadowed_zoomed(x-(1+win->small_font_len_x*strlen(buf))-1, y-2, (unsigned char*)buf, 1,0.8f, 0.8f, 0.8f,0.0f,0.0f,0.0f, win->current_scale);
+	draw_string_small_shadowed_zoomed_right(x - 2, y - 2, (const unsigned char*)buf,
+		1, 0.8f, 0.8f, 0.8f, 0.0f, 0.0f, 0.0f, win->current_scale);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -352,16 +353,16 @@ static void draw_exp_display(window_info *win)
 	{
 		if (watch_this_stats[i] > 0)
 		{
-			int name_x;
 			int name_y = exp_bar_start_y + 2 + player_statsbar_bar_height;
 			int icon_x = get_icons_win_active_len();
 			int cur_exp = *statsinfo[watch_this_stats[i]-1].exp;
 			int nl_exp = *statsinfo[watch_this_stats[i]-1].next_lev;
 			int baselev = statsinfo[watch_this_stats[i]-1].skillattr->base;
-			unsigned char * name = statsinfo[watch_this_stats[i]-1].skillnames->name;
+			const unsigned char* name = statsinfo[watch_this_stats[i]-1].skillnames->name;
 			int exp_adjusted_x_len;
 			int delta_exp;
 			float prev_exp;
+			int name_width;
 
 			if(!baselev)
 				prev_exp= 0;
@@ -375,17 +376,17 @@ static void draw_exp_display(window_info *win)
 			else
 				exp_adjusted_x_len= stats_bar_len-(float)stats_bar_len/(float)((float)delta_exp/(float)(nl_exp-cur_exp));
 
-			name_x = my_exp_bar_start_x + stats_bar_len - strlen((char *)name) * win->small_font_len_x;
+			name_width = get_string_width_ui(name, win->current_scale * DEFAULT_SMALL_RATIO);
 			// the the name would overlap with the icons...
-			if (name_x < icon_x)
+			if (my_exp_bar_start_x + stats_bar_len - name_width < icon_x)
 			{
 				name = statsinfo[watch_this_stats[i]-1].skillnames->shortname;
-				name_x = my_exp_bar_start_x + stats_bar_len - strlen((char *)name) * win->small_font_len_x - 3;
 				name_y = (int)(0.5 + (player_statsbar_y_offset + player_statsbar_bar_height - win->small_font_len_y) / 2) - 1;
 			}
 
 			draw_stats_bar(win, my_exp_bar_start_x, exp_bar_start_y, nl_exp - cur_exp, exp_adjusted_x_len, 0.1f, 0.8f, 0.1f, 0.1f, 0.4f, 0.1f);
-			draw_string_small_shadowed_zoomed(name_x, name_y, name, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
+			draw_string_small_shadowed_zoomed_right(my_exp_bar_start_x + stats_bar_len,
+				name_y, name, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
 
 			my_exp_bar_start_x += stats_bar_len+exp_bar_text_len;
 		}
