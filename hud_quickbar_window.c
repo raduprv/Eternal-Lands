@@ -196,7 +196,8 @@ static void quickbar_item_description_help(window_info *win, int pos, int slot)
 		if (str != NULL)
 		{
 			int xpos = 0, ypos = 0;
-			int len_str = (strlen(str) + 1) * win->small_font_len_x;
+			int len_str = get_string_width_ui((const unsigned char*)str,
+				DEFAULT_SMALL_RATIO * win->current_scale);
 			/* vertical place right (or left) and aligned with slot */
 			if (quickbar_dir==VERTICAL)
 			{
