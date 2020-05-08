@@ -2914,14 +2914,11 @@ static void elconfig_populate_tabs(void)
 					elconfig_tabs[tab_id].x+SPACING+elconf_scale*get_string_width(our_vars.var[i]->display.str), elconfig_tabs[tab_id].y,
 					ELCONFIG_SCALED_VALUE(250), ELCONFIG_SCALED_VALUE(80), elconf_scale, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
 				for(y= 0; y<our_vars.var[i]->args.multi.count; y++) {
-					char *label= our_vars.var[i]->args.multi.strings[y];
+					char *label= strlen(our_vars.var[i]->args.multi.strings[y]) ?our_vars.var[i]->args.multi.strings[y] : "??";
 					int width= strlen(label) > 0 ? 0 : -1;
 
 					multiselect_button_add_extended(elconfig_tabs[tab_id].tab, widget_id,
 						0, y*(ELCONFIG_SCALED_VALUE(22)+SPACING), width, label, DEFAULT_SMALL_RATIO*elconf_scale, y == *(int *)our_vars.var[i]->var);
-					if(strlen(label) == 0) {
-						y--;
-					}
 				}
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, multiselect_click_handler);
 			break;
@@ -2953,7 +2950,7 @@ static void elconfig_populate_tabs(void)
 				widget_id= multiselect_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x+SPACING+elconf_scale*get_string_width(our_vars.var[i]->display.str), elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(350), ELCONFIG_SCALED_VALUE(80), elconf_scale, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
 				x = 0;
 				for(y= 0; y<our_vars.var[i]->args.multi.count; y++) {
-					char *label= our_vars.var[i]->args.multi.strings[y];
+					char *label= strlen(our_vars.var[i]->args.multi.strings[y]) ? our_vars.var[i]->args.multi.strings[y] : "??";
 
 					int radius = elconf_scale*BUTTONRADIUS;
 					float width_ratio = elconf_scale*DEFAULT_FONT_X_LEN/12.0f;
@@ -2963,14 +2960,8 @@ static void elconfig_populate_tabs(void)
 
 					multiselect_button_add_extended(elconfig_tabs[tab_id].tab, widget_id, x, 0, width, label,
 						DEFAULT_SMALL_RATIO * elconf_scale, y == *(int *)our_vars.var[i]->var);
-					if (strlen(label) == 0)
-					{
-						y--;
-					}
-					else
-					{
-						x += width + SPACING;
-					}
+
+					x += width + SPACING;
 				}
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, multiselect_click_handler);
 			break;
