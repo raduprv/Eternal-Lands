@@ -976,10 +976,16 @@ static int resize_notepad_handler(window_info *win, int new_width, int new_heigh
 
 static int change_notepad_font_handler(window_info *win, font_cat cat)
 {
-	if (cat != NOTE_FONT)
-		return 0;
-	notepad_win_close_tabs();
-	return 1;
+	if (cat == NOTE_FONT)
+	{
+		int i;
+
+		for (i = 0; i < nr_notes; ++i)
+			text_field_force_rewrap(note_list[i].window, note_list[i].input);
+		return 1;
+	}
+
+	return 0;
 }
 
 void fill_notepad_window(int window_id)

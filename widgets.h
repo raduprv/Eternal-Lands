@@ -1436,6 +1436,19 @@ int text_field_keypress (widget_list *w, int mx, int my, SDL_Keycode key_code, U
  */
 void text_field_find_cursor_line(text_field* tf);
 
+/*!
+ * \ingroup widgets
+ *
+ * Force a text field to rewrap the lines.
+ *
+ * Force the textfield identified by window ID \a window_id and widget ID
+ * \a widget_id, to recalculate the positions of the soft line breaks. This is
+ * done e.g. in situations where the font or font size is changed.
+ *
+ * \param window_id The identifier for the window the text field resides in
+ * \param widget_id The identifier for the text field widget
+ */
+void text_field_force_rewrap(int window_id, Uint32 widget_id);
 
 //FIXME: Write documentation for these...
 #define P_NORMAL    0

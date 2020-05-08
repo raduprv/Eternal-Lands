@@ -2342,7 +2342,6 @@ static int text_field_move(widget_list *w, int pos_x, int pos_y)
 	return 1;
 }
 
-
 static int insert_window_id = -1;
 static int insert_widget_id = -1;
 
@@ -3077,6 +3076,25 @@ int text_field_clear(int window_id, Uint32 widget_id)
 	}
 
 	return 1;
+}
+
+void text_field_force_rewrap(int window_id, Uint32 widget_id)
+{
+	widget_list *w = widget_find(window_id, widget_id);
+	text_field *tf;
+	int i, nr_lines = 0;
+
+	if (!w || !(tf = w->widget_info))
+		return;
+
+	for (i = 0; i < tf->buf_size; i++)
+	{
+		int *cursor = i == tf->msg ? &(tf->cursor) : NULL;
+		tf->buffer[i].wrap_width = 0;
+		nr_lines += rewrap_message(tf->buffer+i, tf->font, w->size,
+			w->len_x - 2*tf->x_space - tf->scrollbar_width, cursor);
+	}
+	_text_field_set_nr_lines (w, nr_lines);
 }
 
 //password entry field. We act like a restricted text entry with multiple modes
