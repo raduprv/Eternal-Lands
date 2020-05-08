@@ -896,8 +896,10 @@ static int resize_buttonwin_handler(window_info *win, int new_width, int new_hei
 
 	button_resize(main_note_tab_id, new_note_button_id, 0, 0, win->current_scale);
 	button_resize(main_note_tab_id, save_notes_button_id, 0, 0, win->current_scale);
-	widget_move(main_note_tab_id, new_note_button_id, (but_space - wnew->len_x)/2, 2*widget_space);
-	widget_move(main_note_tab_id, save_notes_button_id, but_space + (but_space - wsave->len_x)/2, 2*widget_space);
+	widget_move(main_note_tab_id, new_note_button_id,
+		widget_space + (but_space - wnew->len_x)/2, 2*widget_space);
+	widget_move(main_note_tab_id, save_notes_button_id,
+		2 * widget_space + but_space + (but_space - wsave->len_x)/2, 2*widget_space);
 
 	note_button_zoom = win->current_scale * 0.8;
 	note_button_width = but_space;
@@ -922,6 +924,13 @@ static int resize_buttonwin_handler(window_info *win, int new_width, int new_hei
 		note_button_set_pos(nr);
 
 	return 0;
+}
+
+static int change_buttonwin_font_handler(window_info *win, font_cat cat)
+{
+	if (cat != UI_FONT)
+		return 0;
+	return resize_buttonwin_handler(win, win->len_x, win->len_y);
 }
 
 static void notepad_win_close_tabs(void)
@@ -990,6 +999,7 @@ void fill_notepad_window(int window_id)
 	widget_set_color (window_id, main_note_tab_id, 0.77f, 0.57f, 0.39f);
 	set_window_handler(main_note_tab_id, ELW_HANDLER_CLICK, &click_buttonwin_handler);
 	set_window_handler(main_note_tab_id, ELW_HANDLER_RESIZE, &resize_buttonwin_handler);
+	set_window_handler(main_note_tab_id, ELW_HANDLER_FONT_CHANGE, &change_buttonwin_font_handler);
 
 	// Add Category
 	new_note_button_id = button_add(main_note_tab_id, NULL, button_new_category, 0, 0);

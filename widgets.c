@@ -859,9 +859,17 @@ static int button_change_font(widget_list *W, font_cat cat)
 	len_x = T->fixed_width
 		? T->fixed_width
 		: get_string_width_ui((const unsigned char*)T->text, W->size) + (int)(2 * BUTTONRADIUS * W->size + 0.5);
-	len_y = T->fixed_height
-		? T->fixed_height
-		: get_line_height(UI_FONT, W->size) + (int)(12 * W->size + 0.5);
+	if (T->fixed_height)
+	{
+		len_y = T->fixed_height;
+	}
+	else
+	{
+		int min_len_y = (int)(2 * BUTTONRADIUS * W->size + 0.5);
+		len_y = get_line_height(UI_FONT, W->size) + (int)(12 * W->size + 0.5);
+		if (len_y < min_len_y)
+			len_y = min_len_y;
+	}
 
 	return widget_resize(W->window_id, W->id, len_x, len_y);
 }
