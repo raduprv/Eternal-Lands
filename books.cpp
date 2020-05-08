@@ -172,11 +172,11 @@ void Book::layout_text(ContentType content_type, const ustring& text,
 	while (offset < lines.length())
 	{
 		int y_begin, y_end;
-		std::tie(y_begin, y_end) = page->find_free_range(line_h);
+		std::tie(y_begin, y_end) = page->find_free_range_aligned(line_h);
 		if (y_begin < 0)
 		{
 			page = next_text_page(page_width, page_height, zoom);
-			std::tie(y_begin, y_end) = page->find_free_range(line_h);
+			std::tie(y_begin, y_end) = page->find_free_range_aligned(line_h);
 		}
 
 		int nr_lines_this_page = (y_end - y_begin) / line_h;

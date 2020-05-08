@@ -232,18 +232,23 @@ public:
 	 * Search for a free range on the page
 	 *
 	 * Find the first position on the page where a block of \a min_height
-	 * pixels high is free.
+	 *  pixels high that starts at a multiple of \a min_height pixels is free.
 	 *
 	 * \param min_height The minimum height of the free block
 	 * \return The top and bottom coordinates of the free block. If no
 	 * 	free block can be found on this page, (-1, -1) is returned.
 	 */
-	std::pair<int, int> find_free_range(int min_height) const
+	std::pair<int, int> find_free_range_aligned(int min_height) const
 	{
 		for (const auto& range: _free_ranges)
 		{
 			if (range.second - range.first >= min_height)
-				return range;
+			{
+				// Align to whole block of min_height pixels
+				int y_begin = ((range.first + min_height - 1) / min_height) * min_height;
+				if (range.second - y_begin >= min_height)
+					return std::make_pair(y_begin, range.second);
+			}
 		}
 		return std::make_pair(-1, -1);
 	}

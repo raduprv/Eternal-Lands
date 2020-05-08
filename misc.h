@@ -105,7 +105,7 @@ void makeScreenShot ();
 /*!
  * \ingroup misc_utils
  * \brief Draws a circle from angle_from to angle_to
- * 
+ *
  * 		Draws a circle from angle_from to angle_to with the given radius from the center x,y. Increments the angle with interval.
  *
  * \param x The center x
@@ -120,13 +120,13 @@ void draw_circle_ext(int x, int y, int radius, int interval, int angle_from, int
 /*!
  * \ingroup misc_utils
  * \brief Draws a circle from angle_from to angle_to
- * 
+ *
  * 		Draws a circle with the given radius from the center x,y.
  *
  * \param x The center x
  * \param y The center y
  * \param radius The radius
- * 
+ *
  * \callgraph
  */
 void draw_circle(int x, int y, int radius, int interval);
@@ -165,7 +165,7 @@ void draw_box(char * name, int x, int y, int w, int h, float size, int rad);
 
 /*!
  * \ingroup misc_utils
- * \brief Draws a button with round corners. 
+ * \brief Draws a button with round corners.
  *
  * 	Draws a button with round corners. The box can be highlighted with the chosen highlight colors (r,g,b,a).
  *
@@ -184,7 +184,8 @@ void draw_box(char * name, int x, int y, int w, int h, float size, int rad);
  * \param hb The blue color for highlighted buttons
  * \param ha The alpha color for highlighted buttons
  */
-void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, float r, float g, float b, int highlight, float hr, float hg, float hb, float ha);
+void draw_smooth_button(const char * str, float size, int x, int y, int w, int lines,
+	float r, float g, float b, int highlight, float hr, float hg, float hb, float ha);
 
 /*!
  * \ingroup misc
@@ -248,7 +249,7 @@ static __inline__ int has_suffix(const char * str, int len, const char * suffix,
  * \begincode
  *   X = min(rand(), rand())
  * \endcode
- * in order to generate a variate X that is more likely to be small. Using the above macro, 
+ * in order to generate a variate X that is more likely to be small. Using the above macro,
  * X would still be uniformly distributed. Even if you don't dothat kind of jerk, please
  * use these inline functions in order to help avoiding others making these mistakes.
  *
