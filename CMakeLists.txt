@@ -47,6 +47,8 @@ add_definitions(
 	-DMIDDLE_MOUSE_PASTE			# Paste using the middle mouse button from the primary buffer on X systems
 	# new for 1.9.4 release
 	-DNEW_EYES						# Support for different eye colors, needs new data files
+	# proposed for next release
+	-DNEW_CURSOR					# New coloured cursors made by Emajekral (Experimental).  An old unused feature. Derive cursor2.dss from http://users.on.net/~gingerman/sky_cursor-textures.zip (cursor2.bmp + alpha).
 )
 
 
@@ -88,7 +90,6 @@ add_definitions(
 
 # Other options (Experimental, unfinished, defunct or otherwise unknown)
 add_definitions(
-#	-DNEW_CURSOR					# New coloured cursors made by Emajekral (Experimental) Extract http://users.on.net/~gingerman/sky_cursor-textures.zip into datadir/textures/
 #	-DPAWN							# Experimental, not for release, will need server support to function properly. This *will* eat your cat. You've been warned. Enables the Pawn abstract machine.
 #	-DUID							# use unique ID sent from server for custom looks. (INCOMPLETE)
 #	-DUSE_ACTORS_OPTIMIZER			# Enables actor optimizations

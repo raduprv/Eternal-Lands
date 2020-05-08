@@ -185,21 +185,21 @@ void draw_special_cursors(void)
 #ifdef NEW_CURSOR
 		glColor4f(1,1,1,1);
 		bind_texture(cursors_tex);
-		if (big_cursors /* && !sdl_cursors */) {
-			float x = (current_cursor%8)/8.0;
-			float y = (1-current_cursor/8 + 5)/8.0;
+		if(big_cursors){
+			float u_start = (32.0f/256.0f) * ((current_cursor + 8) % 8) + 0.5f / 256.0f;
+			float u_end = u_start + (31.0f/256.0f);
+			float v_start = (32.0f/256.0f) * ((current_cursor + 8) / 8) + 0.5f / 256.0f;
+			float v_end = v_start + (31.0f/256.0f);
 			glBegin(GL_QUADS);
-			glTexCoord2f(x,y);					glVertex2f(0,32);
-			glTexCoord2f(x+0.125f,y);			glVertex2f(32,32);
-			glTexCoord2f(x+0.125f,y+0.125f);	glVertex2f(32,0);
-			glTexCoord2f(x,y+0.125f);			glVertex2f(0,0);
+			draw_2d_thing(u_start, v_start, u_end, v_end, 0, 0, 32, 32);
 			glEnd();
-		} else /* if (!sdl_cursors) */ {
+		} else {
+			float u_start = (16.0f/256.0f) * (current_cursor % 16) + 0.5f / 256.0f;
+			float u_end = u_start + (15.0f/256.0f);
+			float v_start = (16.0f/256.0f) * (current_cursor / 16) + 0.5f / 256.0f;
+			float v_end = v_start + (15.0f/256.0f);
 			glBegin(GL_QUADS);
-			glTexCoord2f(current_cursor/16.0,15.0/16.0);		glVertex2f(10,26);
-			glTexCoord2f((current_cursor+1.0)/16.0,15.0/16.0);	glVertex2f(26,26);
-			glTexCoord2f((current_cursor+1.0)/16.0,16.0/16.0);	glVertex2f(26,10);
-			glTexCoord2f(current_cursor/16.0,16.0/16.0);		glVertex2f(10,10);
+			draw_2d_thing(u_start, v_start, u_end, v_end, 10, 10, 26, 26);
 			glEnd();
 		}
 #endif // NEW_CURSOR
@@ -322,20 +322,20 @@ void draw_special_cursors(void)
 		glColor4f(1,1,1,1);
 		bind_texture(cursors_tex);
 		if(big_cursors){
-			float x = (current_cursor%8)/8.0;
-			float y = (1-current_cursor/8 + 5)/8.0;
+			float u_start = (32.0f/256.0f) * ((current_cursor + 8) % 8) + 0.5f / 256.0f;
+			float u_end = u_start + (31.0f/256.0f);
+			float v_start = (32.0f/256.0f) * ((current_cursor + 8) / 8) + 0.5f / 256.0f;
+			float v_end = v_start + (31.0f/256.0f);
 			glBegin(GL_QUADS);
-			glTexCoord2f(x,y);					glVertex2f(0,32);
-			glTexCoord2f(x+0.125f,y);			glVertex2f(32,32);
-			glTexCoord2f(x+0.125f,y+0.125f);	glVertex2f(32,0);
-			glTexCoord2f(x,y+0.125f);			glVertex2f(0,0);
+			draw_2d_thing(u_start, v_start, u_end, v_end, 0, 0, 32, 32);
 			glEnd();
 		} else {
+			float u_start = (16.0f/256.0f) * (current_cursor % 16) + 0.5f / 256.0f;
+			float u_end = u_start + (15.0f/256.0f);
+			float v_start = (16.0f/256.0f) * (current_cursor / 16) + 0.5f / 256.0f;
+			float v_end = v_start + (15.0f/256.0f);
 			glBegin(GL_QUADS);
-			glTexCoord2f(current_cursor/16.0,14.0/16.0);		glVertex2f(0,16);
-			glTexCoord2f((current_cursor+1.0)/16.0,14.0/16.0);	glVertex2f(16,16);
-			glTexCoord2f((current_cursor+1.0)/16.0,15.0/16.0);	glVertex2f(16,0);
-			glTexCoord2f(current_cursor/16.0,15.0/16.0);		glVertex2f(0,0);
+			draw_2d_thing(u_start, v_start, u_end, v_end, 0, 0, 16, 16);
 			glEnd();
 		}
 	}
