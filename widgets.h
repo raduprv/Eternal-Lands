@@ -21,6 +21,7 @@ typedef struct {
 	Sint8 label[64];
 	int content_id;
 	Uint16 tag_width;
+	Uint16 min_tag_width;
 	float label_r, label_g, label_b;
 	char closable;
 } tab;
@@ -45,6 +46,7 @@ struct WIDGET_TYPE {
 	int (*key)();
 	int (*destroy)();
 	int (*move)();
+	int (*font_change)();
     // We can conceivably store other generic info here too
 } ;
 
@@ -80,6 +82,7 @@ typedef struct wl{
 	int (*OnResize)();
 	int (*OnKey)();
 	int (*OnDestroy)();
+	int (*OnFontChange)();
 	/*! \} */
 
 	void *widget_info; /*!< Pointer to specific widget data */
@@ -1197,7 +1200,6 @@ int tab_collection_close_tab (int window_id, Uint32 widget_id, int tab);
  */
 int tab_collection_calc_tab_height(float size);
 
-
 /*!
  * \ingroup	tabs
  * \brief 	Creates a tabbed window collection
@@ -1534,6 +1536,20 @@ int widget_handle_drag (widget_list *widget, int mx, int my, Uint32 flags, int d
  * \retval 	1 if the event is handled, 0 otherwise
  */
 int widget_handle_keypress (widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
+/*!
+ * \ingroup widgets
+ *
+ * Handle a change in font
+ *
+ * Handle a change in font or font size in font category \a cat for widget \a widget.
+ *
+ * \param widget The widget to handle the font change for.
+ * \param cat    The font category that was changed.
+ *
+ * \return 1 if the widget handled the change, 0 otherwise
+ */
+int widget_handle_font_change(widget_list *widget, font_cat cat);
+
 
 // XML Windows
 

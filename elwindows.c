@@ -140,33 +140,43 @@ void update_windows_scale(float scale_factor)
 	}
 }
 
+static void change_window_font(window_info *win, font_cat cat)
+{
+	widget_list *W;
+
+	if (win->font_category == cat)
+	{
+		if (win->flags & ELW_USE_UISCALE)
+		{
+			win->small_font_len_x = (int)(0.5 + win->current_scale * SMALL_FONT_X_LEN);
+			win->small_font_len_y = get_line_height(win->font_category,
+				win->current_scale * DEFAULT_SMALL_RATIO);
+			win->default_font_len_x = (int)(0.5 + win->current_scale * DEFAULT_FONT_X_LEN);
+			win->default_font_len_y = get_line_height(win->font_category, win->current_scale);
+		}
+		else
+		{
+			win->small_font_len_x = (int)(0.5 + SMALL_FONT_X_LEN);
+			win->small_font_len_y = get_line_height(win->font_category, DEFAULT_SMALL_RATIO);
+			win->default_font_len_x = (int)(0.5 + DEFAULT_FONT_X_LEN);
+			win->default_font_len_y = get_line_height(win->font_category, 1.0);
+		}
+	}
+
+	for (W = win->widgetlist; W; W = W->next)
+		widget_handle_font_change(W, cat);
+
+	if (win->font_change_handler)
+		(*win->font_change_handler)(win, cat);
+}
+
 void change_windows_font(font_cat cat)
 {
 	int win_id;
 	for (win_id = 0; win_id < windows_list.num_windows; ++win_id)
 	{
 		window_info *win = &windows_list.window[win_id];
-		if (win->font_category == cat)
-		{
-			if (win->flags & ELW_USE_UISCALE)
-			{
-				win->small_font_len_x = (int)(0.5 + win->current_scale * SMALL_FONT_X_LEN);
-				win->small_font_len_y = get_line_height(win->font_category,
-					win->current_scale * DEFAULT_SMALL_RATIO);
-				win->default_font_len_x = (int)(0.5 + win->current_scale * DEFAULT_FONT_X_LEN);
-				win->default_font_len_y = get_line_height(win->font_category, win->current_scale);
-			}
-			else
-			{
-				win->small_font_len_x = (int)(0.5 + SMALL_FONT_X_LEN);
-				win->small_font_len_y = get_line_height(win->font_category, DEFAULT_SMALL_RATIO);
-				win->default_font_len_x = (int)(0.5 + DEFAULT_FONT_X_LEN);
-				win->default_font_len_y = get_line_height(win->font_category, 1.0);
-			}
-		}
-
-		if (win->font_change_handler)
-			(*win->font_change_handler)(win, cat);
+		change_window_font(win, cat);
 	}
 }
 

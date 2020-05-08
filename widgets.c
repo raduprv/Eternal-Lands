@@ -42,6 +42,8 @@ typedef struct {
 
 typedef struct {
 	char text[256];
+	Uint16 fixed_width;
+	Uint16 fixed_height;
 }button;
 
 typedef struct {
@@ -94,16 +96,19 @@ int disable_double_click = 0;
 static int label_resize (widget_list *w, int width, int height);
 static int free_widget_info (widget_list *widget);
 static int checkbox_click(widget_list *W, int mx, int my, Uint32 flags);
+static int button_change_font(widget_list *W, font_cat cat);
 static int vscrollbar_click(widget_list *W, int mx, int my, Uint32 flags);
 static int vscrollbar_drag(widget_list *W, int x, int y, Uint32 flags, int dx, int dy);
 static int tab_collection_click(widget_list *W, int x, int y, Uint32 flags);
 static int tab_collection_keypress(widget_list *W, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
 static int free_tab_collection(widget_list *widget);
+static int tab_collection_change_font(widget_list *w, font_cat font);
 static int text_field_click(widget_list *w, int mx, int my, Uint32 flags);
 static int text_field_drag(widget_list *w, int mx, int my, Uint32 flags, int dx, int dy);
 static int text_field_resize (widget_list *w, int width, int height);
 static int text_field_destroy(widget_list *w);
 static int text_field_move(widget_list *w, int pos_x, int pos_y);
+static int text_field_change_font(widget_list *w, font_cat cat);
 static int pword_field_draw(widget_list *w);
 static int multiselect_draw(widget_list *widget);
 static int multiselect_click(widget_list *widget, int mx, int my, Uint32 flags);
@@ -112,18 +117,18 @@ static int spinbutton_draw(widget_list *widget);
 static int spinbutton_click(widget_list *widget, int mx, int my, Uint32 flags);
 static int spinbutton_keypress(widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
 
-static const struct WIDGET_TYPE label_type = { NULL, label_draw, NULL, NULL, NULL, label_resize, NULL, free_widget_info, NULL };
-static const struct WIDGET_TYPE image_type = { NULL, image_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL };
-static const struct WIDGET_TYPE checkbox_type = { NULL, checkbox_draw, checkbox_click, NULL, NULL, NULL, NULL, free_widget_info, NULL };
-static const struct WIDGET_TYPE round_button_type = { NULL, button_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL };
-static const struct WIDGET_TYPE square_button_type = { NULL, square_button_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL };
-static const struct WIDGET_TYPE progressbar_type = { NULL, progressbar_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL };
-static const struct WIDGET_TYPE vscrollbar_type = { NULL, vscrollbar_draw, vscrollbar_click, vscrollbar_drag, NULL, NULL, NULL, free_widget_info, NULL };
-static const struct WIDGET_TYPE tab_collection_type = { NULL, tab_collection_draw, tab_collection_click, NULL, NULL, tab_collection_resize, (int (*)())tab_collection_keypress, free_tab_collection, NULL };
-static const struct WIDGET_TYPE text_field_type = { NULL, text_field_draw, text_field_click, text_field_drag, NULL, text_field_resize, (int (*)())text_field_keypress, text_field_destroy, text_field_move };
-static const struct WIDGET_TYPE pword_field_type = { NULL, pword_field_draw, pword_field_click, NULL, NULL, NULL, (int (*)())pword_keypress, free_widget_info, NULL };
-static const struct WIDGET_TYPE multiselect_type = { NULL, multiselect_draw, multiselect_click, NULL, NULL, NULL, NULL, free_multiselect, NULL };
-static const struct WIDGET_TYPE spinbutton_type = { NULL, spinbutton_draw, spinbutton_click, spinbutton_click, NULL, NULL, (int (*)())spinbutton_keypress, free_multiselect, NULL };
+static const struct WIDGET_TYPE label_type = { NULL, label_draw, NULL, NULL, NULL, label_resize, NULL, free_widget_info, NULL, NULL };
+static const struct WIDGET_TYPE image_type = { NULL, image_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL, NULL };
+static const struct WIDGET_TYPE checkbox_type = { NULL, checkbox_draw, checkbox_click, NULL, NULL, NULL, NULL, free_widget_info, NULL, NULL };
+static const struct WIDGET_TYPE round_button_type = { NULL, button_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL, button_change_font };
+static const struct WIDGET_TYPE square_button_type = { NULL, square_button_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL, button_change_font };
+static const struct WIDGET_TYPE progressbar_type = { NULL, progressbar_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL, NULL };
+static const struct WIDGET_TYPE vscrollbar_type = { NULL, vscrollbar_draw, vscrollbar_click, vscrollbar_drag, NULL, NULL, NULL, free_widget_info, NULL, NULL };
+static const struct WIDGET_TYPE tab_collection_type = { NULL, tab_collection_draw, tab_collection_click, NULL, NULL, tab_collection_resize, (int (*)())tab_collection_keypress, free_tab_collection, NULL, tab_collection_change_font };
+static const struct WIDGET_TYPE text_field_type = { NULL, text_field_draw, text_field_click, text_field_drag, NULL, text_field_resize, (int (*)())text_field_keypress, text_field_destroy, text_field_move, text_field_change_font };
+static const struct WIDGET_TYPE pword_field_type = { NULL, pword_field_draw, pword_field_click, NULL, NULL, NULL, (int (*)())pword_keypress, free_widget_info, NULL, NULL };
+static const struct WIDGET_TYPE multiselect_type = { NULL, multiselect_draw, multiselect_click, NULL, NULL, NULL, NULL, free_multiselect, NULL, NULL };
+static const struct WIDGET_TYPE spinbutton_type = { NULL, spinbutton_draw, spinbutton_click, spinbutton_click, NULL, NULL, (int (*)())spinbutton_keypress, free_multiselect, NULL, NULL };
 
 // <--- Common widget functions ---
 widget_list * widget_find(int window_id, Uint32 widget_id)
@@ -616,6 +621,29 @@ int widget_handle_keypress (widget_list *widget, int mx, int my, SDL_Keycode key
 	return res > -1 ? res : 0;
 }
 
+int widget_handle_font_change(widget_list *widget, font_cat cat)
+{
+	int res = 0;
+
+	if (widget->type && widget->type->font_change)
+	{
+		res = widget->type->font_change(widget, cat);
+	}
+	if (widget->OnFontChange)
+	{
+		if (widget->spec)
+		{
+			res |= widget->OnFontChange(widget, cat, widget->spec);
+		}
+		else
+		{
+			res |= widget->OnFontChange(widget, cat);
+		}
+	}
+
+	return res;
+}
+
 // --- End Common Widget Functions --->
 
 // Label
@@ -818,14 +846,39 @@ int safe_button_click(Uint32 *last_click)
 	return retvalue;
 }
 
+static int button_change_font(widget_list *W, font_cat cat)
+{
+	button *T;
+	Uint16 len_x, len_y;
+
+	if (!W || !(T = W->widget_info) || cat != UI_FONT)
+		return 0;
+	if (T->fixed_width && T->fixed_height)
+		return 0;
+
+	len_x = T->fixed_width
+		? T->fixed_width
+		: get_string_width_ui((const unsigned char*)T->text, W->size) + (int)(2 * BUTTONRADIUS * W->size + 0.5);
+	len_y = T->fixed_height
+		? T->fixed_height
+		: get_line_height(UI_FONT, W->size) + (int)(12 * W->size + 0.5);
+
+	return widget_resize(W->window_id, W->id, len_x, len_y);
+}
+
 int button_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, const char *text)
 {
-	Uint16 len_x = lx > 0 ? lx : (Uint16)(strlen(text) * DEFAULT_FONT_X_LEN * size) + 2*BUTTONRADIUS*size;
-	Uint16 len_y = ly > 0 ? ly : (Uint16)(DEFAULT_FONT_Y_LEN * size) + 12*size;
+	Uint16 len_x, len_y;
 	const struct WIDGET_TYPE *type = (Flags & BUTTON_SQUARE) ? &square_button_type : &round_button_type;
 
 	button *T = calloc (1, sizeof(button));
-	safe_snprintf (T->text, sizeof(T->text), "%s", text);
+	safe_strncpy(T->text, text, sizeof(T->text));
+	T->fixed_width = lx;
+	T->fixed_height = ly;
+
+	len_x = lx ? lx : get_string_width_ui((const unsigned char*)text, size)
+		+ (int)(2 * BUTTONRADIUS * size + 0.5);
+	len_y = ly ? ly : get_line_height(UI_FONT, size) + (int)(12 * size + 0.5);
 
 	return widget_add (window_id, wid, OnInit, x, y, len_x, len_y, Flags, size, r, g, b, type, T, NULL);
 }
@@ -833,15 +886,15 @@ int button_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Ui
 int button_resize(int window_id, Uint32 wid, Uint16 lx, Uint16 ly, float size)
 {
 	widget_list *w = widget_find(window_id, wid);
-	if (w)
-	{
-		button *l = (button *)w->widget_info;
-		Uint16 len_x = lx > 0 ? lx : (Uint16)(strlen(l->text) * DEFAULT_FONT_X_LEN * size) + 2 * BUTTONRADIUS * size;
-		Uint16 len_y = ly > 0 ? ly : (Uint16)(DEFAULT_FONT_Y_LEN * size) + (DEFAULT_FONT_X_LEN+1) * size;
-		w->size = size;
-		return widget_resize(window_id, wid, len_x, len_y);
-	}
-	return 0;
+	button *T;
+	if (!w || !(T = w->widget_info))
+		return 0;
+
+	if (lx) T->fixed_width = lx;
+	if (ly) T->fixed_height = ly;
+	w->size = size;
+
+	return button_change_font(w, UI_FONT);
 }
 
 int button_add(int window_id, int (*OnInit)(), const char *text, Uint16 x, Uint16 y)
@@ -1582,6 +1635,37 @@ static int tab_collection_click(widget_list *W, int x, int y, Uint32 flags)
 	return 0;
 }
 
+static int calc_tag_width(const Sint8* label, float size, int close_width)
+{
+	return size * DEFAULT_FONT_X_LEN
+			+ get_string_width_ui((const unsigned char*)label, size)
+			+ close_width;
+}
+
+static int tab_collection_change_font(widget_list *w, font_cat font)
+{
+	tab_collection *col;
+	int itab;
+
+	if (font != UI_FONT)
+		return 0;
+	if (!w || !(col = (tab_collection *)w->widget_info))
+		return 0;
+
+	col->tag_height = tab_collection_calc_tab_height(w->size);
+	col->button_size = (9 * col->tag_height) / 10;
+
+	for (itab = 0; itab < col->nr_tabs; ++itab)
+	{
+		Uint16 width = calc_tag_width(col->tabs[itab].label, w->size,
+			col->tabs[itab].closable ? col->tag_height : 0);
+		if (width > col->tabs[itab].min_tag_width)
+			col->tabs[itab].tag_width = width;
+	}
+
+	return 1;
+}
+
 int tab_collection_resize (widget_list *w, Uint32 width, Uint32 height)
 {
 	tab_collection *col;
@@ -1590,15 +1674,7 @@ int tab_collection_resize (widget_list *w, Uint32 width, Uint32 height)
 	if (w == NULL || (col = (tab_collection *) w->widget_info) == NULL)
 		return 0;
 
-	col->tag_height = tab_collection_calc_tab_height(w->size);
-	col->button_size = (9 * col->tag_height) / 10;
-
-	for (itab=0; itab<col->nr_tabs; itab++)
-	{
-		col->tabs[itab].tag_width = w->size * DEFAULT_FONT_X_LEN + get_string_width_ui((unsigned char*)col->tabs[itab].label, w->size);
-		if (col->tabs[itab].closable)
-			col->tabs[itab].tag_width += col->tag_height;
-	}
+	tab_collection_change_font(w, UI_FONT);
 
 	for (itab = 0; itab < col->nr_tabs; itab++)
 		resize_window (col->tabs[itab].content_id, width, height);
@@ -1739,14 +1815,14 @@ int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, 
 
 	if (tag_width > 0)
 	{
-		col->tabs[nr].tag_width = tag_width;
+		col->tabs[nr].tag_width = col->tabs[nr].min_tag_width = tag_width;
 	}
 	else
 	{
 		// compute tag width from label width
-		col->tabs[nr].tag_width = w->size * DEFAULT_FONT_X_LEN + get_string_width_ui((unsigned char*)col->tabs[nr].label, w->size);
-		if (col->tabs[nr].closable)
-			col->tabs[nr].tag_width += col->tag_height;
+		col->tabs[nr].min_tag_width = 0;
+		col->tabs[nr].tag_width = calc_tag_width(col->tabs[nr].label, w->size,
+			col->tabs[nr].closable ? col->tag_height : 0);
 	}
 
 	// set label color to default values
@@ -3078,14 +3154,13 @@ int text_field_clear(int window_id, Uint32 widget_id)
 	return 1;
 }
 
-void text_field_force_rewrap(int window_id, Uint32 widget_id)
+static int text_field_change_font(widget_list *w, font_cat cat)
 {
-	widget_list *w = widget_find(window_id, widget_id);
 	text_field *tf;
 	int i, nr_lines = 0;
 
-	if (!w || !(tf = w->widget_info))
-		return;
+	if (!w || !(tf = w->widget_info) || tf->font != cat)
+		return 0;
 
 	for (i = 0; i < tf->buf_size; i++)
 	{
@@ -3094,7 +3169,9 @@ void text_field_force_rewrap(int window_id, Uint32 widget_id)
 		nr_lines += rewrap_message(tf->buffer+i, tf->font, w->size,
 			w->len_x - 2*tf->x_space - tf->scrollbar_width, cursor);
 	}
-	_text_field_set_nr_lines (w, nr_lines);
+	_text_field_set_nr_lines(w, nr_lines);
+
+	return 1;
 }
 
 //password entry field. We act like a restricted text entry with multiple modes

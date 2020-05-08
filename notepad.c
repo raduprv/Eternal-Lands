@@ -974,20 +974,6 @@ static int resize_notepad_handler(window_info *win, int new_width, int new_heigh
 	return 0;
 }
 
-static int change_notepad_font_handler(window_info *win, font_cat cat)
-{
-	if (cat == NOTE_FONT)
-	{
-		int i;
-
-		for (i = 0; i < nr_notes; ++i)
-			text_field_force_rewrap(note_list[i].window, note_list[i].input);
-		return 1;
-	}
-
-	return 0;
-}
-
 void fill_notepad_window(int window_id)
 {
 	int i;
@@ -996,7 +982,6 @@ void fill_notepad_window(int window_id)
 	set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_notepad_handler);
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_buttonwin_handler);
 	set_window_handler(window_id, ELW_HANDLER_RESIZE, &resize_notepad_handler );
-	set_window_handler(window_id, ELW_HANDLER_FONT_CHANGE, change_notepad_font_handler);
 
 	note_tabcollection_id = tab_collection_add (window_id, NULL, 0, 0, 0, 0);
 	widget_set_color (window_id, note_tabcollection_id, 0.77f, 0.57f, 0.39f);
