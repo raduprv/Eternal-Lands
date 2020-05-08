@@ -1354,6 +1354,16 @@ void draw_string_shadowed_zoomed(int x, int y, const unsigned char* text,
 	FontManager::get_instance().draw(FontManager::Category::UI_FONT, text,
 		strlen(reinterpret_cast<const char*>(text)), x, y, options);
 }
+void draw_string_shadowed_zoomed_centered(int x, int y, const unsigned char* text,
+	int max_lines, float fr, float fg, float fb, float br, float bg, float bb,
+	float zoom)
+{
+	TextDrawOptions options = TextDrawOptions().set_max_lines(max_lines)
+		.set_shadow().set_foreground(fr, fg, fb).set_background(br, bg, bb)
+		.set_zoom(zoom).set_alignment(TextDrawOptions::Alignment::CENTER);
+	FontManager::get_instance().draw(FontManager::Category::UI_FONT, text,
+		strlen(reinterpret_cast<const char*>(text)), x, y, options);
+}
 void draw_string_shadowed_zoomed_right(int x, int y, const unsigned char* text,
 	int max_lines, float fr, float fg, float fb, float br, float bg, float bb,
 	float zoom)
