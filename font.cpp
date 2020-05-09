@@ -107,8 +107,8 @@ Font::Font(size_t i): _font_name(), _file_name(), _flags(0),
 	_texture_width(256), _texture_height(256),
 	_char_widths(), _texture_coordinates(),
 	_block_width(font_block_width), _block_height(font_block_height),
-	_line_height(std::round(12.0 * default_line_height / 11)), _spacing(0),
-	_scale(11.0 / 12)
+	_line_height(std::round(12.0 * default_line_height / 11)),
+	_max_char_width(12), _spacing(0), _scale(11.0 / 12)
 {
 	static const std::array<const char*, 7> file_names = { {
 		"textures/font.dds",
@@ -204,9 +204,8 @@ Font::Font(size_t i): _font_name(), _file_name(), _flags(0),
 
 #ifdef TTF
 Font::Font(const std::string& ttf_file_name): _font_name(), _file_name(), _flags(0),
-	_texture_width(0), _texture_height(0),
-	_char_widths(), _texture_coordinates(),
-	_block_width(0), _block_height(0), _spacing(0), _scale(1.0)
+	_texture_width(0), _texture_height(0), _char_widths(), _texture_coordinates(),
+	_block_width(0), _block_height(0), _max_char_width(0), _spacing(0), _scale(1.0)
 {
 	TTF_Font *font = TTF_OpenFont(ttf_file_name.c_str(), ttf_point_size);
 	if (!font)
@@ -280,6 +279,11 @@ int Font::width_spacing_pos(int pos, float zoom) const
 		return 0;
 	// return width of character + spacing between chars (supports variable width fonts)
 	return std::round((_char_widths[pos] + _spacing) * _scale * zoom);
+}
+
+int Font::max_width_spacing(float zoom) const
+{
+	return std::round((_max_char_width + _spacing) * _scale * zoom);
 }
 
 int Font::height(float zoom) const
@@ -1121,6 +1125,7 @@ bool Font::build_texture_atlas()
 	_block_width = size;
 	_block_height = size;
 	_line_height = _block_height;
+	_max_char_width = *std::max_element(_char_widths.begin(), _char_widths.end());
 	_scale = float(font_block_height) / size;
 	_flags |= Flags::HAS_TEXTURE;
 
@@ -1251,6 +1256,10 @@ int initialize_fonts()
 int get_char_width_zoom(unsigned char c, font_cat cat, float zoom)
 {
 	return FontManager::get_instance().width_spacing(cat, c, zoom);
+}
+int get_max_char_width_zoom(font_cat cat, float zoom)
+{
+	return FontManager::get_instance().max_width_spacing(cat, zoom);
 }
 int get_buf_width_zoom(const unsigned char* str, size_t len, font_cat cat, float zoom)
 {
