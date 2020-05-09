@@ -50,9 +50,9 @@ static int emotes_rect_y2 = 0;
 static int border_space = 0;
 static int inbox_space = 0;
 static int top_border = 0;
+static int box_width = 0;
 static int box_sep = 0;
 static int category_y_step = 0;
-static int help_width_in_char = 0;
 static int EMOTES_SCROLLBAR_ITEMS = 1001;
 
 static int cur_cat=0;
@@ -113,29 +113,18 @@ static void update_selectables(void)
 		}
 	}
 
-	emote_str1[1]=emote_str2[0]=emote_str2[1]=0;
+	emote_str1[1] = emote_str2[0] = 0;
 	if(emote_sel[cur_cat]){
-		emote_dict *emd;
-
-		// the window width is maintained during scaling so that the box is always help_width_in_char wide
-		put_small_colored_text_in_box_zoomed(c_orange2, (const unsigned char*)emote_sel[cur_cat]->desc,
-			strlen(emote_sel[cur_cat]->desc), help_width_in_char * SMALL_FONT_X_LEN,
-			emote_str1, 1.0);
+		put_small_colored_text_in_box_zoomed(c_orange2,
+			(const unsigned char*)emote_sel[cur_cat]->desc,
+			strlen(emote_sel[cur_cat]->desc), box_width, emote_str1, 1.0);
 		hash_start_iterator(emote_cmds);
 		while((he=hash_get_next(emote_cmds))){
-			emd = (emote_dict*)he->item;
-			if (emd->emote==emote_sel[cur_cat]){
-				int ll;
-				//draw command
-				if(!emote_str2[0]) {
-					emote_str2[0]=127+c_grey1;
-					safe_strcat((char*)emote_str2,"Trigger:",10);
-				}
-				ll=strlen((char*)emote_str2);
-				emote_str2[ll]=127+c_green3;
-				emote_str2[ll+1]=emote_str2[ll+2]=' ';
-				emote_str2[ll+3]=0;
-				safe_strcat((char*)emote_str2,emd->command,help_width_in_char+2);
+			const emote_dict *emd = (const emote_dict*)he->item;
+			if (emd->emote==emote_sel[cur_cat])
+			{
+				safe_snprintf((char*)emote_str2, sizeof(emote_str2), "%cTrigger: %c%s",
+					127+c_grey1, 127+c_green3, emd->command);
 				break; //just one command
 			}
 		}
@@ -246,9 +235,31 @@ static int click_emotes_handler(window_info *win, int mx, int my, Uint32 flags)
 	return 0;
 }
 
-int ui_scale_emotes_handler(window_info *win)
+static int ui_scale_emotes_handler(window_info *win)
 {
-	int box_width = win->small_font_len_x * 20;
+	float zoom = win->current_scale * DEFAULT_SMALL_RATIO;
+	int trigger_width = get_string_width_ui((const unsigned char*)"Trigger: ", zoom);
+	emote_dict *emd;
+	hash_entry *he;
+
+	box_width = 0;
+	hash_start_iterator(emote_cmds);
+	while ((he = hash_get_next(emote_cmds)))
+	{
+		emd = (emote_dict*)he->item;
+		if (emd->emote)
+		{
+			int width = get_string_width_ui((const unsigned char*)emd->emote->name, zoom);
+			if (width > box_width)
+				box_width = width;
+			width = 6 * get_string_width_ui((const unsigned char*)emd->emote->desc, zoom) / 10;
+			if (width > box_width)
+				box_width = width;
+			width = trigger_width + get_string_width_ui((const unsigned char*)emd->command, zoom);
+			if (width > box_width)
+				box_width = width;
+		}
+	}
 
 	inbox_space = (int)(0.5 + win->current_scale * 2);
 	border_space = (int)(0.5 + win->current_scale * 5);
@@ -260,7 +271,6 @@ int ui_scale_emotes_handler(window_info *win)
 	emotes_rect_y = 2 * inbox_space + category_y_step * EMOTES_CATEGORIES;
 	emotes_rect_x2 = 2 * inbox_space + box_width;
 	emotes_rect_y2 = 2 * inbox_space + category_y_step * EMOTES_SHOWN;
-	help_width_in_char = (int)(0.5 + (float)(emotes_rect_x2 + win->box_size) / win->small_font_len_x);
 
 	resize_window(win->window_id, emotes_rect_x2 + win->box_size + 2 * border_space,
 		top_border + emotes_rect_y + box_sep + emotes_rect_y2 + 3 * win->small_font_len_y + 2 * border_space);
@@ -269,6 +279,14 @@ int ui_scale_emotes_handler(window_info *win)
 	widget_move(win->window_id, EMOTES_SCROLLBAR_ITEMS, emotes_rect_x2 + border_space, emotes_rect_y + top_border + box_sep);
 
 	return 0;
+}
+
+static int change_emotes_font_handler(window_info* win, font_cat cat)
+{
+	if (cat != UI_FONT)
+		return 0;
+	ui_scale_emotes_handler(win);
+	return 1;
 }
 
 void display_emotes_menu(void)
@@ -286,6 +304,7 @@ void display_emotes_menu(void)
 		set_window_handler(emotes_win, ELW_HANDLER_DISPLAY, &display_emotes_handler );
 		set_window_handler(emotes_win, ELW_HANDLER_CLICK, &click_emotes_handler );
 		set_window_handler(emotes_win, ELW_HANDLER_UI_SCALE, &ui_scale_emotes_handler );
+		set_window_handler(emotes_win, ELW_HANDLER_FONT_CHANGE, &change_emotes_font_handler);
 
 		num_emotes = 0;
 		hash_start_iterator(emotes);
