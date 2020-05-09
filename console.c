@@ -1591,6 +1591,27 @@ int command_keypress(char *text, int len)
 }
 
 
+//	Set the number of items to transfer
+//
+int command_quantity(char *text, int len)
+{
+	char str[80];
+	int calcerr;
+	double res = calc_exp(text, &calcerr);
+	if ((calcerr != CALCERR_OK) || (res < 1.0) || (res > (double)INT_MAX))
+		LOG_TO_CONSOLE(c_red1, um_invalid_command_str);
+	else
+	{
+		// set the quantity to the result of the calculation, truncated
+		quantities.selected = ITEM_EDIT_QUANT;
+		item_quantity = quantities.quantity[ITEM_EDIT_QUANT].val = (int)res;
+		safe_snprintf(str, sizeof(str), "%s %d", quantity_str, item_quantity);
+		LOG_TO_CONSOLE(c_green1, str);
+	}
+	return 1;
+}
+
+
 void save_local_data(void)
 {
 	save_bin_cfg();
@@ -1788,6 +1809,8 @@ add_command("horse", &horse_cmd);
 	add_command(cmd_relogin, &command_relogin);
 	add_command(cmd_disconnect, &command_disconnect);
 	add_command(cmd_disco, &command_disconnect);
+	add_command("q", &command_quantity);
+	add_command(quantity_str, &command_quantity);
 	add_command("change_pass", &command_change_pass);
 	command_buffer_offset = NULL;
 }
