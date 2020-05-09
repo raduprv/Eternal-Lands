@@ -30,6 +30,7 @@
 
 #include "asc.h"
 #include "context_menu.h"
+#include "cursors.h"
 #include "elconfig.h"
 #include "errors.h"
 #include "font.h"
@@ -1131,6 +1132,8 @@ CHECK_GL_ERRORS();
 	//
 	int List_Window::mouseover(window_info *win, int mx, int my)
 	{
+		int ret_value = 0;
+
 		if ((my < 0) || (cm_window_shown()!=CM_INIT_VALUE))
 			return 0;
 
@@ -1147,6 +1150,8 @@ CHECK_GL_ERRORS();
 				help_str.push_back(item_list_pickup_help_str);
 				help_str.push_back(item_list_use_help_str);
 				help_str.push_back(item_list_edit_help_str);
+				elwin_mouse = CURSOR_PICK;
+				ret_value = 1;
 			}
 			if ((storage_item_dragged != -1) || (item_dragged != -1))
 				help_str.push_back(item_list_add_help_str);
@@ -1175,7 +1180,7 @@ CHECK_GL_ERRORS();
 				help_str.push_back((items_list_disable_find_list) ?item_list_find_help_disabled_str :item_list_find_help_str);
 		}
 
-		return 0;
+		return ret_value;
 	}
 
 
