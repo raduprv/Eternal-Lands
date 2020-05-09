@@ -401,9 +401,10 @@ static void change_show_action_bar(int * var)
 static void change_minimap_scale(float * var, float * value)
 {
 	int shown = 0;
+	float last_minimap_size_coefficient = minimap_size_coefficient;
 	*var= *value;
 	minimap_size_coefficient = ((disable_auto_highdpi_scale)) ? *var : get_highdpi_scale() * *var;
-	if (minimap_win>=0)
+	if ((last_minimap_size_coefficient != minimap_size_coefficient) && minimap_win >= 0)
 	{
 		shown = get_show_window(minimap_win);
 		minimap_win_x = windows_list.window[minimap_win].cur_x;
