@@ -1161,7 +1161,7 @@ static int display_spells_mini_handler(window_info *win)
 		}
 	
 	//draw spell help
-	if(on_spell==-2) {
+	if(on_spell==-2 && spells_list[we_have_spell].uncastable) {
 		//mouse over the bottom-left selected spell icon, show uncastability
 		int l=(int)(get_string_width((unsigned char*)GET_UNCASTABLE_STR(spells_list[we_have_spell].uncastable))*(float)DEFAULT_SMALL_RATIO * win->current_scale);
 		SET_COLOR(c_red2);
@@ -1479,7 +1479,9 @@ static int mouseover_spells_handler(window_info *win, int mx, int my){
 	if(mx > spell_border && mx < spell_border + spell_grid_size &&
 			my > spell_engred_y && my < spell_engred_y + spell_grid_size && we_have_spell >= 0) {
 		safe_snprintf((char*)raw_spell_text, sizeof(raw_spell_text), "Left click to cast\nRight click to add the quick spells bar");
+		elwin_mouse = CURSOR_WAND;
 		have_error_message=0;
+		return 1;
 	}
 	return 0;
 }
@@ -1505,7 +1507,9 @@ static int mouseover_spells_mini_handler(window_info *win, int mx, int my)
 	} else if(mx > spell_mini_border && mx < spell_mini_border + spell_mini_grid_size &&
 				my > win->len_y - spell_mini_grid_size - spell_mini_border && my < win->len_y - spell_mini_border && we_have_spell >= 0) {
 		//check spell icon
+		elwin_mouse = CURSOR_WAND;
 		on_spell=-2; //draw uncastability reason
+		return 1;
 	}
 	return 0;
 }
