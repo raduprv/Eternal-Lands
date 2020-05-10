@@ -360,49 +360,6 @@ int enlarge_text(void)
 	return ((SDL_GetModState() & (KMOD_CTRL|KMOD_ALT)));
 }
 
-void show_help_coloured_scaled(const char *help_message, int x, int y, float r, float g, float b, int use_big_font, float size)
-{
-	int y_font_len = 0;
-	int len = 0;
-	int width=window_width-80;
-	float zoom = use_big_font ? size : size * DEFAULT_SMALL_RATIO;
-
-	y_font_len = get_line_height(UI_FONT, zoom);
-	len = get_string_width_ui((const unsigned char*)help_message, zoom) + 1;
-
-	if(x+len>width) x-=(x+len)-width;
-
-	glColor4f(0.0f,0.0f,0.0f,0.5f);
-	glDisable(GL_TEXTURE_2D);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_BLEND);
-	glBegin(GL_QUADS);
-	glVertex3i(x-1,y+y_font_len,0);
-	glVertex3i(x-1,y,0);
-	glVertex3i(x+len,y,0);
-	glVertex3i(x+len,y+y_font_len,0);
-	glEnd();
-
-	glDisable(GL_BLEND);
-	glEnable(GL_TEXTURE_2D);
-
-	glColor3f(r,g,b);
-	draw_string_zoomed(x, y, (const unsigned char*)help_message, 1, zoom);
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
-}
-
-void show_help(const char *help_message, int x, int y, float scale)
-{
-	show_help_coloured_scaled(help_message, x, y, 1.0f, 1.0f, 1.0f, 0, scale);
-}
-
-void show_help_big(const char *help_message, int x, int y, float scale)
-{
-	show_help_coloured_scaled(help_message, x, y, 1.0f, 1.0f, 1.0f, 1, scale);
-}
-
 void build_levels_table()
 {
 	int i;

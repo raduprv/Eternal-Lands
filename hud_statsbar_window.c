@@ -90,7 +90,7 @@ static int calc_max_disp_stats(int suggested_stats_bar_len)
 /* draws damage and heal above the health bar */
 static void draw_last_health_change(window_info *win)
 {
-	char str[20];
+	unsigned char str[20];
 	static const Uint32 timeoutms = 2*60*1000;
 	const int yoff = -(HUD_MARGIN_Y + win->small_font_len_y + 1 - (window_height - win->cur_y));
 	/* damage in red */
@@ -100,8 +100,8 @@ static void draw_last_health_change(window_info *win)
 			my_last_health.d = 0;
 		else
 		{
-			safe_snprintf(str, sizeof(str), " %d ", my_last_health.d);
-			show_help_coloured_scaled(str, health_bar_start_x+stats_bar_len/2-strlen(str)*win->small_font_len_x-2, yoff, 1.0f, 0.0f, 0.0f, 0, win->current_scale);
+			safe_snprintf((char*)str, sizeof(str), " %d ", my_last_health.d);
+			show_help_coloured_scaled_right(str, health_bar_start_x+stats_bar_len/2-2, yoff, 1.0f, 0.0f, 0.0f, win->current_scale * DEFAULT_SMALL_RATIO);
 		}
 	}
 	/* heal in green */
@@ -111,8 +111,8 @@ static void draw_last_health_change(window_info *win)
 			my_last_health.h = 0;
 		else
 		{
-			safe_snprintf(str, sizeof(str), " %d ", my_last_health.h);
-			show_help_coloured_scaled(str, health_bar_start_x+stats_bar_len/2+2, yoff, 0.0f, 1.0f, 0.0f, 0, win->current_scale);
+			safe_snprintf((char*)str, sizeof(str), " %d ", my_last_health.h);
+			show_help_coloured_scaled(str, health_bar_start_x+stats_bar_len/2+2, yoff, 0.0f, 1.0f, 0.0f, win->current_scale * DEFAULT_SMALL_RATIO);
 		}
 	}
 }

@@ -81,6 +81,7 @@ public:
 	Alignment alignment() const { return _alignment; }
 	bool shadow() const { return _shadow; }
 	bool ignore_color() const { return _ignore_color; }
+	bool is_help() const { return _is_help; }
 
 	bool has_foreground_color() const { return _fg_r >= 0.0; }
 	bool has_background_color() const { return _bg_r >= 0.0; }
@@ -149,6 +150,12 @@ public:
 		return *this;
 	}
 
+	TextDrawOptions& set_help(bool is_help=true)
+	{
+		_is_help = is_help;
+		return *this;
+	}
+
 	void use_foreground_color() const;
 	void use_background_color() const;
 
@@ -162,6 +169,7 @@ private:
 	float _fg_r, _fg_g, _fg_b;
 	float _bg_r, _bg_g, _bg_b;
 	bool _ignore_color;
+	bool _is_help;
 };
 
 class Font
@@ -529,6 +537,17 @@ private:
 	 * 	invalid characters
 	 */
 	int draw_char(unsigned char c, int x, int y, float zoom, bool ignore_color) const;
+	/*!
+	 * Draw background for help texts
+	 *
+	 * Draw a semi-transparent background box for tooltips.
+	 *
+	 * \param x      The x coordinate of the left side of the box
+	 * \param y      The y coordinate of the top of the box
+	 * \param width  The width of the box in pixels
+	 * \param height The height of the box in pixels
+	 */
+	void draw_help_background(int x, int y, int width, int height) const;
 	/*!
 	 * Draw a single line of text
 	 *
@@ -998,6 +1017,50 @@ static __inline__ void draw_string_small_shadowed_zoomed_centered(int x, int y,
 {
 	draw_string_shadowed_zoomed_centered(x, y, text, max_lines,
 		fr, fg, fb, br, bg, bb, zoom * DEFAULT_SMALL_RATIO);
+}
+
+void show_help_coloured_scaled(const unsigned char *text, int x, int y,
+	float r, float g, float b, float text_zoom);
+void show_help_coloured_scaled_centered(const unsigned char *text, int x, int y,
+	float r, float g, float b, float text_zoom);
+void show_help_coloured_scaled_right(const unsigned char *text, int x, int y,
+	float r, float g, float b, float text_zoom);
+/*!
+ * \ingroup font
+ * \brief Shows a help message in small font
+ *
+ * Shows the help message \a text at position (\a x, \a y) using a small font
+ * size. The message is drawn on a semi-transparent background.
+ *
+ * \param text   the help message to show
+ * \param x      the x coordinate of the left of the help message
+ * \param y      the y coordinate of the top of the help message
+ * \param scale  the scale for the text size
+ *
+ * \callgraph
+ */
+static __inline__ void show_help(const char *text, int x, int y, float scale)
+{
+	show_help_coloured_scaled((const unsigned char*)text, x, y, 1.0f, 1.0f, 1.0f,
+		scale * DEFAULT_SMALL_RATIO);
+}
+/*!
+ * \ingroup font
+ * \brief Shows a help message in normal font
+ *
+ * Shows the help message \a text at position (\a x, \a y) using the normal
+ * font size. The message is drawn on a semi-transparent background.
+ *
+ * \param text   the help message to show
+ * \param x      the x coordinate of the left of the help message
+ * \param y      the y coordinate of top of the help message
+ * \param scale  the scale for the text size
+ *
+ * \callgraph
+ */
+static __inline__ void show_help_big(const char *text, int x, int y, float scale)
+{
+	show_help_coloured_scaled((const unsigned char*)text, x, y, 1.0f, 1.0f, 1.0f, scale);
 }
 
 void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter,

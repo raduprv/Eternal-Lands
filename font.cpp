@@ -84,7 +84,7 @@ float FontManager::font_scales[NR_FONT_CATS] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 TextDrawOptions::TextDrawOptions(): _max_width(window_width), _max_lines(0),
 	_zoom(1.0), _line_spacing(1.0), _alignment(LEFT), _shadow(false),
 	_fg_r(-1.0), _fg_g(-1.0), _fg_b(-1.0), _bg_r(-1.0), _bg_g(-1.0), _bg_b(-1.0),
-	_ignore_color(false) {}
+	_ignore_color(false), _is_help(false) {}
 
 void TextDrawOptions::use_background_color() const
 {
@@ -509,6 +509,30 @@ int Font::draw_char(unsigned char c, int x, int y, float zoom, bool ignore_color
 	return char_width;
 }
 
+void Font::draw_help_background(int x, int y, int width, int height) const
+{
+	// We're currently inside a GL_QUADS loop (for drawing characters). End that,
+	// draw the background, and start a new one
+	glEnd();
+
+	glDisable(GL_TEXTURE_2D);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+
+	glColor4f(0.0f, 0.0f, 0.0f, 0.5f);
+	glBegin(GL_QUADS);
+	glVertex3i(x - 1,     y + height, 0);
+	glVertex3i(x - 1,     y,          0);
+	glVertex3i(x + width, y,          0);
+	glVertex3i(x + width, y + height, 0);
+	glEnd();
+
+	glDisable(GL_BLEND);
+	glEnable(GL_TEXTURE_2D);
+
+	glBegin(GL_QUADS);
+}
+
 void Font::draw_line(const unsigned char* text, size_t len, int x, int y,
 	const TextDrawOptions &options) const
 {
@@ -645,21 +669,20 @@ CHECK_GL_ERRORS();
 
 		const unsigned char* line = text + start + range.first;
 		size_t clipped_line_len = range.second - range.first;
+		int x_left;
 
-		if (before_color)
-			set_color(from_color_char(before_color));
 		switch (options.alignment())
 		{
-			case TextDrawOptions::Alignment::LEFT:
-				draw_line(line, clipped_line_len, x, y, options);
-				break;
-			case TextDrawOptions::Alignment::CENTER:
-				draw_line(line, clipped_line_len, x - line_width/2, y, options);
-				break;
-			case TextDrawOptions::Alignment::RIGHT:
-				draw_line(line, clipped_line_len, x - line_width, y, options);
-				break;
+			case TextDrawOptions::Alignment::LEFT:   x_left = x; break;
+			case TextDrawOptions::Alignment::CENTER: x_left = x - line_width / 2; break;
+			case TextDrawOptions::Alignment::RIGHT:  x_left = x - line_width; break;
 		}
+
+		if (options.is_help())
+			draw_help_background(x_left, y, line_width, line_height);
+		if (before_color)
+			set_color(from_color_char(before_color));
+		draw_line(line, clipped_line_len, x_left, y, options);
 		if (after_color)
 			set_color(from_color_char(after_color));
 
@@ -1393,6 +1416,36 @@ void draw_string_shadowed_width(int x, int y, const unsigned char* text,
 		.set_max_width(max_width).set_max_lines(max_lines)
 		.set_shadow().set_foreground(fr, fg, fb).set_background(br, bg, bb)
 		.set_zoom(float(max_width) / text_width);
+	FontManager::get_instance().draw(FontManager::Category::UI_FONT, text,
+		strlen(reinterpret_cast<const char*>(text)), x, y, options);
+}
+
+void show_help_coloured_scaled(const unsigned char *text, int x, int y,
+	float r, float g, float b, float text_zoom)
+{
+	TextDrawOptions options = TextDrawOptions().set_help()
+		.set_max_width(window_width - 80).set_foreground(r, g, b)
+		.set_zoom(text_zoom);
+	FontManager::get_instance().draw(FontManager::Category::UI_FONT, text,
+		strlen(reinterpret_cast<const char*>(text)), x, y, options);
+}
+
+void show_help_coloured_scaled_centered(const unsigned char *text, int x, int y,
+	float r, float g, float b, float text_zoom)
+{
+	TextDrawOptions options = TextDrawOptions().set_help()
+		.set_max_width(window_width - 80).set_foreground(r, g, b)
+		.set_alignment(TextDrawOptions::Alignment::CENTER).set_zoom(text_zoom);
+	FontManager::get_instance().draw(FontManager::Category::UI_FONT, text,
+		strlen(reinterpret_cast<const char*>(text)), x, y, options);
+}
+
+void show_help_coloured_scaled_right(const unsigned char *text, int x, int y,
+	float r, float g, float b, float text_zoom)
+{
+	TextDrawOptions options = TextDrawOptions().set_help()
+		.set_max_width(window_width - 80).set_foreground(r, g, b)
+		.set_alignment(TextDrawOptions::Alignment::RIGHT).set_zoom(text_zoom);
 	FontManager::get_instance().draw(FontManager::Category::UI_FONT, text,
 		strlen(reinterpret_cast<const char*>(text)), x, y, options);
 }

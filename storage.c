@@ -449,17 +449,15 @@ int storage_item_dragged=-1;
 
 static int post_display_storage_handler(window_info * win)
 {
-	if(cur_item_over!=-1 && mouse_in_window(win->window_id, mouse_x, mouse_y) == 1){
-		char str[20];
-		if (active_storage_item!=storage_items[cur_item_over].pos) {
-			safe_snprintf(str, sizeof(str), "%d",storage_items[cur_item_over].quantity);
-			if (enlarge_text())
-				show_help_big(str, mouse_x - win->pos_x - strlen(str) * win->default_font_len_x / 2,
-					mouse_y - win->pos_y - win->default_font_len_y, win->current_scale);
-			else
-				show_help(str, mouse_x - win->pos_x - strlen(str) * win->small_font_len_x / 2,
-					mouse_y - win->pos_y - win->small_font_len_y, win->current_scale);
-		}
+	if (cur_item_over !=- 1 && mouse_in_window(win->window_id, mouse_x, mouse_y) == 1
+		&& active_storage_item != storage_items[cur_item_over].pos)
+	{
+		float zoom = win->current_scale * (enlarge_text() ? 1.0 : DEFAULT_SMALL_RATIO);
+		float line_height = enlarge_text() ? win->default_font_len_y : win->small_font_len_y;
+		unsigned char str[20];
+		safe_snprintf((char*)str, sizeof(str), "%d",storage_items[cur_item_over].quantity);
+		show_help_coloured_scaled_centered(str, mouse_x - win->pos_x,
+			mouse_y - win->pos_y - line_height, 1.0f, 1.0f, 1.0f, zoom);
 	}
 
 	if(active_storage_item >= 0) {
