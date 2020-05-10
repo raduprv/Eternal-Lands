@@ -20,6 +20,7 @@ parts:
     source-checksum: sha256/e109cd4a9d1d463a62f0a81d7c6719ecd780a52fb80a22b901ed5b6fe43fb45b
     source-subdir: json-3.7.3
     plugin: cmake
+    configflags: ["-DJSON_BuildTests=Off" ]
 
   desktop-glib-only:
     source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
