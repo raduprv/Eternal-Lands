@@ -42,7 +42,6 @@ static Uint32 loading_texture_handle;
 static Uint32 use_snapshot = 0;
 static unsigned char text_buffer[255] = {0};
 static char version_str[250] = {0};
-static int version_width;
 static int progressbar_len = 0;
 static int progressbar_height = 0;
 
@@ -93,9 +92,10 @@ static int display_loading_win_handler(window_info *win)
 	// the last texture, so that the font will be loaded
 	last_texture = -1;
 	glColor3f (1.0, 1.0, 1.0);
-	draw_string_zoomed((win->len_x - version_width) / 2, (win->len_y * 2) / 3 - win->default_font_len_y - 2, (unsigned char*)version_str, 1, win->current_scale);
-	draw_string_small_zoomed((win->len_x - get_string_width_ui(text_buffer, win->small_font_len_x/12))/2,
-		(win->len_y*2)/3 + progressbar_height + 2, text_buffer, 1, win->current_scale);
+	draw_string_zoomed_centered(win->len_x / 2, (win->len_y * 2) / 3 - win->default_font_len_y - 2,
+		(const unsigned char*)version_str, 1, win->current_scale);
+	draw_string_small_zoomed_centered(win->len_x / 2, (win->len_y * 2) / 3 + progressbar_height + 2,
+		text_buffer, 1, win->current_scale);
 
 	glDisable(GL_TEXTURE_2D);
 #ifdef OPENGL_TRACE
@@ -183,8 +183,6 @@ int create_loading_win (int width, int height, int snapshot)
 			use_snapshot = 0;
 
 			get_version_string (version_str, sizeof (version_str));
-			version_width = get_string_width_ui((unsigned char*)version_str,
-				(float)win->default_font_len_x / 12);
 		}
 	}
 

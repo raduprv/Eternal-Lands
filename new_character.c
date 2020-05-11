@@ -269,7 +269,8 @@ static int display_advice_handler (window_info *win)
 	// Place centred, just down from the top of the screen.
 	if ((lastw!=window_width) || (lasth!=window_height) || (last_scale != win->current_scale))
 	{
-		int len_x = (int)(2*sep + strlen(newchar_warning) * win->default_font_len_x);
+		int len_x = 2 * sep
+			+ get_string_width_ui((const unsigned char*)newchar_warning, win->current_scale);
 		int len_y = (int)(2*sep + win->default_font_len_y);
 		int pos_x = (int)((window_width - len_x - hud_x) / 2);
 		resize_window(win->window_id, len_x, len_y);
@@ -309,40 +310,26 @@ static int display_advice_handler (window_info *win)
 	// Either always on or 1 in 4 off.
 	if (!flash || (flash & 3))
 	{
-		int len = strlen(help_str);
-		int x = (int)((win->len_x - len * win->small_font_len_x)/2);
+		int width = get_string_width_ui((const unsigned char*)help_str,
+			win->current_scale * DEFAULT_SMALL_RATIO);
 		int y = window_height - HUD_MARGIN_Y - 2*sep - win->small_font_len_y;
-		if(x >= -win->cur_x) //Does everything fit in one line?
+		if (width < window_width - hud_x) //Does everything fit in one line?
 		{
-			show_help(help_str, x, y, win->current_scale);
+			show_help_colored_scaled_centered((const unsigned char*)help_str,
+				win->len_x / 2, y, 1.0f, 1.0f, 1.0f, win->current_scale * DEFAULT_SMALL_RATIO);
 		}
 		else
 		{
-			int i;
+			size_t i, len = strlen(help_str);
 			for(i = len/2; i<=len; i++) //Find first space after the middle of the text
 			{
 				if(help_str[i] == ' ')
 					break;
 			}
-			help_str[i] = 0;
-			y -= 2 + win->small_font_len_y;
-			x = (win->len_x - i*win->small_font_len_x)/2;
-			glColor4f(0.0f,0.0f,0.0f,0.5f);
-			glDisable(GL_TEXTURE_2D);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			glEnable(GL_BLEND);
-			glBegin(GL_QUADS);
-			glVertex3i(x - 1,y + 2 + 2*win->small_font_len_y, 0);
-			glVertex3i(x - 1,y,0);
-			glVertex3i(x + i*win->small_font_len_x, y, 0);
-			glVertex3i(x + i*win->small_font_len_x, y + 2 + 2*win->small_font_len_y, 0);
-			glEnd();
-			glDisable(GL_BLEND);
-			glEnable(GL_TEXTURE_2D);
-
-			glColor3f(1.0f,1.0f,1.0f);
-			draw_string_small_zoomed(x, y, (unsigned char*)help_str, 1, win->current_scale);
-			draw_string_small_zoomed((win->len_x - (len - i - 1)*win->small_font_len_x)/2, y + 2 + win->small_font_len_y, (unsigned char*)(help_str + i + 1), 1, win->current_scale);
+			help_str[i] = '\r';
+			show_help_colored_scaled_centered((const unsigned char*)help_str,
+				win->len_x / 2, y - win->small_font_len_y, 1.0f, 1.0f, 1.0f,
+				win->current_scale * DEFAULT_SMALL_RATIO);
 			help_str[i] = ' ';
 		}
 	}
@@ -489,9 +476,9 @@ static int display_newchar_handler (window_info *win)
 	glColor3f(251/255.0f, 250/255.0f, 190/255.0f);
 	{
 		int y_off = win->len_y - HUD_MARGIN_Y + (HUD_MARGIN_Y - 2 * win->small_font_len_y) / 2;
-		draw_string_small_zoomed(get_icons_win_active_len() + win->small_font_len_x, y_off, (unsigned char*)zoom_in_out, 1, win->current_scale);
+		draw_string_small_zoomed(get_icons_win_active_len() + win->small_font_max_len_x, y_off, (unsigned char*)zoom_in_out, 1, win->current_scale);
 		y_off += win->small_font_len_y;
-		draw_string_small_zoomed(get_icons_win_active_len() + win->small_font_len_x, y_off, (unsigned char*)rotate_camera, 1, win->current_scale);
+		draw_string_small_zoomed(get_icons_win_active_len() + win->small_font_max_len_x, y_off, (unsigned char*)rotate_camera, 1, win->current_scale);
 	}
 
 	Leave2DMode ();
@@ -1082,7 +1069,8 @@ static int mouseover_newchar_book_handler(widget_list *w, int mx, int my)
 	newchar_mouseover_time = cur_time; //we are currently over something
 	{
 		window_info *win = &windows_list.window[w->window_id];
-		int size = (1 + strlen(tooltip)) * win->small_font_len_x;
+		int size = win->small_font_max_len_x
+			+ get_string_width_ui((const unsigned char*)tooltip, win->current_scale * DEFAULT_SMALL_RATIO);
 		tooltip_x = (mx + size <= hud_x) ? mx : hud_x - size;
 		tooltip_y = my + win->small_font_len_y;
 	}
@@ -1107,7 +1095,8 @@ static int click_newchar_gender_handler(widget_list *w, int mx, int my, Uint32 f
 static int mouseover_p2p_race_handler(widget_list *w, int mx, int my)
 {
 	window_info *win = &windows_list.window[w->window_id];
-	int size = (1 + strlen(p2p_race)) * win->small_font_len_x;
+	int size = win->small_font_max_len_x
+		+ get_string_width_ui((const unsigned char*)p2p_race, win->current_scale * DEFAULT_SMALL_RATIO);
 	newchar_mouseover = 1; //we are over an p2p race
 	newchar_mouseover_time = cur_time; //we are currently over something
 	tooltip = p2p_race;
