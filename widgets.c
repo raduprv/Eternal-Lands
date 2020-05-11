@@ -853,8 +853,6 @@ static int button_change_font(widget_list *W, font_cat cat)
 
 	if (!W || !(T = W->widget_info) || cat != UI_FONT)
 		return 0;
-	if (T->fixed_width && T->fixed_height)
-		return 0;
 
 	len_x = T->fixed_width
 		? T->fixed_width
@@ -938,7 +936,7 @@ int square_button_draw(widget_list *W)
 	glEnd();
 
 	glEnable(GL_TEXTURE_2D);
-	draw_string_zoomed(W->pos_x + 2 + extra_space + gx_adjust, W->pos_y + (W->len_y - DEFAULT_FONT_Y_LEN * W->size) / 2 + 1 + gy_adjust, (unsigned char *)l->text, 1, W->size);
+	draw_string_zoomed_centered(W->pos_x + W->len_x / 2, W->pos_y + (W->len_y - DEFAULT_FONT_Y_LEN * W->size) / 2 + 1 + gy_adjust, (unsigned char *)l->text, 1, W->size);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
