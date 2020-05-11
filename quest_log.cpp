@@ -4,6 +4,7 @@
 	Author bluap/pjbroad Feb 2010
 */
 
+#include <numeric>
 #include <string>
 #include <vector>
 #include <map>
@@ -52,7 +53,7 @@
  * 			import md5sums with quest index and set matches
  */
 
-
+using namespace eternal_lands;
 
 //	An individual quest.
 //
@@ -119,38 +120,53 @@ class Quest_Title_Request
 class Quest_Entry
 {
 	public:
-		Quest_Entry(void) : deleted(false), quest_id(Quest::UNSET_ID), charsum(0), NPC_NAME_COLOUR(c_blue2) {}
-		void set(const std::string & the_text);
-		void set(const std::string & the_text, const std::string & the_npc);
-		const std::vector<std::string> & get_lines(void) const;
+		static int content_width;
+		static float content_zoom;
+
+		Quest_Entry(void) : deleted(false), quest_id(Quest::UNSET_ID), charsum(0) {}
+		void set(const ustring& the_text);
+		void set(const ustring& the_text, const ustring& the_npc);
+		const std::vector<ustring> & get_lines(void) const;
 		void save(std::ofstream & out) const;
 		bool contains_string(const char *text_to_find) const;
-		const std::string & get_npc(void) const { return npc; }
+		const ustring & get_npc(void) const { return npc; }
 		Uint16 get_charsum(void) const { return charsum; }
 		void set_id(Uint16 id) { quest_id = id; }
 		Uint16 get_id(void) const { return quest_id; }
 		void set_deleted(bool is_deleted) { deleted = is_deleted; update_displayed_npc_name(); }
 		bool get_deleted(void) const { return deleted; }
-		const std::string & get_disp_npc(void) const { return disp_npc; };
-		static const int chars_per_line;
-	private:
-		void set_lines(const std::string & the_text);
-		void update_displayed_npc_name(void);
+		const ustring & get_disp_npc(void) const { return disp_npc; };
+
+		/*!
+		 * Recalculate the line breaks
+		 *
+		 * Recalculate the line breaks in the text for this entry after a font
+		 * change or a change in the UI scale.
+		 */
+		void rewrap_lines();
+private:
+		static const unsigned char NPC_NAME_COLOUR;
+		static const std::vector<ustring> deleted_line;
+		static const ustring npc_spacer;
+
 		bool deleted;
-		std::vector<std::string> lines;
-		static std::vector<std::string> deleted_line;
-		static const std::string npc_spacer;
-		std::string npc;
-		std::string disp_npc;
+		std::vector<ustring> _lines;
+		ustring npc;
+		ustring disp_npc;
 		Uint16 quest_id;
 		Uint16 charsum;
-		char NPC_NAME_COLOUR;
+
+		void set_lines(const ustring& the_text);
+		void update_displayed_npc_name();
 };
 
-std::vector<std::string> Quest_Entry::deleted_line;
-const std::string Quest_Entry::npc_spacer = ": ";
-const int Quest_Entry::chars_per_line = 70;
-
+const unsigned char Quest_Entry::NPC_NAME_COLOUR = to_color_char(c_blue2);
+const std::vector<ustring> Quest_Entry::deleted_line(1,
+	to_color_char(c_grey2) + ustring(reinterpret_cast<const unsigned char*>(questlog_deleted_str)));
+const ustring Quest_Entry::npc_spacer = reinterpret_cast<const unsigned char*>(": ");
+// Will be reset from Questlog_Window::ui_scale_handler
+int Quest_Entry::content_width = window_width;
+float Quest_Entry::content_zoom = 1.0;
 
 //	Ask the server for the title this quest.
 //
@@ -239,6 +255,7 @@ class Quest_List
 		bool cm_active(void) const { return ((cm_id != CM_INIT_VALUE) && (cm_window_shown() == cm_id)); }
 		void check_title_requests(void);
 		void ui_scale_handler(window_info *win);
+		int font_change_handler(window_info *win, FontManager::Category cat);
 		void check_auto_open(void) { if (!no_auto_open && !get_show_window(get_win_id())) open_window(); }
 		void display_handler(window_info *win);
 		void click_handler(window_info *win, Uint32 flags);
@@ -249,6 +266,8 @@ class Quest_List
 		void clear_next_id(void) { next_entry_quest_id = Quest::UNSET_ID; }
 		int waiting_for_entry(void) { return (next_entry_quest_id != Quest::UNSET_ID) ?1 :0; }
 	private:
+		static const std::string _empty_title_replacement;
+
 		int get_scroll_id(void) const  { return scroll_id; }
 		void showall(void);
 		bool get_completed(Uint16 id) const;
@@ -257,6 +276,11 @@ class Quest_List
 		const Quest * get_first_quest(int offset);
 		const Quest * get_next_quest(void);
 		size_t get_max_title(void) const { return max_title; }
+		/*!
+		 * Return the maximum width of a quest title when drawn in the current font
+		 * with scale \a zoom.
+		 */
+		int get_max_title_width(float zoom) const;
 		int get_mouseover_y(void) const { return mouseover_y; }
 		bool has_mouseover(void) const { return mouseover_y != -1; }
 		void clear_mouseover(void) { mouseover_y = -1; }
@@ -288,6 +312,8 @@ class Quest_List
 		enum {	CMQL_COMPLETED=0, CMQL_ADDSEL, CMQL_S11, CMQL_HIDECOMPLETED, CMQL_NOAUTOOPEN,  CMQL_LISTLEFTOFENTRIES };
 };
 
+const std::string Quest_List::_empty_title_replacement = "???";
+
 static Quest_List questlist;
 
 static int display_questlist_handler(window_info *win)
@@ -300,6 +326,8 @@ static int mouseover_questlist_handler(window_info *win, int mx, int my)
 	{ if ((my>=0) && (mx<win->len_x-win->box_size)) questlist.set_mouseover_y(my); return 0; }
 static int ui_scale_questlist_handler(window_info *win)
 	{ questlist.ui_scale_handler(win); return 1; }
+static int change_questlist_font_handler(window_info *win, font_cat cat)
+	{ return questlist.font_change_handler(win, cat); }
 static int cm_questlist_handler(window_info *win, int widget_id, int mx, int my, int option)
 	{ questlist.cm_handler(option); return 1; }
 static void cm_questlist_pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win)
@@ -312,7 +340,7 @@ class Questlog_Container
 {
 	public:
 		Questlog_Container(void) : need_to_save(false) {}
-		void add_entry(char *t, int len);
+		void add_entry(const unsigned char *t, int len);
 		void load(void);
 		void save(void);
 		void show_all_entries(void);
@@ -320,7 +348,7 @@ class Questlog_Container
 		void set_save(void) { need_to_save = true; }
 		bool save_needed(void) const { return need_to_save; }
 	private:
-		void add_line(const char *t, const char *npcprefix);
+		void add_line(const ustring& t, const unsigned char *npcprefix);
 		std::string filename;
 		bool need_to_save;
 };
@@ -343,6 +371,7 @@ class Questlog_Window
 		int keypress_handler(window_info *win, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
 		void mouseover_handler(int my);
 		void ui_scale_handler(window_info *win);
+		int font_change_handler(window_info *win, FontManager::Category cat);
 		void scroll_click_handler(widget_list *widget);
 		void scroll_drag_handler(widget_list *widget);
 		void cm_handler(window_info *win, int my, int option);
@@ -350,8 +379,8 @@ class Questlog_Window
 		int get_win_space(void) const { return win_space; }
 		void update_scrollbar_len(void)
 			{ if (questlog_win >= 0) vscrollbar_set_bar_len (questlog_win, quest_scroll_id, (active_entries.empty()) ?0 :active_entries.size()-1); }
-		void add_npc_input_handler(const char *input_text, void *data);
-		void add_text_input_handler(const char *input_text, void *data);
+		void add_npc_input_handler(const unsigned char *input_text, void *data);
+		void add_text_input_handler(const unsigned char *input_text, void *data);
 		void cancel_action(void) { current_action = -1; }
 		void find_input_handler(const char *input_text, void *data);
 		void goto_entry(int ln);
@@ -380,7 +409,7 @@ class Questlog_Window
 		int current_action;
 		bool prompt_for_add_text;
 		size_t adding_insert_pos;
-		std::string adding_npc;
+		ustring adding_npc;
 		INPUT_POPUP ipu_questlog;
 		size_t cm_questlog_id;
 		size_t cm_questlog_over_entry;
@@ -401,13 +430,14 @@ static int keypress_questlog_handler(window_info *win, int mx, int my, SDL_Keyco
 static int mouseover_questlog_handler(window_info *win, int mx, int my) { questlog_window.mouseover_handler(my); return 0; }
 static int show_questlog_handler(window_info *win) { questlist.check_auto_open(); return 0; }
 static int ui_scale_questlog_handler(window_info *win) { questlog_window.ui_scale_handler(win); return 1; }
+static int change_questlog_font_handler(window_info *win, font_cat cat) { return questlog_window.font_change_handler(win, cat); }
 static int questlog_scroll_click (widget_list *widget, int mx, int my, Uint32 flags) { questlog_window.scroll_click_handler(widget); return 1; }
 static int questlog_scroll_drag (widget_list *widget, int mx, int my, Uint32 flags, int dx, int dy) { questlog_window.scroll_drag_handler(widget); return 1; }
 static int cm_quest_handler(window_info *win, int widget_id, int mx, int my, int option) { questlog_window.cm_handler(win, my, option); return 1; }
 static void cm_questlog_pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win) { questlog_window.cm_preshow_handler(my); }
 static void questlog_input_cancel_handler(void *data) { questlog_window.cancel_action(); }
-static void questlog_add_npc_input_handler(const char *input_text, void *data) { questlog_window.add_npc_input_handler(input_text, data); }
-static void questlog_add_text_input_handler(const char *input_text, void *data) { questlog_window.add_text_input_handler(input_text, data); }
+static void questlog_add_npc_input_handler(const char *input_text, void *data) { questlog_window.add_npc_input_handler(reinterpret_cast<const unsigned char*>(input_text), data); }
+static void questlog_add_text_input_handler(const char *input_text, void *data) { questlog_window.add_text_input_handler(reinterpret_cast<const unsigned char*>(input_text), data); }
 static void questlog_find_input_handler(const char *input_text, void *data) { questlog_window.find_input_handler(input_text, data); }
 
 
@@ -422,15 +452,16 @@ class NPC_Filter
 		void open_window(void);
 		void resize_handler(window_info *win);
 		void ui_scale_handler(window_info *win);
+		int font_change_handler(window_info *win, FontManager::Category cat);
 		void display_handler(window_info *win);
 		int click_handler(window_info *win, int mx, int my, Uint32 flags);
 		int keypress_handler(window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
 		void mouseover_handler(window_info *win, int mx, int my);
 		int get_win_id(void) const { return npc_filter_win; }
-		bool is_set(std::string npc) { return (npc_filter_map[npc] == 1); }
-		void set(std::string npc) { npc_filter_map[npc] = 1; }
-		void set_all(void) { for (std::map<std::string,int>::iterator i = npc_filter_map.begin(); i != npc_filter_map.end(); ++i) i->second = 1; }
-		void unset_all(void) { for (std::map<std::string,int>::iterator i = npc_filter_map.begin(); i != npc_filter_map.end(); ++i) i->second = 0; }
+		bool is_set(const ustring& npc) { return (npc_filter_map[npc] == 1); }
+		void set(const ustring& npc) { npc_filter_map[npc] = 1; }
+		void set_all(void) { for (auto& i: npc_filter_map) i.second = 1; }
+		void unset_all(void) { for (auto& i: npc_filter_map) i.second = 0; }
 	private:
 		// scaled
 		int npc_name_space;
@@ -445,7 +476,7 @@ class NPC_Filter
 		unsigned int npc_name_rows;
 		size_t npc_filter_active_npc_name;
 		int npc_filter_win;
-		std::map<std::string, int> npc_filter_map;
+		std::map<ustring, int> npc_filter_map;
 };
 
 static NPC_Filter npc_filter;
@@ -454,6 +485,8 @@ static int resize_npc_filter_handler(window_info *win, int new_width, int new_he
 	{ npc_filter.resize_handler(win); return 0; }
 static int ui_scale_npc_filter_handler(window_info *win)
 	{ npc_filter.ui_scale_handler(win); return 1; }
+static int change_npc_filter_font_handler(window_info *win, font_cat cat)
+	{ return npc_filter.font_change_handler(win, cat); }
 static int display_npc_filter_handler(window_info *win)
 	{ npc_filter.display_handler(win); return 1; }
 static int click_npc_filter_handler(window_info *win, int mx, int my, Uint32 flags)
@@ -488,6 +521,20 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
+// Calculate the maximum string width of a title in the list
+int Quest_List::get_max_title_width(float zoom) const
+{
+	int max_width = 0;
+	for (const auto& iter: quests)
+	{
+		const std::string& title = iter.second.get_title().empty()
+			? _empty_title_replacement : iter.second.get_title();
+		int width = FontManager::get_instance().line_width(UI_FONT,
+			reinterpret_cast<const unsigned char*>(title.c_str()), title.size(), zoom);
+		max_width = std::max(max_width, width);
+	}
+	return max_width;
+}
 
 //	Add any new quest object to the list and request the title.
 //
@@ -738,7 +785,7 @@ void Quest_List::display_handler(window_info *win)
 {
 	const size_t used_x = 4*spacer + win->box_size;
 	const size_t disp_lines = win->len_y / linesep;
-	const size_t disp_chars = (win->len_x - used_x) / win->small_font_len_x;
+	float zoom = win->current_scale * DEFAULT_SMALL_RATIO;
 
 	// if resizing wait until we stop
 	static Uint8 resizing = 0;
@@ -749,10 +796,9 @@ void Quest_List::display_handler(window_info *win)
 	{
 		size_t to_show = (disp_lines>num_shown()) ?num_shown() :disp_lines;
 		size_t newy = static_cast<size_t>(to_show * linesep);
-		to_show = (disp_chars>get_max_title()) ?get_max_title() :disp_chars;
-		size_t newx = static_cast<size_t>(win->small_font_len_x * to_show + used_x);
+		size_t newx = std::min(win->len_x, int(used_x) + get_max_title_width(zoom));
+		resize_window(win->window_id, newx, newy);
 		resizing = 0;
-		resize_window (win->window_id, newx, newy);
 	}
 
 	// only show help and clear the highlighted quest if the context window is closed
@@ -768,6 +814,8 @@ void Quest_List::display_handler(window_info *win)
 	int offset = (num_shown()>disp_lines) ?vscrollbar_get_pos(win->window_id, get_scroll_id()) :0;
 	const Quest* thequest = get_first_quest(offset);
 	int posy = spacer;
+	TextDrawOptions text_options = TextDrawOptions().set_max_width(win->len_x - used_x)
+		.set_max_lines(1).set_zoom(zoom);
 	while ((thequest != 0) && (posy+linesep-spacer <= win->len_y))
 	{
 		const int hl_x = win->len_x - 2*spacer - win->box_size;
@@ -806,16 +854,14 @@ void Quest_List::display_handler(window_info *win)
 			glColor3f(0.6f,0.6f,0.6f);
 		else
 			glColor3f(1.0f,1.0f,1.0f);
+
 		// display the title, truncating if its too long for the window width
-		if (thequest->get_title().size() > disp_chars)
-		{
-			std::string todisp = thequest->get_title().substr(0,disp_chars);
-			draw_string_small_zoomed(2*spacer, posy, (const unsigned char*)todisp.c_str(), 1, win->current_scale);
-		}
-		else if (thequest->get_title().empty())
-			draw_string_small_zoomed(2*spacer, posy, (const unsigned char*)"???", 1, win->current_scale);
-		else
-			draw_string_small_zoomed(2*spacer, posy, (const unsigned char*)thequest->get_title().c_str(), 1, win->current_scale);
+		const std::string& title = thequest->get_title().empty()
+			? _empty_title_replacement : thequest->get_title();
+		FontManager::get_instance().draw(UI_FONT,
+			reinterpret_cast<const unsigned char*>(title.c_str()), title.size(),
+			2*spacer, posy, text_options);
+
 		thequest = get_next_quest();
 		posy += linesep;
 	}
@@ -901,19 +947,28 @@ void Quest_List::ui_scale_handler(window_info *win)
 	linesep = win->small_font_len_y + 2 * spacer;
 	if ((win->pos_id >= 0) && (win->pos_id<windows_list.num_windows))
 	{
+		float zoom = win->current_scale * DEFAULT_SMALL_RATIO;
 		window_info *parent_win = &windows_list.window[win->pos_id];
-		int max_size_x = win->small_font_len_x * get_max_title() + win->box_size + 4 * spacer;
-		int min_size_x = win->small_font_len_x * 15 + win->box_size + 4 * spacer;
+		int max_size_x = get_max_title_width(zoom) + win->box_size + 4 * spacer;
+		int min_size_x = 10 * FontManager::get_instance().max_width_spacing(UI_FONT, zoom)
+			+ 4 * spacer;
 		int min_size_y = 5 * linesep;
 		int size_y = (list_left_of_entries) ?linesep * static_cast<int>(parent_win->len_y / linesep) : min_size_y;
 		int pos_x = (list_left_of_entries) ?-(max_size_x + questlog_window.get_win_space()) :(parent_win->len_x - max_size_x) / 2;
 		int pos_y = (list_left_of_entries) ?0 : parent_win->len_y + win->small_font_len_y + questlog_window.get_win_space() + parent_win->title_height;
+		set_window_min_size(win_id, min_size_x, min_size_y);
 		resize_window(win_id, max_size_x, size_y);
 		move_window(win_id, win->pos_id, win->pos_loc, parent_win->pos_x + pos_x, parent_win->pos_y + pos_y);
-		set_window_min_size(win_id, min_size_x, min_size_y);
 	}
 }
 
+int Quest_List::font_change_handler(window_info *win, FontManager::Category cat)
+{
+	if (cat != UI_FONT)
+		return 0;
+	ui_scale_handler(win);
+	return 1;
+}
 
 //	Create or open the quest list window.
 //
@@ -930,6 +985,7 @@ void Quest_List::open_window(void)
 		set_window_handler(win_id, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_questlist_handler );
 		set_window_handler(win_id, ELW_HANDLER_RESIZE, (int (*)())&resize_questlist_handler );
 		set_window_handler(win_id, ELW_HANDLER_UI_SCALE, (int (*)())&ui_scale_questlist_handler );
+		set_window_handler(win_id, ELW_HANDLER_FONT_CHANGE, (int (*)())&change_questlist_font_handler);
 		scroll_id = vscrollbar_add_extended(win_id, scroll_id, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, quests.size()-1);
 		ui_scale_handler(&windows_list.window[win_id]);
 
@@ -949,24 +1005,20 @@ void Quest_List::open_window(void)
 
 //	Create a fixed vector to use if deleted and a raw npc name / deleted string.
 //
-void Quest_Entry::update_displayed_npc_name(void)
+void Quest_Entry::update_displayed_npc_name()
 {
-	if (deleted_line.empty())
-		deleted_line.push_back(static_cast<char>(to_color_char(c_grey2)) + std::string(questlog_deleted_str));
 	if (deleted)
-		disp_npc = std::string(questlog_deleted_str);
+		disp_npc = ustring(reinterpret_cast<const unsigned char*>(questlog_deleted_str));
 	else
-		disp_npc = std::string(npc + npc_spacer.substr(0, npc_spacer.size()-1));
+		disp_npc = ustring(npc + npc_spacer.substr(0, npc_spacer.size()-1));
 }
 
 
 //	Return the lines of an entry.
 //
-const std::vector<std::string> & Quest_Entry::get_lines(void) const
+const std::vector<ustring>& Quest_Entry::get_lines() const
 {
-	if (!deleted)
-		return lines;
-	return deleted_line;
+	return deleted ? deleted_line : _lines;
 }
 
 
@@ -974,10 +1026,10 @@ const std::vector<std::string> & Quest_Entry::get_lines(void) const
 //
 void Quest_Entry::save(std::ofstream & out) const
 {
-	for (std::vector<std::string>::size_type i=0; i<lines.size(); i++)
+	for (std::vector<ustring>::size_type i=0; i<_lines.size(); i++)
 	{
-		out.write(lines[i].c_str(), lines[i].size());
-		if (i<lines.size()-1)
+		out.write(reinterpret_cast<const char*>(_lines[i].c_str()), _lines[i].size());
+		if (i<_lines.size()-1)
 			out.put(' ');
 		else if (quest_id == Quest::UNSET_ID)
 			out.put('\n');
@@ -988,81 +1040,46 @@ void Quest_Entry::save(std::ofstream & out) const
 
 
 //	Store entry as a group of lines that fit into the window width.
-//
-void Quest_Entry::set_lines(const std::string & the_text)
+void Quest_Entry::set_lines(const ustring& the_text)
 {
-	int col = 0;
-	std::string::size_type last_space = 0;
-	std::string::size_type start = 0;
-	std::string text;
-	char last_char = ' ';
-
 	// make a copy of the string, replacing \n with spaces unless preceeded by a space
+	ustring text;
+	char last_char = ' ';
 	text.reserve(the_text.size());
-	for (std::string::size_type i=0; i<the_text.size(); i++)
+	for (unsigned char c: the_text)
 	{
-		if (the_text[i] == '\n')
+		if (c == '\n')
 		{
 			if (last_char != ' ')
 				text += last_char = ' ';
 		}
-		else
-			text += last_char = the_text[i];
+		else if (c != '\r')
+		{
+			text += last_char = c;
+		}
 	}
 
-	// strip any line breaks from the end of the line
-	while (!text.empty() && (*(text.end()-1) == '\r'))
-		text.erase(text.end()-1, text.end());
-
 	// look for and <<number>> at the end of the text, its the quest id
-	std::string::size_type close = text.rfind(">>");
-	if (close == text.size()-2)
+	if (text.compare(text.length() - 2, 2, reinterpret_cast<const unsigned char*>(">>")) == 0)
 	{
-		std::string::size_type open = text.rfind("<<");
-		if (open != std::string::npos)
+		std::string::size_type open = text.rfind(reinterpret_cast<const unsigned char*>("<<"));
+		if (open != std::string::npos && open != text.length() - 4)
 		{
-			std::string id_str = text.substr(open+2,close-open-2);
-			if ((id_str.size()>0) && (id_str.find_first_not_of("0123456789") == std::string::npos))
+			ustring id_str = text.substr(open + 2, text.length() - open - 4);
+			if (id_str.find_first_not_of(reinterpret_cast<const unsigned char*>("0123456789")) == std::string::npos)
 			{
-				quest_id = static_cast<Uint16>(atoi(id_str.c_str()));
+				quest_id = static_cast<Uint16>(atoi(reinterpret_cast<const char*>(id_str.c_str())));
 				questlist.add(quest_id);
-				text.erase(open,close);
+				text.erase(open);
 			}
 		}
 	}
 
 	// for matching purposes calculate the sum of the characters, if it wraps, fine
-	charsum = 0;
-	for (std::string::size_type i=0; i<text.size(); i++)
-		charsum += text[i];
+	charsum = std::accumulate(text.begin(), text.end(), Uint16(0));
 
-	// divide text into lines that fit within the window width
-	for (std::string::size_type i=0; i<text.size(); i++)
-	{
-		if (is_color(text[i]))
-			continue;
-		if (text[i] == ' ')
-			last_space = i;
-		if (col >= chars_per_line)
-		{
-			if (last_space<=start)
-			{
-				lines.push_back(text.substr(start, chars_per_line));
-				start += chars_per_line;
-			}
-			else
-			{
-				lines.push_back(text.substr(start, last_space-start));
-				start = last_space+1;
-			}
-			col = i - start;
-		}
-		col++;
-	}
-
-	// catch the last line
-	if (start < text.size())
-		lines.push_back(text.substr(start, text.size()-start));
+	_lines.assign(1, text);
+	rewrap_lines();
 
 	update_displayed_npc_name();
 
@@ -1070,23 +1087,51 @@ void Quest_Entry::set_lines(const std::string & the_text)
 	npc_filter.set(npc);
 }
 
+void Quest_Entry::rewrap_lines()
+{
+	ustring full_text;
+	for (const auto& line: _lines)
+		full_text += line;
+
+	// divide text into lines that fit within the window width
+	ustring wrapped_text;
+	int nr_lines;
+	std::tie(wrapped_text, nr_lines) = FontManager::get_instance().reset_soft_breaks(
+		UI_FONT, reinterpret_cast<const unsigned char*>(full_text.c_str()), full_text.capacity(),
+		full_text.length(), content_zoom, content_width, 0, 0);
+
+	_lines.clear();
+	size_t off = 0;
+	while (off < wrapped_text.length())
+	{
+		ustring::size_type end = wrapped_text.find('\r', off);
+		if (end == ustring::npos)
+		{
+			_lines.push_back(wrapped_text.substr(off));
+			break;
+		}
+		_lines.push_back(wrapped_text.substr(off, end-off));
+		off = end + 1;
+	}
+}
 
 //	Set a new entry, using the specified npc name.
 //
-void Quest_Entry::set(const std::string & the_text, const std::string & the_npc)
+void Quest_Entry::set(const ustring& the_text, const ustring& the_npc)
 {
+// 	npc.assign(the_npc.begin(), the_npc.end());
 	npc = the_npc;
-	set_lines(static_cast<char>(to_color_char(NPC_NAME_COLOUR)) + npc + npc_spacer + the_text);
+	set_lines(NPC_NAME_COLOUR + npc + npc_spacer + the_text);
 }
 
 
 //	Set a new entry, finding the npc name from the text.
 //
-void Quest_Entry::set(const std::string & the_text_const)
+void Quest_Entry::set(const ustring& the_text_const)
 {
 	if (the_text_const.empty())
 		return;
-	std::string the_text = the_text_const;
+	ustring the_text = the_text_const;
 
 	// find any quest id - a mistake!
 	// adding at the start was a mistake as it messes things up for the old client
@@ -1096,8 +1141,8 @@ void Quest_Entry::set(const std::string & the_text_const)
 		std::string::size_type id_end = the_text.find_first_of('>', 1);
 		if (id_end != std::string::npos)
 		{
-			std::string id_str = the_text.substr(1,id_end-1);
-			quest_id = static_cast<Uint16>(atoi(id_str.c_str()));
+			ustring id_str = the_text.substr(1,id_end-1);
+			quest_id = static_cast<Uint16>(atoi(reinterpret_cast<const char*>(id_str.c_str())));
 			the_text.erase(0, id_end+1);
 		}
 		// make sure we save to the new format
@@ -1105,7 +1150,7 @@ void Quest_Entry::set(const std::string & the_text_const)
 	}
 
 	// find and npc name
-	if (the_text[0] == (char)to_color_char(NPC_NAME_COLOUR))
+	if (the_text[0] == NPC_NAME_COLOUR)
 	{
 		std::string::size_type npc_end = the_text.find(npc_spacer, 1);
 		if ((npc_end != std::string::npos) &&
@@ -1116,8 +1161,8 @@ void Quest_Entry::set(const std::string & the_text_const)
 
 	if (npc.empty())
 	{
-		npc = std::string("----");
-		set_lines(static_cast<char>(to_color_char(NPC_NAME_COLOUR)) + npc + npc_spacer + the_text);
+		npc = ustring(reinterpret_cast<const unsigned char*>("----"));
+		set_lines(NPC_NAME_COLOUR + npc + npc_spacer + the_text);
 	}
 	else
 		set_lines(the_text);
@@ -1133,8 +1178,11 @@ bool Quest_Entry::contains_string(const char *text_to_find) const
 	std::string lowercase(text_to_find);
 	std::transform(lowercase.begin(), lowercase.end(), lowercase.begin(), tolower);
 	std::string fulltext;
-	for (std::vector<std::string>::size_type i=0; i<lines.size(); i++)
-		fulltext += lines[i] + ' ';
+	for (const auto& line: _lines)
+	{
+		std::remove_copy_if(line.begin(), line.end(), std::back_inserter(fulltext), is_color);
+		fulltext += ' ';
+	}
 	std::transform(fulltext.begin(), fulltext.end(), fulltext.begin(), tolower);
 	if (fulltext.find(lowercase, 0) != std::string::npos)
 		return true;
@@ -1171,7 +1219,7 @@ void NPC_Filter::ui_scale_handler(window_info *win)
 	npc_name_space = static_cast<int>(0.5 + 3 * win->current_scale);
 	npc_name_border = static_cast<int>(0.5 + 5 * win->current_scale);
 	npc_name_box_size = static_cast<int>(0.5 + 12 * win->current_scale);
-	max_npc_name_x = npc_name_space * 3 + npc_name_box_size + (MAX_USERNAME_LENGTH) * win->small_font_len_x;
+	max_npc_name_x = npc_name_space * 3 + npc_name_box_size + MAX_USERNAME_LENGTH * win->small_font_max_len_x;
 	max_npc_name_y = win->small_font_len_y + 2 * npc_name_space;
 	if ((win->pos_id >= 0) && (win->pos_id<windows_list.num_windows))
 	{
@@ -1188,6 +1236,13 @@ void NPC_Filter::ui_scale_handler(window_info *win)
 	}
 }
 
+int NPC_Filter::font_change_handler(window_info *win, FontManager::Category cat)
+{
+	if (cat != FontManager::Category::UI_FONT)
+		return 0;
+	ui_scale_handler(win);
+	return 1;
+}
 
 //	Display handler for the quest log filter.
 //
@@ -1216,7 +1271,9 @@ void NPC_Filter::display_handler(window_info *win)
 
 	unsigned int row = 0;
 	unsigned int col = 0;
-	for (std::map<std::string,int>::const_iterator i = npc_filter_map.begin(); i != npc_filter_map.end(); ++i)
+	TextDrawOptions options = TextDrawOptions().set_max_lines(1)
+		.set_zoom(win->current_scale * DEFAULT_SMALL_RATIO);
+	for (const auto& i: npc_filter_map)
 	{
 		int posx = static_cast<int>(npc_name_border + col*max_npc_name_x + 0.5);
 		int posy = static_cast<int>(row*max_npc_name_y + 0.5);
@@ -1235,7 +1292,7 @@ void NPC_Filter::display_handler(window_info *win)
 
 		// draw the on/off box
 		glDisable(GL_TEXTURE_2D);
-		glBegin( i->second ? GL_QUADS: GL_LINE_LOOP);
+		glBegin( i.second ? GL_QUADS: GL_LINE_LOOP);
 		glVertex2i(posx, posy);
 		glVertex2i(posx + npc_name_box_size, posy);
 		glVertex2i(posx + npc_name_box_size, posy + npc_name_box_size);
@@ -1244,7 +1301,8 @@ void NPC_Filter::display_handler(window_info *win)
 		glEnable(GL_TEXTURE_2D);
 
 		// draw the string
-		draw_string_small_zoomed(posx + npc_name_box_size + npc_name_space, posy, (unsigned char*)i->first.c_str(), 1, win->current_scale);
+		FontManager::get_instance().draw(FontManager::Category::UI_FONT, i.first.c_str(),
+			i.first.length(), posx + npc_name_box_size + npc_name_space, posy, options);
 
 		// control row and col values
 		col++;
@@ -1275,7 +1333,7 @@ int NPC_Filter::click_handler(window_info *win, int mx, int my, Uint32 flags)
 	if (index >= npc_filter_map.size())
 		return 0;
 	size_t j = 0;
-	for (std::map<std::string,int>::iterator i = npc_filter_map.begin(); i != npc_filter_map.end(); ++i, j++)
+	for (std::map<ustring,int>::iterator i = npc_filter_map.begin(); i != npc_filter_map.end(); ++i, j++)
 		if (j == index)
 		{
 			do_click_sound();
@@ -1297,7 +1355,7 @@ int NPC_Filter::keypress_handler(window_info *win, int mx, int my, SDL_Keycode k
 	if ((key_mod & KMOD_CTRL) || (key_mod & KMOD_ALT) || (keychar<'a') || (keychar>'z'))
 		return 0;
 	size_t line = 0;
-	for (std::map<std::string,int>::iterator i = npc_filter_map.begin(); i != npc_filter_map.end(); ++i, line++)
+	for (std::map<ustring,int>::iterator i = npc_filter_map.begin(); i != npc_filter_map.end(); ++i, line++)
 	{
 		if (!i->first.empty() && (tolower(i->first[0]) == keychar))
 		{
@@ -1336,6 +1394,7 @@ void NPC_Filter::open_window(void)
 		set_window_handler(npc_filter_win, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_npc_filter_handler );
 		set_window_handler(npc_filter_win, ELW_HANDLER_RESIZE, (int (*)())&resize_npc_filter_handler );
 		set_window_handler(npc_filter_win, ELW_HANDLER_UI_SCALE, (int (*)())&ui_scale_npc_filter_handler );
+		set_window_handler(npc_filter_win, ELW_HANDLER_FONT_CHANGE, (int (*)())&change_npc_filter_font_handler);
 		ui_scale_npc_filter_handler(&windows_list.window[npc_filter_win]);
 	}
 	else
@@ -1364,16 +1423,13 @@ CHECK_GL_ERRORS();
 //
 void Questlog_Window::copy_one_entry(std::string &copy_str, size_t entry)
 {
-	for (std::vector<std::string>::const_iterator line = quest_entries[active_entries[entry]].get_lines().begin(); line != quest_entries[active_entries[entry]].get_lines().end(); ++line)
+	for (const auto& line: quest_entries[active_entries[entry]].get_lines())
 	{
-		for (std::string::const_iterator i=line->begin(); i!=line->end(); ++i)
-			if (!is_color(*i))
-				copy_str += *i;
+		std::remove_copy_if(line.begin(), line.end(), std::back_inserter(copy_str), is_color);
 		copy_str += ' ';
 	}
-	if (copy_str.empty())
-		return;
-	copy_str[copy_str.size()-1] = '\n';
+	if (!copy_str.empty())
+		copy_str[copy_str.size()-1] = '\n';
 }
 
 
@@ -1417,9 +1473,9 @@ void Questlog_Window::add_entry(window_info *win, size_t entry)
 //	for the body.  Can't call directly as reusing ipu_questlog and it
 //	would get cleared on return from this function!
 //
-void Questlog_Window::add_npc_input_handler(const char *input_text, void *data)
+void Questlog_Window::add_npc_input_handler(const unsigned char *input_text, void *data)
 {
-	adding_npc = std::string(input_text);
+	adding_npc = ustring(input_text);
 	prompt_for_add_text = true;
 }
 
@@ -1439,12 +1495,12 @@ void Questlog_Window::add_text_input(window_info *win)
 
 //	Continue inputting a new entry, part 4 insert the entry.
 //
-void Questlog_Window::add_text_input_handler(const char *input_text, void *data)
+void Questlog_Window::add_text_input_handler(const unsigned char *input_text, void *data)
 {
 	current_action = -1;
 	Quest_Entry ne;
 	std::vector<Quest_Entry>::iterator e = quest_entries.insert(quest_entries.begin() + adding_insert_pos, ne);
-	e->set(static_cast<char>(to_color_char(c_grey1)) + std::string(input_text), adding_npc);
+	e->set(to_color_char(c_grey1) + ustring(input_text), adding_npc);
 	questlog_container.set_save();
 	questlist.set_selected(Quest::UNSET_ID);
 	questlog_container.rebuild_active_entries(adding_insert_pos);
@@ -1512,23 +1568,23 @@ void Questlog_Window::delete_duplicates(void)
 {
 	int deleted_count = 0;
 	LOG_TO_CONSOLE(c_green1, questlog_deldupe_start_str);
-	std::multimap<Uint16,std::string> mm;
+	std::multimap<Uint16, ustring> mm;
 
 	for (std::vector<Quest_Entry>::iterator entry=quest_entries.begin(); entry!=quest_entries.end(); ++entry)
 	{
 		if (!entry->get_deleted())
 		{
 			// get the full text for the entry
-			std::string the_text;
-			for (std::vector<std::string>::const_iterator line = entry->get_lines().begin(); line != entry->get_lines().end(); ++line)
-				the_text += *line;
+			ustring the_text;
+			for (const auto& line: entry->get_lines())
+				the_text += line;
 
 			// see if the charsum has already been seen
-			std::multimap<Uint16,std::string>::const_iterator iter = mm.find(entry->get_charsum());
+			std::multimap<Uint16, ustring>::const_iterator iter = mm.find(entry->get_charsum());
 			if (iter != mm.end())
 			{
 				// we have a charsum match so check the text, there may be more than one with this charsum
-				std::multimap<Uint16,std::string>::const_iterator last = mm.upper_bound(entry->get_charsum());
+				std::multimap<Uint16, ustring>::const_iterator last = mm.upper_bound(entry->get_charsum());
 				for ( ; iter != last; ++iter)
 				{
 					// if the text and the charsum match, mark the entry as deleted
@@ -1544,7 +1600,7 @@ void Questlog_Window::delete_duplicates(void)
 
 			// save - as either the charsum did not match a previous entry or the charsum did but the text didn't
 			if (!entry->get_deleted())
-    			mm.insert(std::pair<Uint16,std::string>(entry->get_charsum(), the_text));
+    			mm.insert(std::make_pair(entry->get_charsum(), the_text));
 		}
 	}
 
@@ -1662,11 +1718,14 @@ void Questlog_Window::cm_handler(window_info *win, int my, int option)
 //
 void Questlog_Window::ui_scale_handler(window_info *win)
 {
+	int content_width = 70 * 8 * win->current_scale;
+	float zoom = win->current_scale * DEFAULT_SMALL_RATIO;
+
 	qlborder = static_cast<int>(0.5 + 5 * win->current_scale);
 	spacer = static_cast<int>(0.5 + 3 * win->current_scale);
 	win_space = static_cast<int>(0.5 + 10 * win->current_scale);
 	linesep = win->small_font_len_y + 2 * spacer;
-	qlwinwidth = Quest_Entry::chars_per_line * win->small_font_len_x + 2 * qlborder + win->box_size;
+	qlwinwidth = content_width + 2 * qlborder + win->box_size;
 	qlwinheight = 16 * linesep;
 
 	widget_resize(questlog_win, quest_scroll_id, win->box_size, qlwinheight - win->box_size);
@@ -1678,8 +1737,21 @@ void Questlog_Window::ui_scale_handler(window_info *win)
 
 	if (npc_filter.get_win_id() >= 0 && npc_filter.get_win_id() < windows_list.num_windows)
 		ui_scale_npc_filter_handler(&windows_list.window[npc_filter.get_win_id()]);
+
+	Quest_Entry::content_width = content_width;
+	Quest_Entry::content_zoom = zoom;
+	for (auto& entry: quest_entries)
+		entry.rewrap_lines();
 }
 
+int Questlog_Window::font_change_handler(window_info *win, FontManager::Category cat)
+{
+	if (cat != FontManager::Category::UI_FONT)
+		return 0;
+	for (auto& entry: quest_entries)
+		entry.rewrap_lines();
+	return 1;
+}
 
 //	Draw the window contents.
 //
@@ -1701,16 +1773,20 @@ int Questlog_Window::display_handler(window_info *win)
 		}
 	}
 
+	TextDrawOptions options = TextDrawOptions().set_max_lines(1)
+		.set_zoom(win->current_scale * DEFAULT_SMALL_RATIO);
+	FontManager& font_manager = FontManager::get_instance();
 	int questlog_y = qlborder;
 	shown_entries.clear();
 	for (std::vector<Quest_Entry>::size_type entry = current_line; entry<active_entries.size(); entry++)
 	{
 		int start_y = questlog_y;
-		const std::vector<std::string> &lines = quest_entries[active_entries[entry]].get_lines();
+		const std::vector<ustring> &lines = quest_entries[active_entries[entry]].get_lines();
 		glColor3f(1.0f, 1.0f, 1.0f);
-		for (std::vector<std::string>::const_iterator line = lines.begin(); line != lines.end(); ++line)
+		for (const auto& line: lines)
 		{
-			draw_string_small_zoomed(qlborder+gx_adjust, questlog_y+gy_adjust, reinterpret_cast<const unsigned char *>(line->c_str()), 1, win->current_scale);
+			font_manager.draw(FontManager::Category::UI_FONT, line.c_str(), line.length(),
+				qlborder+gx_adjust, questlog_y+gy_adjust, options);
 			questlog_y += win->small_font_len_y;
 			if (questlog_y+qlborder > qlwinheight - win->small_font_len_y)
 				break;
@@ -1719,13 +1795,18 @@ int Questlog_Window::display_handler(window_info *win)
 		if ((cm_questlog_over_entry < active_entries.size()) && (entry == cm_questlog_over_entry))
 		{
 			glColor3f(0.77f, 0.57f, 0.39f);
-			draw_string_small_zoomed(qlborder+gx_adjust, start_y+gy_adjust,
-				reinterpret_cast<const unsigned char *>(quest_entries[active_entries[entry]].get_disp_npc().c_str()), 1, win->current_scale);
+			const ustring& name = quest_entries[active_entries[entry]].get_disp_npc();
+			font_manager.draw(FontManager::Category::UI_FONT, name.c_str(), name.length(),
+				qlborder+gx_adjust, start_y+gy_adjust, options);
 		}
 		if (selected_entries.find(active_entries[entry]) != selected_entries.end())
+		{
+			const ustring& name = quest_entries[active_entries[entry]].get_disp_npc();
+			int width = font_manager.line_width(UI_FONT, name.c_str(), name.length(),
+				options.zoom());
 			draw_underline(qlborder, start_y + win->small_font_len_y,
-				qlborder + static_cast<int>(quest_entries[active_entries[entry]].get_disp_npc().size() * win->small_font_len_x),
-				start_y + win->small_font_len_y);
+				qlborder + width, start_y + win->small_font_len_y);
+		}
 		shown_entries.push_back(Shown_Entry(entry, start_y, questlog_y));
 		questlog_y += qlborder;
 		if (questlog_y+qlborder > qlwinheight - win->small_font_len_y)
@@ -1822,6 +1903,7 @@ void Questlog_Window::open(void)
 		set_window_handler(questlog_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_questlog_handler );
 		set_window_handler(questlog_win, ELW_HANDLER_SHOW, (int (*)())&show_questlog_handler );
 		set_window_handler(questlog_win, ELW_HANDLER_UI_SCALE, (int (*)())&ui_scale_questlog_handler );
+		set_window_handler(questlog_win, ELW_HANDLER_FONT_CHANGE, (int (*)())&change_questlog_font_handler);
 
 		window_info *win = &windows_list.window[questlog_win];
 		ui_scale_questlog_handler(win);
@@ -1922,23 +2004,22 @@ void Questlog_Container::show_all_entries(void)
 //  Note:
 //	Rebuilding the active_entry list must be done by the caller after this.
 //
-void Questlog_Container::add_line(const char *t, const char *npcprefix)
+void Questlog_Container::add_line(const ustring& t, const unsigned char *npcprefix)
 {
 	quest_entries.push_back(Quest_Entry());
-	if (strlen(npcprefix))
-		quest_entries.back().set(std::string(t), std::string(npcprefix));
+	if (*npcprefix)
+		quest_entries.back().set(t, ustring(npcprefix));
 	else
-		quest_entries.back().set(std::string(t));
+		quest_entries.back().set(t);
 }
 
 
 //	Called when a new quest entry is received from the server.  Add to
 //	the end of the entries and append to the questlog file immediately.
 //
-void Questlog_Container::add_entry(char *t, int len)
+void Questlog_Container::add_entry(const unsigned char *t, int len)
 {
-	t[len] = '\0';
-	add_line(t, (const char*)npc_name);
+	add_line(ustring(t, len), (const unsigned char*)npc_name);
 
 	if (questlist.waiting_for_entry())
 	{
@@ -1997,7 +2078,8 @@ void Questlog_Container::load(void)
 	{
 		if (!line.empty())
 		{
-			add_line(line.c_str(), "");
+			add_line(ustring(line.begin(), line.end()),
+				reinterpret_cast<const unsigned char*>(""));
 			if (out)
 				quest_entries.back().save(out);
 		}
@@ -2009,7 +2091,7 @@ void Questlog_Container::load(void)
 }
 
 
-extern "C" void add_questlog (char *t, int len)
+extern "C" void add_questlog(const unsigned char *t, int len)
 {
 	questlog_container.add_entry(t, len);
 }

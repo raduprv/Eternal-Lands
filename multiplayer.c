@@ -711,7 +711,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 						char cur_npc_name[sizeof(npc_name)];
 						safe_strncpy2(cur_npc_name, (char *)npc_name, sizeof(npc_name), sizeof(npc_name));
 						safe_strncpy((char *)npc_name, "<None>", sizeof(npc_name));
-						add_questlog((char*)text_buf, len);
+						add_questlog(text_buf, len);
 						safe_strncpy2((char *)npc_name, cur_npc_name, sizeof(npc_name), sizeof(npc_name));
 					}
 				}
@@ -1522,13 +1522,13 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					// double color code, this text
 					// should be added to the quest log
 					safe_strncpy2((char*)text_buf, (char*)&in_data[4], sizeof(text_buf), data_length - 4);
-					add_questlog ((char*)text_buf, strlen((char*)text_buf));
+					add_questlog(text_buf, strlen((char*)text_buf));
 				}
 				// if we're expecting a quest entry, this will be it
 				else if (waiting_for_questlog_entry())
 				{
 					safe_strncpy2((char*)text_buf, (char*)&in_data[3], sizeof(text_buf), data_length - 3);
-					add_questlog ((char*)text_buf, strlen((char*)text_buf));
+					add_questlog(text_buf, strlen((char*)text_buf));
 				}
 			}
 			break;
