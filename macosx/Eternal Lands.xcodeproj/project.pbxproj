@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 44;
+	objectVersion = 50;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -167,19 +167,10 @@
 		1F812DA40D03511A008792A7 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F812DA30D03511A008792A7 /* OpenGL.framework */; };
 		1F812DC70D03572D008792A7 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F812DC60D03572D008792A7 /* OpenAL.framework */; };
 		1F812DFA0D035D97008792A7 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F812DF90D035D97008792A7 /* AudioToolbox.framework */; };
-		1F812E780D03A88E008792A7 /* servers.lst in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1F812B560D033551008792A7 /* servers.lst */; };
-		1F8B12360D1B0DE1009669B3 /* cal3d.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FF1FA950D1AE4940002D512 /* cal3d.framework */; };
-		1F8B12370D1B0DE1009669B3 /* ogg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FF1FA960D1AE4940002D512 /* ogg.framework */; };
-		1F8B12380D1B0DE1009669B3 /* png.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FF1FA970D1AE4940002D512 /* png.framework */; };
-		1F8B12390D1B0DE1009669B3 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FF1FA980D1AE4940002D512 /* SDL.framework */; };
-		1F8B123A0D1B0DE1009669B3 /* SDL_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FF1FA990D1AE4940002D512 /* SDL_image.framework */; };
-		1F8B123B0D1B0DE1009669B3 /* SDL_net.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FF1FA9A0D1AE4940002D512 /* SDL_net.framework */; };
-		1F8B123C0D1B0DE1009669B3 /* vorbis.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FF1FA9B0D1AE4940002D512 /* vorbis.framework */; };
 		1F8F612D10CDC8CD007B270D /* emotes.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F8F612710CDC8CD007B270D /* emotes.c */; };
 		1F8F612E10CDC8CD007B270D /* hash.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F8F612910CDC8CD007B270D /* hash.c */; };
 		1F8F612F10CDC8CD007B270D /* multiplayer.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F8F612B10CDC8CD007B270D /* multiplayer.c */; };
 		1F8F613010CDC8CD007B270D /* text.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F8F612C10CDC8CD007B270D /* text.c */; };
-		1F94C1AC0CFE5B4D00E88CB7 /* SDLmain.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F94C1AB0CFE5B4D00E88CB7 /* SDLmain.m */; };
 		1FB7E40D143560CB002C4FEA /* elloggingwrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7E409143560CB002C4FEA /* elloggingwrapper.cpp */; };
 		1FB7E414143560DE002C4FEA /* hardwarebuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7E410143560DE002C4FEA /* hardwarebuffer.cpp */; };
 		1FB7E415143560DE002C4FEA /* logging.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7E412143560DE002C4FEA /* logging.cpp */; };
@@ -204,13 +195,6 @@
 		1FB7E44E14356236002C4FEA /* fileutil.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7E44C14356236002C4FEA /* fileutil.c */; };
 		1FC155580FE906160046D7FE /* user_menus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FC155560FE906160046D7FE /* user_menus.cpp */; };
 		1FD61F5F0E2CCB560085FD81 /* effect_staff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FD61F5D0E2CCB560085FD81 /* effect_staff.cpp */; };
-		1FF1FA9C0D1AE4940002D512 /* cal3d.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1FF1FA950D1AE4940002D512 /* cal3d.framework */; };
-		1FF1FA9D0D1AE4940002D512 /* ogg.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1FF1FA960D1AE4940002D512 /* ogg.framework */; };
-		1FF1FA9E0D1AE4940002D512 /* png.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1FF1FA970D1AE4940002D512 /* png.framework */; };
-		1FF1FA9F0D1AE4940002D512 /* SDL.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1FF1FA980D1AE4940002D512 /* SDL.framework */; };
-		1FF1FAA00D1AE4940002D512 /* SDL_image.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1FF1FA990D1AE4940002D512 /* SDL_image.framework */; };
-		1FF1FAA10D1AE4940002D512 /* SDL_net.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1FF1FA9A0D1AE4940002D512 /* SDL_net.framework */; };
-		1FF1FAA20D1AE4940002D512 /* vorbis.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1FF1FA9B0D1AE4940002D512 /* vorbis.framework */; };
 		7B0B8C9916982A1000D75AD9 /* icon_window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0B8C9816982A1000D75AD9 /* icon_window.cpp */; };
 		7B0B8CB016AD61C000D75AD9 /* command_queue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0B8CAF16AD61C000D75AD9 /* command_queue.cpp */; };
 		7B0B8CB716CA78C000D75AD9 /* trade_log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0B8CB616CA78C000D75AD9 /* trade_log.cpp */; };
@@ -225,7 +209,23 @@
 		7B80F34D187DA85B00C81403 /* hud_indicators.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B80F34B187DA85B00C81403 /* hud_indicators.cpp */; };
 		7B80F34E187DA85B00C81403 /* hud_timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B80F34C187DA85B00C81403 /* hud_timer.cpp */; };
 		7BDF3E1A20D009CA007BE401 /* el_memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 7BDF3E1820D009CA007BE401 /* el_memory.c */; };
-		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+		D730263E244EE9FE00A6C002 /* data in Copy Files */ = {isa = PBXBuildFile; fileRef = D730263C244EE9FD00A6C002 /* data */; };
+		D730265B244F5C8800A6C002 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+		D7302670244F639300A6C002 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D7302669244F639200A6C002 /* SDL2.framework */; };
+		D7302671244F639300A6C002 /* SDL2.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = D7302669244F639200A6C002 /* SDL2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D7302672244F639300A6C002 /* SDL2_net.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D730266A244F639200A6C002 /* SDL2_net.framework */; };
+		D7302673244F639300A6C002 /* SDL2_net.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = D730266A244F639200A6C002 /* SDL2_net.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D7302674244F639300A6C002 /* ogg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D730266B244F639200A6C002 /* ogg.framework */; };
+		D7302675244F639300A6C002 /* ogg.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = D730266B244F639200A6C002 /* ogg.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D7302676244F639300A6C002 /* cal3d.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D730266C244F639200A6C002 /* cal3d.framework */; };
+		D7302677244F639300A6C002 /* cal3d.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = D730266C244F639200A6C002 /* cal3d.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D7302678244F639300A6C002 /* libpng.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D730266D244F639300A6C002 /* libpng.framework */; };
+		D7302679244F639300A6C002 /* libpng.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = D730266D244F639300A6C002 /* libpng.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D730267A244F639300A6C002 /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D730266E244F639300A6C002 /* SDL2_image.framework */; };
+		D730267B244F639300A6C002 /* SDL2_image.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = D730266E244F639300A6C002 /* SDL2_image.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D7436E7E24598A2100875ABE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D7436E7B2459829500875ABE /* Images.xcassets */; };
+		D7437F10245ABAD100875ABE /* vorbis.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D7437F0F245ABAD100875ABE /* vorbis.framework */; };
+		D7437F11245ABAD100875ABE /* vorbis.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = D7437F0F245ABAD100875ABE /* vorbis.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E18287A10EFFFC320046818E /* buffs.c in Sources */ = {isa = PBXBuildFile; fileRef = E182879E0EFFFC320046818E /* buffs.c */; };
 		E1914A6A1305B1A8004CD9C1 /* image.c in Sources */ = {isa = PBXBuildFile; fileRef = E1914A661305B1A8004CD9C1 /* image.c */; };
 		E1914A6B1305B1A8004CD9C1 /* image_loading.c in Sources */ = {isa = PBXBuildFile; fileRef = E1914A681305B1A8004CD9C1 /* image_loading.c */; };
@@ -246,31 +246,31 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				1FF1FA9C0D1AE4940002D512 /* cal3d.framework in Copy Frameworks into .app bundle */,
-				1FF1FA9D0D1AE4940002D512 /* ogg.framework in Copy Frameworks into .app bundle */,
-				1FF1FA9E0D1AE4940002D512 /* png.framework in Copy Frameworks into .app bundle */,
-				1FF1FA9F0D1AE4940002D512 /* SDL.framework in Copy Frameworks into .app bundle */,
-				1FF1FAA00D1AE4940002D512 /* SDL_image.framework in Copy Frameworks into .app bundle */,
-				1FF1FAA10D1AE4940002D512 /* SDL_net.framework in Copy Frameworks into .app bundle */,
-				1FF1FAA20D1AE4940002D512 /* vorbis.framework in Copy Frameworks into .app bundle */,
+				D7302679244F639300A6C002 /* libpng.framework in Copy Frameworks into .app bundle */,
+				D7302671244F639300A6C002 /* SDL2.framework in Copy Frameworks into .app bundle */,
+				D7302673244F639300A6C002 /* SDL2_net.framework in Copy Frameworks into .app bundle */,
+				D730267B244F639300A6C002 /* SDL2_image.framework in Copy Frameworks into .app bundle */,
+				D7302677244F639300A6C002 /* cal3d.framework in Copy Frameworks into .app bundle */,
+				D7437F11245ABAD100875ABE /* vorbis.framework in Copy Frameworks into .app bundle */,
+				D7302675244F639300A6C002 /* ogg.framework in Copy Frameworks into .app bundle */,
 			);
 			name = "Copy Frameworks into .app bundle";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		1F812E7A0D03A896008792A7 /* CopyFiles */ = {
+		1F812E7A0D03A896008792A7 /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = data;
+			dstPath = "";
 			dstSubfolderSpec = 7;
 			files = (
-				1F812E780D03A88E008792A7 /* servers.lst in CopyFiles */,
+				D730263E244EE9FE00A6C002 /* data in Copy Files */,
 			);
+			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		1F125FF40D91A4EF009099BE /* effect_glow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = effect_glow.cpp; sourceTree = "<group>"; };
 		1F125FF50D91A4EF009099BE /* effect_glow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = effect_glow.h; sourceTree = "<group>"; };
@@ -612,8 +612,6 @@
 		1F8F612A10CDC8CD007B270D /* hash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hash.h; path = ../hash.h; sourceTree = SOURCE_ROOT; };
 		1F8F612B10CDC8CD007B270D /* multiplayer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = multiplayer.c; path = ../multiplayer.c; sourceTree = SOURCE_ROOT; };
 		1F8F612C10CDC8CD007B270D /* text.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = text.c; path = ../text.c; sourceTree = SOURCE_ROOT; };
-		1F94C1AA0CFE5B4D00E88CB7 /* SDLmain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDLmain.h; sourceTree = SOURCE_ROOT; };
-		1F94C1AB0CFE5B4D00E88CB7 /* SDLmain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDLmain.m; sourceTree = SOURCE_ROOT; };
 		1FB7E409143560CB002C4FEA /* elloggingwrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = elloggingwrapper.cpp; path = ../elloggingwrapper.cpp; sourceTree = "<group>"; };
 		1FB7E40A143560CB002C4FEA /* elloggingwrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = elloggingwrapper.h; path = ../elloggingwrapper.h; sourceTree = "<group>"; };
 		1FB7E410143560DE002C4FEA /* hardwarebuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hardwarebuffer.cpp; sourceTree = "<group>"; };
@@ -661,16 +659,8 @@
 		1FC155570FE906160046D7FE /* user_menus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = user_menus.h; path = ../user_menus.h; sourceTree = SOURCE_ROOT; };
 		1FD61F5D0E2CCB560085FD81 /* effect_staff.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = effect_staff.cpp; sourceTree = "<group>"; };
 		1FD61F5E0E2CCB560085FD81 /* effect_staff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = effect_staff.h; sourceTree = "<group>"; };
-		1FF1FA950D1AE4940002D512 /* cal3d.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = cal3d.framework; sourceTree = EL_FRAMEWORKS_DIR; };
-		1FF1FA960D1AE4940002D512 /* ogg.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ogg.framework; sourceTree = EL_FRAMEWORKS_DIR; };
-		1FF1FA970D1AE4940002D512 /* png.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = png.framework; sourceTree = EL_FRAMEWORKS_DIR; };
-		1FF1FA980D1AE4940002D512 /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SDL.framework; sourceTree = EL_FRAMEWORKS_DIR; };
-		1FF1FA990D1AE4940002D512 /* SDL_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SDL_image.framework; sourceTree = EL_FRAMEWORKS_DIR; };
-		1FF1FA9A0D1AE4940002D512 /* SDL_net.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SDL_net.framework; sourceTree = EL_FRAMEWORKS_DIR; };
-		1FF1FA9B0D1AE4940002D512 /* vorbis.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = vorbis.framework; sourceTree = EL_FRAMEWORKS_DIR; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
-		32CA4F630368D1EE00C91783 /* EternalLands_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EternalLands_Prefix.pch; sourceTree = "<group>"; };
 		7B0B8C9816982A1000D75AD9 /* icon_window.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = icon_window.cpp; path = ../icon_window.cpp; sourceTree = SOURCE_ROOT; };
 		7B0B8CAF16AD61C000D75AD9 /* command_queue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = command_queue.cpp; path = ../command_queue.cpp; sourceTree = SOURCE_ROOT; };
 		7B0B8CB616CA78C000D75AD9 /* trade_log.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = trade_log.cpp; path = ../trade_log.cpp; sourceTree = SOURCE_ROOT; };
@@ -694,7 +684,18 @@
 		7BDF3E1820D009CA007BE401 /* el_memory.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = el_memory.c; path = ../el_memory.c; sourceTree = SOURCE_ROOT; };
 		7BDF3E1920D009CA007BE401 /* el_memory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = el_memory.h; path = ../el_memory.h; sourceTree = SOURCE_ROOT; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		8D1107320486CEB800E47090 /* EternalLands.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EternalLands.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8D1107320486CEB800E47090 /* Eternal Lands.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Eternal Lands.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D730263C244EE9FD00A6C002 /* data */ = {isa = PBXFileReference; lastKnownFileType = folder; name = data; path = "../../EL Copy Files/data"; sourceTree = "<group>"; };
+		D7302641244F081F00A6C002 /* Eternal Lands.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Eternal Lands.entitlements"; sourceTree = "<group>"; };
+		D7302669244F639200A6C002 /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = ../../../Library/Frameworks/SDL2.framework; sourceTree = "<group>"; };
+		D730266A244F639200A6C002 /* SDL2_net.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_net.framework; path = ../../../Library/Frameworks/SDL2_net.framework; sourceTree = "<group>"; };
+		D730266B244F639200A6C002 /* ogg.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ogg.framework; path = ../../../Library/Frameworks/ogg.framework; sourceTree = "<group>"; };
+		D730266C244F639200A6C002 /* cal3d.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = cal3d.framework; path = ../../../Library/Frameworks/cal3d.framework; sourceTree = "<group>"; };
+		D730266D244F639300A6C002 /* libpng.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libpng.framework; path = ../../../Library/Frameworks/libpng.framework; sourceTree = "<group>"; };
+		D730266E244F639300A6C002 /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_image.framework; path = ../../../Library/Frameworks/SDL2_image.framework; sourceTree = "<group>"; };
+		D7436E7B2459829500875ABE /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "Eternal Lands/Images.xcassets"; sourceTree = "<group>"; };
+		D7437F0C245AB82B00875ABE /* Vorbis.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vorbis.framework; path = ../../../Library/Frameworks/Vorbis.framework; sourceTree = "<group>"; };
+		D7437F0F245ABAD100875ABE /* vorbis.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = vorbis.framework; path = ../../../Library/Frameworks/vorbis.framework; sourceTree = "<group>"; };
 		E182879E0EFFFC320046818E /* buffs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = buffs.c; path = ../buffs.c; sourceTree = SOURCE_ROOT; };
 		E182879F0EFFFC320046818E /* buffs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = buffs.h; path = ../buffs.h; sourceTree = SOURCE_ROOT; };
 		E18287A00EFFFC320046818E /* eye_candy_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = eye_candy_types.h; path = ../eye_candy_types.h; sourceTree = SOURCE_ROOT; };
@@ -726,42 +727,26 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1F8B12360D1B0DE1009669B3 /* cal3d.framework in Frameworks */,
-				1F8B12370D1B0DE1009669B3 /* ogg.framework in Frameworks */,
-				1F8B12380D1B0DE1009669B3 /* png.framework in Frameworks */,
-				1F8B12390D1B0DE1009669B3 /* SDL.framework in Frameworks */,
-				1F8B123A0D1B0DE1009669B3 /* SDL_image.framework in Frameworks */,
-				1F8B123B0D1B0DE1009669B3 /* SDL_net.framework in Frameworks */,
-				1F8B123C0D1B0DE1009669B3 /* vorbis.framework in Frameworks */,
-				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
+				D7302670244F639300A6C002 /* SDL2.framework in Frameworks */,
+				D7437F10245ABAD100875ABE /* vorbis.framework in Frameworks */,
+				D730265B244F5C8800A6C002 /* Cocoa.framework in Frameworks */,
+				D7302676244F639300A6C002 /* cal3d.framework in Frameworks */,
 				1F812DA40D03511A008792A7 /* OpenGL.framework in Frameworks */,
 				1F812DC70D03572D008792A7 /* OpenAL.framework in Frameworks */,
+				D7302674244F639300A6C002 /* ogg.framework in Frameworks */,
+				D7302678244F639300A6C002 /* libpng.framework in Frameworks */,
 				1F812DFA0D035D97008792A7 /* AudioToolbox.framework in Frameworks */,
+				D7302672244F639300A6C002 /* SDL2_net.framework in Frameworks */,
+				D730267A244F639300A6C002 /* SDL2_image.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		080E96DDFE201D6D7F000001 /* Classes */ = {
-			isa = PBXGroup;
-			children = (
-				1F94C1AA0CFE5B4D00E88CB7 /* SDLmain.h */,
-				1F94C1AB0CFE5B4D00E88CB7 /* SDLmain.m */,
-			);
-			name = Classes;
-			sourceTree = "<group>";
-		};
 		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				1FF1FA950D1AE4940002D512 /* cal3d.framework */,
-				1FF1FA960D1AE4940002D512 /* ogg.framework */,
-				1FF1FA970D1AE4940002D512 /* png.framework */,
-				1FF1FA980D1AE4940002D512 /* SDL.framework */,
-				1FF1FA990D1AE4940002D512 /* SDL_image.framework */,
-				1FF1FA9A0D1AE4940002D512 /* SDL_net.framework */,
-				1FF1FA9B0D1AE4940002D512 /* vorbis.framework */,
 				1F812DC60D03572D008792A7 /* OpenAL.framework */,
 				1F812DA30D03511A008792A7 /* OpenGL.framework */,
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
@@ -782,7 +767,7 @@
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8D1107320486CEB800E47090 /* EternalLands.app */,
+				8D1107320486CEB800E47090 /* Eternal Lands.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1317,9 +1302,9 @@
 		29B97314FDCFA39411CA2CEA /* EternalLands */ = {
 			isa = PBXGroup;
 			children = (
+				D7302641244F081F00A6C002 /* Eternal Lands.entitlements */,
+				D730263C244EE9FD00A6C002 /* data */,
 				1F8128D90D033520008792A7 /* elc */,
-				080E96DDFE201D6D7F000001 /* Classes */,
-				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
@@ -1327,19 +1312,11 @@
 			name = EternalLands;
 			sourceTree = "<group>";
 		};
-		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
-			isa = PBXGroup;
-			children = (
-				32CA4F630368D1EE00C91783 /* EternalLands_Prefix.pch */,
-			);
-			name = "Other Sources";
-			sourceTree = "<group>";
-		};
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				D7436E7B2459829500875ABE /* Images.xcassets */,
 				8D1107310486CEB800E47090 /* Info.plist */,
-				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -1347,6 +1324,14 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D7437F0F245ABAD100875ABE /* vorbis.framework */,
+				D7437F0C245AB82B00875ABE /* Vorbis.framework */,
+				D730266C244F639200A6C002 /* cal3d.framework */,
+				D730266D244F639300A6C002 /* libpng.framework */,
+				D730266B244F639200A6C002 /* ogg.framework */,
+				D730266E244F639300A6C002 /* SDL2_image.framework */,
+				D730266A244F639200A6C002 /* SDL2_net.framework */,
+				D7302669244F639200A6C002 /* SDL2.framework */,
 				1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */,
 				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
 			);
@@ -1356,23 +1341,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		8D1107260486CEB800E47090 /* EternalLands */ = {
+		8D1107260486CEB800E47090 /* Eternal Lands */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "EternalLands" */;
+			buildConfigurationList = C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "Eternal Lands" */;
 			buildPhases = (
 				8D11072C0486CEB800E47090 /* Sources */,
 				8D11072E0486CEB800E47090 /* Frameworks */,
 				002F39FD09D0883400EBEB88 /* Copy Frameworks into .app bundle */,
-				1F812E7A0D03A896008792A7 /* CopyFiles */,
+				1F812E7A0D03A896008792A7 /* Copy Files */,
+				D7436E7D24598A1400875ABE /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = EternalLands;
+			name = "Eternal Lands";
 			productInstallPath = "$(HOME)/Applications";
 			productName = EternalLands;
-			productReference = 8D1107320486CEB800E47090 /* EternalLands.app */;
+			productReference = 8D1107320486CEB800E47090 /* Eternal Lands.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -1381,32 +1367,42 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastUpgradeCheck = 1140;
 				ORGANIZATIONNAME = "eternal-lands.com";
 			};
-			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "EternalLands" */;
-			compatibilityVersion = "Xcode 3.0";
+			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Eternal Lands" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
 			hasScannedForEncodings = 1;
 			knownRegions = (
-				English,
-				Japanese,
-				French,
-				German,
+				en,
+				Base,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* EternalLands */;
 			projectDirPath = "";
 			projectRoot = ..;
 			targets = (
-				8D1107260486CEB800E47090 /* EternalLands */,
+				8D1107260486CEB800E47090 /* Eternal Lands */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D7436E7D24598A1400875ABE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D7436E7E24598A2100875ABE /* Images.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		8D11072C0486CEB800E47090 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1F94C1AC0CFE5B4D00E88CB7 /* SDLmain.m in Sources */,
 				1F812B930D033551008792A7 /* 2d_objects.c in Sources */,
 				1F812B940D033551008792A7 /* 3d_objects.c in Sources */,
 				1F812BDE0D033551008792A7 /* actor_scripts.c in Sources */,
@@ -1622,25 +1618,24 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXVariantGroup section */
-		089C165CFE840E0CC02AAC07 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				089C165DFE840E0CC02AAC07 /* English */,
-			);
-			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
-
 /* Begin XCBuildConfiguration section */
 		C01FCF4B08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_ENTITLEMENTS = "Eternal Lands.entitlements";
+				CODE_SIGN_IDENTITY = "Developer ID Application: Ben Doughty (58CZVHK7KH)";
+				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
+				CURRENT_PROJECT_VERSION = 1.9.5p8;
+				DEVELOPMENT_TEAM = 58CZVHK7KH;
+				ENABLE_HARDENED_RUNTIME = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(USER_LIBRARY_DIR)/Frameworks",
+					"$(PROJECT_DIR)",
+				);
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ECDEBUGWIN,
@@ -1662,7 +1657,21 @@
 				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				PRODUCT_NAME = EternalLands;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.9.5p8;
+				OTHER_CFLAGS = (
+					"-I/Users/dev/Library/Frameworks/SDL2.Framework/Headers/",
+					"-I/Users/dev/Library/Frameworks/SDL2_image.Framework/Headers/",
+					"-I/Users/dev/Library/Frameworks/SDL2_net.Framework/Headers/",
+					"-Wno-deprecated-declarations",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.eternal-lands.Eternal-Lands";
+				PRODUCT_NAME = "Eternal Lands";
+				PROVISIONING_PROFILE_SPECIFIER = "Eternal Lands";
 				WRAPPER_EXTENSION = app;
 				ZERO_LINK = YES;
 			};
@@ -1671,14 +1680,20 @@
 		C01FCF4C08A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1)";
-				ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1 = "ppc i386";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_ENTITLEMENTS = "Eternal Lands.entitlements";
+				CODE_SIGN_IDENTITY = "Developer ID Application: Ben Doughty (58CZVHK7KH)";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1.9.5p8;
+				DEVELOPMENT_TEAM = 58CZVHK7KH;
+				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(EL_FRAMEWORKS_DIR)",
+					"$(USER_LIBRARY_DIR)/Frameworks",
+					"$(PROJECT_DIR)",
 				);
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_MODEL_TUNING = G5;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					CLUSTER_INSIDES,
 					CUSTOM_LOOK,
@@ -1709,7 +1724,21 @@
 				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				PRODUCT_NAME = EternalLands;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.9.5p8;
+				OTHER_CFLAGS = (
+					"-I/Users/dev/Library/Frameworks/SDL2.Framework/Headers/",
+					"-I/Users/dev/Library/Frameworks/SDL2_image.Framework/Headers/",
+					"-I/Users/dev/Library/Frameworks/SDL2_net.Framework/Headers/",
+					"-Wno-deprecated-declarations",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.eternal-lands.Eternal-Lands";
+				PRODUCT_NAME = "Eternal Lands";
+				PROVISIONING_PROFILE_SPECIFIER = "Eternal Lands";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
@@ -1717,18 +1746,35 @@
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1)";
-				ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1 = "ppc i386";
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1.9.5;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				FRAMEWORK_SEARCH_PATHS = (
-					"$(EL_FRAMEWORKS_DIR)",
 					"$(HOME)/Library/Frameworks",
 					/System/Library/Frameworks,
 					/Library/Frameworks,
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ECDEBUGWIN,
@@ -1749,7 +1795,11 @@
 					NEW_EYES,
 				);
 				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					/usr/include/libxml2,
@@ -1762,7 +1812,7 @@
 					"$(EL_FRAMEWORKS_DIR)/Vorbis.framework/Headers",
 					"$(EL_FRAMEWORKS_DIR)/png.framework/Headers",
 				);
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-lz",
 					"-lxml2",
@@ -1773,8 +1823,7 @@
 					"-lstdc++",
 					"-liconv",
 				);
-				PREBINDING = NO;
-				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.4u.sdk";
+				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = Debug;
@@ -1782,13 +1831,29 @@
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
 				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "ppc i386 ppc64 x86_64";
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1.9.5;
 				DEPLOYMENT_LOCATION = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = (
-					"$(EL_FRAMEWORKS_DIR)",
 					"$(HOME)/Library/Frameworks",
 					/System/Library/Frameworks,
 					/Library/Frameworks,
@@ -1796,6 +1861,7 @@
 				);
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_MODEL_TUNING = "";
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 2;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					CLUSTER_INSIDES,
@@ -1815,7 +1881,11 @@
 					NEW_EYES,
 				);
 				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					/usr/include/libxml2,
@@ -1838,8 +1908,7 @@
 					"-lstdc++",
 					"-liconv",
 				);
-				PREBINDING = NO;
-				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.4u.sdk";
+				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = Release;
@@ -1847,7 +1916,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "EternalLands" */ = {
+		C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "Eternal Lands" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C01FCF4B08A954540054247B /* Debug */,
@@ -1856,7 +1925,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		C01FCF4E08A954540054247B /* Build configuration list for PBXProject "EternalLands" */ = {
+		C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Eternal Lands" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C01FCF4F08A954540054247B /* Debug */,

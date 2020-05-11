@@ -58,7 +58,7 @@ void start_paste(widget_list *widget)
 	//require_noerr( err, CantCreateClipboard );
 
   	err = PasteboardGetItemIdentifier( gClipboard, 1, &itemID );
-	err = PasteboardCopyItemFlavorData( gClipboard, itemID, CFSTR("com.apple.traditional-mac-plain-text"), &flavorData );
+	err = PasteboardCopyItemFlavorData( gClipboard, itemID, CFSTR("public.utf8-plain-text"), &flavorData );
 
 	int flavorDataSize = CFDataGetLength(flavorData);
 	flavorText=(char*)malloc(flavorDataSize+1);
@@ -98,7 +98,7 @@ void copy_to_clipboard(const char* text)
 
 	// add text data to the pasteboard
 	err = PasteboardPutItemFlavor( gClipboard, (PasteboardItemID)1,
-		CFSTR("com.apple.traditional-mac-plain-text"), textData, 0 );
+		CFSTR("public.utf8-plain-text"), textData, 0 );
 	CFRelease(textData);
 	CFRelease( gClipboard );
 }
