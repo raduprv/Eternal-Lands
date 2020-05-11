@@ -1420,7 +1420,7 @@ void draw_string_shadowed_width(int x, int y, const unsigned char* text,
 		strlen(reinterpret_cast<const char*>(text)), x, y, options);
 }
 
-void show_help_coloured_scaled(const unsigned char *text, int x, int y,
+void show_help_colored_scaled(const unsigned char *text, int x, int y,
 	float r, float g, float b, float text_zoom)
 {
 	TextDrawOptions options = TextDrawOptions().set_help()
@@ -1430,7 +1430,7 @@ void show_help_coloured_scaled(const unsigned char *text, int x, int y,
 		strlen(reinterpret_cast<const char*>(text)), x, y, options);
 }
 
-void show_help_coloured_scaled_centered(const unsigned char *text, int x, int y,
+void show_help_colored_scaled_centered(const unsigned char *text, int x, int y,
 	float r, float g, float b, float text_zoom)
 {
 	TextDrawOptions options = TextDrawOptions().set_help()
@@ -1440,7 +1440,7 @@ void show_help_coloured_scaled_centered(const unsigned char *text, int x, int y,
 		strlen(reinterpret_cast<const char*>(text)), x, y, options);
 }
 
-void show_help_coloured_scaled_right(const unsigned char *text, int x, int y,
+void show_help_colored_scaled_right(const unsigned char *text, int x, int y,
 	float r, float g, float b, float text_zoom)
 {
 	TextDrawOptions options = TextDrawOptions().set_help()

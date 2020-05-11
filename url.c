@@ -563,7 +563,8 @@ CHECK_GL_ERRORS();
 				glColor3f(1.0f,1.0f,1.0f);
 				while(*thetext != '\0')
 				{
-					float char_width = get_char_width_ui(*thetext++, win->small_font_len_x / 12.0);
+					float char_width = get_char_width_ui(*thetext++,
+						win->current_scale * DEFAULT_SMALL_RATIO);
 					if (((string_width+char_width) > (win->len_x - 2*url_win_sep)) || (*thetext == '\0'))
 					{
 						if (*thetext == '\0') /* catch the last line */

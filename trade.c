@@ -69,8 +69,8 @@ static int display_trade_handler(window_info *win)
 		glColor3f(1.0f,0.0f,0.0f);
 	}
 
-	x_off = trade_border + ITEM_COLS / 2 * trade_gridsize - (strlen(accept_str) * win->small_font_len_x) / 2;
-	draw_string_small_zoomed(x_off, button_y_bot - win->default_font_len_y * 0.9, (unsigned char*)accept_str, 1, win->current_scale);
+	x_off = trade_border + ITEM_COLS / 2 * trade_gridsize;
+	draw_string_small_zoomed_centered(x_off, button_y_bot - win->default_font_len_y * 0.9, (unsigned char*)accept_str, 1, win->current_scale);
 
 	if(trade_other_accepted<=0){    // RED
 		glColor3f(1.0f,0.0f,0.0f);
@@ -80,19 +80,21 @@ static int display_trade_handler(window_info *win)
 		glColor3f(0.0f,1.0f,0.0f);
 	}
 
-	x_off = trade_border + (ITEM_COLS + 1) * trade_gridsize + ITEM_COLS / 2 * trade_gridsize - (strlen(accept_str) * win->small_font_len_x) / 2;
-	draw_string_small_zoomed(x_off, button_y_bot - win->default_font_len_y * 0.9, (unsigned char*)accept_str, 1, win->current_scale);
+	x_off = trade_border + (ITEM_COLS + 1) * trade_gridsize + ITEM_COLS / 2 * trade_gridsize;
+	draw_string_small_zoomed_centered(x_off, button_y_bot - win->default_font_len_y * 0.9, (unsigned char*)accept_str, 1, win->current_scale);
 
 	glColor3f(0.77f,0.57f,0.39f);
 
 	//Draw the trade session names
-	x_off = trade_border + ITEM_COLS / 2 * trade_gridsize - (strlen(you_str) * win->small_font_len_x) / 2;
-	draw_string_small_zoomed(x_off, trade_grid_start_y - win->small_font_len_y, (unsigned char*)you_str, 1, win->current_scale);
-	x_off = trade_border + (ITEM_COLS + 1) * trade_gridsize + ITEM_COLS / 2 * trade_gridsize - (strlen(other_player_trade_name) * win->small_font_len_x) / 2;
-	draw_string_small_zoomed(x_off, trade_grid_start_y - win->small_font_len_y, (unsigned char*)other_player_trade_name, 1, win->current_scale);
+	x_off = trade_border + ITEM_COLS / 2 * trade_gridsize;
+	draw_string_small_zoomed_centered(x_off, trade_grid_start_y - win->small_font_len_y, (unsigned char*)you_str, 1, win->current_scale);
+	x_off = trade_border + (ITEM_COLS + 1) * trade_gridsize + ITEM_COLS / 2 * trade_gridsize;
+	draw_string_small_zoomed_centered(x_off, trade_grid_start_y - win->small_font_len_y, (unsigned char*)other_player_trade_name, 1, win->current_scale);
 
 	//Draw the X for aborting the trade
-	draw_string_zoomed(win->len_x - (win->box_size - win->box_size/5), win->box_size/10, (unsigned char*)"X", 1, win->current_scale);
+	draw_string_zoomed_centered(win->len_x - win->box_size/2,
+		(win->box_size - win->default_font_len_y) / 2, (const unsigned char*)"X",
+		1, win->current_scale);
 
 	glColor3f(1.0f,1.0f,1.0f);
 
@@ -220,9 +222,11 @@ static int display_trade_handler(window_info *win)
 
 	//Draw the help text
 	if(show_help_text && show_abort_help)
-		show_help(abort_str,
-			win->len_x - (win->box_size - win->box_size / 5) / 2 - (win->small_font_len_x * strlen(abort_str)) / 2,
-			win->box_size + win->box_size/5, win->current_scale);
+	{
+		show_help_colored_scaled_centered((const unsigned char*)abort_str,
+			win->len_x - win->box_size / 2, win->box_size + win->box_size/5,
+			1.0f, 1.0f, 1.0f, win->current_scale);
+	}
 
 	glEnable(GL_TEXTURE_2D);
 

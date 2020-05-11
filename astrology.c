@@ -449,7 +449,7 @@ static int display_astrology_handler(window_info *win)
 			}
 
 			//draw the name of the stone
-			draw_string_small_zoomed((win->len_x - strlen(stone_name) * win->small_font_len_x) / 2, astro_border, (const unsigned char*)stone_name, 1, win->current_scale);
+			draw_string_small_zoomed_centered(win->len_x / 2, astro_border, (const unsigned char*)stone_name, 1, win->current_scale);
 
 			//draw the first indicator item
 			draw_string_small_zoomed (bar_left_x, bar_top_1 - win->small_font_len_y, (const unsigned char*)text_item1, 1, win->current_scale);
@@ -457,8 +457,8 @@ static int display_astrology_handler(window_info *win)
 			draw_string_small_zoomed (bar_left_x, bar_top_2 - win->small_font_len_y, (const unsigned char*)text_item2, 1, win->current_scale);
 
 			//draw the plus/minus
-			draw_string_small_zoomed (bar_left_x - win->small_font_len_x - astro_border, bar_top_1 + (progress_bar_height - win->small_font_len_y) / 2, (const unsigned char*)"-", 1, win->current_scale);
-			draw_string_small_zoomed (bar_left_x - win->small_font_len_x - astro_border, bar_top_2 + (progress_bar_height - win->small_font_len_y) / 2, (const unsigned char*)"-", 1, win->current_scale);
+			draw_string_small_zoomed_right(bar_left_x - astro_border, bar_top_1 + (progress_bar_height - win->small_font_len_y) / 2, (const unsigned char*)"-", 1, win->current_scale);
+			draw_string_small_zoomed_right(bar_left_x - astro_border, bar_top_2 + (progress_bar_height - win->small_font_len_y) / 2, (const unsigned char*)"-", 1, win->current_scale);
 
 			draw_string_small_zoomed (bar_left_x + 2 * progress_bar_width + astro_border, bar_top_1 + (progress_bar_height - win->small_font_len_y) / 2, (const unsigned char*)"+", 1, win->current_scale);
 			draw_string_small_zoomed (bar_left_x + 2 * progress_bar_width + astro_border, bar_top_2 + (progress_bar_height - win->small_font_len_y) / 2, (const unsigned char*)"+", 1, win->current_scale);
@@ -528,7 +528,7 @@ static int display_astrology_handler(window_info *win)
 			}
 
 			//draw the name of the predictor
-			draw_string_small_zoomed((win->len_x - strlen(stone_name) * win->small_font_len_x) / 2, 5, (const unsigned char*)stone_name, 1, win->current_scale);
+			draw_string_small_zoomed_centered(win->len_x / 2, 5, (const unsigned char*)stone_name, 1, win->current_scale);
 
 			//draw the prediction for 20 mins
 			draw_string_small_zoomed (bar_left_x, bar_top_1 - win->small_font_len_y, (const unsigned char*)text_item1, 1, win->current_scale);
@@ -538,9 +538,9 @@ static int display_astrology_handler(window_info *win)
 			draw_string_small_zoomed (bar_left_x, bar_top_3 - win->small_font_len_y, (const unsigned char*)text_item3, 1, win->current_scale);
 
 			//draw the plus/minus
-			draw_string_small_zoomed (bar_left_x - win->small_font_len_x - astro_border, bar_top_1 + (progress_bar_height - win->small_font_len_y) / 2, (const unsigned char*)"-", 1, win->current_scale);
-			draw_string_small_zoomed (bar_left_x - win->small_font_len_x - astro_border, bar_top_2 + (progress_bar_height - win->small_font_len_y) / 2, (const unsigned char*)"-", 1, win->current_scale);
-			draw_string_small_zoomed (bar_left_x - win->small_font_len_x - astro_border, bar_top_3 + (progress_bar_height - win->small_font_len_y) / 2, (const unsigned char*)"-", 1, win->current_scale);
+			draw_string_small_zoomed_right(bar_left_x - astro_border, bar_top_1 + (progress_bar_height - win->small_font_len_y) / 2, (const unsigned char*)"-", 1, win->current_scale);
+			draw_string_small_zoomed_right(bar_left_x - astro_border, bar_top_2 + (progress_bar_height - win->small_font_len_y) / 2, (const unsigned char*)"-", 1, win->current_scale);
+			draw_string_small_zoomed_right(bar_left_x - astro_border, bar_top_3 + (progress_bar_height - win->small_font_len_y) / 2, (const unsigned char*)"-", 1, win->current_scale);
 
 			draw_string_small_zoomed (bar_left_x + 2 * progress_bar_width + astro_border, bar_top_1 + (progress_bar_height - win->small_font_len_y) / 2, (const unsigned char*)"+", 1, win->current_scale);
 			draw_string_small_zoomed (bar_left_x + 2 * progress_bar_width + astro_border, bar_top_2 + (progress_bar_height - win->small_font_len_y) / 2, (const unsigned char*)"+", 1, win->current_scale);

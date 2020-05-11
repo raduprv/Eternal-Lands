@@ -505,7 +505,7 @@ static int display_ground_items_handler(window_info *win)
 	int i;
 	static Uint8 resizing = 0;
 	int yoffset = get_window_scroll_pos(win->window_id);
-	int but_text_x, but_text_y;
+	int but_text_y;
 
 	/* if resizing wait until we stop */
 	if (win->resized)
@@ -526,9 +526,8 @@ static int display_ground_items_handler(window_info *win)
 	// write "get all" in the "get all" box :)
 	strap_word(get_all_str,my_str);
 	glColor3f(0.77f,0.57f,0.39f);
-	but_text_x = (int)(0.5 + ((GRIDSIZE - (float)(3 * win->small_font_len_x)) / 2.0));
 	but_text_y = (int)(0.5 + ((GRIDSIZE - (float)(2 * win->small_font_len_y)) / 2.0));
-	draw_string_small_zoomed(win->len_x+but_text_x-GRIDSIZE, win->box_size+but_text_y+yoffset, (unsigned char*)my_str, 2, win->current_scale);
+	draw_string_small_zoomed_centered(win->len_x-GRIDSIZE/2, win->box_size+but_text_y+yoffset, (unsigned char*)my_str, 2, win->current_scale);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...

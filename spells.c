@@ -699,7 +699,7 @@ void draw_spell_icon_strings(window_info *win)
 		if ((poison_drop_counter > 0) && (active_spells[i].spell == 2) && show_poison_count)
 		{
 			safe_snprintf((char*)str, sizeof(str), "%d", poison_drop_counter );
-			draw_string_small_shadowed_zoomed(x_start+(x_sep-strlen((char *)str)*win->small_font_len_x)/2, y_start, str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
+			draw_string_small_shadowed_zoomed_centered(x_start+x_sep/2, y_start, str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
 		}
 		/* other strings on spell icons, timers perhaps .....*/
 		x_start += x_sep;
@@ -1080,8 +1080,11 @@ static int display_sigils_handler(window_info *win)
 	glEnable(GL_TEXTURE_2D);
 
 	if (show_last_spell_help && mqb_data[0] && mqb_data[0]->spell_id!=-1)
-		show_help(mqb_data[0]->spell_name, spell_icon_x - win->small_font_len_x * strlen(mqb_data[0]->spell_name),
-			spell_icon_y + (sigil_grid_size - win->small_font_len_y) / 2, win->current_scale);
+	{
+		show_help_colored_scaled_right((const unsigned char*)mqb_data[0]->spell_name,
+			spell_icon_x, spell_icon_y + (sigil_grid_size - win->small_font_len_y) / 2,
+			1.0f, 1.0f, 1.0f, win->current_scale * DEFAULT_SMALL_RATIO);
+	}
 	show_last_spell_help=0;
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();

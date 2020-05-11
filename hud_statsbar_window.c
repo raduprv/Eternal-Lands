@@ -101,7 +101,7 @@ static void draw_last_health_change(window_info *win)
 		else
 		{
 			safe_snprintf((char*)str, sizeof(str), " %d ", my_last_health.d);
-			show_help_coloured_scaled_right(str, health_bar_start_x+stats_bar_len/2-2, yoff, 1.0f, 0.0f, 0.0f, win->current_scale * DEFAULT_SMALL_RATIO);
+			show_help_colored_scaled_right(str, health_bar_start_x+stats_bar_len/2-2, yoff, 1.0f, 0.0f, 0.0f, win->current_scale * DEFAULT_SMALL_RATIO);
 		}
 	}
 	/* heal in green */
@@ -112,7 +112,7 @@ static void draw_last_health_change(window_info *win)
 		else
 		{
 			safe_snprintf((char*)str, sizeof(str), " %d ", my_last_health.h);
-			show_help_coloured_scaled(str, health_bar_start_x+stats_bar_len/2+2, yoff, 0.0f, 1.0f, 0.0f, win->current_scale * DEFAULT_SMALL_RATIO);
+			show_help_colored_scaled(str, health_bar_start_x+stats_bar_len/2+2, yoff, 0.0f, 1.0f, 0.0f, win->current_scale * DEFAULT_SMALL_RATIO);
 		}
 	}
 }

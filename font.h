@@ -1019,11 +1019,11 @@ static __inline__ void draw_string_small_shadowed_zoomed_centered(int x, int y,
 		fr, fg, fb, br, bg, bb, zoom * DEFAULT_SMALL_RATIO);
 }
 
-void show_help_coloured_scaled(const unsigned char *text, int x, int y,
+void show_help_colored_scaled(const unsigned char *text, int x, int y,
 	float r, float g, float b, float text_zoom);
-void show_help_coloured_scaled_centered(const unsigned char *text, int x, int y,
+void show_help_colored_scaled_centered(const unsigned char *text, int x, int y,
 	float r, float g, float b, float text_zoom);
-void show_help_coloured_scaled_right(const unsigned char *text, int x, int y,
+void show_help_colored_scaled_right(const unsigned char *text, int x, int y,
 	float r, float g, float b, float text_zoom);
 /*!
  * \ingroup font
@@ -1041,7 +1041,7 @@ void show_help_coloured_scaled_right(const unsigned char *text, int x, int y,
  */
 static __inline__ void show_help(const char *text, int x, int y, float scale)
 {
-	show_help_coloured_scaled((const unsigned char*)text, x, y, 1.0f, 1.0f, 1.0f,
+	show_help_colored_scaled((const unsigned char*)text, x, y, 1.0f, 1.0f, 1.0f,
 		scale * DEFAULT_SMALL_RATIO);
 }
 /*!
@@ -1060,7 +1060,7 @@ static __inline__ void show_help(const char *text, int x, int y, float scale)
  */
 static __inline__ void show_help_big(const char *text, int x, int y, float scale)
 {
-	show_help_coloured_scaled((const unsigned char*)text, x, y, 1.0f, 1.0f, 1.0f, scale);
+	show_help_colored_scaled((const unsigned char*)text, x, y, 1.0f, 1.0f, 1.0f, scale);
 }
 
 void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter,

@@ -456,7 +456,7 @@ static int post_display_storage_handler(window_info * win)
 		float line_height = enlarge_text() ? win->default_font_len_y : win->small_font_len_y;
 		unsigned char str[20];
 		safe_snprintf((char*)str, sizeof(str), "%d",storage_items[cur_item_over].quantity);
-		show_help_coloured_scaled_centered(str, mouse_x - win->pos_x,
+		show_help_colored_scaled_centered(str, mouse_x - win->pos_x,
 			mouse_y - win->pos_y - line_height, 1.0f, 1.0f, 1.0f, zoom);
 	}
 
