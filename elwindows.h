@@ -71,6 +71,7 @@ typedef	struct	{
 	int small_font_max_len_x;
 	int small_font_len_y;
 	int default_font_len_x;
+	int default_font_max_len_x;
 	int default_font_len_y;
 
 	/*!

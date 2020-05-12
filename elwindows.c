@@ -105,8 +105,8 @@ void update_window_scale(window_info *win, float scale_factor)
 			win->font_category, win->current_scale * DEFAULT_SMALL_RATIO);
 		win->small_font_len_y = get_line_height(win->font_category,
 			win->current_scale * DEFAULT_SMALL_RATIO);
-		win->default_font_len_x = get_max_char_width_zoom(win->font_category,
-			win->current_scale);
+		win->default_font_len_x = win->default_font_max_len_x = get_max_char_width_zoom(
+			win->font_category, win->current_scale);
 		win->default_font_len_y = get_line_height(win->font_category, win->current_scale);
 	}
 	else
@@ -117,7 +117,8 @@ void update_window_scale(window_info *win, float scale_factor)
 		win->small_font_len_x = win->small_font_max_len_x = get_max_char_width_zoom(
 			win->font_category, DEFAULT_SMALL_RATIO);
 		win->small_font_len_y = get_line_height(win->font_category, DEFAULT_SMALL_RATIO);
-		win->default_font_len_x = get_max_char_width_zoom(win->font_category, 1.0);
+		win->default_font_len_x = win->default_font_max_len_x = get_max_char_width_zoom(
+			win->font_category, 1.0);
 		win->default_font_len_y = get_line_height(win->font_category, 1.0);
 	}
 }
@@ -155,8 +156,8 @@ static void change_window_font(window_info *win, font_cat cat)
 				win->font_category, win->current_scale * DEFAULT_SMALL_RATIO);
 			win->small_font_len_y = get_line_height(win->font_category,
 				win->current_scale * DEFAULT_SMALL_RATIO);
-			win->default_font_len_x = get_max_char_width_zoom(win->font_category,
-				win->current_scale);
+			win->default_font_len_x = win->default_font_max_len_x = get_max_char_width_zoom(
+				win->font_category, win->current_scale);
 			win->default_font_len_y = get_line_height(win->font_category, win->current_scale);
 		}
 		else
@@ -164,7 +165,8 @@ static void change_window_font(window_info *win, font_cat cat)
 			win->small_font_len_x = win->small_font_max_len_x = get_max_char_width_zoom(
 				win->font_category, DEFAULT_SMALL_RATIO);
 			win->small_font_len_y = get_line_height(win->font_category, DEFAULT_SMALL_RATIO);
-			win->default_font_len_x = get_max_char_width_zoom(win->font_category, 1.0);
+			win->default_font_len_x = win->default_font_max_len_x = get_max_char_width_zoom(
+				win->font_category, 1.0);
 			win->default_font_len_y = get_line_height(win->font_category, 1.0);
 		}
 	}

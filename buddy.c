@@ -133,13 +133,13 @@ static int display_buddy_handler(window_info *win)
 		//glColor3f(0.77f, 0.59f, 0.39f);
 		glColor3f(0.3, 1, 0.3);
 		glBegin(GL_LINE_LOOP);
-			glVertex2i(request_box_start_x - win->small_font_len_x, 0);
+			glVertex2i(request_box_start_x - win->small_font_max_len_x, 0);
 			glVertex2i(request_box_start_x, win->small_font_len_y + 1);
 			glVertex2i(win->len_x - win->box_size - 1, win->small_font_len_y + 1);
 			glVertex2i(win->len_x - win->box_size - 1, 0);
 		glEnd();
 		glEnable(GL_TEXTURE_2D);
-		draw_string_small_zoomed(request_box_start_x + win->small_font_len_x + gx_adjust, 2 + gy_adjust, (unsigned char*)buddy_request_str, 1, win->current_scale);
+		draw_string_small_zoomed(request_box_start_x + win->small_font_max_len_x + gx_adjust, 2 + gy_adjust, (unsigned char*)buddy_request_str, 1, win->current_scale);
 	}
 	glColor3f(0.77f, 0.57f, 0.39f);
 #ifdef OPENGL_TRACE
@@ -170,7 +170,7 @@ static int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 	if(x > (win->len_x - win->box_size)) {
 		//Clicked on the scrollbar. Let it fall through.
 		return 0;
-	} else if(!queue_isempty(buddy_request_queue) && mx > (request_box_start_x - win->small_font_len_x) && y < (win->small_font_len_y + 1)) {
+	} else if(!queue_isempty(buddy_request_queue) && mx > (request_box_start_x - win->small_font_max_len_x) && y < (win->small_font_len_y + 1)) {
 		//Clicked on the requests button
 		while(!queue_isempty(buddy_request_queue)) {
 			char *name = queue_pop(buddy_request_queue);
@@ -268,40 +268,17 @@ static int click_change_buddy_handler(widget_list *w, int mx, int my, Uint32 fla
 	return 1;
 }
 
-void split_long_show_help(window_info *win, const char *str, int x, int y)
+static void split_long_show_help(window_info *win, const char *str, int x, int y)
 {
-	size_t max_width = (int)(0.5 + win->len_x / win->small_font_len_x);
 	size_t str_len = strlen(str);
-	size_t last_space_in_index = 0;
-	size_t last_space_out_index = 0;
-	size_t in_index = 0;
-	size_t out_index = 0;
-	size_t num_lines = 0;
-	char *tmp_str = (char *)malloc(str_len + 1);
+	unsigned char *tmp = malloc(str_len + 5);
 
-	while (in_index < str_len)
-	{
-		tmp_str[out_index] = str[in_index];
-		if (tmp_str[out_index] == ' ')
-		{
-			last_space_in_index = in_index;
-			last_space_out_index = out_index;
-		}
-		if ((++out_index > max_width) && last_space_out_index)
-		{
-			tmp_str[last_space_out_index] = '\0';
-			in_index = last_space_in_index;
-			last_space_out_index = out_index = 0;
-			show_help(tmp_str, x, y + num_lines++ * win->small_font_len_y, win->current_scale);
-		}
-		in_index++;
-	}
+	put_small_text_in_box_zoomed((const unsigned char*)str, str_len, win->len_x,
+		tmp, win->current_scale);
+	show_help((const char*)tmp, x, y, win->current_scale);
 
-	tmp_str[out_index] = '\0';
-	show_help(tmp_str, x, y + num_lines++ * win->small_font_len_y, win->current_scale);
-	free(tmp_str);
+	free(tmp);
 }
-
 
 static int name_onmouseover_handler(widget_list *widget, int mx, int my)
 {
@@ -441,7 +418,7 @@ int display_buddy_add(void)
 		label_width = widget_get_width(buddy_add_win, label_id);
 		input_id = pword_field_add_extended(buddy_add_win, input_id, NULL,
 			2 * buddy_border_space + label_width, buddy_border_space,
-			MAX_USERNAME_LENGTH * win->default_font_len_x, win->default_font_len_y + buddy_border_space,
+			MAX_USERNAME_LENGTH * win->default_font_max_len_x, win->default_font_len_y + buddy_border_space,
 			P_TEXT, win->current_scale, 0.77f, 0.57f, 0.39f, buddy_name_buffer, MAX_USERNAME_LENGTH);
 		widget_set_OnMouseover(buddy_add_win, label_id, name_onmouseover_handler);
 		widget_set_OnMouseover(buddy_add_win, input_id, name_onmouseover_handler);
@@ -496,7 +473,7 @@ static int display_buddy_change(_buddy *buddy)
 	name_id = label_add_extended(buddy_change_win, name_id, NULL,
 		2 * buddy_border_space + tmp_width, buddy_border_space, 0, win->current_scale, 0.77f, 0.57f, 0.39f, buddy_to_change);
 
-	buddy_change_x_len = 3 * buddy_border_space + tmp_width + MAX_USERNAME_LENGTH * win->default_font_len_x + win->box_size;
+	buddy_change_x_len = 3 * buddy_border_space + tmp_width + MAX_USERNAME_LENGTH * win->default_font_max_len_x + win->box_size;
 	buddy_change_y_len = 2 * buddy_border_space + widget_get_height(buddy_change_win, name_id);
 
 	buddy_type_input_id = -1;
@@ -518,7 +495,7 @@ static int display_buddy_change(_buddy *buddy)
 				0, i * 25 * win->current_scale, 0, type_labels_text[i], DEFAULT_SMALL_RATIO * win->current_scale, i==0);
 		multiselect_set_selected(buddy_change_win, buddy_type_input_id, buddy->type);
 
-		widget_set_OnMouseover(buddy_change_win, label_id, type_onmouseover_handler);
+		widget_set_OnMouseover(buddy_change_win, type_label_id, type_onmouseover_handler);
 		widget_set_OnMouseover(buddy_change_win, buddy_type_input_id, type_onmouseover_handler);
 
 		if ((3 * buddy_border_space + tmp_width + widget_get_width(buddy_change_win, buddy_type_input_id)) > buddy_change_x_len)
@@ -531,6 +508,7 @@ static int display_buddy_change(_buddy *buddy)
 	checkbox_label_id = label_add_extended(buddy_change_win, checkbox_label_id, NULL,
 		0, 0, 0, win->current_scale, 0.77f, 0.59f, 0.39f, buddy_delete_str);
 	widget_set_OnClick(buddy_change_win, checkbox_label_id, click_delete_checkbox_label);
+	widget_set_OnMouseover(buddy_change_win, checkbox_id, delete_onmouseover_handler);
 	widget_set_OnMouseover(buddy_change_win, checkbox_label_id, delete_onmouseover_handler);
 	tmp_width = widget_get_width(buddy_change_win, checkbox_id) + buddy_border_space + widget_get_width(buddy_change_win, checkbox_label_id);
 	widget_move(buddy_change_win, checkbox_id, (buddy_change_x_len - tmp_width) / 2, buddy_change_y_len);
@@ -681,12 +659,15 @@ static int ui_scale_buddy_handler(window_info *win)
 {
 	int button_len_y = (int)(0.5 + win->current_scale * 20);
 	buddy_border_space = (int)(0.5 + win->current_scale * 5);
-	buddy_name_step_y = (int)(0.5 + win->current_scale * 12);
+	buddy_name_step_y = get_line_height(UI_FONT, win->current_scale * DEFAULT_SMALL_RATIO);
 
-	buddy_menu_x_len = win->box_size + MAX_USERNAME_LENGTH * win->small_font_len_x + 2 * buddy_border_space;
+	buddy_menu_x_len = win->box_size + MAX_USERNAME_LENGTH * win->small_font_max_len_x + 2 * buddy_border_space;
 	buddy_menu_y_len = button_len_y + 2* buddy_border_space + num_displayed_buddies * buddy_name_step_y;
 
-	request_box_start_x = buddy_menu_x_len - win->box_size - (int)(0.5 + (strlen(buddy_request_str) + 2) * win->small_font_len_x);
+	request_box_start_x = buddy_menu_x_len - win->box_size
+		- get_string_width_ui((const unsigned char*)buddy_request_str,
+			win->current_scale * DEFAULT_SMALL_RATIO)
+		- 2 * win->small_font_max_len_x;
 
 	resize_window(win->window_id, buddy_menu_x_len, buddy_menu_y_len);
 
@@ -705,6 +686,13 @@ static int ui_scale_buddy_handler(window_info *win)
 	return 1;
 }
 
+static int change_buddy_font_handler(window_info *win, font_cat cat)
+{
+	if (cat != UI_FONT)
+		return 0;
+	return ui_scale_buddy_handler(win);
+}
+
 void display_buddy(void)
 {
 	if(buddy_win < 0)
@@ -719,6 +707,7 @@ void display_buddy(void)
 			set_window_handler(buddy_win, ELW_HANDLER_DISPLAY, &display_buddy_handler );
 			set_window_handler(buddy_win, ELW_HANDLER_CLICK, &click_buddy_handler );
 			set_window_handler(buddy_win, ELW_HANDLER_UI_SCALE, &ui_scale_buddy_handler );
+			set_window_handler(buddy_win, ELW_HANDLER_FONT_CHANGE, &change_buddy_font_handler);
 
 			buddy_scroll_id = vscrollbar_add_extended (buddy_win, buddy_scroll_id, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 0);
 			buddy_button_id = button_add_extended(buddy_win, buddy_button_id, NULL, 0, 0, 0, 0, BUTTON_SQUARE, 1.0, 0.77f, 0.57f, 0.39f, buddy_add_str);
