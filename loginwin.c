@@ -143,12 +143,12 @@ static int resize_login_handler (window_info *win, Uint32 w, Uint32 h)
 	int button_y_len = (int)(0.5 + win->current_scale * BUTTON_Y_LEN);
 	int half_screen_x = w / 2;
 	int half_screen_y = h / 2;
-	int username_str_len_x = (int)(0.5 + win->current_scale * DEFAULT_FONT_X_LEN * strlen (login_username_str));
-	int password_str_len_x = (int)(0.5 + win->current_scale * DEFAULT_FONT_X_LEN * strlen (login_password_str));
+	int username_str_len_x = get_string_width_ui((const unsigned char*)login_username_str, win->current_scale);
+	int password_str_len_x = get_string_width_ui((const unsigned char*)login_username_str, win->current_scale);
 	int max_login_str = max2i(username_str_len_x, password_str_len_x);
 	int height = 0, max_width = 0, login_sep_x = 0, button_sep_x = 0;
 
-	username_bar_x_len = password_bar_x_len = MAX_USERNAME_LENGTH * win->default_font_len_x;
+	username_bar_x_len = password_bar_x_len = MAX_USERNAME_LENGTH * win->default_font_max_len_x;
 	username_bar_y_len = password_bar_y_len = 1.5 * win->default_font_len_y;
 	log_in_y_len = new_char_y_len = settings_y_len = button_y_len;
 	passmngr_button_size = (int)(0.5 + win->current_scale * 32);
@@ -157,7 +157,7 @@ static int resize_login_handler (window_info *win, Uint32 w, Uint32 h)
 	new_char_x_len = (int)(0.5 + win->current_scale * NEW_CHAR_BUTTON_X_LEN);
 	settings_x_len = (int)(0.5 + win->current_scale * SETTINGS_BUTTON_X_LEN);
 
-	max_width = max2i(max_login_str + username_bar_x_len + passmngr_button_size, log_in_x_len + new_char_x_len + settings_x_len) + 3 * win->default_font_len_x;
+	max_width = max2i(max_login_str + username_bar_x_len + passmngr_button_size, log_in_x_len + new_char_x_len + settings_x_len) + 3 * win->default_font_max_len_x;
 	login_sep_x = (max_width - max_login_str - username_bar_x_len - passmngr_button_size) / 2;
 	button_sep_x = (max_width - log_in_x_len - new_char_x_len - settings_x_len) / 2;
 
@@ -261,10 +261,8 @@ static int display_login_handler (window_info *win)
 	glEnd();
 	if (passmngr_button_mouse_over)
 	{
-		if (passmngr_enabled)
-			draw_string_zoomed ((win->len_x - strlen(passmngr_enabled_str) * win->default_font_len_x)/2, passmngr_button_y - 1.25 * win->default_font_len_y, (unsigned char*)passmngr_enabled_str, 1, win->current_scale);
-		else
-			draw_string_zoomed ((win->len_x - strlen(passmngr_disabled_str) * win->default_font_len_x)/2, passmngr_button_y - 1.25 * win->default_font_len_y, (unsigned char*)passmngr_disabled_str, 1, win->current_scale);
+		const unsigned char* msg = (const unsigned char*)(passmngr_enabled ? passmngr_enabled_str : passmngr_disabled_str);
+		draw_string_zoomed_centered(win->len_x/2, passmngr_button_y - 1.25 * win->default_font_len_y, msg, 1, win->current_scale);
 	}
 
 	// start drawing the actual interface pieces
@@ -305,19 +303,19 @@ static int display_login_handler (window_info *win)
 	glEnd();
 
 	glColor3f (0.0f, 0.9f, 1.0f);
-	draw_string_zoomed (username_bar_x + win->default_font_len_x / 2, username_text_y, (unsigned char*)input_username_str, 1, win->current_scale);
-	draw_string_zoomed (password_bar_x + win->default_font_len_x / 2, password_text_y, (unsigned char*)display_password_str, 1, win->current_scale);
+	draw_string_zoomed (username_bar_x + win->default_font_max_len_x / 2, username_text_y, (const unsigned char*)input_username_str, 1, win->current_scale);
+	draw_string_zoomed (password_bar_x + win->default_font_max_len_x / 2, password_text_y, (const unsigned char*)display_password_str, 1, win->current_scale);
 
 	// print the current error, if any
 	if (strlen (log_in_error_str))
 	{
-		int max_win_width = window_width - 2 * win->default_font_len_x;
+		int max_win_width = window_width - 2 * win->default_font_max_len_x;
 		float max_line_width = 0;
 		int num_lines = reset_soft_breaks((unsigned char*)log_in_error_str,
 			strlen(log_in_error_str), sizeof (log_in_error_str), UI_FONT,
 			win->current_scale, max_win_width, NULL, &max_line_width);
 		glColor3f (1.0f, 0.0f, 0.0f);
-		draw_string_zoomed (win->default_font_len_x + (max_win_width - max_line_width) / 2, username_bar_y - (num_lines + 2) * win->default_font_len_y, (unsigned char*)log_in_error_str, num_lines, win->current_scale);
+		draw_string_zoomed_centered(window_width/2, username_bar_y - (num_lines + 2) * win->default_font_len_y, (const unsigned char*)log_in_error_str, num_lines, win->current_scale);
 	}
 
 	CHECK_GL_ERRORS ();

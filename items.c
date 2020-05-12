@@ -592,11 +592,12 @@ static int display_items_handler(window_info *win)
 	// draw the button labels
 	but_labels[BUT_MIX] = (items_mix_but_all) ?mix_all_str :mix_one_str;
 	for (i=0; i<NUMBUT; i++) {
-		int text_x_offset = (int)(0.5 + ((buttons_grid.width - (float)(3 * win->small_font_len_x)) / 2.0)) + gx_adjust;
 		int text_y_offset = (int)(0.5 + ((buttons_grid.height - (float)(2 * win->small_font_len_y)) / 2.0)) + gy_adjust;
 		strap_word(but_labels[i],my_str);
 		glColor3f(0.77f,0.57f,0.39f);
-		draw_string_small_zoomed(buttons_grid.pos_x + text_x_offset, buttons_grid.pos_y + buttons_grid.height * i + text_y_offset, (unsigned char*)my_str, 2, win->current_scale);
+		draw_string_small_zoomed_centered(buttons_grid.pos_x + buttons_grid.width/2,
+			buttons_grid.pos_y + buttons_grid.height * i + text_y_offset,
+			(const unsigned char*)my_str, 2, win->current_scale);
 	}
 
 	x = quantity_grid.pos_x + quantity_grid.width / 2;
@@ -605,15 +606,21 @@ static int display_items_handler(window_info *win)
 	for(i = 0; i < ITEM_EDIT_QUANT; x += quantity_grid.width, ++i){
 		if(i==edit_quantity){
 			glColor3f(1.0f, 0.0f, 0.3f);
-			draw_string_small_zoomed(1+gx_adjust+x-strlen(quantities.quantity[i].str)*win->small_font_len_x/2, y+gy_adjust, (unsigned char*)quantities.quantity[i].str, 1, win->current_scale);
+			draw_string_small_zoomed_centered(x + 1 + gx_adjust, y + gy_adjust,
+				(const unsigned char*)quantities.quantity[i].str, 1, win->current_scale);
 			glColor3f(0.3f, 0.5f, 1.0f);
 		} else if(i==quantities.selected){
 			glColor3f(0.0f, 1.0f, 0.3f);
-			draw_string_small_zoomed(1+gx_adjust+x-strlen(quantities.quantity[i].str)*win->small_font_len_x/2, y+gy_adjust, (unsigned char*)quantities.quantity[i].str, 1, win->current_scale);
+			draw_string_small_zoomed_centered(x + 1 + gx_adjust, y + gy_adjust,
+				(const unsigned char*)quantities.quantity[i].str, 1, win->current_scale);
 			glColor3f(0.3f, 0.5f, 1.0f);
-		} else draw_string_small_zoomed(1+gx_adjust+x-strlen(quantities.quantity[i].str)*win->small_font_len_x/2, y+gy_adjust, (unsigned char*)quantities.quantity[i].str, 1, win->current_scale);
+		} else {
+			draw_string_small_zoomed_centered(x + 1 + gx_adjust, y + gy_adjust,
+				(const unsigned char*)quantities.quantity[i].str, 1, win->current_scale);
+		}
 	}
-	draw_string_small_zoomed(labels_box.pos_x + labels_box.len_x - strlen(quantity_str) * win->small_font_len_x, labels_box.pos_y, (unsigned char*)quantity_str, 1, win->current_scale);
+	draw_string_small_zoomed_right(labels_box.pos_x + labels_box.len_x, labels_box.pos_y,
+		(const unsigned char*)quantity_str, 1, win->current_scale);
 
 	glColor3f(0.57f,0.67f,0.49f);
 	equip_string_zoom = (float)equip_grid.len_x / (SMALL_FONT_X_LEN * strlen(equip_str));
@@ -1620,7 +1627,7 @@ static int show_items_handler(window_info * win)
 	/* the buttons */
 	buttons_grid.cols = 1;
 	buttons_grid.rows = NUMBUT;
-	buttons_grid.width = (int)(0.5 + 4 * win->small_font_len_x);
+	buttons_grid.width = (int)(0.5 + 4 * win->small_font_max_len_x);
 	buttons_grid.height = equip_grid.height;
 	buttons_grid.len_x = buttons_grid.width * buttons_grid.cols;
 	buttons_grid.len_y = buttons_grid.height * buttons_grid.rows;
@@ -1755,6 +1762,7 @@ void display_items_menu()
 		set_window_handler(items_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_SHOW, &show_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_UI_SCALE, &show_items_handler );
+		set_window_handler(items_win, ELW_HANDLER_FONT_CHANGE, &show_items_handler);
 
 		cm_add(windows_list.window[items_win].cm_id, cm_items_menu_str, context_items_handler);
 		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+1, &use_small_items_window, NULL);

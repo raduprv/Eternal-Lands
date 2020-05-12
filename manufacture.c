@@ -645,27 +645,29 @@ static void draw_recipe_controls(window_info *win){
 	int lpx=PIPE_CONTROL_X;
 	int lpy=SLOT_SIZE;
 
-	if (recipes_shown){
-	/* Up arrow */
-		glBegin(GL_QUADS);
+	if (recipes_shown)
+	{
+		/* Up arrow */
+		glBegin(GL_TRIANGLES);
 			glVertex3i(wpx+lpx/2, wpy+lpy-control_elem_size*2, 0); //top
 			glVertex3i(wpx+control_elem_size, wpy+lpy, 0); //left
 			glVertex3i(wpx+lpx-control_elem_size, wpy+lpy, 0); //right
-			glVertex3i(wpx+lpx/2, wpy+lpy-control_elem_size*2, 0); //top
 		glEnd();
-	} else {
+	}
+	else
+	{
 		/* Dn arrow */
-		glBegin(GL_QUADS);
-			glVertex3i(wpx+lpx/2, wpy+lpy, 0); //top
+		glBegin(GL_TRIANGLES);
+			glVertex3i(wpx+lpx/2, wpy+lpy, 0); //bottom
 			glVertex3i(wpx+control_elem_size, wpy+lpy-control_elem_size*2, 0); //left
 			glVertex3i(wpx+lpx-control_elem_size, wpy+lpy-control_elem_size*2, 0); //right
-			glVertex3i(wpx+lpx/2, wpy+lpy, 0); //top
 		glEnd();
 	}
 
 	/* Add btn */
 	glEnable(GL_TEXTURE_2D);
-	draw_string_zoomed(wpx+win->small_font_len_x/2, wpy-2, (unsigned char *)"+", 1, win->current_scale);
+	draw_string_zoomed_centered(wpx+lpx/2, wpy-2, (const unsigned char *)"+",
+		1, win->current_scale);
 }
 
 //draws a NUM_MIX_SLOTSx1 grid of items+grid
@@ -768,11 +770,11 @@ static int	display_manufacture_handler(window_info *win)
 	if (last_items_string_id != inventory_item_string_id)
 	{
 		put_small_text_in_box_zoomed((unsigned char*)inventory_item_string,
-			strlen(inventory_item_string), win->len_x-2*win->small_font_len_x,
+			strlen(inventory_item_string), win->len_x-2*win->small_font_max_len_x,
 			items_string, win->current_scale);
 		last_items_string_id = inventory_item_string_id;
 	}
-	draw_string_small_zoomed(win->small_font_len_x, manufacture_menu_y_len-text_y_offset,
+	draw_string_small_zoomed(win->small_font_max_len_x, manufacture_menu_y_len-text_y_offset,
 		items_string, 4, win->current_scale);
 
 	// Render the grid *after* the images. It seems impossible to code
@@ -1031,7 +1033,7 @@ static int recipe_controls_click_handler(window_info *win, int mx, int my, Uint3
 		build_manufacture_list();
 		do_click_sound();
 	} else
-	if (mx>wpx+win->small_font_len_x/2 && mx<wpx+lpx-win->small_font_len_x/2 && my>wpy && my<wpy+win->small_font_len_y){
+	if (mx>wpx+win->small_font_max_len_x/2 && mx<wpx+lpx-win->small_font_max_len_x/2 && my>wpy && my<wpy+win->small_font_len_y){
 		//+ button
 		copy_items_to_recipe_items(recipes_store[cur_recipe].items, manufacture_list, MIX_SLOT_OFFSET);
 		clear_recipe_name(cur_recipe);
@@ -1287,7 +1289,7 @@ static int recipe_controls_mouseover_handler(window_info *win, int mx, int my, i
 		//on arrow
 		show_help(recipe_show_hide_str, 0, win->len_y + 10 + win->small_font_len_y*(*help_line)++, win->current_scale);
 	} else
-	if (mx>wpx+win->small_font_len_x/2 && mx<wpx+lpx-win->small_font_len_x/2 && my>wpy && my<wpy+win->small_font_len_y){
+	if (mx>wpx+win->small_font_max_len_x/2 && mx<wpx+lpx-win->small_font_max_len_x/2 && my>wpy && my<wpy+win->small_font_len_y){
 		//on + button
 		show_help(recipe_save_str, 0, win->len_y + 10 + win->small_font_len_y*(*help_line)++, win->current_scale);
 	}
@@ -1367,8 +1369,9 @@ static int mouseover_mixone_handler(widget_list *widget, int mx, int my)
 	if (show_help_text && widget)
 	{
 		window_info *win = &windows_list.window[widget->window_id];
-		int str_off = strlen(mix_str) * win->small_font_len_x / 2;
-		show_help(mix_str, (widget->pos_x + widget->len_x/2) - str_off, win->len_y+10, win->current_scale);
+		show_help_colored_scaled_centered((const unsigned char*)mix_str,
+			widget->pos_x + widget->len_x/2, win->len_y+10, 1.0f, 1.0f, 1.0f,
+			win->current_scale * DEFAULT_SMALL_RATIO);
 	}
 	return 0;
 }
@@ -1379,8 +1382,9 @@ static int mouseover_mixall_handler(widget_list *widget, int mx, int my)
 	if (show_help_text && widget)
 	{
 		window_info *win = &windows_list.window[widget->window_id];
-		int str_off = strlen(mixall_str) * win->small_font_len_x / 2;
-		show_help(mixall_str, (widget->pos_x + widget->len_x/2) - str_off, win->len_y+10, win->current_scale);
+		show_help_colored_scaled_centered((const unsigned char*)mixall_str,
+			widget->pos_x + widget->len_x/2, win->len_y+10, 1.0f, 1.0f, 1.0f,
+			win->current_scale * DEFAULT_SMALL_RATIO);
 	}
 	return 0;
 }
@@ -1500,7 +1504,7 @@ static int ui_scale_manufacture_handler(window_info *win)
 	int free_x = 0;
 
 	SLOT_SIZE = (int)(0.5 + 33 * win->current_scale);
-	PIPE_CONTROL_X = (int)(0.5 + 5 * win->current_scale) * 2 + win->small_font_len_x;
+	PIPE_CONTROL_X = (int)(0.5 + 5 * win->current_scale) * 2 + win->small_font_max_len_x;
 	recipe_win_width = SLOT_SIZE * NUM_MIX_SLOTS + win->box_size + 2;
 	manufacture_menu_x_len = GRID_COLS * SLOT_SIZE + win->box_size;
 	manufacture_menu_y_len = (GRID_ROWS+1) * SLOT_SIZE + (4+1) * win->small_font_len_y;
