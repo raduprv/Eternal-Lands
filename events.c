@@ -1,4 +1,4 @@
-#include <stdlib.h>
+	#include <stdlib.h>
 #include <string.h>
 #include <SDL_keyboard.h>
 #ifndef WINDOWS
@@ -282,7 +282,7 @@ int HandleEvent (SDL_Event *event)
 			//printf("UTF-8 udf8=(%x,%x) unicode=%x\n", event->text.text[0], event->text.text[1], unicode);
 			if (unicode)
 			{
-				if ((last_SDL_KEYDOWN_timestamp != event->key.timestamp) || (last_SDL_KEYDOWN_return_value == -1))
+				if (((event->key.timestamp - last_SDL_KEYDOWN_timestamp) > 10) || (last_SDL_KEYDOWN_return_value == -1))
 					keypress_in_windows (mouse_x, mouse_y, SDLK_UNKNOWN, unicode, KMOD_NONE);
 			}
 			break;

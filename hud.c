@@ -107,7 +107,12 @@ void init_hud_interface (hud_interface type)
 		if (enable_user_menus)
 			display_user_menus();
 		if ((minimap_win < 0) && open_minimap_on_start)
-			view_window (&minimap_win, 0);
+		{
+			static int first_time = 1;
+			if (first_time)
+				view_window (&minimap_win, 0);
+			first_time = 0;
+		}
 	}
 
 	last_interface = type;

@@ -267,9 +267,21 @@ void drag_item(int item, int storage, int mini)
 			use_item = item_dragged=-1;
 			return;
 		}
-		if(item_list[item].is_stackable){
-			if(quantity>item_list[item].quantity)quantity=item_list[item].quantity;
-		} else quantity=-1;//The quantity for non-stackable items is misleading so don't show it...
+		if (item_list[item].is_stackable) {
+			if(quantity > item_list[item].quantity)
+				quantity = item_list[item].quantity;
+		// The quantity for non-stackable items is misleading so don't show it unless we can reliably count how many we have.
+		} else if (item_list[item].id == unset_item_uid) {
+			quantity = -1;
+		} else {
+			size_t i;
+			int count = 0;
+			for (i = 0; i < ITEM_WEAR_START; i++)
+				if((item_list[item].image_id == item_list[i].image_id) && (item_list[item].id == item_list[i].id))
+					count++;
+			if (quantity > count)
+				quantity = count;
+		}
 	}
 
 	cur_item_img=cur_item%25;
@@ -284,8 +296,10 @@ void drag_item(int item, int storage, int mini)
 	glEnd();
 
 	if(!mini && quantity!=-1){
+		int str_width = 0;
 		safe_snprintf(str,sizeof(str),"%i",quantity);
-		draw_string_small_zoomed(mouse_x-offset, mouse_y + offset - get_global_scale() * SMALL_FONT_Y_LEN, (unsigned char*)str, 1, get_global_scale());
+		str_width = strlen(str) * get_global_scale() * SMALL_FONT_X_LEN;
+		draw_string_small_zoomed(mouse_x-str_width/2, mouse_y - offset - get_global_scale() * SMALL_FONT_Y_LEN, (unsigned char*)str, 1, get_global_scale());
 	}
 }
 

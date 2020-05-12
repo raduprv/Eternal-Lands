@@ -20,7 +20,7 @@
 # Example for windows using msys2
 #   cmake -G "MSYS Makefiles" -DCMAKE_INCLUDE_PATH="/mingw64/local/include" -DCMAKE_LIBRARY_PATH="/mingw64/local/lib" ..
 
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.5.0)
 
 project (Eternal-Lands)
 
@@ -47,6 +47,8 @@ add_definitions(
 	-DMIDDLE_MOUSE_PASTE			# Paste using the middle mouse button from the primary buffer on X systems
 	# new for 1.9.4 release
 	-DNEW_EYES						# Support for different eye colors, needs new data files
+	# proposed for next release
+	-DNEW_CURSOR					# New coloured cursors made by Emajekral (Experimental).  An old unused feature. Derive cursor2.dss from http://users.on.net/~gingerman/sky_cursor-textures.zip (cursor2.bmp + alpha).
 )
 
 
@@ -88,7 +90,6 @@ add_definitions(
 
 # Other options (Experimental, unfinished, defunct or otherwise unknown)
 add_definitions(
-#	-DNEW_CURSOR					# New coloured cursors made by Emajekral (Experimental) Extract http://users.on.net/~gingerman/sky_cursor-textures.zip into datadir/textures/
 #	-DPAWN							# Experimental, not for release, will need server support to function properly. This *will* eat your cat. You've been warned. Enables the Pawn abstract machine.
 #	-DUID							# use unique ID sent from server for custom looks. (INCOMPLETE)
 #	-DUSE_ACTORS_OPTIMIZER			# Enables actor optimizations
@@ -102,22 +103,20 @@ add_definitions(
 set(SD "")
 
 # Get compiler flags for used libraries
-include(FindPkgConfig)
-pkg_check_modules(SDL2 sdl2)
-if (NOT SDL2_INCLUDE_DIRS)
-	include(cmake/FindSDL2.cmake)
-endif()
-include(FindLibXml2)
+include(cmake/FindSDL2.cmake)
 include(cmake/FindSDL2_image.cmake)
 include(cmake/FindSDL2_net.cmake)
 set(OpenGL_GL_PREFERENCE LEGACY)
-include(FindOpenGL)
-include(FindOpenAL)
-include(FindZLIB)
-include(FindPNG)
-include(FindX11)
+find_package(OpenGL REQUIRED)
+find_package(OpenAL REQUIRED)
+find_package(ZLIB REQUIRED)
+find_package(PNG REQUIRED)
+find_package(LibXml2 REQUIRED)
+if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+	find_package(X11)
+endif()
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
-	include(FindIconv)
+	find_package(Iconv)
 endif()
 # these definitions were re-used from Xapher's opengl client
 include(cmake/FindVorbis.cmake)
@@ -126,7 +125,7 @@ include(cmake/FindCal3d.cmake)
 
 # requird the nlohmann_json package if building for json files
 if (JSON_FILES EQUAL 1)
-	find_package(nlohmann_json 3.2.0 REQUIRED)
+	find_package(nlohmann_json REQUIRED)
 endif()
 
 # set the paths to header files

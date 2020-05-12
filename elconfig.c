@@ -440,9 +440,10 @@ static void change_show_action_bar(int * var)
 static void change_minimap_scale(float * var, float * value)
 {
 	int shown = 0;
+	float last_minimap_size_coefficient = minimap_size_coefficient;
 	*var= *value;
 	minimap_size_coefficient = ((disable_auto_highdpi_scale)) ? *var : get_highdpi_scale() * *var;
-	if (minimap_win>=0)
+	if (last_minimap_size_coefficient != minimap_size_coefficient && minimap_win >= 0)
 	{
 		shown = get_show_window(minimap_win);
 		minimap_win_x = windows_list.window[minimap_win].cur_x;
@@ -2345,11 +2346,6 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"osx_right_mouse_cam","osxrightmousecam", &osx_right_mouse_cam, change_var,0,"Rotate Camera with right mouse button", "Allows to rotate the camera by pressing the right mouse button and dragging the cursor", CONTROLS);
 	add_var(OPT_BOOL,"emulate_3_button_mouse","emulate3buttonmouse", &emulate3buttonmouse, change_var,0,"Emulate a 3 Button Mouse", "If you have a 1 Button Mouse you can use <apple> click to emulate a rightclick. Needs client restart.", CONTROLS);
 #endif // OSX
-#ifdef NEW_CURSOR
-	add_var(OPT_BOOL,"sdl_cursors","sdl_cursors", &sdl_cursors, change_sdl_cursor,1,"Old Style Pointers", "Use default SDL cursor.", CONTROLS);
-	add_var(OPT_BOOL,"big_cursors","big_cursors", &big_cursors, change_var,0,"Big Pointers", "Use 32x32 graphics for pointer. Only works with SDL cursor turned off.", CONTROLS);
-	add_var(OPT_FLOAT,"pointer_size","pointer_size", &pointer_size, change_float,1.0,"Pointer Size", "Scale the pointer. 1.0 is 1:1 scale with pointer graphic. Only works with SDL cursor turned off.", CONTROLS,0.25,4.0,0.05);
-#endif // NEW_CURSOR
 	add_var(OPT_MULTI,"trade_log_mode","tradelogmode",&trade_log_mode,change_int, TRADE_LOG_NONE,"Trade log","Set how successful trades are logged.",CONTROLS,"Do not log trades", "Log only to console", "Log only to file", "Log to console and file", NULL);
 	// CONTROLS TAB
 
@@ -2483,6 +2479,11 @@ static void init_ELC_vars(void)
 	add_var(OPT_FLOAT,"options_win_scale","optionswinscale",&elconf_custom_scale,change_elconf_win_scale_factor,1.0f,"Options window scaling factor","Multiplied by the user interface scaling factor. Change will take effect after closing then reopening the window.",FONT,win_scale_min,win_scale_max,win_scale_step);
 	add_var(OPT_FLOAT,"achievements_win_scale","achievementswinscale",&custom_scale_factors.achievements,change_win_scale_factor,1.0f,"Achievements window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
 	add_var(OPT_FLOAT,"dialogue_win_scale","dialoguewinscale",&custom_scale_factors.dialogue,change_win_scale_factor,1.0f,"Dialogue window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+#ifdef NEW_CURSOR
+	add_var(OPT_BOOL,"sdl_cursors","sdl_cursors", &sdl_cursors, change_sdl_cursor,1,"Use Standard Black/White Mouse Pointers", "When disabled, use the experimental coloured mouse pointers. Needs the texture from Git dev-data-files/cursor2.dss.", FONT);
+	add_var(OPT_BOOL,"big_cursors","big_cursors", &big_cursors, change_var,0,"Use Large Pointers", "When using the experiment coloured mouse pointers, use the large pointer set.", FONT);
+	add_var(OPT_FLOAT,"pointer_size","pointer_size", &pointer_size, change_float,1.0,"Coloured Pointer Size", "When using the experiment coloured mouse pointers, set the scale of the pointer. 1.0 is 1:1 scale.", FONT,0.25,4.0,0.05);
+#endif // NEW_CURSOR
 	// FONT TAB
 
 
@@ -3206,13 +3207,10 @@ static void elconfig_populate_tabs(void)
 					ELCONFIG_SCALED_VALUE(250), ELCONFIG_SCALED_VALUE(80), elconf_scale, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
 				for(y= 0; y<our_vars.var[i]->args.multi.count; y++) {
 					const char *label = our_vars.var[i]->args.multi.elems[y].label;
-					int width= strlen(label) > 0 ? 0 : -1;
-
+					if (!*label)
+						label = "??";
 					multiselect_button_add_extended(elconfig_tabs[tab_id].tab, widget_id,
-						0, y*(ELCONFIG_SCALED_VALUE(22)+SPACING), width, label, DEFAULT_SMALL_RATIO*elconf_scale, y == *(int *)our_vars.var[i]->var);
-					if(strlen(label) == 0) {
-						y--;
-					}
+						0, y*(ELCONFIG_SCALED_VALUE(22)+SPACING), 0, label, DEFAULT_SMALL_RATIO*elconf_scale, y == *(int *)our_vars.var[i]->var);
 				}
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, multiselect_click_handler);
 			break;
@@ -3244,24 +3242,19 @@ static void elconfig_populate_tabs(void)
 				widget_id= multiselect_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x+SPACING+get_string_width_ui(our_vars.var[i]->display.str, elconf_scale), elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(350), ELCONFIG_SCALED_VALUE(80), elconf_scale, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
 				x = 0;
 				for(y= 0; y<our_vars.var[i]->args.multi.count; y++) {
-					const char *label= our_vars.var[i]->args.multi.elems[y].label;
-
 					int radius = elconf_scale*BUTTONRADIUS;
 					float width_ratio = elconf_scale*DEFAULT_FONT_X_LEN/12.0f;
 					int width=0;
+					const char *label= our_vars.var[i]->args.multi.elems[y].label;
+					if (!*label)
+						label = "??";
 
 					width = 2 * radius + get_string_width_ui((unsigned char*)label, width_ratio);
 
 					multiselect_button_add_extended(elconfig_tabs[tab_id].tab, widget_id, x, 0, width, label,
 						DEFAULT_SMALL_RATIO * elconf_scale, y == *(int *)our_vars.var[i]->var);
-					if (strlen(label) == 0)
-					{
-						y--;
-					}
-					else
-					{
-						x += width + SPACING;
-					}
+
+					x += width + SPACING;
 				}
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, multiselect_click_handler);
 			break;
