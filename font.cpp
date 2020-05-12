@@ -1174,8 +1174,9 @@ bool FontManager::initialize()
 {
 	_fonts.clear();
 
-	for (size_t i = 0; i < 6; ++i)
+	for (size_t i = 0; i < 7; ++i)
 		_fonts.push_back(Font(i));
+	size_t nr_bundled_fonts = _fonts.size();
 
 #ifdef TTF
 	if (use_ttf)
@@ -1222,6 +1223,9 @@ bool FontManager::initialize()
 		}
 	}
 #endif // TTF
+
+	std::sort(_fonts.begin() + nr_bundled_fonts, _fonts.end(),
+		[](const Font& f0, const Font& f1) { return f0.font_name() < f1.font_name(); });
 
 	for (const Font& font: _fonts)
 	{

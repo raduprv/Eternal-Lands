@@ -207,6 +207,8 @@ public:
 	//! Destructor
 	~Font();
 
+	//! Return the name of the font
+	const std::string& font_name() const { return _font_name; }
 	//! Check if this font is a TTF font
 	bool is_ttf() const { return _flags & Flags::IS_TTF; }
 	//! Check if this font failed to load
