@@ -213,7 +213,7 @@ static __inline__ void draw_actor_points(window_info *win, float zoom_multip, fl
 
 		if (x != px || y != py)
 		{
-			float diff = 6.0f*zoom_multip;
+			float diff = 6.0f*zoom_multip*get_highdpi_scale();
 
 			if(is_within_radius(x,y,px,py,zoom_multip*(minimap_size/2-15)))
 			{
