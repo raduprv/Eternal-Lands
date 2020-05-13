@@ -1192,9 +1192,13 @@ static void change_font(size_t *var, int value)
 
 static void change_text_zoom(float *var, const float *value)
 {
-	if (*value > 0.0)
+	float val = *value;
+	if (val > 0.0)
 	{
-		*var = (disable_auto_highdpi_scale) ? *value : get_highdpi_scale() * *value;
+		if (val < 0.1)
+			val = 0.1;
+
+		*var = (disable_auto_highdpi_scale) ? val : get_highdpi_scale() * val;
 		// Yes, this is ugly. I just really did not want to introduce a ton of
 		// separate function for each font category.
 		if (var >= font_scales && var < font_scales + NR_FONT_CATS)
@@ -1203,13 +1207,6 @@ static void change_text_zoom(float *var, const float *value)
 			change_windows_font(cat);
 		}
 	}
-}
-
-static void change_name_zoom(float *var, float *value)
-{
-	if (*value > 2.0)
-		*value = 2.0;
-	change_text_zoom(var, value);
 }
 
 static void change_chat_zoom(float *var, float *value)
@@ -2448,12 +2445,12 @@ static void init_ELC_vars(void)
 	add_var(OPT_STRING, "ttf_directory", "ttfdir", ttf_directory, change_string, TTF_DIR_SIZE,
 		"TTF directory", "The directory in which to look for True Type fonts", FONT);
 #endif
-	add_var(OPT_FLOAT,"ui_text_size","uisize",&font_scales[UI_FONT],change_text_zoom,1,"UI Text Size","Set the size of the text in the user interface",FONT,0.1,FLT_MAX,0.01);
-	add_var(OPT_FLOAT,"name_text_size","nsize",&font_scales[NAME_FONT],change_name_zoom,1,"Name Text Size","Set the size of the players name text",FONT,0.1,2.0,0.01);
-	add_var(OPT_FLOAT,"chat_text_size","csize",&font_scales[CHAT_FONT],change_chat_zoom,1,"Chat Text Size","Sets the size of the normal text",FONT,0.1,FLT_MAX,0.01);
-	add_var(OPT_FLOAT,"book_text_size","bsize",&font_scales[BOOK_FONT],change_text_zoom,1,"Book Text Size","Set the size of the text in in-game books",FONT,0.1,FLT_MAX,0.01);
-	add_var(OPT_FLOAT,"note_text_size", "notesize", &font_scales[NOTE_FONT], change_text_zoom, 0.8, "Notepad Text Size","Sets the size of the text in the notepad", FONT, 0.1, FLT_MAX, 0.01);
-	add_var(OPT_FLOAT,"rules_text_size","rsize",&font_scales[RULES_FONT],change_text_zoom,1,"Rules Text Size","Set the size of the rules text",FONT,0.0,FLT_MAX,0.01);
+	add_var(OPT_FLOAT,"ui_text_size","uisize",&font_scales[UI_FONT],change_text_zoom,1,"UI Text Size","Set the size of the text in the user interface",FONT,0.1,2.0,0.01);
+	add_var(OPT_FLOAT,"name_text_size","nsize",&font_scales[NAME_FONT],change_text_zoom,1,"Name Text Size","Set the size of the players name text",FONT,0.1,2.0,0.01);
+	add_var(OPT_FLOAT,"chat_text_size","csize",&font_scales[CHAT_FONT],change_chat_zoom,1,"Chat Text Size","Sets the size of the normal text",FONT,0.1,2.0,0.01);
+	add_var(OPT_FLOAT,"book_text_size","bsize",&font_scales[BOOK_FONT],change_text_zoom,1,"Book Text Size","Set the size of the text in in-game books",FONT,0.1,2.0,0.01);
+	add_var(OPT_FLOAT,"note_text_size", "notesize", &font_scales[NOTE_FONT], change_text_zoom, 0.8, "Notepad Text Size","Sets the size of the text in the notepad", FONT, 0.1, 2.0, 0.01);
+	add_var(OPT_FLOAT,"rules_text_size","rsize",&font_scales[RULES_FONT],change_text_zoom,1,"Rules Text Size","Set the size of the rules text",FONT,0.1,2.0,0.01);
 	add_var(OPT_FLOAT,"mapmark_text_size", "marksize", &mapmark_zoom, change_float, 0.3, "Mapmark Text Size","Sets the size of the mapmark text", FONT, 0.0, FLT_MAX, 0.01);
 	add_var(OPT_MULTI,"ui_font","uifont",&font_idxs[UI_FONT],change_font,0,"UI Font","Change the type of font used in the user interface",FONT, NULL);
 	add_var(OPT_MULTI,"name_font","nfont",&font_idxs[NAME_FONT],change_font,0,"Name Font","Change the type of font used for the name",FONT, NULL);

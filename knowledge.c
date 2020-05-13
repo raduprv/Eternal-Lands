@@ -467,7 +467,6 @@ static void set_content_widths(window_info *win)
 	int image_size = (int)(0.5 + win->current_scale * 50);
 	int label_width = get_string_width_ui((const unsigned char*)knowledge_read_book,
 		win->current_scale * 0.8);
-	int label_height = (int)(0.5 + win->default_font_len_y * win->current_scale * 0.8);
 
 	int i, gap_y, book_x_off, max_width = 0;
 

@@ -84,6 +84,7 @@ typedef struct {
     /* \} */
 	unsigned char* short_str; /*!< the short description of the rule */
 	int short_str_nr_lines;   /*!< The number of lines in the long description */
+	int short_str_nr_indent;  /*!< Indentation in pixels for the rule number */
 	int short_str_width;      /*!< Width of the short description, in pixels */
 	unsigned char* long_str;  /*!< the long description of the rule */
 	int long_str_nr_lines;    /*!< The number of lines in the long description */
@@ -455,23 +456,67 @@ void highlight_rule (int type, const Uint8 *rule, int no)
 	}
 }
 
-static void set_rule(const char* desc, int width, float zoom,
-	unsigned char** str, int *nr_lines)
+static void set_short_desc(const char* desc, int nr, int width, float zoom, rule_string *rule)
+{
+	static const size_t max_nr_lines = 5;
+
+	rule->short_str = NULL;
+	rule->short_str_nr_lines = 0;
+	rule->short_str_nr_indent = 0;
+	if (desc)
+	{
+		int nr_lines;
+		size_t size = strlen(desc) + max_nr_lines;
+
+		unsigned char *buf = calloc(size, 1);
+		if (!buf)
+			return;
+
+		if (nr)
+		{
+			safe_snprintf((char*)buf, size, "%d: ", nr);
+			rule->short_str_nr_indent = get_string_width_zoom(buf, RULES_FONT, zoom);
+		}
+
+		safe_strcat((char*)buf, desc, size);
+		nr_lines = reset_soft_breaks(buf, strlen((const char*)buf), size, RULES_FONT,
+			zoom, width, NULL, NULL);
+		if (nr && nr_lines > 0)
+		{
+			size_t eol = strcspn((const char*)buf, "\r\n");
+			if (buf[eol])
+			{
+				width -= rule->short_str_nr_indent;
+				nr_lines = 1 + reset_soft_breaks(buf+eol+1, strlen((const char*)buf+eol+1),
+					size-eol-1, RULES_FONT, zoom, width, NULL, NULL);
+			}
+		}
+
+		rule->short_str = buf;
+		rule->short_str_nr_lines = nr_lines;
+	}
+}
+
+static void set_long_desc(const char* desc, int width, float zoom, rule_string *rule)
 {
 	static const size_t max_nr_lines = 50;
 
-	if (!desc)
+	rule->long_str = NULL;
+	rule->long_str_nr_lines = 0;
+	if (desc)
 	{
-		*str = NULL;
-		*nr_lines = 0;
-	}
-	else
-	{
+		int nr_lines;
 		size_t len = strlen(desc);
 		size_t size = len + max_nr_lines;
-		*str = malloc(size);
-		safe_strncpy((char*)*str, desc, size);
-		*nr_lines = reset_soft_breaks(*str, len, size, RULES_FONT, zoom, width, NULL, NULL);
+		unsigned char *buf = malloc(size);
+		if (!buf)
+			return;
+
+		safe_strncpy((char*)buf, desc, size);
+		nr_lines = reset_soft_breaks(buf, len, size, RULES_FONT, zoom, width, NULL, NULL);
+
+		rule->long_str = buf;
+		rule->long_str_nr_lines = nr_lines;
 	}
 }
 
@@ -480,18 +525,17 @@ static const int long_rule_indent = 2 * short_rule_indent;
 
 static rule_string *get_interface_rules(int width, float zoom)
 {
-	int i;
+	int i, cur_rule_nr = 0;
 	rule_string *_rules = calloc(rules.no + 1, sizeof(rule_string));
 
 	for (i = 0; i < rules.no; ++i)
 	{
 		const struct rule_struct *rule = &rules.rule[i];
 		rule_string *rs = &_rules[i];
+		int nr = rule->type == RULE ? ++cur_rule_nr : 0;
 		rs->type = rule->type;
-		set_rule(rule->short_desc, width - short_rule_indent * zoom, zoom,
-			&rs->short_str, &rs->short_str_nr_lines);
-		set_rule(rule->long_desc, width - long_rule_indent * zoom, zoom,
-			&rs->long_str, &rs->long_str_nr_lines);
+		set_short_desc(rule->short_desc, nr, width - short_rule_indent * zoom, zoom, rs);
+		set_long_desc(rule->long_desc, width - long_rule_indent * zoom, zoom, rs);
 		if (rs->short_str)
 		{
 			size_t len = strlen((const char*)rs->short_str);
@@ -537,14 +581,14 @@ static void calc_virt_win_len(rule_string * rules_ptr, int win_heigth, float zoo
 		switch(rules_ptr[i].type)
 		{
 			case TITLE:
-				ydiff = 30 * zoom;
+				ydiff = (int)(0.5 + 1.67 * line_height);
 				break;
 			case RULE:
-				ydiff = 20 * zoom;
+				ydiff = (int)(0.5 + 1.11 * line_height);
 				break;
 			case INFO:
-        		virt_win_len += 10*zoom;
-        		ydiff = 20 * zoom;
+        		virt_win_len += (int)(0.5 + 0.55 * line_height);
+				ydiff = (int)(0.5 + 1.11 * line_height);
         		break;
 			}
 		/* remember the offset for each rule start */
@@ -590,8 +634,7 @@ static void calc_virt_win_len(rule_string * rules_ptr, int win_heigth, float zoo
 } /* end calc_virt_win_len() */
 
 static void draw_rule_string(const unsigned char* str, int nr_lines, int x, int y,
-	int y_in, int leny, int line_height, const float* color,
-	const unsigned char* nr_str, int nr_width, float zoom)
+	int y_in, int leny, int line_height, const float* color, int nr_width, float zoom)
 {
 	int lstart, lend;
 	lstart = (virt_win_offset + y_in - y + line_height - 1) / line_height;
@@ -612,13 +655,21 @@ static void draw_rule_string(const unsigned char* str, int nr_lines, int x, int 
 
 		glColor3f(color[0], color[1], color[2]);
 		y += lstart * line_height - virt_win_offset;
-		if (nr_str)
+		if (nr_width > 0)
 		{
 			if (lstart == 0)
-				draw_string_zoomed_width_font(x, y, nr_str, window_width, 1, RULES_FONT, zoom);
+			{
+				draw_string_zoomed_width_font(x, y, str, window_width, 1, RULES_FONT, zoom);
+				str += strcspn((const char*) str, "\r\n");
+				if (*str) ++str;
+				++lstart;
+				y += line_height;
+			}
 			x += nr_width;
 		}
-		draw_string_zoomed_width_font(x, y, str, window_width, lend - lstart, RULES_FONT, zoom);
+
+		if (lend > lstart)
+			draw_string_zoomed_width_font(x, y, str, window_width, lend - lstart, RULES_FONT, zoom);
 	}
 }
 
@@ -628,7 +679,6 @@ static int draw_rules(rule_string* rules_ptr, int x_in, int y_in, int lenx, int 
 	int line_height = get_line_height(RULES_FONT, zoom);
 	int i;
 	int x=0, y_curr = y_in;
-	int nr = 1;
 
 	if (recalc_virt_win_len)
 		calc_virt_win_len(rules_ptr, leny-y_in, zoom);
@@ -638,8 +688,6 @@ static int draw_rules(rule_string* rules_ptr, int x_in, int y_in, int lenx, int 
 	for (i = 0; y_curr - virt_win_offset < leny; ++i)
 	{
 		int color_idx;
-		unsigned char nr_buf[16];
-		int nr_width = 0;
 		rule_string *rule = &rules_ptr[i];
 		int ydiff;
 
@@ -651,31 +699,29 @@ static int draw_rules(rule_string* rules_ptr, int x_in, int y_in, int lenx, int 
 				return i;
 			case TITLE:
 				color_idx = 0;
-				ydiff = 30 * zoom;
+				ydiff = (int)(0.5 + 1.67 * line_height);
 				x = x_in + (lenx - x_in - rule->short_str_width) / 2;
 				break;
 			case RULE:
 				color_idx = rule->highlight ? 1 : (rule->mouseover ? 2 : 3);
-				safe_snprintf((char*)nr_buf, sizeof(nr_buf), "%d: ", nr++);
-				nr_width = get_string_width_zoom(nr_buf, RULES_FONT, zoom);
-				ydiff = 20 * zoom;
+				ydiff = (int)(0.5 + 1.11 * line_height);
 				x = x_in + short_rule_indent * zoom;
 				break;
 			case INFO:
 				color_idx = rules_ptr[i].mouseover ? 4 : 5;
-				ydiff = 20 * zoom;
+				ydiff = (int)(0.5 + 1.11 * line_height);
 				x = x_in + short_rule_indent * zoom;
-				y_curr += 10 * zoom;
+				y_curr += (int)(0.5 + 0.55 * line_height);
 				break;
 		}
 
 		draw_rule_string(rule->short_str, rule->short_str_nr_lines, x, y_curr,
 			y_in, leny, line_height, &rgb[color_idx][0],
-			rule->type == RULE ? nr_buf : NULL, nr_width, zoom);
+			rule->short_str_nr_indent, zoom);
 		rule->x_start = x;
 		rule->y_start = y_curr - virt_win_offset;
 		y_curr += (rule->short_str_nr_lines - 1) * line_height + ydiff;
-		rule->x_end = rule->x_start + rule->short_str_width + nr_width;
+		rule->x_end = rule->x_start + rule->short_str_width;
 		rule->y_end = y_curr - virt_win_offset;
 
 		if (rule->show_long_desc && rule->long_str)
@@ -683,7 +729,7 @@ static int draw_rules(rule_string* rules_ptr, int x_in, int y_in, int lenx, int 
 			color_idx = rules_ptr[i].highlight ? 6 : 7;
 			draw_rule_string(rule->long_str, rule->long_str_nr_lines,
 				x_in + long_rule_indent * zoom, y_curr, y_in, leny, line_height,
-				&rgb[color_idx][0], NULL, 0, zoom);
+				&rgb[color_idx][0], 0, zoom);
 			y_curr += (rule->long_str_nr_lines - 1) * line_height + ydiff;
 		}
 	}

@@ -240,9 +240,9 @@ namespace Password_Manaager
 		size_t max_available = static_cast<size_t>(0.8 * window_height - 2 * border_y + username_sep_y) / (username_sep_y + win->default_font_len_y);
 		max_displayed = std::min(max_available, logins->size());
 		int height = 2 * border_y + max_displayed * win->default_font_len_y + (max_displayed - 1) * username_sep_y;
-		int width = 2 * border_x + win->default_font_len_x * (MAX_USERNAME_LENGTH - 1) + win->box_size;
+		int width = 2 * border_x + win->default_font_max_len_x * (MAX_USERNAME_LENGTH - 1) + win->box_size;
 		if (show_passwords)
-			width += border_x + win->default_font_len_x * (MAX_USERNAME_LENGTH - 1);
+			width += border_x + win->default_font_max_len_x * (MAX_USERNAME_LENGTH - 1);
 		height = std::max(height, 4 * win->box_size);
 
 		if (checkbox_id > 0)
@@ -349,7 +349,7 @@ namespace Password_Manaager
 				glColor3f(1.0f, 1.0f, 1.0f);
 			draw_string_zoomed (border_x, border_y + y, (const unsigned char*)curr->get_name().c_str(), 1, win->current_scale);
 			if (show_passwords)
-				draw_string_zoomed (2 * border_x + win->default_font_len_x * (MAX_USERNAME_LENGTH - 1), border_y + y, (const unsigned char*)curr->get_password().c_str(), 1, win->current_scale);
+				draw_string_zoomed (2 * border_x + win->default_font_max_len_x * (MAX_USERNAME_LENGTH - 1), border_y + y, (const unsigned char*)curr->get_password().c_str(), 1, win->current_scale);
 			y += win->default_font_len_y + username_sep_y;
 		}
 		mouse_over_line = -1;

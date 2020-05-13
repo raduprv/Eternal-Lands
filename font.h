@@ -1,6 +1,8 @@
 #ifndef NEW_FONT_H
 #define NEW_FONT_H
 
+#define SMALL_FIXED_FONT_WIDTH  8
+
 #define DEFAULT_FONT_X_LEN      11.0f
 #define DEFAULT_FONT_Y_LEN      18.0f
 #define SMALL_FONT_X_LEN        8.0f
