@@ -19,6 +19,10 @@ player_attribs your_info;
 player_attribs someone_info;
 struct attributes_struct attributes;
 
+static int max_label_width = 0;
+static int sep_width = 0;
+static int max_lvl_width = 0;
+static int max_exp_width = 0;
 static int check_grid_y_top = 0;
 static int check_grid_x_left = 0;
 static int stats_y_step = 0;
@@ -646,7 +650,7 @@ void init_attribf()
 static void draw_stat(const window_info *win, int x, int y, const attrib_16 *var,
 	const names *name)
 {
-	int x_mid_var = x + (16+3) * win->small_font_len_x;
+	int x_mid_var = x + max_label_width + sep_width + max_lvl_width / 2;
 	char buf[10];
 	draw_string_small_zoomed(x, y, name->name, 1, win->current_scale);
 	safe_snprintf(buf, sizeof(buf), "%3d / %d", var->cur, var->base);
@@ -657,8 +661,8 @@ static void draw_stat(const window_info *win, int x, int y, const attrib_16 *var
 static void draw_skill(const window_info *win, int x, int y, const attrib_16 *lvl,
 	const names *name, Uint32 exp, Uint32 exp_next)
 {
-	int x_mid_lvl = x + (16+3) * win->small_font_len_x;
-	int x_mid_exp = x + (16+8+10) * win->small_font_len_x;
+	int x_mid_lvl = x + max_label_width + sep_width + max_lvl_width / 2;
+	int x_mid_exp = x + max_label_width + sep_width + max_lvl_width + sep_width + max_exp_width / 2;
 	char buf[25];
 
 	draw_string_small_zoomed(x, y, name->name, 1, win->current_scale);
@@ -673,7 +677,7 @@ static void draw_skill(const window_info *win, int x, int y, const attrib_16 *lv
 static void draw_statf(const window_info *win, int x, int y, const attrib_16f *var,
 	const names *name)
 {
-	int x_mid_var = x + (16+3) * win->small_font_len_x;
+	int x_mid_var = x + max_label_width + sep_width + max_lvl_width / 2;
 	char buf[12];
 
 	draw_string_small_zoomed(x, y, name->name, 1, win->current_scale);
@@ -685,22 +689,117 @@ static void draw_statf(const window_info *win, int x, int y, const attrib_16f *v
 static void draw_stat_single(const window_info *win, int x, int y,
 	const unsigned char* name, const char* value)
 {
-	int x_mid = x + (16+3) * win->small_font_len_x;
+	int x_mid = x + max_label_width + sep_width + max_lvl_width / 2;
 	draw_string_small_zoomed(x, y, name, 1, win->current_scale);
 	draw_string_small_zoomed_centered(x_mid, y, (const unsigned char*) value, 1, win->current_scale);
+}
+
+static void set_content_widths(window_info *win)
+{
+	int width;
+
+	max_label_width = 0;
+	width = get_string_width_ui(attributes.phy.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.coo.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.rea.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.wil.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.ins.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.vit.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.might.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.matter.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.tough.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.charm.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.react.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.perc.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.ration.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.dext.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.eth.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.material_points.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.ethereal_points.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.action_points.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.food.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.human_nex.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.animal_nex.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.vegetal_nex.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.inorganic_nex.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.artificial_nex.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.magic_nex.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.attack_skill.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.defense_skill.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.harvesting_skill.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.alchemy_skill.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.magic_skill.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.potion_skill.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.summoning_skill.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.manufacturing_skill.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.crafting_skill.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.engineering_skill.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.tailoring_skill.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.ranging_skill.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.overall_skill.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+	width = get_string_width_ui(attributes.pickpoints, win->current_scale * DEFAULT_SMALL_RATIO);
+	max_label_width = max2i(max_label_width, width);
+
+	sep_width = 2 * win->small_font_max_len_x;
+	max_lvl_width = get_string_width_ui((const unsigned char*)"888 / 888",
+		win->current_scale * DEFAULT_SMALL_RATIO);
+	max_exp_width = get_string_width_ui((const unsigned char*)"888888888 / 888888888",
+		win->current_scale * DEFAULT_SMALL_RATIO);
+
+	win->min_len_x = win->small_font_max_len_x + 2 * max_label_width + 2 * max_lvl_width
+		+ max_exp_width + 5 * sep_width;
+	win->min_len_y = 24 * win->small_font_len_y;
 }
 
 int display_stats_handler(window_info *win)
 {
         player_attribs cur_stats = your_info;
         char str[10];
-        int x = (0.5 + win->small_font_len_x / 2);
-        int c2_x_offset = (int)(0.5 + win->small_font_len_x * 26);
+        int x = win->small_font_max_len_x / 2;
+        int c2_x_offset = max_label_width + max_lvl_width + 3 * sep_width;
         int start_y = (int)(0.5 + win->small_font_len_y / 2);
         int y = start_y;
-        int y_gap_step = (int)(0.5 + win->small_font_len_y * 1.5 );
+        int y_gap_step = (int)(0.5 + win->small_font_len_y * 1.5);
 
-        stats_y_step = (int)(0.5 + win->small_font_len_y);
+        stats_y_step = win->small_font_len_y;
 
         draw_string_small_zoomed(x,y,attributes.base,1, win->current_scale);
         y+=stats_y_step;
@@ -882,12 +981,24 @@ int click_stats_handler(window_info *win, int mx, int my, Uint32 flags)
         return 0;
 }
 
+static int change_stats_font_handler(window_info *win, font_cat font)
+{
+	if (font != UI_FONT)
+		return 0;
+	set_content_widths(win);
+	return 1;
+}
+
 void fill_stats_win (int window_id)
 {
-        //set_window_color(window_id, ELW_COLOR_BORDER, 0.0f, 1.0f, 0.0f, 0.0f);
-        set_window_custom_scale(window_id, &custom_scale_factors.stats);
-        set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_stats_handler );
-        set_window_handler(window_id, ELW_HANDLER_CLICK, &click_stats_handler );
+	if (window_id >= 0 && window_id < windows_list.num_windows)
+		set_content_widths(&windows_list.window[window_id]);
+
+	//set_window_color(window_id, ELW_COLOR_BORDER, 0.0f, 1.0f, 0.0f, 0.0f);
+	set_window_custom_scale(window_id, &custom_scale_factors.stats);
+	set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_stats_handler );
+	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_stats_handler );
+	set_window_handler(window_id, ELW_HANDLER_FONT_CHANGE, &change_stats_font_handler);
 }
 
 void draw_floatingmessage(floating_message *message, float healthbar_z) {

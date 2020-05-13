@@ -146,9 +146,9 @@ int counters_scroll_id = 16;
 
 void increment_counter(int counter_id, const char *name, int quantity, int extra);
 
-int display_counters_handler(window_info *win);
-int click_counters_handler(window_info *win, int mx, int my, Uint32 extra);
-int mouseover_counters_handler(window_info *win, int mx, int my);
+static int display_counters_handler(window_info *win);
+static int click_counters_handler(window_info *win, int mx, int my, Uint32 extra);
+static int mouseover_counters_handler(window_info *win, int mx, int my);
 
 static size_t cm_counters = CM_INIT_VALUE;
 static int cm_selected_entry = -1;
@@ -637,36 +637,53 @@ static int cm_counters_handler(window_info *win, int widget_id, int mx, int my, 
 	return 1;
 }
 
-
-static int resize_counters_handler(window_info *win, int new_width, int new_height)
+static void set_content_widths(window_info *win)
 {
-	size_t i;
-	int max_label_len = 0;
-	int current_selected;
-	int butt_y[NUM_COUNTERS] = {0, 1, 6, 7, 8, 9, 10, 11, 12, 13, 2, 5, 14, 3, 4 };
-	int gap_x = win->small_font_len_x / 2;
 	float zoom = win->current_scale * DEFAULT_SMALL_RATIO;
+	int gap_x = win->small_font_max_len_x / 2;
+	int max_label_width = 0;
+	int i;
 
 	for (i=0; i<NUM_COUNTERS; i++)
-		if (strlen(cat_str[i]) > max_label_len)
-			max_label_len = strlen(cat_str[i]);
+	{
+		int width = get_string_width_ui((const unsigned char*)cat_str[i],
+			win->current_scale * DEFAULT_SMALL_RATIO);
+		if (width > max_label_width)
+			max_label_width = width;
+	}
 
-	left_panel_width = 2 * gap_x + max_label_len * win->small_font_len_x + 2 * (int)(DEFAULT_SMALL_RATIO * win->current_scale * BUTTONRADIUS);
+	left_panel_width = 2 * gap_x + max_label_width + 2 * (int)(DEFAULT_SMALL_RATIO * win->current_scale * BUTTONRADIUS);
+
 	name_x_start = left_panel_width + gap_x;
 	name_x_end = name_x_start + get_string_width_ui(name_str, zoom);
 
 	total_x_end = win->len_x - win->box_size - gap_x;
 	total_x_start = total_x_end - get_string_width_ui(total_str, zoom);
 
-	session_x_end = total_x_end - (int)(12 * win->small_font_len_x + 0.5);
+	session_x_end = total_x_end - 12 * win->small_font_max_len_x;
 	session_x_start = session_x_end - get_string_width_ui(session_str, zoom);
+
+	win->min_len_x = name_x_end + 2 * 12 * win->small_font_max_len_x + win->box_size + gap_x;
+	win->min_len_y = 2 * gap_x + NUM_COUNTERS *
+		(int)(0.5 + 2.0 * BUTTONRADIUS * win->current_scale * DEFAULT_SMALL_RATIO);
+}
+
+static int resize_counters_handler(window_info *win, int new_width, int new_height)
+{
+	float zoom = win->current_scale * DEFAULT_SMALL_RATIO;
+	int gap_x = win->small_font_max_len_x / 2;
+	size_t i;
+	int current_selected;
+	int butt_y[NUM_COUNTERS] = {0, 1, 6, 7, 8, 9, 10, 11, 12, 13, 2, 5, 14, 3, 4 };
+
+	set_content_widths(win);
 
 	step_y = get_line_height(UI_FONT, zoom);
 	margin_y_len = 1.5 * step_y;
 	space_y = 0.5 * step_y;
 	NUM_LINES = (int)((new_height - 2 * margin_y_len - 2 * space_y) / step_y);
 
-	// for now, destory then re-create the buttons as there is no clear way to resize them
+	// for now, destroy then re-create the buttons as there is no clear way to resize them
 	if (multiselect_id >= 0)
 	{
 		current_selected = multiselect_get_selected(win->window_id, multiselect_id);
@@ -694,13 +711,26 @@ static int resize_counters_handler(window_info *win, int new_width, int new_heig
 	return 0;
 }
 
+int change_counters_font_handler(window_info *win, font_cat cat)
+{
+printf("change counters win\n");
+	if (cat != UI_FONT)
+		return 0;
+	set_content_widths(win);
+	return 1;
+}
+
 void fill_counters_win(int window_id)
 {
+	if (window_id >= 0 && window_id < windows_list.num_windows)
+		set_content_widths(&windows_list.window[window_id]);
+
 	set_window_custom_scale(window_id, &custom_scale_factors.stats);
 	set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_counters_handler);
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_counters_handler);
 	set_window_handler(window_id, ELW_HANDLER_MOUSEOVER, &mouseover_counters_handler);
 	set_window_handler(window_id, ELW_HANDLER_RESIZE, &resize_counters_handler);
+	set_window_handler(window_id, ELW_HANDLER_FONT_CHANGE, &change_counters_font_handler);
 
 	counters_scroll_id = vscrollbar_add_extended(window_id, counters_scroll_id, NULL, 0, 0, 0, 0, 0,
 		1.0f, 0.77f, 0.57f, 0.39f, 0, 1, 0);
@@ -713,7 +743,7 @@ void fill_counters_win(int window_id)
 	}
 }
 
-int display_counters_handler(window_info *win)
+static int display_counters_handler(window_info *win)
 {
 	int i, j, n, x, y;
 	int scroll;
@@ -863,7 +893,7 @@ CHECK_GL_ERRORS();
 	return 1;
 }
 
-int click_counters_handler(window_info *win, int mx, int my, Uint32 extra)
+static int click_counters_handler(window_info *win, int mx, int my, Uint32 extra)
 {
 	 if (mx > left_panel_width && my > margin_y_len && my < win->len_y - margin_y_len) {
 		if (extra&ELW_WHEEL_UP) {
@@ -909,7 +939,7 @@ int click_counters_handler(window_info *win, int mx, int my, Uint32 extra)
 	return 1;
 }
 
-int mouseover_counters_handler(window_info *win, int mx, int my)
+static int mouseover_counters_handler(window_info *win, int mx, int my)
 {
 	mouseover_name = mouseover_session = mouseover_total = 0;
 	mouseover_entry_y = -1;

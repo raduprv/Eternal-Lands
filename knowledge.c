@@ -54,6 +54,8 @@ static int progress_bot_y = 0;
 static int progress_right_x = 0;
 static int progress_left_x = 0;
 static int text_border = 0;
+static int label_x_left = 0;
+static int book_x_left = 0;
 static int book_start_x = 0;
 
 static int add_knowledge_book_image(int window_id)
@@ -168,7 +170,7 @@ int display_knowledge_handler(window_info *win)
 	int scroll = vscrollbar_get_pos (win->window_id, knowledge_scroll_id);
 	char points_string[16];
 	char *research_string;
-	float font_ratio = win->small_font_len_x/12.0;
+	float font_ratio = win->current_scale * DEFAULT_SMALL_RATIO;
 	float max_name_x = (win->len_x - win->box_size - 2*x)/2;
 	int is_researching = 1;
 
@@ -181,7 +183,7 @@ int display_knowledge_handler(window_info *win)
 	{
 		research_string = knowledge_list[your_info.researching].name;
 	}
-	else if (your_info.researching < sizeof(knowledge_list))
+	else if (your_info.researching < KNOWLEDGE_LIST_SIZE)
 	{
 		research_string = unknown_book_short_str;
 	}
@@ -298,8 +300,11 @@ int display_knowledge_handler(window_info *win)
 		else
 			draw_string_zoomed(x,y,(unsigned char*)knowledge_list[i].name,1,font_ratio);
 
-		x += (win->len_x-win->box_size-2*text_border)/2;
-		if (i % 2 == 1)
+		if (i % 2 == 0)
+		{
+			x += (win->len_x-win->box_size-2*text_border)/2;
+		}
+		else
 		{
 			y += booklist_y_step;
 			x = text_border;
@@ -457,27 +462,53 @@ static int cm_knowledge_handler(window_info *win, int widget_id, int mx, int my,
 	return 1;
 }
 
-static int resize_knowledge_handler(window_info *win, int new_width, int new_height)
+static void set_content_widths(window_info *win)
 {
-	int gap_y;
 	int image_size = (int)(0.5 + win->current_scale * 50);
 	int label_width = get_string_width_ui((const unsigned char*)knowledge_read_book,
 		win->current_scale * 0.8);
 	int label_height = (int)(0.5 + win->default_font_len_y * win->current_scale * 0.8);
-	int book_x_off = 0;
-	int label_x_left = 0;
-	int book_x_left = 0;
 
-	text_border = win->small_font_len_x / 2;
+	int i, gap_y, book_x_off, max_width = 0;
+
+	text_border = win->small_font_max_len_x / 2;
 	booklist_y_step = win->small_font_len_y - 2;
+
 	booklist_y_len = 2 * text_border + (int)(0.5 + booklist_y_step * displayed_book_rows);
-	progressbox_y_len = booklist_y_len + 2 * text_border + (int)(0.5 + win->small_font_len_y * info_lines);
+	progressbox_y_len = booklist_y_len + 2 * text_border + win->small_font_len_y * info_lines;
 
 	gap_y = (win->len_y - progressbox_y_len - win->small_font_len_y - 4) / 2;
 	progress_top_y = progressbox_y_len + gap_y;
 	progress_bot_y = win->len_y - gap_y;
 	progress_right_x = win->len_x - (int)(0.5 + win->current_scale * 15);
 	progress_left_x = win->len_x - (int)(0.5 + win->current_scale * 140);
+
+	book_x_off = (label_width > image_size) ? label_width : image_size;
+	label_x_left = progress_right_x - book_x_off/2 - label_width/2;
+	book_x_left = progress_right_x - book_x_off/2 - image_size/2;
+	book_start_x = min2i(label_x_left, book_x_left);
+
+	for (i = 0; i < knowledge_count; ++i)
+	{
+		int width = get_string_width_ui((const unsigned char*)knowledge_list[i].name,
+			win->current_scale * DEFAULT_SMALL_RATIO);
+		if (width > max_width)
+			max_width = width;
+	}
+
+	win->min_len_x = 2 * text_border + 2 * max_width + 2 * win->small_font_max_len_x;
+	win->min_len_y = progressbox_y_len + 2*text_border + win->small_font_len_y;
+}
+
+static int resize_knowledge_handler(window_info *win, int new_width, int new_height)
+{
+	int image_size = (int)(0.5 + win->current_scale * 50);
+	int label_width = get_string_width_ui((const unsigned char*)knowledge_read_book,
+		win->current_scale * 0.8);
+	int label_height = (int)(0.5 + win->default_font_len_y * win->current_scale * 0.8);
+	int gap_y;
+
+	set_content_widths(win);
 
 	widget_resize(win->window_id, knowledge_scroll_id, win->box_size, booklist_y_len);
 	widget_move(win->window_id, knowledge_scroll_id, win->len_x - win->box_size, 0);
@@ -486,12 +517,7 @@ static int resize_knowledge_handler(window_info *win, int new_width, int new_hei
 	widget_resize(win->window_id, knowledge_book_label_id, label_width, label_height);
 	widget_resize(win->window_id, knowledge_book_image_id, image_size, image_size);
 
-	book_x_off = (label_width > image_size) ?label_width :image_size;
 	gap_y = booklist_y_len + (progressbox_y_len - booklist_y_len - image_size - label_height)/ 2;
-	label_x_left = progress_right_x - book_x_off/2 - label_width/2;
-	book_x_left = progress_right_x - book_x_off/2 - image_size/2;
-	book_start_x = (label_x_left < book_x_left) ?label_x_left :book_x_left;
-
 	widget_move(win->window_id, knowledge_book_label_id, label_x_left, gap_y);
 	widget_move(win->window_id, knowledge_book_image_id, book_x_left, gap_y + label_height);
 
@@ -500,13 +526,25 @@ static int resize_knowledge_handler(window_info *win, int new_width, int new_hei
 	return 0;
 }
 
-void fill_knowledge_win (int window_id)
+static int change_knowledge_font_handler(window_info *win, font_cat font)
 {
+	if (font != UI_FONT)
+		return 0;
+	set_content_widths(win);
+	return 1;
+}
+
+void fill_knowledge_win(int window_id)
+{
+	if (window_id >= 0 && window_id < windows_list.num_windows)
+		set_content_widths(&windows_list.window[window_id]);
+
 	set_window_custom_scale(window_id, &custom_scale_factors.stats);
 	set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_knowledge_handler );
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_knowledge_handler );
 	set_window_handler(window_id, ELW_HANDLER_MOUSEOVER, &mouseover_knowledge_handler );
 	set_window_handler(window_id, ELW_HANDLER_RESIZE, &resize_knowledge_handler );
+	set_window_handler(window_id, ELW_HANDLER_FONT_CHANGE, &change_knowledge_font_handler);
 
 	knowledge_scroll_id = vscrollbar_add_extended (window_id, knowledge_scroll_id, NULL, 0,  0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, (knowledge_count+1)/2-displayed_book_rows);
 	knowledge_book_image_id = add_knowledge_book_image(window_id);
