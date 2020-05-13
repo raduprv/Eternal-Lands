@@ -1721,11 +1721,17 @@ static int display_chan_sel_handler(window_info *win)
 			step = step->next;
 		}
 	}
-	for (i = 0; i < CS_MAX_DISPLAY_CHANS; ++i) {//loathe not having auto-moving widgets...
+	for (i = 0; i < CS_MAX_DISPLAY_CHANS; ++i)
+	{
+		const unsigned char* name = (const unsigned char*)((chan_name*)(step->data))->name;
+		int width = get_string_width_ui(name, local_zoom);
+
 		glColor3f(0.5f, 0.75f, 1.0f);
-		draw_string_zoomed(x, y, (unsigned char*)((chan_name*)(step->data))->name, 1, local_zoom);
-		if(mouse_y > win->pos_y+y && mouse_y < win->pos_y+y+win->small_font_len_y && mouse_x >= win->pos_x+chan_sel_border
-			&& mouse_x-chan_sel_border <= win->pos_x + win->small_font_len_x*((signed)strlen(((chan_name*)(step->data))->name))) {
+		draw_string_zoomed(x, y, name, 1, local_zoom);
+		if (mouse_y > win->pos_y + y && mouse_y < win->pos_y + y + win->small_font_len_y
+			&& mouse_x >= win->pos_x + chan_sel_border
+			&& mouse_x <= win->pos_x + chan_sel_border + width)
+		{
 			show_help(((chan_name*)(step->data))->description, mouse_x-win->pos_x,mouse_y-win->pos_y-win->small_font_len_y, win->current_scale);
 		}
 		y += win->default_font_len_y;
@@ -1774,14 +1780,18 @@ static int click_chan_sel_handler(window_info *win, int mx, int my, Uint32 flags
 	} else if(flags&ELW_WHEEL_DOWN) {
 		vscrollbar_scroll_down(chan_sel_win, chan_sel_scroll_id);
 	} else {
+		int width;
 		for (i = 0; i < y ; ++i) {
 			if(step->next == NULL) {
 				return 0;
 			}
 			step = step->next;
 		}
-		if(mouse_x >= win->pos_x+chan_sel_border &&
-			mouse_x-chan_sel_border <= win->pos_x + win->small_font_len_x*((signed)strlen(((chan_name*)(step->data))->name))) {
+		width = get_string_width_ui((const unsigned char*)((chan_name*)(step->data))->name,
+			win->current_scale * DEFAULT_SMALL_RATIO);
+		if (mouse_x >= win->pos_x + chan_sel_border
+			&& mouse_x <= win->pos_x + chan_sel_border + width)
+		{
 			char tmp[20];
 			safe_snprintf(tmp, sizeof(tmp), "#jc %d", ((chan_name*)(step->data))->channel);
 			send_input_text_line(tmp, strlen(tmp));
@@ -1793,13 +1803,21 @@ static int click_chan_sel_handler(window_info *win, int mx, int my, Uint32 flags
 
 static int ui_scale_chan_sel_handler(window_info *win)
 {
-	int len_x = (int)(0.5 + win->small_font_len_x * 20 + 2 * chan_sel_border + win->box_size);
+	int len_x = (int)(0.5 + win->small_font_max_len_x * 20 + 2 * chan_sel_border + win->box_size);
 	int len_y = (int)(0.5 + win->default_font_len_y * CS_MAX_DISPLAY_CHANS + chan_sel_border);
 
 	resize_window(win->window_id, len_x, len_y);
 	widget_resize(win->window_id, chan_sel_scroll_id, win->box_size, len_y - win->box_size - chan_sel_sep_offset);
 	widget_move(win->window_id, chan_sel_scroll_id, len_x - win->box_size, win->box_size);
 
+	return 1;
+}
+
+static int change_chan_sel_font_handler(window_info *win, font_cat cat)
+{
+	if (cat != UI_FONT)
+		return 0;
+	ui_scale_chan_sel_handler(win);
 	return 1;
 }
 
@@ -1823,6 +1841,7 @@ static int tab_special_click(widget_list *w, int mx, int my, Uint32 flags)
 						set_window_handler (chan_sel_win, ELW_HANDLER_DISPLAY, &display_chan_sel_handler);
 						set_window_handler (chan_sel_win, ELW_HANDLER_CLICK, &click_chan_sel_handler);
 						set_window_handler (chan_sel_win, ELW_HANDLER_UI_SCALE, &ui_scale_chan_sel_handler);
+						set_window_handler(chan_sel_win, ELW_HANDLER_FONT_CHANGE, &change_chan_sel_font_handler);
 						if(chan_name_queue->nodes >= CS_MAX_DISPLAY_CHANS && chan_sel_scroll_id == -1) {
 							int len = chan_name_queue->nodes-CS_MAX_DISPLAY_CHANS;
 							chan_sel_scroll_id = vscrollbar_add_extended (chan_sel_win, 0, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, len);
@@ -2058,6 +2077,14 @@ static int ui_scale_tab_bar_handler(window_info *win)
 	return 1;
 }
 
+static int change_tab_bar_font_handler(window_info *win, font_cat cat)
+{
+	if (cat != UI_FONT)
+		return 0;
+	ui_scale_tab_bar_handler(win);
+	return 1;
+}
+
 static void create_tab_bar(void)
 {
 	int tab_bar_x = 10;
@@ -2065,6 +2092,7 @@ static void create_tab_bar(void)
 
 	tab_bar_win = create_window ("Tab bar", -1, 0, tab_bar_x, tab_bar_y, 100, 0, ELW_USE_UISCALE|ELW_USE_BACKGROUND|ELW_SHOW);
 	set_window_handler(tab_bar_win, ELW_HANDLER_UI_SCALE, &ui_scale_tab_bar_handler );
+	set_window_handler(tab_bar_win, ELW_HANDLER_FONT_CHANGE, &change_tab_bar_font_handler);
 	if (tab_bar_win >= 0 && tab_bar_win < windows_list.num_windows)
 		ui_scale_tab_bar_handler(&windows_list.window[tab_bar_win]);
 
