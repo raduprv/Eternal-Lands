@@ -271,6 +271,34 @@ public:
 	 */
 	int max_width_spacing(float zoom=1.0) const;
 	/*!
+	 * Get the average character width, plus spacing
+	 *
+	 * Get an approximation to the average width of a character in this font when
+	 * drawn at zoom level \a zoom, including the space between characters,
+	 * for some definition of "average". The average is calculated by assigning
+	 * a weight to each possible character, and taking the weighted average
+	 * of all character widths. The weights are based on a study on normal
+	 * English text, so use this function with the following caveats:
+	 *
+	 * 1) Relative frequencies are based on English text, and so may not be
+	 *    applicable to text in to other languages,
+	 * 2) Furthermore, weights are based on text from the New York Times, and so
+	 *    may not be representative even for English text in EL,
+	 * 3) Only ASCII characters were counted in the stdy (so accented characters
+	 *    don't contribute), and a few ASCII characters are missing as well
+	 *    ('[', '\', ']', '^', '_', and '`' to be exact).
+     * 4) The occurance of the space character was guesstimated from the reported
+	 *    total number of words in the corpus.
+	 *
+	 * Proceed to use with caution, do not use this function when you need to be
+	 * sure a string will fit within a certain space, use max_width_spacing()
+	 * or a monospaced font instead.
+	 *
+	 * \param zoom The zoom factor for drawing the character.
+	 * \return The maximum width of a character including spacing, in pixels.
+	 */
+	int average_width_spacing(float zoom=1.0) const;
+	/*!
 	 * Get the maximum width of a digit, plus spacing
 	 *
 	 * Get the maximum width of a single digit character (0-9) in this font when
@@ -408,6 +436,7 @@ private:
 	static const int font_block_height = 21;
 	static const int default_line_height = 18;
 	static const int ttf_point_size = 32;
+	static const std::array<int, font_nr_lines * font_chars_per_line> letter_freqs;
 
 	enum Flags
 	{
@@ -440,6 +469,8 @@ private:
 	int _max_char_width;
 	//! Maximum width of a digit 0-9
 	int _max_digit_width;
+	//! "Typical" character width for English text
+	int _avg_char_width;
 	//! Distance between characters when drawn (at default zoom level)
 	int _spacing;
 	//! Scale factor that scales texture to default height
@@ -699,6 +730,22 @@ public:
 		return get(cat).max_width_spacing(text_zoom * font_scales[cat]);
 	}
 	/*!
+	 * Get the average character width, plus spacing
+	 *
+	 * Get an approximation to the average width of a character in the font for
+	 * category \a cat when drawn at zoom level \a zoom, including the space
+	 * between characters, for some definition of "average". See the note
+	 * in Font::average_width_spacing() for some caveats when using this function.
+	 *
+	 * \param cat       The font category for the font used
+	 * \param zoom The zoom factor for drawing the character.
+	 * \return The maximum width of a character including spacing, in pixels.
+	 */
+	int average_width_spacing(Category cat, float text_zoom=1.0)
+	{
+		return get(cat).average_width_spacing(text_zoom * font_scales[cat]);
+	}
+	/*!
 	 * The maximum width of a single digit character
 	 *
 	 * Return the maximum a single digit character (0-9) can occupy when drawn
@@ -932,6 +979,7 @@ static __inline__ int get_char_width_ui(unsigned char c, float text_zoom)
 	return get_char_width_zoom(c, UI_FONT, text_zoom);
 }
 int get_max_char_width_zoom(font_cat cat, float zoom);
+int get_avg_char_width_zoom(font_cat cat, float zoom);
 int get_max_digit_width_zoom(font_cat cat, float zoom);
 int get_buf_width_zoom(const unsigned char* str, size_t len, font_cat cat, float text_zoom);
 static __inline__ int get_string_width_zoom(const unsigned char* str, font_cat cat,

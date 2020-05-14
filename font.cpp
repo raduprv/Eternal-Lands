@@ -1,4 +1,5 @@
 #include <cmath>
+#include <numeric>
 #include <sstream>
 #ifdef TTF
 #include <glob.h>
@@ -73,6 +74,14 @@ bool pos_selected(const select_info *sel, size_t imsg, size_t ichar)
 		&& (imsg < end.first   || (imsg == end.first   && ichar <= end.second));
 }
 
+template <typename Iterator>
+int average_width(Iterator f_begin, Iterator f_end, Iterator w_begin)
+{
+	int total = std::accumulate(f_begin, f_end, 0);
+	int dot = std::inner_product(f_begin, f_end, w_begin, 0);
+	return std::round(float(dot) / total);
+}
+
 } // namespace
 
 namespace eternal_lands
@@ -102,13 +111,42 @@ void TextDrawOptions::use_foreground_color() const
 		glColor3f(1.0, 1.0, 1.0);
 }
 
+// Relative letter frequencies for English text, based on the counts in
+//
+// M.N. Jones and D.J.K. Mewhort,
+// Behavior Research Methods, Instruments, & Computers 36, pp. 388-396 (2004)
+//
+// These are used to compute an "average" character width for a font. When
+// using this, please note that:
+// 1) This is based on English text, so these frequencies may not be applicable
+//    to text in to other languages,
+// 2) It is based on text from the New York Times, and so may not be
+//    representative for text used in EL,
+// 3) Only ASCII characters were counted (so accented characters don't contribute),
+//    and a few ASCII characters are missing as well ('[', '\', ']', '^', '_',
+//    and '`').
+// 4) The occurance of the space character was guesstimated from the reported total
+//    number of words in the corpus.
+//
+// When you need to be sure a text will fit in a certain space, use the maximum
+// character width or use a monospaced font.
+const std::array<int, Font::font_nr_lines * Font::font_chars_per_line> Font::letter_freqs = {
+	1647,    0,   33,    0,    6,    0,    1,   24,    6,    6,    2,    0,  116,   30,
+	 111,    1,   64,   54,   39,   22,   23,   44,   18,   14,   21,   33,    6,    4,
+	   0,    0,    0,    1,    0,   33,   20,   27,   15,   16,   12,   11,   15,   26,
+	   9,    5,   13,   31,   24,   12,   17,    1,   17,   36,   38,    7,    4,   13,
+	   1,   11,    1,    0,    0,    0,    0,    0,    0,  619,  102,  231,  279,  911,
+	 153,  142,  348,  533,    8,   54,  300,  173,  534,  556,  148,    6,  487,  492,
+	 648,  190,   77,  119,   15,  125,    8,    0,    0,    0,    0
+};
 
 Font::Font(size_t i): _font_name(), _file_name(), _flags(0),
 	_texture_width(256), _texture_height(256),
 	_char_widths(), _texture_coordinates(),
 	_block_width(font_block_width), _block_height(font_block_height),
 	_line_height(std::round(12.0 * default_line_height / 11)),
-	_max_char_width(12), _max_digit_width(12), _spacing(0), _scale(11.0 / 12)
+	_max_char_width(12), _max_digit_width(12), _avg_char_width(12), _spacing(0),
+	_scale(11.0 / 12)
 {
 	static const std::array<const char*, 7> file_names = { {
 		"textures/font.dds",
@@ -166,6 +204,8 @@ Font::Font(size_t i): _font_name(), _file_name(), _flags(0),
 			12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
 		} };
 		_max_digit_width = *std::max_element(_char_widths.begin() + 16, _char_widths.begin() + 26);
+		_avg_char_width = average_width(letter_freqs.begin(), letter_freqs.end(),
+			_char_widths.cbegin());
 		_spacing = 4;
 	}
 	else if (i == 2)
@@ -182,6 +222,8 @@ Font::Font(size_t i): _font_name(), _file_name(), _flags(0),
 			10, 10, 12, 10, 12, 12, 12,
 		} };
 		_max_digit_width = *std::max_element(_char_widths.begin() + 16, _char_widths.begin() + 26);
+		_avg_char_width = average_width(letter_freqs.begin(), letter_freqs.end(),
+			_char_widths.cbegin());
 		_spacing = 2;
 	}
 	else
@@ -208,7 +250,7 @@ Font::Font(size_t i): _font_name(), _file_name(), _flags(0),
 Font::Font(const std::string& ttf_file_name): _font_name(), _file_name(), _flags(0),
 	_texture_width(0), _texture_height(0), _char_widths(), _texture_coordinates(),
 	_block_width(0), _block_height(0), _max_char_width(0), _max_digit_width(0),
-	_spacing(0), _scale(1.0)
+	_avg_char_width(0), _spacing(0), _scale(1.0)
 {
 	TTF_Font *font = TTF_OpenFont(ttf_file_name.c_str(), ttf_point_size);
 	if (!font)
@@ -287,6 +329,11 @@ int Font::width_spacing_pos(int pos, float zoom) const
 int Font::max_width_spacing(float zoom) const
 {
 	return std::round((_max_char_width + _spacing) * _scale * zoom);
+}
+
+int Font::average_width_spacing(float zoom) const
+{
+	return std::round((_avg_char_width + _spacing) * _scale * zoom);
 }
 
 int Font::max_digit_width_spacing(float zoom) const
@@ -502,7 +549,6 @@ int Font::draw_char(unsigned char c, int x, int y, float zoom, bool ignore_color
 	}
 
 	int char_width = width_spacing_pos(pos, zoom);
-// if (_font_name.substr(0,6) == "Type 2") printf("%c: %d+%d %d @ %f\n", c, _char_widths[pos], _spacing, char_width, zoom);
 	int char_height = height(zoom);
 
 	float u_start, u_end, v_start, v_end;
@@ -1158,6 +1204,8 @@ bool Font::build_texture_atlas()
 	_line_height = _block_height;
 	_max_char_width = *std::max_element(_char_widths.begin(), _char_widths.end());
 	_max_digit_width = *std::max_element(_char_widths.begin() + 16, _char_widths.begin() + 26);
+	_avg_char_width = average_width(letter_freqs.begin(), letter_freqs.end(),
+		_char_widths.cbegin());
 	_scale = float(font_block_height) / size;
 	_flags |= Flags::HAS_TEXTURE;
 
@@ -1296,6 +1344,10 @@ int get_char_width_zoom(unsigned char c, font_cat cat, float zoom)
 int get_max_char_width_zoom(font_cat cat, float zoom)
 {
 	return FontManager::get_instance().max_width_spacing(cat, zoom);
+}
+int get_avg_char_width_zoom(font_cat cat, float zoom)
+{
+	return FontManager::get_instance().average_width_spacing(cat, zoom);
 }
 int get_max_digit_width_zoom(font_cat cat, float zoom)
 {
