@@ -481,9 +481,12 @@ namespace Indicators
 		std::vector<Basic_Indicator *>::iterator i = get_over(mx);
 		if (win && (i < indicators.end()))
 		{
+			eternal_lands::FontManager &fmgr = eternal_lands::FontManager::get_instance();
 			std::string tooltip("");
 			(*i)->get_tooltip(tooltip);
-			int x_offset = -static_cast<int>(Vars::border() + win->small_font_len_x * (1 + tooltip.size()) + 0.5);
+			int width = fmgr.line_width(UI_FONT, (const unsigned char*)tooltip.c_str(),
+				tooltip.length(), win->current_scale * DEFAULT_SMALL_RATIO);
+			int x_offset = -(Vars::border() + width);
 			if ((win->cur_x + x_offset) < 0)
 				x_offset = win->len_x;
 			show_help(tooltip.c_str(), x_offset, Vars::border(), win->current_scale);

@@ -869,7 +869,7 @@ namespace ItemLists
 		names_list_height = win->small_font_len_y;
 		grid_pixel_size = static_cast<int>(0.5 + 33 * win->current_scale);
 		ui_control_space = win->box_size;
-		add_button_x = static_cast<int>(get_size_x() - win->default_font_len_x * 2);
+		add_button_x = get_size_x() - ui_control_space/2;
 		add_button_y = get_grid_size();
 		update_min_window_size(win);
 		if (win->len_y <= 0)
@@ -1061,7 +1061,7 @@ namespace ItemLists
 			glColor3f(0.99f,0.77f,0.55f);
 		else
 			glColor3f(0.77f,0.57f,0.39f);
-		draw_string_zoomed(add_button_x, add_button_y, (unsigned const char*)"+", 1, win->current_scale * 2.0);
+		draw_string_zoomed_centered(add_button_x, add_button_y, (unsigned const char*)"+", 1, win->current_scale * 2.0);
 
 		// draw the item list names
 		glColor3f(1.0f,1.0f,1.0f);
@@ -1071,7 +1071,7 @@ namespace ItemLists
 		const std::vector<List> lists = Vars::lists()->get_lists();
 		const int hl_width = static_cast<int>(win->len_x-win->box_size-3);
 		const int hl_height = static_cast<int>(names_list_height + get_list_gap());
-		const size_t disp_chars = static_cast<size_t>((win->len_x-win->box_size-2*get_list_gap()) / win->small_font_len_x);
+		int max_name_width = win->len_x - win->box_size - 2*get_list_gap();
 		for (size_t i = top_entry; i<lists.size() && num_shown<num_show_names_list; ++i)
 		{
 			if (i==Vars::lists()->get_active())
@@ -1079,15 +1079,18 @@ namespace ItemLists
 			else if (i==name_under_mouse)
 				draw_highlight(1, static_cast<int>(pos_y-get_list_gap()/2), hl_width, hl_height, 0);
 			glColor3f(1.0f,1.0f,1.0f);
-			if (lists[i].get_name().size() > disp_chars)
+
+			const unsigned char* name = reinterpret_cast<const unsigned char*>(lists[i].get_name().c_str());
+			int name_width = get_string_width_ui(name, win->current_scale * DEFAULT_SMALL_RATIO);
+			draw_string_zoomed_width_font(get_list_gap(), pos_y, name, max_name_width, 1,
+				UI_FONT, win->current_scale * DEFAULT_SMALL_RATIO);
+			if (name_width > max_name_width && i == name_under_mouse)
 			{
-				std::string todisp = lists[i].get_name().substr(0,disp_chars);
-				draw_string_small_zoomed(get_list_gap(), pos_y, reinterpret_cast<const unsigned char*>(todisp.c_str()), 1, win->current_scale);
-				if (i==name_under_mouse)
-					show_help(lists[i].get_name().c_str(), 0, static_cast<int>(0.5 + win->len_y + 10 + win->small_font_len_y * help_lines_shown), win->current_scale);
+				show_help(reinterpret_cast<const char*>(name),
+					0, win->len_y + 10 + win->small_font_len_y * help_lines_shown,
+					win->current_scale);
 			}
-			else
-				draw_string_small_zoomed(get_list_gap(), pos_y, reinterpret_cast<const unsigned char*>(lists[i].get_name().c_str()), 1, win->current_scale);
+
 			pos_y += static_cast<int>(names_list_height + get_list_gap());
 			num_shown++;
 		}
@@ -1160,7 +1163,8 @@ CHECK_GL_ERRORS();
 		}
 
 		// check if over the add list button
-		if (my>add_button_y && my<(add_button_y+2*win->default_font_len_y) && mx>add_button_x && mx<win->len_x)
+		if (my > add_button_y && my < add_button_y + 2*win->default_font_len_y
+			&& mx>win->len_x - ui_control_space && mx < win->len_x)
 		{
 			help_str.push_back(item_list_create_help_str);
 			mouse_over_add_button = true;
@@ -1590,17 +1594,17 @@ extern "C"
 		ItemLists::Vars::lists()->save();
 		ItemLists::Vars::cat_maps()->save();
 	}
-	
+
 	unsigned int item_lists_get_active(void)
 	{
 		return static_cast<unsigned int>(ItemLists::Vars::lists()->get_active());
 	}
-	
+
 	void item_lists_set_active(unsigned int active_list)
 	{
 		ItemLists::Vars::lists()->set_initial_active(static_cast<size_t>(active_list));
 	}
-	
+
 	void item_lists_reset_pickup_fail_time(void)
 	{
 		ItemLists::Vars::win()->reset_pickup_fail_time();

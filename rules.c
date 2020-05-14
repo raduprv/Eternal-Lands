@@ -796,15 +796,13 @@ static void draw_rules_interface (window_info * win)
 		safe_strncpy (str, accepted_rules, sizeof(str));
 
 	/* scale the string if it is too wide for the screen */
-	string_width = strlen (str) * win->default_font_len_x;
 	string_zoom = win->current_scale;
+	string_width = get_string_width_zoom((const unsigned char*)str, RULES_FONT, string_zoom)
+		+ 2 * win->default_font_max_len_x;
 	if (string_width > win->len_x)
-	{
-		string_zoom = (float)win->len_x/((float)strlen (str) * DEFAULT_FONT_X_LEN);
-		string_width = strlen (str) * DEFAULT_FONT_X_LEN * string_zoom;
-	}
-	draw_string_zoomed_width_font((win->len_x - string_width) / 2,
-		win->len_y - ui_seperator_y - win->default_font_len_y, (unsigned char*)str,
+		string_zoom *= win->len_x / string_width;
+	draw_string_zoomed_width_font_centered(win->len_x/2,
+		win->len_y - ui_seperator_y - win->default_font_len_y, (const unsigned char*)str,
 		window_width, 0, RULES_FONT, string_zoom);
 
 	draw_rules(display_rules, box_border_x, ui_seperator_y + win->default_font_len_y / 2,
@@ -932,13 +930,16 @@ static int keypress_rules_root_handler (window_info *win, int mx, int my, SDL_Ke
 
 static void adjust_ui_elements(window_info *win, int scroll_id, int accept_id)
 {
+	int accept_label_width;
 	int char_per_line = 65;
-	if ((char_per_line * win->default_font_len_x) > (win->len_x - 3 * win->box_size))
-		char_per_line = (int)((float)(win->len_x - 3 * win->box_size) / (float)win->default_font_len_x);
+	if (char_per_line * win->default_font_max_len_x > win->len_x - 3 * win->box_size)
+		char_per_line = (win->len_x - 3 * win->box_size) / win->default_font_max_len_x;
 
-	button_resize(win->window_id, accept_id, (strlen(accept_label) * win->default_font_len_x) + 40, (int)(0.5 + win->current_scale * 32), win->current_scale);
+	accept_label_width = get_string_width_zoom((const unsigned char*)accept_label,
+		RULES_FONT, win->current_scale);
+	button_resize(win->window_id, accept_id, accept_label_width + 40, (int)(0.5 + win->current_scale * 32), win->current_scale);
 
-	text_box_width = char_per_line * win->default_font_len_x;
+	text_box_width = char_per_line * win->default_font_max_len_x;
 	box_border_x = (win->len_x - text_box_width - win->box_size) / 2;
 
 	text_box_height = 0.75 * (win->len_y - widget_get_height(win->window_id, accept_id) - win->default_font_len_y);

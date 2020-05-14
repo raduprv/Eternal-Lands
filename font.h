@@ -263,13 +263,23 @@ public:
 	/*!
 	 * Get the maximum character width, plus spacing
 	 *
-	 * Get the maxim width of a sinle character in this font when drawn at zoom
+	 * Get the maximum width of a single character in this font when drawn at zoom
 	 * level \a zoom, and include the spacing between characters.
 	 *
 	 * \param zoom The zoom factor for drawing the character.
-	 * \return The maximum width of a character inuding spacing, in pixels.
+	 * \return The maximum width of a character including spacing, in pixels.
 	 */
 	int max_width_spacing(float zoom=1.0) const;
+	/*!
+	 * Get the maximum width of a digit, plus spacing
+	 *
+	 * Get the maximum width of a single digit character (0-9) in this font when
+	 * drawn at zoom level \a zoom, and include the spacing between characters.
+	 *
+	 * \param zoom The zoom factor for drawing the character.
+	 * \return The maximum width of a digit character including spacing, in pixels.
+	 */
+	int max_digit_width_spacing(float zoom=1.0) const;
 	/*!
 	 * Calculate the width of a string
 	 *
@@ -428,6 +438,8 @@ private:
 	int _line_height;
 	//! Maximum width of a glyph
 	int _max_char_width;
+	//! Maximum width of a digit 0-9
+	int _max_digit_width;
 	//! Distance between characters when drawn (at default zoom level)
 	int _spacing;
 	//! Scale factor that scales texture to default height
@@ -687,6 +699,21 @@ public:
 		return get(cat).max_width_spacing(text_zoom * font_scales[cat]);
 	}
 	/*!
+	 * The maximum width of a single digit character
+	 *
+	 * Return the maximum a single digit character (0-9) can occupy when drawn
+	 * in the font for category \a cat at zoom level \a text_zoom, and include
+	 * the spacing between characters.
+	 *
+	 * \param cat       The font category for the font used
+	 * \param text_zoom The scale factor for the text
+	 * \return The maximum digit character width incuding spacing, in pixels.
+	 */
+	int max_digit_width_spacing(Category cat, float text_zoom=1.0)
+	{
+		return get(cat).max_digit_width_spacing(text_zoom * font_scales[cat]);
+	}
+	/*!
 	 * Calculate the width of a string
 	 *
 	 * Calculate the width in pixels of the string \a text of length \a len
@@ -905,6 +932,7 @@ static __inline__ int get_char_width_ui(unsigned char c, float text_zoom)
 	return get_char_width_zoom(c, UI_FONT, text_zoom);
 }
 int get_max_char_width_zoom(font_cat cat, float zoom);
+int get_max_digit_width_zoom(font_cat cat, float zoom);
 int get_buf_width_zoom(const unsigned char* str, size_t len, font_cat cat, float text_zoom);
 static __inline__ int get_string_width_zoom(const unsigned char* str, font_cat cat,
 	float text_zoom)
