@@ -58,53 +58,54 @@ int common_encyclopedia_display_handler(window_info *win, size_t the_page, int t
 
 	while(t)
 	{
+		float zoom = t->size ? win->current_scale : win->current_scale * DEFAULT_SMALL_RATIO;
 		int ylen=(t->size)?win->default_font_len_y:win->small_font_len_y;
-		int xlen=strlen(t->text)*((t->size)?win->default_font_len_x:win->small_font_len_x);
+		int xlen = get_string_width_ui((const unsigned char*)t->text, zoom);
 
 		// scale then scale the positions, restoring later
 		int sx = t->x, sy = t->y, sj = j;
-		t->x *= ((t->size) ?(win->default_font_len_x / DEFAULT_FONT_X_LEN) :(win->small_font_len_x / SMALL_FONT_X_LEN));
-		t->y *= ((t->size) ?(win->default_font_len_y / DEFAULT_FONT_Y_LEN) :(win->small_font_len_y / SMALL_FONT_Y_LEN));
-		j *= ((t->size) ?(win->default_font_len_y / DEFAULT_FONT_Y_LEN) :(win->small_font_len_y / SMALL_FONT_Y_LEN));
+		t->x = (int)(0.5 + win->current_scale * t->x);
+		t->y = (int)(0.5 + win->current_scale * t->y);
+		j = (int)(0.5 + win->current_scale * j);
 
 		if((t->y-j > 0) && (t->y+ylen-j < win->len_y ))
 		{
 			if(t->ref)
-				{
-					//draw a line
-					glColor3f(0.5,0.5,0.5);
-					glDisable(GL_TEXTURE_2D);
-					glBegin(GL_LINES);
-					glVertex3i(t->x+4,t->y+ylen-j,0);
-					glVertex3i(t->x+4+xlen-8,t->y+ylen-j,0);
-					glEnd();
-					glEnable(GL_TEXTURE_2D);
+			{
+				//draw a line
+				glColor3f(0.5,0.5,0.5);
+				glDisable(GL_TEXTURE_2D);
+				glBegin(GL_LINES);
+				glVertex3i(t->x+4,t->y+ylen-j,0);
+				glVertex3i(t->x+4+xlen-8,t->y+ylen-j,0);
+				glEnd();
+				glEnable(GL_TEXTURE_2D);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
-				}
+			}
 			if(t->size)
+			{
+				if(t->ref && mouse_x>(t->x+win->cur_x) && mouse_x<(t->x+xlen+win->cur_x) && mouse_y>(t->y+win->cur_y-j) && mouse_y<(t->y+ylen+win->cur_y-j))
 				{
-					if(t->ref && mouse_x>(t->x+win->cur_x) && mouse_x<(t->x+xlen+win->cur_x) && mouse_y>(t->y+win->cur_y-j) && mouse_y<(t->y+ylen+win->cur_y-j))
-					{
-						mouseover_text = t;
-						glColor3f(0.3,0.6,1.0);
-					}
-					else
-						glColor3f(t->r,t->g,t->b);
-					draw_string_zoomed(t->x,t->y-j,(unsigned char*)t->text,1, win->current_scale);
+					mouseover_text = t;
+					glColor3f(0.3,0.6,1.0);
 				}
+				else
+					glColor3f(t->r,t->g,t->b);
+				draw_string_zoomed(t->x, t->y-j, (const unsigned char*)t->text, 1, win->current_scale);
+			}
 			else
+			{
+				if(t->ref && mouse_x>(t->x+win->cur_x) && mouse_x<(t->x+xlen+win->cur_x) && mouse_y>(t->y+win->cur_y-j) && mouse_y<(t->y+ylen+win->cur_y-j))
 				{
-					if(t->ref && mouse_x>(t->x+win->cur_x) && mouse_x<(t->x+xlen+win->cur_x) && mouse_y>(t->y+win->cur_y-j) && mouse_y<(t->y+ylen+win->cur_y-j))
-					{
-						mouseover_text = t;
-						glColor3f(0.3,0.6,1.0);
-					}
-					else
-						glColor3f(t->r,t->g,t->b);
-					draw_string_small_zoomed(t->x,t->y-j,(unsigned char*)t->text,1, win->current_scale);
+					mouseover_text = t;
+					glColor3f(0.3,0.6,1.0);
 				}
+				else
+					glColor3f(t->r,t->g,t->b);
+				draw_string_small_zoomed(t->x, t->y-j, (const unsigned char*)t->text, 1, win->current_scale);
+			}
 		}
 		t->x = sx; t->y = sy; j = sj;
 		t=t->Next;
@@ -114,11 +115,11 @@ CHECK_GL_ERRORS();
 	while(i)
 	{
 		int sx = i->x, sy = i->y, sxend = i->xend, syend = i->yend, sj = j;
-		i->x *= win->default_font_len_x / DEFAULT_FONT_X_LEN;
-		i->y *= win->default_font_len_y / DEFAULT_FONT_Y_LEN;
-		i->xend *= win->default_font_len_x / DEFAULT_FONT_X_LEN;
-		i->yend *= win->default_font_len_y / DEFAULT_FONT_Y_LEN;
-		j *= win->default_font_len_y / DEFAULT_FONT_Y_LEN;
+		i->x = (int)(0.5 + win->current_scale * i->x);
+		i->y = (int)(0.5 + win->current_scale * i->y);
+		i->xend = (int)(0.5 + win->current_scale * i->xend);
+		i->yend = (int)(0.5 + win->current_scale * i->yend);
+		j = (int)(0.5 + win->current_scale * j);
 
 		if((i->y-j > 0) && (i->yend-j < win->len_y ))
 		{
@@ -155,7 +156,7 @@ CHECK_GL_ERRORS();
 int display_encyclopedia_handler(window_info *win)
 {
 	common_encyclopedia_display_handler(win, currentpage, encyclopedia_scroll_id);
-	
+
 	if (repeat_search && last_search != NULL)
 	{
 		find_page(last_search, NULL);
@@ -490,7 +491,8 @@ void ReadCategoryXML(xmlNode * a_node)
 				if (cur_node->children != NULL)
 				{
 					MY_XMLSTRCPY (&T->text, (char*)cur_node->children->content);
-					lastextlen = strlen (T->text) * ((T->size) ? DEFAULT_FONT_X_LEN : SMALL_FONT_X_LEN);
+					lastextlen = get_string_width_ui((const unsigned char*)T->text,
+						T->size ? 1.0 : DEFAULT_SMALL_RATIO);
 					x += lastextlen;
 				}
 				while (t->Next != NULL)
@@ -503,7 +505,7 @@ void ReadCategoryXML(xmlNode * a_node)
 				x=2;
 				y+=(size)?DEFAULT_FONT_Y_LEN:SMALL_FONT_Y_LEN;
 			}
-			
+
 			//<nlkx>
 			if(!xmlStrcasecmp(cur_node->name,(xmlChar*)"nlkx")){
 				y+=(size)?DEFAULT_FONT_Y_LEN:SMALL_FONT_Y_LEN;
@@ -518,7 +520,7 @@ void ReadCategoryXML(xmlNode * a_node)
 				ParseImage(cur_node->properties);
 				I->mouseover=mouseover;
 				mouseover=0;
-			
+
 				while(i->Next!=NULL)i=i->Next;
 				I->id=id;
 				I->Next=NULL;
@@ -531,7 +533,7 @@ void ReadCategoryXML(xmlNode * a_node)
 						x+=xend;
 					if(yposupdate)
 						y+=yend-((size)?DEFAULT_FONT_Y_LEN:SMALL_FONT_Y_LEN);
-					
+
 				}else{
 					I->x=i->x;
 					I->y=i->y;
@@ -565,7 +567,7 @@ void ReadCategoryXML(xmlNode * a_node)
 				vend = v + ftsize;
 				I->mouseover=mouseover;
 				mouseover=0;
-				
+
 				while(i->Next!=NULL)i=i->Next;
 				I->id=id;
 				I->Next=NULL;
@@ -589,7 +591,7 @@ void ReadCategoryXML(xmlNode * a_node)
 				I->uend=uend;
 				I->vend=vend;
 				i->Next=I;
-				
+
 				numimage++;
 			}
 
@@ -663,8 +665,9 @@ void ReadCategoryXML(xmlNode * a_node)
 				MY_XMLSTRCPY(&T->ref, ss);
 				while(t->Next!=NULL)t=t->Next;
 				t->Next=T;
-				x+=strlen(T->text)*((T->size)?DEFAULT_FONT_X_LEN:SMALL_FONT_X_LEN);
-				lastextlen=strlen(T->text)*((T->size)?DEFAULT_FONT_X_LEN:SMALL_FONT_X_LEN);
+				lastextlen = get_string_width_ui((const unsigned char*)T->text,
+					T->size ? 1.0 : DEFAULT_SMALL_RATIO);
+				x += lastextlen;
 				save_raw_page_link(T->ref, T->text, numpage);
 			}
 			// See if this is the new maximum length.
@@ -716,14 +719,14 @@ void ReadIndexXML(xmlNode * a_node)
 void ReadXML(const char *filename)
 {
 	int i;
-	
+
 	xmlDocPtr doc=xmlReadFile(filename, NULL, 0);
 	if (doc==NULL)
 		return;
 
 	ReadIndexXML(xmlDocGetRootElement(doc));
 	xmlFreeDoc(doc);
-	
+
 	// Sanitize all of the page lengths.
 	for (i = 0; i < numpage+1; i++) {
 		if(Page[i].max_y > encyclopedia_menu_y_len - ENCYC_OFFSET)
@@ -857,7 +860,7 @@ static void save_confirmed_page_link(const char *link, const char *title, size_t
 	page_links[num_page_links].from_page_index = from_page_index; /* the base page (help, skills or encycl */
 	num_page_links++;
 	//printf("[%s] [%s] %lu [%s]\n", title, link, (unsigned long)from_page_index, Page[from_page_index].Name);
-} 
+}
 
 
 /*	Free encyclopedia navigation memory before exit.
@@ -1200,7 +1203,7 @@ static void rebuild_cm_encycl(void)
 
 /*	Set the flag for the window display handler to show the conetxt menu help string
 */
-int mouseover_encyclopedia_handler(window_info *win, int mx, int my)
+static int mouseover_encyclopedia_handler(window_info *win, int mx, int my)
 {
 	if (my > 0)
 		show_cm_help = 1;
@@ -1220,7 +1223,7 @@ static int keypress_encyclopedia_handler(window_info *win, int mx, int my, SDL_K
 	return 0;
 }
 
-int resize_encyclopedia_handler(window_info *win, int new_width, int new_height)
+static int resize_encyclopedia_handler(window_info *win, int new_width, int new_height)
 {
 	widget_resize(win->window_id, encyclopedia_scroll_id, win->box_size, win->len_y);
 	widget_move(win->window_id, encyclopedia_scroll_id, win->len_x - win->box_size, 0);

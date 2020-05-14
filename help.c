@@ -8,17 +8,17 @@
 static int help_menu_scroll_id = 0;
 static size_t helppage;
 
-int display_help_handler(window_info *win)
+static int display_help_handler(window_info *win)
 {
 	return common_encyclopedia_display_handler(win, helppage, help_menu_scroll_id);
 }
 
-int click_help_handler(window_info *win, int mx, int my, Uint32 flags)
+static int click_help_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	return common_encyclopedia_click_handler(win, mx, my, flags, &helppage, help_menu_scroll_id);
 }
 
-int resize_help_handler(window_info *win, int new_width, int new_height)
+static int resize_help_handler(window_info *win, int new_width, int new_height)
 {
 	widget_resize(win->window_id, help_menu_scroll_id, win->box_size, win->len_y);
 	widget_move(win->window_id, help_menu_scroll_id, win->len_x - win->box_size, 0);

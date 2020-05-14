@@ -119,14 +119,10 @@ void display_tab_stats ()
 static int ui_scale_help_handler(window_info *win)
 {
 	int tab_tag_height = 0;
-	int new_width = (int)(0.5 + win->small_font_len_x * 63);
-	int new_height = (int)(0.5 + win->small_font_len_y * 24);
+	int new_width = (int)(0.5 + win->current_scale * 510);
+	int new_height = (int)(0.5 + win->current_scale * 360);
 	widget_list *w = widget_find (win->window_id, tab_help_collection_id);
 
-	if ((int)(0.5 + win->default_font_len_x * 46) > new_width)
-		new_width = (int)(0.5 + win->default_font_len_x * 46);
-	if ((int)(0.5 + win->default_font_len_y * 20) > new_height)
-		new_height = (int)(0.5 + win->default_font_len_y * 20);
 
 	widget_set_size(win->window_id, tab_help_collection_id, win->current_scale * DEFAULT_SMALL_RATIO);
 	tab_tag_height = tab_collection_calc_tab_height(win->current_scale * DEFAULT_SMALL_RATIO);

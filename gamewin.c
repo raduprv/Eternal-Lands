@@ -1380,6 +1380,7 @@ static int display_game_handler (window_info *win)
 	}
 	if (show_fps)
 	{
+		int fps_center_x, fps_y;
 #ifdef	DEBUG
 		int y_cnt = 10;
 		actor *me = get_our_actor ();
@@ -1420,14 +1421,17 @@ static int display_game_handler (window_info *win)
 #else	//DEBUG
 		glColor3f (1.0f, 1.0f, 1.0f);
 #endif	//DEBUG
-		fps_default_width = 9 * win->default_font_len_x;
+		fps_default_width = 9 * win->default_font_max_len_x;
+		fps_center_x = win->len_x - hud_x - fps_default_width + 3 * win->default_font_max_len_x;
+		fps_y = 4 * win->current_scale;
 		if (max_fps != limit_fps)
 			safe_snprintf ((char*)str, sizeof(str), "FPS: -");
 		else
 			safe_snprintf ((char*)str, sizeof(str), "FPS: %i", fps[0]);
-		draw_string_zoomed (win->len_x - hud_x - fps_default_width, 4 * win->current_scale, str, 1, win->current_scale);
+		draw_string_zoomed_centered_around(fps_center_x, fps_y, str, 3, win->current_scale);
 		safe_snprintf((char*)str, sizeof(str), "UVP: %d", use_animation_program);
-		draw_string_zoomed (win->len_x - hud_x - fps_default_width, (4 + SMALL_FONT_Y_LEN) * win->current_scale, str, 1, win->current_scale);
+		draw_string_zoomed_centered_around(fps_center_x, fps_y + win->default_font_len_y,
+			str, 3, win->current_scale);
 	}
 	else
 		fps_default_width = 0;

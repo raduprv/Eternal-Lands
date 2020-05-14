@@ -215,9 +215,9 @@ static int popup_ui_scale_handler(window_info *win)
 	max_x = 2 * seperator + widget_get_width(win->window_id, ipu->popup_label);
 
 	widget_set_size(win->window_id, ipu->popup_field, win->current_scale);
-	widget_resize(win->window_id, ipu->popup_field, ipu->cols * win->default_font_len_x + 2 * seperator + 2 * 5, 1 + ipu->rows * win->default_font_len_y + 2 * 5 );
+	widget_resize(win->window_id, ipu->popup_field, ipu->cols * win->default_font_max_len_x + 2 * seperator + 2 * 5, 1 + ipu->rows * win->default_font_len_y + 2 * 5 );
 	// hack - the text feld scrollbar does not function correct until the next resize, so do it twice for now
-	widget_resize(win->window_id, ipu->popup_field, ipu->cols * win->default_font_len_x + 2 * seperator + 2 * 5, 1 + ipu->rows * win->default_font_len_y + 2 * 5 );
+	widget_resize(win->window_id, ipu->popup_field, ipu->cols * win->default_font_max_len_x + 2 * seperator + 2 * 5, 1 + ipu->rows * win->default_font_len_y + 2 * 5 );
 	max_x = (2 * seperator + widget_get_width(win->window_id, ipu->popup_field) > max_x) ?2 * seperator + widget_get_width(win->window_id, ipu->popup_field) :max_x;
 
 	button_resize(win->window_id, ipu->popup_ok, 0, 0, win->current_scale);

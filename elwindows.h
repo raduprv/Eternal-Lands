@@ -67,10 +67,8 @@ typedef	struct	{
 	int box_size;
 	int title_height;
 	font_cat font_category;
-	int small_font_len_x;
 	int small_font_max_len_x;
 	int small_font_len_y;
-	int default_font_len_x;
 	int default_font_max_len_x;
 	int default_font_len_y;
 
