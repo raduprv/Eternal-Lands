@@ -34,6 +34,7 @@
  * 		check create window status and warn if out of slots - fix handling elsewhere
 */
 
+using namespace eternal_lands;
 
 //	A class to hold a single achievement object.
 //
@@ -42,19 +43,20 @@ class Achievement
 	public:
 		Achievement(int achievement_id, int image_id, const char *title, const char *text);
 		void show(std::ostream & out) const;
-		const std::vector<std::string> & get_text(void) const { return lines; }
+		const ustring& get_text() const { return lines; }
 		const std::string & get_title(void) const { return title; }
 		size_t get_id(void) const { return image_id; }
 		static const size_t npos;
-		void prepare(int win_x, int font_x, int border);
-		size_t get_num_lines(void) const { return lines.size(); }
+		void prepare(int win_x, float zoom, int border, bool force=false);
+		size_t get_num_lines() const { return nr_lines; }
 	private:
 		std::string text;
 		std::string title;
 		size_t achievement_id;
 		size_t image_id;
 		bool prepared;
-		std::vector<std::string> lines;
+		ustring lines;
+		size_t nr_lines;
 };
 
 
@@ -84,34 +86,15 @@ void Achievement::show(std::ostream & out) const
 
 //	Process the main text into lines that fix into the pop-up window
 //
-void Achievement::prepare(int win_x, int font_x, int border)
+void Achievement::prepare(int win_x, float zoom, int border, bool force)
 {
-	if (prepared)
-		return;
-	prepared = true;
-
-	int col = 0;
-	std::string::size_type last_space = 0;
-	std::string::size_type start = 0;
-	int chars_per_line = (win_x - 2 * border) / font_x;
-
-	for (std::string::size_type i=0; i<text.size(); i++)
+	if (!prepared || force)
 	{
-		if (is_color(text[i]))
-			continue;
-		if (text[i] == ' ')
-			last_space = i;
-		if (col >= chars_per_line)
-		{
-			lines.push_back(text.substr(start, last_space-start));
-			start = last_space+1;
-			col = i - start;
-		}
-		col++;
+		std::tie(lines, nr_lines) = FontManager::get_instance().reset_soft_breaks(
+			FontManager::Category::UI_FONT, reinterpret_cast<const unsigned char*>(text.c_str()),
+			text.length(), text.length(), zoom, win_x - 2 * border, nullptr, nullptr);
+		prepared = true;
 	}
-
-	if (start < text.size())
-		lines.push_back(text.substr(start, text.size()-start));
 }
 
 
@@ -130,6 +113,7 @@ class Achievements_Window
 		void open_child(void);
 		int display_handler(window_info *win);
 		void ui_scale_handler(window_info *win);
+		int font_change_handler(window_info *win, FontManager::Category cat);
 		bool shown(void) const { return get_show_window(main_win_id); }
 		void hide(void) const { hide_window(main_win_id); }
 		void set_mouse_over(int mx, int my) { win_mouse_x = mx; win_mouse_y = my; }
@@ -161,7 +145,7 @@ class Achievements_System
 		Achievements_System(void);
 		~Achievements_System(void);
 		const Achievement * achievement(size_t index) const;
-		void prepare_details(size_t index);
+		void prepare_details(size_t index, bool force=false);
 		void new_data(const Uint32 *data, size_t word_count);
 		void new_name(const char *name, int len);
 		void requested(int mouse_pos_x, int mouse_pos_y, int control_used) { win_pos_x = mouse_pos_x; win_pos_y = mouse_pos_y; this->control_used = control_used; }
@@ -172,8 +156,19 @@ class Achievements_System
 		int get_size(void) const { return size; }
 		void set_current_scale(float scale) { current_scale = scale; }
 		float get_current_scale(void) const { return current_scale; }
-		int get_font_x(void) const { return static_cast<int>(0.5 + SMALL_FONT_X_LEN * current_scale); }
-		int get_font_y(void) const { return static_cast<int>(0.5 + SMALL_FONT_Y_LEN * current_scale); }
+		int get_font_max_x(void) const
+		{
+			return get_max_char_width_zoom(UI_FONT, current_scale * DEFAULT_SMALL_RATIO);
+		}
+		int get_font_width(const std::string& str)
+		{
+			return get_string_width_ui(reinterpret_cast<const unsigned char*>(str.c_str()),
+				current_scale * DEFAULT_SMALL_RATIO);
+		}
+		int get_font_y() const
+		{
+			return get_line_height(UI_FONT, current_scale * DEFAULT_SMALL_RATIO);
+		}
 		int get_display(void) const { return static_cast<int>(0.5 + display * current_scale); }
 		int get_y_win_offset(void) const { return static_cast<int>(0.5 + y_win_offset * current_scale); }
 		int get_per_row(void) const { return per_row; }
@@ -190,6 +185,12 @@ class Achievements_System
 		const char * get_no_prev_help(void) const { return no_prev_help.c_str(); }
 		const char * get_next_help(void) const { return next_help.c_str(); }
 		const char * get_no_next_help(void) const { return no_next_help.c_str(); }
+		void rewrap_achievement_texts()
+		{
+			max_detail_lines = 2;
+			for (size_t i = 0; i < achievements.size(); ++i)
+				prepare_details(i, true);
+		}
 	private:
 		void get_int_props(const xmlNodePtr cur, int *props_p[], const char *props_s[], size_t num);
 		void get_string_props(const xmlNodePtr cur, std::string * strings_p[], const char* strings[], size_t count);
@@ -416,11 +417,8 @@ int Achievements_System::texture(size_t index) const
 //	Return the width of the popup window
 int Achievements_System::get_child_win_x(void) const
 {
-	int proposed = get_font_x() * max_title_len + 2 * get_border();
-	if (proposed > main_win_x())
-		return proposed;
-	else
-		return main_win_x();
+	int proposed = get_font_max_x() * max_title_len + 2 * get_border();
+	return std::max(proposed, main_win_x());
 }
 
 
@@ -576,11 +574,12 @@ void Achievements_System::get_string_props(const xmlNodePtr cur, std::string * s
 
 //	First time we're asked to display some achievement details, prepare for the window size etc.
 //
-void Achievements_System::prepare_details(size_t index)
+void Achievements_System::prepare_details(size_t index, bool force)
 {
 	if ((index >= achievements.size()) || !achievements[index])
 		return;
-	achievements[index]->prepare(get_child_win_x(), get_font_x(), get_border());
+	achievements[index]->prepare(get_child_win_x(), get_current_scale() * DEFAULT_SMALL_RATIO,
+		get_border(), force);
 	if (achievements[index]->get_num_lines() > max_detail_lines)
 		max_detail_lines = achievements[index]->get_num_lines();
 }
@@ -611,24 +610,20 @@ static int achievements_child_display_handler(window_info *win)
 	const Achievement * achievement = as->achievement(index);
 	if (achievement)
 	{
-		int title_x = (win->len_x - achievement->get_title().size() * as->get_font_x()) / 2;
-
 		glColor3f(0.77f, 0.57f, 0.39f);
-		draw_string_small_zoomed(title_x + gx_adjust, as->get_border() + gy_adjust,
+		draw_string_small_zoomed_centered(win->len_x/2 + gx_adjust, as->get_border() + gy_adjust,
 			reinterpret_cast<const unsigned char *>(achievement->get_title().c_str()), 1, as->get_current_scale());
 
 		glColor3f(1.0f, 1.0f, 1.0f);
-		for (size_t i=0; i<achievement->get_text().size(); ++i)
-			draw_string_small_zoomed(as->get_border() + gx_adjust, (i + 1) * as->get_font_y() + gy_adjust,
-				reinterpret_cast<const unsigned char *>(achievement->get_text()[i].c_str()), 1, as->get_current_scale());
+		draw_string_small_zoomed(as->get_border() + gx_adjust, as->get_font_y() + gy_adjust,
+			achievement->get_text().c_str(), achievement->get_num_lines(), as->get_current_scale());
 	}
 	else
 	{
 		glColor3f(0.77f, 0.57f, 0.39f);
 		std::ostringstream buf;
 		buf << "Undefined " << index;
-		int title_x = (win->len_x - buf.str().size() * as->get_font_x()) / 2;
-		draw_string_small_zoomed(title_x + gx_adjust, as->get_border() + gy_adjust,
+		draw_string_small_zoomed_centered(win->len_x/2 + gx_adjust, as->get_border() + gy_adjust,
 			reinterpret_cast<const unsigned char *>(buf.str().c_str()), 1, as->get_current_scale());
 	}
 
@@ -713,10 +708,10 @@ int Achievements_Window::display_handler(window_info *win)
 		else
 		{
 			int pos_x = as->get_border() + (shown_num % as->get_per_row()) * as->get_display()
-				+ (as->get_display() - win->default_font_len_x) / 2;
+				+ as->get_display()/2;
 			int pos_y = as->get_border() + (shown_num / as->get_per_row()) * as->get_display()
 				+ (as->get_display() - win->default_font_len_y) / 2;
-			draw_string_zoomed(pos_x+gx_adjust, pos_y+gy_adjust, (const unsigned char *)"?", 1, win->current_scale);
+			draw_string_zoomed_centered(pos_x+gx_adjust, pos_y+gy_adjust, (const unsigned char *)"?", 1, win->current_scale);
 		}
 	}
 
@@ -744,10 +739,11 @@ int Achievements_Window::display_handler(window_info *win)
 	}
 
 	int prev_start = gx_adjust + as->get_border();
-	int prev_end = prev_start + as->get_font_x() * as->get_prev().size();
+	int prev_end = prev_start + as->get_font_width(as->get_prev());
 	int next_start = prev_end + 2 * as->get_border();
-	int next_end = next_start + as->get_font_x() * as->get_next().size();
-	int close_start = gx_adjust + win->len_x - (as->get_border() + as->get_font_x() * as->get_close().size());
+	int next_end = next_start + as->get_font_width(as->get_next());
+	int close_start = gx_adjust + win->len_x
+		- (as->get_border() + as->get_font_width(as->get_close()));
 	int close_end = gx_adjust + win->len_x - as->get_border();
 
 	bool over_controls = (win_mouse_y > (win->len_y - (as->get_font_y() + as->get_border())));
@@ -877,6 +873,22 @@ static int achievements_ui_scale_handler(window_info *win)
 	return 1;
 }
 
+int Achievements_Window::font_change_handler(window_info *win, FontManager::Category cat)
+{
+	if (cat != FontManager::Category::UI_FONT)
+		return 0;
+
+	Achievements_System *as = Achievements_System::get_instance();
+	resize_window(win->window_id, as->main_win_x(), physical_rows * as->get_display() + as->get_font_y() + 2 * as->get_border());
+	as->rewrap_achievement_texts();
+
+	return 1;
+}
+static int change_achievements_font_handler(window_info *win, font_cat cat)
+{
+	Achievements_Window *object = reinterpret_cast<Achievements_Window*>(win->data);
+	return object->font_change_handler(win, cat);
+}
 
 //	When creating a new window, strip any guild from the playe name.
 //
@@ -935,6 +947,7 @@ void Achievements_Window::open(int win_pos_x, int win_pos_y)
 	set_window_handler(main_win_id, ELW_HANDLER_MOUSEOVER, (int (*)())&achievements_mouseover_handler );
 	set_window_handler(main_win_id, ELW_HANDLER_KEYPRESS, (int (*)())&achievements_keypress_handler );
 	set_window_handler(main_win_id, ELW_HANDLER_UI_SCALE, (int (*)())&achievements_ui_scale_handler );
+	set_window_handler(main_win_id, ELW_HANDLER_FONT_CHANGE, (int (*)())&change_achievements_font_handler);
 
 	window_info *win = &windows_list.window[main_win_id];
 	win->data = reinterpret_cast<void *>(this);
