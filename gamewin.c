@@ -85,6 +85,7 @@ static int ranging_lock = 0;
 #ifdef NEW_CURSOR
 static int cursors_tex;
 #endif // NEW_CURSOR
+static int fps_center_x = 0;
 static int fps_default_width = 0;
 
 int get_fps_default_width(void)
@@ -1380,7 +1381,7 @@ static int display_game_handler (window_info *win)
 	}
 	if (show_fps)
 	{
-		int fps_center_x, fps_y;
+		int fps_y;
 #ifdef	DEBUG
 		int y_cnt = 10;
 		actor *me = get_our_actor ();
@@ -1421,17 +1422,25 @@ static int display_game_handler (window_info *win)
 #else	//DEBUG
 		glColor3f (1.0f, 1.0f, 1.0f);
 #endif	//DEBUG
-		fps_default_width = 9 * win->default_font_max_len_x;
-		fps_center_x = win->len_x - hud_x - fps_default_width + 3 * win->default_font_max_len_x;
+
+		if (fps_default_width == 0)
+		{
+			fps_default_width = get_string_width_ui((const unsigned char*)"FPS: ", win->current_scale)
+				+ 3 * get_max_digit_width_zoom(UI_FONT, win->current_scale)
+				+ win->default_font_max_len_x;
+			fps_center_x = win->len_x - hud_x - win->default_font_max_len_x -
+				3 * get_max_digit_width_zoom(UI_FONT, win->current_scale);
+		}
+
 		fps_y = 4 * win->current_scale;
 		if (max_fps != limit_fps)
 			safe_snprintf ((char*)str, sizeof(str), "FPS: -");
 		else
 			safe_snprintf ((char*)str, sizeof(str), "FPS: %i", fps[0]);
-		draw_string_zoomed_centered_around(fps_center_x, fps_y, str, 3, win->current_scale);
+		draw_string_zoomed_centered_around(fps_center_x, fps_y, str, 4, win->current_scale);
 		safe_snprintf((char*)str, sizeof(str), "UVP: %d", use_animation_program);
 		draw_string_zoomed_centered_around(fps_center_x, fps_y + win->default_font_len_y,
-			str, 3, win->current_scale);
+			str, 4, win->current_scale);
 	}
 	else
 		fps_default_width = 0;
@@ -2391,6 +2400,23 @@ static int resize_game_root_handler(window_info *win, int width, int height)
 		init_hud_interface (HUD_INTERFACE_GAME);
 		set_all_intersect_update_needed(main_bbox_tree); // redraw the scene
 	}
+	// Recalculate FPS width
+	fps_default_width = 0;
+	return 1;
+}
+
+static int ui_scale_game_root_handler(window_info* win)
+{
+	// Recalculate FPS width
+	fps_default_width = 0;
+	return 1;
+}
+
+static int change_game_root_font_handler(window_info *win, font_cat cat)
+{
+	if (cat != UI_FONT)
+		return 0;
+	ui_scale_game_root_handler(win);
 	return 1;
 }
 
@@ -2408,6 +2434,8 @@ void create_game_root_window (int width, int height)
 		set_window_handler (game_root_win, ELW_HANDLER_AFTER_SHOW, &update_have_display);
 		set_window_handler (game_root_win, ELW_HANDLER_HIDE, &update_have_display);
 		set_window_handler (game_root_win, ELW_HANDLER_RESIZE, &resize_game_root_handler);
+		set_window_handler (game_root_win, ELW_HANDLER_UI_SCALE, &ui_scale_game_root_handler);
+		set_window_handler (game_root_win, ELW_HANDLER_FONT_CHANGE, &change_game_root_font_handler);
 
 		if (input_widget == NULL)
 		{
