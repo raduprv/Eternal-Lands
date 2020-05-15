@@ -665,11 +665,11 @@ int widget_handle_font_change(widget_list *widget, font_cat cat)
 // Label
 int label_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint32 Flags, float size, float r, float g, float b, const char *text)
 {
-	Uint16 len_x = (Uint16)(strlen (text) * DEFAULT_FONT_X_LEN * size);
-	Uint16 len_y = (Uint16)(DEFAULT_FONT_Y_LEN * size);
+	Uint16 len_x = get_string_width_ui((const unsigned char*)text, size);
+	Uint16 len_y = get_line_height(UI_FONT, size);
 
 	label *T = (label *) calloc (1, sizeof(label));
-	safe_snprintf (T->text, sizeof(T->text), "%s", text);
+	safe_strncpy(T->text, text, sizeof(T->text));
 
 	return widget_add (window_id, wid, OnInit, x, y, len_x, len_y, Flags, size, r, g, b, &label_type, (void *)T, NULL);
 }
@@ -692,13 +692,13 @@ int label_draw(widget_list *W)
 
 static int label_resize (widget_list *w, int width, int height)
 {
-	if(w){
-		label *l = (label *)w->widget_info;
-		if (l) {
-			w->len_x = (width > 0) ?width :(Uint16)(strlen (l->text) * DEFAULT_FONT_X_LEN * w->size);
-			w->len_y = (height > 0) ?height :(Uint16)(DEFAULT_FONT_Y_LEN * w->size);
-		}
-	}
+	label *l;
+	if (!w || !(l = (label*)w->widget_info))
+		return 0;
+
+	w->len_x = (width > 0) ? width : get_string_width_zoom((const unsigned char*)l->text,
+		w->fcat, w->size);
+	w->len_y = (height > 0) ? height : get_line_height(w->fcat, w->size);
 	return 1;
 }
 
@@ -873,7 +873,8 @@ static int button_change_font(widget_list *W, font_cat cat)
 
 	len_x = T->fixed_width
 		? T->fixed_width
-		: get_string_width_ui((const unsigned char*)T->text, W->size) + (int)(2 * BUTTONRADIUS * W->size + 0.5);
+		: get_string_width_zoom((const unsigned char*)T->text, W->fcat, W->size)
+			+ (int)(2 * BUTTONRADIUS * W->size + 0.5);
 	if (T->fixed_height)
 	{
 		len_y = T->fixed_height;
@@ -935,7 +936,8 @@ int button_draw(widget_list *W)
 int square_button_draw(widget_list *W)
 {
 	button *l = (button *)W->widget_info;
-	float extra_space = (W->len_x - get_string_width_ui((unsigned char*)l->text, W->size))/2.0f;
+	float extra_space = (W->len_x
+		- get_string_width_zoom((const unsigned char*)l->text, W->fcat, W->size))/2.0f;
 	if(extra_space < 0) {
 		extra_space = 0;
 	}
@@ -1534,7 +1536,7 @@ int tab_collection_draw (widget_list *w)
 			glColor3f (col->tabs[itab].label_r, col->tabs[itab].label_g, col->tabs[itab].label_b);
 
 		int ytxt = ytagtop + (h - (w->size * DEFAULT_FONT_Y_LEN)) / 2 + gy_adjust;
-		int xtxt = xstart + (w->size * DEFAULT_FONT_X_LEN) / 2 + gx_adjust;
+		int xtxt = xstart + (w->size * DEFAULT_FIXED_FONT_WIDTH) / 2 + gx_adjust;
 		if (col->tabs[itab].closable)
 			xtxt += h;
 		draw_string_zoomed_width_font(xtxt, ytxt, (const unsigned char *)col->tabs[itab].label,
@@ -1661,10 +1663,10 @@ static int tab_collection_click(widget_list *W, int x, int y, Uint32 flags)
 	return 0;
 }
 
-static int calc_tag_width(const Sint8* label, float size, int close_width)
+static int calc_tag_width(const Sint8* label, float size, font_cat fcat, int close_width)
 {
-	return size * DEFAULT_FONT_X_LEN
-			+ get_string_width_ui((const unsigned char*)label, size)
+	return size * DEFAULT_FIXED_FONT_WIDTH
+			+ get_string_width_zoom((const unsigned char*)label, fcat, size)
 			+ close_width;
 }
 
@@ -1681,7 +1683,7 @@ static int tab_collection_change_font(widget_list *w, font_cat font)
 
 	for (itab = 0; itab < col->nr_tabs; ++itab)
 	{
-		Uint16 width = calc_tag_width(col->tabs[itab].label, w->size,
+		Uint16 width = calc_tag_width(col->tabs[itab].label, w->size, w->fcat,
 			col->tabs[itab].closable ? col->tag_height : 0);
 		if (width > col->tabs[itab].min_tag_width)
 			col->tabs[itab].tag_width = width;
@@ -1846,7 +1848,7 @@ int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, 
 		// compute tag width from label width
 		col->tabs[nr].min_tag_width = 0;
 		col->tabs[nr].tag_width = calc_tag_width(col->tabs[nr].label, w->size,
-			col->tabs[nr].closable ? col->tag_height : 0);
+			w->fcat, col->tabs[nr].closable ? col->tag_height : 0);
 	}
 
 	// set label color to default values
@@ -3275,7 +3277,7 @@ static int pword_field_draw(widget_list *w)
 		}
 	}
 
-	text_width = get_string_width_ui(text, w->size);
+	text_width = get_string_width_zoom(text, w->fcat, w->size);
 	max_width = (int)(0.5 + w->len_x - 4*w->size);
 
 	/*if you want the text cursor, uncomment the following... as clicking goes
