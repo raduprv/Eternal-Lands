@@ -936,7 +936,7 @@ int root_key_to_input_field (SDL_Keycode key_code, Uint32 key_unicode, Uint16 ke
 
 		// set invalid width to force rewrap
 		msg->wrap_width = 0;
-		tf->nr_lines = rewrap_message(msg, tf->font, input_widget->size,
+		tf->nr_lines = rewrap_message(msg, input_widget->fcat, input_widget->size,
 			input_widget->len_x - 2 * tf->x_space, &tf->cursor);
 	}
 	else if (key_code == SDLK_BACKSPACE || key_code == SDLK_DELETE
@@ -1007,7 +1007,7 @@ void paste_in_input_field (const Uint8 *text)
 
 	// set invalid width to force rewrap
 	msg->wrap_width = 0;
-	tf->nr_lines = rewrap_message(msg, tf->font, input_widget->size,
+	tf->nr_lines = rewrap_message(msg, input_widget->fcat, input_widget->size,
 		input_widget->len_x - 2 * tf->x_space, &tf->cursor);
 	if (use_windowed_chat != 2)
 	{
@@ -1026,7 +1026,7 @@ void put_string_in_input_field(const Uint8 *text)
 		tf->cursor = msg->len = safe_snprintf((char*)msg->data, msg->size, "%s", text);
 		// set invalid width to force rewrap
 		msg->wrap_width = 0;
-		tf->nr_lines = rewrap_message(msg, tf->font, input_widget->size,
+		tf->nr_lines = rewrap_message(msg, input_widget->fcat, input_widget->size,
 			input_widget->len_x - 2 * tf->x_space, &tf->cursor);
 		if (use_windowed_chat != 2)
 		{

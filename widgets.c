@@ -439,6 +439,18 @@ int widget_set_color(int window_id, Uint32 widget_id, float r, float g, float b)
 	return 0;
 }
 
+int widget_set_font_cat(int window_id, int widget_id, font_cat cat)
+{
+	widget_list *w = widget_find(window_id, widget_id);
+	if (!w)
+		return 0;
+
+	w->fcat = cat;
+	widget_handle_font_change(w, cat);
+
+	return 1;
+}
+
 int widget_get_width (int window_id, Uint32 widget_id)
 {
 	widget_list *w = widget_find(window_id, widget_id);
@@ -498,6 +510,7 @@ Uint32 widget_add (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 
 	W->r = r;
 	W->g = g;
 	W->b = b;
+	W->fcat = UI_FONT;
 	W->len_y = ly;
 	W->len_x = lx;
 
@@ -625,6 +638,9 @@ int widget_handle_font_change(widget_list *widget, font_cat cat)
 {
 	int res = 0;
 
+	if (cat != widget->fcat)
+		return 0;
+
 	if (widget->type && widget->type->font_change)
 	{
 		res = widget->type->font_change(widget, cat);
@@ -669,7 +685,8 @@ int label_draw(widget_list *W)
 	if(W->r != -1.0) {
 		glColor3f(W->r,W->g,W->b);
 	}
-	draw_string_zoomed(W->pos_x,W->pos_y,(unsigned char *)l->text,1,W->size);
+	draw_string_zoomed_width_font(W->pos_x, W->pos_y, (const unsigned char *)l->text,
+		window_width, 1, W->fcat, W->size);
 	return 1;
 }
 
@@ -851,7 +868,7 @@ static int button_change_font(widget_list *W, font_cat cat)
 	button *T;
 	Uint16 len_x, len_y;
 
-	if (!W || !(T = W->widget_info) || cat != UI_FONT)
+	if (!W || !(T = W->widget_info))
 		return 0;
 
 	len_x = T->fixed_width
@@ -864,7 +881,7 @@ static int button_change_font(widget_list *W, font_cat cat)
 	else
 	{
 		int min_len_y = (int)(2 * BUTTONRADIUS * W->size + 0.5);
-		len_y = get_line_height(UI_FONT, W->size) + (int)(12 * W->size + 0.5);
+		len_y = get_line_height(W->fcat, W->size) + (int)(12 * W->size + 0.5);
 		if (len_y < min_len_y)
 			len_y = min_len_y;
 	}
@@ -900,7 +917,7 @@ int button_resize(int window_id, Uint32 wid, Uint16 lx, Uint16 ly, float size)
 	if (ly) T->fixed_height = ly;
 	w->size = size;
 
-	return button_change_font(w, UI_FONT);
+	return button_change_font(w, w->fcat);
 }
 
 int button_add(int window_id, int (*OnInit)(), const char *text, Uint16 x, Uint16 y)
@@ -936,7 +953,9 @@ int square_button_draw(widget_list *W)
 	glEnd();
 
 	glEnable(GL_TEXTURE_2D);
-	draw_string_zoomed_centered(W->pos_x + W->len_x / 2, W->pos_y + (W->len_y - DEFAULT_FONT_Y_LEN * W->size) / 2 + 1 + gy_adjust, (unsigned char *)l->text, 1, W->size);
+	draw_string_zoomed_width_font_centered(W->pos_x + W->len_x / 2,
+		W->pos_y + (W->len_y - DEFAULT_FONT_Y_LEN * W->size) / 2 + 1 + gy_adjust,
+		(unsigned char *)l->text, window_width, 1, W->fcat, W->size);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -1514,12 +1533,13 @@ int tab_collection_draw (widget_list *w)
 		if (col->tabs[itab].label_r >= 0.0f)
 			glColor3f (col->tabs[itab].label_r, col->tabs[itab].label_g, col->tabs[itab].label_b);
 
+		int ytxt = ytagtop + (h - (w->size * DEFAULT_FONT_Y_LEN)) / 2 + gy_adjust;
+		int xtxt = xstart + (w->size * DEFAULT_FONT_X_LEN) / 2 + gx_adjust;
 		if (col->tabs[itab].closable)
-			draw_string_zoomed (xstart + (w->size * DEFAULT_FONT_X_LEN) / 2 + h + gx_adjust,
-				ytagtop + (h - (w->size * DEFAULT_FONT_Y_LEN)) / 2 + gy_adjust, (unsigned char *)col->tabs[itab].label, 1, w->size);
-		else
-			draw_string_zoomed (xstart + (w->size * DEFAULT_FONT_X_LEN) / 2 + gx_adjust,
-				ytagtop + (h - (w->size * DEFAULT_FONT_Y_LEN)) / 2 + gy_adjust, (unsigned char *)col->tabs[itab].label, 1, w->size);
+			xtxt += h;
+		draw_string_zoomed_width_font(xtxt, ytxt, (const unsigned char *)col->tabs[itab].label,
+			window_width, 1, w->fcat, w->size);
+
 		glDisable(GL_TEXTURE_2D);
 
 		xstart = xend;
@@ -1653,8 +1673,6 @@ static int tab_collection_change_font(widget_list *w, font_cat font)
 	tab_collection *col;
 	int itab;
 
-	if (font != UI_FONT)
-		return 0;
 	if (!w || !(col = (tab_collection *)w->widget_info))
 		return 0;
 
@@ -1680,7 +1698,7 @@ int tab_collection_resize (widget_list *w, Uint32 width, Uint32 height)
 	if (w == NULL || (col = (tab_collection *) w->widget_info) == NULL)
 		return 0;
 
-	tab_collection_change_font(w, UI_FONT);
+	tab_collection_change_font(w, w->fcat);
 
 	for (itab = 0; itab < col->nr_tabs; itab++)
 		resize_window (col->tabs[itab].content_id, width, height);
@@ -1846,7 +1864,7 @@ static void _text_field_set_nr_visible_lines (widget_list *w)
 
 	if (tf != NULL/* && (w->Flags & TEXT_FIELD_EDITABLE)*/)
 	{
-		int line_height = get_line_height(tf->font, tf->buffer[tf->msg].wrap_zoom);
+		int line_height = get_line_height(w->fcat, tf->buffer[tf->msg].wrap_zoom);
 		tf->nr_visible_lines = (w->len_y - 2*tf->y_space) / line_height;
 		if (tf->nr_visible_lines < 0)
 			tf->nr_visible_lines = 0;
@@ -2262,7 +2280,7 @@ void _text_field_delete_backward (widget_list * w)
 
 	// set invalid width to force rewrap
 	msg->wrap_width = 0;
-	nr_lines = rewrap_message(msg, tf->font, w->size,
+	nr_lines = rewrap_message(msg, w->fcat, w->size,
 		w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
 	_text_field_set_nr_lines (w, nr_lines);
 
@@ -2293,7 +2311,7 @@ void _text_field_delete_forward (widget_list *w)
 	msg->len -= n;
 	// set invalid width to force rewrap
 	msg->wrap_width = 0;
-	nr_lines = rewrap_message(msg, tf->font, w->size,
+	nr_lines = rewrap_message(msg, w->fcat, w->size,
 		w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
 	_text_field_set_nr_lines (w, nr_lines);
 
@@ -2336,7 +2354,7 @@ void _text_field_insert_char (widget_list *w, SDL_Keycode key_code, Uint32 key_u
 	// be the number of extra line breaks introduced before the
 	// cursor position
 	old_cursor = tf->cursor;
-	nr_lines = rewrap_message(msg, tf->font, w->size,
+	nr_lines = rewrap_message(msg, w->fcat, w->size,
 		w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
 	tf->cursor_line += tf->cursor - old_cursor;
 	_text_field_set_nr_lines (w, nr_lines);
@@ -2401,7 +2419,7 @@ static int text_field_resize (widget_list *w, int width, int height)
 			for (i = 0; i < tf->buf_size; i++)
 			{
 				int *cursor = i == tf->msg ? &(tf->cursor) : NULL;
-				nr_lines += rewrap_message(tf->buffer+i, tf->font, w->size,
+				nr_lines += rewrap_message(tf->buffer+i, w->fcat, w->size,
 					width - tf->scrollbar_width, cursor);
 			}
 			_text_field_set_nr_lines (w, nr_lines);
@@ -2699,13 +2717,13 @@ int text_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_code, Ui
 	return 0;
 }
 
-void _set_edit_pos (text_field* tf, int x, int y)
+void _set_edit_pos (text_field* tf, int x, int y, font_cat fcat)
 {
 	unsigned int i = tf->offset;
 	unsigned int nrlines = 0, line = 0;
 	int px = 0;
 	text_message* msg = &(tf->buffer[tf->msg]);
-	int line_height = get_line_height(tf->font, msg->wrap_zoom);
+	int line_height = get_line_height(fcat, msg->wrap_zoom);
 
 	if (msg->len == 0)
 		return;	// nothing to do, there is no string
@@ -2733,7 +2751,7 @@ void _set_edit_pos (text_field* tf, int x, int y)
 				tf->cursor = i;
 				return;
 			default:
-				px += get_char_width_zoom(msg->data[i], tf->font, msg->wrap_zoom);
+				px += get_char_width_zoom(msg->data[i], fcat, msg->wrap_zoom);
 				if (px >= x)
 				{
 					tf->cursor = i;
@@ -2755,7 +2773,7 @@ void update_selection(int x, int y, widget_list* w, int drag)
 	tf = w->widget_info;
 	if (tf == NULL) return;
 
-	line_height = get_line_height(tf->font, w->size);
+	line_height = get_line_height(w->fcat, w->size);
 	line = y / line_height;
 	if (line < 0 || line >= tf->nr_visible_lines || tf->select.lines[line].msg == -1)
 	{
@@ -2771,7 +2789,7 @@ void update_selection(int x, int y, widget_list* w, int drag)
 	{
 		if (msg->data[col] == '\r' || msg->data[col] == '\n' || msg->data[col] == '\0')
 			break;
-		cx += get_char_width_zoom(msg->data[col], tf->font, w->size);
+		cx += get_char_width_zoom(msg->data[col], w->fcat, w->size);
 		if (cx >= x)
 			break;
 	}
@@ -2869,7 +2887,7 @@ static int text_field_click(widget_list *w, int mx, int my, Uint32 flags)
 	if ( (w->Flags & TEXT_FIELD_EDITABLE) == 0)
 		return 0;
 
-	_set_edit_pos(tf, mx, my);
+	_set_edit_pos(tf, mx, my, w->fcat);
 
 #if !defined OSX && !defined WINDOWS
 #ifdef MIDDLE_MOUSE_PASTE
@@ -2904,7 +2922,7 @@ static int text_field_destroy(widget_list *w)
 }
 
 int text_field_add_extended(int window_id, Uint32 wid, int (*OnInit)(),
-		Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, font_cat font,
+		Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, font_cat fcat,
 		float size, float r, float g, float b, text_message *buf, int buf_size,
 		Uint8 chan_filt, int x_space, int y_space)
 {
@@ -2922,7 +2940,6 @@ int text_field_add_extended(int window_id, Uint32 wid, int (*OnInit)(),
 	T->cursor = (Flags & TEXT_FIELD_EDITABLE) ? 0 : -1;
 	T->cursor_line = T->cursor;
 	T->next_blink = TF_BLINK_DELAY;
-	T->font = font;
 	if (Flags & TEXT_FIELD_SCROLLBAR)
 	{
 		T->scrollbar_width = size * ELW_BOX_SIZE;
@@ -2935,6 +2952,7 @@ int text_field_add_extended(int window_id, Uint32 wid, int (*OnInit)(),
 	}
 
 	res = widget_add (window_id, wid, OnInit, x, y, lx, ly, Flags, size, r, g, b, &text_field_type, T, NULL);
+	widget_set_font_cat(window_id, wid, fcat);
 
 	if (buf != NULL)
 	{
@@ -2944,7 +2962,7 @@ int text_field_add_extended(int window_id, Uint32 wid, int (*OnInit)(),
 		widget_list *w = widget_find (window_id, wid);
 		if (w != NULL)
 		{
-			int nr_lines = rewrap_message(buf, T->font, w->size,
+			int nr_lines = rewrap_message(buf, w->fcat, w->size,
 				lx - 2*x_space - T->scrollbar_width, &T->cursor);
 			_text_field_set_nr_visible_lines (w);
 			_text_field_set_nr_lines (w, nr_lines);
@@ -3000,7 +3018,7 @@ int text_field_draw (widget_list *w)
 			int nr_lines;
 			int old_cursor = tf->cursor;
 			tf->buffer[tf->msg].wrap_width = 0;
-			nr_lines = rewrap_message (&tf->buffer[tf->msg], tf->font, w->size,
+			nr_lines = rewrap_message (&tf->buffer[tf->msg], w->fcat, w->size,
 				w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
 			tf->cursor_line += tf->cursor - old_cursor;
 			_text_field_set_nr_lines (w, nr_lines);
@@ -3074,7 +3092,7 @@ int text_field_draw (widget_list *w)
 	draw_messages(w->pos_x + tf->x_space, w->pos_y + tf->y_space,
 		tf->buffer, tf->buf_size, tf->chan_nr, tf->msg, tf->offset, cursor,
 		w->len_x - 2*tf->x_space - tf->scrollbar_width, w->len_y - 2 * tf->y_space,
-		tf->font, w->size, &tf->select);
+		w->fcat, w->size, &tf->select);
 	if (tf->nr_visible_lines && tf->select.lines[0].msg == -1)
 	{
 		tf->select.lines[0].msg = tf->msg;
@@ -3165,14 +3183,14 @@ static int text_field_change_font(widget_list *w, font_cat cat)
 	text_field *tf;
 	int i, nr_lines = 0;
 
-	if (!w || !(tf = w->widget_info) || tf->font != cat)
+	if (!w || !(tf = w->widget_info))
 		return 0;
 
 	for (i = 0; i < tf->buf_size; i++)
 	{
 		int *cursor = i == tf->msg ? &(tf->cursor) : NULL;
 		tf->buffer[i].wrap_width = 0;
-		nr_lines += rewrap_message(tf->buffer+i, tf->font, w->size,
+		nr_lines += rewrap_message(tf->buffer+i, w->fcat, w->size,
 			w->len_x - 2*tf->x_space - tf->scrollbar_width, cursor);
 	}
 	_text_field_set_nr_lines(w, nr_lines);
@@ -3233,15 +3251,33 @@ int pword_field_click(widget_list *w, int mx, int my, Uint32 flags)
 static int pword_field_draw(widget_list *w)
 {
 	password_entry *pword;
-	unsigned char *text;
-	int difference;
-	int i;
+	unsigned char* text;
+	int text_width, max_width, x_left, y_top;
 
-	if (w == NULL) {
+	if (!w)
 		return 0;
-	}
+
 	pword = (password_entry*) w->widget_info;
-	difference = (get_string_width_ui((unsigned char*)pword->password, w->size) - w->len_x)/12;
+	switch (pword->status)
+	{
+		case P_NONE:
+			text = (unsigned char*)"N/A";
+			break;
+		case P_TEXT:
+			text = (unsigned char*)pword->password;
+			break;
+		case P_NORMAL:
+		default:
+		{
+			int size = min2i(strlen(pword->password), pword->max_chars);
+			text = calloc(1, size+1);
+			memset(text, '*', size);
+			text[size] = '\0';
+		}
+	}
+
+	text_width = get_string_width_ui(text, w->size);
+	max_width = (int)(0.5 + w->len_x - 4*w->size);
 
 	/*if you want the text cursor, uncomment the following... as clicking goes
 	to the end of the line, and you can't jump part way through, using the text
@@ -3258,35 +3294,23 @@ static int pword_field_draw(widget_list *w)
 		glVertex3i (w->pos_x + w->len_x, w->pos_y, 0);
 		glVertex3i (w->pos_x + w->len_x, w->pos_y + w->len_y, 0);
 		glVertex3i (w->pos_x, w->pos_y + w->len_y, 0);
-	if(difference > 0) {
-		glVertex3i (w->pos_x + 3, w->pos_y + w->len_y/2, 0);
-	}
+	if (text_width > max_width)
+		glVertex3i ((int)(w->pos_x + 3*w->size + 0.5), w->pos_y + w->len_y/2, 0);
 	glEnd ();
 	glEnable (GL_TEXTURE_2D);
 
-	if (pword->status == P_NONE) {
-		draw_string_zoomed(w->pos_x + 2, w->pos_y + 2, (unsigned char*)"N/A", 1, w->size);
-	} else if(pword->status == P_TEXT) {
-		if(difference > 0) {
-			/* Only draw the end of the string */
-			draw_string_zoomed(w->pos_x + 2, w->pos_y + 2, (unsigned char*)pword->password+difference, 1, w->size);
-		} else {
-			draw_string_zoomed(w->pos_x + 2, w->pos_y + 2, (unsigned char*)pword->password, 1, w->size);
-		}
-	} else if(pword->status == P_NORMAL) {
-		text = calloc(1, pword->max_chars);
-		for(i = 0; i < pword->max_chars && pword->password[i] != '\0'; i++) {
-			text[i] = '*';
-		}
-		text[i] = '\0';
-		if(difference > 0) {
-			/* Only draw the end of the string */
-			draw_string_zoomed(w->pos_x + 2, w->pos_y + 2, text+difference, 1, w->size);
-		} else {
-			draw_string_zoomed(w->pos_x + 2, w->pos_y + 2, text, 1, w->size);
-		}
+	x_left = (int)(w->pos_x + 2*w->size + 0.5);
+	y_top = (int)(w->pos_y + 2*w->size + 0.5);
+	if (text_width > max_width)
+		/* Only draw the end of the string */
+		draw_string_zoomed_width_font_right(x_left + max_width,y_top,
+			text, max_width, 1, w->fcat, w->size);
+	else
+		draw_string_zoomed_width_font(x_left, y_top, text, max_width, 1, w->fcat, w->size);
+
+	if (pword->status == P_NORMAL)
 		free(text);
-	}
+
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -3724,7 +3748,8 @@ static int spinbutton_draw(widget_list *widget)
 	}
 	/* Numbers */
 	glColor3f(widget->r, widget->g, widget->b);
-	draw_string_zoomed(widget->pos_x + 2 + gx_adjust, widget->pos_y + 2 + gy_adjust, (unsigned char*)str, 1, widget->size);
+	draw_string_zoomed_width_font(widget->pos_x + 2 + gx_adjust, widget->pos_y + 2 + gy_adjust,
+		(const unsigned char*)str, window_width, 1, widget->fcat, widget->size);
 	glDisable(GL_TEXTURE_2D);
 	/* Border */
 	glBegin(GL_LINE_LOOP);

@@ -469,7 +469,7 @@ int input_field_resize(widget_list *w, Uint32 x, Uint32 y)
 
 	// set invalid width to force rewrap
 	msg->wrap_width = 0;
-	tf->nr_lines = rewrap_message(msg, tf->font, w->size,
+	tf->nr_lines = rewrap_message(msg, w->fcat, w->size,
 		w->len_x - 2 * tf->x_space, &tf->cursor);
 	if(use_windowed_chat != 2 || !get_show_window(chat_win)) {
 		window_info *win = &windows_list.window[w->window_id];

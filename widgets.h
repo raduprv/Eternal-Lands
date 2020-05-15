@@ -70,6 +70,7 @@ typedef struct wl{
 	Uint32 Flags;  /*!< Status flags... visible, enabled, etc */
 	float size;    /*!< Size of text, image, etc */
 	float r, g, b; /*!< Associated color */
+	font_cat fcat; /*!< Font category for drawing text contents in */
     /*! @} */
 
 	/*! \name The specific widget handlers */
@@ -165,7 +166,6 @@ typedef struct
 	Uint16 x_space, y_space;
 	Uint32 next_blink;
 	select_info select;
-	font_cat font;
 } text_field;
 
 typedef struct {
@@ -446,6 +446,18 @@ int widget_set_size(int window_id, Uint32 widget_id, float size);
  * \sa widget_find
  */
 int widget_set_color(int window_id, Uint32 widget_id, float r, float g, float b);
+
+/*!
+ * \ingroup widgets
+ * \brief Set the font category
+ *
+ * Set the font category for the textual elements in thsi window to \a fcat
+ *
+ * \param window_id The location of the window in the windows_list.window[] array
+ * \param widget_id The widget's unique ID
+ * \return 1 on succes or 0 on failure
+ */
+int widget_set_font_cat(int window_id, int widget_id, font_cat cat);
 
 /*!
  * \ingroup	widgets
@@ -1354,7 +1366,7 @@ int text_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 l
  * \sa text_field_add
  */
 int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(),
-	Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, font_cat font,
+	Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, font_cat fcat,
 	float size, float r, float g, float b, text_message *buf, int buf_size,
 	Uint8 chan_filt, int x_space, int y_space);
 

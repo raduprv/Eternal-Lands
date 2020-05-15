@@ -404,6 +404,7 @@ int display_buddy_add(void)
 		int label_width = 0;
 		int win_x_len = 0;
 		int win_y_len = 0;
+		int cw;
 
 		/* Create the window */
 		buddy_add_win = create_window(buddy_add_str, buddy_win, 0, buddy_menu_x_len/2, buddy_menu_y_len/4, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
@@ -413,13 +414,15 @@ int display_buddy_add(void)
 		set_window_custom_scale(buddy_add_win, &custom_scale_factors.buddy);
 
 		/* Add name input and label */
+		cw = get_avg_char_width_zoom(UI_FONT, win->current_scale);
 		label_id = label_add_extended(buddy_add_win, label_id, NULL,
 			buddy_border_space, buddy_border_space, 0, win->current_scale, 0.77f, 0.57f, 0.39f, buddy_name_str);
 		label_width = widget_get_width(buddy_add_win, label_id);
 		input_id = pword_field_add_extended(buddy_add_win, input_id, NULL,
 			2 * buddy_border_space + label_width, buddy_border_space,
-			MAX_USERNAME_LENGTH * win->default_font_max_len_x, win->default_font_len_y + buddy_border_space,
-			P_TEXT, win->current_scale, 0.77f, 0.57f, 0.39f, buddy_name_buffer, MAX_USERNAME_LENGTH);
+			MAX_USERNAME_LENGTH * cw, win->default_font_len_y + buddy_border_space,
+			P_TEXT, win->current_scale, 0.77f, 0.57f, 0.39f, buddy_name_buffer,
+			MAX_USERNAME_LENGTH);
 		widget_set_OnMouseover(buddy_add_win, label_id, name_onmouseover_handler);
 		widget_set_OnMouseover(buddy_add_win, input_id, name_onmouseover_handler);
 		widget_set_OnKey(buddy_add_win, input_id, (int (*)())name_input_keypress_handler);
