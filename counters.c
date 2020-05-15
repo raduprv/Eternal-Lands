@@ -713,7 +713,6 @@ static int resize_counters_handler(window_info *win, int new_width, int new_heig
 
 int change_counters_font_handler(window_info *win, font_cat cat)
 {
-printf("change counters win\n");
 	if (cat != UI_FONT)
 		return 0;
 	set_content_widths(win);

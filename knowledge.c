@@ -482,7 +482,7 @@ static void set_content_widths(window_info *win)
 	progress_right_x = win->len_x - (int)(0.5 + win->current_scale * 15);
 	progress_left_x = win->len_x - (int)(0.5 + win->current_scale * 140);
 
-	book_x_off = (label_width > image_size) ? label_width : image_size;
+	book_x_off = max2i(label_width, image_size);
 	label_x_left = progress_right_x - book_x_off/2 - label_width/2;
 	book_x_left = progress_right_x - book_x_off/2 - image_size/2;
 	book_start_x = min2i(label_x_left, book_x_left);
@@ -504,7 +504,7 @@ static int resize_knowledge_handler(window_info *win, int new_width, int new_hei
 	int image_size = (int)(0.5 + win->current_scale * 50);
 	int label_width = get_string_width_ui((const unsigned char*)knowledge_read_book,
 		win->current_scale * 0.8);
-	int label_height = (int)(0.5 + win->default_font_len_y * win->current_scale * 0.8);
+	int label_height = (int)(0.5 + win->default_font_len_y * 0.8);
 	int gap_y;
 
 	set_content_widths(win);
