@@ -3217,18 +3217,17 @@ int pword_keypress (widget_list *w, int mx, int my, SDL_Keycode key_code, Uint32
 	}
 
 	if (key_code == SDLK_BACKSPACE) {
-		int i = 0;
-		while(pword->password[i] != '\0' && i < pword->max_chars)
-			i++;
+		int i = strlen(pword->password);
 		if(i > 0)
 			pword->password[i-1] = '\0';
 		return 1;
 	} else if (!alt_on && !ctrl_on && is_printable (ch) && ch != '`' ) {
-		int i = 0;
-		while(pword->password[i] != '\0' && i < pword->max_chars-2)
-			i++;
-		pword->password[i] = ch;
-		pword->password[i+1] = '\0';
+		int i = strlen(pword->password);
+		if (i+1 < pword->max_chars)
+		{
+			pword->password[i] = ch;
+			pword->password[i+1] = '\0';
+		}
 		return 1;
 	} else {
 		return 0;
