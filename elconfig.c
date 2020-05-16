@@ -204,8 +204,8 @@ int elconfig_menu_y= 10;
 
 int windows_on_top= 0;
 static int options_set= 0;
-static int delay_poor_man = 1;
 #ifdef ELC
+static int delay_poor_man = 1;
 static int shadow_map_size_multi= 0;
 #endif
 #ifdef	FSAA
@@ -2583,15 +2583,17 @@ int read_el_ini (void)
 		return 0;
 	}
 
+#ifdef	ELC
 	delay_poor_man = delay_update_highdpi_auto_scaling = 1;
+#endif
 	while ( fgets (line, sizeof (input_line), fin) )
 	{
 		if (line[0] == '#')
 			check_var (&(line[1]), INI_FILE_VAR);	//check only for the long strings
 	}
+#ifdef	ELC
 	// we have to delay the poor man setting as its action can be over written depending on the ini file order
 	delay_poor_man = delay_update_highdpi_auto_scaling = 0;
-#ifdef	ELC
 	action_poor_man(&poor_man);
 #endif
 
