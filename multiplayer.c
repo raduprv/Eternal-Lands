@@ -854,6 +854,9 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #endif // NEW_SOUND
 
 				passmngr_save_login();
+#ifdef JSON_FILES
+				set_ready_for_user_files();
+#endif
 				load_quickspells();
 				load_recipes();
 				load_server_markings();
