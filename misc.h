@@ -164,30 +164,6 @@ void draw_circle(int x, int y, int radius, int interval);
 void draw_box(char * name, int x, int y, int w, int h, float size, int rad);
 
 /*!
- * \ingroup misc_utils
- * \brief Draws a button with round corners.
- *
- * 	Draws a button with round corners. The box can be highlighted with the chosen highlight colors (r,g,b,a).
- *
- * \param str The name to write within the button, optional
- * \param size The size of the text
- * \param x The start x position
- * \param y The start y position
- * \param w The width
- * \param lines The number of lines (determines the height)
- * \param r The red color for border and text
- * \param g The green color for border and text
- * \param b The blue color for border and text
- * \param highlight If the button is highlighted or not
- * \param hr The red color for highlighted buttons
- * \param hg The green color for highlighted buttons
- * \param hb The blue color for highlighted buttons
- * \param ha The alpha color for highlighted buttons
- */
-void draw_smooth_button(const char * str, float size, int x, int y, int w, int lines,
-	float r, float g, float b, int highlight, float hr, float hg, float hb, float ha);
-
-/*!
  * \ingroup misc
  * \brief Append '.gz' to a filename and try to open it using gzopen
  *

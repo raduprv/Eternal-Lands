@@ -87,8 +87,8 @@ int average_width(Iterator f_begin, Iterator f_end, Iterator w_begin)
 namespace eternal_lands
 {
 
-size_t FontManager::font_idxs[NR_FONT_CATS] = { 0, 0, 0, 2, 0, 3, 0 };
-float FontManager::font_scales[NR_FONT_CATS] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
+size_t FontManager::font_idxs[NR_FONT_CATS] = { 0, 0, 0, 2, 0, 3, 0, 0 };
+float FontManager::font_scales[NR_FONT_CATS] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 
 TextDrawOptions::TextDrawOptions(): _max_width(window_width), _max_lines(0),
 	_zoom(1.0), _line_spacing(1.0), _alignment(LEFT), _flags(0),
@@ -1608,6 +1608,11 @@ void draw_ingame_string(float x, float y, const unsigned char *text,
 }
 #endif // !MAP_EDITOR2
 #endif // ELC
+
+void set_config_font()
+{
+	FontManager::get_instance().set_config_font();
+}
 
 int has_glyph(unsigned char c)
 {

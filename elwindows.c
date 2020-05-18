@@ -884,7 +884,11 @@ int	create_window(const char *name, int pos_id, Uint32 pos_loc, int pos_x, int p
 		win->line_color[3] = 0.0f;
 
 		win->custom_scale = NULL;
-		win->font_category = UI_FONT;
+		// Imherit font category from parent, default to UI_FONT
+		if (pos_id >= 0 && pos_id < windows_list.num_windows)
+			win->font_category = windows_list.window[pos_id].font_category;
+		else
+			win->font_category = UI_FONT;
 		update_window_scale(win, get_global_scale());
 
 		win->init_handler = NULL;

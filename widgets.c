@@ -41,7 +41,7 @@ typedef struct {
 }checkbox;
 
 typedef struct {
-	char text[256];
+	unsigned char text[256];
 	Uint16 fixed_width;
 	Uint16 fixed_height;
 }button;
@@ -58,7 +58,7 @@ typedef struct {
 }password_entry;
 
 typedef struct {
-	char text[256];
+	unsigned char text[256];
 	Uint16 x;
 	Uint16 y;
 	int width;
@@ -96,6 +96,8 @@ int disable_double_click = 0;
 static int label_resize (widget_list *w, int width, int height);
 static int free_widget_info (widget_list *widget);
 static int checkbox_click(widget_list *W, int mx, int my, Uint32 flags);
+static int button_draw(widget_list *w);
+static int square_button_draw(widget_list *w);
 static int button_change_font(widget_list *W, font_cat cat);
 static int vscrollbar_click(widget_list *W, int mx, int my, Uint32 flags);
 static int vscrollbar_drag(widget_list *W, int x, int y, Uint32 flags, int dx, int dy);
@@ -491,8 +493,9 @@ int widget_set_args (int window_id, Uint32 widget_id, void *spec)
 Uint32 widget_add (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly,
 	Uint32 Flags, float size, float r, float g, float b, const struct WIDGET_TYPE *type, void *T, void *S)
 {
+	window_info *win = &windows_list.window[window_id];
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
-	widget_list *w = windows_list.window[window_id].widgetlist;
+	widget_list *w = win->widgetlist;
 
 	// Clearing everything
 	memset(W,0,sizeof(widget_list));
@@ -510,7 +513,7 @@ Uint32 widget_add (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 
 	W->r = r;
 	W->g = g;
 	W->b = b;
-	W->fcat = UI_FONT;
+	W->fcat = win->font_category;
 	W->len_y = ly;
 	W->len_x = lx;
 
@@ -533,7 +536,7 @@ Uint32 widget_add (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 
 	// Adding the widget to the list
 	if (w == NULL)
 	{
-		windows_list.window[window_id].widgetlist = W;
+		win->widgetlist = W;
 	}
 	else
 	{
@@ -873,8 +876,7 @@ static int button_change_font(widget_list *W, font_cat cat)
 
 	len_x = T->fixed_width
 		? T->fixed_width
-		: get_string_width_zoom((const unsigned char*)T->text, W->fcat, W->size)
-			+ (int)(2 * BUTTONRADIUS * W->size + 0.5);
+		: get_string_width_zoom(T->text, W->fcat, W->size) + (int)(2 * BUTTONRADIUS * W->size + 0.5);
 	if (T->fixed_height)
 	{
 		len_y = T->fixed_height;
@@ -896,12 +898,11 @@ int button_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Ui
 	const struct WIDGET_TYPE *type = (Flags & BUTTON_SQUARE) ? &square_button_type : &round_button_type;
 
 	button *T = calloc (1, sizeof(button));
-	safe_strncpy(T->text, text, sizeof(T->text));
+	safe_strncpy((char*)T->text, text, sizeof(T->text));
 	T->fixed_width = lx;
 	T->fixed_height = ly;
 
-	len_x = lx ? lx : get_string_width_ui((const unsigned char*)text, size)
-		+ (int)(2 * BUTTONRADIUS * size + 0.5);
+	len_x = lx ? lx : get_string_width_ui(T->text, size) + (int)(2 * BUTTONRADIUS * size + 0.5);
 	len_y = ly ? ly : get_line_height(UI_FONT, size) + (int)(12 * size + 0.5);
 
 	return widget_add (window_id, wid, OnInit, x, y, len_x, len_y, Flags, size, r, g, b, type, T, NULL);
@@ -926,18 +927,18 @@ int button_add(int window_id, int (*OnInit)(), const char *text, Uint16 x, Uint1
 	return button_add_extended(window_id, widget_id++, NULL, x, y, 0, 0, 0, 1.0, -1.0, -1.0, -1.0, text);
 }
 
-int button_draw(widget_list *W)
+static int button_draw(widget_list *W)
 {
 	button *l = (button *)W->widget_info;
-	draw_smooth_button(l->text, W->size, W->pos_x, W->pos_y, W->len_x-2*BUTTONRADIUS*W->size, 1, W->r, W->g, W->b, W->Flags & BUTTON_ACTIVE, 0.32f, 0.23f, 0.15f, 0.0f);
+	draw_smooth_button(l->text, W->fcat, W->size, W->pos_x, W->pos_y, W->len_x-2*BUTTONRADIUS*W->size, 1, W->r, W->g, W->b, W->Flags & BUTTON_ACTIVE, 0.32f, 0.23f, 0.15f, 0.0f);
 	return 1;
 }
 
-int square_button_draw(widget_list *W)
+static int square_button_draw(widget_list *W)
 {
 	button *l = (button *)W->widget_info;
 	float extra_space = (W->len_x
-		- get_string_width_zoom((const unsigned char*)l->text, W->fcat, W->size))/2.0f;
+		- get_string_width_zoom(l->text, W->fcat, W->size))/2.0f;
 	if(extra_space < 0) {
 		extra_space = 0;
 	}
@@ -957,7 +958,7 @@ int square_button_draw(widget_list *W)
 	glEnable(GL_TEXTURE_2D);
 	draw_string_zoomed_width_font_centered(W->pos_x + W->len_x / 2,
 		W->pos_y + (W->len_y - DEFAULT_FONT_Y_LEN * W->size) / 2 + 1 + gy_adjust,
-		(unsigned char *)l->text, window_width, 1, W->fcat, W->size);
+		l->text, window_width, 1, W->fcat, W->size);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -965,12 +966,81 @@ CHECK_GL_ERRORS();
 	return 1;
 }
 
-int button_set_text(int window_id, Uint32 widget_id, char *text)
+void draw_smooth_button(const unsigned char* str, font_cat fcat, float size,
+	int x, int y, int w, int lines, float r, float g, float b,
+	int highlight, float hr, float hg, float hb, float ha)
+{
+	int radius=lines*BUTTONRADIUS*size;
+
+	glDisable(GL_TEXTURE_2D);
+
+	if(r>=0.0f)
+		glColor3f(r, g, b);
+
+#ifdef OSX
+	if (square_buttons) {
+		glBegin(GL_LINE_LOOP);
+		glVertex3i(x,y,0);
+		glVertex3i(x + w + radius*2,y,0);
+		glVertex3i(x + w + radius*2,y + radius*2,0);
+		glVertex3i(x,y + radius*2,0);
+		glEnd();
+
+		if(highlight) {
+			if(hr>=0.0f)
+				glColor4f(hr,hg,hb,ha);
+			glBegin(GL_POLYGON);
+			glVertex3i(x+1,y+1,0);
+			glVertex3i(x + w + radius*2 -1,y+1,0);
+			glVertex3i(x + w + radius*2 -1,y + radius*2 -1,0);
+			glVertex3i(x+1,y + radius*2 -1,0);
+			glEnd();
+		}
+
+		glEnable(GL_TEXTURE_2D);
+	} else {
+#endif
+	glBegin(GL_LINE_LOOP);
+		draw_circle_ext(x, y, radius, 10, 90, 270);
+		draw_circle_ext(x+w, y, radius, 10, -90, 90);
+	glEnd();
+	if(highlight) {
+		if(hr>=0.0f)
+			glColor4f(hr,hg,hb,ha);
+		glBegin(GL_POLYGON);
+			draw_circle_ext(x+1, y+1, radius-1, 10, 90, 270);
+			draw_circle_ext(x+w+1, y+1, radius-1, 10, -90, 90);
+		glEnd();
+	}
+	glEnable(GL_TEXTURE_2D);
+
+#ifdef OSX
+	}	// to close off square_buttons conditional
+#endif
+
+	if(highlight) {
+		glColor3f(r, g, b);
+	}
+
+	if (str)
+	{
+		int text_height = lines * get_line_height(fcat, size);
+		draw_string_zoomed_width_font_centered(x + radius + w/2 + gx_adjust,
+			y + radius - text_height / 2 + gy_adjust, str, window_width, lines,
+			fcat, size);
+	}
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
+}
+
+
+int button_set_text(int window_id, Uint32 widget_id, const char *text)
 {
 	widget_list *w = widget_find(window_id, widget_id);
 	if(w){
 		button *l = (button *) w->widget_info;
-		safe_snprintf(l->text, sizeof(l->text), "%s",  text);
+		safe_strncpy((char*)l->text, text, sizeof(l->text));
 		return 1;
 	}
 	return 0;
@@ -1663,10 +1733,10 @@ static int tab_collection_click(widget_list *W, int x, int y, Uint32 flags)
 	return 0;
 }
 
-static int calc_tag_width(const Sint8* label, float size, font_cat fcat, int close_width)
+static int calc_tag_width(const unsigned char* label, font_cat fcat, float size, int close_width)
 {
 	return size * DEFAULT_FIXED_FONT_WIDTH
-			+ get_string_width_zoom((const unsigned char*)label, fcat, size)
+			+ get_string_width_zoom(label, fcat, size)
 			+ close_width;
 }
 
@@ -1683,7 +1753,7 @@ static int tab_collection_change_font(widget_list *w, font_cat font)
 
 	for (itab = 0; itab < col->nr_tabs; ++itab)
 	{
-		Uint16 width = calc_tag_width(col->tabs[itab].label, w->size, w->fcat,
+		Uint16 width = calc_tag_width(col->tabs[itab].label, w->fcat, w->size,
 			col->tabs[itab].closable ? col->tag_height : 0);
 		if (width > col->tabs[itab].min_tag_width)
 			col->tabs[itab].tag_width = width;
@@ -1847,8 +1917,8 @@ int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, 
 	{
 		// compute tag width from label width
 		col->tabs[nr].min_tag_width = 0;
-		col->tabs[nr].tag_width = calc_tag_width(col->tabs[nr].label, w->size,
-			w->fcat, col->tabs[nr].closable ? col->tag_height : 0);
+		col->tabs[nr].tag_width = calc_tag_width(col->tabs[nr].label, w->fcat, w->size,
+			col->tabs[nr].closable ? col->tag_height : 0);
 	}
 
 	// set label color to default values
@@ -3452,7 +3522,7 @@ static int multiselect_draw(widget_list *widget)
 			/* Check if the button can be fully drawn */
 			if(button_y > widget->len_y - M->buttons[i].height)
 				break;
-			draw_smooth_button(M->buttons[i].text, widget->size, widget->pos_x+M->buttons[i].x, widget->pos_y+button_y, M->buttons[i].width-2*BUTTONRADIUS*widget->size, 1, r, g, b, (i == M->selected_button), hr, hg, hb, 0.5f);
+			draw_smooth_button(M->buttons[i].text, widget->fcat, widget->size, widget->pos_x+M->buttons[i].x, widget->pos_y+button_y, M->buttons[i].width-2*BUTTONRADIUS*widget->size, 1, r, g, b, (i == M->selected_button), hr, hg, hb, 0.5f);
 		}
 	}
 	return 1;
@@ -3489,7 +3559,7 @@ int multiselect_button_add_extended(int window_id, Uint32 multiselect_id, Uint16
 		M->buttons = realloc(M->buttons, sizeof(*M->buttons) * M->max_buttons * 2);
 		M->max_buttons *= 2;
 	}
-	safe_snprintf(M->buttons[current_button].text, sizeof(M->buttons[current_button].text), "%s", text);
+	safe_strncpy((char*)M->buttons[current_button].text, text, sizeof(M->buttons[current_button].text));
 	if(selected) {
 		M->selected_button = current_button;
 	}

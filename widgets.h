@@ -18,7 +18,7 @@ extern "C" {
 #endif
 
 typedef struct {
-	Sint8 label[64];
+	unsigned char label[64];
 	int content_id;
 	Uint16 tag_width;
 	Uint16 min_tag_width;
@@ -825,31 +825,6 @@ int button_add(int window_id, int (*OnInit)(), const char *text, Uint16 x, Uint1
  */
 int button_resize(int window_id, Uint32 wid, Uint16 lx, Uint16 ly, float size);
 
-
-/*!
- * \ingroup	buttons
- * \brief 	Draws a smooth button
- *
- * 		Draws the smooth button widget pointed to by W.
- *
- * \param   	W The button widget
- * \retval int  	Returns true
- * \callgraph
- */
-int button_draw(widget_list *W);
-
-/*!
- * \ingroup	buttons
- * \brief 	Draws a square button
- *
- * 		Draws the square button widget pointed to by W.
- *
- * \param   	W The button widget
- * \retval int  	Returns true
- * \callgraph
- */
-int square_button_draw(widget_list *W);
-
 /*!
  * \ingroup	buttons
  * \brief 	Sets the button text
@@ -863,9 +838,33 @@ int square_button_draw(widget_list *W);
  *
  * \sa widget_find
  */
-int button_set_text(int window_id, Uint32 widget_id, char *text);
+int button_set_text(int window_id, Uint32 widget_id, const char *text);
 
-
+/*!
+ * \ingroup buttons
+ * \brief Draws a button with round corners.
+ *
+ * 	Draws a button with round corners. The box can be highlighted with the chosen highlight colors (r,g,b,a).
+ *
+ * \param str The name to write within the button, optional
+ * \param cat The category for the font with which to draw \a str
+ * \param size The size of the text
+ * \param x The start x position
+ * \param y The start y position
+ * \param w The width
+ * \param lines The number of lines (determines the height)
+ * \param r The red color for border and text
+ * \param g The green color for border and text
+ * \param b The blue color for border and text
+ * \param highlight If the button is highlighted or not
+ * \param hr The red color for highlighted buttons
+ * \param hg The green color for highlighted buttons
+ * \param hb The blue color for highlighted buttons
+ * \param ha The alpha color for highlighted buttons
+ */
+void draw_smooth_button(const unsigned char* str, font_cat cat, float size,
+	int x, int y, int w, int lines, float r, float g, float b,
+	int highlight, float hr, float hg, float hb, float ha);
 
 // Progressbar
 

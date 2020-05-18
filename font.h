@@ -40,6 +40,8 @@ typedef enum
 	RULES_FONT,
 	//! Index for the font used to draw the encyclopedia and help texts
 	ENCYCLOPEDIA_FONT,
+	//! Index used for the font used to draw the options window contents
+	CONFIG_FONT,
 	//! Number of font categories
 	NR_FONT_CATS
 } font_cat;
@@ -1056,6 +1058,19 @@ public:
 #endif // !MAP_EDITOR_2
 #endif // ELC
 
+	/*!
+	 * Set the config font
+	 *
+	 * Copy the current font index and scale of the UI_FONT category to that
+	 * of the CONFIG_FONT category. This allows us to change the UI font
+	 * without changing the way the options window is drawn, and hopefully
+	 * stops the user from then being unable to change the font back.
+	 */
+	void set_config_font()
+	{
+		font_idxs[CONFIG_FONT] = font_idxs[UI_FONT];
+		font_scales[CONFIG_FONT] = font_scales[UI_FONT];
+	}
 
 private:
 	//! The list of known fonts
@@ -1294,6 +1309,16 @@ void draw_ingame_string(float x, float y, const unsigned char *text,
 	int max_lines, float zoom_x, float zoom_y);
 #endif // !MAP_EDITOR2
 #endif // ELC
+
+/*!
+ * Set the config font
+ *
+ * Copy the current font index and scale of the UI_FONT category to that
+ * of the CONFIG_FONT category. This allows us to change the UI font
+ * without changing the way the options window is drawn, and hopefully
+ * stops the user from then being unable to change the font back.
+ */
+void set_config_font();
 
 int has_glyph(unsigned char c);
 

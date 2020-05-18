@@ -697,9 +697,9 @@ static int hidden=0;
 static int are_you_sure=1;
 static int numbers_in_name=0;
 
-static char * get_pass_str(int l)
+static const unsigned char* get_pass_str(int l)
 {
-	static char str[20];
+	static unsigned char str[20];
 
 	memset(str, '*', l);
 	str[l]=0;
@@ -895,7 +895,7 @@ static int errorbox_draw(widget_list *w)
 
 static int name_draw(widget_list *w)
 {
-	draw_smooth_button((char*)w->widget_info, w->size, w->pos_x, w->pos_y, w->len_x - 2*BUTTONRADIUS*w->size, 1, w->r, w->g, w->b, active == *(int*)w->spec, 0.32f, 0.23f, 0.15f, 0.0f);
+	draw_smooth_button((const unsigned char*)w->widget_info, w->fcat, w->size, w->pos_x, w->pos_y, w->len_x - 2*BUTTONRADIUS*w->size, 1, w->r, w->g, w->b, active == *(int*)w->spec, 0.32f, 0.23f, 0.15f, 0.0f);
 	return 1;
 }
 
@@ -903,11 +903,11 @@ static int password_draw(widget_list *w)
 {
 	if(!hidden)
 	{
-		draw_smooth_button(get_pass_str(strlen((char*)w->widget_info)), w->size, w->pos_x, w->pos_y, w->len_x - 2*BUTTONRADIUS*w->size, 1, w->r, w->g, w->b, active == *(int*)w->spec, 0.32f, 0.23f, 0.15f, 0.0f);
+		draw_smooth_button(get_pass_str(strlen((const char*)w->widget_info)), w->fcat, w->size, w->pos_x, w->pos_y, w->len_x - 2*BUTTONRADIUS*w->size, 1, w->r, w->g, w->b, active == *(int*)w->spec, 0.32f, 0.23f, 0.15f, 0.0f);
 	}
 	else
 	{
-		draw_smooth_button((char*)w->widget_info, w->size, w->pos_x, w->pos_y, w->len_x - 2*BUTTONRADIUS*w->size, 1, w->r, w->g, w->b, active == *(int*)w->spec, 0.32f, 0.23f, 0.15f, 0.0f);
+		draw_smooth_button((const unsigned char*)w->widget_info, w->fcat, w->size, w->pos_x, w->pos_y, w->len_x - 2*BUTTONRADIUS*w->size, 1, w->r, w->g, w->b, active == *(int*)w->spec, 0.32f, 0.23f, 0.15f, 0.0f);
 	}
 	return 1;
 }

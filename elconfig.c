@@ -1243,6 +1243,7 @@ void update_highdpi_auto_scaling(void)
 	change_text_zoom(&font_scales[NOTE_FONT], &font_scales[NOTE_FONT]);
 	change_text_zoom(&font_scales[BOOK_FONT], &font_scales[BOOK_FONT]);
 	change_text_zoom(&font_scales[RULES_FONT], &font_scales[RULES_FONT]);
+	change_text_zoom(&font_scales[ENCYCLOPEDIA_FONT], &font_scales[ENCYCLOPEDIA_FONT]);
 	change_ui_scale(&local_ui_scale, &local_ui_scale);
 	change_minimap_scale(&local_minimap_size_coefficient, &local_minimap_size_coefficient);
 }
@@ -3132,7 +3133,6 @@ static int string_onkey_handler(widget_list *widget)
 static void elconfig_populate_tabs(void)
 {
 	int i;
-	int tab_id; //temporary storage for the tab id
 	int label_id=-1; //temporary storage for the label id
 	int widget_id=-1; //temporary storage for the widget id
 	int widget_height, label_height; //Used to calculate the y pos of the next option
@@ -3146,7 +3146,8 @@ static void elconfig_populate_tabs(void)
 	}
 
 	for(i= 0; i < our_vars.no; i++) {
-		tab_id= our_vars.var[i]->widgets.tab_id;
+		int tab_id = our_vars.var[i]->widgets.tab_id;
+		int window_id = elconfig_tabs[tab_id].tab;
 		switch(our_vars.var[i]->type) {
 			case OPT_BOOL_INI:
 			case OPT_INT_INI:
@@ -3157,99 +3158,105 @@ static void elconfig_populate_tabs(void)
 				continue;
 			case OPT_BOOL:
 				//Add checkbox
-				widget_id = checkbox_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
+				widget_id = checkbox_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, CHECKBOX_SIZE, CHECKBOX_SIZE,
 					0, elconf_scale, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var);
 				//Add label for the checkbox
-				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
+				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					elconfig_tabs[tab_id].x+CHECKBOX_SIZE+SPACING, elconfig_tabs[tab_id].y,
 					0, elconf_scale, -1.0, -1.0, -1.0, (char*)our_vars.var[i]->display.str);
 				//Set handlers
-				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, onclick_checkbox_handler);
+				widget_set_OnClick(window_id, widget_id, onclick_checkbox_handler);
 			break;
 			case OPT_INT:
 				/* interval is always 1 */
-				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
+				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
-				widget_id = spinbutton_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
+				widget_id = spinbutton_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					elconfig_menu_x_len/4*3, elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(100), ELCONFIG_SCALED_VALUE(20),
 					SPIN_INT, our_vars.var[i]->var, our_vars.var[i]->args.imm.min,
 					our_vars.var[i]->args.imm.max, 1.0, elconf_scale, -1, -1, -1);
-				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, (int (*)())spinbutton_onkey_handler);
-				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
+				widget_set_OnKey(window_id, widget_id, (int (*)())spinbutton_onkey_handler);
+				widget_set_OnClick(window_id, widget_id, spinbutton_onclick_handler);
 			break;
 			case OPT_FLOAT:
-				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
+				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y,
 					0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
-				widget_id = spinbutton_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
+				widget_id = spinbutton_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					elconfig_menu_x_len/4*3, elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(100), ELCONFIG_SCALED_VALUE(20),
 					SPIN_FLOAT, our_vars.var[i]->var, our_vars.var[i]->args.fmmi.min, our_vars.var[i]->args.fmmi.max,
 					our_vars.var[i]->args.fmmi.interval, elconf_scale, -1, -1, -1);
-				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, (int (*)())spinbutton_onkey_handler);
-				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
+				widget_set_OnKey(window_id, widget_id, (int (*)())spinbutton_onkey_handler);
+				widget_set_OnClick(window_id, widget_id, spinbutton_onclick_handler);
 			break;
 			case OPT_STRING:
 				// don't display the username, if it is changed after login, any name tagged files will be saved using the new name
 				if (strcmp(our_vars.var[i]->name, "username") == 0)
 					continue;
-				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
+				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y,
 					0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
-				widget_id = pword_field_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
+				widget_id = pword_field_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					elconfig_menu_x_len/5*2, elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(332), ELCONFIG_SCALED_VALUE(20),
 					P_TEXT, elconf_scale, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var, our_vars.var[i]->len);
-				widget_set_OnKey (elconfig_tabs[tab_id].tab, widget_id, (int (*)())string_onkey_handler);
+				widget_set_OnKey (window_id, widget_id, (int (*)())string_onkey_handler);
 			break;
 			case OPT_PASSWORD:
 				// Grum: the client shouldn't store the password, so let's not add it to the configuration window
-				//label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->display.str);
-				//widget_id= pword_field_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 200, 20, P_NORMAL, 1.0f, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var, our_vars.var[i]->len);
-				//widget_set_OnKey (elconfig_tabs[tab_id].tab, widget_id, string_onkey_handler);
+				//label_id= label_add_extended(window_id, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->display.str);
+				//widget_id= pword_field_add_extended(window_id, elconfig_free_widget_id++, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 200, 20, P_NORMAL, 1.0f, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var, our_vars.var[i]->len);
+				//widget_set_OnKey (window_id, widget_id, string_onkey_handler);
 				continue;
 			case OPT_MULTI:
 
-				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
+				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, elconf_scale,
 					0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
-				widget_id = multiselect_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
-					elconfig_tabs[tab_id].x+SPACING+get_string_width_ui(our_vars.var[i]->display.str, elconf_scale), elconfig_tabs[tab_id].y,
-					ELCONFIG_SCALED_VALUE(250), ELCONFIG_SCALED_VALUE(80), elconf_scale, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
+				widget_id = multiselect_add_extended(window_id, elconfig_free_widget_id++,
+					NULL,
+					elconfig_tabs[tab_id].x + SPACING + get_string_width_zoom(our_vars.var[i]->display.str, CONFIG_FONT, elconf_scale),
+					elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(250), ELCONFIG_SCALED_VALUE(80),
+					elconf_scale, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
 				for(y= 0; y<our_vars.var[i]->args.multi.count; y++) {
 					const char *label = our_vars.var[i]->args.multi.elems[y].label;
 					if (!*label)
 						label = "??";
-					multiselect_button_add_extended(elconfig_tabs[tab_id].tab, widget_id,
+					multiselect_button_add_extended(window_id, widget_id,
 						0, y*(ELCONFIG_SCALED_VALUE(22)+SPACING), 0, label, DEFAULT_SMALL_RATIO*elconf_scale, y == *(int *)our_vars.var[i]->var);
 				}
-				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, multiselect_click_handler);
+				widget_set_OnClick(window_id, widget_id, multiselect_click_handler);
 			break;
 			case OPT_FLOAT_F:
-				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
+				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y,
 					0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
-				widget_id = spinbutton_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
+				widget_id = spinbutton_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					elconfig_menu_x_len/4*3, elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(100), ELCONFIG_SCALED_VALUE(20),
 					SPIN_FLOAT, our_vars.var[i]->var, our_vars.var[i]->args.fmmif.min(), our_vars.var[i]->args.fmmif.max(),
 					our_vars.var[i]->args.fmmif.interval, elconf_scale, -1, -1, -1);
-				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, (int (*)())spinbutton_onkey_handler);
-				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
+				widget_set_OnKey(window_id, widget_id, (int (*)())spinbutton_onkey_handler);
+				widget_set_OnClick(window_id, widget_id, spinbutton_onclick_handler);
 			break;
 			case OPT_INT_F:
 				/* interval is always 1 */
-				label_id = label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
+				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y,
 					0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
-				widget_id = spinbutton_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
+				widget_id = spinbutton_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					elconfig_menu_x_len/4*3, elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(100), ELCONFIG_SCALED_VALUE(20),
 					SPIN_INT, our_vars.var[i]->var, our_vars.var[i]->args.immf.min(), our_vars.var[i]->args.immf.max(), 1.0, elconf_scale, -1, -1, -1);
-				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, (int (*)())spinbutton_onkey_handler);
-				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
+				widget_set_OnKey(window_id, widget_id, (int (*)())spinbutton_onkey_handler);
+				widget_set_OnClick(window_id, widget_id, spinbutton_onclick_handler);
 			break;
 			case OPT_MULTI_H:
 
-				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
-				widget_id= multiselect_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x+SPACING+get_string_width_ui(our_vars.var[i]->display.str, elconf_scale), elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(350), ELCONFIG_SCALED_VALUE(80), elconf_scale, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
+				label_id= label_add_extended(window_id, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
+				widget_id = multiselect_add_extended(window_id, elconfig_free_widget_id++,
+					NULL,
+					elconfig_tabs[tab_id].x + SPACING + get_string_width_zoom(our_vars.var[i]->display.str, CONFIG_FONT, elconf_scale),
+					elconfig_tabs[tab_id].y, ELCONFIG_SCALED_VALUE(350), ELCONFIG_SCALED_VALUE(80),
+					elconf_scale, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
 				x = 0;
 				for(y= 0; y<our_vars.var[i]->args.multi.count; y++) {
 					int radius = elconf_scale*BUTTONRADIUS;
@@ -3259,29 +3266,30 @@ static void elconfig_populate_tabs(void)
 					if (!*label)
 						label = "??";
 
-					width = 2 * radius + get_string_width_ui((unsigned char*)label, width_ratio);
+					width = 2 * radius
+						+ get_string_width_zoom((const unsigned char*)label, CONFIG_FONT, width_ratio);
 
-					multiselect_button_add_extended(elconfig_tabs[tab_id].tab, widget_id, x, 0, width, label,
+					multiselect_button_add_extended(window_id, widget_id, x, 0, width, label,
 						DEFAULT_SMALL_RATIO * elconf_scale, y == *(int *)our_vars.var[i]->var);
 
 					x += width + SPACING;
 				}
-				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, multiselect_click_handler);
+				widget_set_OnClick(window_id, widget_id, multiselect_click_handler);
 			break;
 		}
 
 		//Calculate y position of the next option.
-		label_height= widget_find(elconfig_tabs[tab_id].tab, label_id)->len_y;
-		widget_height= widget_find(elconfig_tabs[tab_id].tab, widget_id)->len_y;
+		label_height= widget_find(window_id, label_id)->len_y;
+		widget_height= widget_find(window_id, widget_id)->len_y;
 		elconfig_tabs[tab_id].y += (widget_height > label_height ? widget_height : label_height)+SPACING;
 		//Set IDs
 		our_vars.var[i]->widgets.label_id= label_id;
 		our_vars.var[i]->widgets.widget_id= widget_id;
 		//Make the description print when the mouse is over a widget
-		widget_set_OnMouseover(elconfig_tabs[tab_id].tab, label_id, mouseover_option_label_handler);
-		widget_set_OnMouseover(elconfig_tabs[tab_id].tab, widget_id, mouseover_option_handler);
+		widget_set_OnMouseover(window_id, label_id, mouseover_option_label_handler);
+		widget_set_OnMouseover(window_id, widget_id, mouseover_option_handler);
 		//left click used only to tolle BOOL, right click to open context menu
-		widget_set_OnClick(elconfig_tabs[tab_id].tab, label_id, onclick_label_handler);
+		widget_set_OnClick(window_id, label_id, onclick_label_handler);
 	}
 }
 
@@ -3310,6 +3318,7 @@ static int show_elconfig_handler(window_info * win) {
 #else
 	init_window(win->window_id, game_root_win, 0, win->pos_x - pwinx, win->pos_y - pwiny, win->len_x, win->len_y);
 #endif
+
 	return 1;
 }
 
@@ -3319,6 +3328,17 @@ static int ui_scale_elconfig_handler(window_info *win)
 {
 	update_window_scale(win, elconf_scale); // stop scale change impacting immediately
 	recheck_window_scale = 1; // check later of can now rescale
+	return 1;
+}
+
+// Similar to the UI scale handler, when changing the UI font we don't want to
+// disrupt the options window. So defer the font change here as well until
+// after the window is closed.
+static int change_elconfig_font_handler(window_info *win, font_cat cat)
+{
+	if (cat != UI_FONT)
+		return 0;
+	recheck_window_scale = 1;
 	return 1;
 }
 
@@ -3347,6 +3367,8 @@ void display_elconfig_win(void)
 			our_root_win= game_root_win;
 		}
 
+		set_config_font();
+
 		elconf_scale = ui_scale * elconf_custom_scale;
 		CHECKBOX_SIZE = ELCONFIG_SCALED_VALUE(15);
 		SPACING = ELCONFIG_SCALED_VALUE(5);
@@ -3362,8 +3384,10 @@ void display_elconfig_win(void)
 		if (elconfig_win >=0 && elconfig_win < windows_list.num_windows)
 			update_window_scale(&windows_list.window[elconfig_win], elconf_scale);
 		set_window_color(elconfig_win, ELW_COLOR_BORDER, 0.77f, 0.59f, 0.39f, 0.0f);
+		set_window_font_category(elconfig_win, CONFIG_FONT);
 		set_window_handler(elconfig_win, ELW_HANDLER_DISPLAY, &display_elconfig_handler );
 		set_window_handler(elconfig_win, ELW_HANDLER_UI_SCALE, &ui_scale_elconfig_handler );
+		set_window_handler(elconfig_win, ELW_HANDLER_FONT_CHANGE, &change_elconfig_font_handler);
 		// TODO: replace this hack by something clean.
 		set_window_handler(elconfig_win, ELW_HANDLER_SHOW, &show_elconfig_handler);
 		/* Create tabs */
