@@ -36,8 +36,10 @@ typedef enum
 	BOOK_FONT,
 	//! INdex for the font used to draw user notes
 	NOTE_FONT,
-	//! Index used for the font used to draw the rules
+	//! Index for the font used to draw the rules
 	RULES_FONT,
+	//! Index for the font used to draw the encyclopedia and help texts
+	ENCYCLOPEDIA_FONT,
 	//! Number of font categories
 	NR_FONT_CATS
 } font_cat;
@@ -212,12 +214,16 @@ public:
 
 	//! Return the name of the font
 	const std::string& font_name() const { return _font_name; }
+#ifdef TTF
 	//! Check if this font is a TTF font
 	bool is_ttf() const { return _flags & Flags::IS_TTF; }
-	//! Check if this font failed to load
-	bool failed() const { return _flags & Flags::FAILED; }
+#endif
+	//! Check if the font is fixed width
+	bool is_fixed_width() const { return _flags & Flags::FIXED_WIDTH; }
 	//! Check if a texture has been generated for this font
 	bool has_texture() const { return _flags & Flags::HAS_TEXTURE; }
+	//! Check if this font failed to load
+	bool failed() const { return _flags & Flags::FAILED; }
 
 	/*!
 	 * \ingroup text_font
@@ -433,17 +439,27 @@ public:
 private:
 	static const size_t font_nr_lines = 10;
 	static const size_t font_chars_per_line = 14;
+	//! The number of different glyphs we recognise
+	static const size_t nr_glyphs = 9*14 + 6;
 	static const int font_block_width = 18;
 	static const int font_block_height = 21;
 	static const int default_line_height = 18;
 	static const int ttf_point_size = 32;
-	static const std::array<int, font_nr_lines * font_chars_per_line> letter_freqs;
+	static const std::array<int, nr_glyphs> letter_freqs;
 
+	//! Flags indicating the status and properties of a font
 	enum Flags
 	{
+#ifdef TTF
+		//! Set if the font is a TTF Font
 		IS_TTF      = 1 << 0,
-		HAS_TEXTURE = 1 << 1,
-		FAILED      = 1 << 2
+#endif
+		//! Set if the font is fixed width, i.e. all characters have the same width
+		FIXED_WIDTH = 1 << 1,
+		//! Set if the texture for the font is loaded or generated
+		HAS_TEXTURE = 1 << 2,
+		//! Set if loading the font failed, and a fallback dhould be used
+		FAILED      = 1 << 3
 	};
 
 	//! Name of this font. This will be shown on the multi-select button.
@@ -457,9 +473,11 @@ private:
 	//! Height of the font texture in pixels.
 	int _texture_height;
 	//! Width of each character in the texture, in pixels
-	std::array<int, font_nr_lines * font_chars_per_line> _char_widths;
+	std::array<int, nr_glyphs> _char_widths;
+	//! How far to advance the pen position after a character, in pixels
+	std::array<int, nr_glyphs> _texture_char_widths;
 	//! Texture coordinates for each character in the texture
-	std::array<float[4], font_nr_lines * font_chars_per_line> _texture_coordinates;
+	std::array<float[4], nr_glyphs> _texture_coordinates;
 	//! Width reserved for a character in the texture
 	int _block_width;
 	//! Height reserved for a character in the texture
@@ -651,8 +669,10 @@ private:
 	 * \param size    The size of the rendered glyph
 	 * \param font    The font with which to render the glyph
 	 * \param surface The surface on which the glyph is rendered
+	 * \return a pair of integers, containing the width of the character in the`
+	 * 	texture, and how far to advance the pen to draw the next texture
 	 */
-	static int render_glyph(Uint16 glyph, int i, int j, int size,
+	static std::pair<int, int> render_glyph(Uint16 glyph, int i, int j, int size,
 		TTF_Font *font, SDL_Surface *surface);
 	/*!
 	 * Build a texture for a TTF font
@@ -699,6 +719,27 @@ public:
 	 * to add as well.
 	 */
 	bool initialize();
+
+	/*!
+	 * Return the font number of a fixed width font
+	 *
+	 * Return the font number for the \a idx'th fixed width font.
+	 *
+	 * \param idx The number of the font in the list of fixed width fonts only
+	 * \return The index of the font in the list of all fonts
+	 */
+	size_t fixed_width_font_number(size_t idx)
+	{
+		try
+		{
+			return _fixed_width_idxs.at(idx);
+		}
+		catch (const std::out_of_range&)
+		{
+			// Return standard fixed width font on invalid index
+			return 0;
+		}
+	}
 
 	/*!
 	 * The width of a single character
@@ -928,11 +969,13 @@ public:
 private:
 	//! The list of known fonts
 	std::vector<Font> _fonts;
+	//! Lookup table mapping indices of fixed width fonts to indices in the _fonts array
+	std::vector<size_t> _fixed_width_idxs;
 
 	/*!
 	 * Create a new font manager, without fonts to manage so far.
 	 */
-	FontManager(): _fonts() {}
+	FontManager(): _fonts(), _fixed_width_idxs() {}
 	// Disallow copying, since this is a singleton class
 	FontManager(const FontManager&) = delete;
 	FontManager& operator=(const FontManager&) = delete;
@@ -973,6 +1016,8 @@ extern char ttf_directory[TTF_DIR_SIZE];
 #endif // TTF
 
 int initialize_fonts();
+
+size_t get_fixed_width_font_number(size_t idx);
 
 int get_char_width_zoom(unsigned char c, font_cat cat, float zoom);
 static __inline__ int get_char_width_ui(unsigned char c, float text_zoom)

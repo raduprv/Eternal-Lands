@@ -819,6 +819,19 @@ int get_window_scroll_pos(int win_id);
 
 /*!
  * \ingroup elwindows
+ * \brief   Set the font category
+ *
+ * Set the font category for the text within the window with ID \a id window
+ * to \a cat.
+ *
+ * \param win_id The ID of the  window
+ * \param cat    The new font category
+ * \return 1 if the font category was sucessfully set, 0 on failure
+ */
+int set_window_font_category(int win_id, font_cat cat);
+
+/*!
+ * \ingroup elwindows
  * \brief   The callback for context menu clicks
  *
  *      Called when an option is selected from the title context menu.  If

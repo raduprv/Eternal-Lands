@@ -23,12 +23,42 @@ typedef struct
 	char *Name; /*!< name of the category */
 }_Category;
 
+/* Horrible, horrible hack!
+ *
+ * When rendering encyclopedia content in any font where the character width is
+ * not equal to that of font 1, we will have to scale the x coordinates of
+ * any text block by how much the width of the preceding contents on the same line
+ * has been changed. The question is: how much is that? Any preceding space
+ * could have been created by:
+ * 1) an offset in pixels, which should only be scaled by the UI scale factor
+ * 2) text in big font, where each character should be scaled to the new (integer)
+ *    width, as well as by the UI scale factor, and
+ * 3) text in small font, where each character should be scaled to the new small
+ *    integer width, as well as by the UI scale factor,
+ * or any combination of the above. So instead of a single integer x offset in
+ * pixels, we now have three components: a fixed pixel offset, the number of
+ * big characters, and the number of small characters.
+ *
+ * This really can only be change by removing the "formatting by spaces" logic
+ * out of the XML files, and creating a new XML format for the encyclopedia and
+ * help files. That will require a complete rewrite of the encyclopedia though,
+ * so for now we proceed with this hack and restrict the encyclopedia to fixed
+ * width fonts.
+ */
+typedef struct
+{
+	int pixels;
+	int nr_big;
+	int nr_small;
+} x_offset;
+
 /*!
  * defines a linked list for the \<Text\> xml element used in encyclopedia xml files.
  */
 typedef struct _Texts
 {
-	int x,y,size; /*!< position and size of the text */
+	x_offset x; /*!< Horizontal offset of the text */
+	int y,size; /*!< Vertical offset and size of the text */
 	float r,g,b; /*!< color attributes of the text element */
 	char *text,*ref; /*!< pointer to the associated text and references */
 	struct _Texts *Next; /*! pointer to the next text in the list */
@@ -39,7 +69,8 @@ typedef struct _Texts
  */
 typedef struct _Images
 {
-	int id,x,y,xend,yend; /*!< id, start and end position of the image */
+	x_offset x, xend;     /*!< Horizontal start and end coordinates of the image */
+	int id,y,yend;        /*!< id, and vertical coordinates of the image */
 	Uint8 mouseover; /*!< flag, determining whether the mouse is currently over the image or not */
 	float u,v,uend,vend; /*!< start and end points of texture coordinates */
 	struct _Images *Next; /*!< pointer to the next image in the list */

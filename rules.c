@@ -277,7 +277,7 @@ static int resize_rules_handler(window_info *win, int new_width, int new_height)
 
 static int change_rules_font_handler(window_info *win, font_cat cat)
 {
-	if (cat != RULES_FONT)
+	if (cat != win->font_category)
 		return 0;
 	resize_window(win->window_id, win->len_x, win->len_y);
 	return 1;
@@ -287,6 +287,7 @@ void fill_rules_window(int window_id)
 {
 	rules_win = window_id;
 	set_window_custom_scale(window_id, &custom_scale_factors.help);
+	set_window_font_category(window_id, RULES_FONT);
 
 	rules_scroll_id = vscrollbar_add_extended (window_id, rules_scroll_id, NULL,
 		0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 3, rules.no-1);

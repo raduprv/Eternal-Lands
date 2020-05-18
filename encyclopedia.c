@@ -30,9 +30,10 @@ static int encyclopedia_scroll_id=1;
 
 _Category Category[100];
 _Page Page[MAX_ENC_PAGES];
-int num_category=0,numpage=-1,numtext,x,y,numimage,id,color,size,ref=0,isize,tsize,tid,ssize,mouseover=0,xposupdate,yposupdate,lastextlen=0;
+x_offset x, xend, lastextlen = { 0 };
+int num_category=0,numpage=-1,numtext,y,numimage,id,color,size,ref=0,isize,tsize,tid,ssize,mouseover=0,xposupdate,yposupdate;
 static size_t currentpage = 0;
-float u,v,uend,vend,xend,yend,r,g,b;
+float u,v,uend,vend,yend,r,g,b;
 char *s,*ss;
 
 static void save_raw_page_link(const char *link, const char *title, size_t from_page_index);
@@ -46,7 +47,6 @@ static _Image *mouseover_image = NULL;
 /* move to translate */
 static const char* cm_encycl_help_str = "Right-click for search and bookmark options";
 
-
 int common_encyclopedia_display_handler(window_info *win, size_t the_page, int the_scroll_id)
 {
 	_Text *t=Page[the_page].T.Next;
@@ -56,19 +56,23 @@ int common_encyclopedia_display_handler(window_info *win, size_t the_page, int t
 	mouseover_text = NULL;
 	mouseover_image = NULL;
 
+	// NOTE: Assuming monospaced font here
+	int cw_big = win->default_font_max_len_x;
+	int cw_small = win->small_font_max_len_x;
+	float cw_y_fac = (float)get_line_height(win->font_category, 1.0) / DEFAULT_FONT_Y_LEN;
 	while(t)
 	{
 		float zoom = t->size ? win->current_scale : win->current_scale * DEFAULT_SMALL_RATIO;
 		int ylen=(t->size)?win->default_font_len_y:win->small_font_len_y;
-		int xlen = get_string_width_ui((const unsigned char*)t->text, zoom);
+		int xlen = get_string_width_zoom((const unsigned char*)t->text,
+			win->font_category, zoom);
 
-		// scale then scale the positions, restoring later
-		int sx = t->x, sy = t->y, sj = j;
-		t->x = (int)(0.5 + win->current_scale * t->x);
-		t->y = (int)(0.5 + win->current_scale * t->y);
-		j = (int)(0.5 + win->current_scale * j);
+		int scaled_x = (int)(0.5 + win->current_scale * t->x.pixels)
+			+ cw_big * t->x.nr_big + cw_small * t->x.nr_small;
+		int scaled_y = (int)(0.5 + win->current_scale * (cw_y_fac * (t->y - 2) + 2));
+		int scaled_j = (int)(0.5 + win->current_scale * cw_y_fac * j);
 
-		if((t->y-j > 0) && (t->y+ylen-j < win->len_y ))
+		if((scaled_y-scaled_j > 0) && (scaled_y+ylen-scaled_j < win->len_y ))
 		{
 			if(t->ref)
 			{
@@ -76,8 +80,8 @@ int common_encyclopedia_display_handler(window_info *win, size_t the_page, int t
 				glColor3f(0.5,0.5,0.5);
 				glDisable(GL_TEXTURE_2D);
 				glBegin(GL_LINES);
-				glVertex3i(t->x+4,t->y+ylen-j,0);
-				glVertex3i(t->x+4+xlen-8,t->y+ylen-j,0);
+				glVertex3i(scaled_x+4,scaled_y+ylen-scaled_j,0);
+				glVertex3i(scaled_x+4+xlen-8,scaled_y+ylen-scaled_j,0);
 				glEnd();
 				glEnable(GL_TEXTURE_2D);
 #ifdef OPENGL_TRACE
@@ -86,73 +90,73 @@ CHECK_GL_ERRORS();
 			}
 			if(t->size)
 			{
-				if(t->ref && mouse_x>(t->x+win->cur_x) && mouse_x<(t->x+xlen+win->cur_x) && mouse_y>(t->y+win->cur_y-j) && mouse_y<(t->y+ylen+win->cur_y-j))
+				if(t->ref && mouse_x>(scaled_x+win->cur_x) && mouse_x<(scaled_x+xlen+win->cur_x) && mouse_y>(scaled_y+win->cur_y-scaled_j) && mouse_y<(scaled_y+ylen+win->cur_y-scaled_j))
 				{
 					mouseover_text = t;
 					glColor3f(0.3,0.6,1.0);
 				}
 				else
 					glColor3f(t->r,t->g,t->b);
-				draw_string_zoomed(t->x, t->y-j, (const unsigned char*)t->text, 1, win->current_scale);
+				draw_string_zoomed_width_font(scaled_x, scaled_y-scaled_j, (const unsigned char*)t->text,
+					win->len_x - scaled_x, 1, win->font_category, win->current_scale);
 			}
 			else
 			{
-				if(t->ref && mouse_x>(t->x+win->cur_x) && mouse_x<(t->x+xlen+win->cur_x) && mouse_y>(t->y+win->cur_y-j) && mouse_y<(t->y+ylen+win->cur_y-j))
+				if(t->ref && mouse_x>(scaled_x+win->cur_x) && mouse_x<(scaled_x+xlen+win->cur_x) && mouse_y>(scaled_y+win->cur_y-scaled_j) && mouse_y<(scaled_y+ylen+win->cur_y-scaled_j))
 				{
 					mouseover_text = t;
 					glColor3f(0.3,0.6,1.0);
 				}
 				else
 					glColor3f(t->r,t->g,t->b);
-				draw_string_small_zoomed(t->x, t->y-j, (const unsigned char*)t->text, 1, win->current_scale);
+				draw_string_zoomed_width_font(scaled_x, scaled_y-scaled_j, (const unsigned char*)t->text,
+					win->len_x - scaled_x, 1, win->font_category,
+					win->current_scale * DEFAULT_SMALL_RATIO);
 			}
 		}
-		t->x = sx; t->y = sy; j = sj;
 		t=t->Next;
 	}
 
 	glColor3f(1.0f,1.0f,1.0f);
 	while(i)
 	{
-		int sx = i->x, sy = i->y, sxend = i->xend, syend = i->yend, sj = j;
-		i->x = (int)(0.5 + win->current_scale * i->x);
-		i->y = (int)(0.5 + win->current_scale * i->y);
-		i->xend = (int)(0.5 + win->current_scale * i->xend);
-		i->yend = (int)(0.5 + win->current_scale * i->yend);
-		j = (int)(0.5 + win->current_scale * j);
+		int scaled_x = (int)(0.5 + win->current_scale * i->x.pixels)
+			+ cw_big * i->x.nr_big + cw_small * i->x.nr_small;
+		int scaled_xend = (int)(0.5 + win->current_scale * i->xend.pixels)
+			+ cw_big * i->xend.nr_big + cw_small * i->xend.nr_small;
+		int scaled_y = (int)(0.5 + win->current_scale * (cw_y_fac * (i->y - 2) + 2));
+		int scaled_yend = (int)(0.5 + win->current_scale * (cw_y_fac * (i->yend - 2) + 2));
+		int scaled_j = (int)(0.5 + win->current_scale * cw_y_fac * j);
 
-		if((i->y-j > 0) && (i->yend-j < win->len_y ))
+		if((scaled_y-scaled_j > 0) && (scaled_yend-scaled_j < win->len_y ))
 		{
 			if(i->mouseover==1)
 			{
-				i->x = sx; i->y = sy; i->xend = sxend; i->yend = syend; j = sj;
 				i=i->Next;
 				continue;
 			}
-			if(mouse_x>(i->x+win->cur_x) && mouse_x<(win->cur_x+i->xend) && mouse_y>(i->y+win->cur_y-j) && mouse_y<(win->cur_y+i->yend-j))
+			if(mouse_x>(scaled_x+win->cur_x) && mouse_x<(win->cur_x+scaled_xend) && mouse_y>(scaled_y+win->cur_y-scaled_j) && mouse_y<(win->cur_y+scaled_yend-scaled_j))
 			{
 				if(i->Next!=NULL)
 				{
 					if(i->Next->mouseover==1)
 					{
-						i->x = sx; i->y = sy; i->xend = sxend; i->yend = syend; j = sj;
 						i=i->Next;
 					}
 				}
 			}
 			bind_texture(i->id);
 			glBegin(GL_QUADS);
-			draw_2d_thing(i->u, i->v, i->uend, i->vend,i->x, i->y-j,i->xend,i->yend-j);
+			draw_2d_thing(i->u, i->v, i->uend, i->vend,scaled_x, scaled_y-scaled_j,scaled_xend,scaled_yend-scaled_j);
 			glEnd();
 		}
-		i->x = sx; i->y = sy; i->xend = sxend; i->yend = syend; j = sj;
 		i=i->Next;
-
 	}
 
 	return 1;
 }
 
+int fpi = 0;
 int display_encyclopedia_handler(window_info *win)
 {
 	common_encyclopedia_display_handler(win, currentpage, encyclopedia_scroll_id);
@@ -168,6 +172,7 @@ int display_encyclopedia_handler(window_info *win)
 		show_cm_help = 0;
 	}
 
+fpi = 0;
 	return 1;
 }
 
@@ -247,7 +252,8 @@ void ParseLink(xmlAttr *a_node)
 			}
 			//x=""
 			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"x")){
-				x=atoi((char*)cur_attr->children->content);
+				x.pixels = atoi((char*)cur_attr->children->content);
+				x.nr_big = x.nr_small = 0;
 			}
 			//y=""
 			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"y")){
@@ -303,7 +309,8 @@ void ParseImage(xmlAttr *a_node)
 			}
 			//xend=""
 			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"xlen")){
-				xend=(float)atof((char*)cur_attr->children->content);
+				xend.pixels=(int)atof((char*)cur_attr->children->content);
+				xend.nr_big = xend.nr_small = 0;
 			}
 			//yend=""
 			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"ylen")){
@@ -315,7 +322,8 @@ void ParseImage(xmlAttr *a_node)
 			}
 			//x=""
 			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"x")){
-				x=atoi((char*)cur_attr->children->content);
+				x.pixels = atoi((char*)cur_attr->children->content);
+				x.nr_big = x.nr_small = 0;
 			}
 			//y=""
 			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"y")){
@@ -365,7 +373,8 @@ void ParseSimage(xmlAttr *a_node)
 			}
 			//x=""
 			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"x")){
-				x=atoi((char*)cur_attr->children->content);
+				x.pixels = atoi((char*)cur_attr->children->content);
+				x.nr_big = x.nr_small = 0;
 			}
 			//y=""
 			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"y")){
@@ -396,7 +405,8 @@ void ParsePos(xmlAttr *a_node)
 		if (cur_attr->type==XML_ATTRIBUTE_NODE){
 			//x=""
 			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"x")){
-				x=atoi((char*)cur_attr->children->content);
+				x.pixels = atoi((char*)cur_attr->children->content);
+				x.nr_big = x.nr_small = 0;
 			}
 			//y=""
 			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"y")){
@@ -429,7 +439,8 @@ void ParseText(xmlAttr *a_node)
 		if (cur_attr->type==XML_ATTRIBUTE_NODE){
 			//x=""
 			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"x")){
-				x=atoi((char*)cur_attr->children->content);
+				x.pixels = atoi((char*)cur_attr->children->content);
+				x.nr_big = x.nr_small = 0;
 			}
 			//y=""
 			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"y")){
@@ -452,7 +463,8 @@ void ReadCategoryXML(xmlNode * a_node)
 					numpage++;
 					numtext=0;
 					numimage=0;
-					x=2;
+					x.pixels = 2;
+					x.nr_big = x.nr_small = 0;
 					y=2;
 					ParsePage(cur_node->properties);
 				} else {
@@ -487,13 +499,21 @@ void ReadCategoryXML(xmlNode * a_node)
 				T->r=r; T->g=g; T->b=b;
 				T->text=NULL;
 				T->ref=NULL;
-				lastextlen = 0;
 				if (cur_node->children != NULL)
 				{
 					MY_XMLSTRCPY (&T->text, (char*)cur_node->children->content);
-					lastextlen = get_string_width_ui((const unsigned char*)T->text,
-						T->size ? 1.0 : DEFAULT_SMALL_RATIO);
-					x += lastextlen;
+					if (T->size)
+					{
+						lastextlen.nr_big = strlen(T->text);
+						lastextlen.nr_small = 0;
+					}
+					else
+					{
+						lastextlen.nr_big = 0;
+						lastextlen.nr_small = strlen(T->text);
+					}
+					x.nr_big += lastextlen.nr_big;
+					x.nr_small += lastextlen.nr_small;
 				}
 				while (t->Next != NULL)
 					t = t->Next;
@@ -502,14 +522,16 @@ void ReadCategoryXML(xmlNode * a_node)
 
 			//<nl>
 			if(!xmlStrcasecmp(cur_node->name,(xmlChar*)"nl")){
-				x=2;
+				x.pixels = 2;
+				x.nr_big = x.nr_small = 0;
 				y+=(size)?DEFAULT_FONT_Y_LEN:SMALL_FONT_Y_LEN;
 			}
 
 			//<nlkx>
 			if(!xmlStrcasecmp(cur_node->name,(xmlChar*)"nlkx")){
 				y+=(size)?DEFAULT_FONT_Y_LEN:SMALL_FONT_Y_LEN;
-				x-=lastextlen;
+				x.nr_big -= lastextlen.nr_big;
+				x.nr_small -= lastextlen.nr_small;
 			}
 
 			//<Image>
@@ -527,10 +549,12 @@ void ReadCategoryXML(xmlNode * a_node)
 				if(!I->mouseover){
 					I->x=x;
 					I->y=y;
-					I->xend=x+xend;
+					I->xend.pixels = x.pixels + xend.pixels;
+					I->xend.nr_big = x.nr_big + xend.nr_big;
+					I->xend.nr_small = x.nr_small + xend.nr_small;
 					I->yend=y+yend;
 					if(xposupdate)
-						x+=xend;
+						x = I->xend;
 					if(yposupdate)
 						y+=yend-((size)?DEFAULT_FONT_Y_LEN:SMALL_FONT_Y_LEN);
 
@@ -574,10 +598,12 @@ void ReadCategoryXML(xmlNode * a_node)
 				if(!I->mouseover){
 					I->x=x;
 					I->y=y;
-					I->xend=x+(tsize*((float)ssize/100));
+					I->xend.pixels = x.pixels + (int)(tsize*((float)ssize/100));
+					I->xend.nr_big = x.nr_big;
+					I->xend.nr_small = x.nr_small;
 					I->yend=y+(tsize*((float)ssize/100));
 					if(xposupdate)
-						x+=(tsize*((float)ssize/100));
+						x = I->xend;
 					if(yposupdate)
 						y+=(tsize*((float)ssize/100))-((size)?DEFAULT_FONT_Y_LEN:SMALL_FONT_Y_LEN);
 				}else{
@@ -623,10 +649,12 @@ void ReadCategoryXML(xmlNode * a_node)
 				if(!I->mouseover){
 					I->x=x;
 					I->y=y;
-					I->xend=x+(tsize*((float)ssize/100));
+					I->xend.pixels = x.pixels + (int)(tsize*((float)ssize/100));
+					I->xend.nr_big = x.nr_big;
+					I->xend.nr_small = x.nr_small;
 					I->yend=y+(tsize*((float)ssize/100));
 					if(xposupdate)
-						x+=(tsize*((float)ssize/100));
+						x = I->xend;
 					if(yposupdate)
 						y+=(tsize*((float)ssize/100))-((size)?DEFAULT_FONT_Y_LEN:SMALL_FONT_Y_LEN);
 				}else{
@@ -665,9 +693,18 @@ void ReadCategoryXML(xmlNode * a_node)
 				MY_XMLSTRCPY(&T->ref, ss);
 				while(t->Next!=NULL)t=t->Next;
 				t->Next=T;
-				lastextlen = get_string_width_ui((const unsigned char*)T->text,
-					T->size ? 1.0 : DEFAULT_SMALL_RATIO);
-				x += lastextlen;
+				if (T->size)
+				{
+					lastextlen.nr_big = strlen(T->text);
+					lastextlen.nr_small = 0;
+				}
+				else
+				{
+					lastextlen.nr_big = 0;
+					lastextlen.nr_small = strlen(T->text);
+				}
+				x.nr_big += lastextlen.nr_big;
+				x.nr_small += lastextlen.nr_small;
 				save_raw_page_link(T->ref, T->text, numpage);
 			}
 			// See if this is the new maximum length.
@@ -1230,17 +1267,40 @@ static int resize_encyclopedia_handler(window_info *win, int new_width, int new_
 	return 0;
 }
 
+static int change_encyclopedia_font_handler(window_info *win, font_cat cat)
+{
+	int min_width, min_height;
+
+	if (cat != win->font_category)
+		return 0;
+	min_width = max2i(63 * win->small_font_max_len_x, 46 * win->default_font_max_len_x);
+	min_height = max2i(24 * win->small_font_len_y, 20 * win->default_font_len_y);
+	set_window_min_size(win->window_id, min_width, min_height);
+fpi = 1;
+	return 1;
+}
+
 void fill_encyclopedia_win (int window_id)
 {
 	encyclopedia_win = window_id;
 
 	set_window_custom_scale(window_id, &custom_scale_factors.help);
+	set_window_font_category(window_id, ENCYCLOPEDIA_FONT);
 	set_window_handler (window_id, ELW_HANDLER_DISPLAY, &display_encyclopedia_handler);
 	set_window_handler (window_id, ELW_HANDLER_CLICK, &click_encyclopedia_handler);
 	set_window_handler (window_id, ELW_HANDLER_RESIZE, &resize_encyclopedia_handler);
+	set_window_handler(window_id, ELW_HANDLER_FONT_CHANGE, &change_encyclopedia_font_handler);
 
 	encyclopedia_scroll_id = vscrollbar_add_extended(window_id, encyclopedia_scroll_id, NULL,
 		0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 30, Page[currentpage].max_y);
+
+	if (window_id >= 0 && window_id < windows_list.num_windows)
+	{
+		window_info *win = &windows_list.window[window_id];
+		int min_width = max2i(63 * win->small_font_max_len_x, 46 * win->default_font_max_len_x);
+		int min_height = max2i(24 * win->small_font_len_y, 20 * win->default_font_len_y);
+		set_window_min_size(window_id, min_width, min_height);
+	}
 
 	if (numpage<=0)
 	{

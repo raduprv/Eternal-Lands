@@ -20,6 +20,7 @@ int tab_stats_x = 150;
 int tab_stats_y = 70;
 unsigned tab_selected = 0;
 static int tab_stats_font_changed = 0;
+static int tab_help_font_changed = 0;
 
 int tab_help_win = -1;
 int tab_help_collection_id = 17;
@@ -119,10 +120,21 @@ void display_tab_stats ()
 static int ui_scale_help_handler(window_info *win)
 {
 	int tab_tag_height = 0;
-	int new_width = (int)(0.5 + win->current_scale * 510);
-	int new_height = (int)(0.5 + win->current_scale * 360);
+	int new_width = 0; //(int)(0.5 + win->current_scale * 510);
+	int new_height = 0; //(int)(0.5 + win->current_scale * 360);
 	widget_list *w = widget_find (win->window_id, tab_help_collection_id);
+	const tab_collection *col = (const tab_collection*)w->widget_info;
 
+	for (int i = 0; i < col->nr_tabs; ++i)
+	{
+		int id = col->tabs[i].content_id;
+		if (id >= 0 && id < windows_list.num_windows)
+		{
+			const window_info *win = &windows_list.window[id];
+			new_width = max2i(new_width, win->min_len_x);
+			new_height = max2i(new_height, win->min_len_y);
+		}
+	}
 
 	widget_set_size(win->window_id, tab_help_collection_id, win->current_scale * DEFAULT_SMALL_RATIO);
 	tab_tag_height = tab_collection_calc_tab_height(win->current_scale * DEFAULT_SMALL_RATIO);
@@ -135,6 +147,28 @@ static int ui_scale_help_handler(window_info *win)
 	return 1;
 }
 
+/*!
+ * This display handler is only used to react to font changes *after* the
+ * changes in the content windows have been handled. We cannot handle this in
+ * the font change handler itself, as it is called before the font change
+ * handlers of the child windows.
+ */
+static int display_help_handler(window_info *win)
+{
+	if (!tab_help_font_changed)
+		return 0;
+	ui_scale_help_handler(win);
+	tab_help_font_changed = 0;
+	return 1;
+}
+
+static int change_help_font_handler(window_info* win, font_cat cat)
+{
+	if (cat != ENCYCLOPEDIA_FONT && cat != RULES_FONT)
+		return 0;
+	tab_help_font_changed = 1;
+	return 1;
+}
 
 void display_tab_help ()
 {
@@ -142,7 +176,9 @@ void display_tab_help ()
 	{
 		tab_help_win = create_window (win_help, -1, 0, tab_help_x, tab_help_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 		set_window_custom_scale(tab_help_win, &custom_scale_factors.help);
+		set_window_handler(tab_help_win, ELW_HANDLER_DISPLAY, &display_help_handler);
 		set_window_handler(tab_help_win, ELW_HANDLER_UI_SCALE, &ui_scale_help_handler );
+		set_window_handler(tab_help_win, ELW_HANDLER_FONT_CHANGE, &change_help_font_handler);
 		tab_help_collection_id = tab_collection_add_extended (tab_help_win, tab_help_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, 0, 0, 0, DEFAULT_SMALL_RATIO, 0.77f, 0.57f, 0.39f, 3);
 
 		fill_help_win (tab_add (tab_help_win, tab_help_collection_id, tab_help, 0, 0, ELW_USE_UISCALE));

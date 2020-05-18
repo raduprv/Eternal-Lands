@@ -2121,3 +2121,13 @@ int get_window_scroll_pos(int win_id)
 	else
 		return 0;
 }
+
+int set_window_font_category(int win_id, font_cat cat)
+{
+	if (win_id < 0 || win_id >= windows_list.num_windows) return 0;
+	if (windows_list.window[win_id].window_id != win_id) return 0;
+
+	windows_list.window[win_id].font_category = cat;
+	change_window_font(&windows_list.window[win_id], cat);
+	return 1;
+}
