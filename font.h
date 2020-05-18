@@ -76,6 +76,18 @@ public:
 		CENTER,
 		RIGHT
 	};
+	//! Bit flags controlling the look of the text
+	enum Flags
+	{
+		//! If set, draw a shadow around the text
+		SHADOW = 1 << 0,
+		//! If set, ignore color characters in the text
+		IGNORE_COLOR = 1 << 1,
+		//! If set, draw a semi-transparent background behind the text
+		HELP = 1 << 2,
+		//! If set, draw ellipsis (...) after truncated strings
+		ELLIPSIS = 1 << 3
+	};
 
 	TextDrawOptions();
 
@@ -84,9 +96,10 @@ public:
 	float zoom() const { return _zoom; }
 	float line_spacing() const { return _line_spacing; }
 	Alignment alignment() const { return _alignment; }
-	bool shadow() const { return _shadow; }
-	bool ignore_color() const { return _ignore_color; }
-	bool is_help() const { return _is_help; }
+	bool shadow() const { return _flags & SHADOW; }
+	bool ignore_color() const { return _flags & IGNORE_COLOR; }
+	bool is_help() const { return _flags & HELP; }
+	bool ellipsis() const { return _flags & ELLIPSIS; }
 
 	bool has_foreground_color() const { return _fg_r >= 0.0; }
 	bool has_background_color() const { return _bg_r >= 0.0; }
@@ -129,7 +142,10 @@ public:
 
 	TextDrawOptions& set_shadow(bool shadow=true)
 	{
-		_shadow = shadow;
+		if (shadow)
+			_flags |= SHADOW;
+		else
+			_flags &= ~SHADOW;
 		return *this;
 	}
 
@@ -151,13 +167,28 @@ public:
 
 	TextDrawOptions& set_ignore_color(bool ignore=true)
 	{
-		_ignore_color = ignore;
+		if (ignore)
+			_flags |= IGNORE_COLOR;
+		else
+			_flags &= ~IGNORE_COLOR;
 		return *this;
 	}
 
 	TextDrawOptions& set_help(bool is_help=true)
 	{
-		_is_help = is_help;
+		if (is_help)
+			_flags |= HELP;
+		else
+			_flags &= ~HELP;
+		return *this;
+	}
+
+	TextDrawOptions& set_ellipsis(bool ellipsis=true)
+	{
+		if (ellipsis)
+			_flags |= ELLIPSIS;
+		else
+			_flags &= ~ELLIPSIS;
 		return *this;
 	}
 
@@ -170,11 +201,9 @@ private:
 	float _zoom;
 	float _line_spacing;
 	Alignment _alignment;
-	bool _shadow;
+	Uint32 _flags;
 	float _fg_r, _fg_g, _fg_b;
 	float _bg_r, _bg_g, _bg_b;
-	bool _ignore_color;
-	bool _is_help;
 };
 
 class Font
@@ -335,7 +364,7 @@ public:
 	 *
 	 * Calculate the width in pixels of the string \a text of length \a len,
 	 * including the spacing after the final character, when drawn in this font
-	 * with scale factor zoom.
+	 * with scale factor \a zoom.
 	 * NOTE: this function assumes the string is a single line. Newline
 	 * characters are ignored, and having them in the middle of string will
 	 * result in a too large value for the width.
@@ -346,6 +375,23 @@ public:
 	 * \return The width of the text in pixels
 	 */
 	int line_width_spacing(const unsigned char* text, size_t len, float zoom) const;
+	/*!
+	 * Calculate the width of a string with final spacing
+	 *
+	 * Calculate the width in pixels of the string \a text including the spacing
+	 * after the final character, when drawn in this font with scale factor \a zoom.
+	 * NOTE: this function assumes the string is a single line. Newline
+	 * characters are ignored, and having them in the middle of string will
+	 * result in a too large value for the width.
+	 *
+	 * \param text The string for which to calculate the length
+	 * \param zoom The scale factor for the text
+	 * \return The width of the text in pixels
+	 */
+	int line_width_spacing(const ustring& text, float zoom) const
+	{
+		return line_width_spacing(text.data(), text.length(), zoom);
+	}
 	/*!
 	 * Calculate the dimensions of a block of text
 	 *
@@ -468,6 +514,7 @@ private:
 	static const int default_line_height = 18;
 	static const int ttf_point_size = 32;
 	static const std::array<int, nr_glyphs> letter_freqs;
+	static const ustring ellipsis;
 
 	//! Flags indicating the status and properties of a font
 	enum Flags
@@ -672,7 +719,7 @@ private:
 	 * \param after_color  On exit, the last color character clipped after the
 	 * 	remaining string, or 0 if there was none.
 	 * \param width        On exit, the remaining width of the clipped string.
-	 * \return Begin and end indices of the clipped substring
+	 * \return Start index and length of the clipped substring
 	 */
 	std::pair<size_t, size_t> clip_line(const unsigned char* text, size_t len,
 		const TextDrawOptions &options, unsigned char &before_color, unsigned char &after_color,
@@ -1142,6 +1189,8 @@ void draw_string_shadowed_zoomed_right(int x, int y, const unsigned char* text,
 void draw_string_shadowed_width(int x, int y, const unsigned char* text,
 	int max_width, int max_lines, float fr, float fg, float fb,
 	float br, float bg, float bb);
+void draw_string_zoomed_ellipsis_font(int x, int y, const unsigned char *text,
+	int max_width, int max_lines, font_cat cat, float text_zoom);
 
 static __inline__ void draw_string_small_zoomed(int x, int y,
 	const unsigned char* text, int max_lines, float zoom)

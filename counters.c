@@ -838,25 +838,16 @@ static int display_counters_handler(window_info *win)
 			float zoom = win->current_scale * DEFAULT_SMALL_RATIO;
 			safe_snprintf((char*)buffer, sizeof(buffer), "%u", counters[i][j].n_session);
 			max_width = session_x_end - name_x_start - get_string_width_ui(buffer, zoom);
-			/* if the name would overlap the session total, truncate it */
+
+			draw_string_zoomed_ellipsis_font(x, y, (const unsigned char*)counters[i][j].name,
+				max_width, 1, win->font_category, win->current_scale * DEFAULT_SMALL_RATIO);
 			if (get_string_width_ui((unsigned char*)counters[i][j].name, zoom) > max_width)
 			{
-				const char *append_str = "... ";
-				size_t dest_max_len = strlen(counters[i][j].name) + strlen(append_str) + 1;
-				char *used_name = malloc(dest_max_len);
-				truncated_string(used_name, counters[i][j].name, dest_max_len, append_str,
-					max_width, UI_FONT, zoom);
-				draw_string_small_zoomed(x, y, (unsigned char*)used_name, 1, win->current_scale);
 				/* if the mouse is over this line and its truncated, tooltip to full name */
 				if (mouseover_entry_y >= y && mouseover_entry_y < y+step_y) {
 					show_help(counters[i][j].name, -TAB_MARGIN, win->len_y+10+TAB_MARGIN, win->current_scale);
 					counters_show_win_help = 0;
 				}
-				free(used_name);
-			}
-			else
-			{
-				draw_string_small_zoomed(x, y, (unsigned char*)counters[i][j].name, 1, win->current_scale);
 			}
 		}
 		y += step_y;

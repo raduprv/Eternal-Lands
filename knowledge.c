@@ -257,6 +257,7 @@ int display_knowledge_handler(window_info *win)
 			1, win->current_scale);
 		mouse_over_progress_bar=0;
 	}
+
 	// Draw knowledges
 	for(i = 2*scroll; y < (booklist_y_len - booklist_y_step); i++)
 	{
@@ -281,24 +282,17 @@ int display_knowledge_handler(window_info *win)
 			glColor3f (1.0f*colour_brightness, 1.0f*colour_brightness, 1.0f*colour_brightness);
 
 		/* truncate the string if it is too long */
-		if (get_string_width_ui((unsigned char*)knowledge_list[i].name, font_ratio) > max_name_x)
+		draw_string_zoomed_ellipsis_font(x, y, (const unsigned char*)knowledge_list[i].name,
+			max_name_x, 1, win->font_category, font_ratio);
+		if (get_string_width_ui((const unsigned char*)knowledge_list[i].name, font_ratio) > max_name_x)
 		{
-			const char *append_str = "... ";
-			size_t dest_max_len = strlen(knowledge_list[i].name)+strlen(append_str)+1;
-			char *used_name = (char *)malloc(dest_max_len);
-			truncated_string(used_name, knowledge_list[i].name, dest_max_len, append_str,
-				max_name_x, UI_FONT, font_ratio);
-			draw_string_zoomed(x, y, (unsigned char*)used_name,1,font_ratio);
 			/* if the mouse is over this line and its truncated, tooltip to full name */
 			if (knowledge_list[i].mouse_over)
 			{
 				show_help(knowledge_list[i].name, -TAB_MARGIN, win->len_y+10+TAB_MARGIN, win->current_scale);
 				know_show_win_help = 0;
 			}
-			free(used_name);
 		}
-		else
-			draw_string_zoomed(x,y,(unsigned char*)knowledge_list[i].name,1,font_ratio);
 
 		if (i % 2 == 0)
 		{

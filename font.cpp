@@ -91,9 +91,8 @@ size_t FontManager::font_idxs[NR_FONT_CATS] = { 0, 0, 0, 2, 0, 3, 0 };
 float FontManager::font_scales[NR_FONT_CATS] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 
 TextDrawOptions::TextDrawOptions(): _max_width(window_width), _max_lines(0),
-	_zoom(1.0), _line_spacing(1.0), _alignment(LEFT), _shadow(false),
-	_fg_r(-1.0), _fg_g(-1.0), _fg_b(-1.0), _bg_r(-1.0), _bg_g(-1.0), _bg_b(-1.0),
-	_ignore_color(false), _is_help(false) {}
+	_zoom(1.0), _line_spacing(1.0), _alignment(LEFT), _flags(0),
+	_fg_r(-1.0), _fg_g(-1.0), _fg_b(-1.0), _bg_r(-1.0), _bg_g(-1.0), _bg_b(-1.0) {}
 
 void TextDrawOptions::use_background_color() const
 {
@@ -139,6 +138,7 @@ const std::array<int, Font::nr_glyphs> Font::letter_freqs = {
 	 153,  142,  348,  533,    8,   54,  300,  173,  534,  556,  148,    6,  487,  492,
 	 648,  190,   77,  119,   15,  125,    8,    0,    0,    0,    0
 };
+const ustring Font::ellipsis = reinterpret_cast<const unsigned char*>("...");
 
 Font::Font(size_t i): _font_name(), _file_name(), _flags(0),
 	_texture_width(256), _texture_height(256),
@@ -635,14 +635,25 @@ std::pair<size_t, size_t> Font::clip_line(const unsigned char *text, size_t len,
 	width = line_width_spacing(text, len, options.zoom());
 
 	if (width <= options.max_width())
+		// Entire string fits
 		return std::make_pair(0, len);
+
+	int trunc_width = options.max_width();
+	int ellipsis_width = 0;
+	if (options.ellipsis())
+	{
+		ellipsis_width = line_width_spacing(ellipsis, options.zoom());
+		if (options.alignment() == TextDrawOptions::Alignment::CENTER)
+			ellipsis_width *= 2;
+		trunc_width -= ellipsis_width;
+	}
 
 	size_t start = 0, end = len;
 	switch (options.alignment())
 	{
 		case TextDrawOptions::Alignment::LEFT:
 		{
-			while (end > 0 && width > options.max_width())
+			while (end > 0 && width > trunc_width)
 			{
 				unsigned char ch = text[--end];
 				if (is_color(ch) && !after_color)
@@ -654,7 +665,7 @@ std::pair<size_t, size_t> Font::clip_line(const unsigned char *text, size_t len,
 		}
 		case TextDrawOptions::Alignment::RIGHT:
 		{
-			while (start < len && width > options.max_width())
+			while (start < len && width > trunc_width)
 			{
 				unsigned char ch = text[start++];
 				if (is_color(ch))
@@ -668,7 +679,7 @@ std::pair<size_t, size_t> Font::clip_line(const unsigned char *text, size_t len,
 		{
 			int d_left = 0, d_right = 0;
 			size_t start = 0, end = len;
-			while (start < end && width - d_left - d_right > options.max_width())
+			while (start < end && width - d_left - d_right > trunc_width)
 			{
 				if (d_left < d_right)
 				{
@@ -692,7 +703,8 @@ std::pair<size_t, size_t> Font::clip_line(const unsigned char *text, size_t len,
 		}
 	}
 
-	return std::make_pair(start, end);
+	width = options.max_width();
+	return std::make_pair(start, end-start);
 }
 
 void Font::draw(const unsigned char* text, size_t len, int x, int y,
@@ -719,13 +731,13 @@ CHECK_GL_ERRORS();
 	{
 		size_t line_len = memcspn(text + start, len-start,
 			reinterpret_cast<const unsigned char*>("\r\n"), 2);
-		std::pair<size_t, size_t> range = clip_line(text + start, line_len, options,
-			before_color, after_color, line_width);
+		size_t clipped_off, clipped_line_len;
+		std::tie(clipped_off, clipped_line_len) = clip_line(text + start, line_len,
+			options, before_color, after_color, line_width);
+		bool draw_ellipsis = options.ellipsis() && clipped_line_len < line_len;
+		int ellipsis_width = draw_ellipsis ? line_width_spacing(ellipsis, options.zoom()) : 0;
 
-		const unsigned char* line = text + start + range.first;
-		size_t clipped_line_len = range.second - range.first;
 		int x_left;
-
 		switch (options.alignment())
 		{
 			case TextDrawOptions::Alignment::LEFT:   x_left = x; break;
@@ -735,9 +747,23 @@ CHECK_GL_ERRORS();
 
 		if (options.is_help())
 			draw_help_background(x_left, y, line_width, line_height);
+
 		if (before_color)
 			set_color(from_color_char(before_color));
-		draw_line(line, clipped_line_len, x_left, y, options);
+
+		int x_draw = x_left;
+		if (draw_ellipsis && options.alignment() != TextDrawOptions::Alignment::LEFT)
+		{
+			draw_line(ellipsis.data(), ellipsis.length(), x_draw, y, options);
+			x_draw += ellipsis_width;
+		}
+		draw_line(text + start + clipped_off, clipped_line_len, x_draw, y, options);
+		if (draw_ellipsis && options.alignment() != TextDrawOptions::Alignment::RIGHT)
+		{
+			x_draw = x_left + line_width - ellipsis_width;
+			draw_line(ellipsis.data(), ellipsis.length(), x_draw, y, options);
+		}
+
 		if (after_color)
 			set_color(from_color_char(after_color));
 
@@ -1505,6 +1531,15 @@ void draw_string_shadowed_width(int x, int y, const unsigned char* text,
 		.set_zoom(float(max_width) / text_width);
 	FontManager::get_instance().draw(FontManager::Category::UI_FONT, text,
 		strlen(reinterpret_cast<const char*>(text)), x, y, options);
+}
+
+void draw_string_zoomed_ellipsis_font(int x, int y, const unsigned char *text,
+	int max_width, int max_lines, font_cat cat, float zoom)
+{
+	TextDrawOptions options = TextDrawOptions().set_max_width(max_width)
+		.set_max_lines(max_lines).set_zoom(zoom).set_ellipsis();
+	FontManager::get_instance().draw(cat, text, strlen(reinterpret_cast<const char*>(text)),
+		x, y, options);
 }
 
 void show_help_colored_scaled(const unsigned char *text, int x, int y,

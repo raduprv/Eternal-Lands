@@ -715,36 +715,6 @@ char *substitute_char_with_string(const char *str, char **out_str, char to_sub, 
 }
 
 
-/* Return a copy of source truncated to be no longer than max_len_x including the append_str on the end. */
-char *truncated_string(char *dest, const char *source, size_t dest_max_len,
-	const char *append_str, float max_len_x, font_cat cat, float font_ratio)
-{
-	float string_width = 0;
-	size_t dest_len = 0;
-	float append_len_x = get_string_width_zoom((unsigned char*)append_str, cat, font_ratio);
-	char *dest_p = dest;
-
-	while ((*source != '\0') && (dest_len < dest_max_len-1))
-	{
-		float char_width = get_char_width_zoom(*source, cat, font_ratio);
-		if ((string_width + char_width) > (max_len_x - append_len_x))
-			break;
-		*dest_p++ = *source++;
-		dest_len++;
-		string_width += char_width;
-	}
-
-	while ((*append_str != '\0') && (dest_len < dest_max_len-1))
-	{
-		*dest_p++ = *append_str++;
-		dest_len++;
-	}
-
-	*dest_p = '\0';
-	return dest;
-}
-
-
 /* Remove whte space from the end of the supplied string.
  * The string must be writable.
  * Return the pointer to the string.
