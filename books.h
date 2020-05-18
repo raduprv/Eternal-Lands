@@ -810,14 +810,22 @@ public:
 	 * \param book The book to display
 	 */
 	void display(Book& book);
+	//! Bring the book window to the front
+	void select() const
+	{
+		if (get_show_window(_book_win))
+			select_window(_book_win);
+		else if (get_show_window(_paper_win))
+			select_window(_paper_win);
+	}
 	//! Close the book window
-	void close()
+	void close() const
 	{
 		hide_window(_book_win);
 		hide_window(_paper_win);
 	}
 	//! Close the book window if it currently displays the book identified by \a id
-	void close_book(int id)
+	void close_book(int id) const
 	{
 		if (_book_id == id)
 			close();
@@ -937,13 +945,15 @@ public:
 	 *
 	 * \param id The identification number of the book to check for.
 	 */
-	void close_book(int id) { _window.close_book(id); }
+	void close_book(int id) const { _window.close_book(id); }
 	//! Return whether the book window is open and showing the book with ID \a id
 	bool book_is_open(int id) const { return _window.book_is_open(id); }
 	//! Return whether the book window is currently open
 	bool window_is_open() const { return _window.is_open(); }
+	//! Bring the book window to the foreground
+	void select_window() const { _window.select(); }
 	//! Close the book window uncondtionally
-	void close_window() { _window.close(); }
+	void close_window() const { _window.close(); }
 
 	/*!
 	 * Parse book data from the server
@@ -1074,6 +1084,11 @@ int book_is_open(int id);
  * \return 1 if the book window is currently open, 0 otherwise
  */
 int book_window_is_open();
+/*!
+ * \ingroup books
+ * \brief Bring the book window to the front.
+ */
+void select_book_window();
 /*!
  * \ingroup books
  * \brief Close the book window.

@@ -43,6 +43,7 @@ static char highlight_string[KNOWLEDGE_NAME_SIZE] = "";
 static int know_show_win_help = 0;
 static int mouse_over_progress_bar = 0;
 static int selected_book = -1;
+static int book_clicked = 0;
 
 static const int displayed_book_rows = 16;
 static const int info_lines = 5;
@@ -79,12 +80,10 @@ static int add_knowledge_book_image(int window_id)
 	return image_add_extended(window_id, 0, NULL, 0, 0, 0, 0, WIDGET_DISABLED, 1.0, 1.0, 1.0, 1.0, id, u, v, uend, vend, 0.05f);
 }
 
-int handle_knowledge_book(void)
+static int handle_knowledge_book(void)
 {
 	open_book(knowledge_book_id + 10000);
-	//FIXME!
-	// Bring the new window to the front               <----- Doesn't work. Is in front for the first usage, but not after that
-// 	select_window(book_win);
+	book_clicked = 1;
 	return 1;
 }
 
@@ -527,6 +526,21 @@ static int change_knowledge_font_handler(window_info *win, font_cat font)
 	return 1;
 }
 
+// Handler to bring the book window to the front if the book icon has been
+// clicked. We can't do this from click handler itself, as the windows handling
+// code selects this (the knowledge) window after it has successfully handled
+// the click. SO we set a flag in the click handler, and check it after each
+// draw.
+static int post_display_knowledge_handler(window_info *win)
+{
+	if (book_clicked)
+	{
+		select_book_window();
+		book_clicked = 0;
+	}
+	return 1;
+}
+
 void fill_knowledge_win(int window_id)
 {
 	if (window_id >= 0 && window_id < windows_list.num_windows)
@@ -538,6 +552,7 @@ void fill_knowledge_win(int window_id)
 	set_window_handler(window_id, ELW_HANDLER_MOUSEOVER, &mouseover_knowledge_handler );
 	set_window_handler(window_id, ELW_HANDLER_RESIZE, &resize_knowledge_handler );
 	set_window_handler(window_id, ELW_HANDLER_FONT_CHANGE, &change_knowledge_font_handler);
+	set_window_handler(window_id, ELW_HANDLER_POST_DISPLAY, &post_display_knowledge_handler);
 
 	knowledge_scroll_id = vscrollbar_add_extended (window_id, knowledge_scroll_id, NULL, 0,  0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, (knowledge_count+1)/2-displayed_book_rows);
 	knowledge_book_image_id = add_knowledge_book_image(window_id);

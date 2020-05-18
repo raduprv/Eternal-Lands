@@ -1239,6 +1239,11 @@ int book_window_is_open()
 	return BookCollection::get_instance().window_is_open();
 }
 
+void select_book_window()
+{
+	BookCollection::get_instance().select_window();
+}
+
 void close_book_window()
 {
 	BookCollection::get_instance().close_window();
