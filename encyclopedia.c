@@ -59,7 +59,8 @@ int common_encyclopedia_display_handler(window_info *win, size_t the_page, int t
 	// NOTE: Assuming monospaced font here
 	int cw_big = win->default_font_max_len_x;
 	int cw_small = win->small_font_max_len_x;
-	float cw_y_fac = (float)get_line_height(win->font_category, 1.0) / DEFAULT_FONT_Y_LEN;
+	float x_fac = (float)cw_big / DEFAULT_FONT_X_LEN;
+	float y_fac = (float)win->default_font_len_y / DEFAULT_FONT_Y_LEN;
 	while(t)
 	{
 		float zoom = t->size ? win->current_scale : win->current_scale * DEFAULT_SMALL_RATIO;
@@ -67,10 +68,10 @@ int common_encyclopedia_display_handler(window_info *win, size_t the_page, int t
 		int xlen = get_string_width_zoom((const unsigned char*)t->text,
 			win->font_category, zoom);
 
-		int scaled_x = (int)(0.5 + win->current_scale * t->x.pixels)
+		int scaled_x = (int)(0.5 + x_fac * t->x.pixels)
 			+ cw_big * t->x.nr_big + cw_small * t->x.nr_small;
-		int scaled_y = (int)(0.5 + win->current_scale * (cw_y_fac * (t->y - 2) + 2));
-		int scaled_j = (int)(0.5 + win->current_scale * cw_y_fac * j);
+		int scaled_y = (int)(0.5 + y_fac * (t->y - 2) + win->current_scale * 2);
+		int scaled_j = (int)(0.5 + y_fac * j);
 
 		if((scaled_y-scaled_j > 0) && (scaled_y+ylen-scaled_j < win->len_y ))
 		{
@@ -120,13 +121,13 @@ CHECK_GL_ERRORS();
 	glColor3f(1.0f,1.0f,1.0f);
 	while(i)
 	{
-		int scaled_x = (int)(0.5 + win->current_scale * i->x.pixels)
+		int scaled_x = (int)(0.5 + x_fac * i->x.pixels)
 			+ cw_big * i->x.nr_big + cw_small * i->x.nr_small;
-		int scaled_xend = (int)(0.5 + win->current_scale * i->xend.pixels)
+		int scaled_xend = (int)(0.5 + x_fac * i->xend.pixels)
 			+ cw_big * i->xend.nr_big + cw_small * i->xend.nr_small;
-		int scaled_y = (int)(0.5 + win->current_scale * (cw_y_fac * (i->y - 2) + 2));
-		int scaled_yend = (int)(0.5 + win->current_scale * (cw_y_fac * (i->yend - 2) + 2));
-		int scaled_j = (int)(0.5 + win->current_scale * cw_y_fac * j);
+		int scaled_y = (int)(0.5 + y_fac * (i->y - 2) + win->current_scale * 2);
+		int scaled_yend = (int)(0.5 + y_fac * (i->yend - 2) + win->current_scale * 2);
+		int scaled_j = (int)(0.5 + y_fac * j);
 
 		if((scaled_y-scaled_j > 0) && (scaled_yend-scaled_j < win->len_y ))
 		{
