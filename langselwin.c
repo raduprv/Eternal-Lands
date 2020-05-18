@@ -33,7 +33,7 @@
 #include "rules.h"
 #include "sound.h"
 
-typedef struct { char *code; char *text; char *save; char *note; } LANGSEL_LIST_NODE;
+typedef struct { char *code; unsigned char *text; char *save; char *note; } LANGSEL_LIST_NODE;
 
 int langsel_rootwin = -1;
 int have_saved_langsel = 0;
@@ -97,14 +97,15 @@ static int langsel_load_list(void)
 			}
 
 			new_lang_node = (LANGSEL_LIST_NODE *)malloc(sizeof(LANGSEL_LIST_NODE));
-			new_lang_node->note = new_lang_node->code = new_lang_node->text = new_lang_node->save = NULL;
+			new_lang_node->note = new_lang_node->code = new_lang_node->save = NULL;
+			new_lang_node->text = NULL;
 
 			if (note)
 				MY_XMLSTRCPY(&new_lang_node->note, note);
 			if (code)
 				MY_XMLSTRCPY(&new_lang_node->code, code);
 			if (text)
-				MY_XMLSTRCPY(&new_lang_node->text, text);
+				MY_XMLSTRCPY((char**)&new_lang_node->text, text);
 			if (save)
 				MY_XMLSTRCPY(&new_lang_node->save, save);
 			if (def)
@@ -311,32 +312,49 @@ static int langsel_display_error_handler(window_info *win)
 	static int first_time = 1;
 	static int save_button = -1;
 	static int quit_button = -1;
-	static char *message = "The language selection file langsel.xml could\n"
-						   "not be read. Either click Save to accept the\n"
-						   "default language (English), or click Quit if\n"
-						   "you wish to manually correct this error.\n\n"
-						   "The error message was:";
+	static int sep = 0;
+	static const unsigned char *message = (const unsigned char*)
+		"The language selection file langsel.xml could\n"
+		"not be read. Either click Save to accept the\n"
+		"default language (English), or click Quit if\n"
+		"you wish to manually correct this error.\n\n"
+		"The error message was:\n\n";
+
+	const unsigned char* error
+		= (const unsigned char *)(langsel_list_error ? langsel_list_error : "Unknown error");
 
 	if (first_time)
 	{
-		widget_list *save_widget = NULL;
+		int width, height, button_width, button_height;
 
-		save_button = button_add_extended(langsel_win, 100, NULL, 10, win->len_y-40,
-			0, 0, 0, 1.0f, langsel_winRGB[3][0], langsel_winRGB[3][1], langsel_winRGB[3][2], "Save");
+		sep = (int)(0.5 + win->current_scale * 10);
+
+		save_button = button_add_extended(langsel_win, 100, NULL, 0, 0,
+			0, 0, 0, win->current_scale, langsel_winRGB[3][0], langsel_winRGB[3][1], langsel_winRGB[3][2], "Save");
 		widget_set_OnClick(langsel_win, save_button, langsel_save_handler);
-		save_widget = widget_find(langsel_win, save_button);
+		button_width = widget_get_width(langsel_win, save_button);
+		button_height = widget_get_height(langsel_win, save_button);
 
-		quit_button = button_add_extended(langsel_win, 101, NULL, 20 + save_widget->len_x, win->len_y-40,
-			0, 0, 0, 1.0f, langsel_winRGB[3][0], langsel_winRGB[3][1], langsel_winRGB[3][2], "Quit");
+		quit_button = button_add_extended(langsel_win, 101, NULL, 0, 0,
+			0, 0, 0, win->current_scale, langsel_winRGB[3][0], langsel_winRGB[3][1], langsel_winRGB[3][2], "Quit");
 		widget_set_OnClick(langsel_win, quit_button, langsel_quit_handler);
+
+		get_buf_dimensions(message, strlen((const char*)message), win->font_category,
+			win->current_scale * DEFAULT_SMALL_RATIO, &width, &height);
+		width += 2 * sep;
+		height += button_height + 3 * sep;
+
+		resize_window(langsel_win, width, height);
+		widget_move(langsel_win, save_button, sep, win->len_y - button_height - sep);
+		widget_move(langsel_win, quit_button, sep + button_width + sep,
+			win->len_y - button_height - sep);
 
 		first_time = 0;
 		return 1;
 	}
 
-	draw_string_small_zoomed(10, 10, (unsigned char *)message, 6, 1.0);
-	draw_string_small_zoomed(10, 10 + SMALL_FONT_Y_LEN * 6,
-		(unsigned char *)((langsel_list_error) ?langsel_list_error : "Unknown error"), 1, 1.0);
+	draw_string_small_zoomed(sep, sep, (const unsigned char *)message, 6, win->current_scale);
+	draw_string_small_zoomed(sep, sep + win->small_font_len_y * 6, error, 1, win->current_scale);
 
 	return 1;
 }
@@ -347,9 +365,9 @@ static int display_langsel_handler(window_info *win)
 {
 	static float font_zoom = 1.5;
 	static float text_zoom = 1.0;
+	static float line_step = 0;
 	static int num_lang_lines = 0;
 	static float max_str_width = 0;
-	static float line_step = DEFAULT_FONT_Y_LEN;
 	static list_node_t *first_node = NULL;
 	static LANGSEL_LIST_NODE *last_langsel_chosen_node = NULL;
 	static int save_button = -1;
@@ -372,7 +390,7 @@ static int display_langsel_handler(window_info *win)
 	if (first_time)
 	{
 		widget_list *save_widget = NULL;
-		char *longest_string = NULL;
+		unsigned char *longest_string = NULL;
 		int non_line_height = 0;
 		float sizefrac = 0.80;
 
@@ -383,7 +401,8 @@ static int display_langsel_handler(window_info *win)
 		for (local_head = langsel_list; local_head; local_head = local_head->next)
 		{
 			LANGSEL_LIST_NODE *new_lang_node = (LANGSEL_LIST_NODE *)local_head->data;
-			float str_width = get_string_width_ui((unsigned char*)new_lang_node->text, 1.0);
+			float str_width = get_string_width_zoom(new_lang_node->text, win->font_category,
+				font_zoom);
 			if (str_width > max_str_width)
 			{
 				max_str_width = str_width;
@@ -392,24 +411,20 @@ static int display_langsel_handler(window_info *win)
 			num_lang_lines++;
 			first_node = local_head;
 		}
-		max_str_width *= DEFAULT_FONT_X_LEN / 12.0;
 
 		/* if required, change the zoom based on a reasonable limit of using all the main window */
 		if ((font_zoom * max_str_width) > (sizefrac * window_width))
+		{
 			font_zoom = sizefrac * window_width / max_str_width;
+			max_str_width = get_string_width_zoom(longest_string, win->font_category, font_zoom);
+		}
 
 		text_zoom = font_zoom / 1.5;
-		note_height = SMALL_FONT_Y_LEN * text_zoom * langsel_num_note_lines;
+		note_height = get_line_height(win->font_category, text_zoom) * langsel_num_note_lines;
 		scroll_width = ELW_BOX_SIZE * text_zoom;
 
 		/* number of pixels used per language line drawn */
-		line_step = 3 + line_step * font_zoom;
-
-		/* the above calc will potentiall be wrong due to rounding
-		   errors each time a char is printed - so we have to recalculate again! */
-		max_str_width = 0;
-		while (*longest_string != '\0')
-			max_str_width += 0.5 + get_char_width_ui(*longest_string++, font_zoom);
+		line_step = 3 + get_line_height(win->font_category, font_zoom);
 
 		/* set the window width now things about the width are known */
 		winwidth = max_str_width + 2 * winsep;
@@ -420,10 +435,7 @@ static int display_langsel_handler(window_info *win)
 
 		/* calculate the window height assuming we can display all languages without a scroll bar */
 		max_lang_lines = num_lang_lines;
-		if (save_widget->len_y > note_height)
-			non_line_height = 3 * winsep + save_widget->len_y;
-		else
-			non_line_height = 3 * winsep + note_height;
+		non_line_height = 3 * winsep + max2i(save_widget->len_y, note_height);
 		winheight = non_line_height + line_step * max_lang_lines;
 
 		/* if the height is too big, reduce it to something reasonable and add a scroll bar */
@@ -451,7 +463,7 @@ static int display_langsel_handler(window_info *win)
 	if (second_time || (langsel_chosen_node && (last_langsel_chosen_node != langsel_chosen_node)))
 	{
 		widget_list *save_widget = NULL;
-		char *save = "Save";
+		const char *save = "Save";
 
 		/* get the save button text, using the default if required */
 		if (langsel_chosen_node->save)
@@ -549,7 +561,7 @@ static int display_langsel_handler(window_info *win)
 			glColor3f(langsel_winRGB[0][0],langsel_winRGB[0][1],langsel_winRGB[0][2]);
 
 		/* draw the line of text and step down for the next */
-		draw_string_zoomed(winsep, current_y, (unsigned char *)new_lang_node->text, 1, font_zoom);
+		draw_string_zoomed(winsep, current_y, new_lang_node->text, 1, font_zoom);
 		current_y += line_step;
 	}
 
