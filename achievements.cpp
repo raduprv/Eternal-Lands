@@ -158,9 +158,9 @@ class Achievements_System
 		int get_size(void) const { return size; }
 		void set_current_scale(float scale) { current_scale = scale; }
 		float get_current_scale(void) const { return current_scale; }
-		int get_font_max_x(void) const
+		int get_font_avg_x(void) const
 		{
-			return get_max_char_width_zoom(UI_FONT, current_scale * DEFAULT_SMALL_RATIO);
+			return get_avg_char_width_zoom(UI_FONT, current_scale * DEFAULT_SMALL_RATIO);
 		}
 		int get_font_width(const std::string& str)
 		{
@@ -419,7 +419,7 @@ int Achievements_System::texture(size_t index) const
 //	Return the width of the popup window
 int Achievements_System::get_child_win_x(void) const
 {
-	int proposed = get_font_max_x() * max_title_len + 2 * get_border();
+	int proposed = get_font_avg_x() * max_title_len + 2 * get_border();
 	return std::max(proposed, main_win_x());
 }
 
