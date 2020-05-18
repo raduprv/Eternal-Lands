@@ -151,9 +151,9 @@ void Book::layout_text(ContentType content_type, const ustring& text,
 	ustring lines;
 	int nr_lines;
 	int x = 0;
+	TextDrawOptions options = TextDrawOptions().set_max_width(page_width).set_zoom(zoom);
 	std::tie(lines, nr_lines) = FontManager::get_instance().reset_soft_breaks(
-		BOOK_FONT, text.data(), text.capacity(), text.length(), zoom,
-		page_width, 0, 0);
+		BOOK_FONT, text, options);
 	if (content_type == AUTHOR)
 	{
 		lines = to_color_char(c_orange3) + lines + static_cast<unsigned char>('\n');
@@ -228,6 +228,7 @@ std::vector<std::pair<TextBlock, bool>> Book::caption_text(const BookImage& imag
 
 	float caption_zoom = zoom * DEFAULT_SMALL_RATIO;
 	int caption_line_height = line_height(caption_zoom);
+	TextDrawOptions options = TextDrawOptions().set_zoom(caption_zoom);
 	ustring lines;
 	int nr_lines;
 	int nr_lines_side = (image.height() + caption_line_height - 1) / caption_line_height;
@@ -244,18 +245,18 @@ std::vector<std::pair<TextBlock, bool>> Book::caption_text(const BookImage& imag
 		lines = text;
 		for (int i = 0; i < nr_lines_side; ++i)
 		{
+			options.set_max_width(left_width);
 			std::tie(lines, nr_lines) = FontManager::get_instance().reset_soft_breaks(
-				BOOK_FONT, lines.data(), lines.capacity(), lines.length(), caption_zoom,
-				left_width, 0, 0);
+				BOOK_FONT, lines, options);
 			size_t off = find_line(lines, 1);
 			left_str.append(lines.substr(0, off));
 			lines = lines.substr(off);
 			if (lines.empty())
 				break;
 
+			options.set_max_width(right_width);
 			std::tie(lines, nr_lines) = FontManager::get_instance().reset_soft_breaks(
-				BOOK_FONT, lines.data(), lines.capacity(), lines.length(), caption_zoom,
-				right_width, 0, 0);
+				BOOK_FONT, lines, options);
 			off = find_line(lines, 1);
 			right_str.append(lines.substr(0, off));
 			lines = lines.substr(off);
@@ -273,13 +274,12 @@ std::vector<std::pair<TextBlock, bool>> Book::caption_text(const BookImage& imag
 	else if (do_left)
 	{
 		int x = 0;
-		int side_width = image.x() - image_margin;
+		options.set_max_width(image.x() - image_margin);
 		std::tie(lines, nr_lines) = FontManager::get_instance().reset_soft_breaks(
-			BOOK_FONT, text.data(), text.capacity(), text.length(), caption_zoom,
-			side_width, 0, 0);
+			BOOK_FONT, text, options);
 		if (nr_lines <= nr_lines_side)
 		{
-			TextBlock block(lines, CAPTION, x, image.y(), side_width,
+			TextBlock block(lines, CAPTION, x, image.y(), options.max_width(),
 				nr_lines_side * caption_line_height, zoom);
 			res.push_back(std::make_pair(block, false));
 			lines.clear();
@@ -287,7 +287,7 @@ std::vector<std::pair<TextBlock, bool>> Book::caption_text(const BookImage& imag
 		else
 		{
 			size_t off = find_line(lines, nr_lines_side);
-			TextBlock block(lines.substr(0, off-1), CAPTION, x, image.y(), side_width,
+			TextBlock block(lines.substr(0, off-1), CAPTION, x, image.y(), options.max_width(),
 				nr_lines * caption_line_height, zoom);
 			res.push_back(std::make_pair(block, false));
 			lines = lines.substr(off);
@@ -296,13 +296,12 @@ std::vector<std::pair<TextBlock, bool>> Book::caption_text(const BookImage& imag
 	else if (do_right)
 	{
 		int x = image.x() + image.width() + image_margin;
-		int side_width = page_width - x;
+		options.set_max_width(page_width - x);
 		std::tie(lines, nr_lines) = FontManager::get_instance().reset_soft_breaks(
-			BOOK_FONT, text.data(), text.capacity(), text.length(), caption_zoom,
-			side_width, 0, 0);
+			BOOK_FONT, text, options);
 		if (nr_lines <= nr_lines_side)
 		{
-			TextBlock block(lines, CAPTION, x, image.y(), side_width,
+			TextBlock block(lines, CAPTION, x, image.y(), options.max_width(),
 				nr_lines * caption_line_height, zoom);
 			res.push_back(std::make_pair(block, false));
 			lines.clear();
@@ -310,7 +309,7 @@ std::vector<std::pair<TextBlock, bool>> Book::caption_text(const BookImage& imag
 		else
 		{
 			size_t off = find_line(lines, nr_lines_side);
-			TextBlock block(lines.substr(0, off-1), CAPTION, x, image.y(), side_width,
+			TextBlock block(lines.substr(0, off-1), CAPTION, x, image.y(), options.max_width(),
 				nr_lines_side * caption_line_height, zoom);
 			res.push_back(std::make_pair(block, false));
 			lines = lines.substr(off);
@@ -322,13 +321,13 @@ std::vector<std::pair<TextBlock, bool>> Book::caption_text(const BookImage& imag
 	}
 
 	int y = image.y() + nr_lines_side * caption_line_height;
+	options.set_max_width(page_width);
 	bool new_page = false;
 	while (!lines.empty())
 	{
 		int max_nr_lines = (page_height - y) / caption_line_height;
 		std::tie(lines, nr_lines) = FontManager::get_instance().reset_soft_breaks(
-			BOOK_FONT, lines.data(), lines.capacity(), lines.length(), caption_zoom,
-			page_width, 0, 0);
+			BOOK_FONT, lines, options);
 		if (nr_lines <= max_nr_lines)
 		{
 			TextBlock block(lines, CAPTION, 0, y, page_width,

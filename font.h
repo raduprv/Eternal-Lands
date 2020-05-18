@@ -361,30 +361,52 @@ public:
 	std::pair<int, int> dimensions(const unsigned char* text, size_t len, float zoom) const;
 
 	/*!
-	* \ingroup text_font
-	* \brief   Recompute where the line breaks in a string should occur
-	*
-	* Recomputes the positions in string \a text where line breaks should be
-	* placed so that the string fits into a window. This alters the contents of
-	* \a text by placing '\r' characters at the positions where the line should
-	* be broken. The optional parameter cursor contains the offset of the cursor
-	* position in the text, it will be updated as new line breaks are inserted.
-	* The optional parameter max_line_width can be used to retrieve the largest
-	* width in pixels of the lines in \a text after rewrapping.
-	*
-	* \param text       the string
-	* \param text_len   the actual length of the string
-	* \param text_size  the size of the string buffer
-	* \param zoom       the scale factor for the text
-	* \param max_width  the width of the text window
-	* \param cursor     pointer to the cursor position, or NULL if not used
-	* \param max_line_width pointer the maximum line length after wrapping, or NULL if not used
-	*
-	* \return The wrapped text, and the new number of lines in the text
-	*/
+	 * \ingroup text_font
+	 * \brief   Recompute where the line breaks in a string should occur
+	 *
+	 * Recomputes the positions in string \a text where line breaks should be
+	 * placed so that the string fits into a window. This creates a new string
+	 * from the the contents of \a text and inserts '\r' characters at the
+	 * positions where the line should be broken. The parameter \a options
+	 * specifies how the text will be drawn, currently only the \c zoom and
+	 * \c max_width field are used int this function. The optional parameter \a cursor
+	 * contains the offset of the cursor position in the text; it will be updated
+	 * as new line breaks are inserted. The optional parameter \a max_line_width
+	 * can be used to retrieve the largest width in pixels of the lines in \a text
+	 * after rewrapping.
+	 *
+	 * \param text       the string
+	 * \param text_len   the actual length of the string
+	 * \param options    the options defining the layout of the text
+	 * \param cursor     pointer to the cursor position, or NULL if not used
+	 * \param max_line_width pointer the maximum line length after wrapping, or NULL if not used
+	 *
+	 * \return The wrapped text, and the new number of lines in the text
+	 */
 	std::pair<ustring, int> reset_soft_breaks(const unsigned char *text,
-		size_t text_size, size_t text_len, float zoom, int max_width,
+		size_t text_len, const TextDrawOptions& options,
 		int *cursor = 0, float *max_line_width = 0);
+	/*!
+	 * \ingroup text_font
+	 * \brief   Recompute where the line breaks in a string should occur
+	 *
+	 * Recomputes the positions in string \a text where line breaks should be
+	 * placed so that the string fits into a window. This creates a new string
+	 * from the the contents of \a text and inserts '\r' characters at the
+	 * positions where the line should be broken. The parameter \a options
+	 * specifies how the text will be drawn, currently only the \c zoom and
+	 * \c max_width field are used int this function.
+	 *
+	 * \param text       the string
+	 * \param options    the options defining the layout of the text
+	 *
+	 * \return The wrapped text, and the new number of lines in the text
+	 */
+	std::pair<ustring, int> reset_soft_breaks(const ustring& text,
+		const TextDrawOptions& options)
+	{
+		return reset_soft_breaks(text.data(), text.length(), options, nullptr, nullptr);
+	}
 
 	/*!
 	 * Draw a text string
@@ -857,36 +879,58 @@ public:
 	}
 
 	/*!
-	* \ingroup text_font
-	* \brief   Recompute where the line breaks in a string should occur
-	*
-	* Recomputes the positions in string \a text where line breaks should be
-	* placed so that the string fits into a window when drawn by the font for
-	* category \a cat. This alters the contents of \a text by placing '\r'
-	* characters at the positions where the line should be broken. The optional
-	* parameter \a cursor contains the offset of the cursor position in the text,
-	* it will be updated as new line breaks are inserted. The optional parameter
-	* \a max_line_width can be used to retrieve the largest width in pixels of
-	* the lines in \a text after rewrapping.
-	*
-	* \param cat        the font category in which the string is to be drawn
-	* \param text       the string
-	* \param text_len   the actual length of the string
-	* \param text_size  the size of the string buffer
-	* \param text_zoom  the scale factor for the text
-	* \param max_width  the width of the text window
-	* \param cursor     pointer to the cursor position, or NULL if not used
-	* \param max_line_width pointer the maximum line length after wrapping, or NULL if not used
-	*
-	* \return The wrapped text, and the new number of lines in the text
-	*/
+	 * \ingroup text_font
+	 * \brief   Recompute where the line breaks in a string should occur
+	 *
+	 * Recomputes the positions in string \a text where line breaks should be
+	 * placed so that the string fits into a window. This creates a new string
+	 * from the the contents of \a text and inserts '\r' characters at the
+	 * positions where the line should be broken. The parameter \a options
+	 * specifies how the text will be drawn, currently only the \c zoom and
+	 * \c max_width field are used int this function. The optional parameter \a cursor
+	 * contains the offset of the cursor position in the text; it will be updated
+	 * as new line breaks are inserted. The optional parameter \a max_line_width
+	 * can be used to retrieve the largest width in pixels of the lines in \a text
+	 * after rewrapping.
+	 *
+	 * \param cat        the font category in which the string is to be drawn
+	 * \param text       the string
+	 * \param text_len   the actual length of the string
+	 * \param options    the options defining the layout of the text
+	 * \param cursor     pointer to the cursor position, or NULL if not used
+	 * \param max_line_width pointer the maximum line length after wrapping, or NULL if not used
+	 *
+	 * \return The wrapped text, and the new number of lines in the text
+	 */
 	std::pair<ustring, int> reset_soft_breaks(Category cat, const unsigned char *text,
-		size_t text_size, size_t text_len, float text_zoom, int max_width,
+		size_t text_len, const TextDrawOptions& options,
 		int *cursor = 0, float *max_line_width = 0)
 	{
-		float zoom = text_zoom * font_scales[cat];
-		return get(cat).reset_soft_breaks(text, text_size, text_len, zoom,
-			max_width, cursor, max_line_width);
+		TextDrawOptions cat_options = TextDrawOptions(options).scale_zoom(font_scales[cat]);
+		return get(cat).reset_soft_breaks(text, text_len, cat_options, cursor, max_line_width);
+	}
+	/*!
+	 * \ingroup text_font
+	 * \brief   Recompute where the line breaks in a string should occur
+	 *
+	 * Recomputes the positions in string \a text where line breaks should be
+	 * placed so that the string fits into a window. This creates a new string
+	 * from the the contents of \a text and inserts '\r' characters at the
+	 * positions where the line should be broken. The parameter \a options
+	 * specifies how the text will be drawn, currently only the \c zoom and
+	 * \c max_width field are used int this function.
+	 *
+	 * \param cat        the font category in which the string is to be drawn
+	 * \param text       the string
+	 * \param options    the options defining the layout of the text
+	 *
+	 * \return The wrapped text, and the new number of lines in the text
+	 */
+	std::pair<ustring, int> reset_soft_breaks(Category cat, const ustring& text,
+		const TextDrawOptions& options)
+	{
+		TextDrawOptions cat_options = TextDrawOptions(options).scale_zoom(font_scales[cat]);
+		return get(cat).reset_soft_breaks(text, cat_options);
 	}
 
 	/*!

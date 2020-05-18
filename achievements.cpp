@@ -50,7 +50,7 @@ class Achievement
 		void prepare(int win_x, float zoom, int border, bool force=false);
 		size_t get_num_lines() const { return nr_lines; }
 	private:
-		std::string text;
+		ustring text;
 		std::string title;
 		size_t achievement_id;
 		size_t image_id;
@@ -71,7 +71,7 @@ Achievement::Achievement(int achievement_id, int image_id, const char *title, co
 	this->achievement_id = achievement_id;
 	this->image_id = image_id;
 	this->title = title;
-	this->text = text;
+	this->text = (const unsigned char*)text;
 }
 
 
@@ -80,7 +80,8 @@ Achievement::Achievement(int achievement_id, int image_id, const char *title, co
 void Achievement::show(std::ostream & out) const
 {
 	out << "ID=" << achievement_id << " IMG=" << image_id;
-	out << " Title=[" << title << "] Text=[" << text << "]";
+	out << " Title=[" << title << "] Text=["
+		<< reinterpret_cast<const char*>(text.c_str()) << "]";
 }
 
 
@@ -90,9 +91,10 @@ void Achievement::prepare(int win_x, float zoom, int border, bool force)
 {
 	if (!prepared || force)
 	{
+		TextDrawOptions options = TextDrawOptions().set_max_width(win_x - 2 * border)
+			.set_zoom(zoom);
 		std::tie(lines, nr_lines) = FontManager::get_instance().reset_soft_breaks(
-			FontManager::Category::UI_FONT, reinterpret_cast<const unsigned char*>(text.c_str()),
-			text.length(), text.length(), zoom, win_x - 2 * border, nullptr, nullptr);
+			FontManager::Category::UI_FONT, text, options);
 		prepared = true;
 	}
 }

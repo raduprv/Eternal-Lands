@@ -1096,9 +1096,10 @@ void Quest_Entry::rewrap_lines()
 	// divide text into lines that fit within the window width
 	ustring wrapped_text;
 	int nr_lines;
+	TextDrawOptions options = TextDrawOptions().set_max_width(content_width)
+		.set_zoom(content_zoom);
 	std::tie(wrapped_text, nr_lines) = FontManager::get_instance().reset_soft_breaks(
-		UI_FONT, reinterpret_cast<const unsigned char*>(full_text.c_str()), full_text.capacity(),
-		full_text.length(), content_zoom, content_width, 0, 0);
+		UI_FONT, full_text, options);
 
 	_lines.clear();
 	size_t off = 0;

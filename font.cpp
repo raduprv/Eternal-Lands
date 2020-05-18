@@ -394,11 +394,10 @@ std::pair<int, int> Font::dimensions(const unsigned char* str, size_t len, float
 }
 
 std::pair<ustring, int> Font::reset_soft_breaks(const unsigned char *text,
-	size_t text_size, size_t text_len, float zoom, int max_width, int *cursor,
-	float *max_line_width)
+	size_t text_len, const TextDrawOptions& options, int *cursor, float *max_line_width)
 {
-	int block_width = std::ceil(_block_width * _scale * zoom);
-	if (!text || text_size == 0 || max_width < block_width)
+	int block_width = std::ceil(_block_width * _scale * options.zoom());
+	if (!text || options.max_width() < block_width)
 		return std::make_pair(ustring(), 0);
 
 	std::basic_string<unsigned char> wrapped_text;
@@ -430,9 +429,9 @@ std::pair<ustring, int> Font::reset_soft_breaks(const unsigned char *text,
 			// also has to take the cursor into account. Perhaps this can at
 			// some point be improved, but for now, rather be pessimistic and
 			// don't lose the last character in the line.
-			if (cur_width + block_width <= max_width)
+			if (cur_width + block_width <= options.max_width())
 			{
-				cur_width += width_spacing(c, zoom);
+				cur_width += width_spacing(c, options.zoom());
 			}
 			else
 			{
@@ -467,7 +466,7 @@ std::pair<ustring, int> Font::reset_soft_breaks(const unsigned char *text,
 
 		if (max_line_width)
 		{
-			cur_width = line_width(text + start, end - start, zoom);
+			cur_width = line_width(text + start, end - start, options.zoom());
 			*max_line_width = std::max(*max_line_width, float(cur_width));
 		}
 
@@ -475,9 +474,7 @@ std::pair<ustring, int> Font::reset_soft_breaks(const unsigned char *text,
 	}
 
 	if (cursor)
-	{
-		*cursor = std::min(*cursor + diff_cursor, int(text_size) - 1);
-	}
+		*cursor += diff_cursor;
 
 	return std::make_pair(wrapped_text, nr_lines);
 }
@@ -1391,12 +1388,14 @@ void get_buf_dimensions(const unsigned char* str, size_t len, font_cat cat, floa
 int reset_soft_breaks(unsigned char *text, int len, int size, font_cat cat,
 	float text_zoom, int width, int *cursor, float *max_line_width)
 {
+	TextDrawOptions options = TextDrawOptions().set_max_width(width).set_zoom(text_zoom);
 	auto res = FontManager::get_instance().reset_soft_breaks(
-		static_cast<FontManager::Category>(cat), text, size, len, text_zoom, width,
-		cursor, max_line_width);
+		static_cast<FontManager::Category>(cat), text, len, options, cursor, max_line_width);
 
 	size_t new_len = res.first.copy(text, size_t(size)-1);
 	text[new_len] = '\0';
+	if (cursor && *cursor >= size)
+		*cursor = size - 1;
 
 	return res.second;
 }
@@ -1404,11 +1403,10 @@ void put_small_colored_text_in_box_zoomed(unsigned char color,
 	const unsigned char* text, int len, int width,
 	unsigned char* buffer, float text_zoom)
 {
-	// FIXME: no size specified for either buffer. Pass unlimited size,
-	// and hope for the best...
-	size_t size = ustring::npos;
+	TextDrawOptions options = TextDrawOptions().set_max_width(width)
+		.set_zoom(text_zoom * DEFAULT_SMALL_RATIO);
 	auto res = FontManager::get_instance().reset_soft_breaks(FontManager::Category::UI_FONT,
-		text, size, len, text_zoom * DEFAULT_SMALL_RATIO, width, 0, 0);
+		text, len, options, nullptr, nullptr);
 	// If we don't end on a newline, add one.
 	// TODO: check if that's necessary.
 	if (res.first.back() != '\n')
@@ -1417,7 +1415,9 @@ void put_small_colored_text_in_box_zoomed(unsigned char color,
 	size_t new_len = 0;
 	if (!is_color(res.first.front()))
 		buffer[new_len++] = color;
-	new_len += res.first.copy(buffer + new_len, size);
+	// FIXME: no size specified for either buffer. Pass unlimited size,
+	// and hope for the best...
+	new_len += res.first.copy(buffer + new_len, ustring::npos);
 	buffer[new_len] = '\0';
 }
 
