@@ -270,7 +270,8 @@ static int display_advice_handler (window_info *win)
 	if ((lastw!=window_width) || (lasth!=window_height) || (last_scale != win->current_scale))
 	{
 		int len_x = 2 * sep
-			+ get_string_width_ui((const unsigned char*)newchar_warning, win->current_scale);
+			+ get_string_width_zoom((const unsigned char*)newchar_warning,
+				win->font_category, win->current_scale);
 		int len_y = (int)(2*sep + win->default_font_len_y);
 		int pos_x = (int)((window_width - len_x - hud_x) / 2);
 		resize_window(win->window_id, len_x, len_y);
@@ -310,13 +311,13 @@ static int display_advice_handler (window_info *win)
 	// Either always on or 1 in 4 off.
 	if (!flash || (flash & 3))
 	{
-		int width = get_string_width_ui((const unsigned char*)help_str,
-			win->current_scale * DEFAULT_SMALL_RATIO);
+		int width = get_string_width_zoom((const unsigned char*)help_str,
+			win->font_category, win->current_scale_small);
 		int y = window_height - HUD_MARGIN_Y - 2*sep - win->small_font_len_y;
 		if (width < window_width - hud_x) //Does everything fit in one line?
 		{
 			show_help_colored_scaled_centered((const unsigned char*)help_str,
-				win->len_x / 2, y, 1.0f, 1.0f, 1.0f, win->current_scale * DEFAULT_SMALL_RATIO);
+				win->len_x / 2, y, 1.0f, 1.0f, 1.0f, win->current_scale_small);
 		}
 		else
 		{
@@ -329,7 +330,7 @@ static int display_advice_handler (window_info *win)
 			help_str[i] = '\r';
 			show_help_colored_scaled_centered((const unsigned char*)help_str,
 				win->len_x / 2, y - win->small_font_len_y, 1.0f, 1.0f, 1.0f,
-				win->current_scale * DEFAULT_SMALL_RATIO);
+				win->current_scale_small);
 			help_str[i] = ' ';
 		}
 	}
@@ -998,7 +999,7 @@ static int specs[3] = {0, 1, 2};
 static int init_namepass_handler(window_info * win)
 {
 	float r = 0.77f, g = 0.57f, b = 0.39f; //widget color
-	float very_small = DEFAULT_SMALL_RATIO  * win->current_scale; //font sizes
+	float very_small = win->current_scale_small; //font sizes
 	float bit_small = 0.9f * win->current_scale;
 	float normal = 1.0f * win->current_scale;
 	int free_widget_id = 8;
@@ -1110,7 +1111,8 @@ static int mouseover_newchar_book_handler(widget_list *w, int mx, int my)
 	{
 		window_info *win = &windows_list.window[w->window_id];
 		int size = win->small_font_max_len_x
-			+ get_string_width_ui((const unsigned char*)tooltip, win->current_scale * DEFAULT_SMALL_RATIO);
+			+ get_string_width_zoom((const unsigned char*)tooltip,
+				win->font_category, win->current_scale_small);
 		tooltip_x = (mx + size <= hud_x) ? mx : hud_x - size;
 		tooltip_y = my + win->small_font_len_y;
 	}
@@ -1136,7 +1138,8 @@ static int mouseover_p2p_race_handler(widget_list *w, int mx, int my)
 {
 	window_info *win = &windows_list.window[w->window_id];
 	int size = win->small_font_max_len_x
-		+ get_string_width_ui((const unsigned char*)p2p_race, win->current_scale * DEFAULT_SMALL_RATIO);
+		+ get_string_width_zoom((const unsigned char*)p2p_race,
+			win->font_category, win->current_scale_small);
 	newchar_mouseover = 1; //we are over an p2p race
 	newchar_mouseover_time = cur_time; //we are currently over something
 	tooltip = p2p_race;
@@ -1432,10 +1435,51 @@ static int mouseover_color_race_handler(window_info *win, int mx, int my)
 	return 1;
 }
 
+static void draw_box(const char* name, font_cat cat, int x, int y, int w, int h,
+	float size, int rad)
+{
+	int l=0;
+
+	if(name){
+		l = (w-10-get_string_width_zoom((const unsigned char*)name, cat, size))/2.0f;
+		draw_string_zoomed(x+l+5, y-size*DEFAULT_FONT_Y_LEN/2, (unsigned char*)name, 1, size);
+	}
+
+	glDisable(GL_TEXTURE_2D);
+	if(l>0){
+		glBegin(GL_LINE_STRIP);
+			glVertex2i(x+l, y);
+			draw_circle_ext(x, y, rad, 5, 90, 180);
+			draw_circle_ext(x, y+h-2*rad, rad, 5, 180, 270);
+			draw_circle_ext(x+w-2*rad, y+h-2*rad, rad, 5, 270, 360);
+			draw_circle_ext(x+w-2*rad, y, rad, 5, 0, 90);
+			glVertex2i(x+w-l, y);
+		glEnd();
+	} else if(l<0){
+		glBegin(GL_LINE_STRIP);
+			glVertex2i(x+l, y);
+			draw_circle_ext(x+rad, y+h-rad, rad, 5, 180, 270);
+			draw_circle_ext(x+w-2*rad, y+h-rad, rad, 5, 270, 360);
+			glVertex2i(x+w-l, y);
+		glEnd();
+	} else {
+		glBegin(GL_LINE_LOOP);
+			draw_circle_ext(x+rad, y, rad, 5, 90, 180);
+			draw_circle_ext(x+rad, y+h-rad, rad, 5, 180, 270);
+			draw_circle_ext(x+w-2*rad, y+h-rad, rad, 5, 270, 360);
+			draw_circle_ext(x+w-2*rad, y, rad, 5, 0, 90);
+		glEnd();
+	}
+	glEnable(GL_TEXTURE_2D);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
+}
+
 static int box_draw(widget_list *w)
 {
 	glColor3f(w->r, w->g, w->b); //draw a box
-	draw_box(w->widget_info, w->pos_x, w->pos_y, w->len_x, w->len_y, w->size, 0);
+	draw_box(w->widget_info, w->fcat, w->pos_x, w->pos_y, w->len_x, w->len_y, w->size, 0);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -1448,7 +1492,7 @@ static int init_color_race_handler(window_info * win)
 {
 	float r = 0.77f, g = 0.57f, b = 0.39f; //widget color
 	float rh = 0.32f, gh = 0.23f, bh = 0.15f; //highlighted color
-	float very_small = DEFAULT_SMALL_RATIO * win->current_scale; //font sizes
+	float very_small = win->current_scale_small; //font sizes
 	float bit_small = 0.9f * win->current_scale;
 	float normal = 1.0f * win->current_scale;
 	int free_widget_id = 8; //next free widget id

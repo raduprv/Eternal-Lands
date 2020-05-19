@@ -1081,9 +1081,10 @@ namespace ItemLists
 			glColor3f(1.0f,1.0f,1.0f);
 
 			const unsigned char* name = reinterpret_cast<const unsigned char*>(lists[i].get_name().c_str());
-			int name_width = get_string_width_ui(name, win->current_scale * DEFAULT_SMALL_RATIO);
+			int name_width = get_string_width_zoom(name, win->font_category,
+				win->current_scale_small);
 			draw_string_zoomed_width_font(get_list_gap(), pos_y, name, max_name_width, 1,
-				UI_FONT, win->current_scale * DEFAULT_SMALL_RATIO);
+				win->font_category, win->current_scale_small);
 			if (name_width > max_name_width && i == name_under_mouse)
 			{
 				show_help(reinterpret_cast<const char*>(name),

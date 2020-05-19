@@ -164,8 +164,8 @@ class Achievements_System
 		}
 		int get_font_width(const std::string& str)
 		{
-			return get_string_width_ui(reinterpret_cast<const unsigned char*>(str.c_str()),
-				current_scale * DEFAULT_SMALL_RATIO);
+			return get_string_width_zoom(reinterpret_cast<const unsigned char*>(str.c_str()),
+				UI_FONT, current_scale * DEFAULT_SMALL_RATIO);
 		}
 		int get_font_y() const
 		{

@@ -494,8 +494,11 @@ static int display_buddy_change(_buddy *buddy)
 		buddy_type_input_id = multiselect_add(buddy_change_win, NULL,
 			2 * buddy_border_space + tmp_width, buddy_change_y_len, buddy_change_x_len - tmp_width - 3 * buddy_border_space);
 		for (i=0; i<num_type_labels; i++)
+		{
 			multiselect_button_add_extended(buddy_change_win, buddy_type_input_id,
-				0, i * 25 * win->current_scale, 0, type_labels_text[i], DEFAULT_SMALL_RATIO * win->current_scale, i==0);
+				0, i * 25 * win->current_scale, 0, type_labels_text[i],
+				win->current_scale_small, i==0);
+		}
 		multiselect_set_selected(buddy_change_win, buddy_type_input_id, buddy->type);
 
 		widget_set_OnMouseover(buddy_change_win, type_label_id, type_onmouseover_handler);
@@ -566,7 +569,7 @@ static int ui_scale_accept_handler(window_info *win)
 
 	widget_resize(win->window_id, accept_windows[current_window].checkbox, win->small_font_len_y, win->small_font_len_y);
 	widget_move(win->window_id, accept_windows[current_window].checkbox, buddy_border_space, win_height);
-	widget_set_size(win->window_id, label_id, win->current_scale* DEFAULT_SMALL_RATIO);
+	widget_set_size(win->window_id, label_id, win->current_scale_small);
 	widget_move(win->window_id, label_id, 2 * buddy_border_space + win->small_font_len_y, win_height);
 	win_height += widget_get_height(win->window_id, accept_windows[current_window].checkbox) + 2 * buddy_border_space;
 
@@ -621,7 +624,7 @@ static int display_accept_buddy(char *name)
 		accept_windows[current_window].checkbox = checkbox_add(win->window_id, NULL,
 			0, 0, win->small_font_len_y, win->small_font_len_y, NULL);
 		label_id = label_add_extended(win->window_id, label_id, NULL,
-			0, 0, 0, win->current_scale * DEFAULT_SMALL_RATIO, -1, -1, -1, buddy_add_to_list_str);
+			0, 0, 0, win->current_scale_small, -1, -1, -1, buddy_add_to_list_str);
 		widget_set_OnClick(win->window_id, label_id, click_accept_checkbox_label);
 	}
 
@@ -662,14 +665,14 @@ static int ui_scale_buddy_handler(window_info *win)
 {
 	int button_len_y = (int)(0.5 + win->current_scale * 20);
 	buddy_border_space = (int)(0.5 + win->current_scale * 5);
-	buddy_name_step_y = get_line_height(UI_FONT, win->current_scale * DEFAULT_SMALL_RATIO);
+	buddy_name_step_y = get_line_height(win->font_category, win->current_scale_small);
 
 	buddy_menu_x_len = win->box_size + MAX_USERNAME_LENGTH * win->small_font_max_len_x + 2 * buddy_border_space;
 	buddy_menu_y_len = button_len_y + 2* buddy_border_space + num_displayed_buddies * buddy_name_step_y;
 
 	request_box_start_x = buddy_menu_x_len - win->box_size
-		- get_string_width_ui((const unsigned char*)buddy_request_str,
-			win->current_scale * DEFAULT_SMALL_RATIO)
+		- get_string_width_zoom((const unsigned char*)buddy_request_str,
+			win->font_category, win->current_scale_small)
 		- 2 * win->small_font_max_len_x;
 
 	resize_window(win->window_id, buddy_menu_x_len, buddy_menu_y_len);

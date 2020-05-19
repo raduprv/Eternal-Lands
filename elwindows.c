@@ -99,14 +99,12 @@ void update_window_scale(window_info *win, float scale_factor)
 	if (win->flags & ELW_USE_UISCALE)
 	{
 		win->current_scale = scale_factor * ((win->custom_scale == NULL) ?1.0f : *win->custom_scale);
+		win->current_scale_small = win->current_scale * DEFAULT_SMALL_RATIO;
 		win->box_size = (int)(0.5 + win->current_scale * ELW_BOX_SIZE);
 		win->title_height = (int)(0.5 + win->current_scale * ELW_TITLE_HEIGHT);
-		win->small_font_max_len_x = get_max_char_width_zoom(win->font_category,
-			win->current_scale * DEFAULT_SMALL_RATIO);
-		win->small_font_len_y = get_line_height(win->font_category,
-			win->current_scale * DEFAULT_SMALL_RATIO);
-		win->default_font_max_len_x = get_max_char_width_zoom(win->font_category,
-			win->current_scale);
+		win->small_font_max_len_x = get_max_char_width_zoom(win->font_category, win->current_scale_small);
+		win->small_font_len_y = get_line_height(win->font_category, win->current_scale_small);
+		win->default_font_max_len_x = get_max_char_width_zoom(win->font_category, win->current_scale);
 		win->default_font_len_y = get_line_height(win->font_category, win->current_scale);
 	}
 	else
@@ -114,8 +112,7 @@ void update_window_scale(window_info *win, float scale_factor)
 		win->current_scale = 1.0;
 		win->box_size = ELW_BOX_SIZE;
 		win->title_height = ELW_TITLE_HEIGHT;
-		win->small_font_max_len_x = get_max_char_width_zoom(win->font_category,
-			DEFAULT_SMALL_RATIO);
+		win->small_font_max_len_x = get_max_char_width_zoom(win->font_category, DEFAULT_SMALL_RATIO);
 		win->small_font_len_y = get_line_height(win->font_category, DEFAULT_SMALL_RATIO);
 		win->default_font_max_len_x = get_max_char_width_zoom(win->font_category, 1.0);
 		win->default_font_len_y = get_line_height(win->font_category, 1.0);
@@ -151,14 +148,10 @@ static void change_window_font(window_info *win, font_cat cat)
 	{
 		if (win->flags & ELW_USE_UISCALE)
 		{
-			win->small_font_max_len_x = get_max_char_width_zoom(win->font_category,
-				win->current_scale * DEFAULT_SMALL_RATIO);
-			win->small_font_len_y = get_line_height(win->font_category,
-				win->current_scale * DEFAULT_SMALL_RATIO);
-			win->default_font_max_len_x = get_max_char_width_zoom(win->font_category,
-				win->current_scale);
-			win->default_font_len_y = get_line_height(win->font_category,
-				win->current_scale);
+			win->small_font_max_len_x = get_max_char_width_zoom(win->font_category, win->current_scale_small);
+			win->small_font_len_y = get_line_height(win->font_category, win->current_scale_small);
+			win->default_font_max_len_x = get_max_char_width_zoom(win->font_category, win->current_scale);
+			win->default_font_len_y = get_line_height(win->font_category, win->current_scale);
 		}
 		else
 		{
@@ -1192,8 +1185,8 @@ int	draw_window_title(window_info *win)
 	// draw the name of the window
 	if(win->flags&ELW_TITLE_NAME)
 		{
-			int	len = get_string_width_ui((unsigned char*)win->window_name,
-				win->current_scale*DEFAULT_SMALL_RATIO);
+			int	len = get_string_width_zoom((unsigned char*)win->window_name,
+				UI_FONT, win->current_scale_small);
 			int	x_pos = (win->len_x-len)/2;
 
 			glColor4f(0.0f,0.0f,0.0f,1.0f);

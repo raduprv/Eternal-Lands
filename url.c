@@ -476,29 +476,9 @@ CHECK_GL_ERRORS();
 			else
 				glColor3f(1.0f,1.0f,1.0f);
 
-			/* calculate the length of string we can display */
-			while((*thetext != '\0') && (string_width < url_win_max_string_width))
-			{
-				float char_width = get_char_width_ui(*thetext++, url_win_text_zoom);
-				if ((string_width+char_width) < url_win_max_string_width)
-				{
-					dsp_string_len++;
-					string_width += char_width;
-				}
-			}
-
-			/* if the string length will fit in the window, just draw it */
-			if (dsp_string_len == strlen(((URLDATA *)local_head->data)->text))
-				draw_string_zoomed(url_win_sep, currenty, (unsigned char *)((URLDATA *)local_head->data)->text, 1, url_win_text_zoom);
-			/* otherwise, draw a truncated version with "..." at the end */
-			else
-			{
-				float toobig_width = 3*get_char_width_ui('.', url_win_text_zoom);
-				draw_string_zoomed_width(url_win_sep, currenty, (unsigned char *)((URLDATA *)local_head->data)->text,
-					url_win_sep + url_win_max_string_width - toobig_width, 1, url_win_text_zoom);
-				draw_string_zoomed(url_win_sep + url_win_max_string_width - toobig_width, currenty,
-					(unsigned char *)"..." , 1, url_win_text_zoom);
-			}
+			draw_string_zoomed_ellipsis_font(url_win_sep, currenty,
+				(const unsigned char *)((URLDATA *)local_head->data)->text,
+				url_win_max_string_width, 1, win->font_category, url_win_text_zoom);
 
 			/* step down a line, do it now as the maths for mouse over below is easier */
 			currenty += url_win_line_step;
@@ -563,8 +543,8 @@ CHECK_GL_ERRORS();
 				glColor3f(1.0f,1.0f,1.0f);
 				while(*thetext != '\0')
 				{
-					float char_width = get_char_width_ui(*thetext++,
-						win->current_scale * DEFAULT_SMALL_RATIO);
+					float char_width = get_char_width_zoom(*thetext++,
+						win->font_category, win->current_scale_small);
 					if (((string_width+char_width) > (win->len_x - 2*url_win_sep)) || (*thetext == '\0'))
 					{
 						if (*thetext == '\0') /* catch the last line */

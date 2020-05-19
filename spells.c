@@ -996,9 +996,8 @@ static void draw_current_spell(window_info *win, int x, int y, int sigils_too, i
 		safe_snprintf((char *)str, sizeof(str), "%i",spells_list[j].mana);
 		if (spells_list[j].uncastable&UNCASTABLE_MANA) glColor3f(1.0f,0.0f,0.0f);
 		else glColor3f(0.0,1.0,0.0);
-		i = (grid_size - get_string_width_ui(str, win->current_scale))/2;
 		j = (grid_size - win->default_font_len_y)/2;
-		draw_string_zoomed(x+i,y+j,str,1, win->current_scale);
+		draw_string_zoomed_centered(x+grid_size/2,y+j,str,1, win->current_scale);
 	}
 
 	//draw strings
@@ -1083,7 +1082,7 @@ static int display_sigils_handler(window_info *win)
 	{
 		show_help_colored_scaled_right((const unsigned char*)mqb_data[0]->spell_name,
 			spell_icon_x, spell_icon_y + (sigil_grid_size - win->small_font_len_y) / 2,
-			1.0f, 1.0f, 1.0f, win->current_scale * DEFAULT_SMALL_RATIO);
+			1.0f, 1.0f, 1.0f, win->current_scale_small);
 	}
 	show_last_spell_help=0;
 #ifdef OPENGL_TRACE
@@ -1166,8 +1165,8 @@ static int display_spells_mini_handler(window_info *win)
 	//draw spell help
 	if(on_spell==-2 && spells_list[we_have_spell].uncastable) {
 		//mouse over the bottom-left selected spell icon, show uncastability
-		int l = get_string_width_ui((unsigned char*)GET_UNCASTABLE_STR(spells_list[we_have_spell].uncastable),
-			(float)DEFAULT_SMALL_RATIO * win->current_scale);
+		int l = get_string_width_zoom((const unsigned char*)GET_UNCASTABLE_STR(spells_list[we_have_spell].uncastable),
+			win->font_category, win->current_scale_small);
 		SET_COLOR(c_red2);
 		draw_string_small_zoomed(spell_mini_border + (spell_mini_grid_size * SPELLS_ALIGN_X - l) / 2,
 			win->len_y - spell_mini_grid_size - spell_mini_border  - 2.5 * win->small_font_len_y,
@@ -1175,8 +1174,8 @@ static int display_spells_mini_handler(window_info *win)
 	} else {
 		i=(on_spell>=0) ? (on_spell):(we_have_spell);
 		if(i>=0){
-			int l = get_string_width_ui((unsigned char*)spells_list[i].name,
-				(float)DEFAULT_SMALL_RATIO * win->current_scale);
+			int l = get_string_width_zoom((unsigned char*)spells_list[i].name,
+				win->font_category, win->current_scale_small);
 			if (on_spell>=0) SET_COLOR(c_grey1);
 			else SET_COLOR(c_green3);
 			draw_string_small_zoomed(spell_mini_border + (spell_mini_grid_size * SPELLS_ALIGN_X - l) / 2,

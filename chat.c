@@ -1054,12 +1054,12 @@ static int ui_scale_chat_handler(window_info *win)
 {
 	int tab_tag_height = 0;
 	widget_list *w = widget_find (win->window_id, chat_tabcollection_id);
-	CHAT_WIN_TAG_HEIGHT = tab_collection_calc_tab_height(win->current_scale * DEFAULT_SMALL_RATIO);
+	CHAT_WIN_TAG_HEIGHT = tab_collection_calc_tab_height(win->current_scale_small);
 	CHAT_WIN_SCROLL_WIDTH = (int)(0.5 + win->current_scale * 20);
 	CLOSE_SIZE = win->box_size;
 
-	widget_set_size(win->window_id, chat_tabcollection_id, win->current_scale * DEFAULT_SMALL_RATIO);
-	tab_tag_height = tab_collection_calc_tab_height(win->current_scale * DEFAULT_SMALL_RATIO);
+	widget_set_size(win->window_id, chat_tabcollection_id, win->current_scale_small);
+	tab_tag_height = tab_collection_calc_tab_height(win->current_scale_small);
 
 	tab_collection_resize(w, win->len_x, win->len_y);
 	tab_collection_move(w, win->pos_x + CHAT_WIN_SPACE, win->pos_y + tab_tag_height + CHAT_WIN_SPACE);
@@ -1705,7 +1705,7 @@ static int display_chan_sel_handler(window_info *win)
 {
 	int i = 0, y = chan_sel_border, x = chan_sel_border, t = 0, num_lines = 0;
 	int line_height;
-	float local_zoom = win->current_scale * DEFAULT_SMALL_RATIO;
+	float local_zoom = win->current_scale_small;
 
 	node_t *step = queue_front_node(chan_name_queue);
 	if(mouse_x >= win->pos_x+win->len_x || mouse_y >= win->pos_y+win->len_y) {
@@ -1724,7 +1724,7 @@ static int display_chan_sel_handler(window_info *win)
 	for (i = 0; i < CS_MAX_DISPLAY_CHANS; ++i)
 	{
 		const unsigned char* name = (const unsigned char*)((chan_name*)(step->data))->name;
-		int width = get_string_width_ui(name, local_zoom);
+		int width = get_string_width_zoom(name, win->font_category, local_zoom);
 
 		glColor3f(0.5f, 0.75f, 1.0f);
 		draw_string_zoomed(x, y, name, 1, local_zoom);
@@ -1787,8 +1787,8 @@ static int click_chan_sel_handler(window_info *win, int mx, int my, Uint32 flags
 			}
 			step = step->next;
 		}
-		width = get_string_width_ui((const unsigned char*)((chan_name*)(step->data))->name,
-			win->current_scale * DEFAULT_SMALL_RATIO);
+		width = get_string_width_zoom((const unsigned char*)((chan_name*)(step->data))->name,
+			win->font_category, win->current_scale_small);
 		if (mouse_x >= win->pos_x + chan_sel_border
 			&& mouse_x <= win->pos_x + chan_sel_border + width)
 		{

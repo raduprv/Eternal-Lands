@@ -367,8 +367,8 @@ CHECK_GL_ERRORS();
 			int width;
 			safe_snprintf(str, sizeof(str), "%-3s %3d",
 				statsinfo[thestat].skillnames->shortname, statsinfo[thestat].skillattr->base);
-			width = get_string_width_ui((const unsigned char*)str,
-				win->current_scale * DEFAULT_SMALL_RATIO);
+			width = get_string_width_zoom((const unsigned char*)str, win->font_category,
+				win->current_scale_small);
 			if (width > text_width)
 				text_width = width;
 		}
@@ -412,8 +412,8 @@ CHECK_GL_ERRORS();
 				 	statsinfo[thestat].skillattr->base) != 0)
 			{
 				safe_snprintf(str,sizeof(str),"%+i",skill_modifier);
-				hover_offset = get_string_width_ui((const unsigned char*)str,
-					win->current_scale * DEFAULT_SMALL_RATIO);
+				hover_offset = get_string_width_zoom((const unsigned char*)str,
+					win->font_category, win->current_scale_small);
 				if(skill_modifier > 0){
 					draw_string_small_shadowed_zoomed_right(0, y+gy_adjust,
 						(const unsigned char*)str, 1,0.3f, 1.0f, 0.3f,0.0f,0.0f,0.0f,
@@ -566,8 +566,8 @@ static int mouseover_misc_handler(window_info *win, int mx, int my)
 	if (show_help_text && show_stats_in_hud && (num_disp_stat < NUM_WATCH_STAT-1) &&
 		(my >= 0) && (my < num_disp_stat*side_stats_bar_height))
 	{
-		int width = get_string_width_ui((const unsigned char*)stats_scroll_help_str,
-			win->current_scale * DEFAULT_SMALL_RATIO);
+		int width = get_string_width_zoom((const unsigned char*)stats_scroll_help_str,
+			win->font_category, win->current_scale_small);
 		show_help(stats_scroll_help_str, - 10 - width,
 			win->len_y - HUD_MARGIN_Y - win->small_font_len_y, win->current_scale);
 	}

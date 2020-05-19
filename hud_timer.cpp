@@ -222,7 +222,6 @@ int Hud_Timer::ui_scale_handler(window_info *win)
 int Hud_Timer::display(window_info *win, int base_y_start)
 {
 	char str[10];
-	int x;
 	check_cm_menu(win, base_y_start);
 	if (input && (!view_hud_timer || !get_show_window(input->popup_win)))
 		destroy_popup();
@@ -230,11 +229,12 @@ int Hud_Timer::display(window_info *win, int base_y_start)
 		return 0;
 	base_y_start -= height;
 	safe_snprintf(str, sizeof(str), "%c%1d:%02d", ((mode_coundown) ?countdown_str[0] :stopwatch_str[0]), current_value/60, current_value%60);
-	x = (win->len_x - get_string_width_ui((unsigned char*)str, win->current_scale)) / 2;
 	if (running)
-		draw_string_shadowed_zoomed(x, 2 + base_y_start, (unsigned char*)str, 1,0.5f, 1.0f, 0.5f, 0.0f, 0.0f, 0.0f, win->current_scale);
+		draw_string_shadowed_zoomed_centered(win->len_x/2, 2 + base_y_start,
+			(const unsigned char*)str, 1,0.5f, 1.0f, 0.5f, 0.0f, 0.0f, 0.0f, win->current_scale);
 	else
-		draw_string_shadowed_zoomed(x, 2 + base_y_start, (unsigned char*)str, 1,1.0f, 0.5f, 0.5f, 0.0f, 0.0f, 0.0f, win->current_scale);
+		draw_string_shadowed_zoomed_centered(win->len_x/2, 2 + base_y_start,
+			(const unsigned char*)str, 1,1.0f, 0.5f, 0.5f, 0.0f, 0.0f, 0.0f, win->current_scale);
 	if (mouse_over)
 	{
 		char *use_str = ((mode_coundown) ?countdown_str:stopwatch_str);

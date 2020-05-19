@@ -785,7 +785,7 @@ void Quest_List::display_handler(window_info *win)
 {
 	const size_t used_x = 4*spacer + win->box_size;
 	const size_t disp_lines = win->len_y / linesep;
-	float zoom = win->current_scale * DEFAULT_SMALL_RATIO;
+	float zoom = win->current_scale_small;
 
 	// if resizing wait until we stop
 	static Uint8 resizing = 0;
@@ -947,7 +947,7 @@ void Quest_List::ui_scale_handler(window_info *win)
 	linesep = win->small_font_len_y + 2 * spacer;
 	if ((win->pos_id >= 0) && (win->pos_id<windows_list.num_windows))
 	{
-		float zoom = win->current_scale * DEFAULT_SMALL_RATIO;
+		float zoom = win->current_scale_small;
 		window_info *parent_win = &windows_list.window[win->pos_id];
 		int max_size_x = get_max_title_width(zoom) + win->box_size + 4 * spacer;
 		int min_size_x = 10 * FontManager::get_instance().max_width_spacing(UI_FONT, zoom)
@@ -1273,7 +1273,7 @@ void NPC_Filter::display_handler(window_info *win)
 	unsigned int row = 0;
 	unsigned int col = 0;
 	TextDrawOptions options = TextDrawOptions().set_max_lines(1)
-		.set_zoom(win->current_scale * DEFAULT_SMALL_RATIO);
+		.set_zoom(win->current_scale_small);
 	for (const auto& i: npc_filter_map)
 	{
 		int posx = static_cast<int>(npc_name_border + col*max_npc_name_x + 0.5);
@@ -1720,7 +1720,7 @@ void Questlog_Window::cm_handler(window_info *win, int my, int option)
 void Questlog_Window::ui_scale_handler(window_info *win)
 {
 	int content_width = 70 * 8 * win->current_scale;
-	float zoom = win->current_scale * DEFAULT_SMALL_RATIO;
+	float zoom = win->current_scale_small;
 
 	qlborder = static_cast<int>(0.5 + 5 * win->current_scale);
 	spacer = static_cast<int>(0.5 + 3 * win->current_scale);
@@ -1775,7 +1775,7 @@ int Questlog_Window::display_handler(window_info *win)
 	}
 
 	TextDrawOptions options = TextDrawOptions().set_max_lines(1)
-		.set_zoom(win->current_scale * DEFAULT_SMALL_RATIO);
+		.set_zoom(win->current_scale_small);
 	FontManager& font_manager = FontManager::get_instance();
 	int questlog_y = qlborder;
 	shown_entries.clear();

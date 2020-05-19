@@ -639,38 +639,38 @@ static int cm_counters_handler(window_info *win, int widget_id, int mx, int my, 
 
 static void set_content_widths(window_info *win)
 {
-	float zoom = win->current_scale * DEFAULT_SMALL_RATIO;
+	float zoom = win->current_scale_small;
 	int gap_x = win->small_font_max_len_x / 2;
 	int max_label_width = 0;
 	int i;
 
 	for (i=0; i<NUM_COUNTERS; i++)
 	{
-		int width = get_string_width_ui((const unsigned char*)cat_str[i],
-			win->current_scale * DEFAULT_SMALL_RATIO);
+		int width = get_string_width_zoom((const unsigned char*)cat_str[i],
+			win->font_category, win->current_scale_small);
 		if (width > max_label_width)
 			max_label_width = width;
 	}
 
-	left_panel_width = 2 * gap_x + max_label_width + 2 * (int)(DEFAULT_SMALL_RATIO * win->current_scale * BUTTONRADIUS);
+	left_panel_width = 2 * gap_x + max_label_width + 2 * (int)(zoom * BUTTONRADIUS);
 
 	name_x_start = left_panel_width + gap_x;
-	name_x_end = name_x_start + get_string_width_ui(name_str, zoom);
+	name_x_end = name_x_start + get_string_width_zoom(name_str, win->font_category, zoom);
 
 	total_x_end = win->len_x - win->box_size - gap_x;
-	total_x_start = total_x_end - get_string_width_ui(total_str, zoom);
+	total_x_start = total_x_end - get_string_width_zoom(total_str, win->font_category, zoom);
 
 	session_x_end = total_x_end - 12 * win->small_font_max_len_x;
-	session_x_start = session_x_end - get_string_width_ui(session_str, zoom);
+	session_x_start = session_x_end - get_string_width_zoom(session_str, win->font_category, zoom);
 
 	win->min_len_x = name_x_end + 2 * 12 * win->small_font_max_len_x + win->box_size + gap_x;
 	win->min_len_y = 2 * gap_x + NUM_COUNTERS *
-		(int)(0.5 + 2.0 * BUTTONRADIUS * win->current_scale * DEFAULT_SMALL_RATIO);
+		(int)(0.5 + 2.0 * BUTTONRADIUS * win->current_scale_small);
 }
 
 static int resize_counters_handler(window_info *win, int new_width, int new_height)
 {
-	float zoom = win->current_scale * DEFAULT_SMALL_RATIO;
+	float zoom = win->current_scale_small;
 	int gap_x = win->small_font_max_len_x / 2;
 	size_t i;
 	int current_selected;
@@ -678,7 +678,7 @@ static int resize_counters_handler(window_info *win, int new_width, int new_heig
 
 	set_content_widths(win);
 
-	step_y = get_line_height(UI_FONT, zoom);
+	step_y = get_line_height(win->font_category, zoom);
 	margin_y_len = 1.5 * step_y;
 	space_y = 0.5 * step_y;
 	NUM_LINES = (int)((new_height - 2 * margin_y_len - 2 * space_y) / step_y);
@@ -704,7 +704,7 @@ static int resize_counters_handler(window_info *win, int new_width, int new_heig
 	multiselect_id = multiselect_add(win->window_id, NULL, gap_x, gap_x, left_panel_width - 2 * gap_x);
 	for (i=0; i<NUM_COUNTERS; i++)
 		multiselect_button_add_extended(win->window_id, multiselect_id,
-			0, (int)((new_height - gap_x) / NUM_COUNTERS) * butt_y[i], 0, cat_str[i], DEFAULT_SMALL_RATIO * win->current_scale, i==0);
+			0, (int)((new_height - gap_x) / NUM_COUNTERS) * butt_y[i], 0, cat_str[i], win->current_scale_small, i==0);
 
 	multiselect_set_selected(win->window_id, multiselect_id, current_selected);
 
@@ -713,7 +713,7 @@ static int resize_counters_handler(window_info *win, int new_width, int new_heig
 
 int change_counters_font_handler(window_info *win, font_cat cat)
 {
-	if (cat != UI_FONT)
+	if (cat != win->font_category)
 		return 0;
 	set_content_widths(win);
 	return 1;
@@ -835,13 +835,14 @@ static int display_counters_handler(window_info *win)
 		if (counters[i][j].name)
 		{
 			float max_width;
-			float zoom = win->current_scale * DEFAULT_SMALL_RATIO;
+			float zoom = win->current_scale_small;
 			safe_snprintf((char*)buffer, sizeof(buffer), "%u", counters[i][j].n_session);
-			max_width = session_x_end - name_x_start - get_string_width_ui(buffer, zoom);
+			max_width = session_x_end - name_x_start
+				- get_string_width_zoom(buffer, win->font_category, zoom);
 
 			draw_string_zoomed_ellipsis_font(x, y, (const unsigned char*)counters[i][j].name,
-				max_width, 1, win->font_category, win->current_scale * DEFAULT_SMALL_RATIO);
-			if (get_string_width_ui((unsigned char*)counters[i][j].name, zoom) > max_width)
+				max_width, 1, win->font_category, win->current_scale_small);
+			if (get_string_width_zoom((unsigned char*)counters[i][j].name, win->font_category, zoom) > max_width)
 			{
 				/* if the mouse is over this line and its truncated, tooltip to full name */
 				if (mouseover_entry_y >= y && mouseover_entry_y < y+step_y) {

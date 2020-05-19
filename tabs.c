@@ -51,8 +51,8 @@ static int ui_scale_stats_handler(window_info *win)
 		}
 	}
 
-	widget_set_size(win->window_id, tab_stats_collection_id, win->current_scale * DEFAULT_SMALL_RATIO);
-	tab_tag_height = tab_collection_calc_tab_height(win->current_scale * DEFAULT_SMALL_RATIO);
+	widget_set_size(win->window_id, tab_stats_collection_id, win->current_scale_small);
+	tab_tag_height = tab_collection_calc_tab_height(win->current_scale_small);
 	resize_window(win->window_id, new_width + 2*TAB_MARGIN, new_height + tab_tag_height + 2*TAB_MARGIN);
 	widget_resize(win->window_id, tab_stats_collection_id, new_width, new_height + tab_tag_height);
 
@@ -136,8 +136,8 @@ static int ui_scale_help_handler(window_info *win)
 		}
 	}
 
-	widget_set_size(win->window_id, tab_help_collection_id, win->current_scale * DEFAULT_SMALL_RATIO);
-	tab_tag_height = tab_collection_calc_tab_height(win->current_scale * DEFAULT_SMALL_RATIO);
+	widget_set_size(win->window_id, tab_help_collection_id, win->current_scale_small);
+	tab_tag_height = tab_collection_calc_tab_height(win->current_scale_small);
 	resize_window(win->window_id, new_width + 2*TAB_MARGIN, new_height + tab_tag_height + 2*TAB_MARGIN);
 	widget_resize(win->window_id, tab_help_collection_id, new_width, new_height + tab_tag_height);
 
@@ -205,8 +205,8 @@ static int ui_scale_info_handler(window_info *win)
 	int new_height = (int)(0.5 + win->current_scale * 350);
 	widget_list *w = widget_find (win->window_id, tab_info_collection_id);
 
-	widget_set_size(win->window_id, tab_info_collection_id, win->current_scale * DEFAULT_SMALL_RATIO);
-	tab_tag_height = tab_collection_calc_tab_height(win->current_scale * DEFAULT_SMALL_RATIO);
+	widget_set_size(win->window_id, tab_info_collection_id, win->current_scale_small);
+	tab_tag_height = tab_collection_calc_tab_height(win->current_scale_small);
 	resize_window(win->window_id, new_width + 2*TAB_MARGIN, new_height + tab_tag_height + 2*TAB_MARGIN);
 	widget_resize(win->window_id, tab_info_collection_id, new_width, new_height + tab_tag_height);
 

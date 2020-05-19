@@ -169,7 +169,7 @@ int display_knowledge_handler(window_info *win)
 	int scroll = vscrollbar_get_pos (win->window_id, knowledge_scroll_id);
 	char points_string[16];
 	char *research_string;
-	float font_ratio = win->current_scale * DEFAULT_SMALL_RATIO;
+	float font_ratio = win->current_scale_small;
 	float max_name_x = (win->len_x - win->box_size - 2*x)/2;
 	int is_researching = 1;
 
@@ -234,7 +234,7 @@ int display_knowledge_handler(window_info *win)
 		if (selected_book >= 0 && knowledge_list[selected_book].present && knowledge_list[selected_book].has_book)
 			text_width = book_start_x - 2 * text_border;
 		reset_soft_breaks(raw_knowledge_string, strlen((const char*)raw_knowledge_string),
-			sizeof(raw_knowledge_string), UI_FONT, win->current_scale * DEFAULT_SMALL_RATIO,
+			sizeof(raw_knowledge_string), win->font_category, win->current_scale_small,
 			text_width, NULL, NULL);
 		rewrap_knowledge_now = 0;
 	}
@@ -283,7 +283,7 @@ int display_knowledge_handler(window_info *win)
 		/* truncate the string if it is too long */
 		draw_string_zoomed_ellipsis_font(x, y, (const unsigned char*)knowledge_list[i].name,
 			max_name_x, 1, win->font_category, font_ratio);
-		if (get_string_width_ui((const unsigned char*)knowledge_list[i].name, font_ratio) > max_name_x)
+		if (get_string_width_zoom((const unsigned char*)knowledge_list[i].name, win->font_category, font_ratio) > max_name_x)
 		{
 			/* if the mouse is over this line and its truncated, tooltip to full name */
 			if (knowledge_list[i].mouse_over)
@@ -458,8 +458,8 @@ static int cm_knowledge_handler(window_info *win, int widget_id, int mx, int my,
 static void set_content_widths(window_info *win)
 {
 	int image_size = (int)(0.5 + win->current_scale * 50);
-	int label_width = get_string_width_ui((const unsigned char*)knowledge_read_book,
-		win->current_scale * 0.8);
+	int label_width = get_string_width_zoom((const unsigned char*)knowledge_read_book,
+		win->font_category, win->current_scale * 0.8);
 
 	int i, gap_y, book_x_off, max_width = 0;
 
@@ -482,8 +482,8 @@ static void set_content_widths(window_info *win)
 
 	for (i = 0; i < knowledge_count; ++i)
 	{
-		int width = get_string_width_ui((const unsigned char*)knowledge_list[i].name,
-			win->current_scale * DEFAULT_SMALL_RATIO);
+		int width = get_string_width_zoom((const unsigned char*)knowledge_list[i].name,
+			win->font_category, win->current_scale_small);
 		if (width > max_width)
 			max_width = width;
 	}
@@ -495,8 +495,8 @@ static void set_content_widths(window_info *win)
 static int resize_knowledge_handler(window_info *win, int new_width, int new_height)
 {
 	int image_size = (int)(0.5 + win->current_scale * 50);
-	int label_width = get_string_width_ui((const unsigned char*)knowledge_read_book,
-		win->current_scale * 0.8);
+	int label_width = get_string_width_zoom((const unsigned char*)knowledge_read_book,
+		win->font_category, win->current_scale * 0.8);
 	int label_height = (int)(0.5 + win->default_font_len_y * 0.8);
 	int gap_y;
 

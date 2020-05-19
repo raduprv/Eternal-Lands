@@ -340,7 +340,7 @@ static int langsel_display_error_handler(window_info *win)
 		widget_set_OnClick(langsel_win, quit_button, langsel_quit_handler);
 
 		get_buf_dimensions(message, strlen((const char*)message), win->font_category,
-			win->current_scale * DEFAULT_SMALL_RATIO, &width, &height);
+			win->current_scale_small, &width, &height);
 		width += 2 * sep;
 		height += button_height + 3 * sep;
 

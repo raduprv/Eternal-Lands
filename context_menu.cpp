@@ -570,7 +570,7 @@ namespace cm
 		for (size_t i=0; i<menu_lines.size(); i++)
 		{
 			const unsigned char* thetext = reinterpret_cast<const unsigned char*>(menu_lines[i].text.c_str());
-			int str_width = get_string_width_ui(thetext, scale);
+			int str_width = get_string_width_zoom(thetext, UI_FONT, scale);
 			if (str_width > fwidth)
 				fwidth = str_width;
 			if (menu_lines[i].is_separator)

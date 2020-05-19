@@ -177,7 +177,7 @@ namespace UserMenus
 			void mouseover(window_info *win, int mx) { mouse_over_window = true; current_mouseover_menu = get_mouse_over_menu(win, mx); }
 			int get_height(window_info *win) const { return ((use_small_font) ?win->small_font_len_y :win->default_font_len_y) + 2 * window_y_pad; }
 			int calc_actual_width(window_info *win, int width) const
-				{ return (int)(0.5 + win->current_scale * ((use_small_font)?DEFAULT_SMALL_RATIO:1) * width); }
+				{ return (int)(0.5 + (use_small_font ? win->current_scale_small : win->current_scale) * width); }
 
 			static int display_handler(window_info *win) { return get_instance()->display(win); }
 			static int mouseover_handler(window_info *win, int mx, int my) { get_instance()->mouseover(win, mx); return 0; }
@@ -211,7 +211,8 @@ namespace UserMenus
 			in.close();
 			return;
 		}
-		menu_name_width = get_string_width_ui((const unsigned char*)menu_name.c_str(), 1.0);
+		menu_name_width = get_string_width_zoom((const unsigned char*)menu_name.c_str(),
+			UI_FONT, 1.0);
 
 		// read each line after the menu name line, creating a menu Line object for each
 		std::string line;
@@ -612,7 +613,7 @@ namespace UserMenus
 		// if there are no menus, use the size of the message for the window width
 		if (menus.empty())
 		{
-			win_width = 2 * window_x_pad + calc_actual_width(win, get_string_width_ui((const unsigned char*)um_no_menus_str, 1.0));
+			win_width = 2 * window_x_pad + calc_actual_width(win, get_string_width_zoom((const unsigned char*)um_no_menus_str, win->font_category, 1.0));
 			return;
 		}
 

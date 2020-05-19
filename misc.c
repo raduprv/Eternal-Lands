@@ -455,46 +455,6 @@ void draw_circle(int x, int y, int radius, int interval)
 	draw_circle_ext(x, y, radius, interval, 0, 360);
 }
 
-void draw_box(char * name, int x, int y, int w, int h, float size, int rad)
-{
-	int l=0;
-
-	if(name){
-		l = (w-10-get_string_width_ui((unsigned char*)name, size))/2.0f;
-		draw_string_zoomed(x+l+5, y-size*DEFAULT_FONT_Y_LEN/2, (unsigned char*)name, 1, size);
-	}
-
-	glDisable(GL_TEXTURE_2D);
-	if(l>0){
-		glBegin(GL_LINE_STRIP);
-			glVertex2i(x+l, y);
-			draw_circle_ext(x, y, rad, 5, 90, 180);
-			draw_circle_ext(x, y+h-2*rad, rad, 5, 180, 270);
-			draw_circle_ext(x+w-2*rad, y+h-2*rad, rad, 5, 270, 360);
-			draw_circle_ext(x+w-2*rad, y, rad, 5, 0, 90);
-			glVertex2i(x+w-l, y);
-		glEnd();
-	} else if(l<0){
-		glBegin(GL_LINE_STRIP);
-			glVertex2i(x+l, y);
-			draw_circle_ext(x+rad, y+h-rad, rad, 5, 180, 270);
-			draw_circle_ext(x+w-2*rad, y+h-rad, rad, 5, 270, 360);
-			glVertex2i(x+w-l, y);
-		glEnd();
-	} else {
-		glBegin(GL_LINE_LOOP);
-			draw_circle_ext(x+rad, y, rad, 5, 90, 180);
-			draw_circle_ext(x+rad, y+h-rad, rad, 5, 180, 270);
-			draw_circle_ext(x+w-2*rad, y+h-rad, rad, 5, 270, 360);
-			draw_circle_ext(x+w-2*rad, y, rad, 5, 0, 90);
-		glEnd();
-	}
-	glEnable(GL_TEXTURE_2D);
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
-}
-
 int substrtest(const char * haystack, int hlen, int pos, const char * needle, int nlen)
 {
 	if (pos < 0) pos += hlen;

@@ -237,8 +237,9 @@ static int click_emotes_handler(window_info *win, int mx, int my, Uint32 flags)
 
 static int ui_scale_emotes_handler(window_info *win)
 {
-	float zoom = win->current_scale * DEFAULT_SMALL_RATIO;
-	int trigger_width = get_string_width_ui((const unsigned char*)"Trigger: ", zoom);
+	float zoom = win->current_scale_small;
+	int trigger_width = get_string_width_zoom((const unsigned char*)"Trigger: ",
+		win->font_category, zoom);
 	emote_dict *emd;
 	hash_entry *he;
 
@@ -249,15 +250,15 @@ static int ui_scale_emotes_handler(window_info *win)
 		emd = (emote_dict*)he->item;
 		if (emd->emote)
 		{
-			int width = get_string_width_ui((const unsigned char*)emd->emote->name, zoom);
-			if (width > box_width)
-				box_width = width;
-			width = 6 * get_string_width_ui((const unsigned char*)emd->emote->desc, zoom) / 10;
-			if (width > box_width)
-				box_width = width;
-			width = trigger_width + get_string_width_ui((const unsigned char*)emd->command, zoom);
-			if (width > box_width)
-				box_width = width;
+			int width = get_string_width_zoom((const unsigned char*)emd->emote->name,
+				win->font_category, zoom);
+			box_width = max2i(box_width, width);
+			width = (get_string_width_zoom((const unsigned char*)emd->emote->desc,
+				win->font_category, zoom) * 6) / 10;
+			box_width = max2i(box_width, width);
+			width = trigger_width + get_string_width_zoom((const unsigned char*)emd->command,
+				win->font_category, zoom);
+			box_width = max2i(box_width, width);
 		}
 	}
 

@@ -385,15 +385,14 @@ static int desc_box_bottom_offset = 0;
 static int scrollbar_width = 0;
 static int scrollbar_len = 0;
 
-static int get_max_cat_width(float zoom)
+static int get_max_cat_width(font_cat cat, float zoom)
 {
 	int i, max_width = 0;
 	for (i = 0; i < no_storage_categories; ++i)
 	{
-		int width = get_string_width_ui((const unsigned char*)storage_categories[i].name,
-			zoom);
-		if (width > max_width)
-			max_width = width;
+		int width = get_string_width_zoom((const unsigned char*)storage_categories[i].name,
+			cat, zoom);
+		max_width = max2i(max_width, width);
 	}
 	return max_width;
 }
@@ -401,7 +400,7 @@ static int get_max_cat_width(float zoom)
 /* called when the UI scale changes */
 static int ui_scale_storage_handler(window_info *win)
 {
-	int max_cat_width = get_max_cat_width(win->current_scale * DEFAULT_SMALL_RATIO);
+	int max_cat_width = get_max_cat_width(win->font_category, win->current_scale_small);
 
 	// set the basic sizes
 	item_grid_size = 6;
@@ -460,7 +459,7 @@ static int post_display_storage_handler(window_info * win)
 	if (cur_item_over !=- 1 && mouse_in_window(win->window_id, mouse_x, mouse_y) == 1
 		&& active_storage_item != storage_items[cur_item_over].pos)
 	{
-		float zoom = win->current_scale * (enlarge_text() ? 1.0 : DEFAULT_SMALL_RATIO);
+		float zoom = enlarge_text() ? win->current_scale : win->current_scale_small;
 		float line_height = enlarge_text() ? win->default_font_len_y : win->small_font_len_y;
 		unsigned char str[20];
 		safe_snprintf((char*)str, sizeof(str), "%d",storage_items[cur_item_over].quantity);

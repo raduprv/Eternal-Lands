@@ -101,7 +101,7 @@ static void draw_last_health_change(window_info *win)
 		else
 		{
 			safe_snprintf((char*)str, sizeof(str), " %d ", my_last_health.d);
-			show_help_colored_scaled_right(str, health_bar_start_x+stats_bar_len/2-2, yoff, 1.0f, 0.0f, 0.0f, win->current_scale * DEFAULT_SMALL_RATIO);
+			show_help_colored_scaled_right(str, health_bar_start_x+stats_bar_len/2-2, yoff, 1.0f, 0.0f, 0.0f, win->current_scale_small);
 		}
 	}
 	/* heal in green */
@@ -112,7 +112,7 @@ static void draw_last_health_change(window_info *win)
 		else
 		{
 			safe_snprintf((char*)str, sizeof(str), " %d ", my_last_health.h);
-			show_help_colored_scaled(str, health_bar_start_x+stats_bar_len/2+2, yoff, 0.0f, 1.0f, 0.0f, win->current_scale * DEFAULT_SMALL_RATIO);
+			show_help_colored_scaled(str, health_bar_start_x+stats_bar_len/2+2, yoff, 0.0f, 1.0f, 0.0f, win->current_scale_small);
 		}
 	}
 }
@@ -325,7 +325,8 @@ static int recalc_exp_bar_text_len(window_info *win, int force)
 	if (recalc)
 	{
 		int max_len = 0;
-		int max_digit_width = get_max_digit_width_zoom(UI_FONT, win->current_scale * DEFAULT_SMALL_RATIO);
+		int max_digit_width = get_max_digit_width_zoom(win->font_category,
+			win->current_scale_small);
 		for (i=0; i<MAX_WATCH_STATS; i++)
 			if ((watch_this_stats[i] > 0) && statsinfo[watch_this_stats[i]-1].is_selected &&
 					(last_to_go_len[watch_this_stats[i]-1] > max_len))
@@ -377,7 +378,7 @@ static void draw_exp_display(window_info *win)
 			else
 				exp_adjusted_x_len= stats_bar_len-(float)stats_bar_len/(float)((float)delta_exp/(float)(nl_exp-cur_exp));
 
-			name_width = get_string_width_ui(name, win->current_scale * DEFAULT_SMALL_RATIO);
+			name_width = get_string_width_zoom(name, win->font_category, win->current_scale_small);
 			// the the name would overlap with the icons...
 			if (my_exp_bar_start_x + stats_bar_len - name_width < icon_x)
 			{

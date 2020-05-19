@@ -85,23 +85,27 @@ static int mouseover_session_handler(window_info *win, int mx, int my)
 
 static void set_content_widths(window_info *win)
 {
-	float zoom = win->current_scale * DEFAULT_SMALL_RATIO;
+	float zoom = win->current_scale_small;
 	int sep_width = 2 * win->small_font_max_len_x;
-	int max_val_width = get_string_width_ui((const unsigned char*)"88888888", zoom);
-	int tot_exp_width = get_string_width_ui(total_exp_label, zoom);
-	int max_exp_width = get_string_width_ui(max_exp_label, zoom);
-	int last_exp_width = get_string_width_ui(last_exp_label, zoom);
-	int max_name_width = get_string_width_ui(skill_label, zoom);
+	int max_val_width = get_string_width_zoom((const unsigned char*)"88888888",
+		win->font_category, zoom);
+	int tot_exp_width = get_string_width_zoom(total_exp_label, win->font_category, zoom);
+	int max_exp_width = get_string_width_zoom(max_exp_label, win->font_category, zoom);
+	int last_exp_width = get_string_width_zoom(last_exp_label, win->font_category, zoom);
+	int max_name_width = get_string_width_zoom(skill_label, win->font_category, zoom);
 
 	for (int i =0; i < NUM_SKILLS; ++i)
 	{
-		int width = get_string_width_ui(statsinfo[i].skillnames->name, zoom);
+		int width = get_string_width_zoom(statsinfo[i].skillnames->name, win->font_category, zoom);
 		if (width > max_name_width)
 			max_name_width = width;
 	}
-	max_name_width = max2i(max_name_width, get_string_width_ui(session_time_label, zoom));
-	max_name_width = max2i(max_name_width, get_string_width_ui(exp_per_min_label, zoom));
-	max_name_width = max2i(max_name_width, get_string_width_ui(distance_label, zoom));
+	max_name_width = max2i(max_name_width,
+		get_string_width_zoom(session_time_label, win->font_category, zoom));
+	max_name_width = max2i(max_name_width,
+		get_string_width_zoom(exp_per_min_label, win->font_category, zoom));
+	max_name_width = max2i(max_name_width,
+		get_string_width_zoom(distance_label, win->font_category, zoom));
 
 	x_border = (int)(win->current_scale * 10);
 	y_offset = (int)(0.5 + win->current_scale * 21);

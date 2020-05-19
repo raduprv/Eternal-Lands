@@ -132,38 +132,6 @@ void draw_circle_ext(int x, int y, int radius, int interval, int angle_from, int
 void draw_circle(int x, int y, int radius, int interval);
 
 /*!
- * \ingroup misc_utils
- * \brief Draws a box, that potentially uses rounded corners
- *
- * 	Draws a box that potentially uses rounded corners if a radius is given. The box can have a name, but that is optional. Will look like this:
- * \code
- * 	1)
- * 	+----- box -----+
- * 	|		|
- * 	|		|
- * 	|		|
- * 	|		|
- * 	+---------------+
- *
- * 	2)
- * 	+---------------+
- * 	|		|
- * 	|		|
- * 	|		|
- * 	|		|
- * 	+---------------+
- * \endcode
- *
- * \param name The potential name of the box. If you don't want a name
- * \param x The start x position
- * \param y The start y position
- * \param w The width
- * \param h The height
- * \param rad The radius in the rounded corners - note that they are optional
- */
-void draw_box(char * name, int x, int y, int w, int h, float size, int rad);
-
-/*!
  * \ingroup misc
  * \brief Append '.gz' to a filename and try to open it using gzopen
  *

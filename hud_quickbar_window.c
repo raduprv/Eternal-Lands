@@ -196,8 +196,8 @@ static void quickbar_item_description_help(window_info *win, int pos, int slot)
 		if (str != NULL)
 		{
 			int xpos = 0, ypos = 0;
-			int len_str = get_string_width_ui((const unsigned char*)str,
-				DEFAULT_SMALL_RATIO * win->current_scale);
+			int len_str = get_string_width_zoom((const unsigned char*)str,
+				win->font_category, win->current_scale_small);
 			/* vertical place right (or left) and aligned with slot */
 			if (quickbar_dir==VERTICAL)
 			{
@@ -560,10 +560,10 @@ static int	display_quickbar_handler(window_info *win)
 			safe_snprintf(str,sizeof(str),"%i",item_list[i].quantity);
 			if (quickbar_dir==VERTICAL)
 			{
-				float size = win->current_scale
-					* (mouseover_quickbar_item_pos == i && enlarge_text()
-						? 1.0 : DEFAULT_SMALL_RATIO);
-				int lenstr = get_string_width_ui((const unsigned char*)str, size);
+				float size = (mouseover_quickbar_item_pos == i && enlarge_text())
+						? win->current_scale : win->current_scale_small;
+				int lenstr = get_string_width_zoom((const unsigned char*)str,
+					win->font_category, size);
 				xpos = ((x_start + lenstr + win->cur_x) > window_width) ?window_width - win->cur_x - lenstr :x_start;
 				ypos = y_end - scaled_15;
 			}

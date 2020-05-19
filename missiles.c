@@ -983,7 +983,7 @@ int display_range_handler(window_info *win)
 {
 	char str[50];
 	const int margin = 5 * win->current_scale;
-	const int step_y = get_line_height(UI_FONT, win->current_scale * DEFAULT_SMALL_RATIO);
+	const int step_y = get_line_height(win->font_category, win->current_scale_small);
 	const int pos_x = margin;
 	int pos_y = margin;
 
@@ -1081,18 +1081,20 @@ static int set_range_window_size(window_info *win)
 		ranging_exp_per_arrow_str,
 	};
 
-	float zoom = win->current_scale * DEFAULT_SMALL_RATIO;
+	float zoom = win->current_scale_small;
 	int lbl_max_width = 0;
-	int exp_max_width = get_string_width_ui((const unsigned char*)"100.00 exp", zoom);
-	int sep_width = 2 * get_char_width_ui('M', zoom);
+	int exp_max_width = get_string_width_zoom((const unsigned char*)"100.00 exp",
+		win->font_category, zoom);
+	int sep_width = 2 * get_char_width_zoom('M', win->font_category, zoom);
 	int margin = 5 * win->current_scale;
-	int line_height = get_line_height(UI_FONT, zoom);
+	int line_height = get_line_height(win->font_category, zoom);
 	int len_x, len_y;
 	int i;
 
 	for (i = 0; i < 6; ++i)
 	{
-		int lbl_width = get_string_width_ui((unsigned char*)labels[i], zoom);
+		int lbl_width = get_string_width_zoom((const unsigned char*)labels[i],
+			win->font_category, zoom);
 		if (lbl_width > lbl_max_width)
 			lbl_max_width = lbl_width;
 	}

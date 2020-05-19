@@ -1425,7 +1425,8 @@ static int display_game_handler (window_info *win)
 
 		if (fps_default_width == 0)
 		{
-			fps_default_width = get_string_width_ui((const unsigned char*)"FPS: ", win->current_scale)
+			fps_default_width = get_string_width_zoom((const unsigned char*)"FPS: ",
+					win->font_category, win->current_scale)
 				+ 3 * get_max_digit_width_zoom(UI_FONT, win->current_scale)
 				+ win->default_font_max_len_x;
 			fps_center_x = win->len_x - hud_x - win->default_font_max_len_x -

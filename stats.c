@@ -699,90 +699,129 @@ static void set_content_widths(window_info *win)
 	int width;
 
 	max_label_width = 0;
-	width = get_string_width_ui(attributes.phy.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.phy.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.coo.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.coo.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.rea.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.rea.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.wil.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.wil.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.ins.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.ins.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.vit.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.vit.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.might.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.might.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.matter.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.matter.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.tough.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.tough.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.charm.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.charm.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.react.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.react.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.perc.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.perc.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.ration.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.ration.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.dext.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.dext.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.eth.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.eth.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.material_points.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.material_points.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.ethereal_points.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.ethereal_points.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.action_points.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.action_points.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.food.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.food.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.human_nex.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.human_nex.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.animal_nex.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.animal_nex.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.vegetal_nex.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.vegetal_nex.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.inorganic_nex.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.inorganic_nex.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.artificial_nex.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.artificial_nex.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.magic_nex.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.magic_nex.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.attack_skill.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.attack_skill.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.defense_skill.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.defense_skill.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.harvesting_skill.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.harvesting_skill.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.alchemy_skill.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.alchemy_skill.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.magic_skill.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.magic_skill.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.potion_skill.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.potion_skill.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.summoning_skill.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.summoning_skill.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.manufacturing_skill.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.manufacturing_skill.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.crafting_skill.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.crafting_skill.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.engineering_skill.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.engineering_skill.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.tailoring_skill.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.tailoring_skill.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.ranging_skill.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.ranging_skill.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.overall_skill.name, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.overall_skill.name, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
-	width = get_string_width_ui(attributes.pickpoints, win->current_scale * DEFAULT_SMALL_RATIO);
+	width = get_string_width_zoom(attributes.pickpoints, win->font_category,
+		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
 
 	sep_width = 2 * win->small_font_max_len_x;
-	max_lvl_width = get_string_width_ui((const unsigned char*)"888 / 888",
-		win->current_scale * DEFAULT_SMALL_RATIO);
-	max_exp_width = get_string_width_ui((const unsigned char*)"888888888 / 888888888",
-		win->current_scale * DEFAULT_SMALL_RATIO);
+	max_lvl_width = get_string_width_zoom((const unsigned char*)"888 / 888",
+		win->font_category, win->current_scale_small);
+	max_exp_width = get_string_width_zoom((const unsigned char*)"888888888 / 888888888",
+		win->font_category, win->current_scale_small);
 
 	win->min_len_x = win->small_font_max_len_x + 2 * max_label_width + 2 * max_lvl_width
 		+ max_exp_width + 5 * sep_width;

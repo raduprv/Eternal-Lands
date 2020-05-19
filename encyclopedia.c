@@ -63,7 +63,7 @@ int common_encyclopedia_display_handler(window_info *win, size_t the_page, int t
 	float y_fac = (float)win->default_font_len_y / DEFAULT_FIXED_FONT_HEIGHT;
 	while(t)
 	{
-		float zoom = t->size ? win->current_scale : win->current_scale * DEFAULT_SMALL_RATIO;
+		float zoom = t->size ? win->current_scale : win->current_scale_small;
 		int ylen=(t->size)?win->default_font_len_y:win->small_font_len_y;
 		int xlen = get_string_width_zoom((const unsigned char*)t->text,
 			win->font_category, zoom);
@@ -111,8 +111,7 @@ CHECK_GL_ERRORS();
 				else
 					glColor3f(t->r,t->g,t->b);
 				draw_string_zoomed_width_font(scaled_x, scaled_y-scaled_j, (const unsigned char*)t->text,
-					win->len_x - scaled_x, 1, win->font_category,
-					win->current_scale * DEFAULT_SMALL_RATIO);
+					win->len_x - scaled_x, 1, win->font_category, win->current_scale_small);
 			}
 		}
 		t=t->Next;

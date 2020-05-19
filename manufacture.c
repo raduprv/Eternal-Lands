@@ -1371,7 +1371,7 @@ static int mouseover_mixone_handler(widget_list *widget, int mx, int my)
 		window_info *win = &windows_list.window[widget->window_id];
 		show_help_colored_scaled_centered((const unsigned char*)mix_str,
 			widget->pos_x + widget->len_x/2, win->len_y+10, 1.0f, 1.0f, 1.0f,
-			win->current_scale * DEFAULT_SMALL_RATIO);
+			win->current_scale_small);
 	}
 	return 0;
 }
@@ -1384,7 +1384,7 @@ static int mouseover_mixall_handler(widget_list *widget, int mx, int my)
 		window_info *win = &windows_list.window[widget->window_id];
 		show_help_colored_scaled_centered((const unsigned char*)mixall_str,
 			widget->pos_x + widget->len_x/2, win->len_y+10, 1.0f, 1.0f, 1.0f,
-			win->current_scale * DEFAULT_SMALL_RATIO);
+			win->current_scale_small);
 	}
 	return 0;
 }

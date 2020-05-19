@@ -668,8 +668,10 @@ int widget_handle_font_change(widget_list *widget, font_cat cat)
 // Label
 int label_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint32 Flags, float size, float r, float g, float b, const char *text)
 {
-	Uint16 len_x = get_string_width_ui((const unsigned char*)text, size);
-	Uint16 len_y = get_line_height(UI_FONT, size);
+	window_info *win = &windows_list.window[window_id];
+
+	Uint16 len_x = get_string_width_zoom((const unsigned char*)text, win->font_category, size);
+	Uint16 len_y = get_line_height(win->font_category, size);
 
 	label *T = (label *) calloc (1, sizeof(label));
 	safe_strncpy(T->text, text, sizeof(T->text));
@@ -894,6 +896,8 @@ static int button_change_font(widget_list *W, font_cat cat)
 
 int button_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, const char *text)
 {
+	window_info *win = &windows_list.window[window_id];
+
 	Uint16 len_x, len_y;
 	const struct WIDGET_TYPE *type = (Flags & BUTTON_SQUARE) ? &square_button_type : &round_button_type;
 
@@ -902,8 +906,9 @@ int button_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Ui
 	T->fixed_width = lx;
 	T->fixed_height = ly;
 
-	len_x = lx ? lx : get_string_width_ui(T->text, size) + (int)(2 * BUTTONRADIUS * size + 0.5);
-	len_y = ly ? ly : get_line_height(UI_FONT, size) + (int)(12 * size + 0.5);
+	len_x = lx ? lx : get_string_width_zoom(T->text, win->font_category, size)
+						+ (int)(2 * BUTTONRADIUS * size + 0.5);
+	len_y = ly ? ly : get_line_height(win->font_category, size) + (int)(12 * size + 0.5);
 
 	return widget_add (window_id, wid, OnInit, x, y, len_x, len_y, Flags, size, r, g, b, type, T, NULL);
 }

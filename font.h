@@ -4,17 +4,15 @@
 #define DEFAULT_FIXED_FONT_WIDTH  11
 #define DEFAULT_FIXED_FONT_HEIGHT 18
 #define SMALL_FIXED_FONT_WIDTH    8
+#define DEFAULT_SMALL_RATIO       (8.0f / 11.0f)
 
-#define DEFAULT_FONT_X_LEN      11.0f
 #define DEFAULT_FONT_Y_LEN      18.0f
-#define SMALL_FONT_X_LEN        8.0f
 #define SMALL_FONT_Y_LEN        15.0f
 #define INGAME_FONT_X_LEN       0.17f
 #define SMALL_INGAME_FONT_X_LEN 0.12f
 #define SMALL_INGAME_FONT_Y_LEN 0.17f
 #define ALT_INGAME_FONT_X_LEN   0.10f
 #define ALT_INGAME_FONT_Y_LEN   0.15f
-#define DEFAULT_SMALL_RATIO (SMALL_FONT_X_LEN / DEFAULT_FONT_X_LEN)
 
 /*!
  * \ingroup text_font
@@ -1127,10 +1125,6 @@ int initialize_fonts();
 size_t get_fixed_width_font_number(size_t idx);
 
 int get_char_width_zoom(unsigned char c, font_cat cat, float zoom);
-static __inline__ int get_char_width_ui(unsigned char c, float text_zoom)
-{
-	return get_char_width_zoom(c, UI_FONT, text_zoom);
-}
 int get_max_char_width_zoom(font_cat cat, float zoom);
 int get_avg_char_width_zoom(font_cat cat, float zoom);
 int get_max_digit_width_zoom(font_cat cat, float zoom);
@@ -1139,14 +1133,6 @@ static __inline__ int get_string_width_zoom(const unsigned char* str, font_cat c
 	float text_zoom)
 {
 	return get_buf_width_zoom(str, strlen((const char*)str), cat, text_zoom);
-}
-static __inline__ int get_buf_width_ui(const unsigned char* str, size_t len, float text_zoom)
-{
-	return get_buf_width_zoom(str, len, UI_FONT, text_zoom);
-}
-static __inline__ int get_string_width_ui(const unsigned char* str, float text_zoom)
-{
-	return get_buf_width_zoom(str, strlen((const char*)str), UI_FONT, text_zoom);
 }
 int get_line_height(font_cat cat, float text_zoom);
 void get_buf_dimensions(const unsigned char* str, size_t len, font_cat cat, float text_zoom,

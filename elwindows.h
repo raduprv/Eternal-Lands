@@ -63,6 +63,7 @@ typedef	struct	{
 	 */
 	/*! @{ */
 	float current_scale;
+	float current_scale_small;
 	float *custom_scale;
 	int box_size;
 	int title_height;

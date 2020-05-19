@@ -292,7 +292,6 @@ static void text_log_modify_npc_setting(void)
 
 static void calculate_option_positions(window_info *win)
 {
-	float zoom = win->current_scale * DEFAULT_SMALL_RATIO;
 	int i = 0;
 	int start_x = border_space;
 	int start_y = response_y_offset;
@@ -302,7 +301,8 @@ static void calculate_option_positions(window_info *win)
 	{
 		if (!dialogue_responces[i].in_use)
 			break;
-		width = get_string_width_ui(dialogue_responces[i].text, zoom);
+		width = get_string_width_zoom(dialogue_responces[i].text,
+			win->font_category, win->current_scale_small);
 		if (i < 36)
 			width += width_extra;
 		if ((start_x + width) > (win->len_x - 2 * border_space))
@@ -346,7 +346,7 @@ static int display_dialogue_handler(window_info *win)
 		calculate_option_positions(win);
 
 	//calculate the npc_name_x_start (to have it centered on the screen)
-	npc_name_width = get_string_width_ui(npc_name, win->current_scale * DEFAULT_SMALL_RATIO);
+	npc_name_width = get_string_width_zoom(npc_name, win->font_category, win->current_scale_small);
 	npc_name_x_start = (win->len_x - npc_name_width) / 2;
 
 	glDisable(GL_TEXTURE_2D);
@@ -848,12 +848,13 @@ int ui_scale_dialogue_handler(window_info *win)
 	bot_line_height = win->small_font_len_y + 1;
 
 	copy_pos_x = border_space;
-	copy_str_width = get_string_width_ui((unsigned char*)dialogue_copy_str,
-		win->current_scale * DEFAULT_SMALL_RATIO);
-	close_str_width = get_string_width_ui((unsigned char*)close_str,
-		win->current_scale * DEFAULT_SMALL_RATIO);
+	copy_str_width = get_string_width_zoom((unsigned char*)dialogue_copy_str,
+		win->font_category, win->current_scale_small);
+	close_str_width = get_string_width_zoom((unsigned char*)close_str,
+		win->font_category, win->current_scale_small);
 	close_pos_x = dialogue_menu_x_len - close_str_width - border_space;
-	repeat_str_width = get_string_width_ui((unsigned char*)dialogue_repeat_str, win->current_scale * DEFAULT_SMALL_RATIO);
+	repeat_str_width = get_string_width_zoom((unsigned char*)dialogue_repeat_str,
+		win->font_category, win->current_scale_small);
 	repeat_pos_x = copy_pos_x + copy_str_width + 2 * border_space;
 
 	resize_window(win->window_id, dialogue_menu_x_len, dialogue_menu_y_len);
@@ -870,7 +871,7 @@ int change_dialogue_font_handler(window_info *win, font_cat cat)
 	// Unlike when scaling the UI, changing the font or font size will change
 	// where we need to break the lines.
 	reset_soft_breaks(dialogue_string, strlen((const char*)dialogue_string),
-		sizeof(dialogue_string), UI_FONT, win->current_scale * DEFAULT_SMALL_RATIO,
+		sizeof(dialogue_string), win->font_category, win->current_scale_small,
 		(int)(0.5 + win->current_scale * available_text_width), NULL, NULL);
 	ui_scale_dialogue_handler(win);
 

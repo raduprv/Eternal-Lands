@@ -251,10 +251,10 @@ CHECK_GL_ERRORS();
 
 	if(quickspell_over!=-1 && mqb_data[quickspell_over])
 	{
-		float zoom = win->current_scale * DEFAULT_SMALL_RATIO;
+		float zoom = win->current_scale_small;
 		int x = 0, y = 0;
-		int len_str = get_string_width_ui((const unsigned char*)mqb_data[quickspell_over]->spell_name, zoom)
-			+ get_char_width_ui(' ', zoom);
+		int len_str = get_string_width_zoom((const unsigned char*)mqb_data[quickspell_over]->spell_name, win->font_category, zoom)
+			+ get_char_width_zoom(' ', win->font_category, zoom);
 
 		// vertical place left (or right) and aligned with slot
 		if (quickspells_dir==VERTICAL)

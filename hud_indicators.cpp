@@ -492,8 +492,8 @@ namespace Indicators
 			eternal_lands::FontManager &fmgr = eternal_lands::FontManager::get_instance();
 			std::string tooltip("");
 			(*i)->get_tooltip(tooltip);
-			int width = fmgr.line_width(UI_FONT, (const unsigned char*)tooltip.c_str(),
-				tooltip.length(), win->current_scale * DEFAULT_SMALL_RATIO);
+			int width = fmgr.line_width(win->font_category, (const unsigned char*)tooltip.c_str(),
+				tooltip.length(), win->current_scale_small);
 			int x_offset = -(Vars::border() + width);
 			if ((win->cur_x + x_offset) < 0)
 				x_offset = win->len_x;

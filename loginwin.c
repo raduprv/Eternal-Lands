@@ -143,8 +143,10 @@ static int resize_login_handler (window_info *win, Uint32 w, Uint32 h)
 	int button_y_len = (int)(0.5 + win->current_scale * BUTTON_Y_LEN);
 	int half_screen_x = w / 2;
 	int half_screen_y = h / 2;
-	int username_str_len_x = get_string_width_ui((const unsigned char*)login_username_str, win->current_scale);
-	int password_str_len_x = get_string_width_ui((const unsigned char*)login_username_str, win->current_scale);
+	int username_str_len_x = get_string_width_zoom((const unsigned char*)login_username_str,
+		win->font_category, win->current_scale);
+	int password_str_len_x = get_string_width_zoom((const unsigned char*)login_username_str,
+		win->font_category, win->current_scale);
 	int max_login_str = max2i(username_str_len_x, password_str_len_x);
 	int height = 0, max_width = 0, login_sep_x = 0, button_sep_x = 0;
 
