@@ -59,8 +59,8 @@ int common_encyclopedia_display_handler(window_info *win, size_t the_page, int t
 	// NOTE: Assuming monospaced font here
 	int cw_big = win->default_font_max_len_x;
 	int cw_small = win->small_font_max_len_x;
-	float x_fac = (float)cw_big / DEFAULT_FONT_X_LEN;
-	float y_fac = (float)win->default_font_len_y / DEFAULT_FONT_Y_LEN;
+	float x_fac = (float)cw_big / DEFAULT_FIXED_FONT_WIDTH;
+	float y_fac = (float)win->default_font_len_y / DEFAULT_FIXED_FONT_HEIGHT;
 	while(t)
 	{
 		float zoom = t->size ? win->current_scale : win->current_scale * DEFAULT_SMALL_RATIO;

@@ -2,7 +2,7 @@
 	Implements the "Generic special text window" feature.
 
 	Messages from server channel 255 are displayed in a text
-	window that automatically pops up.  Each message is treaded
+	window that automatically pops up.  Each message is treated
 	as a new block of text to display.  Any existing pop up
 	window will be closed and the text discarded.
 
@@ -185,7 +185,7 @@ static void set_min_window_size(window_info *win)
 {
 	int min_height = get_height((text_message_is_empty (&widget_text)) ?0: 1);
 	int min_width = win->box_size + 2 * sep + widget_get_width(server_popup_win, buttonId);
-	int min_text_width = win->box_size + 2 * sep + (int)(5 * DEFAULT_FONT_X_LEN);
+	int min_text_width = win->box_size + 2 * sep + (int)(5 * DEFAULT_FIXED_FONT_WIDTH);
 	if (min_width < min_text_width)
 		min_width = min_text_width;
 	set_window_min_size (win->window_id, min_width, min_height);
@@ -293,7 +293,7 @@ static int ui_scale_handler(window_info *win)
 /*
 	Create the server popup window, destroying an existing window first.
 */
-void display_server_popup_win(const char * const message)
+void display_server_popup_win(const unsigned char* message)
 {
 	const int unusable_width = 2 * sep + HUD_MARGIN_X;
 	const int unusable_height = 2 * sep + HUD_MARGIN_Y;
@@ -301,28 +301,28 @@ void display_server_popup_win(const char * const message)
 	int winHeight = 0;
 	Uint32 win_property_flags;
 	window_info *win = NULL;
+	int msg_len = strlen((const char*)message);
 
 	/* exit now if message empty */
-	if (!strlen(message)){
+	if (!*message)
 		return;
-	}
 
 	/* write the message to the log file */
-	write_to_log (CHAT_SERVER, (unsigned char*)message, strlen(message));
+	write_to_log(CHAT_SERVER, message, msg_len);
 
 	/* if the window already exists, copy new message to end */
 	if (server_popup_win >= 0)
 	{
-		char *sep_str = "\n\n";
+		const char *sep_str = "\n\n";
 		win = &windows_list.window[server_popup_win];
 
 		/* resize to hold new message text + separator */
 		widget_set_size(server_popup_win, textId, 1.0);
-		resize_text_message_data (&widget_text, widget_text.len + 3*(strlen(message)+strlen(sep_str)));
+		resize_text_message_data(&widget_text, widget_text.len + 3*(msg_len+strlen(sep_str)));
 
 		/* copy the message text into the text buffer */
-		safe_strcat (widget_text.data, sep_str, widget_text.size);
-		safe_strcat (widget_text.data, message, widget_text.size);
+		safe_strcat(widget_text.data, sep_str, widget_text.size);
+		safe_strcat(widget_text.data, (const char*)message, widget_text.size);
 		widget_text.len = strlen(widget_text.data);
 
 		/* this will re-wrap the text and add a scrollbar, title and resize widget as required */
@@ -334,13 +334,13 @@ void display_server_popup_win(const char * const message)
 	} else {
 		/* restart from scratch and initialise the window text widget text buffer */
 		initialise();
-		init_text_message (&widget_text, 3*strlen(message));
-		set_text_message_data (&widget_text, message);
+		init_text_message(&widget_text, 3*msg_len);
+		set_text_message_data(&widget_text, (const char*)message);
 	}
 
 	/* do a pre-wrap of the text to the maximum screen width we can use
 		 this will avoid the later wrap (after the resize) changing the number of lines */
-	if (!text_message_is_empty (&widget_text))
+	if (!text_message_is_empty(&widget_text))
 	{
 		num_text_lines = rewrap_message(&widget_text, CHAT_FONT, 1.0,
 			(window_width - unusable_width) - 4*sep, NULL);

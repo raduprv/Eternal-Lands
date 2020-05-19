@@ -565,20 +565,18 @@ namespace cm
 	//  Calculate the height/width of the context menu and resize the window
 	int Menu::resize(void)
 	{
-		const float scale = scaled_value(DEFAULT_FONT_X_LEN / 12.0);
+		const float scale = scaled_value(1.0);
 		float fwidth = 0, fheight = 0;
 		for (size_t i=0; i<menu_lines.size(); i++)
 		{
-			int str_width = 0;
-			const char *thetext = menu_lines[i].text.c_str();
-			while(*thetext != '\0')
-				str_width += get_char_width_ui(*thetext++, scale);
+			const unsigned char* thetext = reinterpret_cast<const unsigned char*>(menu_lines[i].text.c_str());
+			int str_width = get_string_width_ui(thetext, scale);
 			if (str_width > fwidth)
 				fwidth = str_width;
 			if (menu_lines[i].is_separator)
-				fheight += scaled_value(DEFAULT_FONT_Y_LEN / 2.0);
+				fheight += scaled_value(DEFAULT_FIXED_FONT_HEIGHT / 2.0);
 			else
-				fheight += scaled_value(DEFAULT_FONT_Y_LEN) + line_sep;
+				fheight += scaled_value(DEFAULT_FIXED_FONT_HEIGHT) + line_sep;
 		}
 		bool_tick_width = (menu_has_bools)? scaled_value(bool_box_size()+text_border) : 0;
 		fwidth += bool_tick_width + (border + text_border) * 2;

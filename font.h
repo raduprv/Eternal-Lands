@@ -1,8 +1,9 @@
 #ifndef NEW_FONT_H
 #define NEW_FONT_H
 
-#define DEFAULT_FIXED_FONT_WIDTH 11
-#define SMALL_FIXED_FONT_WIDTH   8
+#define DEFAULT_FIXED_FONT_WIDTH  11
+#define DEFAULT_FIXED_FONT_HEIGHT 18
+#define SMALL_FIXED_FONT_WIDTH    8
 
 #define DEFAULT_FONT_X_LEN      11.0f
 #define DEFAULT_FONT_Y_LEN      18.0f
@@ -889,7 +890,7 @@ public:
 	 * \return The width of the text in pixels
 	 */
 	int line_width(Category cat, const unsigned char* text, size_t len,
-		float text_zoom = 1.0)
+		float text_zoom=1.0)
 	{
 		return get(cat).line_width(text, len, text_zoom * font_scales[cat]);
 	}
@@ -903,7 +904,7 @@ public:
 	 * \param text_zoom The scale factor for the text
 	 * \return The height of the text in pixels
 	 */
-	int line_height(Category cat, float text_zoom)
+	int line_height(Category cat, float text_zoom=1.0)
 	{
 		return get(cat).height(text_zoom * font_scales[cat]);
 	}

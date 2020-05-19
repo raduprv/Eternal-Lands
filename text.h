@@ -418,13 +418,13 @@ void clear_display_text_buffer ();
  *      Rewraps a text buffer.
  *
  * \param msg    pointer to the message to rewrap
- * \param font_num	the number of the font in which the text is to be rendered
+ * \param cat    the category for the font in which the text is to be rendered
  * \param zoom   the text zoom to use for wrapping
  * \param width  the max width of a line
  * \param cursor cursor passed to \sa reset_soft_breaks
  * \retval       the number of lines after wrapping
  */
-int rewrap_message(text_message * buf, font_cat font, float zoom, int width, int *cursor);
+int rewrap_message(text_message* buf, font_cat cat, float zoom, int width, int *cursor);
 
 void cleanup_text_buffers(void);
 

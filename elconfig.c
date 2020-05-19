@@ -3260,14 +3260,13 @@ static void elconfig_populate_tabs(void)
 				x = 0;
 				for(y= 0; y<our_vars.var[i]->args.multi.count; y++) {
 					int radius = elconf_scale*BUTTONRADIUS;
-					float width_ratio = elconf_scale*DEFAULT_FONT_X_LEN/12.0f;
 					int width=0;
 					const char *label= our_vars.var[i]->args.multi.elems[y].label;
 					if (!*label)
 						label = "??";
 
 					width = 2 * radius
-						+ get_string_width_zoom((const unsigned char*)label, CONFIG_FONT, width_ratio);
+						+ get_string_width_zoom((const unsigned char*)label, CONFIG_FONT, elconf_scale);
 
 					multiselect_button_add_extended(window_id, widget_id, x, 0, width, label,
 						DEFAULT_SMALL_RATIO * elconf_scale, y == *(int *)our_vars.var[i]->var);
@@ -3374,8 +3373,9 @@ void display_elconfig_win(void)
 		SPACING = ELCONFIG_SCALED_VALUE(5);
 		LONG_DESC_SPACE = SPACING + ELCONFIG_SCALED_VALUE(MAX_LONG_DESC_LINES * SMALL_FONT_Y_LEN);
 		TAB_TAG_HEIGHT = ELCONFIG_SCALED_VALUE(25);
-		elconfig_menu_x_len = 4 * TAB_MARGIN + 4 * SPACING + CHECKBOX_SIZE +
-			50 * ELCONFIG_SCALED_VALUE(DEFAULT_FONT_X_LEN) + ELCONFIG_SCALED_VALUE(ELW_BOX_SIZE);
+		elconfig_menu_x_len = 4 * TAB_MARGIN + 4 * SPACING + CHECKBOX_SIZE
+			+ 50 * ELCONFIG_SCALED_VALUE(DEFAULT_FIXED_FONT_WIDTH)
+			+ ELCONFIG_SCALED_VALUE(ELW_BOX_SIZE);
 		elconfig_menu_y_len = ELCONFIG_SCALED_VALUE(440);
 
 		/* Set up the window */

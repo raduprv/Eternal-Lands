@@ -702,7 +702,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				if (in_data[3] == server_pop_chan)
 				{
 					if (use_server_pop_win)
-						display_server_popup_win((char*)text_buf);
+						display_server_popup_win(text_buf);
 					else
 						put_text_in_buffer (in_data[3], text_buf, len);
 					// if we're expecting a quest entry, this will be it

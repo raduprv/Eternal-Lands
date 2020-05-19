@@ -243,7 +243,6 @@ void drag_item(int item, int storage, int mini)
 	int offset = (mini) ? my_items_grid_size/3 : my_items_grid_size/2;
 
 	int quantity=item_quantity;
-	char str[20];
 
 	if(storage) {
 		if (item < 0 || item >= STORAGE_ITEMS_SIZE)
@@ -296,10 +295,9 @@ void drag_item(int item, int storage, int mini)
 	glEnd();
 
 	if(!mini && quantity!=-1){
-		int str_width = 0;
-		safe_snprintf(str,sizeof(str),"%i",quantity);
-		str_width = strlen(str) * get_global_scale() * SMALL_FONT_X_LEN;
-		draw_string_small_zoomed(mouse_x-str_width/2, mouse_y - offset - get_global_scale() * SMALL_FONT_Y_LEN, (unsigned char*)str, 1, get_global_scale());
+		unsigned char str[20];
+		safe_snprintf((char*)str, sizeof(str), "%d", quantity);
+		draw_string_small_zoomed_centered(mouse_x, mouse_y - offset - get_global_scale() * SMALL_FONT_Y_LEN, str, 1, get_global_scale());
 	}
 }
 
@@ -591,6 +589,7 @@ static int display_items_handler(window_info *win)
 	float equip_string_zoom;
 	Uint32 _cur_time = SDL_GetTicks(); /* grab a snapshot of current time */
 	char *but_labels[NUMBUT] = { sto_all_str, get_all_str, drp_all_str, NULL, itm_lst_str };
+	int equip_string_width;
 
 	glEnable(GL_TEXTURE_2D);
 
@@ -637,11 +636,14 @@ static int display_items_handler(window_info *win)
 		(const unsigned char*)quantity_str, 1, win->current_scale);
 
 	glColor3f(0.57f,0.67f,0.49f);
-	equip_string_zoom = (float)equip_grid.len_x / (SMALL_FONT_X_LEN * strlen(equip_str));
+	equip_string_width = get_string_width_zoom((const unsigned char*)equip_str,
+		win->font_category, DEFAULT_SMALL_RATIO);
+	equip_string_zoom = (float)equip_grid.len_x / equip_string_width;
 	if (equip_string_zoom > win->current_scale)
 		equip_string_zoom = win->current_scale;
-	draw_string_small_zoomed (gx_adjust + equip_grid.pos_x + equip_grid.len_x / 2 - (SMALL_FONT_X_LEN * equip_string_zoom * strlen(equip_str))/2,
-		gy_adjust + equip_grid.pos_y - 0.9 * SMALL_FONT_Y_LEN * win->current_scale + 1, (unsigned char*)equip_str, 1, equip_string_zoom);
+	draw_string_small_zoomed_centered(gx_adjust + equip_grid.pos_x + equip_grid.len_x / 2,
+		gy_adjust + equip_grid.pos_y - win->small_font_len_y + 1,
+		(const unsigned char*)equip_str, 1, equip_string_zoom);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...

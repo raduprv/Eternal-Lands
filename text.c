@@ -704,7 +704,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 
 	/* put #mpm in a popup box, on top of all else */
 	if ((channel == CHAT_MODPM) && (my_strncompare(text_to_add+1, "[Mod PM from", 12))) {
-		display_server_popup_win(text_to_add);
+		display_server_popup_win((const unsigned char*)text_to_add);
 	}
 
 	// look for astrology messages
@@ -1274,7 +1274,7 @@ void clear_display_text_buffer ()
 	}
 }
 
-int rewrap_message(text_message * msg, font_cat font, float text_zoom, int width, int *cursor)
+int rewrap_message(text_message* msg, font_cat cat, float text_zoom, int width, int *cursor)
 {
 	int nlines;
 	float max_line_width = 0;
@@ -1285,7 +1285,7 @@ int rewrap_message(text_message * msg, font_cat font, float text_zoom, int width
 	if (msg->wrap_width != width || msg->wrap_zoom != text_zoom)
 	{
  		nlines = reset_soft_breaks((unsigned char*)msg->data, msg->len, msg->size,
-			font, text_zoom, width, cursor, &max_line_width);
+			cat, text_zoom, width, cursor, &max_line_width);
 		msg->len = strlen(msg->data);
 		msg->wrap_lines = nlines;
 		msg->wrap_width = width;

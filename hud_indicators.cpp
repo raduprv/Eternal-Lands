@@ -32,6 +32,7 @@
 #include "text.h"
 #include "translate.h"
 
+using namespace eternal_lands;
 
 namespace Indicators
 {
@@ -43,8 +44,15 @@ namespace Indicators
 			static const float zoom(void) { return scale; }
 			static const int space(void) { return (int)(0.5 + scale * 5); }
 			static const int border(void) { return (int)(0.5 + scale * 2); }
-			static const float font_x(void) { return DEFAULT_FONT_X_LEN; }
-			static const float font_y(void) { return DEFAULT_FONT_Y_LEN; }
+			static const float font_x(void)
+			{
+				return FontManager::get_instance()
+					.max_width_spacing(FontManager::Category::UI_FONT);
+			}
+			static const float font_y(void)
+			{
+				return FontManager::get_instance().line_height(FontManager::Category::UI_FONT);
+			}
 			static const int y_len(void) { return static_cast<int>(border() + zoom() * font_y() + 0.5); }
 			static void set_scale(float new_scale) { scale = new_scale; }
 		private:
