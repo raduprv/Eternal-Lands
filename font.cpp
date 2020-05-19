@@ -397,6 +397,7 @@ std::pair<ustring, int> Font::reset_soft_breaks(const unsigned char *text,
 	size_t text_len, const TextDrawOptions& options, int *cursor, float *max_line_width)
 {
 	int block_width = std::ceil(_block_width * _scale * options.zoom());
+	int cursor_width = width_spacing('_', options.zoom());
 	if (!text || options.max_width() < block_width)
 		return std::make_pair(ustring(), 0);
 
@@ -423,15 +424,11 @@ std::pair<ustring, int> Font::reset_soft_breaks(const unsigned char *text,
 			if (c == ' ')
 				last_space = end;
 
-			// Check here if the character fits using block_width instead of the
-			// actual glyph width. This is consistent with draw_messages(),
-			// which can't easily check the actual character width because it
-			// also has to take the cursor into account. Perhaps this can at
-			// some point be improved, but for now, rather be pessimistic and
-			// don't lose the last character in the line.
-			if (cur_width + block_width <= options.max_width())
+			int chr_width = width_spacing(c, options.zoom());
+			if (cur_width + block_width <= options.max_width()
+				|| cur_width + std::max(chr_width, cursor_width) <= options.max_width())
 			{
-				cur_width += width_spacing(c, options.zoom());
+				cur_width += chr_width;
 			}
 			else
 			{
@@ -447,7 +444,7 @@ std::pair<ustring, int> Font::reset_soft_breaks(const unsigned char *text,
 		{
 			if (text[i] == '\r')
 			{
-				if (cursor && i < size_t(*cursor))
+				if (cursor && int(i) < *cursor)
 					--*cursor;
 			}
 			else
@@ -460,7 +457,7 @@ std::pair<ustring, int> Font::reset_soft_breaks(const unsigned char *text,
 		if (end < text_len && (wrapped_text.empty() || wrapped_text.back() != '\n'))
 		{
 			wrapped_text.push_back('\r');
-			if (cursor && end <= size_t(*cursor))
+			if (cursor && int(end) <= *cursor)
 				++diff_cursor;
 		}
 
@@ -790,6 +787,7 @@ void Font::draw_messages(const text_message *msgs, size_t msgs_size, int x, int 
 	static const float selection_green = 162 / 255.0f;
 	static const float selection_blue = 0.0f;
 	int block_width = std::ceil(_block_width * _scale * options.zoom());
+	int cursor_width = width_spacing('_', options.zoom());
 	int block_height = height(options.zoom() * options.line_spacing());
 	if (options.max_width() < block_width || options.max_lines() < 1)
 		// no point in trying
@@ -834,21 +832,6 @@ void Font::draw_messages(const text_message *msgs, size_t msgs_size, int x, int 
 	glBegin(GL_QUADS);
 	while (true)
 	{
-		if (i_total == cursor)
-		{
-			if (cur_x - x + block_width <= options.max_width())
-			{
-				cursor_x = cur_x;
-				cursor_y = cur_y;
-			}
-			else if (cur_line + 1 < options.max_lines())
-			{
-				cursor_x = x;
-				cursor_y = cur_y + block_height;
-			}
-			// otherwise, no space to put the cursor
-		}
-
 		ch = msgs[imsg].data[ichar];
 		// watch for special characters
 		if (ch == '\0')
@@ -861,8 +844,6 @@ void Font::draw_messages(const text_message *msgs, size_t msgs_size, int x, int 
 				|| filter_messages(msgs, msgs_size, filter, msg_start, imsg, ichar))
 				break;
 
-			// Grum 2020-04-07: why do we rewrap here? And not on the first message?
-// 			rewrap_message(&msgs[imsg], cat, options.zoom(), options.max_width(), NULL);
 			last_color_char = 0;
 		}
 
@@ -881,7 +862,11 @@ void Font::draw_messages(const text_message *msgs, size_t msgs_size, int x, int 
 			cur_x = x;
 			if (ch != '\0')
 				++ichar;
-			++i_total;
+			if (++i_total == cursor)
+			{
+				cursor_x = cur_x;
+				cursor_y = cur_y;
+			}
 			continue;
 		}
 
@@ -908,14 +893,25 @@ void Font::draw_messages(const text_message *msgs, size_t msgs_size, int x, int 
 		if (is_color(ch))
 			last_color_char = ch;
 
-		cur_x += draw_char(ch, cur_x, cur_y, options.zoom(), in_select);
-
-		++ichar;
-		++i_total;
-		if (cur_x - x + block_width > options.max_width())
+		int chr_width = width_spacing(ch, options.zoom());
+		if (cur_x - x + block_width <= options.max_width()
+			|| cur_x - x + std::max(chr_width, cursor_width) <= options.max_width())
+		{
+			if (i_total == cursor)
+			{
+				cursor_x = cur_x;
+				cursor_y = cur_y;
+			}
+			cur_x += draw_char(ch, cur_x, cur_y, options.zoom(), in_select);
+			++ichar;
+			++i_total;
+		}
+		else
 		{
 			// ignore rest of this line, but keep track of
 			// color characters
+			++ichar;
+			++i_total;
 			while (true)
 			{
 				ch = msgs[imsg].data[ichar];
@@ -926,6 +922,20 @@ void Font::draw_messages(const text_message *msgs, size_t msgs_size, int x, int 
 				++ichar;
 				++i_total;
 			}
+		}
+	}
+
+	if (i_total == cursor)
+	{
+		if (cur_x + cursor_width <= options.max_width())
+		{
+			cursor_x = cur_x;
+			cursor_y = cur_y;
+		}
+		else if (cur_line + 1 < options.max_lines())
+		{
+			cursor_x = x;
+			cursor_y = cur_y + block_height;
 		}
 	}
 
