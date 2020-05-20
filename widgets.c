@@ -1480,6 +1480,7 @@ int tab_collection_draw (widget_list *w)
 	int btn_size, arw_width;
 	int cur_start, cur_end;
 	int h;
+	int xtxt, ytxt;
 
 	if (!w) return 0;
 
@@ -1612,8 +1613,8 @@ int tab_collection_draw (widget_list *w)
 		if (col->tabs[itab].label_r >= 0.0f)
 			glColor3f (col->tabs[itab].label_r, col->tabs[itab].label_g, col->tabs[itab].label_b);
 
-		int ytxt = ytagtop + (h - (w->size * DEFAULT_FONT_Y_LEN)) / 2 + gy_adjust;
-		int xtxt = xstart + (w->size * DEFAULT_FIXED_FONT_WIDTH) / 2 + gx_adjust;
+		ytxt = ytagtop + (h - (w->size * DEFAULT_FONT_Y_LEN)) / 2 + gy_adjust;
+		xtxt = xstart + (w->size * DEFAULT_FIXED_FONT_WIDTH) / 2 + gx_adjust;
 		if (col->tabs[itab].closable)
 			xtxt += h;
 		draw_string_zoomed_width_font(xtxt, ytxt, (const unsigned char *)col->tabs[itab].label,

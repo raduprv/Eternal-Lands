@@ -53,14 +53,15 @@ int common_encyclopedia_display_handler(window_info *win, size_t the_page, int t
 	_Image *i=Page[the_page].I.Next;
 	int j = vscrollbar_get_pos(win->window_id, the_scroll_id);
 
-	mouseover_text = NULL;
-	mouseover_image = NULL;
-
 	// NOTE: Assuming monospaced font here
 	int cw_big = win->default_font_max_len_x;
 	int cw_small = win->small_font_max_len_x;
 	float x_fac = (float)cw_big / DEFAULT_FIXED_FONT_WIDTH;
 	float y_fac = (float)win->default_font_len_y / DEFAULT_FIXED_FONT_HEIGHT;
+
+	mouseover_text = NULL;
+	mouseover_image = NULL;
+
 	while(t)
 	{
 		float zoom = t->size ? win->current_scale : win->current_scale_small;

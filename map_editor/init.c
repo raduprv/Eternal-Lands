@@ -42,7 +42,7 @@ void read_config()
 	// Set our configdir
 	const char * tcfg = get_path_config();
 
-	my_strncp (configdir, tcfg , sizeof(configdir));
+	safe_strncpy(configdir, tcfg, sizeof(configdir));
 
 	if ( !read_el_ini () )
 	{
@@ -87,7 +87,7 @@ void init_stuff()
 	init_texture_cache();
 
 	init_vars();
-	
+
 	read_config();
 
 	file_check_datadir();
@@ -174,7 +174,7 @@ void init_stuff()
 	init_browser();
 
     if(SDL_InitSubSystem(SDL_INIT_TIMER)<0)
-    { 
+    {
         char str[120];
         snprintf(str, sizeof(str), "Couldn't initialize the timer: %s\n", SDL_GetError());
         log_error(__FILE__, __LINE__, str);

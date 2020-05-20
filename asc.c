@@ -13,10 +13,8 @@
 # include "map_editor/misc.h"
 #else
 # include "misc.h"
+
 #endif //MAP_EDITOR
-
-int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * len);
-
 // find the first occurance of needle in haystack, and return the distance to
 // that string. If beggining is 1, it returns the offset to the beginning of
 // the string otherwise it returns the offset to the end of the string. Needle
@@ -131,6 +129,20 @@ float get_float_after_string (const char *needle, const char *haystack, Uint32 m
 }
 #endif // FASTER_MAP_LOAD
 
+// File utilities
+Uint32 clean_file_name (char *dest, const char *src, Uint32 max_len)
+{
+	char *dptr, *dend = dest + (max_len-1);
+	const char *sptr;
+
+	for (dptr = dest, sptr = src; dptr < dend && *sptr; dptr++, sptr++)
+		*dptr = *sptr == '\\' ? '/' : tolower(*sptr);
+	// always place a null at the end
+	*dptr = '\0';
+
+	return dptr-dest;
+}
+
 char* safe_strncpy(char *dest, const char * source, const size_t len)
 {
 	if (len > 0)
@@ -159,6 +171,14 @@ char* safe_strncpy2(char *dest, const char * source, const size_t dest_len, cons
 	return dest;
 }
 
+char* safe_strcat (char* dest, const char* src, size_t len)
+{
+	size_t start_pos = strlen (dest);
+	if (start_pos < len)
+		safe_strncpy (dest+start_pos, src, len-start_pos);
+	return dest;
+}
+
 int safe_snprintf(char *dest, const size_t len, const char* format, ...)
 {
 	int ret;
@@ -184,13 +204,64 @@ int safe_snprintf(char *dest, const size_t len, const char* format, ...)
 	return 0;
 }
 
-char* safe_strcat (char* dest, const char* src, size_t len)
+static int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * l)
 {
-	size_t start_pos = strlen (dest);
-	if (start_pos < len)
-		safe_strncpy (dest+start_pos, src, len-start_pos);
-	return dest;
+	iconv_t t=iconv_open("ISO_8859-1","UTF-8");
+
+	iconv(t, src, l, dest, lu);
+
+	iconv_close(t);
+	return 1;
 }
+
+int my_xmlStrncopy(char ** out, const char * in, int len)
+{
+	if(in) {
+		size_t lin=0;
+		size_t lout=0;
+		int l1=0;
+		int l2=0;
+		int retval=1;
+		char *inbuf;
+		char *inbuf2;
+		char *outbuf;
+		char *outbuf2;
+
+		lin=strlen(in);
+		l2=xmlUTF8Strlen((xmlChar*)in);
+
+		if(l2<0) lout=l1;
+		else if (len>0 && len<l2) lout=len;
+		else lout=l2;
+
+		inbuf=inbuf2=(char *)malloc((lin+1)*sizeof(char));
+		outbuf=outbuf2=(char *)malloc((lout+1)*sizeof(char));
+
+		memcpy(inbuf,in,lin);
+
+		l1=lin;
+		l2=lout;
+
+		if(my_UTF8Toisolat1(&outbuf2,&lout,&inbuf2,&lin)<0) {
+			retval=-1;
+		}
+
+		free(inbuf);
+
+		outbuf[l2]=0;
+
+		if(*out) {
+			memcpy(*out,outbuf,l2+1);
+			free(outbuf);
+		} else {
+			*out=outbuf;
+		}
+
+		return retval<0?-1:l2;
+	} else return -1;
+}
+
+#ifndef MAP_EDITOR
 
 char* safe_strcasestr (const char* haystack, size_t haystack_len, const char* needle, size_t needle_len)
 {
@@ -328,20 +399,6 @@ char ** get_lines(char * str, int chars_per_line)
 	return my_str;
 }
 
-// File utilities
-Uint32 clean_file_name (char *dest, const char *src, Uint32 max_len)
-{
-	char *dptr, *dend = dest + (max_len-1);
-	const char *sptr;
-
-	for (dptr = dest, sptr = src; dptr < dend && *sptr; dptr++, sptr++)
-		*dptr = *sptr == '\\' ? '/' : tolower(*sptr);
-	// always place a null at the end
-	*dptr = '\0';
-
-	return dptr-dest;
-}
-
 /*XML*/
 
 float xmlGetFloat(const xmlNode *n, const char* c, float def_val)
@@ -358,63 +415,6 @@ int xmlGetInt(const xmlNode *n, const char* c)
 	int i = t ? atoi(t) : 0;
 	xmlFree(t);
 	return i;
-}
-
-int my_xmlStrncopy(char ** out, const char * in, int len)
-{
-	if(in) {
-		size_t lin=0;
-		size_t lout=0;
-		int l1=0;
-		int l2=0;
-		int retval=1;
-		char *inbuf;
-		char *inbuf2;
-		char *outbuf;
-		char *outbuf2;
-
-		lin=strlen(in);
-		l2=xmlUTF8Strlen((xmlChar*)in);
-
-		if(l2<0) lout=l1;
-		else if (len>0 && len<l2) lout=len;
-		else lout=l2;
-
-		inbuf=inbuf2=(char *)malloc((lin+1)*sizeof(char));
-		outbuf=outbuf2=(char *)malloc((lout+1)*sizeof(char));
-
-		memcpy(inbuf,in,lin);
-
-		l1=lin;
-		l2=lout;
-
-		if(my_UTF8Toisolat1(&outbuf2,&lout,&inbuf2,&lin)<0) {
-			retval=-1;
-		}
-
-		free(inbuf);
-
-		outbuf[l2]=0;
-
-		if(*out) {
-			memcpy(*out,outbuf,l2+1);
-			free(outbuf);
-		} else {
-			*out=outbuf;
-		}
-
-		return retval<0?-1:l2;
-	} else return -1;
-}
-
-int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * l)
-{
-	iconv_t t=iconv_open("ISO_8859-1","UTF-8");
-
-	iconv(t, src, l, dest, lu);
-
-	iconv_close(t);
-	return 1;
 }
 
 /* return true if digest calculated */
@@ -731,3 +731,5 @@ char * rtrim_string(char *the_string)
 	}
 	return the_string;
 }
+
+#endif // !MAP_EDITOR

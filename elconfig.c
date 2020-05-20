@@ -86,8 +86,10 @@
 
 #include "asc.h"
 #include "elconfig.h"
+#ifndef MAP_EDITOR
 #include "text.h"
 #include "consolewin.h"
+#endif // !MAP_EDITOR
 #include "url.h"
 #if !defined(MAP_EDITOR)
 #include "widgets.h"
@@ -2887,7 +2889,6 @@ int read_el_ini (void)
 			check_var(&(line[1]), INI_FILE_VAR);
 	}
 #ifdef	ELC
-	// we have to delay the poor man setting as its action can be over written depending on the ini file order
 	delay_poor_man = delay_update_highdpi_auto_scaling = 0;
 	action_poor_man(&poor_man);
 #endif

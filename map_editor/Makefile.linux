@@ -11,8 +11,8 @@ FEATURES += ZLIB
 FEATURES += ZLIBW
 
 PLATFORM=-march=native
-CWARN=-Wall -Wdeclaration-after-statement
-CXXWARN=-Wall 
+CWARN=-Wall -Wdeclaration-after-statement -Werror
+CXXWARN=-Wall
 EXTRA_INCLUDES=
 
 OPTIONS = -DLINUX -DMAP_EDITOR $(foreach FEATURE, $(FEATURES), -D$(FEATURE)) -D_7ZIP_ST \

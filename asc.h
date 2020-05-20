@@ -9,11 +9,139 @@
 #include <SDL_types.h>
 #include <libxml/tree.h>
 #include "client_serv.h"
+#ifndef MAP_EDITOR
 #include "font.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/*!
+ * \ingroup	misc_utils
+ * \brief	Gets the offset of a string in a char array
+ *
+ * 		The function gets the location of source_pointer in the dest_pointer char array, then returns the offset. The functio is not case-sensitive.
+ *
+ * \param	needle The string you wish to find
+ * \param	haystack The char array you want to search for \a needle
+ * \param	max_len The maximum length of \a haystack
+ * \param	beginning Whether it should return the offset to the beginning of the string or the end of the string
+ * \retval Sint32	Returns either the offset to the beginning of the string or to the end of the string - if the string was not found in the char array it returns -1 on failure.
+ */
+Sint32 get_string_occurance (const char *needle, const char *haystack, const Uint32 max_len, const char beginning);
+
+#ifndef FASTER_MAP_LOAD
+/*!
+ * \ingroup	misc_utils
+ * \brief	Gets an integer after the given string
+ *
+ * 		The function finds \a needle in \a haystack and returns the integer value after the string given after it.
+ *
+ * \param	needle The string you wish to find
+ * \param	haystack The pointer to the char array you wish to find the string from
+ * \param	max_len The maximum length it should check
+ * \retval Sint32	Returns the integer behind the string or -1 on failure.
+ */
+Sint32 get_integer_after_string (const char* needle, const char* haystack, Uint32 max_len);
+
+/*!
+ * \ingroup	misc_utils
+ * \brief	Gets a float after the given string
+ *
+ * 		The function finds \a needle in \a haystack and returns the floating point value after it.
+ *
+ * \param	needle The string you wish to find
+ * \param	haystack The pointer to the char array you want to search for the string in.
+ * \param	max_len The maximum length it should check
+ * \retval float	Returns the float after the string or -1.0f on failure.
+ */
+float get_float_after_string (const char* needle, const char* haystack, Uint32 max_len);
+#endif // FASTER_MAP_LOAD
+
+/*!
+ * \ingroup	misc_utils
+ * \brief	Goes through the file-name and replaces \\ with /
+ *
+ * 		Goes through the file-name and replaces \\ with /. Leaves the source intact, and copies the string to the destination.
+ *
+ * \param	dest The destination string
+ * \param	src The source string
+ * \param	max_len The maximum length
+ * \retval Uint32	Returns the length of the string
+ */
+Uint32 clean_file_name (char *dest, const char *src, Uint32 max_len);
+
+/*!
+ * \ingroup	misc_utils
+ * \brief	The function copies the string from source to dest, making sure it doesn't overflow and remains null terminated.  Strncpy doesn't guarantee the null termination.
+ *
+ * \param	dest The destination char array
+ * \param	source The source char array
+ * \param	len The sizeof the array.
+ */
+char* safe_strncpy(char *dest, const char * source, const size_t len);
+
+/*!
+ * \ingroup	misc_utils
+ * \brief	The function copies the string from source to dest, making sure it doesn't overflow and remains null terminated, and furthermore that it doesn't copy more than a certain number of chars.  Strncpy doesn't guarantee the null termination.
+ *
+ * \param	dest The destination char array
+ * \param	source The source char array
+ * \param	dest_len The sizeof the destination array.
+ * \param	src_len The desired number of characters from source.
+ */
+char* safe_strncpy2(char *dest, const char * source, const size_t dest_len, const size_t src_len);
+
+/*!
+ * \ingroup     misc_utils
+ * \brief       Append string src to dest, guaranteeing null-termination
+ *
+ *              Append string \a src to \a dest, making sure that the result
+ *              is null-terminated and contains at most \a len characters
+ *              (including the terminating nullbyte).
+ *              %Note that the "safe" predicate only applies to the
+ *              result, both \a dest and \a src should be null-terminated
+ *              on entry. Also note that this function is \em not the same
+ *              as \c strncat: the third parameter to \c strncat is the
+ *              number of characters to take from \a dest, not the total
+ *              number of characters in the result string.
+ *
+ * \param       dest The string to append to
+ * \param       src The string to be appended
+ * \param       len The maximum size of the result string
+ * \retval char* Pointer to the concatenated string dest
+ */
+char* safe_strcat (char *dest, const char *src, size_t len);
+
+/*!
+ * \ingroup	misc_utils
+ * \brief	Like snprintf, but guarentees nul termination.
+ *
+ * \param	dest The destination char array
+ * \param	len The sizeof the destination array.
+ * \param	format A printf-style format string
+ * \param	... arguments to be passed to snprintf
+ */
+int safe_snprintf(char *dest, const size_t len, const char* format, ...);
+
+/*!
+ * \ingroup	xml_utils
+ * \brief	Copies and converts the UTF8-string pointed to by src into the destination.
+ *
+ * 		Copies and converts the UTF8-string pointed to by src into the destination. It will max copy n characters, but if n is 0 it will copy the entire string.
+ * 		The function allocates appropriate buffer sizes using strlen and xmlUTF8Strlen. The src is copied to the in-buffer, then the in-buffer is converted using iconv() to iso-8859-1 and the converted string is put in the outbuffer.
+ * 		The main case is where the pointer pointed to by dest is non-NULL. In that case it will copy the content of the out-buffer to the *dest. Next it will free() the allocated buffers.
+ * 		A second case is where the pointer pointed to by dest is NULL - here it will set the pointer to the out-buffer and only free() the in-buffer.
+ *
+ * \param	dest A pointer to the destination character array pointer
+ * \param	src The source string
+ * \param	len The maximum length of chars that will be copied
+ * \retval int	Returns the number of characters that have been copied, or -1 on failure.
+ */
+int my_xmlStrncopy(char ** dest, const char * src, int len);
+
+#ifndef MAP_EDITOR
 
 /*!
  * Check if a character is a color character
@@ -65,101 +193,6 @@ static __inline__ int is_printable (Uint8 c)
  * A macro for the my_xmlstrncopy function that copies and converts an xml-string. Sets the length to 0, hence it will copy untill \\0 is reached.
  */
 #define MY_XMLSTRCPY(d,s) my_xmlStrncopy(d,s,0)
-
-#ifndef FASTER_MAP_LOAD
-/*!
- * \ingroup	misc_utils
- * \brief	Gets an integer after the given string
- *
- * 		The function finds \a needle in \a haystack and returns the integer value after the string given after it.
- *
- * \param	needle The string you wish to find
- * \param	haystack The pointer to the char array you wish to find the string from
- * \param	max_len The maximum length it should check
- * \retval Sint32	Returns the integer behind the string or -1 on failure.
- */
-Sint32 get_integer_after_string (const char* needle, const char* haystack, Uint32 max_len);
-
-/*!
- * \ingroup	misc_utils
- * \brief	Gets a float after the given string
- *
- * 		The function finds \a needle in \a haystack and returns the floating point value after it.
- *
- * \param	needle The string you wish to find
- * \param	haystack The pointer to the char array you want to search for the string in.
- * \param	max_len The maximum length it should check
- * \retval float	Returns the float after the string or -1.0f on failure.
- */
-float get_float_after_string (const char* needle, const char* haystack, Uint32 max_len);
-#endif // FASTER_MAP_LOAD
-
-/*!
- * \ingroup	misc_utils
- * \brief	Gets the offset of a string in a char array
- *
- * 		The function gets the location of source_pointer in the dest_pointer char array, then returns the offset. The functio is not case-sensitive.
- *
- * \param	needle The string you wish to find
- * \param	haystack The char array you want to search for \a needle
- * \param	max_len The maximum length of \a haystack
- * \param	beginning Whether it should return the offset to the beginning of the string or the end of the string
- * \retval Sint32	Returns either the offset to the beginning of the string or to the end of the string - if the string was not found in the char array it returns -1 on failure.
- */
-Sint32 get_string_occurance (const char *needle, const char *haystack, const Uint32 max_len, const char beginning);
-
-/*!
- * \ingroup	misc_utils
- * \brief	The function copies the string from source to dest, making sure it doesn't overflow and remains null terminated.  Strncpy doesn't guarantee the null termination.
- *
- * \param	dest The destination char array
- * \param	source The source char array
- * \param	len The sizeof the array.
- */
-char* safe_strncpy(char *dest, const char * source, const size_t len);
-
-/*!
- * \ingroup	misc_utils
- * \brief	The function copies the string from source to dest, making sure it doesn't overflow and remains null terminated, and furthermore that it doesn't copy more than a certain number of chars.  Strncpy doesn't guarantee the null termination.
- *
- * \param	dest The destination char array
- * \param	source The source char array
- * \param	dest_len The sizeof the destination array.
- * \param	src_len The desired number of characters from source.
- */
-char* safe_strncpy2(char *dest, const char * source, const size_t dest_len, const size_t src_len);
-
-/*!
- * \ingroup	misc_utils
- * \brief	Like snprintf, but guarentees nul termination.
- *
- * \param	dest The destination char array
- * \param	len The sizeof the destination array.
- * \param	format A printf-style format string
- * \param	... arguments to be passed to snprintf
- */
-int safe_snprintf(char *dest, const size_t len, const char* format, ...);
-
-/*!
- * \ingroup     misc_utils
- * \brief       Append string src to dest, guaranteeing null-termination
- *
- *              Append string \a src to \a dest, making sure that the result
- *              is null-terminated and contains at most \a len characters
- *              (including the terminating nullbyte).
- *              %Note that the "safe" predicate only applies to the
- *              result, both \a dest and \a src should be null-terminated
- *              on entry. Also note that this function is \em not the same
- *              as \c strncat: the third parameter to \c strncat is the
- *              number of characters to take from \a dest, not the total
- *              number of characters in the result string.
- *
- * \param       dest The string to append to
- * \param       src The string to be appended
- * \param       len The maximum size of the result string
- * \retval char* Pointer to the concatenated string dest
- */
-char* safe_strcat (char *dest, const char *src, size_t len);
 
 /*!
  * \ingroup	misc_utils
@@ -267,19 +300,6 @@ char *my_tolower (char *src);
 char ** get_lines(char * str, int chars_per_line);
 
 /*!
- * \ingroup	misc_utils
- * \brief	Goes through the file-name and replaces \\ with /
- *
- * 		Goes through the file-name and replaces \\ with /. Leaves the source intact, and copies the string to the destination.
- *
- * \param	dest The destination string
- * \param	src The source string
- * \param	max_len The maximum length
- * \retval Uint32	Returns the length of the string
- */
-Uint32 clean_file_name (char *dest, const char *src, Uint32 max_len);
-
-/*!
  * \ingroup	xml_utils
  * \brief	Finds the xml-attribute with the identifier p in the xmlNode and returns it as a floating point value
  *
@@ -304,23 +324,6 @@ float xmlGetFloat(const xmlNode *n, const char* p, float def_val);
  * \retval int	The integer value of the string. Returns 0 on failure.
  */
 int xmlGetInt(const xmlNode *n, const char* p);
-
-/*!
- * \ingroup	xml_utils
- * \brief	Copies and converts the UTF8-string pointed to by src into the destination.
- *
- * 		Copies and converts the UTF8-string pointed to by src into the destination. It will max copy n characters, but if n is 0 it will copy the entire string.
- * 		The function allocates appropriate buffer sizes using strlen and xmlUTF8Strlen. The src is copied to the in-buffer, then the in-buffer is converted using iconv() to iso-8859-1 and the converted string is put in the outbuffer.
- * 		The main case is where the pointer pointed to by dest is non-NULL. In that case it will copy the content of the out-buffer to the *dest. Next it will free() the allocated buffers.
- * 		A second case is where the pointer pointed to by dest is NULL - here it will set the pointer to the out-buffer and only free() the in-buffer.
- *
- * \param	dest A pointer to the destination character array pointer
- * \param	src The source string
- * \param	len The maximum length of chars that will be copied
- * \retval int	Returns the number of characters that have been copied, or -1 on failure.
- * \sa my_UTF8Toisolat1
- */
-int my_xmlStrncopy(char ** dest, const char * src, int len);
 
 int get_file_digest(const char*, Uint8[16]);
 void get_string_digest(const char*, Uint8[16]);
@@ -426,6 +429,8 @@ char *substitute_char_with_string(const char *str, char **out_str, char to_sub, 
  * \return return the pointer to the string.
  */
 char * rtrim_string(char *the_string);
+
+#endif // !MAP_EDITOR
 
 #ifdef __cplusplus
 } // extern "C"
