@@ -1102,7 +1102,7 @@ void Font::draw_ingame_string(const unsigned char* text, size_t len,
 
 #ifdef TTF
 std::pair<int, int> Font::render_glyph(Uint16 glyph, int i, int j, int size,
-	TTF_Font *font, SDL_Surface *surface)
+	int y_delta, TTF_Font *font, SDL_Surface *surface)
 {
 	static const SDL_Color white = { r: 0xff, g: 0xff, b: 0xff, a: 0xff };
 	static const SDL_Color black = { r: 0x00, g: 0x00, b: 0x00, a: 0x10 };
@@ -1130,7 +1130,7 @@ std::pair<int, int> Font::render_glyph(Uint16 glyph, int i, int j, int size,
 	glyph_area.w = width;
 	glyph_area.h = height;
 	area.x = j*size;
-	area.y = i*size;
+	area.y = i*size + y_delta;
 	area.w = width;
 	area.h = height;
 
@@ -1206,12 +1206,13 @@ bool Font::build_texture_atlas()
 		return false;
 	}
 
+	int y_delta = (size - TTF_FontHeight(font)) / 2;
 	for (size_t i_glyph = 0; i_glyph < nr_glyphs; ++i_glyph)
 	{
 		int i = i_glyph / font_chars_per_line;
 		int j = i_glyph % font_chars_per_line;
 		int w, a;
-		std::tie(w, a) = render_glyph(glyphs[i_glyph], i, j, size, font, image);
+		std::tie(w, a) = render_glyph(glyphs[i_glyph], i, j, size, y_delta, font, image);
 		if (w == 0)
 		{
 			SDL_FreeSurface(image);

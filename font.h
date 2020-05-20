@@ -731,19 +731,22 @@ private:
 	 * Render a single glyph
 	 *
 	 * Render the glyph \a glyph wit size \a size at row \a i and column \a j
-	 * in the font atlas \a surface, using font \a font.
+	 * in the font atlas \a surface, using font \a font. The vertical offset
+	 * parameter \a y_delta is used ti try and center the glyphs vertically,
+	 * making vertical alignment of text easier.
 	 *
 	 * \param glyph   The Unicode code point of the glyph to render
 	 * \param i       The row in the atlas at which to place the glyph
 	 * \param j       The column in the atlas at which to place the glyph
 	 * \param size    The size of the rendered glyph
+	 * \param y_delta Vertical offset for placing the glyph in the texture
 	 * \param font    The font with which to render the glyph
 	 * \param surface The surface on which the glyph is rendered
 	 * \return a pair of integers, containing the width of the character in the`
 	 * 	texture, and how far to advance the pen to draw the next texture
 	 */
 	static std::pair<int, int> render_glyph(Uint16 glyph, int i, int j, int size,
-		TTF_Font *font, SDL_Surface *surface);
+		int y_delta, TTF_Font *font, SDL_Surface *surface);
 	/*!
 	 * Build a texture for a TTF font
 	 *
