@@ -941,6 +941,7 @@ static int button_draw(widget_list *W)
 
 static int square_button_draw(widget_list *W)
 {
+	int line_height;
 	button *l = (button *)W->widget_info;
 	float extra_space = (W->len_x
 		- get_string_width_zoom(l->text, W->fcat, W->size))/2.0f;
@@ -961,8 +962,9 @@ static int square_button_draw(widget_list *W)
 	glEnd();
 
 	glEnable(GL_TEXTURE_2D);
+	line_height = get_line_height(W->fcat, W->size);
 	draw_string_zoomed_width_font_centered(W->pos_x + W->len_x / 2,
-		W->pos_y + (W->len_y - DEFAULT_FONT_Y_LEN * W->size) / 2 + 1 + gy_adjust,
+		W->pos_y + (W->len_y - line_height) / 2 + 1 + gy_adjust,
 		l->text, window_width, 1, W->fcat, W->size);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
