@@ -4,6 +4,8 @@
 #include "global.h"
 #include "../asc.h"
 
+image_t map_tiles[256];
+
 void destroy_map_tiles()
 {
 	int i;
