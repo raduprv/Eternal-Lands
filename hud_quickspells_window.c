@@ -12,7 +12,7 @@
 #include "hud.h"
 #include "hud_quickspells_window.h"
 #include "hud_misc_window.h"
-#if defined JSON_FILES
+#ifdef JSON_FILES
 #include "json_io.h"
 #endif
 #include "loginwin.h"
@@ -443,7 +443,7 @@ void load_quickspells (void)
 	Uint8 num_spells;
 	FILE *fp;
 	Uint32 i, index;
-#if defined JSON_FILES
+#ifdef JSON_FILES
 	int json_num_spells = 0;
 	int quickspell_ids[MAX_QUICKSPELL_SLOTS];
 #endif
@@ -454,17 +454,24 @@ void load_quickspells (void)
 	// succeeds)
 	quickspells_loaded = 1;
 
-#if defined JSON_FILES
-	safe_snprintf(fname, sizeof(fname), "%sspells_%s.json", get_path_config(), get_lowercase_username());
-	if ((json_num_spells = json_load_quickspells(fname, quickspell_ids, MAX_QUICKSPELL_SLOTS)) >= 0)
+#ifdef JSON_FILES
+	if (get_use_json_user_files())
 	{
-		size_t i;
-		memset(mqb_data, 0, sizeof (mqb_data));
-		for (i = 0, index = 1; i < json_num_spells; i++)
-			if (quickspell_ids[i] >= 0)
-				mqb_data[index++] = build_quickspell_data(quickspell_ids[i]);
-		return;
+		USE_JSON_DEBUG("Loading json file");
+		safe_snprintf(fname, sizeof(fname), "%sspells_%s.json", get_path_config(), get_lowercase_username());
+		if ((json_num_spells = json_load_quickspells(fname, quickspell_ids, MAX_QUICKSPELL_SLOTS)) >= 0)
+		{
+			size_t i;
+			memset(mqb_data, 0, sizeof (mqb_data));
+			for (i = 0, index = 1; i < json_num_spells; i++)
+				if (quickspell_ids[i] >= 0)
+					mqb_data[index++] = build_quickspell_data(quickspell_ids[i]);
+			return;
+		}
 	}
+
+	// if there is no json file, or json use disabled, try to load the old binary format
+	USE_JSON_DEBUG("Loading binary file");
 #endif
 
 	//open the data file
@@ -546,7 +553,7 @@ void save_quickspells(void)
 	FILE *fp;
 	Uint8 i;
 	size_t num_spells_to_write = 0;
-#if defined JSON_FILES
+#ifdef JSON_FILES
 	size_t index;
 	Uint16 *quickspell_ids = NULL;
 #endif
@@ -562,29 +569,25 @@ void save_quickspells(void)
 		num_spells_to_write++;
 	}
 
-#if defined JSON_FILES
-	// save the quickspell to the json file
-	quickspell_ids = malloc(num_spells_to_write * sizeof(Uint16));
-	for (index = 0; index < num_spells_to_write; index++)
-		quickspell_ids[index] = mqb_data[index+1]->spell_id;
-	safe_snprintf(fname, sizeof(fname), "%sspells_%s.json", get_path_config(), get_lowercase_username());
-	if (json_save_quickspells(fname, quickspell_ids, num_spells_to_write) < 0)
+#ifdef JSON_FILES
+	if (get_use_json_user_files())
 	{
-		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, fname);
+		USE_JSON_DEBUG("Saving json file");
+		// save the quickspell to the json file
+		quickspell_ids = malloc(num_spells_to_write * sizeof(Uint16));
+		for (index = 0; index < num_spells_to_write; index++)
+			quickspell_ids[index] = mqb_data[index+1]->spell_id;
+		safe_snprintf(fname, sizeof(fname), "%sspells_%s.json", get_path_config(), get_lowercase_username());
+		if (json_save_quickspells(fname, quickspell_ids, num_spells_to_write) < 0)
+			LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, fname);
+		free(quickspell_ids);
 		return;
 	}
-	free(quickspell_ids);
-
-	// we have written the json file, only write the binary file if one already exists
-	// this is to maintain backwards comatibility until the next forced version release
-	safe_snprintf(fname, sizeof(fname), "spells_%s.dat",get_lowercase_username());
-	if (file_exists_config(fname)!=1)
-		return;
-#else
-	safe_snprintf(fname, sizeof(fname), "spells_%s.dat",get_lowercase_username());
+	USE_JSON_DEBUG("Saving binary file");
 #endif
 
 	//write to the data file, for historical reasons, we will write all the information
+	safe_snprintf(fname, sizeof(fname), "spells_%s.dat",get_lowercase_username());
 	fp=open_file_config(fname,"wb");
 	if(fp == NULL){
 		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, fname, strerror(errno));

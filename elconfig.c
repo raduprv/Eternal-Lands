@@ -171,6 +171,7 @@ typedef struct
 	float	default_val; /*!< the default value before the config file is read */
 	float	config_file_val; /*!< the value after the config file is read */
 	int 	len; /*!< length of the variable */
+	int 	in_ini_file; /*!< true if the var was present when we read the ini file */
 	int	saved;
 //	char 	*message; /*!< In case you want a message to be written when a setting is changed */
 	dichar display;
@@ -245,8 +246,8 @@ int elconfig_menu_y= 10;
 
 int windows_on_top= 0;
 static int options_set= 0;
-static int delay_poor_man = 1;
 #ifdef ELC
+static int delay_poor_man = 1;
 static int shadow_map_size_multi= 0;
 #endif
 #ifdef	FSAA
@@ -323,8 +324,79 @@ static int delay_update_highdpi_auto_scaling = 0;
 // the elconfig local version of the font sizes, so we can auto scale if needed
 static float local_ui_scale = 1.0f;
 static float local_minimap_size_coefficient = 0.7f;
-#endif
 static size_t local_encyclopedia_font = 0;
+
+#ifdef JSON_FILES
+// Most of this code can be removed when json file use if the default of the only supported client
+
+static int find_var (const char *str, var_name_type type);
+static int use_json_user_files = 0;
+static int ready_for_user_files = 0;
+
+// Set when we initially login, before calling load functions
+void set_ready_for_user_files(void)
+{
+	ready_for_user_files = 1;
+}
+
+// Returns true if we are using json files.
+int get_use_json_user_files(void)
+{
+	static int first_time = 1;
+
+	// If this is the first time we have run with the use_json_user_files
+	// option then check if we should switch it on.  The option is false
+	// by default.
+	if (first_time && !use_json_user_files)
+	{
+		int i = find_var("use_json_user_files_v1", INI_FILE_VAR);
+
+		first_time = 0;
+
+		// should always be fine as add_var() done earlier
+		if (i < 0)
+			return 0;
+
+		// if the option was not in the read ini file, check for previous use of json files or a clean install
+		if (!our_vars.var[i]->in_ini_file)
+		{
+			char filename[256];
+			struct stat json_file_stat, bin_file_stat;
+			int json_stat_ret, bin_stat_ret;
+
+			// Use the counters file as not replaceable and is always saved
+			safe_snprintf(filename, sizeof(filename), "%scounters_%s.json", get_path_config(), get_lowercase_username());
+			json_stat_ret = stat(filename, &json_file_stat);
+			safe_snprintf(filename, sizeof(filename), "%scounters_%s.dat", get_path_config(), get_lowercase_username());
+			bin_stat_ret = stat(filename, &bin_file_stat);
+
+			// No bin file so switch on json usage even if no json file either - prevous or clean install
+			if ((bin_stat_ret == -1))
+			{
+				use_json_user_files = 1;
+				USE_JSON_DEBUG("Setting use_json_user_files as no binary file exists");
+			}
+			// If there are both json and binary files, pick the most recently modified or the json if the same
+			else if ((json_stat_ret == 0) && (json_file_stat.st_mtime >= bin_file_stat.st_mtime))
+			{
+				use_json_user_files = 1;
+				USE_JSON_DEBUG("Setting use_json_user_files as json file newer")
+			}
+			else // only binary files to leave option disabled
+			{
+				USE_JSON_DEBUG("Leaving set to binary");
+			}
+
+			// Make sure the option is saved to file, to avoid having to check again next run
+			set_var_unsaved("use_json_user_files_v1", INI_FILE_VAR);
+		}
+	}
+
+	return use_json_user_files;
+}
+#endif // JSON_FILES
+
+#endif // ELC
 
 void options_loaded(void)
 {
@@ -1111,6 +1183,20 @@ static void set_buff_icon_size(int *pointer, int value)
 	/* Turn off icons when the size is zero (or at least low). */
 	view_buffs = (value < 5) ?0: 1;
 }
+
+#ifdef JSON_FILES
+static void change_use_json_user_files(int *var)
+{
+	*var= !*var;
+	if (ready_for_user_files)
+	{
+		save_local_data();
+		LOG_TO_CONSOLE(c_green1, local_only_save_str);
+	}
+	else
+		USE_JSON_DEBUG("Not ready for user files");
+}
+#endif
 
 static void change_dark_channeltext(int *dct, int value)
 {
@@ -2093,6 +2179,7 @@ int check_var(char *str, var_name_type type)
 		LOG_WARNING("Can't find var '%s', type %d", str, type);
 		return -1;
 	}
+	our_vars.var[i]->in_ini_file = 1;
 
 	ptr += (type != COMMAND_LINE_SHORT_VAR) ? our_vars.var[i]->nlen : our_vars.var[i]->snlen;
 
@@ -2302,6 +2389,7 @@ static void add_var(option_type type, char * name, char * shortname, void * var,
 	our_vars.var[no]->nlen=strlen(our_vars.var[no]->name);
 	our_vars.var[no]->snlen=strlen(our_vars.var[no]->shortname);
 	our_vars.var[no]->saved= 0;
+	our_vars.var[no]->in_ini_file = 0;
 #ifdef ELC
 	add_options_distringid(name, &our_vars.var[no]->display, short_desc, long_desc);
 #endif //ELC
@@ -2516,6 +2604,10 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"customupdate","cup",&custom_update,change_custom_update,1,"Custom Looks Updates","Toggles whether custom look updates are automatically downloaded.",SERVER);
 	add_var(OPT_BOOL,"showcustomclothing","scc",&custom_clothing,change_custom_clothing,1,"Show Custom clothing","Toggles whether custom clothing is shown.",SERVER);
 #endif	//CUSTOM_UPDATE
+#ifdef JSON_FILES
+	add_var(OPT_BOOL, "use_json_user_files_v1", "usejsonuserfiles_v1", &use_json_user_files, change_use_json_user_files, 0, "Use New Format To Save User Files (.json)",
+		"NOTE: Use this option to enable the new format for saving user data.  If you change this option, data is automatically saved using the chosen format.  Disable this option before switching back to 1.9.5p8 or older clients.", SERVER);
+#endif
 	// SERVER TAB
 
 
@@ -2786,15 +2878,17 @@ int read_el_ini (void)
 		return 0;
 	}
 
+#ifdef	ELC
 	delay_poor_man = delay_update_highdpi_auto_scaling = 1;
+#endif
 	while ( fgets (line, sizeof (input_line), fin) )
 	{
 		if (line[0] == '#')
 			check_var(&(line[1]), INI_FILE_VAR);
 	}
+#ifdef	ELC
 	// we have to delay the poor man setting as its action can be over written depending on the ini file order
 	delay_poor_man = delay_update_highdpi_auto_scaling = 0;
-#ifdef	ELC
 	action_poor_man(&poor_man);
 #endif
 

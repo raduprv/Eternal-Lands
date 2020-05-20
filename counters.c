@@ -10,7 +10,7 @@
 #include "hud.h"
 #include "init.h"
 #include "loginwin.h"
-#if defined JSON_FILES
+#ifdef JSON_FILES
 #include "json_io.h"
 #endif
 #include "manufacture.h"
@@ -243,17 +243,22 @@ void load_counters(void)
 
 	counters_initialized = 1;
 
-#if defined JSON_FILES
-	// try to load the counters json file
-	safe_snprintf(filename, sizeof(filename), "%scounters_%s.json", get_path_config(), get_lowercase_username());
-	if (json_load_counters(filename, cat_str, entries, NUM_COUNTERS, counters) >= 0)
+#ifdef JSON_FILES
+	if (get_use_json_user_files())
 	{
-		LEAVE_DEBUG_MARK("load counters");
-		return;
+		USE_JSON_DEBUG("Loading json file");
+		// try to load the counters json file
+		safe_snprintf(filename, sizeof(filename), "%scounters_%s.json", get_path_config(), get_lowercase_username());
+		if (json_load_counters(filename, cat_str, entries, NUM_COUNTERS, counters) >= 0)
+		{
+			LEAVE_DEBUG_MARK("load counters");
+			return;
+		}
 	}
+	USE_JSON_DEBUG("Loading binary file");
 #endif
 
-	// if there is no json file, try to load the old binary format
+	// if there is no json file, or json use disabled, try to load the old binary format
 	safe_snprintf(filename, sizeof(filename), "counters_%s.dat", get_lowercase_username());
 	LOG_DEBUG("Open counters file '%s'", filename);
 	if (!(f = open_file_config(filename, "rb"))) {
@@ -318,24 +323,20 @@ void flush_counters(void)
 		return;
 	}
 
-#if defined JSON_FILES
-	// save the json file
-	safe_snprintf(filename, sizeof(filename), "%scounters_%s.json", get_path_config(), get_lowercase_username());
-	if (json_save_counters(filename, cat_str, entries, NUM_COUNTERS, (const struct Counter **)counters) < 0)
+#ifdef JSON_FILES
+	if (get_use_json_user_files())
 	{
-		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, filename);
+		USE_JSON_DEBUG("Saving json file");
+		// save the json file
+		safe_snprintf(filename, sizeof(filename), "%scounters_%s.json", get_path_config(), get_lowercase_username());
+		if (json_save_counters(filename, cat_str, entries, NUM_COUNTERS, (const struct Counter **)counters) < 0)
+			LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, filename);
 		return;
 	}
-
-	// we have written the json file, only write the binary file if one already exists
-	// this is to maintain backwards comatibility until the next forced version release
-	safe_snprintf(filename, sizeof(filename), "counters_%s.dat", get_lowercase_username());
-	if (file_exists_config(filename)!=1)
-		return;
-#else
-	safe_snprintf(filename, sizeof(filename), "counters_%s.dat", get_lowercase_username());
+	USE_JSON_DEBUG("Saving binary file");
 #endif
 
+	safe_snprintf(filename, sizeof(filename), "counters_%s.dat", get_lowercase_username());
 	LOG_DEBUG("Open counters file '%s'", filename);
 	if (!(f = open_file_config(filename, "wb"))) {
 		return;

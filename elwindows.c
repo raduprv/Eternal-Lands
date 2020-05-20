@@ -1087,7 +1087,7 @@ int	move_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y)
 int	draw_window_title(window_info *win)
 {
 	float u_first_start = (float)31/255;
-	float u_first_end = 0;
+	float u_first_end = 0.5f/255.0f;
 	float v_first_start = (float)160/255;
 	float v_first_end = (float)175/255;
 
@@ -1096,7 +1096,7 @@ int	draw_window_title(window_info *win)
 	float v_middle_start = (float)160/255;
 	float v_middle_end = (float)175/255;
 
-	float u_last_start = 0;
+	float u_last_start = 0.5f/255.0f;
 	float u_last_end = (float)31/255;
 	float v_last_start = (float)160/255;
 	float v_last_end = (float)175/255;

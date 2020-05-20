@@ -112,7 +112,14 @@ void reset_win_scale_factor(int set_default, float *changed_window_custom_scale)
 
 void update_highdpi_auto_scaling(void);
 
-extern float get_global_scale(void);
+float get_global_scale(void);
+
+#ifdef JSON_FILES
+void set_ready_for_user_files(void);
+int get_use_json_user_files(void);
+#define USE_JSON_DEBUG(message) {}
+//#define USE_JSON_DEBUG(message) {printf("%s:%d %s\n", __FUNCTION__, __LINE__, message);}
+#endif
 
 /*!
  * \ingroup config
