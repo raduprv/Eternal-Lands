@@ -29,6 +29,17 @@ typedef struct
 extern knowledge knowledge_list[KNOWLEDGE_LIST_SIZE]; /*!< global array of knowledgeable items */
 
 /*!
+ * \brief   Get the present value for the references knowledge.
+ *
+ * \param knowledge_id  the knowledge id
+ *
+ * returns	1 if the knowledge is present (i.e. book read), 0 is not present (i.e. book not read) and -1 if the id is invalid.
+ *
+ * \callgraph
+ */
+int knowledge_present(size_t knowledge_id);
+
+/*!
  * \ingroup knowledge_window
  * \brief   Gets the known knowledges from the \a list and stores the state in \ref knowledge_list.
  *

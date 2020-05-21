@@ -403,6 +403,14 @@ void get_knowledge_list (Uint16 size, const char *list)
 	}
 }
 
+int knowledge_present(size_t index)
+{
+	if (index < KNOWLEDGE_LIST_SIZE)
+		return (int)(knowledge_list[index].present > 0);
+	else
+		return -1;
+}
+
 void get_new_knowledge(Uint16 idx)
 {
 	if(idx < KNOWLEDGE_LIST_SIZE){
