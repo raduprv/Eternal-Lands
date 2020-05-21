@@ -110,12 +110,12 @@ typedef struct wl{
  * \name	Flags for the text field
  */
 /*! \{ */
-#define TEXT_FIELD_BORDER	0x01
-#define TEXT_FIELD_EDITABLE	0x02
-#define TEXT_FIELD_NO_KEYPRESS	0x04
-#define TEXT_FIELD_CAN_GROW	0x08
-#define TEXT_FIELD_SCROLLBAR	0x10
-#define TEXT_FIELD_IGNORE_RETURN 0x20
+#define TEXT_FIELD_BORDER          0x01
+#define TEXT_FIELD_EDITABLE        0x02
+#define TEXT_FIELD_NO_KEYPRESS     0x04
+#define TEXT_FIELD_CAN_GROW        0x08
+#define TEXT_FIELD_SCROLLBAR       0x10
+#define TEXT_FIELD_IGNORE_RETURN   0x20
 #define TEXT_FIELD_MOUSE_EDITABLE 0x200
 /*! \} */
 

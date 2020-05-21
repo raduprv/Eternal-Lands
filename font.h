@@ -1152,8 +1152,14 @@ static __inline__ void put_small_text_in_box_zoomed (const unsigned char* text,
 	put_small_colored_text_in_box_zoomed(c_grey1, text, len, width, buffer, text_zoom);
 }
 
-void draw_string_zoomed_width_font(int x, int y, const unsigned char *text,
+void draw_buf_zoomed_width_font(int x, int y, const unsigned char *text, size_t len,
 	int max_width, int max_lines, font_cat cat, float text_zoom);
+static __inline__ void draw_string_zoomed_width_font(int x, int y, const unsigned char *text,
+	int max_width, int max_lines, font_cat cat, float text_zoom)
+{
+	draw_buf_zoomed_width_font(x, y, text, strlen((const char*)text),
+		max_width, max_lines, cat, text_zoom);
+}
 void draw_string_zoomed_width_font_right(int x, int y, const unsigned char *text,
 	int max_width, int max_lines, font_cat cat, float text_zoom);
 void draw_string_zoomed_width_font_centered(int x, int y, const unsigned char *text,

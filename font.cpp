@@ -1458,13 +1458,12 @@ void put_small_colored_text_in_box_zoomed(unsigned char color,
 	buffer[new_len] = '\0';
 }
 
-void draw_string_zoomed_width_font(int x, int y, const unsigned char *text,
+void draw_buf_zoomed_width_font(int x, int y, const unsigned char *text, size_t len,
 	int max_width, int max_lines, font_cat cat, float zoom)
 {
 	TextDrawOptions options = TextDrawOptions().set_max_width(max_width)
 		.set_max_lines(max_lines).set_zoom(zoom);
-	FontManager::get_instance().draw(cat, text, strlen(reinterpret_cast<const char*>(text)),
-		x, y, options);
+	FontManager::get_instance().draw(cat, text, len, x, y, options);
 }
 void draw_string_zoomed_width_font_right(int x, int y, const unsigned char *text,
 	int max_width, int max_lines, font_cat cat, float zoom)
