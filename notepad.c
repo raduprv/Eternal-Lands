@@ -35,11 +35,13 @@ void init_ipu (INPUT_POPUP *ipu, int parent, int maxlen, int rows, int cols, voi
 	ipu->text_flags = TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS|TEXT_FIELD_MOUSE_EDITABLE;
 	ipu->text_flags |= (rows>1) ?TEXT_FIELD_SCROLLBAR :0;
 
-	ipu->popup_win = ipu->popup_field = ipu->popup_label = ipu->popup_ok = ipu->popup_no = -1;
+	ipu->popup_win = ipu->popup_field = ipu->popup_line = ipu->popup_label
+		= ipu->popup_ok = ipu->popup_no = -1;
 	ipu->x = ipu->y = 0;
 
 	ipu->popup_cancel = cancel;
 	ipu->popup_input = input;
+	ipu->popup_line_text = maxlen ? calloc(maxlen+1, 1) : NULL;
 	ipu->data = NULL;
 
 	ipu->parent = parent;
@@ -49,9 +51,12 @@ void init_ipu (INPUT_POPUP *ipu, int parent, int maxlen, int rows, int cols, voi
 	ipu->accept_do_not_close = ipu->allow_nonprint_chars = 0;
 }
 
-void clear_popup_window (INPUT_POPUP *ipu)
+void clear_popup_window(INPUT_POPUP *ipu)
 {
-	text_field_clear (ipu->popup_win, ipu->popup_field);
+	if (ipu->rows == 1)
+		*ipu->popup_line_text = '\0';
+	else
+		text_field_clear (ipu->popup_win, ipu->popup_field);
 	hide_window (ipu->popup_win);
 }
 
@@ -60,9 +65,10 @@ void close_ipu (INPUT_POPUP *ipu)
 	if (ipu->popup_win > 0)
 	{
 		destroy_window(ipu->popup_win);
+		free(ipu->popup_line_text);
 		clear_text_message_data (&ipu->popup_text);
 		free_text_message_data (&ipu->popup_text);
-		init_ipu(ipu, -1, 1, 1, 1, NULL, NULL);
+		init_ipu(ipu, -1, 0, 0, 0, NULL, NULL);
 	}
 }
 
@@ -89,8 +95,19 @@ static INPUT_POPUP *ipu_from_window (window_info *win)
 
 static void accept_popup_window (INPUT_POPUP *ipu)
 {
-	int istart, iend, itmp, len = ipu->popup_text.len;
-	char *data = ipu->popup_text.data;
+	int istart, iend, itmp, len;
+	unsigned char *data;
+
+	if (ipu->rows == 1)
+	{
+		data = ipu->popup_line_text;
+		len = strlen((const char*)data);
+	}
+	else
+	{
+		data = (unsigned char*)ipu->popup_text.data;
+		len = ipu->popup_text.len;
+	}
 
 	// skip leading spaces
 	istart = 0;
@@ -102,26 +119,28 @@ static void accept_popup_window (INPUT_POPUP *ipu)
 
 	// remove soft breaks
 	iend = itmp = istart;
-	while ( iend < len )
+	for (iend = istart, itmp = istart; iend < len; ++iend)
 	{
 		if (data[iend] != '\r')
 			data[itmp++] = data[iend];
-		iend++;
 	}
 	len = itmp;
 
 	// stop at first non-printable character if allow_nonprint_chars not set
-	iend = istart;
-	while ( iend < len && (ipu->allow_nonprint_chars || is_printable (data[iend]) ))
-		iend++;
-	if (iend == istart)
-		// empty string
-		return;
+	if (!ipu->allow_nonprint_chars)
+	{
+		iend = istart;
+		while (iend < len && is_printable(data[iend]))
+			++iend;
+		if (iend == istart)
+			// empty string
+			return;
+	}
 
 	// send the entered text to the window owner then clear up
 	data[iend] = '\0';
 	if (ipu->popup_input != NULL)
-		(*ipu->popup_input) (&data[istart], ipu->data);
+		(*ipu->popup_input) ((char*)&data[istart], ipu->data);
 	if (!ipu->accept_do_not_close)
 		clear_popup_window (ipu);
 }
@@ -178,7 +197,8 @@ static int popup_keypress_handler(window_info *win,
 	else
 	{
 		// send other key presses to the text field
-		widget_list *tfw = widget_find (win->window_id, ipu->popup_field);
+		int widget_id = ipu->rows == 1 ? ipu->popup_line : ipu->popup_field;
+		widget_list *tfw = widget_find (win->window_id, widget_id);
 		if (tfw != NULL)
 		{
 			// FIXME? This is a bit hackish, we don't allow the
@@ -203,6 +223,7 @@ static int popup_ui_scale_handler(window_info *win)
 {
 	int seperator = (int)(0.5 + win->current_scale * 10);
 	int y_len = seperator;
+	int char_width = get_avg_char_width_zoom(win->font_category, win->current_scale);
 	int max_x = 0;
 	int ok_w = 0;
 	int no_w = 0;
@@ -214,25 +235,64 @@ static int popup_ui_scale_handler(window_info *win)
 	widget_resize(win->window_id, ipu->popup_label, 0, 0);
 	max_x = 2 * seperator + widget_get_width(win->window_id, ipu->popup_label);
 
-	widget_set_size(win->window_id, ipu->popup_field, win->current_scale);
-	widget_resize(win->window_id, ipu->popup_field, ipu->cols * win->default_font_max_len_x + 2 * seperator + 2 * 5, 1 + ipu->rows * win->default_font_len_y + 2 * 5 );
-	// hack - the text feld scrollbar does not function correct until the next resize, so do it twice for now
-	widget_resize(win->window_id, ipu->popup_field, ipu->cols * win->default_font_max_len_x + 2 * seperator + 2 * 5, 1 + ipu->rows * win->default_font_len_y + 2 * 5 );
-	max_x = (2 * seperator + widget_get_width(win->window_id, ipu->popup_field) > max_x) ?2 * seperator + widget_get_width(win->window_id, ipu->popup_field) :max_x;
+	if (ipu->rows == 1)
+	{
+		widget_set_flags(win->window_id, ipu->popup_field, WIDGET_DISABLED);
+		widget_unset_flags(win->window_id, ipu->popup_line, WIDGET_DISABLED);
 
-	button_resize(win->window_id, ipu->popup_ok, 0, 0, win->current_scale);
-	button_resize(win->window_id, ipu->popup_no, 0, 0, win->current_scale);
+		widget_set_size(win->window_id, ipu->popup_line, win->current_scale);
+		widget_resize(win->window_id, ipu->popup_line,
+			ipu->cols * char_width + 2 * seperator + 2 * 5,
+			1 + ipu->rows * win->default_font_len_y + 2 * 5);
+		// FIXME: hack - the text feld scrollbar does not function correct until the next resize, so do it twice for now
+		widget_resize(win->window_id, ipu->popup_line,
+			ipu->cols * char_width + 2 * seperator + 2 * 5,
+			1 + ipu->rows * win->default_font_len_y + 2 * 5);
+		max_x = max2i(max_x, 2 * seperator + widget_get_width(win->window_id, ipu->popup_line));
 
-	ok_w = widget_get_width(win->window_id, ipu->popup_ok);
-	no_w = widget_get_width(win->window_id, ipu->popup_no);
-	max_x = ((ok_w + no_w + 3 * seperator) > max_x) ?ok_w + no_w + 3 * seperator: max_x;
-	tmp = (max_x - ok_w - no_w) / 3;
+		button_resize(win->window_id, ipu->popup_ok, 0, 0, win->current_scale);
+		button_resize(win->window_id, ipu->popup_no, 0, 0, win->current_scale);
 
-	widget_move(win->window_id, ipu->popup_label, (max_x - widget_get_width(win->window_id, ipu->popup_label)) / 2, y_len);
-	y_len += widget_get_height(win->window_id, ipu->popup_label) + seperator;
+		ok_w = widget_get_width(win->window_id, ipu->popup_ok);
+		no_w = widget_get_width(win->window_id, ipu->popup_no);
+		max_x = max2i(max_x, ok_w + no_w + 3 * seperator);
+		tmp = (max_x - ok_w - no_w) / 3;
 
-	widget_move(win->window_id, ipu->popup_field, (max_x - widget_get_width(win->window_id, ipu->popup_field)) / 2, y_len);
-	y_len += widget_get_height(win->window_id, ipu->popup_field) + seperator;
+		widget_move(win->window_id, ipu->popup_label, (max_x - widget_get_width(win->window_id, ipu->popup_label)) / 2, y_len);
+		y_len += widget_get_height(win->window_id, ipu->popup_label) + seperator;
+
+		widget_move(win->window_id, ipu->popup_line, (max_x - widget_get_width(win->window_id, ipu->popup_line)) / 2, y_len);
+		y_len += widget_get_height(win->window_id, ipu->popup_line) + seperator;
+	}
+	else
+	{
+		widget_set_flags(win->window_id, ipu->popup_field, ipu->text_flags);
+		widget_set_flags(win->window_id, ipu->popup_line, WIDGET_DISABLED);
+
+		widget_set_size(win->window_id, ipu->popup_field, win->current_scale);
+		widget_resize(win->window_id, ipu->popup_field,
+			ipu->cols * char_width + 2 * seperator + 2 * 5,
+			1 + ipu->rows * win->default_font_len_y + 2 * 5);
+		// FIXME: hack - the text feld scrollbar does not function correct until the next resize, so do it twice for now
+		widget_resize(win->window_id, ipu->popup_field,
+			ipu->cols * char_width + 2 * seperator + 2 * 5,
+			1 + ipu->rows * win->default_font_len_y + 2 * 5);
+		max_x = max2i(max_x, 2 * seperator + widget_get_width(win->window_id, ipu->popup_field));
+
+		button_resize(win->window_id, ipu->popup_ok, 0, 0, win->current_scale);
+		button_resize(win->window_id, ipu->popup_no, 0, 0, win->current_scale);
+
+		ok_w = widget_get_width(win->window_id, ipu->popup_ok);
+		no_w = widget_get_width(win->window_id, ipu->popup_no);
+		max_x = max2i(max_x, ok_w + no_w + 3 * seperator);
+		tmp = (max_x - ok_w - no_w) / 3;
+
+		widget_move(win->window_id, ipu->popup_label, (max_x - widget_get_width(win->window_id, ipu->popup_label)) / 2, y_len);
+		y_len += widget_get_height(win->window_id, ipu->popup_label) + seperator;
+
+		widget_move(win->window_id, ipu->popup_field, (max_x - widget_get_width(win->window_id, ipu->popup_field)) / 2, y_len);
+		y_len += widget_get_height(win->window_id, ipu->popup_field) + seperator;
+	}
 
 	widget_move(win->window_id, ipu->popup_ok, tmp, y_len);
 	widget_move(win->window_id, ipu->popup_no, 2 * tmp + ok_w, y_len);
@@ -281,7 +341,8 @@ void display_popup_win (INPUT_POPUP *ipu, const char* label)
 			return;
 		}
 
-		// clear the buffer
+		// clear the buffers
+		*ipu->popup_line_text = '\0';
 		init_text_message (&ipu->popup_text, ipu->maxlen);
 		set_text_message_color (&ipu->popup_text, 0.77f, 0.57f, 0.39f);
 
@@ -289,10 +350,14 @@ void display_popup_win (INPUT_POPUP *ipu, const char* label)
 		ipu->popup_label = label_add_extended(ipu->popup_win, widget_id++, NULL, 0, 0, 0, win->current_scale, 0.77f, 0.57f, 0.39f, label);
 
 		// Input
-		// FIXME: which font to use for this?
 		ipu->popup_field = text_field_add_extended(ipu->popup_win, widget_id++,
-			NULL, 0, 0, 0, 0, ipu->text_flags, UI_FONT, 1.0, 0.77f, 0.57f, 0.39f,
-			&ipu->popup_text, 1, FILTER_ALL, 5, 5);
+			NULL, 0, 0, 0, 0, ipu->text_flags, win->font_category,
+			1.0, 0.77f, 0.57f, 0.39f, &ipu->popup_text, 1, FILTER_ALL, 5, 5);
+		widget_set_flags(win->window_id, ipu->popup_field, WIDGET_DISABLED);
+		ipu->popup_line = pword_field_add_extended(ipu->popup_win, widget_id++,
+			NULL, 0, 0, 0, 0, P_TEXT, 1.0, 0.77f, 0.57f, 0.39f,
+			ipu->popup_line_text, ipu->maxlen);
+		widget_set_flags(win->window_id, ipu->popup_line, WIDGET_DISABLED);
 
 		// Accept
 		ipu->popup_ok = button_add_extended (ipu->popup_win, widget_id++, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, button_okay);

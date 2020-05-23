@@ -19,13 +19,14 @@ extern float note_zoom;    /*!< Size of the text in the note pad */
 /* state structure for an input popup window */
 typedef struct
 {
-	int popup_win, parent, popup_field, popup_label, popup_ok, popup_no;
+	int popup_win, parent, popup_field, popup_line, popup_label, popup_ok, popup_no;
 	int maxlen, cols, rows, x, y;
 	int accept_do_not_close, allow_nonprint_chars;
 	void (*popup_cancel)(void *);
 	void (*popup_input)(const char *, void *);
 	Uint32 text_flags;
 	text_message popup_text;
+	unsigned char* popup_line_text;
 	void *data;
 } INPUT_POPUP;
 
