@@ -798,13 +798,14 @@ static void draw_rules_interface (window_info * win)
 
 	/* scale the string if it is too wide for the screen */
 	string_zoom = win->current_scale;
-	string_width = get_string_width_zoom((const unsigned char*)str, RULES_FONT, string_zoom)
+	string_width = get_string_width_zoom((const unsigned char*)str, win->font_category,
+			string_zoom)
 		+ 2 * win->default_font_max_len_x;
 	if (string_width > win->len_x)
 		string_zoom *= win->len_x / string_width;
 	draw_string_zoomed_width_font_centered(win->len_x/2,
 		win->len_y - ui_seperator_y - win->default_font_len_y, (const unsigned char*)str,
-		window_width, 0, RULES_FONT, string_zoom);
+		window_width, 0, win->font_category, string_zoom);
 
 	draw_rules(display_rules, box_border_x, ui_seperator_y + win->default_font_len_y / 2,
 		box_border_x + text_box_width, text_box_height, win->current_scale, rules_winRGB);
@@ -937,10 +938,11 @@ static void adjust_ui_elements(window_info *win, int scroll_id, int accept_id)
 		char_per_line = (win->len_x - 3 * win->box_size) / win->default_font_max_len_x;
 
 	accept_label_width = get_string_width_zoom((const unsigned char*)accept_label,
-		RULES_FONT, win->current_scale);
+		win->font_category, win->current_scale);
 	button_resize(win->window_id, accept_id, accept_label_width + 40, (int)(0.5 + win->current_scale * 32), win->current_scale);
 
-	text_box_width = char_per_line * win->default_font_max_len_x;
+	text_box_width = char_per_line * get_avg_char_width_zoom(win->font_category,
+		win->current_scale);
 	box_border_x = (win->len_x - text_box_width - win->box_size) / 2;
 
 	text_box_height = 0.75 * (win->len_y - widget_get_height(win->window_id, accept_id) - win->default_font_len_y);
@@ -973,6 +975,7 @@ void create_rules_root_window (int width, int height, int next, int time)
 		window_info *win = NULL;
 
 		rules_root_win = create_window (win_rules, -1, -1, 0, 0, width, height, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
+		set_window_font_category(rules_root_win, RULES_FONT);
 		if (rules_root_win >= 0 && rules_root_win < windows_list.num_windows)
 			win = &windows_list.window[rules_root_win];
 		else
