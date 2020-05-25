@@ -1473,7 +1473,6 @@ int pword_keypress (widget_list *w, int mx, int my, SDL_Keycode key_code, Uint32
 unsigned char * pword_field_get(widget_list *w);
 int pword_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, unsigned char *buffer, int buffer_size);
 int pword_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, float size, float r, float g, float b, unsigned char *buffer, int buffer_size);
-int pword_field_click(widget_list *w, int mx, int my, Uint32 flags);
 void pword_set_status(widget_list *w, Uint8 status);
 
 int multiselect_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, int width);

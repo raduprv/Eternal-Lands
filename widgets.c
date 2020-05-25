@@ -58,6 +58,7 @@ typedef struct {
 	int cursor_pos;
 	int draw_begin, draw_end;
 	int sel_begin, sel_end;
+	int drag_begin;
 	int mouseover;
 } password_entry;
 
@@ -117,6 +118,8 @@ static int text_field_move(widget_list *w, int pos_x, int pos_y);
 static int text_field_change_font(widget_list *w, font_cat cat);
 static int text_field_paste(widget_list *w, const char* text);
 static int pword_field_mouseover(widget_list *w, int mx, int my);
+static int pword_field_click(widget_list *w, int mx, int my, Uint32 flags);
+static int pword_field_drag(widget_list *w, int mx, int my, Uint32 flags, int dx, int dy);
 static int pword_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_code,
 	Uint32 key_unicode, Uint16 key_mod);
 static int pword_field_draw(widget_list *w);
@@ -137,7 +140,7 @@ static const struct WIDGET_TYPE progressbar_type = { NULL, progressbar_draw, NUL
 static const struct WIDGET_TYPE vscrollbar_type = { NULL, vscrollbar_draw, vscrollbar_click, vscrollbar_drag, NULL, NULL, NULL, free_widget_info, NULL, NULL, NULL };
 static const struct WIDGET_TYPE tab_collection_type = { NULL, tab_collection_draw, tab_collection_click, NULL, NULL, tab_collection_resize, (int (*)())tab_collection_keypress, free_tab_collection, NULL, tab_collection_change_font, NULL };
 static const struct WIDGET_TYPE text_field_type = { NULL, text_field_draw, text_field_click, text_field_drag, NULL, text_field_resize, (int (*)())text_field_keypress, text_field_destroy, text_field_move, text_field_change_font, text_field_paste };
-static const struct WIDGET_TYPE pword_field_type = { NULL, pword_field_draw, pword_field_click, NULL, pword_field_mouseover, NULL, (int (*)())pword_field_keypress, free_widget_info, NULL, NULL, pword_field_paste };
+static const struct WIDGET_TYPE pword_field_type = { NULL, pword_field_draw, pword_field_click, pword_field_drag, pword_field_mouseover, NULL, (int (*)())pword_field_keypress, free_widget_info, NULL, NULL, pword_field_paste };
 static const struct WIDGET_TYPE multiselect_type = { NULL, multiselect_draw, multiselect_click, NULL, NULL, NULL, NULL, free_multiselect, NULL, NULL, NULL };
 static const struct WIDGET_TYPE spinbutton_type = { NULL, spinbutton_draw, spinbutton_click, spinbutton_click, NULL, NULL, (int (*)())spinbutton_keypress, free_multiselect, NULL, NULL, NULL };
 
@@ -3762,34 +3765,71 @@ static int pword_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_
 	return 0;
 }
 
-int pword_field_click(widget_list *w, int mx, int my, Uint32 flags)
+static int pword_pos_under_mouse(password_entry* entry, int mx, int space,
+	font_cat cat, float size)
 {
-	password_entry *entry;
-	const unsigned char *pw;
+	const unsigned char* pw = entry->password;
 	int i, cw, str_width;
-	int space = (int)(0.5 + 2*w->size);
 
-	if (w == NULL)
-		return 0;
-
-	entry = (password_entry*) w->widget_info;
-	pw = entry->password;
 	switch (entry->status)
 	{
 		case P_NONE:
 			return -1;
 		case P_TEXT:
 			for (i = entry->draw_begin, str_width = space; pw[i] && str_width <= mx; ++i)
-				str_width += get_char_width_zoom(pw[i], w->fcat, w->size);
-			entry->cursor_pos = (str_width <= mx) ? i : i-1;
-			return 1;
+				str_width += get_char_width_zoom(pw[i], cat, size);
+			return (str_width <= mx) ? i : i-1;
 		case P_NORMAL:
 		default:
-			cw = get_char_width_zoom('*', w->fcat, w->size);
-			entry->cursor_pos = min2i(entry->draw_begin + (mx - space + cw - 1) / cw,
+			cw = get_char_width_zoom('*', cat, size);
+			return min2i(entry->draw_begin + (mx - space + cw - 1) / cw,
 				strlen((const char*)pw));
-			return 1;
 	}
+}
+
+static int pword_field_click(widget_list *w, int mx, int my, Uint32 flags)
+{
+	password_entry *entry;
+	int space;
+
+	if (!w || !(entry = w->widget_info))
+		return 0;
+
+	space = (int)(0.5 + 2*w->size);
+	entry->cursor_pos = pword_pos_under_mouse(entry, mx, space, w->fcat, w->size);
+	entry->sel_begin = entry->sel_end = -1;
+
+	return 1;
+}
+
+static int pword_field_drag(widget_list *w, int mx, int my, Uint32 flags, int dx, int dy)
+{
+	password_entry *entry;
+	int space, pos, len;
+
+	if (!w || !(entry = w->widget_info))
+		return 0;
+
+	space = (int)(0.5 + 2*w->size);
+	len = strlen((const char*)entry->password);
+	pos = pword_pos_under_mouse(entry, mx, space, w->fcat, w->size);
+	if (entry->sel_begin < 0 && pos < len)
+	{
+		entry->sel_begin = entry->drag_begin = max2i(0, pos);
+		entry->sel_end = pos + 1;
+	}
+	else if (pos <= entry->drag_begin)
+	{
+		entry->sel_begin = max2i(0, pos);
+		entry->sel_end = min2i(len, entry->drag_begin + 1);
+	}
+	else
+	{
+		entry->sel_begin = entry->drag_begin + 1;
+		entry->sel_end = min2i(len, pos + 1);
+	}
+
+	return 1;
 }
 
 static int pword_field_mouseover(widget_list *w, int mx, int my)
