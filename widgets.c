@@ -55,7 +55,9 @@ typedef struct {
 	unsigned char* password;
 	int status;
 	int max_chars;
-	int cursor_pos, left_pos, right_pos;
+	int cursor_pos;
+	int draw_begin, draw_end;
+	int sel_begin, sel_end;
 	int mouseover;
 } password_entry;
 
@@ -113,8 +115,12 @@ static int text_field_resize (widget_list *w, int width, int height);
 static int text_field_destroy(widget_list *w);
 static int text_field_move(widget_list *w, int pos_x, int pos_y);
 static int text_field_change_font(widget_list *w, font_cat cat);
+static int text_field_paste(widget_list *w, const char* text);
 static int pword_field_mouseover(widget_list *w, int mx, int my);
+static int pword_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_code,
+	Uint32 key_unicode, Uint16 key_mod);
 static int pword_field_draw(widget_list *w);
+static int pword_field_paste(widget_list *w, const char* text);
 static int multiselect_draw(widget_list *widget);
 static int multiselect_click(widget_list *widget, int mx, int my, Uint32 flags);
 static int free_multiselect(widget_list *widget);
@@ -122,18 +128,18 @@ static int spinbutton_draw(widget_list *widget);
 static int spinbutton_click(widget_list *widget, int mx, int my, Uint32 flags);
 static int spinbutton_keypress(widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
 
-static const struct WIDGET_TYPE label_type = { NULL, label_draw, NULL, NULL, NULL, label_resize, NULL, free_widget_info, NULL, NULL };
-static const struct WIDGET_TYPE image_type = { NULL, image_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL, NULL };
-static const struct WIDGET_TYPE checkbox_type = { NULL, checkbox_draw, checkbox_click, NULL, NULL, NULL, NULL, free_widget_info, NULL, NULL };
-static const struct WIDGET_TYPE round_button_type = { NULL, button_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL, button_change_font };
-static const struct WIDGET_TYPE square_button_type = { NULL, square_button_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL, button_change_font };
-static const struct WIDGET_TYPE progressbar_type = { NULL, progressbar_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL, NULL };
-static const struct WIDGET_TYPE vscrollbar_type = { NULL, vscrollbar_draw, vscrollbar_click, vscrollbar_drag, NULL, NULL, NULL, free_widget_info, NULL, NULL };
-static const struct WIDGET_TYPE tab_collection_type = { NULL, tab_collection_draw, tab_collection_click, NULL, NULL, tab_collection_resize, (int (*)())tab_collection_keypress, free_tab_collection, NULL, tab_collection_change_font };
-static const struct WIDGET_TYPE text_field_type = { NULL, text_field_draw, text_field_click, text_field_drag, NULL, text_field_resize, (int (*)())text_field_keypress, text_field_destroy, text_field_move, text_field_change_font };
-static const struct WIDGET_TYPE pword_field_type = { NULL, pword_field_draw, pword_field_click, NULL, pword_field_mouseover, NULL, (int (*)())pword_keypress, free_widget_info, NULL, NULL };
-static const struct WIDGET_TYPE multiselect_type = { NULL, multiselect_draw, multiselect_click, NULL, NULL, NULL, NULL, free_multiselect, NULL, NULL };
-static const struct WIDGET_TYPE spinbutton_type = { NULL, spinbutton_draw, spinbutton_click, spinbutton_click, NULL, NULL, (int (*)())spinbutton_keypress, free_multiselect, NULL, NULL };
+static const struct WIDGET_TYPE label_type = { NULL, label_draw, NULL, NULL, NULL, label_resize, NULL, free_widget_info, NULL, NULL, NULL };
+static const struct WIDGET_TYPE image_type = { NULL, image_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL, NULL, NULL };
+static const struct WIDGET_TYPE checkbox_type = { NULL, checkbox_draw, checkbox_click, NULL, NULL, NULL, NULL, free_widget_info, NULL, NULL, NULL };
+static const struct WIDGET_TYPE round_button_type = { NULL, button_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL, button_change_font, NULL };
+static const struct WIDGET_TYPE square_button_type = { NULL, square_button_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL, button_change_font, NULL };
+static const struct WIDGET_TYPE progressbar_type = { NULL, progressbar_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL, NULL, NULL };
+static const struct WIDGET_TYPE vscrollbar_type = { NULL, vscrollbar_draw, vscrollbar_click, vscrollbar_drag, NULL, NULL, NULL, free_widget_info, NULL, NULL, NULL };
+static const struct WIDGET_TYPE tab_collection_type = { NULL, tab_collection_draw, tab_collection_click, NULL, NULL, tab_collection_resize, (int (*)())tab_collection_keypress, free_tab_collection, NULL, tab_collection_change_font, NULL };
+static const struct WIDGET_TYPE text_field_type = { NULL, text_field_draw, text_field_click, text_field_drag, NULL, text_field_resize, (int (*)())text_field_keypress, text_field_destroy, text_field_move, text_field_change_font, text_field_paste };
+static const struct WIDGET_TYPE pword_field_type = { NULL, pword_field_draw, pword_field_click, NULL, pword_field_mouseover, NULL, (int (*)())pword_field_keypress, free_widget_info, NULL, NULL, pword_field_paste };
+static const struct WIDGET_TYPE multiselect_type = { NULL, multiselect_draw, multiselect_click, NULL, NULL, NULL, NULL, free_multiselect, NULL, NULL, NULL };
+static const struct WIDGET_TYPE spinbutton_type = { NULL, spinbutton_draw, spinbutton_click, spinbutton_click, NULL, NULL, (int (*)())spinbutton_keypress, free_multiselect, NULL, NULL, NULL };
 
 // <--- Common widget functions ---
 widget_list * widget_find(int window_id, Uint32 widget_id)
@@ -662,6 +668,19 @@ int widget_handle_font_change(widget_list *widget, font_cat cat)
 			res |= widget->OnFontChange(widget, cat);
 		}
 	}
+
+	return res;
+}
+
+int widget_handle_paste(widget_list *widget, const char* text)
+{
+	int res = 0;
+	if (widget->type && widget->type->paste)
+	{
+		res = widget->type->paste(widget, text);
+	}
+
+	// MAYBE FIXME? Add object-specific paste handlers?
 
 	return res;
 }
@@ -2538,7 +2557,7 @@ static void text_widget_insert(const char *thestring)
 		if (w->Flags & TEXT_FIELD_MOUSE_EDITABLE)
 			w->Flags &= ~TEXT_FIELD_NO_KEYPRESS;
 		widget_unset_flags(insert_window_id, insert_widget_id, WIDGET_DISABLED);
-		do_paste_to_text_field(w, thestring);
+		text_field_paste(w, thestring);
 		w->Flags |= saved_flag;
 	}
 	insert_window_id = insert_widget_id = -1;
@@ -2580,7 +2599,7 @@ static int context_edit_handler(window_info *win, int widget_id, int mx, int my,
 				char str[20];
 				safe_snprintf(str, sizeof(str), "%1d:%02d:%02d", real_game_minute/60, real_game_minute%60, real_game_second);
 				widget_unset_flags(win->window_id, widget_id, WIDGET_DISABLED);
-				do_paste_to_text_field(w, str);
+				text_field_paste(w, str);
 			}
 			break;
 		case 6:
@@ -2591,7 +2610,7 @@ static int context_edit_handler(window_info *win, int widget_id, int mx, int my,
 					char str[20];
 					safe_snprintf(str, sizeof(str), "%d,%d", me->x_tile_pos, me->y_tile_pos);
 					widget_unset_flags(win->window_id, widget_id, WIDGET_DISABLED);
-					do_paste_to_text_field(w, str);
+					text_field_paste(w, str);
 				}
 			}
 			break;
@@ -3281,110 +3300,257 @@ static int text_field_change_font(widget_list *w, font_cat cat)
 	return 1;
 }
 
+static int text_field_paste(widget_list *w, const char* text)
+{
+	text_field *tf;
+	int bytes = strlen(text);
+	text_message* msg;
+	int p;
+
+	if (!w || !(tf = w->widget_info))
+		return 0;
+
+	// if not editable, don't allow paste
+	if (!(w->Flags & TEXT_FIELD_EDITABLE))
+		return 0;
+
+	msg = &tf->buffer[tf->msg];
+
+	// if can't grow and would over fill, just use what we can
+	if ((msg->len + bytes >= msg->size) && !(w->Flags & TEXT_FIELD_CAN_GROW))
+		bytes = msg->size - msg->len - 1;
+
+	resize_text_message_data (msg, msg->len + bytes);
+
+	p = tf->cursor;
+	memmove (&msg->data[p + bytes], &msg->data[p], msg->len - p + 1);
+	memcpy (&msg->data[p], text, bytes);
+	msg->len += bytes;
+	tf->cursor += bytes;
+	text_field_find_cursor_line (tf);
+
+	return 1;
+}
+
 //password entry field. We act like a restricted text entry with multiple modes
 
-static void pword_update_drawable_range(password_entry *entry, font_cat cat, float size,
-	int max_width)
+static void pword_update_draw_range_right(password_entry *entry, font_cat cat,
+	float size, int max_width)
 {
-	int cw, sw, str_width = 0;
-	const unsigned char *pw = entry->password;
+	const unsigned char* pw = entry->password;
 	int len = strlen((const char*)pw);
+	int str_width;
 
-	cw = get_char_width_zoom('_', cat, size);
-	switch (entry->status)
+	if (entry->status == P_TEXT)
 	{
-		case P_NONE:
-			break;
-		case P_TEXT:
-			if (entry->cursor_pos >= entry->right_pos)
+		str_width = get_buf_width_zoom(pw + entry->draw_begin,
+			entry->draw_end - entry->draw_begin, cat, size);
+		if (str_width > max_width)
+		{
+			while (entry->draw_end > entry->draw_begin && str_width > max_width)
+				str_width -= get_char_width_zoom(pw[--entry->draw_end], cat, size);
+		}
+		else
+		{
+			while (entry->draw_end < len)
 			{
-				entry->right_pos = min2i(entry->cursor_pos + 1, len);
-				str_width = get_buf_width_zoom(pw + entry->left_pos,
-					entry->right_pos - entry->left_pos, cat, size);
-				if (entry->cursor_pos == len)
-					str_width += cw;
-				while (entry->left_pos < entry->right_pos && str_width > max_width)
-					str_width -= get_char_width_zoom(pw[entry->left_pos++], cat, size);
+				int char_width = get_char_width_zoom(pw[entry->draw_end], cat, size);
+				if (str_width + char_width > max_width)
+					break;
+				str_width += char_width;
+				++entry->draw_end;
 			}
-			else if (entry->cursor_pos < entry->left_pos)
+		}
+	}
+	else if (entry->status == P_NORMAL)
+	{
+		int sw = get_char_width_zoom('*', cat, size);
+		str_width = (entry->draw_end - entry->draw_begin) * sw;
+		if (str_width > max_width)
+		{
+			while (entry->draw_end > entry->draw_begin && str_width > max_width)
 			{
-				entry->left_pos = entry->cursor_pos;
-				str_width = get_buf_width_zoom(pw + entry->left_pos,
-					entry->right_pos - entry->left_pos, cat, size);
-				while (entry->left_pos < entry->right_pos && str_width > max_width)
-					str_width -= get_char_width_zoom(pw[--entry->right_pos], cat, size);
+				--entry->draw_end;
+				str_width -= sw;
 			}
-			else if (entry->right_pos >= len)
+		}
+		else
+		{
+			while (entry->draw_end < len && str_width + sw <= max_width)
 			{
-				entry->right_pos = len;
-				if (entry->left_pos > 0)
-				{
-					str_width = get_buf_width_zoom(pw + entry->left_pos,
-						entry->right_pos - entry->left_pos, cat, size);
-					if (entry->cursor_pos == len)
-						str_width += cw;
-					while (entry->left_pos > 0)
-					{
-						int chr_width = get_char_width_zoom(pw[entry->left_pos-1], cat, size);
-						if (str_width + chr_width > max_width)
-							break;
-						str_width += chr_width;
-						--entry->left_pos;
-					}
-				}
+				++entry->draw_end;
+				str_width += sw;
 			}
-			break;
-		case P_NORMAL:
-		default:
-			sw = get_char_width_zoom('*', cat, size);
-			if (entry->cursor_pos > entry->right_pos)
-			{
-				entry->right_pos = min2i(entry->cursor_pos + 1, len);
-				str_width = (entry->right_pos - entry->left_pos) * sw;
-				if (entry->right_pos == len)
-					str_width += cw;
-				while (entry->left_pos < entry->right_pos && str_width > max_width)
-				{
-					++entry->left_pos;
-					str_width -= sw;
-				}
-			}
-			else if (entry->cursor_pos < entry->left_pos)
-			{
-				entry->left_pos = entry->cursor_pos;
-				str_width = (entry->right_pos - entry->left_pos) * sw;
-				while (entry->left_pos < entry->right_pos && str_width > max_width)
-				{
-					--entry->right_pos;
-					str_width = sw;
-				}
-			}
-			else if (entry->right_pos >= len)
-			{
-				entry->right_pos = len;
-				if (entry->left_pos > 0)
-				{
-					str_width = (entry->right_pos - entry->left_pos) * sw;
-					if (entry->cursor_pos == len)
-						str_width += cw;
-					while (entry->left_pos > 0 && str_width + sw <= max_width)
-					{
-						str_width += sw;
-						--entry->left_pos;
-					}
-				}
-			}
-			break;
+		}
 	}
 }
 
-int pword_keypress(widget_list *w, int mx, int my, SDL_Keycode key_code,
+static void pword_check_after_left_move(password_entry *entry, font_cat cat,
+	float size, int max_width)
+{
+	if (entry->status == P_NONE || entry->cursor_pos >= entry->draw_begin)
+		return;
+
+	entry->draw_begin = entry->cursor_pos;
+	pword_update_draw_range_right(entry, cat, size, max_width);
+}
+
+static void pword_update_draw_range_left(password_entry *entry, font_cat cat,
+	float size, int max_width)
+{
+	const unsigned char* pw = entry->password;
+	int len = strlen((const char*)pw);
+	int str_width;
+
+	if (entry->status == P_TEXT)
+	{
+		str_width = get_buf_width_zoom(pw + entry->draw_begin,
+			entry->draw_end - entry->draw_begin, cat, size);
+		if (entry->cursor_pos == len)
+			str_width += get_char_width_zoom('_', cat, size);
+		if (str_width > max_width)
+		{
+			while (entry->draw_end > entry->draw_begin && str_width > max_width)
+				str_width -= get_char_width_zoom(pw[entry->draw_begin++], cat, size);
+		}
+		else
+		{
+			while (entry->draw_begin > 0)
+			{
+				int char_width = get_char_width_zoom(pw[entry->draw_begin-1], cat, size);
+				if (str_width + char_width > max_width)
+					break;
+				str_width += char_width;
+				--entry->draw_begin;
+			}
+		}
+	}
+	else if (entry->status == P_NORMAL)
+	{
+		int sw = get_char_width_zoom('*', cat, size);
+		str_width = (entry->sel_end - entry->sel_begin) * sw;
+		if (entry->cursor_pos == len)
+			str_width += get_char_width_zoom('_', cat, size);
+		if (str_width > max_width)
+		{
+			while (entry->draw_end > entry->draw_begin && str_width > max_width)
+			{
+				++entry->draw_begin;
+				str_width -= sw;
+			}
+		}
+		else
+		{
+			while (entry->draw_begin > 0 && str_width + sw <= max_width)
+			{
+				--entry->draw_begin;
+				str_width += sw;
+			}
+		}
+	}
+}
+
+static void pword_check_after_right_move(password_entry *entry, font_cat cat,
+	float size, int max_width)
+{
+	int len;
+
+	if (entry->status == P_NONE || entry->cursor_pos < entry->draw_end)
+		return;
+
+	len = strlen((const char*)entry->password);
+	entry->draw_end = min2i(len, entry->cursor_pos+1);
+	pword_update_draw_range_left(entry, cat, size, max_width);
+}
+
+static void pword_update_after_delete(password_entry *entry, font_cat cat,
+	float size, int max_width)
+{
+	int len = strlen((const char*)entry->password);
+	entry->draw_begin = min2i(entry->draw_begin, entry->cursor_pos);
+	entry->draw_end = min2i(len, entry->cursor_pos+1);
+
+	pword_update_draw_range_right(entry, cat, size, max_width);
+	if (entry->draw_end == len)
+		pword_update_draw_range_left(entry, cat, size, max_width);
+}
+
+static void pword_update_draw_range_after_insert(password_entry *entry, font_cat cat,
+	float size, int max_width)
+{
+	int len = strlen((const char*)entry->password);
+	if (entry->draw_end > len)
+		entry->draw_end = len;
+	pword_update_draw_range_right(entry, cat, size, max_width);
+	if (entry->cursor_pos >= entry->draw_end)
+	{
+		entry->draw_end = min2i(len, entry->cursor_pos+1);
+		pword_update_draw_range_left(entry, cat, size, max_width);
+	}
+}
+
+static char* pword_get_selected_text(const password_entry *entry)
+{
+	int size, idst, isrc;
+	char *res;
+
+	if (entry->sel_begin < 0 || entry->sel_end <= entry->sel_begin)
+		return NULL;
+
+	size = entry->sel_end - entry->sel_begin + 1;
+	res = calloc(size, 1);
+	if (!res)
+		return NULL;
+
+	for (idst = 0, isrc = entry->sel_begin; isrc < entry->sel_end; ++isrc)
+	{
+		unsigned char ch = entry->password[isrc];
+		if (is_printable(ch) || ch == '\n')
+			res[idst++] = ch;
+	}
+
+	return res;
+}
+
+static void pword_delete(password_entry *entry, int begin, int end, font_cat cat,
+	float size, int max_width)
+{
+	unsigned char* pw = entry->password;
+	int len = strlen((const char*)pw);
+	memmove(pw + begin, pw + end, len - end + 1);
+	entry->cursor_pos = begin;
+	pword_update_after_delete(entry, cat, size, max_width);
+}
+
+static void pword_insert(password_entry *entry, int pos, const unsigned char* text, int len,
+	font_cat cat, float size, int max_width)
+{
+	unsigned char* pw = entry->password;
+	if (pos + len >= entry->max_chars)
+	{
+		memcpy(pw + pos, text, entry->max_chars - pos);
+	}
+	else
+	{
+		memmove(pw + pos + len, pw + pos, entry->max_chars - pos - len);
+		memcpy(pw + pos, text, len);
+	}
+	pw[entry->max_chars] = '\0';
+	entry->cursor_pos = min2i(pos + len, entry->max_chars);
+	pword_update_draw_range_after_insert(entry, cat, size, max_width);
+}
+
+static int pword_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_code,
 	Uint32 key_unicode, Uint16 key_mod)
 {
 	unsigned char ch = key_to_char(key_unicode);
 	password_entry *entry;
-	int alt_on = key_mod & KMOD_ALT,
+	int shift_on = key_mod & KMOD_SHIFT,
+		alt_on = key_mod & KMOD_ALT,
 	    ctrl_on = key_mod & KMOD_CTRL;
+	unsigned char* pw;
+	int len, cpos;
+	int max_width;
 
 	if (!w || !(entry = w->widget_info))
 		return 0;
@@ -3392,75 +3558,207 @@ int pword_keypress(widget_list *w, int mx, int my, SDL_Keycode key_code,
 	if (entry->status == P_NONE)
 		return -1;
 
+	max_width = (int)(0.5 + w->len_x - 4*w->size);
+	pw = entry->password;
+	len = strlen((const char*)pw);
+	cpos = entry->cursor_pos;
+
+	if (entry->status == P_TEXT)
+	{
+		// Selection support only for regular text input
+		if (!alt_on && !ctrl_on && shift_on)
+		{
+			switch (key_code)
+			{
+				case SDLK_LEFT:
+					if (cpos > 0)
+					{
+						if (entry->sel_begin < 0)
+						{
+							entry->sel_end = cpos;
+							entry->sel_begin = cpos - 1;
+						}
+						else if (cpos == entry->sel_begin)
+						{
+							--entry->sel_begin;
+						}
+						else if (cpos == entry->sel_end)
+						{
+							if (--entry->sel_end < entry->sel_begin)
+								SWAP(entry->sel_begin, entry->sel_end);
+						}
+						--entry->cursor_pos;
+						pword_check_after_left_move(entry, w->fcat, w->size, max_width);
+					}
+					return 1;
+				case SDLK_RIGHT:
+					if (cpos < len)
+					{
+						if (entry->sel_begin < 0)
+						{
+							entry->sel_end = cpos + 1;
+							entry->sel_begin = cpos;
+						}
+						else if (cpos == entry->sel_begin)
+						{
+							if (++entry->sel_begin > entry->sel_end)
+								SWAP(entry->sel_begin, entry->sel_end);
+						}
+						else if (cpos == entry->sel_end)
+						{
+							++entry->sel_end;
+						}
+						++entry->cursor_pos;
+						pword_check_after_right_move(entry, w->fcat, w->size, max_width);
+					}
+					return 1;
+				case SDLK_HOME:
+					if (entry->sel_begin < 0)
+					{
+						entry->sel_end = cpos;
+					}
+					else if (cpos == entry->sel_end)
+					{
+						entry->sel_end = entry->sel_begin;
+					}
+					entry->sel_begin = 0;
+					entry->cursor_pos = 0;
+					pword_check_after_left_move(entry, w->fcat, w->size, max_width);
+					return 1;
+				case SDLK_END:
+					if (entry->sel_begin < 0)
+					{
+						entry->sel_begin = cpos;
+					}
+					else if (cpos == entry->sel_begin)
+					{
+						entry->sel_begin = entry->sel_end;
+					}
+					entry->sel_end = len;
+					entry->cursor_pos = len;
+					pword_check_after_right_move(entry, w->fcat, w->size, max_width);
+					return 1;
+			}
+		}
+
+		// Allow paste into password, but copy or cut only for regular text
+		if (KEY_DEF_CMP(K_COPY, key_code, key_mod) || KEY_DEF_CMP(K_COPY_ALT, key_code, key_mod))
+		{
+			if (entry->sel_begin >= 0 && entry->sel_end > entry->sel_begin)
+			{
+				char* sel_text = pword_get_selected_text(entry);
+				if (sel_text)
+				{
+					copy_to_clipboard(sel_text);
+					free(sel_text);
+				}
+			}
+			return 1;
+		}
+
+		if (KEY_DEF_CMP(K_CUT, key_code, key_mod))
+		{
+			char* sel_text = pword_get_selected_text(entry);
+			if (sel_text)
+			{
+				copy_to_clipboard(sel_text);
+				free(sel_text);
+
+				pword_delete(entry, entry->sel_begin, entry->sel_end, w->fcat,
+					w->size, max_width);
+			}
+			entry->sel_begin = entry->sel_end = -1;
+			return 1;
+		}
+	}
+
+	// Allow paste into password, but copy or cut only for regular text
+	if (KEY_DEF_CMP(K_PASTE, key_code, key_mod) || KEY_DEF_CMP(K_PASTE_ALT, key_code, key_mod))
+	{
+		if (entry->sel_begin >= 0 && entry->sel_end > entry->sel_begin)
+		{
+			pword_delete(entry, entry->sel_begin, entry->sel_end, w->fcat,
+					w->size, max_width);
+			entry->sel_begin = entry->sel_end = -1;
+		}
+		start_paste(w);
+		return 1;
+	}
+
 	if (!alt_on && !ctrl_on)
 	{
-		int cpos = entry->cursor_pos;
-		unsigned char* pw = entry->password;
-		int len = strlen((const char*)pw);
-		int update_range = 0;
-
 		switch (key_code)
 		{
 			case SDLK_LEFT:
 				if (cpos > 0)
-					update_range = (--entry->cursor_pos < entry->left_pos || entry->right_pos == len);
+				{
+					--entry->cursor_pos;
+					pword_check_after_left_move(entry, w->fcat, w->size, max_width);
+				}
 				break;
 			case SDLK_RIGHT:
 				if (cpos < len)
-					update_range = (++entry->cursor_pos >= entry->right_pos);
+				{
+					++entry->cursor_pos;
+					pword_check_after_right_move(entry, w->fcat, w->size, max_width);
+				}
 				break;
 			case SDLK_HOME:
 				entry->cursor_pos = 0;
-				update_range = entry->cursor_pos < entry->left_pos || entry->right_pos == len;
+				pword_check_after_left_move(entry, w->fcat, w->size, max_width);
 				break;
 			case SDLK_END:
 				entry->cursor_pos = len;
-				update_range = entry->cursor_pos >= entry->right_pos;
+				pword_check_after_right_move(entry, w->fcat, w->size, max_width);
 				break;
 			case SDLK_DELETE:
-				if (cpos < len)
+				if (entry->sel_begin >= 0 && entry->sel_end > entry->sel_begin)
 				{
-					memmove(pw + cpos, pw + cpos + 1, len-cpos);
-					update_range = 1;
+					pword_delete(entry, entry->sel_begin, entry->sel_end, w->fcat,
+						w->size, max_width);
+				}
+				else if (cpos < len)
+				{
+					pword_delete(entry, cpos, cpos+1, w->fcat, w->size, max_width);
 				}
 				break;
 			case SDLK_BACKSPACE:
-				if (cpos > 0)
+
+				if (entry->sel_begin >= 0 && entry->sel_end > entry->sel_begin)
 				{
-					memmove(pw + (cpos-1), pw + cpos, len-cpos+1);
-					--entry->cursor_pos;
-					update_range = 1;
+					pword_delete(entry, entry->sel_begin, entry->sel_end, w->fcat,
+						w->size, max_width);
+				}
+				else if (cpos > 0)
+				{
+					pword_delete(entry, cpos-1, cpos, w->fcat, w->size, max_width);
 				}
 				break;
 			default:
-				// FIXME? Why no backtick?
-				if (is_printable(ch) && ch != '`')
+				if (is_printable(ch))
 				{
-					if (len+1 < entry->max_chars)
+					if (entry->sel_begin >= 0 && entry->sel_end > entry->sel_begin)
 					{
-						memmove(pw + (cpos+1), pw + cpos, len-cpos+1);
-						pw[cpos] = ch;
-						++entry->cursor_pos;
-						update_range = 1;
+						pword_delete(entry, entry->sel_begin, entry->sel_end,
+							w->fcat, w->size, max_width);
+						len = strlen((const char*)pw);
 					}
+					if (len+1 < entry->max_chars)
+						pword_insert(entry, entry->cursor_pos, &ch, 1, w->fcat, w->size, max_width);
 				}
 				else
 				{
+					// Probably key-down event, which does not send unicode. Ignore.
 					return 0;
 				}
 				break;
 		}
 
-		if (update_range)
-		{
-			int max_width = (int)(0.5 + w->len_x - 4*w->size);
-			pword_update_drawable_range(entry, w->fcat, w->size, max_width);
-		}
-
+		entry->sel_begin = entry->sel_end = -1;
 		return 1;
 	}
 
-	// No idea how to handle the input
+	// No idea how to handle this input
 	return 0;
 }
 
@@ -3481,14 +3779,14 @@ int pword_field_click(widget_list *w, int mx, int my, Uint32 flags)
 		case P_NONE:
 			return -1;
 		case P_TEXT:
-			for (i = entry->left_pos, str_width = space; pw[i] && str_width <= mx; ++i)
+			for (i = entry->draw_begin, str_width = space; pw[i] && str_width <= mx; ++i)
 				str_width += get_char_width_zoom(pw[i], w->fcat, w->size);
 			entry->cursor_pos = (str_width <= mx) ? i : i-1;
 			return 1;
 		case P_NORMAL:
 		default:
 			cw = get_char_width_zoom('*', w->fcat, w->size);
-			entry->cursor_pos = min2i(entry->left_pos + (mx - space + cw - 1) / cw,
+			entry->cursor_pos = min2i(entry->draw_begin + (mx - space + cw - 1) / cw,
 				strlen((const char*)pw));
 			return 1;
 	}
@@ -3511,6 +3809,7 @@ static int pword_field_draw(widget_list *w)
 	size_t len;
 	int max_width, x_left, y_top, x_cursor;
 	int space = (int)(0.5 + 2*w->size);
+	int sel_begin, sel_end;
 
 	if (!w || !(entry = (password_entry*)w->widget_info))
 		return 0;
@@ -3522,13 +3821,13 @@ static int pword_field_draw(widget_list *w)
 			len = 3;
 			break;
 		case P_TEXT:
-			start = entry->password + entry->left_pos;
-			len = entry->right_pos - entry->left_pos;
+			start = entry->password + entry->draw_begin;
+			len = entry->draw_end - entry->draw_begin;
 			break;
 		case P_NORMAL:
 		default:
 		{
-			len = entry->right_pos - entry->left_pos;
+			len = entry->draw_end - entry->draw_begin;
 			start = malloc(len);
 			memset(start, '*', len);
 		}
@@ -3542,17 +3841,21 @@ static int pword_field_draw(widget_list *w)
 		glVertex3i (w->pos_x + w->len_x, w->pos_y, 0);
 		glVertex3i (w->pos_x + w->len_x, w->pos_y + w->len_y, 0);
 		glVertex3i (w->pos_x, w->pos_y + w->len_y, 0);
-	if (entry->left_pos > 0)
+	if (entry->draw_begin > 0)
 		glVertex3i ((int)(w->pos_x + 3*w->size + 0.5), w->pos_y + w->len_y/2, 0);
 	glEnd ();
 	glEnable (GL_TEXTURE_2D);
 
 	x_left = (int)(w->pos_x + 2*w->size + 0.5);
 	y_top = (int)(w->pos_y + 2*w->size + 0.5);
-	x_cursor = x_left + get_buf_width_zoom(start, entry->cursor_pos - entry->left_pos,
+	x_cursor = x_left + get_buf_width_zoom(start, entry->cursor_pos - entry->draw_begin,
 		w->fcat, w->size);
 	max_width = w->len_x - 2*space;
-	draw_buf_zoomed_width_font(x_left, y_top, start, len, max_width, 1, w->fcat, w->size);
+
+	sel_begin = max2i(entry->sel_begin - entry->draw_begin, 0);
+	sel_end = max2i(entry->sel_end - entry->draw_begin, 0);
+	draw_buf_zoomed_width_font_select(x_left, y_top, start, len, max_width, 1,
+		w->r, w->g, w->b, w->fcat, w->size, sel_begin, sel_end);
 	if (entry->mouseover && cur_time % (2*TF_BLINK_DELAY) < TF_BLINK_DELAY)
 	{
 		draw_string_zoomed_width_font(x_cursor, y_top, (const unsigned char*)"_",
@@ -3566,6 +3869,19 @@ static int pword_field_draw(widget_list *w)
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
+	return 1;
+}
+
+static int pword_field_paste(widget_list *w, const char* text)
+{
+	int max_width, space;
+	password_entry *entry;
+	if (!w || !(entry = w->widget_info))
+		return 0;
+	space = (int)(0.5 + 2*w->size);
+	max_width = w->len_x - 2*space;
+	pword_insert(entry, entry->cursor_pos, (const unsigned char*)text, strlen(text),
+		w->fcat, w->size, max_width);
 	return 1;
 }
 
@@ -3587,18 +3903,19 @@ int pword_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16
 	T->status = status;
 	T->password = buffer;
 	T->max_chars = buffer_size;
+	T->sel_begin = T->sel_end = -1;
 
 	widget_id = widget_add (window_id, wid, OnInit, x, y, lx, ly, 0, size, r, g, b, &pword_field_type, T, NULL);
 
 	widget = widget_find(window_id, widget_id);
-	T->right_pos = 0;
-	while (T->password[T->right_pos])
+	T->draw_end = 0;
+	while (T->password[T->draw_end])
 	{
-		int chr_width = get_char_width_zoom(T->password[T->right_pos], widget->fcat, size);
+		int chr_width = get_char_width_zoom(T->password[T->draw_end], widget->fcat, size);
 		if (str_width + chr_width > max_width)
 			break;
 		str_width += chr_width;
-		++T->right_pos;
+		++T->draw_end;
 	}
 
 	return widget_id;

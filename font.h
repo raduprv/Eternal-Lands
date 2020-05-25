@@ -71,6 +71,13 @@ typedef std::basic_string<unsigned char> ustring;
 class TextDrawOptions
 {
 public:
+	//! Default foreground color for text
+	static const std::array<float, 3> default_foreground_color;
+	//! Default background color for text
+	static const std::array<float, 3> default_background_color;
+	//! Default color for selected text
+	static const std::array<float, 3> default_selection_color;
+
 	enum Alignment
 	{
 		LEFT,
@@ -90,6 +97,11 @@ public:
 		ELLIPSIS = 1 << 3
 	};
 
+	/*!
+	 * Constructor
+	 *
+	 * Create a new TextDrawOptions object, with default settings.
+	 */
 	TextDrawOptions();
 
 	int max_width() const { return _max_width; }
@@ -102,8 +114,8 @@ public:
 	bool is_help() const { return _flags & HELP; }
 	bool ellipsis() const { return _flags & ELLIPSIS; }
 
-	bool has_foreground_color() const { return _fg_r >= 0.0; }
-	bool has_background_color() const { return _bg_r >= 0.0; }
+	bool has_foreground_color() const { return _fg_color[0] >= 0.0; }
+	bool has_background_color() const { return _bg_color[0] >= 0.0; }
 
 	TextDrawOptions& set_max_width(int width)
 	{
@@ -152,17 +164,17 @@ public:
 
 	TextDrawOptions& set_foreground(float r, float g, float b)
 	{
-		_fg_r = r;
-		_fg_g = g;
-		_fg_b = b;
+		_fg_color[0] = r;
+		_fg_color[1] = g;
+		_fg_color[2] = b;
 		return *this;
 	}
 
 	TextDrawOptions& set_background(float r, float g, float b)
 	{
-		_bg_r = r;
-		_bg_g = g;
-		_bg_b = b;
+		_bg_color[0] = r;
+		_bg_color[1] = g;
+		_bg_color[2] = b;
 		return *this;
 	}
 
@@ -193,8 +205,21 @@ public:
 		return *this;
 	}
 
+	//! Set the color for selected text to (\a r, \a g, \a b).
+	TextDrawOptions& set_selection(float r, float g, float b)
+	{
+		_sel_color[0] = r;
+		_sel_color[1] = g;
+		_sel_color[2] = b;
+		return *this;
+	}
+
+	//! Set the current draw color to the foreground color in these options
 	void use_foreground_color() const;
+	//! Set the current draw color to the background color in these options
 	void use_background_color() const;
+	//! Set the current draw color to the selection color in these options
+	void use_selection_color() const;
 
 private:
 	int _max_width;
@@ -203,8 +228,9 @@ private:
 	float _line_spacing;
 	Alignment _alignment;
 	Uint32 _flags;
-	float _fg_r, _fg_g, _fg_b;
-	float _bg_r, _bg_g, _bg_b;
+	std::array<float, 3> _fg_color;
+	std::array<float, 3> _bg_color;
+	std::array<float, 3> _sel_color;
 };
 
 class Font
@@ -461,14 +487,16 @@ public:
 	 * Draw the text in the first \a len bytes of \a text, starting at position
 	 * \a x, \a y, using the drawing option in \a options.
 	 *
-	 * \param text    The text to draw
-	 * \param len     The number of bytes in \a text
-	 * \param x       The left coordinate of the drawn text
-	 * \param y       The top coordinate of the drawn text
-	 * \param options Options defining the layout of the text
+	 * \param text      The text to draw
+	 * \param len       The number of bytes in \a text
+	 * \param x         The left coordinate of the drawn text
+	 * \param y         The top coordinate of the drawn text
+	 * \param options   Options defining the layout of the text
+	 * \param sel_begin Start index of selected text
+	 * \param sel_end   End index of selected text (one past last selected character)
 	 */
 	void draw(const unsigned char* text, size_t len, int x, int y,
-		const TextDrawOptions &options) const;
+		const TextDrawOptions &options, size_t sel_begin=0, size_t sel_end=0) const;
 	/*!
 	 * \ingroup text_font
 	 * Draws messages in a buffer to the screen
@@ -694,14 +722,17 @@ private:
 	 * NOTE: The alignment option in \a options has no effect for this function,
 	 * text is always drawn left to right.
 	 *
-	 * \param text    The line of text to draw
-	 * \param len     The number of bytes in text to draw
-	 * \param x       The x coordinate of the left of the line
-	 * \param y       The y coordinate of the top of the line
-	 * \param options Drawing options for the text
+	 * \param text      The line of text to draw
+	 * \param len       The number of bytes in text to draw
+	 * \param x         The x coordinate of the left of the line
+	 * \param y         The y coordinate of the top of the line
+	 * \param options   Drawing options for the text
+	 * \param sel_begin Start index of selected text
+	 * \param sel_end   End index of selected text (one past last selected character)
+	 *
 	 */
 	void draw_line(const unsigned char* text, size_t len, int x, int y,
-		const TextDrawOptions &options) const;
+		const TextDrawOptions &options, size_t sel_begin=0, size_t sel_end=0) const;
 	/*!
 	 * Clip a line of text
 	 *
@@ -991,18 +1022,20 @@ public:
 	 * \a x, \a y, using the drawing option in \a options, using the font for
 	 * category \a cat.
 	 *
-	 * \param cat     The font category for the text
-	 * \param text    The text to draw
-	 * \param len     The number of bytes in \a text
-	 * \param x       The left coordinate of the drawn text
-	 * \param y       The top coordinate of the drawn text
-	 * \param options Options defining the layout of the text
+	 * \param cat       The font category for the text
+	 * \param text      The text to draw
+	 * \param len       The number of bytes in \a text
+	 * \param x         The left coordinate of the drawn text
+	 * \param y         The top coordinate of the drawn text
+	 * \param options   Options defining the layout of the text
+	 * \param sel_begin Start index of selected text
+	 * \param sel_end   End index of selected text (one past last selected character)
 	 */
 	void draw(Category cat, const unsigned char* text, size_t len, int x, int y,
-		const TextDrawOptions &options)
+		const TextDrawOptions &options, size_t sel_begin=0, size_t sel_end=0)
 	{
 		TextDrawOptions cat_options = TextDrawOptions(options).scale_zoom(font_scales[cat]);
-		get(cat).draw(text, len, x, y, cat_options);
+		get(cat).draw(text, len, x, y, cat_options, sel_begin, sel_end);
 	}
 	/*!
 	 * \ingroup text_font
@@ -1152,6 +1185,9 @@ static __inline__ void put_small_text_in_box_zoomed (const unsigned char* text,
 	put_small_colored_text_in_box_zoomed(c_grey1, text, len, width, buffer, text_zoom);
 }
 
+void draw_buf_zoomed_width_font_select(int x, int y, const unsigned char *text, size_t len,
+	int max_width, int max_lines, float r, float g, float b, font_cat cat, float text_zoom,
+	int sel_begin, int sel_end);
 void draw_buf_zoomed_width_font(int x, int y, const unsigned char *text, size_t len,
 	int max_width, int max_lines, font_cat cat, float text_zoom);
 static __inline__ void draw_string_zoomed_width_font(int x, int y, const unsigned char *text,

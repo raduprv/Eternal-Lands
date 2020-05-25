@@ -47,6 +47,7 @@ struct WIDGET_TYPE {
 	int (*destroy)();
 	int (*move)();
 	int (*font_change)();
+	int (*paste)();
     // We can conceivably store other generic info here too
 } ;
 
@@ -1560,6 +1561,19 @@ int widget_handle_keypress (widget_list *widget, int mx, int my, SDL_Keycode key
  * \return 1 if the widget handled the change, 0 otherwise
  */
 int widget_handle_font_change(widget_list *widget, font_cat cat);
+/*!
+ * \ingroup widgets
+ *
+ * Handle a paste event
+ *
+ * Handle a text paste event, and paste text \a text into widget \a widget.
+ *
+ * \param widget The widget to handle the paste event
+ * \param tex    The text to paste into the widget
+ *
+ * \return 1 if the widget handled the change, 0 otherwise
+ */
+int widget_handle_paste(widget_list *widget, const char* text);
 
 
 // XML Windows

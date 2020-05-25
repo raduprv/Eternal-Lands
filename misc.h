@@ -176,6 +176,20 @@ static __inline__ int has_suffix(const char * str, int len, const char * suffix,
 	return !substrtest(str, len, -slen, suffix, slen);
 }
 
+static __inline__ void swap_impl(void* a, void* b, void* tmp, size_t size)
+{
+   memcpy(tmp, a, size);
+   memcpy(a, b, size);
+   memcpy(b, tmp, size);
+}
+/*!
+ * \ingroup misc
+ * \brief Swap two variables
+ *
+ * Swap the contents of variables \a a and \a b.
+ */
+#define SWAP(a, b) swap_impl(&(a), &(b), (unsigned char[sizeof(a) == sizeof(b) ? (ptrdiff_t)sizeof(a) : -1]){0}, sizeof(a))
+
 /*!
  * \name min_max
  * \brief min/max computation (please read docs)

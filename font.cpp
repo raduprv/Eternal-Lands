@@ -87,27 +87,34 @@ int average_width(Iterator f_begin, Iterator f_end, Iterator w_begin)
 namespace eternal_lands
 {
 
-size_t FontManager::font_idxs[NR_FONT_CATS] = { 0, 0, 0, 2, 0, 3, 0, 0 };
-float FontManager::font_scales[NR_FONT_CATS] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
+const std::array<float, 3> TextDrawOptions::default_foreground_color = { 1.0f, 1.0f, 1.0f };
+const std::array<float, 3> TextDrawOptions::default_background_color = { 0.0f, 0.0f, 0.0f };
+const std::array<float, 3> TextDrawOptions::default_selection_color = { 1.0f, 0.635f, 0.0f };
 
 TextDrawOptions::TextDrawOptions(): _max_width(window_width), _max_lines(0),
 	_zoom(1.0), _line_spacing(1.0), _alignment(LEFT), _flags(0),
-	_fg_r(-1.0), _fg_g(-1.0), _fg_b(-1.0), _bg_r(-1.0), _bg_g(-1.0), _bg_b(-1.0) {}
+	_fg_color{{-1.0, -1.0, -1.0}}, _bg_color{{-1.0, -1.0, -1.0}},
+	_sel_color(default_selection_color) {}
 
 void TextDrawOptions::use_background_color() const
 {
 	if (has_background_color())
-		glColor3f(_bg_r, _bg_g, _bg_b);
+		glColor3fv(_bg_color.data());
 	else
-		glColor3f(0.0, 0.0, 0.0);
+		glColor3fv(default_background_color.data());
 }
 
 void TextDrawOptions::use_foreground_color() const
 {
 	if (has_foreground_color())
-		glColor3f(_fg_r, _fg_g, _fg_b);
+		glColor3fv(_fg_color.data());
 	else
-		glColor3f(1.0, 1.0, 1.0);
+		glColor3fv(default_foreground_color.data());
+}
+
+void TextDrawOptions::use_selection_color() const
+{
+	glColor3fv(_sel_color.data());
 }
 
 // Relative letter frequencies for English text, based on the counts in
@@ -586,7 +593,7 @@ void Font::draw_help_background(int x, int y, int width, int height) const
 }
 
 void Font::draw_line(const unsigned char* text, size_t len, int x, int y,
-	const TextDrawOptions &options) const
+	const TextDrawOptions &options, size_t sel_begin, size_t sel_end) const
 {
 	if (options.shadow())
 	{
@@ -610,7 +617,7 @@ void Font::draw_line(const unsigned char* text, size_t len, int x, int y,
 			draw_line(text, len, x,       y,       new_options);
 		}
 	}
-	else
+	else if (sel_end <= sel_begin || sel_begin >= len || options.ignore_color())
 	{
 		if (!options.ignore_color() && options.has_foreground_color())
 			options.use_foreground_color();
@@ -619,6 +626,45 @@ void Font::draw_line(const unsigned char* text, size_t len, int x, int y,
 		for (size_t i = 0; i < len; ++i)
 		{
 			cur_x += draw_char(text[i], cur_x, y, options.zoom(), options.ignore_color());
+		}
+	}
+	else
+	{
+		int cur_x = x;
+		int last_color_char = 0;
+		if (sel_begin > 0)
+		{
+			if (options.has_foreground_color())
+				options.use_foreground_color();
+
+			for (size_t i = 0; i < sel_begin; ++i)
+			{
+				if (is_color(text[i]))
+					last_color_char = text[i];
+				cur_x += draw_char(text[i], cur_x, y, options.zoom(), false);
+			}
+		}
+
+		options.use_selection_color();
+
+		for (size_t i = sel_begin; i < std::min(sel_end, len); ++i)
+		{
+			if (is_color(text[i]))
+				last_color_char = text[i];
+			cur_x += draw_char(text[i], cur_x, y, options.zoom(), false);
+		}
+
+		if (len > sel_end)
+		{
+			if (last_color_char)
+				set_color(from_color_char(last_color_char));
+			else
+				options.use_foreground_color();
+
+			for (size_t i = sel_end; i < len; ++i)
+			{
+				cur_x += draw_char(text[i], cur_x, y, options.zoom(), false);
+			}
 		}
 	}
 }
@@ -705,7 +751,7 @@ std::pair<size_t, size_t> Font::clip_line(const unsigned char *text, size_t len,
 }
 
 void Font::draw(const unsigned char* text, size_t len, int x, int y,
-	const TextDrawOptions &options) const
+	const TextDrawOptions &options, size_t sel_begin, size_t sel_end) const
 {
 	if (options.max_width() < std::ceil(_block_width * _scale * options.zoom()))
 		// There's really no point in trying
@@ -754,7 +800,9 @@ CHECK_GL_ERRORS();
 			draw_line(ellipsis.data(), ellipsis.length(), x_draw, y, options);
 			x_draw += ellipsis_width;
 		}
-		draw_line(text + start + clipped_off, clipped_line_len, x_draw, y, options);
+		draw_line(text + start + clipped_off, clipped_line_len, x_draw, y, options,
+			sel_begin < start ? 0 : sel_begin - start,
+			sel_end < start ? 0 : sel_end - start);
 		if (draw_ellipsis && options.alignment() != TextDrawOptions::Alignment::RIGHT)
 		{
 			x_draw = x_left + line_width - ellipsis_width;
@@ -783,9 +831,6 @@ void Font::draw_messages(const text_message *msgs, size_t msgs_size, int x, int 
 	Uint8 filter, size_t msg_start, size_t offset_start,
 	const TextDrawOptions &options, size_t cursor, select_info* select) const
 {
-	static const float selection_red = 255 / 255.0f;
-	static const float selection_green = 162 / 255.0f;
-	static const float selection_blue = 0.0f;
 	int block_width = std::ceil(_block_width * _scale * options.zoom());
 	int cursor_width = width_spacing('_', options.zoom());
 	int block_height = height(options.zoom() * options.line_spacing());
@@ -874,7 +919,7 @@ void Font::draw_messages(const text_message *msgs, size_t msgs_size, int x, int 
 		{
 			if (!in_select)
 			{
-				glColor3f(selection_red, selection_green, selection_blue);
+				glColor3fv(TextDrawOptions::default_selection_color.data());
 				in_select = true;
 			}
 		}
@@ -1271,6 +1316,9 @@ void Font::add_select_options() const
 }
 
 
+size_t FontManager::font_idxs[NR_FONT_CATS] = { 0, 0, 0, 2, 0, 3, 0, 0 };
+float FontManager::font_scales[NR_FONT_CATS] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
+
 bool FontManager::initialize()
 {
 	_fonts.clear();
@@ -1458,6 +1506,14 @@ void put_small_colored_text_in_box_zoomed(unsigned char color,
 	buffer[new_len] = '\0';
 }
 
+void draw_buf_zoomed_width_font_select(int x, int y, const unsigned char *text, size_t len,
+	int max_width, int max_lines, float r, float g, float b, font_cat cat, float zoom,
+	int sel_begin, int sel_end)
+{
+	TextDrawOptions options = TextDrawOptions().set_max_width(max_width)
+		.set_max_lines(max_lines).set_foreground(r, g, b).set_zoom(zoom);
+	FontManager::get_instance().draw(cat, text, len, x, y, options, sel_begin, sel_end);
+}
 void draw_buf_zoomed_width_font(int x, int y, const unsigned char *text, size_t len,
 	int max_width, int max_lines, font_cat cat, float zoom)
 {
