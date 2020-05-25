@@ -1176,7 +1176,7 @@ void get_buf_dimensions(const unsigned char* str, size_t len, font_cat cat, floa
 
 int reset_soft_breaks(unsigned char *text, int len, int size, font_cat cat,
 	float text_zoom, int width, int *cursor, float *max_line_width);
-void put_small_colored_text_in_box_zoomed(unsigned char color,
+void put_small_colored_text_in_box_zoomed(int color,
 	const unsigned char* text, int len, int width,
 	unsigned char* buffer, float text_zoom);
 static __inline__ void put_small_text_in_box_zoomed (const unsigned char* text,

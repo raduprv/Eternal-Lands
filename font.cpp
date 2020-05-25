@@ -1484,7 +1484,7 @@ int reset_soft_breaks(unsigned char *text, int len, int size, font_cat cat,
 
 	return res.second;
 }
-void put_small_colored_text_in_box_zoomed(unsigned char color,
+void put_small_colored_text_in_box_zoomed(int color,
 	const unsigned char* text, int len, int width,
 	unsigned char* buffer, float text_zoom)
 {
@@ -1499,7 +1499,7 @@ void put_small_colored_text_in_box_zoomed(unsigned char color,
 
 	size_t new_len = 0;
 	if (!is_color(res.first.front()))
-		buffer[new_len++] = color;
+		buffer[new_len++] = to_color_char(color);
 	// FIXME: no size specified for either buffer. Pass unlimited size,
 	// and hope for the best...
 	new_len += res.first.copy(buffer + new_len, ustring::npos);
