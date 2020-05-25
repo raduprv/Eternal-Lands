@@ -3807,7 +3807,7 @@ static int pword_field_drag(widget_list *w, int mx, int my, Uint32 flags, int dx
 	password_entry *entry;
 	int space, pos, len;
 
-	if (!w || !(entry = w->widget_info))
+	if (!w || !(entry = w->widget_info) || entry->status != P_TEXT)
 		return 0;
 
 	space = (int)(0.5 + 2*w->size);
