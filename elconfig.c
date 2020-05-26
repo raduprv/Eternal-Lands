@@ -1323,6 +1323,17 @@ static void change_chat_zoom(float *var, float *value)
 	}
 }
 
+#ifdef TTF
+static void change_use_ttf(int *var)
+{
+	*var = !*var;
+	if (*var)
+		enable_ttf();
+	else
+		disable_ttf();
+}
+#endif
+
 void update_highdpi_auto_scaling(void)
 {
 	change_text_zoom(&font_scales[UI_FONT], &font_scales[UI_FONT]);
@@ -2398,19 +2409,75 @@ static void add_var(option_type type, char * name, char * shortname, void * var,
 	our_vars.var[no]->widgets.tab_id= tab_id;
 }
 
-void add_multi_option_with_id(const char* name, const char* str, const char* id)
+void add_multi_option_with_id(const char* name, const char* str, const char* id,
+	int add_button)
 {
-	int var_index;
+	int var_index = find_var(name, INI_FILE_VAR);
+	if (var_index == -1)
+	{
+		LOG_ERROR("Can't find var '%s', type 'INI_FILE_VAR'", name);
+		return;
+	}
 
-	var_index = find_var(name, INI_FILE_VAR);
+	add_multi_option_to_var(our_vars.var[var_index], str, id);
+
+	if (add_button)
+	{
+		int window_id = elconfig_tabs[our_vars.var[var_index]->widgets.tab_id].tab;
+		int widget_id = our_vars.var[var_index]->widgets.widget_id;
+		if (window_id > 0)
+		{
+			int n = our_vars.var[var_index]->args.multi.count - 1;
+			multiselect_button_add_extended(window_id, widget_id,
+				0, n * (ELCONFIG_SCALED_VALUE(22)+SPACING), 0, str,
+				elconf_scale * DEFAULT_SMALL_RATIO, 0);
+		}
+	}
+}
+
+void clear_multiselect_var(const char* name)
+{
+	int var_index = find_var(name, INI_FILE_VAR);
+	int window_id, widget_id;
 
 	if (var_index == -1)
 	{
 		LOG_ERROR("Can't find var '%s', type 'INI_FILE_VAR'", name);
+		return;
 	}
-	else
+
+	if (our_vars.var[var_index]->args.multi.count == 0)
+		// Not yet initialized. Or already empty, at least.
+		return;
+
+	our_vars.var[var_index]->args.multi.count = 0;
+
+	window_id = elconfig_tabs[our_vars.var[var_index]->widgets.tab_id].tab;
+	widget_id = our_vars.var[var_index]->widgets.widget_id;
+	multiselect_clear(window_id, widget_id);
+}
+
+void set_multiselect_var(const char* name, int idx, int change_button)
+{
+	int var_index = find_var(name, INI_FILE_VAR);
+	if (var_index == -1)
 	{
-		add_multi_option_to_var(our_vars.var[var_index], str, id);
+		LOG_ERROR("Can't find var '%s', type 'INI_FILE_VAR'", name);
+		return;
+	}
+
+	if (our_vars.var[var_index]->args.multi.count <= idx)
+		return;
+
+	our_vars.var[var_index]->func(our_vars.var[var_index]->var, idx);
+	our_vars.var[var_index]->saved = 0;
+
+	if (change_button)
+	{
+		int window_id = elconfig_tabs[our_vars.var[var_index]->widgets.tab_id].tab;
+		int widget_id = our_vars.var[var_index]->widgets.widget_id;
+		if (window_id > 0)
+			multiselect_set_selected(window_id, widget_id, idx);
 	}
 }
 
@@ -2537,10 +2604,10 @@ static void init_ELC_vars(void)
 	// FONT TAB
 	add_var(OPT_BOOL,"disable_auto_highdpi_scale", "disautohighdpi", &disable_auto_highdpi_scale, change_disable_auto_highdpi_scale, 0, "Disable High-DPI auto scaling", "For systems with high-dpi support (e.g. OS X): When enabled, name, chat and notepad font values, and the user interface scaling factor are all automatically scaled using the system's scale factor.", FONT);
 #ifdef TTF
-	add_var(OPT_BOOL, "use_ttf", "ttf", &use_ttf, change_var, 1, "Use TTF",
+	add_var(OPT_BOOL, "use_ttf", "ttf", &use_ttf, change_use_ttf, 1, "Use TTF",
 			"Toggle the use of True Type fonts for text rendering", FONT);
 	add_var(OPT_STRING, "ttf_directory", "ttfdir", ttf_directory, change_string, TTF_DIR_SIZE,
-		"TTF directory", "The directory in which to look for True Type fonts", FONT);
+		"TTF directory", "The directory in which to look for True Type fonts. This option is only used when 'Use TTF' is enabled", FONT);
 #endif
 	add_var(OPT_FLOAT,"ui_text_size","uisize",&font_scales[UI_FONT],change_text_zoom,1,"UI Text Size","Set the size of the text in the user interface",FONT,0.1,2.0,0.01);
 	add_var(OPT_FLOAT,"name_text_size","nsize",&font_scales[NAME_FONT],change_text_zoom,1,"Name Text Size","Set the size of the players name text",FONT,0.1,2.0,0.01);

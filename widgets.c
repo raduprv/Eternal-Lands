@@ -4170,6 +4170,26 @@ int multiselect_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, int widt
  	return multiselect_add_extended(window_id, widget_id++, OnInit, x, y, width, 0, 1.0f, -1, -1, -1, -1, -1, -1, 0);
 }
 
+int multiselect_clear(int window_id, Uint32 widget_id)
+{
+	widget_list *widget;
+	multiselect *M;
+
+	widget = widget_find(window_id, widget_id);
+	if (!widget || !(M = widget->widget_info))
+		return 0;
+
+	M->nr_buttons = 0;
+	M->next_value = 0;
+	if (M->scrollbar >= 0)
+	{
+		widget_destroy(window_id, M->scrollbar);
+		M->scrollbar = -1;
+	}
+
+	return 1;
+}
+
 // Spinbutton
 static int spinbutton_keypress(widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {

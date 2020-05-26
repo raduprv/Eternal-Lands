@@ -211,20 +211,47 @@ void check_options(void);
 void change_windows_on_top(int *var);
 
 /*!
- * \ingroup other
+ * \ingroup config
  * \brief   Adds another option to a multi-var.
  *
- *      Adds another option to a multi-var selection list.
+ * Adds an option with identifier \a id and label \a str to the multi-var
+ * selection list for variable \a name. If the parameter \a add_button is
+ * non-zero, and the widget for the variable exsists, a button will also be
+ * added to this widget.
  *
  * \param name       the name of the variable to add to
- * \param str      the text for the option
- * \param id       an optional key for the option
+ * \param str        the text for the option
+ * \param id         an optional key for the option
+ * \param add_button if non-zero, add a button to the widget for the option
  */
-void add_multi_option_with_id(const char* name, const char* str, const char* id);
+void add_multi_option_with_id(const char* name, const char* str, const char* id, int add_button);
 static __inline__ void add_multi_option(const char* name, const char* str)
 {
-	add_multi_option_with_id(name, str, NULL);
+	add_multi_option_with_id(name, str, NULL, 0);
 }
+/*!
+ * \ingroup config
+ *
+ * Clear a multi-var.
+ *
+ * Remove all options from the multi-select variable with name \a name.
+ *
+ * \param name the name of the variable to clear
+ */
+void clear_multiselect_var(const char* name);
+/*!
+ * \ingroup config
+ *
+ * Set a multi-var.
+ *
+ * Set the selected option in multi-select variable \a name to \a idx. If the
+ * parameter \a change_button is non-zero, the corresponding button in the
+ * widget is also selected.
+ *
+ * \param name the name of the variable to set
+ * \param idx  the index of the element to select
+ */
+void set_multiselect_var(const char* name, int idx, int change_button);
 
 void change_windowed_chat (int *wc, int val);
 

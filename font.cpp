@@ -1303,88 +1303,125 @@ bool Font::build_texture_atlas()
 
 #endif // TTF
 
-void Font::add_select_options() const
+void Font::add_select_options(bool add_button) const
 {
-	add_multi_option_with_id("ui_font",    _font_name.c_str(), _file_name.c_str());
-	add_multi_option_with_id("chat_font",  _font_name.c_str(), _file_name.c_str());
-	add_multi_option_with_id("name_font",  _font_name.c_str(), _file_name.c_str());
-	add_multi_option_with_id("book_font",  _font_name.c_str(), _file_name.c_str());
-	add_multi_option_with_id("note_font",  _font_name.c_str(), _file_name.c_str());
-	add_multi_option_with_id("rules_font", _font_name.c_str(), _file_name.c_str());
+	add_multi_option_with_id("ui_font",    _font_name.c_str(), _file_name.c_str(), add_button);
+	add_multi_option_with_id("chat_font",  _font_name.c_str(), _file_name.c_str(), add_button);
+	add_multi_option_with_id("name_font",  _font_name.c_str(), _file_name.c_str(), add_button);
+	add_multi_option_with_id("book_font",  _font_name.c_str(), _file_name.c_str(), add_button);
+	add_multi_option_with_id("note_font",  _font_name.c_str(), _file_name.c_str(), add_button);
+	add_multi_option_with_id("rules_font", _font_name.c_str(), _file_name.c_str(), add_button);
 	if (is_fixed_width())
-		add_multi_option_with_id("encyclopedia_font", _font_name.c_str(), _file_name.c_str());
+	{
+		add_multi_option_with_id("encyclopedia_font", _font_name.c_str(), _file_name.c_str(),
+			add_button);
+	}
 }
 
-
-size_t FontManager::font_idxs[NR_FONT_CATS] = { 0, 0, 0, 2, 0, 3, 0, 0 };
-float FontManager::font_scales[NR_FONT_CATS] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
+const std::array<size_t, NR_FONT_CATS> FontManager::_default_font_idxs
+	= { 0, 0, 0, 2, 0, 3, 0, 0 };
+std::array<size_t, NR_FONT_CATS> FontManager::font_idxs = { 0, 0, 0, 2, 0, 3, 0, 0 };
+std::array<float, NR_FONT_CATS> FontManager::font_scales
+	= { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 
 bool FontManager::initialize()
 {
 	_fonts.clear();
 
-	for (size_t i = 0; i < 7; ++i)
+	for (size_t i = 0; i < _nr_bundled_fonts; ++i)
 		_fonts.push_back(Font(i));
-	size_t nr_bundled_fonts = _fonts.size();
+#ifdef TTF
+	initialize_ttf();
+#endif
+
+	add_select_options();
+
+	return !_fonts[0].failed();
+}
 
 #ifdef TTF
-	if (use_ttf)
+void FontManager::initialize_ttf()
+{
+	if (!use_ttf)
+		return;
+
+	if (!TTF_WasInit() && TTF_Init() == -1)
 	{
-		if (!TTF_WasInit() && TTF_Init() == -1)
-		{
-			LOG_ERROR("Failed to initialize True Type fonts: %s", TTF_GetError());
-			use_ttf = 0;
-		}
-		else
-		{
-			std::string pattern = std::string(ttf_directory) + "/*.ttf";
+		LOG_ERROR("Failed to initialize True Type fonts: %s", TTF_GetError());
+		use_ttf = 0;
+		return;
+	}
+
+	std::string pattern = std::string(ttf_directory) + "/*.ttf";
 #ifdef WINDOWS
-			struct _finddata_t c_file;
-			long hFile;
-			if ((hFile = _findfirst(pattern.c_str(), &c_file)) != -1L)
+	struct _finddata_t c_file;
+	long hFile;
+	if ((hFile = _findfirst(pattern.c_str(), &c_file)) != -1L)
+	{
+		do
+		{
+			try
 			{
-				do
-				{
-					try
-					{
-						_fonts.push_back(Font(c_file));
-					}
-					CATCH_AND_LOG_EXCEPTIONS
-				}
-				while (_findnext(hFile, &c_file) == 0);
+				_fonts.push_back(Font(c_file));
 			}
-			_findclose(hFile);
+			CATCH_AND_LOG_EXCEPTIONS
+		}
+		while (_findnext(hFile, &c_file) == 0);
+	}
+	_findclose(hFile);
 #else // WINDOWS
-			glob_t glob_res;
-			if (glob(pattern.c_str(), 0, NULL, &glob_res) == 0)
+	glob_t glob_res;
+	if (glob(pattern.c_str(), 0, NULL, &glob_res) == 0)
+	{
+		for (size_t i = 0; i < glob_res.gl_pathc; i++)
+		{
+			try
 			{
-				for (size_t i = 0; i < glob_res.gl_pathc; i++)
-				{
-					try
-					{
-						_fonts.push_back(Font(glob_res.gl_pathv[i]));
-					}
-					CATCH_AND_LOG_EXCEPTIONS
-				}
+				_fonts.push_back(Font(glob_res.gl_pathv[i]));
 			}
-			globfree(&glob_res);
-#endif // WINDOWS
+			CATCH_AND_LOG_EXCEPTIONS
 		}
 	}
+	globfree(&glob_res);
+#endif // WINDOWS
+
+	std::sort(_fonts.begin() + _nr_bundled_fonts, _fonts.end(),
+		[](const Font& f0, const Font& f1) { return f0.font_name() < f1.font_name(); });
+}
 #endif // TTF
 
-	std::sort(_fonts.begin() + nr_bundled_fonts, _fonts.end(),
-		[](const Font& f0, const Font& f1) { return f0.font_name() < f1.font_name(); });
+void FontManager::add_select_options(bool add_button)
+{
+	clear_multiselect_var("ui_font");
+	clear_multiselect_var("chat_font");
+	clear_multiselect_var("name_font");
+	clear_multiselect_var("book_font");
+	clear_multiselect_var("note_font");
+	clear_multiselect_var("rules_font");
+	clear_multiselect_var("encyclopedia_font");
 
+	_fixed_width_idxs.clear();
 	for (size_t i = 0; i < _fonts.size(); ++i)
 	{
 		const Font& font = _fonts[i];
 		if (font.is_fixed_width())
 			_fixed_width_idxs.push_back(i);
-		font.add_select_options();
+		font.add_select_options(add_button);
 	}
 
-	return !_fonts[0].failed();
+	if (add_button)
+	{
+		set_multiselect_var("ui_font", font_idxs[UI_FONT], true);
+		set_multiselect_var("chat_font", font_idxs[CHAT_FONT], true);
+		set_multiselect_var("name_font", font_idxs[NAME_FONT], true);
+		set_multiselect_var("book_font", font_idxs[BOOK_FONT], true);
+		set_multiselect_var("note_font", font_idxs[NOTE_FONT], true);
+		set_multiselect_var("rules_font", font_idxs[RULES_FONT], true);
+		auto it = std::find(_fixed_width_idxs.begin(), _fixed_width_idxs.end(),
+			font_idxs[ENCYCLOPEDIA_FONT]);
+		if (it != _fixed_width_idxs.end())
+			set_multiselect_var("encyclopedia_font", it - _fixed_width_idxs.begin(), true);
+	}
 }
 
 Font& FontManager::get(Category cat)
@@ -1412,6 +1449,55 @@ Font& FontManager::get(Category cat)
 	return _fonts[font_num];
 }
 
+void FontManager::disable_ttf()
+{
+	// If not yet initialized, do nothing
+	if (!is_initialized())
+		return;
+
+	// Save the file names of the fonts currently in use
+	for (size_t i = 0; i < NR_FONT_CATS; ++i)
+	{
+		_saved_font_files[i] = _fonts[font_idxs[i]].file_name();
+		if (_fonts[font_idxs[i]].is_ttf())
+			font_idxs[i] = _default_font_idxs[i];
+	}
+
+	// Remove the fonts themselves
+	_fonts.erase(_fonts.begin() + _nr_bundled_fonts, _fonts.end());
+
+	// Remove the TTF font options from the selection
+	add_select_options(true);
+}
+
+void FontManager::enable_ttf()
+{
+	// If not yet initialized, do nothing
+	if (!is_initialized())
+		return;
+
+	// Add TrueType fonts to the font list
+	initialize_ttf();
+
+	// Check if we saved font file names when we disabled TTF, and if so,
+	// restore them. Only restore TTF fonts, keeping any changes in bundled
+	// fonts.
+	for (size_t i = 0; i < NR_FONT_CATS; ++i)
+	{
+		const std::string& fname = _saved_font_files[i];
+		if (!fname.empty())
+		{
+			auto it = std::find_if(_fonts.begin(), _fonts.end(),
+				[fname](const auto& font) { return font.file_name() == fname; });
+			if (it != _fonts.end() && it->is_ttf())
+				font_idxs[i] = it - _fonts.begin();
+		}
+	}
+
+	// Add selection options for the new fonts
+	add_select_options(true);
+}
+
 } // namespace eternal_lands
 
 
@@ -1420,8 +1506,8 @@ extern "C"
 
 using namespace eternal_lands;
 
-size_t *font_idxs = FontManager::font_idxs;
-float *font_scales = FontManager::font_scales;
+size_t *font_idxs = FontManager::font_idxs.data();
+float *font_scales = FontManager::font_scales.data();
 #ifdef TTF
 int use_ttf = 0;
 char ttf_directory[TTF_DIR_SIZE];
@@ -1675,7 +1761,7 @@ void draw_ingame_string(float x, float y, const unsigned char *text,
 #endif // !MAP_EDITOR2
 #endif // ELC
 
-void set_config_font()
+void set_config_font(void)
 {
 	FontManager::get_instance().set_config_font();
 }
@@ -1684,5 +1770,17 @@ int has_glyph(unsigned char c)
 {
 	return Font::has_glyph(c);
 }
+
+#ifdef TTF
+void disable_ttf(void)
+{
+	FontManager::get_instance().disable_ttf();
+}
+
+void enable_ttf(void)
+{
+	FontManager::get_instance().enable_ttf();
+}
+#endif // TTF
 
 } //extern "C"

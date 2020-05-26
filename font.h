@@ -270,6 +270,8 @@ public:
 
 	//! Return the name of the font
 	const std::string& font_name() const { return _font_name; }
+	//! Return the file name from which the font was loaded
+	const std::string& file_name() const { return _file_name; }
 #ifdef TTF
 	//! Check if this font is a TTF font
 	bool is_ttf() const { return _flags & Flags::IS_TTF; }
@@ -541,7 +543,9 @@ private:
 	static const int font_block_width = 18;
 	static const int font_block_height = 21;
 	static const int default_line_height = 18;
+#ifdef TTF
 	static const int ttf_point_size = 32;
+#endif
 	static const std::array<int, nr_glyphs> letter_freqs;
 	static const ustring ellipsis;
 
@@ -790,12 +794,13 @@ private:
 #endif // TTF
 
 	/*!
-	 * Add this font t the selections
+	 * Add this font to the multi-selects
 	 *
 	 * Add this font as an option to the various font selections in the
-	 * settings window.
+	 * settings window. If the optional parameter \a add_button is \c true,
+	 * a button for the font is immediately added to the corresponding widget.
 	 */
-	void add_select_options() const;
+	void add_select_options(bool add_button=false) const;
 };
 
 class FontManager
@@ -805,9 +810,9 @@ public:
 	typedef ::font_cat Category;
 
 	//! The font numbers for each font category
-	static size_t font_idxs[NR_FONT_CATS];
+	static std::array<size_t, NR_FONT_CATS> font_idxs;
 	//! The zoom factor for each font category
-	static float font_scales[NR_FONT_CATS];
+	static std::array<float, NR_FONT_CATS> font_scales;
 
 	static FontManager& get_instance()
 	{
@@ -815,6 +820,8 @@ public:
 		return manager;
 	}
 
+	//! Check if this font manager has been initialized
+	bool is_initialized() const { return !_fonts.empty(); }
 	/*!
 	 * Initialize the font managaer.
 	 *
@@ -832,7 +839,7 @@ public:
 	 * \param idx The number of the font in the list of fixed width fonts only
 	 * \return The index of the font in the list of all fonts
 	 */
-	size_t fixed_width_font_number(size_t idx)
+	size_t fixed_width_font_number(size_t idx) const
 	{
 		try
 		{
@@ -1107,19 +1114,57 @@ public:
 		font_scales[CONFIG_FONT] = font_scales[UI_FONT];
 	}
 
+#ifdef TTF
+	//! Disable TrueType fonts, allowing bundled fonts only.
+	void disable_ttf();
+	//! Enable TrueTyoe fonts, restoring previous font indices if possible
+	void enable_ttf();
+#endif
+
 private:
+	//! The number of fonts bundled with EL itself
+	static const size_t _nr_bundled_fonts = 7;
+	//! The fonts to use by default for each category
+	static const std::array<size_t, NR_FONT_CATS> _default_font_idxs;
+
 	//! The list of known fonts
 	std::vector<Font> _fonts;
 	//! Lookup table mapping indices of fixed width fonts to indices in the _fonts array
 	std::vector<size_t> _fixed_width_idxs;
+#ifdef TTF
+	/*!
+	 * When disabling TrueType fonts, the current font file names are stored in this
+	 * array. If TTF support is enabled again in the same session, they can be
+	 * restored again without the user having to search the fonts in the options
+	 * window.
+	 */
+	std::array<std::string, NR_FONT_CATS> _saved_font_files;
+#endif
 
 	/*!
 	 * Create a new font manager, without fonts to manage so far.
 	 */
-	FontManager(): _fonts(), _fixed_width_idxs() {}
+	FontManager(): _fonts(), _fixed_width_idxs(), _saved_font_files() {}
 	// Disallow copying, since this is a singleton class
 	FontManager(const FontManager&) = delete;
 	FontManager& operator=(const FontManager&) = delete;
+
+	/*!
+	 * Initialize TrueType fonts
+	 *
+	 * Scan the TTF font directory for TrueType fonts, and add them to the
+	 * current list of fonts.
+	 */
+	void initialize_ttf();
+	/*!
+	 * Add options to the configuration
+	 *
+	 * Add options for all fonts to the multi-select variables in the
+	 * configuration window. If the optional parameter \a add_button i \c true,
+	 * buttons for the fonts will immediately be added to the corresponding
+	 * widget.
+	 */
+	void add_select_options(bool add_button=false);
 
 	/*!
 	 * Load a font.
@@ -1353,6 +1398,11 @@ void draw_ingame_string(float x, float y, const unsigned char *text,
 void set_config_font();
 
 int has_glyph(unsigned char c);
+
+//! Disable TrueType fonts, allowing bundled fonts only.
+void disable_ttf(void);
+//! Enable TrueTyoe fonts, restoring previous font indices if possible
+void enable_ttf(void);
 
 #ifdef __cplusplus
 } // extern "C"
