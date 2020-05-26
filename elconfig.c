@@ -2607,7 +2607,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL, "use_ttf", "ttf", &use_ttf, change_use_ttf, 1, "Use TTF",
 			"Toggle the use of True Type fonts for text rendering", FONT);
 	add_var(OPT_STRING, "ttf_directory", "ttfdir", ttf_directory, change_string, TTF_DIR_SIZE,
-		"TTF directory", "The directory in which to look for True Type fonts. This option is only used when 'Use TTF' is enabled", FONT);
+		"TTF directory", "The directory in which to look for True Type fonts. This directory is only used when 'Use TTF' is enabled. Changes to this option only take effect after a restart of the client.", FONT);
 #endif
 	add_var(OPT_FLOAT,"ui_text_size","uisize",&font_scales[UI_FONT],change_text_zoom,1,"UI Text Size","Set the size of the text in the user interface",FONT,0.1,2.0,0.01);
 	add_var(OPT_FLOAT,"name_text_size","nsize",&font_scales[NAME_FONT],change_text_zoom,1,"Name Text Size","Set the size of the players name text",FONT,0.1,2.0,0.01);
