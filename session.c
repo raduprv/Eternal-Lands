@@ -108,8 +108,8 @@ static void set_content_widths(window_info *win)
 		get_string_width_zoom(distance_label, win->font_category, zoom));
 
 	x_border = (int)(win->current_scale * 10);
-	y_offset = (int)(0.5 + win->current_scale * 21);
-	y_step = (int)(0.5 + win->current_scale * 16);
+	y_offset = (int)(0.5 + win->default_font_len_y * 21.0 / DEFAULT_FIXED_FONT_HEIGHT);
+	y_step = (int)(0.5 + win->default_font_len_y * 16.0 / DEFAULT_FIXED_FONT_HEIGHT);
 	tot_exp_left = x_border + max_name_width + sep_width;
 	tot_exp_right = tot_exp_left + max2i(max_val_width, tot_exp_width);
 	max_exp_right = tot_exp_right + sep_width + max2i(max_val_width, max_exp_width);
