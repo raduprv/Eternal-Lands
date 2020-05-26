@@ -574,9 +574,9 @@ namespace cm
 			if (str_width > fwidth)
 				fwidth = str_width;
 			if (menu_lines[i].is_separator)
-				fheight += scaled_value(DEFAULT_FIXED_FONT_HEIGHT / 2.0);
+				fheight += get_line_height(UI_FONT, 0.5 * scale);
 			else
-				fheight += scaled_value(DEFAULT_FIXED_FONT_HEIGHT) + line_sep;
+				fheight += get_line_height(UI_FONT, scale) + line_sep;
 		}
 		bool_tick_width = (menu_has_bools)? scaled_value(bool_box_size()+text_border) : 0;
 		fwidth += bool_tick_width + (border + text_border) * 2;
@@ -653,7 +653,8 @@ namespace cm
 	{
 		CHECK_GL_ERRORS();
 		float currenty = border + line_sep;
-		float line_step = line_sep + scaled_value(DEFAULT_FONT_Y_LEN);
+		float scale = scaled_value(1.0);
+		float line_step = line_sep + get_line_height(win->font_category, scale);
 
 		selection = -1;
 		for (size_t i=0; i<menu_lines.size(); ++i)
@@ -683,7 +684,7 @@ namespace cm
 			if (menu_lines[i].is_separator)
 			{
 				int posx = border + text_border;
-				int posy = int(0.5 + currenty + scaled_value(DEFAULT_FONT_Y_LEN / 4.0) - line_sep);
+				int posy = currenty + get_line_height(win->font_category, 0.25*scale) - line_sep;
 				glColor3f(grey_colour.r, grey_colour.g, grey_colour.b);
 				glDisable(GL_TEXTURE_2D);
 				glBegin(GL_LINES);
@@ -691,7 +692,7 @@ namespace cm
 				glVertex2i(win->len_x - posx, posy);
 				glEnd();
 				glEnable(GL_TEXTURE_2D);
-				currenty += scaled_value(DEFAULT_FONT_Y_LEN / 2.0);
+				currenty += get_line_height(win->font_category, 0.5*scale);
 			}
 
 			// ... or the menu line
