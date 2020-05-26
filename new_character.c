@@ -1437,14 +1437,16 @@ static int mouseover_color_race_handler(window_info *win, int mx, int my)
 	return 1;
 }
 
-static void draw_box(const char* name, font_cat cat, int x, int y, int w, int h,
+static void draw_box(const unsigned char* name, font_cat cat, int x, int y, int w, int h,
 	float size, int rad)
 {
 	int l=0;
 
-	if(name){
-		l = (w-10-get_string_width_zoom((const unsigned char*)name, cat, size))/2.0f;
-		draw_string_zoomed(x+l+5, y-size*DEFAULT_FONT_Y_LEN/2, (unsigned char*)name, 1, size);
+	if (name)
+	{
+		int line_height = get_line_height(cat, size);
+		l = (w-10-get_string_width_zoom(name, cat, size))/2.0f;
+		draw_string_zoomed_centered(x + w/2, y-line_height/2, name, 1, size);
 	}
 
 	glDisable(GL_TEXTURE_2D);

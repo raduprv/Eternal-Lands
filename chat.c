@@ -236,11 +236,9 @@ Uint32 get_active_channel (Uint8 idx)
 #define CHAT_WIN_SPACE		4
 #define CHAT_WIN_TAG_SPACE	3
 #define CHAT_WIN_TEXT_WIDTH  	500
-#define CHAT_OUT_TEXT_HEIGHT 	(DEFAULT_FONT_Y_LEN*8)
-#define CHAT_IN_TEXT_HEIGHT 	(DEFAULT_FONT_Y_LEN*3)
 
 static int CHAT_WIN_TAG_HEIGHT = 20;
-static int CHAT_WIN_SCROLL_WIDTH = 20;
+static int CHAT_WIN_SCROLL_WIDTH = ELW_BOX_SIZE;
 static int CLOSE_SIZE = ELW_BOX_SIZE;
 
 int local_chat_separate = 0;
@@ -264,7 +262,7 @@ static int chat_scroll_id = 15;
 static int chat_tabcollection_id = 20;
 static int chat_out_start_id = 21;
 static int chat_win_text_width = CHAT_WIN_TEXT_WIDTH;
-static int chat_out_text_height = CHAT_OUT_TEXT_HEIGHT;
+static int chat_out_text_height = 0;
 static int current_line = 0;
 static int text_changed = 1;
 static int nr_displayed_lines;
@@ -778,14 +776,14 @@ int chat_input_key (widget_list *widget, int mx, int my, SDL_Keycode key_code, U
 static int resize_chat_handler(window_info *win, int width, int height)
 {
 	int itab;
+	int line_height = get_line_height(CHAT_FONT, 1.0);
 	int scroll_x = width - CHAT_WIN_SCROLL_WIDTH;
 	int scroll_height = height - 2*CLOSE_SIZE;
 	int inout_width = width - CHAT_WIN_SCROLL_WIDTH - 2 * CHAT_WIN_SPACE;
-	int input_height = CHAT_IN_TEXT_HEIGHT + 2 * CHAT_WIN_SPACE;
+	int input_height = 3 * line_height + 2 * CHAT_WIN_SPACE;
 	int input_y = height - input_height - CHAT_WIN_SPACE;
 	int tabcol_height = input_y - 2 * CHAT_WIN_SPACE;
 	int output_height = tabcol_height - CHAT_WIN_TAG_HEIGHT;
-	int line_height = get_line_height(CHAT_FONT, 1.0);
 
 	if (output_height < 5*line_height + 2 * CHAT_WIN_SPACE && input_height > 3*line_height + 2 * CHAT_WIN_SPACE)
 	{
@@ -1052,14 +1050,15 @@ static int close_chat_handler (window_info *win)
 
 static int ui_scale_chat_handler(window_info *win)
 {
-	int tab_tag_height = 0;
+	int tab_tag_height = tab_collection_calc_tab_height(win->font_category,
+		win->current_scale_small);
 	widget_list *w = widget_find (win->window_id, chat_tabcollection_id);
-	CHAT_WIN_TAG_HEIGHT = tab_collection_calc_tab_height(win->current_scale_small);
-	CHAT_WIN_SCROLL_WIDTH = (int)(0.5 + win->current_scale * 20);
+
+	CHAT_WIN_TAG_HEIGHT = tab_tag_height;
+	CHAT_WIN_SCROLL_WIDTH = (int)(0.5 + win->current_scale * ELW_BOX_SIZE);
 	CLOSE_SIZE = win->box_size;
 
 	widget_set_size(win->window_id, chat_tabcollection_id, win->current_scale_small);
-	tab_tag_height = tab_collection_calc_tab_height(win->current_scale_small);
 
 	tab_collection_resize(w, win->len_x, win->len_y);
 	tab_collection_move(w, win->pos_x + CHAT_WIN_SPACE, win->pos_y + tab_tag_height + CHAT_WIN_SPACE);
@@ -1079,19 +1078,20 @@ static int change_chat_font_handler(window_info* win, font_cat cat)
 
 static void create_chat_window(void)
 {
+	int line_height = get_line_height(CHAT_FONT, 1.0);
 	int chat_win_width = CHAT_WIN_TEXT_WIDTH + 4 * CHAT_WIN_SPACE + CHAT_WIN_SCROLL_WIDTH;
-	int chat_win_height = CHAT_OUT_TEXT_HEIGHT + CHAT_IN_TEXT_HEIGHT + 7 * CHAT_WIN_SPACE + CHAT_WIN_TAG_HEIGHT;
+	int input_height = 3 * line_height + 2 * CHAT_WIN_SPACE;
+	int output_height = 8 * line_height + 2 * CHAT_WIN_SPACE;
+	int chat_win_height = output_height + input_height + 3 * CHAT_WIN_SPACE + CHAT_WIN_TAG_HEIGHT;
 	int inout_width = CHAT_WIN_TEXT_WIDTH + 2 * CHAT_WIN_SPACE;
-	int output_height = CHAT_OUT_TEXT_HEIGHT + 2 * CHAT_WIN_SPACE;
 	int tabcol_height = output_height + CHAT_WIN_TAG_HEIGHT;
 	int input_y = tabcol_height + 2 * CHAT_WIN_SPACE;
-	int input_height = CHAT_IN_TEXT_HEIGHT + 2 * CHAT_WIN_SPACE;
-	int line_height = get_line_height(CHAT_FONT, 1.0);
 
 	int min_width = CHAT_WIN_SCROLL_WIDTH + 2 * CHAT_WIN_SPACE + (int)(CHAT_WIN_TEXT_WIDTH * font_scales[CHAT_FONT]);
 	int min_height = 7 * CHAT_WIN_SPACE + CHAT_WIN_TAG_HEIGHT + (2+5) * line_height;
 
-	nr_displayed_lines = (CHAT_OUT_TEXT_HEIGHT-1) / line_height;
+	nr_displayed_lines = (output_height - 2*CHAT_WIN_SPACE) / line_height;
+	chat_out_text_height = output_height - 2 * CHAT_WIN_SPACE;
 
 	chat_win = create_window ("Chat", game_root_win, 0, 0, 0, chat_win_width, chat_win_height, ELW_USE_UISCALE|ELW_WIN_DEFAULT|ELW_RESIZEABLE|ELW_CLICK_TRANSPARENT);
 	if (chat_win < 0 || chat_win >= windows_list.num_windows)
@@ -1167,7 +1167,7 @@ static int cur_button_id = 0;
 static int tabs_in_use = 0;
 static int current_tab = 0;
 static int tab_bar_width = 0;
-static int tab_bar_height = DEFAULT_FONT_Y_LEN;
+static int tab_bar_height = 0;
 static float tab_bar_zoom = 0.75;
 
 static chan_name *create_chan_name(int no, const char* name, const char* desc)
@@ -2427,7 +2427,7 @@ static int ui_scale_color_handler(window_info *win)
 	int button_height = (int)(0.5 + 30 * win->current_scale);
 	int spacing = (int)(0.5 + win->current_scale * 10);
 	float label_size = 0.9 * win->current_scale;
-	int buttons_offset = 2 * spacing + label_size * DEFAULT_FONT_Y_LEN;
+	int buttons_offset = 2 * spacing + label_size * win->default_font_len_y;
 	int len_x = 0;
 	int len_y = 0;
 
@@ -2870,9 +2870,5 @@ void change_to_channel_tab(const char *line)
 
 int get_input_height()
 {
-#ifdef TTF
 	return get_line_height(CHAT_FONT, 1.0) + 2*INPUT_MARGIN;
-#else
-	return (DEFAULT_FONT_Y_LEN + 2*INPUT_MARGIN);
-#endif
 }

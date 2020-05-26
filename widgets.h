@@ -1204,13 +1204,15 @@ int tab_collection_close_tab (int window_id, Uint32 widget_id, int tab);
  * \ingroup	tabs
  * \brief 	Calculate the tab tag height
  *
- * 		Calculate the tab tag height given the specified size.
+ * Calculate the tab tag height given the specified size and font category for
+ * the label.
  *
- * \param   	size the scale factor
+ * \param cat  the category for the font with which the label is drawn
+ * \param size the scale factor
  * \retval int  	Returns the calculate tag tag height.
  * \callgraph
  */
-int tab_collection_calc_tab_height(float size);
+int tab_collection_calc_tab_height(font_cat cat, float size);
 
 /*!
  * \ingroup	tabs

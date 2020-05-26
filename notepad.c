@@ -953,7 +953,8 @@ static int resize_buttonwin_handler(window_info *win, int new_width, int new_hei
 	int but_space = (win->len_x - win->box_size - widget_space * 4) / 2;
 	widget_list *wnew = widget_find(main_note_tab_id, new_note_button_id);
 	widget_list *wsave = widget_find(main_note_tab_id, save_notes_button_id);
-	int tab_tag_height = tab_collection_calc_tab_height(win->current_scale * note_tab_zoom);
+	int tab_tag_height = tab_collection_calc_tab_height(win->font_category,
+		win->current_scale * note_tab_zoom);
 	int nr;
 
 	if ((scroll_w == NULL) || (scroll_w->Flags & WIDGET_INVISIBLE))
@@ -1032,7 +1033,8 @@ static int resize_notepad_handler(window_info *win, int new_width, int new_heigh
 
 	widget_space = (int)(0.5 + win->current_scale * 5);
 	widget_set_size(win->window_id, note_tabcollection_id, win->current_scale * note_tab_zoom);
-	tab_tag_height = tab_collection_calc_tab_height(win->current_scale * note_tab_zoom);
+	tab_tag_height = tab_collection_calc_tab_height(win->font_category,
+		win->current_scale * note_tab_zoom);
 
 	widget_resize(win->window_id, note_tabcollection_id, new_width, new_height - widget_space);
 	widget_move(win->window_id, note_tabcollection_id, 0, widget_space);

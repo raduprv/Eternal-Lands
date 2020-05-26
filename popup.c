@@ -85,7 +85,8 @@ static void popup_scale_vars(void)
 	POPUP_OPTION_TEXT_TOP_MARGIN = (int)(0.5 + window_scale * 3);
 	POPUP_BOTTOM_MARGIN = (int)(0.5 + window_scale * 10);
 	RADIO_OFFSET = (int)(0.5 + window_scale * 16);
-	POPUP_TEXTENTRY_HEIGHT = (int)(0.5 + window_scale * 4 + (DEFAULT_FONT_Y_LEN*popup_font_zoom));
+	POPUP_TEXTENTRY_HEIGHT = (int)(0.5 + window_scale * 4)
+		+ get_line_height(UI_FONT, popup_font_zoom);
 }
 
 /* these colours and be redefined by changing the definition in named_colours.xml */
@@ -114,9 +115,6 @@ static void popup_create_window( popup_t *this_popup );
 static void popup_send_to_server( popup_t *popup );
 
 /* Helper macros */
-
-#define TEXT_HEIGHT( lines ) \
-	(int)((float)(lines)*DEFAULT_FONT_Y_LEN*popup_font_zoom)
 
 /* Some helper macros to aid us fetching and validating network data */
 
@@ -363,9 +361,7 @@ static void flowing_text_perform_flow( flowing_text_t *text, int max_length )
 									 &text_width);
 
 	text->width = (int)text_width;
-
-    text->height = TEXT_HEIGHT( text->lines );
-
+    text->height = text->lines * get_line_height(UI_FONT, popup_font_zoom);
 }
 
 /*!

@@ -1409,9 +1409,9 @@ int tab_collection_get_nr_tabs (int window_id, Uint32 widget_id)
 	return -1;
 }
 
-int tab_collection_calc_tab_height(float size)
+int tab_collection_calc_tab_height(font_cat cat, float size)
 {
-	return (int)(0.5 + DEFAULT_FONT_Y_LEN * 2.0 * size);
+	return 2 * get_line_height(cat, size);
 }
 
 int tab_set_label_color_by_id (int window_id, Uint32 col_id, int tab_id, float r, float g, float b)
@@ -1505,7 +1505,7 @@ int tab_collection_draw (widget_list *w)
 	int btn_size, arw_width;
 	int cur_start, cur_end;
 	int h;
-	int xtxt, ytxt;
+	int xtxt, ytxt, htxt;
 
 	if (!w) return 0;
 
@@ -1638,7 +1638,8 @@ int tab_collection_draw (widget_list *w)
 		if (col->tabs[itab].label_r >= 0.0f)
 			glColor3f (col->tabs[itab].label_r, col->tabs[itab].label_g, col->tabs[itab].label_b);
 
-		ytxt = ytagtop + (h - (w->size * DEFAULT_FONT_Y_LEN)) / 2 + gy_adjust;
+		htxt = get_line_height(w->fcat, w->size);
+		ytxt = ytagtop + (h - htxt) / 2 + gy_adjust;
 		xtxt = xstart + (w->size * DEFAULT_FIXED_FONT_WIDTH) / 2 + gx_adjust;
 		if (col->tabs[itab].closable)
 			xtxt += h;
@@ -1781,7 +1782,7 @@ static int tab_collection_change_font(widget_list *w, font_cat font)
 	if (!w || !(col = (tab_collection *)w->widget_info))
 		return 0;
 
-	col->tag_height = tab_collection_calc_tab_height(w->size);
+	col->tag_height = tab_collection_calc_tab_height(w->fcat, w->size);
 	col->button_size = (9 * col->tag_height) / 10;
 
 	for (itab = 0; itab < col->nr_tabs; ++itab)
@@ -1894,14 +1895,17 @@ static int tab_collection_keypress(widget_list *W, int mx, int my, SDL_Keycode k
 int tab_collection_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int max_tabs)
 {
 	int itab;
-	tab_collection *T = calloc (1, sizeof (tab_collection));
+	window_info *win = &windows_list.window[window_id];
+	tab_collection *T;
+
+	T = calloc (1, sizeof (tab_collection));
 	T->max_tabs =  max_tabs <= 0 ? 2 : max_tabs;
 	T->tabs = calloc (T->max_tabs, sizeof (tab));
 	// initialize all tabs content ids to -1 (unitialized window_
 	for (itab = 0; itab < T->max_tabs; itab++)
 		T->tabs[itab].content_id = -1;
 	T->nr_tabs = 0;
-	T->tag_height = tab_collection_calc_tab_height(size);
+	T->tag_height = tab_collection_calc_tab_height(win->font_category, size);
 	T->button_size = (9 * T->tag_height) / 10;
 	T->cur_tab = 0;
 	T->tab_offset = 0;

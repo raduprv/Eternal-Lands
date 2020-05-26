@@ -525,12 +525,12 @@ void ReadCategoryXML(xmlNode * a_node)
 			if(!xmlStrcasecmp(cur_node->name,(xmlChar*)"nl")){
 				x.pixels = 2;
 				x.nr_big = x.nr_small = 0;
-				y+=(size)?DEFAULT_FONT_Y_LEN:SMALL_FONT_Y_LEN;
+				y+=(size)?DEFAULT_FIXED_FONT_HEIGHT:SMALL_FIXED_FONT_HEIGHT;
 			}
 
 			//<nlkx>
 			if(!xmlStrcasecmp(cur_node->name,(xmlChar*)"nlkx")){
-				y+=(size)?DEFAULT_FONT_Y_LEN:SMALL_FONT_Y_LEN;
+				y+=(size)?DEFAULT_FIXED_FONT_HEIGHT:SMALL_FIXED_FONT_HEIGHT;
 				x.nr_big -= lastextlen.nr_big;
 				x.nr_small -= lastextlen.nr_small;
 			}
@@ -557,7 +557,7 @@ void ReadCategoryXML(xmlNode * a_node)
 					if(xposupdate)
 						x = I->xend;
 					if(yposupdate)
-						y+=yend-((size)?DEFAULT_FONT_Y_LEN:SMALL_FONT_Y_LEN);
+						y+=yend-((size)?DEFAULT_FIXED_FONT_HEIGHT:SMALL_FIXED_FONT_HEIGHT);
 
 				}else{
 					I->x=i->x;
@@ -606,7 +606,7 @@ void ReadCategoryXML(xmlNode * a_node)
 					if(xposupdate)
 						x = I->xend;
 					if(yposupdate)
-						y+=(tsize*((float)ssize/100))-((size)?DEFAULT_FONT_Y_LEN:SMALL_FONT_Y_LEN);
+						y+=(tsize*((float)ssize/100))-((size)?DEFAULT_FIXED_FONT_HEIGHT:SMALL_FIXED_FONT_HEIGHT);
 				}else{
 					I->x=i->x;
 					I->y=i->y;
@@ -657,7 +657,7 @@ void ReadCategoryXML(xmlNode * a_node)
 					if(xposupdate)
 						x = I->xend;
 					if(yposupdate)
-						y+=(tsize*((float)ssize/100))-((size)?DEFAULT_FONT_Y_LEN:SMALL_FONT_Y_LEN);
+						y+=(tsize*((float)ssize/100))-((size)?DEFAULT_FIXED_FONT_HEIGHT:SMALL_FIXED_FONT_HEIGHT);
 				}else{
 					I->x=i->x;
 					I->y=i->y;

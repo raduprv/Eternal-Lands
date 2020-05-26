@@ -757,7 +757,8 @@ static int resize_url_handler(window_info *win, int new_width, int new_height)
 	url_win_help_x = widget->len_x + 2 * url_win_sep;
 	url_win_max_string_width = win->len_x - (2*url_win_sep + win->box_size);
 
-	url_win_line_step = (int)(3 + DEFAULT_FONT_Y_LEN * url_win_text_zoom);
+	url_win_line_step = (int)(3 + get_line_height(win->font_category, url_win_text_zoom));
+
 	url_win_full_url_y_len = 2*url_win_sep + 4 * win->small_font_len_y;
 
 	url_win_text_start_y = 2*url_win_sep + widget->len_y;
