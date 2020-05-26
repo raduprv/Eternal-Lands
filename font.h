@@ -7,7 +7,6 @@
 #define SMALL_FIXED_FONT_HEIGHT   15
 #define DEFAULT_SMALL_RATIO       (8.0f / 11.0f)
 
-#define SMALL_FONT_Y_LEN        15.0f
 #define INGAME_FONT_X_LEN       0.17f
 #define SMALL_INGAME_FONT_X_LEN 0.12f
 #define SMALL_INGAME_FONT_Y_LEN 0.17f

@@ -294,10 +294,13 @@ void drag_item(int item, int storage, int mini)
 	draw_2d_thing(u_start, v_start, u_end, v_end, mouse_x - offset, mouse_y - offset, mouse_x + offset, mouse_y + offset);
 	glEnd();
 
-	if(!mini && quantity!=-1){
+	if (!mini && quantity != -1)
+	{
+		int text_height = get_line_height(UI_FONT, get_global_scale() * DEFAULT_SMALL_RATIO);
 		unsigned char str[20];
 		safe_snprintf((char*)str, sizeof(str), "%d", quantity);
-		draw_string_small_zoomed_centered(mouse_x, mouse_y - offset - get_global_scale() * SMALL_FONT_Y_LEN, str, 1, get_global_scale());
+		draw_string_small_zoomed_centered(mouse_x, mouse_y - offset - text_height,
+			str, 1, get_global_scale());
 	}
 }
 
