@@ -1,7 +1,7 @@
 # CMAKE file for Eternal Lands
 #
 # Create a build sub-directory and move into it
-# 
+#
 # To build a normal release version
 #   cmake <path to source>
 #
@@ -134,11 +134,11 @@ include_directories(${SD} ${SD}io ${SD}shader ${SD}xz ${SD}engine ${SD}exception
 # list the C source files
 set(SOURCES
 	${SD}2d_objects.c ${SD}3d_objects.c ${SD}actors.c ${SD}actor_scripts.c ${SD}alphamap.c ${SD}asc.c
-	${SD}astrology.c ${SD}bags.c ${SD}bbox_tree.c ${SD}books.c ${SD}buddy.c ${SD}buffs.c ${SD}cache.c ${SD}cal.c
+	${SD}astrology.c ${SD}bags.c ${SD}bbox_tree.c ${SD}buddy.c ${SD}buffs.c ${SD}cache.c ${SD}cal.c
 	${SD}calc.c ${SD}chat.c ${SD}cluster.c ${SD}colors.c ${SD}console.c ${SD}consolewin.c ${SD}counters.c
 	${SD}cursors.c ${SD}dds.c ${SD}ddsimage.c ${SD}dialogues.c ${SD}draw_scene.c ${SD}elconfig.c ${SD}el_memory.c
 	${SD}elwindows.c ${SD}emotes.c ${SD}encyclopedia.c ${SD}errors.c ${SD}events.c ${SD}eye_candy_debugwin.c
-	${SD}filter.c ${SD}font.c ${SD}framebuffer.c ${SD}frustum.c ${SD}gamewin.c ${SD}gl_init.c ${SD}hash.c ${SD}help.c
+	${SD}filter.c ${SD}framebuffer.c ${SD}frustum.c ${SD}gamewin.c ${SD}gl_init.c ${SD}hash.c ${SD}help.c
 	${SD}highlight.c ${SD}hud.c ${SD}hud_misc_window.c ${SD}hud_quickbar_window.c ${SD}hud_quickspells_window.c
 	${SD}hud_statsbar_window.c ${SD}ignore.c ${SD}image.c ${SD}image_loading.c ${SD}init.c ${SD}interface.c
 	${SD}items.c ${SD}keys.c ${SD}knowledge.c ${SD}langselwin.c ${SD}lights.c ${SD}list.c ${SD}load_gl_extensions.c
@@ -159,8 +159,8 @@ set(SOURCES
 
 # list the C++ source files
 set(SOURCES ${SOURCES}
-	${SD}achievements.cpp ${SD}actor_init.cpp ${SD}cal3d_wrapper.cpp ${SD}command_queue.cpp ${SD}context_menu.cpp
-	${SD}elloggingwrapper.cpp ${SD}hud_indicators.cpp ${SD}hud_timer.cpp ${SD}icon_window.cpp
+	${SD}achievements.cpp ${SD}actor_init.cpp  ${SD}books.cpp ${SD}cal3d_wrapper.cpp ${SD}command_queue.cpp ${SD}context_menu.cpp
+	${SD}elloggingwrapper.cpp  ${SD}font.cpp ${SD}hud_indicators.cpp ${SD}hud_timer.cpp ${SD}icon_window.cpp
 	${SD}io/cal3d_io_wrapper.cpp ${SD}item_info.cpp ${SD}item_lists.cpp ${SD}named_colours.cpp
 	${SD}optimizer.cpp ${SD}password_manager.cpp ${SD}quest_log.cpp ${SD}select.cpp ${SD}sendvideoinfo.cpp
 	${SD}trade_log.cpp ${SD}user_menus.cpp ${SD}xor_cipher.cpp ${SD}engine/hardwarebuffer.cpp ${SD}engine/logging.cpp
