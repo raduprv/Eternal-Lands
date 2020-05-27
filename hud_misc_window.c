@@ -271,8 +271,10 @@ CHECK_GL_ERRORS();
 			safe_snprintf(str, sizeof(str), "%1d:%02d:%02d", real_game_minute/60, real_game_minute%60, real_game_second);
 		else
 			safe_snprintf(str, sizeof(str), " %1d:%02d ", real_game_minute/60, real_game_minute%60);
- 		base_y_start -= digital_clock_height;
- 		draw_string_shadowed_width(scaled_6/2, scaled_6/2 + base_y_start, (unsigned char*)str, win->len_x-scaled_6, 1,0.77f, 0.57f, 0.39f,0.0f,0.0f,0.0f);
+		base_y_start -= digital_clock_height;
+		draw_string_shadowed_scaled_to_width(scaled_6/2, scaled_6/2 + base_y_start,
+			(const unsigned char*)str, win->len_x-scaled_6, 1, 0.77f, 0.57f, 0.39f,
+			0.0f, 0.0f, 0.0f);
 	}
 
 	/* if mouse over the either of the clocks - display the time & date */

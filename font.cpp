@@ -1516,8 +1516,14 @@ size_t *font_idxs = FontManager::font_idxs.data();
 float *font_scales = FontManager::font_scales.data();
 #ifdef TTF
 int use_ttf = 0;
+#ifdef LINUX
+char ttf_directory[TTF_DIR_SIZE] = "/usr/share/fonts/TTF";
+#elif defined WINDOWS
+char ttf_directory[TTF_DIR_SIZE] = "C:/Windows/Fonts";
+#else
 char ttf_directory[TTF_DIR_SIZE];
-#endif
+#endif //
+#endif // TTF
 
 int initialize_fonts()
 {
@@ -1599,44 +1605,44 @@ void put_small_colored_text_in_box_zoomed(int color,
 }
 
 void draw_buf_zoomed_width_font_select(int x, int y, const unsigned char *text, size_t len,
-	int max_width, int max_lines, float r, float g, float b, font_cat cat, float zoom,
+	int max_width, int max_lines, float r, float g, float b, font_cat cat, float text_zoom,
 	int sel_begin, int sel_end)
 {
 	TextDrawOptions options = TextDrawOptions().set_max_width(max_width)
-		.set_max_lines(max_lines).set_foreground(r, g, b).set_zoom(zoom);
+		.set_max_lines(max_lines).set_foreground(r, g, b).set_zoom(text_zoom);
 	FontManager::get_instance().draw(cat, text, len, x, y, options, sel_begin, sel_end);
 }
 void draw_buf_zoomed_width_font(int x, int y, const unsigned char *text, size_t len,
-	int max_width, int max_lines, font_cat cat, float zoom)
+	int max_width, int max_lines, font_cat cat, float text_zoom)
 {
 	TextDrawOptions options = TextDrawOptions().set_max_width(max_width)
-		.set_max_lines(max_lines).set_zoom(zoom);
+		.set_max_lines(max_lines).set_zoom(text_zoom);
 	FontManager::get_instance().draw(cat, text, len, x, y, options);
 }
 void draw_string_zoomed_width_font_right(int x, int y, const unsigned char *text,
-	int max_width, int max_lines, font_cat cat, float zoom)
+	int max_width, int max_lines, font_cat cat, float text_zoom)
 {
 	TextDrawOptions options = TextDrawOptions().set_max_width(max_width)
-		.set_max_lines(max_lines).set_zoom(zoom)
+		.set_max_lines(max_lines).set_zoom(text_zoom)
 		.set_alignment(TextDrawOptions::Alignment::RIGHT);
 	FontManager::get_instance().draw(cat, text, strlen(reinterpret_cast<const char*>(text)),
 		x, y, options);
 }
 void draw_string_zoomed_width_font_centered(int x, int y, const unsigned char *text,
-	int max_width, int max_lines, font_cat cat, float zoom)
+	int max_width, int max_lines, font_cat cat, float text_zoom)
 {
 	TextDrawOptions options = TextDrawOptions().set_max_width(max_width)
-		.set_max_lines(max_lines).set_zoom(zoom)
+		.set_max_lines(max_lines).set_zoom(text_zoom)
 		.set_alignment(TextDrawOptions::Alignment::CENTER);
 	FontManager::get_instance().draw(cat, text, strlen(reinterpret_cast<const char*>(text)),
 		x, y, options);
 }
 void draw_string_zoomed_centered_around(int x, int y,
-	const unsigned char *text, int center_idx, float zoom)
+	const unsigned char *text, int center_idx, float text_zoom)
 {
 	size_t len = strlen(reinterpret_cast<const char*>(text));
 	size_t idx = center_idx;
-	TextDrawOptions options = TextDrawOptions().set_zoom(zoom)
+	TextDrawOptions options = TextDrawOptions().set_zoom(text_zoom)
 		.set_alignment(TextDrawOptions::Alignment::RIGHT);
 	FontManager::get_instance().draw(FontManager::Category::UI_FONT, text,
 		std::min(len, idx), x, y, options);
@@ -1649,53 +1655,53 @@ void draw_string_zoomed_centered_around(int x, int y,
 }
 void draw_string_shadowed_zoomed(int x, int y, const unsigned char* text,
 	int max_lines, float fr, float fg, float fb, float br, float bg, float bb,
-	float zoom)
+	float text_zoom)
 {
 	TextDrawOptions options = TextDrawOptions().set_max_lines(max_lines)
 		.set_shadow().set_foreground(fr, fg, fb).set_background(br, bg, bb)
-		.set_zoom(zoom);
+		.set_zoom(text_zoom);
 	FontManager::get_instance().draw(FontManager::Category::UI_FONT, text,
 		strlen(reinterpret_cast<const char*>(text)), x, y, options);
 }
 void draw_string_shadowed_zoomed_centered(int x, int y, const unsigned char* text,
 	int max_lines, float fr, float fg, float fb, float br, float bg, float bb,
-	float zoom)
+	float text_zoom)
 {
 	TextDrawOptions options = TextDrawOptions().set_max_lines(max_lines)
 		.set_shadow().set_foreground(fr, fg, fb).set_background(br, bg, bb)
-		.set_zoom(zoom).set_alignment(TextDrawOptions::Alignment::CENTER);
+		.set_zoom(text_zoom).set_alignment(TextDrawOptions::Alignment::CENTER);
 	FontManager::get_instance().draw(FontManager::Category::UI_FONT, text,
 		strlen(reinterpret_cast<const char*>(text)), x, y, options);
 }
 void draw_string_shadowed_zoomed_right(int x, int y, const unsigned char* text,
 	int max_lines, float fr, float fg, float fb, float br, float bg, float bb,
-	float zoom)
+	float text_zoom)
 {
 	TextDrawOptions options = TextDrawOptions().set_max_lines(max_lines)
 		.set_shadow().set_foreground(fr, fg, fb).set_background(br, bg, bb)
-		.set_zoom(zoom).set_alignment(TextDrawOptions::Alignment::RIGHT);
+		.set_zoom(text_zoom).set_alignment(TextDrawOptions::Alignment::RIGHT);
 	FontManager::get_instance().draw(FontManager::Category::UI_FONT, text,
 		strlen(reinterpret_cast<const char*>(text)), x, y, options);
 }
-void draw_string_shadowed_width(int x, int y, const unsigned char* text,
-	int max_width, int max_lines, float fr, float fg, float fb,
+void draw_string_shadowed_scaled_to_width(int x, int y, const unsigned char* text,
+	int width, int max_lines, float fr, float fg, float fb,
 	float br, float bg, float bb)
 {
 	int text_width = FontManager::get_instance().line_width(FontManager::Category::UI_FONT,
 		text, strlen(reinterpret_cast<const char*>(text)));
 	TextDrawOptions options = TextDrawOptions()
-		.set_max_width(max_width).set_max_lines(max_lines)
+		.set_max_width(width).set_max_lines(max_lines)
 		.set_shadow().set_foreground(fr, fg, fb).set_background(br, bg, bb)
-		.set_zoom(float(max_width) / text_width);
+		.set_zoom(float(width) / text_width);
 	FontManager::get_instance().draw(FontManager::Category::UI_FONT, text,
 		strlen(reinterpret_cast<const char*>(text)), x, y, options);
 }
 
 void draw_string_zoomed_ellipsis_font(int x, int y, const unsigned char *text,
-	int max_width, int max_lines, font_cat cat, float zoom)
+	int max_width, int max_lines, font_cat cat, float text_zoom)
 {
 	TextDrawOptions options = TextDrawOptions().set_max_width(max_width)
-		.set_max_lines(max_lines).set_zoom(zoom).set_ellipsis();
+		.set_max_lines(max_lines).set_zoom(text_zoom).set_ellipsis();
 	FontManager::get_instance().draw(cat, text, strlen(reinterpret_cast<const char*>(text)),
 		x, y, options);
 }

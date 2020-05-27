@@ -1,3 +1,9 @@
+/*!
+ * \file
+ * \ingroup text_font
+ * \brief Classes and functions for rendering text in different fonts
+ */
+
 #ifndef NEW_FONT_H
 #define NEW_FONT_H
 
@@ -15,8 +21,7 @@
 
 /*!
  * \ingroup text_font
- *
- * Enumeration for font categories
+ * \brief Enumeration for font categories
  *
  * This enumeration defines the different categories of fonts used in the
  * game. The actual enum values correspond to indices in the font_idxs array,
@@ -63,10 +68,24 @@ namespace eternal_lands
 {
 
 /*!
- * Type alias for a byte string, as used in many places in EL
+ * \ingroup text_font
+ * \brief Type alias for a byte string, as used in many places in EL
  */
 typedef std::basic_string<unsigned char> ustring;
 
+/*!
+ * \ingroup text_font
+ * \brief Class for text drawing options.
+ *
+ * Class TextDrawOptions can hold options that specify how a text will be
+ * displayed on the screen. Things that can be specified through TextDrawOptions
+ * include:
+ * * The size and color of the text to display
+ * * The maximum width the text can occupy, and the maximum number of lines to draw,
+ * * Alignment of the text: left, right, or centered around the given x position
+ * * Whether or not to draw a semi-transparent background behind the text
+ * * Whether to use ellipsis to indicate too wide text
+ */
 class TextDrawOptions
 {
 public:
@@ -77,10 +96,14 @@ public:
 	//! Default color for selected text
 	static const std::array<float, 3> default_selection_color;
 
+	//! Enumeration for horizontal text alignment
 	enum Alignment
 	{
+		//! Align text left to the given position
 		LEFT,
+		//! Center text around the given position
 		CENTER,
+		//! Align text right to the given position
 		RIGHT
 	};
 	//! Bit flags controlling the look of the text
@@ -97,61 +120,82 @@ public:
 	};
 
 	/*!
-	 * Constructor
+	 * \brief Constructor
 	 *
 	 * Create a new TextDrawOptions object, with default settings.
 	 */
 	TextDrawOptions();
 
+	//! Return the maximum width the text can occupy
 	int max_width() const { return _max_width; }
+	//! Return the maximum number of text lines to draw
 	int max_lines() const { return _max_lines; }
+	//! Return the scale factor for the text
 	float zoom() const { return _zoom; }
+	//! Return the scale factor for the spacing between two lines
 	float line_spacing() const { return _line_spacing; }
+	//! Return the horizontal alignment of the text
 	Alignment alignment() const { return _alignment; }
+	//! Return whether the text is drawn with a shadow background
 	bool shadow() const { return _flags & SHADOW; }
+	//! Return whether color characters in the text are ignored
 	bool ignore_color() const { return _flags & IGNORE_COLOR; }
+	//! Return whether this is a help text, with semi-transparent background
 	bool is_help() const { return _flags & HELP; }
+	//! Return whether to truncate wide text with ellipsis (...)
 	bool ellipsis() const { return _flags & ELLIPSIS; }
 
+	//! Return whether a valid foreground color was set for this text
 	bool has_foreground_color() const { return _fg_color[0] >= 0.0; }
+	//! Return whether a valid background color was set for this text
 	bool has_background_color() const { return _bg_color[0] >= 0.0; }
 
+	//! Set the maximum width (in pixels) the text can occupy to \a width
 	TextDrawOptions& set_max_width(int width)
 	{
 		_max_width = width;
 		return *this;
 	}
 
+	//! Set the maximum number of lines to draw to \a lines
 	TextDrawOptions& set_max_lines(int lines)
 	{
 		_max_lines = lines;
 		return *this;
 	}
 
+	//! Set the scale factor for the text to \a zoom
 	TextDrawOptions& set_zoom(float zoom)
 	{
 		_zoom = zoom;
 		return *this;
 	}
 
+	//! Multiply the current scale factor by \a scale
 	TextDrawOptions& scale_zoom(float scale)
 	{
 		_zoom *= scale;
 		return *this;
 	}
 
+	//! Set the scale factor for the line spacing to \a scale
 	TextDrawOptions& set_line_spacing(float scale)
 	{
 		_line_spacing = scale;
 		return *this;
 	}
 
+	//! Set the horizontal text alignment to \a alignment
 	TextDrawOptions& set_alignment(Alignment alignment)
 	{
 		_alignment = alignment;
 		return *this;
 	}
 
+	/*!
+	 * \brief Set whether to draw a shadow in the background color around the text
+	 * \sa set_background
+	 */
 	TextDrawOptions& set_shadow(bool shadow=true)
 	{
 		if (shadow)
@@ -161,6 +205,13 @@ public:
 		return *this;
 	}
 
+	/*!
+	 * \brief Set the foreground color of the text to (\a r, \a g, \a b).
+	 *
+	 * If not set, text is drawn in white, unless ignore_color is set, in which
+	 * case the current OpenGL color is used.
+	 * \sa set_ignore_color
+	 */
 	TextDrawOptions& set_foreground(float r, float g, float b)
 	{
 		_fg_color[0] = r;
@@ -169,6 +220,13 @@ public:
 		return *this;
 	}
 
+	/*!
+	 * \brief  Set the background (shadow) color of the text to (\a r, \a g, \a b).
+	 *
+	 * If not set, shadows are drawn in black.
+	 *
+	 * \sa set_shadow
+	 */
 	TextDrawOptions& set_background(float r, float g, float b)
 	{
 		_bg_color[0] = r;
@@ -177,6 +235,7 @@ public:
 		return *this;
 	}
 
+	//! Set whether to ignore color characters in the text
 	TextDrawOptions& set_ignore_color(bool ignore=true)
 	{
 		if (ignore)
@@ -186,6 +245,12 @@ public:
 		return *this;
 	}
 
+	/*!
+	 * \brief Set whether this is a help text.
+	 *
+	 * Help texts are drawn with a semi-transparent background behind the text,
+	 * as if they are on a window.
+	 */
 	TextDrawOptions& set_help(bool is_help=true)
 	{
 		if (is_help)
@@ -195,6 +260,7 @@ public:
 		return *this;
 	}
 
+	//! Set whether to ellipsis (...) should be added to clipped text
 	TextDrawOptions& set_ellipsis(bool ellipsis=true)
 	{
 		if (ellipsis)
@@ -221,40 +287,59 @@ public:
 	void use_selection_color() const;
 
 private:
+	//! The maximum width of the text
 	int _max_width;
+	//! The maximum number of lines to draw
 	int _max_lines;
+	//! The scale factor for the text size
 	float _zoom;
+	//! The scale factor for the spacing between lines
 	float _line_spacing;
+	//! The horizontal alignment of the text
 	Alignment _alignment;
+	//! Bit flags for further options
 	Uint32 _flags;
+	//! The foreground color of the text
 	std::array<float, 3> _fg_color;
+	//! The shadow color of the text, if shadows are drawn
 	std::array<float, 3> _bg_color;
+	//! The color for selected text
 	std::array<float, 3> _sel_color;
 };
 
+/*!
+ * \ingroup text_font
+ * \brief A class for a text font
+ *
+ * Class Font holds information about text fonts, and provides functions to
+ * draw text in a certain font. A font can be either one of the fonts bundled
+ * with the game, or if the TTF compiled option is enabled, a TrueType font
+ * on the user's system.
+ */
 class Font
 {
 public:
 	/*!
-	 * Create a new font
+	 * \brief Create a new font
 	 *
 	 * Initialize a new internal font. This sets the parameters for the \a i'th
 	 * font bundled with EL, but does not yet load the font texture because it
-	 * is called before OpenGL is initialized. There are 6 fonts available,
+	 * is called before OpenGL is initialized. There are 7 fonts available,
 	 * they are:
-	 * 0: textures/font.dds
-	 * 1: textures/font2.dds
-	 * 2: textures/font3.dds
-	 * 3: textures/font5.dds
-	 * 4: textures/font6.dds
-	 * 5: textures/font7.dds
+	 * - 0: textures/font.dds (fixed width)
+	 * - 1: textures/font.dds (variable width)
+	 * - 2: textures/font2.dds
+	 * - 3: textures/font3.dds
+	 * - 4: textures/font5.dds
+	 * - 5: textures/font6.dds
+	 * - 6: textures/font7.dds
 	 *
 	 * \param i The number of the EL bundled font
 	 */
 	Font(size_t i);
 #ifdef TTF
 	/*!
-	 * Create a new font.
+	 * \brief Create a new font.
 	 *
 	 * Create a new font description from the TTF font file specified by
 	 * \a ttf_file_name. This only loads the font description, and does not yet
@@ -283,9 +368,7 @@ public:
 	bool failed() const { return _flags & Flags::FAILED; }
 
 	/*!
-	 * \ingroup text_font
-	 *
-	 * Check if a character has a glyph.
+	 * \brief Check if a character has a glyph.
 	 *
 	 * Check if a glyph is defined for a character \a c, i.e. if it can be printed.
 	 *
@@ -298,7 +381,7 @@ public:
 	}
 
 	/*!
-	 * Get the width of a character
+	 * \brief Get the width of a character
 	 *
 	 * Get the width of character \a c when drawn in this font at zoom level \a zoom.
 	 *
@@ -311,7 +394,7 @@ public:
 		return width_pos(get_position(c), zoom);
 	}
 	/*!
-	 * Get the width of a character plus spacing
+	 * \brief Get the width of a character plus spacing
 	 *
 	 * Get the width of character \a c when drawn in this font at zoom level \a zoom,
 	 * plus the spacing between two characters.
@@ -325,7 +408,7 @@ public:
 		return width_spacing_pos(get_position(c), zoom);
 	}
 	/*!
-	 * Get the maximum character width, plus spacing
+	 * \brief Get the maximum character width, plus spacing
 	 *
 	 * Get the maximum width of a single character in this font when drawn at zoom
 	 * level \a zoom, and include the spacing between characters.
@@ -335,7 +418,7 @@ public:
 	 */
 	int max_width_spacing(float zoom=1.0) const;
 	/*!
-	 * Get the average character width, plus spacing
+	 * \brief Get the average character width, plus spacing
 	 *
 	 * Get an approximation to the average width of a character in this font when
 	 * drawn at zoom level \a zoom, including the space between characters,
@@ -343,15 +426,14 @@ public:
 	 * a weight to each possible character, and taking the weighted average
 	 * of all character widths. The weights are based on a study on normal
 	 * English text, so use this function with the following caveats:
-	 *
-	 * 1) Relative frequencies are based on English text, and so may not be
+	 * 1. Relative frequencies are based on English text, and so may not be
 	 *    applicable to text in to other languages,
-	 * 2) Furthermore, weights are based on text from the New York Times, and so
+	 * 2. Furthermore, weights are based on text from the New York Times, and so
 	 *    may not be representative even for English text in EL,
-	 * 3) Only ASCII characters were counted in the stdy (so accented characters
+	 * 3. Only ASCII characters were counted in the study (so accented characters
 	 *    don't contribute), and a few ASCII characters are missing as well
-	 *    ('[', '\', ']', '^', '_', and '`' to be exact).
-     * 4) The occurance of the space character was guesstimated from the reported
+	 *    (\c '[', \c '\\', \c ']', \c '^', \c '_', and \c '`' to be exact),
+	 * 4. The occurance of the space character was guesstimated from the reported
 	 *    total number of words in the corpus.
 	 *
 	 * Proceed to use with caution, do not use this function when you need to be
@@ -363,7 +445,7 @@ public:
 	 */
 	int average_width_spacing(float zoom=1.0) const;
 	/*!
-	 * Get the maximum width of a digit, plus spacing
+	 * \brief Get the maximum width of a digit, plus spacing
 	 *
 	 * Get the maximum width of a single digit character (0-9) in this font when
 	 * drawn at zoom level \a zoom, and include the spacing between characters.
@@ -373,11 +455,11 @@ public:
 	 */
 	int max_digit_width_spacing(float zoom=1.0) const;
 	/*!
-	 * Calculate the width of a string
+	 * \brief Calculate the width of a string
 	 *
 	 * Calculate the width in pixels of the string \a text of length \a len
 	 * when drawn in this font with scale factor zoom.
-	 * NOTE: this function assumes the string is a single line. Newline
+	 * \note This function assumes the string is a single line. Newline
 	 * characters are ignored, and having them in the middle of string will
 	 * result in a too large value for the width.
 	 *
@@ -388,12 +470,12 @@ public:
 	 */
 	int line_width(const unsigned char* text, size_t len, float zoom) const;
 	/*!
-	 * Calculate the width of a string with final spacing
+	 * \brief Calculate the width of a string with final spacing
 	 *
 	 * Calculate the width in pixels of the string \a text of length \a len,
 	 * including the spacing after the final character, when drawn in this font
 	 * with scale factor \a zoom.
-	 * NOTE: this function assumes the string is a single line. Newline
+	 * \note This function assumes the string is a single line. Newline
 	 * characters are ignored, and having them in the middle of string will
 	 * result in a too large value for the width.
 	 *
@@ -404,11 +486,11 @@ public:
 	 */
 	int line_width_spacing(const unsigned char* text, size_t len, float zoom) const;
 	/*!
-	 * Calculate the width of a string with final spacing
+	 * \brief Calculate the width of a string with final spacing
 	 *
 	 * Calculate the width in pixels of the string \a text including the spacing
 	 * after the final character, when drawn in this font with scale factor \a zoom.
-	 * NOTE: this function assumes the string is a single line. Newline
+	 * \note This function assumes the string is a single line. Newline
 	 * characters are ignored, and having them in the middle of string will
 	 * result in a too large value for the width.
 	 *
@@ -421,7 +503,15 @@ public:
 		return line_width_spacing(text.data(), text.length(), zoom);
 	}
 	/*!
-	 * Calculate the dimensions of a block of text
+	 * \brief Get the height of a line.
+	 *
+	 * Get the height of a line when drawing text at zoom level \a zoom.
+	 *
+	 * \param zoom The zoom factor for drawing the text
+	 */
+	int height(float zoom=1.0) const;
+	/*!
+	 * \brief Calculate the dimensions of a block of text
 	 *
 	 * Calculate the width and height of string \a text of length \a len bytes
 	 * when drawn in this font with scale factor \a zoom. The string may contain
@@ -435,15 +525,14 @@ public:
 	std::pair<int, int> dimensions(const unsigned char* text, size_t len, float zoom) const;
 
 	/*!
-	 * \ingroup text_font
-	 * \brief   Recompute where the line breaks in a string should occur
+	 * \brief Recompute where the line breaks in a string should occur
 	 *
 	 * Recomputes the positions in string \a text where line breaks should be
 	 * placed so that the string fits into a window. This creates a new string
-	 * from the the contents of \a text and inserts '\r' characters at the
+	 * from the the contents of \a text and inserts \c '\\r' characters at the
 	 * positions where the line should be broken. The parameter \a options
 	 * specifies how the text will be drawn, currently only the \c zoom and
-	 * \c max_width field are used int this function. The optional parameter \a cursor
+	 * \c max_width field are used in this function. The optional parameter \a cursor
 	 * contains the offset of the cursor position in the text; it will be updated
 	 * as new line breaks are inserted. The optional parameter \a max_line_width
 	 * can be used to retrieve the largest width in pixels of the lines in \a text
@@ -461,12 +550,11 @@ public:
 		size_t text_len, const TextDrawOptions& options,
 		int *cursor = 0, float *max_line_width = 0);
 	/*!
-	 * \ingroup text_font
-	 * \brief   Recompute where the line breaks in a string should occur
+	 * \brief Recompute where the line breaks in a string should occur
 	 *
 	 * Recomputes the positions in string \a text where line breaks should be
 	 * placed so that the string fits into a window. This creates a new string
-	 * from the the contents of \a text and inserts '\r' characters at the
+	 * from the the contents of \a text and inserts \c '\\r' characters at the
 	 * positions where the line should be broken. The parameter \a options
 	 * specifies how the text will be drawn, currently only the \c zoom and
 	 * \c max_width field are used int this function.
@@ -483,7 +571,7 @@ public:
 	}
 
 	/*!
-	 * Draw a text string
+	 * \brief Draw a text string
 	 *
 	 * Draw the text in the first \a len bytes of \a text, starting at position
 	 * \a x, \a y, using the drawing option in \a options.
@@ -499,12 +587,10 @@ public:
 	void draw(const unsigned char* text, size_t len, int x, int y,
 		const TextDrawOptions &options, size_t sel_begin=0, size_t sel_end=0) const;
 	/*!
-	 * \ingroup text_font
-	 * Draws messages in a buffer to the screen
+	 * \brief Draws messages in a buffer to the screen
 	 *
 	 * Draws the messages in buffer \a msgs to the screen, starting with character
 	 * \a offset_start in message number \a msg_start.
-	 * NOTE: The messages are rewrapped if necessary.
 	 *
 	 * \param msgs         the message buffer
 	 * \param msgs_size    the total number of messages that \a msgs can hold
@@ -512,7 +598,7 @@ public:
 	 * \param y            y coordinate of the position to start drawing
 	 * \param filter       draw only messages in channel \a filter. Choose
 	 * 	FILTER_ALL for displaying all messages
-	 * \param msg_start	  index of the first message to display
+	 * \param msg_start    index of the first message to display
 	 * \param offset_start the first character in message \a msg_start to display
 	 * \param options      Options defining the layout of the text
 	 * \param cursor       if >= 0, the position at which to draw the cursor
@@ -524,6 +610,17 @@ public:
 	void draw_messages(const text_message *msgs, size_t msgs_size, int x, int y,
 		Uint8 filter, size_t msg_start, size_t offset_start,
 		const TextDrawOptions &options, size_t cursor, select_info* select) const;
+	/*!
+	 * \brief Draw the console separator
+	 *
+	 * When there are more messages than can fit on a single screen, the user can
+	 * scroll up to see the previous messages. When they do, a separator is
+	 * drawn by this function to indicate that more messages follow.
+	 *
+	 * \param x_space Horizontal space tokeep free on either side
+	 * \param y       Vertical position at which the line should be drawn
+	 * \param options Text options for drawing the separator
+	 */
 	void draw_console_separator(int x_space, int y, const TextDrawOptions& options) const;
 #ifdef ELC
 #ifndef MAP_EDITOR2
@@ -535,17 +632,25 @@ public:
 #endif // ELC
 
 private:
+	//! The number of lines in a font texture
 	static const size_t font_nr_lines = 10;
+	//! The number of glyphs on a single line in a font texture
 	static const size_t font_chars_per_line = 14;
-	//! The number of different glyphs we recognise
+	//! The total number of different glyphs we recognise
 	static const size_t nr_glyphs = 9*14 + 6;
+	//! Horizontal space in the texture for a single glyph in a bundled font
 	static const int font_block_width = 18;
+	//! Vertical space in the texture for a single glyph in a bundled font
 	static const int font_block_height = 21;
+	//! Normal line height for unscaled text in a bundled font
 	static const int default_line_height = 18;
 #ifdef TTF
+	//! Point size with which TrueType fonts are opened
 	static const int ttf_point_size = 32;
 #endif
+	//! Relative frequencies for characters in normal English text
 	static const std::array<int, nr_glyphs> letter_freqs;
+	//! Ellipsis string for clipped text
 	static const ustring ellipsis;
 
 	//! Flags indicating the status and properties of a font
@@ -611,14 +716,14 @@ private:
 	friend class FontManager;
 
 	/*!
-	 * Get the position of a glyph in the texture
+	 * \brief Get the position of a glyph in the texture
 	 *
 	 * \param c The byte for which to get the position
 	 * \return The position in the font texture, of -1 if \a c is not a valid glyph.
 	 */
 	static int get_position(unsigned char c);
 	/*!
-	 * Get the width of a character
+	 * \brief Get the width of a character
 	 *
 	 * Get the width of the glyph at position \a pos in the texture when drawn
 	 * in this font at zoom level \a zoom.
@@ -628,7 +733,7 @@ private:
 	 */
 	int width_pos(int pos, float zoom=1.0) const;
 	/*!
-	 * Get the width of a character plus spacing
+	 * \brief Get the width of a character plus spacing
 	 *
 	 * Get the width of the glyph at position \a pos in the texture when drawn
 	 * in this font at zoom level \a zoom, plus the spacing between two
@@ -638,18 +743,9 @@ private:
 	 * \param zoom The zoom factor for drawing the glyph
 	 */
 	int width_spacing_pos(int pos, float zoom=1.0) const;
-	/*!
-	 * Get the height of a line.
-	 *
-	 * Get the height of a line when drawing text at zoom level \a zoom.
-	 *
-	 * \param zoom The zoom factor for drawing the text
-	 */
-	int height(float zoom=1.0) const;
-
 
 	/*!
-	 * Load or generate the texture for this font.
+	 * \brief Load or generate the texture for this font.
 	 *
 	 * Load the texture into the texture cache for normal fonts, or generate
 	 * a texture atlas for TTF fonts.
@@ -660,7 +756,7 @@ private:
 	//! Bind the font texture for this font
 	void bind_texture() const;
 	/*!
-	 * Get texture coordinates for a character
+	 * \brief Get texture coordinates for a character
 	 *
 	 * Get the texture coordinates in the font texture for the character at
 	 * position \a pos.
@@ -675,9 +771,9 @@ private:
 		float &u_start, float &u_end, float &v_start, float &v_end) const;
 
 	/*!
-	 * Set the current draw color.
+	 * \brief Set the current draw color.
 	 *
-	 * Set the drawing color for the text to the color define in \see colors_list
+	 * Set the drawing color for the text to the color define in colors_list
 	 * at index \a color.
 	 *
 	 * \param color The index of the text color in the \see colors_list.
@@ -685,7 +781,7 @@ private:
 	static void set_color(int color);
 
 	/*!
-	 * Draw a single character
+	 * \brief Draw a single character
 	 *
 	 * Draw a single character \a c at position \a x, \a y with its sized scaled
 	 * by a factor \a zoom. This function only adds the quad with the correct
@@ -705,7 +801,7 @@ private:
 	 */
 	int draw_char(unsigned char c, int x, int y, float zoom, bool ignore_color) const;
 	/*!
-	 * Draw background for help texts
+	 * \brief Draw background for help texts
 	 *
 	 * Draw a semi-transparent background box for tooltips.
 	 *
@@ -716,13 +812,13 @@ private:
 	 */
 	void draw_help_background(int x, int y, int width, int height) const;
 	/*!
-	 * Draw a single line of text
+	 * \brief Draw a single line of text
 	 *
 	 * Draw a single line of text in \a text of length \a len bytes, starting
 	 * at position \a x, \a y and drawing to the left.
-	 * NOTE: This function is for drawing a single line. Any newlines in \a text
+	 * \note This function is for drawing a single line. Any newlines in \a text
 	 * are ignored.
-	 * NOTE: The alignment option in \a options has no effect for this function,
+	 * \note The alignment option in \a options has no effect for this function,
 	 * text is always drawn left to right.
 	 *
 	 * \param text      The line of text to draw
@@ -737,7 +833,7 @@ private:
 	void draw_line(const unsigned char* text, size_t len, int x, int y,
 		const TextDrawOptions &options, size_t sel_begin=0, size_t sel_end=0) const;
 	/*!
-	 * Clip a line of text
+	 * \brief Clip a line of text
 	 *
 	 * Clip a line of text such that the remainder fits into \a max_width pixels.
 	 * This function takes alignment into account: left aligned text is clipped
@@ -762,11 +858,11 @@ private:
 
 #ifdef TTF
 	/*!
-	 * Render a single glyph
+	 * \brief Render a single glyph
 	 *
 	 * Render the glyph \a glyph wit size \a size at row \a i and column \a j
 	 * in the font atlas \a surface, using font \a font. The vertical offset
-	 * parameter \a y_delta is used ti try and center the glyphs vertically,
+	 * parameter \a y_delta is used to try and center the glyphs vertically,
 	 * making vertical alignment of text easier.
 	 *
 	 * \param glyph   The Unicode code point of the glyph to render
@@ -782,7 +878,7 @@ private:
 	static std::pair<int, int> render_glyph(Uint16 glyph, int i, int j, int size,
 		int y_delta, TTF_Font *font, SDL_Surface *surface);
 	/*!
-	 * Build a texture for a TTF font
+	 * \brief Build a texture for a TTF font
 	 *
 	 * Build a texture containing all supported glyphs from the TrueType font
 	 * associated with this font.
@@ -793,7 +889,7 @@ private:
 #endif // TTF
 
 	/*!
-	 * Add this font to the multi-selects
+	 * \brief Add this font to the multi-selects
 	 *
 	 * Add this font as an option to the various font selections in the
 	 * settings window. If the optional parameter \a add_button is \c true,
@@ -802,6 +898,17 @@ private:
 	void add_select_options(bool add_button=false) const;
 };
 
+/*!
+ * \brief Class for managing fonts
+ *
+ * Class FontManager is used as an entry point to font handling. It holds a list
+ * of all known fonts, as well as a font number and scale factor for a number
+ * of font categories. The font categories are used for drawing different kinds
+ * of texts; by changing the font for a certain category all windows and widgets
+ * using this category are updated automatically. Class FontManager is a singleton
+ * class: all access to this class must go through get_instance().
+ * \sa font_cat
+ */
 class FontManager
 {
 public:
@@ -813,6 +920,7 @@ public:
 	//! The zoom factor for each font category
 	static std::array<float, NR_FONT_CATS> font_scales;
 
+	//! Get the singleton FontManager instance
 	static FontManager& get_instance()
 	{
 		static FontManager manager;
@@ -822,7 +930,7 @@ public:
 	//! Check if this font manager has been initialized
 	bool is_initialized() const { return !_fonts.empty(); }
 	/*!
-	 * Initialize the font managaer.
+	 * \brief Initialize the font manager.
 	 *
 	 * This adds the standard fonts bundled with EL to the font manager, and
 	 * if TTF fonts are enabled, scans the TTF path for True Type fonts
@@ -831,7 +939,7 @@ public:
 	bool initialize();
 
 	/*!
-	 * Return the font number of a fixed width font
+	 * \brief Return the font number of a fixed width font
 	 *
 	 * Return the font number for the \a idx'th fixed width font.
 	 *
@@ -852,7 +960,7 @@ public:
 	}
 
 	/*!
-	 * The width of a single character
+	 * \brief The width of a single character
 	 *
 	 * Return the width of a single character including spacing, when drawn
 	 * in the font for category \a cat, at zoom level \a text_zoom.
@@ -867,7 +975,7 @@ public:
 		return get(cat).width_spacing(c, text_zoom * font_scales[cat]);
 	}
 	/*!
-	 * The maximum width of a single character
+	 * \brief The maximum width of a single character
 	 *
 	 * Return the maximum a single character can occupy when drawn in the font
 	 * for category \a cat at zoom level \a text_zoom, and include the spacing
@@ -882,15 +990,15 @@ public:
 		return get(cat).max_width_spacing(text_zoom * font_scales[cat]);
 	}
 	/*!
-	 * Get the average character width, plus spacing
+	 * \brief Get the average character width, plus spacing
 	 *
 	 * Get an approximation to the average width of a character in the font for
-	 * category \a cat when drawn at zoom level \a zoom, including the space
+	 * category \a cat when drawn at zoom level \a text_zoom, including the space
 	 * between characters, for some definition of "average". See the note
 	 * in Font::average_width_spacing() for some caveats when using this function.
 	 *
 	 * \param cat       The font category for the font used
-	 * \param zoom The zoom factor for drawing the character.
+	 * \param text_zoom The zoom factor for drawing the character.
 	 * \return The maximum width of a character including spacing, in pixels.
 	 */
 	int average_width_spacing(Category cat, float text_zoom=1.0)
@@ -898,7 +1006,7 @@ public:
 		return get(cat).average_width_spacing(text_zoom * font_scales[cat]);
 	}
 	/*!
-	 * The maximum width of a single digit character
+	 * \brief The maximum width of a single digit character
 	 *
 	 * Return the maximum a single digit character (0-9) can occupy when drawn
 	 * in the font for category \a cat at zoom level \a text_zoom, and include
@@ -913,11 +1021,11 @@ public:
 		return get(cat).max_digit_width_spacing(text_zoom * font_scales[cat]);
 	}
 	/*!
-	 * Calculate the width of a string
+	 * \brief Calculate the width of a string
 	 *
 	 * Calculate the width in pixels of the string \a text of length \a len
 	 * when drawn in the font for category \a cat.
-	 * NOTE: this function assumes the string is a single line. Newline
+	 * \note This function assumes the string is a single line. Newline
 	 * characters are ignored, and having them in the middle of string will
 	 * result in a too large value for the width.
 	 *
@@ -933,7 +1041,7 @@ public:
 		return get(cat).line_width(text, len, text_zoom * font_scales[cat]);
 	}
 	/*!
-	 * The height of a text line
+	 * \brief The height of a text line
 	 *
 	 * Return the height of a line of text when drawn in the font for category
 	 * \a cat with scale factor \a text_zoom.
@@ -947,7 +1055,7 @@ public:
 		return get(cat).height(text_zoom * font_scales[cat]);
 	}
 	/*!
-	 * Calculate the dimensions of a block of text
+	 * \brief Calculate the dimensions of a block of text
 	 *
 	 * Calculate the width and height of string \a text of length \a len bytes
 	 * when drawn in the font for category \a cat, with scale factor \a zoom.
@@ -967,12 +1075,11 @@ public:
 	}
 
 	/*!
-	 * \ingroup text_font
-	 * \brief   Recompute where the line breaks in a string should occur
+	 * \brief Recompute where the line breaks in a string should occur
 	 *
 	 * Recomputes the positions in string \a text where line breaks should be
 	 * placed so that the string fits into a window. This creates a new string
-	 * from the the contents of \a text and inserts '\r' characters at the
+	 * from the the contents of \a text and inserts \c '\\r' characters at the
 	 * positions where the line should be broken. The parameter \a options
 	 * specifies how the text will be drawn, currently only the \c zoom and
 	 * \c max_width field are used int this function. The optional parameter \a cursor
@@ -992,18 +1099,17 @@ public:
 	 */
 	std::pair<ustring, int> reset_soft_breaks(Category cat, const unsigned char *text,
 		size_t text_len, const TextDrawOptions& options,
-		int *cursor = 0, float *max_line_width = 0)
+		int *cursor = nullptr, float *max_line_width = nullptr)
 	{
 		TextDrawOptions cat_options = TextDrawOptions(options).scale_zoom(font_scales[cat]);
 		return get(cat).reset_soft_breaks(text, text_len, cat_options, cursor, max_line_width);
 	}
 	/*!
-	 * \ingroup text_font
-	 * \brief   Recompute where the line breaks in a string should occur
+	 * \brief Recompute where the line breaks in a string should occur
 	 *
 	 * Recomputes the positions in string \a text where line breaks should be
 	 * placed so that the string fits into a window. This creates a new string
-	 * from the the contents of \a text and inserts '\r' characters at the
+	 * from the the contents of \a text and inserts \c '\\r' characters at the
 	 * positions where the line should be broken. The parameter \a options
 	 * specifies how the text will be drawn, currently only the \c zoom and
 	 * \c max_width field are used int this function.
@@ -1022,7 +1128,7 @@ public:
 	}
 
 	/*!
-	 * Draw a text string
+	 * \brief Draw a text string
 	 *
 	 * Draw the text in the first \a len bytes of \a text, starting at position
 	 * \a x, \a y, using the drawing option in \a options, using the font for
@@ -1044,13 +1150,11 @@ public:
 		get(cat).draw(text, len, x, y, cat_options, sel_begin, sel_end);
 	}
 	/*!
-	 * \ingroup text_font
-	 * Draws messages in a buffer to the screen
+	 * \brief Draws messages in a buffer to the screen
 	 *
 	 * Draws the messages in buffer \a msgs to the screen using the font for
 	 * category \a cat, starting with character \a offset_start in message
 	 * number \a msg_start.
-	 * NOTE: The messages are rewrapped if necessary.
 	 *
 	 * \param cat          The font category for the text
 	 * \param msgs         the message buffer
@@ -1059,7 +1163,7 @@ public:
 	 * \param y            y coordinate of the position to start drawing
 	 * \param filter       draw only messages in channel \a filter. Choose
 	 * 	FILTER_ALL for displaying all messages
-	 * \param msg_start	  index of the first message to display
+	 * \param msg_start    index of the first message to display
 	 * \param offset_start the first character in message \a msg_start to display
 	 * \param options      Options defining the layout of the text
 	 * \param cursor       if >= 0, the position at which to draw the cursor
@@ -1076,6 +1180,20 @@ public:
 		get(cat).draw_messages(msgs, msgs_size, x, y, filter, msg_start, offset_start,
 			cat_options, cursor, select);
 	}
+	/*!
+	 * \brief Draw the console separator
+	 *
+	 * When there are more messages than can fit on a single screen, the user can
+	 * scroll up to see the previous messages. When they do, a separator is
+	 * drawn by this function to indicate that more messages follow. The font
+	 * category should normally be CHAT_FONT, as it is only used in the console
+	 * window.
+	 *
+	 * \param cat     The font category for the separator
+	 * \param x_space Horizontal space tokeep free on either side
+	 * \param y       Vertical position at which the line should be drawn
+	 * \param options Text options for drawing the separator
+	 */
 	void draw_console_separator(Category cat, int x_space, int y,
 		const TextDrawOptions& options)
 	{
@@ -1100,7 +1218,7 @@ public:
 #endif // ELC
 
 	/*!
-	 * Set the config font
+	 * \brief Set the config font
 	 *
 	 * Copy the current font index and scale of the UI_FONT category to that
 	 * of the CONFIG_FONT category. This allows us to change the UI font
@@ -1141,6 +1259,8 @@ private:
 #endif
 
 	/*!
+	 * \brief Constructor
+	 *
 	 * Create a new font manager, without fonts to manage so far.
 	 */
 	FontManager(): _fonts(), _fixed_width_idxs(), _saved_font_files() {}
@@ -1149,14 +1269,14 @@ private:
 	FontManager& operator=(const FontManager&) = delete;
 
 	/*!
-	 * Initialize TrueType fonts
+	 * \brief Initialize TrueType fonts
 	 *
 	 * Scan the TTF font directory for TrueType fonts, and add them to the
 	 * current list of fonts.
 	 */
 	void initialize_ttf();
 	/*!
-	 * Add options to the configuration
+	 * \brief Add options to the configuration
 	 *
 	 * Add options for all fonts to the multi-select variables in the
 	 * configuration window. If the optional parameter \a add_button i \c true,
@@ -1166,10 +1286,10 @@ private:
 	void add_select_options(bool add_button=false);
 
 	/*!
-	 * Load a font.
+	 * \brief Load a font.
 	 *
 	 * Get the font for font category \a cat. If this font fails to load,
-	 * switch to fixed font 0;
+	 * switch to fixed font 1.
 	 *
 	 * \param cat The font category for which to load a font.
 	 * \return Reference to the font itself.
@@ -1200,183 +1320,750 @@ extern int use_ttf;
 extern char ttf_directory[TTF_DIR_SIZE];
 #endif // TTF
 
+/*!
+ * \ingroup text_font
+ * \brief Initialize the font manager.
+ *
+ * This adds the standard fonts bundled with EL to the font manager, and
+ * if TTF fonts are enabled, scans the TTF path for True Type fonts
+ * to add as well.
+ */
 int initialize_fonts();
 
+/*!
+ * \ingroup text_font
+ * \brief Return the font number of a fixed width font
+ *
+ * Return the font number for the \a idx'th fixed width font.
+ *
+ * \param idx The number of the font in the list of fixed width fonts only
+ * \return The index of the font in the list of all fonts
+ */
 size_t get_fixed_width_font_number(size_t idx);
 
-int get_char_width_zoom(unsigned char c, font_cat cat, float zoom);
-int get_max_char_width_zoom(font_cat cat, float zoom);
-int get_avg_char_width_zoom(font_cat cat, float zoom);
-int get_max_digit_width_zoom(font_cat cat, float zoom);
-int get_buf_width_zoom(const unsigned char* str, size_t len, font_cat cat, float text_zoom);
+/*!
+ * \ingroup text_font
+ * \brief The width of a single character
+ *
+ * Return the width of character \a c, including spacing, when drawn
+ * in the font for category \a cat, at zoom level \a text_zoom.
+ *
+ * \param c         The character for which to get the width
+ * \param cat       The font category for the font used
+ * \param text_zoom The scale factor for the text
+ * \return The width of the character and spacing, in pixels.
+ */
+int get_char_width_zoom(unsigned char c, font_cat cat, float text_zoom);
+/*!
+ * \ingroup text_font
+ * \brief The maximum width of a single character
+ *
+ * Return the maximum a single character can occupy when drawn in the font
+ * for category \a cat at zoom level \a text_zoom, and include the spacing
+ * between characters.
+ *
+ * \param cat       The font category for the font used
+ * \param text_zoom The scale factor for the text
+ * \return The maximum character width incuding spacing, in pixels.
+ */
+int get_max_char_width_zoom(font_cat cat, float text_zoom);
+/*!
+ * \ingroup text_font
+ * \brief Get the average character width, plus spacing
+ *
+ * Get an approximation to the average width of a character in the font for
+ * category \a cat when drawn at zoom level \a text_zoom, including the space
+ * between characters, for some definition of "average". See the note
+ * in eternal_lands::Font::average_width_spacing() for some caveats when using
+ * this function.
+ *
+ * \param cat       The font category for the font used
+ * \param text_zoom The zoom factor for drawing the character.
+ * \return The maximum width of a character including spacing, in pixels.
+ */
+int get_avg_char_width_zoom(font_cat cat, float text_zoom);
+/*!
+ * \ingroup text_font
+ * \brief The maximum width of a single digit character
+ *
+ * Return the maximum a single digit character (0-9) can occupy when drawn
+ * in the font for category \a cat at zoom level \a text_zoom, and include
+ * the spacing between characters.
+ *
+ * \param cat       The font category for the font used
+ * \param text_zoom The scale factor for the text
+ * \return The maximum digit character width incuding spacing, in pixels.
+ */
+int get_max_digit_width_zoom(font_cat cat, float text_zoom);
+/*!
+ * \ingroup text_font
+ * \brief Calculate the width of a string
+ *
+ * Calculate the width in pixels of the string \a text of length \a len
+ * when drawn in the font for category \a cat at zoom level \a text_zoom.
+ * \note This function assumes the string is a single line. Newline
+ * characters are ignored, and having them in the middle of string will
+ * result in a too large value for the width.
+ *
+ * \param cat       The font category for the font used
+ * \param text      The string for which to calculate the length
+ * \param len       The number of bytes in \a text
+ * \param text_zoom The scale factor for the text
+ * \return The width of the text in pixels
+ */
+int get_buf_width_zoom(const unsigned char* text, size_t len, font_cat cat, float text_zoom);
+/*!
+ * \ingroup text_font
+ * \brief Calculate the width of a string
+ *
+ * Calculate the width in pixels of the nul-terminated string \a text
+ * when drawn in the font for category \a cat at zoom level \a text_zoom.
+ * \note This function assumes the string is a single line. Newline
+ * characters are ignored, and having them in the middle of string will
+ * result in a too large value for the width.
+ *
+ * \param cat       The font category for the font used
+ * \param text      The string for which to calculate the length
+ * \param text_zoom The scale factor for the text
+ * \return The width of the text in pixels
+ */
 static __inline__ int get_string_width_zoom(const unsigned char* str, font_cat cat,
 	float text_zoom)
 {
 	return get_buf_width_zoom(str, strlen((const char*)str), cat, text_zoom);
 }
+/*!
+ * \ingroup text_font
+ * \brief The height of a text line
+ *
+ * Return the height of a line of text when drawn in the font for category
+ * \a cat with scale factor \a text_zoom.
+ *
+ * \param cat       The font category for the font used
+ * \param text_zoom The scale factor for the text
+ * \return The height of the text in pixels
+ */
 int get_line_height(font_cat cat, float text_zoom);
-void get_buf_dimensions(const unsigned char* str, size_t len, font_cat cat, float text_zoom,
-	int *width, int *height);
+/*!
+ * \ingroup text_font
+ * \brief Calculate the dimensions of a block of text
+ *
+ * Calculate the width and height of string \a text of length \a len bytes
+ * when drawn in the font for category \a cat, with scale factor \a zoom.
+ * The string may contain multiple lines, the width returned is then the
+ * width of the widest line.
+ *
+ * \param cat       The font category for the font used
+ * \param text      The string for which to compute the dimensions
+ * \param len       The number of bytes in \a text
+ * \param text_zoom The scale factor for the text
+ * \param width     Place to store the calculated width
+ * \param height    Place to store the calculated height
+ */
+void get_buf_dimensions(const unsigned char* text, size_t len, font_cat cat,
+	float text_zoom, int *width, int *height);
 
+/*!
+ * \ingroup text_font
+ * \brief Recompute where the line breaks in a string should occur
+ *
+ * Recomputes the positions in string \a text where line breaks should be placed,
+ * when drawn in the font for category \a cat at zoom level \a text_zoom such
+ * that the string fits into a window of width \a width pixels. This inserts
+ * \c '\\r' characters at the positions in \a text where the line should be broken.
+ * Parameters \a len and \a size are the current and maximum number of bytes in \a text,
+ * respectively. If \a cursor is not \c NULL, it should point to the offset of the
+ * cursor position in the text; it will be updated as new line breaks are inserted.
+ * If \a max_line_width is not \c NULL, it can be used to retrieve the largest width
+ * in pixels of the lines in \a text after rewrapping.
+ *
+ * \param text           the string
+ * \param len            the actual length of the string
+ * \param size           the maximum number of bytes in \a text
+ * \param cat            the font category in which the string is to be drawn
+ * \param text_zoom      the scale factor for the text
+ * \param width          the allowed width of a line of text
+ * \param cursor         pointer to the cursor position, or NULL if not used
+ * \param max_line_width pointer the maximum line length after wrapping, or NULL if not used
+ *
+ * \return The wrapped text, and the new number of lines in the text
+ */
 int reset_soft_breaks(unsigned char *text, int len, int size, font_cat cat,
 	float text_zoom, int width, int *cursor, float *max_line_width);
+/*!
+ * \ingroup text_font
+ * \brief Wrap a text so that it fits into a window
+ *
+ * Create a version of \a text with newline characters inserted so that the
+ * line length does not exceeed \a width pixels when drawn in a small font for
+ * the UI_FONT category, at zoom level \a zoom, and store it in \a buffer. The
+ * parameter \a color is an index in colors_list; it will be converted to a
+ * color character which is inserted in front of the text in \a buffer.
+ * \warning No check is made if \a buffer is large enough to hold the output
+ * text, the caller needs to ensure this.
+ *
+ * \param color     The color with which the text should be drawn
+ * \param text      The text to wrap
+ * \param len       The number of bytes in text
+ * \param width     The maximum allowed width in pixels of a line of text
+ * \param buffer    Output buffer in which the result is stored
+ * \param text_zoom Zoom factor for the text (on top of using small text)
+ */
 void put_small_colored_text_in_box_zoomed(int color,
 	const unsigned char* text, int len, int width,
 	unsigned char* buffer, float text_zoom);
+/*!
+ * \ingroup text_font
+ * \brief Wrap a text so that it fits into a window
+ *
+ * Create a version of \a text with newline characters inserted so that the
+ * line length does not exceeed \a width pixels when drawn in a small font for
+ * the UI_FONT category, at zoom level \a zoom, and store it in \a buffer. The
+ * text will be drawn in white.
+ * \warning No check is made if \a buffer is large enough to hold the output
+ * text, the caller needs to ensure this.
+ *
+ * \param text      The text to wrap
+ * \param len       The number of bytes in text
+ * \param width     The maximum allowed width in pixels of a line of text
+ * \param buffer    Output buffer in which the result is stored
+ * \param text_zoom Zoom factor for the text (on top of using small text)
+ */
 static __inline__ void put_small_text_in_box_zoomed (const unsigned char* text,
 	int len, int width, unsigned char* buffer, float text_zoom)
 {
 	put_small_colored_text_in_box_zoomed(c_grey1, text, len, width, buffer, text_zoom);
 }
 
+/*!
+ * \ingroup text_font
+ * \brief Draw a text string
+ *
+ * Draw the text in the first \a len bytes of \a text, starting at position
+ * \a x, \a y on the screen, using the font for category \a cat. Options \a max_width and
+ * \a max_lines specify the maximum width of the text and maximum number of lines
+ * drawn respectively. Text outside these boundaries will not be drawn. The text
+ * will be drawn (at least up until the first color character) in color (\a r, \a g, \a b).
+ * The bytes in text between \a sel_begin and \a sel_end (exclusive) are assumed
+ * to be  selected text, and are drawn in the default selection color.
+ * \note This is sort of a catch-all function, with a million parameters. Consider
+ * using one of the simpler draw_buf_*() or draw_string_*() function if you do not
+ * need to set all of them. Or use C++ and set TextDrawOptions to your heart's content.
+ *
+ * \param x         The left coordinate of the drawn text
+ * \param y         The top coordinate of the drawn text
+ * \param text      The text to draw
+ * \param len       The number of bytes in \a text
+ * \param max_width The maximum width in pixels of the text
+ * \param max_lines The maximum number of lines to draw, or 0 for no limit
+ * \param r         The red component of the text color
+ * \param g         The green component of the text color
+ * \param b         The blue component of the text color
+ * \param cat       The font category for the text
+ * \param text_zoom Scale factor for the text size
+ * \param sel_begin Start index of selected text
+ * \param sel_end   End index of selected text (one past last selected character)
+ */
 void draw_buf_zoomed_width_font_select(int x, int y, const unsigned char *text, size_t len,
 	int max_width, int max_lines, float r, float g, float b, font_cat cat, float text_zoom,
 	int sel_begin, int sel_end);
+/*!
+ * \ingroup text_font
+ * \brief Draw a text string
+ *
+ * Draw the text in the first \a len bytes of \a text, starting at position
+ * \a x, \a y on the screen, using the font for category \a cat. Options \a max_width and
+ * \a max_lines specify the maximum width of the text and maximum number of lines
+ * drawn respectively. Text outside these boundaries will not be drawn. The text
+ * will be drawn in the default foreground color.
+ *
+ * \param x         The left coordinate of the drawn text
+ * \param y         The top coordinate of the drawn text
+ * \param text      The text to draw
+ * \param len       The number of bytes in \a text
+ * \param max_width The maximum width in pixels of the text
+ * \param max_lines The maximum number of lines to draw, or 0 for no limit
+ * \param cat       The font category for the text
+ * \param text_zoom Scale factor for the text size
+ */
 void draw_buf_zoomed_width_font(int x, int y, const unsigned char *text, size_t len,
 	int max_width, int max_lines, font_cat cat, float text_zoom);
+/*!
+ * \ingroup text_font
+ * \brief Draw a text string
+ *
+ * Draw the text in the nul-terminated buffer \a text, starting at position
+ * \a x, \a y on the screen, using the font for category \a cat. Options \a max_width and
+ * \a max_lines specify the maximum width of the text and maximum number of lines
+ * drawn respectively. Text outside these boundaries will not be drawn. The text
+ * will be drawn in the default foreground color.
+ *
+ * \param x         The left coordinate of the drawn text
+ * \param y         The top coordinate of the drawn text
+ * \param text      The text to draw
+ * \param max_width The maximum width in pixels of the text
+ * \param max_lines The maximum number of lines to draw, or 0 for no limit
+ * \param cat       The font category for the text
+ * \param text_zoom Scale factor for the text size
+ */
 static __inline__ void draw_string_zoomed_width_font(int x, int y, const unsigned char *text,
 	int max_width, int max_lines, font_cat cat, float text_zoom)
 {
 	draw_buf_zoomed_width_font(x, y, text, strlen((const char*)text),
 		max_width, max_lines, cat, text_zoom);
 }
+/*!
+ * \ingroup text_font
+ * \brief Draw a text string
+ *
+ * Draw the text in the nul-terminated buffer \a text, right-aligned to position
+ * \a x, \a y on the screen, using the font for category \a cat. Options \a max_width and
+ * \a max_lines specify the maximum width of the text and maximum number of lines
+ * drawn respectively. Text outside these boundaries will not be drawn. The text
+ * will be drawn in the default foreground color.
+ *
+ * \param x         The right coordinate of the drawn text
+ * \param y         The top coordinate of the drawn text
+ * \param text      The text to draw
+ * \param max_width The maximum width in pixels of the text
+ * \param max_lines The maximum number of lines to draw, or 0 for no limit
+ * \param cat       The font category for the text
+ * \param text_zoom Scale factor for the text size
+ */
 void draw_string_zoomed_width_font_right(int x, int y, const unsigned char *text,
 	int max_width, int max_lines, font_cat cat, float text_zoom);
+/*!
+ * \ingroup text_font
+ * \brief Draw a text string
+ *
+ * Draw the text in the nul-terminated buffer \a text, centered around position
+ * \a x, \a y on the screen, using the font for category \a cat. Options \a max_width and
+ * \a max_lines specify the maximum width of the text and maximum number of lines
+ * drawn respectively. Text outside these boundaries will not be drawn. The text
+ * will be drawn in the default foreground color.
+ *
+ * \param x         The x coordinate of the center of drawn text
+ * \param y         The top coordinate of the drawn text
+ * \param text      The text to draw
+ * \param max_width The maximum width in pixels of the text
+ * \param max_lines The maximum number of lines to draw, or 0 for no limit
+ * \param cat       The font category for the text
+ * \param text_zoom Scale factor for the text size
+ */
 void draw_string_zoomed_width_font_centered(int x, int y, const unsigned char *text,
 	int max_width, int max_lines, font_cat cat, float text_zoom);
+/*!
+ * \ingroup text_font
+ * \brief Draw a text string
+ *
+ * Draw the text in the nul-terminated buffer \a text, centered around position
+ * \a x, \a y on the screen, using the font for the UI_FONT category. The centering is
+ * done such that the bytes up to \a center_idx are drawn left of \a x, and the
+ * bytes from \a center_idx onward are drawn to the right of \a x.
+ *
+ * \param x          The x coordinate of the center of drawn text
+ * \param y          The top coordinate of the drawn text
+ * \param text       The text to draw
+ * \param center_idx The index of the character around which the centering is done
+ * \param text_zoom  Scale factor for the text size
+ */
 void draw_string_zoomed_centered_around(int x, int y,
-	const unsigned char *text, int center_idx, float zoom);
+	const unsigned char *text, int center_idx, float text_zoom);
+/*!
+ * \ingroup text_font
+ * \brief Draw a text string
+ *
+ * Draw the text in the nul-terminated buffer \a text, starting at position
+ * \a x, \a y on the screen, using the font for the UI_FONT category. The option
+ * \a max_lines specifies the maximum number of lines drawn, any text after
+ * this line will not be drawn. The text will be drawn in the default foreground
+ * color.
+ *
+ * \param x         The left coordinate of the drawn text
+ * \param y         The top coordinate of the drawn text
+ * \param text      The text to draw
+ * \param max_lines The maximum number of lines to draw, or 0 for no limit
+ * \param text_zoom Scale factor for the text size
+ */
 static __inline__ void draw_string_zoomed(int x, int y, const unsigned char* text,
-	int max_lines, float zoom)
+	int max_lines, float text_zoom)
 {
-	draw_string_zoomed_width_font(x, y, text, window_width, max_lines, UI_FONT, zoom);
+	draw_string_zoomed_width_font(x, y, text, window_width, max_lines, UI_FONT, text_zoom);
 }
+/*!
+ * \ingroup text_font
+ * \brief Draw a text string
+ *
+ * Draw the text in the nul-terminated buffer \a text, right aligned to position
+ * \a x, \a y on the screen, using the font for the UI_FONT category. The option
+ * \a max_lines specifies the maximum number of lines drawn, any text after
+ * this line will not be drawn. The text will be drawn in the default foreground
+ * color.
+ *
+ * \param x         The right coordinate of the drawn text
+ * \param y         The top coordinate of the drawn text
+ * \param text      The text to draw
+ * \param max_lines The maximum number of lines to draw, or 0 for no limit
+ * \param text_zoom Scale factor for the text size
+ */
 static __inline__ void draw_string_zoomed_right(int x, int y, const unsigned char *text,
 	int max_lines, float text_zoom)
 {
 	draw_string_zoomed_width_font_right(x, y, text, window_width, max_lines,
 		UI_FONT, text_zoom);
 }
+/*!
+ * \ingroup text_font
+ * \brief Draw a text string
+ *
+ * Draw the text in the nul-terminated buffer \a text, centered around position
+ * \a x, \a y on the screen, using the font for the UI_FONT category. The option
+ * \a max_lines specifies the maximum number of lines drawn, any text after
+ * this line will not be drawn. The text will be drawn in the default foreground
+ * color.
+ *
+ * \param x         The x coordinate of the center of drawn text
+ * \param y         The top coordinate of the drawn text
+ * \param text      The text to draw
+ * \param max_lines The maximum number of lines to draw, or 0 for no limit
+ * \param text_zoom Scale factor for the text size
+ */
 static __inline__ void draw_string_zoomed_centered(int x, int y, const unsigned char *text,
 	int max_lines, float text_zoom)
 {
 	draw_string_zoomed_width_font_centered(x, y, text, window_width, max_lines,
 		UI_FONT, text_zoom);
 }
+/*!
+ * \ingroup text_font
+ * \brief Draw a text string
+ *
+ * Draw the text in the nul-terminated buffer \a text, starting at position
+ * \a x, \a y on the screen, using the font for the UI_FONT category. Options
+ * \a max_width and \a max_lines specify the maximum width of the text and
+ * maximum number of lines drawn respectively. Text outside these boundaries
+ * will not be drawn. The text will be drawn in the default foreground
+ * color.
+ *
+ * \param x         The left coordinate of the drawn text
+ * \param y         The top coordinate of the drawn text
+ * \param text      The text to draw
+ * \param max_width The maximum width in pixels of the text
+ * \param max_lines The maximum number of lines to draw, or 0 for no limit
+ * \param text_zoom Scale factor for the text size
+ */
 static __inline__ void draw_string_zoomed_width(int x, int y, const unsigned char* text,
-	int max_width, int max_lines, float zoom)
+	int max_width, int max_lines, float text_zoom)
 {
-	draw_string_zoomed_width_font(x, y, text, max_width, max_lines, UI_FONT, zoom);
+	draw_string_zoomed_width_font(x, y, text, max_width, max_lines, UI_FONT, text_zoom);
 }
+/*!
+ * \ingroup text_font
+ * \brief Draw a text string
+ *
+ * Draw the text in the nul-terminated buffer \a text, starting at position
+ * \a x, \a y on the screen, using the font for the UI_FONT category. The string
+ * is drawn in the color (\a fr, \a fg, \a fb), with a background shadow in
+ * the color (\a br, \a bg, \a bb). The option \a max_lines specifies the maximum
+ * number of lines drawn, any text after this line will not be drawn.
+ *
+ *
+ * \param x         The left coordinate of the drawn text
+ * \param y         The top coordinate of the drawn text
+ * \param text      The text to draw
+ * \param max_lines The maximum number of lines to draw, or 0 for no limit
+ * \param fr        Red component of the foreground color
+ * \param fg        Green component of the foreground color
+ * \param fb        Blue component of the foreground color
+ * \param br        Red component of the background color
+ * \param bg        Green component of the background color
+ * \param bb        Blue component of the background color
+ * \param text_zoom Scale factor for the text size
+ */
 void draw_string_shadowed_zoomed(int x, int y, const unsigned char* text,
 	int max_lines, float fr, float fg, float fb, float br, float bg, float bb,
 	float text_zoom);
+/*!
+ * \ingroup text_font
+ * \brief Draw a text string
+ *
+ * Draw the text in the nul-terminated buffer \a text, centered around position
+ * \a x, \a y on the screen, using the font for the UI_FONT category. The string
+ * is drawn in the color (\a fr, \a fg, \a fb), with a background shadow in
+ * the color (\a br, \a bg, \a bb). The option \a max_lines specifies the maximum
+ * number of lines drawn, any text after this line will not be drawn.
+ *
+ *
+ * \param x         The x coordinate of the center of drawn text
+ * \param y         The top coordinate of the drawn text
+ * \param text      The text to draw
+ * \param max_lines The maximum number of lines to draw, or 0 for no limit
+ * \param fr        Red component of the foreground color
+ * \param fg        Green component of the foreground color
+ * \param fb        Blue component of the foreground color
+ * \param br        Red component of the background color
+ * \param bg        Green component of the background color
+ * \param bb        Blue component of the background color
+ * \param text_zoom Scale factor for the text size
+ */
 void draw_string_shadowed_zoomed_centered(int x, int y, const unsigned char* text,
 	int max_lines, float fr, float fg, float fb, float br, float bg, float bb,
 	float text_zoom);
+/*!
+ * \ingroup text_font
+ * \brief Draw a text string
+ *
+ * Draw the text in the nul-terminated buffer \a text, right aligned to position
+ * \a x, \a y on the screen, using the font for the UI_FONT category. The string
+ * is drawn in the color (\a fr, \a fg, \a fb), with a background shadow in
+ * the color (\a br, \a bg, \a bb). The option \a max_lines specifies the maximum
+ * number of lines drawn, any text after this line will not be drawn.
+ *
+ *
+ * \param x         The right coordinate of the drawn text
+ * \param y         The top coordinate of the drawn text
+ * \param text      The text to draw
+ * \param max_lines The maximum number of lines to draw, or 0 for no limit
+ * \param fr        Red component of the foreground color
+ * \param fg        Green component of the foreground color
+ * \param fb        Blue component of the foreground color
+ * \param br        Red component of the background color
+ * \param bg        Green component of the background color
+ * \param bb        Blue component of the background color
+ * \param text_zoom Scale factor for the text size
+ */
 void draw_string_shadowed_zoomed_right(int x, int y, const unsigned char* text,
 	int max_lines, float fr, float fg, float fb, float br, float bg, float bb,
 	float text_zoom);
-void draw_string_shadowed_width(int x, int y, const unsigned char* text,
-	int max_width, int max_lines, float fr, float fg, float fb,
+/*!
+ * \ingroup text_font
+ * \brief Draw a text string
+ *
+ * Draw the text in the nul-terminated buffer \a text, starting at position
+ * \a x, \a y on the screen, using the font for the UI_FONT category. The string
+ * is scaled such that it occupies the full width \a width. It is drawn in the
+ * color (\a fr, \a fg, \a fb), with a background shadow in the color
+ * (\a br, \a bg, \a bb). The option \a max_lines specifies the maximum
+ * number of lines drawn, any text after this line will not be drawn.
+ *
+ *
+ * \param x         The left coordinate of the drawn text
+ * \param y         The top coordinate of the drawn text
+ * \param text      The text to draw
+ * \param width     The width of the text
+ * \param max_lines The maximum number of lines to draw, or 0 for no limit
+ * \param fr        Red component of the foreground color
+ * \param fg        Green component of the foreground color
+ * \param fb        Blue component of the foreground color
+ * \param br        Red component of the background color
+ * \param bg        Green component of the background color
+ * \param bb        Blue component of the background color
+ */
+void draw_string_shadowed_scaled_to_width(int x, int y, const unsigned char* text,
+	int width, int max_lines, float fr, float fg, float fb,
 	float br, float bg, float bb);
+/*!
+ * \ingroup text_font
+ * \brief Draw a text string
+ *
+ * Draw the text in the nul-terminated buffer \a text, starting at position
+ * \a x, \a y on the screen, using the font for category \a cat. If a line
+ * cannot fit within the maximum width \a max_width, it will be truncated and
+ * an ellipsis is added. The option \a max_lines specifies the maximum
+ * number of lines drawn, any text after this line will not be drawn.
+ *
+ * \param x         The left coordinate of the drawn text
+ * \param y         The top coordinate of the drawn text
+ * \param text      The text to draw
+ * \param max_width The maximum width in pixels of the text
+ * \param max_lines The maximum number of lines to draw, or 0 for no limit
+ * \param cat       The font category for the text
+ * \param text_zoom Scale factor for the text size
+ */
 void draw_string_zoomed_ellipsis_font(int x, int y, const unsigned char *text,
 	int max_width, int max_lines, font_cat cat, float text_zoom);
 
+//! Analogue of draw_string_zoomed(), for small text size
 static __inline__ void draw_string_small_zoomed(int x, int y,
-	const unsigned char* text, int max_lines, float zoom)
+	const unsigned char* text, int max_lines, float text_zoom)
 {
 	draw_string_zoomed_width_font(x, y, text, window_width, max_lines,
-		UI_FONT, zoom * DEFAULT_SMALL_RATIO);
+		UI_FONT, text_zoom * DEFAULT_SMALL_RATIO);
 }
+//! Analogue of draw_string_zoomed_right(), for small text size
 static __inline__ void draw_string_small_zoomed_right(int x, int y,
-	const unsigned char* text, int max_lines, float zoom)
+	const unsigned char* text, int max_lines, float text_zoom)
 {
 	draw_string_zoomed_width_font_right(x, y, text, window_width, max_lines,
-		UI_FONT, zoom * DEFAULT_SMALL_RATIO);
+		UI_FONT, text_zoom * DEFAULT_SMALL_RATIO);
 }
+//! Analogue of draw_string_zoomed_centered(), for small text size
 static __inline__ void draw_string_small_zoomed_centered(int x, int y,
-	const unsigned char* text, int max_lines, float zoom)
+	const unsigned char* text, int max_lines, float text_zoom)
 {
 	draw_string_zoomed_width_font_centered(x, y, text, window_width, max_lines,
-		UI_FONT, zoom * DEFAULT_SMALL_RATIO);
+		UI_FONT, text_zoom * DEFAULT_SMALL_RATIO);
 }
+//! Analogue of draw_string_zoomed_centered_around(), for small text size
 static __inline__ void draw_string_small_zoomed_centered_around(int x, int y,
-	const unsigned char *text, int center_idx, float zoom)
+	const unsigned char *text, int center_idx, float text_zoom)
 {
 	draw_string_zoomed_centered_around(x, y, text, center_idx,
-		zoom * DEFAULT_SMALL_RATIO);
+		text_zoom * DEFAULT_SMALL_RATIO);
 }
+//! Analogue of draw_string_shadowed_zoomed(), for small text size
 static __inline__ void draw_string_small_shadowed_zoomed(int x, int y,
 	const unsigned char* text, int max_lines, float fr, float fg, float fb,
-	float br, float bg, float bb, float zoom)
+	float br, float bg, float bb, float text_zoom)
 {
 	draw_string_shadowed_zoomed(x, y, text, max_lines, fr, fg, fb, br, bg, bb,
-		zoom * DEFAULT_SMALL_RATIO);
+		text_zoom * DEFAULT_SMALL_RATIO);
 }
+//! Analogue of draw_string_shadowed_zoomed_right(), for small text size
 static __inline__ void draw_string_small_shadowed_zoomed_right(int x, int y,
 	const unsigned char* text, int max_lines, float fr, float fg, float fb,
-	float br, float bg, float bb, float zoom)
+	float br, float bg, float bb, float text_zoom)
 {
 	draw_string_shadowed_zoomed_right(x, y, text, max_lines,
-		fr, fg, fb, br, bg, bb, zoom * DEFAULT_SMALL_RATIO);
+		fr, fg, fb, br, bg, bb, text_zoom * DEFAULT_SMALL_RATIO);
 }
+//! Analogue of draw_string_shadowed_zoomed_centered(), for small text size
 static __inline__ void draw_string_small_shadowed_zoomed_centered(int x, int y,
 	const unsigned char* text, int max_lines, float fr, float fg, float fb,
-	float br, float bg, float bb, float zoom)
+	float br, float bg, float bb, float text_zoom)
 {
 	draw_string_shadowed_zoomed_centered(x, y, text, max_lines,
-		fr, fg, fb, br, bg, bb, zoom * DEFAULT_SMALL_RATIO);
+		fr, fg, fb, br, bg, bb, text_zoom * DEFAULT_SMALL_RATIO);
 }
 
+/*!
+ * \ingroup text_font
+ * \brief Draw a help message
+ *
+ * Shows the help message \a text at position (\a x, \a y) in text color
+ * (\a r, \a g, \a b), with text scale factor \a text_zoom. The message
+ * is drawn on a semi-transparent background.
+ *
+ * \param text      The help text to display
+ * \param x         The x-coordinate of the left side of the text
+ * \param y         The y-coordinate of the top of text text
+ * \param r         The red component of the text color
+ * \param g         The green component of the text color
+ * \param b         The blue component of the text color
+ * \param text_zoom The scale factor for the text size
+ */
 void show_help_colored_scaled(const unsigned char *text, int x, int y,
 	float r, float g, float b, float text_zoom);
+/*!
+ * \ingroup text_font
+ * \brief Draw a help message
+ *
+ * Shows the help message \a text centered horizontally around position
+ * (\a x, \a y) in text color (\a r, \a g, \a b), with text scale factor
+ * \a text_zoom. The message is drawn on a semi-transparent background.
+ *
+ * \param text      The help text to display
+ * \param x         The x-coordinate of the center of the text
+ * \param y         The y-coordinate of the top of text text
+ * \param r         The red component of the text color
+ * \param g         The green component of the text color
+ * \param b         The blue component of the text color
+ * \param text_zoom The scale factor for the text size
+ */
 void show_help_colored_scaled_centered(const unsigned char *text, int x, int y,
 	float r, float g, float b, float text_zoom);
+/*!
+ * \ingroup text_font
+ * \brief Draw a help message
+ *
+ * Shows the help message \a text right-aligned to position (\a x, \a y)
+ * in text color (\a r, \a g, \a b), with text scale factor \a text_zoom.
+ * The message is drawn on a semi-transparent background.
+ *
+ * \param text      The help text to display
+ * \param x         The x-coordinate of the right side of the text
+ * \param y         The y-coordinate of the top of text text
+ * \param r         The red component of the text color
+ * \param g         The green component of the text color
+ * \param b         The blue component of the text color
+ * \param text_zoom The scale factor for the text size
+ */
 void show_help_colored_scaled_right(const unsigned char *text, int x, int y,
 	float r, float g, float b, float text_zoom);
 /*!
- * \ingroup font
+ * \ingroup text_font
  * \brief Shows a help message in small font
  *
  * Shows the help message \a text at position (\a x, \a y) using a small font
  * size. The message is drawn on a semi-transparent background.
  *
- * \param text   the help message to show
- * \param x      the x coordinate of the left of the help message
- * \param y      the y coordinate of the top of the help message
- * \param scale  the scale for the text size
- *
- * \callgraph
+ * \param text      the help message to show
+ * \param x         the x coordinate of the left of the help message
+ * \param y         the y coordinate of the top of the help message
+ * \param text_zoom the scale for the text size
  */
-static __inline__ void show_help(const char *text, int x, int y, float scale)
+static __inline__ void show_help(const char *text, int x, int y, float text_zoom)
 {
 	show_help_colored_scaled((const unsigned char*)text, x, y, 1.0f, 1.0f, 1.0f,
-		scale * DEFAULT_SMALL_RATIO);
+		text_zoom * DEFAULT_SMALL_RATIO);
 }
 /*!
- * \ingroup font
+ * \ingroup text_font
  * \brief Shows a help message in normal font
  *
  * Shows the help message \a text at position (\a x, \a y) using the normal
  * font size. The message is drawn on a semi-transparent background.
  *
- * \param text   the help message to show
- * \param x      the x coordinate of the left of the help message
- * \param y      the y coordinate of top of the help message
- * \param scale  the scale for the text size
- *
- * \callgraph
+ * \param text      the help message to show
+ * \param x         the x coordinate of the left of the help message
+ * \param y         the y coordinate of top of the help message
+ * \param text_zoom the scale for the text size
  */
-static __inline__ void show_help_big(const char *text, int x, int y, float scale)
+static __inline__ void show_help_big(const char *text, int x, int y, float text_zoom)
 {
-	show_help_colored_scaled((const unsigned char*)text, x, y, 1.0f, 1.0f, 1.0f, scale);
+	show_help_colored_scaled((const unsigned char*)text, x, y, 1.0f, 1.0f, 1.0f, text_zoom);
 }
 
+/*!
+ * \ingroup text_font
+ * \brief Draw messages in a buffer to the screen
+ *
+ * Draws the messages in buffer \a msgs to the screen, starting with character
+ * \a offset_start in message number \a msg_start.
+ *
+ * \param x            x coordinate of the position to start drawing
+ * \param y            y coordinate of the position to start drawing
+ * \param msgs         the message buffer
+ * \param msgs_size    the total number of messages that \a msgs can hold
+ * \param filter       draw only messages in channel \a filter. Choose
+ * 	FILTER_ALL for displaying all messages
+ * \param msg_start    index of the first message to display
+ * \param offset_start the first character in message \a msg_start to display
+ * \param cursor       if >= 0, the position at which to draw the cursor
+ * \param width        the width of the output window
+ * \param height       the height of the output window
+ * \param cat          the font category for the font used to draw the messages
+ * \param text_zoom    the scale factor for the text size
+ * \param[in,out] select information about current selection. draw_messages()
+ *	 fills the select->lines array.
+ */
 void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter,
 	int msg_start, int offset_start, int cursor, int width, int height,
 	font_cat cat, float text_zoom, select_info* select);
-void draw_console_separator(int x_space, int y, int width, float zoom);
+/*!
+ * \ingroup text_font
+ * \brief Draw the console separator
+ *
+ * When there are more messages than can fit on a single screen, the user can
+ * scroll up to see the previous messages. When they do, a separator is
+ * drawn by this function to indicate that more messages follow.
+ *
+ * \param x_space   Horizontal space tokeep free on either side
+ * \param y         Vertical position at which the line should be drawn
+ * \param width     The width of the console window
+ * \param text_zoom The zoom level of the console text
+ */
+void draw_console_separator(int x_space, int y, int width, float text_zoom);
 #ifdef ELC
 #ifndef MAP_EDITOR2
 void draw_ortho_ingame_string(float x, float y, float z,
@@ -1387,7 +2074,8 @@ void draw_ingame_string(float x, float y, const unsigned char *text,
 #endif // ELC
 
 /*!
- * Set the config font
+ * \ingroup text_font
+ * \brief Set the config font
  *
  * Copy the current font index and scale of the UI_FONT category to that
  * of the CONFIG_FONT category. This allows us to change the UI font
@@ -1396,6 +2084,10 @@ void draw_ingame_string(float x, float y, const unsigned char *text,
  */
 void set_config_font();
 
+/*!
+ * \ingroup text_font
+ * \brief whether a glyph is defined for character \a c, i.e. if it is printable
+ */
 int has_glyph(unsigned char c);
 
 //! Disable TrueType fonts, allowing bundled fonts only.
