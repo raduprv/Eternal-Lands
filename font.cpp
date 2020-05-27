@@ -553,7 +553,13 @@ int Font::draw_char(unsigned char c, int x, int y, float zoom, bool ignore_color
 		return 0;
 	}
 
-	int char_width = width_spacing_pos(pos, zoom);
+	// There are teo eidths here: char_width and advance. The first is the width
+	// of the character as drawn on the screen, the second the number of pixels
+	// the pen should advance for drawing the next character. Interestingly,
+	// char_width can be larger than advance, epsecially for bold fonts. For
+	// size calculations, the only relevant quantity is advance, though.
+	int char_width = std::round((_texture_char_widths[pos] + _spacing) * _scale * zoom);
+	int advance = width_spacing_pos(pos, zoom);
 	int char_height = height(zoom);
 
 	float u_start, u_end, v_start, v_end;
@@ -565,7 +571,7 @@ int Font::draw_char(unsigned char c, int x, int y, float zoom, bool ignore_color
 	glTexCoord2f(u_end,   v_end);   glVertex3i(x + char_width, y + char_height, 0);
 	glTexCoord2f(u_end,   v_start); glVertex3i(x + char_width, y, 0);
 
-	return char_width;
+	return advance;
 }
 
 void Font::draw_help_background(int x, int y, int width, int height) const
