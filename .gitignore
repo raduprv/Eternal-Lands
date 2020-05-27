@@ -4,3 +4,5 @@ make.conf
 el.x86.linux.bin
 git_version
 map_editor/mapedit.x86.linux.bin
+docs/DOXYTAGS
+docs/html
