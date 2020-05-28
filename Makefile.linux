@@ -3,6 +3,7 @@
 -include make.conf
 
 TTF_CFLAGS = $(shell pkg-config SDL2_ttf --cflags)
+JSON_FILES_CFLAGS = -I nlohmann_json/single_include/
 
 PNG_SCREENSHOT_LIBS = $(shell pkg-config libpng --libs)
 TTF_LIBS = $(shell pkg-config SDL2_ttf --libs)
