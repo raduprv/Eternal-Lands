@@ -283,7 +283,8 @@ void add_bags_from_list (const Uint8 *data)
 
 void remove_item_from_ground(Uint8 pos)
 {
-	ground_item_list[pos].quantity= 0;
+	if (pos < ITEMS_PER_BAG)
+		ground_item_list[pos].quantity= 0;
 }
 
 void remove_bag(int bag_id)

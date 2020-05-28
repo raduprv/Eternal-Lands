@@ -1182,11 +1182,12 @@ int find_last_lines_time (int *msg, int *offset, Uint8 filter, int width)
 	}
 	if (lines_to_show <= 0) return 0;
 
-	return find_line_nr(get_total_nr_lines(), get_total_nr_lines() - lines_to_show,
+	find_line_nr(get_total_nr_lines(), get_total_nr_lines() - lines_to_show,
 		filter, msg, offset, CHAT_FONT, 1.0, width);
+	return 1;
 }
 
-int find_line_nr(int nr_lines, int line, Uint8 filter, int *msg, int *offset,
+void find_line_nr(int nr_lines, int line, Uint8 filter, int *msg, int *offset,
 	font_cat font, float zoom, int width)
 {
 	int line_count = 0, lines_no = nr_lines - line;
@@ -1197,7 +1198,7 @@ int find_line_nr(int nr_lines, int line, Uint8 filter, int *msg, int *offset,
 	if ( imsg<0 ) {
 		/* No data in buffer */
 		*msg = *offset = 0;
-		return 1;
+		return;
 	}
 	do
 	{
@@ -1231,7 +1232,7 @@ int find_line_nr(int nr_lines, int line, Uint8 filter, int *msg, int *offset,
 					{
 						*msg = imsg;
 						*offset = ichar+1;
-						return 1;
+						return;
 					}
 				}
 			}
@@ -1241,7 +1242,7 @@ int find_line_nr(int nr_lines, int line, Uint8 filter, int *msg, int *offset,
 			{
 				*msg = imsg;
 				*offset = 0;
-				return 1;
+				return;
 			}
 		}
 
@@ -1251,7 +1252,6 @@ int find_line_nr(int nr_lines, int line, Uint8 filter, int *msg, int *offset,
 
 	*msg = 0;
 	*offset = 0;
-	return 1;
 }
 
 void clear_display_text_buffer ()

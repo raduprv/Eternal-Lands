@@ -101,7 +101,7 @@ void add_message_to_pm_log (char *msg, int len, Uint8 channel);
  *
  *      Sends an AFK message to a player to inform him about being AFK
  *
- * \param server_msg	string containing the name of the player 
+ * \param server_msg	string containing the name of the player
  * \param len		the length of the string
  * \param channel          the channel of message to send.
  *
@@ -128,13 +128,16 @@ void print_all_messages();
 
 /*!
  * \ingroup network_actors
- * \brief is_talking_about_me
+ * \brief Check if chat mentions me
  *
- *      is_talking_about_me(Uint8*,int)
+ * Check if a chat message mentions the name of the player. If the parameter
+ * \a everywhere is zero, only check local chat messages, otherwise channel
+ * and guild chat is also checked.
  *
- * \param server_msg
- * \param len
- * \retval int
+ * \param server_msg The message text from the server
+ * \param len        The number of bytes in \a server_msg
+ * \param everywhere If zero, only check local chat messages
+ * \return 1 if the player name is found in the text, 0 otherwise
  * \callgraph
  */
 int is_talking_about_me (const char * server_msg, int len, char everywhere);

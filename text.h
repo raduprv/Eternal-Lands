@@ -145,7 +145,7 @@ static __inline__ void clear_text_message_data (text_message *msg)
  *	to hold all of \a data, only the first part is copied.
  *
  * \param msg  The text_message to be updated
- * \patam data The string to be copied
+ * \param data The string to be copied
  * \sa resize_text_message_data()
  */
 void set_text_message_data (text_message *msg, const char* data);
@@ -260,12 +260,16 @@ void send_input_text_line (char *line, int len);
 
 /*!
  * \ingroup text_font
- * \brief Adds the string in text_to_add up to the specified length to the filtered text.
+ * \brief Parse and process a text message
  *
- *      Adds the string in text_to_add up to the specified length to the filtered text.
+ * Parse the string in \a text_to_add to check if it should be ignored, or if
+ * an action is associated with it. If it is not to be ignored, pass it to
+ * \ref filter_text to replace any substrings the user does not wish to see.
  *
  * \param text_to_add   the string to add
  * \param len           the length of text_to_add
+ * \param size          the maximum number of bytes in \a text_to_add
+ * \param channel       the text channel associated with the text
  * \retval int
  * \callgraph
  */
@@ -330,13 +334,20 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 
 /*!
  * \ingroup text_font
- * \brief find_last_lines_time
+ * \brief Find the offset of the text to show in game.
  *
- *      find_last_lines_time(int *, int *, Uint8 filter, int width)
+ * In the game window, the last few lines of console text are shown, and they are
+ * scrolled out of view as time progresses. This function finds the first message,
+ * and the offset within the message, of the first line to be displayed in the
+ * game window, based on the current time and the last time a text message was
+ * added.
  *
- * \retval int
+ * \param msg    Place to store the message number of the first message to display
+ * \param offset Byte offset within the message of the first line to display
+ * \param filter A filter for the messages, can be used to skip unwanted messages
+ * \param width  The text width used for wrapping lines
  *
- * \todo Fix documentation
+ * \return 0 if no line is to be shown, 1 otherwise
  */
 int find_last_lines_time (int *msg, int *offset, Uint8 filter, int width);
 
@@ -344,19 +355,18 @@ int find_last_lines_time (int *msg, int *offset, Uint8 filter, int width);
  * \ingroup text_font
  * \brief Finds the position of the beginning of a line
  *
- *	finds the position of the beginning of a line in the text message buffer
+ * Finds the position of the beginning of a line in the text message buffer
  *
  * \param nr_lines The total number of lines
  * \param line     The number of the line to be found
+ * \param filter   A filter for the messages, can be used to skip unwanted messages
  * \param msg      The message in which the lines is located
- * \param channel  the channel in which to search for the line, or CHANNEL_ALL to search in all channels
  * \param offset   The offset in the message at which the line starts
  * \param font     the font category in which the line is rendered
  * \param zoom     the text zoom that is to be used for wrapping
  * \param width    the text width that is to be used for wrapping
- * \retval The position of the beginning of the line
  */
-int find_line_nr(int nr_lines, int line, Uint8 filter, int *msg, int *offset,
+void find_line_nr(int nr_lines, int line, Uint8 filter, int *msg, int *offset,
 	font_cat font, float zoom, int width);
 
 /*!
@@ -421,10 +431,10 @@ void clear_display_text_buffer ();
  * \param cat    the category for the font in which the text is to be rendered
  * \param zoom   the text zoom to use for wrapping
  * \param width  the max width of a line
- * \param cursor cursor passed to \sa reset_soft_breaks
- * \retval       the number of lines after wrapping
+ * \param cursor cursor passed to \ref reset_soft_breaks
+ * \return the number of lines after wrapping
  */
-int rewrap_message(text_message* buf, font_cat cat, float zoom, int width, int *cursor);
+int rewrap_message(text_message* msg, font_cat cat, float zoom, int width, int *cursor);
 
 void cleanup_text_buffers(void);
 

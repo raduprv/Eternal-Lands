@@ -1,3 +1,9 @@
+/*!
+ * \file books.h
+ * \ingroup books_window
+ * \brief Classes and functions dealing with in-game books
+ */
+
 #ifndef BOOKS_H
 #define BOOKS_H
 
@@ -8,8 +14,9 @@
 namespace eternal_lands
 {
 
-/**
- * Enumeration for book content.
+/*!
+ * \ingroup books_window
+ * \brief Enumeration for book content.
  *
  * This enumeration describes the different kinds of possible content in the
  * books.
@@ -32,7 +39,8 @@ enum ContentType
 
 
 /*!
- * A class for images in books
+ * \ingroup books_window
+ * \brief A class for images in books
  *
  * Class BookImage represents an image that appears in an EL book.
  */
@@ -40,7 +48,7 @@ class BookImage
 {
 public:
 	/*!
-	 * Create a new empty image
+	 * \brief Create a new empty image
 	 *
 	 * Create a new image without associated data. This constructor is in fact
 	 * only used to create a BookItem which does not contain an image.
@@ -50,18 +58,18 @@ public:
 	BookImage(): _file_name(), _x(0), _y(0), _width(0), _height(0),
 		_texture(Uint32(-1)), _u_start(0.0), _v_start(0.0), _u_end(0.0), _v_end(0.0) {}
 	/*!
-	 * Create a new image
+	 * \brief Create a new image
 	 *
 	 * Create a new image that displays the (\a u_start, \a v_start) - (\a u_end, \a v_end)
 	 * part of the image in file \a file name, on a page in the book at position
 	 * \a x, \a y with width \a width and height \a height.
-	 * NOTE: the positions and widths are scaled with the UI scale factor in
+	 * \note The positions and widths are scaled with the UI scale factor in
 	 * the actual display code.
 	 * \param file_name The file name of the image
 	 * \param x         The x coordinate of the image on the page
 	 * \param y         The y coordinate of the image on the page
 	 * \param width     The (unscaled) width in pixels of the image when drawn
-	 * \param width     The (unscaled) height in pixels of the image when drawn
+	 * \param height    The (unscaled) height in pixels of the image when drawn
 	 * \param u_start   The start x-coordinate of the image part to display
 	 * \param v_start   The start y-coordinate of the image part to display
 	 * \param u_end     The end x-coordinate of the image part to display
@@ -80,14 +88,14 @@ public:
 	int height() const { return _height; }
 
 	/*!
-	 * Display the picture
+	 * \brief Display the picture
 	 *
 	 * Draw the picture on the book page.
 	 */
 	void display() const;
 
 	/*!
-	 * Return a scaled image
+	 * \brief Return a scaled image
 	 *
 	 * Return a scaled version of this image, where all coordinates and
 	 * dimensions are scaled by a factor \a zoom. This is used in the layout
@@ -127,7 +135,8 @@ private:
 
 
 /*!
- * Class for a block of text
+ * \ingroup books_window
+ * \brief Class for a block of text
  *
  * Class TextBlock holds the data for a block of text in the book. It contains
  * the actual text itself, as well as information on how and where to draw it
@@ -137,19 +146,24 @@ class TextBlock
 {
 public:
 	/*!
-	 * Create a new TextBlock
+	 * \brief Create a new TextBlock
 	 *
 	 * Create a new TextBlock with content \a text of type \a type, starting
 	 * at position \a x, \a y on the page with dimensions \a width and \a height,
 	 * to be drawn with scale factor \a zoom. It is assumed that the text
-	 * has been formatted to fit into the specified diemsnions, no measures are
-	 * taken here to ensure this.
-	 * \param text   The actual text to draw
-	 * \param x      The x coordinate of the left side of the text box
-	 * \param y      The y coordinate of the top of the text box
-	 * \param width  The width of the box
-	 * \param height The height of the box
-	 * \param zoom   The scale factor for the text
+	 * has been formatted to fit into the specified dimensions, no measures are
+	 * taken here to ensure this. The parameter \a line_spacing is a scale factor
+	 * for the line spacing between consecutive lines of text in a book. Typically,
+	 * the line spacing is books is somewhat smaller than the default, with
+	 * \a line_spacing = 0.9.
+	 * \param text         The actual text to draw
+	 * \param type         The kind of text in the block
+	 * \param x            The x coordinate of the left side of the text box
+	 * \param y            The y coordinate of the top of the text box
+	 * \param width        The width of the box
+	 * \param height       The height of the box
+	 * \param zoom         The scale factor for the text
+	 * \param line_spacing The scale factor for the spacing between consecutive lines of text
 	 */
 	TextBlock(const ustring& text, ContentType type, int x, int y,
 		int width, int height, float zoom, float line_spacing=1.0):
@@ -166,7 +180,7 @@ public:
 	int height() const { return _height; }
 
 	/*!
-	 * Display the text box
+	 * \brief Display the text box
 	 *
 	 * Draw the contents of this text box on the page
 	 */
@@ -193,7 +207,8 @@ private:
 
 
 /*!
- * Class for a page in a book
+ * \ingroup books_window
+ * \brief Class for a page in a book
  *
  * Class Page hold the contents for a single page in a book, and defines
  * a number of functions to determine where new contents can be placed.
@@ -202,7 +217,7 @@ class Page
 {
 public:
 	/*!
-	 * Create a new Page
+	 * \brief Create a new Page
 	 *
 	 * Create a new, empty Page of height \a page_height for a book.
 	 */
@@ -210,7 +225,7 @@ public:
 		_free_ranges(1, std::make_pair(0, page_height)) {}
 
 	/*!
-	 * Check if a specific portion of the page is free
+	 * \brief Check if a specific portion of the page is free
 	 *
 	 * Check if the part of the page between \a y_begin and \a y_end is
 	 * currently empty, and can be used for new content.
@@ -229,7 +244,7 @@ public:
 		return false;
 	}
 	/*!
-	 * Search for a free range on the page
+	 * \brief Search for a free range on the page
 	 *
 	 * Find the first position on the page where a block of \a min_height
 	 *  pixels high that starts at a multiple of \a min_height pixels is free.
@@ -254,11 +269,11 @@ public:
 	}
 
 	/*!
-	 * Add a block of text
+	 * \brief Add a block of text
 	 *
 	 * Add the block of text \a block to this page, and mark the range
 	 * between \a y_begin and \a y_end as occupied.
-	 * NOTE: the range to occupy may be larger than the actual block contents,
+	 * \note The range to occupy may be larger than the actual block contents,
 	 * for instance to prevent new content from being inserted before this
 	 * text block, or to introduce margins.
 	 *
@@ -272,11 +287,11 @@ public:
 		occupy_range(y_begin, y_end);
 	}
 	/*!
-	 * Add an image
+	 * \brief Add an image
 	 *
 	 * Add the image \a image to this page, and mark the range between
 	 * \a y_begin and \a y_end as occupied.
-	 * NOTE: the range to occupy may be larger than the actual block contents,
+	 * \note The range to occupy may be larger than the actual block contents,
 	 * for instance to prevent new content from being inserted before this
 	 * text block, or to introduce margins.
 	 *
@@ -291,7 +306,7 @@ public:
 	}
 
 	/*!
-	 * Display ths page
+	 * \brief Display ths page
 	 *
 	 * Draw the contents of this page on the screen.
 	 */
@@ -312,7 +327,7 @@ private:
 	std::vector<std::pair<int, int>> _free_ranges;
 
 	/*!
-	 * Mark a range as occupied
+	 * \brief Mark a range as occupied
 	 *
 	 * Mark the part of the page between \a y_begin and \a y_end as occupied,
 	 * and unavailable for new content.
@@ -322,7 +337,8 @@ private:
 
 
 /*!
- * CLass for an item of content in a book
+ * \ingroup books_window
+ * \brief Class for an item of content in a book
  *
  * Class BookItem holds a single item of content for the book. This can be
  * either a piece of text, or an image with an associated caption. This class
@@ -334,7 +350,7 @@ class BookItem
 {
 public:
 	/*!
-	 * Create a new text item
+	 * \brief Create a new text item
 	 *
 	 * Create a new text item of type \a type, with text contents \a text.
 	 * \param type The kind of text to draw
@@ -343,7 +359,7 @@ public:
 	BookItem(ContentType type, const ustring& text):
 		_type(type), _text(text), _image() {}
 	/*!
-	 * Create a new image item
+	 * \brief Create a new image item
 	 *
 	 * Create a new image item for image \a image, with (possibly empty) caption
 	 * text \a caption.
@@ -371,7 +387,8 @@ private:
 
 
 /*!
- * A class for books
+ * \ingroup books_window
+ * \brief A class for books
  *
  * Class Book holds the data and methods for displaying the contents of a book
  * in Eternal Lands.
@@ -389,7 +406,7 @@ public:
 	};
 
 	/*!
-	 * Create a new book.
+	 * \brief Create a new book.
 	 *
 	 * Create a new book with title \a title and identification number \a id,
 	 * to be drawn on a background of type \a paper_type.
@@ -415,9 +432,9 @@ public:
 	//! Return the number of pages to skip when turning a page
 	int page_delta() const { return _paper_type == BOOK ? 2 : 1; }
 	/*!
-	 * Return the page currently being displayed
+	 * \brief Return the page currently being displayed
 	 *
-	 * NOTE: the page number returned is the offset in the _pages array,
+	 * \note The page number returned is the offset in the _pages array,
 	 * and starts at zero. Thus, it corresponds to page \a nr + 1 on screen.
 	 */
 	int active_page_nr() const { return _active_page; }
@@ -430,7 +447,7 @@ public:
 	}
 
 	/*!
-	 * Add server-side book content
+	 * \brief Add server-side book content
 	 *
 	 * Add content stored in \a len bytes of data in \a data for a book stored
 	 * on the server to this book. Server-side books are sent page-by-page,
@@ -442,7 +459,7 @@ public:
 	 */
 	void add_server_content(const unsigned char* data, size_t len);
 	/*!
-	 * Update the number of downloaded server pages.
+	 * \brief Update the number of downloaded server pages.
 	 *
 	 * Set the total number of server pages for this book, and increase the
 	 * number of pages downloaded by one.
@@ -457,14 +474,14 @@ public:
 	}
 
 	/*!
-	 * Mark this book as needing layout.
+	 * \brief Mark this book as needing layout.
 	 *
 	 * Mark this book as needing a reformatting. This is done in response to
 	 * font changes, or when new server data has come in.
 	 */
 	void renew_layout() { _laid_out = false; }
 	/*!
-	 * Format this book
+	 * \brief Format this book
 	 *
 	 * Format the contents of this book onto pages of size \a page_width by
 	 * \a page_height, using a scale factor \a zoom for all contents.
@@ -476,7 +493,7 @@ public:
 	void layout(int page_width, int page_height, float zoom);
 
 	/*!
-	 * Display the current page
+	 * \brief Display the current page
 	 *
 	 * Draw the currently visible page onto the screen.
 	 *
@@ -485,10 +502,10 @@ public:
 	void display(float zoom) const;
 
 	/*!
-	 * Change the current page
+	 * \brief Change the current page
 	 *
 	 * Switch to viewing page \a nr.
-	 * NOTE: the page number \a nr here is the offset in the _pages array,
+	 * \note The page number \a nr here is the offset in the _pages array,
 	 * and starts at zero. Thus, it corresponds to page \a nr + 1 on screen.
 	 *
 	 * \param nr The page to turn to.
@@ -496,7 +513,7 @@ public:
 	void turn_to_page(int nr);
 
 	/*!
-	 * Read a book from file.
+	 * \brief Read a book from file.
 	 *
 	 * Read a book to be drawn on paper type \a paper_type from XML file
 	 * \a file_name, and give it identification number \a id.
@@ -538,7 +555,7 @@ private:
 	int _active_page;
 
 	/*!
-	 * Return the height of a single line of text
+	 * \brief Return the height of a single line of text
 	 *
 	 * Return the height of a single line of text when drawing with the current
 	 * book font settings at zoom level \a zoom.
@@ -554,7 +571,7 @@ private:
 
 	//! Add a new, empty page to the book
 	Page* add_page(int page_width, int page_height, float zoom);
-	//! Return the current page for writing new text on
+	//! Return a pointer to the current page for writing new text on
 	Page* text_page(int page_width, int page_height, float zoom)
 	{
 		if (size_t(_active_text_page) >= _pages.size())
@@ -562,11 +579,11 @@ private:
 		return &_pages[_active_text_page];
 	}
 	/*!
-	 * Return a new page for writing new text on
+	 * \brief Return a new page for writing new text on
 	 *
-	 * Return a new page for writing text on. This can be a page that already
-	 * contains contents (such as an image that was floated forwards), or
-	 * a new blank page.
+	 * Return a pointer to a new page for writing text on. This can be a page
+	 * that already contains contents (such as an image that was floated forwards),
+	 * or a new blank page.
 	 */
 	Page* next_text_page(int page_width, int page_height, float zoom)
 	{
@@ -575,10 +592,10 @@ private:
 		return &_pages[_active_text_page];
 	}
 	/*!
-	 * Return the last page in the book
+	 * \brief Return the last page in the book
 	 *
-	 * Return the last page in the book. If there is none, add a new page and
-	 * return that.
+	 * Return a pointer to the last page in the book. If there is none, add a
+	 * new page and return that.
 	 */
 	Page* last_page(int page_width, int page_height, float zoom)
 	{
@@ -588,7 +605,7 @@ private:
 	}
 
 	/*!
-	 * Lay out a text item.
+	 * \brief Lay out a text item.
 	 *
 	 * Format the text in \a text of content type \a type for drawing with scale
 	 * factor \a zoom on pages of size \a page_width by \a page_height. Titles
@@ -597,7 +614,7 @@ private:
 	void layout_text(ContentType content_type, const ustring& text,
 		int page_width, int page_height, float zoom);
 	/*!
-	 * Format a caption text
+	 * \brief Format a caption text
 	 *
 	 * Break up the caption text \a text associated with image \a image into
 	 * separate blocks of text that can be placed on page of size \a page_width
@@ -616,18 +633,18 @@ private:
 	std::vector<std::pair<TextBlock, bool>> caption_text(const BookImage& image,
 		const ustring& text, int page_width,  int page_height, float zoom) const;
 	/*!
-	 * Layout an image
+	 * \brief Layout an image
 	 *
 	 * Place image \a image onto a page in this book, and format the caption
 	 * text in \a caption around it. The caption is drawn in a smaller size
-	 * than the regular text. If not enough space is avilable next to the image,
+	 * than the regular text. If not enough space is available next to the image,
 	 * the caption is placed underneath it.
 	 */
 	void layout_image(const BookImage &image, const ustring &caption,
 		int page_width, int page_height, float zoom);
 
 	/*!
-	 * Add a text item to the book
+	 * \brief Add a text item to the book
 	 *
 	 * Add a text item \a text of type a type to the unformatted contents of
 	 * this book.
@@ -640,7 +657,7 @@ private:
 		_items.emplace_back(type, text);
 	}
 	/*!
-	 * Add an image item to the book
+	 * \brief Add an image item to the book
 	 *
 	 * Add an image \a image with (possibly empty) caption \a caption to the
 	 * unformatted contents of this book.
@@ -663,7 +680,7 @@ private:
 	void add_xml_content(const xmlNode *node);
 
 	/*!
-	 * Parse an image from the server
+	 * \brief Parse an image from the server
 	 *
 	 * Parse the description of an image from \a len bytes of server data in
 	 * \a data, and add it to this books contents.
@@ -676,7 +693,8 @@ private:
 
 
 /*!
- * Class for navigation buttons
+ * \ingroup books_window
+ * \brief Class for navigation buttons
  *
  * Class TextLink is used for the navigation buttons that are used to page
  * through the books. They consist of text labels, that when clicked, turn
@@ -686,7 +704,7 @@ class TextLink
 {
 public:
 	/*!
-	 * Create a new TextLink
+	 * \brief Create a new TextLink
 	 *
 	 * Create a new TextLink with label \a text, that turns the book to page
 	 * \a target when clicked on, and position it a coordinates \a x, \a y
@@ -745,7 +763,8 @@ private:
 
 
 /*!
- * Class for the book window
+ * \ingroup books_window
+ * \brief Class for the book window
  *
  * Class BookWindow handles the book window in Eternal Lands. It actually
  * contains two separate windows, for the two different kinds of backgrounds
@@ -791,7 +810,7 @@ public:
 	//! Return whether the book window is currently being displayed
 	bool is_open() const { return get_show_window(_book_win) || get_show_window(_paper_win); }
 	/*!
-	 * Check if the book window is showing a book
+	 * \brief Check if the book window is showing a book
 	 *
 	 * Check whether the book window is currently open, and displaying the book
 	 * with identifier \a id.
@@ -802,7 +821,7 @@ public:
 	bool book_is_open(int id) const { return _book_id == id && is_open(); }
 
 	/*!
-	 * Start displaying a book
+	 * \brief Start displaying a book
 	 *
 	 * Open the appropriate book window, and display the contents of book
 	 * \a book in it.
@@ -889,10 +908,12 @@ private:
 
 
 /*!
- * Class for the collection of books
+ * \ingroup books_window
+ * \brief Class for the collection of books
  *
  * Class BookCollection holds the collection of all books that have been opened
- * so far this session.
+ * so far this session. It is a singleton class, all access to the object of this
+ * class should be done through the get_instance() method.
  */
 class BookCollection
 {
@@ -914,7 +935,7 @@ public:
 	}
 
 	/*!
-	 * Retrieve a book
+	 * \brief Retrieve a book
 	 *
 	 * Return the book with identification number \a id.
 	 *
@@ -927,7 +948,7 @@ public:
 	//! Initialize the book collection, reading the default (race and knowledge) books
 	void initialize();
 	/*!
-	 * Open a book
+	 * \brief Open a book
 	 *
 	 * Open the book with identification number \a id in the book window, If
 	 * the book is currently not present in the collection, it is assumed to
@@ -938,7 +959,7 @@ public:
 	 */
 	void open_book(int id);
 	/*!
-	 * Close a book
+	 * \brief Close a book
 	 *
 	 * Close the book window if it is currently showing the book with
 	 * identification number \a id.
@@ -956,10 +977,10 @@ public:
 	void close_window() const { _window.close(); }
 
 	/*!
-	 * Parse book data from the server
+	 * \brief Parse book data from the server
 	 *
 	 * Parse the book specification in \a len bytes of server data in \a data, and
-	 * add the contents to the apporpriate book.
+	 * add the contents to the appropriate book.
 	 *
 	 * \param data The server-side book contents, or local book specification
 	 * \param len  The number of bytes in \a data
@@ -968,7 +989,7 @@ public:
 	void read_network_book(const unsigned char* data, size_t len);
 
 	/*!
-	 * Request book data from the server
+	 * \brief Request book data from the server
 	 *
 	 * Send a request for server-side page \a page in book \a id to the game
 	 * server.
@@ -998,7 +1019,7 @@ private:
 	void add_book(Book&& book);
 
 	/*!
-	 * Parse a knowledge item
+	 * \brief Parse a knowledge item
 	 *
 	 * Parse a single knowledge item from the knowledge XML file. On success,
 	 * read the book it references, and add it to this collection.
@@ -1008,9 +1029,9 @@ private:
 	void read_knowledge_book_index();
 
 	/*!
-	 * Read a local book
+	 * \brief Read a local book
 	 *
-	 * Read a book stored on the clients computer, that is specified by the
+	 * Read a book stored on the client's computer, that is specified by the
 	 * server data \a data of \a len bytes, and add it to this collection.
 	 * The data should contain the identifier and file name of the book to read.
 	 *
@@ -1019,7 +1040,7 @@ private:
 	 */
 	void read_local_book(const unsigned char* data, size_t len);
 	/*!
-	 * Read a local book
+	 * \brief Read a local book
 	 *
 	 * Read a page of book data sent by the server, and store it in the
 	 * appropriate book.
@@ -1040,7 +1061,7 @@ extern "C"
 #endif // __cplusplus
 
 /*!
- * \ingroup books
+ * \ingroup books_window
  * \brief Reads client-side books.
  *
  * Reads the client-side books that will not be downloaded from the server.
@@ -1054,49 +1075,47 @@ void init_books(void);
  * Opens the book with the given ID; if the book is not found it will be
  * requested from the server.
  *
- * \param id The IF of the book to open.
- *
- * \callgraph
+ * \param id The identifier of the book to open.
  */
 void open_book(int id);
 /*!
- * \ingroup books
+ * \ingroup books_window
  * \brief Closes the book with the given id
  *
- * Close the book window if it currently contains the book with ID \a id.
+ * Close the book window if it currently contains the book with identifier \a id.
  *
  * \param id The identifier for the book to close.
  */
-void close_book(int book_id);
+void close_book(int id);
 /*!
- * \ingroup books
+ * \ingroup books_window
  * \brief Check if a specific book is currently open
  *
- * Check is the book window is currently open and showing the book with ID \a id.
+ * Check is the book window is currently open and showing the book with identfier \a id.
  *
  * \param id The identifier of the book to check for.
  * \return 1 if the book window is currently showing the book, 0 otherwise.
  */
 int book_is_open(int id);
 /*!
- * \ingroup books
+ * \ingroup books_window
  * \brief Check if the book window is open
  * \return 1 if the book window is currently open, 0 otherwise
  */
 int book_window_is_open();
 /*!
- * \ingroup books
+ * \ingroup books_window
  * \brief Bring the book window to the front.
  */
 void select_book_window();
 /*!
- * \ingroup books
+ * \ingroup books_window
  * \brief Close the book window.
  */
 void close_book_window();
 
 /*!
- * \ingroup books
+ * \ingroup books_window
  * \brief Read a book from server data
  *
  * Read a book specified by the \a len bytes of data in \a data sent by the
@@ -1105,8 +1124,6 @@ void close_book_window();
  *
  * \param	data The network data
  * \param	len  The number of bytes in \a data
- *
- * \callgraph
  */
 void read_network_book(const unsigned char* data, size_t len);
 

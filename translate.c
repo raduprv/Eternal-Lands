@@ -503,6 +503,7 @@ char	name_too_long[75],
 	cmd_relogin[20],
 	cmd_disconnect[20],
 	cmd_disco[20];
+/*! \} */
 #endif
 
 /*! \name Errors */

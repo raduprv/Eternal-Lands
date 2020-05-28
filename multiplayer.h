@@ -19,7 +19,7 @@ extern volatile int disconnected; /*!< indicates whether we are currently connec
 
 extern TCPsocket my_socket; /*!< our TCP socket to communiate with the server */
 
-/*! \name Version information 
+/*! \name Version information
  * @{ */
 extern int always_pathfinding; /*!< use pathfinding for walk click on far visible tiles of the 3d map */
 extern int mixed_message_filter; /*!< If true, do not display console messages for mixed items when other windows are closed */
@@ -33,9 +33,9 @@ extern short real_game_second; /*!< the real game second */
 /*!
  * \brief Get the Eternal Lands version number
  *
- *	Print the Eternal Lands version in string \a str.
+ *	Print the Eternal Lands version in string \a buf.
  *
- * \param str	the character buffer in which the string is placed
+ * \param buf	the character buffer in which the string is placed
  * \param len	the size of the buffer
  * \callgraph
  */
@@ -50,13 +50,13 @@ int is_real_game_second_valid(void);
 
 /*!
  * \brief	Set game seconds as valid.
- * 
+ *
 */
 void set_real_game_second_valid(void);
 
 /*!
  * \brief	Get the current game time.
- * 
+ *
  * \retval	game time in seconds.
 */
 Uint32 get_game_time_sec(void);
@@ -64,24 +64,24 @@ Uint32 get_game_time_sec(void);
 /*!
  * \brief	Get the time difference from current game time.
  *
- * \param	the relative time to compare
- * 
- * \retval	the time difference in seconds, wrapped appropriately
+ * \param	ref_time the relative time to compare
+ *
+ * \return	the time difference in seconds, wrapped appropriately
 */
 Uint32 diff_game_time_sec(Uint32 ref_time);
 
 /*!
  * \brief	Set the state to disconnected from the server, showing messages and recording time.
  *
- * \param	A message string, or NULL
- * 
+ * \param	message A message string, or NULL
+ *
 */
 void enter_disconnected_state(const char *message);
 
 /*!
  * \brief	Close connection and call enter_disconnected_state().
  *
- * \param	A message string, or NULL
+ * \param	message A message string, or NULL
  *
 */
 void force_server_disconnect(const char *message);
@@ -98,9 +98,9 @@ void check_if_testing_server_connection(void);
 */
 void start_testing_server_connection(void);
 
-extern time_t last_heart_beat; /*!< a timestamp that inidicates when the last message was sent to the server */
+extern time_t last_heart_beat; /*!< a timestamp that indicates when the last message was sent to the server */
 
-extern time_t last_save_time; /*!< a timestamp inidicating the last #save */
+extern time_t last_save_time; /*!< a timestamp inidicating the last \#save */
 
 extern int log_conn_data; /*!< indicates whether we should log connection data or not */
 
@@ -146,7 +146,7 @@ void move_to (short int x, short int y, int try_pathfinder);
  * \param my_socket the socket used to communicate with the server
  * \param str       the message to sent
  * \param len       the length of \a str
- * \retval int      0, if the client is not connected, or if the actor has been sitting for a specific amount of time, or if the packet is already stored in the \ref tcp_cache, 
+ * \retval int      0, if the client is not connected, or if the actor has been sitting for a specific amount of time, or if the packet is already stored in the \ref tcp_cache,
  *                  else the return value of SDLNet_TCP_Send will be returned.
  * \callgraph
  *
@@ -228,7 +228,7 @@ void send_heart_beat();
  * 		If a callback is registered, send it the date too.
  *
  * \param	the_string	the new data string
- * 
+ *
  * \retval	int	1 if the date was requested from a get_date() call, otherwise 0
 */
 int set_date(const char *the_string);
@@ -241,7 +241,7 @@ int set_date(const char *the_string);
  * save any callback function for when we have the new date.
  *
  * \param	callback	if not NULL a function to be passed the string when we have it
- * 
+ *
  * \retval	string pointer	NULL is no date ready
 */
 const char *get_date(void (*callback)(const char *));

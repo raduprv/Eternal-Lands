@@ -82,7 +82,6 @@ FILE * open_file_data(const char* filename, const char* mode);
  * @brief fopen()s a file in the directory: datadir/languages/lang
  *
  * Attempts to open the given filename in datadir/languages/lang
- * @param base_path The name of the directory to attempt to open the file in
  * @param filename The name of the file to open
  * @param mode The file mode to use to open the file (read/write, binary/text, etc)
  * @return Returns a FILE* to the opened file on success, either in 'lang' or in 'en' (as a failover), or a NULL on failure
@@ -94,7 +93,7 @@ FILE * open_file_lang(const char* filename, const char* mode);
  *
  * Attempts to create the given path, stepping through the given directory names
  * @param path The path to attempt to create
- * @param relative_only If non-zero, create only paths relative to the 
+ * @param relative_only If non-zero, create only paths relative to the
  *                      current directory
  * @return Returns 1 on success, 0 on failure
  */
@@ -110,12 +109,13 @@ int mkdir_tree(const char *path, int relative_only);
 int mkdir_config(const char *path);
 
 /**
- * @brief rename()s a file from configdir to datadir
+ * \brief rename()s a file from configdir to datadir
  *
  * Attempts to move a file in configdir into datadir
- * @param from_file The name of the file to move
- * @param to_file The name of the file to create
- * @return Returns the result of the internal rename() call
+ * \param from_file The name of the file to move
+ * \param to_file   The name of the file to create
+ * \param custom	Flag specifying the configdir/custom/ directory instead of the default
+ * \return Returns the result of the internal rename() call
  */
 int move_file_to_updates(const char* from_file, char* to_file, int custom);
 
@@ -181,11 +181,11 @@ int check_configdir(void);
 /**
  * @brief Copies a file
  *
- * Copies a file, given the source and destination filenames. Does not overwrite the target file (ie, only
- * copies if target file does not exist).
+ * Copies a file, given the source and destination filenames. Does not overwrite
+ * the target file (ie, only copies if target file does not exist).
  *
- * @param source	The source file name 
- * @param custom	The destination file name
+ * @param source The source file name
+ * @param dest   The destination file name
  * @return 0 on success, -1 if target file exists, -2 if invalid source file, -3 if cannot create target file, -4 if IO error.
  */
 int copy_file(const char *source, const char *dest);

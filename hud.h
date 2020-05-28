@@ -60,9 +60,13 @@ void cleanup_hud(void);
  * \ingroup other
  * \brief Shows the different hud related windows if they have already been created.
  *
- *      Shows the different hud related windows, i.e. the icons, the stats bar, the miscellaneous (compass and clock) and the quickbar window if they have been created before. If none of them has been created nothing will be done.
+ * Shows the different hud related windows, i.e. the icons, the stats bar,
+ * the miscellaneous (compass and clock) and the quickbar window if they have
+ * been created before. If none of them has been created nothing will be done.
  *
- * \pre If any of \ref icons_win, \ref stats_bar_win, \ref misc_win and \ref quickbar_win is <= 0, no action will be performed.
+ * \pre
+ * If any of \ref icons_win, \ref stats_bar_win, \ref misc_win or \ref quickbar_win
+ * is <= 0, no action will be performed.
  *
  * \callgraph
  */
@@ -200,7 +204,7 @@ void build_levels_table();
 
 /*!
  * \ingroup other
- * \brief   	The #exp command, show current exp levels in console.
+ * \brief   	The \#exp command, show current exp levels in console.
  * \retval	1, so command not passed to server
  */
 int show_exp(char *text, int len);

@@ -282,11 +282,11 @@ extern int opaque_window_backgrounds;
  * \ingroup elwindows
  * \brief   Set the window custom scale factor
  *
- *      This value is multipled by the global scale value to
+ *      This value is multiplied by the global scale value to
  * determine the specific scale used for this window.
  *
  * \param win_id    the id of the window to select
- * \param scale_factor     pointer to the scaling factor
+ * \param new_scale pointer to the new scaling factor
  * \callgraph
  */
 void set_window_custom_scale(int win_id, float *new_scale);

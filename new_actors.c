@@ -58,7 +58,7 @@ void build_glow_color_table()
 }
 
 //return the ID (number in the actors_list[]) of the new allocated actor
-int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
+static int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	float z_pos, float z_rot, float scale, int actor_id, const char* name)
 {
 	int texture_id;
@@ -198,7 +198,7 @@ Uint32 delay_texture_item_change(actor* a, const int which_part, const int which
 			a->delayed_item_changes[a->delayed_item_changes_count] = which_id;
 			a->delayed_item_type_changes[a->delayed_item_changes_count] = which_part;
 			a->delayed_item_changes_count++;
-	
+
 			return 1;
 		}
 	}
@@ -326,7 +326,7 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 	int j;
 #endif
 
-	
+
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])

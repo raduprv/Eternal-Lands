@@ -349,14 +349,14 @@ const char *get_string_property(const xmlNode *node, const char *prop);
 int get_property(const xmlNode *node, const char *prop, const char *desc, const dict_elem dict[]);
 
 /*!
- * \brief Append char to the string given by s.
+ * \brief Append char to the string given by \a s.
  *
  * \param[in,out] s pointer to the string, changes if reallocation was needed.
  * \param[in] c character to append to the string.
- * \paran[in,out] len actual length of the string s.
+ * \param[in,out] len actual length of the string s.
  * \param[in,out] max_len size of memory allocated for string s.
  *
- * \note In danger of poiting out the obvious, the character buffer \a s must
+ * \note In danger of pointing out the obvious, the character buffer \a s must
  *       be dynamically allocated and not a fixed size buffer, otherwise any
  *       necessary reallocations will fail.
  */
@@ -421,7 +421,8 @@ char *substitute_char_with_string(const char *str, char **out_str, char to_sub, 
  * Remove white space from the end of the supplied string.  This function
  * uses the isspace() function.  From the man page:
  * In the "C" and "POSIX" locales, these are: space, form-feed
- * ('\f'), newline ('\n'), carriage return ('\r'), horizontal tab ('\t'), and vertical tab ('\v').
+ * (\c '\\f'), newline (\c '\\n'), carriage return (\c '\\r'), horizontal tab (\c '\\t'),
+ * and vertical tab (\c '\\v').
  *
  * \note The string must be writable.
  *

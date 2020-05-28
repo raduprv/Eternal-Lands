@@ -29,7 +29,10 @@ typedef struct{
 
 	int width_in_char;  /*!< the length of the respon option in characters */
 
-    /*! \name calculate response coordinates @{ */
+    /*!
+	 * \name calculate response coordinates
+	 * @{
+	 */
     int pos_x, pos_y, width;
     /*! @} */
 

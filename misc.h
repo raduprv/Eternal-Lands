@@ -104,16 +104,24 @@ void makeScreenShot ();
 
 /*!
  * \ingroup misc_utils
- * \brief Draws a circle from angle_from to angle_to
+ * \brief Draw a circle segment
  *
- * 		Draws a circle from angle_from to angle_to with the given radius from the center x,y. Increments the angle with interval.
+ * Draws a circle segment from \a angle_from to \a angle_to with the given
+ * radius from the center (\a x, \a y). The segment is approximated by a
+ * series of straight lines, with each line segment covering an angle of
+ * \a interval degrees.
+ * \note The current angle is always incremented by \a interval, so when
+ * \a angle_from is larger than \a angle_to, \a interval should be negative.
+ * \note This function only adds the vertices. Any calls to this function should
+ * be wrapped in an appropriate glBegin() / glEnd() block (e.g. using a GL_LINE_STRIP
+ * or GL_POLYGON).
  *
- * \param x The center x
- * \param y The center y
- * \param radius The radius
- * \param interval The # of steps to increment the angle. Can be negative, but then angle_from has to be higher than angle_to. When it is positive angle_from has to be lower than angle_to
- * \param angle_from The starting angle
- * \param angle_to The end angle
+ * \param x          The center x
+ * \param y          The center y
+ * \param radius     The radius
+ * \param interval   The step size, in degrees
+ * \param angle_from The starting angle, in degrees
+ * \param angle_to   The end angle, in degrees
  */
 void draw_circle_ext(int x, int y, int radius, int interval, int angle_from, int angle_to);
 
@@ -121,11 +129,17 @@ void draw_circle_ext(int x, int y, int radius, int interval, int angle_from, int
  * \ingroup misc_utils
  * \brief Draws a circle from angle_from to angle_to
  *
- * 		Draws a circle with the given radius from the center x,y.
+ * Draws a circle with the given radius from the center x,y. The circle is
+ * approximated by a series of straight lines, with each line segment covering
+ * an angle of \a interval degrees.
+ * \note This function only adds the vertices. Any calls to this function should
+ * be wrapped in an appropriate glBegin() / glEnd() block (e.g. using a GL_LINE_STRIP
+ * or GL_POLYGON).
  *
- * \param x The center x
- * \param y The center y
- * \param radius The radius
+ * \param x        The center x
+ * \param y        The center y
+ * \param radius   The radius
+ * \param interval The step size, in degrees
  *
  * \callgraph
  */
@@ -148,7 +162,7 @@ gzFile my_gzopen(const char * filename, const char * mode);
  * \ingroup misc
  * \brief Test whether a string contains another string at a certain position
  *
- * \c substrtest() test whether \p haystack contains \p needle at position \pos.
+ * \c substrtest() test whether \p haystack contains \p needle at position \a pos.
  *
  * \param haystack the string to test within
  * \param hlen the length of haystack
@@ -187,6 +201,9 @@ static __inline__ void swap_impl(void* a, void* b, void* tmp, size_t size)
  * \brief Swap two variables
  *
  * Swap the contents of variables \a a and \a b.
+ *
+ * \note No check is made on the types of \a and \a b, except to check that
+ * their sizes are equal.
  */
 #define SWAP(a, b) swap_impl(&(a), &(b), (unsigned char[sizeof(a) == sizeof(b) ? (ptrdiff_t)sizeof(a) : -1]){0}, sizeof(a))
 
@@ -196,7 +213,7 @@ static __inline__ void swap_impl(void* a, void* b, void* tmp, size_t size)
  *
  * These functions compute min's, max's and related things in a safe and fast manner.
  * Why not use a macro like this?
- * \begincode
+ * \code
  * #define min(x,y) ((x) < (y) ? (x) : (y))
  * \endcode
  * Because it requires a lot of care to use properly and inline functions can do
@@ -204,11 +221,11 @@ static __inline__ void swap_impl(void* a, void* b, void* tmp, size_t size)
  * text replacer, and the above macro will evaluate each of the arguments x and y
  * twice! Not only may this involve tiny performance hits, much more important will it
  * cause undesirable results if the evaluation has side effects, like in
- * \begincode
- *   X = min(rand(), rand())
+ * \code
+ * X = min(rand(), rand())
  * \endcode
  * in order to generate a variate X that is more likely to be small. Using the above macro,
- * X would still be uniformly distributed. Even if you don't dothat kind of jerk, please
+ * X would still be uniformly distributed. Even if you don't do that kind of thing, please
  * use these inline functions in order to help avoiding others making these mistakes.
  *
  *  -Lachesis

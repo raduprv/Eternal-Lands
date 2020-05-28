@@ -106,6 +106,7 @@ typedef struct wl{
 /*! \{ */
 #define BUTTON_ACTIVE 0x400
 #define BUTTON_SQUARE 0x800
+/*! \} */
 
 /*!
  * \name	Flags for the text field
@@ -452,13 +453,14 @@ int widget_set_color(int window_id, Uint32 widget_id, float r, float g, float b)
  * \ingroup widgets
  * \brief Set the font category
  *
- * Set the font category for the textual elements in thsi window to \a fcat
+ * Set the font category for the textual elements in this widget to \a fcat
  *
  * \param window_id The location of the window in the windows_list.window[] array
  * \param widget_id The widget's unique ID
+ * \param fcat      The new font category for this widget
  * \return 1 on succes or 0 on failure
  */
-int widget_set_font_cat(int window_id, int widget_id, font_cat cat);
+int widget_set_font_cat(int window_id, int widget_id, font_cat fcat);
 
 /*!
  * \ingroup	widgets
@@ -811,16 +813,18 @@ int button_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, U
 int button_add(int window_id, int (*OnInit)(), const char *text, Uint16 x, Uint16 y);
 
 /*!
- * \ingroup	buttons
- * \brief 	Resize a button widget
+ * \ingroup buttons
+ * \brief Resize a button widget
  *
- * 		Resize a button widget using the specified scale. If x or y length ar zero, calculate them.
+ * Resize a button widget using to the specified dimensions. If \a lx or \a ly
+ * are zero, the corresponding dimension is calculated from the button's contents.
  *
- * \param   	window_id The location of the window in the windows_list.window[] array
- * \param   	lx The x length
- * \param   	ly The y length
- * \param   	size the new font and button size
- * \retval int  	Returns the new widgets unique ID
+ * \param window_id The location of the window in the windows_list.window[] array
+ * \param wid       The unique widget ID for the button
+ * \param lx        The new width
+ * \param ly        The new height
+ * \param size      the new font and button size
+ * \retval int Returns the new widgets unique ID
  *
  * \sa button_add_extended
  */
@@ -1280,7 +1284,6 @@ int tab_collection_draw (widget_list *W);
  * \param   	W The widget
  * \param   	w the new width
  * \param   	h the new height
- * \param   	tab_tag_height the height of the tab tags
  * \retval int  	Returns 1 on success, 0 on failure
  * \callgraph
  */
@@ -1353,7 +1356,7 @@ int text_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 l
  * \param   	lx The width
  * \param   	ly The height
  * \param   	Flags The flags
- * \param		font Font category for the text
+ * \param		fcat Font category for the text
  * \param   	size The text size
  * \param   	r (0<=r<=1)
  * \param   	g (0<=g<=1)
@@ -1571,7 +1574,7 @@ int widget_handle_font_change(widget_list *widget, font_cat cat);
  * Handle a text paste event, and paste text \a text into widget \a widget.
  *
  * \param widget The widget to handle the paste event
- * \param tex    The text to paste into the widget
+ * \param text   The text to paste into the widget
  *
  * \return 1 if the widget handled the change, 0 otherwise
  */

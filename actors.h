@@ -879,14 +879,14 @@ void draw_actor_without_banner(actor * actor_id, Uint32 use_lightning, Uint32 us
 /*!
  * \brief Remember this last summoned creature.
  *
- * \param The name of the summoned creature
+ * \param summoned_name The name of the summoned creature
  */
 void remember_new_summoned(const char *summoned_name);
 
 /*!
  * \brief Check if a new actor is the last summoned by the player.  The actor mutex must be already held.
  *
- * \param Pointer to the new actors
+ * \param new_actor Pointer to the new actor
  */
 void check_if_new_actor_last_summoned(actor *new_actor);
 

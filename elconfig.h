@@ -248,8 +248,9 @@ void clear_multiselect_var(const char* name);
  * parameter \a change_button is non-zero, the corresponding button in the
  * widget is also selected.
  *
- * \param name the name of the variable to set
- * \param idx  the index of the element to select
+ * \param name          the name of the variable to set
+ * \param idx           the index of the element to select
+ * \param change_button if non-zero, select GUI button as well
  */
 void set_multiselect_var(const char* name, int idx, int change_button);
 
@@ -277,7 +278,7 @@ int toggle_OPT_BOOL_by_name(const char *str);
  * \ingroup other
  * brief Sets the specfied OPT_INT variable's value.
  * \param str	the option name
- * \param new_vale well, the new value
+ * \param new_value well, the new value
  * \retval	1 if sucessfull, 0 if option not found
  */
 int set_var_OPT_INT(const char *str, int new_value);
