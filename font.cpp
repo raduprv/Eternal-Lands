@@ -1455,6 +1455,7 @@ Font& FontManager::get(Category cat)
 	return _fonts[font_num];
 }
 
+#ifdef TTF
 void FontManager::disable_ttf()
 {
 	// If not yet initialized, do nothing
@@ -1503,6 +1504,7 @@ void FontManager::enable_ttf()
 	// Add selection options for the new fonts
 	add_select_options(true);
 }
+#endif // TTF
 
 } // namespace eternal_lands
 

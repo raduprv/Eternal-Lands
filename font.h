@@ -1263,7 +1263,11 @@ private:
 	 *
 	 * Create a new font manager, without fonts to manage so far.
 	 */
-	FontManager(): _fonts(), _fixed_width_idxs(), _saved_font_files() {}
+	FontManager(): _fonts(), _fixed_width_idxs()
+#ifdef TTF
+		, _saved_font_files()
+#endif
+		{}
 	// Disallow copying, since this is a singleton class
 	FontManager(const FontManager&) = delete;
 	FontManager& operator=(const FontManager&) = delete;
@@ -2090,10 +2094,12 @@ void set_config_font();
  */
 int has_glyph(unsigned char c);
 
+#ifdef TTF
 //! Disable TrueType fonts, allowing bundled fonts only.
 void disable_ttf(void);
 //! Enable TrueTyoe fonts, restoring previous font indices if possible
 void enable_ttf(void);
+#endif
 
 #ifdef __cplusplus
 } // extern "C"
