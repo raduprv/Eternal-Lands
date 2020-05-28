@@ -392,6 +392,8 @@ extern char
 		minute_str[15],
 		idle_str[15],
 		knowledge_read_book[15],
+		knowledge_read_book_tag[15],
+		knowledge_unread_book_tag[15],
 		knowledge_param_read[15],
 		knowledge_param_unread[15],
 		knowledge_param_total[15],

@@ -9,12 +9,12 @@
 #   cmake -DCMAKE_BUILD_TYPE=debug <path to source>
 #
 # To specify a non-default exec name include -DEXEC, for example "-DEXEC=el.$(uname -m).linux.bin"
-# To enable local CPU architecture optimisation include "-DMARCHNATIVE=1"
-# To enable runtime GCC address sanitization include -DADDRSANITISER=1
+# To enable local CPU architecture optimisation include "-DMARCHNATIVE=On"
+# To enable runtime GCC address sanitization include -DADDRSANITISER=On
 #
 # Example if located in source directory:
 #   mkdir -p build && cd build
-#   cmake -DCMAKE_BUILD_TYPE=debug -DEXEC=el.$(uname -m).linux.bin -DMARCHNATIVE=1 -DADDRSANITISER=1 ..
+#   cmake -DCMAKE_BUILD_TYPE=debug -DEXEC=el.$(uname -m).linux.bin -DMARCHNATIVE=On -DADDRSANITISER=On ..
 #   make
 #
 # Example for windows using msys2
@@ -24,10 +24,13 @@ cmake_minimum_required(VERSION 3.5.0)
 
 project (Eternal-Lands)
 
-# standard options that also set source files to build
-set(CUSTOM_UPDATE 1)			# allows autoupdating of custom look information
-set(FSAA 1)						# Adds support for full screen anti-aliasing using OpenGL multisampling.
-set(JSON_FILES 1)				# switch existing binary user config files to JSON format
+# standard options, some that also set source files to build
+OPTION(CUSTOM_UPDATE "Allows autoupdating of custom look information" On)
+OPTION(FSAA "Adds support for full screen anti-aliasing using OpenGL multisampling." On)
+OPTION(JSON_FILES "Switch existing binary user config files to JSON format." On)
+OPTION(LOCAL_NLOHMANN_JSON "Enable if you want to use an embedded copy of nlohmann_json, placed in the nlohmann_json sub-directory of the source." Off)
+OPTION(MARCHNATIVE "Enable -march=native compiler flag, for when not building a portable executable." Off)
+OPTION(ADDRSANITISER "Enable the gcc address sanitisation options to do run-time checking." Off)
 
 # standard options
 add_definitions(
@@ -113,19 +116,26 @@ find_package(ZLIB REQUIRED)
 find_package(PNG REQUIRED)
 find_package(LibXml2 REQUIRED)
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
-	find_package(X11)
+	find_package(X11 REQUIRED)
 endif()
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
-	find_package(Iconv)
+	find_package(Iconv REQUIRED)
 endif()
 # these definitions were re-used from Xapher's opengl client
 include(cmake/FindVorbis.cmake)
 include(cmake/FindVorbisFile.cmake)
 include(cmake/FindCal3d.cmake)
 
-# requird the nlohmann_json package if building for json files
-if (JSON_FILES EQUAL 1)
-	find_package(nlohmann_json REQUIRED)
+# require the nlohmann_json package if building for json files
+if (JSON_FILES)
+	# if enabled use a local copy of the package
+	if (LOCAL_NLOHMANN_JSON)
+		set(JSON_BuildTests OFF CACHE INTERNAL "")
+		set(JSON_Install OFF CACHE INTERNAL "")
+		add_subdirectory(nlohmann_json)
+	else()
+		find_package(nlohmann_json REQUIRED)
+	endif()
 endif()
 
 # set the paths to header files
@@ -177,19 +187,19 @@ set(SOURCES ${SOURCES}
 )
 
 # if CUSTOM_UPDATE wanted add the define and additional source modules
-if (CUSTOM_UPDATE EQUAL 1)
+if (CUSTOM_UPDATE)
 	add_definitions(-DCUSTOM_UPDATE)
 	set(SOURCES ${SOURCES} ${SD}custom_update.c ${SD}new_update.c)
 endif()
 
 # if JSON_FILES wanted add the define and additional source modules
-if (JSON_FILES EQUAL 1)
+if (JSON_FILES)
 	add_definitions(-DJSON_FILES)
 	set(SOURCES ${SOURCES} ${SD}json_io.cpp )
 endif()
 
 # if FSAA wanted add the define and additional source modules
-if (FSAA EQUAL 1)
+if (FSAA)
 	add_definitions(-DFSAA)
 	if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		set(SOURCES ${SOURCES} ${SD}fsaa/fsaa_wgl.c ${SD}fsaa/fsaa.c)
@@ -204,7 +214,7 @@ if (MARCHNATIVE)
 	set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -march=native")
 endif()
 
-# if enabled, include the gcc address sanitisation options, please report andthing you find
+# if enabled, include the gcc address sanitisation options, please report anything you find
 if (ADDRSANITISER)
 	set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -fsanitize=address")
 	set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -fsanitize=address")
@@ -215,7 +225,7 @@ endif()
 set(CMAKE_C_FLAGS "${EXTRA_C_FLAGS} -Wall -Wdeclaration-after-statement -D_GNU_SOURCE=1 -D_REENTRANT")
 set(CMAKE_C_FLAGS_DEBUG "-Og -ggdb -pipe -fno-strict-aliasing")
 set(CMAKE_C_FLAGS_RELEASE "-O3 -fomit-frame-pointer -ffast-math -pipe -fno-strict-aliasing")
-set(CMAKE_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wall -D_GNU_SOURCE=1 -D_REENTRANT")
+set(CMAKE_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wall -D_GNU_SOURCE=1 -D_REENTRANT -std=c++11")
 set(CMAKE_CXX_FLAGS_DEBUG "-Og -ggdb -pipe -fno-strict-aliasing")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fomit-frame-pointer -ffast-math -pipe -fno-strict-aliasing")
 
@@ -262,7 +272,7 @@ string(STRIP "${EXTRA_LD_FLAGS}" EXTRA_LD_FLAGS)
 add_executable(${EXEC} ${SOURCES})
 
 # if JSON_FILES wanted define dependancies
-if (JSON_FILES EQUAL 1)
+if (JSON_FILES)
 	set(EXTRA_TARGET_LINK nlohmann_json::nlohmann_json)
 	set(EXTRA_TARGET_INCLUDE nlohmann_json::nlohmann_json)
 else()

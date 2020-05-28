@@ -1597,7 +1597,9 @@ int command_quantity(char *text, int len)
 {
 	char str[80];
 	int calcerr;
-	double res = calc_exp(text, &calcerr);
+	double res;
+	text = getparams(text);
+	res = calc_exp(text, &calcerr);
 	if ((calcerr != CALCERR_OK) || (res < 1.0) || (res > (double)INT_MAX))
 		LOG_TO_CONSOLE(c_red1, um_invalid_command_str);
 	else
@@ -1605,7 +1607,7 @@ int command_quantity(char *text, int len)
 		// set the quantity to the result of the calculation, truncated
 		quantities.selected = ITEM_EDIT_QUANT;
 		item_quantity = quantities.quantity[ITEM_EDIT_QUANT].val = (int)res;
-		safe_snprintf(str, sizeof(str), "%s %d", quantity_str, item_quantity);
+		safe_snprintf(str, sizeof(str), "%s: %s = %d", quantity_str, text, item_quantity);
 		LOG_TO_CONSOLE(c_green1, str);
 	}
 	return 1;

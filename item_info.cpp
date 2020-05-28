@@ -30,7 +30,9 @@
 #include "item_info.h"
 #include "items.h"
 #include "io/elpathwrapper.h"
+#include "knowledge.h"
 #include "text.h"
+#include "translate.h"
 #include "url.h"
 
 namespace Item_Info
@@ -48,6 +50,8 @@ namespace Item_Info
 			enum EQUIP_TYPE get_equip_type(void) const { return equip_type; }
 			void set_equip_type(std::string &text);
 			const bool compare(Uint16 the_item_id, int the_image_id) const;
+			void set_knowledge_reference(size_t index) { knowledge_reference = index; }
+			size_t get_knowledge_reference(void) const { return knowledge_reference; }
 		private:
 			static void trim_text(std::string &text);
 			Uint16 item_id;
@@ -56,6 +60,7 @@ namespace Item_Info
 			std::string description;
 			bool valid;
 			enum EQUIP_TYPE equip_type;
+			size_t knowledge_reference;
 	};
 
 
@@ -71,7 +76,7 @@ namespace Item_Info
 	//	Construct the item by parsing the line from the item_info.txt file
 	//
 	Item::Item(const std::string &text)
-		: valid(false), equip_type(EQUIP_NONE)
+		: valid(false), equip_type(EQUIP_NONE), knowledge_reference(KNOWLEDGE_LIST_SIZE)
 	{
 		std::stringstream ss(text);
 		std::vector<std::string> fields;
@@ -80,9 +85,9 @@ namespace Item_Info
 			fields.push_back(field);
 		if (fields.size() != 4)
 			return;
-		item_id = atoi(fields[0].c_str());
-		image_id = atoi(fields[1].c_str());
-		emu = atoi(fields[2].c_str());
+		item_id = std::stoi(fields[0]);
+		image_id = std::stoi(fields[1]);
+		emu = std::stoi(fields[2]);
 		description = fields[3];
 		trim_text(description);
 		if (description.empty())
@@ -98,6 +103,8 @@ namespace Item_Info
 		if ((the_item_id == unset_item_uid) && (the_image_id == image_id))
 			return true;
 		if ((the_item_id == item_id) && (the_image_id == image_id))
+			return true;
+		if ((the_item_id == item_id) && (the_image_id == -1))
 			return true;
 		return false;
 	}
@@ -141,13 +148,15 @@ namespace Item_Info
 			void filter_by_description(Uint8 *storage_items_filter, const ground_item *storage_items, const char *filter_item_text, int no_storage);
 		private:
 			Item *get_item(Uint16 item_id, int image_id);
-			void open_file(std::ifstream &in, std::string &filename);
+			void open_file(std::ifstream &in, const char *filename);
 			void load(void);
-			void load_extra(void);
+			void load_extra(const char *filename, int version, void processor(List *object, std::vector<std::string> &fields));
+			static void equip_type_processor(List *object, std::vector<std::string> &fields);
+			static void knowledge_processor(List *object, std::vector<std::string> &fields);
 			std::vector<Item *> the_list;
+			std::string description_plus;
 			static std::string empty_str;
-			static std::string item_info_filename;
-			static std::string item_extra_info_filename;
+			static const char *item_info_filename;
 			bool load_tried, shown_help;
 			Item *last_item;
 			class Count
@@ -168,8 +177,7 @@ namespace Item_Info
 
 
 	std::string List::empty_str;
-	std::string List::item_info_filename = "item_info.txt";
-	std::string List::item_extra_info_filename = "item_extra_info.txt";
+	const char * List::item_info_filename = "item_info.txt";
 
 
 	//	Clean up memory on exit
@@ -205,7 +213,17 @@ namespace Item_Info
 	{
 		Item *matching_item = get_item(item_id, image_id);
 		if (matching_item)
+		{
+			// add an indication for books whether they are read or unread
+			int status = knowledge_present(matching_item->get_knowledge_reference());
+			if (status >= 0)
+			{
+				description_plus = matching_item->get_description();
+				description_plus += (status) ? knowledge_read_book_tag : knowledge_unread_book_tag;
+				return description_plus;
+			}
 			return matching_item->get_description();
+		}
 		return empty_str;
 	}
 
@@ -288,16 +306,17 @@ namespace Item_Info
 			else
 				delete new_item;
 		}
-		load_extra();
+		load_extra("item_extra_info.txt", 1, equip_type_processor);
+		load_extra("item_knowledge_info.txt", 1, knowledge_processor);
 	}
 
 
-	//	Read lines from the item_extra_info.txt file and set objects accordingly.
+	//	Common function to read lines from the additional information files.
 	//
-	void List::load_extra(void)
+	void List::load_extra(const char *filename, int version, void processor(List *object, std::vector<std::string> &fields))
 	{
 		std::ifstream in;
-		open_file(in, item_extra_info_filename);
+		open_file(in, filename);
 		if (!in)
 			return;
 		std::string line;
@@ -309,9 +328,9 @@ namespace Item_Info
 				std::stringstream ss(line);
 				int value = 0;
 				ss >> value;
-				if (value != 1)
+				if (value != version)
 				{
-					LOG_ERROR("invalid version number [%d] for [%s]\n", value, item_extra_info_filename.c_str());
+					LOG_ERROR("invalid version number [%d] for [%s]\n", value, filename);
 					return;
 				}
 				version_checked = true;
@@ -323,20 +342,50 @@ namespace Item_Info
 			std::string field;
 			while(std::getline(ss, field, '|'))
 				fields.push_back(field);
-			if (fields.size() != 4)
-				continue;
-			Uint16 item_id = atoi(fields[0].c_str());
-			int image_id = atoi(fields[1].c_str());
-			Item *matching_item = get_item(item_id, image_id);
+			processor(this, fields);
+		}
+	}
+
+
+	//	For equipable items, load the type from the extra info file
+	//	and set the type the item.  This allows item if the same type
+	//	to be swapped by double clicking the item.
+	//
+	void List::equip_type_processor(List *object, std::vector<std::string> &fields)
+	{
+		if (fields.size() != 4)
+			return;
+		Uint16 item_id = std::stoi(fields[0]);
+		int image_id = std::stoi(fields[1]);
+		Item *matching_item = object->get_item(item_id, image_id);
+		if (matching_item)
+			matching_item->set_equip_type(fields[2]);
+	}
+
+
+	//	For items that are knowledge (i.e. books), load the mapping 
+	//	between the item id and the book id. The book id is added to the
+	//	item data.  When the description of a book is requested, we can
+	//	then include if the book has been read or not.
+	//
+	void List::knowledge_processor(List *object, std::vector<std::string> &fields)
+	{
+		if (fields.size() != 3)
+			return;
+		int item_id = std::stoi(fields[1]);
+		if (item_id >= 0)
+		{
+			size_t book_id = std::stoi(fields[0]);
+			Item *matching_item = object->get_item(item_id, -1);
 			if (matching_item)
-				matching_item->set_equip_type(fields[2]);
+				matching_item->set_knowledge_reference(book_id);
 		}
 	}
 
 
 	//	Helper function to open a file from update or data directory
 	//
-	void List::open_file(std::ifstream &in, std::string &filename)
+	void List::open_file(std::ifstream &in, const char *filename)
 	{
 		std::string fname = std::string(get_path_updates()) + filename;
 		in.open(fname.c_str());
@@ -357,7 +406,7 @@ namespace Item_Info
 			return;
 		if (!info_available())
 		{
-			std::string message = "Could not load the item information file: " + item_info_filename;
+			std::string message = "Could not load the item information file: " + std::string(item_info_filename);
 			LOG_TO_CONSOLE(c_red1, message.c_str());
 		}
 		if (!item_uid_enabled)

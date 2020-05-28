@@ -259,6 +259,8 @@ char
 	minute_str[15],
 	idle_str[15],
 	knowledge_read_book[15],
+	knowledge_read_book_tag[15],
+	knowledge_unread_book_tag[15],
 	knowledge_param_read[15],
 	knowledge_param_unread[15],
 	knowledge_param_total[15],
@@ -1426,6 +1428,8 @@ void init_help()
 	add_xml_identifier(misc,"minute",minute_str,"minute",sizeof(minute_str));
 	add_xml_identifier(misc,"idle",idle_str,"Idle",sizeof(idle_str));
 	add_xml_identifier(misc,"read_book",knowledge_read_book,"Read Book",sizeof(knowledge_read_book));
+	add_xml_identifier(misc,"read_book_tag",knowledge_read_book_tag," (read)",sizeof(knowledge_read_book_tag));
+	add_xml_identifier(misc,"unread_book_tag",knowledge_unread_book_tag," (unread)",sizeof(knowledge_unread_book_tag));
 	add_xml_identifier(misc,"kp_read",knowledge_param_read,"-read",sizeof(knowledge_param_read));
 	add_xml_identifier(misc,"kp_unread",knowledge_param_unread,"-unread",sizeof(knowledge_param_unread));
 	add_xml_identifier(misc,"kp_total",knowledge_param_total,"-total",sizeof(knowledge_param_total));

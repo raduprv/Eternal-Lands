@@ -182,7 +182,6 @@ static void load_window_icon(void)
 
 void init_video(void)
 {
-	char str[400];
 	int rgb_size[3];
 	Uint32 flags;
 
@@ -267,6 +266,7 @@ void init_video(void)
 #ifdef	FSAA
 	if (fsaa > 1)
 	{
+		char str[400];
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, fsaa);
 		glDisable(GL_MULTISAMPLE);
