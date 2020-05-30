@@ -786,7 +786,7 @@ CHECK_GL_ERRORS();
 		bool draw_ellipsis = options.ellipsis() && clipped_line_len < line_len;
 		int ellipsis_width = draw_ellipsis ? line_width_spacing(ellipsis, options.zoom()) : 0;
 
-		int x_left;
+		int x_left = 0;
 		switch (options.alignment())
 		{
 			case TextDrawOptions::Alignment::LEFT:   x_left = x; break;

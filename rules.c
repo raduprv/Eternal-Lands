@@ -688,9 +688,9 @@ static int draw_rules(rule_string* rules_ptr, int x_in, int y_in, int lenx, int 
 
 	for (i = 0; y_curr - virt_win_offset < leny; ++i)
 	{
-		int color_idx;
 		rule_string *rule = &rules_ptr[i];
-		int ydiff;
+		int color_idx = 0;
+		int ydiff = 0;
 
 		switch (rule->type)
 		{
