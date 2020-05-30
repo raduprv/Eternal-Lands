@@ -114,10 +114,61 @@ float get_research_fraction(void)
 }
 
 static float research_rate = -1;
+static int waiting_for_true_knowledge_info = 0;
+
+//	Some books have total research points > 2^16 and so the value sent with
+//	HERE_YOUR_STATS can get wrapped. Instead of using the value provided, get
+//	it from text output for the "#research" server command.  We can't tell
+//	from the numbers which books need this so do it for all.
+//
+void request_true_knowledge_info(void)
+{
+	if (your_info.researching < KNOWLEDGE_LIST_SIZE)
+	{
+		//printf("Sending #research\n");
+		send_input_text_line("#research", 9);
+		waiting_for_true_knowledge_info = 1;
+	}
+	//else
+		//printf("NOT sending #research\n");
+}
+
+//	Parse the response to #reseach to get the true research values for
+//	completed and total.  Sucess or now, now do the update_research_rate()
+//	call.
+int get_true_knowledge_info(const char *message)
+{
+	const char *needle = NULL, *start = NULL;
+	Uint32 total, left = 0;
+
+	// it was just a user requested #research to ignore it
+	if (!waiting_for_true_knowledge_info)
+		return 0;
+
+	waiting_for_true_knowledge_info = 0;
+	needle = "Research points left:";
+
+	// if a valid message, get the completed and total from the server message
+	if (((start = strstr(message, needle)) != NULL) && ((sscanf(start + strlen(needle), "%u/%u.", &left, &total) == 2)))
+	{
+		your_info.research_total = total;
+		your_info.research_completed = total - left;
+		//printf("Got True research info id=%u complete=%u total=%u\n[%s]\n",
+		//	your_info.researching, your_info.research_completed, your_info.research_total, message);
+	}
+	//else
+		//printf("Error reading #research output, not using: research info id=%u complete=%u total=%u\n[%s]\n",
+		//	your_info.researching, your_info.research_completed, your_info.research_total, message);
+
+	update_research_rate();
+	return 1;
+}
+
 
 void update_research_rate(void)
 {
-	static int last_research_completed = -1;
+	static Sint32 last_research_completed = -1;
+	//printf("Updating research rate id=%u last=%d complete=%u total=%u\n", your_info.researching, last_research_completed, your_info.research_completed, your_info.research_total);
 	if (last_research_completed > your_info.research_completed)
 		last_research_completed = -1;
 	if (last_research_completed > 0)
@@ -176,7 +227,7 @@ int display_knowledge_handler(window_info *win)
 	   (your_info.research_completed==your_info.research_total))
 		safe_snprintf(points_string, sizeof(points_string), "%s", completed_research);
 	else
-		safe_snprintf(points_string, sizeof(points_string), "%i/%i",your_info.research_completed,your_info.research_total);
+		safe_snprintf(points_string, sizeof(points_string), "%u/%u",your_info.research_completed,your_info.research_total);
 	if(your_info.researching < knowledge_count)
 	{
 		research_string = knowledge_list[your_info.researching].name;
