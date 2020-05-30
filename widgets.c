@@ -4189,6 +4189,7 @@ int multiselect_clear(int window_id, Uint32 widget_id)
 	{
 		widget_destroy(window_id, M->scrollbar);
 		M->scrollbar = -1;
+		widget->len_x += M->scrollbar_width + 2;
 	}
 
 	return 1;
