@@ -129,8 +129,11 @@ void request_true_knowledge_info(void)
 		send_input_text_line("#research", 9);
 		waiting_for_true_knowledge_info = 1;
 	}
-	//else
+	else
+	{
 		//printf("NOT sending #research\n");
+		update_research_rate();
+	}
 }
 
 //	Parse the response to #reseach to get the true research values for
@@ -454,12 +457,18 @@ void get_knowledge_list (Uint16 size, const char *list)
 	}
 }
 
-int knowledge_present(size_t index)
+const char *get_knowledge_state_tag(size_t index)
 {
 	if (index < KNOWLEDGE_LIST_SIZE)
-		return (int)(knowledge_list[index].present > 0);
+	{
+		if (knowledge_list[index].present > 0)
+			return knowledge_read_book_tag;
+		if ((your_info.researching < KNOWLEDGE_LIST_SIZE) && (your_info.researching == index))
+			return knowledge_reading_book_tag;
+		return knowledge_unread_book_tag;
+	}
 	else
-		return -1;
+		return "";
 }
 
 void get_new_knowledge(Uint16 idx)

@@ -32,7 +32,6 @@
 #include "io/elpathwrapper.h"
 #include "knowledge.h"
 #include "text.h"
-#include "translate.h"
 #include "url.h"
 
 namespace Item_Info
@@ -214,12 +213,10 @@ namespace Item_Info
 		Item *matching_item = get_item(item_id, image_id);
 		if (matching_item)
 		{
-			// add an indication for books whether they are read or unread
-			int status = knowledge_present(matching_item->get_knowledge_reference());
-			if (status >= 0)
+			if (matching_item->get_knowledge_reference() < KNOWLEDGE_LIST_SIZE)
 			{
-				description_plus = matching_item->get_description();
-				description_plus += (status) ? knowledge_read_book_tag : knowledge_unread_book_tag;
+				// add an indication for books whether they are read, unread or being read (reading)
+				description_plus = matching_item->get_description() + get_knowledge_state_tag(matching_item->get_knowledge_reference());
 				return description_plus;
 			}
 			return matching_item->get_description();

@@ -49,15 +49,15 @@ int get_true_knowledge_info(const char *message);
 void request_true_knowledge_info(void);
 
 /*!
- * \brief   Get the present value for the references knowledge.
+ * \brief   Get the book status tag, read, unread or reading.
  *
  * \param knowledge_id  the knowledge id
  *
- * returns	1 if the knowledge is present (i.e. book read), 0 is not present (i.e. book not read) and -1 if the id is invalid.
+ * returns	return the reading status tag, or an empty string if not a valid book id.
  *
  * \callgraph
  */
-int knowledge_present(size_t knowledge_id);
+const char *get_knowledge_state_tag(size_t index);
 
 /*!
  * \ingroup knowledge_window
