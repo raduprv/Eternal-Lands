@@ -176,7 +176,7 @@ static int ui_scale_help_handler(window_info* win, font_cat cat)
 
 static int change_help_font_handler(window_info* win, font_cat cat)
 {
-	if (cat != ENCYCLOPEDIA_FONT && cat != RULES_FONT)
+	if (cat != ENCYCLOPEDIA_FONT && cat != RULES_FONT && cat != UI_FONT)
 		return 0;
 	tab_help_scale_changed = 1;
 	return 1;
