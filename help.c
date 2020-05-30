@@ -25,15 +25,24 @@ static int resize_help_handler(window_info *win, int new_width, int new_height)
 	return 0;
 }
 
+static __inline__ void set_help_min_size(window_info *win)
+{
+	int min_width = max2i(63 * win->small_font_max_len_x, 46 * win->default_font_max_len_x);
+	int min_height = max2i(24 * win->small_font_len_y, 20 * win->default_font_len_y);
+	set_window_min_size(win->window_id, min_width, min_height);
+}
+
+static int ui_scale_help_handler(window_info *win)
+{
+	set_help_min_size(win);
+	return 1;
+}
+
 static int change_help_font_handler(window_info *win, font_cat cat)
 {
-	int min_width, min_height;
-
 	if (cat != win->font_category)
 		return 0;
-	min_width = max2i(63 * win->small_font_max_len_x, 46 * win->default_font_max_len_x);
-	min_height = max2i(24 * win->small_font_len_y, 20 * win->default_font_len_y);
-	set_window_min_size(win->window_id, min_width, min_height);
+	set_help_min_size(win);
 	return 1;
 }
 
@@ -52,6 +61,7 @@ void fill_help_win (int window_id)
 	set_window_handler (window_id, ELW_HANDLER_DISPLAY, &display_help_handler);
 	set_window_handler (window_id, ELW_HANDLER_CLICK, &click_help_handler);
 	set_window_handler (window_id, ELW_HANDLER_RESIZE, &resize_help_handler);
+	set_window_handler(window_id, ELW_HANDLER_UI_SCALE, &ui_scale_help_handler);
 	set_window_handler(window_id, ELW_HANDLER_FONT_CHANGE, &change_help_font_handler);
 
 	if (window_id >= 0 && window_id < windows_list.num_windows)

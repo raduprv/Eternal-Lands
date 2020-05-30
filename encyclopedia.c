@@ -157,7 +157,6 @@ CHECK_GL_ERRORS();
 	return 1;
 }
 
-int fpi = 0;
 int display_encyclopedia_handler(window_info *win)
 {
 	common_encyclopedia_display_handler(win, currentpage, encyclopedia_scroll_id);
@@ -173,7 +172,6 @@ int display_encyclopedia_handler(window_info *win)
 		show_cm_help = 0;
 	}
 
-fpi = 0;
 	return 1;
 }
 
@@ -1268,16 +1266,24 @@ static int resize_encyclopedia_handler(window_info *win, int new_width, int new_
 	return 0;
 }
 
+static __inline__ void set_encyclopedia_min_size(window_info *win)
+{
+	int min_width = max2i(63 * win->small_font_max_len_x, 46 * win->default_font_max_len_x);
+	int min_height = max2i(24 * win->small_font_len_y, 20 * win->default_font_len_y);
+	set_window_min_size(win->window_id, min_width, min_height);
+}
+
+static int ui_scale_encyclopedia_handler(window_info *win)
+{
+	set_encyclopedia_min_size(win);
+	return 1;
+}
+
 static int change_encyclopedia_font_handler(window_info *win, font_cat cat)
 {
-	int min_width, min_height;
-
 	if (cat != win->font_category)
 		return 0;
-	min_width = max2i(63 * win->small_font_max_len_x, 46 * win->default_font_max_len_x);
-	min_height = max2i(24 * win->small_font_len_y, 20 * win->default_font_len_y);
-	set_window_min_size(win->window_id, min_width, min_height);
-fpi = 1;
+	set_encyclopedia_min_size(win);
 	return 1;
 }
 
@@ -1290,6 +1296,7 @@ void fill_encyclopedia_win (int window_id)
 	set_window_handler (window_id, ELW_HANDLER_DISPLAY, &display_encyclopedia_handler);
 	set_window_handler (window_id, ELW_HANDLER_CLICK, &click_encyclopedia_handler);
 	set_window_handler (window_id, ELW_HANDLER_RESIZE, &resize_encyclopedia_handler);
+	set_window_handler(window_id, ELW_HANDLER_UI_SCALE, &ui_scale_encyclopedia_handler);
 	set_window_handler(window_id, ELW_HANDLER_FONT_CHANGE, &change_encyclopedia_font_handler);
 
 	encyclopedia_scroll_id = vscrollbar_add_extended(window_id, encyclopedia_scroll_id, NULL,

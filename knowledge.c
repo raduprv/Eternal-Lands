@@ -526,6 +526,12 @@ static int resize_knowledge_handler(window_info *win, int new_width, int new_hei
 	return 0;
 }
 
+static int ui_scale_knowledge_handler(window_info *win)
+{
+	set_content_widths(win);
+	return 1;
+}
+
 static int change_knowledge_font_handler(window_info *win, font_cat font)
 {
 	if (font != UI_FONT)
@@ -537,7 +543,7 @@ static int change_knowledge_font_handler(window_info *win, font_cat font)
 // Handler to bring the book window to the front if the book icon has been
 // clicked. We can't do this from click handler itself, as the windows handling
 // code selects this (the knowledge) window after it has successfully handled
-// the click. SO we set a flag in the click handler, and check it after each
+// the click. So we set a flag in the click handler, and check it after each
 // draw.
 static int post_display_knowledge_handler(window_info *win)
 {
@@ -559,6 +565,7 @@ void fill_knowledge_win(int window_id)
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_knowledge_handler );
 	set_window_handler(window_id, ELW_HANDLER_MOUSEOVER, &mouseover_knowledge_handler );
 	set_window_handler(window_id, ELW_HANDLER_RESIZE, &resize_knowledge_handler );
+	set_window_handler(window_id, ELW_HANDLER_UI_SCALE, &ui_scale_knowledge_handler);
 	set_window_handler(window_id, ELW_HANDLER_FONT_CHANGE, &change_knowledge_font_handler);
 	set_window_handler(window_id, ELW_HANDLER_POST_DISPLAY, &post_display_knowledge_handler);
 

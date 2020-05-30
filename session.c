@@ -129,7 +129,13 @@ static int resize_session_handler(window_info *win, int new_width, int new_heigh
 	return 0;
 }
 
-int change_session_font_handler(window_info *win, font_cat cat)
+static int ui_scale_session_handler(window_info *win)
+{
+	set_content_widths(win);
+	return 1;
+}
+
+static int change_session_font_handler(window_info *win, font_cat cat)
 {
 	if (cat != UI_FONT)
 		return 0;
@@ -147,6 +153,7 @@ void fill_session_win(int window_id)
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_session_handler );
 	set_window_handler(window_id, ELW_HANDLER_MOUSEOVER, &mouseover_session_handler );
 	set_window_handler(window_id, ELW_HANDLER_RESIZE, &resize_session_handler );
+	set_window_handler(window_id, ELW_HANDLER_UI_SCALE, &ui_scale_session_handler);
 	set_window_handler(window_id, ELW_HANDLER_FONT_CHANGE, &change_session_font_handler );
 
 	reset_button_id=button_add_extended(window_id, reset_button_id, NULL, 0, 0, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, reset_str);

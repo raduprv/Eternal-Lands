@@ -26,7 +26,6 @@
 #include "translate.h"
 
 #define NUM_COUNTERS 15
-#define MAX(a,b) (a > b ? a : b)
 
 /* Counter IDs */
 enum {
@@ -696,7 +695,7 @@ static int resize_counters_handler(window_info *win, int new_width, int new_heig
 
 	widget_resize(win->window_id, counters_scroll_id, win->box_size, win->len_y - 2 * margin_y_len);
 	widget_move(win->window_id, counters_scroll_id, win->len_x - win->box_size, margin_y_len);
-	vscrollbar_set_bar_len(win->window_id, counters_scroll_id, MAX(0, entries[current_selected] - NUM_LINES));
+	vscrollbar_set_bar_len(win->window_id, counters_scroll_id, max2i(0, entries[current_selected] - NUM_LINES));
 
 	cm_remove_regions(win->window_id);
 	cm_add_region(cm_counters, win->window_id, left_panel_width, (margin_y_len + space_y),
@@ -710,6 +709,12 @@ static int resize_counters_handler(window_info *win, int new_width, int new_heig
 	multiselect_set_selected(win->window_id, multiselect_id, current_selected);
 
 	return 0;
+}
+
+int ui_scale_font_handler(window_info *win)
+{
+	set_content_widths(win);
+	return 1;
 }
 
 int change_counters_font_handler(window_info *win, font_cat cat)
@@ -730,6 +735,7 @@ void fill_counters_win(int window_id)
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_counters_handler);
 	set_window_handler(window_id, ELW_HANDLER_MOUSEOVER, &mouseover_counters_handler);
 	set_window_handler(window_id, ELW_HANDLER_RESIZE, &resize_counters_handler);
+	set_window_handler(window_id, ELW_HANDLER_UI_SCALE, &ui_scale_font_handler);
 	set_window_handler(window_id, ELW_HANDLER_FONT_CHANGE, &change_counters_font_handler);
 
 	counters_scroll_id = vscrollbar_add_extended(window_id, counters_scroll_id, NULL, 0, 0, 0, 0, 0,
@@ -754,7 +760,7 @@ static int display_counters_handler(window_info *win)
 	selected_counter_id = i + 1;
 
 	if (selected_counter_id != last_selected_counter_id) {
-		vscrollbar_set_bar_len(win->window_id, counters_scroll_id, MAX(0, entries[i] - NUM_LINES));
+		vscrollbar_set_bar_len(win->window_id, counters_scroll_id, max2i(0, entries[i] - NUM_LINES));
 		vscrollbar_set_pos(win->window_id, counters_scroll_id, 0);
 		last_selected_counter_id = selected_counter_id;
 		selected_entry = -1;

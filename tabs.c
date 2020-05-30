@@ -19,8 +19,8 @@ int tab_stats_collection_id = 16;
 int tab_stats_x = 150;
 int tab_stats_y = 70;
 unsigned tab_selected = 0;
-static int tab_stats_font_changed = 0;
-static int tab_help_font_changed = 0;
+static int tab_stat_scale_changed = 0;
+static int tab_help_scale_changed = 0;
 
 int tab_help_win = -1;
 int tab_help_collection_id = 17;
@@ -32,7 +32,7 @@ int tab_info_collection_id = 18;
 int tab_info_x = 150;
 int tab_info_y = 70;
 
-static int ui_scale_stats_handler(window_info *win)
+static int do_scale_stats_handler(window_info *win)
 {
 	int tab_tag_height = 0;
 	int new_width = 0;
@@ -70,10 +70,16 @@ static int ui_scale_stats_handler(window_info *win)
  */
 static int display_stats_handler(window_info *win)
 {
-	if (!tab_stats_font_changed)
+	if (!tab_stat_scale_changed)
 		return 0;
-	ui_scale_stats_handler(win);
-	tab_stats_font_changed = 0;
+	do_scale_stats_handler(win);
+	tab_stat_scale_changed = 0;
+	return 1;
+}
+
+static int ui_scale_stats_handler(window_info *win)
+{
+	tab_stat_scale_changed = 1;
 	return 1;
 }
 
@@ -81,7 +87,7 @@ static int change_stats_font_handler(window_info* win, font_cat cat)
 {
 	if (cat != UI_FONT)
 		return 0;
-	tab_stats_font_changed = 1;
+	tab_stat_scale_changed = 1;
 	return 1;
 }
 
@@ -106,7 +112,7 @@ void display_tab_stats ()
 		fill_session_win(tab_add(tab_stats_win, tab_stats_collection_id, tab_session, 0, 0, ELW_USE_UISCALE));
 
 		if ((tab_stats_win > -1) && (tab_stats_win < windows_list.num_windows))
-			ui_scale_stats_handler(&windows_list.window[tab_stats_win]);
+			do_scale_stats_handler(&windows_list.window[tab_stats_win]);
 
 		tab_collection_select_tab (tab_stats_win, tab_stats_collection_id, tab_selected & 0xf);
 	}
@@ -117,11 +123,11 @@ void display_tab_stats ()
 	}
 }
 
-static int ui_scale_help_handler(window_info *win)
+static int do_scale_help_handler(window_info *win)
 {
 	int tab_tag_height = 0;
-	int new_width = 0; //(int)(0.5 + win->current_scale * 510);
-	int new_height = 0; //(int)(0.5 + win->current_scale * 360);
+	int new_width = 0;
+	int new_height = 0;
 	widget_list *w = widget_find (win->window_id, tab_help_collection_id);
 	const tab_collection *col = (const tab_collection*)w->widget_info;
 
@@ -155,10 +161,16 @@ static int ui_scale_help_handler(window_info *win)
  */
 static int display_help_handler(window_info *win)
 {
-	if (!tab_help_font_changed)
+	if (!tab_help_scale_changed)
 		return 0;
-	ui_scale_help_handler(win);
-	tab_help_font_changed = 0;
+	do_scale_help_handler(win);
+	tab_help_scale_changed = 0;
+	return 1;
+}
+
+static int ui_scale_help_handler(window_info* win, font_cat cat)
+{
+	tab_help_scale_changed = 1;
 	return 1;
 }
 
@@ -166,7 +178,7 @@ static int change_help_font_handler(window_info* win, font_cat cat)
 {
 	if (cat != ENCYCLOPEDIA_FONT && cat != RULES_FONT)
 		return 0;
-	tab_help_font_changed = 1;
+	tab_help_scale_changed = 1;
 	return 1;
 }
 
@@ -187,7 +199,7 @@ void display_tab_help ()
 		fill_rules_window(tab_add(tab_help_win, tab_help_collection_id, tab_rules, 0, 0, ELW_USE_UISCALE));
 
 		if ((tab_help_win > -1) && (tab_help_win < windows_list.num_windows))
-			ui_scale_help_handler(&windows_list.window[tab_help_win]);
+			do_scale_help_handler(&windows_list.window[tab_help_win]);
 
 		tab_collection_select_tab (tab_help_win, tab_help_collection_id, (tab_selected >> 4) & 0xf);
 	}

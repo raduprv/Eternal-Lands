@@ -1020,6 +1020,12 @@ int click_stats_handler(window_info *win, int mx, int my, Uint32 flags)
         return 0;
 }
 
+static int ui_scale_stats_handler(window_info* win)
+{
+	set_content_widths(win);
+	return 1;
+}
+
 static int change_stats_font_handler(window_info *win, font_cat font)
 {
 	if (font != UI_FONT)
@@ -1037,6 +1043,7 @@ void fill_stats_win (int window_id)
 	set_window_custom_scale(window_id, &custom_scale_factors.stats);
 	set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_stats_handler );
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_stats_handler );
+	set_window_handler(window_id, ELW_HANDLER_UI_SCALE, &ui_scale_stats_handler);
 	set_window_handler(window_id, ELW_HANDLER_FONT_CHANGE, &change_stats_font_handler);
 }
 
