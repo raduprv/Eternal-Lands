@@ -85,8 +85,9 @@ void Page::occupy_range(int y_begin, int y_end)
 	if (y_begin >= y_end)
 		return;
 
-	auto it = std::upper_bound(_free_ranges.begin(), _free_ranges.end(),
-		y_begin, [](int y, auto range) { return y < range.second; });
+	std::vector<std::pair<int, int>>::iterator it = std::upper_bound(
+		_free_ranges.begin(), _free_ranges.end(),
+		y_begin, [](int y, const std::pair<int,int>& range) { return y < range.second; });
 	while (it != _free_ranges.end())
 	{
 		if (it->first >= y_end)

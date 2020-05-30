@@ -1494,8 +1494,8 @@ void FontManager::enable_ttf()
 		const std::string& fname = _saved_font_files[i];
 		if (!fname.empty())
 		{
-			auto it = std::find_if(_fonts.begin(), _fonts.end(),
-				[fname](const auto& font) { return font.file_name() == fname; });
+			std::vector<Font>::const_iterator it = std::find_if(_fonts.begin(), _fonts.end(),
+				[fname](const Font& font) { return font.file_name() == fname; });
 			if (it != _fonts.end() && it->is_ttf())
 				font_idxs[i] = it - _fonts.begin();
 		}
