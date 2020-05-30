@@ -3542,7 +3542,7 @@ static void pword_insert(password_entry *entry, int pos, const unsigned char* te
 		memmove(pw + pos + len, pw + pos, entry->max_chars - pos - len);
 		memcpy(pw + pos, text, len);
 	}
-	pw[entry->max_chars] = '\0';
+	pw[entry->max_chars-1] = '\0';
 	entry->cursor_pos = min2i(pos + len, entry->max_chars);
 	pword_update_draw_range_after_insert(entry, cat, size, max_width);
 }
