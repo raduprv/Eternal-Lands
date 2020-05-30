@@ -53,6 +53,8 @@ static int mouse_over_clock = 0;					/* 1 if mouse is over digital or analogue c
 static int mouse_over_compass = 0;					/* 1 if mouse is over the compass */
 static int mouse_over_knowledge_bar = 0;			/* 1 if mouse is over the knowledge bar */
 static int knowledge_bar_height = 0;
+static float side_stats_bar_text_zoom = 0.0f;
+static int side_stats_bar_text_width = 0;
 static int side_stats_bar_height = 0;
 static int digital_clock_height = 0;
 static int analog_clock_size = 0;
@@ -68,7 +70,7 @@ enum {	CMH_STATS=0, CMH_STATBARS, CMH_KNOWBAR, CMH_TIMER, CMH_DIGCLOCK, CMH_ANAC
 static void draw_side_stats_bar(window_info *win, const int x, const int y, const int baselev, const int cur_exp, const int nl_exp, size_t colour)
 {
 	const int max_len = win->len_x - x - 1;
-	const int bar_height = win->small_font_len_y - (int)(0.5 + win->current_scale * 2);
+	const int bar_height = side_stats_bar_height - (int)(0.5 + win->current_scale * 2);
 	int len = max_len - (float)max_len/(float)((float)(nl_exp-exp_lev[baselev])/(float)(nl_exp-cur_exp));
 
 	GLfloat colours[2][2][3] = { { {0.11f, 0.11f, 0.11f}, {0.3f, 0.5f, 0.2f} },
@@ -359,23 +361,12 @@ CHECK_GL_ERRORS();
 		int thestat;
 		int y = 0;
 		int skill_modifier;
-		int text_width = 0;
 
 		// trade the number of quickbar slots if there is not enough space for the minimum stats
 		calc_statbar_shown(base_y_start + win->pos_y);
 
-		for (thestat=0; thestat<NUM_WATCH_STAT-1; thestat++)
-		{
-			int width;
-			safe_snprintf(str, sizeof(str), "%-3s %3d",
-				statsinfo[thestat].skillnames->shortname, statsinfo[thestat].skillattr->base);
-			width = get_string_width_zoom((const unsigned char*)str, win->font_category,
-				win->current_scale_small);
-			if (width > text_width)
-				text_width = width;
-		}
-		text_x_left = text_x_center - text_width / 2;
-		text_x_right = text_x_left + text_width;
+		text_x_left = text_x_center - side_stats_bar_text_width / 2;
+		text_x_right = text_x_left + side_stats_bar_text_width;
 
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -401,13 +392,13 @@ CHECK_GL_ERRORS();
 					*statsinfo[thestat].exp, *statsinfo[thestat].next_lev, 0);
 
 			col = (statsinfo[thestat].is_selected == 1) ? lbl_color : lbl_color + 3;
-			draw_string_small_shadowed_zoomed(text_x_left, y + gy_adjust,
+			draw_string_shadowed_zoomed(text_x_left, y + gy_adjust,
 				statsinfo[thestat].skillnames->shortname, 1, col[0], col[1], col[2],
-				0.0f, 0.0f, 0.0f, win->current_scale);
+				0.0f, 0.0f, 0.0f, side_stats_bar_text_zoom);
 			safe_snprintf(str, sizeof(str), "%3d", statsinfo[thestat].skillattr->base);
-			draw_string_small_shadowed_zoomed_right(text_x_right, y + gy_adjust,
+			draw_string_shadowed_zoomed_right(text_x_right, y + gy_adjust,
 				(const unsigned char*)str, 1, col[0], col[1], col[2], 0.0f, 0.0f, 0.0f,
-				win->current_scale);
+				side_stats_bar_text_zoom);
 
 			if((thestat!=NUM_WATCH_STAT-2) && floatingmessages_enabled &&
 				(skill_modifier = statsinfo[thestat].skillattr->cur -
@@ -617,11 +608,33 @@ static int destroy_misc_handler(window_info *win)
 
 static int ui_scale_misc_handler(window_info *win)
 {
+	int box_x = (int)(0.5 + win->current_scale * 3);
 	int y_len = 0;
+	int thestat, max_width = 0;
+	unsigned char str[5];
+
 	analog_clock_size = (int)(0.5 + win->current_scale * 64);
 	compass_size = (int)(0.5 + win->current_scale * 64);
 	knowledge_bar_height = win->small_font_len_y + 6;
-	side_stats_bar_height = win->small_font_len_y;
+
+	side_stats_bar_text_zoom = win->current_scale_small;
+	for (thestat = 0; thestat < NUM_WATCH_STAT-1; ++thestat)
+	{
+		int width;
+		safe_snprintf((char*)str, sizeof(str), "%-3s ", statsinfo[thestat].skillnames->shortname);
+		width = get_string_width_zoom(str, win->font_category, side_stats_bar_text_zoom)
+			+ 3 * get_max_digit_width_zoom(win->font_category, side_stats_bar_text_zoom);
+		if (width > max_width)
+			max_width = width;
+	}
+	if (max_width > HUD_MARGIN_X - box_x - 1)
+	{
+		side_stats_bar_text_zoom *= (float)(HUD_MARGIN_X - box_x - 1) / max_width;
+		max_width = win->len_x - box_x - 1;
+	}
+	side_stats_bar_text_width = max_width;
+	side_stats_bar_height = get_line_height(win->font_category, side_stats_bar_text_zoom);
+
 	digital_clock_height = win->default_font_len_y;
 	ui_scale_timer(win);
 	y_len = compass_size;
@@ -668,6 +681,7 @@ void init_misc_display(void)
 			set_window_handler(misc_win, ELW_HANDLER_CLICK, &click_misc_handler);
 			set_window_handler(misc_win, ELW_HANDLER_MOUSEOVER, &mouseover_misc_handler );
 			set_window_handler(misc_win, ELW_HANDLER_UI_SCALE, &ui_scale_misc_handler );
+			set_window_handler(misc_win, ELW_HANDLER_FONT_CHANGE, &ui_scale_misc_handler);
 			set_window_handler(misc_win, ELW_HANDLER_DESTROY, &destroy_misc_handler );
 			cm_hud_id = cm_create(cm_hud_menu_str, context_hud_handler);
 			cm_bool_line(cm_hud_id, CMH_STATS, &show_stats_in_hud, "show_stats_in_hud");
