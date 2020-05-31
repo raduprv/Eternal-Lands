@@ -2,6 +2,8 @@
 
 -include make.conf
 
+JSON_FILES_CFLAGS = -I nlohmann_json/single_include/
+
 PNG_SCREENSHOT_LIBS = $(shell pkg-config libpng --libs)
 
 OPTIONS = -DLINUX -DELC $(foreach FEATURE, $(FEATURES), -D$(FEATURE)) -D_7ZIP_ST $(GIT_VERSION) \
@@ -15,7 +17,8 @@ OPTIONS = -DLINUX -DELC $(foreach FEATURE, $(FEATURES), -D$(FEATURE)) -D_7ZIP_ST
 	$(shell pkg-config openal --cflags) \
 	$(shell pkg-config vorbis --cflags) \
 	$(shell pkg-config vorbisfile --cflags) \
-	$(shell pkg-config zlib --cflags)
+	$(shell pkg-config zlib --cflags) \
+	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_CFLAGS))
 
 CFLAGS=$(PLATFORM) $(CWARN) -O0 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
 

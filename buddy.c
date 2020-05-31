@@ -179,7 +179,11 @@ static int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 		}
 		return 1;
 	}
-	
+
+	if (y < 0)
+        // Clicked above the names
+        return 0;
+
 	// clicked on a buddy's name
 	y /= buddy_name_step_y;
 	if (y >= num_displayed_buddies)
@@ -278,7 +282,7 @@ void split_long_show_help(window_info *win, const char *str, int x, int y)
 	size_t out_index = 0;
 	size_t num_lines = 0;
 	char *tmp_str = (char *)malloc(str_len + 1);
-	
+
 	while (in_index < str_len)
 	{
 		tmp_str[out_index] = str[in_index];
@@ -328,7 +332,7 @@ static int display_accept_buddy_handler(window_info *win)
 {
 	if(win != NULL) {
 		int i;
-		
+
 		glColor3f(0.77f, 0.57f, 0.39f);
 		for(i = 0; i < MAX_ACCEPT_BUDDY_WINDOWS; i++) {
 			if(accept_windows[i].window_id == win->window_id) {

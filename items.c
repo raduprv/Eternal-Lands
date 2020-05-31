@@ -476,10 +476,18 @@ static void used_item_counter_check_confirmation(int pos, int new_quanity)
 	{
 		if ((item_list[pos].quantity > 0) && (new_quanity < item_list[pos].quantity))
 		{
+			static int sent_unique_message = 0;
 			used_item_counter_queue[pos]--;
 			if (!used_item_counter_queue[pos])
 				used_item_counter_queue_time[pos] = 0;
-			increment_used_item_counter(get_item_description(item_list[pos].id, item_list[pos].image_id), item_list[pos].quantity - new_quanity);
+			if (get_item_count(item_list[pos].id, item_list[pos].image_id) == 1)
+				increment_used_item_counter(get_basic_item_description(item_list[pos].id, item_list[pos].image_id), item_list[pos].quantity - new_quanity);
+			else if (!sent_unique_message)
+			{
+				LOG_TO_CONSOLE(c_red1, item_use_not_unique_str);
+				LOG_TO_CONSOLE(c_red1, item_uid_help_str);
+				sent_unique_message = 1;
+			}
 			//printf("Used item counter confirmed pos %d - item removed [%s] quanity %d\n", pos, get_item_description(item_list[pos].id, item_list[pos].image_id), item_list[pos].quantity - new_quanity);
 		}
 		//else
