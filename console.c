@@ -35,6 +35,7 @@
 #include "questlog.h"
 #include "sound.h"
 #include "spells.h"
+#include "stats.h"
 #include "tabs.h"
 #include "translate.h"
 #include "url.h"
@@ -1227,7 +1228,7 @@ int command_glinfo (const char *text, int len)
  */
 int knowledge_command(char *text, int len)
 {
-	char this_string[80], count_str[60];
+	char this_string[90], count_str[60];
 	char *cr;
 	int num_read = 0, num_total = 0;
 	int show_read = 1, show_unread = 1, show_help = 0;
@@ -1279,15 +1280,17 @@ int knowledge_command(char *text, int len)
 			safe_strncpy(this_string, knowledge_list[i].name, sizeof(this_string));
 			if ( (cr = strchr(this_string, '\n')) != NULL)
 				*cr = '\0';
-			// highlight books that have been read
+			if (your_info.researching == i)
+				safe_strcat(this_string, knowledge_reading_book_tag, sizeof(this_string));
+			// highlight books that have been read, unread or being read
 			if (knowledge_list[i].present)
 			{
 				if (show_read)
-					LOG_TO_CONSOLE(c_grey1,this_string);
+					LOG_TO_CONSOLE((your_info.researching == i) ?c_green2 :c_grey1,this_string);
 				++num_read;
 			}
 			else if (show_unread)
-				LOG_TO_CONSOLE(c_grey2,this_string);
+				LOG_TO_CONSOLE((your_info.researching == i) ?c_green1 :c_grey2,this_string);
 			++num_total;
 		}
 	}
