@@ -268,6 +268,7 @@ typedef struct {
 	float ranging;
 	float achievements;
 	float dialogue;
+	int disable_mouse_or_keys;
 } custom_scale_factors_def;
 
 extern custom_scale_factors_def custom_scale_factors; /*!<* window custom scale factors */

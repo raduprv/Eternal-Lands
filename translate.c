@@ -261,6 +261,7 @@ char
 	knowledge_read_book[15],
 	knowledge_read_book_tag[15],
 	knowledge_unread_book_tag[15],
+	knowledge_reading_book_tag[15],
 	knowledge_param_read[15],
 	knowledge_param_unread[15],
 	knowledge_param_total[15],
@@ -477,6 +478,9 @@ char	name_too_long[75],
 	invalid_spell_string_str[40],
 	command_too_long_str[40],
 	item_list_learn_cat_str[90],
+	item_uid_help_str[80],
+	item_use_not_unique_str[80],
+	item_info_load_failed_str[80],
 	cmd_ignores[20],
 	cmd_ignore[20],
 	cmd_unignore[20],
@@ -1096,6 +1100,9 @@ void init_console()
 	add_xml_identifier(misc,"invalid_spell_string",invalid_spell_string_str,"Invalid spell string",sizeof(invalid_spell_string_str));
 	add_xml_identifier(misc,"command_string_too_long",command_too_long_str,"Command string too long",sizeof(command_too_long_str));
 	add_xml_identifier(misc,"item_list_learn_cat",item_list_learn_cat_str,"Note: storage categories need to be learnt by selecting each category.",sizeof(item_list_learn_cat_str));
+	add_xml_identifier(misc,"item_uid_help",item_uid_help_str,"Use #item_uid (set to 1) to enable unique item information.",sizeof(item_uid_help_str));
+	add_xml_identifier(misc,"item_use_not_unique",item_use_not_unique_str,"Cannot record item use in counters as item is not unique.",sizeof(item_use_not_unique_str));
+	add_xml_identifier(misc,"item_info_load_failed",item_info_load_failed_str,"Could not load the item information file",sizeof(item_info_load_failed_str));
 
 	add_xml_identifier(loading_msg,"init_opengl",init_opengl_str,"Initializing OpenGL extensions",sizeof(init_opengl_str));
 	add_xml_identifier(loading_msg,"init_random",init_random_str,"Generating random seed",sizeof(init_random_str));
@@ -1430,6 +1437,7 @@ void init_help()
 	add_xml_identifier(misc,"read_book",knowledge_read_book,"Read Book",sizeof(knowledge_read_book));
 	add_xml_identifier(misc,"read_book_tag",knowledge_read_book_tag," (read)",sizeof(knowledge_read_book_tag));
 	add_xml_identifier(misc,"unread_book_tag",knowledge_unread_book_tag," (unread)",sizeof(knowledge_unread_book_tag));
+	add_xml_identifier(misc,"reading_book_tag",knowledge_reading_book_tag," (reading)",sizeof(knowledge_reading_book_tag));
 	add_xml_identifier(misc,"kp_read",knowledge_param_read,"-read",sizeof(knowledge_param_read));
 	add_xml_identifier(misc,"kp_unread",knowledge_param_unread,"-unread",sizeof(knowledge_param_unread));
 	add_xml_identifier(misc,"kp_total",knowledge_param_total,"-total",sizeof(knowledge_param_total));

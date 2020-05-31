@@ -19,6 +19,7 @@
 #include "highlight.h"
 #include "init.h"
 #include "items.h"
+#include "knowledge.h"
 #include "lights.h"
 #include "misc.h"
 #include "multiplayer.h"
@@ -659,6 +660,10 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		}
 		else if (strstr(text_to_add+1, "You'd need a pair of binoculars to read the book from here - get closer!")) {
 			if (!book_window_is_open())
+				return 0;
+		}
+		else if (my_strncompare(text_to_add+1, "You are researching ", 20)) {
+			if (get_true_knowledge_info(text_to_add+1))
 				return 0;
 		}
 		else {

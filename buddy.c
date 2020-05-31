@@ -180,6 +180,10 @@ static int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 		return 1;
 	}
 
+	if (y < 0)
+        // Clicked above the names
+        return 0;
+
 	// clicked on a buddy's name
 	y /= buddy_name_step_y;
 	if (y >= num_displayed_buddies)

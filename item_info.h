@@ -27,6 +27,17 @@ const char *get_item_description(Uint16 item_id, int image_id);
 
 /**
  * @ingroup item_info
+ * @brief get the item description from the lookup table, do not add extra tags such as "(read)"
+ *
+ * @param item_id the item unique id
+ * @param image_id the item image id
+ * @return Returns the description text
+ * @callgraph
+ */
+const char *get_basic_item_description(Uint16 item_id, int image_id);
+
+/**
+ * @ingroup item_info
  * @brief get the item emu from the lookup table
  *
  * @param item_id the item unique id

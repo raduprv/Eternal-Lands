@@ -91,11 +91,6 @@ static int display_trade_handler(window_info *win)
 	x_off = trade_border + (ITEM_COLS + 1) * trade_gridsize + ITEM_COLS / 2 * trade_gridsize;
 	draw_string_small_zoomed_centered(x_off, trade_grid_start_y - win->small_font_len_y, (unsigned char*)other_player_trade_name, 1, win->current_scale);
 
-	//Draw the X for aborting the trade
-	draw_string_zoomed_centered(win->len_x - win->box_size/2,
-		(win->box_size - win->default_font_len_y) / 2, (const unsigned char*)"X",
-		1, win->current_scale);
-
 	glColor3f(1.0f,1.0f,1.0f);
 
 	//Now let's draw the goods on trade...
@@ -212,14 +207,6 @@ static int display_trade_handler(window_info *win)
 		glVertex3i(x_off + button_x_left, button_y_bot, 0);
 	glEnd ();
 
-
-	//Draw the border for the "X"
-	glBegin(GL_LINE_STRIP);
-		glVertex3i(win->len_x, win->box_size, 0);
-		glVertex3i(win->len_x - win->box_size, win->box_size, 0);
-		glVertex3i(win->len_x - win->box_size, 0, 0);
-	glEnd();
-
 	//Draw the help text
 	if(show_help_text && show_abort_help)
 	{
@@ -263,14 +250,6 @@ static int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 	int trade_quantity_storage_offset = 3; /* Offset of trade quantity in packet. Can be 3 or 4 */
 
 	if ( !(left_click || right_click) ) return 0;
-
-	if(left_click && mx > win->len_x - win->box_size && my < win->box_size){
-		str[0]=EXIT_TRADE;
-		my_tcp_send(my_socket,str,1);
-
-		hide_window(trade_win);
-		return 1;
-	}
 
 	if(right_click) {
 		item_dragged=
@@ -520,6 +499,14 @@ static int ui_scale_trade_handler(window_info *win)
 	return 1;
 }
 
+static int close_trade_handler(window_info *win)
+{
+	// User click the close button, abort the trade
+	unsigned char msg = EXIT_TRADE;
+	my_tcp_send(my_socket, &msg, 1);
+	return 1;
+}
+
 void display_trade_menu()
 {
 	if(trade_win < 0){
@@ -527,12 +514,13 @@ void display_trade_menu()
 		if (!windows_on_top) {
 			our_root_win = game_root_win;
 		}
-		trade_win= create_window(win_trade, our_root_win, 0, trade_menu_x, trade_menu_y, 0, 0, ((ELW_USE_UISCALE|ELW_WIN_DEFAULT) & ~ELW_CLOSE_BOX));
+		trade_win= create_window(win_trade, our_root_win, 0, trade_menu_x, trade_menu_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 
 		set_window_custom_scale(trade_win, &custom_scale_factors.trade);
 		set_window_handler(trade_win, ELW_HANDLER_DISPLAY, &display_trade_handler );
 		set_window_handler(trade_win, ELW_HANDLER_CLICK, &click_trade_handler );
 		set_window_handler(trade_win, ELW_HANDLER_MOUSEOVER, &mouseover_trade_handler );
+		set_window_handler(trade_win, ELW_HANDLER_CLOSE, &close_trade_handler );
 		set_window_handler(trade_win, ELW_HANDLER_UI_SCALE, &ui_scale_trade_handler );
 
 		if (trade_win >= 0 && trade_win < windows_list.num_windows)
