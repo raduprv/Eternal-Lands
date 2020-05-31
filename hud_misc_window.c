@@ -336,8 +336,9 @@ CHECK_GL_ERRORS();
 
 		if (mouse_over_knowledge_bar)
 		{
+			int ytop = y + gy_adjust + (side_stats_bar_height - win->small_font_len_y) / 2;
 			use_str = (is_researching()) ?get_research_eta_str(str, sizeof(str)) : not_researching_str;
-			draw_string_small_shadowed_zoomed_right(0, y+gy_adjust,
+			draw_string_small_shadowed_zoomed_right(0, ytop,
 				(const unsigned char*)use_str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f,
 				win->current_scale);
 			mouse_over_knowledge_bar = 0;
@@ -404,15 +405,16 @@ CHECK_GL_ERRORS();
 				(skill_modifier = statsinfo[thestat].skillattr->cur -
 				 	statsinfo[thestat].skillattr->base) != 0)
 			{
+				int ytop = y + gy_adjust + (side_stats_bar_height - win->small_font_len_y) / 2;
 				safe_snprintf(str,sizeof(str),"%+i",skill_modifier);
 				hover_offset = get_string_width_zoom((const unsigned char*)str,
 					win->font_category, win->current_scale_small);
 				if(skill_modifier > 0){
-					draw_string_small_shadowed_zoomed_right(0, y+gy_adjust,
+					draw_string_small_shadowed_zoomed_right(0, ytop,
 						(const unsigned char*)str, 1,0.3f, 1.0f, 0.3f,0.0f,0.0f,0.0f,
 						win->current_scale);
 				} else {
-					draw_string_small_shadowed_zoomed_right(0, y+gy_adjust,
+					draw_string_small_shadowed_zoomed_right(0, ytop,
 						(const unsigned char*)str, 1,1.0f, 0.1f, 0.2f,0.0f,0.0f,0.0f,
 						win->current_scale);
 				}
@@ -421,8 +423,9 @@ CHECK_GL_ERRORS();
 			/* if the mouse is over the stat bar, draw the XP remaining */
 			if (stat_mouse_is_over == thestat)
 			{
+				int ytop = y + gy_adjust + (side_stats_bar_height - win->small_font_len_y) / 2;
 				safe_snprintf(str,sizeof(str),"%li",(*statsinfo[thestat].next_lev - *statsinfo[thestat].exp));
-				draw_string_small_shadowed_zoomed_right(-hover_offset, y+gy_adjust,
+				draw_string_small_shadowed_zoomed_right(-hover_offset, ytop,
 					(const unsigned char*)str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f,
 					win->current_scale);
 				stat_mouse_is_over = -1;
