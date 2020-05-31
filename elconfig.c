@@ -3100,7 +3100,9 @@ static int display_elconfig_handler(window_info *win)
 	}
 
 	// Draw the long description of an option
-	draw_string_small_zoomed(TAB_MARGIN, elconfig_menu_y_len-LONG_DESC_SPACE, elconf_description_buffer, MAX_LONG_DESC_LINES, elconf_scale);
+	draw_string_zoomed_width_font(TAB_MARGIN, elconfig_menu_y_len-LONG_DESC_SPACE,
+		elconf_description_buffer, window_width, MAX_LONG_DESC_LINES, win->font_category,
+		elconf_scale * DEFAULT_SMALL_RATIO);
 
 	// Show the context menu help message
 	if (is_mouse_over_option)
@@ -3195,8 +3197,12 @@ static int mouseover_option_handler(widget_list *widget, int mx, int my)
 		// We're still on the same variable
 		return 1;
 
-	put_small_text_in_box_zoomed(our_vars.var[i]->display.desc,
-		strlen((char*)our_vars.var[i]->display.desc), elconfig_menu_x_len - 2*TAB_MARGIN, elconf_description_buffer, elconf_scale);
+	safe_strncpy((char*)elconf_description_buffer, (const char*)our_vars.var[i]->display.desc,
+		sizeof(elconf_description_buffer));
+	reset_soft_breaks(elconf_description_buffer, strlen((const char*)elconf_description_buffer),
+		sizeof(elconf_description_buffer), CONFIG_FONT, elconf_scale * DEFAULT_SMALL_RATIO,
+		elconfig_menu_x_len - 2*TAB_MARGIN, NULL, NULL);
+
 	last_description_idx = i;
 
 	return 1;
