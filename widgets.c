@@ -1058,7 +1058,7 @@ void draw_smooth_button(const unsigned char* str, font_cat fcat, float size,
 	{
 		int text_height = lines * get_line_height(fcat, size);
 		draw_string_zoomed_width_font_centered(x + radius + w/2 + gx_adjust,
-			y + radius - text_height / 2 + gy_adjust, str, window_width, lines,
+			y + radius - text_height / 2 + gy_adjust, str, w, lines,
 			fcat, size);
 	}
 #ifdef OPENGL_TRACE

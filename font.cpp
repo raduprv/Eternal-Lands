@@ -727,7 +727,6 @@ std::pair<size_t, size_t> Font::clip_line(const unsigned char *text, size_t len,
 		case TextDrawOptions::Alignment::CENTER:
 		{
 			int d_left = 0, d_right = 0;
-			size_t start = 0, end = len;
 			while (start < end && width - d_left - d_right > trunc_width)
 			{
 				if (d_left < d_right)
