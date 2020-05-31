@@ -1346,19 +1346,8 @@ bool FontManager::initialize()
 }
 
 #ifdef TTF
-void FontManager::initialize_ttf()
+void FontManager::add_ttf_from_pattern(const std::string& pattern)
 {
-	if (!use_ttf)
-		return;
-
-	if (!TTF_WasInit() && TTF_Init() == -1)
-	{
-		LOG_ERROR("Failed to initialize True Type fonts: %s", TTF_GetError());
-		use_ttf = 0;
-		return;
-	}
-
-	std::string pattern = std::string(ttf_directory) + "/*.ttf";
 #ifdef WINDOWS
 	struct _finddata_t c_file;
 	long hFile;
@@ -1377,7 +1366,7 @@ void FontManager::initialize_ttf()
 	_findclose(hFile);
 #else // WINDOWS
 	glob_t glob_res;
-	if (glob(pattern.c_str(), 0, NULL, &glob_res) == 0)
+	if (glob(pattern.c_str(), GLOB_NOSORT, NULL, &glob_res) == 0)
 	{
 		for (size_t i = 0; i < glob_res.gl_pathc; i++)
 		{
@@ -1390,7 +1379,24 @@ void FontManager::initialize_ttf()
 	}
 	globfree(&glob_res);
 #endif // WINDOWS
+}
 
+void FontManager::initialize_ttf()
+{
+	if (!use_ttf)
+		return;
+
+	if (!TTF_WasInit() && TTF_Init() == -1)
+	{
+		LOG_ERROR("Failed to initialize True Type fonts: %s", TTF_GetError());
+		use_ttf = 0;
+		return;
+	}
+
+	add_ttf_from_pattern(std::string(ttf_directory) + "/*.ttf");
+	add_ttf_from_pattern(std::string(ttf_directory) + "/*/*.ttf");
+
+	// Sort TTF fonts by font name, but keep them after EL bundled fonts
 	std::sort(_fonts.begin() + _nr_bundled_fonts, _fonts.end(),
 		[](const Font& f0, const Font& f1) { return f0.font_name() < f1.font_name(); });
 }

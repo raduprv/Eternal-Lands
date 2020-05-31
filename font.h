@@ -875,8 +875,8 @@ private:
 	 * \return a pair of integers, containing the width of the character in the`
 	 * 	texture, and how far to advance the pen to draw the next texture
 	 */
-	static std::pair<int, int> render_glyph(Uint16 glyph, int i, int j, int size,
-		int y_delta, TTF_Font *font, SDL_Surface *surface);
+	std::pair<int, int> render_glyph(Uint16 glyph, int i, int j, int size, int y_delta,
+		TTF_Font *font, SDL_Surface *surface);
 	/*!
 	 * \brief Build a texture for a TTF font
 	 *
@@ -1279,6 +1279,17 @@ private:
 	 * current list of fonts.
 	 */
 	void initialize_ttf();
+	/*!
+	 * \brief Scan for TrueType fonts
+	 *
+	 * Scan for files matching the glob pattern \a pattern, and if they contain
+	 * a TTF font that supports our character set, add it to our list of known
+	 * fonts.
+	 *
+	 * \param pattern A glob pattern defining the search path
+	 */
+	 void add_ttf_from_pattern(const std::string& pattern);
+
 	/*!
 	 * \brief Add options to the configuration
 	 *
