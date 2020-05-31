@@ -61,6 +61,8 @@ class Hud_Timer
 		bool mode_coundown;
 		bool mouse_over;
 		const int max_value;
+		float zoom;
+		int width;
 		int height;
 		size_t cm_id;
 		int last_base_y_start;
@@ -212,7 +214,24 @@ void Hud_Timer::check_cm_menu(window_info *win, int base_y_start)
 //
 int Hud_Timer::ui_scale_handler(window_info *win)
 {
-	height = win->default_font_len_y;
+	eternal_lands::FontManager& font_manager = eternal_lands::FontManager::get_instance();
+	zoom = win->current_scale;
+
+	int c_width = font_manager.width_spacing(win->font_category, countdown_str[0], zoom);
+	int s_width = font_manager.width_spacing(win->font_category, stopwatch_str[0], zoom);
+	int text_width = std::max(c_width, s_width)
+		+ font_manager.width_spacing(win->font_category, ':', zoom)
+		+ 3 * font_manager.max_digit_width_spacing(win->font_category, zoom);
+	int max_width = win->len_x - 4 * win->current_scale;
+
+	if (text_width > max_width)
+	{
+		zoom *= float(max_width) / text_width;
+		width = text_width;
+	}
+
+	width = text_width;
+	height = font_manager.line_height(win->font_category, zoom);
 	return 1;
 }
 
@@ -231,10 +250,10 @@ int Hud_Timer::display(window_info *win, int base_y_start)
 	safe_snprintf(str, sizeof(str), "%c%1d:%02d", ((mode_coundown) ?countdown_str[0] :stopwatch_str[0]), current_value/60, current_value%60);
 	if (running)
 		draw_string_shadowed_zoomed_centered(win->len_x/2, 2 + base_y_start,
-			(const unsigned char*)str, 1,0.5f, 1.0f, 0.5f, 0.0f, 0.0f, 0.0f, win->current_scale);
+			(const unsigned char*)str, 1,0.5f, 1.0f, 0.5f, 0.0f, 0.0f, 0.0f, zoom);
 	else
 		draw_string_shadowed_zoomed_centered(win->len_x/2, 2 + base_y_start,
-			(const unsigned char*)str, 1,1.0f, 0.5f, 0.5f, 0.0f, 0.0f, 0.0f, win->current_scale);
+			(const unsigned char*)str, 1,1.0f, 0.5f, 0.5f, 0.0f, 0.0f, 0.0f, zoom);
 	if (mouse_over)
 	{
 		char *use_str = ((mode_coundown) ?countdown_str:stopwatch_str);

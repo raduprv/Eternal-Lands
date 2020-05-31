@@ -613,6 +613,9 @@ static int ui_scale_misc_handler(window_info *win)
 	int thestat, max_width = 0;
 	unsigned char str[5];
 
+	// Set width, so we can use it in e.g. timer ui_scale handler
+	resize_window(win->window_id, HUD_MARGIN_X, win->len_y);
+
 	analog_clock_size = (int)(0.5 + win->current_scale * 64);
 	compass_size = (int)(0.5 + win->current_scale * 64);
 	knowledge_bar_height = win->small_font_len_y + 6;
@@ -627,9 +630,9 @@ static int ui_scale_misc_handler(window_info *win)
 		if (width > max_width)
 			max_width = width;
 	}
-	if (max_width > HUD_MARGIN_X - box_x - 1)
+	if (max_width > win->len_x - box_x - 1)
 	{
-		side_stats_bar_text_zoom *= (float)(HUD_MARGIN_X - box_x - 1) / max_width;
+		side_stats_bar_text_zoom *= (float)(win->len_x - box_x - 1) / max_width;
 		max_width = win->len_x - box_x - 1;
 	}
 	side_stats_bar_text_width = max_width;
@@ -649,7 +652,7 @@ static int ui_scale_misc_handler(window_info *win)
 	if (show_stats_in_hud && have_stats)
 		y_len += num_disp_stat * side_stats_bar_height;
 	resize_window(win->window_id, HUD_MARGIN_X, y_len);
-	move_window(win->window_id, -1, 0, window_width-HUD_MARGIN_X, window_height-y_len);
+	move_window(win->window_id, -1, 0, window_width-win->len_x, window_height-win->len_y);
 	reset_cm_regions();
 	return 1;
 }
