@@ -269,7 +269,7 @@ Font::Font(const std::string& ttf_file_name): _font_name(), _file_name(), _flags
 	}
 
 	// Quick check to see if the font is useful
-	if (!TTF_GlyphIsProvided(font, ' '))
+	if (!TTF_GlyphIsProvided(font, 'A') || !TTF_GlyphIsProvided(font, '!'))
 	{
 		// Nope, can't render in this font
 		TTF_CloseFont(font);
@@ -1160,8 +1160,8 @@ std::pair<int, int> Font::render_glyph(Uint16 glyph, int i, int j, int size,
 
 	if (!TTF_GlyphIsProvided(font, glyph))
 	{
-		LOG_ERROR("Font file does not provide glyph for code point '%d': %s", glyph,
-			TTF_GetError());
+		LOG_ERROR("Font '%s' does not provide glyph for code point '%d': %s",
+			_font_name.c_str(), glyph, TTF_GetError());
 		return std::make_pair(0, 0);
 	}
 
