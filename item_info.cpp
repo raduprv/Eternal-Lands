@@ -31,6 +31,7 @@
 #include "items.h"
 #include "io/elpathwrapper.h"
 #include "knowledge.h"
+#include "translate.h"
 #include "text.h"
 #include "url.h"
 
@@ -138,7 +139,7 @@ namespace Item_Info
 		public:
 			List(void) : load_tried(false), shown_help(false), last_item(0) {}
 			~List(void);
-			const std::string &get_description(Uint16 item_id, int image_id);
+			const std::string &get_description(Uint16 item_id, int image_id, bool return_basic);
 			int get_emu(Uint16 item_id, int image_id);
 			enum EQUIP_TYPE get_equip_type(Uint16 item_id, int image_id);
 			int get_count(Uint16 item_id, int image_id);
@@ -208,12 +209,12 @@ namespace Item_Info
 
 	//	Get the description for the specified ids, or return an empty string
 	//
-	const std::string & List::get_description(Uint16 item_id, int image_id)
+	const std::string & List::get_description(Uint16 item_id, int image_id, bool return_basic)
 	{
 		Item *matching_item = get_item(item_id, image_id);
 		if (matching_item)
 		{
-			if (matching_item->get_knowledge_reference() < KNOWLEDGE_LIST_SIZE)
+			if (!return_basic && matching_item->get_knowledge_reference() < KNOWLEDGE_LIST_SIZE)
 			{
 				// add an indication for books whether they are read, unread or being read (reading)
 				description_plus = matching_item->get_description() + get_knowledge_state_tag(matching_item->get_knowledge_reference());
@@ -403,11 +404,11 @@ namespace Item_Info
 			return;
 		if (!info_available())
 		{
-			std::string message = "Could not load the item information file: " + std::string(item_info_filename);
+			std::string message = std::string(item_info_load_failed_str) + ": " + std::string(item_info_filename);
 			LOG_TO_CONSOLE(c_red1, message.c_str());
 		}
 		if (!item_uid_enabled)
-			LOG_TO_CONSOLE(c_red1, "Use #item_uid (set to 1) to enable unique item information.");
+			LOG_TO_CONSOLE(c_red1, item_uid_help_str);
 		shown_help = true;
 	}
 
@@ -420,7 +421,8 @@ static Item_Info::List the_list;
 extern "C"
 {
 	int show_item_desc_text = 1;
-	const char *get_item_description(Uint16 item_id, int image_id) { return the_list.get_description(item_id, image_id).c_str(); }
+	const char *get_item_description(Uint16 item_id, int image_id) { return the_list.get_description(item_id, image_id, false).c_str(); }
+	const char *get_basic_item_description(Uint16 item_id, int image_id) { return the_list.get_description(item_id, image_id, true).c_str(); }
 	void filter_items_by_description(Uint8 *storage_items_filter, const ground_item *storage_items, const char *filter_item_text, int no_storage)
 		{ the_list.filter_by_description(storage_items_filter, storage_items, filter_item_text, no_storage); }
 	int get_item_emu(Uint16 item_id, int image_id) { return the_list.get_emu(item_id, image_id); }
