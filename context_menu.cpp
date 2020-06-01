@@ -655,7 +655,8 @@ namespace cm
 		float currenty = border + line_sep;
 		float scale = scaled_value(1.0);
 		int line_height = get_line_height(win->font_category, scale);
-		float line_step = line_sep + line_height;
+		int box_size = std::round(scaled_value(bool_box_size()));
+		float line_step = line_sep + max2i(box_size, line_height);
 
 		selection = -1;
 		for (size_t i=0; i<menu_lines.size(); ++i)
@@ -707,21 +708,22 @@ namespace cm
 				// draw the tickbox if bool option */
 				if (menu_has_bools && menu_lines[i].control_var)
 				{
-					int size = int(0.5 + scaled_value(bool_box_size()));
-					int posx = border+text_border;
-					int posy = std::round(currenty + 0.5 * (line_height - size));
+					int box_x = border+text_border;
+					int box_y = std::round(currenty + (box_size < line_height ? 0.5 * (line_height - box_size) : 0));
 					glDisable(GL_TEXTURE_2D);
 					glBegin( *menu_lines[i].control_var ? GL_QUADS: GL_LINE_LOOP);
-					glVertex3i(posx, posy, 0);
-					glVertex3i(posx + size, posy, 0);
-					glVertex3i(posx + size, posy + size, 0);
-					glVertex3i(posx, posy + size, 0);
+					glVertex3i(box_x, box_y, 0);
+					glVertex3i(box_x + box_size, box_y, 0);
+					glVertex3i(box_x + box_size, box_y + box_size, 0);
+					glVertex3i(box_x, box_y + box_size, 0);
 					glEnd();
 					glEnable(GL_TEXTURE_2D);
 				}
 
 				// draw the text
- 				draw_string_zoomed(int(border+text_border+bool_tick_width+0.5), int(currenty+0.5), (unsigned char *)menu_lines[i].text.c_str(), 1, scaled_value(1.0));
+				int text_y = std::round(currenty + (box_size < line_height ? 0 : 0.5*(box_size - line_height)));
+				draw_string_zoomed(int(border+text_border+bool_tick_width+0.5), text_y,
+					(const unsigned char *)menu_lines[i].text.c_str(), 1, scaled_value(1.0));
 				currenty += line_step;
 			}
 
