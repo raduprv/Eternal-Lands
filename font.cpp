@@ -2,9 +2,11 @@
 #include <numeric>
 #include <sstream>
 #ifdef TTF
+#ifndef WINDOWS
 #include <glob.h>
-#include <SDL_ttf.h>
 #endif
+#include <SDL_ttf.h>
+#endif // TTF
 
 #include "font.h"
 #include "asc.h"
@@ -1356,7 +1358,7 @@ void FontManager::add_ttf_from_pattern(const std::string& pattern)
 		{
 			try
 			{
-				_fonts.push_back(Font(c_file));
+				_fonts.push_back(Font(std::string(ttf_directory) + c_file.name));
 			}
 			CATCH_AND_LOG_EXCEPTIONS
 		}
