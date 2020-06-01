@@ -31,6 +31,7 @@ OPTION(JSON_FILES "Switch existing binary user config files to JSON format." On)
 OPTION(LOCAL_NLOHMANN_JSON "Enable if you want to use an embedded copy of nlohmann_json, placed in the nlohmann_json sub-directory of the source." Off)
 OPTION(MARCHNATIVE "Enable -march=native compiler flag, for when not building a portable executable." Off)
 OPTION(ADDRSANITISER "Enable the gcc address sanitisation options to do run-time checking." Off)
+OPTION(TTF "Add the ability to use True Type system fonts." Off)
 
 # standard options
 add_definitions(
@@ -125,6 +126,9 @@ endif()
 include(cmake/FindVorbis.cmake)
 include(cmake/FindVorbisFile.cmake)
 include(cmake/FindCal3d.cmake)
+if (TTF)
+	include(cmake/FindSDL2TTF.cmake)
+endif()
 
 # require the nlohmann_json package if building for json files
 if (JSON_FILES)
@@ -219,6 +223,10 @@ if (ADDRSANITISER)
 	set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -fsanitize=address")
 	set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -fsanitize=address")
 	set(EXTRA_LD_FLAGS "${EXTRA_LD_FLAGS} -fsanitize=address")
+endif()
+
+if (TTF)
+	add_definitions(-DTTF)
 endif()
 
 # set the compiler flags for DEBUG and RELEASE builds
@@ -317,6 +325,10 @@ target_include_directories(${EXEC} SYSTEM PUBLIC
 	${EXTRA_TARGET_INCLUDE}
 )
 
+if (TTF)
+	target_link_libraries(${EXEC} ${SDL2TTF_LIBRARY})
+	target_include_directories(${EXEC} SYSTEM PUBLIC ${SDL2TTF_INCLUDE_DIR})
+endif()
 
 install(
 	TARGETS ${EXEC} RUNTIME DESTINATION bin
