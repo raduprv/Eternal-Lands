@@ -223,6 +223,24 @@ int file_rename_config( const char *old_filename, const char *new_filename );
  */
 int file_remove_config( const char *filename );
 
+/*!
+ * \brief Apply a function to matching file names
+ *
+ * Search files in directory \a base_path matching pattern \a pattern, and apply
+ * function \a fn to them. Subdirectories of \a base path are also searched, up
+ * to depth \a max_depth. If you do not wish to search subdirectories, pass
+ * \a max_depth = 0.
+ *
+ * \param base_path Directory in which to start searching
+ * \param pattern   Pattern which file names should match (e.g. *.ttf)
+ * \param fn        Callback function for matching file names
+ * \param max_depth The maximum search depth of the directory tree
+ * \note Symbolic links are not followed, only regular files and directories
+ * are examined.
+ */
+int search_files_and_apply(const char* base_path, const char *pattern, void (*fn)(const char*),
+	int max_depth);
+
 
 #ifdef __cplusplus
 }

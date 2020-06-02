@@ -15,6 +15,7 @@
 #include "elconfig.h"
 #include "elloggingwrapper.h"
 #include "exceptions/extendedexception.hpp"
+#include "io/elpathwrapper.h"
 #include "gl_init.h"
 #include "textures.h"
 
@@ -1347,41 +1348,6 @@ bool FontManager::initialize()
 }
 
 #ifdef TTF
-void FontManager::add_ttf_from_pattern(const std::string& pattern)
-{
-#ifdef WINDOWS
-	struct _finddata_t c_file;
-	long hFile;
-	if ((hFile = _findfirst(pattern.c_str(), &c_file)) != -1L)
-	{
-		do
-		{
-			try
-			{
-				_fonts.push_back(Font(std::string(ttf_directory) + c_file.name));
-			}
-			CATCH_AND_LOG_EXCEPTIONS
-		}
-		while (_findnext(hFile, &c_file) == 0);
-	}
-	_findclose(hFile);
-#else // WINDOWS
-	glob_t glob_res;
-	if (glob(pattern.c_str(), GLOB_NOSORT, NULL, &glob_res) == 0)
-	{
-		for (size_t i = 0; i < glob_res.gl_pathc; i++)
-		{
-			try
-			{
-				_fonts.push_back(Font(glob_res.gl_pathv[i]));
-			}
-			CATCH_AND_LOG_EXCEPTIONS
-		}
-	}
-	globfree(&glob_res);
-#endif // WINDOWS
-}
-
 void FontManager::initialize_ttf()
 {
 	if (!use_ttf)
@@ -1394,8 +1360,14 @@ void FontManager::initialize_ttf()
 		return;
 	}
 
-	add_ttf_from_pattern(std::string(ttf_directory) + "/*.ttf");
-	add_ttf_from_pattern(std::string(ttf_directory) + "/*/*.ttf");
+	search_files_and_apply(ttf_directory, "*.ttf",
+		[](const char *fname) {
+			try
+			{
+				FontManager::get_instance()._fonts.emplace_back(std::string(fname));
+			}
+			CATCH_AND_LOG_EXCEPTIONS
+		}, 1);
 
 	// Sort TTF fonts by font name, but keep them after EL bundled fonts
 	std::sort(_fonts.begin() + _nr_bundled_fonts, _fonts.end(),
