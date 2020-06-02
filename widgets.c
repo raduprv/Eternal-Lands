@@ -4413,11 +4413,10 @@ static int spinbutton_draw(widget_list *widget)
 		glVertex3i(widget->pos_x+widget->len_x-arrow_size, widget->pos_y+widget->len_y,0);
 	glEnd();
 	/* Up arrow */
-	glBegin(GL_QUADS);
+	glBegin(GL_TRIANGLES);
 		glVertex3i(widget->pos_x+widget->len_x-arrow_size + arrow_size/4, widget->pos_y + widget->len_y/4+2, 0); //Left corner
 		glVertex3i(widget->pos_x+widget->len_x-arrow_size + arrow_size/2, widget->pos_y + 2, 0); //Top
 		glVertex3i(widget->pos_x+widget->len_x-arrow_size + 3*arrow_size/4, widget->pos_y + widget->len_y/4+2, 0); //Right corner
-		glVertex3i(widget->pos_x+widget->len_x-arrow_size + arrow_size/4, widget->pos_y + widget->len_y/4+2, 0); //Back to the beginning
 	glEnd();
 	/* Button separator */
 	glBegin(GL_LINES);
@@ -4425,11 +4424,10 @@ static int spinbutton_draw(widget_list *widget)
 		glVertex3i(widget->pos_x+widget->len_x, widget->pos_y+widget->len_y/2,0);
 	glEnd();
 	/* Down arrow */
-	glBegin(GL_QUADS);
+	glBegin(GL_TRIANGLES);
 		glVertex3i(widget->pos_x+widget->len_x-arrow_size + arrow_size/4, widget->pos_y + widget->len_y - widget->len_y/4-2, 0); //Left corner
 		glVertex3i(widget->pos_x+widget->len_x-arrow_size + arrow_size/2, widget->pos_y + widget->len_y - 2, 0); //Bottom
 		glVertex3i(widget->pos_x+widget->len_x-arrow_size + 3*arrow_size/4, widget->pos_y + widget->len_y - widget->len_y/4-2, 0); //Right corner
-		glVertex3i(widget->pos_x+widget->len_x-arrow_size + arrow_size/4, widget->pos_y + widget->len_y - widget->len_y/4-2, 0); //Back to the beginning
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 #ifdef OPENGL_TRACE

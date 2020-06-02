@@ -834,6 +834,18 @@ int set_window_font_category(int win_id, font_cat cat);
 
 /*!
  * \ingroup elwindows
+ * \brief Get the content width of a window
+ *
+ * Get the content width of the window with identifier \a window_id. For non-scrollable windows,
+ * this is the normal window width. For scrollable windows, the width of the scrollbar is subtracted.
+ *
+ * \param window_id The ID of the window
+ * \return The content width of the window in pixels
+ */
+int get_window_content_width(int window_id);
+
+/*!
+ * \ingroup elwindows
  * \brief   The callback for context menu clicks
  *
  *      Called when an option is selected from the title context menu.  If

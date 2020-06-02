@@ -2133,3 +2133,17 @@ int set_window_font_category(int win_id, font_cat cat)
 	change_window_font(&windows_list.window[win_id], cat);
 	return 1;
 }
+
+int get_window_content_width(int window_id)
+{
+	const window_info *win;
+
+	if (window_id < 0 || window_id >= windows_list.num_windows) return 0;
+	win = &windows_list.window[window_id];
+	if (win->window_id != window_id) return 0;
+
+	if (win->scroll_id < 0)
+		return win->len_x;
+	else
+		return win->len_x - widget_get_width(window_id, win->scroll_id);
+}
