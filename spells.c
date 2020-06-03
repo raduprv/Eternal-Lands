@@ -1878,6 +1878,13 @@ static int ui_scale_spells_handler(window_info *win)
 	return 1;
 }
 
+static int change_spells_font_handler(window_info *win, font_cat cat)
+{
+	if (cat != win->font_category)
+		return 0;
+	ui_scale_spells_handler(win);
+	return 1;
+}
 
 static int ui_scale_sigils_handler(window_info *win)
 {
@@ -1986,6 +1993,7 @@ void display_sigils_menu()
 		set_window_handler(spell_win, ELW_HANDLER_CLICK, &click_spells_handler );
 		set_window_handler(spell_win, ELW_HANDLER_MOUSEOVER, &mouseover_spells_handler );
 		set_window_handler(spell_win, ELW_HANDLER_UI_SCALE, &ui_scale_spells_handler );
+		set_window_handler(spell_win, ELW_HANDLER_FONT_CHANGE, &change_spells_font_handler);
 
 		cast2_button_id=button_add_extended(spell_win, cast2_button_id, NULL, 0, 0, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, cast_str);
 		widget_set_OnClick(spell_win, cast2_button_id, cast_handler);
