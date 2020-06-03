@@ -1221,7 +1221,7 @@ void NPC_Filter::ui_scale_handler(window_info *win)
 	npc_name_border = static_cast<int>(0.5 + 5 * win->current_scale);
 	npc_name_box_size = static_cast<int>(0.5 + 12 * win->current_scale);
 	max_npc_name_x = npc_name_space * 3 + npc_name_box_size + MAX_USERNAME_LENGTH * win->small_font_max_len_x;
-	max_npc_name_y = win->small_font_len_y + 2 * npc_name_space;
+	max_npc_name_y = std::max(win->small_font_len_y, npc_name_box_size) + 2 * npc_name_space;
 	if ((win->pos_id >= 0) && (win->pos_id<windows_list.num_windows))
 	{
 		window_info *parent_win = &windows_list.window[win->pos_id];
@@ -1239,7 +1239,7 @@ void NPC_Filter::ui_scale_handler(window_info *win)
 
 int NPC_Filter::font_change_handler(window_info *win, FontManager::Category cat)
 {
-	if (cat != FontManager::Category::UI_FONT)
+	if (cat != win->font_category)
 		return 0;
 	ui_scale_handler(win);
 	return 1;
@@ -1249,8 +1249,10 @@ int NPC_Filter::font_change_handler(window_info *win, FontManager::Category cat)
 //
 void NPC_Filter::display_handler(window_info *win)
 {
+	FontManager& font_manager = FontManager::get_instance();
 	static Uint8 resizing = 0;
 	static size_t last_filter_size = static_cast<size_t>(-1);
+	int line_height = win->small_font_len_y;
 
 	// if resizing wait until we stop
 	if (win->resized)
@@ -1278,6 +1280,8 @@ void NPC_Filter::display_handler(window_info *win)
 	{
 		int posx = static_cast<int>(npc_name_border + col*max_npc_name_x + 0.5);
 		int posy = static_cast<int>(row*max_npc_name_y + 0.5);
+		int boxy = static_cast<int>(std::round((max_npc_name_y-npc_name_box_size)/2));
+		int texty = static_cast<int>(std::round((max_npc_name_y-line_height)/2));
 
 		// draw highlight over active name
 		if ((col+row*npc_name_cols) == npc_filter_active_npc_name)
@@ -1289,21 +1293,20 @@ void NPC_Filter::display_handler(window_info *win)
 		else
 			glColor3f(1.0f, 1.0f, 1.0f);
 		posx += npc_name_space;
-		posy += static_cast<int>(0.5 + (max_npc_name_y-npc_name_box_size)/2);
 
 		// draw the on/off box
 		glDisable(GL_TEXTURE_2D);
 		glBegin( i.second ? GL_QUADS: GL_LINE_LOOP);
-		glVertex2i(posx, posy);
-		glVertex2i(posx + npc_name_box_size, posy);
-		glVertex2i(posx + npc_name_box_size, posy + npc_name_box_size);
-		glVertex2i(posx, posy + npc_name_box_size);
+		glVertex2i(posx, boxy);
+		glVertex2i(posx + npc_name_box_size, boxy);
+		glVertex2i(posx + npc_name_box_size, boxy + npc_name_box_size);
+		glVertex2i(posx, boxy + npc_name_box_size);
 		glEnd();
 		glEnable(GL_TEXTURE_2D);
 
 		// draw the string
-		FontManager::get_instance().draw(FontManager::Category::UI_FONT, i.first.c_str(),
-			i.first.length(), posx + npc_name_box_size + npc_name_space, posy, options);
+		font_manager.draw(win->font_category, i.first.c_str(), i.first.length(),
+			posx + npc_name_box_size + npc_name_space, texty, options);
 
 		// control row and col values
 		col++;
@@ -1749,8 +1752,7 @@ int Questlog_Window::font_change_handler(window_info *win, FontManager::Category
 {
 	if (cat != FontManager::Category::UI_FONT)
 		return 0;
-	for (auto& entry: quest_entries)
-		entry.rewrap_lines();
+	ui_scale_handler(win);
 	return 1;
 }
 
