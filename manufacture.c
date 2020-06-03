@@ -68,7 +68,7 @@ static int recipe_names_changed = 0;
 static int initialised_recipe_names = 0;
 
 static int SLOT_SIZE = 0;
-static int PIPE_CONTROL_X = 0;
+static int pipe_control_width = 0;
 static int recipe_win_width = 0;
 static int manufacture_menu_x_len = 0;
 static int manufacture_menu_y_len = 0;
@@ -647,7 +647,7 @@ static void use_recipe(int recipe_to_use)
 static void draw_recipe_controls(window_info *win){
 	int wpx=pipeline_x + SLOT_SIZE*NUM_MIX_SLOTS;
 	int wpy=manufacture_menu_y_len-recipe_y_offset;
-	int lpx=PIPE_CONTROL_X;
+	int lpx=pipe_control_width;
 	int lpy=SLOT_SIZE;
 
 	if (recipes_shown)
@@ -1015,7 +1015,7 @@ static int recipe_controls_click_handler(window_info *win, int mx, int my, Uint3
 
 	int wpx=pipeline_x + SLOT_SIZE*NUM_MIX_SLOTS;
 	int wpy=manufacture_menu_y_len-recipe_y_offset;
-	int lpx=PIPE_CONTROL_X;
+	int lpx=pipe_control_width;
 	int lpy=SLOT_SIZE;
 
 	if (!recipes_loaded)
@@ -1287,7 +1287,7 @@ static int recipe_controls_mouseover_handler(window_info *win, int mx, int my, i
 {
 	int wpx=pipeline_x + SLOT_SIZE*NUM_MIX_SLOTS;
 	int wpy=win->len_y-recipe_y_offset;
-	int lpx=PIPE_CONTROL_X;
+	int lpx=pipe_control_width;
 	int lpy=SLOT_SIZE;
 
 	if (mx>wpx && mx<wpx+lpx && my>wpy+lpy-control_elem_size*2 && my<wpy+lpy){
@@ -1503,13 +1503,16 @@ static void context_recipe_pre_show_handler(window_info *win, int widget_id, int
 //	Called when UI scaling changed
 static int ui_scale_manufacture_handler(window_info *win)
 {
-	int mbw = (int)(0.5 + 43 * win->current_scale);
-	int cbw = (int)(0.5 + 70 * win->current_scale);
+	int mbw = max2i((int)(0.5 + 43 * win->current_scale),
+		calc_button_width((const unsigned char*)">>", win->font_category, win->current_scale));
+	int cbw = max2i((int)(0.5 + 70 * win->current_scale),
+		calc_button_width((const unsigned char*)clear_str, win->font_category, win->current_scale));
 	int space = (int)(0.5 + 7 * win->current_scale);
-	int free_x = 0;
+	int free_x, pipe_width;
 
 	SLOT_SIZE = (int)(0.5 + 33 * win->current_scale);
-	PIPE_CONTROL_X = (int)(0.5 + 5 * win->current_scale) * 2 + win->small_font_max_len_x;
+	pipe_control_width = (int)(0.5 + 5 * win->current_scale) * 2 + win->small_font_max_len_x;
+	pipe_width = SLOT_SIZE*NUM_MIX_SLOTS + pipe_control_width;
 	recipe_win_width = SLOT_SIZE * NUM_MIX_SLOTS + win->box_size + 2;
 	manufacture_menu_x_len = GRID_COLS * SLOT_SIZE + win->box_size;
 	manufacture_menu_y_len = (GRID_ROWS+1) * SLOT_SIZE + (4+1) * win->small_font_len_y;
@@ -1518,7 +1521,12 @@ static int ui_scale_manufacture_handler(window_info *win)
 	control_elem_size = (int)(0.5 + 5 * win->current_scale);
 
 	free_x = manufacture_menu_x_len - (cbw + 2*mbw + 3*space);
-	pipeline_x = space + cbw + free_x/2 - (SLOT_SIZE*NUM_MIX_SLOTS + PIPE_CONTROL_X)/2;
+	if (free_x < pipe_width + 2*space)
+	{
+		manufacture_menu_x_len += pipe_width +2*space - free_x;
+		free_x = pipe_width + 2*space;
+	}
+	pipeline_x = space + cbw + (free_x - pipe_width)/2;
 
 	resize_window(win->window_id, manufacture_menu_x_len, manufacture_menu_y_len);
 
@@ -1542,6 +1550,14 @@ static int ui_scale_manufacture_handler(window_info *win)
 	return 1;
 }
 
+static int change_manufacture_font_handler(window_info *win, font_cat cat)
+{
+	if (cat != win->font_category)
+		return 0;
+	ui_scale_manufacture_handler(win);
+	return 1;
+}
+
 void display_manufacture_menu()
 {
 	if(manufacture_win < 0){
@@ -1559,6 +1575,7 @@ void display_manufacture_menu()
 		set_window_handler(manufacture_win, ELW_HANDLER_MOUSEOVER, &mouseover_manufacture_slot_handler );
 		set_window_handler(manufacture_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_manufacture_handler );
 		set_window_handler(manufacture_win, ELW_HANDLER_UI_SCALE, &ui_scale_manufacture_handler );
+		set_window_handler(manufacture_win, ELW_HANDLER_FONT_CHANGE, &change_manufacture_font_handler);
 
 		mixone_button_id=button_add_extended(manufacture_win, mixone_button_id, NULL,
 			0, 0, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, ">");

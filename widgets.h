@@ -870,6 +870,19 @@ int button_set_text(int window_id, Uint32 widget_id, const char *text);
 void draw_smooth_button(const unsigned char* str, font_cat cat, float size,
 	int x, int y, int w, int lines, float r, float g, float b,
 	int highlight, float hr, float hg, float hb, float ha);
+/*!
+ * \ingroup buttons
+ * \brief Compute the width of a button
+ *
+ * Calculate the normal width of a button of size \a size, with label \a label drawn in the font
+ * for category \a cat.
+ *
+ * \param label The text to draw on the button
+ * \param cat   The font category for the button
+ * \param size  The size scale factor for the button
+ * \return The width of the button, in pixels
+ */
+int calc_button_width(const unsigned char* label, font_cat cat, float size);
 
 // Progressbar
 

@@ -893,6 +893,11 @@ int safe_button_click(Uint32 *last_click)
 	return retvalue;
 }
 
+int calc_button_width(const unsigned char* label, font_cat cat, float size)
+{
+	return get_string_width_zoom(label, cat, size) + (int)(0.5 + 2*size*BUTTONRADIUS);
+}
+
 static int button_change_font(widget_list *W, font_cat cat)
 {
 	button *T;
@@ -901,9 +906,7 @@ static int button_change_font(widget_list *W, font_cat cat)
 	if (!W || !(T = W->widget_info))
 		return 0;
 
-	len_x = T->fixed_width
-		? T->fixed_width
-		: get_string_width_zoom(T->text, W->fcat, W->size) + (int)(2 * BUTTONRADIUS * W->size + 0.5);
+	len_x = T->fixed_width ? T->fixed_width : calc_button_width(T->text, W->fcat, W->size);
 	if (T->fixed_height)
 	{
 		len_y = T->fixed_height;
@@ -931,8 +934,7 @@ int button_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Ui
 	T->fixed_width = lx;
 	T->fixed_height = ly;
 
-	len_x = lx ? lx : get_string_width_zoom(T->text, win->font_category, size)
-						+ (int)(2 * BUTTONRADIUS * size + 0.5);
+	len_x = lx ? lx : calc_button_width(T->text, win->font_category, size);
 	len_y = ly ? ly : get_line_height(win->font_category, size) + (int)(12 * size + 0.5);
 
 	return widget_add (window_id, wid, OnInit, x, y, len_x, len_y, Flags, size, r, g, b, type, T, NULL);
