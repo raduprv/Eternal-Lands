@@ -913,10 +913,13 @@ static int button_change_font(widget_list *W, font_cat cat)
 	}
 	else
 	{
-		int min_len_y = (int)(2 * BUTTONRADIUS * W->size + 0.5);
-		len_y = get_line_height(W->fcat, W->size) + (int)(12 * W->size + 0.5);
-		if (len_y < min_len_y)
-			len_y = min_len_y;
+		// FIXME? Even if the font height changes, the button frame that is drawn only depends on
+		// the size. So at least for now, stick to the button frame for the height.
+// 		int min_len_y = (int)(2 * BUTTONRADIUS * W->size + 0.5);
+// 		len_y = get_line_height(W->fcat, W->size) + (int)(12 * W->size + 0.5);
+// 		if (len_y < min_len_y)
+// 			len_y = min_len_y;
+		len_y = (int)(2 * BUTTONRADIUS * W->size + 0.5);
 	}
 
 	return widget_resize(W->window_id, W->id, len_x, len_y);
@@ -1059,9 +1062,8 @@ void draw_smooth_button(const unsigned char* str, font_cat fcat, float size,
 	if (str)
 	{
 		int text_height = lines * get_line_height(fcat, size);
-		draw_string_zoomed_width_font_centered(x + radius + w/2 + gx_adjust,
-			y + radius - text_height / 2 + gy_adjust, str, w, lines,
-			fcat, size);
+		draw_string_zoomed_width_font_centered(x + radius + w/2, y + radius - text_height / 2,
+			str, w, lines, fcat, size);
 	}
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -4352,6 +4354,7 @@ static int spinbutton_draw(widget_list *widget)
 	spinbutton *button;
 	int arrow_size = 0;
 	char str[255];
+	int x_space = (int)(0.5 + widget->size*2);
 
 	if(widget == NULL || (button = widget->widget_info) == NULL) {
 		return 0;
@@ -4399,7 +4402,7 @@ static int spinbutton_draw(widget_list *widget)
 	}
 	/* Numbers */
 	glColor3f(widget->r, widget->g, widget->b);
-	draw_string_zoomed_width_font(widget->pos_x + 2 + gx_adjust, widget->pos_y + 2 + gy_adjust,
+	draw_string_zoomed_width_font(widget->pos_x + x_space, widget->pos_y + 2 + gy_adjust,
 		(const unsigned char*)str, window_width, 1, widget->fcat, widget->size);
 	glDisable(GL_TEXTURE_2D);
 	/* Border */
