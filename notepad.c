@@ -950,18 +950,20 @@ static int click_buttonwin_handler(window_info* UNUSED(win),
 static int resize_buttonwin_handler(window_info *win, int new_width, int new_height)
 {
 	widget_list *scroll_w = widget_find(win->window_id, note_button_scroll_id);
-	int but_space = (win->len_x - win->box_size - widget_space * 4) / 2;
 	widget_list *wnew = widget_find(main_note_tab_id, new_note_button_id);
 	widget_list *wsave = widget_find(main_note_tab_id, save_notes_button_id);
 	int tab_tag_height = tab_collection_calc_tab_height(win->font_category,
 		win->current_scale * note_tab_zoom);
 	int nr;
-
-	if ((scroll_w == NULL) || (scroll_w->Flags & WIDGET_INVISIBLE))
-		but_space += (win->box_size + widget_space) / 2;
+	int but_space;
 
 	button_resize(main_note_tab_id, new_note_button_id, 0, 0, win->current_scale);
 	button_resize(main_note_tab_id, save_notes_button_id, 0, 0, win->current_scale);
+
+	but_space = (win->len_x - win->box_size - widget_space * 4) / 2;
+	if ((scroll_w == NULL) || (scroll_w->Flags & WIDGET_INVISIBLE))
+		but_space += (win->box_size + widget_space) / 2;
+
 	widget_move(main_note_tab_id, new_note_button_id,
 		widget_space + (but_space - wnew->len_x)/2, 2*widget_space);
 	widget_move(main_note_tab_id, save_notes_button_id,
@@ -990,13 +992,6 @@ static int resize_buttonwin_handler(window_info *win, int new_width, int new_hei
 		note_button_set_pos(nr);
 
 	return 0;
-}
-
-static int change_buttonwin_font_handler(window_info *win, font_cat cat)
-{
-	if (cat != UI_FONT)
-		return 0;
-	return resize_buttonwin_handler(win, win->len_x, win->len_y);
 }
 
 static void notepad_win_close_tabs(void)
@@ -1050,6 +1045,25 @@ static int resize_notepad_handler(window_info *win, int new_width, int new_heigh
 	return 0;
 }
 
+static int ui_scale_notepad_handler(window_info *win)
+{
+	int new_width = calc_button_width((const unsigned char*)button_new_category, win->font_category,
+		win->current_scale);
+	int save_width = calc_button_width((const unsigned char*)button_save_notes, win->font_category,
+		win->current_scale);
+	int min_width = 2*max2i(new_width, save_width) + 4 * widget_space + ELW_BOX_SIZE;
+	win->min_len_x = min_width;
+	return 1;
+}
+
+static int change_notepad_font_handler(window_info *win, font_cat cat)
+{
+	if (cat != win->font_category)
+		return 0;
+	ui_scale_notepad_handler(win);
+	return 1;
+}
+
 void fill_notepad_window(int window_id)
 {
 	int i;
@@ -1058,6 +1072,10 @@ void fill_notepad_window(int window_id)
 	set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_notepad_handler);
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_buttonwin_handler);
 	set_window_handler(window_id, ELW_HANDLER_RESIZE, &resize_notepad_handler );
+	set_window_handler(window_id, ELW_HANDLER_UI_SCALE, &ui_scale_notepad_handler);
+	set_window_handler(window_id, ELW_HANDLER_FONT_CHANGE, &change_notepad_font_handler);
+	if (window_id >= 0 && window_id < windows_list.num_windows)
+		ui_scale_notepad_handler(&windows_list.window[window_id]);
 
 	note_tabcollection_id = tab_collection_add (window_id, NULL, 0, 0, 0, 0);
 	widget_set_color (window_id, note_tabcollection_id, 0.77f, 0.57f, 0.39f);
@@ -1066,7 +1084,6 @@ void fill_notepad_window(int window_id)
 	widget_set_color (window_id, main_note_tab_id, 0.77f, 0.57f, 0.39f);
 	set_window_handler(main_note_tab_id, ELW_HANDLER_CLICK, &click_buttonwin_handler);
 	set_window_handler(main_note_tab_id, ELW_HANDLER_RESIZE, &resize_buttonwin_handler);
-	set_window_handler(main_note_tab_id, ELW_HANDLER_FONT_CHANGE, &change_buttonwin_font_handler);
 
 	// Add Category
 	new_note_button_id = button_add(main_note_tab_id, NULL, button_new_category, 0, 0);
