@@ -804,7 +804,7 @@ int search_files_and_apply(const char* base_path, const char *pattern, void (*fn
 		errno = 0;
 		do
 		{
-			if (c_file.attrib == _A_NORMAL || c_file.attrib == _A_RDONLY)
+			if (!(c_file.attrib & _A_SUBDIR))
 			{
 				safe_snprintf(full_path, sizeof(full_path), "%s/%s", base_path, c_file.name);
 				fn(full_path);
