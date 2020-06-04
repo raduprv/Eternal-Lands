@@ -397,9 +397,10 @@ CHECK_GL_ERRORS();
 				statsinfo[thestat].skillnames->shortname, 1, col[0], col[1], col[2],
 				0.0f, 0.0f, 0.0f, side_stats_bar_text_zoom);
 			safe_snprintf(str, sizeof(str), "%3d", statsinfo[thestat].skillattr->base);
-			draw_string_shadowed_zoomed_right(text_x_right, y + gy_adjust,
-				(const unsigned char*)str, 1, col[0], col[1], col[2], 0.0f, 0.0f, 0.0f,
-				side_stats_bar_text_zoom);
+			draw_text(text_x_right, y + gy_adjust, (const unsigned char*)str, strlen(str),
+				win->font_category, TDO_MAX_LINES, 1, TDO_SHADOW, 1,
+				TDO_FOREGROUND, col[1], col[1], col[2], TDO_BACKGROUND, 0.0, 0.0, 0.0,
+				TDO_ZOOM, side_stats_bar_text_zoom, TDO_ALIGNMENT, RIGHT, TDO_END);
 
 			if((thestat!=NUM_WATCH_STAT-2) && floatingmessages_enabled &&
 				(skill_modifier = statsinfo[thestat].skillattr->cur -

@@ -3902,8 +3902,9 @@ static int pword_field_draw(widget_list *w)
 
 	sel_begin = max2i(entry->sel_begin - entry->draw_begin, 0);
 	sel_end = max2i(entry->sel_end - entry->draw_begin, 0);
-	draw_buf_zoomed_width_font_select(x_left, y_top, start, len, max_width, 1,
-		w->r, w->g, w->b, w->fcat, w->size, sel_begin, sel_end);
+	draw_text(x_left, y_top, start, len, w->fcat, TDO_MAX_WIDTH, max_width, TDO_MAX_LINES, 1,
+		TDO_FOREGROUND, w->r, w->g, w->b, TDO_ZOOM, w->size, TDO_SEL_BEGIN, sel_begin,
+		TDO_SEL_END, sel_end, TDO_END);
 	if (entry->mouseover && cur_time % (2*TF_BLINK_DELAY) < TF_BLINK_DELAY)
 	{
 		draw_string_zoomed_width_font(x_cursor, y_top, (const unsigned char*)"_",

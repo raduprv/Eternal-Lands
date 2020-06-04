@@ -49,6 +49,17 @@ typedef enum
 	NR_FONT_CATS
 } font_cat;
 
+//! Enumeration for horizontal text alignment
+typedef enum
+{
+	//! Align text left to the given position
+	LEFT,
+	//! Center text around the given position
+	CENTER,
+	//! Align text right to the given position
+	RIGHT
+} hor_alignment;
+
 #include "gl_init.h"
 #include "text.h"
 #include "widgets.h"
@@ -96,16 +107,8 @@ public:
 	//! Default color for selected text
 	static const std::array<float, 3> default_selection_color;
 
-	//! Enumeration for horizontal text alignment
-	enum Alignment
-	{
-		//! Align text left to the given position
-		LEFT,
-		//! Center text around the given position
-		CENTER,
-		//! Align text right to the given position
-		RIGHT
-	};
+	typedef ::hor_alignment Alignment;
+
 	//! Bit flags controlling the look of the text
 	enum Flags
 	{
@@ -646,7 +649,7 @@ private:
 	static const int default_line_height = 18;
 #ifdef TTF
 	//! Point size with which TrueType fonts are opened
-	static const int ttf_point_size = 32;
+	static const int ttf_point_size = 40;
 #endif
 	//! Relative frequencies for characters in normal English text
 	static const std::array<int, nr_glyphs> letter_freqs;
@@ -1552,57 +1555,88 @@ static __inline__ void put_small_text_in_box_zoomed (const unsigned char* text,
 
 /*!
  * \ingroup text_font
- * \brief Draw a text string
+ * \brief Enumeration for text drawing options
  *
- * Draw the text in the first \a len bytes of \a text, starting at position
- * \a x, \a y on the screen, using the font for category \a cat. Options \a max_width and
- * \a max_lines specify the maximum width of the text and maximum number of lines
- * drawn respectively. Text outside these boundaries will not be drawn. The text
- * will be drawn (at least up until the first color character) in color (\a r, \a g, \a b).
- * The bytes in text between \a sel_begin and \a sel_end (exclusive) are assumed
- * to be  selected text, and are drawn in the default selection color.
- * \note This is sort of a catch-all function, with a million parameters. Consider
- * using one of the simpler draw_buf_*() or draw_string_*() function if you do not
- * need to set all of them. Or use C++ and set TextDrawOptions to your heart's content.
- *
- * \param x         The left coordinate of the drawn text
- * \param y         The top coordinate of the drawn text
- * \param text      The text to draw
- * \param len       The number of bytes in \a text
- * \param max_width The maximum width in pixels of the text
- * \param max_lines The maximum number of lines to draw, or 0 for no limit
- * \param r         The red component of the text color
- * \param g         The green component of the text color
- * \param b         The blue component of the text color
- * \param cat       The font category for the text
- * \param text_zoom Scale factor for the text size
- * \param sel_begin Start index of selected text
- * \param sel_end   End index of selected text (one past last selected character)
+ * Various text drawing options can be passed to \ref draw text, specified by a selector from this
+ * enumeration followed by one or more arguments.
  */
-void draw_buf_zoomed_width_font_select(int x, int y, const unsigned char *text, size_t len,
-	int max_width, int max_lines, float r, float g, float b, font_cat cat, float text_zoom,
-	int sel_begin, int sel_end);
+typedef enum
+{
+	//! Set the maximum width, followed by \c int
+	TDO_MAX_WIDTH,
+	//! Set the maximum number of lines, followed by \c int
+	TDO_MAX_LINES,
+	//! Scale factor for the text, followed by \c float
+	TDO_ZOOM,
+	//! Scale factor for the spacing between lines, followed by \c float
+	TDO_LINE_SPACING,
+	//! Horizontal alignment, followed by a \c hor_alignment
+	TDO_ALIGNMENT,
+	//! Draw the text with a shadow in the background color, followed by \c bool
+	TDO_SHADOW,
+	//! Foreground color of the text, followed by 3 \c floats
+	TDO_FOREGROUND,
+	//! Background color of the text, followed by 3 \c floats
+	TDO_BACKGROUND,
+	//! Selection color of the text, followed by 3 \c floats
+	TDO_SELECTION,
+	//! Ignor color characters in the text, followed by \c bool
+	TDO_IGNORE_COLOR,
+	//! Draw the string as help text, with a semi-transparent background, followed by \c bool
+	TDO_HELP,
+	//! Indicate clipped text with ellipsis, followed by \c bool
+	TDO_ELLIPSIS,
+	//! Start index of the selected text, followed by \c int
+	TDO_SEL_BEGIN,
+	//! End index of the selected text, followed by \c int
+	TDO_SEL_END,
+	//! End of text draw options, should always be last
+	TDO_END
+} text_draw_option_sel;
+
 /*!
  * \ingroup text_font
  * \brief Draw a text string
  *
- * Draw the text in the first \a len bytes of \a text, starting at position
- * \a x, \a y on the screen, using the font for category \a cat. Options \a max_width and
- * \a max_lines specify the maximum width of the text and maximum number of lines
- * drawn respectively. Text outside these boundaries will not be drawn. The text
- * will be drawn in the default foreground color.
+ * Draw the text in the first \a len bytes of \a text, starting at position \a x, \a y on the
+ * screen, using the font for category \a cat, with formatting options \a options. The options
+ * should be a (possbily empty) list of option selectors of type \ref text_draw_option_sel, each
+ * followed by the arguments for that particular selector, and should end with \ref TDO_END.
  *
  * \param x         The left coordinate of the drawn text
  * \param y         The top coordinate of the drawn text
  * \param text      The text to draw
  * \param len       The number of bytes in \a text
- * \param max_width The maximum width in pixels of the text
- * \param max_lines The maximum number of lines to draw, or 0 for no limit
  * \param cat       The font category for the text
- * \param text_zoom Scale factor for the text size
+ * \param options   Formatting options for the text
  */
-void draw_buf_zoomed_width_font(int x, int y, const unsigned char *text, size_t len,
-	int max_width, int max_lines, font_cat cat, float text_zoom);
+void vdraw_text(int x, int y, const unsigned char* text, size_t len, font_cat cat, va_list options);
+/*!
+ * \ingroup text_font
+ * \brief Draw a text string
+ *
+ * Draw the text in the first \a len bytes of \a text, starting at position \a x, \a y on the
+ * screen, using the font for category \a cat, with formatting options \a options. Formatting
+ * options for the text can be given after \a cat; the list of formatting options should always
+ * end with \ref TDO_END.
+ * \note Even when no formatting options are given, \ref TDO_END should be passed as the only
+ * extra parameter to indicate the end of the options list.
+ *
+ * \param x         The left coordinate of the drawn text
+ * \param y         The top coordinate of the drawn text
+ * \param text      The text to draw
+ * \param len       The number of bytes in \a text
+ * \param cat       The font category for the text
+ * \param options   Formatting options for the text
+ */
+static __inline__ void draw_text(int x, int y, const unsigned char* text, size_t len, font_cat cat, ...)
+{
+	va_list ap;
+	va_start(ap, cat);
+	vdraw_text(x, y, text, len, cat, ap);
+	va_end(ap);
+}
+
 /*!
  * \ingroup text_font
  * \brief Draw a text string
@@ -1624,29 +1658,9 @@ void draw_buf_zoomed_width_font(int x, int y, const unsigned char *text, size_t 
 static __inline__ void draw_string_zoomed_width_font(int x, int y, const unsigned char *text,
 	int max_width, int max_lines, font_cat cat, float text_zoom)
 {
-	draw_buf_zoomed_width_font(x, y, text, strlen((const char*)text),
-		max_width, max_lines, cat, text_zoom);
+	draw_text(x, y, text, strlen((const char*)text), cat, TDO_MAX_WIDTH, max_width,
+		TDO_MAX_LINES, max_lines, TDO_ZOOM, text_zoom, TDO_END);
 }
-/*!
- * \ingroup text_font
- * \brief Draw a text string
- *
- * Draw the text in the nul-terminated buffer \a text, right-aligned to position
- * \a x, \a y on the screen, using the font for category \a cat. Options \a max_width and
- * \a max_lines specify the maximum width of the text and maximum number of lines
- * drawn respectively. Text outside these boundaries will not be drawn. The text
- * will be drawn in the default foreground color.
- *
- * \param x         The right coordinate of the drawn text
- * \param y         The top coordinate of the drawn text
- * \param text      The text to draw
- * \param max_width The maximum width in pixels of the text
- * \param max_lines The maximum number of lines to draw, or 0 for no limit
- * \param cat       The font category for the text
- * \param text_zoom Scale factor for the text size
- */
-void draw_string_zoomed_width_font_right(int x, int y, const unsigned char *text,
-	int max_width, int max_lines, font_cat cat, float text_zoom);
 /*!
  * \ingroup text_font
  * \brief Draw a text string
@@ -1665,8 +1679,12 @@ void draw_string_zoomed_width_font_right(int x, int y, const unsigned char *text
  * \param cat       The font category for the text
  * \param text_zoom Scale factor for the text size
  */
-void draw_string_zoomed_width_font_centered(int x, int y, const unsigned char *text,
-	int max_width, int max_lines, font_cat cat, float text_zoom);
+static __inline__ void draw_string_zoomed_width_font_centered(int x, int y, const unsigned char *text,
+	int max_width, int max_lines, font_cat cat, float text_zoom)
+{
+	draw_text(x, y, text, strlen((const char*)text), cat, TDO_MAX_WIDTH, max_width,
+		TDO_MAX_LINES, max_lines, TDO_ZOOM, text_zoom, TDO_ALIGNMENT, CENTER, TDO_END);
+}
 /*!
  * \ingroup text_font
  * \brief Draw a text string
@@ -1682,8 +1700,8 @@ void draw_string_zoomed_width_font_centered(int x, int y, const unsigned char *t
  * \param center_idx The index of the character around which the centering is done
  * \param text_zoom  Scale factor for the text size
  */
-void draw_string_zoomed_centered_around(int x, int y,
-	const unsigned char *text, int center_idx, float text_zoom);
+void draw_string_zoomed_centered_around(int x, int y, const unsigned char *text, int center_idx,
+	float text_zoom);
 /*!
  * \ingroup text_font
  * \brief Draw a text string
@@ -1703,29 +1721,8 @@ void draw_string_zoomed_centered_around(int x, int y,
 static __inline__ void draw_string_zoomed(int x, int y, const unsigned char* text,
 	int max_lines, float text_zoom)
 {
-	draw_string_zoomed_width_font(x, y, text, window_width, max_lines, UI_FONT, text_zoom);
-}
-/*!
- * \ingroup text_font
- * \brief Draw a text string
- *
- * Draw the text in the nul-terminated buffer \a text, right aligned to position
- * \a x, \a y on the screen, using the font for the UI_FONT category. The option
- * \a max_lines specifies the maximum number of lines drawn, any text after
- * this line will not be drawn. The text will be drawn in the default foreground
- * color.
- *
- * \param x         The right coordinate of the drawn text
- * \param y         The top coordinate of the drawn text
- * \param text      The text to draw
- * \param max_lines The maximum number of lines to draw, or 0 for no limit
- * \param text_zoom Scale factor for the text size
- */
-static __inline__ void draw_string_zoomed_right(int x, int y, const unsigned char *text,
-	int max_lines, float text_zoom)
-{
-	draw_string_zoomed_width_font_right(x, y, text, window_width, max_lines,
-		UI_FONT, text_zoom);
+	draw_text(x, y, text, strlen((const char*)text), UI_FONT, TDO_MAX_LINES, max_lines,
+		TDO_ZOOM, text_zoom, TDO_END);
 }
 /*!
  * \ingroup text_font
@@ -1746,8 +1743,8 @@ static __inline__ void draw_string_zoomed_right(int x, int y, const unsigned cha
 static __inline__ void draw_string_zoomed_centered(int x, int y, const unsigned char *text,
 	int max_lines, float text_zoom)
 {
-	draw_string_zoomed_width_font_centered(x, y, text, window_width, max_lines,
-		UI_FONT, text_zoom);
+	draw_text(x, y, text, strlen((const char*)text), UI_FONT, TDO_MAX_LINES, max_lines,
+		TDO_ZOOM, text_zoom, TDO_ALIGNMENT, CENTER, TDO_END);
 }
 /*!
  * \ingroup text_font
@@ -1770,7 +1767,8 @@ static __inline__ void draw_string_zoomed_centered(int x, int y, const unsigned 
 static __inline__ void draw_string_zoomed_width(int x, int y, const unsigned char* text,
 	int max_width, int max_lines, float text_zoom)
 {
-	draw_string_zoomed_width_font(x, y, text, max_width, max_lines, UI_FONT, text_zoom);
+	draw_text(x, y, text, strlen((const char*)text), UI_FONT, TDO_MAX_WIDTH, max_width,
+		TDO_MAX_LINES, max_lines, TDO_ZOOM, text_zoom, TDO_END);
 }
 /*!
  * \ingroup text_font
@@ -1795,9 +1793,13 @@ static __inline__ void draw_string_zoomed_width(int x, int y, const unsigned cha
  * \param bb        Blue component of the background color
  * \param text_zoom Scale factor for the text size
  */
-void draw_string_shadowed_zoomed(int x, int y, const unsigned char* text,
-	int max_lines, float fr, float fg, float fb, float br, float bg, float bb,
-	float text_zoom);
+static __inline__ void draw_string_shadowed_zoomed(int x, int y, const unsigned char* text,
+	int max_lines, float fr, float fg, float fb, float br, float bg, float bb, float text_zoom)
+{
+	draw_text(x, y, text, strlen((const char*)text), UI_FONT, TDO_MAX_LINES, max_lines,
+		TDO_SHADOW, 1, TDO_FOREGROUND, fr, fg, fb, TDO_BACKGROUND, br, bg, bb, TDO_ZOOM, text_zoom,
+		TDO_END);
+}
 /*!
  * \ingroup text_font
  * \brief Draw a text string
@@ -1821,35 +1823,13 @@ void draw_string_shadowed_zoomed(int x, int y, const unsigned char* text,
  * \param bb        Blue component of the background color
  * \param text_zoom Scale factor for the text size
  */
-void draw_string_shadowed_zoomed_centered(int x, int y, const unsigned char* text,
-	int max_lines, float fr, float fg, float fb, float br, float bg, float bb,
-	float text_zoom);
-/*!
- * \ingroup text_font
- * \brief Draw a text string
- *
- * Draw the text in the nul-terminated buffer \a text, right aligned to position
- * \a x, \a y on the screen, using the font for the UI_FONT category. The string
- * is drawn in the color (\a fr, \a fg, \a fb), with a background shadow in
- * the color (\a br, \a bg, \a bb). The option \a max_lines specifies the maximum
- * number of lines drawn, any text after this line will not be drawn.
- *
- *
- * \param x         The right coordinate of the drawn text
- * \param y         The top coordinate of the drawn text
- * \param text      The text to draw
- * \param max_lines The maximum number of lines to draw, or 0 for no limit
- * \param fr        Red component of the foreground color
- * \param fg        Green component of the foreground color
- * \param fb        Blue component of the foreground color
- * \param br        Red component of the background color
- * \param bg        Green component of the background color
- * \param bb        Blue component of the background color
- * \param text_zoom Scale factor for the text size
- */
-void draw_string_shadowed_zoomed_right(int x, int y, const unsigned char* text,
-	int max_lines, float fr, float fg, float fb, float br, float bg, float bb,
-	float text_zoom);
+static __inline__ void draw_string_shadowed_zoomed_centered(int x, int y, const unsigned char* text,
+	int max_lines, float fr, float fg, float fb, float br, float bg, float bb, float text_zoom)
+{
+	draw_text(x, y, text, strlen((const char*)text), UI_FONT, TDO_MAX_LINES, max_lines,
+		TDO_SHADOW, 1, TDO_FOREGROUND, fr, fg, fb, TDO_BACKGROUND, br, bg, bb, TDO_ZOOM, text_zoom,
+		TDO_ALIGNMENT, CENTER, TDO_END);
+}
 /*!
  * \ingroup text_font
  * \brief Draw a text string
@@ -1874,9 +1854,14 @@ void draw_string_shadowed_zoomed_right(int x, int y, const unsigned char* text,
  * \param bg        Green component of the background color
  * \param bb        Blue component of the background color
  */
-void draw_string_shadowed_scaled_to_width(int x, int y, const unsigned char* text,
-	int width, int max_lines, float fr, float fg, float fb,
-	float br, float bg, float bb);
+static __inline__ void draw_string_shadowed_scaled_to_width(int x, int y, const unsigned char* text,
+	int width, int max_lines, float fr, float fg, float fb, float br, float bg, float bb)
+{
+	int text_width = get_string_width_zoom(text, UI_FONT, 1.0);
+	draw_text(x, y, text, strlen((const char*)text), UI_FONT, TDO_MAX_WIDTH, width,
+		TDO_MAX_LINES, max_lines, TDO_SHADOW, 1, TDO_FOREGROUND, fr, fg, fb,
+		TDO_BACKGROUND, br, bg, bb, TDO_ZOOM, (double)width / text_width, TDO_END);
+}
 /*!
  * \ingroup text_font
  * \brief Draw a text string
@@ -1895,80 +1880,96 @@ void draw_string_shadowed_scaled_to_width(int x, int y, const unsigned char* tex
  * \param cat       The font category for the text
  * \param text_zoom Scale factor for the text size
  */
-void draw_string_zoomed_ellipsis_font(int x, int y, const unsigned char *text,
-	int max_width, int max_lines, font_cat cat, float text_zoom);
+static __inline__ void draw_string_zoomed_ellipsis_font(int x, int y, const unsigned char *text,
+	int max_width, int max_lines, font_cat cat, float text_zoom)
+{
+	draw_text(x, y, text, strlen((const char*)text), cat, TDO_MAX_WIDTH, max_width,
+		TDO_MAX_LINES, max_lines, TDO_ZOOM, text_zoom, TDO_ELLIPSIS, 1, TDO_END);
+}
 
 //! Analogue of draw_string_zoomed(), for small text size
 static __inline__ void draw_string_small_zoomed(int x, int y,
 	const unsigned char* text, int max_lines, float text_zoom)
 {
-	draw_string_zoomed_width_font(x, y, text, window_width, max_lines,
-		UI_FONT, text_zoom * DEFAULT_SMALL_RATIO);
+	draw_text(x, y, text, strlen((const char*)text), UI_FONT, TDO_MAX_LINES, max_lines,
+		TDO_ZOOM, text_zoom * DEFAULT_SMALL_RATIO, TDO_END);
 }
-//! Analogue of draw_string_zoomed_right(), for small text size
+/*!
+ * \ingroup text_font
+ * \brief Draw a text string
+ *
+ * Draw the text in the nul-terminated buffer \a text, right aligned to position
+ * \a x, \a y on the screen, using the small font for the UI_FONT category. The option
+ * \a max_lines specifies the maximum number of lines drawn, any text after
+ * this line will not be drawn. The text will be drawn in the default foreground
+ * color.
+ *
+ * \param x         The right coordinate of the drawn text
+ * \param y         The top coordinate of the drawn text
+ * \param text      The text to draw
+ * \param max_lines The maximum number of lines to draw, or 0 for no limit
+ * \param text_zoom Scale factor for the text size
+ */
 static __inline__ void draw_string_small_zoomed_right(int x, int y,
 	const unsigned char* text, int max_lines, float text_zoom)
 {
-	draw_string_zoomed_width_font_right(x, y, text, window_width, max_lines,
-		UI_FONT, text_zoom * DEFAULT_SMALL_RATIO);
+	draw_text(x, y, text, strlen((const char*)text), UI_FONT, TDO_MAX_LINES, max_lines,
+		TDO_ZOOM, text_zoom * DEFAULT_SMALL_RATIO, TDO_ALIGNMENT, RIGHT, TDO_END);
 }
 //! Analogue of draw_string_zoomed_centered(), for small text size
 static __inline__ void draw_string_small_zoomed_centered(int x, int y,
 	const unsigned char* text, int max_lines, float text_zoom)
 {
-	draw_string_zoomed_width_font_centered(x, y, text, window_width, max_lines,
-		UI_FONT, text_zoom * DEFAULT_SMALL_RATIO);
+	draw_text(x, y, text, strlen((const char*)text), UI_FONT, TDO_MAX_LINES, max_lines,
+		TDO_ZOOM, text_zoom * DEFAULT_SMALL_RATIO, TDO_ALIGNMENT, CENTER, TDO_END);
 }
 //! Analogue of draw_string_zoomed_centered_around(), for small text size
 static __inline__ void draw_string_small_zoomed_centered_around(int x, int y,
 	const unsigned char *text, int center_idx, float text_zoom)
 {
-	draw_string_zoomed_centered_around(x, y, text, center_idx,
-		text_zoom * DEFAULT_SMALL_RATIO);
+	draw_string_zoomed_centered_around(x, y, text, center_idx, text_zoom * DEFAULT_SMALL_RATIO);
 }
 //! Analogue of draw_string_shadowed_zoomed(), for small text size
 static __inline__ void draw_string_small_shadowed_zoomed(int x, int y,
 	const unsigned char* text, int max_lines, float fr, float fg, float fb,
 	float br, float bg, float bb, float text_zoom)
 {
-	draw_string_shadowed_zoomed(x, y, text, max_lines, fr, fg, fb, br, bg, bb,
-		text_zoom * DEFAULT_SMALL_RATIO);
+	draw_text(x, y, text, strlen((const char*)text), UI_FONT, TDO_MAX_LINES, max_lines,
+		TDO_SHADOW, 1, TDO_FOREGROUND, fr, fg, fb, TDO_BACKGROUND, br, bg, bb,
+		TDO_ZOOM, text_zoom * DEFAULT_SMALL_RATIO, TDO_END);
 }
-//! Analogue of draw_string_shadowed_zoomed_right(), for small text size
+/*!
+ * \ingroup text_font
+ * \brief Draw a text string
+ *
+ * Draw the text in the nul-terminated buffer \a text, right aligned to position
+ * \a x, \a y on the screen, using the small font for the UI_FONT category. The string
+ * is drawn in the color (\a fr, \a fg, \a fb), with a background shadow in
+ * the color (\a br, \a bg, \a bb). The option \a max_lines specifies the maximum
+ * number of lines drawn, any text after this line will not be drawn.
+ *
+ *
+ * \param x         The right coordinate of the drawn text
+ * \param y         The top coordinate of the drawn text
+ * \param text      The text to draw
+ * \param max_lines The maximum number of lines to draw, or 0 for no limit
+ * \param fr        Red component of the foreground color
+ * \param fg        Green component of the foreground color
+ * \param fb        Blue component of the foreground color
+ * \param br        Red component of the background color
+ * \param bg        Green component of the background color
+ * \param bb        Blue component of the background color
+ * \param text_zoom Scale factor for the text size
+ */
 static __inline__ void draw_string_small_shadowed_zoomed_right(int x, int y,
 	const unsigned char* text, int max_lines, float fr, float fg, float fb,
 	float br, float bg, float bb, float text_zoom)
 {
-	draw_string_shadowed_zoomed_right(x, y, text, max_lines,
-		fr, fg, fb, br, bg, bb, text_zoom * DEFAULT_SMALL_RATIO);
-}
-//! Analogue of draw_string_shadowed_zoomed_centered(), for small text size
-static __inline__ void draw_string_small_shadowed_zoomed_centered(int x, int y,
-	const unsigned char* text, int max_lines, float fr, float fg, float fb,
-	float br, float bg, float bb, float text_zoom)
-{
-	draw_string_shadowed_zoomed_centered(x, y, text, max_lines,
-		fr, fg, fb, br, bg, bb, text_zoom * DEFAULT_SMALL_RATIO);
+	draw_text(x, y, text, strlen((const char*)text), UI_FONT, TDO_MAX_LINES, max_lines,
+		TDO_SHADOW, 1, TDO_FOREGROUND, fr, fg, fb, TDO_BACKGROUND, br, bg, bb,
+		TDO_ZOOM, text_zoom * DEFAULT_SMALL_RATIO, TDO_ALIGNMENT, RIGHT, TDO_END);
 }
 
-/*!
- * \ingroup text_font
- * \brief Draw a help message
- *
- * Shows the help message \a text at position (\a x, \a y) in text color
- * (\a r, \a g, \a b), with text scale factor \a text_zoom. The message
- * is drawn on a semi-transparent background.
- *
- * \param text      The help text to display
- * \param x         The x-coordinate of the left side of the text
- * \param y         The y-coordinate of the top of text text
- * \param r         The red component of the text color
- * \param g         The green component of the text color
- * \param b         The blue component of the text color
- * \param text_zoom The scale factor for the text size
- */
-void show_help_colored_scaled(const unsigned char *text, int x, int y,
-	float r, float g, float b, float text_zoom);
 /*!
  * \ingroup text_font
  * \brief Draw a help message
@@ -1985,8 +1986,12 @@ void show_help_colored_scaled(const unsigned char *text, int x, int y,
  * \param b         The blue component of the text color
  * \param text_zoom The scale factor for the text size
  */
-void show_help_colored_scaled_centered(const unsigned char *text, int x, int y,
-	float r, float g, float b, float text_zoom);
+static __inline__ void show_help_colored_scaled_centered(const unsigned char *text, int x, int y,
+	float r, float g, float b, float text_zoom)
+{
+	draw_text(x, y, text, strlen((const char*)text), UI_FONT, TDO_MAX_WIDTH, window_width - 80,
+		TDO_HELP, 1, TDO_FOREGROUND, r, g, b, TDO_ZOOM, text_zoom, TDO_ALIGNMENT, CENTER, TDO_END);
+}
 /*!
  * \ingroup text_font
  * \brief Draw a help message
@@ -2003,8 +2008,12 @@ void show_help_colored_scaled_centered(const unsigned char *text, int x, int y,
  * \param b         The blue component of the text color
  * \param text_zoom The scale factor for the text size
  */
-void show_help_colored_scaled_right(const unsigned char *text, int x, int y,
-	float r, float g, float b, float text_zoom);
+static __inline__ void show_help_colored_scaled_right(const unsigned char *text, int x, int y,
+	float r, float g, float b, float text_zoom)
+{
+	draw_text(x, y, text, strlen((const char*)text), UI_FONT, TDO_MAX_WIDTH, window_width - 80,
+		TDO_HELP, 1, TDO_FOREGROUND, r, g, b, TDO_ZOOM, text_zoom, TDO_ALIGNMENT, RIGHT, TDO_END);
+}
 /*!
  * \ingroup text_font
  * \brief Shows a help message in small font
@@ -2019,8 +2028,9 @@ void show_help_colored_scaled_right(const unsigned char *text, int x, int y,
  */
 static __inline__ void show_help(const char *text, int x, int y, float text_zoom)
 {
-	show_help_colored_scaled((const unsigned char*)text, x, y, 1.0f, 1.0f, 1.0f,
-		text_zoom * DEFAULT_SMALL_RATIO);
+	draw_text(x, y, (const unsigned char*)text, strlen(text), UI_FONT,
+		TDO_MAX_WIDTH, window_width - 80, TDO_HELP, 1, TDO_FOREGROUND, 1.0, 1.0, 1.0,
+		TDO_ZOOM, text_zoom * DEFAULT_SMALL_RATIO, TDO_END);
 }
 /*!
  * \ingroup text_font
@@ -2036,7 +2046,9 @@ static __inline__ void show_help(const char *text, int x, int y, float text_zoom
  */
 static __inline__ void show_help_big(const char *text, int x, int y, float text_zoom)
 {
-	show_help_colored_scaled((const unsigned char*)text, x, y, 1.0f, 1.0f, 1.0f, text_zoom);
+	draw_text(x, y, (const unsigned char*)text, strlen(text), UI_FONT,
+		TDO_MAX_WIDTH, window_width - 80,TDO_HELP, 1, TDO_FOREGROUND, 1.0, 1.0, 1.0,
+		TDO_ZOOM, text_zoom, TDO_END);
 }
 
 /*!

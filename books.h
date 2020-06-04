@@ -720,7 +720,7 @@ public:
 	 * \param alignment The alignment of the button text with respect to the position
 	 */
 	TextLink(int target, const char* text, int x, int y, float zoom,
-		TextDrawOptions::Alignment alignment = TextDrawOptions::LEFT);
+		TextDrawOptions::Alignment alignment = TextDrawOptions::Alignment::LEFT);
 
 	//! Return the x coordinate of the left side of the button
 	int x_begin() const { return _x_begin; }

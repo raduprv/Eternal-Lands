@@ -112,7 +112,9 @@ static void draw_last_health_change(window_info *win)
 		else
 		{
 			safe_snprintf((char*)str, sizeof(str), " %d ", my_last_health.h);
-			show_help_colored_scaled(str, health_bar_start_x+stats_bar_len/2+2, yoff, 0.0f, 1.0f, 0.0f, win->current_scale_small);
+			draw_text(health_bar_start_x+stats_bar_len/2+2, yoff, str, strlen((const char*)str),
+				win->font_category, TDO_HELP, 1, TDO_FOREGROUND, 0.0, 1.0, 0.0,
+				TDO_ZOOM, win->current_scale_small, TDO_END);
 		}
 	}
 }

@@ -761,10 +761,6 @@ std::pair<size_t, size_t> Font::clip_line(const unsigned char *text, size_t len,
 void Font::draw(const unsigned char* text, size_t len, int x, int y,
 	const TextDrawOptions &options, size_t sel_begin, size_t sel_end) const
 {
-	if (options.max_width() < std::ceil(_block_width * _scale * options.zoom()))
-		// There's really no point in trying
-		return;
-
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -1585,39 +1581,87 @@ void put_small_colored_text_in_box_zoomed(int color,
 	buffer[new_len] = '\0';
 }
 
-void draw_buf_zoomed_width_font_select(int x, int y, const unsigned char *text, size_t len,
-	int max_width, int max_lines, float r, float g, float b, font_cat cat, float text_zoom,
-	int sel_begin, int sel_end)
+void vdraw_text(int x, int y, const unsigned char* text, size_t len, font_cat cat, va_list options)
 {
-	TextDrawOptions options = TextDrawOptions().set_max_width(max_width)
-		.set_max_lines(max_lines).set_foreground(r, g, b).set_zoom(text_zoom);
-	FontManager::get_instance().draw(cat, text, len, x, y, options, sel_begin, sel_end);
+	TextDrawOptions tdo;
+	text_draw_option_sel sel;
+	int sel_begin = 0, sel_end = 0;
+	bool end_reached = false;
+	do
+	{
+		sel = text_draw_option_sel(va_arg(options, int));
+		switch (sel)
+		{
+			case TDO_MAX_WIDTH:
+				tdo.set_max_width(va_arg(options, int));
+				break;
+			case TDO_MAX_LINES:
+				tdo.set_max_lines(va_arg(options, int));
+				break;
+			case TDO_ZOOM:
+				tdo.set_zoom(va_arg(options, double));
+				break;
+			case TDO_LINE_SPACING:
+				tdo.set_line_spacing(va_arg(options, double));
+				break;
+			case TDO_ALIGNMENT:
+				tdo.set_alignment(TextDrawOptions::Alignment(va_arg(options, int)));
+				break;
+			case TDO_SHADOW:
+				tdo.set_shadow(va_arg(options, int));
+				break;
+			case TDO_FOREGROUND:
+			{
+				float r = va_arg(options, double);
+				float g = va_arg(options, double);
+				float b = va_arg(options, double);
+				tdo.set_foreground(r, g, b);
+				break;
+			}
+			case TDO_BACKGROUND:
+			{
+				float r = va_arg(options, double);
+				float g = va_arg(options, double);
+				float b = va_arg(options, double);
+				tdo.set_background(r, g, b);
+				break;
+			}
+			case TDO_SELECTION:
+			{
+				float r = va_arg(options, double);
+				float g = va_arg(options, double);
+				float b = va_arg(options, double);
+				tdo.set_selection(r, g, b);
+				break;
+			}
+			case TDO_IGNORE_COLOR:
+				tdo.set_ignore_color(va_arg(options, int));
+				break;
+			case TDO_HELP:
+				tdo.set_help(va_arg(options, int));
+				break;
+			case TDO_ELLIPSIS:
+				tdo.set_ellipsis(va_arg(options, int));
+				break;
+			case TDO_SEL_BEGIN:
+				sel_begin = va_arg(options, int);
+				break;
+			case TDO_SEL_END:
+				sel_end = va_arg(options, int);
+				break;
+			case TDO_END:
+				end_reached = true;
+				break;
+			default:
+				LOG_ERROR("Unknown text draw option selector %d", sel);
+				end_reached = true;
+				break;
+		}
+	} while (!end_reached);
+
+	FontManager::get_instance().draw(cat, text, len, x, y, tdo, sel_begin, sel_end);
 }
-void draw_buf_zoomed_width_font(int x, int y, const unsigned char *text, size_t len,
-	int max_width, int max_lines, font_cat cat, float text_zoom)
-{
-	TextDrawOptions options = TextDrawOptions().set_max_width(max_width)
-		.set_max_lines(max_lines).set_zoom(text_zoom);
-	FontManager::get_instance().draw(cat, text, len, x, y, options);
-}
-void draw_string_zoomed_width_font_right(int x, int y, const unsigned char *text,
-	int max_width, int max_lines, font_cat cat, float text_zoom)
-{
-	TextDrawOptions options = TextDrawOptions().set_max_width(max_width)
-		.set_max_lines(max_lines).set_zoom(text_zoom)
-		.set_alignment(TextDrawOptions::Alignment::RIGHT);
-	FontManager::get_instance().draw(cat, text, strlen(reinterpret_cast<const char*>(text)),
-		x, y, options);
-}
-void draw_string_zoomed_width_font_centered(int x, int y, const unsigned char *text,
-	int max_width, int max_lines, font_cat cat, float text_zoom)
-{
-	TextDrawOptions options = TextDrawOptions().set_max_width(max_width)
-		.set_max_lines(max_lines).set_zoom(text_zoom)
-		.set_alignment(TextDrawOptions::Alignment::CENTER);
-	FontManager::get_instance().draw(cat, text, strlen(reinterpret_cast<const char*>(text)),
-		x, y, options);
-}
+
 void draw_string_zoomed_centered_around(int x, int y,
 	const unsigned char *text, int center_idx, float text_zoom)
 {
@@ -1633,88 +1677,6 @@ void draw_string_zoomed_centered_around(int x, int y,
 		FontManager::get_instance().draw(FontManager::Category::UI_FONT, text + idx,
 			len - idx, x, y, options);
 	}
-}
-void draw_string_shadowed_zoomed(int x, int y, const unsigned char* text,
-	int max_lines, float fr, float fg, float fb, float br, float bg, float bb,
-	float text_zoom)
-{
-	TextDrawOptions options = TextDrawOptions().set_max_lines(max_lines)
-		.set_shadow().set_foreground(fr, fg, fb).set_background(br, bg, bb)
-		.set_zoom(text_zoom);
-	FontManager::get_instance().draw(FontManager::Category::UI_FONT, text,
-		strlen(reinterpret_cast<const char*>(text)), x, y, options);
-}
-void draw_string_shadowed_zoomed_centered(int x, int y, const unsigned char* text,
-	int max_lines, float fr, float fg, float fb, float br, float bg, float bb,
-	float text_zoom)
-{
-	TextDrawOptions options = TextDrawOptions().set_max_lines(max_lines)
-		.set_shadow().set_foreground(fr, fg, fb).set_background(br, bg, bb)
-		.set_zoom(text_zoom).set_alignment(TextDrawOptions::Alignment::CENTER);
-	FontManager::get_instance().draw(FontManager::Category::UI_FONT, text,
-		strlen(reinterpret_cast<const char*>(text)), x, y, options);
-}
-void draw_string_shadowed_zoomed_right(int x, int y, const unsigned char* text,
-	int max_lines, float fr, float fg, float fb, float br, float bg, float bb,
-	float text_zoom)
-{
-	TextDrawOptions options = TextDrawOptions().set_max_lines(max_lines)
-		.set_shadow().set_foreground(fr, fg, fb).set_background(br, bg, bb)
-		.set_zoom(text_zoom).set_alignment(TextDrawOptions::Alignment::RIGHT);
-	FontManager::get_instance().draw(FontManager::Category::UI_FONT, text,
-		strlen(reinterpret_cast<const char*>(text)), x, y, options);
-}
-void draw_string_shadowed_scaled_to_width(int x, int y, const unsigned char* text,
-	int width, int max_lines, float fr, float fg, float fb,
-	float br, float bg, float bb)
-{
-	int text_width = FontManager::get_instance().line_width(FontManager::Category::UI_FONT,
-		text, strlen(reinterpret_cast<const char*>(text)));
-	TextDrawOptions options = TextDrawOptions()
-		.set_max_width(width).set_max_lines(max_lines)
-		.set_shadow().set_foreground(fr, fg, fb).set_background(br, bg, bb)
-		.set_zoom(float(width) / text_width);
-	FontManager::get_instance().draw(FontManager::Category::UI_FONT, text,
-		strlen(reinterpret_cast<const char*>(text)), x, y, options);
-}
-
-void draw_string_zoomed_ellipsis_font(int x, int y, const unsigned char *text,
-	int max_width, int max_lines, font_cat cat, float text_zoom)
-{
-	TextDrawOptions options = TextDrawOptions().set_max_width(max_width)
-		.set_max_lines(max_lines).set_zoom(text_zoom).set_ellipsis();
-	FontManager::get_instance().draw(cat, text, strlen(reinterpret_cast<const char*>(text)),
-		x, y, options);
-}
-
-void show_help_colored_scaled(const unsigned char *text, int x, int y,
-	float r, float g, float b, float text_zoom)
-{
-	TextDrawOptions options = TextDrawOptions().set_help()
-		.set_max_width(window_width - 80).set_foreground(r, g, b)
-		.set_zoom(text_zoom);
-	FontManager::get_instance().draw(FontManager::Category::UI_FONT, text,
-		strlen(reinterpret_cast<const char*>(text)), x, y, options);
-}
-
-void show_help_colored_scaled_centered(const unsigned char *text, int x, int y,
-	float r, float g, float b, float text_zoom)
-{
-	TextDrawOptions options = TextDrawOptions().set_help()
-		.set_max_width(window_width - 80).set_foreground(r, g, b)
-		.set_alignment(TextDrawOptions::Alignment::CENTER).set_zoom(text_zoom);
-	FontManager::get_instance().draw(FontManager::Category::UI_FONT, text,
-		strlen(reinterpret_cast<const char*>(text)), x, y, options);
-}
-
-void show_help_colored_scaled_right(const unsigned char *text, int x, int y,
-	float r, float g, float b, float text_zoom)
-{
-	TextDrawOptions options = TextDrawOptions().set_help()
-		.set_max_width(window_width - 80).set_foreground(r, g, b)
-		.set_alignment(TextDrawOptions::Alignment::RIGHT).set_zoom(text_zoom);
-	FontManager::get_instance().draw(FontManager::Category::UI_FONT, text,
-		strlen(reinterpret_cast<const char*>(text)), x, y, options);
 }
 
 void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter,

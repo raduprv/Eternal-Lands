@@ -699,7 +699,9 @@ void draw_spell_icon_strings(window_info *win)
 		if ((poison_drop_counter > 0) && (active_spells[i].spell == 2) && show_poison_count)
 		{
 			safe_snprintf((char*)str, sizeof(str), "%d", poison_drop_counter );
-			draw_string_small_shadowed_zoomed_centered(x_start+x_sep/2, y_start, str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
+			draw_text(x_start+x_sep/2, y_start, str, strlen((const char*)str), win->font_category,
+				TDO_SHADOW, 1, TDO_FOREGROUND, 1.0, 1.0, 1.0, TDO_BACKGROUND, 0.0, 0.0, 0.0,
+				TDO_ZOOM, win->current_scale_small, TDO_ALIGNMENT, CENTER, TDO_END);
 		}
 		/* other strings on spell icons, timers perhaps .....*/
 		x_start += x_sep;

@@ -63,7 +63,7 @@ void TextBlock::display() const
 	{
 		case TITLE:
 		case AUTHOR:
-			options.set_alignment(TextDrawOptions::CENTER);
+			options.set_alignment(TextDrawOptions::Alignment::CENTER);
 			break;
 		case PAGE_NR:
 			options.set_foreground(0.385f, 0.285f, 0.19f);
@@ -685,13 +685,13 @@ TextLink::TextLink(int target, const char* text, int x, int y, float zoom,
 		_text.length(), zoom);
 	switch (alignment)
 	{
-		case TextDrawOptions::LEFT:
+		case TextDrawOptions::Alignment::LEFT:
 			_x_begin = x;
 			break;
-		case TextDrawOptions::CENTER:
+		case TextDrawOptions::Alignment::CENTER:
 			_x_begin = x - width / 2;
 			break;
-		case TextDrawOptions::RIGHT:
+		case TextDrawOptions::Alignment::RIGHT:
 			_x_begin = x - width;
 			break;
 	}
@@ -738,13 +738,13 @@ void BookWindow::add_links(window_info *win)
 	}
 
 	x = win->len_x / 2;
-	_links.emplace_back(-1, "[X]", x, y_buttons, zoom, TextDrawOptions::CENTER);
+	_links.emplace_back(-1, "[X]", x, y_buttons, zoom, TextDrawOptions::Alignment::CENTER);
 
 	target = book->active_page_nr() + book->page_delta();
 	if (book && target < book->nr_pages())
 	{
 		x = std::round(win->len_x - zoom * x_margin_button);
-		_links.emplace_back(target, "->", x, y_buttons, zoom, TextDrawOptions::RIGHT);
+		_links.emplace_back(target, "->", x, y_buttons, zoom, TextDrawOptions::Alignment::RIGHT);
 	}
 
 	int button_width = FontManager::get_instance().line_width(UI_FONT,
@@ -759,7 +759,7 @@ void BookWindow::add_links(window_info *win)
 		{
 			std::string lbl = std::to_string(target + 1);
 			x = win->len_x / 2 + j * dx;
-			_links.emplace_back(target, lbl.c_str(), x, y_buttons, zoom, TextDrawOptions::CENTER);
+			_links.emplace_back(target, lbl.c_str(), x, y_buttons, zoom, TextDrawOptions::Alignment::CENTER);
 		}
 	}
 }
