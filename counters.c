@@ -641,18 +641,17 @@ static void set_content_widths(window_info *win)
 {
 	float zoom = win->current_scale_small;
 	int gap_x = win->small_font_max_len_x / 2;
-	int max_label_width = 0;
+	int max_button_width = 0;
 	int i;
 
 	for (i=0; i<NUM_COUNTERS; i++)
 	{
-		int width = get_string_width_zoom((const unsigned char*)cat_str[i],
-			win->font_category, win->current_scale_small);
-		if (width > max_label_width)
-			max_label_width = width;
+		int width = calc_button_width((const unsigned char*)cat_str[i], win->font_category, zoom);
+		if (width > max_button_width)
+			max_button_width = width;
 	}
 
-	left_panel_width = 2 * gap_x + max_label_width + 2 * (int)(zoom * BUTTONRADIUS);
+	left_panel_width = 2 * gap_x + max_button_width;
 
 	name_x_start = left_panel_width + gap_x;
 	name_x_end = name_x_start + get_string_width_zoom(name_str, win->font_category, zoom);
