@@ -27,7 +27,6 @@
 #include <windows.h>
 #include <direct.h>
 #include <shlobj.h>
-#include <shlwapi.h>
 #include <ctype.h>
 #define MKDIR(file) mkdir(file)
 #else // !WINDOWS
@@ -794,37 +793,59 @@ int search_files_and_apply(const char* base_path, const char *pattern, void (*fn
 	char full_path[512];
 
 #ifdef WINDOWS
+	char full_pattern[512];
 	struct _finddata_t c_file;
 	long hFile;
-	if ((hFile = _findfirst(base_path, &c_file)) == -1L)
+
+	// First get the matching files
+	safe_snprintf(full_pattern, sizeof(full_pattern), "%s/%s", base_path, pattern);
+	if ((hFile = _findfirst(full_pattern, &c_file)) != -1L)
+	{
+		errno = 0;
+		do
+		{
+			if (c_file.attrib == _A_NORMAL || c_file.attrib == _A_RDONLY)
+			{
+				safe_snprintf(full_path, sizeof(full_path), "%s/%s", base_path, c_file.name);
+				fn(full_path);
+				++nr_found;
+			}
+		} while (_findnext(hFile, &c_file) == 0);
+		if (errno != ENOENT)
+		{
+			LOG_ERROR("Failed to read directory %s: %s\n", base_path, strerror(errno));
+			return nr_found;
+		}
+		if (_findclose(hFile))
+		{
+			LOG_ERROR("Failed to close directory %s: %s\n", base_path, strerror(errno));
+			return nr_found;
+		}
+	}
+
+	// Now find the subdirectories, and recurse into them
+	if ((hFile = _findfirst(base_path, &c_file)) != -1L)
+	{
+		errno = 0;
+		do
+		{
+			if ((c_file.attrib & _A_SUBDIR) && max_depth > 0)
+			{
+				safe_snprintf(full_path, sizeof(full_path), "%s/%s", base_path, c_file.name);
+				nr_found += search_files_and_apply(full_path, pattern, fn, max_depth-1);
+			}
+		} while (_findnext(hFile, &c_file) == 0);
+		if (errno != ENOENT)
+			LOG_ERROR("Failed to read directory %s: %s\n", base_path, strerror(errno));
+		else if (_findclose(hFile))
+			LOG_ERROR("Failed to close directory %s: %s\n", base_path, strerror(errno));
+	}
+	else
 	{
 		LOG_ERROR("Failed to open directory %s: %s\n", base_path, strerror(errno));
-		return 0;
-	}
-	while (1)
-	{
-		if ((c_file.attrib & _A_SUBDIR) && max_depth > 0)
-		{
-			safe_snprintf(full_path, "%s/%s", base_path, c_file.name);
-			nr_found += search_files_and_apply(full_path, pattern, fn, max_depth-1);
-		}
-		else if (PathMatchSpecA(c_file.name, pattern))
-		{
-			safe_snprintf(full_path, "%s/%s", base_path, c_file.name);
-			fn(full_path);
-			++nr_found;
-		}
-
-		if (_findnext(hFile, &c_file))
-		{
-			if (errno != ENOENT)
-				LOG_ERROR("Failed to read directory %s: %s\n", base_path, strerror(errno));
-			break;
-		}
 	}
 
-	if (_findclose(hFile))
-		LOG_ERROR("Failed to close directory %s: %s\n", base_path, strerror(errno));
+	return nr_found;
 #else
 	DIR *dir = opendir(base_path);
 	if (!dir)
