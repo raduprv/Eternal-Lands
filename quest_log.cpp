@@ -1280,8 +1280,8 @@ void NPC_Filter::display_handler(window_info *win)
 	{
 		int posx = static_cast<int>(npc_name_border + col*max_npc_name_x + 0.5);
 		int posy = static_cast<int>(row*max_npc_name_y + 0.5);
-		int boxy = static_cast<int>(std::round((max_npc_name_y-npc_name_box_size)/2));
-		int texty = static_cast<int>(std::round((max_npc_name_y-line_height)/2));
+		int boxy = posy + static_cast<int>(std::round((max_npc_name_y-npc_name_box_size)/2));
+		int texty = posy + static_cast<int>(std::round((max_npc_name_y-line_height)/2));
 
 		// draw highlight over active name
 		if ((col+row*npc_name_cols) == npc_filter_active_npc_name)
