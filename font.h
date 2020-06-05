@@ -70,7 +70,9 @@ typedef enum
 	//! Center text around the given position
 	VCENTER,
 	//! Center first line around given position, assuming digits
-	CENTER_DIGITS
+	CENTER_DIGITS,
+	//! Center first line around given position, assuming password asterisks
+	CENTER_PASSWORD
 } ver_alignment;
 
 #include "gl_init.h"
@@ -350,7 +352,7 @@ public:
 	/*!
 	 * \brief Create a new font
 	 *
-	 * Initialize a new internal font. This sets the parameters for the \a i'th
+	 * Initialize a new internal font. This sets the parameters for the \a font_nr
 	 * font bundled with EL, but does not yet load the font texture because it
 	 * is called before OpenGL is initialized. There are 7 fonts available,
 	 * they are:
@@ -362,9 +364,9 @@ public:
 	 * - 5: textures/font6.dds
 	 * - 6: textures/font7.dds
 	 *
-	 * \param i The number of the EL bundled font
+	 * \param font_nr The number of the EL bundled font
 	 */
-	Font(size_t i);
+	Font(size_t font_nr);
 #ifdef TTF
 	/*!
 	 * \brief Create a new font.
@@ -743,6 +745,8 @@ private:
 	int _font_top_offset;
 	//! Distance from top of line to center of digits
 	int _digit_center_offset;
+	//! Distance from top of line to center of the asterisk
+	int _password_center_offset;
 	//! Maximum width of a glyph
 	int _max_advance;
 	//! Maximum width of a digit 0-9

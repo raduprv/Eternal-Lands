@@ -151,13 +151,14 @@ const std::array<int, Font::nr_glyphs> Font::letter_freqs = {
 };
 const ustring Font::ellipsis = reinterpret_cast<const unsigned char*>("...");
 
-Font::Font(size_t i): _font_name(), _file_name(), _flags(0),
+Font::Font(size_t font_nr): _font_name(), _file_name(), _flags(0),
 	_texture_width(256), _texture_height(256), _metrics(),
 	_block_width(font_block_width), _block_height(font_block_height),
 	_line_height(std::round(12.0 * default_line_height / 11)), _font_top_offset(0),
-	_digit_center_offset(i == 2 ? 9 : 8), _max_advance(12), _max_digit_advance(12),
-	_avg_advance(12), _spacing(0), _scale(11.0 / 12)
+	_digit_center_offset(font_nr == 2 ? 9 : 8), _password_center_offset(0), _max_advance(12),
+	_max_digit_advance(12), _avg_advance(12), _spacing(0), _scale(11.0 / 12)
 {
+	static const std::array<int, 7> asterisk_centers = { 6, 6, 6, 6, 5, 4, 5 };
 	static const std::array<const char*, 7> file_names = { {
 		"textures/font.dds",
 		"textures/font.dds",
@@ -169,27 +170,27 @@ Font::Font(size_t i): _font_name(), _file_name(), _flags(0),
 	} };
 
 	std::ostringstream os;
-	if (i > file_names.size())
+	if (font_nr > file_names.size())
 	{
 		// Invalid number. Set font name so that the button can be shown, but
 		// set FAILED flag so that the font is never actually used.
-		os << "Type " << (i + 1);
+		os << "Type " << (font_nr + 1);
 		_font_name = os.str();
 		_flags |= Flags::FAILED;
 
-		LOG_ERROR("Invalid font number %zu", i);
+		LOG_ERROR("Invalid font number %zu", font_nr);
 	}
-	else if (i == 0)
+	else if (font_nr == 0)
 	{
-		_file_name = file_names[i];
+		_file_name = file_names[font_nr];
 		_font_name = "Type 1 (fixed)";
 	}
 	else
 	{
-		_file_name = file_names[i];
+		_file_name = file_names[font_nr];
 		size_t begin = _file_name.find_last_of('/') + 1;
 		size_t end = _file_name.find_last_of('.');
-		os << "Type " << i << " - " << _file_name.substr(begin, end);
+		os << "Type " << font_nr << " - " << _file_name.substr(begin, end);
 		_font_name = os.str();
 	}
 
@@ -200,7 +201,7 @@ Font::Font(size_t i): _font_name(), _file_name(), _flags(0),
 	}
 
 	std::array<int, nr_glyphs> char_widths;
-	if (i == 1)
+	if (font_nr == 1)
 	{
 		char_widths = { {
 			 4,  2,  7, 11,  8, 12, 12,  2,  7,  7,  9, 10,  3,  8,
@@ -217,7 +218,7 @@ Font::Font(size_t i): _font_name(), _file_name(), _flags(0),
 		_max_digit_advance = *std::max_element(char_widths.begin() + 16, char_widths.begin() + 26);
 		_spacing = 4;
 	}
-	else if (i == 2)
+	else if (font_nr == 2)
 	{
 		char_widths = { {
 			 8,  8,  8, 10,  8, 10, 10,  8,  8,  8,  8, 10,  8,  8,
@@ -256,14 +257,15 @@ Font::Font(size_t i): _font_name(), _file_name(), _flags(0),
 		_metrics[pos].u_end = float((col+1) * font_block_width - 7 - skip) / 256;
 		_metrics[pos].v_end = float((row+1) * font_block_height - 1) / 256;
 		_avg_advance = average_width(letter_freqs.begin(), letter_freqs.end(), _metrics.begin());
+		_password_center_offset = asterisk_centers[font_nr];
 	}
 }
 
 #ifdef TTF
 Font::Font(const std::string& ttf_file_name): _font_name(), _file_name(), _flags(0),
 	_texture_width(0), _texture_height(0), _metrics(), _block_width(0), _block_height(0),
-	_line_height(0), _font_top_offset(0), _digit_center_offset(0), _max_advance(0),
-	_max_digit_advance(0), _avg_advance(0), _spacing(0), _scale(1.0)
+	_line_height(0), _font_top_offset(0), _digit_center_offset(0), _password_center_offset(0),
+	_max_advance(0), _max_digit_advance(0), _avg_advance(0), _spacing(0), _scale(1.0)
 {
 	TTF_Font *font = TTF_OpenFont(ttf_file_name.c_str(), ttf_point_size);
 	if (!font)
@@ -794,6 +796,9 @@ CHECK_GL_ERRORS();
 		case CENTER_DIGITS:
 			y -= std::round(options.zoom() * _scale * _digit_center_offset);
 			break;
+		case CENTER_PASSWORD:
+			y -= std::round(options.zoom() * _scale * _password_center_offset);
+			break;
 	}
 
 	glBegin(GL_QUADS);
@@ -1321,6 +1326,8 @@ bool Font::build_texture_atlas()
 	int digit_bottom = std::max_element(_metrics.begin() + 16, _metrics.begin() + 26,
 		[](const Metrics& m0, const Metrics& m1) { return m0.bottom < m1.bottom; })->bottom;
 	_digit_center_offset = (digit_top + digit_bottom) / 2;
+	int pos = get_position('*');
+	_password_center_offset = (_metrics[pos].top + _metrics[pos].bottom) / 2;
 	_max_advance = std::max_element(_metrics.begin(), _metrics.end(),
 		[](const Metrics& m0, const Metrics& m1) { return m0.advance < m1.advance; })->advance;
 	_max_digit_advance = std::max_element(_metrics.begin() + 16, _metrics.begin() + 26,
