@@ -2245,6 +2245,7 @@ int check_var(char *str, var_name_type type)
 		case OPT_INT_INI:
 			// Needed, because var is never changed through widget
 			our_vars.var[i]->saved= 0;
+			// fallthrough
 		case OPT_INT:
 		case OPT_INT_F:
 		{
@@ -2259,6 +2260,7 @@ int check_var(char *str, var_name_type type)
 		case OPT_BOOL_INI:
 			// Needed, because var is never changed through widget
 			our_vars.var[i]->saved= 0;
+			// fallthrough
 		case OPT_BOOL:
 		{
 			int new_val;
@@ -3312,6 +3314,8 @@ static int get_elconfig_content_width(void)
 			case OPT_BOOL_INI:
 			case OPT_INT_INI:
 			case OPT_PASSWORD:
+				// not shown
+				line_width = 0;
 				break;
 			case OPT_BOOL:
 				line_width = CHECKBOX_SIZE + SPACING
