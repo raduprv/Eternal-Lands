@@ -67,11 +67,11 @@ typedef enum
 	TOP_LINE,
 	//! Align top of the font to the given position
 	TOP_FONT,
-	//! Center text around the given position
-	VCENTER,
-	//! Center first line around given position, assuming digits
+	//! Center text around the given position, works with multiple lines
+	CENTER_LINES,
+	//! Center first line around given position, assuming it consists of digits
 	CENTER_DIGITS,
-	//! Center first line around given position, assuming password asterisks
+	//! Center first line around given position, assuming it consists of password asterisks
 	CENTER_PASSWORD
 } ver_alignment;
 

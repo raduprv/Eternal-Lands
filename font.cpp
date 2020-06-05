@@ -783,7 +783,7 @@ CHECK_GL_ERRORS();
 		case TextDrawOptions::VerticalAlignment::TOP_FONT:
 			y -= std::round(options.zoom() * _scale * _font_top_offset);
 			break;
-		case TextDrawOptions::VerticalAlignment::VCENTER:
+		case TextDrawOptions::VerticalAlignment::CENTER_LINES:
 		{
 			int nr_lines = 1 + std::count_if(text, text+len,
 				[](unsigned char c) { return c == '\r' || c == '\n'; });
