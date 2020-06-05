@@ -95,7 +95,7 @@ const std::array<float, 3> TextDrawOptions::default_foreground_color = { 1.0f, 1
 const std::array<float, 3> TextDrawOptions::default_background_color = { 0.0f, 0.0f, 0.0f };
 const std::array<float, 3> TextDrawOptions::default_selection_color = { 1.0f, 0.635f, 0.0f };
 
-TextDrawOptions::TextDrawOptions(): _max_width(window_width), _max_lines(0), _zoom(1.0),
+TextDrawOptions::TextDrawOptions(): _max_width(0), _max_lines(0), _zoom(1.0),
 	_line_spacing(1.0), _alignment(LEFT), _vertical_alignment(TOP_LINE), _flags(0),
 	_fg_color{{-1.0, -1.0, -1.0}}, _bg_color{{-1.0, -1.0, -1.0}},
 	_sel_color(default_selection_color) {}
@@ -685,15 +685,16 @@ std::pair<size_t, size_t> Font::clip_line(const unsigned char *text, size_t len,
 	const TextDrawOptions &options, unsigned char &before_color, unsigned char &after_color,
 	int &width) const
 {
+	int max_width = options.max_width() > 0 ? options.max_width() : window_width;
+
 	before_color = 0;
 	after_color = 0;
 	width = line_width_spacing(text, len, options.zoom());
-
-	if (width <= options.max_width())
+	if (width <= max_width)
 		// Entire string fits
 		return std::make_pair(0, len);
 
-	int trunc_width = options.max_width();
+	int trunc_width = max_width;
 	int ellipsis_width = 0;
 	if (options.ellipsis())
 	{
@@ -757,19 +758,25 @@ std::pair<size_t, size_t> Font::clip_line(const unsigned char *text, size_t len,
 		}
 	}
 
-	width = options.max_width();
+	width = max_width;
 	return std::make_pair(start, end-start);
 }
 
 void Font::draw(const unsigned char* text, size_t len, int x, int y,
 	const TextDrawOptions &options, size_t sel_begin, size_t sel_end) const
 {
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
-	glEnable(GL_ALPHA_TEST); // enable alpha filtering, so we have some alpha key
-	glAlphaFunc(GL_GREATER, 0.1f);
-	bind_texture();
+	if (options.shrink_to_fit() && options.max_width() > 0)
+	{
+		int width = dimensions(text, len, options.zoom()).first;
+		if (width > options.max_width())
+		{
+			TextDrawOptions new_options = TextDrawOptions(options).set_max_width(0)
+				.set_zoom(options.zoom() * float(options.max_width()) / width)
+				.set_shrink_to_fit(false);
+			draw(text, len, x, y, new_options, sel_begin, sel_end);
+			return;
+		}
+	}
 
 	size_t start = 0;
 	int line_width, line_height = height(options.zoom() * options.line_spacing());
@@ -801,6 +808,12 @@ CHECK_GL_ERRORS();
 			break;
 	}
 
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
+	glEnable(GL_ALPHA_TEST); // enable alpha filtering, so we have some alpha key
+	glAlphaFunc(GL_GREATER, 0.1f);
+	bind_texture();
 	glBegin(GL_QUADS);
 	while (start < len)
 	{
@@ -1681,6 +1694,9 @@ void vdraw_text(int x, int y, const unsigned char* text, size_t len, font_cat ca
 				break;
 			case TDO_ELLIPSIS:
 				tdo.set_ellipsis(va_arg(options, int));
+				break;
+			case TDO_SHRINK_TO_FIT:
+				tdo.set_shrink_to_fit(va_arg(options, int));
 				break;
 			case TDO_SEL_BEGIN:
 				sel_begin = va_arg(options, int);

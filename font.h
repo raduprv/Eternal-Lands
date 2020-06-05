@@ -135,7 +135,9 @@ public:
 		//! If set, draw a semi-transparent background behind the text
 		HELP = 1 << 2,
 		//! If set, draw ellipsis (...) after truncated strings
-		ELLIPSIS = 1 << 3
+		ELLIPSIS = 1 << 3,
+		//! If set, scale text down if it is too wide
+		SHRINK_TO_FIT = 1 << 4
 	};
 
 	/*!
@@ -165,6 +167,8 @@ public:
 	bool is_help() const { return _flags & HELP; }
 	//! Return whether to truncate wide text with ellipsis (...)
 	bool ellipsis() const { return _flags & ELLIPSIS; }
+	//! Return whether to shrink the text if it does not fit
+	bool shrink_to_fit() const { return _flags & SHRINK_TO_FIT; }
 
 	//! Return whether a valid foreground color was set for this text
 	bool has_foreground_color() const { return _fg_color[0] >= 0.0; }
@@ -304,6 +308,16 @@ public:
 		_sel_color[0] = r;
 		_sel_color[1] = g;
 		_sel_color[2] = b;
+		return *this;
+	}
+
+	//! Set whether to shrink the text if it is too wide
+	TextDrawOptions& set_shrink_to_fit(bool shrink=true)
+	{
+		if (shrink)
+			_flags |= SHRINK_TO_FIT;
+		else
+			_flags &= ~SHRINK_TO_FIT;
 		return *this;
 	}
 
@@ -1637,6 +1651,8 @@ typedef enum
 	TDO_HELP,
 	//! Indicate clipped text with ellipsis, followed by \c bool
 	TDO_ELLIPSIS,
+	//! Shrink text if it is too wide, followed by \a bool
+	TDO_SHRINK_TO_FIT,
 	//! Start index of the selected text, followed by \c int
 	TDO_SEL_BEGIN,
 	//! End index of the selected text, followed by \c int
