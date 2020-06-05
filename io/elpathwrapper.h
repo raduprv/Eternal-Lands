@@ -235,6 +235,7 @@ int file_remove_config( const char *filename );
  * \param pattern   Pattern which file names should match (e.g. *.ttf)
  * \param fn        Callback function for matching file names
  * \param max_depth The maximum search depth of the directory tree
+ * \note The order in which the files are accessed is not specified.
  * \note Symbolic links are not followed, only regular files and directories
  * are examined.
  */

@@ -77,11 +77,12 @@ bool pos_selected(const select_info *sel, size_t imsg, size_t ichar)
 		&& (imsg < end.first   || (imsg == end.first   && ichar <= end.second));
 }
 
-template <typename Iterator>
-int average_width(Iterator f_begin, Iterator f_end, Iterator w_begin)
+template <typename FIt, typename MIt>
+int average_width(FIt f_begin, FIt f_end, MIt m_begin)
 {
 	int total = std::accumulate(f_begin, f_end, 0);
-	int dot = std::inner_product(f_begin, f_end, w_begin, 0);
+	int dot = std::inner_product(f_begin, f_end, m_begin, 0, std::plus<int>(),
+		[](int f, const eternal_lands::Font::Metrics& m) { return f * m.advance; });
 	return std::round(float(dot) / total);
 }
 
@@ -94,8 +95,8 @@ const std::array<float, 3> TextDrawOptions::default_foreground_color = { 1.0f, 1
 const std::array<float, 3> TextDrawOptions::default_background_color = { 0.0f, 0.0f, 0.0f };
 const std::array<float, 3> TextDrawOptions::default_selection_color = { 1.0f, 0.635f, 0.0f };
 
-TextDrawOptions::TextDrawOptions(): _max_width(window_width), _max_lines(0),
-	_zoom(1.0), _line_spacing(1.0), _alignment(LEFT), _flags(0),
+TextDrawOptions::TextDrawOptions(): _max_width(window_width), _max_lines(0), _zoom(1.0),
+	_line_spacing(1.0), _alignment(LEFT), _vertical_alignment(TOP_LINE), _flags(0),
 	_fg_color{{-1.0, -1.0, -1.0}}, _bg_color{{-1.0, -1.0, -1.0}},
 	_sel_color(default_selection_color) {}
 
@@ -151,12 +152,11 @@ const std::array<int, Font::nr_glyphs> Font::letter_freqs = {
 const ustring Font::ellipsis = reinterpret_cast<const unsigned char*>("...");
 
 Font::Font(size_t i): _font_name(), _file_name(), _flags(0),
-	_texture_width(256), _texture_height(256),
-	_char_widths(), _texture_char_widths(), _texture_coordinates(),
+	_texture_width(256), _texture_height(256), _metrics(),
 	_block_width(font_block_width), _block_height(font_block_height),
-	_line_height(std::round(12.0 * default_line_height / 11)),
-	_max_char_width(12), _max_digit_width(12), _avg_char_width(12), _spacing(0),
-	_scale(11.0 / 12)
+	_line_height(std::round(12.0 * default_line_height / 11)), _font_top_offset(0),
+	_digit_center_offset(i == 2 ? 9 : 8), _max_advance(12), _max_digit_advance(12),
+	_avg_advance(12), _spacing(0), _scale(11.0 / 12)
 {
 	static const std::array<const char*, 7> file_names = { {
 		"textures/font.dds",
@@ -199,9 +199,10 @@ Font::Font(size_t i): _font_name(), _file_name(), _flags(0),
 		_flags |= Flags::FAILED;
 	}
 
+	std::array<int, nr_glyphs> char_widths;
 	if (i == 1)
 	{
-		_char_widths = { {
+		char_widths = { {
 			 4,  2,  7, 11,  8, 12, 12,  2,  7,  7,  9, 10,  3,  8,
 			 2, 10, 10, 10,  8,  8, 10,  7,  9,  9,  9,  9,  3,  3,
 			10, 10, 10,  9, 12, 12,  9, 10, 10,  9,  9, 10,  9,  8,
@@ -213,14 +214,12 @@ Font::Font(size_t i): _font_name(), _file_name(), _flags(0),
 			12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
 			12, 12, 12, 12, 12, 12
 		} };
-		_max_digit_width = *std::max_element(_char_widths.begin() + 16, _char_widths.begin() + 26);
-		_avg_char_width = average_width(letter_freqs.begin(), letter_freqs.end(),
-			_char_widths.cbegin());
+		_max_digit_advance = *std::max_element(char_widths.begin() + 16, char_widths.begin() + 26);
 		_spacing = 4;
 	}
 	else if (i == 2)
 	{
-		_char_widths = { {
+		char_widths = { {
 			 8,  8,  8, 10,  8, 10, 10,  8,  8,  8,  8, 10,  8,  8,
 			 8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,
 			10, 10, 10,  8, 12, 10, 10, 10, 10, 10, 10, 10, 10, 10,
@@ -231,38 +230,40 @@ Font::Font(size_t i): _font_name(), _file_name(), _flags(0),
 			 8,  8, 10, 10, 10,  8, 10, 10,  8,  8,  8, 12, 12, 12,
 			10, 10, 12, 10, 12, 12
 		} };
-		_max_digit_width = *std::max_element(_char_widths.begin() + 16, _char_widths.begin() + 26);
-		_avg_char_width = average_width(letter_freqs.begin(), letter_freqs.end(),
-			_char_widths.cbegin());
+		_max_digit_advance = *std::max_element(char_widths.begin() + 16, char_widths.begin() + 26);
 		_spacing = 2;
 	}
 	else
 	{
-		std::fill(_char_widths.begin(), _char_widths.end(), 12);
+		std::fill(char_widths.begin(), char_widths.end(), 12);
 		_flags |= Flags::FIXED_WIDTH;
 	}
-	_texture_char_widths = _char_widths;
 
 	for (size_t pos = 0; pos < nr_glyphs; ++pos)
 	{
 		int row = pos / font_chars_per_line;
 		int col = pos % font_chars_per_line;
 
-		int cw = _char_widths[pos] + _spacing;
+		int cw = char_widths[pos] + _spacing;
 		int skip = (12 - cw) / 2;
 
-		_texture_coordinates[pos][0] = float(col * font_block_width + skip) / 256;
-		_texture_coordinates[pos][1] = float(row * font_block_height + 1) / 256;
-		_texture_coordinates[pos][2] = float((col+1) * font_block_width - 7 - skip) / 256;
-		_texture_coordinates[pos][3] = float((row+1) * font_block_height - 1) / 256;
+		_metrics[pos].width = char_widths[pos];
+		_metrics[pos].advance = char_widths[pos];
+		_metrics[pos].top = 0;
+		_metrics[pos].bottom = font_block_height - 2;
+		_metrics[pos].u_start = float(col * font_block_width + skip) / 256;
+		_metrics[pos].v_start = float(row * font_block_height + 1) / 256;
+		_metrics[pos].u_end = float((col+1) * font_block_width - 7 - skip) / 256;
+		_metrics[pos].v_end = float((row+1) * font_block_height - 1) / 256;
+		_avg_advance = average_width(letter_freqs.begin(), letter_freqs.end(), _metrics.begin());
 	}
 }
 
 #ifdef TTF
 Font::Font(const std::string& ttf_file_name): _font_name(), _file_name(), _flags(0),
-	_texture_width(0), _texture_height(0), _char_widths(), _texture_char_widths(),
-	_texture_coordinates(), _block_width(0), _block_height(0), _max_char_width(0),
-	_max_digit_width(0), _avg_char_width(0), _spacing(0), _scale(1.0)
+	_texture_width(0), _texture_height(0), _metrics(), _block_width(0), _block_height(0),
+	_line_height(0), _font_top_offset(0), _digit_center_offset(0), _max_advance(0),
+	_max_digit_advance(0), _avg_advance(0), _spacing(0), _scale(1.0)
 {
 	TTF_Font *font = TTF_OpenFont(ttf_file_name.c_str(), ttf_point_size);
 	if (!font)
@@ -329,7 +330,7 @@ int Font::width_pos(int pos, float zoom) const
 {
 	if (pos < 0)
 		return 0;
-	return std::round(_char_widths[pos] * _scale * zoom);
+	return std::round(_metrics[pos].advance * _scale * zoom);
 }
 
 int Font::width_spacing_pos(int pos, float zoom) const
@@ -337,22 +338,22 @@ int Font::width_spacing_pos(int pos, float zoom) const
 	if (pos < 0)
 		return 0;
 	// return width of character + spacing between chars (supports variable width fonts)
-	return std::round((_char_widths[pos] + _spacing) * _scale * zoom);
+	return std::round((_metrics[pos].advance + _spacing) * _scale * zoom);
 }
 
 int Font::max_width_spacing(float zoom) const
 {
-	return std::round((_max_char_width + _spacing) * _scale * zoom);
+	return std::round((_max_advance + _spacing) * _scale * zoom);
 }
 
 int Font::average_width_spacing(float zoom) const
 {
-	return std::round((_avg_char_width + _spacing) * _scale * zoom);
+	return std::round((_avg_advance + _spacing) * _scale * zoom);
 }
 
 int Font::max_digit_width_spacing(float zoom) const
 {
-	return std::round((_max_digit_width + _spacing) * _scale * zoom);
+	return std::round((_max_digit_advance + _spacing) * _scale * zoom);
 }
 
 int Font::height(float zoom) const
@@ -525,10 +526,10 @@ void Font::bind_texture() const
 void Font::get_texture_coordinates(int pos,
 	float &u_start, float &u_end, float &v_start, float &v_end) const
 {
-	u_start = _texture_coordinates[pos][0];
-	v_start = _texture_coordinates[pos][1];
-	u_end   = _texture_coordinates[pos][2];
-	v_end   = _texture_coordinates[pos][3];
+	u_start = _metrics[pos].u_start;
+	v_start = _metrics[pos].v_start;
+	u_end   = _metrics[pos].u_end;
+	v_end   = _metrics[pos].v_end;
 }
 
 void Font::set_color(int color)
@@ -561,7 +562,7 @@ int Font::draw_char(unsigned char c, int x, int y, float zoom, bool ignore_color
 	// the pen should advance for drawing the next character. Interestingly,
 	// char_width can be larger than advance, epsecially for bold fonts. For
 	// size calculations, the only relevant quantity is advance, though.
-	int char_width = std::round((_texture_char_widths[pos] + _spacing) * _scale * zoom);
+	int char_width = std::round((_metrics[pos].width + _spacing) * _scale * zoom);
 	int advance = width_spacing_pos(pos, zoom);
 	int char_height = height(zoom);
 
@@ -772,6 +773,28 @@ CHECK_GL_ERRORS();
 	int line_width, line_height = height(options.zoom() * options.line_spacing());
 	int nr_lines = 0;
 	unsigned char before_color, after_color;
+
+	switch (options.vertical_alignment())
+	{
+		case TextDrawOptions::VerticalAlignment::TOP_LINE:
+			break;
+		case TextDrawOptions::VerticalAlignment::TOP_FONT:
+			y -= std::round(options.zoom() * _scale * _font_top_offset);
+			break;
+		case TextDrawOptions::VerticalAlignment::VCENTER:
+		{
+			int nr_lines = 1 + std::count_if(text, text+len,
+				[](unsigned char c) { return c == '\r' || c == '\n'; });
+			if (options.max_lines() > 0)
+				nr_lines = std::min(nr_lines, options.max_lines());
+			int tot_height = height(options.zoom()) + (nr_lines-1) * line_height;
+			y -= tot_height / 2;
+			break;
+		}
+		case CENTER_DIGITS:
+			y -= std::round(options.zoom() * _scale * _digit_center_offset);
+			break;
+	}
 
 	glBegin(GL_QUADS);
 	while (start < len)
@@ -1150,56 +1173,7 @@ void Font::draw_ingame_string(const unsigned char* text, size_t len,
 #endif // ELC
 
 #ifdef TTF
-std::pair<int, int> Font::render_glyph(Uint16 glyph, int i, int j, int size,
-	int y_delta, TTF_Font *font, SDL_Surface *surface)
-{
-	static const SDL_Color white = { r: 0xff, g: 0xff, b: 0xff, a: 0xff };
-	static const SDL_Color black = { r: 0x00, g: 0x00, b: 0x00, a: 0x10 };
-
-	if (!TTF_GlyphIsProvided(font, glyph))
-	{
-		LOG_ERROR("Font '%s' does not provide glyph for code point '%d': %s",
-			_font_name.c_str(), glyph, TTF_GetError());
-		return std::make_pair(0, 0);
-	}
-
-	SDL_Surface* glyph_surface = TTF_RenderGlyph_Shaded(font, glyph, white, black);
-	if (!glyph_surface)
-	{
-		LOG_ERROR("Failed to render TTF glyph: %s", TTF_GetError());
-		return std::make_pair(0, 0);
-	}
-
-	int width = glyph_surface->w;
-	int height = glyph_surface->h;
-
-	SDL_Rect area, glyph_area;
-	glyph_area.x = 0;
-	glyph_area.y = 0;
-	glyph_area.w = width;
-	glyph_area.h = height;
-	area.x = j*size;
-	area.y = i*size + y_delta;
-	area.w = width;
-	area.h = height;
-
-	SDL_SetSurfaceAlphaMod(glyph_surface, 0xFF);
-	SDL_SetSurfaceBlendMode(glyph_surface, SDL_BLENDMODE_NONE);
-	int err = SDL_BlitSurface(glyph_surface, &glyph_area, surface, &area);
-	SDL_FreeSurface(glyph_surface);
-	if (err)
-	{
-		LOG_ERROR("Failed to write glyph to surface: %s", SDL_GetError());
-		return std::make_pair(0, 0);
-	}
-
-	int advance;
-	TTF_GlyphMetrics(font, glyph, nullptr, nullptr, nullptr, nullptr, &advance);
-
-	return std::make_pair(width, advance);
-}
-
-bool Font::build_texture_atlas()
+bool Font::render_glyph(size_t i_glyph, int size, int y_delta, TTF_Font *font, SDL_Surface *surface)
 {
 	static const Uint16 glyphs[nr_glyphs] = {
 		' ', '!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-',
@@ -1214,6 +1188,65 @@ bool Font::build_texture_atlas()
 		243, 211, 250, 218, 251, 238                                          // óÓúÚûî
 
 	};
+	static const SDL_Color white = { r: 0xff, g: 0xff, b: 0xff, a: 0xff };
+	static const SDL_Color black = { r: 0x00, g: 0x00, b: 0x00, a: 0x10 };
+
+	Uint16 glyph = glyphs[i_glyph];
+	if (!TTF_GlyphIsProvided(font, glyph))
+	{
+		LOG_ERROR("Font '%s' does not provide glyph for code point '%d': %s",
+			_font_name.c_str(), glyph, TTF_GetError());
+		return false;
+	}
+
+	SDL_Surface* glyph_surface = TTF_RenderGlyph_Shaded(font, glyph, white, black);
+	if (!glyph_surface)
+	{
+		LOG_ERROR("Failed to render TTF glyph: %s", TTF_GetError());
+		return false;
+	}
+
+	int width = glyph_surface->w;
+	int height = glyph_surface->h;
+
+	int row = i_glyph / font_chars_per_line;
+	int col = i_glyph % font_chars_per_line;
+
+	SDL_Rect area, glyph_area;
+	glyph_area.x = 0;
+	glyph_area.y = 0;
+	glyph_area.w = width;
+	glyph_area.h = height;
+	area.x = col*size;
+	area.y = row*size + y_delta;
+	area.w = width;
+	area.h = height;
+
+	SDL_SetSurfaceAlphaMod(glyph_surface, 0xFF);
+	SDL_SetSurfaceBlendMode(glyph_surface, SDL_BLENDMODE_NONE);
+	int err = SDL_BlitSurface(glyph_surface, &glyph_area, surface, &area);
+	SDL_FreeSurface(glyph_surface);
+	if (err)
+	{
+		LOG_ERROR("Failed to write glyph to surface: %s", SDL_GetError());
+		return false;
+	}
+
+	int y_min, y_max;
+	_metrics[i_glyph].width = width;
+	TTF_GlyphMetrics(font, glyph, nullptr, nullptr, &y_min, &y_max, &_metrics[i_glyph].advance);
+	_metrics[i_glyph].top = y_delta + TTF_FontAscent(font) - y_max;
+	_metrics[i_glyph].bottom = y_delta + TTF_FontAscent(font) - y_min;
+	_metrics[i_glyph].u_start = float(col * size) / surface->w;
+	_metrics[i_glyph].v_start = float(row * size) / surface->h;
+	_metrics[i_glyph].u_end = float(col * size + width) / surface->w;
+	_metrics[i_glyph].v_end = float(row * size + size) / surface->h;
+
+	return true;
+}
+
+bool Font::build_texture_atlas()
+{
 	static const int nr_rows = (nr_glyphs + font_chars_per_line-1) / font_chars_per_line;
 
 	if (!is_ttf())
@@ -1258,24 +1291,13 @@ bool Font::build_texture_atlas()
 	int y_delta = (size - TTF_FontHeight(font)) / 2;
 	for (size_t i_glyph = 0; i_glyph < nr_glyphs; ++i_glyph)
 	{
-		int i = i_glyph / font_chars_per_line;
-		int j = i_glyph % font_chars_per_line;
-		int w, a;
-		std::tie(w, a) = render_glyph(glyphs[i_glyph], i, j, size, y_delta, font, image);
-		if (w == 0)
+		if (!render_glyph(i_glyph, size, y_delta, font, image))
 		{
 			SDL_FreeSurface(image);
 			TTF_CloseFont(font);
 			_flags |= Flags::FAILED;
 			return false;
 		}
-
-		_texture_char_widths[i_glyph] = w;
-		_char_widths[i_glyph] = a;
-		_texture_coordinates[i_glyph][0] = float(j * size) / width;
-		_texture_coordinates[i_glyph][1] = float(i * size) / height;
-		_texture_coordinates[i_glyph][2] = float(j * size + w) / width;
-		_texture_coordinates[i_glyph][3] = float(i * size + size) / height;
 	}
 
 	GLuint texture_id;
@@ -1293,10 +1315,17 @@ bool Font::build_texture_atlas()
 	_block_width = size;
 	_block_height = size;
 	_line_height = _block_height;
-	_max_char_width = *std::max_element(_char_widths.begin(), _char_widths.end());
-	_max_digit_width = *std::max_element(_char_widths.begin() + 16, _char_widths.begin() + 26);
-	_avg_char_width = average_width(letter_freqs.begin(), letter_freqs.end(),
-		_char_widths.cbegin());
+	_font_top_offset = y_delta;
+	int digit_top = std::min_element(_metrics.begin() + 16, _metrics.begin() + 26,
+		[](const Metrics& m0, const Metrics& m1) { return m0.top < m1.top; })->top;
+	int digit_bottom = std::max_element(_metrics.begin() + 16, _metrics.begin() + 26,
+		[](const Metrics& m0, const Metrics& m1) { return m0.bottom < m1.bottom; })->bottom;
+	_digit_center_offset = (digit_top + digit_bottom) / 2;
+	_max_advance = std::max_element(_metrics.begin(), _metrics.end(),
+		[](const Metrics& m0, const Metrics& m1) { return m0.advance < m1.advance; })->advance;
+	_max_digit_advance = std::max_element(_metrics.begin() + 16, _metrics.begin() + 26,
+		[](const Metrics& m0, const Metrics& m1) { return m0.advance < m1.advance; })->advance;
+	_avg_advance = average_width(letter_freqs.begin(), letter_freqs.end(), _metrics.begin());
 	_scale = float(font_block_height) / size;
 	_flags |= Flags::HAS_TEXTURE;
 
@@ -1606,6 +1635,9 @@ void vdraw_text(int x, int y, const unsigned char* text, size_t len, font_cat ca
 				break;
 			case TDO_ALIGNMENT:
 				tdo.set_alignment(TextDrawOptions::Alignment(va_arg(options, int)));
+				break;
+			case TDO_VERTICAL_ALIGNMENT:
+				tdo.set_vertical_alignment(TextDrawOptions::VerticalAlignment(va_arg(options, int)));
 				break;
 			case TDO_SHADOW:
 				tdo.set_shadow(va_arg(options, int));

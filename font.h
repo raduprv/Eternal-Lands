@@ -60,6 +60,19 @@ typedef enum
 	RIGHT
 } hor_alignment;
 
+//! Enumeration for vertical text alignment
+typedef enum
+{
+	//! Align top of the line to the given position
+	TOP_LINE,
+	//! Align top of the font to the given position
+	TOP_FONT,
+	//! Center text around the given position
+	VCENTER,
+	//! Center first line around given position, assuming digits
+	CENTER_DIGITS
+} ver_alignment;
+
 #include "gl_init.h"
 #include "text.h"
 #include "widgets.h"
@@ -108,6 +121,7 @@ public:
 	static const std::array<float, 3> default_selection_color;
 
 	typedef ::hor_alignment Alignment;
+	typedef ::ver_alignment VerticalAlignment;
 
 	//! Bit flags controlling the look of the text
 	enum Flags
@@ -139,6 +153,8 @@ public:
 	float line_spacing() const { return _line_spacing; }
 	//! Return the horizontal alignment of the text
 	Alignment alignment() const { return _alignment; }
+	//! Return the vertical alignment of the text
+	VerticalAlignment vertical_alignment() const { return _vertical_alignment; }
 	//! Return whether the text is drawn with a shadow background
 	bool shadow() const { return _flags & SHADOW; }
 	//! Return whether color characters in the text are ignored
@@ -192,6 +208,13 @@ public:
 	TextDrawOptions& set_alignment(Alignment alignment)
 	{
 		_alignment = alignment;
+		return *this;
+	}
+
+	//! Set the vertical text alignment to \a alignment
+	TextDrawOptions& set_vertical_alignment(VerticalAlignment alignment)
+	{
+		_vertical_alignment = alignment;
 		return *this;
 	}
 
@@ -300,6 +323,8 @@ private:
 	float _line_spacing;
 	//! The horizontal alignment of the text
 	Alignment _alignment;
+	//! The vertical alignment of the text
+	VerticalAlignment _vertical_alignment;
 	//! Bit flags for further options
 	Uint32 _flags;
 	//! The foreground color of the text
@@ -635,6 +660,31 @@ public:
 #endif // ELC
 
 private:
+	//! Structure for glyph metrics
+	struct Metrics
+	{
+		//! Actual width of the character in the font texture, in pixels
+		int width;
+		//! How far to advance the pen after drawing this glyph
+		int advance;
+		//! Offset from top of line to top of glyph
+		int top;
+		//! Offset from top of line to bottom of glyph
+		int bottom;
+		//! Left side of glyph in the texture
+		float u_start;
+		//! Top of glyph in the texture
+		float v_start;
+		//! Right side of glyph in the texture
+		float u_end;
+		//! Bottom of glyph in the texture
+		float v_end;
+
+		//! Default constructor
+		Metrics(): width(0), advance(0), top(0), bottom(0), u_start(0.0), v_start(0.0),
+			u_end(0.0), v_end(0.0) {}
+	};
+
 	//! The number of lines in a font texture
 	static const size_t font_nr_lines = 10;
 	//! The number of glyphs on a single line in a font texture
@@ -681,24 +731,24 @@ private:
 	int _texture_width;
 	//! Height of the font texture in pixels.
 	int _texture_height;
-	//! Width of each character in the texture, in pixels
-	std::array<int, nr_glyphs> _char_widths;
-	//! How far to advance the pen position after a character, in pixels
-	std::array<int, nr_glyphs> _texture_char_widths;
-	//! Texture coordinates for each character in the texture
-	std::array<float[4], nr_glyphs> _texture_coordinates;
+	//! Glyph metrics for each supported character
+	std::array<Metrics, nr_glyphs> _metrics;
 	//! Width reserved for a character in the texture
 	int _block_width;
 	//! Height reserved for a character in the texture
 	int _block_height;
 	//! Height of a single character in pixels
 	int _line_height;
+	//! Distance from top of line to top of font
+	int _font_top_offset;
+	//! Distance from top of line to center of digits
+	int _digit_center_offset;
 	//! Maximum width of a glyph
-	int _max_char_width;
+	int _max_advance;
 	//! Maximum width of a digit 0-9
-	int _max_digit_width;
+	int _max_digit_advance;
 	//! "Typical" character width for English text
-	int _avg_char_width;
+	int _avg_advance;
 	//! Distance between characters when drawn (at default zoom level)
 	int _spacing;
 	//! Scale factor that scales texture to default height
@@ -863,23 +913,18 @@ private:
 	/*!
 	 * \brief Render a single glyph
 	 *
-	 * Render the glyph \a glyph wit size \a size at row \a i and column \a j
-	 * in the font atlas \a surface, using font \a font. The vertical offset
-	 * parameter \a y_delta is used to try and center the glyphs vertically,
-	 * making vertical alignment of text easier.
+	 * Render the glyph for position \a pos with size \a size in the font atlas \a surface, using
+	 * font \a font. The vertical offset parameter \a y_delta is used to try and center the glyphs
+	 * vertically, making vertical alignment of text easier.
 	 *
-	 * \param glyph   The Unicode code point of the glyph to render
-	 * \param i       The row in the atlas at which to place the glyph
-	 * \param j       The column in the atlas at which to place the glyph
+	 * \param pos     The position of the glyph to draw
 	 * \param size    The size of the rendered glyph
 	 * \param y_delta Vertical offset for placing the glyph in the texture
 	 * \param font    The font with which to render the glyph
 	 * \param surface The surface on which the glyph is rendered
-	 * \return a pair of integers, containing the width of the character in the`
-	 * 	texture, and how far to advance the pen to draw the next texture
+	 * \return \c true if the glyph was successfully rendered, \c false otherwise.
 	 */
-	std::pair<int, int> render_glyph(Uint16 glyph, int i, int j, int size, int y_delta,
-		TTF_Font *font, SDL_Surface *surface);
+	bool render_glyph(size_t i_glyph, int size, int y_delta, TTF_Font *font, SDL_Surface *surface);
 	/*!
 	 * \brief Build a texture for a TTF font
 	 *
@@ -1572,6 +1617,8 @@ typedef enum
 	TDO_LINE_SPACING,
 	//! Horizontal alignment, followed by a \c hor_alignment
 	TDO_ALIGNMENT,
+	//! Vertical alignment, followed by a \c ver_alignment
+	TDO_VERTICAL_ALIGNMENT,
 	//! Draw the text with a shadow in the background color, followed by \c bool
 	TDO_SHADOW,
 	//! Foreground color of the text, followed by 3 \c floats

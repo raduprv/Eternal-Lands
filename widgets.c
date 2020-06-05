@@ -3855,7 +3855,7 @@ static int pword_field_draw(widget_list *w)
 	password_entry *entry;
 	unsigned char* start;
 	size_t len;
-	int max_width, x_left, y_top, x_cursor;
+	int max_width, x_left, x_cursor;
 	int space = (int)(0.5 + 2*w->size);
 	int sel_begin, sel_end;
 
@@ -3895,20 +3895,20 @@ static int pword_field_draw(widget_list *w)
 	glEnable (GL_TEXTURE_2D);
 
 	x_left = (int)(w->pos_x + 2*w->size + 0.5);
-	y_top = (int)(w->pos_y + 2*w->size + 0.5);
 	x_cursor = x_left + get_buf_width_zoom(start, entry->cursor_pos - entry->draw_begin,
 		w->fcat, w->size);
 	max_width = w->len_x - 2*space;
 
 	sel_begin = max2i(entry->sel_begin - entry->draw_begin, 0);
 	sel_end = max2i(entry->sel_end - entry->draw_begin, 0);
-	draw_text(x_left, y_top, start, len, w->fcat, TDO_MAX_WIDTH, max_width, TDO_MAX_LINES, 1,
+	draw_text(x_left, w->pos_y + w->len_y/2, start, len, w->fcat, TDO_MAX_WIDTH, max_width,
 		TDO_FOREGROUND, w->r, w->g, w->b, TDO_ZOOM, w->size, TDO_SEL_BEGIN, sel_begin,
-		TDO_SEL_END, sel_end, TDO_END);
+		TDO_SEL_END, sel_end, TDO_VERTICAL_ALIGNMENT, VCENTER, TDO_END);
 	if (entry->mouseover && cur_time % (2*TF_BLINK_DELAY) < TF_BLINK_DELAY)
 	{
-		draw_string_zoomed_width_font(x_cursor, y_top, (const unsigned char*)"_",
-			max_width, 1, w->fcat, w->size);
+		draw_text(x_cursor, w->pos_y + w->len_y/2, (const unsigned char*)"_", 1, w->fcat,
+			TDO_FOREGROUND, w->r, w->g, w->b, TDO_ZOOM, w->size, TDO_VERTICAL_ALIGNMENT, VCENTER,
+			TDO_END);
 	}
 
 	if (entry->status == P_NORMAL)
@@ -4190,7 +4190,7 @@ int multiselect_clear(int window_id, Uint32 widget_id)
 
 	M->nr_buttons = 0;
 	M->next_value = 0;
-	if (M->scrollbar >= 0)
+	if (M->scrollbar != -1)
 	{
 		widget_destroy(window_id, M->scrollbar);
 		M->scrollbar = -1;
@@ -4403,8 +4403,9 @@ static int spinbutton_draw(widget_list *widget)
 	}
 	/* Numbers */
 	glColor3f(widget->r, widget->g, widget->b);
-	draw_string_zoomed_width_font(widget->pos_x + x_space, widget->pos_y + 2 + gy_adjust,
-		(const unsigned char*)str, window_width, 1, widget->fcat, widget->size);
+	draw_text(widget->pos_x + x_space, widget->pos_y + widget->len_y/2, (const unsigned char*)str,
+		strlen(str), widget->fcat, TDO_ZOOM, widget->size, TDO_VERTICAL_ALIGNMENT, CENTER_DIGITS,
+		TDO_END);
 	glDisable(GL_TEXTURE_2D);
 	/* Border */
 	glBegin(GL_LINE_LOOP);
