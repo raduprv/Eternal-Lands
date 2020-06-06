@@ -649,6 +649,9 @@ static void draw_recipe_controls(window_info *win){
 	int wpy=manufacture_menu_y_len-recipe_y_offset;
 	int lpx=pipe_control_width;
 	int lpy=SLOT_SIZE;
+	int half_plus_len = lpx/2-control_elem_size, half_plus_width = win->current_scale;
+	int yp_ctr = wpy - control_elem_size + lpy/2;
+	int xp_ctr = wpx + control_elem_size + half_plus_len;
 
 	if (recipes_shown)
 	{
@@ -670,9 +673,19 @@ static void draw_recipe_controls(window_info *win){
 	}
 
 	/* Add btn */
-	glEnable(GL_TEXTURE_2D);
-	draw_string_zoomed_centered(wpx+lpx/2, wpy-2, (const unsigned char *)"+",
-		1, win->current_scale);
+	glBegin(GL_QUADS);
+
+	glVertex3i(xp_ctr-half_plus_len, yp_ctr-half_plus_width, 0);
+	glVertex3i(xp_ctr+half_plus_len, yp_ctr-half_plus_width, 0);
+	glVertex3i(xp_ctr+half_plus_len, yp_ctr+half_plus_width, 0);
+	glVertex3i(xp_ctr-half_plus_len, yp_ctr+half_plus_width, 0);
+
+	glVertex3i(xp_ctr-half_plus_width, yp_ctr-half_plus_len, 0);
+	glVertex3i(xp_ctr+half_plus_width, yp_ctr-half_plus_len, 0);
+	glVertex3i(xp_ctr+half_plus_width, yp_ctr+half_plus_len, 0);
+	glVertex3i(xp_ctr-half_plus_width, yp_ctr+half_plus_len, 0);
+
+	glEnd();
 }
 
 //draws a NUM_MIX_SLOTSx1 grid of items+grid
@@ -1037,8 +1050,9 @@ static int recipe_controls_click_handler(window_info *win, int mx, int my, Uint3
 
 		build_manufacture_list();
 		do_click_sound();
-	} else
-	if (mx>wpx+win->small_font_max_len_x/2 && mx<wpx+lpx-win->small_font_max_len_x/2 && my>wpy && my<wpy+win->small_font_len_y){
+	}
+	else if (mx>wpx && mx<wpx+lpx && my>wpy && my<wpy+lpy-control_elem_size*2)
+	{
 		//+ button
 		copy_items_to_recipe_items(recipes_store[cur_recipe].items, manufacture_list, MIX_SLOT_OFFSET);
 		clear_recipe_name(cur_recipe);
@@ -1293,8 +1307,9 @@ static int recipe_controls_mouseover_handler(window_info *win, int mx, int my, i
 	if (mx>wpx && mx<wpx+lpx && my>wpy+lpy-control_elem_size*2 && my<wpy+lpy){
 		//on arrow
 		show_help(recipe_show_hide_str, 0, win->len_y + 10 + win->small_font_len_y*(*help_line)++, win->current_scale);
-	} else
-	if (mx>wpx+win->small_font_max_len_x/2 && mx<wpx+lpx-win->small_font_max_len_x/2 && my>wpy && my<wpy+win->small_font_len_y){
+	}
+	else if (mx>wpx && mx<wpx+lpx && my>wpy && my<wpy+lpy-control_elem_size*2)
+	{
 		//on + button
 		show_help(recipe_save_str, 0, win->len_y + 10 + win->small_font_len_y*(*help_line)++, win->current_scale);
 	}
@@ -1511,7 +1526,7 @@ static int ui_scale_manufacture_handler(window_info *win)
 	int free_x, pipe_width;
 
 	SLOT_SIZE = (int)(0.5 + 33 * win->current_scale);
-	pipe_control_width = (int)(0.5 + 5 * win->current_scale) * 2 + win->small_font_max_len_x;
+	pipe_control_width = (int)(0.5 + 10 * win->current_scale) * 2;
 	pipe_width = SLOT_SIZE*NUM_MIX_SLOTS + pipe_control_width;
 	recipe_win_width = SLOT_SIZE * NUM_MIX_SLOTS + win->box_size + 2;
 	manufacture_menu_x_len = GRID_COLS * SLOT_SIZE + win->box_size;
