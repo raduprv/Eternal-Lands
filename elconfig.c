@@ -3305,6 +3305,9 @@ static int get_elconfig_content_width(void)
 {
 	int i, iopt, line_width, max_line_width = 0;
 	var_struct *var;
+	int spin_button_width = max2i(ELCONFIG_SCALED_VALUE(100),
+		4 * get_max_digit_width_zoom(CONFIG_FONT, elconf_scale) + 4 * (int)(0.5 + 5 * elconf_scale));
+
 	for (i = 0; i < our_vars.no; i++)
 	{
 		var = our_vars.var[i];
@@ -3326,7 +3329,7 @@ static int get_elconfig_content_width(void)
 			case OPT_INT_F:
 			case OPT_FLOAT_F:
 				line_width = get_string_width_zoom(var->display.str, CONFIG_FONT, elconf_scale)
-					+ SPACING +  ELCONFIG_SCALED_VALUE(100);
+					+ SPACING + spin_button_width;
 				break;
 			case OPT_STRING:
 				// don't display the username, if it is changed after login, any name tagged files will be saved using the new name
@@ -3338,7 +3341,7 @@ static int get_elconfig_content_width(void)
 				break;
 			case OPT_MULTI:
 				line_width = get_string_width_zoom(var->display.str, CONFIG_FONT, elconf_scale)
-					+ SPACING +  ELCONFIG_SCALED_VALUE(250);
+					+ SPACING + ELCONFIG_SCALED_VALUE(250);
 				break;
 			case OPT_MULTI_H:
 				line_width = get_string_width_zoom(var->display.str, CONFIG_FONT, elconf_scale);
@@ -3370,6 +3373,8 @@ static void elconfig_populate_tabs(void)
 	int x;
 	int line_height = get_line_height(CONFIG_FONT, elconf_scale);
 	int y_label, y_widget, dx, dy, iopt;
+	int spin_button_width = max2i(ELCONFIG_SCALED_VALUE(100),
+		4 * get_max_digit_width_zoom(CONFIG_FONT, elconf_scale) + 4 * (int)(0.5 + 5 * elconf_scale));
 
 	for(i= 0; i < MAX_TABS; i++) {
 		//Set default values
@@ -3414,7 +3419,7 @@ static void elconfig_populate_tabs(void)
 				/* interval is always 1 */
 				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					current_x, current_y, 0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)var->display.str);
-				widget_width = ELCONFIG_SCALED_VALUE(100);
+				widget_width = spin_button_width;
 				widget_id = spinbutton_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					window_width - TAB_MARGIN - widget_width, current_y, widget_width, line_height,
 					SPIN_INT, var->var, var->args.imm.min,
@@ -3426,7 +3431,7 @@ static void elconfig_populate_tabs(void)
 				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					current_x, current_y,
 					0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)var->display.str);
-				widget_width = ELCONFIG_SCALED_VALUE(100);
+				widget_width = spin_button_width;
 				widget_id = spinbutton_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					window_width - TAB_MARGIN - widget_width, current_y, widget_width, line_height,
 					SPIN_FLOAT, var->var, var->args.fmmi.min, var->args.fmmi.max,
@@ -3476,7 +3481,7 @@ static void elconfig_populate_tabs(void)
 				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					current_x, current_y,
 					0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)var->display.str);
-				widget_width = ELCONFIG_SCALED_VALUE(100);
+				widget_width = spin_button_width;
 				widget_id = spinbutton_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					window_width - TAB_MARGIN + widget_width, current_y, widget_width, line_height,
 					SPIN_FLOAT, var->var, var->args.fmmif.min(), var->args.fmmif.max(),
@@ -3489,7 +3494,7 @@ static void elconfig_populate_tabs(void)
 				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					current_x, current_y,
 					0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)var->display.str);
-				widget_width = ELCONFIG_SCALED_VALUE(100);
+				widget_width = spin_button_width;
 				widget_id = spinbutton_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					window_width - TAB_MARGIN - widget_width, current_y, widget_width, line_height,
 					SPIN_INT, var->var, var->args.immf.min(), var->args.immf.max(), 1.0, elconf_scale, -1, -1, -1);
