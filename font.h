@@ -1818,30 +1818,6 @@ static __inline__ void draw_string_zoomed_centered(int x, int y, const unsigned 
  * \brief Draw a text string
  *
  * Draw the text in the nul-terminated buffer \a text, starting at position
- * \a x, \a y on the screen, using the font for the UI_FONT category. Options
- * \a max_width and \a max_lines specify the maximum width of the text and
- * maximum number of lines drawn respectively. Text outside these boundaries
- * will not be drawn. The text will be drawn in the default foreground
- * color.
- *
- * \param x         The left coordinate of the drawn text
- * \param y         The top coordinate of the drawn text
- * \param text      The text to draw
- * \param max_width The maximum width in pixels of the text
- * \param max_lines The maximum number of lines to draw, or 0 for no limit
- * \param text_zoom Scale factor for the text size
- */
-static __inline__ void draw_string_zoomed_width(int x, int y, const unsigned char* text,
-	int max_width, int max_lines, float text_zoom)
-{
-	draw_text(x, y, text, strlen((const char*)text), UI_FONT, TDO_MAX_WIDTH, max_width,
-		TDO_MAX_LINES, max_lines, TDO_ZOOM, text_zoom, TDO_END);
-}
-/*!
- * \ingroup text_font
- * \brief Draw a text string
- *
- * Draw the text in the nul-terminated buffer \a text, starting at position
  * \a x, \a y on the screen, using the font for the UI_FONT category. The string
  * is drawn in the color (\a fr, \a fg, \a fb), with a background shadow in
  * the color (\a br, \a bg, \a bb). The option \a max_lines specifies the maximum
