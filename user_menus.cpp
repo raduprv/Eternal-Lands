@@ -112,6 +112,13 @@ namespace UserMenus
 			~Menu(void);
 			const std::string & get_name(void) const { return menu_name; }
 			int get_name_width(void) const { return menu_name_width; }
+			int recalc_name_width(float zoom)
+			{
+				menu_name_width = eternal_lands::FontManager::get_instance()
+					.line_width(UI_FONT, reinterpret_cast<const unsigned char*>(menu_name.c_str()),
+						menu_name.length(), zoom);
+				return menu_name_width;
+			}
 			size_t get_cm_id(void) const { return cm_menu_id; }
 			void action(int option, CommandQueue::Queue &cq) const { lines[option]->action(cq); };
 		private:
@@ -170,6 +177,7 @@ namespace UserMenus
 			void pre_show(window_info *win, int widget_id, int mx, int my, window_info *cm_win);
 			int click(window_info *win, int mx, Uint32 flags);
 			int ui_scale_changed(window_info *win);
+			int font_changed(window_info *win, eternal_lands::FontManager::Category cat);
 			size_t get_mouse_over_menu(window_info *win, int mx);
 			void delete_menus(void);
 			int context(window_info *win, int widget_id, int mx, int my, int option);
@@ -183,6 +191,7 @@ namespace UserMenus
 			static int mouseover_handler(window_info *win, int mx, int my) { get_instance()->mouseover(win, mx); return 0; }
 			static int click_handler(window_info *win, int mx, int my, Uint32 flags) { return get_instance()->click(win, mx, flags); }
 			static int ui_scale_handler(window_info *win) { return get_instance()->ui_scale_changed(win); }
+			static int font_change_handler(window_info *win, font_cat cat) { return get_instance()->font_changed(win, cat); }
 			static int context_handler(window_info *win, int widget_id, int mx, int my, int option){ return get_instance()->context(win, widget_id, mx, my, option); }
 
 			enum { STND_POS_NONE = 0, STND_POS_TOP_LEFT, STND_POS_TOP_CENTRE, STND_POS_TOP_RIGHT, STND_POS_BOTTOM_LEFT, STND_POS_BOTTOM_CENTRE, STND_POS_BOTTON_RIGHT, STND_POS_LAST };
@@ -301,6 +310,7 @@ namespace UserMenus
 		set_window_handler(win_id, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_handler );
 		set_window_handler(win_id, ELW_HANDLER_CLICK, (int (*)())&click_handler );
 		set_window_handler(win_id, ELW_HANDLER_UI_SCALE, (int (*)())&ui_scale_handler );
+		set_window_handler(win_id, ELW_HANDLER_FONT_CHANGE, (int (*)())&font_change_handler);
 
 		// the build-in context menu is only available if we have a title so always recreate
 
@@ -482,6 +492,18 @@ namespace UserMenus
 
 
 	//
+	// Called when font settings are changed
+	//
+	int Container::font_changed(window_info *win, eternal_lands::FontManager::Category cat)
+	{
+		if (cat != win->font_category)
+			return 0;
+		ui_scale_changed(win);
+		return 1;
+	}
+
+
+	//
 	// common callback fuction for context menu, line selection
 	//
 	int Container::action(size_t active_menu, int option)
@@ -566,7 +588,6 @@ namespace UserMenus
 		for (size_t i=0; i<search_paths.size(); i++)
 		{
 			std::string glob_path = search_paths[i] + "*.menu";
-
 			// find all the menu files and build a list of path+filenames for later
 #ifdef WINDOWS
 			struct _finddata_t c_file;
@@ -620,7 +641,7 @@ namespace UserMenus
 		// otherwise, calculate the width from the widths of all the menus names
 		win_width = 2 * window_x_pad + name_sep * (menus.size() - 1);
 		for (size_t i=0; i<menus.size(); i++)
-			win_width += calc_actual_width(win, menus[i]->get_name_width());
+			win_width += calc_actual_width(win, menus[i]->recalc_name_width(1.0));
 	}
 
 
