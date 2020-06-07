@@ -1231,9 +1231,9 @@ void NPC_Filter::ui_scale_handler(window_info *win)
 		int min_size_y = static_cast<int>(min_npc_name_rows * max_npc_name_y);
 		int pos_x = parent_win->len_x + questlog_window.get_win_space();
 		int pos_y = 0;
+		set_window_min_size(win->window_id, min_size_x, min_size_y);
 		resize_window(win->window_id, size_x, size_y);
 		move_window(win->window_id, win->pos_id, win->pos_loc, parent_win->pos_x + pos_x, parent_win->pos_y + pos_y);
-		set_window_min_size(win->window_id, min_size_x, min_size_y);
 	}
 }
 
