@@ -870,7 +870,7 @@ namespace ItemLists
 		grid_pixel_size = static_cast<int>(0.5 + 33 * win->current_scale);
 		ui_control_space = win->box_size;
 		add_button_x = get_size_x() - ui_control_space/2;
-		add_button_y = get_grid_size();
+		add_button_y = 3 * get_grid_size() / 2;
 		update_min_window_size(win);
 		if (win->len_y <= 0)
 			calc_num_show_names(win);
@@ -1036,6 +1036,28 @@ namespace ItemLists
 			rendergrid(1, 1, x_start-1, y_start-1, get_grid_size()+2, get_grid_size()+2);
 		}
 
+		// Drawn the new list button (+) with highlight when mouse over
+		if (mouse_over_add_button)
+			glColor3f(0.99f,0.77f,0.55f);
+		else
+			glColor3f(0.77f,0.57f,0.39f);
+
+		int half_plus_width = 3*win->current_scale / 2;
+		int half_plus_length = ui_control_space/3;
+		glBegin(GL_QUADS);
+
+		glVertex3i(add_button_x - half_plus_length, add_button_y - half_plus_width, 0);
+		glVertex3i(add_button_x + half_plus_length, add_button_y - half_plus_width, 0);
+		glVertex3i(add_button_x + half_plus_length, add_button_y + half_plus_width, 0);
+		glVertex3i(add_button_x - half_plus_length, add_button_y + half_plus_width, 0);
+
+		glVertex3i(add_button_x - half_plus_width, add_button_y - half_plus_length, 0);
+		glVertex3i(add_button_x + half_plus_width, add_button_y - half_plus_length, 0);
+		glVertex3i(add_button_x + half_plus_width, add_button_y + half_plus_length, 0);
+		glVertex3i(add_button_x - half_plus_width, add_button_y + half_plus_length, 0);
+
+		glEnd();
+
 		glEnable(GL_TEXTURE_2D);
 
 		// draw the quantities over everything else so they always show
@@ -1055,13 +1077,6 @@ namespace ItemLists
 					draw_string_small_shadowed_zoomed(x_start, y_start, (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
 				}
 		}
-
-		// Drawn the new list button (+) with highlight when mouse over
-		if (mouse_over_add_button)
-			glColor3f(0.99f,0.77f,0.55f);
-		else
-			glColor3f(0.77f,0.57f,0.39f);
-		draw_string_zoomed_centered(add_button_x, add_button_y, (unsigned const char*)"+", 1, win->current_scale * 2.0);
 
 		// draw the item list names
 		glColor3f(1.0f,1.0f,1.0f);
@@ -1164,7 +1179,7 @@ CHECK_GL_ERRORS();
 		}
 
 		// check if over the add list button
-		if (my > add_button_y && my < add_button_y + 2*win->default_font_len_y
+		if (my > add_button_y-get_grid_size()/2 && my < add_button_y + get_grid_size()/2
 			&& mx>win->len_x - ui_control_space && mx < win->len_x)
 		{
 			help_str.push_back(item_list_create_help_str);
