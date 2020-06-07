@@ -667,7 +667,7 @@ static void set_scrollbar_len(void)
 
 static int ui_scale_buddy_handler(window_info *win)
 {
-	int button_len_y = (int)(0.5 + win->current_scale * 20);
+	int button_len_y = win->default_font_len_y + 4*win->current_scale;
 	buddy_border_space = (int)(0.5 + win->current_scale * 5);
 	buddy_name_step_y = get_line_height(win->font_category, win->current_scale_small);
 
