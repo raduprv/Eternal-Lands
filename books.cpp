@@ -892,6 +892,11 @@ int BookWindow::ui_scale_handler(window_info *win)
 		int height = std::round(win->current_scale*paper_height + ui_height);
 		resize_window(_paper_win, width, height);
 	}
+
+	Book *book = get_book();
+	if (book)
+		book->renew_layout();
+
 	return 1;
 }
 
@@ -909,8 +914,6 @@ int BookWindow::font_change_handler(window_info *win, FontManager::Category cat)
 	{
 		// Resize the window
 		ui_scale_handler(win);
-		// Update the text links
-		add_links(win);
 		return 1;
 	}
 	if (cat == FontManager::Category::BOOK_FONT)
