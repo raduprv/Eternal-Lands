@@ -55,6 +55,7 @@ namespace ItemLists
 	static void quantity_input_handler(const char *input_text, void *);
 	static int display_itemlist_handler(window_info *win);
 	static int ui_scale_itemlist_handler(window_info *win);
+	static int change_itemlist_font_handler(window_info *win, font_cat cat);
 	static int click_itemlist_handler(window_info *win, int mx, int my, Uint32 flags);
 	static int mouseover_itemlist_handler(window_info *win, int mx, int my);
 	static int hide_itemlist_handler(window_info *win);
@@ -224,6 +225,7 @@ namespace ItemLists
 			void update_min_window_size(window_info *win);
 			void set_num_grid_rows(window_info *win, int num);
 			int ui_scale_handler(window_info *win);
+			int font_change_handler(window_info *win, eternal_lands::FontManager::Category cat);
 			int draw(window_info *win);
 			void new_or_rename_list(bool is_new);
 			int mouseover(window_info *win, int mx, int my);
@@ -884,6 +886,14 @@ namespace ItemLists
 		return 1;
 	}
 
+	// Called when font setting are changed
+	int List_Window::font_change_handler(window_info *win, eternal_lands::FontManager::Category cat)
+	{
+		if (cat != win->font_category)
+			return 0;
+		ui_scale_handler(win);
+		return 1;
+	}
 
 	//	Set the minumum window size
 	//
@@ -914,6 +924,7 @@ namespace ItemLists
 			set_window_handler(win_id, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_itemlist_handler );
 			set_window_handler(win_id, ELW_HANDLER_RESIZE, (int (*)())&resize_itemlist_handler );
 			set_window_handler(win_id, ELW_HANDLER_UI_SCALE, (int (*)())&ui_scale_itemlist_handler );
+			set_window_handler(win_id, ELW_HANDLER_FONT_CHANGE, (int (*)())&change_itemlist_font_handler);
 
 			cm_selected_item_menu = cm_create(cm_item_list_selected_str, cm_selected_item_handler);
 			cm_names_menu = cm_create(cm_item_list_names_str, cm_names_handler);
@@ -1546,6 +1557,13 @@ CHECK_GL_ERRORS();
 	static int ui_scale_itemlist_handler(window_info *win)
 	{
 		return Vars::win()->ui_scale_handler(win);
+	}
+
+	//  Called when the font settings are changed
+	//
+	static int change_itemlist_font_handler(window_info *win, font_cat cat)
+	{
+		return Vars::win()->font_change_handler(win, cat);
 	}
 
 
