@@ -22,9 +22,9 @@ OPTIONS = -DLINUX -DELC $(foreach FEATURE, $(FEATURES), -D$(FEATURE)) -D_7ZIP_ST
 	$(shell pkg-config zlib --cflags) \
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_CFLAGS))
 
-CFLAGS=$(PLATFORM) $(CWARN) -O0 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
+CFLAGS=$(PLATFORM) $(CWARN) -O1 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
 
-CXXFLAGS=$(PLATFORM) $(CXXWARN) -O0 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
+CXXFLAGS=$(PLATFORM) $(CXXWARN) -O1 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
 
 LDFLAGS=$(shell pkg-config sdl2 --libs) \
 	$(shell pkg-config libxml-2.0 --libs) \

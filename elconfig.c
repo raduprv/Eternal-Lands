@@ -3333,7 +3333,11 @@ static int get_elconfig_content_width(void)
 				break;
 			case OPT_STRING:
 				// don't display the username, if it is changed after login, any name tagged files will be saved using the new name
-				if (strcmp(our_vars.var[i]->name, "username") != 0)
+				if (strcmp(our_vars.var[i]->name, "username") == 0)
+				{
+					line_width = 0;
+				}
+				else
 				{
 					line_width = get_string_width_zoom(var->display.str, CONFIG_FONT, elconf_scale)
 						+ SPACING + ELCONFIG_SCALED_VALUE(332);
@@ -3356,6 +3360,8 @@ static int get_elconfig_content_width(void)
 						+ get_string_width_zoom((const unsigned char*)label, CONFIG_FONT, elconf_scale);
 				}
 				break;
+			default:
+				line_width = 0;
 		}
 
 		max_line_width = max2i(max_line_width, line_width);

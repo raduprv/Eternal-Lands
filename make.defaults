@@ -75,9 +75,9 @@ FEATURES += TTF                 # Add ability to use True Type system fonts
 
 PLATFORM=-march=native
 XDIR=-L/usr/X11R6/lib
-CWARN=-Wall -Wdeclaration-after-statement
+CWARN=-Wall -Wdeclaration-after-statement -W -Wno-unused-parameter -Wno-sign-compare
 # -Wno-pointer-sign -Wno-sign-compare -Werror
-CXXWARN=-Wall
+CXXWARN=-std=c++11 -Wall -W -Wno-unused-parameter -Wno-sign-compare
 # -Wno-sign-compare -Werror
 
 ## These needed to be adjusted on a per system basis based on compile options & library versions
