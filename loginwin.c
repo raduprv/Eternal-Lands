@@ -521,6 +521,14 @@ static int ui_scale_login_handler(window_info *win)
 	return 1;
 }
 
+static int change_login_font_handler(window_info *win, font_cat cat)
+{
+	if (cat != win->font_category)
+		return 0;
+	resize_window(win->window_id, win->len_x, win->len_y);
+	return 1;
+}
+
 void create_login_root_window (int width, int height)
 {
 	if (login_root_win < 0)
@@ -534,6 +542,7 @@ void create_login_root_window (int width, int height)
 		set_window_handler (login_root_win, ELW_HANDLER_RESIZE, &resize_login_handler);
 		set_window_handler (login_root_win, ELW_HANDLER_SHOW, &show_login_handler);
 		set_window_handler (login_root_win, ELW_HANDLER_UI_SCALE, &ui_scale_login_handler);
+		set_window_handler (login_root_win, ELW_HANDLER_FONT_CHANGE, &change_login_font_handler);
 
 		resize_window (login_root_win, width, height);
 	}
