@@ -48,14 +48,14 @@
  G, and B in them, will always result in white.  They work well for magic and
  light sources.  "Non-glowing" particles blend with an average (as with
  glowing, weighted proportional to transparency).  Infinite accumulation of
- non-glowing particles results purely in the color of the particle itself. 
+ non-glowing particles results purely in the color of the particle itself.
  They work well for things like dust, debris, and smoke.
 
  All effects (except fireflies and leaves/petals, which don't need it) have a
  level of detail flag.  This is the maximum level of detail to use.  The
  number of particles that the effect will use is roughly proportional to its
  level of detail, although different effects may use more or less particles
- than others.  Naturally, lower level of detail is faster but poorer quality. 
+ than others.  Naturally, lower level of detail is faster but poorer quality.
  Eye Candy also has a built-in particle limit.  As you near this limit, it
  automatically tells effects to lower their level of detail.  Any new
  particles that they create will be done according to the new LOD.  Lastly,
@@ -103,7 +103,7 @@
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
-#include <windows.h>     
+#include <windows.h>
 #include <float.h>
 #else
 #include <sys/time.h>
@@ -295,14 +295,13 @@ namespace ec
 				y = 0.0f;
 				z = 0.0f;
 			}
-			;
 			Vec3(coord_t _x, coord_t _y, coord_t _z)
 			{
 				x = _x;
 				y = _y;
 				z = _z;
 			}
-			;
+			Vec3(const Vec3& v) = default;
 			~Vec3()
 			{
 			}
@@ -314,7 +313,7 @@ namespace ec
 				y += rhs.y;
 				z += rhs.z;
 
-				if (!is_valid()) 
+				if (!is_valid())
 				{
 					x = 0.0;
 					y = 0.0;
@@ -331,7 +330,7 @@ namespace ec
 				y -= rhs.y;
 				z -= rhs.z;
 
-				if (!is_valid()) 
+				if (!is_valid())
 				{
 					x = 0.0;
 					y = 0.0;
@@ -413,15 +412,7 @@ namespace ec
 			}
 			;
 
-			Vec3 operator=(const Vec3 rhs)
-			{
-				x = rhs.x;
-				y = rhs.y;
-				z = rhs.z;
-
-				return *this;
-			}
-			;
+			Vec3& operator=(const Vec3& rhs) = default;
 
 			Vec3 operator-()
 			{
@@ -1150,7 +1141,7 @@ namespace ec
 	};
 
 	/*!
-	 \brief A gradient mover which whirls/pinches particles. 
+	 \brief A gradient mover which whirls/pinches particles.
 
 	 If spiral speed is equal to -pinch_rate, particles will follow a rough
 	 circle.  A greater magnitude pinch and they'll go inwards.  A lesser
@@ -1221,7 +1212,7 @@ namespace ec
 	};
 
 	/*!
-	 \brief A bounding range composed of a series of angles and radii forming a 
+	 \brief A bounding range composed of a series of angles and radii forming a
 	 polygon that is smoothly interpolated.
 	 */
 
@@ -2050,7 +2041,7 @@ namespace ec
 			virtual Uint64 get_expire_time()
 			{	return 0x8000000000000000ull;};
 
-#ifdef CLUSTER_INSIDES  
+#ifdef CLUSTER_INSIDES
 			short getCluster () const
 			{
 				if (!pos)
@@ -2091,7 +2082,7 @@ namespace ec
 
 		 The EyeCandy object (there should only ever be one) encapsulates all of the
 		 effects and particles that will occur in a program.  There are numerous
-		 options, flags, and settings that can be set for the eye candy object. 
+		 options, flags, and settings that can be set for the eye candy object.
 		 A few critical notes:
 
 		 1) When initializing the object, be sure to load_textures().
