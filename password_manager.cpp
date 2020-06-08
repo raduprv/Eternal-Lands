@@ -247,16 +247,27 @@ namespace Password_Manaager
 			width += border_x + win->default_font_max_len_x * (MAX_USERNAME_LENGTH - 1);
 		height = std::max(height, 4 * win->box_size);
 
+		int y_box, y_label;
 		if (checkbox_id > 0)
 			widget_destroy(win->window_id, checkbox_id);
 		if (checkbox_label_id > 0)
 			widget_destroy(win->window_id, checkbox_label_id);
-		checkbox_id = checkbox_add_extended(win->window_id,  2, NULL, border_x, height,
+		if (win->box_size >= win->default_font_len_y)
+		{
+			y_box = height;
+			y_label = height + (win->box_size - win->default_font_len_y) / 2;
+		}
+		else
+		{
+			y_box = height + (win->default_font_len_y - win->box_size) / 2;
+			y_label = height;
+		}
+		checkbox_id = checkbox_add_extended(win->window_id,  2, NULL, border_x, y_box,
 			win->box_size, win->box_size, 0, win->current_scale,  0.77f, 0.57f, 0.39f, &show_passwords);
-		checkbox_label_id = label_add_extended(window_id, 3, NULL, 2 * border_x + win->box_size, height, 0, win->current_scale, 0.77f, 0.57f, 0.39f, show_passwords_str);
+		checkbox_label_id = label_add_extended(window_id, 3, NULL, 2 * border_x + win->box_size, y_label, 0, win->current_scale, 0.77f, 0.57f, 0.39f, show_passwords_str);
 		widget_set_OnClick(window_id, checkbox_id, (int (*)())&click_show_password);
 		widget_set_OnClick(window_id, checkbox_label_id, (int (*)())&click_show_password);
-		height += win->box_size + border_y;
+		height += std::max(win->box_size, win->default_font_len_y) + border_y;
 		width = std::max(width, 4 * border_x + 2 * win->box_size + widget_get_width(win->window_id, checkbox_label_id));
 
 		widget_resize(win->window_id, scroll_id, win->box_size, height - win->box_size);
