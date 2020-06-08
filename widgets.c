@@ -4252,30 +4252,37 @@ static int spinbutton_keypress(widget_list *widget, int mx, int my, SDL_Keycode 
 				if(ch == ',') {
 					ch = '.';
 				}
-				if((ch >= '0' && ch <= '9') || (ch == '.' && strstr(button->input_buffer, ".") == NULL)) {
+				if ((ch >= '0' && ch <= '9') || (ch == '.' && strchr(button->input_buffer, '.') == NULL))
+				{
 					/* Make sure we don't insert illegal characters here */
-					if(button->input_buffer[0] != '0' || ch == '.' || strstr(button->input_buffer, ".") != NULL) {
+					if (button->input_buffer[0] != '0' || ch == '.' || strchr(button->input_buffer, '.') != NULL)
+					{
 						/* Find end of string */
-						for(i = 0; button->input_buffer[i] != '\0' && i < sizeof (button->input_buffer); i++);
+						i = strlen(button->input_buffer);
 						/* Append to the end */
 						if (i+1 < sizeof (button->input_buffer))
 						{
 							button->input_buffer[i] = ch;
 							button->input_buffer[i+1] = '\0';
 						}
-						if(atof(button->input_buffer) > button->max) {
-							safe_snprintf(button->input_buffer, sizeof(button->input_buffer), "%.2f", button->max);
+						if (atof(button->input_buffer) > button->max)
+						{
+							safe_snprintf(button->input_buffer, sizeof(button->input_buffer), "%.2f",
+								button->max);
 						}
 					}
-					if(atof(button->input_buffer) >= button->min && atof(button->input_buffer) <= button->max) {
+					if (atof(button->input_buffer) >= button->min && atof(button->input_buffer) <= button->max)
+					{
 						*(float *)button->data = atof(button->input_buffer);
 					}
 					return 1;
-				} else if (key_code == SDLK_BACKSPACE) {
-					if(strlen(button->input_buffer) > 0) {
+				}
+				else if (key_code == SDLK_BACKSPACE)
+				{
+					if (*button->input_buffer)
 						button->input_buffer[strlen(button->input_buffer)-1] = '\0';
-					}
-					if(atof(button->input_buffer) >= button->min) {
+					if (atof(button->input_buffer) >= button->min)
+					{
 						*(float *)button->data = atof(button->input_buffer);
 					}
 					return 1;
@@ -4360,6 +4367,7 @@ static int spinbutton_draw(widget_list *widget)
 	int arrow_size = 0;
 	char str[255];
 	int x_space = (int)(0.5 + widget->size*2);
+	int out_of_range = 0;
 
 	if(widget == NULL || (button = widget->widget_info) == NULL) {
 		return 0;
@@ -4372,8 +4380,8 @@ static int spinbutton_draw(widget_list *widget)
 			if(atoi(button->input_buffer) < button->min) {
 				/* The input buffer has a value less than minimum.
 				 * Don't change the data variable and mark the text in red */
-				glColor3f(1, 0, 0);
-				safe_snprintf(str, sizeof (str), "%s", button->input_buffer);
+				out_of_range = 1;
+				safe_strncpy(str, button->input_buffer, sizeof(str));
 			} else {
 				*(int *)button->data = atoi(button->input_buffer);
 				safe_snprintf(str, sizeof (str), "%i", *(int *)button->data);
@@ -4381,8 +4389,8 @@ static int spinbutton_draw(widget_list *widget)
 		break;
 		case SPIN_FLOAT:
 			if(atof(button->input_buffer) < button->min) {
-				glColor3f(1, 0, 0);
-				safe_snprintf(str, sizeof (str), "%s", button->input_buffer);
+				out_of_range = 1;
+				safe_strncpy(str, button->input_buffer, sizeof(str));
 			} else {
 				char *pointer = strchr(button->input_buffer, '.');
 				int accuracy;
@@ -4405,13 +4413,19 @@ static int spinbutton_draw(widget_list *widget)
 			}
 		break;
 	}
+
 	/* Numbers */
-	glColor3f(widget->r, widget->g, widget->b);
+	if (out_of_range)
+		glColor3f(1, 0, 0);
+	else
+		glColor3f(widget->r, widget->g, widget->b);
 	draw_text(widget->pos_x + x_space, widget->pos_y + widget->len_y/2, (const unsigned char*)str,
 		strlen(str), widget->fcat, TDO_ZOOM, widget->size, TDO_VERTICAL_ALIGNMENT, CENTER_DIGITS,
 		TDO_END);
 	glDisable(GL_TEXTURE_2D);
+
 	/* Border */
+	glColor3f(widget->r, widget->g, widget->b);
 	glBegin(GL_LINE_LOOP);
 		glVertex3i (widget->pos_x, widget->pos_y, 0);
 		glVertex3i (widget->pos_x + widget->len_x, widget->pos_y, 0);
