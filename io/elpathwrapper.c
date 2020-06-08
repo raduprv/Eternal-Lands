@@ -54,13 +54,13 @@ Theoretically safe, unless someone has a HOME that has a really long path. Such 
  * the default; this isn't really intended for just using a different name if you din't like "elc"
  */
 #ifdef CONFIGDIR
-const static char* cfgdirname = CONFIGDIR;
+static const char* cfgdirname = CONFIGDIR;
 #elif defined(OSX)
-const static char* cfgdirname = "Library/Application\ Support/Eternal\ Lands";
+static const char* cfgdirname = "Library/Application\ Support/Eternal\ Lands";
 #elif defined(WINDOWS)
-const static char* cfgdirname = "Eternal Lands";
+static const char* cfgdirname = "Eternal Lands";
 #else /* *nix */
-const static char* cfgdirname = ".elc";
+static const char* cfgdirname = ".elc";
 #endif // platform check
 
 
@@ -867,7 +867,8 @@ int search_files_and_apply(const char* base_path, const char *pattern, void (*fn
 			break;
 		}
 
-		if (entry->d_type == DT_DIR && max_depth > 0)
+		if (entry->d_type == DT_DIR && max_depth > 0 && strcmp(entry->d_name, ".") != 0
+			&& strcmp(entry->d_name, "..") != 0)
 		{
 			safe_snprintf(full_path, sizeof(full_path), "%s/%s", base_path, entry->d_name);
 			nr_found += search_files_and_apply(full_path, pattern, fn, max_depth-1);
