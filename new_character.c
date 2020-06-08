@@ -253,12 +253,32 @@ static int newchar_advice_win = -1;
 static int newchar_hud_win = -1;
 static int error_widget_id = -1;
 
+static int ui_scale_advice_handler(window_info *win)
+{
+	int sep = 5;
+	int len_x = 2 * sep
+		+ get_string_width_zoom((const unsigned char*)newchar_warning,
+			win->font_category, win->current_scale);
+	int len_y = (int)(2*sep + win->default_font_len_y);
+	int pos_x = (int)((window_width - len_x - hud_x) / 2);
+	resize_window(win->window_id, len_x, len_y);
+	move_window(win->window_id, win->pos_id, win->pos_loc, pos_x, sep);
+	return 1;
+}
+
+static int change_advice_font_handler(window_info *win, font_cat cat)
+{
+	if (cat != win->font_category)
+		return 0;
+	ui_scale_advice_handler(win);
+	return 1;
+}
+
 //	Display the "Character creation screen" and creation step help window.
 //
 static int display_advice_handler (window_info *win)
 {
 	static int lastw = -1, lasth = -1;
-	static float last_scale = 0;
 	static Uint32 last_time = 0;
 	static int flash = 0;
 	static char *last_help = NULL;
@@ -267,24 +287,19 @@ static int display_advice_handler (window_info *win)
 
 	// Resize and move the window on first use and if window size changed.
 	// Place centred, just down from the top of the screen.
-	if ((lastw!=window_width) || (lasth!=window_height) || (last_scale != win->current_scale))
+	if (lastw != window_width || lasth != window_height)
 	{
-		int len_x = 2 * sep
-			+ get_string_width_zoom((const unsigned char*)newchar_warning,
-				win->font_category, win->current_scale);
-		int len_y = (int)(2*sep + win->default_font_len_y);
-		int pos_x = (int)((window_width - len_x - hud_x) / 2);
-		resize_window(win->window_id, len_x, len_y);
-		move_window(win->window_id, win->pos_id, win->pos_loc, pos_x, sep);
+		ui_scale_advice_handler(win);
 		lastw = window_width;
 		lasth = window_height;
-		last_scale = win->current_scale;
 	}
 
 	// Draw the warning text.
 	glEnable(GL_TEXTURE_2D);
 	glColor3f(1.0f,1.0f,1.0f);
-	draw_string_zoomed(sep, sep, (const unsigned char *)newchar_warning, 1, win->current_scale);
+	draw_text(win->len_x/2, win->len_y/2, (const unsigned char *)newchar_warning, strlen(newchar_warning),
+		win->font_category, TDO_ALIGNMENT, CENTER, TDO_VERTICAL_ALIGNMENT, CENTER_LINES,
+		TDO_ZOOM, win->current_scale, TDO_END);
 
 	// Give eye icon help, then credentials icon help then "done" help.
 	if (color_race_win < 0)
@@ -625,9 +640,73 @@ static int show_newchar_handler (window_info *win) {
 
 static void create_newchar_hud_window(void);
 
+static void set_hud_width(window_info *win)
+{
+	int sep = (int)(0.5 + win->current_scale * 5);
+	float bit_small = 0.9f * win->current_scale;
+	float very_small = win->current_scale_small;
+	int width, min_width = (int)(0.5 + win->current_scale * NEW_CHARACTER_BASE_HUD_X);
+	int prev_width = get_string_width_zoom((const unsigned char*)"<<", win->font_category, bit_small);
+	int next_width = get_string_width_zoom((const unsigned char*)">>", win->font_category, bit_small);
+	int button_height = (int)(0.5 + 2*very_small*BUTTONRADIUS);
+
+	width = 2*sep + get_string_width_zoom((const unsigned char*)win_design, win->font_category, bit_small);
+	min_width = max2i(min_width, width);
+
+	width = 5*sep + calc_button_width((const unsigned char*)male_str, win->font_category, very_small)
+		+ calc_button_width((const unsigned char*)female_str, win->font_category, very_small);
+	min_width = max2i(min_width, width);
+
+	width = 4*sep + button_height
+		+ calc_button_width((const unsigned char*)human_str, win->font_category, very_small);
+	min_width = max2i(min_width, 2*width);
+	width = 4*sep + button_height
+		+ calc_button_width((const unsigned char*)elf_str, win->font_category, very_small);
+	min_width = max2i(min_width, 2*width);
+	width = 4*sep + button_height
+		+ calc_button_width((const unsigned char*)dwarf_str, win->font_category, very_small);
+	min_width = max2i(min_width, 2*width);
+	width = 4*sep + button_height
+		+ calc_button_width((const unsigned char*)gnome_str, win->font_category, very_small);
+	min_width = max2i(min_width, 2*width);
+	width = 4*sep + button_height
+		+ calc_button_width((const unsigned char*)orchan_str, win->font_category, very_small);
+	min_width = max2i(min_width, 2*width);
+	width = 4*sep + button_height
+		+ calc_button_width((const unsigned char*)draegoni_str, win->font_category, very_small);
+	min_width = max2i(min_width, 2*width);
+
+	width = 3*sep + prev_width + next_width
+		+ get_string_width_zoom((const unsigned char*)head_str, win->font_category, bit_small);
+	min_width = max2i(min_width, 2*width);
+	width = 3*sep + prev_width + next_width
+		+ get_string_width_zoom((const unsigned char*)shirt_str, win->font_category, bit_small);
+	min_width = max2i(min_width, 2*width);
+	width = 3*sep + prev_width + next_width
+		+ get_string_width_zoom((const unsigned char*)skin_str, win->font_category, bit_small);
+	min_width = max2i(min_width, 2*width);
+	width = 3*sep + prev_width + next_width
+		+ get_string_width_zoom((const unsigned char*)pants_str, win->font_category, bit_small);
+	min_width = max2i(min_width, 2*width);
+	width = 3*sep + prev_width + next_width
+		+ get_string_width_zoom((const unsigned char*)hair_str, win->font_category, bit_small);
+	min_width = max2i(min_width, 2*width);
+	width = 3*sep + prev_width + next_width
+		+ get_string_width_zoom((const unsigned char*)boots_str, win->font_category, bit_small);
+	min_width = max2i(min_width, 2*width);
+	width = 3*sep + prev_width + next_width
+		+ get_string_width_zoom((const unsigned char*)eyes_str, win->font_category, bit_small);
+	min_width = max2i(min_width, 2*width);
+
+	width = 3*sep + calc_button_width((const unsigned char*)char_done, win->font_category, bit_small)
+		+ calc_button_width((const unsigned char*)char_back, win->font_category, bit_small);
+
+	hud_x = min2i(min_width, win->len_x/2);
+}
+
 static int ui_scale_newchar_handler(window_info *win)
 {
-	hud_x = (int)(0.5 + win->current_scale * NEW_CHARACTER_BASE_HUD_X);
+	set_hud_width(win);
 	resize_newchar_hud_window();
 	return 1;
 }
@@ -639,6 +718,14 @@ static int ui_resize_newchar_handler(window_info *win)
 		init_hud_interface (HUD_INTERFACE_NEW_CHAR);
 		set_all_intersect_update_needed(main_bbox_tree); // redraw the scene
 	}
+	return 1;
+}
+
+static int change_newchar_font_handler(window_info *win, font_cat cat)
+{
+	if (cat != win->font_category)
+		return 0;
+	ui_scale_newchar_handler(win);
 	return 1;
 }
 
@@ -674,9 +761,12 @@ void create_newchar_root_window (void)
 		set_window_handler (newchar_root_win, ELW_HANDLER_HIDE, &update_have_display);
 		set_window_handler (newchar_root_win, ELW_HANDLER_UI_SCALE, &ui_scale_newchar_handler);
 		set_window_handler (newchar_root_win, ELW_HANDLER_RESIZE, &ui_resize_newchar_handler);
+		set_window_handler(newchar_root_win, ELW_HANDLER_FONT_CHANGE, &change_newchar_font_handler);
 
 		newchar_advice_win = create_window ("Advice", newchar_root_win, 0, 100, 10, 200, 100, ELW_USE_UISCALE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_ALPHA_BORDER);
 		set_window_handler (newchar_advice_win, ELW_HANDLER_DISPLAY, &display_advice_handler);
+		set_window_handler (newchar_advice_win, ELW_HANDLER_UI_SCALE, &ui_scale_advice_handler);
+		set_window_handler (newchar_advice_win, ELW_HANDLER_FONT_CHANGE, &change_advice_font_handler);
 
 		if (newchar_root_win >= 0 && newchar_root_win < windows_list.num_windows)
 			ui_scale_newchar_handler(&windows_list.window[newchar_root_win]);
@@ -993,9 +1083,9 @@ static int keypress_namepass_handler (window_info *win, int mx, int my, SDL_Keyc
 	return ret;
 }
 
-static const struct WIDGET_TYPE name_type = {NULL, &name_draw, &click_namepass_field, NULL, NULL, NULL, NULL, NULL}; //custom widget for the name button
-static const struct WIDGET_TYPE password_type = {NULL, &password_draw, &click_namepass_field, NULL, NULL, NULL, NULL, NULL}; //custom widget for the password buttons
-static const struct WIDGET_TYPE errorbox_type = {NULL, &errorbox_draw, NULL, NULL, NULL, NULL, NULL, NULL}; //custom widget for displaying name/password errors
+static const struct WIDGET_TYPE name_type = {NULL, &name_draw, &click_namepass_field, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}; //custom widget for the name button
+static const struct WIDGET_TYPE password_type = {NULL, &password_draw, &click_namepass_field, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}; //custom widget for the password buttons
+static const struct WIDGET_TYPE errorbox_type = {NULL, &errorbox_draw, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}; //custom widget for displaying name/password errors
 static int specs[3] = {0, 1, 2};
 
 static int init_namepass_handler(window_info * win)
@@ -1490,7 +1580,7 @@ CHECK_GL_ERRORS();
 	return 1;
 }
 
-static const struct WIDGET_TYPE box_type = {NULL, &box_draw, NULL, NULL, NULL, NULL, NULL, NULL}; //a custom box widget
+static const struct WIDGET_TYPE box_type = {NULL, &box_draw, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}; //a custom box widget
 
 static int init_color_race_handler(window_info * win)
 {
@@ -1532,11 +1622,11 @@ static int init_color_race_handler(window_info * win)
 		int book_ids[6] = {book_human, book_elf, book_dwarf, book_gnome, book_orchan, book_draegoni};
 		int box_label_height = get_line_height(win->font_category, very_small);
 		int button_height = 2 * very_small * BUTTONRADIUS;
-		int button_width = (int)(0.5 + win->current_scale * 80);
 		int button_y_off = box_label_height;
 		int button_set_height = 3 * button_height + 2 * sep;
 		int button_set_width = win->len_x - 4 * sep;
 		int col_two_x_off = sep + button_set_width / 2;
+		int button_width = col_two_x_off - 4*sep - button_height;
 		int element_height = 2 * box_label_height + button_set_height;
 		size_t i;
 		y += sep + box_label_height / 2;
