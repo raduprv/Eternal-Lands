@@ -75,8 +75,7 @@ void TextBlock::display() const
 			options.set_foreground(0.34f, 0.25f, 0.16f);
 			break;
 	}
-	FontManager::get_instance().draw(BOOK_FONT, _text.c_str(), _text.length(),
-		_x, _y, options);
+	FontManager::get_instance().draw(BOOK_FONT, _text.c_str(), _text.length(), _x, _y, options);
 }
 
 
@@ -174,7 +173,7 @@ void Book::layout_text(ContentType content_type, const ustring& text,
 	{
 		int y_begin, y_end;
 		std::tie(y_begin, y_end) = page->find_free_range_aligned(line_h);
-		if (y_begin < 0)
+		while (y_begin < 0)
 		{
 			page = next_text_page(page_width, page_height, zoom);
 			std::tie(y_begin, y_end) = page->find_free_range_aligned(line_h);
