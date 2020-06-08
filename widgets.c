@@ -44,6 +44,7 @@ typedef struct {
 	unsigned char text[256];
 	Uint16 fixed_width;
 	Uint16 fixed_height;
+	int center_offset;
 }button;
 
 typedef struct {
@@ -922,6 +923,9 @@ static int button_change_font(widget_list *W, font_cat cat)
 		len_y = (int)(2 * BUTTONRADIUS * W->size + 0.5);
 	}
 
+	if (W->Flags & BUTTON_VCENTER_CONTENT)
+		T->center_offset = get_center_offset(T->text, strlen((const char*)T->text), W->fcat, W->size);
+
 	return widget_resize(W->window_id, W->id, len_x, len_y);
 }
 
@@ -936,6 +940,12 @@ int button_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Ui
 	safe_strncpy((char*)T->text, text, sizeof(T->text));
 	T->fixed_width = lx;
 	T->fixed_height = ly;
+
+	if (Flags & BUTTON_VCENTER_CONTENT)
+	{
+		T->center_offset = get_center_offset((const unsigned char*)text, strlen(text),
+			win->font_category, size);
+	}
 
 	len_x = lx ? lx : calc_button_width(T->text, win->font_category, size);
 	len_y = ly ? ly : get_line_height(win->font_category, size) + (int)(12 * size + 0.5);
@@ -971,13 +981,7 @@ static int button_draw(widget_list *W)
 
 static int square_button_draw(widget_list *W)
 {
-	int line_height;
 	button *l = (button *)W->widget_info;
-	float extra_space = (W->len_x
-		- get_string_width_zoom(l->text, W->fcat, W->size))/2.0f;
-	if(extra_space < 0) {
-		extra_space = 0;
-	}
 
 	glDisable(GL_TEXTURE_2D);
 
@@ -992,10 +996,8 @@ static int square_button_draw(widget_list *W)
 	glEnd();
 
 	glEnable(GL_TEXTURE_2D);
-	line_height = get_line_height(W->fcat, W->size);
-	draw_string_zoomed_width_font_centered(W->pos_x + W->len_x / 2,
-		W->pos_y + (W->len_y - line_height) / 2 + 1 + gy_adjust,
-		l->text, window_width, 1, W->fcat, W->size);
+	draw_text(W->pos_x + W->len_x/2, W->pos_y + W->len_y/2 - l->center_offset, l->text,
+		strlen((const char*)l->text), W->fcat, TDO_ALIGNMENT, CENTER, TDO_VERTICAL_ALIGNMENT, CENTER_LINES, TDO_ZOOM, W->size, TDO_END);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE

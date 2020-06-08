@@ -720,7 +720,8 @@ void display_buddy(void)
 			set_window_handler(buddy_win, ELW_HANDLER_FONT_CHANGE, &change_buddy_font_handler);
 
 			buddy_scroll_id = vscrollbar_add_extended (buddy_win, buddy_scroll_id, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 0);
-			buddy_button_id = button_add_extended(buddy_win, buddy_button_id, NULL, 0, 0, 0, 0, BUTTON_SQUARE, 1.0, 0.77f, 0.57f, 0.39f, buddy_add_str);
+			buddy_button_id = button_add_extended(buddy_win, buddy_button_id, NULL, 0, 0, 0, 0,
+				BUTTON_SQUARE|BUTTON_VCENTER_CONTENT, 1.0, 0.77f, 0.57f, 0.39f, buddy_add_str);
 			widget_set_OnClick(buddy_win, buddy_button_id, click_buddy_button_handler);
 
 			if (buddy_win >=0 && buddy_win < windows_list.num_windows)

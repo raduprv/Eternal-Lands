@@ -251,7 +251,7 @@ Font::Font(size_t font_nr): _font_name(), _file_name(), _flags(0),
 		_metrics[pos].width = char_widths[pos];
 		_metrics[pos].advance = char_widths[pos];
 		_metrics[pos].top = 0;
-		_metrics[pos].bottom = font_block_height - 2;
+		_metrics[pos].bottom = _line_height;
 		_metrics[pos].u_start = float(col * font_block_width + skip) / 256;
 		_metrics[pos].v_start = float(row * font_block_height + 1) / 256;
 		_metrics[pos].u_end = float((col+1) * font_block_width - 7 - skip) / 256;
@@ -404,6 +404,25 @@ std::pair<int, int> Font::dimensions(const unsigned char* str, size_t len, float
 		off += end + 1;
 	}
 	return std::make_pair(w, h);
+}
+
+int Font::center_offset(const unsigned char* text, size_t len, float zoom)
+{
+	int top = _line_height, bottom = 0;
+	for (size_t i = 0; i < len; ++i)
+	{
+		int pos = get_position(text[i]);
+		if (pos >= 0)
+		{
+			top = std::min(top, _metrics[pos].top);
+			bottom = std::max(bottom, _metrics[pos].bottom);
+		}
+	}
+
+	if (top >= bottom)
+		return 0;
+
+	return std::round(_scale * zoom * 0.5 * (bottom + top - _line_height));
 }
 
 std::pair<ustring, int> Font::reset_soft_breaks(const unsigned char *text,
@@ -1592,6 +1611,11 @@ void get_buf_dimensions(const unsigned char* str, size_t len, font_cat cat, floa
 	auto dims = FontManager::get_instance().dimensions(cat, str, len, text_zoom);
 	*width = dims.first;
 	*height = dims.second;
+}
+
+int get_center_offset(const unsigned char* text, size_t len, font_cat cat, float zoom)
+{
+	return FontManager::get_instance().center_offset(cat, text, len, zoom);
 }
 
 int reset_soft_breaks(unsigned char *text, int len, int size, font_cat cat,

@@ -104,8 +104,9 @@ typedef struct wl{
  * \name	Flags for the buttons
  */
 /*! \{ */
-#define BUTTON_ACTIVE 0x400
-#define BUTTON_SQUARE 0x800
+#define BUTTON_ACTIVE          0x0400
+#define BUTTON_SQUARE          0x0800
+#define BUTTON_VCENTER_CONTENT 0x1000
 /*! \} */
 
 /*!
