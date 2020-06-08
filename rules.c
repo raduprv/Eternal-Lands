@@ -803,9 +803,9 @@ static void draw_rules_interface (window_info * win)
 		+ 2 * win->default_font_max_len_x;
 	if (string_width > win->len_x)
 		string_zoom *= win->len_x / string_width;
-	draw_string_zoomed_width_font_centered(win->len_x/2,
-		win->len_y - ui_seperator_y - win->default_font_len_y, (const unsigned char*)str,
-		window_width, 0, win->font_category, string_zoom);
+	draw_text(win->len_x/2, win->len_y - ui_seperator_y - win->default_font_len_y,
+		(const unsigned char*)str, strlen(str), win->font_category, TDO_ZOOM, string_zoom,
+		TDO_ALIGNMENT, CENTER, TDO_END);
 
 	draw_rules(display_rules, box_border_x, ui_seperator_y + win->default_font_len_y / 2,
 		box_border_x + text_box_width, text_box_height, win->current_scale, rules_winRGB);

@@ -1735,30 +1735,6 @@ static __inline__ void draw_string_zoomed_width_font(int x, int y, const unsigne
  * \brief Draw a text string
  *
  * Draw the text in the nul-terminated buffer \a text, centered around position
- * \a x, \a y on the screen, using the font for category \a cat. Options \a max_width and
- * \a max_lines specify the maximum width of the text and maximum number of lines
- * drawn respectively. Text outside these boundaries will not be drawn. The text
- * will be drawn in the default foreground color.
- *
- * \param x         The x coordinate of the center of drawn text
- * \param y         The top coordinate of the drawn text
- * \param text      The text to draw
- * \param max_width The maximum width in pixels of the text
- * \param max_lines The maximum number of lines to draw, or 0 for no limit
- * \param cat       The font category for the text
- * \param text_zoom Scale factor for the text size
- */
-static __inline__ void draw_string_zoomed_width_font_centered(int x, int y, const unsigned char *text,
-	int max_width, int max_lines, font_cat cat, float text_zoom)
-{
-	draw_text(x, y, text, strlen((const char*)text), cat, TDO_MAX_WIDTH, max_width,
-		TDO_MAX_LINES, max_lines, TDO_ZOOM, text_zoom, TDO_ALIGNMENT, CENTER, TDO_END);
-}
-/*!
- * \ingroup text_font
- * \brief Draw a text string
- *
- * Draw the text in the nul-terminated buffer \a text, centered around position
  * \a x, \a y on the screen, using the font for the UI_FONT category. The centering is
  * done such that the bytes up to \a center_idx are drawn left of \a x, and the
  * bytes from \a center_idx onward are drawn to the right of \a x.
