@@ -32,6 +32,7 @@ extern "C"
 {
 	static int display_pm_handler(window_info *win);
 	static int ui_scale_pm_handler(window_info *win);
+	static int change_pm_font_handler(window_info *win, font_cat cat);
 	static int click_pm_handler(window_info *win, int mx, int my, Uint32 flags);
 	static int mouseover_pm_handler(window_info *win, int mx, int my);
 	static int click_show_password(widget_list *w, int mx, int my, Uint32 flags);
@@ -220,6 +221,7 @@ namespace Password_Manaager
 			int click(Logins *logins, window_info *win, int mx, int my, Uint32 flags);
 			int mouseover(Logins *logins, window_info *win, int mx, int my);
 			int ui_scale(Logins *logins, window_info *win);
+			int change_font(Logins *logins, window_info *win, eternal_lands::FontManager::Category cat);
 			void toggle_show_password(Logins *logins, widget_list *w);
 			void resize(Logins *logins) { ui_scale(logins, &windows_list.window[window_id]); }
 		private:
@@ -263,6 +265,14 @@ namespace Password_Manaager
 
 		resize_window(window_id, width, height);
 		move_window(window_id, win->pos_id, win->pos_loc, window_width / 2 + ((window_width / 2 - width) / 2), (window_height - height) / 2);
+		return 1;
+	}
+
+	int Window::change_font(Logins *logins, window_info *win, eternal_lands::FontManager::Category cat)
+	{
+		if (cat != win->font_category)
+			return 0;
+		ui_scale(logins, win);
 		return 1;
 	}
 
@@ -368,6 +378,7 @@ namespace Password_Manaager
 			set_window_handler (window_id, ELW_HANDLER_CLICK, (int (*)())&click_pm_handler);
 			set_window_handler (window_id, ELW_HANDLER_SHOW, (int (*)())&ui_scale_pm_handler);
 			set_window_handler (window_id, ELW_HANDLER_UI_SCALE, (int (*)())&ui_scale_pm_handler);
+			set_window_handler (window_id, ELW_HANDLER_FONT_CHANGE, (int (*)())&change_pm_font_handler);
 			scroll_id = vscrollbar_add_extended (window_id, 1, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 0);
 			if (window_id >=0 && window_id < windows_list.num_windows)
 				ui_scale_pm_handler(&windows_list.window[window_id]);
@@ -390,6 +401,7 @@ static Password_Manaager::Window * pm_window = 0;
 
 static int display_pm_handler(window_info *win) { return pm_window->display(logins, win); }
 static int ui_scale_pm_handler(window_info *win) { return pm_window->ui_scale(logins, win); }
+static int change_pm_font_handler(window_info *win, font_cat cat) { return pm_window->change_font(logins, win, cat); }
 static int click_pm_handler(window_info *win, int mx, int my, Uint32 flags) { return pm_window->click(logins, win, mx, my, flags); }
 static int mouseover_pm_handler(window_info *win, int mx, int my) { return pm_window->mouseover(logins, win, mx, my); }
 static int click_show_password(widget_list *w, int mx, int my, Uint32 flags) { pm_window->toggle_show_password(logins, w); return 1; }
