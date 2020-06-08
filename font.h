@@ -43,6 +43,8 @@ typedef enum
 	RULES_FONT,
 	//! Index for the font used to draw the encyclopedia and help texts
 	ENCYCLOPEDIA_FONT,
+	//! Index used for the font used to draw map marks
+	MAPMARK_FONT,
 	//! Index used for the font used to draw the options window contents
 	CONFIG_FONT,
 	//! Number of font categories

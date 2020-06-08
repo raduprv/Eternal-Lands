@@ -79,8 +79,6 @@ static GLint viewport[4];
 // Grum: attempt to work around bug in Ati linux drivers.
 int ati_click_workaround = 0;
 
-float mapmark_zoom=0.3f;
-
 void save_scene_matrix (void)
 {
 	glGetDoublev (GL_MODELVIEW_MATRIX, model_mat);
@@ -99,9 +97,9 @@ void get_world_x_y (short *scene_x, short *scene_y)
 	// a giant misconception on the part of all EL developers so far.
 	if (ati_click_workaround && bpp == 32)
 		mouse_z = ldexp (mouse_z, 8);
-	
+
 	gluUnProject (mouse_x, window_height-hud_y-mouse_y, mouse_z, model_mat, projection_mat, viewport, &sx, &sy, &sz);
-	
+
 	*scene_x = (sx / 0.5);
 	*scene_y = (sy / 0.5);
 }
@@ -152,12 +150,12 @@ void get_old_world_x_y (short *scene_x, short *scene_y)
 	}
 	i = x*2.0f;
 	j = y*2.0f;
-	
+
 	i_min = min2f(x, x+dx*len)*2.0f;
 	i_max = max2f(x, x+dx*len)*2.0f;
 	j_min = min2f(y, y+dy*len)*2.0f;
 	j_max = max2f(y, y+dy*len)*2.0f;
-	
+
 	i_min = max2i(min2i(i_min, tile_map_size_x*6), 0);
 	i_max = max2i(min2i(i_max, tile_map_size_x*6-1), 0);
 	j_min = max2i(min2i(j_min, tile_map_size_y*6), 0);
@@ -165,7 +163,7 @@ void get_old_world_x_y (short *scene_x, short *scene_y)
 
 	i = min2i(max2i(i, i_min), i_max-1);
 	j = min2i(max2i(j, j_min), j_max-1);
-	
+
 	h = 0.0f;
 	while ((i >= i_min) && (j >= j_min) && (i < i_max) && (j < j_max))
 	{
@@ -237,7 +235,7 @@ void get_old_world_x_y (short *scene_x, short *scene_y)
 		else t2 = -10e30;
 		if (t1 < t2) i += 2*sx;
 		else j += 2*sy;
-		
+
 		t = min2f(t1, t2);
 		x += dx*t;
 		y += dy*t;
@@ -504,11 +502,11 @@ void read_mapinfo (void)
 	char cont_name[64];
 	unsigned short continent, x_start, y_start, x_end, y_end;
 	char map_name[128];
-	
+
 	maps_size = DEFAULT_CONTMAPS_SIZE;
 	continent_maps = calloc (maps_size, sizeof (struct draw_map));
 	imap = 0;
-	
+
 	read_cont_info();
 	fin = open_file_data ("mapinfo.lst", "r");
 	if (fin == NULL){
@@ -561,7 +559,7 @@ void read_mapinfo (void)
 			strcpy(continent_maps[imap].name, map_name);
 			imap++;
 		}
-		
+
 		fclose (fin);
 	}
 
@@ -579,14 +577,14 @@ int switch_to_game_map(void)
 	char buffer[1024];
 	short int cur_cont;
 	static short int old_cont = -1;
-	
+
 	/* check we loaded the mapinfo data */
 	if (continent_maps == NULL || continent_maps[0].name == NULL)
 	{
 		LOG_TO_CONSOLE(c_yellow2,err_nomap_str);
 		return 0;
 	}
-	
+
 	if (check_image_name(map_file_name, sizeof(buffer), buffer) == 1)
 	{
 		map_text = load_texture_cached(buffer, tt_image);
@@ -600,7 +598,7 @@ int switch_to_game_map(void)
 		LOG_TO_CONSOLE(c_yellow2,err_nomap_str);
 		return 0;
 	}
-	
+
 	if (cur_map < 0)
 	{
 		cur_cont = -1;
@@ -617,7 +615,7 @@ int switch_to_game_map(void)
 #ifdef DEBUG_MAP_SOUND
 	cur_tab_map = cur_map;
 #endif // DEBUG_MAP_SOUND
-	
+
 	if(current_cursor != CURSOR_ARROW)
 	{
 		change_cursor(CURSOR_ARROW);
@@ -635,7 +633,7 @@ static void draw_mark_filter(void)
 	screen_x = 25 - 1.5*strlen(label_mark_filter);
 	screen_y = 150 + 22;
 	draw_string_zoomed(screen_x, screen_y, (unsigned char*)label_mark_filter, 1, 0.3);
-	
+
 	// if filtering marks, display the label and the current filter text
 	if (mark_filter_active) {
 		char * show_mark_filter_text;
@@ -664,6 +662,7 @@ static void draw_marks(marking *the_marks, int the_max_mark, int the_tile_map_si
 	size_t i;
 	int screen_x=0;
 	int screen_y=0;
+	float mapmark_zoom = font_scales[MAPMARK_FONT];
 
 	// crave the markings
 	for(i=0;i<the_max_mark;i++)
@@ -686,14 +685,15 @@ static void draw_marks(marking *the_marks, int the_max_mark, int the_tile_map_si
 			glBegin(GL_LINES);
 				glVertex2i(screen_x-9*mapmark_zoom,screen_y-9*mapmark_zoom);
 				glVertex2i(screen_x+6*mapmark_zoom,screen_y+6*mapmark_zoom);
-			
+
 				glVertex2i(screen_x+6*mapmark_zoom,screen_y-9*mapmark_zoom);
 				glVertex2i(screen_x-9*mapmark_zoom,screen_y+6*mapmark_zoom);
 			glEnd();
 				glEnable(GL_TEXTURE_2D);
 				if(!the_marks[i].server_side) glColor3f((float)the_marks[i].r/255,(float)the_marks[i].g/255,(float)the_marks[i].b/255);//glColor3f(0.2f,1.0f,0.0f);
 				else glColor3f(0.33f,0.6f,1.0f);
-			draw_string_zoomed(screen_x, screen_y, (unsigned char*)the_marks[i].text, 1, mapmark_zoom);
+			draw_text(screen_x, screen_y, (const unsigned char*)the_marks[i].text, strlen(the_marks[i].text),
+				MAPMARK_FONT, TDO_END);
 		}
 	}
 }
@@ -720,7 +720,8 @@ void draw_coordinates(int the_tile_map_size_x, int the_tile_map_size_y)
 }
 
 void draw_game_map (int map, int mouse_mini)
-{     
+{
+	float mapmark_zoom = font_scales[MAPMARK_FONT];
 	int screen_x=0;
 	int screen_y=0;
 	int x=-1,y=-1;
@@ -738,7 +739,7 @@ void draw_game_map (int map, int mouse_mini)
 		}
 		cont_text = fallback_text;
 	}
-	
+
 	if(map){
 		map_small = cont_text;
 		if(inspect_map_text == 0) {
@@ -756,10 +757,10 @@ void draw_game_map (int map, int mouse_mini)
 			x_size=y_size=0;
 		}
 	}
-	
+
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_LIGHTING);
-    
+
 	glViewport(0, 0 + hud_y, window_width-hud_x, window_height-hud_y);
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
@@ -774,7 +775,7 @@ void draw_game_map (int map, int mouse_mini)
 	glColor3f(0.0f, 0.0f, 0.0f);
 
 	glBegin(GL_QUADS);
-		glVertex2i(0,   0);	
+		glVertex2i(0,   0);
 		glVertex2i(300, 0);
 		glVertex2i(300, 200);
 		glVertex2i(0,   200);
@@ -786,7 +787,7 @@ void draw_game_map (int map, int mouse_mini)
 	bind_texture(map_large);
 
 	glBegin(GL_QUADS);
-		glTexCoord2f(1.0f, 1.0f); glVertex3i(50,0,0); 
+		glTexCoord2f(1.0f, 1.0f); glVertex3i(50,0,0);
 		glTexCoord2f(1.0f, 0.0f); glVertex3i(50,200,0);
 		glTexCoord2f(0.0f, 0.0f); glVertex3i(250,200,0);
 		glTexCoord2f(0.0f, 1.0f); glVertex3i(250,0,0);
@@ -824,8 +825,9 @@ void draw_game_map (int map, int mouse_mini)
 // this is necessary for the text over map
 // need to execute this for any map now
 // because of the coordinate display - Lachesis
-	if(map/*&&(adding_mark||max_mark>0)*/){
-   		glViewport(0, 0 + hud_y, window_width-hud_x, window_height-hud_y);
+	if(map/*&&(adding_mark||max_mark>0)*/)
+	{
+		glViewport(0, 0 + hud_y, window_width-hud_x, window_height-hud_y);
 		glMatrixMode(GL_PROJECTION);
 		glPushMatrix();
 		glLoadIdentity();
@@ -843,9 +845,10 @@ void draw_game_map (int map, int mouse_mini)
 			glColor3f (1.0f, 1.0f, 0.0f);
 			draw_string_zoomed(25 - 1.5*strlen(buf), 150 + 43, (const unsigned char *)buf, 1, 0.3);
 		}
- 
+
 		// draw a temporary mark until the text is entered
-		if (adding_mark) {
+		if (adding_mark)
+		{
 			int x = mark_x;
 			int y = mark_y;
 
@@ -863,7 +866,8 @@ void draw_game_map (int map, int mouse_mini)
 			glEnd();
 		        glEnable(GL_TEXTURE_2D);
 		        glColor3f(1.0f,1.0f,0.0f);
-			draw_string_zoomed (screen_x, screen_y, (unsigned char*)input_text_line.data, 1, mapmark_zoom);
+			draw_text(screen_x, screen_y, (const unsigned char*)input_text_line.data,
+				strlen(input_text_line.data), MAPMARK_FONT, TDO_END);
 		}
 
 		draw_mark_filter();
@@ -894,7 +898,7 @@ void draw_game_map (int map, int mouse_mini)
 			{
 				screen_x = screen_y = 0;
 			}
-		} 
+		}
 		else
 		{
 			screen_x=51 +200*px/(tile_map_size_x*6);
@@ -902,7 +906,7 @@ void draw_game_map (int map, int mouse_mini)
 		}
 
 		glColor3f(1.0f,0.0f,0.0f);
-		
+
 		glDisable(GL_TEXTURE_2D);
 		glBegin(GL_LINES);
 
@@ -914,7 +918,7 @@ void draw_game_map (int map, int mouse_mini)
 
 		glEnd();
 	}
-	
+
 	//ok, now let's draw our possition...
 	if ( (me = get_our_actor ()) != NULL && inspect_map_text == 0)
 	{
@@ -939,13 +943,13 @@ void draw_game_map (int map, int mouse_mini)
 		{
 			screen_x = screen_y = 0;
 		}
-	} 
-	else 
+	}
+	else
 	{
 		screen_x=51 +200*x/(tile_map_size_x*6);
 		screen_y=201-200*y/(tile_map_size_y*6);
 	}
-	
+
 	if ( (map || !dungeon) && x != -1 )
 	{
 		glColor3f (0.0f, 0.0f, 1.0f);
@@ -996,7 +1000,7 @@ void draw_game_map (int map, int mouse_mini)
 					int x_end = 300-(50+200*continent_maps[i].x_end/512);
 					int y_start = 200*continent_maps[i].y_start / 512;
 					int y_end = 200*continent_maps[i].y_end / 512;
-					
+
 					glVertex2i(x_start, y_start);
 					glVertex2i(x_start, y_end);
 
@@ -1085,7 +1089,7 @@ int put_mark_on_position(int map_x, int map_y, const char * name)
 		marks[max_mark].x = map_x;
 		marks[max_mark].y = map_y;
 		memset(marks[max_mark].text,0,sizeof(marks[max_mark].text));
-		
+
 		my_strncp(marks[max_mark].text,name,sizeof(marks[max_mark].text));
 		rtrim_string(marks[max_mark].text); //remove trailing white space
 		marks[max_mark].text[strlen(marks[max_mark].text)]=0;
@@ -1096,7 +1100,7 @@ int put_mark_on_position(int map_x, int map_y, const char * name)
 		marks[max_mark].r=curmark_r;
 		marks[max_mark].g=curmark_g;
 		marks[max_mark].b=curmark_b;
-		
+
 		max_mark++;
 		save_markings();
 		return 1;
@@ -1130,7 +1134,7 @@ void delete_mark_on_map_on_mouse_position(void)
 	int screen_map_width = max_mouse_x - min_mouse_x;
 	int screen_map_height = max_mouse_y - min_mouse_y;
 
-	int min_distance; 
+	int min_distance;
 	marking * closest_mark;
 
 	// FIXME (Malaclypse): should be moved above the screen_map_* init, to avoid additional computation
@@ -1149,7 +1153,7 @@ void delete_mark_on_map_on_mouse_position(void)
 	closest_mark = NULL;
 	for ( i = 0 ; i < max_mark ; i ++ ) {
 		int distance, dx, dy;
-		marking * const mark = &marks[i]; 
+		marking * const mark = &marks[i];
 
 		// skip marks not shown due to filter
 		if (mark_filter_active

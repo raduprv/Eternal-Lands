@@ -104,8 +104,6 @@ extern struct draw_map *continent_maps; /*!< global array of maps for the contin
 extern GLuint inspect_map_text;
 extern int show_continent_map_boundaries;
 
-extern float mapmark_zoom; /*!< scaling factor for the mapmark text */
-
 /*!
  * \ingroup loadsave
  * \brief Read the map info file

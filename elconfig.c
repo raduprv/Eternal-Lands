@@ -1275,6 +1275,13 @@ static void change_font(size_t *var, int value)
 		{
 			font_cat cat = var - font_idxs;
 			change_windows_font(cat);
+			if (cat == UI_FONT)
+			{
+				// The mapmark font uses the same font as the user interface, but has its own
+				/// scale factor
+				font_idxs[MAPMARK_FONT] = value;
+				change_windows_font(MAPMARK_FONT);
+			}
 		}
 		else if (var == &local_encyclopedia_font)
 		{
@@ -2612,25 +2619,25 @@ static void init_ELC_vars(void)
 		"TTF directory", "Scan this directory and its direct subdirectories for True Type fonts. This is only used when 'Use TTF' is enabled. Changes to this option only take effect after a restart of the client.", FONT);
 #endif
 	add_var(OPT_FLOAT,"ui_text_size","uisize",&font_scales[UI_FONT],change_text_zoom,1,"UI Text Size","Set the size of the text in the user interface",FONT,0.1,2.0,0.01);
+	add_var(OPT_MULTI,"ui_font","uifont",&font_idxs[UI_FONT],change_font,0,"UI Font","Change the type of font used in the user interface",FONT, NULL);
 	add_var(OPT_FLOAT,"name_text_size","nsize",&font_scales[NAME_FONT],change_text_zoom,1,"Name Text Size","Set the size of the players name text",FONT,0.1,2.0,0.01);
+	add_var(OPT_MULTI,"name_font","nfont",&font_idxs[NAME_FONT],change_font,0,"Name Font","Change the type of font used for the name",FONT, NULL);
 	add_var(OPT_FLOAT,"chat_text_size","csize",&font_scales[CHAT_FONT],change_chat_zoom,1,"Chat Text Size","Sets the size of the normal text",FONT,0.1,2.0,0.01);
+	add_var(OPT_MULTI,"chat_font","cfont",&font_idxs[CHAT_FONT],change_font,0,"Chat Font","Set the type of font used for normal text",FONT, NULL);
 	add_var(OPT_FLOAT,"book_text_size","bsize",&font_scales[BOOK_FONT],change_text_zoom,1,"Book Text Size","Set the size of the text in in-game books",FONT,0.1,2.0,0.01);
+	add_var(OPT_MULTI,"book_font","bfont",&font_idxs[BOOK_FONT],change_font,0,"Book Font","Set the type of font used for text in in-game books",FONT, NULL);
 	add_var(OPT_FLOAT,"note_text_size", "notesize", &font_scales[NOTE_FONT], change_text_zoom, 0.8, "Notepad Text Size","Sets the size of the text in the notepad", FONT, 0.1, 2.0, 0.01);
+	add_var(OPT_MULTI,"note_font","notefont",&font_idxs[NOTE_FONT],change_font,0,"Note Font","Set the type of font used for text in user notes",FONT, NULL);
 	add_var(OPT_FLOAT,"rules_text_size","rsize",&font_scales[RULES_FONT],change_text_zoom,1,"Rules Text Size","Set the size of the rules text",FONT,0.1,2.0,0.01);
+	add_var(OPT_MULTI,"rules_font","rfont",&font_idxs[RULES_FONT],change_font,0,"Rules Font","Set the type of font used for drawing the game rules",FONT, NULL);
 	add_var(OPT_FLOAT, "encyclopedia_text_size", "esize", &font_scales[ENCYCLOPEDIA_FONT],
 		change_text_zoom, 1, "Encyclopedia Text Size",
 		"Set the size of the encyclopedia and help  text", FONT, 0.1, 2.0, 0.01);
-	add_var(OPT_FLOAT,"mapmark_text_size", "marksize", &mapmark_zoom, change_float, 0.3, "Mapmark Text Size","Sets the size of the mapmark text", FONT, 0.0, FLT_MAX, 0.01);
-	add_var(OPT_MULTI,"ui_font","uifont",&font_idxs[UI_FONT],change_font,0,"UI Font","Change the type of font used in the user interface",FONT, NULL);
-	add_var(OPT_MULTI,"name_font","nfont",&font_idxs[NAME_FONT],change_font,0,"Name Font","Change the type of font used for the name",FONT, NULL);
-	add_var(OPT_MULTI,"chat_font","cfont",&font_idxs[CHAT_FONT],change_font,0,"Chat Font","Set the type of font used for normal text",FONT, NULL);
-	add_var(OPT_MULTI,"book_font","bfont",&font_idxs[BOOK_FONT],change_font,0,"Book Font","Set the type of font used for text in in-game books",FONT, NULL);
-	add_var(OPT_MULTI,"note_font","notefont",&font_idxs[NOTE_FONT],change_font,0,"Note Font","Set the type of font used for text in user notes",FONT, NULL);
-	add_var(OPT_MULTI,"rules_font","rfont",&font_idxs[RULES_FONT],change_font,0,"Rules Font","Set the type of font used for drawing the game rules",FONT, NULL);
 	add_var(OPT_MULTI, "encyclopedia_font", "efont", &local_encyclopedia_font,
 		change_font, 0, "Encyclopedia Font",
 		 "Set the type of font used for drawing the encycloepdia and ingame help",
 		 FONT, NULL);
+	add_var(OPT_FLOAT,"mapmark_text_size", "marksize", &font_scales[MAPMARK_FONT], change_text_zoom, 0.3, "Mapmark Text Size","Sets the size of the mapmark text", FONT, 0.1, 2.0, 0.01);
 	add_var(OPT_FLOAT,"ui_scale","ui_scale",&local_ui_scale,change_ui_scale,1,"User interface scaling factor","Scale user interface by this factor, useful for high DPI displays.  Note: the options window will be rescaled after reopening.",FONT,0.75,3.0,0.01);
 	add_var(OPT_INT,"cursor_scale_factor","cursor_scale_factor",&cursor_scale_factor ,change_cursor_scale_factor,cursor_scale_factor,"Mouse pointer scaling factor","The size of the mouse pointer is scaled by this factor",FONT, 1, max_cursor_scale_factor);
 	add_var(OPT_BOOL,"disablewsmok", "disable_window_scaling_mouse_or_keys", &custom_scale_factors.disable_mouse_or_keys, change_var, 0, "Disable Window Scaling with Mouse or Keys", "If you do not want to use keys or mouse+scrollwheel to scale individual windows, set this option.", FONT);
