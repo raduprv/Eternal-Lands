@@ -104,6 +104,7 @@ static GLfloat Colour3fOptionTextMouseover[3] = {1.0f, 1.0f, 1.0f};
 static int popup_display_handler(window_info *win);
 static int popup_close_handler(window_info *win);
 static int popup_click_handler(window_info *win, int mx, int my, Uint32 flags);
+static int change_popup_font_handler(window_info *win, font_cat cat);
 
 /* Forward helpers */
 static popup_node_t *popup_node_find_by_window( window_info *win );
@@ -875,6 +876,7 @@ static void popup_create_window(popup_t *this_popup)
 	set_window_handler( this_popup->win, ELW_HANDLER_CLOSE, &popup_close_handler);
 	set_window_handler( this_popup->win, ELW_HANDLER_CLICK, &popup_click_handler);
 	set_window_handler( this_popup->win, ELW_HANDLER_UI_SCALE, &popup_close_handler); /* just close if ui rescaled */
+	set_window_handler( this_popup->win, ELW_HANDLER_FONT_CHANGE, &change_popup_font_handler);
 
 	if (this_popup->has_send_button) {
 		this_popup->button_widget_id = button_add( this_popup->win, NULL, button_send,
@@ -1059,6 +1061,26 @@ static int popup_close_handler(window_info *win)
 		popup_node_destroy( the_popup_node );
 	}
     return 1;
+}
+
+/*!
+ * \ingroup popup_window
+ * \brief Font change handler
+ *
+ *  This method checks if the font settings for the UI font are changed, and if so, closes the
+ * popup window. When reopened, the new font settings are used.
+ *
+ * \param window_info The pointer to window info structure
+ * \param font_cat    The font category for which the settings are being changed
+ * \return 1 if the window was closed, 0 otherwise.
+ */
+static int change_popup_font_handler(window_info *win, font_cat cat)
+{
+	if (cat != win->font_category)
+		return 0;
+	// Simply close when the font is changed
+	popup_close_handler(win);
+	return 1;
 }
 
 /*!
