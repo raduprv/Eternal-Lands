@@ -289,14 +289,79 @@ static int ui_scale_handler(window_info *win)
 	return 1;
 }
 
+static void set_actual_window_size(window_info *win)
+{
+	const int unusable_width = 2 * sep + HUD_MARGIN_X;
+	const int unusable_height = 2 * sep + HUD_MARGIN_Y;
+	int winWidth, winHeight;
+
+	/* do a pre-wrap of the text to the maximum screen width we can use
+		 this will avoid the later wrap (after the resize) changing the number of lines */
+	if (!text_message_is_empty(&widget_text))
+	{
+		num_text_lines = rewrap_message(&widget_text, CHAT_FONT, 1.0,
+			(window_width - unusable_width) - 4*sep, NULL);
+	}
+
+	/* calc the text widget height from the number of lines */
+	winHeight = get_non_text_height();
+	if (!text_message_is_empty(&widget_text))
+	{
+		text_widget_height = get_text_height(num_text_lines);
+		winHeight = text_widget_height + get_non_text_height();
+	}
+
+	/* but limit to a maximum */
+	if (winHeight > window_height - unusable_height - ((actual_scroll_width) ? win->title_height : 0))
+	{
+		winHeight = window_height - unusable_height - ((actual_scroll_width) ? win->title_height : 0);
+		text_widget_height = winHeight - get_non_text_height();
+
+		/* if we'll need a scroll bar allow for it in the width calulation */
+		if (!text_message_is_empty(&widget_text) && (text_widget_height < get_text_height(num_text_lines)))
+			actual_scroll_width = win->box_size;
+	}
+
+	/* calc the require window width for the text size */
+	if (!text_message_is_empty (&widget_text)) {
+		/* The fudge is because the line wrapping code allows for a cursor to fit on the last
+		 * position in the line, but this is not reflected in the actual width of the line. Hence,
+		 * if the last character in the line is less wide than the cursor, the calculated width will
+		 * be too small according to rewrap_message(). Add the width of a cursor to the required
+		 * width to be certain it is large enough.
+		 */
+		int fudge = get_char_width_zoom('_', CHAT_FONT, win->current_scale);
+		text_widget_width = fudge + 2*sep + widget_text.max_line_width;
+	} else {
+		text_widget_width = 0;
+	}
+	winWidth = text_widget_width + 2*sep + actual_scroll_width;
+
+	/* but limit to a maximum */
+	winWidth = min2i(winWidth, window_width - unusable_width);
+
+	/* resize the window now we have the required size */
+	/* new sizes and positions for the widgets will be calculated by the callback */
+	resize_window(server_popup_win, winWidth, winHeight);
+
+	/* calculate the best position then move the window */
+	move_window(server_popup_win, -1, 0, sep + (window_width - unusable_width - win->len_x)/2, sep + (window_height - unusable_height - win->len_y)/2);
+}
+
+static int font_change_handler(window_info *win, font_cat cat)
+{
+	if (cat != win->font_category && cat != CHAT_FONT)
+		return 0;
+	set_min_window_size(win);
+	set_actual_window_size(win);
+	return 1;
+}
 
 /*
 	Create the server popup window, destroying an existing window first.
 */
 void display_server_popup_win(const unsigned char* message)
 {
-	const int unusable_width = 2 * sep + HUD_MARGIN_X;
-	const int unusable_height = 2 * sep + HUD_MARGIN_Y;
 	int winWidth = 0;
 	int winHeight = 0;
 	Uint32 win_property_flags;
@@ -338,14 +403,6 @@ void display_server_popup_win(const unsigned char* message)
 		set_text_message_data(&widget_text, (const char*)message);
 	}
 
-	/* do a pre-wrap of the text to the maximum screen width we can use
-		 this will avoid the later wrap (after the resize) changing the number of lines */
-	if (!text_message_is_empty(&widget_text))
-	{
-		num_text_lines = rewrap_message(&widget_text, CHAT_FONT, 1.0,
-			(window_width - unusable_width) - 4*sep, NULL);
-	}
-
 	if (server_popup_win < 0){
 		/* create the window with initial size and location */
 		win_property_flags = ELW_USE_UISCALE|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE;
@@ -354,6 +411,7 @@ void display_server_popup_win(const unsigned char* message)
 		set_window_handler( server_popup_win, ELW_HANDLER_RESIZE, &resize_handler);
 		set_window_handler( server_popup_win, ELW_HANDLER_CLICK, &click_handler);
 		set_window_handler( server_popup_win, ELW_HANDLER_UI_SCALE, &ui_scale_handler);
+		set_window_handler( server_popup_win, ELW_HANDLER_FONT_CHANGE, &font_change_handler);
 
 		if (server_popup_win >= 0 && server_popup_win < windows_list.num_windows)
 			win = &windows_list.window[server_popup_win];
@@ -366,56 +424,15 @@ void display_server_popup_win(const unsigned char* message)
 	if (win == NULL)
 		return;
 
-	set_min_window_size(win);
-
-	/* calc the text widget height from the number of lines */
-	winHeight = get_non_text_height();
-	if (!text_message_is_empty (&widget_text))
-	{
-		text_widget_height = get_text_height(num_text_lines);
-		winHeight = text_widget_height + get_non_text_height();
-	}
-
-	/* but limit to a maximum */
-	if (winHeight > window_height - unusable_height - ((actual_scroll_width) ? win->title_height : 0))
-	{
-		winHeight = window_height - unusable_height - ((actual_scroll_width) ? win->title_height : 0);
-		text_widget_height = winHeight - get_non_text_height();
-	}
-
-	/* if we'll need a scroll bar allow for it in the width calulation */
-	if (!text_message_is_empty (&widget_text) && (text_widget_height < get_text_height(num_text_lines))){
-		actual_scroll_width = win->box_size;
-	}
-
-	/* calc the require window width for the text size */
-	/* the fudge is that the width cal does not work 100% exactly for some fonts :( */
-	if (!text_message_is_empty (&widget_text)) {
-		text_widget_width = sep/*fudge*/ + 2*sep + widget_text.max_line_width;
-	} else {
-		text_widget_width = 0;
-	}
-	winWidth = text_widget_width + 2*sep + actual_scroll_width;
-
-	/* but limit to a maximum */
-	if (winWidth > window_width - unusable_width){
-		winWidth = window_width - unusable_width;
-	}
-
 	/* create the text widget */
 	if ((!text_message_is_empty (&widget_text)) && (widget_find(server_popup_win, textId) == NULL))
 	{
 		textId = text_field_add_extended(server_popup_win, textId, NULL, sep, sep,
-			text_widget_width, text_widget_height, TEXT_FIELD_NO_KEYPRESS,
+			window_width, window_height, TEXT_FIELD_NO_KEYPRESS,
 			CHAT_FONT, 1.0, 0.77f, 0.57f, 0.39f, &widget_text, 1, FILTER_NONE,
 			sep, sep);
 	}
 
-	/* resize the window now we have the required size */
-	/* new sizes and positions for the widgets will be calculated by the callback */
-	resize_window(server_popup_win, winWidth, winHeight);
-
-	/* calculate the best position then move the window */
-	move_window(server_popup_win, -1, 0, sep + (window_width - unusable_width - winWidth)/2, sep + (window_height - unusable_height - winHeight)/2);
-
+	set_min_window_size(win);
+	set_actual_window_size(win);
 } /* end display_server_popup_win() */
