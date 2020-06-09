@@ -176,11 +176,13 @@ int sort_counter_func(const void *a, const void *b)
 			return -1;
 		if (ca->n_total > cb->n_total)
 			return 1;
+		// fallthrough
 	case SESSION:
 		if (ca->n_session < cb->n_session)
 			return -1;
 		if (ca->n_session > cb->n_session)
 			return 1;
+		// fallthrough
 	case NAME:
 		return strcasecmp(ca->name, cb->name);
 	}
@@ -766,7 +768,6 @@ static int display_counters_handler(window_info *win)
 	}
 
 	x = left_panel_width;
-	y = (int)(0.5 + win->current_scale * 8);
 
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(0.77f, 0.57f, 0.39f);
@@ -788,15 +789,20 @@ static int display_counters_handler(window_info *win)
 
 	if (mouseover_name) glColor3f(0.6f, 0.6f, 0.6f);
 	else glColor3f(1.0f, 1.0f, 1.0f);
-	draw_string_small_zoomed(x, y, name_str, 1, win->current_scale);
+	draw_text(x, margin_y_len, name_str, strlen((const char*)name_str), win->font_category,
+		TDO_ZOOM, win->current_scale_small, TDO_VERTICAL_ALIGNMENT, BOTTOM_LINE, TDO_END);
 
 	if (mouseover_session) glColor3f(0.6f, 0.6f, 0.6f);
 	else glColor3f(1.0f, 1.0f, 1.0f);
-	draw_string_small_zoomed_right(session_x_end, y, session_str, 1, win->current_scale);
+	draw_text(session_x_end, margin_y_len, session_str, strlen((const char*)session_str),
+		win->font_category, TDO_ZOOM, win->current_scale_small, TDO_ALIGNMENT, RIGHT,
+		TDO_VERTICAL_ALIGNMENT, BOTTOM_LINE, TDO_END);
 
 	if (mouseover_total) glColor3f(0.6f, 0.6f, 0.6f);
 	else glColor3f(1.0f, 1.0f, 1.0f);
-	draw_string_small_zoomed_right(total_x_end, y, total_str, 1, win->current_scale);
+	draw_text(total_x_end, margin_y_len, total_str, strlen((const char*)total_str), win->font_category,
+		TDO_ZOOM, win->current_scale_small, TDO_ALIGNMENT, RIGHT, TDO_VERTICAL_ALIGNMENT, BOTTOM_LINE,
+		TDO_END);
 
 	if (counters_scroll_id != -1) {
 		scroll = vscrollbar_get_pos(win->window_id, counters_scroll_id);
@@ -869,8 +875,9 @@ static int display_counters_handler(window_info *win)
 
 	glColor3f(1.0f, 1.0f, 1.0f);
 
-	draw_string_small_zoomed(x, win->len_y - (margin_y_len - space_y), totals_str,
-		1, win->current_scale);
+	draw_text(x, win->len_y - margin_y_len/2, totals_str, strlen((const char*)totals_str),
+		win->font_category, TDO_ZOOM, win->current_scale_small, TDO_VERTICAL_ALIGNMENT, CENTER_LINE,
+		TDO_END);
 
 	for (j = 0, total = 0, session_total = 0; j < entries[i]; j++) {
 		total += counters[i][j].n_total;
@@ -878,12 +885,14 @@ static int display_counters_handler(window_info *win)
 	}
 
 	safe_snprintf((char*)buffer, sizeof(buffer), "%u", session_total);
-	draw_string_small_zoomed_right(session_x_end, win->len_y - (margin_y_len - space_y),
-		buffer, 1, win->current_scale);
+	draw_text(session_x_end, win->len_y - margin_y_len/2, buffer, strlen((const char*)buffer),
+		win->font_category, TDO_ZOOM, win->current_scale_small, TDO_ALIGNMENT, RIGHT,
+		TDO_VERTICAL_ALIGNMENT, CENTER_LINE);
 
 	safe_snprintf((char*)buffer, sizeof(buffer), "%u", total);
-	draw_string_small_zoomed_right(total_x_end, win->len_y - (margin_y_len - space_y),
-		buffer, 1, win->current_scale);
+	draw_text(total_x_end, win->len_y - margin_y_len/2, buffer, strlen((const char*)buffer),
+		win->font_category, TDO_ZOOM, win->current_scale_small, TDO_ALIGNMENT, RIGHT,
+		TDO_VERTICAL_ALIGNMENT, CENTER_LINE);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
