@@ -42,7 +42,7 @@ class Hud_Timer
 		void set_start(int new_start_value);
 		void pre_cm_handler(void) { cm_grey_line(cm_id, CMHT_SETTIME, !mode_coundown); }
 		int cm_handler(window_info *win, int option);
-		int display(window_info *win, int base_y_start);
+		int display(window_info *win, int base_y_start, int tooltip_sep);
 		int ui_scale_handler(window_info *win);
 		int mouse_is_over(window_info *win, int mx, int my);
 		int mouse_click(Uint32 flags);
@@ -238,7 +238,7 @@ int Hud_Timer::ui_scale_handler(window_info *win)
 
 // display the current time for the hud timer, coloured by stopped or running
 //
-int Hud_Timer::display(window_info *win, int base_y_start)
+int Hud_Timer::display(window_info *win, int base_y_start, int tooltip_sep)
 {
 	char str[10];
 	check_cm_menu(win, base_y_start);
@@ -257,8 +257,13 @@ int Hud_Timer::display(window_info *win, int base_y_start)
 	if (mouse_over)
 	{
 		char *use_str = ((mode_coundown) ?countdown_str:stopwatch_str);
-		draw_string_small_shadowed_zoomed_right(0, base_y_start, (unsigned char*)use_str,
-			1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
+		eternal_lands::TextDrawOptions options = eternal_lands::TextDrawOptions()
+			.set_shadow().set_foreground(1.0f, 1.0f, 1.0f).set_background(0.0f, 0.0f, 0.0f)
+			.set_zoom(win->current_scale_small).set_alignment(RIGHT)
+			.set_vertical_alignment(CENTER_LINE);
+		eternal_lands::FontManager::get_instance().draw(win->font_category,
+			reinterpret_cast<const unsigned char*>(use_str), strlen(use_str),
+			-tooltip_sep, base_y_start + height/2, options);
 		mouse_over = false;
 	}
 	return height;
@@ -361,7 +366,10 @@ extern "C"
 	// external interface from hud
 	int get_height_of_timer(void) { return my_timer.get_height(); }
 	void set_mouse_over_timer(void) { my_timer.set_mouse_over(); }
-	int display_timer(window_info *win, int base_y_start) { return my_timer.display(win, base_y_start); }
+	int display_timer(window_info *win, int base_y_start, int tooltip_sep)
+	{
+		return my_timer.display(win, base_y_start, tooltip_sep);
+	}
 	int ui_scale_timer(window_info *win) { return my_timer.ui_scale_handler(win); }
 	int mouse_is_over_timer(window_info *win, int mx, int my) { return my_timer.mouse_is_over(win, mx, my); }
 	int mouse_click_timer(Uint32 flags) { return my_timer.mouse_click(flags); }

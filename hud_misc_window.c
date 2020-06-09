@@ -191,6 +191,7 @@ static void reset_cm_regions(void)
 
 static int display_misc_handler(window_info *win)
 {
+	const int tooltip_sep = (int)(0.5 + win->current_scale * 5);
 	const int scaled_5 = (int)(0.5 + win->current_scale * 5);
 	const int scaled_28 = (int)(0.5 + win->current_scale * 28);
 	int base_y_start = win->len_y;
@@ -287,13 +288,13 @@ CHECK_GL_ERRORS();
 		int centre_y =  (view_analog_clock) ?win->len_y - compass_size - analog_clock_size/2 : base_y_start + digital_clock_height/2;
 
 		safe_snprintf(str, sizeof(str), "%1d:%02d:%02d", real_game_minute/60, real_game_minute%60, real_game_second);
-		draw_string_small_shadowed_zoomed_right(0, centre_y-win->small_font_len_y,
+		draw_string_small_shadowed_zoomed_right(-tooltip_sep, centre_y-win->small_font_len_y,
 			(const unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
 			win->current_scale);
 		if (the_date != NULL)
 		{
 			safe_snprintf(str, sizeof(str), "%s", the_date);
-			draw_string_small_shadowed_zoomed_right(0, centre_y, (const unsigned char*)str,
+			draw_string_small_shadowed_zoomed_right(-tooltip_sep, centre_y, (const unsigned char*)str,
 				1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
 		}
 		mouse_over_clock = 0;
@@ -307,7 +308,7 @@ CHECK_GL_ERRORS();
 		if (me != NULL)
 		{
 			safe_snprintf(str, sizeof(str), "%d,%d", me->x_tile_pos, me->y_tile_pos);
-			draw_string_small_shadowed_zoomed_right(0, win->len_y-compass_size,
+			draw_string_small_shadowed_zoomed_right(-tooltip_sep, win->len_y-compass_size,
 				(unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
 				win->current_scale);
 		}
@@ -330,17 +331,17 @@ CHECK_GL_ERRORS();
 			use_str = str;
 		}
 		draw_side_stats_bar(win, x, y, 0, percentage_done, 100, 1);
-		draw_string_shadowed_zoomed_centered((x + win->len_x - 1) / 2, y+gy_adjust,
+		draw_string_shadowed_zoomed_centered((x + win->len_x - 1) / 2, y,
 			(unsigned char *)use_str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f,
 			side_stats_bar_text_zoom);
 
 		if (mouse_over_knowledge_bar)
 		{
-			int ytop = y + gy_adjust + (side_stats_bar_height - win->small_font_len_y) / 2;
 			use_str = (is_researching()) ?get_research_eta_str(str, sizeof(str)) : not_researching_str;
-			draw_string_small_shadowed_zoomed_right(0, ytop,
-				(const unsigned char*)use_str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f,
-				win->current_scale);
+			draw_text(-tooltip_sep, y + side_stats_bar_height / 2, (const unsigned char*)use_str,
+				strlen(use_str), win->font_category, TDO_SHADOW, 1, TDO_FOREGROUND, 1.0, 1.0, 1.0,
+				TDO_BACKGROUND, 0.0, 0.0, 0.0, TDO_ZOOM, win->current_scale_small, TDO_ALIGNMENT, RIGHT,
+				TDO_VERTICAL_ALIGNMENT, CENTER_LINE, TDO_END);
 			mouse_over_knowledge_bar = 0;
 		}
 
@@ -348,7 +349,7 @@ CHECK_GL_ERRORS();
 	}
 
 	/* if the timer is visible, draw it */
-	base_y_start -= display_timer(win, base_y_start);
+	base_y_start -= display_timer(win, base_y_start, tooltip_sep);
 
 	/*	Optionally display the stats bar.  If the current window size does not
 		provide enough room, display only some skills and allow scrolling to view
@@ -393,11 +394,11 @@ CHECK_GL_ERRORS();
 					*statsinfo[thestat].exp, *statsinfo[thestat].next_lev, 0);
 
 			col = (statsinfo[thestat].is_selected == 1) ? lbl_color : lbl_color + 3;
-			draw_string_shadowed_zoomed(text_x_left, y + gy_adjust,
+			draw_string_shadowed_zoomed(text_x_left, y,
 				statsinfo[thestat].skillnames->shortname, 1, col[0], col[1], col[2],
 				0.0f, 0.0f, 0.0f, side_stats_bar_text_zoom);
 			safe_snprintf(str, sizeof(str), "%3d", statsinfo[thestat].skillattr->base);
-			draw_text(text_x_right, y + gy_adjust, (const unsigned char*)str, strlen(str),
+			draw_text(text_x_right, y, (const unsigned char*)str, strlen(str),
 				win->font_category, TDO_MAX_LINES, 1, TDO_SHADOW, 1,
 				TDO_FOREGROUND, col[1], col[1], col[2], TDO_BACKGROUND, 0.0, 0.0, 0.0,
 				TDO_ZOOM, side_stats_bar_text_zoom, TDO_ALIGNMENT, RIGHT, TDO_END);
@@ -411,11 +412,11 @@ CHECK_GL_ERRORS();
 				hover_offset = get_string_width_zoom((const unsigned char*)str,
 					win->font_category, win->current_scale_small);
 				if(skill_modifier > 0){
-					draw_string_small_shadowed_zoomed_right(0, ytop,
+					draw_string_small_shadowed_zoomed_right(-tooltip_sep, ytop,
 						(const unsigned char*)str, 1,0.3f, 1.0f, 0.3f,0.0f,0.0f,0.0f,
 						win->current_scale);
 				} else {
-					draw_string_small_shadowed_zoomed_right(0, ytop,
+					draw_string_small_shadowed_zoomed_right(-tooltip_sep, ytop,
 						(const unsigned char*)str, 1,1.0f, 0.1f, 0.2f,0.0f,0.0f,0.0f,
 						win->current_scale);
 				}
@@ -424,11 +425,12 @@ CHECK_GL_ERRORS();
 			/* if the mouse is over the stat bar, draw the XP remaining */
 			if (stat_mouse_is_over == thestat)
 			{
-				int ytop = y + gy_adjust + (side_stats_bar_height - win->small_font_len_y) / 2;
 				safe_snprintf(str,sizeof(str),"%li",(*statsinfo[thestat].next_lev - *statsinfo[thestat].exp));
-				draw_string_small_shadowed_zoomed_right(-hover_offset, ytop,
-					(const unsigned char*)str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f,
-					win->current_scale);
+				draw_text(-hover_offset-tooltip_sep, y + side_stats_bar_height / 2,
+					(const unsigned char*)str, strlen(str), win->font_category, TDO_SHADOW, 1,
+					TDO_FOREGROUND, 1.0, 1.0, 1.0, TDO_BACKGROUND, 0.0, 0.0, 0.0,
+					TDO_ZOOM, win->current_scale_small, TDO_ALIGNMENT, RIGHT,
+					TDO_VERTICAL_ALIGNMENT, CENTER_LINE, TDO_END);
 				stat_mouse_is_over = -1;
 			}
 
