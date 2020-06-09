@@ -93,6 +93,7 @@ static char items_string[350] = {0};
 static size_t last_items_string_id = 0;
 static const char *item_help_str = NULL;
 static const char *item_desc_str = NULL;
+static float button_text_zoom = 0.0f;
 
 #define NUMBUT 5
 static size_t buttons_cm_id[NUMBUT] = {CM_INIT_VALUE, CM_INIT_VALUE, CM_INIT_VALUE, CM_INIT_VALUE, CM_INIT_VALUE};
@@ -597,10 +598,8 @@ static int display_items_handler(window_info *win)
 	char my_str[10];
 	int x,y,i;
 	int item_is_weared=0;
-	float equip_string_zoom;
 	Uint32 _cur_time = SDL_GetTicks(); /* grab a snapshot of current time */
 	char *but_labels[NUMBUT] = { sto_all_str, get_all_str, drp_all_str, NULL, itm_lst_str };
-	int equip_string_width;
 
 	glEnable(GL_TEXTURE_2D);
 
@@ -616,12 +615,13 @@ static int display_items_handler(window_info *win)
 	// draw the button labels
 	but_labels[BUT_MIX] = (items_mix_but_all) ?mix_all_str :mix_one_str;
 	for (i=0; i<NUMBUT; i++) {
-		int text_y_offset = (int)(0.5 + ((buttons_grid.height - (float)(2 * win->small_font_len_y)) / 2.0)) + gy_adjust;
 		strap_word(but_labels[i],my_str);
 		glColor3f(0.77f,0.57f,0.39f);
-		draw_string_small_zoomed_centered(buttons_grid.pos_x + buttons_grid.width/2,
-			buttons_grid.pos_y + buttons_grid.height * i + text_y_offset,
-			(const unsigned char*)my_str, 2, win->current_scale);
+		draw_text(buttons_grid.pos_x + buttons_grid.width/2,
+			buttons_grid.pos_y + buttons_grid.height * i + buttons_grid.height/2,
+			(const unsigned char*)my_str, strlen(my_str), win->font_category,
+			TDO_ZOOM, button_text_zoom, TDO_ALIGNMENT, CENTER, TDO_VERTICAL_ALIGNMENT, CENTER_LINE,
+			TDO_END);
 	}
 
 	x = quantity_grid.pos_x + quantity_grid.width / 2;
@@ -647,14 +647,10 @@ static int display_items_handler(window_info *win)
 		(const unsigned char*)quantity_str, 1, win->current_scale);
 
 	glColor3f(0.57f,0.67f,0.49f);
-	equip_string_width = get_string_width_zoom((const unsigned char*)equip_str,
-		win->font_category, DEFAULT_SMALL_RATIO);
-	equip_string_zoom = (float)equip_grid.len_x / equip_string_width;
-	if (equip_string_zoom > win->current_scale)
-		equip_string_zoom = win->current_scale;
-	draw_string_small_zoomed_centered(gx_adjust + equip_grid.pos_x + equip_grid.len_x / 2,
-		gy_adjust + equip_grid.pos_y - win->small_font_len_y + 1,
-		(const unsigned char*)equip_str, 1, equip_string_zoom);
+	draw_text(equip_grid.pos_x + equip_grid.len_x / 2, equip_grid.pos_y, (const unsigned char*)equip_str,
+		strlen(equip_str), win->font_category, TDO_MAX_WIDTH, equip_grid.len_x,
+		TDO_ZOOM, win->current_scale_small, TDO_SHRINK_TO_FIT, 1, TDO_ALIGNMENT, CENTER,
+		TDO_VERTICAL_ALIGNMENT, BOTTOM_LINE, TDO_END);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
@@ -794,7 +790,7 @@ static int display_items_handler(window_info *win)
 		// if we have a coloured message, draw a small dot at the top of the arrow to indicate so, using the colour of the message
 		if ((strlen(inventory_item_string) > 0) && is_color(inventory_item_string[0]))
 		{
-			size_t colour = from_color_char (inventory_item_string[0]);
+			int colour = from_color_char (inventory_item_string[0]);
 			if ((colour >= c_lbound) && (colour <= c_ubound))
 			{
 				glColor4f((float) colors_list[colour].r1 / 255.0f, (float) colors_list[colour].g1 / 255.0f, (float) colors_list[colour].b1 / 255.0f, 1.0f);
@@ -1652,9 +1648,11 @@ static int show_items_handler(window_info * win)
 	equip_grid.len_y = equip_grid.height * equip_grid.rows;;
 
 	/* the buttons */
+	button_text_zoom = win->current_scale_small
+		* min2f(1.0, 0.5 * equip_grid.height / win->small_font_len_y);
 	buttons_grid.cols = 1;
 	buttons_grid.rows = NUMBUT;
-	buttons_grid.width = (int)(0.5 + 4 * win->small_font_max_len_x);
+	buttons_grid.width = 4 * get_max_char_width_zoom(win->font_category, button_text_zoom);
 	buttons_grid.height = equip_grid.height;
 	buttons_grid.len_x = buttons_grid.width * buttons_grid.cols;
 	buttons_grid.len_y = buttons_grid.height * buttons_grid.rows;
