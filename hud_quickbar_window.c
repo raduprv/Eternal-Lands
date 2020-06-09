@@ -446,13 +446,11 @@ static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags
 
 static int	display_quickbar_handler(window_info *win)
 {
-	char str[80];
+	unsigned char str[80];
 	int y, i;
 	Uint32 _cur_time = SDL_GetTicks(); /* grab a snapshot of current time */
-	int ypos = -1, xpos = -1;
+	int xpos = -1;
 	const int scaled_2 = (int)(0.5 + win->current_scale * 2);
-	const int scaled_15 = (int)(0.5 + win->current_scale * 15);
-	const int scaled_25 = (int)(0.5 + win->current_scale * 25);
 	const int scaled_27 = (int)(0.5 + win->current_scale * 27);
 
 	update_shown_quickbar_slots(win);
@@ -468,6 +466,7 @@ static int	display_quickbar_handler(window_info *win)
 			float u_start,v_start,u_end,v_end;
 			int this_texture,cur_item,cur_pos;
 			int x_start,x_end,y_start,y_end, itmp;
+			float zoom;
 
 			// don't display an item that is in the proces of being moved after equipment swap
 			if (item_swap_in_progress(i))
@@ -557,25 +556,19 @@ static int	display_quickbar_handler(window_info *win)
 				glEnable(GL_TEXTURE_2D);
 			}
 
-			safe_snprintf(str,sizeof(str),"%i",item_list[i].quantity);
+			safe_snprintf((char*)str, sizeof(str), "%d", item_list[i].quantity);
+			xpos = x_start;
+			zoom = (mouseover_quickbar_item_pos == i && enlarge_text())
+				? win->current_scale : win->current_scale_small;
 			if (quickbar_dir==VERTICAL)
 			{
-				float size = (mouseover_quickbar_item_pos == i && enlarge_text())
-						? win->current_scale : win->current_scale_small;
-				int lenstr = get_string_width_zoom((const unsigned char*)str,
-					win->font_category, size);
-				xpos = ((x_start + lenstr + win->cur_x) > window_width) ?window_width - win->cur_x - lenstr :x_start;
-				ypos = y_end - scaled_15;
+				int lenstr = get_string_width_zoom(str, win->font_category, zoom);
+				xpos = min2i(xpos, window_width - win->cur_x - lenstr);
 			}
-			else
-			{
-				xpos = x_start;
-				ypos = (i & 1) ?(y_end - scaled_15) :(y_end - scaled_25);
-			}
-			if ((mouseover_quickbar_item_pos == i) && enlarge_text())
-				draw_string_shadowed_zoomed(xpos,ypos,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
-			else
-				draw_string_small_shadowed_zoomed(xpos,ypos,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
+
+			draw_text(xpos, y_end, str, strlen((const char*)str), win->font_category, TDO_SHADOW, 1,
+				TDO_FOREGROUND, 1.0, 1.0, 1.0, TDO_BACKGROUND, 0.0, 0.0, 0.0, TDO_ZOOM, zoom,
+				TDO_VERTICAL_ALIGNMENT, BOTTOM_LINE, TDO_END);
 		}
 	}
 	mouseover_quickbar_item_pos = -1;

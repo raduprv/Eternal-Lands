@@ -244,10 +244,10 @@ static int display_login_handler (window_info *win)
 	// ok, start drawing the interface...
 	draw_text(username_text_x, username_bar_y + username_bar_y_len/2,
 		(const unsigned char*)login_username_str, strlen(login_username_str), win->font_category,
-		TDO_ZOOM, win->current_scale, TDO_VERTICAL_ALIGNMENT, CENTER_LINES, TDO_END);
+		TDO_ZOOM, win->current_scale, TDO_VERTICAL_ALIGNMENT, CENTER_LINE, TDO_END);
 	draw_text(username_text_x, password_bar_y + password_bar_y_len/2,
 		(const unsigned char*)login_password_str, strlen(login_password_str), win->font_category,
-		TDO_ZOOM, win->current_scale, TDO_VERTICAL_ALIGNMENT, CENTER_LINES, TDO_END);
+		TDO_ZOOM, win->current_scale, TDO_VERTICAL_ALIGNMENT, CENTER_LINE, TDO_END);
 
 	draw_string_zoomed(username_text_x, log_in_y + log_in_y_len + win->default_font_len_y, (unsigned char*)login_rules_str, num_rules_lines, win->current_scale);
 
@@ -305,7 +305,7 @@ static int display_login_handler (window_info *win)
 	draw_text(username_bar_x + win->default_font_max_len_x / 2, username_bar_y + username_bar_y_len/2,
 		(const unsigned char*)input_username_str, strlen(input_username_str), win->font_category,
 		TDO_SHADOW, 1, TDO_FOREGROUND, 0.0, 0.9, 1.0, TDO_BACKGROUND, 0.0, 0.5, 0.5,
-		TDO_ZOOM, win->current_scale, TDO_VERTICAL_ALIGNMENT, CENTER_LINES, TDO_END);
+		TDO_ZOOM, win->current_scale, TDO_VERTICAL_ALIGNMENT, CENTER_LINE, TDO_END);
 	draw_text(password_bar_x + win->default_font_max_len_x / 2, password_bar_y + password_bar_y_len/2,
 		(const unsigned char*)display_password_str, strlen(display_password_str), win->font_category,
 		TDO_SHADOW, 1, TDO_FOREGROUND, 0.0, 0.9, 1.0, TDO_BACKGROUND, 0.0, 0.5, 0.5,

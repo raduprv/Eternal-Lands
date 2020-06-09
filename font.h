@@ -69,8 +69,10 @@ typedef enum
 	TOP_LINE,
 	//! Align top of the font to the given position
 	TOP_FONT,
+	//! Align bottom of the line to the given position
+	BOTTOM_LINE,
 	//! Center text around the given position, works with multiple lines
-	CENTER_LINES,
+	CENTER_LINE,
 	//! Center first line around given position, assuming it consists of digits
 	CENTER_DIGITS,
 	//! Center first line around given position, assuming it consists of password asterisks

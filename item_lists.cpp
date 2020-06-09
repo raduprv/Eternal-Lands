@@ -52,6 +52,8 @@
 
 namespace ItemLists
 {
+	using namespace eternal_lands;
+
 	static void quantity_input_handler(const char *input_text, void *);
 	static int display_itemlist_handler(window_info *win);
 	static int ui_scale_itemlist_handler(window_info *win);
@@ -1078,15 +1080,19 @@ namespace ItemLists
 			char str[80];
 			for(size_t i=0; i<Vars::lists()->get_list().get_num_items() && i<static_cast<size_t>(num_grid_cols()*num_grid_rows); i++)
 			{
-				int x_start, y_start;
-				x_start = get_grid_size() * (i%num_grid_cols()) + 1;
-				y_start = get_grid_size() * (i/num_grid_cols()) + ((i&1) ?1 :(get_grid_size() - win->small_font_len_y));
+				int x_start = get_grid_size() * (i%num_grid_cols()) + 1;
+				int y_start = get_grid_size() * (i/num_grid_cols()) + ((i&1) ? 1 : get_grid_size());
+				float zoom = (mouse_over_item == i && enlarge_text())
+					? win->current_scale : win->current_scale_small;
+
 				safe_snprintf(str, sizeof(str), "%i", Vars::lists()->get_list().get_quantity(i));
-				if ((mouse_over_item == i) && enlarge_text())
-					draw_string_shadowed_zoomed(x_start, y_start, (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
-				else
-					draw_string_small_shadowed_zoomed(x_start, y_start, (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
-				}
+				TextDrawOptions options = TextDrawOptions().set_shadow().set_foreground(1.0f, 1.0f, 1.0f)
+					.set_background(0.0f, 0.0f, 0.0f).set_zoom(zoom)
+					.set_vertical_alignment((i&1) ? TOP_LINE : BOTTOM_LINE);
+				FontManager::get_instance().draw(win->font_category,
+					reinterpret_cast<const unsigned char*>(str), strlen(str), x_start, y_start,
+					options);
+			}
 		}
 
 		// draw the item list names

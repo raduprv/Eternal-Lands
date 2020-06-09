@@ -809,7 +809,17 @@ void Font::draw(const unsigned char* text, size_t len, int x, int y,
 		case TextDrawOptions::VerticalAlignment::TOP_FONT:
 			y -= std::round(options.zoom() * _scale * _font_top_offset);
 			break;
-		case TextDrawOptions::VerticalAlignment::CENTER_LINES:
+		case TextDrawOptions::VerticalAlignment::BOTTOM_LINE:
+		{
+			int nr_lines = 1 + std::count_if(text, text+len,
+				[](unsigned char c) { return c == '\r' || c == '\n'; });
+			if (options.max_lines() > 0)
+				nr_lines = std::min(nr_lines, options.max_lines());
+			int tot_height = height(options.zoom()) + (nr_lines-1) * line_height;
+			y -= tot_height;
+			break;
+		}
+		case TextDrawOptions::VerticalAlignment::CENTER_LINE:
 		{
 			int nr_lines = 1 + std::count_if(text, text+len,
 				[](unsigned char c) { return c == '\r' || c == '\n'; });

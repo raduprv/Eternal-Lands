@@ -298,7 +298,7 @@ static int display_advice_handler (window_info *win)
 	glEnable(GL_TEXTURE_2D);
 	glColor3f(1.0f,1.0f,1.0f);
 	draw_text(win->len_x/2, win->len_y/2, (const unsigned char *)newchar_warning, strlen(newchar_warning),
-		win->font_category, TDO_ALIGNMENT, CENTER, TDO_VERTICAL_ALIGNMENT, CENTER_LINES,
+		win->font_category, TDO_ALIGNMENT, CENTER, TDO_VERTICAL_ALIGNMENT, CENTER_LINE,
 		TDO_ZOOM, win->current_scale, TDO_END);
 
 	// Give eye icon help, then credentials icon help then "done" help.

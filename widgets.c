@@ -997,7 +997,7 @@ static int square_button_draw(widget_list *W)
 
 	glEnable(GL_TEXTURE_2D);
 	draw_text(W->pos_x + W->len_x/2, W->pos_y + W->len_y/2 - l->center_offset, l->text,
-		strlen((const char*)l->text), W->fcat, TDO_ALIGNMENT, CENTER, TDO_VERTICAL_ALIGNMENT, CENTER_LINES, TDO_ZOOM, W->size, TDO_END);
+		strlen((const char*)l->text), W->fcat, TDO_ALIGNMENT, CENTER, TDO_VERTICAL_ALIGNMENT, CENTER_LINE, TDO_ZOOM, W->size, TDO_END);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -1064,7 +1064,7 @@ void draw_smooth_button(const unsigned char* str, font_cat fcat, float size,
 	if (str)
 	{
 		draw_text(x + radius + w/2, y + radius, str, strlen((const char*)str), fcat,
-			TDO_MAX_WIDTH, w, TDO_ALIGNMENT, CENTER, TDO_VERTICAL_ALIGNMENT, CENTER_LINES,
+			TDO_MAX_WIDTH, w, TDO_ALIGNMENT, CENTER, TDO_VERTICAL_ALIGNMENT, CENTER_LINE,
 			TDO_ZOOM, size, TDO_SHRINK_TO_FIT, 1, TDO_END);
 	}
 #ifdef OPENGL_TRACE
@@ -3904,14 +3904,14 @@ static int pword_field_draw(widget_list *w)
 
 	sel_begin = max2i(entry->sel_begin - entry->draw_begin, 0);
 	sel_end = max2i(entry->sel_end - entry->draw_begin, 0);
-	valign = entry->status == P_NORMAL ? CENTER_PASSWORD : CENTER_LINES;
+	valign = entry->status == P_NORMAL ? CENTER_PASSWORD : CENTER_LINE;
 	draw_text(x_left, w->pos_y + w->len_y/2, start, len, w->fcat, TDO_MAX_WIDTH, max_width,
 		TDO_FOREGROUND, w->r, w->g, w->b, TDO_ZOOM, w->size, TDO_SEL_BEGIN, sel_begin,
 		TDO_SEL_END, sel_end, TDO_VERTICAL_ALIGNMENT, valign, TDO_END);
 	if (entry->mouseover && cur_time % (2*TF_BLINK_DELAY) < TF_BLINK_DELAY)
 	{
 		draw_text(x_cursor, w->pos_y + w->len_y/2, (const unsigned char*)"_", 1, w->fcat,
-			TDO_FOREGROUND, w->r, w->g, w->b, TDO_ZOOM, w->size, TDO_VERTICAL_ALIGNMENT, CENTER_LINES,
+			TDO_FOREGROUND, w->r, w->g, w->b, TDO_ZOOM, w->size, TDO_VERTICAL_ALIGNMENT, CENTER_LINE,
 			TDO_END);
 	}
 
