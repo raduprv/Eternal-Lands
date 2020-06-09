@@ -644,6 +644,8 @@ static void set_content_widths(window_info *win)
 	float zoom = win->current_scale_small;
 	int gap_x = win->small_font_max_len_x / 2;
 	int max_button_width = 0;
+	int button_height = (int)(0.5 + win->current_scale_small * 2*BUTTONRADIUS);
+	int button_sep = (int)(0.5 + win->current_scale_small * 2);
 	int i;
 
 	for (i=0; i<NUM_COUNTERS; i++)
@@ -665,13 +667,11 @@ static void set_content_widths(window_info *win)
 	session_x_start = session_x_end - get_string_width_zoom(session_str, win->font_category, zoom);
 
 	win->min_len_x = name_x_end + 2 * 12 * win->small_font_max_len_x + win->box_size + gap_x;
-	win->min_len_y = 2 * gap_x + NUM_COUNTERS *
-		(int)(0.5 + 2.0 * BUTTONRADIUS * win->current_scale_small);
+	win->min_len_y = 2 * gap_x + (NUM_COUNTERS - 1) * button_sep + NUM_COUNTERS * button_height;
 }
 
 static int resize_counters_handler(window_info *win, int new_width, int new_height)
 {
-	float zoom = win->current_scale_small;
 	int gap_x = win->small_font_max_len_x / 2;
 	size_t i;
 	int current_selected;
@@ -679,7 +679,7 @@ static int resize_counters_handler(window_info *win, int new_width, int new_heig
 
 	set_content_widths(win);
 
-	step_y = get_line_height(win->font_category, zoom);
+	step_y = get_line_height(win->font_category, win->current_scale_small);
 	margin_y_len = 1.5 * step_y;
 	space_y = 0.5 * step_y;
 	NUM_LINES = (int)((new_height - 2 * margin_y_len - 2 * space_y) / step_y);
@@ -704,8 +704,10 @@ static int resize_counters_handler(window_info *win, int new_width, int new_heig
 
 	multiselect_id = multiselect_add(win->window_id, NULL, gap_x, gap_x, left_panel_width - 2 * gap_x);
 	for (i=0; i<NUM_COUNTERS; i++)
+	{
 		multiselect_button_add_extended(win->window_id, multiselect_id,
 			0, (int)((new_height - gap_x) / NUM_COUNTERS) * butt_y[i], 0, cat_str[i], win->current_scale_small, i==0);
+	}
 
 	multiselect_set_selected(win->window_id, multiselect_id, current_selected);
 
