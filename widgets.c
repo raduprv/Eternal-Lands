@@ -975,7 +975,12 @@ int button_add(int window_id, int (*OnInit)(), const char *text, Uint16 x, Uint1
 static int button_draw(widget_list *W)
 {
 	button *l = (button *)W->widget_info;
-	draw_smooth_button(l->text, W->fcat, W->size, W->pos_x, W->pos_y, W->len_x-2*BUTTONRADIUS*W->size, 1, W->r, W->g, W->b, W->Flags & BUTTON_ACTIVE, 0.32f, 0.23f, 0.15f, 0.0f);
+	int text_width = W->len_x - 2*BUTTONRADIUS*W->size;
+	draw_smooth_button(NULL, W->fcat, W->size, W->pos_x, W->pos_y, text_width,
+		1, W->r, W->g, W->b, W->Flags & BUTTON_ACTIVE, 0.32f, 0.23f, 0.15f, 0.0f);
+	draw_text(W->pos_x + W->len_x/2, W->pos_y + W->len_y/2 - l->center_offset, l->text,
+		strlen((const char*)l->text), W->fcat, TDO_MAX_WIDTH, text_width, TDO_ALIGNMENT, CENTER,
+		TDO_VERTICAL_ALIGNMENT, CENTER_LINE, TDO_ZOOM, W->size, TDO_SHRINK_TO_FIT, 1, TDO_END);
 	return 1;
 }
 
@@ -997,7 +1002,8 @@ static int square_button_draw(widget_list *W)
 
 	glEnable(GL_TEXTURE_2D);
 	draw_text(W->pos_x + W->len_x/2, W->pos_y + W->len_y/2 - l->center_offset, l->text,
-		strlen((const char*)l->text), W->fcat, TDO_ALIGNMENT, CENTER, TDO_VERTICAL_ALIGNMENT, CENTER_LINE, TDO_ZOOM, W->size, TDO_END);
+		strlen((const char*)l->text), W->fcat, TDO_ALIGNMENT, CENTER, TDO_VERTICAL_ALIGNMENT, CENTER_LINE,
+		TDO_ZOOM, W->size, TDO_END);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE

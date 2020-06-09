@@ -1164,14 +1164,14 @@ public:
 	 * of the line, when drawn in the font for category \a cat at zoom level \a zoom.
 	 *
 	 * \param cat       The font category for the font used
-	 * \param text The string for which to compute center offset
-	 * \param len  The number of bytes in \a text
-	 * \param zoom The scale factor for the text
+	 * \param text      The string for which to compute center offset
+	 * \param len       The number of bytes in \a text
+	 * \param text_zoom The scale factor for the text
 	 * \return The number of pixels between the center of the line and the center of \a text.
 	 */
-	int center_offset(Category cat, const unsigned char* text, size_t len, float zoom)
+	int center_offset(Category cat, const unsigned char* text, size_t len, float text_zoom)
 	{
-		return get(cat).center_offset(text, len, zoom);
+		return get(cat).center_offset(text, len, text_zoom * font_scales[cat]);
 	}
 
 	/*!
@@ -1582,17 +1582,17 @@ void get_buf_dimensions(const unsigned char* text, size_t len, font_cat cat,
  * \brief Calculate vertical offset of center
  *
  * Calculate the offset of the center of the characters in \a text with respect to the center
- * of the line, when drawn in the font for category \a cat at zoom level \a zoom. Subtract the
+ * of the line, when drawn in the font for category \a cat at zoom level \a text_zoom. Subtract the
  * result of this function from the \c y coordinate you wish to center around, to center the
  * content of \a text around this position.
  *
- * \param cat  The font category for the font used
- * \param text The string for which to compute center offset
- * \param len  The number of bytes in \a text
- * \param zoom The scale factor for the text
+ * \param cat       The font category for the font used
+ * \param text      The string for which to compute center offset
+ * \param len       The number of bytes in \a text
+ * \param text_zoom The scale factor for the text
  * \return The number of pixels between the center of the line and the center of \a text.
  */
-int get_center_offset(const unsigned char* text, size_t len, font_cat cat, float zoom);
+int get_center_offset(const unsigned char* text, size_t len, font_cat cat, float text_zoom);
 
 /*!
  * \ingroup text_font
