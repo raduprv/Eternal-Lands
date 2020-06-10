@@ -843,6 +843,13 @@ int ui_scale_dialogue_handler(window_info *win)
 {
 	int dialogue_menu_x_len = (int)(0.5 + win->current_scale * available_text_width);
 	int dialogue_menu_y_len = (int)(0.5 + win->current_scale * 220);
+
+	// We need to recompute line breaks on UI scale change, as different scale factors can lead to
+	// different roundings of window size, and more importantly, character widths. For this reason,
+	// scaling the UI is not a simple scale operation as far as text is concerned.
+	reset_soft_breaks(dialogue_string, strlen((const char*)dialogue_string), sizeof(dialogue_string),
+		win->font_category, win->current_scale_small, (int)(0.5 + win->current_scale * available_text_width), NULL, NULL);
+
 	char_size = (int)(0.5 + win->current_scale * 64);
 	char_frame_size = char_size + 2;
 	border_space = (int)(0.5 + win->current_scale * 5);
@@ -870,14 +877,7 @@ int change_dialogue_font_handler(window_info *win, font_cat cat)
 {
 	if (cat != win->font_category)
 		return 0;
-
-	// Unlike when scaling the UI, changing the font or font size will change
-	// where we need to break the lines.
-	reset_soft_breaks(dialogue_string, strlen((const char*)dialogue_string),
-		sizeof(dialogue_string), win->font_category, win->current_scale_small,
-		(int)(0.5 + win->current_scale * available_text_width), NULL, NULL);
 	ui_scale_dialogue_handler(win);
-
 	return 1;
 }
 
@@ -923,10 +923,7 @@ void display_dialogue(const Uint8 *in_data, int data_length)
 
 	safe_strncpy2((char*)dialogue_string, (const char*)in_data, sizeof(dialogue_string), data_length);
 	if (dialogue_win >=0 && dialogue_win < windows_list.num_windows)
-	{
-		window_info *win = &windows_list.window[dialogue_win];
-		change_dialogue_font_handler(win, win->font_category);
-	}
+		ui_scale_dialogue_handler(&windows_list.window[dialogue_win]);
 
 	recalc_option_positions = new_dialogue = new_text_to_log = 1;
 }
