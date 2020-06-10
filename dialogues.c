@@ -868,7 +868,7 @@ int ui_scale_dialogue_handler(window_info *win)
 
 int change_dialogue_font_handler(window_info *win, font_cat cat)
 {
-	if (cat != UI_FONT)
+	if (cat != win->font_category)
 		return 0;
 
 	// Unlike when scaling the UI, changing the font or font size will change
@@ -920,13 +920,13 @@ void display_dialogue(const Uint8 *in_data, int data_length)
 	}
 
 	text_log_get_npc_setting();
-	if (dialogue_win >=0 && dialogue_win < windows_list.num_windows)
-		ui_scale_dialogue_handler(&windows_list.window[dialogue_win]);
 
-	// the window width is maintained during scaling so that the box is always
-	// available_text_width wide
-	put_small_text_in_box_zoomed(in_data, data_length, available_text_width,
-		dialogue_string, 1.0);
+	safe_strncpy2((char*)dialogue_string, (const char*)in_data, sizeof(dialogue_string), data_length);
+	if (dialogue_win >=0 && dialogue_win < windows_list.num_windows)
+	{
+		window_info *win = &windows_list.window[dialogue_win];
+		change_dialogue_font_handler(win, win->font_category);
+	}
 
 	recalc_option_positions = new_dialogue = new_text_to_log = 1;
 }
