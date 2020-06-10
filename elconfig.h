@@ -210,6 +210,7 @@ void check_options(void);
  */
 void change_windows_on_top(int *var);
 
+#ifndef MAP_EDITOR
 /*!
  * \ingroup config
  * \brief   Adds another option to a multi-var.
@@ -253,6 +254,7 @@ void clear_multiselect_var(const char* name);
  * \param change_button if non-zero, select GUI button as well
  */
 void set_multiselect_var(const char* name, int idx, int change_button);
+#endif // !MAP_EDITOR
 
 void change_windowed_chat (int *wc, int val);
 
