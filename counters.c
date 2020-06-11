@@ -730,9 +730,6 @@ int change_counters_font_handler(window_info *win, font_cat cat)
 
 void fill_counters_win(int window_id)
 {
-	if (window_id >= 0 && window_id < windows_list.num_windows)
-		set_content_widths(&windows_list.window[window_id]);
-
 	set_window_custom_scale(window_id, &custom_scale_factors.stats);
 	set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_counters_handler);
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_counters_handler);
@@ -743,6 +740,9 @@ void fill_counters_win(int window_id)
 
 	counters_scroll_id = vscrollbar_add_extended(window_id, counters_scroll_id, NULL, 0, 0, 0, 0, 0,
 		1.0f, 0.77f, 0.57f, 0.39f, 0, 1, 0);
+
+	if (window_id >= 0 && window_id < windows_list.num_windows)
+		set_content_widths(&windows_list.window[window_id]);
 
 	if (cm_counters == CM_INIT_VALUE)
 	{

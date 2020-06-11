@@ -1303,12 +1303,7 @@ void fill_encyclopedia_win (int window_id)
 		0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 30, Page[currentpage].max_y);
 
 	if (window_id >= 0 && window_id < windows_list.num_windows)
-	{
-		window_info *win = &windows_list.window[window_id];
-		int min_width = max2i(63 * win->small_font_max_len_x, 46 * win->default_font_max_len_x);
-		int min_height = max2i(24 * win->small_font_len_y, 20 * win->default_font_len_y);
-		set_window_min_size(window_id, min_width, min_height);
-	}
+		set_encyclopedia_min_size(&windows_list.window[window_id]);
 
 	if (numpage<=0)
 	{

@@ -145,9 +145,6 @@ static int change_session_font_handler(window_info *win, font_cat cat)
 
 void fill_session_win(int window_id)
 {
-	if (window_id >= 0 && window_id < windows_list.num_windows)
-		set_content_widths(&windows_list.window[window_id]);
-
 	set_window_custom_scale(window_id, &custom_scale_factors.stats);
 	set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_session_handler);
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_session_handler );
@@ -159,6 +156,9 @@ void fill_session_win(int window_id)
 	reset_button_id=button_add_extended(window_id, reset_button_id, NULL, 0, 0, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, reset_str);
 	widget_set_OnClick(window_id, reset_button_id, session_reset_handler);
 	widget_set_OnMouseover(window_id, reset_button_id, mouseover_session_reset_handler);
+
+	if (window_id >= 0 && window_id < windows_list.num_windows)
+		set_content_widths(&windows_list.window[window_id]);
 }
 
 void set_last_skill_exp(size_t skill, int exp)

@@ -48,7 +48,6 @@ static int change_skills_font_handler(window_info *win, font_cat cat)
 
 void fill_skills_win (int window_id)
 {
-	window_info *win = &windows_list.window[window_id];
 	size_t i;
 
 	for(i=0;i<=numpage;i++)
@@ -65,6 +64,12 @@ void fill_skills_win (int window_id)
 	set_window_handler(window_id, ELW_HANDLER_UI_SCALE, &ui_scale_skills_handler);
 	set_window_handler(window_id, ELW_HANDLER_FONT_CHANGE, &change_skills_font_handler);
 
-	skills_menu_scroll_id = vscrollbar_add_extended(window_id, skills_menu_scroll_id, NULL,
-		win->len_x-win->box_size, 0, win->box_size, win->len_y, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 30, Page[skillspage].max_y);
+	if (window_id >= 0 && window_id < windows_list.num_windows)
+	{
+		window_info *win = &windows_list.window[window_id];
+		set_skills_min_size(win);
+		skills_menu_scroll_id = vscrollbar_add_extended(window_id, skills_menu_scroll_id, NULL,
+			win->len_x-win->box_size, 0, win->box_size, win->len_y, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 30,
+			Page[skillspage].max_y);
+	}
 }

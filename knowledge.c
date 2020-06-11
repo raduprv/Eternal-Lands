@@ -617,9 +617,6 @@ static int post_display_knowledge_handler(window_info *win)
 
 void fill_knowledge_win(int window_id)
 {
-	if (window_id >= 0 && window_id < windows_list.num_windows)
-		set_content_widths(&windows_list.window[window_id]);
-
 	set_window_custom_scale(window_id, &custom_scale_factors.stats);
 	set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_knowledge_handler );
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_knowledge_handler );
@@ -634,6 +631,9 @@ void fill_knowledge_win(int window_id)
 	widget_set_OnClick(window_id, knowledge_book_image_id, &handle_knowledge_book);
 	knowledge_book_label_id = label_add_extended(window_id, knowledge_book_image_id + 1, NULL, 0, 0, WIDGET_DISABLED, 0.8, 1.0, 1.0, 1.0, knowledge_read_book);
 	widget_set_OnClick(window_id, knowledge_book_label_id, &handle_knowledge_book);
+
+	if (window_id >= 0 && window_id < windows_list.num_windows)
+		set_content_widths(&windows_list.window[window_id]);
 
 	if (cm_valid(!cm_know_id))
 	{
