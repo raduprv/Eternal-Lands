@@ -1138,7 +1138,6 @@ static void change_fsaa(int *pointer, int value)
 	}
 
 	fsaa = fsaa_value;
-printf("fsaa = %#x\n", fsaa);
 
 	if (pointer != 0)
 	{
@@ -2621,7 +2620,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_STRING, "ttf_directory", "ttfdir", ttf_directory, change_string, TTF_DIR_SIZE,
 		"TTF directory", "Scan this directory and its direct subdirectories for True Type fonts. This is only used when 'Use TTF' is enabled. Changes to this option only take effect after a restart of the client.", FONT);
 #endif
-	add_var(OPT_FLOAT,"ui_text_size","uisize",&font_scales[UI_FONT],change_text_zoom,1,"UI Text Size","Set the size of the text in the user interface",FONT,0.1,2.0,0.01);
+	add_var(OPT_FLOAT,"ui_text_size","uisize",&font_scales[UI_FONT],change_text_zoom,1,"UI Text Size","Set the size of the text in the user interface",FONT,0.8,1.2,0.01);
 	add_var(OPT_MULTI,"ui_font","uifont",&font_idxs[UI_FONT],change_font,0,"UI Font","Change the type of font used in the user interface",FONT, NULL);
 	add_var(OPT_FLOAT,"name_text_size","nsize",&font_scales[NAME_FONT],change_text_zoom,1,"Name Text Size","Set the size of the players name text",FONT,0.1,2.0,0.01);
 	add_var(OPT_MULTI,"name_font","nfont",&font_idxs[NAME_FONT],change_font,0,"Name Font","Change the type of font used for the name",FONT, NULL);
