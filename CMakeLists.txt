@@ -204,7 +204,7 @@ if (FSAA)
 	if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		set(SOURCES ${SOURCES} ${SD}fsaa/fsaa_wgl.c ${SD}fsaa/fsaa.c)
 	else()
-		set(SOURCES ${SOURCES} ${SD}fsaa/fsaa_dummy.c ${SD}fsaa/fsaa.c)
+		set(SOURCES ${SOURCES} ${SD}fsaa/fsaa_glx.c ${SD}fsaa/fsaa.c)
 	endif()
 endif()
 

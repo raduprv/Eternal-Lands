@@ -5,20 +5,17 @@
 
 static Display* get_gl_display()
 {
-	Display* gl_display;
+	Display* gl_display = NULL;
 
+#ifdef GLX_VERSION_1_2
 	gl_display = glXGetCurrentDisplay();
-				
-	if (gl_display == 0)
+#endif
+
+	if (gl_display == NULL)
 	{
 		gl_display = XOpenDisplay(0);
 	}
 
-	if (gl_display == 0) 
-	{
-		return 0;
-	}
-	
 	return gl_display;
 }
 
@@ -56,15 +53,16 @@ unsigned int get_fsaa_modes()
 
 	count = 0;
 	result = 1;
-	display = get_gl_display();
+	if ((display = get_gl_display()) == NULL)
+		return result;
 
 	if (_glXChooseFBConfig != 0)
 	{
-		configs = _glXChooseFBConfig(display, DefaultScreen(display), 0, &count);
+		configs = _glXChooseFBConfig(display, DefaultScreen(display), NULL, &count);
 	}
 	else
 	{
-		configs = _glXChooseFBConfigSGIX(display, DefaultScreen(display), 0, &count);
+		configs = _glXChooseFBConfigSGIX(display, DefaultScreen(display), NULL, &count);
 	}
 
 	for (i = 0; i < count; i++)
