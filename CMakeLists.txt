@@ -218,7 +218,7 @@ endif()
 if (ADDRSANITISER)
 	set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -fsanitize=address")
 	set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -fsanitize=address")
-	set(EXTRA_LD_FLAGS "${EXTRA_LD_FLAGS} -fsanitize=address")
+	set(EXTRA_LD_FLAGS "${EXTRA_LD_FLAGS} -fsanitize=address -static-libasan")
 endif()
 
 # set the compiler flags for DEBUG and RELEASE builds
