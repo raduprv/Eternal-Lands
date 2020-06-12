@@ -100,8 +100,10 @@ static int display_trade_handler(window_info *win)
 			GLfloat u_start, v_start, u_end, v_end;
 			int x_start, x_end, y_start, y_end;
 			int cur_item;
-			int use_large;
 			GLuint this_texture;
+			int y_text;
+			float zoom;
+			ver_alignment valign;
 
 			cur_item=your_trade_list[i].image_id%25;
 			get_item_uv(cur_item, &u_start, &v_start, &u_end, &v_end);
@@ -120,13 +122,22 @@ static int display_trade_handler(window_info *win)
 			draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 			glEnd();
 
-			use_large = (mouse_over_your_trade_pos == i) && enlarge_text();
 			safe_snprintf(str, sizeof(str), "%i",your_trade_list[i].quantity);
-			y_end -= (i&1) ?trade_gridsize * 2/3 : trade_gridsize * 1/3;
-			if (use_large)
-				draw_string_shadowed_zoomed(x_start, y_end, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
+			zoom = (mouse_over_your_trade_pos == i && enlarge_text())
+				? win->current_scale : win->current_scale_small;
+			if (i & 1)
+			{
+				y_text = y_start;
+				valign = TOP_LINE;
+			}
 			else
-				draw_string_small_shadowed_zoomed(x_start, y_end, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
+			{
+				y_text = y_end;
+				valign = BOTTOM_LINE;
+			}
+			draw_text(x_start, y_text, (const unsigned char*)str, strlen(str), win->font_category,
+				TDO_SHADOW, 1, TDO_FOREGROUND, 1.0, 1.0, 1.0, TDO_BACKGROUND, 0.0, 0.0, 0.0,
+				TDO_ZOOM, zoom, TDO_VERTICAL_ALIGNMENT, valign);
 			//by doing the images in reverse, you can't cover up the digits>4
 			//also, by offsetting each one, numbers don't overwrite each other:
 			//before: 123456 in one box and 56 in the other could allow
@@ -143,8 +154,10 @@ static int display_trade_handler(window_info *win)
 			GLfloat u_start, v_start, u_end, v_end;
 			int x_start, x_end, y_start, y_end;
 			int cur_item;
-			int use_large;
 			GLuint this_texture;
+			int y_text;
+			float zoom;
+			ver_alignment valign;
 
 			cur_item=others_trade_list[i].image_id%25;
 			get_item_uv(cur_item, &u_start, &v_start, &u_end, &v_end);
@@ -165,13 +178,22 @@ static int display_trade_handler(window_info *win)
 			draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 			glEnd();
 
-			use_large = (mouse_over_others_trade_pos == i) && enlarge_text();
 			safe_snprintf(str, sizeof(str), "%i",others_trade_list[i].quantity);
-			y_end -= (i&1) ?trade_gridsize * 2/3 : trade_gridsize * 1/3;
-			if (use_large)
-				draw_string_shadowed_zoomed(x_start, y_end, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
+			zoom = (mouse_over_others_trade_pos == i && enlarge_text())
+				? win->current_scale : win->current_scale_small;
+			if (i & 1)
+			{
+				y_text = y_start;
+				valign = TOP_LINE;
+			}
 			else
-				draw_string_small_shadowed_zoomed(x_start, y_end, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
+			{
+				y_text = y_end;
+				valign = BOTTOM_LINE;
+			}
+			draw_text(x_start, y_text, (const unsigned char*)str, strlen(str), win->font_category,
+				TDO_SHADOW, 1, TDO_FOREGROUND, 1.0, 1.0, 1.0, TDO_BACKGROUND, 0.0, 0.0, 0.0,
+				TDO_ZOOM, zoom, TDO_VERTICAL_ALIGNMENT, valign);
 
 			if(storage_available && others_trade_list[i].type==ITEM_BANK){
 				str[0]='s';
