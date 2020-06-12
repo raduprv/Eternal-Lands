@@ -368,6 +368,14 @@ class Font
 {
 public:
 	/*!
+	 * Copy constructor
+	 *
+	 * Create a new font as a copy of \a font.
+	 * \note This constructor does not copy the font texture, a new one will be loaded or generated
+	 * when the font is used.
+	 */
+	Font(const Font& font);
+	/*!
 	 * \brief Create a new font
 	 *
 	 * Initialize a new internal font. This sets the parameters for the \a font_nr
@@ -744,14 +752,14 @@ private:
 	{
 #ifdef TTF
 		//! Set if the font is a TTF Font
-		IS_TTF      = 1 << 0,
+		IS_TTF       = 1 << 0,
 #endif
 		//! Set if the font is fixed width, i.e. all characters have the same width
-		FIXED_WIDTH = 1 << 1,
+		FIXED_WIDTH  = 1 << 1,
 		//! Set if the texture for the font is loaded or generated
-		HAS_TEXTURE = 1 << 2,
-		//! Set if loading the font failed, and a fallback dhould be used
-		FAILED      = 1 << 3
+		HAS_TEXTURE  = 1 << 2,
+		//! Set if loading the font failed, and a fallback should be used
+		FAILED       = 1 << 3
 	};
 
 	//! Name of this font. This will be shown on the multi-select button.
@@ -1290,7 +1298,7 @@ public:
 	 * window.
 	 *
 	 * \param cat     The font category for the separator
-	 * \param x_space Horizontal space tokeep free on either side
+	 * \param x_space Horizontal space to keep free on either side
 	 * \param y       Vertical position at which the line should be drawn
 	 * \param options Text options for drawing the separator
 	 */
@@ -1356,6 +1364,12 @@ private:
 	 * window.
 	 */
 	std::array<std::string, NR_FONT_CATS> _saved_font_files;
+	/*!
+	 * Copy of the configuration font. This is only set and used when TTF is disabled, to keep
+	 * the current font settings in the settings window available, even when it is currently
+	 * set to a TTF font.
+	 */
+	Font *_config_font_backup;
 #endif
 
 	/*!
@@ -1365,12 +1379,14 @@ private:
 	 */
 	FontManager(): _fonts(), _fixed_width_idxs()
 #ifdef TTF
-		, _saved_font_files()
+		, _saved_font_files(), _config_font_backup(nullptr)
 #endif
 		{}
 	// Disallow copying, since this is a singleton class
 	FontManager(const FontManager&) = delete;
 	FontManager& operator=(const FontManager&) = delete;
+	//! Destructor
+	~FontManager() { if (_config_font_backup) delete _config_font_backup; }
 
 	/*!
 	 * \brief Initialize TrueType fonts

@@ -151,6 +151,15 @@ const std::array<int, Font::nr_glyphs> Font::letter_freqs = {
 };
 const ustring Font::ellipsis = reinterpret_cast<const unsigned char*>("...");
 
+Font::Font(const Font& font): _font_name(font.font_name()), _file_name(font.file_name()),
+	_flags(font._flags & ~HAS_TEXTURE), _texture_width(font._texture_width),
+	_texture_height(font._texture_height), _metrics(font._metrics), _block_width(font._block_width),
+	_block_height(font._block_height), _line_height(font._line_height),
+	_font_top_offset(font._font_top_offset), _digit_center_offset(font._digit_center_offset),
+	_password_center_offset(font._password_center_offset), _max_advance(font._max_advance),
+	_max_digit_advance(font._max_digit_advance), _avg_advance(font._avg_advance),
+	_spacing(font._spacing), _scale(font._scale), _texture_id() {}
+
 Font::Font(size_t font_nr): _font_name(), _file_name(), _flags(0),
 	_texture_width(256), _texture_height(256), _metrics(),
 	_block_width(font_block_width), _block_height(font_block_height),
@@ -1411,7 +1420,7 @@ bool FontManager::initialize()
 	_fonts.clear();
 
 	for (size_t i = 0; i < _nr_bundled_fonts; ++i)
-		_fonts.push_back(Font(i));
+		_fonts.emplace_back(i);
 #ifdef TTF
 	initialize_ttf();
 #endif
@@ -1485,27 +1494,48 @@ void FontManager::add_select_options(bool add_button)
 
 Font& FontManager::get(Category cat)
 {
-	size_t font_num = font_idxs[cat];
+	Font *result;
 
-	if (font_num < 0 || font_num >= _fonts.size())
+	if (font_idxs[cat] < _fonts.size())
 	{
+		result = &_fonts[font_idxs[cat]];
+	}
+	else
+	{
+#ifdef TTF
 		// Invalid font number
-		font_idxs[cat] = font_num = 0;
+		if (cat == CONFIG_FONT && _config_font_backup)
+		{
+			// TTF was disabled, and the settings window was using a TTF font. Return the
+			// backup copy of the font.
+			result = _config_font_backup;
+		}
+		else
+		{
+			font_idxs[cat] = 0;
+			result = &_fonts[0];
+		}
+#else
+		font_idxs[cat] = 0;
+		result = &_fonts[0];
+#endif
 	}
 
-	if (_fonts[font_num].failed())
+	if (result->failed())
 	{
 		// Failed to load previously, switch to fixed
-		font_idxs[cat] = font_num = 0;
+		font_idxs[cat] = 0;
+		result = &_fonts[0];
 	}
 
-	if (!_fonts[font_num].has_texture() && !_fonts[font_num].load_texture())
+	if (!result->has_texture() && !result->load_texture())
 	{
 		// Failed to load or generate texture, switch to fixed
-		font_idxs[cat] = font_num = 0;
+		font_idxs[cat] = 0;
+		result = &_fonts[0];
 	}
 
-	return _fonts[font_num];
+	return *result;
 }
 
 #ifdef TTF
@@ -1518,9 +1548,31 @@ void FontManager::disable_ttf()
 	// Save the file names of the fonts currently in use
 	for (size_t i = 0; i < NR_FONT_CATS; ++i)
 	{
-		_saved_font_files[i] = _fonts[font_idxs[i]].file_name();
-		if (_fonts[font_idxs[i]].is_ttf())
-			font_idxs[i] = _default_font_idxs[i];
+		size_t font_num = font_idxs[i];
+		if (font_num >= _fonts.size())
+			// Invalid index, possibly configuration font after disabling TTF previously
+			font_num = 0;
+
+		_saved_font_files[i] = _fonts[font_num].file_name();
+		if (_fonts[font_num].is_ttf())
+		{
+			if (i == CONFIG_FONT)
+			{
+				// Darn, the setting window is currently using a TTF font. Copy this font to
+				// a separate variable, and set the font index of the CONFIG_FONT category to
+				// an invalid value to indicate this variable should be used. This is only until
+				// the settings window is closed, when reopened it will use the new UI font.
+				if (_config_font_backup)
+					delete _config_font_backup;
+				_config_font_backup = new Font(_fonts[font_num]);
+				font_idxs[i] = std::numeric_limits<size_t>::max();
+			}
+			else
+			{
+				// Revert to default bundled font
+				font_idxs[i] = _default_font_idxs[i];
+			}
+		}
 	}
 
 	// Remove the fonts themselves
@@ -1544,6 +1596,11 @@ void FontManager::enable_ttf()
 	// fonts.
 	for (size_t i = 0; i < NR_FONT_CATS; ++i)
 	{
+		// Font for the settings window should not change, it will be updated and set to the
+		// UI font when the window is closed and reopened
+		if (i == CONFIG_FONT)
+			continue;
+
 		const std::string& fname = _saved_font_files[i];
 		if (!fname.empty())
 		{
