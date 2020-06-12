@@ -3458,13 +3458,14 @@ static void elconfig_populate_tabs(void)
 				// don't display the username, if it is changed after login, any name tagged files will be saved using the new name
 				if (strcmp(var->name, "username") == 0)
 					continue;
-				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
-					current_x, current_y,
-					0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)var->display.str);
 				widget_width = ELCONFIG_SCALED_VALUE(332);
 				widget_id = pword_field_add_extended(window_id, elconfig_free_widget_id++, NULL,
-					window_width - TAB_MARGIN - widget_width, current_y, widget_width, line_height,
+					window_width - TAB_MARGIN - widget_width, current_y, widget_width, 0,
 					P_TEXT, elconf_scale, 0.77f, 0.59f, 0.39f, var->var, var->len);
+				dy = widget_get_height(window_id, widget_id) - line_height;
+				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
+					current_x, current_y + dy/2,
+					0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)var->display.str);
 				widget_set_OnKey (window_id, widget_id, (int (*)())string_onkey_handler);
 			break;
 			case OPT_PASSWORD:
@@ -3563,7 +3564,7 @@ static void elconfig_populate_tabs(void)
 		//Calculate y position of the next option.
 		label_height = widget_get_height(window_id, label_id);
 		widget_height = widget_get_height(window_id, widget_id);
-		elconfig_tabs[tab_id].y += (widget_height > label_height ? widget_height : label_height)+SPACING;
+		elconfig_tabs[tab_id].y += max2i(widget_height, label_height) + SPACING;
 		//Set IDs
 		our_vars.var[i]->widgets.label_id= label_id;
 		our_vars.var[i]->widgets.widget_id= widget_id;

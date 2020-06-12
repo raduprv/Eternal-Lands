@@ -61,6 +61,7 @@ typedef struct {
 	int sel_begin, sel_end;
 	int drag_begin;
 	int mouseover;
+	Uint16 fixed_height;
 } password_entry;
 
 typedef struct {
@@ -3963,6 +3964,16 @@ int pword_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16
 	T->password = buffer;
 	T->max_chars = buffer_size;
 	T->sel_begin = T->sel_end = -1;
+
+	if (ly != 0)
+	{
+		T->fixed_height = ly;
+	}
+	else
+	{
+		window_info *win = &windows_list.window[window_id];
+		ly = get_line_height(win->font_category, size) + 2*space;
+	}
 
 	widget_id = widget_add (window_id, wid, OnInit, x, y, lx, ly, 0, size, r, g, b, &pword_field_type, T, NULL);
 
