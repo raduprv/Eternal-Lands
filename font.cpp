@@ -167,6 +167,36 @@ Font::Font(size_t font_nr): _font_name(), _file_name(), _flags(0),
 	_digit_center_offset(font_nr == 2 ? 10 : 9), _password_center_offset(0), _max_advance(12),
 	_max_digit_advance(12), _avg_advance(12), _spacing(0), _scale(11.0 / 12)
 {
+	// In case anyone is wondering where the magic numbers come from: the texture for these fonts
+	// is divided in rows of 21 pixels high. The numbers below should be the offset of the top and`
+	// bottom of the character with respect to the top of the row. However, we only use the top 19
+	// pixels to draw a character. But the actual line height before scaling, for compatibility with
+	// previous versions of the client, is 20 pixels. So the offsets are scaled by a factor 20/19.
+	// After rounding, this increases values of 10 and higher by 1.
+	static const std::array<int, nr_glyphs> top_1 = {
+		16,  2,  2,  2,  1,  2,  1,  2,  2,  2,  2,  6, 12,  8,
+		12,  0,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  6,  6,
+		 6,  7,  6,  2,  3,  2,  2,  2,  2,  2,  2,  2,  2,  2,
+		 2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,
+		 2,  2,  2,  1,  0,  1, -1,  4,  1,  5,  2,  5,  2,  5,
+		 2,  5,  2,  1,  1,  2,  2,  5,  5,  5,  5,  5,  5,  5,
+		 3,  5,  5,  5,  5,  5,  5,  2,  2,  2,  8,  2,  1,  1,
+		 1,  6,  1,  2,  1,  2,  1,  1,  2,  2,  2, -1, -1, -1,
+		 2,  5,  5,  1,  2,  2, -1,  2,  0,  1,  0,  0,  1,  0,
+		 1,  0,  1,  0,  1,  1
+	};
+	static const std::array<int, nr_glyphs> bottom_1 = {
+		16, 16,  9, 18, 19, 16, 16,  9, 18, 18, 13, 16, 19, 12,
+		16, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 18,
+		16, 14, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+		16, 16, 16, 16, 16, 16, 16, 19, 16, 16, 16, 16, 16, 16,
+		16, 16, 16, 18, 18, 18,  6, 18,  6, 16, 16, 16, 16, 16,
+		16, 19, 16, 16, 19, 16, 16, 16, 16, 16, 19, 19, 16, 16,
+		16, 16, 16, 16, 16, 19, 16, 20, 20, 20, 13, 16, 16, 16,
+		16, 20, 16, 16, 16, 16, 16, 16, 16, 16, 16, 17, 17, 17,
+		16, 16, 16, 16, 16, 16, 17, 16, 16, 16, 17, 17, 16, 17,
+		16, 17, 16, 17, 16, 16
+	};
 	static const std::array<int, 7> asterisk_centers = { 7, 7, 7, 7, 6, 5, 6 };
 	static const std::array<const char*, 7> file_names = { {
 		"textures/font.dds",
@@ -259,8 +289,8 @@ Font::Font(size_t font_nr): _font_name(), _file_name(), _flags(0),
 
 		_metrics[pos].width = char_widths[pos];
 		_metrics[pos].advance = char_widths[pos];
-		_metrics[pos].top = 0;
-		_metrics[pos].bottom = _line_height;
+		_metrics[pos].top = font_nr < 2 ? top_1[pos] : 0;
+		_metrics[pos].bottom = font_nr < 2 ? bottom_1[pos] : _line_height;
 		_metrics[pos].u_start = float(col * font_block_width + skip) / 256;
 		_metrics[pos].v_start = float(row * font_block_height) / 256;
 		_metrics[pos].u_end = float((col+1) * font_block_width - 7 - skip) / 256;
