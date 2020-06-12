@@ -164,10 +164,10 @@ Font::Font(size_t font_nr): _font_name(), _file_name(), _flags(0),
 	_texture_width(256), _texture_height(256), _metrics(),
 	_block_width(font_block_width), _block_height(font_block_height),
 	_line_height(std::round(12.0 * default_line_height / 11)), _font_top_offset(0),
-	_digit_center_offset(font_nr == 2 ? 9 : 8), _password_center_offset(0), _max_advance(12),
+	_digit_center_offset(font_nr == 2 ? 10 : 9), _password_center_offset(0), _max_advance(12),
 	_max_digit_advance(12), _avg_advance(12), _spacing(0), _scale(11.0 / 12)
 {
-	static const std::array<int, 7> asterisk_centers = { 6, 6, 6, 6, 5, 4, 5 };
+	static const std::array<int, 7> asterisk_centers = { 7, 7, 7, 7, 6, 5, 6 };
 	static const std::array<const char*, 7> file_names = { {
 		"textures/font.dds",
 		"textures/font.dds",
@@ -262,12 +262,12 @@ Font::Font(size_t font_nr): _font_name(), _file_name(), _flags(0),
 		_metrics[pos].top = 0;
 		_metrics[pos].bottom = _line_height;
 		_metrics[pos].u_start = float(col * font_block_width + skip) / 256;
-		_metrics[pos].v_start = float(row * font_block_height + 1) / 256;
+		_metrics[pos].v_start = float(row * font_block_height) / 256;
 		_metrics[pos].u_end = float((col+1) * font_block_width - 7 - skip) / 256;
-		_metrics[pos].v_end = float((row+1) * font_block_height - 1) / 256;
-		_avg_advance = average_width(letter_freqs.begin(), letter_freqs.end(), _metrics.begin());
-		_password_center_offset = asterisk_centers[font_nr];
+		_metrics[pos].v_end = float((row+1) * font_block_height - 2) / 256;
 	}
+	_avg_advance = average_width(letter_freqs.begin(), letter_freqs.end(), _metrics.begin());
+	_password_center_offset = asterisk_centers[font_nr];
 }
 
 #ifdef TTF
