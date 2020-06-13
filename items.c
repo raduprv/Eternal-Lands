@@ -625,24 +625,20 @@ static int display_items_handler(window_info *win)
 	}
 
 	x = quantity_grid.pos_x + quantity_grid.width / 2;
-	y = quantity_grid.pos_y + (quantity_grid.height - win->small_font_len_y) / 2;
-	glColor3f(0.3f,0.5f,1.0f);
+	y = quantity_grid.pos_y + quantity_grid.height / 2;
 	for(i = 0; i < ITEM_EDIT_QUANT; x += quantity_grid.width, ++i){
 		if(i==edit_quantity){
 			glColor3f(1.0f, 0.0f, 0.3f);
-			draw_string_small_zoomed_centered(x + 1 + gx_adjust, y + gy_adjust,
-				(const unsigned char*)quantities.quantity[i].str, 1, win->current_scale);
-			glColor3f(0.3f, 0.5f, 1.0f);
 		} else if(i==quantities.selected){
 			glColor3f(0.0f, 1.0f, 0.3f);
-			draw_string_small_zoomed_centered(x + 1 + gx_adjust, y + gy_adjust,
-				(const unsigned char*)quantities.quantity[i].str, 1, win->current_scale);
-			glColor3f(0.3f, 0.5f, 1.0f);
 		} else {
-			draw_string_small_zoomed_centered(x + 1 + gx_adjust, y + gy_adjust,
-				(const unsigned char*)quantities.quantity[i].str, 1, win->current_scale);
+			glColor3f(0.3f,0.5f,1.0f);
 		}
+		draw_text(x, y, (const unsigned char*)quantities.quantity[i].str,
+			strlen(quantities.quantity[i].str), win->font_category, TDO_ZOOM, win->current_scale_small,
+			TDO_ALIGNMENT, CENTER, TDO_VERTICAL_ALIGNMENT, CENTER_DIGITS, TDO_END);
 	}
+	glColor3f(0.3f,0.5f,1.0f);
 	draw_string_small_zoomed_right(labels_box.pos_x + labels_box.len_x, labels_box.pos_y,
 		(const unsigned char*)quantity_str, 1, win->current_scale);
 
