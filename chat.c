@@ -80,6 +80,10 @@ static Uint32 active_channels[MAX_ACTIVE_CHANNELS];
 static Uint8 current_channel = 0;
 static chan_name * pseudo_chans[SPEC_CHANS];
 
+static const int tab_control_border_sep = 2;
+static const int tab_control_half_len = 5;
+static const int tab_control_underline_sep = 4;
+
 int get_tabbed_chat_end_x(void)
 {
 	if ((tab_bar_win < 0) || (use_windowed_chat != 1))
@@ -1527,15 +1531,13 @@ static int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
 		if(tabs[itab].channel == CHAT_CHANNEL1 || tabs[itab].channel == CHAT_CHANNEL2 ||
 		   tabs[itab].channel == CHAT_CHANNEL3)
 		{
-			window_info *win = &windows_list.window[w->window_id];
-			int x = w->len_x - (int)(0.5 + win->current_scale * 6);
-			int y = (int)(0.5 + win->current_scale * 5);
-			int l3 = (int)(0.5 + win->current_scale * 3);
-			int l4 = (int)(0.5 + win->current_scale * 4);
+			int half_len = (int)(0.5 + w->size * tab_control_half_len);
+			int x = w->len_x - (half_len + (int)(0.5 + w->size * tab_control_border_sep));
+			int y = (int)(0.5 + w->size * tab_control_border_sep) + half_len;
 			char str[256];
 
 			// 'x' was clicked?
-			if(mx > x-l4 && mx < x+l3 && my > y-l4 && my < y+l3)
+			if(mx > x - half_len && mx < x + half_len && my > y - half_len && my < y + half_len)
 			{
 				// Drop this channel via #lc
 				safe_snprintf(str, sizeof(str), "%c#lc %d", RAW_TEXT, active_channels[tabs[itab].channel-CHAT_CHANNEL1]);
@@ -1810,12 +1812,9 @@ static int tab_special_click(widget_list *w, int mx, int my, Uint32 flags)
 
 static int draw_tab_details (widget_list *W)
 {
-	window_info *win = &windows_list.window[W->window_id];
-	int x = W->pos_x + W->len_x - (int)(0.5 + win->current_scale * 6);
-	int y = W->pos_y + (int)(0.5 + win->current_scale * 5);
-	int l3 = (int)(0.5 + win->current_scale * 3);
-	int l4 = (int)(0.5 + win->current_scale * 4);
-	int half_plus = (int)(0.5 + win->current_scale * 4);
+	int close_x = 0, close_y =0;
+	int underline_sep = (int)(0.5 + W->size * tab_control_underline_sep);
+	int half_len = (int)(0.5 + W->size * tab_control_half_len);
 	int itab;
 
 	glColor3f(0.77f,0.57f,0.39f);
@@ -1826,8 +1825,8 @@ static int draw_tab_details (widget_list *W)
 	for (itab = 0; itab < tabs_in_use; itab++)
 		if ((tabs[itab].button == W->id) && (tabs[itab].channel == CHAT_CHANNEL1 + current_channel))
 		{
-			int plus_x = W->pos_x + (int)(0.5 + win->current_scale * 2) + half_plus;
-			int plus_y = W->pos_y + (int)(0.5 + win->current_scale * 2) + half_plus;
+			int plus_x = W->pos_x + (int)(0.5 + W->size * tab_control_border_sep) + half_len;
+			int plus_y = W->pos_y + (int)(0.5 + W->size * tab_control_border_sep) + half_len;
 			int i, color;
 			/* draw the "+" for the active channel */
 			for(i=0; i<MAX_CHANNEL_COLORS; i++)
@@ -1841,14 +1840,14 @@ static int draw_tab_details (widget_list *W)
 				glColor3ub(colors_list[color].r1, colors_list[color].g1, colors_list[color].b1);
 			}
 			glBegin(GL_QUADS);
-				glVertex2i(plus_x - half_plus, plus_y - 1);
-				glVertex2i(plus_x + half_plus, plus_y - 1);
-				glVertex2i(plus_x + half_plus, plus_y + 1);
-				glVertex2i(plus_x - half_plus, plus_y + 1);
-				glVertex2i(plus_x - 1, plus_y - half_plus);
-				glVertex2i(plus_x + 1, plus_y - half_plus);
-				glVertex2i(plus_x + 1, plus_y + half_plus);
-				glVertex2i(plus_x - 1, plus_y + half_plus);
+				glVertex2i(plus_x - half_len, plus_y - 1);
+				glVertex2i(plus_x + half_len, plus_y - 1);
+				glVertex2i(plus_x + half_len, plus_y + 1);
+				glVertex2i(plus_x - half_len, plus_y + 1);
+				glVertex2i(plus_x - 1, plus_y - half_len);
+				glVertex2i(plus_x + 1, plus_y - half_len);
+				glVertex2i(plus_x + 1, plus_y + half_len);
+				glVertex2i(plus_x - 1, plus_y + half_len);
 			glEnd();
 			glColor3f(0.77f,0.57f,0.39f);
 			/* draw a dotted underline if input would go to this channel */
@@ -1859,8 +1858,8 @@ static int draw_tab_details (widget_list *W)
 				glLineStipple(1, 0xCCCC);
 				glLineWidth(3.0);
 				glBegin(GL_LINES);
-					glVertex2i(W->pos_x, W->pos_y + W->len_y + l4);
-					glVertex2i(W->pos_x + W->len_x, W->pos_y + W->len_y + l4);
+					glVertex2i(W->pos_x, W->pos_y + W->len_y + underline_sep);
+					glVertex2i(W->pos_x + W->len_x, W->pos_y + W->len_y + underline_sep);
 				glEnd();
 				glPopAttrib();
 			}
@@ -1868,12 +1867,17 @@ static int draw_tab_details (widget_list *W)
 		}
 
 	/* draw the closing x */
-	glBegin(GL_LINES);
-		glVertex2i(x-l4,y-l4);
-		glVertex2i(x+l3,y+l3);
-
-		glVertex2i(x-l4,y+l3);
-		glVertex2i(x+l3,y-l4);
+	close_x = W->pos_x + W->len_x - (half_len + (int)(0.5 + W->size * tab_control_border_sep));
+	close_y = W->pos_y + half_len + (int)(0.5 + W->size * tab_control_border_sep);
+	glBegin(GL_QUADS);
+		glVertex2i(close_x - half_len, close_y - half_len + 1);
+		glVertex2i(close_x - half_len + 1, close_y - half_len);
+		glVertex2i(close_x + half_len, close_y + half_len - 1);
+		glVertex2i(close_x + half_len - 1, close_y + half_len);
+		glVertex2i(close_x + half_len, close_y - half_len + 1);
+		glVertex2i(close_x + half_len - 1, close_y - half_len);
+		glVertex2i(close_x - half_len, close_y + half_len - 1);
+		glVertex2i(close_x - half_len + 1, close_y + half_len);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 #ifdef OPENGL_TRACE
