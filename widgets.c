@@ -25,7 +25,6 @@
 #include "sound.h"
 
 static size_t cm_edit_id = CM_INIT_VALUE;
-#define DEFAULT_TAB_RADIUS 8 //* the radius used for rounded tabs
 
 typedef struct {
 	char text[256];
@@ -1518,7 +1517,8 @@ int tab_collection_draw (widget_list *w)
 	int btn_size, arw_width;
 	int cur_start, cur_end;
 	int h;
-	int xtxt, ytxt, htxt;
+	int xtxt, ytxt;
+	float tab_corner;
 
 	if (!w) return 0;
 
@@ -1531,6 +1531,7 @@ int tab_collection_draw (widget_list *w)
 	btn_size = col->button_size;
 	arw_width = btn_size / 4;
 	cur_start = cur_end = xstart;
+	tab_corner = h / 5.0f;
 
 	glDisable(GL_TEXTURE_2D);
 
@@ -1580,8 +1581,8 @@ int tab_collection_draw (widget_list *w)
 			// this tab doesn't fit. Simply extend the top line to
 			// the end of the available width
 			glBegin (GL_LINES);
-				glVertex3i (xstart, ytagtop+1, 0);
-				glVertex3i (w->pos_x + w->len_x - h, ytagtop+1, 0);
+				glVertex3f (xstart - 2 * tab_corner, ytagtop, 0);
+				glVertex3f (w->pos_x + w->len_x - h, ytagtop, 0);
 			glEnd ();
 			break;
 		}
@@ -1596,53 +1597,48 @@ int tab_collection_draw (widget_list *w)
 			glColor3f(w->r, w->g, w->b);
 
 		if(col->cur_tab == itab){
+			// current
 			glBegin(GL_LINE_STRIP);
-				glVertex3i(xstart, ytagbot, 0);
-				draw_circle_ext(xstart, ytagtop, DEFAULT_TAB_RADIUS, -10, 180, 90);
-				draw_circle_ext(xend-2*DEFAULT_TAB_RADIUS+1, ytagtop, DEFAULT_TAB_RADIUS, -10, 89, 0);
-				glVertex3i(xend, ytagbot, 0);
+				glVertex3f(xstart, ytagbot, 0);
+				glVertex3f(xstart, ytagtop + tab_corner, 0);
+				glVertex3f(xstart + tab_corner, ytagtop, 0);
+				glVertex3f(xend - tab_corner, ytagtop, 0);
+				glVertex3f(xend, ytagtop + tab_corner, 0);
+				glVertex3f(xend, ytagbot, 0);
 			glEnd();
 		} else if(col->cur_tab>itab){
+			// left of current
 			glBegin (GL_LINE_STRIP);
-				glVertex3i (xstart, ytagbot, 0);
-				draw_circle_ext(xstart, ytagtop, DEFAULT_TAB_RADIUS, -10, 180, 90);
-				glVertex3i (xend, ytagtop+1, 0);
+				glVertex3f(xstart, ytagbot, 0);
+				glVertex3f(xstart, ytagtop + tab_corner, 0);
+				glVertex3f(xstart + tab_corner, ytagtop, 0);
+				glVertex3f(xend + tab_corner, ytagtop, 0);
 			glEnd ();
 		} else {
+			// right of current
 			glBegin (GL_LINE_STRIP);
-				glVertex3i (xstart, ytagtop+1, 0);
-				draw_circle_ext(xend-2*DEFAULT_TAB_RADIUS+1, ytagtop, DEFAULT_TAB_RADIUS, -10, 89, 0);
-				glVertex3i (xend, ytagbot, 0);
+				glVertex3f(xend, ytagbot, 0);
+				glVertex3f(xend, ytagtop + tab_corner, 0);
+				glVertex3f(xend - tab_corner, ytagtop, 0);
+				glVertex3f (xstart - tab_corner, ytagtop, 0);
 			glEnd ();
-		}
-		if(itab+1<col->nr_tabs){
-			glBegin(GL_LINES);
-			glVertex2i(xend-DEFAULT_TAB_RADIUS, ytagtop+1);
-			glVertex2i(xend, ytagtop+1);
-			glEnd();
-		}
-		if(itab){
-			glBegin(GL_LINES);
-				glVertex2i(xstart+DEFAULT_TAB_RADIUS, ytagtop+1);
-				glVertex2i(xstart, ytagtop+1);
-			glEnd();
 		}
 
 		// draw a close box if necessary
 		if (col->tabs[itab].closable)
 		{
 			glBegin (GL_LINE_LOOP);
-			glVertex3i (xstart+3, ytagbot-3, 0);
-			glVertex3i (xstart+3, ytagtop+3, 0);
-			glVertex3i (xstart+h-3, ytagtop+3, 0);
-			glVertex3i (xstart+h-3, ytagbot-3, 0);
+			glVertex3i (xstart + tab_corner, ytagbot - tab_corner, 0);
+			glVertex3i (xstart + tab_corner, ytagtop + tab_corner, 0);
+			glVertex3i (xstart + h - tab_corner, ytagtop + tab_corner, 0);
+			glVertex3i (xstart + h - tab_corner, ytagbot - tab_corner, 0);
 			glEnd ();
 
 			glBegin (GL_LINES);
-			glVertex3i (xstart+3, ytagbot-3, 0);
-			glVertex3i (xstart+h-3, ytagtop+3, 0);
-			glVertex3i (xstart+3, ytagtop+3, 0);
-			glVertex3i (xstart+h-3, ytagbot-3, 0);
+			glVertex3i (xstart + tab_corner, ytagbot - tab_corner, 0);
+			glVertex3i (xstart + h - tab_corner, ytagtop + tab_corner, 0);
+			glVertex3i (xstart + tab_corner, ytagtop + tab_corner, 0);
+			glVertex3i (xstart + h - tab_corner, ytagbot - tab_corner, 0);
 			glEnd ();
 		}
 
@@ -1651,13 +1647,12 @@ int tab_collection_draw (widget_list *w)
 		if (col->tabs[itab].label_r >= 0.0f)
 			glColor3f (col->tabs[itab].label_r, col->tabs[itab].label_g, col->tabs[itab].label_b);
 
-		htxt = get_line_height(w->fcat, w->size);
-		ytxt = ytagtop + (h - htxt) / 2 + gy_adjust;
-		xtxt = xstart + (w->size * DEFAULT_FIXED_FONT_WIDTH) / 2 + gx_adjust;
+		xtxt = xstart + (w->size * DEFAULT_FIXED_FONT_WIDTH) / 2;
+		ytxt = ytagtop + h/2;
 		if (col->tabs[itab].closable)
 			xtxt += h;
-		draw_string_zoomed_width_font(xtxt, ytxt, (const unsigned char *)col->tabs[itab].label,
-			window_width, 1, w->fcat, w->size);
+		draw_text(xtxt, ytxt, col->tabs[itab].label, strlen((const char*)col->tabs[itab].label),
+			w->fcat, TDO_ZOOM, w->size, TDO_VERTICAL_ALIGNMENT, CENTER_LINE, TDO_END);
 
 		glDisable(GL_TEXTURE_2D);
 
@@ -1758,8 +1753,12 @@ static int tab_collection_click(widget_list *W, int x, int y, Uint32 flags)
 
 		if (itag <= col->tab_last_visible)
 		{
+			int tab_corner = col->tag_height / 5;
+
 			// check if close box was clicked
-			if (col->tabs[itag].closable && x > x_start + 3 && x < x_start + col->tag_height - 3 && y > 3 && y < col->tag_height - 3)
+			if (col->tabs[itag].closable && x > x_start + tab_corner &&
+				x < x_start + col->tag_height - tab_corner &&
+				y > tab_corner && y < col->tag_height - tab_corner)
 			{
 				do_click_sound();
 				_tab_collection_close_tab_real (col, itag);

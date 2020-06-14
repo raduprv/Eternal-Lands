@@ -363,11 +363,11 @@ static __inline__ void draw_map(window_info *win,float zoom_multip, float px, fl
 static void draw_minimap_title_bar(window_info *win)
 {
 	float u_first_start= (float)31/255;
-	float u_first_end = 0.0f;
+	float u_first_end = 0.5f/255.0f;
 	float v_first_start = (float)160/255;
 	float v_first_end = (float)175/255;
 
-	float u_last_start = 0.0f;
+	float u_last_start = 0.5f/255.0f;
 	float u_last_end = (float)31/255;
 	float v_last_start = (float)160/255;
 	float v_last_end = (float)175/255;
