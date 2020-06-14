@@ -1231,8 +1231,6 @@ int	draw_window_border(window_info *win)
 	
 	if(win->flags&ELW_CLOSE_BOX)
 	{
-		int cross_gap = (int)(0.5 + win->current_scale * 3);
-
 		//draw the corner, with the X in
 		glColor3f(win->border_color[0],win->border_color[1],win->border_color[2]);
 		glBegin(GL_LINE_STRIP);
@@ -1240,18 +1238,7 @@ int	draw_window_border(window_info *win)
 			glVertex3i(win->len_x-win->box_size, win->box_size, 0);
 			glVertex3i(win->len_x-win->box_size, 0, 0);
 		glEnd();
-
-		glLineWidth(2.0f);
-
-		glBegin(GL_LINES);
-			glVertex2i(win->len_x-win->box_size+cross_gap, cross_gap);
-			glVertex2i(win->len_x-cross_gap, win->box_size-cross_gap);
-		
-			glVertex2i(win->len_x-cross_gap, cross_gap);
-			glVertex2i(win->len_x-win->box_size+cross_gap, win->box_size-cross_gap);
-		glEnd();
-
-		glLineWidth(1.0f);
+		draw_cross(win->len_x - win->box_size / 2, win->box_size / 2, win->box_size / 2 - win->box_size / 6, 1);
 	}
 	
 	glEnable(GL_TEXTURE_2D);

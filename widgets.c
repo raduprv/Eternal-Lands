@@ -3679,6 +3679,22 @@ int spinbutton_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx
 	return spinbutton_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, data_type, data, min, max, interval, 1, -1, -1, -1);
 }
 
+// Helper functions for widgets
+
+void draw_cross(int centre_x, int centre_y, int half_len, int half_width)
+{
+	glBegin(GL_QUADS);
+		glVertex2i(centre_x - half_len, centre_y - half_len + half_width);
+		glVertex2i(centre_x - half_len + half_width, centre_y - half_len);
+		glVertex2i(centre_x + half_len, centre_y + half_len - half_width);
+		glVertex2i(centre_x + half_len - half_width, centre_y + half_len);
+		glVertex2i(centre_x + half_len, centre_y - half_len + half_width);
+		glVertex2i(centre_x + half_len - half_width, centre_y - half_len);
+		glVertex2i(centre_x - half_len, centre_y + half_len - half_width);
+		glVertex2i(centre_x - half_len + half_width, centre_y + half_len);
+	glEnd();
+}
+
 
 // XML Windows
 /* 

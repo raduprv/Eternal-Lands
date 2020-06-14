@@ -1812,7 +1812,6 @@ static int tab_special_click(widget_list *w, int mx, int my, Uint32 flags)
 
 static int draw_tab_details (widget_list *W)
 {
-	int close_x = 0, close_y =0;
 	int underline_sep = (int)(0.5 + W->size * tab_control_underline_sep);
 	int half_len = (int)(0.5 + W->size * tab_control_half_len);
 	int itab;
@@ -1867,18 +1866,8 @@ static int draw_tab_details (widget_list *W)
 		}
 
 	/* draw the closing x */
-	close_x = W->pos_x + W->len_x - (half_len + (int)(0.5 + W->size * tab_control_border_sep));
-	close_y = W->pos_y + half_len + (int)(0.5 + W->size * tab_control_border_sep);
-	glBegin(GL_QUADS);
-		glVertex2i(close_x - half_len, close_y - half_len + 1);
-		glVertex2i(close_x - half_len + 1, close_y - half_len);
-		glVertex2i(close_x + half_len, close_y + half_len - 1);
-		glVertex2i(close_x + half_len - 1, close_y + half_len);
-		glVertex2i(close_x + half_len, close_y - half_len + 1);
-		glVertex2i(close_x + half_len - 1, close_y - half_len);
-		glVertex2i(close_x - half_len, close_y + half_len - 1);
-		glVertex2i(close_x - half_len + 1, close_y + half_len);
-	glEnd();
+	draw_cross(W->pos_x + W->len_x - (half_len + (int)(0.5 + W->size * tab_control_border_sep)),
+		W->pos_y + half_len + (int)(0.5 + W->size * tab_control_border_sep), half_len, 1);
 	glEnable(GL_TEXTURE_2D);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
