@@ -1432,17 +1432,17 @@ int tab_collection_draw (widget_list *w)
 		if (col->tabs[itab].closable)
 		{
 			glBegin (GL_LINE_LOOP);
-			glVertex3i (xstart+3, ytagbot-3, 0);
-			glVertex3i (xstart+3, ytagtop+3, 0);
-			glVertex3i (xstart+h-3, ytagtop+3, 0);
-			glVertex3i (xstart+h-3, ytagbot-3, 0);
+			glVertex3i (xstart + tab_corner, ytagbot - tab_corner, 0);
+			glVertex3i (xstart + tab_corner, ytagtop + tab_corner, 0);
+			glVertex3i (xstart + h - tab_corner, ytagtop + tab_corner, 0);
+			glVertex3i (xstart + h - tab_corner, ytagbot - tab_corner, 0);
 			glEnd ();
 
 			glBegin (GL_LINES);
-			glVertex3i (xstart+3, ytagbot-3, 0);
-			glVertex3i (xstart+h-3, ytagtop+3, 0);
-			glVertex3i (xstart+3, ytagtop+3, 0);
-			glVertex3i (xstart+h-3, ytagbot-3, 0);
+			glVertex3i (xstart + tab_corner, ytagbot - tab_corner, 0);
+			glVertex3i (xstart + h - tab_corner, ytagtop + tab_corner, 0);
+			glVertex3i (xstart + tab_corner, ytagtop + tab_corner, 0);
+			glVertex3i (xstart + h - tab_corner, ytagbot - tab_corner, 0);
 			glEnd ();
 		}
 
@@ -1556,8 +1556,12 @@ static int tab_collection_click(widget_list *W, int x, int y, Uint32 flags)
 
 		if (itag <= col->tab_last_visible)
 		{
+			int tab_corner = col->tag_height / 5;
+
 			// check if close box was clicked
-			if (col->tabs[itag].closable && x > x_start + 3 && x < x_start + col->tag_height - 3 && y > 3 && y < col->tag_height - 3)
+			if (col->tabs[itag].closable && x > x_start + tab_corner &&
+				x < x_start + col->tag_height - tab_corner &&
+				y > tab_corner && y < col->tag_height - tab_corner)
 			{
 				do_click_sound();
 				_tab_collection_close_tab_real (col, itag);
