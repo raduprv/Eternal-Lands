@@ -204,7 +204,7 @@ if (FSAA)
 	if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		set(SOURCES ${SOURCES} ${SD}fsaa/fsaa_wgl.c ${SD}fsaa/fsaa.c)
 	else()
-		set(SOURCES ${SOURCES} ${SD}fsaa/fsaa_dummy.c ${SD}fsaa/fsaa.c)
+		set(SOURCES ${SOURCES} ${SD}fsaa/fsaa_glx.c ${SD}fsaa/fsaa.c)
 	endif()
 endif()
 
@@ -218,7 +218,7 @@ endif()
 if (ADDRSANITISER)
 	set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -fsanitize=address")
 	set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -fsanitize=address")
-	set(EXTRA_LD_FLAGS "${EXTRA_LD_FLAGS} -fsanitize=address")
+	set(EXTRA_LD_FLAGS "${EXTRA_LD_FLAGS} -fsanitize=address -static-libasan")
 endif()
 
 # set the compiler flags for DEBUG and RELEASE builds

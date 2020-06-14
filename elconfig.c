@@ -3123,6 +3123,8 @@ void check_for_config_window_scale(void)
 	if (recheck_window_scale && (elconfig_win >= 0) && !get_show_window(elconfig_win))
 	{
 		size_t i;
+		elconfig_menu_x = windows_list.window[elconfig_win].cur_x;
+		elconfig_menu_y = windows_list.window[elconfig_win].cur_y;
 		for (i=MAX_TABS; i>0; i--)
 			tab_collection_close_tab(elconfig_win, elconfig_tab_collection_id, i-1);
 		destroy_window(elconfig_win);
