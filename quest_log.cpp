@@ -1789,7 +1789,7 @@ int Questlog_Window::display_handler(window_info *win)
 		for (const auto& line: lines)
 		{
 			font_manager.draw(FontManager::Category::UI_FONT, line.c_str(), line.length(),
-				qlborder+gx_adjust, questlog_y+gy_adjust, options);
+				qlborder, questlog_y, options);
 			questlog_y += win->small_font_len_y;
 			if (questlog_y+qlborder > qlwinheight - win->small_font_len_y)
 				break;
@@ -1800,7 +1800,7 @@ int Questlog_Window::display_handler(window_info *win)
 			glColor3f(0.77f, 0.57f, 0.39f);
 			const ustring& name = quest_entries[active_entries[entry]].get_disp_npc();
 			font_manager.draw(FontManager::Category::UI_FONT, name.c_str(), name.length(),
-				qlborder+gx_adjust, start_y+gy_adjust, options);
+				qlborder, start_y, options);
 		}
 		if (selected_entries.find(active_entries[entry]) != selected_entries.end())
 		{
