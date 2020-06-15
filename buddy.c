@@ -139,7 +139,7 @@ static int display_buddy_handler(window_info *win)
 			glVertex2i(win->len_x - win->box_size - 1, 0);
 		glEnd();
 		glEnable(GL_TEXTURE_2D);
-		draw_string_small_zoomed(request_box_start_x + win->small_font_max_len_x + gx_adjust, 2 + gy_adjust, (unsigned char*)buddy_request_str, 1, win->current_scale);
+		draw_string_small_zoomed(request_box_start_x + win->small_font_max_len_x, 0, (unsigned char*)buddy_request_str, 1, win->current_scale);
 	}
 	glColor3f(0.77f, 0.57f, 0.39f);
 #ifdef OPENGL_TRACE
