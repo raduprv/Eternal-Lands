@@ -400,11 +400,11 @@ CHECK_GL_ERRORS();
 			draw_text(text_x_left, y + 1 + side_stats_bar_text_offset,
 				statsinfo[thestat].skillnames->shortname,
 				strlen((const char*)statsinfo[thestat].skillnames->shortname), win->font_category,
-				TDO_SHADOW, 1, TDO_FOREGROUND, col[1], col[1], col[2], TDO_BACKGROUND, 0.0, 0.0, 0.0,
+				TDO_SHADOW, 1, TDO_FOREGROUND, col[0], col[1], col[2], TDO_BACKGROUND, 0.0, 0.0, 0.0,
 				TDO_ZOOM, side_stats_bar_text_zoom, TDO_END);
 			safe_snprintf(str, sizeof(str), "%3d", statsinfo[thestat].skillattr->base);
 			draw_text(text_x_right, y + 1 + side_stats_bar_text_offset, (const unsigned char*)str,
-				strlen(str), win->font_category, TDO_SHADOW, 1, TDO_FOREGROUND, col[1], col[1], col[2],
+				strlen(str), win->font_category, TDO_SHADOW, 1, TDO_FOREGROUND, col[0], col[1], col[2],
 				TDO_BACKGROUND, 0.0, 0.0, 0.0, TDO_ZOOM, side_stats_bar_text_zoom, TDO_ALIGNMENT, RIGHT,
 				TDO_END);
 
