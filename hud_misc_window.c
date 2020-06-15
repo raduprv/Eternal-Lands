@@ -58,6 +58,7 @@ static int side_stats_bar_text_width = 0;
 static int side_stats_bar_text_height = 0;
 static int side_stats_bar_text_offset = 0;
 static int side_stats_bar_height = 0;
+static int quickbar_misc_sep = 5;
 static int digital_clock_height = 0;
 static int analog_clock_size = 0;
 static int compass_size = 0;
@@ -150,11 +151,11 @@ static void context_hud_pre_show_handler(window_info *win, int widget_id, int mx
 
 /*	Calculate num_disp_stat and first_disp_stat
 */
-static void calc_statbar_shown(int base_y_pos)
+static void calc_statbar_shown(int base_y_pos, float scale)
 {
 	int last_display = num_disp_stat;
 	int quickspell_base = get_quickspell_y_base();
-	int quickbar_base = get_quickbar_y_base();
+	int quickbar_base = get_quickbar_y_base() + (int)(0.5 + quickbar_misc_sep);
 	int highest_win_pos_y = base_y_pos - side_stats_bar_height*(NUM_WATCH_STAT-1);
 
 	/* calculate the overlap between the longest of the quickspell/bar and the statsbar */
@@ -367,7 +368,7 @@ CHECK_GL_ERRORS();
 		int skill_modifier;
 
 		// trade the number of quickbar slots if there is not enough space for the minimum stats
-		calc_statbar_shown(base_y_start + win->pos_y);
+		calc_statbar_shown(base_y_start + win->pos_y, win->current_scale);
 
 		text_x_left = text_x_center - side_stats_bar_text_width / 2;
 		text_x_right = text_x_left + side_stats_bar_text_width;
@@ -689,6 +690,9 @@ static int ui_scale_misc_handler(window_info *win)
 	resize_window(win->window_id, HUD_MARGIN_X, y_len);
 	move_window(win->window_id, -1, 0, window_width-win->len_x, window_height-win->len_y);
 	reset_cm_regions();
+
+	quickbar_misc_sep = win->current_scale * 5;
+
 	return 1;
 }
 
@@ -703,6 +707,7 @@ int get_min_hud_misc_len_y(void)
 		min_len_y -= num_disp_stat * side_stats_bar_height;
 		min_len_y += min_side_stats_bar * side_stats_bar_height;
 	}
+	min_len_y += quickbar_misc_sep;
 	return min_len_y;
 }
 
