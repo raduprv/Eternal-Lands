@@ -1997,9 +1997,9 @@ static __inline__ void draw_string_shadowed_scaled_to_width(int x, int y, const 
 	int width, int max_lines, float fr, float fg, float fb, float br, float bg, float bb)
 {
 	int text_width = get_string_width_zoom(text, UI_FONT, 1.0);
-	draw_text(x, y, text, strlen((const char*)text), UI_FONT, TDO_MAX_WIDTH, width,
-		TDO_MAX_LINES, max_lines, TDO_SHADOW, 1, TDO_FOREGROUND, fr, fg, fb,
-		TDO_BACKGROUND, br, bg, bb, TDO_ZOOM, (double)width / text_width, TDO_END);
+	draw_text(x, y, text, strlen((const char*)text), UI_FONT, TDO_MAX_LINES, max_lines,
+		TDO_SHADOW, 1, TDO_FOREGROUND, fr, fg, fb, TDO_BACKGROUND, br, bg, bb, TDO_ZOOM,
+		(double)width / text_width, TDO_END);
 }
 /*!
  * \ingroup text_font
