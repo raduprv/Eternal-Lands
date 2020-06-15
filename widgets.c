@@ -1205,14 +1205,14 @@ int vscrollbar_draw(widget_list *W)
 
 	// scrollbar arrows
 	glBegin (GL_LINES);
-	glVertex3i(W->pos_x + arrow_size + gx_adjust, W->pos_y + 2*arrow_size + gy_adjust,0);
-	glVertex3i(W->pos_x + 2*arrow_size + gx_adjust, W->pos_y + arrow_size + gy_adjust,0);
-	glVertex3i(W->pos_x + 2*arrow_size + gx_adjust, W->pos_y + arrow_size + gy_adjust,0);
-	glVertex3i(W->pos_x + 3*arrow_size + gx_adjust, W->pos_y + 2*arrow_size + gy_adjust,0);
-	glVertex3i(W->pos_x + arrow_size + gx_adjust, W->pos_y + W->len_y - 2*arrow_size + gy_adjust,0);
-	glVertex3i(W->pos_x + 2*arrow_size + gx_adjust, W->pos_y + W->len_y - arrow_size + gy_adjust,0);
-	glVertex3i(W->pos_x + 2*arrow_size + gx_adjust, W->pos_y + W->len_y - arrow_size + gy_adjust,0);
-	glVertex3i(W->pos_x + 3*arrow_size + gx_adjust, W->pos_y + W->len_y - 2*arrow_size + gy_adjust,0);
+	glVertex3i(W->pos_x + arrow_size, W->pos_y + 2 * arrow_size,0);
+	glVertex3i(W->pos_x + 2 * arrow_size, W->pos_y + arrow_size,0);
+	glVertex3i(W->pos_x + 2 * arrow_size, W->pos_y + arrow_size,0);
+	glVertex3i(W->pos_x + 3 * arrow_size, W->pos_y + 2 * arrow_size,0);
+	glVertex3i(W->pos_x + arrow_size, W->pos_y + W->len_y - 2 * arrow_size,0);
+	glVertex3i(W->pos_x + 2 * arrow_size, W->pos_y + W->len_y - arrow_size,0);
+	glVertex3i(W->pos_x + 2 * arrow_size, W->pos_y + W->len_y - arrow_size,0);
+	glVertex3i(W->pos_x + 3 * arrow_size, W->pos_y + W->len_y - 2 * arrow_size,0);
 	glEnd();
 
 	if (c->bar_len > 0)
@@ -1224,10 +1224,10 @@ int vscrollbar_draw(widget_list *W)
 			glColor3f(W->r/3, W->g/3, W->b/3);
 	}
 	glBegin(GL_QUADS);
-	glVertex3i(W->pos_x + 2*arrow_size - (int)(0.5 + (float)arrow_size/1.5f) + gx_adjust, W->pos_y + 3*arrow_size + (c->pos*((float)(W->len_y-11*arrow_size)/drawn_bar_len)) + gy_adjust, 0);
-	glVertex3i(W->pos_x + 2*arrow_size + (int)(0.5 + (float)arrow_size/1.5f) + gx_adjust, W->pos_y + 3*arrow_size + (c->pos*((float)(W->len_y-11*arrow_size)/drawn_bar_len)) + gy_adjust, 0);
-	glVertex3i(W->pos_x + 2*arrow_size + (int)(0.5 + (float)arrow_size/1.5f) + gx_adjust, W->pos_y + 8*arrow_size + (c->pos*((float)(W->len_y-11*arrow_size)/drawn_bar_len)) + gy_adjust, 0);
-	glVertex3i(W->pos_x + 2*arrow_size - (int)(0.5 + (float)arrow_size/1.5f) + gx_adjust, W->pos_y + 8*arrow_size + (c->pos*((float)(W->len_y-11*arrow_size)/drawn_bar_len)) + gy_adjust, 0);
+	glVertex3i(W->pos_x + 2 * arrow_size - (int)(0.5 + (float)arrow_size / 1.5f), W->pos_y + 3 * arrow_size + (c->pos * ((float)(W->len_y -11 * arrow_size) / drawn_bar_len)), 0);
+	glVertex3i(W->pos_x + 2 * arrow_size + (int)(0.5 + (float)arrow_size / 1.5f), W->pos_y + 3 * arrow_size + (c->pos * ((float)(W->len_y -11 * arrow_size) / drawn_bar_len)), 0);
+	glVertex3i(W->pos_x + 2 * arrow_size + (int)(0.5 + (float)arrow_size / 1.5f), W->pos_y + 8 * arrow_size + (c->pos * ((float)(W->len_y -11 * arrow_size) / drawn_bar_len)), 0);
+	glVertex3i(W->pos_x + 2 * arrow_size - (int)(0.5 + (float)arrow_size / 1.5f), W->pos_y + 8 * arrow_size + (c->pos * ((float)(W->len_y -11 * arrow_size) / drawn_bar_len)), 0);
 	glEnd();
 
 	glEnable(GL_TEXTURE_2D);
