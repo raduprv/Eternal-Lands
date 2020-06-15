@@ -4224,86 +4224,89 @@ int multiselect_clear(int window_id, Uint32 widget_id)
 static int spinbutton_keypress(widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
 	spinbutton *button;
-	int i;
-	int i_tmp;
-
 	if(widget != NULL && (button = widget->widget_info) != NULL &&  !(key_mod & KMOD_ALT) && !(key_mod & KMOD_CTRL)) {
+		int len = strlen(button->input_buffer);
 		char ch = key_to_char(key_unicode);
 
 		switch(button->type) {
 			case SPIN_INT:
-				i_tmp = ch-'0'; //Convert char to int
-				if(ch >= '0' && ch <= '9') {
-					if(*(int *)button->data*10 + i_tmp > button->max) {
-						/* Make sure we don't exceed any limits */
-						*(int *)button->data = button->max;
-						safe_snprintf(button->input_buffer, sizeof(button->input_buffer), "%i", (int)button->max);
-					} else {
-						if(atoi(button->input_buffer) >= button->min) {
-							*(int *)button->data = *(int *)button->data * 10 + i_tmp;
-						}
-						if(button->input_buffer[0] != '0') {
-							/* Find end of string */
-							for(i = 0; button->input_buffer[i] != '\0' && i < sizeof (button->input_buffer); i++);
-							/* Append to the end */
-							if (i+1 < sizeof (button->input_buffer))
-							{
-								button->input_buffer[i] = ch;
-								button->input_buffer[i+1] = '\0';
-							}
-						}
+			{
+				int value;
+
+				if (ch >= '0' && ch <= '9')
+				{
+					if (len+1 < sizeof(button->input_buffer))
+					{
+						button->input_buffer[len] = ch;
+						button->input_buffer[len+1] = '\0';
 					}
-					return 1;
-				} else if (key_code == SDLK_BACKSPACE) {
-					if(strlen(button->input_buffer) > 0) {
-						button->input_buffer[strlen(button->input_buffer)-1] = '\0';
-					}
-					if(*(int *)button->data/10 >= button->min) {
-						*(int *)button->data /= 10;
-					}
-					return 1;
 				}
-			break;
+				else if (key_code == SDLK_BACKSPACE)
+				{
+					if (len > 0)
+						button->input_buffer[len-1] = '\0';
+				}
+				else
+				{
+					return 0;
+				}
+
+				value = atoi(button->input_buffer);
+				if (value > button->max)
+				{
+					safe_snprintf(button->input_buffer, sizeof(button->input_buffer), "%d",
+						(int)button->max);
+					*(int *)button->data = button->max;
+				}
+				else if (value >= button->min)
+				{
+					*(int *)button->data = value;
+				}
+
+				return 1;
+			}
 			case SPIN_FLOAT:
-				if(ch == ',') {
+			{
+				float value;
+
+				if (ch == ',')
 					ch = '.';
-				}
 				if ((ch >= '0' && ch <= '9') || (ch == '.' && strchr(button->input_buffer, '.') == NULL))
 				{
 					/* Make sure we don't insert illegal characters here */
 					if (button->input_buffer[0] != '0' || ch == '.' || strchr(button->input_buffer, '.') != NULL)
 					{
-						/* Find end of string */
-						i = strlen(button->input_buffer);
 						/* Append to the end */
-						if (i+1 < sizeof (button->input_buffer))
+						if (len+1 < sizeof(button->input_buffer))
 						{
-							button->input_buffer[i] = ch;
-							button->input_buffer[i+1] = '\0';
-						}
-						if (atof(button->input_buffer) > button->max)
-						{
-							safe_snprintf(button->input_buffer, sizeof(button->input_buffer), "%.2f",
-								button->max);
+							button->input_buffer[len] = ch;
+							button->input_buffer[len+1] = '\0';
 						}
 					}
-					if (atof(button->input_buffer) >= button->min && atof(button->input_buffer) <= button->max)
-					{
-						*(float *)button->data = atof(button->input_buffer);
-					}
-					return 1;
 				}
 				else if (key_code == SDLK_BACKSPACE)
 				{
-					if (*button->input_buffer)
-						button->input_buffer[strlen(button->input_buffer)-1] = '\0';
-					if (atof(button->input_buffer) >= button->min)
-					{
-						*(float *)button->data = atof(button->input_buffer);
-					}
-					return 1;
+					if (len > 0)
+						button->input_buffer[len-1] = '\0';
 				}
-			break;
+				else
+				{
+					return 0;
+				}
+
+				value = atof(button->input_buffer);
+				if (value > button->max)
+				{
+					safe_snprintf(button->input_buffer, sizeof(button->input_buffer), "%.2f",
+						button->max);
+					*(float*)button->data = button->max;
+				}
+				else if (value >= button->min)
+				{
+					*(float*)button->data = value;
+				}
+				return 1;
+			}
 		}
 	}
 	return 0;
