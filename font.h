@@ -1426,7 +1426,12 @@ private:
 	FontManager(const FontManager&) = delete;
 	FontManager& operator=(const FontManager&) = delete;
 	//! Destructor
-	~FontManager() { if (_config_font_backup) delete _config_font_backup; }
+	~FontManager()
+	{
+#ifdef TTF
+		if (_config_font_backup) delete _config_font_backup;
+#endif
+	}
 
 	/*!
 	 * \brief Initialize TrueType fonts
