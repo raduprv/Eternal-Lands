@@ -412,7 +412,7 @@ CHECK_GL_ERRORS();
 				(skill_modifier = statsinfo[thestat].skillattr->cur -
 				 	statsinfo[thestat].skillattr->base) != 0)
 			{
-				int ytop = y + gy_adjust + (side_stats_bar_height - win->small_font_len_y) / 2;
+				int ytop = y + (side_stats_bar_height - win->small_font_len_y) / 2;
 				safe_snprintf(str,sizeof(str),"%+i",skill_modifier);
 				hover_offset = get_string_width_zoom((const unsigned char*)str,
 					win->font_category, win->current_scale_small);
