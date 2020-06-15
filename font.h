@@ -592,6 +592,18 @@ public:
 	 * \return The number of pixels between the center of the line and the center of \a text.
 	 */
 	int center_offset(const unsigned char* text, size_t len, float zoom);
+	/*!
+	 * \brief Get vertical coordinates
+	 *
+	 * Get the minimum and maximum offsets of the characters in \a text with respect to the top of
+	 * the text line, when drawing the text at zoom level \a zoom.
+	 *
+	 * \param text The text to get the vertical offsets for
+	 * \param len  The number of characters in \a text
+	 * \param zoom The scale factor for the text
+	 * \return The offsets of the top and bottom of the text
+	 */
+	std::pair<int, int> top_bottom(const unsigned char* text, size_t len, float zoom);
 
 	/*!
 	 * \brief Recompute where the line breaks in a string should occur
@@ -839,6 +851,17 @@ private:
 	 * \param zoom The zoom factor for drawing the glyph
 	 */
 	int width_spacing_pos(int pos, float zoom=1.0) const;
+	/*!
+	 * \brief Get vertical coordinates
+	 *
+	 * Get the minimum and maximum offsets of the characters in \a text with respect to the top of
+	 * the text line, before any scaling.
+	 *
+	 * \param text The text to get the vertical offsets for
+	 * \param len  The number of characters in \a text
+	 * \return The offsets of the top and bottom of the text
+	 */
+	std::pair<int, int> top_bottom_unscaled(const unsigned char* text, size_t len);
 
 	/*!
 	 * \brief Load or generate the texture for this font.
@@ -1181,6 +1204,23 @@ public:
 	{
 		return get(cat).center_offset(text, len, text_zoom * font_scales[cat]);
 	}
+	/*!
+	 * \brief Get vertical coordinates
+	 *
+	 * Get the minimum and maximum offsets of the characters in \a text with respect to the top of
+	 * the text line, when drawing the text in the font for category \a cat at zoom level \a zoom.
+	 *
+	 * \param cat       The font category for the font used
+	 * \param text      The text to get the vertical offsets for
+	 * \param len       The number of characters in \a text
+	 * \param text_zoom The scale factor for the text
+	 * \return The offsets of the top and bottom of the text
+	 */
+	std::pair<int, int> top_bottom(Category cat, const unsigned char* text, size_t len, float text_zoom)
+	{
+		return get(cat).top_bottom(text, len, text_zoom * font_scales[cat]);
+	}
+
 
 	/*!
 	 * \brief Recompute where the line breaks in a string should occur
@@ -1609,6 +1649,20 @@ void get_buf_dimensions(const unsigned char* text, size_t len, font_cat cat,
  * \return The number of pixels between the center of the line and the center of \a text.
  */
 int get_center_offset(const unsigned char* text, size_t len, font_cat cat, float text_zoom);
+/*!
+ * \brief Get vertical coordinates
+ *
+ * Get the minimum and maximum offsets of the characters in \a text with respect to the top of
+ * the text line, when drawing the text in the font for category \a cat at zoom level \a zoom.
+ *
+ * \param text      The text to get the vertical offsets for
+ * \param len       The number of characters in \a text
+ * \param cat       The font category for the font used
+ * \param text_zoom The scale factor for the text
+ * \return The offsets of the top and bottom of the text
+ */
+void get_top_bottom(const unsigned char* text, size_t len, font_cat cat, float text_zoom,
+	int *top, int *bottom);
 
 /*!
  * \ingroup text_font

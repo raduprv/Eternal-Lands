@@ -55,6 +55,8 @@ static int mouse_over_knowledge_bar = 0;			/* 1 if mouse is over the knowledge b
 static int knowledge_bar_height = 0;
 static float side_stats_bar_text_zoom = 0.0f;
 static int side_stats_bar_text_width = 0;
+static int side_stats_bar_text_height = 0;
+static int side_stats_bar_text_offset = 0;
 static int side_stats_bar_height = 0;
 static int digital_clock_height = 0;
 static int analog_clock_size = 0;
@@ -70,7 +72,7 @@ enum {	CMH_STATS=0, CMH_STATBARS, CMH_KNOWBAR, CMH_TIMER, CMH_DIGCLOCK, CMH_ANAC
 static void draw_side_stats_bar(window_info *win, const int x, const int y, const int baselev, const int cur_exp, const int nl_exp, size_t colour)
 {
 	const int max_len = win->len_x - x - 1;
-	const int bar_height = side_stats_bar_height - (int)(0.5 + win->current_scale * 2);
+	const int bar_height = side_stats_bar_text_height + 2;
 	int len = max_len - (float)max_len/(float)((float)(nl_exp-exp_lev[baselev])/(float)(nl_exp-cur_exp));
 
 	GLfloat colours[2][2][3] = { { {0.11f, 0.11f, 0.11f}, {0.3f, 0.5f, 0.2f} },
@@ -390,18 +392,20 @@ CHECK_GL_ERRORS();
 				break;
 
 			if (show_statbars_in_hud)
-				draw_side_stats_bar(win, box_x, y+1, statsinfo[thestat].skillattr->base,
+				draw_side_stats_bar(win, box_x, y, statsinfo[thestat].skillattr->base,
 					*statsinfo[thestat].exp, *statsinfo[thestat].next_lev, 0);
 
 			col = (statsinfo[thestat].is_selected == 1) ? lbl_color : lbl_color + 3;
-			draw_string_shadowed_zoomed(text_x_left, y,
-				statsinfo[thestat].skillnames->shortname, 1, col[0], col[1], col[2],
-				0.0f, 0.0f, 0.0f, side_stats_bar_text_zoom);
+			draw_text(text_x_left, y + 1 + side_stats_bar_text_offset,
+				statsinfo[thestat].skillnames->shortname,
+				strlen((const char*)statsinfo[thestat].skillnames->shortname), win->font_category,
+				TDO_SHADOW, 1, TDO_FOREGROUND, col[1], col[1], col[2], TDO_BACKGROUND, 0.0, 0.0, 0.0,
+				TDO_ZOOM, side_stats_bar_text_zoom, TDO_END);
 			safe_snprintf(str, sizeof(str), "%3d", statsinfo[thestat].skillattr->base);
-			draw_text(text_x_right, y, (const unsigned char*)str, strlen(str),
-				win->font_category, TDO_MAX_LINES, 1, TDO_SHADOW, 1,
-				TDO_FOREGROUND, col[1], col[1], col[2], TDO_BACKGROUND, 0.0, 0.0, 0.0,
-				TDO_ZOOM, side_stats_bar_text_zoom, TDO_ALIGNMENT, RIGHT, TDO_END);
+			draw_text(text_x_right, y + 1 + side_stats_bar_text_offset, (const unsigned char*)str,
+				strlen(str), win->font_category, TDO_SHADOW, 1, TDO_FOREGROUND, col[1], col[1], col[2],
+				TDO_BACKGROUND, 0.0, 0.0, 0.0, TDO_ZOOM, side_stats_bar_text_zoom, TDO_ALIGNMENT, RIGHT,
+				TDO_END);
 
 			if((thestat!=NUM_WATCH_STAT-2) && floatingmessages_enabled &&
 				(skill_modifier = statsinfo[thestat].skillattr->cur -
@@ -616,7 +620,7 @@ static int ui_scale_misc_handler(window_info *win)
 {
 	int box_x = (int)(0.5 + win->current_scale * 3);
 	int y_len = 0;
-	int thestat, max_width, width, text_width;
+	int thestat, max_width, width, text_width, text_top, text_bottom, top, bottom;
 	unsigned char str[5];
 
 	// Set width, so we can use it in e.g. timer ui_scale handler
@@ -645,8 +649,29 @@ static int ui_scale_misc_handler(window_info *win)
 		side_stats_bar_text_zoom *= (float)max_width / text_width;
 		text_width = win->len_x - box_x - 1;
 	}
+
+	get_top_bottom((const unsigned char*)"0123456789%", 11, win->font_category, side_stats_bar_text_zoom,
+		&text_top, &text_bottom);
+	for (thestat = 0; thestat < NUM_WATCH_STAT-1; ++thestat)
+	{
+		get_top_bottom(statsinfo[thestat].skillnames->shortname,
+			strlen((const char*)statsinfo[thestat].skillnames->shortname), win->font_category,
+			side_stats_bar_text_zoom, &top, &bottom);
+		text_top = min2i(text_top, top);
+		text_bottom = max2i(text_bottom, bottom);
+	}
+	get_top_bottom((const unsigned char*)idle_str, strlen(idle_str), win->font_category,
+		side_stats_bar_text_zoom, &top, &bottom);
+	text_top = min2i(text_top, top);
+	text_bottom = max2i(text_bottom, bottom);
+
 	side_stats_bar_text_width = text_width;
-	side_stats_bar_height = get_line_height(win->font_category, side_stats_bar_text_zoom);
+	side_stats_bar_text_offset = -text_top + (int)(0.5 + win->current_scale);
+	side_stats_bar_text_height = text_bottom - text_top // text
+		+ 2 * (int)(0.5 + win->current_scale); // shadow, top and bottom
+	side_stats_bar_height = side_stats_bar_text_height
+		+ 2 // border around bar
+		+ (int)(win->current_scale * 2); // separation between bars
 
 	digital_clock_height = win->default_font_len_y;
 	ui_scale_timer(win);

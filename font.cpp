@@ -445,7 +445,7 @@ std::pair<int, int> Font::dimensions(const unsigned char* str, size_t len, float
 	return std::make_pair(w, h);
 }
 
-int Font::center_offset(const unsigned char* text, size_t len, float zoom)
+std::pair<int, int> Font::top_bottom_unscaled(const unsigned char* text, size_t len)
 {
 	int top = _line_height, bottom = 0;
 	for (size_t i = 0; i < len; ++i)
@@ -458,6 +458,23 @@ int Font::center_offset(const unsigned char* text, size_t len, float zoom)
 		}
 	}
 
+	return std::make_pair(top, bottom);
+}
+
+std::pair<int, int> Font::top_bottom(const unsigned char* text, size_t len, float zoom)
+{
+	int top, bottom;
+	std::tie(top, bottom) = top_bottom_unscaled(text, len);
+	top = std::round(_scale * zoom * top);
+	bottom = std::round(_scale * zoom * bottom);
+
+	return std::make_pair(top, bottom);
+}
+
+int Font::center_offset(const unsigned char* text, size_t len, float zoom)
+{
+	int top, bottom;
+	std::tie(top, bottom) = top_bottom_unscaled(text, len);
 	if (top >= bottom)
 		return 0;
 
@@ -1713,6 +1730,14 @@ void get_buf_dimensions(const unsigned char* str, size_t len, font_cat cat, floa
 int get_center_offset(const unsigned char* text, size_t len, font_cat cat, float zoom)
 {
 	return FontManager::get_instance().center_offset(cat, text, len, zoom);
+}
+
+void get_top_bottom(const unsigned char* text, size_t len, font_cat cat, float zoom,
+	int *top, int *bottom)
+{
+	auto coords = FontManager::get_instance().top_bottom(cat, text, len, zoom);
+	*top = coords.first;
+	*bottom = coords.second;
 }
 
 int reset_soft_breaks(unsigned char *text, int len, int size, font_cat cat,
