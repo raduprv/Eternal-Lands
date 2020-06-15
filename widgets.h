@@ -1595,6 +1595,22 @@ int widget_handle_font_change(widget_list *widget, font_cat cat);
 int widget_handle_paste(widget_list *widget, const char* text);
 
 
+
+/*!
+ * \ingroup	widgets
+ * \brief 	A general helper function to draw a cross.
+ *
+ * 		Draw a scalable cross centred the specified position and of the
+ * 	specified size and width.
+ *
+ * \param	the centre x coordinate of the cross.
+ * \param	the centre y coordinate of the cross.
+ * \param	half the length in pixels of the cross width/height.
+ * \param	half the width in pixels of cross lines
+ */
+void draw_cross(int centre_x, int centre_y, int half_len, int half_width);
+
+
 // XML Windows
 
 /*!

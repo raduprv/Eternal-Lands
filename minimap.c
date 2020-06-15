@@ -418,23 +418,15 @@ static void draw_minimap_title_bar(window_info *win)
 	//draw the rectngle
 	glColor3f(win->line_color[0],win->line_color[1],win->line_color[2]);
 	glBegin(GL_LINE_STRIP);
-		glVertex2i(close_button_x + win->title_height-2 - gx_adjust, win->title_height-1 - gy_adjust);
-		glVertex2i(close_button_x + 1 - gx_adjust, win->title_height-1 - gy_adjust);
-		glVertex2i(close_button_x + 1 - gx_adjust, 2 - gy_adjust);
-		glVertex2i(close_button_x + win->title_height-2 - gx_adjust, 2 - gy_adjust);
-		glVertex2i(close_button_x + win->title_height-2 - gx_adjust, win->title_height-1 - gy_adjust);
+		glVertex2i(close_button_x + win->title_height, win->title_height);
+		glVertex2i(close_button_x, win->title_height);
+		glVertex2i(close_button_x, 0);
+		glVertex2i(close_button_x + win->title_height, 0);
+		glVertex2i(close_button_x + win->title_height, win->title_height);
 	glEnd();
 	//draw the X
-	glLineWidth(2.0f);
-	glBegin(GL_LINES);
-		glVertex2i(close_button_x + 3, 4);
-		glVertex2i(close_button_x + win->title_height-3, win->title_height-4);
-		glVertex2i(close_button_x + win->title_height-3, 4);
-		glVertex2i(close_button_x + 3, win->title_height-4);
-	glEnd();
-
-	glLineWidth(1.0f);
-
+	draw_cross(close_button_x + win->title_height / 2, win->title_height / 2,
+		win->title_height / 2 - win->title_height / 6, 1);
 	glPopMatrix();
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
