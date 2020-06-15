@@ -613,11 +613,11 @@ static int achievements_child_display_handler(window_info *win)
 	if (achievement)
 	{
 		glColor3f(0.77f, 0.57f, 0.39f);
-		draw_string_small_zoomed_centered(win->len_x/2 + gx_adjust, as->get_border() + gy_adjust,
+		draw_string_small_zoomed_centered(win->len_x/2, as->get_border(),
 			reinterpret_cast<const unsigned char *>(achievement->get_title().c_str()), 1, as->get_current_scale());
 
 		glColor3f(1.0f, 1.0f, 1.0f);
-		draw_string_small_zoomed(as->get_border() + gx_adjust, as->get_font_y() + gy_adjust,
+		draw_string_small_zoomed(as->get_border(), as->get_font_y(),
 			achievement->get_text().c_str(), achievement->get_num_lines(), as->get_current_scale());
 	}
 	else
@@ -625,7 +625,7 @@ static int achievements_child_display_handler(window_info *win)
 		glColor3f(0.77f, 0.57f, 0.39f);
 		std::ostringstream buf;
 		buf << "Undefined " << index;
-		draw_string_small_zoomed_centered(win->len_x/2 + gx_adjust, as->get_border() + gy_adjust,
+		draw_string_small_zoomed_centered(win->len_x/2, as->get_border(),
 			reinterpret_cast<const unsigned char *>(buf.str().c_str()), 1, as->get_current_scale());
 	}
 
@@ -713,7 +713,7 @@ int Achievements_Window::display_handler(window_info *win)
 				+ as->get_display()/2;
 			int pos_y = as->get_border() + (shown_num / as->get_per_row()) * as->get_display()
 				+ (as->get_display() - win->default_font_len_y) / 2;
-			draw_string_zoomed_centered(pos_x+gx_adjust, pos_y+gy_adjust, (const unsigned char *)"?", 1, win->current_scale);
+			draw_string_zoomed_centered(pos_x, pos_y, (const unsigned char *)"?", 1, win->current_scale);
 		}
 	}
 
@@ -740,13 +740,13 @@ int Achievements_Window::display_handler(window_info *win)
 			open_child();
 	}
 
-	int prev_start = gx_adjust + as->get_border();
+	int prev_start = as->get_border();
 	int prev_end = prev_start + as->get_font_width(as->get_prev());
 	int next_start = prev_end + 2 * as->get_border();
 	int next_end = next_start + as->get_font_width(as->get_next());
-	int close_start = gx_adjust + win->len_x
+	int close_start = win->len_x
 		- (as->get_border() + as->get_font_width(as->get_close()));
-	int close_end = gx_adjust + win->len_x - as->get_border();
+	int close_end = win->len_x - as->get_border();
 
 	bool over_controls = (win_mouse_y > (win->len_y - (as->get_font_y() + as->get_border())));
 	bool over_close = (over_controls && (win_mouse_x > close_start) && (win_mouse_x < close_end));
@@ -758,15 +758,15 @@ int Achievements_Window::display_handler(window_info *win)
 	float mouse_over_colour[3] = { 1.0f, 0.5f, 0.0f };
 
 	glColor3fv((first) ?((over_prev) ?mouse_over_colour :active_colour) :inactive_colour);
-	draw_string_small_zoomed(prev_start, gy_adjust + win->len_y - (as->get_font_y() + as->get_border()),
+	draw_string_small_zoomed(prev_start, win->len_y - (as->get_font_y() + as->get_border()),
 		reinterpret_cast<const unsigned char *>(as->get_prev().c_str()), 1, as->get_current_scale());
 
 	glColor3fv((another_page) ?((over_next) ?mouse_over_colour :active_colour) :inactive_colour);
-	draw_string_small_zoomed(next_start, gy_adjust + win->len_y - (as->get_font_y() + as->get_border()),
+	draw_string_small_zoomed(next_start, win->len_y - (as->get_font_y() + as->get_border()),
 		reinterpret_cast<const unsigned char *>(as->get_next().c_str()), 1, as->get_current_scale());
 
 	glColor3fv((over_close) ?mouse_over_colour :active_colour);
-	draw_string_small_zoomed(close_start, gy_adjust + win->len_y - (as->get_font_y() + as->get_border()),
+	draw_string_small_zoomed(close_start, win->len_y - (as->get_font_y() + as->get_border()),
 		reinterpret_cast<const unsigned char *>(as->get_close().c_str()), 1, as->get_current_scale());
 
 	if (over_close && ctrl_clicked)
