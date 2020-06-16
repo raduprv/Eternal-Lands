@@ -77,15 +77,6 @@ bool pos_selected(const select_info *sel, size_t imsg, size_t ichar)
 		&& (imsg < end.first   || (imsg == end.first   && ichar <= end.second));
 }
 
-template <typename FIt, typename MIt>
-int average_width(FIt f_begin, FIt f_end, MIt m_begin)
-{
-	int total = std::accumulate(f_begin, f_end, 0);
-	int dot = std::inner_product(f_begin, f_end, m_begin, 0, std::plus<int>(),
-		[](int f, const eternal_lands::Font::Metrics& m) { return f * m.advance; });
-	return std::round(float(dot) / total);
-}
-
 } // namespace
 
 namespace eternal_lands
@@ -296,7 +287,7 @@ Font::Font(size_t font_nr): _font_name(), _file_name(), _flags(0),
 		_metrics[pos].u_end = float((col+1) * font_block_width - 7 - skip) / 256;
 		_metrics[pos].v_end = float((row+1) * font_block_height - 2) / 256;
 	}
-	_avg_advance = average_width(letter_freqs.begin(), letter_freqs.end(), _metrics.begin());
+	_avg_advance = calc_average_advance();
 	_password_center_offset = asterisk_centers[font_nr];
 }
 
@@ -1291,8 +1282,8 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, TTF_Font *font, S
 		243, 211, 250, 218, 251, 238                                          // óÓúÚûî
 
 	};
-	static const SDL_Color white = { r: 0xff, g: 0xff, b: 0xff, a: 0xff };
-	static const SDL_Color black = { r: 0x00, g: 0x00, b: 0x00, a: 0x10 };
+	static const SDL_Color white = { .r = 0xff, .g = 0xff, .b = 0xff, .a = 0xff };
+	static const SDL_Color black = { .r = 0x00, .g = 0x00, .b = 0x00, .a = 0x10 };
 
 	Uint16 glyph = glyphs[i_glyph];
 	if (!TTF_GlyphIsProvided(font, glyph))
@@ -1430,7 +1421,7 @@ bool Font::build_texture_atlas()
 		[](const Metrics& m0, const Metrics& m1) { return m0.advance < m1.advance; })->advance;
 	_max_digit_advance = std::max_element(_metrics.begin() + 16, _metrics.begin() + 26,
 		[](const Metrics& m0, const Metrics& m1) { return m0.advance < m1.advance; })->advance;
-	_avg_advance = average_width(letter_freqs.begin(), letter_freqs.end(), _metrics.begin());
+	_avg_advance = calc_average_advance();
 	_scale = float(font_block_height) / size;
 	_flags |= Flags::HAS_TEXTURE;
 
@@ -1454,6 +1445,14 @@ void Font::add_select_options(bool add_button) const
 		add_multi_option_with_id("encyclopedia_font", _font_name.c_str(), _file_name.c_str(),
 			add_button);
 	}
+}
+
+int Font::calc_average_advance()
+{
+	int total = std::accumulate(letter_freqs.begin(), letter_freqs.end(), 0);
+	int dot = std::inner_product(letter_freqs.begin(), letter_freqs.end(), _metrics.begin(), 0,
+		std::plus<int>(), [](int f, const Metrics& m) { return f * m.advance; });
+	return std::round(float(dot) / total);
 }
 
 const std::array<size_t, NR_FONT_CATS> FontManager::_default_font_idxs

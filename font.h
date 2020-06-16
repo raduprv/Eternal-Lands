@@ -1003,6 +1003,16 @@ private:
 #endif // TTF
 
 	/*!
+	 * \brief Calculate the average character width.
+	 *
+	 * Calculate a weighted average character width based on the widths of the characters and
+	 * estimated letter frequencies in English text.
+	 *
+	 * \return The average width
+	 */
+	int calc_average_advance();
+
+	/*!
 	 * \brief Add this font to the multi-selects
 	 *
 	 * Add this font as an option to the various font selections in the
@@ -1820,12 +1830,15 @@ void vdraw_text(int x, int y, const unsigned char* text, size_t len, font_cat ca
  * \param len       The number of bytes in \a text
  * \param cat       The font category for the text
  * \param options   Formatting options for the text
+ * \note The type of \a cat is \c int here instead of \c font_cat. This is on purpose, as using a
+ * type that undergoes default argument promotion as the last argument before the variable
+ * argument list results in undefined behaviour.
  */
-static __inline__ void draw_text(int x, int y, const unsigned char* text, size_t len, font_cat cat, ...)
+static __inline__ void draw_text(int x, int y, const unsigned char* text, size_t len, int cat, ...)
 {
 	va_list ap;
 	va_start(ap, cat);
-	vdraw_text(x, y, text, len, cat, ap);
+	vdraw_text(x, y, text, len, (font_cat)cat, ap);
 	va_end(ap);
 }
 

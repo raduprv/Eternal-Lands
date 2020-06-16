@@ -783,24 +783,24 @@ public:
 	static const int paper_height = 400;
 
 	//! Unscaled width of a single page of contents in a book
-	static const int page_width_book = std::round(0.40 * book_width);
+	static const int page_width_book;
 	//! Unscaled height of a single page of contents in a book
-	static const int page_height_book = std::round(0.80 * book_height);
+	static const int page_height_book;
 	//! Unscaled width of a single page of contents on paper
-	static const int page_width_paper = std::round(0.80 * paper_width);
+	static const int page_width_paper;
 	//! Unscaled height of a single page of contents on paper
-	static const int page_height_paper = std::round(0.80 * paper_height);
+	static const int page_height_paper;
 
 	//! Unscaled horizontal offset at which to start drawing on a book
-	static const int x_offset_book = std::round(0.078 * book_width);
+	static const int x_offset_book;
 	//! Unscaled vertical offset at which to start drawing on a book
-	static const int y_offset_book = std::round(0.098 * book_height);
+	static const int y_offset_book;
 	//! Unscaled distance between left an right pages in a book
-	static const int x_half_book = std::round(0.46 * book_width);
+	static const int x_half_book;
 	//! Unscaled horizontal offset at which to start drawing on paper
-	static const int x_offset_paper = std::round(0.098 * paper_width);
+	static const int x_offset_paper;
 	//! Unscaled vertical offset at which to start drawing on paper
-	static const int y_offset_paper = std::round(0.098 * paper_height);
+	static const int y_offset_paper;
 
 	//! Create a new hidden book window without contents
 	BookWindow(): _book_win(-1), _paper_win(-1),

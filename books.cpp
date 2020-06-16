@@ -708,6 +708,16 @@ void TextLink::display() const
 		_x_begin, _y_begin, options);
 }
 
+const int BookWindow::page_width_book = std::round(0.40 * BookWindow::book_width);
+const int BookWindow::page_height_book = std::round(0.80 * BookWindow::book_height);
+const int BookWindow::page_width_paper = std::round(0.80 * BookWindow::paper_width);
+const int BookWindow::page_height_paper = std::round(0.80 * BookWindow::paper_height);
+
+const int BookWindow::x_offset_book = std::round(0.078 * BookWindow::book_width);
+const int BookWindow::y_offset_book = std::round(0.098 * BookWindow::book_height);
+const int BookWindow::x_half_book = std::round(0.46 * BookWindow::book_width);
+const int BookWindow::x_offset_paper = std::round(0.098 * BookWindow::paper_width);
+const int BookWindow::y_offset_paper = std::round(0.098 * BookWindow::paper_height);
 
 Book* BookWindow::get_book()
 {
