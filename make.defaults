@@ -46,6 +46,7 @@ FEATURES += TTF                 # Add ability to use True Type system fonts
 #FEATURES += USE_ALGETSOURCEI_AL_BUFFER	# disable to workaround issue with newer openal versions (also works on older versions), enable to restore original usage of alGetSourcei(pSource->source, AL_BUFFER, &buffer) for sound
 
 ### Debug options ###
+#FEATURES += ADDRSANITISER      # Enable the gcc address sanitisation options to do run-time checking.
 #FEATURES += CONTEXT_MENUS_TEST		# Enable "#cmtest" command to help test/demo the context menu code
 #FEATURES += DEBUG			# (undocumented)
 #FEATURES += DEBUG_XML			# Enables missing (optional) XML string property messages
@@ -60,7 +61,6 @@ FEATURES += TTF                 # Add ability to use True Type system fonts
 #FEATURES += OPENGL_TRACE		# make far more frequent checks for OpenGL errors (requires -DDEBUG to be of any use). Will make error_log.txt a lot larger.
 #FEATURES += TIMER_CHECK		# (undocumented)
 #FEATURES += _EXTRA_SOUND_DEBUG		# Enable debug for sound effects
-
 
 ### Other options (Experimental, unfinished, defunct or otherwise unknown) ###
 #FEATURES += PAWN			# Experimental, not for release, will need server support to function properly. This *will* eat your cat. You've been warned. Enables the Pawn abstract machine.
