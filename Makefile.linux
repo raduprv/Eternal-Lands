@@ -3,8 +3,10 @@
 -include make.conf
 
 JSON_FILES_CFLAGS = -I nlohmann_json/single_include/
+ADDRSANITISER_CFLAGS=-fsanitize=address
 
 PNG_SCREENSHOT_LIBS = $(shell pkg-config libpng --libs)
+ADDRSANITISER_LIBS=-fsanitize=address
 
 OPTIONS = -DLINUX -DELC $(foreach FEATURE, $(FEATURES), -D$(FEATURE)) -D_7ZIP_ST $(GIT_VERSION) \
 	$(shell pkg-config sdl2 --cflags) \

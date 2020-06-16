@@ -668,7 +668,7 @@ void ReadCategoryXML(xmlNode * a_node)
 				save_raw_page_link(T->ref, T->text, numpage);
 			}
 			// See if this is the new maximum length.
-			if(Page[numpage].max_y < y)
+			if (numpage >= 0 && Page[numpage].max_y < y)
 			{
 				Page[numpage].max_y = y;
 			}

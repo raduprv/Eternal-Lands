@@ -45,6 +45,7 @@ FEATURES += JSON_FILES			# switch existing binary user config files to JSON form
 #FEATURES += USE_ALGETSOURCEI_AL_BUFFER	# disable to workaround issue with newer openal versions (also works on older versions), enable to restore original usage of alGetSourcei(pSource->source, AL_BUFFER, &buffer) for sound
 
 ### Debug options ###
+#FEATURES += ADDRSANITISER      # Enable the gcc address sanitisation options to do run-time checking.
 #FEATURES += CONTEXT_MENUS_TEST		# Enable "#cmtest" command to help test/demo the context menu code
 #FEATURES += DEBUG			# (undocumented)
 #FEATURES += DEBUG_XML			# Enables missing (optional) XML string property messages
@@ -60,7 +61,6 @@ FEATURES += JSON_FILES			# switch existing binary user config files to JSON form
 #FEATURES += TIMER_CHECK		# (undocumented)
 #FEATURES += _EXTRA_SOUND_DEBUG		# Enable debug for sound effects
 
-
 ### Other options (Experimental, unfinished, defunct or otherwise unknown) ###
 #FEATURES += PAWN			# Experimental, not for release, will need server support to function properly. This *will* eat your cat. You've been warned. Enables the Pawn abstract machine.
 #FEATURES += UID			# use unique ID sent from server for custom looks. (INCOMPLETE)
@@ -74,9 +74,9 @@ FEATURES += JSON_FILES			# switch existing binary user config files to JSON form
 
 PLATFORM=-march=native
 XDIR=-L/usr/X11R6/lib
-CWARN=-Wall -Wdeclaration-after-statement
+CWARN=-Wall -Wdeclaration-after-statement -W -Wno-unused-parameter -Wno-sign-compare
 # -Wno-pointer-sign -Wno-sign-compare -Werror
-CXXWARN=-Wall 
+CXXWARN=-Wall -W -Wno-unused-parameter -Wno-sign-compare
 # -Wno-sign-compare -Werror
 
 ## These needed to be adjusted on a per system basis based on compile options & library versions
