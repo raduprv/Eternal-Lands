@@ -259,10 +259,6 @@ static int fsaa_index = 0;
 static float ui_scale = 1.0;
 float get_global_scale(void) { return ui_scale; }
 
-/* temporary variables for fine graphic positions asjustmeet */
-int gx_adjust = 0;
-int gy_adjust = 0;
-
 int you_sit= 0;
 int sit_lock= 0;
 int use_keypress_dialogue_boxes = 0, use_full_dialogue_window = 0;
@@ -614,11 +610,6 @@ static void change_int(int * var, int value)
 }
 
 #ifdef ELC
-
-static void change_signed_int(int * var, int value)
-{
-	*var= value;
-}
 
 static void change_float(float * var, float * value)
 {
@@ -2827,8 +2818,6 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"use_compiled_vertex_array","cva",&use_compiled_vertex_array,change_compiled_vertex_array,1,"Compiled Vertex Array","Some systems will not support the new compiled vertex array in EL. Disable this if some 3D objects do not display correctly.",TROUBLESHOOT);
 	add_var(OPT_BOOL,"use_draw_range_elements","dre",&use_draw_range_elements,change_var,1,"Draw Range Elements","Disable this if objects appear partially stretched.",TROUBLESHOOT);
 	add_var(OPT_BOOL,"use_point_particles","upp",&use_point_particles,change_point_particles,1,"Point Particles","Some systems will not support the new point based particles in EL. Disable this if your client complains about not having the point based particles extension.",TROUBLESHOOT);
-	add_var(OPT_INT, "gx_adjust","gxa", &gx_adjust, change_signed_int, 0, "Adjust graphics X","Fine adjustment for text/line positioning - X direction.",TROUBLESHOOT, -3,3);
-	add_var(OPT_INT, "gy_adjust","gxa", &gy_adjust, change_signed_int, 0, "Adjust graphics Y","Fine adjustment for text/line positioning - Y direction.",TROUBLESHOOT, -3,3);
 #ifdef OSX
 	add_var(OPT_BOOL, "square_buttons", "sqbutt",&square_buttons,change_var,1,"Square Buttons","Use square buttons rather than rounded",TROUBLESHOOT);
 #endif
