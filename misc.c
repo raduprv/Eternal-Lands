@@ -432,8 +432,6 @@ void draw_circle_ext(int x, int y, int radius, int interval, int angle_from, int
 {
 	const float mul=M_PI/180.0f;
 	int angle;
-	x += gx_adjust;
-	y += gy_adjust;
 
 	if(radius==0){
 		glVertex2f(x, y);
