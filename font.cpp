@@ -300,8 +300,9 @@ Font::Font(const std::string& ttf_file_name): _font_name(), _file_name(), _flags
 	TTF_Font *font = TTF_OpenFont(ttf_file_name.c_str(), ttf_point_size);
 	if (!font)
 	{
-		EXTENDED_EXCEPTION(ExtendedException::ec_file_not_found,
-			"Failed to open TTF font file '" << ttf_file_name << "'");
+		LOG_ERROR("Failed to open TTF font file '%s'", ttf_file_name.c_str());
+		_flags |= FAILED;
+		return;
 	}
 
 	// Quick check to see if the font is useful
@@ -309,8 +310,9 @@ Font::Font(const std::string& ttf_file_name): _font_name(), _file_name(), _flags
 	{
 		// Nope, can't render in this font
 		TTF_CloseFont(font);
-		EXTENDED_EXCEPTION(ExtendedException::ec_item_not_found,
-			"Unable to render text with TTF font file '" << ttf_file_name << "'");
+		LOG_ERROR("Unable to render text with TTF font file '%s'", ttf_file_name.c_str());
+		_flags |= FAILED;
+		return;
 	}
 
 	std::string name = TTF_FontFaceFamilyName(font);
@@ -1491,11 +1493,9 @@ void FontManager::initialize_ttf()
 
 	search_files_and_apply(ttf_directory, "*.ttf",
 		[](const char *fname) {
-			try
-			{
-				FontManager::get_instance()._fonts.emplace_back(std::string(fname));
-			}
-			CATCH_AND_LOG_EXCEPTIONS
+			Font font(fname);
+			if (!font.failed())
+				FontManager::get_instance()._fonts.push_back(std::move(font));
 		}, 1);
 
 	// Sort TTF fonts by font name, but keep them after EL bundled fonts

@@ -51,9 +51,7 @@ namespace eternal_lands
 		{
 			std::stringstream desc;
 
-			desc <<  "EXTENDED EXCEPTION(" << m_number << ":" << m_type << "): "
-				<< m_description;
-
+			desc << "EXTENDED EXCEPTION(" << m_number << ":" << m_type << "): " << m_description;
 			if (m_line > 0)
 			{
 				desc << " in " << m_function << " at " << m_file << " (line "
