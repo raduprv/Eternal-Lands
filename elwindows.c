@@ -1354,7 +1354,7 @@ CHECK_GL_ERRORS();
 		widget_move(win->window_id, win->scroll_id, win->len_x - widget_get_width(win->window_id, win->scroll_id), pos+offset);
 		/* Cut away what we've scrolled past, */
 		glEnable(GL_SCISSOR_TEST);
-		glScissor(win->cur_x+gx_adjust, window_height-win->cur_y-win->len_y-gy_adjust, win->len_x+1, win->len_y+1);
+		glScissor(win->cur_x, window_height - win->cur_y - win->len_y, win->len_x + 1, win->len_y + 1);
 		glTranslatef(0, -pos, 0);
 	}
 	if(win->display_handler)
