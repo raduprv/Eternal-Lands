@@ -121,7 +121,7 @@ int get_cur_map (const char * file_name)
 		}
 	}
 
-	return -1;	
+	return -1;
 }
 #endif
 
@@ -133,7 +133,7 @@ static void init_map_loading(const char *file_name)
 	 * Grum: the below is wrong: it never sets cur_map for the new map
 	 * when you're leaving an inside map. Perhaps it would be useful not
 	 * to set cur_map if you're *entering* an indide map, but we don't
-	 * know that at this point. 
+	 * know that at this point.
 	 *
 	 * I wonder why we souldn't want to set it anyway...
 	 */
@@ -143,7 +143,7 @@ static void init_map_loading(const char *file_name)
 	else cur_map=-1;
 	*/
 	cur_map = get_cur_map (file_name);
-	
+
 	create_loading_win(window_width, window_height, 1);
 	show_window(loading_win);
 }
@@ -179,7 +179,7 @@ static int el_load_map(const char * file_name)
 	init_map_loading(file_name);
 	ret = load_map(file_name, &updat_func);
 	if (!ret)
-		// don't try to build pathfinder maps etc. when loading 
+		// don't try to build pathfinder maps etc. when loading
 		// the map failed...
 		return ret;
 
@@ -201,7 +201,7 @@ static int el_load_map(const char * file_name)
 	}
 	build_path_map();
 	init_buffers();
-	
+
 	// reset light levels in case we enter or leave an inside map
 	new_minute();
 
@@ -241,7 +241,7 @@ void change_map (const char *mapname)
 		locked_to_console = 0;
 	}
 	load_map_marks();
-	
+
 #ifdef NEW_SOUND
 	get_map_playlist();
 	setup_map_sounds(get_cur_map(mapname));
@@ -337,7 +337,7 @@ void add_server_markers(){
 	for(i=0;i<max_mark;i++)
 		if(marks[i].server_side) break;
 	l=i;
-	
+
 	if(!server_marks) init_server_markers();
 	if(server_marks) {
 		hash_start_iterator(server_marks);
@@ -346,7 +346,7 @@ void add_server_markers(){
 			//is it in this map?
 			if(strcmp(mapname,sm->map_name)) continue;
 			//find the next slot. If not there, add 1
-			for(i=l;i<MAX_MARKINGS;i++) 
+			for(i=l;i<MAX_MARKINGS;i++)
 				if(marks[i].server_side||i>=max_mark) {l=i; if(l>=max_mark) max_mark=l+1; break;}
 			//add the marker
 			marks[l].x=sm->x;
@@ -363,7 +363,7 @@ void add_server_markers(){
 }
 
 void load_marks_to_buffer(char* mapname, marking* buffer, int* max)
-{ 
+{
 	FILE * fp = NULL;
 	char marks_file[256] = {0}, text[600] = {0};
 
@@ -381,7 +381,7 @@ void load_marks_to_buffer(char* mapname, marking* buffer, int* max)
 	//load user markers
 	while ( fgets(text, 600,fp) ) {
 		if (strlen (text) > 1) {
-			int r,g,b;			
+			int r,g,b;
 			sscanf (text, "%d %d", &buffer[*max].x, &buffer[*max].y);
 			//scanning mark color. It can be optional -> default=green
 			if(sscanf(text,"%*d %*d|%d,%d,%d|",&r,&g,&b)<3) { //NO SPACES in RGB format string!
@@ -405,7 +405,7 @@ void load_marks_to_buffer(char* mapname, marking* buffer, int* max)
 			}
 		}
 	}
-	
+
 	fclose(fp);
 
 	LOG_DEBUG("Read map markings from file '%s'", marks_file);
@@ -413,7 +413,7 @@ void load_marks_to_buffer(char* mapname, marking* buffer, int* max)
 }
 
 void load_map_marks()
-{ 
+{
 	//load user markers
 	load_marks_to_buffer(map_file_name, marks, &max_mark);
 
@@ -455,7 +455,7 @@ void load_server_markings(){
 	int rf;
 
 	init_server_markers();
-	
+
 	//open server markings file
 	safe_snprintf(fname, sizeof(fname), "servermarks_%s.dat",get_lowercase_username());
 
@@ -469,12 +469,12 @@ void load_server_markings(){
 		return;
 	}
 
-	while((rf=fscanf(fp,"%d %d %d %s %[^\n]s\n",&sm.id,&sm.x,&sm.y,sm.map_name,sm.text))==5){		
+	while((rf=fscanf(fp,"%d %d %d %s %[^\n]s\n",&sm.id,&sm.x,&sm.y,sm.map_name,sm.text))==5){
 		server_mark *nm = calloc(1,sizeof(server_mark));
 		memcpy(nm,&sm,sizeof(server_mark));
 		hash_add(server_marks,(void *)(uintptr_t)sm.id,(void*) nm);
 	}
-	
+
 	fclose (fp);
 
 	LOG_DEBUG("Read server markings from file '%s'", fname);
@@ -488,7 +488,7 @@ void save_server_markings(){
 	FILE *fp;
 	server_mark *sm;
 	hash_entry *he;
-	
+
 	if(!server_marks) return;
 
 	//open server markings file
@@ -500,13 +500,13 @@ void save_server_markings(){
 	}
 
 	hash_start_iterator(server_marks);
-	
-	while((he=hash_get_next(server_marks))){		
+
+	while((he=hash_get_next(server_marks))){
 		sm = (server_mark *) he->item;
 		fprintf(fp,"%d %d %d %s %s\n",sm->id, sm->x, sm->y, sm->map_name, sm->text);
 	}
-	
-	fclose (fp);	
+
+	fclose (fp);
 
 	LOG_DEBUG("Wrote server markings to file '%s'", fname);
 }
@@ -533,11 +533,11 @@ void init_buffers()
 			cur_tile = tile_map[i*tile_map_size_x+j];
 			if (cur_tile != 255)
 			{
-				if (IS_WATER_TILE(cur_tile)) 
+				if (IS_WATER_TILE(cur_tile))
 				{
 					water_buffer_size++;
 				}
-				else 
+				else
 				{
 					terrain_buffer_size++;
 				}
@@ -569,13 +569,13 @@ int get_3d_objects_from_server (int nr_objs, const Uint8 *data, int len)
 	int name_len, max_name_len;
 	int id = -1;
 	int all_ok = 1;
-	
+
 	offset = 0;
 	nb_left = len;
 	for (iobj = 0; iobj < nr_objs; iobj++)
 	{
 		int obj_err = 0;
-		
+
 		if (nb_left < 14)
 		{
 			// Warn about this error!
@@ -583,7 +583,7 @@ int get_3d_objects_from_server (int nr_objs, const Uint8 *data, int len)
 			all_ok = 0;
                         break;
 		}
-		
+
 		obj_x = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
 		offset += 2;
 		obj_y = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
@@ -610,7 +610,7 @@ int get_3d_objects_from_server (int nr_objs, const Uint8 *data, int len)
 			y = 0.5f * obj_y + 0.25f;
 			z = get_tile_height(obj_x, obj_y);
 		}
-		
+
 		nb_left -= 12;
 		max_name_len = nb_left > sizeof (obj_name) ? sizeof (obj_name) : nb_left;
 		name_len = safe_snprintf (obj_name, max_name_len, "%s", &data[offset]);
@@ -621,21 +621,21 @@ int get_3d_objects_from_server (int nr_objs, const Uint8 *data, int len)
 			all_ok = 0;
                         break;
 		}
-		
+
 		offset += name_len + 1;
 		nb_left -= name_len + 1;
-		
+
 		if (!obj_err)
 			add_e3d_at_id (id, obj_name, x, y, z, rx, ry, rz, 0, 0, 1.0f, 1.0f, 1.0f, 1);
 		else
 			all_ok = 0;
 	}
-	
+
 	return all_ok;
 }
-	
+
 void remove_3d_object_from_server (int id)
-{	
+{
 	if (id < 0 || id > MAX_OBJ_3D)
 	{
 		LOG_ERROR ("Trying to remove object with invalid id %d", id);
@@ -683,12 +683,12 @@ void display_map_marks(){
 	if(!me) return;
 	ax = me->x_pos;
 	ay = me->y_pos;
-	
+
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHTING);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	glEnable(GL_ALPHA_TEST);	
+	glEnable(GL_ALPHA_TEST);
 
 	for(i=0;i<max_mark;i++){
 		x=marks[i].x/2.0;
@@ -707,14 +707,14 @@ void display_map_marks(){
 				glVertex3f(x+dx*ff,y-dy*ff,j);
 			glEnd();
 		}
-		
+
 	}
-	
+
 	glDisable(GL_ALPHA_TEST);
 	//glEnable(GL_LIGHTING);
 	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
-	
+
 }
 
 void display_map_markers() {
@@ -727,7 +727,7 @@ void display_map_markers() {
 	float banner_width;
 	float font_scale = 1.0f/ALT_INGAME_FONT_X_LEN;
 	float font_size_x=font_scale*SMALL_INGAME_FONT_X_LEN;
-	float font_size_y=font_scale*SMALL_INGAME_FONT_Y_LEN;
+	float font_size_y=font_scale*SMALL_INGAME_FONT_X_LEN;
 	char tmpb[4];
 	actor *me;
 
@@ -735,7 +735,7 @@ void display_map_markers() {
 	if(!me) return;
 	ax = me->x_pos;
 	ay = me->y_pos;
-	
+
 	glGetDoublev(GL_MODELVIEW_MATRIX, model);
 	glGetDoublev(GL_PROJECTION_MATRIX, proj);
 	glGetIntegerv(GL_VIEWPORT, view);
@@ -751,7 +751,7 @@ void display_map_markers() {
 	glDisable(GL_LIGHTING);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	
+
 	for(i=0;i<max_mark;i++){
 		x=marks[i].x/2.0;
 		y=marks[i].y/2.0;
@@ -764,11 +764,12 @@ void display_map_markers() {
 		memcpy(tmpb,marks[i].text+MARK_CLIP_POS,4);
 		marks[i].text[MARK_CLIP_POS]=marks[i].text[MARK_CLIP_POS+1]=marks[i].text[MARK_CLIP_POS+2]='.';
 		marks[i].text[MARK_CLIP_POS+3]=0;
-		banner_width = ((float)get_string_width((unsigned char*)marks[i].text)*(font_size_x*name_zoom))/2.0;
-		draw_ortho_ingame_string(hx-banner_width, hy, hz, (unsigned char*)marks[i].text, 4, font_size_x, font_size_y);
+		banner_width = 0.5 * (float)get_string_width_zoom((unsigned char*)marks[i].text, NAME_FONT, font_size_x);
+		draw_ortho_ingame_string(hx-banner_width, hy, hz, (unsigned char*)marks[i].text,
+			4, font_size_x, font_size_y);
 		//restore text
 		memcpy(marks[i].text+MARK_CLIP_POS,tmpb,4);
-			
+
 	}
 	glDisable(GL_BLEND);
 	glDisable(GL_TEXTURE_2D);
@@ -778,8 +779,8 @@ void display_map_markers() {
 	glPopMatrix();
 	//glEnable(GL_LIGHTING);
 	glDepthFunc(GL_LESS);
-	
-	
+
+
 }
 
 

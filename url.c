@@ -137,7 +137,7 @@ int url_command(const char *text, int len)
 		text++;
 	while(*text && isspace(*text))
 		text++;
-        
+
 	/* no parameter specified - list the URL(s) we have, oldest first */
 	if (!strlen(text))
 	{
@@ -152,7 +152,7 @@ int url_command(const char *text, int len)
 		/* go to the oldest in the list */
 		while (local_head->next != NULL)
 			local_head = local_head->next;
-            
+
 		/* display the list ending with the newest, alternating colours */
 		while (local_head != NULL)
 		{
@@ -175,13 +175,13 @@ int url_command(const char *text, int len)
 		if (out_str != NULL)
 			free(out_str);
 	}
-    
+
 	/* if parameter is "clear" delete all entries */
 	else if (strcmp(text, urlcmd_clear_str) == 0)
 	{
 		destroy_url_list();
 	}
-    
+
 	/* else assume parameter is an index, if its a valid index, open the URL */
 	else
 	{
@@ -211,7 +211,7 @@ int url_command(const char *text, int len)
 		if (!valid_node)
 			LOG_TO_CONSOLE(c_red2, urlcmd_invalid_str);
 	}
-            
+
 	return 1;
 }
 
@@ -221,12 +221,12 @@ void find_all_url(const char *source_string, const int len)
 {
 	char search_for[][10] = {"http://", "https://", "ftp://", "www."};
 	int next_start = 0;
-    
+
 	while (next_start < len)
 	{
 		int first_found = len-next_start; /* set to max */
 		int i;
-        
+
 		/* find the first of the url start strings */
 		for(i = 0; i < sizeof(search_for)/10; i++)
 		{
@@ -234,7 +234,7 @@ void find_all_url(const char *source_string, const int len)
 			if ((found_at >= 0) && (found_at < first_found))
 				first_found = found_at;
 		}
-        
+
 		/* if url found, store (if new) it then continue the search straight after the end */
 		if (first_found < len-next_start)
 		{
@@ -243,7 +243,7 @@ void find_all_url(const char *source_string, const int len)
 			size_t url_len;
 			int url_start = next_start + first_found;
 			int have_already = 0;
-			
+
 			/* find the url end */
 			for (next_start = url_start; next_start < len; next_start++)
 			{
@@ -253,11 +253,11 @@ void find_all_url(const char *source_string, const int len)
 					|| cur_char == ']' || cur_char == ';' || cur_char == '\\' || (cur_char&0x80) != 0)
 					break;
 			}
-            
+
 			/* prefix www. with http:// */
 			if (strncmp(&source_string[url_start], "www.", 4) == 0)
 				add_start = "http://";
-			
+
 			/* extract the string */
 			url_len = strlen(add_start) + (next_start-url_start) + 1;
 			new_url = (char *)malloc(sizeof(char)*url_len);
@@ -265,7 +265,7 @@ void find_all_url(const char *source_string, const int len)
 			strcpy(new_url, add_start);
 			strncat(new_url, &source_string[url_start], next_start-url_start );
 			new_url[url_len-1] = 0;
-			
+
 			/* check the new URL is not already in the list */
 			if (have_url_count)
 			{
@@ -284,12 +284,12 @@ void find_all_url(const char *source_string, const int len)
 					local_head = local_head->next;
 				}
 			}
-			
+
 			/* if its a new url, create a new node in the url list */
 			if (!have_already)
 			{
 				URLDATA *new_node = (URLDATA *)malloc(sizeof(URLDATA));
-				
+
 				/* if there's a max number of url and we've reached it, remove the oldest */
 				/* we don't need to worry if its the active_url as thats going to change */
 				if (max_url_count && (max_url_count==have_url_count))
@@ -314,7 +314,7 @@ void find_all_url(const char *source_string, const int len)
 					}
 					have_url_count--;
 				}
-			
+
 				new_node->seen_count = 1;
 				new_node->visited = 0;
 				new_node->text = new_url;
@@ -322,14 +322,14 @@ void find_all_url(const char *source_string, const int len)
 				active_url = newest_url;
 				have_url_count++;
 			}
-			
+
 		} /* end if url found */
-        
+
 		/* no more urls found so stop looking */
 		else
-			break;        
+			break;
 	}
-    
+
 } /* end find_all_url() */
 
 
@@ -423,10 +423,9 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 
 	url_win_hover_url = NULL;
-	
+
 	glEnable(GL_TEXTURE_2D);
-	set_font(0);
-	
+
 	/* check for external state change */
 	if (!have_url_count && !url_win_status)
 		url_win_status = URLW_EMPTY;
@@ -439,7 +438,7 @@ CHECK_GL_ERRORS();
 		draw_string_zoomed(url_win_help_x, y_start, (unsigned char *)message[url_win_status-1], 1, 0.75 * win->current_scale);
 		url_win_status = (have_url_count) ?0 :URLW_EMPTY;
 	}
-	
+
 	/* display a page of url */
  	if (have_url_count)
 	{
@@ -447,18 +446,18 @@ CHECK_GL_ERRORS();
 		int currenty = url_win_text_start_y;
 		int start_url = 0;
 		int num_url_displayed = 0;
-		
+
 		/* don't scroll if everything will fit in the window, also catch if the list has been cleared via #url */
 		if (((url_win_line_step * have_url_count) <= url_win_text_len_y) || (url_win_top_line > have_url_count))
 			url_win_top_line = 0;
-		
+
 		/* move to the first url to be displayed - set from the scroll bar */
 		while (start_url < url_win_top_line && local_head->next != NULL)
 		{
 			local_head = local_head->next;
 			start_url++;
 		}
-		
+
 		/* loop over the remaining URLs while there is room in the window */
 		while (local_head != NULL)
 		{
@@ -466,47 +465,24 @@ CHECK_GL_ERRORS();
 			int dsp_string_len = 0;
 			float string_width = 0;
 			int highlight_url = 0;
-			
+
 			/* stop now if the url line will not fit into the window */
 			if (((currenty - url_win_text_start_y) + url_win_line_step) > url_win_text_len_y)
 				break;
-				
+
 			/* highlight the active (F2) url */
 			if (local_head == active_url)
 				glColor3f(0.0f,1.0f,0.0f);
 			else
 				glColor3f(1.0f,1.0f,1.0f);
-			
-			/* calculate the length of string we can display */
-			while((*thetext != '\0') && (string_width < url_win_max_string_width))
-			{
-				float char_width = get_char_width(*thetext++) * url_win_text_zoom * DEFAULT_FONT_X_LEN / 12.0;
-				if ((string_width+char_width) < url_win_max_string_width)
-				{
-					dsp_string_len++;
-					string_width += char_width;
-				}
-			}
-						
-			/* if the string length will fit in the window, just draw it */
-			if (dsp_string_len == strlen(((URLDATA *)local_head->data)->text))
-				draw_string_zoomed(url_win_sep, currenty, (unsigned char *)((URLDATA *)local_head->data)->text, 1, url_win_text_zoom);
-			/* otherwise, draw a truncated version with "..." at the end */
-			else
-			{
-				//float toobig_width = (get_char_width('-') + get_char_width('>'))
-				//	* url_win_text_zoom * DEFAULT_FONT_X_LEN / 12.0;
-				float toobig_width = (3*get_char_width('.'))
-					* url_win_text_zoom * DEFAULT_FONT_X_LEN / 12.0;
-				draw_string_zoomed_width(url_win_sep, currenty, (unsigned char *)((URLDATA *)local_head->data)->text,
-					url_win_sep + url_win_max_string_width - toobig_width, 1, url_win_text_zoom);
-				draw_string_zoomed(url_win_sep + url_win_max_string_width - toobig_width, currenty,
-					(unsigned char *)"..." , 1, url_win_text_zoom);
-			}
-			
+
+			draw_string_zoomed_ellipsis_font(url_win_sep, currenty,
+				(const unsigned char *)((URLDATA *)local_head->data)->text,
+				url_win_max_string_width, 1, win->font_category, url_win_text_zoom);
+
 			/* step down a line, do it now as the maths for mouse over below is easier */
 			currenty += url_win_line_step;
-			
+
 			/* if the mouse is over the current line, hightlight it */
 			if ((mouse_y >= win->cur_y + currenty - url_win_line_step) &&
 				(mouse_y < win->cur_y + currenty) &&
@@ -514,10 +490,10 @@ CHECK_GL_ERRORS();
 				(mouse_x - (int)url_win_sep <= win->cur_x + url_win_max_string_width))
 			{
 				/* remember which url we're over in case it's clicked */
-				url_win_hover_url = local_head;				
+				url_win_hover_url = local_head;
 				highlight_url = 1;
 			}
-				
+
 			/* if a context menu is open, only hightlight the last URL hovered over before the context opened */
 			if (cm_window_shown() != CM_INIT_VALUE)
 			{
@@ -528,7 +504,7 @@ CHECK_GL_ERRORS();
 			}
 			else
 				cm_url = NULL;
-			
+
 			/* if mouse over or context activated, highlight the current URL */
 			if (highlight_url)
 			{
@@ -539,10 +515,10 @@ CHECK_GL_ERRORS();
 				Uint32 currenttime = SDL_GetTicks();
 				size_t full_help_len = strlen(((URLDATA *)local_head->data)->text) + 30;
 				char *full_help_text = (char *)malloc(sizeof(char) * full_help_len);
-	
+
 				/* display the mouse over help next time round */
 				url_win_status = URLW_OVER;
-			
+
 				/* underline the text, just clicked links are red, otherwise blue - paler when visited */
 				if ((currenttime - url_win_clicktime < 500) && (url_win_clicked_url == url_win_hover_url))
 					glColor3f(1.0f,0.0f,0.3f);
@@ -556,7 +532,7 @@ CHECK_GL_ERRORS();
 				glVertex2i(url_win_sep+string_width, currenty-2);
 				glEnd();
 				glEnable(GL_TEXTURE_2D);
-				
+
 				/* write the full url as help text at the bottom of the window */
 				safe_snprintf(full_help_text, full_help_len, "%s (seen %d time%s) (%s)",
 					((URLDATA *)local_head->data)->text, ((URLDATA *)local_head->data)->seen_count,
@@ -567,7 +543,8 @@ CHECK_GL_ERRORS();
 				glColor3f(1.0f,1.0f,1.0f);
 				while(*thetext != '\0')
 				{
-					float char_width = get_char_width(*thetext++) * win->small_font_len_x / 12.0;
+					float char_width = get_char_width_zoom(*thetext++,
+						win->font_category, win->current_scale_small);
 					if (((string_width+char_width) > (win->len_x - 2*url_win_sep)) || (*thetext == '\0'))
 					{
 						if (*thetext == '\0') /* catch the last line */
@@ -591,20 +568,20 @@ CHECK_GL_ERRORS();
 				}
 				free(help_substring);
 				free(full_help_text);
-				
+
 			} /* end if mouse over url */
-			
+
 			/* count how many displayed so we can set the scroll bar properly */
 			num_url_displayed++;
-			
+
 			local_head = local_head->next;
 		}
-				
+
 		/* set the number of steps for the scroll bar */
 		vscrollbar_set_bar_len(win->window_id, url_scroll_id, have_url_count - num_url_displayed);
 
 	} /* end if have url */
-	
+
 	/* draw a line below the list of url, above the current url full text */
 	glColor3f(0.77f,0.59f,0.39f);
 	glDisable(GL_TEXTURE_2D);
@@ -617,9 +594,9 @@ CHECK_GL_ERRORS();
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
- 
+
 	return 1;
-	
+
 } /* end display_url_handler() */
 
 
@@ -676,7 +653,7 @@ static int context_url_handler(window_info *win, int widget_id, int mx, int my, 
 		switch (option)
 		{
 			case 0: open_current_url(cm_url); break;
-			case 1: 
+			case 1:
 				{
 					char *theurl = ((URLDATA *)cm_url->data)->text;
 					char *skiptext = "http://";
@@ -780,7 +757,8 @@ static int resize_url_handler(window_info *win, int new_width, int new_height)
 	url_win_help_x = widget->len_x + 2 * url_win_sep;
 	url_win_max_string_width = win->len_x - (2*url_win_sep + win->box_size);
 
-	url_win_line_step = (int)(3 + DEFAULT_FONT_Y_LEN * url_win_text_zoom);
+	url_win_line_step = (int)(3 + get_line_height(win->font_category, url_win_text_zoom));
+
 	url_win_full_url_y_len = 2*url_win_sep + 4 * win->small_font_len_y;
 
 	url_win_text_start_y = 2*url_win_sep + widget->len_y;
@@ -810,7 +788,7 @@ void fill_url_window(int window_id)
 	widget_set_OnMouseover(window_id, clear_all_button, url_win_mouseover_clear_all);
 
 	/* create the scroll bar */
-	url_scroll_id = vscrollbar_add_extended(window_id, url_scroll_id, NULL, 
+	url_scroll_id = vscrollbar_add_extended(window_id, url_scroll_id, NULL,
 		0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, have_url_count);
 	widget_set_OnDrag(window_id, url_scroll_id, url_win_scroll_drag);
 	widget_set_OnClick(window_id, url_scroll_id, url_win_scroll_click);

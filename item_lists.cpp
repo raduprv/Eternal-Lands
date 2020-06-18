@@ -52,9 +52,12 @@
 
 namespace ItemLists
 {
+	using namespace eternal_lands;
+
 	static void quantity_input_handler(const char *input_text, void *);
 	static int display_itemlist_handler(window_info *win);
 	static int ui_scale_itemlist_handler(window_info *win);
+	static int change_itemlist_font_handler(window_info *win, font_cat cat);
 	static int click_itemlist_handler(window_info *win, int mx, int my, Uint32 flags);
 	static int mouseover_itemlist_handler(window_info *win, int mx, int my);
 	static int hide_itemlist_handler(window_info *win);
@@ -224,6 +227,7 @@ namespace ItemLists
 			void update_min_window_size(window_info *win);
 			void set_num_grid_rows(window_info *win, int num);
 			int ui_scale_handler(window_info *win);
+			int font_change_handler(window_info *win, eternal_lands::FontManager::Category cat);
 			int draw(window_info *win);
 			void new_or_rename_list(bool is_new);
 			int mouseover(window_info *win, int mx, int my);
@@ -869,8 +873,8 @@ namespace ItemLists
 		names_list_height = win->small_font_len_y;
 		grid_pixel_size = static_cast<int>(0.5 + 33 * win->current_scale);
 		ui_control_space = win->box_size;
-		add_button_x = static_cast<int>(get_size_x() - win->default_font_len_x * 2);
-		add_button_y = get_grid_size();
+		add_button_x = get_size_x() - ui_control_space/2;
+		add_button_y = 3 * get_grid_size() / 2;
 		update_min_window_size(win);
 		if (win->len_y <= 0)
 			calc_num_show_names(win);
@@ -884,6 +888,14 @@ namespace ItemLists
 		return 1;
 	}
 
+	// Called when font setting are changed
+	int List_Window::font_change_handler(window_info *win, eternal_lands::FontManager::Category cat)
+	{
+		if (cat != win->font_category)
+			return 0;
+		ui_scale_handler(win);
+		return 1;
+	}
 
 	//	Set the minumum window size
 	//
@@ -914,6 +926,7 @@ namespace ItemLists
 			set_window_handler(win_id, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_itemlist_handler );
 			set_window_handler(win_id, ELW_HANDLER_RESIZE, (int (*)())&resize_itemlist_handler );
 			set_window_handler(win_id, ELW_HANDLER_UI_SCALE, (int (*)())&ui_scale_itemlist_handler );
+			set_window_handler(win_id, ELW_HANDLER_FONT_CHANGE, (int (*)())&change_itemlist_font_handler);
 
 			cm_selected_item_menu = cm_create(cm_item_list_selected_str, cm_selected_item_handler);
 			cm_names_menu = cm_create(cm_item_list_names_str, cm_names_handler);
@@ -1036,6 +1049,28 @@ namespace ItemLists
 			rendergrid(1, 1, x_start-1, y_start-1, get_grid_size()+2, get_grid_size()+2);
 		}
 
+		// Drawn the new list button (+) with highlight when mouse over
+		if (mouse_over_add_button)
+			glColor3f(0.99f,0.77f,0.55f);
+		else
+			glColor3f(0.77f,0.57f,0.39f);
+
+		int half_plus_width = 3*win->current_scale / 2;
+		int half_plus_length = ui_control_space/3;
+		glBegin(GL_QUADS);
+
+		glVertex3i(add_button_x - half_plus_length, add_button_y - half_plus_width, 0);
+		glVertex3i(add_button_x + half_plus_length, add_button_y - half_plus_width, 0);
+		glVertex3i(add_button_x + half_plus_length, add_button_y + half_plus_width, 0);
+		glVertex3i(add_button_x - half_plus_length, add_button_y + half_plus_width, 0);
+
+		glVertex3i(add_button_x - half_plus_width, add_button_y - half_plus_length, 0);
+		glVertex3i(add_button_x + half_plus_width, add_button_y - half_plus_length, 0);
+		glVertex3i(add_button_x + half_plus_width, add_button_y + half_plus_length, 0);
+		glVertex3i(add_button_x - half_plus_width, add_button_y + half_plus_length, 0);
+
+		glEnd();
+
 		glEnable(GL_TEXTURE_2D);
 
 		// draw the quantities over everything else so they always show
@@ -1045,23 +1080,20 @@ namespace ItemLists
 			char str[80];
 			for(size_t i=0; i<Vars::lists()->get_list().get_num_items() && i<static_cast<size_t>(num_grid_cols()*num_grid_rows); i++)
 			{
-				int x_start, y_start;
-				x_start = get_grid_size() * (i%num_grid_cols()) + 1;
-				y_start = get_grid_size() * (i/num_grid_cols()) + ((i&1) ?1 :(get_grid_size() - win->small_font_len_y));
-				safe_snprintf(str, sizeof(str), "%i", Vars::lists()->get_list().get_quantity(i));
-				if ((mouse_over_item == i) && enlarge_text())
-					draw_string_shadowed_zoomed(x_start, y_start, (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
-				else
-					draw_string_small_shadowed_zoomed(x_start, y_start, (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
-				}
-		}
+				int x_start = get_grid_size() * (i%num_grid_cols()) + 1;
+				int y_start = get_grid_size() * (i/num_grid_cols()) + ((i&1) ? 1 : get_grid_size());
+				float zoom = (mouse_over_item == i && enlarge_text())
+					? win->current_scale : win->current_scale_small;
 
-		// Drawn the new list button (+) with highlight when mouse over
-		if (mouse_over_add_button)
-			glColor3f(0.99f,0.77f,0.55f);
-		else
-			glColor3f(0.77f,0.57f,0.39f);
-		draw_string_zoomed(add_button_x, add_button_y, (unsigned const char*)"+", 1, win->current_scale * 2.0);
+				safe_snprintf(str, sizeof(str), "%i", Vars::lists()->get_list().get_quantity(i));
+				TextDrawOptions options = TextDrawOptions().set_shadow().set_foreground(1.0f, 1.0f, 1.0f)
+					.set_background(0.0f, 0.0f, 0.0f).set_zoom(zoom)
+					.set_vertical_alignment((i&1) ? TOP_LINE : BOTTOM_LINE);
+				FontManager::get_instance().draw(win->font_category,
+					reinterpret_cast<const unsigned char*>(str), strlen(str), x_start, y_start,
+					options);
+			}
+		}
 
 		// draw the item list names
 		glColor3f(1.0f,1.0f,1.0f);
@@ -1071,7 +1103,7 @@ namespace ItemLists
 		const std::vector<List> lists = Vars::lists()->get_lists();
 		const int hl_width = static_cast<int>(win->len_x-win->box_size-3);
 		const int hl_height = static_cast<int>(names_list_height + get_list_gap());
-		const size_t disp_chars = static_cast<size_t>((win->len_x-win->box_size-2*get_list_gap()) / win->small_font_len_x);
+		int max_name_width = win->len_x - win->box_size - 2*get_list_gap();
 		for (size_t i = top_entry; i<lists.size() && num_shown<num_show_names_list; ++i)
 		{
 			if (i==Vars::lists()->get_active())
@@ -1079,15 +1111,19 @@ namespace ItemLists
 			else if (i==name_under_mouse)
 				draw_highlight(1, static_cast<int>(pos_y-get_list_gap()/2), hl_width, hl_height, 0);
 			glColor3f(1.0f,1.0f,1.0f);
-			if (lists[i].get_name().size() > disp_chars)
+
+			const unsigned char* name = reinterpret_cast<const unsigned char*>(lists[i].get_name().c_str());
+			int name_width = get_string_width_zoom(name, win->font_category,
+				win->current_scale_small);
+			draw_string_zoomed_width_font(get_list_gap(), pos_y, name, max_name_width, 1,
+				win->font_category, win->current_scale_small);
+			if (name_width > max_name_width && i == name_under_mouse)
 			{
-				std::string todisp = lists[i].get_name().substr(0,disp_chars);
-				draw_string_small_zoomed(get_list_gap(), pos_y, reinterpret_cast<const unsigned char*>(todisp.c_str()), 1, win->current_scale);
-				if (i==name_under_mouse)
-					show_help(lists[i].get_name().c_str(), 0, static_cast<int>(0.5 + win->len_y + 10 + win->small_font_len_y * help_lines_shown), win->current_scale);
+				show_help(reinterpret_cast<const char*>(name),
+					0, win->len_y + 10 + win->small_font_len_y * help_lines_shown,
+					win->current_scale);
 			}
-			else
-				draw_string_small_zoomed(get_list_gap(), pos_y, reinterpret_cast<const unsigned char*>(lists[i].get_name().c_str()), 1, win->current_scale);
+
 			pos_y += static_cast<int>(names_list_height + get_list_gap());
 			num_shown++;
 		}
@@ -1160,7 +1196,8 @@ CHECK_GL_ERRORS();
 		}
 
 		// check if over the add list button
-		if (my>add_button_y && my<(add_button_y+2*win->default_font_len_y) && mx>add_button_x && mx<win->len_x)
+		if (my > add_button_y-get_grid_size()/2 && my < add_button_y + get_grid_size()/2
+			&& mx>win->len_x - ui_control_space && mx < win->len_x)
 		{
 			help_str.push_back(item_list_create_help_str);
 			mouse_over_add_button = true;
@@ -1528,6 +1565,13 @@ CHECK_GL_ERRORS();
 		return Vars::win()->ui_scale_handler(win);
 	}
 
+	//  Called when the font settings are changed
+	//
+	static int change_itemlist_font_handler(window_info *win, font_cat cat)
+	{
+		return Vars::win()->font_change_handler(win, cat);
+	}
+
 
 	//	Handle mouse clicks in the window
 	//
@@ -1590,17 +1634,17 @@ extern "C"
 		ItemLists::Vars::lists()->save();
 		ItemLists::Vars::cat_maps()->save();
 	}
-	
+
 	unsigned int item_lists_get_active(void)
 	{
 		return static_cast<unsigned int>(ItemLists::Vars::lists()->get_active());
 	}
-	
+
 	void item_lists_set_active(unsigned int active_list)
 	{
 		ItemLists::Vars::lists()->set_initial_active(static_cast<size_t>(active_list));
 	}
-	
+
 	void item_lists_reset_pickup_fail_time(void)
 	{
 		ItemLists::Vars::win()->reset_pickup_fail_time();

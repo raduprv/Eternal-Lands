@@ -16,7 +16,7 @@
 //
 //  Implements a simple context menu system using the standard el windows.
 //  Intended to be a familiar GUI context menu activated via a right mouse click.
-//  At its simplest, the user code just needs create a new context object 
+//  At its simplest, the user code just needs create a new context object
 //  providing a callback function for when an option is selected or using boolean
 //	only options.  The Container class provides a creation/destruction/management/access
 //  wrapper.
@@ -96,8 +96,15 @@ namespace cm
 	class Container
 	{
 		public:
-			Container(void);
-			~Container(void);
+			~Container();
+
+			// Return the singleton instance of this container
+			static Container& get_instance()
+			{
+				static Container container;
+				return container;
+			}
+
 			size_t create(const char *menu_list, int (*handler)(window_info *, int, int, int, int ));
 			int destroy(size_t cm_id);
 			int pre_show_check(Uint32 flags);
@@ -127,6 +134,10 @@ namespace cm
 			float get_current_scale(void) const { return windows_list.window[cm_window_id].current_scale; }
 
 		private:
+			Container();
+			Container(const Container&) = delete;
+			Container& operator=(const Container&) = delete;
+
 			class Region	//  Wrapper for window region activation area.
 			{
 				public:
@@ -153,14 +164,7 @@ namespace cm
 			std::vector<Menu*> menus;
 			std::map<int, size_t> full_windows; // <window_id, cm_id>
 			bool menu_opened;
-			static int instance_count;
 	};
-
-
-	// The one and only instance of the context menu container class.
-	static Container container;
-	int Container::instance_count = 0;
-
 
 	// Generic el windows callback for clicks in a context menu.
 	extern "C" int click_context_handler(window_info *win, int mx, int my, Uint32 flags)
@@ -194,10 +198,9 @@ namespace cm
 
 
 	// constructor - create the context menu window and initialise containers
-	Container::Container(void)
+	Container::Container()
 		: cm_window_id(-1), active_window_id(-1), active_widget_id(-1), menu_opened(false)
 	{
-		assert(instance_count++==0);
 		menus.resize(20,0);
 		if ((cm_window_id = create_window("Context Menu", -1, 0, 0, 0, 0, 0,
 				ELW_USE_UISCALE|ELW_SWITCHABLE_OPAQUE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_ALPHA_BORDER)) == -1)
@@ -248,7 +251,7 @@ namespace cm
 	{
 		if (!valid(cm_id))
 			return 0;
-		
+
 		bool found_entry = false;
 
 		// remove all full windows linked to this context menu
@@ -301,7 +304,7 @@ namespace cm
 		delete menus[cm_id];
 		menus[cm_id] = 0;
 		return 1;
-		
+
 	} // end Container::destroy()
 
 
@@ -342,7 +345,7 @@ namespace cm
 			if (y < 0 && valid(win->cm_id) &&  mouse_in_window(window_id, mouse_x, mouse_y))
 				return show_direct(win->cm_id, window_id, -1);
 		}
-	
+
 		// check we're in the specified window
 		if (mouse_in_window(window_id, mouse_x, mouse_y) < 1)
 			return 0;
@@ -384,7 +387,7 @@ namespace cm
 
 	} // end Container::show_if_active()
 
-	
+
 	// directly open the specified conetext menu, use specified window/widget id as if activated
 	int Container::show_direct(size_t cm_id, int window_id, int widget_id)
 	{
@@ -396,7 +399,7 @@ namespace cm
 		return menus[cm_id]->show(cm_window_id);
 	}
 
-	
+
 	// remove any activation for the specifed window/widget
 	int Container::remove_widget(int window_id, int widget_id)
 	{
@@ -423,7 +426,7 @@ namespace cm
 		Menu *current_menu = (Menu *)win->data;
 		for (size_t i=0; i<menus.size(); i++)
 			if (current_menu == menus[i])
-				return i;			
+				return i;
 		return CM_INIT_VALUE;
 	}
 
@@ -432,12 +435,12 @@ namespace cm
 	void Container::showinfo(void)
 	{
 		std::cout << "\nContext menu information:" << std::endl;
-		
+
 		std::cout << "\nMenus:-" << std::endl;
 		for (size_t i=0; i<menus.size(); ++i)
 			if (menus[i])
 				menus[i]->show_lines(i);
-		
+
 		std::cout << "\nFull Windows:-" << std::endl;
 		for (std::map<int, size_t>::iterator itp = full_windows.begin(); itp != full_windows.end(); ++itp)
 		{
@@ -445,7 +448,7 @@ namespace cm
 			std::cout << "  window_id=" << itp->first << " name=[" << ((win!=NULL)?win->window_name:"")
 					  << "] menu_id=" << itp->second << std::endl;
 		}
-		
+
 		std::cout << "\nWindow Regions:-" << std::endl;
 		for (REG_MM::iterator itp = window_regions.begin(); itp != window_regions.end(); ++itp)
 		{
@@ -454,7 +457,7 @@ namespace cm
 					  << "] region=(" << itp->second.pos_x << ", " << itp->second.pos_y << ", " << itp->second.len_x
 					  << ", " << itp->second.len_y << ")" << " menu_id=" << itp->second.cm_id << std::endl;
 		}
-		
+
 		std::cout << "\nWindow Widgets:-" << std::endl;
 		for (WID_MM::iterator itp = window_widgets.begin(); itp != window_widgets.end(); ++itp)
 		{
@@ -462,13 +465,13 @@ namespace cm
 			std::cout << "  window_id=" << itp->first << " name=[" << ((win!=NULL)?win->window_name:"")
 					  << "] widget=" << itp->second.widget_id << " menu_id=" << itp->second.cm_id << std::endl;
 		}
-		
+
 	} // end showinfo()
-	
-	
-	
-	
-	
+
+
+
+
+
 	// Constructor - set default values for new menu
 	Menu::Menu(const char *menu_list, int (*handler)(window_info *, int, int, int, int))
 		: border(5), text_border(5), line_sep(3), zoom(0.8), data_ptr(0), selection(-1), menu_has_bools(false)
@@ -562,20 +565,18 @@ namespace cm
 	//  Calculate the height/width of the context menu and resize the window
 	int Menu::resize(void)
 	{
-		const float scale = scaled_value(DEFAULT_FONT_X_LEN / 12.0);
+		const float scale = scaled_value(1.0);
 		float fwidth = 0, fheight = 0;
 		for (size_t i=0; i<menu_lines.size(); i++)
 		{
-			int str_width = 0;
-			const char *thetext = menu_lines[i].text.c_str();
-			while(*thetext != '\0')
-				str_width += static_cast<int>(0.5 + get_char_width(*thetext++) * scale);
+			const unsigned char* thetext = reinterpret_cast<const unsigned char*>(menu_lines[i].text.c_str());
+			int str_width = get_string_width_zoom(thetext, UI_FONT, scale);
 			if (str_width > fwidth)
 				fwidth = str_width;
 			if (menu_lines[i].is_separator)
-				fheight += scaled_value(DEFAULT_FONT_Y_LEN / 2.0);
+				fheight += get_line_height(UI_FONT, 0.5 * scale);
 			else
-				fheight += scaled_value(DEFAULT_FONT_Y_LEN) + line_sep;
+				fheight += get_line_height(UI_FONT, scale) + line_sep;
 		}
 		bool_tick_width = (menu_has_bools)? scaled_value(bool_box_size()+text_border) : 0;
 		fwidth += bool_tick_width + (border + text_border) * 2;
@@ -615,6 +616,7 @@ namespace cm
 		resize_window(cm_window_id, width, height);
 
 		// parent_win will be NULL if we don't have one
+		const Container& container = Container::get_instance();
 		window_info *parent_win = window_info_from_id(container.get_active_window_id());
 
 		// copy any parent window opacity to the context menu
@@ -632,7 +634,8 @@ namespace cm
 			{
 				int parent_win_x = opened_mouse_x - parent_win->cur_x;
 				int parent_win_y = opened_mouse_y - parent_win->cur_y;
-				(*pre_show_handler)(parent_win, container.get_active_widget_id(), parent_win_x, parent_win_y, window_info_from_id(cm_window_id));
+				(*pre_show_handler)(parent_win, container.get_active_widget_id(),
+					parent_win_x, parent_win_y, window_info_from_id(cm_window_id));
 			}
 			else
 				(*pre_show_handler)(NULL, 0, 0, 0, window_info_from_id(cm_window_id));
@@ -650,7 +653,10 @@ namespace cm
 	{
 		CHECK_GL_ERRORS();
 		float currenty = border + line_sep;
-		float line_step = line_sep + scaled_value(DEFAULT_FONT_Y_LEN);
+		float scale = scaled_value(1.0);
+		int line_height = get_line_height(win->font_category, scale);
+		int box_size = std::round(scaled_value(bool_box_size()));
+		float line_step = line_sep + max2i(box_size, line_height);
 
 		selection = -1;
 		for (size_t i=0; i<menu_lines.size(); ++i)
@@ -664,23 +670,23 @@ namespace cm
 			{
 				glDisable(GL_TEXTURE_2D);
 				glBegin(GL_QUADS);
-				glColor3f(highlight_top.r, highlight_top.g, highlight_top.b);	
+				glColor3f(highlight_top.r, highlight_top.g, highlight_top.b);
 				glVertex3i(border, int(currenty + 0.5) - line_sep, 0);
 				glColor3f(highlight_bottom.r, highlight_bottom.g, highlight_bottom.b);
 				glVertex3i(border, int(currenty + line_step + 0.5) - line_sep, 0);
 				glVertex3i(border+width-2*border, int(currenty + line_step + 0.5) - line_sep, 0);
-				glColor3f(highlight_top.r, highlight_top.g, highlight_top.b);	
+				glColor3f(highlight_top.r, highlight_top.g, highlight_top.b);
 				glVertex3i(border+width-2*border, int(currenty + 0.5) - line_sep, 0);
 				glEnd();
 				glEnable(GL_TEXTURE_2D);
 				selection = i;
 			}
-			
+
 			// draw a separator ...
 			if (menu_lines[i].is_separator)
 			{
 				int posx = border + text_border;
-				int posy = int(0.5 + currenty + scaled_value(DEFAULT_FONT_Y_LEN / 4.0) - line_sep);
+				int posy = currenty + get_line_height(win->font_category, 0.25*scale) - line_sep;
 				glColor3f(grey_colour.r, grey_colour.g, grey_colour.b);
 				glDisable(GL_TEXTURE_2D);
 				glBegin(GL_LINES);
@@ -688,7 +694,7 @@ namespace cm
 				glVertex2i(win->len_x - posx, posy);
 				glEnd();
 				glEnable(GL_TEXTURE_2D);
-				currenty += scaled_value(DEFAULT_FONT_Y_LEN / 2.0);
+				currenty += get_line_height(win->font_category, 0.5*scale);
 			}
 
 			// ... or the menu line
@@ -702,29 +708,30 @@ namespace cm
 				// draw the tickbox if bool option */
 				if (menu_has_bools && menu_lines[i].control_var)
 				{
-					int posx = border+text_border;
-					int posy = int(currenty+0.5);
-					int size = int(0.5 + scaled_value(bool_box_size()));
+					int box_x = border+text_border;
+					int box_y = std::round(currenty + (box_size < line_height ? 0.5 * (line_height - box_size) : 0));
 					glDisable(GL_TEXTURE_2D);
 					glBegin( *menu_lines[i].control_var ? GL_QUADS: GL_LINE_LOOP);
-					glVertex3i(posx, posy, 0);
-					glVertex3i(posx + size, posy, 0);
-					glVertex3i(posx + size, posy + size, 0);
-					glVertex3i(posx, posy + size, 0);
+					glVertex3i(box_x, box_y, 0);
+					glVertex3i(box_x + box_size, box_y, 0);
+					glVertex3i(box_x + box_size, box_y + box_size, 0);
+					glVertex3i(box_x, box_y + box_size, 0);
 					glEnd();
 					glEnable(GL_TEXTURE_2D);
 				}
 
 				// draw the text
- 				draw_string_zoomed(int(border+text_border+bool_tick_width+0.5), int(currenty+0.5), (unsigned char *)menu_lines[i].text.c_str(), 1, scaled_value(1.0));
+				int text_y = std::round(currenty + (box_size < line_height ? 0 : 0.5*(box_size - line_height)));
+				draw_string_zoomed(int(border+text_border+bool_tick_width+0.5), text_y,
+					(const unsigned char *)menu_lines[i].text.c_str(), 1, scaled_value(1.0));
 				currenty += line_step;
 			}
-			
+
 		} // end foir each line
-		
+
 		CHECK_GL_ERRORS();
 		return 1;
-		
+
 	} // end Menu::display()
 
 
@@ -748,14 +755,16 @@ namespace cm
 
 		if (!handler)
 			return 0;
-			
+
 		// if we have a parent window, the mouse position is the original position that opened the menu
+		const Container& container = Container::get_instance();
 		window_info *parent_win = window_info_from_id(container.get_active_window_id());
 		if (parent_win != NULL)
 		{
 			int parent_win_x = opened_mouse_x - parent_win->cur_x;
 			int parent_win_y = opened_mouse_y - parent_win->cur_y;
-			return (*handler)(parent_win, container.get_active_widget_id(), parent_win_x, parent_win_y, selection);
+			return (*handler)(parent_win, container.get_active_widget_id(),
+				parent_win_x, parent_win_y, selection);
 		}
 		else
 			return (*handler)(NULL, 0, 0, 0, selection);
@@ -771,7 +780,7 @@ namespace cm
 		this->zoom = zoom;
 		return resize();
 	}
-	
+
 	// set the named property colour
 	int Menu::set_colour(size_t cm_id, enum CM_COLOUR_NAME colour_name, float r, float g, float b)
 	{
@@ -786,8 +795,8 @@ namespace cm
 		}
 		return 1;
 	}
-	
-	
+
+
 	// show information about menu lines
 	void Menu::show_lines(size_t my_id)
 	{
@@ -810,7 +819,7 @@ namespace cm
 	// calculate a scaled value
 	float Menu::scaled_value(float val) const
 	{
-		return val * container.get_current_scale() * zoom;
+		return val * Container::get_instance().get_current_scale() * zoom;
 	}
 
 
@@ -819,30 +828,30 @@ namespace cm
 
 
 // C wrapper functions
-extern "C" size_t cm_create(const char *menu_list, int (*handler)(window_info *, int, int, int, int )) { return cm::container.create(menu_list, handler); }
-extern "C" int cm_destroy(size_t cm_id) { return cm::container.destroy(cm_id); }
-extern "C" int cm_pre_show_check(Uint32 flags) { return cm::container.pre_show_check(flags); }
-extern "C" void cm_post_show_check(int force) { cm::container.post_show_check(force); }
-extern "C" int cm_show_if_active(int window_id) { return cm::container.show_if_active(window_id); }
-extern "C" int cm_show_direct(size_t cm_id, int window_id, int widget_id) { return cm::container.show_direct(cm_id, window_id, widget_id); }
-extern "C" int cm_bool_line(size_t cm_id, size_t line_index, int *control_var, const char *config_name) { return cm::container.bool_line(cm_id, line_index, control_var, config_name); }
-extern "C" int cm_grey_line(size_t cm_id, size_t line_index, int is_grey) { return cm::container.grey_line(cm_id, line_index, is_grey); }
-extern "C" int cm_set(size_t cm_id, const char *menu_list, int (*handler)(window_info *, int, int, int, int)) { return cm::container.set(cm_id, menu_list, handler); }
-extern "C" int cm_add(size_t cm_id, const char *menu_list, int (*handler)(window_info *, int, int, int, int)) { return cm::container.add(cm_id, menu_list, handler); }
-extern "C" int cm_set_pre_show_handler(size_t cm_id, void (*handler)(window_info *, int, int, int, window_info *)) { return cm::container.set_pre_show_handler(cm_id, handler); }
-extern "C" int cm_set_sizes(size_t cm_id, int border, int text_border, int line_sep, float zoom) { return cm::container.set_sizes(cm_id, border, text_border, line_sep, zoom); }
-extern "C" int cm_set_colour(size_t cm_id, enum CM_COLOUR_NAME colour_name, float r, float g, float b) { return cm::container.set_colour(cm_id, colour_name, r, g, b); }
-extern "C" int cm_add_window(size_t cm_id, int window_id) { return cm::container.add_window(cm_id, window_id); }
-extern "C" int cm_add_region(size_t cm_id, int window_id, int posx, int posy, int lenx, int leny) { return cm::container.add_region(cm_id, window_id, posx, posy, lenx, leny); }
-extern "C" int cm_add_widget(size_t cm_id, int window_id, int widget_id) { return cm::container.add_widget(cm_id, window_id, widget_id); }
-extern "C" int cm_remove_window(int window_id) { return cm::container.remove_window(window_id); }
-extern "C" int cm_remove_regions(int window_id) { return cm::container.remove_regions(window_id); }
-extern "C" int cm_remove_widget(int window_id, int widget_id) { return cm::container.remove_widget(window_id, widget_id); }
-extern "C" void cm_showinfo(void) { cm::container.showinfo(); }
-extern "C" int cm_valid(size_t cm_id) { if (cm::container.valid(cm_id)) return 1; else return 0; }
-extern "C" size_t cm_window_shown(void) { return cm::container.window_shown(); }
-extern "C" void *cm_get_data(size_t cm_id) { return cm::container.get_data(cm_id); }
-extern "C" void cm_set_data(size_t cm_id, void *data) { cm::container.set_data(cm_id, data); }
+extern "C" size_t cm_create(const char *menu_list, int (*handler)(window_info *, int, int, int, int )) { return cm::Container::get_instance().create(menu_list, handler); }
+extern "C" int cm_destroy(size_t cm_id) { return cm::Container::get_instance().destroy(cm_id); }
+extern "C" int cm_pre_show_check(Uint32 flags) { return cm::Container::get_instance().pre_show_check(flags); }
+extern "C" void cm_post_show_check(int force) { cm::Container::get_instance().post_show_check(force); }
+extern "C" int cm_show_if_active(int window_id) { return cm::Container::get_instance().show_if_active(window_id); }
+extern "C" int cm_show_direct(size_t cm_id, int window_id, int widget_id) { return cm::Container::get_instance().show_direct(cm_id, window_id, widget_id); }
+extern "C" int cm_bool_line(size_t cm_id, size_t line_index, int *control_var, const char *config_name) { return cm::Container::get_instance().bool_line(cm_id, line_index, control_var, config_name); }
+extern "C" int cm_grey_line(size_t cm_id, size_t line_index, int is_grey) { return cm::Container::get_instance().grey_line(cm_id, line_index, is_grey); }
+extern "C" int cm_set(size_t cm_id, const char *menu_list, int (*handler)(window_info *, int, int, int, int)) { return cm::Container::get_instance().set(cm_id, menu_list, handler); }
+extern "C" int cm_add(size_t cm_id, const char *menu_list, int (*handler)(window_info *, int, int, int, int)) { return cm::Container::get_instance().add(cm_id, menu_list, handler); }
+extern "C" int cm_set_pre_show_handler(size_t cm_id, void (*handler)(window_info *, int, int, int, window_info *)) { return cm::Container::get_instance().set_pre_show_handler(cm_id, handler); }
+extern "C" int cm_set_sizes(size_t cm_id, int border, int text_border, int line_sep, float zoom) { return cm::Container::get_instance().set_sizes(cm_id, border, text_border, line_sep, zoom); }
+extern "C" int cm_set_colour(size_t cm_id, enum CM_COLOUR_NAME colour_name, float r, float g, float b) { return cm::Container::get_instance().set_colour(cm_id, colour_name, r, g, b); }
+extern "C" int cm_add_window(size_t cm_id, int window_id) { return cm::Container::get_instance().add_window(cm_id, window_id); }
+extern "C" int cm_add_region(size_t cm_id, int window_id, int posx, int posy, int lenx, int leny) { return cm::Container::get_instance().add_region(cm_id, window_id, posx, posy, lenx, leny); }
+extern "C" int cm_add_widget(size_t cm_id, int window_id, int widget_id) { return cm::Container::get_instance().add_widget(cm_id, window_id, widget_id); }
+extern "C" int cm_remove_window(int window_id) { return cm::Container::get_instance().remove_window(window_id); }
+extern "C" int cm_remove_regions(int window_id) { return cm::Container::get_instance().remove_regions(window_id); }
+extern "C" int cm_remove_widget(int window_id, int widget_id) { return cm::Container::get_instance().remove_widget(window_id, widget_id); }
+extern "C" void cm_showinfo(void) { cm::Container::get_instance().showinfo(); }
+extern "C" int cm_valid(size_t cm_id) { if (cm::Container::get_instance().valid(cm_id)) return 1; else return 0; }
+extern "C" size_t cm_window_shown(void) { return cm::Container::get_instance().window_shown(); }
+extern "C" void *cm_get_data(size_t cm_id) { return cm::Container::get_instance().get_data(cm_id); }
+extern "C" void cm_set_data(size_t cm_id, void *data) { cm::Container::get_instance().set_data(cm_id, data); }
 
 
 
@@ -965,7 +974,7 @@ extern "C" int cm_test_window(char *text, int len)
 	int cm_del_wid = -1;
 	int cm_info_but = -1;
 	int cm_dir_but = -1;
-	
+
 	if (cm_test_win == -1)
 	{
 		cm_test_win = create_window("Test Context Menu", -1, -1, 0, 0, 400, 400, ELW_WIN_DEFAULT);
@@ -980,7 +989,7 @@ extern "C" int cm_test_window(char *text, int len)
 		cm_info_but = button_add_extended(cm_test_win, 106, NULL, 200, 10, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Show Info");
 		cm_test_wid = button_add_extended(cm_test_win, 107, NULL, 200, 50, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Test Menu");
 		cm_dir_but = button_add_extended(cm_test_win, 108, NULL, 200, 200, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Direct Menu");
-		
+
 		widget_set_OnClick(cm_test_win, cm_add_win, (int (*)())&cm_add_win_handler);
 		widget_set_OnClick(cm_test_win, cm_del_win, (int (*)())&cm_del_win_handler);
 		widget_set_OnClick(cm_test_win, cm_add_reg, (int (*)())&cm_add_reg_handler);
@@ -989,14 +998,14 @@ extern "C" int cm_test_window(char *text, int len)
 		widget_set_OnClick(cm_test_win, cm_del_wid, (int (*)())&cm_del_wid_handler);
 		widget_set_OnClick(cm_test_win, cm_info_but, (int (*)())&cm_info_but_handler);
 		widget_set_OnClick(cm_test_win, cm_dir_but, (int (*)())&cm_dir_click_handler);
-		
+
 		cm_test_win_menu = cm_create("", NULL);
 		cm_test_reg_menu = cm_create("Region 1\nRegion 2\n", cm_test_menu_handler);
 		cm_test_wid_menu = cm_create("Widget 1\n--\nWidget 3\nWidget 4\nWidget 5\nWidget 6\n", cm_test_menu_handler);
 		cm_test_dir_menu = cm_create("Direct 1\nDirect 2\n", cm_test_menu_handler);
 		printf("Created menus window=%lu region=%lu widget=%lu direct=%lu\n",
 			cm_test_win_menu, cm_test_reg_menu, cm_test_wid_menu, cm_test_dir_menu);
-		
+
 		printf("Replacing window menu cm_set()=%d\n", cm_set(cm_test_win_menu, "Window 1\nWindow 2\n--\nGrey me...\nGrey above\n", cm_test_menu_handler));
 		printf("Set win menu cm_bool_line()=%d\n", cm_bool_line(cm_test_win_menu, 0, &cm_bool_var, NULL));
 		printf("Set win menu cm_bool_line()=%d\n", cm_bool_line(cm_test_win_menu, 1, &cm_bool_var, NULL));
@@ -1020,7 +1029,7 @@ extern "C" int cm_test_window(char *text, int len)
 		cm_test_win = -1;
 		cm_showinfo();
 	}
-	
+
 	return 1;
 }
 

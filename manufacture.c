@@ -61,14 +61,14 @@ static int recipes_loaded=0;
 static int mouse_over_recipe = -1;
 static int mouse_over_main_pos = -1;
 static int mouse_over_pipe_pos = -1;
-static char items_string[350]={0};
+static unsigned char items_string[350]={0};
 static size_t last_items_string_id = (size_t)-1;
 static item last_mix[NUM_MIX_SLOTS];
 static int recipe_names_changed = 0;
 static int initialised_recipe_names = 0;
 
 static int SLOT_SIZE = 0;
-static int PIPE_CONTROL_X = 0;
+static int pipe_control_width = 0;
 static int recipe_win_width = 0;
 static int manufacture_menu_x_len = 0;
 static int manufacture_menu_y_len = 0;
@@ -647,30 +647,45 @@ static void use_recipe(int recipe_to_use)
 static void draw_recipe_controls(window_info *win){
 	int wpx=pipeline_x + SLOT_SIZE*NUM_MIX_SLOTS;
 	int wpy=manufacture_menu_y_len-recipe_y_offset;
-	int lpx=PIPE_CONTROL_X;
+	int lpx=pipe_control_width;
 	int lpy=SLOT_SIZE;
+	int half_plus_len = lpx/2-control_elem_size, half_plus_width = win->current_scale;
+	int yp_ctr = wpy - control_elem_size + lpy/2;
+	int xp_ctr = wpx + control_elem_size + half_plus_len;
 
-	if (recipes_shown){
-	/* Up arrow */
-		glBegin(GL_QUADS);
+	if (recipes_shown)
+	{
+		/* Up arrow */
+		glBegin(GL_TRIANGLES);
 			glVertex3i(wpx+lpx/2, wpy+lpy-control_elem_size*2, 0); //top
 			glVertex3i(wpx+control_elem_size, wpy+lpy, 0); //left
 			glVertex3i(wpx+lpx-control_elem_size, wpy+lpy, 0); //right
-			glVertex3i(wpx+lpx/2, wpy+lpy-control_elem_size*2, 0); //top
 		glEnd();
-	} else {
+	}
+	else
+	{
 		/* Dn arrow */
-		glBegin(GL_QUADS);
-			glVertex3i(wpx+lpx/2, wpy+lpy, 0); //top
+		glBegin(GL_TRIANGLES);
+			glVertex3i(wpx+lpx/2, wpy+lpy, 0); //bottom
 			glVertex3i(wpx+control_elem_size, wpy+lpy-control_elem_size*2, 0); //left
 			glVertex3i(wpx+lpx-control_elem_size, wpy+lpy-control_elem_size*2, 0); //right
-			glVertex3i(wpx+lpx/2, wpy+lpy, 0); //top
 		glEnd();
 	}
 
 	/* Add btn */
-	glEnable(GL_TEXTURE_2D);
-	draw_string_zoomed(wpx+win->small_font_len_x/2, wpy-2, (unsigned char *)"+", 1, win->current_scale);
+	glBegin(GL_QUADS);
+
+	glVertex3i(xp_ctr-half_plus_len, yp_ctr-half_plus_width, 0);
+	glVertex3i(xp_ctr+half_plus_len, yp_ctr-half_plus_width, 0);
+	glVertex3i(xp_ctr+half_plus_len, yp_ctr+half_plus_width, 0);
+	glVertex3i(xp_ctr-half_plus_len, yp_ctr+half_plus_width, 0);
+
+	glVertex3i(xp_ctr-half_plus_width, yp_ctr-half_plus_len, 0);
+	glVertex3i(xp_ctr+half_plus_width, yp_ctr-half_plus_len, 0);
+	glVertex3i(xp_ctr+half_plus_width, yp_ctr+half_plus_len, 0);
+	glVertex3i(xp_ctr-half_plus_width, yp_ctr+half_plus_len, 0);
+
+	glEnd();
 }
 
 //draws a NUM_MIX_SLOTSx1 grid of items+grid
@@ -772,10 +787,13 @@ static int	display_manufacture_handler(window_info *win)
 	//now, draw the inventory text, if any.
 	if (last_items_string_id != inventory_item_string_id)
 	{
-		put_small_text_in_box_zoomed((unsigned char*)inventory_item_string, strlen(inventory_item_string), win->len_x-2*win->small_font_len_x, items_string, win->current_scale);
+		put_small_text_in_box_zoomed((unsigned char*)inventory_item_string,
+			strlen(inventory_item_string), win->len_x-2*win->small_font_max_len_x,
+			items_string, win->current_scale);
 		last_items_string_id = inventory_item_string_id;
 	}
-	draw_string_small_zoomed(win->small_font_len_x,manufacture_menu_y_len-text_y_offset,(unsigned char *)items_string,4, win->current_scale);
+	draw_string_small_zoomed(win->small_font_max_len_x, manufacture_menu_y_len-text_y_offset,
+		items_string, 4, win->current_scale);
 
 	// Render the grid *after* the images. It seems impossible to code
 	// it such that images are rendered exactly within the boxes on all
@@ -1010,7 +1028,7 @@ static int recipe_controls_click_handler(window_info *win, int mx, int my, Uint3
 
 	int wpx=pipeline_x + SLOT_SIZE*NUM_MIX_SLOTS;
 	int wpy=manufacture_menu_y_len-recipe_y_offset;
-	int lpx=PIPE_CONTROL_X;
+	int lpx=pipe_control_width;
 	int lpy=SLOT_SIZE;
 
 	if (!recipes_loaded)
@@ -1032,8 +1050,9 @@ static int recipe_controls_click_handler(window_info *win, int mx, int my, Uint3
 
 		build_manufacture_list();
 		do_click_sound();
-	} else
-	if (mx>wpx+win->small_font_len_x/2 && mx<wpx+lpx-win->small_font_len_x/2 && my>wpy && my<wpy+win->small_font_len_y){
+	}
+	else if (mx>wpx && mx<wpx+lpx && my>wpy && my<wpy+lpy-control_elem_size*2)
+	{
 		//+ button
 		copy_items_to_recipe_items(recipes_store[cur_recipe].items, manufacture_list, MIX_SLOT_OFFSET);
 		clear_recipe_name(cur_recipe);
@@ -1282,14 +1301,15 @@ static int recipe_controls_mouseover_handler(window_info *win, int mx, int my, i
 {
 	int wpx=pipeline_x + SLOT_SIZE*NUM_MIX_SLOTS;
 	int wpy=win->len_y-recipe_y_offset;
-	int lpx=PIPE_CONTROL_X;
+	int lpx=pipe_control_width;
 	int lpy=SLOT_SIZE;
 
 	if (mx>wpx && mx<wpx+lpx && my>wpy+lpy-control_elem_size*2 && my<wpy+lpy){
 		//on arrow
 		show_help(recipe_show_hide_str, 0, win->len_y + 10 + win->small_font_len_y*(*help_line)++, win->current_scale);
-	} else
-	if (mx>wpx+win->small_font_len_x/2 && mx<wpx+lpx-win->small_font_len_x/2 && my>wpy && my<wpy+win->small_font_len_y){
+	}
+	else if (mx>wpx && mx<wpx+lpx && my>wpy && my<wpy+lpy-control_elem_size*2)
+	{
 		//on + button
 		show_help(recipe_save_str, 0, win->len_y + 10 + win->small_font_len_y*(*help_line)++, win->current_scale);
 	}
@@ -1369,8 +1389,9 @@ static int mouseover_mixone_handler(widget_list *widget, int mx, int my)
 	if (show_help_text && widget)
 	{
 		window_info *win = &windows_list.window[widget->window_id];
-		int str_off = strlen(mix_str) * win->small_font_len_x / 2;
-		show_help(mix_str, (widget->pos_x + widget->len_x/2) - str_off, win->len_y+10, win->current_scale);
+		show_help_colored_scaled_centered((const unsigned char*)mix_str,
+			widget->pos_x + widget->len_x/2, win->len_y+10, 1.0f, 1.0f, 1.0f,
+			win->current_scale_small);
 	}
 	return 0;
 }
@@ -1381,8 +1402,9 @@ static int mouseover_mixall_handler(widget_list *widget, int mx, int my)
 	if (show_help_text && widget)
 	{
 		window_info *win = &windows_list.window[widget->window_id];
-		int str_off = strlen(mixall_str) * win->small_font_len_x / 2;
-		show_help(mixall_str, (widget->pos_x + widget->len_x/2) - str_off, win->len_y+10, win->current_scale);
+		show_help_colored_scaled_centered((const unsigned char*)mixall_str,
+			widget->pos_x + widget->len_x/2, win->len_y+10, 1.0f, 1.0f, 1.0f,
+			win->current_scale_small);
 	}
 	return 0;
 }
@@ -1496,13 +1518,16 @@ static void context_recipe_pre_show_handler(window_info *win, int widget_id, int
 //	Called when UI scaling changed
 static int ui_scale_manufacture_handler(window_info *win)
 {
-	int mbw = (int)(0.5 + 43 * win->current_scale);
-	int cbw = (int)(0.5 + 70 * win->current_scale);
+	int mbw = max2i((int)(0.5 + 43 * win->current_scale),
+		calc_button_width((const unsigned char*)">>", win->font_category, win->current_scale));
+	int cbw = max2i((int)(0.5 + 70 * win->current_scale),
+		calc_button_width((const unsigned char*)clear_str, win->font_category, win->current_scale));
 	int space = (int)(0.5 + 7 * win->current_scale);
-	int free_x = 0;
+	int free_x, pipe_width;
 
 	SLOT_SIZE = (int)(0.5 + 33 * win->current_scale);
-	PIPE_CONTROL_X = (int)(0.5 + 5 * win->current_scale) * 2 + win->small_font_len_x;
+	pipe_control_width = (int)(0.5 + 10 * win->current_scale) * 2;
+	pipe_width = SLOT_SIZE*NUM_MIX_SLOTS + pipe_control_width;
 	recipe_win_width = SLOT_SIZE * NUM_MIX_SLOTS + win->box_size + 2;
 	manufacture_menu_x_len = GRID_COLS * SLOT_SIZE + win->box_size;
 	manufacture_menu_y_len = (GRID_ROWS+1) * SLOT_SIZE + (4+1) * win->small_font_len_y;
@@ -1511,7 +1536,12 @@ static int ui_scale_manufacture_handler(window_info *win)
 	control_elem_size = (int)(0.5 + 5 * win->current_scale);
 
 	free_x = manufacture_menu_x_len - (cbw + 2*mbw + 3*space);
-	pipeline_x = space + cbw + free_x/2 - (SLOT_SIZE*NUM_MIX_SLOTS + PIPE_CONTROL_X)/2;
+	if (free_x < pipe_width + 2*space)
+	{
+		manufacture_menu_x_len += pipe_width +2*space - free_x;
+		free_x = pipe_width + 2*space;
+	}
+	pipeline_x = space + cbw + (free_x - pipe_width)/2;
 
 	resize_window(win->window_id, manufacture_menu_x_len, manufacture_menu_y_len);
 
@@ -1535,6 +1565,14 @@ static int ui_scale_manufacture_handler(window_info *win)
 	return 1;
 }
 
+static int change_manufacture_font_handler(window_info *win, font_cat cat)
+{
+	if (cat != win->font_category)
+		return 0;
+	ui_scale_manufacture_handler(win);
+	return 1;
+}
+
 void display_manufacture_menu()
 {
 	if(manufacture_win < 0){
@@ -1552,6 +1590,7 @@ void display_manufacture_menu()
 		set_window_handler(manufacture_win, ELW_HANDLER_MOUSEOVER, &mouseover_manufacture_slot_handler );
 		set_window_handler(manufacture_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_manufacture_handler );
 		set_window_handler(manufacture_win, ELW_HANDLER_UI_SCALE, &ui_scale_manufacture_handler );
+		set_window_handler(manufacture_win, ELW_HANDLER_FONT_CHANGE, &change_manufacture_font_handler);
 
 		mixone_button_id=button_add_extended(manufacture_win, mixone_button_id, NULL,
 			0, 0, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, ">");

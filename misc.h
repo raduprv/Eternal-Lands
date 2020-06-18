@@ -104,87 +104,46 @@ void makeScreenShot ();
 
 /*!
  * \ingroup misc_utils
- * \brief Draws a circle from angle_from to angle_to
- * 
- * 		Draws a circle from angle_from to angle_to with the given radius from the center x,y. Increments the angle with interval.
+ * \brief Draw a circle segment
  *
- * \param x The center x
- * \param y The center y
- * \param radius The radius
- * \param interval The # of steps to increment the angle. Can be negative, but then angle_from has to be higher than angle_to. When it is positive angle_from has to be lower than angle_to
- * \param angle_from The starting angle
- * \param angle_to The end angle
+ * Draws a circle segment from \a angle_from to \a angle_to with the given
+ * radius from the center (\a x, \a y). The segment is approximated by a
+ * series of straight lines, with each line segment covering an angle of
+ * \a interval degrees.
+ * \note The current angle is always incremented by \a interval, so when
+ * \a angle_from is larger than \a angle_to, \a interval should be negative.
+ * \note This function only adds the vertices. Any calls to this function should
+ * be wrapped in an appropriate glBegin() / glEnd() block (e.g. using a GL_LINE_STRIP
+ * or GL_POLYGON).
+ *
+ * \param x          The center x
+ * \param y          The center y
+ * \param radius     The radius
+ * \param interval   The step size, in degrees
+ * \param angle_from The starting angle, in degrees
+ * \param angle_to   The end angle, in degrees
  */
 void draw_circle_ext(int x, int y, int radius, int interval, int angle_from, int angle_to);
 
 /*!
  * \ingroup misc_utils
  * \brief Draws a circle from angle_from to angle_to
- * 
- * 		Draws a circle with the given radius from the center x,y.
  *
- * \param x The center x
- * \param y The center y
- * \param radius The radius
- * 
+ * Draws a circle with the given radius from the center x,y. The circle is
+ * approximated by a series of straight lines, with each line segment covering
+ * an angle of \a interval degrees.
+ * \note This function only adds the vertices. Any calls to this function should
+ * be wrapped in an appropriate glBegin() / glEnd() block (e.g. using a GL_LINE_STRIP
+ * or GL_POLYGON).
+ *
+ * \param x        The center x
+ * \param y        The center y
+ * \param radius   The radius
+ * \param interval The step size, in degrees
+ *
  * \callgraph
  */
 void draw_circle(int x, int y, int radius, int interval);
-
-/*!
- * \ingroup misc_utils
- * \brief Draws a box, that potentially uses rounded corners
- *
- * 	Draws a box that potentially uses rounded corners if a radius is given. The box can have a name, but that is optional. Will look like this:
- * \code
- * 	1)
- * 	+----- box -----+
- * 	|		|
- * 	|		|
- * 	|		|
- * 	|		|
- * 	+---------------+
- *
- * 	2)
- * 	+---------------+
- * 	|		|
- * 	|		|
- * 	|		|
- * 	|		|
- * 	+---------------+
- * \endcode
- *
- * \param name The potential name of the box. If you don't want a name
- * \param x The start x position
- * \param y The start y position
- * \param w The width
- * \param h The height
- * \param rad The radius in the rounded corners - note that they are optional
- */
-void draw_box(char * name, int x, int y, int w, int h, float size, int rad);
-
-/*!
- * \ingroup misc_utils
- * \brief Draws a button with round corners. 
- *
- * 	Draws a button with round corners. The box can be highlighted with the chosen highlight colors (r,g,b,a).
- *
- * \param str The name to write within the button, optional
- * \param size The size of the text
- * \param x The start x position
- * \param y The start y position
- * \param w The width
- * \param lines The number of lines (determines the height)
- * \param r The red color for border and text
- * \param g The green color for border and text
- * \param b The blue color for border and text
- * \param highlight If the button is highlighted or not
- * \param hr The red color for highlighted buttons
- * \param hg The green color for highlighted buttons
- * \param hb The blue color for highlighted buttons
- * \param ha The alpha color for highlighted buttons
- */
-void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, float r, float g, float b, int highlight, float hr, float hg, float hb, float ha);
 
 /*!
  * \ingroup misc
@@ -203,7 +162,7 @@ gzFile my_gzopen(const char * filename, const char * mode);
  * \ingroup misc
  * \brief Test whether a string contains another string at a certain position
  *
- * \c substrtest() test whether \p haystack contains \p needle at position \pos.
+ * \c substrtest() test whether \p haystack contains \p needle at position \a pos.
  *
  * \param haystack the string to test within
  * \param hlen the length of haystack
@@ -231,13 +190,30 @@ static __inline__ int has_suffix(const char * str, int len, const char * suffix,
 	return !substrtest(str, len, -slen, suffix, slen);
 }
 
+static __inline__ void swap_impl(void* a, void* b, void* tmp, size_t size)
+{
+   memcpy(tmp, a, size);
+   memcpy(a, b, size);
+   memcpy(b, tmp, size);
+}
+/*!
+ * \ingroup misc
+ * \brief Swap two variables
+ *
+ * Swap the contents of variables \a a and \a b.
+ *
+ * \note No check is made on the types of \a and \a b, except to check that
+ * their sizes are equal.
+ */
+#define SWAP(a, b) swap_impl(&(a), &(b), (unsigned char[sizeof(a) == sizeof(b) ? (ptrdiff_t)sizeof(a) : -1]){0}, sizeof(a))
+
 /*!
  * \name min_max
  * \brief min/max computation (please read docs)
  *
  * These functions compute min's, max's and related things in a safe and fast manner.
  * Why not use a macro like this?
- * \begincode
+ * \code
  * #define min(x,y) ((x) < (y) ? (x) : (y))
  * \endcode
  * Because it requires a lot of care to use properly and inline functions can do
@@ -245,11 +221,11 @@ static __inline__ int has_suffix(const char * str, int len, const char * suffix,
  * text replacer, and the above macro will evaluate each of the arguments x and y
  * twice! Not only may this involve tiny performance hits, much more important will it
  * cause undesirable results if the evaluation has side effects, like in
- * \begincode
- *   X = min(rand(), rand())
+ * \code
+ * X = min(rand(), rand())
  * \endcode
- * in order to generate a variate X that is more likely to be small. Using the above macro, 
- * X would still be uniformly distributed. Even if you don't dothat kind of jerk, please
+ * in order to generate a variate X that is more likely to be small. Using the above macro,
+ * X would still be uniformly distributed. Even if you don't do that kind of thing, please
  * use these inline functions in order to help avoiding others making these mistakes.
  *
  *  -Lachesis

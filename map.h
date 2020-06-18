@@ -21,7 +21,7 @@ extern Uint32 map_flags;/**< The map flags - basically this will be obsolete wit
 
 extern char dungeon; /**< inidicates whether we are in a dungeon (no sun) or not */
 
-/** @name ambient color values 
+/** @name ambient color values
  * @{ */
 extern float ambient_r;
 extern float ambient_g;
@@ -39,7 +39,6 @@ extern GLfloat* terrain_tile_buffer;
  *
  * 	Loads an empty map in case no other map file was found
  *
- * @param name the filename of the map that failed to load.
  * @retval int  0 if nomap.elm failed to load, otherwise 1 is returned.
  */
 int load_empty_map(void);

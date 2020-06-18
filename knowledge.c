@@ -34,7 +34,8 @@ knowledge knowledge_list[KNOWLEDGE_LIST_SIZE];
 static int knowledge_count= 0;
 
 #define TEXTBUFSIZE 400
-static char raw_knowledge_string[TEXTBUFSIZE]="";
+static unsigned char raw_knowledge_string[TEXTBUFSIZE]="";
+static int rewrap_knowledge_now = 0;
 
 static size_t cm_know_id = CM_INIT_VALUE;
 static INPUT_POPUP ipu_know;
@@ -42,6 +43,7 @@ static char highlight_string[KNOWLEDGE_NAME_SIZE] = "";
 static int know_show_win_help = 0;
 static int mouse_over_progress_bar = 0;
 static int selected_book = -1;
+static int book_clicked = 0;
 
 static const int displayed_book_rows = 16;
 static const int info_lines = 5;
@@ -52,7 +54,10 @@ static int progress_top_y = 0;
 static int progress_bot_y = 0;
 static int progress_right_x = 0;
 static int progress_left_x = 0;
+static int progress_text_y_offset = 0;
 static int text_border = 0;
+static int label_x_left = 0;
+static int book_x_left = 0;
 static int book_start_x = 0;
 
 static int add_knowledge_book_image(int window_id)
@@ -60,7 +65,7 @@ static int add_knowledge_book_image(int window_id)
 	// Book image
 	int isize, tsize, tid, picsperrow, xtile, ytile, id;
 	float ftsize, u, v, uend, vend;
-	
+
 	isize=256;
 	tsize=51;
 	tid=21;
@@ -73,14 +78,13 @@ static int add_knowledge_book_image(int window_id)
 	uend=u+ftsize;
 	vend=v-ftsize;
 	id = load_texture_cached("textures/items1", tt_gui);
-	return image_add_extended(window_id, 0, NULL, 0, 0, 0, 0, WIDGET_DISABLED, 1.0, 1.0, 1.0, 1.0, id, u, v, uend, vend, 0.05f); 
+	return image_add_extended(window_id, 0, NULL, 0, 0, 0, 0, WIDGET_DISABLED, 1.0, 1.0, 1.0, 1.0, id, u, v, uend, vend, 0.05f);
 }
 
-int handle_knowledge_book(void)
+static int handle_knowledge_book(void)
 {
 	open_book(knowledge_book_id + 10000);
-	// Bring the new window to the front               <----- Doesn't work. Is in front for the first usage, but not after that
-	select_window(book_win);
+	book_clicked = 1;
 	return 1;
 }
 
@@ -213,20 +217,18 @@ char *get_research_eta_str(char *str, size_t size)
 
 int display_knowledge_handler(window_info *win)
 {
+	unsigned char buf[128];
 	size_t i;
 	int x = text_border;
 	int y = text_border;
 	int scroll = vscrollbar_get_pos (win->window_id, knowledge_scroll_id);
 	char points_string[16];
 	char *research_string;
-	int points_pos;
-	float font_ratio = win->small_font_len_x/12.0;
+	float font_ratio = win->current_scale_small;
 	float max_name_x = (win->len_x - win->box_size - 2*x)/2;
 	int is_researching = 1;
-	int text_width = win->len_x - 2 * text_border;
-	char knowledge_text_buf[TEXTBUFSIZE];
 
-	if(your_info.research_total && 
+	if(your_info.research_total &&
 	   (your_info.research_completed==your_info.research_total))
 		safe_snprintf(points_string, sizeof(points_string), "%s", completed_research);
 	else
@@ -235,7 +237,7 @@ int display_knowledge_handler(window_info *win)
 	{
 		research_string = knowledge_list[your_info.researching].name;
 	}
-	else if (your_info.researching < sizeof(knowledge_list))
+	else if (your_info.researching < KNOWLEDGE_LIST_SIZE)
 	{
 		research_string = unknown_book_short_str;
 	}
@@ -245,7 +247,6 @@ int display_knowledge_handler(window_info *win)
 		points_string[0] = '\0';
 		is_researching = 0;
 	}
-	points_pos = (progress_right_x - progress_left_x - strlen(points_string) * win->small_font_len_x) / 2;
 
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(0.77f,0.57f,0.39f);
@@ -255,15 +256,6 @@ int display_knowledge_handler(window_info *win)
 	glVertex3i(win->len_x,booklist_y_len,0);
 	glVertex3i(0,progressbox_y_len,0);
 	glVertex3i(win->len_x,progressbox_y_len,0);
-	//progress bar
-	glVertex3i(progress_left_x,progress_top_y,0);
-	glVertex3i(progress_right_x,progress_top_y,0);
-	glVertex3i(progress_left_x,progress_bot_y,0);
-	glVertex3i(progress_right_x,progress_bot_y,0);
-	glVertex3i(progress_left_x,progress_top_y,0);
-	glVertex3i(progress_left_x,progress_bot_y,0);
-	glVertex3i(progress_right_x,progress_top_y,0);
-	glVertex3i(progress_right_x,progress_bot_y,0);
 	glEnd();
 	//progress bar
 	if (is_researching)
@@ -271,33 +263,57 @@ int display_knowledge_handler(window_info *win)
 		int progress = (progress_right_x - progress_left_x - 1) * get_research_fraction();
 		glBegin(GL_QUADS);
 		glColor3f(0.40f,0.40f,1.00f);
-		glVertex3i(progress_left_x+1+gx_adjust,progress_top_y+gy_adjust,0);
-		glVertex3i(progress_left_x+1+progress+gx_adjust,progress_top_y+gy_adjust,0);
+		glVertex3i(progress_left_x, progress_top_y, 0);
+		glVertex3i(progress_left_x + progress,progress_top_y, 0);
 		glColor3f(0.10f,0.10f,0.80f);
-		glVertex3i(progress_left_x+1+progress+gx_adjust,progress_bot_y-1+gy_adjust,0);
-		glVertex3i(progress_left_x+1+gx_adjust,progress_bot_y-1+gy_adjust,0);
+		glVertex3i(progress_left_x + progress,progress_bot_y, 0);
+		glVertex3i(progress_left_x, progress_bot_y, 0);
 		glColor3f(0.77f,0.57f,0.39f);
 		glEnd();
 	}
+	//progress bar
+	glBegin(GL_LINES);
+	glVertex3i(progress_left_x, progress_top_y, 0);
+	glVertex3i(progress_right_x, progress_top_y, 0);
+	glVertex3i(progress_left_x, progress_bot_y, 0);
+	glVertex3i(progress_right_x, progress_bot_y, 0);
+	glVertex3i(progress_left_x, progress_top_y, 0);
+	glVertex3i(progress_left_x, progress_bot_y, 0);
+	glVertex3i(progress_right_x, progress_top_y, 0);
+	glVertex3i(progress_right_x, progress_bot_y, 0);
+	glEnd();
 	glEnable(GL_TEXTURE_2D);
+
 	//draw text
-	if (selected_book >= 0 && knowledge_list[selected_book].present && knowledge_list[selected_book].has_book)
-		text_width = book_start_x - 2 * text_border;
-	put_small_text_in_box_zoomed((unsigned char *)raw_knowledge_string, strlen((char *)raw_knowledge_string), text_width, (char *)knowledge_text_buf, win->current_scale);
-	draw_string_small_zoomed(text_border,booklist_y_len + text_border,(unsigned char*)knowledge_text_buf, info_lines, win->current_scale);
+	if (rewrap_knowledge_now)
+	{
+		int text_width = win->len_x - 2 * text_border;
+		if (selected_book >= 0 && knowledge_list[selected_book].present && knowledge_list[selected_book].has_book)
+			text_width = book_start_x - 2 * text_border;
+		reset_soft_breaks(raw_knowledge_string, strlen((const char*)raw_knowledge_string),
+			sizeof(raw_knowledge_string), win->font_category, win->current_scale_small,
+			text_width, NULL, NULL);
+		rewrap_knowledge_now = 0;
+	}
+	draw_string_small_zoomed(text_border, booklist_y_len + text_border,
+		raw_knowledge_string, info_lines, win->current_scale);
 	glColor3f(1.0f,1.0f,1.0f);
-	draw_string_small_zoomed(text_border,progress_top_y+3+gy_adjust,(unsigned char*)researching_str,1, win->current_scale);
-	draw_string_small_zoomed(text_border+(strlen(researching_str)+1)*win->small_font_len_x,progress_top_y+3+gy_adjust,(unsigned char*)research_string,1, win->current_scale);
-	draw_string_small_zoomed(progress_left_x+points_pos+gx_adjust,progress_top_y+3+gy_adjust,(unsigned char*)points_string,1, win->current_scale);
+	safe_snprintf((char *)buf, sizeof(buf), "%s %s", researching_str, research_string);
+	draw_string_small_zoomed(text_border, progress_top_y + progress_text_y_offset, buf, 1, win->current_scale);
+	if (*points_string)
+		draw_string_small_zoomed_centered((progress_left_x + progress_right_x) / 2,
+			progress_top_y + progress_text_y_offset, (const unsigned char*)points_string,
+			1, win->current_scale);
 	if (is_researching && mouse_over_progress_bar)
 	{
 		char eta_string[20];
-		int eta_pos;
 		get_research_eta_str(eta_string, sizeof(eta_string));
-		eta_pos = (int)(progress_right_x - progress_left_x - strlen(eta_string)*win->small_font_len_x) / 2;
-		draw_string_small_zoomed(progress_left_x + eta_pos, progress_top_y - win->small_font_len_y + 2, (unsigned char*)eta_string, 1, win->current_scale);
+		draw_string_small_zoomed_centered((progress_left_x + progress_right_x) / 2,
+			progress_top_y - win->small_font_len_y, (const unsigned char*)eta_string,
+			1, win->current_scale);
 		mouse_over_progress_bar=0;
 	}
+
 	// Draw knowledges
 	for(i = 2*scroll; y < (booklist_y_len - booklist_y_step); i++)
 	{
@@ -322,26 +338,23 @@ int display_knowledge_handler(window_info *win)
 			glColor3f (1.0f*colour_brightness, 1.0f*colour_brightness, 1.0f*colour_brightness);
 
 		/* truncate the string if it is too long */
-		if ((get_string_width((unsigned char*)knowledge_list[i].name) * font_ratio) > max_name_x)
+		draw_string_zoomed_ellipsis_font(x, y, (const unsigned char*)knowledge_list[i].name,
+			max_name_x, 1, win->font_category, font_ratio);
+		if (get_string_width_zoom((const unsigned char*)knowledge_list[i].name, win->font_category, font_ratio) > max_name_x)
 		{
-			const char *append_str = "... ";
-			size_t dest_max_len = strlen(knowledge_list[i].name)+strlen(append_str)+1;
-			char *used_name = (char *)malloc(dest_max_len);
-			truncated_string(used_name, knowledge_list[i].name, dest_max_len, append_str, max_name_x, font_ratio);
-			draw_string_zoomed(x, y, (unsigned char*)used_name,1,font_ratio);
 			/* if the mouse is over this line and its truncated, tooltip to full name */
 			if (knowledge_list[i].mouse_over)
 			{
 				show_help(knowledge_list[i].name, -TAB_MARGIN, win->len_y+10+TAB_MARGIN, win->current_scale);
 				know_show_win_help = 0;
 			}
-			free(used_name);
+		}
+
+		if (i % 2 == 0)
+		{
+			x += (win->len_x-win->box_size-2*text_border)/2;
 		}
 		else
-			draw_string_zoomed(x,y,(unsigned char*)knowledge_list[i].name,1,font_ratio);
-
-		x += (win->len_x-win->box_size-2*text_border)/2;
-		if (i % 2 == 1)
 		{
 			y += booklist_y_step;
 			x = text_border;
@@ -426,23 +439,23 @@ int click_knowledge_handler(window_info *win, int mx, int my, Uint32 flags)
 		do_click_sound();
 	}
 	return 1;
-} 
+}
 
 
 void get_knowledge_list (Uint16 size, const char *list)
 {
 	int i;
-	
+
 	// make sure the entire knowledge list is 0 incase of short data
 	for(i=0; i<KNOWLEDGE_LIST_SIZE; i++){
 		knowledge_list[i].present= 0;
 	}
-	
+
 	// watch for size being too large
 	if(size*8 > KNOWLEDGE_LIST_SIZE){
 		size= KNOWLEDGE_LIST_SIZE/8;
 	}
-	
+
 	// now copy the data
 	for(i=0; i<size; i++)
 	{
@@ -513,62 +526,118 @@ static int cm_knowledge_handler(window_info *win, int widget_id, int mx, int my,
 	return 1;
 }
 
-static int resize_knowledge_handler(window_info *win, int new_width, int new_height)
+static void set_content_widths(window_info *win)
 {
-	int gap_y;
 	int image_size = (int)(0.5 + win->current_scale * 50);
-	int label_width = 0;
-	int label_height = 0;
-	int book_x_off = 0;
-	int label_x_left = 0;
-	int book_x_left = 0;
+	int label_width = get_string_width_zoom((const unsigned char*)knowledge_read_book,
+		win->font_category, win->current_scale * 0.8);
 
-	text_border = win->small_font_len_x / 2;
+	int i, gap_y, book_x_off, max_width = 0;
+
+	text_border = win->small_font_max_len_x / 2;
 	booklist_y_step = win->small_font_len_y - 2;
+
 	booklist_y_len = 2 * text_border + (int)(0.5 + booklist_y_step * displayed_book_rows);
-	progressbox_y_len = booklist_y_len + 2 * text_border + (int)(0.5 + win->small_font_len_y * info_lines);
+	progressbox_y_len = booklist_y_len + 2 * text_border + win->small_font_len_y * info_lines;
 
 	gap_y = (win->len_y - progressbox_y_len - win->small_font_len_y - 4) / 2;
 	progress_top_y = progressbox_y_len + gap_y;
 	progress_bot_y = win->len_y - gap_y;
 	progress_right_x = win->len_x - (int)(0.5 + win->current_scale * 15);
 	progress_left_x = win->len_x - (int)(0.5 + win->current_scale * 140);
+	progress_text_y_offset = (progress_bot_y - progress_top_y - win->small_font_len_y) / 2;
+
+	book_x_off = max2i(label_width, image_size);
+	label_x_left = progress_right_x - book_x_off/2 - label_width/2;
+	book_x_left = progress_right_x - book_x_off/2 - image_size/2;
+	book_start_x = min2i(label_x_left, book_x_left);
+
+	for (i = 0; i < knowledge_count; ++i)
+	{
+		int width = get_string_width_zoom((const unsigned char*)knowledge_list[i].name,
+			win->font_category, win->current_scale_small);
+		if (width > max_width)
+			max_width = width;
+	}
+
+	win->min_len_x = 2 * text_border + 2 * max_width + 2 * win->small_font_max_len_x;
+	win->min_len_y = progressbox_y_len + 2*text_border + win->small_font_len_y;
+}
+
+static int resize_knowledge_handler(window_info *win, int new_width, int new_height)
+{
+	int image_size = (int)(0.5 + win->current_scale * 50);
+	int label_width = get_string_width_zoom((const unsigned char*)knowledge_read_book,
+		win->font_category, win->current_scale * 0.8);
+	int label_height = (int)(0.5 + win->default_font_len_y * 0.8);
+	int gap_y;
+
+	set_content_widths(win);
 
 	widget_resize(win->window_id, knowledge_scroll_id, win->box_size, booklist_y_len);
 	widget_move(win->window_id, knowledge_scroll_id, win->len_x - win->box_size, 0);
 
 	widget_set_size(win->window_id, knowledge_book_label_id, win->current_scale * 0.8);
-	widget_resize(win->window_id, knowledge_book_label_id, strlen(knowledge_read_book) * win->default_font_len_x * 0.8, win->default_font_len_y * 0.8);
+	widget_resize(win->window_id, knowledge_book_label_id, label_width, label_height);
 	widget_resize(win->window_id, knowledge_book_image_id, image_size, image_size);
 
-	label_width = widget_get_width(win->window_id, knowledge_book_label_id);
-	label_height = widget_get_height(win->window_id, knowledge_book_label_id);
-	book_x_off = (label_width > image_size) ?label_width :image_size;
 	gap_y = booklist_y_len + (progressbox_y_len - booklist_y_len - image_size - label_height)/ 2;
-	label_x_left = progress_right_x - book_x_off/2 - label_width/2;
-	book_x_left = progress_right_x - book_x_off/2 - image_size/2;
-	book_start_x = (label_x_left < book_x_left) ?label_x_left :book_x_left;
-
 	widget_move(win->window_id, knowledge_book_label_id, label_x_left, gap_y);
 	widget_move(win->window_id, knowledge_book_image_id, book_x_left, gap_y + label_height);
 
+	rewrap_knowledge_now = 1;
 
 	return 0;
 }
 
-void fill_knowledge_win (int window_id)
+static int ui_scale_knowledge_handler(window_info *win)
+{
+	set_content_widths(win);
+	return 1;
+}
+
+static int change_knowledge_font_handler(window_info *win, font_cat font)
+{
+	if (font != UI_FONT)
+		return 0;
+	set_content_widths(win);
+	return 1;
+}
+
+// Handler to bring the book window to the front if the book icon has been
+// clicked. We can't do this from click handler itself, as the windows handling
+// code selects this (the knowledge) window after it has successfully handled
+// the click. So we set a flag in the click handler, and check it after each
+// draw.
+static int post_display_knowledge_handler(window_info *win)
+{
+	if (book_clicked)
+	{
+		select_book_window();
+		book_clicked = 0;
+	}
+	return 1;
+}
+
+void fill_knowledge_win(int window_id)
 {
 	set_window_custom_scale(window_id, &custom_scale_factors.stats);
 	set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_knowledge_handler );
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_knowledge_handler );
 	set_window_handler(window_id, ELW_HANDLER_MOUSEOVER, &mouseover_knowledge_handler );
 	set_window_handler(window_id, ELW_HANDLER_RESIZE, &resize_knowledge_handler );
+	set_window_handler(window_id, ELW_HANDLER_UI_SCALE, &ui_scale_knowledge_handler);
+	set_window_handler(window_id, ELW_HANDLER_FONT_CHANGE, &change_knowledge_font_handler);
+	set_window_handler(window_id, ELW_HANDLER_POST_DISPLAY, &post_display_knowledge_handler);
 
 	knowledge_scroll_id = vscrollbar_add_extended (window_id, knowledge_scroll_id, NULL, 0,  0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, (knowledge_count+1)/2-displayed_book_rows);
 	knowledge_book_image_id = add_knowledge_book_image(window_id);
 	widget_set_OnClick(window_id, knowledge_book_image_id, &handle_knowledge_book);
 	knowledge_book_label_id = label_add_extended(window_id, knowledge_book_image_id + 1, NULL, 0, 0, WIDGET_DISABLED, 0.8, 1.0, 1.0, 1.0, knowledge_read_book);
 	widget_set_OnClick(window_id, knowledge_book_label_id, &handle_knowledge_book);
+
+	if (window_id >= 0 && window_id < windows_list.num_windows)
+		set_content_widths(&windows_list.window[window_id]);
 
 	if (cm_valid(!cm_know_id))
 	{
@@ -580,9 +649,9 @@ void fill_knowledge_win (int window_id)
 
 void set_knowledge_string(const Uint8 *in_data, int data_length)
 {
-	safe_strncpy2(raw_knowledge_string, (const char *)in_data, TEXTBUFSIZE, data_length);
+	safe_strncpy2((char *)raw_knowledge_string, (const char *)in_data, TEXTBUFSIZE, data_length);
+	rewrap_knowledge_now = 1;
 }
-
 
 void load_knowledge_list(void)
 {

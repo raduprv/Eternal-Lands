@@ -60,7 +60,7 @@ void unload_questlog();
  *
  * \callgraph
  */
-void add_questlog(char *t, int len);
+void add_questlog(const unsigned char *t, int len);
 
 /*!
  * \ingroup quest_window

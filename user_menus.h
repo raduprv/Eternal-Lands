@@ -8,7 +8,7 @@ extern "C"
 
 /* config option variable */
 extern int enable_user_menus;
-extern int ready_for_user_menus; 
+extern int ready_for_user_menus;
 
 /*!
  * \ingroup user_menus
@@ -16,7 +16,7 @@ extern int ready_for_user_menus;
  *
  * \param win_x			x coord of window
  * \param win_y			y coord of window
- * \param option		window options (bit fields)
+ * \param options		window options (bit fields)
  */
 void set_options_user_menus(int win_x, int win_y, int options);
 
@@ -27,7 +27,7 @@ void set_options_user_menus(int win_x, int win_y, int options);
  *
  * \param win_x			x coord of window
  * \param win_y			y coord of window
- * \param option		window options (bit fields)
+ * \param options		window options (bit fields)
  */
 void get_options_user_menus(int *win_x, int *win_y, int *options);
 
@@ -35,8 +35,6 @@ void get_options_user_menus(int *win_x, int *win_y, int *options);
 /*!
  * \ingroup user_menus
  * \brief Open the user menus window.
- *
- * \param cm_id			id of context menu
  */
 void display_user_menus(void);
 
@@ -45,7 +43,7 @@ void display_user_menus(void);
  * \ingroup user_menus
  * \brief Called when the user menu config option is changed.
  *
- * \param enabled		open window (1), close window (0)
+ * \param enable		open window (1), close window (0)
  */
 void toggle_user_menus(int *enable);
 

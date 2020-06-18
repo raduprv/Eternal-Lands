@@ -93,6 +93,7 @@ static char items_string[350] = {0};
 static size_t last_items_string_id = 0;
 static const char *item_help_str = NULL;
 static const char *item_desc_str = NULL;
+static float button_text_zoom = 0.0f;
 
 #define NUMBUT 5
 static size_t buttons_cm_id[NUMBUT] = {CM_INIT_VALUE, CM_INIT_VALUE, CM_INIT_VALUE, CM_INIT_VALUE, CM_INIT_VALUE};
@@ -141,9 +142,9 @@ void gray_out(int x_start, int y_start, int gridsize){
 		glVertex3i(x_start,y_start,0);
 		glVertex3i(x_start+gridsize,y_start,0);
 		glVertex3i(x_start+gridsize,y_start+gridsize,0);
-		glVertex3i(x_start,y_start+gridsize,0);				
+		glVertex3i(x_start,y_start+gridsize,0);
 	glEnd();
-	glDisable(GL_BLEND);	
+	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
 	glColor3f(1.0f, 1.0f, 1.0f);
 }
@@ -194,7 +195,7 @@ int get_mouse_pos_in_grid(int mx, int my, int columns, int rows, int left, int t
 void reset_quantity (int pos)
 {
 	int val;
-					
+
 	switch(pos)
 	{
 		case 0:
@@ -243,13 +244,12 @@ void drag_item(int item, int storage, int mini)
 	int offset = (mini) ? my_items_grid_size/3 : my_items_grid_size/2;
 
 	int quantity=item_quantity;
-	char str[20];
-	
+
 	if(storage) {
 		if (item < 0 || item >= STORAGE_ITEMS_SIZE)
 			// oops
 			return;
-		
+
 		cur_item=storage_items[item].image_id;
 		if(!storage_items[item].quantity) {
 			use_item = storage_item_dragged=-1;
@@ -261,7 +261,7 @@ void drag_item(int item, int storage, int mini)
 		if (item < 0 || item >= ITEM_NUM_ITEMS)
 			// oops
 			return;
-		
+
 		cur_item=item_list[item].image_id;
 		if(!item_list[item].quantity) {
 			use_item = item_dragged=-1;
@@ -294,12 +294,14 @@ void drag_item(int item, int storage, int mini)
 	glBegin(GL_QUADS);
 	draw_2d_thing(u_start, v_start, u_end, v_end, mouse_x - offset, mouse_y - offset, mouse_x + offset, mouse_y + offset);
 	glEnd();
-	
-	if(!mini && quantity!=-1){
-		int str_width = 0;
-		safe_snprintf(str,sizeof(str),"%i",quantity);
-		str_width = strlen(str) * get_global_scale() * SMALL_FONT_X_LEN;
-		draw_string_small_zoomed(mouse_x-str_width/2, mouse_y - offset - get_global_scale() * SMALL_FONT_Y_LEN, (unsigned char*)str, 1, get_global_scale());
+
+	if (!mini && quantity != -1)
+	{
+		int text_height = get_line_height(UI_FONT, get_global_scale() * DEFAULT_SMALL_RATIO);
+		unsigned char str[20];
+		safe_snprintf((char*)str, sizeof(str), "%d", quantity);
+		draw_string_small_zoomed_centered(mouse_x, mouse_y - offset - text_height,
+			str, 1, get_global_scale());
 	}
 }
 
@@ -319,16 +321,16 @@ void get_your_items (const Uint8 *data)
 	//data[7] -> pos
 	//data[8] -> flags
 	//data[9] -> id
-	
-	
+
+
 	total_items=data[0];
-	
+
 	//clear the items first
 	for(i=0;i<ITEM_NUM_ITEMS;i++){
 		item_list[i].quantity=0;
 		item_list_extra[i].slot_busy_start = 0;
 	}
-	
+
 	for(i=0;i<total_items;i++){
 		pos=data[i*len+1+6];
 		// try not to wipe out cooldown information if no real change
@@ -362,7 +364,7 @@ void get_your_items (const Uint8 *data)
 void check_for_item_sound(int pos)
 {
 	int i, snd = -1;
-	
+
 #ifdef _EXTRA_SOUND_DEBUG
 //	printf("Used item: %d, Image ID: %d, Action: %d\n", pos, item_list[pos].image_id, item_list[pos].action);
 #endif // _EXTRA_SOUND_DEBUG
@@ -410,7 +412,7 @@ void update_item_sound(int interval)
 				item_list[i].action_time = 0;
 			}
 		}
-	}	
+	}
 }
 #endif // NEW_SOUND
 
@@ -504,11 +506,11 @@ void remove_item_from_inventory(int pos)
 
 	if (pos == swap_complete.move_from)
 		swap_complete.move_to = swap_complete.move_from = -1;
-	
+
 #ifdef NEW_SOUND
 	check_for_item_sound(pos);
 #endif // NEW_SOUND
-	
+
 	build_manufacture_list();
 	check_castability();
 }
@@ -549,11 +551,11 @@ void get_new_inventory_item (const Uint8 *data)
 	item_list[pos].is_reagent=((flags&ITEM_REAGENT)>0);
 	item_list[pos].use_with_inventory=((flags&ITEM_INVENTORY_USABLE)>0);
 	item_list[pos].is_stackable=((flags&ITEM_STACKABLE)>0);
-	
+
 #ifdef NEW_SOUND
 	check_for_item_sound(pos);
 #endif // NEW_SOUND
-	
+
 	build_manufacture_list();
 	check_castability();
 
@@ -583,7 +585,7 @@ void draw_item(int id, int x_start, int y_start, int gridsize){
 
 	//get the texture this item belongs to
 	this_texture=get_items_texture(id/25);
-		
+
 	bind_texture(this_texture);
 	glBegin(GL_QUADS);
 		draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_start+gridsize-1,y_start+gridsize-1);
@@ -596,7 +598,6 @@ static int display_items_handler(window_info *win)
 	char my_str[10];
 	int x,y,i;
 	int item_is_weared=0;
-	float equip_string_zoom;
 	Uint32 _cur_time = SDL_GetTicks(); /* grab a snapshot of current time */
 	char *but_labels[NUMBUT] = { sto_all_str, get_all_str, drp_all_str, NULL, itm_lst_str };
 
@@ -604,7 +605,7 @@ static int display_items_handler(window_info *win)
 
 	check_for_swap_completion();
 
-	/* 
+	/*
 	* Labrat: I never realised that a store all patch had been posted to Berlios by Awn in February '07
 	* Thanks to Awn for his earlier efforts (but this is not a derivative of his earlier work)
 	*
@@ -614,35 +615,38 @@ static int display_items_handler(window_info *win)
 	// draw the button labels
 	but_labels[BUT_MIX] = (items_mix_but_all) ?mix_all_str :mix_one_str;
 	for (i=0; i<NUMBUT; i++) {
-		int text_x_offset = (int)(0.5 + ((buttons_grid.width - (float)(3 * win->small_font_len_x)) / 2.0)) + gx_adjust;
-		int text_y_offset = (int)(0.5 + ((buttons_grid.height - (float)(2 * win->small_font_len_y)) / 2.0)) + gy_adjust;
 		strap_word(but_labels[i],my_str);
 		glColor3f(0.77f,0.57f,0.39f);
-		draw_string_small_zoomed(buttons_grid.pos_x + text_x_offset, buttons_grid.pos_y + buttons_grid.height * i + text_y_offset, (unsigned char*)my_str, 2, win->current_scale);
+		draw_text(buttons_grid.pos_x + buttons_grid.width/2,
+			buttons_grid.pos_y + buttons_grid.height * i + buttons_grid.height/2,
+			(const unsigned char*)my_str, strlen(my_str), win->font_category,
+			TDO_ZOOM, button_text_zoom, TDO_ALIGNMENT, CENTER, TDO_VERTICAL_ALIGNMENT, CENTER_LINE,
+			TDO_END);
 	}
 
 	x = quantity_grid.pos_x + quantity_grid.width / 2;
-	y = quantity_grid.pos_y + (quantity_grid.height - win->small_font_len_y) / 2;
-	glColor3f(0.3f,0.5f,1.0f);
+	y = quantity_grid.pos_y + quantity_grid.height / 2;
 	for(i = 0; i < ITEM_EDIT_QUANT; x += quantity_grid.width, ++i){
 		if(i==edit_quantity){
 			glColor3f(1.0f, 0.0f, 0.3f);
-			draw_string_small_zoomed(1+gx_adjust+x-strlen(quantities.quantity[i].str)*win->small_font_len_x/2, y+gy_adjust, (unsigned char*)quantities.quantity[i].str, 1, win->current_scale);
-			glColor3f(0.3f, 0.5f, 1.0f);
 		} else if(i==quantities.selected){
 			glColor3f(0.0f, 1.0f, 0.3f);
-			draw_string_small_zoomed(1+gx_adjust+x-strlen(quantities.quantity[i].str)*win->small_font_len_x/2, y+gy_adjust, (unsigned char*)quantities.quantity[i].str, 1, win->current_scale);
-			glColor3f(0.3f, 0.5f, 1.0f);
-		} else draw_string_small_zoomed(1+gx_adjust+x-strlen(quantities.quantity[i].str)*win->small_font_len_x/2, y+gy_adjust, (unsigned char*)quantities.quantity[i].str, 1, win->current_scale);
+		} else {
+			glColor3f(0.3f,0.5f,1.0f);
+		}
+		draw_text(x, y, (const unsigned char*)quantities.quantity[i].str,
+			strlen(quantities.quantity[i].str), win->font_category, TDO_ZOOM, win->current_scale_small,
+			TDO_ALIGNMENT, CENTER, TDO_VERTICAL_ALIGNMENT, CENTER_DIGITS, TDO_END);
 	}
-	draw_string_small_zoomed(labels_box.pos_x + labels_box.len_x - strlen(quantity_str) * win->small_font_len_x, labels_box.pos_y, (unsigned char*)quantity_str, 1, win->current_scale);
+	glColor3f(0.3f,0.5f,1.0f);
+	draw_string_small_zoomed_right(labels_box.pos_x + labels_box.len_x, labels_box.pos_y,
+		(const unsigned char*)quantity_str, 1, win->current_scale);
 
 	glColor3f(0.57f,0.67f,0.49f);
-	equip_string_zoom = (float)equip_grid.len_x / (SMALL_FONT_X_LEN * strlen(equip_str));
-	if (equip_string_zoom > win->current_scale)
-		equip_string_zoom = win->current_scale;
-	draw_string_small_zoomed (gx_adjust + equip_grid.pos_x + equip_grid.len_x / 2 - (SMALL_FONT_X_LEN * equip_string_zoom * strlen(equip_str))/2,
-		gy_adjust + equip_grid.pos_y - 0.9 * SMALL_FONT_Y_LEN * win->current_scale + 1, (unsigned char*)equip_str, 1, equip_string_zoom);
+	draw_text(equip_grid.pos_x + equip_grid.len_x / 2, equip_grid.pos_y, (const unsigned char*)equip_str,
+		strlen(equip_str), win->font_category, TDO_MAX_WIDTH, equip_grid.len_x,
+		TDO_ZOOM, win->current_scale_small, TDO_SHRINK_TO_FIT, 1, TDO_ALIGNMENT, CENTER,
+		TDO_VERTICAL_ALIGNMENT, BOTTOM_LINE, TDO_END);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
@@ -732,7 +736,7 @@ static int display_items_handler(window_info *win)
 				glDisable(GL_BLEND);
 				glEnable(GL_TEXTURE_2D);
 			}
-			
+
 			if(!item_is_weared){
 				int use_large = (items_grid.mouse_over == i) && enlarge_text();
 				safe_snprintf(str, sizeof(str), "%i", item_list[i].quantity);
@@ -757,7 +761,8 @@ static int display_items_handler(window_info *win)
 	{
 		if (last_items_string_id != inventory_item_string_id)
 		{
-			put_small_text_in_box_zoomed((unsigned char*)inventory_item_string, strlen(inventory_item_string), message_box.len_x, items_string, win->current_scale);
+			put_small_text_in_box_zoomed((const unsigned char*)inventory_item_string, strlen(inventory_item_string), message_box.len_x,
+			(unsigned char*)items_string, win->current_scale);
 			last_items_string_id = inventory_item_string_id;
 		}
 		draw_string_small_zoomed(message_box.pos_x, message_box.pos_y, (unsigned char*)items_string, message_box.rows, win->current_scale);
@@ -781,7 +786,7 @@ static int display_items_handler(window_info *win)
 		// if we have a coloured message, draw a small dot at the top of the arrow to indicate so, using the colour of the message
 		if ((strlen(inventory_item_string) > 0) && is_color(inventory_item_string[0]))
 		{
-			size_t colour = from_color_char (inventory_item_string[0]);
+			int colour = from_color_char (inventory_item_string[0]);
 			if ((colour >= c_lbound) && (colour <= c_ubound))
 			{
 				glColor4f((float) colors_list[colour].r1 / 255.0f, (float) colors_list[colour].g1 / 255.0f, (float) colors_list[colour].b1 / 255.0f, 1.0f);
@@ -848,16 +853,16 @@ static int display_items_handler(window_info *win)
 	}
 
 	// Render the grid *after* the images. It seems impossible to code
-	// it such that images are rendered exactly within the boxes on all 
+	// it such that images are rendered exactly within the boxes on all
 	// cards
 	glColor3f(0.77f,0.57f,0.39f);
 
 	//draw the grids
 	rendergrid(items_grid.cols, items_grid.rows, items_grid.pos_x, items_grid.pos_y, items_grid.width, items_grid.height);
-	
+
 	glColor3f(0.57f,0.67f,0.49f);
 	rendergrid(equip_grid.cols, equip_grid.rows, equip_grid.pos_x, equip_grid.pos_y, equip_grid.width, equip_grid.height);
-	
+
 	// draw the button boxes
 	glColor3f(0.77f,0.57f,0.39f);
 	for (i=0; i<NUMBUT; i++) {
@@ -868,7 +873,7 @@ static int display_items_handler(window_info *win)
 			glVertex3i(buttons_grid.pos_x + buttons_grid.width, buttons_grid.pos_y + buttons_grid.height * i + buttons_grid.height, 0);
 		glEnd();
 	}
-	
+
 	// highlight a button with the mouse over
 	if (buttons_grid.mouse_over != -1)
 	{
@@ -884,9 +889,9 @@ static int display_items_handler(window_info *win)
 	//now, draw the quantity boxes
 	glColor3f(0.3f,0.5f,1.0f);
 	rendergrid(quantity_grid.cols, quantity_grid.rows, quantity_grid.pos_x, quantity_grid.pos_y, quantity_grid.width, quantity_grid.height);
-	
+
 	glEnable(GL_TEXTURE_2D);
-	
+
 	// display help text for button if mouse over one
 	if ((buttons_grid.mouse_over != -1) && show_help_text) {
 		char *helpstr[NUMBUT] = { stoall_help_str, getall_help_str, ((disable_double_click) ?drpall_help_str :dcdrpall_help_str), mixoneall_help_str, itmlst_help_str };
@@ -951,7 +956,7 @@ int move_item(int item_pos_to_mov, int destination_pos, int avoid_pos)
 			else
 				set_shown_string(c_red2, items_stack_str);
 			/*  This still leaves one possibility for the dreaded server accusation.
-				If we have no free inventory slots, one or more stackable items 
+				If we have no free inventory slots, one or more stackable items
 				unequipped, and a single, different equipped item with the same id as
 				the aforementioned stack.  When we try to unequip the single item, the
 				client tries to place it on that stack. This may mean we have to
@@ -1110,7 +1115,7 @@ void try_auto_equip(int from_item)
 }
 
 static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
-{	
+{
 	Uint8 str[100];
 	int right_click = flags & ELW_RIGHT_MOUSE;
 	int ctrl_on = flags & KMOD_CTRL;
@@ -1193,7 +1198,7 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			item_action_mode=ACTION_WALK;
 			return 1;
 		}
-		
+
 		if((mx >= equip_grid.pos_x) && (mx < equip_grid.pos_x + equip_grid.len_x) &&
 				(my >= equip_grid.pos_y) && (my < equip_grid.pos_y + equip_grid.len_y + 1)) {
 			switch(item_action_mode){
@@ -1228,7 +1233,7 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			return 1;
 		}
 	}
-	
+
 	if(item_action_mode==ACTION_USE_WITEM)	action_mode=ACTION_USE_WITEM;
 
 	//see if we changed the quantity
@@ -1245,14 +1250,14 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 				}
 				edit_quantity=-1;
 			}
-			
+
 			item_quantity=quantities.quantity[pos].val;
 			quantities.selected=pos;
 		} else if(right_click){
 			//Edit the given quantity
 			edit_quantity=pos;
 		}
-		
+
 		return 1;
 	}
 
@@ -1262,12 +1267,12 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 		quantities.selected=edit_quantity;
 		edit_quantity=-1;
 	}
-	
+
 	//see if we clicked on any item in the main category
 	else if(mx>items_grid.pos_x && (mx < items_grid.pos_x + items_grid.len_x) &&
 				my>0 && my < items_grid.len_y) {
 		int pos=get_mouse_pos_in_grid(mx, my, items_grid.cols, items_grid.rows, items_grid.pos_x, items_grid.pos_y, items_grid.width, items_grid.height);
-		
+
 #ifdef NEW_SOUND
 		if(pos>-1) {
 			item_list[pos].action = ITEM_NO_ACTION;
@@ -1287,7 +1292,7 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 				}
 				item_dragged=-1;
 			}
-		
+
 		}
 		else if(storage_item_dragged!=-1){
 			str[0]=WITHDRAW_ITEM;
@@ -1303,7 +1308,7 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 				str[1]=item_list[pos].pos;
 				if(item_list[pos].is_stackable)
 					*((Uint32 *)(str+2))=SDL_SwapLE32(item_list[pos].quantity);
-				else 
+				else
 					*((Uint32 *)(str+2))=SDL_SwapLE32(36);//Drop all
 				my_tcp_send(my_socket, str, 6);
 				do_drop_item_sound();
@@ -1360,7 +1365,7 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 				do_drag_item_sound();
 			}
 		}
-	} 
+	}
 
 	// Get All button
 	else if(over_button(win, mx, my)==BUT_GET){
@@ -1414,7 +1419,7 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	else if((mx > equip_grid.pos_x) && (mx < equip_grid.pos_x + equip_grid.len_x) &&
 				(my > equip_grid.pos_y) && (my < equip_grid.pos_y + equip_grid.len_y)){
 		int pos = ITEM_WEAR_START + get_mouse_pos_in_grid(mx, my, equip_grid.cols, equip_grid.rows, equip_grid.pos_x, equip_grid.pos_y, equip_grid.width, equip_grid.height);
-		
+
 		if(pos < ITEM_WEAR_START) {
 		} else if(item_list[pos].quantity){
 			if(item_action_mode == ACTION_LOOK) {
@@ -1455,7 +1460,7 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			return 1;
 		}
 	}
-	
+
 	return 1;
 }
 
@@ -1469,7 +1474,7 @@ static void set_description_help(int pos)
 
 static int mouseover_items_handler(window_info *win, int mx, int my) {
 	int pos;
-	
+
 	// check and record if mouse if over a button
 	if ((buttons_grid.mouse_over = over_button(win, mx, my)) != -1)
 		return 0; // keep standard cursor
@@ -1539,7 +1544,7 @@ static int mouseover_items_handler(window_info *win, int mx, int my) {
 			(my > message_box.pos_y) && (my < message_box.pos_y + message_box.len_y)) {
 		item_help_str = (disable_double_click)?click_clear_str :double_click_clear_str;
 	}
-	
+
 	return 0;
 }
 
@@ -1639,9 +1644,11 @@ static int show_items_handler(window_info * win)
 	equip_grid.len_y = equip_grid.height * equip_grid.rows;;
 
 	/* the buttons */
+	button_text_zoom = win->current_scale_small
+		* min2f(1.0, 0.5 * equip_grid.height / win->small_font_len_y);
 	buttons_grid.cols = 1;
 	buttons_grid.rows = NUMBUT;
-	buttons_grid.width = (int)(0.5 + 4 * win->small_font_len_x);
+	buttons_grid.width = 4 * get_max_char_width_zoom(win->font_category, button_text_zoom);
 	buttons_grid.height = equip_grid.height;
 	buttons_grid.len_x = buttons_grid.width * buttons_grid.cols;
 	buttons_grid.len_y = buttons_grid.height * buttons_grid.rows;
@@ -1776,7 +1783,8 @@ void display_items_menu()
 		set_window_handler(items_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_SHOW, &show_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_UI_SCALE, &show_items_handler );
-		
+		set_window_handler(items_win, ELW_HANDLER_FONT_CHANGE, &show_items_handler);
+
 		cm_add(windows_list.window[items_win].cm_id, cm_items_menu_str, context_items_handler);
 		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+1, &use_small_items_window, NULL);
 		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+2, &manual_size_items_window, NULL);
@@ -1789,11 +1797,11 @@ void display_items_menu()
 		buttons_cm_id[BUT_STORE] = cm_create(inv_keeprow_str, NULL);
 		cm_bool_line(buttons_cm_id[BUT_STORE], 0, &items_stoall_nofirstrow, NULL);
 		cm_bool_line(buttons_cm_id[BUT_STORE], 1, &items_stoall_nolastrow, NULL);
-		
+
 		buttons_cm_id[BUT_DROP] = cm_create(inv_keeprow_str, NULL);
 		cm_bool_line(buttons_cm_id[BUT_DROP], 0, &items_dropall_nofirstrow, NULL);
 		cm_bool_line(buttons_cm_id[BUT_DROP], 1, &items_dropall_nolastrow, NULL);
-		
+
 		buttons_cm_id[BUT_MIX] = cm_create(mix_all_str, NULL);
 		cm_bool_line(buttons_cm_id[BUT_MIX], 0, &items_mix_but_all, NULL);
 
@@ -1815,7 +1823,7 @@ void get_items_cooldown (const Uint8 *data, int len)
 {
 	int iitem, nitems, ibyte, pos;
 	Uint8 cooldown, max_cooldown;
-	
+
 	// reset old cooldown values
 	for (iitem = 0; iitem < ITEM_NUM_ITEMS; iitem++)
 	{
@@ -1825,7 +1833,7 @@ void get_items_cooldown (const Uint8 *data, int len)
 
 	nitems = len / 5;
 	if (nitems <= 0) return;
-	
+
 	ibyte = 0;
 	for (iitem = 0; iitem < nitems; iitem++)
 	{
@@ -1833,7 +1841,7 @@ void get_items_cooldown (const Uint8 *data, int len)
 		max_cooldown = SDL_SwapLE16 (*((Uint16*)(&data[ibyte+1])));
 		cooldown = SDL_SwapLE16 (*((Uint16*)(&data[ibyte+3])));
 		ibyte += 5;
-		
+
 		item_list[pos].cooldown_rate = 1000 * (Uint32)max_cooldown;
 		item_list[pos].cooldown_time = cur_time + 1000 * (Uint32)cooldown;
 	}

@@ -63,12 +63,14 @@ typedef	struct	{
 	 */
 	/*! @{ */
 	float current_scale;
+	float current_scale_small;
 	float *custom_scale;
 	int box_size;
 	int title_height;
-	int small_font_len_x;
+	font_cat font_category;
+	int small_font_max_len_x;
 	int small_font_len_y;
-	int default_font_len_x;
+	int default_font_max_len_x;
 	int default_font_len_y;
 
 	/*!
@@ -90,6 +92,7 @@ typedef	struct	{
 	int (*after_show_handler)();		/*!< executed after the window is shown */
 	int (*hide_handler)();		/*!< executed after the window is hidden */
 	int (*ui_scale_handler)();	/*!< executed if the glabal scale ui_scale is changed */
+	int (*font_change_handler)(); /*!< executed when font settings are changed */
 	/*! @} */
 
 	/*
@@ -218,6 +221,7 @@ typedef	struct	{
 #define	ELW_HANDLER_PRE_DISPLAY	12
 #define	ELW_HANDLER_POST_DISPLAY	13
 #define ELW_HANDLER_UI_SCALE 14
+#define ELW_HANDLER_FONT_CHANGE 15
 /*! @} */
 
 /*!
@@ -279,11 +283,11 @@ extern int opaque_window_backgrounds;
  * \ingroup elwindows
  * \brief   Set the window custom scale factor
  *
- *      This value is multipled by the global scale value to
+ *      This value is multiplied by the global scale value to
  * determine the specific scale used for this window.
  *
  * \param win_id    the id of the window to select
- * \param scale_factor     pointer to the scaling factor
+ * \param new_scale pointer to the new scaling factor
  * \callgraph
  */
 void set_window_custom_scale(int win_id, float *new_scale);
@@ -303,7 +307,7 @@ void update_windows_custom_scale(float *changed_window_custom_scale);
  *
  *      Update scale settings for all windows
  *
- * \param scale_factor     the scaling factor 
+ * \param scale_factor     the scaling factor
  * \callgraph
  */
 void update_windows_scale(float scale_factor);
@@ -319,6 +323,16 @@ void update_windows_scale(float scale_factor);
  * \callgraph
  */
 void update_window_scale(window_info *win, float scale_factor);
+
+/*!
+ * \ingroup elwindows
+ * \brief Handle a change in fonts
+ *
+ * Handle a change in font or text size for font category \a cat, in all windows.
+ *
+ * \param cat The font category that was changed,
+ */
+void change_windows_font(font_cat cat);
 
 /*!
  * \ingroup elwindows
@@ -735,7 +749,7 @@ int		mouse_in_window(int win_id, int x, int y);	// is a coord in the window?
  * \param flags     the window flags of the window. They will be given to the \ref window_info::click_handler that handles the actual click event.
  * \retval int      -1, if either \a win_id < 0, or \a win_id is greater than \ref windows_info::num_windows,
  *                  of if \a win_id is not equal the \ref window_info::window_id of the given at index \a win_id into the \ref windows_list array.
- *                  1 (true), if the cursor is actualy inside the window, 
+ *                  1 (true), if the cursor is actualy inside the window,
  *                  else 0 (false).
  * \callgraph
  *
@@ -807,11 +821,36 @@ int get_window_scroll_pos(int win_id);
 
 /*!
  * \ingroup elwindows
+ * \brief   Set the font category
+ *
+ * Set the font category for the text within the window with ID \a id window
+ * to \a cat.
+ *
+ * \param win_id The ID of the  window
+ * \param cat    The new font category
+ * \return 1 if the font category was sucessfully set, 0 on failure
+ */
+int set_window_font_category(int win_id, font_cat cat);
+
+/*!
+ * \ingroup elwindows
+ * \brief Get the content width of a window
+ *
+ * Get the content width of the window with identifier \a window_id. For non-scrollable windows,
+ * this is the normal window width. For scrollable windows, the width of the scrollbar is subtracted.
+ *
+ * \param window_id The ID of the window
+ * \return The content width of the window in pixels
+ */
+int get_window_content_width(int window_id);
+
+/*!
+ * \ingroup elwindows
  * \brief   The callback for context menu clicks
  *
  *      Called when an option is selected from the title context menu.  If
  *	the user window wants to use their own callback, they should still
- *  call this function to implement the title menu options. 
+ *  call this function to implement the title menu options.
  *
  * \param win    	Pointer to the windows structure
  * \param widget_id	The id of the widget clicked to open the menu or -1.

@@ -19,8 +19,8 @@ extern "C"
  *      Creates a new context menu with the returned unique id.  This id identifies the menu
  *	when control functions are called.  The menu_list and handler can be modified using the
  *	\ref cm_set function.  If the menu was opened from an associated window, the window
- *	window_info pointer is supplied to the handler; then any associated widget id, followed by the 
- * 	x and y mouse coordinates in the window where the right-click was done.  The last 
+ *	window_info pointer is supplied to the handler; then any associated widget id, followed by the
+ * 	x and y mouse coordinates in the window where the right-click was done.  The last
  * 	parameter is the selected menu line.
  *	No error codes are returned by this function.
  *
@@ -87,7 +87,7 @@ int cm_pre_show_check(Uint32 flags);
 
 /*!
  * \ingroup context_menu
- * \brief Called by \ref click_in_windows to closes/hides any open context menu. 
+ * \brief Called by \ref click_in_windows to closes/hides any open context menu.
  * \param  force	if true always close regardless of internal state
  */
 void cm_post_show_check(int force);
@@ -161,15 +161,15 @@ int cm_set_colour(size_t cm_id, enum CM_COLOUR_NAME colour_name, float r, float 
 /*!
  * \ingroup context_menu
  * \brief  Make a context menu line a tick box option.
- * 
- *		When the menu line is selected, the control variable value is toggled.  Also, if the
+ *
+ * When the menu line is selected, the control variable value is toggled. Also, if the
  * control variable is modified elsewhere, the context menu dynamically/automatically reflects
- * the state.  This can be used for \ref elconfig options.
+ * the state.  This can be used for \ref config options.
  *
  * \param  cm_id		id of context menu
  * \param  line			the menu line number to change, range 0 - (number lines - 1)
  * \param  control_var	the address of the control variable
- * \paraam config_name	if not NULL, the elconfig option name - used to set unsaved
+ * \param  config_name	if not NULL, the elconfig option name - used to set unsaved
  * \retval int 			1 for success, 0 for failure (invalid id)
  */
 int cm_bool_line(size_t cm_id, size_t line, int *control_var, const char *config_name);
@@ -178,9 +178,10 @@ int cm_bool_line(size_t cm_id, size_t line, int *control_var, const char *config
 /*!
  * \ingroup context_menu
  * \brief Enable/disable a context menu line (disable - grey it out).
- * \param  cm_id		id of context menu
- * \param  is_grey		if true, the line is disabled, otherwise enabled
- * \retval int 			1 for success, 0 for failure (invalid id)
+ * \param  cm_id    identifier of the context menu
+ * \param  line     the line to enable or disable
+ * \param  is_grey	if \c true, the line is disabled, otherwise enabled
+ * \retval int 1 for success, 0 for failure (invalid id)
  */
 int cm_grey_line(size_t cm_id, size_t line, int is_grey);
 

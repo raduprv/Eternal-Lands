@@ -42,15 +42,15 @@ typedef struct
  * \name windows handlers
  */
 /*! @{ */
-extern int manufacture_win; /*!< manufacture windows handler */
+extern int manufacture_win; /*!< manufacture window identifier */
 /*! @} */
 
 /*!
  * \ingroup manufacture_window
- * \brief Sets up the \ref manufacture_list.
+ * \brief Sets up the manufacture list
  *
- *      Initializes the \ref manufacture_list used when an actor is manufacturing items with the \ref manufacture_win window.
- *
+ * Initializes the manufacture list used when an actor is manufacturing items with
+ * the \ref manufacture_win window.
  */
 void build_manufacture_list();
 

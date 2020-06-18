@@ -12,13 +12,13 @@
 extern "C" {
 #endif
 
-extern int have_storage_list; /*!< Flag indicating if we can use a cached responce to #storage */
+extern int have_storage_list; /*!< Flag indicating if we can use a cached responce to \#storage */
 extern int use_global_filters; /*!< global flag, indicating whether global filtering is used or not */
 extern char text_filter_replace[]; /*!< string, that contains the word to replace each entry in \see filter_list with */
 extern int caps_filter; /*!< global flag, indicating whether filter of caps is enabled or not */
-extern char storage_filter[128]; /*!< string to use as filter when using the #storage \<name\> command */
+extern char storage_filter[128]; /*!< string to use as filter when using the \#storage \<name\> command */
 
-extern unsigned char cached_storage_list[8192]; /*!< Copy of the result of #storage when last sent to server */
+extern unsigned char cached_storage_list[8192]; /*!< Copy of the result of \#storage when last sent to server */
 
 /*!
  * \ingroup actors_utils
@@ -52,6 +52,7 @@ int remove_from_filter_list (const char *name);
  *
  * \param input_text    the text to filter
  * \param len           the length of \a input_text
+ * \param size          the maximum number of bytes in \a input_text
  * \retval int
  * \callgraph
  */
@@ -65,6 +66,7 @@ int filter_storage_text (char * input_text, int len, int size);
  *
  * \param input_text    the text to filter
  * \param len           the length of \a input_text
+ * \param size          the maximum number of bytes in \a input_text
  * \retval int
  * \callgraph
  */

@@ -29,6 +29,7 @@ FEATURES += NEW_CURSOR			# New coloured cursors made by Emajekral (Experimental)
 
 # Development options targetting at most 1.9.6
 FEATURES += JSON_FILES			# switch existing binary user config files to JSON format
+FEATURES += TTF                 # Add ability to use True Type system fonts
 
 ### Testing options (these options are possible for the next release and should be tested) ###
 #FEATURES += ANTI_ALIAS			# allows to enable/disable anti-aliasing in el.ini
@@ -76,7 +77,7 @@ PLATFORM=-march=native
 XDIR=-L/usr/X11R6/lib
 CWARN=-Wall -Wdeclaration-after-statement -W -Wno-unused-parameter -Wno-sign-compare
 # -Wno-pointer-sign -Wno-sign-compare -Werror
-CXXWARN=-Wall -W -Wno-unused-parameter -Wno-sign-compare
+CXXWARN=-std=c++11 -Wall -W -Wno-unused-parameter -Wno-sign-compare -Wno-cast-function-type
 # -Wno-sign-compare -Werror
 
 ## These needed to be adjusted on a per system basis based on compile options & library versions

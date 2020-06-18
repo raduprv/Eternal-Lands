@@ -35,11 +35,13 @@ void init_ipu (INPUT_POPUP *ipu, int parent, int maxlen, int rows, int cols, voi
 	ipu->text_flags = TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS|TEXT_FIELD_MOUSE_EDITABLE;
 	ipu->text_flags |= (rows>1) ?TEXT_FIELD_SCROLLBAR :0;
 
-	ipu->popup_win = ipu->popup_field = ipu->popup_label = ipu->popup_ok = ipu->popup_no = -1;
+	ipu->popup_win = ipu->popup_field = ipu->popup_line = ipu->popup_label
+		= ipu->popup_ok = ipu->popup_no = -1;
 	ipu->x = ipu->y = 0;
 
 	ipu->popup_cancel = cancel;
 	ipu->popup_input = input;
+	ipu->popup_line_text = maxlen ? calloc(maxlen+1, 1) : NULL;
 	ipu->data = NULL;
 
 	ipu->parent = parent;
@@ -49,9 +51,12 @@ void init_ipu (INPUT_POPUP *ipu, int parent, int maxlen, int rows, int cols, voi
 	ipu->accept_do_not_close = ipu->allow_nonprint_chars = 0;
 }
 
-void clear_popup_window (INPUT_POPUP *ipu)
+void clear_popup_window(INPUT_POPUP *ipu)
 {
-	text_field_clear (ipu->popup_win, ipu->popup_field);
+	if (ipu->rows == 1)
+		*ipu->popup_line_text = '\0';
+	else
+		text_field_clear (ipu->popup_win, ipu->popup_field);
 	hide_window (ipu->popup_win);
 }
 
@@ -60,9 +65,10 @@ void close_ipu (INPUT_POPUP *ipu)
 	if (ipu->popup_win > 0)
 	{
 		destroy_window(ipu->popup_win);
+		free(ipu->popup_line_text);
 		clear_text_message_data (&ipu->popup_text);
 		free_text_message_data (&ipu->popup_text);
-		init_ipu(ipu, -1, 1, 1, 1, NULL, NULL);
+		init_ipu(ipu, -1, 0, 0, 0, NULL, NULL);
 	}
 }
 
@@ -89,8 +95,19 @@ static INPUT_POPUP *ipu_from_window (window_info *win)
 
 static void accept_popup_window (INPUT_POPUP *ipu)
 {
-	int istart, iend, itmp, len = ipu->popup_text.len;
-	char *data = ipu->popup_text.data;
+	int istart, iend, itmp, len;
+	unsigned char *data;
+
+	if (ipu->rows == 1)
+	{
+		data = ipu->popup_line_text;
+		len = strlen((const char*)data);
+	}
+	else
+	{
+		data = (unsigned char*)ipu->popup_text.data;
+		len = ipu->popup_text.len;
+	}
 
 	// skip leading spaces
 	istart = 0;
@@ -102,26 +119,28 @@ static void accept_popup_window (INPUT_POPUP *ipu)
 
 	// remove soft breaks
 	iend = itmp = istart;
-	while ( iend < len )
+	for (iend = istart, itmp = istart; iend < len; ++iend)
 	{
 		if (data[iend] != '\r')
 			data[itmp++] = data[iend];
-		iend++;
 	}
 	len = itmp;
 
 	// stop at first non-printable character if allow_nonprint_chars not set
-	iend = istart;
-	while ( iend < len && (ipu->allow_nonprint_chars || is_printable (data[iend]) ))
-		iend++;
-	if (iend == istart)
-		// empty string
-		return;
+	if (!ipu->allow_nonprint_chars)
+	{
+		iend = istart;
+		while (iend < len && is_printable(data[iend]))
+			++iend;
+		if (iend == istart)
+			// empty string
+			return;
+	}
 
 	// send the entered text to the window owner then clear up
 	data[iend] = '\0';
 	if (ipu->popup_input != NULL)
-		(*ipu->popup_input) (&data[istart], ipu->data);
+		(*ipu->popup_input) ((char*)&data[istart], ipu->data);
 	if (!ipu->accept_do_not_close)
 		clear_popup_window (ipu);
 }
@@ -178,7 +197,8 @@ static int popup_keypress_handler(window_info *win,
 	else
 	{
 		// send other key presses to the text field
-		widget_list *tfw = widget_find (win->window_id, ipu->popup_field);
+		int widget_id = ipu->rows == 1 ? ipu->popup_line : ipu->popup_field;
+		widget_list *tfw = widget_find (win->window_id, widget_id);
 		if (tfw != NULL)
 		{
 			// FIXME? This is a bit hackish, we don't allow the
@@ -203,6 +223,7 @@ static int popup_ui_scale_handler(window_info *win)
 {
 	int seperator = (int)(0.5 + win->current_scale * 10);
 	int y_len = seperator;
+	int char_width = get_avg_char_width_zoom(win->font_category, win->current_scale);
 	int max_x = 0;
 	int ok_w = 0;
 	int no_w = 0;
@@ -214,25 +235,64 @@ static int popup_ui_scale_handler(window_info *win)
 	widget_resize(win->window_id, ipu->popup_label, 0, 0);
 	max_x = 2 * seperator + widget_get_width(win->window_id, ipu->popup_label);
 
-	widget_set_size(win->window_id, ipu->popup_field, win->current_scale);
-	widget_resize(win->window_id, ipu->popup_field, ipu->cols * win->default_font_len_x + 2 * seperator + 2 * 5, 1 + ipu->rows * win->default_font_len_y + 2 * 5 );
-	// hack - the text feld scrollbar does not function correct until the next resize, so do it twice for now
-	widget_resize(win->window_id, ipu->popup_field, ipu->cols * win->default_font_len_x + 2 * seperator + 2 * 5, 1 + ipu->rows * win->default_font_len_y + 2 * 5 );
-	max_x = (2 * seperator + widget_get_width(win->window_id, ipu->popup_field) > max_x) ?2 * seperator + widget_get_width(win->window_id, ipu->popup_field) :max_x;
+	if (ipu->rows == 1)
+	{
+		widget_set_flags(win->window_id, ipu->popup_field, WIDGET_DISABLED);
+		widget_unset_flags(win->window_id, ipu->popup_line, WIDGET_DISABLED);
 
-	button_resize(win->window_id, ipu->popup_ok, 0, 0, win->current_scale);
-	button_resize(win->window_id, ipu->popup_no, 0, 0, win->current_scale);
+		widget_set_size(win->window_id, ipu->popup_line, win->current_scale);
+		widget_resize(win->window_id, ipu->popup_line,
+			ipu->cols * char_width + 2 * seperator + 2 * 5,
+			1 + ipu->rows * win->default_font_len_y + 2 * 5);
+		// FIXME: hack - the text feld scrollbar does not function correct until the next resize, so do it twice for now
+		widget_resize(win->window_id, ipu->popup_line,
+			ipu->cols * char_width + 2 * seperator + 2 * 5,
+			1 + ipu->rows * win->default_font_len_y + 2 * 5);
+		max_x = max2i(max_x, 2 * seperator + widget_get_width(win->window_id, ipu->popup_line));
 
-	ok_w = widget_get_width(win->window_id, ipu->popup_ok);
-	no_w = widget_get_width(win->window_id, ipu->popup_no);
-	max_x = ((ok_w + no_w + 3 * seperator) > max_x) ?ok_w + no_w + 3 * seperator: max_x;
-	tmp = (max_x - ok_w - no_w) / 3;
+		button_resize(win->window_id, ipu->popup_ok, 0, 0, win->current_scale);
+		button_resize(win->window_id, ipu->popup_no, 0, 0, win->current_scale);
 
-	widget_move(win->window_id, ipu->popup_label, (max_x - widget_get_width(win->window_id, ipu->popup_label)) / 2, y_len);
-	y_len += widget_get_height(win->window_id, ipu->popup_label) + seperator;
+		ok_w = widget_get_width(win->window_id, ipu->popup_ok);
+		no_w = widget_get_width(win->window_id, ipu->popup_no);
+		max_x = max2i(max_x, ok_w + no_w + 3 * seperator);
+		tmp = (max_x - ok_w - no_w) / 3;
 
-	widget_move(win->window_id, ipu->popup_field, (max_x - widget_get_width(win->window_id, ipu->popup_field)) / 2, y_len);
-	y_len += widget_get_height(win->window_id, ipu->popup_field) + seperator;
+		widget_move(win->window_id, ipu->popup_label, (max_x - widget_get_width(win->window_id, ipu->popup_label)) / 2, y_len);
+		y_len += widget_get_height(win->window_id, ipu->popup_label) + seperator;
+
+		widget_move(win->window_id, ipu->popup_line, (max_x - widget_get_width(win->window_id, ipu->popup_line)) / 2, y_len);
+		y_len += widget_get_height(win->window_id, ipu->popup_line) + seperator;
+	}
+	else
+	{
+		widget_set_flags(win->window_id, ipu->popup_field, ipu->text_flags);
+		widget_set_flags(win->window_id, ipu->popup_line, WIDGET_DISABLED);
+
+		widget_set_size(win->window_id, ipu->popup_field, win->current_scale);
+		widget_resize(win->window_id, ipu->popup_field,
+			ipu->cols * char_width + 2 * seperator + 2 * 5,
+			1 + ipu->rows * win->default_font_len_y + 2 * 5);
+		// FIXME: hack - the text feld scrollbar does not function correct until the next resize, so do it twice for now
+		widget_resize(win->window_id, ipu->popup_field,
+			ipu->cols * char_width + 2 * seperator + 2 * 5,
+			1 + ipu->rows * win->default_font_len_y + 2 * 5);
+		max_x = max2i(max_x, 2 * seperator + widget_get_width(win->window_id, ipu->popup_field));
+
+		button_resize(win->window_id, ipu->popup_ok, 0, 0, win->current_scale);
+		button_resize(win->window_id, ipu->popup_no, 0, 0, win->current_scale);
+
+		ok_w = widget_get_width(win->window_id, ipu->popup_ok);
+		no_w = widget_get_width(win->window_id, ipu->popup_no);
+		max_x = max2i(max_x, ok_w + no_w + 3 * seperator);
+		tmp = (max_x - ok_w - no_w) / 3;
+
+		widget_move(win->window_id, ipu->popup_label, (max_x - widget_get_width(win->window_id, ipu->popup_label)) / 2, y_len);
+		y_len += widget_get_height(win->window_id, ipu->popup_label) + seperator;
+
+		widget_move(win->window_id, ipu->popup_field, (max_x - widget_get_width(win->window_id, ipu->popup_field)) / 2, y_len);
+		y_len += widget_get_height(win->window_id, ipu->popup_field) + seperator;
+	}
 
 	widget_move(win->window_id, ipu->popup_ok, tmp, y_len);
 	widget_move(win->window_id, ipu->popup_no, 2 * tmp + ok_w, y_len);
@@ -281,7 +341,8 @@ void display_popup_win (INPUT_POPUP *ipu, const char* label)
 			return;
 		}
 
-		// clear the buffer
+		// clear the buffers
+		*ipu->popup_line_text = '\0';
 		init_text_message (&ipu->popup_text, ipu->maxlen);
 		set_text_message_color (&ipu->popup_text, 0.77f, 0.57f, 0.39f);
 
@@ -289,8 +350,14 @@ void display_popup_win (INPUT_POPUP *ipu, const char* label)
 		ipu->popup_label = label_add_extended(ipu->popup_win, widget_id++, NULL, 0, 0, 0, win->current_scale, 0.77f, 0.57f, 0.39f, label);
 
 		// Input
-		ipu->popup_field = text_field_add_extended (ipu->popup_win, widget_id++, NULL, 0, 0, 0, 0,
-			ipu->text_flags, 1.0, 0.77f, 0.57f, 0.39f, &ipu->popup_text, 1, FILTER_ALL, 5, 5);
+		ipu->popup_field = text_field_add_extended(ipu->popup_win, widget_id++,
+			NULL, 0, 0, 0, 0, ipu->text_flags, win->font_category,
+			1.0, 0.77f, 0.57f, 0.39f, &ipu->popup_text, 1, FILTER_ALL, 5, 5);
+		widget_set_flags(win->window_id, ipu->popup_field, WIDGET_DISABLED);
+		ipu->popup_line = pword_field_add_extended(ipu->popup_win, widget_id++,
+			NULL, 0, 0, 0, 0, P_TEXT, 1.0, 0.77f, 0.57f, 0.39f,
+			ipu->popup_line_text, ipu->maxlen);
+		widget_set_flags(win->window_id, ipu->popup_line, WIDGET_DISABLED);
 
 		// Accept
 		ipu->popup_ok = button_add_extended (ipu->popup_win, widget_id++, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, button_okay);
@@ -612,7 +679,7 @@ int notepad_save_file()
 
 		// libxml2 expects all data in UTF-8 encoding.
 		xmlChar* name = toUTF8 (note_list[i].name, strlen (note_list[i].name));
-		substitute_char_with_string (note_list[i].text.data, &subst_string, '&', "&amp;");		
+		substitute_char_with_string (note_list[i].text.data, &subst_string, '&', "&amp;");
 		data = toUTF8 (subst_string, strlen(subst_string));
 
 		node = xmlNewChild (root_node, NULL, BAD_CAST "NOTE", data);
@@ -743,10 +810,11 @@ static void open_note_tab_continued(int id)
 	tf_y = widget_space * 2 + remove_but->len_y;
 	tf_width = tab_win->len_x - 2 * widget_space;
 	tf_height = tab_win->len_y - widget_space * 3 - remove_but->len_y;
-	note_list[id].input = text_field_add_extended(note_list[id].window, note_widget_id++, NULL,
-		tf_x, tf_y, tf_width, tf_height,
+	note_list[id].input = text_field_add_extended(note_list[id].window, note_widget_id++,
+		NULL, tf_x, tf_y, tf_width, tf_height,
 		TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_CAN_GROW|TEXT_FIELD_SCROLLBAR,
-		note_zoom, 0.77f, 0.57f, 0.39f, &note_list[id].text, 1, FILTER_ALL, widget_space, widget_space);
+		NOTE_FONT, note_zoom * tab_win->current_scale, 0.77f, 0.57f, 0.39f, &note_list[id].text,
+		1, FILTER_ALL, widget_space, widget_space);
 
 	tab = tab_collection_get_tab_nr (notepad_win, note_tabcollection_id, note_list[id].window);
 	tab_collection_select_tab (notepad_win, note_tabcollection_id, tab);
@@ -882,19 +950,24 @@ static int click_buttonwin_handler(window_info* UNUSED(win),
 static int resize_buttonwin_handler(window_info *win, int new_width, int new_height)
 {
 	widget_list *scroll_w = widget_find(win->window_id, note_button_scroll_id);
-	int but_space = (win->len_x - win->box_size - widget_space * 4) / 2;
 	widget_list *wnew = widget_find(main_note_tab_id, new_note_button_id);
 	widget_list *wsave = widget_find(main_note_tab_id, save_notes_button_id);
-	int tab_tag_height = tab_collection_calc_tab_height(win->current_scale * note_tab_zoom);
+	int tab_tag_height = tab_collection_calc_tab_height(win->font_category,
+		win->current_scale * note_tab_zoom);
 	int nr;
-
-	if ((scroll_w == NULL) || (scroll_w->Flags & WIDGET_INVISIBLE))
-		but_space += (win->box_size + widget_space) / 2;
+	int but_space;
 
 	button_resize(main_note_tab_id, new_note_button_id, 0, 0, win->current_scale);
 	button_resize(main_note_tab_id, save_notes_button_id, 0, 0, win->current_scale);
-	widget_move(main_note_tab_id, new_note_button_id, (but_space - wnew->len_x)/2, 2*widget_space);
-	widget_move(main_note_tab_id, save_notes_button_id, but_space + (but_space - wsave->len_x)/2, 2*widget_space);
+
+	but_space = (win->len_x - win->box_size - widget_space * 4) / 2;
+	if ((scroll_w == NULL) || (scroll_w->Flags & WIDGET_INVISIBLE))
+		but_space += (win->box_size + widget_space) / 2;
+
+	widget_move(main_note_tab_id, new_note_button_id,
+		widget_space + (but_space - wnew->len_x)/2, 2*widget_space);
+	widget_move(main_note_tab_id, save_notes_button_id,
+		2 * widget_space + but_space + (but_space - wsave->len_x)/2, 2*widget_space);
 
 	note_button_zoom = win->current_scale * 0.8;
 	note_button_width = but_space;
@@ -921,6 +994,31 @@ static int resize_buttonwin_handler(window_info *win, int new_width, int new_hei
 	return 0;
 }
 
+static void notepad_win_close_tabs(void)
+{
+	widget_list *wid = widget_find (notepad_win, note_tabcollection_id);
+	tab_collection *col = NULL;
+	int closed_a_tab = -1;
+
+	if ((wid == NULL) || ((col = (tab_collection *) wid->widget_info) == NULL))
+		return;
+
+	do
+	{
+		int i;
+		closed_a_tab = -1;
+		for(i = 0; i < col->nr_tabs; i++)
+		{
+			if (col->tabs[i].content_id != main_note_tab_id)
+			{
+				closed_a_tab = tab_collection_close_tab(notepad_win, note_tabcollection_id, i);
+				break;
+			}
+		}
+	}
+	while (closed_a_tab >= 0);
+}
+
 static int resize_notepad_handler(window_info *win, int new_width, int new_height)
 {
 	widget_list *w = widget_find (win->window_id, note_tabcollection_id);
@@ -930,7 +1028,8 @@ static int resize_notepad_handler(window_info *win, int new_width, int new_heigh
 
 	widget_space = (int)(0.5 + win->current_scale * 5);
 	widget_set_size(win->window_id, note_tabcollection_id, win->current_scale * note_tab_zoom);
-	tab_tag_height = tab_collection_calc_tab_height(win->current_scale * note_tab_zoom);
+	tab_tag_height = tab_collection_calc_tab_height(win->font_category,
+		win->current_scale * note_tab_zoom);
 
 	widget_resize(win->window_id, note_tabcollection_id, new_width, new_height - widget_space);
 	widget_move(win->window_id, note_tabcollection_id, 0, widget_space);
@@ -946,6 +1045,25 @@ static int resize_notepad_handler(window_info *win, int new_width, int new_heigh
 	return 0;
 }
 
+static int ui_scale_notepad_handler(window_info *win)
+{
+	int new_width = calc_button_width((const unsigned char*)button_new_category, win->font_category,
+		win->current_scale);
+	int save_width = calc_button_width((const unsigned char*)button_save_notes, win->font_category,
+		win->current_scale);
+	int min_width = 2*max2i(new_width, save_width) + 4 * widget_space + ELW_BOX_SIZE;
+	win->min_len_x = min_width;
+	return 1;
+}
+
+static int change_notepad_font_handler(window_info *win, font_cat cat)
+{
+	if (cat != win->font_category)
+		return 0;
+	ui_scale_notepad_handler(win);
+	return 1;
+}
+
 void fill_notepad_window(int window_id)
 {
 	int i;
@@ -954,6 +1072,10 @@ void fill_notepad_window(int window_id)
 	set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_notepad_handler);
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_buttonwin_handler);
 	set_window_handler(window_id, ELW_HANDLER_RESIZE, &resize_notepad_handler );
+	set_window_handler(window_id, ELW_HANDLER_UI_SCALE, &ui_scale_notepad_handler);
+	set_window_handler(window_id, ELW_HANDLER_FONT_CHANGE, &change_notepad_font_handler);
+	if (window_id >= 0 && window_id < windows_list.num_windows)
+		ui_scale_notepad_handler(&windows_list.window[window_id]);
 
 	note_tabcollection_id = tab_collection_add (window_id, NULL, 0, 0, 0, 0);
 	widget_set_color (window_id, note_tabcollection_id, 0.77f, 0.57f, 0.39f);
@@ -989,29 +1111,4 @@ void fill_notepad_window(int window_id)
 
 	if (using_named_notes)
 		cm_grey_line(cm_save_id, 0, 1);
-}
-
-void notepad_win_close_tabs(void)
-{
-	widget_list *wid = widget_find (notepad_win, note_tabcollection_id);
-	tab_collection *col = NULL;
-	int closed_a_tab = -1;
-
-	if ((wid == NULL) || ((col = (tab_collection *) wid->widget_info) == NULL))
-		return;
-
-	do
-	{
-		int i;
-		closed_a_tab = -1;
-		for(i = 0; i < col->nr_tabs; i++)
-		{
-			if (col->tabs[i].content_id != main_note_tab_id)
-			{
-				closed_a_tab = tab_collection_close_tab(notepad_win, note_tabcollection_id, i);
-				break;
-			}
-		}
-	}
-	while (closed_a_tab >= 0);
 }

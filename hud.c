@@ -102,7 +102,7 @@ void init_hud_interface (hud_interface type)
 		init_misc_display ();
 		init_quickbar ();
 		init_quickspell ();
-		init_hud_indicators (); 
+		init_hud_indicators ();
 		ready_for_user_menus = 1;
 		if (enable_user_menus)
 			display_user_menus();
@@ -304,7 +304,7 @@ void view_window(int * window, int id)
 		view_console_win(window, id);
 		return;
 	}
-	
+
 	if(window==&sigil_win||window==&manufacture_win)
 		{
 			if(get_show_window(trade_win))
@@ -365,59 +365,6 @@ int enlarge_text(void)
 	return ((SDL_GetModState() & (KMOD_CTRL|KMOD_ALT)));
 }
 
-void show_help_coloured_scaled(const char *help_message, int x, int y, float r, float g, float b, int use_big_font, float size)
-{
-	int y_font_len = 0;
-	int len = 0;
-	int width=window_width-80;
-
-	if (use_big_font)
-	{
-		y_font_len = (int)(0.5 + DEFAULT_FONT_Y_LEN * size);
-		len = strlen(help_message) * (int)(0.5 + DEFAULT_FONT_X_LEN * size) + 1;
-	}
-	else
-	{
-		y_font_len = (int)(0.5 + SMALL_FONT_Y_LEN * size);
-		len = strlen(help_message) * (int)(0.5 + SMALL_FONT_X_LEN * size) + 1;
-	}
-
-	if(x+len>width) x-=(x+len)-width;
-
-	glColor4f(0.0f,0.0f,0.0f,0.5f);
-	glDisable(GL_TEXTURE_2D);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_BLEND);
-	glBegin(GL_QUADS);
-	glVertex3i(x-1,y+y_font_len,0);
-	glVertex3i(x-1,y,0);
-	glVertex3i(x+len,y,0);
-	glVertex3i(x+len,y+y_font_len,0);
-	glEnd();
-
-	glDisable(GL_BLEND);
-	glEnable(GL_TEXTURE_2D);
-
-	glColor3f(r,g,b);
-	if (use_big_font)
-		draw_string_zoomed(x, y, (unsigned char*)help_message, 1, size);
-	else
-		draw_string_small_zoomed(x, y, (unsigned char*)help_message, 1, size);
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
-}
-
-void show_help(const char *help_message, int x, int y, float scale)
-{
-	show_help_coloured_scaled(help_message, x, y, 1.0f, 1.0f, 1.0f, 0, scale);
-}
-
-void show_help_big(const char *help_message, int x, int y, float scale)
-{
-	show_help_coloured_scaled(help_message, x, y, 1.0f, 1.0f, 1.0f, 1, scale);
-}
-
 void build_levels_table()
 {
 	int i;
@@ -433,7 +380,7 @@ void build_levels_table()
 		if(i<=30)exp+=exp*20/100;
 		else
 		if(i<=40)exp+=exp*14/100;
-		else 
+		else
 		if(i<=90)exp+=exp*7/100;
 		else exp+=exp*5/100;
 		exp_lev[i]=(Uint32)exp;

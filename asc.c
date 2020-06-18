@@ -13,12 +13,10 @@
 # include "map_editor/misc.h"
 #else
 # include "misc.h"
+
 #endif //MAP_EDITOR
-
-int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * len);
-
-// find the first occurance of needle in haystack, and return the distance to 
-// that string. If beggining is 1, it returns the offset to the beginning of 
+// find the first occurance of needle in haystack, and return the distance to
+// that string. If beggining is 1, it returns the offset to the beginning of
 // the string otherwise it returns the offset to the end of the string. Needle
 // must be null-terminated. hyastack need not be, but must be at least max_len
 // bytes long
@@ -58,20 +56,20 @@ Sint32 get_string_occurance (const char* needle, const char* haystack, const Uin
 }
 
 #ifndef FASTER_MAP_LOAD
-// This function returns an integer, after the needle in the haystack 
+// This function returns an integer, after the needle in the haystack
 // string. If the string is not found, after max_len, the function returns -1.
 // The function is NOT case sensitive
 Sint32 get_integer_after_string (const char *needle, const char *haystack, Uint32 max_len)
 {
 	Sint32 n_end = get_string_occurance (needle, haystack, max_len, 0);
 	Uint32 istart;
-	
+
 	if (n_end < 0)
 	{
 		// needle not found
 		return -1;
 	}
-	
+
 	istart = n_end;
 	while (istart < max_len)
 	{
@@ -89,25 +87,25 @@ Sint32 get_integer_after_string (const char *needle, const char *haystack, Uint3
 		}
 		istart++;
 	}
-	
+
 	// no integer after needle
 	return -1;
 }
 
-// This function returns a float, after the source string in the destination 
-// string. If the string is not found, after max_len, the function returns 
+// This function returns a float, after the source string in the destination
+// string. If the string is not found, after max_len, the function returns
 // -1.0f. The function is NOT case sensitive
 float get_float_after_string (const char *needle, const char *haystack, Uint32 max_len)
 {
 	Sint32 n_end = get_string_occurance (needle, haystack, max_len, 0);
 	Uint32 istart;
-	
+
 	if (n_end < 0)
 	{
 		// needle not found
 		return -1.0f;
 	}
-	
+
 	istart = n_end;
 	while (istart < max_len)
 	{
@@ -125,11 +123,25 @@ float get_float_after_string (const char *needle, const char *haystack, Uint32 m
 		}
 		istart++;
 	}
-	
+
 	// no number after needle
 	return -1.0f;
 }
 #endif // FASTER_MAP_LOAD
+
+// File utilities
+Uint32 clean_file_name (char *dest, const char *src, Uint32 max_len)
+{
+	char *dptr, *dend = dest + (max_len-1);
+	const char *sptr;
+
+	for (dptr = dest, sptr = src; dptr < dend && *sptr; dptr++, sptr++)
+		*dptr = *sptr == '\\' ? '/' : tolower(*sptr);
+	// always place a null at the end
+	*dptr = '\0';
+
+	return dptr-dest;
+}
 
 char* safe_strncpy(char *dest, const char * source, const size_t len)
 {
@@ -159,6 +171,14 @@ char* safe_strncpy2(char *dest, const char * source, const size_t dest_len, cons
 	return dest;
 }
 
+char* safe_strcat (char* dest, const char* src, size_t len)
+{
+	size_t start_pos = strlen (dest);
+	if (start_pos < len)
+		safe_strncpy (dest+start_pos, src, len-start_pos);
+	return dest;
+}
+
 int safe_snprintf(char *dest, const size_t len, const char* format, ...)
 {
 	int ret;
@@ -184,13 +204,64 @@ int safe_snprintf(char *dest, const size_t len, const char* format, ...)
 	return 0;
 }
 
-char* safe_strcat (char* dest, const char* src, size_t len)
+static int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * l)
 {
-	size_t start_pos = strlen (dest);
-	if (start_pos < len)
-		safe_strncpy (dest+start_pos, src, len-start_pos);
-	return dest;
+	iconv_t t=iconv_open("ISO_8859-1","UTF-8");
+
+	iconv(t, src, l, dest, lu);
+
+	iconv_close(t);
+	return 1;
 }
+
+int my_xmlStrncopy(char ** out, const char * in, int len)
+{
+	if(in) {
+		size_t lin=0;
+		size_t lout=0;
+		int l1=0;
+		int l2=0;
+		int retval=1;
+		char *inbuf;
+		char *inbuf2;
+		char *outbuf;
+		char *outbuf2;
+
+		lin=strlen(in);
+		l2=xmlUTF8Strlen((xmlChar*)in);
+
+		if(l2<0) lout=l1;
+		else if (len>0 && len<l2) lout=len;
+		else lout=l2;
+
+		inbuf=inbuf2=(char *)malloc((lin+1)*sizeof(char));
+		outbuf=outbuf2=(char *)malloc((lout+1)*sizeof(char));
+
+		memcpy(inbuf,in,lin);
+
+		l1=lin;
+		l2=lout;
+
+		if(my_UTF8Toisolat1(&outbuf2,&lout,&inbuf2,&lin)<0) {
+			retval=-1;
+		}
+
+		free(inbuf);
+
+		outbuf[l2]=0;
+
+		if(*out) {
+			memcpy(*out,outbuf,l2+1);
+			free(outbuf);
+		} else {
+			*out=outbuf;
+		}
+
+		return retval<0?-1:l2;
+	} else return -1;
+}
+
+#ifndef MAP_EDITOR
 
 char* safe_strcasestr (const char* haystack, size_t haystack_len, const char* needle, size_t needle_len)
 {
@@ -207,7 +278,7 @@ char* safe_strcasestr (const char* haystack, size_t haystack_len, const char* ne
 		}
 	}
 
-	return NULL;	
+	return NULL;
 }
 
 void my_strcp(char *dest,const char * source)
@@ -263,7 +334,7 @@ Sint32 my_isupper(const char *src, int len)
 	while(*src && len > 0)
 		{
             if(isalpha((unsigned char)*src)) alpha++;
-            if((isdigit((unsigned char)*src)&&alpha<len/2) || *src != toupper(*src)) return 0;    //at least one lower			
+            if((isdigit((unsigned char)*src)&&alpha<len/2) || *src != toupper(*src)) return 0;    //at least one lower
             src++;
 			len--;
 		}
@@ -281,7 +352,7 @@ char *my_tolower (char *src)
 		*src = tolower (*src);
 		src++;
 	}
-	
+
 	return dest;
 }
 
@@ -297,7 +368,7 @@ char ** get_lines(char * str, int chars_per_line)
 		for(lines = 0; *str; lines++) {
 			my_str=(char **)realloc(my_str,(lines+2)*sizeof(char *));
 			cur=my_str[lines]=(char*)calloc(chars_per_line+3,sizeof(char));
-		
+
 			for(i = 0; i < chars_per_line && str[i]; i++){
 				if(str[i] == '\r') i++;
 				if (str[i] == '\n'){
@@ -328,93 +399,22 @@ char ** get_lines(char * str, int chars_per_line)
 	return my_str;
 }
 
-// File utilities
-Uint32 clean_file_name (char *dest, const char *src, Uint32 max_len)
-{
-	char *dptr, *dend = dest + (max_len-1);
-	const char *sptr;
-
-	for (dptr = dest, sptr = src; dptr < dend && *sptr; dptr++, sptr++)
-		*dptr = *sptr == '\\' ? '/' : tolower(*sptr);
-	// always place a null at the end
-	*dptr = '\0';
-
-	return dptr-dest;
-}
-
 /*XML*/
 
-float xmlGetFloat(xmlNode * n, xmlChar * c)
+float xmlGetFloat(const xmlNode *n, const char* c, float def_val)
 {
-	char * t=(char*)xmlGetProp(n,c);
-	float f=t?atof(t):0.0f;
+	char* t = (char*)xmlGetProp(n, (const xmlChar*)c);
+	float f = t ? atof(t) : def_val;
 	xmlFree(t);
 	return f;
 }
 
-int xmlGetInt(xmlNode *n, xmlChar *c)
+int xmlGetInt(const xmlNode *n, const char* c)
 {
-	char *t=(char*)xmlGetProp(n,c);
-	int i=t?atoi(t):0;
+	char *t = (char*)xmlGetProp(n, (const xmlChar*)c);
+	int i = t ? atoi(t) : 0;
 	xmlFree(t);
 	return i;
-}
-
-int my_xmlStrncopy(char ** out, const char * in, int len)
-{
-	if(in) {
-		size_t lin=0;
-		size_t lout=0;
-		int l1=0;
-		int l2=0;
-		int retval=1;
-		char *inbuf;
-		char *inbuf2;
-		char *outbuf;
-		char *outbuf2;
-		
-		lin=strlen(in);
-		l2=xmlUTF8Strlen((xmlChar*)in);
-		
-		if(l2<0) lout=l1;
-		else if (len>0 && len<l2) lout=len;
-		else lout=l2;
-		
-		inbuf=inbuf2=(char *)malloc((lin+1)*sizeof(char));
-		outbuf=outbuf2=(char *)malloc((lout+1)*sizeof(char));
-
-		memcpy(inbuf,in,lin);
-
-		l1=lin;
-		l2=lout;
-
-		if(my_UTF8Toisolat1(&outbuf2,&lout,&inbuf2,&lin)<0) {
-			retval=-1;
-		}
-
-		free(inbuf);
-
-		outbuf[l2]=0;
-
-		if(*out) {
-			memcpy(*out,outbuf,l2+1);
-			free(outbuf);
-		} else {
-			*out=outbuf;
-		}
-
-		return retval<0?-1:l2;
-	} else return -1;
-}
-
-int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * l)
-{
-	iconv_t t=iconv_open("ISO_8859-1","UTF-8");
-
-	iconv(t, src, l, dest, lu);
-
-	iconv_close(t);
-	return 1;
 }
 
 /* return true if digest calculated */
@@ -432,7 +432,7 @@ int get_file_digest(const char * filename, Uint8 digest[16])
 		LOG_ERROR("MD5Digest: Unable to open %s (%d)", filename, errno);
 		return 0;
 	}
-	
+
 	if (el_get_pointer(file) == NULL)
 	{
 		el_close(file);
@@ -444,7 +444,7 @@ int get_file_digest(const char * filename, Uint8 digest[16])
 	MD5Close(&md5, digest);
 
 	el_close(file);
-	
+
 	return 1;
 }
 
@@ -699,7 +699,7 @@ char *substitute_char_with_string(const char *str, char **out_str, char to_sub, 
 	alloc_len = strlen(str) + amp_count*(strlen(with_sub)-1) + 1;
 	*out_str = (char *)realloc(*out_str, alloc_len);
 	**out_str = '\0';
-	
+
 	for (start_ptr = str; (end_ptr = strchr(start_ptr, to_sub)) != NULL; )
 	{
 		while (start_ptr < end_ptr)
@@ -712,35 +712,6 @@ char *substitute_char_with_string(const char *str, char **out_str, char to_sub, 
 	}
 	safe_strcat(*out_str, start_ptr, alloc_len);
 	return *out_str;
-}
-
-
-/* Return a copy of source truncated to be no longer than max_len_x including the append_str on the end. */
-char *truncated_string(char *dest, const char *source, size_t dest_max_len, const char *append_str, float max_len_x, float font_ratio)
-{
-	float string_width = 0;
-	size_t dest_len = 0;
-	float append_len_x = get_string_width((unsigned char*)append_str) * font_ratio;
-	char *dest_p = dest;
-	
-	while ((*source != '\0') && (dest_len < dest_max_len-1))
-	{
-		float char_width = get_char_width(*source) * font_ratio;
-		if ((string_width + char_width) > (max_len_x - append_len_x))
-			break;
-		*dest_p++ = *source++;
-		dest_len++;
-		string_width += char_width;
-	}
-	
-	while ((*append_str != '\0') && (dest_len < dest_max_len-1))
-	{
-		*dest_p++ = *append_str++;
-		dest_len++;
-	}
-
-	*dest_p = '\0';
-	return dest;
 }
 
 
@@ -760,3 +731,5 @@ char * rtrim_string(char *the_string)
 	}
 	return the_string;
 }
+
+#endif // !MAP_EDITOR

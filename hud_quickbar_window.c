@@ -42,7 +42,7 @@ enum { CMQB_ENABLE=0, CMQB_SEP1, CMQB_RELOC, CMQB_DRAG, CMQB_FLIP, CMQB_SEP2, CM
 static void change_flags(int win_id, Uint32 flags)
 {
 	int order = windows_list.window[win_id].order;
-	
+
 	windows_list.window[win_id].flags = flags;
 	if ( (order > 0 && (flags & ELW_SHOW_LAST)) || (order < 0 && !(flags & ELW_SHOW_LAST)) )
 		windows_list.window[win_id].order = -order;
@@ -78,7 +78,7 @@ static int get_quickbar_y_len(void)
 }
 
 
-/* get the base y coord of the quick bar if its in 
+/* get the base y coord of the quick bar if its in
    it's default place, otherwise return where the top would be */
 int get_quickbar_y_base(void)
 {
@@ -100,7 +100,7 @@ static void toggle_quickbar_draggable(void)
 		change_flags (quickbar_win, flags);
 		quickbar_draggable = 1;
 	}
-	else 
+	else
 	{
 		flags |= ELW_SHOW_LAST;
 		flags &= ~(ELW_DRAGGABLE | ELW_TITLE_BAR);
@@ -155,7 +155,7 @@ static void flip_quickbar(int window_id)
 
 
 /*Return the quickbar to it's Built-in position*/
-static void reset_quickbar() 
+static void reset_quickbar()
 {
 	quickbar_dir = VERTICAL;
 	quickbar_draggable = 0;
@@ -196,7 +196,8 @@ static void quickbar_item_description_help(window_info *win, int pos, int slot)
 		if (str != NULL)
 		{
 			int xpos = 0, ypos = 0;
-			int len_str = (strlen(str) + 1) * win->small_font_len_x;
+			int len_str = get_string_width_zoom((const unsigned char*)str,
+				win->font_category, win->current_scale_small);
 			/* vertical place right (or left) and aligned with slot */
 			if (quickbar_dir==VERTICAL)
 			{
@@ -302,7 +303,7 @@ static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags
 			cm_show_direct(cm_quickbar_id, quickbar_win, -1);
 		return 1;
 	}
-	
+
 	if(qb_action_mode==ACTION_USE_WITEM)	action_mode=ACTION_USE_WITEM;
 
 	// no in window check needed, already done
@@ -445,13 +446,11 @@ static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags
 
 static int	display_quickbar_handler(window_info *win)
 {
-	char str[80];
+	unsigned char str[80];
 	int y, i;
 	Uint32 _cur_time = SDL_GetTicks(); /* grab a snapshot of current time */
-	int ypos = -1, xpos = -1;
+	int xpos = -1;
 	const int scaled_2 = (int)(0.5 + win->current_scale * 2);
-	const int scaled_15 = (int)(0.5 + win->current_scale * 15);
-	const int scaled_25 = (int)(0.5 + win->current_scale * 25);
 	const int scaled_27 = (int)(0.5 + win->current_scale * 27);
 
 	update_shown_quickbar_slots(win);
@@ -467,6 +466,7 @@ static int	display_quickbar_handler(window_info *win)
 			float u_start,v_start,u_end,v_end;
 			int this_texture,cur_item,cur_pos;
 			int x_start,x_end,y_start,y_end, itmp;
+			float zoom;
 
 			// don't display an item that is in the proces of being moved after equipment swap
 			if (item_swap_in_progress(i))
@@ -512,13 +512,13 @@ static int	display_quickbar_handler(window_info *win)
 					cooldown = 0.0f;
 				else if (cooldown > 1.0f)
 					cooldown = 1.0f;
-				
+
 				glDisable(GL_TEXTURE_2D);
 				glEnable(GL_BLEND);
-				
+
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				glBegin(GL_TRIANGLE_FAN);
-					glColor4f(0.14f, 0.35f, 0.82f, 0.50f); 
+					glColor4f(0.14f, 0.35f, 0.82f, 0.50f);
 
 					glVertex2f(x_center, y_center);
 
@@ -555,30 +555,26 @@ static int	display_quickbar_handler(window_info *win)
 				glDisable(GL_BLEND);
 				glEnable(GL_TEXTURE_2D);
 			}
-			
-			safe_snprintf(str,sizeof(str),"%i",item_list[i].quantity);
+
+			safe_snprintf((char*)str, sizeof(str), "%d", item_list[i].quantity);
+			xpos = x_start;
+			zoom = (mouseover_quickbar_item_pos == i && enlarge_text())
+				? win->current_scale : win->current_scale_small;
 			if (quickbar_dir==VERTICAL)
 			{
-				int lenstr = strlen(str);
-				lenstr *= ((mouseover_quickbar_item_pos == i) && enlarge_text()) ?win->default_font_len_x :win->small_font_len_x;
-				xpos = ((x_start + lenstr + win->cur_x) > window_width) ?window_width - win->cur_x - lenstr :x_start;
-				ypos = y_end - scaled_15;
+				int lenstr = get_string_width_zoom(str, win->font_category, zoom);
+				xpos = min2i(xpos, window_width - win->cur_x - lenstr);
 			}
-			else
-			{
-				xpos = x_start;
-				ypos = (i & 1) ?(y_end - scaled_15) :(y_end - scaled_25);
-			}
-			if ((mouseover_quickbar_item_pos == i) && enlarge_text())
-				draw_string_shadowed_zoomed(xpos,ypos,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
-			else
-				draw_string_small_shadowed_zoomed(xpos,ypos,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
+
+			draw_text(xpos, y_end, str, strlen((const char*)str), win->font_category, TDO_SHADOW, 1,
+				TDO_FOREGROUND, 1.0, 1.0, 1.0, TDO_BACKGROUND, 0.0, 0.0, 0.0, TDO_ZOOM, zoom,
+				TDO_VERTICAL_ALIGNMENT, BOTTOM_LINE, TDO_END);
 		}
 	}
 	mouseover_quickbar_item_pos = -1;
-	
+
 	// Render the grid *after* the images. It seems impossible to code
-	// it such that images are rendered exactly within the boxes on all 
+	// it such that images are rendered exactly within the boxes on all
 	// cards
 	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_LINES);
@@ -639,7 +635,7 @@ void init_quickbar (void)
 		quickbar_draggable = 0;
 	}
 	if (quickbar_draggable)
-		flags |= ELW_TITLE_BAR | ELW_DRAGGABLE;	
+		flags |= ELW_TITLE_BAR | ELW_DRAGGABLE;
 
 	if (quickbar_win < 0)
 	{

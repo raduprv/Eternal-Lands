@@ -37,7 +37,7 @@ int trade_other_accepted=0;
 static trade_item your_trade_list[MAX_ITEMS];
 static trade_item others_trade_list[MAX_ITEMS];
 static char other_player_trade_name[20];
-static char items_string[350]={0};
+static unsigned char items_string[350]={0};
 static size_t last_items_string_id = 0;
 static int no_view_my_items=0;
 static int trade_border = 0;
@@ -69,8 +69,8 @@ static int display_trade_handler(window_info *win)
 		glColor3f(1.0f,0.0f,0.0f);
 	}
 
-	x_off = trade_border + ITEM_COLS / 2 * trade_gridsize - (strlen(accept_str) * win->small_font_len_x) / 2;
-	draw_string_small_zoomed(x_off, button_y_bot - win->default_font_len_y * 0.9, (unsigned char*)accept_str, 1, win->current_scale);
+	x_off = trade_border + ITEM_COLS / 2 * trade_gridsize;
+	draw_string_small_zoomed_centered(x_off, button_y_bot - win->default_font_len_y * 0.9, (unsigned char*)accept_str, 1, win->current_scale);
 
 	if(trade_other_accepted<=0){    // RED
 		glColor3f(1.0f,0.0f,0.0f);
@@ -80,16 +80,16 @@ static int display_trade_handler(window_info *win)
 		glColor3f(0.0f,1.0f,0.0f);
 	}
 
-	x_off = trade_border + (ITEM_COLS + 1) * trade_gridsize + ITEM_COLS / 2 * trade_gridsize - (strlen(accept_str) * win->small_font_len_x) / 2;
-	draw_string_small_zoomed(x_off, button_y_bot - win->default_font_len_y * 0.9, (unsigned char*)accept_str, 1, win->current_scale);
+	x_off = trade_border + (ITEM_COLS + 1) * trade_gridsize + ITEM_COLS / 2 * trade_gridsize;
+	draw_string_small_zoomed_centered(x_off, button_y_bot - win->default_font_len_y * 0.9, (unsigned char*)accept_str, 1, win->current_scale);
 
 	glColor3f(0.77f,0.57f,0.39f);
 
 	//Draw the trade session names
-	x_off = trade_border + ITEM_COLS / 2 * trade_gridsize - (strlen(you_str) * win->small_font_len_x) / 2;
-	draw_string_small_zoomed(x_off, trade_grid_start_y - win->small_font_len_y, (unsigned char*)you_str, 1, win->current_scale);
-	x_off = trade_border + (ITEM_COLS + 1) * trade_gridsize + ITEM_COLS / 2 * trade_gridsize - (strlen(other_player_trade_name) * win->small_font_len_x) / 2;
-	draw_string_small_zoomed(x_off, trade_grid_start_y - win->small_font_len_y, (unsigned char*)other_player_trade_name, 1, win->current_scale);
+	x_off = trade_border + ITEM_COLS / 2 * trade_gridsize;
+	draw_string_small_zoomed_centered(x_off, trade_grid_start_y - win->small_font_len_y, (unsigned char*)you_str, 1, win->current_scale);
+	x_off = trade_border + (ITEM_COLS + 1) * trade_gridsize + ITEM_COLS / 2 * trade_gridsize;
+	draw_string_small_zoomed_centered(x_off, trade_grid_start_y - win->small_font_len_y, (unsigned char*)other_player_trade_name, 1, win->current_scale);
 
 	glColor3f(1.0f,1.0f,1.0f);
 
@@ -100,8 +100,10 @@ static int display_trade_handler(window_info *win)
 			GLfloat u_start, v_start, u_end, v_end;
 			int x_start, x_end, y_start, y_end;
 			int cur_item;
-			int use_large;
 			GLuint this_texture;
+			int y_text;
+			float zoom;
+			ver_alignment valign;
 
 			cur_item=your_trade_list[i].image_id%25;
 			get_item_uv(cur_item, &u_start, &v_start, &u_end, &v_end);
@@ -120,13 +122,22 @@ static int display_trade_handler(window_info *win)
 			draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 			glEnd();
 
-			use_large = (mouse_over_your_trade_pos == i) && enlarge_text();
 			safe_snprintf(str, sizeof(str), "%i",your_trade_list[i].quantity);
-			y_end -= (i&1) ?trade_gridsize * 2/3 : trade_gridsize * 1/3;
-			if (use_large)
-				draw_string_shadowed_zoomed(x_start, y_end, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
+			zoom = (mouse_over_your_trade_pos == i && enlarge_text())
+				? win->current_scale : win->current_scale_small;
+			if (i & 1)
+			{
+				y_text = y_start;
+				valign = TOP_LINE;
+			}
 			else
-				draw_string_small_shadowed_zoomed(x_start, y_end, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
+			{
+				y_text = y_end;
+				valign = BOTTOM_LINE;
+			}
+			draw_text(x_start, y_text, (const unsigned char*)str, strlen(str), win->font_category,
+				TDO_SHADOW, 1, TDO_FOREGROUND, 1.0, 1.0, 1.0, TDO_BACKGROUND, 0.0, 0.0, 0.0,
+				TDO_ZOOM, zoom, TDO_VERTICAL_ALIGNMENT, valign);
 			//by doing the images in reverse, you can't cover up the digits>4
 			//also, by offsetting each one, numbers don't overwrite each other:
 			//before: 123456 in one box and 56 in the other could allow
@@ -143,8 +154,10 @@ static int display_trade_handler(window_info *win)
 			GLfloat u_start, v_start, u_end, v_end;
 			int x_start, x_end, y_start, y_end;
 			int cur_item;
-			int use_large;
 			GLuint this_texture;
+			int y_text;
+			float zoom;
+			ver_alignment valign;
 
 			cur_item=others_trade_list[i].image_id%25;
 			get_item_uv(cur_item, &u_start, &v_start, &u_end, &v_end);
@@ -165,13 +178,22 @@ static int display_trade_handler(window_info *win)
 			draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 			glEnd();
 
-			use_large = (mouse_over_others_trade_pos == i) && enlarge_text();
 			safe_snprintf(str, sizeof(str), "%i",others_trade_list[i].quantity);
-			y_end -= (i&1) ?trade_gridsize * 2/3 : trade_gridsize * 1/3;
-			if (use_large)
-				draw_string_shadowed_zoomed(x_start, y_end, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
+			zoom = (mouse_over_others_trade_pos == i && enlarge_text())
+				? win->current_scale : win->current_scale_small;
+			if (i & 1)
+			{
+				y_text = y_start;
+				valign = TOP_LINE;
+			}
 			else
-				draw_string_small_shadowed_zoomed(x_start, y_end, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
+			{
+				y_text = y_end;
+				valign = BOTTOM_LINE;
+			}
+			draw_text(x_start, y_text, (const unsigned char*)str, strlen(str), win->font_category,
+				TDO_SHADOW, 1, TDO_FOREGROUND, 1.0, 1.0, 1.0, TDO_BACKGROUND, 0.0, 0.0, 0.0,
+				TDO_ZOOM, zoom, TDO_VERTICAL_ALIGNMENT, valign);
 
 			if(storage_available && others_trade_list[i].type==ITEM_BANK){
 				str[0]='s';
@@ -209,19 +231,24 @@ static int display_trade_handler(window_info *win)
 
 	//Draw the help text
 	if(show_help_text && show_abort_help)
-		show_help(abort_str,
-			win->len_x - (win->box_size - win->box_size / 5) / 2 - (win->small_font_len_x * strlen(abort_str)) / 2,
-			win->box_size + win->box_size/5, win->current_scale);
+	{
+		show_help_colored_scaled_centered((const unsigned char*)abort_str,
+			win->len_x - win->box_size / 2, win->box_size + win->box_size/5,
+			1.0f, 1.0f, 1.0f, win->current_scale);
+	}
 
 	glEnable(GL_TEXTURE_2D);
 
 	//now, draw the inventory text, if any.
 	if (last_items_string_id != inventory_item_string_id)
 	{
-		put_small_text_in_box_zoomed((unsigned char*)inventory_item_string, strlen(inventory_item_string), win->len_x - trade_border, items_string, win->current_scale);
+		put_small_text_in_box_zoomed((unsigned char*)inventory_item_string,
+			strlen(inventory_item_string), win->len_x - trade_border, items_string,
+			win->current_scale);
 		last_items_string_id = inventory_item_string_id;
 	}
-	draw_string_small_zoomed(trade_border/2, button_y_bot + trade_border, (unsigned char*)items_string, ITEM_INFO_ROWS, win->current_scale);
+	draw_string_small_zoomed(trade_border/2, button_y_bot + trade_border, items_string,
+		ITEM_INFO_ROWS, win->current_scale);
 
 	if (tool_tip_str != NULL)
 	{

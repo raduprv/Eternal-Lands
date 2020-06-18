@@ -9,6 +9,9 @@
 #include <errno.h>
 #include <ctype.h>
 #include <time.h>
+#ifdef TTF
+#include <SDL2/SDL_ttf.h>
+#endif
 #include "astrology.h"
 #include "init.h"
 #include "2d_objects.h"
@@ -314,9 +317,9 @@ static void read_bin_cfg(void)
 	}
 
 	if(zoom_level != 0.0f) resize_root_window();
-	
+
 	have_saved_langsel = cfg_mem.have_saved_langsel;
-	
+
 	use_small_items_window = cfg_mem.misc_bool_options & 1;
 	manual_size_items_window = (cfg_mem.misc_bool_options >> 1) & 1;
 	allow_equip_swap = (cfg_mem.misc_bool_options >> 2) & 1;
@@ -542,9 +545,9 @@ void save_bin_cfg(void)
 	for(i=0;i<ITEM_EDIT_QUANT;i++){
 		cfg_mem.quantity[i]=quantities.quantity[i].val;
 	}
-	
+
 	cfg_mem.have_saved_langsel = have_saved_langsel;
-	
+
 	cfg_mem.misc_bool_options = 0;
 	cfg_mem.misc_bool_options |= use_small_items_window;
 	cfg_mem.misc_bool_options |= manual_size_items_window << 1;
@@ -665,7 +668,17 @@ void init_stuff(void)
 
 	// initialize the fonts, but don't load the textures yet. Do that here
 	// because the messages need the font widths.
-	init_fonts();
+	if (!initialize_fonts())
+	{
+		// If we can't load fonts, we cant communicate with the user. Give up.
+		LOG_ERROR("%s\n", fatal_data_error);
+		fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, fatal_data_error);
+		SDL_Quit();
+		FATAL_ERROR_WINDOW(fatal_data_error);
+		exit(1);
+	}
+	// Update values for multi-selects that weren't fully initialized yet
+	check_deferred_options();
 
 	//Good, we should be in the right working directory - load all translatables from their files
 	load_translatables();
@@ -680,15 +693,6 @@ void init_stuff(void)
 #ifndef FASTER_MAP_LOAD
 	init_2d_obj_cache();
 #endif
-	//now load the font textures
-	if (load_font_textures () != 1)
-	{
-		LOG_ERROR("%s\n", fatal_data_error);
-		fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, fatal_data_error);
-		SDL_Quit();
-		FATAL_ERROR_WINDOW(fatal_data_error);
-		exit(1);
-	}
 
 	// read the continent map info
 	read_mapinfo();

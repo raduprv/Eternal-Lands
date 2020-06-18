@@ -4,7 +4,7 @@
 // 	TODO
 // 		add #command start/stop/reset/mode/set
 // 		add to context menu, dynamic list of previous start values
-// 
+//
 //		Author bluap/pjbroad Aug/Dec 2013
 //
 
@@ -42,7 +42,7 @@ class Hud_Timer
 		void set_start(int new_start_value);
 		void pre_cm_handler(void) { cm_grey_line(cm_id, CMHT_SETTIME, !mode_coundown); }
 		int cm_handler(window_info *win, int option);
-		int display(window_info *win, int base_y_start);
+		int display(window_info *win, int base_y_start, int tooltip_sep);
 		int ui_scale_handler(window_info *win);
 		int mouse_is_over(window_info *win, int mx, int my);
 		int mouse_click(Uint32 flags);
@@ -61,6 +61,8 @@ class Hud_Timer
 		bool mode_coundown;
 		bool mouse_over;
 		const int max_value;
+		float zoom;
+		int width;
 		int height;
 		size_t cm_id;
 		int last_base_y_start;
@@ -149,7 +151,7 @@ void Hud_Timer::toggle_mode(void)
 		reset();
 		running = false;
 	}
-		
+
 }
 
 
@@ -212,17 +214,33 @@ void Hud_Timer::check_cm_menu(window_info *win, int base_y_start)
 //
 int Hud_Timer::ui_scale_handler(window_info *win)
 {
-	height = win->default_font_len_y;
+	eternal_lands::FontManager& font_manager = eternal_lands::FontManager::get_instance();
+	zoom = win->current_scale;
+
+	int c_width = font_manager.width_spacing(win->font_category, countdown_str[0], zoom);
+	int s_width = font_manager.width_spacing(win->font_category, stopwatch_str[0], zoom);
+	int text_width = std::max(c_width, s_width)
+		+ font_manager.width_spacing(win->font_category, ':', zoom)
+		+ 3 * font_manager.max_digit_width_spacing(win->font_category, zoom);
+	int max_width = win->len_x - 4 * win->current_scale;
+
+	if (text_width > max_width)
+	{
+		zoom *= float(max_width) / text_width;
+		width = text_width;
+	}
+
+	width = text_width;
+	height = font_manager.line_height(win->font_category, zoom);
 	return 1;
 }
 
 
 // display the current time for the hud timer, coloured by stopped or running
 //
-int Hud_Timer::display(window_info *win, int base_y_start)
+int Hud_Timer::display(window_info *win, int base_y_start, int tooltip_sep)
 {
 	char str[10];
-	int x;
 	check_cm_menu(win, base_y_start);
 	if (input && (!view_hud_timer || !get_show_window(input->popup_win)))
 		destroy_popup();
@@ -230,16 +248,22 @@ int Hud_Timer::display(window_info *win, int base_y_start)
 		return 0;
 	base_y_start -= height;
 	safe_snprintf(str, sizeof(str), "%c%1d:%02d", ((mode_coundown) ?countdown_str[0] :stopwatch_str[0]), current_value/60, current_value%60);
-	x = 3 + (win->len_x - get_string_width((unsigned char*)str) * win->default_font_len_x / 12) / 2;
 	if (running)
-		draw_string_shadowed_zoomed(x, 2 + base_y_start, (unsigned char*)str, 1,0.5f, 1.0f, 0.5f, 0.0f, 0.0f, 0.0f, win->current_scale);
+		draw_string_shadowed_zoomed_centered(win->len_x/2, 2 + base_y_start,
+			(const unsigned char*)str, 1,0.5f, 1.0f, 0.5f, 0.0f, 0.0f, 0.0f, zoom);
 	else
-		draw_string_shadowed_zoomed(x, 2 + base_y_start, (unsigned char*)str, 1,1.0f, 0.5f, 0.5f, 0.0f, 0.0f, 0.0f, win->current_scale);
+		draw_string_shadowed_zoomed_centered(win->len_x/2, 2 + base_y_start,
+			(const unsigned char*)str, 1,1.0f, 0.5f, 0.5f, 0.0f, 0.0f, 0.0f, zoom);
 	if (mouse_over)
 	{
 		char *use_str = ((mode_coundown) ?countdown_str:stopwatch_str);
-		draw_string_small_shadowed_zoomed(-(int)(win->small_font_len_x*(strlen(use_str)+0.5)), base_y_start, (unsigned char*)use_str,
-			1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
+		eternal_lands::TextDrawOptions options = eternal_lands::TextDrawOptions()
+			.set_shadow().set_foreground(1.0f, 1.0f, 1.0f).set_background(0.0f, 0.0f, 0.0f)
+			.set_zoom(win->current_scale_small).set_alignment(RIGHT)
+			.set_vertical_alignment(CENTER_LINE);
+		eternal_lands::FontManager::get_instance().draw(win->font_category,
+			reinterpret_cast<const unsigned char*>(use_str), strlen(use_str),
+			-tooltip_sep, base_y_start + height/2, options);
 		mouse_over = false;
 	}
 	return height;
@@ -342,7 +366,10 @@ extern "C"
 	// external interface from hud
 	int get_height_of_timer(void) { return my_timer.get_height(); }
 	void set_mouse_over_timer(void) { my_timer.set_mouse_over(); }
-	int display_timer(window_info *win, int base_y_start) { return my_timer.display(win, base_y_start); }
+	int display_timer(window_info *win, int base_y_start, int tooltip_sep)
+	{
+		return my_timer.display(win, base_y_start, tooltip_sep);
+	}
 	int ui_scale_timer(window_info *win) { return my_timer.ui_scale_handler(win); }
 	int mouse_is_over_timer(window_info *win, int mx, int my) { return my_timer.mouse_is_over(win, mx, my); }
 	int mouse_click_timer(Uint32 flags) { return my_timer.mouse_click(flags); }

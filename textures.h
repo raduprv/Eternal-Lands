@@ -64,13 +64,14 @@ typedef struct
 
 /*!
  * \ingroup 	textures
- * \brief 	Loads a texture for non-gui use.
+ * \brief 	Load a texture
  *
  * 		Loads a texture for gui use. Mipmaps and anisotropic filters are used,
  *		size reduction can happens and the texture is compressed if supported.
  *		Also the texture cache is used for it.
- * \param   	file_name The file name of the texture to load.
- * \retval GLuint  	The texture handle in the cache.
+ * \param file_name The file name of the texture to load.
+ * \param type      The intended use of the texture
+ * \return The identifier in the cache for the texture
  * \callgraph
  */
 Uint32 load_texture_cached(const char* file_name, const texture_type type);
@@ -226,7 +227,8 @@ typedef struct
  *      	Loads the actors texture from the information given in the
  *		enhanced actor structure.
  *
- * \param   	actor A pointer to the enhanced_actor structure
+ * \param actor A pointer to the enhanced_actor structure
+ * \param name  The name of the actor
  * \retval	Uint32 The actor texture handle.
  * \callgraph
  */

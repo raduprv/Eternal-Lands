@@ -50,6 +50,8 @@ static bag bag_list[NUM_BAGS];
 static int GRIDSIZE = 33;
 static int ground_items_grid_rows = 10;
 static int ground_items_grid_cols = 5;
+static int grid_sep_x = 0;
+static int grid_sep_y = 0;
 static const int min_grid_rows = 4;
 static const int min_grid_cols = 2;
 static const char *item_desc_str = NULL;
@@ -283,7 +285,8 @@ void add_bags_from_list (const Uint8 *data)
 
 void remove_item_from_ground(Uint8 pos)
 {
-	ground_item_list[pos].quantity= 0;
+	if (pos < ITEMS_PER_BAG)
+		ground_item_list[pos].quantity= 0;
 }
 
 void remove_bag(int bag_id)
@@ -505,7 +508,7 @@ static int display_ground_items_handler(window_info *win)
 	int i;
 	static Uint8 resizing = 0;
 	int yoffset = get_window_scroll_pos(win->window_id);
-	int but_text_x, but_text_y;
+	int but_text_y;
 
 	/* if resizing wait until we stop */
 	if (win->resized)
@@ -513,11 +516,11 @@ static int display_ground_items_handler(window_info *win)
 	/* once we stop, snap the window to the new grid size */
 	else if (resizing)
 	{
-		int new_width = (ground_items_grid_cols+1)*GRIDSIZE;
-		int new_rows = (win->len_y+GRIDSIZE/2)/GRIDSIZE;
+		int new_width = grid_sep_x + (ground_items_grid_cols + 1) * GRIDSIZE;
+		int new_rows = (win->len_y - 2 * grid_sep_y + GRIDSIZE / 2) / GRIDSIZE;
 		int max_rows = (ITEMS_PER_BAG + ground_items_grid_cols - 1) / ground_items_grid_cols;
 		resizing = 0;
-		resize_window (win->window_id, new_width, ((new_rows > max_rows) ?max_rows :new_rows)*GRIDSIZE);
+		resize_window (win->window_id, new_width, 2 * grid_sep_y + ((new_rows > max_rows) ?max_rows :new_rows) * GRIDSIZE);
 		yoffset = get_window_scroll_pos(win->window_id);
 	}
 
@@ -526,9 +529,8 @@ static int display_ground_items_handler(window_info *win)
 	// write "get all" in the "get all" box :)
 	strap_word(get_all_str,my_str);
 	glColor3f(0.77f,0.57f,0.39f);
-	but_text_x = (int)(0.5 + ((GRIDSIZE - (float)(3 * win->small_font_len_x)) / 2.0));
 	but_text_y = (int)(0.5 + ((GRIDSIZE - (float)(2 * win->small_font_len_y)) / 2.0));
-	draw_string_small_zoomed(win->len_x+but_text_x-GRIDSIZE, win->box_size+but_text_y+yoffset, (unsigned char*)my_str, 2, win->current_scale);
+	draw_string_small_zoomed_centered(win->len_x-GRIDSIZE/2, win->box_size+but_text_y+yoffset, (unsigned char*)my_str, 2, win->current_scale);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
@@ -545,9 +547,9 @@ static int display_ground_items_handler(window_info *win)
 
 			//get the x and y
 			cur_pos=i;
-			x_start=GRIDSIZE*(cur_pos%ground_items_grid_cols)+1;
+			x_start = grid_sep_x + GRIDSIZE * (cur_pos % ground_items_grid_cols) + 1;
 			x_end=x_start+GRIDSIZE-1;
-			y_start=GRIDSIZE*(cur_pos/ground_items_grid_cols);
+			y_start = grid_sep_y +  + GRIDSIZE * (cur_pos / ground_items_grid_cols);
 			y_end=y_start+GRIDSIZE-1;
 
 			//get the texture this item belongs to
@@ -576,13 +578,13 @@ static int display_ground_items_handler(window_info *win)
 	glColor3f(0.77f,0.57f,0.39f);
 	/* if a full grid render in one go */
 	if (ground_items_grid_cols*ground_items_grid_rows == ITEMS_PER_BAG)
-		rendergrid(ground_items_grid_cols,ground_items_grid_rows,0,0,GRIDSIZE,GRIDSIZE);
+		rendergrid(ground_items_grid_cols, ground_items_grid_rows, grid_sep_x, grid_sep_y, GRIDSIZE, GRIDSIZE);
 	/* otherwise don't render the extra slots */
 	else
 	{
 		int remainder = ITEMS_PER_BAG - (ground_items_grid_cols*(ground_items_grid_rows-1));
-		rendergrid(ground_items_grid_cols,ground_items_grid_rows-1,0,0,GRIDSIZE,GRIDSIZE);
-		rendergrid(remainder, 1, 0, GRIDSIZE*(ground_items_grid_rows-1), GRIDSIZE, GRIDSIZE);
+		rendergrid(ground_items_grid_cols, ground_items_grid_rows - 1, grid_sep_x, grid_sep_y, GRIDSIZE, GRIDSIZE);
+		rendergrid(remainder, 1, grid_sep_x, grid_sep_y + GRIDSIZE*(ground_items_grid_rows-1), GRIDSIZE, GRIDSIZE);
 	}
 
 	glBegin(GL_LINE_LOOP);
@@ -633,7 +635,8 @@ static int click_ground_items_handler(window_info *win, int mx, int my, Uint32 f
 		return 1;
 	}
 
-	pos = (my<0) ?-1 :get_mouse_pos_in_grid(mx,my+yoffset+1,ground_items_grid_cols,ground_items_grid_rows,0,0,GRIDSIZE,GRIDSIZE);
+	pos = (my<0) ?-1 :get_mouse_pos_in_grid(mx, my + yoffset + 1,
+		ground_items_grid_cols, ground_items_grid_rows, grid_sep_x, grid_sep_y, GRIDSIZE, GRIDSIZE);
 
 	if(pos==-1 || pos>=ITEMS_PER_BAG){
 	} else
@@ -667,7 +670,8 @@ static int click_ground_items_handler(window_info *win, int mx, int my, Uint32 f
 
 static int mouseover_ground_items_handler(window_info *win, int mx, int my) {
 	int yoffset = get_window_scroll_pos(win->window_id);
-	int pos = (yoffset>my) ?-1 :get_mouse_pos_in_grid(mx, my+1, ground_items_grid_cols, ground_items_grid_rows, 0, 0, GRIDSIZE, GRIDSIZE);
+	int pos = (yoffset>my) ?-1 :get_mouse_pos_in_grid(mx, my + 1, ground_items_grid_cols,
+		ground_items_grid_rows, grid_sep_x, grid_sep_y, GRIDSIZE, GRIDSIZE);
 
 	if(pos!=-1 && pos<ITEMS_PER_BAG && ground_item_list[pos].quantity) {
 		Uint16 item_id = ground_item_list[pos].id;
@@ -689,8 +693,8 @@ static int mouseover_ground_items_handler(window_info *win, int mx, int my) {
 /* dynamically adjust the grid and the scroll bar when the window resizes */
 static int resize_ground_items_handler(window_info *win, int width, int height)
 {
-	ground_items_visible_grid_cols = (win->len_x / GRIDSIZE) - 1;
-	ground_items_visible_grid_rows = (win->len_y / GRIDSIZE);
+	ground_items_visible_grid_cols = ((win->len_x - grid_sep_x) / GRIDSIZE) - 1;
+	ground_items_visible_grid_rows = ((win->len_y - 2 * grid_sep_y) / GRIDSIZE);
 
 	/* let the width lead */
 	ground_items_grid_cols = ground_items_visible_grid_cols;
@@ -707,7 +711,7 @@ static int resize_ground_items_handler(window_info *win, int width, int height)
 			ground_items_grid_cols++;
 	}
 
-	set_window_scroll_len(win->window_id, ground_items_grid_rows*GRIDSIZE-win->len_y);
+	set_window_scroll_len(win->window_id, ground_items_grid_rows * GRIDSIZE + 2 * grid_sep_y - win->len_y);
 	return 0;
 }
 
@@ -721,11 +725,14 @@ static int ui_scale_ground_items_handler(window_info * win)
 		ground_items_visible_grid_rows = 10;
 	}
 	GRIDSIZE = (int)(0.5 + 33 * win->current_scale);
-	set_window_min_size(win->window_id, (min_grid_cols+1)*GRIDSIZE, min_grid_rows*GRIDSIZE);
+	grid_sep_x = (int)(0.5 + 2 * win->current_scale);
+	grid_sep_y = (int)(0.5 + 2 * win->current_scale);
+	set_window_min_size(win->window_id, grid_sep_x + (min_grid_cols + 1) * GRIDSIZE, 2 * grid_sep_y + min_grid_rows * GRIDSIZE);
 	set_window_scroll_inc(win->window_id, GRIDSIZE/3);
 	set_window_scroll_yoffset(win->window_id, GRIDSIZE);
 	set_window_scroll_pos(win->window_id, current_scroll_pos * GRIDSIZE/3);
-	resize_window(win->window_id, (ground_items_visible_grid_cols+1)*GRIDSIZE, ground_items_visible_grid_rows*GRIDSIZE);
+	resize_window(win->window_id, grid_sep_x + (ground_items_visible_grid_cols + 1) * GRIDSIZE,
+		2 * grid_sep_y + ground_items_visible_grid_rows * GRIDSIZE);
 	return 1;
 }
 

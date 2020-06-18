@@ -35,10 +35,8 @@
 #endif	/* FSAA */
 
 #ifdef ELC
-#define DRAW_ORTHO_INGAME_NORMAL(x, y, z, our_string, max_lines)	draw_ortho_ingame_string(x, y, z, (const Uint8*)our_string, max_lines, INGAME_FONT_X_LEN*10.0, INGAME_FONT_Y_LEN*10.0)
-#define DRAW_INGAME_NORMAL(x, y, our_string, max_lines)	draw_ingame_string(x, y, (const Uint8*)our_string, max_lines, INGAME_FONT_X_LEN, INGAME_FONT_Y_LEN)
+#define DRAW_ORTHO_INGAME_NORMAL(x, y, z, our_string, max_lines)	draw_ortho_ingame_string(x, y, z, (const Uint8*)our_string, max_lines, INGAME_FONT_X_LEN*10.0, INGAME_FONT_X_LEN*10.0)
 #define DRAW_INGAME_SMALL(x, y, our_string, max_lines)	draw_ingame_string(x, y, (const Uint8*)our_string, max_lines, SMALL_INGAME_FONT_X_LEN, SMALL_INGAME_FONT_Y_LEN)
-#define DRAW_INGAME_ALT(x, y, our_string, max_lines)	draw_ingame_string(x, y, (const Uint8*)our_string, max_lines, ALT_INGAME_FONT_X_LEN, ALT_INGAME_FONT_Y_LEN)
 #endif
 
 actor *actors_list[MAX_ACTORS];
@@ -213,7 +211,7 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	for(k=0;k<MAX_EMOTE_FRAME;k++) our_actor->cur_emote.frames[k].anim_index=-1;
 	our_actor->cur_emote.idle.anim_index=-1;
 	our_actor->cur_emote_sound_cookie=0;
-	
+
 
 
 
@@ -407,6 +405,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	GLint view[4];
 
 	GLdouble hx,hy,hz,a_bounce;
+	float name_zoom = font_scales[NAME_FONT];
 	float font_scale = 1.0f/ALT_INGAME_FONT_X_LEN;
 	double healthbar_x=0.0f;
 	double healthbar_y=0.0f;
@@ -529,15 +528,18 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			 * an exit condition at the beginning of the function */
 			if ((first_person)&&(actor_id->actor_id==yourself)){
 				float x,y;
-				x = window_width/2.0 -(((float)get_string_width(str) * (font_scale*0.17*name_zoom)))*0.5f;
+				x = window_width / 2.0 - 0.5f * (float)get_string_width_zoom(str, NAME_FONT,  font_scale*0.17);
 				y = a_bounce + window_height/2.0-40.0;
-				draw_ortho_ingame_string(x, y, 0, str, 1, font_scale*.14, font_scale*.21);
+				draw_ortho_ingame_string(x, y, 0, str, 1, font_scale*.14, font_scale*.14);
 			}
 			else
 			{
 				float font_scale2 = font_scale*powf(1.0f+((float)abs(actor_id->damage)/2.0f)/1000.0f, 4.0);
-				draw_ortho_ingame_string(hx-(((float)get_string_width(str) * (font_scale2*0.17*name_zoom)))*0.5f, a_bounce+hy+10.0f, 0, str, 1, font_scale2*.14, font_scale2*.21);
-			}			glDisable(GL_BLEND);
+				draw_ortho_ingame_string(hx - 0.5f * (float)get_string_width_zoom(str, NAME_FONT, font_scale2*0.17),
+					a_bounce+hy+10.0f, 0, str, 1,
+					font_scale2*.14, font_scale2*.14);
+			}
+			glDisable(GL_BLEND);
 		}
 		else
 		{	//No floating messages
@@ -571,12 +573,12 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	// Schmurk: same here, we actually never reach this code
 	if (!((first_person)&&(actor_id->actor_id==yourself)))
 	{
-		if(actor_id->actor_name[0] && (display_names || display_health_line || display_ether_line)){
-			set_font(name_font);	// to variable length
-
-			if(display_names){
+		if(actor_id->actor_name[0] && (display_names || display_health_line || display_ether_line))
+		{
+			if (display_names)
+			{
 				float font_size_x=font_scale*SMALL_INGAME_FONT_X_LEN;
-				float font_size_y=font_scale*SMALL_INGAME_FONT_Y_LEN;
+				float font_size_y=font_scale*SMALL_INGAME_FONT_X_LEN;
 
 				if(actor_id->kind_of_actor==NPC){
 					glColor3f(0.3f,0.8f,1.0f);
@@ -592,8 +594,9 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 					glColor3f(1.0f,1.0f,0.0f);
 				}
 				safe_snprintf ((char*)temp, sizeof (temp), "%s", actor_id->actor_name);
-				banner_width = ((float)get_string_width((unsigned char*)actor_id->actor_name)*(font_size_x*name_zoom))/2.0;
-				draw_ortho_ingame_string(hx-banner_width, hy+bar_y_len/2.0f, hz, temp, 1, font_size_x, font_size_y);
+				banner_width = 0.5 * (float)get_string_width_zoom((unsigned char*)actor_id->actor_name, NAME_FONT, font_size_x);
+				draw_ortho_ingame_string(hx-banner_width, hy+bar_y_len/2.0f, hz, temp,
+					1, font_size_x, font_size_y);
 			}
 			if (view_buffs)
 			{
@@ -607,11 +610,13 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				// make the heath bar the same length as the the health text so they are balanced
 				// use the same length health bar, even if not displaying the health text
 				sprintf((char*)hp,"%u/%u", actor_id->cur_health, actor_id->max_health);
-				health_str_x_len = (float)get_string_width(hp)*(ALT_INGAME_FONT_X_LEN*name_zoom*font_scale);
+				health_str_x_len = (float)get_string_width_zoom(hp, NAME_FONT,
+					ALT_INGAME_FONT_X_LEN * font_scale);
 				//do the same with mana if we want to display it
 				if (display_ether || display_ether_bar) {
 					sprintf((char*)mana,"%d/%d", your_info.ethereal_points.cur, your_info.ethereal_points.base);
-					ether_str_x_len=(float)get_string_width(mana)*(ALT_INGAME_FONT_X_LEN*name_zoom*font_scale);
+					ether_str_x_len=(float)get_string_width_zoom(mana, NAME_FONT,
+						ALT_INGAME_FONT_X_LEN * font_scale);
 				}
 				//set bar length to longer one (mana or health) - not really clean solution
 				if (ether_str_x_len > health_str_x_len) {
@@ -642,17 +647,19 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 					if (display_hp) {
 						//choose color for the health
 						set_health_color((float)actor_id->cur_health/(float)actor_id->max_health, 1.0f, 1.0f);
-						draw_ortho_ingame_string(hx-disp+hp_off, hy-bar_y_len/3.0f, hz, hp, 1, ALT_INGAME_FONT_X_LEN*font_scale, ALT_INGAME_FONT_Y_LEN*font_scale);
+						draw_ortho_ingame_string(hx-disp+hp_off, hy-bar_y_len/3.0f,
+							hz, hp, 1, ALT_INGAME_FONT_X_LEN*font_scale,
+							ALT_INGAME_FONT_X_LEN*font_scale);
 					}
 
 					if (display_ether) {
 						set_mana_color((float)your_info.ethereal_points.cur / (float)your_info.ethereal_points.base, 1.0f, 1.0f);
-						draw_ortho_ingame_string(hx-disp+eth_off, ey-bar_y_len/3.0f, hz, mana, 1, ALT_INGAME_FONT_X_LEN*font_scale, ALT_INGAME_FONT_Y_LEN*font_scale);
+						draw_ortho_ingame_string(hx-disp+eth_off, ey-bar_y_len/3.0f,
+							hz, mana, 1, ALT_INGAME_FONT_X_LEN*font_scale,
+							ALT_INGAME_FONT_X_LEN*font_scale);
 					}
 				}
 			}
-
-			set_font(0);	// back to fixed pitch
 		}
 	}
 
@@ -662,7 +669,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	if(display_health_bar && display_health_line && (!actor_id->dead) && (actor_id->kind_of_actor != NPC)){
 		float percentage = (float)actor_id->cur_health/(float)actor_id->max_health;
 		float off;
-		
+
 		if(percentage>110.0f) //deal with massive bars by trimming at 110%
 			percentage = 110.0f;
 		if (display_hp){
@@ -886,7 +893,8 @@ void draw_actor_overtext( actor* actor_ptr )
 	//-- decrease display time
 	actor_ptr->current_displayed_text_time_left -= (cur_time-last_time);
 
-	textwidth = ((float)get_string_width((unsigned char*)(actor_ptr->current_displayed_text))*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/12.0;
+	textwidth = ((float)get_string_width_zoom((unsigned char*)actor_ptr->current_displayed_text,
+		NAME_FONT, SMALL_INGAME_FONT_X_LEN * zoom_level / 3.0)) / 12.0;
 	textheight = (0.06f*zoom_level/3.0)*4;
 	margin = 0.02f*zoom_level;
 	z = 1.2f;// distance over the player

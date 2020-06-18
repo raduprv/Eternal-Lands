@@ -143,7 +143,7 @@ void get_version_string (char *buf, size_t len)
 	safe_snprintf (buf, len, "%s %s", game_version_prefix_str, GIT_VERSION);
 #else
 	char extra[100];
-	
+
 	if (client_version_patch > 0)
 	{
 		safe_snprintf (extra, sizeof(extra), "p%d %s", client_version_patch, DEF_INFO);
@@ -158,7 +158,7 @@ void get_version_string (char *buf, size_t len)
 
 /*
  *	Date handling code:
- * 
+ *
  * 		Maintain a string with the current date.  This gets invalidated
  * 	at the turn of the day but not immediately refreshed.  Rather, the
  * 	refresh (asking the server) is done next time the get string is
@@ -688,7 +688,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 		case RAW_TEXT:
 			{
 				int len;
-				
+
 				if (data_length <= 4)
 				{
 				  LOG_WARNING("CAUTION: Possibly forged RAW_TEXT packet received.\n");
@@ -702,7 +702,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				if (in_data[3] == server_pop_chan)
 				{
 					if (use_server_pop_win)
-						display_server_popup_win((char*)text_buf);
+						display_server_popup_win(text_buf);
 					else
 						put_text_in_buffer (in_data[3], text_buf, len);
 					// if we're expecting a quest entry, this will be it
@@ -711,7 +711,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 						char cur_npc_name[sizeof(npc_name)];
 						safe_strncpy2(cur_npc_name, (char *)npc_name, sizeof(npc_name), sizeof(npc_name));
 						safe_strncpy((char *)npc_name, "<None>", sizeof(npc_name));
-						add_questlog((char*)text_buf, len);
+						add_questlog(text_buf, len);
 						safe_strncpy2((char *)npc_name, cur_npc_name, sizeof(npc_name), sizeof(npc_name));
 					}
 				}
@@ -936,7 +936,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			{
 				int items;
 				int plen;
-		
+
 				if (data_length <= 3)
 				{
 				  LOG_WARNING("CAUTION: Possibly forged HERE_YOUR_INVENTORY packet received.\n");
@@ -978,7 +978,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					plen=10;
 				else
 					plen=8;
-				
+
 				// allow for multiple packets in a row
 				while(data_length >= 3+plen){
 					get_new_inventory_item(in_data+3);
@@ -1093,7 +1093,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				if(in_data[3] == '.' && in_data[4] == '/')
 				{
 					safe_strncpy2(mapname, (char*)in_data + 3, sizeof(mapname), data_length - 3);
-				} else 
+				} else
 				{
 					safe_snprintf(mapname, sizeof(mapname), "./%s", (char*)in_data + 3);
 				}
@@ -1525,13 +1525,13 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					// double color code, this text
 					// should be added to the quest log
 					safe_strncpy2((char*)text_buf, (char*)&in_data[4], sizeof(text_buf), data_length - 4);
-					add_questlog ((char*)text_buf, strlen((char*)text_buf));
+					add_questlog(text_buf, strlen((char*)text_buf));
 				}
 				// if we're expecting a quest entry, this will be it
 				else if (waiting_for_questlog_entry())
 				{
 					safe_strncpy2((char*)text_buf, (char*)&in_data[3], sizeof(text_buf), data_length - 3);
-					add_questlog ((char*)text_buf, strlen((char*)text_buf));
+					add_questlog(text_buf, strlen((char*)text_buf));
 				}
 			}
 			break;
@@ -1622,8 +1622,8 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				if (item_uid_enabled)
 					plen=10;
 				else
-					plen=8;		
-			
+					plen=8;
+
 				if (data_length <= 3+plen)
 				{
 				  LOG_WARNING("CAUTION: Possibly forged GET_TRADE_OBJECT packet received.\n");
@@ -1877,7 +1877,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  LOG_WARNING("CAUTION: Possibly forged READ_BOOK packet received.\n");
 				  break;
 				}
-				read_network_book((char*)in_data+3, data_length-3);
+				read_network_book(in_data+3, data_length-3);
 			}
 			break;
 

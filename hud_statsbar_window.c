@@ -90,7 +90,7 @@ static int calc_max_disp_stats(int suggested_stats_bar_len)
 /* draws damage and heal above the health bar */
 static void draw_last_health_change(window_info *win)
 {
-	char str[20];
+	unsigned char str[20];
 	static const Uint32 timeoutms = 2*60*1000;
 	const int yoff = -(HUD_MARGIN_Y + win->small_font_len_y + 1 - (window_height - win->cur_y));
 	/* damage in red */
@@ -100,8 +100,8 @@ static void draw_last_health_change(window_info *win)
 			my_last_health.d = 0;
 		else
 		{
-			safe_snprintf(str, sizeof(str), " %d ", my_last_health.d);
-			show_help_coloured_scaled(str, health_bar_start_x+stats_bar_len/2-strlen(str)*win->small_font_len_x-2, yoff, 1.0f, 0.0f, 0.0f, 0, win->current_scale);
+			safe_snprintf((char*)str, sizeof(str), " %d ", my_last_health.d);
+			show_help_colored_scaled_right(str, health_bar_start_x+stats_bar_len/2-2, yoff, 1.0f, 0.0f, 0.0f, win->current_scale_small);
 		}
 	}
 	/* heal in green */
@@ -111,8 +111,10 @@ static void draw_last_health_change(window_info *win)
 			my_last_health.h = 0;
 		else
 		{
-			safe_snprintf(str, sizeof(str), " %d ", my_last_health.h);
-			show_help_coloured_scaled(str, health_bar_start_x+stats_bar_len/2+2, yoff, 0.0f, 1.0f, 0.0f, 0, win->current_scale);
+			safe_snprintf((char*)str, sizeof(str), " %d ", my_last_health.h);
+			draw_text(health_bar_start_x+stats_bar_len/2+2, yoff, str, strlen((const char*)str),
+				win->font_category, TDO_HELP, 1, TDO_FOREGROUND, 0.0, 1.0, 0.0,
+				TDO_ZOOM, win->current_scale_small, TDO_END);
 		}
 	}
 }
@@ -154,7 +156,7 @@ static int cm_statsbar_handler(window_info *win, int widget_id, int mx, int my, 
 
 	// selecting the same stat more than once, removing the last bar
 	// or adding too many is not possible as options are greyed out.
-	
+
 	for (i=0; i<actual_num_disp_stats;i++)
 	{
 		if ((mx >= exp_bar_start_x+i*(stats_bar_len+exp_bar_text_len)) && (mx <= exp_bar_start_x+i*(stats_bar_len+exp_bar_text_len)+stats_bar_len))
@@ -237,13 +239,13 @@ static void draw_stats_bar(window_info *win, int x, int y, int val, int len, flo
 	char buf[32];
 	int i; // i deals with massive bars by trimming at 110%
 	int bar_height = player_statsbar_bar_height;
-	
+
 	if(len>stats_bar_len*1.1)
 		i=stats_bar_len*1.1;
 	else
 		i=len;
 	glDisable(GL_TEXTURE_2D);
-	
+
 	if(i >= 0){
 		glBegin(GL_QUADS);
 		//draw the colored section
@@ -266,11 +268,12 @@ static void draw_stats_bar(window_info *win, int x, int y, int val, int len, flo
 	glVertex3i(x, y+bar_height, 0);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
-	
+
 	// handle the text
 	safe_snprintf(buf, sizeof(buf), "%d", val);
 	//glColor3f(0.8f, 0.8f, 0.8f); moved to next line
-	draw_string_small_shadowed_zoomed(x-(1+win->small_font_len_x*strlen(buf))-1, y-2, (unsigned char*)buf, 1,0.8f, 0.8f, 0.8f,0.0f,0.0f,0.0f, win->current_scale);
+	draw_string_small_shadowed_zoomed_right(x - 2, y - 2, (const unsigned char*)buf,
+		1, 0.8f, 0.8f, 0.8f, 0.0f, 0.0f, 0.0f, win->current_scale);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -278,13 +281,13 @@ CHECK_GL_ERRORS();
 
 
 // check if we need to adjust exp_bar_text_len due to an exp change
-static int recalc_exp_bar_text_len(window_info *win)
+static int recalc_exp_bar_text_len(window_info *win, int force)
 {
 	static int init_flag = 1;
 	static Uint32 last_exp[NUM_WATCH_STAT-1];
 	static Uint32 last_to_go_len[NUM_WATCH_STAT-1];
 	static Uint32 last_selected[NUM_WATCH_STAT-1];
-	int recalc = 1;
+	int recalc = init_flag || force;
 	int i;
 
 	if (init_flag)
@@ -295,7 +298,7 @@ static int recalc_exp_bar_text_len(window_info *win)
 			last_to_go_len[i] = Uint32_digits(*statsinfo[i].next_lev - *statsinfo[i].exp);
 			last_selected[i] = 0;
 		}
-		init_flag =  0;
+		init_flag = 0;
 	}
 
 	for (i=0; i<NUM_WATCH_STAT-1; i++)
@@ -324,11 +327,13 @@ static int recalc_exp_bar_text_len(window_info *win)
 	if (recalc)
 	{
 		int max_len = 0;
+		int max_digit_width = get_max_digit_width_zoom(win->font_category,
+			win->current_scale_small);
 		for (i=0; i<MAX_WATCH_STATS; i++)
 			if ((watch_this_stats[i] > 0) && statsinfo[watch_this_stats[i]-1].is_selected &&
 					(last_to_go_len[watch_this_stats[i]-1] > max_len))
 				max_len = last_to_go_len[watch_this_stats[i]-1];
-		return win->small_font_len_x*(max_len+1.5);
+		return max_digit_width*(max_len+1.5);
 	}
 	else
 		return exp_bar_text_len;
@@ -352,16 +357,16 @@ static void draw_exp_display(window_info *win)
 	{
 		if (watch_this_stats[i] > 0)
 		{
-			int name_x;
 			int name_y = exp_bar_start_y + 2 + player_statsbar_bar_height;
 			int icon_x = get_icons_win_active_len();
 			int cur_exp = *statsinfo[watch_this_stats[i]-1].exp;
 			int nl_exp = *statsinfo[watch_this_stats[i]-1].next_lev;
 			int baselev = statsinfo[watch_this_stats[i]-1].skillattr->base;
-			unsigned char * name = statsinfo[watch_this_stats[i]-1].skillnames->name;
+			const unsigned char* name = statsinfo[watch_this_stats[i]-1].skillnames->name;
 			int exp_adjusted_x_len;
 			int delta_exp;
 			float prev_exp;
+			int name_width;
 
 			if(!baselev)
 				prev_exp= 0;
@@ -375,17 +380,17 @@ static void draw_exp_display(window_info *win)
 			else
 				exp_adjusted_x_len= stats_bar_len-(float)stats_bar_len/(float)((float)delta_exp/(float)(nl_exp-cur_exp));
 
-			name_x = my_exp_bar_start_x + stats_bar_len - strlen((char *)name) * win->small_font_len_x;
+			name_width = get_string_width_zoom(name, win->font_category, win->current_scale_small);
 			// the the name would overlap with the icons...
-			if (name_x < icon_x)
+			if (my_exp_bar_start_x + stats_bar_len - name_width < icon_x)
 			{
 				name = statsinfo[watch_this_stats[i]-1].skillnames->shortname;
-				name_x = my_exp_bar_start_x + stats_bar_len - strlen((char *)name) * win->small_font_len_x - 3;
 				name_y = (int)(0.5 + (player_statsbar_y_offset + player_statsbar_bar_height - win->small_font_len_y) / 2) - 1;
 			}
 
 			draw_stats_bar(win, my_exp_bar_start_x, exp_bar_start_y, nl_exp - cur_exp, exp_adjusted_x_len, 0.1f, 0.8f, 0.1f, 0.1f, 0.4f, 0.1f);
-			draw_string_small_shadowed_zoomed(name_x, name_y, name, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
+			draw_string_small_shadowed_zoomed_right(my_exp_bar_start_x + stats_bar_len,
+				name_y, name, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
 
 			my_exp_bar_start_x += stats_bar_len+exp_bar_text_len;
 		}
@@ -395,6 +400,16 @@ static void draw_exp_display(window_info *win)
 
 }
 
+static void check_text_widths(window_info *win, int force)
+{
+	int proposed_len = 0;
+	stats_bar_text_len = 4.5 * win->small_font_max_len_x;
+	if ((proposed_len = recalc_exp_bar_text_len(win, force)) != exp_bar_text_len) // it will very rarely change
+	{
+		exp_bar_text_len = proposed_len;
+		init_stats_display();
+	}
+}
 
 static int	display_stats_bar_handler(window_info *win)
 {
@@ -410,13 +425,7 @@ static int	display_stats_bar_handler(window_info *win)
 	// don't have to check often but this is an easy place to do it and its quick anyway
 	if ((SDL_GetTicks()-last_time) > 250)
 	{
-		int proposed_len = 0;
-		stats_bar_text_len = 4.5 * win->small_font_len_x;
-		if ((proposed_len = recalc_exp_bar_text_len(win)) != exp_bar_text_len) // it will very rarely change
-		{
-			exp_bar_text_len = proposed_len;
-			init_stats_display();
-		}
+		check_text_widths(win, 0);
 		last_time = SDL_GetTicks();
 	}
 
@@ -504,7 +513,7 @@ static int ui_scale_stats_bar_handler(window_info *win)
 	init_window(stats_bar_win, -1, 0, 0, stats_y_pos, stats_width, stats_height);
 
 	/* use a fixed width for user attrib stat bar text */
-	stats_bar_text_len = 4.5 * win->small_font_len_x;
+	stats_bar_text_len = 4.5 * win->small_font_max_len_x;
 
 	// calculate the statsbar len given curent config
 	stats_bar_len = calc_stats_bar_len(win, num_exp);
@@ -558,6 +567,13 @@ static int ui_scale_stats_bar_handler(window_info *win)
 	return 1;
 }
 
+static int change_stats_bar_font_handler(window_info* win, font_cat cat)
+{
+	if (cat != UI_FONT)
+		return 0;
+	check_text_widths(win, 1);
+	return 1;
+}
 
 //create the stats bar window
 void init_stats_display(void)
@@ -569,6 +585,7 @@ void init_stats_display(void)
 		set_window_handler(stats_bar_win, ELW_HANDLER_DISPLAY, &display_stats_bar_handler);
 		set_window_handler(stats_bar_win, ELW_HANDLER_MOUSEOVER, &mouseover_stats_bar_handler);
 		set_window_handler(stats_bar_win, ELW_HANDLER_UI_SCALE, &ui_scale_stats_bar_handler);
+		set_window_handler(stats_bar_win, ELW_HANDLER_FONT_CHANGE, &change_stats_bar_font_handler);
 
 		// context menu to enable/disable the action points bar
 		cm_id_ap = cm_create(cm_action_points_str, NULL);

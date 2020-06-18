@@ -40,7 +40,7 @@ CXXFLAGS=$(PLATFORM) $(CXXWARN) -O -ggdb -pipe $(OPTIONS)
 _CXXFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS)
 
 LDFLAGS=-Wl SDLmain.o $(FRAMEWORKS) -lobjc -flat_namespace -L/usr/lib -lxml2 -lz -lpthread -liconv $(XDIR) -L/opt/local/lib -lcal3d -lm -lstdc++ -lc -Wno-long-double -headerpad_max_install_names
-_LDFLAGS=$(XDIR) -Wl -flat_namespace -framework OpenAL -framework OpenGL -lpthread -lz 
+_LDFLAGS=$(XDIR) -Wl -flat_namespace -framework OpenAL -framework OpenGL -lpthread -lz
 STATICLIBS=libs/libSDL_net.a libs/libSDL.a libs/libvorbisfile.a libs/libvorbis.a libs/libogg.a libs/libxml2.a libs/libcal3d.a libs/libpng.a
 
 # the objects we need
@@ -50,7 +50,7 @@ COBJS=2d_objects.o 3d_objects.o	\
 	cache.o cal.o calc.o chat.o cluster.o colors.o console.o consolewin.o \
 	counters.o cursors.o dialogues.o draw_scene.o	\
 	elconfig.o elmemory.o elwindows.o encyclopedia.o errors.o events.o	\
-	framebuffer.o filter.o font.o frustum.o gamewin.o gl_init.o gamewin.o gl_init.o	\
+	framebuffer.o filter.o frustum.o gamewin.o gl_init.o gamewin.o gl_init.o	\
 	hud.o hud_misc_window.o hud_quickbar_window.o hud_statsbar_window.o help.o highlight.o	\
 	ignore.o init.o interface.o items.o	\
 	keys.o knowledge.o langselwin.o lights.o lispsm.o list.o loginwin.o loading_win.o	\
@@ -65,8 +65,8 @@ COBJS=2d_objects.o 3d_objects.o	\
 	update.o url.o weather.o widgets.o \
 	books/fontdef.o books/parser.o books/symbols.o books/typesetter.o \
 	text_aliases.o makeargv.o
-	
-CXXOBJS=cal3d_wrapper.o eye_candy_wrapper.o \
+
+CXXOBJS=cal3d_wrapper.o eye_candy_wrapper.o font.o \
  eye_candy/eye_candy.o eye_candy/math_cache.o eye_candy/effect_lamp.o \
  eye_candy/effect_candle.o \
  eye_candy/effect_campfire.o eye_candy/effect_fountain.o \
@@ -108,7 +108,7 @@ static:
 clean:
 	rm -f $(OBJS) $(EXE) .depend
 
-docs:	
+docs:
 	cd docs && doxygen Doxyfile
 
 .depend: *.h books/*.h elglext.h

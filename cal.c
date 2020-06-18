@@ -45,7 +45,7 @@ int do_transition(actor *act){
 
 	printf("doing transition from %i to %i at %i of %i\n",act->startIdle,act->endIdle,cur_time-act->idleTime,act->idleDuration);
 
-	mixer=CalModel_GetMixer(act->calmodel);	
+	mixer=CalModel_GetMixer(act->calmodel);
 	k=(float)(cur_time-act->idleTime)/act->idleDuration;
 	if(k>1.0) k=1.0;
 	CalMixer_BlendCycle(mixer,act->startIdle,1.0-k, 0.0);
@@ -77,7 +77,7 @@ void cal_play_anim_sound(actor *pActor, struct cal_anim anim, int is_emote){
 		if (check_sound_loops(*cookie))
 				stop_sound(*cookie);
 		*cookie = 0;
-		
+
 		if (anim.sound > -1 && !pActor->dead){
 			// We are going to try letting sounds continue until finished, except looping sounds of course
 			// Found a sound, so add it
@@ -103,7 +103,7 @@ void cal_reset_emote_anims(actor *pActor, int cycles_too){
 	if (pActor->calmodel==NULL)
 		return;
 
-	mixer=CalModel_GetMixer(pActor->calmodel);	
+	mixer=CalModel_GetMixer(pActor->calmodel);
 	cur_emote=&pActor->cur_emote;
 
 	//remove emote idle
@@ -129,7 +129,7 @@ void cal_reset_emote_anims(actor *pActor, int cycles_too){
 	if(pActor->cur_emote_sound_cookie)
 		stop_sound(pActor->cur_emote_sound_cookie);
 #endif
-	
+
 }
 
 
@@ -139,8 +139,8 @@ void cal_actor_set_emote_anim(actor *pActor, emote_frame *anims){
 	hash_entry *he;
 	emote_anim *cur_emote;
 	int i;
-	float md=0;		
-		
+	float md=0;
+
 	if (pActor==NULL||!anims)
 		return;
 
@@ -194,8 +194,8 @@ void handle_cur_emote(actor *pActor){
 
 	if (pActor->calmodel==NULL)
 		return;
-	
-	cur_emote = &pActor->cur_emote;	
+
+	cur_emote = &pActor->cur_emote;
 
 	if(cur_emote->active&&cur_emote->start_time+cur_emote->max_duration<cur_time){
 		//all anims are finished, see if more frames are linked
@@ -223,7 +223,7 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 	//char str[255];
 	//sprintf(str, "actor:%d anim:%d type:%d delay:%f\0",id,anim.anim_index,anim.kind,delay);
 	//LOG_TO_CONSOLE(c_green2,str);
-	
+
 	if (pActor==NULL)
 		return;
 
@@ -232,7 +232,7 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 
 	if (pActor->cur_anim.anim_index==anim.anim_index)
 		return;
-	
+
 	//this shouldnt happend but its happends if actor doesnt have
 	//animation so we add this workaround to prevent "freezing"
 	if(anim.anim_index==-1){
@@ -290,7 +290,7 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 			CalMixer_ClearCycle(mixer,pActor->cur_idle_anims[i].anim_index, delay);
 		}
 	}
-	
+
 	if (anim.kind==cycle){
 		CalMixer_BlendCycle(mixer,anim.anim_index,1.0f, delay);
 		CalMixer_SetAnimationTime(mixer, 0.0f);	//always start at the beginning of a cycling animation
@@ -322,7 +322,7 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 	pActor->anim_time=0.0;
 	pActor->last_anim_update= cur_time;
 	pActor->stop_animation = anim.kind;
-	
+
 	CalModel_Update(pActor->calmodel,0.0001);//Make changes take effect now
 	build_actor_bounding_box(pActor);
 
@@ -466,7 +466,7 @@ void cal_render_bones(actor *act)
 	// draw the bones orientation
 	if (render_bones_orientation) {
 		float shift[3], pos[3];
-		
+
 		glLineWidth(3.0f);
 		glBegin(GL_LINES);
 		for (currPoint = nrPoints; currPoint--;) {
@@ -475,13 +475,13 @@ void cal_render_bones(actor *act)
 			glColor3f(1.0, 0.0, 0.0);
 			glVertex3f(points[currPoint][0], points[currPoint][1], points[currPoint][2]);
 			glVertex3fv(pos);
-			
+
 			shift[0] = 0.0; shift[1] = 0.1; shift[2] = 0.0;
 			cal_get_actor_bone_local_position(act, currPoint, shift, pos);
 			glColor3f(0.0, 1.0, 0.0);
 			glVertex3f(points[currPoint][0], points[currPoint][1], points[currPoint][2]);
 			glVertex3fv(pos);
-			
+
 			shift[0] = 0.0; shift[1] = 0.0; shift[2] = 0.1;
 			cal_get_actor_bone_local_position(act, currPoint, shift, pos);
 			glColor3f(0.0, 0.0, 1.0);
@@ -498,36 +498,37 @@ void cal_render_bones(actor *act)
 		GLdouble px,py,pz;
 		unsigned char buf[16];
 		float font_size_x = SMALL_INGAME_FONT_X_LEN/ALT_INGAME_FONT_X_LEN;
-		float font_size_y = SMALL_INGAME_FONT_Y_LEN/ALT_INGAME_FONT_X_LEN;
+		float font_size_y = SMALL_INGAME_FONT_X_LEN/ALT_INGAME_FONT_X_LEN;
 
 		glGetDoublev(GL_MODELVIEW_MATRIX, model);
 		glGetDoublev(GL_PROJECTION_MATRIX, proj);
 		glGetIntegerv(GL_VIEWPORT, view);
-		
+
 		glPushMatrix();
 		glLoadIdentity();
 		glMatrixMode(GL_PROJECTION);
 		glPushMatrix();
 		glLoadIdentity();
-		
+
 		glOrtho(view[0],view[2]+view[0],view[1],view[3]+view[1],0.0f,-1.0f);
-		
+
 		glPushAttrib(GL_ENABLE_BIT);
-		
+
 		glEnable(GL_TEXTURE_2D);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		
+
 		glColor4f(1.0, 0.0, 1.0, 1.0);
-		
+
 		for (currPoint = nrPoints; currPoint--;) {
 			sprintf((char*)buf, "%d", currPoint);
 			gluProject(points[currPoint][0], points[currPoint][1], points[currPoint][2], model, proj, view, &px, &py, &pz);
+			// FIXME: use UI_FONT
 			draw_ortho_ingame_string(px, py, pz, buf, 1, font_size_x, font_size_y);
 		}
-		
+
 		glPopAttrib();
-		
+
 		glMatrixMode(GL_PROJECTION);
 		glPopMatrix();
 		glMatrixMode(GL_MODELVIEW);
@@ -622,7 +623,7 @@ void cal_render_actor(actor *act, Uint32 use_lightning, Uint32 use_textures, Uin
 	//int boneid=-1;
 	float reverse_scale;
 	//int glow=-1;
-	
+
 	if(act->calmodel==NULL) {
 		return;//Wtf!?
 	}
@@ -684,7 +685,7 @@ void cal_render_actor(actor *act, Uint32 use_lightning, Uint32 use_textures, Uin
 				_weaponmesh=NULL;
 				_shieldmesh=NULL;
 			}
-			
+
 			// render all meshes of the model
 			for(meshId = 0; meshId < meshCount; meshId++){
 				// get the number of submeshes
@@ -692,12 +693,12 @@ void cal_render_actor(actor *act, Uint32 use_lightning, Uint32 use_textures, Uin
 
 				_mesh=CalModel_GetAttachedMesh(act->calmodel,meshId);//Get current rendered mesh
 				_coremesh=CalMesh_GetCoreMesh(_mesh);//Get the coremesh
-				
+
 				if(act->is_enhanced_model && (_weaponmesh || _shieldmesh)) {
 					//Special treatment for weapons and shields only for enhanced models
 					int glow=-1;
 					int boneid=-1;
-					
+
 					if (_coremesh==_weaponmesh) boneid=26;//If it's a weapon snap to WeaponR bone
 					else if (_coremesh==_shieldmesh) boneid=21;//If it's a shield snap to WeaponL bone
 					if (boneid!=-1) {
@@ -809,9 +810,9 @@ void cal_render_actor(actor *act, Uint32 use_lightning, Uint32 use_textures, Uin
 		glDisable(GL_LIGHTING);
 		glDisable(GL_DEPTH_TEST);
 		glDisable(GL_TEXTURE_2D);
-		
+
 		cal_render_bones(act);
-		
+
 		glEnable(GL_LIGHTING);
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_TEXTURE_2D);

@@ -25,11 +25,14 @@
  * response structure used in dialogues with NPCs. It contains the data of a response from some NPC.
  */
 typedef struct{
-	char text[200]; /*!< text of the response */
+	unsigned char text[200]; /*!< text of the response */
 
 	int width_in_char;  /*!< the length of the respon option in characters */
 
-    /*! \name calculate response coordinates @{ */
+    /*!
+	 * \name calculate response coordinates
+	 * @{
+	 */
     int pos_x, pos_y, width;
     /*! @} */
 
@@ -59,7 +62,7 @@ int dialogue_menu_y=1;
 static int char_frame_size = 0;
 static int char_size = 0;
 static int border_space = 0;
-static const int available_text_width = 70;
+static const int available_text_width = 70 * SMALL_FIXED_FONT_WIDTH;
 static int bot_line_height = 0;
 
 static int show_keypress_letters = 0;
@@ -87,7 +90,7 @@ static size_t cm_dialog_copy_id = CM_INIT_VALUE;
 static size_t cm_dialog_repeat_id = CM_INIT_VALUE;
 static int new_dialogue = 1;
 static int npc_name_x_start = 0;
-static int npc_name_len = 0;
+static int npc_name_width = 0;
 static size_t saved_response_list_top = 0;
 static size_t saved_response_list_bot = 0;
 static size_t saved_response_list_cur = 0;
@@ -157,7 +160,7 @@ void build_response_entries (const Uint8 *data, int total_length)
 			break;
 
 		dialogue_responces[i].in_use = 1;
-		my_strncp(dialogue_responces[i].text, (char*)&data[last_index + 2], len);
+		my_strncp((char*)dialogue_responces[i].text, (char*)&data[last_index + 2], len);
 		dialogue_responces[i].response_id = SDL_SwapLE16(*((Uint16 *)(data + last_index + 2 + len)));
 		dialogue_responces[i].to_actor = SDL_SwapLE16(*((Uint16 *)(data + last_index + 2 + 2 + len)));
 		dialogue_responces[i].width_in_char = len;
@@ -296,12 +299,15 @@ static void calculate_option_positions(window_info *win)
 	int start_x = border_space;
 	int start_y = response_y_offset;
 	int width = 0;
-	int width_extra = (show_keypress_letters) ?3: 0; // e.g "1] "
+	int width_extra = (show_keypress_letters) ? 3*win->small_font_max_len_x : 0;
 	for(i=0; i < MAX_RESPONSES;i++)
 	{
 		if (!dialogue_responces[i].in_use)
 			break;
-		width = (dialogue_responces[i].width_in_char + ((i<36) ?width_extra: 0)) * win->small_font_len_x;
+		width = get_string_width_zoom(dialogue_responces[i].text,
+			win->font_category, win->current_scale_small);
+		if (i < 36)
+			width += width_extra;
 		if ((start_x + width) > (win->len_x - 2 * border_space))
 		{
 			start_x = border_space;
@@ -310,7 +316,7 @@ static void calculate_option_positions(window_info *win)
 		dialogue_responces[i].pos_x = start_x;
 		dialogue_responces[i].pos_y = start_y;
 		dialogue_responces[i].width = width;
-		start_x += width + 2 * win->small_font_len_x;
+		start_x += width + 2 * win->small_font_max_len_x;
 	}
 	recalc_option_positions = 0;
 }
@@ -326,7 +332,7 @@ static int display_dialogue_handler(window_info *win)
 	if (auto_select_storage_option && !done_auto_storage_select)
 	{
 		for(i=0;i<MAX_RESPONSES;i++)
-			if (dialogue_responces[i].in_use && (strcmp(dialogue_responces[i].text, open_storage_str) == 0))
+			if (dialogue_responces[i].in_use && (strcmp((const char*)dialogue_responces[i].text, open_storage_str) == 0))
 			{
 				send_response(win, &dialogue_responces[i]);
 				done_auto_storage_select = 1;
@@ -343,8 +349,8 @@ static int display_dialogue_handler(window_info *win)
 		calculate_option_positions(win);
 
 	//calculate the npc_name_x_start (to have it centered on the screen)
-	npc_name_len = strlen((char*)npc_name);
-	npc_name_x_start = win->len_x / 2 - (npc_name_len * win->small_font_len_x) / 2;
+	npc_name_width = get_string_width_zoom(npc_name, win->font_category, win->current_scale_small);
+	npc_name_x_start = (win->len_x - npc_name_width) / 2;
 
 	glDisable(GL_TEXTURE_2D);
 	//draw the character frame
@@ -402,16 +408,16 @@ static int display_dialogue_handler(window_info *win)
 			if(show_keypress_letters)
 			{
 				if(i>=0 && i<=8) // 1-9
-					safe_snprintf((char*)str,sizeof(str),"%c] %s",49+i,(unsigned char*)dialogue_responces[i].text);
+					safe_snprintf((char*)str,sizeof(str),"%c] %s",49+i, dialogue_responces[i].text);
 				else if(i==9) //0
-					safe_snprintf((char*)str,sizeof(str),"0] %s",(unsigned char*)dialogue_responces[i].text);
+					safe_snprintf((char*)str,sizeof(str),"0] %s", dialogue_responces[i].text);
 				else if(i>=10 && i<=35) // A-Z
-					safe_snprintf((char*)str,sizeof(str),"%c] %s",55+i, (unsigned char*)dialogue_responces[i].text);
+					safe_snprintf((char*)str,sizeof(str),"%c] %s",55+i, dialogue_responces[i].text);
 				else // too many dialogue options, you have to click these
-					 safe_snprintf((char*)str,sizeof(str),"%s",(unsigned char*)dialogue_responces[i].text);
+					 safe_snprintf((char*)str,sizeof(str),"%s", dialogue_responces[i].text);
 			}
 			else
-				safe_snprintf((char*)str,sizeof(str),"%s",(unsigned char*)dialogue_responces[i].text);
+				safe_snprintf((char*)str,sizeof(str),"%s", dialogue_responces[i].text);
 			last_pos_y = dialogue_responces[i].pos_y;
 			draw_string_small_zoomed(dialogue_responces[i].pos_x, last_pos_y, str, 1, win->current_scale);
 		}
@@ -467,7 +473,7 @@ static int display_dialogue_handler(window_info *win)
 		done_auto_storage_select = 0;
 		cm_remove_regions(win->window_id);
 		cm_add_region(cm_npcname_id, win->window_id, npc_name_x_start,
-			win->len_y - bot_line_height, npc_name_len * win->small_font_len_x, win->small_font_len_y);
+			win->len_y - bot_line_height, npc_name_width, win->small_font_len_y);
 		cm_add_region(cm_dialog_copy_id, win->window_id, copy_pos_x,
 			win->len_y - bot_line_height, copy_str_width, win->small_font_len_y);
 		cm_add_region(cm_dialog_repeat_id, win->window_id, repeat_pos_x,
@@ -510,7 +516,7 @@ static int mouseover_dialogue_handler(window_info *win, int mx, int my)
 		highlight_copy = 1;
 	if(mx > repeat_pos_x && mx < (repeat_pos_x + repeat_str_width) &&  my >= (win->len_y - bot_line_height))
 		highlight_repeat = 1;
-	if (mx > npc_name_x_start && mx < (npc_name_x_start + npc_name_len * win->small_font_len_x) && my >= (win->len_y - bot_line_height))
+	if (mx > npc_name_x_start && mx < (npc_name_x_start + npc_name_width) && my >= (win->len_y - bot_line_height))
 		mouse_over_name = 1;
 
 	//first, clear the mouse overs
@@ -592,7 +598,7 @@ static void save_response(const response *last_response)
 	cm_set(cm_dialog_repeat_id, "", cm_dialogue_repeat_handler);
 	for (i=saved_response_list_top; saved_response_list_bot<MAX_SAVED_RESPONSES; i--)
 	{
-		cm_add(cm_dialog_repeat_id, saved_responses[i].text, NULL);
+		cm_add(cm_dialog_repeat_id, (const char*)saved_responses[i].text, NULL);
 		if (i == saved_response_list_bot)
 			break;
 		if (i == 0)
@@ -608,7 +614,7 @@ static void send_response(window_info *win, const response *the_response)
 	*((Uint16 *)(str+1))=SDL_SwapLE16((short)the_response->to_actor);
 	*((Uint16 *)(str+3))=SDL_SwapLE16((short)the_response->response_id);
 	my_tcp_send(my_socket,str,5);
-	if (autoclose_storage_dialogue && strcmp(the_response->text, open_storage_str) == 0)
+	if (autoclose_storage_dialogue && strcmp((const char*)the_response->text, open_storage_str) == 0)
  		hide_window(win->window_id);
 	save_response(the_response);
 }
@@ -835,8 +841,15 @@ static int cm_npcname_handler(window_info *win, int widget_id, int mx, int my, i
 
 int ui_scale_dialogue_handler(window_info *win)
 {
-	int dialogue_menu_x_len = (int)(0.5 + available_text_width * win->small_font_len_x);
+	int dialogue_menu_x_len = (int)(0.5 + win->current_scale * available_text_width);
 	int dialogue_menu_y_len = (int)(0.5 + win->current_scale * 220);
+
+	// We need to recompute line breaks on UI scale change, as different scale factors can lead to
+	// different roundings of window size, and more importantly, character widths. For this reason,
+	// scaling the UI is not a simple scale operation as far as text is concerned.
+	reset_soft_breaks(dialogue_string, strlen((const char*)dialogue_string), sizeof(dialogue_string),
+		win->font_category, win->current_scale_small, (int)(0.5 + win->current_scale * available_text_width), NULL, NULL);
+
 	char_size = (int)(0.5 + win->current_scale * 64);
 	char_frame_size = char_size + 2;
 	border_space = (int)(0.5 + win->current_scale * 5);
@@ -845,10 +858,13 @@ int ui_scale_dialogue_handler(window_info *win)
 	bot_line_height = win->small_font_len_y + 1;
 
 	copy_pos_x = border_space;
-	copy_str_width = get_string_width((unsigned char*)dialogue_copy_str) * win->small_font_len_x / 12.0;
-	close_str_width = get_string_width((unsigned char*)close_str) * win->small_font_len_x / 12.0;
+	copy_str_width = get_string_width_zoom((unsigned char*)dialogue_copy_str,
+		win->font_category, win->current_scale_small);
+	close_str_width = get_string_width_zoom((unsigned char*)close_str,
+		win->font_category, win->current_scale_small);
 	close_pos_x = dialogue_menu_x_len - close_str_width - border_space;
-	repeat_str_width = get_string_width((unsigned char*)dialogue_repeat_str) * win->small_font_len_x / 12.0;
+	repeat_str_width = get_string_width_zoom((unsigned char*)dialogue_repeat_str,
+		win->font_category, win->current_scale_small);
 	repeat_pos_x = copy_pos_x + copy_str_width + 2 * border_space;
 
 	resize_window(win->window_id, dialogue_menu_x_len, dialogue_menu_y_len);
@@ -857,8 +873,16 @@ int ui_scale_dialogue_handler(window_info *win)
 	return 1;
 }
 
+int change_dialogue_font_handler(window_info *win, font_cat cat)
+{
+	if (cat != win->font_category)
+		return 0;
+	ui_scale_dialogue_handler(win);
+	return 1;
+}
+
 void display_dialogue(const Uint8 *in_data, int data_length)
-{	
+{
 	if (!get_show_window(dialogue_win))
 		do_icon_click_sound();
 
@@ -872,6 +896,7 @@ void display_dialogue(const Uint8 *in_data, int data_length)
 		set_window_handler(dialogue_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_dialogue_handler );
 		set_window_handler(dialogue_win, ELW_HANDLER_CLICK, &click_dialogue_handler );
 		set_window_handler(dialogue_win, ELW_HANDLER_UI_SCALE, &ui_scale_dialogue_handler );
+		set_window_handler(dialogue_win, ELW_HANDLER_FONT_CHANGE, &change_dialogue_font_handler);
 
 		cm_add(windows_list.window[dialogue_win].cm_id, cm_dialog_menu_str, NULL);
 		cm_add(windows_list.window[dialogue_win].cm_id, cm_dialog_options_str, NULL);
@@ -895,11 +920,11 @@ void display_dialogue(const Uint8 *in_data, int data_length)
 	}
 
 	text_log_get_npc_setting();
+
+	safe_strncpy2((char*)dialogue_string, (const char*)in_data, sizeof(dialogue_string), data_length);
 	if (dialogue_win >=0 && dialogue_win < windows_list.num_windows)
 		ui_scale_dialogue_handler(&windows_list.window[dialogue_win]);
 
-	// the window width is maintained during scaling so that the box is always available_text_width wide
-	put_small_text_in_box_zoomed(in_data, data_length, available_text_width * SMALL_FONT_X_LEN, (char*)dialogue_string, 1.0);
 	recalc_option_positions = new_dialogue = new_text_to_log = 1;
 }
 

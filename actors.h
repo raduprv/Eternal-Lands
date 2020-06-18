@@ -33,7 +33,6 @@ extern "C" {
 extern int yourself; 	/*!< This variable holds the actor_id (as the server sees it, not the position in the actors_list) of your character.*/
 extern int you_sit; 	/*!< Specifies if you are currently sitting down.*/
 extern int sit_lock; 	/*!< The sit_lock variable holds you in a sitting position.*/
-extern float name_zoom; /*!< The name_zoom defines how large the text used for drawing the names should be*/
 extern int use_alpha_banner;	/*!< Use_alpha_banner defines if an alpha background is drawn behind the name/health banner.*/
 
 /*!
@@ -682,7 +681,7 @@ extern attached_actors_types attached_actors_defs[MAX_ACTOR_DEFS]; /*!< The defi
 static __inline__ int is_actor_barehanded(actor *act, int hand){
 	if(hand==EMOTE_BARE_L)
 		return (act->cur_shield==SHIELD_NONE||act->cur_shield==QUIVER_ARROWS||act->cur_shield==QUIVER_BOLTS);
-	else 
+	else
 		return (act->cur_weapon==WEAPON_NONE||act->cur_weapon==GLOVE_FUR||act->cur_weapon==GLOVE_LEATHER);
 }
 
@@ -880,14 +879,14 @@ void draw_actor_without_banner(actor * actor_id, Uint32 use_lightning, Uint32 us
 /*!
  * \brief Remember this last summoned creature.
  *
- * \param The name of the summoned creature
+ * \param summoned_name The name of the summoned creature
  */
 void remember_new_summoned(const char *summoned_name);
 
 /*!
  * \brief Check if a new actor is the last summoned by the player.  The actor mutex must be already held.
  *
- * \param Pointer to the new actors
+ * \param new_actor Pointer to the new actor
  */
 void check_if_new_actor_last_summoned(actor *new_actor);
 

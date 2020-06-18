@@ -85,7 +85,8 @@ static void popup_scale_vars(void)
 	POPUP_OPTION_TEXT_TOP_MARGIN = (int)(0.5 + window_scale * 3);
 	POPUP_BOTTOM_MARGIN = (int)(0.5 + window_scale * 10);
 	RADIO_OFFSET = (int)(0.5 + window_scale * 16);
-	POPUP_TEXTENTRY_HEIGHT = (int)(0.5 + window_scale * 4 + (DEFAULT_FONT_Y_LEN*popup_font_zoom));
+	POPUP_TEXTENTRY_HEIGHT = (int)(0.5 + window_scale * 4)
+		+ get_line_height(UI_FONT, popup_font_zoom);
 }
 
 /* these colours and be redefined by changing the definition in named_colours.xml */
@@ -103,6 +104,7 @@ static GLfloat Colour3fOptionTextMouseover[3] = {1.0f, 1.0f, 1.0f};
 static int popup_display_handler(window_info *win);
 static int popup_close_handler(window_info *win);
 static int popup_click_handler(window_info *win, int mx, int my, Uint32 flags);
+static int change_popup_font_handler(window_info *win, font_cat cat);
 
 /* Forward helpers */
 static popup_node_t *popup_node_find_by_window( window_info *win );
@@ -114,9 +116,6 @@ static void popup_create_window( popup_t *this_popup );
 static void popup_send_to_server( popup_t *popup );
 
 /* Helper macros */
-
-#define TEXT_HEIGHT( lines ) \
-	(int)((float)(lines)*DEFAULT_FONT_Y_LEN*popup_font_zoom)
 
 /* Some helper macros to aid us fetching and validating network data */
 
@@ -271,7 +270,7 @@ static void flowing_text_free( flowing_text_t *text )
  * \brief Set up the size hint for this popup.
  *  This must be called before the popup is realized.
  * \param this_popup The pointer to the popup structure
- * \returns 
+ * \returns
  */
 
 static void popup_set_sizehint( popup_t *this_popup, unsigned int size )
@@ -307,7 +306,7 @@ static void popup_option_free( popup_option_t *this_option )
 static void popup_grouped_option_free( popup_grouped_option_t *this_option_group )
 {
 	list_destroy_with_func( this_option_group->options, (list_free_func_t)popup_option_free );
-	
+
 	free(this_option_group);
 }
 
@@ -353,18 +352,17 @@ static void flowing_text_perform_flow( flowing_text_t *text, int max_length )
 {
 	float text_width;
 
-	text->lines = reset_soft_breaks (text->str,
+	text->lines = reset_soft_breaks ((unsigned char*)text->str,
 									 strlen(text->str),
 									 text->str_size_allocated,
+									 UI_FONT,
 									 popup_font_zoom,
 									 max_length,
 									 NULL,
 									 &text_width);
 
 	text->width = (int)text_width;
-
-    text->height = TEXT_HEIGHT( text->lines );
-
+    text->height = text->lines * get_line_height(UI_FONT, popup_font_zoom);
 }
 
 /*!
@@ -601,7 +599,7 @@ static void draw_circle_pure(float x, float y, float radius, int interval, int a
 			float rad=-mul*angle;
 			glVertex2f((float)x+cos(rad)*radius, (float)y+sin(rad)*radius);
 		}
-	} else { 
+	} else {
 		for(angle=angle_from;angle>angle_to;angle+=interval){
 			float rad=-mul*angle;
 			glVertex2f((float)x+cos(rad)*radius, (float)y+sin(rad)*radius);
@@ -660,7 +658,7 @@ static int popup_display_object( popup_t *this_popup, window_info *win )
 						this_group->type = OPTION_TYPE_RADIOOPTION;
                         this_option->type = OPTION_TYPE_RADIOOPTION;
 					}
-					
+
 					if ( this_group->type == OPTION_TYPE_RADIOOPTION ) {
 						offset_for_radio += RADIO_OFFSET;
 					}
@@ -878,6 +876,7 @@ static void popup_create_window(popup_t *this_popup)
 	set_window_handler( this_popup->win, ELW_HANDLER_CLOSE, &popup_close_handler);
 	set_window_handler( this_popup->win, ELW_HANDLER_CLICK, &popup_click_handler);
 	set_window_handler( this_popup->win, ELW_HANDLER_UI_SCALE, &popup_close_handler); /* just close if ui rescaled */
+	set_window_handler( this_popup->win, ELW_HANDLER_FONT_CHANGE, &change_popup_font_handler);
 
 	if (this_popup->has_send_button) {
 		this_popup->button_widget_id = button_add( this_popup->win, NULL, button_send,
@@ -947,7 +946,7 @@ int popup_click_object(popup_t *this_popup, window_info *win, int mx, int my, Ui
 	popup_option_node_t *this_option_node;
 	list_node_t *this_option_group_node;
 	int offset;
-	
+
 	if ( NULL == this_popup->grouped_options )
 		return 1;
 
@@ -1062,6 +1061,26 @@ static int popup_close_handler(window_info *win)
 		popup_node_destroy( the_popup_node );
 	}
     return 1;
+}
+
+/*!
+ * \ingroup popup_window
+ * \brief Font change handler
+ *
+ *  This method checks if the font settings for the UI font are changed, and if so, closes the
+ * popup window. When reopened, the new font settings are used.
+ *
+ * \param window_info The pointer to window info structure
+ * \param font_cat    The font category for which the settings are being changed
+ * \return 1 if the window was closed, 0 otherwise.
+ */
+static int change_popup_font_handler(window_info *win, font_cat cat)
+{
+	if (cat != win->font_category)
+		return 0;
+	// Simply close when the font is changed
+	popup_close_handler(win);
+	return 1;
 }
 
 /*!

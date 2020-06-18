@@ -76,7 +76,7 @@ el_file_ptr el_open_custom(const char* file_name);
 /*!
  * \brief Opens a file.
  *
- * Opens a file read only in binary mode, searching also the 
+ * Opens a file read only in binary mode, searching also the
  * configuration dir when trying to locate the file. This function is thread
  * save.
  * \param file_name The name of the file to open.
@@ -110,7 +110,7 @@ int el_read_float(el_file_ptr file, float *f);
  *
  * Read an integer from the current position in the file and store it \a i.
  * \param file The file to read from
- * \param f    Place to store the integer
+ * \param i    Place to store the integer
  * \return 1 on success, 0 on failure
  */
 int el_read_int(el_file_ptr file, int *i);

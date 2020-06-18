@@ -2,7 +2,7 @@
 Uses the Context Menu system to implement user configured command menus.
 
 Files with a .menu name extension found in the users config directory are
-considered user menu files. Each .menu file defines a new menu displayed 
+considered user menu files. Each .menu file defines a new menu displayed
 in a standard EL window container. The window is always on top and can be
 moved around by the optional title bar. A standard right-click context menu
 controls window options. These options include a run-time reload function so you
@@ -16,7 +16,7 @@ the client. The first line in a .menu file is used as the menu name in the
 container window. Each of the remaining lines are new lines for the menu. Lines
 for the menus have an associated set of commands that are executed when
 that line is selected. Valid commands are anything you can enter at the user
-command prompt; #commands, text for chat channels & PM, %setting etc.  In 
+command prompt; #commands, text for chat channels & PM, %setting etc.  In
 addition, commands can be URLs which will be directly opened in your browser.
 
 Each menu line in a .menu file has two or more fields, the field separator is
@@ -112,6 +112,13 @@ namespace UserMenus
 			~Menu(void);
 			const std::string & get_name(void) const { return menu_name; }
 			int get_name_width(void) const { return menu_name_width; }
+			int recalc_name_width(float zoom)
+			{
+				menu_name_width = eternal_lands::FontManager::get_instance()
+					.line_width(UI_FONT, reinterpret_cast<const unsigned char*>(menu_name.c_str()),
+						menu_name.length(), zoom);
+				return menu_name_width;
+			}
 			size_t get_cm_id(void) const { return cm_menu_id; }
 			void action(int option, CommandQueue::Queue &cq) const { lines[option]->action(cq); };
 		private:
@@ -170,6 +177,7 @@ namespace UserMenus
 			void pre_show(window_info *win, int widget_id, int mx, int my, window_info *cm_win);
 			int click(window_info *win, int mx, Uint32 flags);
 			int ui_scale_changed(window_info *win);
+			int font_changed(window_info *win, eternal_lands::FontManager::Category cat);
 			size_t get_mouse_over_menu(window_info *win, int mx);
 			void delete_menus(void);
 			int context(window_info *win, int widget_id, int mx, int my, int option);
@@ -177,12 +185,13 @@ namespace UserMenus
 			void mouseover(window_info *win, int mx) { mouse_over_window = true; current_mouseover_menu = get_mouse_over_menu(win, mx); }
 			int get_height(window_info *win) const { return ((use_small_font) ?win->small_font_len_y :win->default_font_len_y) + 2 * window_y_pad; }
 			int calc_actual_width(window_info *win, int width) const
-				{ return (int)(0.5 + win->current_scale * ((use_small_font)?DEFAULT_SMALL_RATIO:1) * width); }
+				{ return (int)(0.5 + (use_small_font ? win->current_scale_small : win->current_scale) * width); }
 
 			static int display_handler(window_info *win) { return get_instance()->display(win); }
 			static int mouseover_handler(window_info *win, int mx, int my) { get_instance()->mouseover(win, mx); return 0; }
 			static int click_handler(window_info *win, int mx, int my, Uint32 flags) { return get_instance()->click(win, mx, flags); }
 			static int ui_scale_handler(window_info *win) { return get_instance()->ui_scale_changed(win); }
+			static int font_change_handler(window_info *win, font_cat cat) { return get_instance()->font_changed(win, cat); }
 			static int context_handler(window_info *win, int widget_id, int mx, int my, int option){ return get_instance()->context(win, widget_id, mx, my, option); }
 
 			enum { STND_POS_NONE = 0, STND_POS_TOP_LEFT, STND_POS_TOP_CENTRE, STND_POS_TOP_RIGHT, STND_POS_BOTTOM_LEFT, STND_POS_BOTTOM_CENTRE, STND_POS_BOTTON_RIGHT, STND_POS_LAST };
@@ -211,7 +220,8 @@ namespace UserMenus
 			in.close();
 			return;
 		}
-		menu_name_width = get_string_width((const unsigned char*)menu_name.c_str());
+		menu_name_width = get_string_width_zoom((const unsigned char*)menu_name.c_str(),
+			UI_FONT, 1.0);
 
 		// read each line after the menu name line, creating a menu Line object for each
 		std::string line;
@@ -252,7 +262,7 @@ namespace UserMenus
 	//
 	//	constructor for Container, just initialises attributes
 	//
-	Container::Container(void) : win_id(-1), win_width(0), current_mouseover_menu(0), mouse_over_window(false), 
+	Container::Container(void) : win_id(-1), win_width(0), current_mouseover_menu(0), mouse_over_window(false),
 		reload_menus(false), context_id(CM_INIT_VALUE), window_used(false), title_on(1), background_on(1),
 		border_on(1), use_small_font(0), include_datadir(1), just_echo(0), win_x_pos(100),
 		win_y_pos(100), name_sep(10), window_x_pad(8), window_y_pad(2), standard_window_position(STND_POS_NONE)
@@ -286,7 +296,7 @@ namespace UserMenus
 		}
 
 		Uint32 win_flags = ELW_USE_UISCALE|ELW_SHOW_LAST|ELW_DRAGGABLE|ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE;
-		
+
 		set_win_flag(&win_flags, ELW_TITLE_BAR, title_on);
 		set_win_flag(&win_flags, ELW_USE_BACKGROUND, background_on);
 		set_win_flag(&win_flags, ELW_USE_BORDER, border_on);
@@ -300,6 +310,7 @@ namespace UserMenus
 		set_window_handler(win_id, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_handler );
 		set_window_handler(win_id, ELW_HANDLER_CLICK, (int (*)())&click_handler );
 		set_window_handler(win_id, ELW_HANDLER_UI_SCALE, (int (*)())&ui_scale_handler );
+		set_window_handler(win_id, ELW_HANDLER_FONT_CHANGE, (int (*)())&font_change_handler);
 
 		// the build-in context menu is only available if we have a title so always recreate
 
@@ -481,6 +492,18 @@ namespace UserMenus
 
 
 	//
+	// Called when font settings are changed
+	//
+	int Container::font_changed(window_info *win, eternal_lands::FontManager::Category cat)
+	{
+		if (cat != win->font_category)
+			return 0;
+		ui_scale_changed(win);
+		return 1;
+	}
+
+
+	//
 	// common callback fuction for context menu, line selection
 	//
 	int Container::action(size_t active_menu, int option)
@@ -508,14 +531,14 @@ namespace UserMenus
 		int x_offset = window_x_pad;
 		for (size_t i=0; i<curr_menu && i<menus.size(); i++)
 			x_offset += calc_actual_width(win, menus[i]->get_name_width()) + name_sep;
-		
+
 		// see what fits x: position under the menu name, or hard at the right or hard at the left
 		int new_x_pos = win->cur_x + x_offset;
 		if (new_x_pos + cm_win->len_x > window_width)
 			new_x_pos = window_width - cm_win->len_x;
 		if (new_x_pos < 0)
 			new_x_pos = 0;
-			
+
 		// see what fits y: position below the window menu, or position above the window menu
 		int new_y_pos = win->cur_y;
 		if (new_y_pos + win->len_y + cm_win->len_y > window_height)
@@ -552,11 +575,11 @@ namespace UserMenus
 			return;
 		}
 		reload_menus = false;
-		
+
 		delete_menus();
 
 		std::vector<std::string> filelist;
-		
+
 		std::vector<std::string> search_paths;
 		if (include_datadir)
 			search_paths.push_back(std::string(datadir));
@@ -565,7 +588,6 @@ namespace UserMenus
 		for (size_t i=0; i<search_paths.size(); i++)
 		{
 			std::string glob_path = search_paths[i] + "*.menu";
-
 			// find all the menu files and build a list of path+filenames for later
 #ifdef WINDOWS
 			struct _finddata_t c_file;
@@ -574,7 +596,7 @@ namespace UserMenus
 			{
 				do
 					filelist.push_back(search_paths[i] + std::string(c_file.name));
-				while (_findnext(hFile, &c_file) == 0);	
+				while (_findnext(hFile, &c_file) == 0);
 				_findclose(hFile);
 			}
 #else 		// phew! it's a real operating system
@@ -612,14 +634,14 @@ namespace UserMenus
 		// if there are no menus, use the size of the message for the window width
 		if (menus.empty())
 		{
-			win_width = 2 * window_x_pad + calc_actual_width(win, get_string_width((const unsigned char*)um_no_menus_str));
+			win_width = 2 * window_x_pad + calc_actual_width(win, get_string_width_zoom((const unsigned char*)um_no_menus_str, win->font_category, 1.0));
 			return;
 		}
 
 		// otherwise, calculate the width from the widths of all the menus names
 		win_width = 2 * window_x_pad + name_sep * (menus.size() - 1);
-		for (size_t i=0; i<menus.size(); i++)		
-			win_width += calc_actual_width(win, menus[i]->get_name_width());
+		for (size_t i=0; i<menus.size(); i++)
+			win_width += calc_actual_width(win, menus[i]->recalc_name_width(1.0));
 	}
 
 
@@ -633,7 +655,7 @@ namespace UserMenus
 	//
 	size_t Container::get_mouse_over_menu(window_info *win, int mx)
 	{
-		// if the mouse is over a menu name, get the menus[] index 
+		// if the mouse is over a menu name, get the menus[] index
 		size_t mouse_over = menus.size();
 		int name_end_x = window_x_pad;
 		for (size_t i=0; i<menus.size(); i++)
@@ -645,7 +667,7 @@ namespace UserMenus
 				break;
 			}
 		}
-		
+
 		// if not over a menu name
 		if (mouse_over == menus.size())
 			return menus.size();
@@ -654,7 +676,7 @@ namespace UserMenus
 		size_t open_cm = cm_window_shown();
 		if (open_cm == CM_INIT_VALUE)
 			return mouse_over;
-	
+
 		// a context menu is open, if it is one of our menus and the mouse is over another
 		// close the current menu and open the one the mouse is over
 		for (size_t i=0; i<menus.size(); i++)

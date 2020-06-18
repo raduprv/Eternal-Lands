@@ -32,9 +32,13 @@
 #include "tabs.h"
 #include "translate.h"
 
-#define TITLE 	0
-#define RULE	1
-#define INFO 	2
+typedef enum
+{
+	END = -1,
+	TITLE,
+	RULE,
+	INFO
+} rule_type;
 
 #define INTERFACE_GAME 0
 #define INTERFACE_LOG_IN 1
@@ -54,11 +58,9 @@ struct rules_struct {
      * inner struct containing the data for a single rule
      */
 	struct rule_struct {
-		char * short_desc; /*!< a short description for this rule */
-		int short_len; /*!< the length of short_desc */
-		char * long_desc; /*!< the complete description for this rule */
-		int long_len; /*!< the length of long_desc */
-		int type; /*!< the type of the rule */
+		char* short_desc; /*!< a short description for this rule */
+		char* long_desc;  /*!< the complete description for this rule */
+		rule_type type; /*!< the type of the rule */
 	} rule[40];
 };
 
@@ -80,9 +82,13 @@ typedef struct {
 	int x_end;
 	int y_end;
     /* \} */
-	char ** short_str; /*!< the short description of the rule */
-	char ** long_str; /*!< the long description of the rule */
-	int y_virt; /*!< virtual window offset of rule start */
+	unsigned char* short_str; /*!< the short description of the rule */
+	int short_str_nr_lines;   /*!< The number of lines in the long description */
+	int short_str_nr_indent;  /*!< Indentation in pixels for the rule number */
+	int short_str_width;      /*!< Width of the short description, in pixels */
+	unsigned char* long_str;  /*!< the long description of the rule */
+	int long_str_nr_lines;    /*!< The number of lines in the long description */
+	int y_virt;               /*!< virtual window offset of rule start */
 } rule_string;
 
 
@@ -115,24 +121,21 @@ static int next_win_id;
 static const float rules_winRGB[8][3] = {{1.0f,0.6f,0.0f},{1.0f,0.0f,0.0f},{0.0f,0.7f,1.0f},{0.9f,0.9f,0.9f},{0.6f,1.0f,1.2f},{0.4f,0.8f,1.0f},{0.8f,0.0f,0.0f},{1.0f,1.0f,1.0f}};
 
 /* Rule parser */
-static struct rules_struct rules = {0,{{NULL,0,NULL,0,0}}};
+static struct rules_struct rules = {0, {{NULL, NULL, 0}}};
 
 static void free_rules(rule_string * d);
-static rule_string * get_interface_rules(int chars_per_line);
+static rule_string *get_interface_rules(int width, float zoom);
 static int draw_rules(rule_string * rules_ptr, int x_in, int y_in, int lenx, int leny, float text_size, const float rgb[8][3]);
 static int rules_root_scroll_handler();
 
-static void add_rule(char * short_desc, char * long_desc, int type)
+static void add_rule(const char* short_desc, const char* long_desc, int type)
 {
-	int no=rules.no++;
-	int len;
+	struct rule_struct* rule = &rules.rule[rules.no++];
 
-	len=MY_XMLSTRCPY(&rules.rule[no].short_desc, short_desc);
-	rules.rule[no].short_len=len;
-	len=MY_XMLSTRCPY(&rules.rule[no].long_desc, long_desc);
-	rules.rule[no].long_len=len;
+	MY_XMLSTRCPY(&rule->short_desc, short_desc);
+	MY_XMLSTRCPY(&rule->long_desc, long_desc);
 
-	rules.rule[no].type=type;
+	rule->type=type;
 }
 
 static char * get_id_str(xmlNode * node, xmlChar *id)
@@ -218,7 +221,7 @@ static int click_rules_handler (window_info *win, int mx, int my, Uint32 flags)
 		rules_scroll_handler();
 		return 1;
 	} else {
-		for (i = 0; rules_ptr[i].type != -1 && rules_ptr[i].y_start < win->len_y; i++)
+		for (i = 0; rules_ptr[i].type != END && rules_ptr[i].y_start < win->len_y; i++)
 		{
 			if (mx > rules_ptr[i].x_start && mx < rules_ptr[i].x_end && my > rules_ptr[i].y_start && my < rules_ptr[i].y_end)
 			{
@@ -236,7 +239,7 @@ static int mouseover_rules_handler (window_info *win, int mx, int my)
 	rule_string *rules_ptr = display_rules;
 	int i;
 
-	for (i = 0; rules_ptr[i].type != -1 && rules_ptr[i].y_start < win->len_y; i++)
+	for (i = 0; rules_ptr[i].type != END && rules_ptr[i].y_start < win->len_y; i++)
 	{
 		if (mx > rules_ptr[i].x_start && mx < rules_ptr[i].x_end && my > rules_ptr[i].y_start && my < rules_ptr[i].y_end)
 		{
@@ -266,15 +269,25 @@ static int resize_rules_handler(window_info *win, int new_width, int new_height)
 	vscrollbar_set_pos(win->window_id, rules_scroll_id, 0);
 
 	if(display_rules)free_rules(display_rules);
-	display_rules=get_interface_rules((float)(win->len_x-(win->current_scale*70))/(win->current_scale*12*0.8f)-1);
+	display_rules = get_interface_rules(win->len_x - 70 * win->current_scale,
+		win->current_scale * 0.8f);
 
 	return 0;
+}
+
+static int change_rules_font_handler(window_info *win, font_cat cat)
+{
+	if (cat != win->font_category)
+		return 0;
+	resize_window(win->window_id, win->len_x, win->len_y);
+	return 1;
 }
 
 void fill_rules_window(int window_id)
 {
 	rules_win = window_id;
 	set_window_custom_scale(window_id, &custom_scale_factors.help);
+	set_window_font_category(window_id, RULES_FONT);
 
 	rules_scroll_id = vscrollbar_add_extended (window_id, rules_scroll_id, NULL,
 		0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 3, rules.no-1);
@@ -286,6 +299,7 @@ void fill_rules_window(int window_id)
 	set_window_handler(window_id, ELW_HANDLER_MOUSEOVER, &mouseover_rules_handler);
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_rules_handler);
 	set_window_handler(window_id, ELW_HANDLER_RESIZE, &resize_rules_handler);
+	set_window_handler(window_id, ELW_HANDLER_FONT_CHANGE, &change_rules_font_handler);
 }
 
 static void toggle_rules_window()
@@ -325,27 +339,23 @@ void cleanup_rules()
 
 static void free_rules(rule_string * d)
 {
-	int i, j;
-	if(!d)return;
-	for(i=0;d[i].type!=-1;i++){
-		if(d[i].short_str)
+	if (d)
+	{
+		int i;
+		for (i = 0; d[i].type != END; ++i)
 		{
-		    for(j=0;d[i].short_str[j];j++) free(d[i].short_str[j]);
-		    free(d[i].short_str);
+			free(d[i].short_str);
+			free(d[i].long_str);
 		}
-		if(d[i].long_str)
-		{
-		    for(j=0;d[i].long_str[j];j++)  free(d[i].long_str[j]);
-		    free(d[i].long_str);
-		}
+		free(d);
 	}
-	free(d);
 }
 
 static void reset_rules(rule_string * r)
 {
 	int i;
-	for(i=0;r[i].type!=-1;i++){
+	for (i = 0; r[i].type != END; ++i)
+	{
 		r[i].show_long_desc=0;
 		r[i].x_start=0;
 		r[i].y_start=0;
@@ -426,19 +436,19 @@ void highlight_rule (int type, const Uint8 *rule, int no)
 			cur_rule = rule_start[i];
 			r=0;
 
-			for(j=0;display_rules[j].type!=-1;j++){
+			for(j=0;display_rules[j].type!=END;j++){
 				if(display_rules[j].type==RULE)r++;
 				if(r==cur_rule) break;
 			}
 
-			if(display_rules[j].type!=-1){
+			if(display_rules[j].type!=END){
 				display_rules[j].highlight=1;
 				display_rules[j].show_long_desc=1;
 				recalc_virt_win_len = 1;
 			}
 		}
 
-		for(i=0;display_rules[i].type!=-1;i++)
+		for(i=0;display_rules[i].type!=END;i++)
 			if(display_rules[i].type == RULE && display_rules[i].highlight) {
 				set_rule_offset = i;	//Get the first highlighted entry
 				recalc_virt_win_len = 1;
@@ -447,18 +457,97 @@ void highlight_rule (int type, const Uint8 *rule, int no)
 	}
 }
 
-static rule_string * get_interface_rules(int chars_per_line)
+static void set_short_desc(const char* desc, int nr, int width, float zoom, rule_string *rule)
 {
-	int i;
-	rule_string * _rules=(rule_string*)calloc((rules.no+1),sizeof(rule_string));
+	static const size_t max_nr_lines = 5;
 
-	for(i=0;i<rules.no;i++){
-		_rules[i].type=rules.rule[i].type;
-		_rules[i].short_str=get_lines(rules.rule[i].short_desc,chars_per_line);
-		_rules[i].long_str=get_lines(rules.rule[i].long_desc,chars_per_line);
+	rule->short_str = NULL;
+	rule->short_str_nr_lines = 0;
+	rule->short_str_nr_indent = 0;
+	if (desc)
+	{
+		int nr_lines;
+		size_t size = strlen(desc) + max_nr_lines;
+
+		unsigned char *buf = calloc(size, 1);
+		if (!buf)
+			return;
+
+		if (nr)
+		{
+			safe_snprintf((char*)buf, size, "%d: ", nr);
+			rule->short_str_nr_indent = get_string_width_zoom(buf, RULES_FONT, zoom);
+		}
+
+		safe_strcat((char*)buf, desc, size);
+		nr_lines = reset_soft_breaks(buf, strlen((const char*)buf), size, RULES_FONT,
+			zoom, width, NULL, NULL);
+		if (nr && nr_lines > 0)
+		{
+			size_t eol = strcspn((const char*)buf, "\r\n");
+			if (buf[eol])
+			{
+				width -= rule->short_str_nr_indent;
+				nr_lines = 1 + reset_soft_breaks(buf+eol+1, strlen((const char*)buf+eol+1),
+					size-eol-1, RULES_FONT, zoom, width, NULL, NULL);
+			}
+		}
+
+		rule->short_str = buf;
+		rule->short_str_nr_lines = nr_lines;
+	}
+}
+
+static void set_long_desc(const char* desc, int width, float zoom, rule_string *rule)
+{
+	static const size_t max_nr_lines = 50;
+
+	rule->long_str = NULL;
+	rule->long_str_nr_lines = 0;
+	if (desc)
+	{
+		int nr_lines;
+		size_t len = strlen(desc);
+		size_t size = len + max_nr_lines;
+		unsigned char *buf = malloc(size);
+		if (!buf)
+			return;
+
+		safe_strncpy((char*)buf, desc, size);
+		nr_lines = reset_soft_breaks(buf, len, size, RULES_FONT, zoom, width, NULL, NULL);
+
+		rule->long_str = buf;
+		rule->long_str_nr_lines = nr_lines;
+	}
+}
+
+static const int short_rule_indent = 20;
+static const int long_rule_indent = 2 * short_rule_indent;
+
+static rule_string *get_interface_rules(int width, float zoom)
+{
+	int i, cur_rule_nr = 0;
+	rule_string *_rules = calloc(rules.no + 1, sizeof(rule_string));
+
+	for (i = 0; i < rules.no; ++i)
+	{
+		const struct rule_struct *rule = &rules.rule[i];
+		rule_string *rs = &_rules[i];
+		int nr = rule->type == RULE ? ++cur_rule_nr : 0;
+		rs->type = rule->type;
+		set_short_desc(rule->short_desc, nr, width - short_rule_indent * zoom, zoom, rs);
+		set_long_desc(rule->long_desc, width - long_rule_indent * zoom, zoom, rs);
+		if (rs->short_str)
+		{
+			size_t len = strlen((const char*)rs->short_str);
+			int str_width, str_height;
+			get_buf_dimensions(rs->short_str, len, RULES_FONT, zoom,
+				&str_width, &str_height);
+			rs->short_str_width = str_width;
+		}
 	}
 
-	_rules[rules.no].type=-1;
+	_rules[rules.no].type=END;
 
 	reset_rules(_rules);
 
@@ -476,10 +565,10 @@ static rule_string * get_interface_rules(int chars_per_line)
 	if actually being drawn. Scrolling is now controlled by an offset into
 	this virtual window.
 */
-static void calc_virt_win_len(rule_string * rules_ptr, int win_heigth, float text_size)
+static void calc_virt_win_len(rule_string * rules_ptr, int win_heigth, float zoom)
 {
-	int i, j;
-	float zoom = text_size;
+	int line_height = get_line_height(RULES_FONT, zoom);
+	int i;
 	int ydiff = 0;
 	int max_scroll_pos = 0;
 
@@ -488,39 +577,28 @@ static void calc_virt_win_len(rule_string * rules_ptr, int win_heigth, float tex
 
 	/* model the draw_rules() keeping track of the y axis value
 		NOTE: if draw_rules() is modified, you need to modify this too */
-	for(i=0;;i++)
+	for (i = 0; rules_ptr[i].type != END; ++i)
 	{
-		if (rules_ptr[i].type == -1)
-			break;
-
 		switch(rules_ptr[i].type)
 		{
 			case TITLE:
-				zoom=text_size;//*1.5f;
-				ydiff=30*zoom;
+				ydiff = (int)(0.5 + 1.67 * line_height);
 				break;
 			case RULE:
-				zoom=text_size;
-				ydiff=20*zoom;
+				ydiff = (int)(0.5 + 1.11 * line_height);
 				break;
 			case INFO:
-        		zoom=text_size;
-        		virt_win_len+=10*zoom;
-        		ydiff=20*zoom;
+        		virt_win_len += (int)(0.5 + 0.55 * line_height);
+				ydiff = (int)(0.5 + 1.11 * line_height);
         		break;
 			}
 		/* remember the offset for each rule start */
 		rules_ptr[i].y_virt = virt_win_len;
-		for (j=0; rules_ptr[i].short_str[j]; j++)
-			if (j)
-				virt_win_len+=18*zoom;
-		virt_win_len+=ydiff;
+
+		virt_win_len += ydiff + line_height * (rules_ptr[i].short_str_nr_lines - 1);
 		if (rules_ptr[i].show_long_desc && rules_ptr[i].long_str)
 		{
-			for (j=0; rules_ptr[i].long_str[j]; j++)
-				if (j)
-					virt_win_len+=18*zoom;
-			virt_win_len+=ydiff;
+			virt_win_len += ydiff + line_height * (rules_ptr[i].long_str_nr_lines - 1);
 		}
 	}
 
@@ -556,92 +634,109 @@ static void calc_virt_win_len(rule_string * rules_ptr, int win_heigth, float tex
 
 } /* end calc_virt_win_len() */
 
-
-static int draw_rules(rule_string * rules_ptr, int x_in, int y_in, int lenx, int leny, float text_size, const float rgb[8][3])
+static void draw_rule_string(const unsigned char* str, int nr_lines, int x, int y,
+	int y_in, int leny, int line_height, const float* color, int nr_width, float zoom)
 {
-	int xdiff=0,ydiff=18,i,j=0,tmplen=0,len=0;
-	char str[1024];
-	char *ptr;
-	float zoom=text_size;
-	int x=0, y_curr=y_in;
-	int nr = 1;
+	int lstart, lend;
+	lstart = (virt_win_offset + y_in - y + line_height - 1) / line_height;
+	if (lstart < 0)
+		lstart = 0;
+	lend = (virt_win_offset + leny - y) / line_height;
+	if (lend > nr_lines)
+		lend = nr_lines;
+
+	if (lend > lstart)
+	{
+		int skip;
+		for (skip = 0; *str && skip < lstart; ++skip)
+		{
+			str += strcspn((const char*) str, "\r\n");
+			if (*str) ++str;
+		}
+
+		glColor3f(color[0], color[1], color[2]);
+		y += lstart * line_height - virt_win_offset;
+		if (nr_width > 0)
+		{
+			if (lstart == 0)
+			{
+				draw_string_zoomed_width_font(x, y, str, window_width, 1, RULES_FONT, zoom);
+				str += strcspn((const char*) str, "\r\n");
+				if (*str) ++str;
+				++lstart;
+				y += line_height;
+			}
+			x += nr_width;
+		}
+
+		if (lend > lstart)
+			draw_string_zoomed_width_font(x, y, str, window_width, lend - lstart, RULES_FONT, zoom);
+	}
+}
+
+static int draw_rules(rule_string* rules_ptr, int x_in, int y_in, int lenx, int leny,
+	float zoom, const float rgb[8][3])
+{
+	int line_height = get_line_height(RULES_FONT, zoom);
+	int i;
+	int x=0, y_curr = y_in;
 
 	if (recalc_virt_win_len)
-		calc_virt_win_len(rules_ptr, leny-y_in, text_size);
+		calc_virt_win_len(rules_ptr, leny-y_in, zoom);
 
 	reached_end=0;
 
-	for(i=0;(y_curr-virt_win_offset)<leny;i++){
-		ptr=str;
-		len=0;
-		switch(rules_ptr[i].type){
-			case -1:
+	for (i = 0; y_curr - virt_win_offset < leny; ++i)
+	{
+		rule_string *rule = &rules_ptr[i];
+		int color_idx = 0;
+		int ydiff = 0;
+
+		switch (rule->type)
+		{
+			case END:
 				read_all_rules = reached_end = 1;
-				rules_ptr[i].y_start=2*leny;//Minor trick
+				rule->y_start = 2*leny; // Minor trick
 				return i;
 			case TITLE:
-				glColor3f(rgb[0][0],rgb[0][1],rgb[0][2]);
-				zoom=text_size;//*1.5f;
-				ydiff=30*zoom;
-				xdiff=0;
-				x=x_in+((lenx-x_in)>>1)-(strlen(rules_ptr[i].short_str[0])>>1)*11*zoom;
+				color_idx = 0;
+				ydiff = (int)(0.5 + 1.67 * line_height);
+				x = x_in + (lenx - x_in - rule->short_str_width) / 2;
 				break;
 			case RULE:
-				if(rules_ptr[i].highlight) glColor3f(rgb[1][0],rgb[1][1],rgb[1][2]);
-				else if(rules_ptr[i].mouseover) glColor3f(rgb[2][0],rgb[2][1],rgb[2][2]);
-				else glColor3f(rgb[3][0],rgb[3][1],rgb[3][2]);
-				safe_snprintf(str, sizeof(str), "%d: ", nr++);
-				ptr+=strlen(str);
-				zoom=text_size;
-				xdiff=(ptr-str)*11*zoom;
-				x=x_in+20;
-				ydiff=20*zoom;
+				color_idx = rule->highlight ? 1 : (rule->mouseover ? 2 : 3);
+				ydiff = (int)(0.5 + 1.11 * line_height);
+				x = x_in + short_rule_indent * zoom;
 				break;
 			case INFO:
-				if(rules_ptr[i].mouseover) glColor3f(rgb[4][0],rgb[4][1],rgb[4][2]);
-				else glColor3f(rgb[5][0],rgb[5][1],rgb[5][2]);
-				zoom=text_size;
-				x=x_in+20;
-				y_curr+=10*zoom;
-				ydiff=20*zoom;
-				xdiff=0;
+				color_idx = rules_ptr[i].mouseover ? 4 : 5;
+				ydiff = (int)(0.5 + 1.11 * line_height);
+				x = x_in + short_rule_indent * zoom;
+				y_curr += (int)(0.5 + 0.55 * line_height);
 				break;
 		}
-		rules_ptr[i].x_start=x;
-		rules_ptr[i].y_start=(y_curr-virt_win_offset);
-		for(j=0;rules_ptr[i].short_str[j];j++){//Draw the lines
-			if(j==1)ptr=str;
-			if(j) y_curr+=18*zoom;
-			if ((leny - (y_curr-virt_win_offset)) < (18*zoom)) break;
-			safe_strncpy(ptr, rules_ptr[i].short_str[j], sizeof(str) - (ptr - str));
-			if (y_curr>=(virt_win_offset + y_in))
-			{
-				if(!j)draw_string_zoomed(x, (y_curr-virt_win_offset), (unsigned char*)str, 0, zoom);
-				else draw_string_zoomed(x+xdiff, (y_curr-virt_win_offset), (unsigned char*)str, 0, zoom);
-			}
-			tmplen=strlen(str)*11*zoom;
-			if(tmplen>len)len=tmplen;
-		}
-		y_curr+=ydiff;
-		rules_ptr[i].y_end=(y_curr-virt_win_offset);
-		rules_ptr[i].x_end=rules_ptr[i].x_start+len;
-		if(rules_ptr[i].show_long_desc && rules_ptr[i].long_str){//Draw the lines of the long description
-			if(rules_ptr[i].highlight) glColor3f(rgb[6][0],rgb[6][1],rgb[6][2]);
-			else glColor3f(rgb[7][0],rgb[7][1],rgb[7][2]);
-			for(j=0;rules_ptr[i].long_str[j];j++){
-				if(j)y_curr+=18*zoom;
-				if ((leny - (y_curr-virt_win_offset))< (18*zoom)) break;
-				safe_strncpy(str, rules_ptr[i].long_str[j], sizeof(str));
-				if (y_curr>=(virt_win_offset + y_in))
-					draw_string_zoomed(x+20, (y_curr-virt_win_offset), (unsigned char*)str, 0, zoom);
-			}
-			y_curr+=ydiff;
+
+		draw_rule_string(rule->short_str, rule->short_str_nr_lines, x, y_curr,
+			y_in, leny, line_height, &rgb[color_idx][0],
+			rule->short_str_nr_indent, zoom);
+		rule->x_start = x;
+		rule->y_start = y_curr - virt_win_offset;
+		y_curr += (rule->short_str_nr_lines - 1) * line_height + ydiff;
+		rule->x_end = rule->x_start + rule->short_str_width;
+		rule->y_end = y_curr - virt_win_offset;
+
+		if (rule->show_long_desc && rule->long_str)
+		{
+			color_idx = rules_ptr[i].highlight ? 6 : 7;
+			draw_rule_string(rule->long_str, rule->long_str_nr_lines,
+				x_in + long_rule_indent * zoom, y_curr, y_in, leny, line_height,
+				&rgb[color_idx][0], 0, zoom);
+			y_curr += (rule->long_str_nr_lines - 1) * line_height + ydiff;
 		}
 	}
 
-	rules_ptr[i].y_start=2*leny;//hehe ;-)
-
-	return i;//The number of rules we're displaying
+	rules_ptr[i].y_start = 2*leny; // hehe ;-)
+	return i; // The number of rules we're displaying
 }
 
 int has_accepted=0;
@@ -662,7 +757,7 @@ static void init_rules_interface(float text_size, int count, int len_x, int len_
 			//We need to format the rules again..
 			if (display_rules)
 				free_rules (display_rules);
-			display_rules = get_interface_rules (text_box_width / (12 * text_size) - 1);
+			display_rules = get_interface_rules(text_box_width, text_size);
 		}
 		countdown = count;	// Countdown in 0.5 seconds...
 	}
@@ -702,19 +797,18 @@ static void draw_rules_interface (window_info * win)
 		safe_strncpy (str, accepted_rules, sizeof(str));
 
 	/* scale the string if it is too wide for the screen */
-	string_width = strlen (str) * win->default_font_len_x;
 	string_zoom = win->current_scale;
+	string_width = get_string_width_zoom((const unsigned char*)str, win->font_category,
+			string_zoom)
+		+ 2 * win->default_font_max_len_x;
 	if (string_width > win->len_x)
-	{
-		string_zoom = (float)win->len_x/((float)strlen (str) * DEFAULT_FONT_X_LEN);
-		string_width = strlen (str) * DEFAULT_FONT_X_LEN * string_zoom;
-	}
-	draw_string_zoomed ((win->len_x - string_width) / 2, win->len_y - ui_seperator_y - win->default_font_len_y, (unsigned char*)str, 0, string_zoom);
+		string_zoom *= win->len_x / string_width;
+	draw_text(win->len_x/2, win->len_y - ui_seperator_y - win->default_font_len_y,
+		(const unsigned char*)str, strlen(str), win->font_category, TDO_ZOOM, string_zoom,
+		TDO_ALIGNMENT, CENTER, TDO_END);
 
-	set_font(3);
-	draw_rules (display_rules, box_border_x, ui_seperator_y + win->default_font_len_y / 2,
+	draw_rules(display_rules, box_border_x, ui_seperator_y + win->default_font_len_y / 2,
 		box_border_x + text_box_width, text_box_height, win->current_scale, rules_winRGB);
-	set_font(0);
 
 	glDisable (GL_ALPHA_TEST);
 #ifdef OPENGL_TRACE
@@ -740,12 +834,11 @@ static int mouseover_rules_root_handler (window_info *win, int mx, int my)
 	int i;
 	rule_string *rules_ptr = display_rules;
 
-	for (i = 0; rules_ptr[i].type != -1 && rules_ptr[i].y_start < win->len_y; i++)
+	for (i = 0; rules_ptr[i].type != END && rules_ptr[i].y_start < win->len_y; i++)
 	{
-		if (mx > rules_ptr[i].x_start && mx < rules_ptr[i].x_end && my > rules_ptr[i].y_start && my < rules_ptr[i].y_end && rules_ptr[i].long_str)
-			rules_ptr[i].mouseover = 1;
-		else
-			rules_ptr[i].mouseover = 0;
+		rules_ptr[i].mouseover = mx > rules_ptr[i].x_start && mx < rules_ptr[i].x_end
+			&& my > rules_ptr[i].y_start && my < rules_ptr[i].y_end
+			&& rules_ptr[i].long_str;
 	}
 	return 1;
 }
@@ -786,7 +879,7 @@ static int click_rules_root_handler (window_info *win, int mx, int my, Uint32 fl
 		rules_root_scroll_handler();
 		return 1;
 	} else {
-		for (i=0; rules_ptr[i].type != -1 && rules_ptr[i].y_start < win->len_y; i++)
+		for (i=0; rules_ptr[i].type != END && rules_ptr[i].y_start < win->len_y; i++)
 		{
 			if (mx > rules_ptr[i].x_start && mx < rules_ptr[i].x_end && my > rules_ptr[i].y_start && my < rules_ptr[i].y_end)
 			{
@@ -839,13 +932,17 @@ static int keypress_rules_root_handler (window_info *win, int mx, int my, SDL_Ke
 
 static void adjust_ui_elements(window_info *win, int scroll_id, int accept_id)
 {
+	int accept_label_width;
 	int char_per_line = 65;
-	if ((char_per_line * win->default_font_len_x) > (win->len_x - 3 * win->box_size))
-		char_per_line = (int)((float)(win->len_x - 3 * win->box_size) / (float)win->default_font_len_x);
+	if (char_per_line * win->default_font_max_len_x > win->len_x - 3 * win->box_size)
+		char_per_line = (win->len_x - 3 * win->box_size) / win->default_font_max_len_x;
 
-	button_resize(win->window_id, accept_id, (strlen(accept_label) * win->default_font_len_x) + 40, (int)(0.5 + win->current_scale * 32), win->current_scale);
+	accept_label_width = get_string_width_zoom((const unsigned char*)accept_label,
+		win->font_category, win->current_scale);
+	button_resize(win->window_id, accept_id, accept_label_width + 40, (int)(0.5 + win->current_scale * 32), win->current_scale);
 
-	text_box_width = char_per_line * win->default_font_len_x;
+	text_box_width = char_per_line * get_avg_char_width_zoom(win->font_category,
+		win->current_scale);
 	box_border_x = (win->len_x - text_box_width - win->box_size) / 2;
 
 	text_box_height = 0.75 * (win->len_y - widget_get_height(win->window_id, accept_id) - win->default_font_len_y);
@@ -878,6 +975,7 @@ void create_rules_root_window (int width, int height, int next, int time)
 		window_info *win = NULL;
 
 		rules_root_win = create_window (win_rules, -1, -1, 0, 0, width, height, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
+		set_window_font_category(rules_root_win, RULES_FONT);
 		if (rules_root_win >= 0 && rules_root_win < windows_list.num_windows)
 			win = &windows_list.window[rules_root_win];
 		else

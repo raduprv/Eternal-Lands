@@ -54,23 +54,23 @@ void get_click_line(LINE* line)
 	double modl[16];
 	GLint view[4];
 	double x1, x2, y1, y2, z1, z2, len;
-	
+
 	glGetDoublev(GL_PROJECTION_MATRIX, proj);
 	glGetDoublev(GL_MODELVIEW_MATRIX, modl);
 	glGetIntegerv(GL_VIEWPORT, view);
 	gluUnProject(mouse_x, window_height-mouse_y, 0, modl, proj, view, &x1, &y1, &z1);
 	gluUnProject(mouse_x, window_height-mouse_y, 1, modl, proj, view, &x2, &y2, &z2);
-	
+
 	VMake(line->center, x1, y1, z1);
-	
+
 	x2 -= x1;
 	y2 -= y1;
 	z2 -= z1;
-	
+
 	len = sqrt(x2*x2 + y2*y2 + z2*z2);
-	
+
 	VMake(line->direction, x2/len, y2/len, z2/len);
-	
+
 	line->length = len;
 }
 
@@ -83,34 +83,34 @@ int click_line_bbox_intersection(const AABBOX bbox)
 
 	VECTOR3 T, E;
 	float r;
-	
+
 	VSub(T, bbox.bbmin, click_line.center);
 	VSub(E, bbox.bbmax, bbox.bbmin);
-	
+
 	// do any of the principal axes
 	// form a separating axis?
-	
+
 	if (fabs(T[X]) > (E[X] + click_line.length*fabs(click_line.direction[X]))) return 0;
 	if (fabs(T[Y]) > (E[Y] + click_line.length*fabs(click_line.direction[Y]))) return 0;
 	if (fabs(T[Z]) > (E[Z] + click_line.length*fabs(click_line.direction[Z]))) return 0;
-	
+
 	/* NOTE: Since the separating axis is
 	 * perpendicular to the line in these
 	 * last four cases, the line does not
 	 * contribute to the projection. */
-	
+
 	// line.cross(x-axis)?
-	
+
 	r = E[Y]*fabs(click_line.direction[Z]) + E[Z]*fabs(click_line.direction[Y]);
 	if (fabs(T[Y]*click_line.direction[Z] - T[Z]*click_line.direction[Y]) > r) return 0;
-	
+
 	// line.cross(y-axis)?
-	
+
 	r = E[X]*fabs(click_line.direction[Z]) + E[Z]*fabs(click_line.direction[X]);
 	if( fabs(T[Z]*click_line.direction[X] - T[X]*click_line.direction[Z]) > r) return 0;
-	
+
 	// line.cross(z-axis)?
-	
+
 	r = E[X]*fabs(click_line.direction[Y]) + E[Y]*fabs(click_line.direction[X]);
 	if (fabs(T[X]*click_line.direction[Y] - T[Y]*click_line.direction[X]) > r) return 0;
 
@@ -215,7 +215,7 @@ gzFile my_gzopen(const char * filename, const char * mode)
 static void png_write_data(png_structp ctx, png_bytep area, png_size_t size)
 {
 	SDL_RWops *src;
-	
+
 	src = (SDL_RWops *) png_get_io_ptr (ctx);
 	SDL_RWwrite(src, area, size, 1);
 }
@@ -229,12 +229,12 @@ static void png_io_flush (png_structp ctx)
 static int png_colortype_from_surface(SDL_Surface *surface)
 {
 	int colortype = PNG_COLOR_MASK_COLOR; /* grayscale not supported */
-	
+
 	if (surface->format->palette)
 		colortype |= PNG_COLOR_MASK_PALETTE;
 	else if (surface->format->Amask)
 		colortype |= PNG_COLOR_MASK_ALPHA;
-        
+
 	return colortype;
 }
 
@@ -259,15 +259,15 @@ static int IMG_SavePNG_RW (SDL_Surface *face, SDL_RWops *src)
 	int i;
 	int colortype;
 	int result = -1;
-        
+
 	png_ptr = png_create_write_struct (PNG_LIBPNG_VER_STRING, NULL, png_user_error, png_user_warn);
-	
+
 	if (png_ptr == NULL)
 	{
 		IMG_SetError ("Couldn't allocate memory for PNG file");
 		return -1;
 	}
-	
+
 	/* Allocate/initialize the image information data.  REQUIRED */
 	info_ptr = png_create_info_struct(png_ptr);
 	if (info_ptr == NULL)
@@ -275,7 +275,7 @@ static int IMG_SavePNG_RW (SDL_Surface *face, SDL_RWops *src)
 		IMG_SetError("Couldn't create image information for PNG file");
 		goto done;
 	}
-	
+
 	/* Set error handling. */
 	if (setjmp(png_jmpbuf(png_ptr)))
 	{
@@ -283,55 +283,55 @@ static int IMG_SavePNG_RW (SDL_Surface *face, SDL_RWops *src)
 		IMG_SetError("Error writing the PNG file");
 		goto done;
 	}
-	
+
 	png_set_write_fn (png_ptr, src, png_write_data, png_io_flush);
-	
+
 	/* Set the image information here.  Width and height are up to 2^31,
-	 * bit_depth is one of 1, 2, 4, 8, or 16, but valid values also 
-	 * depend on the color_type selected. color_type is one of 
-	 * PNG_COLOR_TYPE_GRAY, PNG_COLOR_TYPE_GRAY_ALPHA, 
-	 * PNG_COLOR_TYPE_PALETTE, PNG_COLOR_TYPE_RGB, or 
+	 * bit_depth is one of 1, 2, 4, 8, or 16, but valid values also
+	 * depend on the color_type selected. color_type is one of
+	 * PNG_COLOR_TYPE_GRAY, PNG_COLOR_TYPE_GRAY_ALPHA,
+	 * PNG_COLOR_TYPE_PALETTE, PNG_COLOR_TYPE_RGB, or
 	 * PNG_COLOR_TYPE_RGB_ALPHA.  interlace is either PNG_INTERLACE_NONE or
-	 * PNG_INTERLACE_ADAM7, and the compression_type and filter_type 
-	 * MUST currently be PNG_COMPRESSION_TYPE_BASE and  
+	 * PNG_INTERLACE_ADAM7, and the compression_type and filter_type
+	 * MUST currently be PNG_COMPRESSION_TYPE_BASE and
 	 * PNG_FILTER_TYPE_BASE. REQUIRED
 	 */
 	colortype = png_colortype_from_surface (face);
 	png_set_IHDR (png_ptr, info_ptr, face->w, face->h, 8, colortype, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-	
+
 	/* Write the file header information.  REQUIRED */
 	png_write_info (png_ptr, info_ptr);
-	
+
 	/* pack pixels into bytes */
 	png_set_packing (png_ptr);
-	
+
 	/* Create the array of pointers to image data */
 	row_pointers = (png_bytep*) malloc (sizeof(png_bytep)*face->h);
-	
+
 	if (row_pointers == NULL)
 	{
 		IMG_SetError("Couldn't allocate PNG row pointers");
 		goto done;
 	}
-	
+
 	for (i = 0; i < face->h; i++)
 		row_pointers[i] = (png_bytep)(Uint8 *)face->pixels + i*face->pitch;
-	
+
 	/* write out the entire image data in one call */
 	png_write_image (png_ptr, row_pointers);
 	png_write_end(png_ptr, info_ptr);
 	result = 0;  /* success! */
-	
+
 done:
 	if (row_pointers != NULL)
 		free (row_pointers);
-	
+
 
 	if (info_ptr != NULL)
 		png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
-	
+
 	png_destroy_write_struct (&png_ptr, (png_infopp)NULL);
-	
+
 	return result;
 }
 
@@ -354,7 +354,7 @@ void makeScreenShot ()
 	int dlen, ishot, iline, w = window_width, h = window_height;
 	unsigned char *pixels;
 	SDL_Surface *surf;
-	
+
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	int rmask = 0x00ff0000;
 	int gmask = 0x0000ff00;
@@ -432,8 +432,6 @@ void draw_circle_ext(int x, int y, int radius, int interval, int angle_from, int
 {
 	const float mul=M_PI/180.0f;
 	int angle;
-	x += gx_adjust;
-	y += gy_adjust;
 
 	if(radius==0){
 		glVertex2f(x, y);
@@ -442,7 +440,7 @@ void draw_circle_ext(int x, int y, int radius, int interval, int angle_from, int
 			float rad=-mul*angle;
 			glVertex2f((float)x+cos(rad)*radius+radius, (float)y+radius+sin(rad)*radius);
 		}
-	} else { 
+	} else {
 		for(angle=angle_from;angle>angle_to;angle+=interval){
 			float rad=-mul*angle;
 			glVertex2f((float)x+cos(rad)*radius+radius, (float)y+radius+sin(rad)*radius);
@@ -454,117 +452,6 @@ void draw_circle(int x, int y, int radius, int interval)
 {
 	draw_circle_ext(x, y, radius, interval, 0, 360);
 }
-
-void draw_box(char * name, int x, int y, int w, int h, float size, int rad)
-{
-	int l=0;
-
-	if(name){
-		l=(w-10-(size*get_string_width((unsigned char*)name)*DEFAULT_FONT_X_LEN/12.0f))/2.0f;
-		draw_string_zoomed(x+l+5, y-size*DEFAULT_FONT_Y_LEN/2, (unsigned char*)name, 1, size);
-	}
-
-	glDisable(GL_TEXTURE_2D);
-	if(l>0){
-		glBegin(GL_LINE_STRIP);
-			glVertex2i(x+l, y);
-			draw_circle_ext(x, y, rad, 5, 90, 180);
-			draw_circle_ext(x, y+h-2*rad, rad, 5, 180, 270);
-			draw_circle_ext(x+w-2*rad, y+h-2*rad, rad, 5, 270, 360);
-			draw_circle_ext(x+w-2*rad, y, rad, 5, 0, 90);
-			glVertex2i(x+w-l, y);
-		glEnd();
-	} else if(l<0){
-		glBegin(GL_LINE_STRIP);
-			glVertex2i(x+l, y);
-			draw_circle_ext(x+rad, y+h-rad, rad, 5, 180, 270);
-			draw_circle_ext(x+w-2*rad, y+h-rad, rad, 5, 270, 360);
-			glVertex2i(x+w-l, y);
-		glEnd();
-	} else {
-		glBegin(GL_LINE_LOOP);
-			draw_circle_ext(x+rad, y, rad, 5, 90, 180);
-			draw_circle_ext(x+rad, y+h-rad, rad, 5, 180, 270);
-			draw_circle_ext(x+w-2*rad, y+h-rad, rad, 5, 270, 360);
-			draw_circle_ext(x+w-2*rad, y, rad, 5, 0, 90);
-		glEnd();
-	}
-	glEnable(GL_TEXTURE_2D);
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
-}
-
-
-void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, float r, float g, float b, int highlight, float hr, float hg, float hb, float ha)
-{
-	int radius=lines*BUTTONRADIUS*size;
-	float width_ratio=(size*DEFAULT_FONT_X_LEN)/12.0f;
-	int xstr=0;
-	
-	if(str){
-		int label_width = get_string_width((unsigned char*)str)*width_ratio;
-		xstr=x+radius+(w-(label_width))/2.0f;
-	}
-
-	glDisable(GL_TEXTURE_2D);
-
-	if(r>=0.0f)
-		glColor3f(r, g, b);
-	
-#ifdef OSX
-	if (square_buttons) {
-		glBegin(GL_LINE_LOOP);
-		glVertex3i(x,y,0);
-		glVertex3i(x + w + radius*2,y,0);
-		glVertex3i(x + w + radius*2,y + radius*2,0);
-		glVertex3i(x,y + radius*2,0);
-		glEnd();
-		
-		if(highlight) {
-			if(hr>=0.0f)
-				glColor4f(hr,hg,hb,ha);
-			glBegin(GL_POLYGON);
-			glVertex3i(x+1,y+1,0);
-			glVertex3i(x + w + radius*2 -1,y+1,0);
-			glVertex3i(x + w + radius*2 -1,y + radius*2 -1,0);
-			glVertex3i(x+1,y + radius*2 -1,0);
-			glEnd();
-		}
-		
-		glEnable(GL_TEXTURE_2D);
-	} else {
-#endif
-	glBegin(GL_LINE_LOOP);
-		draw_circle_ext(x, y, radius, 10, 90, 270);
-		draw_circle_ext(x+w, y, radius, 10, -90, 90);
-	glEnd();
-	if(highlight) {
-		if(hr>=0.0f)
-			glColor4f(hr,hg,hb,ha);
-		glBegin(GL_POLYGON);
-			draw_circle_ext(x+1, y+1, radius-1, 10, 90, 270);
-			draw_circle_ext(x+w+1, y+1, radius-1, 10, -90, 90);
-		glEnd();
-	}
-	glEnable(GL_TEXTURE_2D);
-
-#ifdef OSX
-	}	// to close off square_buttons conditional
-#endif
-
-	if(highlight) {
-		glColor3f(r, g, b);
-	}
-
-	if(str) {
-		draw_string_zoomed(xstr + gx_adjust, y+radius/2.0f + gy_adjust, (unsigned char*)str, lines, size);
-	}
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
-}
-
 
 int substrtest(const char * haystack, int hlen, int pos, const char * needle, int nlen)
 {

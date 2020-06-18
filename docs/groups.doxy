@@ -88,7 +88,7 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////
-//		      		Rendering groups			     // 
+//		      		Rendering groups			     //
 ///////////////////////////////////////////////////////////////////////////////
 /*!
  * \defgroup 	display Rendering
@@ -317,22 +317,22 @@
  * \ingroup windows
  */
 /*!
- * \defgroup    chat_window    The new chat window
+ * \defgroup    chat_window    The chat window
  *      Shows the chat window
  * \ingroup windows
  */
 /*!
- * \defgroup    notepad_window The new in-game notepad
+ * \defgroup    notepad_window The in-game notepad
  *      Handles the in-game notepad
  * \ingroup windows
  */
 /*!
- * \defgroup    storage_window The new storage interface
+ * \defgroup    storage_window The storage interface
  *      Handles the new storage interface
  * \ingroup windows
  */
 /*!
- * \defgroup    popup_window The new popup windows
+ * \defgroup    popup_window The popup windows
  *      Handles the popup windows sent by the server
  * \ingroup windows
  */
@@ -486,6 +486,6 @@
  */
 /*!
  * \defgroup	dbuffer Dynamic buffers
- *		Dynamic buffers implementation. 
+ *		Dynamic buffers implementation.
  * \ingroup	misc
  */

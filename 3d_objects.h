@@ -25,11 +25,11 @@ void draw_3d_objects(unsigned int object_type);
 
 /*!
  * \ingroup	load_3d
- * \brief	Adds a 3d object with a specific ID to the map 
- * 
+ * \brief	Adds a 3d object with a specific ID to the map
+ *
  * 		Adds a 3d object to the map, at position \a id in the objects_list
- * 
- * \param	id The object ID		
+ *
+ * \param	id The object ID
  * \param	file_name The file name of the 3d object
  * \param	x_pos The x position
  * \param	y_pos The y position
@@ -42,6 +42,7 @@ void draw_3d_objects(unsigned int object_type);
  * \param	r Red (0<=r<=1)
  * \param	g Green (0<=g<=1)
  * \param	b Blue (0<=b<=1)
+ * \param   dynamic Whether the object is dynamic, or static on the map
  * \retval int	Returns -1 on error or the position in the objects_list on succes.
  * \callgraph
  */
@@ -50,9 +51,9 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 /*!
  * \ingroup	load_3d
  * \brief	Adds a 3d object to the map.
- * 
+ *
  * 		It is usually called from load_map. It adds a 3d object to the given position.
- * 		
+ *
  * \param	file_name The file name of the 3d object
  * \param	x_pos The x position
  * \param	y_pos The y position
@@ -65,8 +66,9 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
  * \param	r Red (0<=r<=1)
  * \param	g Green (0<=g<=1)
  * \param	b Blue (0<=b<=1)
+ * \param   dynamic Whether the object is dynamic, or static on the map
  * \retval int	Returns -1 on error or the position in the objects_list on succes.
- * 
+ *
  * \sa add_e3d_at_id
  *
  * \callgraph
@@ -78,7 +80,7 @@ int add_e3d (const char * file_name, float x_pos, float y_pos, float z_pos, floa
  * \brief	Displays the 3d objects within the range
  *
  * 		Cycles through the objects_list, and displays the 3d object if it's within a visible distance (dist_x^2+dist_y^2<=29*29)
- * 		
+ *
  * \callgraph
  */
 void display_objects(void);
@@ -90,18 +92,18 @@ void display_alpha_objects(void);
  * \brief	Displays the blended 3d objects within range
  *
  * 		Cycles through the blended objects list and displays the blended 3d objects within visible range.
- * 		
+ *
  * \callgraph
  */
 void display_blended_objects(void);
 
-/*! 
+/*!
  * \ingroup	display_3d
- * \brief	Clears the clouds cache 
+ * \brief	Clears the clouds cache
  *
- * 		The function clears the clouds cache, which leads to the clouds map will have to be recalculated for the given object. 
+ * 		The function clears the clouds cache, which leads to the clouds map will have to be recalculated for the given object.
  * 		It is called every 10 seconds.
- * 
+ *
  * \callgraph
  */
 void clear_clouds_cache(void);
@@ -131,11 +133,11 @@ void destroy_e3d(e3d_object *e3d_id);
 /*!
  * \ingroup	load_3d
  * \brief	Show or hide one or more 3D map objects
- * 
+ *
  * 		Show or hide 3D map objects.
  *		This routine is usually under server control to allow dynamically enabling or disabling seeing objects
  *
- * \param	display_flag whether the objects are to be displayed or not
+ * \param	display whether the objects are to be displayed or not
  * \param	ptr pointer to an array of object ID's to be affected
  * \param	len the length in bytes of the array
  * \callgraph
@@ -145,11 +147,11 @@ void set_3d_object (Uint8 display, const void *ptr, int len);
 /*!
  * \ingroup	load_3d
  * \brief	Set the state for one or more 3D map objects
- * 
+ *
  * 		Set the sate for 3D map objects.
  *		This routine is usually under server control to allow dynamically setting a state for an object, this is for future expansion
  *
- * \param	display_flag whether the objects are to be displayed or not
+ * \param	state The new state for the object or objects
  * \param	ptr pointer to an array of object ID's to be affected
  * \param	len the length in bytes of the array
  * \callgraph
@@ -178,13 +180,13 @@ void inc_objects_list_placeholders(void);
 /*!
  * \ingroup	load_3d
  * \brief	Searches for a 3d object at a location
- * 
+ *
  * 		It searches for a 3d object at the specified location
- * 		
+ *
  * \param	x_pos		The x position to search for
  * \param	y_pos		The y position to search for
  * \retval char			Returns the object's filename if found, "" otherwise.
- * 
+ *
  * \sa add_e3d_at_id
  *
  * \callgraph
@@ -195,7 +197,7 @@ char * get_3dobject_at_location(float x_pos, float y_pos);
 /*!
  * \ingroup	display_3d
  * \brief	Draw a specific 3d object
- * 
+ *
  * 		Draw a specific 3d object, with optinal enabled lightning and textures.
  *
  * \param	object_id The object to draw
@@ -212,7 +214,7 @@ void draw_3d_object_detail(object3d * object_id, Uint32 material_index, Uint32 u
 /*!
  * \ingroup	display_3d
  * \brief	Disables the buffer arrays.
- * 
+ *
  * 		Unlocks compiled vertex arrays, sets VBO to zero and clears current used 3d object.
  *
  * \callgraph

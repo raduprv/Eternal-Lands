@@ -6,8 +6,11 @@
 #ifndef	__WIDGETS_H
 #define	__WIDGETS_H
 
+typedef struct select_info select_info;
+
 #include <SDL_types.h>
 #include <SDL_keycode.h>
+#include "font.h"
 #include "text.h"
 
 #ifdef __cplusplus
@@ -15,9 +18,10 @@ extern "C" {
 #endif
 
 typedef struct {
-	Sint8 label[64];
+	unsigned char label[64];
 	int content_id;
 	Uint16 tag_width;
+	Uint16 min_tag_width;
 	float label_r, label_g, label_b;
 	char closable;
 } tab;
@@ -42,6 +46,8 @@ struct WIDGET_TYPE {
 	int (*key)();
 	int (*destroy)();
 	int (*move)();
+	int (*font_change)();
+	int (*paste)();
     // We can conceivably store other generic info here too
 } ;
 
@@ -65,6 +71,7 @@ typedef struct wl{
 	Uint32 Flags;  /*!< Status flags... visible, enabled, etc */
 	float size;    /*!< Size of text, image, etc */
 	float r, g, b; /*!< Associated color */
+	font_cat fcat; /*!< Font category for drawing text contents in */
     /*! @} */
 
 	/*! \name The specific widget handlers */
@@ -77,6 +84,7 @@ typedef struct wl{
 	int (*OnResize)();
 	int (*OnKey)();
 	int (*OnDestroy)();
+	int (*OnFontChange)();
 	/*! \} */
 
 	void *widget_info; /*!< Pointer to specific widget data */
@@ -96,19 +104,21 @@ typedef struct wl{
  * \name	Flags for the buttons
  */
 /*! \{ */
-#define BUTTON_ACTIVE 0x400
-#define BUTTON_SQUARE 0x800
+#define BUTTON_ACTIVE          0x0400
+#define BUTTON_SQUARE          0x0800
+#define BUTTON_VCENTER_CONTENT 0x1000
+/*! \} */
 
 /*!
  * \name	Flags for the text field
  */
 /*! \{ */
-#define TEXT_FIELD_BORDER	0x01
-#define TEXT_FIELD_EDITABLE	0x02
-#define TEXT_FIELD_NO_KEYPRESS	0x04
-#define TEXT_FIELD_CAN_GROW	0x08
-#define TEXT_FIELD_SCROLLBAR	0x10
-#define TEXT_FIELD_IGNORE_RETURN 0x20
+#define TEXT_FIELD_BORDER          0x01
+#define TEXT_FIELD_EDITABLE        0x02
+#define TEXT_FIELD_NO_KEYPRESS     0x04
+#define TEXT_FIELD_CAN_GROW        0x08
+#define TEXT_FIELD_SCROLLBAR       0x10
+#define TEXT_FIELD_IGNORE_RETURN   0x20
 #define TEXT_FIELD_MOUSE_EDITABLE 0x200
 /*! \} */
 
@@ -125,11 +135,11 @@ typedef struct
 /*!
  * Contains selection information for text_field.
  */
-typedef struct
+struct select_info
 {
 	text_field_line* lines;
 	int sm, sc, em, ec;
-} select_info;
+};
 
 /*!
  * Checks if selection is empty.
@@ -185,7 +195,7 @@ typedef struct {
  * \param   OnInit The function used for initiating the label
  * \param   x The x location
  * \param   y The y location
- * \param   lx The width 
+ * \param   lx The width
  * \param   ly The height
  * \param   Flags The flags
  * \param   size The text size
@@ -195,7 +205,7 @@ typedef struct {
  * \param   type The widget type
  * \param   T Pointer to specific widget data
  * \param   S Pointer to specific implementation info
- * \retval int Returns the new widgets unique ID 
+ * \retval int Returns the new widgets unique ID
  */
 Uint32 widget_add (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y,
 	Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b,
@@ -441,6 +451,19 @@ int widget_set_size(int window_id, Uint32 widget_id, float size);
 int widget_set_color(int window_id, Uint32 widget_id, float r, float g, float b);
 
 /*!
+ * \ingroup widgets
+ * \brief Set the font category
+ *
+ * Set the font category for the textual elements in this widget to \a fcat
+ *
+ * \param window_id The location of the window in the windows_list.window[] array
+ * \param widget_id The widget's unique ID
+ * \param fcat      The new font category for this widget
+ * \return 1 on succes or 0 on failure
+ */
+int widget_set_font_cat(int window_id, int widget_id, font_cat fcat);
+
+/*!
  * \ingroup	widgets
  * \brief 	Return the widget width
  *
@@ -487,7 +510,7 @@ int widget_get_height (int window_id, Uint32 widget_id);
  * \param   	g (0<=g<=1)
  * \param   	b (0<=b<=1)
  * \param   	text The text
- * \retval int  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID
  *
  * \sa lable_add
  */
@@ -504,7 +527,7 @@ int label_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uin
  * \param   	text The text
  * \param   	x The x position
  * \param   	y The y position
- * \retval int  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID
  *
  * \sa		label_add_extended
  */
@@ -530,7 +553,7 @@ int label_draw(widget_list *W);
  *
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The widget's unique ID
- * \param   	text The new text 
+ * \param   	text The new text
  * \retval int  	Returns 1 on succes, 0 on failure (if the widget is not found in the given window)
  *
  * \sa widget_find
@@ -565,7 +588,7 @@ int label_set_text(int window_id, Uint32 widget_id, const char *text);
  * \param   	u2 The end u texture coordinate
  * \param   	v2 The end v texture coordinate
  * \param   	alpha The alpha value for the image
- * \retval int  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID
  *
  * \sa image_add
  */
@@ -596,8 +619,8 @@ int image_add(int window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uint16
 
 /*!
  * \ingroup	images
- * \brief 	Draws the image widget 
- * 
+ * \brief 	Draws the image widget
+ *
  * 		Draws an image widget as given by the widget *.
  *
  * \param   	W A pointer to the widget that should be drawn
@@ -662,7 +685,7 @@ int image_set_uv(int window_id, Uint32 widget_id, float u1, float v1, float u2, 
  * \param   	g (0<=g<=1)
  * \param   	b (0<=b<=1)
  * \param   	checked Specifies if the widget is checked or not
- * \retval int  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID
  *
  * \sa checkbox_add
  */
@@ -744,7 +767,7 @@ extern int disable_double_click;
  *		tests that option and impliments the double click test if needed.
  *
  * \param last_click	The SDL_GetTicks() value from the last click
- * \retval int			Returns 1 if the button press should be actioned, else 0. 
+ * \retval int			Returns 1 if the button press should be actioned, else 0.
  */
 int safe_button_click(Uint32 *last_click);
 
@@ -767,7 +790,7 @@ int safe_button_click(Uint32 *last_click);
  * \param   	g (0<=g<=1)
  * \param   	b (0<=b<=1)
  * \param   	text The button label
- * \retval int  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID
  *
  * \sa button_add
  */
@@ -784,52 +807,29 @@ int button_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, U
  * \param   	text The button label
  * \param   	x The x position
  * \param   	y The y position
- * \retval int  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID
  *
  * \sa button_add_extended
  */
 int button_add(int window_id, int (*OnInit)(), const char *text, Uint16 x, Uint16 y);
 
 /*!
- * \ingroup	buttons
- * \brief 	Resize a button widget
+ * \ingroup buttons
+ * \brief Resize a button widget
  *
- * 		Resize a button widget using the specified scale. If x or y length ar zero, calculate them.
+ * Resize a button widget using to the specified dimensions. If \a lx or \a ly
+ * are zero, the corresponding dimension is calculated from the button's contents.
  *
- * \param   	window_id The location of the window in the windows_list.window[] array
- * \param   	lx The x length
- * \param   	ly The y length
- * \param   	size the new font and button size
- * \retval int  	Returns the new widgets unique ID
+ * \param window_id The location of the window in the windows_list.window[] array
+ * \param wid       The unique widget ID for the button
+ * \param lx        The new width
+ * \param ly        The new height
+ * \param size      the new font and button size
+ * \retval int Returns the new widgets unique ID
  *
  * \sa button_add_extended
  */
 int button_resize(int window_id, Uint32 wid, Uint16 lx, Uint16 ly, float size);
-
-
-/*!
- * \ingroup	buttons
- * \brief 	Draws a smooth button
- *
- * 		Draws the smooth button widget pointed to by W.
- *
- * \param   	W The button widget
- * \retval int  	Returns true
- * \callgraph
- */
-int button_draw(widget_list *W);
-
-/*!
- * \ingroup	buttons
- * \brief 	Draws a square button
- *
- * 		Draws the square button widget pointed to by W.
- *
- * \param   	W The button widget
- * \retval int  	Returns true
- * \callgraph
- */
-int square_button_draw(widget_list *W);
 
 /*!
  * \ingroup	buttons
@@ -844,9 +844,46 @@ int square_button_draw(widget_list *W);
  *
  * \sa widget_find
  */
-int button_set_text(int window_id, Uint32 widget_id, char *text);
+int button_set_text(int window_id, Uint32 widget_id, const char *text);
 
-
+/*!
+ * \ingroup buttons
+ * \brief Draws a button with round corners.
+ *
+ * 	Draws a button with round corners. The box can be highlighted with the chosen highlight colors (r,g,b,a).
+ *
+ * \param str The name to write within the button, optional
+ * \param cat The category for the font with which to draw \a str
+ * \param size The size of the text
+ * \param x The start x position
+ * \param y The start y position
+ * \param w The width
+ * \param lines The number of lines (determines the height)
+ * \param r The red color for border and text
+ * \param g The green color for border and text
+ * \param b The blue color for border and text
+ * \param highlight If the button is highlighted or not
+ * \param hr The red color for highlighted buttons
+ * \param hg The green color for highlighted buttons
+ * \param hb The blue color for highlighted buttons
+ * \param ha The alpha color for highlighted buttons
+ */
+void draw_smooth_button(const unsigned char* str, font_cat cat, float size,
+	int x, int y, int w, int lines, float r, float g, float b,
+	int highlight, float hr, float hg, float hb, float ha);
+/*!
+ * \ingroup buttons
+ * \brief Compute the width of a button
+ *
+ * Calculate the normal width of a button of size \a size, with label \a label drawn in the font
+ * for category \a cat.
+ *
+ * \param label The text to draw on the button
+ * \param cat   The font category for the button
+ * \param size  The size scale factor for the button
+ * \return The width of the button, in pixels
+ */
+int calc_button_width(const unsigned char* label, font_cat cat, float size);
 
 // Progressbar
 
@@ -888,7 +925,7 @@ int progressbar_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 
  * \param   	y The y position
  * \param   	lx The width
  * \param   	ly The height
- * \retval int  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID
  *
  * \sa progressbar_add_extended
  */
@@ -960,7 +997,7 @@ int progressbar_set_progress(int window_id, Uint32 widget_id, float progress);
  * \param   	pos
  * \param   	pos_inc
  * \param		bar_len
- * \retval int  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID
  *
  * \sa vscrollbar_add
  */
@@ -978,7 +1015,7 @@ int vscrollbar_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 
  * \param   	y The y position
  * \param   	lx The width
  * \param   	ly The height
- * \retval int  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID
  *
  * \sa vscrollbar_add_extended
  */
@@ -1091,7 +1128,7 @@ int vscrollbar_get_pos(int window_id, Uint32 widget_id);
  * \brief 	Returns the number of the currently selected tab
  *
  * 		Returns the number of the currently selected tab in a tabbed window collection. Numbers are in the range 0...nr_tabs-1.
- *		
+ *
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The unique widget ID of the tab collection
  * \retval int  	Returns the tab number on succes, -1 on failure
@@ -1105,7 +1142,7 @@ int tab_collection_get_tab (int window_id, Uint32 widget_id);
  * \brief 	Returns the window ID of the currently selected tab
  *
  * 		Returns the window ID of the currently selected tab in a tabbed window collection.
- *		
+ *
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The unique widget ID of the tab collection
  * \retval int  	Returns the tab's window ID number on succes, -1 on failure
@@ -1117,7 +1154,7 @@ int tab_collection_get_tab_id (int window_id, Uint32 widget_id);
  * \brief 	Returns the position of a tab in the collection from its window ID
  *
  * 		Returns the position of a tab in the collection from its window ID
- *		
+ *
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	col_id The unique widget ID of the tab collection
  * \param   	tab_id The tab's window ID
@@ -1130,7 +1167,7 @@ int tab_collection_get_tab_nr (int window_id, Uint32 col_id, int tab_id);
  * \brief 	Returns the number of tabs in this collection
  *
  * 		Returns the number of tabs in this collection
- *		
+ *
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The unique widget ID of the tab collection
  * \retval int  	Returns the number of tabs, or -1 on failure
@@ -1142,7 +1179,7 @@ int tab_collection_get_nr_tabs (int window_id, Uint32 widget_id);
  * \brief 	Sets the label color for a tab
  *
  * 		Sets the color with which the label of the tab belonging to the window with ID \a tab_id is drawn.
- *		
+ *
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	col_id The unique widget ID of the tab collection
  * \param	tab_id The window ID of the tab window
@@ -1185,14 +1222,15 @@ int tab_collection_close_tab (int window_id, Uint32 widget_id, int tab);
  * \ingroup	tabs
  * \brief 	Calculate the tab tag height
  *
- * 		Calculate the tab tag height given the specified size.
+ * Calculate the tab tag height given the specified size and font category for
+ * the label.
  *
- * \param   	size the scale factor
+ * \param cat  the category for the font with which the label is drawn
+ * \param size the scale factor
  * \retval int  	Returns the calculate tag tag height.
  * \callgraph
  */
-int tab_collection_calc_tab_height(float size);
-
+int tab_collection_calc_tab_height(font_cat cat, float size);
 
 /*!
  * \ingroup	tabs
@@ -1206,7 +1244,7 @@ int tab_collection_calc_tab_height(float size);
  * \param   	y The y position
  * \param   	lx The width
  * \param   	ly The height
- * \retval int  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID
  *
  * \sa tab_collection_add_extended
  */
@@ -1231,12 +1269,12 @@ int tab_collection_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint
  * \param   	g (0<=g<=1)
  * \param   	b (0<=b<=1)
  * \param	max_tabs The largest number of tabs this collection will hold
- * \retval int  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID
  *
  * \sa tab_collection_add
  */
-int tab_collection_add_extended (int window_id, Uint32 wid, int 
-(*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, 
+int tab_collection_add_extended (int window_id, Uint32 wid, int
+(*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags,
 float size, float r, float g, float b, int max_tabs);
 
 /*!
@@ -1260,7 +1298,6 @@ int tab_collection_draw (widget_list *W);
  * \param   	W The widget
  * \param   	w the new width
  * \param   	h the new height
- * \param   	tab_tag_height the height of the tab tags
  * \retval int  	Returns 1 on success, 0 on failure
  * \callgraph
  */
@@ -1284,7 +1321,7 @@ int tab_collection_move (widget_list *W, Uint32 pos_x, Uint32 pos_y);
  * \ingroup	tabs
  * \brief 	Creates a new tabbed window
  *
- * 		Creates a new tabbed window 
+ * 		Creates a new tabbed window
  *
  * \param   	window_id The location of the parent window in the windows_list.window[] array
  * \param   	col_id The unique widget id of the tabbed window collection in which this tab is created
@@ -1313,7 +1350,7 @@ int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, 
  * \param 	buf_size the size of the message buffer
  * \param	x_space the number of pixels in the x-direction between the border and the text
  * \param	y_space the number of pixels in the y-direction between the border and the text
- * \retval int  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID
  *
  * \sa text_field_add_extended
  */
@@ -1333,6 +1370,7 @@ int text_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 l
  * \param   	lx The width
  * \param   	ly The height
  * \param   	Flags The flags
+ * \param		fcat Font category for the text
  * \param   	size The text size
  * \param   	r (0<=r<=1)
  * \param   	g (0<=g<=1)
@@ -1342,11 +1380,14 @@ int text_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 l
  * \param	chan_filt the channel of which messages are drawn
  * \param	x_space the number of pixels in the x-direction between the border and the text
  * \param	y_space the number of pixels in the y-direction between the border and the text
- * \retval int  	Returns the new widgets unique ID 
+ * \retval int  	Returns the new widgets unique ID
  *
  * \sa text_field_add
  */
-int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, text_message *buf, int buf_size, Uint8 chan_filt, int x_space, int y_space);
+int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(),
+	Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, font_cat fcat,
+	float size, float r, float g, float b, text_message *buf, int buf_size,
+	Uint8 chan_filt, int x_space, int y_space);
 
 /*!
  * \ingroup	textfields
@@ -1378,10 +1419,10 @@ int text_field_set_buf_pos (int window_id, Uint32 widget_id, int msg, int offset
 /*!
  * \ingroup	textfields
  * \brief       Clear an editable text field
- * 
+ *
  *              Clear an editable text field, erasing its current buffer and
  *              moving the cursor to the start
- * 
+ *
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param	widget_id The unique widget ID
  * \retval int  	Returns 1 on success, 0 on error
@@ -1428,6 +1469,19 @@ int text_field_keypress (widget_list *w, int mx, int my, SDL_Keycode key_code, U
  */
 void text_field_find_cursor_line(text_field* tf);
 
+/*!
+ * \ingroup widgets
+ *
+ * Force a text field to rewrap the lines.
+ *
+ * Force the textfield identified by window ID \a window_id and widget ID
+ * \a widget_id, to recalculate the positions of the soft line breaks. This is
+ * done e.g. in situations where the font or font size is changed.
+ *
+ * \param window_id The identifier for the window the text field resides in
+ * \param widget_id The identifier for the text field widget
+ */
+void text_field_force_rewrap(int window_id, Uint32 widget_id);
 
 //FIXME: Write documentation for these...
 #define P_NORMAL    0
@@ -1438,7 +1492,6 @@ int pword_keypress (widget_list *w, int mx, int my, SDL_Keycode key_code, Uint32
 unsigned char * pword_field_get(widget_list *w);
 int pword_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, unsigned char *buffer, int buffer_size);
 int pword_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, float size, float r, float g, float b, unsigned char *buffer, int buffer_size);
-int pword_field_click(widget_list *w, int mx, int my, Uint32 flags);
 void pword_set_status(widget_list *w, Uint8 status);
 
 int multiselect_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, int width);
@@ -1448,6 +1501,7 @@ int multiselect_button_add_extended(int window_id, Uint32 multiselect_id, Uint16
 int multiselect_get_selected(int window_id, Uint32 widget_id);
 int multiselect_set_selected(int window_id, Uint32 widget_id, int button_id);
 int multiselect_get_height(int window_id, Uint32 widget_id);
+int multiselect_clear(int window_id, Uint32 widget_id);
 
 #define SPIN_FLOAT 0
 #define SPIN_INT 1
@@ -1513,6 +1567,33 @@ int widget_handle_drag (widget_list *widget, int mx, int my, Uint32 flags, int d
  * \retval 	1 if the event is handled, 0 otherwise
  */
 int widget_handle_keypress (widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
+/*!
+ * \ingroup widgets
+ *
+ * Handle a change in font
+ *
+ * Handle a change in font or font size in font category \a cat for widget \a widget.
+ *
+ * \param widget The widget to handle the font change for.
+ * \param cat    The font category that was changed.
+ *
+ * \return 1 if the widget handled the change, 0 otherwise
+ */
+int widget_handle_font_change(widget_list *widget, font_cat cat);
+/*!
+ * \ingroup widgets
+ *
+ * Handle a paste event
+ *
+ * Handle a text paste event, and paste text \a text into widget \a widget.
+ *
+ * \param widget The widget to handle the paste event
+ * \param text   The text to paste into the widget
+ *
+ * \return 1 if the widget handled the change, 0 otherwise
+ */
+int widget_handle_paste(widget_list *widget, const char* text);
+
 
 
 /*!

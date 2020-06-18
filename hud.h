@@ -60,9 +60,13 @@ void cleanup_hud(void);
  * \ingroup other
  * \brief Shows the different hud related windows if they have already been created.
  *
- *      Shows the different hud related windows, i.e. the icons, the stats bar, the miscellaneous (compass and clock) and the quickbar window if they have been created before. If none of them has been created nothing will be done.
+ * Shows the different hud related windows, i.e. the icons, the stats bar,
+ * the miscellaneous (compass and clock) and the quickbar window if they have
+ * been created before. If none of them has been created nothing will be done.
  *
- * \pre If any of \ref icons_win, \ref stats_bar_win, \ref misc_win and \ref quickbar_win is <= 0, no action will be performed.
+ * \pre
+ * If any of \ref icons_win, \ref stats_bar_win, \ref misc_win or \ref quickbar_win
+ * is <= 0, no action will be performed.
  *
  * \callgraph
  */
@@ -139,7 +143,7 @@ int get_hud_logo_size(void);
  * \param name		the name of the window
  *
  *	returns if sucessful, a pointer to the window id variable, otherwise NULL.
- * 
+ *
  * \callgraph
  */
 int* get_winid(const char *name);
@@ -176,37 +180,6 @@ void view_tab (int *window, int *col_id, int tab);
 
 /*!
  * \ingroup windows
- * \brief Shows the \a message at the given position (\a x, \a y).
- *
- *      Shows the \a message at the given position (\a x, \a y) using the small font.
- *
- * \param message   the help message to show
- * \param x         the x coordinate of the position to draw the help message
- * \param y         the y coordinate of the position to draw the help message
- * \param scale     the multiplier for the text size
- *
- * \callgraph
- */
-void show_help(const char *message, int x, int y, float scale);
-
-/*!
- * \ingroup windows
- * \brief Shows the \a message at the given position (\a x, \a y).
- *
- *      Shows the \a message at the given position (\a x, \a y) using the default font.
- *
- * \param message   the help message to show
- * \param x         the x coordinate of the position to draw the help message
- * \param y         the y coordinate of the position to draw the help message
- * \param scale     the multiplier for the text size
- *
- * \callgraph
- */
-void show_help_big(const char *message, int x, int y, float scale);
-void show_help_coloured_scaled(const char *help_message, int x, int y, float r, float g, float b, int use_big_font, float size);
-
-/*!
- * \ingroup windows
  * \brief Check if we need to enlarge text.
  *
  *      If the "Always Enlarge Text" option on the HUB tab is set, return
@@ -214,7 +187,7 @@ void show_help_coloured_scaled(const char *help_message, int x, int y, float r, 
  *      true if one of those is set.
  *
  *	returns true if text should be enlarged.
- * 
+ *
  * \callgraph
  */
 int enlarge_text(void);
@@ -231,7 +204,7 @@ void build_levels_table();
 
 /*!
  * \ingroup other
- * \brief   	The #exp command, show current exp levels in console.
+ * \brief   	The \#exp command, show current exp levels in console.
  * \retval	1, so command not passed to server
  */
 int show_exp(char *text, int len);

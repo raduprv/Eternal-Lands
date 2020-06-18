@@ -28,7 +28,7 @@ typedef struct
 	float pos_y;
 	float pos_z;
     /*! @} */
-    
+
     /*!
      * \name Light color
      */
@@ -94,7 +94,7 @@ void draw_lights();
 /*
  * \ingroup	lights
  * \brief	Destroys the light at position i in the lights_list
- * 
+ *
  * 		Destroyes the light on position i in the lights_list - frees the memory and sets the lights_list[i]=NULL.
  *
  * \param	i The position in the lights_list
@@ -103,6 +103,9 @@ void draw_lights();
  */
 void destroy_light(int i);
 
+#if defined (MAP_EDITOR2) || defined (MAP_EDITOR)
+int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity, int locked, unsigned int dynamic);
+#else
 /*!
  * \ingroup lights
  * \brief   Adds a new light using the given position and color.
@@ -116,12 +119,12 @@ void destroy_light(int i);
  * \param g             g (green) value of the lights color
  * \param b             b (blue) value of the lights color
  * \param intensity     a (intensity) value of the lights color
+ * \param dynamic       if non-zero, the light is dynamic (can be removed later),
+ * 	otherwise it is static on the map
  * \retval int          the index into the \ref lights_list array, where the light was added.
  */
-#if defined (MAP_EDITOR2) || defined (MAP_EDITOR)
-int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity, int locked, unsigned int dynamic);
-#else
-int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity, unsigned int dynamic);
+int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b,
+	GLfloat intensity, unsigned int dynamic);
 #endif
 
 /*!

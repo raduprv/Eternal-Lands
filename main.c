@@ -109,8 +109,6 @@ void cleanup_mem(void)
 	cleanup_manufacture();
 	LOG_INFO("cleanup_text_buffers()");
 	cleanup_text_buffers();
-	LOG_INFO("cleanup_fonts()");
-	cleanup_fonts();
 	LOG_INFO("destroy_all_actors()");
 	destroy_all_actors();
 	LOG_INFO("end_actors_lists()");
@@ -142,7 +140,7 @@ void cleanup_mem(void)
 
 	LOG_INFO("destroy_hash_table()");
 	destroy_hash_table(server_marks);
-	
+
 	LOG_INFO("video_modes[]");
 	for (i = 0; i < video_modes_count; i++)
 	{
@@ -207,7 +205,7 @@ int start_rendering()
 			olc_process();
 #endif	//OLC
 			my_tcp_flush(my_socket);    // make sure the tcp output buffer is set
-			
+
 			if (have_a_map && cur_time > last_frame_and_command_update + 60) {
 				LOCK_ACTORS_LISTS();
 				next_command();
@@ -300,8 +298,6 @@ int start_rendering()
 	free_emotes();
 	LOG_INFO("free_actor_defs()");
 	free_actor_defs();
-	LOG_INFO("free_books()");
-	free_books();
 	LOG_INFO("free_vars()");
 	free_vars();
 	LOG_INFO("cleanup_rules()");
@@ -426,7 +422,7 @@ char * check_server_id_on_command_line()
 		return "";
 
 	// FIXME!! This should parse for -options rather than blindly returning the last option!
-	
+
 	return gargv[gargc - 1];
 }
 

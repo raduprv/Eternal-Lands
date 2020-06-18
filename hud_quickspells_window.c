@@ -94,7 +94,7 @@ static void toggle_quickspells_moveable(void)
 		change_flags (quickspell_win, flags);
 		quickspells_moveable = 1;
 	}
-	else 
+	else
 	{
 		flags |= ELW_SHOW_LAST;
 		flags &= ~(ELW_DRAGGABLE | ELW_TITLE_BAR);
@@ -105,7 +105,7 @@ static void toggle_quickspells_moveable(void)
 
 
 // return the window to it's default position
-static void reset_quickspells() 
+static void reset_quickspells()
 {
 	quickspells_dir = VERTICAL;
 	quickspells_moveable = 0;
@@ -251,8 +251,11 @@ CHECK_GL_ERRORS();
 
 	if(quickspell_over!=-1 && mqb_data[quickspell_over])
 	{
+		float zoom = win->current_scale_small;
 		int x = 0, y = 0;
-		int len_str = (strlen(mqb_data[quickspell_over]->spell_name) + 1) * win->small_font_len_x;
+		int len_str = get_string_width_zoom((const unsigned char*)mqb_data[quickspell_over]->spell_name, win->font_category, zoom)
+			+ get_char_width_zoom(' ', win->font_category, zoom);
+
 		// vertical place left (or right) and aligned with slot
 		if (quickspells_dir==VERTICAL)
 		{
@@ -408,7 +411,7 @@ void init_quickspell(void)
 		quickspells_moveable = 0;
 	}
 	if (quickspells_moveable)
-		flags |= ELW_TITLE_BAR | ELW_DRAGGABLE;	
+		flags |= ELW_TITLE_BAR | ELW_DRAGGABLE;
 
 	if (quickspell_win < 0){
 		quickspell_win = create_window ("Quickspell", -1, 0, saved_quickspells_x, saved_quickspells_y, 0, 0, flags);
@@ -612,7 +615,7 @@ void save_quickspells(void)
 				mqb_data[i]->spell_name, fname);
 			break;
 		}
-		
+
 		LOG_DEBUG("Wrote spell '%s' to file '%s'",
 			mqb_data[i]->spell_name, fname);
 	}

@@ -29,9 +29,6 @@ extern Uint32 max_actor_texture_handles;
 
 extern int write_ini_on_exit; /*< variable that determines if el.ini file is rewritten on exit of the program */
 
-extern int gx_adjust;
-extern int gy_adjust;
-
 extern int video_mode_set;
 extern int no_adjust_shadows;
 extern int clouds_shadows; /*!< flag that indicates whether the shadows of clouds should be displayed or not */
@@ -210,16 +207,51 @@ void check_options(void);
  */
 void change_windows_on_top(int *var);
 
+#ifndef MAP_EDITOR
 /*!
- * \ingroup other
+ * \ingroup config
  * \brief   Adds another option to a multi-var.
  *
- *      Adds another option to a multi-var selection list.
+ * Adds an option with identifier \a id and label \a str to the multi-var
+ * selection list for variable \a name. If the parameter \a add_button is
+ * non-zero, and the widget for the variable exsists, a button will also be
+ * added to this widget.
  *
  * \param name       the name of the variable to add to
- * \param str      the text for the option
+ * \param str        the text for the option
+ * \param id         an optional key for the option
+ * \param add_button if non-zero, add a button to the widget for the option
  */
-void add_multi_option(char * name, char * str);
+void add_multi_option_with_id(const char* name, const char* str, const char* id, int add_button);
+static __inline__ void add_multi_option(const char* name, const char* str)
+{
+	add_multi_option_with_id(name, str, NULL, 0);
+}
+/*!
+ * \ingroup config
+ *
+ * Clear a multi-var.
+ *
+ * Remove all options from the multi-select variable with name \a name.
+ *
+ * \param name the name of the variable to clear
+ */
+void clear_multiselect_var(const char* name);
+/*!
+ * \ingroup config
+ *
+ * Set a multi-var.
+ *
+ * Set the selected option in multi-select variable \a name to \a idx. If the
+ * parameter \a change_button is non-zero, the corresponding button in the
+ * widget is also selected.
+ *
+ * \param name          the name of the variable to set
+ * \param idx           the index of the element to select
+ * \param change_button if non-zero, select GUI button as well
+ */
+void set_multiselect_var(const char* name, int idx, int change_button);
+#endif // !MAP_EDITOR
 
 void change_windowed_chat (int *wc, int val);
 
@@ -245,7 +277,7 @@ int toggle_OPT_BOOL_by_name(const char *str);
  * \ingroup other
  * brief Sets the specfied OPT_INT variable's value.
  * \param str	the option name
- * \param new_vale well, the new value
+ * \param new_value well, the new value
  * \retval	1 if sucessfull, 0 if option not found
  */
 int set_var_OPT_INT(const char *str, int new_value);
@@ -254,6 +286,25 @@ int set_var_OPT_INT(const char *str, int new_value);
 void toggle_follow_cam(int * fc);
 void toggle_ext_cam(int * ec);
 void options_loaded(void);
+
+
+/*!
+ * \ingroup other
+ * Set previously stored multi-select variables.
+ *
+ * Some multi-select variables cannot be reliably set because they are not fully
+ * initialized before el.ini is read. The values for these variables are stored,
+ * and the variables are set to the correct option afterwards using this function.
+ * The initialization is done as follows:
+ * 1. if only an index is stored, and it is a valid index, that is used.
+ * 2. if both an index and a value are stored, the value overrides the index,
+ *    and the option with correct value is selected if it can be found.
+ * 3. if no valid value is found, or the value is empty and the index is invalid,
+ *    the option is left unchanged, and nothing is done.
+ * This function assumes all necessary initialization is done when it is called,
+ * and therefore deletes all deferred options.
+ */
+void check_deferred_options();
 
 #ifdef __cplusplus
 } // extern "C"

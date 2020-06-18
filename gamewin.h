@@ -21,12 +21,12 @@ extern int have_mouse;
 extern float fps_average;
 #endif //!MAP_EDITOR
 
-/*! \name windows handlers 
+/*! \name windows handlers
  * @{ */
 extern int game_root_win; /*!< the root (game) window */
 /*! @} */
 
-/*! \name configuration options 
+/*! \name configuration options
  * @{ */
 extern int use_old_clicker;
 extern int include_use_cursor_on_animals;
@@ -91,7 +91,7 @@ Uint8 key_to_char (Uint32 unikey);
  *
  *	The keypress is appended to the string up to the max.  If the key
  * 	press is the backspace chatacter, the last char is removed.
- * 
+ *
  * \retval int 1 if key used, 0 if not used
  *
  */
@@ -103,7 +103,9 @@ int string_input(char *text, size_t maxlen, SDL_Keycode key_code, Uint32 key_uni
  *
  *      Checks if a keypress is for quitting the game or toggling the full screen mode.
  *
- * \retval int
+ * \param key_code    The key code as defined by SDL
+ * \param key_mod     Modifier keys pressed in this event
+ * \return 1 if the key event was handled by this function, 0 otherwise
  * \callgraph
  */
 int check_quit_or_fullscreen (SDL_Keycode key_code, Uint16 key_mod);
@@ -114,9 +116,10 @@ int check_quit_or_fullscreen (SDL_Keycode key_code, Uint16 key_mod);
  *
  *      Handles normal characters for the game, console and map windows
  *
- * \param key
- * \param unikey
- * \retval int
+ * \param key_code    The key code as defined by SDL
+ * \param key_unicode Unicode value for the key text, if any
+ * \param key_mod     Modifier keys pressed in this event
+ * \return 1 if the key event was handled by this function, 0 otherwise
  * \callgraph
  */
 int text_input_handler (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
@@ -138,9 +141,10 @@ void switch_action_mode(int mode);
  *
  *      Handles common keyboard events for the root window
  *
- * \param key
- * \param unikey
- * \retval int
+ * \param key_code    The key code as defined by SDL
+ * \param key_unicode Unicode value for the key text, if any
+ * \param key_mod     Modifier keys pressed in this event
+ * \return 1 if the key was handled by this function, 0 otherwise
  * \callgraph
  */
 int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
@@ -166,12 +170,12 @@ void return_to_gamewin_common(void);
 
 /*!
  * \ingroup events
- * \brief treat key value as if it was a real key press 
+ * \brief treat key value as if it was a real key press
  *
- * \param key
+ * \param key The key to handle
  * \callgraph
  */
-void do_keypress(el_key_def);
+void do_keypress(el_key_def key);
 
 /*!
  * \ingroup root_window

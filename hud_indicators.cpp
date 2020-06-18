@@ -32,6 +32,7 @@
 #include "text.h"
 #include "translate.h"
 
+using namespace eternal_lands;
 
 namespace Indicators
 {
@@ -43,8 +44,15 @@ namespace Indicators
 			static const float zoom(void) { return scale; }
 			static const int space(void) { return (int)(0.5 + scale * 5); }
 			static const int border(void) { return (int)(0.5 + scale * 2); }
-			static const float font_x(void) { return DEFAULT_FONT_X_LEN; }
-			static const float font_y(void) { return DEFAULT_FONT_Y_LEN; }
+			static const float font_x(void)
+			{
+				return FontManager::get_instance()
+					.max_width_spacing(FontManager::Category::UI_FONT);
+			}
+			static const float font_y(void)
+			{
+				return FontManager::get_instance().line_height(FontManager::Category::UI_FONT);
+			}
 			static const int y_len(void) { return static_cast<int>(border() + zoom() * font_y() + 0.5); }
 			static void set_scale(float new_scale) { scale = new_scale; }
 		private:
@@ -481,9 +489,12 @@ namespace Indicators
 		std::vector<Basic_Indicator *>::iterator i = get_over(mx);
 		if (win && (i < indicators.end()))
 		{
+			eternal_lands::FontManager &fmgr = eternal_lands::FontManager::get_instance();
 			std::string tooltip("");
 			(*i)->get_tooltip(tooltip);
-			int x_offset = -static_cast<int>(Vars::border() + win->small_font_len_x * (1 + tooltip.size()) + 0.5);
+			int width = fmgr.line_width(win->font_category, (const unsigned char*)tooltip.c_str(),
+				tooltip.length(), win->current_scale_small);
+			int x_offset = -(Vars::border() + width);
 			if ((win->cur_x + x_offset) < 0)
 				x_offset = win->len_x;
 			show_help(tooltip.c_str(), x_offset, Vars::border(), win->current_scale);
