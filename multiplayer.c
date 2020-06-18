@@ -880,10 +880,10 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 		case HERE_YOUR_STATS:
 			{
-				if (data_length <= 167)
+				if (data_length <= 112*sizeof(Sint16) + 3)
 				{
-				  LOG_WARNING("CAUTION: Possibly forged HERE_YOUR_STATS packet received.\n");
-				  break;
+					LOG_WARNING("CAUTION: Possibly forged HERE_YOUR_STATS packet received.\n");
+					break;
 				}
 				get_the_stats((Sint16 *)(in_data+3), data_length-3);
 				request_true_knowledge_info();

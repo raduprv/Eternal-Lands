@@ -59,6 +59,12 @@ void get_the_stats(Sint16 *stats, size_t len_in_bytes)
         //initiate the function pointers
         init_attribf();
 
+        if (len_in_bytes < 112 * sizeof(Sint16))
+        {
+            LOG_ERROR("Got incomplete stats data from the server");
+            return;
+        }
+
         your_info.phy.cur=SDL_SwapLE16(stats[0]);
         your_info.phy.base=SDL_SwapLE16(stats[1]);
         your_info.coo.cur=SDL_SwapLE16(stats[2]);
