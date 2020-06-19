@@ -521,8 +521,9 @@ static void set_long_desc(const char* desc, int width, float zoom, rule_string *
 	}
 }
 
-static const int short_rule_indent = 20;
-static const int long_rule_indent = 2 * short_rule_indent;
+#define SHORT_RULE_INDENT 20
+static const int short_rule_indent = SHORT_RULE_INDENT;
+static const int long_rule_indent = 2 * SHORT_RULE_INDENT;
 
 static rule_string *get_interface_rules(int width, float zoom)
 {
