@@ -1285,7 +1285,6 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, TTF_Font *font, S
 
 	};
 	static const SDL_Color white = { .r = 0xff, .g = 0xff, .b = 0xff, .a = 0xff };
-	static const SDL_Color black = { .r = 0x00, .g = 0x00, .b = 0x00, .a = 0x10 };
 
 	Uint16 glyph = glyphs[i_glyph];
 	if (!TTF_GlyphIsProvided(font, glyph))
@@ -1295,7 +1294,7 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, TTF_Font *font, S
 		return false;
 	}
 
-	SDL_Surface* glyph_surface = TTF_RenderGlyph_Shaded(font, glyph, white, black);
+	SDL_Surface* glyph_surface = TTF_RenderGlyph_Solid(font, glyph, white);
 	if (!glyph_surface)
 	{
 		LOG_ERROR("Failed to render TTF glyph: %s", TTF_GetError());
