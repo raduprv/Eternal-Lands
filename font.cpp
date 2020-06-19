@@ -1269,7 +1269,8 @@ void Font::draw_ingame_string(const unsigned char* text, size_t len,
 #endif // ELC
 
 #ifdef TTF
-bool Font::render_glyph(size_t i_glyph, int size, int y_delta, TTF_Font *font, SDL_Surface *surface)
+bool Font::render_glyph(size_t i_glyph, int size, int y_delta, bool draw_shadow, TTF_Font *font,
+	SDL_Surface *surface)
 {
 	static const Uint16 glyphs[nr_glyphs] = {
 		' ', '!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-',
@@ -1285,6 +1286,7 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, TTF_Font *font, S
 
 	};
 	static const SDL_Color white = { .r = 0xff, .g = 0xff, .b = 0xff, .a = 0xff };
+	static const SDL_Color black = { .r = 0x00, .g = 0x00, .b = 0x00, .a = 0x10 };
 
 	Uint16 glyph = glyphs[i_glyph];
 	if (!TTF_GlyphIsProvided(font, glyph))
@@ -1294,7 +1296,11 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, TTF_Font *font, S
 		return false;
 	}
 
-	SDL_Surface* glyph_surface = TTF_RenderGlyph_Solid(font, glyph, white);
+	SDL_Surface* glyph_surface;
+	if (draw_shadow)
+		glyph_surface = TTF_RenderGlyph_Shaded(font, glyph, white, black);
+	else
+		glyph_surface = TTF_RenderGlyph_Solid(font, glyph, white);
 	if (!glyph_surface)
 	{
 		LOG_ERROR("Failed to render TTF glyph: %s", TTF_GetError());
@@ -1333,7 +1339,7 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, TTF_Font *font, S
 	_metrics[i_glyph].top = y_delta + TTF_FontAscent(font) - y_max;
 	_metrics[i_glyph].bottom = y_delta + TTF_FontAscent(font) - y_min;
 	_metrics[i_glyph].u_start = float(col * size) / surface->w;
-	_metrics[i_glyph].v_start = float(row * size) / surface->h;
+	_metrics[i_glyph].v_start = float(row * size + 0.5) / surface->h;
 	_metrics[i_glyph].u_end = float(col * size + width) / surface->w;
 	_metrics[i_glyph].v_end = float(row * size + size) / surface->h;
 
@@ -1361,7 +1367,7 @@ bool Font::build_texture_atlas()
 
 	int size = TTF_FontLineSkip(font);
 	int width = next_power_of_two(font_chars_per_line * size);
-	int height = next_power_of_two(nr_rows * size);
+	int height = next_power_of_two(nr_rows * (size + 2));
 	SDL_Surface *image = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32,
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN /* OpenGL RGBA masks */
 		0x000000FF,
@@ -1383,10 +1389,17 @@ bool Font::build_texture_atlas()
 		return false;
 	}
 
+	// SDL_ttf versions < 2.0.15 don't take transparency into account, so don't draw shadows
+	// if the run-time version of this library version is too old.
+	const SDL_version *link_version = TTF_Linked_Version();
+	bool draw_shadow = link_version->major > 2
+		|| (link_version->major == 2 && link_version->minor > 0)
+		|| (link_version->major == 2 && link_version->minor == 0 && link_version->patch >= 15);
+
 	int y_delta = (size - TTF_FontHeight(font)) / 2;
 	for (size_t i_glyph = 0; i_glyph < nr_glyphs; ++i_glyph)
 	{
-		if (!render_glyph(i_glyph, size, y_delta, font, image))
+		if (!render_glyph(i_glyph, size, y_delta, draw_shadow, font, image))
 		{
 			SDL_FreeSurface(image);
 			TTF_CloseFont(font);

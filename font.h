@@ -983,14 +983,16 @@ private:
 	 * font \a font. The vertical offset parameter \a y_delta is used to try and center the glyphs
 	 * vertically, making vertical alignment of text easier.
 	 *
-	 * \param pos     The position of the glyph to draw
-	 * \param size    The size of the rendered glyph
-	 * \param y_delta Vertical offset for placing the glyph in the texture
-	 * \param font    The font with which to render the glyph
-	 * \param surface The surface on which the glyph is rendered
+	 * \param pos         The position of the glyph to draw
+	 * \param size        The size of the rendered glyph
+	 * \param y_delta     Vertical offset for placing the glyph in the texture
+	 * \param font        The font with which to render the glyph
+	 * \param draw_shadow Whether to draw a semi-transparent shadow around the glyph
+	 * \param surface     The surface on which the glyph is rendered
 	 * \return \c true if the glyph was successfully rendered, \c false otherwise.
 	 */
-	bool render_glyph(size_t i_glyph, int size, int y_delta, TTF_Font *font, SDL_Surface *surface);
+	bool render_glyph(size_t i_glyph, int size, int y_delta, bool draw_shadow, TTF_Font *font,
+		SDL_Surface *surface);
 	/*!
 	 * \brief Build a texture for a TTF font
 	 *
