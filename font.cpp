@@ -1319,7 +1319,7 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, bool draw_shadow,
 	glyph_area.w = width;
 	glyph_area.h = height;
 	area.x = col*size;
-	area.y = row*size + y_delta;
+	area.y = row*(size+2) + 1 + y_delta;
 	area.w = width;
 	area.h = height;
 
@@ -1339,9 +1339,9 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, bool draw_shadow,
 	_metrics[i_glyph].top = y_delta + TTF_FontAscent(font) - y_max;
 	_metrics[i_glyph].bottom = y_delta + TTF_FontAscent(font) - y_min;
 	_metrics[i_glyph].u_start = float(col * size) / surface->w;
-	_metrics[i_glyph].v_start = float(row * size + 0.5) / surface->h;
+	_metrics[i_glyph].v_start = float(row * (size+2) + 1) / surface->h;
 	_metrics[i_glyph].u_end = float(col * size + width) / surface->w;
-	_metrics[i_glyph].v_end = float(row * size + size) / surface->h;
+	_metrics[i_glyph].v_end = float(row * (size+2) + size + 1) / surface->h;
 
 	return true;
 }
@@ -1367,6 +1367,10 @@ bool Font::build_texture_atlas()
 
 	int size = TTF_FontLineSkip(font);
 	int width = next_power_of_two(font_chars_per_line * size);
+	// Keep two rows of empty pixels (one top, one bottom) around the glyphs for systems with an
+	// alternative view on texture coordinates (i.e. off by one pixel). Perhaps they may lose a
+	// single pixel row of a really high character, but at least we won't draw part of the character
+	// bwlow or above it.
 	int height = next_power_of_two(nr_rows * (size + 2));
 	SDL_Surface *image = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32,
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN /* OpenGL RGBA masks */
