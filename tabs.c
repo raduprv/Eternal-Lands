@@ -264,7 +264,7 @@ static int ui_scale_info_handler(window_info *win)
 
 static int change_info_font_handler(window_info* win, font_cat cat)
 {
-	if (cat != win->font_category && cat != NOTE_FONT)
+	if (cat != win->font_category)
 		return 0;
 	tab_info_scale_changed = 1;
 	return 1;
