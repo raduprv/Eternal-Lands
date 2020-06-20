@@ -29,10 +29,10 @@ parts:
     source-type: git
     # Include for stable release, comment out for dev build, comment out for latest commit dev release
     # source-tag: 1.9.5.8
-    build-packages: [build-essential, libcal3d12-dev, libsdl2-image-dev, libsdl2-net-dev, libxml2-dev, libopenal-dev, libvorbis-dev, libpng-dev]
+    build-packages: [build-essential, libcal3d12-dev, libsdl2-image-dev, libsdl2-net-dev, libsdl2-ttf-dev, libxml2-dev, libopenal-dev, libvorbis-dev, libpng-dev]
     plugin: cmake
     # Add -DVERSION_PREFIX=x.y.z for dev build, remove for release
-    configflags:  ["-DCMAKE_BUILD_TYPE=release", "-DEXEC=el.linux.bin", "-DVERSION_PREFIX=1.9.5", "-DLOCAL_NLOHMANN_JSON=On"]
+    configflags:  ["-DCMAKE_BUILD_TYPE=release", "-DEXEC=el.linux.bin", "-DVERSION_PREFIX=1.9.5", "-DLOCAL_NLOHMANN_JSON=On", "-DTTF=On"]
     stage-packages:
       - libglib2.0-0
       - libsdl2-net-2.0-0
@@ -43,6 +43,7 @@ parts:
       - libopenal1
       - libcal3d12v5
       - libsdl2-image-2.0-0
+      - libsdl2-ttf-2.0-0
       - libxrandr2
       - zlib1g
       - libpng16-16
@@ -69,6 +70,7 @@ parts:
       snapcraftctl build
       sed -i 's|^#browser.*$|#browser = x-www-browser|g' $SNAPCRAFT_PART_INSTALL/el_data/el.ini
       sed -i 's|^#use_new_selection.*$|#use_new_selection = 1|g' $SNAPCRAFT_PART_INSTALL/el_data/el.ini
+      cp -p ${SNAPCRAFT_PROJECT_DIR}/dev-data-files/item_knowledge_info.txt $SNAPCRAFT_PART_INSTALL/el_data/
 
   sound:
     source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.2/eternallands-sound_1.9.4.zip

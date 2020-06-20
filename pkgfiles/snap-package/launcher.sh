@@ -31,4 +31,4 @@ then
 	cp -p $datadir/$inifile $userdir/$config/ || exit
 fi
 
-exec "$exename" -dir="$datadir" -b="$browser" "$config"
+exec "$exename" -dir="$datadir" -b="$browser" -ttfdir=/usr/share/fonts/truetype "$config"
