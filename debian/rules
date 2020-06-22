@@ -20,7 +20,7 @@ build-stamp: configure-stamp
 	# Commands to compile the package.
 	mkdir -p build && \
 		cd build && \
-		cmake -DLOCAL_NLOHMANN_JSON=On -DEXEC=el.x86.linux.bin -DVERSION_PREFIX=1.9.5 .. && \
+		cmake -DLOCAL_NLOHMANN_JSON=On -DTTF=On -DEXEC=el.x86.linux.bin -DVERSION_PREFIX=1.9.5 .. && \
 		make
 	touch $@
 
