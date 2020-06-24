@@ -35,8 +35,9 @@ static int last_port = -1;
 static unsigned char last_server_address[60];
 static int reset_button_id = -1;
 static int show_reset_help = 0;
-static int last_mouse_click_y = -1;
-static int last_mouse_over_y = -1;
+static int last_mouse_click_skill = -1;
+static int last_mouse_over_skill = -1;
+static int start_skills_y = -1;
 static int distance_moved = -1;
 
 static int x_border = 0;
@@ -72,14 +73,18 @@ static int click_session_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	if (flags & (ELW_WHEEL_UP|ELW_WHEEL_DOWN))
 		return 0;
-	last_mouse_click_y = my;
-	do_click_sound();
+	if ((my > start_skills_y) && (my < (start_skills_y + NUM_SKILLS * y_step)))
+	{
+		last_mouse_click_skill = (my - start_skills_y) / y_step;
+		do_click_sound();
+	}
 	return 1;
 }
 
 static int mouseover_session_handler(window_info *win, int mx, int my)
 {
-	last_mouse_over_y = my;
+	if ((my > start_skills_y) && (my < (start_skills_y + NUM_SKILLS * y_step)))
+		last_mouse_over_skill = (my - start_skills_y) / y_step;;
 	return 1;
 }
 
@@ -110,6 +115,7 @@ static void set_content_widths(window_info *win)
 	x_border = (int)(win->current_scale * 10);
 	y_offset = (int)(0.5 + win->default_font_len_y * 21.0 / DEFAULT_FIXED_FONT_HEIGHT);
 	y_step = (int)(0.5 + win->default_font_len_y * 16.0 / DEFAULT_FIXED_FONT_HEIGHT);
+	start_skills_y = y_offset + 2 * y_step;
 	tot_exp_left = x_border + max_name_width + sep_width;
 	tot_exp_right = tot_exp_left + max2i(max_val_width, tot_exp_width);
 	max_exp_right = tot_exp_right + sep_width + max2i(max_val_width, max_exp_width);
@@ -245,9 +251,9 @@ int display_session_handler(window_info *win)
 
 	for (i=0; i<NUM_SKILLS; i++)
 	{
-		if ((last_mouse_click_y >= y) && (last_mouse_click_y < y+16))
+		if (last_mouse_click_skill == i)
 			elglColourN("global.mouseselected");
-		else if ((last_mouse_over_y >= y) && (last_mouse_over_y < y+16))
+		else if (last_mouse_over_skill == i)
 			elglColourN("global.mousehighlight");
 		else
 			glColor3f(1.0f, 1.0f, 1.0f);
