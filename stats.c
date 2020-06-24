@@ -829,7 +829,7 @@ static void set_content_widths(window_info *win)
 	max_exp_width = get_string_width_zoom((const unsigned char*)"888888888 / 888888888",
 		win->font_category, win->current_scale_small);
 
-	win->min_len_x = win->small_font_max_len_x + 2 * max_label_width + 2 * max_lvl_width
+	win->min_len_x = 1.5 * win->small_font_max_len_x + 2 * max_label_width + 2 * max_lvl_width
 		+ max_exp_width + 5 * sep_width;
 	win->min_len_y = 24 * win->small_font_len_y;
 }
