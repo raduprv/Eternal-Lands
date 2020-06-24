@@ -470,6 +470,8 @@ void Achievements_System::new_name(const char *player_name, int len)
 				*i = 0;
 				break;
 			}
+
+		delete [] tmp;
 	}
 
 	// remove any closed windows
