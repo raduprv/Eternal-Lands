@@ -370,10 +370,11 @@ void get_storage_items (const Uint8 *in_data, int len)
 		vscrollbar_set_pos(storage_win, STORAGE_SCROLLBAR_CATEGORIES, cat - storage_categories_display + 1);
 	}
 
+	update_item_filter();
+
 	if (selected_category != -1)
 		category_updated();
 
-	update_item_filter();
 }
 
 int storage_win=-1;
