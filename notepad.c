@@ -54,7 +54,7 @@ void init_ipu (INPUT_POPUP *ipu, int parent, int maxlen, int rows, int cols, voi
 void clear_popup_window(INPUT_POPUP *ipu)
 {
 	if (ipu->rows == 1)
-		*ipu->popup_line_text = '\0';
+		pword_clear(ipu->popup_win, ipu->popup_line);
 	else
 		text_field_clear (ipu->popup_win, ipu->popup_field);
 	hide_window (ipu->popup_win);
@@ -62,10 +62,14 @@ void clear_popup_window(INPUT_POPUP *ipu)
 
 void close_ipu (INPUT_POPUP *ipu)
 {
+	if (ipu->popup_line_text != NULL)
+	{
+		free(ipu->popup_line_text);
+		ipu->popup_line_text = NULL;
+	}
 	if (ipu->popup_win > 0)
 	{
 		destroy_window(ipu->popup_win);
-		free(ipu->popup_line_text);
 		clear_text_message_data (&ipu->popup_text);
 		free_text_message_data (&ipu->popup_text);
 		init_ipu(ipu, -1, 0, 0, 0, NULL, NULL);

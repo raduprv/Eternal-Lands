@@ -1493,6 +1493,7 @@ unsigned char * pword_field_get(widget_list *w);
 int pword_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, unsigned char *buffer, int buffer_size);
 int pword_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, float size, float r, float g, float b, unsigned char *buffer, int buffer_size);
 void pword_set_status(widget_list *w, Uint8 status);
+int pword_clear(int window_id, Uint32 widget_id);
 
 int multiselect_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, int width);
 int multiselect_add_extended(int window_id, Uint32 widget_id, int (*OnInit)(), Uint16 x, Uint16 y, int width, Uint16 max_height, float size, float r, float g, float b, float hr, float hg, float hb, int max_buttons);

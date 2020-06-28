@@ -3951,6 +3951,24 @@ void pword_set_status(widget_list *w, Uint8 status)
 		pword->status = status;
 }
 
+int pword_clear(int window_id, Uint32 widget_id)
+{
+	widget_list *w = widget_find (window_id, widget_id);
+	password_entry *entry;
+	if (!w || !(entry = w->widget_info))
+		return 0;
+	if (entry->max_chars)
+		entry->password[0] = '\0';
+	entry->cursor_pos = 0;
+	entry->drag_begin = 0;
+	entry->draw_end = 0;
+	entry->sel_begin = 0;
+	entry->sel_end = 0;
+	entry->drag_begin = 0;
+	entry->mouseover = 0;
+	return 1;
+}
+
 int pword_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, float size, float r, float g, float b, unsigned char *buffer, int buffer_size)
 {
 	int space = (int)(0.5 + 2*size), max_width = lx - 2*space;
