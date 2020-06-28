@@ -1281,7 +1281,7 @@ int knowledge_command(char *text, int len)
 			safe_strncpy(this_string, knowledge_list[i].name, sizeof(this_string));
 			if ( (cr = strchr(this_string, '\n')) != NULL)
 				*cr = '\0';
-			if (your_info.researching == i)
+			if ((!knowledge_list[i].present) && (your_info.researching == i))
 				safe_strcat(this_string, knowledge_reading_book_tag, sizeof(this_string));
 			// highlight books that have been read, unread or being read
 			if (knowledge_list[i].present)
