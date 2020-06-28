@@ -346,6 +346,7 @@ static void read_bin_cfg(void)
 	items_disable_text_block = (cfg_mem.misc_bool_options >> 23) & 1;
 	items_buttons_on_left = (cfg_mem.misc_bool_options >> 24) & 1;
 	items_equip_grid_on_left = (cfg_mem.misc_bool_options >> 25) & 1;
+	sort_storage_items = (cfg_mem.misc_bool_options >> 26) & 1;
 
 	set_options_user_menus(cfg_mem.user_menu_win_x, cfg_mem.user_menu_win_y, cfg_mem.user_menu_options);
 
@@ -575,6 +576,7 @@ void save_bin_cfg(void)
 	cfg_mem.misc_bool_options |= items_disable_text_block << 23;
 	cfg_mem.misc_bool_options |= items_buttons_on_left << 24;
 	cfg_mem.misc_bool_options |= items_equip_grid_on_left << 25;
+	cfg_mem.misc_bool_options |= sort_storage_items << 26;
 
 	get_options_user_menus(&cfg_mem.user_menu_win_x, &cfg_mem.user_menu_win_y, &cfg_mem.user_menu_options);
 

@@ -40,6 +40,7 @@ int selected_category=-1;
 int view_only_storage=0;
 Uint32 drop_fail_time = 0;
 int sort_storage_categories = 0;
+int sort_storage_items = 0;
 
 int active_storage_item=-1;
 
@@ -250,6 +251,22 @@ void move_to_category(int cat)
 	my_tcp_send(my_socket, str, 2);
 }
 
+static int item_cmp(const void *a, const void *b)
+{
+	const ground_item *item_a = (const ground_item *)a;
+	const ground_item *item_b = (const ground_item *)b;
+	if (get_item_count(item_a->id, item_a->image_id) != 1)
+		return 0;
+	if (get_item_count(item_b->id, item_b->image_id) != 1)
+		return 0;
+	if (item_a->quantity <= 0)
+		return 1;
+	if (item_b->quantity <= 0)
+		return -1;
+	return strcmp(get_basic_item_description(item_a->id, item_a->image_id),
+		get_basic_item_description(item_b->id, item_b->image_id));
+}
+
 static void update_item_filter(void)
 {
 	if (!disable_storage_filter && (no_storage > 0) && (filter_item_text_size > 0))
@@ -260,6 +277,9 @@ static void update_item_filter(void)
 		for (i=0; i<STORAGE_ITEMS_SIZE; i++)
 			storage_items_filter[i] = 0;
 	}
+
+	if ((no_storage > 0) && sort_storage_items)
+		qsort(storage_items, no_storage, sizeof(ground_item), item_cmp);
 }
 
 void get_storage_items (const Uint8 *in_data, int len)
@@ -806,6 +826,7 @@ static int context_storage_handler(window_info *win, int widget_id, int mx, int 
 	{
 		case ELW_CM_MENU_LEN+1: print_items(); break;
 		case ELW_CM_MENU_LEN+2: safe_strncpy(storage_text, reopen_storage_str, MAX_DESCR_LEN) ; break;
+		case ELW_CM_MENU_LEN+3: move_to_category(selected_category); break;
 	}
 	return 1;
 }
@@ -847,9 +868,10 @@ void display_storage_menu()
 		cm_add(windows_list.window[storage_win].cm_id, cm_storage_menu_str, context_storage_handler);
 		cm_add(windows_list.window[storage_win].cm_id, cm_dialog_options_str, context_storage_handler);
 		cm_bool_line(windows_list.window[storage_win].cm_id, ELW_CM_MENU_LEN+2, &sort_storage_categories, NULL);
-		cm_bool_line(windows_list.window[storage_win].cm_id, ELW_CM_MENU_LEN+3, &disable_storage_filter, NULL);
-		cm_bool_line(windows_list.window[storage_win].cm_id, ELW_CM_MENU_LEN+4, &autoclose_storage_dialogue, NULL);
-		cm_bool_line(windows_list.window[storage_win].cm_id, ELW_CM_MENU_LEN+5, &auto_select_storage_option, NULL);
+		cm_bool_line(windows_list.window[storage_win].cm_id, ELW_CM_MENU_LEN+3, &sort_storage_items, NULL);
+		cm_bool_line(windows_list.window[storage_win].cm_id, ELW_CM_MENU_LEN+4, &disable_storage_filter, NULL);
+		cm_bool_line(windows_list.window[storage_win].cm_id, ELW_CM_MENU_LEN+5, &autoclose_storage_dialogue, NULL);
+		cm_bool_line(windows_list.window[storage_win].cm_id, ELW_CM_MENU_LEN+6, &auto_select_storage_option, NULL);
 	} else {
 		no_storage=0;
 
