@@ -249,10 +249,10 @@ int Hud_Timer::display(window_info *win, int base_y_start, int tooltip_sep)
 	base_y_start -= height;
 	safe_snprintf(str, sizeof(str), "%c%1d:%02d", ((mode_coundown) ?countdown_str[0] :stopwatch_str[0]), current_value/60, current_value%60);
 	if (running)
-		draw_string_shadowed_zoomed_centered(win->len_x/2, 2 + base_y_start,
+		draw_string_shadowed_zoomed_centered(win->len_x/2, base_y_start,
 			(const unsigned char*)str, 1,0.5f, 1.0f, 0.5f, 0.0f, 0.0f, 0.0f, zoom);
 	else
-		draw_string_shadowed_zoomed_centered(win->len_x/2, 2 + base_y_start,
+		draw_string_shadowed_zoomed_centered(win->len_x/2, base_y_start,
 			(const unsigned char*)str, 1,1.0f, 0.5f, 0.5f, 0.0f, 0.0f, 0.0f, zoom);
 	if (mouse_over)
 	{
