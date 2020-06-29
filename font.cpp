@@ -551,6 +551,10 @@ std::pair<ustring, int> Font::reset_soft_breaks(const unsigned char *text,
 		start = end;
 	}
 
+	// If the message ends on a newline, an extra empty line is printed, but it has not been counted yet.
+	if (!wrapped_text.empty() && wrapped_text.back() == '\n')
+		++nr_lines;
+
 	if (cursor)
 		*cursor += diff_cursor;
 
