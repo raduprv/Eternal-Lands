@@ -1251,7 +1251,7 @@ void Font::draw_ingame_string(const unsigned char* text, size_t len,
 		else
 		{
 			int pos = get_position(ch);
-			if (ch >= 0)
+			if (pos >= 0)
 			{
 				float dx = width_pos(pos, 1.0) * zoom_x * zoom_level / (3.0 * 12.0);
 				float u_start, u_end, v_start, v_end;
