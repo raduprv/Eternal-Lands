@@ -49,7 +49,7 @@ namespace Item_Info
 			int get_emu(void) const { return emu; }
 			enum EQUIP_TYPE get_equip_type(void) const { return equip_type; }
 			void set_equip_type(std::string &text);
-			const bool compare(Uint16 the_item_id, int the_image_id) const;
+			bool compare(Uint16 the_item_id, int the_image_id) const;
 			void set_knowledge_reference(size_t index) { knowledge_reference = index; }
 			size_t get_knowledge_reference(void) const { return knowledge_reference; }
 		private:
@@ -98,7 +98,7 @@ namespace Item_Info
 
 	//	Return true of the item matches the ids, allowing for unset unique ids
 	//
-	const bool Item::compare(Uint16 the_item_id, int the_image_id) const
+	bool Item::compare(Uint16 the_item_id, int the_image_id) const
 	{
 		if ((the_item_id == unset_item_uid) && (the_image_id == image_id))
 			return true;

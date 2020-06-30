@@ -23,9 +23,9 @@ BBOX_TREE* main_bbox_tree = NULL;
 BBOX_ITEMS* main_bbox_tree_items = NULL;
 
 #ifdef	EXTRA_DEBUG
-#define BBOX_TREE_LOG_INFO(item)	log_debug_verbose(__FILE__, __LINE__, item);
+#define BBOX_TREE_LOG_INFO(item)	{ log_debug_verbose(__FILE__, __LINE__, item); }
 #else	//DEBUG
-#define BBOX_TREE_LOG_INFO(item)	/*!< NOP */
+#define BBOX_TREE_LOG_INFO(item)	{ /*!< NOP */ }
 #endif	//DEBUG
 
 #define	NO_INDEX	0xFFFFFFFF

@@ -44,7 +44,7 @@ int sort_storage_items = 0;
 
 int active_storage_item=-1;
 
-ground_item storage_items[STORAGE_ITEMS_SIZE]={{0,0,0}};
+ground_item storage_items[STORAGE_ITEMS_SIZE]={{0,0,0,0}};
 int no_storage;
 
 #define MAX_DESCR_LEN 202
