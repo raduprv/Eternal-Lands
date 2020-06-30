@@ -255,10 +255,11 @@ static int IMG_SavePNG_RW (SDL_Surface *face, SDL_RWops *src)
 	png_structp png_ptr = 0;
 	png_infop info_ptr = NULL;
 	//png_colorp palette = 0;
-	png_bytep *row_pointers = NULL;
+	png_bytep * volatile row_pointers = NULL;
 	int i;
 	int colortype;
-	int result = -1;
+	volatile int result = -1;
+	// Using volatile above addressed the compiler warning - might be clobbered by ‘longjmp’ or ‘vfork’ [-Wclobbered]
 
 	png_ptr = png_create_write_struct (PNG_LIBPNG_VER_STRING, NULL, png_user_error, png_user_warn);
 
