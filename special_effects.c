@@ -603,6 +603,7 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 					break;
 				}
 			}
+			// fall-through - suppress the compile warning with this comment
 		case	SPECIAL_EFFECT_HARVEST_RARE_STONE:
 		case	SPECIAL_EFFECT_HARVEST_MN_EXP_BLESSING:
 		case	SPECIAL_EFFECT_HARVEST_MN_MONEY_BLESSING:

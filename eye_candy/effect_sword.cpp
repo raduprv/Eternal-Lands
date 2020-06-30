@@ -266,6 +266,7 @@ namespace ec
 				else if (speed < 0.05)
 					speed = 0.05;
 			}
+			break;
 			case SWORD_OF_FIRE:
 			case SWORD_OF_ICE:
 			case SWORD_OF_MAGIC:

@@ -1022,7 +1022,7 @@ extern "C" int ec_change_target(ec_reference reference, int index, float x, floa
 extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, float y, float z, int LOD)
 {
 	unsigned char raw_code[54];
-	const unsigned char*const code2 = (const unsigned char*const) code;
+	unsigned char const * const code2 = reinterpret_cast<unsigned char const *>(code);
 	int i = 0;
 
 	while (i < 18)

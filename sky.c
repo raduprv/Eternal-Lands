@@ -103,8 +103,8 @@ typedef struct
 	GLuint *faces;
 } sky_sphere;
 
-sky_dome dome_sky = {0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 0.0, 0.0, 0.0};
-sky_dome dome_clouds = {0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 0.0, 0.0, 0.0};
+sky_dome dome_sky = {0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+sky_dome dome_clouds = {0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
 GLfloat *dome_clouds_detail_colors = NULL;
 GLfloat *dome_clouds_colors_bis = NULL;
@@ -133,7 +133,7 @@ int sun_tex;
 
 sky_dome create_dome(int slices, int stacks, float radius, float opening, int fake_opening, float first_angle, float texture_size)
 {
-	sky_dome dome = {0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 0.0, 0.0, 0.0};
+	sky_dome dome = {0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
     int i, j;
     float angle, angle_step;
     int idx, vtx_idx;
@@ -1573,16 +1573,22 @@ void cloudy_sky()
 	{
 	case 6:
 		glDisable(GL_LIGHT6);
+		// fall-through - suppress the compile warning with this comment
 	case 5:
 		glDisable(GL_LIGHT5);
+		// fall-through
 	case 4:
 		glDisable(GL_LIGHT4);
+		// fall-through
 	case 3:
 		glDisable(GL_LIGHT3);
+		// fall-through
 	case 2:
 		glDisable(GL_LIGHT2);
+		// fall-through
 	case 1:
 		glDisable(GL_LIGHT1);
+		// fall-through
 	default:
 		glDisable(GL_LIGHT0);
 		break;
@@ -1898,16 +1904,22 @@ void cloudy_sky()
 		{
 		case 6:
 			glEnable(GL_LIGHT6);
+			// fall-through - suppress the compile warning with this comment
 		case 5:
 			glEnable(GL_LIGHT5);
+			// fall-through
 		case 4:
 			glEnable(GL_LIGHT4);
+			// fall-through
 		case 3:
 			glEnable(GL_LIGHT3);
+			// fall-through
 		case 2:
 			glEnable(GL_LIGHT2);
+			// fall-through
 		case 1:
 			glEnable(GL_LIGHT1);
+			// fall-through
 		default:
 			glEnable(GL_LIGHT0);
 			break;
