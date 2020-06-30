@@ -1463,13 +1463,6 @@ int text_field_set_text_color (int window_id, Uint32 widget_id, float r, float g
 int text_field_keypress (widget_list *w, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
 
 /*!
- * \brief set cursor_line according to cursor position in current message.
- *
- * \param[in] tf text_field where we set cursor_line.
- */
-void text_field_find_cursor_line(text_field* tf);
-
-/*!
  * \ingroup widgets
  *
  * Force a text field to rewrap the lines.

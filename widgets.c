@@ -2007,7 +2007,7 @@ static void _text_field_set_nr_lines (widget_list *w, int nr_lines)
 	}
 }
 
-void text_field_find_cursor_line(text_field* tf)
+static void _text_field_find_cursor_line(text_field* tf)
 {
 	int i, line = 0;
 	const text_message* msg = &tf->buffer[tf->msg];
@@ -2019,6 +2019,18 @@ void text_field_find_cursor_line(text_field* tf)
 	tf->nr_lines = line + 1; // we'll call _text_field_set_nr_lines later;
 	if (tf->cursor >= msg->len) tf->cursor_line = line;
 	tf->update_bar = 1;
+}
+
+static void _text_field_set_cursor_line_only(text_field* tf)
+{
+	int i;
+	const text_message* msg = &tf->buffer[tf->msg];
+	tf->cursor_line = 0;
+	for (i = 0; i < tf->cursor; ++i)
+	{
+		if (msg->data[i] == '\n' || msg->data[i] == '\r')
+			++tf->cursor_line;
+	}
 }
 
 char* text_field_get_selected_text (const text_field* tf)
@@ -2131,7 +2143,7 @@ void text_field_remove_selection(text_field* tf)
 		}
 		sc = 0;
 	}
-	text_field_find_cursor_line(tf);
+	_text_field_find_cursor_line(tf);
 }
 
 void _text_field_scroll_to_cursor (widget_list *w)
@@ -2148,37 +2160,38 @@ void _text_field_scroll_to_cursor (widget_list *w)
 		vscrollbar_set_pos (w->window_id, tf->scroll_id, tf->cursor_line - tf->nr_visible_lines + 1);
 }
 
-void _text_field_cursor_left (widget_list *w, int skipword)
+void _text_field_cursor_left(widget_list *w, int skipword)
 {
 	text_field *tf = w->widget_info;
 	text_message* msg;
 	int i;
-	char c;
 
 	if (tf == NULL || tf->cursor <= 0)
 		return;
 
 	msg = &(tf->buffer[tf->msg]);
-	i = tf->cursor;
-	do
+	i = tf->cursor - 1;
+	if (i > 0 && msg->data[i] == '\r')
+		--i;
+	if (skipword)
 	{
-		c = msg->data[--i];
-		if (c == '\r' || c == '\n')
-			tf->cursor_line--;
+		while (i > 0 && isspace(msg->data[i]))
+			--i;
+		while (i > 0 && !isspace(msg->data[i-1]))
+			--i;
 	}
-	while (i > 0 && (c == '\r' || (skipword && !isspace (c))));
 	tf->cursor = i;
+	_text_field_set_cursor_line_only(tf);
 
 	if (tf->scroll_id != -1)
 		_text_field_scroll_to_cursor (w);
 }
 
-void _text_field_cursor_right (widget_list *w, int skipword)
+void _text_field_cursor_right(widget_list *w, int skipword)
 {
 	text_field *tf = w->widget_info;
 	text_message* msg;
 	int i;
-	char c;
 
 	if (tf == NULL)
 		return;
@@ -2187,15 +2200,18 @@ void _text_field_cursor_right (widget_list *w, int skipword)
 	if (tf->cursor >= msg->len)
 		return;
 
-	i = tf->cursor;
-	do
+	i = tf->cursor + 1;
+	if (i < msg->len && msg->data[i] == '\r')
+		++i;
+	if (skipword)
 	{
-		c = msg->data[i++];
-		if (c == '\r' || c == '\n')
-			tf->cursor_line++;
+		while (i < msg->len && !isspace(msg->data[i]))
+			++i;
+		while (i < msg->len && isspace(msg->data[i]))
+			++i;
 	}
-	while (i < msg->len && (c == '\r' || (skipword && !isspace (c))));
 	tf->cursor = i;
+	_text_field_set_cursor_line_only(tf);
 
 	if (tf->scroll_id != -1)
 		_text_field_scroll_to_cursor (w);
@@ -2208,7 +2224,7 @@ void _text_field_cursor_up (widget_list *w)
 	int line_start;      // The beginning of the line we're processing
 	int prev_line_start; // Beginning of the line before the line with the cursor
 	int cursor_offset;   // Position of the cursor on this line
-	int prev_line_length;// Length of the previous line
+	int prev_line_end;   // 1 past last character of previous line
 
 	if (tf == NULL || tf->cursor_line <= 0)
 		return;
@@ -2221,15 +2237,16 @@ void _text_field_cursor_up (widget_list *w)
 	if (line_start == 0)
 		// shouldn't happen
 		return;
+
 	cursor_offset = tf->cursor - line_start;
+	prev_line_end = msg->data[line_start-1] == '\r' ? line_start - 1 : line_start;
 
 	// Now find where the previous line starts
 	for (prev_line_start = line_start-1; prev_line_start > 0; prev_line_start--)
 		if (msg->data[prev_line_start-1] == '\r' || msg->data[prev_line_start-1] == '\n')
 			break;
 
-	prev_line_length = line_start - prev_line_start;
-	tf->cursor = cursor_offset >= prev_line_length ? line_start - 1 : prev_line_start + cursor_offset;
+	tf->cursor = min2i(prev_line_start + cursor_offset, prev_line_end - 1);
 	tf->cursor_line--;
 	if (tf->scroll_id != -1)
 		_text_field_scroll_to_cursor (w);
@@ -2241,9 +2258,8 @@ void _text_field_cursor_down (widget_list *w)
 	text_message *msg;
 	int line_start;      // The beginning of the line we're processing
 	int next_line_start; // Beginning of the line after the line with the cursor
-	int next_line_end;   // End of the line after the line with the cursor
+	int next_line_end;   // Index of last character on line after the line with the cursor
 	int cursor_offset;   // Position of the cursor on this line
-	int next_line_length;// Length of the next line
 
 	if (tf == NULL || tf->cursor_line >= tf->nr_lines-1)
 		return;
@@ -2262,16 +2278,22 @@ void _text_field_cursor_down (widget_list *w)
 	if (next_line_start >= msg->len)
 		// shouldn't happen
 		return;
-	// skip newline
-	next_line_start++;
 
+	// skip newline
+	++next_line_start;
 	// Find where the next line ends
 	for (next_line_end = next_line_start; next_line_end < msg->len; next_line_end++)
-		if (msg->data[next_line_end] == '\r' || msg->data[next_line_end] == '\n')
+	{
+		if (msg->data[next_line_end] == '\r')
+		{
+			--next_line_end;
 			break;
+		}
+		if (msg->data[next_line_end] == '\n')
+			break;
+	}
 
-	next_line_length = next_line_end - next_line_start;
-	tf->cursor = cursor_offset >= next_line_length ? next_line_end : next_line_start + cursor_offset;
+	tf->cursor = min2i(next_line_start + cursor_offset, next_line_end);
 	tf->cursor_line++;
 	if (tf->scroll_id != -1)
 		_text_field_scroll_to_cursor (w);
@@ -2305,9 +2327,11 @@ void _text_field_cursor_end (widget_list *w)
 		return;
 
 	msg = &(tf->buffer[tf->msg]);
-	for (i = tf->cursor; i <= msg->len; i++)
-		if (msg->data[i] == '\r' || msg->data[i] == '\n' || msg->data[i] == '\0')
+	for (i = tf->cursor; i < msg->len; ++i)
+	{
+		if (msg->data[i] == '\n' || (i+1 < msg->len && msg->data[i+1] == '\r'))
 			break;
+	}
 
 	tf->cursor = i;
 	// tf->cursor_line doesn't change
@@ -2378,65 +2402,59 @@ void _text_field_cursor_page_down (widget_list *w)
 		_text_field_scroll_to_cursor (w);
 }
 
-void _text_field_delete_backward (widget_list * w)
+void _text_field_delete_backward(widget_list * w)
 {
 	text_field *tf = w->widget_info;
 	text_message *msg;
-	int i, n = 1, nr_lines, nr_del_lines;
+	int ni, nr_lines;
 
 	if (tf == NULL)
 		return;
 
 	msg = &(tf->buffer[tf->msg]);
-	i = tf->cursor;
-	while (n < i && msg->data[i-n] == '\r')
-		n++;
-	nr_del_lines = n-1;
-	if (msg->data[i-1] == '\n')
-		nr_del_lines++;
+	ni = tf->cursor - 1;
+	while (ni > 0 && msg->data[ni] == '\r')
+		--ni;
 
-	for ( ; i <= msg->len; i++)
-		msg->data[i-n] = msg->data[i];
-	msg->len -= n;
+	memmove(msg->data + ni, msg->data + tf->cursor, msg->len - tf->cursor + 1);
+	msg->len -= tf->cursor - ni;
+	tf->cursor = ni;
 
 	// set invalid width to force rewrap
 	msg->wrap_width = 0;
-	nr_lines = rewrap_message(msg, w->fcat, w->size,
-		w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
-	_text_field_set_nr_lines (w, nr_lines);
+	nr_lines = rewrap_message(msg, w->fcat, w->size, w->len_x - 2*tf->x_space - tf->scrollbar_width,
+		&tf->cursor);
+	_text_field_set_cursor_line_only(tf);
+	_text_field_set_nr_lines(w, nr_lines);
 
-	tf->cursor -= n;
-	tf->cursor_line -= nr_del_lines;
 	if (tf->scroll_id != -1)
 		_text_field_scroll_to_cursor (w);
 
 }
 
-void _text_field_delete_forward (widget_list *w)
+void _text_field_delete_forward(widget_list *w)
 {
 	text_field *tf = w->widget_info;
 	text_message *msg;
-	int i, n = 1, nr_lines;
+	int ni, nr_lines;
 
 	if (tf == NULL)
 		return;
 
 	msg = &(tf->buffer[tf->msg]);
-	i = tf->cursor;
-	while (i+n <= msg->len && msg->data[i+n] == '\r')
-		n++;
+	ni = tf->cursor + 1;
+	while (ni < msg->len && msg->data[ni] == '\r')
+		++ni;
 
-	for (i += n; i <= msg->len; i++)
-		msg->data[i-n] = msg->data[i];
+	memmove(msg->data + tf->cursor, msg->data + ni, msg->len - ni + 1);
+	msg->len -= ni - tf->cursor;
 
-	msg->len -= n;
 	// set invalid width to force rewrap
 	msg->wrap_width = 0;
-	nr_lines = rewrap_message(msg, w->fcat, w->size,
-		w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
+	nr_lines = rewrap_message(msg, w->fcat, w->size, w->len_x - 2*tf->x_space - tf->scrollbar_width,
+		&tf->cursor);
+	_text_field_set_cursor_line_only(tf);
 	_text_field_set_nr_lines (w, nr_lines);
-
-	// cursor position doesn't change, so no need to update it here
 }
 
 void _text_field_insert_char (widget_list *w, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
@@ -2444,7 +2462,7 @@ void _text_field_insert_char (widget_list *w, SDL_Keycode key_code, Uint32 key_u
 	Uint8 ch = key_to_char (key_unicode);
 	text_field *tf = w->widget_info;
 	text_message *msg;
-	int nr_lines, old_cursor;
+	int nr_lines;
 
 	if (tf == NULL)
 		return;
@@ -2465,19 +2483,12 @@ void _text_field_insert_char (widget_list *w, SDL_Keycode key_code, Uint32 key_u
 		}
 	}
 	tf->cursor += put_char_in_buffer (msg, ch, tf->cursor);
-	if (ch == '\n')
-		tf->cursor_line++;
 
 	// set invalid width to force rewrap
 	msg->wrap_width = 0;
-	// Save the current character position, and rewrap the message.
-	// The difference between the old and the new position should
-	// be the number of extra line breaks introduced before the
-	// cursor position
-	old_cursor = tf->cursor;
-	nr_lines = rewrap_message(msg, w->fcat, w->size,
-		w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
-	tf->cursor_line += tf->cursor - old_cursor;
+	nr_lines = rewrap_message(msg, w->fcat, w->size, w->len_x - 2*tf->x_space - tf->scrollbar_width,
+		&tf->cursor);
+	_text_field_set_cursor_line_only(tf);
 	_text_field_set_nr_lines (w, nr_lines);
 
 	// XXX FIXME: Grum: is the following even possible?
@@ -2545,7 +2556,7 @@ static int text_field_resize (widget_list *w, int width, int height)
 			}
 			_text_field_set_nr_lines (w, nr_lines);
 
-			text_field_find_cursor_line (tf);
+			_text_field_find_cursor_line (tf);
 		}
 	}
 
@@ -2867,6 +2878,8 @@ void _set_edit_pos (text_field* tf, int x, int y, font_cat fcat)
 	for (; i < msg->len; i++) {
 		switch (msg->data[i]) {
 			case '\r':
+				tf->cursor = i-1;
+				return;
 			case '\n':
 			case '\0':
 				tf->cursor = i;
@@ -3346,7 +3359,7 @@ static int text_field_paste(widget_list *w, const char* text)
 	memcpy (&msg->data[p], text, bytes);
 	msg->len += bytes;
 	tf->cursor += bytes;
-	text_field_find_cursor_line (tf);
+	_text_field_find_cursor_line (tf);
 
 	return 1;
 }

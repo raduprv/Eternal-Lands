@@ -474,16 +474,27 @@ int Font::center_offset(const unsigned char* text, size_t len, float zoom)
 	return std::round(_scale * zoom * 0.5 * (bottom + top - _line_height));
 }
 
-std::pair<ustring, int> Font::reset_soft_breaks(const unsigned char *text,
-	size_t text_len, const TextDrawOptions& options, int *cursor, float *max_line_width)
+// Rules for wrapping text:
+// 1) Soft line breaks take up no space, the cursor should never be on a soft line break.
+// 2) The cursor can be on a hard line break character, though. Inserting at that position will
+//    insert a new character at that position. So a hard break takes up the width of a cursor,
+//    even though it is invisible.
+// 3) When possible, lines are broken after the last space. If no space is found on the current
+//    line, the word is broken after the last character that fits on the line. Since the cursor
+//    should never be on a soft break, we can fill the entire line.
+// 4) We must be able to place the cursor at the end of the text. Therefore, if the last line cannot
+//    fit the cursor, an extra soft break is inserted.
+std::tuple<ustring, int, int> Font::reset_soft_breaks(const unsigned char *text,
+	size_t text_len, const TextDrawOptions& options, ssize_t cursor, float *max_line_width)
 {
 	int block_width = std::ceil(_block_width * _scale * options.zoom());
 	int cursor_width = width_spacing('_', options.zoom());
+
 	if (!text || options.max_width() < block_width)
-		return std::make_pair(ustring(), 0);
+		return std::make_tuple(ustring(), 0, 0);
 
 	std::basic_string<unsigned char> wrapped_text;
-	size_t start = 0, end, last_space = 0;
+	size_t start = 0, end, end_last_space = 0, last_start = 0;
 	int nr_lines = 0;
 	int diff_cursor = 0;
 	while (start < text_len)
@@ -496,27 +507,30 @@ std::pair<ustring, int> Font::reset_soft_breaks(const unsigned char *text,
 			{
 				continue;
 			}
-			if (c == '\n')
-			{
-				++end;
-				break;
-			}
 
-			if (c == ' ')
-				last_space = end;
-
+			// We need to be able to place a cursor at this position, so use the maximum of the
+			// cursor width and character width to determine if the character fits.
 			int chr_width = width_spacing(c, options.zoom());
 			if (cur_width + block_width <= options.max_width()
 				|| cur_width + std::max(chr_width, cursor_width) <= options.max_width())
 			{
 				cur_width += chr_width;
+				if (c == ' ')
+				{
+					end_last_space = end + 1;
+				}
+				else if (c == '\n')
+				{
+					++end;
+					break;
+				}
 			}
 			else
 			{
 				// Character won't fit. Split line after the last space.
 				// If not found, break in the middle of the word.
-				if (last_space > start)
-					end = last_space + 1;
+				if (end_last_space > start)
+					end = end_last_space;
 				break;
 			}
 		}
@@ -525,8 +539,8 @@ std::pair<ustring, int> Font::reset_soft_breaks(const unsigned char *text,
 		{
 			if (text[i] == '\r')
 			{
-				if (cursor && int(i) < *cursor)
-					--*cursor;
+				if (ssize_t(i) < cursor)
+					--diff_cursor;
 			}
 			else
 			{
@@ -538,7 +552,7 @@ std::pair<ustring, int> Font::reset_soft_breaks(const unsigned char *text,
 		if (end < text_len && (wrapped_text.empty() || wrapped_text.back() != '\n'))
 		{
 			wrapped_text.push_back('\r');
-			if (cursor && int(end) <= *cursor)
+			if (ssize_t(end) <= cursor)
 				++diff_cursor;
 		}
 
@@ -548,6 +562,7 @@ std::pair<ustring, int> Font::reset_soft_breaks(const unsigned char *text,
 			*max_line_width = std::max(*max_line_width, float(cur_width));
 		}
 
+		last_start = start;
 		start = end;
 	}
 
@@ -555,10 +570,15 @@ std::pair<ustring, int> Font::reset_soft_breaks(const unsigned char *text,
 	if (!wrapped_text.empty() && wrapped_text.back() == '\n')
 		++nr_lines;
 
-	if (cursor)
-		*cursor += diff_cursor;
+	// If a cursor will not fit behind the last line, add an extra line break.
+	int last_line_width = line_width(text + last_start, text_len - last_start, options.zoom());
+	if (last_line_width + cursor_width > options.max_width())
+	{
+		wrapped_text.push_back('\r');
+		++nr_lines;
+	}
 
-	return std::make_pair(wrapped_text, nr_lines);
+	return std::make_tuple(wrapped_text, nr_lines, diff_cursor);
 }
 
 bool Font::load_texture()
@@ -956,11 +976,12 @@ CHECK_GL_ERRORS();
 
 void Font::draw_messages(const text_message *msgs, size_t msgs_size, int x, int y,
 	Uint8 filter, size_t msg_start, size_t offset_start,
-	const TextDrawOptions &options, size_t cursor, select_info* select) const
+	const TextDrawOptions &options, ssize_t cursor, select_info* select) const
 {
 	int block_width = std::ceil(_block_width * _scale * options.zoom());
-	int cursor_width = width_spacing('_', options.zoom());
 	int block_height = height(options.zoom() * options.line_spacing());
+	int cursor_width = width_spacing('_', options.zoom());
+
 	if (options.max_width() < block_width || options.max_lines() < 1)
 		// no point in trying
 		return;
@@ -1027,6 +1048,13 @@ void Font::draw_messages(const text_message *msgs, size_t msgs_size, int x, int 
 
 		if (ch == '\n' || ch == '\r' || ch == '\0')
 		{
+			if (i_total == cursor)
+			{
+				// Cursor is on the newline character
+				cursor_x = cur_x;
+				cursor_y = cur_y;
+			}
+
 			// newline
 			if (++cur_line >= options.max_lines())
 				break;
@@ -1034,11 +1062,7 @@ void Font::draw_messages(const text_message *msgs, size_t msgs_size, int x, int 
 			cur_x = x;
 			if (ch != '\0')
 				++ichar;
-			if (++i_total == cursor)
-			{
-				cursor_x = cur_x;
-				cursor_y = cur_y;
-			}
+			++i_total;
 			continue;
 		}
 
@@ -1066,8 +1090,7 @@ void Font::draw_messages(const text_message *msgs, size_t msgs_size, int x, int 
 			last_color_char = ch;
 
 		int chr_width = width_spacing(ch, options.zoom());
-		if (cur_x - x + block_width <= options.max_width()
-			|| cur_x - x + std::max(chr_width, cursor_width) <= options.max_width())
+		if (cur_x - x + chr_width <= options.max_width())
 		{
 			if (i_total == cursor)
 			{
@@ -1099,7 +1122,7 @@ void Font::draw_messages(const text_message *msgs, size_t msgs_size, int x, int 
 
 	if (i_total == cursor)
 	{
-		if (cur_x + cursor_width <= options.max_width())
+		if (cur_x - x + cursor_width <= options.max_width())
 		{
 			cursor_x = cur_x;
 			cursor_y = cur_y;
@@ -1760,18 +1783,21 @@ void get_top_bottom(const unsigned char* text, size_t len, font_cat cat, float z
 }
 
 int reset_soft_breaks(unsigned char *text, int len, int size, font_cat cat,
-	float text_zoom, int width, int *cursor, float *max_line_width)
+	float text_zoom, int width, int *cursor_ptr, float *max_line_width)
 {
+	int cursor = cursor_ptr ? *cursor_ptr : -1;
 	TextDrawOptions options = TextDrawOptions().set_max_width(width).set_zoom(text_zoom);
-	auto res = FontManager::get_instance().reset_soft_breaks(
-		static_cast<FontManager::Category>(cat), text, len, options, cursor, max_line_width);
+	ustring wrapped_text;
+	int nr_lines, cursor_diff;
+	std::tie(wrapped_text, nr_lines, cursor_diff) = FontManager::get_instance()
+		.reset_soft_breaks(cat, text, len, options, cursor, max_line_width);
 
-	size_t new_len = res.first.copy(text, size_t(size)-1);
+	size_t new_len = wrapped_text.copy(text, size_t(size)-1);
 	text[new_len] = '\0';
-	if (cursor && *cursor >= size)
-		*cursor = size - 1;
+	if (cursor_ptr)
+		*cursor_ptr = std::min(cursor + cursor_diff, size - 1);
 
-	return res.second;
+	return nr_lines;
 }
 void put_small_colored_text_in_box_zoomed(int color,
 	const unsigned char* text, int len, int width,
@@ -1779,19 +1805,21 @@ void put_small_colored_text_in_box_zoomed(int color,
 {
 	TextDrawOptions options = TextDrawOptions().set_max_width(width)
 		.set_zoom(text_zoom * DEFAULT_SMALL_RATIO);
-	auto res = FontManager::get_instance().reset_soft_breaks(FontManager::Category::UI_FONT,
-		text, len, options, nullptr, nullptr);
+	ustring wrapped_text;
+	int nr_lines, cursor_diff;
+	std::tie(wrapped_text, nr_lines, cursor_diff) = FontManager::get_instance()
+		.reset_soft_breaks(FontManager::Category::UI_FONT, text, len, options, -1, nullptr);
 	// If we don't end on a newline, add one.
 	// TODO: check if that's necessary.
-	if (res.first.back() != '\n')
-		res.first.push_back('\n');
+	if (wrapped_text.back() != '\n')
+		wrapped_text.push_back('\n');
 
 	size_t new_len = 0;
-	if (!is_color(res.first.front()))
+	if (!is_color(wrapped_text.front()))
 		buffer[new_len++] = to_color_char(color);
 	// FIXME: no size specified for either buffer. Pass unlimited size,
 	// and hope for the best...
-	new_len += res.first.copy(buffer + new_len, ustring::npos);
+	new_len += wrapped_text.copy(buffer + new_len, ustring::npos);
 	buffer[new_len] = '\0';
 }
 
