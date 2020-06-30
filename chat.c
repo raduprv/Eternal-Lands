@@ -2749,7 +2749,6 @@ void update_text_windows (text_message * pmsg)
 	if (console_root_win >= 0) update_console_win (pmsg);
 	switch (use_windowed_chat) {
 		case 0:
-			rewrap_message(pmsg, CHAT_FONT, 1.0, get_console_text_width(), NULL);
 			lines_to_show += pmsg->wrap_lines;
 			if (lines_to_show > 10) lines_to_show = 10;
 			break;
