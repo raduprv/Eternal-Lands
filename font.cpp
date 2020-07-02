@@ -651,7 +651,7 @@ int Font::draw_char(unsigned char c, int x, int y, float zoom, bool ignore_color
 		return 0;
 	}
 
-	// There are teo eidths here: char_width and advance. The first is the width
+	// There are two widths here: char_width and advance. The first is the width
 	// of the character as drawn on the screen, the second the number of pixels
 	// the pen should advance for drawing the next character. Interestingly,
 	// char_width can be larger than advance, epsecially for bold fonts. For
@@ -701,11 +701,13 @@ void Font::draw_line(const unsigned char* text, size_t len, int x, int y,
 {
 	if (options.shadow())
 	{
+		TextDrawOptions new_options = options;
+		new_options.set_shadow(false);
+
 		int delta = std::round(options.zoom());
 		if (delta > 0)
 		{
-			TextDrawOptions new_options = options;
-			new_options.set_shadow(false).set_ignore_color();
+			new_options.set_ignore_color();
 
 			new_options.use_background_color();
 			draw_line(text, len, x-delta, y-delta, new_options);
@@ -716,10 +718,10 @@ void Font::draw_line(const unsigned char* text, size_t len, int x, int y,
 			draw_line(text, len, x+delta, y,       new_options);
 			draw_line(text, len, x+delta, y-delta, new_options);
 			draw_line(text, len, x,       y-delta, new_options);
-
-			new_options.set_ignore_color(false);
-			draw_line(text, len, x,       y,       new_options);
 		}
+
+		new_options.set_ignore_color(false);
+		draw_line(text, len, x, y, new_options);
 	}
 	else if (sel_end <= sel_begin || sel_begin >= len || options.ignore_color())
 	{
