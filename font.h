@@ -1993,38 +1993,6 @@ static __inline__ void draw_string_shadowed_zoomed_centered(int x, int y, const 
  * \brief Draw a text string
  *
  * Draw the text in the nul-terminated buffer \a text, starting at position
- * \a x, \a y on the screen, using the font for the UI_FONT category. The string
- * is scaled such that it occupies the full width \a width. It is drawn in the
- * color (\a fr, \a fg, \a fb), with a background shadow in the color
- * (\a br, \a bg, \a bb). The option \a max_lines specifies the maximum
- * number of lines drawn, any text after this line will not be drawn.
- *
- *
- * \param x         The left coordinate of the drawn text
- * \param y         The top coordinate of the drawn text
- * \param text      The text to draw
- * \param width     The width of the text
- * \param max_lines The maximum number of lines to draw, or 0 for no limit
- * \param fr        Red component of the foreground color
- * \param fg        Green component of the foreground color
- * \param fb        Blue component of the foreground color
- * \param br        Red component of the background color
- * \param bg        Green component of the background color
- * \param bb        Blue component of the background color
- */
-static __inline__ void draw_string_shadowed_scaled_to_width(int x, int y, const unsigned char* text,
-	int width, int max_lines, float fr, float fg, float fb, float br, float bg, float bb)
-{
-	int text_width = get_string_width_zoom(text, UI_FONT, 1.0);
-	draw_text(x, y, text, strlen((const char*)text), UI_FONT, TDO_MAX_LINES, max_lines,
-		TDO_SHADOW, 1, TDO_FOREGROUND, fr, fg, fb, TDO_BACKGROUND, br, bg, bb, TDO_ZOOM,
-		(double)width / text_width, TDO_END);
-}
-/*!
- * \ingroup text_font
- * \brief Draw a text string
- *
- * Draw the text in the nul-terminated buffer \a text, starting at position
  * \a x, \a y on the screen, using the font for category \a cat. If a line
  * cannot fit within the maximum width \a max_width, it will be truncated and
  * an ellipsis is added. The option \a max_lines specifies the maximum

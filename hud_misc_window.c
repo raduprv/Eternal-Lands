@@ -59,6 +59,7 @@ static int side_stats_bar_text_height = 0;
 static int side_stats_bar_text_offset = 0;
 static int side_stats_bar_height = 0;
 static int quickbar_misc_sep = 5;
+static float digital_clock_zoom = 0.0f;
 static int digital_clock_height = 0;
 static int analog_clock_size = 0;
 static int compass_size = 0;
@@ -271,16 +272,33 @@ CHECK_GL_ERRORS();
 	//Digital Clock
 	if(view_digital_clock > 0)
 	{
-		const int scaled_6 = (int)(0.5 + win->current_scale * 6);
 		char str[10];
-		if (show_game_seconds)
-			safe_snprintf(str, sizeof(str), "%1d:%02d:%02d", real_game_minute/60, real_game_minute%60, real_game_second);
-		else
-			safe_snprintf(str, sizeof(str), " %1d:%02d ", real_game_minute/60, real_game_minute%60);
+
 		base_y_start -= digital_clock_height;
-		draw_string_shadowed_scaled_to_width(scaled_6/2, scaled_6/2 + base_y_start,
-			(const unsigned char*)str, win->len_x-scaled_6, 1, 0.77f, 0.57f, 0.39f,
-			0.0f, 0.0f, 0.0f);
+		// When seconds are shown, we keep the single minutes character fixed in the window,
+		// and draw the rest of the string around it. If we would simply center the whole time
+		// string, the entire string will move horizontally every second, which is visually
+		// distracting. Now the horizontal alignment only changes once per minute.
+		// If seconds are not drawn, we simply center the time.
+		if (show_game_seconds)
+		{
+			int x;
+			safe_snprintf(str, sizeof(str), "%1d:%02d:%02d", real_game_minute/60, real_game_minute%60, real_game_second);
+			x = win->len_x / 2
+				- get_buf_width_zoom((const unsigned char*)str, 4, win->font_category, digital_clock_zoom)
+				+ get_max_digit_width_zoom(win->font_category, digital_clock_zoom) / 2;
+			draw_text(x, base_y_start, (const unsigned char*)str, strlen(str),
+				win->font_category, TDO_SHADOW, 1, TDO_FOREGROUND, 0.77, 0.57, 0.39,
+				TDO_BACKGROUND, 0.0, 0.0, 0.0, TDO_ZOOM, digital_clock_zoom, TDO_END);
+		}
+		else
+		{
+			safe_snprintf(str, sizeof(str), "%1d:%02d", real_game_minute/60, real_game_minute%60);
+			draw_text(win->len_x/2, base_y_start, (const unsigned char*)str, strlen(str),
+				win->font_category, TDO_SHADOW, 1, TDO_FOREGROUND, 0.77, 0.57, 0.39,
+				TDO_BACKGROUND, 0.0, 0.0, 0.0, TDO_ALIGNMENT, CENTER, TDO_ZOOM, digital_clock_zoom,
+				TDO_END);
+		}
 	}
 
 	/* if mouse over the either of the clocks - display the time & date */
@@ -623,6 +641,7 @@ static int ui_scale_misc_handler(window_info *win)
 	int y_len = 0;
 	int thestat, max_width, width, text_width, text_top, text_bottom, top, bottom;
 	unsigned char str[5];
+	int digital_clock_width;
 
 	// Set width, so we can use it in e.g. timer ui_scale handler
 	resize_window(win->window_id, HUD_MARGIN_X, win->len_y);
@@ -674,7 +693,16 @@ static int ui_scale_misc_handler(window_info *win)
 		+ 2 // border around bar
 		+ (int)(win->current_scale * 2); // separation between bars
 
-	digital_clock_height = win->default_font_len_y;
+	if (show_game_seconds)
+		digital_clock_width = 5 * get_max_digit_width_zoom(win->font_category, 1.0)
+			+ 2 * get_char_width_zoom(':', win->font_category, 1.0);
+	else
+		digital_clock_width = 3 * get_max_digit_width_zoom(win->font_category, 1.0)
+			+ get_char_width_zoom(':', win->font_category, 1.0)
+			+ 2 * get_char_width_zoom(' ', win->font_category, 1.0);
+	digital_clock_zoom = (float)(win->len_x - (int)(0.5 + 6 * win->current_scale)) / digital_clock_width;
+	digital_clock_height = get_line_height(win->font_category, digital_clock_zoom);
+
 	ui_scale_timer(win);
 	y_len = compass_size;
 	if (view_hud_timer)
