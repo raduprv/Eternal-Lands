@@ -1540,6 +1540,12 @@ void FontManager::initialize_ttf()
 			if (!font.failed())
 				FontManager::get_instance()._fonts.push_back(std::move(font));
 		}, 1);
+	search_files_and_apply(ttf_directory, "*.otf",
+		[](const char *fname) {
+			Font font(fname);
+			if (!font.failed())
+				FontManager::get_instance()._fonts.push_back(std::move(font));
+		}, 1);
 
 	// Sort TTF fonts by font name, but keep them after EL bundled fonts
 	std::sort(_fonts.begin() + _nr_bundled_fonts, _fonts.end(),
