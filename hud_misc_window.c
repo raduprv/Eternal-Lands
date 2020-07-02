@@ -286,7 +286,7 @@ CHECK_GL_ERRORS();
 			safe_snprintf(str, sizeof(str), "%1d:%02d:%02d", real_game_minute/60, real_game_minute%60, real_game_second);
 			x = win->len_x / 2
 				- get_buf_width_zoom((const unsigned char*)str, 4, win->font_category, digital_clock_zoom)
-				+ get_max_digit_width_zoom(win->font_category, digital_clock_zoom) / 2;
+				+ get_char_width_zoom(str[3], win->font_category, digital_clock_zoom) / 2;
 			draw_text(x, base_y_start, (const unsigned char*)str, strlen(str),
 				win->font_category, TDO_SHADOW, 1, TDO_FOREGROUND, 0.77, 0.57, 0.39,
 				TDO_BACKGROUND, 0.0, 0.0, 0.0, TDO_ZOOM, digital_clock_zoom, TDO_END);
