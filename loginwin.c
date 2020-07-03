@@ -32,7 +32,9 @@ static int login_screen_menus;
 static char log_in_error_str[520] = {0};
 
 static int username_text_x;
+static int username_text_y;
 static int password_text_x;
+static int password_text_y;
 
 static int username_bar_x;
 static int username_bar_y;
@@ -146,7 +148,7 @@ static int resize_login_handler (window_info *win, Uint32 w, Uint32 h)
 	int max_login_str = max2i(username_str_len_x, password_str_len_x);
 	int height = 0, max_width = 0, login_sep_x = 0, button_sep_x = 0;
 
-	username_bar_x_len = password_bar_x_len = MAX_USERNAME_LENGTH * win->default_font_max_len_x;
+	username_bar_x_len = password_bar_x_len = 10 * (MAX_USERNAME_LENGTH-1) * win->default_font_max_len_x / 9;
 	username_bar_y_len = password_bar_y_len = 1.5 * win->default_font_len_y;
 	log_in_y_len = new_char_y_len = settings_y_len = button_y_len;
 	passmngr_button_size = (int)(0.5 + win->current_scale * 32);
@@ -172,7 +174,9 @@ static int resize_login_handler (window_info *win, Uint32 w, Uint32 h)
 
 	height = username_bar_y_len + password_bar_y_len + button_y_len + (3 + num_rules_lines) * win->default_font_len_y;
 	username_bar_y = passmngr_button_y = half_screen_y - height / 2;
+	username_text_y = username_bar_y + username_bar_y_len/4;
 	password_bar_y = username_bar_y + username_bar_y_len + win->default_font_len_y;
+	password_text_y = password_bar_y + password_bar_y_len/4;
 	log_in_y = settings_y = new_char_y = password_bar_y + username_bar_y_len + win->default_font_len_y;
 
 	passmngr_resize();
@@ -242,12 +246,10 @@ static int display_login_handler (window_info *win)
 	draw_console_pic(login_text);
 
 	// ok, start drawing the interface...
-	draw_text(username_text_x, username_bar_y + username_bar_y_len/2,
-		(const unsigned char*)login_username_str, strlen(login_username_str), win->font_category,
-		TDO_ZOOM, win->current_scale, TDO_VERTICAL_ALIGNMENT, CENTER_LINE, TDO_END);
-	draw_text(username_text_x, password_bar_y + password_bar_y_len/2,
-		(const unsigned char*)login_password_str, strlen(login_password_str), win->font_category,
-		TDO_ZOOM, win->current_scale, TDO_VERTICAL_ALIGNMENT, CENTER_LINE, TDO_END);
+	draw_text(username_text_x, username_text_y, (const unsigned char*)login_username_str,
+		strlen(login_username_str), win->font_category, TDO_ZOOM, win->current_scale, TDO_END);
+	draw_text(username_text_x, password_text_y, (const unsigned char*)login_password_str,
+		strlen(login_password_str), win->font_category, TDO_ZOOM, win->current_scale, TDO_END);
 
 	draw_string_zoomed(username_text_x, log_in_y + log_in_y_len + win->default_font_len_y, (unsigned char*)login_rules_str, num_rules_lines, win->current_scale);
 
@@ -302,11 +304,11 @@ static int display_login_handler (window_info *win)
 
 	glEnd();
 
-	draw_text(username_bar_x + win->default_font_max_len_x / 2, username_bar_y + username_bar_y_len/2,
+	draw_text(username_bar_x + username_bar_x_len/20, username_text_y,
 		(const unsigned char*)input_username_str, strlen(input_username_str), win->font_category,
 		TDO_SHADOW, 1, TDO_FOREGROUND, 0.0, 0.9, 1.0, TDO_BACKGROUND, 0.0, 0.5, 0.5,
-		TDO_ZOOM, win->current_scale, TDO_VERTICAL_ALIGNMENT, CENTER_LINE, TDO_END);
-	draw_text(password_bar_x + win->default_font_max_len_x / 2, password_bar_y + password_bar_y_len/2,
+		TDO_ZOOM, win->current_scale, TDO_END);
+	draw_text(password_bar_x + password_bar_x_len/20, password_text_y + win->default_font_len_y/2,
 		(const unsigned char*)display_password_str, strlen(display_password_str), win->font_category,
 		TDO_SHADOW, 1, TDO_FOREGROUND, 0.0, 0.9, 1.0, TDO_BACKGROUND, 0.0, 0.5, 0.5,
 		TDO_ZOOM, win->current_scale, TDO_VERTICAL_ALIGNMENT, CENTER_PASSWORD, TDO_END);
