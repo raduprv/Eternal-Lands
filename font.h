@@ -561,24 +561,40 @@ public:
 	/*!
 	 * \brief Get the height of a line.
 	 *
-	 * Get the height of a line when drawing text at zoom level \a zoom.
+	 * Get the height of a single line of text when drawing text at zoom level \a zoom.
+	 * \note It is not necessarily the case that two consecutive lines of text consume twice
+	 * the line height, the use of the bundled fonts (where the line height is greater than the
+	 * spacing) or a custom line spacing may prevent that. Use dimensions() or vertical_advance()
+	 * if you need to know the height of a text consiting of multiple lines.
 	 *
 	 * \param zoom The zoom factor for drawing the text
 	 */
 	int height(float zoom=1.0) const;
 	/*!
+	 * \brief Get the vertical advancement after a line.
+	 *
+	 * Get the number of pixels the pen is advanced in the vertical direction after drawing a
+	 * line of text at zoom level \a zoom, with line spacing scale factor \a line_spacing.
+	 *
+	 * \param zoom         The zoom factor for drawing the text
+	 * \param line_spacing The additional scale factor for the spacing between lines
+	 */
+	int vertical_advance(float zoom=1.0, float line_spacing=1.0) const;
+	/*!
 	 * \brief Calculate the dimensions of a block of text
 	 *
-	 * Calculate the width and height of string \a text of length \a len bytes
-	 * when drawn in this font with scale factor \a zoom. The string may contain
-	 * multiple lines, the width returned is then the width of the widest line.
+	 * Calculate the width and height of string \a text of length \a len bytes when drawn in this
+	 * font with scale factor \a zoom and with line spacing scale factor \a line_spacing. The
+	 * string may contain multiple lines, the width returned is then the width of the widest line.
 	 *
-	 * \param text The string for which to compute the dimensions
-	 * \param len  The number of bytes in \a text
-	 * \param zoom The scale factor for the text
+	 * \param text         The string for which to compute the dimensions
+	 * \param len          The number of bytes in \a text
+	 * \param zoom         The scale factor for the text
+	 * \param line_spacing The additional scale factor for the spacing between lines
 	 * \return The width and height of the text
 	 */
-	std::pair<int, int> dimensions(const unsigned char* text, size_t len, float zoom) const;
+	std::pair<int, int> dimensions(const unsigned char* text, size_t len, float zoom,
+		float line_spacing=1.0) const;
 
 	/*!
 	 * \brief Calculate vertical offset of center
@@ -748,7 +764,7 @@ private:
 	//! Vertical space in the texture for a single glyph in a bundled font
 	static const int font_block_height = 21;
 	//! Normal line height for unscaled text in a bundled font
-	static const int default_line_height = 18;
+	static const int default_vertical_advance = 18;
 #ifdef TTF
 	//! Point size with which TrueType fonts are opened
 	static const int ttf_point_size = 40;
@@ -791,6 +807,8 @@ private:
 	int _block_height;
 	//! Height of a single character in pixels
 	int _line_height;
+	//! How far to advance the pen vertically when moving to the next line
+	int _vertical_advance;
 	//! Distance from top of line to top of font
 	int _font_top_offset;
 	//! Distance from top of line to center of digits
@@ -805,8 +823,10 @@ private:
 	int _avg_advance;
 	//! Distance between characters when drawn (at default zoom level)
 	int _spacing;
-	//! Scale factor that scales texture to default height
-	float _scale;
+	//! Scale factor in the horizontal direction
+	float _scale_x;
+	//! Scale factor in the vertical direction
+	float _scale_y;
 #ifdef TTF
 	union
 	{
@@ -1182,21 +1202,22 @@ public:
 	/*!
 	 * \brief Calculate the dimensions of a block of text
 	 *
-	 * Calculate the width and height of string \a text of length \a len bytes
-	 * when drawn in the font for category \a cat, with scale factor \a zoom.
-	 * The string may contain multiple lines, the width returned is then the
+	 * Calculate the width and height of string \a text of length \a len bytes when drawn in the
+	 * font for category \a cat, with scale factor \a zoom and line spacing scale factor
+	 * \a line_spacing. The string may contain multiple lines, the width returned is then the
 	 * width of the widest line.
 	 *
-	 * \param cat       The font category for the font used
-	 * \param text      The string for which to compute the dimensions
-	 * \param len       The number of bytes in \a text
-	 * \param text_zoom The scale factor for the text
+	 * \param cat          The font category for the font used
+	 * \param text         The string for which to compute the dimensions
+	 * \param len          The number of bytes in \a text
+	 * \param text_zoom    The scale factor for the text
+	 * \param line_spacing The additional scale factor for the spacing between lines
 	 * \return The width and height of the text
 	 */
 	std::pair<int, int> dimensions(Category cat, const unsigned char* text, size_t len,
-		float text_zoom)
+		float text_zoom, float line_spacing=1.0)
 	{
-		return get(cat).dimensions(text, len, text_zoom * font_scales[cat]);
+		return get(cat).dimensions(text, len, text_zoom * font_scales[cat], line_spacing);
 	}
 
 	/*!

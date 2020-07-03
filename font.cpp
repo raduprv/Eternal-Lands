@@ -146,27 +146,24 @@ Font::Font(const Font& font): _font_name(font.font_name()), _file_name(font.file
 	_flags(font._flags & ~HAS_TEXTURE), _texture_width(font._texture_width),
 	_texture_height(font._texture_height), _metrics(font._metrics), _block_width(font._block_width),
 	_block_height(font._block_height), _line_height(font._line_height),
-	_font_top_offset(font._font_top_offset), _digit_center_offset(font._digit_center_offset),
-	_password_center_offset(font._password_center_offset), _max_advance(font._max_advance),
-	_max_digit_advance(font._max_digit_advance), _avg_advance(font._avg_advance),
-	_spacing(font._spacing), _scale(font._scale), _texture_id() {}
+	_vertical_advance(font._vertical_advance), _font_top_offset(font._font_top_offset),
+	_digit_center_offset(font._digit_center_offset), _password_center_offset(font._password_center_offset),
+	_max_advance(font._max_advance), _max_digit_advance(font._max_digit_advance),
+	_avg_advance(font._avg_advance), _spacing(font._spacing),
+	_scale_x(font._scale_x), _scale_y(font._scale_y), _texture_id() {}
 
 Font::Font(size_t font_nr): _font_name(), _file_name(), _flags(0),
 	_texture_width(256), _texture_height(256), _metrics(),
 	_block_width(font_block_width), _block_height(font_block_height),
-	_line_height(std::round(12.0 * default_line_height / 11)), _font_top_offset(0),
+	_line_height(default_vertical_advance + 1),
+	_vertical_advance(default_vertical_advance), _font_top_offset(0),
 	_digit_center_offset(font_nr == 2 ? 10 : 9), _password_center_offset(0), _max_advance(12),
-	_max_digit_advance(12), _avg_advance(12), _spacing(0), _scale(11.0 / 12)
+	_max_digit_advance(12), _avg_advance(12), _spacing(0), _scale_x(11.0 / 12), _scale_y(1.0),
+	_texture_id()
 {
-	// In case anyone is wondering where the magic numbers come from: the texture for these fonts
-	// is divided in rows of 21 pixels high. The numbers below should be the offset of the top and`
-	// bottom of the character with respect to the top of the row. However, we only use the top 19
-	// pixels to draw a character. But the actual line height before scaling, for compatibility with
-	// previous versions of the client, is 20 pixels. So the offsets are scaled by a factor 20/19.
-	// After rounding, this increases values of 10 and higher by 1.
 	static const std::array<int, nr_glyphs> top_1 = {
-		16,  2,  2,  2,  1,  2,  1,  2,  2,  2,  2,  6, 12,  8,
-		12,  0,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  6,  6,
+		15,  2,  2,  2,  1,  2,  3,  2,  2,  2,  2,  6, 11,  8,
+		11,  0,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  6,  6,
 		 6,  7,  6,  2,  3,  2,  2,  2,  2,  2,  2,  2,  2,  2,
 		 2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,
 		 2,  2,  2,  1,  0,  1, -1,  4,  1,  5,  2,  5,  2,  5,
@@ -177,16 +174,16 @@ Font::Font(size_t font_nr): _font_name(), _file_name(), _flags(0),
 		 1,  0,  1,  0,  1,  1
 	};
 	static const std::array<int, nr_glyphs> bottom_1 = {
-		16, 16,  9, 18, 19, 16, 16,  9, 18, 18, 13, 16, 19, 12,
-		16, 18, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 18,
-		16, 14, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
-		16, 16, 16, 16, 16, 16, 16, 19, 16, 16, 16, 16, 16, 16,
-		16, 16, 16, 18, 18, 18,  6, 18,  6, 16, 16, 16, 16, 16,
-		16, 19, 16, 16, 19, 16, 16, 16, 16, 16, 19, 19, 16, 16,
-		16, 16, 16, 16, 16, 19, 16, 20, 20, 20, 13, 16, 16, 16,
-		16, 20, 16, 16, 16, 16, 16, 16, 16, 16, 16, 17, 17, 17,
-		16, 16, 16, 16, 16, 16, 17, 16, 16, 16, 17, 17, 16, 17,
-		16, 17, 16, 17, 16, 16
+		15, 15,  9, 17, 18, 15, 15,  9, 17, 17, 12, 15, 18, 11,
+		15, 17, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 17,
+		15, 13, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+		15, 15, 15, 15, 15, 15, 15, 18, 15, 15, 15, 15, 15, 15,
+		15, 15, 15, 17, 17, 17,  6, 17,  6, 15, 15, 15, 15, 15,
+		15, 18, 15, 15, 18, 15, 15, 15, 15, 15, 18, 18, 15, 15,
+		15, 15, 15, 15, 15, 18, 15, 19, 19, 19, 12, 15, 15, 15,
+		15, 19, 15, 15, 15, 15, 15, 15, 15, 15, 15, 16, 16, 16,
+		15, 15, 15, 15, 15, 15, 16, 15, 15, 15, 16, 16, 15, 16,
+		15, 16, 15, 16, 15, 15
 	};
 	static const std::array<int, 7> asterisk_centers = { 7, 7, 7, 7, 6, 5, 6 };
 	static const std::array<const char*, 7> file_names = { {
@@ -294,8 +291,9 @@ Font::Font(size_t font_nr): _font_name(), _file_name(), _flags(0),
 #ifdef TTF
 Font::Font(const std::string& ttf_file_name): _font_name(), _file_name(), _flags(0),
 	_texture_width(0), _texture_height(0), _metrics(), _block_width(0), _block_height(0),
-	_line_height(0), _font_top_offset(0), _digit_center_offset(0), _password_center_offset(0),
-	_max_advance(0), _max_digit_advance(0), _avg_advance(0), _spacing(0), _scale(1.0)
+	_line_height(0), _vertical_advance(0), _font_top_offset(0), _digit_center_offset(0),
+	_password_center_offset(0), _max_advance(0), _max_digit_advance(0), _avg_advance(0),
+	_spacing(0), _scale_x(1.0), _scale_y(1.0)
 {
 	TTF_Font *font = TTF_OpenFont(ttf_file_name.c_str(), ttf_point_size);
 	if (!font)
@@ -364,7 +362,7 @@ int Font::width_pos(int pos, float zoom) const
 {
 	if (pos < 0)
 		return 0;
-	return std::round(_metrics[pos].advance * _scale * zoom);
+	return std::round(_metrics[pos].advance * _scale_x * zoom);
 }
 
 int Font::width_spacing_pos(int pos, float zoom) const
@@ -372,27 +370,22 @@ int Font::width_spacing_pos(int pos, float zoom) const
 	if (pos < 0)
 		return 0;
 	// return width of character + spacing between chars (supports variable width fonts)
-	return std::round((_metrics[pos].advance + _spacing) * _scale * zoom);
+	return std::round((_metrics[pos].advance + _spacing) * _scale_x * zoom);
 }
 
 int Font::max_width_spacing(float zoom) const
 {
-	return std::round((_max_advance + _spacing) * _scale * zoom);
+	return std::round((_max_advance + _spacing) * _scale_x * zoom);
 }
 
 int Font::average_width_spacing(float zoom) const
 {
-	return std::round((_avg_advance + _spacing) * _scale * zoom);
+	return std::round((_avg_advance + _spacing) * _scale_x * zoom);
 }
 
 int Font::max_digit_width_spacing(float zoom) const
 {
-	return std::round((_max_digit_advance + _spacing) * _scale * zoom);
-}
-
-int Font::height(float zoom) const
-{
-	return std::round(_line_height * _scale * zoom);
+	return std::round((_max_digit_advance + _spacing) * _scale_x * zoom);
 }
 
 int Font::line_width(const unsigned char* str, size_t len, float zoom) const
@@ -422,17 +415,33 @@ int Font::line_width_spacing(const unsigned char* str, size_t len, float zoom) c
 	return cur_width;
 }
 
-std::pair<int, int> Font::dimensions(const unsigned char* str, size_t len, float zoom) const
+int Font::height(float zoom) const
 {
-	int line_height = height(zoom);
-	int w = 0, h = 0;
-	size_t off = 0;
+	return std::round(_line_height * _scale_y * zoom);
+}
+
+int Font::vertical_advance(float zoom, float line_spacing) const
+{
+	return std::round(_vertical_advance * _scale_y * zoom * line_spacing);
+}
+
+std::pair<int, int> Font::dimensions(const unsigned char* str, size_t len, float zoom,
+	float line_spacing) const
+{
+	if (len == 0)
+		return std::make_pair(0, 0);
+
+	size_t end = memcspn(str, len, reinterpret_cast<const unsigned char*>("\r\n"), 2);
+	int w = line_width(str, end, zoom);
+	int h = height(zoom);
+	size_t off = end + 1;
+
+	int line_skip = vertical_advance(zoom, line_spacing);
 	while (off < len)
 	{
-		size_t end = memcspn(str + off, len - off,
-			reinterpret_cast<const unsigned char*>("\r\n"), 2);
+		end = memcspn(str + off, len - off, reinterpret_cast<const unsigned char*>("\r\n"), 2);
 		w = std::max(w, line_width(str + off, end, zoom));
-		h += line_height;
+		h += line_skip;
 		off += end + 1;
 	}
 	return std::make_pair(w, h);
@@ -458,8 +467,8 @@ std::pair<int, int> Font::top_bottom(const unsigned char* text, size_t len, floa
 {
 	int top, bottom;
 	std::tie(top, bottom) = top_bottom_unscaled(text, len);
-	top = std::round(_scale * zoom * top);
-	bottom = std::round(_scale * zoom * bottom);
+	top = std::round(_scale_y * zoom * top);
+	bottom = std::round(_scale_y * zoom * bottom);
 
 	return std::make_pair(top, bottom);
 }
@@ -471,7 +480,7 @@ int Font::center_offset(const unsigned char* text, size_t len, float zoom)
 	if (top >= bottom)
 		return 0;
 
-	return std::round(_scale * zoom * 0.5 * (bottom + top - _line_height));
+	return std::round(_scale_y * zoom * 0.5 * (bottom + top - _line_height));
 }
 
 // Rules for wrapping text:
@@ -487,7 +496,7 @@ int Font::center_offset(const unsigned char* text, size_t len, float zoom)
 std::tuple<ustring, int, int> Font::reset_soft_breaks(const unsigned char *text,
 	size_t text_len, const TextDrawOptions& options, ssize_t cursor, float *max_line_width)
 {
-	int block_width = std::ceil(_block_width * _scale * options.zoom());
+	int block_width = std::ceil(_block_width * _scale_x * options.zoom());
 	int cursor_width = width_spacing('_', options.zoom());
 
 	if (!text || options.max_width() < block_width)
@@ -656,7 +665,7 @@ int Font::draw_char(unsigned char c, int x, int y, float zoom, bool ignore_color
 	// the pen should advance for drawing the next character. Interestingly,
 	// char_width can be larger than advance, epsecially for bold fonts. For
 	// size calculations, the only relevant quantity is advance, though.
-	int char_width = std::round((_metrics[pos].width + _spacing) * _scale * zoom);
+	int char_width = std::round((_metrics[pos].width + _spacing) * _scale_x * zoom);
 	int advance = width_spacing_pos(pos, zoom);
 	int char_height = height(zoom);
 
@@ -674,10 +683,6 @@ int Font::draw_char(unsigned char c, int x, int y, float zoom, bool ignore_color
 
 void Font::draw_help_background(int x, int y, int width, int height) const
 {
-	// We're currently inside a GL_QUADS loop (for drawing characters). End that,
-	// draw the background, and start a new one
-	glEnd();
-
 	glDisable(GL_TEXTURE_2D);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
@@ -692,8 +697,6 @@ void Font::draw_help_background(int x, int y, int width, int height) const
 
 	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
-
-	glBegin(GL_QUADS);
 }
 
 void Font::draw_line(const unsigned char* text, size_t len, int x, int y,
@@ -872,44 +875,45 @@ void Font::draw(const unsigned char* text, size_t len, int x, int y,
 		}
 	}
 
-	size_t start = 0;
-	int line_width, line_height = height(options.zoom() * options.line_spacing());
-	int nr_lines = 0;
-	unsigned char before_color, after_color;
+	int tot_width, tot_height;
+	if (options.is_help()
+		|| options.vertical_alignment() == TextDrawOptions::VerticalAlignment::BOTTOM_LINE
+		|| options.vertical_alignment() == TextDrawOptions::VerticalAlignment::CENTER_LINE)
+	{
+		std::tie(tot_width, tot_height) = dimensions(text, len, options.zoom(), options.line_spacing());
+	}
 
 	switch (options.vertical_alignment())
 	{
 		case TextDrawOptions::VerticalAlignment::TOP_LINE:
 			break;
 		case TextDrawOptions::VerticalAlignment::TOP_FONT:
-			y -= std::round(options.zoom() * _scale * _font_top_offset);
+			y -= std::round(options.zoom() * _scale_y * _font_top_offset);
 			break;
 		case TextDrawOptions::VerticalAlignment::BOTTOM_LINE:
-		{
-			int nr_lines = 1 + std::count_if(text, text+len,
-				[](unsigned char c) { return c == '\r' || c == '\n'; });
-			if (options.max_lines() > 0)
-				nr_lines = std::min(nr_lines, options.max_lines());
-			int tot_height = height(options.zoom()) + (nr_lines-1) * line_height;
 			y -= tot_height;
 			break;
-		}
 		case TextDrawOptions::VerticalAlignment::CENTER_LINE:
-		{
-			int nr_lines = 1 + std::count_if(text, text+len,
-				[](unsigned char c) { return c == '\r' || c == '\n'; });
-			if (options.max_lines() > 0)
-				nr_lines = std::min(nr_lines, options.max_lines());
-			int tot_height = height(options.zoom()) + (nr_lines-1) * line_height;
 			y -= tot_height / 2;
 			break;
-		}
 		case CENTER_DIGITS:
-			y -= std::round(options.zoom() * _scale * _digit_center_offset);
+			y -= std::round(options.zoom() * _scale_y * _digit_center_offset);
 			break;
 		case CENTER_PASSWORD:
-			y -= std::round(options.zoom() * _scale * _password_center_offset);
+			y -= std::round(options.zoom() * _scale_y * _password_center_offset);
 			break;
+	}
+
+	if (options.is_help())
+	{
+		int x_left = 0;
+		switch (options.alignment())
+		{
+			case TextDrawOptions::Alignment::LEFT:   x_left = x; break;
+			case TextDrawOptions::Alignment::CENTER: x_left = x - tot_width / 2; break;
+			case TextDrawOptions::Alignment::RIGHT:  x_left = x - tot_width; break;
+		}
+		draw_help_background(x_left, y, tot_width, tot_height);
 	}
 
 #ifdef OPENGL_TRACE
@@ -919,11 +923,17 @@ CHECK_GL_ERRORS();
 	glAlphaFunc(GL_GREATER, 0.1f);
 	bind_texture();
 	glBegin(GL_QUADS);
+
+	int line_skip = vertical_advance(options.zoom(), options.line_spacing());
+	int nr_lines_drawn = 0;
+	size_t start = 0;
 	while (start < len)
 	{
 		size_t line_len = memcspn(text + start, len-start,
 			reinterpret_cast<const unsigned char*>("\r\n"), 2);
 		size_t clipped_off, clipped_line_len;
+		int line_width;
+		unsigned char before_color, after_color;
 		std::tie(clipped_off, clipped_line_len) = clip_line(text + start, line_len,
 			options, before_color, after_color, line_width);
 		bool draw_ellipsis = options.ellipsis() && clipped_line_len < line_len;
@@ -936,9 +946,6 @@ CHECK_GL_ERRORS();
 			case TextDrawOptions::Alignment::CENTER: x_left = x - line_width / 2; break;
 			case TextDrawOptions::Alignment::RIGHT:  x_left = x - line_width; break;
 		}
-
-		if (options.is_help())
-			draw_help_background(x_left, y, line_width, line_height);
 
 		if (before_color)
 			set_color(from_color_char(before_color));
@@ -961,11 +968,11 @@ CHECK_GL_ERRORS();
 		if (after_color)
 			set_color(from_color_char(after_color));
 
-		++nr_lines;
-		if (options.max_lines() > 0 && nr_lines >= options.max_lines())
+		++nr_lines_drawn;
+		if (options.max_lines() > 0 && nr_lines_drawn >= options.max_lines())
 			break;
 
-		y += line_height;
+		y += line_skip;
 		start += line_len + 1;
 	}
 
@@ -980,8 +987,8 @@ void Font::draw_messages(const text_message *msgs, size_t msgs_size, int x, int 
 	Uint8 filter, size_t msg_start, size_t offset_start,
 	const TextDrawOptions &options, ssize_t cursor, select_info* select) const
 {
-	int block_width = std::ceil(_block_width * _scale * options.zoom());
-	int block_height = height(options.zoom() * options.line_spacing());
+	int block_width = std::ceil(_block_width * _scale_x * options.zoom());
+	int line_skip = vertical_advance(options.zoom(), options.line_spacing());
 	int cursor_width = width_spacing('_', options.zoom());
 
 	if (options.max_width() < block_width || options.max_lines() < 1)
@@ -1060,7 +1067,7 @@ void Font::draw_messages(const text_message *msgs, size_t msgs_size, int x, int 
 			// newline
 			if (++cur_line >= options.max_lines())
 				break;
-			cur_y += block_height;
+			cur_y += line_skip;
 			cur_x = x;
 			if (ch != '\0')
 				++ichar;
@@ -1132,7 +1139,7 @@ void Font::draw_messages(const text_message *msgs, size_t msgs_size, int x, int 
 		else if (cur_line + 1 < options.max_lines())
 		{
 			cursor_x = x;
-			cursor_y = cur_y + block_height;
+			cursor_y = cur_y + line_skip;
 		}
 	}
 
@@ -1148,8 +1155,7 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-void Font::draw_console_separator(int x_space, int y,
-	const TextDrawOptions& options) const
+void Font::draw_console_separator(int x_space, int y, const TextDrawOptions& options) const
 {
 	int pos = get_position('^');
 	int char_width = width_pos(pos, options.zoom());
@@ -1196,7 +1202,8 @@ CHECK_GL_ERRORS();
 void Font::draw_ortho_ingame_string(const unsigned char* text, size_t len,
 	float x, float y, float z, int max_lines, float zoom_x, float zoom_y) const
 {
-	float dy = height(zoom_y);
+	int char_height = height(zoom_y);
+	int line_skip = vertical_advance(zoom_y);
 	float cur_x = x;
 	float cur_y = y;
 	int cur_line = 0;
@@ -1211,7 +1218,7 @@ void Font::draw_ortho_ingame_string(const unsigned char* text, size_t len,
 		unsigned char ch = text[i];
 		if (ch == '\n')
 		{
-			cur_y += ch;
+			cur_y += line_skip;
 			cur_x = x;
 			if (++cur_line >= max_lines)
 				break;
@@ -1227,14 +1234,14 @@ void Font::draw_ortho_ingame_string(const unsigned char* text, size_t len,
 			int pos = get_position(ch);
 			if (pos >= 0)
 			{
-				float dx = width_pos(pos, zoom_x);
+				int char_width = width_pos(pos, zoom_x);
 				float u_start, u_end, v_start, v_end;
 				get_texture_coordinates(pos, u_start, u_end, v_start, v_end);
 
-				glTexCoord2f(u_start, v_start); glVertex3f(cur_x,    cur_y+dy, z);
-				glTexCoord2f(u_start, v_end);   glVertex3f(cur_x,    cur_y,    z);
-				glTexCoord2f(u_end,   v_end);   glVertex3f(cur_x+dx, cur_y,    z);
-				glTexCoord2f(u_end,   v_start); glVertex3f(cur_x+dx, cur_y+dy, z);
+				glTexCoord2f(u_start, v_start); glVertex3f(cur_x,            cur_y+char_height, z);
+				glTexCoord2f(u_start, v_end);   glVertex3f(cur_x,            cur_y,             z);
+				glTexCoord2f(u_end,   v_end);   glVertex3f(cur_x+char_width, cur_y,             z);
+				glTexCoord2f(u_end,   v_start); glVertex3f(cur_x+char_width, cur_y+char_height, z);
 
 				cur_x += width_spacing_pos(pos, zoom_x);
 			}
@@ -1444,8 +1451,8 @@ bool Font::build_texture_atlas()
 	GLuint texture_id;
 	glGenTextures(1, &texture_id);
 	::bind_texture_id(texture_id);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
 		image->pixels);
 
@@ -1455,7 +1462,7 @@ bool Font::build_texture_atlas()
 	_texture_height = height;
 	_block_width = size;
 	_block_height = size;
-	_line_height = _block_height;
+	_line_height = _vertical_advance = _block_height;
 	_font_top_offset = y_delta;
 	int digit_top = std::min_element(_metrics.begin() + 16, _metrics.begin() + 26,
 		[](const Metrics& m0, const Metrics& m1) { return m0.top < m1.top; })->top;
@@ -1469,7 +1476,7 @@ bool Font::build_texture_atlas()
 	_max_digit_advance = std::max_element(_metrics.begin() + 16, _metrics.begin() + 26,
 		[](const Metrics& m0, const Metrics& m1) { return m0.advance < m1.advance; })->advance;
 	_avg_advance = calc_average_advance();
-	_scale = float(font_block_height) / size;
+	_scale_x = _scale_y = float(font_block_height) / size;
 	_flags |= Flags::HAS_TEXTURE;
 
 	TTF_CloseFont(font);
