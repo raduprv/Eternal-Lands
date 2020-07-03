@@ -362,7 +362,7 @@ static void flowing_text_perform_flow( flowing_text_t *text, int max_length )
 									 &text_width);
 
 	text->width = (int)text_width;
-    text->height = text->lines * get_line_height(UI_FONT, popup_font_zoom);
+    text->height = get_text_height(text->lines, UI_FONT, popup_font_zoom);
 }
 
 /*!

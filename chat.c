@@ -106,7 +106,7 @@ void input_widget_move_to_win(int window_id)
 		resize_chat_handler(win, win->len_x, win->len_y);
 	} else {
 		text_field *tf = input_widget->widget_info;
-		int line_height = get_line_height(CHAT_FONT, input_widget->size);
+		int text_height = get_text_height(tf->nr_lines, CHAT_FONT, input_widget->size);
 		Uint32 flags;
 
 		input_widget->OnResize = input_field_resize;
@@ -121,7 +121,7 @@ void input_widget_move_to_win(int window_id)
 		}
 		widget_set_flags(input_widget->window_id, input_widget->id, flags);
 		widget_resize(input_widget->window_id, input_widget->id,
-			win->len_x - HUD_MARGIN_X, 2 * tf->y_space + line_height * tf->nr_lines);
+			win->len_x - HUD_MARGIN_X, 2 * tf->y_space + text_height);
 		widget_move(input_widget->window_id, input_widget->id, 0, win->len_y-input_widget->len_y-HUD_MARGIN_Y);
 	}
 }
@@ -781,27 +781,30 @@ static int resize_chat_handler(window_info *win, int width, int height)
 {
 	int itab;
 	int line_height = get_line_height(CHAT_FONT, 1.0);
+	int line_skip = get_line_skip(CHAT_FONT, 1.0);
 	int scroll_x = width - CHAT_WIN_SCROLL_WIDTH;
 	int scroll_height = height - 2*CLOSE_SIZE;
 	int inout_width = width - CHAT_WIN_SCROLL_WIDTH - 2 * CHAT_WIN_SPACE;
-	int input_height = 3 * line_height + 2 * CHAT_WIN_SPACE;
+	int input_height = line_height + 2 * line_skip + 2 * CHAT_WIN_SPACE;
 	int input_y = height - input_height - CHAT_WIN_SPACE;
 	int tabcol_height = input_y - 2 * CHAT_WIN_SPACE;
 	int output_height = tabcol_height - CHAT_WIN_TAG_HEIGHT;
 
-	if (output_height < 5*line_height + 2 * CHAT_WIN_SPACE && input_height > 3*line_height + 2 * CHAT_WIN_SPACE)
+	if (output_height < line_height + 4*line_skip + 2 * CHAT_WIN_SPACE
+		&& input_height > line_height + 2*line_skip + 2 * CHAT_WIN_SPACE)
 	{
-		input_height -= 2*line_height;
-		input_y += 2*line_height;
-		output_height += 2*line_height;
-		tabcol_height += 2*line_height;
+		input_height -= 2*line_skip;
+		input_y += 2*line_skip;
+		output_height += 2*line_skip;
+		tabcol_height += 2*line_skip;
 	}
-	else if (output_height < 8*line_height + 2 * CHAT_WIN_SPACE && input_height > 2*line_height + 2 * CHAT_WIN_SPACE)
+	else if (output_height < line_height + 7*line_skip + 2 * CHAT_WIN_SPACE
+		&& input_height > line_height + line_skip + 2 * CHAT_WIN_SPACE)
 	{
-		input_height -= line_height;
-		input_y += line_height;
-		output_height += line_height;
-		tabcol_height += line_height;
+		input_height -= line_skip;
+		input_y += line_skip;
+		output_height += line_skip;
+		tabcol_height += line_skip;
 	}
 
 	chat_win_text_width = inout_width - 2 * CHAT_WIN_SPACE;
@@ -827,7 +830,6 @@ static int resize_chat_handler(window_info *win, int width, int height)
 
 void update_chat_win_buffers(void)
 {
-	int line_height = get_line_height(CHAT_FONT, 1.0);
 	int itab, imsg;
 	// recompute line breaks
 	for (itab = 0; itab < MAX_CHAT_TABS; itab++)
@@ -844,7 +846,7 @@ void update_chat_win_buffers(void)
 	}
 
 	// adjust the text position and scroll bar
-	nr_displayed_lines = chat_out_text_height / line_height;
+	nr_displayed_lines = get_max_nr_lines(chat_out_text_height, CHAT_FONT, 1.0);
 	current_line = channels[active_tab].nr_lines - nr_displayed_lines;
 	if (current_line < 0)
 		current_line = 0;
@@ -905,7 +907,6 @@ void parse_input(char *data, int len)
 
 int root_key_to_input_field (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
-	int line_height;
 	Uint8 ch = key_to_char (key_unicode);
 	text_field *tf;
 	text_message *msg;
@@ -976,13 +977,12 @@ int root_key_to_input_field (SDL_Keycode key_code, Uint32 key_unicode, Uint16 ke
 	}
 
 	tf->next_blink = cur_time + TF_BLINK_DELAY;
-	line_height = get_line_height(CHAT_FONT, input_widget->size);
 	if (input_widget->window_id != chat_win
-		&& tf->nr_lines != (input_widget->len_y-2*tf->y_space) / line_height)
+		&& tf->nr_lines != get_max_nr_lines(input_widget->len_y-2*tf->y_space, CHAT_FONT, 1.0))
 	{
 		/* Resize the input widget if needed */
 		widget_resize(input_widget->window_id, input_widget->id,
-			input_widget->len_x, tf->y_space*2 + line_height * tf->nr_lines);
+			input_widget->len_x, tf->y_space*2 + get_text_height(tf->nr_lines, CHAT_FONT, 1.0));
 	}
 	while(tf->buffer->data[tf->cursor] == '\r' && tf->cursor < tf->buffer->len)
 	{
@@ -1013,9 +1013,8 @@ void paste_in_input_field (const Uint8 *text)
 		input_widget->len_x - 2 * tf->x_space, &tf->cursor);
 	if (use_windowed_chat != 2)
 	{
-		int line_height = get_line_height(CHAT_FONT, input_widget->size);
 		widget_resize(input_widget->window_id, input_widget->id,
-			input_widget->len_x, tf->y_space*2 + line_height * tf->nr_lines);
+			input_widget->len_x, tf->y_space*2 + get_text_height(tf->nr_lines, CHAT_FONT, 1.0));
 	}
 }
 
@@ -1032,9 +1031,8 @@ void put_string_in_input_field(const Uint8 *text)
 			input_widget->len_x - 2 * tf->x_space, &tf->cursor);
 		if (use_windowed_chat != 2)
 		{
-			int line_height = get_line_height(CHAT_FONT, input_widget->size);
 			widget_resize(input_widget->window_id, input_widget->id,
-				input_widget->len_x, tf->y_space*2 + line_height * tf->nr_lines);
+				input_widget->len_x, tf->y_space*2 + get_text_height(tf->nr_lines, CHAT_FONT, 1.0));
 		}
 		if(input_widget->window_id == game_root_win) {
 			widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_DISABLED);
@@ -1082,19 +1080,19 @@ static int change_chat_font_handler(window_info* win, font_cat cat)
 
 static void create_chat_window(void)
 {
-	int line_height = get_line_height(CHAT_FONT, 1.0);
 	int chat_win_width = CHAT_WIN_TEXT_WIDTH + 4 * CHAT_WIN_SPACE + CHAT_WIN_SCROLL_WIDTH;
-	int input_height = 3 * line_height + 2 * CHAT_WIN_SPACE;
-	int output_height = 8 * line_height + 2 * CHAT_WIN_SPACE;
+	int input_height = get_text_height(3, CHAT_FONT, 1.0) + 2 * CHAT_WIN_SPACE;
+	int output_height = get_text_height(8, CHAT_FONT, 1.0) + 2 * CHAT_WIN_SPACE;
 	int chat_win_height = output_height + input_height + 3 * CHAT_WIN_SPACE + CHAT_WIN_TAG_HEIGHT;
 	int inout_width = CHAT_WIN_TEXT_WIDTH + 2 * CHAT_WIN_SPACE;
 	int tabcol_height = output_height + CHAT_WIN_TAG_HEIGHT;
 	int input_y = tabcol_height + 2 * CHAT_WIN_SPACE;
 
 	int min_width = CHAT_WIN_SCROLL_WIDTH + 2 * CHAT_WIN_SPACE + (int)(CHAT_WIN_TEXT_WIDTH * font_scales[CHAT_FONT]);
-	int min_height = 7 * CHAT_WIN_SPACE + CHAT_WIN_TAG_HEIGHT + (2+5) * line_height;
+	int min_height = 7 * CHAT_WIN_SPACE + CHAT_WIN_TAG_HEIGHT + get_text_height(2, CHAT_FONT, 1.0)
+		+ get_text_height(5, CHAT_FONT, 1.0);
 
-	nr_displayed_lines = (output_height - 2*CHAT_WIN_SPACE) / line_height;
+	nr_displayed_lines = get_max_nr_lines(output_height - 2*CHAT_WIN_SPACE, CHAT_FONT, 1.0);
 	chat_out_text_height = output_height - 2 * CHAT_WIN_SPACE;
 
 	chat_win = create_window ("Chat", game_root_win, 0, 0, 0, chat_win_width, chat_win_height, ELW_USE_UISCALE|ELW_WIN_DEFAULT|ELW_RESIZEABLE|ELW_CLICK_TRANSPARENT);

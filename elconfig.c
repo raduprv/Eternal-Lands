@@ -1314,9 +1314,9 @@ static void change_chat_zoom(float *var, float *value)
 		text_field *tf= input_widget->widget_info;
 		if (use_windowed_chat != 2)
 		{
-			int line_height = get_line_height(CHAT_FONT, input_widget->size);
+			int text_height = get_text_height(tf->nr_lines, CHAT_FONT, input_widget->size);
 			widget_resize(input_widget->window_id, input_widget->id,
-				input_widget->len_x, tf->y_space*2 + line_height * tf->nr_lines);
+				input_widget->len_x, tf->y_space*2 + text_height);
 		}
 	}
 }

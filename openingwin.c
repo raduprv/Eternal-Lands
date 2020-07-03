@@ -102,7 +102,7 @@ static int change_opening_font_handler(window_info *win, font_cat cat)
 {
 	if (cat != CHAT_FONT)
 		return 0;
-	nr_opening_lines = opening_win_text_height / get_line_height(CHAT_FONT, 1.0);
+	nr_opening_lines = get_max_nr_lines(opening_win_text_height, CHAT_FONT, 1.0);
 	return 1;
 }
 
@@ -122,7 +122,7 @@ void create_opening_root_window (int width, int height)
 			NULL, 0, 0, width, height, 0, CHAT_FONT, 1.0, -1.0f, -1.0f, -1.0f,
 			display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, FILTER_ALL, 0, 0);
 
-		nr_opening_lines = height / get_line_height(CHAT_FONT, 1.0);
+		nr_opening_lines = get_max_nr_lines(height, CHAT_FONT, 1.0);
 		opening_win_text_width = width;
 		opening_win_text_height = height;
 	}

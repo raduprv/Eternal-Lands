@@ -1985,8 +1985,8 @@ static void _text_field_set_nr_visible_lines (widget_list *w)
 
 	if (tf != NULL/* && (w->Flags & TEXT_FIELD_EDITABLE)*/)
 	{
-		int line_height = get_line_height(w->fcat, tf->buffer[tf->msg].wrap_zoom);
-		tf->nr_visible_lines = (w->len_y - 2*tf->y_space) / line_height;
+		tf->nr_visible_lines = get_max_nr_lines(w->len_y - 2*tf->y_space, w->fcat,
+			tf->buffer[tf->msg].wrap_zoom);
 		if (tf->nr_visible_lines < 0)
 			tf->nr_visible_lines = 0;
 	}
@@ -2855,12 +2855,12 @@ void _set_edit_pos (text_field* tf, int x, int y, font_cat fcat)
 	unsigned int nrlines = 0, line = 0;
 	int px = 0;
 	text_message* msg = &(tf->buffer[tf->msg]);
-	int line_height = get_line_height(fcat, msg->wrap_zoom);
+	int line_skip = get_line_skip(fcat, msg->wrap_zoom);
 
 	if (msg->len == 0)
 		return;	// nothing to do, there is no string
 
-	nrlines = y / line_height;
+	nrlines = y / line_skip;
 	for (; line < nrlines && i < msg->len; i++) {
 		switch (msg->data[i]) {
 			case '\r':

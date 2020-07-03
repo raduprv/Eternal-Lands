@@ -160,10 +160,10 @@ static int close_handler(widget_list *widget, int mx, int my, Uint32 flags)
 }
 
 
-static int get_text_height(int num_lines)
+static int server_popup_get_text_height(int num_lines)
 {
 	if (num_lines > 0)
-		return 1 + 2 * sep + num_lines * get_line_height(CHAT_FONT, 1.0);
+		return 1 + 2 * sep + get_text_height(num_lines, CHAT_FONT, 1.0);
 	else
 		return 0;
 }
@@ -177,7 +177,7 @@ static int get_non_text_height(void)
 
 static int get_height(int num_lines)
 {
-	return get_text_height(num_lines) + get_non_text_height();
+	return server_popup_get_text_height(num_lines) + get_non_text_height();
 }
 
 
@@ -208,7 +208,7 @@ static int resize_handler(window_info *win, int width, int height)
 	actual_scroll_width = 0;
 
 	/* only add a scroll bar if needed, i.e. more lines than we can display */
-	if (text_widget_height < get_text_height(num_text_lines)){
+	if (text_widget_height < server_popup_get_text_height(num_text_lines)){
 		actual_scroll_width = win->box_size;
 	}
 
@@ -224,7 +224,7 @@ static int resize_handler(window_info *win, int width, int height)
 	}
 
 	/* if we (only now) need a scroll bar, adjust again */
-	if (!actual_scroll_width && (text_widget_height < get_text_height(num_text_lines)))
+	if (!actual_scroll_width && (text_widget_height < server_popup_get_text_height(num_text_lines)))
 	{
 		actual_scroll_width = win->box_size;
 		text_widget_width = width - (2*sep + actual_scroll_width);
@@ -241,7 +241,7 @@ static int resize_handler(window_info *win, int width, int height)
 	/* could be considered a bug in the scroll widget - try to avoid anyway */
 	if (actual_scroll_width)
 	{
-		int local_min = get_non_text_height() + ((get_text_height(1) > 3 * win->box_size) ? get_text_height(1) : 3 * win->box_size);
+		int local_min = get_non_text_height() + max2i(server_popup_get_text_height(1), 3 * win->box_size);
 		if (height < local_min)
 		{
 			resize_window(server_popup_win, width, local_min);
@@ -307,7 +307,7 @@ static void set_actual_window_size(window_info *win)
 	winHeight = get_non_text_height();
 	if (!text_message_is_empty(&widget_text))
 	{
-		text_widget_height = get_text_height(num_text_lines);
+		text_widget_height = server_popup_get_text_height(num_text_lines);
 		winHeight = text_widget_height + get_non_text_height();
 	}
 
@@ -318,7 +318,7 @@ static void set_actual_window_size(window_info *win)
 		text_widget_height = winHeight - get_non_text_height();
 
 		/* if we'll need a scroll bar allow for it in the width calulation */
-		if (!text_message_is_empty(&widget_text) && (text_widget_height < get_text_height(num_text_lines)))
+		if (!text_message_is_empty(&widget_text) && (text_widget_height < server_popup_get_text_height(num_text_lines)))
 			actual_scroll_width = win->box_size;
 	}
 

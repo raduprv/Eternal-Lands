@@ -581,6 +581,30 @@ public:
 	 */
 	int vertical_advance(float zoom=1.0, float line_spacing=1.0) const;
 	/*!
+	 * \brief Calculate the number of lines that fit.
+	 *
+	 * Return the maximum number of lines that fit in a window of \a max_height pixels high, when
+	 * drawing text in this font at zoom level \a zoom, and line spacing scale factor
+	 * \a line_spacing.
+	 *
+	 * \param max_height   The maximum height of the text, in pixels
+	 * \param zoom         The zoom factor for drawing the text
+	 * \param line_spacing The additional scale factor for the spacing between lines
+	 */
+	int max_nr_lines(int max_height, float zoom, float line_spacing=1.0) const;
+	/*!
+	 * \brief Compute the height of a block of text
+	 *
+	 * Compute the height of a block of text of \a nr_lines lines, when drawn in this font
+	 * at zoom level \a zoom, with line spacing scale factor \a line_spacing.
+	 *
+	 * \param nr_lines     The number of lines in the text
+	 * \param text_zoom    The zoom factor for drawing the text
+	 * \param line_spacing The additional scale factor for the spacing between lines
+	 * \return The height of the text in pixels
+	 */
+	int text_height(int nr_lines, float zoom, float line_spacing=1.0);
+	/*!
 	 * \brief Calculate the dimensions of a block of text
 	 *
 	 * Calculate the width and height of string \a text of length \a len bytes when drawn in this
@@ -1207,14 +1231,49 @@ public:
 	 * \brief Get the vertical advancement after a line.
 	 *
 	 * Get the number of pixels the pen is advanced in the vertical direction after drawing a
-	 * line of text at zoom level \a zoom, with line spacing scale factor \a line_spacing.
+	 * line of text at zoom level \a text_zoom, with line spacing scale factor \a line_spacing.
 	 *
-	 * \param zoom         The zoom factor for drawing the text
+	 * \param cat          The font category for the font used
+	 * \param text_zoom    The zoom factor for drawing the text
 	 * \param line_spacing The additional scale factor for the spacing between lines
+	 * \return The number of pixels the pen is shifted down after a line
 	 */
 	int vertical_advance(Category cat, float text_zoom=1.0, float line_spacing=1.0)
 	{
 		return get(cat).vertical_advance(text_zoom * font_scales[cat], line_spacing);
+	}
+	/*!
+	 * \brief Calculate the number of lines that fit.
+	 *
+	 * Return the maximum number of lines that fit in a window of \a max_height pixels high, when
+	 * drawing text in the font for category \a cat at zoom level \a text_zoom, with line spacing
+	 * scale factor \a line_spacing.
+	 *
+	 * \param cat          The font category for the font used
+	 * \param max_height   The maximum height for the text, in pixels
+	 * \param text_zoom    The zoom factor for drawing the text
+	 * \param line_spacing The additional scale factor for the spacing between lines
+	 * \return The maximum number of lines that fit
+	 */
+	int max_nr_lines(Category cat, int max_height, float text_zoom, float line_spacing=1.0)
+	{
+		return get(cat).max_nr_lines(max_height, text_zoom * font_scales[cat], line_spacing);
+	}
+	/*!
+	 * \brief Compute the height of a block of text
+	 *
+	 * Compute the height of a block of text of \a nr_lines lines, when drawn in the font for
+	 * category \a cat at zoom level \a zoom, with line spacing scale factor \a line_spacing.
+	 *
+	 * \param cat          The font category for the font used
+	 * \param nr_lines     The number of lines in the text
+	 * \param text_zoom    The zoom factor for drawing the text
+	 * \param line_spacing The additional scale factor for the spacing between lines
+	 * \return The height of the text in pixels
+	 */
+	int text_height(font_cat cat, int nr_lines, float text_zoom, float line_spacing=1.0)
+	{
+		return get(cat).text_height(nr_lines, text_zoom * font_scales[cat], line_spacing);
 	}
 	/*!
 	 * \brief Calculate the dimensions of a block of text
@@ -1682,6 +1741,30 @@ int get_line_height(font_cat cat, float text_zoom);
  * \return The line distance
  */
 int get_line_skip(font_cat cat, float text_zoom);
+/*!
+ * \brief Calculate the number of lines that fit.
+ *
+ * Return the maximum number of lines that fit in a window of \a height pixels high, when drawing
+ * text in the font for category \a cat at zoom level \a zoom.
+ *
+ * \param max_height The maximum height of the text in pixels
+ * \param cat        The font category for the font used
+ * \param zoom       The zoom factor for drawing the text
+ * \return The maximum number of lines that fit
+ */
+int get_max_nr_lines(int max_height, font_cat cat, float zoom);
+/*!
+ * \brief Compute the height of a block of text
+ *
+ * Compute the height of a block of text of \a nr_lines lines, when drawn in the font for category
+ * \a cat at zoom level \a zoom.
+ *
+ * \param nr_lines The number of lines in the text
+ * \param cat      The font category for the font used
+ * \param zoom     The zoom factor for drawing the text
+ * \return The height of the text in pixels
+ */
+int get_text_height(int nr_lines, font_cat cat, float zoom);
 /*!
  * \ingroup text_font
  * \brief Calculate the dimensions of a block of text

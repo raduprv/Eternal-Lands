@@ -220,7 +220,6 @@ static int resize_console_handler (window_info *win, int width, int height)
 	int console_active_width = width - HUD_MARGIN_X;
 	int console_active_height = height - HUD_MARGIN_Y;
 	int text_display_height = console_active_height - input_widget->len_y - get_console_sep_height() - CONSOLE_Y_OFFSET;
-	int line_height = get_line_height(CHAT_FONT, 1.0);
 
 	console_text_width = (int) (console_active_width - 2*CONSOLE_TEXT_X_BORDER - scrollbar_x_adjust);
 
@@ -229,7 +228,7 @@ static int resize_console_handler (window_info *win, int width, int height)
 	widget_resize (console_root_win, input_widget->id, console_active_width, input_widget->len_y);
 	widget_move (console_root_win, input_widget->id, 0, console_active_height - input_widget->len_y);
 
-	nr_console_lines = text_display_height / line_height;
+	nr_console_lines = get_max_nr_lines(text_display_height, CHAT_FONT, 1.0);
 	recalc_message_lines();
 
 	if (console_scrollbar_enabled)
@@ -388,12 +387,11 @@ static int ui_scale_console_handler(window_info *win)
 
 static int change_console_font_handler(window_info *win, font_cat cat)
 {
-	int line_height;
 	if (cat != CHAT_FONT)
 		return 0;
 
-	line_height = get_line_height(CHAT_FONT, 1.0);
-	nr_console_lines= (window_height - input_widget->len_y - get_console_sep_height() - hud_y - CONSOLE_Y_OFFSET) / line_height;
+	nr_console_lines = get_max_nr_lines(window_height - input_widget->len_y - get_console_sep_height() - hud_y - CONSOLE_Y_OFFSET,
+		CHAT_FONT, 1.0);
 	resize_console_handler(win, window_width, window_height);
 	return 1;
 }
@@ -406,7 +404,6 @@ void create_console_root_window (int width, int height)
 		int scrollbar_x_adjust = 0;
 		int console_active_width = width - HUD_MARGIN_X;
 		int console_active_height = height - HUD_MARGIN_Y;
-		int line_height = get_line_height(CHAT_FONT, 1.0);
 		int input_height = get_input_height();
 
 		console_root_win = create_window ("Console", -1, -1, 0, 0, width, height, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
@@ -448,7 +445,8 @@ void create_console_root_window (int width, int height)
 		}
 		widget_set_OnKey(input_widget->window_id, input_widget->id, (int (*)())chat_input_key);
 
-		nr_console_lines = (console_active_height - input_widget->len_y - get_console_sep_height() - CONSOLE_Y_OFFSET) / line_height;
+		nr_console_lines = get_max_nr_lines(console_active_height - input_widget->len_y - get_console_sep_height() - CONSOLE_Y_OFFSET,
+			CHAT_FONT, 1.0);
 
 		if (console_scrollbar_enabled && (console_root_win >= 0) && (console_root_win < windows_list.num_windows))
 		{
@@ -465,7 +463,6 @@ int input_field_resize(widget_list *w, Uint32 x, Uint32 y)
 	text_field *tf = w->widget_info;
 	text_message *msg = &(tf->buffer[tf->msg]);
 	int console_active_height;
-	int line_height = get_line_height(CHAT_FONT, 1.0);
 
 	// set invalid width to force rewrap
 	msg->wrap_width = 0;
@@ -480,7 +477,7 @@ int input_field_resize(widget_list *w, Uint32 x, Uint32 y)
 	widget_resize(console_root_win, console_out_id, console_out_w->len_x, console_active_height);
 	if (console_scrollbar_enabled)
 		widget_resize(console_root_win, console_scrollbar_id, console_win->box_size, console_active_height);
-	nr_console_lines = console_out_w->len_y / line_height;
+	nr_console_lines = get_max_nr_lines(console_out_w->len_y, CHAT_FONT, 1.0);
 	console_text_changed = 1;
 	return 1;
 }

@@ -425,6 +425,23 @@ int Font::vertical_advance(float zoom, float line_spacing) const
 	return std::round(_vertical_advance * _scale_y * zoom * line_spacing);
 }
 
+int Font::max_nr_lines(int max_height, float zoom, float line_spacing) const
+{
+	int line_height = height(zoom);
+	if (max_height < line_height)
+		return 0;
+
+	int line_skip = vertical_advance(zoom, line_spacing);
+	return 1 + (max_height - line_height) / line_skip;
+}
+
+int Font::text_height(int nr_lines, float zoom, float line_spacing)
+{
+	if (nr_lines <= 0)
+		return 0;
+	return height(zoom) + (nr_lines-1) * vertical_advance(zoom, line_spacing);
+}
+
 std::pair<int, int> Font::dimensions(const unsigned char* str, size_t len, float zoom,
 	float line_spacing) const
 {
@@ -1780,6 +1797,14 @@ int get_line_skip(font_cat cat, float text_zoom)
 {
 	return FontManager::get_instance().vertical_advance(cat, text_zoom);
 }
+int get_max_nr_lines(int height, font_cat cat, float zoom)
+{
+	return FontManager::get_instance().max_nr_lines(cat, height, zoom);
+}
+int get_text_height(int nr_lines, font_cat cat, float zoom)
+{
+	return FontManager::get_instance().text_height(cat, nr_lines, zoom);
+}
 void get_buf_dimensions(const unsigned char* str, size_t len, font_cat cat, float text_zoom,
 	int *width, int *height)
 {
@@ -1950,9 +1975,9 @@ void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter
 	int msg_start, int offset_start, int cursor, int width, int height,
 	font_cat cat, float text_zoom, select_info* select)
 {
-	int line_height = FontManager::get_instance().line_height(cat, text_zoom);
+	int max_nr_lines = FontManager::get_instance().max_nr_lines(cat, height, text_zoom);
 	TextDrawOptions options = TextDrawOptions().set_max_width(width)
-		.set_max_lines(height / line_height)
+		.set_max_lines(max_nr_lines)
 		.set_zoom(text_zoom);
 	FontManager::get_instance().draw_messages(cat, msgs, msgs_size, x, y, filter,
 		msg_start, offset_start, options, cursor, select);
