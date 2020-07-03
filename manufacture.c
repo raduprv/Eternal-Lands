@@ -649,7 +649,7 @@ static void draw_recipe_controls(window_info *win){
 	int wpy=manufacture_menu_y_len-recipe_y_offset;
 	int lpx=pipe_control_width;
 	int lpy=SLOT_SIZE;
-	int half_plus_len = lpx/2-control_elem_size, half_plus_width = win->current_scale;
+	int half_plus_len = lpx/2-control_elem_size, half_plus_width = max2i(win->current_scale, 1);
 	int yp_ctr = wpy - control_elem_size + lpy/2;
 	int xp_ctr = wpx + control_elem_size + half_plus_len;
 
