@@ -196,8 +196,9 @@ static void quickbar_item_description_help(window_info *win, int pos, int slot)
 		if (str != NULL)
 		{
 			int xpos = 0, ypos = 0;
+			const int tooltip_sep = (int)(0.5 + win->current_scale * 5);
 			int len_str = get_string_width_zoom((const unsigned char*)str,
-				win->font_category, win->current_scale_small);
+				win->font_category, win->current_scale_small) + tooltip_sep;
 			/* vertical place right (or left) and aligned with slot */
 			if (quickbar_dir==VERTICAL)
 			{
