@@ -1776,6 +1776,10 @@ int get_line_height(font_cat cat, float text_zoom)
 {
 	return FontManager::get_instance().line_height(cat, text_zoom);
 }
+int get_line_skip(font_cat cat, float text_zoom)
+{
+	return FontManager::get_instance().vertical_advance(cat, text_zoom);
+}
 void get_buf_dimensions(const unsigned char* str, size_t len, font_cat cat, float text_zoom,
 	int *width, int *height)
 {

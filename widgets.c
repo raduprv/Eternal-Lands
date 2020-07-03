@@ -2900,15 +2900,13 @@ void update_selection(int x, int y, widget_list* w, int drag)
 {
 	int line, col;
 	int cx = 0;
-	int line_height;
 	text_field* tf;
 	text_message* msg;
 
 	tf = w->widget_info;
 	if (tf == NULL) return;
 
-	line_height = get_line_height(w->fcat, w->size);
-	line = y / line_height;
+	line = y / get_line_skip(w->fcat, w->size);
 	if (line < 0 || line >= tf->nr_visible_lines || tf->select.lines[line].msg == -1)
 	{
 		// Invalid position, if we were dragging keep the selection

@@ -1190,6 +1190,10 @@ public:
 	 *
 	 * Return the height of a line of text when drawn in the font for category
 	 * \a cat with scale factor \a text_zoom.
+	 * \note It is not necessarily the case that two consecutive lines of text consume twice
+	 * the line height, the use of the bundled fonts (where the line height is greater than the
+	 * spacing) or a custom line spacing may prevent that. Use dimensions() or vertical_advance()
+	 * if you need to know the height of a text consiting of multiple lines.
 	 *
 	 * \param cat       The font category for the font used
 	 * \param text_zoom The scale factor for the text
@@ -1198,6 +1202,19 @@ public:
 	int line_height(Category cat, float text_zoom=1.0)
 	{
 		return get(cat).height(text_zoom * font_scales[cat]);
+	}
+	/*!
+	 * \brief Get the vertical advancement after a line.
+	 *
+	 * Get the number of pixels the pen is advanced in the vertical direction after drawing a
+	 * line of text at zoom level \a zoom, with line spacing scale factor \a line_spacing.
+	 *
+	 * \param zoom         The zoom factor for drawing the text
+	 * \param line_spacing The additional scale factor for the spacing between lines
+	 */
+	int vertical_advance(Category cat, float text_zoom=1.0, float line_spacing=1.0)
+	{
+		return get(cat).vertical_advance(text_zoom * font_scales[cat], line_spacing);
 	}
 	/*!
 	 * \brief Calculate the dimensions of a block of text
@@ -1652,6 +1669,19 @@ static __inline__ int get_string_width_zoom(const unsigned char* str, font_cat c
  * \return The height of the text in pixels
  */
 int get_line_height(font_cat cat, float text_zoom);
+/*!
+ * \ingroup text_font
+ * \brief The distance between two lines
+ *
+ * Return the distance between two lines of text when drawn in the font for category
+ * \a cat with scale factor \a text_zoom. This is not necessarily the same as the line
+ * height.
+ *
+ * \param cat       The font category for the font used
+ * \param text_zoom The scale factor for the text
+ * \return The line distance
+ */
+int get_line_skip(font_cat cat, float text_zoom);
 /*!
  * \ingroup text_font
  * \brief Calculate the dimensions of a block of text
