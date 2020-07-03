@@ -158,11 +158,7 @@ class Achievements_System
 		int get_size(void) const { return size; }
 		void set_current_scale(float scale) { current_scale = scale; }
 		float get_current_scale(void) const { return current_scale; }
-		int get_font_avg_x(void) const
-		{
-			return get_avg_char_width_zoom(UI_FONT, current_scale * DEFAULT_SMALL_RATIO);
-		}
-		int get_font_width(const std::string& str)
+		int get_font_width(const std::string& str) const
 		{
 			return get_string_width_zoom(reinterpret_cast<const unsigned char*>(str.c_str()),
 				UI_FONT, current_scale * DEFAULT_SMALL_RATIO);
@@ -205,7 +201,7 @@ class Achievements_System
 		std::string prev, next, close;
 		std::string too_many, xml_fail, texture_fail;
 		std::string close_help, no_next_help, no_prev_help, next_help, prev_help;
-		size_t max_title_len;
+		int widest_title_id;
 		size_t max_detail_lines;
 		size_t max_windows;
 		int win_pos_x, win_pos_y;
@@ -269,7 +265,7 @@ Achievements_System::Achievements_System(void)
 	no_prev_help("No previous page"),
 	next_help("Next page"),
 	prev_help("Previous page"),
-	max_title_len(0),
+	widest_title_id(0),
 	max_detail_lines(2), max_windows(15), win_pos_x(100), win_pos_y(50), control_used(false), current_scale(1.0)
 {
 	xmlDocPtr doc;
@@ -302,6 +298,7 @@ Achievements_System::Achievements_System(void)
 		return;
 	}
 
+	int max_title_width = 0;
 	for (cur = cur->xmlChildrenNode; cur; cur = cur->next)
 	{
 		if (!xmlStrcasecmp(cur->name, (const xmlChar *)"achievement"))
@@ -336,8 +333,12 @@ Achievements_System::Achievements_System(void)
 				else
 				{
 					achievements[achievement_id] = new Achievement(achievement_id, image_id, proc_title, proc_text);
-					if (achievements[achievement_id]->get_title().size() > max_title_len)
-						max_title_len = achievements[achievement_id]->get_title().size();
+					int title_width = get_font_width(achievements[achievement_id]->get_title());
+					if (title_width > max_title_width)
+					{
+						max_title_width = title_width;
+						widest_title_id = achievement_id;
+					}
 				}
 			}
 
@@ -419,7 +420,7 @@ int Achievements_System::texture(size_t index) const
 //	Return the width of the popup window
 int Achievements_System::get_child_win_x(void) const
 {
-	int proposed = get_font_avg_x() * max_title_len + 2 * get_border();
+	int proposed = get_font_width(achievements[widest_title_id]->get_title()) + 2 * get_border();
 	return std::max(proposed, main_win_x());
 }
 

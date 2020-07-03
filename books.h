@@ -561,7 +561,7 @@ private:
 	 * book font settings at zoom level \a zoom.
 	 *
 	 * \param zoom    The scale factor for the text.
-	 * \param spacing The scale factor for sacing between two lines
+	 * \param spacing The scale factor for spacing between two lines
 	 * \return The height of a line of text, in pixels.
 	 */
 	static int line_height(float zoom, float spacing=1.0)
