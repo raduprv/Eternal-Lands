@@ -369,7 +369,7 @@ int get_use_json_user_files(void)
 			bin_stat_ret = stat(filename, &bin_file_stat);
 
 			// No bin file so switch on json usage even if no json file either - prevous or clean install
-			if ((bin_stat_ret == -1))
+			if (bin_stat_ret == -1)
 			{
 				use_json_user_files = 1;
 				USE_JSON_DEBUG("Setting use_json_user_files as no binary file exists");

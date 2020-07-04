@@ -192,20 +192,16 @@ namespace ec
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
 
-		glColorPointer(4, GL_FLOAT, 10 * sizeof(float),
-			static_cast<char*>(0) + 0 * sizeof(float));
-		glVertexPointer(3, GL_FLOAT, 10 * sizeof(float),
-			static_cast<char*>(0) + 4 * sizeof(float));
+		glColorPointer(4, GL_FLOAT, 10 * sizeof(float), nullptr);
+		glVertexPointer(3, GL_FLOAT, 10 * sizeof(float), reinterpret_cast<void*>(4 * sizeof(float)));
 
 		ELglClientActiveTextureARB(GL_TEXTURE0);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glTexCoordPointer(2, GL_FLOAT, 10 * sizeof(float),
-			static_cast<char*>(0) + 7 * sizeof(float));
+		glTexCoordPointer(2, GL_FLOAT, 10 * sizeof(float), reinterpret_cast<void*>(7 * sizeof(float)));
 
 		ELglClientActiveTextureARB(GL_TEXTURE1);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glTexCoordPointer(1, GL_FLOAT, 10 * sizeof(float),
-			static_cast<char*>(0) + 9 * sizeof(float));
+		glTexCoordPointer(1, GL_FLOAT, 10 * sizeof(float), reinterpret_cast<void*>(9 * sizeof(float)));
 
 		glDrawArrays(GL_QUADS, 0, particle_count * 4);
 
@@ -240,9 +236,8 @@ namespace ec
 
 		ELglMultiTexCoord1f(GL_TEXTURE1, get_texture_coordinate(1.0f));
 		glNormalPointer(GL_FLOAT, 3 * sizeof(float),
-			static_cast<char*>(0) + vertex_count * 3 * sizeof(float));
-		glVertexPointer(3, GL_FLOAT, 3 * sizeof(float),
-			static_cast<char*>(0));
+			reinterpret_cast<void*>(vertex_count * 3 * sizeof(float)));
+		glVertexPointer(3, GL_FLOAT, 3 * sizeof(float), nullptr);
 
 		glDrawElements(GL_TRIANGLES, facet_count * 3, GL_UNSIGNED_SHORT, 0);
 
@@ -845,11 +840,10 @@ namespace ec
 
 		ELglMultiTexCoord1f(GL_TEXTURE1, get_texture_coordinate(1.0f));
 		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(CaplessCylindersVertex),
-			static_cast<char*>(0) + 6 * sizeof(float));
+			reinterpret_cast<void*>(6 * sizeof(float)));
 		glNormalPointer(GL_FLOAT, sizeof(CaplessCylindersVertex),
-			static_cast<char*>(0) + 3 * sizeof(float));
-		glVertexPointer(3, GL_FLOAT, sizeof(CaplessCylindersVertex),
-			static_cast<char*>(0));
+			reinterpret_cast<void*>(3 * sizeof(float)));
+		glVertexPointer(3, GL_FLOAT, sizeof(CaplessCylindersVertex), nullptr);
 
 		glDrawElements(GL_TRIANGLES, facet_count * 3, GL_UNSIGNED_SHORT, 0);
 

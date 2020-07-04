@@ -2359,7 +2359,7 @@ void get_actor_damage(int actor_id, int damage)
 				bone_y = bone_list[bone][1] + act->y_pos + 0.25;
 				bone_z = bone_list[bone][2] + ec_get_z(act);
 //				printf("ec_create_impact_blood((%f %f, %f), (%f, %f, %f), %d, %f);", bone_x, bone_y, bone_z, ((float)rand()) * blood_level / RAND_MAX / 13.0, ((float)rand()) * blood_level / RAND_MAX / 13.0, ((float)rand()) * blood_level / RAND_MAX / 13.0, (poor_man ? 6 : 10), blood_level);
-				ec_create_impact_blood(bone_x, bone_y, bone_z, ((float)rand()) * blood_level / RAND_MAX / 13.0, ((float)rand()) * blood_level / RAND_MAX / 13.0, ((float)rand()) * blood_level / RAND_MAX / 13.0, (poor_man ? 6 : 10), blood_level);
+				ec_create_impact_blood(bone_x, bone_y, bone_z, (float)rand() * blood_level / (RAND_MAX * 13.0), (float)rand() * blood_level / (RAND_MAX * 13.0), (float)rand() * blood_level / (RAND_MAX * 13.0), (poor_man ? 6 : 10), blood_level);
 			}
 		}
 	}
