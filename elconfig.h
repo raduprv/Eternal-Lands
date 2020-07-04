@@ -103,8 +103,36 @@ void change_language(const char *new_lang);
 
 void check_for_config_window_scale(void);
 
+/*!
+ * \ingroup config
+ * \brief   change the custom scale value for the window by the step value
+ *
+ * \param increase                          if true, the value is increase by the step, otherwise it is decreased by the step
+ * \param changed_window_custom_scale       pointer to the custom scale variable for the window
+ *
+ * \callgraph
+*/
 void step_win_scale_factor(int increase, float *changed_window_custom_scale);
 
+/*!
+ * \ingroup config
+ * \brief   limit the custom scale value for the window to the default
+ *
+ * \param changed_window_custom_scale       pointer to the custom scale variable for the window
+ *
+ * \callgraph
+*/
+void limit_win_scale_to_default(float *changed_window_custom_scale);
+
+/*!
+ * \ingroup config
+ * \brief   set the custom scale value for the window to the default or initial starting value
+ *
+ * \param set_default                       if true, the value is set to the default, otherwise it is set to the initial starting value
+ * \param changed_window_custom_scale       pointer to the custom scale variable for the window
+ *
+ * \callgraph
+*/
 void reset_win_scale_factor(int set_default, float *changed_window_custom_scale);
 
 void update_highdpi_auto_scaling(void);

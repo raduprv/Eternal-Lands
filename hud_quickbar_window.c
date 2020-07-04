@@ -157,6 +157,7 @@ static void flip_quickbar(int window_id)
 /*Return the quickbar to it's Built-in position*/
 static void reset_quickbar()
 {
+	limit_win_scale_to_default(&custom_scale_factors.quickbar);
 	quickbar_dir = VERTICAL;
 	quickbar_draggable = 0;
 	quickbar_relocatable = 0;
@@ -644,6 +645,7 @@ void init_quickbar (void)
 		if (quickbar_win < 0 || quickbar_win >= windows_list.num_windows)
 			return;
 
+		set_window_custom_scale(quickbar_win, &custom_scale_factors.quickbar);
 		ui_scale_quickbar_handler(&windows_list.window[quickbar_win]);
 
 		set_window_handler(quickbar_win, ELW_HANDLER_DISPLAY, &display_quickbar_handler);

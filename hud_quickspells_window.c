@@ -8,6 +8,7 @@
 #include "elconfig.h"
 #include "elwindows.h"
 #include "errors.h"
+#include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
 #include "hud_quickspells_window.h"
@@ -107,6 +108,7 @@ static void toggle_quickspells_moveable(void)
 // return the window to it's default position
 static void reset_quickspells()
 {
+	limit_win_scale_to_default(&custom_scale_factors.quickspells);
 	quickspells_dir = VERTICAL;
 	quickspells_moveable = 0;
 	if (quickspells_relocatable)
@@ -381,7 +383,7 @@ static int ui_scale_quickspell_handler(window_info *win)
 {
 	quickspell_size = (int)(0.5 + win->current_scale * 20);
 	quickspell_x_len = (int)(0.5 + win->current_scale * 26);
-	default_quickspells_x = window_width - (int)(0.5 + win->current_scale * 60);
+	default_quickspells_x = window_width - HUD_MARGIN_X + (int)(0.5 + win->current_scale * 4);
 	default_quickspells_y = get_hud_logo_size();
 	quickspell_y_space = (int)(0.5 + win->current_scale * 30);
 	if (!quickspells_relocatable)
@@ -415,6 +417,7 @@ void init_quickspell(void)
 
 	if (quickspell_win < 0){
 		quickspell_win = create_window ("Quickspell", -1, 0, saved_quickspells_x, saved_quickspells_y, 0, 0, flags);
+		set_window_custom_scale(quickspell_win, &custom_scale_factors.quickspells);
 		set_window_handler(quickspell_win, ELW_HANDLER_DISPLAY, &display_quickspell_handler);
 		set_window_handler(quickspell_win, ELW_HANDLER_CLICK, &click_quickspell_handler);
 		set_window_handler(quickspell_win, ELW_HANDLER_MOUSEOVER, &mouseover_quickspell_handler );

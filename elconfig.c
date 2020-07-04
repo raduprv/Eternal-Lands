@@ -657,43 +657,53 @@ static const float win_scale_min = 0.25f;
 static const float win_scale_max = 3.0f;
 static const float win_scale_step = 0.01f;
 
-void step_win_scale_factor(int increase, float *changed_window_custom_scale)
+static var_struct * find_win_scale_factor(float *changed_window_custom_scale)
 {
 	if (changed_window_custom_scale != NULL)
 	{
 		size_t i;
+		for (i = 0; i < our_vars.no; i++)
+			if (our_vars.var[i]->var == changed_window_custom_scale)
+				return our_vars.var[i];
+	}
+	return NULL;
+}
+
+void step_win_scale_factor(int increase, float *changed_window_custom_scale)
+{
+	if (changed_window_custom_scale != NULL)
+	{
+		var_struct * var = find_win_scale_factor(changed_window_custom_scale);
 		float new_value = *changed_window_custom_scale + ((increase) ? win_scale_step : -win_scale_step);
 		if (new_value >= win_scale_min && new_value <= win_scale_max)
 		{
 			*changed_window_custom_scale = new_value;
 			update_windows_custom_scale(changed_window_custom_scale);
 		}
-		for (i = 0; i < our_vars.no; i++)
-		{
-			if (our_vars.var[i]->var == changed_window_custom_scale)
-			{
-				our_vars.var[i]->saved = 0;
-				break;
-			}
-		}
+		if (var != NULL)
+			var->saved = 0;
+	}
+}
+
+void limit_win_scale_to_default(float *changed_window_custom_scale)
+{
+	var_struct * var = find_win_scale_factor(changed_window_custom_scale);
+	if ((var != NULL) && (*changed_window_custom_scale > var->default_val))
+	{
+		*changed_window_custom_scale = var->default_val;
+		update_windows_custom_scale(changed_window_custom_scale);
+		var->saved = 0;
 	}
 }
 
 void reset_win_scale_factor(int set_default, float *changed_window_custom_scale)
 {
-	if (changed_window_custom_scale != NULL)
+	var_struct * var = find_win_scale_factor(changed_window_custom_scale);
+	if (var != NULL)
 	{
-		size_t i;
-		for (i = 0; i < our_vars.no; i++)
-		{
-			if (our_vars.var[i]->var == changed_window_custom_scale)
-			{
-				*changed_window_custom_scale = (set_default) ? our_vars.var[i]->default_val : our_vars.var[i]->config_file_val;
-				update_windows_custom_scale(changed_window_custom_scale);
-				our_vars.var[i]->saved = 0;
-				break;
-			}
-		}
+		*changed_window_custom_scale = (set_default) ? var->default_val : var->config_file_val;
+		update_windows_custom_scale(changed_window_custom_scale);
+		var->saved = 0;
 	}
 }
 
@@ -2650,6 +2660,8 @@ static void init_ELC_vars(void)
 	add_var(OPT_FLOAT,"options_win_scale","optionswinscale",&elconf_custom_scale,change_elconf_win_scale_factor,1.0f,"Options window scaling factor","Multiplied by the user interface scaling factor. Change will take effect after closing then reopening the window.",FONT,win_scale_min,win_scale_max,win_scale_step);
 	add_var(OPT_FLOAT,"achievements_win_scale","achievementswinscale",&custom_scale_factors.achievements,change_win_scale_factor,1.0f,"Achievements window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
 	add_var(OPT_FLOAT,"dialogue_win_scale","dialoguewinscale",&custom_scale_factors.dialogue,change_win_scale_factor,1.0f,"Dialogue window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"quickbar_win_scale","quickbarwinscale",&custom_scale_factors.quickbar,change_win_scale_factor,1.0f,"Quickbar window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"quickspells_win_scale","quickspellswinscale",&custom_scale_factors.quickspells,change_win_scale_factor,1.0f,"Quickspells window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
 #ifdef NEW_CURSOR
 	add_var(OPT_BOOL,"sdl_cursors","sdl_cursors", &sdl_cursors, change_sdl_cursor,1,"Use Standard Black/White Mouse Pointers", "When disabled, use the experimental coloured mouse pointers. Needs the texture from Git dev-data-files/cursor2.dss.", FONT);
 	add_var(OPT_BOOL,"big_cursors","big_cursors", &big_cursors, change_var,0,"Use Large Pointers", "When using the experiment coloured mouse pointers, use the large pointer set.", FONT);

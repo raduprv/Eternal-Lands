@@ -39,6 +39,8 @@ custom_scale_factors_def custom_scale_factors =
 	.ranging = 1.0f,
 	.achievements = 1.0f,
 	.dialogue = 1.0f,
+	.quickbar = 1.0f,
+	.quickspells = 1.0f,
 	.disable_mouse_or_keys = 0
 };
 
