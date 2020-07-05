@@ -835,7 +835,7 @@ int BookWindow::mouseover_handler(int mx, int my)
 {
 	for (auto& link: _links)
 		link.mouseover(mx, my);
-	return 1;
+	return 0;
 }
 
 int BookWindow::static_mouseover_handler(window_info *win, int mx, int my)
