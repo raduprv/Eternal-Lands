@@ -535,8 +535,10 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			else
 			{
 				float font_scale2 = font_scale*powf(1.0f+((float)abs(actor_id->damage)/2.0f)/1000.0f, 4.0);
+				int extra_y = (view_mode_instance && displaying_me) ?view_mode_instance_banner_height * bar_y_len : 0;
+				int lines = (!(view_mode_instance && displaying_me) && (display_hp || display_health_bar) && (display_ether || display_ether_bar)) ? 3 : 2;
 				draw_ortho_ingame_string(hx - 0.5f * (float)get_string_width_zoom(str, NAME_FONT, font_scale2*0.17),
-					a_bounce+hy+10.0f, 0, str, 1,
+					a_bounce + hy + extra_y + get_text_height(lines, NAME_FONT, name_zoom), 0, str, 1,
 					font_scale2*.14, font_scale2*.14);
 			}
 			glDisable(GL_BLEND);
