@@ -3,6 +3,7 @@
 #include <SDL_timer.h>
 
 #include "asc.h"
+#include "chat.h"
 #include "context_menu.h"
 #include "font.h"
 #include "elconfig.h"
@@ -15,6 +16,7 @@
 
 int stats_bar_win= -1;
 int show_action_bar = 0;
+int show_last_health_change_always = 0;
 int max_food_level = 45;
 int lock_skills_selection = 0;
 
@@ -92,7 +94,7 @@ static void draw_last_health_change(window_info *win)
 {
 	unsigned char str[20];
 	static const Uint32 timeoutms = 2*60*1000;
-	const int yoff = -(HUD_MARGIN_Y + win->small_font_len_y + 1 - (window_height - win->cur_y));
+	const int yoff = -(HUD_MARGIN_Y + win->default_font_len_y + 1 - (window_height - win->cur_y));
 	/* damage in red */
 	if (my_last_health.d != 0)
 	{
@@ -101,7 +103,9 @@ static void draw_last_health_change(window_info *win)
 		else
 		{
 			safe_snprintf((char*)str, sizeof(str), " %d ", my_last_health.d);
-			show_help_colored_scaled_right(str, health_bar_start_x+stats_bar_len/2-2, yoff, 1.0f, 0.0f, 0.0f, win->current_scale_small);
+			draw_text(health_bar_start_x+stats_bar_len/2-2, yoff, str, strlen((const char*)str),
+				win->font_category, TDO_MAX_WIDTH, window_width - 80, TDO_HELP, 1, TDO_FOREGROUND,
+				1.0f, 0.0f, 0.0f, TDO_ZOOM, win->current_scale, TDO_ALIGNMENT, RIGHT, TDO_END);
 		}
 	}
 	/* heal in green */
@@ -114,7 +118,7 @@ static void draw_last_health_change(window_info *win)
 			safe_snprintf((char*)str, sizeof(str), " %d ", my_last_health.h);
 			draw_text(health_bar_start_x+stats_bar_len/2+2, yoff, str, strlen((const char*)str),
 				win->font_category, TDO_HELP, 1, TDO_FOREGROUND, 0.0, 1.0, 0.0,
-				TDO_ZOOM, win->current_scale_small, TDO_END);
+				TDO_ZOOM, win->current_scale, TDO_END);
 		}
 	}
 }
@@ -481,7 +485,7 @@ static int	display_stats_bar_handler(window_info *win)
 		else if(show_action_bar && statbar_cursor_x>action_bar_start_x && statbar_cursor_x < action_bar_start_x+stats_bar_len) show_help((char*)attributes.action_points.name,action_bar_start_x+stats_bar_len+10,-3, win->current_scale);
 	}
 
-	if (over_health_bar)
+	if ((over_health_bar) || (show_last_health_change_always && get_show_window (game_root_win) && ((use_windowed_chat == 2) || !input_text_line.len)))
 		draw_last_health_change(win);
 
 	statbar_cursor_x = -1;
@@ -588,9 +592,10 @@ void init_stats_display(void)
 		set_window_handler(stats_bar_win, ELW_HANDLER_FONT_CHANGE, &change_stats_bar_font_handler);
 
 		// context menu to enable/disable the action points bar
-		cm_id_ap = cm_create(cm_action_points_str, NULL);
+		cm_id_ap = cm_create(cm_statsbar_str, NULL);
 		cm_add_window(cm_id_ap, stats_bar_win);
 		cm_bool_line(cm_id_ap, 0, &show_action_bar, "show_action_bar");
+		cm_bool_line(cm_id_ap, 1, &show_last_health_change_always, "show_last_health_change_always");
 	}
 	if (stats_bar_win >= 0 && stats_bar_win < windows_list.num_windows)
 		ui_scale_stats_bar_handler(&windows_list.window[stats_bar_win]);

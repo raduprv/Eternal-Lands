@@ -191,7 +191,7 @@ char
 	/*hud.c*/
 	no_open_on_trade[100],
 	stats_scroll_help_str[100],
-	cm_action_points_str[30],
+	cm_statsbar_str[70],
 	hud_timer_cm_str[100],
 	hud_timer_popup_title_str[25],
 	/* hud_indicators.cpp */
@@ -1514,7 +1514,7 @@ void init_help()
 	add_xml_identifier(misc,"channel_color_add",channel_color_add_str,"Set",sizeof(channel_color_add_str));
 	add_xml_identifier(misc,"channel_color_delete",channel_color_delete_str,"Delete",sizeof(channel_color_delete_str));
 	add_xml_identifier(misc,"stats_scroll_help",stats_scroll_help_str,"Scroll Up/Down using CTRL+left/CTRL+right click or scrollwheel.",sizeof(stats_scroll_help_str));
-	add_xml_identifier(misc,"cm_action_points",cm_action_points_str,"Show Action Points Bar",sizeof(cm_action_points_str));
+	add_xml_identifier(misc,"cm_statsbar",cm_statsbar_str,"Show Action Points Bar\nShow Last Health Change Always",sizeof(cm_statsbar_str));
 	add_xml_identifier(misc,"hud_timer_cm",hud_timer_cm_str,"Change Mode\nKeep State\n--\nStart/Stop\nSet Time\nReset Time\n--\nShow Help",sizeof(hud_timer_cm_str));
 	add_xml_identifier(misc,"hud_timer_popup_title",hud_timer_popup_title_str,"Time (in seconds)",sizeof(hud_timer_popup_title_str));
 	add_xml_identifier(misc,"no_indicators",no_indicators_str,"No Indicators",sizeof(no_indicators_str));

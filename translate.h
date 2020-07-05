@@ -324,7 +324,7 @@ extern char
 		/*hud.c*/
 		no_open_on_trade[100], 
 		stats_scroll_help_str[100],
-		cm_action_points_str[30],
+		cm_statsbar_str[70],
 		hud_timer_cm_str[100],
 		hud_timer_popup_title_str[25],
 		/* hud_indicators.cpp */
