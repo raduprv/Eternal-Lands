@@ -889,12 +889,12 @@ static int display_counters_handler(window_info *win)
 	safe_snprintf((char*)buffer, sizeof(buffer), "%u", session_total);
 	draw_text(session_x_end, win->len_y - margin_y_len/2, buffer, strlen((const char*)buffer),
 		win->font_category, TDO_ZOOM, win->current_scale_small, TDO_ALIGNMENT, RIGHT,
-		TDO_VERTICAL_ALIGNMENT, CENTER_LINE);
+		TDO_VERTICAL_ALIGNMENT, CENTER_LINE, TDO_END);
 
 	safe_snprintf((char*)buffer, sizeof(buffer), "%u", total);
 	draw_text(total_x_end, win->len_y - margin_y_len/2, buffer, strlen((const char*)buffer),
 		win->font_category, TDO_ZOOM, win->current_scale_small, TDO_ALIGNMENT, RIGHT,
-		TDO_VERTICAL_ALIGNMENT, CENTER_LINE);
+		TDO_VERTICAL_ALIGNMENT, CENTER_LINE, TDO_END);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
