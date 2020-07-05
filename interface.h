@@ -41,6 +41,7 @@ extern int middle_click; /*!< indicates the middle mouse button was clicked */
 extern int left_click; /*!< indicates the left mouse button was clicked */
 /*! @} */
 
+extern int dynamic_banner_bar_colour; /*!< health and mana bars change colour as the value changes */
 extern int view_health_bar; /*!< indicates whether we should display the health bar or not */
 extern int view_ether_bar; /*!< indicates whether we should display the ethereal bar or not */
 extern int view_names; /*!< indicates whether the names of actors should be displayed or not */

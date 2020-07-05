@@ -48,6 +48,7 @@ int middle_click = 0;
 int left_click = 0;
 
 int have_a_map=0;
+int dynamic_banner_bar_colour = 1;
 int view_health_bar=1;
 int view_ether_bar=0;
 int view_names=1;

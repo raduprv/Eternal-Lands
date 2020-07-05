@@ -373,6 +373,9 @@ void set_health_color(float percent, float multiplier, float a)
 {
 	float r,g;
 
+	if (!dynamic_banner_bar_colour)
+		percent = 1.0f;
+
 	r=(1.0f-percent)*2.0f;
 	g=(percent/1.25f)*2.0f;
 
@@ -387,6 +390,9 @@ void set_health_color(float percent, float multiplier, float a)
 void set_mana_color(float percent, float multiplier, float a)
 {
 	float c;
+
+	if (!dynamic_banner_bar_colour)
+		percent = 1.0f;
 
 	c=0.6f - percent*0.6f;
 
