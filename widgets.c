@@ -3588,6 +3588,9 @@ static int pword_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_
 	if (entry->status == P_NONE)
 		return -1;
 
+	if (w->Flags & PWORD_FIELD_NO_KEYPRESS)
+		return 0;
+
 	max_width = (int)(0.5 + w->len_x - 4*w->size);
 	pw = entry->password;
 	len = strlen((const char*)pw);
@@ -3878,6 +3881,7 @@ static int pword_field_draw(widget_list *w)
 	int space = (int)(0.5 + 2*w->size);
 	int sel_begin, sel_end;
 	ver_alignment valign;
+	int draw_cursor;
 
 	if (!w || !(entry = (password_entry*)w->widget_info))
 		return 0;
@@ -3901,18 +3905,21 @@ static int pword_field_draw(widget_list *w)
 		}
 	}
 
-	// draw the frame
-	glDisable (GL_TEXTURE_2D);
-	glColor3f (w->r, w->g, w->b);
-	glBegin (GL_LINE_LOOP);
-		glVertex3i (w->pos_x, w->pos_y, 0);
-		glVertex3i (w->pos_x + w->len_x, w->pos_y, 0);
-		glVertex3i (w->pos_x + w->len_x, w->pos_y + w->len_y, 0);
-		glVertex3i (w->pos_x, w->pos_y + w->len_y, 0);
-	if (entry->draw_begin > 0)
-		glVertex3i ((int)(w->pos_x + 3*w->size + 0.5), w->pos_y + w->len_y/2, 0);
-	glEnd ();
-	glEnable (GL_TEXTURE_2D);
+	if (!(w->Flags & PWORD_FIELD_NO_BORDER))
+	{
+		// draw the frame
+		glDisable (GL_TEXTURE_2D);
+		glColor3f (w->r, w->g, w->b);
+		glBegin (GL_LINE_LOOP);
+			glVertex3i (w->pos_x, w->pos_y, 0);
+			glVertex3i (w->pos_x + w->len_x, w->pos_y, 0);
+			glVertex3i (w->pos_x + w->len_x, w->pos_y + w->len_y, 0);
+			glVertex3i (w->pos_x, w->pos_y + w->len_y, 0);
+		if (entry->draw_begin > 0)
+			glVertex3i ((int)(w->pos_x + 3*w->size + 0.5), w->pos_y + w->len_y/2, 0);
+		glEnd ();
+		glEnable (GL_TEXTURE_2D);
+	}
 
 	x_left = (int)(w->pos_x + 2*w->size + 0.5);
 	x_cursor = x_left + get_buf_width_zoom(start, entry->cursor_pos - entry->draw_begin,
@@ -3925,7 +3932,9 @@ static int pword_field_draw(widget_list *w)
 	draw_text(x_left, w->pos_y + w->len_y/2, start, len, w->fcat, TDO_MAX_WIDTH, max_width,
 		TDO_FOREGROUND, w->r, w->g, w->b, TDO_ZOOM, w->size, TDO_SEL_BEGIN, sel_begin,
 		TDO_SEL_END, sel_end, TDO_VERTICAL_ALIGNMENT, valign, TDO_END);
-	if (entry->mouseover && cur_time % (2*TF_BLINK_DELAY) < TF_BLINK_DELAY)
+	draw_cursor = !(w->Flags & PWORD_FIELD_NO_CURSOR)
+		&& (entry->mouseover || (w->Flags & PWORD_FIELD_DRAW_CURSOR));
+	if (draw_cursor && cur_time % (2*TF_BLINK_DELAY) < TF_BLINK_DELAY)
 	{
 		draw_text(x_cursor, w->pos_y + w->len_y/2, (const unsigned char*)"_", 1, w->fcat,
 			TDO_FOREGROUND, w->r, w->g, w->b, TDO_ZOOM, w->size, TDO_VERTICAL_ALIGNMENT, CENTER_LINE,
@@ -3977,6 +3986,33 @@ int pword_clear(int window_id, Uint32 widget_id)
 	entry->sel_end = 0;
 	entry->drag_begin = 0;
 	entry->mouseover = 0;
+	return 1;
+}
+
+int pword_field_set_content(int window_id, Uint32 widget_id, const unsigned char* buf, size_t len)
+{
+	widget_list *w = widget_find(window_id, widget_id);
+	password_entry *entry;
+	int str_width = 0, space, max_width;
+
+	if (!w || !(entry = w->widget_info))
+		return 0;
+
+	space = (int)(0.5 + 2*w->size);
+	max_width = w->len_x - 2*space;
+
+	safe_strncpy2((char*)entry->password, (const char*)buf, entry->max_chars, len);
+	entry->sel_begin = entry->sel_end = -1;
+	entry->cursor_pos = entry->draw_begin = entry->draw_end = 0;
+	while (entry->password[entry->draw_end])
+	{
+		int chr_width = get_char_width_zoom(entry->password[entry->draw_end], w->fcat, w->size);
+		if (str_width + chr_width > max_width)
+			break;
+		str_width += chr_width;
+		++entry->draw_end;
+	}
+
 	return 1;
 }
 

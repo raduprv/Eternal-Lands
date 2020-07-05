@@ -23,6 +23,9 @@
 int login_root_win = -1;
 int login_text = -1;
 
+static int username_field_id = 0;
+static int password_field_id = 1;
+
 static char username_box_selected = 1;
 static char password_box_selected = 0;
 
@@ -78,9 +81,8 @@ char active_password_str[MAX_USERNAME_LENGTH]={0};
 static char input_username_str[MAX_USERNAME_LENGTH]={0};
 static char input_password_str[MAX_USERNAME_LENGTH]={0};
 static char lower_username_str[MAX_USERNAME_LENGTH]={0};
-static char display_password_str[MAX_USERNAME_LENGTH]={0};
-static int username_text_length=0;
-static int password_text_length=0;
+static int username_initial = 1;
+static int password_initial = 1;
 
 #define SELBOX_X_LEN 174
 #define SELBOX_Y_LEN 28
@@ -90,6 +92,50 @@ static int password_text_length=0;
 #define SETTINGS_BUTTON_X_LEN 87
 #define NEW_CHAR_BUTTON_X_LEN 138
 #define BUTTON_Y_LEN 35
+
+typedef enum
+{
+	// Keypress not valid for this input field
+	KP_INVALID = 0,
+	// Regular input character
+	KP_INPUT,
+	// Cursor control, i.e. arrow, home/end, etc.
+	KP_CURSOR
+} keypress_type;
+
+static void toggle_selected_box(int which)
+{
+	Uint32 sel_flags = PWORD_FIELD_NO_BORDER|PWORD_FIELD_NO_KEYPRESS;
+	Uint32 unsel_flags = PWORD_FIELD_NO_BORDER|PWORD_FIELD_NO_KEYPRESS|PWORD_FIELD_NO_CURSOR;
+	if (which == username_field_id)
+	{
+		sel_flags |= username_initial ? PWORD_FIELD_NO_CURSOR : PWORD_FIELD_DRAW_CURSOR;
+		widget_set_flags(login_root_win, username_field_id, sel_flags);
+		widget_set_flags(login_root_win, password_field_id, unsel_flags);
+		username_box_selected = 1;
+		password_box_selected = 0;
+	}
+	else
+	{
+		sel_flags |= password_initial ? PWORD_FIELD_NO_CURSOR : PWORD_FIELD_DRAW_CURSOR;
+		widget_set_flags(login_root_win, username_field_id, unsel_flags);
+		widget_set_flags(login_root_win, password_field_id, sel_flags);
+		username_box_selected = 0;
+		password_box_selected = 1;
+	}
+}
+
+static int select_username_box()
+{
+	toggle_selected_box(username_field_id);
+	return 1;
+}
+
+static int select_password_box()
+{
+	toggle_selected_box(password_field_id);
+	return 1;
+}
 
 void init_login_screen (void)
 {
@@ -105,10 +151,7 @@ void init_login_screen (void)
 	passmngr_set_login();
 
 	if (strlen(get_username()) && !strlen(get_password()))
-	{
-		username_box_selected = 0;
-		password_box_selected = 1;
-	}
+		select_password_box();
 }
 
 void set_login_error (const char *msg, int len, int print_err)
@@ -147,8 +190,9 @@ static int resize_login_handler (window_info *win, Uint32 w, Uint32 h)
 		win->font_category, win->current_scale);
 	int max_login_str = max2i(username_str_len_x, password_str_len_x);
 	int height = 0, max_width = 0, login_sep_x = 0, button_sep_x = 0;
+	int normal_char_width = (int)(0.5 + win->current_scale * DEFAULT_FIXED_FONT_WIDTH);
 
-	username_bar_x_len = password_bar_x_len = 10 * (MAX_USERNAME_LENGTH-1) * win->default_font_max_len_x / 9;
+	username_bar_x_len = password_bar_x_len = 10 * (MAX_USERNAME_LENGTH-1) * normal_char_width / 9;
 	username_bar_y_len = password_bar_y_len = 1.5 * win->default_font_len_y;
 	log_in_y_len = new_char_y_len = settings_y_len = button_y_len;
 	passmngr_button_size = (int)(0.5 + win->current_scale * 32);
@@ -178,6 +222,18 @@ static int resize_login_handler (window_info *win, Uint32 w, Uint32 h)
 	password_bar_y = username_bar_y + username_bar_y_len + win->default_font_len_y;
 	password_text_y = password_bar_y + password_bar_y_len/4;
 	log_in_y = settings_y = new_char_y = password_bar_y + username_bar_y_len + win->default_font_len_y;
+
+	widget_move(win->window_id, username_field_id,
+		username_bar_x + 0.025 * username_bar_x_len, username_text_y);
+	widget_resize(win->window_id, username_field_id, (1.0 - 2*0.025) * username_bar_x_len,
+		username_bar_y + username_bar_y_len - username_text_y);
+	widget_set_size(win->window_id, username_field_id, win->current_scale);
+
+	widget_move(win->window_id, password_field_id,
+		password_bar_x + 0.025 * password_bar_x_len, password_text_y);
+	widget_resize(win->window_id, password_field_id, (1.0 - 2*0.025) * username_bar_x_len,
+		password_bar_y + password_bar_y_len - password_text_y);
+	widget_set_size(win->window_id, password_field_id, win->current_scale);
 
 	passmngr_resize();
 
@@ -304,15 +360,6 @@ static int display_login_handler (window_info *win)
 
 	glEnd();
 
-	draw_text(username_bar_x + username_bar_x_len/20, username_text_y,
-		(const unsigned char*)input_username_str, strlen(input_username_str), win->font_category,
-		TDO_SHADOW, 1, TDO_FOREGROUND, 0.0, 0.9, 1.0, TDO_BACKGROUND, 0.0, 0.5, 0.5,
-		TDO_ZOOM, win->current_scale, TDO_END);
-	draw_text(password_bar_x + password_bar_x_len/20, password_text_y + win->default_font_len_y/2,
-		(const unsigned char*)display_password_str, strlen(display_password_str), win->font_category,
-		TDO_SHADOW, 1, TDO_FOREGROUND, 0.0, 0.9, 1.0, TDO_BACKGROUND, 0.0, 0.5, 0.5,
-		TDO_ZOOM, win->current_scale, TDO_VERTICAL_ALIGNMENT, CENTER_PASSWORD, TDO_END);
-
 	// print the current error, if any
 	if (strlen (log_in_error_str))
 	{
@@ -369,14 +416,12 @@ static int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 	// check to see if we clicked on the username box
 	if (mx >= username_bar_x && mx <= username_bar_x + username_bar_x_len && my >= username_bar_y && my <= username_bar_y + username_bar_y_len)
 	{
-		username_box_selected = 1;
-		password_box_selected = 0;
+		select_username_box();
 	}
 	// check to see if we clicked on the password box
 	else if (mx >= password_bar_x && mx <= password_bar_x + password_bar_x_len && my >= password_bar_y && my <= password_bar_y + password_bar_y_len)
 	{
-		username_box_selected = 0;
-		password_box_selected = 1;
+		select_password_box();
 	}
 	// check to see if we clicked login select button
 	else if (mx >= passmngr_button_x && mx <= passmngr_button_x + passmngr_button_size && my >= passmngr_button_y && my <= passmngr_button_y + passmngr_button_size)
@@ -426,51 +471,33 @@ static int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-static int add_char_to_username(SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
+static keypress_type special_keypress_ok(SDL_Keycode key_code)
 {
-	Uint8 ch = key_to_char(key_unicode);
-	if (((ch>=48 && ch<=57) || (ch>=65 && ch<=90) || (ch>=97 && ch<=122) || (ch=='_'))
-		&& username_text_length < MAX_USERNAME_LENGTH - 1)		// MAX_USERNAME_LENGTH includes the null terminator
+	switch (key_code)
 	{
-		input_username_str[username_text_length]=ch;
-		input_username_str[username_text_length+1]=0;
-		username_text_length++;
+		case SDLK_DELETE:
+		case SDLK_BACKSPACE:
+			return KP_INPUT;
+		case SDLK_LEFT:
+		case SDLK_RIGHT:
+		case SDLK_HOME:
+		case SDLK_END:
+			return KP_CURSOR;
 	}
-	else if(key_code == SDLK_DELETE || key_code == SDLK_BACKSPACE)
-	{
-		if (username_text_length > 0)
-			username_text_length--;
-		else
-			username_text_length = 0;
-		input_username_str[username_text_length] = '\0';
-	}
-	else
-		return 0;
-	return 1;
+	return KP_INVALID;
 }
 
-static int add_char_to_password(SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
+static keypress_type username_keypress_ok(SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
-	if (VALID_PASSWORD_CHAR(key_unicode) && password_text_length < MAX_USERNAME_LENGTH - 1)		// MAX_USERNAME_LENGTH includes the null terminator
-	{
-		input_password_str[password_text_length]=key_to_char(key_unicode);
-		display_password_str[password_text_length]='*';
-		input_password_str[password_text_length+1]=0;
-		display_password_str[password_text_length+1]=0;
-		password_text_length++;
-	}
-	else if (key_code == SDLK_DELETE || key_code == SDLK_BACKSPACE)
-	{
-		if (password_text_length > 0)
-			password_text_length--;
-		else
-			password_text_length = 0;
-		display_password_str[password_text_length] = '\0';
-		input_password_str[password_text_length] = '\0';
-	}
-	else
-		return 0;
-	return 1;
+	Uint8 ch = key_to_char(key_unicode);
+	if ((ch >= '0' && ch <= '9') || (ch>='A' && ch<='Z') || (ch>='a' && ch<='z') || ch=='_')
+		return KP_INPUT;
+	return special_keypress_ok(key_code);
+}
+
+static keypress_type password_keypress_ok(SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
+{
+	return VALID_PASSWORD_CHAR(key_unicode) ? KP_INPUT : special_keypress_ok(key_code);
 }
 
 static int keypress_login_handler (window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
@@ -490,21 +517,38 @@ static int keypress_login_handler (window_info *win, int mx, int my, SDL_Keycode
 	}
 	else if (key_code == SDLK_TAB)
 	{
-		username_box_selected = !username_box_selected;
-		password_box_selected = !password_box_selected;
+		toggle_selected_box(username_box_selected ? password_field_id : username_field_id);
 		return 1;
 	}
 	else if (username_box_selected)
 	{
+		keypress_type kp_type = username_keypress_ok(key_code, key_unicode, key_mod);
 		log_in_error_str[0] = '\0';
-		if (add_char_to_username (key_code, key_unicode, key_mod))
-			return 1;
+		if (kp_type)
+		{
+			widget_list *field = widget_find(win->window_id, username_field_id);
+			if (username_initial && kp_type == KP_INPUT)
+				pword_clear(login_root_win, username_field_id);
+			widget_unset_flags(win->window_id, username_field_id, PWORD_FIELD_NO_KEYPRESS);
+			widget_handle_keypress(field, 0, 0, key_code, key_unicode, key_mod);
+			widget_set_flags(login_root_win, username_field_id, PWORD_FIELD_NO_BORDER|PWORD_FIELD_NO_KEYPRESS|PWORD_FIELD_DRAW_CURSOR);
+			username_initial = 0;
+		}
 	}
 	else
 	{
+		keypress_type kp_type = password_keypress_ok(key_code, key_unicode, key_mod);
 		log_in_error_str[0] = '\0';
-		if (add_char_to_password (key_code, key_unicode, key_mod))
-			return 1;
+		if (kp_type)
+		{
+			widget_list *field = widget_find(win->window_id, password_field_id);
+			if (password_initial && kp_type == KP_INPUT)
+				pword_clear(login_root_win, password_field_id);
+			widget_unset_flags(win->window_id, password_field_id, PWORD_FIELD_NO_KEYPRESS);
+			widget_handle_keypress(field, 0, 0, key_code, key_unicode, key_mod);
+			widget_set_flags(login_root_win, password_field_id, PWORD_FIELD_NO_BORDER|PWORD_FIELD_NO_KEYPRESS|PWORD_FIELD_DRAW_CURSOR);
+			password_initial = 0;
+		}
 	}
 	return 0;
 }
@@ -546,6 +590,15 @@ void create_login_root_window (int width, int height)
 		set_window_handler (login_root_win, ELW_HANDLER_UI_SCALE, &ui_scale_login_handler);
 		set_window_handler (login_root_win, ELW_HANDLER_FONT_CHANGE, &change_login_font_handler);
 
+		username_field_id = pword_field_add_extended(login_root_win, username_field_id, NULL,
+			0, 0, 0, 0, P_TEXT, 1.0, 0.0, 0.9, 1.0, (unsigned char*)input_username_str, MAX_USERNAME_LENGTH);
+		widget_set_flags(login_root_win, username_field_id, PWORD_FIELD_NO_BORDER|PWORD_FIELD_NO_KEYPRESS|PWORD_FIELD_NO_CURSOR);
+		widget_set_OnClick(login_root_win, username_field_id, select_username_box);
+		password_field_id = pword_field_add_extended(login_root_win, password_field_id, NULL,
+			0, 0, 0, 0, P_NORMAL, 1.0, 0.0, 0.9, 1.0, (unsigned char*)input_password_str, MAX_USERNAME_LENGTH);
+		widget_set_flags(login_root_win, password_field_id, PWORD_FIELD_NO_BORDER|PWORD_FIELD_NO_KEYPRESS|PWORD_FIELD_NO_CURSOR);
+		widget_set_OnClick(login_root_win, password_field_id, select_password_box);
+
 		resize_window (login_root_win, width, height);
 	}
 }
@@ -574,13 +627,19 @@ void set_username(const char * new_username)
 			set_var_unsaved("username", INI_FILE_VAR);
 	}
 	if (strcmp(input_username_str, new_username) != 0)
-		safe_strncpy(input_username_str, new_username, MAX_USERNAME_LENGTH);
+	{
+		if (login_root_win >= 0)
+			pword_field_set_content(login_root_win, username_field_id,
+				(const unsigned char*)new_username, strlen(new_username));
+		else
+			safe_strncpy(input_username_str, new_username, MAX_USERNAME_LENGTH);
+	}
 	if (strcmp(lower_username_str, new_username) != 0)
 	{
 		safe_strncpy(lower_username_str, new_username, MAX_USERNAME_LENGTH);
 		my_tolower(lower_username_str);
 	}
-	username_text_length = 0;
+	username_initial = 1;
 }
 
 void set_password(const char * new_password)
@@ -589,11 +648,13 @@ void set_password(const char * new_password)
 		safe_strncpy(active_password_str, new_password, MAX_USERNAME_LENGTH);
 	if (strcmp(input_password_str, new_password) != 0)
 	{
-		char all_stars[MAX_USERNAME_LENGTH] = "***************";
-		safe_strncpy(input_password_str, new_password, MAX_USERNAME_LENGTH);
-		safe_strncpy2(display_password_str, all_stars, MAX_USERNAME_LENGTH, strlen(new_password));
+		if (login_root_win >= 0)
+			pword_field_set_content(login_root_win, password_field_id,
+				(const unsigned char*)new_password, strlen(new_password));
+		else
+			safe_strncpy(input_password_str, new_password, MAX_USERNAME_LENGTH);
 	}
-	password_text_length = 0;
+	password_initial = 1;
 }
 
 int valid_username_pasword(void)

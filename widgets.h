@@ -122,6 +122,16 @@ typedef struct wl{
 #define TEXT_FIELD_MOUSE_EDITABLE 0x200
 /*! \} */
 
+/*!
+ * \name Flags for the password field
+ */
+/*! \{ */
+#define PWORD_FIELD_NO_KEYPRESS TEXT_FIELD_NO_KEYPRESS
+#define PWORD_FIELD_NO_BORDER   0x2000
+#define PWORD_FIELD_DRAW_CURSOR 0x4000
+#define PWORD_FIELD_NO_CURSOR   0x8000
+/*! \} */
+
 #define TF_BLINK_DELAY 500
 
 /*!
@@ -1481,10 +1491,9 @@ void text_field_force_rewrap(int window_id, Uint32 widget_id);
 #define P_TEXT      1
 #define P_NONE      2
 
-int pword_keypress (widget_list *w, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
-unsigned char * pword_field_get(widget_list *w);
 int pword_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, unsigned char *buffer, int buffer_size);
 int pword_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, float size, float r, float g, float b, unsigned char *buffer, int buffer_size);
+int pword_field_set_content(int window_id, Uint32 widget_id, const unsigned char* buf, size_t len);
 void pword_set_status(widget_list *w, Uint8 status);
 int pword_clear(int window_id, Uint32 widget_id);
 
