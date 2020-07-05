@@ -900,7 +900,7 @@ void Font::draw(const unsigned char* text, size_t len, int x, int y,
 		}
 	}
 
-	int tot_width, tot_height;
+	int tot_width = 0, tot_height = 0;
 	if (options.is_help()
 		|| options.vertical_alignment() == TextDrawOptions::VerticalAlignment::BOTTOM_LINE
 		|| options.vertical_alignment() == TextDrawOptions::VerticalAlignment::CENTER_LINE)
