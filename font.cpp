@@ -295,12 +295,20 @@ Font::Font(const std::string& ttf_file_name): _font_name(), _file_name(), _flags
 	_password_center_offset(0), _max_advance(0), _max_digit_advance(0), _avg_advance(0),
 	_spacing(0), _scale_x(1.0), _scale_y(1.0)
 {
-	TTF_Font *font = TTF_OpenFont(ttf_file_name.c_str(), ttf_point_size);
+	// First try to interpret ttf_file_name as a path relative to ttf_directory. If that fails,
+	// try as an absolute path.
+	std::string file_name = ttf_directory + ttf_file_name;
+	TTF_Font *font = TTF_OpenFont(file_name.c_str(), ttf_point_size);
 	if (!font)
 	{
-		LOG_ERROR("Failed to open TTF font file '%s'", ttf_file_name.c_str());
-		_flags |= FAILED;
-		return;
+		file_name = ttf_file_name;
+		font = TTF_OpenFont(file_name.c_str(), ttf_point_size);
+		if (!font)
+		{
+			LOG_ERROR("Failed to open TTF font file '%s'", ttf_file_name.c_str());
+			_flags |= FAILED;
+			return;
+		}
 	}
 
 	// Quick check to see if the font is useful
@@ -1410,12 +1418,19 @@ bool Font::build_texture_atlas()
 		return false;
 	}
 
-	TTF_Font *font = TTF_OpenFont(_file_name.c_str(), ttf_point_size);
+	// First try to interpret ttf_file_name as a path relative to ttf_directory. If that fails,
+	// try as an absolute path.
+	std::string file_name = ttf_directory + _file_name;
+	TTF_Font *font = TTF_OpenFont(file_name.c_str(), ttf_point_size);
 	if (!font)
 	{
-		LOG_ERROR("Failed to open TrueType font %s: %s", _file_name.c_str(), TTF_GetError());
-		_flags |= Flags::FAILED;
-		return false;
+		font = TTF_OpenFont(_file_name.c_str(), ttf_point_size);
+		if (!font)
+		{
+			LOG_ERROR("Failed to open TrueType font %s: %s", _file_name.c_str(), TTF_GetError());
+			_flags |= Flags::FAILED;
+			return false;
+		}
 	}
 
 	int size = TTF_FontLineSkip(font);
@@ -1560,18 +1575,22 @@ void FontManager::initialize_ttf()
 		return;
 	}
 
-	search_files_and_apply(ttf_directory, "*.ttf",
-		[](const char *fname) {
-			Font font(fname);
-			if (!font.failed())
-				FontManager::get_instance()._fonts.push_back(std::move(font));
-		}, 1);
-	search_files_and_apply(ttf_directory, "*.otf",
-		[](const char *fname) {
-			Font font(fname);
-			if (!font.failed())
-				FontManager::get_instance()._fonts.push_back(std::move(font));
-		}, 1);
+	static const char* patterns[] = { "*.ttf", "*.otf" };
+	for (const char* pattern: patterns)
+	{
+		search_files_and_apply(ttf_directory, pattern,
+			[](const char *fname_ptr) {
+				size_t dir_name_len = strlen(ttf_directory);
+				std::string fname;
+				if (!strncmp(fname_ptr, ttf_directory, dir_name_len))
+					fname = fname_ptr + dir_name_len;
+				else
+					fname = fname_ptr;
+				Font font(fname);
+				if (!font.failed())
+					FontManager::get_instance()._fonts.push_back(std::move(font));
+			}, 1);
+	}
 
 	// Sort TTF fonts by font name, but keep them after EL bundled fonts
 	std::sort(_fonts.begin() + _nr_bundled_fonts, _fonts.end(),
