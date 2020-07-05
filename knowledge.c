@@ -5,6 +5,7 @@
 #include "asc.h"
 #include "books.h"
 #include "context_menu.h"
+#include "cursors.h"
 #include "elconfig.h"
 #include "elloggingwrapper.h"
 #include "io/elpathwrapper.h"
@@ -59,6 +60,7 @@ static int text_border = 0;
 static int label_x_left = 0;
 static int book_x_left = 0;
 static int book_start_x = 0;
+static int mouse_over_book_link = 0;
 
 static int add_knowledge_book_image(int window_id)
 {
@@ -85,6 +87,12 @@ static int handle_knowledge_book(void)
 {
 	open_book(knowledge_book_id + 10000);
 	book_clicked = 1;
+	return 1;
+}
+
+static int handle_mouseover_knowledge_book(widget_list *widget, int mx, int my)
+{
+	mouse_over_book_link = 1;
 	return 1;
 }
 
@@ -381,6 +389,13 @@ int mouseover_knowledge_handler(window_info *win, int mx, int my)
 	if (cm_window_shown()!=CM_INIT_VALUE)
 		return 0;
 
+	if (mouse_over_book_link)
+	{
+		elwin_mouse = CURSOR_USE;
+		mouse_over_book_link = 0;
+		return 1;
+	}
+
 	for(i=0;i<knowledge_count;i++)knowledge_list[i].mouse_over=0;
 	if (my>0)
 		know_show_win_help = 1;
@@ -633,8 +648,10 @@ void fill_knowledge_win(int window_id)
 	knowledge_scroll_id = vscrollbar_add_extended (window_id, knowledge_scroll_id, NULL, 0,  0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, (knowledge_count+1)/2-displayed_book_rows);
 	knowledge_book_image_id = add_knowledge_book_image(window_id);
 	widget_set_OnClick(window_id, knowledge_book_image_id, &handle_knowledge_book);
+	widget_set_OnMouseover(window_id, knowledge_book_image_id, &handle_mouseover_knowledge_book);
 	knowledge_book_label_id = label_add_extended(window_id, knowledge_book_image_id + 1, NULL, 0, 0, WIDGET_DISABLED, 0.8, 1.0, 1.0, 1.0, knowledge_read_book);
 	widget_set_OnClick(window_id, knowledge_book_label_id, &handle_knowledge_book);
+	widget_set_OnMouseover(window_id, knowledge_book_label_id, &handle_mouseover_knowledge_book);
 
 	if (window_id >= 0 && window_id < windows_list.num_windows)
 		set_content_widths(&windows_list.window[window_id]);
