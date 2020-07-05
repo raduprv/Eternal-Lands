@@ -3102,17 +3102,6 @@ int write_el_ini (void)
 #ifdef ELC
 static int display_elconfig_handler(window_info *win)
 {
-	int i;
-
-	for(i= 0; i < our_vars.no; i++)
-	{
-		// Update the widgets in case an option changed
-		// Actually that's ony the OPT_MULTI type widgets, the others are
-		// taken care of by their widget handlers
-		if ((our_vars.var[i]->type == OPT_MULTI) || (our_vars.var[i]->type == OPT_MULTI_H))
-			multiselect_set_selected (elconfig_tabs[our_vars.var[i]->widgets.tab_id].tab, our_vars.var[i]->widgets.widget_id, *(int *)our_vars.var[i]->var);
-	}
-
 	// Draw the long description of an option
 	draw_string_zoomed_width_font(TAB_MARGIN, elconfig_menu_y_len-LONG_DESC_SPACE,
 		elconf_description_buffer, window_width, MAX_LONG_DESC_LINES, win->font_category,
@@ -3493,6 +3482,7 @@ static void elconfig_populate_tabs(void)
 						0, iopt*(ELCONFIG_SCALED_VALUE(22)+SPACING), 0, label,
 						DEFAULT_SMALL_RATIO*elconf_scale, iopt == *(int *)var->var);
 				}
+				multiselect_set_selected(window_id, widget_id, *((const int*)var->var));
 				widget_set_OnClick(window_id, widget_id, multiselect_click_handler);
 			break;
 			case OPT_FLOAT_F:
@@ -3559,6 +3549,7 @@ static void elconfig_populate_tabs(void)
 						window_width - TAB_MARGIN - widget_width, current_y + dy / 2);
 				}
 
+				multiselect_set_selected(window_id, widget_id, *((const int*)var->var));
 				widget_set_OnClick(window_id, widget_id, multiselect_click_handler);
 			break;
 		}

@@ -4085,6 +4085,39 @@ int multiselect_get_selected(int window_id, Uint32 widget_id)
 	}
 }
 
+static int _multiselect_selected_is_visible(int window_id, Uint32 widget_id)
+{
+	widget_list *widget = widget_find(window_id, widget_id);
+	multiselect *M;
+	int i, but_start, start_y;
+
+	if (!widget || !(M = widget->widget_info))
+		return 0;
+
+	if (M->scrollbar == -1)
+		// No scrollbar, even if the options is not visible there is nothing we can do about it
+		return 1;
+
+	but_start = vscrollbar_get_pos(M->win_id, M->scrollbar);
+	if (M->selected_button < but_start)
+		return 0;
+	if (M->selected_button == but_start)
+		return 1;
+
+	start_y = M->buttons[but_start].y;
+	for (i = but_start+1; i < M->nr_buttons; i++)
+	{
+		int button_y = M->buttons[i].y - start_y;
+		if(button_y + M->buttons[i].height > widget->len_y)
+			// Button won't be shown, and hence neither will the selected button
+			return 0;
+		if (M->selected_button == i)
+			return 1;
+	}
+
+	return 0;
+}
+
 int multiselect_set_selected(int window_id, Uint32 widget_id, int button_id)
 {
 	widget_list *widget = widget_find(window_id, widget_id);
@@ -4093,9 +4126,14 @@ int multiselect_set_selected(int window_id, Uint32 widget_id, int button_id)
 		return -1;
 	} else {
 		int i;
-		for (i=0; i<M->nr_buttons; i++) {
-			if (button_id == M->buttons[i].value) {
+		for (i=0; i<M->nr_buttons; i++)
+		{
+			if (button_id == M->buttons[i].value)
+			{
 				M->selected_button = i;
+				if (M->scrollbar != -1 && !_multiselect_selected_is_visible(window_id, widget_id))
+					vscrollbar_set_pos(M->win_id, M->scrollbar, i);
+
 				return button_id;
 			}
 		}
