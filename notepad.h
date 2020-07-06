@@ -14,7 +14,6 @@ extern "C" {
 
 extern int popup_win;      /*!< ID of the popup window */
 extern int notepad_loaded; /*!< boolean flag, indicating whether the notepad was loaded before. */
-extern float note_zoom;    /*!< Size of the text in the note pad */
 
 /* state structure for an input popup window */
 typedef struct

@@ -431,7 +431,6 @@ static int save_notes_button_id = -1;
 static int note_button_scroll_id = -1;
 
 int notepad_loaded = 0;
-float note_zoom = 0.8f;
 static const float note_tab_zoom = DEFAULT_SMALL_RATIO * 0.9;
 static float note_button_zoom = 0;
 static int note_widget_id = 0;
@@ -817,7 +816,7 @@ static void open_note_tab_continued(int id)
 	note_list[id].input = text_field_add_extended(note_list[id].window, note_widget_id++,
 		NULL, tf_x, tf_y, tf_width, tf_height,
 		TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_CAN_GROW|TEXT_FIELD_SCROLLBAR,
-		NOTE_FONT, note_zoom * tab_win->current_scale, 0.77f, 0.57f, 0.39f, &note_list[id].text,
+		NOTE_FONT, tab_win->current_scale, 0.77f, 0.57f, 0.39f, &note_list[id].text,
 		1, FILTER_ALL, widget_space, widget_space);
 
 	tab = tab_collection_get_tab_nr (notepad_win, note_tabcollection_id, note_list[id].window);
