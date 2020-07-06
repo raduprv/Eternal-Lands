@@ -145,7 +145,7 @@ const ustring Font::ellipsis = reinterpret_cast<const unsigned char*>("...");
 Font::Font(const Font& font): _font_name(font.font_name()), _file_name(font.file_name()),
 	_flags(font._flags & ~HAS_TEXTURE), _texture_width(font._texture_width),
 	_texture_height(font._texture_height), _metrics(font._metrics), _block_width(font._block_width),
-	_block_height(font._block_height), _line_height(font._line_height),
+	_line_height(font._line_height),
 	_vertical_advance(font._vertical_advance), _font_top_offset(font._font_top_offset),
 	_digit_center_offset(font._digit_center_offset), _password_center_offset(font._password_center_offset),
 	_max_advance(font._max_advance), _max_digit_advance(font._max_digit_advance),
@@ -154,7 +154,7 @@ Font::Font(const Font& font): _font_name(font.font_name()), _file_name(font.file
 
 Font::Font(size_t font_nr): _font_name(), _file_name(), _flags(0),
 	_texture_width(256), _texture_height(256), _metrics(),
-	_block_width(font_block_width), _block_height(font_block_height),
+	_block_width(font_block_width),
 	_line_height(default_vertical_advance + 1),
 	_vertical_advance(default_vertical_advance), _font_top_offset(0),
 	_digit_center_offset(font_nr == 2 ? 10 : 9), _password_center_offset(0), _max_advance(12),
@@ -290,7 +290,7 @@ Font::Font(size_t font_nr): _font_name(), _file_name(), _flags(0),
 
 #ifdef TTF
 Font::Font(const std::string& ttf_file_name): _font_name(), _file_name(), _flags(0),
-	_texture_width(0), _texture_height(0), _metrics(), _block_width(0), _block_height(0),
+	_texture_width(0), _texture_height(0), _metrics(), _block_width(0),
 	_line_height(0), _vertical_advance(0), _font_top_offset(0), _digit_center_offset(0),
 	_password_center_offset(0), _max_advance(0), _max_digit_advance(0), _avg_advance(0),
 	_spacing(0), _scale_x(1.0), _scale_y(1.0)
@@ -1493,8 +1493,7 @@ bool Font::build_texture_atlas()
 	_texture_width = width;
 	_texture_height = height;
 	_block_width = size;
-	_block_height = size;
-	_line_height = _vertical_advance = _block_height;
+	_line_height = _vertical_advance = size;
 	_font_top_offset = y_delta;
 	int digit_top = std::min_element(_metrics.begin() + 16, _metrics.begin() + 26,
 		[](const Metrics& m0, const Metrics& m1) { return m0.top < m1.top; })->top;
@@ -1508,7 +1507,7 @@ bool Font::build_texture_atlas()
 	_max_digit_advance = std::max_element(_metrics.begin() + 16, _metrics.begin() + 26,
 		[](const Metrics& m0, const Metrics& m1) { return m0.advance < m1.advance; })->advance;
 	_avg_advance = calc_average_advance();
-	_scale_x = _scale_y = float(font_block_height) / size;
+	_scale_x = _scale_y = float(font_block_height - 2) / size;
 	_flags |= Flags::HAS_TEXTURE;
 
 	TTF_CloseFont(font);

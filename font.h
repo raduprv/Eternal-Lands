@@ -11,7 +11,10 @@
 #define DEFAULT_FIXED_FONT_HEIGHT 18
 #define SMALL_FIXED_FONT_WIDTH    8
 #define SMALL_FIXED_FONT_HEIGHT   15
-#define DEFAULT_SMALL_RATIO       (8.0f / 11.0f)
+// This value of DEFAULT_SMALL_RATIO is a compromise between 8/11 = 0.7272 and 16/19=0.8421,
+// which are the ratios of the widths and heights respectively between small and normal characters
+// in the fixed font in earlier font handling.
+#define DEFAULT_SMALL_RATIO       0.785f
 
 #define INGAME_FONT_X_LEN       0.17f
 #define SMALL_INGAME_FONT_X_LEN 0.12f
@@ -827,8 +830,6 @@ private:
 	std::array<Metrics, nr_glyphs> _metrics;
 	//! Width reserved for a character in the texture
 	int _block_width;
-	//! Height reserved for a character in the texture
-	int _block_height;
 	//! Height of a single character in pixels
 	int _line_height;
 	//! How far to advance the pen vertically when moving to the next line
