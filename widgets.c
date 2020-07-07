@@ -60,6 +60,7 @@ typedef struct {
 	int sel_begin, sel_end;
 	int drag_begin;
 	int mouseover;
+	float shadow_r, shadow_g, shadow_b;
 	Uint16 fixed_height;
 } password_entry;
 
@@ -3894,7 +3895,7 @@ static int pword_field_draw(widget_list *w)
 	int space = (int)(0.5 + 2*w->size);
 	int sel_begin, sel_end;
 	ver_alignment valign;
-	int draw_cursor;
+	int draw_cursor, draw_shadow;
 
 	if (!w || !(entry = (password_entry*)w->widget_info))
 		return 0;
@@ -3942,16 +3943,20 @@ static int pword_field_draw(widget_list *w)
 	sel_begin = max2i(entry->sel_begin - entry->draw_begin, 0);
 	sel_end = max2i(entry->sel_end - entry->draw_begin, 0);
 	valign = entry->status == P_NORMAL ? CENTER_PASSWORD : CENTER_LINE;
+	draw_shadow = (entry->shadow_r >= 0.0f);
 	draw_text(x_left, w->pos_y + w->len_y/2, start, len, w->fcat, TDO_MAX_WIDTH, max_width,
-		TDO_FOREGROUND, w->r, w->g, w->b, TDO_ZOOM, w->size, TDO_SEL_BEGIN, sel_begin,
-		TDO_SEL_END, sel_end, TDO_VERTICAL_ALIGNMENT, valign, TDO_END);
+		TDO_SHADOW, draw_shadow, TDO_FOREGROUND, w->r, w->g, w->b,
+		TDO_BACKGROUND, entry->shadow_r, entry->shadow_g, entry->shadow_b,
+		TDO_ZOOM, w->size, TDO_SEL_BEGIN, sel_begin, TDO_SEL_END, sel_end, TDO_VERTICAL_ALIGNMENT, valign,
+		TDO_END);
 	draw_cursor = !(w->Flags & PWORD_FIELD_NO_CURSOR)
 		&& (entry->mouseover || (w->Flags & PWORD_FIELD_DRAW_CURSOR));
 	if (draw_cursor && cur_time % (2*TF_BLINK_DELAY) < TF_BLINK_DELAY)
 	{
 		draw_text(x_cursor, w->pos_y + w->len_y/2, (const unsigned char*)"_", 1, w->fcat,
-			TDO_FOREGROUND, w->r, w->g, w->b, TDO_ZOOM, w->size, TDO_VERTICAL_ALIGNMENT, CENTER_LINE,
-			TDO_END);
+			TDO_SHADOW, draw_shadow, TDO_FOREGROUND, w->r, w->g, w->b,
+			TDO_BACKGROUND, entry->shadow_r, entry->shadow_g, entry->shadow_b,
+			TDO_ZOOM, w->size, TDO_VERTICAL_ALIGNMENT, CENTER_LINE, TDO_END);
 	}
 
 	if (entry->status == P_NORMAL)
@@ -4029,6 +4034,20 @@ int pword_field_set_content(int window_id, Uint32 widget_id, const unsigned char
 	return 1;
 }
 
+int pword_field_set_shadow_color(int window_id, Uint32 widget_id, float r, float g, float b)
+{
+	widget_list *w = widget_find(window_id, widget_id);
+	password_entry *entry;
+
+	if (!w || !(entry = w->widget_info))
+		return 0;
+
+	entry->shadow_r = r;
+	entry->shadow_g = g;
+	entry->shadow_b = b;
+	return 1;
+}
+
 int pword_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, float size, unsigned char *buffer, int buffer_size)
 {
 	int space = (int)(0.5 + 2*size), max_width = lx - 2*space;
@@ -4041,6 +4060,7 @@ int pword_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16
 	T->password = buffer;
 	T->max_chars = buffer_size;
 	T->sel_begin = T->sel_end = -1;
+	T->shadow_r = T->shadow_g = T->shadow_b = -1.0f;
 
 	if (ly != 0)
 	{

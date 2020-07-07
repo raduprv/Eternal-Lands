@@ -592,12 +592,14 @@ void create_login_root_window (int width, int height)
 
 		username_field_id = pword_field_add_extended(login_root_win, username_field_id, NULL,
 			0, 0, 0, 0, P_TEXT, 1.0, (unsigned char*)input_username_str, MAX_USERNAME_LENGTH);
-		widget_set_color(login_root_win, username_field_id, 0.0, 0.9, 1.0);
+		widget_set_color(login_root_win, username_field_id, 0.0f, 0.9f, 1.0f);
+		pword_field_set_shadow_color(login_root_win, username_field_id, 0.0f, 0.5f, 1.0f);
 		widget_set_flags(login_root_win, username_field_id, PWORD_FIELD_NO_BORDER|PWORD_FIELD_NO_KEYPRESS|PWORD_FIELD_NO_CURSOR);
 		widget_set_OnClick(login_root_win, username_field_id, select_username_box);
 		password_field_id = pword_field_add_extended(login_root_win, password_field_id, NULL,
 			0, 0, 0, 0, P_NORMAL, 1.0, (unsigned char*)input_password_str, MAX_USERNAME_LENGTH);
-		widget_set_color(login_root_win, password_field_id, 0.0, 0.9, 1.0);
+		widget_set_color(login_root_win, password_field_id, 0.0f, 0.9f, 1.0f);
+		pword_field_set_shadow_color(login_root_win, password_field_id, 0.0f, 0.5f, 1.0f);
 		widget_set_flags(login_root_win, password_field_id, PWORD_FIELD_NO_BORDER|PWORD_FIELD_NO_KEYPRESS|PWORD_FIELD_NO_CURSOR);
 		widget_set_OnClick(login_root_win, password_field_id, select_password_box);
 

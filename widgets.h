@@ -1469,7 +1469,7 @@ int text_field_keypress (widget_list *w, int mx, int my, SDL_Keycode key_code, U
 /*!
  * \ingroup widgets
  *
- * Force a text field to rewrap the lines.
+ * \brief Force a text field to rewrap the lines.
  *
  * Force the textfield identified by window ID \a window_id and widget ID
  * \a widget_id, to recalculate the positions of the soft line breaks. This is
@@ -1488,6 +1488,23 @@ void text_field_force_rewrap(int window_id, Uint32 widget_id);
 int pword_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, unsigned char *buffer, int buffer_size);
 int pword_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, float size, unsigned char *buffer, int buffer_size);
 int pword_field_set_content(int window_id, Uint32 widget_id, const unsigned char* buf, size_t len);
+/*!
+ * \ingroup widgets
+ *
+ * \brief Set the shadow color of the text
+ *
+ * Set the shadow color of the text in the password field identified by window ID \a window_id
+ * and widget ID \a widget_id, to \a r, \a g, \a b. If this function is not called, or \a r < 0,
+ * no shadow is drawn.
+ *
+ * \param window_id The window identifier for the password field
+ * \param widget_id The widget identifier for the password field
+ * \param r         The red component of the shadow color
+ * \param g         The green component of the shadow color
+ * \param b         The blue component of the shadow color
+ * \return 1 on success, 0 on failure (widget not found)
+ */
+int pword_field_set_shadow_color(int window_id, Uint32 widget_id, float r, float g, float b);
 void pword_set_status(widget_list *w, Uint8 status);
 int pword_clear(int window_id, Uint32 widget_id);
 
