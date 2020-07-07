@@ -738,18 +738,18 @@ void Font::draw_line(const unsigned char* text, size_t len, int x, int y,
 			new_options.set_ignore_color();
 
 			new_options.use_background_color();
-			draw_line(text, len, x-delta, y-delta, new_options);
-			draw_line(text, len, x-delta, y,       new_options);
-			draw_line(text, len, x-delta, y+delta, new_options);
-			draw_line(text, len, x,       y+delta, new_options);
-			draw_line(text, len, x+delta, y+delta, new_options);
-			draw_line(text, len, x+delta, y,       new_options);
-			draw_line(text, len, x+delta, y-delta, new_options);
-			draw_line(text, len, x,       y-delta, new_options);
+			draw_line(text, len, x-delta, y-delta, new_options, sel_begin, sel_end);
+			draw_line(text, len, x-delta, y,       new_options, sel_begin, sel_end);
+			draw_line(text, len, x-delta, y+delta, new_options, sel_begin, sel_end);
+			draw_line(text, len, x,       y+delta, new_options, sel_begin, sel_end);
+			draw_line(text, len, x+delta, y+delta, new_options, sel_begin, sel_end);
+			draw_line(text, len, x+delta, y,       new_options, sel_begin, sel_end);
+			draw_line(text, len, x+delta, y-delta, new_options, sel_begin, sel_end);
+			draw_line(text, len, x,       y-delta, new_options, sel_begin, sel_end);
 		}
 
 		new_options.set_ignore_color(false);
-		draw_line(text, len, x, y, new_options);
+		draw_line(text, len, x, y, new_options, sel_begin, sel_end);
 	}
 	else if (sel_end <= sel_begin || sel_begin >= len || options.ignore_color())
 	{
