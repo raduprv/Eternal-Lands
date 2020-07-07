@@ -420,19 +420,18 @@ int display_buddy_add(void)
 		/* Add name input and label */
 		cw = get_avg_char_width_zoom(UI_FONT, win->current_scale);
 		label_id = label_add_extended(buddy_add_win, label_id, NULL,
-			buddy_border_space, buddy_border_space, 0, win->current_scale, 0.77f, 0.57f, 0.39f, buddy_name_str);
+			buddy_border_space, buddy_border_space, 0, win->current_scale, buddy_name_str);
 		label_width = widget_get_width(buddy_add_win, label_id);
 		input_id = pword_field_add_extended(buddy_add_win, input_id, NULL,
 			2 * buddy_border_space + label_width, buddy_border_space,
 			MAX_USERNAME_LENGTH * cw, win->default_font_len_y + buddy_border_space,
-			P_TEXT, win->current_scale, 0.77f, 0.57f, 0.39f, buddy_name_buffer,
-			MAX_USERNAME_LENGTH);
+			P_TEXT, win->current_scale, buddy_name_buffer, MAX_USERNAME_LENGTH);
 		widget_set_OnMouseover(buddy_add_win, label_id, name_onmouseover_handler);
 		widget_set_OnMouseover(buddy_add_win, input_id, name_onmouseover_handler);
 		widget_set_OnKey(buddy_add_win, input_id, (int (*)())name_input_keypress_handler);
 
 		/* Add "Add buddy" button */
-		button_id = button_add_extended(buddy_add_win, button_id, NULL, 0, 0, 0, 0, 0, win->current_scale, 0.77f, 0.57f, 0.39f, buddy_add_str);
+		button_id = button_add_extended(buddy_add_win, button_id, NULL, 0, 0, 0, 0, 0, win->current_scale, buddy_add_str);
 		widget_set_OnClick(buddy_add_win, button_id, click_add_buddy_handler);
 
 		/* Resize window and centre button */
@@ -475,10 +474,10 @@ static int display_buddy_change(_buddy *buddy)
 
 	/* Add name label and name */
 	label_id = label_add_extended(buddy_change_win, label_id, NULL,
-		buddy_border_space, buddy_border_space, 0, win->current_scale, 0.77f, 0.57f, 0.39f, buddy_name_str);
+		buddy_border_space, buddy_border_space, 0, win->current_scale, buddy_name_str);
 	tmp_width = widget_get_width(buddy_change_win, label_id);
 	name_id = label_add_extended(buddy_change_win, name_id, NULL,
-		2 * buddy_border_space + tmp_width, buddy_border_space, 0, win->current_scale, 0.77f, 0.57f, 0.39f, buddy_to_change);
+		2 * buddy_border_space + tmp_width, buddy_border_space, 0, win->current_scale, buddy_to_change);
 
 	buddy_change_x_len = 3 * buddy_border_space + tmp_width + MAX_USERNAME_LENGTH * win->default_font_max_len_x + win->box_size;
 	buddy_change_y_len = 2 * buddy_border_space + widget_get_height(buddy_change_win, name_id);
@@ -492,7 +491,7 @@ static int display_buddy_change(_buddy *buddy)
 
 		/* Add type label and input widget */
 		type_label_id = label_add_extended(buddy_change_win, type_label_id, NULL,
-			buddy_border_space, buddy_change_y_len, 0, win->current_scale, 0.77f, 0.57f, 0.39f, buddy_type_str);
+			buddy_border_space, buddy_change_y_len, 0, win->current_scale, buddy_type_str);
 		tmp_width = widget_get_width(buddy_change_win, type_label_id);
 
 		buddy_type_input_id = multiselect_add(buddy_change_win, NULL,
@@ -516,7 +515,7 @@ static int display_buddy_change(_buddy *buddy)
 	/* Delete buddy checkbox and label */
 	checkbox_id = checkbox_add(buddy_change_win, NULL, 0, 0, win->default_font_len_y, win->default_font_len_y, &buddy_delete);
 	checkbox_label_id = label_add_extended(buddy_change_win, checkbox_label_id, NULL,
-		0, 0, 0, win->current_scale, 0.77f, 0.59f, 0.39f, buddy_delete_str);
+		0, 0, 0, win->current_scale, buddy_delete_str);
 	widget_set_OnClick(buddy_change_win, checkbox_label_id, click_delete_checkbox_label);
 	widget_set_OnMouseover(buddy_change_win, checkbox_id, delete_onmouseover_handler);
 	widget_set_OnMouseover(buddy_change_win, checkbox_label_id, delete_onmouseover_handler);
@@ -528,7 +527,7 @@ static int display_buddy_change(_buddy *buddy)
 
 	/* Change button */
 	change_button_id = button_add_extended(buddy_change_win, change_button_id, NULL,
-		0, 0, 0, 0, 0, win->current_scale, 0.77f, 0.57f, 0.39f, buddy_change_str);
+		0, 0, 0, 0, 0, win->current_scale, buddy_change_str);
 	widget_set_OnClick(buddy_change_win, change_button_id, click_change_buddy_handler);
 	widget_move(buddy_change_win, change_button_id,
 		(buddy_change_x_len - widget_get_width(buddy_change_win, change_button_id)) / 2, buddy_change_y_len);
@@ -627,16 +626,16 @@ static int display_accept_buddy(char *name)
 	{
 		accept_windows[current_window].checkbox = checkbox_add(win->window_id, NULL,
 			0, 0, win->small_font_len_y, win->small_font_len_y, NULL);
+		widget_unset_color(win->window_id, accept_windows[current_window].checkbox);
 		label_id = label_add_extended(win->window_id, label_id, NULL,
-			0, 0, 0, win->current_scale_small, -1, -1, -1, buddy_add_to_list_str);
+			0, 0, 0, win->current_scale_small, buddy_add_to_list_str);
+		widget_unset_color(win->window_id, label_id);
 		widget_set_OnClick(win->window_id, label_id, click_accept_checkbox_label);
 	}
 
 	/* Add buttons */
-	yes_button = button_add_extended(win->window_id, yes_button, NULL,
-		0, 0, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, yes_str);
-	no_button = button_add_extended(win->window_id, no_button, NULL,
-		0, 0, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, no_str);
+	yes_button = button_add_extended(win->window_id, yes_button, NULL, 0, 0, 0, 0, 0, 1.0f, yes_str);
+	no_button = button_add_extended(win->window_id, no_button, NULL, 0, 0, 0, 0, 0, 1.0f, no_str);
 	widget_set_OnClick(win->window_id, yes_button, click_accept_yes);
 	widget_set_OnClick(win->window_id, no_button, click_accept_no);
 
@@ -719,9 +718,9 @@ void display_buddy(void)
 			set_window_handler(buddy_win, ELW_HANDLER_UI_SCALE, &ui_scale_buddy_handler );
 			set_window_handler(buddy_win, ELW_HANDLER_FONT_CHANGE, &change_buddy_font_handler);
 
-			buddy_scroll_id = vscrollbar_add_extended (buddy_win, buddy_scroll_id, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 0);
+			buddy_scroll_id = vscrollbar_add_extended (buddy_win, buddy_scroll_id, NULL, 0, 0, 0, 0, 0, 1.0, 0, 1, 0);
 			buddy_button_id = button_add_extended(buddy_win, buddy_button_id, NULL, 0, 0, 0, 0,
-				BUTTON_SQUARE|BUTTON_VCENTER_CONTENT, 1.0, 0.77f, 0.57f, 0.39f, buddy_add_str);
+				BUTTON_SQUARE|BUTTON_VCENTER_CONTENT, 1.0, buddy_add_str);
 			widget_set_OnClick(buddy_win, buddy_button_id, click_buddy_button_handler);
 
 			if (buddy_win >=0 && buddy_win < windows_list.num_windows)

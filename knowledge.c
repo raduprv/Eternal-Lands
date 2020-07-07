@@ -65,7 +65,7 @@ static int mouse_over_book_link = 0;
 static int add_knowledge_book_image(int window_id)
 {
 	// Book image
-	int isize, tsize, tid, picsperrow, xtile, ytile, id;
+	int isize, tsize, tid, picsperrow, xtile, ytile, id, img_id;
 	float ftsize, u, v, uend, vend;
 
 	isize=256;
@@ -80,7 +80,9 @@ static int add_knowledge_book_image(int window_id)
 	uend=u+ftsize;
 	vend=v-ftsize;
 	id = load_texture_cached("textures/items1", tt_gui);
-	return image_add_extended(window_id, 0, NULL, 0, 0, 0, 0, WIDGET_DISABLED, 1.0, 1.0, 1.0, 1.0, id, u, v, uend, vend, 0.05f);
+	img_id = image_add_extended(window_id, 0, NULL, 0, 0, 0, 0, WIDGET_DISABLED, 1.0, id, u, v, uend, vend, 0.05f);
+	widget_set_color(window_id, img_id, 1.0f, 1.0f, 1.0f);
+	return img_id;
 }
 
 static int handle_knowledge_book(void)
@@ -645,11 +647,12 @@ void fill_knowledge_win(int window_id)
 	set_window_handler(window_id, ELW_HANDLER_FONT_CHANGE, &change_knowledge_font_handler);
 	set_window_handler(window_id, ELW_HANDLER_POST_DISPLAY, &post_display_knowledge_handler);
 
-	knowledge_scroll_id = vscrollbar_add_extended (window_id, knowledge_scroll_id, NULL, 0,  0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, (knowledge_count+1)/2-displayed_book_rows);
+	knowledge_scroll_id = vscrollbar_add_extended (window_id, knowledge_scroll_id, NULL, 0,  0, 0, 0, 0, 1.0, 0, 1, (knowledge_count+1)/2-displayed_book_rows);
 	knowledge_book_image_id = add_knowledge_book_image(window_id);
 	widget_set_OnClick(window_id, knowledge_book_image_id, &handle_knowledge_book);
 	widget_set_OnMouseover(window_id, knowledge_book_image_id, &handle_mouseover_knowledge_book);
-	knowledge_book_label_id = label_add_extended(window_id, knowledge_book_image_id + 1, NULL, 0, 0, WIDGET_DISABLED, 0.8, 1.0, 1.0, 1.0, knowledge_read_book);
+	knowledge_book_label_id = label_add_extended(window_id, knowledge_book_image_id + 1, NULL, 0, 0, WIDGET_DISABLED, 0.8, knowledge_read_book);
+	widget_set_color(window_id, knowledge_book_label_id, 1.0, 1.0, 1.0);
 	widget_set_OnClick(window_id, knowledge_book_label_id, &handle_knowledge_book);
 	widget_set_OnMouseover(window_id, knowledge_book_label_id, &handle_mouseover_knowledge_book);
 

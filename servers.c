@@ -372,7 +372,7 @@ void create_server_sel_root_window (int width, int height)
 		
 		server_sel_root_win = create_window("Server Selection", -1, -1, 0, 0, width, height, ELW_TITLE_NONE|ELW_SHOW_LAST);
 
-//		server_sel_root_connect_id = button_add_extended(server_sel_root_win, server_sel_root_connect_id, NULL, (width - connect_width) /2, height - (160 * window_ratio), connect_width, connect_height, 0, 1.0f, 1.0f, 1.0f, 1.0f, "Connect");
+//		server_sel_root_connect_id = button_add_extended(server_sel_root_win, server_sel_root_connect_id, NULL, (width - connect_width) /2, height - (160 * window_ratio), connect_width, connect_height, 0, 1.0f, "Connect");
 
 		set_window_handler (server_sel_root_win, ELW_HANDLER_DISPLAY, &display_server_sel_root_handler);
 		set_window_handler (server_sel_root_win, ELW_HANDLER_CLICK, &click_server_sel_root_handler);

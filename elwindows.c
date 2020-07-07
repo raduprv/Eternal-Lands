@@ -22,6 +22,8 @@
 
 #define ELW_WIN_MAX 128
 
+const GLfloat gui_color[3] = { 0.77f, 0.57f, 0.39f };
+
 custom_scale_factors_def custom_scale_factors =
 {
 	.trade = 1.0f,

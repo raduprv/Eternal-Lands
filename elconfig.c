@@ -3414,37 +3414,34 @@ static void elconfig_populate_tabs(void)
 				dy = line_height - CHECKBOX_SIZE;
 				y_widget = current_y + max2i(dy / 2, 0);
 				widget_id = checkbox_add_extended(window_id, elconfig_free_widget_id++, NULL,
-					current_x, y_widget, CHECKBOX_SIZE, CHECKBOX_SIZE,
-					0, elconf_scale, 0.77f, 0.59f, 0.39f, var->var);
+					current_x, y_widget, CHECKBOX_SIZE, CHECKBOX_SIZE, 0, elconf_scale, var->var);
 				//Add label for the checkbox
 				y_label = current_y - min2i(dy / 2, 0);
 				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
-					current_x+CHECKBOX_SIZE+SPACING, y_label,
-					0, elconf_scale, -1.0, -1.0, -1.0, (char*)var->display.str);
+					current_x+CHECKBOX_SIZE+SPACING, y_label, 0, elconf_scale, (char*)var->display.str);
 				//Set handlers
 				widget_set_OnClick(window_id, widget_id, onclick_checkbox_handler);
 			break;
 			case OPT_INT:
 				/* interval is always 1 */
 				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
-					current_x, current_y, 0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)var->display.str);
+					current_x, current_y, 0, elconf_scale, (char*)var->display.str);
 				widget_width = spin_button_width;
 				widget_id = spinbutton_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					window_width - TAB_MARGIN - widget_width, current_y, widget_width, line_height,
 					SPIN_INT, var->var, var->args.imm.min,
-					var->args.imm.max, 1.0, elconf_scale, -1, -1, -1);
+					var->args.imm.max, 1.0, elconf_scale);
 				widget_set_OnKey(window_id, widget_id, (int (*)())spinbutton_onkey_handler);
 				widget_set_OnClick(window_id, widget_id, spinbutton_onclick_handler);
 			break;
 			case OPT_FLOAT:
 				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
-					current_x, current_y,
-					0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)var->display.str);
+					current_x, current_y, 0, elconf_scale, (char*)var->display.str);
 				widget_width = spin_button_width;
 				widget_id = spinbutton_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					window_width - TAB_MARGIN - widget_width, current_y, widget_width, line_height,
 					SPIN_FLOAT, var->var, var->args.fmmi.min, var->args.fmmi.max,
-					var->args.fmmi.interval, elconf_scale, -1, -1, -1);
+					var->args.fmmi.interval, elconf_scale);
 				widget_set_OnKey(window_id, widget_id, (int (*)())spinbutton_onkey_handler);
 				widget_set_OnClick(window_id, widget_id, spinbutton_onclick_handler);
 			break;
@@ -3455,23 +3452,21 @@ static void elconfig_populate_tabs(void)
 				widget_width = ELCONFIG_SCALED_VALUE(332);
 				widget_id = pword_field_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					window_width - TAB_MARGIN - widget_width, current_y, widget_width, 0,
-					P_TEXT, elconf_scale, 0.77f, 0.59f, 0.39f, var->var, var->len);
+					P_TEXT, elconf_scale, var->var, var->len);
 				dy = widget_get_height(window_id, widget_id) - line_height;
 				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
-					current_x, current_y + dy/2,
-					0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)var->display.str);
+					current_x, current_y + dy/2, 0, elconf_scale, (char*)var->display.str);
 				widget_set_OnKey (window_id, widget_id, (int (*)())string_onkey_handler);
 			break;
 			case OPT_PASSWORD:
 				// Grum: the client shouldn't store the password, so let's not add it to the configuration window
-				//label_id= label_add_extended(window_id, elconfig_free_widget_id++, NULL, current_x, current_y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, var->display.str);
-				//widget_id= pword_field_add_extended(window_id, elconfig_free_widget_id++, NULL, elconfig_menu_x_len/2, current_y, 200, 20, P_NORMAL, 1.0f, 0.77f, 0.59f, 0.39f, var->var, var->len);
+				//label_id= label_add_extended(window_id, elconfig_free_widget_id++, NULL, current_x, current_y, 0, 0, 0, 1.0, var->display.str);
+				//widget_id= pword_field_add_extended(window_id, elconfig_free_widget_id++, NULL, elconfig_menu_x_len/2, current_y, 200, 20, P_NORMAL, 1.0f, var->var, var->len);
 				//widget_set_OnKey (window_id, widget_id, string_onkey_handler);
 				continue;
 			case OPT_MULTI:
 				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
-					current_x, current_y, 0, elconf_scale,
-					0.77f, 0.59f, 0.39f, (char*)var->display.str);
+					current_x, current_y, 0, elconf_scale, (char*)var->display.str);
 				widget_width = ELCONFIG_SCALED_VALUE(250);
 				widget_id = multiselect_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					window_width - TAB_MARGIN - widget_width, current_y, widget_width,
@@ -3490,32 +3485,29 @@ static void elconfig_populate_tabs(void)
 			break;
 			case OPT_FLOAT_F:
 				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
-					current_x, current_y,
-					0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)var->display.str);
+					current_x, current_y, 0, elconf_scale, (char*)var->display.str);
 				widget_width = spin_button_width;
 				widget_id = spinbutton_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					window_width - TAB_MARGIN + widget_width, current_y, widget_width, line_height,
 					SPIN_FLOAT, var->var, var->args.fmmif.min(), var->args.fmmif.max(),
-					var->args.fmmif.interval, elconf_scale, -1, -1, -1);
+					var->args.fmmif.interval, elconf_scale);
 				widget_set_OnKey(window_id, widget_id, (int (*)())spinbutton_onkey_handler);
 				widget_set_OnClick(window_id, widget_id, spinbutton_onclick_handler);
 			break;
 			case OPT_INT_F:
 				/* interval is always 1 */
 				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
-					current_x, current_y,
-					0, elconf_scale, 0.77f, 0.59f, 0.39f, (char*)var->display.str);
+					current_x, current_y, 0, elconf_scale, (char*)var->display.str);
 				widget_width = spin_button_width;
 				widget_id = spinbutton_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					window_width - TAB_MARGIN - widget_width, current_y, widget_width, line_height,
-					SPIN_INT, var->var, var->args.immf.min(), var->args.immf.max(), 1.0, elconf_scale, -1, -1, -1);
+					SPIN_INT, var->var, var->args.immf.min(), var->args.immf.max(), 1.0, elconf_scale);
 				widget_set_OnKey(window_id, widget_id, (int (*)())spinbutton_onkey_handler);
 				widget_set_OnClick(window_id, widget_id, spinbutton_onclick_handler);
 			break;
 			case OPT_MULTI_H:
 				label_id= label_add_extended(window_id, elconfig_free_widget_id++, NULL,
-					current_x, current_y, 0, elconf_scale, 0.77f, 0.59f, 0.39f,
-					(const char*)var->display.str);
+					current_x, current_y, 0, elconf_scale, (const char*)var->display.str);
 				x = current_x + widget_get_width(window_id, label_id) + SPACING;
 				widget_id = multiselect_add_extended(window_id, elconfig_free_widget_id++,
 					NULL, x, current_y, ELCONFIG_SCALED_VALUE(350), ELCONFIG_SCALED_VALUE(80),
@@ -3677,7 +3669,7 @@ void display_elconfig_win(void)
 		/* Create tabs */
 		elconfig_tab_collection_id= tab_collection_add_extended (elconfig_win, elconfig_tab_collection_id, NULL,
 			TAB_MARGIN, TAB_MARGIN, elconfig_menu_x_len-TAB_MARGIN*2, elconfig_menu_y_len-TAB_MARGIN*2-LONG_DESC_SPACE,
-			0, DEFAULT_SMALL_RATIO * elconf_scale, 0.77f, 0.57f, 0.39f, MAX_TABS);
+			0, DEFAULT_SMALL_RATIO * elconf_scale, MAX_TABS);
 		/* Pass ELW_SCROLLABLE as the final argument to tab_add() if you want
 		 * to put more widgets in the tab than the size of the window allows.*/
 		elconfig_tabs[CONTROLS].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_controls, 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);

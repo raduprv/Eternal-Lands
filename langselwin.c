@@ -329,14 +329,16 @@ static int langsel_display_error_handler(window_info *win)
 
 		sep = (int)(0.5 + win->current_scale * 10);
 
-		save_button = button_add_extended(langsel_win, 100, NULL, 0, 0,
-			0, 0, 0, win->current_scale, langsel_winRGB[3][0], langsel_winRGB[3][1], langsel_winRGB[3][2], "Save");
+		save_button = button_add_extended(langsel_win, 100, NULL, 0, 0, 0, 0, 0, win->current_scale, "Save");
+		widget_set_color(langsel_win, save_button, langsel_winRGB[3][0], langsel_winRGB[3][1],
+			langsel_winRGB[3][2]);
 		widget_set_OnClick(langsel_win, save_button, langsel_save_handler);
 		button_width = widget_get_width(langsel_win, save_button);
 		button_height = widget_get_height(langsel_win, save_button);
 
-		quit_button = button_add_extended(langsel_win, 101, NULL, 0, 0,
-			0, 0, 0, win->current_scale, langsel_winRGB[3][0], langsel_winRGB[3][1], langsel_winRGB[3][2], "Quit");
+		quit_button = button_add_extended(langsel_win, 101, NULL, 0, 0, 0, 0, 0, win->current_scale, "Quit");
+		widget_set_color(langsel_win, quit_button, langsel_winRGB[3][0], langsel_winRGB[3][1],
+			langsel_winRGB[3][2]);
 		widget_set_OnClick(langsel_win, quit_button, langsel_quit_handler);
 
 		get_buf_dimensions(message, strlen((const char*)message), win->font_category,
@@ -430,7 +432,7 @@ static int display_langsel_handler(window_info *win)
 		winwidth = max_str_width + 2 * winsep;
 
 		/* to set the height, we need to know button sizes so create a temporary button */
-		save_button = button_add_extended(langsel_win, 100, NULL, 0, 0, 0, 0, WIDGET_INVISIBLE, text_zoom, 0, 0, 0, "Temp");
+		save_button = button_add_extended(langsel_win, 100, NULL, 0, 0, 0, 0, WIDGET_INVISIBLE, text_zoom, "Temp");
 		save_widget = widget_find(langsel_win, save_button);
 
 		/* calculate the window height assuming we can display all languages without a scroll bar */
@@ -474,8 +476,9 @@ static int display_langsel_handler(window_info *win)
 		/* create the save button, resized and moved to keep things tidy */
 		if (save_button > 0)
 			widget_destroy(langsel_win, save_button);
-		save_button = button_add_extended(langsel_win, 100, NULL, 0, 0,
-			0, 0, 0, text_zoom, langsel_winRGB[3][0], langsel_winRGB[3][1], langsel_winRGB[3][2], save);
+		save_button = button_add_extended(langsel_win, 100, NULL, 0, 0, 0, 0, 0, text_zoom, save);
+		widget_set_color(langsel_win, save_button, langsel_winRGB[3][0], langsel_winRGB[3][1],
+			langsel_winRGB[3][2]);
 		save_widget = widget_find(langsel_win, save_button);
 		widget_move(langsel_win, save_button, winwidth - (winsep + save_widget->len_x), winheight - winsep - save_widget->len_y);
 		widget_set_OnClick(langsel_win, save_button, langsel_save_handler);
@@ -502,7 +505,9 @@ static int display_langsel_handler(window_info *win)
 		{
 			langsel_scroll_id = vscrollbar_add_extended(langsel_win, 102, NULL,  winwidth - scroll_width, winsep,
 				scroll_width, line_step * max_lang_lines, 0, 1.0,
-				langsel_winRGB[3][0], langsel_winRGB[3][1], langsel_winRGB[3][2], 0, 1, num_lang_lines - max_lang_lines);
+				0, 1, num_lang_lines - max_lang_lines);
+			widget_set_color(langsel_win, langsel_scroll_id, langsel_winRGB[3][0], langsel_winRGB[3][1],
+				langsel_winRGB[3][2]);
 			widget_set_OnDrag(langsel_win, langsel_scroll_id, langsel_scroll_drag_handler);
 			widget_set_OnClick(langsel_win, langsel_scroll_id, langsel_scroll_click_handler);
 			add_scroll_bar = 0;

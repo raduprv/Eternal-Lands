@@ -906,7 +906,6 @@ static void popup_create_window(popup_t *this_popup)
 															  POPUP_TEXTENTRY_HEIGHT,
 															  P_TEXT,
 															  popup_font_zoom,
-															  0.77f, 0.57f, 0.39f,
 															  (unsigned char*)option->value.str,
 															  256
 															 );

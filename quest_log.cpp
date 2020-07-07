@@ -986,7 +986,7 @@ void Quest_List::open_window(void)
 		set_window_handler(win_id, ELW_HANDLER_RESIZE, (int (*)())&resize_questlist_handler );
 		set_window_handler(win_id, ELW_HANDLER_UI_SCALE, (int (*)())&ui_scale_questlist_handler );
 		set_window_handler(win_id, ELW_HANDLER_FONT_CHANGE, (int (*)())&change_questlist_font_handler);
-		scroll_id = vscrollbar_add_extended(win_id, scroll_id, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, quests.size()-1);
+		scroll_id = vscrollbar_add_extended(win_id, scroll_id, NULL, 0, 0, 0, 0, 0, 1.0, 0, 1, quests.size()-1);
 		ui_scale_handler(&windows_list.window[win_id]);
 
 		cm_id = cm_create(cm_questlist_menu_str, cm_questlist_handler);
@@ -1912,7 +1912,7 @@ void Questlog_Window::open(void)
 		ui_scale_questlog_handler(win);
 
 		size_t last_entry = active_entries.size()-1;
-		quest_scroll_id = vscrollbar_add_extended (questlog_win, quest_scroll_id, NULL, qlwinwidth - win->box_size, win->box_size, win->box_size, qlwinheight - win->box_size, 0, 1.0, 0.77f, 0.57f, 0.39f, last_entry, 1, last_entry);
+		quest_scroll_id = vscrollbar_add_extended (questlog_win, quest_scroll_id, NULL, qlwinwidth - win->box_size, win->box_size, win->box_size, qlwinheight - win->box_size, 0, 1.0, last_entry, 1, last_entry);
 		goto_entry(last_entry);
 
 		widget_set_OnClick (questlog_win, quest_scroll_id, (int (*)())questlog_scroll_click);

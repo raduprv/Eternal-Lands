@@ -783,13 +783,13 @@ void fill_url_window(int window_id)
 
 	/* create the clear all button */
 	clear_all_button = button_add_extended (window_id, clear_all_button, NULL,
-		0, 0, 0, 0, 0, 0, 0.77f, 0.57f, 0.39f, "Clear All");
+		0, 0, 0, 0, 0, 0, "Clear All");
 	widget_set_OnClick(window_id, clear_all_button, url_win_click_clear_all);
 	widget_set_OnMouseover(window_id, clear_all_button, url_win_mouseover_clear_all);
 
 	/* create the scroll bar */
 	url_scroll_id = vscrollbar_add_extended(window_id, url_scroll_id, NULL,
-		0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, have_url_count);
+		0, 0, 0, 0, 0, 1.0, 0, 1, have_url_count);
 	widget_set_OnDrag(window_id, url_scroll_id, url_win_scroll_drag);
 	widget_set_OnClick(window_id, url_scroll_id, url_win_scroll_click);
 }

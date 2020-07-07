@@ -934,7 +934,7 @@ namespace ItemLists
 			cm_set_pre_show_handler(cm_names_menu, cm_names_pre_show_handler);
 
 			names_scroll_id = vscrollbar_add_extended(win_id, 1, NULL, 0, 0, 0, 0, 0,
-				1.0, 0.77f, 0.57f, 0.39f, 0, 1, Vars::lists()->size()-num_show_names_list);
+				1.0, 0, 1, Vars::lists()->size()-num_show_names_list);
 
 			init_ipu(&ipu_item_list_name, -1, 1, 1, 1, NULL, NULL);
 		}

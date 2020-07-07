@@ -105,7 +105,7 @@ void display_tab_stats ()
 		set_window_handler(tab_stats_win, ELW_HANDLER_UI_SCALE, &ui_scale_stats_handler );
 		set_window_handler(tab_stats_win, ELW_HANDLER_DISPLAY, &display_stats_handler);
 		set_window_handler(tab_stats_win, ELW_HANDLER_FONT_CHANGE, &change_stats_font_handler);
-		tab_stats_collection_id = tab_collection_add_extended (tab_stats_win, tab_stats_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, 0, 0, 0, DEFAULT_SMALL_RATIO, 0.77f, 0.57f, 0.39f, 3);
+		tab_stats_collection_id = tab_collection_add_extended (tab_stats_win, tab_stats_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, 0, 0, 0, DEFAULT_SMALL_RATIO, 3);
 
 		fill_stats_win (tab_add (tab_stats_win, tab_stats_collection_id, tab_statistics, 0, 0, ELW_USE_UISCALE));
 		fill_knowledge_win (tab_add (tab_stats_win, tab_stats_collection_id, tab_knowledge, 0, 0, ELW_USE_UISCALE));
@@ -192,7 +192,7 @@ void display_tab_help ()
 		set_window_handler(tab_help_win, ELW_HANDLER_DISPLAY, &display_help_handler);
 		set_window_handler(tab_help_win, ELW_HANDLER_UI_SCALE, &ui_scale_help_handler );
 		set_window_handler(tab_help_win, ELW_HANDLER_FONT_CHANGE, &change_help_font_handler);
-		tab_help_collection_id = tab_collection_add_extended (tab_help_win, tab_help_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, 0, 0, 0, DEFAULT_SMALL_RATIO, 0.77f, 0.57f, 0.39f, 3);
+		tab_help_collection_id = tab_collection_add_extended (tab_help_win, tab_help_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, 0, 0, 0, DEFAULT_SMALL_RATIO, 3);
 
 		fill_help_win (tab_add (tab_help_win, tab_help_collection_id, tab_help, 0, 0, ELW_USE_UISCALE));
 		fill_skills_win (tab_add (tab_help_win, tab_help_collection_id, tab_skills, 0, 0, ELW_USE_UISCALE));
@@ -283,7 +283,7 @@ void display_tab_info()
 		set_window_handler(tab_info_win, ELW_HANDLER_DISPLAY, &display_info_handler);
 		set_window_handler(tab_info_win, ELW_HANDLER_UI_SCALE, &ui_scale_info_handler);
 		set_window_handler(tab_info_win, ELW_HANDLER_FONT_CHANGE, &change_info_font_handler);
-		tab_info_collection_id = tab_collection_add_extended (tab_info_win, tab_info_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, 0, 0, 0, DEFAULT_SMALL_RATIO, 0.77f, 0.57f, 0.39f, 3);
+		tab_info_collection_id = tab_collection_add_extended (tab_info_win, tab_info_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, 0, 0, 0, DEFAULT_SMALL_RATIO, 3);
 
 		fill_notepad_window(tab_add(tab_info_win, tab_info_collection_id, win_notepad, 0, 0, ELW_USE_UISCALE));
 		fill_url_window(tab_add(tab_info_win, tab_info_collection_id, win_url_str, 0, 0, ELW_USE_UISCALE));

@@ -262,9 +262,9 @@ namespace Password_Manaager
 			y_box = height + (win->default_font_len_y - win->box_size) / 2;
 			y_label = height;
 		}
-		checkbox_id = checkbox_add_extended(win->window_id,  2, NULL, border_x, y_box,
-			win->box_size, win->box_size, 0, win->current_scale,  0.77f, 0.57f, 0.39f, &show_passwords);
-		checkbox_label_id = label_add_extended(window_id, 3, NULL, 2 * border_x + win->box_size, y_label, 0, win->current_scale, 0.77f, 0.57f, 0.39f, show_passwords_str);
+		checkbox_id = checkbox_add_extended(win->window_id, 2, NULL, border_x, y_box,
+			win->box_size, win->box_size, 0, win->current_scale, &show_passwords);
+		checkbox_label_id = label_add_extended(window_id, 3, NULL, 2 * border_x + win->box_size, y_label, 0, win->current_scale, show_passwords_str);
 		widget_set_OnClick(window_id, checkbox_id, (int (*)())&click_show_password);
 		widget_set_OnClick(window_id, checkbox_label_id, (int (*)())&click_show_password);
 		height += std::max(win->box_size, win->default_font_len_y) + border_y;
@@ -390,7 +390,7 @@ namespace Password_Manaager
 			set_window_handler (window_id, ELW_HANDLER_SHOW, (int (*)())&ui_scale_pm_handler);
 			set_window_handler (window_id, ELW_HANDLER_UI_SCALE, (int (*)())&ui_scale_pm_handler);
 			set_window_handler (window_id, ELW_HANDLER_FONT_CHANGE, (int (*)())&change_pm_font_handler);
-			scroll_id = vscrollbar_add_extended (window_id, 1, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 0);
+			scroll_id = vscrollbar_add_extended (window_id, 1, NULL, 0, 0, 0, 0, 0, 1.0, 0, 1, 0);
 			if (window_id >=0 && window_id < windows_list.num_windows)
 				ui_scale_pm_handler(&windows_list.window[window_id]);
 		}

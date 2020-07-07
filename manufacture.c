@@ -1593,17 +1593,17 @@ void display_manufacture_menu()
 		set_window_handler(manufacture_win, ELW_HANDLER_FONT_CHANGE, &change_manufacture_font_handler);
 
 		mixone_button_id=button_add_extended(manufacture_win, mixone_button_id, NULL,
-			0, 0, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, ">");
+			0, 0, 0, 0, 0, 1.0f, ">");
 		widget_set_OnClick(manufacture_win, mixone_button_id, mixone_handler);
 		widget_set_OnMouseover(manufacture_win, mixone_button_id, mouseover_mixone_handler);
 
 		mixall_button_id=button_add_extended(manufacture_win, mixall_button_id, NULL,
-			0, 0, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, ">>");
+			0, 0, 0, 0, 0, 1.0f, ">>");
 		widget_set_OnClick(manufacture_win, mixall_button_id, mixall_handler);
 		widget_set_OnMouseover(manufacture_win, mixall_button_id, mouseover_mixall_handler);
 
 		clear_button_id=button_add_extended(manufacture_win, clear_button_id, NULL,
-			0, 0, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, clear_str);
+			0, 0, 0, 0, 0, 1.0f, clear_str);
 		widget_set_OnClick(manufacture_win, clear_button_id, clear_handler);
 
 		if ((manufacture_win > -1) && (manufacture_win < windows_list.num_windows))
@@ -1623,7 +1623,7 @@ void display_manufacture_menu()
 		set_window_handler(recipe_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_recipe_handler );
 
 		recipe_win_scroll_id = vscrollbar_add_extended(recipe_win, 1, NULL, 0,
-			0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, num_recipe_entries-num_displayed_recipes);
+			0, 0, 0, 0, 1.0, 0, 1, num_recipe_entries-num_displayed_recipes);
 
 		if ((manufacture_win > -1) && (manufacture_win < windows_list.num_windows))
 			ui_scale_manufacture_handler(&windows_list.window[manufacture_win]);

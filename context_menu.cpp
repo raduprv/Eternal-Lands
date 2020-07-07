@@ -980,15 +980,15 @@ extern "C" int cm_test_window(char *text, int len)
 		cm_test_win = create_window("Test Context Menu", -1, -1, 0, 0, 400, 400, ELW_WIN_DEFAULT);
 		set_window_handler(cm_test_win, ELW_HANDLER_DISPLAY, (int (*)())&cm_test_window_display_handler );
 
-		cm_add_win = button_add_extended(cm_test_win, 100, NULL, 10, 10, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Add window");
-		cm_add_reg = button_add_extended(cm_test_win, 101, NULL, 10, 50, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Add region");
-		cm_add_wid = button_add_extended(cm_test_win, 102, NULL, 10, 90, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Add widget");
-		cm_del_win = button_add_extended(cm_test_win, 103, NULL, 10, 130, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Del window");
-		cm_del_reg = button_add_extended(cm_test_win, 104, NULL, 10, 170, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Del regions");
-		cm_del_wid = button_add_extended(cm_test_win, 105, NULL, 10, 210, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Del widget");
-		cm_info_but = button_add_extended(cm_test_win, 106, NULL, 200, 10, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Show Info");
-		cm_test_wid = button_add_extended(cm_test_win, 107, NULL, 200, 50, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Test Menu");
-		cm_dir_but = button_add_extended(cm_test_win, 108, NULL, 200, 200, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Direct Menu");
+		cm_add_win = button_add_extended(cm_test_win, 100, NULL, 10, 10, 0, 0, 0, 1.0f, "Add window");
+		cm_add_reg = button_add_extended(cm_test_win, 101, NULL, 10, 50, 0, 0, 0, 1.0f, "Add region");
+		cm_add_wid = button_add_extended(cm_test_win, 102, NULL, 10, 90, 0, 0, 0, 1.0f, "Add widget");
+		cm_del_win = button_add_extended(cm_test_win, 103, NULL, 10, 130, 0, 0, 0, 1.0f, "Del window");
+		cm_del_reg = button_add_extended(cm_test_win, 104, NULL, 10, 170, 0, 0, 0, 1.0f, "Del regions");
+		cm_del_wid = button_add_extended(cm_test_win, 105, NULL, 10, 210, 0, 0, 0, 1.0f, "Del widget");
+		cm_info_but = button_add_extended(cm_test_win, 106, NULL, 200, 10, 0, 0, 0, 1.0f, "Show Info");
+		cm_test_wid = button_add_extended(cm_test_win, 107, NULL, 200, 50, 0, 0, 0, 1.0f, "Test Menu");
+		cm_dir_but = button_add_extended(cm_test_win, 108, NULL, 200, 200, 0, 0, 0, 1.0f, "Direct Menu");
 
 		widget_set_OnClick(cm_test_win, cm_add_win, (int (*)())&cm_add_win_handler);
 		widget_set_OnClick(cm_test_win, cm_del_win, (int (*)())&cm_del_win_handler);

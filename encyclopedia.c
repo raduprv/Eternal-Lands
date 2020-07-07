@@ -1300,7 +1300,7 @@ void fill_encyclopedia_win (int window_id)
 	set_window_handler(window_id, ELW_HANDLER_FONT_CHANGE, &change_encyclopedia_font_handler);
 
 	encyclopedia_scroll_id = vscrollbar_add_extended(window_id, encyclopedia_scroll_id, NULL,
-		0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 30, Page[currentpage].max_y);
+		0, 0, 0, 0, 0, 1.0, 0, 30, Page[currentpage].max_y);
 
 	if (window_id >= 0 && window_id < windows_list.num_windows)
 		set_encyclopedia_min_size(&windows_list.window[window_id]);

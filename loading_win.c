@@ -175,7 +175,8 @@ int create_loading_win (int width, int height, int snapshot)
 		progressbar_len = (int)(0.5 + win->current_scale * 300);
 		progressbar_height = (int)(0.5 + win->current_scale * 20);
 		loading_win_progress_bar = progressbar_add_extended(loading_win, PROGRESSBAR_ID, NULL, (width - progressbar_len)/2, (height*2)/3,
-				progressbar_len, progressbar_height, 0, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, load_bar_colors);
+				progressbar_len, progressbar_height, 0, 1.0f, 0.0f, load_bar_colors);
+		widget_set_color(loading_win, loading_win_progress_bar, 0.0f, 0.0f, 0.0f);
 		if (!snapshot)
 		{
 			loading_texture_handle = load_texture_cached("./textures/login_back", tt_image);

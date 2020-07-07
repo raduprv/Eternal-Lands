@@ -1090,7 +1090,6 @@ static int specs[3] = {0, 1, 2};
 
 static int init_namepass_handler(window_info * win)
 {
-	float r = 0.77f, g = 0.57f, b = 0.39f; //widget color
 	float very_small = win->current_scale_small; //font sizes
 	float bit_small = 0.9f * win->current_scale;
 	float normal = 1.0f * win->current_scale;
@@ -1146,33 +1145,33 @@ static int init_namepass_handler(window_info * win)
 	text_width = get_string_width_zoom((const unsigned char*)win_name_pass,
 		win->font_category, bit_small);
 	widget_id = label_add_extended(win->window_id, free_widget_id++, 0,
-		(win->len_x - text_width)/2, y, 0, bit_small, r, g, b, (const char*)win_name_pass);
+		(win->len_x - text_width)/2, y, 0, bit_small, (const char*)win_name_pass);
 	y += widget_get_height(win->window_id, widget_id) + 2*sep;
-	label_add_extended(win->window_id, free_widget_id++, 0, x_off, y + center, 0, label_size, r, g, b, (char*)login_username_str);
-	widget_id = widget_add(win->window_id, free_widget_id++, 0, input_off, y, input_len_x, input_len_y, 0, input_size, r, g, b, &name_type, inputs[0].str, (void*)&specs[0]);
+	label_add_extended(win->window_id, free_widget_id++, 0, x_off, y + center, 0, label_size, (char*)login_username_str);
+	widget_id = widget_add(win->window_id, free_widget_id++, 0, input_off, y, input_len_x, input_len_y, 0, input_size, &name_type, inputs[0].str, (void*)&specs[0]);
 	y += input_len_y + 2*sep;
-	label_add_extended(win->window_id, free_widget_id++, 0, x_off, y + center, 0, label_size, r, g, b, (char*)login_password_str);
-	widget_id = widget_add(win->window_id, free_widget_id++, 0, input_off, y, input_len_x, input_len_y, 0, input_size, r, g, b, &password_type, inputs[1].str, (void*)&specs[1]);
+	label_add_extended(win->window_id, free_widget_id++, 0, x_off, y + center, 0, label_size, (char*)login_password_str);
+	widget_id = widget_add(win->window_id, free_widget_id++, 0, input_off, y, input_len_x, input_len_y, 0, input_size, &password_type, inputs[1].str, (void*)&specs[1]);
 	y += input_len_y + 2*sep;
-	label_add_extended(win->window_id ,free_widget_id++, 0, x_off, y + center, 0, label_size, r, g, b, (char*)confirm_password);
-	widget_id = widget_add(win->window_id, free_widget_id++, 0, input_off, y, input_len_x, input_len_y, 0, input_size, r, g, b, &password_type, inputs[2].str, (void*)&specs[2]);
+	label_add_extended(win->window_id ,free_widget_id++, 0, x_off, y + center, 0, label_size, (char*)confirm_password);
+	widget_id = widget_add(win->window_id, free_widget_id++, 0, input_off, y, input_len_x, input_len_y, 0, input_size, &password_type, inputs[2].str, (void*)&specs[2]);
 	y += input_len_y + 2*sep;
 
 	//Show password checkbox and error label
 	text_width = get_string_width_zoom((const unsigned char*)show_password,
 		win->font_category, bit_small);
 	label_add_extended(win->window_id, free_widget_id++, 0,
-		win->len_x - 4 * sep - size - text_width, y, 0, bit_small, r, g, b, show_password);
-	widget_id = checkbox_add_extended(win->window_id, free_widget_id++, 0, win->len_x - 2 * sep - size, y, size, size, 0, bit_small, r, g, b, &hidden);
+		win->len_x - 4 * sep - size - text_width, y, 0, bit_small, show_password);
+	widget_id = checkbox_add_extended(win->window_id, free_widget_id++, 0, win->len_x - 2 * sep - size, y, size, size, 0, bit_small, &hidden);
 	y += sep + get_line_height(win->font_category, bit_small);
-	error_widget_id = widget_add(win->window_id, free_widget_id++, 0, 2 * sep, y, win->len_x - 4 * sep, win->len_y - y, 0, very_small, r, g, b, &errorbox_type, NULL, NULL);
+	error_widget_id = widget_add(win->window_id, free_widget_id++, 0, 2 * sep, y, win->len_x - 4 * sep, win->len_y - y, 0, very_small, &errorbox_type, NULL, NULL);
 
 	//Done and Back buttons
-	widget_id = button_add_extended(win->window_id, free_widget_id++, 0, 0, 0, 0, 0, 0, very_small, r, g, b, char_done);
+	widget_id = button_add_extended(win->window_id, free_widget_id++, 0, 0, 0, 0, 0, 0, very_small,  char_done);
 	widget_set_OnClick(win->window_id, widget_id, &click_done_handler);
 	y = win->len_y - widget_get_height(win->window_id, widget_id) - sep;
 	widget_move(win->window_id, widget_id, (win->len_x / 2 - widget_get_width(win->window_id, widget_id)) / 2, y);
-	widget_id = button_add_extended(win->window_id, free_widget_id++, 0, 0, 0, 0, 0, 0, very_small, r, g, b, char_back);
+	widget_id = button_add_extended(win->window_id, free_widget_id++, 0, 0, 0, 0, 0, 0, very_small, char_back);
 	widget_set_OnClick(win->window_id, widget_id, &click_back_handler);
 	widget_move(win->window_id, widget_id, win->len_x / 2 + (win->len_x / 2 - widget_get_width(win->window_id, widget_id)) / 2, y);
 	return 1;
@@ -1599,7 +1598,7 @@ static int init_color_race_handler(window_info * win)
 	label_width = get_string_width_zoom((const unsigned char*)win_design,
 		win->font_category, bit_small);
 	widget_id = label_add_extended(win->window_id, free_widget_id++, 0,
-		(win->len_x - label_width)/2, y, 0, bit_small, r, g, b, win_design);
+		(win->len_x - label_width)/2, y, 0, bit_small, win_design);
 	y += widget_get_height(win->window_id, widget_id);
 
 	//Gender selection
@@ -1609,7 +1608,7 @@ static int init_color_race_handler(window_info * win)
 		int element_height = box_label_height + button_height;
 		int button_width = (int)(0.5 + win->current_scale * 100);
 		y += sep + box_label_height / 2;
-		widget_add(win->window_id, free_widget_id++, 0, sep, y, win->len_x - 2 * sep, element_height, 0, very_small, r, g, b, &box_type, gender_str, NULL);
+		widget_add(win->window_id, free_widget_id++, 0, sep, y, win->len_x - 2 * sep, element_height, 0, very_small, &box_type, gender_str, NULL);
 		widget_id = multiselect_add_extended(win->window_id, free_widget_id++, 0, 2 * sep, y + box_label_height / 2, win->len_x - 4 * sep, button_height, normal, r, g, b, rh, gh, bh, 2);
 		multiselect_button_add_extended(win->window_id, widget_id, 0, 0, button_width, male_str, very_small, our_actor.male);
 		multiselect_button_add_extended(win->window_id, widget_id, win->len_x - button_width - 4 * sep, 0, button_width, female_str, very_small, !our_actor.male);
@@ -1631,10 +1630,11 @@ static int init_color_race_handler(window_info * win)
 		size_t i;
 		y += sep + box_label_height / 2;
 
-		widget_add(win->window_id, free_widget_id++, 0, sep, y, win->len_x - 2 * sep, element_height, 0, very_small, r, g, b, &box_type, race_str, NULL);
+		widget_add(win->window_id, free_widget_id++, 0, sep, y, win->len_x - 2 * sep, element_height, 0, very_small, &box_type, race_str, NULL);
 
 		widget_id = widget_add(win->window_id, free_widget_id++, 0, sep + col_two_x_off, y + box_label_height / 2 + 2,
-			3 * sep + button_width + button_height, button_set_height + box_label_height / 2 + sep, 0, very_small, 1.0f, 0.0f, 0.0f, &box_type, "P2P", NULL);
+			3 * sep + button_width + button_height, button_set_height + box_label_height / 2 + sep, 0, very_small, &box_type, "P2P", NULL);
+		widget_set_color(win->window_id, widget_id, 1.0f, 0.0f, 0.0f);
 		widget_set_OnMouseover(win->window_id, widget_id, &mouseover_p2p_race_handler);
 
 		widget_id = multiselect_add_extended(win->window_id, free_widget_id++, 0, 2 * sep, y + button_y_off , button_set_width, button_set_height, normal, r, g, b, rh, gh, bh, 6);
@@ -1648,20 +1648,22 @@ static int init_color_race_handler(window_info * win)
 
 		for(i = 0; i < 3; i++)
 		{
-			widget_id = image_add_extended(win->window_id, book_ids[i], 0, 2 * sep + button_width + sep, y + button_y_off + (button_height + sep)*i, button_height, button_height, 0, 1.0f, 1.0f, 1.0f, 1.0f, icons_text, (float)0/256,1.0f-(float)64/256,(float)31/256,1.0f-(float)95/256, -1);
+			widget_id = image_add_extended(win->window_id, book_ids[i], 0, 2 * sep + button_width + sep, y + button_y_off + (button_height + sep)*i, button_height, button_height, 0, 1.0f, icons_text, (float)0/256,1.0f-(float)64/256,(float)31/256,1.0f-(float)95/256, -1);
+			widget_set_color(win->window_id, widget_id, 1.0f, 1.0f, 1.0f);
 			widget_set_OnClick(win->window_id, widget_id, &click_newchar_book_handler);
 			widget_set_OnMouseover(win->window_id, widget_id, &mouseover_newchar_book_handler);
 		}
 		for(i = 0; i< 3; i++)
 		{
-			widget_id = image_add_extended(win->window_id, book_ids[i+3], 0, 3 * sep + col_two_x_off + button_width, y + button_y_off + (button_height + sep)*i, button_height, button_height, 0, 1.0f, 1.0f, 1.0f, 1.0f, icons_text, (float)0/256,1.0f-(float)64/256,(float)31/256,1.0f-(float)95/256, -1);
+			widget_id = image_add_extended(win->window_id, book_ids[i+3], 0, 3 * sep + col_two_x_off + button_width, y + button_y_off + (button_height + sep)*i, button_height, button_height, 0, 1.0f, icons_text, (float)0/256,1.0f-(float)64/256,(float)31/256,1.0f-(float)95/256, -1);
+			widget_set_color(win->window_id, widget_id, 1.0f, 1.0f, 1.0f);
 			widget_set_OnClick(win->window_id, widget_id, &click_newchar_book_handler);
 			widget_set_OnMouseover(win->window_id, widget_id, &mouseover_newchar_book_handler);
 		}
 		y += element_height;
 	}
 
-	//Appereance
+	// Appearence
 	{
 		char* body_part_strs[7] = {head_str, skin_str, hair_str, eyes_str, shirt_str, pants_str, boots_str};
 		void* body_handlers_dec[7] = {&head_dec_handler, &skin_dec_handler, &hair_dec_handler, &eyes_dec_handler, &shirt_dec_handler, &pants_dec_handler, &boots_dec_handler};
@@ -1679,40 +1681,40 @@ static int init_color_race_handler(window_info * win)
 		int line_height = get_line_height(win->font_category, bit_small);
 
 		y += sep + box_label_height / 2;
-		widget_add(win->window_id, free_widget_id++, 0, sep, y, win->len_x - 2 * sep, element_height, 0, very_small, r, g, b, &box_type, appearance_str, NULL);
+		widget_add(win->window_id, free_widget_id++, 0, sep, y, win->len_x - 2 * sep, element_height, 0, very_small, &box_type, appearance_str, NULL);
 		y += box_label_height / 2;
 		for(i = 0; i < 4; i++)//Head, Skin, Hair and Eyes
 		{
-			widget_id = label_add_extended(win->window_id, free_widget_id++, 0, 2 * sep, y+(line_height+sep)*i, 0, bit_small, r, g, b, "<<");
+			widget_id = label_add_extended(win->window_id, free_widget_id++, 0, 2 * sep, y+(line_height+sep)*i, 0, bit_small, "<<");
 			widget_set_OnClick(win->window_id, widget_id, body_handlers_dec[i]);
 			label_width = get_string_width_zoom((const unsigned char*)body_part_strs[i],
 				win->font_category, bit_small);
 			x = 2 * sep + prev_width
 				+ (win->len_x/2 - 3 * sep - prev_width - next_width - label_width)/2;
-			label_add_extended(win->window_id, free_widget_id++, 0, x, y+(line_height+sep)*i, 0, bit_small, r, g, b, body_part_strs[i]);
-			widget_id = label_add_extended(win->window_id, free_widget_id++, 0, win->len_x/2-sep-next_width, y+(line_height+sep)*i, 0, bit_small, r, g, b, ">>");
+			label_add_extended(win->window_id, free_widget_id++, 0, x, y+(line_height+sep)*i, 0, bit_small, body_part_strs[i]);
+			widget_id = label_add_extended(win->window_id, free_widget_id++, 0, win->len_x/2-sep-next_width, y+(line_height+sep)*i, 0, bit_small, ">>");
 			widget_set_OnClick(win->window_id, widget_id, body_handlers_inc[i]);
 		}
 		for(i = 4; i < 7; i++)//Shirt, Pants and Boots
 		{
-			widget_id = label_add_extended(win->window_id, free_widget_id++, 0, win->len_x/2+sep, y+(line_height+sep)*(i-4), 0, bit_small, r, g, b, "<<");
+			widget_id = label_add_extended(win->window_id, free_widget_id++, 0, win->len_x/2+sep, y+(line_height+sep)*(i-4), 0, bit_small, "<<");
 			widget_set_OnClick(win->window_id, widget_id, body_handlers_dec[i]);
 			label_width = get_string_width_zoom((const unsigned char*)body_part_strs[i],
 				win->font_category, bit_small);
 			x = win->len_x/2 + sep + prev_width
 				+ (win->len_x/2 - 3 * sep - prev_width - next_width - label_width)/2;
-			label_add_extended(win->window_id, free_widget_id++, 0, x, y+(line_height+sep)*(i-4), 0, bit_small, r, g, b, (char*)body_part_strs[i]);
-			widget_id = label_add_extended(win->window_id, free_widget_id++, 0, win->len_x-2 * sep-next_width, y+(line_height+sep)*(i-4), 0, bit_small, r, g, b, ">>");
+			label_add_extended(win->window_id, free_widget_id++, 0, x, y+(line_height+sep)*(i-4), 0, bit_small, (char*)body_part_strs[i]);
+			widget_id = label_add_extended(win->window_id, free_widget_id++, 0, win->len_x-2 * sep-next_width, y+(line_height+sep)*(i-4), 0, bit_small, ">>");
 			widget_set_OnClick(win->window_id, widget_id, body_handlers_inc[i]);
 		}
 	}
 
 	//Done and Back
-	widget_id = button_add_extended(win->window_id, free_widget_id++, 0, 0, 0, 0, 0, 0, very_small, r, g, b, char_done);
+	widget_id = button_add_extended(win->window_id, free_widget_id++, 0, 0, 0, 0, 0, 0, very_small, char_done);
 	widget_set_OnClick(win->window_id, widget_id, &click_done_handler);
 	y = win->len_y - widget_get_height(win->window_id, widget_id) - sep;
 	widget_move(win->window_id, widget_id, (win->len_x / 2 - widget_get_width(win->window_id, widget_id)) / 2, y);
-	widget_id = button_add_extended(win->window_id, free_widget_id++, 0, 0, 0, 0, 0, 0, very_small, r, g, b, char_back);
+	widget_id = button_add_extended(win->window_id, free_widget_id++, 0, 0, 0, 0, 0, 0, very_small, char_back);
 	widget_set_OnClick(win->window_id, widget_id, &click_back_handler);
 	widget_move(win->window_id, widget_id, win->len_x / 2 + (win->len_x / 2 - widget_get_width(win->window_id, widget_id)) / 2, y);
 

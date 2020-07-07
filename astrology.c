@@ -340,7 +340,7 @@ void display_astrology_window(const char * raw_text)
 		set_window_handler(astrology_win, ELW_HANDLER_DISPLAY, &display_astrology_handler );
 		set_window_handler(astrology_win, ELW_HANDLER_UI_SCALE, &ui_scale_astrology_handler );
 
-		ok_button_id=button_add_extended(astrology_win, ok_button_id, NULL, 0, 0, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Ok");
+		ok_button_id=button_add_extended(astrology_win, ok_button_id, NULL, 0, 0, 0, 0, 0, 1.0f, "Ok");
 		widget_set_OnClick(astrology_win, ok_button_id, ok_handler);
 
 		if (astrology_win >= 0 && astrology_win < windows_list.num_windows)

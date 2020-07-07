@@ -862,9 +862,9 @@ void display_storage_menu()
 		set_window_handler(storage_win, ELW_HANDLER_UI_SCALE, &ui_scale_storage_handler );
 		set_window_handler(storage_win, ELW_HANDLER_FONT_CHANGE, &change_storage_font_handler);
 
-		cat_scrollbar_id = vscrollbar_add_extended(storage_win, STORAGE_SCROLLBAR_CATEGORIES, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1,
+		cat_scrollbar_id = vscrollbar_add_extended(storage_win, STORAGE_SCROLLBAR_CATEGORIES, NULL, 0, 0, 0, 0, 0, 1.0, 0, 1,
 				max2i(no_storage_categories - storage_categories_display, 0));
-		items_scrollbar_id = vscrollbar_add_extended(storage_win, STORAGE_SCROLLBAR_ITEMS, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 28);
+		items_scrollbar_id = vscrollbar_add_extended(storage_win, STORAGE_SCROLLBAR_ITEMS, NULL, 0, 0, 0, 0, 0, 1.0, 0, 1, 28);
 
 		cm_add(windows_list.window[storage_win].cm_id, cm_storage_menu_str, context_storage_handler);
 		cm_add(windows_list.window[storage_win].cm_id, cm_dialog_options_str, context_storage_handler);

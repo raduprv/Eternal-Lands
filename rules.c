@@ -290,7 +290,7 @@ void fill_rules_window(int window_id)
 	set_window_font_category(window_id, RULES_FONT);
 
 	rules_scroll_id = vscrollbar_add_extended (window_id, rules_scroll_id, NULL,
-		0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 3, rules.no-1);
+		0, 0, 0, 0, 0, 1.0, 0, 3, rules.no-1);
 
 	widget_set_OnClick (window_id, rules_scroll_id, rules_scroll_handler);
 	widget_set_OnDrag (window_id, rules_scroll_id, rules_scroll_handler);
@@ -982,8 +982,9 @@ void create_rules_root_window (int width, int height, int next, int time)
 		else
 			return;
 
-		rules_root_scroll_id = vscrollbar_add_extended (rules_root_win, rules_root_scroll_id, NULL, 0, 0, 0, 0, 0, win->current_scale, 0.77f, 0.57f, 0.39f, 0, 3, rules.no-1);
-		rules_root_accept_id = button_add_extended (rules_root_win, rules_root_scroll_id + 1, NULL, 0, 0, 0, 0, WIDGET_DISABLED, win->current_scale, 1.0f, 1.0f, 1.0f, accept_label);
+		rules_root_scroll_id = vscrollbar_add_extended (rules_root_win, rules_root_scroll_id, NULL, 0, 0, 0, 0, 0, win->current_scale, 0, 3, rules.no-1);
+		rules_root_accept_id = button_add_extended (rules_root_win, rules_root_scroll_id + 1, NULL, 0, 0, 0, 0, WIDGET_DISABLED, win->current_scale, accept_label);
+		widget_set_color(rules_root_win, rules_root_accept_id, 1.0f, 1.0f, 1.0f);
 
 		adjust_ui_elements(win, rules_root_scroll_id, rules_root_accept_id);
 

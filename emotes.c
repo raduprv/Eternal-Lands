@@ -313,7 +313,7 @@ void display_emotes_menu(void)
 			num_emotes++;
 
 		EMOTES_SCROLLBAR_ITEMS = vscrollbar_add_extended(emotes_win, EMOTES_SCROLLBAR_ITEMS, NULL,
-			0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, num_emotes-EMOTES_SHOWN);
+			0, 0, 0, 0, 0, 1.0, 0, 1, num_emotes-EMOTES_SHOWN);
 
 		if (emotes_win >=0 && emotes_win < windows_list.num_windows)
 			ui_scale_emotes_handler(&windows_list.window[emotes_win]);

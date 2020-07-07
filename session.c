@@ -159,7 +159,7 @@ void fill_session_win(int window_id)
 	set_window_handler(window_id, ELW_HANDLER_UI_SCALE, &ui_scale_session_handler);
 	set_window_handler(window_id, ELW_HANDLER_FONT_CHANGE, &change_session_font_handler );
 
-	reset_button_id=button_add_extended(window_id, reset_button_id, NULL, 0, 0, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, reset_str);
+	reset_button_id=button_add_extended(window_id, reset_button_id, NULL, 0, 0, 0, 0, 0, 1.0f, reset_str);
 	widget_set_OnClick(window_id, reset_button_id, session_reset_handler);
 	widget_set_OnMouseover(window_id, reset_button_id, mouseover_session_reset_handler);
 

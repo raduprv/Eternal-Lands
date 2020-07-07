@@ -209,17 +209,13 @@ typedef struct {
  * \param   ly The height
  * \param   Flags The flags
  * \param   size The text size
- * \param   r (0<=r<=1)
- * \param   g (0<=g<=1)
- * \param   b (0<=b<=1)
  * \param   type The widget type
  * \param   T Pointer to specific widget data
  * \param   S Pointer to specific implementation info
  * \retval int Returns the new widgets unique ID
  */
 Uint32 widget_add (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y,
-	Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b,
-	const struct WIDGET_TYPE *type, void *T, void *S);
+	Uint16 lx, Uint16 ly, Uint32 Flags, float size, const struct WIDGET_TYPE *type, void *T, void *S);
 
 /*!
  * \ingroup	widgets
@@ -447,18 +443,35 @@ int widget_set_size(int window_id, Uint32 widget_id, float size);
  * \ingroup	widgets
  * \brief 	Sets the widget colour
  *
- * 		Finds the widget in the given window and sets the r g b colour.
+ * 		Finds the widget in the given window and sets the r g b foreground colour.
  *
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The widget's unique ID
  * \param   	r (0<=r<=1)
  * \param   	g (0<=g<=1)
  * \param   	b (0<=b<=1)
- * \retval int  	Returns 1 on succes or 0 on failure (when the widget was not found in the given window)
+ * \retval int  Returns 1 on succes or 0 on failure (when the widget was not found in the given window)
  *
  * \sa widget_find
  */
 int widget_set_color(int window_id, Uint32 widget_id, float r, float g, float b);
+/*!
+ * \ingroup	widgets
+ * \brief 	Unsets the widget colour
+ *
+ * Finds the widget in the given window and removes the color. The widget will be drawn in
+ * the last color used.
+ *
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param   	widget_id The widget's unique ID
+ * \retval int  Returns 1 on succes or 0 on failure (when the widget was not found in the given window)
+ *
+ * \sa widget_find
+ */
+static __inline__ int widget_unset_color(int window_id, Uint32 widget_id)
+{
+	return widget_set_color(window_id, widget_id, -1.0f, -1.0f, -1.0f);
+}
 
 /*!
  * \ingroup widgets
@@ -524,7 +537,7 @@ int widget_get_height (int window_id, Uint32 widget_id);
  *
  * \sa lable_add
  */
-int label_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint32 Flags, float size, float r, float g, float b, const char *text);
+int label_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint32 Flags, float size, const char *text);
 
 /*!
  * \ingroup	labels
@@ -589,9 +602,6 @@ int label_set_text(int window_id, Uint32 widget_id, const char *text);
  * \param   	ly The height
  * \param   	Flags The flags
  * \param   	size The text size
- * \param   	r (0<=r<=1)
- * \param   	g (0<=g<=1)
- * \param   	b (0<=b<=1)
  * \param   	id The offset in the texture_cache
  * \param   	u1 The start u texture coordinate
  * \param   	v1 The start v texture coordinate
@@ -602,7 +612,7 @@ int label_set_text(int window_id, Uint32 widget_id, const char *text);
  *
  * \sa image_add
  */
-int image_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int id, float u1, float v1, float u2, float v2, float alpha);
+int image_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, int id, float u1, float v1, float u2, float v2, float alpha);
 
 /*!
  * \ingroup	images
@@ -691,15 +701,12 @@ int image_set_uv(int window_id, Uint32 widget_id, float u1, float v1, float u2, 
  * \param   	ly The height
  * \param   	Flags The flags
  * \param   	size The text size
- * \param   	r (0<=r<=1)
- * \param   	g (0<=g<=1)
- * \param   	b (0<=b<=1)
  * \param   	checked Specifies if the widget is checked or not
  * \retval int  	Returns the new widgets unique ID
  *
  * \sa checkbox_add
  */
-int checkbox_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int *checked);
+int checkbox_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, int *checked);
 
 /*!
  * \ingroup	checkboxes
@@ -796,15 +803,12 @@ int safe_button_click(Uint32 *last_click);
  * \param   	ly The height
  * \param   	Flags The flags
  * \param   	size The text size
- * \param   	r (0<=r<=1)
- * \param   	g (0<=g<=1)
- * \param   	b (0<=b<=1)
  * \param   	text The button label
  * \retval int  	Returns the new widgets unique ID
  *
  * \sa button_add
  */
-int button_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, const char *text);
+int button_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, const char *text);
 
 /*!
  * \ingroup	buttons
@@ -912,16 +916,13 @@ int calc_button_width(const unsigned char* label, font_cat cat, float size);
  * \param   	ly The height
  * \param   	Flags The flags
  * \param   	size The text size
- * \param   	r (0<=r<=1)
- * \param   	g (0<=g<=1)
- * \param   	b (0<=b<=1)
  * \param   	progress The current progress
  * \param     colors The colors of the four corners of the bar. Pointer to an array of 12 floats (4 consecutive RGB colors). May be NULL.
  * \retval int  	Returns the new widgets unique ID
  *
  * \sa progressbar_add
  */
-int progressbar_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, float progress, const float * colors);
+int progressbar_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float progress, const float * colors);
 
 /*!
  * \ingroup	progressbars
@@ -1001,9 +1002,6 @@ int progressbar_set_progress(int window_id, Uint32 widget_id, float progress);
  * \param   	ly The height
  * \param   	Flags The flags
  * \param   	size The text size
- * \param   	r (0<=r<=1)
- * \param   	g (0<=g<=1)
- * \param   	b (0<=b<=1)
  * \param   	pos
  * \param   	pos_inc
  * \param		bar_len
@@ -1011,7 +1009,7 @@ int progressbar_set_progress(int window_id, Uint32 widget_id, float progress);
  *
  * \sa vscrollbar_add
  */
-int vscrollbar_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int pos, int pos_inc, int bar_len);
+int vscrollbar_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, int pos, int pos_inc, int bar_len);
 
 /*!
  * \ingroup	scrollbars
@@ -1275,17 +1273,13 @@ int tab_collection_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint
  * \param   	ly The height
  * \param   	Flags The flags
  * \param   	size The text size
- * \param   	r (0<=r<=1)
- * \param   	g (0<=g<=1)
- * \param   	b (0<=b<=1)
  * \param	max_tabs The largest number of tabs this collection will hold
  * \retval int  	Returns the new widgets unique ID
  *
  * \sa tab_collection_add
  */
-int tab_collection_add_extended (int window_id, Uint32 wid, int
-(*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags,
-float size, float r, float g, float b, int max_tabs);
+int tab_collection_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y,
+	Uint16 lx, Uint16 ly, Uint32 Flags, float size, int max_tabs);
 
 /*!
  * \ingroup	tabs
@@ -1382,9 +1376,6 @@ int text_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 l
  * \param   	Flags The flags
  * \param		fcat Font category for the text
  * \param   	size The text size
- * \param   	r (0<=r<=1)
- * \param   	g (0<=g<=1)
- * \param   	b (0<=b<=1)
  * \param	buf the text buffer
  * \param 	buf_size the size of the text buffer
  * \param	chan_filt the channel of which messages are drawn
@@ -1396,8 +1387,7 @@ int text_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 l
  */
 int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(),
 	Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, font_cat fcat,
-	float size, float r, float g, float b, text_message *buf, int buf_size,
-	Uint8 chan_filt, int x_space, int y_space);
+	float size, text_message *buf, int buf_size, Uint8 chan_filt, int x_space, int y_space);
 
 /*!
  * \ingroup	textfields
@@ -1492,7 +1482,7 @@ void text_field_force_rewrap(int window_id, Uint32 widget_id);
 #define P_NONE      2
 
 int pword_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, unsigned char *buffer, int buffer_size);
-int pword_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, float size, float r, float g, float b, unsigned char *buffer, int buffer_size);
+int pword_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, float size, unsigned char *buffer, int buffer_size);
 int pword_field_set_content(int window_id, Uint32 widget_id, const unsigned char* buf, size_t len);
 void pword_set_status(widget_list *w, Uint8 status);
 int pword_clear(int window_id, Uint32 widget_id);
@@ -1510,7 +1500,7 @@ int multiselect_clear(int window_id, Uint32 widget_id);
 #define SPIN_INT 1
 
 int spinbutton_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, float min, float max, float interval);
-int spinbutton_add_extended(int window_id, Uint32 widget_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, float min, float max, float interval, float size, float r, float g, float b);
+int spinbutton_add_extended(int window_id, Uint32 widget_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, float min, float max, float interval, float size);
 
 /*!
  * \ingroup	widgets

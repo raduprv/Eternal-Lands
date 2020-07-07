@@ -269,7 +269,7 @@ static void create_console_scrollbar(window_info *win)
 	console_scrollbar_id = vscrollbar_add_extended(win->window_id, console_scrollbar_id, NULL,
 		console_active_width - win->box_size, CONSOLE_Y_OFFSET,
 		win->box_size, console_active_height - get_console_sep_height() - CONSOLE_Y_OFFSET - input_widget->len_y,
-		0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, total_nr_lines-nr_console_lines);
+		0, 1.0, 0, 1, total_nr_lines-nr_console_lines);
 	widget_set_OnDrag(win->window_id, console_scrollbar_id, console_scroll_drag);
 	widget_set_OnClick(win->window_id, console_scrollbar_id, console_scroll_click);
 }
@@ -427,8 +427,8 @@ void create_console_root_window (int width, int height)
 		console_out_id = text_field_add_extended(console_root_win, console_out_id, NULL,
 			CONSOLE_TEXT_X_BORDER, CONSOLE_Y_OFFSET, console_text_width,
 			console_active_height - input_height - get_console_sep_height() - CONSOLE_Y_OFFSET,
-			0, CHAT_FONT, 1.0, -1.0f, -1.0f, -1.0f, display_text_buffer,
-			DISPLAY_TEXT_BUFFER_SIZE, CHAT_ALL, 0, 0);
+			0, CHAT_FONT, 1.0, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, CHAT_ALL, 0, 0);
+		widget_unset_color(console_root_win, console_out_id);
 
 		recalc_message_lines();
 
@@ -438,8 +438,7 @@ void create_console_root_window (int width, int height)
 			id = text_field_add_extended(console_root_win, console_in_id, NULL,
 				0, console_active_height - input_height, console_active_width, input_height,
 				(INPUT_DEFAULT_FLAGS|TEXT_FIELD_BORDER)^WIDGET_CLICK_TRANSPARENT,
-				CHAT_FONT, 1.0, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL,
-				INPUT_MARGIN, INPUT_MARGIN);
+				CHAT_FONT, 1.0, &input_text_line, 1, FILTER_ALL, INPUT_MARGIN, INPUT_MARGIN);
 			input_widget = widget_find(console_root_win, id);
 			input_widget->OnResize = input_field_resize;
 		}

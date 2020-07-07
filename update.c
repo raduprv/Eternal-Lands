@@ -723,7 +723,8 @@ void create_update_root_window (int width, int height, int time)
 			return;
 		win = &windows_list.window[update_root_win];
 
-		update_root_restart_id = button_add_extended (update_root_win, update_root_restart_id, NULL, 0, 0, 0, 0, 0, win->current_scale, 1.0f, 1.0f, 1.0f, restart_now_label);
+		update_root_restart_id = button_add_extended (update_root_win, update_root_restart_id, NULL, 0, 0, 0, 0, 0, win->current_scale, restart_now_label);
+		widget_set_color(update_root_win, update_root_restart_id, 1.0f, 1.0f, 1.0f);
 		widget_move(update_root_win, update_root_restart_id,
 			(width - widget_get_width(update_root_win, update_root_restart_id)) /2,
 			height - 2 * widget_get_height(update_root_win, update_root_restart_id));

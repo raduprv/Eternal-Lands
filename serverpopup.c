@@ -254,7 +254,7 @@ static int resize_handler(window_info *win, int width, int height)
 	{
 		scroll_id = vscrollbar_add_extended( win->window_id, scroll_id, NULL,
 			width - win->box_size, sep, win->box_size, text_widget_height,
-			0, 1, 0.77f, 0.57f, 0.39f, scroll_line, 1, num_text_lines);
+			0, 1, scroll_line, 1, num_text_lines);
 		widget_set_OnDrag(server_popup_win, scroll_id, scroll_drag);
 		widget_set_OnClick(server_popup_win, scroll_id, scroll_click);
 		set_text_line();
@@ -418,7 +418,7 @@ void display_server_popup_win(const unsigned char* message)
 
 		/* create the OK button, setup its click handler and get its structure */
 		buttonId = button_add_extended (server_popup_win, buttonId, NULL, 0,
-			 0, 0, 0, 0, win->current_scale, 0.77f, 0.57f, 0.39f, "OK");
+			 0, 0, 0, 0, win->current_scale, "OK");
 		widget_set_OnClick(server_popup_win, buttonId, close_handler);
 	}
 	if (win == NULL)
@@ -429,8 +429,7 @@ void display_server_popup_win(const unsigned char* message)
 	{
 		textId = text_field_add_extended(server_popup_win, textId, NULL, sep, sep,
 			window_width, window_height, TEXT_FIELD_NO_KEYPRESS,
-			CHAT_FONT, 1.0, 0.77f, 0.57f, 0.39f, &widget_text, 1, FILTER_NONE,
-			sep, sep);
+			CHAT_FONT, 1.0, &widget_text, 1, FILTER_NONE, sep, sep);
 	}
 
 	set_min_window_size(win);

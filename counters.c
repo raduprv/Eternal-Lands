@@ -739,7 +739,7 @@ void fill_counters_win(int window_id)
 	set_window_handler(window_id, ELW_HANDLER_FONT_CHANGE, &change_counters_font_handler);
 
 	counters_scroll_id = vscrollbar_add_extended(window_id, counters_scroll_id, NULL, 0, 0, 0, 0, 0,
-		1.0f, 0.77f, 0.57f, 0.39f, 0, 1, 0);
+		1.0f, 0, 1, 0);
 
 	if (window_id >= 0 && window_id < windows_list.num_windows)
 		set_content_widths(&windows_list.window[window_id]);

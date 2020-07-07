@@ -69,7 +69,7 @@ void fill_skills_win (int window_id)
 		window_info *win = &windows_list.window[window_id];
 		set_skills_min_size(win);
 		skills_menu_scroll_id = vscrollbar_add_extended(window_id, skills_menu_scroll_id, NULL,
-			win->len_x-win->box_size, 0, win->box_size, win->len_y, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 30,
+			win->len_x-win->box_size, 0, win->box_size, win->len_y, 0, 1.0, 0, 30,
 			Page[skillspage].max_y);
 	}
 }

@@ -119,8 +119,9 @@ void create_opening_root_window (int width, int height)
 		set_window_handler(opening_root_win, ELW_HANDLER_FONT_CHANGE, &change_opening_font_handler);
 
 		opening_out_id = text_field_add_extended (opening_root_win, opening_out_id,
-			NULL, 0, 0, width, height, 0, CHAT_FONT, 1.0, -1.0f, -1.0f, -1.0f,
+			NULL, 0, 0, width, height, 0, CHAT_FONT, 1.0,
 			display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, FILTER_ALL, 0, 0);
+		widget_unset_color(opening_root_win, opening_out_id);
 
 		nr_opening_lines = get_max_nr_lines(height, CHAT_FONT, 1.0);
 		opening_win_text_width = width;
