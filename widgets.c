@@ -118,6 +118,7 @@ static int text_field_destroy(widget_list *w);
 static int text_field_move(widget_list *w, int pos_x, int pos_y);
 static int text_field_change_font(widget_list *w, font_cat cat);
 static int text_field_paste(widget_list *w, const char* text);
+static int text_field_set_color(widget_list *widget, float r, float g, float b);
 static int pword_field_mouseover(widget_list *w, int mx, int my);
 static int pword_field_click(widget_list *w, int mx, int my, Uint32 flags);
 static int pword_field_drag(widget_list *w, int mx, int my, Uint32 flags, int dx, int dy);
@@ -127,23 +128,24 @@ static int pword_field_draw(widget_list *w);
 static int pword_field_paste(widget_list *w, const char* text);
 static int multiselect_draw(widget_list *widget);
 static int multiselect_click(widget_list *widget, int mx, int my, Uint32 flags);
+static int multiselect_set_color(widget_list *widget, float r, float g, float b);
 static int free_multiselect(widget_list *widget);
 static int spinbutton_draw(widget_list *widget);
 static int spinbutton_click(widget_list *widget, int mx, int my, Uint32 flags);
 static int spinbutton_keypress(widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
 
-static const struct WIDGET_TYPE label_type = { NULL, label_draw, NULL, NULL, NULL, label_resize, NULL, free_widget_info, NULL, NULL, NULL };
-static const struct WIDGET_TYPE image_type = { NULL, image_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL, NULL, NULL };
-static const struct WIDGET_TYPE checkbox_type = { NULL, checkbox_draw, checkbox_click, NULL, NULL, NULL, NULL, free_widget_info, NULL, NULL, NULL };
-static const struct WIDGET_TYPE round_button_type = { NULL, button_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL, button_change_font, NULL };
-static const struct WIDGET_TYPE square_button_type = { NULL, square_button_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL, button_change_font, NULL };
-static const struct WIDGET_TYPE progressbar_type = { NULL, progressbar_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL, NULL, NULL };
-static const struct WIDGET_TYPE vscrollbar_type = { NULL, vscrollbar_draw, vscrollbar_click, vscrollbar_drag, NULL, NULL, NULL, free_widget_info, NULL, NULL, NULL };
-static const struct WIDGET_TYPE tab_collection_type = { NULL, tab_collection_draw, tab_collection_click, NULL, NULL, tab_collection_resize, (int (*)())tab_collection_keypress, free_tab_collection, NULL, tab_collection_change_font, NULL };
-static const struct WIDGET_TYPE text_field_type = { NULL, text_field_draw, text_field_click, text_field_drag, NULL, text_field_resize, (int (*)())text_field_keypress, text_field_destroy, text_field_move, text_field_change_font, text_field_paste };
-static const struct WIDGET_TYPE pword_field_type = { NULL, pword_field_draw, pword_field_click, pword_field_drag, pword_field_mouseover, NULL, (int (*)())pword_field_keypress, free_widget_info, NULL, NULL, pword_field_paste };
-static const struct WIDGET_TYPE multiselect_type = { NULL, multiselect_draw, multiselect_click, NULL, NULL, NULL, NULL, free_multiselect, NULL, NULL, NULL };
-static const struct WIDGET_TYPE spinbutton_type = { NULL, spinbutton_draw, spinbutton_click, spinbutton_click, NULL, NULL, (int (*)())spinbutton_keypress, free_multiselect, NULL, NULL, NULL };
+static const struct WIDGET_TYPE label_type = { NULL, label_draw, NULL, NULL, NULL, label_resize, NULL, free_widget_info, NULL, NULL, NULL, NULL };
+static const struct WIDGET_TYPE image_type = { NULL, image_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL, NULL, NULL, NULL };
+static const struct WIDGET_TYPE checkbox_type = { NULL, checkbox_draw, checkbox_click, NULL, NULL, NULL, NULL, free_widget_info, NULL, NULL, NULL, NULL };
+static const struct WIDGET_TYPE round_button_type = { NULL, button_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL, button_change_font, NULL, NULL };
+static const struct WIDGET_TYPE square_button_type = { NULL, square_button_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL, button_change_font, NULL, NULL };
+static const struct WIDGET_TYPE progressbar_type = { NULL, progressbar_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL, NULL, NULL, NULL };
+static const struct WIDGET_TYPE vscrollbar_type = { NULL, vscrollbar_draw, vscrollbar_click, vscrollbar_drag, NULL, NULL, NULL, free_widget_info, NULL, NULL, NULL, NULL };
+static const struct WIDGET_TYPE tab_collection_type = { NULL, tab_collection_draw, tab_collection_click, NULL, NULL, tab_collection_resize, (int (*)())tab_collection_keypress, free_tab_collection, NULL, tab_collection_change_font, NULL, NULL };
+static const struct WIDGET_TYPE text_field_type = { NULL, text_field_draw, text_field_click, text_field_drag, NULL, text_field_resize, (int (*)())text_field_keypress, text_field_destroy, text_field_move, text_field_change_font, text_field_paste, text_field_set_color };
+static const struct WIDGET_TYPE pword_field_type = { NULL, pword_field_draw, pword_field_click, pword_field_drag, pword_field_mouseover, NULL, (int (*)())pword_field_keypress, free_widget_info, NULL, NULL, pword_field_paste, NULL };
+static const struct WIDGET_TYPE multiselect_type = { NULL, multiselect_draw, multiselect_click, NULL, NULL, NULL, NULL, free_multiselect, NULL, NULL, NULL, multiselect_set_color };
+static const struct WIDGET_TYPE spinbutton_type = { NULL, spinbutton_draw, spinbutton_click, spinbutton_click, NULL, NULL, (int (*)())spinbutton_keypress, free_multiselect, NULL, NULL, NULL, NULL };
 
 // <--- Common widget functions ---
 widget_list * widget_find(int window_id, Uint32 widget_id)
@@ -445,13 +447,15 @@ int widget_set_size(int window_id, Uint32 widget_id, float size)
 int widget_set_color(int window_id, Uint32 widget_id, float r, float g, float b)
 {
 	widget_list *w = widget_find(window_id, widget_id);
-	if(w){
-		w->r = r;
-		w->g = g;
-		w->b = b;
-		return 1;
-	}
-	return 0;
+	if(!w)
+		return 0;
+
+	w->r = r;
+	w->g = g;
+	w->b = b;
+	if (w->type->color_change)
+		w->type->color_change(w, r, g, b);
+	return 1;
 }
 
 int widget_set_font_cat(int window_id, int widget_id, font_cat cat)
@@ -3053,6 +3057,17 @@ static int text_field_destroy(widget_list *w)
 	return 1;
 }
 
+static int text_field_set_color(widget_list *widget, float r, float g, float b)
+{
+	text_field *tf = widget->widget_info;
+	if (!tf)
+		return 0;
+
+	if (tf->scroll_id != -1)
+		widget_set_color(widget->window_id, tf->scroll_id, r, g, b);
+	return 1;
+}
+
 int text_field_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y,
 	Uint16 lx, Uint16 ly, Uint32 Flags, font_cat fcat, float size, text_message *buf, int buf_size,
 	Uint8 chan_filt, int x_space, int y_space)
@@ -4211,6 +4226,17 @@ static int multiselect_draw(widget_list *widget)
 	return 1;
 }
 
+static int multiselect_set_color(widget_list *widget, float r, float g, float b)
+{
+	multiselect *M = widget->widget_info;
+	if (!M)
+		return 0;
+
+	if (M->scrollbar != -1)
+		widget_set_color(M->win_id, M->scrollbar, r, g, b);
+	return 1;
+}
+
 int multiselect_button_add(int window_id, Uint32 multiselect_id, Uint16 x, Uint16 y, const char *text, const char selected)
 {
 	return multiselect_button_add_extended(window_id, multiselect_id, x, y, 0, text, DEFAULT_SMALL_RATIO, selected);
@@ -4259,6 +4285,7 @@ int multiselect_button_add_extended(int window_id, Uint32 multiselect_id, Uint16
 		/* Add scrollbar */
 		M->scrollbar = vscrollbar_add_extended(window_id, widget_id++, NULL, widget->pos_x+widget->len_x-M->scrollbar_width,
 			widget->pos_y, M->scrollbar_width, M->max_height, 0, 1.0, 0, 1, M->max_height);
+		widget_set_color(window_id, M->scrollbar, widget->r, widget->g, widget->b);
 		widget->len_x -= M->scrollbar_width + 2;
 		widget->len_y = M->max_height;
 		/* We don't want things to look ugly. */

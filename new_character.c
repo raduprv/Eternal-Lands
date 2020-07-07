@@ -1083,9 +1083,9 @@ static int keypress_namepass_handler (window_info *win, int mx, int my, SDL_Keyc
 	return ret;
 }
 
-static const struct WIDGET_TYPE name_type = {NULL, &name_draw, &click_namepass_field, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}; //custom widget for the name button
-static const struct WIDGET_TYPE password_type = {NULL, &password_draw, &click_namepass_field, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}; //custom widget for the password buttons
-static const struct WIDGET_TYPE errorbox_type = {NULL, &errorbox_draw, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}; //custom widget for displaying name/password errors
+static const struct WIDGET_TYPE name_type = {NULL, &name_draw, &click_namepass_field, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}; //custom widget for the name button
+static const struct WIDGET_TYPE password_type = {NULL, &password_draw, &click_namepass_field, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}; //custom widget for the password buttons
+static const struct WIDGET_TYPE errorbox_type = {NULL, &errorbox_draw, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}; //custom widget for displaying name/password errors
 static int specs[3] = {0, 1, 2};
 
 static int init_namepass_handler(window_info * win)
@@ -1579,7 +1579,7 @@ CHECK_GL_ERRORS();
 	return 1;
 }
 
-static const struct WIDGET_TYPE box_type = {NULL, &box_draw, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}; //a custom box widget
+static const struct WIDGET_TYPE box_type = {NULL, &box_draw, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}; //a custom box widget
 
 static int init_color_race_handler(window_info * win)
 {

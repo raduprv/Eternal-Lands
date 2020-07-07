@@ -32,6 +32,9 @@ typedef struct {
 	tab *tabs;
 } tab_collection;
 
+// Forward declaration
+struct wl;
+
 // The purpose of this implementation if to remove the need to edit
 // the implementation of the widgets to add a new client widget. It
 // also allows clients to be dynamically created and populated.
@@ -48,6 +51,7 @@ struct WIDGET_TYPE {
 	int (*move)();
 	int (*font_change)();
 	int (*paste)();
+	int (*color_change)(struct wl*, float, float, float);
     // We can conceivably store other generic info here too
 } ;
 
