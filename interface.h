@@ -81,6 +81,20 @@ extern const int video_modes_count;
 
 extern Uint32 click_time;
 
+/*!
+ * \name Screen coordinates of map borders
+ * \{
+ */
+extern int small_map_screen_x_left;
+extern int small_map_screen_x_right;
+extern int small_map_screen_y_top;
+extern int small_map_screen_y_bottom;
+extern int main_map_screen_x_left;
+extern int main_map_screen_x_right;
+extern int main_map_screen_y_top;
+extern int main_map_screen_y_bottom;
+/*! \} */
+
 extern int ati_click_workaround; /*!< if non-zero, arbitrarily multiply the read depth value by 256 to hopefully get a more reasonable value */
 
 /*!

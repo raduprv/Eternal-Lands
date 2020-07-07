@@ -55,12 +55,12 @@ static int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 	Uint32 ctrl_on = flags & KMOD_CTRL;
 	Uint32 left_click = flags & ELW_LEFT_MOUSE;
 	Uint32 right_click = flags & ELW_RIGHT_MOUSE;
-	float scale = (float) (win->len_x-hud_x) / 300.0f;
 
 	if (hud_click(win, mx, my, flags))
 		return 1;
 
-	if (left_click && mx > 0 && mx < 50*scale && my > 0 && my < 55*scale)
+	if (left_click && mx > small_map_screen_x_left && mx < small_map_screen_x_right
+		&& my > small_map_screen_y_top && my < small_map_screen_y_bottom)
 	{
 		showing_continent = !showing_continent;
 		inspect_map_text = 0;
@@ -83,19 +83,13 @@ static int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 	{
 		if (left_click)
 		{
-			int min_mouse_x = (window_width-hud_x)/6;
-			int min_mouse_y = 0;
-
-			int max_mouse_x = min_mouse_x+((window_width-hud_x)/1.5);
-			int max_mouse_y = window_height - hud_y;
-
-			int screen_map_width = max_mouse_x - min_mouse_x;
-			int screen_map_height = max_mouse_y - min_mouse_y;
+			int screen_map_width = main_map_screen_x_right - main_map_screen_x_left;
+			int screen_map_height = main_map_screen_y_bottom - main_map_screen_y_top;
 
 			int i;
 			/* Convert mouse coordinates to map coordinates (stolen from pf_get_mouse_position()) */
-			int m_px = ((mx-min_mouse_x) * 512) / screen_map_width;
-			int m_py = 512 - ((my * 512) / screen_map_height);
+			int m_px = ((mx-main_map_screen_x_left) * 512) / screen_map_width;
+			int m_py = 512 - ((my-main_map_screen_y_top) * 512) / screen_map_height;
 
 			/* Check if we clicked on a map */
 			for(i = 0; continent_maps[i].name != NULL; i++) {
@@ -143,19 +137,11 @@ static int display_map_handler (window_info * win)
 
 static int mouseover_map_handler (window_info *win, int mx, int my)
 {
-	float scale = (float) (win->len_x-hud_x) / 300.0f;
-
 	if (hud_mouse_over(win, mx, my))
 		return 1;
 
-	if (mx > 0 && mx < 50*scale && my > 0 && my < 55*scale)
-	{
-		mouse_over_minimap = 1;
-	}
-	else
-	{
-		mouse_over_minimap = 0;
-	}
+	mouse_over_minimap = (mx > small_map_screen_x_left && mx < small_map_screen_x_right
+		&& my > small_map_screen_y_top && my < small_map_screen_y_bottom);
 	return mouse_over_minimap;
 }
 

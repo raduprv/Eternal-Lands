@@ -73,6 +73,15 @@ int action_mode=ACTION_WALK;
 
 Uint32 click_time=0;
 
+int small_map_screen_x_left = 0;
+int small_map_screen_x_right = 0;
+int small_map_screen_y_top = 0;
+int small_map_screen_y_bottom = 0;
+int main_map_screen_x_left = 0;
+int main_map_screen_x_right = 0;
+int main_map_screen_y_top = 0;
+int main_map_screen_y_bottom = 0;
+
 static GLdouble model_mat[16];
 static GLdouble projection_mat[16];
 static GLint viewport[4];
@@ -578,6 +587,7 @@ int switch_to_game_map(void)
 	char buffer[1024];
 	short int cur_cont;
 	static short int old_cont = -1;
+	float scale;
 
 	/* check we loaded the mapinfo data */
 	if (continent_maps == NULL || continent_maps[0].name == NULL)
@@ -621,19 +631,26 @@ int switch_to_game_map(void)
 	{
 		change_cursor(CURSOR_ARROW);
 	}
+
+	scale = min2f((window_width-hud_x) / 250.0f, (window_height-hud_y) / 200.0f);
+	small_map_screen_x_left = 0.5 * (window_width - hud_x - scale*250);
+	small_map_screen_x_right = small_map_screen_x_left + scale*50;
+	small_map_screen_y_top = 0.5 * (window_height - hud_y - scale*200);
+	small_map_screen_y_bottom = small_map_screen_y_top + scale*55;
+	main_map_screen_x_left = small_map_screen_x_right;
+	main_map_screen_x_right = main_map_screen_x_left + scale*200;
+	main_map_screen_y_top = small_map_screen_y_top;
+	main_map_screen_y_bottom = main_map_screen_y_top + scale*200;
+
 	return 1;
 }
 
 static void draw_mark_filter(void)
 {
-	int screen_x=0;
-	int screen_y=0;
-
 	// display the Mark filter title
 	glColor3f(1.0f,1.0f,0.0f);
-	screen_x = 25 - 1.5*strlen(label_mark_filter);
-	screen_y = 150 + 22;
-	draw_string_zoomed(screen_x, screen_y, (unsigned char*)label_mark_filter, 1, 0.3);
+	draw_text(25, 150+22, (const unsigned char*)label_mark_filter, strlen(label_mark_filter),
+		MAPMARK_FONT, TDO_ALIGNMENT, CENTER, TDO_END);
 
 	// if filtering marks, display the label and the current filter text
 	if (mark_filter_active) {
@@ -645,16 +662,16 @@ static void draw_mark_filter(void)
 			show_mark_filter_text = "_";
 		else
 		  show_mark_filter_text = mark_filter_text;
-		screen_x = 25 - 1.5*strlen(show_mark_filter_text);
-		screen_y = 150 + 29;
-		draw_string_zoomed(screen_x, screen_y, (unsigned char*)show_mark_filter_text, 1, 0.3);
+		draw_text(25, 150+29, (const unsigned char*)show_mark_filter_text, strlen(show_mark_filter_text),
+			MAPMARK_FONT, TDO_ALIGNMENT, CENTER, TDO_END);
 	}
 	// display which key to activate the filter
 	else
 	{
 		char buf[20];
 		get_key_string(K_MARKFILTER, buf, sizeof(buf));
-		draw_string_zoomed(25 - 1.5*strlen(buf), 150 + 29, (const unsigned char *)buf, 1, 0.3);
+		draw_text(25, 150+29, (const unsigned char *)buf, strlen(buf), MAPMARK_FONT,
+			TDO_ALIGNMENT, CENTER, TDO_END);
 	}
 }
 
@@ -701,8 +718,6 @@ static void draw_marks(marking *the_marks, int the_max_mark, int the_tile_map_si
 
 void draw_coordinates(int the_tile_map_size_x, int the_tile_map_size_y)
 {
-	int screen_x=0;
-	int screen_y=0;
 	int map_x, map_y;
 
 	// draw coordinates
@@ -711,12 +726,10 @@ void draw_coordinates(int the_tile_map_size_x, int the_tile_map_size_y)
 		char buf[10];
 		safe_snprintf(buf, sizeof(buf), "%d,%d", map_x, map_y);
 		glColor3f(1.0f,1.0f,0.0f);
-		screen_x = 25 - 1.5*strlen(buf);
-		screen_y = 150 + 8;
-		draw_string_zoomed(screen_x, screen_y, (unsigned char*)buf, 1, 0.3);
-		screen_x = 25 - 1.5*strlen(label_cursor_coords);
-		screen_y = 150 + 1;
-		draw_string_zoomed(screen_x, screen_y, (unsigned char*)label_cursor_coords, 1, 0.3);
+		draw_text(25, 150+8, (const unsigned char*)buf, strlen(buf), MAPMARK_FONT,
+			TDO_ALIGNMENT, CENTER, TDO_END);
+		draw_text(25, 150+1, (const unsigned char*)label_cursor_coords, strlen(label_cursor_coords),
+			MAPMARK_FONT, TDO_ALIGNMENT, CENTER, TDO_END);
 	}
 }
 
@@ -730,6 +743,7 @@ void draw_game_map (int map, int mouse_mini)
 	GLuint map_small, map_large;
 	actor *me;
 	static int fallback_text = -1;
+	int win_width, win_height, vp_width, vp_height;
 
 	// if we don't have a continent texture (instance may be), fallback to blank paper
 	if (cont_text < 0)
@@ -759,39 +773,54 @@ void draw_game_map (int map, int mouse_mini)
 		}
 	}
 
+	win_width = window_width - hud_x;
+	win_height = window_height - hud_y;
+	if (200 * win_width > 250 * win_height)
+	{
+		vp_width = (200 * win_width) / win_height;
+		vp_height = 200;
+	}
+	else
+	{
+		vp_width = 250;
+		vp_height = (250 * win_height) / win_width;
+	}
+
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_LIGHTING);
 
-	glViewport(0, 0 + hud_y, window_width-hud_x, window_height-hud_y);
+	glViewport(0, hud_y, win_width, win_height);
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
 
-	glOrtho(300, (GLdouble)0, (GLdouble)0, 200, -250.0, 250.0);
+	glOrtho(0.0, (GLdouble)vp_width, 0.0, (GLdouble)vp_height, -250.0, 250.0);
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
 
+	// Draw a black background
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(0.0f, 0.0f, 0.0f);
-
 	glBegin(GL_QUADS);
-		glVertex2i(0,   0);
-		glVertex2i(300, 0);
-		glVertex2i(300, 200);
-		glVertex2i(0,   200);
+		glVertex2i(0,        0);
+		glVertex2i(0,        vp_height);
+		glVertex2i(vp_width, vp_height);
+		glVertex2i(vp_width, 0);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 
-	glColor3f(1.0f,1.0f,1.0f);
+	glColor3f(1.0, 1.0, 1.0);
+
+	// Center things.
+	glTranslatef(0.5 * (vp_width - 250), 0.5 * (vp_height - 200), 0.0);
 
 	bind_texture(map_large);
-
 	glBegin(GL_QUADS);
-		glTexCoord2f(1.0f, 1.0f); glVertex3i(50,0,0);
-		glTexCoord2f(1.0f, 0.0f); glVertex3i(50,200,0);
-		glTexCoord2f(0.0f, 0.0f); glVertex3i(250,200,0);
-		glTexCoord2f(0.0f, 1.0f); glVertex3i(250,0,0);
+		glTexCoord2f(0.0f, 1.0f); glVertex3i(50,    0, 0);
+		glTexCoord2f(0.0f, 0.0f); glVertex3i(50,  200, 0);
+		glTexCoord2f(1.0f, 0.0f); glVertex3i(250, 200, 0);
+		glTexCoord2f(1.0f, 1.0f); glVertex3i(250,   0, 0);
 	glEnd();
 
 	if (mouse_mini)
@@ -802,12 +831,11 @@ void draw_game_map (int map, int mouse_mini)
 	glEnable(GL_ALPHA_TEST);
 
 	bind_texture(map_small);
-
 	glBegin(GL_QUADS);
-		glTexCoord2f(1.0f, 1.0f); glVertex3i(250,150,0);
-		glTexCoord2f(1.0f, 0.0f); glVertex3i(250,200,0);
-		glTexCoord2f(0.0f, 0.0f); glVertex3i(300,200,0);
-		glTexCoord2f(0.0f, 1.0f); glVertex3i(300,150,0);
+		glTexCoord2f(0.0f, 1.0f); glVertex3i(0,  150, 0);
+		glTexCoord2f(0.0f, 0.0f); glVertex3i(0,  200, 0);
+		glTexCoord2f(1.0f, 0.0f); glVertex3i(50, 200, 0);
+		glTexCoord2f(1.0f, 1.0f); glVertex3i(50, 150, 0);
 	glEnd();
 
 	glDisable(GL_ALPHA_TEST);
@@ -815,12 +843,11 @@ void draw_game_map (int map, int mouse_mini)
 	glColor3f(1.0f,1.0f,1.0f);
 
 	bind_texture(legend_text);
-
 	glBegin(GL_QUADS);
-		glTexCoord2f(1.0f, 1.0f); glVertex3i(250,50,0);
-		glTexCoord2f(1.0f, 0.0f); glVertex3i(250,150,0);
-		glTexCoord2f(0.0f, 0.0f); glVertex3i(300,150,0);
-		glTexCoord2f(0.0f, 1.0f); glVertex3i(300,50,0);
+		glTexCoord2f(0.0f, 1.0f); glVertex3i(0,   50, 0);
+		glTexCoord2f(0.0f, 0.0f); glVertex3i(0,  150, 0);
+		glTexCoord2f(1.0f, 0.0f); glVertex3i(50, 150, 0);
+		glTexCoord2f(1.0f, 1.0f); glVertex3i(50,  50, 0);
 	glEnd();
 
 // this is necessary for the text over map
@@ -828,14 +855,15 @@ void draw_game_map (int map, int mouse_mini)
 // because of the coordinate display - Lachesis
 	if(map/*&&(adding_mark||max_mark>0)*/)
 	{
-		glViewport(0, 0 + hud_y, window_width-hud_x, window_height-hud_y);
+		glViewport(0, hud_y, win_width, win_height);
 		glMatrixMode(GL_PROJECTION);
 		glPushMatrix();
 		glLoadIdentity();
-		glOrtho((GLdouble)0, (GLdouble)300, (GLdouble)200, (GLdouble)0, -250.0, 250.0);
+		glOrtho(0.0, (GLdouble)vp_width, (GLdouble)vp_height, 0.0, -250.0, 250.0);
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
 		glLoadIdentity();
+		glTranslatef(0.5 * (vp_width - 250), 0.5 * (vp_height - 200), 0.0);
 
 		// Draw help for toggling the mini-map
 		{
@@ -844,7 +872,8 @@ void draw_game_map (int map, int mouse_mini)
 			glEnable(GL_TEXTURE_2D);
 			safe_snprintf(buf, sizeof(buf), "%s %s", win_minimap, get_key_string(K_MINIMAP, keybuf, sizeof(keybuf)));
 			glColor3f (1.0f, 1.0f, 0.0f);
-			draw_string_zoomed(25 - 1.5*strlen(buf), 150 + 43, (const unsigned char *)buf, 1, 0.3);
+			draw_text(25, 150 + 43, (const unsigned char *)buf, strlen(buf), MAPMARK_FONT,
+				TDO_ALIGNMENT, CENTER, TDO_END);
 		}
 
 		// draw a temporary mark until the text is entered
