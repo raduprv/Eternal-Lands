@@ -1330,7 +1330,7 @@ void Font::draw_ingame_string(const unsigned char* text, size_t len,
 #endif // ELC
 
 #ifdef TTF
-bool Font::render_glyph(size_t i_glyph, int size, int y_delta, bool draw_shadow, TTF_Font *font,
+bool Font::render_glyph(size_t i_glyph, int size, int y_delta, int outline_size, TTF_Font *font,
 	SDL_Surface *surface)
 {
 	static const Uint16 glyphs[nr_glyphs] = {
@@ -1347,7 +1347,7 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, bool draw_shadow,
 
 	};
 	static const SDL_Color white = { .r = 0xff, .g = 0xff, .b = 0xff, .a = 0xff };
-	static const SDL_Color black = { .r = 0x00, .g = 0x00, .b = 0x00, .a = 0x10 };
+	static const SDL_Color black = { .r = 0x00, .g = 0x00, .b = 0x00, .a = 0x30 };
 
 	Uint16 glyph = glyphs[i_glyph];
 	if (!TTF_GlyphIsProvided(font, glyph))
@@ -1358,14 +1358,37 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, bool draw_shadow,
 	}
 
 	SDL_Surface* glyph_surface;
-	if (draw_shadow)
-		glyph_surface = TTF_RenderGlyph_Shaded(font, glyph, white, black);
-	else
-		glyph_surface = TTF_RenderGlyph_Solid(font, glyph, white);
-	if (!glyph_surface)
+	if (outline_size > 0)
 	{
-		LOG_ERROR("Failed to render TTF glyph: %s", TTF_GetError());
-		return false;
+		TTF_SetFontOutline(font, outline_size);
+		glyph_surface = TTF_RenderGlyph_Blended(font, glyph, black);
+		if (!glyph_surface)
+		{
+			LOG_ERROR("Failed to render TTF glyph outline: %s", TTF_GetError());
+			return false;
+		}
+
+		TTF_SetFontOutline(font, 0);
+		SDL_Surface *fg_surface = TTF_RenderGlyph_Blended(font, glyph, white);
+		if (!fg_surface)
+		{
+			LOG_ERROR("Failed to render TTF glyph: %s", TTF_GetError());
+			return false;
+		}
+
+		SDL_Rect rect = {outline_size, outline_size, fg_surface->w, fg_surface->h};
+		SDL_SetSurfaceBlendMode(glyph_surface, SDL_BLENDMODE_BLEND);
+		SDL_BlitSurface(fg_surface, NULL, glyph_surface, &rect);
+		SDL_FreeSurface(fg_surface);
+	}
+	else
+	{
+		glyph_surface = TTF_RenderGlyph_Solid(font, glyph, white);
+		if (!glyph_surface)
+		{
+			LOG_ERROR("Failed to render TTF glyph: %s", TTF_GetError());
+			return false;
+		}
 	}
 
 	int width = glyph_surface->w;
@@ -1380,13 +1403,13 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, bool draw_shadow,
 	glyph_area.w = width;
 	glyph_area.h = height;
 	area.x = col*size;
-	area.y = row*(size+2) + 1 + y_delta;
+	area.y = row*(size+2) + 1 + y_delta - outline_size;
 	area.w = width;
 	area.h = height;
 
 	SDL_SetSurfaceAlphaMod(glyph_surface, 0xFF);
 	SDL_SetSurfaceBlendMode(glyph_surface, SDL_BLENDMODE_NONE);
-	int err = SDL_BlitSurface(glyph_surface, &glyph_area, surface, &area);
+	int err = SDL_BlitSurface(glyph_surface, NULL, surface, &area);
 	SDL_FreeSurface(glyph_surface);
 	if (err)
 	{
@@ -1433,7 +1456,15 @@ bool Font::build_texture_atlas()
 		}
 	}
 
-	int size = TTF_FontLineSkip(font);
+	// SDL_ttf versions < 2.0.15 don't take transparency into account, so don't draw shadows
+	// if the run-time version of this library version is too old.
+	const SDL_version *link_version = TTF_Linked_Version();
+	bool draw_shadow = link_version->major > 2
+		|| (link_version->major == 2 && link_version->minor > 0)
+		|| (link_version->major == 2 && link_version->minor == 0 && link_version->patch >= 15);
+	int outline_size = draw_shadow ? 2 : 0;
+
+	int size = TTF_FontLineSkip(font); //+ 2 * outline_size;
 	int width = next_power_of_two(font_chars_per_line * size);
 	// Keep two rows of empty pixels (one top, one bottom) around the glyphs for systems with an
 	// alternative view on texture coordinates (i.e. off by one pixel). Perhaps they may lose a
@@ -1461,17 +1492,10 @@ bool Font::build_texture_atlas()
 		return false;
 	}
 
-	// SDL_ttf versions < 2.0.15 don't take transparency into account, so don't draw shadows
-	// if the run-time version of this library version is too old.
-	const SDL_version *link_version = TTF_Linked_Version();
-	bool draw_shadow = link_version->major > 2
-		|| (link_version->major == 2 && link_version->minor > 0)
-		|| (link_version->major == 2 && link_version->minor == 0 && link_version->patch >= 15);
-
 	int y_delta = (size - TTF_FontHeight(font)) / 2;
 	for (size_t i_glyph = 0; i_glyph < nr_glyphs; ++i_glyph)
 	{
-		if (!render_glyph(i_glyph, size, y_delta, draw_shadow, font, image))
+		if (!render_glyph(i_glyph, size, y_delta, outline_size, font, image))
 		{
 			SDL_FreeSurface(image);
 			TTF_CloseFont(font);
