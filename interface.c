@@ -883,7 +883,7 @@ void draw_game_map (int map, int mouse_mini)
 			int y = mark_y;
 
 			screen_x = main_l + main_w*x/(tile_map_size_x*6);
-			screen_y = main_h - main_h*y/(tile_map_size_y*6);
+			screen_y = main_b - main_h*y/(tile_map_size_y*6);
 
 			glColor3f(1.0f,1.0f,0.0f);
 			glDisable(GL_TEXTURE_2D);
@@ -932,7 +932,7 @@ void draw_game_map (int map, int mouse_mini)
 		else
 		{
 			screen_x = main_l + main_w*px/(tile_map_size_x*6);
-			screen_y = main_h - main_h*py/(tile_map_size_y*6);
+			screen_y = main_b - main_h*py/(tile_map_size_y*6);
 		}
 
 		glColor3f(1.0f,0.0f,0.0f);
@@ -977,7 +977,7 @@ void draw_game_map (int map, int mouse_mini)
 	else
 	{
 		screen_x = main_l + main_w*x/(tile_map_size_x*6);
-		screen_y = main_h - main_h*y/(tile_map_size_y*6);
+		screen_y = main_b - main_h*y/(tile_map_size_y*6);
 	}
 
 	if ( (map || !dungeon) && x != -1 )
