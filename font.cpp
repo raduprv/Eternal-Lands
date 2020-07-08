@@ -77,6 +77,19 @@ bool pos_selected(const select_info *sel, size_t imsg, size_t ichar)
 		&& (imsg < end.first   || (imsg == end.first   && ichar <= end.second));
 }
 
+#ifdef TTF
+TTF_Font* open_font(const std::string& file_name, int point_size)
+{
+	// First try to interpret ttf_file_name as a path relative to ttf_directory. If that fails,
+	// try as an absolute path.
+	std::string path = ttf_directory + file_name;
+	TTF_Font *font = TTF_OpenFont(path.c_str(), point_size);
+	if (!font)
+		font = TTF_OpenFont(file_name.c_str(), point_size);
+	return font;
+}
+#endif
+
 } // namespace
 
 namespace eternal_lands
@@ -295,20 +308,12 @@ Font::Font(const std::string& ttf_file_name): _font_name(), _file_name(), _flags
 	_password_center_offset(0), _max_advance(0), _max_digit_advance(0), _avg_advance(0),
 	_spacing(0), _scale_x(1.0), _scale_y(1.0)
 {
-	// First try to interpret ttf_file_name as a path relative to ttf_directory. If that fails,
-	// try as an absolute path.
-	std::string file_name = ttf_directory + ttf_file_name;
-	TTF_Font *font = TTF_OpenFont(file_name.c_str(), ttf_point_size);
+	TTF_Font *font = open_font(ttf_file_name.c_str(), ttf_point_size);
 	if (!font)
 	{
-		file_name = ttf_file_name;
-		font = TTF_OpenFont(file_name.c_str(), ttf_point_size);
-		if (!font)
-		{
-			LOG_ERROR("Failed to open TTF font file '%s'", ttf_file_name.c_str());
-			_flags |= FAILED;
-			return;
-		}
+		LOG_ERROR("Failed to open TTF font file '%s'", ttf_file_name.c_str());
+		_flags |= FAILED;
+		return;
 	}
 
 	// Quick check to see if the font is useful
@@ -1430,6 +1435,30 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, int outline_size,
 	return true;
 }
 
+int Font::find_point_size()
+{
+	int target = (font_block_height - 2) * get_global_scale();
+	int min = 0, max = 2 * font_block_height * get_global_scale();
+	while (max > min + 1)
+	{
+		int mid = (min + max) / 2;
+		TTF_Font *font = open_font(_file_name.c_str(), mid);
+		if (!font)
+			return 0;
+
+		int size = TTF_FontLineSkip(font);
+		TTF_CloseFont(font);
+
+		if (size == target)
+			return mid;
+		else if (size < target)
+			min = mid;
+		else
+			max = mid;
+	}
+	return max;
+}
+
 bool Font::build_texture_atlas()
 {
 	static const int nr_rows = (nr_glyphs + font_chars_per_line-1) / font_chars_per_line;
@@ -1443,17 +1472,15 @@ bool Font::build_texture_atlas()
 
 	// First try to interpret ttf_file_name as a path relative to ttf_directory. If that fails,
 	// try as an absolute path.
-	std::string file_name = ttf_directory + _file_name;
-	TTF_Font *font = TTF_OpenFont(file_name.c_str(), ttf_point_size);
+	int point_size = find_point_size();
+	if (point_size == 0)
+		point_size = ttf_point_size;
+	TTF_Font *font = open_font(_file_name.c_str(), point_size);
 	if (!font)
 	{
-		font = TTF_OpenFont(_file_name.c_str(), ttf_point_size);
-		if (!font)
-		{
-			LOG_ERROR("Failed to open TrueType font %s: %s", _file_name.c_str(), TTF_GetError());
-			_flags |= Flags::FAILED;
-			return false;
-		}
+		LOG_ERROR("Failed to open TrueType font %s: %s", _file_name.c_str(), TTF_GetError());
+		_flags |= Flags::FAILED;
+		return false;
 	}
 
 	// SDL_ttf versions < 2.0.15 don't take transparency into account, so don't draw shadows
@@ -1462,7 +1489,7 @@ bool Font::build_texture_atlas()
 	bool draw_shadow = link_version->major > 2
 		|| (link_version->major == 2 && link_version->minor > 0)
 		|| (link_version->major == 2 && link_version->minor == 0 && link_version->patch >= 15);
-	int outline_size = draw_shadow ? 2 : 0;
+	int outline_size = draw_shadow ? std::round(get_global_scale()) : 0;
 
 	int size = TTF_FontLineSkip(font); //+ 2 * outline_size;
 	int width = next_power_of_two(font_chars_per_line * size);

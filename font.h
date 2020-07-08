@@ -1038,6 +1038,16 @@ private:
 	bool render_glyph(size_t i_glyph, int size, int y_delta, int outline_size, TTF_Font *font,
 		SDL_Surface *surface);
 	/*!
+	 * \brief Find an appropriate font size
+	 *
+	 * Find a point size for this font which has the correct line height for the normal font size,
+	 * taking the global UI scaling factor into account. This does not take any font-specific
+	 * or window-specific scaling into account.
+	 *
+	 * \return A point size for this font which gives approximately the correct line height
+	 */
+	int find_point_size();
+	/*!
 	 * \brief Build a texture for a TTF font
 	 *
 	 * Build a texture containing all supported glyphs from the TrueType font
