@@ -693,8 +693,8 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		float percentage = (float)actor_id->cur_health/(float)actor_id->max_health;
 		float off;
 
-		if(percentage>110.0f) //deal with massive bars by trimming at 110%
-			percentage = 110.0f;
+		if(percentage>1.1f) //deal with massive bars by trimming at 110%
+			percentage = 1.1f;
 		if (display_hp){
 			off = bar_x_len + 5.0f;
 		} else {
