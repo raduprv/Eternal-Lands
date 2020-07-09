@@ -48,8 +48,14 @@ int right_click = 0;
 int middle_click = 0;
 int left_click = 0;
 
+dynamic_banner_colour_def dynamic_banner_colour =
+{
+	.yourself = 1,
+	.other_players = 1,
+	.creatures = 1
+};
+
 int have_a_map=0;
-int dynamic_banner_bar_colour = 1;
 int view_health_bar=1;
 int view_ether_bar=0;
 int view_names=1;
@@ -58,6 +64,7 @@ int view_ether=0;
 int view_chat_text_as_overtext=0;
 int view_mode_instance=0;
 float view_mode_instance_banner_height=5.0f;
+float view_mode_instance_damage_height=5.0f;
 
 //instance mode banners config:
 int im_creature_view_names = 1;

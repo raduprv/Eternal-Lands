@@ -369,12 +369,27 @@ void remove_actor_attachment(int actor_id)
 	UNLOCK_ACTORS_LISTS();
 }
 
-void set_health_color(float percent, float multiplier, float a)
+static void set_health_color(actor * actor_id, float percent, float multiplier, float a)
 {
 	float r,g;
 
-	if (!dynamic_banner_bar_colour)
-		percent = 1.0f;
+	if (actor_id != NULL)
+	{
+		// Only a subset of actors have health bars, so the choice
+		// here is limited.
+		if (actor_id->actor_id == yourself)
+		{
+			if (!dynamic_banner_colour.yourself)
+				percent = 1.0f;
+		}
+		else if (actor_id->is_enhanced_model)
+		{
+			if (!dynamic_banner_colour.other_players)
+				percent = 1.0f;
+		}
+		else if (!dynamic_banner_colour.creatures)
+			percent = 1.0f;
+	}
 
 	r=(1.0f-percent)*2.0f;
 	g=(percent/1.25f)*2.0f;
@@ -387,11 +402,11 @@ void set_health_color(float percent, float multiplier, float a)
 	glColor4f(r*multiplier,g*multiplier,0.0f, a);
 }
 
-void set_mana_color(float percent, float multiplier, float a)
+static void set_mana_color(float percent, float multiplier, float a)
 {
 	float c;
 
-	if (!dynamic_banner_bar_colour)
+	if (!dynamic_banner_colour.yourself)
 		percent = 1.0f;
 
 	c=0.6f - percent*0.6f;
@@ -541,7 +556,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			else
 			{
 				float font_scale2 = font_scale*powf(1.0f+((float)abs(actor_id->damage)/2.0f)/1000.0f, 4.0);
-				int extra_y = (view_mode_instance && displaying_me) ?view_mode_instance_banner_height * bar_y_len : 0;
+				int extra_y = (view_mode_instance && displaying_me) ?view_mode_instance_damage_height * bar_y_len : 0;
 				int lines = (!(view_mode_instance && displaying_me) && (display_hp || display_health_bar) && (display_ether || display_ether_bar)) ? 3 : 2;
 				draw_ortho_ingame_string(hx - 0.5f * (float)get_string_width_zoom(str, NAME_FONT, font_scale2*0.17),
 					a_bounce + hy + extra_y + get_text_height(lines, NAME_FONT, name_zoom), 0, str, 1,
@@ -654,7 +669,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 
 					if (display_hp) {
 						//choose color for the health
-						set_health_color((float)actor_id->cur_health/(float)actor_id->max_health, 1.0f, 1.0f);
+						set_health_color(actor_id, (float)actor_id->cur_health/(float)actor_id->max_health, 1.0f, 1.0f);
 						draw_ortho_ingame_string(hx-disp+hp_off, hy-bar_y_len/3.0f,
 							hz, hp, 1, ALT_INGAME_FONT_X_LEN*font_scale,
 							ALT_INGAME_FONT_X_LEN*font_scale);
@@ -708,12 +723,12 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		hx-=off;
 
 		//choose tint color
-		set_health_color(percentage, 0.5f, 1.0f);
+		set_health_color(actor_id, percentage, 0.5f, 1.0f);
 		glBegin(GL_QUADS);
 			glVertex3d(hx,hy,hz);
 			glVertex3d(hx+healthbar_x_len_converted,hy,hz);
 
-		set_health_color(percentage, 1.0f, 1.0f);
+		set_health_color(actor_id, percentage, 1.0f, 1.0f);
 
 			glVertex3d(hx+healthbar_x_len_converted,hy+bar_y_len/3.0,hz);
 			glVertex3d(hx,hy+bar_y_len/3.0,hz);
@@ -723,13 +738,13 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-			set_health_color(percentage, 0.5f, healthbar_x_loss_fade);
+			set_health_color(actor_id, percentage, 0.5f, healthbar_x_loss_fade);
 
 			glBegin(GL_QUADS);
 				glVertex3d(hx+healthbar_x_len_converted, hy, hz);
 				glVertex3d(hx+healthbar_x_len_converted+healthbar_x_len_loss, hy, hz);
 
-			set_health_color(percentage, 1.0f, healthbar_x_loss_fade);
+			set_health_color(actor_id, percentage, 1.0f, healthbar_x_loss_fade);
 
 				glVertex3d(hx+healthbar_x_len_converted+healthbar_x_len_loss, hy+bar_y_len/3.0,hz);
 				glVertex3d(hx+healthbar_x_len_converted, hy+bar_y_len/3.0,hz);
@@ -778,7 +793,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			glVertex3d(hx+etherbar_x_len_converted,ey+bar_y_len/3.0,hz);
 			glVertex3d(hx,ey+bar_y_len/3.0,hz);
 		glEnd();
-		set_health_color(percentage, 1.0f, 1.0f);
+		set_health_color(actor_id, percentage, 1.0f, 1.0f);
 		glDepthFunc(GL_LEQUAL);
 		glColor3f (0.0f, 0.0f, 0.0f);
 		glBegin(GL_LINE_LOOP);

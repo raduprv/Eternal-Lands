@@ -2568,11 +2568,14 @@ static void init_ELC_vars(void)
 
 	add_var(OPT_BOOL,"show_poison_count", "poison_count", &show_poison_count, change_var, 0, "Show Food Poison Count", "Displays on the poison drop icon, the number of times you have been food poisoned since last being free of poison.",HUD);
 
-	add_var(OPT_BOOL,"dynamic_banner_bar_colour", "dbbc", &dynamic_banner_bar_colour, change_var, 1, "Dynamically Change The Banner Bar Colours", "Dynamically change the colour of the health and mana banner bars, for exmaple, the heath bar changes from green to red as you loose health.",HUD);
+	add_var(OPT_BOOL,"your_dynamic_banner_colour", "ydbc", &dynamic_banner_colour.yourself, change_var, 1, "Dynamic Health and Mana Banner Colours", "Dynamically change the colour of your health and mana banner. For example, the health banner changes from green to red as you loose health.",HUD);
+	add_var(OPT_BOOL,"player_dynamic_banner_colour", "pdbc", &dynamic_banner_colour.other_players, change_var, 1, "Dynamic Other Players Health Banner Colour", "Dynamically change the colour of the health banner for other players. It changes from green to red as they loose health.",HUD);
+	add_var(OPT_BOOL,"creature_dynamic_banner_colour", "cdbc", &dynamic_banner_colour.creatures, change_var, 1, "Dynamic Creatures Health Banner Colour", "Dynamically change the colour of the health banner for creatures. It changes from green to red as they loose health.",HUD);
 
 	// instance mode options
 	add_var(OPT_BOOL,"use_view_mode_instance","instance_mode",&view_mode_instance, change_var, 0, "Use instance mode banners", "Shows only your and mobs banners, adds mana bar to your banner.",HUD);
 	add_var(OPT_FLOAT,"instance_mode_banner_height","instance_mode_bheight",&view_mode_instance_banner_height,change_float,5.0f,"Your instance banner height","Sets how high the banner is located above your character",HUD,1.0,12.0,0.2);
+	add_var(OPT_FLOAT,"instance_mode_damage_height","instance_mode_dheight",&view_mode_instance_damage_height,change_float,5.0f,"Your instance heal/damage height","Sets how high the heal/damage are located above your character",HUD,-12.0,12.0,0.2);
 	add_var(OPT_BOOL,"im_creature_view_names","im_cnm",&im_creature_view_names, change_var, 0, "Creatures instance banners - names", "Show creature names when using instance mode",HUD);
 	add_var(OPT_BOOL,"im_creature_view_hp","im_chp",&im_creature_view_hp, change_var, 0, "Creatures instance banners - health numbers", "Show creature health numbers when using instance mode",HUD);
 	add_var(OPT_BOOL,"im_creature_view_hp_bar","im_chpbar",&im_creature_view_hp_bar, change_var, 0, "Creatures instance banners - health bars", "Show creature health bars when using instance mode",HUD);
