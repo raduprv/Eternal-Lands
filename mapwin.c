@@ -220,6 +220,7 @@ static int resize_map_root_handler(window_info *win, int width, int height)
 {
 	if (get_show_window(win->window_id))
 		init_hud_interface (HUD_INTERFACE_GAME);
+	reload_tab_map = 1;
 	return 1;
 }
 
