@@ -879,8 +879,8 @@ void draw_game_map (int map, int mouse_mini)
 			glEnable(GL_TEXTURE_2D);
 			safe_snprintf(buf, sizeof(buf), "%s %s", win_minimap, get_key_string(K_MINIMAP, keybuf, sizeof(keybuf)));
 			glColor3f (1.0f, 1.0f, 0.0f);
-			draw_text(small_l+small_w/2, (int)(0.965*main_h), (const unsigned char *)buf, strlen(buf),
-				MAPMARK_FONT, TDO_ALIGNMENT, CENTER, TDO_ZOOM, map_font_scale_fac, TDO_END);
+			draw_text(small_l+small_w/2, (int)(main_t + 0.965*main_h), (const unsigned char *)buf,
+				strlen(buf), MAPMARK_FONT, TDO_ALIGNMENT, CENTER, TDO_ZOOM, map_font_scale_fac, TDO_END);
 		}
 
 		// draw a temporary mark until the text is entered
