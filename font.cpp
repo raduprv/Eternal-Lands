@@ -1402,11 +1402,7 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, int outline_size,
 	int row = i_glyph / font_chars_per_line;
 	int col = i_glyph % font_chars_per_line;
 
-	SDL_Rect area, glyph_area;
-	glyph_area.x = 0;
-	glyph_area.y = 0;
-	glyph_area.w = width;
-	glyph_area.h = height;
+	SDL_Rect area;
 	area.x = col*size;
 	area.y = row*(size+2) + 1 + y_delta - outline_size;
 	area.w = width;
