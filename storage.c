@@ -255,14 +255,25 @@ static int item_cmp(const void *a, const void *b)
 {
 	const ground_item *item_a = (const ground_item *)a;
 	const ground_item *item_b = (const ground_item *)b;
-	if (get_item_count(item_a->id, item_a->image_id) != 1)
-		return 0;
-	if (get_item_count(item_b->id, item_b->image_id) != 1)
+	int a_count, b_count;
+
+	if ((item_a->quantity <= 0) && (item_b->quantity <= 0))
 		return 0;
 	if (item_a->quantity <= 0)
 		return 1;
 	if (item_b->quantity <= 0)
 		return -1;
+
+	a_count = get_item_count(item_a->id, item_a->image_id);
+	b_count = get_item_count(item_b->id, item_b->image_id);
+
+	if ((a_count != 1) && (b_count != 1))
+		return 0;
+	if (a_count != 1)
+		return 1;
+	if (b_count != 1)
+		return -1;
+
 	return strcmp(get_basic_item_description(item_a->id, item_a->image_id),
 		get_basic_item_description(item_b->id, item_b->image_id));
 }
@@ -279,7 +290,7 @@ static void update_item_filter(void)
 	}
 
 	if ((no_storage > 0) && sort_storage_items)
-		qsort(storage_items, no_storage, sizeof(ground_item), item_cmp);
+		qsort(storage_items, STORAGE_ITEMS_SIZE, sizeof(ground_item), item_cmp);
 }
 
 void get_storage_items (const Uint8 *in_data, int len)
