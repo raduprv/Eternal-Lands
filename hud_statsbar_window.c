@@ -243,6 +243,7 @@ static void draw_stats_bar(window_info *win, int x, int y, int val, int len, flo
 	char buf[32];
 	int i; // i deals with massive bars by trimming at 110%
 	int bar_height = player_statsbar_bar_height;
+	int text_offset = (int)(0.5 + win->current_scale * 2);
 
 	if(len>stats_bar_len*1.1)
 		i=stats_bar_len*1.1;
@@ -276,7 +277,7 @@ static void draw_stats_bar(window_info *win, int x, int y, int val, int len, flo
 	// handle the text
 	safe_snprintf(buf, sizeof(buf), "%d", val);
 	//glColor3f(0.8f, 0.8f, 0.8f); moved to next line
-	draw_string_small_shadowed_zoomed_right(x - 2, y - 2, (const unsigned char*)buf,
+	draw_string_small_shadowed_zoomed_right(x - text_offset, y - text_offset, (const unsigned char*)buf,
 		1, 0.8f, 0.8f, 0.8f, 0.0f, 0.0f, 0.0f, win->current_scale);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
