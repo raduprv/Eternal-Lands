@@ -3327,7 +3327,7 @@ int text_field_clear(int window_id, Uint32 widget_id)
 static int text_field_change_font(widget_list *w, font_cat cat)
 {
 	text_field *tf;
-	int i, nr_lines = 0;
+	int i, nr_lines = 0, nr_vis;
 
 	if (!w || !(tf = w->widget_info))
 		return 0;
@@ -3339,7 +3339,12 @@ static int text_field_change_font(widget_list *w, font_cat cat)
 		nr_lines += rewrap_message(tf->buffer+i, w->fcat, w->size,
 			w->len_x - 2*tf->x_space - tf->scrollbar_width, cursor);
 	}
+
+	nr_vis = tf->nr_visible_lines;
+	_text_field_set_nr_visible_lines(w);
 	_text_field_set_nr_lines(w, nr_lines);
+	if (tf->nr_visible_lines != nr_vis)
+		tf->select.lines = realloc(tf->select.lines, tf->nr_visible_lines * sizeof(text_field_line));
 
 	return 1;
 }
