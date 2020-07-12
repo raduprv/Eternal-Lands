@@ -569,6 +569,8 @@ static int ui_scale_stats_bar_handler(window_info *win)
 			statsinfo[watch_this_stats[i]-1].is_selected = 1;
 	}
 
+	check_text_widths(win, 1);
+
 	return 1;
 }
 
