@@ -9,7 +9,7 @@ description: |
   of several character races but all are equal.
   See http://www.eternal-lands.com/
 grade: stable
-base: core20
+base: core18
 confinement: strict
 type: app
 icon: pkgfiles/snap-package/eternallands.png
@@ -24,7 +24,7 @@ parts:
     stage-packages:
       - libglib2.0-bin
 
-  binary:
+  client:
     source: https://github.com/raduprv/Eternal-Lands
     source-type: git
     # Include for stable release, comment out for dev build, comment out for latest commit dev release
@@ -32,7 +32,7 @@ parts:
     build-packages: [build-essential, libcal3d12-dev, libsdl2-image-dev, libsdl2-net-dev, libsdl2-ttf-dev, libxml2-dev, libopenal-dev, libvorbis-dev, libpng-dev]
     plugin: cmake
     # Add -DVERSION_PREFIX=x.y.z for dev build, remove for release
-    cmake-parameters:  ["-DCMAKE_BUILD_TYPE=release", "-DEXEC=el.linux.bin", "-DVERSION_PREFIX=1.9.5", "-DLOCAL_NLOHMANN_JSON=On", "-DTTF=On", "-DCMAKE_INSTALL_PREFIX=/" ]
+    configflags:  ["-DCMAKE_BUILD_TYPE=release", "-DEXEC=el.linux.bin", "-DVERSION_PREFIX=1.9.5", "-DLOCAL_NLOHMANN_JSON=On", "-DTTF=On" ]
     stage-packages:
       - libglib2.0-0
       - libsdl2-net-2.0-0
@@ -102,4 +102,4 @@ apps:
       - audio-playback
       - desktop
     desktop: bin/eternallands.desktop
-    command: bin/desktop-launch $SNAP/bin/launcher.sh
+    command: desktop-launch $SNAP/bin/launcher.sh $*
