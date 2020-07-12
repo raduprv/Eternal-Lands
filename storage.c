@@ -278,8 +278,9 @@ static int item_cmp(const void *a, const void *b)
 		get_basic_item_description(item_b->id, item_b->image_id));
 }
 
-static void update_item_filter(void)
+static void update_items_in_category(void)
 {
+	// Update the filter
 	if (!disable_storage_filter && (no_storage > 0) && (filter_item_text_size > 0))
 		filter_items_by_description(storage_items_filter, storage_items, filter_item_text, no_storage);
 	else
@@ -289,6 +290,13 @@ static void update_item_filter(void)
 			storage_items_filter[i] = 0;
 	}
 
+	// Make sure dragged items with zero quantity are no longer dragged
+	if ((item_dragged >=0) && (item_dragged < STORAGE_ITEMS_SIZE) && (storage_items[item_dragged].quantity <= 0))
+		item_dragged = -1;
+	if ((storage_item_dragged >=0) && (storage_item_dragged < STORAGE_ITEMS_SIZE) && (storage_items[storage_item_dragged].quantity <= 0))
+		storage_item_dragged = -1;
+
+	// if enabled, sort the items alphabetically by description (if we have one)
 	if ((no_storage > 0) && sort_storage_items)
 		qsort(storage_items, STORAGE_ITEMS_SIZE, sizeof(ground_item), item_cmp);
 }
@@ -321,7 +329,7 @@ void get_storage_items (const Uint8 *in_data, int len)
 					storage_items[i].id = SDL_SwapLE16(*((Uint16*)(&in_data[idx+8])));
 				else
 					storage_items[i].id = unset_item_uid;
-				update_item_filter();
+				update_items_in_category();
 				return;
 			}
 		}
@@ -338,7 +346,7 @@ void get_storage_items (const Uint8 *in_data, int len)
 				storage_items[i].image_id = SDL_SwapLE16(*((Uint16*)(&in_data[idx])));
 				storage_items[i].quantity = SDL_SwapLE32(*((Uint32*)(&in_data[idx+2])));
 				no_storage++;
-				update_item_filter();
+				update_items_in_category();
 				return;
 			}
 		}
@@ -381,7 +389,7 @@ void get_storage_items (const Uint8 *in_data, int len)
 		vscrollbar_set_pos(storage_win, STORAGE_SCROLLBAR_CATEGORIES, cat - storage_categories_display + 1);
 	}
 
-	update_item_filter();
+	update_items_in_category();
 
 	if (selected_category != -1)
 		category_updated();
