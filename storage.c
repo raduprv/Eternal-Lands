@@ -290,9 +290,7 @@ static void update_items_in_category(void)
 			storage_items_filter[i] = 0;
 	}
 
-	// Make sure dragged items with zero quantity are no longer dragged
-	if ((item_dragged >=0) && (item_dragged < STORAGE_ITEMS_SIZE) && (storage_items[item_dragged].quantity <= 0))
-		item_dragged = -1;
+	// Make sure dragged storage items with zero quantity are no longer dragged
 	if ((storage_item_dragged >=0) && (storage_item_dragged < STORAGE_ITEMS_SIZE) && (storage_items[storage_item_dragged].quantity <= 0))
 		storage_item_dragged = -1;
 
