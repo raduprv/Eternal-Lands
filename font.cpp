@@ -95,6 +95,98 @@ TTF_Font* open_font(const std::string& file_name, int point_size)
 namespace eternal_lands
 {
 
+FontOption::FontOption(size_t font_nr): _font_nr(font_nr), _file_name(), _font_name(),
+#ifdef TTF
+	_is_ttf(false),
+#endif
+	_fixed_width(), _failed(false)
+{
+	static const std::array<const char*, 7> file_names = { {
+		"textures/font.dds",
+		"textures/font.dds",
+		"textures/font2.dds",
+		"textures/font3.dds",
+		"textures/font5.dds",
+		"textures/font6.dds",
+		"textures/font7.dds"
+	} };
+
+	std::ostringstream os;
+	if (font_nr > file_names.size())
+	{
+		_failed = true;
+		LOG_ERROR("Invalid font number %zu", font_nr);
+	}
+	else if (font_nr == 0)
+	{
+		_file_name = file_names[font_nr];
+		_font_name = "Type 1 (fixed)";
+	}
+	else
+	{
+		_file_name = file_names[font_nr];
+		size_t begin = _file_name.find_last_of('/') + 1;
+		size_t end = _file_name.find_last_of('.');
+		os << "Type " << font_nr << " - " << _file_name.substr(begin, end);
+		_font_name = os.str();
+	}
+
+	if (!el_file_exists(_file_name.c_str()))
+	{
+		LOG_ERROR("Unable to find font file '%s'", _file_name.c_str());
+		_failed = true;
+	}
+
+	_fixed_width = (font_nr != 1 && font_nr != 2);
+}
+
+#ifdef TTF
+FontOption::FontOption(const std::string& file_name): _font_nr(std::numeric_limits<size_t>::max()),
+	_file_name(file_name), _font_name(), _is_ttf(true), _fixed_width(), _failed(false)
+{
+	TTF_Font *font = open_font(file_name.c_str(), 40);
+	if (!font)
+	{
+		LOG_ERROR("Failed to open TTF font file '%s'", file_name.c_str());
+		_failed = true;
+		return;
+	}
+
+	// Quick check to see if the font is useful
+	if (!TTF_GlyphIsProvided(font, 'A') || !TTF_GlyphIsProvided(font, '!'))
+	{
+		// Nope, can't render in this font
+		TTF_CloseFont(font);
+		LOG_ERROR("Unable to render text with TTF font file '%s'", file_name.c_str());
+		_failed = true;
+		return;
+	}
+
+	std::string name = TTF_FontFaceFamilyName(font);
+	std::string style = TTF_FontFaceStyleName(font);
+
+	_font_name = name + ' ' + style;
+	_fixed_width = (TTF_FontFaceIsFixedWidth(font) != 0);
+
+	TTF_CloseFont(font);
+}
+#endif // TTF
+
+void FontOption::add_select_options(bool add_button) const
+{
+	add_multi_option_with_id("ui_font",    _font_name.c_str(), _file_name.c_str(), add_button);
+	add_multi_option_with_id("chat_font",  _font_name.c_str(), _file_name.c_str(), add_button);
+	add_multi_option_with_id("name_font",  _font_name.c_str(), _file_name.c_str(), add_button);
+	add_multi_option_with_id("book_font",  _font_name.c_str(), _file_name.c_str(), add_button);
+	add_multi_option_with_id("note_font",  _font_name.c_str(), _file_name.c_str(), add_button);
+	add_multi_option_with_id("rules_font", _font_name.c_str(), _file_name.c_str(), add_button);
+	if (is_fixed_width())
+	{
+		add_multi_option_with_id("encyclopedia_font", _font_name.c_str(), _file_name.c_str(),
+			add_button);
+	}
+}
+
 const std::array<float, 3> TextDrawOptions::default_foreground_color = { 1.0f, 1.0f, 1.0f };
 const std::array<float, 3> TextDrawOptions::default_background_color = { 0.0f, 0.0f, 0.0f };
 const std::array<float, 3> TextDrawOptions::default_selection_color = { 1.0f, 0.635f, 0.0f };
@@ -155,23 +247,33 @@ const std::array<int, Font::nr_glyphs> Font::letter_freqs = {
 };
 const ustring Font::ellipsis = reinterpret_cast<const unsigned char*>("...");
 
-Font::Font(const Font& font): _font_name(font.font_name()), _file_name(font.file_name()),
-	_flags(font._flags & ~HAS_TEXTURE), _texture_width(font._texture_width),
+Font::Font(Font&& font): _font_name(font.font_name()), _file_name(font.file_name()),
+	_flags(font._flags), _texture_width(font._texture_width),
 	_texture_height(font._texture_height), _metrics(font._metrics), _block_width(font._block_width),
 	_line_height(font._line_height),
 	_vertical_advance(font._vertical_advance), _font_top_offset(font._font_top_offset),
 	_digit_center_offset(font._digit_center_offset), _password_center_offset(font._password_center_offset),
 	_max_advance(font._max_advance), _max_digit_advance(font._max_digit_advance),
 	_avg_advance(font._avg_advance), _spacing(font._spacing),
-	_scale_x(font._scale_x), _scale_y(font._scale_y), _texture_id() {}
+	_scale_x(font._scale_x), _scale_y(font._scale_y),
+#ifdef TTF
+	_point_size(font._point_size), _outline(font._outline),
+#endif
+	_texture_id(font._texture_id)
+{
+	font._flags &= ~HAS_TEXTURE;
+}
 
-Font::Font(size_t font_nr): _font_name(), _file_name(), _flags(0),
-	_texture_width(256), _texture_height(256), _metrics(),
-	_block_width(font_block_width),
-	_line_height(default_vertical_advance + 1),
+Font::Font(const FontOption& option): _font_name(option.font_name()),
+	_file_name(option.file_name()), _flags(0), _texture_width(256), _texture_height(256), _metrics(),
+	_block_width(font_block_width), _line_height(default_vertical_advance + 1),
 	_vertical_advance(default_vertical_advance), _font_top_offset(0),
-	_digit_center_offset(font_nr == 2 ? 10 : 9), _password_center_offset(0), _max_advance(12),
-	_max_digit_advance(12), _avg_advance(12), _spacing(0), _scale_x(11.0 / 12), _scale_y(1.0),
+	_digit_center_offset(option.font_number() == 2 ? 10 : 9), _password_center_offset(0),
+	_max_advance(12), _max_digit_advance(12), _avg_advance(12), _spacing(0),
+	_scale_x(11.0 / 12), _scale_y(1.0),
+#ifdef TTF
+	_point_size(0), _outline(0),
+#endif
 	_texture_id()
 {
 	static const std::array<int, nr_glyphs> top_1 = {
@@ -199,47 +301,8 @@ Font::Font(size_t font_nr): _font_name(), _file_name(), _flags(0),
 		15, 16, 15, 16, 15, 15
 	};
 	static const std::array<int, 7> asterisk_centers = { 7, 7, 7, 7, 6, 5, 6 };
-	static const std::array<const char*, 7> file_names = { {
-		"textures/font.dds",
-		"textures/font.dds",
-		"textures/font2.dds",
-		"textures/font3.dds",
-		"textures/font5.dds",
-		"textures/font6.dds",
-		"textures/font7.dds"
-	} };
 
-	std::ostringstream os;
-	if (font_nr > file_names.size())
-	{
-		// Invalid number. Set font name so that the button can be shown, but
-		// set FAILED flag so that the font is never actually used.
-		os << "Type " << (font_nr + 1);
-		_font_name = os.str();
-		_flags |= Flags::FAILED;
-
-		LOG_ERROR("Invalid font number %zu", font_nr);
-	}
-	else if (font_nr == 0)
-	{
-		_file_name = file_names[font_nr];
-		_font_name = "Type 1 (fixed)";
-	}
-	else
-	{
-		_file_name = file_names[font_nr];
-		size_t begin = _file_name.find_last_of('/') + 1;
-		size_t end = _file_name.find_last_of('.');
-		os << "Type " << font_nr << " - " << _file_name.substr(begin, end);
-		_font_name = os.str();
-	}
-
-	if (!el_file_exists(_file_name.c_str()))
-	{
-		LOG_ERROR("Unable to find font file '%s'", _file_name.c_str());
-		_flags |= Flags::FAILED;
-	}
-
+	size_t font_nr = option.font_number();
 	std::array<int, nr_glyphs> char_widths;
 	if (font_nr == 1)
 	{
@@ -302,40 +365,16 @@ Font::Font(size_t font_nr): _font_name(), _file_name(), _flags(0),
 }
 
 #ifdef TTF
-Font::Font(const std::string& ttf_file_name): _font_name(), _file_name(), _flags(0),
-	_texture_width(0), _texture_height(0), _metrics(), _block_width(0),
-	_line_height(0), _vertical_advance(0), _font_top_offset(0), _digit_center_offset(0),
-	_password_center_offset(0), _max_advance(0), _max_digit_advance(0), _avg_advance(0),
-	_spacing(0), _scale_x(1.0), _scale_y(1.0)
+Font::Font(const FontOption& option, int height): _font_name(option.font_name()),
+	_file_name(option.file_name()), _flags(IS_TTF), _texture_width(0), _texture_height(0),
+	_metrics(), _block_width(0), _line_height(0), _vertical_advance(0), _font_top_offset(0),
+	_digit_center_offset(0), _password_center_offset(0), _max_advance(0), _max_digit_advance(0),
+	_avg_advance(0), _spacing(0), _scale_x(1.0), _scale_y(1.0), _point_size(),
+	_outline(std::round(float(height) / (font_block_height - 2))), _texture_id()
 {
-	TTF_Font *font = open_font(ttf_file_name.c_str(), ttf_point_size);
-	if (!font)
-	{
-		LOG_ERROR("Failed to open TTF font file '%s'", ttf_file_name.c_str());
-		_flags |= FAILED;
-		return;
-	}
-
-	// Quick check to see if the font is useful
-	if (!TTF_GlyphIsProvided(font, 'A') || !TTF_GlyphIsProvided(font, '!'))
-	{
-		// Nope, can't render in this font
-		TTF_CloseFont(font);
-		LOG_ERROR("Unable to render text with TTF font file '%s'", ttf_file_name.c_str());
-		_flags |= FAILED;
-		return;
-	}
-
-	std::string name = TTF_FontFaceFamilyName(font);
-	std::string style = TTF_FontFaceStyleName(font);
-
-	_font_name = name + ' ' + style;
-	_file_name = ttf_file_name;
-	_flags |= Flags::IS_TTF;
-	if (TTF_FontFaceIsFixedWidth(font))
+	_point_size = find_point_size(height);
+	if (option.is_fixed_width())
 		_flags |= Flags::FIXED_WIDTH;
-
-	TTF_CloseFont(font);
 }
 #endif
 
@@ -1431,10 +1470,9 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, int outline_size,
 	return true;
 }
 
-int Font::find_point_size()
+int Font::find_point_size(int height)
 {
-	int target = (font_block_height - 2) * get_global_scale();
-	int min = 0, max = 2 * font_block_height * get_global_scale();
+	int min = 0, max = 2 * height;
 	while (max > min + 1)
 	{
 		int mid = (min + max) / 2;
@@ -1445,9 +1483,9 @@ int Font::find_point_size()
 		int size = TTF_FontLineSkip(font);
 		TTF_CloseFont(font);
 
-		if (size == target)
+		if (size == height)
 			return mid;
-		else if (size < target)
+		else if (size < height)
 			min = mid;
 		else
 			max = mid;
@@ -1468,9 +1506,7 @@ bool Font::build_texture_atlas()
 
 	// First try to interpret ttf_file_name as a path relative to ttf_directory. If that fails,
 	// try as an absolute path.
-	int point_size = find_point_size();
-	if (point_size == 0)
-		point_size = ttf_point_size;
+	int point_size = _point_size ? _point_size : ttf_point_size;
 	TTF_Font *font = open_font(_file_name.c_str(), point_size);
 	if (!font)
 	{
@@ -1485,9 +1521,9 @@ bool Font::build_texture_atlas()
 	bool draw_shadow = link_version->major > 2
 		|| (link_version->major == 2 && link_version->minor > 0)
 		|| (link_version->major == 2 && link_version->minor == 0 && link_version->patch >= 15);
-	int outline_size = draw_shadow ? std::round(get_global_scale()) : 0;
+	int outline_size = draw_shadow ? _outline : 0;
 
-	int size = TTF_FontLineSkip(font); //+ 2 * outline_size;
+	int size = TTF_FontLineSkip(font);
 	int width = next_power_of_two(font_chars_per_line * size);
 	// Keep two rows of empty pixels (one top, one bottom) around the glyphs for systems with an
 	// alternative view on texture coordinates (i.e. off by one pixel). Perhaps they may lose a
@@ -1564,21 +1600,6 @@ bool Font::build_texture_atlas()
 
 #endif // TTF
 
-void Font::add_select_options(bool add_button) const
-{
-	add_multi_option_with_id("ui_font",    _font_name.c_str(), _file_name.c_str(), add_button);
-	add_multi_option_with_id("chat_font",  _font_name.c_str(), _file_name.c_str(), add_button);
-	add_multi_option_with_id("name_font",  _font_name.c_str(), _file_name.c_str(), add_button);
-	add_multi_option_with_id("book_font",  _font_name.c_str(), _file_name.c_str(), add_button);
-	add_multi_option_with_id("note_font",  _font_name.c_str(), _file_name.c_str(), add_button);
-	add_multi_option_with_id("rules_font", _font_name.c_str(), _file_name.c_str(), add_button);
-	if (is_fixed_width())
-	{
-		add_multi_option_with_id("encyclopedia_font", _font_name.c_str(), _file_name.c_str(),
-			add_button);
-	}
-}
-
 int Font::calc_average_advance()
 {
 	int total = std::accumulate(letter_freqs.begin(), letter_freqs.end(), 0);
@@ -1595,22 +1616,32 @@ std::array<float, NR_FONT_CATS> FontManager::font_scales
 
 bool FontManager::initialize()
 {
+    _options.clear();
 	_fonts.clear();
 
 	for (size_t i = 0; i < _nr_bundled_fonts; ++i)
-		_fonts.emplace_back(i);
+	{
+		FontOption option(i);
+		if (!option.failed())
+			_options.push_back(std::move(option));
+	}
+	if (_options[0].failed())
+		return false;
 #ifdef TTF
 	initialize_ttf();
 #endif
-
 	add_select_options();
 
-	return !_fonts[0].failed();
+	_fonts.insert(std::make_pair(0, Font(_options[0])));
+
+	return true;
 }
 
 #ifdef TTF
 void FontManager::initialize_ttf()
 {
+	static const char* patterns[] = { "*.ttf", "*.otf" };
+
 	if (!use_ttf)
 		return;
 
@@ -1621,7 +1652,7 @@ void FontManager::initialize_ttf()
 		return;
 	}
 
-	static const char* patterns[] = { "*.ttf", "*.otf" };
+	size_t nr_existing_fonts = _options.size();
 	for (const char* pattern: patterns)
 	{
 		search_files_and_apply(ttf_directory, pattern,
@@ -1632,15 +1663,15 @@ void FontManager::initialize_ttf()
 					fname = fname_ptr + dir_name_len;
 				else
 					fname = fname_ptr;
-				Font font(fname);
-				if (!font.failed())
-					FontManager::get_instance()._fonts.push_back(std::move(font));
+				FontOption option(fname);
+				if (!option.failed())
+					FontManager::get_instance()._options.push_back(std::move(option));
 			}, 1);
 	}
 
 	// Sort TTF fonts by font name, but keep them after EL bundled fonts
-	std::sort(_fonts.begin() + _nr_bundled_fonts, _fonts.end(),
-		[](const Font& f0, const Font& f1) { return f0.font_name() < f1.font_name(); });
+	std::sort(_options.begin() + nr_existing_fonts, _options.end(),
+		[](const FontOption& f0, const FontOption& f1) { return f0.font_name() < f1.font_name(); });
 }
 #endif // TTF
 
@@ -1655,12 +1686,12 @@ void FontManager::add_select_options(bool add_button)
 	clear_multiselect_var("encyclopedia_font");
 
 	_fixed_width_idxs.clear();
-	for (size_t i = 0; i < _fonts.size(); ++i)
+	for (size_t i = 0; i < _options.size(); ++i)
 	{
-		const Font& font = _fonts[i];
-		if (font.is_fixed_width())
+		const FontOption& option = _options[i];
+		if (option.is_fixed_width())
 			_fixed_width_idxs.push_back(i);
-		font.add_select_options(add_button);
+		option.add_select_options(add_button);
 	}
 
 	if (add_button)
@@ -1678,47 +1709,77 @@ void FontManager::add_select_options(bool add_button)
 	}
 }
 
-Font& FontManager::get(Category cat)
+Font& FontManager::get(Category cat, float text_zoom)
 {
-	Font *result;
-
-	if (font_idxs[cat] < _fonts.size())
-	{
-		result = &_fonts[font_idxs[cat]];
-	}
-	else
+	size_t idx = font_idxs[cat];
+	if (idx > _options.size())
 	{
 #ifdef TTF
 		// Invalid font number
-		if (cat == CONFIG_FONT && _config_font_backup)
+		if (cat == CONFIG_FONT)
 		{
-			// TTF was disabled, and the settings window was using a TTF font. Return the
-			// backup copy of the font.
-			result = _config_font_backup;
+			// Probably TTF was disabled, and the settings window was using a TTF font. Check if
+			// it is still available
+			int height = std::round((Font::font_block_height - 2) * text_zoom * font_scales[cat]);
+			uint32_t key = ((height & 0xffff) << 16) | 0xffff;
+			auto it = _fonts.find(key);
+			if (it != _fonts.end())
+				return it->second;
+			else
+{
+printf("huh. not found\n");
+				font_idxs[cat] = idx = 0;
+}
 		}
 		else
 		{
-			font_idxs[cat] = 0;
-			result = &_fonts[0];
+			font_idxs[cat] = idx = 0;
 		}
-#else
-		font_idxs[cat] = 0;
-		result = &_fonts[0];
-#endif
+#else // TTF
+		font_idxs[cat] = idx = 0;
+#endif // TTF
 	}
 
+#ifdef TTF
+	// Bundled fonts come in only one size, so always use 0 for the line height and rely on scaling
+	// to display the correct size.
+	int height = _options[idx].is_ttf()
+		? std::round((Font::font_block_height - 2) * text_zoom * font_scales[cat])
+		: 0;
+	// It is unlikely that there will be more than 64k fonts, or that the line height wil be more
+	// than 64k pixels, so combine the two values into a single key 32-bit key.
+	uint32_t key = ((height & 0xffff) << 16) | (idx & 0xffff);
+	auto it = _fonts.find(key);
+	if (it == _fonts.end())
+	{
+		// The font has not been loaded yet
+		Font font = _options[idx].is_ttf() ? Font(_options[idx], height) : Font(_options[idx]);
+		it = _fonts.insert(std::make_pair(key, std::move(font))).first;
+	}
+#else // TTF
+	uint32_t key = idx;
+	auto it = _fonts.find(idx);
+	if (it == _fonts.end())
+	{
+		// The font has not been loaded yet
+		Font font = Font(_options[idx]);
+		it = _fonts.insert(std::make_pair(key, font)).first;
+	}
+#endif // TTF
+
+	Font *result = &it->second;
 	if (result->failed())
 	{
 		// Failed to load previously, switch to fixed
 		font_idxs[cat] = 0;
-		result = &_fonts[0];
+		return _fonts.at(0);
 	}
 
 	if (!result->has_texture() && !result->load_texture())
 	{
 		// Failed to load or generate texture, switch to fixed
 		font_idxs[cat] = 0;
-		result = &_fonts[0];
+		return _fonts.at(0);
 	}
 
 	return *result;
@@ -1731,38 +1792,49 @@ void FontManager::disable_ttf()
 	if (!is_initialized())
 		return;
 
+	size_t config_font_idx = font_idxs[CONFIG_FONT];
+
 	// Save the file names of the fonts currently in use
 	for (size_t i = 0; i < NR_FONT_CATS; ++i)
 	{
 		size_t font_num = font_idxs[i];
-		if (font_num >= _fonts.size())
+		if (font_num >= _options.size())
 			// Invalid index, possibly configuration font after disabling TTF previously
 			font_num = 0;
 
-		_saved_font_files[i] = _fonts[font_num].file_name();
-		if (_fonts[font_num].is_ttf())
+		_saved_font_files[i] = _options[font_num].file_name();
+		if (_options[font_num].is_ttf())
 		{
-			if (i == CONFIG_FONT)
-			{
-				// Darn, the setting window is currently using a TTF font. Copy this font to
-				// a separate variable, and set the font index of the CONFIG_FONT category to
-				// an invalid value to indicate this variable should be used. This is only until
-				// the settings window is closed, when reopened it will use the new UI font.
-				if (_config_font_backup)
-					delete _config_font_backup;
-				_config_font_backup = new Font(_fonts[font_num]);
-				font_idxs[i] = std::numeric_limits<size_t>::max();
-			}
-			else
-			{
-				// Revert to default bundled font
-				font_idxs[i] = _default_font_idxs[i];
-			}
+			// Revert to default bundled font
+			font_idxs[i] = (i == CONFIG_FONT ? 0xffff : _default_font_idxs[i]);
 		}
 	}
 
+	// Remove the font options
+	auto first_ttf = std::find_if(_options.begin(), _options.end(),
+		[](const FontOption& opt) { return opt.is_ttf(); });
+	_options.erase(first_ttf, _options.end());
+
 	// Remove the fonts themselves
-	_fonts.erase(_fonts.begin() + _nr_bundled_fonts, _fonts.end());
+	std::unordered_map<uint32_t, Font> config_fonts;
+	for (auto it = _fonts.begin(); it != _fonts.end(); )
+	{
+		if (it->second.is_ttf())
+		{
+			if ((it->first & 0xffff) == config_font_idx)
+			{
+				config_fonts.insert(std::make_pair((it->first & 0xffff0000) | 0xffff, std::move(it->second)));
+			}
+			it = _fonts.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+	// Reinstate config font with invalid index
+	for (auto it = config_fonts.begin(); it != config_fonts.end(); ++it)
+		_fonts.insert(std::make_pair(it->first, std::move(it->second)));
 
 	// Remove the TTF font options from the selection
 	add_select_options(true);
@@ -1790,10 +1862,10 @@ void FontManager::enable_ttf()
 		const std::string& fname = _saved_font_files[i];
 		if (!fname.empty())
 		{
-			std::vector<Font>::const_iterator it = std::find_if(_fonts.begin(), _fonts.end(),
-				[fname](const Font& font) { return font.file_name() == fname; });
-			if (it != _fonts.end() && it->is_ttf())
-				font_idxs[i] = it - _fonts.begin();
+			std::vector<FontOption>::const_iterator it = std::find_if(_options.begin(), _options.end(),
+				[fname](const FontOption& opt) { return opt.file_name() == fname; });
+			if (it != _options.end() && it->is_ttf())
+				font_idxs[i] = it - _options.begin();
 		}
 	}
 

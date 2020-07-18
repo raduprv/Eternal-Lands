@@ -90,6 +90,7 @@ typedef enum
 
 #include <array>
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include <SDL_types.h>
 #ifdef TTF
@@ -105,6 +106,84 @@ namespace eternal_lands
  * \brief Type alias for a byte string, as used in many places in EL
  */
 typedef std::basic_string<unsigned char> ustring;
+
+/*!
+ * \ingroup text_font
+ * \brief Class for font options.
+ *
+ * Class FontOption holds the information necessary to display a font option to the user: the font
+ * name, its file name, the type of font and whether it is a fixed width font.
+ */
+class FontOption
+{
+public:
+	/*!
+	 * \brief Constructor
+	 *
+	 * Create a new font option for the EL bundled font with index \a font_nr. Currently there are
+	 * 7 such fonts available:
+	 * - 0: textures/font.dds (fixed width)
+	 * - 1: textures/font.dds (variable width)
+	 * - 2: textures/font2.dds
+	 * - 3: textures/font3.dds
+	 * - 4: textures/font5.dds
+	 * - 5: textures/font6.dds
+	 * - 6: textures/font7.dds
+	 *
+	 * \param font_nr The number of the bundled font.
+	 */
+	FontOption(size_t font_nr);
+#ifdef TTF
+	/*!
+	 * \brief Constructor
+	 *
+	 * Create a new font option for the TrueType font in file \a file_name.
+	 *
+	 * \param file_name The name of the file of the TrueType font.
+	 */
+    FontOption(const std::string& file_name);
+#endif
+
+	//! Return the font number of a bundled font
+	size_t font_number() const { return _font_nr; }
+	//! Return the file name of the font
+    const std::string& file_name() const { return _file_name; }
+    //! Return the display name of the font
+    const std::string& font_name() const { return _font_name; }
+#ifdef TTF
+	//! Return whether the font is a TrueType font
+    bool is_ttf() const { return _is_ttf; }
+#endif
+	//! Return whether the font is fixed width
+    bool is_fixed_width() const { return _fixed_width; }
+    //! Return \c true if the font file cannot be found, or the font is otherwise invalid
+    bool failed() const { return _failed; }
+
+	/*!
+	 * \brief Add this font to the multi-selects
+	 *
+	 * Add this font option to the various font selections in the settings window. If the optional
+	 * parameter \a add_button is \c true, a button for the font is immediately added to the
+	 * corresponding widget.
+	 */
+	void add_select_options(bool add_button=false) const;
+
+private:
+	// Font number, only for bundled fonts
+	size_t _font_nr;
+	//! File name of the font file or texture image
+    std::string _file_name;
+	//! Return the display name of the font
+    std::string _font_name;
+#ifdef TTF
+	//! \c true if this a a True Type font
+    bool _is_ttf;
+#endif
+	//! \c true if this ais a monospaced font
+    bool _fixed_width;
+	//! \c true if the font file does not exist, or the font is otherwise invalid
+    bool _failed;
+};
 
 /*!
  * \ingroup text_font
@@ -371,42 +450,37 @@ class Font
 {
 public:
 	/*!
-	 * Copy constructor
+	 * Move constructor
 	 *
 	 * Create a new font as a copy of \a font.
-	 * \note This constructor does not copy the font texture, a new one will be loaded or generated
-	 * when the font is used.
+	 * \note This constructor does takes ownership of the font texture; the texture in \a font
+	 * is invalidated.
+	 *
+	 * \param font The font to move into this font
 	 */
-	Font(const Font& font);
+	Font(Font&& font);
 	/*!
 	 * \brief Create a new font
 	 *
-	 * Initialize a new internal font. This sets the parameters for the \a font_nr
-	 * font bundled with EL, but does not yet load the font texture because it
-	 * is called before OpenGL is initialized. There are 7 fonts available,
-	 * they are:
-	 * - 0: textures/font.dds (fixed width)
-	 * - 1: textures/font.dds (variable width)
-	 * - 2: textures/font2.dds
-	 * - 3: textures/font3.dds
-	 * - 4: textures/font5.dds
-	 * - 5: textures/font6.dds
-	 * - 6: textures/font7.dds
+	 * Initialize a new internal font. This sets the parameters for the bundled font with the font
+	 * number stored in \a option, but does not yet load the font texture because it is called
+	 * before OpenGL is initialized.
 	 *
-	 * \param font_nr The number of the EL bundled font
+	 * \param option  The font option for the font to load, holding font number, file and font name
 	 */
-	Font(size_t font_nr);
+	Font(const FontOption& option);
 #ifdef TTF
 	/*!
 	 * \brief Create a new font.
 	 *
-	 * Create a new font description from the TTF font file specified by
-	 * \a ttf_file_name. This only loads the font description, and does not yet
-	 * generate a texture.
+	 * Create a new font for the TTF font option in \a option, for text with line height \a height
+	 * pixels. This only copies the font description, and determines the point size. It does not
+	 * yet generate a texture.
 	 *
-	 * \param ttf_file_name The file name of the TTF font to load.
+	 * \param option The font option for the font, holding file and font name
+	 * \param height The line height of the opened font
 	 */
-	Font(const std::string& ttf_file_name);
+	Font(const FontOption& option, int height);
 #endif
 	//! Destructor
 	~Font();
@@ -853,6 +927,10 @@ private:
 	//! Scale factor in the vertical direction
 	float _scale_y;
 #ifdef TTF
+	//! Point size to open the font file with
+	int _point_size;
+	//! Outline size in pixels
+	int _outline;
 	union
 	{
 		//! ID of the texture for this font in the texture cache.
@@ -1040,13 +1118,12 @@ private:
 	/*!
 	 * \brief Find an appropriate font size
 	 *
-	 * Find a point size for this font which has the correct line height for the normal font size,
-	 * taking the global UI scaling factor into account. This does not take any font-specific
-	 * or window-specific scaling into account.
+	 * Find a point size for this font such that the line height is \a height pixels.
 	 *
-	 * \return A point size for this font which gives approximately the correct line height
+	 * \param height The line height to target
+	 * \return A point size for this font which gives the correct line height, or 0 on failure
 	 */
-	int find_point_size();
+	int find_point_size(int height);
 	/*!
 	 * \brief Build a texture for a TTF font
 	 *
@@ -1067,15 +1144,6 @@ private:
 	 * \return The average width
 	 */
 	int calc_average_advance();
-
-	/*!
-	 * \brief Add this font to the multi-selects
-	 *
-	 * Add this font as an option to the various font selections in the
-	 * settings window. If the optional parameter \a add_button is \c true,
-	 * a button for the font is immediately added to the corresponding widget.
-	 */
-	void add_select_options(bool add_button=false) const;
 };
 
 /*!
@@ -1108,7 +1176,7 @@ public:
 	}
 
 	//! Check if this font manager has been initialized
-	bool is_initialized() const { return !_fonts.empty(); }
+	bool is_initialized() const { return !_options.empty(); }
 	/*!
 	 * \brief Initialize the font manager.
 	 *
@@ -1152,7 +1220,7 @@ public:
 	 */
 	int width_spacing(Category cat, unsigned char c, float text_zoom=1.0)
 	{
-		return get(cat).width_spacing(c, text_zoom * font_scales[cat]);
+		return get(cat, text_zoom).width_spacing(c, text_zoom * font_scales[cat]);
 	}
 	/*!
 	 * \brief The maximum width of a single character
@@ -1167,7 +1235,7 @@ public:
 	 */
 	int max_width_spacing(Category cat, float text_zoom=1.0)
 	{
-		return get(cat).max_width_spacing(text_zoom * font_scales[cat]);
+		return get(cat, text_zoom).max_width_spacing(text_zoom * font_scales[cat]);
 	}
 	/*!
 	 * \brief Get the average character width, plus spacing
@@ -1183,7 +1251,7 @@ public:
 	 */
 	int average_width_spacing(Category cat, float text_zoom=1.0)
 	{
-		return get(cat).average_width_spacing(text_zoom * font_scales[cat]);
+		return get(cat, text_zoom).average_width_spacing(text_zoom * font_scales[cat]);
 	}
 	/*!
 	 * \brief The maximum width of a single digit character
@@ -1198,7 +1266,7 @@ public:
 	 */
 	int max_digit_width_spacing(Category cat, float text_zoom=1.0)
 	{
-		return get(cat).max_digit_width_spacing(text_zoom * font_scales[cat]);
+		return get(cat, text_zoom).max_digit_width_spacing(text_zoom * font_scales[cat]);
 	}
 	/*!
 	 * \brief Calculate the width of a string
@@ -1218,7 +1286,7 @@ public:
 	int line_width(Category cat, const unsigned char* text, size_t len,
 		float text_zoom=1.0)
 	{
-		return get(cat).line_width(text, len, text_zoom * font_scales[cat]);
+		return get(cat, text_zoom).line_width(text, len, text_zoom * font_scales[cat]);
 	}
 	/*!
 	 * \brief The height of a text line
@@ -1236,7 +1304,7 @@ public:
 	 */
 	int line_height(Category cat, float text_zoom=1.0)
 	{
-		return get(cat).height(text_zoom * font_scales[cat]);
+		return get(cat, text_zoom).height(text_zoom * font_scales[cat]);
 	}
 	/*!
 	 * \brief Get the vertical advancement after a line.
@@ -1251,7 +1319,7 @@ public:
 	 */
 	int vertical_advance(Category cat, float text_zoom=1.0, float line_spacing=1.0)
 	{
-		return get(cat).vertical_advance(text_zoom * font_scales[cat], line_spacing);
+		return get(cat, text_zoom).vertical_advance(text_zoom * font_scales[cat], line_spacing);
 	}
 	/*!
 	 * \brief Calculate the number of lines that fit.
@@ -1268,7 +1336,7 @@ public:
 	 */
 	int max_nr_lines(Category cat, int max_height, float text_zoom, float line_spacing=1.0)
 	{
-		return get(cat).max_nr_lines(max_height, text_zoom * font_scales[cat], line_spacing);
+		return get(cat, text_zoom).max_nr_lines(max_height, text_zoom * font_scales[cat], line_spacing);
 	}
 	/*!
 	 * \brief Compute the height of a block of text
@@ -1284,7 +1352,7 @@ public:
 	 */
 	int text_height(font_cat cat, int nr_lines, float text_zoom, float line_spacing=1.0)
 	{
-		return get(cat).text_height(nr_lines, text_zoom * font_scales[cat], line_spacing);
+		return get(cat, text_zoom).text_height(nr_lines, text_zoom * font_scales[cat], line_spacing);
 	}
 	/*!
 	 * \brief Calculate the dimensions of a block of text
@@ -1304,7 +1372,7 @@ public:
 	std::pair<int, int> dimensions(Category cat, const unsigned char* text, size_t len,
 		float text_zoom, float line_spacing=1.0)
 	{
-		return get(cat).dimensions(text, len, text_zoom * font_scales[cat], line_spacing);
+		return get(cat, text_zoom).dimensions(text, len, text_zoom * font_scales[cat], line_spacing);
 	}
 
 	/*!
@@ -1321,7 +1389,7 @@ public:
 	 */
 	int center_offset(Category cat, const unsigned char* text, size_t len, float text_zoom)
 	{
-		return get(cat).center_offset(text, len, text_zoom * font_scales[cat]);
+		return get(cat, text_zoom).center_offset(text, len, text_zoom * font_scales[cat]);
 	}
 	/*!
 	 * \brief Get vertical coordinates
@@ -1337,7 +1405,7 @@ public:
 	 */
 	std::pair<int, int> top_bottom(Category cat, const unsigned char* text, size_t len, float text_zoom)
 	{
-		return get(cat).top_bottom(text, len, text_zoom * font_scales[cat]);
+		return get(cat, text_zoom).top_bottom(text, len, text_zoom * font_scales[cat]);
 	}
 
 
@@ -1368,7 +1436,8 @@ public:
 		size_t text_len, const TextDrawOptions& options, int cursor = -1, float *max_line_width = nullptr)
 	{
 		TextDrawOptions cat_options = TextDrawOptions(options).scale_zoom(font_scales[cat]);
-		return get(cat).reset_soft_breaks(text, text_len, cat_options, cursor, max_line_width);
+		return get(cat, options.zoom())
+			.reset_soft_breaks(text, text_len, cat_options, cursor, max_line_width);
 	}
 	/*!
 	 * \brief Recompute where the line breaks in a string should occur
@@ -1391,7 +1460,7 @@ public:
 		const TextDrawOptions& options)
 	{
 		TextDrawOptions cat_options = TextDrawOptions(options).scale_zoom(font_scales[cat]);
-		return get(cat).reset_soft_breaks(text, cat_options);
+		return get(cat, options.zoom()).reset_soft_breaks(text, cat_options);
 	}
 
 	/*!
@@ -1414,7 +1483,7 @@ public:
 		const TextDrawOptions &options, size_t sel_begin=0, size_t sel_end=0)
 	{
 		TextDrawOptions cat_options = TextDrawOptions(options).scale_zoom(font_scales[cat]);
-		get(cat).draw(text, len, x, y, cat_options, sel_begin, sel_end);
+		get(cat, options.zoom()).draw(text, len, x, y, cat_options, sel_begin, sel_end);
 	}
 	/*!
 	 * \brief Draws messages in a buffer to the screen
@@ -1444,7 +1513,7 @@ public:
 		const TextDrawOptions &options, ssize_t cursor, select_info* select)
 	{
 		TextDrawOptions cat_options = TextDrawOptions(options).scale_zoom(font_scales[cat]);
-		get(cat).draw_messages(msgs, msgs_size, x, y, filter, msg_start, offset_start,
+		get(cat, options.zoom()).draw_messages(msgs, msgs_size, x, y, filter, msg_start, offset_start,
 			cat_options, cursor, select);
 	}
 	/*!
@@ -1465,20 +1534,20 @@ public:
 		const TextDrawOptions& options)
 	{
 		TextDrawOptions cat_options = TextDrawOptions(options).scale_zoom(font_scales[cat]);
-		get(cat).draw_console_separator(x_space, y, cat_options);
+		get(cat, options.zoom()).draw_console_separator(x_space, y, cat_options);
 	}
 #ifdef ELC
 #ifndef MAP_EDITOR2
 	void draw_ortho_ingame_string(const unsigned char* text, size_t len,
 		float x, float y, float z, int max_lines, float zoom_x, float zoom_y)
 	{
-		get(NAME_FONT).draw_ortho_ingame_string(text, len, x, y, z, max_lines,
+		get(NAME_FONT, zoom_y).draw_ortho_ingame_string(text, len, x, y, z, max_lines,
 			zoom_x * font_scales[NAME_FONT], zoom_y * font_scales[NAME_FONT]);
 	}
 	void draw_ingame_string(const unsigned char* text, size_t len,
 		float x, float y, int max_lines, float zoom_x, float zoom_y)
 	{
-		get(CHAT_FONT).draw_ingame_string(text, len, x, y, max_lines,
+		get(CHAT_FONT, zoom_y).draw_ingame_string(text, len, x, y, max_lines,
 			zoom_x * font_scales[CHAT_FONT], zoom_y * font_scales[CHAT_FONT]);
 	}
 #endif // !MAP_EDITOR_2
@@ -1511,8 +1580,10 @@ private:
 	//! The fonts to use by default for each category
 	static const std::array<size_t, NR_FONT_CATS> _default_font_idxs;
 
-	//! The list of known fonts
-	std::vector<Font> _fonts;
+	//! The list of known font options
+	std::vector<FontOption> _options;
+	//! Map from font number and line height to actual font
+	std::unordered_map<uint32_t, Font> _fonts;
 	//! Lookup table mapping indices of fixed width fonts to indices in the _fonts array
 	std::vector<size_t> _fixed_width_idxs;
 #ifdef TTF
@@ -1523,12 +1594,6 @@ private:
 	 * window.
 	 */
 	std::array<std::string, NR_FONT_CATS> _saved_font_files;
-	/*!
-	 * Copy of the configuration font. This is only set and used when TTF is disabled, to keep
-	 * the current font settings in the settings window available, even when it is currently
-	 * set to a TTF font.
-	 */
-	Font *_config_font_backup;
 #endif
 
 	/*!
@@ -1536,21 +1601,14 @@ private:
 	 *
 	 * Create a new font manager, without fonts to manage so far.
 	 */
-	FontManager(): _fonts(), _fixed_width_idxs()
+	FontManager(): _options(), _fonts(), _fixed_width_idxs()
 #ifdef TTF
-		, _saved_font_files(), _config_font_backup(nullptr)
+		, _saved_font_files()
 #endif
 		{}
 	// Disallow copying, since this is a singleton class
 	FontManager(const FontManager&) = delete;
 	FontManager& operator=(const FontManager&) = delete;
-	//! Destructor
-	~FontManager()
-	{
-#ifdef TTF
-		if (_config_font_backup) delete _config_font_backup;
-#endif
-	}
 
 	/*!
 	 * \brief Initialize TrueType fonts
@@ -1583,13 +1641,14 @@ private:
 	/*!
 	 * \brief Load a font.
 	 *
-	 * Get the font for font category \a cat. If this font fails to load,
-	 * switch to fixed font 1.
+	 * Get the font for font category \a cat and text scale factor \a zoom. If this font fails to
+	 * load, switch to fixed font 1.
 	 *
-	 * \param cat The font category for which to load a font.
+	 * \param cat       The font category for which to load a font.
+	 * \param text_zoom The scale factor for the text
 	 * \return Reference to the font itself.
 	 */
-	Font& get(Category cat);
+	Font& get(Category cat, float text_zoom);
 };
 
 } // namespace eternal_lands
