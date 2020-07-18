@@ -115,6 +115,7 @@ void update_window_scale(window_info *win, float scale_factor)
 	else
 	{
 		win->current_scale = 1.0;
+		win->current_scale_small = win->current_scale * DEFAULT_SMALL_RATIO;
 		win->box_size = ELW_BOX_SIZE;
 		win->small_font_max_len_x = get_max_char_width_zoom(win->font_category, DEFAULT_SMALL_RATIO);
 		win->small_font_len_y = get_line_height(win->font_category, DEFAULT_SMALL_RATIO);
