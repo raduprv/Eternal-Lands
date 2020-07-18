@@ -3099,24 +3099,10 @@ int text_field_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x
 	}
 
 	res = widget_add (window_id, wid, OnInit, x, y, lx, ly, Flags, size, &text_field_type, T, NULL);
+	// In addition to setting the font category, the call to widget_set_font_cat() also sets
+	// the number of visible lines, and allocates T->select.lines with the correct number of lines.
 	widget_set_font_cat(window_id, wid, fcat);
-
-	if (buf != NULL)
-	{
-		// We need to set the correct nr of lines if we want the
-		// scrollbar to work, but we couldn't do this earlier, since we
-		// need the widget itself which was only just created.
-		widget_list *w = widget_find (window_id, wid);
-		if (w != NULL)
-		{
-			int nr_lines = rewrap_message(buf, w->fcat, w->size,
-				lx - 2*x_space - T->scrollbar_width, &T->cursor);
-			_text_field_set_nr_visible_lines (w);
-			_text_field_set_nr_lines (w, nr_lines);
-			T->select.lines = (text_field_line*) calloc(T->nr_visible_lines, sizeof(text_field_line));
-			T->select.sm = T->select.em = T->select.sc = T->select.ec = -1;
-		}
-	}
+	T->select.sm = T->select.em = T->select.sc = T->select.ec = -1;
 
 	/* on the first occurance create the editting context menu */
 	/* maintain a activation entry for each widget so they can be removed or modified */
