@@ -1640,7 +1640,7 @@ bool FontManager::initialize()
 #ifdef TTF
 void FontManager::initialize_ttf()
 {
-	static const char* patterns[] = { "*.ttf", "*.otf" };
+	static const char* patterns[] = { "*.ttf", "*.ttc", "*.otf" };
 
 	if (!use_ttf)
 		return;
