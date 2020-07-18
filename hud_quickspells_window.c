@@ -707,11 +707,11 @@ void add_quickspell(void)
 // if relocatable, save the position and options to the el.cfg file
 void get_quickspell_options(unsigned int *options, unsigned int *position)
 {
-	if (quickspells_relocatable && quickspell_win >= 0 && quickspell_win < windows_list.num_windows)
-	{
+	if (quickspell_win >= 0 && quickspell_win < windows_list.num_windows)
 		*position = windows_list.window[quickspell_win].cur_x | (windows_list.window[quickspell_win].cur_y << 16);
-		*options = (quickspells_dir & 1) | ((quickspells_moveable & 1) << 1);
-	}
+	else
+		*position = saved_quickspells_x | (saved_quickspells_y << 16);
+	*options = (quickspells_dir & 1) | ((quickspells_moveable & 1) << 1);
 }
 
 
